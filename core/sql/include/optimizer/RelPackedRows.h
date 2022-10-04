@@ -37,7 +37,7 @@
 ******************************************************************************
 */
 
-#include "RelExpr.h"
+#include "optimizer/RelExpr.h"
 #include "PackedColDesc.h"
 #include "common/NAString.h"
 

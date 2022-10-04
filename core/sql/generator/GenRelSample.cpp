@@ -21,9 +21,9 @@
 // @@@ END COPYRIGHT @@@
 **********************************************************************/
 #include "GroupAttr.h"
-#include "AllRelExpr.h"
+#include "optimizer/AllRelExpr.h"
 #include "RelSample.h"
-#include "Generator.h"
+#include "generator/Generator.h"
 #include "GenExpGenerator.h"
 #include "exp/ExpCriDesc.h"
 #include "comexe/ComTdbSample.h"

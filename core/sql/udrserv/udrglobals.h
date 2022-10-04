@@ -61,7 +61,7 @@
 // Forward declarations
 //
 #include "LmError.h"
-#include "ComCGroup.h"
+#include "common/ComCGroup.h"
 class LmLanguageManager;
 class LmLanguageManagerJava;
 class LmJavaOptions;

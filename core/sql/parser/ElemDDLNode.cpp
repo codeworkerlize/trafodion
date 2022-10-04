@@ -47,15 +47,15 @@
 #include "common/BaseTypes.h"
 #include "common/ComASSERT.h"
 #include "export/ComDiags.h"
-#include "ComOperators.h"
-#include "ComLocationNames.h"
+#include "common/ComOperators.h"
+#include "common/ComLocationNames.h"
 #include "ElemDDLAlterTableMove.h"
 #include "ElemDDLAuthSchema.h"
 #include "ElemDDLLibClientFilename.h"
 #include "ElemDDLLibClientName.h"
 #include "ElemDDLLibPathName.h"
 #include "ElemDDLColNameList.h"
-#include "ElemDDLGrantee.h"
+#include "parser/ElemDDLGrantee.h"
 #include "ElemDDLGranteeArray.h"
 #include "ElemDDLKeyValue.h"
 #include "ElemDDLLocation.h"
@@ -72,24 +72,24 @@
 #include "ElemDDLWithGrantOption.h"
 #include "ElemDDLIndexPopulateOption.h"
 #include "ElemDDLIndexScopeOption.h"
-#include "ElemDDLQualName.h"
+#include "parser/ElemDDLQualName.h"
 #include "ElemDDLLoggable.h"
 #include "ElemDDLLobAttrs.h"
 #include "ElemDDLDivisionClause.h"
 #include "ElemDDLSaltOptions.h"
 #include "ElemDDLReplicateClause.h"
 #include "ElemDDLTableFeature.h"
-#include "ElemDDLHbaseOptions.h"
+#include "parser/ElemDDLHbaseOptions.h"
 #include "ElemDDLFileAttrMisc.h"
-#include "ElemDDLGroup.h"
-#include "ItemExpr.h"
+#include "parser/ElemDDLGroup.h"
+#include "optimizer/ItemExpr.h"
 #include "optimizer/ItemColRef.h"
 #ifndef   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
 #include "parser/SqlParserGlobals.h"
 
-#include "OptimizerSimulator.h"
+#include "optimizer/OptimizerSimulator.h"
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLNode

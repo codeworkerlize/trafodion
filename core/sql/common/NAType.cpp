@@ -40,7 +40,7 @@
 #include "common/NumericType.h"
 #include "common/CharType.h"
 #include "common/MiscType.h"
-#include "CompositeType.h"
+#include "common/CompositeType.h"
 #include "common/CmpCommon.h"     /* want to put NAType obj's on statement heap ... */
 #include "common/str.h"
 

@@ -31,16 +31,16 @@
 ******************************************************************************
 */
 
-#include "RelMisc.h"
+#include "optimizer/RelMisc.h"
 //#include "LmGenUtil.h"
 #include "LmError.h"
-#include "Generator.h"
+#include "generator/Generator.h"
 #include "GenExpGenerator.h"
 #include "executor/sql_buffer.h"
 #include "comexe/ExplainTuple.h"
 #include "comexe/ExplainTupleMaster.h"
 #include "comexe/ComQueue.h"
-//#include "UdfDllInteraction.h"
+//#include "optimizer/UdfDllInteraction.h"
 #include "RelFastTransport.h"
 
 

@@ -38,7 +38,7 @@
 // #include "common/ComAnsiNamePart.h"
 #include "common/ComASSERT.h"
 #include "common/ComMPLoc.h"
-#include "ComOperators.h"
+#include "common/ComOperators.h"
 #include "common/ComSmallDefs.h"
 #include "common/str.h"
 #include "common/ComRtUtils.h"

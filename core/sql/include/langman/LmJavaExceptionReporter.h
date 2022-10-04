@@ -36,9 +36,9 @@
 */
 
 #include "LmError.h"
-#include "LmCommon.h"
+#include "langman/LmCommon.h"
 #include "LmRoutineJava.h"
-#include "LmJavaSignature.h"
+#include "langman/LmJavaSignature.h"
 
 #define min(a,b)            (((a) < (b)) ? (a) : (b))
 

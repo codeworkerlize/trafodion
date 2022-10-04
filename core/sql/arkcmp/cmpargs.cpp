@@ -42,9 +42,9 @@
 #include <string.h>
 #include <unistd.h>
 #include "cmpargs.h"
-#include "NAExit.h"
-#include "SchemaDB.h"
-#include "CmpErrors.h"
+#include "common/NAExit.h"
+#include "optimizer/SchemaDB.h"
+#include "arkcmp/CmpErrors.h"
 #include "ErrorMessage.h"
 
 

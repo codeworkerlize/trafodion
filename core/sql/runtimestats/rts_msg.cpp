@@ -32,7 +32,7 @@
 
 #include "cli/sqlcli.h"
 #include "export/IpcMessageObj.h"
-#include "rts_msg.h"
+#include "runtimestats/rts_msg.h"
 #include "ExCextdecs.h"
 /*
 // Helper function to determine number of bytes that a string

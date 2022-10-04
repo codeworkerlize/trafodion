@@ -44,9 +44,9 @@
 
 // beginning of regular compilation
 
-#include "ex_stdh.h"
+#include "executor/ex_stdh.h"
 #include "comexe/ComTdb.h"
-#include "ex_tcb.h"
+#include "executor/ex_tcb.h"
 #include "ex_hashj.h"
 #include "executor/ex_expr.h"
 #include "common/str.h"
@@ -54,7 +54,7 @@
 #include "executor/ExStats.h"
 #include "ex_error.h"
 #include "ex_exe_stmt_globals.h"
-#include "cli/memorymonitor.h"
+
 #include "executor/sql_buffer_size.h"
 #include "sqlmxevents/logmxevent.h"
 #include "exp_function.h"
@@ -294,8 +294,7 @@ ex_hashj_tcb::ex_hashj_tcb(const ex_hashj_tdb & hashJoinTdb,
   bmoStats_ = NULL;
   hashJoinStats_ = NULL;
   heap_ = new (glob->getDefaultHeap()) NAHeap("Hash Join Heap", (NAHeap *)glob->getDefaultHeap());
-  // set the memory monitor
-  memMonitor_ = getGlobals()->castToExExeStmtGlobals()->getMemoryMonitor();
+
 
   // Allocate the buffer pool for result rows
   // this pool contains only one buffer
@@ -1342,8 +1341,7 @@ NABoolean ex_hashj_tcb::allocateClusters() {
   }
 
   // We use memUsagePercent of the physical memory for the hash join.
-  ULng32 availableMemory = memMonitor_->getPhysMemInBytes() / 100
-      * hashJoinTdb().memUsagePercent_;
+  ULng32 availableMemory = 1024;
 
   // if quota, and it's less than avail memory, then use that lower figure 
   if ( hashJoinTdb().memoryQuotaMB() > 0 &&
@@ -1442,7 +1440,6 @@ NABoolean ex_hashj_tcb::allocateClusters() {
 				    buckets_,
 				    bucketCount_,
 				    availableMemory,
-				    memMonitor_,
 				    hashJoinTdb().pressureThreshold_,
 				    getGlobals()->castToExExeStmtGlobals(),
 				    &rc_,

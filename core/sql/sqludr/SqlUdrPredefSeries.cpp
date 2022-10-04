@@ -19,7 +19,7 @@
 //
 // @@@ END COPYRIGHT @@@
 
-#include "sqludr.h"
+#include "sqludr/sqludr.h"
 
 using namespace tmudr;
 

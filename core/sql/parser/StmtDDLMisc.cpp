@@ -36,8 +36,8 @@
 
 #include "common/BaseTypes.h"
 #include "common/ComASSERT.h"
-#include "ComOperators.h"
-#include "StmtDDLCleanupObjects.h"
+#include "common/ComOperators.h"
+#include "parser/StmtDDLCleanupObjects.h"
 
 StmtDDLCleanupObjects::StmtDDLCleanupObjects(ObjectType type,
                                              const NAString & param1,

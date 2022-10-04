@@ -40,7 +40,7 @@
 #include <sys/types.h>
 #include <pthread.h>
 
-#include "CompException.h"
+#include "arkcmp/CompException.h"
 #include "parser/StmtCompilationMode.h"
 #include "seabed/sys.h"
 
@@ -125,7 +125,7 @@ extern void releaseRTSSemaphore();
 #include <setjmp.h>
 
 #include <iostream>
-#include "ExceptionCallBack.h"
+#include "export/ExceptionCallBack.h"
 #include "NAInternalError.h"
 
 ExceptionCallBack * NAInternalError::pExceptionCallBack_ = NULL;

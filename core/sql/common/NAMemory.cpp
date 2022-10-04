@@ -72,7 +72,7 @@
 #endif
 
 #include "NAError.h"
-#include "HeapLog.h"
+#include "export/HeapLog.h"
 #include "common/Platform.h"
 #include "common/NAAssert.h"
 

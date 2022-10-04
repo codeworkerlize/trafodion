@@ -40,7 +40,7 @@
 #define _CONVERSION_HEX_H
 
 #include "common/charinfo.h"
-#include "wstr.h"
+#include "common/wstr.h"
 
 class NAString;
 class NAWString;

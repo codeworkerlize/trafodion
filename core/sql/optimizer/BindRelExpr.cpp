@@ -50,59 +50,59 @@
 #include "common/NAWinNT.h"
 
 
-#include "Sqlcomp.h"
-#include "AllItemExpr.h"
-#include "AllRelExpr.h"
-#include "BindWA.h"
-#include "ComOperators.h"
+#include "optimizer/Sqlcomp.h"
+#include "optimizer/AllItemExpr.h"
+#include "optimizer/AllRelExpr.h"
+#include "optimizer/BindWA.h"
+#include "common/ComOperators.h"
 #include "common/ComTransInfo.h"
-#include "ComLocationNames.h"
-#include "ControlDB.h"
+#include "common/ComLocationNames.h"
+#include "optimizer/ControlDB.h"
 #include "Debug.h"
 #include "ex_error.h"
 #include "GroupAttr.h"
 #include "ParNameLocList.h"
-#include "parser.h"
-#include "Rel3GL.h"
+#include "sqlcomp/parser.h"
+#include "optimizer/Rel3GL.h"
 #include "RelDCL.h"
 #include "RelPackedRows.h"
 #include "RelSequence.h"
 #include "ShowSchema.h"           // GetControlDefaults class
 #include "StmtDDLAddConstraintCheck.h"
-#include "StmtDDLCreateView.h"
-#include "ElemDDLColRefArray.h"
+#include "parser/StmtDDLCreateView.h"
+#include "parser/ElemDDLColRefArray.h"
 #include "ElemDDLSaltOptions.h"
 #include "sqlcat/TrafDDLdesc.h"
 #include "UdrErrors.h"
 #include "common/SequenceGeneratorAttributes.h"
 
-#include "wstr.h"
-#include "Inlining.h"
+#include "common/wstr.h"
+#include "optimizer/Inlining.h"
 #include "optimizer/Triggers.h"
 #include "optimizer/TriggerDB.h"
 #include "MVInfo.h"
 #include "Refresh.h"
 #include "ChangesTable.h"
 #include "MvRefreshBuilder.h"
-#include "OptHints.h"
+#include "optimizer/OptHints.h"
 #include "arkcmp/CmpStatement.h"
-#include "OptimizerSimulator.h"
+#include "optimizer/OptimizerSimulator.h"
 #include "common/charinfo.h"
-#include "UdfDllInteraction.h"
+#include "optimizer/UdfDllInteraction.h"
 #include "parser/SqlParserGlobals.h"      // must be last #include
 #include "ItmFlowControlFunction.h"
 #include "common/ComSchemaName.h" // for ComSchemaName
 #include "ItemSample.h"
 #include "comexe/NAExecTrans.h"
 
-#include "CmpSeabaseDDL.h"
-#include "ComUser.h"
+#include "sqlcomp/CmpSeabaseDDL.h"
+#include "common/ComUser.h"
 #include "common/ComSqlId.h"
 #include "sqlcomp/PrivMgrCommands.h"
-#include "PrivMgrComponentPrivileges.h"
+#include "sqlcomp/PrivMgrComponentPrivileges.h"
 #include "sqlcomp/PrivMgrDefs.h"
-#include "PrivMgrMD.h"
-#include "CompException.h"
+#include "sqlcomp/PrivMgrMD.h"
+#include "arkcmp/CompException.h"
 
 #include "SqlParserAux.h"
 #include "cli/Globals.h"
@@ -8227,7 +8227,7 @@ NABoolean RelRoot::checkPrivileges(BindWA* bindWA)
     // Check each primary DML privilege to see if the query requires it. If 
     // so, verify that the user has the privilege
     bool insertQIKeys = (QI_enabled && secKeySet.entries() > 0);
-    for (int_32 i = FIRST_DML_PRIV; i <= LAST_PRIMARY_DML_PRIV; i++)
+    for (int i = FIRST_DML_PRIV; i <= LAST_PRIMARY_DML_PRIV; i++)
     {
       if (stoi->getPrivAccess((PrivType)i))
       {

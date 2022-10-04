@@ -39,7 +39,7 @@
 #include "common/ComCextdecs.h"
 #include "cli_stdh.h"
 #include "exp/exp_stdh.h"
-#include "ex_transaction.h"
+#include "executor/ex_transaction.h"
 #include "exp/exp_expr.h"
 #include "exp/exp_clause_derived.h"
 #include "exp_function.h"
@@ -52,7 +52,7 @@
 #include "ex_exe_stmt_globals.h"
 #include "ex_frag_rt.h"
 #include "common/NLSConversion.h"
-#include "ExExeUtil.h"
+#include "executor/ExExeUtil.h"
 #include <stdarg.h>
 
 #include "common/NAString.h"
@@ -67,7 +67,7 @@
 #include "comexe/ExplainTuple.h"
 
 #include "comexe/CmpMessage.h"
-#include "ExSqlComp.h"
+#include "cli/ExSqlComp.h"
 
 #include "sqlmxevents/logmxevent.h"
 
@@ -88,7 +88,7 @@
 #include "LmLangManagerC.h"
 #include "LmLangManagerJava.h"
 #include "LmRoutine.h"
-#include "CmpDDLCatErrorCodes.h"
+#include "sqlcomp/CmpDDLCatErrorCodes.h"
 
 #define DISPLAY_DONE_WARNING 1032
 extern Lng32 getTotalTcbSpace(char * tdb, char * otherInfo, 

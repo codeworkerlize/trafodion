@@ -46,23 +46,23 @@
 
 #include "common/CmpCommon.h"
 #include "arkcmp/CmpContext.h"
-#include "CmpErrors.h"
+#include "arkcmp/CmpErrors.h"
 #include "arkcmp/CmpStatement.h"
 #include "ErrorMessage.h"
 
 #include "sqlmxevents/logmxevent.h"
 
 #include "sqlcomp/NADefaults.h"
-#include "NewDel.h"
-#include "SchemaDB.h"
-#include "ControlDB.h"
-#include "CompException.h"
+#include "sqlcomp/NewDel.h"
+#include "optimizer/SchemaDB.h"
+#include "optimizer/ControlDB.h"
+#include "arkcmp/CompException.h"
 
 #include "NAInternalError.h"
 
 #include "cli/Context.h"
 #include "cli/Globals.h"
-#include "dbUserAuth.h"
+#include "dbsecurity/dbUserAuth.h"
 
 THREAD_P CmpContext* cmpCurrentContext=0;
 THREAD_P jmp_buf CmpInternalErrorJmpBuf;

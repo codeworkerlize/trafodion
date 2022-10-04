@@ -25,7 +25,7 @@
 #define _QRLATTICEINDEX_H_
 
 #include "common/NAString.h"
-#include "QRSharedPtr.h"
+#include "qmscommon/QRSharedPtr.h"
 #include "qmscommon/QRLogger.h"
 #include "common/Collections.h"
 #include "common/SharedPtrCollections.h"

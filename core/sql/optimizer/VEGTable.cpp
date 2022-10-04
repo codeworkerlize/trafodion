@@ -36,11 +36,11 @@
 ******************************************************************************
 */
 
-#include "Sqlcomp.h"
+#include "optimizer/Sqlcomp.h"
 #include "GroupAttr.h"
 #include "RelJoin.h"
 #include "ItemLog.h"
-#include "ItemOther.h"
+#include "optimizer/ItemOther.h"
 #include "optimizer/ItemColRef.h" 
 #include "ItemFunc.h"
 #include "VEGTable.h"

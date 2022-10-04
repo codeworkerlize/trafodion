@@ -49,10 +49,10 @@
 #include "cli/Globals.h"
 #include "executor/ex_globals.h"
 #include "comexe/FragDir.h"
-#include "ex_frag_inst.h"
+#include "executor/ex_frag_inst.h"
 #include "common/Int64.h"
 #include "common/ExCollections.h"
-#include "timeout_data.h"
+#include "executor/timeout_data.h"
 #include "ex_esp_frag_dir.h"
 #include "seabed/sys.h"
 
@@ -144,7 +144,6 @@ class ExFragDir;
 class ContextCli;
 class CliGlobals;
 class ResolvedNameList;
-class MemoryMonitor;
 class ExMsgResourceInfo;
 class ExScratchFileOptions;
 class ComTdbRoot;
@@ -251,8 +250,6 @@ public:
   inline IpcEnvironment * getIpcEnvironment() const
     { return cliGlobals_->getEnvironment(); }
 
-  inline MemoryMonitor * getMemoryMonitor () const
-    { return cliGlobals_->getMemoryMonitor(); }
 
   ExUdrServer *acquireUdrServer(const char *runtimeOptions,
                                 const char *optionDelimiters,
@@ -671,7 +668,7 @@ public:
 		   Space * space,
 		   CollHeap * heap,
 		   ExEspFragInstanceDir *espFragInstanceDir,
-		   ExFragInstanceHandle handle,
+		   int handle,
                    ULng32 injectErrorAtExprFreq,
                    NABoolean multiThreadedEsp,
                    char *queryId = NULL,
@@ -693,7 +690,7 @@ public:
   virtual void getMyNodeLocalInstanceNumber(
        Lng32 &myNodeLocalInstanceNumber,
        Lng32 &numOfLocalInstances) const;
-  ExFragInstanceHandle getMyFragInstanceHandle() const { return myHandle_; }
+  int getMyFragInstanceHandle() const { return myHandle_; }
 
   // Virtual methods to retrieve SeaMonster settings
   // 
@@ -782,7 +779,7 @@ private:
   // my own fragment instance handle
   // (using a long here to avoid exposing the entire ESP frag instance
   // dir class to this header file)
-  ExFragInstanceHandle myHandle_;
+  int myHandle_;
 
   // pointer back the the ESP's fragment instance directory
   // (use this only to get pointers to fragments)

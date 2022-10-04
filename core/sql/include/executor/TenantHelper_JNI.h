@@ -31,7 +31,6 @@
 #include "executor/JavaObjectInterface.h"
 #include "exp/ExpHbaseDefs.h"
 #include "common/NAMemory.h"
-#include "MonarchClient_JNI.h"  // to get MC_LAST
 #include "common/NAWNodeSet.h"
 
 

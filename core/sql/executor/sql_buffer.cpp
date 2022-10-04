@@ -48,7 +48,7 @@
 #include "executor/sql_buffer.h"
 #else
 #include "common/Platform.h"
-#include "ex_stdh.h"
+#include "executor/ex_stdh.h"
 #include "common/str.h"
 #include "comexe/ComQueue.h"
 #include "exp/exp_expr.h"

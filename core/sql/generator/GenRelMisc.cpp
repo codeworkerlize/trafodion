@@ -37,14 +37,14 @@
 ******************************************************************************
 */
 #define   SQLPARSERGLOBALS_FLAGS
-#include "ComOptIncludes.h"
+#include "common/ComOptIncludes.h"
 #include "GroupAttr.h"
 #include "optimizer/ItemColRef.h"
 #include "RelEnforcer.h"
 #include "RelJoin.h"
-#include "RelExeUtil.h"
-#include "RelMisc.h"
-#include "RelSet.h"
+#include "optimizer/RelExeUtil.h"
+#include "optimizer/RelMisc.h"
+#include "optimizer/RelSet.h"
 #include "RelUpdate.h"
 #include "optimizer/RelScan.h"
 #include "RelDCL.h"
@@ -70,10 +70,10 @@
 #include "comexe/ExplainTuple.h"
 #include "comexe/ComTdbHbaseAccess.h"
 #include "comexe/ComTdbExplain.h"
-#include "SchemaDB.h"
-#include "ControlDB.h"
-#include "NATable.h"
-#include "BindWA.h"
+#include "optimizer/SchemaDB.h"
+#include "optimizer/ControlDB.h"
+#include "optimizer/NATable.h"
+#include "optimizer/BindWA.h"
 #include "common/ComTransInfo.h"
 #include "sqlcomp/DefaultConstants.h"
 #include "comexe/FragDir.h"
@@ -84,12 +84,12 @@
 #include "common/ComSqlId.h"
 #include "MVInfo.h"
 #include "common/SequenceGeneratorAttributes.h"
-#include "CompilationStats.h"
-#include "RelRoutine.h"
-#include "ComUnits.h"
+#include "optimizer/CompilationStats.h"
+#include "optimizer/RelRoutine.h"
+#include "common/ComUnits.h"
 
-#include "StmtDDLCleanupObjects.h"
-#include "StmtDDLAlterSharedCache.h"
+#include "parser/StmtDDLCleanupObjects.h"
+#include "parser/StmtDDLAlterSharedCache.h"
 
 #ifndef HFS2DM
 #define HFS2DM
@@ -100,9 +100,9 @@
 #include "common/ComSmallDefs.h"
 #include "executor/sql_buffer_size.h"
 
-#include "ComLocationNames.h"
+#include "common/ComLocationNames.h"
 #include "common/ComDistribution.h"
-#include "OptimizerSimulator.h"
+#include "optimizer/OptimizerSimulator.h"
 
 #include "common/ComCextdecs.h"
 

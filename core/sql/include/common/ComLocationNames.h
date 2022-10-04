@@ -38,7 +38,7 @@
 
 // -----------------------------------------------------------------------
 
-#include "ComOperators.h"
+#include "common/ComOperators.h"
 #include "common/NABoolean.h"
 #include "common/NAString.h"
 #include "export/NABasicObject.h"

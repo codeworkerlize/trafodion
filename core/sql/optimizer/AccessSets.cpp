@@ -34,9 +34,9 @@
 ******************************************************************************
 */
 
-#include "Sqlcomp.h"
-#include "AllItemExpr.h"
-#include "AllRelExpr.h"
+#include "optimizer/Sqlcomp.h"
+#include "optimizer/AllItemExpr.h"
+#include "optimizer/AllRelExpr.h"
 #include "GroupAttr.h"
 #include "AccessSets.h"
 

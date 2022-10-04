@@ -30,7 +30,7 @@
 #include "common/NAClusterInfo.h"
 #include "common/NABoolean.h"
 #include "common/CmpCommon.h"
-#include "opt.h"
+#include "optimizer/opt.h"
 #include "common/IpcMessageType.h"
 
 //-----------------------------

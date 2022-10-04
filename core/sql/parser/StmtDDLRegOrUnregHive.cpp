@@ -37,7 +37,7 @@
 #ifndef NDEBUG
 #include <iostream>
 #endif
-#include "StmtDDLRegOrUnregHive.h"
+#include "parser/StmtDDLRegOrUnregHive.h"
 #include "common/BaseTypes.h"
 #include "export/ComDiags.h"
 #ifndef   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS

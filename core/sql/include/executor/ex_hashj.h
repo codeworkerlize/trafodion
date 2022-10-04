@@ -183,7 +183,6 @@ public:
 protected:
   Space * space_;
   CollHeap * heap_;
-  MemoryMonitor *memMonitor_;
 
   const ex_tcb * leftChildTcb_;
   const ex_tcb * rightChildTcb_;

@@ -32,9 +32,9 @@
 ******************************************************************************
 */
 
-#include "Analyzer.h"
+#include "optimizer/Analyzer.h"
 #include "optimizer/CascadesBasic.h"
-#include "Sqlcomp.h"
+#include "optimizer/Sqlcomp.h"
 
 
 // -----------------------------------------------------------------------

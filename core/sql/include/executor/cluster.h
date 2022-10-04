@@ -57,7 +57,6 @@ class Bucket;
 class IOTimer;
 class ExBMOStats;
 
-class MemoryMonitor;
 
 #include "comexe/HashBufferHeader.h"
 #include "exp/ExpError.h"
@@ -579,7 +578,6 @@ public:
 	     Bucket * buckets,
 	     ULng32 bucketCount,
 	     ULng32 availableMemory,
-	     MemoryMonitor * memMonitor,
 	     short pressureThreshold,
 	     ExExeStmtGlobals * stmtGlobals,
 	     ExeErrorCode * rc,
@@ -717,7 +715,6 @@ private:
   // tells us the size of a cluster!
   ExOperStats * hashOperStats_;       // stats for this hash operator
   ULng32 totalIOCnt_;          // total IO ( # buffers read or writen )
-  MemoryMonitor * memMonitor_;        // for dynamic memory management
   short pressureThreshold_;
   NABoolean sawPressure_;             // set when we see pressure the
                                       // first time

@@ -43,15 +43,15 @@
 #include "optimizer/ObjectNames.h"
 #include "common/ComMPLoc.h"
 #include "common/ComRtUtils.h"
-#include "SchemaDB.h"
+#include "optimizer/SchemaDB.h"
 
-#include "BindWA.h"
+#include "optimizer/BindWA.h"
 #include "optimizer/ItemColRef.h"
-#include "parser.h"
+#include "sqlcomp/parser.h"
 #include "optimizer/RelScan.h"
 #include "parser/StmtNode.h"
 
-#include "CmpSeabaseDDL.h"
+#include "sqlcomp/CmpSeabaseDDL.h"
 
 #include "common/ComSmallDefs.h"
 

@@ -49,16 +49,16 @@
 // -----------------------------------------------------------------------
 
 class ExFragKey;
-// typedef ExFragInstanceHandle;
+// typedef int;
 // typedef ExEspStatementHandle;
 
 // -----------------------------------------------------------------------
 // A fragment instance handle is a unique identifier for a downloaded
 // fragment instance within its ESP.
 // -----------------------------------------------------------------------
-#include "comexe/FragInstanceHandle.h"
-// typedef CollIndex ExFragInstanceHandle;
-const ExFragInstanceHandle NullFragInstanceHandle = NULL_COLL_INDEX;
+
+// typedef CollIndex int;
+const int NullFragInstanceHandle = NULL_COLL_INDEX;
 
 // -----------------------------------------------------------------------
 // A statement handle identifies a statement in a given process

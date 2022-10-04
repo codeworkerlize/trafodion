@@ -55,7 +55,7 @@
 
 
 #include "ExCextdecs.h"
-#include "ex_stdh.h"
+#include "executor/ex_stdh.h"
 #include "comexe/ComTdb.h"
 #include "comexe/ComTdbUdr.h"
 #include "comexe/ComTdbSplitTop.h"
@@ -68,7 +68,7 @@
 #include "executor/ExStats.h"
 #include "common/str.h"
 #include "runtimestats/ssmpipc.h"
-#include "rts_msg.h"
+#include "runtimestats/rts_msg.h"
 #include "common/ComSqlId.h"
 #include "common/ComRtUtils.h"
 #include "cli/Statement.h"

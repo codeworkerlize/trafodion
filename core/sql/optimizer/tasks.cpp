@@ -37,18 +37,18 @@
 
 // -----------------------------------------------------------------------
 
-#include "Sqlcomp.h"
+#include "optimizer/Sqlcomp.h"
 #include "GroupAttr.h"
-#include "RelExpr.h"
-#include "PhyProp.h"
+#include "optimizer/RelExpr.h"
+#include "optimizer/PhyProp.h"
 #include "Cost.h"
-#include "opt.h"
+#include "optimizer/opt.h"
 #include "arkcmp/CmpContext.h"
 #include "arkcmp/CmpStatement.h"
 #include "TransRule.h"
 
 // xxx tmp include, will be taken out
-#include "Analyzer.h"
+#include "optimizer/Analyzer.h"
 
 extern NAUnsigned SortEnforcerRuleNumber;
 

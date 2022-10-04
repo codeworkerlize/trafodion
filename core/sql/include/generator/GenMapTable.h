@@ -40,8 +40,8 @@
  *****************************************************************************
  */
 
-#include "AllItemExpr.h"
-#include "ItemExprList.h"
+#include "optimizer/AllItemExpr.h"
+#include "optimizer/ItemExprList.h"
 #include "exp/exp_attrs.h"
 
 /////////////////////////////////////////////////////////////////

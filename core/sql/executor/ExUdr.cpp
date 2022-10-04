@@ -47,7 +47,7 @@
 //   method would decide to initiate the restart.
 //
 
-#include "ex_stdh.h"
+#include "executor/ex_stdh.h"
 #include "ExUdr.h"
 #include "ExUdrServer.h"
 #include "ExUdrClientIpc.h"
@@ -63,7 +63,7 @@
 #include "ExRsInfo.h"
 #include "Descriptor.h"
 #include "cli/Context.h"
-#include "ExExeUtil.h"
+#include "executor/ExExeUtil.h"
 #include <sys/stat.h>
 
 #define TF_STRING(x) ((x) ? ("TRUE") : ("FALSE"))

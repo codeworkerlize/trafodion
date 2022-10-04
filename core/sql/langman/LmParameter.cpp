@@ -32,7 +32,7 @@
 */
 
 #include "LmParameter.h"
-#include "wstr.h"
+#include "common/wstr.h"
 
 #ifdef LANGMAN
 #include "LmAssert.h"

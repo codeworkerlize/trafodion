@@ -43,7 +43,7 @@
 
 
 #include "ElemDDLNode.h"
-#include "ElemDDLPartitionClause.h"
+#include "parser/ElemDDLPartitionClause.h"
 #include "ElemDDLPartitionArray.h"
 #include "ItemConstValueArray.h"
 

@@ -36,7 +36,7 @@
 
 // -----------------------------------------------------------------------
 
-#include "ex_stdh.h"
+#include "executor/ex_stdh.h"
 #include "key_range.h"
 #include "key_mdam.h"
 #include "exp/exp_clause_derived.h"

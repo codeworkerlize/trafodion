@@ -37,7 +37,7 @@
 
 #include "common/Platform.h"
 #include "common/NAString.h"
-#include "Generator.h"
+#include "generator/Generator.h"
 
 
 NAString * getMinMaxValue(TrafDesc * column,

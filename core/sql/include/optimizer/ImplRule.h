@@ -38,7 +38,7 @@
 
 // -----------------------------------------------------------------------
 
-#include "Rule.h"
+#include "optimizer/Rule.h"
 
 // It is found that DP2 goes into infinite loop if we have rowsize 
 // of approximately > 30000. Internally the executor has a max buffer

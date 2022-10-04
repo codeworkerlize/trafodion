@@ -26,7 +26,7 @@
 **********************************************************************/
 
 #include "common/Platform.h"
-#include "ex_stdh.h"
+#include "executor/ex_stdh.h"
 #include "sscpipc.h"
 #include "sqlmxevents/logmxevent.h"
 #include "ExCextdecs.h"
@@ -39,7 +39,7 @@
 #include "common/NAStdlib.h"
 #include "zsysc.h"
 #include "executor/ExStats.h"
-#include "rts_msg.h"
+#include "runtimestats/rts_msg.h"
 #include "porting/PortProcessCalls.h"
 #include "comexe/ComTdb.h"
 #include "common/ComSqlId.h"

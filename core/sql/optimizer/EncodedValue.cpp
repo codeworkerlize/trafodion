@@ -36,20 +36,20 @@
  */
 
 #include "common/Platform.h"
-#include "Sqlcomp.h"	       /* must be first included file */
+#include "optimizer/Sqlcomp.h"	       /* must be first included file */
 #include "EncodedValue.h"
 #include "optimizer/ItemColRef.h"
-#include "parser.h"
+#include "sqlcomp/parser.h"
 #include "common/str.h"
 #include <wchar.h>
 #include "common/NLSConversion.h"
-#include "wstr.h"
+#include "common/wstr.h"
 #include <exp_function.h>
 
 
 #include <ostream>
 
-#include "CompException.h"
+#include "arkcmp/CompException.h"
 
 #include "exp_function.h"
 

@@ -41,7 +41,7 @@
 
 #include "common/ComSmallDefs.h"
 #include "ElemDDLNode.h"
-#include "ElemDDLSGOptions.h"
+#include "parser/ElemDDLSGOptions.h"
 #include "ItemConstValueArray.h"
 #include "StmtDDLNode.h"
 

@@ -150,12 +150,12 @@ ifdef BUILD_ORC_READER
 DLLS += orc
 endif
 
-DLLS += comexe common executor sort sqlmsg \
-	tdm_sqlcli  tdm_sqlexp tdm_sqlexport \
-	tdm_sqlmxevents tdm_sqlshare tdm_sqlerrormsg \
-	eh lmcomp \
-	sqlcilib cli porting_layer tdm_sqlmxmsg_intl \
-	arkcmp_dll smdio udr_predef 
+# DLLS += comexe common executor sort sqlmsg \
+# 	tdm_sqlcli  tdm_sqlexp tdm_sqlexport \
+# 	tdm_sqlmxevents tdm_sqlshare tdm_sqlerrormsg \
+# 	eh lmcomp \
+# 	sqlcilib cli porting_layer tdm_sqlmxmsg_intl \
+# 	arkcmp_dll smdio udr_predef 
 
 
 DLLS += sqlcomp   sqlcat parser optimizer generator \
@@ -218,8 +218,8 @@ SYS_INCLUDES :=
 	$(THRIFT_INC)  $(LIBCURL_INC)  \
 	-I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/linux
 
-OTHER_INCLUDES := -include "$(TRAF_HOME)/inc/seaquest/sqtypes.h" \
-	-I$(LLVM_INC_ROOT) \
+OTHER_INCLUDES := -I/home/esoye/trafodion/core/sql/include \
+  -I$(LLVM_INC_ROOT) \
 	-I$(LLVM_INC_ROOT2) \
 	-I$(UDIS86_INC_ROOT) \
 	-I$(TRAF_HOME)/../sql \

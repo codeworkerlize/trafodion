@@ -29,7 +29,7 @@
 // @@@ END COPYRIGHT @@@
 **********************************************************************/
 
-#include "LmCommon.h"
+#include "langman/LmCommon.h"
 #include "LmLangManagerC.h"
 #include "LmContManager.h"
 #include "LmRoutineC.h"
@@ -39,7 +39,7 @@
 #include "LmRoutineCppObj.h"
 #include "LmExtFunc.h"
 #include "LmDebug.h"
-#include "sqludr.h"
+#include "sqludr/sqludr.h"
 
 LmLanguageManagerC::LmLanguageManagerC(
   LmResult &result,

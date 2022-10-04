@@ -35,7 +35,7 @@
 */
 
 #include "ErrorCondition.h"
-#include "NAExit.h"
+#include "common/NAExit.h"
 
 // -----------------------------------------------------------------------
 // Global defines and functions

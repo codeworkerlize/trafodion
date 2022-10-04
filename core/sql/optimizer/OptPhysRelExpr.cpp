@@ -39,24 +39,24 @@
 
 // ---------------------------------------------------------------------------
 
-#include "Sqlcomp.h"
+#include "optimizer/Sqlcomp.h"
 #include "GroupAttr.h"
-#include "AllRelExpr.h"
-#include "AllItemExpr.h"
-#include "opt.h"
-#include "PhyProp.h"
+#include "optimizer/AllRelExpr.h"
+#include "optimizer/AllItemExpr.h"
+#include "optimizer/opt.h"
+#include "optimizer/PhyProp.h"
 #include "Cost.h"
-#include "ControlDB.h"
+#include "optimizer/ControlDB.h"
 #include "CostMethod.h"
 #include "EstLogProp.h"
 #include "ScanOptimizer.h"
 #include "sqlcomp/DefaultConstants.h"
 #include "PartKeyDist.h"
-#include "OptimizerSimulator.h"
+#include "optimizer/OptimizerSimulator.h"
 
 #include "cli/Globals.h"
 #include "arkcmp/CmpStatement.h"
-#include "UdfDllInteraction.h"
+#include "optimizer/UdfDllInteraction.h"
 #include "utility.h"
 
 extern NAUnsigned              SortEnforcerRuleNumber;

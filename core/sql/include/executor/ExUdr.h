@@ -37,7 +37,7 @@
  */
 
 #include "comexe/ComTdbUdr.h"
-#include "ex_tcb.h"
+#include "executor/ex_tcb.h"
 #include "UdrExeIpc.h"
 #include "common/ComSmallDefs.h"
 #include "executor/ExStats.h"

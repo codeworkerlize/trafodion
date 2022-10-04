@@ -39,7 +39,7 @@
 
 #include "common/ComSmallDefs.h"
 #include "ElemDDLNode.h"
-#include "ElemDDLColRefArray.h"
+#include "parser/ElemDDLColRefArray.h"
 #include "ParNameLocList.h"
 
 // -----------------------------------------------------------------------

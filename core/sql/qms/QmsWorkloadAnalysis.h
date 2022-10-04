@@ -40,7 +40,7 @@
 #include "export/NABasicObject.h"
 #include "common/NAString.h"
 #include "common/Collections.h"
-#include "QRSharedPtr.h"
+#include "qmscommon/QRSharedPtr.h"
 #include "qmscommon/QRDescriptor.h"
 
 class WorkloadAnalysis;

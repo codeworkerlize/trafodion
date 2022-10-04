@@ -54,7 +54,7 @@
 
 #define   SQLPARSERGLOBALS_FLAGS
 #define   SQLPARSERGLOBALS_NADEFAULTS_SET
-//#include "SqlParserGlobalsCmn.h"
+//#include "parser/SqlParserGlobalsCmn.h"
 #include "parser/SqlParserGlobals.h"  // must be the last #include.
 
 #include "common/BaseTypes.h"
@@ -63,34 +63,34 @@
 #include "export/ComDiags.h"
 #include "common/ComMPLoc.h"
 #include "common/CmpCommon.h"
-#include "CmpMain.h"
-#include "CmpStoredProc.h"
-#include "CmpDescribe.h"
+#include "sqlcomp/CmpMain.h"
+#include "arkcmp/CmpStoredProc.h"
+#include "sqlcomp/CmpDescribe.h"
 #include "ProcessEnv.h"
-#include "SchemaDB.h"
-#include "ControlDB.h"
+#include "optimizer/SchemaDB.h"
+#include "optimizer/ControlDB.h"
 #include "cli/Context.h"
 
-#include "CmpErrors.h"
+#include "arkcmp/CmpErrors.h"
 #include "CmpErrLog.h"
 #include "ErrorMessage.h"
 #include "exp/ExpError.h"
 
-#include "QCache.h"
+#include "sqlcomp/QCache.h"
 
 #include "common/NAMemory.h"
 #include "EstLogProp.h"     // Pick up definition of GLOBAL_EMPTY_INPUT_LOGPROP
-#include "opt.h"	    // to initialize the memo and task_list variables
+#include "optimizer/opt.h"	    // to initialize the memo and task_list variables
 
-#include "RelExeUtil.h"
-#include "RelMisc.h"
-#include "CmpSeabaseDDL.h"
-#include "CmpSeabaseDDLupgrade.h"
+#include "optimizer/RelExeUtil.h"
+#include "optimizer/RelMisc.h"
+#include "sqlcomp/CmpSeabaseDDL.h"
+#include "sqlcomp/CmpSeabaseDDLupgrade.h"
 #include "common/NAUserId.h"
 
-#include "Generator.h"
+#include "generator/Generator.h"
 
-#include "QueryText.h"
+#include "common/QueryText.h"
 
 #include "common/NAString.h"
 
@@ -98,13 +98,13 @@
 
 #include "cli/Globals.h"
 
-#include "CompilationStats.h"
+#include "optimizer/CompilationStats.h"
 
-#include "Analyzer.h"
+#include "optimizer/Analyzer.h"
 
-#include "sqludr.h"
+#include "sqludr/sqludr.h"
 
-#include "UdfDllInteraction.h"
+#include "optimizer/UdfDllInteraction.h"
 
 //#include "parser/SqlParserGlobals.h"  // must be the last #include.
 

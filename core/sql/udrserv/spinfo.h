@@ -45,7 +45,7 @@
 #include "common/ComSmallDefs.h"
 #include "UdrExeIpc.h"
 #include "comexe/QueueIndex.h"
-#include "sqludr.h"
+#include "sqludr/sqludr.h"
 
 #include "common/Platform.h"
 

@@ -33,7 +33,7 @@
  *****************************************************************************
  */
 
-#include "sqludr.h"
+#include "sqludr/sqludr.h"
 #include "common/Platform.h"
 
 

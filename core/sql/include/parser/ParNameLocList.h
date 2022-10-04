@@ -47,7 +47,7 @@
  */
 
 #include "common/Collections.h"
-#include "ColumnDesc.h"
+#include "optimizer/ColumnDesc.h"
 #include "common/NAString.h"
 #include "common/nawstring.h" // for wide token strings (tcr)
 #include "optimizer/ObjectNames.h"

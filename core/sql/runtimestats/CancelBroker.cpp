@@ -26,7 +26,7 @@
 // Created:      Oct 5, 2009
 **********************************************************************/
 
-#include "ex_stdh.h"
+#include "executor/ex_stdh.h"
 #include "runtimestats/SqlStats.h"
 #include "executor/ExStats.h"
 #include "CancelBroker.h"

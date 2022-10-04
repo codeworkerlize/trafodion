@@ -30,9 +30,9 @@
 // @@@ END COPYRIGHT @@@
 **********************************************************************/
 
-#include "CmpMemoryMonitor.h"
+#include "optimizer/CmpMemoryMonitor.h"
 #include "sqlcomp/NADefaults.h"
-#include "SchemaDB.h"
+#include "optimizer/SchemaDB.h"
 
 // Global pointer to the CmpMemoryMonitor that encapsulates of
 // Memory Usage Information in SQL/MX compiler/optimizer.

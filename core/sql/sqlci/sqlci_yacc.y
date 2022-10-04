@@ -54,11 +54,11 @@
 #include "common/nawstring.h"
 #define   SQLCIPARSEGLOBALS__INITIALIZE
 #include "SqlciParseGlobals.h"
-#include "HeapLog.h"
+#include "export/HeapLog.h"
 #include "common/charinfo.h"
 #include "conversionHex.h"
 #include "common/ComDistribution.h"
-#include "ComObjectName.h"
+#include "common/ComObjectName.h"
 #include "common/ComSchemaName.h"
 
   extern char **environ;

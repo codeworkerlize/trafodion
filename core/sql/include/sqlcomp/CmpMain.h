@@ -39,7 +39,6 @@
  *****************************************************************************
  */
 
-
 #ifndef __CMPMAIN__H
 #define __CMPMAIN__H
 
@@ -65,18 +64,18 @@ class RelRoot;
 class FragmentDir;
 class QueryText;
 
-const SQLATTR_TYPE  SQL_ATTR_SQLPARSERFLAGS=(SQLATTR_TYPE)0; 
+const SQLATTR_TYPE SQL_ATTR_SQLPARSERFLAGS = (SQLATTR_TYPE)0;
 // NB: SQL_ATTR_SQLPARSERFLAGS  must be distinct & different
 //     from all other SQLATTR_TYPE values in cli/sqlcli.h
-const SQLATTR_TYPE  SQL_ATTR_NOT_SET=(SQLATTR_TYPE)666; 
-const ULng32 SQL_ATTR_NO_VALUE=999; 
+const SQLATTR_TYPE SQL_ATTR_NOT_SET = (SQLATTR_TYPE)666;
+const ULng32 SQL_ATTR_NO_VALUE = 999;
 
 class QryStmtAttribute : public NABasicObject {
   friend class QryStmtAttributeSet;
   friend class CmpMain;
   friend class CompilerEnv;
-  SQLATTR_TYPE  attr; // name of query statement attribute
-  ULng32 value;// value of query statement attribute
+  SQLATTR_TYPE attr;  // name of query statement attribute
+  ULng32 value;       // value of query statement attribute
 
  public:
   // default constructor
@@ -86,31 +85,30 @@ class QryStmtAttribute : public NABasicObject {
   QryStmtAttribute(SQLATTR_TYPE a, ULng32 v) : attr(a), value(v) {}
 
   // copy constructor
-  QryStmtAttribute(const QryStmtAttribute& s) : attr(s.attr), value(s.value) {}
+  QryStmtAttribute(const QryStmtAttribute &s) : attr(s.attr), value(s.value) {}
 
-  // destructor 
+  // destructor
   virtual ~QryStmtAttribute() {}
 
   // equality comparison used by CompilerEnv::isEqual
-  NABoolean isEqual(const QryStmtAttribute &o) const 
-    { return attr == o.attr && value == o.value; }
+  NABoolean isEqual(const QryStmtAttribute &o) const { return attr == o.attr && value == o.value; }
 };
 
-const Int32 MAX_STMT_ATTR=4;
+const Int32 MAX_STMT_ATTR = 4;
 
 class QryStmtAttributeSet : public NABasicObject {
   friend class CmpMain;
   friend class CompilerEnv;
   // array of query statement attributes
   QryStmtAttribute attrs[MAX_STMT_ATTR];
-  Int32              nEntries; // number of entries in attrs
+  Int32 nEntries;  // number of entries in attrs
 
  public:
   // constructor for query statement attribute settings
   QryStmtAttributeSet();
 
   // copy constructor for query statement attribute settings
-  QryStmtAttributeSet(const QryStmtAttributeSet& s);
+  QryStmtAttributeSet(const QryStmtAttributeSet &s);
 
   // destructor frees all query statement attribute settings
   virtual ~QryStmtAttributeSet() {}
@@ -119,25 +117,33 @@ class QryStmtAttributeSet : public NABasicObject {
   void addStmtAttribute(SQLATTR_TYPE a, ULng32 v);
 
   // return true if set has given statement attribute
-  NABoolean has(const QryStmtAttribute& a) const;
+  NABoolean has(const QryStmtAttribute &a) const;
 
   // return xth statement attribute
-  const QryStmtAttribute& at(Int32 x) const { return attrs[x]; }
+  const QryStmtAttribute &at(Int32 x) const { return attrs[x]; }
 };
 
 // -----------------------------------------------------------------------
 // CmpMain class contains the interface to main sql compiler functions.
 // -----------------------------------------------------------------------
 
-class CmpMain
-{
-public:
-
+class CmpMain {
+ public:
   // The return code from the sqlcomp procedure.
-  enum ReturnStatus
-  { SUCCESS = 0, PARSERERROR, BINDERERROR, TRANSFORMERERROR,
-    NORMALIZERERROR, CHECKRWERROR, OPTIMIZERERROR, PREGENERROR, 
-    GENERATORERROR, QCACHINGERROR, DISPLAYDONE, EXCEPTIONERROR, PRIVILEGEERROR,
+  enum ReturnStatus {
+    SUCCESS = 0,
+    PARSERERROR,
+    BINDERERROR,
+    TRANSFORMERERROR,
+    NORMALIZERERROR,
+    CHECKRWERROR,
+    OPTIMIZERERROR,
+    PREGENERROR,
+    GENERATORERROR,
+    QCACHINGERROR,
+    DISPLAYDONE,
+    EXCEPTIONERROR,
+    PRIVILEGEERROR,
   };
 
   // Optional phase after which to stop compiling.
@@ -146,14 +152,26 @@ public:
   // (Also not identical to -- less finely grained than --
   // enum Sqlcmpdbg::CompilationPhase.)
   //
-  enum CompilerPhase
-  { PREPARSE, PARSE, BIND, TRANSFORM, NORMALIZE, SEMANTIC_OPTIMIZE, ANALYSIS,
-    OPTIMIZE, PRECODEGEN, GENERATOR, END };
+  enum CompilerPhase {
+    PREPARSE,
+    PARSE,
+    BIND,
+    TRANSFORM,
+    NORMALIZE,
+    SEMANTIC_OPTIMIZE,
+    ANALYSIS,
+    OPTIMIZE,
+    PRECODEGEN,
+    GENERATOR,
+    END
+  };
 
-  enum QueryCachingOption
-  { NORMAL   // normal operation, attempt to generate cacheable plan and cache it
-  , EXPLAIN  // attempt to generate a cacheable plan but do not cache it
-  , NOCACHE  // do not attempt a cacheable plan, and do not cache it
+  enum QueryCachingOption {
+    NORMAL  // normal operation, attempt to generate cacheable plan and cache it
+    ,
+    EXPLAIN  // attempt to generate a cacheable plan but do not cache it
+    ,
+    NOCACHE  // do not attempt a cacheable plan, and do not cache it
   };
 
   CmpMain();
@@ -173,38 +191,24 @@ public:
 #endif
 
   // sqlcomp will compile a string of sql text into code from generator
-  ReturnStatus sqlcomp (QueryText& input,
-                        Int32 /*unused*/, 
-                        char **gen_code, ULng32 *gen_code_len,
-                        NAMemory *h = NULL,
-                        CompilerPhase = END,
-			FragmentDir **framentDir = NULL,
-                        IpcMessageObjType op=CmpMessageObj::SQLTEXT_COMPILE,
-                        QueryCachingOption useQueryCache=NORMAL);
+  ReturnStatus sqlcomp(QueryText &input, Int32 /*unused*/, char **gen_code, ULng32 *gen_code_len, NAMemory *h = NULL,
+                       CompilerPhase = END, FragmentDir **framentDir = NULL,
+                       IpcMessageObjType op = CmpMessageObj::SQLTEXT_COMPILE,
+                       QueryCachingOption useQueryCache = NORMAL);
 
   // sqlcomp will compile a RelExpr into code from generator
-  ReturnStatus sqlcomp (const char *input_str, Lng32 charset,
-                        RelExpr *&queryExpr,
-                        char **gen_code, ULng32 *gen_code_len,
-                        NAMemory *h = NULL,
-			CompilerPhase p= END,
-			FragmentDir **fragmentDir = NULL,
-                        IpcMessageObjType op=CmpMessageObj::SQLTEXT_COMPILE,
-                        QueryCachingOption useQueryCache=NOCACHE,
-                        NABoolean* cacheable=NULL,
-                        TimeVal* begTime=NULL,
-                        NABoolean shouldLog=FALSE);
+  ReturnStatus sqlcomp(const char *input_str, Lng32 charset, RelExpr *&queryExpr, char **gen_code, ULng32 *gen_code_len,
+                       NAMemory *h = NULL, CompilerPhase p = END, FragmentDir **fragmentDir = NULL,
+                       IpcMessageObjType op = CmpMessageObj::SQLTEXT_COMPILE,
+                       QueryCachingOption useQueryCache = NOCACHE, NABoolean *cacheable = NULL, TimeVal *begTime = NULL,
+                       NABoolean shouldLog = FALSE);
 
   // sqlcomp will compile a string of sql text into code from generator.
   // This string is from a static program and is being recompiled
   // dynamically at runtime.
-  ReturnStatus sqlcompStatic (QueryText& input,
-                              Int32 /*unused*/,
-                              char **gen_code, ULng32 *gen_code_len,
-                              NAMemory *h = NULL,
-                              CompilerPhase = END,
-                              IpcMessageObjType op=CmpMessageObj::SQLTEXT_COMPILE
-                              );
+  ReturnStatus sqlcompStatic(QueryText &input, Int32 /*unused*/, char **gen_code, ULng32 *gen_code_len,
+                             NAMemory *h = NULL, CompilerPhase = END,
+                             IpcMessageObjType op = CmpMessageObj::SQLTEXT_COMPILE);
 
   RelExpr *transform(NormWA &normWA, RelExpr *queryExpr);
 
@@ -221,11 +225,9 @@ public:
   //
   // will end the transaction if endTrans is TRUE. It should
   // be called before returning to caller in sqlcomp procedures.
-  void sqlcompCleanup(const char *input_str,
-                      RelExpr *queryExpr,
-                      NABoolean endTrans);
+  void sqlcompCleanup(const char *input_str, RelExpr *queryExpr, NABoolean endTrans);
 
-  // input arrays maximum size. Required to bind rowsets from ODBC. 
+  // input arrays maximum size. Required to bind rowsets from ODBC.
   // Value is obtained from CLI statement attribute.
   void setInputArrayMaxsize(const ULng32 maxsize);
   ULng32 getInputArrayMaxsize() const;
@@ -234,111 +236,85 @@ public:
   void setSqlParserFlags(ULng32 f);
 
   // get query statement attributes
-  const QryStmtAttributeSet& getStmtAttributes() const { return attrs; }
+  const QryStmtAttributeSet &getStmtAttributes() const { return attrs; }
 
-  void setRowsetAtomicity(const short atomicity) ;
+  void setRowsetAtomicity(const short atomicity);
   RelExpr::AtomicityType getRowsetAtomicity() const;
-  void setHoldableAttr(const short holdable) ;
-  SQLATTRHOLDABLE_INTERNAL_TYPE getHoldableAttr() ;
+  void setHoldableAttr(const short holdable);
+  SQLATTRHOLDABLE_INTERNAL_TYPE getHoldableAttr();
 
   void FlushQueryCachesIfLongTime(Lng32 begTimeInSec);
 
 #ifdef NA_DEBUG_GUI
   // GSH : The following variable is used by the tdm_sqlcmpdbg.
 
-  static CmpContext        * msGui_     ;
-  static SqlcmpdbgExpFuncs* pExpFuncs_;
+  static CmpContext *msGui_;
+  static SqlcmpdbgExpFuncs *pExpFuncs_;
 #endif
 
 #ifndef NDEBUG
-static Lng32       prev_QI_Priv_Value ;
+  static Lng32 prev_QI_Priv_Value;
 #endif
 
-private:
-
-  CmpMain(const CmpMain&);
-  const CmpMain& operator=(const CmpMain&);
+ private:
+  CmpMain(const CmpMain &);
+  const CmpMain &operator=(const CmpMain &);
   QryStmtAttributeSet attrs;
 
-  ReturnStatus compile(const char *input_str, Lng32 charset,
-		       RelExpr *&queryExpr,
-		       char **gen_code, 
-		       ULng32 *gen_code_len,
-		       NAMemory *h,
-		       CompilerPhase p,
-		       FragmentDir **fragmentDir,
-		       IpcMessageObjType op,
-		       QueryCachingOption useQueryCache,
-		       NABoolean* cacheable,
-		       TimeVal* begTime,
-                       NABoolean shouldLog);
+  ReturnStatus compile(const char *input_str, Lng32 charset, RelExpr *&queryExpr, char **gen_code, ULng32 *gen_code_len,
+                       NAMemory *h, CompilerPhase p, FragmentDir **fragmentDir, IpcMessageObjType op,
+                       QueryCachingOption useQueryCache, NABoolean *cacheable, TimeVal *begTime, NABoolean shouldLog);
 
   // try to compile a query using the cache
-  NABoolean compileFromCache
-  (const char* sText,  // (IN) : sql statement text
-   Lng32     charset,   // (IN) : character set of  sql statement text
-   RelExpr* queryExpr, // (IN) : the query to be compiled
-   BindWA*  bindWA,    // (IN) : work area (used by backpatchParams)
-   CacheWA& cachewa,   // (IN) : work area for normalizeForCache
-   char**   plan,      // (OUT): compiled plan or NULL
-   ULng32 *pLen,// (OUT): length of compiled plan or 0
-   NAHeap*  heap,      // (IN) : heap to use for compiled plan
-   IpcMessageObjType op,//(IN): SQLTEXT_COMPILE or SQLTEXT_RECOMPILE
-   NABoolean& bPatchOK, //(OUT): true iff backpatch succeeded
-   TimeVal&   begTime); //(IN):  start time for this compile
+  NABoolean compileFromCache(const char *sText,     // (IN) : sql statement text
+                             Lng32 charset,         // (IN) : character set of  sql statement text
+                             RelExpr *queryExpr,    // (IN) : the query to be compiled
+                             BindWA *bindWA,        // (IN) : work area (used by backpatchParams)
+                             CacheWA &cachewa,      // (IN) : work area for normalizeForCache
+                             char **plan,           // (OUT): compiled plan or NULL
+                             ULng32 *pLen,          // (OUT): length of compiled plan or 0
+                             NAHeap *heap,          // (IN) : heap to use for compiled plan
+                             IpcMessageObjType op,  //(IN): SQLTEXT_COMPILE or SQLTEXT_RECOMPILE
+                             NABoolean &bPatchOK,   //(OUT): true iff backpatch succeeded
+                             TimeVal &begTime);     //(IN):  start time for this compile
 
-   void getAndProcessAnySiKeys(TimeVal begTime);
+  void getAndProcessAnySiKeys(TimeVal begTime);
 
-   Int32 getAnySiKeys( 
-     TimeVal   begTime,           // (IN) start time for compilation
-     TimeVal   prev_QI_inval_time, // (IN) previous Query Invalidation time
-     Int32 *   retNumSiKeys,       // (OUT) Rtn'd size of results array
-     TimeVal * pMaxTimestamp,      // (OUT) Rtn'd max Time Stamp
-     SQL_QIKEY *qiKeyArray,        // (OUT) Rtn'd keys stored here
-     Int32 qiKeyArraySize );       // (IN) Size of of results array
+  Int32 getAnySiKeys(TimeVal begTime,             // (IN) start time for compilation
+                     TimeVal prev_QI_inval_time,  // (IN) previous Query Invalidation time
+                     Int32 *retNumSiKeys,         // (OUT) Rtn'd size of results array
+                     TimeVal *pMaxTimestamp,      // (OUT) Rtn'd max Time Stamp
+                     SQL_QIKEY *qiKeyArray,       // (OUT) Rtn'd keys stored here
+                     Int32 qiKeyArraySize);       // (IN) Size of of results array
 
-   void InvalidateNATableCacheEntries(Int32 returnedNumSiKeys, 
-                                      SQL_QIKEY *qiKeyArray);
-   void InvalidateNATableSchemaCacheEntries();
-   void InvalidateNATableSchemaCacheEntries(Int32 returnedNumQiKeys,
-                                            SQL_QIKEY * qiKeyArray);
-   void InvalidateNARoutineCacheEntries(Int32 returnedNumSiKeys, 
-                                        SQL_QIKEY *qiKeyArray);
-   void InvalidateHistogramCacheEntries(Int32 returnedNumSiKeys, 
-                                        SQL_QIKEY *qiKeyArray);
-   void RemoveMarkedNATableCacheEntries();
-   void UnmarkMarkedNATableCacheEntries();
-   void UpdateNATableCacheEntryStoredStats(Int32 returnedNumQiKeys,
-                                           SQL_QIKEY * qiKeyArray);
+  void InvalidateNATableCacheEntries(Int32 returnedNumSiKeys, SQL_QIKEY *qiKeyArray);
+  void InvalidateNATableSchemaCacheEntries();
+  void InvalidateNATableSchemaCacheEntries(Int32 returnedNumQiKeys, SQL_QIKEY *qiKeyArray);
+  void InvalidateNARoutineCacheEntries(Int32 returnedNumSiKeys, SQL_QIKEY *qiKeyArray);
+  void InvalidateHistogramCacheEntries(Int32 returnedNumSiKeys, SQL_QIKEY *qiKeyArray);
+  void RemoveMarkedNATableCacheEntries();
+  void UnmarkMarkedNATableCacheEntries();
+  void UpdateNATableCacheEntryStoredStats(Int32 returnedNumQiKeys, SQL_QIKEY *qiKeyArray);
 
-   // NOTE: We don't currently put the NARoutine objects associated with SPJs
-   //       into the NARoutine Cache.   The UDF Proof-Of-Concept projects have
-   //       added code to put NARoutine objects associated with UDFs into the
-   //       NARoutine Cache, but we don't currently support UDFs.
-   //       If we ever support UDFs or if we start caching the NARoutine objects
-   //       associated with SPJs, we will probably need the folowing:
+  // NOTE: We don't currently put the NARoutine objects associated with SPJs
+  //       into the NARoutine Cache.   The UDF Proof-Of-Concept projects have
+  //       added code to put NARoutine objects associated with UDFs into the
+  //       NARoutine Cache, but we don't currently support UDFs.
+  //       If we ever support UDFs or if we start caching the NARoutine objects
+  //       associated with SPJs, we will probably need the folowing:
 
-   // void InvalidateNARoutineCacheEntries( Int32 NumSiKeys, SQL_QIKEY * pSiKeyArray );
-   // void RemoveMarkedNARoutineCacheEntries();
-   // void UnmarkMarkedNARoutineCacheEntries();
-   Int32 RestoreCqdsInHint();
+  // void InvalidateNARoutineCacheEntries( Int32 NumSiKeys, SQL_QIKEY * pSiKeyArray );
+  // void RemoveMarkedNARoutineCacheEntries();
+  // void UnmarkMarkedNARoutineCacheEntries();
+  Int32 RestoreCqdsInHint();
 };
 
-RelRoot *CmpTransform(RelExpr *queryExpr);      // global func for convenience
+RelRoot *CmpTransform(RelExpr *queryExpr);  // global func for convenience
 
 const Int32 CmpDescribeSpaceCountPrefix = sizeof(short);
 
-short CmpDescribe        (const char *describeStmt,
-                          const RelExpr *queryExpr,
-                          char *&outbuf,
-                          ULng32 &outbuflen,
-                          NAMemory *h);
+short CmpDescribe(const char *describeStmt, const RelExpr *queryExpr, char *&outbuf, ULng32 &outbuflen, NAMemory *h);
 
-short CmpDescribeControl (Describe *d,
-                          char *&outbuf,
-                          ULng32 &outbuflen,
-                          NAMemory *h);
-
+short CmpDescribeControl(Describe *d, char *&outbuf, ULng32 &outbuflen, NAMemory *h);
 
 #endif
-

@@ -46,7 +46,7 @@
 #include "exp/exp_expr.h"
 #include "comexe/SqlTableOpenInfo.h"
 #include "common/Ipc.h"
-#include "rts_msg.h"
+#include "runtimestats/rts_msg.h"
 
 class InputExpr;
 class OutputExpr;

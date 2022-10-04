@@ -36,14 +36,14 @@
 
 #define   SQLPARSERGLOBALS_NADEFAULTS
 
-#include "Sqlcomp.h"
-#include "AllItemExpr.h"
-#include "BindWA.h"
+#include "optimizer/Sqlcomp.h"
+#include "optimizer/AllItemExpr.h"
+#include "optimizer/BindWA.h"
 #include "arkcmp/CmpStatement.h"
-#include "CmpErrors.h"
+#include "arkcmp/CmpErrors.h"
 #include "common/ComSqlId.h"
-#include "OptimizerSimulator.h"
-#include "exp_datetime.h"
+#include "optimizer/OptimizerSimulator.h"
+#include "exp/exp_datetime.h"
 
 #include "ComSSL.h"
 // For TRIGGERS_STATUS_VECTOR_SIZE and SIZEOF_UNIQUE_EXECUTE_ID
@@ -53,7 +53,7 @@
   static Int32 NCHAR_DEBUG = -1;	// note that, for perf, we call getenv only once
 #endif
 
-#include "SqlParserGlobalsCmn.h"
+#include "parser/SqlParserGlobalsCmn.h"
 //#define getDefaultCharSet CharInfo::getCharSetEnum(ActiveSchemaDB()->getDefaults().getValue(DEFAULT_CHARSET))
 #define getDefaultCharSet SqlParser_DEFAULT_CHARSET
 

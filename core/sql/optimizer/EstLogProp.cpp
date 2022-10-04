@@ -37,16 +37,16 @@
 
 // -----------------------------------------------------------------------
 
-#include "Sqlcomp.h"
+#include "optimizer/Sqlcomp.h"
 #include "EstLogProp.h"
 #include "GroupAttr.h"
 #include "VEGTable.h"
-#include "ItemOther.h"
+#include "optimizer/ItemOther.h"
 #include "RelUpdate.h"
-#include "opt.h"
+#include "optimizer/opt.h"
 
 /////////////////////
-#include "Analyzer.h"
+#include "optimizer/Analyzer.h"
 #include "AppliedStatMan.h"
 /////////////////////
 

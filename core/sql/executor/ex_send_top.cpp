@@ -39,10 +39,10 @@
 // -----------------------------------------------------------------------
 
 #include "common/BaseTypes.h"
-#include "ex_stdh.h"
+#include "executor/ex_stdh.h"
 #include "ex_exe_stmt_globals.h"
 #include "comexe/ComTdb.h"
-#include "ex_tcb.h"
+#include "executor/ex_tcb.h"
 #include "executor/ex_expr.h"
 #include "common/str.h"
 
@@ -724,7 +724,7 @@ TupMsgBuffer* ex_send_top_tcb::getReceiveBuffer()
       while (msgStream_->getNextObjType(msgType))
 	{
 	  if (msgType == ESP_RETURN_STATUS_HDR)
-	    {  // reply to open message, save child ExFragInstanceHandle 
+	    {  // reply to open message, save child int 
 	      
 	      // only a reply to an OPEN can be of this message type
 	      ex_assert_both_sides(sendTopState_ == WAITING_FOR_OPEN_REPLY,
@@ -1095,7 +1095,7 @@ TupMsgBuffer* ex_send_top_tcb::getSendBuffer()
       msgStream_->addRecipient(connection_);
 
       // construct open request in message, 
-      // ask child ESP to respond with ExFragInstanceHandle
+      // ask child ESP to respond with int
       ExEspOpenReqHeader *openReq = 
 	new(*msgStream_) ExEspOpenReqHeader((NAMemory *) NULL);
       if (openReq == NULL)
@@ -1193,7 +1193,7 @@ TupMsgBuffer* ex_send_top_tcb::getSendBuffer()
     }
 
   // construct Input data request header in message,
-  // include child ExFragInstanceHandle for fast routing
+  // include child int for fast routing
   ExEspInputDataReqHeader *hdr = 
     new(*msgStream_) ExEspInputDataReqHeader((NAMemory *) NULL);
   if (hdr == NULL)
@@ -1269,7 +1269,7 @@ short ex_send_top_tcb::continueRequest()
           }
 
       // construct continue request header in message,
-      // include child ExFragInstanceHandle for fast routing
+      // include child int for fast routing
       ExEspContinueReqHeader *hdr = 
 	new(*msgStream_) ExEspContinueReqHeader((NAMemory *) NULL);
       if (hdr == NULL)
@@ -1889,14 +1889,14 @@ TupMsgBuffer * ex_send_top_tcb::getCancelSendBuffer(NABoolean lateCancel)
 	new(*cancelMessageStream_) ExEspLateCancelReqHeader((NAMemory *) NULL);
       if (hdr == NULL)
 	return NULL;
-      // a late cancel message may not know the ExFragInstanceHandle yet
+      // a late cancel message may not know the int yet
       hdr->key_ = getGlobals()->castToExExeStmtGlobals()->getFragmentKey(
 	   sendTopTdb().getChildFragId());
       hdr->myInstanceNum_ = getMyInstanceNum();
     }
   else
     {
-      // include child ExFragInstanceHandle for fast routing
+      // include child int for fast routing
       ExEspCancelReqHeader *hdr = 
 	new(*cancelMessageStream_) ExEspCancelReqHeader((NAMemory *) NULL);
       if (hdr == NULL)

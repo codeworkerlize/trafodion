@@ -57,7 +57,6 @@ class ExEspInstanceThread;
 class ex_split_bottom_tdb;
 class ex_split_bottom_tcb;
 class ExEspStmtGlobals;
-class MemoryMonitor;
 class StatsGlobals;
 
 // -----------------------------------------------------------------------
@@ -158,69 +157,69 @@ public:
     {return cliGlobals_; }
 
   // convert key into handle and vice versa
-  ExFragInstanceHandle findHandle(const ExFragKey &key) const;
-  inline const ExFragKey & findKey(ExFragInstanceHandle handle) const
+  int findHandle(const ExFragKey &key) const;
+  inline const ExFragKey & findKey(int handle) const
                                       { return instances_[handle]->key_; }
 
   // get the top level tcb for an entry
-  inline ex_split_bottom_tcb * getTcb(ExFragInstanceHandle h) const
+  inline ex_split_bottom_tcb * getTcb(int h) const
                                   { return instances_[h]->localRootTcb_; }
-  inline ExEspStmtGlobals *getGlobals(ExFragInstanceHandle h) const
+  inline ExEspStmtGlobals *getGlobals(int h) const
   { return instances_[h]->globals_; }
 
   ex_split_bottom_tcb *getExtractTop(const char *securityKey);
 
-  ExFragInstanceHandle addEntry(ExMsgFragment *msgFragment,
+  int addEntry(ExMsgFragment *msgFragment,
 				IpcConnection *connection,
                                 ComDiagsArea &da);
-  void fixupEntry(ExFragInstanceHandle handle,
+  void fixupEntry(int handle,
 		  Lng32 numOfParentInstances,
 		  ComDiagsArea &da);
 
   // keep track of the activities that go on in the send bottom nodes,
   // record open operation and arrival and finishing of requests
-  void openedSendBottom(ExFragInstanceHandle handle);
-  void startedSendBottomRequest(ExFragInstanceHandle handle);
-  void finishedSendBottomRequest(ExFragInstanceHandle handle);
-  void startedSendBottomCancel(ExFragInstanceHandle handle);
-  void finishedSendBottomCancel(ExFragInstanceHandle handle);
-  void startedLateCancelRequest(ExFragInstanceHandle handle);
-  void finishedLateCancelRequest(ExFragInstanceHandle handle);
-  Lng32 numLateCancelRequests(ExFragInstanceHandle handle);
+  void openedSendBottom(int handle);
+  void startedSendBottomRequest(int handle);
+  void finishedSendBottomRequest(int handle);
+  void startedSendBottomCancel(int handle);
+  void finishedSendBottomCancel(int handle);
+  void startedLateCancelRequest(int handle);
+  void finishedLateCancelRequest(int handle);
+  Lng32 numLateCancelRequests(int handle);
 
   //  Do the ACTIVE->RELEASING_WORK transition
-  void finishedRequest(ExFragInstanceHandle handle,
+  void finishedRequest(int handle,
                        NABoolean testAllQueues = FALSE);
 
   // Do the ACTIVE->WAIT_TO_RELEASE transition
-  void hasReleaseRequest(ExFragInstanceHandle handle);
+  void hasReleaseRequest(int handle);
 
   // release the entry and all its dependent entries
-  void releaseEntry(ExFragInstanceHandle handle);
+  void releaseEntry(int handle);
 
   // release the entries that lost their parent
   void releaseOrphanEntries();
 
   // mark in the entry that it no longer has a transid
-  void hasTransidReleaseRequest(ExFragInstanceHandle handle);
+  void hasTransidReleaseRequest(int handle);
 
   inline Lng32 getNumActiveInstances()      { return numActiveInstances_; }
-  enum FragmentInstanceState getEntryState(ExFragInstanceHandle handle) const
+  enum FragmentInstanceState getEntryState(int handle) const
                                     { return instances_[handle]->fiState_; }
-  ExMsgFragment * getFragment(ExFragInstanceHandle handle) const
+  ExMsgFragment * getFragment(int handle) const
                              { return instances_[handle]->msgFragment_; }
-  ex_split_bottom_tcb *getTopTcb(ExFragInstanceHandle handle) const
+  ex_split_bottom_tcb *getTopTcb(int handle) const
                              { return instances_[handle]->localRootTcb_; }
 
-  Lng32 getNumSendBottomRequests(ExFragInstanceHandle handle)
+  Lng32 getNumSendBottomRequests(int handle)
   { return instances_[handle]->numSendBottomRequests_; }
-  Lng32 getNumSendBottomCancels(ExFragInstanceHandle handle)
+  Lng32 getNumSendBottomCancels(int handle)
   { return instances_[handle]->numSendBottomCancels_; }
 
   NABoolean multiThreadedEsp() { return mainThreadInfo_ != NULL; }
   void wakeMainThread() { if (mainThreadInfo_) mainThreadInfo_->resume(); }
 
-  ExEspInstanceThread *getEspInstanceThread(ExFragInstanceHandle handle)
+  ExEspInstanceThread *getEspInstanceThread(int handle)
   { return instances_[handle]->espInstanceThread_; }
 
   // work on all active fragment instances
@@ -230,7 +229,7 @@ public:
     {
     public:
       ExFragKey               key_;           // pid,stmthandle,fragid triplet
-      ExFragInstanceHandle    handle_;        // index of the owning array
+      int    handle_;        // index of the owning array
       FragmentInstanceState   fiState_;         // state of this entry
       ExFragDir::ExFragEntryType fragType_; // ESP or DP2 fragment
       ExFragKey               parentKey_;     // parent fragment id
@@ -273,7 +272,7 @@ public:
   // For fragment instance trace
   struct FiStateTrace 
   {
-    ExFragInstanceHandle fragId_;
+    int fragId_;
     FragmentInstanceState fiState_;
     Int32 lineNum_;
   };
@@ -283,7 +282,7 @@ public:
            { return ((ExEspFragInstanceDir *) mine)->printALiner(lineno, buf); }
 
   void initFiStateTrace();
-  FragmentInstanceState setFiState(ExFragInstanceHandle fragId,
+  FragmentInstanceState setFiState(int fragId,
                                    FragmentInstanceState newState,
                                    Int32 linenum);
 
@@ -333,7 +332,7 @@ private:
   
   // private methods
   ExEspFragInstance * findEntry(const ExFragKey &key);
-  void destroyEntry(ExFragInstanceHandle handle);
+  void destroyEntry(int handle);
 
   void traceIdleMemoryUsage();
 };
@@ -371,7 +370,7 @@ private:
 
   // store info about the received request (key, handle)
   ExFragKey            currKey_;
-  ExFragInstanceHandle currHandle_;
+  int currHandle_;
 
   // private methods
 

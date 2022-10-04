@@ -37,21 +37,21 @@
 
 //#include <process.h>
 
-#include "Analyzer.h"
+#include "optimizer/Analyzer.h"
 
 #include "MultiJoin.h"
 #include "AppliedStatMan.h"
-#include "opt.h"
-#include "RelExpr.h"
+#include "optimizer/opt.h"
+#include "optimizer/RelExpr.h"
 #include "TransRule.h"
 
 //tmp includes for join and other relexpr methods
 #include "RelJoin.h"
 #include "optimizer/RelScan.h"
-#include "RelGrby.h"
+#include "optimizer/RelGrby.h"
 #include "RelUpdate.h"
-#include "RelRoutine.h"
-#include "RelExeUtil.h"
+#include "optimizer/RelRoutine.h"
+#include "optimizer/RelExeUtil.h"
 #include "QRDescGenerator.h"
 #include "QueryRewriteHandler.h"
 #include "cli/Globals.h"

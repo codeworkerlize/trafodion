@@ -36,7 +36,7 @@
 
 #include "nsk/nskprocess.h"
 extern "C" {
-//#include "cextdecs/cextdecs.h"
+#include "common/cextdecs.h"
 #include "zsysc.h"
 }
 

@@ -33,18 +33,18 @@
 *
 ******************************************************************************
 */
-#include "Inlining.h"
+#include "optimizer/Inlining.h"
 #include "optimizer/Triggers.h"
 #include "optimizer/TableDesc.h"
 #include "RelUpdate.h"
 #include "optimizer/ItemColRef.h"
-#include "RETDesc.h"
-#include "ColumnDesc.h"
-#include "BindWA.h"
-#include "NormWA.h"
-#include "ItemOther.h"
+#include "optimizer/RETDesc.h"
+#include "optimizer/ColumnDesc.h"
+#include "optimizer/BindWA.h"
+#include "optimizer/NormWA.h"
+#include "optimizer/ItemOther.h"
 #include "ItemSample.h"
-#include "SchemaDB.h"
+#include "optimizer/SchemaDB.h"
 
 // These "global" column names are used for inlining.
 const char InliningInfo::execIdVirtualColName_[]   = "@EXECID";

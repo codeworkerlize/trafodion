@@ -35,9 +35,9 @@
 // *
 // ***************************************************************************
 
-#include "ex_stdh.h"
+#include "executor/ex_stdh.h"
 #include "comexe/ComTdb.h"
-#include "ex_tcb.h"
+#include "executor/ex_tcb.h"
 #include "comexe/ComQueue.h"
 #include "ex_mj.h"
 #include "ex_exe_stmt_globals.h"

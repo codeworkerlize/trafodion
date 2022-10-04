@@ -569,7 +569,7 @@ enum {DIALECT_ZERO                = 0,   // %0,  Unenlightened messages
    _redef(unsigned_char,base,dialect_type);                   /* used for varstring offset accesses*/\
    /* request format*/                                                        \
    int_16  request_type; /* defined by each dialect*/                         \
-   _redef2(int_32,dialect_request_type,dialect_type /* A short way to check both the dialect*/\
+   _redef2(int,dialect_request_type,dialect_type /* A short way to check both the dialect*/\
      );                                                       /*  and the request i.e.*/\
                                                               /*  msg.dialect_request_type = $Dbll(di,req)*/\
    int_16  request_version;                                   /* highest version that requester understand*/\

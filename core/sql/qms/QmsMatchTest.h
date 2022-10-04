@@ -32,7 +32,7 @@
 // Created:      08/26/08
 // ***********************************************************************
 
-#include "QRSharedPtr.h"
+#include "qmscommon/QRSharedPtr.h"
 
 // Forward declarations
 class RewriteInstructionsItem;

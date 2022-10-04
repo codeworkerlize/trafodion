@@ -36,13 +36,13 @@
  *****************************************************************************
  */
 
-#include "Sqlcomp.h"
-#include "AllItemExpr.h"
-#include "AllRelExpr.h"
+#include "optimizer/Sqlcomp.h"
+#include "optimizer/AllItemExpr.h"
+#include "optimizer/AllRelExpr.h"
 #include "RelSequence.h"
 #include "RelSample.h"
 #include "RelPackedRows.h"
-#include "Generator.h"
+#include "generator/Generator.h"
 #include "mdamkey.h"
 #include "GroupAttr.h"
 

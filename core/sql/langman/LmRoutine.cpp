@@ -30,8 +30,8 @@
 
 #include "LmRoutine.h"
 #include "LmLangManager.h"
-#include "LmCommon.h"
-#include "ComObjectName.h"
+#include "langman/LmCommon.h"
+#include "common/ComObjectName.h"
 
 LmRoutine::LmRoutine(LmHandle container,
                      LmHandle routine,

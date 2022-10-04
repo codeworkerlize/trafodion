@@ -42,7 +42,7 @@
 #endif
 #include "parser/SqlParserGlobals.h"
 
-#include "ElemDDLColRefArray.h"
+#include "parser/ElemDDLColRefArray.h"
 #include "ElemDDLConstraint.h"
 
 // -----------------------------------------------------------------------

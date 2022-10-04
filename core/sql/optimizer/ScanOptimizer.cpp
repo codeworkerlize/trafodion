@@ -44,17 +44,17 @@
 #include "MdamDebug.h"
 #include "ScanOptimizer.h"
 #include "SimpleScanOptimizer.h"
-#include "NAFileSet.h"
+#include "optimizer/NAFileSet.h"
 #include "optimizer/ItemColRef.h"
-#include "NATable.h"
-#include "ItemOther.h"
+#include "optimizer/NATable.h"
+#include "optimizer/ItemOther.h"
 #include "arkcmp/CmpContext.h"
-#include "Sqlcomp.h"
-#include "ControlDB.h"
+#include "optimizer/Sqlcomp.h"
+#include "optimizer/ControlDB.h"
 #include "ItemLog.h"
 #include "../exp/exp_ovfl_ptal.h" //to check overflow
 #include "arkcmp/CmpStatement.h"
-#include "mdam.h"
+#include "optimizer/mdam.h"
 #include "OptRange.h"
 
 // -----------------------------------------------------------------------

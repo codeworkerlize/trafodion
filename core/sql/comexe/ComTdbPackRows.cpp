@@ -24,7 +24,7 @@
 ****************************************************************************
 *
 * File:         ComTdbPackRows.cpp
-* Description:  
+* Description:
 *
 * Created:      5/6/98
 * Language:     C++
@@ -45,28 +45,22 @@
 //////////////////////////////////////////////////////////////////////////////
 
 // Default Constructor.
-ComTdbPackRows::ComTdbPackRows() :
-  ComTdb(ComTdb::ex_PACKROWS,eye_PACKROWS),
-  packTuppIndex_(0)
-{
-}
+ComTdbPackRows::ComTdbPackRows() : ComTdb(ComTdb::ex_PACKROWS, eye_PACKROWS), packTuppIndex_(0) {}
 
 // Copy Constructor.
-ComTdbPackRows::ComTdbPackRows(const ComTdbPackRows* packTdb)
-  : ComTdb(ComTdb::ex_PACKROWS,eye_PACKROWS),
-    childTdb_(packTdb->childTdb_),
-    packExpr_(packTdb->packExpr_),
-    predExpr_(packTdb->predExpr_),
-    packTuppLen_(packTdb->packTuppLen_),
-    givenCriDesc_(packTdb->givenCriDesc_),
-    returnedCriDesc_(packTdb->returnedCriDesc_),
-    fromParent_(packTdb->fromParent_),
-    toParent_(packTdb->toParent_),
-    packTuppIndex_(packTdb->packTuppIndex_),
-    bufferSize_(10000),
-    noOfBuffers_(5)
-{
-}
+ComTdbPackRows::ComTdbPackRows(const ComTdbPackRows *packTdb)
+    : ComTdb(ComTdb::ex_PACKROWS, eye_PACKROWS),
+      childTdb_(packTdb->childTdb_),
+      packExpr_(packTdb->packExpr_),
+      predExpr_(packTdb->predExpr_),
+      packTuppLen_(packTdb->packTuppLen_),
+      givenCriDesc_(packTdb->givenCriDesc_),
+      returnedCriDesc_(packTdb->returnedCriDesc_),
+      fromParent_(packTdb->fromParent_),
+      toParent_(packTdb->toParent_),
+      packTuppIndex_(packTdb->packTuppIndex_),
+      bufferSize_(10000),
+      noOfBuffers_(5) {}
 
 // Constructor.
 //
@@ -101,38 +95,28 @@ ComTdbPackRows::ComTdbPackRows(const ComTdbPackRows* packTdb)
 //  IN: Recommended queue size for the up queue used to communicate
 //      with the parent.
 //
-ComTdbPackRows::ComTdbPackRows(ComTdb* childTdb,
-                     ex_expr* packExpr,
-                     ex_expr* predExpr,
-                     const unsigned short packTuppIndex,
-                     Lng32 packTuppLen,
-                     ex_cri_desc* givenCriDesc,
-                     ex_cri_desc* returnedCriDesc,
-                     queue_index fromParent,
-                     queue_index toParent) :
-  ComTdb(ComTdb::ex_PACKROWS,eye_PACKROWS),
-  childTdb_(childTdb),
-  packExpr_(packExpr),
-  predExpr_(predExpr),
-  packTuppIndex_(packTuppIndex),
-  packTuppLen_(packTuppLen),
-  givenCriDesc_(givenCriDesc),
-  returnedCriDesc_(returnedCriDesc),
-  fromParent_(fromParent),
-  toParent_(toParent),
-  bufferSize_(10024),
-  noOfBuffers_(5)
-{
-}
+ComTdbPackRows::ComTdbPackRows(ComTdb *childTdb, ex_expr *packExpr, ex_expr *predExpr,
+                               const unsigned short packTuppIndex, Lng32 packTuppLen, ex_cri_desc *givenCriDesc,
+                               ex_cri_desc *returnedCriDesc, queue_index fromParent, queue_index toParent)
+    : ComTdb(ComTdb::ex_PACKROWS, eye_PACKROWS),
+      childTdb_(childTdb),
+      packExpr_(packExpr),
+      predExpr_(predExpr),
+      packTuppIndex_(packTuppIndex),
+      packTuppLen_(packTuppLen),
+      givenCriDesc_(givenCriDesc),
+      returnedCriDesc_(returnedCriDesc),
+      fromParent_(fromParent),
+      toParent_(toParent),
+      bufferSize_(10024),
+      noOfBuffers_(5) {}
 
-void ComTdbPackRows::display() const 
-{
+void ComTdbPackRows::display() const {
   // Do nothing for now.
 }
 
 // Pack the Pack node (double pack?) for transmission between processes.
-Long ComTdbPackRows::pack(void * space)
-{
+Long ComTdbPackRows::pack(void *space) {
   // Pack the child TDB.
   childTdb_.pack(space);
 
@@ -148,13 +132,12 @@ Long ComTdbPackRows::pack(void * space)
 }
 
 // Unpack the pack TDB after transmission between processes.
-Lng32 ComTdbPackRows::unpack(void * base, void * reallocator)
-{
-  if(childTdb_.unpack(base, reallocator)) return -1;
-  if(givenCriDesc_.unpack(base, reallocator)) return -1;
-  if(returnedCriDesc_.unpack(base, reallocator)) return -1;
-  if(packExpr_.unpack(base, reallocator)) return -1;
-  if(predExpr_.unpack(base, reallocator)) return -1;
+Lng32 ComTdbPackRows::unpack(void *base, void *reallocator) {
+  if (childTdb_.unpack(base, reallocator)) return -1;
+  if (givenCriDesc_.unpack(base, reallocator)) return -1;
+  if (returnedCriDesc_.unpack(base, reallocator)) return -1;
+  if (packExpr_.unpack(base, reallocator)) return -1;
+  if (predExpr_.unpack(base, reallocator)) return -1;
   return ComTdb::unpack(base, reallocator);
 }
 

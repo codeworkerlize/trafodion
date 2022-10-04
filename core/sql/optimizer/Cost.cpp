@@ -37,7 +37,7 @@
 
 // -----------------------------------------------------------------------
 
-#include "Sqlcomp.h"
+#include "optimizer/Sqlcomp.h"
 #include "GroupAttr.h"
 #include "Cost.h"
 #include "sqlcomp/DefaultConstants.h"
@@ -46,8 +46,8 @@
 #include "optimizer/CostScalar.h"
 #include "arkcmp/CmpContext.h"
 #include "cli/SQLCLIdev.h"
-#include "opt.h"
-#include "CompException.h"
+#include "optimizer/opt.h"
+#include "arkcmp/CompException.h"
 #include <math.h>
 
 

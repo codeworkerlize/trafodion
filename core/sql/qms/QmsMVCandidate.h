@@ -34,7 +34,7 @@
 
 // _MEMSHAREDPTR;_MEMCHECK
 
-#include "QRSharedPtr.h"
+#include "qmscommon/QRSharedPtr.h"
 #include "qmscommon/QRDescriptor.h"
 #include "QmsLatticeIndex.h"
 

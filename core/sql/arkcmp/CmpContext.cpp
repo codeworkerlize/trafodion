@@ -46,19 +46,19 @@
 #include "common/CmpCommon.h"
 #include "arkcmp/CmpContext.h"
 #include "arkcmp/CmpStatement.h"
-#include "ControlDB.h"
-#include "CmpMemoryMonitor.h"
+#include "optimizer/ControlDB.h"
+#include "optimizer/CmpMemoryMonitor.h"
 #include "common/NAHeap.h"
-#include "NewDel.h"
-#include "OptimizerSimulator.h"
-#include "SchemaDB.h"
+#include "sqlcomp/NewDel.h"
+#include "optimizer/OptimizerSimulator.h"
+#include "optimizer/SchemaDB.h"
 #include "common/CmpCommon.h"
-#include "Rule.h"               
+#include "optimizer/Rule.h"               
 #include "ImplRule.h"           // for CreateImplementationRules()
 #include "TransRule.h"          // for CreateTransformationRules()
-#include "PhyProp.h"            // for InitCostVariables()
+#include "optimizer/PhyProp.h"            // for InitCostVariables()
 #include "common/NAClusterInfo.h"
-#include "UdfDllInteraction.h"
+#include "optimizer/UdfDllInteraction.h"
 #ifdef NA_CMPDLL
 #define   SQLPARSERGLOBALS_FLAGS   // needed to set SqlParser_Flags
 #endif //NA_CMPDLL
@@ -66,24 +66,24 @@
 #include "CmpErrLog.h"
 #include "qmscommon/QRLogger.h"
 #include "sqlmxevents/logmxevent.h"
-#include "CmpSeabaseDDL.h"
+#include "sqlcomp/CmpSeabaseDDL.h"
 #include "cli/Globals.h"
-#include "sqludr.h"
+#include "sqludr/sqludr.h"
 
 // #include "PCodeExprCache.h"
-#include "HBaseClient_JNI.h"
+#include "executor/HBaseClient_JNI.h"
 #include "cli/Context.h"
 
 #ifdef NA_CMPDLL
-#include "CompException.h"
+#include "arkcmp/CompException.h"
 #include "CostMethod.h"
 #endif //NA_CMPDLL
 
-#include "NATestpoint.h"
+#include "common/NATestpoint.h"
 
 //++MV
 extern "C" {
-//#include "cextdecs/cextdecs.h"
+#include "common/cextdecs.h"
 }
 
 
@@ -91,8 +91,8 @@ extern "C" {
   #define ENVIRON environ
   #define PUTENV  putenv
 
-#include "NATable.h"
-#include "CompilerTracking.h"
+#include "optimizer/NATable.h"
+#include "optimizer/CompilerTracking.h"
 
 ostream &operator<<(ostream &dest, const ComDiagsArea& da);
 

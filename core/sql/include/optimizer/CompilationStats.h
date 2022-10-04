@@ -24,10 +24,10 @@
 #define COMPILATIONSTATS_H
 
 #include "CmpProcess.h"
-#include "QCache.h"
-#include "SchemaDB.h"
-#include "NATable.h"
-#include "opt.h"
+#include "sqlcomp/QCache.h"
+#include "optimizer/SchemaDB.h"
+#include "optimizer/NATable.h"
+#include "optimizer/opt.h"
 /************************************************************************
 class CompilationStats
 

@@ -41,7 +41,7 @@
 #include "common/Platform.h"
 
 #include "common/Int64.h"
-#include "ex_frag_inst.h"
+#include "executor/ex_frag_inst.h"
 #include "executor/sql_buffer.h"
 // -----------------------------------------------------------------------
 // Contents of this file
@@ -415,7 +415,7 @@ struct ExEspInputDataReqHeader : public ExEspRequestHeader
 
   // data members
 
-  ExFragInstanceHandle handle_;
+  int handle_;
   Int32  myInstanceNum_;
   char   endianness_; // big-endian, little endian
   char   spare1_;
@@ -450,7 +450,7 @@ struct ExEspContinueReqHeader : public ExEspRequestHeader
 
   // data members
 
-  ExFragInstanceHandle handle_;
+  int handle_;
   Int32 myInstanceNum_;
   char endianness_; // big-endian, little endian
   char spare1_;
@@ -859,7 +859,7 @@ struct ExEspCancelReqHeader : public ExEspRequestHeader
 
   // data members
   char endianness_; // big-endian, little endian
-  ExFragInstanceHandle handle_;
+  int handle_;
   Int32 myInstanceNum_;
   Int32 spare1_;
   Int32 spare2_;
@@ -978,7 +978,7 @@ struct ExEspReturnStatusReplyHeader : public ExEspReplyHeader
   // assigned handle; if a NULL handle is passed back this means that
   // no instance is downloaded (either a serious error occurred or
   // this is the reply to a release message)
-  ExFragInstanceHandle handle_;
+  int handle_;
 
   // return the state of the instance (as a long, enums are not portable)
   Int32                instanceState_;

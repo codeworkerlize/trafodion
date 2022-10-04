@@ -263,7 +263,7 @@ private:
     INVALID,                // Invalid is for the trace buffer only
     NOT_OPENED,             // initial state
     WAITING_FOR_OPEN_COMPLETION, // waiting for nowaited open to complete
-    WAITING_FOR_OPEN_REPLY, // waiting for open reply, ExFragInstanceHandle
+    WAITING_FOR_OPEN_REPLY, // waiting for open reply, int
     CANCELED_BEFORE_OPENED, // waiting for cancel reply, normal open
                             // hasn't happened; can only go back to NOT_OPENED
     OPEN_COMPLETE,          // open reply received, continue sending
@@ -357,7 +357,7 @@ private:
   CollIndex mySendTopTcbIndex_; // for cancel processing
 
   // a quick way to identify the child fragment in the child ESP
-  ExFragInstanceHandle  childFragHandle_;
+  int  childFragHandle_;
 
   // process id of our communication partner
   IpcProcessId bottomProcId_;

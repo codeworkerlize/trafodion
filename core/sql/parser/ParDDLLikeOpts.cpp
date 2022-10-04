@@ -36,7 +36,7 @@
 
 #include "common/BaseTypes.h"
 #include "common/ComASSERT.h"
-#include "ComOperators.h"
+#include "common/ComOperators.h"
 #include "ElemDDLLikeOptions.h"
 #include "common/OperTypeEnum.h"
 #include "ParDDLLikeOpts.h"

@@ -36,7 +36,7 @@
  */
 
 #include "common/NAStdlib.h" // Redefines strcpy(), strncpy(), strcmp() for SRLs
-#include "timeout_data.h"
+#include "executor/timeout_data.h"
 #include "ex_ex.h"  // for ex_assert()
 #include "comexe/ComTdbRoot.h"
 

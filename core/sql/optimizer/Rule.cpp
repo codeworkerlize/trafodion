@@ -37,10 +37,10 @@
 
 // -----------------------------------------------------------------------
 
-#include "Sqlcomp.h"
+#include "optimizer/Sqlcomp.h"
 #include "TransRule.h"
 #include "ImplRule.h"
-#include "opt.h"
+#include "optimizer/opt.h"
 #include "EstLogProp.h"
 #include "sqlcomp/DefaultConstants.h"
 #include "arkcmp/CmpContext.h"

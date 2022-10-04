@@ -36,7 +36,7 @@
  */
 
 #include "common/ComASSERT.h"
-#include "ComOperators.h"
+#include "common/ComOperators.h"
 #include "ElemDDLPrivActions.h"
 #include "common/NAString.h"
 

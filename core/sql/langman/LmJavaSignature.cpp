@@ -35,7 +35,7 @@
 
 #include "LmParameter.h"
 #include "LmJavaType.h"
-#include "LmJavaSignature.h"
+#include "langman/LmJavaSignature.h"
 #include "LmJavaSignatureHelpers.h"
 
 //

@@ -41,7 +41,7 @@
 
 
 #include "common/ComASSERT.h"
-#include "ComOperators.h"
+#include "common/ComOperators.h"
 #include "ElemDDLNode.h"
 #include "common/NABoolean.h"
 

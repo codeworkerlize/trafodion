@@ -36,7 +36,7 @@
 
 // -----------------------------------------------------------------------
 
-#include "CompositeType.h"
+#include "common/CompositeType.h"
 #include "common/str.h"
 #include "common/ComDefs.h"
 #include "common/CmpCommon.h"

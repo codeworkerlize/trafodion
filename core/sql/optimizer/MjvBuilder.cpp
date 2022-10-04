@@ -34,12 +34,12 @@
 ******************************************************************************
 */
 
-#include "AllItemExpr.h"
-#include "AllRelExpr.h"
+#include "optimizer/AllItemExpr.h"
+#include "optimizer/AllRelExpr.h"
 #include "ItemSample.h"
 #include "MVInfo.h"
-#include "BindWA.h"
-#include "parser.h"
+#include "optimizer/BindWA.h"
+#include "sqlcomp/parser.h"
 #include "MjvBuilder.h"
 
 // ===========================================================================

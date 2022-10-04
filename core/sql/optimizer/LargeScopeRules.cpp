@@ -38,10 +38,10 @@
 
 #include "GroupAttr.h"
 #include "TransRule.h"
-#include "Analyzer.h"
+#include "optimizer/Analyzer.h"
 #include "MultiJoin.h"
 #include "AppliedStatMan.h"
-#include "opt.h"
+#include "optimizer/opt.h"
 
 extern NAUnsigned              MJEnumRuleNumber;
 extern NAUnsigned              MJStarJoinIRuleNumber;

@@ -40,7 +40,7 @@
 */
 
 // -----------------------------------------------------------------------
-#include "RelExpr.h"
+#include "optimizer/RelExpr.h"
 #include "common/CmpCommon.h"
 #include "arkcmp/CmpContext.h"
 #include "common/NAWNodeSet.h"

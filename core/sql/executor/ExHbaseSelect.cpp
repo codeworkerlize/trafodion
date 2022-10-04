@@ -23,10 +23,10 @@
 
 #include "common/Platform.h"
 
-#include "ex_stdh.h"
+#include "executor/ex_stdh.h"
 #include "cli/Context.h"
 #include "comexe/ComTdb.h"
-#include "ex_tcb.h"
+#include "executor/ex_tcb.h"
 #include "ExHbaseAccess.h"
 #include "ex_exe_stmt_globals.h"
 #include "exp_function.h"
@@ -35,9 +35,9 @@
 
 #include "SQLTypeDefs.h"
 
-#include "ExpHbaseInterface.h"
+#include "exp/ExpHbaseInterface.h"
 
-#include "ExDDLValidator.h"
+#include "executor/ExDDLValidator.h"
 
 static char *costThreshold = getenv("RECORD_TIME_COST_JNI");
 static char *costJniAll = getenv("RECORD_TIME_COST_JNI_ALL");

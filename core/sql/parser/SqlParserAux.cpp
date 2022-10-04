@@ -52,13 +52,13 @@
 #include "SqlParserAux.h"
 
 #include <errno.h>
-#include "AllItemExpr.h"
-#include "CompositeType.h"
+#include "optimizer/AllItemExpr.h"
+#include "common/CompositeType.h"
 #include "common/MiscType.h"
 #include "common/NumericType.h"
 #include "ParserMsg.h"
 #include "SqlciError.h"
-#include "wstr.h"
+#include "common/wstr.h"
 #include "common/nawstring.h"
 
 
@@ -70,7 +70,7 @@ class PairOfUnsigned;
 #include "common/CharType.h"
 #include "common/ComSmallDefs.h"
 #include "common/ComTransInfo.h"
-#include "ComUnits.h"
+#include "common/ComUnits.h"
 #include "HvTypes.h"
 #include "ElemDDLConstraintRI.h"
 #include "ElemDDLPartition.h"
@@ -80,7 +80,7 @@ class PairOfUnsigned;
 #include "optimizer/RelScan.h"
 #include "RelUpdate.h"
 #include "RelSequence.h"
-#include "RelExeUtil.h"
+#include "optimizer/RelExeUtil.h"
 #include "StmtDMLSetTransaction.h"
 #include "exp/exp_clause_derived.h"
 #include <sqlparser.h> // Angled-brackets are intentional here

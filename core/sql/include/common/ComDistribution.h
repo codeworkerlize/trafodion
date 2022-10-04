@@ -51,7 +51,7 @@
 // -----------------------------------------------------------------------
 
 #include "common/NAWinNT.h"
-#include "wstr.h"
+#include "common/wstr.h"
 
 // -----------------------------------------------------------------------
 // Functions to convert SQL names from the for-internal-process character

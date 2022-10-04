@@ -33,8 +33,8 @@
 ******************************************************************************
 */
 
-#include "Sqlcomp.h"
-#include "ItemOther.h"
+#include "optimizer/Sqlcomp.h"
+#include "optimizer/ItemOther.h"
 #include "ItemLog.h"
 #include "ItemSubq.h"
 #include "ItemFunc.h"

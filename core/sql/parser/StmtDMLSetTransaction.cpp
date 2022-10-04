@@ -41,7 +41,7 @@
 #include "StmtDDLNode.h"
 #include "StmtDMLSetTransaction.h"
 #include "cli/SQLCLIdev.h"
-#include "ItemOther.h"
+#include "optimizer/ItemOther.h"
 #define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #include "parser/SqlParserGlobals.h"
 

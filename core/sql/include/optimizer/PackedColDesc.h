@@ -41,7 +41,7 @@
 // partitioning and that feature is not active anymore
 #include "common/Collections.h"
 #include "common/NAType.h"
-#include "NATable.h"
+#include "optimizer/NATable.h"
 
 // The classes defined in this file are used to describe the way in which
 // a table is packed.   The diagram below illustrates how the strutures are

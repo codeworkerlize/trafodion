@@ -35,7 +35,7 @@
 
 #include "common/BaseTypes.h"
 #include "sqlcat/TrafDDLdesc.h"
-#include "BindWA.h"
+#include "optimizer/BindWA.h"
 #include "common/NAType.h"
 #include "common/NumericType.h"
 #include "common/CharType.h"
@@ -44,20 +44,20 @@
 #include "common/CmpCommon.h"
 #include "UdrErrors.h"
 #include "NARoutineDB.h"
-#include "NARoutine.h"
-#include "SchemaDB.h"
+#include "optimizer/NARoutine.h"
+#include "optimizer/SchemaDB.h"
 #include "common/str.h"
-#include "LmJavaSignature.h"
+#include "langman/LmJavaSignature.h"
 #include "CmUtil.h"
-#include "NATableSt.h"
-#include "CmpMain.h"
+#include "arkcmp/NATableSt.h"
+#include "sqlcomp/CmpMain.h"
 #include "cli/Globals.h"
 #include "cli/Context.h"
-#include "ComUser.h"
-#include "CmpSeabaseDDL.h"
+#include "common/ComUser.h"
+#include "sqlcomp/CmpSeabaseDDL.h"
 
 #define   SQLPARSERGLOBALS_NADEFAULTS
-#include "SqlParserGlobalsCmn.h"
+#include "parser/SqlParserGlobalsCmn.h"
 #include "parser/SqlParserGlobals.h"           // should be last #include
 
 // -----------------------------------------------------------------------

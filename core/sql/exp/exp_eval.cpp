@@ -50,7 +50,7 @@
 #include "BigNumHelper.h"
 #include "ExpPCodeOptimizations.h"
 #include "common/unicode_char_set.h"
-#include "wstr.h"
+#include "common/wstr.h"
 
 #include <sys/mman.h>
 #include <fenv.h>  // floating point environment stuff
@@ -58,9 +58,9 @@
 #include "exp_ovfl_ptal.h"
 
 #include "exp_ieee.h"
-#include "ex_stdh.h"
+#include "executor/ex_stdh.h"
 #include "comexe/ComTdb.h"
-#include "ex_tcb.h"
+#include "executor/ex_tcb.h"
 #include "qmscommon/QRLogger.h"
 double MathConvReal64ToReal64(double op1, Int16 * ov);
 #include <float.h>      /* nolist */

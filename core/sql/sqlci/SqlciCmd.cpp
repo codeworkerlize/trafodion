@@ -66,7 +66,7 @@
 #include "Sqlci.h"
 #include "cli/sql_id.h"
 #include "common/ComRtUtils.h"
-#include "ComUser.h"
+#include "common/ComUser.h"
 
 extern ComDiagsArea sqlci_DA;
 

@@ -39,21 +39,21 @@
 
 #include "sqlcat/TrafDDLdesc.h"
 
-#include "ComOptIncludes.h"
+#include "common/ComOptIncludes.h"
 #include "GroupAttr.h"
-#include "Generator.h"
+#include "generator/Generator.h"
 #include "GenExpGenerator.h"
 #include "common/ComSysUtils.h"
 #include "comexe/ExplainTuple.h"
-#include "BindWA.h"
-#include "SchemaDB.h"
+#include "optimizer/BindWA.h"
+#include "optimizer/SchemaDB.h"
 #include "common/ComTransInfo.h"
 #include "arkcmp/CmpContext.h"
 #include "arkcmp/CmpStatement.h"
 #include "CmpSqlSession.h"
-#include "ControlDB.h"
-#include "RelMisc.h"
-#include "RelExeUtil.h"
+#include "optimizer/ControlDB.h"
+#include "optimizer/RelMisc.h"
+#include "optimizer/RelExeUtil.h"
 #include "common/ComCextdecs.h"
 
 #include "sqlmxevents/logmxevent.h"
@@ -71,7 +71,7 @@
 
 // #include "PCodeExprCache.h"
 #include "sqlcat/TrafDDLdesc.h"
-#include "HBaseClient_JNI.h"
+#include "executor/HBaseClient_JNI.h"
 #include "comexe/ComASNodes.h"
 #include "common/NAWNodeSet.h"
 #include "cli/Context.h"
@@ -79,7 +79,7 @@
 #define   SQLPARSERGLOBALS_FLAGS
 #include "parser/SqlParserGlobals.h"   // Parser Flags
 
-#include "CmpSeabaseDDLmd.h"
+#include "sqlcomp/CmpSeabaseDDLmd.h"
 
 // -----------------------------------------------------------------------
 // When called within arkcmp.exe, fixupVTblPtr() translates to a call

@@ -34,11 +34,11 @@
 ******************************************************************************
 */
 
-#include "AllRelExpr.h"
+#include "optimizer/AllRelExpr.h"
 #include "Cost.h"
-#include "Generator.h"
+#include "generator/Generator.h"
 #include "GroupAttr.h"
-#include "PhyProp.h"
+#include "optimizer/PhyProp.h"
 #include "common/ComSmallDefs.h"
 #include "comexe/ComTdb.h"
 #include "comexe/ComTdbSplitBottom.h"
@@ -47,7 +47,7 @@
 #include "comexe/ComTdbSort.h"
 #include "comexe/ComTdbRoot.h"
 #include "common/ComTransInfo.h"
-#include "ControlDB.h"
+#include "optimizer/ControlDB.h"
 #include "comexe/ExplainTuple.h"
 #include "comexe/ExplainTupleMaster.h"
 #include "arkcmp/CmpStatement.h"
@@ -60,9 +60,9 @@
 #include "comexe/ComTdbCancel.h"
 
 
-#include "StmtDDLCreateTable.h"
-#include "StmtDDLCreateIndex.h"
-#include "StmtDDLonHiveObjects.h"
+#include "parser/StmtDDLCreateTable.h"
+#include "parser/StmtDDLCreateIndex.h"
+#include "parser/StmtDDLonHiveObjects.h"
 #include "common/ComDistribution.h"
 #include "sqlcat/TrafDDLdesc.h"
 

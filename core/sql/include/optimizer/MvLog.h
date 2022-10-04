@@ -36,7 +36,7 @@
 ******************************************************************************
 */
 
-#include "RelMisc.h"
+#include "optimizer/RelMisc.h"
 
 // MVLOG command is not supported
 

@@ -45,7 +45,7 @@
 #endif
 
 #include "common/Collections.h"
-#include "ElemDDLColName.h"
+#include "parser/ElemDDLColName.h"
 #include "parser/SqlParserGlobals.h"
 
 // -----------------------------------------------------------------------

@@ -41,7 +41,7 @@
 #include "AllElemDDLUdr.h"
 #include "common/ComASSERT.h"
 #include "export/ComDiags.h"
-#include "ComOperators.h"
+#include "common/ComOperators.h"
 #include "common/ComMisc.h"
 
 

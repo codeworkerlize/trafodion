@@ -23,7 +23,7 @@
 
 #include "QueryRewriteServer.h"
 #include "QmmQmm.h"
-#include "QRSharedPtr.h"
+#include "qmscommon/QRSharedPtr.h"
 #include "qmscommon/QRLogger.h"
 #include "common/NAType.h"
 
@@ -31,7 +31,7 @@
 #include "seabed/ms.h"
 #include "seabed/fs.h"
 extern void my_mpi_fclose();
-#include "SCMVersHelp.h"
+#include "common/SCMVersHelp.h"
 DEFINE_DOVERS(tdm_arkqmm)
 
 /**

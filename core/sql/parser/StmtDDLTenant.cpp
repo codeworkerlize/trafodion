@@ -29,9 +29,9 @@
  *****************************************************************************
  */
 
-#include "StmtDDLRegisterUser.h"
+#include "parser/StmtDDLRegisterUser.h"
 #include "ElemDDLTenantSchema.h"
-#include "StmtDDLTenant.h"
+#include "parser/StmtDDLTenant.h"
 
 // -----------------------------------------------------------------------
 // methods for class StmtDDLTenant

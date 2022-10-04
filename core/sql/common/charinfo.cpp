@@ -48,7 +48,7 @@
 #include "common/dfs2rec.h"		// for LOCALE stuff: REC_xBYTE_LOCALE_*
 #include "cli/SQLCLIdev.h"		// for LOCALE stuff: SQLCHARSETCODE_*
 #include "common/str.h"
-#include "wstr.h"
+#include "common/wstr.h"
 #include "SQLTypeDefs.h"
 #include "comexe/CmpMessage.h"
 #include "CmpConnection.h"

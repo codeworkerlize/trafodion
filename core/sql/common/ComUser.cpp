@@ -38,9 +38,9 @@
 
 #include <algorithm>
 
-#include "ComUser.h"
-#include "CmpSeabaseDDL.h"
-#include "CmpDDLCatErrorCodes.h"
+#include "common/ComUser.h"
+#include "sqlcomp/CmpSeabaseDDL.h"
+#include "sqlcomp/CmpDDLCatErrorCodes.h"
 
 #include "cli/SQLCLIdev.h"
 #include "executor/ExExeUtilCli.h"

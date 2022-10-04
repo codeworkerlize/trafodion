@@ -34,7 +34,7 @@
 */
 
 
-#include "RelExpr.h"
+#include "optimizer/RelExpr.h"
 
 // -----------------------------------------------------------------------
 // Classes defined in this file

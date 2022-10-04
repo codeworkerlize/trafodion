@@ -21,8 +21,8 @@
 // @@@ END COPYRIGHT @@@
 // **********************************************************************
 //
-#include "ComOptIncludes.h"
-#include "Generator.h"
+#include "common/ComOptIncludes.h"
+#include "generator/Generator.h"
 #include "GenExpGenerator.h"
 #include "GroupAttr.h"
 #include "exp/ExpCriDesc.h"

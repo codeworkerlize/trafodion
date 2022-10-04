@@ -36,7 +36,7 @@
 #include "LmJavaExceptionReporter.h"
 #include "LmAssert.h"
 #include "LmUtility.h"
-#include "ComObjectName.h"
+#include "common/ComObjectName.h"
 #include "common/ComSqlId.h"
 
 //////////////////////////////////////////////////////////////////////

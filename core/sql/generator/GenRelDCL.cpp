@@ -37,15 +37,15 @@
  */
 
 #define   SQLPARSERGLOBALS_FLAGS
-#include "ComOptIncludes.h"
+#include "common/ComOptIncludes.h"
 #include "comexe/ComQueue.h"
-#include "ControlDB.h"
+#include "optimizer/ControlDB.h"
 #include "GroupAttr.h"
-#include "NATable.h"
+#include "optimizer/NATable.h"
 #include "RelDCL.h"
 #include "optimizer/RelControl.h"
 
-#include "Generator.h"
+#include "generator/Generator.h"
 #include "GenExpGenerator.h"
 
 #include "exp/ExpCriDesc.h"

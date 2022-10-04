@@ -26,7 +26,7 @@
 **********************************************************************/
 
 #include "common/Platform.h"
-#include "ex_stdh.h"
+#include "executor/ex_stdh.h"
 #include "runtimestats/ssmpipc.h"
 #include "common/ComCextdecs.h"
 #include <semaphore.h>
@@ -39,7 +39,7 @@
 #include "common/ComSqlId.h"
 #include "cli/Globals.h"
 #include "runtimestats/SqlStats.h"
-#include "ex_stdh.h"
+#include "executor/ex_stdh.h"
 #include "executor/ExStats.h"
 #include "export/ComDiags.h"
 #include "porting/PortProcessCalls.h"

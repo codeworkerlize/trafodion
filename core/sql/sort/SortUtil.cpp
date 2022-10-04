@@ -39,9 +39,9 @@
 */
 #include "ex_ex.h"
 #include "common/Platform.h"
-#include "ex_stdh.h"
+#include "executor/ex_stdh.h"
 #include "comexe/ComTdb.h"
-#include "ex_tcb.h"
+#include "executor/ex_tcb.h"
 #include "ex_sort.h"
 #include "SortUtil.h"
 #include "Qsort.h"
@@ -50,7 +50,7 @@
 #include "sqlmxevents/logmxevent.h"
 #include "executor/ExStats.h"
 #include  "ex_exe_stmt_globals.h"
-#include "cli/memorymonitor.h"
+
 #include "executor/sql_buffer_size.h"
 
 //------------------------------------------------------------------------
@@ -68,7 +68,6 @@ SortUtil::SortUtil(Lng32 explainNodeId) :
   sortAlgo_            = NULL;
   scratch_             = NULL;
   memoryQuotaUtil_     = 0;
-  memMonitor_          = NULL;
   overheadPerRecord_   = 0;
   bmoStats_ = NULL;
   
@@ -97,7 +96,6 @@ void SortUtil::reInit()
   sortAlgo_            = NULL;
   scratch_             = NULL;
   memoryQuotaUtil_     = 0;
-  memMonitor_          = NULL;
   overheadPerRecord_   = 0;
 }
 
@@ -1059,12 +1057,7 @@ NABoolean SortUtil::withinMemoryLimitsAndPressure(Int64 reqMembytes)
     return FALSE;
   }
 */  
-  if(!memMonitor_)
-  {
-     memMonitor_ =
-     config_->callingTcb_->getGlobals()->castToExExeStmtGlobals()->getMemoryMonitor();
-     ex_assert(memMonitor_ != NULL, "SortUtil::withinMemoryLimitsAndPressure, memMonitor_ is NULL");
-  }
+
 
 
   /*
@@ -1117,7 +1110,7 @@ NABoolean SortUtil::withinMemoryLimitsAndPressure(Int64 reqMembytes)
 // Hints checks can be disable with the CQD EXE_BMO_DISABLE_CMP_HINTS_OVERFLOW
 if(!config_->getDisableCmpHintsOverflow())
 {
-  Float32 M = (Float32) memMonitor_->availablePhyMemKb()/1024; //free physical memory in MB
+  Float32 M = 1024; //free physical memory in MB
   Float32 C = config_->memoryQuotaUsedBytes_/ONE_MB; //consumed memory by sort
 
   //U : minimum percent free physical memory to be spared for other players 
@@ -1198,19 +1191,6 @@ if(!config_->getDisableCmpHintsOverflow())
   }
 }
 
-  if(memMonitor_->memoryPressure() > config_->pressureThreshold_)
-  {
-    if(config_->logInfoEvent())
-    {
-      char msg[500];
-      str_sprintf(msg,
-      "Sort encountered memory pressure: Memory pressure %d, Pressure Threshold %d",
-       memMonitor_->memoryPressure(), config_->pressureThreshold_);
-      
-      SQLMXLoggingArea::logExecRtInfo(NULL, 0,msg, explainNodeId_);
-    }
-    return FALSE;
-  }
 
   //The following checks any threshold limits set by the user. This
   //check is static in nature and directly controlled by cqds

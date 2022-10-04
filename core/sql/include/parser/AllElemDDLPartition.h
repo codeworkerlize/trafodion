@@ -39,11 +39,11 @@
 #include "ElemDDLPartition.h"
 
 #include "ElemDDLPartitionArray.h"
-#include "ElemDDLPartitionClause.h"
-#include "ElemDDLPartitionRange.h"
+#include "parser/ElemDDLPartitionClause.h"
+#include "parser/ElemDDLPartitionRange.h"
 #include "ElemDDLPartitionSingle.h"
 #include "ElemDDLPartitionSystem.h"
-#include "ElemDDLPartitionByOptions.h"
+#include "parser/ElemDDLPartitionByOptions.h"
 #include "ElemDDLPartitionNameAndForValues.h"
 
 //

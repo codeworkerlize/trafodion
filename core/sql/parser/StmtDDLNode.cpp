@@ -36,17 +36,17 @@
  */
 
 #include "common/BaseTypes.h"
-#include "ComOperators.h"
+#include "common/ComOperators.h"
 #include "ElemDDLPrivileges.h"
-#include "ElemDDLGrantee.h"
+#include "parser/ElemDDLGrantee.h"
 #include "StmtDDLNode.h"
-#include "StmtDDLGrant.h"
-#include "StmtDDLGrantComponentPrivilege.h"
+#include "parser/StmtDDLGrant.h"
+#include "parser/StmtDDLGrantComponentPrivilege.h"
 #include "StmtDDLGrantArray.h"
-#include "StmtDDLSchGrant.h"
+#include "parser/StmtDDLSchGrant.h"
 #include "StmtDDLSchGrantArray.h"
-#include "StmtDDLRevoke.h"
-#include "StmtDDLSchRevoke.h"
+#include "parser/StmtDDLRevoke.h"
+#include "parser/StmtDDLSchRevoke.h"
 
 // -----------------------------------------------------------------------
 // member functions for class StmtDDLNode

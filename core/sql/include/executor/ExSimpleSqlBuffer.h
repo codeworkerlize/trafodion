@@ -41,7 +41,7 @@
 // a tuple allocator in TCB work procedures.
 //
 
-#include "ex_stdh.h"
+#include "executor/ex_stdh.h"
 #include "exp/ExpSqlTupp.h"
 
 // Forward external declarations

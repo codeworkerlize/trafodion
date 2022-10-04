@@ -42,7 +42,7 @@
 #include "stdlib.h"
 
 #include "comexe/ComTdb.h"     // For cancel/error injection testing.
-#include "ex_tcb.h"     // For cancel/error injection testing.
+#include "executor/ex_tcb.h"     // For cancel/error injection testing.
 #include "ex_error.h"   // For cancel/error injection testing.
 
 

@@ -38,7 +38,7 @@
 
 
 #include "common/Platform.h"
-  //#include "cextdecs/cextdecs.h"
+  #include "common/cextdecs.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -47,7 +47,7 @@
 #include "common/BaseTypes.h"
 #include "common/Collections.h"
 #include "common/ComASSERT.h"
-#include "ComLocationNames.h"
+#include "common/ComLocationNames.h"
 #include "ComRegAPI.h"
 #include "common/ComSqlText.h"
 #include "common/NAMemory.h"

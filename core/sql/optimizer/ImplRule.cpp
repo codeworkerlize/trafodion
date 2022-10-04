@@ -34,25 +34,25 @@
 ******************************************************************************
 */
 
-#include "Sqlcomp.h"
+#include "optimizer/Sqlcomp.h"
 #include "GroupAttr.h"
-#include "opt.h"
-#include "PhyProp.h"
+#include "optimizer/opt.h"
+#include "optimizer/PhyProp.h"
 #include "ImplRule.h"
-#include "AllRelExpr.h"
+#include "optimizer/AllRelExpr.h"
 #include "RelPackedRows.h"
 #include "RelSequence.h"
 #include "RelSample.h"
-#include "AllItemExpr.h"
+#include "optimizer/AllItemExpr.h"
 #include "optimizer/ValueDesc.h"
-#include "mdam.h"
+#include "optimizer/mdam.h"
 #include "arkcmp/CmpContext.h"
 #include "Cost.h"
 #include "CostMethod.h"
 #include "ScanOptimizer.h"
 
 #include "sqlcomp/NADefaults.h"
-#include "OptimizerSimulator.h"
+#include "optimizer/OptimizerSimulator.h"
 #include "optimizer/RelScan.h"
 
 // -----------------------------------------------------------------------

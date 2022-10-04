@@ -1,85 +1,51 @@
-
+// memorymonitor
 
 #include "comexe/ComTdbExeUtil.h"
-#include "comexe/ComTdbCommon.h" 
+#include "comexe/ComTdbCommon.h"
 #include "common/ComSmallDefs.h"
 #include "exp/ExpLOBinterface.h"
 
-///////////////////////////////////////////////////////////////////////////
-//
-// Methods for class ComTdbExeUtil
-//
-///////////////////////////////////////////////////////////////////////////
-ComTdbExeUtil::ComTdbExeUtil(Lng32 type,
-			     char * query,
-			     ULng32 querylen,
-			     Int16 querycharset,
-			     char * tableName,
-			     ULng32 tableNameLen,
-			     ex_expr * input_expr,
-			     ULng32 input_rowlen,
-			     ex_expr * output_expr,
-			     ULng32 output_rowlen,
-			     ex_expr_base * scan_expr,
-			     ex_cri_desc * work_cri_desc,
-			     const unsigned short work_atp_index,
-			     ex_cri_desc * given_cri_desc,
-			     ex_cri_desc * returned_cri_desc,
-			     queue_index down,
-			     queue_index up,
-			     Lng32 num_buffers,
-			     ULng32 buffer_size)
-     : ComTdbGenericUtil(query, querylen, querycharset, tableName, tableNameLen,
-			 input_expr, input_rowlen,
-			 output_expr, output_rowlen,
-			 work_cri_desc, work_atp_index,
-			 given_cri_desc, returned_cri_desc,
-			 down, up, 
-			 num_buffers, buffer_size),
-       type_(type),
-       child_(NULL),
-       scanExpr_(scan_expr),
-       flags_(0),
-       explOptionsStr_(NULL),
-       lobDmlOptions_(NULL),
-       tableNameForUID_(NULL),
-       replaceNameByUID_(FALSE)
-{
+ComTdbExeUtil::ComTdbExeUtil(Lng32 type, char *query, ULng32 querylen, Int16 querycharset, char *tableName,
+                             ULng32 tableNameLen, ex_expr *input_expr, ULng32 input_rowlen, ex_expr *output_expr,
+                             ULng32 output_rowlen, ex_expr_base *scan_expr, ex_cri_desc *work_cri_desc,
+                             const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
+                             ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, Lng32 num_buffers,
+                             ULng32 buffer_size)
+    : ComTdbGenericUtil(query, querylen, querycharset, tableName, tableNameLen, input_expr, input_rowlen, output_expr,
+                        output_rowlen, work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc, down, up,
+                        num_buffers, buffer_size),
+      type_(type),
+      child_(NULL),
+      scanExpr_(scan_expr),
+      flags_(0),
+      explOptionsStr_(NULL),
+      lobDmlOptions_(NULL),
+      tableNameForUID_(NULL),
+      replaceNameByUID_(FALSE) {
   setNodeType(ComTdb::ex_EXE_UTIL);
 }
 
-Long ComTdbExeUtil::pack(void * space)
-{
+Long ComTdbExeUtil::pack(void *space) {
   child_.pack(space);
   scanExpr_.pack(space);
-  if (explOptionsStr_) 
-    explOptionsStr_.pack(space);
-  if (NEOCatalogName_) 
-    NEOCatalogName_.pack(space);
-  if (lobDmlOptions_) 
-    lobDmlOptions_.pack(space);
-  if (tableNameForUID_)
-    tableNameForUID_.pack(space);
+  if (explOptionsStr_) explOptionsStr_.pack(space);
+  if (NEOCatalogName_) NEOCatalogName_.pack(space);
+  if (lobDmlOptions_) lobDmlOptions_.pack(space);
+  if (tableNameForUID_) tableNameForUID_.pack(space);
   return ComTdbGenericUtil::pack(space);
 }
 
-Lng32 ComTdbExeUtil::unpack(void * base, void * reallocator)
-{
-  if(child_.unpack(base, reallocator)) return -1;
-  if(scanExpr_.unpack(base, reallocator)) return -1;
-  if(explOptionsStr_.unpack(base))
-    return -1;
-  if(NEOCatalogName_.unpack(base)) 
-    return -1;
-  if (lobDmlOptions_.unpack(base))
-    return -1;
-  if (tableNameForUID_.unpack(base))
-    return -1;
+Lng32 ComTdbExeUtil::unpack(void *base, void *reallocator) {
+  if (child_.unpack(base, reallocator)) return -1;
+  if (scanExpr_.unpack(base, reallocator)) return -1;
+  if (explOptionsStr_.unpack(base)) return -1;
+  if (NEOCatalogName_.unpack(base)) return -1;
+  if (lobDmlOptions_.unpack(base)) return -1;
+  if (tableNameForUID_.unpack(base)) return -1;
   return ComTdbGenericUtil::unpack(base, reallocator);
 }
 
-const ComTdb* ComTdbExeUtil::getChild(Int32 pos) const
-{
+const ComTdb *ComTdbExeUtil::getChild(Int32 pos) const {
   if (pos == 0)
     return child_;
   else
@@ -91,84 +57,51 @@ const ComTdb* ComTdbExeUtil::getChild(Int32 pos) const
 // Methods for class ComTdbExeUtilDisplayExplain
 //
 ///////////////////////////////////////////////////////////////////////////
-ComTdbExeUtilDisplayExplain::ComTdbExeUtilDisplayExplain
-(char * query,
- ULng32 querylen,
- Int16 querycharset,
- char * moduleName,
- char * stmtName,
- ex_expr * input_expr,
- ULng32 input_rowlen,
- ex_expr * output_expr,
- ULng32 output_rowlen,
- ex_cri_desc * work_cri_desc,
- const unsigned short work_atp_index,
- Lng32 colDescSize,
- Lng32 outputRowSize,
- ex_cri_desc * given_cri_desc,
- ex_cri_desc * returned_cri_desc,
- queue_index down,
- queue_index up,
- Lng32 num_buffers,
- ULng32 buffer_size)
-     : ComTdbExeUtil(ComTdbExeUtil::DISPLAY_EXPLAIN_,
-		     query, querylen, querycharset,
-		     NULL, 0,
-		     input_expr, input_rowlen,
-		     output_expr, output_rowlen,
-		     NULL,
-		     work_cri_desc, work_atp_index,
-		     given_cri_desc, returned_cri_desc,
-		     down, up, 
-		     num_buffers, buffer_size),
-       moduleName_(moduleName),
-       stmtName_(stmtName),
-       colDescSize_(colDescSize),
-       outputRowSize_(outputRowSize),
-       flags_(0)
-{
+ComTdbExeUtilDisplayExplain::ComTdbExeUtilDisplayExplain(
+    char *query, ULng32 querylen, Int16 querycharset, char *moduleName, char *stmtName, ex_expr *input_expr,
+    ULng32 input_rowlen, ex_expr *output_expr, ULng32 output_rowlen, ex_cri_desc *work_cri_desc,
+    const unsigned short work_atp_index, Lng32 colDescSize, Lng32 outputRowSize, ex_cri_desc *given_cri_desc,
+    ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, Lng32 num_buffers, ULng32 buffer_size)
+    : ComTdbExeUtil(ComTdbExeUtil::DISPLAY_EXPLAIN_, query, querylen, querycharset, NULL, 0, input_expr, input_rowlen,
+                    output_expr, output_rowlen, NULL, work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc,
+                    down, up, num_buffers, buffer_size),
+      moduleName_(moduleName),
+      stmtName_(stmtName),
+      colDescSize_(colDescSize),
+      outputRowSize_(outputRowSize),
+      flags_(0) {
   setNodeType(ComTdb::ex_DISPLAY_EXPLAIN);
 }
 
-Long ComTdbExeUtilDisplayExplain::pack(void * space)
-{
-  if (moduleName_) 
-    moduleName_.pack(space);
-  if (stmtName_) 
-    stmtName_.pack(space);
+Long ComTdbExeUtilDisplayExplain::pack(void *space) {
+  if (moduleName_) moduleName_.pack(space);
+  if (stmtName_) stmtName_.pack(space);
   return ComTdbExeUtil::pack(space);
 }
 
-Lng32 ComTdbExeUtilDisplayExplain::unpack(void * base, void * reallocator)
-{
-  if(moduleName_.unpack(base))
-    return -1;
-  if(stmtName_.unpack(base))
-    return -1;
+Lng32 ComTdbExeUtilDisplayExplain::unpack(void *base, void *reallocator) {
+  if (moduleName_.unpack(base)) return -1;
+  if (stmtName_.unpack(base)) return -1;
   return ComTdbExeUtil::unpack(base, reallocator);
 }
 
-void ComTdbExeUtilDisplayExplain::displayContents(Space * space,ULng32 flag)
-{
-  ComTdb::displayContents(space,flag & 0xFFFFFFFE);
-  
-  if(flag & 0x00000008)
-    {
-      char buf[100];
-      str_sprintf(buf, "\nFor ComTdbExeUtilDisplayExplain :");
-      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+void ComTdbExeUtilDisplayExplain::displayContents(Space *space, ULng32 flag) {
+  ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
-      str_sprintf(buf, "optionN = %d, optionF = %d, optionC = %d, optionP = %d, optionE = %d, optionM = %d", 
-                  isOptionN(), isOptionF(), isOptionC(), isOptionP(),
-                  isOptionE(), isOptionM());
-      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-    }
-  
-  if (flag & 0x00000001)
-    {
-      displayExpression(space,flag);
-      displayChildren(space,flag);
-    }
+  if (flag & 0x00000008) {
+    char buf[100];
+    str_sprintf(buf, "\nFor ComTdbExeUtilDisplayExplain :");
+    space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+
+    str_sprintf(buf, "optionN = %d, optionF = %d, optionC = %d, optionP = %d, optionE = %d, optionM = %d", isOptionN(),
+                isOptionF(), isOptionC(), isOptionP(), isOptionE(), isOptionM());
+    space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+  }
+
+  if (flag & 0x00000001) {
+    displayExpression(space, flag);
+    displayChildren(space, flag);
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -176,158 +109,115 @@ void ComTdbExeUtilDisplayExplain::displayContents(Space * space,ULng32 flag)
 // Methods for class ComTdbExeUtilDisplayExplainComplex
 //
 ///////////////////////////////////////////////////////////////////////////
-ComTdbExeUtilDisplayExplainComplex::ComTdbExeUtilDisplayExplainComplex
-(Lng32 explainType,
- char * qry1, char * qry2, char * qry3, char * qry4,
- char * objectName,
- Lng32 objectNameLen,
- ex_expr * input_expr,
- ULng32 input_rowlen,
- ex_expr * output_expr,
- ULng32 output_rowlen,
- ex_cri_desc * work_cri_desc,
- const unsigned short work_atp_index,
- ex_cri_desc * given_cri_desc,
- ex_cri_desc * returned_cri_desc,
- queue_index down,
- queue_index up,
- Lng32 num_buffers,
- ULng32 buffer_size)
-     : ComTdbExeUtil(ComTdbExeUtil::DISPLAY_EXPLAIN_COMPLEX_,
-		     NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN,
-		     objectName, objectNameLen,
-		     input_expr, input_rowlen,
-		     output_expr, output_rowlen,
-		     NULL,
-		     work_cri_desc, work_atp_index,
-		     given_cri_desc, returned_cri_desc,
-		     down, up, 
-		     num_buffers, buffer_size),
-       explainType_(explainType),
-       qry1_(qry1), qry2_(qry2), qry3_(qry3), qry4_(qry4),
-       flags_(0)
-{
+ComTdbExeUtilDisplayExplainComplex::ComTdbExeUtilDisplayExplainComplex(
+    Lng32 explainType, char *qry1, char *qry2, char *qry3, char *qry4, char *objectName, Lng32 objectNameLen,
+    ex_expr *input_expr, ULng32 input_rowlen, ex_expr *output_expr, ULng32 output_rowlen, ex_cri_desc *work_cri_desc,
+    const unsigned short work_atp_index, ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
+    queue_index up, Lng32 num_buffers, ULng32 buffer_size)
+    : ComTdbExeUtil(ComTdbExeUtil::DISPLAY_EXPLAIN_COMPLEX_, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, objectName,
+                    objectNameLen, input_expr, input_rowlen, output_expr, output_rowlen, NULL, work_cri_desc,
+                    work_atp_index, given_cri_desc, returned_cri_desc, down, up, num_buffers, buffer_size),
+      explainType_(explainType),
+      qry1_(qry1),
+      qry2_(qry2),
+      qry3_(qry3),
+      qry4_(qry4),
+      flags_(0) {
   setNodeType(ComTdb::ex_DISPLAY_EXPLAIN_COMPLEX);
 }
 
-Long ComTdbExeUtilDisplayExplainComplex::pack(void * space)
-{
-  if (qry1_)
-    qry1_.pack(space);
+Long ComTdbExeUtilDisplayExplainComplex::pack(void *space) {
+  if (qry1_) qry1_.pack(space);
 
-  if (qry2_)
-    qry2_.pack(space);
+  if (qry2_) qry2_.pack(space);
 
-  if (qry3_)
-    qry3_.pack(space);
+  if (qry3_) qry3_.pack(space);
 
-  if (qry4_)
-    qry4_.pack(space);
+  if (qry4_) qry4_.pack(space);
 
   return ComTdbExeUtil::pack(space);
 }
 
-Lng32 ComTdbExeUtilDisplayExplainComplex::unpack(void * base, void * reallocator)
-{
-  if (qry1_.unpack(base))
-    return -1;
-  if (qry2_.unpack(base))
-    return -1;
-  if (qry3_.unpack(base))
-    return -1;
-  if (qry4_.unpack(base))
-    return -1;
+Lng32 ComTdbExeUtilDisplayExplainComplex::unpack(void *base, void *reallocator) {
+  if (qry1_.unpack(base)) return -1;
+  if (qry2_.unpack(base)) return -1;
+  if (qry3_.unpack(base)) return -1;
+  if (qry4_.unpack(base)) return -1;
 
   return ComTdbExeUtil::unpack(base, reallocator);
 }
 
-void ComTdbExeUtilDisplayExplainComplex::displayContents(Space * space,ULng32 flag)
-{
-  ComTdb::displayContents(space,flag & 0xFFFFFFFE);
-  
-  if(flag & 0x00000008)
-    {
-      char buf[1000];
+void ComTdbExeUtilDisplayExplainComplex::displayContents(Space *space, ULng32 flag) {
+  ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
-      str_sprintf(buf, "\nFor ComTdbExeUtilDisplayExplainComplex :");
+  if (flag & 0x00000008) {
+    char buf[1000];
+
+    str_sprintf(buf, "\nFor ComTdbExeUtilDisplayExplainComplex :");
+    space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+
+    if (qry1_) {
+      char query[400];
+      if (strlen(qry1_) > 390) {
+        strncpy(query, qry1_, 390);
+        query[390] = 0;
+        strcat(query, "...");
+      } else
+        strcpy(query, qry1_);
+
+      str_sprintf(buf, "Qry1 = %s ", query);
       space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-  
-      if (qry1_)
-	{
-	  char query[400];
-	  if (strlen(qry1_) > 390)
-	    {
-	      strncpy(query, qry1_, 390);
-	      query[390] = 0;
-	      strcat(query, "...");
-	    }
-	  else
-	    strcpy(query, qry1_);
-	  
-	  str_sprintf(buf,"Qry1 = %s ",query);
-	  space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-	}
-      
-      if (qry2_)
-	{
-	  char query[400];
-	  if (strlen(qry2_) > 390)
-	    {
-	      strncpy(query, qry2_, 390);
-	      query[390] = 0;
-	      strcat(query, "...");
-	    }
-	  else
-	    strcpy(query, qry2_);
-	  
-	  str_sprintf(buf,"Qry2 = %s ",query);
-	  space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-	}
-      
-      if (qry3_)
-	{
-	  char query[400];
-	  if (strlen(qry3_) > 390)
-	    {
-	      strncpy(query, qry3_, 390);
-	      query[390] = 0;
-	      strcat(query, "...");
-	    }
-	  else
-	    strcpy(query, qry3_);
-	  
-	  str_sprintf(buf,"Qry3 = %s ",query);
-	  space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-	}
-      
-      if (qry4_)
-	{
-	  char query[400];
-	  if (strlen(qry4_) > 390)
-	    {
-	      strncpy(query, qry4_, 390);
-	      query[390] = 0;
-	      strcat(query, "...");
-	    }
-	  else
-	    strcpy(query, qry4_);
-	  
-	  str_sprintf(buf,"Qry4 = %s ",query);
-	  space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-	}
-
-      if (objectName_)
-	{
-	  str_sprintf(buf,"ObjectName = %s ",getObjectName());
-	  space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-	}
     }
 
-  if (flag & 0x00000001)
-    {
-      displayExpression(space,flag);
-      displayChildren(space,flag);
+    if (qry2_) {
+      char query[400];
+      if (strlen(qry2_) > 390) {
+        strncpy(query, qry2_, 390);
+        query[390] = 0;
+        strcat(query, "...");
+      } else
+        strcpy(query, qry2_);
+
+      str_sprintf(buf, "Qry2 = %s ", query);
+      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
     }
+
+    if (qry3_) {
+      char query[400];
+      if (strlen(qry3_) > 390) {
+        strncpy(query, qry3_, 390);
+        query[390] = 0;
+        strcat(query, "...");
+      } else
+        strcpy(query, qry3_);
+
+      str_sprintf(buf, "Qry3 = %s ", query);
+      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+    }
+
+    if (qry4_) {
+      char query[400];
+      if (strlen(qry4_) > 390) {
+        strncpy(query, qry4_, 390);
+        query[390] = 0;
+        strcat(query, "...");
+      } else
+        strcpy(query, qry4_);
+
+      str_sprintf(buf, "Qry4 = %s ", query);
+      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+    }
+
+    if (objectName_) {
+      str_sprintf(buf, "ObjectName = %s ", getObjectName());
+      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+    }
+  }
+
+  if (flag & 0x00000001) {
+    displayExpression(space, flag);
+    displayChildren(space, flag);
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -336,56 +226,31 @@ void ComTdbExeUtilDisplayExplainComplex::displayContents(Space * space,ULng32 fl
 //
 //////////////////////////////////////////////////////////////////////////
 ComTdbExeUtilMaintainObject::ComTdbExeUtilMaintainObject(
-     char * objectName,
-     ULng32 objectNameLen,
-     char * schemaName,
-     ULng32 schemaNameLen,
-     UInt16 ot,
-     char * parentTableName,
-     ULng32 parentTableNameLen,
-     ex_expr * input_expr,
-     ULng32 input_rowlen,
-     ex_expr * output_expr,
-     ULng32 output_rowlen,
-     ex_cri_desc * work_cri_desc,
-     const unsigned short work_atp_index,
-     ex_cri_desc * given_cri_desc,
-     ex_cri_desc * returned_cri_desc,
-     queue_index down,
-     queue_index up,
-     Lng32 num_buffers,
-     ULng32 buffer_size)
-     : ComTdbExeUtil(ComTdbExeUtil::MAINTAIN_OBJECT_,
-		     NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN,
-		     objectName, objectNameLen,
-		     input_expr, input_rowlen,
-		     output_expr, output_rowlen,
-		     NULL,
-		     work_cri_desc, work_atp_index,
-		     given_cri_desc, returned_cri_desc,
-		     down, up, 
-		     num_buffers, buffer_size),
-       ot_(ot),
-       schemaName_(schemaName),
-       schemaNameLen_(schemaNameLen),
-       parentTableName_(parentTableName),
-       parentTableNameLen_(parentTableNameLen),
-       flags_(0),
-       controlFlags_(0),
-       controlFlags2_(0),
-       formatFlags_(0),
-       maintainedTableCreateTime_(0),
-       parentTableObjectUID_(0),
-       from_(0),
-       to_(0),
-       flags2_(0)
-{
+    char *objectName, ULng32 objectNameLen, char *schemaName, ULng32 schemaNameLen, UInt16 ot, char *parentTableName,
+    ULng32 parentTableNameLen, ex_expr *input_expr, ULng32 input_rowlen, ex_expr *output_expr, ULng32 output_rowlen,
+    ex_cri_desc *work_cri_desc, const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
+    ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, Lng32 num_buffers, ULng32 buffer_size)
+    : ComTdbExeUtil(ComTdbExeUtil::MAINTAIN_OBJECT_, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, objectName, objectNameLen,
+                    input_expr, input_rowlen, output_expr, output_rowlen, NULL, work_cri_desc, work_atp_index,
+                    given_cri_desc, returned_cri_desc, down, up, num_buffers, buffer_size),
+      ot_(ot),
+      schemaName_(schemaName),
+      schemaNameLen_(schemaNameLen),
+      parentTableName_(parentTableName),
+      parentTableNameLen_(parentTableNameLen),
+      flags_(0),
+      controlFlags_(0),
+      controlFlags2_(0),
+      formatFlags_(0),
+      maintainedTableCreateTime_(0),
+      parentTableObjectUID_(0),
+      from_(0),
+      to_(0),
+      flags2_(0) {
   setNodeType(ComTdb::ex_MAINTAIN_OBJECT);
 }
 
-Long ComTdbExeUtilMaintainObject::pack(void * space)
-{
-
+Long ComTdbExeUtilMaintainObject::pack(void *space) {
   reorgTableOptions_.pack(space);
   reorgIndexOptions_.pack(space);
   updStatsTableOptions_.pack(space);
@@ -411,69 +276,52 @@ Long ComTdbExeUtilMaintainObject::pack(void * space)
   multiTablesCreateTimeList_.pack(space);
   skippedMultiTablesNamesList_.pack(space);
 
-  if (parentTableName_) 
-    parentTableName_.pack(space);
-  if (schemaName_)
-    schemaName_.pack(space);
+  if (parentTableName_) parentTableName_.pack(space);
+  if (schemaName_) schemaName_.pack(space);
 
   return ComTdbExeUtil::pack(space);
 }
 
-Lng32 ComTdbExeUtilMaintainObject::unpack(void * base, void * reallocator)
-{
-  if(reorgTableOptions_.unpack(base)) return -1;
-  if(reorgIndexOptions_.unpack(base)) return -1;
-  if(updStatsTableOptions_.unpack(base)) return -1;
-  if(updStatsMvlogOptions_.unpack(base)) return -1;
-  if(updStatsMvsOptions_.unpack(base)) return -1;
-  if(updStatsMvgroupOptions_.unpack(base)) return -1;
-  if(refreshMvgroupOptions_.unpack(base)) return -1;
-  if(refreshMvsOptions_.unpack(base)) return -1;
-  if(reorgMvgroupOptions_.unpack(base)) return -1;
-  if(reorgMvsOptions_.unpack(base)) return -1;
-  if(reorgMvsIndexOptions_.unpack(base)) return -1;
-  if(cleanMaintainCITOptions_.unpack(base)) return -1;
+Lng32 ComTdbExeUtilMaintainObject::unpack(void *base, void *reallocator) {
+  if (reorgTableOptions_.unpack(base)) return -1;
+  if (reorgIndexOptions_.unpack(base)) return -1;
+  if (updStatsTableOptions_.unpack(base)) return -1;
+  if (updStatsMvlogOptions_.unpack(base)) return -1;
+  if (updStatsMvsOptions_.unpack(base)) return -1;
+  if (updStatsMvgroupOptions_.unpack(base)) return -1;
+  if (refreshMvgroupOptions_.unpack(base)) return -1;
+  if (refreshMvsOptions_.unpack(base)) return -1;
+  if (reorgMvgroupOptions_.unpack(base)) return -1;
+  if (reorgMvsOptions_.unpack(base)) return -1;
+  if (reorgMvsIndexOptions_.unpack(base)) return -1;
+  if (cleanMaintainCITOptions_.unpack(base)) return -1;
 
-  if(indexList_.unpack(base, reallocator)) return -1;
-  if(refreshMvgroupList_.unpack(base, reallocator)) return -1;
-  if(refreshMvsList_.unpack(base, reallocator)) return -1;
-  if(reorgMvgroupList_.unpack(base, reallocator)) return -1;
-  if(reorgMvsList_.unpack(base, reallocator)) return -1;
-  if(reorgMvsIndexList_.unpack(base, reallocator)) return -1;
-  if(updStatsMvgroupList_.unpack(base, reallocator)) return -1;
-  if(updStatsMvsList_.unpack(base, reallocator)) return -1;
-  if(multiTablesNamesList_.unpack(base, reallocator)) return -1;
-  if(multiTablesCreateTimeList_.unpack(base, reallocator)) return -1;
-  if(skippedMultiTablesNamesList_.unpack(base, reallocator)) return -1;
+  if (indexList_.unpack(base, reallocator)) return -1;
+  if (refreshMvgroupList_.unpack(base, reallocator)) return -1;
+  if (refreshMvsList_.unpack(base, reallocator)) return -1;
+  if (reorgMvgroupList_.unpack(base, reallocator)) return -1;
+  if (reorgMvsList_.unpack(base, reallocator)) return -1;
+  if (reorgMvsIndexList_.unpack(base, reallocator)) return -1;
+  if (updStatsMvgroupList_.unpack(base, reallocator)) return -1;
+  if (updStatsMvsList_.unpack(base, reallocator)) return -1;
+  if (multiTablesNamesList_.unpack(base, reallocator)) return -1;
+  if (multiTablesCreateTimeList_.unpack(base, reallocator)) return -1;
+  if (skippedMultiTablesNamesList_.unpack(base, reallocator)) return -1;
 
-  if(parentTableName_.unpack(base)) return -1;
-  if(schemaName_.unpack(base)) return -1;
+  if (parentTableName_.unpack(base)) return -1;
+  if (schemaName_.unpack(base)) return -1;
 
   return ComTdbExeUtil::unpack(base, reallocator);
 }
 
-void ComTdbExeUtilMaintainObject::setParams(NABoolean reorgTable,
-					   NABoolean reorgIndex,
-					   NABoolean updStatsTable,
-					   NABoolean updStatsMvlog,
-					   NABoolean updStatsMvs,
-					   NABoolean updStatsMvgroup,
-					   NABoolean refreshMvgroup,
-					   NABoolean refreshMvs,
- 					   NABoolean reorgMvgroup,
-					   NABoolean reorgMvs,
-					   NABoolean reorgMvsIndex,
- 					   NABoolean continueOnError,
-					   NABoolean cleanMaintainCIT,
-					   NABoolean getSchemaLabelStats, 
-					   NABoolean getLabelStats,
-					    NABoolean getTableLabelStats,
-					   NABoolean getIndexLabelStats,
-					   NABoolean getLabelStatsIncIndexes,
-					   NABoolean getLabelStatsIncInternal,
-				           NABoolean getLabelStatsIncRelated
-					    )
-{
+void ComTdbExeUtilMaintainObject::setParams(NABoolean reorgTable, NABoolean reorgIndex, NABoolean updStatsTable,
+                                            NABoolean updStatsMvlog, NABoolean updStatsMvs, NABoolean updStatsMvgroup,
+                                            NABoolean refreshMvgroup, NABoolean refreshMvs, NABoolean reorgMvgroup,
+                                            NABoolean reorgMvs, NABoolean reorgMvsIndex, NABoolean continueOnError,
+                                            NABoolean cleanMaintainCIT, NABoolean getSchemaLabelStats,
+                                            NABoolean getLabelStats, NABoolean getTableLabelStats,
+                                            NABoolean getIndexLabelStats, NABoolean getLabelStatsIncIndexes,
+                                            NABoolean getLabelStatsIncInternal, NABoolean getLabelStatsIncRelated) {
   setReorgTable(reorgTable);
   setReorgIndex(reorgIndex);
   setUpdStatsTable(updStatsTable);
@@ -487,30 +335,20 @@ void ComTdbExeUtilMaintainObject::setParams(NABoolean reorgTable,
   setReorgMvsIndex(reorgMvsIndex);
   setContinueOnError(continueOnError);
   setCleanMaintainCIT(cleanMaintainCIT);
-  setSchemaLabelStats(getSchemaLabelStats); 
-  setTableLabelStats(getTableLabelStats); 
+  setSchemaLabelStats(getSchemaLabelStats);
+  setTableLabelStats(getTableLabelStats);
   setIndexLabelStats(getIndexLabelStats);
   setLabelStatsIncIndexes(getLabelStatsIncIndexes);
   setLabelStatsIncInternal(getLabelStatsIncInternal);
   setLabelStatsIncRelated(getLabelStatsIncRelated);
-
-  
 }
 
-void ComTdbExeUtilMaintainObject::setOptionsParams
-(char* reorgTableOptions,
- char* reorgIndexOptions,
- char* updStatsTableOptions,
- char* updStatsMvlogOptions,
- char* updStatsMvsOptions,
- char* updStatsMvgroupOptions,
- char* refreshMvgroupOptions,
- char* refreshMvsOptions,
- char* reorgMvgroupOptions,
- char* reorgMvsOptions,
- char* reorgMvsIndexOptions,
- char* cleanMaintainCITOptions)
-{
+void ComTdbExeUtilMaintainObject::setOptionsParams(char *reorgTableOptions, char *reorgIndexOptions,
+                                                   char *updStatsTableOptions, char *updStatsMvlogOptions,
+                                                   char *updStatsMvsOptions, char *updStatsMvgroupOptions,
+                                                   char *refreshMvgroupOptions, char *refreshMvsOptions,
+                                                   char *reorgMvgroupOptions, char *reorgMvsOptions,
+                                                   char *reorgMvsIndexOptions, char *cleanMaintainCITOptions) {
   reorgTableOptions_ = reorgTableOptions;
   reorgIndexOptions_ = reorgIndexOptions;
   updStatsTableOptions_ = updStatsTableOptions;
@@ -525,71 +363,35 @@ void ComTdbExeUtilMaintainObject::setOptionsParams
   cleanMaintainCITOptions_ = cleanMaintainCITOptions;
 }
 
-void ComTdbExeUtilMaintainObject::setLists(Queue* indexList,
-					   Queue* refreshMvgroupList,
-					   Queue* refreshMvsList,
-					   Queue* reorgMvgroupList,
-					   Queue* reorgMvsList,
-					   Queue* reorgMvsIndexList,
-					   Queue* updStatsMvgroupList,
-					   Queue* updStatsMvsList,
-					   Queue* multiTablesNamesList,
-					   Queue* skippedMultiTablesNamesList)
-{
-  indexList_    = indexList;
+void ComTdbExeUtilMaintainObject::setLists(Queue *indexList, Queue *refreshMvgroupList, Queue *refreshMvsList,
+                                           Queue *reorgMvgroupList, Queue *reorgMvsList, Queue *reorgMvsIndexList,
+                                           Queue *updStatsMvgroupList, Queue *updStatsMvsList,
+                                           Queue *multiTablesNamesList, Queue *skippedMultiTablesNamesList) {
+  indexList_ = indexList;
   refreshMvgroupList_ = refreshMvgroupList;
-  refreshMvsList_    = refreshMvsList;
+  refreshMvsList_ = refreshMvsList;
   reorgMvgroupList_ = reorgMvgroupList;
-  reorgMvsList_      = reorgMvsList;
+  reorgMvsList_ = reorgMvsList;
   reorgMvsIndexList_ = reorgMvsIndexList;
   updStatsMvgroupList_ = updStatsMvgroupList;
-  updStatsMvsList_      = updStatsMvsList;
+  updStatsMvsList_ = updStatsMvsList;
   multiTablesNamesList_ = multiTablesNamesList;
   skippedMultiTablesNamesList_ = skippedMultiTablesNamesList;
- }
+}
 
-void ComTdbExeUtilMaintainObject::setControlParams
-(NABoolean disableReorgTable, 
- NABoolean enableReorgTable, 
- NABoolean disableReorgIndex,
- NABoolean enableReorgIndex,
- NABoolean disableUpdStatsTable,
- NABoolean enableUpdStatsTable,
- NABoolean disableUpdStatsMvs,
- NABoolean enableUpdStatsMvs,
- NABoolean disableRefreshMvs,
- NABoolean enableRefreshMvs,
- NABoolean disableReorgMvs,
- NABoolean enableReorgMvs,
- NABoolean resetReorgTable,
- NABoolean resetUpdStatsTable,
- NABoolean resetUpdStatsMvs,
- NABoolean resetRefreshMvs,
- NABoolean resetReorgMvs,
- NABoolean resetReorgIndex,
- NABoolean enableUpdStatsMvlog,
- NABoolean disableUpdStatsMvlog,
- NABoolean resetUpdStatsMvlog,
- NABoolean enableReorgMvsIndex,
- NABoolean disableReorgMvsIndex,
- NABoolean resetReorgMvsIndex,
- NABoolean enableRefreshMvgroup,
- NABoolean disableRefreshMvgroup,
- NABoolean resetRefreshMvgroup,
- NABoolean enableReorgMvgroup,
- NABoolean disableReorgMvgroup,
- NABoolean resetReorgMvgroup,
- NABoolean enableUpdStatsMvgroup,
- NABoolean disableUpdStatsMvgroup,
- NABoolean resetUpdStatsMvgroup,
- NABoolean enableTableLabelStats,
- NABoolean disableTableLabelStats,
- NABoolean resetTableLabelStats,
- NABoolean enableIndexLabelStats,
- NABoolean disableIndexLabelStats,
- NABoolean resetIndexLabelStats
-)
-{
+void ComTdbExeUtilMaintainObject::setControlParams(
+    NABoolean disableReorgTable, NABoolean enableReorgTable, NABoolean disableReorgIndex, NABoolean enableReorgIndex,
+    NABoolean disableUpdStatsTable, NABoolean enableUpdStatsTable, NABoolean disableUpdStatsMvs,
+    NABoolean enableUpdStatsMvs, NABoolean disableRefreshMvs, NABoolean enableRefreshMvs, NABoolean disableReorgMvs,
+    NABoolean enableReorgMvs, NABoolean resetReorgTable, NABoolean resetUpdStatsTable, NABoolean resetUpdStatsMvs,
+    NABoolean resetRefreshMvs, NABoolean resetReorgMvs, NABoolean resetReorgIndex, NABoolean enableUpdStatsMvlog,
+    NABoolean disableUpdStatsMvlog, NABoolean resetUpdStatsMvlog, NABoolean enableReorgMvsIndex,
+    NABoolean disableReorgMvsIndex, NABoolean resetReorgMvsIndex, NABoolean enableRefreshMvgroup,
+    NABoolean disableRefreshMvgroup, NABoolean resetRefreshMvgroup, NABoolean enableReorgMvgroup,
+    NABoolean disableReorgMvgroup, NABoolean resetReorgMvgroup, NABoolean enableUpdStatsMvgroup,
+    NABoolean disableUpdStatsMvgroup, NABoolean resetUpdStatsMvgroup, NABoolean enableTableLabelStats,
+    NABoolean disableTableLabelStats, NABoolean resetTableLabelStats, NABoolean enableIndexLabelStats,
+    NABoolean disableIndexLabelStats, NABoolean resetIndexLabelStats) {
   setDisableReorgTable(disableReorgTable);
   setDisableReorgIndex(disableReorgIndex);
   setDisableUpdStatsTable(disableUpdStatsTable);
@@ -629,282 +431,193 @@ void ComTdbExeUtilMaintainObject::setControlParams
   setEnableIndexLabelStats(enableIndexLabelStats);
   setDisableIndexLabelStats(disableIndexLabelStats);
   setResetIndexLabelStats(resetIndexLabelStats);
-
 }
 
-void ComTdbExeUtilMaintainObject::displayContents(Space * space,
-						 ULng32 flag)
-{
-  ComTdb::displayContents(space,flag & 0xFFFFFFFE);
-  
-  if(flag & 0x00000008)
-    {
-      char buf[1000];
-      str_sprintf(buf, "\nFor ComTdbExeUtilMaintainObject :");
+void ComTdbExeUtilMaintainObject::displayContents(Space *space, ULng32 flag) {
+  ComTdb::displayContents(space, flag & 0xFFFFFFFE);
+
+  if (flag & 0x00000008) {
+    char buf[1000];
+    str_sprintf(buf, "\nFor ComTdbExeUtilMaintainObject :");
+    space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+
+    if (getTableName() != NULL) {
+      str_sprintf(buf, "Tablename = %s ", getTableName());
       space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-      
-      if (getTableName() != NULL)
-	{
-	  str_sprintf(buf,"Tablename = %s ",getTableName());
-	  space->allocateAndCopyToAlignedSpace(buf, str_len(buf), 
-					       sizeof(short));
-	}
     }
-  
-  if (flag & 0x00000001)
-    {
-      displayExpression(space,flag);
-      displayChildren(space,flag);
-    }
-}
+  }
 
+  if (flag & 0x00000001) {
+    displayExpression(space, flag);
+    displayChildren(space, flag);
+  }
+}
 
 ///////////////////////////////////////////////////////////////////////////
 //
 // Methods for class ComTdbExeUtilLoadVolatileTable
 //
 ///////////////////////////////////////////////////////////////////////////
-ComTdbExeUtilLoadVolatileTable::ComTdbExeUtilLoadVolatileTable
-(char * tableName,
- ULng32 tableNameLen,
- char * insertQuery,
- char * updStatsQuery,
- Int16 queryCharSet,
- Int64 threshold,
- ex_cri_desc * work_cri_desc,
- const unsigned short work_atp_index,
- ex_cri_desc * given_cri_desc,
- ex_cri_desc * returned_cri_desc,
- queue_index down,
- queue_index up,
- Lng32 num_buffers,
- ULng32 buffer_size)
-     : ComTdbExeUtil(ComTdbExeUtil::LOAD_VOLATILE_TABLE_,
-		     NULL, 0, queryCharSet/*for insertQuery & updStatsQuery*/,
-		     tableName, tableNameLen,
-		     NULL, 0,
-		     NULL, 0,
-		     NULL,
-		     work_cri_desc, work_atp_index,
-		     given_cri_desc, returned_cri_desc,
-		     down, up, 
-		     num_buffers, buffer_size),
-       insertQuery_(insertQuery),
-       updStatsQuery_(updStatsQuery),
-       threshold_(threshold),
-       flags_(0)
-{
+ComTdbExeUtilLoadVolatileTable::ComTdbExeUtilLoadVolatileTable(
+    char *tableName, ULng32 tableNameLen, char *insertQuery, char *updStatsQuery, Int16 queryCharSet, Int64 threshold,
+    ex_cri_desc *work_cri_desc, const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
+    ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, Lng32 num_buffers, ULng32 buffer_size)
+    : ComTdbExeUtil(ComTdbExeUtil::LOAD_VOLATILE_TABLE_, NULL, 0, queryCharSet /*for insertQuery & updStatsQuery*/,
+                    tableName, tableNameLen, NULL, 0, NULL, 0, NULL, work_cri_desc, work_atp_index, given_cri_desc,
+                    returned_cri_desc, down, up, num_buffers, buffer_size),
+      insertQuery_(insertQuery),
+      updStatsQuery_(updStatsQuery),
+      threshold_(threshold),
+      flags_(0) {
   setNodeType(ComTdb::ex_LOAD_VOLATILE_TABLE);
 }
 
-Long ComTdbExeUtilLoadVolatileTable::pack(void * space)
-{
-  if (insertQuery_) 
-    insertQuery_.pack(space);
-  if (updStatsQuery_) 
-    updStatsQuery_.pack(space);
+Long ComTdbExeUtilLoadVolatileTable::pack(void *space) {
+  if (insertQuery_) insertQuery_.pack(space);
+  if (updStatsQuery_) updStatsQuery_.pack(space);
   return ComTdbExeUtil::pack(space);
 }
 
-Lng32 ComTdbExeUtilLoadVolatileTable::unpack(void * base, void * reallocator)
-{
-  if(insertQuery_.unpack(base))
-    return -1;
-  if(updStatsQuery_.unpack(base))
-    return -1;
+Lng32 ComTdbExeUtilLoadVolatileTable::unpack(void *base, void *reallocator) {
+  if (insertQuery_.unpack(base)) return -1;
+  if (updStatsQuery_.unpack(base)) return -1;
   return ComTdbExeUtil::unpack(base, reallocator);
 }
 
-void ComTdbExeUtilLoadVolatileTable::displayContents(Space * space,ULng32 flag)
-{
-  ComTdb::displayContents(space,flag & 0xFFFFFFFE);
-  
-  if(flag & 0x00000008)
-    {
-      char buf[1000];
-      str_sprintf(buf, "\nFor ComTdbExeUtilLoadVolatileTable :");
+void ComTdbExeUtilLoadVolatileTable::displayContents(Space *space, ULng32 flag) {
+  ComTdb::displayContents(space, flag & 0xFFFFFFFE);
+
+  if (flag & 0x00000008) {
+    char buf[1000];
+    str_sprintf(buf, "\nFor ComTdbExeUtilLoadVolatileTable :");
+    space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+
+    if (getTableName() != NULL) {
+      str_sprintf(buf, "Tablename = %s ", getTableName());
       space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-      
-      if (getTableName() != NULL)
-	{
-	  str_sprintf(buf,"Tablename = %s ",getTableName());
-	  space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-	}
+    }
 
-      if (insertQuery_)
-	{
-	  char query[400];
-	  if (strlen(insertQuery_) > 390)
-	    {
-	      strncpy(query, insertQuery_, 390);
-	      query[390] = 0;
-	      strcat(query, "...");
-	    }
-	  else
-	    strcpy(query, insertQuery_);
+    if (insertQuery_) {
+      char query[400];
+      if (strlen(insertQuery_) > 390) {
+        strncpy(query, insertQuery_, 390);
+        query[390] = 0;
+        strcat(query, "...");
+      } else
+        strcpy(query, insertQuery_);
 
-	  str_sprintf(buf,"Insert Query = %s ",query);
-	  space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-	}
-
-      if (updStatsQuery_)
-	{
-	  char query[400];
-	  if (strlen(updStatsQuery_) > 390)
-	    {
-	      strncpy(query, updStatsQuery_, 390);
-	      query[390] = 0;
-	      strcat(query, "...");
-	    }
-	  else
-	    strcpy(query, updStatsQuery_);
-
-	  str_sprintf(buf,"UpdStats Query = %s ",query);
-	  space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-	}
-
-      str_sprintf(buf,"Threshold = %ld ", threshold_);
+      str_sprintf(buf, "Insert Query = %s ", query);
       space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+    }
 
+    if (updStatsQuery_) {
+      char query[400];
+      if (strlen(updStatsQuery_) > 390) {
+        strncpy(query, updStatsQuery_, 390);
+        query[390] = 0;
+        strcat(query, "...");
+      } else
+        strcpy(query, updStatsQuery_);
+
+      str_sprintf(buf, "UpdStats Query = %s ", query);
+      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
     }
-  
-  if (flag & 0x00000001)
-    {
-      displayExpression(space,flag);
-      displayChildren(space,flag);
-    }
+
+    str_sprintf(buf, "Threshold = %ld ", threshold_);
+    space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+  }
+
+  if (flag & 0x00000001) {
+    displayExpression(space, flag);
+    displayChildren(space, flag);
+  }
 }
-
 
 ///////////////////////////////////////////////////////////////////////////
 //
 // Methods for class ComTdbExeUtilCleanupVolatileTables
 //
 ///////////////////////////////////////////////////////////////////////////
-ComTdbExeUtilCleanupVolatileTables::ComTdbExeUtilCleanupVolatileTables
-(char * catName,
- ULng32 catNameLen,
- ex_cri_desc * work_cri_desc,
- const unsigned short work_atp_index,
- ex_cri_desc * given_cri_desc,
- ex_cri_desc * returned_cri_desc,
- queue_index down,
- queue_index up,
- Lng32 num_buffers,
- ULng32 buffer_size)
-     : ComTdbExeUtil(ComTdbExeUtil::CLEANUP_VOLATILE_SCHEMA_,
-		     NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN,
-		     catName, catNameLen,
-		     NULL, 0,
-		     NULL, 0,
-		     NULL,
-		     work_cri_desc, work_atp_index,
-		     given_cri_desc, returned_cri_desc,
-		     down, up, 
-		     num_buffers, buffer_size),
-       flags_(0)
-{
+ComTdbExeUtilCleanupVolatileTables::ComTdbExeUtilCleanupVolatileTables(
+    char *catName, ULng32 catNameLen, ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
+    ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, Lng32 num_buffers,
+    ULng32 buffer_size)
+    : ComTdbExeUtil(ComTdbExeUtil::CLEANUP_VOLATILE_SCHEMA_, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, catName,
+                    catNameLen, NULL, 0, NULL, 0, NULL, work_cri_desc, work_atp_index, given_cri_desc,
+                    returned_cri_desc, down, up, num_buffers, buffer_size),
+      flags_(0) {
   setNodeType(ComTdb::ex_CLEANUP_VOLATILE_TABLES);
 }
 
-void ComTdbExeUtilCleanupVolatileTables::displayContents(Space * space,ULng32 flag)
-{
-  ComTdb::displayContents(space,flag & 0xFFFFFFFE);
-  
-  if(flag & 0x00000008)
-    {
-      char buf[1000];
-      str_sprintf(buf, "\nFor ComTdbExeUtilCleanupVolatileTables :");
-      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-      
-      if (getTableName() != NULL)
-	{
-	  str_sprintf(buf,"Tablename = %s ",getTableName());
-	  space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-	}
-    }
-  
-  if (flag & 0x00000001)
-    {
-      displayExpression(space,flag);
-      displayChildren(space,flag);
-    }
-}
+void ComTdbExeUtilCleanupVolatileTables::displayContents(Space *space, ULng32 flag) {
+  ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
+  if (flag & 0x00000008) {
+    char buf[1000];
+    str_sprintf(buf, "\nFor ComTdbExeUtilCleanupVolatileTables :");
+    space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+
+    if (getTableName() != NULL) {
+      str_sprintf(buf, "Tablename = %s ", getTableName());
+      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+    }
+  }
+
+  if (flag & 0x00000001) {
+    displayExpression(space, flag);
+    displayChildren(space, flag);
+  }
+}
 
 ///////////////////////////////////////////////////////////////////////////
 //
 // Methods for class ComTdbExeUtilGetVotalileInfo
 //
 ///////////////////////////////////////////////////////////////////////////
-ComTdbExeUtilGetVolatileInfo::ComTdbExeUtilGetVolatileInfo
-(
- char * param1,
- char * param2,
- ex_cri_desc * work_cri_desc,
- const unsigned short work_atp_index,
- ex_cri_desc * given_cri_desc,
- ex_cri_desc * returned_cri_desc,
- queue_index down,
- queue_index up,
- Lng32 num_buffers,
- ULng32 buffer_size)
-     : ComTdbExeUtil(ComTdbExeUtil::GET_VOLATILE_INFO,
-		     NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN,
-		     NULL, 0,
-		     NULL, 0,
-		     NULL, 0,
-		     NULL,
-		     work_cri_desc, work_atp_index,
-		     given_cri_desc, returned_cri_desc,
-		     down, up, 
-		     num_buffers, buffer_size),
-       flags_(0),
-       param1_(param1), param2_(param2)
-{
+ComTdbExeUtilGetVolatileInfo::ComTdbExeUtilGetVolatileInfo(char *param1, char *param2, ex_cri_desc *work_cri_desc,
+                                                           const unsigned short work_atp_index,
+                                                           ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc,
+                                                           queue_index down, queue_index up, Lng32 num_buffers,
+                                                           ULng32 buffer_size)
+    : ComTdbExeUtil(ComTdbExeUtil::GET_VOLATILE_INFO, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, NULL, 0, NULL, 0, NULL, 0,
+                    NULL, work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc, down, up, num_buffers,
+                    buffer_size),
+      flags_(0),
+      param1_(param1),
+      param2_(param2) {
   setNodeType(ComTdb::ex_GET_VOLATILE_INFO);
 }
 
-Long ComTdbExeUtilGetVolatileInfo::pack(void * space)
-{
-  if (param1_) 
-    param1_.pack(space);
-  if (param2_) 
-    param2_.pack(space);
+Long ComTdbExeUtilGetVolatileInfo::pack(void *space) {
+  if (param1_) param1_.pack(space);
+  if (param2_) param2_.pack(space);
   return ComTdbExeUtil::pack(space);
 }
 
-Lng32 ComTdbExeUtilGetVolatileInfo::unpack(void * base, void * reallocator)
-{
-  if(param1_.unpack(base))
-    return -1;
-  if(param2_.unpack(base))
-    return -1;
+Lng32 ComTdbExeUtilGetVolatileInfo::unpack(void *base, void *reallocator) {
+  if (param1_.unpack(base)) return -1;
+  if (param2_.unpack(base)) return -1;
   return ComTdbExeUtil::unpack(base, reallocator);
 }
 
-void ComTdbExeUtilGetVolatileInfo::displayContents(Space * space,ULng32 flag)
-{
-  ComTdb::displayContents(space,flag & 0xFFFFFFFE);
-  
-  if(flag & 0x00000008)
-    {
-      char buf[1000];
-      str_sprintf(buf, "\nFor ComTdbExeUtilGetVotalileInfo :");
+void ComTdbExeUtilGetVolatileInfo::displayContents(Space *space, ULng32 flag) {
+  ComTdb::displayContents(space, flag & 0xFFFFFFFE);
+
+  if (flag & 0x00000008) {
+    char buf[1000];
+    str_sprintf(buf, "\nFor ComTdbExeUtilGetVotalileInfo :");
+    space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+
+    if (getTableName() != NULL) {
+      str_sprintf(buf, "Tablename = %s ", getTableName());
       space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-      
-      if (getTableName() != NULL)
-	{
-	  str_sprintf(buf,"Tablename = %s ",getTableName());
-	  space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-	}
     }
-  
-  if (flag & 0x00000001)
-    {
-      displayExpression(space,flag);
-      displayChildren(space,flag);
-    }
+  }
+
+  if (flag & 0x00000001) {
+    displayExpression(space, flag);
+    displayChildren(space, flag);
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -912,54 +625,35 @@ void ComTdbExeUtilGetVolatileInfo::displayContents(Space * space,ULng32 flag)
 // Methods for class ComTdbExeUtilGetErrorInfo
 //
 ///////////////////////////////////////////////////////////////////////////
-ComTdbExeUtilGetErrorInfo::ComTdbExeUtilGetErrorInfo
-(
- Lng32 errType,
- Lng32 errNum,
- ex_cri_desc * work_cri_desc,
- const unsigned short work_atp_index,
- ex_cri_desc * given_cri_desc,
- ex_cri_desc * returned_cri_desc,
- queue_index down,
- queue_index up,
- Lng32 num_buffers,
- ULng32 buffer_size)
-     : ComTdbExeUtil(ComTdbExeUtil::GET_ERROR_INFO_,
-		     NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN,
-		     NULL, 0,
-		     NULL, 0,
-		     NULL, 0,
-		     NULL,
-		     work_cri_desc, work_atp_index,
-		     given_cri_desc, returned_cri_desc,
-		     down, up, 
-		     num_buffers, buffer_size),
-       flags_(0),
-       errNum_(errNum),
-       errorType_(errType)
-{
+ComTdbExeUtilGetErrorInfo::ComTdbExeUtilGetErrorInfo(Lng32 errType, Lng32 errNum, ex_cri_desc *work_cri_desc,
+                                                     const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
+                                                     ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
+                                                     Lng32 num_buffers, ULng32 buffer_size)
+    : ComTdbExeUtil(ComTdbExeUtil::GET_ERROR_INFO_, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, NULL, 0, NULL, 0, NULL, 0,
+                    NULL, work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc, down, up, num_buffers,
+                    buffer_size),
+      flags_(0),
+      errNum_(errNum),
+      errorType_(errType) {
   setNodeType(ComTdb::ex_GET_ERROR_INFO);
 }
 
-void ComTdbExeUtilGetErrorInfo::displayContents(Space * space,ULng32 flag)
-{
-  ComTdb::displayContents(space,flag & 0xFFFFFFFE);
-  
-  if(flag & 0x00000008)
-    {
-      char buf[1000];
-      str_sprintf(buf, "\nFor ComTdbExeUtilGetErrorInfo :");
-      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-      
-      str_sprintf(buf,"ErrorNum = %d ", errNum_);
-      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-    }
-  
-  if (flag & 0x00000001)
-    {
-      displayExpression(space,flag);
-      displayChildren(space,flag);
-    }
+void ComTdbExeUtilGetErrorInfo::displayContents(Space *space, ULng32 flag) {
+  ComTdb::displayContents(space, flag & 0xFFFFFFFE);
+
+  if (flag & 0x00000008) {
+    char buf[1000];
+    str_sprintf(buf, "\nFor ComTdbExeUtilGetErrorInfo :");
+    space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+
+    str_sprintf(buf, "ErrorNum = %d ", errNum_);
+    space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+  }
+
+  if (flag & 0x00000001) {
+    displayExpression(space, flag);
+    displayChildren(space, flag);
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -967,298 +661,206 @@ void ComTdbExeUtilGetErrorInfo::displayContents(Space * space,ULng32 flag)
 // Methods for class ComTdbExeUtilCreateTableAs
 //
 ///////////////////////////////////////////////////////////////////////////
-ComTdbExeUtilCreateTableAs::ComTdbExeUtilCreateTableAs
-(char * tableName,
- ULng32 tableNameLen,
- char * ctQuery,
- char * siQuery,
- char * viQuery,
- char * usQuery,
- Int64 threshold,
- ex_cri_desc * work_cri_desc,
- const unsigned short work_atp_index,
- ex_cri_desc * given_cri_desc,
- ex_cri_desc * returned_cri_desc,
- queue_index down,
- queue_index up,
- Lng32 num_buffers,
- ULng32 buffer_size)
-     : ComTdbExeUtil(ComTdbExeUtil::CREATE_TABLE_AS_,
-		     NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN,
-		     tableName, tableNameLen,
-		     NULL, 0,
-		     NULL, 0,
-		     NULL,
-		     work_cri_desc, work_atp_index,
-		     given_cri_desc, returned_cri_desc,
-		     down, up, 
-		     num_buffers, buffer_size),
-       ctQuery_(ctQuery), 
-       siQuery_(siQuery), 
-       viQuery_(viQuery),
-       usQuery_(usQuery),
-       threshold_(threshold),
-       flags_(0)
-{
+ComTdbExeUtilCreateTableAs::ComTdbExeUtilCreateTableAs(char *tableName, ULng32 tableNameLen, char *ctQuery,
+                                                       char *siQuery, char *viQuery, char *usQuery, Int64 threshold,
+                                                       ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
+                                                       ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc,
+                                                       queue_index down, queue_index up, Lng32 num_buffers,
+                                                       ULng32 buffer_size)
+    : ComTdbExeUtil(ComTdbExeUtil::CREATE_TABLE_AS_, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, tableName, tableNameLen,
+                    NULL, 0, NULL, 0, NULL, work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc, down, up,
+                    num_buffers, buffer_size),
+      ctQuery_(ctQuery),
+      siQuery_(siQuery),
+      viQuery_(viQuery),
+      usQuery_(usQuery),
+      threshold_(threshold),
+      flags_(0) {
   setNodeType(ComTdb::ex_CREATE_TABLE_AS);
 }
 
-Long ComTdbExeUtilCreateTableAs::pack(void * space)
-{
-  if (ctQuery_) 
-    ctQuery_.pack(space);
-  if (siQuery_) 
-    siQuery_.pack(space);
-  if (viQuery_) 
-    viQuery_.pack(space);
-  if (usQuery_) 
-    usQuery_.pack(space);
+Long ComTdbExeUtilCreateTableAs::pack(void *space) {
+  if (ctQuery_) ctQuery_.pack(space);
+  if (siQuery_) siQuery_.pack(space);
+  if (viQuery_) viQuery_.pack(space);
+  if (usQuery_) usQuery_.pack(space);
   return ComTdbExeUtil::pack(space);
 }
 
-Lng32 ComTdbExeUtilCreateTableAs::unpack(void * base, void * reallocator)
-{
-  if(ctQuery_.unpack(base))
-    return -1;
-  if(siQuery_.unpack(base))
-    return -1;
-  if(viQuery_.unpack(base))
-    return -1;
-  if(usQuery_.unpack(base))
-    return -1;
+Lng32 ComTdbExeUtilCreateTableAs::unpack(void *base, void *reallocator) {
+  if (ctQuery_.unpack(base)) return -1;
+  if (siQuery_.unpack(base)) return -1;
+  if (viQuery_.unpack(base)) return -1;
+  if (usQuery_.unpack(base)) return -1;
   return ComTdbExeUtil::unpack(base, reallocator);
 }
 
-void ComTdbExeUtilCreateTableAs::displayContents(Space * space,ULng32 flag)
-{
-  ComTdb::displayContents(space,flag & 0xFFFFFFFE);
-  
-  if(flag & 0x00000008)
-    {
-      char buf[1000];
-      str_sprintf(buf, "\nFor ComTdbExeUtilCreateTableAs :");
+void ComTdbExeUtilCreateTableAs::displayContents(Space *space, ULng32 flag) {
+  ComTdb::displayContents(space, flag & 0xFFFFFFFE);
+
+  if (flag & 0x00000008) {
+    char buf[1000];
+    str_sprintf(buf, "\nFor ComTdbExeUtilCreateTableAs :");
+    space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+
+    if (getTableName() != NULL) {
+      str_sprintf(buf, "Tablename = %s ", getTableName());
       space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-      
-      if (getTableName() != NULL)
-	{
-	  str_sprintf(buf,"Tablename = %s ",getTableName());
-	  space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-	}
-
-      if (ctQuery_)
-	{
-	  char query[400];
-	  if (strlen(ctQuery_) > 390)
-	    {
-	      strncpy(query, ctQuery_, 390);
-	      query[390] = 0;
-	      strcat(query, "...");
-	    }
-	  else
-	    strcpy(query, ctQuery_);
-
-	  str_sprintf(buf,"Create Query = %s ",query);
-	  space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-	}
-
-      if (siQuery_)
-	{
-	  char query[400];
-	  if (strlen(siQuery_) > 390)
-	    {
-	      strncpy(query, siQuery_, 390);
-	      query[390] = 0;
-	      strcat(query, "...");
-	    }
-	  else
-	    strcpy(query, siQuery_);
-
-	  str_sprintf(buf,"Sidetree Insert Query = %s ",query);
-	  space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-	}
-
-      if (viQuery_)
-	{
-	  char query[400];
-	  if (strlen(viQuery_) > 390)
-	    {
-	      strncpy(query, viQuery_, 390);
-	      query[390] = 0;
-	      strcat(query, "...");
-	    }
-	  else
-	    strcpy(query, viQuery_);
-
-	  str_sprintf(buf,"VSBB Insert Query = %s ",query);
-	  space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-	}
-
-      if (usQuery_)
-	{
-	  char query[400];
-	  if (strlen(usQuery_) > 390)
-	    {
-	      strncpy(query, usQuery_, 390);
-	      query[390] = 0;
-	      strcat(query, "...");
-	    }
-	  else
-	    strcpy(query, usQuery_);
-
-	  str_sprintf(buf,"UpdStats Query = %s ",query);
-	  space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-	}
-
     }
-  
-  if (flag & 0x00000001)
-    {
-      displayExpression(space,flag);
-      displayChildren(space,flag);
+
+    if (ctQuery_) {
+      char query[400];
+      if (strlen(ctQuery_) > 390) {
+        strncpy(query, ctQuery_, 390);
+        query[390] = 0;
+        strcat(query, "...");
+      } else
+        strcpy(query, ctQuery_);
+
+      str_sprintf(buf, "Create Query = %s ", query);
+      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
     }
+
+    if (siQuery_) {
+      char query[400];
+      if (strlen(siQuery_) > 390) {
+        strncpy(query, siQuery_, 390);
+        query[390] = 0;
+        strcat(query, "...");
+      } else
+        strcpy(query, siQuery_);
+
+      str_sprintf(buf, "Sidetree Insert Query = %s ", query);
+      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+    }
+
+    if (viQuery_) {
+      char query[400];
+      if (strlen(viQuery_) > 390) {
+        strncpy(query, viQuery_, 390);
+        query[390] = 0;
+        strcat(query, "...");
+      } else
+        strcpy(query, viQuery_);
+
+      str_sprintf(buf, "VSBB Insert Query = %s ", query);
+      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+    }
+
+    if (usQuery_) {
+      char query[400];
+      if (strlen(usQuery_) > 390) {
+        strncpy(query, usQuery_, 390);
+        query[390] = 0;
+        strcat(query, "...");
+      } else
+        strcpy(query, usQuery_);
+
+      str_sprintf(buf, "UpdStats Query = %s ", query);
+      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+    }
+  }
+
+  if (flag & 0x00000001) {
+    displayExpression(space, flag);
+    displayChildren(space, flag);
+  }
 }
-
 
 // Methods for class ComTdbExeUtilGetStatistics
 //
 ///////////////////////////////////////////////////////////////////////////
-ComTdbExeUtilGetStatistics::ComTdbExeUtilGetStatistics
-(
-     char * stmtName,
-     short statsReqType,
-     short statsMergeType,
-     short activeQueryNum,
-     ex_cri_desc * work_cri_desc,
-     const unsigned short work_atp_index,
-     ex_cri_desc * given_cri_desc,
-     ex_cri_desc * returned_cri_desc,
-     queue_index down,
-     queue_index up,
-     Lng32 num_buffers,
-     ULng32 buffer_size,
-     char* host,
-     Int32 port,
-     char* path,
-     UInt64 queryHash)
-     : ComTdbExeUtil(ComTdbExeUtil::GET_STATISTICS_,
-		     NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN,
-		     NULL, 0,
-		     NULL, 0,
-		     NULL, 0,
-		     NULL,
-		     work_cri_desc, work_atp_index,
-		     given_cri_desc, returned_cri_desc,
-		     down, up, 
-		     num_buffers, buffer_size),
-       flags_(0),
-       stmtName_(stmtName),
-       statsReqType_(statsReqType),
-       statsMergeType_(statsMergeType),
-       activeQueryNum_(activeQueryNum),
-       host_(host),
-       port_(port),
-       path_(path),
-       queryHash_(queryHash)
-{
+ComTdbExeUtilGetStatistics::ComTdbExeUtilGetStatistics(char *stmtName, short statsReqType, short statsMergeType,
+                                                       short activeQueryNum, ex_cri_desc *work_cri_desc,
+                                                       const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
+                                                       ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
+                                                       Lng32 num_buffers, ULng32 buffer_size, char *host, Int32 port,
+                                                       char *path, UInt64 queryHash)
+    : ComTdbExeUtil(ComTdbExeUtil::GET_STATISTICS_, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, NULL, 0, NULL, 0, NULL, 0,
+                    NULL, work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc, down, up, num_buffers,
+                    buffer_size),
+      flags_(0),
+      stmtName_(stmtName),
+      statsReqType_(statsReqType),
+      statsMergeType_(statsMergeType),
+      activeQueryNum_(activeQueryNum),
+      host_(host),
+      port_(port),
+      path_(path),
+      queryHash_(queryHash) {
   setNodeType(ComTdb::ex_GET_STATISTICS);
 }
 
-Long ComTdbExeUtilGetObjectEpochStats::pack(void * space)
-{
-  return ComTdbExeUtil::pack(space);
-}
+Long ComTdbExeUtilGetObjectEpochStats::pack(void *space) { return ComTdbExeUtil::pack(space); }
 
-Lng32 ComTdbExeUtilGetObjectEpochStats::unpack(void * base,
-                                               void * reallocator)
-{
+Lng32 ComTdbExeUtilGetObjectEpochStats::unpack(void *base, void *reallocator) {
   return ComTdbExeUtil::unpack(base, reallocator);
 }
 
-Long ComTdbExeUtilGetObjectLockStats::pack(void * space)
-{
-  return ComTdbExeUtil::pack(space);
-}
+Long ComTdbExeUtilGetObjectLockStats::pack(void *space) { return ComTdbExeUtil::pack(space); }
 
-Lng32 ComTdbExeUtilGetObjectLockStats::unpack(void * base,
-                                              void * reallocator)
-{
+Lng32 ComTdbExeUtilGetObjectLockStats::unpack(void *base, void *reallocator) {
   return ComTdbExeUtil::unpack(base, reallocator);
 }
 
-Long ComTdbExeUtilGetStatistics::pack(void * space)
-{
-  if (stmtName_) 
-    stmtName_.pack(space);
+Long ComTdbExeUtilGetStatistics::pack(void *space) {
+  if (stmtName_) stmtName_.pack(space);
 
-  if (host_)
-    host_.pack(space);
+  if (host_) host_.pack(space);
 
-  if (path_)
-     path_.pack(space);
+  if (path_) path_.pack(space);
 
   return ComTdbExeUtil::pack(space);
 }
 
-Lng32 ComTdbExeUtilGetStatistics::unpack(void * base, void * reallocator)
-{
-  if(stmtName_.unpack(base))
-    return -1;
+Lng32 ComTdbExeUtilGetStatistics::unpack(void *base, void *reallocator) {
+  if (stmtName_.unpack(base)) return -1;
 
-  if (host_.unpack(base))
-    return -1;
+  if (host_.unpack(base)) return -1;
 
-  if (path_.unpack(base))
-    return -1;
+  if (path_.unpack(base)) return -1;
 
   return ComTdbExeUtil::unpack(base, reallocator);
 }
 
-void ComTdbExeUtilGetStatistics::displayContents(Space * space,ULng32 flag)
-{
-  ComTdb::displayContents(space,flag & 0xFFFFFFFE);
-  
-  if(flag & 0x00000008)
-    {
-      char buf[1000];
-      str_sprintf(buf, "\nFor ComTdbExeUtilGetStatistics :");
+void ComTdbExeUtilGetStatistics::displayContents(Space *space, ULng32 flag) {
+  ComTdb::displayContents(space, flag & 0xFFFFFFFE);
+
+  if (flag & 0x00000008) {
+    char buf[1000];
+    str_sprintf(buf, "\nFor ComTdbExeUtilGetStatistics :");
+    space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+
+    if (stmtName_ != (NABasicPtr)NULL) {
+      str_sprintf(buf, "StmtName = %s ", getStmtName());
       space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-      
-      if ( stmtName_ != (NABasicPtr)NULL )
-	{
-	  str_sprintf(buf,"StmtName = %s ", getStmtName());
-	  space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-	}
     }
-  
-  if (flag & 0x00000001)
-    {
-      displayExpression(space,flag);
-      displayChildren(space,flag);
-    }
+  }
+
+  if (flag & 0x00000001) {
+    displayExpression(space, flag);
+    displayChildren(space, flag);
+  }
 }
 
-void ComTdbExeUtilGetProcessStatistics::displayContents(Space * space,ULng32 flag)
-{
-  ComTdb::displayContents(space,flag & 0xFFFFFFFE);
-  
-  if(flag & 0x00000008)
-    {
-      char buf[1000];
-      str_sprintf(buf, "\nFor ComTdbExeUtilGetProcessStatistics :");
+void ComTdbExeUtilGetProcessStatistics::displayContents(Space *space, ULng32 flag) {
+  ComTdb::displayContents(space, flag & 0xFFFFFFFE);
+
+  if (flag & 0x00000008) {
+    char buf[1000];
+    str_sprintf(buf, "\nFor ComTdbExeUtilGetProcessStatistics :");
+    space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+
+    if (stmtName_ != (NABasicPtr)NULL) {
+      str_sprintf(buf, "Pid = %s ", getPid());
       space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-      
-      if ( stmtName_ != (NABasicPtr)NULL )
-	{
-	  str_sprintf(buf,"Pid = %s ", getPid());
-	  space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-	}
     }
-  
-  if (flag & 0x00000001)
-    {
-      displayExpression(space,flag);
-      displayChildren(space,flag);
-    }
+  }
+
+  if (flag & 0x00000001) {
+    displayExpression(space, flag);
+    displayChildren(space, flag);
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -1266,62 +868,37 @@ void ComTdbExeUtilGetProcessStatistics::displayContents(Space * space,ULng32 fla
 // Methods for class ComTdbExeUtilGetUID
 //
 ///////////////////////////////////////////////////////////////////////////
-ComTdbExeUtilGetUID::ComTdbExeUtilGetUID
-(
-     Int64 uid,
-     ex_cri_desc * work_cri_desc,
-     const unsigned short work_atp_index,
-     ex_cri_desc * given_cri_desc,
-     ex_cri_desc * returned_cri_desc,
-     queue_index down,
-     queue_index up,
-     Lng32 num_buffers,
-     ULng32 buffer_size)
-     : ComTdbExeUtil(ComTdbExeUtil::GET_UID_,
-		     NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN,
-		     NULL, 0,
-		     NULL, 0,
-		     NULL, 0,
-		     NULL,
-		     work_cri_desc, work_atp_index,
-		     given_cri_desc, returned_cri_desc,
-		     down, up, 
-		     num_buffers, buffer_size),
-       flags_(0),
-       uid_(uid)
-{
+ComTdbExeUtilGetUID::ComTdbExeUtilGetUID(Int64 uid, ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
+                                         ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
+                                         queue_index up, Lng32 num_buffers, ULng32 buffer_size)
+    : ComTdbExeUtil(ComTdbExeUtil::GET_UID_, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, NULL, 0, NULL, 0, NULL, 0, NULL,
+                    work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc, down, up, num_buffers,
+                    buffer_size),
+      flags_(0),
+      uid_(uid) {
   setNodeType(ComTdb::ex_GET_UID);
 }
 
-Long ComTdbExeUtilGetUID::pack(void * space)
-{
-  return ComTdbExeUtil::pack(space);
-}
+Long ComTdbExeUtilGetUID::pack(void *space) { return ComTdbExeUtil::pack(space); }
 
-Lng32 ComTdbExeUtilGetUID::unpack(void * base, void * reallocator)
-{
-  return ComTdbExeUtil::unpack(base, reallocator);
-}
+Lng32 ComTdbExeUtilGetUID::unpack(void *base, void *reallocator) { return ComTdbExeUtil::unpack(base, reallocator); }
 
-void ComTdbExeUtilGetUID::displayContents(Space * space,ULng32 flag)
-{
-  ComTdb::displayContents(space,flag & 0xFFFFFFFE);
-  
-  if(flag & 0x00000008)
-    {
-      char buf[100];
-      str_sprintf(buf, "\nFor ComTdbExeUtilGetUID :");
-      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-      
-      str_sprintf(buf,"UID = %ld", uid_);
-      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-    }
-  
-  if (flag & 0x00000001)
-    {
-      displayExpression(space,flag);
-      displayChildren(space,flag);
-    }
+void ComTdbExeUtilGetUID::displayContents(Space *space, ULng32 flag) {
+  ComTdb::displayContents(space, flag & 0xFFFFFFFE);
+
+  if (flag & 0x00000008) {
+    char buf[100];
+    str_sprintf(buf, "\nFor ComTdbExeUtilGetUID :");
+    space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+
+    str_sprintf(buf, "UID = %ld", uid_);
+    space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+  }
+
+  if (flag & 0x00000001) {
+    displayExpression(space, flag);
+    displayChildren(space, flag);
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -1329,68 +906,46 @@ void ComTdbExeUtilGetUID::displayContents(Space * space,ULng32 flag)
 // Methods for class ComTdbExeUtilGetQID
 //
 ///////////////////////////////////////////////////////////////////////////
-ComTdbExeUtilGetQID::ComTdbExeUtilGetQID
-(
- char * stmtName,
- ex_cri_desc * work_cri_desc,
- const unsigned short work_atp_index,
- ex_cri_desc * given_cri_desc,
- ex_cri_desc * returned_cri_desc,
- queue_index down,
- queue_index up,
- Lng32 num_buffers,
- ULng32 buffer_size)
-  : ComTdbExeUtil(ComTdbExeUtil::GET_QID_,
-                  NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN,
-                  NULL, 0,
-                  NULL, 0,
-                  NULL, 0,
-                  NULL,
-                  work_cri_desc, work_atp_index,
-                  given_cri_desc, returned_cri_desc,
-                  down, up, 
-                  num_buffers, buffer_size),
-    flags_(0),
-    stmtName_(stmtName)
-{
+ComTdbExeUtilGetQID::ComTdbExeUtilGetQID(char *stmtName, ex_cri_desc *work_cri_desc,
+                                         const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
+                                         ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
+                                         Lng32 num_buffers, ULng32 buffer_size)
+    : ComTdbExeUtil(ComTdbExeUtil::GET_QID_, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, NULL, 0, NULL, 0, NULL, 0, NULL,
+                    work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc, down, up, num_buffers,
+                    buffer_size),
+      flags_(0),
+      stmtName_(stmtName) {
   setNodeType(ComTdb::ex_GET_QID);
 }
 
-Long ComTdbExeUtilGetQID::pack(void * space)
-{
-  if (stmtName_)
-    stmtName_.pack(space);
+Long ComTdbExeUtilGetQID::pack(void *space) {
+  if (stmtName_) stmtName_.pack(space);
 
   return ComTdbExeUtil::pack(space);
 }
 
-Lng32 ComTdbExeUtilGetQID::unpack(void * base, void * reallocator)
-{
-  if (stmtName_.unpack(base))
-    return -1;
+Lng32 ComTdbExeUtilGetQID::unpack(void *base, void *reallocator) {
+  if (stmtName_.unpack(base)) return -1;
 
   return ComTdbExeUtil::unpack(base, reallocator);
 }
 
-void ComTdbExeUtilGetQID::displayContents(Space * space,ULng32 flag)
-{
-  ComTdb::displayContents(space,flag & 0xFFFFFFFE);
-  
-  if(flag & 0x00000008)
-    {
-      char buf[100];
-      str_sprintf(buf, "\nFor ComTdbExeUtilGetQID :");
-      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-      
-      str_sprintf(buf,"stmtName_ = %s ", getStmtName());
-      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-    }
-  
-  if (flag & 0x00000001)
-    {
-      displayExpression(space,flag);
-      displayChildren(space,flag);
-    }
+void ComTdbExeUtilGetQID::displayContents(Space *space, ULng32 flag) {
+  ComTdb::displayContents(space, flag & 0xFFFFFFFE);
+
+  if (flag & 0x00000008) {
+    char buf[100];
+    str_sprintf(buf, "\nFor ComTdbExeUtilGetQID :");
+    space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+
+    str_sprintf(buf, "stmtName_ = %s ", getStmtName());
+    space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+  }
+
+  if (flag & 0x00000001) {
+    displayExpression(space, flag);
+    displayChildren(space, flag);
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -1398,144 +953,96 @@ void ComTdbExeUtilGetQID::displayContents(Space * space,ULng32 flag)
 // Methods for class ComTdbExeUtilPopulateInMemStats
 //
 ///////////////////////////////////////////////////////////////////////////
-ComTdbExeUtilPopulateInMemStats::ComTdbExeUtilPopulateInMemStats
-(
-     Int64 uid,
-     char * inMemHistogramsTableName,
-     char * inMemHistintsTableName,
-     char * sourceTableCatName,
-     char * sourceTableSchName,
-     char * sourceTableObjName,
-     char * sourceHistogramsTableName,
-     char * sourceHistintsTableName,
-     ex_cri_desc * work_cri_desc,
-     const unsigned short work_atp_index,
-     ex_cri_desc * given_cri_desc,
-     ex_cri_desc * returned_cri_desc,
-     queue_index down,
-     queue_index up,
-     Lng32 num_buffers,
-     ULng32 buffer_size)
-     : ComTdbExeUtil(ComTdbExeUtil::POP_IN_MEM_STATS_,
-		     NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN,
-		     NULL, 0,
-		     NULL, 0,
-		     NULL, 0,
-		     NULL,
-		     work_cri_desc, work_atp_index,
-		     given_cri_desc, returned_cri_desc,
-		     down, up, 
-		     num_buffers, buffer_size),
-       flags_(0),
-       uid_(uid),
-       inMemHistogramsTableName_(inMemHistogramsTableName),
-       inMemHistintsTableName_(inMemHistintsTableName),
-       sourceTableCatName_(sourceTableCatName),
-       sourceTableSchName_(sourceTableSchName),
-       sourceTableObjName_(sourceTableObjName),
-       sourceHistogramsTableName_(sourceHistogramsTableName),
-       sourceHistintsTableName_(sourceHistintsTableName)
-{
+ComTdbExeUtilPopulateInMemStats::ComTdbExeUtilPopulateInMemStats(
+    Int64 uid, char *inMemHistogramsTableName, char *inMemHistintsTableName, char *sourceTableCatName,
+    char *sourceTableSchName, char *sourceTableObjName, char *sourceHistogramsTableName, char *sourceHistintsTableName,
+    ex_cri_desc *work_cri_desc, const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
+    ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, Lng32 num_buffers, ULng32 buffer_size)
+    : ComTdbExeUtil(ComTdbExeUtil::POP_IN_MEM_STATS_, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, NULL, 0, NULL, 0, NULL, 0,
+                    NULL, work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc, down, up, num_buffers,
+                    buffer_size),
+      flags_(0),
+      uid_(uid),
+      inMemHistogramsTableName_(inMemHistogramsTableName),
+      inMemHistintsTableName_(inMemHistintsTableName),
+      sourceTableCatName_(sourceTableCatName),
+      sourceTableSchName_(sourceTableSchName),
+      sourceTableObjName_(sourceTableObjName),
+      sourceHistogramsTableName_(sourceHistogramsTableName),
+      sourceHistintsTableName_(sourceHistintsTableName) {
   setNodeType(ComTdb::ex_POP_IN_MEM_STATS);
 }
 
-Long ComTdbExeUtilPopulateInMemStats::pack(void * space)
-{
-  if (inMemHistogramsTableName_)
-    inMemHistogramsTableName_.pack(space);
-  if (inMemHistintsTableName_)
-    inMemHistintsTableName_.pack(space);
-  if (sourceTableCatName_)
-    sourceTableCatName_.pack(space);
-  if (sourceTableSchName_)
-    sourceTableSchName_.pack(space);
-  if (sourceTableObjName_)
-    sourceTableObjName_.pack(space);
-  if (sourceHistogramsTableName_)
-    sourceHistogramsTableName_.pack(space);
-  if (sourceHistintsTableName_)
-    sourceHistintsTableName_.pack(space);
+Long ComTdbExeUtilPopulateInMemStats::pack(void *space) {
+  if (inMemHistogramsTableName_) inMemHistogramsTableName_.pack(space);
+  if (inMemHistintsTableName_) inMemHistintsTableName_.pack(space);
+  if (sourceTableCatName_) sourceTableCatName_.pack(space);
+  if (sourceTableSchName_) sourceTableSchName_.pack(space);
+  if (sourceTableObjName_) sourceTableObjName_.pack(space);
+  if (sourceHistogramsTableName_) sourceHistogramsTableName_.pack(space);
+  if (sourceHistintsTableName_) sourceHistintsTableName_.pack(space);
 
   return ComTdbExeUtil::pack(space);
 }
 
-Lng32 ComTdbExeUtilPopulateInMemStats::unpack(void * base, void * reallocator)
-{
-  if (inMemHistogramsTableName_.unpack(base))
-    return -1;
-  if (inMemHistintsTableName_.unpack(base))
-    return -1;
-  if (sourceTableCatName_.unpack(base))
-    return -1;
-  if (sourceTableSchName_.unpack(base))
-    return -1;
-  if (sourceTableObjName_.unpack(base))
-    return -1;
-  if (sourceHistogramsTableName_.unpack(base))
-    return -1;
-  if (sourceHistintsTableName_.unpack(base))
-    return -1;
+Lng32 ComTdbExeUtilPopulateInMemStats::unpack(void *base, void *reallocator) {
+  if (inMemHistogramsTableName_.unpack(base)) return -1;
+  if (inMemHistintsTableName_.unpack(base)) return -1;
+  if (sourceTableCatName_.unpack(base)) return -1;
+  if (sourceTableSchName_.unpack(base)) return -1;
+  if (sourceTableObjName_.unpack(base)) return -1;
+  if (sourceHistogramsTableName_.unpack(base)) return -1;
+  if (sourceHistintsTableName_.unpack(base)) return -1;
 
   return ComTdbExeUtil::unpack(base, reallocator);
 }
 
-void ComTdbExeUtilPopulateInMemStats::displayContents(Space * space,ULng32 flag)
-{
-  ComTdb::displayContents(space,flag & 0xFFFFFFFE);
-  
-  if(flag & 0x00000008)
-    {
-      char buf[1000];
-      str_sprintf(buf, "\nFor ComTdbExeUtilPopulateInMemStats :");
-      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-      
-      str_sprintf(buf,"UID = %ld", uid_);
-      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+void ComTdbExeUtilPopulateInMemStats::displayContents(Space *space, ULng32 flag) {
+  ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
-      if ((char *)inMemHistogramsTableName_ != (char *)NULL)
-	{
-	  str_sprintf(buf,"inMemHistogramsTableName_ = %s ", getInMemHistogramsTableName());
-	  space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-	}
-      if ((char *)inMemHistintsTableName_ != (char *)NULL)
-	{
-	  str_sprintf(buf,"inMemHistintsTableName_ = %s ", getInMemHistintsTableName());
-	  space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-	}
+  if (flag & 0x00000008) {
+    char buf[1000];
+    str_sprintf(buf, "\nFor ComTdbExeUtilPopulateInMemStats :");
+    space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
 
-      if ((char *)sourceTableCatName_ != (char *)NULL)
-	{
-	  str_sprintf(buf,"sourceTableCatName_ = %s ", getSourceTableCatName());
-	  space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-	}
-      if ((char *)sourceTableSchName_ != (char *)NULL)
-	{
-	  str_sprintf(buf,"sourceTableSchName_ = %s ", getSourceTableSchName());
-	  space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-	}
-      if ((char *)sourceTableObjName_ != (char *)NULL)
-	{
-	  str_sprintf(buf,"sourceTableCatName_ = %s ", getSourceTableObjName());
-	  space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-	}
-      if ((char *)sourceHistogramsTableName_ != (char *)NULL)
-	{
-	  str_sprintf(buf,"sourceHistogramsTableName_ = %s ", getSourceHistogramsTableName());
-	  space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-	}
-      if ((char *)sourceHistintsTableName_ != (char *)NULL)
-	{
-	  str_sprintf(buf,"sourceHistintsTableName_ = %s ", getSourceHistintsTableName());
-	  space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-	}
-	
+    str_sprintf(buf, "UID = %ld", uid_);
+    space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+
+    if ((char *)inMemHistogramsTableName_ != (char *)NULL) {
+      str_sprintf(buf, "inMemHistogramsTableName_ = %s ", getInMemHistogramsTableName());
+      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
     }
-  
-  if (flag & 0x00000001)
-    {
-      displayExpression(space,flag);
-      displayChildren(space,flag);
+    if ((char *)inMemHistintsTableName_ != (char *)NULL) {
+      str_sprintf(buf, "inMemHistintsTableName_ = %s ", getInMemHistintsTableName());
+      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
     }
+
+    if ((char *)sourceTableCatName_ != (char *)NULL) {
+      str_sprintf(buf, "sourceTableCatName_ = %s ", getSourceTableCatName());
+      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+    }
+    if ((char *)sourceTableSchName_ != (char *)NULL) {
+      str_sprintf(buf, "sourceTableSchName_ = %s ", getSourceTableSchName());
+      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+    }
+    if ((char *)sourceTableObjName_ != (char *)NULL) {
+      str_sprintf(buf, "sourceTableCatName_ = %s ", getSourceTableObjName());
+      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+    }
+    if ((char *)sourceHistogramsTableName_ != (char *)NULL) {
+      str_sprintf(buf, "sourceHistogramsTableName_ = %s ", getSourceHistogramsTableName());
+      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+    }
+    if ((char *)sourceHistintsTableName_ != (char *)NULL) {
+      str_sprintf(buf, "sourceHistintsTableName_ = %s ", getSourceHistintsTableName());
+      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+    }
+  }
+
+  if (flag & 0x00000001) {
+    displayExpression(space, flag);
+    displayChildren(space, flag);
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -1543,391 +1050,259 @@ void ComTdbExeUtilPopulateInMemStats::displayContents(Space * space,ULng32 flag)
 // Methods for class ComTdbExeUtilAqrWnrInsert
 //
 ///////////////////////////////////////////////////////////////////////////
-ComTdbExeUtilAqrWnrInsert::ComTdbExeUtilAqrWnrInsert(
-     char * tableName,
-     ULng32 tableNameLen,
-     ex_cri_desc * work_cri_desc,
-     const unsigned short work_atp_index,
-     ex_cri_desc * given_cri_desc,
-     ex_cri_desc * returned_cri_desc,
-     queue_index down,
-     queue_index up,
-     Lng32 num_buffers,
-     ULng32 buffer_size)
-     : ComTdbExeUtil(ComTdbExeUtil::AQR_WNR_INSERT_,
-		     (char *) eye_AQR_WNR_INS, 
-                     0, (Int16)SQLCHARSETCODE_UNKNOWN,
-		     tableName, tableNameLen,
-		     NULL, 0,
-		     NULL, 0,
-		     NULL,
-		     work_cri_desc, work_atp_index,
-		     given_cri_desc, returned_cri_desc,
-		     down, up, 
-		     num_buffers, buffer_size),
-       aqrWnrInsflags_(0)
-{
+ComTdbExeUtilAqrWnrInsert::ComTdbExeUtilAqrWnrInsert(char *tableName, ULng32 tableNameLen, ex_cri_desc *work_cri_desc,
+                                                     const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
+                                                     ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
+                                                     Lng32 num_buffers, ULng32 buffer_size)
+    : ComTdbExeUtil(ComTdbExeUtil::AQR_WNR_INSERT_, (char *)eye_AQR_WNR_INS, 0, (Int16)SQLCHARSETCODE_UNKNOWN,
+                    tableName, tableNameLen, NULL, 0, NULL, 0, NULL, work_cri_desc, work_atp_index, given_cri_desc,
+                    returned_cri_desc, down, up, num_buffers, buffer_size),
+      aqrWnrInsflags_(0) {
   setNodeType(ComTdb::ex_ARQ_WNR_INSERT);
 }
 
-void ComTdbExeUtilAqrWnrInsert::displayContents(Space * space,
-					      ULng32 flag)
-{
-  ComTdb::displayContents(space,flag & 0xFFFFFFFE);
-  
-  if(flag & 0x00000008)
-    {
-      char buf[1000];
-      str_sprintf(buf, "\nFor ComTdbExeUtilAqrWnrInsert:");
+void ComTdbExeUtilAqrWnrInsert::displayContents(Space *space, ULng32 flag) {
+  ComTdb::displayContents(space, flag & 0xFFFFFFFE);
+
+  if (flag & 0x00000008) {
+    char buf[1000];
+    str_sprintf(buf, "\nFor ComTdbExeUtilAqrWnrInsert:");
+    space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+
+    if (getTableName() != NULL) {
+      str_sprintf(buf, "Tablename = %s ", getTableName());
       space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-
-      if (getTableName() != NULL)
-        {
-          str_sprintf(buf,"Tablename = %s ",getTableName());
-          space->allocateAndCopyToAlignedSpace(buf, str_len(buf), 
-					           sizeof(short));
-        }
-      str_sprintf(buf, "Lock target = %s ",  doLockTarget() ? "ON" : "OFF");
-      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), 
-					       sizeof(short));
-
     }
-  
-  if (flag & 0x00000001)
-    {
-      displayExpression(space,flag);
-      displayChildren(space,flag);
-    }
+    str_sprintf(buf, "Lock target = %s ", doLockTarget() ? "ON" : "OFF");
+    space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+  }
+
+  if (flag & 0x00000001) {
+    displayExpression(space, flag);
+    displayChildren(space, flag);
+  }
 }
 //////////////////////////////////////////////////////////////////////////
 //
 // Methods for class ComTdbExeUtilLongRunning
 //
 ///////////////////////////////////////////////////////////////////////////
-ComTdbExeUtilLongRunning::ComTdbExeUtilLongRunning(
-     char * tableName,
-     ULng32 tableNameLen,
-     ex_cri_desc * work_cri_desc,
-     const unsigned short work_atp_index,
-     ex_cri_desc * given_cri_desc,
-     ex_cri_desc * returned_cri_desc,
-     queue_index down,
-     queue_index up,
-     Lng32 num_buffers,
-     ULng32 buffer_size)
-     : ComTdbExeUtil(ComTdbExeUtil::LONG_RUNNING_,
- 		     NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN,
-		     tableName, tableNameLen,
-  		     NULL, 0,
-		     NULL, 0,
-		     NULL,
-		     work_cri_desc, work_atp_index,
-		     given_cri_desc, returned_cri_desc,
-		     down, up, 
-		     num_buffers, buffer_size),
-       flags_(0),
-       lruStmt_(NULL),
-       lruStmtLen_(0),
-       lruStmtWithCK_(NULL),
-       lruStmtWithCKLen_(0),
-       predicate_(NULL),
-       predicateLen_(0),
-       multiCommitSize_(0),
-       defaultSchemaName_(NULL),
-       defaultCatalogName_(NULL)
-{
+ComTdbExeUtilLongRunning::ComTdbExeUtilLongRunning(char *tableName, ULng32 tableNameLen, ex_cri_desc *work_cri_desc,
+                                                   const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
+                                                   ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
+                                                   Lng32 num_buffers, ULng32 buffer_size)
+    : ComTdbExeUtil(ComTdbExeUtil::LONG_RUNNING_, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, tableName, tableNameLen, NULL,
+                    0, NULL, 0, NULL, work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc, down, up,
+                    num_buffers, buffer_size),
+      flags_(0),
+      lruStmt_(NULL),
+      lruStmtLen_(0),
+      lruStmtWithCK_(NULL),
+      lruStmtWithCKLen_(0),
+      predicate_(NULL),
+      predicateLen_(0),
+      multiCommitSize_(0),
+      defaultSchemaName_(NULL),
+      defaultCatalogName_(NULL) {
   setNodeType(ComTdb::ex_LONG_RUNNING);
 }
 
-Long ComTdbExeUtilLongRunning::pack(void * space)
-{
-  if (lruStmt_)
-    lruStmt_.pack(space);
+Long ComTdbExeUtilLongRunning::pack(void *space) {
+  if (lruStmt_) lruStmt_.pack(space);
 
-  if(lruStmtWithCK_)
-    lruStmtWithCK_.pack(space);
+  if (lruStmtWithCK_) lruStmtWithCK_.pack(space);
 
-  if (predicate_)
-    predicate_.pack(space); 
+  if (predicate_) predicate_.pack(space);
 
-  if (defaultSchemaName_)
-    defaultSchemaName_.pack(space);
+  if (defaultSchemaName_) defaultSchemaName_.pack(space);
 
-  if (defaultCatalogName_)
-    defaultCatalogName_.pack(space);
+  if (defaultCatalogName_) defaultCatalogName_.pack(space);
 
   return ComTdbExeUtil::pack(space);
 }
 
-Lng32 ComTdbExeUtilLongRunning::unpack(void * base, void * reallocator)
-{
+Lng32 ComTdbExeUtilLongRunning::unpack(void *base, void *reallocator) {
+  if (lruStmt_.unpack(base)) return -1;
 
-  if(lruStmt_.unpack(base))
-    return -1;
-  
-  if(lruStmtWithCK_.unpack(base))
-    return -1;
+  if (lruStmtWithCK_.unpack(base)) return -1;
 
-  if (predicate_.unpack(base))
-     return -1;
+  if (predicate_.unpack(base)) return -1;
 
-  if (defaultSchemaName_.unpack(base))
-    return -1;
+  if (defaultSchemaName_.unpack(base)) return -1;
 
-  if (defaultCatalogName_.unpack(base))
-    return -1;
+  if (defaultCatalogName_.unpack(base)) return -1;
 
   return ComTdbExeUtil::unpack(base, reallocator);
 }
 
-void ComTdbExeUtilLongRunning::setPredicate(Space *space, char *predicate)
-{
-   if (predicate != NULL)
-   {
-      predicateLen_ = strlen(predicate)-5;//skip "WHERE"
-      predicate_ = space->allocateAlignedSpace
-        ((ULng32)predicateLen_ + 1);
-      strcpy(predicate_, &predicate[5]);
-   }
+void ComTdbExeUtilLongRunning::setPredicate(Space *space, char *predicate) {
+  if (predicate != NULL) {
+    predicateLen_ = strlen(predicate) - 5;  // skip "WHERE"
+    predicate_ = space->allocateAlignedSpace((ULng32)predicateLen_ + 1);
+    strcpy(predicate_, &predicate[5]);
+  }
 }
 
-void ComTdbExeUtilLongRunning::displayContents(Space * space,
-					      ULng32 flag)
-{
-  ComTdb::displayContents(space,flag & 0xFFFFFFFE);
-  
-  if(flag & 0x00000008)
-    {
-      char buf[1000];
-      str_sprintf(buf, "\nFor ComTdbExeUtilLongRunning :");
+void ComTdbExeUtilLongRunning::displayContents(Space *space, ULng32 flag) {
+  ComTdb::displayContents(space, flag & 0xFFFFFFFE);
+
+  if (flag & 0x00000008) {
+    char buf[1000];
+    str_sprintf(buf, "\nFor ComTdbExeUtilLongRunning :");
+    space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+
+    if (getTableName() != NULL) {
+      str_sprintf(buf, "Tablename = %s ", getTableName());
       space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-      
-      if (getTableName() != NULL)
-	{
-	  str_sprintf(buf,"Tablename = %s ",getTableName());
-	  space->allocateAndCopyToAlignedSpace(buf, str_len(buf), 
-					       sizeof(short));
-	}
     }
-  
-  if (flag & 0x00000001)
-    {
-      displayExpression(space,flag);
-    }
+  }
+
+  if (flag & 0x00000001) {
+    displayExpression(space, flag);
+  }
 }
-
-
-
 
 ///////////////////////////////////////////////////////////////////////////
 //
 // Methods for class ComTdbExeUtilGetMetadataInfo
 //
 ///////////////////////////////////////////////////////////////////////////
-ComTdbExeUtilGetMetadataInfo::ComTdbExeUtilGetMetadataInfo
-(
-     QueryType queryType,
-     char *    cat,
-     char *    sch,
-     char *    obj,
-     char *    pattern,
-     char *    param1,
-     ex_expr_base * scan_expr,
-     ex_cri_desc * work_cri_desc,
-     const unsigned short work_atp_index,
-     ex_cri_desc * given_cri_desc,
-     ex_cri_desc * returned_cri_desc,
-     queue_index down,
-     queue_index up,
-     Lng32 num_buffers,
-     ULng32 buffer_size,
-     char * server,
-     char * zkPort)
-     : ComTdbExeUtil(ComTdbExeUtil::GET_METADATA_INFO_,
-		     NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN,
-		     NULL, 0,
-		     NULL, 0,
-		     NULL, 0,
-		     scan_expr,
-		     work_cri_desc, work_atp_index,
-		     given_cri_desc, returned_cri_desc,
-		     down, up, 
-		     num_buffers, buffer_size),
-       queryType_(queryType),
-       cat_(cat), sch_(sch), obj_(obj),
-       pattern_(pattern),
-       param1_(param1),
-       flags_(0),
-       server_(server),
-       zkPort_(zkPort)
-{
+ComTdbExeUtilGetMetadataInfo::ComTdbExeUtilGetMetadataInfo(QueryType queryType, char *cat, char *sch, char *obj,
+                                                           char *pattern, char *param1, ex_expr_base *scan_expr,
+                                                           ex_cri_desc *work_cri_desc,
+                                                           const unsigned short work_atp_index,
+                                                           ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc,
+                                                           queue_index down, queue_index up, Lng32 num_buffers,
+                                                           ULng32 buffer_size, char *server, char *zkPort)
+    : ComTdbExeUtil(ComTdbExeUtil::GET_METADATA_INFO_, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, NULL, 0, NULL, 0, NULL,
+                    0, scan_expr, work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc, down, up,
+                    num_buffers, buffer_size),
+      queryType_(queryType),
+      cat_(cat),
+      sch_(sch),
+      obj_(obj),
+      pattern_(pattern),
+      param1_(param1),
+      flags_(0),
+      server_(server),
+      zkPort_(zkPort) {
   setNodeType(ComTdb::ex_GET_METADATA_INFO);
 }
 
-Long ComTdbExeUtilGetMetadataInfo::pack(void * space)
-{
-  if (cat_) 
-    cat_.pack(space);
-  if (sch_) 
-    sch_.pack(space);
-  if (obj_) 
-    obj_.pack(space);
-  if (pattern_) 
-    pattern_.pack(space);
-  if (param1_) 
-    param1_.pack(space);
-  if (server_)
-    server_.pack(space);
-  if (zkPort_)
-    zkPort_.pack(space);
+Long ComTdbExeUtilGetMetadataInfo::pack(void *space) {
+  if (cat_) cat_.pack(space);
+  if (sch_) sch_.pack(space);
+  if (obj_) obj_.pack(space);
+  if (pattern_) pattern_.pack(space);
+  if (param1_) param1_.pack(space);
+  if (server_) server_.pack(space);
+  if (zkPort_) zkPort_.pack(space);
 
   return ComTdbExeUtil::pack(space);
 }
 
-Lng32 ComTdbExeUtilGetMetadataInfo::unpack(void * base, void * reallocator)
-{
-  if (cat_.unpack(base))
-    return -1;
-  if (sch_.unpack(base))
-    return -1;
-  if (obj_.unpack(base))
-    return -1;
-  if (pattern_.unpack(base))
-    return -1;
-  if (param1_.unpack(base))
-    return -1;
-  if (server_.unpack(base))
-    return -1;
-  if (zkPort_.unpack(base))
-    return -1;
+Lng32 ComTdbExeUtilGetMetadataInfo::unpack(void *base, void *reallocator) {
+  if (cat_.unpack(base)) return -1;
+  if (sch_.unpack(base)) return -1;
+  if (obj_.unpack(base)) return -1;
+  if (pattern_.unpack(base)) return -1;
+  if (param1_.unpack(base)) return -1;
+  if (server_.unpack(base)) return -1;
+  if (zkPort_.unpack(base)) return -1;
 
   return ComTdbExeUtil::unpack(base, reallocator);
 }
 
-void ComTdbExeUtilGetMetadataInfo::displayContents(Space * space,ULng32 flag)
-{
-  ComTdb::displayContents(space,flag & 0xFFFFFFFE);
-  
-  if(flag & 0x00000008)
-    {
-      char buf[1000];
-      str_sprintf(buf, "\nFor ComTdbExeUtilGetMetadataInfo :");
+void ComTdbExeUtilGetMetadataInfo::displayContents(Space *space, ULng32 flag) {
+  ComTdb::displayContents(space, flag & 0xFFFFFFFE);
+
+  if (flag & 0x00000008) {
+    char buf[1000];
+    str_sprintf(buf, "\nFor ComTdbExeUtilGetMetadataInfo :");
+    space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+
+    str_sprintf(buf, "QueryType: %d", queryType_);
+    space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+
+    if (getCat() != NULL) {
+      str_sprintf(buf, "Catalog = %s ", getCat());
       space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-      
-      str_sprintf(buf, "QueryType: %d", queryType_);
-      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-
-      if (getCat() != NULL)
-	{
-	  str_sprintf(buf,"Catalog = %s ", getCat());
-	  space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-	}
-
-      if (getSch() != NULL)
-	{
-	  str_sprintf(buf,"Schema = %s ", getSch());
-	  space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-	}
-
-      if (getObj() != NULL)
-	{
-	  str_sprintf(buf,"Object = %s ", getObj());
-	  space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-	}
-
-      if (getPattern() != NULL)
-	{
-	  str_sprintf(buf,"Pattern = %s ", getPattern());
-	  space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-	}
-
-      if (getParam1() != NULL)
-	{
-	  str_sprintf(buf,"Param1 = %s ", getParam1());
-	  space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-	}
-
-      str_sprintf(buf, "Flags = %x",flags_);
-      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-
     }
-  
-  if (flag & 0x00000001)
-    {
-      displayExpression(space,flag);
-      displayChildren(space,flag);
+
+    if (getSch() != NULL) {
+      str_sprintf(buf, "Schema = %s ", getSch());
+      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
     }
+
+    if (getObj() != NULL) {
+      str_sprintf(buf, "Object = %s ", getObj());
+      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+    }
+
+    if (getPattern() != NULL) {
+      str_sprintf(buf, "Pattern = %s ", getPattern());
+      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+    }
+
+    if (getParam1() != NULL) {
+      str_sprintf(buf, "Param1 = %s ", getParam1());
+      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+    }
+
+    str_sprintf(buf, "Flags = %x", flags_);
+    space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+  }
+
+  if (flag & 0x00000001) {
+    displayExpression(space, flag);
+    displayChildren(space, flag);
+  }
 }
-
 
 ///////////////////////////////////////////////////////////////////////////
 //
 // Methods for class ComTdbExeUtilShowSet
 //
 ///////////////////////////////////////////////////////////////////////////
-ComTdbExeUtilShowSet::ComTdbExeUtilShowSet
-(
-     UInt16 type,
-     char * param1,
-     char * param2,
-     ex_cri_desc * work_cri_desc,
-     const unsigned short work_atp_index,
-     ex_cri_desc * given_cri_desc,
-     ex_cri_desc * returned_cri_desc,
-     queue_index down,
-     queue_index up,
-     Lng32 num_buffers,
-     ULng32 buffer_size)
-     : ComTdbExeUtil(ComTdbExeUtil::SHOW_SET_,
-		     NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN,
-		     NULL, 0,
-		     NULL, 0,
-		     NULL, 0,
-		     NULL,
-		     work_cri_desc, work_atp_index,
-		     given_cri_desc, returned_cri_desc,
-		     down, up, 
-		     num_buffers, buffer_size),
-       type_(type), flags_(0),
-       param1_(param1), param2_(param2)
-{
+ComTdbExeUtilShowSet::ComTdbExeUtilShowSet(UInt16 type, char *param1, char *param2, ex_cri_desc *work_cri_desc,
+                                           const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
+                                           ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
+                                           Lng32 num_buffers, ULng32 buffer_size)
+    : ComTdbExeUtil(ComTdbExeUtil::SHOW_SET_, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, NULL, 0, NULL, 0, NULL, 0, NULL,
+                    work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc, down, up, num_buffers,
+                    buffer_size),
+      type_(type),
+      flags_(0),
+      param1_(param1),
+      param2_(param2) {
   setNodeType(ComTdb::ex_SHOW_SET);
 }
 
-Long ComTdbExeUtilShowSet::pack(void * space)
-{
-  if (param1_) 
-    param1_.pack(space);
-  if (param2_) 
-    param2_.pack(space);
+Long ComTdbExeUtilShowSet::pack(void *space) {
+  if (param1_) param1_.pack(space);
+  if (param2_) param2_.pack(space);
   return ComTdbExeUtil::pack(space);
 }
 
-Lng32 ComTdbExeUtilShowSet::unpack(void * base, void * reallocator)
-{
-  if(param1_.unpack(base))
-    return -1;
-  if(param2_.unpack(base))
-    return -1;
+Lng32 ComTdbExeUtilShowSet::unpack(void *base, void *reallocator) {
+  if (param1_.unpack(base)) return -1;
+  if (param2_.unpack(base)) return -1;
   return ComTdbExeUtil::unpack(base, reallocator);
 }
 
-void ComTdbExeUtilShowSet::displayContents(Space * space,ULng32 flag)
-{
-  ComTdb::displayContents(space,flag & 0xFFFFFFFE);
-  
-  if(flag & 0x00000008)
-    {
-      char buf[100];
-      str_sprintf(buf, "\nFor ComTdbExeUtilShowSet :");
-      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-    }
-  
-  if (flag & 0x00000001)
-    {
-      displayExpression(space,flag);
-      displayChildren(space,flag);
-    }
+void ComTdbExeUtilShowSet::displayContents(Space *space, ULng32 flag) {
+  ComTdb::displayContents(space, flag & 0xFFFFFFFE);
+
+  if (flag & 0x00000008) {
+    char buf[100];
+    str_sprintf(buf, "\nFor ComTdbExeUtilShowSet :");
+    space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+  }
+
+  if (flag & 0x00000001) {
+    displayExpression(space, flag);
+    displayChildren(space, flag);
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -1935,234 +1310,143 @@ void ComTdbExeUtilShowSet::displayContents(Space * space,ULng32 flag)
 // Methods for class ComTdbExeUtilAQR
 //
 ///////////////////////////////////////////////////////////////////////////
-ComTdbExeUtilAQR::ComTdbExeUtilAQR
-(
-     Lng32 task,
-     ex_cri_desc * given_cri_desc,
-     ex_cri_desc * returned_cri_desc,
-     queue_index down,
-     queue_index up,
-     Lng32 num_buffers,
-     ULng32 buffer_size)
-     : ComTdbExeUtil(ComTdbExeUtil::AQR_,
-		     NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN,
-		     NULL, 0,
-		     NULL, 0,
-		     NULL, 0,
-		     NULL,
-		     NULL, 0,
-		     given_cri_desc, returned_cri_desc,
-		     down, up, 
-		     num_buffers, buffer_size),
-       task_(task),
-       flags_(0)
-{
+ComTdbExeUtilAQR::ComTdbExeUtilAQR(Lng32 task, ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc,
+                                   queue_index down, queue_index up, Lng32 num_buffers, ULng32 buffer_size)
+    : ComTdbExeUtil(ComTdbExeUtil::AQR_, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, NULL, 0, NULL, 0, NULL, 0, NULL, NULL,
+                    0, given_cri_desc, returned_cri_desc, down, up, num_buffers, buffer_size),
+      task_(task),
+      flags_(0) {
   setNodeType(ComTdb::ex_AQR);
 }
 
-Long ComTdbExeUtilAQR::pack(void * space)
-{
-  return ComTdbExeUtil::pack(space);
+Long ComTdbExeUtilAQR::pack(void *space) { return ComTdbExeUtil::pack(space); }
+
+Lng32 ComTdbExeUtilAQR::unpack(void *base, void *reallocator) { return ComTdbExeUtil::unpack(base, reallocator); }
+
+void ComTdbExeUtilAQR::displayContents(Space *space, ULng32 flag) {
+  ComTdb::displayContents(space, flag & 0xFFFFFFFE);
+
+  if (flag & 0x00000008) {
+    char buf[100];
+    str_sprintf(buf, "\nFor ComTdbExeUtilAQR :");
+    space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+  }
+
+  if (flag & 0x00000001) {
+    displayExpression(space, flag);
+    displayChildren(space, flag);
+  }
 }
-
-Lng32 ComTdbExeUtilAQR::unpack(void * base, void * reallocator)
-{
-  return ComTdbExeUtil::unpack(base, reallocator);
-}
-
-void ComTdbExeUtilAQR::displayContents(Space * space,ULng32 flag)
-{
-  ComTdb::displayContents(space,flag & 0xFFFFFFFE);
-  
-  if(flag & 0x00000008)
-    {
-      char buf[100];
-      str_sprintf(buf, "\nFor ComTdbExeUtilAQR :");
-      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-    }
-  
-  if (flag & 0x00000001)
-    {
-      displayExpression(space,flag);
-      displayChildren(space,flag);
-    }
-}
-
-
-
 
 //*********************************************
-//ComTdbExeUtilHBaseBulkLoad
+// ComTdbExeUtilHBaseBulkLoad
 //********************************************
-ComTdbExeUtilHBaseBulkLoad::ComTdbExeUtilHBaseBulkLoad
-(
-     char * tableName,
-     ULng32 tableNameLen,
-     char * ldStmtStr,
-     ex_expr_base * input_expr,
-     ULng32 input_rowlen,
-     ex_cri_desc * work_cri_desc,
-     const unsigned short work_atp_index,
-     ex_cri_desc * given_cri_desc,
-     ex_cri_desc * returned_cri_desc,
-     queue_index down,
-     queue_index up,
-     Lng32 num_buffers,
-     ULng32 buffer_size,
-     char * errCountTab,
-     char * loggingLoc
- )
-     : ComTdbExeUtil(ComTdbExeUtil::HBASE_LOAD_,
-                     NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN,
-                     tableName, tableNameLen,
-                     input_expr, input_rowlen,
-                     NULL, 0,
-                     NULL,
-                     work_cri_desc, work_atp_index,
-                     given_cri_desc, returned_cri_desc,
-                     down, up,
-                     num_buffers, buffer_size),
-       ldQuery_(ldStmtStr),
-       flags_(0),
-       maxErrorRows_(0),
-       errCountTable_(errCountTab),
-       loggingLocation_(loggingLoc),
-       sampleTableName_(NULL)
-{
+ComTdbExeUtilHBaseBulkLoad::ComTdbExeUtilHBaseBulkLoad(char *tableName, ULng32 tableNameLen, char *ldStmtStr,
+                                                       ex_expr_base *input_expr, ULng32 input_rowlen,
+                                                       ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
+                                                       ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc,
+                                                       queue_index down, queue_index up, Lng32 num_buffers,
+                                                       ULng32 buffer_size, char *errCountTab, char *loggingLoc)
+    : ComTdbExeUtil(ComTdbExeUtil::HBASE_LOAD_, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, tableName, tableNameLen,
+                    input_expr, input_rowlen, NULL, 0, NULL, work_cri_desc, work_atp_index, given_cri_desc,
+                    returned_cri_desc, down, up, num_buffers, buffer_size),
+      ldQuery_(ldStmtStr),
+      flags_(0),
+      maxErrorRows_(0),
+      errCountTable_(errCountTab),
+      loggingLocation_(loggingLoc),
+      sampleTableName_(NULL) {
   setNodeType(ComTdb::ex_HBASE_LOAD);
 }
 
-Long ComTdbExeUtilHBaseBulkLoad::pack(void * space)
-{
-  if (ldQuery_)
-    ldQuery_.pack(space);
-  if(errCountTable_)
-    errCountTable_.pack(space);
-  if(loggingLocation_)
-    loggingLocation_.pack(space);
-  if (sampleTableName_)
-    sampleTableName_.pack(space);
+Long ComTdbExeUtilHBaseBulkLoad::pack(void *space) {
+  if (ldQuery_) ldQuery_.pack(space);
+  if (errCountTable_) errCountTable_.pack(space);
+  if (loggingLocation_) loggingLocation_.pack(space);
+  if (sampleTableName_) sampleTableName_.pack(space);
   return ComTdbExeUtil::pack(space);
 }
 
-Lng32 ComTdbExeUtilHBaseBulkLoad::unpack(void * base, void * reallocator)
-{
-  if(ldQuery_.unpack(base))
-    return -1;
-  if(errCountTable_.unpack(base))
-    return -1;
-  if(loggingLocation_.unpack(base))
-    return -1;
-  if(sampleTableName_.unpack(base))
-      return -1;
+Lng32 ComTdbExeUtilHBaseBulkLoad::unpack(void *base, void *reallocator) {
+  if (ldQuery_.unpack(base)) return -1;
+  if (errCountTable_.unpack(base)) return -1;
+  if (loggingLocation_.unpack(base)) return -1;
+  if (sampleTableName_.unpack(base)) return -1;
   return ComTdbExeUtil::unpack(base, reallocator);
 }
-void ComTdbExeUtilHBaseBulkLoad::displayContents(Space * space,ULng32 flag)
-{
-  ComTdb::displayContents(space,flag & 0xFFFFFFFE);
+void ComTdbExeUtilHBaseBulkLoad::displayContents(Space *space, ULng32 flag) {
+  ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
-   if (flag  & 0x00000008)
-    {
-      char buf[1000];
-      str_sprintf(buf, "\nFor ComTdbExeUtilHbaseLoad :");
+  if (flag & 0x00000008) {
+    char buf[1000];
+    str_sprintf(buf, "\nFor ComTdbExeUtilHbaseLoad :");
+    space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+
+    if (getTableName() != NULL) {
+      str_sprintf(buf, "Tablename = %s ", getTableName());
       space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+    }
 
-      if (getTableName() != NULL)
-        {
-          str_sprintf(buf,"Tablename = %s ",getTableName());
-          space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-        }
+    if (ldQuery_) {
+      char query[400];
+      if (strlen(ldQuery_) > 390) {
+        strncpy(query, ldQuery_, 390);
+        query[390] = 0;
+        strcat(query, "...");
+      } else
+        strcpy(query, ldQuery_);
 
-      if (ldQuery_)
-        {
-          char query[400];
-          if (strlen(ldQuery_) > 390)
-            {
-              strncpy(query, ldQuery_, 390);
-              query[390] = 0;
-              strcat(query, "...");
-            }
-          else
-            strcpy(query, ldQuery_);
+      str_sprintf(buf, "ld Query = %s ", query);
+      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+    }
 
-          str_sprintf(buf,"ld Query = %s ",query);
-          space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-        }
-
-     if (getLogErrorRows()) {
-        if (loggingLocation_) {
-           str_sprintf(buf, "Logging location = %s ", loggingLocation_.getPointer()); 
-           space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-        }
-     }
-     if (maxErrorRows_ > 0) {
-        str_sprintf(buf, "Max Error Rows = %d", maxErrorRows_);
+    if (getLogErrorRows()) {
+      if (loggingLocation_) {
+        str_sprintf(buf, "Logging location = %s ", loggingLocation_.getPointer());
         space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-        if (errCountTable_) {
-           str_sprintf(buf, "Error Counter Table Name = %s ", errCountTable_.getPointer()); 
-           space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-        }
-     }
+      }
+    }
+    if (maxErrorRows_ > 0) {
+      str_sprintf(buf, "Max Error Rows = %d", maxErrorRows_);
+      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+      if (errCountTable_) {
+        str_sprintf(buf, "Error Counter Table Name = %s ", errCountTable_.getPointer());
+        space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+      }
+    }
   }
 
-  if (flag & 0x00000001)
-    {
-      displayExpression(space,flag);
-      displayChildren(space,flag);
-    }
+  if (flag & 0x00000001) {
+    displayExpression(space, flag);
+    displayChildren(space, flag);
+  }
 }
 
-
-
-
-
-ComTdbExeUtilRegionStats::ComTdbExeUtilRegionStats
-(
-     char * tableName,
-     char * catName,
-     char * schName,
-     char * objName,
-     ex_expr_base * input_expr,
-     ULng32 input_rowlen,
-     ex_expr_base * scan_expr,
-     ex_cri_desc * work_cri_desc,
-     const unsigned short work_atp_index,
-     ex_cri_desc * given_cri_desc,
-     ex_cri_desc * returned_cri_desc,
-     queue_index down,
-     queue_index up,
-     Lng32 num_buffers,
-     ULng32 buffer_size)
-     : ComTdbExeUtil(ComTdbExeUtil::REGION_STATS_,
-		     NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN,
-		     tableName, strlen(tableName),
-		     input_expr, input_rowlen,
-		     NULL, 0,
-		     scan_expr,
-		     work_cri_desc, work_atp_index,
-		     given_cri_desc, returned_cri_desc,
-		     down, up, 
-		     num_buffers, buffer_size),
-       flags_(0),
-       catName_(catName), schName_(schName), objName_(objName)
-{
+ComTdbExeUtilRegionStats::ComTdbExeUtilRegionStats(char *tableName, char *catName, char *schName, char *objName,
+                                                   ex_expr_base *input_expr, ULng32 input_rowlen,
+                                                   ex_expr_base *scan_expr, ex_cri_desc *work_cri_desc,
+                                                   const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
+                                                   ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
+                                                   Lng32 num_buffers, ULng32 buffer_size)
+    : ComTdbExeUtil(ComTdbExeUtil::REGION_STATS_, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, tableName, strlen(tableName),
+                    input_expr, input_rowlen, NULL, 0, scan_expr, work_cri_desc, work_atp_index, given_cri_desc,
+                    returned_cri_desc, down, up, num_buffers, buffer_size),
+      flags_(0),
+      catName_(catName),
+      schName_(schName),
+      objName_(objName) {
   setNodeType(ComTdb::ex_REGION_STATS);
 }
 
-Long ComTdbExeUtilRegionStats::pack(void * space)
-{
-  if (catName_) 
-    catName_.pack(space);
-  if (schName_) 
-    schName_.pack(space);
-  if (objName_) 
-    objName_.pack(space);
+Long ComTdbExeUtilRegionStats::pack(void *space) {
+  if (catName_) catName_.pack(space);
+  if (schName_) schName_.pack(space);
+  if (objName_) objName_.pack(space);
 
   return ComTdbExeUtil::pack(space);
 }
 
-Lng32 ComTdbExeUtilRegionStats::unpack(void * base, void * reallocator)
-{
+Lng32 ComTdbExeUtilRegionStats::unpack(void *base, void *reallocator) {
   if (catName_.unpack(base)) return -1;
   if (schName_.unpack(base)) return -1;
   if (objName_.unpack(base)) return -1;
@@ -2170,53 +1454,22 @@ Lng32 ComTdbExeUtilRegionStats::unpack(void * base, void * reallocator)
   return ComTdbExeUtil::unpack(base, reallocator);
 }
 
-
-
-
-
-
-//by default, max deep of a tree
+// by default, max deep of a tree
 #define TREE_MAX_DEEP 200
-//by default, the max number of rows to return for hierachy query
+// by default, the max number of rows to return for hierachy query
 #define MAX_ROW_NUM 100000
-ComTdbExeUtilConnectby::ComTdbExeUtilConnectby(char * query,
- 			      ULng32 querylen,
- 			      Int16 querycharset,
- 			      char * tableName,
-                              Int16 tblNameLen,
- 			      char * stmtName,
- 			      ex_expr * input_expr,
- 			      ULng32 input_rowlen,
- 			      ex_expr * output_expr,
- 			      ULng32 output_rowlen,
- 			      ex_expr * scan_expr,
- 			      ex_cri_desc * work_cri_desc,
- 			      const unsigned short work_atp_index,
- 			      Lng32 colDescSize,
- 			      Lng32 outputRowSize,
- 			      ex_cri_desc * given_cri_desc,
- 			      ex_cri_desc * returned_cri_desc,
- 			      queue_index down,
- 			      queue_index up,
- 			      Lng32 num_buffers,
- 			      ULng32 buffer_size,
-                              ExCriDescPtr workCriDesc ,
-                              ex_expr * startwith_expr
- 			    )
-     : ComTdbExeUtil(ComTdbExeUtil::CONNECT_BY_,
-        query, querylen, querycharset,
-        tableName, tblNameLen,
-        input_expr, input_rowlen,
-        output_expr, output_rowlen,
-        scan_expr,
-        work_cri_desc, work_atp_index,
-        given_cri_desc, returned_cri_desc,
-        down, up, 
-        num_buffers, buffer_size),
-        flags_(0),
-        myWorkCriDesc_(workCriDesc),
-        tupleLen_(outputRowSize)    
-{
+ComTdbExeUtilConnectby::ComTdbExeUtilConnectby(
+    char *query, ULng32 querylen, Int16 querycharset, char *tableName, Int16 tblNameLen, char *stmtName,
+    ex_expr *input_expr, ULng32 input_rowlen, ex_expr *output_expr, ULng32 output_rowlen, ex_expr *scan_expr,
+    ex_cri_desc *work_cri_desc, const unsigned short work_atp_index, Lng32 colDescSize, Lng32 outputRowSize,
+    ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, Lng32 num_buffers,
+    ULng32 buffer_size, ExCriDescPtr workCriDesc, ex_expr *startwith_expr)
+    : ComTdbExeUtil(ComTdbExeUtil::CONNECT_BY_, query, querylen, querycharset, tableName, tblNameLen, input_expr,
+                    input_rowlen, output_expr, output_rowlen, scan_expr, work_cri_desc, work_atp_index, given_cri_desc,
+                    returned_cri_desc, down, up, num_buffers, buffer_size),
+      flags_(0),
+      myWorkCriDesc_(workCriDesc),
+      tupleLen_(outputRowSize) {
   setNodeType(ComTdb::ex_CONNECT_BY);
   connTableName_ = tableName;
   maxDeep_ = TREE_MAX_DEEP;
@@ -2227,85 +1480,56 @@ ComTdbExeUtilConnectby::ComTdbExeUtilConnectby(char * query,
   startwith_expr_ = startwith_expr;
 }
 
-Long ComTdbExeUtilConnectby::pack(void * space)
-{
+Long ComTdbExeUtilConnectby::pack(void *space) {
   myWorkCriDesc_.pack(space);
-  startwith_expr_.pack(space);  
+  startwith_expr_.pack(space);
   return ComTdbExeUtil::pack(space);
 }
 
-Lng32 ComTdbExeUtilConnectby::unpack(void * base, void * reallocator)
-{
-  if(myWorkCriDesc_.unpack(base, reallocator)) return -1;
-  if(startwith_expr_.unpack(base, reallocator)) return -1;
+Lng32 ComTdbExeUtilConnectby::unpack(void *base, void *reallocator) {
+  if (myWorkCriDesc_.unpack(base, reallocator)) return -1;
+  if (startwith_expr_.unpack(base, reallocator)) return -1;
   return ComTdbExeUtil::unpack(base, reallocator);
 }
 
 //////////////////////////////////////////////////////////////
 // ComTdbExeUtilCompositeUnnest
-////////////////////////////////////////////////////////////// 
+//////////////////////////////////////////////////////////////
 ComTdbExeUtilCompositeUnnest::ComTdbExeUtilCompositeUnnest(
-     ex_expr *scanExpr,
-     ex_expr *extractColExpr,
-     UInt16 extractColAtpIndex,
-     UInt32 extractColRowLen,
-     UInt16 elemNumAtpIndex,
-     UInt32 elemNumLen,
-     ex_expr *returnColsExpr,
-     UInt16 returnColsAtpIndex,
-     UInt32 returnColsRowLen,
-     ex_cri_desc * work_cri_desc,
-     const unsigned short work_atp_index,
-     ex_cri_desc * given_cri_desc,
-     ex_cri_desc * returned_cri_desc,
-     queue_index down,
-     queue_index up,
-     Lng32 num_buffers,
-     ULng32 buffer_size
-                                                     )
-     : ComTdbExeUtil(ComTdbExeUtil::COMPOSITE_UNNEST_,
-                     NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN,
-                     NULL, 0, 
-                     NULL, 0,
-                     NULL, 0,
-                     scanExpr,
-                     work_cri_desc, work_atp_index,
-                     given_cri_desc, returned_cri_desc,
-                     down, up, 
-                     num_buffers, buffer_size),
-       extractColExpr_(extractColExpr),
-       extractColAtpIndex_(extractColAtpIndex),
-       extractColRowLen_(extractColRowLen),
-       returnColsExpr_(returnColsExpr),
-       returnColsAtpIndex_(returnColsAtpIndex),
-       returnColsRowLen_(returnColsRowLen),
-       elemNumAtpIndex_(elemNumAtpIndex),
-       elemNumLen_(elemNumLen)
-{
+    ex_expr *scanExpr, ex_expr *extractColExpr, UInt16 extractColAtpIndex, UInt32 extractColRowLen,
+    UInt16 elemNumAtpIndex, UInt32 elemNumLen, ex_expr *returnColsExpr, UInt16 returnColsAtpIndex,
+    UInt32 returnColsRowLen, ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
+    ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, Lng32 num_buffers,
+    ULng32 buffer_size)
+    : ComTdbExeUtil(ComTdbExeUtil::COMPOSITE_UNNEST_, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, NULL, 0, NULL, 0, NULL, 0,
+                    scanExpr, work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc, down, up, num_buffers,
+                    buffer_size),
+      extractColExpr_(extractColExpr),
+      extractColAtpIndex_(extractColAtpIndex),
+      extractColRowLen_(extractColRowLen),
+      returnColsExpr_(returnColsExpr),
+      returnColsAtpIndex_(returnColsAtpIndex),
+      returnColsRowLen_(returnColsRowLen),
+      elemNumAtpIndex_(elemNumAtpIndex),
+      elemNumLen_(elemNumLen) {
   setNodeType(ComTdb::ex_COMPOSITE_UNNEST);
 }
 
-Long ComTdbExeUtilCompositeUnnest::pack(void * space)
-{
+Long ComTdbExeUtilCompositeUnnest::pack(void *space) {
   extractColExpr_.pack(space);
   returnColsExpr_.pack(space);
   return ComTdbExeUtil::pack(space);
 }
 
-Lng32 ComTdbExeUtilCompositeUnnest::unpack(void * base, void * reallocator)
-{
-  if(extractColExpr_.unpack(base, reallocator)) return -1;
-  if(returnColsExpr_.unpack(base, reallocator)) return -1;
+Lng32 ComTdbExeUtilCompositeUnnest::unpack(void *base, void *reallocator) {
+  if (extractColExpr_.unpack(base, reallocator)) return -1;
+  if (returnColsExpr_.unpack(base, reallocator)) return -1;
   return ComTdbExeUtil::unpack(base, reallocator);
 }
 
-Int32 ComTdbExeUtilCompositeUnnest::numExpressions() const
-{
-  return (ComTdbExeUtil::numExpressions() + 2);
-}
+Int32 ComTdbExeUtilCompositeUnnest::numExpressions() const { return (ComTdbExeUtil::numExpressions() + 2); }
 
-ex_expr* ComTdbExeUtilCompositeUnnest::getExpressionNode(Int32 pos) 
-{
+ex_expr *ComTdbExeUtilCompositeUnnest::getExpressionNode(Int32 pos) {
   if (pos >= numExpressions())
     return NULL;
   else if (pos < ComTdbExeUtil::numExpressions())
@@ -2316,8 +1540,7 @@ ex_expr* ComTdbExeUtilCompositeUnnest::getExpressionNode(Int32 pos)
     return returnColsExpr_;
 }
 
-const char * ComTdbExeUtilCompositeUnnest::getExpressionName(Int32 pos) const 
-{
+const char *ComTdbExeUtilCompositeUnnest::getExpressionName(Int32 pos) const {
   if (pos >= numExpressions())
     return NULL;
   else if (pos < ComTdbExeUtil::numExpressions())
@@ -2329,101 +1552,73 @@ const char * ComTdbExeUtilCompositeUnnest::getExpressionName(Int32 pos) const
 }
 
 //*********************************************
-//ComTdbExeUtilUpdataDelete
+// ComTdbExeUtilUpdataDelete
 //********************************************
-ComTdbExeUtilUpdataDelete::ComTdbExeUtilUpdataDelete
-(
-     char * tableName,
-     ULng32 tableNameLen,
-     char * ldStmtStr,
-     ex_cri_desc * work_cri_desc,
-     const unsigned short work_atp_index,
-     ex_cri_desc * given_cri_desc,
-     ex_cri_desc * returned_cri_desc,
-     queue_index down,
-     queue_index up,
-     Lng32 num_buffers,
-     ULng32 buffer_size,
-     ComStorageType storageType,
-     char * server,
-     char * zkPort
- )
-     : ComTdbExeUtil(ComTdbExeUtil::SNAPSHOT_UPDATE_DELETE_,
-                     NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN,
-                     tableName, tableNameLen,
-                     NULL, 0,
-                     NULL, 0,
-                     NULL,
-                     work_cri_desc, work_atp_index,
-                     given_cri_desc, returned_cri_desc,
-                     down, up,
-                     num_buffers, buffer_size),
-       query_(ldStmtStr),
-       listOfIndexesAndTable_(NULL),
-       incrBackupEnabled_(FALSE),
-       storageType_(storageType),
-       server_(server),
-       zkPort_(zkPort),
-       objUID_(0)
-{
+ComTdbExeUtilUpdataDelete::ComTdbExeUtilUpdataDelete(char *tableName, ULng32 tableNameLen, char *ldStmtStr,
+                                                     ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
+                                                     ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc,
+                                                     queue_index down, queue_index up, Lng32 num_buffers,
+                                                     ULng32 buffer_size, ComStorageType storageType, char *server,
+                                                     char *zkPort)
+    : ComTdbExeUtil(ComTdbExeUtil::SNAPSHOT_UPDATE_DELETE_, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, tableName,
+                    tableNameLen, NULL, 0, NULL, 0, NULL, work_cri_desc, work_atp_index, given_cri_desc,
+                    returned_cri_desc, down, up, num_buffers, buffer_size),
+      query_(ldStmtStr),
+      listOfIndexesAndTable_(NULL),
+      incrBackupEnabled_(FALSE),
+      storageType_(storageType),
+      server_(server),
+      zkPort_(zkPort),
+      objUID_(0) {
   setNodeType(ComTdb::ex_SNAPSHOT_UPDATE_DELETE);
 }
 
-Long ComTdbExeUtilUpdataDelete::pack(void * space)
-{
+Long ComTdbExeUtilUpdataDelete::pack(void *space) {
   listOfIndexesAndTable_.pack(space);
-  if (query_)  query_.pack(space);
+  if (query_) query_.pack(space);
   if (server_) server_.pack(space);
   if (zkPort_) zkPort_.pack(space);
   return ComTdbExeUtil::pack(space);
 }
 
-Lng32 ComTdbExeUtilUpdataDelete::unpack(void * base, void * reallocator)
-{
-  if(query_.unpack(base)) return -1;
-  if(server_.unpack(base)) return -1;
-  if(zkPort_.unpack(base)) return -1;
-  if(listOfIndexesAndTable_.unpack(base, reallocator)) return -1;
+Lng32 ComTdbExeUtilUpdataDelete::unpack(void *base, void *reallocator) {
+  if (query_.unpack(base)) return -1;
+  if (server_.unpack(base)) return -1;
+  if (zkPort_.unpack(base)) return -1;
+  if (listOfIndexesAndTable_.unpack(base, reallocator)) return -1;
   return ComTdbExeUtil::unpack(base, reallocator);
 }
 
-void ComTdbExeUtilUpdataDelete::displayContents(Space * space,ULng32 flag)
-{
-  ComTdb::displayContents(space,flag & 0xFFFFFFFE);
+void ComTdbExeUtilUpdataDelete::displayContents(Space *space, ULng32 flag) {
+  ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
-  if (flag  & 0x00000008)
-  {
+  if (flag & 0x00000008) {
     char buf[1000];
     str_sprintf(buf, "\nFor ComTdbExeUtilUpdataDelete :");
     space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
 
-    if (getTableName() != NULL)
-    {
-      str_sprintf(buf,"Tablename = %s ",getTableName());
+    if (getTableName() != NULL) {
+      str_sprintf(buf, "Tablename = %s ", getTableName());
       space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
     }
 
-    if (query_)
-    {
+    if (query_) {
       char query[400];
-      if (strlen(query_) > 390)
-      {
+      if (strlen(query_) > 390) {
         strncpy(query, query_, 390);
         query[390] = 0;
         strcat(query, "...");
-      }
-      else
+      } else
         strcpy(query, query_);
 
-      str_sprintf(buf,"ld Query = %s ",query);
+      str_sprintf(buf, "ld Query = %s ", query);
       space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
     }
   }
 
-  if (flag & 0x00000001)
-  {
-    displayExpression(space,flag);
-    displayChildren(space,flag);
+  if (flag & 0x00000001) {
+    displayExpression(space, flag);
+    displayChildren(space, flag);
   }
 }
 

@@ -34,8 +34,8 @@
  *****************************************************************************
  */
 
-#include "Generator.h"
-#include "RelExpr.h"
+#include "generator/Generator.h"
+#include "optimizer/RelExpr.h"
 
 short RelExpr::codeGen(Generator * generator)
 {

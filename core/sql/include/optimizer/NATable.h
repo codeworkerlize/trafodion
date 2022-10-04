@@ -30,8 +30,8 @@
 #include "optimizer/ItemConstr.h"
 #include "optimizer/ObjectNames.h"
 #include "common/ComSmallDefs.h"            // added for ComDiskFileFormat enum
-#include "NAColumn.h"
-#include "NAFileSet.h"
+#include "optimizer/NAColumn.h"
+#include "optimizer/NAFileSet.h"
 #include "Stats.h"
 #include "common/NAMemory.h"
 #include "common/ComMvAttributeBitmap.h"

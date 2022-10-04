@@ -20,9 +20,9 @@
 //
 // @@@ END COPYRIGHT @@@
 //*****************************************************************************
-  
+
 #include "PrivMgrMDTable.h"
-#include "PrivMgrMD.h"
+#include "sqlcomp/PrivMgrMD.h"
 
 #include <string>
 #include <cstdio>
@@ -34,15 +34,14 @@
 #include "common/CmpCommon.h"
 #include "arkcmp/CmpContext.h"
 
-PrivMgrRowInfo::PrivMgrRowInfo(const PrivMgrRowInfo &other)
-{
-   grantorID_ = other.grantorID_;
-   grantorName_ = other.grantorName_;
-   granteeID_ = other.granteeID_;
-   granteeName_ = other.granteeName_;
-   columnOrdinal_ = other.columnOrdinal_;
-   privsBitmap_ = other.privsBitmap_;
-   grantableBitmap_ = other.grantorID_;
+PrivMgrRowInfo::PrivMgrRowInfo(const PrivMgrRowInfo &other) {
+  grantorID_ = other.grantorID_;
+  grantorName_ = other.grantorName_;
+  granteeID_ = other.granteeID_;
+  granteeName_ = other.granteeName_;
+  columnOrdinal_ = other.columnOrdinal_;
+  privsBitmap_ = other.privsBitmap_;
+  grantableBitmap_ = other.grantorID_;
 }
 
 // *****************************************************************************
@@ -68,32 +67,22 @@ PrivMgrRowInfo::PrivMgrRowInfo(const PrivMgrRowInfo &other)
 // *    TRAFODION.PRIVMGR_MD.tablename)                                        *
 // *                                                                           *
 // *****************************************************************************
-PrivMgrMDRow::PrivMgrMDRow(std::string myTableName, PrivMgrTableEnum myTableEnum)
-: myTableName_(myTableName)
-{}   
-   
+PrivMgrMDRow::PrivMgrMDRow(std::string myTableName, PrivMgrTableEnum myTableEnum) : myTableName_(myTableName) {}
+
 // -----------------------------------------------------------------------
 // Copy constructor
 // -----------------------------------------------------------------------
-   
-PrivMgrMDRow::PrivMgrMDRow(const PrivMgrMDRow &other)
-{
 
-   myTableName_ = other.myTableName_;   
-
-}
+PrivMgrMDRow::PrivMgrMDRow(const PrivMgrMDRow &other) { myTableName_ = other.myTableName_; }
 
 // -----------------------------------------------------------------------
 // Destructor.
 // -----------------------------------------------------------------------
-PrivMgrMDRow::~PrivMgrMDRow()
-{}
-
+PrivMgrMDRow::~PrivMgrMDRow() {}
 
 // *****************************************************************************
 //    PrivMgrMDTable methods
 // *****************************************************************************
-
 
 // *****************************************************************************
 // *                                                                           *
@@ -116,18 +105,12 @@ PrivMgrMDRow::~PrivMgrMDRow()
 // *    is a pointer to the ComDiagsArea to be used for error reporting.       *
 // *                                                                           *
 // *****************************************************************************
-PrivMgrMDTable::PrivMgrMDTable( 
-   const std::string & tableName,
-   PrivMgrTableEnum myTableEnum,
-   ComDiagsArea * pDiags)
-: tableName_(tableName),
-  pDiags_(pDiags)
-  
+PrivMgrMDTable::PrivMgrMDTable(const std::string &tableName, PrivMgrTableEnum myTableEnum, ComDiagsArea *pDiags)
+    : tableName_(tableName),
+      pDiags_(pDiags)
+
 {
-
-   if (pDiags == NULL)
-      pDiags = CmpCommon::diags();
-
+  if (pDiags == NULL) pDiags = CmpCommon::diags();
 }
 //******************** End of PrivMgrMDTable::PrivMgrMDTable *******************
 
@@ -137,19 +120,15 @@ PrivMgrMDTable::PrivMgrMDTable(
 PrivMgrMDTable::PrivMgrMDTable(const PrivMgrMDTable &other)
 
 {
-
-   tableName_ = other.tableName_;
-   pDiags_ = other.pDiags_;
-  
+  tableName_ = other.tableName_;
+  pDiags_ = other.pDiags_;
 }
 
 // -----------------------------------------------------------------------
 // Destructor.
 // -----------------------------------------------------------------------
 
-PrivMgrMDTable::~PrivMgrMDTable() 
-{}
-
+PrivMgrMDTable::~PrivMgrMDTable() {}
 
 // *****************************************************************************
 // *                                                                           *
@@ -179,41 +158,34 @@ PrivMgrMDTable::~PrivMgrMDTable()
 // *               *: Read failed. A CLI error is put into the diags area.     *
 // *                                                                           *
 // *****************************************************************************
-PrivStatus PrivMgrMDTable::CLIFetch(
-   ExeCliInterface & cliInterface, 
-   const std::string & SQLStatement)
-  
+PrivStatus PrivMgrMDTable::CLIFetch(ExeCliInterface &cliInterface, const std::string &SQLStatement)
+
 {
+  // set pointer in diags area
+  int32_t diagsMark = pDiags_->mark();
 
-// set pointer in diags area
-int32_t diagsMark = pDiags_->mark();
+  int32_t cliRC = cliInterface.fetchRowsPrologue(SQLStatement.c_str(), true /*no exec*/);
 
-int32_t cliRC = cliInterface.fetchRowsPrologue(SQLStatement.c_str(),true/*no exec*/);
+  if (cliRC < 0) {
+    cliInterface.retrieveSQLDiagnostics(pDiags_);
+    return STATUS_ERROR;
+  }
 
-   if (cliRC < 0)
-   {
-      cliInterface.retrieveSQLDiagnostics(pDiags_);
-      return STATUS_ERROR;
-   }
+  cliRC = cliInterface.clearExecFetchClose(NULL, 0);
+  if (cliRC < 0) {
+    cliInterface.retrieveSQLDiagnostics(pDiags_);
+    return STATUS_ERROR;
+  }
 
-   cliRC = cliInterface.clearExecFetchClose(NULL, 0);
-   if (cliRC < 0)
-   {
-      cliInterface.retrieveSQLDiagnostics(pDiags_);
-      return STATUS_ERROR;
-   }
+  if (cliRC == 100)  // did not find any rows
+  {
+    pDiags_->rewind(diagsMark);
+    return STATUS_NOTFOUND;
+  }
 
-   if (cliRC == 100) // did not find any rows
-   {
-      pDiags_->rewind(diagsMark);
-      return STATUS_NOTFOUND;
-   }
+  if (cliRC > 0) return STATUS_WARNING;
 
-   if (cliRC > 0)
-      return STATUS_WARNING;
-
-   return STATUS_GOOD;
-   
+  return STATUS_GOOD;
 }
 //*********************** End of PrivMgrMDTable::CLIFetch **********************
 
@@ -240,24 +212,18 @@ int32_t cliRC = cliInterface.fetchRowsPrologue(SQLStatement.c_str(),true/*no exe
 // * STATUS_ERROR: Execution failed. A CLI error is put into the diags area.   *
 // *                                                                           *
 // *****************************************************************************
-PrivStatus PrivMgrMDTable::CLIImmediate(const std::string & SQLStatement)
-{
+PrivStatus PrivMgrMDTable::CLIImmediate(const std::string &SQLStatement) {
+  ExeCliInterface cliInterface(STMTHEAP, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
 
-ExeCliInterface cliInterface(STMTHEAP, 0, NULL, 
-  CmpCommon::context()->sqlSession()->getParentQid());
+  int32_t cliRC = cliInterface.executeImmediate(SQLStatement.c_str());
 
-int32_t cliRC = cliInterface.executeImmediate(SQLStatement.c_str());
-
-   if (cliRC < 0)
-   {
-      cliInterface.retrieveSQLDiagnostics(pDiags_);
-      return STATUS_ERROR;
-   }
-   return STATUS_GOOD;
-   
+  if (cliRC < 0) {
+    cliInterface.retrieveSQLDiagnostics(pDiags_);
+    return STATUS_ERROR;
+  }
+  return STATUS_GOOD;
 }
 //********************* End of PrivMgrMDTable::CLIImmediate ********************
-
 
 // *****************************************************************************
 // *                                                                           *
@@ -280,21 +246,16 @@ int32_t cliRC = cliInterface.executeImmediate(SQLStatement.c_str());
 // * STATUS_ERROR: Execution failed. A CLI error is put into the diags area.   *
 // *                                                                           *
 // *****************************************************************************
-PrivStatus PrivMgrMDTable::deleteWhere(const std::string & whereClause)
-{
+PrivStatus PrivMgrMDTable::deleteWhere(const std::string &whereClause) {
+  std::string deleteStmt("DELETE FROM ");
 
-std::string deleteStmt ("DELETE FROM ");
+  deleteStmt += tableName_;
+  deleteStmt += " ";
+  deleteStmt += whereClause;
 
-   deleteStmt += tableName_;
-   deleteStmt += " ";
-   deleteStmt += whereClause;
-   
-   return CLIImmediate(deleteStmt);
-
+  return CLIImmediate(deleteStmt);
 }
 //********************* End of PrivMgrMDTable::deleteWhere *********************
-
-
 
 // *****************************************************************************
 // *                                                                           *
@@ -325,40 +286,31 @@ std::string deleteStmt ("DELETE FROM ");
 // *               *: Read failed. A CLI error is put into the diags area.     *
 // *                                                                           *
 // *****************************************************************************
-PrivStatus PrivMgrMDTable::executeFetchAll(
-   ExeCliInterface & cliInterface,
-   const std::string & SQLStatement,
-   Queue * & queue)
-   
+PrivStatus PrivMgrMDTable::executeFetchAll(ExeCliInterface &cliInterface, const std::string &SQLStatement,
+                                           Queue *&queue)
+
 {
-   queue = NULL;
-   
-// set pointer in diags area
-int32_t diagsMark = ((pDiags_ != NULL) ? pDiags_->mark() : -1);
+  queue = NULL;
 
-int32_t cliRC = cliInterface.fetchAllRows(queue,(char *)SQLStatement.c_str(),0,
-                                          false,false,true);
+  // set pointer in diags area
+  int32_t diagsMark = ((pDiags_ != NULL) ? pDiags_->mark() : -1);
 
-   if (cliRC < 0)
-   {
-      cliInterface.retrieveSQLDiagnostics(pDiags_);
-      return STATUS_ERROR;
-   }
-   
-   if (cliRC == 100 && diagsMark != -1)// did not find the row
-   {
-      pDiags_->rewind(diagsMark);
-      return STATUS_NOTFOUND;
-   }
+  int32_t cliRC = cliInterface.fetchAllRows(queue, (char *)SQLStatement.c_str(), 0, false, false, true);
 
-   return STATUS_GOOD;
-   
-} 
+  if (cliRC < 0) {
+    cliInterface.retrieveSQLDiagnostics(pDiags_);
+    return STATUS_ERROR;
+  }
+
+  if (cliRC == 100 && diagsMark != -1)  // did not find the row
+  {
+    pDiags_->rewind(diagsMark);
+    return STATUS_NOTFOUND;
+  }
+
+  return STATUS_GOOD;
+}
 //******************* End of PrivMgrMDTable::executeFetchAll *******************
-
-
-
-
 
 // *****************************************************************************
 // *                                                                           *
@@ -386,41 +338,30 @@ int32_t cliRC = cliInterface.fetchAllRows(queue,(char *)SQLStatement.c_str(),0,
 // * STATUS_ERROR: Execution failed. A CLI error is put into the diags area.   *
 // *                                                                           *
 // *****************************************************************************
-PrivStatus PrivMgrMDTable::selectCountWhere(
-   const std::string & whereClause,
-   int64_t & rowCount)
-   
+PrivStatus PrivMgrMDTable::selectCountWhere(const std::string &whereClause, int64_t &rowCount)
+
 {
+  rowCount = 0;
 
-   rowCount = 0;
+  std::string selectStmt("SELECT COUNT(*) FROM  ");
 
-std::string selectStmt ("SELECT COUNT(*) FROM  ");
+  selectStmt += tableName_;
+  selectStmt += " ";
+  selectStmt += whereClause;
 
-   selectStmt += tableName_;
-   selectStmt += " ";
-   selectStmt += whereClause;
+  int32_t length = 0;
+  ExeCliInterface cliInterface(STMTHEAP, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
 
-int32_t length = 0;
-ExeCliInterface cliInterface(STMTHEAP, 0, NULL, 
-  CmpCommon::context()->sqlSession()->getParentQid());
+  int32_t cliRC = cliInterface.executeImmediate(selectStmt.c_str(), (char *)&rowCount, &length, FALSE);
 
-int32_t cliRC = cliInterface.executeImmediate(selectStmt.c_str(),
-                                              (char*)&rowCount, 
-                                              &length,FALSE);
+  if (cliRC < 0) {
+    cliInterface.retrieveSQLDiagnostics(CmpCommon::diags());
+    return STATUS_ERROR;
+  }
 
-   if (cliRC < 0)
-   {
-      cliInterface.retrieveSQLDiagnostics(CmpCommon::diags());
-      return STATUS_ERROR;
-   }
-   
-   return STATUS_GOOD;
-   
+  return STATUS_GOOD;
 }
 //****************** End of PrivMgrMDTable::selectCountWhere *******************
-
-
-
 
 // *****************************************************************************
 // *                                                                           *
@@ -443,19 +384,16 @@ int32_t cliRC = cliInterface.executeImmediate(selectStmt.c_str(),
 // * STATUS_ERROR: Execution failed. A CLI error is put into the diags area.   *
 // *                                                                           *
 // *****************************************************************************
-PrivStatus PrivMgrMDTable::update(const std::string &setClause)
-{
+PrivStatus PrivMgrMDTable::update(const std::string &setClause) {
+  std::string updateStmt("UPDATE ");
 
-std::string updateStmt ("UPDATE ");
+  updateStmt += tableName_;
+  updateStmt += " ";
+  updateStmt += setClause;
 
-   updateStmt += tableName_;
-   updateStmt += " ";
-   updateStmt += setClause;
-   
-//TODO: support a WHERE clause?
-  
-   return CLIImmediate(updateStmt);
-  
+  // TODO: support a WHERE clause?
+
+  return CLIImmediate(updateStmt);
 }
 //************************ End of PrivMgrMDTable::update ***********************
 
@@ -484,42 +422,33 @@ std::string updateStmt ("UPDATE ");
 // * STATUS_NOTFOUND: No row found that match WHERE clause.                    *
 // *                                                                           *
 // *****************************************************************************
-PrivStatus PrivMgrMDTable::updateWhere(
-   const std::string & setClause,
-   const std::string & whereClause,
-   int64_t &rowCount)
-{
-   std::string updateStmt("UPDATE ");
+PrivStatus PrivMgrMDTable::updateWhere(const std::string &setClause, const std::string &whereClause,
+                                       int64_t &rowCount) {
+  std::string updateStmt("UPDATE ");
 
-   updateStmt += tableName_;
-   updateStmt += " ";
-   updateStmt += setClause;
-   updateStmt += " ";
-   updateStmt += whereClause;
+  updateStmt += tableName_;
+  updateStmt += " ";
+  updateStmt += setClause;
+  updateStmt += " ";
+  updateStmt += whereClause;
 
-   // set pointer in diags area
-   int32_t diagsMark = pDiags_->mark();
+  // set pointer in diags area
+  int32_t diagsMark = pDiags_->mark();
 
-   ExeCliInterface cliInterface(STMTHEAP, 0, NULL, 
-                                CmpCommon::context()->sqlSession()->getParentQid());
-                             
-   int32_t cliRC = cliInterface.executeImmediate(updateStmt.c_str(), NULL, NULL, TRUE, &rowCount);
+  ExeCliInterface cliInterface(STMTHEAP, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
 
-   if (cliRC < 0)
-   {
-      cliInterface.retrieveSQLDiagnostics(pDiags_);
-      return STATUS_ERROR;
-   }
+  int32_t cliRC = cliInterface.executeImmediate(updateStmt.c_str(), NULL, NULL, TRUE, &rowCount);
 
-   if (rowCount == 0)
-   {
-      pDiags_->rewind(diagsMark);
-      return STATUS_NOTFOUND;
-   }
+  if (cliRC < 0) {
+    cliInterface.retrieveSQLDiagnostics(pDiags_);
+    return STATUS_ERROR;
+  }
 
-   return STATUS_GOOD;
+  if (rowCount == 0) {
+    pDiags_->rewind(diagsMark);
+    return STATUS_NOTFOUND;
+  }
+
+  return STATUS_GOOD;
 }
 //********************* End of PrivMgrMDTable::updateWhere *********************
-
-
-

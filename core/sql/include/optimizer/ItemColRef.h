@@ -39,10 +39,10 @@
 #include <ctype.h>
 #include <string.h>		// memcpy
 #include "common/CharType.h"
-#include "ItemExpr.h"
+#include "optimizer/ItemExpr.h"
 #include "common/Int64.h"
 #include "common/nawstring.h"
-#include "NAColumn.h"
+#include "optimizer/NAColumn.h"
 #include "optimizer/CostScalar.h"
 #include "qmscommon/QRExprElement.h"
 

@@ -36,17 +36,17 @@
 
 // -----------------------------------------------------------------------
 
-#include "Sqlcomp.h"
+#include "optimizer/Sqlcomp.h"
 #include "GroupAttr.h"
 #include "EstLogProp.h"
 #include "optimizer/ItemConstr.h"
-#include "ItemOther.h"
-#include "opt.h"
+#include "optimizer/ItemOther.h"
+#include "optimizer/opt.h"
 #include "Cost.h"
 #include "AppliedStatMan.h"
-#include "Analyzer.h"
+#include "optimizer/Analyzer.h"
 #include "ScanOptimizer.h"
-#include "RelGrby.h" /// temproray, delete after ASM testing
+#include "optimizer/RelGrby.h" /// temproray, delete after ASM testing
 #include "arkcmp/CmpStatement.h" 
 
 // return hash value of a ValueId; this is called (and required) by

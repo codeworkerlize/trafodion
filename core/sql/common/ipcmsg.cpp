@@ -64,7 +64,7 @@ enum {FS_SMS_VERSION_MAY94 = 1};
 #include "common/Ipc.h"
 #include "common/str.h"
 #include "export/ComDiags.h"
-#include "NAExit.h"
+#include "common/NAExit.h"
 #include "ipcmsg.h"
 #include <fcntl.h>
 #include "sqlmxevents/logmxevent.h"

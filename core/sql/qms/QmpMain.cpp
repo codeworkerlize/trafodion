@@ -23,7 +23,7 @@
 
 #include <ComCextdecs.h>
 #include <Int64.h>
-#include "QRSharedPtr.h"
+#include "qmscommon/QRSharedPtr.h"
 #include "qmscommon/QRLogger.h"
 #include "QmsMain.h"
 #include "qmscommon/QRDescriptor.h"
@@ -36,7 +36,7 @@
 #include "seabed/ms.h"
 #include "seabed/fs.h"
 extern void my_mpi_fclose();
-#include "SCMVersHelp.h"
+#include "common/SCMVersHelp.h"
 DEFINE_DOVERS(tdm_arkqmp)
 
 /**

@@ -36,9 +36,9 @@
 *************************************************************************
 */
 
-#include "CacheWA.h"
-#include "CmpMain.h"
-#include "SchemaDB.h"
+#include "optimizer/CacheWA.h"
+#include "sqlcomp/CmpMain.h"
+#include "optimizer/SchemaDB.h"
 #  ifndef   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #  define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #  endif

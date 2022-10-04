@@ -32,7 +32,7 @@
  *****************************************************************************
  */
 #include "common/NAWinNT.h"
-#include "wstr.h"
+#include "common/wstr.h"
 
 class QueryText {
  public:

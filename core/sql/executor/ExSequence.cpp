@@ -37,15 +37,15 @@
 ******************************************************************************
 */
 
-#include "ex_stdh.h"
+#include "executor/ex_stdh.h"
 #include "comexe/ComTdb.h"
-#include "ex_tcb.h"
+#include "executor/ex_tcb.h"
 #include "ExSequence.h"
 #include "executor/ex_expr.h"
 #include "ExpSequenceFunction.h"
 #include "ExSimpleSqlBuffer.h"
 #include "executor/ExStats.h"
-#include "cli/memorymonitor.h"
+
 #include "sqlmxevents/logmxevent.h"
 
 char *GetHistoryRowOLAP(void *data, Int32 n, 
@@ -1357,10 +1357,7 @@ void ExSequenceTcb::initializeHistory()
 
 void ExSequenceTcb::createCluster()
 {
-  MemoryMonitor * memMonitor = 
-    getGlobals()->castToExExeStmtGlobals()->getMemoryMonitor();
-  ULng32 availableMemory = memMonitor->getPhysMemInBytes() / 100
-    * myTdb().memUsagePercent_;
+  ULng32 availableMemory =1024;
   
   // if quota, and it's less than avail memory, then use that lower figure 
   if ( myTdb().memoryQuotaMB() > 0 &&

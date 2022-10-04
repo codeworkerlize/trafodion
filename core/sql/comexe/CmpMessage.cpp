@@ -8,8 +8,6 @@
 #include "comexe/FragmentDir.h"
 #include "common/ComSysUtils.h"
 
-
-
 IpcMessageObjSize CmpMessageObj::packIntoBuffer(IpcMessageBufferPtr &buffer, char *strPtr) {
   CmpMsgBufLenType length;
   if (strPtr == NULL)

@@ -35,9 +35,9 @@
 
 // -----------------------------------------------------------------------
 
-#include "ColumnDesc.h"
+#include "optimizer/ColumnDesc.h"
 #include "common/ComASSERT.h"
-#include "ComOperators.h"
+#include "common/ComOperators.h"
 
 // -----------------------------------------------------------------------
 // definition(s) of non-inline method(s) of class ColumnDescList

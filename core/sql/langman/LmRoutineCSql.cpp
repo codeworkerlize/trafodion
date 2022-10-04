@@ -30,9 +30,9 @@
 
 #include "LmRoutineCSql.h"
 #include "LmParameter.h"
-#include "sqludr.h"
+#include "sqludr/sqludr.h"
 #include "common/ComDefs.h"
-#include "wstr.h"
+#include "common/wstr.h"
 
 // Routine body signatures
 typedef Lng32 (*UDRFN1) (char*,

@@ -31,11 +31,11 @@
 *
 ******************************************************************************
 */
-#include "AllItemExpr.h"
-#include "CacheWA.h"
-#include "CmpMain.h"
+#include "optimizer/AllItemExpr.h"
+#include "optimizer/CacheWA.h"
+#include "sqlcomp/CmpMain.h"
 #include "common/NumericType.h"
-#include "SchemaDB.h"
+#include "optimizer/SchemaDB.h"
 #include "ItemFuncUDF.h"
 
 void computeAndAddSelParamIfPossible(

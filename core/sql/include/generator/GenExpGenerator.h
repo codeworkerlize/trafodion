@@ -44,7 +44,7 @@
 #include "GenMapTable.h"
 #include "common/ComSpace.h"
 #include "exp/exp_tuple_desc.h"
-#include "parser.h"
+#include "sqlcomp/parser.h"
 #include "comexe/ComKeyRange.h"
 #include "common/charinfo.h"
 

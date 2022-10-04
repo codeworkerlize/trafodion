@@ -41,7 +41,7 @@
 VPROC (PRODNUMMXCI,DATE1MXCI,MXCI_CC_LABEL)
 () {} }
 */
-#include "SCMVersHelp.h"
+#include "common/SCMVersHelp.h"
 
 #define VERS_CV_MAJ 1
 #define VERS_CV_MIN 0

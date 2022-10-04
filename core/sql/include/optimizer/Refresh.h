@@ -40,7 +40,7 @@
 
 
 #include "ComMvDefs.h"
-#include "RelMisc.h"
+#include "optimizer/RelMisc.h"
 
 // classes defined in this file
 class Refresh;

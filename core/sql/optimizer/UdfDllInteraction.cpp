@@ -33,19 +33,19 @@
 *************************************************************************
 */
 
-#include "UdfDllInteraction.h"
+#include "optimizer/UdfDllInteraction.h"
 #include "common/NumericType.h"
 #include "common/CharType.h"
 #include "common/DatetimeType.h"
 #include "common/MiscType.h"
 #include "ItemLog.h"
-#include "ItemOther.h"
-#include "NARoutine.h"
-#include "SchemaDB.h"
+#include "optimizer/ItemOther.h"
+#include "optimizer/NARoutine.h"
+#include "optimizer/SchemaDB.h"
 #include "GroupAttr.h"
 #include "exp/exp_attrs.h"
 #include "LmError.h"
-#include "ComUser.h"
+#include "common/ComUser.h"
 #include "sys/stat.h"
 
 short ExExeUtilLobExtractLibrary(ExeCliInterface *cliInterface,char *libHandle, char *cachedLibName,ComDiagsArea *toDiags);

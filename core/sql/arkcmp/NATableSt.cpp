@@ -32,11 +32,11 @@
  *****************************************************************************
  */
 
-#include "NATable.h"
-#include "NATableSt.h"
-#include "SchemaDB.h"
-#include "CmpErrors.h"
-#include "CmpMain.h"
+#include "optimizer/NATable.h"
+#include "arkcmp/NATableSt.h"
+#include "optimizer/SchemaDB.h"
+#include "arkcmp/CmpErrors.h"
+#include "sqlcomp/CmpMain.h"
 #include "cli/Globals.h"
 #include "cli/Context.h"
 

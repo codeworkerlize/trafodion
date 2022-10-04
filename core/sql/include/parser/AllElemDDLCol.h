@@ -37,13 +37,13 @@
 
 
 #include "ElemDDLColDef.h"
-#include "ElemDDLColDefArray.h"
-#include "ElemDDLColDefault.h"
+#include "parser/ElemDDLColDefArray.h"
+#include "parser/ElemDDLColDefault.h"
 #include "ElemDDLColHeading.h"
-#include "ElemDDLColName.h"
+#include "parser/ElemDDLColName.h"
 #include "ElemDDLColNameArray.h"
-#include "ElemDDLColRef.h"
-#include "ElemDDLColRefArray.h"
+#include "parser/ElemDDLColRef.h"
+#include "parser/ElemDDLColRefArray.h"
 #include "ElemDDLColViewDef.h"
 #include "ElemDDLColViewDefArray.h"
 

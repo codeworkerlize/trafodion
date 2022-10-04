@@ -36,7 +36,7 @@
 
 #include "AllElemDDLList.h"
 #include "common/ComASSERT.h"
-#include "ComOperators.h"
+#include "common/ComOperators.h"
 #include "ElemDDLPartition.h"
 
 //----------------------------------------------------------------------------

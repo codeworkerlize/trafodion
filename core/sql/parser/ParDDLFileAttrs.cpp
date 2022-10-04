@@ -34,13 +34,13 @@
  *****************************************************************************
  */
 
-#include "ComUnits.h"
+#include "common/ComUnits.h"
 
 #include "AllElemDDLFileAttr.h"
 #include "common/BaseTypes.h"
 #include "common/ComASSERT.h"
 #include "export/ComDiags.h"
-#include "ComOperators.h"
+#include "common/ComOperators.h"
 #include "ElemDDLNode.h"
 #include "ParDDLFileAttrs.h"
 #include "ParDDLFileAttrsAlterIndex.h"

@@ -35,7 +35,7 @@
 ******************************************************************************
 */
 
-#include "AllItemExpr.h"
+#include "optimizer/AllItemExpr.h"
 #include "GenExpGenerator.h"
 #include "common/dfs2rec.h"
 #include "exp/exp_clause.h"

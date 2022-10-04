@@ -36,7 +36,7 @@
 */
 
 #include "LmError.h"
-#include "LmCommon.h"
+#include "langman/LmCommon.h"
 #include "common/ComSmallDefs.h"
 
 //////////////////////////////////////////////////////////////////////

@@ -44,9 +44,9 @@
 
 #include "exp/exp_stdh.h"
 #include "exp/exp_clause_derived.h"
-#include "ex_stdh.h"
+#include "executor/ex_stdh.h"
 #include "cli_stdh.h"
-#include "exp_datetime.h"
+#include "exp/exp_datetime.h"
 #include "exp_interval.h"
 #include "exp/exp_expr.h"
 #include "ExRLE.h"

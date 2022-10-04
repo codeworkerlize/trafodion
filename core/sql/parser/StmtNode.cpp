@@ -36,8 +36,8 @@
 
 
 #include "common/charinfo.h"
-#include "ComOptIncludes.h"
-#include "SchemaDB.h"
+#include "common/ComOptIncludes.h"
+#include "optimizer/SchemaDB.h"
 #include "parser/StmtNode.h"
 
 

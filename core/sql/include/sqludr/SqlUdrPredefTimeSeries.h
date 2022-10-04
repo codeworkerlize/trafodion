@@ -22,7 +22,7 @@
 #ifndef SQLUDR_PREDEF_TIMESERIES_H
 #define SQLUDR_PREDEF_TIMESERIES_H
 
-#include "sqludr.h"
+#include "sqludr/sqludr.h"
 
 using namespace tmudr;
 

@@ -38,7 +38,7 @@
 #include "common/Platform.h"
 
 
-#include "StoredProcInterface.h"
+#include "cli/StoredProcInterface.h"
 #include "executor/sql_buffer.h"
 #include "common/SqlCliDllDefines.h"
 #include "comexe/ComTdbStoredProc.h"

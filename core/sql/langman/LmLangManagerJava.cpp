@@ -39,7 +39,7 @@
 
 #include "LmLangManagerJava.h"
 #include "LmJavaOptions.h"
-#include "LmCommon.h"
+#include "langman/LmCommon.h"
 #include "LmJavaHooks.h"
 #include "LmJavaType.h"
 #include "LmRoutineJavaObj.h"

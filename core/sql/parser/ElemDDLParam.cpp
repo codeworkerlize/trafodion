@@ -40,7 +40,7 @@
 
 #include "common/ComASSERT.h"
 #include "export/ComDiags.h"
-#include "ElemDDLParamDef.h"
+#include "parser/ElemDDLParamDef.h"
 #include "ElemDDLParamName.h"
 
 

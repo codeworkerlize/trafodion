@@ -49,7 +49,7 @@
 */
 
 
-#include "ngram.h"
+#include "common/ngram.h"
 
 char *lowerstr_with_len(const char *str, int len);
 

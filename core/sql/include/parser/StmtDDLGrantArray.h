@@ -45,7 +45,7 @@
 #define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
 #include "parser/SqlParserGlobals.h"
-#include "StmtDDLGrant.h"
+#include "parser/StmtDDLGrant.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

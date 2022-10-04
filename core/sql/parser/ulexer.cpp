@@ -97,14 +97,14 @@ class IntegerList;
 #include "conversionHex.h"
 #include "common/ComSmallDefs.h"
 #include "common/ComTransInfo.h"
-#include "ComUnits.h"
+#include "common/ComUnits.h"
 #include "HvTypes.h"
 #include "ElemDDLConstraintRI.h"
 #include "ElemDDLParamName.h"
 #include "ElemDDLPartition.h"
 #include "ElemDDLPassThroughParamDef.h"
-#include "ElemDDLQualName.h" // OZ
-#include "ElemDDLColRefArray.h"
+#include "parser/ElemDDLQualName.h" // OZ
+#include "parser/ElemDDLColRefArray.h"
 #include "optimizer/RelScan.h"
 #include "RelUpdate.h"
 #include "ItemLog.h"
@@ -117,9 +117,9 @@ class IntegerList;
 #include "ElemDDLFileAttrMvAudit.h"
 #include "SqlParserAux.h"
 #include "StmtDDLCreateMV.h"
-#include "ElemDDLHbaseOptions.h"
-#include "StmtDDLCommentOn.h"
-#include "StmtDDLAlterSharedCache.h"
+#include "parser/ElemDDLHbaseOptions.h"
+#include "parser/StmtDDLCommentOn.h"
+#include "parser/StmtDDLAlterSharedCache.h"
 #include "ElemDDLFileAttrMisc.h"
 
 // Need the definition of the Parsers Union.  If this is not defined,
@@ -136,8 +136,8 @@ extern THREAD_P NABoolean HexStringLiteralNotAllowed;
 extern THREAD_P NABoolean turnUnknownCharSetToISO88591;
 
 #include "ParKeyWords.h"
-#include "ulexer.h"
-#include "wstr.h"
+#include "parser/ulexer.h"
+#include "common/wstr.h"
 #include "common/str.h"
 #include "CliSemaphore.h"
 

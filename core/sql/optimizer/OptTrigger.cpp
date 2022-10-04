@@ -44,14 +44,14 @@
 #include <search.h>
 
 #include "GroupAttr.h"
-#include "AllItemExpr.h"
-#include "AllRelExpr.h"
+#include "optimizer/AllItemExpr.h"
+#include "optimizer/AllRelExpr.h"
 #include "optimizer/Triggers.h"
 #include "OptTrigger.h"
-#include "BindWA.h"
+#include "optimizer/BindWA.h"
 #include "ItemSample.h"
 #include "ChangesTable.h"
-#include "NormWA.h"
+#include "optimizer/NormWA.h"
 
 //-----------------------------------------------------------------------------------
 //            Static utility methods (part of OptTriggersBackbone class)

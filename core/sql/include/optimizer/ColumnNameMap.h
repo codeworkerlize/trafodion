@@ -42,7 +42,7 @@
 
 // -----------------------------------------------------------------------
 
-#include "ColumnDesc.h"
+#include "optimizer/ColumnDesc.h"
 #include "optimizer/TableDesc.h"
 #include "optimizer/ValueDesc.h"
 

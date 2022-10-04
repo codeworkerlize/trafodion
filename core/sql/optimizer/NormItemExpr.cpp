@@ -38,13 +38,13 @@
 
 
 #include "Debug.h"
-#include "Sqlcomp.h"
+#include "optimizer/Sqlcomp.h"
 #include "GroupAttr.h"
-#include "NormWA.h"
-#include "AllItemExpr.h"
-#include "mdam.h"
+#include "optimizer/NormWA.h"
+#include "optimizer/AllItemExpr.h"
+#include "optimizer/mdam.h"
 #include "optimizer/ValueDesc.h"
-#include "RelGrby.h"
+#include "optimizer/RelGrby.h"
 #include "RelJoin.h"
 #include "RelUpdate.h"
 #include "Refresh.h"

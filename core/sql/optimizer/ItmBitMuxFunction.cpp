@@ -26,7 +26,7 @@
 // mining days (late 90s) but is not used anymore
 #include "common/CharType.h"
 #include "common/NumericType.h"
-#include "ItemExpr.h"
+#include "optimizer/ItemExpr.h"
 #include "ItmBitMuxFunction.h"
 
 // Destructor

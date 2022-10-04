@@ -43,26 +43,26 @@
 
 
 #include "common/Platform.h"
-#include "CliDefs.h"
+#include "cli/CliDefs.h"
 #include "export/ComDiags.h"
 #include "common/DllExportDefines.h"
 #include "CliSemaphore.h"
 #include "cli/sqlcli.h"
 #include "cli/Statement.h"
 #include "executor/ex_god.h"
-#include "timeout_data.h" 
-#include "Module.h"
+#include "executor/timeout_data.h" 
+#include "cli/Module.h"
 #include "cli/Globals.h"
 #include "common/NAUserId.h"
-#include "SessionDefaults.h"
-#include "ex_transaction.h"
-#include "ComCGroup.h"
+#include "cli/SessionDefaults.h"
+#include "executor/ex_transaction.h"
+#include "common/ComCGroup.h"
 #include "common/CmpCommon.h"
-#include "ExSqlComp.h"
+#include "cli/ExSqlComp.h"
 #include "executor/ExStats.h"
-#include "ExpSeqGen.h"
+#include "exp/ExpSeqGen.h"
 #include "runtimestats/ssmpipc.h"
-#include "hdfs.h"
+#include "exp/hdfs.h"
 
 #include "executor/DistributedLock_JNI.h"
 
@@ -78,7 +78,6 @@ class ExUdrServer;
 class UdrContextMsg;
 class SequenceValueGenerator;
 class LmRoutine;
-class MonarchClient_JNI;
 class HBaseClient_JNI;
 class TenantHelper_JNI;
 class TenantHelper_JNI;

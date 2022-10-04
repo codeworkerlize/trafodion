@@ -31,16 +31,16 @@
 ******************************************************************************
 */
 
-#include "AllRelExpr.h"
+#include "optimizer/AllRelExpr.h"
 #include "ItemFunc.h"
-#include "ItemOther.h"  // for Convert
+#include "optimizer/ItemOther.h"  // for Convert
 #include "optimizer/Triggers.h"
 #include "optimizer/TriggerDB.h"
-#include "parser.h"
+#include "sqlcomp/parser.h"
 #include "parser/StmtNode.h"
 #include "export/ComDiags.h"
-#include "StmtDDLCreateTrigger.h"
-#include "BindWA.h"
+#include "parser/StmtDDLCreateTrigger.h"
+#include "optimizer/BindWA.h"
 #include "ChangesTable.h"
 #include "MvRefreshBuilder.h"
 

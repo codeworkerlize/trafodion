@@ -27,8 +27,8 @@
 
 #include "common/IntervalType.h"
 #include "common/CharType.h"
-#include "ItemExpr.h"
-#include "NATable.h"
+#include "optimizer/ItemExpr.h"
+#include "optimizer/NATable.h"
 #include "exp/exp_like.h"
 #include "qmscommon/QRExprElement.h"
 #include "RoutineDesc.h"

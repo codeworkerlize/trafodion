@@ -1,57 +1,23 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef RELEXPR_H
 #define RELEXPR_H
-/* -*-C++-*-
-******************************************************************************
-*
-* File:         RelExpr.h
-* Description:  Relational expression base class
-* Created:      4/28/94
-* Language:     C++
-* Status:       $State: Exp $
-*
-*
-*
-*
-******************************************************************************
-*/
+
 
 #include "optimizer/ObjectNames.h"
 #include "arkcmp/CmpContext.h"
 #include "arkcmp/CmpStatement.h"
-#include "RETDesc.h"
+#include "optimizer/RETDesc.h"
 #include "optimizer/ValueDesc.h"
-#include "Rule.h"
+#include "optimizer/Rule.h"
 #include "common/ExprNode.h"
 #include "common/ComTransInfo.h"
-#include "mdam.h"
+#include "optimizer/mdam.h"
 #include "sqlcomp/DefaultConstants.h"
-#include "Inlining.h"
+#include "optimizer/Inlining.h"
 #include "sqlcomp/NADefaults.h"
-#include "OptUtilIncludes.h"
+#include "optimizer/OptUtilIncludes.h"
 #include "comexe/ExplainTupleMaster.h"
-#include "OptHints.h"
+#include "optimizer/OptHints.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

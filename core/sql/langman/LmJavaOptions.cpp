@@ -34,7 +34,7 @@
 */
 
 #include "LmJavaOptions.h"
-#include "LmCommon.h"
+#include "langman/LmCommon.h"
 #include "LmAssert.h"
 #include "LmDebug.h"
 #include "common/NAMemory.h"

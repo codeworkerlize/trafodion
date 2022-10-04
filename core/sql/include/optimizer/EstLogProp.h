@@ -52,7 +52,7 @@ typedef IntrusiveSharedPtr<EstLogProp> EstLogPropSharedPtr;
 #include "ColStatDesc.h"
 #include "common/OperTypeEnum.h"
 #include "RelJoin.h"
-#include "CompException.h"
+#include "arkcmp/CompException.h"
 
 // Forward class declaration
 class CANodeIdSet;

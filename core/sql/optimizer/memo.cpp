@@ -40,11 +40,11 @@
 //<pb>
 // -----------------------------------------------------------------------
 
-#include "Sqlcomp.h"
+#include "optimizer/Sqlcomp.h"
 #include "GroupAttr.h"
-#include "PhyProp.h"
+#include "optimizer/PhyProp.h"
 #include "Cost.h"
-#include "opt.h"
+#include "optimizer/opt.h"
 #include "optimizer/RelScan.h"
 #include "arkcmp/CmpStatement.h"
 

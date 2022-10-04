@@ -44,7 +44,7 @@
 //#include <sys/types.h>
 //#include <stdarg.h>
 
-#include "CliDefs.h"
+#include "cli/CliDefs.h"
 #include "common/ComSysUtils.h"
 #include "executor/ex_god.h"
 #include "comexe/ComTdbRoot.h"

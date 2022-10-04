@@ -24,7 +24,7 @@
 #ifndef __EX_FAST_TRANSPORT_H
 #define __EX_FAST_TRANSPORT_H
 
-#include "ex_tcb.h"
+#include "executor/ex_tcb.h"
 #include "common/ComSmallDefs.h"
 #include "executor/ExStats.h"
 

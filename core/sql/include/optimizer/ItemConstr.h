@@ -39,7 +39,7 @@
 ******************************************************************************
 */
 
-#include "ItemExpr.h"
+#include "optimizer/ItemExpr.h"
 #include "optimizer/ObjectNames.h"
 
 // forward references

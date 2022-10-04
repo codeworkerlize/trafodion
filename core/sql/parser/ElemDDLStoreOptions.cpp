@@ -36,8 +36,8 @@
  */
 
 #include "common/ComASSERT.h"
-#include "ComOperators.h"
-#include "ElemDDLStoreOptions.h"
+#include "common/ComOperators.h"
+#include "parser/ElemDDLStoreOptions.h"
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLStoreOpt

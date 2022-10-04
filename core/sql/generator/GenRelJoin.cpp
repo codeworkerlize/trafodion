@@ -37,16 +37,16 @@
 */
 #include "common/ComDefs.h"            // to get common defines (ROUND8)
 #include "limits.h"
-#include "ComOptIncludes.h"
+#include "common/ComOptIncludes.h"
 #include "RelJoin.h"
 #include "GroupAttr.h"
-#include "Analyzer.h"
-#include "Generator.h"
+#include "optimizer/Analyzer.h"
+#include "generator/Generator.h"
 #include "GenExpGenerator.h"
-//#include "ex_stdh.h"
+//#include "executor/ex_stdh.h"
 #include "exp/ExpCriDesc.h"
 #include "comexe/ComTdb.h"
-//#include "ex_tcb.h"
+//#include "executor/ex_tcb.h"
 #include "comexe/ComTdbOnlj.h"
 #include "comexe/ComTdbHashj.h"
 #include "comexe/ComTdbMj.h"
@@ -63,7 +63,7 @@
 #include "executor/sql_buffer.h"
 #include "executor/sql_buffer_size.h"
 #include "arkcmp/CmpStatement.h"
-#include "ComUnits.h"
+#include "common/ComUnits.h"
 #include "RelUpdate.h"
 /////////////////////////////////////////////////////////////////////
 //

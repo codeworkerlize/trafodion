@@ -27,7 +27,7 @@
  *
  *********************************************************************/
 
-#include "sqludr.h"
+#include "sqludr/sqludr.h"
 #include <stdio.h>
 #include <cstdarg>
 #include <climits>

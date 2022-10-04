@@ -40,16 +40,16 @@
 
 #include <string.h>
 #include "Stats.h"
-#include "Sqlcomp.h"
+#include "optimizer/Sqlcomp.h"
 #include "optimizer/ItemColRef.h"
-#include "opt.h"
-#include "Analyzer.h"
+#include "optimizer/opt.h"
+#include "optimizer/Analyzer.h"
 #include "Cost.h"
-#include "CompException.h"
+#include "arkcmp/CompException.h"
 #include "common/NLSConversion.h" // For conversion to unicode strings
 #include "common/ComCextdecs.h" // For Timestamp related calls
 #include <queue>
-#include "QCache.h"
+#include "sqlcomp/QCache.h"
 
 #include "exp_function.h"
 

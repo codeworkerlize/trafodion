@@ -1662,39 +1662,6 @@ NABoolean RegularBloomFilter::merge(RegularBloomFilter& source)
    return FALSE;
 }
 
-NABoolean RegularBloomFilter::serializeToSearchPredicate(
-                std::string& text,
-                const char* colName, const char* colType,
-                Int32 filterId, std::string& min, std::string& max)
-{
-   OrcSearchArg arg;
-   arg.appendOperator(ExtPushdownOperatorType::BLOOMFILTER);
-   arg.appendColName(colName);
-   arg.appendTypeIndicator(colType);
-
-   arg.appendValue(filterId);
-
-   // append minVal
-   arg.appendValue(min.c_str(), min.size());
-   // append maxVal
-   arg.appendValue(max.c_str(), max.size());
-
-   ULng32 len = getPackedLength();
-   char* data = new (heap_) char[len];
-
-   char* ptr = data;
-   ULng32 actLen = packIntoBuffer(ptr);
-
-   assert(len == actLen);
-
-   arg.appendValue(data, len);
-
-   NADELETEBASIC(data, heap_);
-
-   text = arg.getText();
-
-   return TRUE;
-}
 
 
 void RegularBloomFilter::insert(const char* dataFile)

@@ -38,8 +38,8 @@
 */
 
 
-#include "RelSet.h"		// for Union (needed by ValueIdUnion flags)
-#include "NAColumn.h"
+#include "optimizer/RelSet.h"		// for Union (needed by ValueIdUnion flags)
+#include "optimizer/NAColumn.h"
 #include "qmscommon/QRExprElement.h"
 #include "ItemLog.h"
 

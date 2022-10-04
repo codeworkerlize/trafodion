@@ -52,7 +52,7 @@
 #include  "CmpContext.h"
 #include  "ComSmallDefs.h"
 
-#include "ExExeUtil.h"
+#include "executor/ExExeUtil.h"
 
 ex_tcb * ExDDLTdb::build(ex_globals * glob)
 {
@@ -571,7 +571,7 @@ short ExDDLwithStatusTcb::work()
             espGlobals->getEspFragInstanceDir();
 
      // Find out the fragment handle from the key
-     const ExFragInstanceHandle fragHandle = espFragDir->findHandle(fragKey);
+     const int fragHandle = espFragDir->findHandle(fragKey);
 
      // Find out the downloaded fragment message from the handle
      ExMsgFragment* msgFragment = espFragDir->getFragment(fragHandle);

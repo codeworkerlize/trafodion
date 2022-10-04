@@ -36,7 +36,7 @@
 
 // -----------------------------------------------------------------------
 
-#include "ItemExpr.h"
+#include "optimizer/ItemExpr.h"
 #include "ItemArith.h"
 #include "optimizer/ItemColRef.h"
 #include "ItemComposite.h"
@@ -45,5 +45,5 @@
 #include "ItemFuncUDF.h"
 #include "ItemLog.h"
 #include "ItemNAType.h"
-#include "ItemOther.h"
+#include "optimizer/ItemOther.h"
 #include "ItemSubq.h"

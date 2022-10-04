@@ -28,7 +28,7 @@
  * File:         ex_send_bottom.h
  * Description:  Send bottom node (server part of a point to point
  *               connection)
- *               
+ *
  * Created:      1/1/96
  * Language:     C++
  *
@@ -72,20 +72,16 @@ class ex_tcb;
 // -----------------------------------------------------------------------
 // ex_send_bottom_tdb
 // -----------------------------------------------------------------------
-class ex_send_bottom_tdb : public ComTdbSendBottom
-{
-public:
-
+class ex_send_bottom_tdb : public ComTdbSendBottom {
+ public:
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ex_send_bottom_tdb()
-  {}
+  ex_send_bottom_tdb() {}
 
-  virtual ~ex_send_bottom_tdb()
-  {}
+  virtual ~ex_send_bottom_tdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
@@ -93,15 +89,11 @@ public:
   virtual ex_tcb *build(ex_globals *globals);
 
   // allocate one node to communicate with a particular parent instance
-  virtual ex_send_bottom_tcb * buildInstance(ExExeStmtGlobals * glob,
-                                     ExEspFragInstanceDir *espInstanceDir,
-                                     const ExFragKey &myKey,
-                                     const ExFragKey &parentKey,
-                                     ExFragInstanceHandle myHandle,
-                                     Lng32 parentInstanceNum,
-                                     NABoolean isLocal);
+  virtual ex_send_bottom_tcb *buildInstance(ExExeStmtGlobals *glob, ExEspFragInstanceDir *espInstanceDir,
+                                            const ExFragKey &myKey, const ExFragKey &parentKey,
+                                            int myHandle, Lng32 parentInstanceNum, NABoolean isLocal);
 
-private:
+ private:
   // ---------------------------------------------------------------------
   // !!!!!!! IMPORTANT -- NO DATA MEMBERS ALLOWED IN EXECUTOR TDB !!!!!!!!
   // *********************************************************************
@@ -121,7 +113,7 @@ private:
   // 1. Are those data members Compiler-generated?
   //    If yes, put them in the ComTdbSendBottom instead.
   //    If no, they should probably belong to someplace else (like TCB).
-  // 
+  //
   // 2. Are the classes those data members belong defined in the executor
   //    project?
   //    If your answer to both questions is yes, you might need to move
@@ -129,69 +121,56 @@ private:
   // ---------------------------------------------------------------------
 };
 
-
 ////////////////////////////////////////////////////////////////////////////
 // Task control block for send bottom node
 ////////////////////////////////////////////////////////////////////////////
-class ex_send_bottom_tcb : public ex_tcb
-{
-
+class ex_send_bottom_tcb : public ex_tcb {
   friend class ExSendBottomRouteMessageStream;
   friend class ExSendBottomWorkMessageStream;
 
-public:
-
+ public:
   // Constructor
-  ex_send_bottom_tcb(const ex_send_bottom_tdb & sendBottomTdb,
-                     ExExeStmtGlobals *glob,
-                     ExEspFragInstanceDir *espInstanceDir,
-                     const ExFragKey &myKey,
-                     const ExFragKey &parentKey,
-                     ExFragInstanceHandle myHandle,
-                     Lng32 parentInstanceNum);
+  ex_send_bottom_tcb(const ex_send_bottom_tdb &sendBottomTdb, ExExeStmtGlobals *glob,
+                     ExEspFragInstanceDir *espInstanceDir, const ExFragKey &myKey, const ExFragKey &parentKey,
+                     int myHandle, Lng32 parentInstanceNum);
 
   ~ex_send_bottom_tcb();
 
-  inline const ex_send_bottom_tdb & sendBottomTdb() const
-                                { return (const ex_send_bottom_tdb &)tdb; }
-  
-  void freeResources();  // free resources
-  void registerSubtasks(); // queues are used in a non-standard way
-  
+  inline const ex_send_bottom_tdb &sendBottomTdb() const { return (const ex_send_bottom_tdb &)tdb; }
+
+  void freeResources();     // free resources
+  void registerSubtasks();  // queues are used in a non-standard way
+
   virtual ExWorkProcRetcode work();
   ExWorkProcRetcode cancel();
-  
+
   ex_queue_pair getParentQueue() const;
   inline ex_queue_pair getParentQueueForSendBottom() const { return qSplit_; }
-  inline Lng32 getParentInstanceNum() const   { return parentInstanceNum_; }
-  inline ExFragInstanceHandle getMyHandle() const     { return myHandle_; }
-  inline ExEspFragInstanceDir * getEspFragInstanceDir() const
-                                                { return espInstanceDir_; }
+  inline Lng32 getParentInstanceNum() const { return parentInstanceNum_; }
+  inline int getMyHandle() const { return myHandle_; }
+  inline ExEspFragInstanceDir *getEspFragInstanceDir() const { return espInstanceDir_; }
 
   ExFragId getMyFragId() const { return myFragId_; }
 
   // Stub to processCancel() used by scheduler.
-  static ExWorkProcRetcode sCancel(ex_tcb *tcb)
-                   { return ((ex_send_bottom_tcb *) tcb)->cancel(); }
+  static ExWorkProcRetcode sCancel(ex_tcb *tcb) { return ((ex_send_bottom_tcb *)tcb)->cancel(); }
 
   // access predicates in tdb
-  inline ex_expr * moveOutputValues() const
-                              { return sendBottomTdb().moveOutputValues_; }
+  inline ex_expr *moveOutputValues() const { return sendBottomTdb().moveOutputValues_; }
 
-  void tickleSchedulerCancel()           { ioCancelSubtask_->schedule(); }
-  void tickleScheduler()                       { ioSubtask_->schedule(); }
+  void tickleSchedulerCancel() { ioCancelSubtask_->schedule(); }
+  void tickleScheduler() { ioSubtask_->schedule(); }
 
   virtual Int32 numChildren() const;
-  virtual const ex_tcb* getChild(Int32 pos) const;
+  virtual const ex_tcb *getChild(Int32 pos) const;
 
-  void routeMsg(IpcMessageStream& msgStream);
-    
-  void setClient(IpcConnection* connection);
+  void routeMsg(IpcMessageStream &msgStream);
 
-  IpcConnection * getClient();
+  void setClient(IpcConnection *connection);
 
-  virtual ExOperStats *doAllocateStatsEntry(CollHeap *heap,
-                                                       ComTdb *tdb);
+  IpcConnection *getClient();
+
+  virtual ExOperStats *doAllocateStatsEntry(CollHeap *heap, ComTdb *tdb);
 
   void setExtractConsumerFlag(NABoolean b) { isExtractConsumer_ = b; }
   NABoolean getExtractConsumerFlag() const { return isExtractConsumer_; }
@@ -199,13 +178,12 @@ public:
 
   IpcConnection *getConnection() { return connection_; }
 
-private:
-
+ private:
   // check for request messages from send top and put data in queue
   short checkRequest();
 
   // get a request buffer from the message stream
-  TupMsgBuffer* getRequestBuffer();
+  TupMsgBuffer *getRequestBuffer();
 
   // check for reply data in the queue and send reply message to send top
   short checkReply();
@@ -214,7 +192,7 @@ private:
   void getReplyBuffer();
 
   // get a request buffer from the message stream
-  TupMsgBuffer* getCancelRequestBuffer();
+  TupMsgBuffer *getCancelRequestBuffer();
 
   ExWorkProcRetcode replyCancel();
 
@@ -224,39 +202,39 @@ private:
   void startCancel();
   void finishCancel();
 
-  ex_queue_pair        qSplit_;
+  ex_queue_pair qSplit_;
 
-  atp_struct           *workAtp_;
+  atp_struct *workAtp_;
 
-  queue_index          nextToSend_; // next down queue index to send to req.
+  queue_index nextToSend_;  // next down queue index to send to req.
 
-  ExFragId             myFragId_;
+  ExFragId myFragId_;
 
   // the fragment instance handle that is assigned to this node's instance
-  ExFragInstanceHandle myHandle_;
+  int myHandle_;
 
   // remember the instance number of the parent process that I'm talking to
-  Lng32                 parentInstanceNum_;
+  Lng32 parentInstanceNum_;
 
   ExEspFragInstanceDir *espInstanceDir_;
 
   // subtasks to be executed when an I/O completes
-  ExSubtask            *ioSubtask_;
-  ExSubtask            *ioCancelSubtask_;
+  ExSubtask *ioSubtask_;
+  ExSubtask *ioCancelSubtask_;
 
-  SET(queue_index)     cancelOnSight_;
+  SET(queue_index) cancelOnSight_;
 
   TupMsgBuffer *currentRequestBuffer_;  // send_top request being processed
   TupMsgBuffer *currentReplyBuffer_;    // reply to send_top being built
 
-  Lng32 requestBufferSize_; // size of receive sql buffer
-  Lng32 replyBufferSize_;   // size of send sql buffer
+  Lng32 requestBufferSize_;  // size of receive sql buffer
+  Lng32 replyBufferSize_;    // size of send sql buffer
 
   ULng32 currentBufferNumber_;
   NABoolean cancelReplyPending_;
   NABoolean lateCancel_;
 
-  NABoolean isActive_; // does this node have a request from a send top?
+  NABoolean isActive_;  // does this node have a request from a send top?
 
   ExSendBottomRouteMessageStream *routeMsgStream_;
   ExSendBottomWorkMessageStream *workMsgStream_;
@@ -268,7 +246,7 @@ private:
 
   // pool that will only have the defragmentation buffer and no other sql buffers
   sql_buffer_pool *defragPool_;
-  tupp_descriptor * defragTd_;
+  tupp_descriptor *defragTd_;
 
   sm_target_t smTarget_;
 };
@@ -276,13 +254,10 @@ private:
 ////////////////////////////////////////////////////////////////////////////
 // Message stream for Ipc send bottom node.  Does routing only.
 ////////////////////////////////////////////////////////////////////////////
-class ExSendBottomRouteMessageStream : public IpcServerMsgStream
-{
-public:
-
+class ExSendBottomRouteMessageStream : public IpcServerMsgStream {
+ public:
   // constructor
-  ExSendBottomRouteMessageStream(ExExeStmtGlobals *glob,
-                                 ex_send_bottom_tcb *sendBottomTcb,
+  ExSendBottomRouteMessageStream(ExExeStmtGlobals *glob, ex_send_bottom_tcb *sendBottomTcb,
                                  ExEspInstanceThread *threadInfo);
 
   // callbacks, they handle administrative work when an I/O operation
@@ -290,8 +265,7 @@ public:
   virtual void actOnSend(IpcConnection *connection);
   virtual void actOnReceive(IpcConnection *connection);
 
-private:
-
+ private:
   // a pointer back to the send bottom node
   ex_send_bottom_tcb *sendBottomTcb_;
   NABoolean sendBottomActive_;
@@ -300,16 +274,11 @@ private:
 ////////////////////////////////////////////////////////////////////////////
 // Message stream for Ipc send bottom node.  Work messages are routed here.
 ////////////////////////////////////////////////////////////////////////////
-class ExSendBottomWorkMessageStream : public IpcServerMsgStream
-{
-public:
-
+class ExSendBottomWorkMessageStream : public IpcServerMsgStream {
+ public:
   // constructor
-  ExSendBottomWorkMessageStream(ExExeStmtGlobals *glob,
-                                Lng32 sendBufferLimit,
-                                Lng32 inUseBufferLimit,
-                                IpcMessageObjSize bufferSize,
-                                ex_send_bottom_tcb *sendBottomTcb,
+  ExSendBottomWorkMessageStream(ExExeStmtGlobals *glob, Lng32 sendBufferLimit, Lng32 inUseBufferLimit,
+                                IpcMessageObjSize bufferSize, ex_send_bottom_tcb *sendBottomTcb,
                                 ExEspInstanceThread *threadInfo);
 
   // callbacks, they handle administrative work when an I/O operation
@@ -318,8 +287,7 @@ public:
   virtual void actOnReceive(IpcConnection *connection);
   ex_send_bottom_tcb *getSendBottomTcb() { return sendBottomTcb_; }
 
-private:
-
+ private:
   // a pointer back to the send bottom node
   ex_send_bottom_tcb *sendBottomTcb_;
   NABoolean sendBottomActive_;
@@ -327,23 +295,18 @@ private:
 ////////////////////////////////////////////////////////////////////////////
 // Message stream for Ipc send bottom node's cancel messages.
 ////////////////////////////////////////////////////////////////////////////
-class ExSendBottomCancelMessageStream : public IpcServerMsgStream
-{
-public:
-
+class ExSendBottomCancelMessageStream : public IpcServerMsgStream {
+ public:
   // construct a message stream associated with a particular send bottom node
-  ExSendBottomCancelMessageStream(
-                                  ExExeStmtGlobals *glob,
-                                  ex_send_bottom_tcb *sendBottomTcb,
+  ExSendBottomCancelMessageStream(ExExeStmtGlobals *glob, ex_send_bottom_tcb *sendBottomTcb,
                                   ExEspInstanceThread *threadInfo);
-  
+
   // callbacks, they handle administrative work when an I/O operation
   // completes
   virtual void actOnSend(IpcConnection *connection);
   virtual void actOnReceive(IpcConnection *connection);
 
-private:
-
+ private:
   // a pointer back to the send bottom node
   ex_send_bottom_tcb *sendBottomTcb_;
 };

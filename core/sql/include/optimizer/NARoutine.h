@@ -38,7 +38,7 @@
 #include "common/ComSmallDefs.h"
 #include "optimizer/ObjectNames.h"
 
-#include "BindWA.h"
+#include "optimizer/BindWA.h"
 #include "Stats.h"
 #include "CostVector.h"
 #include "sqlcomp/PrivMgrCommands.h"

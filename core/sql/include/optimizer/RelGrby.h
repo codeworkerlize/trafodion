@@ -40,7 +40,7 @@
 // -----------------------------------------------------------------------
 
 #include "optimizer/ObjectNames.h"
-#include "RelExpr.h"
+#include "optimizer/RelExpr.h"
 #include "HbaseSearchSpec.h"
 #include "SearchKey.h"
 // -----------------------------------------------------------------------

@@ -39,9 +39,9 @@
 
 
 #include "common/ComTransInfo.h"
-#include "OptUtilIncludes.h"
+#include "optimizer/OptUtilIncludes.h"
 #include "optimizer/ObjectNames.h"
-#include "RelExpr.h"
+#include "optimizer/RelExpr.h"
 #include "SearchKey.h"
 #include "RelJoin.h"
 #include "optimizer/RelScan.h"

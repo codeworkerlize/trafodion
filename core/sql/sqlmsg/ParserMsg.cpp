@@ -45,7 +45,7 @@
 #endif
 #include "common/NAWinNT.h"
 #include "export/ComDiags.h"
-#include "wstr.h"
+#include "common/wstr.h"
 #include "common/nawstring.h"
 #include "common/NLSConversion.h"
 #include "ErrorMessage.h"

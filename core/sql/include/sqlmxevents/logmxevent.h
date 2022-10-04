@@ -45,6 +45,6 @@
 
 #include "logmxevent_base.h"
 
-#include "logmxevent_traf.h"
+#include "sqlmxevents/logmxevent_traf.h"
 
 #endif

@@ -30,7 +30,7 @@
 #include "common/Platform.h"
 #include "common/Ipc.h"
 #include "common/Collections.h"
-#include "rts_msg.h"
+#include "runtimestats/rts_msg.h"
 #include "comexe/ComQueue.h"
 #include "SqlStats.h"
 #include "CancelBroker.h"

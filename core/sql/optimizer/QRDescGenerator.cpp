@@ -31,10 +31,10 @@
  **************************************************************************
  */
 
-#include "Analyzer.h"
+#include "optimizer/Analyzer.h"
 #include "QRDescGenerator.h"
-#include "QRSharedPtr.h"
-#include "RelGrby.h"
+#include "qmscommon/QRSharedPtr.h"
+#include "optimizer/RelGrby.h"
 #include "common/NumericType.h"
 #include "ItemLog.h"
 #include "qmscommon/QRLogger.h"

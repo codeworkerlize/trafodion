@@ -37,17 +37,17 @@
 
 // -----------------------------------------------------------------------
 
-#include "Sqlcomp.h"
+#include "optimizer/Sqlcomp.h"
 #include "GroupAttr.h"
-#include "AllRelExpr.h"
-#include "AllItemExpr.h"
+#include "optimizer/AllRelExpr.h"
+#include "optimizer/AllItemExpr.h"
 #include "Cost.h"
-#include "opt.h"
-#include "PhyProp.h"
+#include "optimizer/opt.h"
+#include "optimizer/PhyProp.h"
 #include "OptTrigger.h"
-#include "Analyzer.h"
+#include "optimizer/Analyzer.h"
 #include "AppliedStatMan.h"
-#include "NormWA.h"
+#include "optimizer/NormWA.h"
 #include "arkcmp/CmpStatement.h"
 
 #include <math.h>

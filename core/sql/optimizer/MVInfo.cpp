@@ -37,10 +37,10 @@
 #define  SQLPARSERGLOBALS_FLAGS	   // must precede all #include's
 #define  SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 
-#include "Sqlcomp.h"
-#include "AllItemExpr.h"
-#include "AllRelExpr.h"
-#include "BindWA.h"
+#include "optimizer/Sqlcomp.h"
+#include "optimizer/AllItemExpr.h"
+#include "optimizer/AllRelExpr.h"
+#include "optimizer/BindWA.h"
 #include "GroupAttr.h"
 #include "MVInfo.h"
 #include "Refresh.h"
@@ -48,7 +48,7 @@
 #include "MJVIndexBuilder.h"
 #include "ColIndList.h"
 #include "ChangesTable.h"
-#include "ElemDDLStoreOptions.h"
+#include "parser/ElemDDLStoreOptions.h"
 #include "qmscommon/QRDescriptor.h"
 #include "QueryRewriteHandler.h"
 
@@ -58,7 +58,7 @@
 
 #include "parser/SqlParserGlobals.h"		// must be last #include
 
-#include "NormWA.h"
+#include "optimizer/NormWA.h"
 
 void castComputedColumnsToAnsiTypes(BindWA *bindWA, RETDesc *rd, ValueIdList &compExpr);
 

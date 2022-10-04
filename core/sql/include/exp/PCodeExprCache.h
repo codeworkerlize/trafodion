@@ -30,7 +30,7 @@
 #include "common/Collections.h"
 #include "common/NAString.h"
 #include "optimizer/ItemColRef.h"
-#include "BindWA.h"
+#include "optimizer/BindWA.h"
 #include "ExpPCodeOptimizations.h"
 #include "ExpPCodeInstruction.h"
 

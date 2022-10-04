@@ -28,7 +28,7 @@
 #include <errno.h>
 #include <limits>
 #include <time.h>
-#include "sqludr.h"
+#include "sqludr/sqludr.h"
 
 using namespace tmudr;
 

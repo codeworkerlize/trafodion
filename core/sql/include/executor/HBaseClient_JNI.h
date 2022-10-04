@@ -33,7 +33,7 @@
 #include "executor/JavaObjectInterface.h"
 #include "exp/ExpHbaseDefs.h"
 #include "common/NAMemory.h"
-#include "org_trafodion_sql_HTableClient.h"
+#include "executor/org_trafodion_sql_HTableClient.h"
 #include "optimizer/Triggers.h"
 
 typedef std::string Text;

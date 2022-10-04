@@ -33,7 +33,7 @@
 #define SM_CONNECTION_H
 
 #include "common/Ipc.h"
-#include "../seamonster/src/sm.h"
+#include "seabed/sm.h"
 
 // Forward declarations
 class ExSMTask;

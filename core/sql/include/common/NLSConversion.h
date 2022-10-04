@@ -48,7 +48,7 @@
 #include "common/BaseTypes.h"
 #include "common/NAWinNT.h"
 #include "common/NAHeap.h"
-#include "stringBuf.h"
+#include "common/stringBuf.h"
 #include "common/csconvert.h"
 #include "common/charinfo.h"
 
@@ -218,7 +218,7 @@ typedef char CollHeap;
 #define FALSE 0
 #define NADELETEBASIC(buf_, heap_)
 #define NADELETE(buf_, T_, heap_)
-#include "stringBuf.h"
+#include "common/stringBuf.h"
 
 void * operator new(size_t size, CollHeap *s)
 {

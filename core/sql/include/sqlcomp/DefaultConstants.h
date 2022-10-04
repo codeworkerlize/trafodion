@@ -61,10 +61,8 @@
 // ***************************************************************************
 // ***************************************************************************
 
-
-enum DefaultConstants
-{
-  __INVALID_DEFAULT_ATTRIBUTE = -1,	// negative; not in DefaultDefaults
+enum DefaultConstants {
+  __INVALID_DEFAULT_ATTRIBUTE = -1,  // negative; not in DefaultDefaults
   ALLOW_INCOMPATIBLE_ASSIGNMENT = 0,
   ALLOW_INCOMPATIBLE_COMPARISON,
   ARKCMP_FAKE_HW,
@@ -146,14 +144,14 @@ enum DefaultConstants
   // existed; although it's currently commented out, many have associated
   // comments (which I (Martin) can't decide if they're vital or not).
   // -----------------------------------------------------------------------
-  CPUCOST_ESP_INITIALIZATION,           // Cost.h
-  CPUCOST_LOCK_ROW,                     // Cost.h
-  CPUCOST_PREDICATE_COMPARISON,         // Cost.h
-  CPUCOST_SUBSET_OPEN,                  // Cost.h
-  CPUCOST_SUBSET_OPEN_AFTER_FIRST,      // Cost.h
-  DP2_MESSAGE_BUFFER_SIZE,              // Cost.h
-  LOCAL_MESSAGE_BUFFER_SIZE,			// Cost.h
-  OS_MESSAGE_BUFFER_SIZE,               // Cost.h
+  CPUCOST_ESP_INITIALIZATION,       // Cost.h
+  CPUCOST_LOCK_ROW,                 // Cost.h
+  CPUCOST_PREDICATE_COMPARISON,     // Cost.h
+  CPUCOST_SUBSET_OPEN,              // Cost.h
+  CPUCOST_SUBSET_OPEN_AFTER_FIRST,  // Cost.h
+  DP2_MESSAGE_BUFFER_SIZE,          // Cost.h
+  LOCAL_MESSAGE_BUFFER_SIZE,        // Cost.h
+  OS_MESSAGE_BUFFER_SIZE,           // Cost.h
 
   // The CPU overhead paid by a data request to DP2:
   CPUCOST_DATARQST_OVHD,
@@ -164,17 +162,14 @@ enum DefaultConstants
   DP2_CACHE_2048_BLOCKS,
   DP2_CACHE_4096_BLOCKS,
 
-
-
   // Constants needed to estimate the cost of communication2
   // between DP2 and exeInDp2:
-  CPUCOST_SCAN_KEY_LENGTH,  // key encoding/decoding
-  CPUCOST_SCAN_OVH_PER_KB, // catch all overhead per KB
-  CPUCOST_SCAN_OVH_PER_ROW, // catch all overhead per row
+  CPUCOST_SCAN_KEY_LENGTH,   // key encoding/decoding
+  CPUCOST_SCAN_OVH_PER_KB,   // catch all overhead per KB
+  CPUCOST_SCAN_OVH_PER_ROW,  // catch all overhead per row
   // Catch all for cost  of transferring data from disk to dp2:
   CPUCOST_SCAN_DSK_TO_DP2_PER_KB,
   CPUCOST_SCAN_DSK_TO_DP2_PER_SEEK,
-
 
   // Used in estimating blocks to read per scan access:
   COST_PROBE_DENSITY_THRESHOLD,
@@ -201,7 +196,7 @@ enum DefaultConstants
   DEF_INSTRUCTIONS_SECOND,
   DEF_LOCAL_CLUSTER_NUMBER,
   DEF_LOCAL_SMP_NODE_NUMBER,
-  DEF_MAX_HISTORY_ROWS,//will be obeseleted
+  DEF_MAX_HISTORY_ROWS,  // will be obeseleted
   DEF_NUM_BM_CHUNKS,
   DEF_NUM_NODES_IN_ACTIVE_CLUSTERS,
   DEF_NUM_SMP_CPUS,
@@ -212,7 +207,6 @@ enum DefaultConstants
 
   // to generate detailed executor statitics
   DETAILED_STATISTICS,
-
 
   // Used in Exchange costing.
   DP2_END_OF_BUFFER_HEADER_SIZE,
@@ -238,7 +232,7 @@ enum DefaultConstants
   EX_OP_COPY_ATP,
 
   FIND_COLUMN_SUBEXPRS_IN_OR,
-  FIND_COMMON_SUBEXPRS_IN_OR, 
+  FIND_COMMON_SUBEXPRS_IN_OR,
 
   FLOAT_ESP_RANDOM_NUM_SEED,
 
@@ -298,7 +292,7 @@ enum DefaultConstants
   // Partition Access.
   GEN_PA_BUFFER_SIZE,
   GEN_PA_NUM_BUFFERS,
-   // Sample node
+  // Sample node
   GEN_SAMPLE_SIZE_DOWN,
   GEN_SAMPLE_SIZE_UP,
   // Scan.
@@ -337,12 +331,11 @@ enum DefaultConstants
   GEN_TFLO_SIZE_DOWN,
   GEN_TFLO_SIZE_UP,
 
-   // Set Table Timeout.
+  // Set Table Timeout.
   GEN_TIMEOUT_BUFFER_SIZE,
   GEN_TIMEOUT_NUM_BUFFERS,
   GEN_TIMEOUT_SIZE_DOWN,
   GEN_TIMEOUT_SIZE_UP,
-
 
   // Transaction.
   GEN_TRAN_BUFFER_SIZE,
@@ -394,7 +387,7 @@ enum DefaultConstants
   // -------------------------------------------------------------------------
   HGB_BITMUX,
   HGB_CPUCOST_INITIALIZE,
-  HGB_DP2_MEMORY_LIMIT,        // Memory limit if operator executes in DP2.
+  HGB_DP2_MEMORY_LIMIT,  // Memory limit if operator executes in DP2.
   HGB_GROUPING_FACTOR_FOR_SPILLED_CLUSTERS,
 
   // -------------------------------------------------------------------------
@@ -446,17 +439,17 @@ enum DefaultConstants
   // want to play with this value to see the trade-offs between compile time &
   // estimation accuracy.
   // -------------------------------------------------------------------------
-  HIST_DEFAULT_SEL_FOR_BOOLEAN,          // col_a is true | false
-  HIST_DEFAULT_SEL_FOR_IS_NULL,          // col_a is null | unknown
-  HIST_DEFAULT_SEL_FOR_JOIN_EQUAL,       // col_a = col_b
-  HIST_DEFAULT_SEL_FOR_JOIN_RANGE,       // col_a < col_b
-  HIST_DEFAULT_SEL_FOR_LIKE_NO_WILDCARD, // col_a like "blah"
-  HIST_DEFAULT_SEL_FOR_LIKE_WILDCARD,    // col_a like "%blah"
-  HIST_DEFAULT_SEL_FOR_PRED_EQUAL,       // col_a = 5
-  HIST_DEFAULT_SEL_FOR_PRED_RANGE,       // col_a < 5
+  HIST_DEFAULT_SEL_FOR_BOOLEAN,           // col_a is true | false
+  HIST_DEFAULT_SEL_FOR_IS_NULL,           // col_a is null | unknown
+  HIST_DEFAULT_SEL_FOR_JOIN_EQUAL,        // col_a = col_b
+  HIST_DEFAULT_SEL_FOR_JOIN_RANGE,        // col_a < col_b
+  HIST_DEFAULT_SEL_FOR_LIKE_NO_WILDCARD,  // col_a like "blah"
+  HIST_DEFAULT_SEL_FOR_LIKE_WILDCARD,     // col_a like "%blah"
+  HIST_DEFAULT_SEL_FOR_PRED_EQUAL,        // col_a = 5
+  HIST_DEFAULT_SEL_FOR_PRED_RANGE,        // col_a < 5
 
-  HIST_MAX_NUMBER_OF_INTERVALS,          // 1 ... 1000 (1000 by default: i.e., no limit)
-  HIST_MC_STATS_NEEDED,                  //T: use MC histograms and issue 6007 message
+  HIST_MAX_NUMBER_OF_INTERVALS,  // 1 ... 1000 (1000 by default: i.e., no limit)
+  HIST_MC_STATS_NEEDED,          // T: use MC histograms and issue 6007 message
 
   HIST_NO_STATS_ROWCOUNT,
   HIST_NO_STATS_UEC,
@@ -467,9 +460,8 @@ enum DefaultConstants
 
   HIST_ROWCOUNT_REQUIRING_STATS,
 
-
-  //jbbsubset that specifies the root of the tree
-  //for which we want to check the histograms
+  // jbbsubset that specifies the root of the tree
+  // for which we want to check the histograms
   HIST_ROOT_NODE,
 
   // -------------------------------------------------------------------------
@@ -500,53 +492,51 @@ enum DefaultConstants
   HIST_CONSTANT_ALPHA,
   HIST_PREFETCH,
 
-
   // --------------------------------------------------------------------------
   // For Update Statistics.
   // --------------------------------------------------------------------------
   USTAT_ADD_SALTED_KEY_PREFIXES_FOR_MC,  // Generate MCs for primary key prefixes as well as full key of
                                          //   salted table when ON EVERY KEY or ON EVERY COLUMN is specified.
-  USTAT_ATTEMPT_ESP_PARALLELISM,  // use parallel plans for reading columns to form histograms
-  USTAT_AUTOMATIC_LOGGING,     // If ON, gives same semantics as UPDATE STATISTICS LOG SYSTEM
-  USTAT_COMPACT_VARCHARS,      // For internal sort, store only the actual # chars used in each value
-  USTAT_DELETE_NO_ROLLBACK,    // If ON, use DELETE WITH NO ROLLBACK in incremental stats when updating sample table
+  USTAT_ATTEMPT_ESP_PARALLELISM,         // use parallel plans for reading columns to form histograms
+  USTAT_AUTOMATIC_LOGGING,               // If ON, gives same semantics as UPDATE STATISTICS LOG SYSTEM
+  USTAT_COMPACT_VARCHARS,                // For internal sort, store only the actual # chars used in each value
+  USTAT_DELETE_NO_ROLLBACK,        // If ON, use DELETE WITH NO ROLLBACK in incremental stats when updating sample table
   USTAT_ESTIMATE_HBASE_ROW_COUNT,  // If ON, estimate row count of HBase table instead of count(*), subject
                                    //     to USTAT_MIN_ESTIMATE_FOR_ROWCOUNT setting)
-  USTAT_FORCE_TEMP,            // Force temporary table to be used
-  USTAT_HBASE_SAMPLE_RETURN_INTERVAL, // When sampling in HBase, adjust sampling rate to return once
-                                      //   on average once per this many rows
-  USTAT_JIT_LOGGING,           // Use just-in-time logging when error occurs
-                               //   avoid deadlock for concurrent Update Stats on same table
-  USTAT_LOG,                   // Generate USTAT log and write to file specified
-  USTAT_MIN_ESTIMATE_FOR_ROWCOUNT, // Minimum estimated rowcount to be accepted
-                                   // as actual rowcount
-  USTAT_MIN_ROWCOUNT_FOR_SAMPLE,     // Smallest table for which sampling used
-  USTAT_MIN_ROWCOUNT_FOR_LOW_SAMPLE, // Smallest table for which lowest sampling rate used
-  USTAT_MODIFY_DEFAULT_UEC,    // Modify the default UEC
-  USTAT_MULTI_COLUMN_LIMIT,    // Limit on number of columns in a multi-column histogram
-  USTAT_UEC_HI_RATIO,          // When the estimated UEC/ROWCOUNT ratio is
-  USTAT_UEC_LOW_RATIO,         // between HI_RATIO and LOW_RATIO, we will avoid
-                               // calling xValue() to find the root value.
-  USTAT_USE_BACKING_SAMPLE,    // Use Hive persistent sample table instead of reading from full table. @ZXtemp
-  USTAT_USE_SLIDING_SAMPLE_RATIO,  // Vary sampling rate according to table size
-  USTAT_AUTOMATION_INTERVAL,   // set the ustat automation interval
-  USTAT_MAX_READ_AGE_IN_MIN,   // criterion for 'recently read histogram'
-  USTAT_COLLECT_FILE_STATS,       // do we collect file stats
-  USTAT_USE_IS_WHEN_NO_STATS,  // use IS when no histograms exist for the column
-  USTAT_CQDS_ALLOWED_FOR_SPAWNED_COMPILERS, // list of CQDs that can be pushed to seconday compilers
-                                            // CQDs are delimited by ","
-  USTAT_MIN_CHAR_UEC_FOR_IS,     // minimum UEC for char type to use internal sort
-  USTAT_MIN_DEC_BIN_UEC_FOR_IS,  // minimum UEC for binary types to use internal sort
-  USTAT_YOULL_LIKELY_BE_SORRY, // minimum row count where explicit NO SAMPLE clause is required
-
+  USTAT_FORCE_TEMP,                // Force temporary table to be used
+  USTAT_HBASE_SAMPLE_RETURN_INTERVAL,  // When sampling in HBase, adjust sampling rate to return once
+                                       //   on average once per this many rows
+  USTAT_JIT_LOGGING,                   // Use just-in-time logging when error occurs
+                                       //   avoid deadlock for concurrent Update Stats on same table
+  USTAT_LOG,                           // Generate USTAT log and write to file specified
+  USTAT_MIN_ESTIMATE_FOR_ROWCOUNT,     // Minimum estimated rowcount to be accepted
+                                       // as actual rowcount
+  USTAT_MIN_ROWCOUNT_FOR_SAMPLE,       // Smallest table for which sampling used
+  USTAT_MIN_ROWCOUNT_FOR_LOW_SAMPLE,   // Smallest table for which lowest sampling rate used
+  USTAT_MODIFY_DEFAULT_UEC,            // Modify the default UEC
+  USTAT_MULTI_COLUMN_LIMIT,            // Limit on number of columns in a multi-column histogram
+  USTAT_UEC_HI_RATIO,                  // When the estimated UEC/ROWCOUNT ratio is
+  USTAT_UEC_LOW_RATIO,                 // between HI_RATIO and LOW_RATIO, we will avoid
+                                       // calling xValue() to find the root value.
+  USTAT_USE_BACKING_SAMPLE,            // Use Hive persistent sample table instead of reading from full table. @ZXtemp
+  USTAT_USE_SLIDING_SAMPLE_RATIO,      // Vary sampling rate according to table size
+  USTAT_AUTOMATION_INTERVAL,           // set the ustat automation interval
+  USTAT_MAX_READ_AGE_IN_MIN,           // criterion for 'recently read histogram'
+  USTAT_COLLECT_FILE_STATS,            // do we collect file stats
+  USTAT_USE_IS_WHEN_NO_STATS,          // use IS when no histograms exist for the column
+  USTAT_CQDS_ALLOWED_FOR_SPAWNED_COMPILERS,  // list of CQDs that can be pushed to seconday compilers
+                                             // CQDs are delimited by ","
+  USTAT_MIN_CHAR_UEC_FOR_IS,                 // minimum UEC for char type to use internal sort
+  USTAT_MIN_DEC_BIN_UEC_FOR_IS,              // minimum UEC for binary types to use internal sort
+  USTAT_YOULL_LIKELY_BE_SORRY,               // minimum row count where explicit NO SAMPLE clause is required
 
   // -------------------------------------------------------------------------
   // For Hybrid Hash Operators (shared by HashJoin and HashGroupBy).
   // -------------------------------------------------------------------------
   HH_OP_ALLOCATE_HASH_TABLE,
-  HH_OP_PROBE_HASH_TABLE,      // ref head of hash chain given a hash value
-  HH_OP_INSERT_ROW_TO_CHAIN,   // insert a row in a hash chain
-  HH_OP_HASHED_ROW_OVERHEAD,   // no of bytes to store hash value and pointer
+  HH_OP_PROBE_HASH_TABLE,     // ref head of hash chain given a hash value
+  HH_OP_INSERT_ROW_TO_CHAIN,  // insert a row in a hash chain
+  HH_OP_HASHED_ROW_OVERHEAD,  // no of bytes to store hash value and pointer
 
   // -------------------------------------------------------------------------
   // For HashJoin.
@@ -616,12 +606,12 @@ enum DefaultConstants
   // (Resource-to-time multipliers are environment dependant)
   // -------------------------------------------------------------------------
   MSCF_ET_CPU,
-  MSCF_ET_NUM_IO_SEEKS,        // count of Random I/Os
-  MSCF_ET_IO_TRANSFER,         // KB transfer
+  MSCF_ET_NUM_IO_SEEKS,  // count of Random I/Os
+  MSCF_ET_IO_TRANSFER,   // KB transfer
   MSCF_ET_NUM_LOCAL_MSGS,
   MSCF_ET_LOCAL_MSG_TRANSFER,  // KB transfer
   MSCF_ET_NUM_REMOTE_MSGS,
-  MSCF_ET_REMOTE_MSG_TRANSFER, // KB transfer
+  MSCF_ET_REMOTE_MSG_TRANSFER,  // KB transfer
 
   // turn on and off olt query optimizations. Default is ON.
   OLT_QUERY_OPT,
@@ -637,24 +627,24 @@ enum DefaultConstants
   // Factors used for recalibrating the resource-to-time multipliers
   // -----------------------------------------------------------------------
   // Reference calibration machine environment defaults
-  REFERENCE_CPU_FREQUENCY, // In MHZ
-  REFERENCE_IO_SEQ_READ_RATE, // In KB/Second
-  REFERENCE_IO_SEEK_TIME, // In milliseconds
-  REFERENCE_MSG_LOCAL_RATE, // In Mb/Second
-  REFERENCE_MSG_LOCAL_TIME, // In seconds
-  REFERENCE_MSG_REMOTE_RATE, // In Mb/Second
-  REFERENCE_MSG_REMOTE_TIME, // In seconds
-  REFERENCE_CODE, // ['DEBUG' | 'RELEASE']
+  REFERENCE_CPU_FREQUENCY,     // In MHZ
+  REFERENCE_IO_SEQ_READ_RATE,  // In KB/Second
+  REFERENCE_IO_SEEK_TIME,      // In milliseconds
+  REFERENCE_MSG_LOCAL_RATE,    // In Mb/Second
+  REFERENCE_MSG_LOCAL_TIME,    // In seconds
+  REFERENCE_MSG_REMOTE_RATE,   // In Mb/Second
+  REFERENCE_MSG_REMOTE_TIME,   // In seconds
+  REFERENCE_CODE,              // ['DEBUG' | 'RELEASE']
 
   // End user machine environment defaults
-  TARGET_CPU_FREQUENCY, // In MHZ
-  TARGET_IO_SEQ_READ_RATE, // In KB/Second
-  TARGET_IO_SEEK_TIME, // In milliseconds
-  TARGET_MSG_LOCAL_RATE, // In Mb/Second
-  TARGET_MSG_LOCAL_TIME, // In seconds
-  TARGET_MSG_REMOTE_RATE, // In Mb/Second
-  TARGET_MSG_REMOTE_TIME, // In seconds
-  TARGET_CODE, // ['DEBUG' | 'RELEASE']
+  TARGET_CPU_FREQUENCY,     // In MHZ
+  TARGET_IO_SEQ_READ_RATE,  // In KB/Second
+  TARGET_IO_SEEK_TIME,      // In milliseconds
+  TARGET_MSG_LOCAL_RATE,    // In Mb/Second
+  TARGET_MSG_LOCAL_TIME,    // In seconds
+  TARGET_MSG_REMOTE_RATE,   // In Mb/Second
+  TARGET_MSG_REMOTE_TIME,   // In seconds
+  TARGET_CODE,              // ['DEBUG' | 'RELEASE']
 
   // Default to account for speed up (or slowdown) of runnin in release
   // or default
@@ -667,7 +657,6 @@ enum DefaultConstants
   MSCF_OV_IO,
   MSCF_OV_MSG,
 
-
   // -----------------------------------------------------------------------
   // Big memory usage
   // -----------------------------------------------------------------------
@@ -677,45 +666,44 @@ enum DefaultConstants
   // -------------------------------------------------------------------------
   // For MergeUnion.
   // -------------------------------------------------------------------------
-  MU_CPUCOST_INITIALIZE,          // Per probe initialization cost.
-  MU_INITIAL_BUFFER_COUNT,        // Initial no of buffers allocated.
-  MU_INITIAL_BUFFER_SIZE,         // Size of executor buffer it is using.
+  MU_CPUCOST_INITIALIZE,    // Per probe initialization cost.
+  MU_INITIAL_BUFFER_COUNT,  // Initial no of buffers allocated.
+  MU_INITIAL_BUFFER_SIZE,   // Size of executor buffer it is using.
 
   // -------------------------------------------------------------------------
   //++ MV OZ
   // For Materialized Views:
-  MV_AGE,			  // timestamp default is 0
-  MV_ALLOW_SELECT_SYSTEM_ADDED_COLUMNS, // ON/OFF default is OFF
-  MV_AS_ROW_TRIGGER,		  // YES/NO default is NO
-  MV_ENABLE_INTERNAL_REFRESH_SHOWPLAN, // internal only - enable showplan for IR
-  MV_LOG_PUSH_DOWN_DP2_INSERT, // push down mv logging tp dp2 for insert
-  MV_LOG_PUSH_DOWN_DP2_DELETE, // push down mv logging tp dp2 for delete
-  MV_LOG_PUSH_DOWN_DP2_UPDATE, // push down mv logging tp dp2 for update
+  MV_AGE,                                // timestamp default is 0
+  MV_ALLOW_SELECT_SYSTEM_ADDED_COLUMNS,  // ON/OFF default is OFF
+  MV_AS_ROW_TRIGGER,                     // YES/NO default is NO
+  MV_ENABLE_INTERNAL_REFRESH_SHOWPLAN,   // internal only - enable showplan for IR
+  MV_LOG_PUSH_DOWN_DP2_INSERT,           // push down mv logging tp dp2 for insert
+  MV_LOG_PUSH_DOWN_DP2_DELETE,           // push down mv logging tp dp2 for delete
+  MV_LOG_PUSH_DOWN_DP2_UPDATE,           // push down mv logging tp dp2 for update
 
-
-  MV_REFRESH_MAX_PARALLELISM,	  // unsigned integer - initially set to 1.
-  MV_REFRESH_MAX_PIPELINING,	  // unsigned integer - initially set to 1.
-  MV_TRACE_INCONSISTENCY,	  // YES/NO default is NO
+  MV_REFRESH_MAX_PARALLELISM,  // unsigned integer - initially set to 1.
+  MV_REFRESH_MAX_PIPELINING,   // unsigned integer - initially set to 1.
+  MV_TRACE_INCONSISTENCY,      // YES/NO default is NO
 
   // For MV Query Rewrite:
   // -------------------------------------------------------------------------
-  MVQR_ALL_JBBS_IN_QD,            // add JBBs to query descriptor even if criteria
-                                  //   not met. Used for testing descriptors.
-  MVQR_ENABLE_LOGGING,            // Use log files. Temporary until Log4CXX.
-  MVQR_LOG_QUERY_DESCRIPTORS,     // whether or not to log query descriptors
-  MVQR_PARAMETERIZE_EQ_PRED,      // whether or not to parameterize equality 
-  MVQR_PRIVATE_QMS_INIT,          // how to init private qms: SMD, XML, NONE (default)
-  MVQR_PUBLISH_TO,                // PRIVATE(default) qms, PUBLIC qms, BOTH
-  MVQR_REWRITE_CANDIDATES,        // list of MVs by MV qualified names
-  MVQR_REWRITE_ENABLED_OPTION,    // establishes default for MVs that don't state
-                                  //   whether or not they are enabled for rewrite
-  MVQR_REWRITE_LEVEL,             // 0 to 4, default 0 (disabled)
-  MVQR_REWRITE_SINGLE_TABLE_QUERIES, // whether or not to rewrite queries on single tables
-  MVQR_USE_EXTRA_HUB_TABLES,      // Use extra-hub tables in descriptors.
-  MVQR_USE_RI_FOR_EXTRA_HUB_TABLES, // Use RI constraints for extra-hub tables in descriptors.
-  MVQR_MAX_EXPR_SIZE,             // maximum size of an expr for which mvqr can produce a descriptor
-  MVQR_MAX_EXPR_DEPTH,            // maximum depth of an expr for which mvqr can produce a descriptor
-  MVQR_WORKLOAD_ANALYSIS_MV_NAME, // Name of MV descriptor to be generated from next query.
+  MVQR_ALL_JBBS_IN_QD,                // add JBBs to query descriptor even if criteria
+                                      //   not met. Used for testing descriptors.
+  MVQR_ENABLE_LOGGING,                // Use log files. Temporary until Log4CXX.
+  MVQR_LOG_QUERY_DESCRIPTORS,         // whether or not to log query descriptors
+  MVQR_PARAMETERIZE_EQ_PRED,          // whether or not to parameterize equality
+  MVQR_PRIVATE_QMS_INIT,              // how to init private qms: SMD, XML, NONE (default)
+  MVQR_PUBLISH_TO,                    // PRIVATE(default) qms, PUBLIC qms, BOTH
+  MVQR_REWRITE_CANDIDATES,            // list of MVs by MV qualified names
+  MVQR_REWRITE_ENABLED_OPTION,        // establishes default for MVs that don't state
+                                      //   whether or not they are enabled for rewrite
+  MVQR_REWRITE_LEVEL,                 // 0 to 4, default 0 (disabled)
+  MVQR_REWRITE_SINGLE_TABLE_QUERIES,  // whether or not to rewrite queries on single tables
+  MVQR_USE_EXTRA_HUB_TABLES,          // Use extra-hub tables in descriptors.
+  MVQR_USE_RI_FOR_EXTRA_HUB_TABLES,   // Use RI constraints for extra-hub tables in descriptors.
+  MVQR_MAX_EXPR_SIZE,                 // maximum size of an expr for which mvqr can produce a descriptor
+  MVQR_MAX_EXPR_DEPTH,                // maximum depth of an expr for which mvqr can produce a descriptor
+  MVQR_WORKLOAD_ANALYSIS_MV_NAME,     // Name of MV descriptor to be generated from next query.
 
   // -------------------------------------------------------------------------
   // Enable 'ON' or disable 'OFF' considering nested joins
@@ -723,24 +711,22 @@ enum DefaultConstants
   // -------------------------------------------------------------------------
   NESTED_JOINS,
   KEYLESS_NESTED_JOINS,
-  NESTED_JOINS_PLAN0, // turn off PLAN0 of nested joins
-
+  NESTED_JOINS_PLAN0,  // turn off PLAN0 of nested joins
 
   // -------------------------------------------------------------------------
   // For NestedJoin.
   // -------------------------------------------------------------------------
-  NJ_CPUCOST_INITIALIZE,          // Per probe initialization cost.
-  NJ_CPUCOST_PASS_ROW,          // Cost for passing a row to right child
-  NJ_INITIAL_BUFFER_COUNT,        // Initial no of buffers allocated.
-  NJ_INITIAL_BUFFER_SIZE,         // Size of executor buffer it is using.
-
+  NJ_CPUCOST_INITIALIZE,    // Per probe initialization cost.
+  NJ_CPUCOST_PASS_ROW,      // Cost for passing a row to right child
+  NJ_INITIAL_BUFFER_COUNT,  // Initial no of buffers allocated.
+  NJ_INITIAL_BUFFER_SIZE,   // Size of executor buffer it is using.
 
   // Calibration Constants for NESTEDJOIN INORDER created 11/21/00
 
-  NJ_INC_UPTOLIMIT,	  // cost for seeks upto the blocks in innertable
-  NJ_INC_AFTERLIMIT,	  // cost for seeks once the probes > innerblocks
-  NJ_INC_MOVEROWS,	  // cost for moving the final result rows
-  NJ_MAX_SEEK_DISTANCE,	  // Average distance for a seek
+  NJ_INC_UPTOLIMIT,      // cost for seeks upto the blocks in innertable
+  NJ_INC_AFTERLIMIT,     // cost for seeks once the probes > innerblocks
+  NJ_INC_MOVEROWS,       // cost for moving the final result rows
+  NJ_MAX_SEEK_DISTANCE,  // Average distance for a seek
 
   // ----------------------------------------------------------------------
   // If enabled (ON), indicates that query processing is to be done
@@ -775,11 +761,11 @@ enum DefaultConstants
   CACHE_HISTOGRAMS_TRACE_OUTPUT_FILE,
 
   //------------------------------------------------------------------------
-  //NATable Cache Size in MBs
+  // NATable Cache Size in MBs
   //------------------------------------------------------------------------
   METADATA_CACHE_SIZE,
 
-  //NARoutine and NARoutineDesc cache size in MBs
+  // NARoutine and NARoutineDesc cache size in MBs
   ROUTINE_CACHE_SIZE,
 
   // -----------------------------------------------------------------------
@@ -856,7 +842,7 @@ enum DefaultConstants
 
   // Specifies the type of graceful termination to use
   OPTIMIZER_GRACEFUL_TERMINATION,
-  
+
   // -------------------------------------------------------------------------
   // Temp. optimizer heuristics. Used for testing only, The heuristic is
   // renamed after proven worthy
@@ -971,7 +957,6 @@ enum DefaultConstants
   OPH_USE_ORDERED_MJ_PRED,
   OPH_USE_PWS_FLAG_FOR_CONTEXT,
 
-
   // -----------------------------------------------------------------------
   // PCODE
   // -----------------------------------------------------------------------
@@ -1037,7 +1022,6 @@ enum DefaultConstants
   QUERY_CACHE_USE_CONVDOIT_FOR_BACKPATCH,
   SKIP_QUERY_CACHE,
 
-
   // -------------------------------------------------------------------------
   // If set to TRUE, this indicates that a select query will not be updated
   // or deleted using an 'upd/del where current of cursor' statement.
@@ -1060,7 +1044,6 @@ enum DefaultConstants
   // -------------------------------------------------------------------------
 
   SCRATCH_DIRS,
-  
 
   // -------------------------------------------------------------------------
   // For SortGroupBy.
@@ -1072,12 +1055,12 @@ enum DefaultConstants
   // -------------------------------------------------------------------------
   // For Sort.
   // -------------------------------------------------------------------------
-  SORT_CPUCOST_INITIALIZE,        // Per probe initialization cost.
-  SORT_QS_FACTOR,                 // Constant factor for Quick Sort.
-  SORT_RS_FACTOR,                 // Constant factor for Replacement Sel.
-  SORT_IO_BUFFER_SIZE,            // I/O buffer size.
-  SORT_EX_BUFFER_SIZE,            // Executor buffer size.
-  SORT_TREE_NODE_SIZE,            // Internal node size of Tournament Tree.
+  SORT_CPUCOST_INITIALIZE,  // Per probe initialization cost.
+  SORT_QS_FACTOR,           // Constant factor for Quick Sort.
+  SORT_RS_FACTOR,           // Constant factor for Replacement Sel.
+  SORT_IO_BUFFER_SIZE,      // I/O buffer size.
+  SORT_EX_BUFFER_SIZE,      // Executor buffer size.
+  SORT_TREE_NODE_SIZE,      // Internal node size of Tournament Tree.
 
   // -------------------------------------------------------------------------
   // For SPJ/SPSQL
@@ -1088,30 +1071,30 @@ enum DefaultConstants
   // -------------------------------------------------------------------------
   // For Node Maps
   // -------------------------------------------------------------------------
-  FAKE_VOLUME_ASSIGNMENTS, // Force num of DP2 vols = num of partitions? ON/OFF
+  FAKE_VOLUME_ASSIGNMENTS,  // Force num of DP2 vols = num of partitions? ON/OFF
   FAKE_VOLUME_NUM_VOLUMES,  // Number of partitions per volume
 
   // -------------------------------------------------------------------------
   // For Exchange and parallel execution
   // -------------------------------------------------------------------------
-  ATTEMPT_ASYNCHRONOUS_ACCESS, // Nowait I/O allowed? ON/OFF
-  ATTEMPT_ESP_PARALLELISM, // Generate and cost ESP parallelism plans?
-                           // ON or OFF or SYSTEM
-                           // SYSTEM = optimizer decides, based on whether
-                           // operator is a BMO, uses lots of CPU, etc.
-  BASE_NUM_PAS_ON_ACTIVE_PARTS, // limit # of PAs to # of active parts?
-  MAX_ESPS_PER_CPU_PER_OP, // max number of ESPs per cpu for a given operator
-  MAX_ACCESS_NODES_PER_ESP, // max number of access nodes per ESP
-  NUMBER_OF_COUNTSTAR_ROWS_PARALLEL_THRESHOLD, // # of rows where parallelism is a good idea for COUNT(*)
-  NUMBER_OF_PARTITIONS_DEVIATION, // % deviation allowed for # of parts/ESPs
-  NUMBER_OF_ROWS_PARALLEL_THRESHOLD, // # of rows where parallelism is a good idea
-  NUM_OF_PARTS_DEVIATION_TYPE2_JOINS, // % deviation allowed for type2 joins
-  PARALLEL_ESP_NODEMASK, // nodes to be used for ESPs
-  PARALLEL_NUM_ESPS, // max # of ESPs an operator can use
-  PARTITION_ACCESS_NODES_PER_ESP, // optimal number of PAs per ESP
-  PASSWORD_LIFE_TIME,    // user password life time
-  PASSWORD_ERROR_COUNT,  // input password error count
-  UPDATED_BYTES_PER_ESP,          // ratio of updated bytes/ESPs in updates
+  ATTEMPT_ASYNCHRONOUS_ACCESS,                  // Nowait I/O allowed? ON/OFF
+  ATTEMPT_ESP_PARALLELISM,                      // Generate and cost ESP parallelism plans?
+                                                // ON or OFF or SYSTEM
+                                                // SYSTEM = optimizer decides, based on whether
+                                                // operator is a BMO, uses lots of CPU, etc.
+  BASE_NUM_PAS_ON_ACTIVE_PARTS,                 // limit # of PAs to # of active parts?
+  MAX_ESPS_PER_CPU_PER_OP,                      // max number of ESPs per cpu for a given operator
+  MAX_ACCESS_NODES_PER_ESP,                     // max number of access nodes per ESP
+  NUMBER_OF_COUNTSTAR_ROWS_PARALLEL_THRESHOLD,  // # of rows where parallelism is a good idea for COUNT(*)
+  NUMBER_OF_PARTITIONS_DEVIATION,               // % deviation allowed for # of parts/ESPs
+  NUMBER_OF_ROWS_PARALLEL_THRESHOLD,            // # of rows where parallelism is a good idea
+  NUM_OF_PARTS_DEVIATION_TYPE2_JOINS,           // % deviation allowed for type2 joins
+  PARALLEL_ESP_NODEMASK,                        // nodes to be used for ESPs
+  PARALLEL_NUM_ESPS,                            // max # of ESPs an operator can use
+  PARTITION_ACCESS_NODES_PER_ESP,               // optimal number of PAs per ESP
+  PASSWORD_LIFE_TIME,                           // user password life time
+  PASSWORD_ERROR_COUNT,                         // input password error count
+  UPDATED_BYTES_PER_ESP,                        // ratio of updated bytes/ESPs in updates
 
   // ------------------------------------------------------------------------
   // For allowing / hiding indexes
@@ -1121,12 +1104,12 @@ enum DefaultConstants
   // -------------------------------------------------------------------------
   // For Insert/update/delete
   // -------------------------------------------------------------------------
-  UPD_ORDERED,                    // require ins/upd/del rows to be ordered
-  USE_TRIGGER,                    // whether use trigger
-  IUD_NONAUDITED_INDEX_MAINT,     // is index maint. allowed on nonaud. tables?
-  INSERT_VSBB,                    // insert VSBB options
-  VSBB_TEST_MODE,                 // Bypass heuristics for VSBB selection.
-  DISABLE_BUFFERED_INSERTS,       // Use only single row inserts.
+  UPD_ORDERED,                 // require ins/upd/del rows to be ordered
+  USE_TRIGGER,                 // whether use trigger
+  IUD_NONAUDITED_INDEX_MAINT,  // is index maint. allowed on nonaud. tables?
+  INSERT_VSBB,                 // insert VSBB options
+  VSBB_TEST_MODE,              // Bypass heuristics for VSBB selection.
+  DISABLE_BUFFERED_INSERTS,    // Use only single row inserts.
 
   // for IUD operations, this default indicates whether a transaction needs
   // to be rolled back on error(ON), not rolled back(OFF), or let the
@@ -1153,15 +1136,15 @@ enum DefaultConstants
   MDAM_CPUCOST_NET_PER_PRED,
   MDAM_SCAN_METHOD,
   //---------------------------------------------------------------------------
-  //Used to control agressiveness of executor predicate replication minimization
+  // Used to control agressiveness of executor predicate replication minimization
   ALLOW_INPUT_PRED_REPLICATION_REDUCTION,
 
   //---------------------------------------------------------------------------
-  //Following three defaults were added in conjunction to index elimination project.
+  // Following three defaults were added in conjunction to index elimination project.
 
-  //We calculate the promise of index join using the initial inputEstLogProp.
-  //In FileScanRule::nextSubstitute() we need to ensure that context inputEstLogProp
-  //cardinality is not less than acceptable error * cardinality of initial
+  // We calculate the promise of index join using the initial inputEstLogProp.
+  // In FileScanRule::nextSubstitute() we need to ensure that context inputEstLogProp
+  // cardinality is not less than acceptable error * cardinality of initial
   // estlogprop
   //----------------------------------------------------------------------------
   ACCEPTABLE_INPUTESTLOGPROP_ERROR,
@@ -1170,12 +1153,12 @@ enum DefaultConstants
   // not good for mdam. Look at IndexDesc.cpp for more detail.
   MDAM_SELECTION_DEFAULT,
 
-  //How many blocks do we read ahead for a sequential scan of a file.
+  // How many blocks do we read ahead for a sequential scan of a file.
   READ_AHEAD_MAX_BLOCKS,
 
   TABLELOCK,
   TIMEOUT,
-  STREAM_TIMEOUT,		// BertBert VV
+  STREAM_TIMEOUT,  // BertBert VV
   UNAVAILABLE_PARTITION,
   //	ACCESS_OPTION,
   //	ACCESS_PATH,
@@ -1190,18 +1173,16 @@ enum DefaultConstants
   //	SEQUENTIAL_BLOCKSPLIT,
   //	TRANSACTION_MODE,
 
-  ZIG_ZAG_TREES, // Enable 'ON' or disable 'OFF' considering zig-zag trees
-  ZIG_ZAG_TREES_CONTROL, // A heuristic to reduce # of non-promising z-zag nodes
+  ZIG_ZAG_TREES,          // Enable 'ON' or disable 'OFF' considering zig-zag trees
+  ZIG_ZAG_TREES_CONTROL,  // A heuristic to reduce # of non-promising z-zag nodes
 
   RECOMPILATION_WARNINGS,
 
   SHOWCONTROL_SHOW_ALL,
   NAMETYPE,
 
-
   NATIONAL_CHARSET,
   TERMINAL_CHARSET,
-
 
   //--------------------------------------------------------------------------
   // Enable character set inference for ODBC 2.X.
@@ -1296,11 +1277,11 @@ enum DefaultConstants
   COMP_BOOL_18,
   COMP_BOOL_19,
   COMP_BOOL_20,
-  COMP_BOOL_21, // used by generator
+  COMP_BOOL_21,  // used by generator
   COMP_BOOL_22,
   COMP_BOOL_23,
-  COMP_BOOL_24, // used by generator
-  COMP_BOOL_25, // used by generator
+  COMP_BOOL_24,  // used by generator
+  COMP_BOOL_25,  // used by generator
   COMP_BOOL_27,
   COMP_BOOL_28,
   COMP_BOOL_29,
@@ -1361,7 +1342,7 @@ enum DefaultConstants
   COMP_BOOL_87,
   COMP_BOOL_88,
   COMP_BOOL_90,
-  COMP_BOOL_91, // used by generator
+  COMP_BOOL_91,  // used by generator
   COMP_BOOL_92,
   COMP_BOOL_93,
   COMP_BOOL_94,
@@ -1390,13 +1371,13 @@ enum DefaultConstants
 
   VARCHAR_PARAM_DEFAULT_SIZE,
 
-  //currently for dynamic parameter in function instr()
+  // currently for dynamic parameter in function instr()
   VARCHAR_PARAM_DEFAULT_SIZE_IN_FUNCTION,
 
-  EXPRESSION_HISTOGRAMS,     // if 'OFF', compiler will not use expression
-                             // histograms for selectivity and cardinality
-                             // estimation; default is 'OFF' until this 
-                             // feature is product quality
+  EXPRESSION_HISTOGRAMS,  // if 'OFF', compiler will not use expression
+                          // histograms for selectivity and cardinality
+                          // estimation; default is 'OFF' until this
+                          // feature is product quality
 
   // ----------------------------------------------------------------------
   // If enabled (ON), indicates that query processing is to be done
@@ -1423,12 +1404,10 @@ enum DefaultConstants
   // -------------------------------------------------------------------------
   REF_CONSTRAINT_NO_ACTION_LIKE_RESTRICT,
 
-
   GEN_SORT_MAX_NUM_BUFFERS,
   GEN_SORT_TOPN,
 
-  SORT_ALGO,            // Sort algorithm choice
-
+  SORT_ALGO,  // Sort algorithm choice
 
   // -------------------------------------------------------------------------
   // Specifies what percentage of smaller table in join, should be used as
@@ -1444,7 +1423,6 @@ enum DefaultConstants
   // when ON, else use that as a DCMPASSERT.
   // -------------------------------------------------------------------------
   USE_CCMPASSERT_AS_CMPASSERT,
-
 
   NEW_OPT_DRIVER,
   FORCE_PASS_ONE,
@@ -1504,17 +1482,15 @@ enum DefaultConstants
   //--------------------------------------------------------------------------
   VALIDATE_VIEWS_AT_OPEN_TIME,
 
-  //10-040621-7139-begin
+  // 10-040621-7139-begin
   INTERACTIVE_ACCESS,
-  //10-040621-7139-end
+  // 10-040621-7139-end
 
-  
-  //Support transactions for DDL operations.
+  // Support transactions for DDL operations.
   DDL_TRANSACTIONS,
-  
+
   // controls various optimizations, see enum QueryOptimizationOptions.
   QUERY_OPTIMIZATION_OPTIONS,
-
 
   // force use of Method-of-Moments UEC estimator in update stats
   USTAT_FORCE_MOM_ESTIMATOR,
@@ -1525,18 +1501,16 @@ enum DefaultConstants
   // turn on and off olt query optimizations. Default is ON.
   EID_SPACE_USAGE_OPT,
 
-
   // partition threshold to control partition size when update statistics
   // temporary sample table is created
   HIST_SCRATCH_VOL_THRESHOLD,
 
-
   // Allows users to specify SYSKEY value. In other words
   // the system does not generate one.
-  OVERRIDE_SYSKEY ,
+  OVERRIDE_SYSKEY,
 
   //--------------------------------------------------------------------------
-  //External sort involves both READ and WRITE operation, where as the DISK
+  // External sort involves both READ and WRITE operation, where as the DISK
   // IO rate is only for READ. We need to multiply the elapsed time by this
   // factor.
   //--------------------------------------------------------------------------
@@ -1561,7 +1535,6 @@ enum DefaultConstants
   // allows user to turn ON/OFF the ROWSET_ROW_COUNT feature.
   ROWSET_ROW_COUNT,
 
-
   // POS
   POS,
 
@@ -1574,16 +1547,13 @@ enum DefaultConstants
   HGB_MAX_TABLE_SIZE_FOR_CLUSTERS,
   HGB_MEMORY_AVAILABLE_FOR_CLUSTERS,
 
-
-  //Allows user to specify default SAMPLE limits that should be used during fetchcount
+  // Allows user to specify default SAMPLE limits that should be used during fetchcount
   HIST_DEFAULT_SAMPLE_MIN,
   HIST_DEFAULT_SAMPLE_MAX,
   HIST_DEFAULT_SAMPLE_RATIO,
 
-
   // EMS events
   USER_EXPERIENCE_LEVEL,
-
 
   // Starting size of Partition Access's parent queues.
   DYN_PA_QUEUE_RESIZE_INIT_DOWN,
@@ -1601,7 +1571,7 @@ enum DefaultConstants
 
   CONSTANT_FOLDING,
 
-  OPTIMIZE_LARGE_VARCHAR,     // control if we use the varchar true length 
+  OPTIMIZE_LARGE_VARCHAR,  // control if we use the varchar true length
 
   QUERY_CACHE_TABLENAME,
 
@@ -1611,8 +1581,8 @@ enum DefaultConstants
 
   ISOLATION_LEVEL_FOR_UPDATES,
 
-  //HISTOGRAMS: If the UEC for a column is <= HIST_LOW_UEC_THRESHOLD, then
-  //the histogram generated will have 1 interval per unique value.
+  // HISTOGRAMS: If the UEC for a column is <= HIST_LOW_UEC_THRESHOLD, then
+  // the histogram generated will have 1 interval per unique value.
   HIST_LOW_UEC_THRESHOLD,
 
   DESTROY_ORDER_AFTER_REPARTITIONING,
@@ -1621,15 +1591,12 @@ enum DefaultConstants
 
   ALLOW_RANGE_PARTITIONING,
 
+  SORT_MAX_HEAP_SIZE_MB,  // Heap memory for SORT operator in megabytes.
 
-  SORT_MAX_HEAP_SIZE_MB,   //Heap memory for SORT operator in megabytes.
-
-
-// Optimization to expand any "short" rows found in tables with added columns
+  // Optimization to expand any "short" rows found in tables with added columns
   EXPAND_DP2_SHORT_ROWS,
 
   MVGROUP_AUTOMATIC_CREATION,
-
 
   // Allow RequireApproximatelyNPartitions::realize() to use one of three
   // hash partitioning schemes: 0 - HashPartitioningFunction,
@@ -1638,7 +1605,6 @@ enum DefaultConstants
 
   // Use conservative hash2 grouping
   OLD_HASH2_GROUPING,
-
 
   COMP_INT_10,
   COMP_INT_11,
@@ -1795,7 +1761,6 @@ enum DefaultConstants
 
   HIST_OPTIMISTIC_CARD_OPTIMIZATION,
 
-
   // System IDentity buffer specification
   GEN_SID_BUFFER_SIZE,
   GEN_SID_NUM_BUFFERS,
@@ -1804,20 +1769,16 @@ enum DefaultConstants
   GEN_HGBY_PARTIAL_GROUP_FLUSH_THRESHOLD,
   GEN_HGBY_PARTIAL_GROUP_ROWS_PER_CLUSTER,
 
-
   ALLOW_DP2_ROW_SAMPLING,
 
   INCORPORATE_SKEW_IN_COSTING,
   TOTAL_RESOURCE_COSTING,
 
-
-
   USE_PARALLEL_FOR_NUM_PARTITIONS,
 
-  EXE_DIAGNOSTIC_EVENTS,    // Sends various executor diagnostics to EMS
+  EXE_DIAGNOSTIC_EVENTS,  // Sends various executor diagnostics to EMS
 
   SHARE_TEMPLATE_CACHED_PLANS,
-
 
   // to enable special mode 1. Currently enabled for  release.
   MODE_SPECIAL_1,
@@ -1844,11 +1805,10 @@ enum DefaultConstants
 
   HIST_DEFAULT_NUMBER_OF_INTERVALS,
 
-
- SESSION_USERNAME,
+  SESSION_USERNAME,
 
   // For DBLimits project
-  DP2_CACHE_8K_BLOCKS ,
+  DP2_CACHE_8K_BLOCKS,
   DP2_CACHE_16K_BLOCKS,
   DP2_CACHE_32K_BLOCKS,
 
@@ -1857,25 +1817,23 @@ enum DefaultConstants
 
   GEN_DBLIMITS_LARGER_BUFSIZE,
 
-
-
   FORCE_PARALLEL_INSERT_SELECT,
 
-    // For stored procedure result sets
+  // For stored procedure result sets
   GEN_UDRRS_BUFFER_SIZE,
   GEN_UDRRS_NUM_BUFFERS,
-  GEN_UDRRS_SIZE_DOWN  ,
-  GEN_UDRRS_SIZE_UP    ,
+  GEN_UDRRS_SIZE_DOWN,
+  GEN_UDRRS_SIZE_UP,
 
   ALLOW_UNEXTERNALIZED_MAINTAIN_OPTIONS,
 
-  EXE_MEMORY_AVAILABLE_IN_MB, // Mem size (MB) in ESP available for BMOs
+  EXE_MEMORY_AVAILABLE_IN_MB,  // Mem size (MB) in ESP available for BMOs
 
-  EXE_MEMORY_FOR_PARTIALHGB_IN_MB, // Mem size (MB) in ESP available
-                                   // for partial hash groupby.
+  EXE_MEMORY_FOR_PARTIALHGB_IN_MB,  // Mem size (MB) in ESP available
+                                    // for partial hash groupby.
   SSD_BMO_MAX_MEM_THRESHOLD_IN_MB,
 
-  NAR_DEPOBJ_ENABLE ,
+  NAR_DEPOBJ_ENABLE,
 
   // For Adaptive Segmentation (aka Virtual Segmentation, Adaptive
   // parallelism control)
@@ -1889,9 +1847,6 @@ enum DefaultConstants
   WORK_UNIT_ESP,
   WORK_UNIT_ESP_DATA_COPY_COST,
 
-
-
-
   MV_REFRESH_MDELTA_MAX_DELTAS_THRESHOLD,
   MV_REFRESH_MDELTA_MAX_JOIN_SIZE_FOR_SINGLE_PHASE,
   MV_REFRESH_MDELTA_MIN_JOIN_SIZE_FOR_SINGLE_PRODUCT_PHASE,
@@ -1900,13 +1855,13 @@ enum DefaultConstants
   // Enable 'ON' or disable 'OFF' merge join overflow
   MJ_OVERFLOW,
 
-  SKEW_EXPLAIN,            // embed skew-buster plan details in EXPLAIN output
-  SKEW_ROWCOUNT_THRESHOLD, // minimal row count for skew-buster to be active
+  SKEW_EXPLAIN,             // embed skew-buster plan details in EXPLAIN output
+  SKEW_ROWCOUNT_THRESHOLD,  // minimal row count for skew-buster to be active
 
   // Percentage of BMO memory quota "equal share" used by merge join.
   MJ_BMO_QUOTA_PERCENT,
 
-  SKEW_SENSITIVITY_THRESHOLD, // skew threshold value
+  SKEW_SENSITIVITY_THRESHOLD,  // skew threshold value
 
   // Enable use of internal sorting/grouping for Update Stats instead of doing
   // it in a query.
@@ -1943,11 +1898,10 @@ enum DefaultConstants
 
   CREATE_OBJECTS_IN_METADATA_ONLY,
 
-
   // ON/OFF flag to invoke ghost objects
   ALLOW_GHOST_OBJECTS,
 
- //Sort to use memory quota system.
+  // Sort to use memory quota system.
   SORT_MEMORY_QUOTA_SYSTEM,
 
   // New charsets
@@ -1971,21 +1925,19 @@ enum DefaultConstants
   // Tables are closed if user id changes.
   REUSE_OPENS,
 
-
   // Self-referencing updates.
   BLOCK_TO_PREVENT_HALLOWEEN,
   R2_HALLOWEEN_SUPPORT,
   // Adding for RangeSpec transformation of selection predicates.
   RANGESPEC_TRANSFORMATION,
   HIST_ASSUME_INDEPENDENT_REDUCTION,
-  HIST_USE_SAMPLE_FOR_CARDINALITY_ESTIMATION ,
+  HIST_USE_SAMPLE_FOR_CARDINALITY_ESTIMATION,
 
   EXE_PARALLEL_DDL,
 
   ALLOW_MULTIDEGREE_SUBQ_IN_SELECTLIST,
   ALLOW_SUBQ_IN_SET,
   ALLOW_RENAME_OF_MVF_OR_SUBQ,
-
 
   NSK_DBG_SHOW_TREE_AFTER_SEMANTIC_QUERY_OPTIMIZATION,
   SUBQUERY_UNNESTING,
@@ -2000,7 +1952,7 @@ enum DefaultConstants
   //   rows the routine can return for each row passed in (maximum).
   // The UEC value is an average UEC for a routine. For scalarUDFs it
   //   is usually 1.
- 
+
   INITIAL_UDF_CPU_COST,
   INITIAL_UDF_IO_COST,
   INITIAL_UDF_MSG_COST,
@@ -2040,7 +1992,6 @@ enum DefaultConstants
   // Memory limit per Esp for BMOs
   BMO_MEMORY_SIZE,
 
-
   // Compress plan fragments downloaded to ESPs (ESP and DP2 frags)
   FRAG_COMPRESSION_THRESHOLD,
 
@@ -2049,8 +2000,6 @@ enum DefaultConstants
 
   // Generate leaner expressions in all fragments
   GEN_LEANER_EXPRESSIONS,
-
-
 
   POS_DISK_POOL,
 
@@ -2064,8 +2013,8 @@ enum DefaultConstants
 
   // Disable the mechanism for triggering overflow early based on hints
   // given by the compiler (currently used only by SORT and (non unique) HJ).
-  EXE_BMO_DISABLE_CMP_HINTS_OVERFLOW_HASH,   // for the Hash Operators
-  EXE_BMO_DISABLE_CMP_HINTS_OVERFLOW_SORT,   // for Sort
+  EXE_BMO_DISABLE_CMP_HINTS_OVERFLOW_HASH,  // for the Hash Operators
+  EXE_BMO_DISABLE_CMP_HINTS_OVERFLOW_SORT,  // for Sort
 
   // Minimal memory size of a BMO before checking for system memory pressure
   // and compiler hints for early overflow (to avoid "thrashing" at low mem)
@@ -2074,7 +2023,7 @@ enum DefaultConstants
   // The following 3 are only for testing overflow
   EXE_TEST_FORCE_CLUSTER_SPLIT_AFTER_MB,
   EXE_TEST_FORCE_HASH_LOOP_AFTER_NUM_BUFFERS,
-  EXE_TEST_HASH_FORCE_OVERFLOW_EVERY, 
+  EXE_TEST_HASH_FORCE_OVERFLOW_EVERY,
 
   // Force HJ to use at least that many clusters
   EXE_HJ_MIN_NUM_CLUSTERS,
@@ -2160,10 +2109,8 @@ enum DefaultConstants
   // to be the clustering key.
   VOLATILE_TABLE_FIND_SUITABLE_KEY,
 
-
-// Allows pcodes for varchars
+  // Allows pcodes for varchars
   VARCHAR_PCODE,
-
 
   // if set to ON, then isolation level (read committed, etc) could be
   // specified in a regular CREATE VIEW (not a create MV) statement.
@@ -2181,12 +2128,10 @@ enum DefaultConstants
   GEN_ONLJ_SET_QUEUE_RIGHT,
   GEN_ONLJ_SET_QUEUE_LEFT,
 
-  
   SORT_REC_THRESHOLD,
   SORT_MERGE_BUFFER_UNIT_56KB,
 
-
- PARTIAL_SORT_ADJST_FCTR,
+  PARTIAL_SORT_ADJST_FCTR,
   SCRATCH_MAX_OPENS_HASH,
   SCRATCH_MAX_OPENS_SORT,
   SCRATCH_DISK_LOGGING,
@@ -2200,22 +2145,21 @@ enum DefaultConstants
 
   ELIMINATE_REDUNDANT_JOINS,
   MULTI_PASS_JOIN_ELIM_LIMIT,
-// Used to modify the timeout for the internal maintain control
+  // Used to modify the timeout for the internal maintain control
   // information table
 
   MAINTAIN_CONTROL_TABLE_TIMEOUT,
 
-  //OCB Cost adjustment factor
+  // OCB Cost adjustment factor
   OCB_COST_ADJSTFCTR,
-
 
   // Flags for enabling/disabling optimizations within advanced PCODE
   // optimization framework
   PCODE_OPT_FLAGS,
 
-  USTAT_SAMPLE_PERCENT_DIFF,   // percentage diff allowed to use old sample in FetchCount().
-  USTAT_DEBUG_TEST,            // settings for testing ustat, normally empty.
- 
+  USTAT_SAMPLE_PERCENT_DIFF,  // percentage diff allowed to use old sample in FetchCount().
+  USTAT_DEBUG_TEST,           // settings for testing ustat, normally empty.
+
   // Disallow/Allow left joins in MultiJoin framework
   LEFT_JOINS_SPOIL_JBB,
 
@@ -2230,10 +2174,6 @@ enum DefaultConstants
 
   // Disallow/Allow routine joins in MultiJoin framework
   ROUTINE_JOINS_SPOIL_JBB,
-  
-
-
-
 
   // Specify the node
   UNIQUE_HASH_JOINS,
@@ -2244,14 +2184,11 @@ enum DefaultConstants
   // catalog where maintain database is maintained
   MAINTAIN_CATALOG,
 
-
-
   // turn on and off lean olt query optimizations. Default is OFF.
   OLT_QUERY_OPT_LEAN,
 
- // Specify the file that logs certain MXCMP errors.
+  // Specify the file that logs certain MXCMP errors.
   CMP_ERR_LOG_FILE,
-
 
   // override the source schema with the target schema
   // SOURCE_SCHEMA:TARGET_SCHEMA
@@ -2275,12 +2212,11 @@ enum DefaultConstants
   // internal (query cache recompile) events.
   AUTO_QUERY_RETRY_WARNINGS,
 
-
   DISABLE_READ_ONLY,
 
   // perform substring transformation (ICBC PoC)
   SUBSTRING_TRANSFORMATION,
-  //Support MultiWindow OLAP Functions in one single select list
+  // Support MultiWindow OLAP Functions in one single select list
   OLAP_MULTIWINDOWS,
 
   // by default, a primary key or unique constraint must be non-nullable.
@@ -2288,7 +2224,7 @@ enum DefaultConstants
   // The default value is OFF.
   ALLOW_NULLABLE_UNIQUE_KEY_CONSTRAINT,
 
-  // if set to ON, then ORDER BY could be 
+  // if set to ON, then ORDER BY could be
   // specified in a regular CREATE VIEW (not a create MV) statement.
   ALLOW_ORDER_BY_IN_CREATE_VIEW,
 
@@ -2296,19 +2232,18 @@ enum DefaultConstants
   // specified in a subquery
   ALLOW_ORDER_BY_IN_SUBQUERIES,
 
-
   EXE_LOG_RETRY_IPC,
 
   ALLOW_IMPLICIT_CHAR_CASTING,
-  
+
   IN_MEMORY_OBJECT_DEFN,
 
   // Update statistics command updates the histogram tables of the schema
-  // where the table is created. 
-  // 
+  // where the table is created.
+  //
   // This default points to the schema whose histogram tables, instead of
-  // the original table's histogram tables, are to be updated during an 
-  // 'update statistics' command. 
+  // the original table's histogram tables, are to be updated during an
+  // 'update statistics' command.
   HISTOGRAMS_SCHEMA,
 
   // specifying a pre-existing file with sampled rows for update stats
@@ -2329,19 +2264,15 @@ enum DefaultConstants
   // If set to OFF, place all metadata tables on the same volume.
   CAT_DISTRIBUTE_METADATA,
 
-
-
   // Pubsub holdable cursor is not closed on rollback by default
-  // But, ANSI standard expects the holdable cursor to be closed on rollback 
+  // But, ANSI standard expects the holdable cursor to be closed on rollback
   PSHOLD_CLOSE_ON_ROLLBACK,
-  // To ensure the Pubsub holdable cursor is fetched after commit in case of 
+  // To ensure the Pubsub holdable cursor is fetched after commit in case of
   // positioned update/deletes. Pubsub holdable cursor is not checked for this
   // condition by default
   PSHOLD_UPDATE_BEFORE_FETCH,
 
-
   // Added to test lazy update issues
-
 
   // Update statistics automation CQDs to allow for automation settings.
   USTAT_AUTO_READTIME_UPDATE_INTERVAL,
@@ -2351,11 +2282,9 @@ enum DefaultConstants
   // SQLARK_EXPLODED_FORMAT
   COMPRESSED_INTERNAL_FORMAT,
 
-
   // Enables possibility of performing a bulk move of nullable column values
   // and variable length column values.
   BULK_MOVE_NULL_VARCHAR,
-
 
   // display detailed MV information. Default is OFF
   MV_DUMP_DEBUG_INFO,
@@ -2365,15 +2294,15 @@ enum DefaultConstants
   COMPILER_TRACKING_LOGFILE,
   COMPILER_TRACKING_LOGTABLE,
 
-  // allow the frequency of the 1st and the 2nd mostly occurred values to 
+  // allow the frequency of the 1st and the 2nd mostly occurred values to
   // be used in max cardinality and local predicate evaluation.
   HIST_USE_HIGH_FREQUENCY_INFO,
   USTAT_SHOW_MFV_INFO,
 
-  // These CQDs are reserved for NCM. These are mostly used for 
-  // internal testing, turning on/off features for debugging, and for tuning. 
-  // In normal situations, these will not be externalized in keeping 
-  // with the very few CQDs philosophy of NCM. 
+  // These CQDs are reserved for NCM. These are mostly used for
+  // internal testing, turning on/off features for debugging, and for tuning.
+  // In normal situations, these will not be externalized in keeping
+  // with the very few CQDs philosophy of NCM.
   // These are applicable only in conjunction with SIMPLE_COST_MODEL 'on'.
   NCM_CACHE_SIZE_IN_BLOCKS,
   NCM_COSTLIMIT_FACTOR,
@@ -2410,39 +2339,35 @@ enum DefaultConstants
   ESP_MULTI_FRAGMENTS,
   ESP_NUM_FRAGMENTS,
   ESP_MULTI_FRAGMENT_QUOTA_VM,
-  EXE_SINGLE_BMO_QUOTA, // Quota system applys to fragments with single BMO
+  EXE_SINGLE_BMO_QUOTA,  // Quota system applys to fragments with single BMO
 
   // Fudge factor for tupleList under NJ cost estimation
   CPUCOST_NJ_TUPLST_FF,
 
-
-
   REPLICATE_ALLOW_ROLES,
 
-
-  COMP_BOOL_226, // enable UNLOAD feature
+  COMP_BOOL_226,  // enable UNLOAD feature
 
   OR_PRED_TO_JUMPTABLE,
   OR_PRED_TO_SEMIJOIN,
   OR_PRED_TO_SEMIJOIN_TABLE_MIN_SIZE,
   OR_PRED_TO_SEMIJOIN_PROBES_MAX_RATIO,
 
-
   // Total mem size (MB) for a query
-  BMO_MEMORY_LIMIT_PER_NODE_IN_MB, 
+  BMO_MEMORY_LIMIT_PER_NODE_IN_MB,
 
-  // lower-bound memory limit for BMOs 
+  // lower-bound memory limit for BMOs
   BMO_MEMORY_LIMIT_LOWER_BOUND_HASHJOIN,
   EXE_MEMORY_LIMIT_LOWER_BOUND_MERGEJOIN,
-  BMO_MEMORY_LIMIT_LOWER_BOUND_HASHGROUPBY ,
-  BMO_MEMORY_LIMIT_LOWER_BOUND_SORT ,
+  BMO_MEMORY_LIMIT_LOWER_BOUND_HASHGROUPBY,
+  BMO_MEMORY_LIMIT_LOWER_BOUND_SORT,
 
-  // lower-bound memory limit for nBMOs 
-  EXE_MEMORY_LIMIT_LOWER_BOUND_SEQUENCE ,
-  EXE_MEMORY_LIMIT_LOWER_BOUND_EXCHANGE ,
+  // lower-bound memory limit for nBMOs
+  EXE_MEMORY_LIMIT_LOWER_BOUND_SEQUENCE,
+  EXE_MEMORY_LIMIT_LOWER_BOUND_EXCHANGE,
 
   // Limit CPU time a query can use in master, ESP, or DP2.  Unit is seconds.
-  QUERY_LIMIT_SQL_PROCESS_CPU, 
+  QUERY_LIMIT_SQL_PROCESS_CPU,
   QUERY_LIMIT_SQL_PROCESS_CPU_DEBUG,
   QUERY_LIMIT_SQL_PROCESS_CPU_XPROD,
 
@@ -2450,7 +2375,6 @@ enum DefaultConstants
   MV_LOG_CLEANUP_USE_MULTI_COMMIT,
   COMP_BOOL_221,
   OVERFLOW_MODE,
-
 
   POS_TEST_NUM_NODES,
 
@@ -2463,8 +2387,6 @@ enum DefaultConstants
   // for schema access control
   DEFAULT_SCHEMA_ACCESS_ONLY,
 
-
-
   // To control ESP exchange memory usage
   GEN_EXCHANGE_MAX_MEM_IN_KB,
   GEN_EXCHANGE_MSG_COUNT,
@@ -2474,11 +2396,10 @@ enum DefaultConstants
   // enable explain for ddl and ctas
   DDL_EXPLAIN,
 
-
   // the number of ESPs that will be dealing with skew in OCR nested joins
   NESTED_JOINS_ANTISKEW_ESPS,
 
-  //ANSI NULL SEMANTICS CQD
+  // ANSI NULL SEMANTICS CQD
   // hash anti semi join optimization project
   NOT_IN_ANSI_NULL_SEMANTICS,
   NOT_IN_OPTIMIZATION,
@@ -2492,26 +2413,26 @@ enum DefaultConstants
   CASCADED_GROUPBY_TRANSFORMATION,
 
   // Use large queues on RHS of Flow/Nested Join when appropriate.
-  USE_LARGE_QUEUES ,
+  USE_LARGE_QUEUES,
 
-  //OLAP CQDs
-  //GEN_SEQFUNC_OLAP_BUFFER_SIZE,
+  // OLAP CQDs
+  // GEN_SEQFUNC_OLAP_BUFFER_SIZE,
   OLAP_BUFFER_SIZE,
   OLAP_MAX_NUMBER_OF_BUFFERS,
   OLAP_CAN_INVERSE_ORDER,
   OLAP_MAX_FIXED_WINDOW_FRAME,
-  //used mainly for testing, ignored when set to 0
-  //specifies the maximum number of rows per olap buffer
+  // used mainly for testing, ignored when set to 0
+  // specifies the maximum number of rows per olap buffer
   OLAP_MAX_ROWS_IN_OLAP_BUFFER,
-  //aplies for fixed window-- number of additional oplap buffers
-  //to allocate on top of the minumum numbers 
+  // aplies for fixed window-- number of additional oplap buffers
+  // to allocate on top of the minumum numbers
   OLAP_MAX_FIXED_WINDOW_EXTRA_BUFFERS,
 
   // create frequent value list for tuple list if the elements in the list are
   // below this threshold
   HIST_TUPLE_FREQVAL_LIST_THRESHOLD,
 
-// Gen Sol:10-100408-9393
+  // Gen Sol:10-100408-9393
   ALLOW_RISKY_UPDATE_WITH_NO_ROLLBACK,
 
   // used for controlling multi-join transformation level.
@@ -2520,13 +2441,13 @@ enum DefaultConstants
   // CLI caller to redrive CTAS(create table as) for child query monitoring
   REDRIVE_CTAS,
 
-  // type a CASE expression or ValueIdUnion as varchar if its leaves 
+  // type a CASE expression or ValueIdUnion as varchar if its leaves
   // are of type CHAR of unequal length
   TYPE_UNIONED_CHAR_AS_VARCHAR,
 
   // enable special features to be used for compatability with certain vendors.
   MODE_SPECIAL_4,
-  
+
   // enable compatibility with famous O
   MODE_COMPATIBLE_1,
 
@@ -2537,7 +2458,7 @@ enum DefaultConstants
   SHOWDDL_DISPLAY_PRIVILEGE_GRANTS,
 
   // ***** END REGULAR DEFAULTS *********************************
-  
+
   // Add regular default values (CQDs) before this line.
   // Add session defaults below this line.
 
@@ -2579,10 +2500,9 @@ enum DefaultConstants
   HIST_FREQ_VALS_NULL_FIX,
   HIST_MERGE_FREQ_VALS_FIX,
   HIST_SKEW_COST_ADJUSTMENT,
-  USTAT_AUTO_MC_MAX_WIDTH, 
+  USTAT_AUTO_MC_MAX_WIDTH,
   USTAT_USE_INTERNAL_SORT_FOR_MC,
   USTAT_IS_IGNORE_UEC_FOR_MC,
-
 
   NSK_DBG_QUERY_LOGGING_ONLY,
   RISK_PREMIUM_SERIAL_SCALEBACK_MAXCARD_THRESHOLD,
@@ -2604,9 +2524,9 @@ enum DefaultConstants
 
   // SeaMonster messaging
   SEAMONSTER,
-  
+
   CAT_LIBRARY_PATH_RELATIVE,
-  
+
   MDAM_UNDER_NJ_PROBES_THRESHOLD,
 
   MDOP_CPUS_PENALTY,
@@ -2614,7 +2534,7 @@ enum DefaultConstants
   MDOP_MEMORY_PENALTY,
   SORT_INTERMEDIATE_SCRATCH_CLEANUP,
 
-  //CQDs to control CIF for HJ,HGB,Sort and Exchange operators
+  // CQDs to control CIF for HJ,HGB,Sort and Exchange operators
   COMPRESSED_INTERNAL_FORMAT_BMO,
   DISPLAY_DIVISION_BY_COLUMNS,
   MTD_GENERATE_CC_PREDS,
@@ -2626,44 +2546,42 @@ enum DefaultConstants
   COMPRESSED_INTERNAL_FORMAT_EXPLAIN,
   COMPRESSED_INTERNAL_FORMAT_DEFRAG_RATIO,
 
-
-    //for generate user querycache
-    GENERATE_USER_QUERYCACHE,
-    GENERATE_USER_QUERYCACHE_PRIV_CHECK,
-    GENERATE_USER_QUERYCACHE_MAX_FILE_IN_MB,
-    GENERATE_USER_QUERYCACHE_MAX_PLANSIZE_IN_MB,
-    GENERATE_USER_QUERYCACHE_DEBUG,
-    GENERATE_USER_QUERYCACHE_KEYWORD, 
-    GENERATE_USER_QUERYCACHE_LOG,
-    GENERATE_USER_QUERYCACHE_REPLACE,
-    GENERATE_USER_QUERYCACHE_NUM_PRELOAD,
-    GENERATE_USER_QUERYCACHE_AUTOCOMMIT_FILTER,
+  // for generate user querycache
+  GENERATE_USER_QUERYCACHE,
+  GENERATE_USER_QUERYCACHE_PRIV_CHECK,
+  GENERATE_USER_QUERYCACHE_MAX_FILE_IN_MB,
+  GENERATE_USER_QUERYCACHE_MAX_PLANSIZE_IN_MB,
+  GENERATE_USER_QUERYCACHE_DEBUG,
+  GENERATE_USER_QUERYCACHE_KEYWORD,
+  GENERATE_USER_QUERYCACHE_LOG,
+  GENERATE_USER_QUERYCACHE_REPLACE,
+  GENERATE_USER_QUERYCACHE_NUM_PRELOAD,
+  GENERATE_USER_QUERYCACHE_AUTOCOMMIT_FILTER,
 
   // Enable the query invalidation processing in catman
   CAT_ENABLE_QUERY_INVALIDATION,
-  
-  
-  MC_SKEW_SENSITIVITY_THRESHOLD, // multi-column skew threshold value
 
-  MTD_MDAM_NJ_UEC_THRESHOLD, // the threshold of the UEC of predicate-less 
-                             // leading key columns of a MTD table, above
-                             // which the MTD table can be the inner table of 
-                             // NJ.
+  MC_SKEW_SENSITIVITY_THRESHOLD,  // multi-column skew threshold value
+
+  MTD_MDAM_NJ_UEC_THRESHOLD,  // the threshold of the UEC of predicate-less
+                              // leading key columns of a MTD table, above
+                              // which the MTD table can be the inner table of
+                              // NJ.
   // this should be used for testing only. DML should not be executed on
   // non-audited tables
   ALLOW_DML_ON_NONAUDITED_TABLE,
 
   CAT_ALLOW_NEW_FEATUREX,  // to turn on and off features
 
-  DOP_ADJUST_ROWCOUNT_THRESHOLD, // the threshold below which dop can 
-                                    // be reduced
+  DOP_ADJUST_ROWCOUNT_THRESHOLD,  // the threshold below which dop can
+                                  // be reduced
 
-  MC_SKEW_INNER_BROADCAST_THRESHOLD, // MC-SB inner side broadcast threshold
-                                     // in bytes
+  MC_SKEW_INNER_BROADCAST_THRESHOLD,  // MC-SB inner side broadcast threshold
+                                      // in bytes
 
   NESTED_JOIN_CACHE_PREDS,
-  //Temporary fix to bypass volatile schema name checking for non-table objects - ALM Case#4764
-  BYPASS_CHECK_FOR_VOLATILE_SCHEMA_NAME, 
+  // Temporary fix to bypass volatile schema name checking for non-table objects - ALM Case#4764
+  BYPASS_CHECK_FOR_VOLATILE_SCHEMA_NAME,
 
   //--------------------------------------------------------------------------
   // Query Invalidation - Debug/Regression test CQDs
@@ -2672,34 +2590,32 @@ enum DefaultConstants
   QI_PRIV,
 
   // The switch to control whether N2J (O(n^2) open) nested joins should
-  // be generated. 
+  // be generated.
   NESTED_JOINS_NO_NSQUARE_OPENS,
 
-  NESTED_JOINS_OCR_GROUPING,   // Hans' fix to check mapped left and right part func. 
+  NESTED_JOINS_OCR_GROUPING,  // Hans' fix to check mapped left and right part func.
 
-  NESTED_JOINS_KEYLESS_INNERJOINS,  // When ON, optimistically allow potential keyless joins 
+  NESTED_JOINS_KEYLESS_INNERJOINS,  // When ON, optimistically allow potential keyless joins
                                     // when the inner contains joins
 
-  MERGE_JOIN_ACCEPT_MULTIPLE_NJ_PROBES, // merge join accepts multiple NJ probes
-
+  MERGE_JOIN_ACCEPT_MULTIPLE_NJ_PROBES,  // merge join accepts multiple NJ probes
 
   // queries coming in from mariaDB interface
   MARIAQUEST_PROCESS,
 
-  //fast extract related
+  // fast extract related
   FAST_EXTRACT_DIAGS,
   FAST_EXTRACT_IO_BUFFERS,
   FAST_EXTRACT_IO_TIMEOUT_SEC,
 
-  
-  REPLICATE_COMPRESSION_TYPE, // Compression type to be used when replicating the DDL
+  REPLICATE_COMPRESSION_TYPE,  // Compression type to be used when replicating the DDL
   // only reorg if ReorgCheck indicates that a reorg is needed.
   // explore fully covered NJ plan
   NESTED_JOINS_FULL_INNER_KEY,
   NESTED_JOINS_CHECK_LEADING_KEY_SKEW,
   NESTED_JOINS_LEADING_KEY_SKEW_THRESHOLD,
 
-  // This CQD controls the display of detailed interval information for MC histograms 
+  // This CQD controls the display of detailed interval information for MC histograms
   // using showstats output
   USTAT_SHOW_MC_INTERVAL_INFO,
 
@@ -2707,7 +2623,7 @@ enum DefaultConstants
   CANCEL_MINIMUM_BLOCKING_INTERVAL,
 
   // propagate child available Btree indexes from child for arity 1 ops
-  GA_PROP_INDEXES_ARITY_1, 
+  GA_PROP_INDEXES_ARITY_1,
   // FAst extract Routines
   GEN_FE_BUFFER_SIZE,
   GEN_FE_NUM_BUFFERS,
@@ -2715,14 +2631,14 @@ enum DefaultConstants
   GEN_FE_SIZE_UP,
   // WMS query monitoring
   WMS_QUERY_MONITORING,
- //WMS child query monitoring,
+  // WMS child query monitoring,
   WMS_CHILD_QUERY_MONITORING,
 
   // size in Mb of the file containing a blob/clob column.
   // size is for all rows for a particular column.
   // Size is expressed in Mbs
   LOB_MAX_SIZE,
-  //Max memory used to tranfer data/perform I/O to lob data file. 
+  // Max memory used to tranfer data/perform I/O to lob data file.
   LOB_MAX_CHUNK_MEM_SIZE,
   LOB_STORAGE_TYPE,
   LOB_HDFS_SERVER,
@@ -2732,12 +2648,12 @@ enum DefaultConstants
   // Should the DISK POOL be turned on when replicating the DDL using COPY DDL
   REPLICATE_DISK_POOL,
 
-  NESTED_JOINS_PLAN3_TRY_SORT, // try sort when plan2 produces a non-sort plan
+  NESTED_JOINS_PLAN3_TRY_SORT,  // try sort when plan2 produces a non-sort plan
 
-  HJ_NEW_MCSB_PLAN, // control the new MCSB feature
-  
-  USTAT_INCREMENTAL_UPDATE_STATISTICS, // main control switch for 
-                                      // incremental update stats (IUS): on / off
+  HJ_NEW_MCSB_PLAN,  // control the new MCSB feature
+
+  USTAT_INCREMENTAL_UPDATE_STATISTICS,  // main control switch for
+                                        // incremental update stats (IUS): on / off
 
   USTAT_INCREMENTAL_FALSE_PROBABILITY,
 
@@ -2758,8 +2674,8 @@ enum DefaultConstants
   USTAT_IUS_MAX_PERSISTENT_DATA_IN_MB,
 
   USTAT_IUS_MAX_PERSISTENT_DATA_IN_PERCENTAGE,
- 
-  USTAT_COLLECT_MC_SKEW_VALUES,   // controls MC skew values
+
+  USTAT_COLLECT_MC_SKEW_VALUES,  // controls MC skew values
 
   HIST_MIN_MAX_OPTIMIZATION,
 
@@ -2774,7 +2690,7 @@ enum DefaultConstants
   USTAT_USE_GROUPING_FOR_SAMPLING,
 
   USTAT_IUS_NO_BLOCK,
-  
+
   HIVE_MAX_STRING_LENGTH_IN_BYTES,
   HIVE_USE_FAKE_TABLE_DESC,
   HIVE_LIB_HDFS_PORT_OVERRIDE,
@@ -2808,7 +2724,7 @@ enum DefaultConstants
   // size of each row in full explain output. Default is 80.
   EXPLAIN_OUTPUT_ROW_SIZE,
 
-  // to avoid stackoverflow when statement is an insert with a large 
+  // to avoid stackoverflow when statement is an insert with a large
   // tuple list
   EXPLAIN_ROOT_INPUT_VARS_MAX,
 
@@ -2825,7 +2741,7 @@ enum DefaultConstants
   HBASE_MAX_COLUMN_VAL_LENGTH,
   HBASE_MAX_COLUMN_INFO_LENGTH,
 
-  // Hbase silently inserts a duplicate row. 
+  // Hbase silently inserts a duplicate row.
   // Hbase doesn't tell whether a row got deleted.
   // if set to ON, follow SQL semantics.
   // Return an error when a duplicate row is inserted.
@@ -2841,10 +2757,10 @@ enum DefaultConstants
   HBASE_MAX_NUM_SEARCH_KEYS,
   CALL_EMBEDDED_ARKCMP,
 
-  // ON, if blocks should be cached for this scan. This includes subset scans used by Update and Delete 
+  // ON, if blocks should be cached for this scan. This includes subset scans used by Update and Delete
   HBASE_CACHE_BLOCKS,
 
-  // minimum number of rows to cache for a scan. Default is 100. 
+  // minimum number of rows to cache for a scan. Default is 100.
   // This includes subset scans used by Update and Delete
   HBASE_NUM_CACHE_ROWS_MIN,
   // maximum number of rows to cache for a scan. Default is 10000.
@@ -2856,7 +2772,7 @@ enum DefaultConstants
   // OFF by default, in closed source. ON by default, in open source.
   SEABASE_VOLATILE_TABLES,
 
-  // During a drop of seabase table or index, the object is first removed from 
+  // During a drop of seabase table or index, the object is first removed from
   // seabase metadata. If that succeeds, the corresponding hbase object is dropped.
   // if set, this drop of hbase table is done in another worker thread. That speeds up the
   // over drop. If a create of the same table comes in later and an error is returned
@@ -2881,12 +2797,10 @@ enum DefaultConstants
   // all DDL statements.
   HBASE_SERIALIZATION,
 
-
   SQLMX_REGRESS,
 
   // For PCODE - Native Expressions work
   PCODE_NE_DBG_LEVEL,
-   
 
   HBASE_ZOOKEEPER_PORT,
 
@@ -2923,15 +2837,12 @@ enum DefaultConstants
   // but can be enabled via this CQD.
   USE_MAINTAIN_CONTROL_TABLE,
 
-
   // if set, then constr validation is skipped during unique, ri or check constr
   // creation. Done if constraints are being created during CREATE TABLE time.
   TRAF_NO_CONSTR_VALIDATION,
 
-
   HBASE_MIN_BYTES_PER_ESP_PARTITION,
   HBASE_MAX_ESPS,
-  
 
   // for testing setjmp/longjmp compiler logic
   MEMORY_LIMIT_CMPCTXT_UPPER_KB,
@@ -2972,7 +2883,7 @@ enum DefaultConstants
   TRAF_LOAD_PREP_ADJUST_PART_FUNC,
   TRAF_LOAD_PREP_TMP_LOCATION,
   TRAF_LOAD_USE_FOR_INDEXES,
-  //log only the overall time of a compilation.
+  // log only the overall time of a compilation.
   COMPILE_TIME_MONITOR_LOG_ALLTIME_ONLY,
 
   TRAF_LOAD_PREP_KEEP_HFILES,
@@ -2995,10 +2906,10 @@ enum DefaultConstants
   HBASE_ENCRYPTION_OPTION,
   HBASE_MEMSTORE_FLUSH_SIZE_OPTION,
   HQC_LOG,
-  HQC_LOG_FILE, // specify the HQC log file name
+  HQC_LOG_FILE,  // specify the HQC log file name
   HYBRID_QUERY_CACHE,
   HQC_MAX_VALUES_PER_KEY,
-  HQC_CONVDOIT_DISABLE_NUMERIC_CHECK, // TEMPORARY CQD - SHOULD REMOVE
+  HQC_CONVDOIT_DISABLE_NUMERIC_CHECK,  // TEMPORARY CQD - SHOULD REMOVE
 
   // if ON limits DoP of Hbase scan to number of partitions
   LIMIT_HBASE_SCAN_DOP,
@@ -3009,7 +2920,7 @@ enum DefaultConstants
   // being declared with an explicit charset.
   TRAF_DEFAULT_COL_CHARSET,
 
-  // if set to ON, then the length specified for a char/varchar datatype is 
+  // if set to ON, then the length specified for a char/varchar datatype is
   // in characters unless it is explicitly qualified as BYTES or CHARACTERS.
   TRAF_COL_LENGTH_IS_CHAR,
 
@@ -3020,7 +2931,7 @@ enum DefaultConstants
   // this is used to change cache size of sequence numbers for a session.
   // It overwrites the cache size that was specified during sequence creation.
   TRAF_SEQUENCE_CACHE_SIZE,
- 
+
   // this is used to set the retry time if two concurrent update of sequence
   // conflict, and how many times will retry
   // by default it is 100, when you saw error 1583, you can try to increase
@@ -3038,13 +2949,12 @@ enum DefaultConstants
 
   TRAF_LOAD_MAX_HFILE_SIZE,
 
-
   USTAT_USE_BULK_LOAD,
 
   // if not null, then add this suffix to the original name and select from that hive table.
   USE_HIVE_SOURCE,
 
-  // if set to ON, then query is not run as part of an enclosing DTM transaction 
+  // if set to ON, then query is not run as part of an enclosing DTM transaction
   // nor is a transaction started to execute it.
   // It is run using underlying hbase single row transaction consistency.
   TRAF_NO_DTM_XN,
@@ -3062,7 +2972,7 @@ enum DefaultConstants
   //  -- auto commit is on
   //  -- a user transaction is not in use
   //  (See generator/GenPreCode.cpp for details).
-  // If all previous conditions are met and this cqd is set to ON, 
+  // If all previous conditions are met and this cqd is set to ON,
   // then hbase xn is used. Otherwise DTM xns are used.
   // Default is OFF.
   TRAF_UNIQUE_IUD_XN_OPT,
@@ -3106,18 +3016,18 @@ enum DefaultConstants
   TRAF_LOAD_ERROR_COUNT_ID,
   TRAF_LOAD_ERROR_LOGGING_LOCATION,
 
-  TRAF_TRANS_TYPE, 
+  TRAF_TRANS_TYPE,
 
   // max size in bytes of a char or varchar column in a trafodion table.
   // Valid values are 0 through MAX_CHAR_COL_LENGTH_IN_BYTES.
   //     (defined in common/ComSmallDefs.h)
   TRAF_MAX_CHARACTER_COL_LENGTH,
 
-  // In special cases, previous default value could be overridden. 
+  // In special cases, previous default value could be overridden.
   // Internal use only or use only under trafodion supervision.
   TRAF_MAX_CHARACTER_COL_LENGTH_OVERRIDE,
   // set when metadata definition is to be read from hardcoded structs
-  // and not from metadata. 
+  // and not from metadata.
 
   // set to limit the number of rows in scanner cache when we have very
   // wide rows. If the rows are too large we may run into an OOM error
@@ -3129,8 +3039,8 @@ enum DefaultConstants
 
   UDR_DEBUG_FLAGS,
 
-  // The threshold on the number of rows scanned in an index join scan. 
-  // If the estimated value is below the threshold, the index will be 
+  // The threshold on the number of rows scanned in an index join scan.
+  // If the estimated value is below the threshold, the index will be
   // subjected to the elimination heuristics.
   INDEX_ELIMINATION_THRESHOLD,
 
@@ -3144,7 +3054,7 @@ enum DefaultConstants
   NCM_HBASE_COSTING,
   NCM_IND_JOIN_SELECTIVITY,
   NCM_IND_SCAN_SELECTIVITY,
-  NCM_SKEW_COST_ADJ_FOR_PROBES, 
+  NCM_SKEW_COST_ADJ_FOR_PROBES,
   PCODE_NE_IN_SHOWPLAN,
   TRAF_TABLE_SNAPSHOT_SCAN,
   TRAF_TABLE_SNAPSHOT_SCAN_TMP_LOCATION,
@@ -3155,7 +3065,6 @@ enum DefaultConstants
   TRAF_TABLE_SNAPSHOT_SCAN_TABLE_SIZE_THRESHOLD,
 
   TRAF_USE_RWRS_FOR_MD_INSERT,
-
 
   PCODE_DEBUG_LOGDIR,
   PCODE_EXPR_CACHE_CMP_ONLY,
@@ -3169,7 +3078,7 @@ enum DefaultConstants
   HBASE_ROWSET_VSBB_SIZE,
   // hbase table block size, default is 64KB
   HBASE_BLOCK_SIZE,
-  // hbase table index level, when zero, index level will be read from Hfile 
+  // hbase table index level, when zero, index level will be read from Hfile
   HBASE_INDEX_LEVEL,
 
   // enable self referencing foreign key constraints
@@ -3181,7 +3090,7 @@ enum DefaultConstants
   // Should be set as an opt when objects are being
   // created in one session (create table, create index, add constraints, etc).
   // Does a fast check to see if source table is empty to validate.
-  TRAF_INDEX_CREATE_OPT, 
+  TRAF_INDEX_CREATE_OPT,
 
   // truncate strings on insert and updates without returning an error.
   TRAF_STRING_AUTO_TRUNCATE,
@@ -3190,9 +3099,9 @@ enum DefaultConstants
   NCM_UDR_NANOSEC_FACTOR,
   HBASE_ASYNC_OPERATIONS,
 
-    AGGR_PUSHDOWN_THRESHOLD,
+  AGGR_PUSHDOWN_THRESHOLD,
 
-  //control lob output size when converting to string/memory 
+  // control lob output size when converting to string/memory
   LOB_OUTPUT_SIZE,
 
   TRAF_MULTI_COL_FAM,
@@ -3201,12 +3110,12 @@ enum DefaultConstants
   USTAT_NAHEAP_ESTIMATED_MAX,
 
   EXE_MEMORY_FOR_PROBE_CACHE_IN_MB,
-  
+
   TRAF_INDEX_ALIGNED_ROW_FORMAT,
 
   UDR_JVM_DEBUG_PORT,
   UDR_JVM_DEBUG_TIMEOUT,
-  //enable HBASE Small Scanner, optimizing scans of size below HFile block size
+  // enable HBASE Small Scanner, optimizing scans of size below HFile block size
   HBASE_SMALL_SCANNER,
 
   TRAF_LOAD_ALLOW_RISKY_INDEX_MAINTENANCE,
@@ -3287,12 +3196,11 @@ enum DefaultConstants
 
   // pushdown preds to Parquet layer
   PARQUET_PRED_PUSHDOWN,
-  
-  // if set, timestamp columns in hive tables are treated 
+
+  // if set, timestamp columns in hive tables are treated
   // as int96 (12-byte binary value). This is the format created by
   // hive 1.1.
   PARQUET_LEGACY_TIMESTAMP_FORMAT,
-
 
   // OFF: no pushdown, evaluated using traditional way (scan and aggr).
   // ON: transform in preCodeGen, eval in Avro layer
@@ -3338,8 +3246,8 @@ enum DefaultConstants
   TRAF_HBASE_MAPPED_TABLES,
   TRAF_HBASE_MAPPED_TABLES_IUD,
 
-  //if 0, regular scanner is used. From 0.x to 1.0, percentage of regions that need to be scanned that will be done in parallel.
-  //if >= 2, set a fixed number of thread, real DOP. 2.0 2 thread, 3.0 3 thread etc.
+  // if 0, regular scanner is used. From 0.x to 1.0, percentage of regions that need to be scanned that will be done in
+  // parallel. if >= 2, set a fixed number of thread, real DOP. 2.0 2 thread, 3.0 3 thread etc.
   HBASE_DOP_PARALLEL_SCANNER,
 
   // bitmap to control various special behavior of HIVE_SCAN
@@ -3349,17 +3257,17 @@ enum DefaultConstants
   HIVE_HDFS_STATS_MAX_SAMPLE_FILES,
   HIVE_HDFS_STATS_SAMPLE_LOB_INTFC,
   HIVE_TREAT_EMPTY_STRING_AS_NULL,
-  //If this string is not empty, 
-  //print ORC file statistics read by CPP reader,
+  // If this string is not empty,
+  // print ORC file statistics read by CPP reader,
   ORC_HDFS_STATS_LOG_FILE,
   // ON: to read number of rows from each ORC data file
   // OFF: skip the reading and fake a row count of 100 per ORC data file
   ORC_READ_NUM_ROWS,
-  //Amount of time transactional and non transactional queries 
-  //loop around when online backup lock is activated. During this
-  //time queries at HtableClient.java and commit work loop until
-  //online backup lock gets unlocked. After this threshold, queries
-  //return error.
+  // Amount of time transactional and non transactional queries
+  // loop around when online backup lock is activated. During this
+  // time queries at HtableClient.java and commit work loop until
+  // online backup lock gets unlocked. After this threshold, queries
+  // return error.
   ONLINE_BACKUP_TIMEOUT,
 
   // if set, data modification check is done at runtime before running
@@ -3374,9 +3282,9 @@ enum DefaultConstants
   NCM_ORC_COSTING_APPLY_SKIP_RATIO,
   NCM_ORC_COSTING_DEBUG,
 
-  // When set to a value >= 0, the Hbase scan DoP will be set to 
+  // When set to a value >= 0, the Hbase scan DoP will be set to
   // that of # of partitions of the table if the scan size is over
-  // this threshold value. 
+  // this threshold value.
   // When set to a value less than 0, turn off the feature.
   HBASE_SCAN_DOP_AS_PARTITIONS_THRESHOLD,
 
@@ -3410,7 +3318,7 @@ enum DefaultConstants
   //       and further processing continues.
   // if 3, null inserted if conversion error, and processing continues.
   HIVE_INSERT_ERROR_MODE,
-  
+
   // If ON, largeint unsigned is supported as returned datatype for a select
   // stmt, and for input params.
   // Otherwise typed as bignum
@@ -3424,7 +3332,6 @@ enum DefaultConstants
   // if TRUE, create signed numeric literal for both +ve and -ve numbers.
   // if FALSE, create unsigned literal for +ve and signed literal for -ve nums.
   TRAF_CREATE_SIGNED_NUMERIC_LITERAL,
-
 
   TRAF_UPSERT_TO_EFF_TREE,
 
@@ -3454,29 +3361,29 @@ enum DefaultConstants
 
   // if ON, aggr pushdown to monarch(ampool) supported
   MONARCH_AGGR_PUSHDOWN,
-  
-  //Number of threads for parallel restore.
-  //Setting to 0 defaults to number of region servers.
+
+  // Number of threads for parallel restore.
+  // Setting to 0 defaults to number of region servers.
   TRAF_RESTORE_PARALLEL,
-  
-  //Number of threads for parallel export/import
+
+  // Number of threads for parallel export/import
   TRAF_EXPORT_IMPORT_PARALLEL,
 
   // Backup table binlog_reader if current cqd is on
   TRAF_BACKUP_INCLUDE_BINLOG,
-  
-  //Number of threads for parallel backup.
-  //Setting to 0 defaults to number of region servers.
+
+  // Number of threads for parallel backup.
+  // Setting to 0 defaults to number of region servers.
   TRAF_BACKUP_PARALLEL,
 
   // Fix a performance issue - don't lookup owner for get backup tags command
   // Remove when performance issue is resolved
   TRAF_BACKUP_SKIP_GET_TAGS_OWNER_LOOKUP,
-  
-  //Force a initialize , drop.
+
+  // Force a initialize , drop.
   INITIALIZE_DROP_FORCE,
 
-  ALLOW_INCOMPATIBLE_OPERATIONS, 
+  ALLOW_INCOMPATIBLE_OPERATIONS,
 
   // if ON: expr and renamed cols allowed in groupby/orderby expr.
   GROUP_OR_ORDER_BY_EXPR,
@@ -3492,9 +3399,9 @@ enum DefaultConstants
   // create it.
   TRAF_AUTO_CREATE_SCHEMA,
 
-  //for caching of hive statistic and improve first time compile before hive stats are in NATable cache.
+  // for caching of hive statistic and improve first time compile before hive stats are in NATable cache.
   HIVE_STATS_CACHING,
-  
+
   // controls if sim check is to be done and where (root or leaf)
   TRAF_SIMILARITY_CHECK,
 
@@ -3553,7 +3460,7 @@ enum DefaultConstants
   HIVE_WORK_UNIT_ESP,
 
   // Define a threshold to cap the total data amount (in MB) that
-  // HJ can broadcast from the inner. Set the CQD to a negative 
+  // HJ can broadcast from the inner. Set the CQD to a negative
   // value to disable the heuristic.
   HJ_BROADCAST_INNER_THRESHOLD_MB,
 
@@ -3572,25 +3479,25 @@ enum DefaultConstants
   BIGTABLE_PROJECT_ID,
   BIGTABLE_INSTANCE_ID,
 
-  // Compute the probe stats for ORC NJ 
-  ORC_NJS_CPS_THRESHOLD,  // row count threshold
-  ORC_NJS_CPS_DEBUG,      // display debug info 
-  ORC_NJS_CPS_TABLE,      // the source table to compute probe stats for
-  ORC_NJS_CPS_MAXCARDINALITY, // the max cardinality threshold for the 
-                              // outer table.
+  // Compute the probe stats for ORC NJ
+  ORC_NJS_CPS_THRESHOLD,       // row count threshold
+  ORC_NJS_CPS_DEBUG,           // display debug info
+  ORC_NJS_CPS_TABLE,           // the source table to compute probe stats for
+  ORC_NJS_CPS_MAXCARDINALITY,  // the max cardinality threshold for the
+                               // outer table.
 
   NCM_ORC_COSTING_DEBUG_TABLE,
 
   GROUP_BY_PUSH_TO_BOTH_SIDES_OF_JOIN,
- 
+
   BMO_MEMORY_LIMIT_UPPER_BOUND,
   BMO_MEMORY_ESTIMATE_RATIO_CAP,
 
   // Controls buffer allocation for ORC scans
-  ORC_READER_ALLOCATE_ROW_LENGTH, // row size in bytes (defaultof zero means use generator estimate)
-  ORC_READER_MAX_ALLOCATION_MB,   // max total allocation in MB (max rows to fill is
-                                  // adjusted downward to fit below this cap)
-  ORC_READER_MAX_ROWS_TO_FILL,    // max num of rows per buffer
+  ORC_READER_ALLOCATE_ROW_LENGTH,  // row size in bytes (defaultof zero means use generator estimate)
+  ORC_READER_MAX_ALLOCATION_MB,    // max total allocation in MB (max rows to fill is
+                                   // adjusted downward to fit below this cap)
+  ORC_READER_MAX_ROWS_TO_FILL,     // max num of rows per buffer
 
   DOP_ADJUST,
   DOP_ADJUST_WORK_UNIT,
@@ -3605,26 +3512,26 @@ enum DefaultConstants
   // Operations on hive objects also register it in traf OBJECTS metadata table,
   // if not already registered. create external table, grant, upd stats, create
   // views are the current operations that also register hive objects.
-  // 
-  // This default is used to simulate the 
+  //
+  // This default is used to simulate the
   // scenario prior to 'hive registration' change. At that time, hive objects
   // were represented by an external table. With this default set, operations
   // on hive could be created without registering them.
   // This default is for internal testing usage only and not externalized.
   HIVE_NO_REGISTER_OBJECTS,
-  
+
   AS_SHIFT_FULL_FRAGMENTS,
   AS_FRAGMENT_SIZE_THRESHOLD,
 
   // if set, specified namespace value is used during create table.
   TRAF_OBJECT_NAMESPACE,
 
-  // report scan key (mdam or serach key) info 
+  // report scan key (mdam or serach key) info
   REPORT_SCAN_KEY_INFO,
-  
-  // Controls the unique column optimization. 
+
+  // Controls the unique column optimization.
   GEN_UNIQUE_COLUMN_OPT,
-  
+
   // if set, contains info related to object(schema, table, index) encryption.
   // See ComEncryption::validateEncryptionInfo for valid values.
   TRAF_OBJECT_ENCRYPTION,
@@ -3657,22 +3564,22 @@ enum DefaultConstants
 
   NCM_HBASE_LIMIT_DOP_IN_COSTING,
 
-  RANGE_OPTIMIZED_SCAN, // max range data length (in bytes)
+  RANGE_OPTIMIZED_SCAN,  // max range data length (in bytes)
 
   // When creating a Trafodion table like a partitioned Hive table
   // use NO NULL attribute for partitin columns
   HIVE_CREATE_TABLE_LIKE_PARTITION_NO_NULL,
-  
+
   // if set to OFF, Trafodion will not create hive partition automatically
   HIVE_PARTITION_AUTO_CREATE,
- 
+
   // tenant groups
   SHOWDDL_DISPLAY_TENANT_GROUPS,
   TRAF_AUTO_REGISTER_GROUP,
   TRAF_AUTO_REGISTER_USER,
 
   // Ratio of BMO_MEMORY_LIMIT_PER_NODE_IN_MB that will be divided
-  // equally across all BMO operators 
+  // equally across all BMO operators
   BMO_MEMORY_EQUAL_QUOTA_SHARE_RATIO,
 
   // IN list optimiation by sending an IN predicate to ORC reader.
@@ -3765,7 +3672,7 @@ enum DefaultConstants
   // if set to 0, do not drop or create hbase objects.
   // if set to 1 (default), create/drop hbase.
   // if set to 2, pthread create/drop
-  // Internal cqd. 
+  // Internal cqd.
   // Default value is 1
   TRAF_HBASE_DROP_CREATE,
 
@@ -3775,11 +3682,11 @@ enum DefaultConstants
   // This internal CQD is used to skip the incremental backup attribute of the checklist
   //  interbal use only
   SKIP_CHECK_FOR_TABLE_IB,
-  
+
   TRAF_INCREMENTAL_BACKUP,
 
   // allowes non-transactional operation on tables with incremantal
-  // backup enabled. Currently used for: 'upsert using load' and 
+  // backup enabled. Currently used for: 'upsert using load' and
   // 'delete with no rollback'
   TRAF_NON_XN_INCR_BACKUP_OPERATION,
 
@@ -3803,16 +3710,16 @@ enum DefaultConstants
   // enable/disable ngram feature, this CQD should be set in DEFAULTS table
   NGRAM_DISABLE_IN_NATABLE,
 
-  RANGE_OPTIMIZED_SCAN_REMOVE_MINMAX, // whether to remove min/max predicate from
-                                      // a scan filter
+  RANGE_OPTIMIZED_SCAN_REMOVE_MINMAX,    // whether to remove min/max predicate from
+                                         // a scan filter
   RANGE_OPTIMIZED_SCAN_MAX_NUM_FILTERS,  // max number of most selective filters
                                          // to apply. 0: no restrictions
 
-  RANGE_OPTIMIZED_SCAN_SELECTIVITY,    // a selectivity threashold equal or above 
-                                       // which a filter will not be applied 
-                                       // in a scan.
+  RANGE_OPTIMIZED_SCAN_SELECTIVITY,  // a selectivity threashold equal or above
+                                     // which a filter will not be applied
+                                     // in a scan.
 
-  RANGE_OPTIMIZED_SCAN_MIN_UEC,  // min UEC in helping determine the size of 
+  RANGE_OPTIMIZED_SCAN_MIN_UEC,  // min UEC in helping determine the size of
                                  // a scan filter.
 
   // dynamic param default charset(ISO88591 or UTF8)
@@ -3820,7 +3727,7 @@ enum DefaultConstants
   // used to debug hive external tables with problematic files
   HIVE_MAX_ERROR_FILES,
 
-  //Hive Straw scanner feature on/off
+  // Hive Straw scanner feature on/off
   HIVE_STRAW_SCAN,
 
   // If set to TRUE, CTAS on Hive object(Create and Insert...select) is processed in Hive.
@@ -3828,7 +3735,7 @@ enum DefaultConstants
   // Default is OFF.
   HIVE_CTAS_IN_NATIVE_MODE,
 
-  // if this cqd is set, then treat "table(hivemd(object types)" 
+  // if this cqd is set, then treat "table(hivemd(object types)"
   // as "table(hivemd(object names))" and only retrieve names.
   // Also, return TABLE as the fixed object type.
   TRAF_HIVEMD_SPECIAL_OBJECTNAMETYPE,
@@ -3845,22 +3752,22 @@ enum DefaultConstants
   TRAF_ROWNUM_DEFAULT_ORDER_LEVEL,
   NODE_ALLOCATIONS,
   TRAF_TENANT_DROP_MINIMAL,
-  
+
   // if data being read from an HBase Mapped Table is a string of length zero
   // and the target column is a non-string column, then treat it as a null
   // value.
   TRAF_HBMT_TREAT_EMPTY_STRING_AS_NULL,
-  
+
   // passed to Java side, enable min-max stats for stats filtering
   // for string columns. Works correctly for iso but not utf8.
   // Off by default. cqd could be removed when unsigned_min_max works
   // correctly in parquet
   PARQUET_STRINGS_SIGNED_MIN_MAX,
-  // This value determines how much parallelsim we allow for load into 
+  // This value determines how much parallelsim we allow for load into
   // a single partition table - in most cases this would be an index population
   // during index creation.
   MAX_DOP_FOR_LOAD,
-  
+
   // includeBRLockedTables: 0, dont return tables locked by BR
   //                        1, return tables locked by Backup
   //                        2, return tables locked by Restore
@@ -3884,10 +3791,10 @@ enum DefaultConstants
   USE_LIB_BLOB_STORE,
 
   CONNECTBY_MAX_DEEP,
-  CONNECTBY_MAX_SIZE, 
+  CONNECTBY_MAX_SIZE,
 
   // trim the union map to synchronize with the char. output of the union
-  UNION_MAP_REDUCTION,	
+  UNION_MAP_REDUCTION,
 
   // max number of unique constraints to try for a join.
   //  -1: no limit
@@ -3897,13 +3804,13 @@ enum DefaultConstants
 
   PARQUET_CPP_READER_PARALLELISM,
 
-  // functions in sql like JSON_VALUE(), JSON_QUERY(), JSON_OBJECT() are 
+  // functions in sql like JSON_VALUE(), JSON_QUERY(), JSON_OBJECT() are
   // disabled unless this CQD is turned on
   ALLOW_JSON_FUNCTIONS,
-  
+
   ORC_VECTOR_BATCH_SIZE,
 
-  //Allow S3 table to be NATable cached even if there is no mechanism to detect data_mod check for s3.
+  // Allow S3 table to be NATable cached even if there is no mechanism to detect data_mod check for s3.
   HIVE_NATABLE_CACHE_S3_TABLES,
 
   // if set, treat Hive Timestamp datatype with usec precision (6).
@@ -3933,7 +3840,8 @@ enum DefaultConstants
   COMPOSITE_LATERAL_VIEW_UNNEST_OPT,
 
   // we found that strawscan is counter productive for TPCDS query 14a doing 21 scans of fact tables
-  // this CQD limit the number of possible straw scans node for a given query. All nodes will be strawscan disabled if we pass this threshold.
+  // this CQD limit the number of possible straw scans node for a given query. All nodes will be strawscan disabled if
+  // we pass this threshold.
   HIVE_STRAW_SCAN_MAX_NODES,
 
   // max number of tables in the inner of a HJ above which
@@ -3946,7 +3854,7 @@ enum DefaultConstants
 
   // composite datatype support in traf tables
   TRAF_COMPOSITE_DATATYPE_SUPPORT,
-  
+
   // composite datatype support in hive tables.
   // Values:  OFF, ON, ALL
   //          OFF, off
@@ -3969,11 +3877,10 @@ enum DefaultConstants
   TRAF_UPDATE_TO_UPSERT,
 
   // this CQD control the conflict checking rule
-  // When it is set, only the scan that with 'FOR UPDATE' option will 
-  // do conflict checking, scan without 'FOR UDPATE' option will 
+  // When it is set, only the scan that with 'FOR UPDATE' option will
+  // do conflict checking, scan without 'FOR UDPATE' option will
   // not affect conflict checking
   SKIP_CONFLICT_FOR_NOUPDATE_SCAN,
-
 
   // skip correctness check for column chunk stats
   PARQUET_CPP_READER_SKIP_STATS_CHECK,
@@ -3990,10 +3897,10 @@ enum DefaultConstants
   // display hive objects in get commands by default
   TRAF_GET_HIVE_OBJECTS,
 
-  //unique userid
+  // unique userid
   UNIQUE_USERID,
 
-  ORC_METADATA_READ_WITH_JAVA_THREADS,  
+  ORC_METADATA_READ_WITH_JAVA_THREADS,
 
   // hive uses 0-based array index during composite array access.
   //  Ex:  arr[0] refers to first element.
@@ -4005,7 +3912,6 @@ enum DefaultConstants
 
   PARQUET_CPP_READER_DIRECT_COPY,
 
-
   CANCEL_QUERY_ALLOWED,
 
   // allow hive data files to be contained in subdirs under rootdir. For part.
@@ -4013,28 +3919,28 @@ enum DefaultConstants
   HIVE_SUPPORTS_SUBDIRECTORIES,
 
   ORC_STATS_MAX_SAMPLE_FILES,
-  
+
   // Determines if a transaction needs to be started for select
   // 0 - No transactions for SELECT
   // 1 - Transaction started for SELECT .. FOR UPDATE
   // 2 - Transaction started for SELECT with isolaton level other than skip conflict access or read uncommitted access
-  BEGIN_TRANSACTION_FOR_SELECT, 
+  BEGIN_TRANSACTION_FOR_SELECT,
 
-  // max number of keys allowed in a bloom filter. If the number of 
+  // max number of keys allowed in a bloom filter. If the number of
   // keys is more than this threshod, the filter will be disabled.
   RANGE_OPTIMIZED_SCAN_MAX_NUM_KEYS,
 
-  // A fudge factor to scale up the threshold of # expected rows 
-  // to pass the filter. 
+  // A fudge factor to scale up the threshold of # expected rows
+  // to pass the filter.
   RANGE_OPTIMIZED_SCAN_SURVIVE_ROWS_FUDGE_FACTOR,
 
   // load table descriptors into a shared cache
   TRAF_ENABLE_METADATA_LOAD_IN_SHARED_CACHE,
-  
+
   // number of lob v2 datafiles to be created.
   NUMBER_OF_LOBV2_DATAFILES,
 
-  //Max limit for hybrid lob
+  // Max limit for hybrid lob
   LOB_HYBRID_ROW_LIMIT,
 
   USE_HDFS_WRITE_LOCK,
@@ -4069,11 +3975,11 @@ enum DefaultConstants
   // length used during table create table and stored in metadata
   TRAF_LOB_HBASE_DATA_MAXLEN_DDL,
 
-  // if specified, length used at query execution time. 
+  // if specified, length used at query execution time.
   // Overrides TRAF_LOB_HBASE_DATA_MAXLEN_DDL.
   TRAF_LOB_HBASE_DATA_MAXLEN_DML,
 
-  // length of data_in_hbase column of LOBCHUNKS table. 
+  // length of data_in_hbase column of LOBCHUNKS table.
   // Internal cqd for testing.
   TRAF_LOB_DATA_IN_HBASE_COL_LEN,
 
@@ -4091,9 +3997,9 @@ enum DefaultConstants
 
   QUERY_LOGGING,
 
-  HBASE_READ_REPLICA, 
-  
-  // Avoids reading NATable entry from shared cache if a SHARED_CACHE 
+  HBASE_READ_REPLICA,
+
+  // Avoids reading NATable entry from shared cache if a SHARED_CACHE
   // distributed lock is active
   TRAF_CHECK_SHARED_CACHE_LOCKED_AT_LOOKUP,
 
@@ -4102,13 +4008,13 @@ enum DefaultConstants
   //   OFF: caches are not cleared but reset for the current user
   TRAF_CLEAR_METADATA_CACHE,
 
-  PARQUET_METADATA_READ_WITH_JAVA_THREADS,  
+  PARQUET_METADATA_READ_WITH_JAVA_THREADS,
 
   TRAF_ALLOW_IUD_FOR_HBASE_REPLICA_TABLES,
 
   TRAF_METADATA_READ_REPLICA,
 
-  SKIP_CONFLICT_CHECK_FOR_INDEX, 
+  SKIP_CONFLICT_CHECK_FOR_INDEX,
 
   // current MD tables are not created with sync/async replication.
   // This means that updates to them are not xDC synced.
@@ -4129,24 +4035,24 @@ enum DefaultConstants
 
   OVERRIDE_GLOBAL_SEQ_TIMEOUT,
 
-  //ON: Automatically adjust cache_rows according to JVM heap size settings in Generator::setHBaseNumCacheRows
+  // ON: Automatically adjust cache_rows according to JVM heap size settings in Generator::setHBaseNumCacheRows
   AUTO_ADJUST_CACHEROWS,
-  
-  //ON: lock objects during DDL operations
-  TRAF_LOCK_DDL, 
+
+  // ON: lock objects during DDL operations
+  TRAF_LOCK_DDL,
 
   // if this value is passed in, it is used to set the sequence id of
   // identity columns. Used when table is replicated for xDC and the same
   // sequence value is to be used on both clusters.
   //
-  // If it is set to 0(the default), then a new value is generated during ddl. 
+  // If it is set to 0(the default), then a new value is generated during ddl.
   //
   // This cqd is set on second cluster before ddl and need to have the same
   // sequence id value as the table in first cluster.
   // showddl on first cluster will show the sequence id of identity col.
   TRAF_SET_SEQUENCE_ID,
 
-  TRAF_ALLOW_DISABLE_ENABLE_INDEXES, 
+  TRAF_ALLOW_DISABLE_ENABLE_INDEXES,
 
   // To configure testpoints
   //
@@ -4209,13 +4115,11 @@ enum DefaultConstants
   __NUM_DEFAULT_ATTRIBUTES
 };
 
-
 //////////////////////////////////////////////////////////////////////
 // options to be used with QUERY_OPTIMIZATION_OPTIONS CQD
 //
 //////////////////////////////////////////////////////////////////////
-enum QueryOptimizationOptions
-{
+enum QueryOptimizationOptions {
   QO_NO_OPT = 0x0000,
   QO_EXPR_OPT = 0x0001,
   QO_PARAM_NULLABILITY_OPT = 0x0002,
@@ -4226,7 +4130,6 @@ enum QueryOptimizationOptions
   QO_DO_NT_OLT_OPT = 0x0040
 };
 
-
 // ***************************************************************************
 // ***************************************************************************
 //
@@ -4234,7 +4137,6 @@ enum QueryOptimizationOptions
 //
 // ***************************************************************************
 // ***************************************************************************
-
 
 // Defaults Tokens
 // There is a set of keywords which can appear as values of Defaults entries
@@ -4254,109 +4156,108 @@ enum QueryOptimizationOptions
 // In simple words: this has to be in identical order with enum
 // NADefaults::keywords_ in nadefaults.cpp
 
-
 enum DefaultToken {
- DF_noSuchToken = -1,	// Negative; not in DFkeywords array
- DF_ACCUMULATED,
- DF_ADVANCED,
- DF_AGGRESSIVE,
- DF_ALL,
- DF_ANSI,
- DF_BEGINNER,
- DF_BOTH,
- DF_CLEAR,
- DF_DEBUG,
- DF_DISK,
- DF_DISK_POOL,
- DF_DUMP,
- DF_DUMP_MV,
- DF_EXTERNAL,
- DF_EXTERNAL_DETAILED,
- DF_FILE,
- DF_FIRSTROW,
- DF_FORCE,
- DF_HARDWARE,
- DF_HEAP,
- DF_HIGH,
- DF_HYBRID,
- DF_IEEE,
- DF_INDEXES,
- DF_INTERNAL,
- DF_IQS,
- DF_JNI,
- DF_JNI_TRX,
- DF_KEYINDEXES,
- DF_LASTROW,
- DF_LATEST,
- DF_LEAF,
- DF_LOADNODUP,
- DF_LOCAL,
- DF_LOCAL_NODE,
- DF_LOG,
- DF_MAXIMUM,
- DF_MEDIUM,
- DF_MEDIUM_LOW,
- DF_MERGE,
- DF_MINIMUM,
- DF_MMAP,
- DF_MULTI_NODE,
- DF_MVCC,
- DF_NONE,
- DF_OFF,
- DF_ON,
- DF_OPENS_FOR_WRITE,
- DF_OPERATOR,
- DF_OPTIMAL,
- DF_ORDERED,
- DF_PERTABLE,
- DF_PRELOAD,
- DF_PRINT,
- DF_PRIVATE,
- DF_PUBLIC,
- DF_QS,
- DF_READONLY,
- DF_READ_COMMITTED,
- DF_READ_UNCOMMITTED,
- DF_RELEASE,
- DF_REMOTE,
- DF_REPEATABLE_READ,
- DF_REPLACE,
- DF_REPSEL,
- DF_RESOURCES,
- DF_RETURN,
- DF_ROOT,
- DF_SAMPLE,
- DF_SERIALIZABLE,
- DF_SHORTANSI,
- DF_SIMPLE,
- DF_SKIP,
- DF_SMD,
- DF_SOFTWARE,
- DF_SOURCE,
- DF_SQLMP,
- DF_SSCC,
- DF_SSD,
- DF_STDOUT,
- DF_STOP,
- DF_SUFFIX,
- DF_SYSTEM,
- DF_TANDEM,
- DF_THRIFT,
- DF_USER,
- DF_VERTICAL,
- DF_WAIT,
- DF_WARN,
- DF_XML,
- DF_lastToken,
+  DF_noSuchToken = -1,  // Negative; not in DFkeywords array
+  DF_ACCUMULATED,
+  DF_ADVANCED,
+  DF_AGGRESSIVE,
+  DF_ALL,
+  DF_ANSI,
+  DF_BEGINNER,
+  DF_BOTH,
+  DF_CLEAR,
+  DF_DEBUG,
+  DF_DISK,
+  DF_DISK_POOL,
+  DF_DUMP,
+  DF_DUMP_MV,
+  DF_EXTERNAL,
+  DF_EXTERNAL_DETAILED,
+  DF_FILE,
+  DF_FIRSTROW,
+  DF_FORCE,
+  DF_HARDWARE,
+  DF_HEAP,
+  DF_HIGH,
+  DF_HYBRID,
+  DF_IEEE,
+  DF_INDEXES,
+  DF_INTERNAL,
+  DF_IQS,
+  DF_JNI,
+  DF_JNI_TRX,
+  DF_KEYINDEXES,
+  DF_LASTROW,
+  DF_LATEST,
+  DF_LEAF,
+  DF_LOADNODUP,
+  DF_LOCAL,
+  DF_LOCAL_NODE,
+  DF_LOG,
+  DF_MAXIMUM,
+  DF_MEDIUM,
+  DF_MEDIUM_LOW,
+  DF_MERGE,
+  DF_MINIMUM,
+  DF_MMAP,
+  DF_MULTI_NODE,
+  DF_MVCC,
+  DF_NONE,
+  DF_OFF,
+  DF_ON,
+  DF_OPENS_FOR_WRITE,
+  DF_OPERATOR,
+  DF_OPTIMAL,
+  DF_ORDERED,
+  DF_PERTABLE,
+  DF_PRELOAD,
+  DF_PRINT,
+  DF_PRIVATE,
+  DF_PUBLIC,
+  DF_QS,
+  DF_READONLY,
+  DF_READ_COMMITTED,
+  DF_READ_UNCOMMITTED,
+  DF_RELEASE,
+  DF_REMOTE,
+  DF_REPEATABLE_READ,
+  DF_REPLACE,
+  DF_REPSEL,
+  DF_RESOURCES,
+  DF_RETURN,
+  DF_ROOT,
+  DF_SAMPLE,
+  DF_SERIALIZABLE,
+  DF_SHORTANSI,
+  DF_SIMPLE,
+  DF_SKIP,
+  DF_SMD,
+  DF_SOFTWARE,
+  DF_SOURCE,
+  DF_SQLMP,
+  DF_SSCC,
+  DF_SSD,
+  DF_STDOUT,
+  DF_STOP,
+  DF_SUFFIX,
+  DF_SYSTEM,
+  DF_TANDEM,
+  DF_THRIFT,
+  DF_USER,
+  DF_VERTICAL,
+  DF_WAIT,
+  DF_WARN,
+  DF_XML,
+  DF_lastToken,
 
- // Synonyms must NOT be (and are not) present
- // in the DFkeywords array in the .cpp file!
- DF_COMPAQ	= DF_TANDEM,
- DF_DISABLE	= DF_OFF,	// Notice that DISABLE = OFF, but
- DF_ENABLE 	= DF_SYSTEM,	// ENABLE means let the SYSTEM provide the value
- DF_FALSE  	= DF_OFF,
- DF_FULL	= DF_MAXIMUM,
- DF_TRUE   	= DF_ON
+  // Synonyms must NOT be (and are not) present
+  // in the DFkeywords array in the .cpp file!
+  DF_COMPAQ = DF_TANDEM,
+  DF_DISABLE = DF_OFF,    // Notice that DISABLE = OFF, but
+  DF_ENABLE = DF_SYSTEM,  // ENABLE means let the SYSTEM provide the value
+  DF_FALSE = DF_OFF,
+  DF_FULL = DF_MAXIMUM,
+  DF_TRUE = DF_ON
 };
 
-#endif // DEFAULTCONSTANTS_H
+#endif  // DEFAULTCONSTANTS_H

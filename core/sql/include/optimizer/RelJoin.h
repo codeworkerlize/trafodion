@@ -38,9 +38,9 @@
 
 
 #include "optimizer/ObjectNames.h"
-#include "RelExpr.h"
+#include "optimizer/RelExpr.h"
 #include "ReqGen.h"
-#include "RelGrby.h"
+#include "optimizer/RelGrby.h"
 // -----------------------------------------------------------------------
 // contents of this file
 // -----------------------------------------------------------------------

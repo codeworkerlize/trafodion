@@ -33,7 +33,7 @@
 #include "LmRoutine.h"
 #include "LmLangManagerC.h"
 #include "LmParameter.h"
-#include "sqludr.h"
+#include "sqludr/sqludr.h"
 
 //////////////////////////////////////////////////////////////////////
 //

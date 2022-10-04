@@ -14,7 +14,7 @@
 
 // First define Parser globals that need to reside in common.lib
 // rather than parser.lib (so that DLLs which don't use parser.lib will link)
-#include "SqlParserGlobalsCmn.h"
+#include "parser/SqlParserGlobalsCmn.h"
 
 #undef GLOB_
 #undef INIT_
@@ -29,7 +29,7 @@
 
 #ifdef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
   class ComDiagsArea;	// Forward reference to keep dependencies to a minimum
-  #include "parser.h"
+#include "sqlcomp/parser.h"
   GLOB_ ComDiagsArea		*SqlParser_Diags		INIT_(NULL);
   GLOB_ Parser			*SqlParser_CurrentParser	INIT_(NULL);
   inline CollHeap* PARSERHEAP() { return SqlParser_CurrentParser->wHeap(); }

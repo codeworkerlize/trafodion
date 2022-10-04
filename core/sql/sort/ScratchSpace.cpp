@@ -55,7 +55,7 @@
 //-----------------------------------------------------------------------
 // Product Include files.
 //-----------------------------------------------------------------------
-#include "ex_stdh.h"
+#include "executor/ex_stdh.h"
 #include "common/ComDistribution.h"
 #include "ScratchSpace.h"
 #include "ScratchFileMap.h"

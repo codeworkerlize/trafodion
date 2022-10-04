@@ -42,7 +42,7 @@
 #include "common/ClusteredBitmap.h"
 #include "common/NAString.h"
 #include "common/ComSysUtils.h"
-#include "wstr.h"
+#include "common/wstr.h"
 
 
 // Isolate the first set bit in the integer value.
@@ -1426,30 +1426,6 @@ void ClusteredBitmapForIntegers::dump(ostream& out, const char* title)
    bitMapNeg_.dump(out, (char *)msg.data());
 }
 
-NABoolean 
-ClusteredBitmapForIntegers::convertToOrcPredicates(
-   std::vector<std::string>& vec, const char* d1, const char* d2, 
-   Int32 filterId, std::string& min, std::string& max, 
-   NABoolean allowIn)
-{
-   if ( !allowIn )
-      assert(0); // sorry not implemented
-
-   UInt32 ct = 0;
-
-   ct = entries();
-
-   std::string text;
-
-   text.append((char*)&ct, sizeof(ct));
-
-   if ( bitMapNeg_.convertToList(text) &&
-        bitMapPos_.convertToList(text) ) {
-      vec.push_back(text);
-      return TRUE;
-   } else
-      return FALSE;
-}
 
 UInt32 ClusteredBitmapForIntegers::pack(char* buf)
 {
@@ -1637,15 +1613,6 @@ NABoolean RangeSpecRT::operator==(const RangeOfValues& other) const
 { 
    const RangeSpecRT* casted = dynamic_cast<const RangeSpecRT*>(&other);
    return rs_ == casted->rs_;
-}
-
-NABoolean 
-RangeSpecRT::convertToOrcPredicates(std::vector<std::string>& ppiVec, 
-                 const char* colName, const char* colType, 
-                 Int32 filterId, std::string& min, std::string& max, 
-                 NABoolean allowIn)
-{
-   return rs_.convertToOrcPredicates(ppiVec, colName, colType, allowIn);
 }
 
 //=========================================
@@ -1849,22 +1816,7 @@ Lng32 BloomFilterRT::computeMaxLength(UInt32 m, float p)
                      BloomFilterRT::minPackedLength();
 }
 
-NABoolean BloomFilterRT::convertToOrcPredicates(
-                std::vector<std::string>& ppiVec, 
-                const char* colName, const char* colType, 
-                Int32 filterId, std::string& min, std::string& max, 
-                NABoolean allowIn /* ignored*/ )
-{
-   std::string text;
-   NABoolean res = rbf_.serializeToSearchPredicate(
-                   text, colName, colType, filterId, min, max
-                                                  );
 
-   if ( res ) 
-      ppiVec.push_back(text);
-
-   return res;
-}
    
 /////////////////////////////////////////////////
 NABoolean NativeBloomFilterRT::insert(Int32 value)

@@ -35,8 +35,8 @@
  **************************************************************************
  */
 
-//#include "RelExpr.h"
-#include "Analyzer.h"
+//#include "optimizer/RelExpr.h"
+#include "optimizer/Analyzer.h"
 //#include "RelJoin.h"
 
 // Classes Defined in this file

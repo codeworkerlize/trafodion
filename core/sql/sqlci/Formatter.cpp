@@ -58,7 +58,7 @@
 #include "exp/exp_clause.h"
 #include "exp/exp_clause_derived.h"
 #include "exp_interval.h"
-#include "exp_datetime.h"
+#include "exp/exp_datetime.h"
 #include "common/DatetimeType.h"
 #include "Formatter.h"
 #include "common/Int64.h"

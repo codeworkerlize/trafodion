@@ -24,7 +24,7 @@
 
 #include "common/NAClusterInfo.h"
 #include "sqlcomp/NADefaults.h"
-#include "CompException.h"
+#include "arkcmp/CompException.h"
 #include <cextdecs/cextdecs.h>
 #include <limits.h>
 #include <string.h>
@@ -34,7 +34,7 @@
 #include "common/ComRtUtils.h"
 #include "common/NAWNodeSet.h"
 
-#include "OptimizerSimulator.h"
+#include "optimizer/OptimizerSimulator.h"
 #include <cstdlib>
 #include <sys/stat.h>
 #include "utility.h"

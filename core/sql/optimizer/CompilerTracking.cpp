@@ -20,7 +20,7 @@
 //
 // @@@ END COPYRIGHT @@@
 // **********************************************************************
-#include "CompilerTracking.h"
+#include "optimizer/CompilerTracking.h"
 #include "qmscommon/QRLogger.h"
 #include "executor/ExExeUtilCli.h"
 #ifdef _MSC_VER

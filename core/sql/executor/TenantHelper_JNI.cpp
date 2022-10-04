@@ -24,7 +24,7 @@
 #include "cli/Context.h"
 #include "cli/Globals.h"
 #include <signal.h>
-#include "TenantHelper_JNI.h"
+#include "executor/TenantHelper_JNI.h"
 #include "common/NAWNodeSet.h"
 #include "qmscommon/QRLogger.h"
 #include "pthread.h"

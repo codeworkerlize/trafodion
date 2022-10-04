@@ -57,14 +57,14 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "Generator.h"
+#include "generator/Generator.h"
 #include "GenExpGenerator.h"
 #include "exp_function.h"
-#include "exp_datetime.h"
+#include "exp/exp_datetime.h"
 #include "exp_math_func.h"
 #include "common/CharType.h"
 #include "common/NumericType.h"
-#include "RelMisc.h"
+#include "optimizer/RelMisc.h"
 #include "ItemFuncUDF.h"
 
 short BuiltinFunction::codeGen(Generator * generator)

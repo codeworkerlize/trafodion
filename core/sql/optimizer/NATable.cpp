@@ -40,49 +40,49 @@
 #undef _DP2NT_
 #undef __ROSETTA
 
-#include "NATable.h"
-#include "Sqlcomp.h"
+#include "optimizer/NATable.h"
+#include "optimizer/Sqlcomp.h"
 #include "Const.h"
 #include "common/dfs2rec.h"
-#include "parser.h"
-#include "BindWA.h"
+#include "sqlcomp/parser.h"
+#include "optimizer/BindWA.h"
 #include "common/ComAnsiNamePart.h"
 #include "optimizer/ItemColRef.h"
 #include "ItemFunc.h"
-#include "ItemOther.h"
+#include "optimizer/ItemOther.h"
 #include "PartFunc.h"
 #include "EncodedValue.h"
-#include "SchemaDB.h"
+#include "optimizer/SchemaDB.h"
 #include "common/NAClusterInfo.h"
 #include "MVInfo.h"
 #include "common/ComMPLoc.h"
-#include "NATable.h"
-#include "opt.h"
+#include "optimizer/NATable.h"
+#include "optimizer/opt.h"
 #include "arkcmp/CmpStatement.h"
-#include "ControlDB.h"
+#include "optimizer/ControlDB.h"
 #include "common/ComCextdecs.h"
 #include "common/ComSysUtils.h"
-#include "ComObjectName.h"
+#include "common/ComObjectName.h"
 #include "common/ComMisc.h"
 #include "common/SequenceGeneratorAttributes.h"
 #include "security/uid.h"
 
 #include "common/ComCextdecs.h"
-#include "ExpHbaseInterface.h"
-#include "CmpSeabaseDDL.h"
+#include "exp/ExpHbaseInterface.h"
+#include "sqlcomp/CmpSeabaseDDL.h"
 #include "optimizer/RelScan.h"
 #include "exp/exp_clause_derived.h"
 #include "sqlcomp/PrivMgrCommands.h"
 #include "common/ComDistribution.h"
 #include "executor/ExExeUtilCli.h"
-#include "CmpDescribe.h"
+#include "sqlcomp/CmpDescribe.h"
 #include "cli/Globals.h"
-#include "ComUser.h"
+#include "common/ComUser.h"
 #include "common/ComSmallDefs.h"
-#include "CmpMain.h"
-#include "CompException.h"
+#include "sqlcomp/CmpMain.h"
+#include "arkcmp/CompException.h"
 #include "sqlcat/TrafDDLdesc.h"
-#include "CmpSeabaseDDL.h"
+#include "sqlcomp/CmpSeabaseDDL.h"
 #include "common/ComEncryption.h"
 #include "sqlcomp/SharedCache.h"
 #include "sqlcomp/NamedSemaphore.h"
@@ -90,7 +90,7 @@
 #define MAX_NODE_NAME 9
 
 #include "parser/SqlParserGlobals.h"
-#include "HBaseClient_JNI.h"
+#include "executor/HBaseClient_JNI.h"
 
 
 //#define __ROSETTA
@@ -100,9 +100,9 @@
 #include "parser/SqlParserGlobals.h"
 extern TrafDesc *generateSpecialDesc(const CorrName& corrName);
 
-#include "CmpMemoryMonitor.h"
+#include "optimizer/CmpMemoryMonitor.h"
 
-#include "OptimizerSimulator.h"
+#include "optimizer/OptimizerSimulator.h"
 
 #include "cli/SQLCLIdev.h"
 #include "cli/sql_id.h"
@@ -5028,7 +5028,7 @@ NATable::NATable(BindWA *bindWA,
       Int32 catStrLen = 0;
       Int32 schemaStrLen = 0;
       Int32 fileStrLen = 0;
-      int_32 primaryNodeNum=0;
+      int primaryNodeNum=0;
       short error = 0;
 
       //clusteringIndex has physical filename that can be used to check

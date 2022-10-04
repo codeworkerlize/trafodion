@@ -38,21 +38,21 @@
 #include "parser/SqlParserGlobals.h"
 
 #include "common/Platform.h"
-#include "Sqlcomp.h"
+#include "optimizer/Sqlcomp.h"
 #include "GroupAttr.h"
-#include "AllItemExpr.h"
+#include "optimizer/AllItemExpr.h"
 #include "PartFunc.h"
-#include "wstr.h"
+#include "common/wstr.h"
 #include "common/NLSConversion.h"
 #include "Cost.h"          /* for lookups in the defaults table */
 #include "Stats.h"
 #include "exp_function.h" // for calling ExHDPHash::hash(data, len)
 #include "ItemFuncUDF.h"
 #include "arkcmp/CmpStatement.h"
-#include "exp_datetime.h"
-#include "Analyzer.h"
+#include "exp/exp_datetime.h"
+#include "optimizer/Analyzer.h"
 #include "ItemSample.h"
-#include "ComUnits.h"
+#include "common/ComUnits.h"
 
 #include "OptRange.h"
 

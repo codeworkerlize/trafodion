@@ -87,9 +87,9 @@ lostart**/
 #include "common/ComRtUtils.h"
 //#include "ExeReplInterface.h"
 #include "cli/Globals.h"
-#include "NAExit.h"
+#include "common/NAExit.h"
 #include "ex_ex.h"                  // ex_assert
-#include "SCMVersHelp.h"
+#include "common/SCMVersHelp.h"
 
 #define SQ_USE_LOB_PROCESS 1
 #include "qmscommon/QRLogger.h"

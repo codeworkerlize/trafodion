@@ -54,7 +54,7 @@
 #include <string.h>
 #include <assert.h>
 #include <errno.h>
-#include "ex_stdh.h"
+#include "executor/ex_stdh.h"
 #include "ScratchSpace.h"
 #include "executor/ExStats.h"
 

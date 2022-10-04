@@ -35,8 +35,8 @@
 
 
 #include "optimizer/ObjectNames.h"
-#include "RelExpr.h"
-#include "OptUtilIncludes.h"
+#include "optimizer/RelExpr.h"
+#include "optimizer/OptUtilIncludes.h"
 #include "BinderUtils.h"
 #include "parser/StmtNode.h"
 #include "RoutineDesc.h"

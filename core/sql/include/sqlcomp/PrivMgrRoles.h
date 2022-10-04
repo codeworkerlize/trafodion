@@ -23,7 +23,7 @@
 
 #ifndef PRIVMGR_ROLES_H
 #define PRIVMGR_ROLES_H
-#include "PrivMgrMD.h"
+#include "sqlcomp/PrivMgrMD.h"
 class PrivMgrMDTable;
 
 #include <string>
@@ -36,146 +36,78 @@ class ComDiagsArea;
 // * Description:  This class represents roles.                                *
 // *                                                                           *
 // *****************************************************************************
-class PrivMgrRoles : public PrivMgr
-{
-public:
+class PrivMgrRoles : public PrivMgr {
+ public:
+  // -------------------------------------------------------------------
+  // Constructors and destructors:
+  // -------------------------------------------------------------------
+  PrivMgrRoles();
+  PrivMgrRoles(const std::string &trafMetadataLocation, const std::string &metadataLocation, ComDiagsArea *pDiags);
+  PrivMgrRoles(const PrivMgrRoles &other);
+  virtual ~PrivMgrRoles();
 
-// -------------------------------------------------------------------
-// Constructors and destructors:
-// -------------------------------------------------------------------
-   PrivMgrRoles();
-   PrivMgrRoles( 
-      const std::string & trafMetadataLocation,
-      const std::string & metadataLocation,
-      ComDiagsArea * pDiags);
-   PrivMgrRoles(const PrivMgrRoles & other);
-   virtual ~PrivMgrRoles();
+  // -------------------------------------------------------------------
+  // Public functions:
+  // -------------------------------------------------------------------
 
-// -------------------------------------------------------------------
-// Public functions:
-// -------------------------------------------------------------------
-   
-   PrivStatus fetchGranteesForRole(
-      const int32_t roleID,
-      std::vector<std::string> & granteeNames,
-      std::vector<int32_t> & granteeIDs,
-      std::vector<int32_t> & grantorIDs,
-      std::vector<int32_t> & grantDepths,
-      bool includeTenantGrantees = false);
-   
-   PrivStatus fetchGranteesForRoles(
-      const std::vector<int32_t> & roleIDs,
-      std::vector<int32_t> & granteeIDs,
-      bool includeSysGrantor = true,
-      bool includeTenantGrantees = false);
-   
-   PrivStatus fetchRolesForAuth(
-      const int32_t authID,
-      std::vector<std::string> & roleNames,
-      std::vector<int32_t> & roleIDs,
-      std::vector<int32_t> & grantDepths,
-      std::vector<int32_t> & grantees,
-      bool fetchGroupRoles = true);
+  PrivStatus fetchGranteesForRole(const int32_t roleID, std::vector<std::string> &granteeNames,
+                                  std::vector<int32_t> &granteeIDs, std::vector<int32_t> &grantorIDs,
+                                  std::vector<int32_t> &grantDepths, bool includeTenantGrantees = false);
 
-   PrivStatus fetchSystemGrantee(
-      const int32_t roleID,
-      std::string &granteeName,
-      int32_t &granteeID);
-      
-   PrivStatus fetchTenantGrantees(
-      std::vector<int32_t> &tenantGrantees);
+  PrivStatus fetchGranteesForRoles(const std::vector<int32_t> &roleIDs, std::vector<int32_t> &granteeIDs,
+                                   bool includeSysGrantor = true, bool includeTenantGrantees = false);
 
-   PrivStatus grantRole(
-      const std::vector<int32_t> & roleIDs,
-      const std::vector<std::string> & roleNames,
-      const std::vector<int32_t> & grantorIDs,
-      const std::vector<std::string> & grantorNames,
-      PrivAuthClass grantorClass,
-      const std::vector<int32_t> & grantees,
-      const std::vector<std::string> & granteeNames,
-      const std::vector<PrivAuthClass> & granteeClasses,
-      const int32_t grantDepth); 
-      
-   PrivStatus grantRoleToCreator(
-      const int32_t roleID,
-      const std::string & roleName,
-      const int32_t grantorID,
-      const std::string grantorName,
-      const int32_t granteeID,
-      const std::string granteeName); 
-     
-   bool hasRole(
-      int32_t authID,
-      int32_t roleID);
-   
-   PrivStatus hasRoleAdmin(
-      const int32_t roleID,
-      const int32_t granteeID,
-      const std::string &roleName,
-      const std::vector<int_32> &roleIDs,
-      bool &hasAdmin);
+  PrivStatus fetchRolesForAuth(const int32_t authID, std::vector<std::string> &roleNames, std::vector<int32_t> &roleIDs,
+                               std::vector<int32_t> &grantDepths, std::vector<int32_t> &grantees,
+                               bool fetchGroupRoles = true);
 
+  PrivStatus fetchSystemGrantee(const int32_t roleID, std::string &granteeName, int32_t &granteeID);
 
-   bool isGranted(
-      const int32_t roleID,
-      const bool shouldExcludeGrantsBySystem,
-      std::string &granteeNames);
+  PrivStatus fetchTenantGrantees(std::vector<int32_t> &tenantGrantees);
 
-   bool isUserGrantedAnyRole(const int32_t authID);
-   
-   PrivStatus populateCreatorGrants(
-      const std::string &authsLocation,
-      const std::vector<std::string> &rolesToAdd);      
-     
-   PrivStatus  revokeAllForGrantor(
-      const int32_t grantorID,
-      const int32_t roleID,
-      const bool isGOFSpecified,
-      const int32_t newGrantDepth,
-      PrivDropBehavior dropBehavior);
+  PrivStatus grantRole(const std::vector<int32_t> &roleIDs, const std::vector<std::string> &roleNames,
+                       const std::vector<int32_t> &grantorIDs, const std::vector<std::string> &grantorNames,
+                       PrivAuthClass grantorClass, const std::vector<int32_t> &grantees,
+                       const std::vector<std::string> &granteeNames, const std::vector<PrivAuthClass> &granteeClasses,
+                       const int32_t grantDepth);
 
-   PrivStatus revokeRole(
-      const std::vector<int32_t> & roleIDs,
-      const std::vector<int32_t> & granteeIDs,
-      const std::vector<PrivAuthClass> & granteeClasses,
-      const std::vector<int32_t> & grantorIDs,
-      const bool isGOFSpecified,
-      const int32_t newGrantDepth,
-      PrivDropBehavior dropBehavior);
-       
-   PrivStatus revokeRoleFromCreator(
-      const int32_t roleID,
-      const int32_t granteeID,
-      const bool revokeAllSystemGrants); 
-     
-private: 
-   
-   bool areRemainingGrantedPrivsSufficient(
-      const std::string whereClause,
-      PrivType privType);
-      
-   bool dependentObjectsExist(
-      const int32_t userID,
-      const int32_t roleID,
-      PrivDropBehavior dropBehavior);
-       
-   bool hasWGO(
-      const int32_t authID,
-      const int32_t roleID);
+  PrivStatus grantRoleToCreator(const int32_t roleID, const std::string &roleName, const int32_t grantorID,
+                                const std::string grantorName, const int32_t granteeID, const std::string granteeName);
 
-   bool grantExists(
-      const int32_t roleID,
-      const int32_t grantorID,
-      const int32_t granteeID,
-      int32_t & grantDepth);
-       
-// -------------------------------------------------------------------
-// Data Members:
-// -------------------------------------------------------------------
-      
-std::string        fullTableName_;
-PrivMgrMDTable & myTable_;
+  bool hasRole(int32_t authID, int32_t roleID);
+
+  PrivStatus hasRoleAdmin(const int32_t roleID, const int32_t granteeID, const std::string &roleName,
+                          const std::vector<int> &roleIDs, bool &hasAdmin);
+
+  bool isGranted(const int32_t roleID, const bool shouldExcludeGrantsBySystem, std::string &granteeNames);
+
+  bool isUserGrantedAnyRole(const int32_t authID);
+
+  PrivStatus populateCreatorGrants(const std::string &authsLocation, const std::vector<std::string> &rolesToAdd);
+
+  PrivStatus revokeAllForGrantor(const int32_t grantorID, const int32_t roleID, const bool isGOFSpecified,
+                                 const int32_t newGrantDepth, PrivDropBehavior dropBehavior);
+
+  PrivStatus revokeRole(const std::vector<int32_t> &roleIDs, const std::vector<int32_t> &granteeIDs,
+                        const std::vector<PrivAuthClass> &granteeClasses, const std::vector<int32_t> &grantorIDs,
+                        const bool isGOFSpecified, const int32_t newGrantDepth, PrivDropBehavior dropBehavior);
+
+  PrivStatus revokeRoleFromCreator(const int32_t roleID, const int32_t granteeID, const bool revokeAllSystemGrants);
+
+ private:
+  bool areRemainingGrantedPrivsSufficient(const std::string whereClause, PrivType privType);
+
+  bool dependentObjectsExist(const int32_t userID, const int32_t roleID, PrivDropBehavior dropBehavior);
+
+  bool hasWGO(const int32_t authID, const int32_t roleID);
+
+  bool grantExists(const int32_t roleID, const int32_t grantorID, const int32_t granteeID, int32_t &grantDepth);
+
+  // -------------------------------------------------------------------
+  // Data Members:
+  // -------------------------------------------------------------------
+
+  std::string fullTableName_;
+  PrivMgrMDTable &myTable_;
 };
-#endif // PRIVMGR_ROLES_H
-
-
+#endif  // PRIVMGR_ROLES_H

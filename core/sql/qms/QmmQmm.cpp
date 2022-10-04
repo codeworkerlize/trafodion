@@ -41,7 +41,7 @@ extern "C"
 }
 
 #else
-//#include "cextdecs/cextdecs.h"
+#include "common/cextdecs.h"
 #endif
 
 using namespace QR;

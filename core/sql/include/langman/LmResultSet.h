@@ -36,7 +36,7 @@
 #define LMRESULTSET_H
 
 #include "common/ComSmallDefs.h"
-#include "LmCommon.h"
+#include "langman/LmCommon.h"
 #include "cli/sqlcli.h"
 
 class LmParameter;

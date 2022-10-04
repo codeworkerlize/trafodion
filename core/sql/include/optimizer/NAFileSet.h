@@ -40,7 +40,7 @@
 // -----------------------------------------------------------------------
 
 #include "common/Collections.h"
-#include "NAColumn.h"
+#include "optimizer/NAColumn.h"
 #include "optimizer/ObjectNames.h"
 
 // -----------------------------------------------------------------------

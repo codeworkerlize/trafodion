@@ -64,11 +64,11 @@
 
 #include "common/ComDefs.h"
 #include "SQLTypeDefs.h"
-#include "exp_datetime.h"
+#include "exp/exp_datetime.h"
 #include "exp_interval.h"
 #include "exp_bignum.h"
 #include "common/ComSysUtils.h"
-#include "wstr.h"
+#include "common/wstr.h"
 #include "export/ComDiags.h"
 #include "common/ComAnsiNamePart.h"
 #include "common/ComSqlId.h"
@@ -77,11 +77,11 @@
 
 
 #include "common/NAUserId.h"
-#include "ComUser.h"
-#include "ExpSeqGen.h"
+#include "common/ComUser.h"
+#include "exp/ExpSeqGen.h"
 #include "qmscommon/QRLogger.h"
 #include "common/ComEncryption.h"
-#include "ngram.h"
+#include "common/ngram.h"
 #include "common/ComRtUtils.h"
 #include "seabed/sys.h"
 #undef DllImport

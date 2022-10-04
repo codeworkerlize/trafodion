@@ -33,10 +33,10 @@
 */
 
 #include "GroupAttr.h"
-#include "Generator.h"
+#include "generator/Generator.h"
 #include "GenExpGenerator.h"
 #include "comexe/ComTdbCompoundStmt.h"
-#include "Rel3GL.h" 
+#include "optimizer/Rel3GL.h" 
 #include "sqlcomp/DefaultConstants.h"
 #include "exp/ExpCriDesc.h"
 

@@ -23,7 +23,7 @@
 //
 //------------------------------------------------------------------
 
-#include "SCMVersHelp.h"
+#include "common/SCMVersHelp.h"
 
 // component version for libraries
 #define VERS_CV_MAJ 1

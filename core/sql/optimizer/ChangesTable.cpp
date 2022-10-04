@@ -36,16 +36,16 @@
 */
 
 #include "common/NumericType.h"
-#include "AllRelExpr.h"
-#include "AllItemExpr.h"
-#include "BindWA.h"
-#include "NATable.h"
+#include "optimizer/AllRelExpr.h"
+#include "optimizer/AllItemExpr.h"
+#include "optimizer/BindWA.h"
+#include "optimizer/NATable.h"
 #include "ChangesTable.h"
 #include "ComMvDefs.h"
 #include "Refresh.h"
 #include "MvLog.h"
 #include "MVInfo.h"
-#include "parser.h"
+#include "sqlcomp/parser.h"
 #include "ItmFlowControlFunction.h"
 
 /*****************************************************************************

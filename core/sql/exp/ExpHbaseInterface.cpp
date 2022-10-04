@@ -31,8 +31,8 @@
 ****************************************************************************
 */
 
-#include "ex_stdh.h"
-#include "ExpHbaseInterface.h"
+#include "executor/ex_stdh.h"
+#include "exp/ExpHbaseInterface.h"
 #include "common/str.h"
 #include "export/NAStringDef.h"
 #include "ex_ex.h"
@@ -41,9 +41,9 @@
 #include "runtimestats/SqlStats.h"
 #include "common/CmpCommon.h"
 #include "arkcmp/CmpContext.h"
-#include "SessionDefaults.h"
+#include "cli/SessionDefaults.h"
 #include "cli/Context.h"
-#include "MemoryTableClient.h"
+#include "executor/MemoryTableClient.h"
 
 // ===========================================================================
 // ===== Class ExpHbaseInterface
@@ -465,7 +465,6 @@ ExpHbaseInterface_JNI::ExpHbaseInterface_JNI(
    ,asyncHtc_(NULL)
    ,retCode_(HBC_OK)
    ,storageType_(storageType)
-   ,mClient_(NULL)
    ,mtc_(NULL)
    ,asyncMtc_(NULL)
    ,ddlValidator_(NULL)
@@ -493,14 +492,7 @@ ExpHbaseInterface_JNI::~ExpHbaseInterface_JNI()
     
    if (brc_ !=NULL)
         brc_ = NULL;
-  
-   if (mClient_ != NULL) {
-     if (mtc_ != NULL){
-        mClient_->releaseMTableClient(mtc_);
-        mtc_ = NULL;
-     }
-     mClient_ = NULL;
-   }
+
    client_ = NULL;
 
    if (mhtc_ != NULL)
@@ -514,23 +506,7 @@ Lng32 ExpHbaseInterface_JNI::init(ExHbaseAccessStats *hbs)
   // Cannot use statement heap - objects persist accross statements.
   switch (storageType_) {
   case COM_STORAGE_MONARCH:
-     {
-        if (mClient_ == NULL) {
-           MonarchClient_JNI::logIt("ExpHbaseInterface_JNI::init() creating new client.");
-           mClient_ = MonarchClient_JNI::getInstance();
-           if (mClient_->isInitialized() == FALSE) {
-              MC_RetCode retCode = mClient_->init();
-              if (retCode != MC_OK)
-                 return -HBASE_ACCESS_ERROR;
-           }
-           if (mClient_->isConnected() == FALSE) {
-              MC_RetCode retCode = mClient_->initConnection(connectParam1_,
-                                                    connectParam2_);
-              if (retCode != MC_OK)
-                 return -HBASE_ACCESS_ERROR;
-          }
-      }
-    }
+
     break;
   default:
   if (client_ == NULL)
@@ -566,12 +542,7 @@ Lng32 ExpHbaseInterface_JNI::cleanup()
   //  HBaseClient_JNI::logIt("ExpHbaseInterface_JNI::cleanup() called.");
   switch (storageType_) {
   case COM_STORAGE_MONARCH:
-     if (mClient_ != NULL) {
-        if (mtc_ != NULL) {
-           mClient_->releaseMTableClient(mtc_);
-           mtc_ = NULL;
-        }
-     } 
+
      break;
   default:
   if (client_)
@@ -614,8 +585,6 @@ Lng32 ExpHbaseInterface_JNI::close()
 //  HBaseClient_JNI::logIt("ExpHbaseInterface_JNI::close() called.");
   switch (storageType_) {
   case COM_STORAGE_MONARCH:
-     if (mClient_ == NULL) 
-        return HBASE_ACCESS_SUCCESS;
      break; 
   default:
   if (client_ == NULL)
@@ -645,16 +614,7 @@ Lng32 ExpHbaseInterface_JNI::create(HbaseStr &tblName,
 Lng32 ExpHbaseInterface_JNI::create(HbaseStr &tblName,
                                     const NAList<HbaseStr> &cols)
 {
-  if (mClient_ == NULL)
-  {
-    if (init(hbs_) != HBASE_ACCESS_SUCCESS)
-      return -HBASE_ACCESS_ERROR;
-  }
 
-  retCode_ = mClient_->create(tblName.val, cols, FALSE); 
-  if (retCode_ == HBC_OK)
-    return HBASE_ACCESS_SUCCESS;
-  else
     return -HBASE_CREATE_ERROR;
 }
 
@@ -698,24 +658,9 @@ Lng32 ExpHbaseInterface_JNI::create(HbaseStr &tblName,
                                     NABoolean useHbaseXn,
                                     NABoolean isMVCC)
 {
-  if (mClient_ == NULL)
-  {
-    if (init(hbs_) != HBASE_ACCESS_SUCCESS)
-      return -HBASE_ACCESS_ERROR;
-  }
+
   
-  Int64 transID;
-  if (useHbaseXn)
-    transID = 0;
-  else
-    transID = getTransactionIDFromContext();
- 
-  retCode_ = mClient_->create(tblName.val, tableType, cols, monarchCreateOptionsArray,
-                             numSplits, keyLength, splitValues, transID,
-                             isMVCC);
-  if (retCode_ == MC_OK)
-    return HBASE_ACCESS_SUCCESS;
-  else
+
     return -HBASE_CREATE_ERROR;
 }
 
@@ -813,11 +758,7 @@ Lng32 ExpHbaseInterface_JNI::drop(HbaseStr &tblName, NABoolean async, NABoolean 
 
   switch (storageType_) {
   case COM_STORAGE_MONARCH:
-     if (mClient_ == NULL) {
-        if (init(hbs_) != HBASE_ACCESS_SUCCESS)
-           return -HBASE_ACCESS_ERROR;
-     }
-     retCode_ = mClient_->drop(tblName.val, async, transID);
+
      break;
   default:
   if (client_ == NULL)
@@ -871,11 +812,7 @@ NAArray<HbaseStr>* ExpHbaseInterface_JNI::listAll(const char * pattern)
 
   switch (storageType_) {
   case COM_STORAGE_MONARCH:
-     if (mClient_ == NULL) {
-        if (init(hbs_) != HBASE_ACCESS_SUCCESS)
-           return NULL;
-     }
-     listArray = mClient_->listAll((NAHeap *)heap_, pattern);
+
      break;
   default:
   if (client_ == NULL)
@@ -1237,11 +1174,7 @@ Lng32 ExpHbaseInterface_JNI::exists(HbaseStr &tblName)
 {
   switch (storageType_) {
   case COM_STORAGE_MONARCH:
-     if (mClient_ == NULL) {
-        if (init(hbs_) != HBASE_ACCESS_SUCCESS)
-           return -HBASE_ACCESS_ERROR;
-     }
-     retCode_ = mClient_->exists(tblName.val);
+
      break;
   default:
   if (client_ == NULL)
@@ -1311,30 +1244,7 @@ Lng32 ExpHbaseInterface_JNI::scanOpen(
     transID = getTransactionIDFromContext();
   switch (storageType_) {
   case COM_STORAGE_MONARCH:
-     mtc_ = mClient_->getMTableClient((NAHeap *)heap_, tblName.val, useTRex_, replSync, hbs_);
-     if (mtc_ == NULL) {
-        retCode_ = MC_ERROR_GET_MTC_EXCEPTION;
-        return HBASE_OPEN_ERROR;
-     }
-     retCode_ = mtc_->startScan(transID, startRow, stopRow, columns, timestamp, 
-                             cacheBlocks,
-			     smallScanner,
-			     numCacheRows,
-                             preFetch,
-                             inColNamesToFilter,
-                             inCompareOpList,
-                             inColValuesToCompare,
-                             samplePercent,
-                             useSnapshotScan,
-                             snapTimeout,
-                             snapName,
-                             tmpLoc,
-                             espNum,
-                             (hao && hao->multiVersions()) 
-                             ? hao->getNumVersions() : 0,
-                             hao ? hao->hbaseMinTS() : -1,
-                             hao ? hao->hbaseMaxTS() : -1,
-                             hbaseAuths);
+
      break;
   default:
 
@@ -1465,17 +1375,7 @@ Lng32 ExpHbaseInterface_JNI::getRowOpen(
   }
   switch (storageType_) {
   case COM_STORAGE_MONARCH:
-     mtc_ = mClient_->startGet((NAHeap *)heap_, (char *)tblName.val, useTRex_, FALSE, 
-                 hbs_, 
-                 transID,
-                 row,
-                 columns,
-                 timestamp,
-                 hbaseAuths);
-     if (mtc_ == NULL) {
-        retCode_ = MC_ERROR_GET_MTC_EXCEPTION;
-        return HBASE_OPEN_ERROR;
-     }
+
      break;
   default:
  
@@ -1560,13 +1460,7 @@ Lng32 ExpHbaseInterface_JNI::getRowsOpen(
   }
   switch (storageType_) {
   case COM_STORAGE_MONARCH:
-     mtc_ = mClient_->startGets((NAHeap *)heap_, (char *)tblName.val, useTRex_, FALSE, 
-                 hbs_, 
-                 transID, rows, 0, NULL, columns, timestamp, hbaseAuths);
-    if (mtc_ == NULL) {
-       retCode_ = MC_ERROR_GET_MTC_EXCEPTION;
-       return HBASE_OPEN_ERROR;
-    }
+
     break;
   default:
 
@@ -1643,18 +1537,7 @@ Lng32 ExpHbaseInterface_JNI::deleteRow(
 
   switch (storageType_) {
   case COM_STORAGE_MONARCH:
-     MTableClient_JNI *mtc;
-     retCode_ = mClient_->deleteRow((NAHeap *)heap_, tblName.val, hbs_, useTRex_, replSync, 
-                       transID, row, columns, timestamp, asyncOperation, useRegionXn,
-                       hbaseAuths, &mtc);
-     if (retCode_ != MC_OK) {
-        asyncMtc_ = NULL;
-        return -HBASE_ACCESS_ERROR;
-     }
-     else {
-      if (asyncOperation)
-         asyncMtc_ = mtc;
-     }
+
      break;
   default:
   HTableClient_JNI *htc;
@@ -1753,21 +1636,7 @@ Lng32 ExpHbaseInterface_JNI::deleteRows(
 
   switch (storageType_) {
   case COM_STORAGE_MONARCH:
-     MTableClient_JNI *mtc;
-     retCode_ = mClient_->deleteRows((NAHeap *)heap_, tblName.val, hbs_, 
-                                     useTRex_, replSync, 
-                                     transID, rowIDLen, rowIDs,
-                                     columns, timestamp, 
-                                     asyncOperation, hbaseAuths, 
-                                     &mtc);
-     if (retCode_ != MC_OK) {
-        asyncMtc_ = NULL;
-        return -HBASE_ACCESS_ERROR;
-     }
-     else {
-      if (asyncOperation)
-         asyncMtc_ = mtc;
-     }
+
      break;
   default:
   HTableClient_JNI *htc;
@@ -1863,24 +1732,7 @@ Lng32 ExpHbaseInterface_JNI::checkAndDeleteRow(
 
   switch (storageType_) {
   case COM_STORAGE_MONARCH:
-     MTableClient_JNI *mtc;
-     retCode_ = mClient_->checkAndDeleteRow((NAHeap *)heap_, tblName.val, hbs_, useTRex_, replSync, 
-                                            transID, rowID, columns, columnToCheck, 
-                                            columnValToCheck,timestamp, 
-                                            asyncOperation, useRegionXn, hbaseAuths, 
-                                            &mtc);
-     if (retCode_ == MC_ERROR_CHECKANDDELETEROW_NOTFOUND) {
-        asyncMtc_ = NULL;
-        return HBASE_ROW_NOTFOUND_ERROR;
-     } else
-     if (retCode_ != MC_OK) {
-        asyncMtc_ = NULL;
-        return -HBASE_ACCESS_ERROR;
-     }
-     else {
-      if (asyncOperation)
-         asyncMtc_ = mtc;
-     }
+
      break;
   default:
   HTableClient_JNI *htc;
@@ -1996,18 +1848,7 @@ Lng32 ExpHbaseInterface_JNI::insertRow(
 
   switch (storageType_) {
   case COM_STORAGE_MONARCH:
-     MTableClient_JNI *mtc;
-     retCode_ = mClient_->insertRow((NAHeap *)heap_, tblName.val, hbs_,
-				useTRex_, replSync, 
-				transID, rowID, row, timestamp, checkAndPut, asyncOperation, useRegionXn, &mtc);
-     if (retCode_ != MC_OK) {
-        asyncMtc_ = NULL;
-        return -HBASE_ACCESS_ERROR;
-     }
-     else {
-      if (asyncOperation)
-         asyncMtc_ = mtc;
-     }
+
      break;
   default:
   HTableClient_JNI *htc;
@@ -2105,18 +1946,7 @@ Lng32 ExpHbaseInterface_JNI::insertRows(
 
   switch (storageType_) {
   case COM_STORAGE_MONARCH:
-     MTableClient_JNI *mtc;
-     retCode_ = mClient_->insertRows((NAHeap *)heap_, tblName.val, hbs_,
-				 useTRex_, replSync, 
-				 transID, rowIDLen, rowIDs, rows, timestamp, asyncOperation, &mtc);
-     if (retCode_ != MC_OK) {
-        asyncMtc_ = NULL;
-        return -HBASE_ACCESS_ERROR;
-     }
-     else {
-      if (asyncOperation)
-         asyncMtc_ = mtc;
-     }
+
      break;
   default:
   HTableClient_JNI *htc;
@@ -2194,20 +2024,7 @@ Lng32 ExpHbaseInterface_JNI::lockRequired(
   
   switch (storageType_) {
   case COM_STORAGE_MONARCH:
-    // dont support
-    /*     MTableClient_JNI *mtc;
-     retCode_ = mClient_->lockRequired((NAHeap *)heap_, tblName.val, hbs_,
-				 useTRex_, replSync, 
-				 transID, rowIDLen, rowIDs, rows, timestamp, asyncOperation, &mtc);
-     if (retCode_ != MC_OK) {
-        asyncMtc_ = NULL;
-        return -HBASE_ACCESS_ERROR;
-     }
-     else {
-      if (asyncOperation)
-         asyncMtc_ = mtc;
-     }
-    */
+
      break;
   default:
   HTableClient_JNI *htc;
@@ -2297,12 +2114,7 @@ Lng32 ExpHbaseInterface_JNI::getRowsOpen(
   }
   switch (storageType_) {
   case COM_STORAGE_MONARCH:
-     mtc_ = mClient_->startGets((NAHeap *)heap_, (char *)tblName.val, useTRex_, FALSE, hbs_,
-			    transID, NULL, rowIDLen, &rowIDs, columns, -1);
-     if (mtc_ == NULL) {
-        retCode_ = MC_ERROR_GET_MTC_EXCEPTION;
-        return HBASE_OPEN_ERROR;
-     }
+
      break;
   default:
 
@@ -2718,23 +2530,7 @@ Lng32 ExpHbaseInterface_JNI::checkAndInsertRow(
 
   switch (storageType_) {
   case COM_STORAGE_MONARCH:
-     MTableClient_JNI *mtc;
-     retCode_ = mClient_->insertRow((NAHeap *)heap_, tblName.val, hbs_,
-				useTRex_, replSync, transID, rowID, row, timestamp,
-                                checkAndPut, asyncOperation, useRegionXn, &mtc);
-     if (retCode_ == HBC_ERROR_INSERTROW_DUP_ROWID) {
-        asyncMtc_ = mtc; 
-        return HBASE_DUP_ROW_ERROR;
-     }
-     else 
-     if (retCode_ != MC_OK) {
-        asyncMtc_ = NULL;
-        return -HBASE_ACCESS_ERROR;
-     }
-     else {
-      if (asyncOperation)
-         asyncMtc_ = mtc;
-     }
+
      break;
   default:
   HTableClient_JNI *htc = NULL;
@@ -2826,23 +2622,7 @@ Lng32 ExpHbaseInterface_JNI::checkAndUpdateRow(
   
   switch (storageType_) {
   case COM_STORAGE_MONARCH:
-     MTableClient_JNI *mtc;
-     retCode_ = mClient_->checkAndUpdateRow((NAHeap *)heap_, tblName.val, hbs_,
-					useTRex_, replSync, 
-					transID, rowID, row, columnToCheck, colValToCheck,
-                                        timestamp, asyncOperation, useRegionXn, &mtc);
-     if (retCode_  == MC_ERROR_CHECKANDUPDATEROW_NOTFOUND) {
-        asyncMtc_ = mtc; 
-        return HBASE_ROW_NOTFOUND_ERROR;
-     } else 
-     if (retCode_ != MC_OK) {
-        asyncMtc_ = NULL;
-        return -HBASE_ACCESS_ERROR;
-     } else {
-      if (asyncOperation)
-         asyncMtc_ = mtc;
-     }
-        asyncMtc_ = mtc;
+
      break;
   default:
   HTableClient_JNI *htc;
@@ -2915,27 +2695,7 @@ Lng32 ExpHbaseInterface_JNI::coProcAggr(
   switch (storageType_) 
     {
     case COM_STORAGE_MONARCH:
-      {
-        MTableClient_JNI* mtc = 
-          mClient_->getMTableClient
-          ((NAHeap *)heap_, tblName.val, useTRex_, replSync, hbs_);
-        if (mtc == NULL)
-          {
-            retCode_ = MC_ERROR_GET_MTC_EXCEPTION;
-            return HBASE_OPEN_ERROR;
-          }
-        
-        Int64 transID = getTransactionIDFromContext();
-        Int64 svptId = -1;
-        Int64 pSvptId = -1;
-        svptId = getSavepointIDFromContext(pSvptId);
-        retCode_ = mtc->coProcAggr(
-             transID, aggrType, startRow, stopRow,
-             colFamily, colName, cacheBlocks, numCacheRows,
-             aggrVal);
-        
-        mClient_->releaseMTableClient(mtc);
-      }
+
       break;
 
     default:
@@ -2976,10 +2736,7 @@ Lng32 ExpHbaseInterface_JNI::getClose()
 {
   switch (storageType_) {
   case COM_STORAGE_MONARCH:
-     if (mtc_) {
-        mClient_->releaseMTableClient(mtc_);
-        mtc_ = NULL;
-     }
+
      break;
   default:
   if (htc_)
@@ -3038,7 +2795,6 @@ NAArray<HbaseStr> *ExpHbaseInterface_JNI::getRegionBeginKeys(const char* tblName
   NAArray<HbaseStr> *retValue;
   switch (storageType_) {
   case COM_STORAGE_MONARCH:
-     retValue = mClient_->getStartKeys((NAHeap *)heap_, tblName, useTRex_);
      break;
   default:
   retValue = client_->getStartKeys((NAHeap *)heap_, tblName, useTRex_);
@@ -3051,7 +2807,6 @@ NAArray<HbaseStr> *ExpHbaseInterface_JNI::getRegionEndKeys(const char* tblName)
   NAArray<HbaseStr> *retValue;
   switch (storageType_) {
   case COM_STORAGE_MONARCH:
-     retValue = mClient_->getEndKeys((NAHeap *)heap_, tblName, useTRex_);
      break;
   default:
   retValue = client_->getEndKeys((NAHeap *)heap_, tblName, useTRex_);
@@ -3314,17 +3069,7 @@ Lng32 ExpHbaseInterface_JNI::completeAsyncOperation(Int32 timeout, NABoolean *re
 {
   switch (storageType_) {
   case COM_STORAGE_MONARCH:
-     MTC_RetCode mtcRetCode;
-     if (asyncMtc_ != NULL)
-        mtcRetCode = asyncMtc_->completeAsyncOperation(timeout, resultArray, resultArrayLen);
-     else {
-        retCode_ = MC_ERROR_GET_MTC_EXCEPTION;     
-        return HBASE_OPEN_ERROR;
-     }
-     if (mtcRetCode  == MTC_ERROR_ASYNC_OPERATION_NOT_COMPLETE)
-        return HBASE_RETRY_AGAIN;
-     mClient_->releaseMTableClient(asyncMtc_);
-     asyncMtc_ = NULL;
+
      break;
   default:
   HTC_RetCode retCode;
@@ -3388,13 +3133,7 @@ Lng32 ExpHbaseInterface_JNI::getRegionsNodeName(const HbaseStr& tblName,
 {
   switch (storageType_) {
   case COM_STORAGE_MONARCH:
-     if (mClient_ == NULL) {
-       if (init(hbs_) != HBASE_ACCESS_SUCCESS)
-          return -HBASE_ACCESS_ERROR;
-     }
-     retCode_ = mClient_->getRegionsNodeName(tblName.val, partns, nodeNames);
-     if (retCode_ != MC_OK)
-        return -HBASE_ACCESS_ERROR;
+
      break;
   default:
   if (client_ == NULL)

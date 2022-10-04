@@ -27,7 +27,7 @@
 #include "common/NAString.h"
 #include "QmsLatticeIndex.h"
 #include "QmsMVCandidate.h"
-#include "QRSharedPtr.h"
+#include "qmscommon/QRSharedPtr.h"
 #include "QmsWorkloadAnalysis.h"
 
 /**

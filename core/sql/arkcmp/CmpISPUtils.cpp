@@ -38,7 +38,7 @@
  */
 
 
-#include "CmpStoredProc.h"
+#include "arkcmp/CmpStoredProc.h"
 #include <memory.h>
 
 // contents of this file includes the procedures to extract/format the

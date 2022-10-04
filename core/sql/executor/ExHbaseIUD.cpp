@@ -25,12 +25,12 @@
 
 #include <algorithm>
 
-#include "ex_stdh.h"
+#include "executor/ex_stdh.h"
 #include "comexe/ComTdb.h"
-#include "ex_tcb.h"
+#include "executor/ex_tcb.h"
 #include "ExHbaseAccess.h"
 #include "ex_exe_stmt_globals.h"
-#include "ExpHbaseInterface.h"
+#include "exp/ExpHbaseInterface.h"
 #include "common/NLSConversion.h"
 #include "cli/Context.h"
 

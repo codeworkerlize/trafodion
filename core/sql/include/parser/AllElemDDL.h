@@ -50,7 +50,7 @@
 #include "ElemDDLLobAttrs.h"
 #include "ElemDDLLoggable.h"
 #include "ElemDDLAlterTableMove.h"
-#include "ElemDDLGrantee.h"
+#include "parser/ElemDDLGrantee.h"
 #include "ElemDDLGranteeArray.h"
 #include "ElemDDLKeyValue.h"
 #include "ElemDDLLibrary.h"
@@ -60,12 +60,12 @@
 #include "ElemDDLLikeOptions.h"
 #include "ElemDDLLocation.h"
 #include "ElemDDLTableFeature.h"
-#include "ElemDDLHbaseOptions.h"
+#include "parser/ElemDDLHbaseOptions.h"
 #include "ElemDDLParallelExec.h"
 #include "ElemDDLPassThroughParamDef.h"
 #include "ElemDDLReferences.h"
 #include "ElemDDLSGOption.h"
-#include "ElemDDLSGOptions.h"
+#include "parser/ElemDDLSGOptions.h"
 #include "ElemDDLSchemaName.h"
 #include "ElemDDLPrivActions.h"
 #include "ElemDDLPrivileges.h"
@@ -74,7 +74,7 @@
 #include "ElemDDLDivisionClause.h"
 #include "ElemDDLSaltOptions.h"
 #include "ElemDDLReplicateClause.h"
-#include "ElemDDLStoreOptions.h"
+#include "parser/ElemDDLStoreOptions.h"
 #include "ElemDDLTenantOption.h"
 #include "ElemDDLTenantSchema.h"
 #include "ElemDDLTenantGroup.h"
@@ -83,10 +83,10 @@
 #include "ElemDDLWithGrantOption.h"
 #include "ElemDDLIndexPopulateOption.h"
 #include "ElemDDLIndexScopeOption.h"
-#include "ElemDDLQualName.h" // OZ
+#include "parser/ElemDDLQualName.h" // OZ
 #include "ElemDDLCreateMVOneAttributeTableList.h" // MV OZ
 #include "ElemDDLFileAttrMisc.h"
-#include "ElemDDLGroup.h"
+#include "parser/ElemDDLGroup.h"
 
 //
 // End of File

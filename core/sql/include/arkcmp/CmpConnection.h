@@ -194,7 +194,7 @@ inline NewHandler::~NewHandler()
 
 
 
-#include "NewDel.h"
+#include "sqlcomp/NewDel.h"
 typedef void (*PNH)();
 
 class NewHandler_NSK:public NewHandler

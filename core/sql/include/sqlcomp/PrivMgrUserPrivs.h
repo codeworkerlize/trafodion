@@ -45,43 +45,35 @@ class NATable;
 // ****************************************************************************
 // *
 // * Class:        PrivMgrObjectInfo
-// * Description:  This class describes object details needed to perform 
+// * Description:  This class describes object details needed to perform
 // *               describe requests
 // *
 // ****************************************************************************
-class PrivMgrObjectInfo
-{
-  public:
-
-  PrivMgrObjectInfo( const int64_t objectUID,
-                     const std::string objectName,
-                     const int32_t objectOwner,
-                     const int32_t schemaOwner,
-                     const ComObjectType objectType)
-  : objectOwner_ (objectOwner),
-    objectName_ (objectName),
-    schemaOwner_ (schemaOwner),
-    objectUID_ (objectUID),
-    objectType_ (objectType)
-  {}
-
+class PrivMgrObjectInfo {
+ public:
+  PrivMgrObjectInfo(const int64_t objectUID, const std::string objectName, const int32_t objectOwner,
+                    const int32_t schemaOwner, const ComObjectType objectType)
+      : objectOwner_(objectOwner),
+        objectName_(objectName),
+        schemaOwner_(schemaOwner),
+        objectUID_(objectUID),
+        objectType_(objectType) {}
 
   PrivMgrObjectInfo(const NATable *naTable);
 
-  const int32_t getObjectOwner()                  { return objectOwner_; }
-  const std::string getObjectName()               { return objectName_; }
-  const int32_t getSchemaOwner()                  { return schemaOwner_; }
-  const int64_t getObjectUID()                    { return objectUID_; }
-  const ComObjectType getObjectType()             { return objectType_; }
+  const int32_t getObjectOwner() { return objectOwner_; }
+  const std::string getObjectName() { return objectName_; }
+  const int32_t getSchemaOwner() { return schemaOwner_; }
+  const int64_t getObjectUID() { return objectUID_; }
+  const ComObjectType getObjectType() { return objectType_; }
   const std::vector<std::string> &getColumnList() { return columnList_; }
 
-  private:
-
-  int64_t                  objectUID_;
-  std::string              objectName_;
-  int32_t                  objectOwner_;
-  int32_t                  schemaOwner_;
-  ComObjectType            objectType_;
+ private:
+  int64_t objectUID_;
+  std::string objectName_;
+  int32_t objectOwner_;
+  int32_t schemaOwner_;
+  ComObjectType objectType_;
   std::vector<std::string> columnList_;
 };
 
@@ -89,21 +81,19 @@ class PrivMgrObjectInfo
 // class: ObjectPrivsRow
 //
 // ****************************************************************************
-class ObjectPrivsRow
-{
-public:
-   char objectName[(MAX_SQL_IDENTIFIER_NAME_LEN*3) + 2 + 1];
-   ComObjectType objectType;
-   int32_t granteeID;
-   char granteeName[MAX_USERNAME_LEN * 2 + 1];
-   ComGranteeType granteeType;
-   int32_t grantorID;
-   char grantorName[MAX_USERNAME_LEN * 2 + 1];
-   ComGrantorType grantorType;
-   int64_t privilegesBitmap;
-   int64_t grantableBitmap;
+class ObjectPrivsRow {
+ public:
+  char objectName[(MAX_SQL_IDENTIFIER_NAME_LEN * 3) + 2 + 1];
+  ComObjectType objectType;
+  int32_t granteeID;
+  char granteeName[MAX_USERNAME_LEN * 2 + 1];
+  ComGranteeType granteeType;
+  int32_t grantorID;
+  char grantorName[MAX_USERNAME_LEN * 2 + 1];
+  ComGrantorType grantorType;
+  int64_t privilegesBitmap;
+  int64_t grantableBitmap;
 };
-
 
 // *****************************************************************************
 // *
@@ -112,48 +102,39 @@ public:
 // *               for a user.
 // *
 // *****************************************************************************
-class PrivMgrUserPrivs
-{
-  public:
-
-  PrivMgrUserPrivs()
-  : hasPublicPriv_(false)
-  {
+class PrivMgrUserPrivs {
+ public:
+  PrivMgrUserPrivs() : hasPublicPriv_(false) {
     getPrivilegesTime_.tv_sec = 0;
     getPrivilegesTime_.tv_usec = 0;
   }
 
-  PrivMgrUserPrivs(const PrivMgrUserPrivs& other)
-   :
-    getPrivilegesTime_(other.getPrivilegesTime_),
+  PrivMgrUserPrivs(const PrivMgrUserPrivs &other)
+      : getPrivilegesTime_(other.getPrivilegesTime_),
 
-   // typedef std::bitset<NBR_OF_PRIVS> PrivObjectBitmap;
-   //PrivObjectBitmap objectBitmap_;
-   //PrivObjectBitmap grantableBitmap_;
-    objectBitmap_(other.objectBitmap_.to_string()),
-    grantableBitmap_(other.grantableBitmap_.to_string()),
+        // typedef std::bitset<NBR_OF_PRIVS> PrivObjectBitmap;
+        // PrivObjectBitmap objectBitmap_;
+        // PrivObjectBitmap grantableBitmap_;
+        objectBitmap_(other.objectBitmap_.to_string()),
+        grantableBitmap_(other.grantableBitmap_.to_string()),
 
-   //std::map<size_t,PrivColumnBitmap> PrivColList;
-   colPrivsList_(other.colPrivsList_),
-   colGrantableList_(other.colGrantableList_),
+        // std::map<size_t,PrivColumnBitmap> PrivColList;
+        colPrivsList_(other.colPrivsList_),
+        colGrantableList_(other.colGrantableList_),
 
-   // typedef std::bitset<NBR_OF_PRIVS> PrivColumnBitmap;
-   // typedef std::bitset<NBR_OF_PRIVS> PrivSchemaBitmap;
-   //PrivSchemaBitmap schemaPrivBitmap_;
-   //PrivSchemaBitmap schemaGrantableBitmap_;
-   //PrivColumnBitmap emptyBitmap_;
-   schemaPrivBitmap_(other.schemaPrivBitmap_.to_string()),
-   schemaGrantableBitmap_(other.schemaGrantableBitmap_.to_string()),
-   emptyBitmap_(other.emptyBitmap_.to_string()),
-   hasPublicPriv_(other.hasPublicPriv_)
- {  
- }
+        // typedef std::bitset<NBR_OF_PRIVS> PrivColumnBitmap;
+        // typedef std::bitset<NBR_OF_PRIVS> PrivSchemaBitmap;
+        // PrivSchemaBitmap schemaPrivBitmap_;
+        // PrivSchemaBitmap schemaGrantableBitmap_;
+        // PrivColumnBitmap emptyBitmap_;
+        schemaPrivBitmap_(other.schemaPrivBitmap_.to_string()),
+        schemaGrantableBitmap_(other.schemaGrantableBitmap_.to_string()),
+        emptyBitmap_(other.emptyBitmap_.to_string()),
+        hasPublicPriv_(other.hasPublicPriv_) {}
 
-  static std::string convertPrivTypeToLiteral(PrivType which)
-  {
+  static std::string convertPrivTypeToLiteral(PrivType which) {
     std::string privilege;
-    switch (which)
-    {
+    switch (which) {
       case SELECT_PRIV:
         privilege = "SELECT";
         break;
@@ -196,38 +177,37 @@ class PrivMgrUserPrivs
       default:
         privilege = "UNKNOWN";
     }
-  return privilege;
-}
+    return privilege;
+  }
 
- 
   // Object level
-  bool hasObjectSelectPriv() const    {return objectBitmap_.test(SELECT_PRIV);}
-  bool hasObjectInsertPriv() const    {return objectBitmap_.test(INSERT_PRIV);}
-  bool hasObjectDeletePriv() const    {return objectBitmap_.test(DELETE_PRIV);}
-  bool hasObjectUpdatePriv() const    {return objectBitmap_.test(UPDATE_PRIV);}
-  bool hasObjectUsagePriv() const     {return objectBitmap_.test(USAGE_PRIV);}
-  bool hasObjectReferencePriv() const {return objectBitmap_.test(REFERENCES_PRIV);}
-  bool hasObjectExecutePriv() const   {return objectBitmap_.test(EXECUTE_PRIV);}
-  bool hasObjectAlterPriv() const     {return objectBitmap_.test(ALTER_PRIV);}
-  bool hasObjectDropPriv() const      {return objectBitmap_.test(DROP_PRIV);}
-  bool hasSelectPriv() const    {return schemaPrivBitmap_.test(SELECT_PRIV) || objectBitmap_.test(SELECT_PRIV);}
-  bool hasInsertPriv() const    {return schemaPrivBitmap_.test(INSERT_PRIV) || objectBitmap_.test(INSERT_PRIV);}
-  bool hasDeletePriv() const    {return schemaPrivBitmap_.test(DELETE_PRIV) || objectBitmap_.test(DELETE_PRIV);}
-  bool hasUpdatePriv() const    {return schemaPrivBitmap_.test(UPDATE_PRIV) || objectBitmap_.test(UPDATE_PRIV);}
-  bool hasUsagePriv() const     {return schemaPrivBitmap_.test(USAGE_PRIV) || objectBitmap_.test(USAGE_PRIV);}
-  bool hasReferencePriv() const {return schemaPrivBitmap_.test(REFERENCES_PRIV) || objectBitmap_.test(REFERENCES_PRIV);}
-  bool hasExecutePriv() const   {return schemaPrivBitmap_.test(EXECUTE_PRIV) || objectBitmap_.test(EXECUTE_PRIV);}
-  bool hasCreatePriv() const    {return schemaPrivBitmap_.test(CREATE_PRIV);}
-  bool hasAlterPriv() const     {return schemaPrivBitmap_.test(ALTER_PRIV) || objectBitmap_.test(ALTER_PRIV);}
-  bool hasDropPriv() const      {return schemaPrivBitmap_.test(DROP_PRIV) || objectBitmap_.test(DROP_PRIV);}
-  bool hasAllObjectPriv() const {return objectBitmap_.all();}
-  bool hasAnyObjectPriv() const {return objectBitmap_.any();}
-  bool hasAnySchemaPriv() const {return schemaPrivBitmap_.any();}
-  bool hasPriv(PrivType which) const
-  {
+  bool hasObjectSelectPriv() const { return objectBitmap_.test(SELECT_PRIV); }
+  bool hasObjectInsertPriv() const { return objectBitmap_.test(INSERT_PRIV); }
+  bool hasObjectDeletePriv() const { return objectBitmap_.test(DELETE_PRIV); }
+  bool hasObjectUpdatePriv() const { return objectBitmap_.test(UPDATE_PRIV); }
+  bool hasObjectUsagePriv() const { return objectBitmap_.test(USAGE_PRIV); }
+  bool hasObjectReferencePriv() const { return objectBitmap_.test(REFERENCES_PRIV); }
+  bool hasObjectExecutePriv() const { return objectBitmap_.test(EXECUTE_PRIV); }
+  bool hasObjectAlterPriv() const { return objectBitmap_.test(ALTER_PRIV); }
+  bool hasObjectDropPriv() const { return objectBitmap_.test(DROP_PRIV); }
+  bool hasSelectPriv() const { return schemaPrivBitmap_.test(SELECT_PRIV) || objectBitmap_.test(SELECT_PRIV); }
+  bool hasInsertPriv() const { return schemaPrivBitmap_.test(INSERT_PRIV) || objectBitmap_.test(INSERT_PRIV); }
+  bool hasDeletePriv() const { return schemaPrivBitmap_.test(DELETE_PRIV) || objectBitmap_.test(DELETE_PRIV); }
+  bool hasUpdatePriv() const { return schemaPrivBitmap_.test(UPDATE_PRIV) || objectBitmap_.test(UPDATE_PRIV); }
+  bool hasUsagePriv() const { return schemaPrivBitmap_.test(USAGE_PRIV) || objectBitmap_.test(USAGE_PRIV); }
+  bool hasReferencePriv() const {
+    return schemaPrivBitmap_.test(REFERENCES_PRIV) || objectBitmap_.test(REFERENCES_PRIV);
+  }
+  bool hasExecutePriv() const { return schemaPrivBitmap_.test(EXECUTE_PRIV) || objectBitmap_.test(EXECUTE_PRIV); }
+  bool hasCreatePriv() const { return schemaPrivBitmap_.test(CREATE_PRIV); }
+  bool hasAlterPriv() const { return schemaPrivBitmap_.test(ALTER_PRIV) || objectBitmap_.test(ALTER_PRIV); }
+  bool hasDropPriv() const { return schemaPrivBitmap_.test(DROP_PRIV) || objectBitmap_.test(DROP_PRIV); }
+  bool hasAllObjectPriv() const { return objectBitmap_.all(); }
+  bool hasAnyObjectPriv() const { return objectBitmap_.any(); }
+  bool hasAnySchemaPriv() const { return schemaPrivBitmap_.any(); }
+  bool hasPriv(PrivType which) const {
     bool hasPriv = false;
-    switch (which)
-    {
+    switch (which) {
       case SELECT_PRIV:
         hasPriv = hasSelectPriv();
         break;
@@ -257,11 +237,9 @@ class PrivMgrUserPrivs
     return hasPriv;
   }
 
-  bool hasObjectPriv(PrivType which) const
-  {
+  bool hasObjectPriv(PrivType which) const {
     bool hasPriv = false;
-    switch (which)
-    {
+    switch (which) {
       case SELECT_PRIV:
         hasPriv = hasObjectSelectPriv();
         break;
@@ -291,69 +269,45 @@ class PrivMgrUserPrivs
     return hasPriv;
   }
 
-  bool hasAllDMLPriv() const
-  {
-    return (hasSelectPriv() && 
-            hasInsertPriv() && 
-            hasDeletePriv() && 
-            hasUpdatePriv() && 
-            hasReferencePriv());
-  } 
-            
-  bool hasAllLibraryPriv() const
-  { return (hasUpdatePriv() && hasUsagePriv()); }
-
-  bool hasAllUdrPriv() const
-  { return hasExecutePriv(); }
-
-  bool hasAllDDLPriv() const
-   {return (hasCreatePriv() && hasAlterPriv() && hasDropPriv());}
-
-  bool hasWGOOption(PrivType privType) const 
-   {return grantableBitmap_.test(privType);}
-
-  bool hasColSelectPriv(const int32_t ordinal) const {return hasColPriv(SELECT_PRIV,ordinal);}
-  bool hasColInsertPriv(const int32_t ordinal) const {return hasColPriv(INSERT_PRIV,ordinal);}
-  bool hasColUpdatePriv(const int32_t ordinal) const {return hasColPriv(UPDATE_PRIV,ordinal);}
-  bool hasColReferencePriv(const int32_t ordinal) const {return hasColPriv(REFERENCES_PRIV,ordinal);}
-  bool hasAnyColPriv() const       
-  {
-     return (!colPrivsList_.empty());
-  }
-  
-  bool hasAnyColPriv(const PrivType privType) const       
-  {
-
-     PrivColIterator columnIterator;
-     for (columnIterator = colPrivsList_.begin();
-          columnIterator != colPrivsList_.end(); ++columnIterator)
-     {
-        if (columnIterator->second.test(privType))
-           return true;
-     
-     }
-     
-     return false;     
+  bool hasAllDMLPriv() const {
+    return (hasSelectPriv() && hasInsertPriv() && hasDeletePriv() && hasUpdatePriv() && hasReferencePriv());
   }
 
+  bool hasAllLibraryPriv() const { return (hasUpdatePriv() && hasUsagePriv()); }
 
-  bool hasColPriv(PrivType privType,const int32_t ordinal) const
-  {
+  bool hasAllUdrPriv() const { return hasExecutePriv(); }
+
+  bool hasAllDDLPriv() const { return (hasCreatePriv() && hasAlterPriv() && hasDropPriv()); }
+
+  bool hasWGOOption(PrivType privType) const { return grantableBitmap_.test(privType); }
+
+  bool hasColSelectPriv(const int32_t ordinal) const { return hasColPriv(SELECT_PRIV, ordinal); }
+  bool hasColInsertPriv(const int32_t ordinal) const { return hasColPriv(INSERT_PRIV, ordinal); }
+  bool hasColUpdatePriv(const int32_t ordinal) const { return hasColPriv(UPDATE_PRIV, ordinal); }
+  bool hasColReferencePriv(const int32_t ordinal) const { return hasColPriv(REFERENCES_PRIV, ordinal); }
+  bool hasAnyColPriv() const { return (!colPrivsList_.empty()); }
+
+  bool hasAnyColPriv(const PrivType privType) const {
+    PrivColIterator columnIterator;
+    for (columnIterator = colPrivsList_.begin(); columnIterator != colPrivsList_.end(); ++columnIterator) {
+      if (columnIterator->second.test(privType)) return true;
+    }
+
+    return false;
+  }
+
+  bool hasColPriv(PrivType privType, const int32_t ordinal) const {
     // If no privileges for that column, return false.
-    if (colPrivsList_.count(ordinal) <= 0)
-       return false;
-       
-    switch (privType)
-    {
+    if (colPrivsList_.count(ordinal) <= 0) return false;
+
+    switch (privType) {
       case SELECT_PRIV:
       case INSERT_PRIV:
       case REFERENCES_PRIV:
-      case UPDATE_PRIV:
-      {
+      case UPDATE_PRIV: {
         PrivColIterator columnIterator = colPrivsList_.find(ordinal);
-        if (columnIterator == colPrivsList_.end())
-           return false;
-        
+        if (columnIterator == colPrivsList_.end()) return false;
+
         return columnIterator->second.test(privType);
         break;
       }
@@ -364,102 +318,81 @@ class PrivMgrUserPrivs
     return false;
   }
 
-  bool hasAnyPriv() const
-  { 
-    return (hasAnyObjectPriv() || hasAnySchemaPriv() || hasAnyColPriv());
+  bool hasAnyPriv() const { return (hasAnyObjectPriv() || hasAnySchemaPriv() || hasAnyColPriv()); }
+
+  bool setPrivInfoAndKeys(PrivMgrDescList &privDescs, const int32_t userID, const int64_t objectUID,
+                          NASet<ComSecurityKey> *secKeySet);
+
+  PrivColList &getColPrivList() { return colPrivsList_; }
+  void setColPrivList(PrivColList colPrivsList) { colPrivsList_ = colPrivsList; }
+
+  PrivColList &getColGrantableList() { return colGrantableList_; }
+  void setColGrantableList(PrivColList colGrantableList) { colGrantableList_ = colGrantableList; }
+
+  PrivColumnBitmap getColumnPrivBitmap(const int32_t ordinal) {
+    if (colPrivsList_.empty() || colPrivsList_.count(ordinal) == 0) return emptyBitmap_;
+
+    return colPrivsList_[ordinal];
   }
 
-  bool setPrivInfoAndKeys ( PrivMgrDescList &privDescs,
-                            const int32_t userID,
-                            const int64_t objectUID,
-                            NASet<ComSecurityKey> *secKeySet);
+  PrivColumnBitmap getColumnGrantableBitmap(const int32_t ordinal) {
+    if (colGrantableList_.empty() || colGrantableList_.count(ordinal) == 0) return emptyBitmap_;
 
-  PrivColList & getColPrivList() {return colPrivsList_;}
-  void setColPrivList(PrivColList colPrivsList)
-     {colPrivsList_ = colPrivsList;}
-  
-  PrivColList & getColGrantableList() {return colGrantableList_;}
-  void setColGrantableList(PrivColList colGrantableList)
-     {colGrantableList_ = colGrantableList;}
- 
-  PrivColumnBitmap getColumnPrivBitmap(const int32_t ordinal) 
-  {
-     if (colPrivsList_.empty() || colPrivsList_.count(ordinal) == 0)
-        return emptyBitmap_;
-  
-     return colPrivsList_[ordinal];
+    return colGrantableList_[ordinal];
   }
 
-  PrivColumnBitmap getColumnGrantableBitmap(const int32_t ordinal) 
-  {
-     if (colGrantableList_.empty() || colGrantableList_.count(ordinal) == 0)
-        return emptyBitmap_;
-  
-     return colGrantableList_[ordinal];
+  PrivMgrBitmap getObjectBitmap() { return objectBitmap_; }
+  void setObjectBitmap(PrivMgrBitmap objectBitmap) { objectBitmap_ = objectBitmap; }
+
+  PrivMgrBitmap getGrantableBitmap() { return grantableBitmap_; }
+  void setGrantableBitmap(PrivMgrBitmap grantableBitmap) { grantableBitmap_ = grantableBitmap; }
+
+  void setOwnerDefaultPrivs() {
+    objectBitmap_.set();
+    grantableBitmap_.set();
   }
 
-  PrivMgrBitmap getObjectBitmap() {return objectBitmap_;}
-  void setObjectBitmap (PrivMgrBitmap objectBitmap)
-     {objectBitmap_ = objectBitmap;}
+  PrivSchemaBitmap getSchemaPrivBitmap() { return schemaPrivBitmap_; }
+  void setSchemaPrivBitmap(PrivSchemaBitmap schemaPrivBitmap) { schemaPrivBitmap_ = schemaPrivBitmap; }
 
-  PrivMgrBitmap getGrantableBitmap() {return grantableBitmap_;}
-  void setGrantableBitmap (PrivMgrBitmap grantableBitmap)
-     {grantableBitmap_ = grantableBitmap;}
-
-  void setOwnerDefaultPrivs() 
-     { objectBitmap_.set(); grantableBitmap_.set(); } 
-     
-  PrivSchemaBitmap getSchemaPrivBitmap() {return schemaPrivBitmap_;}
-  void setSchemaPrivBitmap (PrivSchemaBitmap schemaPrivBitmap)
-     {schemaPrivBitmap_ = schemaPrivBitmap;}
-
-  PrivSchemaBitmap getSchemaGrantableBitmap() {return schemaGrantableBitmap_;}
-  void setSchemaGrantableBitmap (PrivSchemaBitmap schemaGrantableBitmap)
-     {schemaGrantableBitmap_ = schemaGrantableBitmap;}
+  PrivSchemaBitmap getSchemaGrantableBitmap() { return schemaGrantableBitmap_; }
+  void setSchemaGrantableBitmap(PrivSchemaBitmap schemaGrantableBitmap) {
+    schemaGrantableBitmap_ = schemaGrantableBitmap;
+  }
 
   bool getHasPublicPriv() { return hasPublicPriv_; }
-  void setHasPublicPriv(bool hasPublicPriv) {hasPublicPriv_ = hasPublicPriv;}
-  void initUserPrivs (PrivMgrDesc &privsOfTheGrantor);
+  void setHasPublicPriv(bool hasPublicPriv) { hasPublicPriv_ = hasPublicPriv; }
+  void initUserPrivs(PrivMgrDesc &privsOfTheGrantor);
 
-  bool initUserPrivs ( const NAList<Int32> &roleIDs,
-                       PrivMgrDescList *privDescs,
-                       const int32_t userID,
-                       const int64_t objectUID,
-                       NASet<ComSecurityKey> *secKeySet = NULL);
+  bool initUserPrivs(const NAList<Int32> &roleIDs, PrivMgrDescList *privDescs, const int32_t userID,
+                     const int64_t objectUID, NASet<ComSecurityKey> *secKeySet = NULL);
 
   void setGetPrivilegesTime();
-  bool isStale(struct timeval * timeBase, int32_t incrementInSeconds);
+  bool isStale(struct timeval *timeBase, int32_t incrementInSeconds);
   void reInit();  // to allow reuse (that is, repopulation) of this object
   std::string print();
 
-  NABoolean operator==(const PrivMgrUserPrivs& other) const
-  {
-      return ( getPrivilegesTime_.tv_sec == other.getPrivilegesTime_.tv_sec &&
-               getPrivilegesTime_.tv_usec == other.getPrivilegesTime_.tv_usec &&
-               objectBitmap_ == other.objectBitmap_ &&
-               grantableBitmap_ == other.grantableBitmap_ &&
-               colPrivsList_ == other.colPrivsList_ &&
-               colGrantableList_ == other.colGrantableList_ &&
-               schemaPrivBitmap_ == other.schemaPrivBitmap_ &&
-               schemaGrantableBitmap_ == other.schemaGrantableBitmap_ &&
-               emptyBitmap_ == other.emptyBitmap_ &&
-               hasPublicPriv_ == other.hasPublicPriv_ 
-             );
+  NABoolean operator==(const PrivMgrUserPrivs &other) const {
+    return (getPrivilegesTime_.tv_sec == other.getPrivilegesTime_.tv_sec &&
+            getPrivilegesTime_.tv_usec == other.getPrivilegesTime_.tv_usec && objectBitmap_ == other.objectBitmap_ &&
+            grantableBitmap_ == other.grantableBitmap_ && colPrivsList_ == other.colPrivsList_ &&
+            colGrantableList_ == other.colGrantableList_ && schemaPrivBitmap_ == other.schemaPrivBitmap_ &&
+            schemaGrantableBitmap_ == other.schemaGrantableBitmap_ && emptyBitmap_ == other.emptyBitmap_ &&
+            hasPublicPriv_ == other.hasPublicPriv_);
   }
 
  private:
-   // when adding or changing members, make sure that the reInit
-   // method is updated as needed
-   struct timeval getPrivilegesTime_;
-   PrivObjectBitmap objectBitmap_;
-   PrivObjectBitmap grantableBitmap_;
-   PrivColList colPrivsList_;
-   PrivColList colGrantableList_;
-   PrivSchemaBitmap schemaPrivBitmap_;
-   PrivSchemaBitmap schemaGrantableBitmap_;
-   PrivColumnBitmap emptyBitmap_;
-   bool hasPublicPriv_;
+  // when adding or changing members, make sure that the reInit
+  // method is updated as needed
+  struct timeval getPrivilegesTime_;
+  PrivObjectBitmap objectBitmap_;
+  PrivObjectBitmap grantableBitmap_;
+  PrivColList colPrivsList_;
+  PrivColList colGrantableList_;
+  PrivSchemaBitmap schemaPrivBitmap_;
+  PrivSchemaBitmap schemaGrantableBitmap_;
+  PrivColumnBitmap emptyBitmap_;
+  bool hasPublicPriv_;
 };
 
 #endif
-

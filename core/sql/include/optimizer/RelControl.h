@@ -40,10 +40,10 @@
 
 
 #include "sqlcomp/DefaultConstants.h"
-#include "RelExpr.h"
+#include "optimizer/RelExpr.h"
 #include "parser/StmtCompilationMode.h"
 #include "common/charinfo.h"
-#include "OptimizerSimulator.h"
+#include "optimizer/OptimizerSimulator.h"
 
 class GroupOfNAString;
 

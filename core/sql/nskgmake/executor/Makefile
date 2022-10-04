@@ -126,7 +126,6 @@ CPPSRC := Allocator.cpp \
         SequenceFileReader.cpp \
         DistributedLock_JNI.cpp \
         HBaseClient_JNI.cpp \
-        MonarchClient_JNI.cpp \
         TenantHelper_JNI.cpp
 CPPSRC += vers_libexecutor.cpp \
 	ssmpipc.cpp \

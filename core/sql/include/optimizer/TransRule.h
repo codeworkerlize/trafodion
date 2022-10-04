@@ -39,8 +39,8 @@
 */
 
 
-#include "Rule.h"
-#include "Analyzer.h"
+#include "optimizer/Rule.h"
+#include "optimizer/Analyzer.h"
 
 //------------------------------------------------------------------------
 //forward declaration

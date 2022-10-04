@@ -41,11 +41,11 @@
 #include "ReqGen.h"
 #include "GroupAttr.h"
 #include "optimizer/RelScan.h"
-#include "opt.h"
+#include "optimizer/opt.h"
 #include "common/str.h"
 #include "common/NumericType.h"
 #include "common/MiscType.h"
-#include "NAFileSet.h"
+#include "optimizer/NAFileSet.h"
 #include "utility.h"
 
 

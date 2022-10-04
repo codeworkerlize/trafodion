@@ -39,7 +39,7 @@
 
 #include "common/Platform.h"
 #include "cli/SQLCLIdev.h"
-#include "ExpSeqGen.h"
+#include "exp/ExpSeqGen.h"
 #include "export/ComDiags.h"
 #include "ex_error.h"
 #include "seabed/ms.h"

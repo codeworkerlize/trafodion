@@ -322,10 +322,7 @@ class RangeOfValues : public NABasicObject {
   // dump the content to out.
   virtual void dump(ostream &out, const char *title = NULL) = 0;
 
-  virtual NABoolean convertToOrcPredicates(std::vector<std::string> &ppiVec, const char *colName, const char *colType,
-                                           Int32 filterId, std::string &min, std::string &max, NABoolean allowIN) {
-    return FALSE;
-  };
+
 
   // The enabled/disabled status.
   NABoolean isEnabled() { return enabled_; };
@@ -410,18 +407,6 @@ class ClusteredBitmapForIntegers : public RangeOfValues {
   // dump the content to out.
   void dump(ostream &out, const char *title = NULL);
 
-  // Convert the data structure to a list of items as follows.
-  //    Each item is a pair <length (4 bytes)><value (in ASCII)>
-  //    The list is <entries of 4  bytes> [<length><value> ]+
-  //
-  // text: the string to hold the list;
-  // size: the available space in text;
-  // on return:
-  //    TRUE: the converesion is successful;
-  //    FALSE: otherwise
-  //    size: the number of bytes remaining in text uused
-  NABoolean convertToOrcPredicates(std::vector<std::string> &ppiVec, const char *colName, const char *colType,
-                                   Int32 filterId, std::string &min, std::string &max, NABoolean allowIn);
 
  private:
   ClusteredBitmap bitMapPos_;  // to hold 0 and positive values
@@ -476,26 +461,6 @@ class RangeSpecRT : public RangeOfValues {
 
   // dump the content to out.
   void dump(ostream &out, const char *title = NULL);
-
-  // Convert the data structure to either an OR predicate
-  // or a list of items as follows.
-  //
-  // OR predicate (when some subranges are real ranges)
-  //
-  // List (when all subranges are single data points):
-  //
-  //    Each item is a pair <length (4 bytes)><value (in ASCII)>
-  //    The list is <entries of 4  bytes> [<length><value> ]+
-  //
-  // text: the string to hold the list;
-  // size: the available space in text;
-  // on return:
-  //    TRUE: the converesion is successful;
-  //    FALSE: otherwise
-  //    size: the number of bytes remaining in text uused
-  //
-  NABoolean convertToOrcPredicates(std::vector<std::string> &ppiVec, const char *colName, const char *colType,
-                                   Int32 filterId, std::string &min, std::string &max, NABoolean allowIn);
 
   static UInt32 minPackedLength() { return RangeOfValues::minPackedLength() + 4; }
 
@@ -561,9 +526,6 @@ class BloomFilterRT : public RangeOfValues {
   // unpack the data structure from buf.
   // Assume unlimited memory to hold the  data structure.
   UInt32 unpack(char *buf);
-
-  NABoolean convertToOrcPredicates(std::vector<std::string> &ppi, const char *colName, const char *colType,
-                                   Int32 filterId, std::string &min, std::string &max, NABoolean);
 
   // dump the content to out.
   void dump(ostream &out, const char *title = NULL);

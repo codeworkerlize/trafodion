@@ -24,7 +24,7 @@
 ****************************************************************************
 *
 * File:         ComTdbUnPackRows.cpp
-* Description:  
+* Description:
 *
 * Created:      5/6/98
 * Language:     C++
@@ -48,39 +48,28 @@
 // Used when unpacking the UnPackRows TDB to get a pointer
 // to the Virtual Method Table. Called by ComTdb::fixupVTblPtr().
 //
-ComTdbUnPackRows::ComTdbUnPackRows() 
-  : ComTdb(ComTdb::ex_UNPACKROWS, eye_UNPACKROWS)
-{
-}
+ComTdbUnPackRows::ComTdbUnPackRows() : ComTdb(ComTdb::ex_UNPACKROWS, eye_UNPACKROWS) {}
 
 // Construct a copy of the given UnPackRows Tdb.
 // (This constructor does not seem to be used)
 
 // Exclude this code from coverage analysis.
 ComTdbUnPackRows::ComTdbUnPackRows(const ComTdbUnPackRows *unPackRowsTdb)
-  : ComTdb(ComTdb::ex_UNPACKROWS,
-	   eye_UNPACKROWS,
-           unPackRowsTdb->getEstRowsUsed(),
-	   unPackRowsTdb->criDescDown_,
-	   unPackRowsTdb->criDescUp_,
-           unPackRowsTdb->queueSizeDown_,
-	   unPackRowsTdb->queueSizeUp_,
-           unPackRowsTdb->numBuffers_,
-	   unPackRowsTdb->bufferSize_),
-    childTdb_(unPackRowsTdb->childTdb_),
-    packingFactor_(unPackRowsTdb->packingFactor_),
-    unPackColsExpr_(unPackRowsTdb->unPackColsExpr_),
-    unPackColsTupleLen_(unPackRowsTdb->unPackColsTupleLen_),
-    unPackColsAtpIndex_(unPackRowsTdb->unPackColsAtpIndex_),
-    indexValueAtpIndex_(unPackRowsTdb->indexValueAtpIndex_),
-    workCriDesc_(unPackRowsTdb->workCriDesc_),
-    flags_(unPackRowsTdb->flags_)
-{
-}
+    : ComTdb(ComTdb::ex_UNPACKROWS, eye_UNPACKROWS, unPackRowsTdb->getEstRowsUsed(), unPackRowsTdb->criDescDown_,
+             unPackRowsTdb->criDescUp_, unPackRowsTdb->queueSizeDown_, unPackRowsTdb->queueSizeUp_,
+             unPackRowsTdb->numBuffers_, unPackRowsTdb->bufferSize_),
+      childTdb_(unPackRowsTdb->childTdb_),
+      packingFactor_(unPackRowsTdb->packingFactor_),
+      unPackColsExpr_(unPackRowsTdb->unPackColsExpr_),
+      unPackColsTupleLen_(unPackRowsTdb->unPackColsTupleLen_),
+      unPackColsAtpIndex_(unPackRowsTdb->unPackColsAtpIndex_),
+      indexValueAtpIndex_(unPackRowsTdb->indexValueAtpIndex_),
+      workCriDesc_(unPackRowsTdb->workCriDesc_),
+      flags_(unPackRowsTdb->flags_) {}
 
 // Construct a new UnPackRows TDB.
 // This constructor is call by the generator (PhysUnPackRows::codeGen() in
-// GenRelPackedRows.cpp.) 
+// GenRelPackedRows.cpp.)
 //
 // Parameters
 //
@@ -114,7 +103,7 @@ ComTdbUnPackRows::ComTdbUnPackRows(const ComTdbUnPackRows *unPackRowsTdb)
 //  IN: The Cri Descriptor for the work Atp.
 //
 // queue_index queueSizeDown
-//  IN: Recommended queue size for the down queue used to communicate 
+//  IN: Recommended queue size for the down queue used to communicate
 //      with the parent.
 //
 // queue_index queueSizeUp
@@ -124,76 +113,43 @@ ComTdbUnPackRows::ComTdbUnPackRows(const ComTdbUnPackRows *unPackRowsTdb)
 // Cardinality estimatedRowCount
 //  IN: compiler estimate on number of returned rows
 //
-ComTdbUnPackRows::ComTdbUnPackRows(ComTdb *childTdb,
-				   ex_expr *packingFactor,
-				   ex_expr *unPackColsExpr,
-				   Lng32 unPackColsTupleLen,
-				   unsigned short unPackColsAtpIndex,
-				   unsigned short indexValueAtpIndex,
-				   ex_cri_desc *criDescDown,
-				   ex_cri_desc *criDescUp,
-				   ex_cri_desc *workCriDesc,
-				   queue_index queueSizeDown,
-				   queue_index queueSizeUp,
-				   Cardinality estimatedRowCount,
-				   NABoolean rowsetIterator,
-				   NABoolean tolerateNonFatalError) :
-  ComTdb(ComTdb::ex_UNPACKROWS,
-	 eye_UNPACKROWS,
-         estimatedRowCount,
-	 criDescDown,
-	 criDescUp,
-         queueSizeDown,
-	 queueSizeUp,
-         0,
-	 0),
-  childTdb_(childTdb),
-  packingFactor_(packingFactor),
-  unPackColsExpr_(unPackColsExpr),
-  unPackColsTupleLen_(unPackColsTupleLen),
-  unPackColsAtpIndex_(unPackColsAtpIndex),
-  indexValueAtpIndex_(indexValueAtpIndex),
-  workCriDesc_(workCriDesc),
-  flags_(0)
-{
-    if (rowsetIterator == TRUE)
-    flags_ |= ROWSET_ITERATOR;
+ComTdbUnPackRows::ComTdbUnPackRows(ComTdb *childTdb, ex_expr *packingFactor, ex_expr *unPackColsExpr,
+                                   Lng32 unPackColsTupleLen, unsigned short unPackColsAtpIndex,
+                                   unsigned short indexValueAtpIndex, ex_cri_desc *criDescDown, ex_cri_desc *criDescUp,
+                                   ex_cri_desc *workCriDesc, queue_index queueSizeDown, queue_index queueSizeUp,
+                                   Cardinality estimatedRowCount, NABoolean rowsetIterator,
+                                   NABoolean tolerateNonFatalError)
+    : ComTdb(ComTdb::ex_UNPACKROWS, eye_UNPACKROWS, estimatedRowCount, criDescDown, criDescUp, queueSizeDown,
+             queueSizeUp, 0, 0),
+      childTdb_(childTdb),
+      packingFactor_(packingFactor),
+      unPackColsExpr_(unPackColsExpr),
+      unPackColsTupleLen_(unPackColsTupleLen),
+      unPackColsAtpIndex_(unPackColsAtpIndex),
+      indexValueAtpIndex_(indexValueAtpIndex),
+      workCriDesc_(workCriDesc),
+      flags_(0) {
+  if (rowsetIterator == TRUE) flags_ |= ROWSET_ITERATOR;
 
-    setTolerateNonFatalError(tolerateNonFatalError);
+  setTolerateNonFatalError(tolerateNonFatalError);
 }
 
-ComTdbUnPackRows::ComTdbUnPackRows(ComTdb *childTdb,
-				   ex_expr *inputSizeExpr,
-				   ex_expr *maxInputRowlenExpr,
-				   ex_expr *rwrsBufferAddrExpr,
-				   unsigned short rwrsAtpIndex,
-				   ex_cri_desc *criDescDown,
-				   ex_cri_desc *criDescUp,
-				   ex_cri_desc *workCriDesc,
-				   queue_index queueSizeDown,
-				   queue_index queueSizeUp,
-				   Cardinality estimatedRowCount,
-				   Lng32 num_buffers,
-				   ULng32 buffer_size) :
-     ComTdb(ComTdb::ex_UNPACKROWS,
-	    eye_UNPACKROWS,
-	    estimatedRowCount,
-	    criDescDown,
-	    criDescUp,
-	    queueSizeDown,
-	    queueSizeUp,
-	    num_buffers,
-	    buffer_size),
-  childTdb_(childTdb),
-  packingFactor_(inputSizeExpr),
-  unPackColsExpr_(maxInputRowlenExpr),
-  rwrsBufferAddrExpr_(rwrsBufferAddrExpr),
-  unPackColsTupleLen_(0),
-  unPackColsAtpIndex_(rwrsAtpIndex),
-  indexValueAtpIndex_(0),
-  workCriDesc_(workCriDesc),
-  flags_(0)
-{
+ComTdbUnPackRows::ComTdbUnPackRows(ComTdb *childTdb, ex_expr *inputSizeExpr, ex_expr *maxInputRowlenExpr,
+                                   ex_expr *rwrsBufferAddrExpr, unsigned short rwrsAtpIndex, ex_cri_desc *criDescDown,
+                                   ex_cri_desc *criDescUp, ex_cri_desc *workCriDesc, queue_index queueSizeDown,
+                                   queue_index queueSizeUp, Cardinality estimatedRowCount, Lng32 num_buffers,
+                                   ULng32 buffer_size)
+    : ComTdb(ComTdb::ex_UNPACKROWS, eye_UNPACKROWS, estimatedRowCount, criDescDown, criDescUp, queueSizeDown,
+             queueSizeUp, num_buffers, buffer_size),
+      childTdb_(childTdb),
+      packingFactor_(inputSizeExpr),
+      unPackColsExpr_(maxInputRowlenExpr),
+      rwrsBufferAddrExpr_(rwrsBufferAddrExpr),
+      unPackColsTupleLen_(0),
+      unPackColsAtpIndex_(rwrsAtpIndex),
+      indexValueAtpIndex_(0),
+      workCriDesc_(workCriDesc),
+      flags_(0) {
   setRowwiseRowset(TRUE);
 }
 
@@ -204,9 +160,7 @@ ComTdbUnPackRows::ComTdbUnPackRows(ComTdb *childTdb,
 //
 // Exclude this code from coverage analysis.
 // This code could be deleted since it is not used.
-void
-ComTdbUnPackRows::display() const 
-{
+void ComTdbUnPackRows::display() const {
   // Do nothing for now.
   //
 }
@@ -222,12 +176,10 @@ ComTdbUnPackRows::display() const
 // void *space
 //  IN - The space object which was used to allocate this TDB. Used to
 //       compute offsets all pointers.  It is an error if any pointer
-//       that can be reached from this TDB points to memory outside 
+//       that can be reached from this TDB points to memory outside
 //       this space object.
 //
-Long
-ComTdbUnPackRows::pack(void * space)
-{
+Long ComTdbUnPackRows::pack(void *space) {
   // Pack the child TDB, (this calls the pack() method on the child.
   //
   childTdb_.pack(space);
@@ -239,7 +191,7 @@ ComTdbUnPackRows::pack(void * space)
 
   packingFactor_.pack(space);
   unPackColsExpr_.pack(space);
-  
+
   rwrsBufferAddrExpr_.pack(space);
 
   // Return the packed pointer to 'this', so that my parent can store the
@@ -260,51 +212,38 @@ ComTdbUnPackRows::pack(void * space)
 //  IN - The base address of the TDB fragment.  Pointers are calculated
 //       by adding the offset to the base address (more or less).
 //
-Lng32
-ComTdbUnPackRows::unpack(void * base, void * reallocator)
-{
-  if(childTdb_.unpack(base, reallocator)) return -1;
-  if(workCriDesc_.unpack(base, reallocator)) return -1;
-  if(packingFactor_.unpack(base, reallocator)) return -1;
-  if(unPackColsExpr_.unpack(base, reallocator)) return -1;
-  if(rwrsBufferAddrExpr_.unpack(base, reallocator)) return -1;
+Lng32 ComTdbUnPackRows::unpack(void *base, void *reallocator) {
+  if (childTdb_.unpack(base, reallocator)) return -1;
+  if (workCriDesc_.unpack(base, reallocator)) return -1;
+  if (packingFactor_.unpack(base, reallocator)) return -1;
+  if (unPackColsExpr_.unpack(base, reallocator)) return -1;
+  if (rwrsBufferAddrExpr_.unpack(base, reallocator)) return -1;
   return ComTdb::unpack(base, reallocator);
 }
 
-void ComTdbUnPackRows::displayContents(Space * space,ULng32 flag)
-{
-  ComTdb::displayContents(space,flag & 0xFFFFFFFE);
-  
-  if(flag & 0x00000008)
-    {
-      char buf[100];
-      str_sprintf(buf, "\nFor ComTdbUnPackRows :");
-      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-      
-      if (rowwiseRowset())
-	{
-	  str_sprintf(buf,"rwrsAtpIndex_  = %d", 
-		      unPackColsAtpIndex_);
-	  space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-	}
-      else
-	{
-	  str_sprintf(buf,"unPackColsTupleLen_  = %d, unPackColsAtpIndex_  = %d, indexValueAtpIndex_ = %d", 
-		      unPackColsTupleLen_, unPackColsAtpIndex_, indexValueAtpIndex_);
-	  space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-	}
+void ComTdbUnPackRows::displayContents(Space *space, ULng32 flag) {
+  ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
-      str_sprintf(buf,"flags_ = %x", flags_);
+  if (flag & 0x00000008) {
+    char buf[100];
+    str_sprintf(buf, "\nFor ComTdbUnPackRows :");
+    space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+
+    if (rowwiseRowset()) {
+      str_sprintf(buf, "rwrsAtpIndex_  = %d", unPackColsAtpIndex_);
+      space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+    } else {
+      str_sprintf(buf, "unPackColsTupleLen_  = %d, unPackColsAtpIndex_  = %d, indexValueAtpIndex_ = %d",
+                  unPackColsTupleLen_, unPackColsAtpIndex_, indexValueAtpIndex_);
       space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
     }
-  
-  if(flag & 0x00000001)
-    {
-      displayExpression(space,flag);
-      displayChildren(space,flag);
-    }
+
+    str_sprintf(buf, "flags_ = %x", flags_);
+    space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
+  }
+
+  if (flag & 0x00000001) {
+    displayExpression(space, flag);
+    displayChildren(space, flag);
+  }
 }
-
-
-
-

@@ -51,7 +51,7 @@
 #include "common/Int64.h"
 
 // execution of the ISP
-#include "StoredProcInterface.h"
+#include "cli/StoredProcInterface.h"
 
 // contents of this file
 class CmpSPInputFormat; // format description for stored procedure input parameters.

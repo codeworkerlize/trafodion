@@ -9,7 +9,7 @@
  *****************************************************************************
  *
  * File:         NamedSemaphore.h
- * Description:  
+ * Description:
  * Created:      6/05/2019
  * Language:     C++
  *
@@ -26,42 +26,40 @@
 
 class NamedSem;
 
-class NamedSemaphore
-{
-public:
-   NamedSemaphore(const char* semName);
-   ~NamedSemaphore();
+class NamedSemaphore {
+ public:
+  NamedSemaphore(const char *semName);
+  ~NamedSemaphore();
 
-   int getSemaphore();
-   int releaseSemaphore();
+  int getSemaphore();
+  int releaseSemaphore();
 
-   inline pid_t getSemPid() { return semPid_; }
-   inline sem_t* getSemId() { return semId_; }
+  inline pid_t getSemPid() { return semPid_; }
+  inline sem_t *getSemId() { return semId_; }
 
-   // the status code of last call to
-   // openSemaphore() 
-   NABoolean lastOpenStatus() { return lastOpenStatus_; }
+  // the status code of last call to
+  // openSemaphore()
+  NABoolean lastOpenStatus() { return lastOpenStatus_; }
 
-   NABoolean semaphoreLocked() { return (semPid_ != -1); }
+  NABoolean semaphoreLocked() { return (semPid_ != -1); }
 
-   void display(const char* msg = "");
+  void display(const char *msg = "");
 
-protected:
-   int openSemaphore();
-   int closeSemaphore();
+ protected:
+  int openSemaphore();
+  int closeSemaphore();
 
-protected:
+ protected:
   // the name of the semaphore
-  char semName_[NAME_MAX-4];
+  char semName_[NAME_MAX - 4];
 
-private:
-
+ private:
   // semaphore id
-  sem_t* semId_;    
+  sem_t *semId_;
 
-  // Pid of the process that holds semaphore lock 
+  // Pid of the process that holds semaphore lock
   // - This element is used for debugging purpose on
-  pid_t semPid_;    
+  pid_t semPid_;
 
   // the last return value from openSemaphore()
   int lastOpenStatus_;
@@ -70,45 +68,40 @@ private:
   timespec releasingTimestamp_;
 };
 
-//System V semaphore
-class NamedSem
-{
-public:
-   NamedSem(key_t semKey);
-   ~NamedSem();
+// System V semaphore
+class NamedSem {
+ public:
+  NamedSem(key_t semKey);
+  ~NamedSem();
 
-   int lockSemaphore(NABoolean lock);
+  int lockSemaphore(NABoolean lock);
 
-   inline pid_t getSemPid() { return semPid_; }
-   inline int getSemId() { return semId_; }
+  inline pid_t getSemPid() { return semPid_; }
+  inline int getSemId() { return semId_; }
 
-   NABoolean semaphoreLocked() { return (semPid_ != -1); }
+  NABoolean semaphoreLocked() { return (semPid_ != -1); }
 
-protected:
-   int getSemaphore(NABoolean create);
-   int removeSemaphore();
+ protected:
+  int getSemaphore(NABoolean create);
+  int removeSemaphore();
 
-protected:
+ protected:
   // the key of the semaphore
   key_t semKey_;
 
-private:
-
+ private:
   // semaphore id
-  int semId_;    
+  int semId_;
 
-  // Pid of the process that holds semaphore lock 
+  // Pid of the process that holds semaphore lock
   // - This element is used for debugging purpose on
-  pid_t semPid_;    
-
+  pid_t semPid_;
 };
 
-class SemaphoreForSharedCache : public NamedSem
-{
-
-public:
-   SemaphoreForSharedCache(bool isCreatedForData = false);
-   ~SemaphoreForSharedCache() {}
+class SemaphoreForSharedCache : public NamedSem {
+ public:
+  SemaphoreForSharedCache(bool isCreatedForData = false);
+  ~SemaphoreForSharedCache() {}
 };
 
 void testNamedSemaphore();

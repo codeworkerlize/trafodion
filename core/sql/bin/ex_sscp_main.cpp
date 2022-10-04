@@ -48,10 +48,10 @@
 #include "common/Ipc.h"
 #include "cli/Globals.h"
 #include "runtimestats/SqlStats.h"
-#include "cli/memorymonitor.h"
+
 #include "sscpipc.h"
-#include "rts_msg.h"
-#include "ex_stdh.h"
+#include "runtimestats/rts_msg.h"
+#include "executor/ex_stdh.h"
 #include "executor/ExStats.h"
 #include "porting/PortProcessCalls.h"
 #include <sys/ipc.h>
@@ -59,7 +59,7 @@
 #include "seabed/ms.h"
 #include "seabed/fs.h"
 extern void my_mpi_fclose();
-#include "SCMVersHelp.h"
+#include "common/SCMVersHelp.h"
 DEFINE_DOVERS(mxsscp)
 void  runServer(Int32 argc, char **argv);
 

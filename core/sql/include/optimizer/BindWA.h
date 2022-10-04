@@ -1,59 +1,22 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef BindWA_H
 #define BindWA_H
-/* -*-C++-*-
-*************************************************************************
-*
-* File:         BindWA.h
-* Description:  The workarea used by the name binder
-* Created:      4/27/94
-* Language:     C++
-*
-*
-*	But when his friends did understand
-*	His fond and foolish mind,
-*	They sent him up to fair London,
-*	An apprentice for to bind.
-*		-- The Ballad of the Bailiff's Daughter of Islington
-*
-*************************************************************************
-*/
+
 
 #include "common/BaseTypes.h"
 #include "common/Collections.h"
-#include "ColumnNameMap.h"
+#include "optimizer/ColumnNameMap.h"
 #include "arkcmp/CmpContext.h"
 #include "common/NAMemory.h"
 #include "optimizer/ObjectNames.h"
 #include "common/OperTypeEnum.h"
-#include "Rel3GL.h"
-#include "RelMisc.h"
-#include "RelRoutine.h"
-#include "RETDesc.h"
-#include "TableNameMap.h"
+#include "optimizer/Rel3GL.h"
+#include "optimizer/RelMisc.h"
+#include "optimizer/RelRoutine.h"
+#include "optimizer/RETDesc.h"
+#include "optimizer/TableNameMap.h"
 #include "optimizer/ValueDesc.h"
-#include "OptUtilIncludes.h"
+#include "optimizer/OptUtilIncludes.h"
 #include "common/ComSchemaName.h" // for ComSchemaName
 
 // ----------------------------------------------------------------------

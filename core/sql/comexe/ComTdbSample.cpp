@@ -25,8 +25,8 @@
 *
 * File:         $File$
 * RCS:          $Id$
-* Description:  
-* Created:      
+* Description:
+* Created:
 * Language:     C++
 * Status:       $State$
 *
@@ -46,47 +46,26 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 // Constructor
-ComTdbSample::ComTdbSample()
-: ComTdb(ComTdb::ex_SAMPLE, eye_SAMPLE)
-{
-}
+ComTdbSample::ComTdbSample() : ComTdb(ComTdb::ex_SAMPLE, eye_SAMPLE) {}
 
-ComTdbSample::ComTdbSample
-(ex_expr *initExpr,
- ex_expr *balanceExpr,
- Int32 returnFactorOffset,
- ex_expr *postPred,
- ComTdb * child_tdb,
- ex_cri_desc * given_cri_desc,
- ex_cri_desc * returned_cri_desc,
- queue_index down,
- queue_index up)
+ComTdbSample::ComTdbSample(ex_expr *initExpr, ex_expr *balanceExpr, Int32 returnFactorOffset, ex_expr *postPred,
+                           ComTdb *child_tdb, ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc,
+                           queue_index down, queue_index up)
 
-: ComTdb(ComTdb::ex_SAMPLE, eye_SAMPLE,
-	 (Cardinality) 0.0,
-         given_cri_desc, returned_cri_desc,
-	 down, up,
-	 0, 0),
-  initExpr_(initExpr),
-  balanceExpr_(balanceExpr),
-  returnFactorOffset_(returnFactorOffset),
-  postPred_(postPred),
-  tdbChild_(child_tdb)
-{
-}
+    : ComTdb(ComTdb::ex_SAMPLE, eye_SAMPLE, (Cardinality)0.0, given_cri_desc, returned_cri_desc, down, up, 0, 0),
+      initExpr_(initExpr),
+      balanceExpr_(balanceExpr),
+      returnFactorOffset_(returnFactorOffset),
+      postPred_(postPred),
+      tdbChild_(child_tdb) {}
 
-ComTdbSample::~ComTdbSample(){
-}
+ComTdbSample::~ComTdbSample() {}
 
 void ComTdbSample::display() const {};
 
-Int32 ComTdbSample::orderedQueueProtocol() const 
-{
-  return -1;
-}
+Int32 ComTdbSample::orderedQueueProtocol() const { return -1; }
 
-Long ComTdbSample::pack(void * space)
-{
+Long ComTdbSample::pack(void *space) {
   tdbChild_.pack(space);
   initExpr_.pack(space);
   balanceExpr_.pack(space);
@@ -95,8 +74,7 @@ Long ComTdbSample::pack(void * space)
   return ComTdb::pack(space);
 }
 
-Lng32 ComTdbSample::unpack(void * base, void * reallocator)
-{
+Lng32 ComTdbSample::unpack(void *base, void *reallocator) {
   if (tdbChild_.unpack(base, reallocator)) return -1;
   if (initExpr_.unpack(base, reallocator)) return -1;
   if (balanceExpr_.unpack(base, reallocator)) return -1;
@@ -104,5 +82,3 @@ Lng32 ComTdbSample::unpack(void * base, void * reallocator)
 
   return ComTdb::unpack(base, reallocator);
 }
-
-  

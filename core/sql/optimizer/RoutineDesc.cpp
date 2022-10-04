@@ -32,14 +32,14 @@
 **************************************************************************
 */
 
-#include "AllItemExpr.h"
-#include "AllRelExpr.h"
-#include "BindWA.h"
-#include "ComOperators.h"
+#include "optimizer/AllItemExpr.h"
+#include "optimizer/AllRelExpr.h"
+#include "optimizer/BindWA.h"
+#include "common/ComOperators.h"
 #include "RoutineDesc.h"
 #include "optimizer/ItemColRef.h"
 #include "ParNameLocList.h"
-#include "Sqlcomp.h"
+#include "optimizer/Sqlcomp.h"
 #include "ex_error.h"
 #include "Cost.h"
 

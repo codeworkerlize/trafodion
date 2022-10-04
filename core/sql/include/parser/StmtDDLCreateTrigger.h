@@ -47,7 +47,7 @@
 // -----------------------------------------------------------------------
 
 #include "ElemDDLNode.h"
-#include "ElemDDLColRefArray.h"
+#include "parser/ElemDDLColRefArray.h"
 #include "ElemDDLLocation.h"
 #include "ElemDDLPartitionArray.h"
 #include "common/NAString.h"

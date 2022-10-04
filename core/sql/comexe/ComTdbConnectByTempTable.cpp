@@ -4,7 +4,6 @@
 #include "comexe/ComQueue.h"
 #include "common/str.h"
 
-
 ComTdbConnectByTempTable::ComTdbConnectByTempTable()
     : ComTdb(ComTdb::ex_CONNECT_BY_TEMP_TABLE, eye_CONNECT_BY_TEMP_TABLE), tdbChild_(NULL) {}
 

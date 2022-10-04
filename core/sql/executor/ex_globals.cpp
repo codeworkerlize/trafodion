@@ -36,10 +36,10 @@
  *****************************************************************************
  */
 
-#include "ex_stdh.h"
-#include "ExScheduler.h"
+#include "executor/ex_stdh.h"
+#include "executor/ExScheduler.h"
 #include "comexe/ComTdb.h"
-#include "ex_tcb.h"
+#include "executor/ex_tcb.h"
 #include "executor/ExStats.h"
 #include "executor/ex_globals.h"
 #include "cli/Globals.h"

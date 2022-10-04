@@ -42,7 +42,7 @@
 
 #include "common/Platform.h"
 
-#include "ex_stdh.h"
+#include "executor/ex_stdh.h"
 #include "ex_exe_stmt_globals.h"
 #include "ex_frag_rt.h"
 #include "Ex_esp_msg.h"
@@ -50,7 +50,7 @@
 #include  "ComTdb.h"
 #include  "ex_tcb.h"
 #include "ex_root.h"
-#include "ex_transaction.h"
+#include "executor/ex_transaction.h"
 #include "executor/ExStats.h"
 #include "common/ComDistribution.h"
 #include "executor/sql_buffer_size.h"
@@ -1792,7 +1792,7 @@ IpcConnection * ExRtFragTable::getControlConnection(ExFragId fragId,
     usedEsp_->getIpcServer()->getControlConnection();
 }
 
-ExFragInstanceHandle ExRtFragTable::getFragmentHandle(
+int ExRtFragTable::getFragmentHandle(
      ExFragId fragId,
      CollIndex espNum) const
 {

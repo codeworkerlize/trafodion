@@ -35,20 +35,20 @@
 
 
 
-#include "Sqlcomp.h"
+#include "optimizer/Sqlcomp.h"
 #include "SearchKey.h"
-#include "Generator.h"
+#include "generator/Generator.h"
 #include "GenExpGenerator.h"
-//#include "ex_stdh.h"
+//#include "executor/ex_stdh.h"
 #include "comexe/ComTdb.h"
-//#include "ex_tcb.h"
+//#include "executor/ex_tcb.h"
 #include "comexe/ComKeySingleSubset.h"
 #include "comexe/ComKeyMDAM.h"  // generator Mdam classes
 #include "mdamkey.h"   // optimizer Mdam classes
 #include "exp/ExpCriDesc.h"
 
 // the next include file is here solely to make the horrible kludge work
-#include "NAFileSet.h"
+#include "optimizer/NAFileSet.h"
 
 /////////////////////////////////////////////////////////////////////
 //

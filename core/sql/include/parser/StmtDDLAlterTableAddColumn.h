@@ -46,11 +46,11 @@
 // -----------------------------------------------------------------------
 
 #include "StmtDDLAlterTable.h"
-#include "ElemDDLColDefArray.h"
+#include "parser/ElemDDLColDefArray.h"
 #include "StmtDDLAddConstraintArray.h"
 #include "StmtDDLAddConstraintCheckArray.h"
-#include "StmtDDLAddConstraintRIArray.h"
-#include "StmtDDLAddConstraintUniqueArray.h"
+#include "parser/StmtDDLAddConstraintRIArray.h"
+#include "parser/StmtDDLAddConstraintUniqueArray.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

@@ -54,7 +54,7 @@
 #include  "ComSmallDefs.h"
 #include  <unistd.h>
 
-#include "ExpHbaseInterface.h"
+#include "exp/ExpHbaseInterface.h"
 #include "exp/ExpLOBinterface.h"
 #include "ExpComposite.h"
 

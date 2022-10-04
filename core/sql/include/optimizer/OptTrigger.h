@@ -36,7 +36,7 @@
 **************************************************************************
 */
 
-#include "AllRelExpr.h"
+#include "optimizer/AllRelExpr.h"
 #include "AccessSets.h"
 #include "optimizer/Triggers.h"
 

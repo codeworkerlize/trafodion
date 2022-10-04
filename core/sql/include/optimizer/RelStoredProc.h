@@ -41,8 +41,8 @@
 #define RELSTOREDPROC_H
 
 #include "optimizer/ObjectNames.h"
-#include "RelMisc.h" 
-#include "RelRoutine.h" 
+#include "optimizer/RelMisc.h" 
+#include "optimizer/RelRoutine.h" 
 
 class CostMethodStoredProc;
 // consider moving all of this into RelRoutine.cpp ..

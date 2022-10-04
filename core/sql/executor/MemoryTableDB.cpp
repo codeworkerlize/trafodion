@@ -31,7 +31,7 @@
 // @@@ END COPYRIGHT @@@
 // *********************************************************************
 
-#include "MemoryTableDB.h"
+#include "executor/MemoryTableDB.h"
 #include "cli/Globals.h"
 #include <sys/time.h>
 #include "sqlcomp/SharedCache.h"

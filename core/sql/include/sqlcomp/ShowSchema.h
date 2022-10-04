@@ -47,16 +47,12 @@
 #include "export/NAStringDef.h"
 
 class ShowSchema {
-public:
+ public:
+  static const char *ShowControlDefaultSchemaMagic() { return "**cat.sch**"; }  // ident internal-fmt
 
-  static const char *ShowControlDefaultSchemaMagic()
-  { return                       "**cat.sch**"; }	// ident internal-fmt
+  static const char *ShowSchemaStmt() { return "SHOWCONTROL DEFAULT \"**cat.sch**\";"; }  // ident delimited
 
-  static const char *ShowSchemaStmt()
-  { return "SHOWCONTROL DEFAULT \"**cat.sch**\";"; }	// ident delimited
-
-  static Lng32 DiagSqlCode()
-  { return ABS(EXE_INFO_DEFAULT_CAT_SCH); }
+  static Lng32 DiagSqlCode() { return ABS(EXE_INFO_DEFAULT_CAT_SCH); }
 
   static NABoolean getDefaultCatAndSch(NAString &cat, NAString &sch);
 
@@ -70,24 +66,20 @@ public:
   //
   // See sqlci Env command, SqlciEnv::specialError/specialHandler,
   // and HandleCLIError for another way to get the same information.
-
 };
 
-class GetControlDefaults {			// Genesis 10-981211-5986
-public:
+class GetControlDefaults {  // Genesis 10-981211-5986
+ public:
+  static const char *GetExternalizedDefaultsMagic() { return "**extlzd.deflts**"; }  // ident internal-fmt
 
-  static const char *GetExternalizedDefaultsMagic()
-  { return                       "**extlzd.deflts**"; }	   // ident internal-fmt
+  static const char *GetExternalizedDefaultsStmt() {
+    return "SHOWCONTROL DEFAULT \"**extlzd.deflts**\";";
+  }  // ident delimited
 
-  static const char *GetExternalizedDefaultsStmt()
-  { return "SHOWCONTROL DEFAULT \"**extlzd.deflts**\";"; }  // ident delimited
-
-  static Lng32 DiagSqlCode()
-  { return ABS(EXE_INFO_CQD_NAME_VALUE_PAIRS); }
+  static Lng32 DiagSqlCode() { return ABS(EXE_INFO_CQD_NAME_VALUE_PAIRS); }
 
   // Handled like the preceding class.
   // Used by ExSqlComp.
-
 };
 
-#endif // SHOWSCHEMA_H
+#endif  // SHOWSCHEMA_H

@@ -66,7 +66,7 @@
 #include "seabed/ms.h"
 #include "seabed/fs.h"
 #include "SCMBuildStr.h"
-#include "SCMVersHelp.h"
+#include "common/SCMVersHelp.h"
 #ifdef _DEBUG
 #include "cli/Globals.h"
 #endif  // _DEBUG

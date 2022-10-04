@@ -41,25 +41,25 @@
 #include "common/NAStdlib.h"
 #include "stdio.h"
 #include "comexe/ComQueue.h"
-#include "ExSqlComp.h"
-#include "ex_transaction.h"
+#include "cli/ExSqlComp.h"
+#include "executor/ex_transaction.h"
 #include "common/ComRtUtils.h"
 #include "executor/ExStats.h"
 #include "cli/sql_id.h"
 #include "ex_control.h"
 #include "ExControlArea.h"
 #include "ex_root.h"
-#include "ExExeUtil.h"
+#include "executor/ExExeUtil.h"
 #include "ex_frag_rt.h"
-#include "ExExeUtil.h"
+#include "executor/ExExeUtil.h"
 #include "common/ComExeTrace.h"
 #include "exp/exp_clause_derived.h"
-#include "ComUser.h"
-#include "CmpSeabaseDDLauth.h"
-#include "CmpSeabaseTenant.h"
+#include "common/ComUser.h"
+#include "sqlcomp/CmpSeabaseDDLauth.h"
+#include "sqlcomp/CmpSeabaseTenant.h"
 #include "parser/StmtCompilationMode.h"
 #include "ExCextdecs.h"
-#include "ComMemoryDiags.h"             // ComMemoryDiags::DumpMemoryInfo()
+#include "export/ComMemoryDiags.h"             // ComMemoryDiags::DumpMemoryInfo()
 #include "common/DllExportDefines.h"
 #include "common/NAWNodeSet.h"
 
@@ -77,7 +77,7 @@
 #include "common/ComSqlId.h"
 #include "common/NAUserId.h"
 
-#include "stringBuf.h"
+#include "common/stringBuf.h"
 #include "common/NLSConversion.h"
 
 #include <sys/types.h>

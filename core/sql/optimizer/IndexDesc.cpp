@@ -36,8 +36,8 @@
 
 // -----------------------------------------------------------------------
 
-#include "Sqlcomp.h"
-#include "AllItemExpr.h"
+#include "optimizer/Sqlcomp.h"
+#include "optimizer/AllItemExpr.h"
 #include "optimizer/ValueDesc.h"
 #include "PartFunc.h"
 #include "IndexDesc.h"

@@ -45,10 +45,10 @@
 #include "parser/SqlParserGlobals.h"
 
 #include "ElemDDLNode.h"
-#include "ElemDDLColRefArray.h"
+#include "parser/ElemDDLColRefArray.h"
 #include "ElemDDLConstraintArray.h"
 #include "ElemDDLConstraintNotNull.h"
-#include "ElemDDLSGOptions.h"
+#include "parser/ElemDDLSGOptions.h"
 #include "exp/ExpLOBenums.h"
 
 // -----------------------------------------------------------------------

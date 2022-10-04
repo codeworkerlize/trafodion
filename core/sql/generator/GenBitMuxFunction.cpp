@@ -21,9 +21,9 @@
 
 // Includes
 //
-#include "ItemExpr.h"
+#include "optimizer/ItemExpr.h"
 #include "ItmBitMuxFunction.h"
-#include "Generator.h"
+#include "generator/Generator.h"
 #include "GenExpGenerator.h"
 #include "ExpBitMuxFunction.h"
 

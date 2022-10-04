@@ -22,10 +22,10 @@
 **********************************************************************/
 /* -*-C++-*- */
 
-#include "OptHints.h"
+#include "optimizer/OptHints.h"
 #include "common/DatetimeType.h"
 #include "arkcmp/CmpContext.h"
-#include "ControlDB.h"
+#include "optimizer/ControlDB.h"
 
 Hint::Hint(const NAString &indexName, NAMemory *h) 
   : indexes_(h,1), selectivity_(-1.0), cardinality_(-1.0)

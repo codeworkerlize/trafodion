@@ -30,13 +30,13 @@
 #include "executor/ExStats.h"
 #include "ex_queue.h"
 #include "exp/ExpHbaseDefs.h"
-#include "ExpHbaseInterface.h"
+#include "exp/ExpHbaseInterface.h"
 #include "comexe/ComKeySingleSubset.h"
 #include "comexe/ComKeyMDAM.h"
 #include "key_range.h"
 #include "key_single_subset.h"
 #include "ex_mdam.h"
-#include "ExDDLValidator.h"
+#include "executor/ExDDLValidator.h"
 
 // -----------------------------------------------------------------------
 // Classes defined in this file

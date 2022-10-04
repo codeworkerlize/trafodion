@@ -21,7 +21,7 @@
 // @@@ END COPYRIGHT @@@
 **********************************************************************/
 
-#include "../seamonster/src/sm.h"
+#include "seabed/sm.h"
 #include "ExSMExitHandler.h"
 #include "ExSMCommon.h"
 #include "ExSMGlobals.h"

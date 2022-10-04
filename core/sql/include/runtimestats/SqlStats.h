@@ -37,7 +37,6 @@
 #define STATS_INITAL_SEG_SIZE     4*1024*1024
 #define STATS_MAX_SEG_SIZE        64*1024*1024
 
-#define SHARED_CACHE_SEG_SIZE    256*1024*1024
 
 #define MIN_EPOCH_CACHE_SEG_SIZE     256*1024 // 256K
 #define EPOCH_CACHE_SEG_SIZE      2*1024*1024 // 2M
@@ -84,12 +83,11 @@ class RecentSikey;
 class StatsGlobals;
 class ExOperStats;
 class ExProcessStats;
-class MemoryMonitor;
 
-#include "rts_msg.h"
+#include "runtimestats/rts_msg.h"
 #include "comexe/ComTdb.h"
 #include "cli/SQLCLIdev.h"
-#include "cli/memorymonitor.h"
+
 
 #define PID_MAX_DEFAULT     65536
 #define PID_MAX_DEFAULT_MAX 131072
@@ -786,8 +784,6 @@ public:
 
   void mergeNewSikeys(Int32 numSikeys, 
                     SQL_QIKEY sikeys[]);
-  MemoryMonitor *getMemoryMonitor() { return memMonitor_; }
-  void createMemoryMonitor();
 
   void init();
   NABoolean isShmDirty() { return isBeingUpdated_; }
@@ -859,7 +855,6 @@ private:
   pid_t maxPid_;
   Int64 ssmpDumpedTimestamp_;
   NABoolean snapshotInProgress_;
-  MemoryMonitor *memMonitor_;
   pid_t configuredPidMax_;
   SyncHashQueue *lobLocks_;
   Int64 pidViolationCount_;

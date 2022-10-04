@@ -38,7 +38,7 @@
 
 
 #include "common/Platform.h"
-#include "NewDel.h"
+#include "sqlcomp/NewDel.h"
 #include <fstream>
 #include <string.h>
 
@@ -46,7 +46,7 @@
 #include "seabed/ms.h"
 #include "seabed/fs.h"
 extern void my_mpi_fclose();
-#include "SCMVersHelp.h"
+#include "common/SCMVersHelp.h"
 DEFINE_DOVERS(tdm_arkcmp)
 
 
@@ -54,14 +54,14 @@ DEFINE_DOVERS(tdm_arkcmp)
 #include "CmpConnection.h"
 #include "arkcmp/CmpContext.h"
 #include "common/CmpCommon.h"
-#include "CmpStoredProc.h"
+#include "arkcmp/CmpStoredProc.h"
 #include "CmpErrLog.h"
-#include "CompException.h"
+#include "arkcmp/CompException.h"
 // #include "StaticCompiler.h"
 #include "sqlmxevents/logmxevent.h"
-#include "QCache.h"
-#include "QueryCacheSt.h"
-#include "NATableSt.h"
+#include "sqlcomp/QCache.h"
+#include "arkcmp/QueryCacheSt.h"
+#include "arkcmp/NATableSt.h"
 #include "common/ComCextdecs.h"
 
 #define CLI_DLL

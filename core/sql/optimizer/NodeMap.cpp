@@ -25,24 +25,24 @@
 //==============================================================================
 
 #include "NodeMap.h"
-#include "Analyzer.h"
-#include "SchemaDB.h"
+#include "optimizer/Analyzer.h"
+#include "optimizer/SchemaDB.h"
 #include "sqlcomp/NADefaults.h"
-#include "Generator.h"
+#include "generator/Generator.h"
 #include "comexe/FragDir.h"
 #include "PartFunc.h"
 
-#include "opt.h"
+#include "optimizer/opt.h"
 #include <string.h>
 #include <stdio.h>
 #include <queue>
-//#include "cextdecs/cextdecs.h"
+#include "common/cextdecs.h"
 
-#include "OptimizerSimulator.h"
+#include "optimizer/OptimizerSimulator.h"
 #include "exp_function.h"
 
 #include "CliSemaphore.h"
-#include "CompException.h"
+#include "arkcmp/CompException.h"
 #include "common/trafconfig.h"
 
 static const int nodeNameLen = TC_PROCESSOR_NAME_MAX;//defined in trafconf/trafconfig.h

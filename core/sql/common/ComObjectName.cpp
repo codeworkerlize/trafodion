@@ -42,7 +42,7 @@
 #include "common/ComASSERT.h"
 #include "common/ComRtUtils.h"
 #include "common/ComMPLoc.h"
-#include "ComObjectName.h"
+#include "common/ComObjectName.h"
 #include "common/ComSqlText.h"
 #include "common/NAString.h"
 #include "common/ComAnsiNamePart.h"

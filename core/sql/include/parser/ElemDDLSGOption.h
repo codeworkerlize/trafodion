@@ -39,7 +39,7 @@
 
 #include "common/BaseTypes.h"
 #include "ElemDDLNode.h"
-#include "ElemDDLSGOptions.h"
+#include "parser/ElemDDLSGOptions.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

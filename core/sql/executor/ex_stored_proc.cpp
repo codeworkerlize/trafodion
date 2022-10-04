@@ -37,9 +37,9 @@
  */
 
 #include "cli_stdh.h"
-#include "ex_stdh.h"
+#include "executor/ex_stdh.h"
 #include "comexe/ComTdb.h"
-#include "ex_tcb.h"
+#include "executor/ex_tcb.h"
 #include "ex_stored_proc.h"
 #include "ex_exe_stmt_globals.h"
 #include "ex_io_control.h"
@@ -47,11 +47,11 @@
 #include "exp/exp_tuple_desc.h"
 #include "exp/exp_attrs.h"
 #include "exp/exp_clause_derived.h"
-#include "ExSqlComp.h"
+#include "cli/ExSqlComp.h"
 
 #include "ErrorMessage.h"
 #include "arkcmp/CmpStatement.h"
-#include "CmpStoredProc.h"
+#include "arkcmp/CmpStoredProc.h"
 
 ex_tcb * ExStoredProcTdb::build(ex_globals * glob)
 { 

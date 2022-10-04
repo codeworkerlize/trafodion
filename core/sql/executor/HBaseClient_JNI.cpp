@@ -24,7 +24,7 @@
 #include "cli/Context.h"
 #include "cli/Globals.h"
 #include <signal.h>
-#include "HBaseClient_JNI.h"
+#include "executor/HBaseClient_JNI.h"
 #include "qmscommon/QRLogger.h"
 #include "pthread.h"
 #include "common/ComEncryption.h"

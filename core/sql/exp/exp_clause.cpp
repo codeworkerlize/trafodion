@@ -49,8 +49,8 @@
 #include "ExpComposite.h"
 #include "ExpBitMuxFunction.h"
 #include "ExpSequenceFunction.h"
-#include "wstr.h"
-#include "exp_datetime.h"
+#include "common/wstr.h"
+#include "exp/exp_datetime.h"
 #include "ttime.h"
 
 extern Int32 compExprNum;

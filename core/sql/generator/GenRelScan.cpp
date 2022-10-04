@@ -38,23 +38,23 @@
 #include <algorithm>
 #include <vector>
 
-#include "Sqlcomp.h"
+#include "optimizer/Sqlcomp.h"
 #include "GroupAttr.h"
-#include "ControlDB.h"
+#include "optimizer/ControlDB.h"
 #include "GenExpGenerator.h"
 #include "comexe/ComTdbDDL.h"                  // for describe
 #include "comexe/ComTdbHbaseAccess.h"
 #include "HashRow.h"                    // for sizeof(HashRow)
 #include "executor/sql_buffer.h"
 #include "executor/sql_buffer_size.h"
-#include "OptimizerSimulator.h"
+#include "optimizer/OptimizerSimulator.h"
 #include "RelUpdate.h"
 
-#include "CmpSeabaseDDL.h"
+#include "sqlcomp/CmpSeabaseDDL.h"
 #include "sqlcat/TrafDDLdesc.h"
 
 #include "parser/SqlParserGlobals.h"   // Parser Flags
-#include "HBaseClient_JNI.h"
+#include "executor/HBaseClient_JNI.h"
 
 /////////////////////////////////////////////////////////////////////
 //

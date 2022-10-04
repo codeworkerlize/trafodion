@@ -37,13 +37,13 @@
  */
 
 
-#include "DefaultValidator.h"
-#include "Generator.h"
+#include "sqlcomp/DefaultValidator.h"
+#include "generator/Generator.h"
 #include "comexe/ComResourceInfo.h"
 #include "GenResources.h"
-#include "SchemaDB.h"
+#include "optimizer/SchemaDB.h"
 #include <sys/stat.h>
-#include "OptimizerSimulator.h"
+#include "optimizer/OptimizerSimulator.h"
 
 
 

@@ -75,7 +75,7 @@
 #include <stdio.h>
 #include "common/NAWinNT.h"		// for NAWchar, WIDE_(), etc.
 #include "common/NABoolean.h" 
-#include "arkcmp_parser_defs.h"
+#include "common/arkcmp_parser_defs.h"
 
 // Forward references.
 class ParKeyWord;

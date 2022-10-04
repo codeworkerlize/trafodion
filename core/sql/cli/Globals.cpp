@@ -45,24 +45,24 @@
 #include <sys/syscall.h>
 #include "cli_stdh.h"
 #include "common/Ipc.h"
-#include "ex_stdh.h"
+#include "executor/ex_stdh.h"
 #include "ex_frag_rt.h"
-#include "cli/memorymonitor.h"
+
 #include "executor/ExStats.h"
 #include "ExUdrServer.h"
-#include "ExSqlComp.h"
+#include "cli/ExSqlComp.h"
 #include "ExControlArea.h"
 #include "cli/Context.h"
-#include "ex_transaction.h"
+#include "executor/ex_transaction.h"
 #include "cli/Statement.h"
 #include "ex_root.h"
 #include "common/ComRtUtils.h"
 #include <semaphore.h>
 #include <pthread.h>
-#include "HBaseClient_JNI.h"
+#include "executor/HBaseClient_JNI.h"
 
 #include "executor/DistributedLock_JNI.h"
-#include "TenantHelper_JNI.h"
+#include "executor/TenantHelper_JNI.h"
 #include "LmLangManagerC.h"
 #include "LmLangManagerJava.h"
 #include "CliSemaphore.h"
@@ -104,7 +104,6 @@ CliGlobals::CliGlobals(NABoolean espProcess)
        , espProcess_(espProcess)
        , rmsProcess_(FALSE)
        , hbaseClientJNI_(NULL)
-       , monarchClientJNI_(NULL)
        , bigtableClientJNI_(NULL)
        , sqlciProcess_(FALSE)
        , sqlciMaxHeap_(0)
@@ -278,18 +277,7 @@ void CliGlobals::init( NABoolean espProcess,
     tidList_  = new(&executorMemory_) HashQueue(&executorMemory_);
     SQLCTX_HANDLE ch = defaultContext_->getContextHandle();
     contextList_->insert((char*)&ch, sizeof(SQLCTX_HANDLE), (void*)defaultContext_);
-    if (statsGlobals_ != NULL) 
-       memMonitor_ = statsGlobals_->getMemoryMonitor();
-    else
-    {
-       // create the process global memory monitor. For now with
-       // defaults of 10 window entries and sampling every 1 second
-       Lng32 memMonitorWindowSize = 10;
-       Lng32 memMonitorSampleInterval = 1; // reduced from 10 (for M5 - May 2011)
-       memMonitor_ = new (&executorMemory_) MemoryMonitor(memMonitorWindowSize,
-						      memMonitorSampleInterval,
-    						      &executorMemory_);
-    }
+
   } // (!espProcess)
 
   else
@@ -509,7 +497,6 @@ CliGlobals * CliGlobals::createCliGlobals(NABoolean espProcess)
   //pthread_key_create(&thread_key, SQ_CleanupThread);
   cli_globals = result;
   HBaseClient_JNI::getInstance(FALSE);
-  MonarchClient_JNI::getInstance();
   HBaseClient_JNI::getInstance(TRUE);
   return result;
 }

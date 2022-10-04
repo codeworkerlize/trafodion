@@ -32,7 +32,7 @@
  */
 
 #include "SimpleScanOptimizer.h"
-#include "AllRelExpr.h"
+#include "optimizer/AllRelExpr.h"
 
 
 #ifdef DEBUG

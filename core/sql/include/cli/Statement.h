@@ -50,7 +50,7 @@
 #include "comexe/ComQueue.h"
 #include "common/NAMemory.h"
 #include "common/ComSmallDefs.h"
-#include "Module.h"
+#include "cli/Module.h"
 #include "comexe/SqlTableOpenInfo.h" // triggers
 #include "common/DLock.h"
 

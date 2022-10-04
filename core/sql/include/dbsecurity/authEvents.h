@@ -22,7 +22,7 @@
 //******************************************************************************
 #ifndef INCLUDE_AUTHEVENT_H
 #define INCLUDE_AUTHEVENT_H  1
-#include "CommonLogger.h"
+#include "common/CommonLogger.h"
 #include <string>
 #include <vector>
 

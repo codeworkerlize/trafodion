@@ -20,7 +20,7 @@
 //
 // @@@ END COPYRIGHT @@@
 // **********************************************************************
-#include "CompilationStats.h"
+#include "optimizer/CompilationStats.h"
 
 // -----------------------------------------------------------------------
 // Methods for class CompilationStats
@@ -181,33 +181,33 @@ CompilationStats::getQueryCacheState()
   QCacheStats qCacheStatsEnd;
   CURRENTQCACHE->getCompilationCacheStats(qCacheStatsEnd);
   //
-  // check if it’s cacheable or not
+  // check if itï¿½s cacheable or not
   if (qCacheStatsEnd.nCacheableP+qCacheStatsEnd.nCacheableB > 
       qCacheStatsBegin_.nCacheableP+
       qCacheStatsBegin_.nCacheableB)
   {   
-    // it’s cacheable
+    // itï¿½s cacheable
 
-    // check if it’s template or text cache hit or miss
+    // check if itï¿½s template or text cache hit or miss
     if (qCacheStatsEnd.nCacheHitsPP > qCacheStatsBegin_.nCacheHitsPP)
     {
-      // it’s a text cache hit
+      // itï¿½s a text cache hit
       state = QCSTATE_TEXT;
     }
     else 
     { 
-      // it’s a text cache miss
+      // itï¿½s a text cache miss
       if ( qCacheStatsEnd.nCacheHitsP+qCacheStatsEnd.nCacheHitsB > 
            qCacheStatsBegin_.nCacheHitsP+
            qCacheStatsBegin_.nCacheHitsB )
       {
         //
-        // it’s a template cache hit
+        // itï¿½s a template cache hit
         state = QCSTATE_TEMPLATE;
       }
       else 
       { 
-        // it’s a template cache miss
+        // itï¿½s a template cache miss
         state = QCSTATE_MISS_CACHEABLE;
       }
     }
@@ -215,7 +215,7 @@ CompilationStats::getQueryCacheState()
   else 
   { 
     //
-    // it’s not cacheable
+    // itï¿½s not cacheable
     state = QCSTATE_MISS_NONCACHEABLE;
   }
 

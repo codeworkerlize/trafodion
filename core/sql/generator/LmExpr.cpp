@@ -51,13 +51,13 @@
 */
 
 #include "LmExpr.h"
-#include "ItemExpr.h"
+#include "optimizer/ItemExpr.h"
 #include "ItemFunc.h"
 #include "common/NAType.h"
 #include "ItemNAType.h"
 #include "common/CharType.h"
 #include "common/NumericType.h"
-#include "parser.h"
+#include "sqlcomp/parser.h"
 #include "arkcmp/CmpContext.h"
 #include "common/DatetimeType.h"
 

@@ -40,17 +40,17 @@
 #define SQLPARSERGLOBALS_FLAGS
 #define SQLPARSERGLOBALS_NADEFAULTS
 
-#include "CmpStoredProc.h"
+#include "arkcmp/CmpStoredProc.h"
 #include "sqlcat/TrafDDLdesc.h"
-#include "parser.h"
+#include "sqlcomp/parser.h"
 #include "common/str.h"
 
 #include "ElemDDLColDef.h" 
-#include "CmpErrors.h"
+#include "arkcmp/CmpErrors.h"
 #include "arkcmp/CmpContext.h"
 #include "comexe/CmpMessage.h"		// for CmpMessageISPRequest
 #include "export/ComDiags.h"
-#include "CmpDescribe.h"	// for sendAllControls
+#include "sqlcomp/CmpDescribe.h"	// for sendAllControls
 
 #include "common/CharType.h"
 #include "common/NumericType.h"
@@ -59,17 +59,17 @@
 
 #include "optimizer/ItemColRef.h"		// for ConstValue
 #include "ItemNAType.h"		// for NATypeToItem
-#include "ItemOther.h"		// for ItemList
+#include "optimizer/ItemOther.h"		// for ItemList
 
-#include "NAExit.h"
+#include "common/NAExit.h"
 #include "common/NAMemory.h"
 #include "common/NAString.h"
 #include "ParserMsg.h"
-#include "StoredProcInterface.h"
+#include "cli/StoredProcInterface.h"
 
 #include <time.h>		// timestamp to generate a unique table name
 #include <memory.h>		// for memset
-#include "SqlParserGlobalsCmn.h"
+#include "parser/SqlParserGlobalsCmn.h"
 
 
 // helper routines used in this cpp file

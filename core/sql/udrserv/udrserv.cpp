@@ -62,10 +62,10 @@ static pthread_t gv_main_thread_id;
 #include "LmLangManagerC.h"
 #include "LmRoutine.h"
 #include "common/ComDefs.h"
-#include "sqludr.h"
+#include "sqludr/sqludr.h"
 #include "common/NAUserId.h"
 
-#include "SCMVersHelp.h"
+#include "common/SCMVersHelp.h"
 DEFINE_DOVERS(tdm_udrserv)
 #include "dtm/tm.h"
 
@@ -88,7 +88,7 @@ DEFINE_DOVERS(tdm_udrserv)
 #endif
 
 #ifdef UDR_DEBUG
-#include "HeapLog.h"
+#include "export/HeapLog.h"
 #endif
 
 // Global pointer to the UdrGlobals instance

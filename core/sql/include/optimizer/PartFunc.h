@@ -39,9 +39,9 @@
 // -----------------------------------------------------------------------
 #include "common/Int64.h"
 #include "common/Collections.h"
-#include "ItemExpr.h"
-#include "ItemExprList.h"
-#include "RelExpr.h"
+#include "optimizer/ItemExpr.h"
+#include "optimizer/ItemExprList.h"
+#include "optimizer/RelExpr.h"
 #include "NodeMap.h"
 
 // ----------------------------------------------------------------------

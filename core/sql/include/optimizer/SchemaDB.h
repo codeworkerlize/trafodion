@@ -39,14 +39,14 @@
 
 #include "common/BaseTypes.h"
 #include "common/charinfo.h"
-#include "ColumnDesc.h"
+#include "optimizer/ColumnDesc.h"
 #include "common/ComTransInfo.h"
 #include "arkcmp/CmpContext.h"
 #include "optimizer/DomainDesc.h"
 #include "sqlcomp/NADefaults.h"
 #include "NARoutineDB.h"
-#include "NATable.h"
-#include "NARoutine.h"
+#include "optimizer/NATable.h"
+#include "optimizer/NARoutine.h"
 #include "optimizer/TableDesc.h"
 #include "optimizer/ValueDesc.h"
 

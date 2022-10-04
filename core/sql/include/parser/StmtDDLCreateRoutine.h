@@ -42,9 +42,9 @@
 
 
 #include "ElemDDLNode.h"
-#include "ElemDDLColRefArray.h"
+#include "parser/ElemDDLColRefArray.h"
 #include "ElemDDLLocation.h"
-#include "ElemDDLParamDefArray.h"
+#include "parser/ElemDDLParamDefArray.h"
 #include "common/NAString.h"
 #include "ParDDLFileAttrsCreateIndex.h"
 #include "StmtDDLNode.h"

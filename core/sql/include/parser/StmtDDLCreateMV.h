@@ -39,7 +39,7 @@
  */
 
 #include "common/ComASSERT.h"
-#include "ComOperators.h"
+#include "common/ComOperators.h"
 #include "common/ComSmallDefs.h"
 #include "common/NABoolean.h"
 #include "optimizer/ObjectNames.h"
@@ -47,10 +47,10 @@
 #include "ElemDDLDivisionClause.h"
 #include "ParNameLocList.h"
 #include "ParTableUsageList.h"
-#include "RelExpr.h"
+#include "optimizer/RelExpr.h"
 #include "StmtDDLNode.h"
 #include "MVInfo.h"
-#include "StmtDDLCreateView.h" // for ParViewUsages
+#include "parser/StmtDDLCreateView.h" // for ParViewUsages
 #include "ElemDDLCreateMVOneAttributeTableList.h"
 //#include "..\catman\CatExecCreateMV.h"
 

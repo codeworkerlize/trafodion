@@ -53,7 +53,6 @@
 #include "Statistics.h"
 #include "export/NABasicObject.h"
 
-class MemoryMonitor;
 class ExBMOStats;
 
 class SortUtil : public NABasicObject {
@@ -133,8 +132,6 @@ private:
   Lng32 explainNodeId_;   // Help runtime reporting.
   
   UInt32 memoryQuotaUtil_;//memory quota consumed at the util level.
-  
-  MemoryMonitor *memMonitor_;//memory monitor for checking memory pressure.
   
   UInt32 overheadPerRecord_;//memory per record consumed by initial algorithm.
                             //The algorithm may change during sort processing.

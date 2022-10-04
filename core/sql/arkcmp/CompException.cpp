@@ -22,7 +22,7 @@
 **********************************************************************/
 
 #include "string.h"
-#include "CompException.h"
+#include "arkcmp/CompException.h"
 #include "NAInternalError.h"
 
 #include "CmpEHCallBack.h"

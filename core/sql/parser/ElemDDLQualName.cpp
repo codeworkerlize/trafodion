@@ -36,7 +36,7 @@
  *****************************************************************************
  */
 
-#include "ElemDDLQualName.h"
+#include "parser/ElemDDLQualName.h"
 
 #ifndef   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS

@@ -41,7 +41,7 @@
 
 
 #include "common/Collections.h"
-#include "ItemExpr.h"
+#include "optimizer/ItemExpr.h"
 #include "optimizer/ItemColRef.h"
 #ifndef   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS

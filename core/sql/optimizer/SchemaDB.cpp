@@ -41,8 +41,8 @@
 #include "common/ComAnsiNamePart.h"
 #include "common/ComMPLoc.h"
 #include "arkcmp/CmpContext.h"
-#include "DefaultValidator.h"
-#include "Sqlcomp.h"
+#include "sqlcomp/DefaultValidator.h"
+#include "optimizer/Sqlcomp.h"
 #include "parser/StmtCompilationMode.h"
 #include "common/NAClusterInfo.h"
 #include "arkcmp/CmpStatement.h"
@@ -51,13 +51,13 @@
 #include "sqlmxevents/logmxevent.h"
 #include <ComCextdecs.h>
 #include "cli/SQLCLIdev.h"
-#include "ComUnits.h"
-#include "CmpSeabaseDDL.h"
-#include "ExpHbaseInterface.h"
+#include "common/ComUnits.h"
+#include "sqlcomp/CmpSeabaseDDL.h"
+#include "exp/ExpHbaseInterface.h"
 
 #include "parser/SqlParserGlobals.h"			// must be last #include
 
-#include "OptimizerSimulator.h"
+#include "optimizer/OptimizerSimulator.h"
 
 #include "seabed/ms.h"
 

@@ -41,9 +41,9 @@
 // with a sort aggr/grby operation.
 //
 
-#include "ex_stdh.h"
+#include "executor/ex_stdh.h"
 #include "comexe/ComTdb.h"
-#include "ex_tcb.h"
+#include "executor/ex_tcb.h"
 #include "ex_sort_grby.h"
 #include "executor/ex_expr.h"
 #include "ExSimpleSqlBuffer.h"

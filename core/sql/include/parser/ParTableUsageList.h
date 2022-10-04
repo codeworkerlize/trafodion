@@ -40,7 +40,7 @@
 
 #include "common/Collections.h"
 #include "common/ComASSERT.h"
-#include "ComOperators.h"
+#include "common/ComOperators.h"
 #include "common/ComSmallDefs.h"
 #include "common/NABoolean.h"
 #include "optimizer/ObjectNames.h"

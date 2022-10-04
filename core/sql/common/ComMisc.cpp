@@ -39,11 +39,11 @@
 
 #include "common/Platform.h"
 
-#include "ComOperators.h"
+#include "common/ComOperators.h"
 #include "common/ComASSERT.h"
 #include "common/ComMisc.h"
 #include "common/ComDistribution.h" // enumToLiteral, literalToEnum, literalAndEnumStruct
-#include "CmpSeabaseDDL.h"
+#include "sqlcomp/CmpSeabaseDDL.h"
 #include <sys/stat.h>
 #include "common/sq_license.h"
 #include "../../sqf/monitor/linux/licensecommon.h"

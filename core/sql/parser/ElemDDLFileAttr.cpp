@@ -38,7 +38,7 @@
 #include "common/BaseTypes.h"
 #include "common/ComASSERT.h"
 #include "export/ComDiags.h"
-#include "ComOperators.h"
+#include "common/ComOperators.h"
 #define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #include "parser/SqlParserGlobals.h"
 

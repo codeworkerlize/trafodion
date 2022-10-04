@@ -37,7 +37,7 @@
  */
 
 #include "executor/ExStats.h"
-#include "rts_msg.h" // to get ObjectEpochChangeRequest flags
+#include "runtimestats/rts_msg.h" // to get ObjectEpochChangeRequest flags
 
 //////////////////////////////////////////////////////////////////
 // classes defined in this file

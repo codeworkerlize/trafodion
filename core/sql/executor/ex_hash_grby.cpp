@@ -41,9 +41,9 @@
 // with a hash aggr/grby operation.
 //
 
-#include "ex_stdh.h"
+#include "executor/ex_stdh.h"
 #include "comexe/ComTdb.h"
-#include "ex_tcb.h"
+#include "executor/ex_tcb.h"
 #include "ex_hash_grby.h"
 #include "executor/ex_expr.h"
 #include "ExSimpleSqlBuffer.h"
@@ -52,7 +52,7 @@
 #include "executor/ExStats.h"
 #include "ex_error.h"
 #include "ex_exe_stmt_globals.h"
-#include "cli/memorymonitor.h"
+
 #include "sqlmxevents/logmxevent.h"
 
 #include "executor/sql_buffer_size.h"
@@ -168,8 +168,6 @@ ex_hash_grby_tcb::ex_hash_grby_tcb(const ex_hash_grby_tdb &  hash_grby_tdb,
   hashGroupByStats_ = NULL;
   heap_ = new (glob->getDefaultHeap()) NAHeap("Hash Groupby Heap", (NAHeap *)glob->getDefaultHeap());
 
-  // set the memory monitor
-  memMonitor_ = getGlobals()->castToExExeStmtGlobals()->getMemoryMonitor();
   
   // Copy all expression pointers. This must be done first because 
   // some of the pointers are used subsequently (i.e. bitMuxExpr_) in
@@ -714,8 +712,7 @@ void ex_hash_grby_tcb::workInitialize() {
   ULng32 noOfClusters = 0;
 
   // We use memUsagePercent_ of the physical memory for the HGB.
-  ULng32 availableMemory = memMonitor_->getPhysMemInBytes() / 100
-      * hashGrbyTdb().memUsagePercent_;
+  ULng32 availableMemory = 1024;
 
   // Available memory should not exceed the quota (if set) because the initial
   // hash tables allocated (one per CHAINED cluster) may consume a large
@@ -816,7 +813,6 @@ void ex_hash_grby_tcb::workInitialize() {
 				    buckets_,
 				    bucketCount_,
 				    availableMemory,
-				    memMonitor_,
 				    hashGrbyTdb().pressureThreshold_,
 				    getGlobals()->castToExExeStmtGlobals(),
 				    &rc_,

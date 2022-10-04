@@ -52,7 +52,7 @@ using namespace std;
 
 #include "common/NABoolean.h"
 #include "common/NAString.h"
-#include "ComOperators.h"
+#include "common/ComOperators.h"
 #include "common/ComSmallDefs.h"
 #include "common/ComAnsiNamePart.h"
 #include "ComRoutineActionNamePart.h"

@@ -41,7 +41,7 @@
 #define   SQLPARSERGLOBALS_FLAGS
 #define   SQLPARSERGLOBALS_NADEFAULTS_SET
 #include "parser/SqlParserGlobals.h"
-#include "SqlParserGlobalsCmn.h"
+#include "parser/SqlParserGlobalsCmn.h"
 
 #include <iostream>
 #include "common/Ipc.h"
@@ -50,11 +50,11 @@
 #include "comexe/CmpMessage.h"
 #include "arkcmp/CmpStatement.h"
 #include "CmpErrLog.h"
-#include "NewDel.h"
-#include "opt.h"
-#include "NAExit.h"
-#include "QCache.h"
-#include "CompException.h"
+#include "sqlcomp/NewDel.h"
+#include "optimizer/opt.h"
+#include "common/NAExit.h"
+#include "sqlcomp/QCache.h"
+#include "arkcmp/CompException.h"
 #include "CostMethod.h"
 
 extern THREAD_P jmp_buf ExportJmpBuf;

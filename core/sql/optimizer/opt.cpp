@@ -39,26 +39,26 @@
 
 #include <limits.h>
 #include <time.h>
-#include "ControlDB.h"
-#include "Sqlcomp.h"
+#include "optimizer/ControlDB.h"
+#include "optimizer/Sqlcomp.h"
 #include "arkcmp/CmpContext.h"
-#include "CmpErrors.h"
-#include "CmpMain.h"		// gui display
-#include "CmpMemoryMonitor.h"
+#include "arkcmp/CmpErrors.h"
+#include "sqlcomp/CmpMain.h"		// gui display
+#include "optimizer/CmpMemoryMonitor.h"
 #include "Cost.h"
 #include "GroupAttr.h"
-#include "opt.h"
-#include "PhyProp.h"
-#include "RelExpr.h"
+#include "optimizer/opt.h"
+#include "optimizer/PhyProp.h"
+#include "optimizer/RelExpr.h"
 #include "RelJoin.h"
-#include "RelMisc.h"
+#include "optimizer/RelMisc.h"
 #include "CostMethod.h"
 #include "sqlmxevents/logmxevent.h"
-#include "CompException.h"
-#include "CompilationStats.h"
+#include "arkcmp/CompException.h"
+#include "optimizer/CompilationStats.h"
 
 //////////////////////////////
-#include "Analyzer.h"
+#include "optimizer/Analyzer.h"
 //////////////////////////////
 
 
@@ -570,15 +570,7 @@ if (CURRSTMT_OPTDEFAULTS->optimizerHeuristic2()) {//#ifdef _DEBUG
           if (NOT GlobalRuleSet->inLastPass())
             context->setPreviousSolution() ;
 
-#ifdef NA_DEBUG_GUI
-          //---------------------------------------------------------------------
-          // GSH : Hide the Sqlcmpdbg display if it is not hidden. This is possible
-          // if you were steping through the memo optimization.
-          //---------------------------------------------------------------------
-          if (CmpMain::msGui_ && CURRENTSTMT->displayGraph()) {
-            CmpMain::pExpFuncs_->fpHideQueryTree(TRUE);
-          }
-#endif
+
 
           if (CURRSTMT_OPTDEFAULTS->compileTimeMonitor())
             (*CURRSTMT_OPTGLOBALS->cascadesPassMonitor).exit();
@@ -7376,15 +7368,7 @@ DEBUG_GUI_DISPLAY_TRIGGERS_AFTER_NORMALIZATION(RelExpr *relExpr)
 
 void QueryOptimizerDriver::DEBUG_GUI_HIDE_QUERY_TREE()
 {
-#ifdef NA_DEBUG_GUI
-  //---------------------------------------------------------------------
-  // GSH : Hide the Sqlcmpdbg display if it is not hidden. This is possible
-  // if you were steping through the memo optimization.
-  //---------------------------------------------------------------------
-  if (CmpMain::msGui_ && CURRENTSTMT->displayGraph()) {
-    CmpMain::pExpFuncs_->fpHideQueryTree(TRUE);
-  }
-#endif
+
 }
 
 void QueryOptimizerDriver::

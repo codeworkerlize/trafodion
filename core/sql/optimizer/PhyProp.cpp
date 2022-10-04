@@ -36,13 +36,13 @@
 
 // -----------------------------------------------------------------------
 
-#include "Sqlcomp.h"
+#include "optimizer/Sqlcomp.h"
 #include "arkcmp/CmpContext.h"
 #include "GroupAttr.h"
-#include "PhyProp.h"
+#include "optimizer/PhyProp.h"
 #include "Cost.h"
 #include "SearchKey.h"
-#include "ItemOther.h"
+#include "optimizer/ItemOther.h"
 #include "cli/Globals.h"
 
 

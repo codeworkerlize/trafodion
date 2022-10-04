@@ -241,7 +241,7 @@ inline void atp_struct::release() {
   // Release each tupp.
   //
 
-  register unsigned short numTups = criDesc_->noTuples();
+  unsigned short numTups = criDesc_->noTuples();
   for (Int32 i = 0; i < numTups; i++) {
     tuppArray_[i].release();
   }

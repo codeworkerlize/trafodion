@@ -36,26 +36,26 @@
 */
 
 #include "GroupAttr.h"
-#include "AllRelExpr.h"
+#include "optimizer/AllRelExpr.h"
 #include "RelPackedRows.h"
 #include "RelSequence.h"
 #include "RelSample.h"
-#include "AllItemExpr.h"
+#include "optimizer/AllItemExpr.h"
 #include "ItemSample.h"
-#include "opt.h"
+#include "optimizer/opt.h"
 #include "EstLogProp.h"
 #include "sqlcomp/DefaultConstants.h"
-#include "ItemOther.h"
+#include "optimizer/ItemOther.h"
 #include "ScanOptimizer.h"
-#include "NAFileSet.h"
-#include "SchemaDB.h"
+#include "optimizer/NAFileSet.h"
+#include "optimizer/SchemaDB.h"
 #include "opt_error.h"
 
 #include "CostMethod.h"
 #include "Cost.h"
 #include "NodeMap.h"
 #include <math.h>
-#include "OptimizerSimulator.h"
+#include "optimizer/OptimizerSimulator.h"
 #include "arkcmp/CmpStatement.h"
 
 //THREAD_P CostMethod* CostMethod::head_ = NULL;

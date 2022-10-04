@@ -40,9 +40,9 @@
 
 // -----------------------------------------------------------------------
 
-#include "ComOptIncludes.h"
+#include "common/ComOptIncludes.h"
 #include "common/CmpCommon.h"
-#include "SchemaDB.h"
+#include "optimizer/SchemaDB.h"
 #include "opt_error.h"
 
 #endif // SQLCOMP_HDR

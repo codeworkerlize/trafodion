@@ -40,14 +40,14 @@
 #undef _XOPEN_SOURCE_EXTENDED       
 
 #include "common/ComCextdecs.h"
-#include "ex_stdh.h"
+#include "executor/ex_stdh.h"
 #include "ex_exe_stmt_globals.h"
 #include "comexe/ComTdb.h"
-#include "ex_tcb.h"
+#include "executor/ex_tcb.h"
 #include "ex_root.h"
 #include "executor/ExStats.h"
-#include "ExSqlComp.h"
-#include "ex_transaction.h"
+#include "cli/ExSqlComp.h"
+#include "executor/ex_transaction.h"
 #include "ex_frag_rt.h"
 #include "export/ComDiags.h"
 #include "common/NAMemory.h"
@@ -63,7 +63,7 @@
 #include "Cli.h"
 #include "common/Int64.h"
 #include "common/ComSqlId.h"
-#include "CmpErrors.h"
+#include "arkcmp/CmpErrors.h"
 
 #include "TriggerEnable.h" // triggers
 #include "common/ComSmallDefs.h" // MV
@@ -74,8 +74,8 @@
 #include "exp/ExpLOBinterface.h"
 
 #include "ExUdrServer.h"
-#include "wstr.h"
-#include "QueryText.h"
+#include "common/wstr.h"
+#include "common/QueryText.h"
 #include <wchar.h>
 
 #include "common/ComAnsiNamePart.h"

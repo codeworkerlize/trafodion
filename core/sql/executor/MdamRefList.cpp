@@ -38,7 +38,7 @@
 #include <iostream>
 #endif /* NA_MDAM_EXECUTOR_DEBUG */
 
-#include "ex_stdh.h"
+#include "executor/ex_stdh.h"
 #include "common/NABoolean.h"
 #include "MdamRefList.h"
 #include "MdamRefListIterator.h"

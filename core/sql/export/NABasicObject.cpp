@@ -42,7 +42,7 @@ using namespace std;
 
 #include "common/ComASSERT.h"
 #include "common/NAMemory.h"
-#include "HeapLog.h"
+#include "export/HeapLog.h"
 #include <new>
 
 

@@ -57,14 +57,14 @@
 #include  "ComRtUtils.h"
 #include  "PortProcessCalls.h"
 
-#include "ex_transaction.h"
+#include "executor/ex_transaction.h"
 #include "common/ComSqlId.h"
 #include "ExCextdecs.h"
 
 #include "ExSMTrace.h"
 #include "ExSMGlobals.h"
 #include "ExSMCommon.h"
-#include "ExpHbaseInterface.h"
+#include "exp/ExpHbaseInterface.h"
 #include "ExCancel.h"
 #include "ExHbaseAccess.h"
 

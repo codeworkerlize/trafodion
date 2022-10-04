@@ -33,7 +33,7 @@
  **************************************************************************
  */
 
-#include "Analyzer.h"
+#include "optimizer/Analyzer.h"
 #include "qmscommon/XMLUtil.h"
 
 class QRMVDescriptor;

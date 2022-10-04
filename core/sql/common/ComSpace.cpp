@@ -50,7 +50,7 @@ extern ostream *TraceFile;
 #include "common/ComASSERT.h"
 #include "common/ComSpace.h"
 #include "common/str.h"
-#include "HeapLog.h"
+#include "export/HeapLog.h"
 #include "common/ComRtUtils.h"
 #include "parser/StmtCompilationMode.h"
 

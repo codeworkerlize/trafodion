@@ -34,16 +34,16 @@
 *
 ******************************************************************************
 */
-#include "Sqlcomp.h"
+#include "optimizer/Sqlcomp.h"
 #include "GroupAttr.h"
 #include "optimizer/RelStoredProc.h"
-#include "BindWA.h"
-#include "Generator.h"
+#include "optimizer/BindWA.h"
+#include "generator/Generator.h"
 #include "GenExpGenerator.h"
-//#include "ex_stdh.h"
+//#include "executor/ex_stdh.h"
 #include "exp/ExpCriDesc.h"
 #include "comexe/ComTdb.h"
-//#include "ex_tcb.h"
+//#include "executor/ex_tcb.h"
 #include "comexe/ComTdbStoredProc.h"
 #include "exp/exp_clause_derived.h"
 

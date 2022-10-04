@@ -36,9 +36,9 @@
  *****************************************************************************
  */
 
-#include "ComUnits.h"
+#include "common/ComUnits.h"
 #include "StmtDDLNode.h"
-#include "ElemDDLHbaseOptions.h"
+#include "parser/ElemDDLHbaseOptions.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

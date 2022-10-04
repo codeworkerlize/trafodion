@@ -32,16 +32,16 @@
 *
 ******************************************************************************
 */
-#include "AllItemExpr.h"
-#include "AllRelExpr.h"
+#include "optimizer/AllItemExpr.h"
+#include "optimizer/AllRelExpr.h"
 #include "RelPackedRows.h"
-#include "SchemaDB.h"
+#include "optimizer/SchemaDB.h"
 #include "GroupAttr.h"
-#include "BindWA.h"
-#include "NormWA.h"
+#include "optimizer/BindWA.h"
+#include "optimizer/NormWA.h"
 #include "Cost.h"
 #include "CostMethod.h"
-#include "opt.h"
+#include "optimizer/opt.h"
 #include "cli/Globals.h"
 
 // -----------------------------------------------------------------------

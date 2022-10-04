@@ -34,9 +34,9 @@
 
 // -----------------------------------------------------------------------
 
-#include "BindWA.h"
-#include "RETDesc.h"
-#include "TableNameMap.h"
+#include "optimizer/BindWA.h"
+#include "optimizer/RETDesc.h"
+#include "optimizer/TableNameMap.h"
 
 XTNM::~XTNM() 
 { 

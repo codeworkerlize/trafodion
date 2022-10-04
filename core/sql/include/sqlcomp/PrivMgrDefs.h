@@ -33,50 +33,40 @@
 // *****************************************************************************
 // *
 // * File:         PrivMgrDef.h
-// * Description:  This file contains common definitions used by the  
+// * Description:  This file contains common definitions used by the
 // *               privilege manager component
 // *
 // *****************************************************************************
 
-#define PRIVMGR_INTERNAL_ERROR(text)                                      \
-   *pDiags_ << DgSqlCode(-CAT_INTERNAL_EXCEPTION_ERROR)                   \
-            << DgString0(__FILE__)                                        \
-            << DgInt0(__LINE__)                                           \
-            << DgString1(text)                                            
+#define PRIVMGR_INTERNAL_ERROR(text) \
+  *pDiags_ << DgSqlCode(-CAT_INTERNAL_EXCEPTION_ERROR) << DgString0(__FILE__) << DgInt0(__LINE__) << DgString1(text)
 
-
-#define PRIVMGR_OBJECT_PRIVILEGES "OBJECT_PRIVILEGES"
-#define PRIVMGR_COLUMN_PRIVILEGES "COLUMN_PRIVILEGES"
-#define PRIVMGR_COMPONENTS "COMPONENTS"
+#define PRIVMGR_OBJECT_PRIVILEGES    "OBJECT_PRIVILEGES"
+#define PRIVMGR_COLUMN_PRIVILEGES    "COLUMN_PRIVILEGES"
+#define PRIVMGR_COMPONENTS           "COMPONENTS"
 #define PRIVMGR_COMPONENT_OPERATIONS "COMPONENT_OPERATIONS"
 #define PRIVMGR_COMPONENT_PRIVILEGES "COMPONENT_PRIVILEGES"
-#define PRIVMGR_ROLE_USAGE "ROLE_USAGE"
-#define PRIVMGR_SCHEMA_PRIVILEGES "SCHEMA_PRIVILEGES"
+#define PRIVMGR_ROLE_USAGE           "ROLE_USAGE"
+#define PRIVMGR_SCHEMA_PRIVILEGES    "SCHEMA_PRIVILEGES"
 
-// Returns the result of the operation 
-enum PrivStatus { STATUS_UNKNOWN   = 20,
-                  STATUS_GOOD      = 21,
-                  STATUS_WARNING   = 22,
-                  STATUS_NOTFOUND  = 23,
-                  STATUS_ERROR     = 24
-                };
+// Returns the result of the operation
+enum PrivStatus { STATUS_UNKNOWN = 20, STATUS_GOOD = 21, STATUS_WARNING = 22, STATUS_NOTFOUND = 23, STATUS_ERROR = 24 };
 
-enum PrivMgrTableEnum { OBJECT_PRIVILEGES_ENUM = 30,
-                        COLUMN_PRIVILEGES_ENUM = 31,
-                        SCHEMA_PRIVILEGES_ENUM = 32,
-                        COMPONENTS_ENUM        = 33,
-                        COMPONENT_OPERATIONS_ENUM  = 34,
-                        COMPONENT_PRIVILEGES_ENUM  = 35,
-                        ROLE_USAGES_ENUM           = 36,
-                        OBJECTS_ENUM               = 37,
-                        UNKNOWN_ENUM               = 38
-                      };
+enum PrivMgrTableEnum {
+  OBJECT_PRIVILEGES_ENUM = 30,
+  COLUMN_PRIVILEGES_ENUM = 31,
+  SCHEMA_PRIVILEGES_ENUM = 32,
+  COMPONENTS_ENUM = 33,
+  COMPONENT_OPERATIONS_ENUM = 34,
+  COMPONENT_PRIVILEGES_ENUM = 35,
+  ROLE_USAGES_ENUM = 36,
+  OBJECTS_ENUM = 37,
+  UNKNOWN_ENUM = 38
+};
 
-inline const char * privStatusEnumToLit(PrivStatus privStatus)
-{
+inline const char *privStatusEnumToLit(PrivStatus privStatus) {
   std::string result;
-  switch (privStatus)
-  {
+  switch (privStatus) {
     case STATUS_GOOD:
       result = "GOOD";
       break;
@@ -94,148 +84,97 @@ inline const char * privStatusEnumToLit(PrivStatus privStatus)
   }
   return result.c_str();
 }
-  
 
-enum class PrivClass {
-   ALL = 2,
-   OBJECT = 3,
-   COMPONENT = 4,
-   SCHEMA = 5
-};
+enum class PrivClass { ALL = 2, OBJECT = 3, COMPONENT = 4, SCHEMA = 5 };
 
 // Defines the list of supported privileges and their order that are stored
 // for all privileges_bitmap and grantable_bitmap columns defined in the
-// [COLUMN|OBJECT|SCHEMA]_PRIVILEGES tables.  
+// [COLUMN|OBJECT|SCHEMA]_PRIVILEGES tables.
 // Not all privileges are applicable for the privilege level (column, object, schema)
 // and object type (schema, tables, views, etc).
 // Privileges are stored in LARGEINT columns but are treated as bitmaps.  We
-// can handle up to 64 privilege types.  If have more than 64 types,  then 
-// metadata needs to be upgraded to store values in two columns. 
-enum PrivType { SELECT_PRIV = 0, //DML PRIVS START HERE 
-                INSERT_PRIV,
-                DELETE_PRIV,
-                UPDATE_PRIV,
-                USAGE_PRIV,
-                REFERENCES_PRIV,
-                EXECUTE_PRIV,
-                // space for additional DML privs, e.g.TRIGGER_PRIV
-                CREATE_PRIV = 10,     //DDL PRIVS START HERE
-                ALTER_PRIV,
-                DROP_PRIV,
-                CREATE_LIBRARY_PRIV = 13, //DDL SUB_PRIVS START HERE
-                CREATE_PACKAGE_PRIV,
-                CREATE_ROUTINE_PRIV,
-                CREATE_SEQUENCE_PRIV,
-                CREATE_TABLE_PRIV,
-                CREATE_VIEW_PRIV, 
-                // space for additional create privs
-                ALTER_LIBRARY_PRIV = 25,
-                ALTER_PACKAGE_PRIV,
-                ALTER_ROUTINE_PRIV,
-                ALTER_SEQUENCE_PRIV,
-                ALTER_TABLE_PRIV,
-                ALTER_VIEW_PRIV,
-                // space for additional alter privs
-                DROP_LIBRARY_PRIV = 37,
-                DROP_PACKAGE_PRIV,
-                DROP_ROUTINE_PRIV,
-                DROP_SEQUENCE_PRIV,
-                DROP_TABLE_PRIV,
-                DROP_VIEW_PRIV,
-                // space for additional drop privs
-                // space for other possible privs, e.g. manage_statistics
-                ALL_DML = 60,
-                ALL_DDL,
-                ALL_PRIVS };
-                
-class ColPrivSpec
-{
-public:
-   PrivType       privType;
-   int32_t        columnOrdinal;
-   bool           grantorHasWGO;
+// can handle up to 64 privilege types.  If have more than 64 types,  then
+// metadata needs to be upgraded to store values in two columns.
+enum PrivType {
+  SELECT_PRIV = 0,  // DML PRIVS START HERE
+  INSERT_PRIV,
+  DELETE_PRIV,
+  UPDATE_PRIV,
+  USAGE_PRIV,
+  REFERENCES_PRIV,
+  EXECUTE_PRIV,
+  // space for additional DML privs, e.g.TRIGGER_PRIV
+  CREATE_PRIV = 10,  // DDL PRIVS START HERE
+  ALTER_PRIV,
+  DROP_PRIV,
+  CREATE_LIBRARY_PRIV = 13,  // DDL SUB_PRIVS START HERE
+  CREATE_PACKAGE_PRIV,
+  CREATE_ROUTINE_PRIV,
+  CREATE_SEQUENCE_PRIV,
+  CREATE_TABLE_PRIV,
+  CREATE_VIEW_PRIV,
+  // space for additional create privs
+  ALTER_LIBRARY_PRIV = 25,
+  ALTER_PACKAGE_PRIV,
+  ALTER_ROUTINE_PRIV,
+  ALTER_SEQUENCE_PRIV,
+  ALTER_TABLE_PRIV,
+  ALTER_VIEW_PRIV,
+  // space for additional alter privs
+  DROP_LIBRARY_PRIV = 37,
+  DROP_PACKAGE_PRIV,
+  DROP_ROUTINE_PRIV,
+  DROP_SEQUENCE_PRIV,
+  DROP_TABLE_PRIV,
+  DROP_VIEW_PRIV,
+  // space for additional drop privs
+  // space for other possible privs, e.g. manage_statistics
+  ALL_DML = 60,
+  ALL_DDL,
+  ALL_PRIVS
 };
 
-inline bool isColumnPrivType(PrivType privType)
-{
-
-   return (privType == PrivType::SELECT_PRIV || 
-           privType == PrivType::INSERT_PRIV ||
-           privType == PrivType::REFERENCES_PRIV ||
-           privType == PrivType::UPDATE_PRIV);
-   
-}
-     
-inline bool isLibraryPrivType(PrivType privType)
-{
-
-   return (privType == PrivType::USAGE_PRIV || 
-           privType == PrivType::UPDATE_PRIV ||
-           privType == PrivType::DROP_PRIV ||
-           privType == PrivType::ALTER_PRIV ||
-           privType == PrivType::ALL_DML ||
-           privType == PrivType::ALL_DDL);
-   
-}
-     
-inline bool isTablePrivType(PrivType privType)
-{
-
-   return (privType == PrivType::SELECT_PRIV || 
-           privType == PrivType::INSERT_PRIV ||
-           privType == PrivType::DELETE_PRIV ||
-           privType == PrivType::REFERENCES_PRIV ||
-           privType == PrivType::UPDATE_PRIV ||
-           privType == PrivType::DROP_PRIV ||
-           privType == PrivType::ALTER_PRIV ||
-           privType == PrivType::ALL_DML ||
-           privType == PrivType::ALL_DDL);
-   
-}
-     
-inline bool isUDRPrivType(PrivType privType)
-{
-
-   return (privType == PrivType::EXECUTE_PRIV ||
-           privType == PrivType::DROP_PRIV ||
-           privType == PrivType::ALTER_PRIV ||
-           privType == PrivType::ALL_DML ||
-           privType == PrivType::ALL_DDL);
-   
-}
-
-inline bool isSequenceGeneratorPrivType(PrivType privType)
-{
-
-   return (privType == PrivType::USAGE_PRIV ||
-           privType == PrivType::DROP_PRIV ||
-           privType == PrivType::ALTER_PRIV ||
-           privType == PrivType::ALL_DML ||
-           privType == PrivType::ALL_DDL);
-   
-}
-     
-enum class PrivDropBehavior {
-   CASCADE = 2,
-   RESTRICT = 3
-};                
-
-enum class PrivLevel {
-   UNKNOWN = 0,
-   GLOBAL = 2,
-   CATALOG = 3,
-   SCHEMA = 4,
-   OBJECT = 5,
-   COLUMN = 6
+class ColPrivSpec {
+ public:
+  PrivType privType;
+  int32_t columnOrdinal;
+  bool grantorHasWGO;
 };
-  
-// NOTE: These values need to match the corresponding values in 
+
+inline bool isColumnPrivType(PrivType privType) {
+  return (privType == PrivType::SELECT_PRIV || privType == PrivType::INSERT_PRIV ||
+          privType == PrivType::REFERENCES_PRIV || privType == PrivType::UPDATE_PRIV);
+}
+
+inline bool isLibraryPrivType(PrivType privType) {
+  return (privType == PrivType::USAGE_PRIV || privType == PrivType::UPDATE_PRIV || privType == PrivType::DROP_PRIV ||
+          privType == PrivType::ALTER_PRIV || privType == PrivType::ALL_DML || privType == PrivType::ALL_DDL);
+}
+
+inline bool isTablePrivType(PrivType privType) {
+  return (privType == PrivType::SELECT_PRIV || privType == PrivType::INSERT_PRIV || privType == PrivType::DELETE_PRIV ||
+          privType == PrivType::REFERENCES_PRIV || privType == PrivType::UPDATE_PRIV ||
+          privType == PrivType::DROP_PRIV || privType == PrivType::ALTER_PRIV || privType == PrivType::ALL_DML ||
+          privType == PrivType::ALL_DDL);
+}
+
+inline bool isUDRPrivType(PrivType privType) {
+  return (privType == PrivType::EXECUTE_PRIV || privType == PrivType::DROP_PRIV || privType == PrivType::ALTER_PRIV ||
+          privType == PrivType::ALL_DML || privType == PrivType::ALL_DDL);
+}
+
+inline bool isSequenceGeneratorPrivType(PrivType privType) {
+  return (privType == PrivType::USAGE_PRIV || privType == PrivType::DROP_PRIV || privType == PrivType::ALTER_PRIV ||
+          privType == PrivType::ALL_DML || privType == PrivType::ALL_DDL);
+}
+
+enum class PrivDropBehavior { CASCADE = 2, RESTRICT = 3 };
+
+enum class PrivLevel { UNKNOWN = 0, GLOBAL = 2, CATALOG = 3, SCHEMA = 4, OBJECT = 5, COLUMN = 6 };
+
+// NOTE: These values need to match the corresponding values in
 // common/ComSmallDefs.h, ComIdClass.
-enum class PrivAuthClass {
-   UNKNOWN = 0,
-   ROLE = 1,
-   USER = 2 
-};                
+enum class PrivAuthClass { UNKNOWN = 0, ROLE = 1, USER = 2 };
 
 const static int32_t FIRST_DML_PRIV = SELECT_PRIV;
 const static int32_t FIRST_DML_COL_PRIV = SELECT_PRIV;
@@ -247,58 +186,48 @@ const static int32_t FIRST_DDL_PRIV = CREATE_PRIV;
 const static int32_t LAST_DDL_PRIV = DROP_PRIV;
 const static int32_t LAST_PRIV = LAST_DDL_PRIV;
 
-const static int32_t NBR_DML_PRIVS = LAST_DML_PRIV-FIRST_DML_PRIV + 1;
+const static int32_t NBR_DML_PRIVS = LAST_DML_PRIV - FIRST_DML_PRIV + 1;
 // This calculation includes non-column-level privileges.  There are only four
 // column-level privileges, but DELETE and USAGE are include so bit indexing works.
-const static int32_t NBR_DML_COL_PRIVS = LAST_DML_COL_PRIV - FIRST_DML_COL_PRIV + 1;   
-const static int32_t NBR_DDL_PRIVS = LAST_DDL_PRIV-FIRST_DDL_PRIV + 1;
+const static int32_t NBR_DML_COL_PRIVS = LAST_DML_COL_PRIV - FIRST_DML_COL_PRIV + 1;
+const static int32_t NBR_DDL_PRIVS = LAST_DDL_PRIV - FIRST_DDL_PRIV + 1;
 const static int32_t NBR_OF_PRIVS = LAST_DDL_PRIV + 1;
 
 // Defines the privileges and grantable bitmaps as PrivMgrBitmap
-//using PrivMgrBitmap = std::bitset<NBR_OF_PRIVS>;
+// using PrivMgrBitmap = std::bitset<NBR_OF_PRIVS>;
 #define PrivMgrBitmap std::bitset<NBR_OF_PRIVS>
 typedef std::bitset<NBR_OF_PRIVS> PrivObjectBitmap;
 typedef std::bitset<NBR_OF_PRIVS> PrivColumnBitmap;
 typedef std::bitset<NBR_OF_PRIVS> PrivSchemaBitmap;
-typedef std::map<size_t,PrivColumnBitmap> PrivColList;
-typedef std::map<size_t,std::bitset<NBR_OF_PRIVS> >::const_iterator PrivColIterator;
+typedef std::map<size_t, PrivColumnBitmap> PrivColList;
+typedef std::map<size_t, std::bitset<NBR_OF_PRIVS> >::const_iterator PrivColIterator;
 
-inline bool isDMLPrivType(PrivType privType)
-{
+inline bool isDMLPrivType(PrivType privType) {
+  if ((privType >= FIRST_DML_PRIV && privType <= LAST_DML_PRIV) || privType == ALL_DML) return true;
 
-   if ((privType >= FIRST_DML_PRIV && privType <= LAST_DML_PRIV) ||
-       privType == ALL_DML)
-      return true;
-   
-   return false;
-   
+  return false;
 }
 
-inline bool isDDLPrivType(PrivType privType)
-{
+inline bool isDDLPrivType(PrivType privType) {
+  if ((privType >= FIRST_DDL_PRIV && privType <= LAST_DDL_PRIV) || privType == ALL_DDL) return true;
 
-   if ((privType >= FIRST_DDL_PRIV && privType <= LAST_DDL_PRIV) ||
-       privType == ALL_DDL)
-      return true;
-
-   return false;
-
+  return false;
 }
 
 // object types for grantable objects
-#define BASE_TABLE_OBJECT_LIT               "BT"
-#define LIBRARY_OBJECT_LIT                  "LB"
-#define VIEW_OBJECT_LIT                     "VI"
-#define USER_DEFINED_ROUTINE_OBJECT_LIT     "UR"
-#define SEQUENCE_GENERATOR_OBJECT_LIT       "SG"
+#define BASE_TABLE_OBJECT_LIT           "BT"
+#define LIBRARY_OBJECT_LIT              "LB"
+#define VIEW_OBJECT_LIT                 "VI"
+#define USER_DEFINED_ROUTINE_OBJECT_LIT "UR"
+#define SEQUENCE_GENERATOR_OBJECT_LIT   "SG"
 
-#define UNKNOWN_GRANTOR_TYPE_LIT               "  "
-#define SYSTEM_GRANTOR_LIT                     "S "
-#define USER_GRANTOR_LIT                       "U "
+#define UNKNOWN_GRANTOR_TYPE_LIT "  "
+#define SYSTEM_GRANTOR_LIT       "S "
+#define USER_GRANTOR_LIT         "U "
 
-#define UNKNOWN_GRANTEE_TYPE_LIT               "  "
-#define PUBLIC_GRANTEE_LIT                     "P "
-#define USER_GRANTEE_LIT                       "U "
+#define UNKNOWN_GRANTEE_TYPE_LIT "  "
+#define PUBLIC_GRANTEE_LIT       "P "
+#define USER_GRANTEE_LIT         "U "
 
 #define MAX_SQL_IDENTIFIER_NAME_LEN 256
 

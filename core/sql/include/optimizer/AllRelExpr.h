@@ -36,21 +36,21 @@
 
 // -----------------------------------------------------------------------
 
-#include "RelExpr.h"
-#include "Rel3GL.h"
+#include "optimizer/RelExpr.h"
+#include "optimizer/Rel3GL.h"
 #include "optimizer/RelControl.h"
 #include "RelDCL.h"
 #include "RelEnforcer.h"
-#include "RelGrby.h"
+#include "optimizer/RelGrby.h"
 #include "RelJoin.h"
-#include "RelExeUtil.h"
+#include "optimizer/RelExeUtil.h"
 #include "RelFastTransport.h"
-#include "RelMisc.h"
-#include "RelRoutine.h"
+#include "optimizer/RelMisc.h"
+#include "optimizer/RelRoutine.h"
 #include "RelProbeCache.h"
 #include "optimizer/RelStoredProc.h"
 #include "optimizer/RelScan.h"
-#include "RelSet.h"
+#include "optimizer/RelSet.h"
 #include "RelUpdate.h"
 #include "MultiJoin.h"
 

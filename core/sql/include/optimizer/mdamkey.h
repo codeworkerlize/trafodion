@@ -40,9 +40,9 @@
 
 // -----------------------------------------------------------------------
 
-#include "mdam.h"
+#include "optimizer/mdam.h"
 #include "disjuncts.h"
-#include "keycolumns.h"
+#include "optimizer/keycolumns.h"
 #include "export/NABasicObject.h"
 #include "IndexDesc.h"
 

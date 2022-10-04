@@ -20,7 +20,7 @@
 // //
 // // @@@ END COPYRIGHT @@@
 // // **********************************************************************
-#include "MemoryTableClient.h"
+#include "executor/MemoryTableClient.h"
 #include "cli/Globals.h"
 #include "sqlcomp/SharedCache.h"
 

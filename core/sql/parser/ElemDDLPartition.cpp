@@ -36,16 +36,16 @@
  *****************************************************************************
  */
 
-#include "ComUnits.h"
+#include "common/ComUnits.h"
 #include "AllElemDDLPartition.h"
 #include "common/BaseTypes.h"
 #include "common/ComASSERT.h"
 #include "export/ComDiags.h"
-#include "ComOperators.h"
-#include "ComLocationNames.h"
+#include "common/ComOperators.h"
+#include "common/ComLocationNames.h"
 #include "ElemDDLKeyValue.h"
 #include "ElemDDLLocation.h"
-#include "ElemDDLPartitionList.h"
+#include "parser/ElemDDLPartitionList.h"
 #include "ItemConstValueArray.h"
 #ifndef   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS

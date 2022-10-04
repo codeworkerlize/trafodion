@@ -42,7 +42,7 @@
 #include "ElemDDLConstraintArray.h"
 #include "ElemDDLConstraintCheck.h"
 #include "ElemDDLConstraintNotNull.h"
-#include "ElemDDLConstraintPK.h"
+#include "parser/ElemDDLConstraintPK.h"
 #include "ElemDDLConstraintRI.h"
 #include "ElemDDLConstraintUnique.h"
 

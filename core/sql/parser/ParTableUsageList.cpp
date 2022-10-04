@@ -35,7 +35,7 @@
  */
 
 #include "common/BaseTypes.h"
-#include "ComOperators.h"
+#include "common/ComOperators.h"
 
 #include "ParTableUsageList.h"
 

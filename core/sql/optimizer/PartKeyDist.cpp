@@ -33,7 +33,7 @@
 **************************************************************************** */
 
 #include "PartKeyDist.h"   
-#include "parser.h"      /* for the parser of EncodedValues */
+#include "sqlcomp/parser.h"      /* for the parser of EncodedValues */
 
 
 // -----------------------------------------------------------------------

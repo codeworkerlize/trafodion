@@ -25,12 +25,12 @@
 
 #include "common/NAString.h"
 #include "common/CmpCommon.h"
-#include "SchemaDB.h"
-#include "opt.h"
-#include "NATable.h"
+#include "optimizer/SchemaDB.h"
+#include "optimizer/opt.h"
+#include "optimizer/NATable.h"
 #include <time.h>
 #include <fstream>
-#include "QCache.h"
+#include "sqlcomp/QCache.h"
 #include "CmpProcess.h"
 
 //

@@ -38,7 +38,7 @@
  */
 
 #include "comexe/ComTdb.h"
-#include "ex_tcb.h"
+#include "executor/ex_tcb.h"
 #include "ex_queue.h"
 #include "exp/ExpCriDesc.h"
 #include "exp/ex_expr.h"

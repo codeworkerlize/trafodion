@@ -40,7 +40,6 @@
 #ifndef _NA_DEFAULTS_H
 #define _NA_DEFAULTS_H
 
-
 #include "common/Platform.h"
 #include <ctype.h>
 #include <iostream>
@@ -73,22 +72,23 @@ struct DefaultDefault;
 //
 const Int32 SilentIfSYSTEM = +2000;
 
-enum NADefaultFlags { DEFAULT_FLAGS_OFF			= 0,
-		      DEFAULT_IS_EXTERNALIZED		= 0x1,
-		      DEFAULT_ALLOWS_SEPARATE_SYSTEM	= 0x2,
-                      DEFAULT_CATALOG_SET_TO_USERID     = 0x4,
-		      DEFAULT_SCHEMA_SET_TO_USERID      = 0x8,
+enum NADefaultFlags {
+  DEFAULT_FLAGS_OFF = 0,
+  DEFAULT_IS_EXTERNALIZED = 0x1,
+  DEFAULT_ALLOWS_SEPARATE_SYSTEM = 0x2,
+  DEFAULT_CATALOG_SET_TO_USERID = 0x4,
+  DEFAULT_SCHEMA_SET_TO_USERID = 0x8,
 
-		      // this default is used at runtime only.
-		      // It is set by users using SET SESSION DEFAULT stmt.
-		      // See cli/SessionDefaults.h/cpp for details.
-		      DEFAULT_IS_SSD                    = 0x10,
-                      DEFAULT_SCHEMA_SET_BY_NAMETYPE    = 0x20,
-                      // goes with DEFAULT_IS_EXTERNALIZED,
-                      // at most one of these two should be set
-		      DEFAULT_IS_FOR_SUPPORT            = 0x40
+  // this default is used at runtime only.
+  // It is set by users using SET SESSION DEFAULT stmt.
+  // See cli/SessionDefaults.h/cpp for details.
+  DEFAULT_IS_SSD = 0x10,
+  DEFAULT_SCHEMA_SET_BY_NAMETYPE = 0x20,
+  // goes with DEFAULT_IS_EXTERNALIZED,
+  // at most one of these two should be set
+  DEFAULT_IS_FOR_SUPPORT = 0x40
 
-		    };
+};
 
 // Class NADefaults
 //
@@ -134,196 +134,161 @@ enum NADefaultFlags { DEFAULT_FLAGS_OFF			= 0,
 //       entries into the hash table.  The refresh method will also
 //       do this loop as part of preparing the hash table.
 
-class NADefaults : public NABasicObject
-{
+class NADefaults : public NABasicObject {
   friend class OptimizerSimulator;
-public:
 
-  NADefaults   ( NAMemory * h );
-  ~NADefaults   ();
+ public:
+  NADefaults(NAMemory *h);
+  ~NADefaults();
 
   // This is an ORDERED enum:  SET_BY_CQD > READ_FROM_SQL_TABLE, etc.
   // This ordering is used by the "overwriteIfNotYet" logic.
-  enum Provenance
-  { UNINITIALIZED,
-    INIT_DEFAULT_DEFAULTS, DERIVED, READ_FROM_SQL_TABLE, SET_BY_CQD, CQD_RESET_RESET, COMPUTED, 
-    IMMUTABLE };
+  enum Provenance {
+    UNINITIALIZED,
+    INIT_DEFAULT_DEFAULTS,
+    DERIVED,
+    READ_FROM_SQL_TABLE,
+    SET_BY_CQD,
+    CQD_RESET_RESET,
+    COMPUTED,
+    IMMUTABLE
+  };
 
-  enum Flags
-  {
+  enum Flags {
     // indicates that this default was set by user through a CQD stmt.
     USER_DEFAULT = 0x01
   };
 
-  enum DefFlags
-  {
+  enum DefFlags {
     // set to indicate that seabase defaults table has been read.
     SEABASE_DEFAULTS_TABLE_READ = 0x01
 
   };
 
   // test read-only attributes, i.e., whether they can be changed by a CQD
-  NABoolean        isReadonlyAttribute  (const char* attrName) const;
+  NABoolean isReadonlyAttribute(const char *attrName) const;
 
   // these defaults cannot be reset or set to FALSE through a cqd.
-  NABoolean        isNonResetableAttribute(const char* attrName) const;
+  NABoolean isNonResetableAttribute(const char *attrName) const;
 
   // these defaults can be set only once by user.
-  NABoolean        isSetOnceAttribute(Int32 attrEnum) const;
+  NABoolean isSetOnceAttribute(Int32 attrEnum) const;
 
-  // reset attributes which are set for the session based on 
+  // reset attributes which are set for the session based on
   // the caller. These do not persist across multiple session.
   // For example, nvci( scripts), or dbtransporter defaults.
   // See also cli/SessionDefaults.h/resetSessionBasedDefaults.
-  void             resetSessionOnlyDefaults();
+  void resetSessionOnlyDefaults();
 
-  NABoolean        getValue	(Int32 attrEnum, NAString &result) const;
-  const char *     getValue	(Int32 attrEnum) const;
-  const char *	   getValueWhileInitializing (Int32 attrEnum);
+  NABoolean getValue(Int32 attrEnum, NAString &result) const;
+  const char *getValue(Int32 attrEnum) const;
+  const char *getValueWhileInitializing(Int32 attrEnum);
 
-  NABoolean        getFloat	(Int32 attrEnum, float &result) const;
-  double	   getAsDouble	(Int32 attrEnum) const;
-  Lng32		   getAsLong	(Int32 attrEnum) const;
-  ULng32	   getAsULong	(Int32 attrEnum) const;
+  NABoolean getFloat(Int32 attrEnum, float &result) const;
+  double getAsDouble(Int32 attrEnum) const;
+  Lng32 getAsLong(Int32 attrEnum) const;
+  ULng32 getAsULong(Int32 attrEnum) const;
 
-  NAString         getString(Int32 attrEnum) const;
+  NAString getString(Int32 attrEnum) const;
 
   // get the number of configured ESPs per cluster or segment.
-  ULng32           getNumOfESPsPerNode() const;
+  ULng32 getNumOfESPsPerNode() const;
 
   // get the number of configured ESPs per cluster.
-  ULng32           getTotalNumOfESPs(NABoolean& fakeEnv) const;
+  ULng32 getTotalNumOfESPs(NABoolean &fakeEnv) const;
 
-  Lng32            figureOutMaxLength(UInt32 uec);
+  Lng32 figureOutMaxLength(UInt32 uec);
 
-  NABoolean	   domainMatch	(Int32 attrEnum,
-  				 Int32 expectedDefaultValidatorType,
-				 float *flt = NULL) const;
+  NABoolean domainMatch(Int32 attrEnum, Int32 expectedDefaultValidatorType, float *flt = NULL) const;
 
-  static NAString  keyword	(DefaultToken tok);
-  DefaultToken	   token	(Int32 attrEnum,
-  				 NAString &value,
-  				 NABoolean valueAlreadyGotten = FALSE,
-				 Int32 errOrWarn = -1) const;
+  static NAString keyword(DefaultToken tok);
+  DefaultToken token(Int32 attrEnum, NAString &value, NABoolean valueAlreadyGotten = FALSE, Int32 errOrWarn = -1) const;
 
-  DefaultToken	   getToken	(const Int32 attrEnum,
-                                 const Int32 errOrWarn = -1) const;
+  DefaultToken getToken(const Int32 attrEnum, const Int32 errOrWarn = -1) const;
 
-  static const char *
-  		   lookupAttrName	(Int32 attrEnum,
-					 Int32 errOrWarn = -1);
-  static DefaultConstants
-   		   lookupAttrName	(const char *attrName,
-					 Int32 errOrWarn = -1,
-					 Int32 *position = NULL);
+  static const char *lookupAttrName(Int32 attrEnum, Int32 errOrWarn = -1);
+  static DefaultConstants lookupAttrName(const char *attrName, Int32 errOrWarn = -1, Int32 *position = NULL);
 
   // By default, a (CQD) setting supersedes any previous (CQD or less) setting.
-  DefaultConstants validateAndInsert	(const char *attrName,
-					 NAString &value,
-					 NABoolean reset,
-					 Int32 errOrWarn = -1,
-				     Provenance overwriteIfNotYet = IMMUTABLE);
+  DefaultConstants validateAndInsert(const char *attrName, NAString &value, NABoolean reset, Int32 errOrWarn = -1,
+                                     Provenance overwriteIfNotYet = IMMUTABLE);
 
   // This method does not insert, because provenance < UNINITIALIZED is imposs
-  DefaultConstants validate		(const char *attrName,
-					 NAString &value,
-					 NABoolean reset,
-					 Int32 errOrWarn = -1)
-  {return validateAndInsert(attrName, value, reset, errOrWarn, UNINITIALIZED);}
+  DefaultConstants validate(const char *attrName, NAString &value, NABoolean reset, Int32 errOrWarn = -1) {
+    return validateAndInsert(attrName, value, reset, errOrWarn, UNINITIALIZED);
+  }
 
-  DefaultConstants holdOrRestore	(const char *attrName,
-					 Lng32 holdOrRestoreCQD);
+  DefaultConstants holdOrRestore(const char *attrName, Lng32 holdOrRestoreCQD);
 
-  Int32		   validateFloat	(const char *value,
-  					 float &result,
-                          		 Int32 attrEnum,
-					 Int32 errOrWarn = -1) const;
+  Int32 validateFloat(const char *value, float &result, Int32 attrEnum, Int32 errOrWarn = -1) const;
 
-  NABoolean        getIsolationLevel    (TransMode::IsolationLevel &arg,
-  					 DefaultToken tok = DF_noSuchToken) const;
-  NABoolean        getIsolationLevel    (Int16 &arg,
-  					 DefaultToken tok = DF_noSuchToken) const
-  {
+  NABoolean getIsolationLevel(TransMode::IsolationLevel &arg, DefaultToken tok = DF_noSuchToken) const;
+  NABoolean getIsolationLevel(Int16 &arg, DefaultToken tok = DF_noSuchToken) const {
     TransMode::IsolationLevel il = (TransMode::IsolationLevel)arg;
     NABoolean ret = getIsolationLevel(il, tok);
     arg = il;
     return ret;
   }
 
-  NABoolean        setCatalog		(NAString &value,
-  					 Int32 errOrWarn = -1,
-  					 NABoolean overwrite = TRUE,
-					 NABoolean alreadyCanonical = FALSE);
-  NABoolean        setSchema		(NAString &value,
-  					 Int32 errOrWarn = -1,
-  					 NABoolean overwrite = TRUE,
-					 NABoolean alreadyCanonical = FALSE);
+  NABoolean setCatalog(NAString &value, Int32 errOrWarn = -1, NABoolean overwrite = TRUE,
+                       NABoolean alreadyCanonical = FALSE);
+  NABoolean setSchema(NAString &value, Int32 errOrWarn = -1, NABoolean overwrite = TRUE,
+                      NABoolean alreadyCanonical = FALSE);
   // code not used
-  NABoolean        setCatalogTrustedFast(NAString &value)
-			       { return setCatalog(value, -1, TRUE, TRUE); }
-  NABoolean        setSchemaTrustedFast	(NAString &value)
-			       { return setSchema(value, -1, TRUE, TRUE); }
-  void		   getCatalogAndSchema	(NAString &cat, NAString &sch);
+  NABoolean setCatalogTrustedFast(NAString &value) { return setCatalog(value, -1, TRUE, TRUE); }
+  NABoolean setSchemaTrustedFast(NAString &value) { return setSchema(value, -1, TRUE, TRUE); }
+  void getCatalogAndSchema(NAString &cat, NAString &sch);
 
-  void		   setState		(Provenance s)	{ currentState_ = s; }
-  Provenance	   getState		()		{ return currentState_;}
+  void setState(Provenance s) { currentState_ = s; }
+  Provenance getState() { return currentState_; }
 
-  Provenance	   getProvenance	(Int32 attrEnum) const;
+  Provenance getProvenance(Int32 attrEnum) const;
 
-  NABoolean        userDefault(Int32 attrEnum)
-  {return (flags_[attrEnum] & USER_DEFAULT) != 0;}
-  void             setUserDefault(Int32 attrEnum, NABoolean v)
-  { (v ? flags_[attrEnum] |= USER_DEFAULT : flags_[attrEnum] &= ~USER_DEFAULT);
+  NABoolean userDefault(Int32 attrEnum) { return (flags_[attrEnum] & USER_DEFAULT) != 0; }
+  void setUserDefault(Int32 attrEnum, NABoolean v) {
+    (v ? flags_[attrEnum] |= USER_DEFAULT : flags_[attrEnum] &= ~USER_DEFAULT);
   }
 
-  NABoolean seabaseDefaultsTableRead() const { return defFlags_ & SEABASE_DEFAULTS_TABLE_READ;}
-  void setSeabaseDefaultsTableRead(NABoolean v)
-  {
+  NABoolean seabaseDefaultsTableRead() const { return defFlags_ & SEABASE_DEFAULTS_TABLE_READ; }
+  void setSeabaseDefaultsTableRead(NABoolean v) {
     (v ? defFlags_ |= SEABASE_DEFAULTS_TABLE_READ : defFlags_ &= ~SEABASE_DEFAULTS_TABLE_READ);
   }
 
   static size_t numDefaultAttributes();
   static void initGlobalEntries();
-  const char *getCurrentDefaultsAttrNameAndValue(size_t ix,
-						 const char* &name,
-						 const char* &value,
-						 NABoolean userDefaultsOnly);
-  void  readFromDefaultsTable(Provenance overwriteIfNotYet = SET_BY_CQD,
-  				     Int32 errOrWarn = +1/*warning*/);
+  const char *getCurrentDefaultsAttrNameAndValue(size_t ix, const char *&name, const char *&value,
+                                                 NABoolean userDefaultsOnly);
+  void readFromDefaultsTable(Provenance overwriteIfNotYet = SET_BY_CQD, Int32 errOrWarn = +1 /*warning*/);
 
-  NABoolean    catSetToUserID() {
-               return (catSchSetToUserID_ & DEFAULT_CATALOG_SET_TO_USERID) !=0;
-               }
-  NABoolean    schSetToUserID() {
-               return (catSchSetToUserID_ & DEFAULT_SCHEMA_SET_TO_USERID) !=0;
-               }
-  void         setCatUserID(NABoolean v)
-		{(v ? catSchSetToUserID_ |= DEFAULT_CATALOG_SET_TO_USERID : catSchSetToUserID_ &= ~DEFAULT_CATALOG_SET_TO_USERID);}
-  void         setSchUserID(NABoolean v)
-		{(v ? catSchSetToUserID_ |= DEFAULT_SCHEMA_SET_TO_USERID : catSchSetToUserID_ &= ~DEFAULT_SCHEMA_SET_TO_USERID);}
+  NABoolean catSetToUserID() { return (catSchSetToUserID_ & DEFAULT_CATALOG_SET_TO_USERID) != 0; }
+  NABoolean schSetToUserID() { return (catSchSetToUserID_ & DEFAULT_SCHEMA_SET_TO_USERID) != 0; }
+  void setCatUserID(NABoolean v) {
+    (v ? catSchSetToUserID_ |= DEFAULT_CATALOG_SET_TO_USERID : catSchSetToUserID_ &= ~DEFAULT_CATALOG_SET_TO_USERID);
+  }
+  void setSchUserID(NABoolean v) {
+    (v ? catSchSetToUserID_ |= DEFAULT_SCHEMA_SET_TO_USERID : catSchSetToUserID_ &= ~DEFAULT_SCHEMA_SET_TO_USERID);
+  }
 
   // for DEFAULT_SCHEMA_NAMETYPE
-  void         setSchByNametype(NABoolean v)
-		{(v ? catSchSetToUserID_ |= DEFAULT_SCHEMA_SET_BY_NAMETYPE : catSchSetToUserID_ &= ~DEFAULT_SCHEMA_SET_BY_NAMETYPE);}
-  NABoolean    schSetByNametype() {
-               return (catSchSetToUserID_ & DEFAULT_SCHEMA_SET_BY_NAMETYPE) !=0;
-               }
+  void setSchByNametype(NABoolean v) {
+    (v ? catSchSetToUserID_ |= DEFAULT_SCHEMA_SET_BY_NAMETYPE : catSchSetToUserID_ &= ~DEFAULT_SCHEMA_SET_BY_NAMETYPE);
+  }
+  NABoolean schSetByNametype() { return (catSchSetToUserID_ & DEFAULT_SCHEMA_SET_BY_NAMETYPE) != 0; }
 
   // for cqd's from cqd * reset
-  void         setResetAll(NABoolean v) { resetAll_ = v; }
-  NABoolean    isResetAll() { return resetAll_; }
+  void setResetAll(NABoolean v) { resetAll_ = v; }
+  NABoolean isResetAll() { return resetAll_; }
 
   const SqlParser_NADefaults *getSqlParser_NADefaults();
-  SqlParser_NADefaults *getSqlParser_NADefaults_Ptr()
-         { return SqlParser_NADefaults_; }
-  static void	   getNodeAndClusterNumbers(short& nodeNum, Int32& clusterNum);
+  SqlParser_NADefaults *getSqlParser_NADefaults_Ptr() { return SqlParser_NADefaults_; }
+  static void getNodeAndClusterNumbers(short &nodeNum, Int32 &clusterNum);
 
   Lng32 packedLengthDefaults();
-  Lng32 packDefaultsToBuffer(char * buffer);
-  Lng32 unpackDefaultsFromBuffer(Lng32 numEntriesInBuffer, char * buffer);
-  NABoolean isSameCQD(Lng32 numEntriesInBuffer, char * buffer, Lng32 bufLen);
+  Lng32 packDefaultsToBuffer(char *buffer);
+  Lng32 unpackDefaultsFromBuffer(Lng32 numEntriesInBuffer, char *buffer);
+  NABoolean isSameCQD(Lng32 numEntriesInBuffer, char *buffer, Lng32 bufLen);
 
-  void setSchemaAsLdapUser(const NAString val="");
+  void setSchemaAsLdapUser(const NAString val = "");
   static float computeNumESPsPerCore();
   // get the number of configured ESPs (in float) per node.
   float getNumOfESPsPerNodeInFloat() const;
@@ -337,12 +302,11 @@ public:
   //       ULng32 getTenantSize();
   //
 
-  static void setReadFromDefaultsTable(NABoolean v)
-  {readFromDefaultsTable_ = v;}
+  static void setReadFromDefaultsTable(NABoolean v) { readFromDefaultsTable_ = v; }
 
   void setMultiCQDSValue(DefaultConstants attrEnum, NAString &rqoValue, Int32 errOrWarn);
-private:
 
+ private:
   UInt32 defFlags_;
 
   static float computeNumESPsPerCore(Lng32 coresPerNode);
@@ -350,56 +314,47 @@ private:
   void initCurrentDefaultsWithDefaultDefaults();
   void initCurrentDefaultsFromSavedDefaults();
   void saveCurrentDefaults();
-  static void	   updateSystemParameters(NABoolean initDefaultDefaults);
+  static void updateSystemParameters(NABoolean initDefaultDefaults);
   void updateCurrentDefaultsForOSIM(Int32 attrEnum, const char *defaultVal);
-  void		   resetAll		(NAString &value,
-					 short reset,
-  					 Int32 errOrWarn = -1);
+  void resetAll(NAString &value, short reset, Int32 errOrWarn = -1);
 
-  NABoolean	   insert               (Int32 attrEnum,
-                                         const NAString &value,
-					 Int32 errOrWarn = -1);
+  NABoolean insert(Int32 attrEnum, const NAString &value, Int32 errOrWarn = -1);
 
-  NABoolean        setMPLoc		(const NAString &value,
-  					 Int32 errOrWarn,
-  					 Provenance overwriteIfNotYet);
-  void		   deleteMe();
+  NABoolean setMPLoc(const NAString &value, Int32 errOrWarn, Provenance overwriteIfNotYet);
+  void deleteMe();
 
-  static const char *keywords_[];	// attr_VALUE keywords (ON, OFF, ANSI...
+  static const char *keywords_[];  // attr_VALUE keywords (ON, OFF, ANSI...
 
-  char		   *provenances_;	// Provenance enum needs two bits
-  char             *flags_;             // various flags
-  char             **resetToDefaults_;
-  const char       **currentDefaults_;
-  float            **currentFloats_;
-  DefaultToken	   **currentTokens_;
+  char *provenances_;  // Provenance enum needs two bits
+  char *flags_;        // various flags
+  char **resetToDefaults_;
+  const char **currentDefaults_;
+  float **currentFloats_;
+  DefaultToken **currentTokens_;
 
   class HeldDefaults;  // forward reference for helper class used below
 
   // these default values were 'held' through a cqd HOLD stmt.
-  HeldDefaults     **heldDefaults_;
+  HeldDefaults **heldDefaults_;
 
-  Provenance       currentState_;
-  Int32   	   catSchSetToUserID_;
+  Provenance currentState_;
+  Int32 catSchSetToUserID_;
 
-  SqlParser_NADefaults	*SqlParser_NADefaults_;
+  SqlParser_NADefaults *SqlParser_NADefaults_;
 
-  NAMemory         *heap_;
+  NAMemory *heap_;
 
   static const char **defaultsWithCQDsFromDefaultsTable_;
   static DefaultToken **tokensWithCQDsFromDefaultsTable_;
-  static char *provenancesWithCQDsFromDefaultsTable_;	
-  static float **floatsWithCQDsFromDefaultsTable_;	
+  static char *provenancesWithCQDsFromDefaultsTable_;
+  static float **floatsWithCQDsFromDefaultsTable_;
   static NABoolean readFromDefaultsTable_;
-  
+
   // cqd * reset
   NABoolean resetAll_;
 };
 
-
-inline
-Lng32 ToErrorOrWarning(Lng32 sqlCode, Int32 eow)
-{
+inline Lng32 ToErrorOrWarning(Lng32 sqlCode, Int32 eow) {
   sqlCode = ABS(sqlCode);
   return (eow < 0) ? -sqlCode : (eow > 0) ? +sqlCode : 0;
 }

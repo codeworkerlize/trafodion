@@ -36,7 +36,7 @@
 // a DLL interface in order to be used by LmRoutine clients. We
 // will suppress such warnings.
 
-#include "LmCommon.h"
+#include "langman/LmCommon.h"
 #include "common/ComSmallDefs.h"
 #include "LmAssert.h"
 #include "LmResultSet.h"

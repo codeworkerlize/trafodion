@@ -48,7 +48,7 @@
 #include "export/NABasicObject.h"
 #include "comexe/SqlTableOpenInfo.h"
 #include "comexe/ComTdb.h"
-#include "OptUtilIncludes.h"
+#include "optimizer/OptUtilIncludes.h"
 #include "comexe/ComTdbStats.h"
 #include "comexe/ComTdbHbaseAccess.h"
 

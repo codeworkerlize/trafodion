@@ -21,11 +21,11 @@
 
 /*
  ********************************************************************************
- * 
+ *
  * File:         CmpSeabaseDDLcleanup.h
- * Description:  This file contains cleanup methods to handle 
+ * Description:  This file contains cleanup methods to handle
  *                     obsolete and orphan objects.
- *                
+ *
  * *****************************************************************************
  */
 
@@ -34,47 +34,26 @@
 
 class StmtDDLCleanupObjects;
 
-
-class CmpSeabaseMDcleanup : public CmpSeabaseDDL
-{
+class CmpSeabaseMDcleanup : public CmpSeabaseDDL {
  public:
-
   CmpSeabaseMDcleanup(NAHeap *heap);
-  
-  short processCleanupErrors(ExeCliInterface *cliInterface,
-                             NABoolean &errorSeen);
 
-  Int64 getCleanupObjectUID(
-                            ExeCliInterface *cliInterface,
-                            const char * catName,
-                            const char * schName,
-                            const char * objName,
-                            const char * inObjType,
-                            char * outObjType,
-                            Int32 &objectOwner,
-                            Int64 *objectFlags = NULL,
-                            Int64 *objDataUID = NULL);
-  
-  short getCleanupObjectName(
-      			     ExeCliInterface *cliInterface,
-                             Int64 objUID,
-                             NAString &catName,
-                             NAString &schName,
-                             NAString &objName,
-                             NAString &objType,
-                             Int32 &objectOwner,
-                             Int64 *objectFlags = NULL,
+  short processCleanupErrors(ExeCliInterface *cliInterface, NABoolean &errorSeen);
+
+  Int64 getCleanupObjectUID(ExeCliInterface *cliInterface, const char *catName, const char *schName,
+                            const char *objName, const char *inObjType, char *outObjType, Int32 &objectOwner,
+                            Int64 *objectFlags = NULL, Int64 *objDataUID = NULL);
+
+  short getCleanupObjectName(ExeCliInterface *cliInterface, Int64 objUID, NAString &catName, NAString &schName,
+                             NAString &objName, NAString &objType, Int32 &objectOwner, Int64 *objectFlags = NULL,
                              Int64 *objDataUID = NULL);
 
   /* is there inferior partitions */
   short hasInferiorPartitons(ExeCliInterface *cliInterface, Int64 objUID);
   short getCleanupObjectPartitions(ExeCliInterface *cliInterface);
-  short validateInputValues(
-                            StmtDDLCleanupObjects * stmtCleanupNode,
-                            ExeCliInterface *cliInterface);
+  short validateInputValues(StmtDDLCleanupObjects *stmtCleanupNode, ExeCliInterface *cliInterface);
 
-  short gatherDependentObjects(ExeCliInterface *cliInterface, 
-                               ExpHbaseInterface *ehi);
+  short gatherDependentObjects(ExeCliInterface *cliInterface, ExpHbaseInterface *ehi);
 
   short deleteMDentries(ExeCliInterface *cliInterface);
 
@@ -90,7 +69,6 @@ class CmpSeabaseMDcleanup : public CmpSeabaseDDL
 
   short dropUsingViews(ExeCliInterface *cliInterface);
 
-
   short deletePrivs(ExeCliInterface *cliInterface);
 
   short deleteSchemaPrivs(ExeCliInterface *cliInterface);
@@ -98,73 +76,50 @@ class CmpSeabaseMDcleanup : public CmpSeabaseDDL
   short deleteTenantSchemaUsages(ExeCliInterface *cliInterface);
 
   short deletePartitionEntries(ExeCliInterface *cliInterface);
-    
-  short addReturnDetailsEntry(ExeCliInterface *cliInterface, Queue* &list, 
-                              const char *value, NABoolean init, NABoolean isUID = FALSE);
 
-  short addReturnDetailsEntryForText(ExeCliInterface *cliInterface, Queue* &list, 
-                              Int64 objUID, Int32 objType, NABoolean init);
+  short addReturnDetailsEntry(ExeCliInterface *cliInterface, Queue *&list, const char *value, NABoolean init,
+                              NABoolean isUID = FALSE);
 
-  short addReturnDetailsEntryFromList(
-                                      ExeCliInterface * cliInterface,
-                                      Queue* fromList, Lng32 fromIndex,
-                                      Queue* toList, NABoolean isUID = FALSE, NABoolean processTextInfo = FALSE);
+  short addReturnDetailsEntryForText(ExeCliInterface *cliInterface, Queue *&list, Int64 objUID, Int32 objType,
+                                     NABoolean init);
+
+  short addReturnDetailsEntryFromList(ExeCliInterface *cliInterface, Queue *fromList, Lng32 fromIndex, Queue *toList,
+                                      NABoolean isUID = FALSE, NABoolean processTextInfo = FALSE);
 
   void cleanupSchemaObjects(ExeCliInterface *cliInterface);
 
-  short cleanupUIDs(ExeCliInterface *cliInterface, Queue *entriesList,
-                    CmpDDLwithStatusInfo *dws);
+  short cleanupUIDs(ExeCliInterface *cliInterface, Queue *entriesList, CmpDDLwithStatusInfo *dws);
 
-  short cleanupOrphanObjectsEntries(ExeCliInterface *cliInterface, 
-                                    ExpHbaseInterface *ehi,
-                                    CmpDDLwithStatusInfo *dws);
-  
-  short cleanupOrphanHbaseEntries(ExeCliInterface *cliInterface, 
-                                  ExpHbaseInterface *ehi,
-                                  CmpDDLwithStatusInfo *dws);
+  short cleanupOrphanObjectsEntries(ExeCliInterface *cliInterface, ExpHbaseInterface *ehi, CmpDDLwithStatusInfo *dws);
 
-  short cleanupInconsistentObjectsEntries(ExeCliInterface *cliInterface,
-                                          ExpHbaseInterface *ehi,
+  short cleanupOrphanHbaseEntries(ExeCliInterface *cliInterface, ExpHbaseInterface *ehi, CmpDDLwithStatusInfo *dws);
+
+  short cleanupInconsistentObjectsEntries(ExeCliInterface *cliInterface, ExpHbaseInterface *ehi,
                                           CmpDDLwithStatusInfo *dws);
-  
-  short cleanupOrphanViewsEntries(ExeCliInterface *cliInterface,
-                                  ExpHbaseInterface *ehi,
-                                  CmpDDLwithStatusInfo *dws);
-  short cleanupInconsistentPartitionEntries(ExeCliInterface *cliInterface,
-                                  ExpHbaseInterface *ehi,
-                                  CmpDDLwithStatusInfo *dws);
 
-  short cleanupInconsistentHiveEntries(
-       ExeCliInterface *cliInterface,
-       ExpHbaseInterface *ehi);
+  short cleanupOrphanViewsEntries(ExeCliInterface *cliInterface, ExpHbaseInterface *ehi, CmpDDLwithStatusInfo *dws);
+  short cleanupInconsistentPartitionEntries(ExeCliInterface *cliInterface, ExpHbaseInterface *ehi,
+                                            CmpDDLwithStatusInfo *dws);
 
-  short cleanupInconsistentPrivEntries(
-       ExeCliInterface *cliInterface,
-       ExpHbaseInterface *ehi);
+  short cleanupInconsistentHiveEntries(ExeCliInterface *cliInterface, ExpHbaseInterface *ehi);
 
-  short cleanupInconsistentGroupEntries(
-       ExeCliInterface *cliInterface,
-       ExpHbaseInterface *ehi);
+  short cleanupInconsistentPrivEntries(ExeCliInterface *cliInterface, ExpHbaseInterface *ehi);
 
-  short cleanupInconsistentTextEntries(ExeCliInterface *cliInterface,
-                                       ExpHbaseInterface *ehi,
+  short cleanupInconsistentGroupEntries(ExeCliInterface *cliInterface, ExpHbaseInterface *ehi);
+
+  short cleanupInconsistentTextEntries(ExeCliInterface *cliInterface, ExpHbaseInterface *ehi,
                                        CmpDDLwithStatusInfo *dws);
 
   void cleanupInferiorPartitionEntries(ExeCliInterface *cliInterface);
-  void cleanupHBaseObject(const StmtDDLCleanupObjects * stmtCleanupNode,
-                          ExeCliInterface *cliInterface);
-  
-  void cleanupMetadataEntries(ExeCliInterface *cliInterface, 
-                              ExpHbaseInterface *ehi,
-                              CmpDDLwithStatusInfo *dws);
-  
-  void cleanupObjects(StmtDDLCleanupObjects * stmtCleanupNode,
-                      NAString &currCatName, NAString &currSchName,
+  void cleanupHBaseObject(const StmtDDLCleanupObjects *stmtCleanupNode, ExeCliInterface *cliInterface);
+
+  void cleanupMetadataEntries(ExeCliInterface *cliInterface, ExpHbaseInterface *ehi, CmpDDLwithStatusInfo *dws);
+
+  void cleanupObjects(StmtDDLCleanupObjects *stmtCleanupNode, NAString &currCatName, NAString &currSchName,
                       CmpDDLwithStatusInfo *dws);
 
  private:
-  enum MDCleanupSteps
-  {
+  enum MDCleanupSteps {
     START_CLEANUP,
     ORPHAN_OBJECTS_ENTRIES,
     HBASE_ENTRIES,
@@ -187,7 +142,7 @@ class CmpSeabaseMDcleanup : public CmpSeabaseDDL
   NAString objName_;
   NAString extNameForHbase_;
   NAString extNameForHive_;
-  NAString objType_; // BT, IX, SG...
+  NAString objType_;  // BT, IX, SG...
   Int64 objUID_;
   Int64 objectFlags_;
   Int64 objDataUID_;
@@ -195,8 +150,8 @@ class CmpSeabaseMDcleanup : public CmpSeabaseDDL
   NAString btObjName_;
 
   NABoolean cleanupMetadataEntries_;
-  NABoolean checkOnly_; //return status of cleanup, do not actually cleanup
-  NABoolean returnDetails_; // return details of cleanup
+  NABoolean checkOnly_;      // return status of cleanup, do not actually cleanup
+  NABoolean returnDetails_;  // return details of cleanup
   NABoolean hasInferiorPartitons_;
 
   // only cleanup MD, dont drop HBase objects. Internal Usage only.
@@ -214,11 +169,11 @@ class CmpSeabaseMDcleanup : public CmpSeabaseDDL
 
   NABoolean lobV2_;
   Lng32 numLOBs_;
-  short * lobNumList_;
-  short * lobTypList_;
-  char ** lobLocList_;
-  char * lobMDName_;
-  char * lobMDNameBuf_;
+  short *lobNumList_;
+  short *lobTypList_;
+  char **lobLocList_;
+  char *lobMDName_;
+  char *lobMDNameBuf_;
   Int32 numLOBdatafiles_;
 
   Lng32 numOrphanMetadataEntries_;
@@ -233,4 +188,3 @@ class CmpSeabaseMDcleanup : public CmpSeabaseDDL
 };
 
 #endif
-

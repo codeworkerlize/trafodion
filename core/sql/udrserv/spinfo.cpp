@@ -49,10 +49,10 @@
 #include "UdrResultSet.h"
 #include "ex_queue.h"
 #include "common/ComRtUtils.h"
-#include "UdfDllInteraction.h"
+#include "optimizer/UdfDllInteraction.h"
 
 #include "cli/sqlcli.h"
-#include "sqludr.h"
+#include "sqludr/sqludr.h"
 #include "udrdecs.h"
 
 

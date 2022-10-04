@@ -100,8 +100,8 @@
 #include "optimizer/ItemColRef.h"
 #include "exp/exp_attrs.h"
 #include "common/NAString.h"
-#include "RelMisc.h"
-#include "QCache.h"
+#include "optimizer/RelMisc.h"
+#include "sqlcomp/QCache.h"
 
 // contents of this file
 class CacheWA;

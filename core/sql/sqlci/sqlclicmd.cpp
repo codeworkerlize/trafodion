@@ -36,7 +36,7 @@
 #include "sqlclicmd.h"
 #include "cli/sqlcli.h"
 #include "cli/SQLCLIdev.h"
-#include "CliDefs.h"
+#include "cli/CliDefs.h"
 #include "sqlcmd.h"
 
 // SqlCliCmd's methods

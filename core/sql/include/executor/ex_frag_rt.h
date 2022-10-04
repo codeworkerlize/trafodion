@@ -38,8 +38,8 @@
 
 #include "common/Ipc.h"
 #include "common/NABitVector.h"
-#include "ex_frag_inst.h"
-#include "ExScheduler.h"
+#include "executor/ex_frag_inst.h"
+#include "executor/ExScheduler.h"
 #include "common/ComExeTrace.h"
 
 // -----------------------------------------------------------------------
@@ -184,7 +184,7 @@ public:
   IpcConnection *getControlConnection(ExFragId fragId,
 				      CollIndex espNum) const;
   // get the fragment handle for a given instance
-  ExFragInstanceHandle getFragmentHandle(ExFragId fragId,
+  int getFragmentHandle(ExFragId fragId,
 					 CollIndex espNum) const;
 
   // check whether a given process id is this process or whether
@@ -413,7 +413,7 @@ private:
 
   // the (shortcut) fragment handle assigned by the ESP, once the
   // ESP has told us this info in its reply to a load message
-  ExFragInstanceHandle      fragmentHandle_;
+  int      fragmentHandle_;
 
   // the heap from which "this" is allocated
   CollHeap                  *whereIComeFrom_;

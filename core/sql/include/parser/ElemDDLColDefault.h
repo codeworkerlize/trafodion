@@ -40,8 +40,8 @@
 
 
 #include "ElemDDLNode.h"
-#include "ItemExpr.h"
-#include "ElemDDLSGOptions.h"
+#include "optimizer/ItemExpr.h"
+#include "parser/ElemDDLSGOptions.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

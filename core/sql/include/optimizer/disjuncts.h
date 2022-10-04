@@ -39,7 +39,7 @@
 
 // -----------------------------------------------------------------------
 
-#include "mdam.h"
+#include "optimizer/mdam.h"
 #include "disjunct.h"
 #include "export/NABasicObject.h"
 

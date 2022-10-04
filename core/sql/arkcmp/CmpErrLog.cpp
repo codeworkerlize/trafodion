@@ -71,8 +71,8 @@
 #include "common/CmpCommon.h"
 #include "arkcmp/CmpContext.h"
 #include "arkcmp/CmpStatement.h"
-#include "SchemaDB.h"
-#include "Analyzer.h"
+#include "optimizer/SchemaDB.h"
+#include "optimizer/Analyzer.h"
 #include "vproc.h"
 
 #define MAX_LOGFILE_SIZE (1 * 1024 * 1024) // One megabyte

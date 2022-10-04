@@ -51,12 +51,12 @@
 //////////////////////////////////////////////////////////////////////
 
 
-#include "ComOptIncludes.h"
+#include "common/ComOptIncludes.h"
 #include "GroupAttr.h"
 #include "PartFunc.h"
-#include "Generator.h"
+#include "generator/Generator.h"
 #include "GenExpGenerator.h"
-//#include "ex_stdh.h"
+//#include "executor/ex_stdh.h"
 #include "exp/ExpCriDesc.h"
 #include "comexe/PartInputDataDesc.h"
 

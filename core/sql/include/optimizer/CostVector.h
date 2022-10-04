@@ -44,7 +44,7 @@
 #include "common/NAType.h"
 #include "optimizer/ValueDesc.h"
 #include "optimizer/CostScalar.h"
-#include "opt.h"
+#include "optimizer/opt.h"
 #include "arkcmp/CmpStatement.h"
 
 

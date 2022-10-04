@@ -6,7 +6,7 @@
 #include <math.h>
 #include "common/Platform.h"
 #include "qmscommon/XMLUtil.h"
-#include "QRSharedPtr.h"
+#include "qmscommon/QRSharedPtr.h"
 #include "export/NABasicObject.h"
 #include "common/NAString.h"
 #include "common/Collections.h"

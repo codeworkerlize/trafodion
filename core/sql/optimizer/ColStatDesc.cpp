@@ -36,17 +36,17 @@
 // -----------------------------------------------------------------------
 #define   SQLPARSERGLOBALS_FLAGS        // must precede all #include's
 #include "ColStatDesc.h"
-#include "Sqlcomp.h"
+#include "optimizer/Sqlcomp.h"
 #include "optimizer/ItemColRef.h"
-#include "ItemOther.h"
+#include "optimizer/ItemOther.h"
 #include "ItemFunc.h"
 #include "Cost.h"              /* for lookups in defaults table */
-#include "Analyzer.h"
+#include "optimizer/Analyzer.h"
 #include "../exp/exp_ovfl_ptal.h" //check for overflow & underflow
-#include "CompException.h"
+#include "arkcmp/CompException.h"
 #include "ItemLog.h"	    // for like predicates
 #include "parser/SqlParserGlobals.h"
-#include "CmpDescribe.h"
+#include "sqlcomp/CmpDescribe.h"
 
 #ifdef DEBUG
 #define HISTWARNING(x) fprintf(stdout, "Histogram optimizer warning: %s\n", x);

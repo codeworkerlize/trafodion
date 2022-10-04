@@ -1,6 +1,6 @@
 
 #include "common/Platform.h"
-#include "NewDel.h"
+#include "sqlcomp/NewDel.h"
 #include <fstream>
 #include <string.h>
 
@@ -12,21 +12,21 @@ static pthread_t gv_main_thread_id;
 #include "seabed/ms.h"
 #include "seabed/fs.h"
 extern void my_mpi_fclose();
-#include "SCMVersHelp.h"
+#include "common/SCMVersHelp.h"
 DEFINE_DOVERS(tdm_arkcmp)
 
 #include "comexe/CmpMessage.h"
 #include "CmpConnection.h"
 #include "arkcmp/CmpContext.h"
 #include "common/CmpCommon.h"
-#include "CmpStoredProc.h"
+#include "arkcmp/CmpStoredProc.h"
 #include "CmpErrLog.h"
-#include "CompException.h"
+#include "arkcmp/CompException.h"
 #include "cmpargs.h"
 #include "sqlmxevents/logmxevent.h"
-#include "QCache.h"
-#include "QueryCacheSt.h"
-#include "NATableSt.h"
+#include "sqlcomp/QCache.h"
+#include "arkcmp/QueryCacheSt.h"
+#include "arkcmp/NATableSt.h"
 #include "common/ComCextdecs.h"
 #define CLI_DLL
 #include "cli/SQLCLIdev.h"
@@ -39,7 +39,7 @@ DEFINE_DOVERS(tdm_arkcmp)
 #include "optimizer/ObjectNames.h"
 #include "common/BloomFilter.h"
 
-#include "CmpISPInterface.h"
+#include "sqlcomp/CmpISPInterface.h"
 
 #include "qmscommon/QRLogger.h"
 #include "qmscommon/Range.h"

@@ -36,23 +36,23 @@
 
 #define   SQLPARSERGLOBALS_FLAGS
 #define   SQLPARSERGLOBALS_NADEFAULTS
-#include "SqlParserGlobalsCmn.h"
+#include "parser/SqlParserGlobalsCmn.h"
 #include "parser/SqlParserGlobals.h"	// Parser Flags
 
 #include <ctype.h>
 #include <math.h>
 #include "arkcmp/CmpContext.h"
 #include "arkcmp/CmpStatement.h"
-#include "CmpMain.h"
-#include "CmpSeabaseDDL.h"
+#include "sqlcomp/CmpMain.h"
+#include "sqlcomp/CmpSeabaseDDL.h"
 
 #include "GenExpGenerator.h"
 #include "common/str.h"
-#include "Sqlcomp.h"
+#include "optimizer/Sqlcomp.h"
 #include "exp/exp_clause_derived.h"
 #include "exp/exp_attrs.h"
 #include "exp_function.h"
-#include "exp_datetime.h"
+#include "exp/exp_datetime.h"
 #include "exp_bignum.h"
 #include "common/DatetimeType.h"
 #include "common/NumericType.h"
@@ -60,7 +60,7 @@
 #include "common/CharType.h"
 #include "common/charinfo.h"
 #include "cli/SQLCLIdev.h"
-#include "BindWA.h"
+#include "optimizer/BindWA.h"
 #include "ExpComposite.h"
 #include "exp/ExpCriDesc.h"
 #include "exp/ExpAtp.h"
@@ -69,11 +69,11 @@
 #include "exp_dp2_expr.h"
 #include "comexe/ComQueue.h"
 
-#include "ControlDB.h"
+#include "optimizer/ControlDB.h"
 
 #include "common/ComSmallDefs.h"
 #include "cli/sqlcli.h"
-#include "OptimizerSimulator.h"
+#include "optimizer/OptimizerSimulator.h"
 #include "ItmFlowControlFunction.h"
 // #include "ExpPCodeOptimizations.h"
 #include "ItemFunc.h"

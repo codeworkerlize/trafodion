@@ -34,11 +34,11 @@
 #define   SQLPARSERGLOBALS_FLAGS   // must precede all #include's
 #define   SQLPARSERGLOBALS_NADEFAULTS
 
-#include "AllRelExpr.h"
-#include "CacheWA.h"
-#include "CmpMain.h"
+#include "optimizer/AllRelExpr.h"
+#include "optimizer/CacheWA.h"
+#include "sqlcomp/CmpMain.h"
 #include "GroupAttr.h"
-#include "OptHints.h"
+#include "optimizer/OptHints.h"
 #include "QRDescGenerator.h"
 
 #include "parser/SqlParserGlobals.h"      // must be last #include

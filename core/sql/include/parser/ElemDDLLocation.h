@@ -40,7 +40,7 @@
  */
 
 
-#include "ComLocationNames.h"
+#include "common/ComLocationNames.h"
 #include "ElemDDLNode.h"
 
 // -----------------------------------------------------------------------

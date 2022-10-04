@@ -25,7 +25,7 @@
 #define _XMLUTIL_H
 
 #include <stdarg.h>
-#include "QRSharedPtr.h"
+#include "qmscommon/QRSharedPtr.h"
 #include "common/NAString.h"
 #include "common/NABitVector.h"
 #include "qmscommon/expat/xmlparse.h"

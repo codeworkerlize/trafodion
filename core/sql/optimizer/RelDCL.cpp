@@ -38,11 +38,11 @@
 
 // -----------------------------------------------------------------------
 
-#include "Sqlcomp.h"
-#include "BindWA.h"
+#include "optimizer/Sqlcomp.h"
+#include "optimizer/BindWA.h"
 #include "optimizer/RelScan.h"
-#include "PhyProp.h"
-#include "opt.h"
+#include "optimizer/PhyProp.h"
+#include "optimizer/opt.h"
 #include "RelDCL.h"
 
 

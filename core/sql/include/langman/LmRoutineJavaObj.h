@@ -33,7 +33,7 @@
 
 #include "LmRoutineJava.h"
 #include "LmLangManagerJava.h"
-#include "sqludr.h"
+#include "sqludr/sqludr.h"
 
 //////////////////////////////////////////////////////////////////////
 //

@@ -47,7 +47,7 @@
 #include "common/Ipc.h"
 #include "common/str.h"
 #include "export/ComDiags.h"
-#include "NAExit.h"
+#include "common/NAExit.h"
 #include "common/ComRtUtils.h"
 #include "common/ComDefs.h"
 #include "porting/PortProcessCalls.h"
@@ -65,7 +65,7 @@ int_16 TMF_SETTXHANDLE_(short *);
 #include "rosetta/rosgen.h"
 #include "nsk/nskprocess.h"
 extern "C" {
-//#include "cextdecs/cextdecs.h"
+#include "common/cextdecs.h"
 #include "zsysc.h"
 }
 #include "common/feerrors.h"

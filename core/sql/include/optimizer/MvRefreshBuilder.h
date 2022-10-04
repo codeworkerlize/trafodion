@@ -39,7 +39,7 @@
 
 
 #include "ComMvDefs.h"
-#include "RelMisc.h"
+#include "optimizer/RelMisc.h"
 #include "Refresh.h"
 #include "ChangesTable.h"
 

@@ -48,14 +48,14 @@
 #include <sstream>
 #include "common/Platform.h"				// must be the first #include
 
-#include "AllRelExpr.h"
+#include "optimizer/AllRelExpr.h"
 #include "common/DatetimeType.h"
 #include "HvTypes.h"
 #include "common/IntervalType.h"
 #include "comexe/LateBindInfo.h"
 #include "common/ComVersionDefs.h"
 #include "ParScannedTokenQueue.h"
-#include "StmtDDLCreateTable.h"
+#include "parser/StmtDDLCreateTable.h"
 
 
 #define MAX_START_WITH 20

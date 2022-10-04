@@ -53,7 +53,7 @@ class ColReference;
 
 #include "common/Collections.h"
 #include "common/CmpCommon.h"
-#include "ItemExprList.h"
+#include "optimizer/ItemExprList.h"
 #include "common/NAString.h"
 
 // specialFlags parameter for buildClusteringIndexVector()

@@ -36,9 +36,9 @@
 ******************************************************************************
 */
 
-#include "AllItemExpr.h"
-#include "AllRelExpr.h"
-#include "BindWA.h"
+#include "optimizer/AllItemExpr.h"
+#include "optimizer/AllRelExpr.h"
+#include "optimizer/BindWA.h"
 #include "MVInfo.h"
 #include "RelSequence.h"
 #include "BinderUtils.h"

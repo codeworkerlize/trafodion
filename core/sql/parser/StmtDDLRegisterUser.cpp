@@ -43,11 +43,11 @@
 #include "AllElemDDLPartition.h"
 #include "AllElemDDLParam.h"
 #include "AllElemDDLUdr.h"
-#include "StmtDDLRegisterUser.h"
+#include "parser/StmtDDLRegisterUser.h"
 #include "ElemDDLAuthSchema.h"
 #include "common/BaseTypes.h"
 #include "export/ComDiags.h"
-#include "ComOperators.h"
+#include "common/ComOperators.h"
 #ifndef   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif

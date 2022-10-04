@@ -42,7 +42,7 @@
 #include "common/Collections.h"
 #include "common/ComTransInfo.h"
 #include "optimizer/ObjectNames.h"
-#include "RelExpr.h"
+#include "optimizer/RelExpr.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

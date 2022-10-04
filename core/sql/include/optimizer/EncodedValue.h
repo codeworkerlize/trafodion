@@ -41,8 +41,8 @@
 // -----------------------------------------------------------------------
 
 #include <float.h>
-#include "ItemExpr.h"
-#include "NAColumn.h"
+#include "optimizer/ItemExpr.h"
+#include "optimizer/NAColumn.h"
 
 // -----------------------------------------------------------------------
 // For now, we allocate histograms on the statement heap; eventually, we

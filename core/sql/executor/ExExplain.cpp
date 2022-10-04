@@ -40,9 +40,9 @@
 // This file contains all the executor methods associated
 // with a explain operator
 //
-#include "ex_stdh.h"
+#include "executor/ex_stdh.h"
 #include "comexe/ComTdb.h"
-#include "ex_tcb.h"
+#include "executor/ex_tcb.h"
 #include "ex_root.h"
 #include "ex_queue.h"
 #include "ExExplain.h"

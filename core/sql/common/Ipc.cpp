@@ -47,7 +47,7 @@
 #include "common/Ipc.h"
 #include "ipcmsg.h"
 #include "common/str.h"
-#include "HeapLog.h"
+#include "export/HeapLog.h"
 #include "common/ComRtUtils.h"
 #include "porting/PortProcessCalls.h"
 

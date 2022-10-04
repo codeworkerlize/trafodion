@@ -40,7 +40,7 @@
 #include "common/NAAssert.h"
 #include "common/NAWinNT.h" // where the headers are declared. Should be moved
                      // to wstr.h later
-#include "wstr.h"
+#include "common/wstr.h"
 
 #ifndef NULL
 #define NULL    0

@@ -39,9 +39,9 @@
 
 //#include "exp/exp_clause_derived.h"
 #include "optimizer/ObjectNames.h"
-#include "RelExpr.h"
+#include "optimizer/RelExpr.h"
 #include "cli/SQLCLIdev.h"
-#include "OptUtilIncludes.h"
+#include "optimizer/OptUtilIncludes.h"
 #include "BinderUtils.h"
 #include "parser/StmtNode.h"
 #include "comexe/LateBindInfo.h"

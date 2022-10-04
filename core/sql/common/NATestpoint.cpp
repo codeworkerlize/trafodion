@@ -35,7 +35,7 @@
  *****************************************************************************
 */
 
-#include "NATestpoint.h"
+#include "common/NATestpoint.h"
 #include "export/NAStringDef.h"
 
 

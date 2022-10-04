@@ -47,14 +47,14 @@
 #define   SQLPARSERGLOBALS_NADEFAULTS
 #include "parser/SqlParserGlobals.h"
 
-#include "ComOperators.h"
+#include "common/ComOperators.h"
 #include "common/ComSmallDefs.h"
 #include "arkcmp/CmpContext.h"
 #include "ElemDDLConstraintCheck.h"
-#include "StmtDDLCreateView.h"
-#include "StmtDDLCreateTrigger.h"
+#include "parser/StmtDDLCreateView.h"
+#include "parser/StmtDDLCreateTrigger.h"
 #include "StmtDDLCreateMV.h" 
-#include "StmtDDLCreateTable.h"
+#include "parser/StmtDDLCreateTable.h"
 
 // -----------------------------------------------------------------------
 // definition of global (file scope) function ParInsertNameLoc()

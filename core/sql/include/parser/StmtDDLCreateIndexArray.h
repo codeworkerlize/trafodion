@@ -41,7 +41,7 @@
 
 
 #include "common/Collections.h"
-#include "StmtDDLCreateIndex.h"
+#include "parser/StmtDDLCreateIndex.h"
 #ifndef   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif

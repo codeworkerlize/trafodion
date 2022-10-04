@@ -46,7 +46,7 @@
 #include "IndexDesc.h"
 //QSTUFF
 #include "optimizer/RelScan.h"
-#include "ItemOther.h"
+#include "optimizer/ItemOther.h"
 //QSTUFF
 #include "ReqGen.h"
 

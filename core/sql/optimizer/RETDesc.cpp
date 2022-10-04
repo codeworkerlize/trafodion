@@ -33,9 +33,9 @@
 */
 
 
-#include "Sqlcomp.h"
-#include "AllItemExpr.h"
-#include "BindWA.h"
+#include "optimizer/Sqlcomp.h"
+#include "optimizer/AllItemExpr.h"
+#include "optimizer/BindWA.h"
 #include "Refresh.h"
 #include "MvRefreshBuilder.h"
 #include "MVInfo.h"

@@ -4,7 +4,7 @@
 //
 // @@@ END COPYRIGHT @@@
 
-#include "ComCGroup.h"
+#include "common/ComCGroup.h"
 #include "common/Ipc.h"
 #include "export/ComDiags.h"
 #include "cli/Globals.h"

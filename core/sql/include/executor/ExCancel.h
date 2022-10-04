@@ -30,7 +30,7 @@
 #include "comexe/ComTdbCancel.h"
 #include "comexe/QueueIndex.h"
 #include "common/Ipc.h"
-#include "rts_msg.h"
+#include "runtimestats/rts_msg.h"
 #include "runtimestats/ssmpipc.h"
 
 // -----------------------------------------------------------------------

@@ -36,11 +36,11 @@
 
 // -----------------------------------------------------------------------
 
-#include "Sqlcomp.h"
+#include "optimizer/Sqlcomp.h"
 #include "PartFunc.h"
 #include "common/ComSysUtils.h"
-#include "NAFileSet.h"
-#include "opt.h"
+#include "optimizer/NAFileSet.h"
+#include "optimizer/opt.h"
 
 #include "CliSemaphore.h"
 #include "exp/ExpHbaseDefs.h"

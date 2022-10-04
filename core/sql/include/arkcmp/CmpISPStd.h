@@ -43,13 +43,13 @@
 
 #include "common/Platform.h"
 #include "common/ComSizeDefs.h"
-// include the internal stored procedure implementation provided by SQL/Util group
-#if defined (_SPUTIL_SP_DLL_)  // used in sqluti interface routine.
-#define ARKLIBAPI _declspec(dllexport)
-#else
-#undef ARKLIBAPI
-#define ARKLIBAPI _declspec(dllimport)
-#endif
+// // include the internal stored procedure implementation provided by SQL/Util group
+// #if defined (_SPUTIL_SP_DLL_)  // used in sqluti interface routine.
+// #define ARKLIBAPI _declspec(dllexport)
+// #else
+// #undef ARKLIBAPI
+// #define ARKLIBAPI _declspec(dllimport)
+// #endif
 
 #ifdef __cplusplus
 extern "C"
@@ -351,8 +351,8 @@ typedef Int32 (*SP_REGISTER_FUNCPTR)
 /* The only entry points from arkcmp(the server) to ISP implementation */
 
 /* return 1 as SUCCESS, 0 as FAIL */
-ARKLIBAPI Int32 SQLISP_INIT( SP_REGISTER_FUNCPTR, SP_DLL_HANDLE* h=0 );
-ARKLIBAPI Int32 SQLISP_EXIT( SP_DLL_HANDLE=0 );
+ Int32 SQLISP_INIT( SP_REGISTER_FUNCPTR, SP_DLL_HANDLE* h=0 );
+ Int32 SQLISP_EXIT( SP_DLL_HANDLE=0 );
 
 #ifdef __cplusplus
 }

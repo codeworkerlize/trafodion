@@ -37,24 +37,24 @@
 
 #include "common/Platform.h"
 
-#include "ex_stdh.h"
-#include "cli/memorymonitor.h"
+#include "executor/ex_stdh.h"
+
 #include "ex_exe_stmt_globals.h"
 #include "ex_esp_frag_dir.h"
 #include "comexe/ComTdb.h"
-#include "ex_tcb.h"
+#include "executor/ex_tcb.h"
 #include "ex_split_bottom.h"
 #include "ex_send_bottom.h"
-#include "NAExit.h"
-#include "ExSqlComp.h"
+#include "common/NAExit.h"
+#include "cli/ExSqlComp.h"
 #include "cli/Globals.h"
 #include "common/Int64.h"
 #include "runtimestats/SqlStats.h"
-#include "ComUser.h"
+#include "common/ComUser.h"
 #include "exp/ExpError.h"
 #include "common/ComSqlId.h"
 #include "porting/PortProcessCalls.h"
-//#include "cextdecs/cextdecs.h"
+#include "common/cextdecs.h"
 #include "security/dsecure.h"
 #define psecure_h_including_section
 #define psecure_h_security_psb_get_
@@ -67,7 +67,7 @@ static pthread_t gv_main_thread_id;
 #include "seabed/ms.h"
 #include "seabed/fs.h"
 extern void my_mpi_fclose();
-#include "SCMVersHelp.h"
+#include "common/SCMVersHelp.h"
 DEFINE_DOVERS(tdm_arkesp)
 
 #include "common/NAStdlib.h"
@@ -391,19 +391,7 @@ Int32 runESP(Int32 argc, char** argv, GuaReceiveFastStart *guaReceiveFastStart)
      espExecutorHeap->setThreadSafe();
      ipcEnvPtr->addThreadInfo(&mainThreadInfo);
   }
-  if (statsGlobals != NULL)
-     cliGlobals->setMemoryMonitor(statsGlobals->getMemoryMonitor());
-  else 
-  {
-     // Start the  memory monitor for dynamic memory management
-     Lng32 memMonitorWindowSize = 10;
-     Lng32 memMonitorSampleInterval = 10;
-     MemoryMonitor *memMonitor = new (espExecutorHeap) 
-                           MemoryMonitor(memMonitorWindowSize,
-                           memMonitorSampleInterval,
-                           espExecutorHeap);
-     cliGlobals->setMemoryMonitor(memMonitor);
-  }
+
   // After CLI globals are initialized but before we begin ESP message
   // processing, have the CLI context set its user identity based on
   // the OS user identity.
@@ -836,7 +824,7 @@ void EspNewIncomingConnectionStream::actOnReceive(IpcConnection *connection)
 
         if (!isParallelExtract) 
         {
-          ExFragInstanceHandle handle =
+          int handle =
 	    espFragInstanceDir_->findHandle(key);
 
 	  if (handle != NullFragInstanceHandle)

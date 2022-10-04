@@ -31,7 +31,7 @@
 **********************************************************************/
 
 #include "LmRoutineC.h"
-#include "sqludr.h"
+#include "sqludr/sqludr.h"
 
 class SqlBuffer;
 

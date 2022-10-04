@@ -42,7 +42,7 @@
  *****************************************************************************
  */
 #include "StmtDDLAlterTable.h"
-#include "ItemExpr.h"
+#include "optimizer/ItemExpr.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

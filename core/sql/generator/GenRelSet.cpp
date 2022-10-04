@@ -35,15 +35,15 @@
 *
 ******************************************************************************
 */
-#include "ComOptIncludes.h"
+#include "common/ComOptIncludes.h"
 #include "GroupAttr.h"
-#include "RelSet.h"
-#include "Generator.h"
+#include "optimizer/RelSet.h"
+#include "generator/Generator.h"
 #include "GenExpGenerator.h"
-//#include "ex_stdh.h"
+//#include "executor/ex_stdh.h"
 #include "exp/ExpCriDesc.h"
 #include "comexe/ComTdb.h"
-//#include "ex_tcb.h"
+//#include "executor/ex_tcb.h"
 #include "comexe/ComTdbUnion.h"
 #include "sqlcomp/DefaultConstants.h"
 #include "executor/sql_buffer.h"

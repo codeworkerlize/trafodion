@@ -39,7 +39,7 @@
  *****************************************************************************
  */
 
-#include "PhyProp.h"
+#include "optimizer/PhyProp.h"
 
 // -----------------------------------------------------------------------
 //  The following classes are defined in this file.

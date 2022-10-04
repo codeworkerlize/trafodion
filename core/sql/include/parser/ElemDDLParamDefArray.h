@@ -47,7 +47,7 @@
 #define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
 #include "parser/SqlParserGlobals.h"
-#include "ElemDDLParamDef.h"
+#include "parser/ElemDDLParamDef.h"
 #include "ElemDDLPassThroughParamDef.h"
 
 // -----------------------------------------------------------------------

@@ -45,7 +45,7 @@
 #undef NDEBUG
 #define NDEBUG
 #endif
-#include "ex_stdh.h"
+#include "executor/ex_stdh.h"
 #include "Qsort.h"
 #include "ScratchSpace.h"
 #include "sqlmxevents/logmxevent.h"

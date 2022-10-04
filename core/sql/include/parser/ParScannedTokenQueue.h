@@ -48,7 +48,7 @@
 // -----------------------------------------------------------------------
 
 #include "common/ComASSERT.h"
-#include "ComOperators.h"
+#include "common/ComOperators.h"
 #include "common/NAString.h"
 #include "export/NABasicObject.h"
 

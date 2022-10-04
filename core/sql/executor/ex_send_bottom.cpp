@@ -38,10 +38,10 @@
 // -----------------------------------------------------------------------
 
 #include "common/BaseTypes.h"
-#include "ex_stdh.h"
+#include "executor/ex_stdh.h"
 #include "ex_exe_stmt_globals.h"
 #include "comexe/ComTdb.h"
-#include "ex_tcb.h"
+#include "executor/ex_tcb.h"
 #include "executor/ex_expr.h"
 #include "common/str.h"
 #include "ex_send_bottom.h"
@@ -82,7 +82,7 @@ ex_send_bottom_tcb * ex_send_bottom_tdb::buildInstance(
      ExEspFragInstanceDir *espInstanceDir,
      const ExFragKey &myKey,
      const ExFragKey &parentKey,
-     ExFragInstanceHandle myHandle,
+     int myHandle,
      Lng32 parentInstanceNum,
      NABoolean isLocal)
 {
@@ -156,7 +156,7 @@ ex_send_bottom_tcb::ex_send_bottom_tcb(
      ExEspFragInstanceDir *espInstanceDir,
      const ExFragKey &myKey,
      const ExFragKey &parentKey,
-     ExFragInstanceHandle myHandle,
+     int myHandle,
      Lng32 parentInstanceNum)
 : ex_tcb(sendBottomTdb,1,glob), 
   workAtp_(0),
@@ -648,7 +648,7 @@ TupMsgBuffer* ex_send_bottom_tcb::getRequestBuffer()
           }
 
 	  if (msgType == ESP_OPEN_HDR)
-	    {  // reply to open message, return ExFragInstanceHandle 
+	    {  // reply to open message, return int 
 	      ExEspOpenReqHeader* reqHdr =
 		new(workMsgStream_->receiveMsgObj()) 
 		ExEspOpenReqHeader(workMsgStream_);
@@ -661,7 +661,7 @@ TupMsgBuffer* ex_send_bottom_tcb::getRequestBuffer()
 		     reqHdr->statID_);
 
 	      // construct reply message and send back with
-	      // ExFragInstanceHandle
+	      // int
 	      ExEspReturnStatusReplyHeader* replyHdr = new(*workMsgStream_)
 		ExEspReturnStatusReplyHeader((NAMemory *) NULL);
 	      replyHdr->key_ = reqHdr->key_;

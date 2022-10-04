@@ -35,7 +35,7 @@
 
 #include "qmscommon/QRDescriptor.h"
 #include "qmscommon/QRLogger.h"
-#include "ItemExpr.h"
+#include "optimizer/ItemExpr.h"
 #include "ItemFunc.h"
 #include "optimizer/ItemColRef.h"
 #include "ItemFunc.h"

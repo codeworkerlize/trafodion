@@ -32,8 +32,8 @@
  */
 
 #include "QueryRewriteHandler.h"
-#include "Analyzer.h"
-#include "NormWA.h"
+#include "optimizer/Analyzer.h"
+#include "optimizer/NormWA.h"
 #include "QRDescGenerator.h"
 #include "MVCandidates.h"
 #include "QueryRewriteServer.h"

@@ -37,7 +37,7 @@
 #include "common/str.h"
 #include "common/NAMemory.h"
 #include "cli/sqlcli.h"
-#include "LmCommon.h"
+#include "langman/LmCommon.h"
 #include "common/ComDefs.h"
 #include "LmError.h"
 #include "LmDebug.h"

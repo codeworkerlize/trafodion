@@ -58,7 +58,7 @@ extern void my_mpi_fclose();
 #include "common/dfs2rec.h"
 #include "cli/sqlcli.h"
 #include "common/ComSmallDefs.h"
-#include "CompException.h"
+#include "arkcmp/CompException.h"
 #include "parser/StmtCompilationMode.h"
 
 extern void releaseRTSSemaphore();  // Functions implemented in SqlStats.cpp

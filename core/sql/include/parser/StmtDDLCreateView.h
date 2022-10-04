@@ -43,7 +43,7 @@
  */
 
 #include "common/ComASSERT.h"
-#include "ComOperators.h"
+#include "common/ComOperators.h"
 #include "common/ComSmallDefs.h"
 #include "ElemDDLColViewDefArray.h"
 #include "ElemDDLLocation.h"
@@ -51,7 +51,7 @@
 #include "optimizer/ObjectNames.h"
 #include "ParNameLocList.h"
 #include "ParTableUsageList.h"
-#include "RelExpr.h"
+#include "optimizer/RelExpr.h"
 #include "StmtDDLNode.h"
 
 // -----------------------------------------------------------------------

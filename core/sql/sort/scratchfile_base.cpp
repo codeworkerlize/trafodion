@@ -34,7 +34,7 @@
 */
 #include "ScratchFile.h"
 #include "ScratchSpace.h"
-#include "ex_stdh.h"
+#include "executor/ex_stdh.h"
 #include "executor/ExStats.h"
 #include "common/str.h"
 #include "SortError.h"

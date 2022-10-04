@@ -22,7 +22,7 @@
 **********************************************************************/
 
 #include "orcPushdownPredInfo.h"
-#include "ItemExpr.h"
+#include "optimizer/ItemExpr.h"
 #include "optimizer/ItemColRef.h"
 #include "exp/exp_clause_derived.h"
 

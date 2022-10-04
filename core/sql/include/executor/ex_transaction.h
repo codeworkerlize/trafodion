@@ -40,9 +40,9 @@
 
 // -----------------------------------------------------------------------
 
-#include "ex_stdh.h"
+#include "executor/ex_stdh.h"
 #include "comexe/ComTdb.h"
-#include "ex_tcb.h"
+#include "executor/ex_tcb.h"
 #include "ex_error.h"
 #include "common/Int64.h"
 

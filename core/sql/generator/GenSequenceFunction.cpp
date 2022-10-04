@@ -34,7 +34,7 @@
 
 // Includes
 //
-#include "Generator.h"
+#include "generator/Generator.h"
 #include "GenExpGenerator.h"
 #include "exp_function.h"
 #include "exp_math_func.h"

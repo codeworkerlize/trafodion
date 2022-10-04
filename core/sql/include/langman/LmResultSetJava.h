@@ -36,7 +36,7 @@
 #define LMRESULTSETJAVA_H
 
 #include "common/ComSmallDefs.h"
-#include "LmCommon.h"
+#include "langman/LmCommon.h"
 #include "LmResultSet.h"
 #include "LmLangManagerJava.h"
 #include "LmRoutineJava.h"

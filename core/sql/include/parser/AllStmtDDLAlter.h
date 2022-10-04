@@ -43,11 +43,11 @@
  */
  
 #include "StmtDDLAlterAuditConfig.h"
-#include "StmtDDLAlterLibrary.h"
+#include "parser/StmtDDLAlterLibrary.h"
 #include "StmtDDLAlterSynonym.h"
 #include "StmtDDLAlterMVRGroup.h"
 #include "StmtDDLAlterMV.h"
 #include "StmtDDLAlterRoutine.h"
-#include "StmtDDLAlterUser.h"
+#include "parser/StmtDDLAlterUser.h"
 
 #endif // ALLSTMTDDLALTER_H

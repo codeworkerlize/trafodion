@@ -152,7 +152,6 @@ class ex_hash_grby_tcb : public ex_tcb {
 
   Space * space_;
   CollHeap * heap_;
-  MemoryMonitor * memMonitor_;
 
   const ex_tcb    * childTcb_;
   ex_queue_pair     parentQueue_;

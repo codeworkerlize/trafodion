@@ -36,16 +36,16 @@
 
 // -----------------------------------------------------------------------
 
-#include "mdam.h"
+#include "optimizer/mdam.h"
 #include "disjunct.h"
 #include "disjuncts.h"
-#include "ItemExpr.h"
+#include "optimizer/ItemExpr.h"
 #include "mdamkey.h"
-#include "ItemOther.h"
+#include "optimizer/ItemOther.h"
 #include "optimizer/ItemColRef.h"
-#include "NATable.h"
+#include "optimizer/NATable.h"
 #include "optimizer/ValueDesc.h"
-#include "SchemaDB.h"
+#include "optimizer/SchemaDB.h"
 
 #include "OptRange.h"
 

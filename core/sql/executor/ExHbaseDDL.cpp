@@ -24,16 +24,16 @@
 #include "common/Platform.h"
 
 #include  "cli_stdh.h"
-#include "ex_stdh.h"
+#include "executor/ex_stdh.h"
 #include "comexe/ComTdb.h"
-#include "ex_tcb.h"
+#include "executor/ex_tcb.h"
 #include "ExHbaseAccess.h"
 #include "ex_exe_stmt_globals.h"
 #include "SQLTypeDefs.h"
-#include "ExpHbaseInterface.h"
+#include "exp/ExpHbaseInterface.h"
 #include "executor/ExExeUtilCli.h"
 #include "export/ComDiags.h"
-#include "ExSqlComp.h"
+#include "cli/ExSqlComp.h"
 
 ExHbaseAccessDDLTcb::ExHbaseAccessDDLTcb(
           const ExHbaseAccessTdb &hbaseAccessTdb, 

@@ -40,7 +40,7 @@
 #include "common/NAString.h"
 #include "common/Collections.h"
 #include "common/Int64.h"
-#include "QRSharedPtr.h"
+#include "qmscommon/QRSharedPtr.h"
 #include "qmscommon/QRDescriptor.h"
 
 class JoinGraphTable;

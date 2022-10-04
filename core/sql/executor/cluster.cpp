@@ -39,7 +39,7 @@
 
 // begining of regular compilation
 #include "cluster.h"
-#include "cli/memorymonitor.h"
+
 #include "executor/ExStats.h"
 #include "comexe/ComResourceInfo.h"
 #include "sqlmxevents/logmxevent.h"
@@ -79,9 +79,6 @@ HashBuffer::HashBuffer (Cluster * cluster)
   clusterDb->memoryUsed_ += bufferSize_;
   if ( clusterDb->hashOperStats_ ) clusterDb->updateMemoryStats();
   
-  // if we did not see pressure yet, the maximum cluster
-  // size is as big as the total memory used
-  if ( clusterDb->memMonitor_  &&  !clusterDb->sawPressure_ )
     clusterDb->maxClusterSize_ = clusterDb->memoryUsed_;
   
   // initialize this buffer
@@ -281,7 +278,6 @@ ClusterDB::ClusterDB(HashOperator hashOperator,
 		     Bucket * buckets,
 		     ULng32 bucketCount,
 		     ULng32 availableMemory,
-		     MemoryMonitor * memMonitor,
 		     short pressureThreshold,
 		     ExExeStmtGlobals * stmtGlobals,
 		     ExeErrorCode *rc,
@@ -321,7 +317,6 @@ ClusterDB::ClusterDB(HashOperator hashOperator,
     buckets_(buckets),
     bucketCount_(bucketCount),
     memoryUsed_(0),
-    memMonitor_(memMonitor),
     pressureThreshold_(pressureThreshold),
     sawPressure_(FALSE),
     stmtGlobals_(stmtGlobals),
@@ -737,218 +732,218 @@ NABoolean ClusterDB::enoughMemory(ULng32 reqSize, NABoolean checkCompilerHints)
   }
 */
 
-  if (memMonitor_ && memoryUsed_ >= minMemBeforePressureCheck_ ) {
+//   if (memMonitor_ && memoryUsed_ >= minMemBeforePressureCheck_ ) {
 
-    NABoolean pressure = (memMonitor_->memoryPressure() > pressureThreshold_);
+//     NABoolean pressure = (memMonitor_->memoryPressure() > pressureThreshold_);
 
-    // the first time we see pressure, we set the sawPressure flag.
-    // The total memory used at this point determines the maximum
-    // cluster size.
-    if (pressure) {
-	if ( ! sawPressure_ && doLog_ ) { // first time system memory pressure
-	  sprintf(msg, 
-		  "PRESSURE OVERFLOW started. Total memory used %u",
-		  memoryUsed_);
-	  // log an EMS event and continue
-	  SQLMXLoggingArea::logExecRtInfo(NULL, 0, msg, explainNodeId_);
+//     // the first time we see pressure, we set the sawPressure flag.
+//     // The total memory used at this point determines the maximum
+//     // cluster size.
+//     if (pressure) {
+// 	if ( ! sawPressure_ && doLog_ ) { // first time system memory pressure
+// 	  sprintf(msg, 
+// 		  "PRESSURE OVERFLOW started. Total memory used %u",
+// 		  memoryUsed_);
+// 	  // log an EMS event and continue
+// 	  SQLMXLoggingArea::logExecRtInfo(NULL, 0, msg, explainNodeId_);
 	 
-	}
-	sawPressure_ = TRUE;
-    }
-    if ( pressure ) return FALSE; // cannot allocate memory
-    if ( isPartialGroupBy_ ) return  availableMemory_ >= reqSize ;
+// 	}
+// 	sawPressure_ = TRUE;
+//     }
+//     if ( pressure ) return FALSE; // cannot allocate memory
+//     if ( isPartialGroupBy_ ) return  availableMemory_ >= reqSize ;
 
-    // -----------------------------------------------------------------
-    // Below - Check compiler hints to trigger a possible early overflow
-    // -----------------------------------------------------------------
-    // Can be disabled with the CQD EXE_BMO_DISABLE_CMP_HINTS_OVERFLOW
+//     // -----------------------------------------------------------------
+//     // Below - Check compiler hints to trigger a possible early overflow
+//     // -----------------------------------------------------------------
+//     // Can be disabled with the CQD EXE_BMO_DISABLE_CMP_HINTS_OVERFLOW
 
-    if ( ! disableCmpHintsOverflow_ ) {
-      /*
-	Compiler hints:
-	================
-	Compiler provides two hints to BMO operators.
+//     if ( ! disableCmpHintsOverflow_ ) {
+//       /*
+// 	Compiler hints:
+// 	================
+// 	Compiler provides two hints to BMO operators.
 	
-	1. bmoExpectedSize:
-	   The compiler's estimate of total memory usage by the BMO operator
+// 	1. bmoExpectedSize:
+// 	   The compiler's estimate of total memory usage by the BMO operator
 	
-	2. bmoEstErrorPenalty
-	   The fraction penalty factor that can be used at runtime to adjust 
-           the estimated bmo size as described below.
+// 	2. bmoEstErrorPenalty
+// 	   The fraction penalty factor that can be used at runtime to adjust 
+//            the estimated bmo size as described below.
 	
-	Explanation:
-	-------------
-	bmoEstErrorPenalty can also be viewed as uncertainty penalty factor. 
-        The higher the uncertainty of expected memory consumption, 
-        the better is to overflow early.
+// 	Explanation:
+// 	-------------
+// 	bmoEstErrorPenalty can also be viewed as uncertainty penalty factor. 
+//         The higher the uncertainty of expected memory consumption, 
+//         the better is to overflow early.
 	
-	bmoEstErrorPenalty is derived by the following equation:
+// 	bmoEstErrorPenalty is derived by the following equation:
 	
-	uncertainty =  { [max potential cardinality - expected cardinality] / 
-                                                expected cardinality  } * 100%
+// 	uncertainty =  { [max potential cardinality - expected cardinality] / 
+//                                                 expected cardinality  } * 100%
 	
-	bmoEstErrorPenalty is set to 10% if uncertainty <= 100%, 
-                           else bmogrowthpercent is set at 25%.
+// 	bmoEstErrorPenalty is set to 10% if uncertainty <= 100%, 
+//                            else bmogrowthpercent is set at 25%.
 	
-	Executor usage:
-	---------------
-	On Seaquest, operators overflow once memory quota is reached or 
-        physical memory pressure is detected. Memory pressure is currently
-        disabled but eventually memory pressure detection mechanisms would be
-        enabled.
+// 	Executor usage:
+// 	---------------
+// 	On Seaquest, operators overflow once memory quota is reached or 
+//         physical memory pressure is detected. Memory pressure is currently
+//         disabled but eventually memory pressure detection mechanisms would be
+//         enabled.
 	
-	Memory quota limits and memory pressure checks do help enforce limits,
-        however BMO operators could utilize compiler hints to trigger overflow
-        and behave as a good citizen even before quota limits and memory
-        pressure enforcements kick in.
+// 	Memory quota limits and memory pressure checks do help enforce limits,
+//         however BMO operators could utilize compiler hints to trigger overflow
+//         and behave as a good citizen even before quota limits and memory
+//         pressure enforcements kick in.
 	
-	BMO operators often consume small chunks of memory or buffer, in
-        repeated cycles until memory quota limit is reached. Compiler hints
-        would be exercised each time a buffer allocation is required. However
-        the size of buffer allocation is not relevant in the calculation below.
+// 	BMO operators often consume small chunks of memory or buffer, in
+//         repeated cycles until memory quota limit is reached. Compiler hints
+//         would be exercised each time a buffer allocation is required. However
+//         the size of buffer allocation is not relevant in the calculation below.
 	
-	C = Total consumed memory by BMO operator. Initially this is zero.
+// 	C = Total consumed memory by BMO operator. Initially this is zero.
 	
-	E = Total estimated size of memory that will be consumed by BMO.
-            This is initially the bmoExpectedSize hint given by compiler, 
-            but adjusted if C started exceeding the estimate:
+// 	E = Total estimated size of memory that will be consumed by BMO.
+//             This is initially the bmoExpectedSize hint given by compiler, 
+//             but adjusted if C started exceeding the estimate:
 
- 	        E = max(bmoExpectedSize, C * (1+bmoEstErrorPenalty) )
+//  	        E = max(bmoExpectedSize, C * (1+bmoEstErrorPenalty) )
 
-	This allow us to modify the estimate at runtime after receiving
-        more data and penalize operators that have the chance of being much
-        bigger than initially thought. Note, it's possible for the runtime
-        logic to increase the value of bmoEstErrorPenalty on its own after
-        certain threshold (e.g C > 10*bmoExpectedSize) but bmoEstErrorPenalty
-        should not exceed 1 i.e. 100%.
+// 	This allow us to modify the estimate at runtime after receiving
+//         more data and penalize operators that have the chance of being much
+//         bigger than initially thought. Note, it's possible for the runtime
+//         logic to increase the value of bmoEstErrorPenalty on its own after
+//         certain threshold (e.g C > 10*bmoExpectedSize) but bmoEstErrorPenalty
+//         should not exceed 1 i.e. 100%.
 	
-	Z = CitizenshipFactor which is a parameter representing how much of
-            the available physical memory an operator can assume for itself
-            as compared to leaving it to other potential players. It can have
-            the value of 1>= Z > 0. While we can suggest an initial value
-            e.g. 0.5 we think this is better to set after tuning based on
-            some performance tests. In the future this may also be adjusted
-            as input from WMS based on existing concurrency on the system.
+// 	Z = CitizenshipFactor which is a parameter representing how much of
+//             the available physical memory an operator can assume for itself
+//             as compared to leaving it to other potential players. It can have
+//             the value of 1>= Z > 0. While we can suggest an initial value
+//             e.g. 0.5 we think this is better to set after tuning based on
+//             some performance tests. In the future this may also be adjusted
+//             as input from WMS based on existing concurrency on the system.
 	
-	M = Available physical memory at that instant.
+// 	M = Available physical memory at that instant.
 	
-	U = Contingency physical memory (e.g. 10% of Phys memory in the node.
-            Point it to keep always phys memory available for executables,
-            buffers, non-BMO ops, etc)
+// 	U = Contingency physical memory (e.g. 10% of Phys memory in the node.
+//             Point it to keep always phys memory available for executables,
+//             buffers, non-BMO ops, etc)
 	
-	m = [E- C]  or in other words the estimated delta memory required
-            by BMO to complete processing.
+// 	m = [E- C]  or in other words the estimated delta memory required
+//             by BMO to complete processing.
 	
-	If ( m < Z * (M-U))  then continue memory allocation else overflow.
-      */
+// 	If ( m < Z * (M-U))  then continue memory allocation else overflow.
+//       */
 
-      // free physical memory in MB
-      Float32 M = (Float32) memMonitor_->availablePhyMemKb()/1024;
-      // consumed memory in MB
-      Float32 C = memoryUsed_ / ONE_MEG; 
+//       // free physical memory in MB
+//       Float32 M = (Float32) memMonitor_->availablePhyMemKb()/1024;
+//       // consumed memory in MB
+//       Float32 C = memoryUsed_ / ONE_MEG; 
 
-      //U : minimum percent free physical memory to be spared for other players 
-      //on the node. Could be other processes, etc.
-      Float32 U = pMemoryContingencyMB_ ;
+//       //U : minimum percent free physical memory to be spared for other players 
+//       //on the node. Could be other processes, etc.
+//       Float32 U = pMemoryContingencyMB_ ;
       
-      // Z: percent free physical memory to assume for myself and thereby
-      // allowing reminaing free space for other operators in my esp process.
-      // WMS could set this based on concurrency, there by it can increase 
-      // the desity of BMO operators residing on the node.
-      Float32 Z = bmoCitizenshipFactor_ ;
+//       // Z: percent free physical memory to assume for myself and thereby
+//       // allowing reminaing free space for other operators in my esp process.
+//       // WMS could set this based on concurrency, there by it can increase 
+//       // the desity of BMO operators residing on the node.
+//       Float32 Z = bmoCitizenshipFactor_ ;
       
-      Float32 m = 0;  //delta memory required to avoid overflow.
+//       Float32 m = 0;  //delta memory required to avoid overflow.
       
-      // do the following check if HJ still in phase 1.
-      if ( checkCompilerHints )
-	{
-	  Float32 E = hashMemEstInKBPerNode_ / 1024 ; //expected memory consumption
+//       // do the following check if HJ still in phase 1.
+//       if ( checkCompilerHints )
+// 	{
+// 	  Float32 E = hashMemEstInKBPerNode_ / 1024 ; //expected memory consumption
 	  
-#ifdef FUTURE_WORK
-	  //check extreme case first. Expected cannot be more than
-	  //available quota.
-	  if( memoryQuotaMB_ && E > memoryQuotaMB_ ) 
-	    {
-	      if ( ! earlyOverflowStarted_ && doLog_ ) { // log first time
-		sprintf(msg, 
-			"Estimate %ld MB exceeded quota %ld MB: OVERFLOW started. Total memory used %lu",
-			(Lng32) E, (Lng32) memoryQuotaMB_,
-			memoryUsed_);
-		// log an EMS event and continue
-		SQLMXLoggingArea::logExecRtInfo(NULL, 0, msg, explainNodeId_);
-	      }
-	      sawPressure_ = TRUE;
-	      earlyOverflowStarted_ = TRUE;
+// #ifdef FUTURE_WORK
+// 	  //check extreme case first. Expected cannot be more than
+// 	  //available quota.
+// 	  if( memoryQuotaMB_ && E > memoryQuotaMB_ ) 
+// 	    {
+// 	      if ( ! earlyOverflowStarted_ && doLog_ ) { // log first time
+// 		sprintf(msg, 
+// 			"Estimate %ld MB exceeded quota %ld MB: OVERFLOW started. Total memory used %lu",
+// 			(Lng32) E, (Lng32) memoryQuotaMB_,
+// 			memoryUsed_);
+// 		// log an EMS event and continue
+// 		SQLMXLoggingArea::logExecRtInfo(NULL, 0, msg, explainNodeId_);
+// 	      }
+// 	      sawPressure_ = TRUE;
+// 	      earlyOverflowStarted_ = TRUE;
 	      
-	      return FALSE;
-	    }
-#endif
+// 	      return FALSE;
+// 	    }
+// #endif
 	  
-	  //general comments pasted above for explanation of this field.
-	  Float32 estimateErrorPenalty = estimateErrorPenalty_ ;
+// 	  //general comments pasted above for explanation of this field.
+// 	  Float32 estimateErrorPenalty = estimateErrorPenalty_ ;
 	  
-	  /*
-	    adjust expected memory to higher than consumed so that a target
-	    expected memory is readjusted based on estimateErrorPenalty. 
-	    estimateErrorPenalty is high if confidance level of E is low and
-	    vice versa. This in essence creates large delta memory requirement
-	    for sort, which in essence may trigger overflow.
-	  */
-	  if ( C > E ) // consumed memory exceeded the expected -- adjust E
-	    {
-	      E = C * ( 1 + estimateErrorPenalty ) ;
-	      hashMemEstInKBPerNode_ = E * 1024;
-	    }
+// 	  /*
+// 	    adjust expected memory to higher than consumed so that a target
+// 	    expected memory is readjusted based on estimateErrorPenalty. 
+// 	    estimateErrorPenalty is high if confidance level of E is low and
+// 	    vice versa. This in essence creates large delta memory requirement
+// 	    for sort, which in essence may trigger overflow.
+// 	  */
+// 	  if ( C > E ) // consumed memory exceeded the expected -- adjust E
+// 	    {
+// 	      E = C * ( 1 + estimateErrorPenalty ) ;
+// 	      hashMemEstInKBPerNode_ = E * 1024;
+// 	    }
 	  
-	  Float32 m = E - C;  //delta memory required to avoid overflow.
+// 	  Float32 m = E - C;  //delta memory required to avoid overflow.
 	  
-	  // if delta memory required is more than physical memory available
-	  // then overflow.
-	  if( m > ( Z * (M -U))) {
+// 	  // if delta memory required is more than physical memory available
+// 	  // then overflow.
+// 	  if( m > ( Z * (M -U))) {
 
-	    if ( ! earlyOverflowStarted_ && doLog_ ) { // log first time
-	      sprintf(msg,
-		      "Hash encountered memory pressure [m > (Z*(M-U))]: memReq m=%f, memFree M=%f, "
-		      "memExpected E=%f, memConsumed C=%f, estimateErrorPenalty e=%f,"
-		      "memContingency U=%f, citizenshipFactor Z=%f", m,M,E,C,estimateErrorPenalty,U,Z);
-	      SQLMXLoggingArea::logExecRtInfo(NULL, 0,msg, explainNodeId_);
-	    }
-	    sawPressure_ = TRUE;
-	    earlyOverflowStarted_ = TRUE;
-	    return FALSE;
-	  }
-	}  // if ( checkCompilerHints )
-      else
-	{
-	  // if HJ is in phase 2, memory checks done here is purely
-	  // memory requirements against available physical memory.
+// 	    if ( ! earlyOverflowStarted_ && doLog_ ) { // log first time
+// 	      sprintf(msg,
+// 		      "Hash encountered memory pressure [m > (Z*(M-U))]: memReq m=%f, memFree M=%f, "
+// 		      "memExpected E=%f, memConsumed C=%f, estimateErrorPenalty e=%f,"
+// 		      "memContingency U=%f, citizenshipFactor Z=%f", m,M,E,C,estimateErrorPenalty,U,Z);
+// 	      SQLMXLoggingArea::logExecRtInfo(NULL, 0,msg, explainNodeId_);
+// 	    }
+// 	    sawPressure_ = TRUE;
+// 	    earlyOverflowStarted_ = TRUE;
+// 	    return FALSE;
+// 	  }
+// 	}  // if ( checkCompilerHints )
+//       else
+// 	{
+// 	  // if HJ is in phase 2, memory checks done here is purely
+// 	  // memory requirements against available physical memory.
 	  
-	  m =  (Float32)reqSize/ONE_MEG;
+// 	  m =  (Float32)reqSize/ONE_MEG;
 	  
-	  if( m > ( Z * (M - U))) {
-	    if ( doLog_ ) {
-	      sprintf(msg,
-		      "HJ phase 2/3 encountered memory pressure [m > (Z*(M-U))]: memReq m=%f, memFree M=%f, memContingency U=%f, citizenshipFactor Z=%f", m,M,U,Z);
-	      SQLMXLoggingArea::logExecRtInfo(NULL, 0,msg, explainNodeId_);
-	    }
-	    return FALSE;
-	  }
-	} // else -- if ( checkCompilerHints )
-    } // if ( ! disableCmpHintsOverflow_ )
+// 	  if( m > ( Z * (M - U))) {
+// 	    if ( doLog_ ) {
+// 	      sprintf(msg,
+// 		      "HJ phase 2/3 encountered memory pressure [m > (Z*(M-U))]: memReq m=%f, memFree M=%f, memContingency U=%f, citizenshipFactor Z=%f", m,M,U,Z);
+// 	      SQLMXLoggingArea::logExecRtInfo(NULL, 0,msg, explainNodeId_);
+// 	    }
+// 	    return FALSE;
+// 	  }
+// 	} // else -- if ( checkCompilerHints )
+//     } // if ( ! disableCmpHintsOverflow_ )
 
-    // ---------------------------------------------------------------
-    // End of hints' check
-    // ---------------------------------------------------------------
+//     // ---------------------------------------------------------------
+//     // End of hints' check
+//     // ---------------------------------------------------------------
 
-    //The following checks any threshold limits set by the user. This
-    //check is static in nature and directly controlled by cqds
-    //SSD_BMO_MAX_MEM_THRESHOLD_MB if SSD disk type is in use OR
-    //EXE_MEMORY_AVAILABLE_IN_MB if disk type is in use.
-    if( (memoryUsed_ / ONE_MEG) >= bmoMaxMemThresholdMB_)
-      return FALSE;
+//     //The following checks any threshold limits set by the user. This
+//     //check is static in nature and directly controlled by cqds
+//     //SSD_BMO_MAX_MEM_THRESHOLD_MB if SSD disk type is in use OR
+//     //EXE_MEMORY_AVAILABLE_IN_MB if disk type is in use.
+//     if( (memoryUsed_ / ONE_MEG) >= bmoMaxMemThresholdMB_)
+//       return FALSE;
 
 
-  }  // if (memMonitor_ && memoryUsed_ >= minMemBeforePressureCheck_ )
+//   }  // if (memMonitor_ && memoryUsed_ >= minMemBeforePressureCheck_ )
 
   // Always return TRUE, but for Partial HGB there's one more check
   return (!isPartialGroupBy_ || availableMemory_ >= reqSize);

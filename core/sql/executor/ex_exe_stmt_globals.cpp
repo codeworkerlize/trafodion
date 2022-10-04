@@ -36,9 +36,9 @@
  */
 #include "common/Platform.h"
 
-#include "ex_stdh.h"
+#include "executor/ex_stdh.h"
 #include "comexe/ComTdb.h"
-#include "ex_tcb.h"
+#include "executor/ex_tcb.h"
 #include "ex_exe_stmt_globals.h"
 #include "ex_frag_rt.h"
 #include "Ex_esp_msg.h"
@@ -55,7 +55,7 @@
 #include "ExSMCommon.h"
 #include "ExSMGlobals.h"
 #include "ExSMEvent.h"
-#include "HBaseClient_JNI.h"
+#include "executor/HBaseClient_JNI.h"
 
 class ComTdbRoot;
 
@@ -1132,7 +1132,7 @@ ExEspStmtGlobals::ExEspStmtGlobals(short num_temps,
                                    Space * space,
                                    CollHeap * heap,
                                    ExEspFragInstanceDir *espFragInstanceDir,
-                                   ExFragInstanceHandle handle,
+                                   int handle,
                                    ULng32 injectErrorAtExprFreq,
                                    NABoolean multiThreadedEsp,
                                    char *queryId,
@@ -1187,7 +1187,7 @@ ExEspStmtGlobals * ExEspStmtGlobals::castToExEspStmtGlobals()
 
 char * ExEspStmtGlobals::getFragmentPtr(ExFragId fragId) const
 {
-  ExFragInstanceHandle handle =
+  int handle =
     espFragInstanceDir_->findHandle(getFragmentKey(fragId));
 
   return espFragInstanceDir_->getFragment(handle)->getFragment();
@@ -1195,7 +1195,7 @@ char * ExEspStmtGlobals::getFragmentPtr(ExFragId fragId) const
 
 IpcMessageObjSize ExEspStmtGlobals::getFragmentLength(ExFragId fragId) const
 {
-  ExFragInstanceHandle handle =
+  int handle =
     espFragInstanceDir_->findHandle(getFragmentKey(fragId));
 
   return espFragInstanceDir_->getFragment(handle)->getFragmentLength();

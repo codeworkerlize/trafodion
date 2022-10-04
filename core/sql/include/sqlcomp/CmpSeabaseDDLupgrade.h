@@ -22,7 +22,7 @@
 #ifndef _CMP_SEABASE_MD_UPGD_H_
 #define _CMP_SEABASE_MD_UPGD_H_
 
-#include "CmpSeabaseDDLmd.h"
+#include "sqlcomp/CmpSeabaseDDLmd.h"
 #include "CmpSeabaseDDLmdcommon.h"
 
 /*******************************************************************************************
@@ -35,8 +35,8 @@ In this example:
   Metadata table COLUMNS is being changed.
 
 CmpSeabaseDDLmd.h
-   -- move current definition of metadata table that is being changed 
-     to START_OLD_MD_v23 section. 
+   -- move current definition of metadata table that is being changed
+     to START_OLD_MD_v23 section.
    -- Change name to *_OLD_MD.  (Ex: SEABASE_COLUMNS_OLD_MD)
    -- Change definition name to seabaseOldMDv23* (Ex: seabaseOldMDv23ColumnsDDL)
       (Note: There was a reset in version numbers when Trafodion Release 1.1
@@ -61,7 +61,7 @@ CmpSeabaseDDLupgrade.cpp
   -- modify CUSTOMIZE_NEW_MD case if something specified need to be done.
     Ex: update new sql_data_type field in COLUMNS table
 
-Update the following scripts in $TRAF_HOME/sql/scripts to match the current 
+Update the following scripts in $TRAF_HOME/sql/scripts to match the current
 upgrade (see createUpgradeSnapshots for details):
    createUpgradeSnapshots
    deleteUpgradeSnapshots
@@ -95,14 +95,14 @@ both the old and new metadata table definitions. We don't drop the old
 metadata tables yet, because we want to be able to revert to our initial
 state should an error occur.
 
-Subsystems are upgraded after the metadata table upgrade succeeds. The 
-subsystems are not self-referencing from a metadata point of view. So, 
-for example, it is possible to rename a subsystem table using a SQL 
+Subsystems are upgraded after the metadata table upgrade succeeds. The
+subsystems are not self-referencing from a metadata point of view. So,
+for example, it is possible to rename a subsystem table using a SQL
 ALTER TABLE RENAME statement, which is not true for a metadata table.
 
 Subsystems go through basically the same steps: Rename the existing table
 to old, create the new, copy the data in. Again, the old tables are not
-dropped yet, so we can revert in the event of an error (in the next 
+dropped yet, so we can revert in the event of an error (in the next
 subsystem for example).
 
 Once all the subsystems have been upgraded, we update the version in
@@ -141,7 +141,7 @@ would be, say, in sqlci or trafci), give a real time status of the operation.
 As such, the upgrade methods are redriven after each row is returned. The
 upgrade processing occurs in a tdm_arkcmp process. All state is kept in the
 message objects communicated between it and its invoker. For this reason,
-the classes used for the upgrade methods are stateless. Instead, state 
+the classes used for the upgrade methods are stateless. Instead, state
 consists of state-machine step information which is stored in a
 CmpDDLwithStatusInfo object.
 
@@ -149,23 +149,21 @@ CmpDDLwithStatusInfo object.
 
 // ***** MDUpgradeInfo moved to CmpSeabaseDDLmdcommon.h file
 
-struct MDDescsInfo
-{
-  ComTdbVirtTableTableInfo * tableInfo;
+struct MDDescsInfo {
+  ComTdbVirtTableTableInfo *tableInfo;
 
   Lng32 numNewCols;
-  ComTdbVirtTableColumnInfo * newColInfo;
+  ComTdbVirtTableColumnInfo *newColInfo;
   Lng32 numNewKeys;
-  ComTdbVirtTableKeyInfo       * newKeyInfo;
+  ComTdbVirtTableKeyInfo *newKeyInfo;
 
   Lng32 numOldCols;
-  ComTdbVirtTableColumnInfo * oldColInfo;
+  ComTdbVirtTableColumnInfo *oldColInfo;
   Lng32 numOldKeys;
-  ComTdbVirtTableKeyInfo       * oldKeyInfo;
+  ComTdbVirtTableKeyInfo *oldKeyInfo;
 
   Lng32 numIndexes;
-  ComTdbVirtTableIndexInfo * indexInfo;
-
+  ComTdbVirtTableIndexInfo *indexInfo;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -176,155 +174,95 @@ struct MDDescsInfo
 //   (major version 2, minor version 1 -> major version 2, minor version 6)
 ////////////////////////////////////////////////////////////////////////////////
 static const MDUpgradeInfo allMDupgradeInfo[] = {
-  {SEABASE_AUTHS, SEABASE_AUTHS_OLD_MD,
-   seabaseAuthsDDL, sizeof(seabaseAuthsDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_AUTHS, SEABASE_AUTHS_OLD_MD, seabaseAuthsDDL, sizeof(seabaseAuthsDDL), NULL, 0, NULL, 0, FALSE, NULL, NULL,
+     NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_COLUMNS, SEABASE_COLUMNS_OLD_MD,
-   seabaseColumnsDDL, sizeof(seabaseColumnsDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_COLUMNS, SEABASE_COLUMNS_OLD_MD, seabaseColumnsDDL, sizeof(seabaseColumnsDDL), NULL, 0, NULL, 0, FALSE,
+     NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_DEFAULTS, SEABASE_DEFAULTS_OLD_MD,
-   seabaseDefaultsDDL, sizeof(seabaseDefaultsDDL),
-   NULL,0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
-  
-  {SEABASE_INDEXES, SEABASE_INDEXES_OLD_MD,
-   seabaseIndexesDDL, sizeof(seabaseIndexesDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_DEFAULTS, SEABASE_DEFAULTS_OLD_MD, seabaseDefaultsDDL, sizeof(seabaseDefaultsDDL), NULL, 0, NULL, 0, FALSE,
+     NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_KEYS, SEABASE_KEYS_OLD_MD,
-   seabaseKeysDDL, sizeof(seabaseKeysDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_INDEXES, SEABASE_INDEXES_OLD_MD, seabaseIndexesDDL, sizeof(seabaseIndexesDDL), NULL, 0, NULL, 0, FALSE,
+     NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_LIBRARIES_USAGE, SEABASE_LIBRARIES_USAGE_OLD_MD,
-   seabaseLibrariesUsageDDL, sizeof(seabaseLibrariesUsageDDL),
-   NULL,0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_KEYS, SEABASE_KEYS_OLD_MD, seabaseKeysDDL, sizeof(seabaseKeysDDL), NULL, 0, NULL, 0, FALSE, NULL, NULL,
+     NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_LOB_COLUMNS, SEABASE_LOB_COLUMNS_OLD_MD,
-   seabaseLobColumnsDDL, sizeof(seabaseLobColumnsDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE},
+    {SEABASE_LIBRARIES_USAGE, SEABASE_LIBRARIES_USAGE_OLD_MD, seabaseLibrariesUsageDDL,
+     sizeof(seabaseLibrariesUsageDDL), NULL, 0, NULL, 0, FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE,
+     FALSE},
 
-  {SEABASE_OBJECTS, SEABASE_OBJECTS_OLD_MD,
-   seabaseObjectsDDL, sizeof(seabaseObjectsDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE,NULL,NULL,NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_LOB_COLUMNS, SEABASE_LOB_COLUMNS_OLD_MD, seabaseLobColumnsDDL, sizeof(seabaseLobColumnsDDL), NULL, 0, NULL,
+     0, FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE},
 
-  {SEABASE_OBJECTS_UNIQ_IDX, SEABASE_OBJECTS_UNIQ_IDX_OLD_MD,
-   seabaseObjectsUniqIdxDDL, sizeof(seabaseObjectsUniqIdxDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE},
+    {SEABASE_OBJECTS, SEABASE_OBJECTS_OLD_MD, seabaseObjectsDDL, sizeof(seabaseObjectsDDL), NULL, 0, NULL, 0, FALSE,
+     NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_PARTITIONS, SEABASE_PARTITIONS_OLD_MD,
-   seabasePartitionsDDL, sizeof(seabasePartitionsDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_OBJECTS_UNIQ_IDX, SEABASE_OBJECTS_UNIQ_IDX_OLD_MD, seabaseObjectsUniqIdxDDL,
+     sizeof(seabaseObjectsUniqIdxDDL), NULL, 0, NULL, 0, FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, TRUE,
+     FALSE},
 
-  {SEABASE_REF_CONSTRAINTS, SEABASE_REF_CONSTRAINTS_OLD_MD,
-   seabaseRefConstraintsDDL, sizeof(seabaseRefConstraintsDDL),
-   seabaseOldTrafMDV21RefConstraintsDDL, sizeof(seabaseOldTrafMDV21RefConstraintsDDL),
-   NULL, 0,
-   TRUE, 
-   "REF_CONSTRAINT_UID, UNIQUE_CONSTRAINT_UID, MATCH_OPTION, UPDATE_RULE, DELETE_RULE, FLAGS",
-   "REF_CONSTRAINT_UID, UNIQUE_CONSTRAINT_UID, cast(MATCH_OPTION as char(2) character set iso88591), UPDATE_RULE, DELETE_RULE, FLAGS",
-   NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_PARTITIONS, SEABASE_PARTITIONS_OLD_MD, seabasePartitionsDDL, sizeof(seabasePartitionsDDL), NULL, 0, NULL,
+     0, FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_ROUTINES, SEABASE_ROUTINES_OLD_MD,
-   seabaseRoutinesDDL, sizeof(seabaseRoutinesDDL),
-   seabaseOldTrafMDv21RoutinesDDL, sizeof(seabaseOldTrafMDv21RoutinesDDL),
-   NULL, 0,
-   TRUE, 
-   "UDR_UID, UDR_TYPE, LANGUAGE_TYPE, DETERMINISTIC_BOOL, SQL_ACCESS, CALL_ON_NULL, ISOLATE_BOOL, PARAM_STYLE, TRANSACTION_ATTRIBUTES, MAX_RESULTS, STATE_AREA_SIZE, EXTERNAL_NAME, PARALLELISM, USER_VERSION, EXTERNAL_SECURITY, EXECUTION_MODE, LIBRARY_UID, SIGNATURE, FLAGS",
-   "UDR_UID, cast(UDR_TYPE as char(2) character set iso88591), LANGUAGE_TYPE, DETERMINISTIC_BOOL, SQL_ACCESS, CALL_ON_NULL, ISOLATE_BOOL, PARAM_STYLE, TRANSACTION_ATTRIBUTES, MAX_RESULTS, STATE_AREA_SIZE, EXTERNAL_NAME, PARALLELISM, USER_VERSION, EXTERNAL_SECURITY, EXECUTION_MODE, LIBRARY_UID, SIGNATURE, FLAGS",
-   NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_REF_CONSTRAINTS, SEABASE_REF_CONSTRAINTS_OLD_MD, seabaseRefConstraintsDDL,
+     sizeof(seabaseRefConstraintsDDL), seabaseOldTrafMDV21RefConstraintsDDL,
+     sizeof(seabaseOldTrafMDV21RefConstraintsDDL), NULL, 0, TRUE,
+     "REF_CONSTRAINT_UID, UNIQUE_CONSTRAINT_UID, MATCH_OPTION, UPDATE_RULE, DELETE_RULE, FLAGS",
+     "REF_CONSTRAINT_UID, UNIQUE_CONSTRAINT_UID, cast(MATCH_OPTION as char(2) character set iso88591), UPDATE_RULE, "
+     "DELETE_RULE, FLAGS",
+     NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_SEQ_GEN, SEABASE_SEQ_GEN_OLD_MD,
-   seabaseSeqGenDDL, sizeof(seabaseSeqGenDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_ROUTINES, SEABASE_ROUTINES_OLD_MD, seabaseRoutinesDDL, sizeof(seabaseRoutinesDDL),
+     seabaseOldTrafMDv21RoutinesDDL, sizeof(seabaseOldTrafMDv21RoutinesDDL), NULL, 0, TRUE,
+     "UDR_UID, UDR_TYPE, LANGUAGE_TYPE, DETERMINISTIC_BOOL, SQL_ACCESS, CALL_ON_NULL, ISOLATE_BOOL, PARAM_STYLE, "
+     "TRANSACTION_ATTRIBUTES, MAX_RESULTS, STATE_AREA_SIZE, EXTERNAL_NAME, PARALLELISM, USER_VERSION, "
+     "EXTERNAL_SECURITY, EXECUTION_MODE, LIBRARY_UID, SIGNATURE, FLAGS",
+     "UDR_UID, cast(UDR_TYPE as char(2) character set iso88591), LANGUAGE_TYPE, DETERMINISTIC_BOOL, SQL_ACCESS, "
+     "CALL_ON_NULL, ISOLATE_BOOL, PARAM_STYLE, TRANSACTION_ATTRIBUTES, MAX_RESULTS, STATE_AREA_SIZE, EXTERNAL_NAME, "
+     "PARALLELISM, USER_VERSION, EXTERNAL_SECURITY, EXECUTION_MODE, LIBRARY_UID, SIGNATURE, FLAGS",
+     NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_TABLES, SEABASE_TABLES_OLD_MD,
-   seabaseTablesDDL, sizeof(seabaseTablesDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_SEQ_GEN, SEABASE_SEQ_GEN_OLD_MD, seabaseSeqGenDDL, sizeof(seabaseSeqGenDDL), NULL, 0, NULL, 0, FALSE, NULL,
+     NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_TABLE_CONSTRAINTS, SEABASE_TABLE_CONSTRAINTS_OLD_MD,
-   seabaseTableConstraintsDDL, sizeof(seabaseTableConstraintsDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_TABLES, SEABASE_TABLES_OLD_MD, seabaseTablesDDL, sizeof(seabaseTablesDDL), NULL, 0, NULL, 0, FALSE, NULL,
+     NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_TABLE_CONSTRAINTS_IDX, SEABASE_TABLE_CONSTRAINTS_IDX_OLD_MD, 
-   seabaseTableConstraintsIdxDDL, sizeof(seabaseTableConstraintsIdxDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE},
+    {SEABASE_TABLE_CONSTRAINTS, SEABASE_TABLE_CONSTRAINTS_OLD_MD, seabaseTableConstraintsDDL,
+     sizeof(seabaseTableConstraintsDDL), NULL, 0, NULL, 0, FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE,
+     FALSE},
 
-  {SEABASE_TABLE_PARTITION, SEABASE_TABLE_PARTITION_OLD_MD,
-   seabaseTablePartitionDDL, sizeof(seabaseTablePartitionDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_TABLE_CONSTRAINTS_IDX, SEABASE_TABLE_CONSTRAINTS_IDX_OLD_MD, seabaseTableConstraintsIdxDDL,
+     sizeof(seabaseTableConstraintsIdxDDL), NULL, 0, NULL, 0, FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, TRUE,
+     FALSE},
 
-  {SEABASE_TEXT, SEABASE_TEXT_OLD_MD,
-   seabaseTextDDL, sizeof(seabaseTextDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_TABLE_PARTITION, SEABASE_TABLE_PARTITION_OLD_MD, seabaseTablePartitionDDL,
+     sizeof(seabaseTablePartitionDDL), NULL, 0, NULL, 0, FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE,
+     FALSE},
 
-  {SEABASE_UNIQUE_REF_CONSTR_USAGE, SEABASE_UNIQUE_REF_CONSTR_USAGE_OLD_MD,
-   seabaseUniqueRefConstrUsageDDL, sizeof(seabaseUniqueRefConstrUsageDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_TEXT, SEABASE_TEXT_OLD_MD, seabaseTextDDL, sizeof(seabaseTextDDL), NULL, 0, NULL, 0, FALSE, NULL, NULL,
+     NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_VERSIONS, SEABASE_VERSIONS_OLD_MD,
-   seabaseVersionsDDL, sizeof(seabaseVersionsDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_UNIQUE_REF_CONSTR_USAGE, SEABASE_UNIQUE_REF_CONSTR_USAGE_OLD_MD, seabaseUniqueRefConstrUsageDDL,
+     sizeof(seabaseUniqueRefConstrUsageDDL), NULL, 0, NULL, 0, FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE,
+     FALSE, FALSE},
 
-  {SEABASE_VIEWS, SEABASE_VIEWS_OLD_MD,
-   seabaseViewsDDL, sizeof(seabaseViewsDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_VERSIONS, SEABASE_VERSIONS_OLD_MD, seabaseVersionsDDL, sizeof(seabaseVersionsDDL), NULL, 0, NULL, 0, FALSE,
+     NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_VIEWS_USAGE, SEABASE_VIEWS_USAGE_OLD_MD,
-   seabaseViewsUsageDDL, sizeof(seabaseViewsUsageDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_VIEWS, SEABASE_VIEWS_OLD_MD, seabaseViewsDDL, sizeof(seabaseViewsDDL), NULL, 0, NULL, 0, FALSE, NULL, NULL,
+     NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_VALIDATE_SPJ, SEABASE_VALIDATE_SPJ_OLD_MD,
-   NULL, 0,
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE},
+    {SEABASE_VIEWS_USAGE, SEABASE_VIEWS_USAGE_OLD_MD, seabaseViewsUsageDDL, sizeof(seabaseViewsUsageDDL), NULL, 0, NULL,
+     0, FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_VALIDATE_LIBRARY, SEABASE_VALIDATE_LIBRARY_OLD_MD,
-   NULL, 0,
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE}
+    {SEABASE_VALIDATE_SPJ, SEABASE_VALIDATE_SPJ_OLD_MD, NULL, 0, NULL, 0, NULL, 0, FALSE, NULL, NULL, NULL, FALSE,
+     FALSE, FALSE, FALSE, FALSE, TRUE},
+
+    {SEABASE_VALIDATE_LIBRARY, SEABASE_VALIDATE_LIBRARY_OLD_MD, NULL, 0, NULL, 0, NULL, 0, FALSE, NULL, NULL, NULL,
+     FALSE, FALSE, FALSE, FALSE, FALSE, TRUE}
 
 };
 
@@ -332,356 +270,236 @@ static const MDUpgradeInfo allMDupgradeInfo[] = {
 // This struct is set up for V110 to V210 upgrade.
 //////////////////////////////////////////////////////////////
 static const MDUpgradeInfo allMDv110tov210TablesInfo[] = {
- {SEABASE_AUTHS, SEABASE_AUTHS_OLD_MD,
-   seabaseAuthsDDL, sizeof(seabaseAuthsDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_AUTHS, SEABASE_AUTHS_OLD_MD, seabaseAuthsDDL, sizeof(seabaseAuthsDDL), NULL, 0, NULL, 0, FALSE, NULL, NULL,
+     NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_COLUMNS, SEABASE_COLUMNS_OLD_MD,
-   seabaseColumnsDDL, sizeof(seabaseColumnsDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_COLUMNS, SEABASE_COLUMNS_OLD_MD, seabaseColumnsDDL, sizeof(seabaseColumnsDDL), NULL, 0, NULL, 0, FALSE,
+     NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_DEFAULTS, SEABASE_DEFAULTS_OLD_MD,
-   seabaseDefaultsDDL, sizeof(seabaseDefaultsDDL),
-   seabaseOldTrafMDv11DefaultsDDL, sizeof(seabaseOldTrafMDv11DefaultsDDL),
-   NULL, 0,
-   TRUE, 
-   "attribute,attr_value,attr_comment,flags",
-   "attribute,attr_value,attr_comment,0",
-   NULL, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_DEFAULTS, SEABASE_DEFAULTS_OLD_MD, seabaseDefaultsDDL, sizeof(seabaseDefaultsDDL),
+     seabaseOldTrafMDv11DefaultsDDL, sizeof(seabaseOldTrafMDv11DefaultsDDL), NULL, 0, TRUE,
+     "attribute,attr_value,attr_comment,flags", "attribute,attr_value,attr_comment,0", NULL, TRUE, FALSE, FALSE, FALSE,
+     FALSE, FALSE},
 
-  {SEABASE_INDEXES, SEABASE_INDEXES_OLD_MD,
-   seabaseIndexesDDL, sizeof(seabaseIndexesDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_INDEXES, SEABASE_INDEXES_OLD_MD, seabaseIndexesDDL, sizeof(seabaseIndexesDDL), NULL, 0, NULL, 0, FALSE,
+     NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_KEYS, SEABASE_KEYS_OLD_MD,
-   seabaseKeysDDL, sizeof(seabaseKeysDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_KEYS, SEABASE_KEYS_OLD_MD, seabaseKeysDDL, sizeof(seabaseKeysDDL), NULL, 0, NULL, 0, FALSE, NULL, NULL,
+     NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_LIBRARIES, SEABASE_LIBRARIES_OLD_MD,
-   seabaseLibrariesDDL, sizeof(seabaseLibrariesDDL),
-   seabaseOldTrafMDv11LibrariesDDL, sizeof(seabaseOldTrafMDv11LibrariesDDL),
-   NULL, 0,
-   TRUE, 
-   "library_uid,library_filename,version,flags",
-   "library_uid,library_filename,version,0", 
-   NULL, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_LIBRARIES, SEABASE_LIBRARIES_OLD_MD, seabaseLibrariesDDL, sizeof(seabaseLibrariesDDL),
+     seabaseOldTrafMDv11LibrariesDDL, sizeof(seabaseOldTrafMDv11LibrariesDDL), NULL, 0, TRUE,
+     "library_uid,library_filename,version,flags", "library_uid,library_filename,version,0", NULL, TRUE, FALSE, FALSE,
+     FALSE, FALSE, FALSE},
 
-  {SEABASE_LIBRARIES_USAGE, SEABASE_LIBRARIES_USAGE_OLD_MD,
-   seabaseLibrariesUsageDDL, sizeof(seabaseLibrariesUsageDDL),
-   seabaseOldTrafMDv11LibrariesUsageDDL, sizeof(seabaseOldTrafMDv11LibrariesUsageDDL),
-   NULL, 0,
-   TRUE, 
-   "using_library_uid,used_udr_uid,flags",
-   "using_library_uid,used_udr_uid,0",
-   NULL, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_LIBRARIES_USAGE, SEABASE_LIBRARIES_USAGE_OLD_MD, seabaseLibrariesUsageDDL,
+     sizeof(seabaseLibrariesUsageDDL), seabaseOldTrafMDv11LibrariesUsageDDL,
+     sizeof(seabaseOldTrafMDv11LibrariesUsageDDL), NULL, 0, TRUE, "using_library_uid,used_udr_uid,flags",
+     "using_library_uid,used_udr_uid,0", NULL, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_OBJECTS, SEABASE_OBJECTS_OLD_MD,
-   seabaseObjectsDDL, sizeof(seabaseObjectsDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE,
-   // Note: For OBJECTS, we always have to provide insertedCols and
-   // selectedCols since we have to modify the table name for rows
-   // concerning the old metadata (see the "case" expression below).
-   "catalog_name,schema_name,"
-   "object_name,"
-   "object_type,object_uid,"
-   "create_time,redef_time,valid_def,droppable,object_owner,schema_owner,"
-   "flags",
-   "catalog_name,schema_name,"
-   "case when schema_name = '_MD_' then object_name || '_OLD_MD' else object_name end,"
-   "object_type,object_uid,"
-   "create_time,redef_time,valid_def,droppable,object_owner,schema_owner,"
-   "flags",
-   NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_OBJECTS, SEABASE_OBJECTS_OLD_MD, seabaseObjectsDDL, sizeof(seabaseObjectsDDL), NULL, 0, NULL, 0, FALSE,
+     // Note: For OBJECTS, we always have to provide insertedCols and
+     // selectedCols since we have to modify the table name for rows
+     // concerning the old metadata (see the "case" expression below).
+     "catalog_name,schema_name,"
+     "object_name,"
+     "object_type,object_uid,"
+     "create_time,redef_time,valid_def,droppable,object_owner,schema_owner,"
+     "flags",
+     "catalog_name,schema_name,"
+     "case when schema_name = '_MD_' then object_name || '_OLD_MD' else object_name end,"
+     "object_type,object_uid,"
+     "create_time,redef_time,valid_def,droppable,object_owner,schema_owner,"
+     "flags",
+     NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_OBJECTS_UNIQ_IDX, SEABASE_OBJECTS_UNIQ_IDX_OLD_MD,
-   seabaseObjectsUniqIdxDDL, sizeof(seabaseObjectsUniqIdxDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE},
+    {SEABASE_OBJECTS_UNIQ_IDX, SEABASE_OBJECTS_UNIQ_IDX_OLD_MD, seabaseObjectsUniqIdxDDL,
+     sizeof(seabaseObjectsUniqIdxDDL), NULL, 0, NULL, 0, FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, TRUE,
+     FALSE},
 
-  {SEABASE_REF_CONSTRAINTS, SEABASE_REF_CONSTRAINTS_OLD_MD,
-   seabaseRefConstraintsDDL, sizeof(seabaseRefConstraintsDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_REF_CONSTRAINTS, SEABASE_REF_CONSTRAINTS_OLD_MD, seabaseRefConstraintsDDL,
+     sizeof(seabaseRefConstraintsDDL), NULL, 0, NULL, 0, FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE,
+     FALSE},
 
-  {SEABASE_ROUTINES, SEABASE_ROUTINES_OLD_MD,
-   seabaseRoutinesDDL, sizeof(seabaseRoutinesDDL),
-   seabaseOldTrafMDv11RoutinesDDL, sizeof(seabaseOldTrafMDv11RoutinesDDL),
-   NULL, 0,
-   TRUE,
-   "udr_uid,udr_type,language_type,deterministic_bool,sql_access,"
-   "call_on_null,isolate_bool,param_style,transaction_attributes,"
-   "max_results,state_area_size,external_name,parallelism,"
-   "user_version,external_security,execution_mode,library_uid,"
-   "signature,flags",
-   "udr_uid,udr_type,language_type,deterministic_bool,sql_access,"
-   "call_on_null,isolate_bool,param_style,transaction_attributes,"
-   "max_results,state_area_size,external_name,parallelism,"
-   "user_version,external_security,execution_mode,library_uid,"
-   "signature,0",   
-   NULL, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_ROUTINES, SEABASE_ROUTINES_OLD_MD, seabaseRoutinesDDL, sizeof(seabaseRoutinesDDL),
+     seabaseOldTrafMDv11RoutinesDDL, sizeof(seabaseOldTrafMDv11RoutinesDDL), NULL, 0, TRUE,
+     "udr_uid,udr_type,language_type,deterministic_bool,sql_access,"
+     "call_on_null,isolate_bool,param_style,transaction_attributes,"
+     "max_results,state_area_size,external_name,parallelism,"
+     "user_version,external_security,execution_mode,library_uid,"
+     "signature,flags",
+     "udr_uid,udr_type,language_type,deterministic_bool,sql_access,"
+     "call_on_null,isolate_bool,param_style,transaction_attributes,"
+     "max_results,state_area_size,external_name,parallelism,"
+     "user_version,external_security,execution_mode,library_uid,"
+     "signature,0",
+     NULL, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_SEQ_GEN, SEABASE_SEQ_GEN_OLD_MD,
-   seabaseSeqGenDDL, sizeof(seabaseSeqGenDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_SEQ_GEN, SEABASE_SEQ_GEN_OLD_MD, seabaseSeqGenDDL, sizeof(seabaseSeqGenDDL), NULL, 0, NULL, 0, FALSE, NULL,
+     NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_TABLES, SEABASE_TABLES_OLD_MD,
-   seabaseTablesDDL, sizeof(seabaseTablesDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_TABLES, SEABASE_TABLES_OLD_MD, seabaseTablesDDL, sizeof(seabaseTablesDDL), NULL, 0, NULL, 0, FALSE, NULL,
+     NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_TABLE_CONSTRAINTS, SEABASE_TABLE_CONSTRAINTS_OLD_MD,
-   seabaseTableConstraintsDDL, sizeof(seabaseTableConstraintsDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_TABLE_CONSTRAINTS, SEABASE_TABLE_CONSTRAINTS_OLD_MD, seabaseTableConstraintsDDL,
+     sizeof(seabaseTableConstraintsDDL), NULL, 0, NULL, 0, FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE,
+     FALSE},
 
-   // For next metadata upgrade, replace NULL with SEABASE_TABLE_CONSTRAINTS_IDX_OLD_MD below
-  {SEABASE_TABLE_CONSTRAINTS_IDX, NULL /* index didn't exist before Trafodion 2.1 */,
-   seabaseTableConstraintsIdxDDL, sizeof(seabaseTableConstraintsIdxDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, TRUE, FALSE, TRUE, FALSE},
+    // For next metadata upgrade, replace NULL with SEABASE_TABLE_CONSTRAINTS_IDX_OLD_MD below
+    {SEABASE_TABLE_CONSTRAINTS_IDX, NULL /* index didn't exist before Trafodion 2.1 */, seabaseTableConstraintsIdxDDL,
+     sizeof(seabaseTableConstraintsIdxDDL), NULL, 0, NULL, 0, FALSE, NULL, NULL, NULL, FALSE, FALSE, TRUE, FALSE, TRUE,
+     FALSE},
 
-  {SEABASE_TEXT, SEABASE_TEXT_OLD_MD,
-   seabaseTextDDL, sizeof(seabaseTextDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_TEXT, SEABASE_TEXT_OLD_MD, seabaseTextDDL, sizeof(seabaseTextDDL), NULL, 0, NULL, 0, FALSE, NULL, NULL,
+     NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_UNIQUE_REF_CONSTR_USAGE, SEABASE_UNIQUE_REF_CONSTR_USAGE_OLD_MD,
-   seabaseUniqueRefConstrUsageDDL, sizeof(seabaseUniqueRefConstrUsageDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_UNIQUE_REF_CONSTR_USAGE, SEABASE_UNIQUE_REF_CONSTR_USAGE_OLD_MD, seabaseUniqueRefConstrUsageDDL,
+     sizeof(seabaseUniqueRefConstrUsageDDL), NULL, 0, NULL, 0, FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE,
+     FALSE, FALSE},
 
-  {SEABASE_VERSIONS, SEABASE_VERSIONS_OLD_MD,
-   seabaseVersionsDDL, sizeof(seabaseVersionsDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_VERSIONS, SEABASE_VERSIONS_OLD_MD, seabaseVersionsDDL, sizeof(seabaseVersionsDDL), NULL, 0, NULL, 0, FALSE,
+     NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_VIEWS, SEABASE_VIEWS_OLD_MD,
-   seabaseViewsDDL, sizeof(seabaseViewsDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_VIEWS, SEABASE_VIEWS_OLD_MD, seabaseViewsDDL, sizeof(seabaseViewsDDL), NULL, 0, NULL, 0, FALSE, NULL, NULL,
+     NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_VIEWS_USAGE, SEABASE_VIEWS_USAGE_OLD_MD,
-   seabaseViewsUsageDDL, sizeof(seabaseViewsUsageDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_VIEWS_USAGE, SEABASE_VIEWS_USAGE_OLD_MD, seabaseViewsUsageDDL, sizeof(seabaseViewsUsageDDL), NULL, 0, NULL,
+     0, FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_VALIDATE_SPJ, SEABASE_VALIDATE_SPJ_OLD_MD,
-   NULL, 0,
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE},
+    {SEABASE_VALIDATE_SPJ, SEABASE_VALIDATE_SPJ_OLD_MD, NULL, 0, NULL, 0, NULL, 0, FALSE, NULL, NULL, NULL, FALSE,
+     FALSE, FALSE, FALSE, FALSE, TRUE},
 
-  {SEABASE_VALIDATE_LIBRARY, SEABASE_VALIDATE_LIBRARY_OLD_MD,
-   NULL, 0,
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE}
+    {SEABASE_VALIDATE_LIBRARY, SEABASE_VALIDATE_LIBRARY_OLD_MD, NULL, 0, NULL, 0, NULL, 0, FALSE, NULL, NULL, NULL,
+     FALSE, FALSE, FALSE, FALSE, FALSE, TRUE}
 
 };
-
-
-
 
 //////////////////////////////////////////////////////////////
 // This struct is set up for V23 to V30 upgrade.
 //////////////////////////////////////////////////////////////
 static const MDUpgradeInfo allMDv23tov30TablesInfo[] = {
-  {SEABASE_AUTHS, SEABASE_AUTHS_OLD_MD,
-   seabaseAuthsDDL, sizeof(seabaseAuthsDDL),
-   seabaseOldMDv23AuthsDDL, sizeof(seabaseOldMDv23AuthsDDL),
-   NULL, 0,
-   TRUE,
-   "auth_id, auth_db_name, auth_ext_name, auth_type, auth_creator, auth_is_valid, auth_redef_time, auth_create_time, flags",
-   "auth_id, auth_db_name, auth_ext_name, auth_type, auth_creator, auth_is_valid, auth_redef_time, auth_create_time, 0",
-   NULL, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_AUTHS, SEABASE_AUTHS_OLD_MD, seabaseAuthsDDL, sizeof(seabaseAuthsDDL), seabaseOldMDv23AuthsDDL,
+     sizeof(seabaseOldMDv23AuthsDDL), NULL, 0, TRUE,
+     "auth_id, auth_db_name, auth_ext_name, auth_type, auth_creator, auth_is_valid, auth_redef_time, auth_create_time, "
+     "flags",
+     "auth_id, auth_db_name, auth_ext_name, auth_type, auth_creator, auth_is_valid, auth_redef_time, auth_create_time, "
+     "0",
+     NULL, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_COLUMNS, SEABASE_COLUMNS_OLD_MD,
-   seabaseColumnsDDL, sizeof(seabaseColumnsDDL),
-   seabaseOldMDv23ColumnsDDL, sizeof(seabaseOldMDv23ColumnsDDL),
-   NULL, 0,
-   TRUE,
-   "object_uid, column_name, column_number, column_class, fs_data_type, sql_data_type, column_size, column_precision, column_scale, datetime_start_field, datetime_end_field, is_upshifted, column_flags, nullable, character_set, default_class, default_value, column_heading, hbase_col_family, hbase_col_qualifier, direction, is_optional, flags",
-   "object_uid, column_name, column_number, column_class, fs_data_type, '', column_size, column_precision, column_scale, datetime_start_field, datetime_end_field, is_upshifted, column_flags, nullable, character_set, default_class, default_value, column_heading, hbase_col_family, hbase_col_qualifier, direction, is_optional, 0",
-   NULL, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_COLUMNS, SEABASE_COLUMNS_OLD_MD, seabaseColumnsDDL, sizeof(seabaseColumnsDDL), seabaseOldMDv23ColumnsDDL,
+     sizeof(seabaseOldMDv23ColumnsDDL), NULL, 0, TRUE,
+     "object_uid, column_name, column_number, column_class, fs_data_type, sql_data_type, column_size, "
+     "column_precision, column_scale, datetime_start_field, datetime_end_field, is_upshifted, column_flags, nullable, "
+     "character_set, default_class, default_value, column_heading, hbase_col_family, hbase_col_qualifier, direction, "
+     "is_optional, flags",
+     "object_uid, column_name, column_number, column_class, fs_data_type, '', column_size, column_precision, "
+     "column_scale, datetime_start_field, datetime_end_field, is_upshifted, column_flags, nullable, character_set, "
+     "default_class, default_value, column_heading, hbase_col_family, hbase_col_qualifier, direction, is_optional, 0",
+     NULL, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_DEFAULTS, SEABASE_DEFAULTS_OLD_MD,
-   seabaseDefaultsDDL, sizeof(seabaseDefaultsDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_DEFAULTS, SEABASE_DEFAULTS_OLD_MD, seabaseDefaultsDDL, sizeof(seabaseDefaultsDDL), NULL, 0, NULL, 0, FALSE,
+     NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_INDEXES, SEABASE_INDEXES_OLD_MD,
-   seabaseIndexesDDL, sizeof(seabaseIndexesDDL),
-   seabaseOldMDv23IndexesDDL, sizeof(seabaseOldMDv23IndexesDDL),
-   NULL, 0,
-   TRUE,
-   "base_table_uid, keytag, is_unique, key_colcount, nonkey_colcount, is_explicit, index_uid, flags",
-   "base_table_uid, keytag, is_unique, key_colcount, nonkey_colcount, is_explicit, index_uid, 0",
-   NULL, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_INDEXES, SEABASE_INDEXES_OLD_MD, seabaseIndexesDDL, sizeof(seabaseIndexesDDL), seabaseOldMDv23IndexesDDL,
+     sizeof(seabaseOldMDv23IndexesDDL), NULL, 0, TRUE,
+     "base_table_uid, keytag, is_unique, key_colcount, nonkey_colcount, is_explicit, index_uid, flags",
+     "base_table_uid, keytag, is_unique, key_colcount, nonkey_colcount, is_explicit, index_uid, 0", NULL, TRUE, FALSE,
+     FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_KEYS, SEABASE_KEYS_OLD_MD,
-   seabaseKeysDDL, sizeof(seabaseKeysDDL),
-   seabaseOldMDv23KeysDDL, sizeof(seabaseOldMDv23KeysDDL),
-   NULL, 0,
-   TRUE,
-   "object_uid, column_name, keyseq_number, column_number, ordering, nonkeycol, flags",
-   "object_uid, column_name, keyseq_number, column_number, ordering, nonkeycol, 0",
-   NULL, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_KEYS, SEABASE_KEYS_OLD_MD, seabaseKeysDDL, sizeof(seabaseKeysDDL), seabaseOldMDv23KeysDDL,
+     sizeof(seabaseOldMDv23KeysDDL), NULL, 0, TRUE,
+     "object_uid, column_name, keyseq_number, column_number, ordering, nonkeycol, flags",
+     "object_uid, column_name, keyseq_number, column_number, ordering, nonkeycol, 0", NULL, TRUE, FALSE, FALSE, FALSE,
+     FALSE, FALSE},
 
-  /*{SEABASE_LIBRARIES, SEABASE_LIBRARIES_OLD_MD,
-   seabaseLibrariesDDL, sizeof(seabaseLibrariesDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},*/
+    /*{SEABASE_LIBRARIES, SEABASE_LIBRARIES_OLD_MD,
+     seabaseLibrariesDDL, sizeof(seabaseLibrariesDDL),
+     NULL, 0,
+     NULL, 0,
+     FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},*/
 
-  {SEABASE_LIBRARIES_USAGE, SEABASE_LIBRARIES_USAGE_OLD_MD,
-   seabaseLibrariesUsageDDL, sizeof(seabaseLibrariesUsageDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_LIBRARIES_USAGE, SEABASE_LIBRARIES_USAGE_OLD_MD, seabaseLibrariesUsageDDL,
+     sizeof(seabaseLibrariesUsageDDL), NULL, 0, NULL, 0, FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE,
+     FALSE},
 
-  {SEABASE_OBJECTS, SEABASE_OBJECTS_OLD_MD,
-   seabaseObjectsDDL, sizeof(seabaseObjectsDDL),
-   seabaseOldMDv23ObjectsDDL, sizeof(seabaseOldMDv23ObjectsDDL),
-   NULL, 0,
-   TRUE,
-   "catalog_name, schema_name, object_name, object_type, object_uid, create_time, redef_time, valid_def, droppable, object_owner, schema_owner, flags",
-   "catalog_name, schema_name, case when schema_name = '_MD_' then object_name || '_OLD_MD' else object_name end, object_type, object_uid, create_time, redef_time, valid_def, 'N', object_owner, " SUPER_USER_LIT", 0",
-   NULL, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_OBJECTS, SEABASE_OBJECTS_OLD_MD, seabaseObjectsDDL, sizeof(seabaseObjectsDDL), seabaseOldMDv23ObjectsDDL,
+     sizeof(seabaseOldMDv23ObjectsDDL), NULL, 0, TRUE,
+     "catalog_name, schema_name, object_name, object_type, object_uid, create_time, redef_time, valid_def, droppable, "
+     "object_owner, schema_owner, flags",
+     "catalog_name, schema_name, case when schema_name = '_MD_' then object_name || '_OLD_MD' else object_name end, "
+     "object_type, object_uid, create_time, redef_time, valid_def, 'N', object_owner, " SUPER_USER_LIT ", 0",
+     NULL, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_OBJECTS_UNIQ_IDX, SEABASE_OBJECTS_UNIQ_IDX_OLD_MD,
-   seabaseObjectsUniqIdxDDL, sizeof(seabaseObjectsUniqIdxDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE},
+    {SEABASE_OBJECTS_UNIQ_IDX, SEABASE_OBJECTS_UNIQ_IDX_OLD_MD, seabaseObjectsUniqIdxDDL,
+     sizeof(seabaseObjectsUniqIdxDDL), NULL, 0, NULL, 0, FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, TRUE,
+     FALSE},
 
-  {SEABASE_REF_CONSTRAINTS, SEABASE_REF_CONSTRAINTS_OLD_MD,
-   seabaseRefConstraintsDDL, sizeof(seabaseRefConstraintsDDL),
-   seabaseOldMDv23RefConstraintsDDL, sizeof(seabaseOldMDv23RefConstraintsDDL),
-   NULL, 0,
-   TRUE,
-   "ref_constraint_uid, unique_constraint_uid, match_option, update_rule, delete_rule, flags",
-   "ref_constraint_uid, unique_constraint_uid, cast(match_option as char(2) character set iso88591), update_rule, delete_rule, 0",
-   NULL, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_REF_CONSTRAINTS, SEABASE_REF_CONSTRAINTS_OLD_MD, seabaseRefConstraintsDDL,
+     sizeof(seabaseRefConstraintsDDL), seabaseOldMDv23RefConstraintsDDL, sizeof(seabaseOldMDv23RefConstraintsDDL), NULL,
+     0, TRUE, "ref_constraint_uid, unique_constraint_uid, match_option, update_rule, delete_rule, flags",
+     "ref_constraint_uid, unique_constraint_uid, cast(match_option as char(2) character set iso88591), update_rule, "
+     "delete_rule, 0",
+     NULL, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_ROUTINES, SEABASE_ROUTINES_OLD_MD,
-   seabaseRoutinesDDL, sizeof(seabaseRoutinesDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_ROUTINES, SEABASE_ROUTINES_OLD_MD, seabaseRoutinesDDL, sizeof(seabaseRoutinesDDL), NULL, 0, NULL, 0, FALSE,
+     NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
- {SEABASE_SEQ_GEN, SEABASE_SEQ_GEN_OLD_MD,
-   seabaseSeqGenDDL, sizeof(seabaseSeqGenDDL),
-   seabaseOldMDv23SeqGenDDL, sizeof(seabaseOldMDv23SeqGenDDL),
-   NULL, 0,
-  TRUE,
-   "seq_type, seq_uid, fs_data_type, start_value, increment, max_value, min_value, cycle_option, cache_size, next_value, num_calls, redef_ts, upd_ts, flags",
-   "seq_type, seq_uid, fs_data_type, start_value, increment, max_value, min_value, cycle_option, cache_size, next_value, num_calls, 0, 0, 0",
-  NULL, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_SEQ_GEN, SEABASE_SEQ_GEN_OLD_MD, seabaseSeqGenDDL, sizeof(seabaseSeqGenDDL), seabaseOldMDv23SeqGenDDL,
+     sizeof(seabaseOldMDv23SeqGenDDL), NULL, 0, TRUE,
+     "seq_type, seq_uid, fs_data_type, start_value, increment, max_value, min_value, cycle_option, cache_size, "
+     "next_value, num_calls, redef_ts, upd_ts, flags",
+     "seq_type, seq_uid, fs_data_type, start_value, increment, max_value, min_value, cycle_option, cache_size, "
+     "next_value, num_calls, 0, 0, 0",
+     NULL, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_TABLES, SEABASE_TABLES_OLD_MD,
-   seabaseTablesDDL, sizeof(seabaseTablesDDL),
-   seabaseOldMDv23TablesDDL, sizeof(seabaseOldMDv23TablesDDL),
-   NULL, 0,
-   TRUE,
-   "table_uid, row_format, is_audited, row_data_length, row_total_length, key_length, num_salt_partns, flags",
-   "table_uid, 'HF', is_audited, -1, -1, -1, 0, 0",
-   NULL, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_TABLES, SEABASE_TABLES_OLD_MD, seabaseTablesDDL, sizeof(seabaseTablesDDL), seabaseOldMDv23TablesDDL,
+     sizeof(seabaseOldMDv23TablesDDL), NULL, 0, TRUE,
+     "table_uid, row_format, is_audited, row_data_length, row_total_length, key_length, num_salt_partns, flags",
+     "table_uid, 'HF', is_audited, -1, -1, -1, 0, 0", NULL, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_TABLE_CONSTRAINTS, SEABASE_TABLE_CONSTRAINTS_OLD_MD,
-   seabaseTableConstraintsDDL, sizeof(seabaseTableConstraintsDDL),
-   seabaseOldMDv23TableConstraintsDDL, sizeof(seabaseOldMDv23TableConstraintsDDL),
-   NULL, 0,
-   TRUE,
-   "table_uid, constraint_uid, constraint_type, disabled, droppable, is_deferrable, enforced, validated, last_validated, col_count, index_uid, flags",
-   "table_uid, constraint_uid, constraint_type, 'N', 'N', 'N', 'Y', 'Y', juliantimestamp(current_timestamp), col_count, index_uid, 0",
-   NULL, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_TABLE_CONSTRAINTS, SEABASE_TABLE_CONSTRAINTS_OLD_MD, seabaseTableConstraintsDDL,
+     sizeof(seabaseTableConstraintsDDL), seabaseOldMDv23TableConstraintsDDL, sizeof(seabaseOldMDv23TableConstraintsDDL),
+     NULL, 0, TRUE,
+     "table_uid, constraint_uid, constraint_type, disabled, droppable, is_deferrable, enforced, validated, "
+     "last_validated, col_count, index_uid, flags",
+     "table_uid, constraint_uid, constraint_type, 'N', 'N', 'N', 'Y', 'Y', juliantimestamp(current_timestamp), "
+     "col_count, index_uid, 0",
+     NULL, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_TEXT, SEABASE_TEXT_OLD_MD,
-   seabaseTextDDL, sizeof(seabaseTextDDL),
-   seabaseOldMDv23TextDDL, sizeof(seabaseOldMDv23TextDDL),
-   NULL, 0,
-   TRUE,
-   "text_uid, text_type, sub_id, seq_num, flags, text",
-   "object_uid, 0, 0, seq_num, 0, text",
-   NULL, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_TEXT, SEABASE_TEXT_OLD_MD, seabaseTextDDL, sizeof(seabaseTextDDL), seabaseOldMDv23TextDDL,
+     sizeof(seabaseOldMDv23TextDDL), NULL, 0, TRUE, "text_uid, text_type, sub_id, seq_num, flags, text",
+     "object_uid, 0, 0, seq_num, 0, text", NULL, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_UNIQUE_REF_CONSTR_USAGE, SEABASE_UNIQUE_REF_CONSTR_USAGE_OLD_MD,
-   seabaseUniqueRefConstrUsageDDL, sizeof(seabaseUniqueRefConstrUsageDDL),
-   seabaseOldMDv23UniqueRefConstrUsageDDL, sizeof(seabaseOldMDv23UniqueRefConstrUsageDDL),
-   NULL, 0,
-   TRUE,
-   "unique_constraint_uid, foreign_constraint_uid, flags",
-   "unique_constraint_uid, foreign_constraint_uid, 0",
-   NULL, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_UNIQUE_REF_CONSTR_USAGE, SEABASE_UNIQUE_REF_CONSTR_USAGE_OLD_MD, seabaseUniqueRefConstrUsageDDL,
+     sizeof(seabaseUniqueRefConstrUsageDDL), seabaseOldMDv23UniqueRefConstrUsageDDL,
+     sizeof(seabaseOldMDv23UniqueRefConstrUsageDDL), NULL, 0, TRUE,
+     "unique_constraint_uid, foreign_constraint_uid, flags", "unique_constraint_uid, foreign_constraint_uid, 0", NULL,
+     TRUE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_VERSIONS, SEABASE_VERSIONS_OLD_MD,
-   seabaseVersionsDDL, sizeof(seabaseVersionsDDL),
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_VERSIONS, SEABASE_VERSIONS_OLD_MD, seabaseVersionsDDL, sizeof(seabaseVersionsDDL), NULL, 0, NULL, 0, FALSE,
+     NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_VIEWS, SEABASE_VIEWS_OLD_MD,
-   seabaseViewsDDL, sizeof(seabaseViewsDDL),
-   seabaseOldMDv23ViewsDDL, sizeof(seabaseOldMDv23ViewsDDL),
-   NULL, 0,
-   TRUE,
-   "view_uid, check_option, is_updatable, is_insertable, flags",
-   "view_uid, check_option, is_updatable, is_insertable, 0",
-   NULL, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_VIEWS, SEABASE_VIEWS_OLD_MD, seabaseViewsDDL, sizeof(seabaseViewsDDL), seabaseOldMDv23ViewsDDL,
+     sizeof(seabaseOldMDv23ViewsDDL), NULL, 0, TRUE, "view_uid, check_option, is_updatable, is_insertable, flags",
+     "view_uid, check_option, is_updatable, is_insertable, 0", NULL, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_VIEWS_USAGE, SEABASE_VIEWS_USAGE_OLD_MD,
-   seabaseViewsUsageDDL, sizeof(seabaseViewsUsageDDL),
-   seabaseOldMDv23ViewsUsageDDL, sizeof(seabaseOldMDv23ViewsUsageDDL),
-   NULL, 0,
-   TRUE,
-   "using_view_uid, used_object_uid, used_object_type, flags",
-   "using_view_uid, used_object_uid, used_object_type, 0",
-   NULL, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_VIEWS_USAGE, SEABASE_VIEWS_USAGE_OLD_MD, seabaseViewsUsageDDL, sizeof(seabaseViewsUsageDDL),
+     seabaseOldMDv23ViewsUsageDDL, sizeof(seabaseOldMDv23ViewsUsageDDL), NULL, 0, TRUE,
+     "using_view_uid, used_object_uid, used_object_type, flags", "using_view_uid, used_object_uid, used_object_type, 0",
+     NULL, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_VALIDATE_SPJ, SEABASE_VALIDATE_SPJ_OLD_MD,
-   NULL, 0,
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    {SEABASE_VALIDATE_SPJ, SEABASE_VALIDATE_SPJ_OLD_MD, NULL, 0, NULL, 0, NULL, 0, FALSE, NULL, NULL, NULL, FALSE,
+     FALSE, FALSE, FALSE, FALSE, FALSE},
 
-  {SEABASE_VALIDATE_LIBRARY, SEABASE_VALIDATE_LIBRARY_OLD_MD,
-   NULL, 0,
-   NULL, 0,
-   NULL, 0,
-   FALSE, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE}
+    {SEABASE_VALIDATE_LIBRARY, SEABASE_VALIDATE_LIBRARY_OLD_MD, NULL, 0, NULL, 0, NULL, 0, FALSE, NULL, NULL, NULL,
+     FALSE, FALSE, FALSE, FALSE, FALSE, TRUE}
 
 };
 
-
-class CmpSeabaseMDupgrade : public CmpSeabaseDDL
-{
+class CmpSeabaseMDupgrade : public CmpSeabaseDDL {
  public:
-
   enum Steps {
-    UPGRADE_START              = 0,
+    UPGRADE_START = 0,
     VERSION_CHECK,
     OLD_MD_DROP_PRE,
     CURR_MD_BACKUP,
@@ -713,11 +531,9 @@ class CmpSeabaseMDupgrade : public CmpSeabaseDDL
     GET_MD_VERSION,
     GET_SW_VERSION,
     DONE_RETURN
-  } ;
+  };
 
-  CmpSeabaseMDupgrade(NAHeap *heap)
-    : CmpSeabaseDDL(heap)
-    {};
+  CmpSeabaseMDupgrade(NAHeap *heap) : CmpSeabaseDDL(heap){};
 
   NABoolean isOldMDtable(const NAString &objName);
 
@@ -726,179 +542,128 @@ class CmpSeabaseMDupgrade : public CmpSeabaseDDL
   NABoolean isReposUpgradeNeeded();
   NABoolean isPrivsUpgradeNeeded();
   NABoolean isLibrariesUpgradeNeeded();
-  NABoolean isUpgradeNeeded() 
-  { return (isMDUpgradeNeeded() || 
-            isViewsUpgradeNeeded() ||
-            isReposUpgradeNeeded() ||
-            isPrivsUpgradeNeeded() ||
+  NABoolean isUpgradeNeeded() {
+    return (isMDUpgradeNeeded() || isViewsUpgradeNeeded() || isReposUpgradeNeeded() || isPrivsUpgradeNeeded() ||
             isLibrariesUpgradeNeeded());
   }
 
-  short dropMDtables(ExpHbaseInterface *ehi, NABoolean oldTbls,
-		     NABoolean useOldNameForNewTables = FALSE);
+  short dropMDtables(ExpHbaseInterface *ehi, NABoolean oldTbls, NABoolean useOldNameForNewTables = FALSE);
 
   short dropReposTables(ExpHbaseInterface *ehi, NABoolean oldTbls);
-  short dropLibrariesTables(ExpHbaseInterface *ehi,
-                            NABoolean oldLibraries);
+  short dropLibrariesTables(ExpHbaseInterface *ehi, NABoolean oldLibraries);
   short restoreOldMDtables(ExpHbaseInterface *ehi);
 
-  short upgradePrivMgr(ExeCliInterface *cliInterface, 
-                       NABoolean ddlXns,
-                       NAString &privMgrDoneMsg);
+  short upgradePrivMgr(ExeCliInterface *cliInterface, NABoolean ddlXns, NAString &privMgrDoneMsg);
 
   short customizeNewMD(CmpDDLwithStatusInfo *mdui, ExeCliInterface &cliInterface);
-  short customizeNewMDv23tov30(CmpDDLwithStatusInfo *mdui,
-                               ExeCliInterface &cliInterface);
+  short customizeNewMDv23tov30(CmpDDLwithStatusInfo *mdui, ExeCliInterface &cliInterface);
 
-  short executeSeabaseMDupgrade(CmpDDLwithStatusInfo *mdui,
-                                NABoolean ddlXns,
-				NAString &currCatName, NAString &currSchName);
+  short executeSeabaseMDupgrade(CmpDDLwithStatusInfo *mdui, NABoolean ddlXns, NAString &currCatName,
+                                NAString &currSchName);
 
   void setRestoreStep(CmpDDLwithStatusInfo *mdui);
-
 };
-
 
 // abstract class defining the contract that a subsystem must implement
 // in order to be called from "initialize trafodion, upgrade"
-class CmpSeabaseUpgradeSubsystem
-{
-  public:
+class CmpSeabaseUpgradeSubsystem {
+ public:
+  CmpSeabaseUpgradeSubsystem(void){};
+  ~CmpSeabaseUpgradeSubsystem(void){};
 
-    CmpSeabaseUpgradeSubsystem(void) { } ;
-    ~CmpSeabaseUpgradeSubsystem(void) { } ;
-  
-    // Returns TRUE if an upgrade is needed, FALSE if not
-    virtual NABoolean needsUpgrade(CmpSeabaseMDupgrade * ddlState) = 0;
+  // Returns TRUE if an upgrade is needed, FALSE if not
+  virtual NABoolean needsUpgrade(CmpSeabaseMDupgrade *ddlState) = 0;
 
-    // The next three methods have the same return interface:
-    //
-    // returns 0 if successful or not done yet, a negative value
-    // if not. ("Not done yet" means call again. This allows
-    // the method to return status text messages to the user as
-    // it progresses in its processing.) To signal successful
-    // completion, the method should return 0, and call
-    // mdui->setEndStep(TRUE). Any state needed across calls
-    // should be kept in the CmpDDLwithStatusInfo object,
-    // e.g., via its setStep and setSubstep methods.
-    //
-    // The negative value can be used to signal what sort of
-    // recovery is needed.
+  // The next three methods have the same return interface:
+  //
+  // returns 0 if successful or not done yet, a negative value
+  // if not. ("Not done yet" means call again. This allows
+  // the method to return status text messages to the user as
+  // it progresses in its processing.) To signal successful
+  // completion, the method should return 0, and call
+  // mdui->setEndStep(TRUE). Any state needed across calls
+  // should be kept in the CmpDDLwithStatusInfo object,
+  // e.g., via its setStep and setSubstep methods.
+  //
+  // The negative value can be used to signal what sort of
+  // recovery is needed.
 
-    // Does the upgrade, but leaves old tables there in case we
-    // need to undo.
-    virtual short doUpgrade(ExeCliInterface * cliInterface,
-                            CmpDDLwithStatusInfo * mdui,
-                            CmpSeabaseMDupgrade * ddlState,
-                            NABoolean ddlXns) = 0;
+  // Does the upgrade, but leaves old tables there in case we
+  // need to undo.
+  virtual short doUpgrade(ExeCliInterface *cliInterface, CmpDDLwithStatusInfo *mdui, CmpSeabaseMDupgrade *ddlState,
+                          NABoolean ddlXns) = 0;
 
-    // Drops the old tables left behind by doUpgrade; errors
-    // are typically ignored as at this point upgrade is
-    // done except for dropping old tables. 
-    virtual short doDrops(ExeCliInterface * cliInterface,
-                         CmpDDLwithStatusInfo * mdui,
-                         CmpSeabaseMDupgrade * ddlState) = 0;
+  // Drops the old tables left behind by doUpgrade; errors
+  // are typically ignored as at this point upgrade is
+  // done except for dropping old tables.
+  virtual short doDrops(ExeCliInterface *cliInterface, CmpDDLwithStatusInfo *mdui, CmpSeabaseMDupgrade *ddlState) = 0;
 
-    // Undoes the upgrade by putting the old tables back to
-    // their original names.
-    virtual short doUndo(ExeCliInterface * cliInterface,
-                         CmpDDLwithStatusInfo * mdui,
-                         CmpSeabaseMDupgrade * ddlState) = 0;
+  // Undoes the upgrade by putting the old tables back to
+  // their original names.
+  virtual short doUndo(ExeCliInterface *cliInterface, CmpDDLwithStatusInfo *mdui, CmpSeabaseMDupgrade *ddlState) = 0;
 
-  private:
-
-    // for now, avoid having any state; the upgrade mainline
-    // keeps most of its state in the CmpDDLwithStatusInfo message
+ private:
+  // for now, avoid having any state; the upgrade mainline
+  // keeps most of its state in the CmpDDLwithStatusInfo message
 };
 
 // Repository specialization
 
-class CmpSeabaseUpgradeRepository : public CmpSeabaseUpgradeSubsystem
-{
-  public:
+class CmpSeabaseUpgradeRepository : public CmpSeabaseUpgradeSubsystem {
+ public:
+  CmpSeabaseUpgradeRepository(void){};
+  ~CmpSeabaseUpgradeRepository(void){};
 
-    CmpSeabaseUpgradeRepository(void) { } ;
-    ~CmpSeabaseUpgradeRepository(void) { } ;
-  
-    NABoolean needsUpgrade(CmpSeabaseMDupgrade * ddlState);
+  NABoolean needsUpgrade(CmpSeabaseMDupgrade *ddlState);
 
-    short doUpgrade(ExeCliInterface * cliInterface,
-                    CmpDDLwithStatusInfo * mdui,
-                    CmpSeabaseMDupgrade * ddlState,
-                    NABoolean ddlXns);
-
-    short doDrops(ExeCliInterface * cliInterface,
-                  CmpDDLwithStatusInfo * mdui,
-                  CmpSeabaseMDupgrade * ddlState);
-
-    short doUndo(ExeCliInterface * cliInterface,
-                 CmpDDLwithStatusInfo * mdui,
-                 CmpSeabaseMDupgrade * ddlState);
-  
-  private:
-
-    // avoid having state for now
-
-};
-
-//Libraries specialization
-class CmpSeabaseUpgradeLibraries : public CmpSeabaseUpgradeSubsystem
-{
-public:
-
-  CmpSeabaseUpgradeLibraries(void) { } ;
-  ~CmpSeabaseUpgradeLibraries(void) { } ;
-  
-  NABoolean needsUpgrade(CmpSeabaseMDupgrade * ddlState);
-
-  short doUpgrade(ExeCliInterface * cliInterface,
-                  CmpDDLwithStatusInfo * mdui,
-                  CmpSeabaseMDupgrade * ddlState,
+  short doUpgrade(ExeCliInterface *cliInterface, CmpDDLwithStatusInfo *mdui, CmpSeabaseMDupgrade *ddlState,
                   NABoolean ddlXns);
 
-  short doDrops(ExeCliInterface * cliInterface,
-                CmpDDLwithStatusInfo * mdui,
-                CmpSeabaseMDupgrade * ddlState);
+  short doDrops(ExeCliInterface *cliInterface, CmpDDLwithStatusInfo *mdui, CmpSeabaseMDupgrade *ddlState);
 
-  short doUndo(ExeCliInterface * cliInterface,
-               CmpDDLwithStatusInfo * mdui,
-               CmpSeabaseMDupgrade * ddlState);
-  
-private:
+  short doUndo(ExeCliInterface *cliInterface, CmpDDLwithStatusInfo *mdui, CmpSeabaseMDupgrade *ddlState);
 
+ private:
   // avoid having state for now
+};
 
+// Libraries specialization
+class CmpSeabaseUpgradeLibraries : public CmpSeabaseUpgradeSubsystem {
+ public:
+  CmpSeabaseUpgradeLibraries(void){};
+  ~CmpSeabaseUpgradeLibraries(void){};
+
+  NABoolean needsUpgrade(CmpSeabaseMDupgrade *ddlState);
+
+  short doUpgrade(ExeCliInterface *cliInterface, CmpDDLwithStatusInfo *mdui, CmpSeabaseMDupgrade *ddlState,
+                  NABoolean ddlXns);
+
+  short doDrops(ExeCliInterface *cliInterface, CmpDDLwithStatusInfo *mdui, CmpSeabaseMDupgrade *ddlState);
+
+  short doUndo(ExeCliInterface *cliInterface, CmpDDLwithStatusInfo *mdui, CmpSeabaseMDupgrade *ddlState);
+
+ private:
+  // avoid having state for now
 };
 
 // Privilege Manager specialization
 
-class CmpSeabaseUpgradePrivMgr : public CmpSeabaseUpgradeSubsystem
-{
-  public:
+class CmpSeabaseUpgradePrivMgr : public CmpSeabaseUpgradeSubsystem {
+ public:
+  CmpSeabaseUpgradePrivMgr(void){};
+  ~CmpSeabaseUpgradePrivMgr(void){};
 
-    CmpSeabaseUpgradePrivMgr(void) { } ;
-    ~CmpSeabaseUpgradePrivMgr(void) { } ;
-  
-    NABoolean needsUpgrade(CmpSeabaseMDupgrade * ddlState);
+  NABoolean needsUpgrade(CmpSeabaseMDupgrade *ddlState);
 
-    short doUpgrade(ExeCliInterface * cliInterface,
-                    CmpDDLwithStatusInfo * mdui,
-                    CmpSeabaseMDupgrade * ddlState,
-                    NABoolean ddlXns);
- 
-    short doDrops(ExeCliInterface * cliInterface,
-                  CmpDDLwithStatusInfo * mdui,
-                  CmpSeabaseMDupgrade * ddlState);
+  short doUpgrade(ExeCliInterface *cliInterface, CmpDDLwithStatusInfo *mdui, CmpSeabaseMDupgrade *ddlState,
+                  NABoolean ddlXns);
 
-    short doUndo(ExeCliInterface * cliInterface,
-                 CmpDDLwithStatusInfo * mdui,
-                 CmpSeabaseMDupgrade * ddlState);
+  short doDrops(ExeCliInterface *cliInterface, CmpDDLwithStatusInfo *mdui, CmpSeabaseMDupgrade *ddlState);
 
-  private:
+  short doUndo(ExeCliInterface *cliInterface, CmpDDLwithStatusInfo *mdui, CmpSeabaseMDupgrade *ddlState);
 
-    // avoid having state for now
-
+ private:
+  // avoid having state for now
 };
 
-#endif // _CMP_SEABASE_MD_UPGD_H_
-
+#endif  // _CMP_SEABASE_MD_UPGD_H_

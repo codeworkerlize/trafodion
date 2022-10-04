@@ -40,7 +40,7 @@
 // -----------------------------------------------------------------------
 
 #include "common/Collections.h"
-#include "RelSet.h"
+#include "optimizer/RelSet.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

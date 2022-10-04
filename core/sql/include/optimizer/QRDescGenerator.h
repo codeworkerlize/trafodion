@@ -33,7 +33,7 @@
  **************************************************************************
  */
 
-#include "Analyzer.h"
+#include "optimizer/Analyzer.h"
 #include "OptRange.h"
 #include "qmscommon/XMLUtil.h"
 #include "qmscommon/QRDescriptor.h"

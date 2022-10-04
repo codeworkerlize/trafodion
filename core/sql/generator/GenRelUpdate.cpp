@@ -38,12 +38,12 @@
 
 #include "common/Platform.h"
 
-#include "Sqlcomp.h"
+#include "optimizer/Sqlcomp.h"
 #include "GroupAttr.h"
-#include "RelMisc.h"
+#include "optimizer/RelMisc.h"
 #include "RelUpdate.h"
 #include "RelJoin.h"
-#include "ControlDB.h"
+#include "optimizer/ControlDB.h"
 #include "GenExpGenerator.h"
 #include "ComTdbDp2Oper.h"
 #include "comexe/ComTdbUnion.h"
@@ -52,13 +52,13 @@
 #include "PartFunc.h"
 #include "HashRow.h"
 #include "arkcmp/CmpStatement.h"
-#include "OptimizerSimulator.h"
-#include "CmpSeabaseDDL.h"
+#include "optimizer/OptimizerSimulator.h"
+#include "sqlcomp/CmpSeabaseDDL.h"
 #include "comexe/NAExecTrans.h"
 #include "common/ComEncryption.h"
 #include <algorithm>
 #include "parser/SqlParserGlobals.h"      // must be last #include
-#include "RelExeUtil.h"
+#include "optimizer/RelExeUtil.h"
 #include "comexe/ComTdbRoot.h"
 /////////////////////////////////////////////////////////////////////
 //

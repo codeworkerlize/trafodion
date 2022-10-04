@@ -64,7 +64,7 @@ using std::ofstream;
 #include "exp/ExpLOBenums.h"
 #include  "ExpLOBinterface.h"
 #include  "str.h"
-#include "ExpHbaseInterface.h"
+#include "exp/ExpHbaseInterface.h"
 #include "ExHbaseAccess.h"
 #include "comexe/ComTdbHbaseAccess.h"
 #include "ExHbaseAccess.h"

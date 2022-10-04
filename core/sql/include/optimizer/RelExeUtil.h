@@ -37,14 +37,14 @@
 */
 
 #include "optimizer/ObjectNames.h"
-#include "RelExpr.h"
+#include "optimizer/RelExpr.h"
 #include "cli/SQLCLIdev.h"
-#include "OptUtilIncludes.h"
+#include "optimizer/OptUtilIncludes.h"
 #include "BinderUtils.h"
 #include "parser/StmtNode.h"
 #include "common/charinfo.h"
 #include "RelFastTransport.h"
-#include "PrivMgrMD.h"
+#include "sqlcomp/PrivMgrMD.h"
 #include "comexe/ComTdbRoot.h"
 #include "common/CmpCommon.h"
 

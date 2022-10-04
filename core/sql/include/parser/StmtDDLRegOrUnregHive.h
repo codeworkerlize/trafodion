@@ -35,7 +35,7 @@
  *****************************************************************************
  */
 
-#include "ComLocationNames.h"
+#include "common/ComLocationNames.h"
 #include "ElemDDLLocation.h"
 #include "common/ComSmallDefs.h"
 #include "StmtDDLNode.h"

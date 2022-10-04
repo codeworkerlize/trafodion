@@ -50,7 +50,7 @@
 
 #include  "ExSqlComp.h"
 
-#include "timeout_data.h"
+#include "executor/timeout_data.h"
 
 
 /////////////////////////////////////////////////////////////////

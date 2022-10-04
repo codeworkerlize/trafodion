@@ -53,8 +53,8 @@
 
 
 #include "common/BaseTypes.h"
-#include "ComLocationNames.h"
-#include "ComOperators.h"
+#include "common/ComLocationNames.h"
+#include "common/ComOperators.h"
 #include "common/ComSmallDefs.h"
 #include "common/ComASSERT.h"
 #include "ComRegAPI.h"

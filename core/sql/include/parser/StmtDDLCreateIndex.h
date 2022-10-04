@@ -40,7 +40,7 @@
 
 
 #include "ElemDDLNode.h"
-#include "ElemDDLColRefArray.h"
+#include "parser/ElemDDLColRefArray.h"
 #include "ElemDDLDivisionClause.h"
 #include "ElemDDLSaltOptions.h"
 #include "ElemDDLLocation.h"

@@ -22,9 +22,9 @@
 **********************************************************************/
 
 #include "GroupAttr.h"
-#include "AllItemExpr.h"
+#include "optimizer/AllItemExpr.h"
 #include "ItemSample.h"
-#include "Sqlcomp.h"
+#include "optimizer/Sqlcomp.h"
 
 // -----------------------------------------------------------------------
 // member functions for Balance

@@ -31,38 +31,33 @@
 // *****************************************************************************
 // *
 // * File:         CompilerSwitchDDL.h
-// * Description:  the class responsible for compiler instance 
+// * Description:  the class responsible for compiler instance
 // *               switching on behave of DDL operations.
-// *               
+// *
 // * Contents:
 // *
 // *****************************************************************************
 
-class CompilerSwitchDDL
-{
+class CompilerSwitchDDL {
+ public:
+  CompilerSwitchDDL();
+  ~CompilerSwitchDDL(){};
 
-public:
-   CompilerSwitchDDL();
-   ~CompilerSwitchDDL() {};
+  short switchCompiler(Int32 cntxtType = CmpContextInfo::CMPCONTEXT_TYPE_META);
 
-     short switchCompiler(Int32 cntxtType = 
-                 CmpContextInfo::CMPCONTEXT_TYPE_META);
- 
-     short switchBackCompiler();
+  short switchBackCompiler();
 
  protected:
-
-    void setAllFlags();
-    void saveAllFlags();
-    void restoreAllFlags();
-    short sendAllControlsAndFlags(CmpContext* prevContext, Int32 cntxtType);
-    void restoreAllControlsAndFlags();
+  void setAllFlags();
+  void saveAllFlags();
+  void restoreAllFlags();
+  short sendAllControlsAndFlags(CmpContext *prevContext, Int32 cntxtType);
+  void restoreAllControlsAndFlags();
 
  protected:
-
-    NABoolean cmpSwitched_;
-    ULng32 savedCmpParserFlags_;
-    ULng32 savedCliParserFlags_;
+  NABoolean cmpSwitched_;
+  ULng32 savedCmpParserFlags_;
+  ULng32 savedCliParserFlags_;
 };
 
 #endif

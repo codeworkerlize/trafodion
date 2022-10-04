@@ -39,13 +39,13 @@
 #include "common/BaseTypes.h"
 #include "common/ComASSERT.h"
 #include "export/ComDiags.h"
-#include "ComOperators.h"
-#include "ElemDDLColName.h"
+#include "common/ComOperators.h"
+#include "parser/ElemDDLColName.h"
 #include "ElemDDLRefTrigActions.h"
 #include "ElemDDLReferences.h"
-#include "ItemExpr.h"
+#include "optimizer/ItemExpr.h"
 #include "sqlcomp/NADefaults.h"
-#include "SchemaDB.h"
+#include "optimizer/SchemaDB.h"
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLConstraint

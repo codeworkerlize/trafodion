@@ -42,7 +42,7 @@
 
 #include "ElemDDLSchemaName.h"
 #include "StmtDDLNode.h"
-#include "StmtDDLAlterTableStoredDesc.h"
+#include "parser/StmtDDLAlterTableStoredDesc.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

@@ -31,18 +31,18 @@
 //
 // @@@ END COPYRIGHT @@@
 
-#include "OptimizerSimulator.h"
+#include "optimizer/OptimizerSimulator.h"
 #include "sqlcomp/NADefaults.h"
 #include "arkcmp/CmpContext.h"
-#include "CompException.h"
-#include "SchemaDB.h"
-#include "NATable.h"
+#include "arkcmp/CompException.h"
+#include "optimizer/SchemaDB.h"
+#include "optimizer/NATable.h"
 #include "optimizer/ObjectNames.h"
 #include "common/NAClusterInfo.h"
-#include "ControlDB.h"
+#include "optimizer/ControlDB.h"
 #include "optimizer/RelControl.h"
 #include "arkcmp/CmpStatement.h"
-#include "QCache.h"
+#include "sqlcomp/QCache.h"
 #include <errno.h>
 #include "common/ComCextdecs.h" 
 #include "opt_error.h"
@@ -52,12 +52,12 @@
 #include <string.h>
 #include <dirent.h>
 #include <cstdarg>
-#include "HBaseClient_JNI.h"
+#include "executor/HBaseClient_JNI.h"
 
 #include "vproc.h"
-#include "CmpSeabaseDDL.h"
+#include "sqlcomp/CmpSeabaseDDL.h"
 #include "executor/ExExeUtilCli.h"
-#include "ComUser.h"
+#include "common/ComUser.h"
 
 
 #include "cli/Globals.h"

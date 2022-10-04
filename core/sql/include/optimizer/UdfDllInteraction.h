@@ -33,9 +33,9 @@
 *************************************************************************
 */
 
-#include "LmCommon.h"
-#include "sqludr.h"
-#include "BindWA.h"
+#include "langman/LmCommon.h"
+#include "sqludr/sqludr.h"
+#include "optimizer/BindWA.h"
 #include "executor/ExExeUtilCli.h"
 
 // -----------------------------------------------------------------------

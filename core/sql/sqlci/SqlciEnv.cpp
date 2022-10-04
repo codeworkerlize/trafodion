@@ -41,7 +41,7 @@
 
 
 #define   SQLPARSERGLOBALS_FLAGS  
-#include "SqlParserGlobalsCmn.h"
+#include "parser/SqlParserGlobalsCmn.h"
 
 #include "common/Platform.h"
 

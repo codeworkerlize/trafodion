@@ -39,14 +39,14 @@
 ******************************************************************************
 */
 #define   SQLPARSERGLOBALS_FLAGS
-#include "ComOptIncludes.h"
+#include "common/ComOptIncludes.h"
 #include "GroupAttr.h"
 #include "optimizer/ItemColRef.h"
 #include "RelEnforcer.h"
 #include "RelJoin.h"
-#include "RelExeUtil.h"
-#include "RelMisc.h"
-#include "RelSet.h"
+#include "optimizer/RelExeUtil.h"
+#include "optimizer/RelMisc.h"
+#include "optimizer/RelSet.h"
 #include "RelUpdate.h"
 #include "optimizer/RelScan.h"
 #include "RelDCL.h"
@@ -68,10 +68,10 @@
 #include "comexe/ComTdbHbaseAccess.h"
 #include "comexe/ExplainTuple.h"
 #include "comexe/ComTdbExplain.h"
-#include "SchemaDB.h"
-#include "ControlDB.h"
-#include "NATable.h"
-#include "BindWA.h"
+#include "optimizer/SchemaDB.h"
+#include "optimizer/ControlDB.h"
+#include "optimizer/NATable.h"
+#include "optimizer/BindWA.h"
 #include "common/ComTransInfo.h"
 #include "sqlcomp/DefaultConstants.h"
 #include "comexe/FragDir.h"
@@ -81,15 +81,15 @@
 #include "comexe/ComQueue.h"
 #include "common/ComSqlId.h"
 #include "MVInfo.h"
-#include "StmtDDLCreateTable.h"
+#include "parser/StmtDDLCreateTable.h"
 
-#include "CmpDDLCatErrorCodes.h"
+#include "sqlcomp/CmpDDLCatErrorCodes.h"
 
 // need for authorization checks
-#include "ComUser.h"
-#include "CmpSeabaseDDL.h"
+#include "common/ComUser.h"
+#include "sqlcomp/CmpSeabaseDDL.h"
 #include "sqlcomp/PrivMgrCommands.h"
-#include "PrivMgrComponentPrivileges.h"
+#include "sqlcomp/PrivMgrComponentPrivileges.h"
 // end authorization checks
 
 #ifndef HFS2DM
@@ -107,7 +107,7 @@
 
 #include "parser/SqlParserGlobals.h"   // Parser Flags
 
-//#include "HBaseClient_JNI.h"
+//#include "executor/HBaseClient_JNI.h"
 //
 
 // this comes from GenExplain.cpp (sorry, should have a header file)

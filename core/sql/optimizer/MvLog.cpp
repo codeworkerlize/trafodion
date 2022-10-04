@@ -37,13 +37,13 @@
 
 #include "MvLog.h"
 
-#include "BindWA.h"
-#include "NATable.h"
+#include "optimizer/BindWA.h"
+#include "optimizer/NATable.h"
 #include "PartFunc.h"
-#include "ItemOther.h"
+#include "optimizer/ItemOther.h"
 #include "ItemLog.h"
 #include "ItemFunc.h"
-#include "AllRelExpr.h"
+#include "optimizer/AllRelExpr.h"
 #include "ChangesTable.h"
 #include "common/ComMvAttributeBitmap.h"
 

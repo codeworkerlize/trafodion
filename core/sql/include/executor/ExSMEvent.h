@@ -24,7 +24,7 @@
 #define EXSM_EVENT_H
 
 #include <time.h>
-#include "../seamonster/src/sm.h"
+#include "seabed/sm.h"
 
 // The ExSMEvent class serves two purposes:
 //

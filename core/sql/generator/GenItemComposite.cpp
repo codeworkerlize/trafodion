@@ -36,16 +36,16 @@
 ******************************************************************************
 */
 
-#include "Generator.h"
+#include "generator/Generator.h"
 #include "GenExpGenerator.h"
 #include "exp_function.h"
 #include "ExpComposite.h"
-#include "exp_datetime.h"
+#include "exp/exp_datetime.h"
 #include "exp_math_func.h"
 #include "common/CharType.h"
 #include "common/NumericType.h"
-#include "CompositeType.h"
-#include "RelMisc.h"
+#include "common/CompositeType.h"
+#include "optimizer/RelMisc.h"
 #include "ItemFuncUDF.h"
 
 // create nested list of expression attributes corresponding to type.

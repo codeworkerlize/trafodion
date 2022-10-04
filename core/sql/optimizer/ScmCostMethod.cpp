@@ -37,26 +37,26 @@
 */
 
 #include "GroupAttr.h"
-#include "AllRelExpr.h"
+#include "optimizer/AllRelExpr.h"
 #include "RelPackedRows.h"
 #include "RelSequence.h"
 #include "RelSample.h"
-#include "AllItemExpr.h"
+#include "optimizer/AllItemExpr.h"
 #include "ItemSample.h"
-#include "opt.h"
+#include "optimizer/opt.h"
 #include "EstLogProp.h"
 #include "sqlcomp/DefaultConstants.h"
-#include "ItemOther.h"
+#include "optimizer/ItemOther.h"
 #include "ScanOptimizer.h"
 #include "SimpleScanOptimizer.h"
-#include "NAFileSet.h"
-#include "SchemaDB.h"
+#include "optimizer/NAFileSet.h"
+#include "optimizer/SchemaDB.h"
 #include "CostMethod.h"
 #include "Cost.h"
 #include "NodeMap.h"
 
 #include "arkcmp/CmpStatement.h"
-#include "sqludr.h"
+#include "sqludr/sqludr.h"
 #include "AppliedStatMan.h"
 #include <math.h>
 

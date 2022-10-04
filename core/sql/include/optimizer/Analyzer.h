@@ -37,7 +37,7 @@
 
 #include "GroupAttr.h"
 #include "MVCandidates.h"
-#include "RelRoutine.h"
+#include "optimizer/RelRoutine.h"
 #include "arkcmp/CmpStatement.h"
 
 // Classes Defined in this file

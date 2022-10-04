@@ -34,7 +34,7 @@
 #include "arkcmp/CmpISPStd.h"
 #include "common/ComDistribution.h"
 #include "ComVersionNodeInfo.h"
-#include "ComObjectName.h"
+#include "common/ComObjectName.h"
 #include "common/ComSchemaName.h"
 #include "common/ComGuardianFileNameParts.h"
 #include "ComPointerList.h"

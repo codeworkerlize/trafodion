@@ -41,7 +41,7 @@
 #include "common/NumericType.h"
 #include "common/str.h"
 #include "exp/exp_clause_derived.h"
-#include "exp_datetime.h"
+#include "exp/exp_datetime.h"
 
 #include <cextdecs/cextdecs.h>
 

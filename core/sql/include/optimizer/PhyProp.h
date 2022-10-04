@@ -37,12 +37,12 @@
 */
 
 // -----------------------------------------------------------------------
-#include "SchemaDB.h"
+#include "optimizer/SchemaDB.h"
 #include "PartFunc.h"
 #include "RelEnforcer.h"
 #include "PartReq.h"
 #include "RelEnforcer.h"
-#include "opt.h"
+#include "optimizer/opt.h"
 
 #include "LookupTable.h"
 

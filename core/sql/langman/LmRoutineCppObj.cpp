@@ -29,7 +29,7 @@
 #include "LmRoutineCppObj.h"
 #include "LmParameter.h"
 #include "LmLangManagerC.h"
-#include "ComUser.h"
+#include "common/ComUser.h"
 
 // Utility method to set up a "wall" before and after a buffer.
 // This wall is set to a specific pattern. If someone accidentally

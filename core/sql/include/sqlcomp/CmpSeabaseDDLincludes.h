@@ -1,108 +1,89 @@
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
+
 
 #ifndef _CMP_SEABASE_DDL_INCLUDES_H_
 #define _CMP_SEABASE_DDL_INCLUDES_H_
 
 // declaration of the yacc parser and its result
-#ifndef   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
-#define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
+#ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
+#define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
-#ifndef   SQLPARSERGLOBALS_LEX_AND_PARSE
-#define   SQLPARSERGLOBALS_LEX_AND_PARSE
+#ifndef SQLPARSERGLOBALS_LEX_AND_PARSE
+#define SQLPARSERGLOBALS_LEX_AND_PARSE
 #endif
 
-#define   SQLPARSERGLOBALS_FLAGS
-#define   SQLPARSERGLOBALS_NADEFAULTS_SET
-#include "SqlParserGlobalsCmn.h"
+#define SQLPARSERGLOBALS_FLAGS
+#define SQLPARSERGLOBALS_NADEFAULTS_SET
+#include "parser/SqlParserGlobalsCmn.h"
 
-#include "ComObjectName.h"
-#include "ComUser.h"
+#include "common/ComObjectName.h"
+#include "common/ComUser.h"
 
-#include "StmtDDLCreateTable.h"
-#include "StmtDDLCreateTrigger.h"
-#include "StmtDDLDropTrigger.h"
-#include "StmtDDLDropTable.h"
-#include "StmtDDLAlterTableRename.h"
-#include "StmtDDLAlterTableStoredDesc.h"
-#include "StmtDDLCreateIndex.h"
-#include "StmtDDLPopulateIndex.h"
-#include "StmtDDLDropIndex.h"
-#include "StmtDDLAlterIndexHBaseOptions.h"
-#include "StmtDDLAlterTableAddColumn.h"
-#include "StmtDDLAlterTableDropColumn.h"
-#include "StmtDDLAlterTableAlterColumn.h"
-#include "StmtDDLAlterTableAlterColumnSetSGOption.h"
-#include "StmtDDLAlterTableHBaseOptions.h"
-#include "StmtDDLAlterTablePartition.h"
-#include "StmtDDLAlterTableAddPartition.h"
-#include "StmtDDLAlterTableMountPartition.h"
-#include "StmtDDLAlterTableUnmountPartition.h"
-#include "StmtDDLAlterTableDropPartition.h"
-#include "StmtDDLAlterTableTruncatePartition.h"
-#include "StmtDDLAlterTableRenamePartition.h"
-#include "StmtDDLAlterTableSplitPartition.h"
-#include "StmtDDLAddConstraintPK.h"
-#include "StmtDDLAddConstraintRIArray.h"
-#include "StmtDDLAddConstraintUniqueArray.h"
-#include "StmtDDLGrant.h"
-#include "StmtDDLRevoke.h"
-#include "StmtDDLDropSchema.h"
-#include "StmtDDLRegisterUser.h"
-#include "StmtDDLRegisterComponent.h"
-#include "StmtDDLCreateView.h"
-#include "StmtDDLAlterTableDisableIndex.h"
-#include "StmtDDLAlterTableEnableIndex.h"
-#include "StmtDDLCreateDropSequence.h"
-#include "StmtDDLCreateComponentPrivilege.h"
-#include "StmtDDLDropComponentPrivilege.h"
-#include "StmtDDLGrantComponentPrivilege.h"
-#include "StmtDDLRevokeComponentPrivilege.h"
-#include "StmtDDLRegisterComponent.h"
-#include "StmtDDLCleanupObjects.h"
-#include "StmtDDLAlterTableAttribute.h"
-#include "StmtDDLRegOrUnregHive.h"
-#include "StmtDDLNamespace.h"
-#include "StmtDDLCommentOn.h"
+#include "parser/StmtDDLCreateTable.h"
+#include "parser/StmtDDLCreateTrigger.h"
+#include "parser/StmtDDLDropTrigger.h"
+#include "parser/StmtDDLDropTable.h"
+#include "parser/StmtDDLAlterTableRename.h"
+#include "parser/StmtDDLAlterTableStoredDesc.h"
+#include "parser/StmtDDLCreateIndex.h"
+#include "parser/StmtDDLPopulateIndex.h"
+#include "parser/StmtDDLDropIndex.h"
+#include "parser/StmtDDLAlterIndexHBaseOptions.h"
+#include "parser/StmtDDLAlterTableAddColumn.h"
+#include "parser/StmtDDLAlterTableDropColumn.h"
+#include "parser/StmtDDLAlterTableAlterColumn.h"
+#include "parser/StmtDDLAlterTableAlterColumnSetSGOption.h"
+#include "parser/StmtDDLAlterTableHBaseOptions.h"
+#include "parser/StmtDDLAlterTablePartition.h"
+#include "parser/StmtDDLAlterTableAddPartition.h"
+#include "parser/StmtDDLAlterTableMountPartition.h"
+#include "parser/StmtDDLAlterTableUnmountPartition.h"
+#include "parser/StmtDDLAlterTableDropPartition.h"
+#include "parser/StmtDDLAlterTableTruncatePartition.h"
+#include "parser/StmtDDLAlterTableRenamePartition.h"
+#include "parser/StmtDDLAlterTableSplitPartition.h"
+#include "parser/StmtDDLAddConstraintPK.h"
+#include "parser/StmtDDLAddConstraintRIArray.h"
+#include "parser/StmtDDLAddConstraintUniqueArray.h"
+#include "parser/StmtDDLGrant.h"
+#include "parser/StmtDDLRevoke.h"
+#include "parser/StmtDDLDropSchema.h"
+#include "parser/StmtDDLRegisterUser.h"
+#include "parser/StmtDDLRegisterComponent.h"
+#include "parser/StmtDDLCreateView.h"
+#include "parser/StmtDDLAlterTableDisableIndex.h"
+#include "parser/StmtDDLAlterTableEnableIndex.h"
+#include "parser/StmtDDLCreateDropSequence.h"
+#include "parser/StmtDDLCreateComponentPrivilege.h"
+#include "parser/StmtDDLDropComponentPrivilege.h"
+#include "parser/StmtDDLGrantComponentPrivilege.h"
+#include "parser/StmtDDLRevokeComponentPrivilege.h"
+#include "parser/StmtDDLRegisterComponent.h"
+#include "parser/StmtDDLCleanupObjects.h"
+#include "parser/StmtDDLAlterTableAttribute.h"
+#include "parser/StmtDDLRegOrUnregHive.h"
+#include "parser/StmtDDLNamespace.h"
+#include "parser/StmtDDLCommentOn.h"
 
-#include "ElemDDLHbaseOptions.h"
-#include "ElemDDLParamDefArray.h"
-#include "ElemDDLParamDef.h"
-#include "ElemDDLConstraintPK.h"
-#include "StmtDDLDropConstraint.h"
-#include "ElemDDLSGOptions.h"
+#include "parser/ElemDDLHbaseOptions.h"
+#include "parser/ElemDDLParamDefArray.h"
+#include "parser/ElemDDLParamDef.h"
+#include "parser/ElemDDLConstraintPK.h"
+#include "parser/StmtDDLDropConstraint.h"
+#include "parser/ElemDDLSGOptions.h"
 #include "parser/ElemDDLList.h"
-#include "ElemDDLQualName.h"
+#include "parser/ElemDDLQualName.h"
 
-#include "CmpDDLCatErrorCodes.h"
+#include "sqlcomp/CmpDDLCatErrorCodes.h"
 
-#include "SchemaDB.h"
-#include "CmpSeabaseDDL.h"
-#include "CmpSeabaseDDLupgrade.h"
-#include "CmpDescribe.h"
+#include "optimizer/SchemaDB.h"
+#include "sqlcomp/CmpSeabaseDDL.h"
+#include "sqlcomp/CmpSeabaseDDLupgrade.h"
+#include "sqlcomp/CmpDescribe.h"
 
-#include "ExpHbaseInterface.h"
+#include "exp/ExpHbaseInterface.h"
 
 #include "executor/ExExeUtilCli.h"
-#include "Generator.h"
+#include "generator/Generator.h"
 
 #include "common/ComCextdecs.h"
 
@@ -114,13 +95,13 @@
 // multiplier to encode minor & update versions into single value
 // increased multiplier allows for more than single digit update number
 // smaller multiplier allows compatibility to decode old versions
-#define VERSION_MULTIPLE_LARGE 1000
-#define VERSION_MULTIPLE_SMALL 10
+#define VERSION_MULTIPLE_LARGE   1000
+#define VERSION_MULTIPLE_SMALL   10
 #define HBASE_OPTIONS_MAX_LENGTH 6000
 
 // new metadata version 2.6.0 changed for release 2.6.0.
 // old metadata version 2.1
-enum { 
+enum {
   METADATA_MAJOR_VERSION = 2,
   METADATA_OLD_MAJOR_VERSION = 2,
   METADATA_MINOR_VERSION = 6,

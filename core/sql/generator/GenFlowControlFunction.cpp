@@ -29,9 +29,9 @@
 
 // Includes
 //
-#include "ItemExpr.h"
+#include "optimizer/ItemExpr.h"
 #include "ItmFlowControlFunction.h"
-#include "Generator.h"
+#include "generator/Generator.h"
 #include "GenExpGenerator.h"
 #include "exp/exp_clause_derived.h"
 

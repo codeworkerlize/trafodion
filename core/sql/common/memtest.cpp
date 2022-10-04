@@ -48,7 +48,7 @@ void memtest_vers2_print() {};
 #include "seabed/ms.h"
 #include "seabed/fs.h"
 extern void my_mpi_fclose();
-#include "SCMVersHelp.h"
+#include "common/SCMVersHelp.h"
 DEFINE_DOVERS(memtest)
 
 

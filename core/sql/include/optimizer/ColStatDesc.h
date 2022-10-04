@@ -42,7 +42,7 @@
 // -----------------------------------------------------------------------
 
 #include "Stats.h"  /* includes CostScalar.h, Collections.h, ValueDesc.h ... */
-#include "NATable.h"
+#include "optimizer/NATable.h"
 #include "common/SharedPtr.h"
 #include "common/SharedPtrCollections.h"
 

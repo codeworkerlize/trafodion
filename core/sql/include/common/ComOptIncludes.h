@@ -42,11 +42,11 @@
 
 #include <string.h>
 #include <ctype.h>
-#include "RelExpr.h"
-#include "ItemExpr.h"
-#include "ItemExprList.h"
+#include "optimizer/RelExpr.h"
+#include "optimizer/ItemExpr.h"
+#include "optimizer/ItemExprList.h"
 #include "common/CharType.h"
-#include "CompositeType.h"
+#include "common/CompositeType.h"
 #include "common/DatetimeType.h"
 #include "common/IntervalType.h"
 #include "common/MiscType.h"

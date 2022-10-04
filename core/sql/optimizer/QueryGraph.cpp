@@ -23,7 +23,7 @@
 // code that is not compiled, but for some reason is reported
 // just excluding the entire file
 #include "AppliedStatMan.h"
-#include "Analyzer.h"
+#include "optimizer/Analyzer.h"
 
 void QueryAnalysis::initializeQueryGraphs()
 {

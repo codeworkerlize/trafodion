@@ -25,11 +25,11 @@
 #define _MVCANDIDATES_H_
 
 #include "qmscommon/QRDescriptor.h"
-#include "QRSharedPtr.h"
+#include "qmscommon/QRSharedPtr.h"
 #include "optimizer/RelScan.h"
-#include "RelGrby.h"
+#include "optimizer/RelGrby.h"
 #include "optimizer/ValueDesc.h"
-#include "CmpMain.h"
+#include "sqlcomp/CmpMain.h"
 
 // Classes defined in this file.
 class MVCandidateException;

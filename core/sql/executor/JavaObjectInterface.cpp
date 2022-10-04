@@ -25,7 +25,7 @@
 #include "qmscommon/QRLogger.h"
 #include "cli/Globals.h"
 #include "cli/Context.h"
-#include "ComUser.h"
+#include "common/ComUser.h"
 #include "LmJavaOptions.h"
 #include "ex_ex.h"
 

@@ -37,35 +37,35 @@
 
 #define   SQLPARSERGLOBALS_FLAGS        // must precede all #include's
 #include "AllStmtDDL.h"
-#include "BindWA.h"
+#include "optimizer/BindWA.h"
 // QSTUFF
-#include "NormWA.h"
+#include "optimizer/NormWA.h"
 // QSTUFF
 // #include "CatError.h"
 // #define  CAT_ALTER_CANNOT_ADD_NOT_DROPPABLE_CONSTRAINT       1053
 // The above are commented out because we use sqlcode 3067 instead.
 #include "common/ComASSERT.h"
-#include "ComObjectName.h"
-#include "ComOperators.h"
+#include "common/ComObjectName.h"
+#include "common/ComOperators.h"
 #include "common/CmpCommon.h"
-#include "CmpMain.h"
+#include "sqlcomp/CmpMain.h"
 #include "ElemDDLPartitionSystem.h"
 #include "ElemDDLUdrLibrary.h"
 #include "ElemDDLLike.h"
 #include "ElemDDLConstraintCheck.h"
 #include "ElemDDLConstraintRI.h"
 #include "ElemDDLReferences.h"
-#include "ElemDDLPartitionList.h"
-#include "NATable.h"
-#include "RelMisc.h"
+#include "parser/ElemDDLPartitionList.h"
+#include "optimizer/NATable.h"
+#include "optimizer/RelMisc.h"
 #include "optimizer/TableDesc.h"
 #include "RelJoin.h"   
 #include "parser/SqlParserGlobals.h"           // must be last #include
 #include "optimizer/Triggers.h"
-#include "NormWA.h" 
-#include "Analyzer.h"
+#include "optimizer/NormWA.h" 
+#include "optimizer/Analyzer.h"
 #include "qmscommon/QRDescriptor.h"
-#include "StmtDDLAlterTableTruncatePartition.h"
+#include "parser/StmtDDLAlterTableTruncatePartition.h"
 
 // -----------------------------------------------------------------------
 // Forward declarations

@@ -43,7 +43,7 @@
 #include <iosfwd>
 using namespace std;
 #include <string.h>
-#include "ComOperators.h"
+#include "common/ComOperators.h"
 #include "common/ComSmallDefs.h"
 #include "common/ComSizeDefs.h"
 #include "common/NABoolean.h"

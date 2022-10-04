@@ -33,7 +33,7 @@
 #include <vector>
 #include "exp_function.h"
 #include "common/ComDistribution.h"
-#include "ComUser.h"
+#include "common/ComUser.h"
 #include "sqlcomp/PrivMgrDefs.h"
 
 // ****************************************************************************

@@ -38,7 +38,7 @@
 */
 
 #include "common/Platform.h"
-#include "wstr.h"
+#include "common/wstr.h"
 
 
 #include "cli_stdh.h"
@@ -56,7 +56,7 @@
 #include "common/feerrors.h"
 
 #include <time.h>
-//#include "cextdecs/cextdecs.h"
+#include "common/cextdecs.h"
 #include "sqlmxevents/logmxevent.h"
 //#include "common/NAString.h"
 #include "guardian/kphandlz.h"
@@ -72,7 +72,7 @@
 #endif
 #include "guardian/pdctctlz.h"
 //#include "ComRegAPI.h"
-#include "cli/memorymonitor.h"
+
 
 #include "common/dfs2rec.h"
 #include "cli/Statement.h"

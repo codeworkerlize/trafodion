@@ -45,7 +45,7 @@
 #include "common/ComSmallDefs.h"
 #include "optimizer/ObjectNames.h"
 #include "common/ComASSERT.h"
-#include "ElemDDLQualName.h"
+#include "parser/ElemDDLQualName.h"
 
 // ElemDDLCreateMVChangesClause
 

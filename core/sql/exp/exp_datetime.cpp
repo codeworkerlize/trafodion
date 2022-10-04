@@ -41,7 +41,7 @@
 
 #include "exp/exp_stdh.h"
 #include "SQLTypeDefs.h"
-#include "exp_datetime.h"
+#include "exp/exp_datetime.h"
 #include "exp_interval.h"
 #include "exp/exp_clause_derived.h"
 #include "common/NAAssert.h"

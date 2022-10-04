@@ -23,7 +23,7 @@
 
 #ifndef PRIVMGR_COMPONENTS_H
 #define PRIVMGR_COMPONENTS_H
-#include "PrivMgrMD.h"
+#include "sqlcomp/PrivMgrMD.h"
 #include "sqlcomp/PrivMgrDefs.h"
 #include <string>
 
@@ -33,9 +33,9 @@ class PrivMgrMDTable;
 // *****************************************************************************
 // *
 // * File:         PrivMgrComponents.h
-// * Description:  This file contains classes that access and maintain the 
+// * Description:  This file contains classes that access and maintain the
 // *               contents of the Privilege Manager Components Table
-// *               
+// *
 // * Language:     C++
 // *
 // *****************************************************************************
@@ -45,91 +45,59 @@ class PrivMgrMDTable;
 // * Description:  This class represents the component table which contains:
 // *                - fully qualified table name
 // *****************************************************************************
-class PrivMgrComponents : public PrivMgr
-{
-public:
+class PrivMgrComponents : public PrivMgr {
+ public:
+  // -------------------------------------------------------------------
+  // Constructors and destructors:
+  // -------------------------------------------------------------------
+  PrivMgrComponents(const std::string &metadataLocation, ComDiagsArea *pDiags = NULL);
+  PrivMgrComponents(const PrivMgrComponents &other);
+  virtual ~PrivMgrComponents();
 
-// -------------------------------------------------------------------
-// Constructors and destructors:
-// -------------------------------------------------------------------
-   PrivMgrComponents(
-      const std::string & metadataLocation,
-      ComDiagsArea * pDiags = NULL);
-   PrivMgrComponents(const PrivMgrComponents &other);
-   virtual ~PrivMgrComponents();
+  // -------------------------------------------------------------------
+  // Public functions:
+  // -------------------------------------------------------------------
+  void clear();
 
-// -------------------------------------------------------------------
-// Public functions:
-// -------------------------------------------------------------------
-   void clear();
+  PrivStatus describeComponents(const std::string &componentName, std::string &componentUIDString,
+                                int64_t &componentUID, std::vector<std::string> &outlines);
 
-   PrivStatus describeComponents(
-        const  std::string & componentName, 
-        std::string & componentUIDString, 
-        int64_t & componentUID, 
-        std::vector<std::string> & outlines);
-   
-   PrivStatus dropAll();
-   
-   bool exists(const std::string & componentName);
-   
-   PrivStatus fetchByName(
-      const std::string & componentName,
-      std::string & componentUIDString,
-      int64_t & componentUID,
-      bool & isSystem,
-      std::string & componentDescription);
+  PrivStatus dropAll();
 
-  bool isReservedComponent( const std::string &componentName);
+  bool exists(const std::string &componentName);
 
-//TODO: Not currently implemented.
-   PrivStatus fetchByUID(
-      int64_t componentUID,
-      std::string & componentName,
-      bool & isSystem,
-      std::string & componentDescription);
-      
-   int64_t getCount();
-   
-   PrivStatus registerComponent(
-      const std::string &componentName,
-      const bool isSystem,
-      const std::string & componentDescription,
-      const bool existsErrorOK = false);
-       
-   PrivStatus registerComponentInternal(
-      const std::string & componentName,
-      const int64_t componentUID,
-      const bool isSystem,
-      const std::string & componentDescription);
-      
-   PrivStatus unregisterComponent(
-      const std::string &componentName,
-      PrivDropBehavior dropBehavior);
-       
-private: 
-// -------------------------------------------------------------------
-// Private functions:
-// -------------------------------------------------------------------
-   PrivMgrComponents();
-      
-   int64_t getUniqueID();
+  PrivStatus fetchByName(const std::string &componentName, std::string &componentUIDString, int64_t &componentUID,
+                         bool &isSystem, std::string &componentDescription);
 
-// -------------------------------------------------------------------
-// Data Members:
-// -------------------------------------------------------------------
-      
-std::string        fullTableName_;
-PrivMgrMDTable   & myTable_;
+  bool isReservedComponent(const std::string &componentName);
 
+  // TODO: Not currently implemented.
+  PrivStatus fetchByUID(int64_t componentUID, std::string &componentName, bool &isSystem,
+                        std::string &componentDescription);
+
+  int64_t getCount();
+
+  PrivStatus registerComponent(const std::string &componentName, const bool isSystem,
+                               const std::string &componentDescription, const bool existsErrorOK = false);
+
+  PrivStatus registerComponentInternal(const std::string &componentName, const int64_t componentUID,
+                                       const bool isSystem, const std::string &componentDescription);
+
+  PrivStatus unregisterComponent(const std::string &componentName, PrivDropBehavior dropBehavior);
+
+ private:
+  // -------------------------------------------------------------------
+  // Private functions:
+  // -------------------------------------------------------------------
+  PrivMgrComponents();
+
+  int64_t getUniqueID();
+
+  // -------------------------------------------------------------------
+  // Data Members:
+  // -------------------------------------------------------------------
+
+  std::string fullTableName_;
+  PrivMgrMDTable &myTable_;
 };
-#endif // PRIVMGR_COMPONENTS_H
-
-
-
-
-
-
-
-
-
+#endif  // PRIVMGR_COMPONENTS_H

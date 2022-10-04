@@ -54,12 +54,11 @@
 
 #include "exp/ExpHbaseDefs.h"
 
-#include "HBaseClient_JNI.h"
-#include "MonarchClient_JNI.h"
+#include "executor/HBaseClient_JNI.h"
 #include "comexe/ComTdbHbaseAccess.h"
-#include "CmpSeabaseDDLincludes.h"
-#include "ExDDLValidator.h"
-#include "MemoryTableClient.h"
+#include "sqlcomp/CmpSeabaseDDLincludes.h"
+#include "executor/ExDDLValidator.h"
+#include "executor/MemoryTableClient.h"
 
 #define INLINE_COLNAME_LEN 256
 
@@ -1280,7 +1279,6 @@ private:
   HTableClient_JNI *asyncHtc_;
   Int32  retCode_;
   ComStorageType storageType_;
-  MonarchClient_JNI *mClient_;
   MTableClient_JNI *mtc_;
   MTableClient_JNI *asyncMtc_;
   NABoolean bigtable_;

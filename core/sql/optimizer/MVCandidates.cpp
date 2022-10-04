@@ -23,13 +23,13 @@
 
 #include "MVCandidates.h"
 #include "QRDescGenerator.h"
-#include "Analyzer.h"
-#include "NormWA.h"
-#include "parser.h"
+#include "optimizer/Analyzer.h"
+#include "optimizer/NormWA.h"
+#include "sqlcomp/parser.h"
 #include "RelJoin.h"
 #include "ItemLog.h"
 #include "RelUpdate.h"
-#include "ItemOther.h"
+#include "optimizer/ItemOther.h"
 #include "MVInfo.h"
 
 #ifdef NA_DEBUG_GUI

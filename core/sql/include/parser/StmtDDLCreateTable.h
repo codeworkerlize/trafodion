@@ -41,15 +41,15 @@
 
 #include "common/ComSmallDefs.h"
 #include "ElemDDLNode.h"
-#include "ElemDDLColDefArray.h"
-#include "ElemDDLColRefArray.h"
+#include "parser/ElemDDLColDefArray.h"
+#include "parser/ElemDDLColRefArray.h"
 #include "ElemDDLDivisionClause.h"
 #include "ElemDDLSaltOptions.h"
 #include "ElemDDLReplicateClause.h"
 #include "ElemDDLLikeCreateTable.h"
 #include "ElemDDLLocation.h"
 #include "ElemDDLPartitionArray.h"
-#include "ElemDDLSGOptions.h"
+#include "parser/ElemDDLSGOptions.h"
 #include "ElemDDLTableFeature.h"
 #include "ElemDDLFileAttrMisc.h"
 #include "ItemConstValueArray.h"
@@ -58,8 +58,8 @@
 #include "StmtDDLNode.h"
 #include "StmtDDLAddConstraintArray.h"
 #include "StmtDDLAddConstraintCheckArray.h"
-#include "StmtDDLAddConstraintRIArray.h"
-#include "StmtDDLAddConstraintUniqueArray.h"
+#include "parser/StmtDDLAddConstraintRIArray.h"
+#include "parser/StmtDDLAddConstraintUniqueArray.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

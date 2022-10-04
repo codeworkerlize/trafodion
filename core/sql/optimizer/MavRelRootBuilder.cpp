@@ -35,9 +35,9 @@
 ******************************************************************************
 */
 
-#include "Sqlcomp.h"  // for SQLDoublePrecision
-#include "AllItemExpr.h"
-#include "AllRelExpr.h"
+#include "optimizer/Sqlcomp.h"  // for SQLDoublePrecision
+#include "optimizer/AllItemExpr.h"
+#include "optimizer/AllRelExpr.h"
 #include "MVInfo.h"
 #include "MvRefreshBuilder.h"
 #include "MavRelRootBuilder.h"

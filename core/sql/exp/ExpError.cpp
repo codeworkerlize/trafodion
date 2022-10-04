@@ -40,7 +40,7 @@
 #include "export/ComDiags.h"
 #include "common/ComMisc.h"
 #include "exp/exp_clause_derived.h"
-#include "exp_datetime.h"
+#include "exp/exp_datetime.h"
 #include "exp/ExpHbaseDefs.h"
 
 // Single allocation of buf is split up to be used for opstrings,

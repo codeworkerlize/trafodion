@@ -39,7 +39,7 @@
 #include "common/Platform.h"
 #include "common/ComASSERT.h"
 #include "common/ComMPLoc.h"
-#include "ComOperators.h"
+#include "common/ComOperators.h"
 #include "common/ComRtUtils.h"
 #include "common/NAString.h"
 #include "parser/SqlParserGlobals.h"			// last

@@ -37,12 +37,12 @@
 
 #include "BinderUtils.h"
 
-#include "AllItemExpr.h"
-#include "ItemOther.h"
+#include "optimizer/AllItemExpr.h"
+#include "optimizer/ItemOther.h"
 #include "optimizer/ItemColRef.h"
-#include "NATable.h"
+#include "optimizer/NATable.h"
 #include "ComMvDefs.h"
-#include "BindWA.h"
+#include "optimizer/BindWA.h"
 
 //----------------------------------------------------------------------------
 // extract the name from a reference or a rename

@@ -35,7 +35,7 @@
  */
 
 #include "export/ComDiags.h"
-#include "ElemDDLSGOptions.h"
+#include "parser/ElemDDLSGOptions.h"
 #include "ElemDDLSGOption.h"
 #define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #include "parser/SqlParserGlobals.h"

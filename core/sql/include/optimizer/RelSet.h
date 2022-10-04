@@ -38,8 +38,8 @@
 
 
 #include "optimizer/ObjectNames.h"
-#include "RelExpr.h"
-#include "Rel3GL.h"
+#include "optimizer/RelExpr.h"
+#include "optimizer/Rel3GL.h"
 // -----------------------------------------------------------------------
 // contents of this file
 // -----------------------------------------------------------------------

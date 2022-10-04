@@ -41,7 +41,7 @@
 #include "ScratchFile.h"
 #include "common/Ipc.h"
 class ex_queue;
-#include "ExScheduler.h"
+#include "executor/ExScheduler.h"
 class ScratchFile;
 
 class ScratchFileConnection: public IpcConnection

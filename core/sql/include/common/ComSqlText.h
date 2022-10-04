@@ -40,7 +40,7 @@
 
 // -----------------------------------------------------------------------
 
-#include "ComOperators.h"
+#include "common/ComOperators.h"
 #include "common/ComSmallDefs.h"
 #include "common/NABoolean.h"
 #include "common/NAString.h"

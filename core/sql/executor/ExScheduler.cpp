@@ -39,11 +39,11 @@
 
 #include <dlfcn.h>  
 #include "common/Platform.h"
-#include "ex_stdh.h"
+#include "executor/ex_stdh.h"
 #include "comexe/ComTdb.h"
-#include "ex_tcb.h"
+#include "executor/ex_tcb.h"
 #include "exp/exp_expr.h"
-#include "ExScheduler.h"
+#include "executor/ExScheduler.h"
 #include "executor/ExStats.h"
 #include "ex_error.h"
 

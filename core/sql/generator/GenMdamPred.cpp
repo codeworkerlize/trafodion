@@ -35,7 +35,7 @@
 ******************************************************************************
 */
 
-#include "AllItemExpr.h"
+#include "optimizer/AllItemExpr.h"
 #include "GenExpGenerator.h"
 #include "comexe/ComKeyMDAM.h"
 // -----------------------------------------------------------------------

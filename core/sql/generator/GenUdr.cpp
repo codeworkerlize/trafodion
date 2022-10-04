@@ -31,23 +31,23 @@
 ******************************************************************************
 */
 
-#include "RelMisc.h"
-#include "RelRoutine.h"
-#include "NARoutine.h"
+#include "optimizer/RelMisc.h"
+#include "optimizer/RelRoutine.h"
+#include "optimizer/NARoutine.h"
 #include "LmExpr.h"
 #include "LmGenUtil.h"
 #include "LmError.h"
 #include "comexe/ComTdbUdr.h"
-#include "Generator.h"
+#include "generator/Generator.h"
 #include "GenExpGenerator.h"
 #include "executor/sql_buffer.h"
 #include "common/NAUserId.h"
-#include "ComUser.h"
+#include "common/ComUser.h"
 #include "comexe/ExplainTuple.h"
 
 #include "comexe/ExplainTupleMaster.h"
 #include "comexe/ComQueue.h"
-#include "UdfDllInteraction.h"
+#include "optimizer/UdfDllInteraction.h"
 #include "GroupAttr.h"
 
 // Helper function to allocate a string in the plan

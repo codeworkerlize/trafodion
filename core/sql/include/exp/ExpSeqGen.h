@@ -43,7 +43,7 @@
 
 #include "common/SequenceGeneratorAttributes.h"
 #include "comexe/ComQueue.h"
-#include "ExpHbaseInterface.h"
+#include "exp/ExpHbaseInterface.h"
 
 #define    ORDER_SEQ_MD_TABLE      "ESG_TRAFODION._ORDER_SG_.ORDER_SEQ_GEN"
 #define    ORDER_SEQ_DEFAULT_QUAL  "NextVal"

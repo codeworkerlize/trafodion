@@ -39,7 +39,7 @@
 
 
 #include "StmtDDLGiveCatalog.h"
-#include "StmtDDLGive.h"    
+#include "parser/StmtDDLGive.h"    
 
 //
 // End of File

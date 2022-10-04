@@ -35,22 +35,22 @@
 ******************************************************************************
 */
 
-#include "Sqlcomp.h"
+#include "optimizer/Sqlcomp.h"
 #include "GroupAttr.h"
 #include "AppliedStatMan.h"
-#include "opt.h"
-#include "PhyProp.h"
+#include "optimizer/opt.h"
+#include "optimizer/PhyProp.h"
 #include "TransRule.h"
-#include "AllRelExpr.h"
+#include "optimizer/AllRelExpr.h"
 #include "RelSample.h"
-#include "AllItemExpr.h"
+#include "optimizer/AllItemExpr.h"
 #include "EstLogProp.h"
 #include "arkcmp/CmpContext.h"
-#include "NormWA.h"
-#include "Analyzer.h"
+#include "optimizer/NormWA.h"
+#include "optimizer/Analyzer.h"
 #include "MultiJoin.h"
-#include "ngram.h"
-#include "parser.h"
+#include "common/ngram.h"
+#include "sqlcomp/parser.h"
 
 // -----------------------------------------------------------------------
 // Global variables

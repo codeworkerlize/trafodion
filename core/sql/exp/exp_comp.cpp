@@ -40,9 +40,9 @@
 
 #include "exp/exp_stdh.h"
 #include "exp/exp_clause_derived.h"
-#include "exp_datetime.h"
+#include "exp/exp_datetime.h"
 #include "common/unicode_char_set.h"
-#include "wstr.h"
+#include "common/wstr.h"
 #include "executor/ex_globals.h"
 
 ex_expr::exp_return_type ex_comp_clause::processNulls(char *op_data[],

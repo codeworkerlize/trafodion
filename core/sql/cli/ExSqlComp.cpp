@@ -39,16 +39,16 @@
 
 #include <ctype.h>
 #include "common/Platform.h"
-//#include "cextdecs/cextdecs.h"
+#include "common/cextdecs.h"
 
-#include "ex_stdh.h"			// TEMP, for ISP testing
+#include "executor/ex_stdh.h"			// TEMP, for ISP testing
 
 #include "common/Platform.h"
 
 
-#include "ExSqlComp.h"
+#include "cli/ExSqlComp.h"
 #include "cli_stdh.h"
-#include "CmpErrors.h"
+#include "arkcmp/CmpErrors.h"
 #include "comexe/CmpMessage.h"
 #include "export/ComDiags.h"
 #include "ShowSchema.h"			// GetControlDefaults class
@@ -57,9 +57,9 @@
 #include "comexe/ComTdb.h"
 #include "ExControlArea.h"
 #include "common/ComTransInfo.h"
-#include "ex_tcb.h"
+#include "executor/ex_tcb.h"
 #include "ex_stored_proc.h"
-#include "ex_transaction.h"
+#include "executor/ex_transaction.h"
 #include "cli/sql_id.h"
 #include "common/ComRtUtils.h"
 

@@ -576,12 +576,7 @@ public:
 
   void clear() { entries_ = 0; hashTable_.clear(); }
 
-  // serialize the bloom filter, the min and the max value into
-  // a sequence of bytes.
-  NABoolean serializeToSearchPredicate(
-         std::string& text, const char* colName, const char* colType,
-         Int32 filterId, std::string& min, std::string& max
-                                      );
+
 
   ULng32 getPackedLength();
   static UInt32 minPackedLength();

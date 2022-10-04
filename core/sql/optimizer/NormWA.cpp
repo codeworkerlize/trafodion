@@ -34,8 +34,8 @@
 
 // -----------------------------------------------------------------------
 
-#include "Sqlcomp.h"
-#include "NormWA.h"
+#include "optimizer/Sqlcomp.h"
+#include "optimizer/NormWA.h"
 #include "arkcmp/CmpContext.h"
 
 #ifdef INCLUDE_SELECTED_HEADERS

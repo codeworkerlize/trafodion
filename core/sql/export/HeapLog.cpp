@@ -42,7 +42,7 @@
 #include <limits.h>
 #include <string.h>
 
-#include "HeapLog.h"
+#include "export/HeapLog.h"
 #include "HeapLogImpl.h"
 
 using namespace std;

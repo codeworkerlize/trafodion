@@ -21,7 +21,7 @@
 // @@@ END COPYRIGHT @@@
 **********************************************************************/
 
-#include "stringBuf.h"
+#include "common/stringBuf.h"
 
 // Explicit function template argument lists are not supported yet 
 // in expression contexts. Use non-template argument instead.

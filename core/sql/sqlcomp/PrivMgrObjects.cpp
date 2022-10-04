@@ -20,13 +20,13 @@
 //
 // @@@ END COPYRIGHT @@@
 //*****************************************************************************
-  
-#include "PrivMgrObjects.h"
 
-#include "PrivMgrMD.h"
+#include "sqlcomp/PrivMgrObjects.h"
+
+#include "sqlcomp/PrivMgrMD.h"
 #include "PrivMgrMDTable.h"
 #include "PrivMgrComponentOperations.h"
-#include "PrivMgrComponentPrivileges.h"
+#include "sqlcomp/PrivMgrComponentPrivileges.h"
 
 #include <string>
 #include <cstdio>
@@ -38,116 +38,92 @@
 #include "comexe/ComQueue.h"
 // CmpCommon.h contains STMTHEAP declaration
 #include "common/CmpCommon.h"
-#include "CmpDDLCatErrorCodes.h"
-#include "ComUser.h"
+#include "sqlcomp/CmpDDLCatErrorCodes.h"
+#include "common/ComUser.h"
 #include "arkcmp/CmpContext.h"
 
-namespace Objects 
-{
+namespace Objects {
 // *****************************************************************************
 // * Class:         MyRow
 // * Description:  This class represents a row in the OBJECTS table containing:
-// *                - UID of the component 
+// *                - UID of the component
 // *                - ANSI name of the component
 // *                - if the component is a system component (intrinsic to Trafodion)
 // *                - Description of the component
-// *                
-// *    An object can be uniquely identified by its ANSI name and object type 
+// *
+// *    An object can be uniquely identified by its ANSI name and object type
 // * or by its UID.
 // *****************************************************************************
-class MyRow : public PrivMgrMDRow
-{
-public:
+class MyRow : public PrivMgrMDRow {
+ public:
+  // -------------------------------------------------------------------
+  // Constructors and destructors:
+  // -------------------------------------------------------------------
+  MyRow(std::string tableName) : PrivMgrMDRow(tableName, OBJECTS_ENUM), objectUID_(0){};
 
-// -------------------------------------------------------------------
-// Constructors and destructors:
-// -------------------------------------------------------------------
-   MyRow(std::string tableName)
-   : PrivMgrMDRow(tableName, OBJECTS_ENUM),
-     objectUID_(0)
-   { };
-   
-   MyRow(const MyRow &other)
-   : PrivMgrMDRow(other)
-   {
-      objectUID_ = other.objectUID_;
-      catalogName_ = other.catalogName_;
-      schemaName_ = other.schemaName_;
-      objectName_ = other.objectName_;
-      objectType_ = other.objectType_;
-      createTime_ = other.createTime_;
-      redefTime_ = other.redefTime_;
-      isValid_ = other.isValid_;
-      objectOwner_ = other.objectOwner_;
-      schemaOwner_ = other.schemaOwner_;
-   };
-   virtual ~MyRow(){};
-   inline void clear() {objectUID_ = 0;};
-   
-   
-// -------------------------------------------------------------------
-// Data Members:
-// -------------------------------------------------------------------
-     
-   int64_t            objectUID_;
-   std::string        catalogName_;
-   std::string        schemaName_;
-   std::string        objectName_;
-   ComObjectType      objectType_;
-   int64_t            createTime_;
-   int64_t            redefTime_;
-   int32_t            objectOwner_;
-   int32_t            schemaOwner_;
-   bool               isValid_;
-   
-private:
-   MyRow();
-   
+  MyRow(const MyRow &other) : PrivMgrMDRow(other) {
+    objectUID_ = other.objectUID_;
+    catalogName_ = other.catalogName_;
+    schemaName_ = other.schemaName_;
+    objectName_ = other.objectName_;
+    objectType_ = other.objectType_;
+    createTime_ = other.createTime_;
+    redefTime_ = other.redefTime_;
+    isValid_ = other.isValid_;
+    objectOwner_ = other.objectOwner_;
+    schemaOwner_ = other.schemaOwner_;
+  };
+  virtual ~MyRow(){};
+  inline void clear() { objectUID_ = 0; };
+
+  // -------------------------------------------------------------------
+  // Data Members:
+  // -------------------------------------------------------------------
+
+  int64_t objectUID_;
+  std::string catalogName_;
+  std::string schemaName_;
+  std::string objectName_;
+  ComObjectType objectType_;
+  int64_t createTime_;
+  int64_t redefTime_;
+  int32_t objectOwner_;
+  int32_t schemaOwner_;
+  bool isValid_;
+
+ private:
+  MyRow();
 };
 
 // *****************************************************************************
 // * Class:         MyTable
 // * Description:  This class represents the COMPONENTS table containing:
-// *                - the fully qualified name of the table 
-// *                - the last row read 
-// *                
-// *    An object can be uniquely identified by its fully-qualified ANSI name 
+// *                - the fully qualified name of the table
+// *                - the last row read
+// *
+// *    An object can be uniquely identified by its fully-qualified ANSI name
 // * or its UID.
 // *****************************************************************************
-class MyTable : public PrivMgrMDTable
-{
-public:
-   MyTable(
-      const std::string & tableName,
-      PrivMgrTableEnum myTableEnum,
-      ComDiagsArea * pDiags) 
-   : PrivMgrMDTable(tableName,OBJECTS_ENUM,pDiags),
-     lastRowRead_(tableName)
-     {};
+class MyTable : public PrivMgrMDTable {
+ public:
+  MyTable(const std::string &tableName, PrivMgrTableEnum myTableEnum, ComDiagsArea *pDiags)
+      : PrivMgrMDTable(tableName, OBJECTS_ENUM, pDiags), lastRowRead_(tableName){};
 
-   inline void clear() { lastRowRead_.clear(); };
+  inline void clear() { lastRowRead_.clear(); };
 
-   virtual PrivStatus insert(const PrivMgrMDRow &row);
-   
-   PrivStatus selectAllWhere(
-      const std::string & whereClause,
-      const std::string & orderByClause,
-      std::vector<MyRow> & rows);
-      
-   virtual PrivStatus selectWhereUnique(
-      const std::string & whereClause,
-      PrivMgrMDRow & row);
-      
-   void setRow(
-      OutputInfo & cliInterface,
-      PrivMgrMDRow & rowOut);
-   
-private:   
-   MyTable();
-   MyRow lastRowRead_;
+  virtual PrivStatus insert(const PrivMgrMDRow &row);
 
+  PrivStatus selectAllWhere(const std::string &whereClause, const std::string &orderByClause, std::vector<MyRow> &rows);
+
+  virtual PrivStatus selectWhereUnique(const std::string &whereClause, PrivMgrMDRow &row);
+
+  void setRow(OutputInfo &cliInterface, PrivMgrMDRow &rowOut);
+
+ private:
+  MyTable();
+  MyRow lastRowRead_;
 };
-}//End namespace Objects
+}  // End namespace Objects
 using namespace Objects;
 
 // *****************************************************************************
@@ -155,54 +131,36 @@ using namespace Objects;
 // *****************************************************************************
 
 PrivMgrObjects::PrivMgrObjects()
-: PrivMgr(),
-  fullTableName_(trafMetadataLocation_ + "." + SEABASE_OBJECTS),
-  myTable_(*new MyTable(fullTableName_,OBJECTS_ENUM, pDiags_))
-{ };
+    : PrivMgr(),
+      fullTableName_(trafMetadataLocation_ + "." + SEABASE_OBJECTS),
+      myTable_(*new MyTable(fullTableName_, OBJECTS_ENUM, pDiags_)){};
 
 // -----------------------------------------------------------------------
 // Construct a PrivMgrObjects object for a new component.
 // -----------------------------------------------------------------------
-PrivMgrObjects::PrivMgrObjects (
-   const std::string & metadataLocation,
-   ComDiagsArea * pDiags)
-: PrivMgr(metadataLocation,pDiags),
-  fullTableName_(trafMetadataLocation_ + "." + SEABASE_OBJECTS),
-  myTable_(*(new MyTable(fullTableName_,OBJECTS_ENUM, pDiags))) 
-{ } 
+PrivMgrObjects::PrivMgrObjects(const std::string &metadataLocation, ComDiagsArea *pDiags)
+    : PrivMgr(metadataLocation, pDiags),
+      fullTableName_(trafMetadataLocation_ + "." + SEABASE_OBJECTS),
+      myTable_(*(new MyTable(fullTableName_, OBJECTS_ENUM, pDiags))) {}
 
-PrivMgrObjects::PrivMgrObjects (
-   const std::string &trafMetadataLocation,
-   const std::string &metadataLocation,
-   ComDiagsArea *pDiags)
-: PrivMgr(trafMetadataLocation, metadataLocation, pDiags),
-  fullTableName_(trafMetadataLocation_ + "." + SEABASE_OBJECTS),
-  myTable_(*(new MyTable(fullTableName_,OBJECTS_ENUM, pDiags))) 
-{ }
+PrivMgrObjects::PrivMgrObjects(const std::string &trafMetadataLocation, const std::string &metadataLocation,
+                               ComDiagsArea *pDiags)
+    : PrivMgr(trafMetadataLocation, metadataLocation, pDiags),
+      fullTableName_(trafMetadataLocation_ + "." + SEABASE_OBJECTS),
+      myTable_(*(new MyTable(fullTableName_, OBJECTS_ENUM, pDiags))) {}
 
 // -----------------------------------------------------------------------
 // Copy constructor
 // -----------------------------------------------------------------------
 PrivMgrObjects::PrivMgrObjects(const PrivMgrObjects &other)
-: PrivMgr(other),
-  myTable_(*new MyTable(fullTableName_,OBJECTS_ENUM, pDiags_))
-{
-
-   fullTableName_ = other.fullTableName_;
-  
+    : PrivMgr(other), myTable_(*new MyTable(fullTableName_, OBJECTS_ENUM, pDiags_)) {
+  fullTableName_ = other.fullTableName_;
 }
 
 // -----------------------------------------------------------------------
 // Destructor.
 // -----------------------------------------------------------------------
-PrivMgrObjects::~PrivMgrObjects() 
-{ 
-
-   delete &myTable_;
-
-}
-
-
+PrivMgrObjects::~PrivMgrObjects() { delete &myTable_; }
 
 // *****************************************************************************
 // *                                                                           *
@@ -256,39 +214,29 @@ PrivMgrObjects::~PrivMgrObjects()
 // *               the diags area.                                             *
 // *                                                                           *
 // *****************************************************************************
-PrivStatus PrivMgrObjects::addEntry(
-   const int64_t objectUID,
-   const std::string & catalogName, 
-   const std::string & schemaName, 
-   const std::string & objectName,
-   const ComObjectType objectType, 
-   const int64_t createTime,
-   const int64_t redefTime,
-   const bool isValid,
-   const int32_t objectOwner,
-   const int32_t schemaOwner)
-        
+PrivStatus PrivMgrObjects::addEntry(const int64_t objectUID, const std::string &catalogName,
+                                    const std::string &schemaName, const std::string &objectName,
+                                    const ComObjectType objectType, const int64_t createTime, const int64_t redefTime,
+                                    const bool isValid, const int32_t objectOwner, const int32_t schemaOwner)
+
 {
+  MyTable &myTable = static_cast<MyTable &>(myTable_);
+  MyRow row(fullTableName_);
 
-MyTable &myTable = static_cast<MyTable &>(myTable_);
-MyRow row(fullTableName_);
+  row.objectUID_ = objectUID;
+  row.catalogName_ = catalogName;
+  row.schemaName_ = schemaName;
+  row.objectName_ = objectName;
+  row.objectType_ = objectType;
+  row.createTime_ = createTime;
+  row.redefTime_ = redefTime;
+  row.isValid_ = isValid;
+  row.objectOwner_ = objectOwner;
+  row.schemaOwner_ = schemaOwner;
 
-   row.objectUID_ = objectUID;
-   row.catalogName_ = catalogName; 
-   row.schemaName_ = schemaName; 
-   row.objectName_ = objectName;
-   row.objectType_ = objectType;
-   row.createTime_ = createTime;
-   row.redefTime_ = redefTime;
-   row.isValid_ = isValid;
-   row.objectOwner_ = objectOwner;
-   row.schemaOwner_ = schemaOwner;
-   
-   return myTable.insert(row);
-   
+  return myTable.insert(row);
 }
 //*********************** End of PrivMgrObjects::addEntry **********************
-
 
 // *****************************************************************************
 // *                                                                           *
@@ -300,14 +248,11 @@ MyRow row(fullTableName_);
 void PrivMgrObjects::clear()
 
 {
+  MyTable &myTable = static_cast<MyTable &>(myTable_);
 
-MyTable &myTable = static_cast<MyTable &>(myTable_);
-
-   myTable.clear();
-   
+  myTable.clear();
 }
 //************************* End of PrivMgrObjects::clear ***********************
-
 
 // *****************************************************************************
 // *                                                                           *
@@ -338,27 +283,21 @@ MyTable &myTable = static_cast<MyTable &>(myTable_);
 // *               the diags area.                                             *
 // *                                                                           *
 // *****************************************************************************
-PrivStatus PrivMgrObjects::deleteEntryByName(
-   const std::string & catalogName, 
-   const std::string & schemaName, 
-   const std::string & objectName)
-        
+PrivStatus PrivMgrObjects::deleteEntryByName(const std::string &catalogName, const std::string &schemaName,
+                                             const std::string &objectName)
+
 {
+  MyTable &myTable = static_cast<MyTable &>(myTable_);
 
-MyTable &myTable = static_cast<MyTable &>(myTable_);
+  std::string whereClause(" WHERE CATALOG_NAME = '");
 
-std::string whereClause(" WHERE CATALOG_NAME = '");
+  whereClause += catalogName + "' AND SCHEMA_NAME = '";
+  whereClause += schemaName + "' AND OBJECT_NAME = '";
+  whereClause += objectName + "'";
 
-   whereClause += catalogName + "' AND SCHEMA_NAME = '";
-   whereClause += schemaName + "' AND OBJECT_NAME = '";
-   whereClause += objectName + "'";
-   
-   return myTable.deleteWhere(whereClause);
-   
+  return myTable.deleteWhere(whereClause);
 }
 //****************** End of PrivMgrObjects::deleteEntryByName *****************
-
-
 
 // *****************************************************************************
 // *                                                                           *
@@ -387,31 +326,25 @@ std::string whereClause(" WHERE CATALOG_NAME = '");
 // *                                                                           *
 // *****************************************************************************
 
-PrivStatus PrivMgrObjects::fetchObjectOwner(
-   const int64_t objectUID,
-   int32_t & objectOwner)
+PrivStatus PrivMgrObjects::fetchObjectOwner(const int64_t objectUID, int32_t &objectOwner)
 
 {
+  MyTable &myTable = static_cast<MyTable &>(myTable_);
+  MyRow row(fullTableName_);
 
-MyTable &myTable = static_cast<MyTable &>(myTable_);
-MyRow row(fullTableName_);
+  std::string whereClause(" WHERE OBJECT_UID = ");
 
-std::string whereClause(" WHERE OBJECT_UID = ");
+  whereClause += UIDToString(objectUID);
 
-   whereClause += UIDToString(objectUID);
+  PrivStatus privStatus = myTable.selectWhereUnique(whereClause, row);
 
-PrivStatus privStatus = myTable.selectWhereUnique(whereClause,row);
+  if (privStatus != STATUS_GOOD) return STATUS_ERROR;
 
-   if (privStatus != STATUS_GOOD)
-      return STATUS_ERROR;
+  objectOwner = row.objectOwner_;
 
-   objectOwner = row.objectOwner_;
-
-   return STATUS_GOOD;
-
+  return STATUS_GOOD;
 }
 //****************** End of PrivMgrObjects::fetchObjectOwner  *****************
-
 
 // *****************************************************************************
 // *                                                                           *
@@ -440,35 +373,27 @@ PrivStatus privStatus = myTable.selectWhereUnique(whereClause,row);
 // *               the diags area.                                             *
 // *                                                                           *
 // *****************************************************************************
-PrivStatus PrivMgrObjects::fetchQualifiedName(
-   const int64_t objectUID,
-   std::string & qualifiedObjectName) 
-        
+PrivStatus PrivMgrObjects::fetchQualifiedName(const int64_t objectUID, std::string &qualifiedObjectName)
+
 {
+  MyTable &myTable = static_cast<MyTable &>(myTable_);
+  MyRow row(fullTableName_);
 
-MyTable &myTable = static_cast<MyTable &>(myTable_);
-MyRow row(fullTableName_);
+  std::string whereClause(" WHERE OBJECT_UID = ");
 
-std::string whereClause(" WHERE OBJECT_UID = ");
+  whereClause += UIDToString(objectUID);
 
-   whereClause += UIDToString(objectUID);
+  PrivStatus privStatus = myTable.selectWhereUnique(whereClause, row);
 
-PrivStatus privStatus = myTable.selectWhereUnique(whereClause,row);
+  if (privStatus != STATUS_GOOD) return STATUS_ERROR;
 
-   if (privStatus != STATUS_GOOD)
-      return STATUS_ERROR;
+  qualifiedObjectName = row.catalogName_ + ".";
+  qualifiedObjectName += row.schemaName_ + ".";
+  qualifiedObjectName += row.objectName_;
 
-   qualifiedObjectName = row.catalogName_ + ".";
-   qualifiedObjectName += row.schemaName_ + ".";
-   qualifiedObjectName += row.objectName_;   
-
-   return STATUS_GOOD;
-    
+  return STATUS_GOOD;
 }
 //****************** End of PrivMgrObjects::fetchQualifiedName *****************
-
-
-
 
 // *****************************************************************************
 // *                                                                           *
@@ -500,31 +425,23 @@ PrivStatus privStatus = myTable.selectWhereUnique(whereClause,row);
 // *               the diags area.                                             *
 // *                                                                           *
 // *****************************************************************************
-PrivStatus PrivMgrObjects::fetchQualifiedName(
-   const std::string & whereClause,
-   std::string & qualifiedObjectName) 
-        
+PrivStatus PrivMgrObjects::fetchQualifiedName(const std::string &whereClause, std::string &qualifiedObjectName)
+
 {
+  MyTable &myTable = static_cast<MyTable &>(myTable_);
+  MyRow row(fullTableName_);
 
-MyTable &myTable = static_cast<MyTable &>(myTable_);
-MyRow row(fullTableName_);
+  PrivStatus privStatus = myTable.selectWhereUnique(whereClause, row);
 
-PrivStatus privStatus = myTable.selectWhereUnique(whereClause,row);
+  if (privStatus != STATUS_GOOD) return STATUS_ERROR;
 
-   if (privStatus != STATUS_GOOD)
-      return STATUS_ERROR;
+  qualifiedObjectName = row.catalogName_ + ".";
+  qualifiedObjectName += row.schemaName_ + ".";
+  qualifiedObjectName += row.objectName_;
 
-   qualifiedObjectName = row.catalogName_ + ".";
-   qualifiedObjectName += row.schemaName_ + ".";
-   qualifiedObjectName += row.objectName_;   
-
-   return STATUS_GOOD;
-    
+  return STATUS_GOOD;
 }
 //****************** End of PrivMgrObjects::fetchQualifiedName *****************
-
-
-
 
 // *****************************************************************************
 // *                                                                           *
@@ -555,37 +472,29 @@ PrivStatus privStatus = myTable.selectWhereUnique(whereClause,row);
 // *               error is put into the diags area.                           *
 // *                                                                           *
 // *****************************************************************************
-PrivStatus PrivMgrObjects::fetchUIDandOwner(
-   const std::string whereClause,
-   const std::string orderByClause,
-   vector<UIDAndOwner> & objectRows) 
-        
+PrivStatus PrivMgrObjects::fetchUIDandOwner(const std::string whereClause, const std::string orderByClause,
+                                            vector<UIDAndOwner> &objectRows)
+
 {
+  std::vector<MyRow> rows;
+  MyTable &myTable = static_cast<MyTable &>(myTable_);
 
-std::vector<MyRow> rows;
-MyTable &myTable = static_cast<MyTable &>(myTable_);
+  PrivStatus privStatus = myTable.selectAllWhere(whereClause, orderByClause, rows);
 
-PrivStatus privStatus = myTable.selectAllWhere(whereClause,orderByClause,rows);
+  if (privStatus != STATUS_GOOD) return STATUS_ERROR;
 
-   if (privStatus != STATUS_GOOD)
-      return STATUS_ERROR;
-   
-   for (size_t r = 0; r < rows.size(); r++)
-   {
-      UIDAndOwner element;
-      
-      element.UID = rows[r].objectUID_;
-      element.ownerID = rows[r].objectOwner_;
-      
-      objectRows.push_back(element);
-   }
+  for (size_t r = 0; r < rows.size(); r++) {
+    UIDAndOwner element;
 
-   return STATUS_GOOD;
-    
+    element.UID = rows[r].objectUID_;
+    element.ownerID = rows[r].objectOwner_;
+
+    objectRows.push_back(element);
+  }
+
+  return STATUS_GOOD;
 }
 //******************* End of PrivMgrObjects::fetchUIDandOwner ******************
-
-
 
 // *****************************************************************************
 // *                                                                           *
@@ -613,45 +522,34 @@ PrivStatus privStatus = myTable.selectAllWhere(whereClause,orderByClause,rows);
 // *               error is put into the diags area.                           *
 // *                                                                           *
 // *****************************************************************************
-PrivStatus PrivMgrObjects::fetchUIDandTypes(
-   const std::string whereClause,
-   vector<UIDAndType> & UIDandTypes) 
-        
+PrivStatus PrivMgrObjects::fetchUIDandTypes(const std::string whereClause, vector<UIDAndType> &UIDandTypes)
+
 {
+  std::string orderByClause;
 
-std::string orderByClause;
-   
-std::vector<MyRow> rows;
-MyTable &myTable = static_cast<MyTable &>(myTable_);
+  std::vector<MyRow> rows;
+  MyTable &myTable = static_cast<MyTable &>(myTable_);
 
-PrivStatus privStatus = myTable.selectAllWhere(whereClause,orderByClause,rows);
+  PrivStatus privStatus = myTable.selectAllWhere(whereClause, orderByClause, rows);
 
-   if (privStatus != STATUS_GOOD)
-      return STATUS_ERROR;
-   
-   for (size_t r = 0; r < rows.size(); r++)
-   {
-      UIDAndType element;
-      
-      element.UID = rows[r].objectUID_;
-      element.objectType = rows[r].objectType_;
-      
-      UIDandTypes.push_back(element);
-   }
+  if (privStatus != STATUS_GOOD) return STATUS_ERROR;
 
-   return STATUS_GOOD;
-    
+  for (size_t r = 0; r < rows.size(); r++) {
+    UIDAndType element;
+
+    element.UID = rows[r].objectUID_;
+    element.objectType = rows[r].objectType_;
+
+    UIDandTypes.push_back(element);
+  }
+
+  return STATUS_GOOD;
 }
 //******************* End of PrivMgrObjects::fetchUIDandTypes ******************
-
-
-
-
 
 // *****************************************************************************
 //    MyTable methods
 // *****************************************************************************
-
 
 // *****************************************************************************
 // *                                                                           *
@@ -675,40 +573,27 @@ PrivStatus privStatus = myTable.selectAllWhere(whereClause,orderByClause,rows);
 // *           *: Insert failed. A CLI error is put into the diags area.       *
 // *                                                                           *
 // *****************************************************************************
-PrivStatus MyTable::insert(const PrivMgrMDRow & rowIn)
-{
+PrivStatus MyTable::insert(const PrivMgrMDRow &rowIn) {
+  const MyRow &row = static_cast<const MyRow &>(rowIn);
+  char insertStatement[1000];
+  char objectTypeLit[3] = {0};
 
-const MyRow & row = static_cast<const MyRow &>(rowIn);
-char insertStatement[1000];
-char objectTypeLit[3] = {0};
+  strncpy(objectTypeLit, PrivMgr::ObjectEnumToLit(row.objectType_), 2);
 
-   strncpy(objectTypeLit,PrivMgr::ObjectEnumToLit(row.objectType_),2);
+  char validDef[2] = {0};
 
-char validDef[2] = {0};
+  if (row.isValid_)
+    validDef[0] = 'Y';
+  else
+    validDef[0] = 'N';
 
-   if (row.isValid_)
-      validDef[0] = 'Y';
-   else       
-      validDef[0] = 'N';
+  sprintf(insertStatement, "insert into %s values ('%s', '%s', '%s', '%s', %ld, %ld, %ld, '%s', %d, %d)",
+          tableName_.c_str(), row.catalogName_.c_str(), row.schemaName_.c_str(), row.objectName_.c_str(), objectTypeLit,
+          row.objectUID_, row.createTime_, row.redefTime_, validDef, row.objectOwner_, row.schemaOwner_);
 
-   sprintf(insertStatement,"insert into %s values ('%s', '%s', '%s', '%s', %ld, %ld, %ld, '%s', %d, %d)",     
-                           tableName_.c_str(),
-                           row.catalogName_.c_str(),
-                           row.schemaName_.c_str(),
-                           row.objectName_.c_str(),
-                           objectTypeLit,
-                           row.objectUID_,
-                           row.createTime_,
-                           row.redefTime_,
-                           validDef,
-                           row.objectOwner_,
-                           row.schemaOwner_);
-
-   return CLIImmediate(insertStatement);
-
+  return CLIImmediate(insertStatement);
 }
 //************************** End of MyTable::insert ****************************
-
 
 // *****************************************************************************
 // *                                                                           *
@@ -738,75 +623,62 @@ char validDef[2] = {0};
 // *           *: Select failed. A CLI error is put into the diags area.       *
 // *                                                                           *
 // *****************************************************************************
-PrivStatus MyTable::selectAllWhere(
-   const std::string & whereClause,
-   const std::string & orderByClause,
-   std::vector<MyRow> & rows)
-   
+PrivStatus MyTable::selectAllWhere(const std::string &whereClause, const std::string &orderByClause,
+                                   std::vector<MyRow> &rows)
+
 {
+  std::string selectStmt(
+      "SELECT CATALOG_NAME, SCHEMA_NAME, OBJECT_NAME,"
+      "OBJECT_TYPE, OBJECT_UID, CREATE_TIME, REDEF_TIME,"
+      "VALID_DEF, OBJECT_OWNER FROM ");
+  selectStmt += tableName_;
+  selectStmt += " ";
+  selectStmt += whereClause;
+  selectStmt += " ";
+  selectStmt += orderByClause;
 
-std::string selectStmt("SELECT CATALOG_NAME, SCHEMA_NAME, OBJECT_NAME,"
-                       "OBJECT_TYPE, OBJECT_UID, CREATE_TIME, REDEF_TIME,"
-                       "VALID_DEF, OBJECT_OWNER FROM ");
-   selectStmt += tableName_;
-   selectStmt += " ";
-   selectStmt += whereClause;
-   selectStmt += " ";
-   selectStmt += orderByClause;
+  ExeCliInterface cliInterface(STMTHEAP, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
 
-ExeCliInterface cliInterface(STMTHEAP, 0, NULL, 
-  CmpCommon::context()->sqlSession()->getParentQid());
-  
-Queue * tableQueue = NULL;
+  Queue *tableQueue = NULL;
 
-PrivStatus privStatus = executeFetchAll(cliInterface,selectStmt,tableQueue);
+  PrivStatus privStatus = executeFetchAll(cliInterface, selectStmt, tableQueue);
 
-   if (privStatus == STATUS_ERROR)
-      return STATUS_ERROR;
+  if (privStatus == STATUS_ERROR) return STATUS_ERROR;
 
-   tableQueue->position();
-   for (int idx = 0; idx < tableQueue->numEntries(); idx++)
-   {
-      OutputInfo * pCliRow = (OutputInfo*)tableQueue->getNext();
-      MyRow row(tableName_);
-      setRow(*pCliRow,row);   
-      rows.push_back(row);
-   }    
+  tableQueue->position();
+  for (int idx = 0; idx < tableQueue->numEntries(); idx++) {
+    OutputInfo *pCliRow = (OutputInfo *)tableQueue->getNext();
+    MyRow row(tableName_);
+    setRow(*pCliRow, row);
+    rows.push_back(row);
+  }
 
-   return STATUS_GOOD;
-
+  return STATUS_GOOD;
 }
 //********************** End of MyTable::selectAllWhere ************************
-
 
 // ----------------------------------------------------------------------------
 // method:  selectCountWhere
 //
 // select the number of rows that meet the whereClause
 // ----------------------------------------------------------------------------
-PrivStatus PrivMgrObjects::selectCountWhere(
-   const std::string &whereClause,
-   int64_t &rowCount)
+PrivStatus PrivMgrObjects::selectCountWhere(const std::string &whereClause, int64_t &rowCount)
 
 {
-   MyTable &myTable = static_cast<MyTable &>(myTable_);
-   rowCount = 0;
+  MyTable &myTable = static_cast<MyTable &>(myTable_);
+  rowCount = 0;
 
-   int32_t diagsMark = pDiags_->mark();
-   PrivStatus privStatus = myTable.selectCountWhere(whereClause,rowCount);
-   if (privStatus == STATUS_ERROR)
-      return STATUS_ERROR;
+  int32_t diagsMark = pDiags_->mark();
+  PrivStatus privStatus = myTable.selectCountWhere(whereClause, rowCount);
+  if (privStatus == STATUS_ERROR) return STATUS_ERROR;
 
-   if (rowCount == 0)
-   {
-      pDiags_->rewind(diagsMark);
-      return STATUS_NOTFOUND;
-   }
+  if (rowCount == 0) {
+    pDiags_->rewind(diagsMark);
+    return STATUS_NOTFOUND;
+  }
 
-   return STATUS_GOOD;
+  return STATUS_GOOD;
 }
-
-
 
 // *****************************************************************************
 // *                                                                           *
@@ -833,90 +705,83 @@ PrivStatus PrivMgrObjects::selectCountWhere(
 // *           *: Select failed. A CLI error is put into the diags area.       *
 // *                                                                           *
 // *****************************************************************************
-PrivStatus MyTable::selectWhereUnique(
-   const std::string & whereClause,
-   PrivMgrMDRow & rowOut)
-   
+PrivStatus MyTable::selectWhereUnique(const std::string &whereClause, PrivMgrMDRow &rowOut)
+
 {
+  // Generate the select statement
+  std::string selectStmt(
+      "SELECT CATALOG_NAME, SCHEMA_NAME, OBJECT_NAME,"
+      "OBJECT_TYPE, OBJECT_UID, CREATE_TIME, REDEF_TIME,"
+      "VALID_DEF, OBJECT_OWNER FROM ");
 
-// Generate the select statement
-std::string selectStmt("SELECT CATALOG_NAME, SCHEMA_NAME, OBJECT_NAME,"
-                       "OBJECT_TYPE, OBJECT_UID, CREATE_TIME, REDEF_TIME,"
-                       "VALID_DEF, OBJECT_OWNER FROM ");
+  selectStmt += tableName_;
+  selectStmt += " ";
+  selectStmt += whereClause;
 
-   selectStmt += tableName_;
-   selectStmt += " ";
-   selectStmt += whereClause;
+  ExeCliInterface cliInterface(STMTHEAP, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
 
-ExeCliInterface cliInterface(STMTHEAP, 0, NULL,
-  CmpCommon::context()->sqlSession()->getParentQid());
+  PrivStatus privStatus = CLIFetch(cliInterface, selectStmt);
 
-PrivStatus privStatus = CLIFetch(cliInterface,selectStmt);   
-   
-   if (privStatus != STATUS_GOOD && privStatus != STATUS_WARNING)
-      return privStatus;   
-  
-// Row read successfully.  Extract the columns.
+  if (privStatus != STATUS_GOOD && privStatus != STATUS_WARNING) return privStatus;
 
-char * ptr = NULL;
-Lng32 length = 0;
-char value[500];
-MyRow & row = static_cast<MyRow &>(rowOut);
+  // Row read successfully.  Extract the columns.
 
-   // column 1:  CATALOG_NAME
-   cliInterface.getPtrAndLen(1,ptr,length);
-   strncpy(value,ptr,length);
-   value[length] = 0;
-   row.catalogName_ = value;
+  char *ptr = NULL;
+  Lng32 length = 0;
+  char value[500];
+  MyRow &row = static_cast<MyRow &>(rowOut);
 
-   // column 2:  SCHEMA_NAME
-   cliInterface.getPtrAndLen(2,ptr,length);
-   strncpy(value,ptr,length);
-   value[length] = 0;
-   row.schemaName_ = value;
+  // column 1:  CATALOG_NAME
+  cliInterface.getPtrAndLen(1, ptr, length);
+  strncpy(value, ptr, length);
+  value[length] = 0;
+  row.catalogName_ = value;
 
-   // column 3:  OBJECT_NAME
-   cliInterface.getPtrAndLen(3,ptr,length);
-   strncpy(value,ptr,length);
-   value[length] = 0;
-   row.objectName_ = value;
+  // column 2:  SCHEMA_NAME
+  cliInterface.getPtrAndLen(2, ptr, length);
+  strncpy(value, ptr, length);
+  value[length] = 0;
+  row.schemaName_ = value;
 
-   // column 4:  OBJECT_TYPE
-   cliInterface.getPtrAndLen(4,ptr,length);
-   strncpy(value,ptr,length);
-   value[length] = 0;
-   row.objectType_ = PrivMgr::ObjectLitToEnum(value);
+  // column 3:  OBJECT_NAME
+  cliInterface.getPtrAndLen(3, ptr, length);
+  strncpy(value, ptr, length);
+  value[length] = 0;
+  row.objectName_ = value;
 
-   // column 5:  OBJECT_UID
-   cliInterface.getPtrAndLen(5,ptr,length);
-   row.objectUID_ = *(reinterpret_cast<int64_t*>(ptr));
+  // column 4:  OBJECT_TYPE
+  cliInterface.getPtrAndLen(4, ptr, length);
+  strncpy(value, ptr, length);
+  value[length] = 0;
+  row.objectType_ = PrivMgr::ObjectLitToEnum(value);
 
-   // column 6:  CREATE_TIME
-   cliInterface.getPtrAndLen(6,ptr,length);
-   row.createTime_ = *(reinterpret_cast<int64_t*>(ptr));
+  // column 5:  OBJECT_UID
+  cliInterface.getPtrAndLen(5, ptr, length);
+  row.objectUID_ = *(reinterpret_cast<int64_t *>(ptr));
 
-   // column 7:  REDEF_TIME
-   cliInterface.getPtrAndLen(7,ptr,length);
-   row.redefTime_ = *(reinterpret_cast<int64_t*>(ptr));
-   
-   // column 8:  VALID_DEF
-   cliInterface.getPtrAndLen(8,ptr,length);
-   strncpy(value,ptr,length);
-   value[length] = 0;
-   row.isValid_ = (value[0] == 'Y' ? true : false);
-   
-   // column 9:  OBJECT_OWNER
-   cliInterface.getPtrAndLen(9,ptr,length);
-   row.objectOwner_ = *(reinterpret_cast<int32_t*>(ptr));
-   
-   lastRowRead_ = row;
+  // column 6:  CREATE_TIME
+  cliInterface.getPtrAndLen(6, ptr, length);
+  row.createTime_ = *(reinterpret_cast<int64_t *>(ptr));
 
-   return STATUS_GOOD;
-   
+  // column 7:  REDEF_TIME
+  cliInterface.getPtrAndLen(7, ptr, length);
+  row.redefTime_ = *(reinterpret_cast<int64_t *>(ptr));
+
+  // column 8:  VALID_DEF
+  cliInterface.getPtrAndLen(8, ptr, length);
+  strncpy(value, ptr, length);
+  value[length] = 0;
+  row.isValid_ = (value[0] == 'Y' ? true : false);
+
+  // column 9:  OBJECT_OWNER
+  cliInterface.getPtrAndLen(9, ptr, length);
+  row.objectOwner_ = *(reinterpret_cast<int32_t *>(ptr));
+
+  lastRowRead_ = row;
+
+  return STATUS_GOOD;
 }
 //******************* End of MyTable::selectWhereUnique ************************
-
-
 
 // *****************************************************************************
 // *                                                                           *
@@ -935,69 +800,60 @@ MyRow & row = static_cast<MyRow &>(rowOut);
 // *    passes back a MyRow.                                                   *
 // *                                                                           *
 // *****************************************************************************
-void MyTable::setRow(
-   OutputInfo & cliInterface,
-   PrivMgrMDRow & rowOut)
-   
+void MyTable::setRow(OutputInfo &cliInterface, PrivMgrMDRow &rowOut)
+
 {
+  MyRow &row = static_cast<MyRow &>(rowOut);
+  char *ptr = NULL;
+  int32_t length = 0;
+  char value[500];
 
-MyRow & row = static_cast<MyRow &>(rowOut);
-char * ptr = NULL;
-int32_t length = 0;
-char value[500];
-  
-   // column 1:  CATALOG_NAME
-   cliInterface.get(0,ptr,length);
-   strncpy(value,ptr,length);
-   value[length] = 0;
-   row.catalogName_ = value;
+  // column 1:  CATALOG_NAME
+  cliInterface.get(0, ptr, length);
+  strncpy(value, ptr, length);
+  value[length] = 0;
+  row.catalogName_ = value;
 
-   // column 2:  SCHEMA_NAME
-   cliInterface.get(1,ptr,length);
-   strncpy(value,ptr,length);
-   value[length] = 0;
-   row.schemaName_ = value;
+  // column 2:  SCHEMA_NAME
+  cliInterface.get(1, ptr, length);
+  strncpy(value, ptr, length);
+  value[length] = 0;
+  row.schemaName_ = value;
 
-   // column 3:  OBJECT_NAME
-   cliInterface.get(2,ptr,length);
-   strncpy(value,ptr,length);
-   value[length] = 0;
-   row.objectName_ = value;
+  // column 3:  OBJECT_NAME
+  cliInterface.get(2, ptr, length);
+  strncpy(value, ptr, length);
+  value[length] = 0;
+  row.objectName_ = value;
 
-   // column 4:  OBJECT_TYPE
-   cliInterface.get(3,ptr,length);
-   strncpy(value,ptr,length);
-   value[length] = 0;
-   row.objectType_ = PrivMgr::ObjectLitToEnum(value);
+  // column 4:  OBJECT_TYPE
+  cliInterface.get(3, ptr, length);
+  strncpy(value, ptr, length);
+  value[length] = 0;
+  row.objectType_ = PrivMgr::ObjectLitToEnum(value);
 
-   // column 5:  OBJECT_UID
-   cliInterface.get(4,ptr,length);
-   row.objectUID_ = *(reinterpret_cast<int64_t*>(ptr));
+  // column 5:  OBJECT_UID
+  cliInterface.get(4, ptr, length);
+  row.objectUID_ = *(reinterpret_cast<int64_t *>(ptr));
 
-   // column 6:  CREATE_TIME
-   cliInterface.get(5,ptr,length);
-   row.createTime_ = *(reinterpret_cast<int64_t*>(ptr));
+  // column 6:  CREATE_TIME
+  cliInterface.get(5, ptr, length);
+  row.createTime_ = *(reinterpret_cast<int64_t *>(ptr));
 
-   // column 7:  REDEF_TIME
-   cliInterface.get(6,ptr,length);
-   row.redefTime_ = *(reinterpret_cast<int64_t*>(ptr));
-   
-   // column 8:  VALID_DEF
-   cliInterface.get(7,ptr,length);
-   strncpy(value,ptr,length);
-   value[length] = 0;
-   row.isValid_ = (value[0] == 'Y' ? true : false);
-   
-   // column 9:  OBJECT_OWNER
-   cliInterface.get(8,ptr,length);
-   row.objectOwner_ = *(reinterpret_cast<int32_t*>(ptr));
-   
-   lastRowRead_ = row;
+  // column 7:  REDEF_TIME
+  cliInterface.get(6, ptr, length);
+  row.redefTime_ = *(reinterpret_cast<int64_t *>(ptr));
 
+  // column 8:  VALID_DEF
+  cliInterface.get(7, ptr, length);
+  strncpy(value, ptr, length);
+  value[length] = 0;
+  row.isValid_ = (value[0] == 'Y' ? true : false);
+
+  // column 9:  OBJECT_OWNER
+  cliInterface.get(8, ptr, length);
+  row.objectOwner_ = *(reinterpret_cast<int32_t *>(ptr));
+
+  lastRowRead_ = row;
 }
 //************************** End of MyTable::setRow ****************************
-
-
-
-
-

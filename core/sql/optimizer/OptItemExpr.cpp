@@ -35,9 +35,9 @@
 
 // -----------------------------------------------------------------------
 
-#include "Sqlcomp.h"
+#include "optimizer/Sqlcomp.h"
 #include "GroupAttr.h"
-#include "AllItemExpr.h"
+#include "optimizer/AllItemExpr.h"
 #include "Cost.h"         /* for lookups in the defaults table */
 
 

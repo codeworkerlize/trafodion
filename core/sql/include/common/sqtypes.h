@@ -80,7 +80,7 @@ typedef int          _int_32;   /* DG had it as "long" */
 #else
 typedef int           _int_32;
 #endif
-typedef _int_32       int_32;
+typedef _int_32       int;
 
 #ifdef NA_64BIT
 typedef unsigned int _unsigned_32; /* DG had it as "long" */

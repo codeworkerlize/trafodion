@@ -40,7 +40,7 @@
 #include "common/charinfo.h"		// for CollationAndCoercibility
 #include "common/ComASSERT.h"
 #include "common/ExprNode.h"
-#include "ItemExprList.h"
+#include "optimizer/ItemExprList.h"
 #include "optimizer/ObjectNames.h"
 #include "optimizer/ValueDesc.h"
 #include "qmscommon/QRExprElement.h"

@@ -42,7 +42,7 @@
 
 #include "common/NAString.h"
 #include "common/ComSmallDefs.h"
-#include "StmtDDLCreateRoutine.h"
+#include "parser/StmtDDLCreateRoutine.h"
 
 // -----------------------------------------------------------------------
 // Alter Routine statement

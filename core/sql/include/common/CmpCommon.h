@@ -48,7 +48,7 @@ class ComDiagsArea;
 #include "common/Platform.h"
 #include "export/ComDiags.h"
 #include "common/ComTransInfo.h"       
-#include "ComObjectName.h"       
+#include "common/ComObjectName.h"       
 #include "sqlcomp/DefaultConstants.h"
 #include "eh/EHException.h"
 #include "common/NAAssert.h"

@@ -39,8 +39,8 @@
 #include "LmError.h"
 #include "common/NAType.h"
 #include "export/ComDiags.h"
-#include "LmCommon.h"
-#include "sqludr.h"
+#include "langman/LmCommon.h"
+#include "sqludr/sqludr.h"
 
 #include "common/Platform.h"
 

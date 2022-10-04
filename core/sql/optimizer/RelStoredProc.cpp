@@ -38,20 +38,20 @@
 // Contents: implementation for RelInternalSP
 
 #include "optimizer/RelStoredProc.h"  // definition of RelStoredProc::RelExpr
-#include "CmpStoredProc.h"  // interface to the SP routines.
-#include "BindWA.h"         // for binder related stuffs.
+#include "arkcmp/CmpStoredProc.h"  // interface to the SP routines.
+#include "optimizer/BindWA.h"         // for binder related stuffs.
 #include "arkcmp/CmpStatement.h"
 
 // the following includes are for OptLogRelExpr and OptPhysRelExpr related
 // methods, once those methods are moved to the appropriate files, the
 // following include need to be removed
 
-#include "Sqlcomp.h"
+#include "optimizer/Sqlcomp.h"
 #include "GroupAttr.h"
-#include "AllRelExpr.h"
-#include "AllItemExpr.h"
-#include "opt.h"
-#include "PhyProp.h"
+#include "optimizer/AllRelExpr.h"
+#include "optimizer/AllItemExpr.h"
+#include "optimizer/opt.h"
+#include "optimizer/PhyProp.h"
 #include "Cost.h"
 #include "EstLogProp.h"
 #include <math.h>

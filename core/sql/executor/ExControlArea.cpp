@@ -32,7 +32,7 @@
 ****************************************************************************
 */
 
-#include "ex_transaction.h"
+#include "executor/ex_transaction.h"
 
 
 ExControlEntry::ExControlEntry(CollHeap * heap,

@@ -40,19 +40,19 @@
 
 #include "common/ComSmallDefs.h"
 #include "optimizer/ObjectNames.h"
-#include "RelExpr.h"
+#include "optimizer/RelExpr.h"
 #include "SearchKey.h"
-#include "mdam.h"
+#include "optimizer/mdam.h"
 #include "mdamkey.h"
 #include "disjuncts.h"
-#include "OptUtilIncludes.h"
+#include "optimizer/OptUtilIncludes.h"
 #include "arkcmp/CmpContext.h"
-#include "SchemaDB.h"
+#include "optimizer/SchemaDB.h"
 #include "HbaseSearchSpec.h"
-#include "OptHints.h"
+#include "optimizer/OptHints.h"
 #include "orcPushdownPredInfo.h"
 #include "exp/ExpHbaseDefs.h"
-#include "ItemOther.h"
+#include "optimizer/ItemOther.h"
 #include <vector>
 // -----------------------------------------------------------------------
 // contents of this file

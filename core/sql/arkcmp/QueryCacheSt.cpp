@@ -33,12 +33,12 @@
  *****************************************************************************
  */
 
-#include "QueryCacheSt.h"
-#include "QCache.h"
-#include "CmpMain.h"
+#include "arkcmp/QueryCacheSt.h"
+#include "sqlcomp/QCache.h"
+#include "sqlcomp/CmpMain.h"
 #include "cli/Globals.h"
 #include "cli/Context.h"
-#include "CmpStoredProc.h"
+#include "arkcmp/CmpStoredProc.h"
 
 SP_STATUS QueryCacheStatStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat,
 				  Lng32 numFields,

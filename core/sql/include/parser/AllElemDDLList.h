@@ -46,7 +46,7 @@
 #include "ElemDDLFileAttrList.h"
 #include "ElemDDLPartnAttrList.h"
 #include "ElemDDLOptionList.h"
-#include "ElemDDLPartitionList.h"
+#include "parser/ElemDDLPartitionList.h"
 
 //
 // End of File

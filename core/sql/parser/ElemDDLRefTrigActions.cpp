@@ -35,7 +35,7 @@
  */
 
 #include "common/ComASSERT.h"
-#include "ComOperators.h"
+#include "common/ComOperators.h"
 #include "ElemDDLRefTrigActions.h"
 
 // -----------------------------------------------------------------------

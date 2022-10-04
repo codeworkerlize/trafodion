@@ -20,40 +20,34 @@
 //
 // @@@ END COPYRIGHT @@@
 **********************************************************************/
- /* -*-C++-*-
-******************************************************************************
-*
-* File:         CmpISPInterface.cpp
-* Description:  
-* Created:      3/26/2014 (relocate to this file)
-* Language:     C++
-*
-*
-*
-*
-******************************************************************************
-*/
+/* -*-C++-*-
+ ******************************************************************************
+ *
+ * File:         CmpISPInterface.cpp
+ * Description:
+ * Created:      3/26/2014 (relocate to this file)
+ * Language:     C++
+ *
+ *
+ *
+ *
+ ******************************************************************************
+ */
 
-#include "CmpISPInterface.h"
+#include "sqlcomp/CmpISPInterface.h"
 #include "arkcmp/CmpISPStd.h"
-#include "CmpStoredProc.h"
-#include "QueryCacheSt.h"
-#include "NATable.h"
-#include "NATableSt.h"
-#include "NARoutine.h"
+#include "arkcmp/CmpStoredProc.h"
+#include "arkcmp/QueryCacheSt.h"
+#include "optimizer/NATable.h"
+#include "arkcmp/NATableSt.h"
+#include "optimizer/NARoutine.h"
 
+CmpISPInterface::CmpISPInterface() { initCalled_ = FALSE; }
 
-CmpISPInterface::CmpISPInterface()
-{
-  initCalled_ = FALSE;
-}
-
-void CmpISPInterface::InitISPFuncs()
-{
+void CmpISPInterface::InitISPFuncs() {
   SP_REGISTER_FUNCPTR regFunc = &(CmpISPFuncs::RegFuncs);
 
-  if ( initCalled_ )
-    return;
+  if (initCalled_) return;
 
   // todo, error handling.
   // Query cache virtual tables
@@ -63,12 +57,12 @@ void CmpISPInterface::InitISPFuncs()
 
   HybridQueryCacheStatStoredProcedure::Initialize(regFunc);
   HybridQueryCacheEntriesStoredProcedure::Initialize(regFunc);
-  
+
   // NATable cache statistics virtual table
   NATableCacheStatStoredProcedure::Initialize(regFunc);
   NATableCacheEntriesStoredProcedure::Initialize(regFunc);
 
-    // NATable cache statistics delete
+  // NATable cache statistics delete
   NATableCacheDeleteStoredProcedure::Initialize(regFunc);
 
   // NARoutine cache statistics virtual table
@@ -82,9 +76,7 @@ void CmpISPInterface::InitISPFuncs()
   initCalled_ = TRUE;
 }
 
-CmpISPInterface::~CmpISPInterface()
-{
-}
+CmpISPInterface::~CmpISPInterface() {}
 
 //
 // NOTE: The cmpISPInterface variable is being left as a global
@@ -93,5 +85,3 @@ CmpISPInterface::~CmpISPInterface()
 //       before any other Compiler Instance threads can be created.
 //
 CmpISPInterface cmpISPInterface;
-
-

@@ -3,9 +3,9 @@
  *
  * File:         <file>
  * RCS:          $Id: NewDel.cpp,v 1.1 2007/10/09 19:40:37  Exp $
- * Description:  
- *               
- *               
+ * Description:
+ *
+ *
  * Created:      7/10/95
  * Modified:     $ $Date: 2007/10/09 19:40:37 $ (GMT)
  * Language:     C++
@@ -39,7 +39,7 @@
 
 // -----------------------------------------------------------------------
 // Change history:
-// 
+//
 // $Log: NewDel.cpp,v $
 // Revision 1.1  2007/10/09 19:40:37
 // Add the NeoQuest version of SQL to support closer collaboration during dev
@@ -60,11 +60,11 @@
 // Revision 1.1.1.1  1997/03/28 01:40:16
 // These are the source files from SourceSafe.
 //
-// 
+//
 // Revision 1.3  1997/01/16 00:31:04
 // new memory managment (selectable/flat segments on NSK)
 // fixed bug in hybrid hash join
-// new hash function 
+// new hash function
 //
 // Revision 1.2  1996/10/01 23:29:59
 // Take away the global new/delete overloading.
@@ -72,19 +72,19 @@
 // Revision 1.1  1996/06/19 15:56:13
 // Initial revision
 //
-// 
+//
 // -----------------------------------------------------------------------
 
 // -----------------------------------------------------------------------
-// This file contains the implementation of 
+// This file contains the implementation of
 // PushGlobalMemory, PopGlobalMemory and CurrentGlobalMemory routines.
 // -----------------------------------------------------------------------
 
 #include <stdlib.h>
 #include <iostream>
 #include "common/NAHeap.h"
-#include "HeapLog.h"
-#include "NewDel.h"
+#include "export/HeapLog.h"
+#include "sqlcomp/NewDel.h"
 
 #if (defined(_DEBUG) || defined(NSK_MEMDEBUG))
 //
@@ -93,32 +93,24 @@
 //
 THREAD_P PNH globalCmpNewHandler = 0;
 
-
 const Lng32 DEFAULT_SYSTEM_HEAP_ID = 999;
 
-void * operator new(size_t size)
-{
-
-    void * p = malloc(size);
-    if (!p && globalCmpNewHandler) {
-      globalCmpNewHandler();
-    }
-    HEAPLOG_ADD_ENTRY(p, size, DEFAULT_SYSTEM_HEAP_ID, "Default System Heap");
-    memset(p, 0, size);
-    return p;
-
+void *operator new(size_t size) {
+  void *p = malloc(size);
+  if (!p && globalCmpNewHandler) {
+    globalCmpNewHandler();
+  }
+  HEAPLOG_ADD_ENTRY(p, size, DEFAULT_SYSTEM_HEAP_ID, "Default System Heap");
+  memset(p, 0, size);
+  return p;
 }
 
-void operator delete(void * ptr)
-{
-
-    HEAPLOG_DELETE_ENTRY(ptr,DEFAULT_SYSTEM_HEAP_ID);
-    free(ptr);
-
+void operator delete(void *ptr) {
+  HEAPLOG_DELETE_ENTRY(ptr, DEFAULT_SYSTEM_HEAP_ID);
+  free(ptr);
 }
 
-void *operator new[](size_t size)
-{
+void *operator new[](size_t size) {
   if (size == 0) {
     // if we come to here, that means someone has code like this:
     // A* a = new A[0];
@@ -127,36 +119,27 @@ void *operator new[](size_t size)
     return 0;
   }
 
-
-    void * p = malloc(size);
-    if (!p && globalCmpNewHandler) {
-      globalCmpNewHandler();
-    }
-    HEAPLOG_ADD_ENTRY(p, size, DEFAULT_SYSTEM_HEAP_ID, "Default System Heap");
-    //printf("M\tGlobalND\t%10x\t%10x\t%10x\n", p, size, (char *) p + size);
-    memset (p, 0, size);
-    return p; //malloc(size);
-
+  void *p = malloc(size);
+  if (!p && globalCmpNewHandler) {
+    globalCmpNewHandler();
+  }
+  HEAPLOG_ADD_ENTRY(p, size, DEFAULT_SYSTEM_HEAP_ID, "Default System Heap");
+  // printf("M\tGlobalND\t%10x\t%10x\t%10x\n", p, size, (char *) p + size);
+  memset(p, 0, size);
+  return p;  // malloc(size);
 }
-void operator delete[](void * ptr)
-{
-
-    HEAPLOG_DELETE_ENTRY(ptr,DEFAULT_SYSTEM_HEAP_ID);
-    free(ptr);
-    //printf("F\tGlobalND\t%10x\n", ptr);
-
+void operator delete[](void *ptr) {
+  HEAPLOG_DELETE_ENTRY(ptr, DEFAULT_SYSTEM_HEAP_ID);
+  free(ptr);
+  // printf("F\tGlobalND\t%10x\n", ptr);
 }
 
-PNH CmpSetNewHandler(PNH handler)
-{
+PNH CmpSetNewHandler(PNH handler) {
   PNH old = globalCmpNewHandler;
   globalCmpNewHandler = handler;
   return old;
 }
 
 // Code not used
-PNH CmpGetNewHandler()
-{
-  return globalCmpNewHandler;
-}
+PNH CmpGetNewHandler() { return globalCmpNewHandler; }
 #endif

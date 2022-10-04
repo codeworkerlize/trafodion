@@ -46,28 +46,28 @@
 #include "StmtDDLAlterTableToggleConstraint.h"
 #include "common/BaseTypes.h"
 #include "common/ComASSERT.h"
-#include "ComOperators.h"
+#include "common/ComOperators.h"
 #include "ElemDDLConstraint.h"
 #include "ElemDDLConstraintCheck.h"
 #include "ElemDDLFileAttrClause.h"
 #include "ElemDDLLibClientFilename.h"
 #include "ElemDDLLibClientName.h"
 #include "StmtDDLAlterIndexAttribute.h"
-#include "ElemDDLConstraintPK.h"
+#include "parser/ElemDDLConstraintPK.h"
 #include "AllStmtDDLAlter.h" // MV - RG
-#include "ElemDDLQualName.h" // MV - RG
+#include "parser/ElemDDLQualName.h" // MV - RG
 #include "StmtDDLAlterTrigger.h"   
 #include "AllElemDDLFileAttr.h"
 #include "StmtDDLAlterAuditConfig.h"
 #include "StmtDDLAlterCatalog.h"
-#include "StmtDDLAlterSchema.h"
-#include "StmtDDLAlterLibrary.h"
+#include "parser/StmtDDLAlterSchema.h"
+#include "parser/StmtDDLAlterLibrary.h"
 #include "StmtDDLAlterSynonym.h"
-#include "StmtDDLAlterTableDisableIndex.h"
-#include "StmtDDLAlterTableEnableIndex.h"
-#include "StmtDDLAlterTableAlterColumn.h"
-#include "StmtDDLAlterTableTruncatePartition.h"
-#include "StmtDDLAlterTableSplitPartition.h"
+#include "parser/StmtDDLAlterTableDisableIndex.h"
+#include "parser/StmtDDLAlterTableEnableIndex.h"
+#include "parser/StmtDDLAlterTableAlterColumn.h"
+#include "parser/StmtDDLAlterTableTruncatePartition.h"
+#include "parser/StmtDDLAlterTableSplitPartition.h"
 
 // -----------------------------------------------------------------------
 // definitions of non-inline methods for class ParCheckConstraintColUsage

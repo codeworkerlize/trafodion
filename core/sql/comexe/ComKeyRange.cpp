@@ -43,36 +43,27 @@
 #include "comexe/ComKeyMDAM.h"
 #include "comexe/ComKeySingleSubset.h"
 
-
-keyRangeGen::keyRangeGen(key_type keyType,
-	       ULng32 keyLen,
-	       ex_cri_desc *workCriDesc,
-	       unsigned short keyValuesAtpIndex,
-	       unsigned short excludeFlagAtpIndex,
-	       unsigned short dataConvErrorFlagAtpIndex) :
-     keyType_(keyType),
-     keyLength_(keyLen),
-     workCriDesc_(workCriDesc),
-     keyValuesAtpIndex_(keyValuesAtpIndex),
-     excludeFlagAtpIndex_(excludeFlagAtpIndex),
-     dataConvErrorFlagAtpIndex_(dataConvErrorFlagAtpIndex),
-     NAVersionedObject(keyType),
-     keytag_(0),
-     flags_(0)
-{
-  for (Int32 i = 0; i < FILLER_LENGTH; i++)
-    fillersKeyRangeGen_[i] = '\0';
+keyRangeGen::keyRangeGen(key_type keyType, ULng32 keyLen, ex_cri_desc *workCriDesc, unsigned short keyValuesAtpIndex,
+                         unsigned short excludeFlagAtpIndex, unsigned short dataConvErrorFlagAtpIndex)
+    : keyType_(keyType),
+      keyLength_(keyLen),
+      workCriDesc_(workCriDesc),
+      keyValuesAtpIndex_(keyValuesAtpIndex),
+      excludeFlagAtpIndex_(excludeFlagAtpIndex),
+      dataConvErrorFlagAtpIndex_(dataConvErrorFlagAtpIndex),
+      NAVersionedObject(keyType),
+      keytag_(0),
+      flags_(0) {
+  for (Int32 i = 0; i < FILLER_LENGTH; i++) fillersKeyRangeGen_[i] = '\0';
 }
 
 // -----------------------------------------------------------------------
 // This method returns the virtual function table pointer for an object
 // with the given class ID; used by NAVersionedObject::driveUnpack().
 // -----------------------------------------------------------------------
-char *keyRangeGen::findVTblPtr(short classID)
-{
+char *keyRangeGen::findVTblPtr(short classID) {
   char *vtblPtr;
-  switch (classID)
-  {
+  switch (classID) {
     case KEYSINGLESUBSET:
       GetVTblPtr(vtblPtr, keySingleSubsetGen);
       break;
@@ -86,39 +77,29 @@ char *keyRangeGen::findVTblPtr(short classID)
   return vtblPtr;
 }
 
-void keyRangeGen::fixupVTblPtr()
-{
-  switch (getType())
-    {
-    case KEYSINGLESUBSET:
-      {
-        keySingleSubsetGen bek;
+void keyRangeGen::fixupVTblPtr() {
+  switch (getType()) {
+    case KEYSINGLESUBSET: {
+      keySingleSubsetGen bek;
 
-        COPY_KEY_VTBL_PTR((char *)&bek, (char *)this);
-      }
-      break;
-    case KEYMDAM:
-      {
-        keyMdamGen mdam;
+      COPY_KEY_VTBL_PTR((char *)&bek, (char *)this);
+    } break;
+    case KEYMDAM: {
+      keyMdamGen mdam;
 
-        COPY_KEY_VTBL_PTR((char *)&mdam, (char *)this);
-      }
-      break;
+      COPY_KEY_VTBL_PTR((char *)&mdam, (char *)this);
+    } break;
     default:
       break;
-    }
+  }
 }
 
-Long keyRangeGen::pack(void * space)
-{
+Long keyRangeGen::pack(void *space) {
   workCriDesc_.pack(space);
   return NAVersionedObject::pack(space);
 }
 
-
-Lng32 keyRangeGen::unpack(void * base, void * reallocator)
-{  
-  if(workCriDesc_.unpack(base, reallocator)) return -1;
+Lng32 keyRangeGen::unpack(void *base, void *reallocator) {
+  if (workCriDesc_.unpack(base, reallocator)) return -1;
   return NAVersionedObject::unpack(base, reallocator);
 }
-

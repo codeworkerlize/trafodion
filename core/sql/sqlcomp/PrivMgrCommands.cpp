@@ -20,7 +20,7 @@
 //
 // @@@ END COPYRIGHT @@@
 //*****************************************************************************
-  
+
 // ==========================================================================
 // Contains non inline methods in the following classes
 //   PrivMgrObjectInfo
@@ -28,35 +28,34 @@
 // ==========================================================================
 
 #include "sqlcomp/PrivMgrCommands.h"
-#include "PrivMgrMD.h"
-#include "PrivMgrMDDefs.h"
+#include "sqlcomp/PrivMgrMD.h"
+#include "sqlcomp/PrivMgrMDDefs.h"
 #include "common/DgBaseType.h"
-#include "NATable.h"
-#include "NAColumn.h"
+#include "optimizer/NATable.h"
+#include "optimizer/NAColumn.h"
 
-#include "PrivMgrPrivileges.h"
-#include "PrivMgrSchemaPrivileges.h"
+#include "sqlcomp/PrivMgrPrivileges.h"
+#include "sqlcomp/PrivMgrSchemaPrivileges.h"
 
 #include "PrivMgrComponents.h"
 #include "PrivMgrComponentOperations.h"
-#include "PrivMgrComponentPrivileges.h"
-#include "PrivMgrRoles.h"
-#include "PrivMgrObjects.h"
+#include "sqlcomp/PrivMgrComponentPrivileges.h"
+#include "sqlcomp/PrivMgrRoles.h"
+#include "sqlcomp/PrivMgrObjects.h"
 #include "common/ComSecurityKey.h"
-#include "ComUser.h"
-#include "CmpSeabaseDDL.h"  // needed in order to access ExpHbaseInterface
-#include "ExpHbaseInterface.h"
-#include "CmpDDLCatErrorCodes.h"  // needed for DgSqlCode error msg enum
-#include "cli/Globals.h"         // needed to get access to CLI globals
-#include "cli/Context.h"         // needed to get access to Java exception info
-#include "HBaseClient_JNI.h" // needed for HBase client error msg enum
+#include "common/ComUser.h"
+#include "sqlcomp/CmpSeabaseDDL.h"  // needed in order to access ExpHbaseInterface
+#include "exp/ExpHbaseInterface.h"
+#include "sqlcomp/CmpDDLCatErrorCodes.h"  // needed for DgSqlCode error msg enum
+#include "cli/Globals.h"          // needed to get access to CLI globals
+#include "cli/Context.h"          // needed to get access to Java exception info
+#include "executor/HBaseClient_JNI.h"      // needed for HBase client error msg enum
 
 #include <cstdio>
 #include <algorithm>
 #include <sstream>
 #include <grp.h>
 #include <pwd.h>
-
 
 // ****************************************************************************
 // Class: PrivMgrCommands
@@ -65,52 +64,35 @@
 // -----------------------------------------------------------------------
 // Default Constructor
 // -----------------------------------------------------------------------
-PrivMgrCommands::PrivMgrCommands () 
-: PrivMgr()
-{
-};
+PrivMgrCommands::PrivMgrCommands() : PrivMgr(){};
 
 // -----------------------------------------------------------------------
 // Construct a PrivMgrCommands object for a new component.
 // -----------------------------------------------------------------------
-PrivMgrCommands::PrivMgrCommands ( const std::string trafMetadataLocation
-                                 , const std::string &metadataLocation
-                                 , ComDiagsArea *pDiags
-                                 , PrivMDStatus authorizationEnabled )
-: PrivMgr(trafMetadataLocation,metadataLocation,pDiags,authorizationEnabled)
-{
-};
+PrivMgrCommands::PrivMgrCommands(const std::string trafMetadataLocation, const std::string &metadataLocation,
+                                 ComDiagsArea *pDiags, PrivMDStatus authorizationEnabled)
+    : PrivMgr(trafMetadataLocation, metadataLocation, pDiags, authorizationEnabled){};
 
-PrivMgrCommands::PrivMgrCommands ( const std::string &metadataLocation
-                                 , ComDiagsArea *pDiags
-                                 , PrivMDStatus authorizationEnabled )
-: PrivMgr(metadataLocation,pDiags,authorizationEnabled)
-{
-};
+PrivMgrCommands::PrivMgrCommands(const std::string &metadataLocation, ComDiagsArea *pDiags,
+                                 PrivMDStatus authorizationEnabled)
+    : PrivMgr(metadataLocation, pDiags, authorizationEnabled){};
 
 // -----------------------------------------------------------------------
 // Copy constructor
 // -----------------------------------------------------------------------
-PrivMgrCommands:: PrivMgrCommands ( const PrivMgrCommands &other )
-: PrivMgr(other)
-{
-}
+PrivMgrCommands::PrivMgrCommands(const PrivMgrCommands &other) : PrivMgr(other) {}
 
 // -----------------------------------------------------------------------
 // Destructor.
 // -----------------------------------------------------------------------
-PrivMgrCommands::~PrivMgrCommands() 
-{
-}
+PrivMgrCommands::~PrivMgrCommands() {}
 
 // ----------------------------------------------------------------------------
 // Assignment operator
 // ----------------------------------------------------------------------------
-PrivMgrCommands& PrivMgrCommands::operator=(const PrivMgrCommands& other)
-{
+PrivMgrCommands &PrivMgrCommands::operator=(const PrivMgrCommands &other) {
   //  Check for pathological case of X = X.
-  if ( this == &other )
-    return *this;
+  if (this == &other) return *this;
 
   metadataLocation_ = other.metadataLocation_;
   trafMetadataLocation_ = other.trafMetadataLocation_;
@@ -126,14 +108,12 @@ PrivMgrCommands& PrivMgrCommands::operator=(const PrivMgrCommands& other)
 // Return true if authorization has been enabled, false otherwise.
 //
 // ----------------------------------------------------------------------------
-bool PrivMgrCommands::authorizationEnabled()
-{
-  if (authorizationEnabled_ == PRIV_INITIALIZED)
-    return true;
+bool PrivMgrCommands::authorizationEnabled() {
+  if (authorizationEnabled_ == PRIV_INITIALIZED) return true;
   PrivMgrMDAdmin admin(getMetadataLocation(), getDiags());
   return admin.isAuthorizationEnabled();
 }
-  
+
 // *****************************************************************************
 // *                                                                           *
 // * Function: PrivMgrCommands::createComponentOperation                       *
@@ -168,103 +148,76 @@ bool PrivMgrCommands::authorizationEnabled()
 // *           *: Operation not added. A CLI error is put into the diags area. *
 // *                                                                           *
 // *****************************************************************************
-PrivStatus PrivMgrCommands::createComponentOperation(
-   const std::string & componentName,
-   const std::string & operationName,
-   const std::string & operationCode,
-   bool isSystem,
-   const std::string & operationDescription)
-   
+PrivStatus PrivMgrCommands::createComponentOperation(const std::string &componentName, const std::string &operationName,
+                                                     const std::string &operationCode, bool isSystem,
+                                                     const std::string &operationDescription)
+
 {
+  PrivStatus privStatus = STATUS_GOOD;
 
-PrivStatus privStatus = STATUS_GOOD;
+  try {
+    PrivMgrComponentOperations componentOperations(getMetadataLocation(), pDiags_);
 
-   try
-   {
-      PrivMgrComponentOperations componentOperations(getMetadataLocation(),
-                                                     pDiags_);
-      
-      privStatus = componentOperations.createOperation(componentName,
-                                                       operationName,
-                                                       operationCode,
-                                                       isSystem,
-                                                       operationDescription);
-   }
+    privStatus = componentOperations.createOperation(componentName, operationName, operationCode, isSystem,
+                                                     operationDescription);
+  }
 
-   catch (...)
-   {
-      return STATUS_ERROR;
-   }
-   
-   return privStatus;
-   
+  catch (...) {
+    return STATUS_ERROR;
+  }
+
+  return privStatus;
 }
 //************* End of PrivMgrCommands::createComponentOperation ***************
 
 //-----------------------------------------------------------------------------
 // method: describeComponents
-// returns description of component in the form of REGISTER, CREATE, GRANT statements, 
+// returns description of component in the form of REGISTER, CREATE, GRANT statements,
 // by a specified component name.
-//   
+//
 // Input:
 //     componentName - a unique component name
-//      
+//
 // Output:
 //     outlines -output string lines in array
-// 
+//
 // returns true on success.
 //-----------------------------------------------------------------------------
-bool PrivMgrCommands::describeComponents(
-   const std::string & componentName, 
-   std::vector<std::string> & outlines)
-   
+bool PrivMgrCommands::describeComponents(const std::string &componentName, std::vector<std::string> &outlines)
+
 {
+  PrivStatus privStatus = STATUS_GOOD;
+  try {
+    std::string componentUIDString;
+    int64_t componentUID;
+    // generate register component statement
+    PrivMgrComponents components(getMetadataLocation(), pDiags_);
 
-    PrivStatus privStatus = STATUS_GOOD;
-    try
-    {   
-        std::string componentUIDString;
-        int64_t componentUID;
-        //generate register component statement
-        PrivMgrComponents components(getMetadataLocation(), 
-                                     pDiags_); 
+    privStatus = components.describeComponents(componentName, componentUIDString, componentUID, outlines);
+    // If the component name was not registered
+    if (privStatus == STATUS_NOTFOUND) return false;
 
-        privStatus = components.describeComponents(componentName, 
-                                                   componentUIDString, 
-                                                   componentUID, 
-                                                   outlines);
-        // If the component name was not registered
-        if (privStatus == STATUS_NOTFOUND)
-          return false;
+    // component was registered, try to
+    // find it in component_operations, component_privileges tables,
+    // and generate create & grant statements.
+    PrivMgrComponentPrivileges componentPrivileges(getMetadataLocation(), pDiags_);
+    PrivMgrComponentOperations componentOperations(getMetadataLocation(), pDiags_);
+    privStatus = componentOperations.describeComponentOperations(componentUIDString, componentName, outlines,
+                                                                 &componentPrivileges);
+  }
 
-        //component was registered, try to 
-        //find it in component_operations, component_privileges tables,
-        //and generate create & grant statements.
-        PrivMgrComponentPrivileges componentPrivileges(getMetadataLocation(), 
-                                                       pDiags_); 
-        PrivMgrComponentOperations componentOperations(getMetadataLocation(), 
-                                                       pDiags_); 
-        privStatus = componentOperations.describeComponentOperations(componentUIDString, 
-                                                                     componentName, 
-                                                                     outlines, 
-                                                                     &componentPrivileges);
-    }
+  catch (...) {
+    return false;
+  }
 
-    catch (...)
-    {
-      return false;
-    }
-    
-    return true;
-    
+  return true;
 }
 //*************** End of PrivMgrCommands::describeComponents *******************
-
 
 // ----------------------------------------------------------------------------
 // method: describePrivileges
 //
-// returns GRANT statements for privileges associated with the 
+// returns GRANT statements for privileges associated with the
 // specified objectUID
 //
 // Parameters:
@@ -275,25 +228,19 @@ bool PrivMgrCommands::describeComponents(
 // returns true if successful
 // The Trafodion diags area contains any errors that were encountered
 // ----------------------------------------------------------------------------
-bool PrivMgrCommands::describePrivileges (PrivMgrObjectInfo &objectInfo,
-                                          std::string &privilegeText)
-{
+bool PrivMgrCommands::describePrivileges(PrivMgrObjectInfo &objectInfo, std::string &privilegeText) {
   PrivStatus retcode = STATUS_GOOD;
-  if (objectInfo.getObjectType() ==  COM_PRIVATE_SCHEMA_OBJECT ||
-      objectInfo.getObjectType() == COM_SHARED_SCHEMA_OBJECT)
-  {
-    PrivMgrSchemaPrivileges schemaPrivs (objectInfo, metadataLocation_, pDiags_);
-    retcode = schemaPrivs.getPrivTextForSchema(objectInfo,privilegeText);
-  }
-  else
-  {
-    PrivMgrPrivileges objectPrivs (objectInfo, metadataLocation_, pDiags_);
-    retcode = objectPrivs.getPrivTextForObject(objectInfo,privilegeText);
+  if (objectInfo.getObjectType() == COM_PRIVATE_SCHEMA_OBJECT ||
+      objectInfo.getObjectType() == COM_SHARED_SCHEMA_OBJECT) {
+    PrivMgrSchemaPrivileges schemaPrivs(objectInfo, metadataLocation_, pDiags_);
+    retcode = schemaPrivs.getPrivTextForSchema(objectInfo, privilegeText);
+  } else {
+    PrivMgrPrivileges objectPrivs(objectInfo, metadataLocation_, pDiags_);
+    retcode = objectPrivs.getPrivTextForObject(objectInfo, privilegeText);
   }
   return (retcode == STATUS_GOOD) ? true : false;
 }
 
-   
 // ----------------------------------------------------------------------------
 // method: dropAuthorizationMetadata
 //
@@ -302,20 +249,16 @@ bool PrivMgrCommands::describePrivileges (PrivMgrObjectInfo &objectInfo,
 // Returns the status of the request
 // The Trafodion diags area contains the error that was encountered
 // ----------------------------------------------------------------------------
-PrivStatus PrivMgrCommands::dropAuthorizationMetadata(bool doCleanup)
-{
-  PrivMgrMDAdmin metadata(getMetadataLocation(),getDiags());
+PrivStatus PrivMgrCommands::dropAuthorizationMetadata(bool doCleanup) {
+  PrivMgrMDAdmin metadata(getMetadataLocation(), getDiags());
   std::vector<string> tablesToDrop;
-  size_t numTables = sizeof(privMgrTables)/sizeof(PrivMgrTableStruct);
-  for (int ndx_tl = 0; ndx_tl < numTables; ndx_tl++)
-  {
+  size_t numTables = sizeof(privMgrTables) / sizeof(PrivMgrTableStruct);
+  for (int ndx_tl = 0; ndx_tl < numTables; ndx_tl++) {
     const PrivMgrTableStruct &tableDefinition = privMgrTables[ndx_tl];
     tablesToDrop.push_back(tableDefinition.tableName);
   }
   return metadata.dropMetadata(tablesToDrop, doCleanup);
 }
-
-
 
 // *****************************************************************************
 // *                                                                           *
@@ -347,58 +290,44 @@ PrivStatus PrivMgrCommands::dropAuthorizationMetadata(bool doCleanup)
 // *              diags area.                                                  *
 // *                                                                           *
 // *****************************************************************************
-PrivStatus PrivMgrCommands::dropComponentOperation(
-   const std::string & componentName,
-   const std::string & operationName,
-   PrivDropBehavior dropBehavior) 
+PrivStatus PrivMgrCommands::dropComponentOperation(const std::string &componentName, const std::string &operationName,
+                                                   PrivDropBehavior dropBehavior)
 
 {
+  PrivStatus privStatus = STATUS_GOOD;
 
-PrivStatus privStatus = STATUS_GOOD;
+  try {
+    PrivMgrComponentOperations componentOperations(getMetadataLocation(), pDiags_);
 
-   try
-   {
-      PrivMgrComponentOperations componentOperations(getMetadataLocation(),
-                                                     pDiags_);
-      
-      privStatus = componentOperations.dropOperation(componentName,
-                                                     operationName,
-                                                     dropBehavior);
-   }
+    privStatus = componentOperations.dropOperation(componentName, operationName, dropBehavior);
+  }
 
-   catch (...)
-   {
-      return STATUS_ERROR;
-   }
-   
-   return privStatus;
-   
+  catch (...) {
+    return STATUS_ERROR;
+  }
+
+  return privStatus;
 }
 //************** End of PrivMgrCommands::dropComponentOperation ****************
 
 // ----------------------------------------------------------------------------
 // method: getGrantorDetailsForObject
 //
-// Calls PrivMgr::getEffectiveGrantor to return the effective 
+// Calls PrivMgr::getEffectiveGrantor to return the effective
 // grantor ID and grantor name for object level grant and revoke statements.
 //
 // Input: see PrivMgr.cpp for description
 // Output: see PrivMgr.cpp for description
 //
-// returns PrivStatus with the results of the operation.  The diags area 
+// returns PrivStatus with the results of the operation.  The diags area
 // contains error details.
 // ----------------------------------------------------------------------------
-PrivStatus PrivMgrCommands::getGrantorDetailsForObject(
-   const bool isGrantedBySpecified,
-   const std::string grantedByName,
-   const int_32 objectOwner,
-   int_32 &effectiveGrantorID,
-   std::string &effectiveGrantorName)
-{
-  PrivMgr grantorDetails (metadataLocation_, pDiags_);
-  return grantorDetails.getEffectiveGrantor
-   (isGrantedBySpecified, grantedByName, objectOwner, 
-    effectiveGrantorID, effectiveGrantorName);
+PrivStatus PrivMgrCommands::getGrantorDetailsForObject(const bool isGrantedBySpecified, const std::string grantedByName,
+                                                       const int objectOwner, int &effectiveGrantorID,
+                                                       std::string &effectiveGrantorName) {
+  PrivMgr grantorDetails(metadataLocation_, pDiags_);
+  return grantorDetails.getEffectiveGrantor(isGrantedBySpecified, grantedByName, objectOwner, effectiveGrantorID,
+                                            effectiveGrantorName);
 }
 
 // ----------------------------------------------------------------------------
@@ -417,103 +346,78 @@ PrivStatus PrivMgrCommands::getGrantorDetailsForObject(
 // returns true if results were found, false otherwise
 // The Trafodion diags area contains any errors that were encountered
 // ----------------------------------------------------------------------------
-PrivStatus PrivMgrCommands::getPrivileges(
-  NATable *naTable,
-  const int32_t userID,
-  const NABoolean usingSentryUserApi,
-  PrivMgrUserPrivs &userPrivs,
-  ComSecurityKeySet *secKeySet)
-{
+PrivStatus PrivMgrCommands::getPrivileges(NATable *naTable, const int32_t userID, const NABoolean usingSentryUserApi,
+                                          PrivMgrUserPrivs &userPrivs, ComSecurityKeySet *secKeySet) {
   PrivMgrDesc privsOfTheUser;
   PrivStatus retcode = STATUS_GOOD;
 
   // authorization is not enabled, return bitmaps with all bits set
   // With all bits set, privilege checks will always succeed
-  if (!authorizationEnabled())
-  {
-    privsOfTheUser.setAllTableGrantPrivileges(true /*priv*/, true/*wgo*/, 
-                                              true /*all_dml*/, true /*all_ddl*/);
+  if (!authorizationEnabled()) {
+    privsOfTheUser.setAllTableGrantPrivileges(true /*priv*/, true /*wgo*/, true /*all_dml*/, true /*all_ddl*/);
     userPrivs.initUserPrivs(privsOfTheUser);
     return STATUS_GOOD;
   }
 
-
   // if a native table that is not registered nor has an external table
   // assume no privs.  No privileges, so no security keys are required
-  else if ((naTable->isHiveTable() || naTable->isORC() || naTable->isParquet() ||
-            naTable->isHbaseCellTable() ||
+  else if ((naTable->isHiveTable() || naTable->isORC() || naTable->isParquet() || naTable->isHbaseCellTable() ||
             naTable->isHbaseRowTable()) &&
-           (!naTable->isRegistered() && !naTable->hasExternalTable()))
-  {
+           (!naTable->isRegistered() && !naTable->hasExternalTable())) {
     PrivMgrDesc emptyDesc;
     userPrivs.initUserPrivs(emptyDesc);
   }
 
   // Check for privileges defined in Trafodion metadata
-  else
-  {
+  else {
     int64_t objectUID = (int64_t)naTable->objectUid().get_value();
 
     PrivMgrDesc schemaPrivsOfTheUser;
-    
+
     // If we are not storing privileges for the object in NATable, go read MD
-    if (naTable->getPrivDescs() == NULL)
-    {
-      PrivMgrPrivileges objectPrivs (metadataLocation_, pDiags_);
-      retcode = objectPrivs.getPrivsOnObjectForUser(objectUID,
-                                                    naTable->getObjectType(),
-                                                    userID,
-                                                    privsOfTheUser);
-      if (retcode != STATUS_GOOD)
-        return retcode;
+    if (naTable->getPrivDescs() == NULL) {
+      PrivMgrPrivileges objectPrivs(metadataLocation_, pDiags_);
+      retcode = objectPrivs.getPrivsOnObjectForUser(objectUID, naTable->getObjectType(), userID, privsOfTheUser);
+      if (retcode != STATUS_GOOD) return retcode;
 
       userPrivs.initUserPrivs(privsOfTheUser);
 
       int64_t schemaUID = 0;
       retcode = getPrivsForSchema(objectUID, userID, schemaUID, schemaPrivsOfTheUser);
-      if (retcode != STATUS_GOOD)
-        return retcode;
+      if (retcode != STATUS_GOOD) return retcode;
 
       userPrivs.setSchemaPrivBitmap(schemaPrivsOfTheUser.getSchemaPrivs().getPrivBitmap());
       userPrivs.setSchemaGrantableBitmap(schemaPrivsOfTheUser.getSchemaPrivs().getWgoBitmap());
-      if (schemaPrivsOfTheUser.getHasPublicPriv())
-        userPrivs.setHasPublicPriv(true);
+      if (schemaPrivsOfTheUser.getHasPublicPriv()) userPrivs.setHasPublicPriv(true);
 
-      if (secKeySet != NULL)
-      {
+      if (secKeySet != NULL) {
         // The PrivMgrDescList destructor deletes memory
         PrivMgrDescList descList(naTable->getHeap());
         PrivMgrDesc *tableDesc = new (naTable->getHeap()) PrivMgrDesc(privsOfTheUser);
         descList.insert(tableDesc);
-        if (!userPrivs.setPrivInfoAndKeys(descList, userID, objectUID, secKeySet))
-        {
+        if (!userPrivs.setPrivInfoAndKeys(descList, userID, objectUID, secKeySet)) {
           SEABASEDDL_INTERNAL_ERROR("Could not create security keys");
           return STATUS_ERROR;
         }
 
-        if (schemaUID > 0)
-        {
+        if (schemaUID > 0) {
           PrivMgrDescList schemaDescList(naTable->getHeap());
           PrivMgrDesc *schemaDesc = new (naTable->getHeap()) PrivMgrDesc(schemaPrivsOfTheUser);
           schemaDescList.insert(schemaDesc);
-          if (!userPrivs.setPrivInfoAndKeys(schemaDescList, userID, schemaUID,  secKeySet))
-          {
+          if (!userPrivs.setPrivInfoAndKeys(schemaDescList, userID, schemaUID, secKeySet)) {
             SEABASEDDL_INTERNAL_ERROR("Could not create security keys");
             return STATUS_ERROR;
           }
         }
       }
     }
-   
-    // generate privileges from the stored desc list 
-    else
-    {
-      NAList<int32_t> roleIDs (naTable->getHeap());
-      if (ComUser::getCurrentUserRoles(roleIDs, CmpCommon::diags()) != 0)
-        return STATUS_ERROR;
 
-      if (userPrivs.initUserPrivs(roleIDs, naTable->getPrivDescs(),
-                                  userID, objectUID, secKeySet) == STATUS_ERROR) 
+    // generate privileges from the stored desc list
+    else {
+      NAList<int32_t> roleIDs(naTable->getHeap());
+      if (ComUser::getCurrentUserRoles(roleIDs, CmpCommon::diags()) != 0) return STATUS_ERROR;
+
+      if (userPrivs.initUserPrivs(roleIDs, naTable->getPrivDescs(), userID, objectUID, secKeySet) == STATUS_ERROR)
         return retcode;
     }
   }
@@ -521,56 +425,42 @@ PrivStatus PrivMgrCommands::getPrivileges(
   return STATUS_GOOD;
 }
 
-
 // ----------------------------------------------------------------------------
 // method: getPrivileges
 //`
 // Creates a set of priv descriptors for all user grantees on an object
 // Used by Trafodion compiler to store as part of the table descriptor.
-//                                                       
-//  Parameters:    
-//                                                                       
+//
+//  Parameters:
+//
 //  <objectUID> is the unique identifier of the object
 //  <objectType> is the type of object or schema object
 //  <privDescs> is the returned list of privileges on the object or schema
-//                                                                  
-// Returns: PrivStatus                                               
-//                                                                  
+//
+// Returns: PrivStatus
+//
 //   STATUS_GOOD: privilege descriptors were built
-//             *: unexpected error occurred, see diags.     
+//             *: unexpected error occurred, see diags.
 // ----------------------------------------------------------------------------
-PrivStatus PrivMgrCommands::getPrivileges(
-  const int64_t objectUID,
-  const int32_t schemaOwner,
-  const int64_t schemaUID,
-  ComObjectType schemaObjType,
-  ComObjectType objectType,
-  PrivMgrDescList &privDescs)
-{
+PrivStatus PrivMgrCommands::getPrivileges(const int64_t objectUID, const int32_t schemaOwner, const int64_t schemaUID,
+                                          ComObjectType schemaObjType, ComObjectType objectType,
+                                          PrivMgrDescList &privDescs) {
   PrivStatus retcode = STATUS_GOOD;
-  if (authorizationEnabled())
-  {
+  if (authorizationEnabled()) {
     std::vector<PrivMgrDesc> privDescList;
 
-    if (objectType == COM_PRIVATE_SCHEMA_OBJECT ||
-        objectType == COM_SHARED_SCHEMA_OBJECT)
-    {
-      PrivMgrSchemaPrivileges schemaPrivs (metadataLocation_, pDiags_);
+    if (objectType == COM_PRIVATE_SCHEMA_OBJECT || objectType == COM_SHARED_SCHEMA_OBJECT) {
+      PrivMgrSchemaPrivileges schemaPrivs(metadataLocation_, pDiags_);
       retcode = schemaPrivs.getPrivsOnSchema(objectUID, schemaOwner, objectType, privDescList);
+    } else {
+      // get object and column privileges
+      PrivMgrPrivileges privInfo(objectUID, metadataLocation_, pDiags_);
+      if (privInfo.getPrivsOnObject(objectType, privDescList) == STATUS_ERROR) return STATUS_ERROR;
     }
-    else
-    {
-      // get object and column privileges 
-      PrivMgrPrivileges privInfo (objectUID, metadataLocation_, pDiags_);
-      if (privInfo.getPrivsOnObject(objectType, privDescList) == STATUS_ERROR)
-        return STATUS_ERROR;
-    }
-    if (retcode == STATUS_ERROR)
-      return STATUS_ERROR;
+    if (retcode == STATUS_ERROR) return STATUS_ERROR;
 
     // copy privDescList to privDescs and set the schema UID
-    for (size_t i = 0; i < privDescList.size(); i++)
-    {
+    for (size_t i = 0; i < privDescList.size(); i++) {
       PrivMgrDesc *desc = new (privDescs.getHeap()) PrivMgrDesc(privDescList[i]);
       desc->setSchemaUID(schemaUID);
       privDescs.insert(desc);
@@ -578,7 +468,6 @@ PrivStatus PrivMgrCommands::getPrivileges(
   }
   return retcode;
 }
-
 
 // ----------------------------------------------------------------------------
 // method: getPrivileges
@@ -595,30 +484,20 @@ PrivStatus PrivMgrCommands::getPrivileges(
 // returns true if results were found, false otherwise
 // The Trafodion diags area contains any errors that were encountered
 // ----------------------------------------------------------------------------
-PrivStatus PrivMgrCommands::getPrivileges(
-  const int64_t objectUID,
-  ComObjectType objectType,
-  const int32_t userID,
-  PrivMgrUserPrivs &userPrivs)
-{
+PrivStatus PrivMgrCommands::getPrivileges(const int64_t objectUID, ComObjectType objectType, const int32_t userID,
+                                          PrivMgrUserPrivs &userPrivs) {
   PrivMgrDesc privsOfTheUser;
 
   // If authorization is enabled, go get privilege bitmaps from metadata
-  if (authorizationEnabled())
-  {
-    PrivMgrPrivileges objectPrivs (trafMetadataLocation_, metadataLocation_, pDiags_);
-    PrivStatus retcode = objectPrivs.getPrivsOnObjectForUser(objectUID,
-                                                             objectType,
-                                                             userID,
-                                                             privsOfTheUser);
-    if (retcode != STATUS_GOOD)
-      return retcode;
+  if (authorizationEnabled()) {
+    PrivMgrPrivileges objectPrivs(trafMetadataLocation_, metadataLocation_, pDiags_);
+    PrivStatus retcode = objectPrivs.getPrivsOnObjectForUser(objectUID, objectType, userID, privsOfTheUser);
+    if (retcode != STATUS_GOOD) return retcode;
 
     PrivMgrDesc schemaPrivsOfTheUser;
     int64_t schemaUID;
     retcode = getPrivsForSchema(objectUID, userID, schemaUID, schemaPrivsOfTheUser);
-    if (retcode != STATUS_GOOD)
-      return retcode;
+    if (retcode != STATUS_GOOD) return retcode;
 
     userPrivs.setSchemaPrivBitmap(schemaPrivsOfTheUser.getSchemaPrivs().getPrivBitmap());
     userPrivs.setSchemaGrantableBitmap(schemaPrivsOfTheUser.getSchemaPrivs().getWgoBitmap());
@@ -659,30 +538,23 @@ PrivStatus PrivMgrCommands::getPrivileges(
 // *               *: Unable to read privileges, see diags.                    *
 // *                                                                           *
 // *****************************************************************************
-PrivStatus PrivMgrCommands::getPrivRowsForObject(
-   const int64_t objectUID,
-   std::vector<ObjectPrivsRow> & objectPrivsRows)
-   
+PrivStatus PrivMgrCommands::getPrivRowsForObject(const int64_t objectUID, std::vector<ObjectPrivsRow> &objectPrivsRows)
+
 {
+  PrivStatus privStatus = STATUS_GOOD;
 
-PrivStatus privStatus = STATUS_GOOD;
+  try {
+    PrivMgrPrivileges objectPrivileges(objectUID, getMetadataLocation(), pDiags_);
+    privStatus = objectPrivileges.getPrivRowsForObject(objectUID, objectPrivsRows);
+  }
 
-   try
-   {
-      PrivMgrPrivileges objectPrivileges(objectUID,getMetadataLocation(),pDiags_);
-      privStatus = objectPrivileges.getPrivRowsForObject(objectUID, objectPrivsRows);
-   }
+  catch (...) {
+    return STATUS_ERROR;
+  }
 
-   catch (...)
-   {
-      return STATUS_ERROR;
-   }
-   
-   return privStatus;
-
+  return privStatus;
 }
 //*************** End of PrivMgrCommands::getPrivRowsForObject *****************
-
 
 // *****************************************************************************
 // *                                                                           *
@@ -715,46 +587,37 @@ PrivStatus privStatus = STATUS_GOOD;
 // *              A CLI error is put into the diags area.                      *
 // *                                                                           *
 // *****************************************************************************
-PrivStatus PrivMgrCommands::getPrivsForSchema(
-   const int64_t objectUID,
-   int32_t userID,
-   int64_t &schemaUID,
-   PrivMgrDesc &schemaPrivsOfTheUser)
-{
+PrivStatus PrivMgrCommands::getPrivsForSchema(const int64_t objectUID, int32_t userID, int64_t &schemaUID,
+                                              PrivMgrDesc &schemaPrivsOfTheUser) {
   // Get schema UID and schema type for the object
   char buf[500];
-  int stmtLen = snprintf(buf, 500, "WHERE OBJECT_NAME = '__SCHEMA__' "
-                                   "AND SCHEMA_NAME = (SELECT SCHEMA_NAME FROM "
-                                   "%s.%s WHERE OBJECT_UID = %ld) "
-                                   "AND CATALOG_NAME = '%s' "
-                                   "AND OBJECT_TYPE IN ('PS', 'SS') ",
-                         trafMetadataLocation_.c_str(), SEABASE_OBJECTS, 
-                         objectUID, TRAFODION_SYSCAT_LIT);
+  int stmtLen = snprintf(buf, 500,
+                         "WHERE OBJECT_NAME = '__SCHEMA__' "
+                         "AND SCHEMA_NAME = (SELECT SCHEMA_NAME FROM "
+                         "%s.%s WHERE OBJECT_UID = %ld) "
+                         "AND CATALOG_NAME = '%s' "
+                         "AND OBJECT_TYPE IN ('PS', 'SS') ",
+                         trafMetadataLocation_.c_str(), SEABASE_OBJECTS, objectUID, TRAFODION_SYSCAT_LIT);
   std::string whereClause(buf);
 
-  PrivMgrObjects objects (trafMetadataLocation_, metadataLocation_, pDiags_);
+  PrivMgrObjects objects(trafMetadataLocation_, metadataLocation_, pDiags_);
   std::vector<UIDAndType> schemaUIDs;
-  PrivStatus privStatus = objects.fetchUIDandTypes(whereClause,schemaUIDs);
-  if (schemaUIDs.size() > 0)
-  {
-    if (schemaUIDs.size() != 1)
-    {
+  PrivStatus privStatus = objects.fetchUIDandTypes(whereClause, schemaUIDs);
+  if (schemaUIDs.size() > 0) {
+    if (schemaUIDs.size() != 1) {
       SEABASEDDL_INTERNAL_ERROR("Could not retrieve schema privileges for user");
       return STATUS_ERROR;
     }
 
     // gather privileges for the user
     schemaUID = schemaUIDs[0].UID;
-    PrivMgrSchemaPrivileges schemaPrivs (trafMetadataLocation_, metadataLocation_, pDiags_);
-    privStatus = schemaPrivs.getPrivsOnSchemaForUser(schemaUIDs[0].UID,
-                                                     schemaUIDs[0].objectType,
-                                                     userID,
-                                                     schemaPrivsOfTheUser);
+    PrivMgrSchemaPrivileges schemaPrivs(trafMetadataLocation_, metadataLocation_, pDiags_);
+    privStatus =
+        schemaPrivs.getPrivsOnSchemaForUser(schemaUIDs[0].UID, schemaUIDs[0].objectType, userID, schemaPrivsOfTheUser);
   }
   return privStatus;
 }
 //**************** End of PrivMgrCommands::getPrivsForSchema *******************
-
 
 // *****************************************************************************
 // *                                                                           *
@@ -788,36 +651,24 @@ PrivStatus PrivMgrCommands::getPrivsForSchema(
 // *              A CLI error is put into the diags area.                      *
 // *                                                                           *
 // *****************************************************************************
-PrivStatus PrivMgrCommands::givePrivForObjects(
-   const int32_t currentOwnerID,
-   const int32_t newOwnerID,
-   const std::string &newOwnerName,
-   const std::vector<int64_t> &objectUIDs)
-   
+PrivStatus PrivMgrCommands::givePrivForObjects(const int32_t currentOwnerID, const int32_t newOwnerID,
+                                               const std::string &newOwnerName, const std::vector<int64_t> &objectUIDs)
+
 {
+  PrivStatus privStatus = STATUS_GOOD;
 
-PrivStatus privStatus = STATUS_GOOD;
+  try {
+    PrivMgrPrivileges objectPrivileges(getMetadataLocation(), pDiags_);
 
-   try
-   {
-      PrivMgrPrivileges objectPrivileges(getMetadataLocation(),pDiags_);
-      
-      privStatus = objectPrivileges.givePrivForObjects(currentOwnerID,
-                                                       newOwnerID,
-                                                       newOwnerName,
-                                                       objectUIDs);
-   }
+    privStatus = objectPrivileges.givePrivForObjects(currentOwnerID, newOwnerID, newOwnerName, objectUIDs);
+  }
 
-   catch (...)
-   {
-      return STATUS_ERROR;
-   }
-   
-   return privStatus;
+  catch (...) {
+    return STATUS_ERROR;
+  }
 
-
-
-}         
+  return privStatus;
+}
 //**************** End of PrivMgrCommands::givePrivForObjects ******************
 
 // *****************************************************************************
@@ -862,43 +713,29 @@ PrivStatus privStatus = STATUS_GOOD;
 // *              A CLI error is put into the diags area.                      *
 // *                                                                           *
 // *****************************************************************************
-PrivStatus PrivMgrCommands::grantComponentPrivilege(
-   const std::string & componentName,
-   const std::vector<std::string> & operationNamesList,
-   const int32_t grantorID,
-   const std::string & grantorName,
-   const int32_t granteeID,
-   const std::string & granteeName,
-   const int32_t grantDepth)
-   
+PrivStatus PrivMgrCommands::grantComponentPrivilege(const std::string &componentName,
+                                                    const std::vector<std::string> &operationNamesList,
+                                                    const int32_t grantorID, const std::string &grantorName,
+                                                    const int32_t granteeID, const std::string &granteeName,
+                                                    const int32_t grantDepth)
+
 {
+  PrivStatus privStatus = STATUS_GOOD;
 
-PrivStatus privStatus = STATUS_GOOD;
+  try {
+    PrivMgrComponentPrivileges componentPrivileges(getMetadataLocation(), pDiags_);
 
-   try
-   {
-      PrivMgrComponentPrivileges componentPrivileges(getMetadataLocation(),
-                                                     pDiags_);
-      
-      privStatus = componentPrivileges.grantPrivilege(componentName,
-                                                      operationNamesList,
-                                                      grantorID,
-                                                      grantorName,
-                                                      granteeID,
-                                                      granteeName,
-                                                      grantDepth);
-   }
+    privStatus = componentPrivileges.grantPrivilege(componentName, operationNamesList, grantorID, grantorName,
+                                                    granteeID, granteeName, grantDepth);
+  }
 
-   catch (...)
-   {
-      return STATUS_ERROR;
-   }
-   
-   return privStatus;
+  catch (...) {
+    return STATUS_ERROR;
+  }
 
+  return privStatus;
 }
 //************* End of PrivMgrCommands::grantComponentPrivilege ****************
-
 
 // ----------------------------------------------------------------------------
 // method: grantObjectPrivilege
@@ -917,56 +754,37 @@ PrivStatus privStatus = STATUS_GOOD;
 // Returns the status of the request
 // The Trafodion diags area contains any errors that were encountered
 // ----------------------------------------------------------------------------
-PrivStatus PrivMgrCommands::grantObjectPrivilege (
-   const int64_t objectUID,
-   const std::string &objectName,
-   const ComObjectType objectType,
-   const int32_t granteeUID,
-   const std::string &granteeName,
-   const int32_t grantorUID,
-   const std::string &grantorName,
-   const std::vector<PrivType> &privsList,
-   const std::vector<ColPrivSpec> & colPrivsArray,
-   const bool isAllSpecified,
-   const bool isWGOSpecified)
-{
-  if (!isSecurableObject(objectType))
-  {
-    *pDiags_ << DgSqlCode (-15455)
-             << DgString0 ("GRANT")
-             << DgString1 (objectName.c_str());
-     return STATUS_ERROR;
+PrivStatus PrivMgrCommands::grantObjectPrivilege(const int64_t objectUID, const std::string &objectName,
+                                                 const ComObjectType objectType, const int32_t granteeUID,
+                                                 const std::string &granteeName, const int32_t grantorUID,
+                                                 const std::string &grantorName, const std::vector<PrivType> &privsList,
+                                                 const std::vector<ColPrivSpec> &colPrivsArray,
+                                                 const bool isAllSpecified, const bool isWGOSpecified) {
+  if (!isSecurableObject(objectType)) {
+    *pDiags_ << DgSqlCode(-15455) << DgString0("GRANT") << DgString1(objectName.c_str());
+    return STATUS_ERROR;
   }
 
   PrivMgrPrivileges grantCmd(objectUID, objectName, grantorUID, metadataLocation_, pDiags_);
   grantCmd.setTrafMetadataLocation(trafMetadataLocation_);
   grantCmd.setTenantPrivChecks(tenantPrivChecks_);
-  return grantCmd.grantObjectPriv
-   (objectType, granteeUID, granteeName, grantorName, privsList, colPrivsArray, isAllSpecified, isWGOSpecified);
+  return grantCmd.grantObjectPriv(objectType, granteeUID, granteeName, grantorName, privsList, colPrivsArray,
+                                  isAllSpecified, isWGOSpecified);
 }
 
-PrivStatus PrivMgrCommands::grantObjectPrivilege (
-      const int64_t objectUID,
-      const std::string &objectName,
-      const ComObjectType objectType,
-      const int32_t grantorUID,
-      const int32_t granteeUID,
-      const PrivMgrBitmap &objectPrivs,
-      const PrivMgrBitmap &grantablePrivs)
-{
-  if (!isSecurableObject(objectType))
-  {
-    *pDiags_ << DgSqlCode (-15455)
-             << DgString0 ("GRANT")
-             << DgString1 (objectName.c_str());
-     return STATUS_ERROR;
+PrivStatus PrivMgrCommands::grantObjectPrivilege(const int64_t objectUID, const std::string &objectName,
+                                                 const ComObjectType objectType, const int32_t grantorUID,
+                                                 const int32_t granteeUID, const PrivMgrBitmap &objectPrivs,
+                                                 const PrivMgrBitmap &grantablePrivs) {
+  if (!isSecurableObject(objectType)) {
+    *pDiags_ << DgSqlCode(-15455) << DgString0("GRANT") << DgString1(objectName.c_str());
+    return STATUS_ERROR;
   }
 
   PrivMgrPrivileges grantCmd(objectUID, objectName, grantorUID, metadataLocation_, pDiags_);
   grantCmd.setTrafMetadataLocation(trafMetadataLocation_);
   grantCmd.setTenantPrivChecks(tenantPrivChecks_);
-  return grantCmd.grantObjectPriv
-   (objectType, granteeUID, objectPrivs, grantablePrivs);
+  return grantCmd.grantObjectPriv(objectType, granteeUID, objectPrivs, grantablePrivs);
 }
 
 // *****************************************************************************
@@ -1026,47 +844,30 @@ PrivStatus PrivMgrCommands::grantObjectPrivilege (
 // *              A CLI error is put into the diags area.                      *
 // *                                                                           *
 // *****************************************************************************
-PrivStatus PrivMgrCommands::grantRole(
-   const std::vector<int32_t> & roleIDs,
-   const std::vector<std::string> & roleNames,
-   const std::vector<int32_t> & grantorIDs,
-   const std::vector<std::string> & grantorNames,
-   PrivAuthClass grantorClass,
-   const std::vector<int32_t> & grantees,
-   const std::vector<std::string> & granteeNames,
-   const std::vector<PrivAuthClass> & granteeClasses,
-   const int32_t grantDepth)
-    
+PrivStatus PrivMgrCommands::grantRole(const std::vector<int32_t> &roleIDs, const std::vector<std::string> &roleNames,
+                                      const std::vector<int32_t> &grantorIDs,
+                                      const std::vector<std::string> &grantorNames, PrivAuthClass grantorClass,
+                                      const std::vector<int32_t> &grantees,
+                                      const std::vector<std::string> &granteeNames,
+                                      const std::vector<PrivAuthClass> &granteeClasses, const int32_t grantDepth)
+
 {
+  PrivStatus privStatus = STATUS_GOOD;
 
-PrivStatus privStatus = STATUS_GOOD;
+  try {
+    PrivMgrRoles roles(trafMetadataLocation_, metadataLocation_, pDiags_);
 
-   try
-   {
-      PrivMgrRoles roles(trafMetadataLocation_,metadataLocation_,pDiags_);
-      
-      privStatus = roles.grantRole(roleIDs,
-                                   roleNames,
-                                   grantorIDs,
-                                   grantorNames,
-                                   grantorClass,
-                                   grantees,
-                                   granteeNames,                                 
-                                   granteeClasses,                               
-                                   grantDepth);                                   
-   }
+    privStatus = roles.grantRole(roleIDs, roleNames, grantorIDs, grantorNames, grantorClass, grantees, granteeNames,
+                                 granteeClasses, grantDepth);
+  }
 
-   catch (...)
-   {
-      return STATUS_ERROR;
-   }
-   
-   return privStatus;
+  catch (...) {
+    return STATUS_ERROR;
+  }
 
+  return privStatus;
 }
 //******************** End of PrivMgrCommands::grantRole ***********************
-
-
 
 // ----------------------------------------------------------------------------
 // method: grantSchemaPrivilege
@@ -1086,34 +887,22 @@ PrivStatus privStatus = STATUS_GOOD;
 // Returns the status of the request
 // The Trafodion diags area contains any errors that were encountered
 // ----------------------------------------------------------------------------
-PrivStatus PrivMgrCommands::grantSchemaPrivilege (
-   const int64_t schemaUID,
-   const std::string &schemaName,
-   const ComObjectType schemaType,
-   const int32_t grantorID,
-   const std::string &grantorName,
-   const int32_t granteeID,
-   const std::string &granteeName,
-   const int32_t schemaOwnerID,
-   const std::vector<PrivType> &privsList,
-   const bool isAllSpecified,
-   const bool isWGOSpecified)
-{
-  if (!isSecurableObject(schemaType))
-  {
-    *pDiags_ << DgSqlCode (-15455)
-             << DgString0 ("GRANT")
-             << DgString1 (schemaName.c_str());
-     return STATUS_ERROR;
+PrivStatus PrivMgrCommands::grantSchemaPrivilege(const int64_t schemaUID, const std::string &schemaName,
+                                                 const ComObjectType schemaType, const int32_t grantorID,
+                                                 const std::string &grantorName, const int32_t granteeID,
+                                                 const std::string &granteeName, const int32_t schemaOwnerID,
+                                                 const std::vector<PrivType> &privsList, const bool isAllSpecified,
+                                                 const bool isWGOSpecified) {
+  if (!isSecurableObject(schemaType)) {
+    *pDiags_ << DgSqlCode(-15455) << DgString0("GRANT") << DgString1(schemaName.c_str());
+    return STATUS_ERROR;
   }
 
   PrivMgrSchemaPrivileges grantCmd(schemaUID, schemaName, metadataLocation_, pDiags_);
   grantCmd.setTrafMetadataLocation(trafMetadataLocation_);
   grantCmd.setTenantPrivChecks(tenantPrivChecks_);
-  return grantCmd.grantSchemaPriv
-   (schemaType, grantorID, grantorName, 
-    granteeID, granteeName, schemaOwnerID, privsList, 
-    isAllSpecified, isWGOSpecified);
+  return grantCmd.grantSchemaPriv(schemaType, grantorID, grantorName, granteeID, granteeName, schemaOwnerID, privsList,
+                                  isAllSpecified, isWGOSpecified);
 }
 
 // ----------------------------------------------------------------------------
@@ -1121,22 +910,18 @@ PrivStatus PrivMgrCommands::grantSchemaPrivilege (
 //
 // This method creates all the metadata needed by the privilege manager
 //
-// Input: 
+// Input:
 //     Location of the Trafodion OBJECTS table
 //     Location of the Trafodion AUTHS table
 //
 // Returns the status of the request
 // The Trafodion diags area contains any errors that were encountered
 // ----------------------------------------------------------------------------
-PrivStatus PrivMgrCommands::initializeAuthorizationMetadata(
-   std::vector<std::string> tablesCreated,
-   bool initializeMD,
-   ExeCliInterface *cliInterface)
-{
-   PrivMgrMDAdmin metadata(getMetadataLocation(),getDiags());
-   return metadata.initializeMetadata(tablesCreated, initializeMD, cliInterface);
+PrivStatus PrivMgrCommands::initializeAuthorizationMetadata(std::vector<std::string> tablesCreated, bool initializeMD,
+                                                            ExeCliInterface *cliInterface) {
+  PrivMgrMDAdmin metadata(getMetadataLocation(), getDiags());
+  return metadata.initializeMetadata(tablesCreated, initializeMD, cliInterface);
 }
-   
 
 // *****************************************************************************
 // *                                                                           *
@@ -1162,32 +947,25 @@ PrivStatus PrivMgrCommands::initializeAuthorizationMetadata(
 // *               *: Unable to insert, see diags.                             *
 // *                                                                           *
 // *****************************************************************************
-PrivStatus PrivMgrCommands::insertPrivRowsForObject(
-   const int64_t objectUID,
-   const std::vector<ObjectPrivsRow> & objectPrivsRows)
-   
+PrivStatus PrivMgrCommands::insertPrivRowsForObject(const int64_t objectUID,
+                                                    const std::vector<ObjectPrivsRow> &objectPrivsRows)
+
 {
+  PrivStatus privStatus = STATUS_GOOD;
 
-PrivStatus privStatus = STATUS_GOOD;
+  try {
+    PrivMgrPrivileges objectPrivileges(objectUID, getMetadataLocation(), pDiags_);
 
-   try
-   {
-      PrivMgrPrivileges objectPrivileges(objectUID, getMetadataLocation(),pDiags_);
-      
-      privStatus = objectPrivileges.insertPrivRowsForObject(objectUID, objectPrivsRows);
-   }
+    privStatus = objectPrivileges.insertPrivRowsForObject(objectUID, objectPrivsRows);
+  }
 
-   catch (...)
-   {
-      return STATUS_ERROR;
-   }
-   
-   return privStatus;
+  catch (...) {
+    return STATUS_ERROR;
+  }
 
+  return privStatus;
 }
 //************* End of PrivMgrCommands::insertPrivRowsForObject ****************
-
-
 
 // ----------------------------------------------------------------------------
 // method: isPrivMgrTable
@@ -1198,8 +976,7 @@ PrivStatus privStatus = STATUS_GOOD;
 // this method returns true if the passed in object name is a privilege
 // manager metadata object, false otherwise.
 // ----------------------------------------------------------------------------
-bool PrivMgrCommands::isPrivMgrTable(const std::string &objectName)
-{
+bool PrivMgrCommands::isPrivMgrTable(const std::string &objectName) {
   char theQuote = '"';
 
   // Delimited name issue.  The passed in objectName may enclose name parts in
@@ -1211,17 +988,15 @@ bool PrivMgrCommands::isPrivMgrTable(const std::string &objectName)
   std::string nameToCheck(objectName);
   nameToCheck.erase(std::remove(nameToCheck.begin(), nameToCheck.end(), theQuote), nameToCheck.end());
 
-  size_t numTables = sizeof(privMgrTables)/sizeof(PrivMgrTableStruct);
-  for (int ndx_tl = 0; ndx_tl < numTables; ndx_tl++)
-  {
+  size_t numTables = sizeof(privMgrTables) / sizeof(PrivMgrTableStruct);
+  for (int ndx_tl = 0; ndx_tl < numTables; ndx_tl++) {
     const PrivMgrTableStruct &tableDefinition = privMgrTables[ndx_tl];
 
     std::string mdTable = metadataLocation_;
     mdTable.erase(std::remove(mdTable.begin(), mdTable.end(), theQuote), mdTable.end());
 
-    mdTable += std::string(".") + tableDefinition.tableName;   
-    if (mdTable == nameToCheck)
-      return true;
+    mdTable += std::string(".") + tableDefinition.tableName;
+    if (mdTable == nameToCheck) return true;
   }
   return false;
 }
@@ -1260,33 +1035,23 @@ bool PrivMgrCommands::isPrivMgrTable(const std::string &objectName)
 // *           *: Unable to register component name, see diags.                *
 // *                                                                           *
 // *****************************************************************************
-PrivStatus PrivMgrCommands::registerComponent(
-   const std::string &componentName,
-   const bool isSystem,
-   const std::string &componentDescription)
-   
+PrivStatus PrivMgrCommands::registerComponent(const std::string &componentName, const bool isSystem,
+                                              const std::string &componentDescription)
+
 {
+  PrivStatus privStatus = STATUS_GOOD;
 
-PrivStatus privStatus = STATUS_GOOD;
+  try {
+    PrivMgrComponents components(getMetadataLocation(), pDiags_);
 
-   try
-   {
-      PrivMgrComponents components(getMetadataLocation(),pDiags_);
-      
-      privStatus = components.registerComponent(componentName,
-                                                isSystem,
-                                                componentDescription);
-   }
-   catch (...)
-   {
-      return STATUS_ERROR;
-   }
-   
-   return privStatus;
-  
+    privStatus = components.registerComponent(componentName, isSystem, componentDescription);
+  } catch (...) {
+    return STATUS_ERROR;
+  }
+
+  return privStatus;
 }
 //**************** End of PrivMgrCommands::registerComponent *******************
-
 
 // *****************************************************************************
 // *                                                                           *
@@ -1326,37 +1091,25 @@ PrivStatus privStatus = STATUS_GOOD;
 // *              A CLI error is put into the diags area.                      *
 // *                                                                           *
 // *****************************************************************************
-PrivStatus PrivMgrCommands::revokeComponentPrivilege(
-   const std::string & componentName,
-   const std::vector<std::string> & operationNamesList,
-   const int32_t grantorID,
-   const std::string & granteeName,
-   const bool isGOFSpecified,
-   PrivDropBehavior dropBehavior) 
-   
+PrivStatus PrivMgrCommands::revokeComponentPrivilege(const std::string &componentName,
+                                                     const std::vector<std::string> &operationNamesList,
+                                                     const int32_t grantorID, const std::string &granteeName,
+                                                     const bool isGOFSpecified, PrivDropBehavior dropBehavior)
+
 {
+  PrivStatus privStatus = STATUS_GOOD;
 
-PrivStatus privStatus = STATUS_GOOD;
+  try {
+    PrivMgrComponentPrivileges componentPrivileges(getMetadataLocation(), pDiags_);
+    privStatus = componentPrivileges.revokePrivilege(componentName, operationNamesList, grantorID, granteeName,
+                                                     isGOFSpecified, 0, dropBehavior);
+  }
 
-   try
-   {
-      PrivMgrComponentPrivileges componentPrivileges(getMetadataLocation(),
-                                                     pDiags_);
-      privStatus = componentPrivileges.revokePrivilege(componentName,
-                                                       operationNamesList,
-                                                       grantorID,
-                                                       granteeName,
-                                                       isGOFSpecified, 0,
-                                                       dropBehavior);
-   }
+  catch (...) {
+    return STATUS_ERROR;
+  }
 
-   catch (...)
-   {
-      return STATUS_ERROR;
-   }
-   
-   return privStatus;
-
+  return privStatus;
 }
 //************* End of PrivMgrCommands::revokeComponentPrivilege ***************
 
@@ -1376,39 +1129,23 @@ PrivStatus privStatus = STATUS_GOOD;
 // Returns the status of the request
 // The Trafodion diags area contains any errors that were encountered
 // ----------------------------------------------------------------------------
-PrivStatus PrivMgrCommands::revokeObjectPrivilege(
-    const int64_t objectUID,
-    const std::string &objectName,
-    const ComObjectType objectType,
-    const int32_t granteeUID,
-    const std::string & granteeName,
-    const int32_t grantorUID,
-    const std::string & grantorName,
-    const std::vector<PrivType> &privList,
-    const std::vector<ColPrivSpec> & colPrivsArray,
-    const bool isAllSpecified,
-    const bool isGOFSpecified)
-{
-  if (!isSecurableObject(objectType))
-  {
-    *pDiags_ << DgSqlCode (-15455)
-             << DgString0 ("REVOKE")
-             << DgString1 (objectName.c_str());
-     return STATUS_ERROR;
+PrivStatus PrivMgrCommands::revokeObjectPrivilege(const int64_t objectUID, const std::string &objectName,
+                                                  const ComObjectType objectType, const int32_t granteeUID,
+                                                  const std::string &granteeName, const int32_t grantorUID,
+                                                  const std::string &grantorName, const std::vector<PrivType> &privList,
+                                                  const std::vector<ColPrivSpec> &colPrivsArray,
+                                                  const bool isAllSpecified, const bool isGOFSpecified) {
+  if (!isSecurableObject(objectType)) {
+    *pDiags_ << DgSqlCode(-15455) << DgString0("REVOKE") << DgString1(objectName.c_str());
+    return STATUS_ERROR;
   }
 
   // set up privileges class
   PrivMgrPrivileges revokeCmd(objectUID, objectName, grantorUID, metadataLocation_, pDiags_);
   revokeCmd.setTrafMetadataLocation(trafMetadataLocation_);
   revokeCmd.setTenantPrivChecks(tenantPrivChecks_);
-  return revokeCmd.revokeObjectPriv(objectType,
-                                    granteeUID,
-                                    granteeName,
-                                    grantorName, 
-                                    privList,
-                                    colPrivsArray,
-                                    isAllSpecified, 
-                                    isGOFSpecified); 
+  return revokeCmd.revokeObjectPriv(objectType, granteeUID, granteeName, grantorName, privList, colPrivsArray,
+                                    isAllSpecified, isGOFSpecified);
 }
 
 // ----------------------------------------------------------------------------
@@ -1423,15 +1160,11 @@ PrivStatus PrivMgrCommands::revokeObjectPrivilege(
 // Returns the status of the request
 // The Trafodion diags area contains any errors that were encountered
 // ----------------------------------------------------------------------------
-PrivStatus PrivMgrCommands::revokeObjectPrivilege(
-    const int64_t objectUID,
-    const std::string &objectName,
-    const int32_t grantorUID)
-{
+PrivStatus PrivMgrCommands::revokeObjectPrivilege(const int64_t objectUID, const std::string &objectName,
+                                                  const int32_t grantorUID) {
   // If we are revoking privileges on the authorization tables,
   // just return STATUS_GOOD.  Object_privileges will go away.
-  if (isPrivMgrTable(objectName))
-    return STATUS_GOOD;
+  if (isPrivMgrTable(objectName)) return STATUS_GOOD;
 
   // set up privileges class
   PrivMgrPrivileges revokeCmd(objectUID, objectName, grantorUID, metadataLocation_, pDiags_);
@@ -1485,47 +1218,33 @@ PrivStatus PrivMgrCommands::revokeObjectPrivilege(
 // *              A CLI error is put into the diags area.                      *
 // *                                                                           *
 // *****************************************************************************
-PrivStatus PrivMgrCommands::revokeRole(
-   const std::vector<int32_t> & roleIDs,
-   const std::vector<int32_t> & granteeIDs,
-   const std::vector<PrivAuthClass> & granteeClasses,
-   const std::vector<int32_t> & grantorIDs,
-   const bool isGOFSpecified,
-   const int32_t newGrantDepth,
-   PrivDropBehavior dropBehavior) 
-    
+PrivStatus PrivMgrCommands::revokeRole(const std::vector<int32_t> &roleIDs, const std::vector<int32_t> &granteeIDs,
+                                       const std::vector<PrivAuthClass> &granteeClasses,
+                                       const std::vector<int32_t> &grantorIDs, const bool isGOFSpecified,
+                                       const int32_t newGrantDepth, PrivDropBehavior dropBehavior)
+
 {
+  PrivStatus privStatus = STATUS_GOOD;
 
-PrivStatus privStatus = STATUS_GOOD;
+  try {
+    PrivMgrRoles roles(trafMetadataLocation_, metadataLocation_, pDiags_);
 
-   try
-   {
-      PrivMgrRoles roles(trafMetadataLocation_,metadataLocation_,pDiags_);
-      
-      privStatus = roles.revokeRole(roleIDs,
-                                    granteeIDs,
-                                    granteeClasses,
-                                    grantorIDs,
-                                    isGOFSpecified,
-                                    newGrantDepth,
-                                    dropBehavior);
-   }
+    privStatus =
+        roles.revokeRole(roleIDs, granteeIDs, granteeClasses, grantorIDs, isGOFSpecified, newGrantDepth, dropBehavior);
+  }
 
-   catch (...)
-   {
-      return STATUS_ERROR;
-   }
-   
-   return privStatus;
+  catch (...) {
+    return STATUS_ERROR;
+  }
 
+  return privStatus;
 }
 //******************** End of PrivMgrCommands::revokeRole **********************
-
 
 // ----------------------------------------------------------------------------
 // method: revokeSchemaPrivilege
 //
-// Revokes all privileges from a schema, called when the schema is dropped 
+// Revokes all privileges from a schema, called when the schema is dropped
 //
 // Input:
 //    schemaUID, schemaName - identifies the oject
@@ -1533,13 +1252,9 @@ PrivStatus privStatus = STATUS_GOOD;
 // Returns the status of the request
 // The Trafodion diags area contains any errors that were encountered
 // ----------------------------------------------------------------------------
-PrivStatus PrivMgrCommands::revokeSchemaPrivilege(
-    const int64_t schemaUID,
-    const std::string &schemaName)
-{
+PrivStatus PrivMgrCommands::revokeSchemaPrivilege(const int64_t schemaUID, const std::string &schemaName) {
   // If revoking from PRIVMGR schema, just return
-  if (strcmp(schemaName.c_str(), SEABASE_PRIVMGR_SCHEMA) == 0)
-    return STATUS_GOOD;
+  if (strcmp(schemaName.c_str(), SEABASE_PRIVMGR_SCHEMA) == 0) return STATUS_GOOD;
 
   PrivMgrSchemaPrivileges revokeCmd(schemaUID, schemaName, metadataLocation_, pDiags_);
   return revokeCmd.revokeSchemaPriv();
@@ -1562,42 +1277,24 @@ PrivStatus PrivMgrCommands::revokeSchemaPrivilege(
 // Returns the status of the request
 // The Trafodion diags area contains any errors that were encountered
 // ----------------------------------------------------------------------------
-PrivStatus PrivMgrCommands::revokeSchemaPrivilege(
-    const int64_t schemaUID,
-    const std::string &schemaName,
-    const ComObjectType schemaType,
-    const int32_t grantorID,
-    const std::string & grantorName,
-    const int32_t granteeID,
-    const std::string & granteeName,
-    const int32_t schemaOwnerID,
-    const std::vector<PrivType> &privList,
-    const bool isAllSpecified,
-    const bool isGOFSpecified)
-{
-  if (!isSecurableObject(schemaType))
-  {
-    *pDiags_ << DgSqlCode (-15455)
-             << DgString0 ("REVOKE")
-             << DgString1 (schemaName.c_str());
-     return STATUS_ERROR;
+PrivStatus PrivMgrCommands::revokeSchemaPrivilege(const int64_t schemaUID, const std::string &schemaName,
+                                                  const ComObjectType schemaType, const int32_t grantorID,
+                                                  const std::string &grantorName, const int32_t granteeID,
+                                                  const std::string &granteeName, const int32_t schemaOwnerID,
+                                                  const std::vector<PrivType> &privList, const bool isAllSpecified,
+                                                  const bool isGOFSpecified) {
+  if (!isSecurableObject(schemaType)) {
+    *pDiags_ << DgSqlCode(-15455) << DgString0("REVOKE") << DgString1(schemaName.c_str());
+    return STATUS_ERROR;
   }
 
   // set up privileges class
   PrivMgrSchemaPrivileges revokeCmd(schemaUID, schemaName, metadataLocation_, pDiags_);
   revokeCmd.setTrafMetadataLocation(trafMetadataLocation_);
   revokeCmd.setTenantPrivChecks(tenantPrivChecks_);
-  return revokeCmd.revokeSchemaPriv(schemaType,
-                                    grantorID,
-                                    grantorName,
-                                    granteeID,
-                                    granteeName,
-                                    schemaOwnerID,
-                                    privList,
-                                    isAllSpecified,
-                                    isGOFSpecified);
+  return revokeCmd.revokeSchemaPriv(schemaType, grantorID, grantorName, granteeID, granteeName, schemaOwnerID, privList,
+                                    isAllSpecified, isGOFSpecified);
 }
-
 
 // *****************************************************************************
 // *                                                                           *
@@ -1626,87 +1323,75 @@ PrivStatus PrivMgrCommands::revokeSchemaPrivilege(
 // *           *: Unable to unregister component, see diags.                   *
 // *                                                                           *
 // *****************************************************************************
-PrivStatus PrivMgrCommands::unregisterComponent(
-   const std::string & componentName,
-   PrivDropBehavior dropBehavior)
+PrivStatus PrivMgrCommands::unregisterComponent(const std::string &componentName, PrivDropBehavior dropBehavior)
 
 {
+  PrivStatus privStatus = STATUS_GOOD;
 
-PrivStatus privStatus = STATUS_GOOD;
+  try {
+    PrivMgrComponents components(getMetadataLocation(), pDiags_);
 
-   try
-   {
-      PrivMgrComponents components(getMetadataLocation(),pDiags_);
+    privStatus = components.unregisterComponent(componentName, dropBehavior);
+  }
 
-      privStatus = components.unregisterComponent(componentName,dropBehavior);
-   }
+  catch (...) {
+    return STATUS_ERROR;
+  }
 
-   catch (...)
-   {
-      return STATUS_ERROR;
-   }
-
-   return privStatus;
-
+  return privStatus;
 }
 //*************** End of PrivMgrCommands::unregisterComponent ******************
 
-Int32 PrivMgrCommands::recreateRoleRelationship(ExeCliInterface *cliInterface)
-{
-    Queue *cntQueue = NULL;
-    char buf[1024 * 5] = {0};
-    std::stringstream sb;
-    Int32 cliRC = 0;
-    NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
-    //number roleId in _MD_.auths >= number roleId in _PRIVMGR_MD_.ROLE_USAGE
-    str_sprintf(buf, "select distinct AUTH_ID,AUTH_DB_NAME from %s.\"%s\".%s where AUTH_ID >= %d and AUTH_ID <= %d except select distinct ROLE_ID,ROLE_NAME from %s.\"%s\".ROLE_USAGE",
-                sysCat.data(), SEABASE_MD_SCHEMA, SEABASE_AUTHS, MIN_ROLEID, MAX_ROLEID,
-                sysCat.data(), SEABASE_PRIVMGR_SCHEMA);
-    cliRC = cliInterface->fetchAllRows(cntQueue, buf, 0, false, false, true);
-    if (cliRC < 0)
-    {
-        return cliRC;
-    }
-    else if (cliRC == 100 || cntQueue->numEntries() == 0)
-    {
-        //all ready!
-        return 0;
-    }
-    cntQueue->position();
-    Lng32 count = 0;
-    for (; count < cntQueue->numEntries(); count++)
-    {
-        OutputInfo *pCliRow = (OutputInfo *)cntQueue->getNext();
-        sb << '('
-           << *((Int32 *)pCliRow->get(0))                    //ROLE_ID
-           << ',' << '\'' << (char *)pCliRow->get(1) << '\'' //ROLE_NAME
-           << ',' << SUPER_USER_LIT                          //GRANTEE_ID
-           << ',' << '\'' << DB__ROOT << '\''                //GRANTEE_NAME
-           << ',' << '\'' << COM_USER_COLUMN_LIT << '\''     //GRANTEE_AUTH_CLASS
-           << ',' << SYSTEM_USER                             //GRANTOR_ID
-           << ',' << '\'' << SYSTEM_AUTH_NAME << '\''        //GRANTOR_NAME
-           << ',' << '\'' << COM_USER_COLUMN_LIT << '\''     //GRANTOR_AUTH_CLASS
-           << ',' << "-1"                                    //GRANT_DEPTH
-           << "),";//add ','
-    }
-    sb << std::ends;
-    //"regrant" role with admin option to db__root
-    //don't use std::stringstream::str().length()
-    if (count)
-    {
-        //not str_sprintf
-        bzero(buf, sizeof(buf));
-        std::string str = sb.str();
-        //delete last of ,
-        //not use str.erase(str.end() - 1);!
-        str.erase(str.find_last_of(","), 1);
-        sb.str("");
-        snprintf(buf, sizeof(buf) - 1, "upsert into %s.\"%s\".ROLE_USAGE values %s",
-                 sysCat.data(), SEABASE_PRIVMGR_SCHEMA, str.c_str());
+Int32 PrivMgrCommands::recreateRoleRelationship(ExeCliInterface *cliInterface) {
+  Queue *cntQueue = NULL;
+  char buf[1024 * 5] = {0};
+  std::stringstream sb;
+  Int32 cliRC = 0;
+  NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
+  // number roleId in _MD_.auths >= number roleId in _PRIVMGR_MD_.ROLE_USAGE
+  str_sprintf(buf,
+              "select distinct AUTH_ID,AUTH_DB_NAME from %s.\"%s\".%s where AUTH_ID >= %d and AUTH_ID <= %d except "
+              "select distinct ROLE_ID,ROLE_NAME from %s.\"%s\".ROLE_USAGE",
+              sysCat.data(), SEABASE_MD_SCHEMA, SEABASE_AUTHS, MIN_ROLEID, MAX_ROLEID, sysCat.data(),
+              SEABASE_PRIVMGR_SCHEMA);
+  cliRC = cliInterface->fetchAllRows(cntQueue, buf, 0, false, false, true);
+  if (cliRC < 0) {
+    return cliRC;
+  } else if (cliRC == 100 || cntQueue->numEntries() == 0) {
+    // all ready!
+    return 0;
+  }
+  cntQueue->position();
+  Lng32 count = 0;
+  for (; count < cntQueue->numEntries(); count++) {
+    OutputInfo *pCliRow = (OutputInfo *)cntQueue->getNext();
+    sb << '(' << *((Int32 *)pCliRow->get(0))              // ROLE_ID
+       << ',' << '\'' << (char *)pCliRow->get(1) << '\''  // ROLE_NAME
+       << ',' << SUPER_USER_LIT                           // GRANTEE_ID
+       << ',' << '\'' << DB__ROOT << '\''                 // GRANTEE_NAME
+       << ',' << '\'' << COM_USER_COLUMN_LIT << '\''      // GRANTEE_AUTH_CLASS
+       << ',' << SYSTEM_USER                              // GRANTOR_ID
+       << ',' << '\'' << SYSTEM_AUTH_NAME << '\''         // GRANTOR_NAME
+       << ',' << '\'' << COM_USER_COLUMN_LIT << '\''      // GRANTOR_AUTH_CLASS
+       << ',' << "-1"                                     // GRANT_DEPTH
+       << "),";                                           // add ','
+  }
+  sb << std::ends;
+  //"regrant" role with admin option to db__root
+  // don't use std::stringstream::str().length()
+  if (count) {
+    // not str_sprintf
+    bzero(buf, sizeof(buf));
+    std::string str = sb.str();
+    // delete last of ,
+    // not use str.erase(str.end() - 1);!
+    str.erase(str.find_last_of(","), 1);
+    sb.str("");
+    snprintf(buf, sizeof(buf) - 1, "upsert into %s.\"%s\".ROLE_USAGE values %s", sysCat.data(), SEABASE_PRIVMGR_SCHEMA,
+             str.c_str());
 
-        cliRC = cliInterface->executeImmediate(buf);
-    }
-    //cliRC = 100 is ok
-    return cliRC > 0 ? 0 : cliRC;
+    cliRC = cliInterface->executeImmediate(buf);
+  }
+  // cliRC = 100 is ok
+  return cliRC > 0 ? 0 : cliRC;
 }
-

@@ -33,7 +33,7 @@
 */
 
 
-#include "ColumnDesc.h"
+#include "optimizer/ColumnDesc.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

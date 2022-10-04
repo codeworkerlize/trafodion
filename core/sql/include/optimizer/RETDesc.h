@@ -42,10 +42,10 @@
 
 
 #include "common/Collections.h"
-#include "ColumnDesc.h"
-#include "ColumnNameMap.h"
+#include "optimizer/ColumnDesc.h"
+#include "optimizer/ColumnNameMap.h"
 #include "optimizer/ObjectNames.h"
-#include "TableNameMap.h"
+#include "optimizer/TableNameMap.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

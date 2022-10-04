@@ -6,9 +6,9 @@
  *
  * File:         <file>
  * RCS:          $Id: NewDel.h,v 1.3 1998/06/16 18:02:57  Exp $
- * Description:  
- *               
- *               
+ * Description:
+ *
+ *
  * Created:      7/10/95
  * Modified:     $ $Date: 1998/06/16 18:02:57 $ (GMT)
  * Language:     C++
@@ -45,17 +45,17 @@
 // so it can be wiped out at the end of statement. To avoid changing the
 // code globally, the global new/delete are overloaded to get the memory
 // from certain NAMemory*.
-// 
+//
 // A stack of NAMemory * are allocated and initilized as empty.
 // PushGlobalMemory (NAMemory* h) will push h into the stack.
 // PopGlobalMemory () will pop one from the stack.
 //
-// The global new/delete operators will allocate the memory from the 
+// The global new/delete operators will allocate the memory from the
 // NAMemory * on the top of the stack. If the stack is empty, malloc/free
 // will be used to allocate memory.
 // Note : if you don't want to overload the global new/delete, e.g.
 // executor, don't include 'NewDel.h' and can not link with NewDel.o
-// 
+//
 // -----------------------------------------------------------------------
 #if (defined(_DEBUG) || defined(NSK_MEMDEBUG))
 typedef void (*PNH)();
@@ -65,9 +65,9 @@ class NAMemory;
 // to use h->allocateMemory() and h->deallocateMemory(), it returns an
 // ID for the current NAMemory* for new/delete.
 
-Lng32 PushGlobalMemory(NAMemory* h=0);
+Lng32 PushGlobalMemory(NAMemory *h = 0);
 
-// PopGlobalMemory will pop a NAMemory * from the global stack for 
+// PopGlobalMemory will pop a NAMemory * from the global stack for
 // global new/delete operator.
 
 void PopGlobalMemory();

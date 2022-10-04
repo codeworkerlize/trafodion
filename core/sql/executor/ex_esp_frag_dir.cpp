@@ -40,11 +40,11 @@
 
 #include "common/Platform.h"
 #include <stdlib.h>
-#include "ex_stdh.h"
+#include "executor/ex_stdh.h"
 #include "ex_exe_stmt_globals.h"
 #include "ex_esp_frag_dir.h"
 #include "comexe/ComTdb.h"
-#include "ex_tcb.h"
+#include "executor/ex_tcb.h"
 #include "ex_split_bottom.h"
 #include "ex_send_bottom.h"
 #include "common/ComSpace.h"
@@ -213,7 +213,7 @@ ExEspFragInstanceDir::~ExEspFragInstanceDir()
   }
 }
 
-ExFragInstanceHandle ExEspFragInstanceDir::findHandle(
+int ExEspFragInstanceDir::findHandle(
 					    const ExFragKey &key) const
 {
   NAMutexScope ms(mutex_);
@@ -226,12 +226,12 @@ ExFragInstanceHandle ExEspFragInstanceDir::findHandle(
   return NullFragInstanceHandle;
 }
 
-ExFragInstanceHandle ExEspFragInstanceDir::addEntry(ExMsgFragment *msgFragment,
+int ExEspFragInstanceDir::addEntry(ExMsgFragment *msgFragment,
 						    IpcConnection *connection,
                                                     ComDiagsArea &da)
 {
   NAMutexScope ms(mutex_);
-  ExFragInstanceHandle result = instances_.unusedIndex();
+  int result = instances_.unusedIndex();
   ExEspFragInstance *inst = new(heap_) ExEspFragInstance;
   const ExFragKey &key = msgFragment->getKey();
 
@@ -312,7 +312,7 @@ ExFragInstanceHandle ExEspFragInstanceDir::addEntry(ExMsgFragment *msgFragment,
   return result;
 }
 
-void ExEspFragInstanceDir::fixupEntry(ExFragInstanceHandle handle,
+void ExEspFragInstanceDir::fixupEntry(int handle,
 				      Lng32 numOfParentInstances,
 				      ComDiagsArea &da)
 {
@@ -426,7 +426,7 @@ void ExEspFragInstanceDir::fixupEntry(ExFragInstanceHandle handle,
 }
 
 void ExEspFragInstanceDir::openedSendBottom(
-     ExFragInstanceHandle handle)
+     int handle)
 {
   NAMutexScope ms(mutex_);
 
@@ -447,7 +447,7 @@ void ExEspFragInstanceDir::openedSendBottom(
 // transition: RELEASING_WORK -> READY_INACTIVE.  
 
 void ExEspFragInstanceDir::startedSendBottomRequest(
-     ExFragInstanceHandle handle)
+     int handle)
 {
   NAMutexScope ms(mutex_);
 
@@ -466,7 +466,7 @@ void ExEspFragInstanceDir::startedSendBottomRequest(
 }
 
 void ExEspFragInstanceDir::finishedSendBottomRequest(
-     ExFragInstanceHandle handle)
+     int handle)
 {
   NAMutexScope ms(mutex_);
 
@@ -481,7 +481,7 @@ void ExEspFragInstanceDir::finishedSendBottomRequest(
 }
 
 void ExEspFragInstanceDir::startedSendBottomCancel(
-     ExFragInstanceHandle handle)
+     int handle)
 {
   NAMutexScope ms(mutex_);
 
@@ -500,7 +500,7 @@ void ExEspFragInstanceDir::startedSendBottomCancel(
 }
 
 void ExEspFragInstanceDir::finishedSendBottomCancel(
-     ExFragInstanceHandle handle)
+     int handle)
 {
   NAMutexScope ms(mutex_);
 
@@ -515,7 +515,7 @@ void ExEspFragInstanceDir::finishedSendBottomCancel(
 }
 
 void ExEspFragInstanceDir::startedLateCancelRequest(
-     ExFragInstanceHandle handle)
+     int handle)
 {
   NAMutexScope ms(mutex_);
 
@@ -526,7 +526,7 @@ void ExEspFragInstanceDir::startedLateCancelRequest(
 }
 
 void ExEspFragInstanceDir::finishedLateCancelRequest(
-     ExFragInstanceHandle handle)
+     int handle)
 {
   NAMutexScope ms(mutex_);
 
@@ -550,7 +550,7 @@ void ExEspFragInstanceDir::finishedLateCancelRequest(
 // for example it might be to allow a temporary suspension of the 
 // transaction.
 void ExEspFragInstanceDir::finishedRequest(
-     ExFragInstanceHandle handle,
+     int handle,
      NABoolean testAllQueues)
 {
   NAMutexScope ms(mutex_);
@@ -574,14 +574,14 @@ void ExEspFragInstanceDir::finishedRequest(
     }
 }
 
-Lng32 ExEspFragInstanceDir::numLateCancelRequests(ExFragInstanceHandle handle)
+Lng32 ExEspFragInstanceDir::numLateCancelRequests(int handle)
 {
   NAMutexScope ms(mutex_);
 
   return instances_[handle]->numLateCancelRequests_;
 }
 
-void ExEspFragInstanceDir::releaseEntry(ExFragInstanceHandle handle)
+void ExEspFragInstanceDir::releaseEntry(int handle)
 {
   NAMutexScope ms(mutex_);
   ExEspFragInstance *entry;
@@ -630,7 +630,7 @@ void ExEspFragInstanceDir::releaseOrphanEntries()
 }
 
 void ExEspFragInstanceDir::hasTransidReleaseRequest(
-     ExFragInstanceHandle handle)
+     int handle)
 {
   NAConditionalMutexScope cms(&mutex_);
   ExEspFragInstance *entry;
@@ -701,7 +701,7 @@ void ExEspFragInstanceDir::hasTransidReleaseRequest(
 }
 
 void ExEspFragInstanceDir::hasReleaseRequest(
-     ExFragInstanceHandle handle)
+     int handle)
 {
   NAMutexScope ms(mutex_);
 
@@ -962,7 +962,7 @@ ExEspFragInstanceDir::ExEspFragInstance * ExEspFragInstanceDir::findEntry(
   return NULL;
 }
 
-void ExEspFragInstanceDir::destroyEntry(ExFragInstanceHandle handle)
+void ExEspFragInstanceDir::destroyEntry(int handle)
 {
   NAMutexScope ms(mutex_);
   ExEspFragInstance *entry = instances_[handle];
@@ -1131,7 +1131,7 @@ void ExEspFragInstanceDir::initFiStateTrace()
 }
 
 enum ExEspFragInstanceDir::FragmentInstanceState 
-ExEspFragInstanceDir::setFiState(ExFragInstanceHandle fragId, 
+ExEspFragInstanceDir::setFiState(int fragId, 
                    enum ExEspFragInstanceDir::FragmentInstanceState newState, 
                    Int32 linenum)
 {
@@ -1476,7 +1476,7 @@ void ExEspControlMessage::actOnLoadFragmentReq(
      ComDiagsArea &da)
 {
   ExEspLoadFragmentReqHeader receivedRequest(heap_);
-  ExFragInstanceHandle assignedHandle = NullFragInstanceHandle;
+  int assignedHandle = NullFragInstanceHandle;
 
   *this >> receivedRequest;
 
@@ -1508,7 +1508,7 @@ void ExEspControlMessage::actOnLoadFragmentReq(
     }
       fragInstanceDir_->setDatabaseUserID(userID, userName);
     
-    ExFragInstanceHandle newHandle =
+    int newHandle =
       fragInstanceDir_->addEntry(msgFragment,connection,da);
     
     if (msgFragment->getFragType() == ExFragDir::ESP)

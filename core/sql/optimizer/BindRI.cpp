@@ -87,9 +87,9 @@
 #endif // documentation
 
 #include "sqlcat/TrafDDLdesc.h"
-#include "BindWA.h"
+#include "optimizer/BindWA.h"
 #include "optimizer/ItemConstr.h"
-#include "NATable.h"
+#include "optimizer/NATable.h"
 
 /*static*/ void Constraint::makeColSignature(const ValueIdSet &assigns,
 					     ColSignature &outsig)

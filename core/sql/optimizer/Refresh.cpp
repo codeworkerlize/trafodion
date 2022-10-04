@@ -38,14 +38,14 @@
 #define  SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 
 
-#include "Sqlcomp.h"
-#include "AllItemExpr.h"
-#include "AllRelExpr.h"
-#include "BindWA.h"
+#include "optimizer/Sqlcomp.h"
+#include "optimizer/AllItemExpr.h"
+#include "optimizer/AllRelExpr.h"
+#include "optimizer/BindWA.h"
 #include "GroupAttr.h"
-#include "parser.h"
+#include "sqlcomp/parser.h"
 #include "parser/StmtNode.h"
-#include "Inlining.h"
+#include "optimizer/Inlining.h"
 #include "optimizer/Triggers.h"
 #include "MVInfo.h"
 #include "MVJoinGraph.h"

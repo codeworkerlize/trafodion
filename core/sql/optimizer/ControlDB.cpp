@@ -43,21 +43,21 @@
 	//##	(e.g. as done in CmpDescribe's sendAllControls func).
 
 
-#include "ControlDB.h"
+#include "optimizer/ControlDB.h"
 
 #include "common/CmpCommon.h"
 #include "arkcmp/CmpContext.h"
 #include "common/ComSchemaName.h"
 
-#include "AllRelExpr.h"			// various operators for CQS
+#include "optimizer/AllRelExpr.h"			// various operators for CQS
 #include "RelPackedRows.h"
 #include "RelSample.h"
 #include "RelSequence.h"
 #include "optimizer/ItemColRef.h"			// ConstValue for CQS
-#include "CmpMain.h"
-#include "QCache.h"
-#include "CmpMemoryMonitor.h"
-#include "OptimizerSimulator.h"
+#include "sqlcomp/CmpMain.h"
+#include "sqlcomp/QCache.h"
+#include "optimizer/CmpMemoryMonitor.h"
+#include "optimizer/OptimizerSimulator.h"
 
 #include "cli_stdh.h"
 

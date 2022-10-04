@@ -38,8 +38,8 @@
 
 #include "arkcmp/CmpISPStd.h"
 #include "export/NABasicObject.h"
-#include "QueryCacheSt.h"
-#include "NATable.h"
+#include "arkcmp/QueryCacheSt.h"
+#include "optimizer/NATable.h"
 
 
 //-----------------------------------------------------------------------

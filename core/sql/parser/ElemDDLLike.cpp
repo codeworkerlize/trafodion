@@ -41,7 +41,7 @@
 
 #include "AllElemDDLLike.h"
 #include "common/ComASSERT.h"
-#include "ComOperators.h"
+#include "common/ComOperators.h"
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLLike

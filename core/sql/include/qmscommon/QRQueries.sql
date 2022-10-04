@@ -39,7 +39,7 @@
 #include "QRQueries.h"
 #include "common/Platform.h"  //64-bit project
 #include "common/NAWinNT.h"
-#include "wstr.h"
+#include "common/wstr.h"
 #include "common/csconvert.h"
 #include "catapirequest.h"
 

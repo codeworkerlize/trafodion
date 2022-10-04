@@ -46,25 +46,25 @@
 
 #define   SQLPARSERGLOBALS_FLAGS        // should precede all other #include's
 
-#include "Sqlcomp.h"
-#include "BindWA.h"
+#include "optimizer/Sqlcomp.h"
+#include "optimizer/BindWA.h"
 #include "arkcmp/CmpContext.h"
-#include "StmtDDLCreateView.h"
-#include "RelMisc.h"
-#include "ItemOther.h"
+#include "parser/StmtDDLCreateView.h"
+#include "optimizer/RelMisc.h"
+#include "optimizer/ItemOther.h"
 #include "RelJoin.h"
 #include "ItemSubq.h"
 #include "ItemFunc.h"
 
-#include "RelMisc.h"
-#include "ItemOther.h"
+#include "optimizer/RelMisc.h"
+#include "optimizer/ItemOther.h"
 #include "RelJoin.h"
 #include "RelUpdate.h"
 #include "MvRefreshBuilder.h"
 
 
 #define   SQLPARSERGLOBALS_NADEFAULTS
-#include "SqlParserGlobalsCmn.h"
+#include "parser/SqlParserGlobalsCmn.h"
 #include "parser/SqlParserGlobals.h"           // should be last #include
 
 // ***********************************************************************

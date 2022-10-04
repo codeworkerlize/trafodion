@@ -33,7 +33,7 @@
 
 #include "VersioningStoredProc.h"
 #include "common/CmpCommon.h"
-#include "CmpErrors.h"
+#include "arkcmp/CmpErrors.h"
 
 #include "CatSQLObjectCache.h"
 #include "CatROBaseTable.h"

@@ -64,12 +64,12 @@
 #include  "ErrorMessage.h"
 #include  "HBaseClient_JNI.h"
 
-#include "CmpDDLCatErrorCodes.h"
+#include "sqlcomp/CmpDDLCatErrorCodes.h"
 #include "sqlcomp/PrivMgrDefs.h"
 #include "sqlcomp/PrivMgrCommands.h"
-#include "PrivMgrComponentPrivileges.h"
+#include "sqlcomp/PrivMgrComponentPrivileges.h"
 
-#include "ExpHbaseInterface.h"
+#include "exp/ExpHbaseInterface.h"
 #include "executor/sql_buffer_size.h"
 
 #include "common/NAType.h"

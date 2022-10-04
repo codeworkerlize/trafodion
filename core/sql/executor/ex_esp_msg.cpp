@@ -39,10 +39,10 @@
 // -----------------------------------------------------------------------
 
 #include "common/Platform.h"
-#include "ex_stdh.h"
+#include "executor/ex_stdh.h"
 #include "Ex_esp_msg.h"
 #include "comexe/LateBindInfo.h"
-#include "timeout_data.h"  
+#include "executor/timeout_data.h"  
 #include "common/NAUserId.h"
 #include "common/ComRtUtils.h"
 

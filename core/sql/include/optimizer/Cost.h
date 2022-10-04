@@ -44,13 +44,13 @@
 #include "common/BaseTypes.h"
 #include "common/NAType.h"
 #include "optimizer/ValueDesc.h"
-#include "PhyProp.h"
-#include "PhyProp.h"
+#include "optimizer/PhyProp.h"
+#include "optimizer/PhyProp.h"
 #include "optimizer/CostScalar.h"
 #include "CostVector.h"
 
 #include "sqlcomp/DefaultConstants.h"
-#include "opt.h"
+#include "optimizer/opt.h"
 
 
 // -----------------------------------------------------------------------

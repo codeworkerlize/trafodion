@@ -35,22 +35,22 @@
 *
 ******************************************************************************
 */
-#include "ComOptIncludes.h"
+#include "common/ComOptIncludes.h"
 #include "GroupAttr.h"
-#include "RelGrby.h"
-#include "Generator.h"
+#include "optimizer/RelGrby.h"
+#include "generator/Generator.h"
 #include "GenExpGenerator.h"
-//#include "ex_stdh.h"
+//#include "executor/ex_stdh.h"
 #include "exp/ExpCriDesc.h"
 #include "comexe/ComTdb.h"
-//#include "ex_tcb.h"
+//#include "executor/ex_tcb.h"
 #include "HashRow.h"
 #include "hash_table.h" // for HashTableHeader
 #include "comexe/ComTdbHashGrby.h"
 #include "comexe/ComTdbSortGrby.h"
 #include "sqlcomp/DefaultConstants.h"
 #include "ItmBitMuxFunction.h"
-#include "ComUnits.h"
+#include "common/ComUnits.h"
 #include "executor/sql_buffer_size.h"
 
 

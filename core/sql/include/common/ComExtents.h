@@ -42,7 +42,7 @@
 #ifndef _COM_EXTENTS_H_
 #define _COM_EXTENTS_H_
 
-#include "ComUnits.h"
+#include "common/ComUnits.h"
 #include "common/ComSmallDefs.h"
 #include "common/Int64.h"
 

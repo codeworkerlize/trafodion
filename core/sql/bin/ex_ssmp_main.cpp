@@ -45,15 +45,15 @@
 #include "common/Ipc.h"
 #include "cli/Globals.h"
 #include "runtimestats/SqlStats.h"
-#include "cli/memorymonitor.h"
+
 #include "runtimestats/ssmpipc.h"
-#include "rts_msg.h"
+#include "runtimestats/rts_msg.h"
 #include "porting/PortProcessCalls.h"
 #include "seabed/ms.h"
 #include "seabed/fs.h"
 #include "seabed/pctl.h"
 extern void my_mpi_fclose();
-#include "SCMVersHelp.h"
+#include "common/SCMVersHelp.h"
 DEFINE_DOVERS(mxssmp)
 
 void  runServer(Int32 argc, char **argv);

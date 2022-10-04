@@ -23,10 +23,10 @@
 #ifndef MEMORY_TABLE_CLIENT_H
 #define MEMORY_TABLE_CLIENT_H
 
-#include "MemoryTableDB.h"
+#include "executor/MemoryTableDB.h"
 #include "common/NAMemory.h"
 #include "exp/ExpHbaseDefs.h"
-#include "HBaseClient_JNI.h"
+#include "executor/HBaseClient_JNI.h"
 
 class MemoryTableClient : public NABasicObject {
 public:

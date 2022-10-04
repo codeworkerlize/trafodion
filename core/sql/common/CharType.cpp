@@ -36,7 +36,7 @@
 #include "common/CharType.h"
 #include "common/ComASSERT.h"
 #include "common/unicode_char_set.h"
-#include "wstr.h"
+#include "common/wstr.h"
 #include "common/CmpCommon.h"
 #include "common/csconvert.h"
 #include "common/NLSConversion.h"

@@ -23,7 +23,7 @@
 
 #ifndef PRIVMGR_OBJECTS_H
 #define PRIVMGR_OBJECTS_H
-#include "PrivMgrMD.h"
+#include "sqlcomp/PrivMgrMD.h"
 #include "sqlcomp/PrivMgrDefs.h"
 #include <string>
 #include <vector>
@@ -34,124 +34,79 @@ class PrivMgrMDTable;
 // *****************************************************************************
 // *
 // * File:         PrivMgrObjects.h
-// * Description:  This file contains classes that access the 
+// * Description:  This file contains classes that access the
 // *               contents of the OBJECTS table
-// *               
+// *
 // * Language:     C++
 // *
 // *****************************************************************************
 
-typedef struct 
-{
-   int64_t UID;
-   int32_t ownerID;
+typedef struct {
+  int64_t UID;
+  int32_t ownerID;
 } UIDAndOwner;
 
-typedef struct 
-{
-   int64_t UID;
-   ComObjectType objectType;
+typedef struct {
+  int64_t UID;
+  ComObjectType objectType;
 } UIDAndType;
 
 // *****************************************************************************
 // * Class:         PrivMgrObjects
 // * Description:  This class provides access to the OBJECTS table.
 // *****************************************************************************
-class PrivMgrObjects : public PrivMgr
-{
-public:
+class PrivMgrObjects : public PrivMgr {
+ public:
+  // -------------------------------------------------------------------
+  // Constructors and destructors:
+  // -------------------------------------------------------------------
+  PrivMgrObjects();
+  PrivMgrObjects(const std::string &metadataLocation, ComDiagsArea *pDiags = NULL);
+  PrivMgrObjects(const std::string &trafMetadataLocation, const std::string &metadataLocation, ComDiagsArea *pDiags);
+  PrivMgrObjects(const PrivMgrObjects &other);
+  virtual ~PrivMgrObjects();
 
-// -------------------------------------------------------------------
-// Constructors and destructors:
-// -------------------------------------------------------------------
-   PrivMgrObjects();
-   PrivMgrObjects(
-      const std::string & metadataLocation,
-      ComDiagsArea * pDiags = NULL);
-   PrivMgrObjects (
-      const std::string &trafMetadataLocation,
-      const std::string &metadataLocation,
-      ComDiagsArea *pDiags);
-   PrivMgrObjects(const PrivMgrObjects &other);
-   virtual ~PrivMgrObjects();
+  // -------------------------------------------------------------------
+  // Public functions:
+  // -------------------------------------------------------------------
+  PrivStatus addEntry(const int64_t objectUID, const std::string &catalogName, const std::string &schemaName,
+                      const std::string &objectName, const ComObjectType objectType, const int64_t createTime,
+                      const int64_t redefTime, const bool isValid, const int32_t objectOwner,
+                      const int32_t schemaOwner);
 
-// -------------------------------------------------------------------
-// Public functions:
-// -------------------------------------------------------------------
-   PrivStatus addEntry(
-      const int64_t objectUID,
-      const std::string & catalogName, 
-      const std::string & schemaName, 
-      const std::string & objectName,
-      const ComObjectType objectType, 
-      const int64_t createTime,
-      const int64_t redefTime,
-      const bool isValid,
-      const int32_t objectOwner,
-      const int32_t schemaOwner);
-      
-   void clear();
+  void clear();
 
-   PrivStatus deleteEntryByName(
-      const std::string & catalogName, 
-      const std::string & schemaName, 
-      const std::string & objectName);
-      
-   PrivStatus fetchObjectOwner(
-      const int64_t objectUID,
-      int_32 & objectOwner);
+  PrivStatus deleteEntryByName(const std::string &catalogName, const std::string &schemaName,
+                               const std::string &objectName);
 
-   PrivStatus fetchQualifiedName(
-      const int64_t objectUID,
-      std::string & qualifiedObjectName);
-       
-   PrivStatus fetchQualifiedName(
-      const std::string & whereClause,
-      std::string & qualifiedObjectName);
-       
-   PrivStatus fetchUIDs(
-      const std::string whereClause,
-      vector<int64_t> &UIDs);
-        
-   PrivStatus fetchUIDandOwner(
-      const std::string whereClause,
-      const std::string orderByClause,
-      vector<UIDAndOwner> & objectRows); 
-        
-   PrivStatus fetchUIDandTypes(
-      const std::string whereClause,
-      vector<UIDAndType> &UIDandTypes);
-        
-   PrivStatus fetchNames(
-      const std::string whereClause,
-      std::vector<std::string> & catalogNames,
-      std::vector<std::string> & schemaNames,
-      std::vector<std::string> & objectNames);
+  PrivStatus fetchObjectOwner(const int64_t objectUID, int &objectOwner);
 
-   PrivStatus selectCountWhere(
-      const std::string &whereClause,
-      int64_t &rowCount);
-       
-private: 
-// -------------------------------------------------------------------
-// Private functions:
-// -------------------------------------------------------------------
-      
-// -------------------------------------------------------------------
-// Data Members:
-// -------------------------------------------------------------------
-      
-std::string        fullTableName_;
-PrivMgrMDTable   & myTable_;
+  PrivStatus fetchQualifiedName(const int64_t objectUID, std::string &qualifiedObjectName);
 
+  PrivStatus fetchQualifiedName(const std::string &whereClause, std::string &qualifiedObjectName);
+
+  PrivStatus fetchUIDs(const std::string whereClause, vector<int64_t> &UIDs);
+
+  PrivStatus fetchUIDandOwner(const std::string whereClause, const std::string orderByClause,
+                              vector<UIDAndOwner> &objectRows);
+
+  PrivStatus fetchUIDandTypes(const std::string whereClause, vector<UIDAndType> &UIDandTypes);
+
+  PrivStatus fetchNames(const std::string whereClause, std::vector<std::string> &catalogNames,
+                        std::vector<std::string> &schemaNames, std::vector<std::string> &objectNames);
+
+  PrivStatus selectCountWhere(const std::string &whereClause, int64_t &rowCount);
+
+ private:
+  // -------------------------------------------------------------------
+  // Private functions:
+  // -------------------------------------------------------------------
+
+  // -------------------------------------------------------------------
+  // Data Members:
+  // -------------------------------------------------------------------
+
+  std::string fullTableName_;
+  PrivMgrMDTable &myTable_;
 };
-#endif // PRIVMGR_OBJECTS_H
-
-
-
-
-
-
-
-
-
+#endif  // PRIVMGR_OBJECTS_H

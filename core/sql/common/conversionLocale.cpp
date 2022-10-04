@@ -40,7 +40,7 @@
  */
 
 #include "common/Platform.h"
-#include "ComOperators.h"
+#include "common/ComOperators.h"
 #include "common/ComASSERT.h"
 #include "common/NLSConversion.h"
 #include "common/charinfo.h"

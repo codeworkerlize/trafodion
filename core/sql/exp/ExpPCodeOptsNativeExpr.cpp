@@ -214,7 +214,7 @@ void PCodeCfg::NExLog(const char *data)
 
 #endif /* NExprDbgLvl >= VV_I0 */
 
-#include "exp_datetime.h"
+#include "exp/exp_datetime.h"
 
 
 #include "udis86.h"

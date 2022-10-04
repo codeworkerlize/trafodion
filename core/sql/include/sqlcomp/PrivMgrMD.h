@@ -27,12 +27,12 @@
 #include <string>
 #include <vector>
 #include "sqlcomp/PrivMgrDefs.h"
-#include "PrivMgr.h"
+#include "sqlcomp/PrivMgr.h"
 #include "sqlcomp/PrivMgrDesc.h"
 #include "PrivMgrMDTable.h"
 #include "common/ComSmallDefs.h"
 #include "common/ComViewColUsage.h"
-#include "CmpSeabaseDDLauth.h"
+#include "sqlcomp/CmpSeabaseDDLauth.h"
 #include "comexe/CmpMessage.h"
 
 // following includes needed for cli interface
@@ -41,16 +41,16 @@ class ExeCliInterface;
 class OutputInfo;
 
 #ifndef Lng32
-typedef int             Lng32;
+typedef int Lng32;
 #endif
 
 // *****************************************************************************
 // *
 // * File:         PrivMgrMD.h
-// * Description:  This file contains classes that access and maintain the 
-// *               contents of the Privilege Manager metadata and that 
+// * Description:  This file contains classes that access and maintain the
+// *               contents of the Privilege Manager metadata and that
 // *               interact with Trafodion system metadata.
-// *               
+// *
 // * Language:     C++
 // *
 // *****************************************************************************
@@ -70,13 +70,9 @@ struct ColumnReference {
   int32_t columnOrdinal;
   PrivMgrCoreDesc originalPrivs;
   PrivMgrCoreDesc updatedPrivs;
-  ColumnReference() 
-  : columnOrdinal(-1),
-    originalPrivs(),
-    updatedPrivs(){};
+  ColumnReference() : columnOrdinal(-1), originalPrivs(), updatedPrivs(){};
 
-  ColumnReference & operator=(const ColumnReference& other)
-  {
+  ColumnReference &operator=(const ColumnReference &other) {
     columnOrdinal = other.columnOrdinal;
     originalPrivs = other.originalPrivs;
     updatedPrivs = other.updatedPrivs;
@@ -84,12 +80,10 @@ struct ColumnReference {
     return *this;
   }
 
-  void describe (std::string &details) const
-  {
+  void describe(std::string &details) const {
     details = "column usage - column number is ";
-    details += to_string((long long int) columnOrdinal);
+    details += to_string((long long int)columnOrdinal);
   }
-
 };
 
 typedef struct {
@@ -102,19 +96,18 @@ typedef struct {
   PrivMgrDesc originalPrivs;
   PrivMgrDesc updatedPrivs;
 
-  void describe (std::string &details) const
-  {
+  void describe(std::string &details) const {
     details = "view usage - type is VI";
     details += ", UID is ";
-    details += to_string((long long int) viewUID);
+    details += to_string((long long int)viewUID);
     details += ", name is ";
     details += viewName;
     details += ", viewOwner is ";
-    details += to_string((long long int) viewOwner);
+    details += to_string((long long int)viewOwner);
     details += ", viewColUsagesStr is ";
     details += viewColUsagesStr;
-    details += (isUpdatable) ? ", isUpdatable is Y " : "isUpdateable is N"; 
-    details += (isInsertable) ? ", isInsertable is Y " : "isInsertable is N"; 
+    details += (isUpdatable) ? ", isUpdatable is Y " : "isUpdateable is N";
+    details += (isInsertable) ? ", isInsertable is Y " : "isInsertable is N";
   }
 
 } ViewUsage;
@@ -122,24 +115,18 @@ typedef struct {
 // -----------------------------------------------------------------------
 // Class definitions
 // -----------------------------------------------------------------------
-class ObjectReference
-{
-  public:
-
+class ObjectReference {
+ public:
   ObjectReference()
-  : objectUID(0),
-    objectOwner(NA_UserIdDefault),
-    objectType(COM_UNKNOWN_OBJECT),
-    columnReferences(NULL),
-    updatedPrivs()
-  {}
-    
-  virtual ~ObjectReference ( void )
-  {
-    if (columnReferences)
-    {
-      while(!columnReferences->empty())
-        delete columnReferences->back(), columnReferences->pop_back();
+      : objectUID(0),
+        objectOwner(NA_UserIdDefault),
+        objectType(COM_UNKNOWN_OBJECT),
+        columnReferences(NULL),
+        updatedPrivs() {}
+
+  virtual ~ObjectReference(void) {
+    if (columnReferences) {
+      while (!columnReferences->empty()) delete columnReferences->back(), columnReferences->pop_back();
       delete columnReferences;
     }
   }
@@ -148,57 +135,46 @@ class ObjectReference
   int32_t objectOwner;
   ComObjectType objectType;
   std::string objectName;
-  //TBD - make columnReferences a map instead of a vector
+  // TBD - make columnReferences a map instead of a vector
   std::vector<ColumnReference *> *columnReferences;
   PrivMgrDesc updatedPrivs;
 
-  ColumnReference * find (int32_t columnOrdinal)
-  {
-    for (size_t i = 0; i < columnReferences->size(); i++)
-    {
+  ColumnReference *find(int32_t columnOrdinal) {
+    for (size_t i = 0; i < columnReferences->size(); i++) {
       ColumnReference *pColRef = (*columnReferences)[i];
-      if (pColRef->columnOrdinal == columnOrdinal)
-        return pColRef;
+      if (pColRef->columnOrdinal == columnOrdinal) return pColRef;
     }
     return NULL;
   }
 
-  void describe (std::string &details) const
-  {
+  void describe(std::string &details) const {
     details = "object reference - type is ";
     char objectTypeLit[3] = {0};
-    strncpy(objectTypeLit,PrivMgr::ObjectEnumToLit(objectType),2);
+    strncpy(objectTypeLit, PrivMgr::ObjectEnumToLit(objectType), 2);
     details += objectTypeLit;
     details += ", UID is ";
-    details += to_string((long long int) objectUID);
+    details += to_string((long long int)objectUID);
     details += ", name is ";
     details += objectName;
     details += ", owner is ";
-    details += to_string((long long int) objectOwner);
+    details += to_string((long long int)objectOwner);
   }
-
 };
 
-class ObjectUsage
-{
-  public:
-
+class ObjectUsage {
+ public:
   ObjectUsage()
-  : objectUID (0),
-    granteeID (NA_UserIdDefault),
-    grantorIsSystem(false),
-    objectType (COM_UNKNOWN_OBJECT),
-    columnReferences(NULL),
-    originalPrivs(),
-    updatedPrivs()
-  {}
+      : objectUID(0),
+        granteeID(NA_UserIdDefault),
+        grantorIsSystem(false),
+        objectType(COM_UNKNOWN_OBJECT),
+        columnReferences(NULL),
+        originalPrivs(),
+        updatedPrivs() {}
 
-  virtual ~ObjectUsage ( void )
-  {
-    if (columnReferences)
-    {
-      while(!columnReferences->empty())
-        delete columnReferences->back(), columnReferences->pop_back();
+  virtual ~ObjectUsage(void) {
+    if (columnReferences) {
+      while (!columnReferences->empty()) delete columnReferences->back(), columnReferences->pop_back();
       delete columnReferences;
     }
     columnReferences = NULL;
@@ -213,18 +189,14 @@ class ObjectUsage
   PrivMgrDesc originalPrivs;
   PrivMgrDesc updatedPrivs;
 
-  void copyColumnReferences(const std::vector<ColumnReference *> *refsToCopy)
-  {
-    if (columnReferences != NULL)
-      delete columnReferences;
+  void copyColumnReferences(const std::vector<ColumnReference *> *refsToCopy) {
+    if (columnReferences != NULL) delete columnReferences;
 
     if (refsToCopy == NULL)
       columnReferences = NULL;
-    else
-    {
+    else {
       columnReferences = new std::vector<ColumnReference *>;
-      for (int i = 0; i < refsToCopy->size(); i++)
-      {
+      for (int i = 0; i < refsToCopy->size(); i++) {
         ColumnReference *newRef = new ColumnReference;
         ColumnReference *copyRef = (*refsToCopy)[i];
         newRef->operator=(*copyRef);
@@ -233,36 +205,30 @@ class ObjectUsage
     }
   }
 
-  ColumnReference * findColumn (int32_t columnOrdinal)
-  {
-    if (columnReferences == NULL)
-      return NULL;
-    for (int i = 0; i < columnReferences->size(); i++)
-    {
+  ColumnReference *findColumn(int32_t columnOrdinal) {
+    if (columnReferences == NULL) return NULL;
+    for (int i = 0; i < columnReferences->size(); i++) {
       ColumnReference *pRef = (*columnReferences)[i];
-      if (pRef->columnOrdinal == columnOrdinal)
-        return pRef;
+      if (pRef->columnOrdinal == columnOrdinal) return pRef;
     }
     return NULL;
   }
 
-  void describe (std::string &details) const
-  {
+  void describe(std::string &details) const {
     details = "object usage - type is ";
     char objectTypeLit[3] = {0};
-    strncpy(objectTypeLit,PrivMgr::ObjectEnumToLit(objectType),2);
+    strncpy(objectTypeLit, PrivMgr::ObjectEnumToLit(objectType), 2);
     details += objectTypeLit;
     details += ", UID is ";
-    details += to_string((long long int) objectUID);
+    details += to_string((long long int)objectUID);
     details += ", name is ";
     details += objectName;
     details += ", grantee is ";
-    details += to_string((long long int) granteeID);
+    details += to_string((long long int)granteeID);
     details += ", is owner ";
     details += (grantorIsSystem) ? "true " : "false ";
   }
 };
-
 
 // ****************************************************************************
 // class: PrivMgrMDAdmin
@@ -270,134 +236,81 @@ class ObjectUsage
 // This class initializes, drops, and upgrades metadata managed by the
 // Privilege Manager
 // ****************************************************************************
-class PrivMgrMDAdmin : public PrivMgr
-{
-  public:
+class PrivMgrMDAdmin : public PrivMgr {
+ public:
+  // -------------------------------------------------------------------
+  // Constructors and destructors:
+  // -------------------------------------------------------------------
+  PrivMgrMDAdmin();
+  PrivMgrMDAdmin(const std::string &trafMetadataLocation, const std::string &metadataLocation,
+                 ComDiagsArea *pDiags = NULL);
+  PrivMgrMDAdmin(const std::string &metadataLocation, ComDiagsArea *pDiags = NULL);
+  PrivMgrMDAdmin(const PrivMgrMDAdmin &rhs);
+  virtual ~PrivMgrMDAdmin(void);
 
-    // -------------------------------------------------------------------
-    // Constructors and destructors:
-    // -------------------------------------------------------------------
-    PrivMgrMDAdmin ();
-    PrivMgrMDAdmin(
-       const std::string & trafMetadataLocation,
-       const std::string & metadataLocation,
-       ComDiagsArea * pDiags = NULL);
-    PrivMgrMDAdmin(
-       const std::string & metadataLocation,
-       ComDiagsArea * pDiags = NULL);
-    PrivMgrMDAdmin ( const PrivMgrMDAdmin &rhs );
-    virtual ~PrivMgrMDAdmin ( void );
+  // -------------------------------------------------------------------
+  // Accessors and destructors:
+  // -------------------------------------------------------------------
+  PrivStatus initializeComponentPrivileges();
+  PrivStatus initializeMetadata(std::vector<std::string> tablesCreated, bool isUpgrade, ExeCliInterface *cliInterface);
+  PrivStatus dropMetadata(const std::vector<std::string> &objectsToDrop, bool doCleanup);
 
-    // -------------------------------------------------------------------
-    // Accessors and destructors:
-    // -------------------------------------------------------------------
-    PrivStatus initializeComponentPrivileges();
-    PrivStatus initializeMetadata(
-      std::vector<std::string> tablesCreated,
-      bool isUpgrade,
-      ExeCliInterface *cliInterface);
-    PrivStatus dropMetadata(
-      const std::vector<std::string> &objectsToDrop,
-      bool doCleanup);
+  inline void setMetadataLocation(const std::string metadataLocation) { metadataLocation_ = metadataLocation; };
 
-    inline void setMetadataLocation (const std::string metadataLocation)
-      {metadataLocation_ = metadataLocation;};
+  PrivStatus getColumnReferences(ObjectReference *objectRef);
 
-    PrivStatus getColumnReferences (ObjectReference *objectRef);
+  bool getConstraintName(const int64_t referencedTableUID, const int64_t referencingTableUID,
+                         const int32_t columnNumber, std::string &referencingTable);
 
-    bool getConstraintName(
-      const int64_t referencedTableUID,
-      const int64_t referencingTableUID, 
-      const int32_t columnNumber,
-      std::string &referencingTable);
+  PrivStatus getObjectsThatViewReferences(const ViewUsage &viewUsage, std::vector<ObjectReference *> &objectReference);
 
-    PrivStatus getObjectsThatViewReferences (
-      const ViewUsage &viewUsage,
-      std::vector<ObjectReference *> &objectReference );
+  PrivStatus getReferencingTablesForConstraints(const ObjectUsage &objectUsage,
+                                                std::vector<ObjectReference *> &objectReferences);
 
-    PrivStatus getReferencingTablesForConstraints(
-      const ObjectUsage &objectUsage,
-      std::vector<ObjectReference *> &objectReferences );
+  PrivStatus getUdrsThatReferenceLibrary(const ObjectUsage &objectUsage,
+                                         std::vector<ObjectReference *> &objectReferences);
 
-    PrivStatus getUdrsThatReferenceLibrary(
-      const ObjectUsage &objectUsage,
-      std::vector<ObjectReference *> &objectReferences );
+  PrivStatus getViewColUsages(ViewUsage &viewUsage);
 
-    PrivStatus getViewColUsages (ViewUsage &viewUsage);
+  PrivStatus getViewsThatReferenceObject(const ObjectUsage &objectUsage, std::vector<ViewUsage> &viewUsages);
 
-    PrivStatus getViewsThatReferenceObject(
-      const ObjectUsage &objectUsage, 
-      std::vector<ViewUsage> &viewUsages);
+  bool isAuthorized(void);
 
-    bool isAuthorized (void);
+  std::string deriveTableName(const char *name) {
+    std::string derivedName(metadataLocation_);
+    derivedName += ".";
+    derivedName += name;
+    return derivedName;
+  }
 
-    std::string deriveTableName(const char *name)
-    {
-      std::string derivedName (metadataLocation_);
-      derivedName += ".";
-      derivedName += name;
-      return derivedName;
-    }
+  // Upgrade public methods
+  short upgradePMTbl(ExeCliInterface *cliInterface, CmpDDLwithStatusInfo *mdui);
+  short upgradePMTblComplete(ExeCliInterface *cliInterface, CmpDDLwithStatusInfo *mdui);
+  short upgradePMTblUndo(ExeCliInterface *cliInterface, CmpDDLwithStatusInfo *mdui);
 
-    // Upgrade public methods
-    short upgradePMTbl(
-      ExeCliInterface * cliInterface,
-      CmpDDLwithStatusInfo *mdui);
-    short upgradePMTblComplete(
-      ExeCliInterface * cliInterface,
-      CmpDDLwithStatusInfo *mdui);
-    short upgradePMTblUndo(
-      ExeCliInterface * cliInterface,
-      CmpDDLwithStatusInfo *mdui);
+ private:
+  short alterRenamePMTbl(ExeCliInterface *cliInterface, NABoolean origToOld);
 
-  private:
+  short checkForOldPMTbl(ExeCliInterface *cliInterface);
 
-    short alterRenamePMTbl(
-      ExeCliInterface * cliInterface,
-      NABoolean origToOld);
+  void cleanupMetadata(ExeCliInterface &cliInterface);
 
-    short checkForOldPMTbl(ExeCliInterface *cliInterface);
+  short copyPMOldToNew(ExeCliInterface *cliInterface);
 
-    void cleanupMetadata(ExeCliInterface &cliInterface);
+  short createPMTbl(ExeCliInterface *cliInterface);
 
-    short copyPMOldToNew(ExeCliInterface * cliInterface);
+  short dropAndLogPMViews(ExeCliInterface *cliInterface, NABoolean &someViewSaved /* out */);
 
-    short createPMTbl(ExeCliInterface * cliInterface);
+  short dropPMTbl(ExeCliInterface *cliInterface, NABoolean oldPMTbl, NABoolean inRecovery = FALSE);
 
-    short dropAndLogPMViews(
-      ExeCliInterface * cliInterface,
-      NABoolean & someViewSaved /* out */);
+  short grantPMTbl(ExeCliInterface *cliInterface, NABoolean inRecovery);
 
-    short dropPMTbl(
-      ExeCliInterface * cliInterface,
-      NABoolean oldPMTbl,
-      NABoolean inRecovery = FALSE);
+  short revokePMTbl(ExeCliInterface *cliInterface, NABoolean oldPMTbl, NABoolean inRecovery);
 
-    short grantPMTbl(
-      ExeCliInterface * cliInterface,
-      NABoolean inRecovery);
+  bool isRoot(std::string userName) { return ((userName == "DB__ROOT") ? true : false); }
 
-    short revokePMTbl (
-      ExeCliInterface * cliInterface,
-      NABoolean oldPMTbl,
-      NABoolean inRecovery);
+  PrivStatus updatePrivMgrMetadata(const bool shouldPopulateObjectPrivs);
 
-    bool isRoot(std::string userName)
-    { return ((userName == "DB__ROOT") ? true : false); }
-    
-    PrivStatus updatePrivMgrMetadata(
-       const bool shouldPopulateObjectPrivs);
+};  // class PrivMgrMDAdmin
 
-}; // class PrivMgrMDAdmin
-
-
-#endif // PRIVMGR_MD_H
-
-
-
-
-
-
-
-
-
+#endif  // PRIVMGR_MD_H
