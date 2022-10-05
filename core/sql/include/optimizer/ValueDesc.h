@@ -234,7 +234,7 @@ class ValueId {
   NABoolean isConnectByPred() const;
   NABoolean isStartWithPred() const;
 
-  ULng32 hash() const { return (ULng32)id_; }
+  int hash() const { return (int)id_; }
 
  private:
   // an index into the ValueDescArray in the Schema DB
@@ -619,7 +619,7 @@ class ValueIdList : public LIST(ValueId) {
       short addConvNodes,                //(IN) : 1 to add conv nodes, 0 otherwise
       ExpTupleDesc::TupleDataFormat tf,  //(IN): tuple format of resulting expr(s)
       char *resultBuffer,                //(INOUT): tuple buffer of resulting expr(s)
-      ULng32 resultBufferLength,         //(IN): length of the result buffer
+      int resultBufferLength,         //(IN): length of the result buffer
       int *length = NULL,              //(OUT) : length of 1st result expr
       int *offset = NULL               //(OUT) : offset of 1st result expr
       ,
@@ -644,7 +644,7 @@ class ValueIdList : public LIST(ValueId) {
   // 2.- encodedKeyBuffer, which is a pointer to the result.
   // 3.- The length of the result
   //
-  static short evaluateTree(const ItemExpr *root, char *encodedKeyBuffer, ULng32 encodedKeyLength, int *length,
+  static short evaluateTree(const ItemExpr *root, char *encodedKeyBuffer, int encodedKeyLength, int *length,
                             int *offset, ComDiagsArea *diagsArea = NULL);
 
   static int evaluateConstantTree(const ValueId &parent, const ValueId &ch, int childNumber, ItemExpr **outItemExpr,

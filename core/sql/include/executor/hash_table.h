@@ -66,7 +66,7 @@ class HashTableCursor : public NABasicObject {
   HashRow *beginRow_;
   HashRow *endRow_;
   HashRow *currRow_;
-  ULng32 currHeader_;
+  int currHeader_;
 
  public:
   HashTableCursor();
@@ -131,7 +131,7 @@ class HashTable : public NABasicObject {
   //   doResize: If TRUE (HGB) then this table is resizable - when the table
   //             becomes %75 full, then allocate a new one of twice the
   //             previous size, move the entries and deallocate the old one.
-  HashTable(ULng32 headerCount, NABoolean evenFactor, ULng32 primeFactor, NABoolean noHVDups = TRUE,
+  HashTable(int headerCount, NABoolean evenFactor, int primeFactor, NABoolean noHVDups = TRUE,
             NABoolean doResize = FALSE);
   ~HashTable();
 
@@ -143,7 +143,7 @@ class HashTable : public NABasicObject {
   NABoolean insert(HashRow *newRow);
 
   // Used only by Hash-Groupby; resize the HT (only if enough memory)
-  ULng32 resize(NABoolean enoughMemory);
+  int resize(NABoolean enoughMemory);
 
   // An insert method used by UniqueHashJoin.
   // Assumes input is unique and so does not need to check for
@@ -176,26 +176,26 @@ class HashTable : public NABasicObject {
 
   void positionSingleChain(HashTableCursor *cursor);
 
-  inline ULng32 getHeaderCount() const { return headerCount_; };
+  inline int getHeaderCount() const { return headerCount_; };
 
-  ULng32 getChainSize(ULng32 i);
+  int getChainSize(int i);
 
   // In case the object was created, but not enough memory for the actual HT
   inline NABoolean noTableAllocated() { return header_ == NULL; };
 
   // Return the size the HT would be resized-to (used to check mem availability)
-  ULng32 resizeTo() { return headerCount_ * HT_RESIZE_FACTOR; };
+  int resizeTo() { return headerCount_ * HT_RESIZE_FACTOR; };
 
   inline NABoolean originalSize() { return originalSize_; };
 
  private:
   HashTableHeader *header_;
-  ULng32 headerCount_;
+  int headerCount_;
 
-  ULng32 resizeThreshold_;  // resize if rowCount_ exceeds this
+  int resizeThreshold_;  // resize if rowCount_ exceeds this
   NABoolean originalSize_;  // FALSE if this HT was resized
 
-  ULng32 rowCount_;
+  int rowCount_;
 
   HashRow *singleChainLastRow_;  // Only used for cross-product
 

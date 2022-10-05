@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ******************************************************************************
 *
@@ -3163,7 +3142,7 @@ NABoolean KeyRangeCompare::verifyPartitioningKeys(BindWA *bindWA, ItemExpr *tree
     list = ((ItemList *)tree)->collectLeaves(heap, list);
   }
 
-  const ULng32 num = list->entries();
+  const int num = list->entries();
 
   if (partKeyCols.entries() != num) {
     // 4042 The operands of a comparison predicate must be of equal degree.
@@ -3174,7 +3153,7 @@ NABoolean KeyRangeCompare::verifyPartitioningKeys(BindWA *bindWA, ItemExpr *tree
 
   // Make sure that the types of items in tree match the partKeyCols types.
   // We do this by temporarily creating a cast node and binding it.
-  for (ULng32 i = 0; i < num; i++) {
+  for (int i = 0; i < num; i++) {
     ItemExpr *cast = new (bindWA->wHeap()) Cast((*list)[i]->getPtr(), partKeyCols[i]->getType(), ITM_CAST);
     cast = cast->bindNode(bindWA);
     if (bindWA->errStatus()) return FALSE;
@@ -8422,7 +8401,7 @@ ItemExpr *DefaultSpecification::bindNode(BindWA *bindWA) {
 
       // Set the special parser flag to allow IDENTITY as a function.
 
-      ULng32 savedParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
+      int savedParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
       Set_SqlParser_Flags(ALLOW_VOLATILE_SCHEMA_IN_TABLE_NAME);
 
       Parser parser(bindWA->currentCmpContext());
@@ -9953,9 +9932,9 @@ ItemExpr *UDFunction::bindNode(BindWA *bindWA) {
     if (udfList != NULL) {
       OptUDFInfo *udfInfo = NULL;
       bool isUDFReferenced = false;
-      ULng32 numUdfs = udfList->entries();
+      int numUdfs = udfList->entries();
 
-      for (ULng32 udfIndex = 0; udfIndex < numUdfs; udfIndex++)
+      for (int udfIndex = 0; udfIndex < numUdfs; udfIndex++)
         if ((*udfList)[udfIndex]->getUDFExternalName().compareTo(functionName_.getExternalName()) == 0) {
           isUDFReferenced = true;
           break;
@@ -10033,7 +10012,7 @@ ItemExpr *UDFunction::bindNode(BindWA *bindWA) {
 
   // See if UDF already exists
   NABoolean udrReferenced = FALSE;
-  for (ULng32 stoiIndex = 0; stoiIndex < udrList.entries(); stoiIndex++) {
+  for (int stoiIndex = 0; stoiIndex < udrList.entries(); stoiIndex++) {
     if (0 == udrList[stoiIndex]->getUdrName().compareTo(udf->getSqlName().getQualifiedNameAsAnsiString())) {
       udrReferenced = TRUE;
       break;
@@ -13353,7 +13332,7 @@ ItemExpr *SequenceValue::bindNode(BindWA *bindWA) {
   boundExpr = Function::bindNode(bindWA);
   if (bindWA->errStatus()) return NULL;
 
-  ULng32 savedParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
+  int savedParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
   Set_SqlParser_Flags(ALLOW_VOLATILE_SCHEMA_IN_TABLE_NAME);
 
   // Obtain the NATable for the seq object.

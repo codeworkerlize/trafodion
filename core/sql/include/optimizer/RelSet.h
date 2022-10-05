@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef RELSET_H
 #define RELSET_H
 /* -*-C++-*-
@@ -314,8 +293,8 @@ class Union : public RelExpr {
   void setUnionSystemCol() { flags_ |= UNION_SYSTEMCOL; }
   NABoolean getUnionSystemCol() const { return (flags_ & UNION_SYSTEMCOL) != 0; }
 
-  void setUnionFlags(ULng32 f) { flags_ = f; }
-  ULng32 getUnionFlags() const { return flags_; }
+  void setUnionFlags(int f) { flags_ = f; }
+  int getUnionFlags() const { return flags_; }
   // UNION_BLOCKED was added for trigger project
   inline void setBlockedUnion() { flags_ = UNION_BLOCKED; }
   inline int getBlockedUnion() { return flags_ == UNION_BLOCKED; }
@@ -458,7 +437,7 @@ class Union : public RelExpr {
   UnionMap *unionMap_;
 
   // see unionFlags
-  ULng32 flags_;
+  int flags_;
 
   // We keep a list of all variables that appear on the left side of a SET
   // statement and that appear below this Union node. Please see compound

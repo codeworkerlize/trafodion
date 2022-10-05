@@ -4168,16 +4168,16 @@ int NADefaults::getAsLong(int attrEnum) const {
   return int(flt);
 }
 
-ULng32 NADefaults::getAsULong(int attrEnum) const {
+int NADefaults::getAsULong(int attrEnum) const {
   float flt;
   getFloat(attrEnum, flt);
   if (!domainMatch(attrEnum, VALID_UINT, &flt)) {
     CMPBREAK;
   }
-  return (ULng32)(flt);
+  return (int)(flt);
 }
 
-ULng32 NADefaults::getNumOfESPsPerNode() const { return (ULng32)MAXOF(ceil(getNumOfESPsPerNodeInFloat()), 1); }
+int NADefaults::getNumOfESPsPerNode() const { return (int)MAXOF(ceil(getNumOfESPsPerNodeInFloat()), 1); }
 
 float NADefaults::getNumOfESPsPerNodeInFloat() const {
   double maxEspPerCpuPerOp = getAsDouble(MAX_ESPS_PER_CPU_PER_OP);
@@ -4207,7 +4207,7 @@ float NADefaults::getNumOfESPsPerNodeInFloat() const {
   return float(maxEspPerCpuPerOp * cores);
 }
 
-ULng32 NADefaults::getTotalNumOfESPs(NABoolean &fakeEnv) const {
+int NADefaults::getTotalNumOfESPs(NABoolean &fakeEnv) const {
   fakeEnv = (getToken(PARALLEL_NUM_ESPS, 0) != DF_SYSTEM);
 
   if (fakeEnv) {
@@ -4254,7 +4254,7 @@ ULng32 NADefaults::getTotalNumOfESPs(NABoolean &fakeEnv) const {
      if ( nac )
        smpCount = nac->getTotalNumberOfCPUs();
 
-     ULng32 x = MAXOF(ceil(espsPerNode * numOfNodes), 1);
+     int x = MAXOF(ceil(espsPerNode * numOfNodes), 1);
 
      cout << "NADefaults::getTotalNumOfESPs(): "
           << ", smpCount=" << smpCount
@@ -4632,7 +4632,7 @@ enum DefaultConstants NADefaults::validateAndInsert(const char *attrName, NAStri
 
     else {
       if (attrEnum == MAX_LONG_VARCHAR_DEFAULT_SIZE || attrEnum == MAX_LONG_WVARCHAR_DEFAULT_SIZE) {
-        ULng32 minLength;
+        int minLength;
         switch (attrEnum) {
           case MAX_LONG_VARCHAR_DEFAULT_SIZE:
             minLength = (int)getAsULong(MIN_LONG_VARCHAR_DEFAULT_SIZE);
@@ -4658,7 +4658,7 @@ enum DefaultConstants NADefaults::validateAndInsert(const char *attrName, NAStri
       }
 
       if (attrEnum == MIN_LONG_VARCHAR_DEFAULT_SIZE || attrEnum == MIN_LONG_WVARCHAR_DEFAULT_SIZE) {
-        ULng32 maxLength;
+        int maxLength;
         switch (attrEnum) {
           case MIN_LONG_VARCHAR_DEFAULT_SIZE:
             maxLength = getAsULong(MAX_LONG_VARCHAR_DEFAULT_SIZE);

@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -2006,7 +1985,7 @@ NABoolean isPredTransformedInList(const ValueId &predId, const ValueId &column, 
     return FALSE;
 }
 
-ULng32 ValueIdHashFn(const ValueId &key) { return (CollIndex)key; }
+int ValueIdHashFn(const ValueId &key) { return (CollIndex)key; }
 
 // ------------------------------------------------------------------------
 // $$$$ NOTE:
@@ -7521,8 +7500,8 @@ ValueIdSet ColStatDescList::VEGColumns() const {
 // this is a first effort, obviously fairly naive and unsophisticated.
 // -----------------------------------------------------------------------
 
-ULng32 MultiColumnUecList::HashFunction(const ValueIdSet &input) {
-  ULng32 retval = 1 + input.entries();
+int MultiColumnUecList::HashFunction(const ValueIdSet &input) {
+  int retval = 1 + input.entries();
 
   for (ValueId id = input.init(); input.next(id); input.advance(id)) retval += (CollIndex)id;  // add up the ValueId's
 
@@ -7967,7 +7946,7 @@ NABoolean MultiColumnUecList::findDenom(const ValueIdSet &columns) const {
 
 // all tablePtrs should be 4-byte aligned, so divide by 4
 // to get a better hash value
-ULng32 TableDescHashFn(const TableDesc &tablePtr) { return (ULng32)((Long)&tablePtr / 8); }
+int TableDescHashFn(const TableDesc &tablePtr) { return (int)((Long)&tablePtr / 8); }
 
 NABoolean MultiColumnUecList::useMCUecForCorrPreds(NAHashDictionary<ValueId, CostScalar> &predReductions, /* in/mod */
                                                    const CollIndex numPredicates,                         /* in */
@@ -10752,8 +10731,8 @@ void ColStatDescList::nullInstantiateHists(CollIndex startIndex, CollIndex stopI
   }    // for i - outerRefCount -> joinStatDescList
 }
 
-ULng32 MultiColumnSkewedValueLists::HashFunction(const ValueIdList &input) {
-  ULng32 retval = 1 + input.entries();
+int MultiColumnSkewedValueLists::HashFunction(const ValueIdList &input) {
+  int retval = 1 + input.entries();
 
   for (CollIndex i = 0; i < input.entries(); i++) {
     retval += (CollIndex)input[i];  // add up the ValueId's

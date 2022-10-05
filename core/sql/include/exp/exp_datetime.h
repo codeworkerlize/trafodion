@@ -1,48 +1,14 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef EXP_DATETIME_H
 #define EXP_DATETIME_H
 
-/* -*-C++-*-
- *****************************************************************************
- *
- * File:         exp_datetime.h
- * Description:  Datetime Type
- *
- *
- * Created:      8/19/96
- * Language:     C++
- *
- *
- *
- *
- *****************************************************************************
- */
+
 
 #include "common/Platform.h"
 #include "exp/ExpError.h"
 #include "exp/exp_attrs.h"
 #include "common/Int64.h"
+#include "common/sqtypes.h"
 
 UInt32 Date2Julian(int y, int m, int d);
 
@@ -251,16 +217,16 @@ class ExpDatetime : public SimpleType {
 
   static short convAsciiToDatetime(char *source, int sourceLen, char *target, int targetLen,
                                    rec_datetime_field dstStartField, rec_datetime_field dstEndField, int format,
-                                   int &scale, CollHeap *heap, ComDiagsArea **diagsArea, ULng32 flags);
+                                   int &scale, CollHeap *heap, ComDiagsArea **diagsArea, int flags);
 
   short convAsciiToDatetime(char *source, int sourceLen, char *target, int targetLen, int format, CollHeap *heap,
-                            ComDiagsArea **diagsArea, ULng32 flags);
+                            ComDiagsArea **diagsArea, int flags);
 
   short convAsciiToDate(char *target, int targetLen, char *source, int sourceLen, int format, CollHeap *heap,
-                        ComDiagsArea **diagsArea, ULng32 flags);
+                        ComDiagsArea **diagsArea, int flags);
 
   int convDatetimeToASCII(char *srcData, char *dstData, int dstLen, int format, char *formatStr, CollHeap *heap,
-                            ComDiagsArea **diagsArea, int caseSensitive = 0, ULng32 nsrcLen = -1);
+                            ComDiagsArea **diagsArea, int caseSensitive = 0, int nsrcLen = -1);
 
   static int convNumericTimeToASCII(char *srcData, char *dstData, int dstLen, int format, char *formatStr,
                                       CollHeap *heap, ComDiagsArea **diagsArea);

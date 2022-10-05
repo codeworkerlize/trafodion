@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef RELENFORCER_H
 #define RELENFORCER_H
 /* -*-C++-*-
@@ -189,13 +168,13 @@ class Sort : public RelExpr {
 
   NABoolean collectNFErrors_;
 
-  ULng32 topNRows_;
+  int topNRows_;
   NABoolean ignoreTrailingBlank_;
 
   CostMethodSort *pCostMethod_;
 
   short generateTdb(Generator *generator, ComTdb *child_tdb, ex_expr *sortKeyExpr, ex_expr *sortRecExpr,
-                    ULng32 sortKeyLen, ULng32 sortRecLen, ULng32 sortPrefixKeyLen, ex_cri_desc *given_desc,
+                    int sortKeyLen, int sortRecLen, int sortPrefixKeyLen, ex_cri_desc *given_desc,
                     ex_cri_desc *returned_desc, ex_cri_desc *work_cri_desc, int saveNumEsps,
                     ExplainTuple *childExplainTuple, NABoolean resizeCifRecord, NABoolean considerBufferDefrag,
                     NABoolean operatorCIF = FALSE);

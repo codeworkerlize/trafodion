@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef COM_SYSUTILS_H
 #define COM_SYSUTILS_H
 
@@ -75,27 +54,13 @@ inline unsigned short reversebytes(unsigned short s) { return (s >> 8 | s << 8);
 
 inline unsigned short reversebytesUS(unsigned short s) { return (s >> 8 | s << 8); }
 
-inline ULng32 reversebytes(ULng32 x) { return ((x << 24) | (x << 8 & 0x00ff0000) | (x >> 8 & 0x0000ff00) | (x >> 24)); }
+inline unsigned int reversebytes(unsigned int x) { return ((x << 24) | (x << 8 & 0x00ff0000) | (x >> 8 & 0x0000ff00) | (x >> 24)); }
 
 inline int reversebytes(int x) {
   return ((x << 24) | (x << 8 & 0x00ff0000) | (x >> 8 & 0x0000ff00) | (x >> 24 & 0x000000ff));
 }
 
-// SQ TBD NGG
-#if 0
-inline long reversebytes( long x )
-{
-  return ((x<<56)
-	  |(x<<40 & 0x00ff000000000000LL)
-	  |(x>>40 & 0x000000000000ff00)
-	  |(x<<24 & 0x0000ff0000000000LL)
-	  |(x>>24 & 0x0000000000ff0000)
-	  |(x<<8 & 0x000000ff00000000LL)
-	  |(x>>8 & 0x00000000ff000000)
-	  |(x>>56)
-	  );
-}
-#endif
+
 
 inline long reversebytes(long xx) {
   union {

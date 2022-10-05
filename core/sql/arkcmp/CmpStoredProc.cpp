@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -404,7 +383,7 @@ NABoolean CmpSPOutputFormat::ElemDDLColDef2ColumnDescStruct(ElemDDLColDef *elem,
 // Methods of CmpSPExecDataItem
 // -----------------------------------------------------------------------
 
-CmpSPExecDataItem::CmpSPExecDataItem(ULng32 exprSize, void *expr, ULng32 dataSize, void *data, CmpContext *context) {
+CmpSPExecDataItem::CmpSPExecDataItem(int exprSize, void *expr, int dataSize, void *data, CmpContext *context) {
   exprSize_ = exprSize;
   expr_ = expr;
   dataSize_ = dataSize;
@@ -423,7 +402,7 @@ CollHeap *CmpSPExecDataItem::wHeap() { return context_->heap(); }
 // Methods of CmpISPDataItemInput
 // -----------------------------------------------------------------------
 
-CmpSPExecDataItemInput::CmpSPExecDataItemInput(ULng32 exprSize, void *expr, ULng32 dataSize, void *data,
+CmpSPExecDataItemInput::CmpSPExecDataItemInput(int exprSize, void *expr, int dataSize, void *data,
                                                CmpContext *context)
     : CmpSPExecDataItem(exprSize, expr, dataSize, data, context) {
   CMPASSERT(ExSPPrepareInputBuffer(data_) == 0);
@@ -446,7 +425,7 @@ short CmpSPExecDataItemInput::next() {
 // Methods of CmpISPDataItemReply
 // -----------------------------------------------------------------------
 
-CmpSPExecDataItemReply::CmpSPExecDataItemReply(ULng32 exprSize, void *expr, ULng32 dataRowSize, ULng32 dataTotalSize,
+CmpSPExecDataItemReply::CmpSPExecDataItemReply(int exprSize, void *expr, int dataRowSize, int dataTotalSize,
                                                CmpSPExecDataItemInput *inputData, CollHeap *outHeap,
                                                CmpContext *context)
     : CmpSPExecDataItem(exprSize, expr, dataTotalSize, 0, context) {
@@ -530,7 +509,7 @@ short CmpSPExecDataItemReply::AddEOR() {
   return status;
 }
 
-void CmpSPExecDataItemReply::allocateData(ULng32 size) {
+void CmpSPExecDataItemReply::allocateData(int size) {
   NADELETEBASIC((char *)data_, outHeap_);
   data_ = new (outHeap_) char[size];
   CMPASSERT(ExSPInitReplyBuffer(data_, size) == 0);

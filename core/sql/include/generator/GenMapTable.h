@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef GEN_MAPTABLE_H
 #define GEN_MAPTABLE_H
 
@@ -71,7 +50,7 @@ class MapInfo  // : public NABasicObject
 {
   ValueId value_id;
   Attributes *attr_;  // contains type and buffer attributes.
-  ULng32 flags;
+  int flags;
 
   enum { CODE_GENERATED = 0x0001, MARKED = 0x0002 };
 
@@ -98,7 +77,7 @@ class MapInfo  // : public NABasicObject
   inline Attributes *getAttr() { return attr_; };
 
   // returns 1, if code has been generated for this value id.
-  inline ULng32 isCodeGenerated() { return flags & CODE_GENERATED; }
+  inline int isCodeGenerated() { return flags & CODE_GENERATED; }
 
   // remembers that code has been generated.
   inline void codeGenerated() { flags |= CODE_GENERATED; };
@@ -106,7 +85,7 @@ class MapInfo  // : public NABasicObject
 
   inline void setMark() { flags |= MARKED; };
   inline void clearMark() { flags &= ~MARKED; };
-  inline ULng32 marked() { return flags & MARKED; };
+  inline int marked() { return flags & MARKED; };
 
   short isOffsetAssigned();
 

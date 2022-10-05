@@ -6,39 +6,37 @@
 #endif
 
 #include <ctype.h>
-#include <iostream>
 #include <limits.h>
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
 
+#include <iostream>
+
+#include "cli/SQLCLIdev.h"
+#include "common/DatetimeType.h"
 #include "common/Debug.h"
+#include "common/Int64.h"
+#include "common/IntervalType.h"
+#include "common/NLSConversion.h"
 #include "common/dfs2rec.h"
+#include "common/str.h"
 #include "exp/exp_bignum.h"
 #include "exp/exp_clause.h"
 #include "exp/exp_clause_derived.h"
-#include "exp/exp_interval.h"
 #include "exp/exp_datetime.h"
-#include "common/DatetimeType.h"
+#include "exp/exp_interval.h"
 #include "sqlci/Formatter.h"
-#include "common/Int64.h"
-#include "common/IntervalType.h"
-#include "cli/SQLCLIdev.h"
-#include "common/str.h"
-
 #include "sqlci/SqlciCmd.h"
-#include "common/NLSConversion.h"
 
-short convDoItMxcs(char *source, int sourceLen, short sourceType, int sourcePrecision, int sourceScale,
-                   char *target, int targetLen, short targetType, int targetPrecision, int targetScale,
-                   int flags);
+short convDoItMxcs(char *source, int sourceLen, short sourceType, int sourcePrecision, int sourceScale, char *target,
+                   int targetLen, short targetType, int targetPrecision, int targetScale, int flags);
 
-short convDoItMxcs(char *source, int sourceLen, short sourceType, int sourcePrecision, int sourceScale,
-                   char *target, int targetLen, short targetType, int targetPrecision, int targetScale,
-                   int flags);
+short convDoItMxcs(char *source, int sourceLen, short sourceType, int sourcePrecision, int sourceScale, char *target,
+                   int targetLen, short targetType, int targetPrecision, int targetScale, int flags);
 
-int Formatter::display_length(int datatype, int length, int precision, int scale, int charsetEnum,
-                                int heading_len, SqlciEnv *sqlci_env, int *output_buflen) {
+int Formatter::display_length(int datatype, int length, int precision, int scale, int charsetEnum, int heading_len,
+                              SqlciEnv *sqlci_env, int *output_buflen) {
   int d_len;
   int d_buflen;
 
@@ -162,11 +160,6 @@ int Formatter::display_length(int datatype, int length, int precision, int scale
       d_len = d_buflen = str_computeHexAsciiLen(length);
       break;
 
-    case REC_BLOB:
-    case REC_CLOB:
-      // TBD perhaps display the hex value len.
-      d_len = d_buflen = LOB_HANDLE_LEN;
-      break;
     default:
       d_len = d_buflen = length;
       break;
@@ -181,9 +174,8 @@ int Formatter::display_length(int datatype, int length, int precision, int scale
 }
 
 int Formatter::buffer_it(SqlciEnv *sqlci_env, char *data, int datatype, int length, int precision, int scale,
-                           char *ind_data, int display_length, int display_buf_length, int null_flag,
-                           int vcIndLen, char *buf, int *curpos, NABoolean separatorNeeded,
-                           NABoolean checkShowNonPrinting) {
+                         char *ind_data, int display_length, int display_buf_length, int null_flag, int vcIndLen,
+                         char *buf, int *curpos, NABoolean separatorNeeded, NABoolean checkShowNonPrinting) {
   CharInfo::CharSet tcs = sqlci_env->getTerminalCharset();
   int tcsDataType = CharInfo::getFSTypeFixedChar(tcs);
 
@@ -228,7 +220,7 @@ int Formatter::buffer_it(SqlciEnv *sqlci_env, char *data, int datatype, int leng
 #endif
     };
 
-    ULng32 convFlags = CONV_LEFT_PAD;
+    int convFlags = CONV_LEFT_PAD;
 
     switch (datatype) {
       case REC_BYTE_F_ASCII:
@@ -257,39 +249,35 @@ int Formatter::buffer_it(SqlciEnv *sqlci_env, char *data, int datatype, int leng
       case REC_FLOAT32:
       case REC_FLOAT64:
       case REC_DATETIME:
-      case REC_BOOLEAN:
-        //  case REC_BINARY_STRING:
-        //  case REC_VARBINARY_STRING:
-        {
-          short retcode = convDoIt(data, length, datatype, precision, scale, buf, display_buf_length, tcsDataType,
-                                   0,     // targetPrecision
-                                   tcs,   // target charset
-                                   NULL,  // varCharLen
-                                   0,     // varCharLenSize
-                                   0,     // heap
-                                   0,     // diagsArea
-                                   CONV_UNKNOWN, 0, convFlags);
+      case REC_BOOLEAN: {
+        short retcode = convDoIt(data, length, datatype, precision, scale, buf, display_buf_length, tcsDataType,
+                                 0,     // targetPrecision
+                                 tcs,   // target charset
+                                 NULL,  // varCharLen
+                                 0,     // varCharLenSize
+                                 0,     // heap
+                                 0,     // diagsArea
+                                 CONV_UNKNOWN, 0, convFlags);
 
-          if (ascii && tcs == CharInfo::UTF8) {
-            // we want to display only display_length UTF-8
-            // characters, remove any trailing blanks beyond that
-            display_length = lightValidateUTF8Str(buf, display_buf_length, display_length, 0);
-            if (display_length < 0) {
-              UInt32 translatedCharCnt = 0;
-              char *firstUntranslatedChar = NULL;
-              UInt32 outputDataLen = 0;
-              int rc = 0;
-              rc = UTF8ToLocale(cnv_version1, data, length, buf, display_buf_length, convertCharsetEnum(tcs),
-                                firstUntranslatedChar, &outputDataLen, FALSE, convFlags & CONV_ALLOW_INVALID_CODE_VALUE,
-                                &translatedCharCnt, CharInfo::getReplacementCharacter(tcs));
-              if (rc < 0)
-                display_length = 0;
-              else
-                display_length = outputDataLen;
-            }
+        if (ascii && tcs == CharInfo::UTF8) {
+          // we want to display only display_length UTF-8
+          // characters, remove any trailing blanks beyond that
+          display_length = lightValidateUTF8Str(buf, display_buf_length, display_length, 0);
+          if (display_length < 0) {
+            UInt32 translatedCharCnt = 0;
+            char *firstUntranslatedChar = NULL;
+            UInt32 outputDataLen = 0;
+            int rc = 0;
+            rc = UTF8ToLocale(cnv_version1, data, length, buf, display_buf_length, convertCharsetEnum(tcs),
+                              firstUntranslatedChar, &outputDataLen, FALSE, convFlags & CONV_ALLOW_INVALID_CODE_VALUE,
+                              &translatedCharCnt, CharInfo::getReplacementCharacter(tcs));
+            if (rc < 0)
+              display_length = 0;
+            else
+              display_length = outputDataLen;
           }
         }
-        break;
+      } break;
 
       case REC_INT_YEAR:
       case REC_INT_MONTH:
@@ -398,40 +386,6 @@ int Formatter::buffer_it(SqlciEnv *sqlci_env, char *data, int datatype, int leng
 
   return 0;
 }
-
-// If env var SQL_MXCI_SHOW_NONPRINTING is reset, or unset, or simply not set,
-// or if it's set to the empty string or to '0',
-//    no replacement is done -- the standard, default sqlci behavior.
-//
-// SET DEFINE SQL_MXCI_SHOW_NONPRINTING;  or  export SQL_MXCI_SHOW_NONPRINTING=1
-//    we replace each nonprinting char (as defined in the ascii locale)
-//    with a 8-bit char you're unlikely to see in other sqlci output,
-//    an 8-bit char hardcoded here, specially chosen to be highly visible.
-//
-// If SQL_MXCI_SHOW_NONPRINTING is set to any non-digit character, say 'X',
-//    we replace each nonprinting char with that specified X.
-//
-// If SQL_MXCI_SHOW_NONPRINTING is set to any other digit
-// (other than '0' == no replacement, '1' == highly visible replacement),
-//    we replace each nonprinting char with a 3-character hex escape sequence,
-//    "\xx".  We return a special value of 9, HEX_EXPANSION_ON,
-//    to indicate this setting.
-//
-//    Caller must provide a large-enough buffer
-//    (up to 3 times, i.e. HEX_BUFSIZ_MULTIPLIER times, the nominal size)
-//    for this setting to work!
-//
-// If the second character of what SQL_MXCI_SHOW_NONPRINTING is set to
-// is the digit '8' -- e.g.,
-//	export SQL_MXCI_SHOW_NONPRINTING=18
-//	export SQL_MXCI_SHOW_NONPRINTING='#8'
-//    we replace 8-bit chars as well.  The default obviously is to display
-//    8-bit chars "as-is" (since they're generally printable/visible).
-//
-// This is useful when an embedded app inserts fixed CHAR data containing
-// embedded NUL characters (or other nonprinting ones) and you want to see
-// the data in SQLCI.  For an example, see the embedded regression test
-// INS1.sql, function checkKanji().
 
 NABoolean Formatter::replace8bit_ = FALSE;
 

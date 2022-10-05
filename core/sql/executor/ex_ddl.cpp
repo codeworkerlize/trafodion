@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -205,7 +184,7 @@ short ExDDLTcb::work() {
     // the dummyReply is moved up because otherwise the compiler would complain about
     // initialization of variables afer goto statements.
     char *dummyReply = NULL;
-    ULng32 dummyLength;
+    int dummyLength;
 
     ex_queue_entry *pentry_down = qparent_.down->getHeadEntry();
     ExDDLPrivateState &pstate = *((ExDDLPrivateState *)pentry_down->pstate);
@@ -444,7 +423,7 @@ short ExDDLwithStatusTcb::work() {
   ExSqlComp::ReturnStatus cmpStatus;
 
   char *dummyReply = NULL;
-  ULng32 dummyLength;
+  int dummyLength;
 
   ex_queue_entry *pentry_down = qparent_.down->getHeadEntry();
   ExDDLPrivateState &pstate = *((ExDDLPrivateState *)pentry_down->pstate);
@@ -1265,7 +1244,7 @@ short ExProcessVolatileTableTcb::work() {
         // would complain about
         // initialization of variables afer goto statements.
         char *dummyReply = NULL;
-        ULng32 dummyLength;
+        int dummyLength;
 
         CmpCompileInfo c(pvtTdb().query_, pvtTdb().queryLen_ + 1, pvtTdb().queryCharSet_, pvtTdb().objectName_,
                          pvtTdb().objectNameLen_ + 1, 0, 0);
@@ -1607,7 +1586,7 @@ short ExProcessInMemoryTableTcb::work() {
         // would complain about
         // initialization of variables afer goto statements.
         char *dummyReply = NULL;
-        ULng32 dummyLength;
+        int dummyLength;
 
         CmpCompileInfo c(pimtTdb().query_, pimtTdb().queryLen_ + 1, pimtTdb().queryCharSet_, pimtTdb().objectName_,
                          pimtTdb().objectNameLen_ + 1, 0, 0);

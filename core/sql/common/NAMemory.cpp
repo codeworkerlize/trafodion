@@ -537,7 +537,7 @@ int NAMemory::getVmSize() {
   char fileName[32], buffer[1024], *currPtr;
   size_t bytesRead;
   int success;
-  ULng32 memSize;  // VMSize in KB
+  int memSize;  // VMSize in KB
   if (procStatusFile_ == 0) {
     myPid = getpid();
     sprintf(fileName, "/proc/%d/status", myPid);
@@ -1987,7 +1987,7 @@ NABlock *NAHeap::allocateBlock(size_t size, NABoolean failureIsFatal) {
 }  // NAHeap::allocateBlock(size_t size, NABoolean failureIsFatal)
 #endif  // !MUSE
 
-void NAMemory::showStats(ULng32 level) {
+void NAMemory::showStats(int level) {
   char indent[100];
   int i = 0;
   for (; i < (2 + 2 * (int)level); i++) indent[i] = ' ';

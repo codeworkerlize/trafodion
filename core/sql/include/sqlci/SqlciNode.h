@@ -1,8 +1,5 @@
 #pragma once
 
-#include "common/Platform.h"
-#include "common/SqlCliDllDefines.h"
-#include "common/NABoolean.h"
 #include <string.h>
 
 class SqlciEnv;
@@ -14,7 +11,6 @@ class SqlciNode {
     SQL_CMD_TYPE,
     UTIL_CMD_TYPE,
     SHELL_CMD_TYPE,
-    SQLCLI_CMD_TYPE,
     REPORT_CMD_TYPE,
     MXCS_CMD_TYPE
   };

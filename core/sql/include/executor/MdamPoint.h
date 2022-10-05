@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef MDAMPOINT_H
 #define MDAMPOINT_H
 /* -*-C++-*-
@@ -65,14 +44,14 @@ class MdamPoint {
 
   // Determine if v could be within an interval for which this MdamPoint
   // is the begin endpoint.
-  NABoolean beginContains(const ULng32 keyLen, const char *v) const;
+  NABoolean beginContains(const int keyLen, const char *v) const;
 
   // Compare function.
-  MdamEnums::MdamOrder compare(const MdamPoint *other, const ULng32 keyLen) const;
+  MdamEnums::MdamOrder compare(const MdamPoint *other, const int keyLen) const;
 
   // Determine if v could be within an interval for which this MdamPoint
   // is the end endpoint.
-  NABoolean endContains(const ULng32 keyLen, const char *v) const;
+  NABoolean endContains(const int keyLen, const char *v) const;
 
   // Get function for data pointer.
   inline char *getDataPointer() const;
@@ -114,7 +93,7 @@ inline MdamPoint::MdamPoint(const tupp &tupp, const MdamEnums::MdamInclusion inc
     : tupp_(tupp), inclusion_(inclusion) {}
 
 // The comparision two MdamPoints.
-inline MdamEnums::MdamOrder MdamPoint::compare(const MdamPoint *other, const ULng32 keyLen) const {
+inline MdamEnums::MdamOrder MdamPoint::compare(const MdamPoint *other, const int keyLen) const {
   short retVal = str_cmp(tupp_.getDataPointer(), other->tupp_.getDataPointer(), int(keyLen));
   if (retVal < 0)
     return MdamEnums::MDAM_LESS;

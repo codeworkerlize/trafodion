@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ******************************************************************************
 *
@@ -492,7 +471,7 @@ void CANodeIdSet::print(FILE *f, const char *prefix, const char *suffix) const {
 // Methods for class CANodeIdSetMap
 // -----------------------------------------------------------------------
 
-CANodeIdSetMap::CANodeIdSetMap(ULng32 init_size, CollHeap *outHeap)
+CANodeIdSetMap::CANodeIdSetMap(int init_size, CollHeap *outHeap)
     : HASHDICTIONARY(CANodeIdSet, JBBSubsetAnalysis)(&(CANodeIdSetMap::Hasher), init_size,
                                                      TRUE,  // uniqueness constraint
                                                      outHeap) {
@@ -500,7 +479,7 @@ CANodeIdSetMap::CANodeIdSetMap(ULng32 init_size, CollHeap *outHeap)
   misses_ = 0;
 }
 
-ULng32 CANodeIdSetMap::Hasher(const CANodeIdSet &key) { return key.hash(); }
+int CANodeIdSetMap::Hasher(const CANodeIdSet &key) { return key.hash(); }
 
 JBBSubsetAnalysis *CANodeIdSetMap::getFirstValue(const CANodeIdSet *key) const {
   JBBSubsetAnalysis *result = HASHDICTIONARY(CANodeIdSet, JBBSubsetAnalysis)::getFirstValue(key);
@@ -1067,7 +1046,7 @@ RelExpr *QueryAnalysis::analyzeThis(RelExpr *expr, NABoolean noMVQR) {
 
   expr->finishSynthEstLogProp();
 
-  ULng32 sizeOfLargestJBB = getSizeOfLargestJBB();
+  int sizeOfLargestJBB = getSizeOfLargestJBB();
 
 #ifndef NDEBUG
   RelExpr *analyzerInput = expr;
@@ -1485,7 +1464,7 @@ JBB *QueryAnalysis::getLargestJBB() {
   return largestJBB;
 }
 
-ULng32 QueryAnalysis::getSizeOfLargestJBB() {
+int QueryAnalysis::getSizeOfLargestJBB() {
   JBB *largestJBB = getLargestJBB();
   if (largestJBB)
     return largestJBB->getJBBCs().entries();
@@ -5907,7 +5886,7 @@ NABoolean JBBSubsetAnalysis::isAStarPattern(CANodeId factTable, CostScalar factT
   nodesExcludingFactTable.remove(factTable);
 
   // temp vars used for iteration
-  ULng32 i = 0;
+  int i = 0;
   CANodeId currentNode;
   CANodeIdSet currentNodeSet;
   CostScalar currentCardinality;
@@ -6104,7 +6083,7 @@ NABoolean JBBSubsetAnalysis::isAStarPattern(CANodeId factTable, CostScalar factT
   prevEdgeAndFact += factTable;
 
   // iterate over the covered prefix of the clustering key
-  for (i = 0; i < (ULng32)numPrefixColsCoveredFromFactTableCK; i++) {
+  for (i = 0; i < (int)numPrefixColsCoveredFromFactTableCK; i++) {
     // Get the covered prefix on the fact table clustering key
     // covered prefix is constituted by columns that have either
     // a local or a join predicate on them.
@@ -7891,9 +7870,9 @@ const NAString JBB::graphDisplay(const QueryAnalysis *qa) const {
 
     CostScalar cardx2 = x.getNodeAnalysis()->getCardinality();
 
-    ULng32 intx0 = (int)cardx0.value();
-    ULng32 intx1 = (int)cardx1.value();
-    ULng32 intx2 = (int)cardx2.value();
+    int intx0 = (int)cardx0.value();
+    int intx1 = (int)cardx1.value();
+    int intx2 = (int)cardx2.value();
 
     result += istring(x) + " [label =\"" + name + ":\\n" + istring(intx0) + "\\n" + istring(intx1) + "\\n" +
               istring(intx2) + "\"];\n";
@@ -7911,9 +7890,9 @@ const NAString JBB::graphDisplay(const QueryAnalysis *qa) const {
 
       CostScalar ycardx = appStatMan->getStatsForJoinPredsOnCKOfJBBC(ySet, x)->getResultCardinality();
 
-      ULng32 ixy = (int)cardxy.value();
-      ULng32 ixjy = (int)xcardy.value();
-      ULng32 iyjx = (int)ycardx.value();
+      int ixy = (int)cardxy.value();
+      int ixjy = (int)xcardy.value();
+      int iyjx = (int)ycardx.value();
 
       result += istring(x) + " -- " + istring(y) + " [label =\"" + istring(ixjy) + " , " + istring(ixy) + " , " +
                 istring(iyjx) + "\"];\n";
@@ -8150,7 +8129,7 @@ NABoolean ColAnalysis::getConstValue(ItemExpr *&cv, NABoolean refAConstValue) co
   return FALSE;
 }
 
-NAString istring(ULng32 i) {
+NAString istring(int i) {
   char buffer[20];
   str_itoa(i, buffer);
   return NAString(buffer);

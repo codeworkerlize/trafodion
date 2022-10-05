@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -188,7 +167,7 @@ NABoolean MdamColumn::initNextValue() {
 //  about their input values (and should not, since we may have done
 //  nasty things such as complement them in place).
 
-MdamColumn::getNextValueReturnType MdamColumn::getNextValue(ULng32 productiveFetchRangeCounter,
+MdamColumn::getNextValueReturnType MdamColumn::getNextValue(int productiveFetchRangeCounter,
                                                             char *beginValue,  // out only!
                                                             char *endValue,    // out only!
                                                             short &beginExclFlag, short &endExclFlag,
@@ -205,7 +184,7 @@ MdamColumn::getNextValueReturnType MdamColumn::getNextValue(ULng32 productiveFet
       // look for the next value in this interval (if any)
 
       char *cv = currentValue_.getDataPointer();
-      ULng32 len = columnGenInfo_->getLength();
+      int len = columnGenInfo_->getLength();
 
       // if the Optimizer told us to do sparse probes, or if the
       // last dense probe didn't result in any fetch ranges with
@@ -311,7 +290,7 @@ MdamColumn::getNextValueReturnType MdamColumn::getNextValue(ULng32 productiveFet
         // we are at a subset interval
         MdamPoint *beginpt = current_interval_->getPointPtr(MdamEnums::MDAM_BEGIN);
         MdamPoint *endpt = current_interval_->getPointPtr(MdamEnums::MDAM_END);
-        ULng32 len = columnGenInfo_->getLength();
+        int len = columnGenInfo_->getLength();
 
         str_cpy_all(beginValue, beginpt->getDataPointer(), (int)len);
         str_cpy_all(endValue, endpt->getDataPointer(), (int)len);
@@ -330,7 +309,7 @@ MdamColumn::getNextValueReturnType MdamColumn::getNextValue(ULng32 productiveFet
         // case we will go around the while loop again and
         // look for another interval)
         char *cv = currentValue_.getDataPointer();
-        ULng32 len = columnGenInfo_->getLength();
+        int len = columnGenInfo_->getLength();
 
         if (current_interval_->getFirstValue(len, cv)) {
           // the interval has a first value -- return it
@@ -785,7 +764,7 @@ keyRangeEx::getNextKeyRangeReturnType keyMdamEx::getNextKeyRange(atp_struct *, N
 
   char *bktarget = bkData_.getDataPointer();
   char *ektarget = ekData_.getDataPointer();
-  ULng32 keyLength = getGenInfo().getKeyLength();
+  int keyLength = getGenInfo().getKeyLength();
 
   if (getGenInfo().getKeytag() > 0) {
     unsigned short keytag = getGenInfo().getKeytag();
@@ -805,7 +784,7 @@ keyRangeEx::getNextKeyRangeReturnType keyMdamEx::getNextKeyRange(atp_struct *, N
 
   //  Part of fix for Genesis case 10-971031-9814:
   //  Keep track of the offset of the left-most column traversed.
-  ULng32 minOffset = 0;
+  int minOffset = 0;
   if (current_column_) minOffset = current_column_->getOffset();
   //  End of this part of the fix.
 
@@ -826,7 +805,7 @@ keyRangeEx::getNextKeyRangeReturnType keyMdamEx::getNextKeyRange(atp_struct *, N
 
         //  Part of fix for Genesis case 10-971031-9814:
         //  Keep track of the offset of the left-most column traversed.
-        ULng32 offset = 0;
+        int offset = 0;
 
         if (current_column_)  // note current_column_ is 0 at end of all traversal
           offset = current_column_->getOffset();

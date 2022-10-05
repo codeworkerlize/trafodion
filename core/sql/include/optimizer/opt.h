@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef OPT_HDR
 #define OPT_HDR
 /* -*-C++-*-
@@ -225,7 +204,7 @@ class OptDefaults {
   inline NABoolean needShortPassOptimization() {
     return ((queryComplexity_ >= shortOptPassThreshold_) OR(numTables_ >= 5));
   };
-  inline ULng32 getNumOfBlocksPerAccess() { return numOfBlocksPerAccess_; };
+  inline int getNumOfBlocksPerAccess() { return numOfBlocksPerAccess_; };
   inline int getNumTables() { return numTables_; };
   inline NABoolean isFakeHardware() { return fakeHardware_; };
   inline NABoolean isAdditiveResourceCosting() { return additiveResourceCosting_; };
@@ -244,12 +223,12 @@ class OptDefaults {
   inline double getTenantUnitMemoryPerCore() { return tenantUnitMemory_ / tenantUnitCores_; };
   inline double getTenantUnitMemory() { return tenantUnitMemory_; };
 
-  inline ULng32 getTotalCoresInTenant() {
+  inline int getTotalCoresInTenant() {
     DCMPASSERT(tenantTotalCores_ > 0);
     return tenantTotalCores_;
   }
 
-  inline ULng32 getTenantUnitCores() { return tenantUnitCores_; };
+  inline int getTenantUnitCores() { return tenantUnitCores_; };
   inline int getAdjustedDegreeOfParallelism() { return adjustedDegreeOfParallelism_; };
   inline int getDefaultDegreeOfParallelism() { return defaultDegreeOfParallelism_; };
   inline int getMaximumDegreeOfParallelism() { return maximumDegreeOfParallelism_; };
@@ -369,10 +348,10 @@ class OptDefaults {
   inline NABoolean histSkipMCUecForNonKeyCols() { return histSkipMCUecForNonKeyCols_; };
   inline int histMissingStatsWarningLevel() { return histMissingStatsWarningLevel_; }
   inline NABoolean histOptimisticCardOpt() { return histOptimisticCardOpt_; }
-  inline ULng32 histTupleFreqValListThreshold() { return histTupleFreqValListThreshold_; }
-  inline ULng32 histNumOfAddDaysToExtrapolate() { return histNumOfAddDaysToExtrapolate_; }
+  inline int histTupleFreqValListThreshold() { return histTupleFreqValListThreshold_; }
+  inline int histNumOfAddDaysToExtrapolate() { return histNumOfAddDaysToExtrapolate_; }
   inline NABoolean incorporateSkewInCosting() { return incorporateSkewInCosting_; }
-  inline ULng32 maxSkewValuesDetected() { return maxSkewValuesDetected_; }
+  inline int maxSkewValuesDetected() { return maxSkewValuesDetected_; }
   inline double skewSensitivityThreshold() { return skewSensitivityThreshold_; }
   inline NABoolean histAssumeIndependentReduction() { return histAssumeIndependentReduction_; }
   inline NABoolean histUseSampleForCardEst() { return histUseSampleForCardEst_; }
@@ -467,7 +446,7 @@ class OptDefaults {
   NABoolean useNewMdam();
 
   CascadesTask *getCurrentTask() { return currentTask_; }
-  ULng32 getMemoExprCount() { return memoExprCount_; }
+  int getMemoExprCount() { return memoExprCount_; }
 
   void resetMemoExprCount() { memoExprCount_ = 0; }
   void resetCurrentTask() { currentTask_ = NULL; }
@@ -486,10 +465,10 @@ class OptDefaults {
 
   NABoolean newMemoryLimit(RelExpr *rootExpr, NABoolean recompute);
 
-  NABoolean isRuleDisabled(ULng32 ruleBitPosition);
+  NABoolean isRuleDisabled(int ruleBitPosition);
 
   void setCurrentTask(CascadesTask *t) { currentTask_ = t; }
-  ULng32 updateGetMemoExprCount() { return ++memoExprCount_; }
+  int updateGetMemoExprCount() { return ++memoExprCount_; }
 
   // Query Strategizer Params
   // used for explain
@@ -540,7 +519,7 @@ class OptDefaults {
   PerformanceGoal *getDefaultPerformanceGoal() const { return defaultPerformanceGoal_; }
   PerformanceGoal *getResourcePerformanceGoal() const { return resourcePerformanceGoal_; }
 
-  ULng32 getNumESPsPerQuery() const { return numESPsPerQuery_; }
+  int getNumESPsPerQuery() const { return numESPsPerQuery_; }
 
   NABoolean isAdaptiveSegForHadoop() const;
   NABoolean canUseAllClusterResources() const;
@@ -577,12 +556,12 @@ class OptDefaults {
   // 7 - sort gb
   // The numbers above have to be passed in as parameter
   // to isRuleDisabled()
-  ULng32 optRulesGuidance_;
+  int optRulesGuidance_;
   int level1Constant1_;
   int level1Constant2_;
   int level1ImmunityLimit_;
   int level1MJEnumLimit_;
-  ULng32 numOfBlocksPerAccess_;
+  int numOfBlocksPerAccess_;
   int numTables_;
   double queryComplexity_;
   double queryMJComplexity_;
@@ -599,10 +578,10 @@ class OptDefaults {
   // memory in bytes in each tenant unit.
   double tenantUnitMemory_;
   // # of cores in each tenant unit.
-  ULng32 tenantUnitCores_;
+  int tenantUnitCores_;
 
   // total # of cores for all tenant units.
-  ULng32 tenantTotalCores_;
+  int tenantTotalCores_;
 
   int adjustedDegreeOfParallelism_;
   int defaultDegreeOfParallelism_;
@@ -716,11 +695,11 @@ class OptDefaults {
   NABoolean incorporateSkewInCosting_;
   NABoolean histAssumeIndependentReduction_;
   NABoolean histUseSampleForCardEst_;
-  ULng32 maxSkewValuesDetected_;
+  int maxSkewValuesDetected_;
   double skewSensitivityThreshold_;
   NABoolean useHighFreqInfo_;
-  ULng32 histTupleFreqValListThreshold_;
-  ULng32 histNumOfAddDaysToExtrapolate_;
+  int histTupleFreqValListThreshold_;
+  int histNumOfAddDaysToExtrapolate_;
 
   double joinCardLowBound_;
   double defNoStatsUec_;
@@ -771,7 +750,7 @@ class OptDefaults {
   NABoolean useNewMdam_;
 
   CascadesTask *currentTask_;
-  ULng32 memoExprCount_;
+  int memoExprCount_;
 
   // Query Strategizer Params
   // used for explain

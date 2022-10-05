@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 
 #include "common/BaseTypes.h"
 #include "ExpPCodeOptimizations.h"
@@ -221,9 +200,9 @@ void PCodeOperand::print(PCodeCfg *cfg) {
 /*****************************************************************************
  * Hash functions for hash table
  *****************************************************************************/
-ULng32 constHashFunc(const PCodeConstants &c) {
+int constHashFunc(const PCodeConstants &c) {
   char *data = (char *)c.data_;
-  ULng32 val = 0;
+  int val = 0;
   int i;
 
   for (i = 0; i < min(c.len_, 256); i++) val += data[i];
@@ -231,13 +210,13 @@ ULng32 constHashFunc(const PCodeConstants &c) {
   return val + c.align_;
 }
 
-ULng32 nullTripleHashFunc(const NullTriple &o) { return (o.atp_ * 1000) + o.idx_ + o.off_; }
+int nullTripleHashFunc(const NullTriple &o) { return (o.atp_ * 1000) + o.idx_ + o.off_; }
 
-ULng32 operandHashFunc(const PCodeOperand &o) { return (o.stackIndex_ * 1000) + o.offset_ + o.nullBitIndex_; }
+int operandHashFunc(const PCodeOperand &o) { return (o.stackIndex_ * 1000) + o.offset_ + o.nullBitIndex_; }
 
-ULng32 collIndexHashFunc(const CollIndex &o) { return (ULng32)o; }
+int collIndexHashFunc(const CollIndex &o) { return (int)o; }
 
-ULng32 collIndexHashFunc2(const CollIndex &o) { return (ULng32)o; }
+int collIndexHashFunc2(const CollIndex &o) { return (int)o; }
 
 // This function is used as built-in hash function for PCodeCfg::targets_
 // which is instance of NAHashDictionary class template. Its input is the
@@ -247,8 +226,8 @@ ULng32 collIndexHashFunc2(const CollIndex &o) { return (ULng32)o; }
 // from the input on 64-bit platform, it wouldn't affect the quality of
 // the hash value in most cases because the pcode binaries are normally
 // stored in a confined area in the optimization phase.
-ULng32 targetHashFunc(const ULong &o) {
-  ULng32 v = (ULong)o;
+int targetHashFunc(const ULong &o) {
+  int v = (ULong)o;
   return v;
 }
 

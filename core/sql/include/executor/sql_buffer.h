@@ -1,26 +1,5 @@
 
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef SQL_BUFFER_H
 #define SQL_BUFFER_H
 
@@ -101,13 +80,13 @@ class TupleDescInfo : public tupp_descriptor {
  public:
   tupp_descriptor *tupleDesc() { return (tupp_descriptor *)this; };
 
-  ULng32 getNextTDIOffset() { return nextTDIOffset(); };
+  int getNextTDIOffset() { return nextTDIOffset(); };
 
-  ULng32 getPrevTDIOffset() { return prevTDIOffset(); };
+  int getPrevTDIOffset() { return prevTDIOffset(); };
 
-  void setNextTDIOffset(ULng32 tdiOffset) { nextTDIOffset() = tdiOffset; }
+  void setNextTDIOffset(int tdiOffset) { nextTDIOffset() = tdiOffset; }
 
-  void setPrevTDIOffset(ULng32 tdiOffset) { prevTDIOffset() = tdiOffset; }
+  void setPrevTDIOffset(int tdiOffset) { prevTDIOffset() = tdiOffset; }
 
   void pack(Long base);
 
@@ -200,7 +179,7 @@ class SqlBufferBase : public SqlBufferHeader {
   SqlBufferBase(BufferType bufType);
 
   // fixup vtbl ptr and inits.
-  void driveInit(ULng32 in_size_in_bytes, NABoolean clear, BufferType bt);
+  void driveInit(int in_size_in_bytes, NABoolean clear, BufferType bt);
 
   // fixup vtbl ptr and inits.
   void driveInit();
@@ -212,7 +191,7 @@ class SqlBufferBase : public SqlBufferHeader {
   void drivePack();
 
   // fixup vtbl ptr and calls the verify() method
-  NABoolean driveVerify(ULng32 maxBytes);
+  NABoolean driveVerify(int maxBytes);
 
   void fixupVTblPtr();
 
@@ -226,7 +205,7 @@ class SqlBufferBase : public SqlBufferHeader {
 
   // initialize data members after allocation, given the total length
   // in bytes of the allocated sql_buffer
-  virtual void init(ULng32 in_size_in_bytes, NABoolean clear = FALSE);
+  virtual void init(int in_size_in_bytes, NABoolean clear = FALSE);
 
   // reinitialize data members; note that this version of init()
   // can only be used after a buffer has been initialized via
@@ -246,23 +225,23 @@ class SqlBufferBase : public SqlBufferHeader {
   // memory outside the bounds of the incoming message
   // buffer. Currently verify() is only called by the ExUdrTcb class
   // when it receives a data reply from the non-trusted UDR server.
-  virtual NABoolean verify(ULng32 maxBytes) const;
+  virtual NABoolean verify(int maxBytes) const;
 
-  virtual ULng32 get_used_size() { return 0; }
+  virtual int get_used_size() { return 0; }
 
   // number of bytes to be sent across processes. From FS to EID,
   // or from Send Top to Send Bottom.
   // For SqlBufferDense,
   // this method is redefined to return the actual number of bytes to
   // be sent.
-  virtual ULng32 getSendBufferSize() { return 0; }
+  virtual int getSendBufferSize() { return 0; }
 
   // number of bytes to be replied across processes. From EID to FS,
   // of from Send Bottom to Send Top.
   // For SqlBufferDense,
   // this method is redefined to return the actual number of bytes to
   // be sent.
-  virtual ULng32 getReplyBufferSize() { return getSendBufferSize(); }
+  virtual int getReplyBufferSize() { return getSendBufferSize(); }
 
   NABoolean packed() { return ((baseFlags_ & PACKED) != 0); };
 
@@ -285,7 +264,7 @@ class SqlBufferBase : public SqlBufferHeader {
                                            NABoolean doMoveData,     // TRUE = move data.
                                            void *currQState,         // up_state(reply) or
                                                                      // down_state(send)
-                                           ULng32 controlInfoLen, ControlInfo **controlInfo, ULng32 projRowLen,
+                                           int controlInfoLen, ControlInfo **controlInfo, int projRowLen,
                                            tupp_descriptor **outTdesc, ComDiagsArea *diagsArea,
                                            tupp_descriptor **diagsDesc, ex_expr_base *expr = NULL,
                                            atp_struct *atp1 = NULL, atp_struct *workAtp = NULL,
@@ -317,9 +296,9 @@ class SqlBufferBase : public SqlBufferHeader {
   virtual SqlBufferOlt *castToSqlBufferOlt() { return NULL; }
 
   // total size in bytes
-  inline ULng32 get_buffer_size() const { return sizeInBytes_; }
+  inline int get_buffer_size() const { return sizeInBytes_; }
 
-  void setBufferSize(ULng32 s) { sizeInBytes_ = s; }
+  void setBufferSize(int s) { sizeInBytes_ = s; }
 
   // positions to the first tupp descriptor in the buffer.
   virtual void position();
@@ -397,7 +376,7 @@ class SqlBuffer : public SqlBufferBase {
 
   // initialize data members after allocation, given the total length
   // in bytes of the allocated SqlBuffer
-  virtual void init(ULng32 in_size_in_bytes, NABoolean clear = FALSE);
+  virtual void init(int in_size_in_bytes, NABoolean clear = FALSE);
 
   // reinitialize data members; note that this version of init()
   // can only be used after a buffer has been initialized via
@@ -478,7 +457,7 @@ class SqlBuffer : public SqlBufferBase {
       NABoolean doMoveData,  // TRUE = move data.
       void *currQState,      // up_state(reply) or
       // down_state(send)
-      ULng32 controlInfoLen, ControlInfo **controlInfo, ULng32 projRowLen, tupp_descriptor **outTdesc,
+      int controlInfoLen, ControlInfo **controlInfo, int projRowLen, tupp_descriptor **outTdesc,
       ComDiagsArea *diagsArea, tupp_descriptor **diagsDesc, ex_expr_base *expr = NULL, atp_struct *atp1 = NULL,
       atp_struct *workAtp = NULL, atp_struct *destAtp = NULL, unsigned short tuppIndex = 0,
       NABoolean doMoveStats = FALSE,  // if TRUE & statsArea
@@ -611,11 +590,11 @@ class SqlBuffer : public SqlBufferBase {
 
  protected:
   int freeSpace_;     // free space in the buffer
-  ULng32 maxTuppDesc_;  // max tupp desc allocated. Some of
+  int maxTuppDesc_;  // max tupp desc allocated. Some of
                         // them may have a reference count of 0.
   // used to read all tuple descriptors from the buffer.
   // See position() and getNext().
-  ULng32 tuppDescIndex_;
+  int tuppDescIndex_;
 
   // send/receive flags will be unioned with maxValidTuppDesc
   // as maxValidTuppDesc is used only in VSBBInsert node between the
@@ -715,7 +694,7 @@ class SqlBufferNormal : public SqlBuffer {
 
   // initialize data members after allocation, given the total length
   // in bytes of the allocated sql_buffer
-  virtual void init(ULng32 in_size_in_bytes, NABoolean clear = FALSE);
+  virtual void init(int in_size_in_bytes, NABoolean clear = FALSE);
 
   // reinitialize data members; note that this version of init()
   // can only be used after a buffer has been initialized via
@@ -735,12 +714,12 @@ class SqlBufferNormal : public SqlBuffer {
   virtual short isFree();
 
   // total size in bytes
-  virtual ULng32 get_used_size() { return (sizeInBytes_ - freeSpace_); }
+  virtual int get_used_size() { return (sizeInBytes_ - freeSpace_); }
 
   // number of bytes to be sent across processes. For SqlBufferDense,
   // this method is redefined to return the actual number of bytes to
   // be sent.
-  virtual ULng32 getSendBufferSize() { return get_buffer_size(); }
+  virtual int getSendBufferSize() { return get_buffer_size(); }
 
   // converts all pointers in tuple descriptors to offset relative
   // to the beginning of sql_buffer. NOTE: sql_buffer is not derived
@@ -755,7 +734,7 @@ class SqlBufferNormal : public SqlBuffer {
   // memory outside the bounds of the incoming message
   // buffer. Currently verify() is only called by the ExUdrTcb class
   // when it receives a data reply from the non-trusted UDR server.
-  virtual NABoolean verify(ULng32 maxBytes) const;
+  virtual NABoolean verify(int maxBytes) const;
 
   /////////////////////////////////////////////////////////////
   // Methods to retrieve tupp_descriptors from this buffer.
@@ -811,7 +790,7 @@ class SqlBufferNormal : public SqlBuffer {
   virtual SqlBufferNormal *castToSqlBufferNormal() { return this; }
 
  private:
-  ULng32 dataOffset_;  // offset from where data space is to be
+  int dataOffset_;  // offset from where data space is to be
                        // to be allocated.
   int tupleDescOffset_;
   // this is also the end of the buffer as
@@ -883,7 +862,7 @@ class SqlBufferDense : public SqlBuffer {
 
   // initialize data members after allocation, given the total length
   // in bytes of the allocated sql_buffer
-  virtual void init(ULng32 in_size_in_bytes, NABoolean clear = FALSE);
+  virtual void init(int in_size_in_bytes, NABoolean clear = FALSE);
 
   // reinitialize data members; note that this version of init()
   // can only be used after a buffer has been initialized via
@@ -937,9 +916,9 @@ class SqlBufferDense : public SqlBuffer {
   // Returns NULL, if tupp_desc_num is greater than maxTupleDesc_.
   virtual tupp_descriptor *getTuppDescriptor(int tupp_desc_num);
 
-  virtual ULng32 get_used_size() { return getSendBufferSize(); }
+  virtual int get_used_size() { return getSendBufferSize(); }
 
-  virtual ULng32 getSendBufferSize() {
+  virtual int getSendBufferSize() {
     // dataOffset_ points to the first free byte in this buffer.
     // return ((char *)lastTupleDesc() - (char *)this);
 
@@ -1052,12 +1031,12 @@ class SqlBufferOltSmall : public SqlBufferHeader {
 
   void init() { SqlBufferHeader::init(); };
 
-  moveStatus moveInSendData(ULng32 projRowLen, ex_expr_base *expr, atp_struct *atp1, atp_struct *workAtp,
+  moveStatus moveInSendData(int projRowLen, ex_expr_base *expr, atp_struct *atp1, atp_struct *workAtp,
                             unsigned short tuppIndex);
 
-  NABoolean moveOutSendData(tupp &outTupp, ULng32 returnedRowLen);
+  NABoolean moveOutSendData(tupp &outTupp, int returnedRowLen);
 
-  NABoolean moveOutReplyData(void *currQState, tupp &outTupp, ULng32 returnedRowLen, ComDiagsArea **diagsArea,
+  NABoolean moveOutReplyData(void *currQState, tupp &outTupp, int returnedRowLen, ComDiagsArea **diagsArea,
                              ExStatisticsArea **statsArea, long *numStatsBytes);
 
   NABoolean sendData() { return (sendFlags() & SEND_DATA_) != 0; };
@@ -1120,7 +1099,7 @@ class SqlBufferOlt : public SqlBufferBase {
 
   // initialize data members after allocation, given the total length
   // in bytes of the allocated sql_buffer
-  virtual void init(ULng32 in_size_in_bytes, NABoolean clear = FALSE);
+  virtual void init(int in_size_in_bytes, NABoolean clear = FALSE);
 
   // reinitialize data members; note that this version of init()
   // can only be used after a buffer has been initialized via
@@ -1146,7 +1125,7 @@ class SqlBufferOlt : public SqlBufferBase {
                                            NABoolean doMoveData,  // TRUE = move data.
                                            void *currQState,      // up_state(reply) or
                                            // down_state(send)
-                                           ULng32 controlInfoLen, ControlInfo **controlInfo, ULng32 projRowLen,
+                                           int controlInfoLen, ControlInfo **controlInfo, int projRowLen,
                                            tupp_descriptor **outTdesc, ComDiagsArea *diagsArea,
                                            tupp_descriptor **diagsDesc, ex_expr_base *expr = NULL,
                                            atp_struct *atp1 = NULL, atp_struct *workAtp = NULL,
@@ -1169,12 +1148,12 @@ class SqlBufferOlt : public SqlBufferBase {
                                            long *numStatsBytes = NULL, NABoolean noStateChange = FALSE,
                                            NABoolean unpackDA = FALSE, CollHeap *heap = NULL);
 
-  moveStatus moveInSendData(ULng32 projRowLen, ex_expr_base *expr, atp_struct *atp1, atp_struct *workAtp,
+  moveStatus moveInSendData(int projRowLen, ex_expr_base *expr, atp_struct *atp1, atp_struct *workAtp,
                             unsigned short tuppIndex);
 
   NABoolean moveOutSendData(tupp &outTupp);
 
-  moveStatus moveInReplyData(NABoolean doMoveControl, NABoolean doMoveData, void *currQState, ULng32 projRowLen,
+  moveStatus moveInReplyData(NABoolean doMoveControl, NABoolean doMoveData, void *currQState, int projRowLen,
                              ComDiagsArea *diagsArea, tupp_descriptor **diagsDesc, ex_expr_base *expr, atp_struct *atp1,
                              atp_struct *workAtp, atp_struct *destAtp, unsigned short tuppIndex,
                              NABoolean doMoveStats,  // if TRUE & statsArea
@@ -1200,7 +1179,7 @@ class SqlBufferOlt : public SqlBufferBase {
     (v ? oltBufFlags_ |= CONTAINS_OLT_SMALL_ : oltBufFlags_ &= ~CONTAINS_OLT_SMALL_);
   }
 
-  virtual ULng32 get_used_size() { return getSendBufferSize(); }
+  virtual int get_used_size() { return getSendBufferSize(); }
 
   Contents getContents() { return (Contents)contents_; }
 
@@ -1231,7 +1210,7 @@ class SqlBufferOlt : public SqlBufferBase {
 
   char *getSendDataPtr() { return (char *)this + ROUND8(sizeof(SqlBufferOlt)); }
 
-  virtual ULng32 getSendBufferSize() { return sizeInBytes_; }
+  virtual int getSendBufferSize() { return sizeInBytes_; }
 
   char *getReplyDataPtr() {
     if (containsOltSmall()) {
@@ -1246,7 +1225,7 @@ class SqlBufferOlt : public SqlBufferBase {
     }
   }
 
-  virtual ULng32 getReplyBufferSize() {
+  virtual int getReplyBufferSize() {
     if (containsOltSmall()) return sizeInBytes_;
 
     // on NT, skip the vtbl ptr. It is at the beginning of the class.
@@ -1429,7 +1408,7 @@ class sql_buffer_pool : public ExGod {
   // buffers are allocated from a space object
   CollHeap *space_;
 
-  ULng32 flags_;
+  int flags_;
 
   SqlBufferBase::BufferType bufType_;
 

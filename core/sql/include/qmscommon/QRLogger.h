@@ -202,7 +202,7 @@ class QRLogger : public CommonLogger {
 
   static void logDiags(ComDiagsArea *diagsArea, std::string &cat);
 
-  static void logQVP(ULng32 eventId, std::string &cat, logLevel level, const char *logMsgTemplate...);
+  static void logQVP(int eventId, std::string &cat, logLevel level, const char *logMsgTemplate...);
 
   /**
    * Log an error or exception message.

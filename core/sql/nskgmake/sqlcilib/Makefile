@@ -1,11 +1,10 @@
 
 
-CPPSRC := Define.cpp \
+CPPSRC :=  \
 	ExpConvMxcs.cpp \
 	Formatter.cpp \
 	InputStmt.cpp \
 	Log.cpp \
-	Obey.cpp \
 	Param.cpp \
 	Prepare.cpp \
 	ShellCmd.cpp \
@@ -15,11 +14,9 @@ CPPSRC := Define.cpp \
 	SqlciNode.cpp \
 	SqlciParser.cpp \
 	SqlciReset.cpp \
-	SqlciShow.cpp \
 	SqlciStats.cpp \
 	SqlciStmts.cpp \
-	SqlCmd.cpp \
-	sqlclicmd.cpp
+	SqlCmd.cpp 
 
 
 YINC := tdm_sqlmxmsg_intl

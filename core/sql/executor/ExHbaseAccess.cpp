@@ -1225,8 +1225,8 @@ int ExHbaseAccessTcb::createSQRowFromHbaseFormat(long *latestRowTimestamp) {
               v = *(char *)colName.data();
             else if (colName.length() == sizeof(UInt16))
               v = *(UInt16 *)colName.data();
-            else if (colName.length() == sizeof(ULng32))
-              v = *(ULng32 *)colName.data();
+            else if (colName.length() == sizeof(int))
+              v = *(int *)colName.data();
 
             str_sprintf(buf, "%ld", v);
 

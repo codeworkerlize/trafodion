@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ******************************************************************************
 *
@@ -137,7 +116,7 @@ static short genUpdExpr(Generator *generator,
                         ValueIdArray &recExprArray,      // IN
                         const int updatedRowAtpIndex,  // IN
                         ex_expr **updateExpr,            // OUT
-                        ULng32 &updateRowLen,            // OUT
+                        int &updateRowLen,            // OUT
                         ExpTupleDesc **ufRowTupleDesc,   // OUT fetched/updated RowTupleDesc,
                                                          // depending on updOpt (TRUE ->fetched)
                         NABoolean updOpt)                // IN
@@ -322,11 +301,11 @@ static short genHbaseUpdOrInsertExpr(Generator *generator, NABoolean isInsert,
                                      ValueIdArray &updRecExprArray,          // IN
                                      const int updateTuppIndex,            // IN
                                      ex_expr **updateExpr,                   // OUT
-                                     ULng32 &updateRowLen,                   // OUT
+                                     int &updateRowLen,                   // OUT
                                      ExpTupleDesc **updateTupleDesc,         // OUT updated RowTupleDesc,
                                      Queue *&listOfUpdatedColNames,          // OUT
                                      ex_expr **mergeInsertRowIdExpr,         // out
-                                     ULng32 &mergeInsertRowIdLen,            // OUT
+                                     int &mergeInsertRowIdLen,            // OUT
                                      const int mergeInsertRowIdTuppIndex,  // IN
                                      const IndexDesc *indexDesc,             // IN
                                      const TableDesc *tableDesc)             // IN
@@ -468,7 +447,7 @@ static short genHbaseUpdOrInsertExpr(Generator *generator, NABoolean isInsert,
   if ((isInsert) && (updRowVidList.entries() > 0)) {
     ValueIdList updRowKeyVidList;
     const NAColumnArray &keyColArray = indexDesc->getNAFileSet()->getIndexKeyColumns();
-    ULng32 firstKeyColumnOffset = 0;
+    int firstKeyColumnOffset = 0;
 
     for (CollIndex kc = 0; kc < keyColArray.entries(); kc++)
       updRowKeyVidList.insert(updRowVidList[keyColArray[kc]->getPosition()]);
@@ -619,7 +598,7 @@ short HbaseDelete::codeGen(Generator *generator) {
   const int rowIdAsciiTuppIndex = 5;
   const int keyColValTuppIndex = 6;
 
-  ULng32 asciiRowLen = 0;
+  int asciiRowLen = 0;
   ExpTupleDesc *asciiTupleDesc = 0;
 
   ex_cri_desc *work_cri_desc = NULL;
@@ -701,7 +680,7 @@ short HbaseDelete::codeGen(Generator *generator) {
   HbaseAccess::genListsOfRows(generator, listOfDelSubsetRows_, listOfDelUniqueRows_, tdbListOfRangeRows,
                               tdbListOfUniqueRows);
 
-  ULng32 convertRowLen = 0;
+  int convertRowLen = 0;
 
   ValueIdList lobDelVIDlist;
   for (CollIndex ii = 0; ii < numColumns; ii++) {
@@ -842,10 +821,10 @@ short HbaseDelete::codeGen(Generator *generator) {
 
   ex_expr *lobDelExpr = NULL;
 
-  ULng32 rowIdAsciiRowLen = 0;
+  int rowIdAsciiRowLen = 0;
   ExpTupleDesc *rowIdAsciiTupleDesc = 0;
   ex_expr *rowIdExpr = NULL;
-  ULng32 rowIdLength = 0;
+  int rowIdLength = 0;
   if (getTableDesc()->getNATable()->isSeabaseTable()) {
     // dont encode keys for hbase mapped tables since these tables
     // could be populated from outside of traf.
@@ -927,7 +906,7 @@ short HbaseDelete::codeGen(Generator *generator) {
   }
 
   Cardinality expectedRows = (Cardinality)getEstRowsUsed().getValue();
-  ULng32 buffersize = getDefault(GEN_DPSO_BUFFER_SIZE);
+  int buffersize = getDefault(GEN_DPSO_BUFFER_SIZE);
   buffersize = MAXOF(3 * convertRowLen, buffersize);
   queue_index upqueuelength = (queue_index)getDefault(GEN_DPSO_SIZE_UP);
   queue_index downqueuelength = (queue_index)getDefault(GEN_DPSO_SIZE_DOWN);
@@ -1244,7 +1223,7 @@ short HbaseUpdate::codeGen(Generator *generator) {
 
   Attributes *iudIndicatorAttr = NULL;
 
-  ULng32 asciiRowLen = 0;
+  int asciiRowLen = 0;
   ExpTupleDesc *asciiTupleDesc = 0;
 
   ex_cri_desc *work_cri_desc = NULL;
@@ -1255,7 +1234,7 @@ short HbaseUpdate::codeGen(Generator *generator) {
     iudIndicatorAttr = (generator->addMapInfo(getProducedMergeIUDIndicator(), 0))->getAttr();
     iudIndicatorAttr->setAtpIndex(mergeIUDIndicatorTuppIndex);
     iudIndicatorAttr->setAtp(work_atp);
-    ULng32 iudIndicatorLen;
+    int iudIndicatorLen;
     ExpTupleDesc::computeOffsets(iudIndicatorAttr, ExpTupleDesc::SQLARK_EXPLODED_FORMAT, iudIndicatorLen);
     ExpTupleDesc *iudIndicatorTupleDesc = NULL;
     iudIndicatorTupleDesc = new (generator->getSpace())
@@ -1340,7 +1319,7 @@ short HbaseUpdate::codeGen(Generator *generator) {
   HbaseAccess::genListsOfRows(generator, listOfUpdSubsetRows_, listOfUpdUniqueRows_, tdbListOfRangeRows,
                               tdbListOfUniqueRows);
 
-  ULng32 convertRowLen = 0;
+  int convertRowLen = 0;
 
   for (CollIndex ii = 0; ii < numColumns; ii++) {
     ItemExpr *col_node = ((columnList[ii]).getValueDesc())->getItemExpr();
@@ -1477,9 +1456,9 @@ short HbaseUpdate::codeGen(Generator *generator) {
   }
 
   ex_expr *mergeInsertRowIdExpr = NULL;
-  ULng32 mergeInsertRowIdLen = 0;
+  int mergeInsertRowIdLen = 0;
   ExpTupleDesc *updatedRowTupleDesc = 0;
-  ULng32 updateRowLen = 0;
+  int updateRowLen = 0;
   Queue *listOfUpdatedColNames = NULL;
   genHbaseUpdOrInsertExpr(generator, FALSE, newRecExprArray(), updateTuppIndex, &updateExpr, updateRowLen,
                           &updatedRowTupleDesc, listOfUpdatedColNames, NULL, mergeInsertRowIdLen, 0, getIndexDesc(),
@@ -1489,7 +1468,7 @@ short HbaseUpdate::codeGen(Generator *generator) {
 
   // if hbase tags are to be set, gen expr to create the row containing tags
   ExpTupleDesc *hbTagRowTupleDesc = 0;
-  ULng32 hbTagRowLen = 0;
+  int hbTagRowLen = 0;
   if (hbaseTagExpr().entries() > 0) {
     expGen->generateContiguousMoveExpr(hbaseTagExpr(), TRUE, work_atp, hbTagTuppIndex, hbaseRowFormat, hbTagRowLen,
                                        &hbTagExpr, &hbTagRowTupleDesc);
@@ -1498,7 +1477,7 @@ short HbaseUpdate::codeGen(Generator *generator) {
   }
 
   ExpTupleDesc *mergedRowTupleDesc = 0;
-  ULng32 mergeInsertRowLen = 0;
+  int mergeInsertRowLen = 0;
   Queue *listOfMergedColNames = NULL;
   if ((isMerge()) && (mergeInsertRecExprArray().entries() > 0)) {
     genHbaseUpdOrInsertExpr(generator, TRUE, mergeInsertRecExprArray(), mergeInsertTuppIndex, &mergeInsertExpr,
@@ -1508,10 +1487,10 @@ short HbaseUpdate::codeGen(Generator *generator) {
     work_cri_desc->setTupleDescriptor(mergeInsertTuppIndex, mergedRowTupleDesc);
   }
 
-  ULng32 rowIdAsciiRowLen = 0;
+  int rowIdAsciiRowLen = 0;
   ExpTupleDesc *rowIdAsciiTupleDesc = 0;
   ex_expr *rowIdExpr = NULL;
-  ULng32 rowIdLength = 0;
+  int rowIdLength = 0;
   if (getTableDesc()->getNATable()->isSeabaseTable()) {
     HbaseAccess::genRowIdExpr(generator, getIndexDesc()->getNAFileSet()->getIndexKeyColumns(), getHbaseSearchKeys(),
                               work_cri_desc, work_atp, rowIdAsciiTuppIndex, rowIdTuppIndex, rowIdAsciiRowLen,
@@ -1621,9 +1600,9 @@ short HbaseUpdate::codeGen(Generator *generator) {
   generator->addLateNameInfo(lateNameInfo);
 
   ex_expr *returnMergeInsertExpr = NULL;
-  ULng32 returnedFetchedRowLen = 0;
-  ULng32 returnedUpdatedRowLen = 0;
-  ULng32 returnedMergeInsertedRowLen = 0;
+  int returnedFetchedRowLen = 0;
+  int returnedUpdatedRowLen = 0;
+  int returnedMergeInsertedRowLen = 0;
   Queue *listOfOmittedColNames = NULL;
 
   if (returnRow) {
@@ -1794,7 +1773,7 @@ short HbaseUpdate::codeGen(Generator *generator) {
   }
 
   Cardinality expectedRows = (Cardinality)getEstRowsUsed().getValue();
-  ULng32 buffersize = getDefault(GEN_DPSO_BUFFER_SIZE);
+  int buffersize = getDefault(GEN_DPSO_BUFFER_SIZE);
   buffersize = MAXOF(3 * convertRowLen, buffersize);
 
   queue_index upqueuelength = (queue_index)getDefault(GEN_DPSO_SIZE_UP);
@@ -2058,7 +2037,7 @@ short HbaseInsert::codeGen(Generator *generator) {
   const UInt16 projRowTuppIndex = 5;
   workCriDesc = new (space) ex_cri_desc(6, space);
 
-  ULng32 loggingRowLen = 0;
+  int loggingRowLen = 0;
 
   NABoolean hasAddedColumns = FALSE;
   if (getTableDesc()->getNATable()->hasAddedColumn()) hasAddedColumns = TRUE;
@@ -2143,7 +2122,7 @@ short HbaseInsert::codeGen(Generator *generator) {
     return -1;
   }
 
-  ULng32 insertRowLen = 0;
+  int insertRowLen = 0;
   ExpTupleDesc *tupleDesc = 0;
   ExpTupleDesc::TupleDataFormat tupleFormat;
 
@@ -2309,7 +2288,7 @@ short HbaseInsert::codeGen(Generator *generator) {
   Queue *listOfUpdatedColNames = NULL;
   int keyAttrPos = -1;
   ex_expr *rowIdExpr = NULL;
-  ULng32 rowIdLen = 0;
+  int rowIdLen = 0;
 
   const ValueIdList &indexVIDlist = getIndexDesc()->getIndexColumns();
   for (CollIndex ii = 0; ii < newRecExprArray().entries(); ii++) {
@@ -2333,7 +2312,7 @@ short HbaseInsert::codeGen(Generator *generator) {
     expGen->generateExpr(preCondTree->getValueId(), ex_expr::exp_SCAN_PRED, &preCondExpr);
   }
 
-  ULng32 f;
+  int f;
   expGen->generateKeyEncodeExpr(getIndexDesc(),                  // describes the columns
                                 work_atp,                        // work Atp
                                 rowIdTuppIndex,                  // work Atp entry
@@ -2409,7 +2388,7 @@ short HbaseInsert::codeGen(Generator *generator) {
   // This is not the same as the generateContiguousMoveExpr() call
   // above since different valueId's are added to the mapTable.
   //
-  ULng32 tempInsertRowLen = 0;
+  int tempInsertRowLen = 0;
   ExpTupleDesc *tempTupleDesc = 0;
   expGen->processValIdList(newRecExprArray(), tupleFormat, tempInsertRowLen, 0,
                            returnRowTuppIndex,  // insertTuppIndex,
@@ -2420,7 +2399,7 @@ short HbaseInsert::codeGen(Generator *generator) {
   if (workCriDesc) workCriDesc->setTupleDescriptor(insertTuppIndex, tupleDesc);
 
   ex_expr *projExpr = NULL;
-  ULng32 projRowLen = 0;
+  int projRowLen = 0;
   ExpTupleDesc *projRowTupleDesc = 0;
   if (returnRow) {
     if (getTableDesc()->getNATable()->hasSerializedEncodedColumn()) {
@@ -2465,7 +2444,7 @@ short HbaseInsert::codeGen(Generator *generator) {
   }
 
   Cardinality expectedRows = (Cardinality)getEstRowsUsed().getValue();
-  ULng32 buffersize = getDefault(GEN_DP2I_BUFFER_SIZE);
+  int buffersize = getDefault(GEN_DP2I_BUFFER_SIZE);
   buffersize = MAXOF(3 * insertRowLen, buffersize);
 
   queue_index upqueuelength = (queue_index)getDefault(GEN_DP2I_SIZE_UP);
@@ -2718,7 +2697,7 @@ short HbaseInsert::codeGen(Generator *generator) {
       hbasescan_tdb->setNoDuplicates(CmpCommon::getDefault(TRAF_LOAD_PREP_SKIP_DUPLICATES) == DF_OFF);
       hbasescan_tdb->setMaxHFileSize(CmpCommon::getDefaultLong(TRAF_LOAD_MAX_HFILE_SIZE));
 
-      ULng32 loadFlushSizeinRows = getDefault(TRAF_LOAD_ROWSET_SIZE);
+      int loadFlushSizeinRows = getDefault(TRAF_LOAD_ROWSET_SIZE);
 
       // total row size must less than 1G
       long maxDirectBuflen =
@@ -2779,7 +2758,7 @@ short HbaseInsert::codeGen(Generator *generator) {
     // setting parameters for upsert statement// not related to the hbase bulk load intergration
     NABoolean traf_upsert_adjust_params = (CmpCommon::getDefault(TRAF_UPSERT_ADJUST_PARAMS) == DF_ON);
     if (traf_upsert_adjust_params) {
-      ULng32 wbSize = getDefault(TRAF_UPSERT_WB_SIZE);
+      int wbSize = getDefault(TRAF_UPSERT_WB_SIZE);
       NABoolean traf_write_toWAL = (CmpCommon::getDefault(TRAF_UPSERT_WRITE_TO_WAL) == DF_ON);
 
       hbasescan_tdb->setTrafWriteToWAL(traf_write_toWAL);

@@ -3,10 +3,7 @@
 #define SQLPARSERGLOBALS_NADEFAULTS
 #define SQLPARSERGLOBALSCMN__INITIALIZE
 
-// -----------------------------------------------------------------------
-// Files that are compiled with the same settings
-// in common and commoninexe
-// -----------------------------------------------------------------------
+
 #include "ComAllInExe.cpp"
 
 

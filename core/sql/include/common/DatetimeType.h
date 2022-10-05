@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef DATETIMETYPE_H
 #define DATETIMETYPE_H
 /* -*-C++-*-
@@ -86,7 +65,7 @@ class DatetimeType : public DatetimeIntervalCommonType {
   // Used by DatetimeValue
   static int getExtendedEndField(rec_datetime_field endField, UInt32 fractionPrecision);
 
-  void datetimeToLong(void *bufPtr, ULng32 values[]) const;
+  void datetimeToLong(void *bufPtr, int values[]) const;
 
   int getRecDateTimeCode() const  // does this need to be virtual ??
   {
@@ -110,11 +89,11 @@ class DatetimeType : public DatetimeIntervalCommonType {
     return TRUE;
   }
 
-  static NABoolean leapYear(ULng32 year) { return ((year % 4 == 0) && ((year % 100 != 0) || (year % 400 == 0))); }
+  static NABoolean leapYear(int year) { return ((year % 4 == 0) && ((year % 100 != 0) || (year % 400 == 0))); }
 
-  static int gregorianDays(const ULng32 values[]);
+  static int gregorianDays(const int values[]);
 
-  static int secondsInTime(const ULng32 values[]);
+  static int secondsInTime(const int values[]);
 
   // returns the juliantimestamp value (64 bit integer) based on the
   // input sql timestamp value.
@@ -231,8 +210,8 @@ class DatetimeType : public DatetimeIntervalCommonType {
 
   virtual NABoolean fieldsOverlap(const DatetimeType &other) const;
 
-  static ULng32 getMinValue(int field, int digitsInFraction);
-  static ULng32 getMaxValue(int field, int digitsInFraction);
+  static int getMinValue(int field, int digitsInFraction);
+  static int getMaxValue(int field, int digitsInFraction);
 
  private:
   // Auxiliary methods
@@ -463,7 +442,7 @@ class DatetimeValue {
   // Set the value.
   // ---------------------------------------------------------------------
   void setValue(rec_datetime_field startField, rec_datetime_field endField, UInt32 fractionPrecision,
-                const ULng32 values[]);
+                const int values[]);
 
   // ---------------------------------------------------------------------
   // Accessor functions
@@ -491,13 +470,13 @@ class DatetimeValue {
   // ---------------------------------------------------------------------
   // Scan the date and return individual fields. Dont validate the date.
   // ---------------------------------------------------------------------
-  NABoolean scanAndReturnFields(const char *&strValue, DatetimeFormat &format, ULng32 values[]) const;
+  NABoolean scanAndReturnFields(const char *&strValue, DatetimeFormat &format, int values[]) const;
 
  private:
   // ---------------------------------------------------------------------
   // Scan the date.
   // ---------------------------------------------------------------------
-  NABoolean scanDate(const char *&strValue, DatetimeFormat &format, ULng32 values[], NABoolean validate = TRUE) const;
+  NABoolean scanDate(const char *&strValue, DatetimeFormat &format, int values[], NABoolean validate = TRUE) const;
 
   // ---------------------------------------------------------------------
   // Scan the given character.
@@ -513,12 +492,12 @@ class DatetimeValue {
   // ---------------------------------------------------------------------
   // Scan the time.
   // ---------------------------------------------------------------------
-  NABoolean scanTime(const char *&strValue, DatetimeFormat format, ULng32 values[], UInt32 &fractionPrecision) const;
+  NABoolean scanTime(const char *&strValue, DatetimeFormat format, int values[], UInt32 &fractionPrecision) const;
 
   // ---------------------------------------------------------------------
   // Scan the given field.
   // ---------------------------------------------------------------------
-  NABoolean scanField(const char *&strValue, DatetimeField field, ULng32 values[], NABoolean validate = TRUE) const;
+  NABoolean scanField(const char *&strValue, DatetimeField field, int values[], NABoolean validate = TRUE) const;
 
   // ---------------------------------------------------------------------
   // Determine if the type contains the indicated field.
@@ -534,7 +513,7 @@ class DatetimeValue {
   // ---------------------------------------------------------------------
   // Validate the date.
   // ---------------------------------------------------------------------
-  NABoolean validateDate(const ULng32 values[]) const;
+  NABoolean validateDate(const int values[]) const;
 
   // ---------------------------------------------------------------------
   // Datetime value.

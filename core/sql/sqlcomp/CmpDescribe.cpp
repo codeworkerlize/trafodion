@@ -109,38 +109,38 @@ void outputLine(Space &space, const char *buf, size_t indent, size_t indentDelta
 
 static size_t indexLastNewline(const NAString &text, size_t startPos, size_t maxLen);
 
-static bool CmpDescribeLibrary(const CorrName &corrName, char *&outbuf, ULng32 &outbuflen, CollHeap *heap);
+static bool CmpDescribeLibrary(const CorrName &corrName, char *&outbuf, int &outbuflen, CollHeap *heap);
 
-static short CmpDescribePackage(const CorrName &corrName, char *&outbuf, ULng32 &outbuflen, CollHeap *heap);
+static short CmpDescribePackage(const CorrName &corrName, char *&outbuf, int &outbuflen, CollHeap *heap);
 
-static short CmpDescribeRoutine(const CorrName &corrName, char *&outbuf, ULng32 &outbuflen, CollHeap *heap);
+static short CmpDescribeRoutine(const CorrName &corrName, char *&outbuf, int &outbuflen, CollHeap *heap);
 
-static short CmpDescribeTrigger(const CorrName &corrName, char *&outbuf, ULng32 &outbuflen, CollHeap *heap);
+static short CmpDescribeTrigger(const CorrName &corrName, char *&outbuf, int &outbuflen, CollHeap *heap);
 
-static short CmpDescribePlan(const char *query, ULng32 flags, char *&outbuf, ULng32 &outbuflen, NAMemory *heap);
+static short CmpDescribePlan(const char *query, int flags, char *&outbuf, int &outbuflen, NAMemory *heap);
 
-static short CmpDescribeShape(const char *query, char *&outbuf, ULng32 &outbuflen, NAMemory *h);
+static short CmpDescribeShape(const char *query, char *&outbuf, int &outbuflen, NAMemory *h);
 
-static short CmpDescribeTransaction(char *&outbuf, ULng32 &outbuflen, NAMemory *h);
+static short CmpDescribeTransaction(char *&outbuf, int &outbuflen, NAMemory *h);
 
-static short CmpDescribeUUID(Describe *d, char *&outbuf, ULng32 &outbuflen, CollHeap *heap);
+static short CmpDescribeUUID(Describe *d, char *&outbuf, int &outbuflen, CollHeap *heap);
 
-short CmpDescribeSequence(const CorrName &dtName, char *&outbuf, ULng32 &outbuflen, CollHeap *heap, Space *inSpace,
+short CmpDescribeSequence(const CorrName &dtName, char *&outbuf, int &outbuflen, CollHeap *heap, Space *inSpace,
                           NABoolean sqlCommentOut = FALSE);
 
 bool CmpDescribeIsAuthorized(CollHeap *heap = NULL, SQLOperation operation = SQLOperation::UNKNOWN,
                              PrivMgrUserPrivs *privs = NULL, ComObjectType objectType = COM_UNKNOWN_OBJECT,
                              int objectOwner = NA_UserIdDefault);
 
-static short CmpDescribeTableHDFSCache(const CorrName &dtName, char *&outbuf, ULng32 &outbuflen, NAMemory *h);
+static short CmpDescribeTableHDFSCache(const CorrName &dtName, char *&outbuf, int &outbuflen, NAMemory *h);
 
-static short CmpDescribeSchemaHDFSCache(const NAString &schemaText, char *&outbuf, ULng32 &outbuflen, NAMemory *heap);
+static short CmpDescribeSchemaHDFSCache(const NAString &schemaText, char *&outbuf, int &outbuflen, NAMemory *heap);
 
-static short CmpDescribeShowViews(char *&outbuf, ULng32 &outbuflen, NAMemory *h);
+static short CmpDescribeShowViews(char *&outbuf, int &outbuflen, NAMemory *h);
 
-static short CmpDescribeDescView(const CorrName &dtName, char *&outbuf, ULng32 &outbuflen, NAMemory *h);
+static short CmpDescribeDescView(const CorrName &dtName, char *&outbuf, int &outbuflen, NAMemory *h);
 
-static short CmpDescribeShowEnv(char *&outbuf, ULng32 &outbuflen, NAMemory *h);
+static short CmpDescribeShowEnv(char *&outbuf, int &outbuflen, NAMemory *h);
 
 static short CmpDescribeTablePartitions(NATable *naTable, Space &space, char *buf, short type);
 
@@ -161,7 +161,7 @@ short cmpDisplayPrimaryKey(const NAColumnArray &naColArr, int numKeys, NABoolean
 // Define a shorter synonym.
 #define SpacePrefix CmpDescribeSpaceCountPrefix
 
-static short CmpDescribePlan(const char *query, ULng32 flags, char *&outbuf, ULng32 &outbuflen, NAMemory *h);
+static short CmpDescribePlan(const char *query, int flags, char *&outbuf, int &outbuflen, NAMemory *h);
 
 // DZC - outputToStream does nothing for SHOWDDL because outStream() returns NULL
 // needed for SHOWCONTROL though, so they must be left in.
@@ -334,7 +334,7 @@ static int displayDefaultValue(const char *defVal, const char *colName, NAString
   return 0;
 }
 
-static short CmpDescribeShowQryStats(const char *query, char *&outbuf, ULng32 &outbuflen, NAMemory *heap) {
+static short CmpDescribeShowQryStats(const char *query, char *&outbuf, int &outbuflen, NAMemory *heap) {
   // make sure we have a showstats query to process
   short rc = -1;
   if (!query) return rc;
@@ -384,7 +384,7 @@ static short CmpDescribeShowQryStats(const char *query, char *&outbuf, ULng32 &o
 
   // prepare this query.
   char *qTree = NULL;
-  ULng32 dummyLen;
+  int dummyLen;
 
   CmpMain sqlcomp;
   CmpMain::CompilerPhase phase = CmpMain::ANALYSIS;
@@ -412,12 +412,12 @@ static short CmpDescribeShowQryStats(const char *query, char *&outbuf, ULng32 &o
 }
 
 // Returns -1, if error.
-short CmpDescribe(const char *query, const RelExpr *queryExpr, char *&outbuf, ULng32 &outbuflen, CollHeap *heap) {
+short CmpDescribe(const char *query, const RelExpr *queryExpr, char *&outbuf, int &outbuflen, CollHeap *heap) {
   short rc = 0;  // assume success
 
   // save the current parserflags setting
 
-  ULng32 savedParserFlags;
+  int savedParserFlags;
   SQL_EXEC_GetParserFlagsForExSqlComp_Internal(savedParserFlags);
 
   // OK, folks, we are about to locally change a global variable, so any returns
@@ -796,7 +796,6 @@ short CmpDescribe(const char *query, const RelExpr *queryExpr, char *&outbuf, UL
       goto finally;  // we are done
     }
 
-    // Show cache for HDFS cache
     if (d->getFormat() == Describe::SHOWTABLEHDFSCACHE_) {
       return CmpDescribeTableHDFSCache(d->getDescribedTableName(), outbuf, outbuflen, heap);
     }
@@ -1065,7 +1064,7 @@ short sendAllControls(NABoolean copyCQS, NABoolean sendAllCQDs, NABoolean sendUs
             sprintf(buf, "CONTROL QUERY DEFAULT TERMINAL_CHARSET 'ISO88591';");
           } else {
             if (strcmp(attrName, "REPLICATE_IO_VERSION") == 0) {
-              ULng32 originalParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
+              int originalParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
               SQL_EXEC_SetParserFlagsForExSqlComp_Internal(originalParserFlags);
             }
             NAString quotedString;
@@ -1091,7 +1090,7 @@ short sendAllControls(NABoolean copyCQS, NABoolean sendAllCQDs, NABoolean sendUs
         sprintf(buf, "CONTROL QUERY DEFAULT TERMINAL_CHARSET 'ISO88591';");
       } else {
         if (strcmp(cqd->getToken().data(), "REPLICATE_IO_VERSION") == 0) {
-          ULng32 originalParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
+          int originalParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
           SQL_EXEC_SetParserFlagsForExSqlComp_Internal(originalParserFlags);
         }
         sprintf(buf, "CONTROL QUERY DEFAULT %s %s;", cqd->getToken().data(), quotedString.data());
@@ -1115,7 +1114,7 @@ short sendAllControls(NABoolean copyCQS, NABoolean sendAllCQDs, NABoolean sendUs
   // pass on the parserflags to the new compiler
   // used to enable SHOWPLAN for MV INTERNAL REFRESH
   if (CmpCommon::getDefault(MV_ENABLE_INTERNAL_REFRESH_SHOWPLAN) == DF_ON) {
-    ULng32 originalParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
+    int originalParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
     SQL_EXEC_SetParserFlagsForExSqlComp_Internal(originalParserFlags);
   }
 
@@ -1143,7 +1142,7 @@ short sendAllControls(NABoolean copyCQS, NABoolean sendAllCQDs, NABoolean sendUs
   return 0;
 }
 
-void sendParserFlag(ULng32 flag) { SQL_EXEC_SetParserFlagsForExSqlComp_Internal(flag); }
+void sendParserFlag(int flag) { SQL_EXEC_SetParserFlagsForExSqlComp_Internal(flag); }
 
 short setParentQidAtSession(NAHeap *heap, const char *parentQid) {
   int retcode = 0;
@@ -1179,7 +1178,7 @@ static long describeError(long retcode)
 //        0x00000020   do downrev compile for RR. Used when pcode is
 //                     regenerated during display
 /////////////////////////////////////////////////////////////////
-static short CmpGetPlan(SQLSTMT_ID &stmt_id, ULng32 flags, Space &space, CollHeap *heap, char *&rootTdbBuf,
+static short CmpGetPlan(SQLSTMT_ID &stmt_id, int flags, Space &space, CollHeap *heap, char *&rootTdbBuf,
                         int &rootTdbSize, char *&srcStrBuf, int &srcStrSize) {
   int retcode = 0;
   ULong stmtHandle = (ULong)stmt_id.handle;
@@ -1216,7 +1215,7 @@ static short CmpGetPlan(SQLSTMT_ID &stmt_id, ULng32 flags, Space &space, CollHea
 //        0x00000010   do downrev compile. Used when pcode is regenerated
 //                     during display
 /////////////////////////////////////////////////////////////////
-static int CmpFormatPlan(ULng32 flags, char *rootTdbBuf, int rootTdbSize, char *srcStrBuf, int srcStrSize,
+static int CmpFormatPlan(int flags, char *rootTdbBuf, int rootTdbSize, char *srcStrBuf, int srcStrSize,
                            NABoolean outputSrcInfo, Space &space, CollHeap *heap) {
   char buf[200];
 
@@ -1311,7 +1310,7 @@ static int CmpFormatPlan(ULng32 flags, char *rootTdbBuf, int rootTdbSize, char *
   return 0;
 }
 
-static short CmpDescribePlan(const char *query, ULng32 flags, char *&outbuf, ULng32 &outbuflen, NAMemory *heap) {
+static short CmpDescribePlan(const char *query, int flags, char *&outbuf, int &outbuflen, NAMemory *heap) {
   // prepare this query.
   int retcode;
   int resetRetcode;
@@ -1415,7 +1414,7 @@ static NABoolean isInternalCQD(DefaultConstants attr) {
 
   return FALSE;
 }
-short CmpDescribeControl(Describe *d, char *&outbuf, ULng32 &outbuflen, CollHeap *heap) {
+short CmpDescribeControl(Describe *d, char *&outbuf, int &outbuflen, CollHeap *heap) {
   // Two kludgy passing mechanisms from SqlParser.y ...
   NAString ident = d->getDescribedTableName().getQualifiedNameObj().getObjectName();
   NABoolean exactMatch = !d->getDescribedTableName().getCorrNameAsString().isNull();
@@ -1592,12 +1591,12 @@ short CmpDescribeControl(Describe *d, char *&outbuf, ULng32 &outbuflen, CollHeap
   return 0;
 }
 
-static short CmpDescribeShape(const char *query, char *&outbuf, ULng32 &outbuflen, NAMemory *heap)
+static short CmpDescribeShape(const char *query, char *&outbuf, int &outbuflen, NAMemory *heap)
 
 {
   // prepare this query.
   char *qTree = NULL;
-  ULng32 dummyLen;
+  int dummyLen;
 
   CmpMain sqlcomp;
 
@@ -1666,7 +1665,7 @@ static short CmpDescribeShape(const char *query, char *&outbuf, ULng32 &outbufle
 }
 
 // show transaction
-static short CmpDescribeTransaction(char *&outbuf, ULng32 &outbuflen, NAMemory *heap)
+static short CmpDescribeTransaction(char *&outbuf, int &outbuflen, NAMemory *heap)
 
 {
   Space space;
@@ -2173,7 +2172,7 @@ short CmpGenRefConstrStr(AbstractRIConstraint *ariConstr, Space *space, char *bu
 }
 
 // type:  1, invoke. 2, showddl. 3, create_like
-short CmpDescribeSeabaseTable(const CorrName &dtName, short type, char *&outbuf, ULng32 &outbuflen, CollHeap *heap,
+short CmpDescribeSeabaseTable(const CorrName &dtName, short type, char *&outbuf, int &outbuflen, CollHeap *heap,
                               NABoolean isCreateForPart, const char *pkeyName, const char *pkeyStr,
                               NABoolean withPartns, NABoolean withoutSalt, NABoolean withoutDivisioning,
                               NABoolean withoutRowFormat, NABoolean withoutLobColumns, NABoolean withoutNamespace,
@@ -2951,7 +2950,7 @@ short CmpDescribeSeabaseTable(const CorrName &dtName, short type, char *&outbuf,
     outputLine(*space, "\n-- The following sequence is a system created sequence --", 0);
 
     char *dummyBuf;
-    ULng32 dummyLen;
+    int dummyLen;
     CmpDescribeSequence(csn, dummyBuf, dummyLen, STMTHEAP, &*space, TRUE);
   }
 
@@ -3311,7 +3310,7 @@ short CmpDescribeSeabaseTable(const CorrName &dtName, short type, char *&outbuf,
   return 0;
 }
 
-short CmpDescribeSequence(const CorrName &dtName, char *&outbuf, ULng32 &outbuflen, CollHeap *heap, Space *inSpace,
+short CmpDescribeSequence(const CorrName &dtName, char *&outbuf, int &outbuflen, CollHeap *heap, Space *inSpace,
                           NABoolean sqlCommentOut) {
   CorrName cn(dtName, heap);
 
@@ -3321,7 +3320,7 @@ short CmpDescribeSequence(const CorrName &dtName, char *&outbuf, ULng32 &outbufl
   ActiveSchemaDB()->getNATableDB()->removeNATable(cn, ComQiScope::REMOVE_MINE_ONLY, COM_SEQUENCE_GENERATOR_OBJECT,
                                                   FALSE, FALSE);
 
-  ULng32 savedParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
+  int savedParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
   Set_SqlParser_Flags(ALLOW_VOLATILE_SCHEMA_IN_TABLE_NAME);
 
   BindWA bindWA(ActiveSchemaDB(), CmpCommon::context(), FALSE /*inDDL*/);
@@ -3560,8 +3559,8 @@ bool CmpDescribeIsAuthorized(CollHeap *heap, SQLOperation operation, PrivMgrUser
 // *    is a reference to a pointed to a character array.  The desribe output  *
 // *    is stored here.                                                        *
 // *                                                                           *
-// *  <outbuflen>                     ULng32 &                        Out      *
-// *    is the number of characters stored in outbuf.  Note, ULng32 is an      *
+// *  <outbuflen>                     int &                        Out      *
+// *    is the number of characters stored in outbuf.  Note, int is an      *
 // *    unsigned 32-bit integer, aka uint32_t or unsigned int.  Not a long.    *
 // *                                                                           *
 // *  <heap>                          CollHeap *                      In       *
@@ -3575,7 +3574,7 @@ bool CmpDescribeIsAuthorized(CollHeap *heap, SQLOperation operation, PrivMgrUser
 // * false: Desribe text not added. A CLI error is put into the diags area.    *
 // *                                                                           *
 // *****************************************************************************
-bool CmpDescribeLibrary(const CorrName &corrName, char *&outbuf, ULng32 &outbuflen, CollHeap *heap)
+bool CmpDescribeLibrary(const CorrName &corrName, char *&outbuf, int &outbuflen, CollHeap *heap)
 
 {
   CmpSeabaseDDL cmpSBD((NAHeap *)heap);
@@ -3708,7 +3707,7 @@ bool CmpDescribeLibrary(const CorrName &corrName, char *&outbuf, ULng32 &outbufl
 //************************ End of CmpDescribeLibrary ***************************
 
 // Routine to support SHOWDDL PACKAGE <package-name>
-short CmpDescribePackage(const CorrName &cn, char *&outbuf, ULng32 &outbuflen, CollHeap *heap) {
+short CmpDescribePackage(const CorrName &cn, char *&outbuf, int &outbuflen, CollHeap *heap) {
   NABoolean logFormat = (CmpCommon::getDefault(SHOWDDL_DISPLAY_FORMAT) == DF_LOG);
 
   Space localSpace;
@@ -3750,7 +3749,7 @@ short CmpDescribePackage(const CorrName &cn, char *&outbuf, ULng32 &outbuflen, C
 
 // Routine to support SHOWDDL [ PROCEDURE | FUNCTION | TABLE_MAPPING FUNCTION ]
 // <routine-name>
-short CmpDescribeRoutine(const CorrName &cn, char *&outbuf, ULng32 &outbuflen, CollHeap *heap) {
+short CmpDescribeRoutine(const CorrName &cn, char *&outbuf, int &outbuflen, CollHeap *heap) {
   BindWA bindWA(ActiveSchemaDB(), CmpCommon::context(), FALSE /*inDDL*/);
   NARoutine *routine = bindWA.getNARoutine(cn.getQualifiedNameObj());
   const NAString &rName = cn.getQualifiedNameObj().getQualifiedNameAsAnsiString(TRUE);
@@ -4248,7 +4247,7 @@ short CmpDescribeRoutine(const CorrName &cn, char *&outbuf, ULng32 &outbuflen, C
   return 1;
 }  // CmpDescribeShowddlProcedure
 
-short CmpDescribeTrigger(const CorrName &cn, char *&outbuf, ULng32 &outbuflen, CollHeap *heap) {
+short CmpDescribeTrigger(const CorrName &cn, char *&outbuf, int &outbuflen, CollHeap *heap) {
   ExeCliInterface cliInterface(STMTHEAP, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
 
   CmpSeabaseDDL cmpSBD((NAHeap *)heap);
@@ -4277,7 +4276,7 @@ short CmpDescribeTrigger(const CorrName &cn, char *&outbuf, ULng32 &outbuflen, C
   return 1;
 }
 
-short CmpDescribeUUID(Describe *d, char *&outbuf, ULng32 &outbuflen, CollHeap *heap) {
+short CmpDescribeUUID(Describe *d, char *&outbuf, int &outbuflen, CollHeap *heap) {
   int cliRC = 0;
   Space space;
   char buf[4000];
@@ -4331,7 +4330,7 @@ short CmpDescribeUUID(Describe *d, char *&outbuf, ULng32 &outbuflen, CollHeap *h
 
 // SHOW CACHE FOR TABLE table_name
 // Display centralized HDFS cache information for a table.
-static short CmpDescribeTableHDFSCache(const CorrName &dtName, char *&outbuf, ULng32 &outbuflen, NAMemory *heap) {
+static short CmpDescribeTableHDFSCache(const CorrName &dtName, char *&outbuf, int &outbuflen, NAMemory *heap) {
   // test if this table is exist
   BindWA bindWA(ActiveSchemaDB(), CmpCommon::context(), FALSE /*inDDL*/);
   NATable *naTable = bindWA.getNATable((CorrName &)dtName);
@@ -4415,7 +4414,7 @@ static short CmpDescribeTableHDFSCache(const CorrName &dtName, char *&outbuf, UL
 
 // SHOW CACHE FOR SCHEMA schema_name
 // Display centralized HDFS cache information for a table.
-static short CmpDescribeSchemaHDFSCache(const NAString &schemaText, char *&outbuf, ULng32 &outbuflen, NAMemory *heap) {
+static short CmpDescribeSchemaHDFSCache(const NAString &schemaText, char *&outbuf, int &outbuflen, NAMemory *heap) {
   int cliRC = 0;
   int retCode = 0;
   char buf[4000];
@@ -4545,7 +4544,7 @@ static short CmpDescribeSchemaHDFSCache(const NAString &schemaText, char *&outbu
   return 0;
 }
 
-static short CmpDescribeShowEnv(char *&outbuf, ULng32 &outbuflen, NAMemory *heap) {
+static short CmpDescribeShowEnv(char *&outbuf, int &outbuflen, NAMemory *heap) {
   Space space;
 
 #ifdef _EMPTYSTRING_EQUIVALENT_NULL
@@ -4676,7 +4675,7 @@ static short CmpDescribePartIndexDesc(BindWA *bindWA, short type, NATable *naTab
   return 0;
 }
 
-static short CmpDescribeShowViews(char *&outbuf, ULng32 &outbuflen, NAMemory *heap) {
+static short CmpDescribeShowViews(char *&outbuf, int &outbuflen, NAMemory *heap) {
   Space space;
 
   outputShortLine(space, "");
@@ -4698,7 +4697,7 @@ static short CmpDescribeShowViews(char *&outbuf, ULng32 &outbuflen, NAMemory *he
   return 0;
 }
 
-static short CmpDescribeDescView(const CorrName &dtName, char *&outbuf, ULng32 &outbuflen, NAMemory *heap) {
+static short CmpDescribeDescView(const CorrName &dtName, char *&outbuf, int &outbuflen, NAMemory *heap) {
   Space space;
 
   outputShortLine(space, "");

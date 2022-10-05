@@ -175,7 +175,7 @@ char *(str_cat_c)(char *s1, const char *s2);
 // -----------------------------------------------------------------------
 // convert <i> to ASCII and store the result in <outstr>
 // -----------------------------------------------------------------------
-char *str_itoa(ULng32 i, char *outstr);
+char *str_itoa(int i, char *outstr);
 char *str_ltoa(long i, char *outstr);
 
 // -----------------------------------------------------------------------
@@ -255,12 +255,12 @@ int str_len(const char *s);
 // "Increments" a string.  If successful, 0 is returned.  Otherwise, 1
 // is returned.
 // -----------------------------------------------------------------------
-int str_inc(const ULng32 length, char *s);
+int str_inc(const int length, char *s);
 
 // -----------------------------------------------------------------------
 // Complements a string.
 // -----------------------------------------------------------------------
-void str_complement(const ULng32 length, char *s);
+void str_complement(const int length, char *s);
 
 //------------------------------------------------------------------------
 // str_sprintf is now same as sprintf

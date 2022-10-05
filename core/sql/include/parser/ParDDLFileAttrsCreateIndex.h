@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef PARDDLFILEATTRSCREATEINDEX_H
 #define PARDDLFILEATTRSCREATEINDEX_H
 /* -*-C++-*-
@@ -98,7 +77,7 @@ class ParDDLFileAttrsCreateIndex : public ParDDLFileAttrs {
   // Returns TRUE (the default value) when the [No] AuditCompress
   // phrase is not specified.
 
-  inline ULng32 getBlockSize() const;
+  inline int getBlockSize() const;
 
   // Returns 4096 (the default value) when the BlockSize
   // phrase is not specified.
@@ -150,7 +129,7 @@ class ParDDLFileAttrsCreateIndex : public ParDDLFileAttrs {
   // For Create Table statements, the default value is FALSE (no
   // compression).
 
-  inline ULng32 getMaxSize() const;
+  inline int getMaxSize() const;
 
   // Returns the value specified in the MaxSize clause.
   // If MaxSize clause does not appears, returns the default value.
@@ -169,17 +148,17 @@ class ParDDLFileAttrsCreateIndex : public ParDDLFileAttrs {
   // Same as getMaxSizeUnit() except that the returned size unit
   // is in string format so it can be used for tracing purposes.
 
-  inline ULng32 getPriExt() const;
+  inline int getPriExt() const;
 
   // Returns the value for the primary extent size specified in the Extent
   // clause.
 
-  inline ULng32 getSecExt() const;
+  inline int getSecExt() const;
 
   // Returns the value for the secondary extent size specified in the Extent
   // clause.
 
-  inline ULng32 getMaxExt() const;
+  inline int getMaxExt() const;
 
   // Returns the value specified in the MaxExtents clause.
 
@@ -323,7 +302,7 @@ class ParDDLFileAttrsCreateIndex : public ParDDLFileAttrs {
 
   // BLOCKSIZE
   NABoolean isBlockSizeSpec_;
-  ULng32 blockSize_;  // in bytes
+  int blockSize_;  // in bytes
 
   // [ NO ] BUFFERED
   NABoolean isBufferedSpec_;
@@ -344,17 +323,17 @@ class ParDDLFileAttrsCreateIndex : public ParDDLFileAttrs {
   // MAXSIZE
   NABoolean isMaxSizeSpec_;
   NABoolean isMaxSizeUnbounded_;
-  ULng32 maxSize_;
+  int maxSize_;
   ComUnits maxSizeUnit_;
 
   // EXTENT
   NABoolean isExtentSpec_;
-  ULng32 priExt_;
-  ULng32 secExt_;
+  int priExt_;
+  int secExt_;
 
   // MAXEXTENTS
   NABoolean isMaxExtentSpec_;
-  ULng32 maxExt_;
+  int maxExt_;
 
   // UID
   NABoolean isUIDSpec_;
@@ -383,7 +362,7 @@ class ParDDLFileAttrsCreateIndex : public ParDDLFileAttrs {
 
 inline ComSInt16 ParDDLFileAttrsCreateIndex::getExtentsToAllocate() const { return extentsToAllocate_; }
 
-inline ULng32 ParDDLFileAttrsCreateIndex::getBlockSize() const { return blockSize_; }
+inline int ParDDLFileAttrsCreateIndex::getBlockSize() const { return blockSize_; }
 
 inline NABoolean ParDDLFileAttrsCreateIndex::getIsAuditCompress() const { return isAuditCompress_; }
 
@@ -397,15 +376,15 @@ inline NABoolean ParDDLFileAttrsCreateIndex::getIsDCompress() const { return isD
 
 inline NABoolean ParDDLFileAttrsCreateIndex::getIsICompress() const { return isICompress_; }
 
-inline ULng32 ParDDLFileAttrsCreateIndex::getMaxSize() const { return maxSize_; }
+inline int ParDDLFileAttrsCreateIndex::getMaxSize() const { return maxSize_; }
 
 inline ComUnits ParDDLFileAttrsCreateIndex::getMaxSizeUnit() const { return maxSizeUnit_; }
 
-inline ULng32 ParDDLFileAttrsCreateIndex::getPriExt() const { return priExt_; }
+inline int ParDDLFileAttrsCreateIndex::getPriExt() const { return priExt_; }
 
-inline ULng32 ParDDLFileAttrsCreateIndex::getSecExt() const { return secExt_; }
+inline int ParDDLFileAttrsCreateIndex::getSecExt() const { return secExt_; }
 
-inline ULng32 ParDDLFileAttrsCreateIndex::getMaxExt() const { return maxExt_; }
+inline int ParDDLFileAttrsCreateIndex::getMaxExt() const { return maxExt_; }
 
 inline long ParDDLFileAttrsCreateIndex::getUID() const { return UID_; }
 

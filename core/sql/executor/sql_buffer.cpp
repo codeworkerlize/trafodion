@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -79,7 +58,7 @@ extern void udrAssert(const char *, int, const char *);
 ////////////////////////////////////////////////////////////////////////////
 SqlBufferBase::SqlBufferBase(BufferType bufType) : SqlBufferHeader(bufType), baseFlags_(0), sizeInBytes_(0){};
 
-void SqlBufferBase::init(ULng32 in_size_in_bytes, NABoolean clear) {
+void SqlBufferBase::init(int in_size_in_bytes, NABoolean clear) {
   baseFlags_ = 0;
   sizeInBytes_ = in_size_in_bytes;
 
@@ -92,7 +71,7 @@ void SqlBufferBase::init() {
   SqlBufferHeader::init();
 }
 
-void SqlBufferBase::driveInit(ULng32 in_size_in_bytes, NABoolean clear, BufferType bt) {
+void SqlBufferBase::driveInit(int in_size_in_bytes, NABoolean clear, BufferType bt) {
   setBufType(bt);
   fixupVTblPtr();
   init(in_size_in_bytes, clear);
@@ -118,7 +97,7 @@ void SqlBufferBase::driveUnpack() {
   setPacked(FALSE);
 }
 
-NABoolean SqlBufferBase::driveVerify(ULng32 maxBytes) {
+NABoolean SqlBufferBase::driveVerify(int maxBytes) {
   fixupVTblPtr();
   return verify(maxBytes);
 }
@@ -151,7 +130,7 @@ void SqlBufferBase::pack() {}
 
 void SqlBufferBase::unpack() {}
 
-NABoolean SqlBufferBase::verify(ULng32 maxBytes) const { return TRUE; }
+NABoolean SqlBufferBase::verify(int maxBytes) const { return TRUE; }
 
 // positions to the first tupp descriptor in the buffer.
 void SqlBufferBase::position() {}
@@ -165,7 +144,7 @@ SqlBufferBase::moveStatus SqlBufferBase::moveInSendOrReplyData(
     NABoolean doMoveData,  // TRUE = move data.
     void *currQState,      // up_state(reply) or
     // down_state(send)
-    ULng32 controlInfoLen, ControlInfo **controlInfo, ULng32 projRowLen, tupp_descriptor **outTdesc,
+    int controlInfoLen, ControlInfo **controlInfo, int projRowLen, tupp_descriptor **outTdesc,
     ComDiagsArea *diagsArea, tupp_descriptor **diagsDesc, ex_expr_base *expr, atp_struct *atp1, atp_struct *workAtp,
     atp_struct *destAtp, unsigned short tuppIndex, NABoolean doMoveStats, ExStatisticsArea *statsArea,
     tupp_descriptor **statsDesc, NABoolean useExternalDA, NABoolean callerHasExternalDA, tupp_descriptor *defragTd
@@ -208,7 +187,7 @@ void SqlBufferBase::remove_tuple_desc() {}
 ////////////////////////////////////////////////////////////////////////////
 // class SqlBuffer
 ////////////////////////////////////////////////////////////////////////////
-void SqlBuffer::init(ULng32 in_size_in_bytes, NABoolean clear) {
+void SqlBuffer::init(int in_size_in_bytes, NABoolean clear) {
   SqlBufferBase::init(in_size_in_bytes, clear);
 
   int sb_size = getClassSize();
@@ -309,8 +288,8 @@ void SqlBuffer::printInfo(ostream &out) {
 // Returns TRUE if buffer is full, FALSE otherwise.
 ////////////////////////////////////////////////////////////////////
 SqlBuffer::moveStatus SqlBuffer::moveInSendOrReplyData(
-    NABoolean isSend, NABoolean doMoveControl, NABoolean doMoveData, void *currQState, ULng32 controlInfoLen,
-    ControlInfo **controlInfo, ULng32 projRowLen, tupp_descriptor **outTdesc, ComDiagsArea *diagsArea,
+    NABoolean isSend, NABoolean doMoveControl, NABoolean doMoveData, void *currQState, int controlInfoLen,
+    ControlInfo **controlInfo, int projRowLen, tupp_descriptor **outTdesc, ComDiagsArea *diagsArea,
     tupp_descriptor **diagsDesc, ex_expr_base *expr, atp_struct *atp1, atp_struct *workAtp, atp_struct *destAtp,
     unsigned short tuppIndex, NABoolean doMoveStats, ExStatisticsArea *statsArea, tupp_descriptor **statsDesc,
     NABoolean useExternalDA, NABoolean callerHasExternalDA, tupp_descriptor *defragTd
@@ -426,7 +405,7 @@ SqlBuffer::moveStatus SqlBuffer::moveInSendOrReplyData(
 #ifndef UDRSERV_BUILD
     if (defragTd && projRowLen > 0 &&
         SqlBufferGetTuppSize(projRowLen, bufType()) >
-            (ULng32)getFreeSpace()) {  // if we are here then there is not enough space to hold the max row size.
+            (int)getFreeSpace()) {  // if we are here then there is not enough space to hold the max row size.
       // we apply the expression in the defrag buffer and get the actual length
       // which may be smaller then the max row size and may fit in the remaining
       // buffer space
@@ -1121,7 +1100,7 @@ NABoolean SqlBuffer::checkSignature(const int nid, const int pid, long *signatur
 ////////////////////////////////////////////////////////////////////////////
 // class SqlBuffer
 ////////////////////////////////////////////////////////////////////////////
-void SqlBufferNormal::init(ULng32 in_size_in_bytes, NABoolean clear) {
+void SqlBufferNormal::init(int in_size_in_bytes, NABoolean clear) {
   SqlBuffer::init(in_size_in_bytes, clear);
 
   dataOffset_ = ROUND8(sizeof(*this));  // data starts after this object
@@ -1172,7 +1151,7 @@ tupp_descriptor *SqlBufferNormal::allocate_tuple_desc(int tup_data_size) {
   tupp_descriptor *td = tupleDesc(maxTuppDesc_);
   maxTuppDesc_++;
 
-  td->init((ULng32)tup_data_size, 0, &((char *)this)[dataOffset_]);
+  td->init((int)tup_data_size, 0, &((char *)this)[dataOffset_]);
 
   dataOffset_ += rounded_size;
 
@@ -1331,11 +1310,11 @@ void SqlBufferNormal::unpack() {
 // memory outside the bounds of this object. Currently verify() is
 // only called by the ExUdrTcb class when it receives a data reply
 // from the non-trusted UDR server.
-NABoolean SqlBufferNormal::verify(ULng32 maxBytes) const {
-  if ((ULng32)sizeInBytes_ > maxBytes) return FALSE;
+NABoolean SqlBufferNormal::verify(int maxBytes) const {
+  if ((int)sizeInBytes_ > maxBytes) return FALSE;
   if (tupleDescOffset_ < sizeof(*this)) return FALSE;
 
-  ULng32 bytesForTupps = (maxTuppDesc_ * sizeof(tupp_descriptor));
+  int bytesForTupps = (maxTuppDesc_ * sizeof(tupp_descriptor));
 
   if (bytesForTupps > maxBytes) return FALSE;
 
@@ -1344,19 +1323,19 @@ NABoolean SqlBufferNormal::verify(ULng32 maxBytes) const {
   // maxBytes or beyond sizeInBytes_ then we must return
   // FALSE. bytesSeen will represent the end of the furthest reaching
   // data buffer seen so far.
-  ULng32 bytesSeen = sizeof(*this);
+  int bytesSeen = sizeof(*this);
   tupp_descriptor *tdBase = (tupp_descriptor *)((char *)this + tupleDescOffset_);
 
   for (int i = 0; i < (int)maxTuppDesc_; i++) {
-    ULng32 offset = tdBase[-(i + 1)].getTupleOffset();
+    int offset = tdBase[-(i + 1)].getTupleOffset();
     if (offset > dataOffset_) return FALSE;
-    ULng32 endOfData = offset + tdBase[-(i + 1)].getAllocatedSize();
+    int endOfData = offset + tdBase[-(i + 1)].getAllocatedSize();
     bytesSeen = MAXOF(bytesSeen, endOfData);
   }
 
   if (bytesSeen > dataOffset_) return FALSE;
   if (bytesSeen > maxBytes) return FALSE;
-  if (bytesSeen > (ULng32)sizeInBytes_) return FALSE;
+  if (bytesSeen > (int)sizeInBytes_) return FALSE;
 
   return TRUE;
 }
@@ -1387,7 +1366,7 @@ SqlBufferDense::SqlBufferDense() : SqlBuffer(DENSE_) {
   str_pad(filler_, 2, '\0');
 }
 
-void SqlBufferDense::init(ULng32 in_size_in_bytes, NABoolean clear) {
+void SqlBufferDense::init(int in_size_in_bytes, NABoolean clear) {
   SqlBuffer::init(in_size_in_bytes, FALSE);
 
   lastTupleDesc_ = NULL;
@@ -1408,7 +1387,7 @@ void SqlBufferDense::init() {
 }
 
 tupp_descriptor *SqlBufferDense::add_tuple_desc(int tup_data_size) {
-  ULng32 rounded_size = ROUND8(tup_data_size);
+  int rounded_size = ROUND8(tup_data_size);
   short td_size = ROUND8(sizeof(TupleDescInfo));
 
   int freeSpaceNeeded = td_size + rounded_size;
@@ -2123,7 +2102,7 @@ SqlBufferHeader::moveStatus sql_buffer_pool::moveIn(atp_struct *atp1, atp_struct
 
   if (get_free_tuple(atp2->getTupp(tuppIndex), tupDataSize)) {
     if (addBufferIfNeeded) {
-      ULng32 neededSize = SqlBufferNeededSize(1, bufferSize, bufType_);
+      int neededSize = SqlBufferNeededSize(1, bufferSize, bufType_);
       addBuffer(neededSize);
       if (get_free_tuple(atp2->getTupp(tuppIndex), tupDataSize)) {
         ex_assert(0, "sql_buffer_pool::moveIn() No more space for tuples");
@@ -2193,7 +2172,7 @@ SqlBufferHeader::moveStatus sql_buffer_pool::moveIn(atp_struct *atp, UInt16 tupp
 //
 /////////////////////////////////////////////////////////////////////
 
-void SqlBufferOlt::init(ULng32 in_size_in_bytes, NABoolean clear) {
+void SqlBufferOlt::init(int in_size_in_bytes, NABoolean clear) {
   SqlBufferBase::init(in_size_in_bytes, clear);
 
   oltBufFlags_ = 0;
@@ -2276,7 +2255,7 @@ void SqlBufferOlt::unpack() {
   SqlBufferBase::unpack();
 }
 
-SqlBufferBase::moveStatus SqlBufferOlt::moveInSendData(ULng32 projRowLen, ex_expr_base *expr, atp_struct *atp1,
+SqlBufferBase::moveStatus SqlBufferOlt::moveInSendData(int projRowLen, ex_expr_base *expr, atp_struct *atp1,
                                                        atp_struct *workAtp, unsigned short tuppIndex) {
   SqlBufferOltSmall *smallBuf = (SqlBufferOltSmall *)getSendDataPtr();
   smallBuf->setBufType(SqlBufferHeader::OLT_SMALL_);
@@ -2305,7 +2284,7 @@ SqlBufferBase::moveStatus SqlBufferOlt::moveInSendData(ULng32 projRowLen, ex_exp
 }
 
 SqlBufferBase::moveStatus SqlBufferOlt::moveInReplyData(NABoolean doMoveControl, NABoolean doMoveData, void *currQState,
-                                                        ULng32 projRowLen, ComDiagsArea *diagsArea,
+                                                        int projRowLen, ComDiagsArea *diagsArea,
                                                         tupp_descriptor **diagsDesc, ex_expr_base *expr,
                                                         atp_struct *atp1, atp_struct *workAtp, atp_struct *destAtp,
                                                         unsigned short tuppIndex, NABoolean doMoveStats,
@@ -2401,8 +2380,8 @@ SqlBufferBase::moveStatus SqlBufferOlt::moveInReplyData(NABoolean doMoveControl,
 }
 
 SqlBufferBase::moveStatus SqlBufferOlt::moveInSendOrReplyData(
-    NABoolean isSend, NABoolean doMoveControl, NABoolean doMoveData, void *currQState, ULng32 controlInfoLen,
-    ControlInfo **controlInfo, ULng32 projRowLen, tupp_descriptor **outTdesc, ComDiagsArea *diagsArea,
+    NABoolean isSend, NABoolean doMoveControl, NABoolean doMoveData, void *currQState, int controlInfoLen,
+    ControlInfo **controlInfo, int projRowLen, tupp_descriptor **outTdesc, ComDiagsArea *diagsArea,
     tupp_descriptor **diagsDesc, ex_expr_base *expr, atp_struct *atp1, atp_struct *workAtp, atp_struct *destAtp,
     unsigned short tuppIndex, NABoolean doMoveStats, ExStatisticsArea *statsArea, tupp_descriptor **statsDesc,
     NABoolean useExternalDA, NABoolean callerHasExternalDA, tupp_descriptor *defragTd
@@ -2433,7 +2412,7 @@ SqlBufferBase::moveStatus SqlBufferOlt::moveInSendOrReplyData(
   // buffer. This function will later change it to the actual number of bytes
   // used. Note the max size so that we can ensure the number of bytes used does
   // not exceed this limit.
-  ULng32 maxBufSize = sizeInBytes_;
+  int maxBufSize = sizeInBytes_;
 
   if ((!doMoveData) && (getContents() != NOTHING_YET_)) {
     // either one tupp(data or error) or two tupps (data + warning)
@@ -2651,7 +2630,7 @@ void SqlBufferOlt::remove_tuple_desc() {}
 ////////////////////////////////////////////////////////////////////////////
 // class SqlBufferOltSmall
 ////////////////////////////////////////////////////////////////////////////
-NABoolean SqlBufferOltSmall::moveOutSendData(tupp &outTupp, ULng32 returnedRowLen) {
+NABoolean SqlBufferOltSmall::moveOutSendData(tupp &outTupp, int returnedRowLen) {
   if (sendData()) {
     // this input value didn't come with a tupp descriptor.
     // Allocate one now in this buffer.
@@ -2663,7 +2642,7 @@ NABoolean SqlBufferOltSmall::moveOutSendData(tupp &outTupp, ULng32 returnedRowLe
   return FALSE;
 }
 
-NABoolean SqlBufferOltSmall::moveOutReplyData(void *currQState, tupp &outTupp, ULng32 returnedRowLen,
+NABoolean SqlBufferOltSmall::moveOutReplyData(void *currQState, tupp &outTupp, int returnedRowLen,
                                               ComDiagsArea **diagsArea, ExStatisticsArea **statsArea,
                                               long *numStatsBytes) {
   Long replyDataLoc = 0;

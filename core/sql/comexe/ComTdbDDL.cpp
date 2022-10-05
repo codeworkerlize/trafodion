@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ****************************************************************************
 *
@@ -38,12 +17,12 @@
 #include "comexe/ComTdbDDL.h"
 #include "comexe/ComTdbCommon.h"
 
-ComTdbGenericUtil::ComTdbGenericUtil(char *query, ULng32 querylen, Int16 querycharset, char *objectName,
-                                     ULng32 objectNameLen, ex_expr *input_expr, ULng32 input_rowlen,
-                                     ex_expr *output_expr, ULng32 output_rowlen, ex_cri_desc *work_cri_desc,
+ComTdbGenericUtil::ComTdbGenericUtil(char *query, int querylen, Int16 querycharset, char *objectName,
+                                     int objectNameLen, ex_expr *input_expr, int input_rowlen,
+                                     ex_expr *output_expr, int output_rowlen, ex_cri_desc *work_cri_desc,
                                      const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
                                      ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
-                                     int num_buffers, ULng32 buffer_size)
+                                     int num_buffers, int buffer_size)
     : ComTdb(ComTdb::ex_DDL, eye_DDL, (Cardinality)0.0, given_cri_desc, returned_cri_desc, down, up, num_buffers,
              buffer_size),
       query_(query),
@@ -89,11 +68,11 @@ int ComTdbGenericUtil::orderedQueueProtocol() const { return -1; }
 // Methods for class ComTdbDDL
 //
 ///////////////////////////////////////////////////////////////////////////
-ComTdbDDL::ComTdbDDL(char *ddl_query, ULng32 ddl_querylen, Int16 ddl_querycharset, char *schemaName,
-                     ULng32 schemaNameLen, ex_expr *input_expr, ULng32 input_rowlen, ex_expr *output_expr,
-                     ULng32 output_rowlen, ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
+ComTdbDDL::ComTdbDDL(char *ddl_query, int ddl_querylen, Int16 ddl_querycharset, char *schemaName,
+                     int schemaNameLen, ex_expr *input_expr, int input_rowlen, ex_expr *output_expr,
+                     int output_rowlen, ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
                      ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
-                     int num_buffers, ULng32 buffer_size)
+                     int num_buffers, int buffer_size)
     : ComTdbGenericUtil(ddl_query, ddl_querylen, ddl_querycharset, schemaName, schemaNameLen, input_expr, input_rowlen,
                         output_expr, output_rowlen, work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc,
                         down, up, num_buffers, buffer_size),
@@ -108,12 +87,12 @@ ComTdbDDL::ComTdbDDL(char *ddl_query, ULng32 ddl_querylen, Int16 ddl_querycharse
 // Methods for class ComTdbDDL
 //
 ///////////////////////////////////////////////////////////////////////////
-ComTdbDDLwithStatus::ComTdbDDLwithStatus(char *ddl_query, ULng32 ddl_querylen, Int16 ddl_querycharset, char *schemaName,
-                                         ULng32 schemaNameLen, ex_expr *input_expr, ULng32 input_rowlen,
-                                         ex_expr *output_expr, ULng32 output_rowlen, ex_cri_desc *work_cri_desc,
+ComTdbDDLwithStatus::ComTdbDDLwithStatus(char *ddl_query, int ddl_querylen, Int16 ddl_querycharset, char *schemaName,
+                                         int schemaNameLen, ex_expr *input_expr, int input_rowlen,
+                                         ex_expr *output_expr, int output_rowlen, ex_cri_desc *work_cri_desc,
                                          const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
                                          ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
-                                         int num_buffers, ULng32 buffer_size)
+                                         int num_buffers, int buffer_size)
     : ComTdbDDL(ddl_query, ddl_querylen, ddl_querycharset, schemaName, schemaNameLen, input_expr, input_rowlen,
                 output_expr, output_rowlen, work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc, down, up,
                 num_buffers, buffer_size),
@@ -126,10 +105,10 @@ ComTdbDDLwithStatus::ComTdbDDLwithStatus(char *ddl_query, ULng32 ddl_querylen, I
 // Methods for class ComTdbDescribe, ExDescribeTcb, ExDescribePrivateState
 //
 ///////////////////////////////////////////////////////////////////////////
-ComTdbDescribe::ComTdbDescribe(char *query, ULng32 querylen, Int16 ddl_querycharset, ex_expr *input_expr,
-                               ULng32 input_rowlen, ex_expr *output_expr, ULng32 output_rowlen,
+ComTdbDescribe::ComTdbDescribe(char *query, int querylen, Int16 ddl_querycharset, ex_expr *input_expr,
+                               int input_rowlen, ex_expr *output_expr, int output_rowlen,
                                ex_cri_desc *work_cri_desc, const unsigned short work_atp_index, DescribeType type,
-                               ULng32 flags, ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc,
+                               int flags, ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc,
                                queue_index down, queue_index up, int num_buffers, int buffer_size)
     : ComTdbDDL(query, querylen, ddl_querycharset, NULL, 0, input_expr, input_rowlen, output_expr, output_rowlen,
                 work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc, down, up, num_buffers, buffer_size),
@@ -144,11 +123,11 @@ ComTdbDescribe::ComTdbDescribe(char *query, ULng32 querylen, Int16 ddl_querychar
 //
 ///////////////////////////////////////////////////////////////////////////
 ComTdbProcessVolatileTable::ComTdbProcessVolatileTable(
-    char *query, ULng32 querylen, Int16 querycharset, char *volTabName, ULng32 volTabNameLen, NABoolean isCreate,
-    NABoolean isTable, NABoolean isIndex, NABoolean isSchema, char *schemaName, ULng32 schemaNameLen,
-    ex_expr *input_expr, ULng32 input_rowlen, ex_expr *output_expr, ULng32 output_rowlen, ex_cri_desc *work_cri_desc,
+    char *query, int querylen, Int16 querycharset, char *volTabName, int volTabNameLen, NABoolean isCreate,
+    NABoolean isTable, NABoolean isIndex, NABoolean isSchema, char *schemaName, int schemaNameLen,
+    ex_expr *input_expr, int input_rowlen, ex_expr *output_expr, int output_rowlen, ex_cri_desc *work_cri_desc,
     const unsigned short work_atp_index, ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
-    queue_index up, int num_buffers, ULng32 buffer_size)
+    queue_index up, int num_buffers, int buffer_size)
     : ComTdbDDL(query, querylen, querycharset, schemaName, schemaNameLen, input_expr, input_rowlen, output_expr,
                 output_rowlen, work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc, down, up, num_buffers,
                 buffer_size),
@@ -181,11 +160,11 @@ int ComTdbProcessVolatileTable::unpack(void *base, void *reallocator) {
 //
 ///////////////////////////////////////////////////////////////////////////
 ComTdbProcessInMemoryTable::ComTdbProcessInMemoryTable(
-    char *query, ULng32 querylen, Int16 querycharset, char *objName, ULng32 objNameLen, NABoolean isCreate,
-    NABoolean isVolatile, NABoolean isTable, NABoolean isIndex, NABoolean isMV, char *schemaName, ULng32 schemaNameLen,
-    ex_expr *input_expr, ULng32 input_rowlen, ex_expr *output_expr, ULng32 output_rowlen, ex_cri_desc *work_cri_desc,
+    char *query, int querylen, Int16 querycharset, char *objName, int objNameLen, NABoolean isCreate,
+    NABoolean isVolatile, NABoolean isTable, NABoolean isIndex, NABoolean isMV, char *schemaName, int schemaNameLen,
+    ex_expr *input_expr, int input_rowlen, ex_expr *output_expr, int output_rowlen, ex_cri_desc *work_cri_desc,
     const unsigned short work_atp_index, ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
-    queue_index up, int num_buffers, ULng32 buffer_size)
+    queue_index up, int num_buffers, int buffer_size)
     : ComTdbDDL(query, querylen, querycharset, schemaName, schemaNameLen, input_expr, input_rowlen, output_expr,
                 output_rowlen, work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc, down, up, num_buffers,
                 buffer_size),

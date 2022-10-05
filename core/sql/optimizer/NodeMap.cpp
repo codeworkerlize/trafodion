@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 //==============================================================================
 // Implementation for classes NodeMapEntry and Nodemap.
 //==============================================================================
@@ -1660,7 +1639,7 @@ NABoolean NodeMap::hasRemotePartitions() const {
     return FALSE;
   }
 
-  for (ULng32 i = 0; i < getNumEntries(); i++) {
+  for (int i = 0; i < getNumEntries(); i++) {
     const NodeMapEntry *ne = getNodeMapEntry(i);
 
     // If the system number is different from the local system number,
@@ -1736,7 +1715,7 @@ void NodeMap::print(FILE *ofd, const char *indent, const char *title) const {
           "Number of Est Active Partitions At Runtime:", numEstActivePartitionsAtRuntime_);
   fprintf(ofd, "%s %s %3d\n", NEW_INDENT, "Number of DP2 Volumes:      ", numOfDP2Volumes_);
 
-  for (ULng32 nodeIdx = 0; nodeIdx < map_.entries(); nodeIdx++) {
+  for (int nodeIdx = 0; nodeIdx < map_.entries(); nodeIdx++) {
     const NodeMapEntry *entry = map_[nodeIdx];
 
     if (!entry) fprintf(ofd, "%s %s is empty!!!  This is a bug!!!\n", "    ", S);
@@ -1776,7 +1755,7 @@ const NAString NodeMap::getText() const {
   NAString partitionActiveStr;
   NABoolean inactivePartitionSeen = FALSE;
 
-  for (ULng32 nodeIdx = 0; nodeIdx < map_.entries(); nodeIdx++) {
+  for (int nodeIdx = 0; nodeIdx < map_.entries(); nodeIdx++) {
     const NodeMapEntry *entry = map_[nodeIdx];
 
     int nn = entry->getNodeNumber();

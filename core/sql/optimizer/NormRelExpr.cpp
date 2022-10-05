@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ******************************************************************************
 *
@@ -9575,27 +9554,27 @@ CANodeId CQSRelExprCANodeIdPair::populateReturnCANodeId(RelExpr *scan, CqsWA *cw
 // Constructor for the map: maps CQS Relational expression pointer with
 // CANodeId Sets of left subtree and right subtree
 //*********************************************************************
-CQSRelExprCANodeIdMap::CQSRelExprCANodeIdMap(ULng32 init_size, CollHeap *outHeap)
+CQSRelExprCANodeIdMap::CQSRelExprCANodeIdMap(int init_size, CollHeap *outHeap)
     :
 
-      HASHDICTIONARY(ULng32, CQSRelExprCANodeIdPair)(&(CQSRelExprCANodeIdMap::HashFn), init_size,
+      HASHDICTIONARY(int, CQSRelExprCANodeIdPair)(&(CQSRelExprCANodeIdMap::HashFn), init_size,
                                                      TRUE,  // uniqueness
                                                      outHeap) {}
 
 //*******************************************************************
 // A hash function required by Hashdictionary
 //*******************************************************************
-ULng32 CQSRelExprCANodeIdMap::HashFn(const ULng32 &key) { return key; }
+int CQSRelExprCANodeIdMap::HashFn(const int &key) { return key; }
 
 //**************************************************************
 // Given the RelExpr pointer, this method gives the table subsets
 //
 //**************************************************************
 CQSRelExprCANodeIdPair *CQSRelExprCANodeIdMap::get(RelExpr *key) {
-  ULng32 *myKey_ = (ULng32 *)new (CmpCommon::statementHeap()) Long;
+  int *myKey_ = (int *)new (CmpCommon::statementHeap()) Long;
   *(Long *)myKey_ = (const Long)(key);
 
-  CQSRelExprCANodeIdPair *result = HASHDICTIONARY(ULng32, CQSRelExprCANodeIdPair)::getFirstValue(myKey_);
+  CQSRelExprCANodeIdPair *result = HASHDICTIONARY(int, CQSRelExprCANodeIdPair)::getFirstValue(myKey_);
 
   return result;
 }
@@ -9604,7 +9583,7 @@ CQSRelExprCANodeIdPair *CQSRelExprCANodeIdMap::get(RelExpr *key) {
 //
 //****************************************************************
 void CQSRelExprCANodeIdMap::insertThisElement(RelExpr *expr, CQSRelExprCANodeIdPair *cqsNodeId) {
-  ULng32 *myKey_ = (ULng32 *)new (CmpCommon::statementHeap()) Long;
+  int *myKey_ = (int *)new (CmpCommon::statementHeap()) Long;
 
   *(Long *)myKey_ = (Long)(expr);
   insert(myKey_, cqsNodeId);

@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -77,7 +56,7 @@ short BigNumHelper::AddHelper(int dataLength, char *leftData, char *rightData, c
 
 #ifdef NA_LITTLE_ENDIAN
   union {
-    ULng32 temp;
+    int temp;
     struct {
       unsigned short remainder;
       unsigned short carry;
@@ -85,7 +64,7 @@ short BigNumHelper::AddHelper(int dataLength, char *leftData, char *rightData, c
   };
 #else
   union {
-    ULng32 temp;
+    int temp;
     struct {
       unsigned short carry;
       unsigned short remainder;
@@ -95,7 +74,7 @@ short BigNumHelper::AddHelper(int dataLength, char *leftData, char *rightData, c
 
   tempParts.carry = 0;
   for (int j = 0; j < dataLengthInShorts; j++) {
-    temp = ((ULng32)leftDataInShorts[j]) + rightDataInShorts[j] + tempParts.carry;
+    temp = ((int)leftDataInShorts[j]) + rightDataInShorts[j] + tempParts.carry;
     resultDataInShorts[j] = tempParts.remainder;
   }
 
@@ -135,7 +114,7 @@ short BigNumHelper::SubHelper(int dataLength, char *leftData, char *rightData, c
 
 #ifdef NA_LITTLE_ENDIAN
   union {
-    ULng32 temp1;
+    int temp1;
     struct {
       unsigned short remainder;
       unsigned short filler;
@@ -143,7 +122,7 @@ short BigNumHelper::SubHelper(int dataLength, char *leftData, char *rightData, c
   };
 #else
   union {
-    ULng32 temp1;
+    int temp1;
     struct {
       unsigned short filler;
       unsigned short remainder;
@@ -191,7 +170,7 @@ short BigNumHelper::MulHelper(int resultLength, int leftLength, int rightLength,
 
 #ifdef NA_LITTLE_ENDIAN
   union {
-    ULng32 temp;
+    int temp;
     struct {
       unsigned short remainder;
       unsigned short carry;
@@ -199,7 +178,7 @@ short BigNumHelper::MulHelper(int resultLength, int leftLength, int rightLength,
   };
 #else
   union {
-    ULng32 temp;
+    int temp;
     struct {
       unsigned short carry;
       unsigned short remainder;
@@ -212,7 +191,7 @@ short BigNumHelper::MulHelper(int resultLength, int leftLength, int rightLength,
     tempParts.carry = 0;
     pos = j;
     for (int i = 0; i <= leftEndInShorts; i++, pos++) {
-      temp = ((ULng32)leftDataInShorts[i]) * rightDataInShorts[j] + resultDataInShorts[pos] + tempParts.carry;
+      temp = ((int)leftDataInShorts[i]) * rightDataInShorts[j] + resultDataInShorts[pos] + tempParts.carry;
       resultDataInShorts[pos] = tempParts.remainder;
     }
 
@@ -241,7 +220,7 @@ short BigNumHelper::SimpleDivHelper(int dividendLength, int divisorLength, char 
 
   unsigned short remainder = 0;
   union {
-    ULng32 temp;
+    int temp;
     unsigned short temp1[2];
   };
 
@@ -370,7 +349,7 @@ short BigNumHelper::DivHelper(int dividendLength, int divisorLength, char *divid
   unsigned short q;
 
   union {
-    ULng32 temp1;
+    int temp1;
     unsigned short temp2[2];
   };
 
@@ -532,7 +511,7 @@ short BigNumHelper::ConvBigNumToBcdHelper(int sourceLength, int targetLength, ch
   }
 
   union {
-    ULng32 temp;
+    int temp;
     unsigned short temp1[2];
   };
 
@@ -624,7 +603,7 @@ short BigNumHelper::ConvBcdToBigNumHelper(int sourceLength, int targetLength, ch
 
 #ifdef NA_LITTLE_ENDIAN
   union {
-    ULng32 temp;
+    int temp;
     struct {
       unsigned short remainder;
       unsigned short carry;
@@ -632,7 +611,7 @@ short BigNumHelper::ConvBcdToBigNumHelper(int sourceLength, int targetLength, ch
   };
 #else
   union {
-    ULng32 temp;
+    int temp;
     struct {
       unsigned short carry;
       unsigned short remainder;
@@ -659,10 +638,10 @@ short BigNumHelper::ConvBcdToBigNumHelper(int sourceLength, int targetLength, ch
     // of the current chunk to it. It is more efficient to insert the
     // multiplication and addition code here than to call the Helper()
     // methods.
-    temp = ((ULng32)targetDataInShorts[0]) * power + temp1;
+    temp = ((int)targetDataInShorts[0]) * power + temp1;
     targetDataInShorts[0] = tempParts.remainder;
     for (j = 1; j < finalTargetLengthInShorts; j++) {
-      temp = ((ULng32)targetDataInShorts[j]) * power + tempParts.carry;
+      temp = ((int)targetDataInShorts[j]) * power + tempParts.carry;
       targetDataInShorts[j] = tempParts.remainder;
     }
     if (tempParts.carry) {
@@ -831,7 +810,7 @@ short BigNumHelper::ConvPowersOfTenToBigNumHelper(int exponent, int targetLength
 
 #ifdef NA_LITTLE_ENDIAN
   union {
-    ULng32 temp;
+    int temp;
     struct {
       unsigned short remainder;
       unsigned short carry;
@@ -839,7 +818,7 @@ short BigNumHelper::ConvPowersOfTenToBigNumHelper(int exponent, int targetLength
   };
 #else
   union {
-    ULng32 temp;
+    int temp;
     struct {
       unsigned short carry;
       unsigned short remainder;
@@ -865,11 +844,11 @@ short BigNumHelper::ConvPowersOfTenToBigNumHelper(int exponent, int targetLength
     else
       power = powersOfTen[(diffExponent % 4) - 1];
 
-    temp = ((ULng32)targetDataInShorts[0]) * power;
+    temp = ((int)targetDataInShorts[0]) * power;
     targetDataInShorts[0] = tempParts.remainder;
     int j = 1;
     for (j = 1; j < currentTargetLengthInShorts; j++) {
-      temp = ((ULng32)targetDataInShorts[j]) * power + tempParts.carry;
+      temp = ((int)targetDataInShorts[j]) * power + tempParts.carry;
       targetDataInShorts[j] = tempParts.remainder;
     }
     if (tempParts.carry) {

@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef ANALYZER_H
 #define ANALYZER_H
 /* -*-C++-*-
@@ -86,7 +65,7 @@ enum SUBSET_LEGALITY { NOT_KNOWN, LEGAL, ILLEGAL };
 // ------------------------------------------------------------------------
 // The following method will be added to GroupAttributes and ValueId classes
 
-NAString istring(ULng32 i);
+NAString istring(int i);
 NAString valueIdSetGetText(const ValueIdSet &set);
 
 const CollIndex NULL_CA_ID_VALUE = 0;
@@ -237,11 +216,11 @@ class CANodeIdSet : public SUBARRAY(NodeAnalysis *) {
 
 class CANodeIdSetMap : public HASHDICTIONARY(CANodeIdSet, JBBSubsetAnalysis) {
  public:
-  static ULng32 Hasher(const CANodeIdSet &key);
+  static int Hasher(const CANodeIdSet &key);
   enum { Default_Size = 107 };
 
   // Constuctor
-  CANodeIdSetMap(ULng32 init_size = Default_Size, CollHeap *outHeap = CmpCommon::statementHeap());
+  CANodeIdSetMap(int init_size = Default_Size, CollHeap *outHeap = CmpCommon::statementHeap());
 
   // Destructor
   virtual ~CANodeIdSetMap() {}
@@ -446,7 +425,7 @@ class QueryAnalysis : public NABasicObject {
 
   // Find JBB with most JBBCs
   JBB *getLargestJBB();
-  ULng32 getSizeOfLargestJBB();
+  int getSizeOfLargestJBB();
 
   // Handle all the MV query rewrite stuff.
   RelExpr *handleMvQueryRewrite(RelExpr *expr);
@@ -541,7 +520,7 @@ class QueryAnalysis : public NABasicObject {
   AppliedStatMan *appStatMan_;
   NABoolean analysisON_;       // is Analysis ON
   NABoolean multiJoinsUsed_;   // did MJRewrtie occure
-  ULng32 multiJoinThreshold_;  // do MJRewrite only if threshold is reached
+  int multiJoinThreshold_;  // do MJRewrite only if threshold is reached
 
   // Begin Global directive flags
   NABoolean optimizeForFirstNRows_;
@@ -2653,18 +2632,18 @@ class CQSRelExprCANodeIdPair : public NABasicObject {
   NABoolean operator==(CQSRelExprCANodeIdPair other) { return forcedNode_ == other.forcedNode_; }
 };
 
-class CQSRelExprCANodeIdMap : public HASHDICTIONARY(ULng32, CQSRelExprCANodeIdPair) {
+class CQSRelExprCANodeIdMap : public HASHDICTIONARY(int, CQSRelExprCANodeIdPair) {
  public:
-  static ULng32 HashFn(const ULng32 &key);
+  static int HashFn(const int &key);
 
-  CQSRelExprCANodeIdMap(ULng32 init_size = 30, CollHeap *outHeap = CmpCommon::statementHeap());
+  CQSRelExprCANodeIdMap(int init_size = 30, CollHeap *outHeap = CmpCommon::statementHeap());
 
   CANodeIdSet gatherNodeIdSetsForCQSTree(RelExpr *, CqsWA *);
   CQSRelExprCANodeIdPair *get(RelExpr *);
   void insertThisElement(RelExpr *, CQSRelExprCANodeIdPair *);
 
  private:
-  ULng32 *myKey_;
+  int *myKey_;
 };
 
 class CqsWA : public NABasicObject {

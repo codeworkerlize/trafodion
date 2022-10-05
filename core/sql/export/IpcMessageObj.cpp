@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ****************************************************************************
 *
@@ -372,11 +351,11 @@ void IpcMessageObj::alignBufferForNextObj(IpcMessageBufferPtr &buffer) {
 }
 
 void IpcMessageObj::alignSizeForNextObj(IpcMessageObjSize &size) {
-  ULng32 s = (ULng32)size;  // just for safety
+  int s = (int)size;  // just for safety
 
   // clear the last 3 bits of the size to round it down to
   // the next size that is divisible by 8
-  ULng32 roundedDown = s LAND 0xFFFFFFF8;
+  int roundedDown = s LAND 0xFFFFFFF8;
 
   // if that didn't change anything we're done, the size was
   // a multiple of 8 already
@@ -626,7 +605,7 @@ void skipCharStarInBuffer(IpcConstMessageBufferPtr &buffer) {
 // beyond lastByte.
 NABoolean checkBuffer(
     /* INOUT */ IpcConstMessageBufferPtr &buffer,
-    /* IN    */ ULng32 dataLength,
+    /* IN    */ int dataLength,
     /* IN    */ IpcConstMessageBufferPtr lastByte) {
   NABoolean result = TRUE;
   IpcConstMessageBufferPtr endOfData = buffer + dataLength - 1;
@@ -643,7 +622,7 @@ NABoolean checkBuffer(
 // beyond lastByte, and if it does then copy the field into dataPtr.
 NABoolean checkAndUnpackBuffer(
     /* INOUT */ IpcConstMessageBufferPtr &buffer,
-    /* IN    */ ULng32 dataLength,
+    /* IN    */ int dataLength,
     /* OUT   */ char *dataPtr,
     /* IN    */ IpcConstMessageBufferPtr lastByte) {
   NABoolean result = TRUE;

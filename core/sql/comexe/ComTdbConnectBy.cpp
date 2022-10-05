@@ -8,7 +8,7 @@
 ComTdbConnectBy::ComTdbConnectBy() : ComTdb(ComTdb::ex_CONNECT_BY, eye_CONNECT_BY) {}
 
 ComTdbConnectBy::ComTdbConnectBy(ex_cri_desc *workCriDesc, ex_cri_desc *givenCriDesc, ex_cri_desc *returnedCriDesc,
-                                 queue_index down, queue_index up, int numBuffers, ULng32 bufferSize,
+                                 queue_index down, queue_index up, int numBuffers, int bufferSize,
                                  ComTdb *s_child_tdb, ComTdb *c_child_tdb, UInt32 outputRowLen,
                                  UInt32 pseudoOutputRowLen, ex_expr *leftMoveExpr, ex_expr *rightMoveExpr,
                                  short returnRowAtpIndex, short fixedPseudoColRowAtpIndex, ex_expr *priorPredExpr,
@@ -86,7 +86,7 @@ int ComTdbConnectBy::unpack(void *base, void *reallocator) {
   return ComTdb::unpack(base, reallocator);
 }
 
-void ComTdbConnectBy::displayContents(Space *space, ULng32 flag) {
+void ComTdbConnectBy::displayContents(Space *space, int flag) {
   ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
   if (flag & 0x00000008) {

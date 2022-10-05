@@ -143,7 +143,7 @@ class ExStatsCounter {
 
   void addEntry(long value);
 
-  ULng32 entryCnt() const { return entryCnt_; };
+  int entryCnt() const { return entryCnt_; };
 
   long min() const { return (entryCnt_ ? min_ : 0); }
 
@@ -166,7 +166,7 @@ class ExStatsCounter {
   float variance();
 
  private:
-  ULng32 entryCnt_;
+  int entryCnt_;
   long min_;
   long max_;
   long sum_;   // sum of all values
@@ -182,7 +182,7 @@ class ExStatsCounter {
 class ExClusterStats : public ExStatsBase {
  public:
   ExClusterStats();
-  ExClusterStats(NABoolean isInner, ULng32 bucketCnt, long actRows, long totalSize, ExStatsCounter hashChains,
+  ExClusterStats(NABoolean isInner, int bucketCnt, long actRows, long totalSize, ExStatsCounter hashChains,
                  long writeIOCnt, long readIOCnt);
 
   ~ExClusterStats(){};
@@ -199,7 +199,7 @@ class ExClusterStats : public ExStatsBase {
   // Returning const char *
   inline const char *getInner() const { return ((isInner_) ? "inner" : "outer"); };
 
-  inline ULng32 getBucketCnt() const { return bucketCnt_; };
+  inline int getBucketCnt() const { return bucketCnt_; };
 
   inline long getActRows() const { return actRows_; };
 
@@ -227,7 +227,7 @@ class ExClusterStats : public ExStatsBase {
  private:
   int version_;
   NABoolean isInner_;          // inner or outer Cluster
-  ULng32 bucketCnt_;           // number of buckets in this cluster
+  int bucketCnt_;           // number of buckets in this cluster
   long actRows_;              // for this cluster
   long totalSize_;            // total size in bytes
   ExStatsCounter hashChains_;  // stats about the hash table
@@ -409,9 +409,9 @@ class ExBufferStats : public ExStatsBase {
  public:
   ExBufferStats() : sendBufferSize_(0), recdBufferSize_(0), totalSentBytes_(0), totalRecdBytes_(0), statsBytes_(0){};
 
-  ULng32 &sendBufferSize() { return sendBufferSize_; }
+  int &sendBufferSize() { return sendBufferSize_; }
 
-  ULng32 &recdBufferSize() { return recdBufferSize_; }
+  int &recdBufferSize() { return recdBufferSize_; }
 
   long &totalSentBytes() { return totalSentBytes_; }
 
@@ -447,8 +447,8 @@ class ExBufferStats : public ExStatsBase {
   void copyContents(ExBufferStats *other);
 
  private:
-  ULng32 sendBufferSize_;
-  ULng32 recdBufferSize_;
+  int sendBufferSize_;
+  int recdBufferSize_;
   long totalSentBytes_;
   long totalRecdBytes_;
 
@@ -833,7 +833,7 @@ class ExOperStats : public ExStatsBaseNew {
     // counters for the different return codes returned by the work
     // procedure of a tcb. These counters are incremented by the
     // scheduler via subTaskReturn()
-    ULng32 retCodes_[STATS_WORK_LAST_RETCODE + 2];
+    int retCodes_[STATS_WORK_LAST_RETCODE + 2];
   } allStats;
 };
 
@@ -1117,7 +1117,7 @@ class ExFragRootOperStats : public ExOperStats {
 /////////////////////////////////////////////////////////////////
 class ExPartitionAccessStats : public ExOperStats {
  public:
-  ExPartitionAccessStats(NAMemory *heap, ex_tcb *tcb, ComTdb *tdb, ULng32 bufferSize);
+  ExPartitionAccessStats(NAMemory *heap, ex_tcb *tcb, ComTdb *tdb, int bufferSize);
 
   ExPartitionAccessStats(NAMemory *heap);
 
@@ -1187,7 +1187,7 @@ class ExPartitionAccessStats : public ExOperStats {
 /////////////////////////////////////////////////////////////////
 class ExProbeCacheStats : public ExOperStats {
  public:
-  ExProbeCacheStats(NAMemory *heap, ex_tcb *tcb, ComTdb *tdb, ULng32 bufferSize, ULng32 numCacheEntries);
+  ExProbeCacheStats(NAMemory *heap, ex_tcb *tcb, ComTdb *tdb, int bufferSize, int numCacheEntries);
 
   ExProbeCacheStats(NAMemory *heap);
 
@@ -1235,11 +1235,11 @@ class ExProbeCacheStats : public ExOperStats {
 
   inline void freeChain() { --numChains_; }
 
-  ULng32 longestChain() const { return longestChain_; }
+  int longestChain() const { return longestChain_; }
 
-  ULng32 highestUseCount() const { return highestUseCount_; }
+  int highestUseCount() const { return highestUseCount_; }
 
-  ULng32 maxNumChains() const { return maxNumChains_; }
+  int maxNumChains() const { return maxNumChains_; }
 
   ExProbeCacheStats *castToExProbeCacheStats();
 
@@ -1250,17 +1250,17 @@ class ExProbeCacheStats : public ExOperStats {
   virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, int maxLen);
 
  private:
-  ULng32 cacheHits_;
-  ULng32 cacheMisses_;
-  ULng32 canceledHits_;
-  ULng32 canceledMisses_;
-  ULng32 canceledNotStarted_;
-  ULng32 longestChain_;
-  ULng32 numChains_;  // supports maxNumChains_.
-  ULng32 maxNumChains_;
-  ULng32 highestUseCount_;
-  ULng32 bufferSize_;       // static for now.
-  ULng32 numCacheEntries_;  // static for now.
+  int cacheHits_;
+  int cacheMisses_;
+  int canceledHits_;
+  int canceledMisses_;
+  int canceledNotStarted_;
+  int longestChain_;
+  int numChains_;  // supports maxNumChains_.
+  int maxNumChains_;
+  int highestUseCount_;
+  int bufferSize_;       // static for now.
+  int numCacheEntries_;  // static for now.
 };
 
 //////////////////////////////////////////////////////////////////
@@ -1322,7 +1322,7 @@ class ExHashGroupByStats : public ExBMOStats {
   long partialGroups_;
   long memSize_;  // max amount of memory used (bytes)
   long ioSize_;   // number of bytes transferred from and to disk
-  ULng32 clusterCnt_;
+  int clusterCnt_;
   ExClusterStats *clusterStats_;
   ExClusterStats *lastStat_;
 };
@@ -1378,9 +1378,9 @@ class ExHashJoinStats : public ExBMOStats {
   // note that we only can increae the phase number (makes sense, right?).
   inline void incPhase() { phase_++; };
 
-  inline void incEmptyChains(ULng32 i = 1) { emptyChains_ += i; };
+  inline void incEmptyChains(int i = 1) { emptyChains_ += i; };
 
-  inline ULng32 getEmptyChains() const { return emptyChains_; };
+  inline int getEmptyChains() const { return emptyChains_; };
 
   inline void updMemorySize(long memSize) {
     if (memSize_ < memSize) memSize_ = memSize;
@@ -1396,10 +1396,10 @@ class ExHashJoinStats : public ExBMOStats {
   short phase_;    // indicates which phase to charge with times
   long memSize_;  // max. amount of memory bytes used
   long ioSize_;   // number of bytes transferred from and to disk
-  ULng32 emptyChains_;
-  ULng32 clusterCnt_;
-  ULng32 clusterSplits_;  // how many times clusters were split
-  ULng32 hashLoops_;      // how many hash loops were performed
+  int emptyChains_;
+  int clusterCnt_;
+  int clusterSplits_;  // how many times clusters were split
+  int hashLoops_;      // how many hash loops were performed
   ExClusterStats *clusterStats_;
   ExClusterStats *lastStat_;
 };
@@ -1409,7 +1409,7 @@ class ExHashJoinStats : public ExBMOStats {
 //////////////////////////////////////////////////////////////////
 class ExESPStats : public ExOperStats {
  public:
-  ExESPStats(NAMemory *heap, ULng32 sendBufferSize, ULng32 recBufferSize, int subInstNum, ex_tcb *tcb,
+  ExESPStats(NAMemory *heap, int sendBufferSize, int recBufferSize, int subInstNum, ex_tcb *tcb,
              const ComTdb *tdb);
 
   ExESPStats(NAMemory *heap);
@@ -1483,9 +1483,9 @@ class ExSplitTopStats : public ExOperStats {
 
   void copyContents(ExSplitTopStats *other);
 
-  inline ULng32 getMaxChildren() const { return maxChildren_; }
+  inline int getMaxChildren() const { return maxChildren_; }
 
-  inline ULng32 getActChildren() const { return actChildren_; }
+  inline int getActChildren() const { return actChildren_; }
 
   ExSplitTopStats *castToExSplitTopStats();
 
@@ -1505,13 +1505,13 @@ class ExSplitTopStats : public ExOperStats {
 
   // this is the maximum number of children(SendTop or PA) that
   // this operator will communicate with.
-  ULng32 maxChildren_;
+  int maxChildren_;
 
   // this is the actual number of children(SendTop or PA) that this
   // operator communicated with during query execution.
-  ULng32 actChildren_;
+  int actChildren_;
 
-  ULng32 flags_;
+  int flags_;
 };
 
 //////////////////////////////////////////////////////////////////
@@ -1946,7 +1946,7 @@ class ExUDRBaseStats : public ExOperStats {
 
 class ExUDRStats : public ExUDRBaseStats {
  public:
-  ExUDRStats(NAMemory *heap, ULng32 sendBufferSize, ULng32 recBufferSize, const ComTdb *tdb, ex_tcb *tcb);
+  ExUDRStats(NAMemory *heap, int sendBufferSize, int recBufferSize, const ComTdb *tdb, ex_tcb *tcb);
 
   ExUDRStats(NAMemory *heap);
 
@@ -2276,7 +2276,7 @@ class IDInfo : public NABasicObject {
   long newId_;
   ExOperStats *stat_;
   // count the number of child TCBs processed during the tree building
-  ULng32 childrenProcessed_;
+  int childrenProcessed_;
 };
 
 // -----------------------------------------------------------------------
@@ -2403,7 +2403,7 @@ class ExStatsTcb : public ex_tcb {
   ComDiagsArea *diagsArea_;
   short activeQueryNum_;
   UInt16 statsMergeType_;
-  ULng32 flags_;
+  int flags_;
   short detailLevel_;
   char *stmtName_;
   short subReqType_;
@@ -3169,7 +3169,7 @@ class ExProcessStats : public ExOperStats {
 class ExObjectEpochStats : public ExOperStats {
  public:
   ExObjectEpochStats(NAMemory *heap) : ExOperStats(heap, OBJECT_EPOCH_STATS) {}
-  ExObjectEpochStats(NAMemory *heap, short cpu, const NAString &objectName, ComObjectType objectType, ULng32 hash,
+  ExObjectEpochStats(NAMemory *heap, short cpu, const NAString &objectName, ComObjectType objectType, int hash,
                      long redefTime, UInt32 epoch, UInt32 flags)
       : ExOperStats(heap, OBJECT_EPOCH_STATS),
         cpu_(cpu),
@@ -3241,8 +3241,8 @@ class ExObjectEpochStats : public ExOperStats {
   void setObjectName(const char *objectName) { strncpy(objectName_, objectName, sizeof(objectName_)); }
   ComObjectType getObjectType() const { return objectType_; }
   void setObjectType(ComObjectType objectType) { objectType_ = objectType; }
-  ULng32 getHash() const { return hash_; }
-  void setHash(ULng32 hash) { hash_ = hash; }
+  int getHash() const { return hash_; }
+  void setHash(int hash) { hash_ = hash; }
   long getRedefTime() const { return redefTime_; }
   void setRedefTime(long redefTime) { redefTime_ = redefTime; }
   UInt32 getEpoch() const { return epoch_; }
@@ -3259,7 +3259,7 @@ class ExObjectEpochStats : public ExOperStats {
  private:
   short cpu_;
   char objectName_[1024];  // Hope this is enough
-  ULng32 hash_;
+  int hash_;
   ComObjectType objectType_;
   long redefTime_;
   UInt32 epoch_;

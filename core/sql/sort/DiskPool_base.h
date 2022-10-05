@@ -75,11 +75,11 @@ class DiskPool : public NABasicObject {
   DiskPool(CollHeap *heap);
   virtual ~DiskPool() = 0;  // pure virtual
 
-  virtual NABoolean generateDiskTable(const ExScratchDiskDrive *scratchDiskSpecified, ULng32 numSpecified,
+  virtual NABoolean generateDiskTable(const ExScratchDiskDrive *scratchDiskSpecified, int numSpecified,
                                       char *volumeNameMask, answer including = ::right,
                                       NABoolean includeAuditTrailDisks = FALSE) = 0;
 
-  virtual NABoolean returnBestDisk(char **diskname, ULng32 espInstance, ULng32 numEsps, unsigned short threshold) = 0;
+  virtual NABoolean returnBestDisk(char **diskname, int espInstance, int numEsps, unsigned short threshold) = 0;
 
   DiskDetails **getDiskTablePtr() const { return diskTablePtr_; };
   DiskDetails **getLocalDisksPtr() const { return localDisksPtr_; };

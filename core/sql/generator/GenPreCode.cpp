@@ -9046,7 +9046,7 @@ ItemExpr *ItemExpr::preCodeGen(Generator *generator) {
 // ---------------------------------------------------------
 VEGRewritePairs::VEGRewritePairs(CollHeap *heap) : heap_(heap), vegRewritePairs_(&valueIdHashFunc, 1009, TRUE, heap) {}
 
-ULng32 VEGRewritePairs::valueIdHashFunc(const CollIndex &v) { return (ULng32)v; }
+int VEGRewritePairs::valueIdHashFunc(const CollIndex &v) { return (int)v; }
 
 const VEGRewritePairs::VEGRewritePair *VEGRewritePairs::getPair(const ValueId &original) const {
   CollIndex k(original);

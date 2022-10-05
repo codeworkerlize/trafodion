@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -73,8 +52,8 @@ double EncVal_encodeString(const char *str, int strLen, CharType *cType) {
 
   // two long integers that, when concatenated, contain the result
   // as a 64 bit integer
-  ULng32 hiResult = 0;
-  ULng32 loResult = 0;
+  int hiResult = 0;
+  int loResult = 0;
 
   // ---------------------------------------------------------------------
   // the encode function performs blank-padding just as the comparison
@@ -148,15 +127,15 @@ double EncVal_encodeString(const char *str, int strLen, CharType *cType) {
   // then the final string should match the original"
 
   // 8 bits of the first character
-  hiResult += (ULng32)stringValues[0] << 12;  // char 0
-  hiResult += (ULng32)stringValues[1] << 4;   // char 1
-  hiResult += (ULng32)stringValues[2] >> 4;   // 4 bits of char 2
+  hiResult += (int)stringValues[0] << 12;  // char 0
+  hiResult += (int)stringValues[1] << 4;   // char 1
+  hiResult += (int)stringValues[2] >> 4;   // 4 bits of char 2
 
-  loResult += (ULng32)stringValues[2] << 28;  // 4 bits of char 2
-  loResult += (ULng32)stringValues[3] << 20;  // char 3
-  loResult += (ULng32)stringValues[4] << 12;  // char 4
-  loResult += (ULng32)stringValues[5] << 4;   // char 5
-  loResult += (ULng32)stringValues[6] >> 4;   // 4 bits of char 6
+  loResult += (int)stringValues[2] << 28;  // 4 bits of char 2
+  loResult += (int)stringValues[3] << 20;  // char 3
+  loResult += (int)stringValues[4] << 12;  // char 4
+  loResult += (int)stringValues[5] << 4;   // char 5
+  loResult += (int)stringValues[6] >> 4;   // 4 bits of char 6
 
   // combine the two 32 bit integers to a floating point number
   // (2**32 * hiResult + loResult)
@@ -1039,7 +1018,7 @@ UInt32 NormValue::computeHashForNumeric(SQLNumeric *nt) {
   CMPASSERT(len >= 0);
 
   int longTemp;
-  ULng32 usLongTemp;
+  int usLongTemp;
   short shrtTemp;
   unsigned short usShrtTemp;
 
@@ -1068,7 +1047,7 @@ UInt32 NormValue::computeHashForNumeric(SQLNumeric *nt) {
   } else if (len <= 4) {
     flags = ExHDPHash::SWAP_FOUR;
     if (nt->isUnsigned()) {
-      usLongTemp = (ULng32)(x * pow(10.0, nt->getScale()));
+      usLongTemp = (int)(x * pow(10.0, nt->getScale()));
       memcpy(result, (char *)&usLongTemp, len);
     } else {
       longTemp = (int)(x * pow(10.0, nt->getScale()));

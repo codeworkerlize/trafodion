@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ****************************************************************************
 *
@@ -58,21 +37,21 @@ class ComTdbHashj : public ComTdb {
               ex_expr *nullInstForLeftJoinExpr, ex_expr *beforeJoinPred1, ex_expr *beforeJoinPred2,
               ex_expr *afterJoinPred1, ex_expr *afterJoinPred2, ex_expr *afterJoinPred3, ex_expr *afterJoinPred4,
               ex_expr *afterJoinPred5, ex_expr *checkInputPred, ex_expr *moveInputExpr, int inputValuesLen,
-              short prevInputTuppIndex, ULng32 rightRowLength, ULng32 extRightRowLength, ULng32 leftRowLength,
-              ULng32 extLeftRowLength, ULng32 instRowForLeftJoinLength, ex_cri_desc *workCriDesc, short leftRowAtpIndex,
+              short prevInputTuppIndex, int rightRowLength, int extRightRowLength, int leftRowLength,
+              int extLeftRowLength, int instRowForLeftJoinLength, ex_cri_desc *workCriDesc, short leftRowAtpIndex,
               short extLeftRowAtpIndex, short rightRowAtpIndex, short extRightRowAtpIndex1, short extRightRowAtpIndex2,
               short hashValueAtpIndex, short instRowForLeftJoinAtpIndex, short returnedLeftRowAtpIndex,
               short returnedRightRowAtpIndex, short returnedInstRowForLeftJoinAtpIndex, unsigned short memUsagePercent,
               short pressureThreshold, short scrThreshold, queue_index down, queue_index up, int isSemiJoin,
               int isLeftJoin, int isAntiSemiJoin, int isUniqueHashJoin, int isNoOverflow, int isReuse,
-              int numBuffers, ULng32 bufferSize, ULng32 hashBufferSize, Cardinality estimatedRowount,
+              int numBuffers, int bufferSize, int hashBufferSize, Cardinality estimatedRowount,
               Cardinality innerExpectedRows, Cardinality outerExpectedRows, int isRightJoin, ex_expr *rightJoinExpr,
               ex_expr *nullInstForRightJoinExpr, short instRowForRightJoinAtpIndex,
-              short returnedInstRowForRightJoinAtpIndex, ULng32 instRowForRightJoinLength,
-              unsigned short minBuffersToFlush, ULng32 numInBatch, ex_expr *checkInnerNullExpr,
-              ex_expr *checkOuterNullExpr, short hjGrowthPercent, short minMaxValsAtpIndex, ULng32 minMaxRowLength,
+              short returnedInstRowForRightJoinAtpIndex, int instRowForRightJoinLength,
+              unsigned short minBuffersToFlush, int numInBatch, ex_expr *checkInnerNullExpr,
+              ex_expr *checkOuterNullExpr, short hjGrowthPercent, short minMaxValsAtpIndex, int minMaxRowLength,
               ex_expr *minMaxExpr, ex_cri_desc *leftDownCriDesc, ex_expr *rangeSpecPackingExpr,
-              ULng32 rangeSpecSanityCheckCycle);
+              int rangeSpecSanityCheckCycle);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -101,7 +80,7 @@ class ComTdbHashj : public ComTdb {
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
   // ---------------------------------------------------------------------
-  virtual void displayContents(Space *space, ULng32 flag);
+  virtual void displayContents(Space *space, int flag);
 
   // ****  information for GUI  *** -------------
 
@@ -267,7 +246,7 @@ class ComTdbHashj : public ComTdb {
   NABoolean delayLeftRequest() { return (hjFlags_ & DELAY_LEFT_REQUEST) != 0; }
   void setDelayLeftRequest(NABoolean v) { (v ? hjFlags_ |= DELAY_LEFT_REQUEST : hjFlags_ &= ~DELAY_LEFT_REQUEST); }
 
-  ULng32 memoryQuotaMB() { return (ULng32)memoryQuotaMB_; }
+  int memoryQuotaMB() { return (int)memoryQuotaMB_; }
   void setMemoryQuotaMB(UInt16 v) { memoryQuotaMB_ = v; }
   UInt16 numClusters() { return numClusters_; }
   void setNumClusters(UInt16 v) { numClusters_ = v; }
@@ -442,7 +421,7 @@ class ComTdbHashj : public ComTdb {
 
   ExExprPtr rangeSpecPackingExpr_;  // 377-384
 
-  ULng32 rangeSpecSanityCheckCycle_;  // 385-388
+  int rangeSpecSanityCheckCycle_;  // 385-388
 
  protected:
   inline int isSemiJoin() const;

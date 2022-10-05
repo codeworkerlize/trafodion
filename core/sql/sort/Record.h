@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef RECORD_H
 #define RECORD_H
 
@@ -57,34 +36,34 @@ struct RecKeyBuffer {
 class Record {
  public:
   Record();
-  Record(ULng32 size, NABoolean doNotallocRec, CollHeap *heap);
-  Record(void *rec, ULng32 reclen, void *tupp, CollHeap *heap, SortError *sorterror);
+  Record(int size, NABoolean doNotallocRec, CollHeap *heap);
+  Record(void *rec, int reclen, void *tupp, CollHeap *heap, SortError *sorterror);
   ~Record(void);
 
-  void initialize(ULng32 recsize, NABoolean doNotallocRec, CollHeap *heap, SortError *sorterror);
+  void initialize(int recsize, NABoolean doNotallocRec, CollHeap *heap, SortError *sorterror);
 
-  char *extractKey(ULng32 keylen, Int16 offset);
+  char *extractKey(int keylen, Int16 offset);
 
-  NABoolean setRecord(void *rec, ULng32 reclen);
-  NABoolean getRecord(void *rec, ULng32 reclen) const;
+  NABoolean setRecord(void *rec, int reclen);
+  NABoolean getRecord(void *rec, int reclen) const;
 
-  NABoolean setRecordTupp(void *rec, ULng32 reclen, void *tupp);
-  NABoolean getRecordTupp(void *&rec, ULng32 reclen, void *&tupp) const;
+  NABoolean setRecordTupp(void *rec, int reclen, void *tupp);
+  NABoolean getRecordTupp(void *&rec, int reclen, void *&tupp) const;
 
-  RESULT getFromScr(SortMergeNode *sortMergeNode, ULng32 reclen, SortScratchSpace *scratch, ULng32 &actRecLen,
-                    // ULng32 keySize,
+  RESULT getFromScr(SortMergeNode *sortMergeNode, int reclen, SortScratchSpace *scratch, int &actRecLen,
+                    // int keySize,
                     NABoolean waited = FALSE, Int16 numberOfBytesForRecordSize = 0);
 
   // void putToFile(ofstream& to);
-  RESULT putToScr(ULng32 run, ULng32 reclen, SortScratchSpace *scratch, NABoolean waited = FALSE);
+  RESULT putToScr(int run, int reclen, SortScratchSpace *scratch, NABoolean waited = FALSE);
 
   void releaseTupp(void);
-  ULng32 getRecSize() { return recSize_; }
+  int getRecSize() { return recSize_; }
 
  private:
   char *rec_;  // Pointer to the data which constitutes the actual
                // record data.
-  ULng32 recSize_;
+  int recSize_;
   void *tupp_;
 
   NABoolean allocatedRec_;

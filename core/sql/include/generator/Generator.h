@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef GENERATOR_H
 #define GENERATOR_H
 
@@ -305,23 +284,23 @@ class Generator : public NABasicObject {
 
   // Identifier specifying a table (base table or index).
   // Starts at 0 and increments for each table used in the query.
-  ULng32 tableId_;
+  int tableId_;
 
   // Identifier specifying a temp table (hash, btree or queue).
   // Starts at 0 and increments for each temp used in the query.
-  ULng32 tempTableId_;
+  int tempTableId_;
 
   // unique id for TDBs, incremented for each new TDB
   // Starts at 0 (for root) and increments for each TDB used in the query.
-  ULng32 tdbId_;
+  int tdbId_;
 
   // Work area of the binder. Passed to binder when binding/type-propagating
   // trees created at generation time.
   BindWA *bindWA;
 
-  ULng32 flags_;
+  int flags_;
 
-  ULng32 flags2_;
+  int flags2_;
 
   long planId_;         // timestamp used by explain
   int explainNodeId_;  // current number for EXPLAIN node
@@ -352,7 +331,7 @@ class Generator : public NABasicObject {
 
   int explainIsDisabled_;   // if greater than zero, calls to
                               // addExplainInfo are disabled
-  ULng32 affinityValueUsed_;  // The Affinity value used for ESP remapping.
+  int affinityValueUsed_;  // The Affinity value used for ESP remapping.
                               // This is the value after interpreting
                               // special values (-1, -3, -4)
 
@@ -370,7 +349,7 @@ class Generator : public NABasicObject {
   // being collected. All tdbs that are working for the same table
   // (like, PA, DP2 oper) get the same tdb id at code generation time.
   // ---------------------------------------------------------------------
-  ULng32 pertableStatsTdbId_;
+  int pertableStatsTdbId_;
 
   // Set to TRUE if this is static compilation.
   NABoolean staticCompMode_;
@@ -416,10 +395,10 @@ class Generator : public NABasicObject {
   OltOptInfo oltOptInfo_;
 
   // SQLCOMP defaults for dynamic queue resizing
-  ULng32 initialQueueSizeDown_;
-  ULng32 initialQueueSizeUp_;
-  ULng32 initialPaQueueSizeDown_;
-  ULng32 initialPaQueueSizeUp_;
+  int initialQueueSizeDown_;
+  int initialQueueSizeUp_;
+  int initialPaQueueSizeDown_;
+  int initialPaQueueSizeUp_;
   short queueResizeLimit_;
   short queueResizeFactor_;
   NABoolean dynQueueSizeValuesAreValid_;
@@ -492,11 +471,11 @@ class Generator : public NABasicObject {
 
   // Helpers for the special ONLJ queue sizing defaults.
   NABoolean makeOnljLeftQueuesBig_;
-  ULng32 onljLeftUpQueue_;
-  ULng32 onljLeftDownQueue_;
+  int onljLeftUpQueue_;
+  int onljLeftDownQueue_;
   NABoolean makeOnljRightQueuesBig_;
-  ULng32 onljRightSideUpQueue_;
-  ULng32 onljRightSideDownQueue_;
+  int onljRightSideUpQueue_;
+  int onljRightSideDownQueue_;
   ComTdb::OverflowModeType overflowMode_;
 
   // Used to specify queue size to use on RHS of flow or nested join.
@@ -505,7 +484,7 @@ class Generator : public NABasicObject {
   // situation, large queues are required above the split top (between
   // Split Top and Flow/NestedJoin).  Also used to set size of queues
   // below a SplitTop on RHS, but these do not need to be as large.
-  ULng32 largeQueueSize_;
+  int largeQueueSize_;
 
   // For self-referencing queries.  At the beginning of preCodeGen, if protection
   // from Halloween is needed, we will set the type to DP2Locks (in RelRoot::
@@ -804,7 +783,7 @@ class Generator : public NABasicObject {
   // sufficient space in out_buf to contain the generated code.
   // Returns out_buf as the return parameter. Returns NULL, in case
   // of error.
-  char *getFinalObj(char *out_buf, ULng32 out_buflen);
+  char *getFinalObj(char *out_buf, int out_buflen);
 
   inline int getFinalObjLength() { return fragmentDir_->getTotalLength(); };
 
@@ -958,8 +937,8 @@ class Generator : public NABasicObject {
 
   inline int getAndIncTdbId() { return tdbId_++; }
   // returns current TDB id and increments it.
-  inline ULng32 getPertableStatsTdbId() { return pertableStatsTdbId_; }
-  inline void setPertableStatsTdbId(ULng32 tdbId) { pertableStatsTdbId_ = tdbId; }
+  inline int getPertableStatsTdbId() { return pertableStatsTdbId_; }
+  inline void setPertableStatsTdbId(int tdbId) { pertableStatsTdbId_ = tdbId; }
 
   const NAString genGetNameAsAnsiNAString(const QualifiedName &);
   const NAString genGetNameAsAnsiNAString(const CorrName &);
@@ -967,7 +946,7 @@ class Generator : public NABasicObject {
   const NAString genGetNameAsNAString(const CorrName &);
 
   // is transaction needed?
-  inline ULng32 isTransactionNeeded() { return (flags_ & TRANSACTION_FLAG); }
+  inline int isTransactionNeeded() { return (flags_ & TRANSACTION_FLAG); }
 
   // If transaction is needed to execute this query, remember it.
   // The second argument is used when we know that the ESP fragments will
@@ -1264,8 +1243,8 @@ class Generator : public NABasicObject {
 
   inline int explainDisabled() const { return (explainIsDisabled_ > 0); }
 
-  inline ULng32 getAffinityValueUsed() const { return affinityValueUsed_; };
-  inline void setAffinityValueUsed(ULng32 affVal) { affinityValueUsed_ = affVal; };
+  inline int getAffinityValueUsed() const { return affinityValueUsed_; };
+  inline void setAffinityValueUsed(int affVal) { affinityValueUsed_ = affVal; };
 
   inline NABoolean computeStats() const { return computeStats_; }
   inline void setComputeStats(NABoolean v) { computeStats_ = v; }
@@ -1455,11 +1434,11 @@ class Generator : public NABasicObject {
   // Helpers for the special ONLJ queue sizing defaults.
   NABoolean const getMakeOnljLeftQueuesBig() { return makeOnljLeftQueuesBig_; }
   void setMakeOnljLeftQueuesBig(NABoolean x) { makeOnljLeftQueuesBig_ = x; }
-  ULng32 const getOnljLeftUpQueue() { return onljLeftUpQueue_; }
-  ULng32 const getOnljLeftDownQueue() { return onljLeftDownQueue_; }
+  int const getOnljLeftUpQueue() { return onljLeftUpQueue_; }
+  int const getOnljLeftDownQueue() { return onljLeftDownQueue_; }
 
-  ULng32 getLargeQueueSize(void) const { return largeQueueSize_; }
-  void setLargeQueueSize(ULng32 size) { largeQueueSize_ = size; }
+  int getLargeQueueSize(void) const { return largeQueueSize_; }
+  void setLargeQueueSize(int size) { largeQueueSize_ = size; }
 
   // these are used in partial sort so that a split-top node knows
   // to maintain required order sought by a sort operator above
@@ -1592,8 +1571,8 @@ class Generator : public NABasicObject {
 
   void setQueryHash(UInt64 x) { queryHash_ = x; }
   UInt64 getQueryHash() { return queryHash_; }
-  inline void setTopNRows(ULng32 topNRows) { topNRows_ = topNRows; }
-  inline ULng32 getTopNRows() { return topNRows_; }
+  inline void setTopNRows(int topNRows) { topNRows_ = topNRows; }
+  inline int getTopNRows() { return topNRows_; }
   inline XBMOQuotaMap *getBMOQuotaMap() { return &bmoQuotaMap_; }
   double getEstMemPerNode(NAString *key, int &numStreams);
   double getEstMemForTdb(NAString *key);

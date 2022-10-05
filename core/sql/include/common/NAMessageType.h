@@ -141,7 +141,7 @@ typedef int NAMessageObjVersion;
 // size of objects in bytes
 // -----------------------------------------------------------------------
 
-typedef ULng32 NAMessageObjSize;
+typedef int NAMessageObjSize;
 
 // -----------------------------------------------------------------------
 // Reference count of a message header or of an object in a message

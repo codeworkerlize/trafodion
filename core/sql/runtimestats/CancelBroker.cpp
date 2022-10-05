@@ -138,7 +138,7 @@ void ActiveQueryEntry::releaseStream() {
 ActiveQueryEntry *ActiveQueryMgr::getActiveQuery(char *qid, int qidLen) {
   ActiveQueryEntry *aq = NULL;
 
-  activeQueries_.position(qid, (ULng32)qidLen);
+  activeQueries_.position(qid, (int)qidLen);
   aq = (ActiveQueryEntry *)activeQueries_.getNext();
   while (aq != NULL) {
     if (str_cmp(aq->getQid(), qid, (int)qidLen) == 0) return aq;
@@ -161,7 +161,7 @@ void ActiveQueryMgr::addActiveQuery(char *qid, int qidLen, long startTime, GuaPr
 
   cStream->giveMessageTo(*aq->getReplyStartedStream(), conn);
 
-  activeQueries_.insert(qid, (ULng32)qidLen, aq);
+  activeQueries_.insert(qid, (int)qidLen, aq);
 }
 
 void ActiveQueryMgr::rmActiveQuery(char *qid, int qidLen, NAHeap *ipcHeap, NextActionForSubject nxtA,
@@ -245,7 +245,7 @@ void PendingQueryMgr::addPendingQuery(ActiveQueryEntry *aq, int ceFirstInterval,
       PendingQueryEntry(qid, qidLen, aq->getExecutionCount(), aq->getMasterPhandle(), aq->getMasterFileNum(), ceTime1,
                         ceTime2, (bool)ceSaveabend, (bool)cancelLogging);
 
-  pendingQueries_.insert(qid, (ULng32)qidLen, pq);
+  pendingQueries_.insert(qid, (int)qidLen, pq);
 }
 
 void PendingQueryMgr::removePendingQuery(PendingQueryEntry *pq) {

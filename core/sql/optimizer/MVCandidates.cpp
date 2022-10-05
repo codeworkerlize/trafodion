@@ -39,8 +39,8 @@ void initializeGUIData(SqlcmpdbgExpFuncs *expFuncs);
 // Prefix for correlation names used for backjoin tables.
 const char *const MVCandidates::BACKJOIN_CORRNAME_PREFIX = "BACKJOIN@";
 
-static ULng32 nodeIdHashFn(const CollIndex &i) { return i; }
-static ULng32 bjScanHashFn(const NAString &s) { return NAString::hash(s); }
+static int nodeIdHashFn(const CollIndex &i) { return i; }
+static int bjScanHashFn(const NAString &s) { return NAString::hash(s); }
 static OperatorTypeEnum determineAggForRollup(QRMVColumnPtr mvCol);
 
 MVCandidates::MVCandidates(RelRoot *root, QRQueryDescriptorPtr queryDesc, QRDescGenerator &descGenerator)
@@ -1360,7 +1360,7 @@ void MVCandidates::analyzeCandidate(QRCandidatePtr candidate, JBBSubset &jbbSubs
   // Save some info about the original query analysis before analyzing the
   // candidate tree. This info helps determine if we can test the rewrite by
   // trading out the entire tree.
-  ULng32 maxJbbSize = QueryAnalysis::Instance()->getSizeOfLargestJBB();
+  int maxJbbSize = QueryAnalysis::Instance()->getSizeOfLargestJBB();
   NABoolean multiJBBs = QueryAnalysis::Instance()->getJBBs().entries();
 
   RelExpr *analyzedExpr = QueryAnalysis::Instance()->analyzeThis(mapVidNode, TRUE);

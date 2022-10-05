@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 
 /* -*-C++-*-
  *****************************************************************************
@@ -594,11 +573,11 @@ short ExExeUtilGetStatisticsTcb::work() {
         // Display Elapsed Time
         long elapsedTime = masterStats->getElapsedEndTime() - masterStats->getElapsedStartTime();
         if (elapsedTime < 0) elapsedTime = 0;
-        ULng32 sec = (ULng32)(elapsedTime / 1000000);
-        ULng32 usec = (ULng32)(elapsedTime % 1000000);
-        ULng32 min = sec / 60;
+        int sec = (int)(elapsedTime / 1000000);
+        int usec = (int)(elapsedTime % 1000000);
+        int min = sec / 60;
         sec = sec % 60;
-        ULng32 hour = min / 60;
+        int hour = min / 60;
         min = min % 60;
         sprintf(statsBuf_, "Elapsed Time                      %02u:%02u:%02u.%06u", hour, min, sec, usec);
         moveRowToUpQueue(statsBuf_);
@@ -609,8 +588,8 @@ short ExExeUtilGetStatisticsTcb::work() {
                  ? masterStats->getCompEndTime() - masterStats->getCompStartTime()
                  : 0);
         if (compileTime < 0) compileTime = 0;
-        sec = (ULng32)(compileTime / 1000000);
-        usec = (ULng32)(compileTime % 1000000);
+        sec = (int)(compileTime / 1000000);
+        usec = (int)(compileTime % 1000000);
         min = sec / 60;
         sec = sec % 60;
         hour = min / 60;
@@ -624,8 +603,8 @@ short ExExeUtilGetStatisticsTcb::work() {
                                  ? (masterStats->getFixupEndTime() - masterStats->getFixupStartTime())
                                  : 0);
           if (fixupTime < 0) fixupTime = 0;
-          sec = (ULng32)(fixupTime / 1000000);
-          usec = (ULng32)(fixupTime % 1000000);
+          sec = (int)(fixupTime / 1000000);
+          usec = (int)(fixupTime % 1000000);
           min = sec / 60;
           sec = sec % 60;
           hour = min / 60;
@@ -636,8 +615,8 @@ short ExExeUtilGetStatisticsTcb::work() {
           // Display Freeup Time
           long freeupTime = masterStats->getFreeupEndTime() - masterStats->getFreeupStartTime();
           if (freeupTime < 0) freeupTime = 0;
-          sec = (ULng32)(freeupTime / 1000000);
-          usec = (ULng32)(freeupTime % 1000000);
+          sec = (int)(freeupTime / 1000000);
+          usec = (int)(freeupTime % 1000000);
           min = sec / 60;
           sec = sec % 60;
           hour = min / 60;
@@ -649,8 +628,8 @@ short ExExeUtilGetStatisticsTcb::work() {
         // Display Execution Time
         long executionTime = masterStats->getExeEndTime() - masterStats->getExeStartTime();
         if (executionTime < 0) executionTime = 0;
-        sec = (ULng32)(executionTime / 1000000);
-        usec = (ULng32)(executionTime % 1000000);
+        sec = (int)(executionTime / 1000000);
+        usec = (int)(executionTime % 1000000);
         min = sec / 60;
         sec = sec % 60;
         hour = min / 60;
@@ -1426,16 +1405,16 @@ void ExExeUtilGetRTSStatisticsTcb::formatOperStatsDataUsed(SQLSTATS_ITEM *operSt
   sprintf(&statsBuf_[strlen(statsBuf_)], "%16s", valString);
 }
 
-void ExExeUtilGetRTSStatisticsTcb::deleteSqlStatItems(SQLSTATS_ITEM *sqlStatsItem, ULng32 noOfStatsItem) {
-  for (ULng32 i = 0; i < noOfStatsItem; i++) {
+void ExExeUtilGetRTSStatisticsTcb::deleteSqlStatItems(SQLSTATS_ITEM *sqlStatsItem, int noOfStatsItem) {
+  for (int i = 0; i < noOfStatsItem; i++) {
     if (sqlStatsItem[i].str_value != NULL) NADELETEBASIC(sqlStatsItem[i].str_value, getGlobals()->getDefaultHeap());
   }
   NADELETEBASIC(sqlStatsItem, getGlobals()->getDefaultHeap());
 }
 
-void ExExeUtilGetRTSStatisticsTcb::initSqlStatsItems(SQLSTATS_ITEM *sqlStatsItem, ULng32 noOfStatsItem,
+void ExExeUtilGetRTSStatisticsTcb::initSqlStatsItems(SQLSTATS_ITEM *sqlStatsItem, int noOfStatsItem,
                                                      NABoolean initTdbIdOnly) {
-  for (ULng32 i = 0; i < noOfStatsItem; i++) {
+  for (int i = 0; i < noOfStatsItem; i++) {
     if (initTdbIdOnly) {
       sqlStatsItem[i].tdb_id = sqlStatsDesc_[currStatsDescEntry_].tdb_id;
     } else {
@@ -1452,11 +1431,11 @@ void ExExeUtilGetRTSStatisticsTcb::initSqlStatsItems(SQLSTATS_ITEM *sqlStatsItem
 short ExExeUtilGetRTSStatisticsTcb::work() {
   //  short rc = 0;
   int cliRC = 0;
-  ULng32 sec;
-  ULng32 usec;
-  ULng32 min;
-  ULng32 hour;
-  ULng32 i;
+  int sec;
+  int usec;
+  int min;
+  int hour;
+  int i;
   short rc;
   long jtime;
 
@@ -1755,8 +1734,8 @@ short ExExeUtilGetRTSStatisticsTcb::work() {
                 sprintf(statsBuf_, "%-25s%s", "Compile End Time", "-1");
               break;
             case SQLSTATS_COMP_TIME:
-              sec = (ULng32)(masterStatsItems_[i].int64_value / 1000000);
-              usec = (ULng32)(masterStatsItems_[i].int64_value % 1000000);
+              sec = (int)(masterStatsItems_[i].int64_value / 1000000);
+              usec = (int)(masterStatsItems_[i].int64_value % 1000000);
               min = sec / 60;
               sec = sec % 60;
               hour = min / 60;
@@ -1807,8 +1786,8 @@ short ExExeUtilGetRTSStatisticsTcb::work() {
                 sprintf(statsBuf_, "%-25s%s", "Execute End Time", "-1");
               break;
             case SQLSTATS_EXECUTE_TIME:
-              sec = (ULng32)(masterStatsItems_[i].int64_value / 1000000);
-              usec = (ULng32)(masterStatsItems_[i].int64_value % 1000000);
+              sec = (int)(masterStatsItems_[i].int64_value / 1000000);
+              usec = (int)(masterStatsItems_[i].int64_value % 1000000);
               min = sec / 60;
               sec = sec % 60;
               hour = min / 60;
@@ -1817,8 +1796,8 @@ short ExExeUtilGetRTSStatisticsTcb::work() {
               sprintf(statsBuf_, "%-34s%4u:%02u:%02u.%06u", "Execute Elapsed Time", hour, min, sec, usec);
               break;
             case SQLSTATS_FIXUP_TIME:
-              sec = (ULng32)(masterStatsItems_[i].int64_value / 1000000);
-              usec = (ULng32)(masterStatsItems_[i].int64_value % 1000000);
+              sec = (int)(masterStatsItems_[i].int64_value / 1000000);
+              usec = (int)(masterStatsItems_[i].int64_value % 1000000);
               min = sec / 60;
               sec = sec % 60;
               hour = min / 60;
@@ -3549,11 +3528,11 @@ char *ExExeUtilGetRTSStatisticsTcb::formatTimestamp(char *buf, long inTime) {
 }
 
 char *ExExeUtilGetRTSStatisticsTcb::formatElapsedTime(char *buf, long inTime) {
-  ULng32 sec = (ULng32)(inTime / 1000000);
-  ULng32 usec = (ULng32)(inTime % 1000000);
-  ULng32 min = sec / 60;
+  int sec = (int)(inTime / 1000000);
+  int usec = (int)(inTime % 1000000);
+  int min = sec / 60;
   sec = sec % 60;
-  ULng32 hour = min / 60;
+  int hour = min / 60;
   min = min % 60;
 
   sprintf(buf, "%4u:%02u:%02u.%06u", hour, min, sec, usec);

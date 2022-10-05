@@ -50,7 +50,7 @@ ComTdbExplain::ComTdbExplain()
 ComTdbExplain::ComTdbExplain(ex_cri_desc *criDescParentDown, ex_cri_desc *criDescParentUp, queue_index queueSizeDown,
                              queue_index queueSizeUp, const unsigned short tuppIndex, ex_expr *scanPred,
                              ex_cri_desc *criDescParams, int tupleLength, ex_expr *paramsExpr, int numBuffers,
-                             ULng32 bufferSize)
+                             int bufferSize)
     : ComTdb(ComTdb::ex_EXPLAIN, eye_EXPLAIN, (Cardinality)0.0, criDescParentDown, criDescParentUp, queueSizeDown,
              queueSizeUp, numBuffers, bufferSize),
       tuppIndex_(tuppIndex),
@@ -113,7 +113,7 @@ int ComTdbExplain::unpack(void *base, void *reallocator) {
   return ComTdb::unpack(base, reallocator);
 }
 
-void ComTdbExplain::displayContents(Space *space, ULng32 flag) {
+void ComTdbExplain::displayContents(Space *space, int flag) {
   ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
   if (flag & 0x00000008) {

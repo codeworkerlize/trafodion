@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ****************************************************************************
 *
@@ -51,9 +30,9 @@ ComTdbMj::ComTdbMj(ComTdb *left_tdb, ComTdb *right_tdb, ex_cri_desc *given_cri_d
                    ex_expr *merge_expr, ex_expr *comp_expr, ex_expr *left_check_dup_expr, ex_expr *right_check_dup_expr,
                    ex_expr *lj_expr, ex_expr *ni_expr, ex_expr *right_copy_dup_expr, int right_dup_reclen,
                    int lj_reclen, ex_cri_desc *work_cri_desc, short instantiated_row_atp_index,
-                   ULng32 encoded_key_len, short encoded_key_work_atp_index, ex_expr *pre_join_expr,
+                   int encoded_key_len, short encoded_key_work_atp_index, ex_expr *pre_join_expr,
                    ex_expr *post_join_expr, queue_index down, queue_index up, Cardinality estimatedRowCount,
-                   int num_buffers, ULng32 buffer_size, int semi_join, int left_join, int anti_semi_join,
+                   int num_buffers, int buffer_size, int semi_join, int left_join, int anti_semi_join,
                    NABoolean left_is_unique, NABoolean right_is_unique, bool isOverflowEnabled,
                    UInt16 scratchThresholdPct, UInt16 quotaMB, UInt16 quotaPct, bool yieldQuota)
     : ComTdb(ComTdb::ex_MJ, eye_MJ, estimatedRowCount, given_cri_desc, returned_cri_desc, down, up, num_buffers,
@@ -134,7 +113,7 @@ int ComTdbMj::unpack(void *base, void *reallocator) {
   return ComTdb::unpack(base, reallocator);
 }
 
-void ComTdbMj::displayContents(Space *space, ULng32 flag) {
+void ComTdbMj::displayContents(Space *space, int flag) {
   ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
   if (flag & 0x00000008) {

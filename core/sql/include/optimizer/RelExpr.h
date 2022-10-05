@@ -411,7 +411,7 @@ class RelExpr : public ExprNode {
   // array A into a TSJ that feeds each element of A into the query Q. The argument
   // inputArrayMaxsize is used to set the length of input arrays for ODBC
   // insert queries.
-  virtual RelExpr *xformRowsetsInTree(BindWA &wa, const ULng32 inputArrayMaxsize = 0,
+  virtual RelExpr *xformRowsetsInTree(BindWA &wa, const int inputArrayMaxsize = 0,
                                       const AtomicityType atomicity = UNSPECIFIED_);
 
   virtual RelExpr *xformPartitionPruning(BindWA *bindWA, RelExpr *gu = NULL, OperatorTypeEnum op = NO_OPERATOR_TYPE) {
@@ -1088,7 +1088,7 @@ class RelExpr : public ExprNode {
   virtual void getInputValuesFromParentAndChildren(ValueIdSet &vs) const;
   void getInputAndPotentialOutputValues(ValueIdSet &vs) const;
 
-  ULng32 getDefault(DefaultConstants);
+  int getDefault(DefaultConstants);
 
   // cleanup after the generator phase
   virtual void cleanupAfterCompilation();
@@ -1505,8 +1505,8 @@ class RelExpr : public ExprNode {
   CascadesGroupId sourceGroupId_;  // GroupId of creator task of this relexpr
   int birthId_;                  // TaskCount when this relexpr was created
 
-  ULng32 memoExprId_;        // MemoExprId of this relexpr
-  ULng32 sourceMemoExprId_;  // MemoExprId of the source of this relexpr
+  int memoExprId_;        // MemoExprId of this relexpr
+  int sourceMemoExprId_;  // MemoExprId of the source of this relexpr
 
   double costLimit_;  // CostLimit of task's context that created this relexpr
   // end relexpr tracking info

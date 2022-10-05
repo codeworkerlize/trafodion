@@ -571,7 +571,7 @@ class SharedPtrValueHash : public super {
    * @param enforceUniqueness When FALSE rejects multiple values for the same key
    * @param heap The heap pointer
    */
-  SharedPtrValueHash(ULng32 (*hashFunction)(const K &), ULng32 initialHashSize = NAHashDictionary_Default_Size,
+  SharedPtrValueHash(int (*hashFunction)(const K &), int initialHashSize = NAHashDictionary_Default_Size,
                      NABoolean enforceUniqueness = FALSE, CollHeap *heap = 0)
       // Override constructor to save the heap pointer.
       : super(hashFunction, initialHashSize, enforceUniqueness, heap), heap_(heap), nullSharedPtrVal(NULL) {}
@@ -772,8 +772,8 @@ class SharedPtrValueHashIterator : public super {
     * @param enforceUniqueness When FALSE rejects multiple values for the same key
     * @param heap The heap pointer
     */
-    SharedPtrHash(ULng32(*hashFunction)(const QRIntrusiveSharedPtr<K>&), 
-		  ULng32 initialHashSize = NAHashDictionary_Default_Size,
+    SharedPtrHash(int(*hashFunction)(const QRIntrusiveSharedPtr<K>&), 
+		  int initialHashSize = NAHashDictionary_Default_Size,
 		  NABoolean enforceUniqueness = FALSE,
 		  CollHeap * heap=0)
     // Override constructor to save the heap pointer.
@@ -1011,8 +1011,8 @@ public:
    * @param enforceUniqueness When FALSE rejects multiple values for the same key
    * @param heap The heap pointer
    */
-  SharedPtrKeyHash(ULng32(*hashFunction)(const K&), 
-		ULng32 initialHashSize = NAHashDictionary_Default_Size,
+  SharedPtrKeyHash(int(*hashFunction)(const K&), 
+		int initialHashSize = NAHashDictionary_Default_Size,
 		NABoolean enforceUniqueness = FALSE,
 		CollHeap * heap=0)
   // Override constructor to save the heap pointer.

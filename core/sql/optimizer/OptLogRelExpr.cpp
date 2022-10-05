@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -4651,7 +4630,7 @@ NABoolean Scan::containsReducingPredicates(const ValueIdSet &keyCols) const {
   // directly or indirectly, the VEGColList has the same VEG for pth columns
   // and we use this to detect such predicates here.
   const TableDesc *tdesc = ((Scan *)this)->getTableDesc();
-  ULng32 numCols = tdesc->getColumnVEGList().entries();
+  int numCols = tdesc->getColumnVEGList().entries();
   const ValueIdSet colVEGSet(tdesc->getColumnVEGList());
   if (colVEGSet.entries() < numCols) return TRUE;
 
@@ -5312,7 +5291,7 @@ void Pack::synthEstLogProp(const EstLogPropSharedPtr &inEstLogProp) {
   EstLogPropSharedPtr childEstProp = child(0).outputLogProp(inEstLogProp);
 
   // Just to make sure division by zero doesn't happen in prototype code.
-  ULng32 pf = MIN_ONE(packingFactorLong());
+  int pf = MIN_ONE(packingFactorLong());
   CostScalar myRowCount = childEstProp->getResultCardinality() / pf;
 
   myEstProp->setResultCardinality(myRowCount);

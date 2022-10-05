@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -361,7 +340,7 @@ ex_tcb_private_state *ExConnectByTempTablePrivateState::allocate_new(const ex_tc
   return new (((ex_tcb *)tcb)->getSpace()) ExConnectByTempTablePrivateState((ExConnectByTempTableTcb *)tcb);
 };
 
-ExConnectByHashTable::ExConnectByHashTable(Space *space, ULng32 numEntries, ULng32 probeLength,
+ExConnectByHashTable::ExConnectByHashTable(Space *space, int numEntries, int probeLength,
                                            ExConnectByTempTableTcb *tcb)
     : space_(space),
       numBuckets_(numEntries),
@@ -400,7 +379,7 @@ ExConnectByHashTable::~ExConnectByHashTable() {
 }
 
 ///////////////////////////////////////////////////////////////////
-ExConnectByHashTable::FoundOrNotFound ExConnectByHashTable::findEntry(ULng32 probeHashVal, char *probeBytes,
+ExConnectByHashTable::FoundOrNotFound ExConnectByHashTable::findEntry(int probeHashVal, char *probeBytes,
                                                                       UInt32 getIndex, ExConnectByHashEntry *&pcEntry) {
   FoundOrNotFound retcode = NOTFOUND;
   const int bucketNum = probeHashVal % numBuckets_;
@@ -430,7 +409,7 @@ ExConnectByHashTable::FoundOrNotFound ExConnectByHashTable::findEntry(ULng32 pro
 }
 
 ///////////////////////////////////////////////////////////////////
-ExConnectByHashEntry *ExConnectByHashTable::addEntry(ULng32 probeHashVal, char *probeBytes) {
+ExConnectByHashEntry *ExConnectByHashTable::addEntry(int probeHashVal, char *probeBytes) {
   bool foundVictim = false;
   ExConnectByHashEntry *pce;
 
@@ -466,7 +445,7 @@ ExConnectByHashEntry *ExConnectByHashTable::addEntry(ULng32 probeHashVal, char *
 ExConnectByHashEntry *ExConnectByHashTable::getSlot() {
   if (nextSlot_ == max_slots_) nextSlot_ = 0;
 
-  ULng32 offsetToEntry = nextSlot_++ * sizeofExConnectByHashEntry_;
+  int offsetToEntry = nextSlot_++ * sizeofExConnectByHashEntry_;
 
   return (ExConnectByHashEntry *)&entries_[offsetToEntry];
 }

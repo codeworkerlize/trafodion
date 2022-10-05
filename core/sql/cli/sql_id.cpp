@@ -1,62 +1,13 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
-/* -*-C++-*-
- *****************************************************************************
- *
- * File:         sql_id.cpp
- * RCS:          $Id:
- * Description:  The implementation of C-style ADT for manipulating
- *               CLI module/object identifiers
- *
- * Created:      7/8/98
- * Language:     C++
- *
- *
- *
- *****************************************************************************
- */
 
-#include "common/str.h"
+
 #include "cli/sql_id.h"
-#include "common/charinfo.h"
-#include "common/str.h"
+
+#include "cli/SQLCLIdev.h"
 #include "common/BaseTypes.h"
 #include "common/NLSConversion.h"
-#include "cli/SQLCLIdev.h"
+#include "common/charinfo.h"
+#include "common/str.h"
 
-#if 0
-// Create a new SQL module id.
-SQLMODULE_ID* new_SQLMODULE_ID(
-	int version, const char* name, 
-	int timestamp, 
-	const char* charset,
-	int name_len)
-{
-   SQLMODULE_ID * m = new SQLMODULE_ID;
-   init_SQLMODULE_ID(m, version, name, timestamp, charset, name_len);
-   return m;
-}
-#endif
 // intialize a SQL module id.
 void init_SQLMODULE_ID(SQLMODULE_ID *m, int version, const char *name, int timestamp, const char *charset,
                        int name_len) {
@@ -65,21 +16,6 @@ void init_SQLMODULE_ID(SQLMODULE_ID *m, int version, const char *name, int times
 
   setNameForModule(m, name, name_len, charset);
 }
-#if 0
-
-// Create a new SQL object id.
-SQLCLI_OBJ_ID* new_SQLCLI_OBJ_ID(
-	int version, enum SQLOBJ_ID_NAME_MODE mode, 
-	const SQLMODULE_ID* module, const char* id, 
-	void* handle,
-	const char* charset,
-	int id_len, int tag)
-{
-   SQLCLI_OBJ_ID* x = new SQLCLI_OBJ_ID;
-   init_SQLCLI_OBJ_ID(x, version, mode, module, id, handle, charset, id_len,tag);
-   return x;
-}
-#endif
 
 // initialize a SQL object id.
 void init_SQLCLI_OBJ_ID(SQLCLI_OBJ_ID *x, int version, enum SQLOBJ_ID_NAME_MODE mode, const SQLMODULE_ID *module,

@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ******************************************************************************
 *
@@ -170,9 +149,9 @@ NABoolean RelExpr::preventPushDownPartReq(const ReqdPhysicalProperty *rppForMe, 
 // Currently removing the following warnings. 4153 / 4207 / 4208 / 4212
 void clearFailedPlanWarningsForStream() {
   ComCondition *warningEntry = NULL;
-  ULng32 maxWarns = CmpCommon::diags()->getNumber(DgSqlCode::WARNING_);
+  int maxWarns = CmpCommon::diags()->getNumber(DgSqlCode::WARNING_);
   int currentIndex = 1;  // This is important as diags are 1 based Array.
-  for (ULng32 index = 0; index < maxWarns; index++) {
+  for (int index = 0; index < maxWarns; index++) {
     warningEntry = CmpCommon::diags()->getWarningEntry(currentIndex);
     switch (warningEntry->getSQLCODE()) {
       case 4153:  // Stmt may not compile due to an order requirement on stream expression
@@ -3316,10 +3295,10 @@ OptDefaults::~OptDefaults() { CleanupCostVariables(); }
 
 NABoolean OptDefaults::useNewMdam() { return useNewMdam_; }
 
-NABoolean OptDefaults::isRuleDisabled(ULng32 ruleBitPosition) {
+NABoolean OptDefaults::isRuleDisabled(int ruleBitPosition) {
   if (ruleBitPosition >= 32) return FALSE;
 
-  ULng32 bitMask = SingleBitArray[ruleBitPosition];
+  int bitMask = SingleBitArray[ruleBitPosition];
 
   if (bitMask & optRulesGuidance_) return TRUE;
 
@@ -3818,9 +3797,9 @@ RequiredResources *OptDefaults::estimateRequiredResources(RelExpr *rootExpr) {
       double memoryToConsider = requiredMemoryResourceEstimate_;
       double cpuToConsider = requiredCpuResourceEstimate_;
 
-      ULng32 useOperatorMaxForComputations = getDefaultAsLong(USE_OPERATOR_MAX_FOR_DOP);
+      int useOperatorMaxForComputations = getDefaultAsLong(USE_OPERATOR_MAX_FOR_DOP);
 
-      ULng32 operatorResourceFactor = useOperatorMaxForComputations;
+      int operatorResourceFactor = useOperatorMaxForComputations;
 
       if (useOperatorMaxForComputations) {
         memoryToConsider = maxOperatorMemoryEstimate_;
@@ -6380,7 +6359,7 @@ static void opt_qsort_swap(char *a, char *b, UInt32 width) {
 }
 
 double OptDefaults::riskPremiumSerial() {
-  ULng32 maxMaxCardThreshold =
+  int maxMaxCardThreshold =
       (ActiveSchemaDB()->getDefaults()).getAsULong(RISK_PREMIUM_SERIAL_SCALEBACK_MAXCARD_THRESHOLD);
 
   if (maxMaxCardinality_ <= maxMaxCardThreshold) return double(1);

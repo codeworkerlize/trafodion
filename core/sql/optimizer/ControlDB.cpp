@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -276,7 +255,7 @@ void ControlDB::setControlDefault(ControlQueryDefault *def) {
         x.append(".");
 
         char buf[30];
-        str_itoa((ULng32)pid, buf);
+        str_itoa((int)pid, buf);
 
         x.append(buf);
 
@@ -355,7 +334,7 @@ void ControlDB::setControlDefault(ControlQueryDefault *def) {
     }
 
     case QUERY_CACHE: {
-      ULng32 newsiz = getDefaultInK(QUERY_CACHE);
+      int newsiz = getDefaultInK(QUERY_CACHE);
       const NAArray<CmpContextInfo *> &cmpCtxInfo = GetCliGlobals()->currContext()->getCmpContextInfo();
       for (short i = 0; i < cmpCtxInfo.entries(); i++) {
         QueryCache *qc = cmpCtxInfo[i]->getCmpContext()->getQueryCache();
@@ -1122,7 +1101,7 @@ int ControlDB::packedLengthControlTableOptions() {
 int ControlDB::packControlTableOptionsToBuffer(char *buffer) {
   int curPos = 0;
 
-  ULng32 tempSize = 0;
+  int tempSize = 0;
 
   if (getCTList().entries() > 0) {
     tempSize = getCTList().entries();

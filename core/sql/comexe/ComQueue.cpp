@@ -91,7 +91,7 @@ void Queue::cleanup() {
   tail = 0;
 }
 
-void Queue::insert(const void *entry_, ULng32 packedLength) {
+void Queue::insert(const void *entry_, int packedLength) {
   tail->entry = entry_;
   tail->packedLength_ += packedLength;
   packedLength_ += tail->packedLength();
@@ -105,7 +105,7 @@ void Queue::insert(const void *entry_, ULng32 packedLength) {
   numEntries_++;
 }
 
-void Queue::insert(const void *entry_, ULng32 packedLength, void **queueEntry) {
+void Queue::insert(const void *entry_, int packedLength, void **queueEntry) {
   *queueEntry = tail;
   tail->entry = entry_;
   tail->packedLength_ += packedLength;
@@ -165,9 +165,9 @@ void *Queue::getNext() {
   return temp;
 }
 
-void *Queue::get(ULng32 i) {
+void *Queue::get(int i) {
   position();
-  for (ULng32 j = 0; j < i; j++) getNext();
+  for (int j = 0; j < i; j++) getNext();
 
   return getCurr();
 }
@@ -374,7 +374,7 @@ int Queue::unpack(void *base, void *reallocator) {
 // methods for HashQueue
 ////////////////////////////////////////////////////////////////////////
 
-HashQueue::HashQueue(CollHeap *heap, ULng32 hashTableSize)
+HashQueue::HashQueue(CollHeap *heap, int hashTableSize)
     : entries_(0),
       hashTableSize_(hashTableSize),
       lastReturned_(NULL),
@@ -421,7 +421,7 @@ HashQueue::~HashQueue() {
     delete[] hashTable_;
 };
 
-void HashQueue::insert(const char *data, ULng32 dataLength, void *entry) {
+void HashQueue::insert(const char *data, int dataLength, void *entry) {
   if (!sequentialAdd()) {
     // set the hashValue_, currentChain_, and current_
     getHashValue(data, dataLength);
@@ -458,7 +458,7 @@ void HashQueue::insert(const char *data, ULng32 dataLength, void *entry) {
   hashValue_ = 0;
 };
 
-void HashQueue::position(const char *data, ULng32 dataLength) {
+void HashQueue::position(const char *data, int dataLength) {
   // if we do not have entries in this hash queue, do not even
   // bother to calculate the hash value.
   if (!entries_) {
@@ -611,9 +611,9 @@ void HashQueue::remove(void *entry) {
 };
 
 // simple method to calculate a hash value
-void HashQueue::getHashValue(const char *data, ULng32 dataLength) {
+void HashQueue::getHashValue(const char *data, int dataLength) {
   hashValue_ = 0;
-  for (ULng32 i = 0; i < dataLength; i++) hashValue_ += (unsigned char)data[i];
+  for (int i = 0; i < dataLength; i++) hashValue_ += (unsigned char)data[i];
 
   // we never return 0 as hashValue_
   if (!hashValue_) hashValue_ = 1;
@@ -628,7 +628,7 @@ void HashQueue::remove() {
   removeLastReturned();
 }
 
-void HashQueue::remove(const char *data, ULng32 dataLength, void *entry) {
+void HashQueue::remove(const char *data, int dataLength, void *entry) {
   assert(entry);
   if (lastReturned_ == NULL || lastReturned_->entry_ != entry) {
     position(data, dataLength);
@@ -644,7 +644,7 @@ void HashQueue::remove(const char *data, ULng32 dataLength, void *entry) {
 
 void HashQueue::removeLastReturned() {
   assert(lastReturned_);
-  ULng32 currentChain;
+  int currentChain;
 
   // now unchain the entry. First take care of the next_ pointer
   // of the previous entry
@@ -668,8 +668,8 @@ void HashQueue::removeLastReturned() {
   lastReturned_ = NULL;
 }
 
-SyncHashQueue::SyncHashQueue(CollHeap *heap, ULng32 hashTableSize) : HashQueue(heap, hashTableSize) {}
-void SyncHashQueue::position(const char *data, ULng32 dataLength) {
+SyncHashQueue::SyncHashQueue(CollHeap *heap, int hashTableSize) : HashQueue(heap, hashTableSize) {}
+void SyncHashQueue::position(const char *data, int dataLength) {
   if (!checkIfRTSSemaphoreLocked()) abort();
   HashQueue::position(data, dataLength);
 }
@@ -689,12 +689,12 @@ void SyncHashQueue::remove(void *entry) {
   HashQueue::remove(entry);
 }
 
-void SyncHashQueue::remove(const char *data, ULng32 dataLength, void *entry) {
+void SyncHashQueue::remove(const char *data, int dataLength, void *entry) {
   if (!checkIfRTSSemaphoreLocked()) abort();
   HashQueue::remove(data, dataLength, entry);
 }
 
-void SyncHashQueue::insert(const char *data, ULng32 dataLength, void *entry) {
+void SyncHashQueue::insert(const char *data, int dataLength, void *entry) {
   if (!checkIfRTSSemaphoreLocked()) abort();
   HashQueue::insert(data, dataLength, entry);
 }

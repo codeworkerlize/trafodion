@@ -5,12 +5,12 @@
 #include "common/ComSmallDefs.h"
 #include "exp/ExpLOBinterface.h"
 
-ComTdbExeUtil::ComTdbExeUtil(int type, char *query, ULng32 querylen, Int16 querycharset, char *tableName,
-                             ULng32 tableNameLen, ex_expr *input_expr, ULng32 input_rowlen, ex_expr *output_expr,
-                             ULng32 output_rowlen, ex_expr_base *scan_expr, ex_cri_desc *work_cri_desc,
+ComTdbExeUtil::ComTdbExeUtil(int type, char *query, int querylen, Int16 querycharset, char *tableName,
+                             int tableNameLen, ex_expr *input_expr, int input_rowlen, ex_expr *output_expr,
+                             int output_rowlen, ex_expr_base *scan_expr, ex_cri_desc *work_cri_desc,
                              const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
                              ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
-                             ULng32 buffer_size)
+                             int buffer_size)
     : ComTdbGenericUtil(query, querylen, querycharset, tableName, tableNameLen, input_expr, input_rowlen, output_expr,
                         output_rowlen, work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc, down, up,
                         num_buffers, buffer_size),
@@ -58,10 +58,10 @@ const ComTdb *ComTdbExeUtil::getChild(int pos) const {
 //
 ///////////////////////////////////////////////////////////////////////////
 ComTdbExeUtilDisplayExplain::ComTdbExeUtilDisplayExplain(
-    char *query, ULng32 querylen, Int16 querycharset, char *moduleName, char *stmtName, ex_expr *input_expr,
-    ULng32 input_rowlen, ex_expr *output_expr, ULng32 output_rowlen, ex_cri_desc *work_cri_desc,
+    char *query, int querylen, Int16 querycharset, char *moduleName, char *stmtName, ex_expr *input_expr,
+    int input_rowlen, ex_expr *output_expr, int output_rowlen, ex_cri_desc *work_cri_desc,
     const unsigned short work_atp_index, int colDescSize, int outputRowSize, ex_cri_desc *given_cri_desc,
-    ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers, ULng32 buffer_size)
+    ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers, int buffer_size)
     : ComTdbExeUtil(ComTdbExeUtil::DISPLAY_EXPLAIN_, query, querylen, querycharset, NULL, 0, input_expr, input_rowlen,
                     output_expr, output_rowlen, NULL, work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc,
                     down, up, num_buffers, buffer_size),
@@ -85,7 +85,7 @@ int ComTdbExeUtilDisplayExplain::unpack(void *base, void *reallocator) {
   return ComTdbExeUtil::unpack(base, reallocator);
 }
 
-void ComTdbExeUtilDisplayExplain::displayContents(Space *space, ULng32 flag) {
+void ComTdbExeUtilDisplayExplain::displayContents(Space *space, int flag) {
   ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
   if (flag & 0x00000008) {
@@ -111,9 +111,9 @@ void ComTdbExeUtilDisplayExplain::displayContents(Space *space, ULng32 flag) {
 ///////////////////////////////////////////////////////////////////////////
 ComTdbExeUtilDisplayExplainComplex::ComTdbExeUtilDisplayExplainComplex(
     int explainType, char *qry1, char *qry2, char *qry3, char *qry4, char *objectName, int objectNameLen,
-    ex_expr *input_expr, ULng32 input_rowlen, ex_expr *output_expr, ULng32 output_rowlen, ex_cri_desc *work_cri_desc,
+    ex_expr *input_expr, int input_rowlen, ex_expr *output_expr, int output_rowlen, ex_cri_desc *work_cri_desc,
     const unsigned short work_atp_index, ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
-    queue_index up, int num_buffers, ULng32 buffer_size)
+    queue_index up, int num_buffers, int buffer_size)
     : ComTdbExeUtil(ComTdbExeUtil::DISPLAY_EXPLAIN_COMPLEX_, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, objectName,
                     objectNameLen, input_expr, input_rowlen, output_expr, output_rowlen, NULL, work_cri_desc,
                     work_atp_index, given_cri_desc, returned_cri_desc, down, up, num_buffers, buffer_size),
@@ -147,7 +147,7 @@ int ComTdbExeUtilDisplayExplainComplex::unpack(void *base, void *reallocator) {
   return ComTdbExeUtil::unpack(base, reallocator);
 }
 
-void ComTdbExeUtilDisplayExplainComplex::displayContents(Space *space, ULng32 flag) {
+void ComTdbExeUtilDisplayExplainComplex::displayContents(Space *space, int flag) {
   ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
   if (flag & 0x00000008) {
@@ -226,10 +226,10 @@ void ComTdbExeUtilDisplayExplainComplex::displayContents(Space *space, ULng32 fl
 //
 //////////////////////////////////////////////////////////////////////////
 ComTdbExeUtilMaintainObject::ComTdbExeUtilMaintainObject(
-    char *objectName, ULng32 objectNameLen, char *schemaName, ULng32 schemaNameLen, UInt16 ot, char *parentTableName,
-    ULng32 parentTableNameLen, ex_expr *input_expr, ULng32 input_rowlen, ex_expr *output_expr, ULng32 output_rowlen,
+    char *objectName, int objectNameLen, char *schemaName, int schemaNameLen, UInt16 ot, char *parentTableName,
+    int parentTableNameLen, ex_expr *input_expr, int input_rowlen, ex_expr *output_expr, int output_rowlen,
     ex_cri_desc *work_cri_desc, const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
-    ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers, ULng32 buffer_size)
+    ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers, int buffer_size)
     : ComTdbExeUtil(ComTdbExeUtil::MAINTAIN_OBJECT_, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, objectName, objectNameLen,
                     input_expr, input_rowlen, output_expr, output_rowlen, NULL, work_cri_desc, work_atp_index,
                     given_cri_desc, returned_cri_desc, down, up, num_buffers, buffer_size),
@@ -433,7 +433,7 @@ void ComTdbExeUtilMaintainObject::setControlParams(
   setResetIndexLabelStats(resetIndexLabelStats);
 }
 
-void ComTdbExeUtilMaintainObject::displayContents(Space *space, ULng32 flag) {
+void ComTdbExeUtilMaintainObject::displayContents(Space *space, int flag) {
   ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
   if (flag & 0x00000008) {
@@ -459,9 +459,9 @@ void ComTdbExeUtilMaintainObject::displayContents(Space *space, ULng32 flag) {
 //
 ///////////////////////////////////////////////////////////////////////////
 ComTdbExeUtilLoadVolatileTable::ComTdbExeUtilLoadVolatileTable(
-    char *tableName, ULng32 tableNameLen, char *insertQuery, char *updStatsQuery, Int16 queryCharSet, long threshold,
+    char *tableName, int tableNameLen, char *insertQuery, char *updStatsQuery, Int16 queryCharSet, long threshold,
     ex_cri_desc *work_cri_desc, const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
-    ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers, ULng32 buffer_size)
+    ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers, int buffer_size)
     : ComTdbExeUtil(ComTdbExeUtil::LOAD_VOLATILE_TABLE_, NULL, 0, queryCharSet /*for insertQuery & updStatsQuery*/,
                     tableName, tableNameLen, NULL, 0, NULL, 0, NULL, work_cri_desc, work_atp_index, given_cri_desc,
                     returned_cri_desc, down, up, num_buffers, buffer_size),
@@ -484,7 +484,7 @@ int ComTdbExeUtilLoadVolatileTable::unpack(void *base, void *reallocator) {
   return ComTdbExeUtil::unpack(base, reallocator);
 }
 
-void ComTdbExeUtilLoadVolatileTable::displayContents(Space *space, ULng32 flag) {
+void ComTdbExeUtilLoadVolatileTable::displayContents(Space *space, int flag) {
   ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
   if (flag & 0x00000008) {
@@ -539,9 +539,9 @@ void ComTdbExeUtilLoadVolatileTable::displayContents(Space *space, ULng32 flag) 
 //
 ///////////////////////////////////////////////////////////////////////////
 ComTdbExeUtilCleanupVolatileTables::ComTdbExeUtilCleanupVolatileTables(
-    char *catName, ULng32 catNameLen, ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
+    char *catName, int catNameLen, ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
     ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
-    ULng32 buffer_size)
+    int buffer_size)
     : ComTdbExeUtil(ComTdbExeUtil::CLEANUP_VOLATILE_SCHEMA_, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, catName,
                     catNameLen, NULL, 0, NULL, 0, NULL, work_cri_desc, work_atp_index, given_cri_desc,
                     returned_cri_desc, down, up, num_buffers, buffer_size),
@@ -549,7 +549,7 @@ ComTdbExeUtilCleanupVolatileTables::ComTdbExeUtilCleanupVolatileTables(
   setNodeType(ComTdb::ex_CLEANUP_VOLATILE_TABLES);
 }
 
-void ComTdbExeUtilCleanupVolatileTables::displayContents(Space *space, ULng32 flag) {
+void ComTdbExeUtilCleanupVolatileTables::displayContents(Space *space, int flag) {
   ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
   if (flag & 0x00000008) {
@@ -578,7 +578,7 @@ ComTdbExeUtilGetVolatileInfo::ComTdbExeUtilGetVolatileInfo(char *param1, char *p
                                                            const unsigned short work_atp_index,
                                                            ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc,
                                                            queue_index down, queue_index up, int num_buffers,
-                                                           ULng32 buffer_size)
+                                                           int buffer_size)
     : ComTdbExeUtil(ComTdbExeUtil::GET_VOLATILE_INFO, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, NULL, 0, NULL, 0, NULL, 0,
                     NULL, work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc, down, up, num_buffers,
                     buffer_size),
@@ -600,7 +600,7 @@ int ComTdbExeUtilGetVolatileInfo::unpack(void *base, void *reallocator) {
   return ComTdbExeUtil::unpack(base, reallocator);
 }
 
-void ComTdbExeUtilGetVolatileInfo::displayContents(Space *space, ULng32 flag) {
+void ComTdbExeUtilGetVolatileInfo::displayContents(Space *space, int flag) {
   ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
   if (flag & 0x00000008) {
@@ -628,7 +628,7 @@ void ComTdbExeUtilGetVolatileInfo::displayContents(Space *space, ULng32 flag) {
 ComTdbExeUtilGetErrorInfo::ComTdbExeUtilGetErrorInfo(int errType, int errNum, ex_cri_desc *work_cri_desc,
                                                      const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
                                                      ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
-                                                     int num_buffers, ULng32 buffer_size)
+                                                     int num_buffers, int buffer_size)
     : ComTdbExeUtil(ComTdbExeUtil::GET_ERROR_INFO_, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, NULL, 0, NULL, 0, NULL, 0,
                     NULL, work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc, down, up, num_buffers,
                     buffer_size),
@@ -638,7 +638,7 @@ ComTdbExeUtilGetErrorInfo::ComTdbExeUtilGetErrorInfo(int errType, int errNum, ex
   setNodeType(ComTdb::ex_GET_ERROR_INFO);
 }
 
-void ComTdbExeUtilGetErrorInfo::displayContents(Space *space, ULng32 flag) {
+void ComTdbExeUtilGetErrorInfo::displayContents(Space *space, int flag) {
   ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
   if (flag & 0x00000008) {
@@ -661,12 +661,12 @@ void ComTdbExeUtilGetErrorInfo::displayContents(Space *space, ULng32 flag) {
 // Methods for class ComTdbExeUtilCreateTableAs
 //
 ///////////////////////////////////////////////////////////////////////////
-ComTdbExeUtilCreateTableAs::ComTdbExeUtilCreateTableAs(char *tableName, ULng32 tableNameLen, char *ctQuery,
+ComTdbExeUtilCreateTableAs::ComTdbExeUtilCreateTableAs(char *tableName, int tableNameLen, char *ctQuery,
                                                        char *siQuery, char *viQuery, char *usQuery, long threshold,
                                                        ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
                                                        ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc,
                                                        queue_index down, queue_index up, int num_buffers,
-                                                       ULng32 buffer_size)
+                                                       int buffer_size)
     : ComTdbExeUtil(ComTdbExeUtil::CREATE_TABLE_AS_, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, tableName, tableNameLen,
                     NULL, 0, NULL, 0, NULL, work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc, down, up,
                     num_buffers, buffer_size),
@@ -695,7 +695,7 @@ int ComTdbExeUtilCreateTableAs::unpack(void *base, void *reallocator) {
   return ComTdbExeUtil::unpack(base, reallocator);
 }
 
-void ComTdbExeUtilCreateTableAs::displayContents(Space *space, ULng32 flag) {
+void ComTdbExeUtilCreateTableAs::displayContents(Space *space, int flag) {
   ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
   if (flag & 0x00000008) {
@@ -774,7 +774,7 @@ ComTdbExeUtilGetStatistics::ComTdbExeUtilGetStatistics(char *stmtName, short sta
                                                        short activeQueryNum, ex_cri_desc *work_cri_desc,
                                                        const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
                                                        ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
-                                                       int num_buffers, ULng32 buffer_size, char *host, int port,
+                                                       int num_buffers, int buffer_size, char *host, int port,
                                                        char *path, UInt64 queryHash)
     : ComTdbExeUtil(ComTdbExeUtil::GET_STATISTICS_, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, NULL, 0, NULL, 0, NULL, 0,
                     NULL, work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc, down, up, num_buffers,
@@ -823,7 +823,7 @@ int ComTdbExeUtilGetStatistics::unpack(void *base, void *reallocator) {
   return ComTdbExeUtil::unpack(base, reallocator);
 }
 
-void ComTdbExeUtilGetStatistics::displayContents(Space *space, ULng32 flag) {
+void ComTdbExeUtilGetStatistics::displayContents(Space *space, int flag) {
   ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
   if (flag & 0x00000008) {
@@ -843,7 +843,7 @@ void ComTdbExeUtilGetStatistics::displayContents(Space *space, ULng32 flag) {
   }
 }
 
-void ComTdbExeUtilGetProcessStatistics::displayContents(Space *space, ULng32 flag) {
+void ComTdbExeUtilGetProcessStatistics::displayContents(Space *space, int flag) {
   ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
   if (flag & 0x00000008) {
@@ -870,7 +870,7 @@ void ComTdbExeUtilGetProcessStatistics::displayContents(Space *space, ULng32 fla
 ///////////////////////////////////////////////////////////////////////////
 ComTdbExeUtilGetUID::ComTdbExeUtilGetUID(long uid, ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
                                          ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
-                                         queue_index up, int num_buffers, ULng32 buffer_size)
+                                         queue_index up, int num_buffers, int buffer_size)
     : ComTdbExeUtil(ComTdbExeUtil::GET_UID_, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, NULL, 0, NULL, 0, NULL, 0, NULL,
                     work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc, down, up, num_buffers,
                     buffer_size),
@@ -883,7 +883,7 @@ Long ComTdbExeUtilGetUID::pack(void *space) { return ComTdbExeUtil::pack(space);
 
 int ComTdbExeUtilGetUID::unpack(void *base, void *reallocator) { return ComTdbExeUtil::unpack(base, reallocator); }
 
-void ComTdbExeUtilGetUID::displayContents(Space *space, ULng32 flag) {
+void ComTdbExeUtilGetUID::displayContents(Space *space, int flag) {
   ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
   if (flag & 0x00000008) {
@@ -909,7 +909,7 @@ void ComTdbExeUtilGetUID::displayContents(Space *space, ULng32 flag) {
 ComTdbExeUtilGetQID::ComTdbExeUtilGetQID(char *stmtName, ex_cri_desc *work_cri_desc,
                                          const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
                                          ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
-                                         int num_buffers, ULng32 buffer_size)
+                                         int num_buffers, int buffer_size)
     : ComTdbExeUtil(ComTdbExeUtil::GET_QID_, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, NULL, 0, NULL, 0, NULL, 0, NULL,
                     work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc, down, up, num_buffers,
                     buffer_size),
@@ -930,7 +930,7 @@ int ComTdbExeUtilGetQID::unpack(void *base, void *reallocator) {
   return ComTdbExeUtil::unpack(base, reallocator);
 }
 
-void ComTdbExeUtilGetQID::displayContents(Space *space, ULng32 flag) {
+void ComTdbExeUtilGetQID::displayContents(Space *space, int flag) {
   ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
   if (flag & 0x00000008) {
@@ -957,7 +957,7 @@ ComTdbExeUtilPopulateInMemStats::ComTdbExeUtilPopulateInMemStats(
     long uid, char *inMemHistogramsTableName, char *inMemHistintsTableName, char *sourceTableCatName,
     char *sourceTableSchName, char *sourceTableObjName, char *sourceHistogramsTableName, char *sourceHistintsTableName,
     ex_cri_desc *work_cri_desc, const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
-    ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers, ULng32 buffer_size)
+    ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers, int buffer_size)
     : ComTdbExeUtil(ComTdbExeUtil::POP_IN_MEM_STATS_, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, NULL, 0, NULL, 0, NULL, 0,
                     NULL, work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc, down, up, num_buffers,
                     buffer_size),
@@ -997,7 +997,7 @@ int ComTdbExeUtilPopulateInMemStats::unpack(void *base, void *reallocator) {
   return ComTdbExeUtil::unpack(base, reallocator);
 }
 
-void ComTdbExeUtilPopulateInMemStats::displayContents(Space *space, ULng32 flag) {
+void ComTdbExeUtilPopulateInMemStats::displayContents(Space *space, int flag) {
   ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
   if (flag & 0x00000008) {
@@ -1050,10 +1050,10 @@ void ComTdbExeUtilPopulateInMemStats::displayContents(Space *space, ULng32 flag)
 // Methods for class ComTdbExeUtilAqrWnrInsert
 //
 ///////////////////////////////////////////////////////////////////////////
-ComTdbExeUtilAqrWnrInsert::ComTdbExeUtilAqrWnrInsert(char *tableName, ULng32 tableNameLen, ex_cri_desc *work_cri_desc,
+ComTdbExeUtilAqrWnrInsert::ComTdbExeUtilAqrWnrInsert(char *tableName, int tableNameLen, ex_cri_desc *work_cri_desc,
                                                      const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
                                                      ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
-                                                     int num_buffers, ULng32 buffer_size)
+                                                     int num_buffers, int buffer_size)
     : ComTdbExeUtil(ComTdbExeUtil::AQR_WNR_INSERT_, (char *)eye_AQR_WNR_INS, 0, (Int16)SQLCHARSETCODE_UNKNOWN,
                     tableName, tableNameLen, NULL, 0, NULL, 0, NULL, work_cri_desc, work_atp_index, given_cri_desc,
                     returned_cri_desc, down, up, num_buffers, buffer_size),
@@ -1061,7 +1061,7 @@ ComTdbExeUtilAqrWnrInsert::ComTdbExeUtilAqrWnrInsert(char *tableName, ULng32 tab
   setNodeType(ComTdb::ex_ARQ_WNR_INSERT);
 }
 
-void ComTdbExeUtilAqrWnrInsert::displayContents(Space *space, ULng32 flag) {
+void ComTdbExeUtilAqrWnrInsert::displayContents(Space *space, int flag) {
   ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
   if (flag & 0x00000008) {
@@ -1087,10 +1087,10 @@ void ComTdbExeUtilAqrWnrInsert::displayContents(Space *space, ULng32 flag) {
 // Methods for class ComTdbExeUtilLongRunning
 //
 ///////////////////////////////////////////////////////////////////////////
-ComTdbExeUtilLongRunning::ComTdbExeUtilLongRunning(char *tableName, ULng32 tableNameLen, ex_cri_desc *work_cri_desc,
+ComTdbExeUtilLongRunning::ComTdbExeUtilLongRunning(char *tableName, int tableNameLen, ex_cri_desc *work_cri_desc,
                                                    const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
                                                    ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
-                                                   int num_buffers, ULng32 buffer_size)
+                                                   int num_buffers, int buffer_size)
     : ComTdbExeUtil(ComTdbExeUtil::LONG_RUNNING_, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, tableName, tableNameLen, NULL,
                     0, NULL, 0, NULL, work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc, down, up,
                     num_buffers, buffer_size),
@@ -1138,12 +1138,12 @@ int ComTdbExeUtilLongRunning::unpack(void *base, void *reallocator) {
 void ComTdbExeUtilLongRunning::setPredicate(Space *space, char *predicate) {
   if (predicate != NULL) {
     predicateLen_ = strlen(predicate) - 5;  // skip "WHERE"
-    predicate_ = space->allocateAlignedSpace((ULng32)predicateLen_ + 1);
+    predicate_ = space->allocateAlignedSpace((int)predicateLen_ + 1);
     strcpy(predicate_, &predicate[5]);
   }
 }
 
-void ComTdbExeUtilLongRunning::displayContents(Space *space, ULng32 flag) {
+void ComTdbExeUtilLongRunning::displayContents(Space *space, int flag) {
   ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
   if (flag & 0x00000008) {
@@ -1173,7 +1173,7 @@ ComTdbExeUtilGetMetadataInfo::ComTdbExeUtilGetMetadataInfo(QueryType queryType, 
                                                            const unsigned short work_atp_index,
                                                            ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc,
                                                            queue_index down, queue_index up, int num_buffers,
-                                                           ULng32 buffer_size, char *server, char *zkPort)
+                                                           int buffer_size, char *server, char *zkPort)
     : ComTdbExeUtil(ComTdbExeUtil::GET_METADATA_INFO_, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, NULL, 0, NULL, 0, NULL,
                     0, scan_expr, work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc, down, up,
                     num_buffers, buffer_size),
@@ -1213,7 +1213,7 @@ int ComTdbExeUtilGetMetadataInfo::unpack(void *base, void *reallocator) {
   return ComTdbExeUtil::unpack(base, reallocator);
 }
 
-void ComTdbExeUtilGetMetadataInfo::displayContents(Space *space, ULng32 flag) {
+void ComTdbExeUtilGetMetadataInfo::displayContents(Space *space, int flag) {
   ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
   if (flag & 0x00000008) {
@@ -1267,7 +1267,7 @@ void ComTdbExeUtilGetMetadataInfo::displayContents(Space *space, ULng32 flag) {
 ComTdbExeUtilShowSet::ComTdbExeUtilShowSet(UInt16 type, char *param1, char *param2, ex_cri_desc *work_cri_desc,
                                            const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
                                            ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
-                                           int num_buffers, ULng32 buffer_size)
+                                           int num_buffers, int buffer_size)
     : ComTdbExeUtil(ComTdbExeUtil::SHOW_SET_, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, NULL, 0, NULL, 0, NULL, 0, NULL,
                     work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc, down, up, num_buffers,
                     buffer_size),
@@ -1290,7 +1290,7 @@ int ComTdbExeUtilShowSet::unpack(void *base, void *reallocator) {
   return ComTdbExeUtil::unpack(base, reallocator);
 }
 
-void ComTdbExeUtilShowSet::displayContents(Space *space, ULng32 flag) {
+void ComTdbExeUtilShowSet::displayContents(Space *space, int flag) {
   ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
   if (flag & 0x00000008) {
@@ -1311,7 +1311,7 @@ void ComTdbExeUtilShowSet::displayContents(Space *space, ULng32 flag) {
 //
 ///////////////////////////////////////////////////////////////////////////
 ComTdbExeUtilAQR::ComTdbExeUtilAQR(int task, ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc,
-                                   queue_index down, queue_index up, int num_buffers, ULng32 buffer_size)
+                                   queue_index down, queue_index up, int num_buffers, int buffer_size)
     : ComTdbExeUtil(ComTdbExeUtil::AQR_, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, NULL, 0, NULL, 0, NULL, 0, NULL, NULL,
                     0, given_cri_desc, returned_cri_desc, down, up, num_buffers, buffer_size),
       task_(task),
@@ -1323,7 +1323,7 @@ Long ComTdbExeUtilAQR::pack(void *space) { return ComTdbExeUtil::pack(space); }
 
 int ComTdbExeUtilAQR::unpack(void *base, void *reallocator) { return ComTdbExeUtil::unpack(base, reallocator); }
 
-void ComTdbExeUtilAQR::displayContents(Space *space, ULng32 flag) {
+void ComTdbExeUtilAQR::displayContents(Space *space, int flag) {
   ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
   if (flag & 0x00000008) {
@@ -1341,12 +1341,12 @@ void ComTdbExeUtilAQR::displayContents(Space *space, ULng32 flag) {
 //*********************************************
 // ComTdbExeUtilHBaseBulkLoad
 //********************************************
-ComTdbExeUtilHBaseBulkLoad::ComTdbExeUtilHBaseBulkLoad(char *tableName, ULng32 tableNameLen, char *ldStmtStr,
-                                                       ex_expr_base *input_expr, ULng32 input_rowlen,
+ComTdbExeUtilHBaseBulkLoad::ComTdbExeUtilHBaseBulkLoad(char *tableName, int tableNameLen, char *ldStmtStr,
+                                                       ex_expr_base *input_expr, int input_rowlen,
                                                        ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
                                                        ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc,
                                                        queue_index down, queue_index up, int num_buffers,
-                                                       ULng32 buffer_size, char *errCountTab, char *loggingLoc)
+                                                       int buffer_size, char *errCountTab, char *loggingLoc)
     : ComTdbExeUtil(ComTdbExeUtil::HBASE_LOAD_, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, tableName, tableNameLen,
                     input_expr, input_rowlen, NULL, 0, NULL, work_cri_desc, work_atp_index, given_cri_desc,
                     returned_cri_desc, down, up, num_buffers, buffer_size),
@@ -1374,7 +1374,7 @@ int ComTdbExeUtilHBaseBulkLoad::unpack(void *base, void *reallocator) {
   if (sampleTableName_.unpack(base)) return -1;
   return ComTdbExeUtil::unpack(base, reallocator);
 }
-void ComTdbExeUtilHBaseBulkLoad::displayContents(Space *space, ULng32 flag) {
+void ComTdbExeUtilHBaseBulkLoad::displayContents(Space *space, int flag) {
   ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
   if (flag & 0x00000008) {
@@ -1423,11 +1423,11 @@ void ComTdbExeUtilHBaseBulkLoad::displayContents(Space *space, ULng32 flag) {
 }
 
 ComTdbExeUtilRegionStats::ComTdbExeUtilRegionStats(char *tableName, char *catName, char *schName, char *objName,
-                                                   ex_expr_base *input_expr, ULng32 input_rowlen,
+                                                   ex_expr_base *input_expr, int input_rowlen,
                                                    ex_expr_base *scan_expr, ex_cri_desc *work_cri_desc,
                                                    const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
                                                    ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
-                                                   int num_buffers, ULng32 buffer_size)
+                                                   int num_buffers, int buffer_size)
     : ComTdbExeUtil(ComTdbExeUtil::REGION_STATS_, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, tableName, strlen(tableName),
                     input_expr, input_rowlen, NULL, 0, scan_expr, work_cri_desc, work_atp_index, given_cri_desc,
                     returned_cri_desc, down, up, num_buffers, buffer_size),
@@ -1459,11 +1459,11 @@ int ComTdbExeUtilRegionStats::unpack(void *base, void *reallocator) {
 // by default, the max number of rows to return for hierachy query
 #define MAX_ROW_NUM 100000
 ComTdbExeUtilConnectby::ComTdbExeUtilConnectby(
-    char *query, ULng32 querylen, Int16 querycharset, char *tableName, Int16 tblNameLen, char *stmtName,
-    ex_expr *input_expr, ULng32 input_rowlen, ex_expr *output_expr, ULng32 output_rowlen, ex_expr *scan_expr,
+    char *query, int querylen, Int16 querycharset, char *tableName, Int16 tblNameLen, char *stmtName,
+    ex_expr *input_expr, int input_rowlen, ex_expr *output_expr, int output_rowlen, ex_expr *scan_expr,
     ex_cri_desc *work_cri_desc, const unsigned short work_atp_index, int colDescSize, int outputRowSize,
     ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
-    ULng32 buffer_size, ExCriDescPtr workCriDesc, ex_expr *startwith_expr)
+    int buffer_size, ExCriDescPtr workCriDesc, ex_expr *startwith_expr)
     : ComTdbExeUtil(ComTdbExeUtil::CONNECT_BY_, query, querylen, querycharset, tableName, tblNameLen, input_expr,
                     input_rowlen, output_expr, output_rowlen, scan_expr, work_cri_desc, work_atp_index, given_cri_desc,
                     returned_cri_desc, down, up, num_buffers, buffer_size),
@@ -1500,7 +1500,7 @@ ComTdbExeUtilCompositeUnnest::ComTdbExeUtilCompositeUnnest(
     UInt16 elemNumAtpIndex, UInt32 elemNumLen, ex_expr *returnColsExpr, UInt16 returnColsAtpIndex,
     UInt32 returnColsRowLen, ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
     ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
-    ULng32 buffer_size)
+    int buffer_size)
     : ComTdbExeUtil(ComTdbExeUtil::COMPOSITE_UNNEST_, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, NULL, 0, NULL, 0, NULL, 0,
                     scanExpr, work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc, down, up, num_buffers,
                     buffer_size),
@@ -1554,11 +1554,11 @@ const char *ComTdbExeUtilCompositeUnnest::getExpressionName(int pos) const {
 //*********************************************
 // ComTdbExeUtilUpdataDelete
 //********************************************
-ComTdbExeUtilUpdataDelete::ComTdbExeUtilUpdataDelete(char *tableName, ULng32 tableNameLen, char *ldStmtStr,
+ComTdbExeUtilUpdataDelete::ComTdbExeUtilUpdataDelete(char *tableName, int tableNameLen, char *ldStmtStr,
                                                      ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
                                                      ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc,
                                                      queue_index down, queue_index up, int num_buffers,
-                                                     ULng32 buffer_size, ComStorageType storageType, char *server,
+                                                     int buffer_size, ComStorageType storageType, char *server,
                                                      char *zkPort)
     : ComTdbExeUtil(ComTdbExeUtil::SNAPSHOT_UPDATE_DELETE_, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, tableName,
                     tableNameLen, NULL, 0, NULL, 0, NULL, work_cri_desc, work_atp_index, given_cri_desc,
@@ -1589,7 +1589,7 @@ int ComTdbExeUtilUpdataDelete::unpack(void *base, void *reallocator) {
   return ComTdbExeUtil::unpack(base, reallocator);
 }
 
-void ComTdbExeUtilUpdataDelete::displayContents(Space *space, ULng32 flag) {
+void ComTdbExeUtilUpdataDelete::displayContents(Space *space, int flag) {
   ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
   if (flag & 0x00000008) {

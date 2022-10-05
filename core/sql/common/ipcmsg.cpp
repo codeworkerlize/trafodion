@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -204,7 +183,7 @@ WaitReturnStatus GuaMsgConnectionToServer::wait(IpcTimeout timeout, UInt32 *even
   direct_globals_template *pfsptr;
   fs2_get_pfsaddr((Long *)&pfsptr);
 
-  if ((ULng32)(openFile_) >= (ULng32)(pfsptr->numftentries)) {
+  if ((int)(openFile_) >= (int)(pfsptr->numftentries)) {
     // If this connection is not open, there can be nothing to wait on.
     // Return an error in this case to indicate that this is an inappropriate
     // call. Do no wait on this connection again.
@@ -395,7 +374,7 @@ WaitReturnStatus GuaMsgConnectionToServer::wait(IpcTimeout timeout, UInt32 *even
       cleanUpActiveIOEntry(entry);
 
       // get # of bytes written in reply
-      ULng32 countRead = (ULng32)results.rr_dataSize;
+      int countRead = (int)results.rr_dataSize;
 
       // Now try to figure out what the original operation was, so
       // we know what to do with the IpcMessageBuffer:
@@ -843,7 +822,7 @@ NABoolean GuaMsgConnectionToServer::tryToStartNewIO() {
 
   // check that the file is actually open, i.e., that this is a valid
   // filenum.
-  if ((ULng32)(openFile_) >= (ULng32)(pfsptr->numftentries)) {
+  if ((int)(openFile_) >= (int)(pfsptr->numftentries)) {
     GuardianError = FENOTOPEN;
   } else
     acb = (acb_standard_template *)pfsptr->file_table[openFile_];
@@ -1319,7 +1298,7 @@ void GuaMsgConnectionToServer::putMsgIdinACB(UInt32 msgid) {
   acb_reqptr->mid.acb_mid = msgid;
   if (acb_reqptr->tub.acb_tubaddr != 0)
      acb_reqptr->tub.acb_tub->pending_count = 
-            (ULng32)(acb_reqptr->tub.acb_tub->pending_count) + 1u;
+            (int)(acb_reqptr->tub.acb_tub->pending_count) + 1u;
 #endif
 }
 
@@ -1370,7 +1349,7 @@ void GuaMsgConnectionToServer::resetAfterReply(UInt32 msgid, short error, long *
   
   if (acb_reqptr->tub.acb_tubaddr != 0)
      acb_reqptr->tub.acb_tub->pending_count = 
-            (ULng32)(acb_reqptr->tub.acb_tub->pending_count) - 1u;
+            (int)(acb_reqptr->tub.acb_tub->pending_count) - 1u;
  
   //decrement the numreqs
   acb->acb_numreqs = acb->acb_numreqs - 1;
@@ -1587,7 +1566,7 @@ short GuaMsgConnectionToServer::addressWire(ActiveIOQueueEntry &entry, short wir
   } else {
     // write buffer is only used by a single connection
     // entry.buffer_ = entry.readBuffer_ = send buffer
-    ULng32 maxDataBufferLength = MAXOF(entry.receiveBufferSizeLeft_, entry.bytesSent_);
+    int maxDataBufferLength = MAXOF(entry.receiveBufferSizeLeft_, entry.bytesSent_);
     GuardianError =
         ADDRESS_WIRE_((unsigned char *)entry.buffer_->data(entry.offset_), maxDataBufferLength, wireOptions);
     if (GuardianError) return GuardianError;
@@ -1634,7 +1613,7 @@ void GuaMsgConnectionToServer::addressUnwire(ActiveIOQueueEntry &entry) {
   } else {
     // write buffer is only used by a single connection
     // entry.buffer_ = entry.readBuffer_ = send buffer
-    ULng32 maxDataBufferLength = MAXOF(entry.receiveBufferSizeLeft_, entry.bytesSent_);
+    int maxDataBufferLength = MAXOF(entry.receiveBufferSizeLeft_, entry.bytesSent_);
     ADDRESS_UNWIRE_((unsigned char *)entry.buffer_->data(entry.offset_), maxDataBufferLength, wireOptions);
   }
 

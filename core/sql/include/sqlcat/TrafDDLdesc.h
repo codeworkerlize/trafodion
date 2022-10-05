@@ -1,26 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-//
-**********************************************************************/
+
 #ifndef TRAF_DDL_DESC_H
 #define TRAF_DDL_DESC_H
 
@@ -324,7 +302,7 @@ class TrafColumnsDesc : public TrafDesc {
   Int16 /*CharInfo::CharSet*/ encoding_charset;
   Int16 /*CharInfo::Collation*/ collation_sequence;
 
-  ULng32 hbaseColFlags;
+  int hbaseColFlags;
   Int16 /*ComParamDirection*/ paramDirection_;
   char colclass;  // 'S' -- system generated, 'U' -- user created
   char filler0;

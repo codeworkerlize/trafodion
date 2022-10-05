@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -169,13 +148,13 @@ class CmpSPOutputFormat : public NABasicObject {
 class CmpSPExecDataItem : public NABasicObject {
  public:
   // Construct the CmpSPExecDataItem from expr and data
-  CmpSPExecDataItem(ULng32 exprSize, void *expr, ULng32 dataSize, void *data, CmpContext *context);
+  CmpSPExecDataItem(int exprSize, void *expr, int dataSize, void *data, CmpContext *context);
   virtual ~CmpSPExecDataItem();
   friend ostream &operator<<(ostream &, const CmpSPExecDataItem &);
 
-  ULng32 exprSize() { return exprSize_; }
+  int exprSize() { return exprSize_; }
   void *&expr() { return expr_; }
-  ULng32 dataSize() { return dataSize_; }
+  int dataSize() { return dataSize_; }
   void *data() { return data_; }
 
   ComDiagsArea *SPFuncsDiags() { return SPFuncsDiags_; }
@@ -183,9 +162,9 @@ class CmpSPExecDataItem : public NABasicObject {
   CollHeap *wHeap();
 
  protected:
-  ULng32 exprSize_;
+  int exprSize_;
   void *expr_;
-  ULng32 dataSize_;
+  int dataSize_;
   void *data_;
   // The ComDiagsArea used in the expr->data conversion routines,
   // It is used locally in CmpSPExtractFunc_ and CmpSPFormatFunc_.
@@ -213,7 +192,7 @@ class CmpSPExecDataItemInput : public CmpSPExecDataItem {
   // In the constructor, the input data will be
   // . prepared : i.e. unpacked, since it was packed by executor before sent.
   // . positioned to the first row.
-  CmpSPExecDataItemInput(ULng32 exprSize, void *expr, ULng32 dataSize, void *data, CmpContext *context);
+  CmpSPExecDataItemInput(int exprSize, void *expr, int dataSize, void *data, CmpContext *context);
   virtual ~CmpSPExecDataItemInput();
 
   // advance the current buffer data() for one tuple,
@@ -224,20 +203,20 @@ class CmpSPExecDataItemInput : public CmpSPExecDataItem {
 
   // extract certain field of data from current row
   // returns 0 if success, non 0 if failed.
-  short extract(ULng32 num, char *data, ULng32 datalen, NABoolean casting, ComDiagsArea *diags) {
+  short extract(int num, char *data, int datalen, NABoolean casting, ComDiagsArea *diags) {
     return ExSPExtractInputValue(expr(), num, currentRow(), data, datalen, casting, diags);
   }
 
   // methods to retrieve private members
   void *control() { return control_; }
   char *currentRow() { return currentRow_; }
-  ULng32 rowLength() { return rowLength_; }
+  int rowLength() { return rowLength_; }
 
  private:
   // private members
 
   char *currentRow_;
-  ULng32 rowLength_;
+  int rowLength_;
   void *control_;
 
   CmpSPExecDataItemInput(const CmpSPExecDataItemInput &);
@@ -253,7 +232,7 @@ class CmpSPExecDataItemReply : public CmpSPExecDataItem {
   //   away ( i.e. pointer owned by other routine ) to avoid copying. so it needs
   //   to come from the heap as specified.
   // . initialized to the executor expected format
-  CmpSPExecDataItemReply(ULng32 exprSize, void *expr, ULng32 dataRowSize, ULng32 dataTotalSize,
+  CmpSPExecDataItemReply(int exprSize, void *expr, int dataRowSize, int dataTotalSize,
                          CmpSPExecDataItemInput *inputData, CollHeap *outHeap, CmpContext *context);
   virtual ~CmpSPExecDataItemReply();
 
@@ -263,7 +242,7 @@ class CmpSPExecDataItemReply : public CmpSPExecDataItem {
 
   // put certain field of data into output data row
   // returns 0 if success, non 0 if failed.
-  short moveOutput(ULng32 num, char *data, ULng32 datalen, NABoolean casting, ComDiagsArea *diags) {
+  short moveOutput(int num, char *data, int datalen, NABoolean casting, ComDiagsArea *diags) {
     return ExSPMoveOutputValue(expr(), num, (char *)rowBuffer_, data, datalen, casting, diags, wHeap());
   }
 
@@ -274,7 +253,7 @@ class CmpSPExecDataItemReply : public CmpSPExecDataItem {
   ComDiagsArea &diags() { return diags_; }
 
   // methods to get the private members
-  ULng32 rowLength() { return rowLength_; }
+  int rowLength() { return rowLength_; }
   void *rowBuffer() { return rowBuffer_; }
 
   // The following routines move the interter rowBuffer_ or diags_ into data_ buffer to be
@@ -300,7 +279,7 @@ class CmpSPExecDataItemReply : public CmpSPExecDataItem {
     data_ = 0;
     return ret;
   }
-  void allocateData(ULng32 size);
+  void allocateData(int size);
 
  private:
   // private members
@@ -310,7 +289,7 @@ class CmpSPExecDataItemReply : public CmpSPExecDataItem {
 
   CmpSPExecDataItemInput *inputData_;  // pointer to the input data that passed in to generate
                                        // this reply data.
-  ULng32 rowLength_;                   // the length of each row, either calculated from expression,
+  int rowLength_;                   // the length of each row, either calculated from expression,
                                        // or passed in from executor.
   // in the processing routines, open(), fetch() and close() the following output buffer
   // and diags_ are passed in to the built-in SP for output and being moved into the data_

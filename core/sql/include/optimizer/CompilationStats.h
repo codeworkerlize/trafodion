@@ -65,15 +65,15 @@ class CompilationStats {
   void getCompilerId(char *cmpId, int len);
   //
   // metadata cache counters
-  ULng32 metadataCacheHits();
-  ULng32 metadataCacheLookups();
+  int metadataCacheHits();
+  int metadataCacheLookups();
   //
   // See QCacheState enum
   int getQueryCacheState();
   //
   // histogram counters
-  ULng32 histogramCacheHits();
-  ULng32 histogramCacheLookups();
+  int histogramCacheHits();
+  int histogramCacheLookups();
   //
   // statement heap
   static inline size_t stmtHeapCurrentSize() { return CmpCommon::statementHeap()->getAllocSize(); }
@@ -87,7 +87,7 @@ class CompilationStats {
   // optimization contexts
   void incrOptContexts();
 
-  ULng32 optimizationContexts();
+  int optimizationContexts();
 
   // is recompile
   void setIsRecompile();
@@ -133,15 +133,15 @@ class CompilationStats {
   TaskMonitor cpuMonitor_[CMP_NUM_PHASES];
   //
   // metadata cache counters
-  ULng32 mdCacheHitsBegin_;
-  ULng32 mdCacheLookupsBegin_;
+  int mdCacheHitsBegin_;
+  int mdCacheLookupsBegin_;
   //
   // histogram cache counters
-  ULng32 hCacheHitsBegin_;
-  ULng32 hCacheLookupsBegin_;
+  int hCacheHitsBegin_;
+  int hCacheLookupsBegin_;
   //
   // optimization tasks/contexts counters
-  ULng32 optContexts_;
+  int optContexts_;
   //
   // is this query a recompile
   NABoolean isRecompile_;

@@ -169,7 +169,7 @@ TxnRollbackModeItem::TxnRollbackModeItem(TransMode::RollbackMode rb)
 TxnAutoabortIntervalItem::TxnAutoabortIntervalItem(int val)
     : autoabortInterval_(val), ItemExpr(ITM_SET_TRANS_AUTOABORT_INTERVAL) {}
 
-TxnMultiCommitItem::TxnMultiCommitItem(ULng32 val, NABoolean mc)
+TxnMultiCommitItem::TxnMultiCommitItem(int val, NABoolean mc)
     : multiCommitSize_(val), ItemExpr(ITM_SET_TRANS_MULTI_COMMIT) {
   if (mc == TRUE)
     multiCommit_ = TransMode::MC_ON_;

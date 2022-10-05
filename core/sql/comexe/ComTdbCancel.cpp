@@ -48,7 +48,7 @@ int ComTdbCancel::unpack(void *base, void *reallocator) {
   return ComTdb::unpack(base, reallocator);
 }
 
-void ComTdbCancel::displayContents(Space *space, ULng32 flag) {
+void ComTdbCancel::displayContents(Space *space, int flag) {
   ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
   if (flag & 0x00000008) {

@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 **************************************************************************
 *
@@ -56,7 +35,7 @@ NAString LiteralFloat("FLOAT");
 NAString LiteralReal("REAL");
 NAString LiteralDoublePrecision("DOUBLE PRECISION");
 
-static void unsignedLongToAscii(ULng32 number, char *asciiString, NABoolean prefixWithAMinus = FALSE) {
+static void unsignedLongToAscii(int number, char *asciiString, NABoolean prefixWithAMinus = FALSE) {
   int index = 0;
 
   do  // generate digits in the reverse order
@@ -85,7 +64,7 @@ static void signedLongToAscii(int number, char *asciiString) {
   if (sign < 0)        // record sign
     number = -number;  // make it a positive number
 
-  unsignedLongToAscii((ULng32)number, asciiString, (sign < 0));
+  unsignedLongToAscii((int)number, asciiString, (sign < 0));
 }  // signedLongToAscii()
 
 // inserts the scale indicator dot ('.') in str
@@ -1000,7 +979,7 @@ SQLInt::SQLInt(NAMemory *heap, NABoolean allowNegValues, NABoolean allowSQLnull)
 
 double SQLInt::encode(void *bufPtr) const {
   int tempValue;
-  ULng32 usTempValue;
+  int usTempValue;
   char *valPtr = (char *)bufPtr;
   if (supportsSQLnull()) valPtr += getSQLnullHdrSize();
 
@@ -1017,7 +996,7 @@ void SQLInt::minRepresentableValue(void *bufPtr, int *bufLen, NAString **stringL
   assert(*bufLen >= sizeof(int));
   // To generate a printable string for the minimum value
   char nameBuf[NAME_BUF_LEN];  // 2 ** 32 == 4294967296. Need space for 10 digits only
-  ULng32 temp;
+  int temp;
   *bufLen = sizeof(int);
   if (NumericType::isUnsigned()) {
     temp = 0;
@@ -1049,7 +1028,7 @@ void SQLInt::maxRepresentableValue(void *bufPtr, int *bufLen, NAString **stringL
   char nameBuf[NAME_BUF_LEN];  // 2 ** 32 == 4294967296. Need space for 10 digits only
   *bufLen = sizeof(int);
   if (NumericType::isUnsigned()) {
-    ULng32 temp = UINT_MAX;
+    int temp = UINT_MAX;
     for (int i = 0; i < getNominalSize(); i++) {
       ((char *)bufPtr)[i] = ((char *)&temp)[i];
     }
@@ -1074,7 +1053,7 @@ NAString *SQLInt::convertToString(double v, CollHeap *h) const {
   char nameBuf[NAME_BUF_LEN];  // 2 ** 32 == 4294967296. Need space for 10 digits only
 
   if (NumericType::isUnsigned()) {
-    ULng32 temp = (ULng32)v;
+    int temp = (int)v;
     unsignedLongToAscii(temp, nameBuf);
   } else {
     int temp = (int)v;
@@ -1207,7 +1186,7 @@ SQLNumeric::SQLNumeric(NAMemory *heap, NABoolean allowNegValues, int precision, 
 
 double SQLNumeric::encode(void *bufPtr) const {
   int longTemp;
-  ULng32 usLongTemp;
+  int usLongTemp;
   short shrtTemp;
   unsigned short usShrtTemp;
   Int8 charTemp;
@@ -1476,7 +1455,7 @@ double SQLNumeric::getNormalizedValue(void *buf) const {
     } break;
     case sizeof(int): {
       if (isUnsigned())
-        val = (double)(*(ULng32 *)buf);
+        val = (double)(*(int *)buf);
       else
         val = (double)(*(int *)buf);
     } break;

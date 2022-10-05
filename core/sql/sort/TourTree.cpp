@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ******************************************************************************
 *
@@ -67,7 +46,7 @@
 //
 //----------------------------------------------------------------------
 
-Tree::Tree(ULng32 numruns, ULng32 runsize, ULng32 recsize, NABoolean doNotAllocRec, ULng32 keysize,
+Tree::Tree(int numruns, int runsize, int recsize, NABoolean doNotAllocRec, int keysize,
            SortScratchSpace *scratch, CollHeap *heap, SortError *sorterror, int explainNodeId, ExBMOStats *bmoStats,
            SortUtil *sortUtil, int runnum, NABoolean merge, NABoolean waited)
     : SortAlgo(runsize, recsize, doNotAllocRec, keysize, scratch, explainNodeId, bmoStats),
@@ -77,7 +56,7 @@ Tree::Tree(ULng32 numruns, ULng32 runsize, ULng32 recsize, NABoolean doNotAllocR
       sortError_(sorterror),
       heap_(heap),
       sortUtil_(sortUtil) {
-  ULng32 nodenum;
+  int nodenum;
   numRuns_ = numruns;
 
   if (!scratch_) {
@@ -111,7 +90,7 @@ Tree::~Tree(void) {
   //----------------------------------------------------------------------
   // delete the root record
   //----------------------------------------------------------------------
-  ULng32 nodenum;
+  int nodenum;
   if (rootNode_ != NULL) {
     for (nodenum = 0; nodenum < numRuns_; nodenum++) rootNode_[nodenum].deallocate();
     heap_->deallocateMemory((void *)rootNode_);
@@ -163,7 +142,7 @@ Tree::~Tree(void) {
 void Tree::determineNewWinner() {
   TreeNode *temp1, *temp2;
   NABoolean foundNewWinner = FALSE_L;
-  ULng32 temp1Run = 0L;
+  int temp1Run = 0L;
   temp1 = winner_->getFe();
   short r = 0;
 
@@ -202,7 +181,7 @@ RESULT Tree::outputWinnerToScr(void) {
   return status;
 }
 
-int Tree::sortReceive(void *rec, ULng32 &len) {
+int Tree::sortReceive(void *rec, int &len) {
   int retcode = SORT_SUCCESS;
 
   //-----------------------------------------------------------------
@@ -258,7 +237,7 @@ int Tree::sortReceive(void *rec, ULng32 &len) {
       len = winner_->record()->getRecSize();  // should be actual length instead??? from record??
     }
 
-    ULng32 len2 = recSize_;
+    int len2 = recSize_;
     retcode =
         winner_->inputScr(keySize_, recSize_, scratch_, len2, FALSE, sortUtil_->config()->numberOfBytesForRecordSize());
 
@@ -330,7 +309,7 @@ int Tree::generateInterRuns() {
 
     if (winnerRun_) {
       memcpy(keyOfLastWinner_, winner_->getKey(), keySize_);
-      ULng32 rSize = recSize_;
+      int rSize = recSize_;
       if (sortUtil_->config()->resizeCifRecord()) {
         rSize = winner_->record()->getRecSize();
       }
@@ -341,7 +320,7 @@ int Tree::generateInterRuns() {
       }
     }
 
-    ULng32 actRecLen = recSize_;
+    int actRecLen = recSize_;
     retcode = winner_->inputScr(keySize_, recSize_, scratch_, actRecLen, TRUE_L,
                                 sortUtil_->config()->numberOfBytesForRecordSize());
 
@@ -384,7 +363,7 @@ int Tree::sortSendEnd() {
   }
 }
 
-int Tree::sortSend(void *rec, ULng32 len, void *tupp) {
+int Tree::sortSend(void *rec, int len, void *tupp) {
   ex_assert(rec != NULL, "Tree::sortSend, rec is NULL");
 
   if (winnerRun_ != currentRun_) {
@@ -419,7 +398,7 @@ int Tree::sortSend(void *rec, ULng32 len, void *tupp) {
   return SORT_SUCCESS;
 }
 
-int Tree::sortReceive(void *&rec, ULng32 &len, void *&tupp) {
+int Tree::sortReceive(void *&rec, int &len, void *&tupp) {
   // Dummy function. Currently only QuickSort is used for internal sort.
   return SORT_SUCCESS;
 }

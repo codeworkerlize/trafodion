@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef RELSCAN_H
 #define RELSCAN_H
 /* -*-C++-*-
@@ -522,8 +501,8 @@ class Scan : public RelExpr {
   void clusterSize(int cs) { clusterSize_ = cs; };
   NABoolean isClusterSampling() const { return clusterSize_ > 0; };
 
-  ULng32 scanFlags() const { return scanFlags_; };
-  void setScanFlags(ULng32 f) { scanFlags_ = f; };
+  int scanFlags() const { return scanFlags_; };
+  void setScanFlags(int f) { scanFlags_ = f; };
 
   NABoolean noSecurityCheck() { return (scanFlags_ & NO_SECURITY_CHECK) != 0; }
   void setNoSecurityCheck(NABoolean v) { (v ? scanFlags_ |= NO_SECURITY_CHECK : scanFlags_ &= ~NO_SECURITY_CHECK); }
@@ -772,7 +751,7 @@ class Scan : public RelExpr {
   NABoolean isGrpbyScan_;
 
   // see enum ScanFlags
-  ULng32 scanFlags_;
+  int scanFlags_;
 
   // QSTUFF
   NABoolean embeddedUpdateOrDelete_;
@@ -1306,13 +1285,13 @@ class HbaseAccess : public FileScan {
 
   static short genRowIdExpr(Generator *generator, const NAColumnArray &keyColumns, NAList<HbaseSearchKey *> &searchKeys,
                             ex_cri_desc *work_cri_desc, const int work_atp, const int rowIdAsciiTuppIndex,
-                            const int rowIdTuppIndex, ULng32 &rowIdAsciiRowLen, ExpTupleDesc *&rowIdAsciiTupleDesc,
+                            const int rowIdTuppIndex, int &rowIdAsciiRowLen, ExpTupleDesc *&rowIdAsciiTupleDesc,
                             UInt32 &rowIdLength, ex_expr *&rowIdExpr, NABoolean encodeKeys);
 
   static short genRowIdExprForNonSQ(Generator *generator, const NAColumnArray &keyColumns,
                                     NAList<HbaseSearchKey *> &searchKeys, ex_cri_desc *work_cri_desc,
                                     const int work_atp, const int rowIdAsciiTuppIndex, const int rowIdTuppIndex,
-                                    ULng32 &rowIdAsciiRowLen, ExpTupleDesc *&rowIdAsciiTupleDesc, UInt32 &rowIdLength,
+                                    int &rowIdAsciiRowLen, ExpTupleDesc *&rowIdAsciiTupleDesc, UInt32 &rowIdLength,
                                     ex_expr *&rowIdExpr);
 
   static short genListsOfRows(Generator *generator, NAList<HbaseRangeRows> &listOfRangeRows,
@@ -1471,7 +1450,7 @@ class Describe : public Scan {
   // --------------------------------------------------------------------------
 
   Describe(char *originalQuery, const CorrName &describedTableName, Format format = SHOWDDL_,
-           ComAnsiNameSpace labelAnsiNameSpace = COM_TABLE_NAME, ULng32 flags = 0, NABoolean header = TRUE)
+           ComAnsiNameSpace labelAnsiNameSpace = COM_TABLE_NAME, int flags = 0, NABoolean header = TRUE)
       : Scan(REL_DESCRIBE),
         describedTableName_(describedTableName, CmpCommon::statementHeap()),
         pUUDFName_(NULL),
@@ -1494,7 +1473,7 @@ class Describe : public Scan {
       originalQuery_ = NULL;
   }
 
-  Describe(char *originalQuery, const SchemaName &schemaName, Format format = SHOWDDL_, ULng32 flags = 0,
+  Describe(char *originalQuery, const SchemaName &schemaName, Format format = SHOWDDL_, int flags = 0,
            NABoolean header = TRUE)
       : Scan(REL_DESCRIBE),
         describedTableName_("", CmpCommon::statementHeap()),
@@ -1530,7 +1509,7 @@ class Describe : public Scan {
   }
   // constructor used for SHOWDDL USER and SHOWDDL ROLE
   Describe(char *originalQuery, ComIdClass typeIDClass, const NAString &typeIDName, Format format = SHOWDDL_,
-           ULng32 flags = 0, NABoolean header = TRUE)
+           int flags = 0, NABoolean header = TRUE)
       : Scan(REL_DESCRIBE),
         describedTableName_("", CmpCommon::statementHeap()),
         pUUDFName_(NULL),
@@ -1556,7 +1535,7 @@ class Describe : public Scan {
   }
 
   // constructor used for SHOWDDL USER and SHOWDDL ROLE
-  Describe(char *originalQuery, const NAString &componentName, Format format = SHOWDDL_, ULng32 flags = 0,
+  Describe(char *originalQuery, const NAString &componentName, Format format = SHOWDDL_, int flags = 0,
            NABoolean header = TRUE)
       : Scan(REL_DESCRIBE),
         describedTableName_("", CmpCommon::statementHeap()),
@@ -1660,8 +1639,8 @@ class Describe : public Scan {
 
   NABoolean getIsControl() const { return ((getFormat() >= CONTROL_FIRST_) && (getFormat() <= CONTROL_LAST_)); }
 
-  ULng32 getFlags() const { return flags_; }
-  void setFlags(const ULng32 flags) { flags_ = flags; }
+  int getFlags() const { return flags_; }
+  void setFlags(const int flags) { flags_ = flags; }
 
   NABoolean getHeader() const { return header_; }
 
@@ -1733,7 +1712,7 @@ class Describe : public Scan {
   // used for SHOWLABEL
   ComAnsiNameSpace labelAnsiNameSpace_;
 
-  ULng32 flags_;
+  int flags_;
 
   NABoolean header_;
   NABoolean isSchema_;

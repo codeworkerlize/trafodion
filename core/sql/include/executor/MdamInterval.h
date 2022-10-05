@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef MDAMINTERVAL_H
 #define MDAMINTERVAL_H
 /* -*-C++-*-
@@ -91,7 +70,7 @@ class MdamInterval {
   void operator delete(void *);
 
   // Determines if a value is contained within this interval.
-  NABoolean contains(const ULng32 keyLen, const char *v) const;
+  NABoolean contains(const int keyLen, const char *v) const;
 
   // Create the Reference list for an interval.  The new reference list is
   // a copy of the reference list associated with interval1Ptr.  disjunctNum
@@ -106,7 +85,7 @@ class MdamInterval {
   // Otherwise, it returns false.  Failure can occur if the begin
   // end point is excluded and incrementing the value results
   // in an error or a value that is outside the interval.
-  NABoolean getFirstValue(const ULng32 keyLen, char *s) const;
+  NABoolean getFirstValue(const int keyLen, char *s) const;
 
   // Const function to get nextMdamIntervalPtr_.
   inline MdamInterval *getNextMdamIntervalPtr() const;
@@ -116,7 +95,7 @@ class MdamInterval {
   // is successful, the function returns true.  Otherwise, it returns
   // false.  Failure can occur if incrementing the value results in an
   // error or a value that is outside the interval.
-  NABoolean getNextValue(const ULng32 keyLen, char *s) const;
+  NABoolean getNextValue(const int keyLen, char *s) const;
 
   // Const function to get the address of the beginning or ending point.
   MdamPoint *getPointPtr(const MdamEnums::MdamEndPointType endPointType);

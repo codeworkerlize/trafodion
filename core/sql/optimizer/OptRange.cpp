@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 
 #include <limits>
 #include <float.h>
@@ -1089,7 +1068,7 @@ ConstValue *OptRangeSpec::reconstituteInt64Value(NAType *type, long val) const {
 
     case NA_DATETIME_TYPE: {
       DatetimeType *dtType = static_cast<DatetimeType *>(type);
-      ULng32 tsFieldValues[DatetimeValue::N_DATETIME_FIELDS];
+      int tsFieldValues[DatetimeValue::N_DATETIME_FIELDS];
       DatetimeValue dtv("", 0);
       switch (dtType->getSubtype()) {
         case DatetimeType::SUBTYPE_SQLDate:
@@ -1115,13 +1094,13 @@ ConstValue *OptRangeSpec::reconstituteInt64Value(NAType *type, long val) const {
           // of microseconds but by the numerator of the fraction having
           // denominator equal to 10^fractionPrecision.
           tsFieldValues[DatetimeValue::FRACTION] =
-              (ULng32)((val % 1000000) / (long)pow(10, 6 - dtType->getFractionPrecision()));
+              (int)((val % 1000000) / (long)pow(10, 6 - dtType->getFractionPrecision()));
           val /= 1000000;
-          tsFieldValues[DatetimeValue::SECOND] = (ULng32)(val % 60);
+          tsFieldValues[DatetimeValue::SECOND] = (int)(val % 60);
           val /= 60;
-          tsFieldValues[DatetimeValue::MINUTE] = (ULng32)(val % 60);
+          tsFieldValues[DatetimeValue::MINUTE] = (int)(val % 60);
           val /= 60;
-          tsFieldValues[DatetimeValue::HOUR] = (ULng32)val;
+          tsFieldValues[DatetimeValue::HOUR] = (int)val;
           dtv.setValue(REC_DATE_HOUR, REC_DATE_SECOND, dtType->getFractionPrecision(), tsFieldValues);
           assertLogAndThrow(CAT_SQL_COMP_RANGE, logLevel_, dtv.isValid(), QRLogicException,
                             "Invalid time value reconstructed from long value");

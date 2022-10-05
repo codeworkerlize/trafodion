@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -233,7 +212,7 @@ ex_split_bottom_tcb::ex_split_bottom_tcb(const ex_split_bottom_tdb &splitBottomT
   workAtp_->getTupp(splitBottomTdb.partInputATPIndex_) = &partInputDataTupp_;
 
   // setup the min/max TUPP that holds the temp. result
-  ULng32 minMaxTuppSpaceNeeded = splitBottomTdb.minMaxRowLength_ + splitBottomTdb.minValStartOffset_;
+  int minMaxTuppSpaceNeeded = splitBottomTdb.minMaxRowLength_ + splitBottomTdb.minValStartOffset_;
 
   minMaxDataTupp_.init(minMaxTuppSpaceNeeded, NULL, new (glob->getSpace()) char[minMaxTuppSpaceNeeded]);
 
@@ -1220,8 +1199,8 @@ ExWorkProcRetcode ex_split_bottom_tcb::workUp() {
 
         if (splitBottomTdb().isMWayRepartition())
           // calculated parent number has to be in the parent number range
-          ex_assert((partNumInfo_.calculatedPartNum_ >= (ULng32)firstParentNum_) &&
-                        (partNumInfo_.calculatedPartNum_ < (ULng32)firstParentNum_ + (ULng32)numOfParentInstances_),
+          ex_assert((partNumInfo_.calculatedPartNum_ >= (int)firstParentNum_) &&
+                        (partNumInfo_.calculatedPartNum_ < (int)firstParentNum_ + (int)numOfParentInstances_),
                     "M-Way repartition sends data outside of the range!");
 
         // data member partNumInfo_.calculatedPartNum_ now contains

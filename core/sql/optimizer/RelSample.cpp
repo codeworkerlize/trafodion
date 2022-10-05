@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ******************************************************************************
 *
@@ -806,7 +785,7 @@ RelExpr *RelSample::bindNode(BindWA *bindWA) {
   RelExpr *myChild = child(0);
   if (myChild->getOperatorType() == REL_SCAN && (static_cast<Scan *>(myChild))->isHbaseTable() &&
       isSimpleRandomRelative() && trafSampleRate <= 1.0f) {
-    ULng32 returnInterval = ActiveSchemaDB()->getDefaults().getAsULong(USTAT_HBASE_SAMPLE_RETURN_INTERVAL);
+    int returnInterval = ActiveSchemaDB()->getDefaults().getAsULong(USTAT_HBASE_SAMPLE_RETURN_INTERVAL);
     int cacheMin = CmpCommon::getDefaultNumeric(HBASE_NUM_CACHE_ROWS_MIN);
     if (trafSampleRate < cacheMin / (Float32)returnInterval) {
       Float32 hbaseSampleRate = cacheMin / (Float32)returnInterval;

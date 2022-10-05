@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -584,7 +563,7 @@ ExSqlComp::ReturnStatus ExSqlComp::resendControls(NABoolean ctxSw)  // Genesis 1
     }
 #endif
 
-    ret = sendRequest(EXSQLCOMP::DATABASE_USER, (const char *)&userMessage, (ULng32)sizeof(userMessage));
+    ret = sendRequest(EXSQLCOMP::DATABASE_USER, (const char *)&userMessage, (int)sizeof(userMessage));
   }
 
   ComDiagsArea *loopDiags = NULL;
@@ -879,7 +858,7 @@ void ExSqlComp::endConnection() {
   doRefreshEnvironment_ = TRUE;
 }
 
-inline NABoolean ExSqlComp::getEnvironment(char *&, ULng32 &) {
+inline NABoolean ExSqlComp::getEnvironment(char *&, int &) {
   // TODO : use environment in executor globals.
   return TRUE;
 }
@@ -930,7 +909,7 @@ ExSqlComp::ReturnStatus ExSqlComp::sendRequest(CmpMessageObj *request, NABoolean
 // The server fielding these requests is ExCmpMessage::actOnReceive
 // in arkcmp/CmpConnection.cpp.
 //
-ExSqlComp::ReturnStatus ExSqlComp::sendRequest(Operator op, const char *const_input_data, ULng32 size, NABoolean waited,
+ExSqlComp::ReturnStatus ExSqlComp::sendRequest(Operator op, const char *const_input_data, int size, NABoolean waited,
                                                long *id, int charset, NABoolean resendFlg, const char *parentQid,
                                                int parentQidLen) {
   ReturnStatus ret;
@@ -1093,11 +1072,11 @@ ExSqlComp::ReturnStatus ExSqlComp::sendRequest(Operator op, const char *const_in
 
 // stored proc request.
 ExSqlComp::ReturnStatus ExSqlComp::sendRequest(const char *procName, void *inputExpr,
-                                               ULng32 inputExprSize,                          // input Expr
-                                               void *outputExpr, ULng32 outputExprSize,       // output Expr
-                                               void *keyExpr, ULng32 keyExprSize,             // key expr
-                                               void *inputData, ULng32 inputDataSize,         // input data
-                                               ULng32 outputRecSize, ULng32 outputTotalSize,  // output data
+                                               int inputExprSize,                          // input Expr
+                                               void *outputExpr, int outputExprSize,       // output Expr
+                                               void *keyExpr, int keyExprSize,             // key expr
+                                               void *inputData, int inputDataSize,         // input data
+                                               int outputRecSize, int outputTotalSize,  // output data
                                                NABoolean waited, long *id, const char *parentQid, int parentQidLen) {
   ReturnStatus ret = ERROR;
 
@@ -1130,7 +1109,7 @@ ExSqlComp::ReturnStatus ExSqlComp::sendRequest(const char *procName, void *input
   return ret;
 }
 
-ExSqlComp::ReturnStatus ExSqlComp::getNext(ULng32 bufSize, long id, NABoolean waited, const char *parentQid,
+ExSqlComp::ReturnStatus ExSqlComp::getNext(int bufSize, long id, NABoolean waited, const char *parentQid,
                                            int parentQidLen) {
   ReturnStatus ret = SUCCESS;
   long ispRequest = (id) ? id : currentISPRequest_;
@@ -1146,7 +1125,7 @@ ExSqlComp::ReturnStatus ExSqlComp::getNext(ULng32 bufSize, long id, NABoolean wa
   return ret;
 }
 
-ExSqlComp::ReturnStatus ExSqlComp::getReply(char *&reply, ULng32 &size, ULng32 maxSize, long reqId,
+ExSqlComp::ReturnStatus ExSqlComp::getReply(char *&reply, int &size, int maxSize, long reqId,
                                             NABoolean getDataWithErrReply) {
   ReturnStatus ret = SUCCESS;
 

@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ******************************************************************************
 *
@@ -70,7 +49,7 @@ short generateSPIOExpr(RelInternalSP *sp, Generator *generator, ExSPInputOutput 
   // It will be initialized later.
   ExSPInputOutput *lInputExpr = new (space) ExSPInputOutput();
 
-  ULng32 recordLen;
+  int recordLen;
   ExpTupleDesc *tupleDesc = NULL;
 
   if (expGen->processValIdList(sp->procTypes(), ExpTupleDesc::SQLARK_EXPLODED_FORMAT, recordLen, 0, 1, &tupleDesc,
@@ -79,7 +58,7 @@ short generateSPIOExpr(RelInternalSP *sp, Generator *generator, ExSPInputOutput 
 
   ConvInstruction *cia = (ConvInstruction *)space->allocateMemory(sp->procTypes().entries() * sizeof(ConvInstruction));
 
-  ULng32 totalLen = space->getAllocatedSpaceSize();
+  int totalLen = space->getAllocatedSpaceSize();
 
   lInputExpr->initialize(tupleDesc, totalLen, cia);
 
@@ -217,19 +196,19 @@ short RelInternalSP::codeGen(Generator *generator) {
     procVIDList.insert(cn->getValueId());
   }
 
-  ULng32 inputRowlen_ = 0;
+  int inputRowlen_ = 0;
   exp_gen->generateContiguousMoveExpr(procVIDList, -1, /*add conv nodes*/
                                       work_atp, work_atp_index, ExpTupleDesc::SQLARK_EXPLODED_FORMAT, inputRowlen_,
                                       &input_expr, &input_tuple_desc, ExpTupleDesc::LONG_FORMAT);
 
   // add all columns from this SP to the map table.
-  ULng32 tupleLength;
+  int tupleLength;
   exp_gen->processValIdList(getTableDesc()->getColumnList(), ExpTupleDesc::SQLARK_EXPLODED_FORMAT, tupleLength,
                             work_atp, work_atp_index);
 
   // Generate expression to move the output row returned by the
   // stored proc back to parent.
-  ULng32 outputRowlen_ = 0;
+  int outputRowlen_ = 0;
   MapTable *returnedMapTable = 0;
   exp_gen->generateContiguousMoveExpr(getTableDesc()->getColumnList(), -1 /*add conv nodes*/, 0,
                                       returned_desc->noTuples() - 1, ExpTupleDesc::SQLARK_EXPLODED_FORMAT,

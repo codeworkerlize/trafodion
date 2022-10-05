@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -61,7 +40,7 @@ static const char *ZERO_LENGTH_TIMESTAMP = " 00:00:00.000000";
     NAAssert(msg, __FILE__, __LINE__); \
   };
 
-void setVCLength(char *VCLen, int VCLenSize, ULng32 value);
+void setVCLength(char *VCLen, int VCLenSize, int value);
 
 ///////////////////////////////////////////////////////////
 // class ex_clause
@@ -2072,7 +2051,7 @@ ex_arith_count_clause::ex_arith_count_clause(OperatorTypeEnum oper_type, Attribu
 ///////////////////////////////////////////////////////////
 // class ex_comp_clause
 ///////////////////////////////////////////////////////////
-ex_comp_clause::ex_comp_clause(OperatorTypeEnum oper_type, Attributes **attr, Space *space, ULng32 flags)
+ex_comp_clause::ex_comp_clause(OperatorTypeEnum oper_type, Attributes **attr, Space *space, int flags)
     : ex_clause(ex_clause::COMP_TYPE, oper_type, 3, attr, space), flags_(0), rollupColumnNum_(-1) {
   if (flags) setSpecialNulls();
   setInstruction();
@@ -2561,7 +2540,7 @@ ExFunctionRangeOfValues::~ExFunctionRangeOfValues() {
 
 // defined in exp_conv.cpp
 ex_expr::exp_return_type convDecToInt64(long &target, char *source, int sourceLen, CollHeap *heap,
-                                        ComDiagsArea **diagsArea, ULng32 flags);
+                                        ComDiagsArea **diagsArea, int flags);
 
 Int16 convertDateTimeTimestampToAscii(char *target, int targetLen, char *source, int sourceLen, Int16 precision,
                                       Int16 scale, int format, CollHeap *heap) {
@@ -3202,7 +3181,7 @@ ex_expr::exp_return_type ExFunctionRangeOfValues::conditionalPack(ex_clause *cla
       char *dataPtr = NULL;
       char *target = NULL;
       char *vardata = NULL;
-      ULng32 size = 0;
+      int size = 0;
       int vcLenSize = 0;
 
       switch ((*op)->getTupleFormat()) {

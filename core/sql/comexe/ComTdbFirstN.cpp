@@ -14,7 +14,7 @@ ComTdbFirstN::ComTdbFirstN() : ComTdb(ComTdb::ex_FIRST_N, eye_FIRST_N), tdbChild
 
 ComTdbFirstN::ComTdbFirstN(ComTdb *child_tdb, long firstNRows, ex_expr *firstNRowsExpr, ex_cri_desc *workCriDesc,
                            ex_cri_desc *givenCriDesc, ex_cri_desc *returnedCriDesc, queue_index down, queue_index up,
-                           int numBuffers, ULng32 bufferSize)
+                           int numBuffers, int bufferSize)
     : ComTdb(ComTdb::ex_FIRST_N, eye_FIRST_N, 0, givenCriDesc, returnedCriDesc, down, up, numBuffers, bufferSize),
       tdbChild_(child_tdb),
       firstNRows_(firstNRows),
@@ -41,7 +41,7 @@ int ComTdbFirstN::unpack(void *base, void *reallocator) {
   return ComTdb::unpack(base, reallocator);
 }
 
-void ComTdbFirstN::displayContents(Space *space, ULng32 flag) {
+void ComTdbFirstN::displayContents(Space *space, int flag) {
   ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
   if (flag & 0x00000008) {

@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ******************************************************************************
 *
@@ -155,7 +134,7 @@ short GenericUtilExpr::processOutputRow(Generator *generator, const int work_atp
   }
 
   ExpTupleDesc *tupleDesc = 0;
-  ULng32 tupleLength = 0;
+  int tupleLength = 0;
   expGen->processAttributes(getVirtualTableDesc()->getColumnList().entries(), attrs, ExpTupleDesc::PACKED_FORMAT,
                             tupleLength, work_atp, output_row_atp_index, &tupleDesc, ExpTupleDesc::LONG_FORMAT);
 
@@ -2790,7 +2769,7 @@ short ExeUtilRegionStats::codeGen(Generator *generator) {
   }
 
   ex_expr *input_expr = 0;
-  ULng32 inputRowLen = 0;
+  int inputRowLen = 0;
 
   if (inputColList_) {
     ValueIdList inputVIDList;
@@ -3122,7 +3101,7 @@ short ExeUtilHbaseDDL::codeGen(Generator *generator) {
   char *tablename = space->AllocateAndCopyToAlignedSpace(getTableName().getQualifiedNameObj().getObjectName(), 0);
   char *baseTableName = space->AllocateAndCopyToAlignedSpace(getTableName().getQualifiedNameObj().getObjectName(), 0);
 
-  ULng32 buffersize = getDefault(GEN_DDL_BUFFER_SIZE);
+  int buffersize = getDefault(GEN_DDL_BUFFER_SIZE);
   queue_index upqueuelength = (queue_index)getDefault(GEN_DDL_SIZE_UP);
   queue_index downqueuelength = (queue_index)getDefault(GEN_DDL_SIZE_DOWN);
   int numBuffers = getDefault(GEN_DDL_NUM_BUFFERS);
@@ -3334,7 +3313,7 @@ short ExeUtilConnectby::codeGen(Generator *generator) {
   }
 
   ExpTupleDesc *tupleDescReturn = 0;
-  ULng32 tupleLength = 0;
+  int tupleLength = 0;
 
   ExpTupleDesc::TupleDataFormat tupleFormat = ExpTupleDesc::SQLARK_EXPLODED_FORMAT;
 
@@ -3347,7 +3326,7 @@ short ExeUtilConnectby::codeGen(Generator *generator) {
 
   // handle dynamic params
 
-  ULng32 dtupleLength = 0;
+  int dtupleLength = 0;
   ExpTupleDesc *dtupleDesc = 0;
   ex_expr *input_expr = 0;
   ValueIdList vidL;
@@ -3522,7 +3501,7 @@ short ExeUtilCompositeUnnest::codeGen(Generator *generator) {
   //    if ArrayOfStruct, then return the primitive fields within the struct
   ////////////////////////////////////////////////////////////////////////////
   ex_expr *extractColExpr = NULL;
-  ULng32 extractColRowLen = 0;
+  int extractColRowLen = 0;
   ExpTupleDesc *extractColTupleDesc = 0;
   ValueIdList extractColVIDList;
   extractColVIDList.insert(colNameExpr_->getValueId());
@@ -3543,7 +3522,7 @@ short ExeUtilCompositeUnnest::codeGen(Generator *generator) {
 
   extractColVIDList.clear();
   extractColVIDList.insert(extractColIE->getValueId());
-  ULng32 extractColLen = 0;
+  int extractColLen = 0;
   expGen->processValIdList(extractColVIDList, ExpTupleDesc::SQLARK_EXPLODED_FORMAT, extractColLen, work_atp,
                            extractColAtpIndex);
 
@@ -3559,7 +3538,7 @@ short ExeUtilCompositeUnnest::codeGen(Generator *generator) {
 
   ValueIdList elemNumList;
   elemNumList.insert(elemNumIE->getValueId());
-  ULng32 elemNumLen = 0;
+  int elemNumLen = 0;
   expGen->processValIdList(elemNumList, ExpTupleDesc::SQLARK_EXPLODED_FORMAT, elemNumLen, work_atp, elemNumAtpIndex);
 
   // extract array elements
@@ -3643,7 +3622,7 @@ short ExeUtilCompositeUnnest::codeGen(Generator *generator) {
   }
 
   ex_expr *unnestColsExpr = NULL;
-  ULng32 unnestColsRowLen = 0;
+  int unnestColsRowLen = 0;
   ExpTupleDesc *unnestColsTupleDesc = 0;
   expGen->generateContiguousMoveExpr(unnestColsVIDList,
                                      0,  // dont add conv nodes
@@ -3734,7 +3713,7 @@ short ExeUtilHBaseBulkLoad::codeGen(Generator *generator) {
   ex_cri_desc *workCriDesc = NULL;
   ExpTupleDesc *inputParamsTupleDesc = 0;
   ex_expr *input_expr = 0;
-  ULng32 inputRowLen = 0;
+  int inputRowLen = 0;
   if (inputParams().entries() > 0) {
     workCriDesc = new (space) ex_cri_desc(4, space);
 
@@ -3837,7 +3816,7 @@ short ExeUtilHBaseBulkLoadTask::codeGen(Generator *generator) {
   }
 
   Cardinality expectedRows = (Cardinality)getEstRowsUsed().getValue();
-  ULng32 buffersize = getDefault(GEN_DDL_BUFFER_SIZE);
+  int buffersize = getDefault(GEN_DDL_BUFFER_SIZE);
   queue_index upqueuelength = (queue_index)getDefault(GEN_DDL_SIZE_UP);
   queue_index downqueuelength = (queue_index)getDefault(GEN_DDL_SIZE_DOWN);
   int numBuffers = getDefault(GEN_DDL_NUM_BUFFERS);

@@ -86,7 +86,7 @@ class TimeoutTableEntry : public NABasicObject {
   // public data members: directly accessed entry fields
   // ( A lax design here, since this class is only used by TimeoutHashTable )
   int timeoutValue;
-  ULng32 hashValue;
+  int hashValue;
   NABoolean used;
 
  private:
@@ -100,13 +100,13 @@ class TimeoutTableEntry : public NABasicObject {
 
 class TimeoutHashTable : public NABasicObject {
  public:
-  TimeoutHashTable(CollHeap *heap, ULng32 hashTableSize = 16);
+  TimeoutHashTable(CollHeap *heap, int hashTableSize = 16);
 
   ~TimeoutHashTable() {
     if (hashArray_ == NULL) return;
 
     // traverse array, deallocating long names if needed
-    for (ULng32 u = 0; u < hashTableSize_; u++) hashArray_[u].reset();
+    for (int u = 0; u < hashTableSize_; u++) hashArray_[u].reset();
     heap_->deallocateMemory(hashArray_);
   };
 
@@ -120,7 +120,7 @@ class TimeoutHashTable : public NABasicObject {
   // remove all the entries from the hash table
   void clearAll();
 
-  ULng32 entries() { return entries_; };
+  int entries() { return entries_; };
 
   // Methods for packing/unpacking (used for passing information to ESPs)
   IpcMessageObjSize packedLength();  // return the length of the packed obj
@@ -129,17 +129,17 @@ class TimeoutHashTable : public NABasicObject {
   void unpackObj(IpcConstMessageBufferPtr &buffer);
 
  private:
-  ULng32 entries_;                // number of entries in this HashQueue
-  ULng32 hashTableSize_;          // current size of the hash table
-  ULng32 hashTableOriginalSize_;  // original size of the hash table
-  ULng32 tempIndex_;              // temporary, set by getTimeout(), used by remove()
+  int entries_;                // number of entries in this HashQueue
+  int hashTableSize_;          // current size of the hash table
+  int hashTableOriginalSize_;  // original size of the hash table
+  int tempIndex_;              // temporary, set by getTimeout(), used by remove()
   TimeoutTableEntry *hashArray_;  // the hash table itself
   CollHeap *heap_;                // the heap a HashQueue allocates from
 
   void resizeHashTableIfNeeded();
-  TimeoutTableEntry *allocateHashTable(ULng32 size);
+  TimeoutTableEntry *allocateHashTable(int size);
   // internal routine: insert entry into H.T., return TRUE iff entry is new
-  NABoolean internalInsert(TimeoutTableEntry **hashTable, ULng32 hashTableSize, char *tableName, int timeoutValue);
+  NABoolean internalInsert(TimeoutTableEntry **hashTable, int hashTableSize, char *tableName, int timeoutValue);
   int getTimeoutHashValue(char *tableName);
 };
 
@@ -152,7 +152,7 @@ class TimeoutHashTable : public NABasicObject {
 /////////////////////////////////////////////////////////
 class TimeoutData : public NABasicObject {
  public:
-  TimeoutData(CollHeap *heap, ULng32 estimatedMaxEntries = 16);  // ctor
+  TimeoutData(CollHeap *heap, int estimatedMaxEntries = 16);  // ctor
 
   ~TimeoutData(){};  // do nothing dtor
 
@@ -187,7 +187,7 @@ class TimeoutData : public NABasicObject {
   void unpackObj(IpcConstMessageBufferPtr &buffer);
 
 #if _DEBUG  // for debugging only
-  ULng32 entries() { return timeoutsHT_.entries(); };
+  int entries() { return timeoutsHT_.entries(); };
 #endif
 
  private:

@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef SQLCLIDEV_HDR
 #define SQLCLIDEV_HDR
 
@@ -51,25 +30,25 @@ class ExStatisticsArea;
 
 // For internal use only -- do not document!
 void SQL_EXEC_SetParserFlagsForExSqlComp_Internal(
-    /*IN*/ ULng32 flagbits);
+    /*IN*/ int flagbits);
 
 // For internal use only -- do not document!
 int SQL_EXEC_SetParserFlagsForExSqlComp_Internal2(
-    /*IN*/ ULng32 flagbits);
+    /*IN*/ int flagbits);
 
 // For internal use only -- do not document!
 void SQL_EXEC_ResetParserFlagsForExSqlComp_Internal(
-    /*IN*/ ULng32 flagbits);
+    /*IN*/ int flagbits);
 
 // For internal use only -- do not document!
 int SQL_EXEC_ResetParserFlagsForExSqlComp_Internal2(
-    /*IN*/ ULng32 flagbits);
+    /*IN*/ int flagbits);
 
 int SQL_EXEC_AssignParserFlagsForExSqlComp_Internal(
-    /*IN*/ ULng32 flagbits);
+    /*IN*/ int flagbits);
 
 int SQL_EXEC_GetParserFlagsForExSqlComp_Internal(
-    /*IN*/ ULng32 &flagbits);
+    /*IN*/ int &flagbits);
 
 int SQL_EXEC_GetTotalTcbSpace(char *tdb, char *otherInfo);
 
@@ -110,7 +89,7 @@ enum SQLATTRHOLDABLE_INTERNAL_TYPE {
 };
 
 int SQL_EXEC_GetCollectStatsType_Internal(
-    /*OUT*/ ULng32 *collectStatsType,
+    /*OUT*/ int *collectStatsType,
     /*IN*/ SQLSTMT_ID *statement_id);
 
 // For internal use only -- do not document!
@@ -202,9 +181,9 @@ int SQL_EXEC_SetUdrAttributes_Internal(/*IN*/ int sqlAccessMode,
                                          /*IN*/ int /* for future use */);
 
 int SQL_EXEC_SetUdrRuntimeOptions_Internal(/*IN*/ const char *options,
-                                             /*IN*/ ULng32 optionsLen,
+                                             /*IN*/ int optionsLen,
                                              /*IN*/ const char *delimiters,
-                                             /*IN*/ ULng32 delimsLen);
+                                             /*IN*/ int delimsLen);
 
 // For internal use only -- do not document!
 // This method sets flag in CliGlobal to enable break handling.
@@ -225,8 +204,8 @@ int SQL_EXEC_MergeDiagnostics_Internal(/*INOUT*/ ComDiagsArea &newDiags);
 // This method returns the CLI diags area in packed format
 int SQL_EXEC_GetPackedDiagnostics_Internal(
     /*OUT*/ char *message_buffer_ptr,
-    /*IN*/ ULng32 message_obj_size,
-    /*OUT*/ ULng32 *message_obj_size_needed,
+    /*IN*/ int message_obj_size,
+    /*OUT*/ int *message_obj_size_needed,
     /*OUT*/ int *message_obj_type,
     /*OUT*/ int *message_obj_version);
 

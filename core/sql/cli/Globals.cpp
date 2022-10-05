@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -343,7 +322,7 @@ IpcPriority CliGlobals::myCurrentPriority() {
 // NOTE: we'll need to recompile if the NSK architecture changes, which
 // should be infrequent as Charles Landau assures me.
 
-int CliGlobals::boundsCheck(void *startAddress, ULng32 length, int &retcode) {
+int CliGlobals::boundsCheck(void *startAddress, int length, int &retcode) {
   // no bounds checking on NT because we're not PRIV
   return 0;
 }
@@ -898,7 +877,7 @@ void CliGlobals::deleteContexts() {
 // at the default context. In case of master process, the ununsed
 // memory quota is maintained in statement globals
 
-NABoolean CliGlobals::grabMemoryQuotaIfAvailable(ULng32 size) {
+NABoolean CliGlobals::grabMemoryQuotaIfAvailable(int size) {
   ContextCli *context;
   if (espProcess_)
     context = defaultContext_;
@@ -916,7 +895,7 @@ void CliGlobals::resetMemoryQuota() {
   return context->resetMemoryQuota();
 }
 
-ULng32 CliGlobals::unusedMemoryQuota() {
+int CliGlobals::unusedMemoryQuota() {
   ContextCli *context;
   if (espProcess_)
     context = defaultContext_;
@@ -925,7 +904,7 @@ ULng32 CliGlobals::unusedMemoryQuota() {
   return context->unusedMemoryQuota();
 }
 
-void CliGlobals::yieldMemoryQuota(ULng32 size) {
+void CliGlobals::yieldMemoryQuota(int size) {
   ContextCli *context;
   if (espProcess_)
     context = defaultContext_;

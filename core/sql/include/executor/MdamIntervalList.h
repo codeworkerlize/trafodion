@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef MDAMINTERVALLIST_H
 #define MDAMINTERVALLIST_H
 /* -*-C++-*-
@@ -99,7 +78,7 @@ class MdamIntervalList {
   // result list.  The this list and the otherList are inputs to the
   // intersect operation.  The result replaces the this list.  The
   // original interval list entries for the this list are deleted.
-  MdamIntervalList &intersect(const MdamIntervalList &otherList, const ULng32 keyLen,
+  MdamIntervalList &intersect(const MdamIntervalList &otherList, const int keyLen,
                               FixedSizeHeapManager &mdamIntervalHeap, FixedSizeHeapManager &mdamRefListEntryHeap);
 
   // Determine if an interval list is empty.
@@ -121,7 +100,7 @@ class MdamIntervalList {
   // with them.  The this list and the otherList are inputs to the
   // union operation.  The result replaces the this list.  The
   // original interval list entries for this list are deleted.
-  MdamIntervalList &unionSameDisjunct(const MdamIntervalList &otherList, const ULng32 keyLen,
+  MdamIntervalList &unionSameDisjunct(const MdamIntervalList &otherList, const int keyLen,
                                       FixedSizeHeapManager &mdamIntervalHeap,
                                       FixedSizeHeapManager &mdamRefListEntryHeap);
 
@@ -133,7 +112,7 @@ class MdamIntervalList {
   // intersect operation.  The result replaces the this list.  The
   // original interval list entries for the this list are deleted.
   MdamIntervalList &unionSeparateDisjuncts(const MdamIntervalList &otherList, const int disjunctNum,
-                                           const ULng32 keyLen, FixedSizeHeapManager &mdamIntervalHeap,
+                                           const int keyLen, FixedSizeHeapManager &mdamIntervalHeap,
                                            FixedSizeHeapManager &mdamRefListEntryHeap);
 
  private:

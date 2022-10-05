@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef SCRATCHSPACE_H
 #define SCRATCHSPACE_H
 
@@ -117,10 +96,10 @@ class ScratchSpace : public NABasicObject {
                NABoolean logInfoEvent = FALSE, int scratchMgmtOption = 0);
   ~ScratchSpace(void);
 
-  virtual RESULT writeFile(char *block, ULng32 blockNum, ULng32 blockLen);
+  virtual RESULT writeFile(char *block, int blockNum, int blockLen);
 
-  RESULT writeThru(char *buf, ULng32 bufLen, DWORD &blockNum);
-  RESULT readThru(char *buf, int blockNum, ULng32 buflen, ScratchFile *readScratchFile = NULL,
+  RESULT writeThru(char *buf, int bufLen, DWORD &blockNum);
+  RESULT readThru(char *buf, int blockNum, int buflen, ScratchFile *readScratchFile = NULL,
                   int readBlockOffset = -1);
 
   DiskPool *getDiskPool();
@@ -153,14 +132,14 @@ class ScratchSpace : public NABasicObject {
     scratchDirListSpec_ = scratch_disk_list_spec;
   }
 
-  void setNumDirsSpec(ULng32 nd) { numDirsSpec_ = nd; }
-  ULng32 getNumDirsSpec() { return numDirsSpec_; }
+  void setNumDirsSpec(int nd) { numDirsSpec_ = nd; }
+  int getNumDirsSpec() { return numDirsSpec_; }
 
-  void setEspInstance(ULng32 espnum) { espInstance_ = espnum; }
-  ULng32 getEspInstance() { return espInstance_; }
-  void setNumEsps(ULng32 numesps) { numEsps_ = numesps; }
+  void setEspInstance(int espnum) { espInstance_ = espnum; }
+  int getEspInstance() { return espInstance_; }
+  void setNumEsps(int numesps) { numEsps_ = numesps; }
 
-  ULng32 getNumEsps() { return numEsps_; }
+  int getNumEsps() { return numEsps_; }
   void setIoEventHandler(ExSubtask *es) { ioEventHandler_ = es; }
 
   void setCallingTcb(ex_tcb *tcb);
@@ -213,9 +192,9 @@ class ScratchSpace : public NABasicObject {
   NABoolean logInfoEvent_;
   NABoolean logDone_;
   const ExScratchDiskDrive *scratchDirListSpec_;  // Information about scratchvols to  include or exclude.
-  ULng32 numDirsSpec_;
-  ULng32 espInstance_;
-  ULng32 numEsps_;
+  int numDirsSpec_;
+  int espInstance_;
+  int numEsps_;
   unsigned short scratchThreshold_;
   ExSubtask *ioEventHandler_;
   ex_tcb *callingTcb_;
@@ -236,11 +215,11 @@ class SortScratchSpace : public ScratchSpace {
                    int scratchIOVectorSize, NABoolean logInfoEvent = FALSE, int scratchMgmtOption = 0);
   ~SortScratchSpace(void);
 
-  RESULT writeRunData(char *data, ULng32 reclen, ULng32 run, NABoolean waited);
+  RESULT writeRunData(char *data, int reclen, int run, NABoolean waited);
   RESULT flushRun(NABoolean endrun = FALSE_L, NABoolean waited = FALSE_L);
 
   RESULT initiateSortMergeNodeRead(SortMergeNode *sortMergeNode, NABoolean waited = FALSE);
-  RESULT readSortMergeNode(SortMergeNode *sortMergeNode, char *&rec, ULng32 reclen, ULng32 &actRecLen,
+  RESULT readSortMergeNode(SortMergeNode *sortMergeNode, char *&rec, int reclen, int &actRecLen,
                            NABoolean waited = FALSE, Int16 numberOfBytesForRecordSize = 0);
   RESULT serveAnyFreeSortMergeBufferRead(void);
   int getTotalNumOfRuns(void);
@@ -271,7 +250,7 @@ class SortScratchSpace : public ScratchSpace {
                              // the currentBlock_ where the next record
                              // should be written to.
 
-  ULng32 currentRun_;  // The run being written to the scratch
+  int currentRun_;  // The run being written to the scratch
                        // scratch blocks. May need adjustments
                        // when implementing read.
 

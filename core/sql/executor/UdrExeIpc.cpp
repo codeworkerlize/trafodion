@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -1153,7 +1132,7 @@ UdrSessionMsg::UdrSessionMsg(UdrSessionAttrType attrType, ComUInt32 flags, NAMem
 
 UdrSessionMsg::~UdrSessionMsg() {
   ComUInt32 e = strings_.entries();
-  for (ULng32 i = 0; i < e; i++) {
+  for (int i = 0; i < e; i++) {
     NADELETEBASIC(strings_[i], getHeap());
   }
 }
@@ -1178,7 +1157,7 @@ IpcMessageObjSize UdrSessionMsg::packedLength() {
   ComUInt32 e = strings_.entries();
   result += sizeof(e);
 
-  for (ULng32 i = 0; i < e; i++) {
+  for (int i = 0; i < e; i++) {
     result += packedStringLength(strings_[i]);
   }
 
@@ -1194,7 +1173,7 @@ IpcMessageObjSize UdrSessionMsg::packObjIntoMessage(IpcMessageBufferPtr buffer) 
   ComUInt32 e = strings_.entries();
   result += packIntoBuffer(buffer, e);
 
-  for (ULng32 i = 0; i < e; i++) {
+  for (int i = 0; i < e; i++) {
     result += packCharStarIntoBuffer(buffer, strings_[i]);
   }
 
@@ -1212,7 +1191,7 @@ void UdrSessionMsg::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion ob
   unpackBuffer(buffer, e);
 
   char *copy;
-  for (ULng32 i = 0; i < e; i++) {
+  for (int i = 0; i < e; i++) {
     // The unpackBuffer() call will deallocate copy from the heap if
     // copy is non-NULL which is not what we want. So we make sure
     // copy is set to NULL before calling unpackBuffer().
@@ -1227,7 +1206,7 @@ void UdrSessionMsg::display(FILE *f, const char *prefix) const {
   fprintf(f, "%s[UdrSessionMsg] type %d, flags 0x%08x\n", prefix, (int)attrType_, (int)flags_);
 
   ComUInt32 e = strings_.entries();
-  for (ULng32 i = 0; i < e; i++) {
+  for (int i = 0; i < e; i++) {
     fprintf(f, "%s  '%s'\n", prefix, strings_[i]);
   }
 
@@ -1243,7 +1222,7 @@ void UdrSessionMsg::display(FILE *f, const char *prefix) const {
 // Constructor for either copyless send or allocation on an NAMemory heap.
 // For copyless send the NAMemory pointer should be NULL.
 //
-UdrDataBuffer::UdrDataBuffer(ULng32 sqlBufferLength, InOut mode, NAMemory *heap)
+UdrDataBuffer::UdrDataBuffer(int sqlBufferLength, InOut mode, NAMemory *heap)
     : UdrMessageObj(mode == UDR_DATA_IN ? UDR_MSG_DATA_REQUEST : UDR_MSG_DATA_REPLY, UdrDataBufferVersionNumber, heap),
       sqlBufferLength_(sqlBufferLength),
       flags_(0) {

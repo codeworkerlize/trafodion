@@ -1,27 +1,8 @@
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
 
 #ifndef EX_EXE_UTIL_CLI_H
 #define EX_EXE_UTIL_CLI_H
 #include "common/ComTransInfo.h"
+#include "comexe/ComQueue.h"
 
 class ContextCli;
 
@@ -33,7 +14,7 @@ class OutputInfo {
   void dealloc(CollHeap *heap);
   void insert(int index, char *data);
   void insert(int index, char *data, int len);
-  void insert(int index, char *data, int len, int type, int *indOffset = NULL, int *varOffset = NULL);
+  void insert(int index, char *data, int len, int type, int *indOffset = nullptr, int *varOffset = nullptr);
   char *get(int index);
   short get(int index, char *&data, int &len);
   short get(int index, char *&data, int &len, int &type, int *indOffset, int *varOffset);
@@ -53,49 +34,49 @@ class ExeCliInterface : public NABasicObject {
   };
 
  public:
-  ExeCliInterface(CollHeap *heap = NULL, int isoMapping = 0, ContextCli *currContext = NULL,
-                  const char *parentQid = NULL);
+  ExeCliInterface(CollHeap *heap = nullptr, int isoMapping = 0, ContextCli *currContext = nullptr,
+                  const char *parentQid = nullptr);
 
   virtual ~ExeCliInterface();
 
   int allocStuff(SQLMODULE_ID *&module, SQLSTMT_ID *&stmt, SQLDESC_ID *&sql_src, SQLDESC_ID *&input_desc,
-                   SQLDESC_ID *&output_desc, const char *stmtName = NULL);
+                   SQLDESC_ID *&output_desc, const char *stmtName = nullptr);
 
   int deallocStuff(SQLMODULE_ID *&module, SQLSTMT_ID *&stmt, SQLDESC_ID *&sql_src, SQLDESC_ID *&input_desc,
                      SQLDESC_ID *&output_desc);
 
-  int executeImmediate(const char *stmt, char *outputBuf = NULL, int *outputBufLen = NULL,
-                         NABoolean nullTerminate = TRUE, long *rowsAffected = NULL, NABoolean monitorThis = FALSE,
-                         ComDiagsArea **globalDiags = NULL);
+  int executeImmediate(const char *stmt, char *outputBuf = nullptr, int *outputBufLen = nullptr,
+                         NABoolean nullTerminate = TRUE, long *rowsAffected = nullptr, NABoolean monitorThis = FALSE,
+                         ComDiagsArea **globalDiags = nullptr);
 
-  int executeImmediatePrepare(const char *stmt, char *outputBuf = NULL, int *outputBufLen = NULL,
-                                long *rowsAffected = NULL, NABoolean monitorThis = FALSE, char *stmtName = NULL);
+  int executeImmediatePrepare(const char *stmt, char *outputBuf = nullptr, int *outputBufLen = nullptr,
+                                long *rowsAffected = nullptr, NABoolean monitorThis = FALSE, char *stmtName = nullptr);
 
   int executeImmediatePrepare2(const char *stmt, char *uniqueStmtId, int *uniqueStmtIdLen,
                                  SQL_QUERY_COST_INFO *query_cost_info, SQL_QUERY_COMPILER_STATS_INFO *comp_stats_info,
-                                 char *outputBuf = NULL, int *outputBufLen = NULL, long *rowsAffected = NULL,
-                                 NABoolean monitorThis = FALSE, int *retGenCodeSize = NULL);
+                                 char *outputBuf = nullptr, int *outputBufLen = nullptr, long *rowsAffected = nullptr,
+                                 NABoolean monitorThis = FALSE, int *retGenCodeSize = nullptr);
 
   // retrieve generated code for a previously prepared stmt
   int getGeneratedCode(char *genCodeBuf, int genCodeSize);
 
-  int executeImmediateExec(const char *stmt, char *outputBuf = NULL, int *outputBufLen = NULL,
-                             NABoolean nullTerminate = TRUE, long *rowsAffected = NULL,
-                             ComDiagsArea **diagsArea = NULL);
+  int executeImmediateExec(const char *stmt, char *outputBuf = nullptr, int *outputBufLen = nullptr,
+                             NABoolean nullTerminate = TRUE, long *rowsAffected = nullptr,
+                             ComDiagsArea **diagsArea = nullptr);
 
   int prepare(const char *stmtStr, SQLMODULE_ID *module, SQLSTMT_ID *stmt, SQLDESC_ID *sql_src,
-                SQLDESC_ID *input_desc, SQLDESC_ID *output_desc, char **outputBuf, Queue *outputVarPtrList = NULL,
-                char **inputBuf = NULL, Queue *inputVarPtrList = NULL, char *uniqueStmtId = NULL,
-                int *uniqueStmtIdLen = NULL, SQL_QUERY_COST_INFO *query_cost_info = NULL,
-                SQL_QUERY_COMPILER_STATS_INFO *comp_stats_info = NULL, NABoolean monitorThis = FALSE,
-                NABoolean doNotCachePlan = FALSE, int *retGenCodeSize = NULL);
+                SQLDESC_ID *input_desc, SQLDESC_ID *output_desc, char **outputBuf, Queue *outputVarPtrList = nullptr,
+                char **inputBuf = nullptr, Queue *inputVarPtrList = nullptr, char *uniqueStmtId = nullptr,
+                int *uniqueStmtIdLen = nullptr, SQL_QUERY_COST_INFO *query_cost_info = nullptr,
+                SQL_QUERY_COMPILER_STATS_INFO *comp_stats_info = nullptr, NABoolean monitorThis = FALSE,
+                NABoolean doNotCachePlan = FALSE, int *retGenCodeSize = nullptr);
 
   int setupExplainData(SQLMODULE_ID *module, SQLSTMT_ID *stmt);
   int setupExplainData();
   char *getExplainDataPtr() { return explainData_; }
   int getExplainDataLen() { return explainDataLen_; }
 
-  int exec(char *inputBuf = NULL, int inputBufLen = 0);
+  int exec(char *inputBuf = nullptr, int inputBufLen = 0);
   int fetch();
 
   // if ignoreIfNotOpen is TRUE, do not return an error is cursor is not open
@@ -103,13 +84,13 @@ class ExeCliInterface : public NABasicObject {
 
   int dealloc();
 
-  short clearExecFetchClose(char *inputBuf, int inputBufLen, char *outputBuf = NULL, int *outputBufLen = 0);
+  short clearExecFetchClose(char *inputBuf, int inputBufLen, char *outputBuf = nullptr, int *outputBufLen = 0);
 
-  short clearExecFetchCloseOpt(char *inputBuf, int inputBufLen, char *outputBuf = NULL, int *outputBufLen = 0,
-                               long *rowsAffected = NULL);
+  short clearExecFetchCloseOpt(char *inputBuf, int inputBufLen, char *outputBuf = nullptr, int *outputBufLen = 0,
+                               long *rowsAffected = nullptr);
 
   int executeImmediateCEFC(const char *stmtStr, char *inputBuf, int inputBufLen, char *outputBuf,
-                             int *outputBufLen, long *rowsAffected = NULL);
+                             int *outputBufLen, long *rowsAffected = nullptr);
 
   int rwrsPrepare(const char *stmStr, int rs_maxsize, NABoolean monitorThis = FALSE);
 
@@ -118,7 +99,7 @@ class ExeCliInterface : public NABasicObject {
   int rwrsClose();
 
   int cwrsAllocStuff(SQLMODULE_ID *&module, SQLSTMT_ID *&stmt, SQLDESC_ID *&sql_src, SQLDESC_ID *&input_desc,
-                       SQLDESC_ID *&output_desc, SQLDESC_ID *&rs_input_maxsize_desc, const char *stmtName = NULL);
+                       SQLDESC_ID *&output_desc, SQLDESC_ID *&rs_input_maxsize_desc, const char *stmtName = nullptr);
 
   int cwrsDeallocStuff(SQLMODULE_ID *&module, SQLSTMT_ID *&stmt, SQLDESC_ID *&sql_src, SQLDESC_ID *&input_desc,
                          SQLDESC_ID *&output_desc, SQLDESC_ID *&rs_input_maxsize_desc);
@@ -132,10 +113,10 @@ class ExeCliInterface : public NABasicObject {
   int setInputValue(short entry, char *ptr, int len);
   // TODO support more data types
   inline int setInputValue(short entry, char *ptr) {
-    return setInputValue(entry, ptr, (ptr == NULL) ? 0 : strlen(ptr));
+    return setInputValue(entry, ptr, (ptr == nullptr) ? 0 : strlen(ptr));
   }
   inline int setInputValue(short entry, int val) { return setInputValue(entry, (char *)&val, 4); }
-  int getPtrAndLen(short entry, char *&ptr, int &len, short **ind = NULL);
+  int getPtrAndLen(short entry, char *&ptr, int &len, short **ind = nullptr);
   int getHeadingAndLen(short entry, char *heading, int &len);
 
   int getNumEntries(int &numInput, int &numOutput);
@@ -146,7 +127,7 @@ class ExeCliInterface : public NABasicObject {
   int getStmtAttr(char *stmtName, int attrName, int *numeric_value, char *string_value);
 
   short fetchRowsPrologue(const char *sqlStrBuf, NABoolean noExec = FALSE, NABoolean monitorThis = FALSE,
-                          char *stmtName = NULL);
+                          char *stmtName = nullptr);
   short fetchRowsEpilogue(const char *sqlStrBuf, NABoolean noClose = FALSE);
 
   short initializeInfoList(Queue *&infoList, NABoolean infoListIsOutputInfo);
@@ -160,7 +141,7 @@ class ExeCliInterface : public NABasicObject {
 
   short execContinuingRows(Queue *secondaryOutputVarPtrs, long &rowsAffected);
 
-  void setOutputPtrsAsInputPtrs(Queue *entry, SQLDESC_ID *target_inputDesc = NULL);
+  void setOutputPtrsAsInputPtrs(Queue *entry, SQLDESC_ID *target_inputDesc = nullptr);
 
   int setCharsetTypes();
 
@@ -204,14 +185,14 @@ class ExeCliInterface : public NABasicObject {
 
   int GetRowsAffected(long *rowsAffected);
 
-  int holdAndSetCQD(const char *defaultName, const char *defaultValue, ComDiagsArea *globalDiags = NULL);
+  int holdAndSetCQD(const char *defaultName, const char *defaultValue, ComDiagsArea *globalDiags = nullptr);
 
-  int holdAndSetCQDs(const char *holdStr, const char *setStr, ComDiagsArea *globalDiags = NULL);
+  int holdAndSetCQDs(const char *holdStr, const char *setStr, ComDiagsArea *globalDiags = nullptr);
 
-  int restoreCQD(const char *defaultName, ComDiagsArea *globalDiags = NULL);
+  int restoreCQD(const char *defaultName, ComDiagsArea *globalDiags = nullptr);
 
-  int getCQDval(const char *defaultName, char *val, ComDiagsArea *globalDiags = NULL);
-  int restoreCQDs(const char *restoreStr, ComDiagsArea *globalDiags = NULL);
+  int getCQDval(const char *defaultName, char *val, ComDiagsArea *globalDiags = nullptr);
+  int restoreCQDs(const char *restoreStr, ComDiagsArea *globalDiags = nullptr);
 
   void setNotExeUtilInternalQuery(NABoolean v) {
     (v ? flags_ |= NOT_EXEUTIL_INTERNAL_QUERY : flags_ &= ~NOT_EXEUTIL_INTERNAL_QUERY);
@@ -221,8 +202,8 @@ class ExeCliInterface : public NABasicObject {
   void setCursorOpen(NABoolean v) { (v ? flags_ |= CURSOR_OPEN : flags_ &= ~CURSOR_OPEN); };
   NABoolean cursorOpen() { return (flags_ & CURSOR_OPEN) != 0; };
 
-  int setCQS(const char *shape, ComDiagsArea *globalDiags = NULL);
-  int resetCQS(ComDiagsArea *globalDiags = NULL);
+  int setCQS(const char *shape, ComDiagsArea *globalDiags = nullptr);
+  int resetCQS(ComDiagsArea *globalDiags = nullptr);
 
   // methods for routine invocation
   int getRoutine(

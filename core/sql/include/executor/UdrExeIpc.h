@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef _UDR_EXE_IPC_H_
 #define _UDR_EXE_IPC_H_
 /* -*-C++-*-
@@ -451,8 +430,8 @@ class UdrControlStream : public IpcMessageStream {
   virtual void actOnReceive(IpcConnection *connection);
 
  protected:
-  ULng32 sendCount_;
-  ULng32 recvCount_;
+  int sendCount_;
+  int recvCount_;
 };
 
 //----------------------------------------------------------------------
@@ -1044,7 +1023,7 @@ class UdrDataBuffer : public UdrMessageObj {
   //
   // Constructor for allocation on a heap or in a buffered stream
   //
-  UdrDataBuffer(ULng32 sqlBufferLength, InOut mode, NAMemory *heap);
+  UdrDataBuffer(int sqlBufferLength, InOut mode, NAMemory *heap);
 
   //
   // Constructors for copyless receive
@@ -1058,7 +1037,7 @@ class UdrDataBuffer : public UdrMessageObj {
 
   inline SqlBuffer *getSqlBuffer() { return theBuffer_; }
   inline const SqlBuffer *getSqlBuffer() const { return theBuffer_; }
-  inline ULng32 getSqlBufferLength() const { return sqlBufferLength_; }
+  inline int getSqlBufferLength() const { return sqlBufferLength_; }
   inline void setSqlBuffer(SqlBuffer *sqlbuf) { theBuffer_ = sqlbuf; }
   NABoolean moreRows() const;
 
@@ -1105,7 +1084,7 @@ class UdrDataBuffer : public UdrMessageObj {
   NABoolean copylessUnpack(NABoolean doChecks, IpcMessageObjSize objSize, NABoolean driveUnPack = TRUE);
 
   ComUInt32 flags_;
-  ULng32 sqlBufferLength_;
+  int sqlBufferLength_;
   SqlBuffer *theBuffer_;
   ComSInt16 tableIndex_;  // applies only to TMUDFs will be -1 for scalar udfs
 

@@ -34,10 +34,10 @@
 #include "hash_table.h"
 #include "sqlmxevents/logmxevent.h"
 
-void HashRow::print(ULng32 rowlength) {
+void HashRow::print(int rowlength) {
   printf("\tHashValue: %6d\n\tData: ", hashValue_);
   unsigned char *data = (unsigned char *)this;
-  ULng32 i = 0;
+  int i = 0;
   for (; i < rowlength; i++) printf("%02x", data[i]);
   printf("\n\t    : ");
   for (i = 0; i < rowlength; i++) printf("%2c", ((data[i] >= ' ' && data[i] < 127) ? data[i] : '?'));
@@ -60,7 +60,7 @@ void HashTableHeader::init() {
   row_ = NULL;
 }
 
-HashTable::HashTable(ULng32 headerCount, NABoolean evenFactor, ULng32 primeFactor, NABoolean noHVDups,
+HashTable::HashTable(int headerCount, NABoolean evenFactor, int primeFactor, NABoolean noHVDups,
                      NABoolean doResize)
     : headerCount_(headerCount > MAX_HEADER_COUNT ? MAX_HEADER_COUNT
                                                   : headerCount < MIN_HEADER_COUNT ? MIN_HEADER_COUNT : headerCount),
@@ -123,8 +123,8 @@ void HashTable::insert(atp_struct *workAtp, HashRow *newRow, tupp &workAtpTupp1,
   SimpleHashValue newRowHV = newRow->hashValue();
 
   // Determine the hash chain and get the first entry in the chain.
-  ULng32 chainIdx = newRowHV % headerCount_;
-  ULng32 origChainIdx = chainIdx;
+  int chainIdx = newRowHV % headerCount_;
+  int origChainIdx = chainIdx;
   HashRow *row = header_[chainIdx].row_;
   long numRowsScanned = 0;
   long logTrigger = 100;
@@ -216,7 +216,7 @@ void HashTable::insert(atp_struct *workAtp, HashRow *newRow, tupp &workAtpTupp1,
 ///////////////////////////////////////////////////////////////////
 NABoolean HashTable::insert(HashRow *newRow) {
   // determine the hash chain
-  ULng32 chainIdx = newRow->hashValue() % headerCount_;
+  int chainIdx = newRow->hashValue() % headerCount_;
 
   // Insert at the beginning of the chain
   newRow->setNext(header_[chainIdx].row_);
@@ -231,13 +231,13 @@ NABoolean HashTable::insert(HashRow *newRow) {
 // (if we can't allocate a new hash-table then we stop resizing; reason is
 //  that we'd have to overflow anyway soon, and likely flush this cluster.)
 ///////////////////////////////////////////////////////////////////////
-ULng32 HashTable::resize(NABoolean enoughMemory) {
+int HashTable::resize(NABoolean enoughMemory) {
   if (!enoughMemory) {
     resizeThreshold_ = UINT_MAX;  // stop resizing
     return 0;
   }
 
-  ULng32 newSize = resizeTo();  // the size for the new HT
+  int newSize = resizeTo();  // the size for the new HT
 
   HashTableHeader *newHeader =
       (HashTableHeader *)collHeap()->allocateMemory((UInt32)(newSize * sizeof(HashTableHeader)), FALSE);
@@ -251,14 +251,14 @@ ULng32 HashTable::resize(NABoolean enoughMemory) {
   memset(newHeader, 0, newSize * sizeof(HashTableHeader));
 
   // insert entries from the old HT into the new HT
-  for (ULng32 oldind = 0; oldind < headerCount_; oldind++) {
+  for (int oldind = 0; oldind < headerCount_; oldind++) {
     HashRow *thisRow = header_[oldind].row_;
     // traverse the old chain; reassign each entry
     while (thisRow) {
       HashRow *nextRow = thisRow->next_;
 
       // determine the new hash chain
-      ULng32 chainIdx = thisRow->hashValue() % newSize;
+      int chainIdx = thisRow->hashValue() % newSize;
 
       // Insert at the beginning of the chain in the new HT
       thisRow->setNext(newHeader[chainIdx].row_);
@@ -268,7 +268,7 @@ ULng32 HashTable::resize(NABoolean enoughMemory) {
     }
   }
 
-  ULng32 memAdded = (newSize - headerCount_) * sizeof(HashTableHeader);
+  int memAdded = (newSize - headerCount_) * sizeof(HashTableHeader);
 
   // remove old one and replace old fields
   collHeap()->deallocateMemory((void *)header_);
@@ -291,7 +291,7 @@ void HashTable::insertUniq(HashRow *newRow) {
 
   // Get the first entry for this chain
   //
-  ULng32 chainIdx = newRowHashValue % headerCount_;
+  int chainIdx = newRowHashValue % headerCount_;
   HashRow *row = header_[chainIdx].row_;
 
   // Entries are inserted in HashValue order
@@ -427,7 +427,7 @@ void HashTable::position(HashTableCursor *cursor, atp_struct *rowAtp, atp_struct
     // Adjust the datapointer in the work atp to point beyond the HashRow.
     workAtpTupp.setDataPointer(row->getData());
 
-    ULng32 matchCount = 1;  // num matched so far
+    int matchCount = 1;  // num matched so far
 
     // If this row matches, then set the cursor to the current row,
     // search for the last matching row and return.
@@ -532,7 +532,7 @@ ex_expr::exp_return_type HashTable::positionUniq(HashRow **currRow, atp_struct *
                                                  SimpleHashValue hashValue) {
   // Get the first entry for this chain
   //
-  ULng32 chainIdx = hashValue % headerCount_;
+  int chainIdx = hashValue % headerCount_;
   HashRow *row = header_[chainIdx].row_;
 
   // Skip over entries that have a lower hash value.
@@ -582,7 +582,7 @@ ex_expr::exp_return_type HashTable::positionUniq(HashRow **currRow, atp_struct *
 /////////////////////////////////////////////////////////
 void HashTable::position(HashTableCursor *cursor) {
   // find the first non empty chain
-  ULng32 i = 0;
+  int i = 0;
   while ((i < headerCount_) && (!(header_[i].row_))) i++;
 
   if (i == headerCount_)
@@ -616,10 +616,10 @@ void HashTable::positionSingleChain(HashTableCursor *cursor) {
 /////////////////////////////////////////////////////////
 // determine the length of hash chain chainIdx
 /////////////////////////////////////////////////////////
-ULng32 HashTable::getChainSize(ULng32 chainIdx) {
+int HashTable::getChainSize(int chainIdx) {
   // sanity check
   ex_assert(chainIdx < headerCount_, "out of bound hash table access");
-  ULng32 count = 0;
+  int count = 0;
   HashRow *row = header_[chainIdx].row_;
   while (row) {
     count++;

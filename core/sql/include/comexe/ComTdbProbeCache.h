@@ -71,11 +71,11 @@ class ComTdbProbeCache : public ComTdb {
   ComTdbProbeCache();  // dummy constructor. Used by 'unpack' routines.
 
   ComTdbProbeCache(ex_expr *hash_probe_expr, ex_expr *encode_probe_expr, ex_expr *move_inner_expr, ex_expr *select_pred,
-                   ULng32 probe_len, ULng32 inner_rec_len, ULng32 cache_size, const unsigned short tupp_index,
+                   int probe_len, int inner_rec_len, int cache_size, const unsigned short tupp_index,
                    const unsigned short hashValIdx, const unsigned short encodedProbeDataIdx,
                    const unsigned short innerRowDataIdx, ComTdb *child_tdb, ex_cri_desc *given_cri_desc,
                    ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, Cardinality estimatedRowCount,
-                   ULng32 numInnerTuples);
+                   int numInnerTuples);
 
   ~ComTdbProbeCache();
 
@@ -103,7 +103,7 @@ class ComTdbProbeCache : public ComTdb {
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
   // ---------------------------------------------------------------------
-  virtual void displayContents(Space *space, ULng32 flag);
+  virtual void displayContents(Space *space, int flag);
 
   virtual const ComTdb *getChild(int pos) const;
 

@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef ELEMDDLPARTITIONSYSTEM_H
 #define ELEMDDLPARTITIONSYSTEM_H
 /* -*-C++-*-
@@ -122,11 +101,11 @@ class ElemDDLPartitionSystem : public ElemDDLPartition {
   // representing the specified LOCATION clause. If the
   // LOCATION clause does not appear, returns NULL.
 
-  inline ULng32 getMaxSize() const;
+  inline int getMaxSize() const;
   inline ComUnits getMaxSizeUnit() const;
-  inline ULng32 getPriExt() const;
-  inline ULng32 getSecExt() const;
-  inline ULng32 getMaxExt() const;
+  inline int getPriExt() const;
+  inline int getSecExt() const;
+  inline int getMaxExt() const;
 
   inline ElemDDLPartition::optionEnum getOption() const;
 
@@ -156,11 +135,11 @@ class ElemDDLPartitionSystem : public ElemDDLPartition {
   inline void setLocationName(const NAString &locationName);
   inline void setPartitionName(const NAString &partitionName);
   inline void setLocationNameType(ElemDDLLocation::locationNameTypeEnum locationNameType);
-  inline void setMaxSize(ULng32 maxSize);
+  inline void setMaxSize(int maxSize);
   inline void setMaxSizeUnit(ComUnits maxSizeUnit);
-  inline void setPriExt(ULng32 priExt);
-  inline void setSecExt(ULng32 secExt);
-  inline void setMaxExt(ULng32 maxExt);
+  inline void setPriExt(int priExt);
+  inline void setSecExt(int secExt);
+  inline void setMaxExt(int maxExt);
 
   //
   // method for binding
@@ -236,17 +215,17 @@ class ElemDDLPartitionSystem : public ElemDDLPartition {
   // MAXSIZE
   NABoolean isMaxSizeSpec_;
   NABoolean isMaxSizeUnbounded_;
-  ULng32 maxSize_;
+  int maxSize_;
   ComUnits maxSizeUnit_;
 
   // EXTENT
   NABoolean isExtentSpec_;
-  ULng32 priExt_;
-  ULng32 secExt_;
+  int priExt_;
+  int secExt_;
 
   // MAXEXTENT
   NABoolean isMaxExtentSpec_;
-  ULng32 maxExt_;
+  int maxExt_;
 
 };  // class ElemDDLPartitionSystem
 
@@ -273,15 +252,15 @@ inline ElemDDLLocation::locationNameTypeEnum ElemDDLPartitionSystem::getLocation
 
 inline ElemDDLNode *ElemDDLPartitionSystem::getLocationNode() const { return children_[INDEX_LOCATION]; }
 
-inline ULng32 ElemDDLPartitionSystem::getMaxSize() const { return maxSize_; }
+inline int ElemDDLPartitionSystem::getMaxSize() const { return maxSize_; }
 
 inline ComUnits ElemDDLPartitionSystem::getMaxSizeUnit() const { return maxSizeUnit_; }
 
-inline ULng32 ElemDDLPartitionSystem::getPriExt() const { return priExt_; }
+inline int ElemDDLPartitionSystem::getPriExt() const { return priExt_; }
 
-inline ULng32 ElemDDLPartitionSystem::getSecExt() const { return secExt_; }
+inline int ElemDDLPartitionSystem::getSecExt() const { return secExt_; }
 
-inline ULng32 ElemDDLPartitionSystem::getMaxExt() const { return maxExt_; }
+inline int ElemDDLPartitionSystem::getMaxExt() const { return maxExt_; }
 
 // is ADD or DELETE option?
 inline ElemDDLPartition::optionEnum ElemDDLPartitionSystem::getOption() const { return option_; }
@@ -326,14 +305,14 @@ inline void ElemDDLPartitionSystem::setLocationNameType(ElemDDLLocation::locatio
   locationNameType_ = locationNameType;
 }
 
-inline void ElemDDLPartitionSystem::setMaxSize(ULng32 maxSize) { maxSize_ = maxSize; }
+inline void ElemDDLPartitionSystem::setMaxSize(int maxSize) { maxSize_ = maxSize; }
 
 inline void ElemDDLPartitionSystem::setMaxSizeUnit(ComUnits maxSizeUnit) { maxSizeUnit_ = maxSizeUnit; }
 
-inline void ElemDDLPartitionSystem::setPriExt(ULng32 priExt) { priExt_ = priExt; }
+inline void ElemDDLPartitionSystem::setPriExt(int priExt) { priExt_ = priExt; }
 
-inline void ElemDDLPartitionSystem::setSecExt(ULng32 secExt) { secExt_ = secExt; }
+inline void ElemDDLPartitionSystem::setSecExt(int secExt) { secExt_ = secExt; }
 
-inline void ElemDDLPartitionSystem::setMaxExt(ULng32 maxExt) { maxExt_ = maxExt; }
+inline void ElemDDLPartitionSystem::setMaxExt(int maxExt) { maxExt_ = maxExt; }
 
 #endif  // ELEMDDLPARTITIONSYSTEM_H

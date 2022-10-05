@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef SORTUTILCONFIG_H
 #define SORTUTILCONFIG_H
 
@@ -69,18 +48,18 @@ class SortUtilConfig : public NABasicObject {
   void setScratchThreshold(unsigned short scratchThreshold) { scratchThreshold_ = scratchThreshold; }
   unsigned short getScratchThreshold() { return scratchThreshold_; }
 
-  void setMaxNumBuffers(ULng32 mbs) { maxNumBuffers_ = mbs; }
-  ULng32 getMaxNumBuffers() const { return maxNumBuffers_; }
+  void setMaxNumBuffers(int mbs) { maxNumBuffers_ = mbs; }
+  int getMaxNumBuffers() const { return maxNumBuffers_; }
 
-  void setSortMemory(ULng32 min = 150000L, ULng32 max = 12000000L);
+  void setSortMemory(int min = 150000L, int max = 12000000L);
 
-  void setSortMaxMemory(ULng32 max = 120000L);
-  void getSortMaxMemory(ULng32 &max);
+  void setSortMaxMemory(int max = 120000L);
+  void getSortMaxMemory(int &max);
 
-  NABoolean setRecSize(ULng32 recsize);
-  ULng32 getRecSize() const;
+  NABoolean setRecSize(int recsize);
+  int getRecSize() const;
 
-  NABoolean setKeyInfo(ULng32 keysize);
+  NABoolean setKeyInfo(int keysize);
 
   void setUseBuffered(NABoolean torf);
   NABoolean getUseBuffered();
@@ -99,14 +78,14 @@ class SortUtilConfig : public NABasicObject {
     scratchDirListSpec_ = scratch_disk_list_spec;
   }
 
-  void setNumDirsSpec(ULng32 nd) { numDirsSpec_ = nd; }
-  ULng32 getNumDirsSpec() { return numDirsSpec_; }
+  void setNumDirsSpec(int nd) { numDirsSpec_ = nd; }
+  int getNumDirsSpec() { return numDirsSpec_; }
 
-  void setEspInstance(ULng32 esp_num) { espInstance_ = esp_num; }
-  ULng32 getEspInstance() { return espInstance_; }
+  void setEspInstance(int esp_num) { espInstance_ = esp_num; }
+  int getEspInstance() { return espInstance_; }
 
-  void setNumEsps(ULng32 numesps) { numEsps_ = numesps; }
-  ULng32 getNumEsps() { return numEsps_; }
+  void setNumEsps(int numesps) { numEsps_ = numesps; }
+  int getNumEsps() { return numEsps_; }
   void setEventHandler(ExSubtask *eh) { ioEventHandler_ = eh; }
   void setIpcEnvironment(IpcEnvironment *ipc) { ipcEnv_ = ipc; }
   void setCallingTcb(ex_tcb *tcb) { callingTcb_ = tcb; }
@@ -188,30 +167,30 @@ class SortUtilConfig : public NABasicObject {
                         // to allocate memory. The executor would pass
                         // a pointer to this object during sortInitialize
 
-  ULng32 approxNumRecords_;  // Can be used by SortUtil for various
+  int approxNumRecords_;  // Can be used by SortUtil for various
                              // estimates including those related to
                              // memory requirements
 
-  ULng32 maxMemRecords_;  // Maximum number of records which
+  int maxMemRecords_;  // Maximum number of records which
                           // Executor can hold in memory at any
                           // point.
 
-  ULng32 recSize_;  // Maximum record size of input.
-  ULng32 keySize_;  // Length of the key prepended to each records.
+  int recSize_;  // Maximum record size of input.
+  int keySize_;  // Length of the key prepended to each records.
                     // This key is already encoded as a string.
 
-  ULng32 runSize_;                                // Using it currently to allow user to specify
-  ULng32 mergeOrder_;                             // Need to modify this to do automatically.
-  ULng32 minMem_;                                 // Minimum sort heap  memory
-  ULng32 maxMem_;                                 // Maximum sort heap memory
+  int runSize_;                                // Using it currently to allow user to specify
+  int mergeOrder_;                             // Need to modify this to do automatically.
+  int minMem_;                                 // Minimum sort heap  memory
+  int maxMem_;                                 // Maximum sort heap memory
   NABoolean topNSort_;                            // TopN sorting enable/disable
-  ULng32 runSizeIncr_;                            // unused :how much to increment the run size by.
-  ULng32 maxNumBuffers_;                          // Max buffer space as set by the compiler
+  int runSizeIncr_;                            // unused :how much to increment the run size by.
+  int maxNumBuffers_;                          // Max buffer space as set by the compiler
   unsigned short scratchThreshold_;               // percent of disk usage after which a disk will be discarded for use
   const ExScratchDiskDrive *scratchDirListSpec_;  // Information about scratchvols to  include or exclude.
-  ULng32 numDirsSpec_;
-  ULng32 espInstance_;
-  ULng32 numEsps_;
+  int numDirsSpec_;
+  int espInstance_;
+  int numEsps_;
   ExSubtask *ioEventHandler_;
   IpcEnvironment *ipcEnv_;
   ex_tcb *callingTcb_;

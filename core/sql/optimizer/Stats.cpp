@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ******************************************************************************
 *
@@ -6785,7 +6764,7 @@ ColumnSet::ColumnSet(const NAColumnArray &colArray, NAMemory *heap) : ClusteredB
 void ColumnSet::display() const { ColumnSet::print(); }
 
 void ColumnSet::print() const {
-  ULng32 i = 0;
+  int i = 0;
   printf("{");
   for (CollIndex x = init(); next(x); advance(x)) {
     printf("%4d ", x);
@@ -6806,7 +6785,7 @@ void ColumnSet::printColsFromTable(FILE *ofd, NATable *table) const {
   if (!ofd) return;
 
   CollIndex x;
-  ULng32 i = 0, colCount = entries();
+  int i = 0, colCount = entries();
   if (!table) {
     for (x = init(); next(x); advance(x)) {
       fprintf(ofd, "%d", x);
@@ -7609,7 +7588,7 @@ void ColStats::createAndAddFrequentValue(const wchar_t *boundary, Interval &iter
 }
 
 NABoolean FrequentValueList::isFull() {
-  const ULng32 maxSkewValues = CURRSTMT_OPTDEFAULTS->maxSkewValuesDetected();
+  const int maxSkewValues = CURRSTMT_OPTDEFAULTS->maxSkewValuesDetected();
 
   if (entries() > maxSkewValues)
     return TRUE;

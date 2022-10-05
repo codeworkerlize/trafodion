@@ -263,7 +263,7 @@ SsmpGlobals::~SsmpGlobals() {
   sem_close((sem_t *)semId_);
 }
 
-ULng32 SsmpGlobals::allocateServers() {
+int SsmpGlobals::allocateServers() {
   // Attempt connect to all SSCPs
   if (sscpServerClass_ == NULL) {
     int noOfNodes;
@@ -360,7 +360,7 @@ void SsmpGlobals::insertDeallocatedSscp(char *nodeName, short cpuNum) {
   }
 }
 
-ULng32 SsmpGlobals::deAllocateServer(char *nodeName, short nodeNameLen, short cpuNum) {
+int SsmpGlobals::deAllocateServer(char *nodeName, short nodeNameLen, short cpuNum) {
   char sscpProcessName[50];
   ServerId serverId;
   short len;

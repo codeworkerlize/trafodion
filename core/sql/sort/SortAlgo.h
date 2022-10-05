@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef SORTALGO_H
 #define SORTALGO_H
 
@@ -51,7 +30,7 @@
 
 class SortAlgo : public NABasicObject {
  public:
-  SortAlgo(ULng32 runsize, ULng32 recsize, NABoolean doNotallocRec, ULng32 keysize, SortScratchSpace *scratch,
+  SortAlgo(int runsize, int recsize, NABoolean doNotallocRec, int keysize, SortScratchSpace *scratch,
            int explainNodeId, ExBMOStats *bmoStats);
   ~SortAlgo(){};
 
@@ -59,14 +38,14 @@ class SortAlgo : public NABasicObject {
   // Note that sort is implemented as a pure virtual function.
   //------------------------------------------------------------
 
-  virtual int sortSend(void *rec, ULng32 len, void *tupp) = 0;
+  virtual int sortSend(void *rec, int len, void *tupp) = 0;
 
   virtual int sortClientOutOfMem(void) = 0;
 
   virtual int sortSendEnd(void) = 0;
 
-  virtual int sortReceive(void *rec, ULng32 &len) = 0;
-  virtual int sortReceive(void *&rec, ULng32 &len, void *&tupp) = 0;
+  virtual int sortReceive(void *rec, int &len) = 0;
+  virtual int sortReceive(void *&rec, int &len, void *&tupp) = 0;
   virtual UInt32 getOverheadPerRecord(void) = 0;
   //-----------------------------------------------------------
   // Since the compare routine is independent of the sort
@@ -74,17 +53,17 @@ class SortAlgo : public NABasicObject {
   //-----------------------------------------------------------
   short compare(char *key1, char *key2);
   virtual int generateInterRuns() = 0;
-  ULng32 getNumOfCompares() const;
+  int getNumOfCompares() const;
   SortScratchSpace *getScratch() const;
   int getRunSize() const;
   void setExternalSort(void) { internalSort_ = FALSE_L; }
   NABoolean isInternalSort(void) { return internalSort_; }
 
  protected:
-  ULng32 numCompares_;
-  ULng32 runSize_;
-  ULng32 recSize_;
-  ULng32 keySize_;
+  int numCompares_;
+  int runSize_;
+  int recSize_;
+  int keySize_;
   SortScratchSpace *scratch_;
   NABoolean sendNotDone_;
   NABoolean internalSort_;

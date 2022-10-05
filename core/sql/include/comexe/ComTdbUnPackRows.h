@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ****************************************************************************
 *
@@ -136,7 +115,7 @@ class ComTdbUnPackRows : public ComTdb {
   ComTdbUnPackRows(ComTdb *childTdb, ex_expr *inputSizeExpr, ex_expr *maxInputRowlenExpr, ex_expr *rwrsBufferAddrExpr,
                    unsigned short rwrsAtpIndex, ex_cri_desc *criDescDown, ex_cri_desc *criDescUp,
                    ex_cri_desc *workCriDesc, queue_index queueSizeDown, queue_index queueSizeUp,
-                   Cardinality estimatedRowCount, int num_buffers, ULng32 buffer_size);
+                   Cardinality estimatedRowCount, int num_buffers, int buffer_size);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -292,7 +271,7 @@ class ComTdbUnPackRows : public ComTdb {
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
   // ---------------------------------------------------------------------
-  void displayContents(Space *space, ULng32 flag);
+  void displayContents(Space *space, int flag);
 
  protected:
   // The child of this UnPackRows TDB.

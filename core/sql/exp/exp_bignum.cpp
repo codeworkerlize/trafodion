@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -411,10 +390,10 @@ short BigNum::castFrom(Attributes *source, char *op_data[], NAMemory *heap, ComD
 
     case REC_BIN32_SIGNED: {
       if (*((int *)op_data[1]) < 0) {
-        *((ULng32 *)op_data[0]) = -*((int *)op_data[1]);
+        *((int *)op_data[0]) = -*((int *)op_data[1]);
         BIGN_SET_SIGN(op_data[0], getLength());
       } else {
-        *((ULng32 *)op_data[0]) = *((int *)op_data[1]);
+        *((int *)op_data[0]) = *((int *)op_data[1]);
       }
 
 #ifdef NA_LITTLE_ENDIAN
@@ -428,7 +407,7 @@ short BigNum::castFrom(Attributes *source, char *op_data[], NAMemory *heap, ComD
     } break;
 
     case REC_BIN32_UNSIGNED: {
-      *((ULng32 *)op_data[0]) = *((ULng32 *)op_data[1]);
+      *((int *)op_data[0]) = *((int *)op_data[1]);
 
 #ifdef NA_LITTLE_ENDIAN
       // Do nothing, target is already in right format.
@@ -489,7 +468,7 @@ short BigNum::castFrom(Attributes *source, char *op_data[], NAMemory *heap, ComD
       int i;
 
       // Compute the 8-digit mantissa by skipping the decimal point.
-      ULng32 mantissa = 0;
+      int mantissa = 0;
       for (i = 1; i <= 9; i++) {
         if (i != 2) mantissa = mantissa * 10 + (tempTarget[i] - '0');
       }

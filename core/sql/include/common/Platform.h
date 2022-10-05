@@ -91,7 +91,7 @@ typedef long long int TInt64;
 
 typedef int Lng32;
 
-/* ULng32 to replace "unsigned long" or "unsigned long int" */
+/* int to replace "unsigned long" or "unsigned long int" */
 /* and some will remain UInt32 and others would become UInt64 when done */
 typedef unsigned int ULng32;
 

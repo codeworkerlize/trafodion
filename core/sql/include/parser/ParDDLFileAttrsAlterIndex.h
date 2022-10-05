@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef PARDDLFILEATTRSALTERINDEX_H
 #define PARDDLFILEATTRSALTERINDEX_H
 /* -*-C++-*-
@@ -120,7 +99,7 @@ class ParDDLFileAttrsAlterIndex : public ParDDLFileAttrs {
   // value has no meanings when neither the ClearOnPurge nor No
   // ClearOnPurge phrase appears.
 
-  inline ULng32 getMaxSize() const;
+  inline int getMaxSize() const;
 
   // Returns the value appearing in the specified MaxSize phrase.
   // The return value has no meanings when the MaxSize phrase
@@ -140,19 +119,19 @@ class ParDDLFileAttrsAlterIndex : public ParDDLFileAttrs {
   // Same as getMaxSizeUnit() except that the returned size unit
   // is in string format so it can be used for tracing purposes.
 
-  inline ULng32 getPriExt() const;
+  inline int getPriExt() const;
 
   // Returns the value appearing in the specified EXTENT phrase.
   // The return value has no meanings when the EXTENT phrase
   // does not appear.
 
-  inline ULng32 getSecExt() const;
+  inline int getSecExt() const;
 
   // Returns the value appearing in the specified EXTENT phrase.
   // The return value has no meanings when the EXTENT phrase
   // does not appear.
 
-  inline ULng32 getMaxExt() const;
+  inline int getMaxExt() const;
 
   // Returns the value appearing in the specified MaxExtent phrase.
   // The return value has no meanings when the MaxExtent phrase
@@ -276,17 +255,17 @@ class ParDDLFileAttrsAlterIndex : public ParDDLFileAttrs {
   // MAXSIZE
   NABoolean isMaxSizeSpec_;
   NABoolean isMaxSizeUnbounded_;
-  ULng32 maxSize_;
+  int maxSize_;
   ComUnits maxSizeUnit_;
 
   // EXTENT
   NABoolean isExtentSpec_;
-  ULng32 priExt_;
-  ULng32 secExt_;
+  int priExt_;
+  int secExt_;
 
   // MAXEXTENT
   NABoolean isMaxExtentSpec_;
-  ULng32 maxExt_;
+  int maxExt_;
 
   // NO LABEL UPDATE
   NABoolean isNoLabelUpdateSpec_;
@@ -313,15 +292,15 @@ inline NABoolean ParDDLFileAttrsAlterIndex::getIsBuffered() const { return isBuf
 
 inline NABoolean ParDDLFileAttrsAlterIndex::getIsClearOnPurge() const { return isClearOnPurge_; }
 
-inline ULng32 ParDDLFileAttrsAlterIndex::getMaxSize() const { return maxSize_; }
+inline int ParDDLFileAttrsAlterIndex::getMaxSize() const { return maxSize_; }
 
 inline ComUnits ParDDLFileAttrsAlterIndex::getMaxSizeUnit() const { return maxSizeUnit_; }
 
-inline ULng32 ParDDLFileAttrsAlterIndex::getPriExt() const { return priExt_; }
+inline int ParDDLFileAttrsAlterIndex::getPriExt() const { return priExt_; }
 
-inline ULng32 ParDDLFileAttrsAlterIndex::getSecExt() const { return secExt_; }
+inline int ParDDLFileAttrsAlterIndex::getSecExt() const { return secExt_; }
 
-inline ULng32 ParDDLFileAttrsAlterIndex::getMaxExt() const { return maxExt_; }
+inline int ParDDLFileAttrsAlterIndex::getMaxExt() const { return maxExt_; }
 
 // is the Allocate phrase specified?
 inline NABoolean ParDDLFileAttrsAlterIndex::isAllocateSpecified() const { return isAllocateSpec_; }

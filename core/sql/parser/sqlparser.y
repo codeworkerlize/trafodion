@@ -1,26 +1,5 @@
 /* -*-C++-*- */
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 %{
 
 /* -*-C++-*-
@@ -12894,7 +12873,7 @@ float_type : TOK_FLOAT
                  }
                else
                  {
-                   if ($2 > (ULng32)CmpCommon::getDefaultNumeric(MAX_NUMERIC_PRECISION_ALLOWED))
+                   if ($2 > (int)CmpCommon::getDefaultNumeric(MAX_NUMERIC_PRECISION_ALLOWED))
                      {
                        *SqlParser_Diags << DgSqlCode(-3014) << DgInt0($2)
                                         << DgInt1((int)CmpCommon::getDefaultNumeric(MAX_NUMERIC_PRECISION_ALLOWED));
@@ -24708,7 +24687,7 @@ delete_statement : delete_start_tokens where_clause with_no_replicate
                                      StringPos start = 0;
                                      StringPos end = 0;
                                      char *where = NULL;
-                                     ULng32 whereLen = 0;
+                                     int whereLen = 0;
 
                                      // Find the end of the WHERE clause if one exists.
                                      //
@@ -25155,7 +25134,7 @@ delete_statement : delete_token no_check_log_rep_read ignore_triggers '[' firstn
                  StringPos start = 0;
                  StringPos end = 0;
                  char *where = NULL;
-                 ULng32 whereLen = 0;
+                 int whereLen = 0;
 
                  // Find the end of the WHERE clause if one exists.
                  //
@@ -25382,7 +25361,7 @@ transaction_statement : TOK_BEGIN
 			      -1, /* diagnostic area size */
 			      st->getAutoAbortInterval(),
 			      st->getMultiCommit(),
-			      (ULng32)st->getMultiCommitSize());
+			      (int)st->getMultiCommitSize());
 
                   if (st->beginAO() == TransMode::AO_ON_)
                     m->setAutoBeginOn(TRUE);
@@ -39628,7 +39607,7 @@ showplan_options : optional_options
                  // DEFAULT_CHARSET has no effect on QUOTED_STRING in this context
                  int i = 0;
                  char *str = (char *)$1->data();
-                 ULng32 flag = 0;
+                 int flag = 0;
                  while(str[i] != '\0')
                    {
                      switch(str[i])

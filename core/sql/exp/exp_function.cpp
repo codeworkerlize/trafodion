@@ -137,7 +137,7 @@ Section missing,
     extern char *
     exClauseGetText(OperatorTypeEnum ote);
 
-void setVCLength(char *VCLen, int VCLenSize, ULng32 value);
+void setVCLength(char *VCLen, int VCLenSize, int value);
 
 static void ExRaiseJSONError(CollHeap *heap, ComDiagsArea **diagsArea, JsonReturnType type);
 
@@ -837,7 +837,7 @@ ex_expr::exp_return_type ex_function_get_bit_value_at::eval(char *op_data[], Col
   unsigned char mask = 1;
   mask = mask << bitnum;
 
-  *((ULng32 *)op_data[0]) = (ULng32)(mask & onechar ? 1 : 0);
+  *((int *)op_data[0]) = (int)(mask & onechar ? 1 : 0);
 
   return ex_expr::EXPR_OK;
 };
@@ -2054,7 +2054,7 @@ ex_expr::exp_return_type ExFunctionChar::eval(char *op_data[], CollHeap *heap, C
     {
       int len0_bytes = getOperand(0)->getLength();
 
-      ULng32 *UCS4ptr = (ULng32 *)op_data[1];
+      int *UCS4ptr = (int *)op_data[1];
 
       int charLength = UCS4ToLocaleChar(UCS4ptr, (char *)op_data[0], len0_bytes, cnv_UTF8);
 
@@ -2152,7 +2152,7 @@ NABoolean ex_function_clause::swapBytes(int datatype, const char *srcData, char 
 
     case REC_BIN32_SIGNED:
     case REC_BIN32_UNSIGNED:
-      *(ULng32 *)tgtData = bswap_32(*(ULng32 *)srcData);
+      *(int *)tgtData = bswap_32(*(int *)srcData);
       dataWasSwapped = TRUE;
       break;
 
@@ -3114,7 +3114,7 @@ ex_expr::exp_return_type ex_function_numberformat::eval(char *op_data[], CollHea
 
   char tmpStr[MAX_NUMFORMAT_STR_LEN + 1];
   memset(tmpStr, ' ', MAX_NUMFORMAT_STR_LEN);
-  ULng32 flags = CONV_NOT_TRIM_TAIL_ZERO;
+  int flags = CONV_NOT_TRIM_TAIL_ZERO;
   if (::convDoIt(arg1Str, arg1->getLength(op_data[-MAX_OPERANDS + 1]), arg1->getDatatype(), arg1->getPrecision(),
                  arg1->getScale(), tmpStr, MAX_NUMFORMAT_STR_LEN, REC_BYTE_F_ASCII, 0, 0, op_data[-MAX_OPERANDS], 0,
                  heap, diagsArea, CONV_UNKNOWN, 0, flags) != ex_expr::EXPR_OK)
@@ -3544,7 +3544,7 @@ ex_expr::exp_return_type ex_function_extract::eval(char *op_data[], CollHeap *he
   return ex_expr::EXPR_OK;
 }
 
-static NABoolean isLeapYear(ULng32 year) { return ((year % 4 == 0) && ((year % 100 != 0) || (year % 400 == 0))); }
+static NABoolean isLeapYear(int year) { return ((year % 4 == 0) && ((year % 100 != 0) || (year % 400 == 0))); }
 
 static NABoolean isLastDayOfMonth(short year, char month, char day) {
   switch (month) {
@@ -3919,9 +3919,9 @@ ex_expr::exp_return_type ex_function_user::eval(char *op_data[], CollHeap *heap,
 
     if (authID < 0) {
       userName[0] = '-';
-      str_itoa((ULng32)(-authID), &userName[1]);
+      str_itoa((int)(-authID), &userName[1]);
     } else {
-      str_itoa((ULng32)(authID), userName);
+      str_itoa((int)(authID), userName);
     }
     userNameLen = str_len(userName);
   }
@@ -3989,12 +3989,12 @@ void ex_function_encode::encodeKeyValue(Attributes *attr, const char *source, co
       //
       // Flip the sign bit.
       //
-      *((ULng32 *)target) = reversebytes(*((ULng32 *)source));
+      *((int *)target) = reversebytes(*((int *)source));
       target[0] ^= 0200;
       break;
 
     case REC_BIN32_UNSIGNED:
-      *((ULng32 *)target) = reversebytes(*((ULng32 *)source));
+      *((int *)target) = reversebytes(*((int *)source));
       break;
 
     case REC_BIN64_SIGNED:
@@ -4027,7 +4027,7 @@ void ex_function_encode::encodeKeyValue(Attributes *attr, const char *source, co
           *((unsigned short *)target) = reversebytes(*((unsigned short *)source));
           break;
         case 4:  // Signed 32 bit
-          *((ULng32 *)target) = reversebytes(*((ULng32 *)source));
+          *((int *)target) = reversebytes(*((int *)source));
           break;
         case 8:  // Signed 64 bit
           *((long long *)target) = reversebytes(*((long long *)source));
@@ -4081,7 +4081,7 @@ void ex_function_encode::encodeKeyValue(Attributes *attr, const char *source, co
             // if there is a fraction, make it big endian
             // (it is an unsigned long, beginning after the SECOND field)
             //
-            if (dtAttr->getScale() > 0) *((ULng32 *)ptr) = reversebytes(*((ULng32 *)ptr));
+            if (dtAttr->getScale() > 0) *((int *)ptr) = reversebytes(*((int *)ptr));
             break;
         }
       }
@@ -4165,7 +4165,7 @@ void ex_function_encode::encodeKeyValue(Attributes *attr, const char *source, co
       // source may not be aligned, move it to a temp var.
       float floatsource;
       str_cpy_all((char *)&floatsource, source, length);
-      ULng32 *dblword = (ULng32 *)&floatsource;
+      int *dblword = (int *)&floatsource;
       if (floatsource < 0)     // the sign is negative,
         *dblword = ~*dblword;  // flip all the bits
       else
@@ -4173,7 +4173,7 @@ void ex_function_encode::encodeKeyValue(Attributes *attr, const char *source, co
 
         // here comes the dependent part
 #ifdef NA_LITTLE_ENDIAN
-      *(ULng32 *)target = reversebytes(*dblword);
+      *(int *)target = reversebytes(*dblword);
 #else
       //    *(unsigned long *) target = *dblword;
       str_cpy_all(target, (char *)&floatsource, length);
@@ -4739,7 +4739,7 @@ ex_expr::exp_return_type ex_function_explode_varchar::eval(char *op_data[], Coll
 ////////////////////////////////////////////////////////////////////
 // class ex_function_hash
 ////////////////////////////////////////////////////////////////////
-ULng32 ex_function_hash::HashHash(ULng32 inValue) {
+int ex_function_hash::HashHash(int inValue) {
   // Hashhash -
   // input :   inValue  -  double word to be hashed
   // output :  30-bit hash values uniformly distributed (mod s) for
@@ -4786,17 +4786,17 @@ ULng32 ex_function_hash::HashHash(ULng32 inValue) {
   // H(k) = h(kn). This precludes the commutative anomaly
   // H(k || k') = H(k' || k)
 
-  register ULng32 u, v, c, d, k0;
-  ULng32 a1, a2, b1, b2;
+  register int u, v, c, d, k0;
+  int a1, a2, b1, b2;
 
-  ULng32 c1 = (ULng32)5233452345LL;
-  ULng32 c2 = (ULng32)8578458478LL;
-  ULng32 d1 = 1862598173LL;
-  ULng32 d2 = 3542657857LL;
+  int c1 = (int)5233452345LL;
+  int c2 = (int)8578458478LL;
+  int d1 = 1862598173LL;
+  int d2 = 3542657857LL;
 
-  ULng32 hashValue = 0;
+  int hashValue = 0;
 
-  ULng32 k = inValue;
+  int k = inValue;
 
   u = (c1 >> 16) * (k >> 16);
   v = c1 * k;
@@ -4844,7 +4844,7 @@ ULng32 ex_function_hash::HashHash(ULng32 inValue) {
 
 ex_expr::exp_return_type ex_function_hash::eval(char *op_data[], CollHeap *, ComDiagsArea **) {
   Attributes *srcOp = getOperand(1);
-  ULng32 hashValue = 0;
+  int hashValue = 0;
 
   if (srcOp->getNullFlag() && (!op_data[-(2 * MAX_OPERANDS) + 1])) {
     // operand is a null value. All null values hash to
@@ -4890,7 +4890,7 @@ ex_expr::exp_return_type ex_function_hash::eval(char *op_data[], CollHeap *, Com
     hashValue = ExHDPHash::hash(op_data[1], flags, length);
   };
 
-  *(ULng32 *)op_data[0] = hashValue;
+  *(int *)op_data[0] = hashValue;
 
   return ex_expr::EXPR_OK;
 };
@@ -5072,7 +5072,7 @@ ex_expr::exp_return_type ex_function_hivehash::eval(char *op_data[], CollHeap *,
     length = srcOp->getLength();
     hashValue = ex_function_hivehash::hashForDoubleType((double *)op_data[1]);
   } else if (DFS2REC::isBinaryNumeric(srcOp->getDatatype())) {
-    hashValue = *(ULng32 *)(op_data[1]);
+    hashValue = *(int *)(op_data[1]);
   }  // TBD: other SQ types
 
   printf("Hive HashCode is [%d]\n", hashValue);
@@ -5089,13 +5089,13 @@ ex_expr::exp_return_type ExHashComb::eval(char *op_data[], CollHeap *heap, ComDi
   // (unsigned) type and length
 
   // with built-in long long type we could also support 8 byte integers
-  ULng32 op1, op2;
+  int op1, op2;
 
   switch (getOperand(0)->getStorageLength()) {
     case 4:
-      op1 = *((ULng32 *)op_data[1]);
-      op2 = *((ULng32 *)op_data[2]);
-      *((ULng32 *)op_data[0]) = ((op1 << 1) | (op1 >> 31)) ^ op2;
+      op1 = *((int *)op_data[1]);
+      op2 = *((int *)op_data[2]);
+      *((int *)op_data[0]) = ((op1 << 1) | (op1 >> 31)) ^ op2;
       break;
     default:
       ExRaiseFunctionSqlError(heap, diagsArea, EXE_INTERNAL_ERROR, derivedFunction(), origFunctionOperType());
@@ -5114,7 +5114,7 @@ ex_expr::exp_return_type ExHiveHashComb::eval(char *op_data[], CollHeap *heap, C
   // (signed) type and length
 
   // with built-in long long type we could also support 8 byte integers
-  ULng32 op1, op2;
+  int op1, op2;
 
   switch (getOperand(0)->getStorageLength()) {
     case 4:
@@ -5149,8 +5149,8 @@ ex_expr::exp_return_type ExHiveHashComb::eval(char *op_data[], CollHeap *heap, C
 // for Arrow reader.
 //--------------------------------------------------------------
 
-ULng32 ExHDPHash::hash(const char *data, UInt32 flags, int length) {
-  ULng32 hashValue = 0;
+int ExHDPHash::hash(const char *data, UInt32 flags, int length) {
+  int hashValue = 0;
   unsigned char *valp = (unsigned char *)data;
   int iter = 0;  // iterator over the key bytes, if needed
 
@@ -5233,7 +5233,7 @@ ULng32 ExHDPHash::hash(const char *data, UInt32 flags, int length) {
 
 ex_expr::exp_return_type ExHDPHash::eval(char *op_data[], CollHeap *, ComDiagsArea **) {
   Attributes *srcOp = getOperand(1);
-  ULng32 hashValue;
+  int hashValue;
 
   if (srcOp->getNullFlag() && (!op_data[-(2 * MAX_OPERANDS) + 1])) {
     // operand is a null value. All null values hash to
@@ -5316,7 +5316,7 @@ ex_expr::exp_return_type ExHDPHash::eval(char *op_data[], CollHeap *, ComDiagsAr
     hashValue = hash(op_data[1], flags, length);
   }
 
-  *(ULng32 *)op_data[0] = hashValue;
+  *(int *)op_data[0] = hashValue;
 
   return ex_expr::EXPR_OK;
 }  // ExHDPHash::eval()
@@ -5334,17 +5334,17 @@ ex_expr::exp_return_type ExHDPHashComb::eval(char *op_data[], CollHeap *heap, Co
   assert(getOperand(0)->getStorageLength() == 4 && getOperand(1)->getStorageLength() == 4 &&
          getOperand(2)->getStorageLength() == 4);
 
-  ULng32 op1, op2;
+  int op1, op2;
 
-  op1 = *((ULng32 *)op_data[1]);
-  op2 = *((ULng32 *)op_data[2]);
+  op1 = *((int *)op_data[1]);
+  op2 = *((int *)op_data[2]);
 
   // One bit, circular shift
   op1 = ((op1 << 1) | (op1 >> 31));
 
   op1 = op1 ^ op2;
 
-  *((ULng32 *)op_data[0]) = op1;
+  *((int *)op_data[0]) = op1;
 
   return ex_expr::EXPR_OK;
 }  // ExHDPHashComb::eval()
@@ -5474,7 +5474,7 @@ ex_expr::exp_return_type ex_function_mask::eval(char *op_data[], CollHeap *heap,
   // (unsigned) type and length
 
   // with built-in long long type we could also support 8 byte integers
-  ULng32 op1, op2, result;
+  int op1, op2, result;
 
   switch (getOperand(0)->getStorageLength()) {
     case 1:
@@ -5498,14 +5498,14 @@ ex_expr::exp_return_type ex_function_mask::eval(char *op_data[], CollHeap *heap,
       *((unsigned short *)op_data[0]) = (unsigned short)result;
       break;
     case 4:
-      op1 = *((ULng32 *)op_data[1]);
-      op2 = *((ULng32 *)op_data[2]);
+      op1 = *((int *)op_data[1]);
+      op2 = *((int *)op_data[2]);
       if (getOperType() == ITM_MASK_SET) {
         result = op1 | op2;
       } else {
         result = op1 & ~op2;
       }
-      *((ULng32 *)op_data[0]) = result;
+      *((int *)op_data[0]) = result;
       break;
     case 8: {
       long lop1 = *((long *)op_data[1]);
@@ -5536,8 +5536,8 @@ ex_expr::exp_return_type ExFunctionShift::eval(char *op_data[], CollHeap *heap, 
     return ex_expr::EXPR_ERROR;
   }
 
-  ULng32 shift = *((ULng32 *)op_data[2]);
-  ULng32 value, result;
+  int shift = *((int *)op_data[2]);
+  int value, result;
 
   switch (getOperand(0)->getStorageLength()) {
     case 1:
@@ -5559,13 +5559,13 @@ ex_expr::exp_return_type ExFunctionShift::eval(char *op_data[], CollHeap *heap, 
       *((unsigned short *)op_data[0]) = (unsigned short)result;
       break;
     case 4:
-      value = *((ULng32 *)op_data[1]);
+      value = *((int *)op_data[1]);
       if (getOperType() == ITM_SHIFT_RIGHT) {
         result = value >> shift;
       } else {
         result = value << shift;
       }
-      *((ULng32 *)op_data[0]) = result;
+      *((int *)op_data[0]) = result;
       break;
     case 8: {
       long value = *((long *)op_data[1]);
@@ -5765,7 +5765,7 @@ ex_expr::exp_return_type ExpRaiseErrorFunction::eval(char *op_data[], CollHeap *
   }
 
   // If it's a warning, we should return a predictable boolean value.
-  *((ULng32 *)op_data[0]) = 0;
+  *((int *)op_data[0]) = 0;
 
   if (raiseError())
     return ex_expr::EXPR_ERROR;
@@ -6068,7 +6068,7 @@ ex_expr::exp_return_type ExUnPackCol::eval(char *op_data[], CollHeap *heap, ComD
         *(unsigned short *)op_data[0] = value;
         return ex_expr::EXPR_OK;
       case 4:
-        *(ULng32 *)op_data[0] = value;
+        *(int *)op_data[0] = value;
         return ex_expr::EXPR_OK;
       default:
         // ERROR - This should never happen.
@@ -6184,7 +6184,7 @@ ex_expr::exp_return_type ex_function_translate::eval(char *op_data[], CollHeap *
 
   Attributes *op0 = getOperand(0);
   Attributes *op1 = getOperand(1);
-  ULng32 convFlags = (flags_ & TRANSLATE_FLAG_ALLOW_INVALID_CODEPOINT ? CONV_ALLOW_INVALID_CODE_VALUE : 0);
+  int convFlags = (flags_ & TRANSLATE_FLAG_ALLOW_INVALID_CODEPOINT ? CONV_ALLOW_INVALID_CODE_VALUE : 0);
 
   return convDoIt(op_data[1], op1->getLength(op_data[-MAX_OPERANDS + 1]), op1->getDatatype(), op1->getPrecision(),
                   (convType == CONV_UTF8_F_UCS2_V) ? (int)(CharInfo::UTF8) : op1->getScale(), op_data[0],
@@ -6223,7 +6223,7 @@ void ExFunctionRandomNum::initSeed(char *op_data[]) {
 
     if (getNumOperands() == 2) {
       // seed is specified as an argument. Use it.
-      seed_ = *(ULng32 *)op_data[1];
+      seed_ = *(int *)op_data[1];
       return;
     }
 
@@ -6282,7 +6282,7 @@ void ExFunctionRandomNum::genRand(char *op_data[]) {
 ex_expr::exp_return_type ExFunctionRandomNum::eval(char *op_data[], CollHeap *, ComDiagsArea **) {
   genRand(op_data);  // generates and sets the random number in seed_
 
-  *((ULng32 *)op_data[0]) = (ULng32)seed_;
+  *((int *)op_data[0]) = (int)seed_;
 
   return ex_expr::EXPR_OK;
 }
@@ -6314,29 +6314,29 @@ ex_expr::exp_return_type ExFunctionRandomSelection::eval(char *op_data[], CollHe
   genRand(NULL);  // generates and sets the random number in seed_
 
   if (getRand() < normProbability_)
-    *((ULng32 *)op_data[0]) = (ULng32)(difference_ + 1);
+    *((int *)op_data[0]) = (int)(difference_ + 1);
   else
-    *((ULng32 *)op_data[0]) = (ULng32)(difference_);
+    *((int *)op_data[0]) = (int)(difference_);
 
   return ex_expr::EXPR_OK;
 }
 
 ex_expr::exp_return_type ExHash2Distrib::eval(char *op_data[], CollHeap *, ComDiagsArea **) {
-  ULng32 keyValue = *(ULng32 *)op_data[1];
-  ULng32 numParts = *(ULng32 *)op_data[2];
-  ULng32 partNo = (ULng32)(((long)keyValue * (long)numParts) >> 32);
+  int keyValue = *(int *)op_data[1];
+  int numParts = *(int *)op_data[2];
+  int partNo = (int)(((long)keyValue * (long)numParts) >> 32);
 
-  *(ULng32 *)op_data[0] = partNo;
+  *(int *)op_data[0] = partNo;
 
   return ex_expr::EXPR_OK;
 }
 
 ex_expr::exp_return_type ExProgDistrib::eval(char *op_data[], CollHeap *, ComDiagsArea **) {
-  ULng32 keyValue = *(int *)op_data[1];
-  ULng32 totNumValues = *(int *)op_data[2];
-  ULng32 resultValue = 1;
-  ULng32 offset = keyValue;
-  ULng32 i = 2;
+  int keyValue = *(int *)op_data[1];
+  int totNumValues = *(int *)op_data[2];
+  int resultValue = 1;
+  int offset = keyValue;
+  int i = 2;
 
   while (offset >= i && i <= totNumValues) {
     int n1 = offset % i;
@@ -6359,22 +6359,22 @@ ex_expr::exp_return_type ExProgDistrib::eval(char *op_data[], CollHeap *, ComDia
     }
   }
 
-  *((ULng32 *)op_data[0]) = resultValue - 1;
+  *((int *)op_data[0]) = resultValue - 1;
   return ex_expr::EXPR_OK;
 }
 ex_expr::exp_return_type ExProgDistribKey::eval(char *op_data[], CollHeap *, ComDiagsArea **) {
-  ULng32 value = *(ULng32 *)op_data[1];
-  ULng32 offset = *(ULng32 *)op_data[2];
-  ULng32 totNumValues = *(ULng32 *)op_data[3];
-  ULng32 uniqueVal = offset >> 16;
+  int value = *(int *)op_data[1];
+  int offset = *(int *)op_data[2];
+  int totNumValues = *(int *)op_data[3];
+  int uniqueVal = offset >> 16;
   offset = offset & 0x0000FFFF;
 
   value++;
 
-  ULng32 i = totNumValues;
+  int i = totNumValues;
   while (i >= 2) {
     if (value == i) {
-      value = (ULng32)(offset - 1) % (i - 1) + 1;
+      value = (int)(offset - 1) % (i - 1) + 1;
       offset = ((offset - 1) / (i - 1) + 1) * i;
       i--;
     } else if (offset < i) {
@@ -6393,14 +6393,14 @@ ex_expr::exp_return_type ExProgDistribKey::eval(char *op_data[], CollHeap *, Com
   return ex_expr::EXPR_OK;
 }
 ex_expr::exp_return_type ExPAGroup::eval(char *op_data[], CollHeap *, ComDiagsArea **) {
-  ULng32 partNum = *(ULng32 *)op_data[1];
-  ULng32 totNumGroups = *(ULng32 *)op_data[2];
-  ULng32 totNumParts = *(ULng32 *)op_data[3];
+  int partNum = *(int *)op_data[1];
+  int totNumGroups = *(int *)op_data[2];
+  int totNumParts = *(int *)op_data[3];
 
-  ULng32 scaleFactor = totNumParts / totNumGroups;
-  ULng32 transPoint = (totNumParts % totNumGroups);
+  int scaleFactor = totNumParts / totNumGroups;
+  int transPoint = (totNumParts % totNumGroups);
 
-  ULng32 groupPart;
+  int groupPart;
 
   if (partNum < (transPoint * (scaleFactor + 1))) {
     groupPart = partNum / (scaleFactor + 1);
@@ -6408,7 +6408,7 @@ ex_expr::exp_return_type ExPAGroup::eval(char *op_data[], CollHeap *, ComDiagsAr
     groupPart = (partNum - transPoint) / scaleFactor;
   }
 
-  *((ULng32 *)op_data[0]) = groupPart;
+  *((int *)op_data[0]) = groupPart;
   return ex_expr::EXPR_OK;
 }
 
@@ -7477,12 +7477,12 @@ short ex_function_encode::decodeKeyValue(Attributes *attr, NABoolean isDesc, cha
       //
       // Flip the sign bit.
       //
-      *((ULng32 *)target) = reversebytes(*((ULng32 *)source));
+      *((int *)target) = reversebytes(*((int *)source));
       target[sizeof(int) - 1] ^= 0200;
       break;
 
     case REC_BIN32_UNSIGNED:
-      *((ULng32 *)target) = reversebytes(*((ULng32 *)source));
+      *((int *)target) = reversebytes(*((int *)source));
       break;
 
     case REC_BIN64_SIGNED:
@@ -7516,7 +7516,7 @@ short ex_function_encode::decodeKeyValue(Attributes *attr, NABoolean isDesc, cha
           target[SQL_SMALL_SIZE - 1] ^= 0200;
           break;
         case 4:  // Signed 32 bit
-          *((ULng32 *)target) = reversebytes(*((ULng32 *)source));
+          *((int *)target) = reversebytes(*((int *)source));
           target[SQL_INT_SIZE - 1] ^= 0200;
           break;
         case 8:  // Signed 64 bit
@@ -7571,7 +7571,7 @@ short ex_function_encode::decodeKeyValue(Attributes *attr, NABoolean isDesc, cha
             // if there is a fraction, make it big endian
             // (it is an unsigned long, beginning after the SECOND field)
             //
-            if (dtAttr->getScale() > 0) *((ULng32 *)ptr) = reversebytes(*((ULng32 *)ptr));
+            if (dtAttr->getScale() > 0) *((int *)ptr) = reversebytes(*((int *)ptr));
             break;
         }
       }
@@ -7659,7 +7659,7 @@ short ex_function_encode::decodeKeyValue(Attributes *attr, NABoolean isDesc, cha
 
       // here comes the dependent part
 #ifdef NA_LITTLE_ENDIAN
-      *(ULng32 *)target = reversebytes(*(ULng32 *)target);
+      *(int *)target = reversebytes(*(int *)target);
 #endif
       break;
     }
@@ -8031,10 +8031,10 @@ ex_expr::exp_return_type ExFunctionCrc32::eval(char *op_data[], CollHeap *heap, 
   int slen = srcAttr->getLength(op_data[-MAX_OPERANDS + 1]);
   int rlen = resultAttr->getLength();
 
-  *(ULng32 *)op_data[0] = 0;
-  ULng32 crc = crc32(0L, Z_NULL, 0);
+  *(int *)op_data[0] = 0;
+  int crc = crc32(0L, Z_NULL, 0);
   crc = crc32(crc, (const Bytef *)op_data[1], slen);
-  *(ULng32 *)op_data[0] = crc;
+  *(int *)op_data[0] = crc;
   return ex_expr::EXPR_OK;
 }
 
@@ -8400,8 +8400,8 @@ static void ExRaiseJSONError(CollHeap *heap, ComDiagsArea **diagsArea, JsonRetur
  *  4. Return the first four bytes padded with 0.
  * */
 ex_expr::exp_return_type ExFunctionSoundex::eval(char *op_data[], CollHeap *heap, ComDiagsArea **diagsArea) {
-  ULng32 previous = 0;
-  ULng32 current = 0;
+  int previous = 0;
+  int current = 0;
 
   char *srcStr = op_data[1];
   char *tgtStr = op_data[0];

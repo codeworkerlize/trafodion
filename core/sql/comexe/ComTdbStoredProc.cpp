@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ****************************************************************************
 *
@@ -41,11 +20,11 @@
 // ---------------------------------------------------------------------
 // ComTdbStoredProc::ComTdbStoredProc()
 // ---------------------------------------------------------------------
-ComTdbStoredProc::ComTdbStoredProc(char *spName, ex_expr *inputExpr, ULng32 inputRowlen, ex_expr *outputExpr,
-                                   ULng32 outputRowlen, ex_cri_desc *workCriDesc, const unsigned short workAtpIndex,
+ComTdbStoredProc::ComTdbStoredProc(char *spName, ex_expr *inputExpr, int inputRowlen, ex_expr *outputExpr,
+                                   int outputRowlen, ex_cri_desc *workCriDesc, const unsigned short workAtpIndex,
                                    ex_cri_desc *criDescDown, ex_cri_desc *criDescUp, ExSPInputOutput *extractInputExpr,
                                    ExSPInputOutput *moveOutputExpr, queue_index fromParent, queue_index toParent,
-                                   Cardinality estimatedRowCount, int numBuffers, ULng32 bufferSize,
+                                   Cardinality estimatedRowCount, int numBuffers, int bufferSize,
                                    ex_expr *predExpr, UInt16 arkcmpInfo)
     : ComTdb(ComTdb::ex_STORED_PROC, eye_STORED_PROC, estimatedRowCount, criDescDown, criDescUp, fromParent, toParent,
              numBuffers, bufferSize),
@@ -112,7 +91,7 @@ ExSPInputOutput::ExSPInputOutput() : NAVersionedObject(-1) {
   flags_ = 0;
 }
 
-void ExSPInputOutput::initialize(ExpTupleDesc *tupleDesc, ULng32 totalLen, ConvInstruction *caseIndexArray) {
+void ExSPInputOutput::initialize(ExpTupleDesc *tupleDesc, int totalLen, ConvInstruction *caseIndexArray) {
   tupleDesc_ = tupleDesc;
   totalLen_ = totalLen;
   caseIndexArray_ = Int16Ptr((Int16 *)caseIndexArray);

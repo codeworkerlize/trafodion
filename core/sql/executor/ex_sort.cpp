@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -324,8 +303,8 @@ ExSortTcb::ExSortTcb(const ExSortTdb &sort_tdb,
   sortCfg_->setSortType(sortType_);
   sortCfg_->setScratchThreshold(st->sortOptions_->scratchFreeSpaceThresholdPct());
   sortCfg_->setMaxNumBuffers(sort_tdb.maxNumBuffers_);
-  sortCfg_->setRecSize((ULng32)sort_tdb.sortRecLen_);
-  sortCfg_->setKeyInfo((ULng32)sort_tdb.sortKeyLen_);
+  sortCfg_->setRecSize((int)sort_tdb.sortRecLen_);
+  sortCfg_->setKeyInfo((int)sort_tdb.sortKeyLen_);
   sortCfg_->setUseBuffered(st->sortOptions_->bufferedWrites());
   sortCfg_->setLogInfoEvent(st->sortOptions_->logDiagnostics());
   sortCfg_->setDisableCmpHintsOverflow(st->sortOptions_->disableCmpHintsOverflow());
@@ -537,7 +516,7 @@ void ExSortTcb::createSortDiags() {
 ////////////////////////////////////////////////////////////////////////
 
 // LCOV_EXCL_START
-void ExSortTcb::createSortNRetryDiags(ULng32 firstNCount, int sortCount) {
+void ExSortTcb::createSortNRetryDiags(int firstNCount, int sortCount) {
   ExExeStmtGlobals *exe_glob = getGlobals()->castToExExeStmtGlobals();
   CollHeap *heap = getGlobals()->getDefaultHeap();
   ComDiagsArea *da = exe_glob->getDiagsArea();
@@ -641,7 +620,7 @@ short ExSortTcb::workDown() {
 short ExSortTcb::workUp() {
   int rc = 0;
   short workRC = 0;
-  ULng32 topNCount = 0;
+  int topNCount = 0;
 
   // if no parent request, return
   if (qparent_.down->isEmpty()) return WORK_OK;
@@ -668,7 +647,7 @@ short ExSortTcb::workUp() {
         setupPoolBuffers(pentry_down);
 
         if ((request == ex_queue::GET_N) && (pentry_down->downState.requestValue > 0))
-          topNCount = (ULng32)pentry_down->downState.requestValue;
+          topNCount = (int)pentry_down->downState.requestValue;
 
         if (sortUtil_->sortInitialize(*sortCfg_, topNCount) != SORT_SUCCESS) {
           createSortDiags();
@@ -1142,9 +1121,9 @@ short ExSortTcb::sortSend(ex_queue_entry *srcEntry, ex_queue::up_status srcStatu
         step = ExSortTcb::SORT_ERROR_ON_RECEIVE;
         break;
       }
-      ULng32 topNCount = 0;
+      int topNCount = 0;
       if ((pentry_down->downState.request == ex_queue::GET_N) && (pentry_down->downState.requestValue > 0))
-        topNCount = (ULng32)pentry_down->downState.requestValue;
+        topNCount = (int)pentry_down->downState.requestValue;
 
       if ((sortTdb().topNSortEnabled() == TRUE) && (sortTdb().raiseFirstNError() == TRUE) && (topNCount > 0) &&
           (sortUtil_->getRunSize() < topNCount)) {
@@ -1218,7 +1197,7 @@ short ExSortTcb::sortReceive(ex_queue_entry *pentry_down, ex_queue::down_request
   // allocate space to hold the returned sorted row.
   // If overflow didn't happen, then sort will return the
   // same tupp_descriptor that we gave it.
-  ULng32 reclen = sortTdb().sortRecLen_;
+  int reclen = sortTdb().sortRecLen_;
   tupp_descriptor *td = NULL;
   tupp_descriptor *receiveTd = NULL;
 

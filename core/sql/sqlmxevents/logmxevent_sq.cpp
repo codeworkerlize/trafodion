@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -136,7 +115,7 @@ void SQLMXLoggingArea::resetSqlText()
 #endif
 
 int SQLMXLoggingArea::logSQLMXEventForError(
-    ULng32 sqlcode, const char *experienceLevel, const char *severityLevel, const char *eventTarget, const char *msgTxt,
+    int sqlcode, const char *experienceLevel, const char *severityLevel, const char *eventTarget, const char *msgTxt,
     const char *sqlId, const int Int0, const int Int1, const int Int2, const int Int3, const int Int4,
     const char *String0, const char *String1, const char *String2, const char *String3, const char *String4,
     const char *serverName, const char *connectionName, const char *constraintCatalog, const char *constraintSchema,
@@ -271,7 +250,7 @@ void SQLMXLoggingArea::logCompNQCretryEvent(char *stmt) {
   str_cpy_all(msg + mLen, stmt, MINOF(sLen, 8192 - mLen));
   logSQLMXEventForError(SQEV_CMP_NQC_RETRY_OCCURED, "ADVANCED", "INFRM", "LOGONLY", msg);
 }
-void SQLMXLoggingArea::logExecRtInfo(const char *fileName, ULng32 lineNo, const char *msg, int explainSeqNum) {
+void SQLMXLoggingArea::logExecRtInfo(const char *fileName, int lineNo, const char *msg, int explainSeqNum) {
   bool lockedMutex = lockMutex();
   short rc = 0;
   SqlSealogEvent sevent;
@@ -356,7 +335,7 @@ void SQLMXLoggingArea::logErr97Event(int rc) {
   }
 #endif
 }
-void SQLMXLoggingArea::logSQLMXPredefinedEvent(ULng32 eventId, SQLMXLoggingArea::Category category) {
+void SQLMXLoggingArea::logSQLMXPredefinedEvent(int eventId, SQLMXLoggingArea::Category category) {
   bool lockedMutex = lockMutex();
   SqlSealogEvent sevent;
   // Open a  new connection
@@ -461,7 +440,7 @@ void SQLMXLoggingArea::logPOSErrorEvent(const int errorCode, const char *msg1, c
 
 // events that correspond to informational messages from CommonLogger or one of
 // its subclasses
-void SQLMXLoggingArea::logCommonLoggerInfoEvent(ULng32 eventId, const char *msg) {
+void SQLMXLoggingArea::logCommonLoggerInfoEvent(int eventId, const char *msg) {
   SqlSealogEvent sevent;
   sevent.openConnection();
   sevent.setExperienceLevel("ADVANCED");
@@ -473,7 +452,7 @@ void SQLMXLoggingArea::logCommonLoggerInfoEvent(ULng32 eventId, const char *msg)
 
 // events that correspond to error messages from CommonLogger or one of its
 // subclasses
-void SQLMXLoggingArea::logCommonLoggerErrorEvent(ULng32 eventId, const char *msg) {
+void SQLMXLoggingArea::logCommonLoggerErrorEvent(int eventId, const char *msg) {
   SqlSealogEvent sevent;
   sevent.openConnection();
   sevent.setExperienceLevel("ADVANCED");
@@ -485,7 +464,7 @@ void SQLMXLoggingArea::logCommonLoggerErrorEvent(ULng32 eventId, const char *msg
 
 // events that correspond to fatal error messages from CommonLogger or one of
 // its subclasses
-void SQLMXLoggingArea::logCommonLoggerFailureEvent(ULng32 eventId, const char *msg) {
+void SQLMXLoggingArea::logCommonLoggerFailureEvent(int eventId, const char *msg) {
   SqlSealogEvent sevent;
   sevent.openConnection();
   sevent.setExperienceLevel("ADVANCED");
@@ -873,7 +852,7 @@ void SQLMXLoggingArea::logUtilErrorsEvent(const char *utilName, const int numOfE
   end TBD */
 }
 
-void SQLMXLoggingArea::logUtilOperationStatusEvent(ULng32 eventId, const char *utilName, const char *objType,
+void SQLMXLoggingArea::logUtilOperationStatusEvent(int eventId, const char *utilName, const char *objType,
                                                    const char *objAnsiName, const char *utilStatus) {
   /* TBD
     tokenClass utilName_tok(
@@ -911,13 +890,13 @@ void SQLMXLoggingArea::logUtilOperationStatusEvent(ULng32 eventId, const char *u
   end TBD */
 }
 
-void SQLMXLoggingArea::logPMEvent(ULng32 eventId) {
+void SQLMXLoggingArea::logPMEvent(int eventId) {
   // TBD
 }
 
 // These aren't currently used
 #if 0
-void SQLMXLoggingArea::logPMOperationStatusEvent(ULng32 eventId,
+void SQLMXLoggingArea::logPMOperationStatusEvent(int eventId,
 						const char *operation, 
 						  const char *objType,
 						  const char *objAnsiName)
@@ -925,7 +904,7 @@ void SQLMXLoggingArea::logPMOperationStatusEvent(ULng32 eventId,
    
 }
  
-void SQLMXLoggingArea::logPMDataCopyStatusEvent(ULng32 eventId, 
+void SQLMXLoggingArea::logPMDataCopyStatusEvent(int eventId, 
 						TInt64 elapsedTime,
 						TInt64 totalCopyCount,
 						const char *unitName)
@@ -933,19 +912,19 @@ void SQLMXLoggingArea::logPMDataCopyStatusEvent(ULng32 eventId,
 
 }
 
-void SQLMXLoggingArea::logPMEventWithGuardianName(ULng32 eventId,
+void SQLMXLoggingArea::logPMEventWithGuardianName(int eventId,
 						  const char *location)
 {
 
 }
 
-void SQLMXLoggingArea::logPMEventWithDumpFileName(ULng32 eventId,
+void SQLMXLoggingArea::logPMEventWithDumpFileName(int eventId,
 						  const char *location)
 {
 
 }
 
-void SQLMXLoggingArea::logPMEventWithInterval(ULng32 eventId,
+void SQLMXLoggingArea::logPMEventWithInterval(int eventId,
 					      TInt64 interval)
 {
 
@@ -965,19 +944,19 @@ void SQLMXLoggingArea::logPMErrorsEvent (const char *operation,
 
 }
 
-void SQLMXLoggingArea::logPMAudInitEvent(ULng32 eventId,
+void SQLMXLoggingArea::logPMAudInitEvent(int eventId,
 					 TInt64 interval)
 {
  
 }
 
-void SQLMXLoggingArea::logPMAudStartEvent(ULng32 eventId,
+void SQLMXLoggingArea::logPMAudStartEvent(int eventId,
 					  const short audNum)
 {
   
 }
 
-void SQLMXLoggingArea::logPMAudDoneEvent(ULng32 eventId,
+void SQLMXLoggingArea::logPMAudDoneEvent(int eventId,
 					 const short audNum,
 					 TInt64 interval)
 {

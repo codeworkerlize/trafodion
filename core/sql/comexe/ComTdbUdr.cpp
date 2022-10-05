@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ****************************************************************************
 *
@@ -43,20 +22,20 @@ ComTdbUdr::ComTdbUdr(char *sqlName, char *routineName, char *routineSignature, c
                      char *librarySqlName, long libraryRedefTime, char *libraryBlobHandle, char *librarySchName,
                      int libraryVersion, char *runtimeOptions, char *runtimeOptionDelimiters,
 
-                     ULng32 flags, ULng32 numInputValues, ULng32 numOutputValues, ULng32 numParams,
-                     ULng32 maxResultSets, ULng32 stateAreaSize, short udrType, short languageType, short paramStyle,
+                     int flags, int numInputValues, int numOutputValues, int numParams,
+                     int maxResultSets, int stateAreaSize, short udrType, short languageType, short paramStyle,
                      short sqlAccessMode, short transactionAttrs, UInt16 externalSecurity, int routineOwnerId,
                      Cardinality estimatedRowCount, ex_cri_desc *criDescParent, ex_cri_desc *criDescReturned,
                      ex_cri_desc *workCriDesc, queue_index downQueueMaxSize, queue_index upQueueMaxSize,
 
-                     int numOutputBuffers, ULng32 outputBufferSize, ULng32 requestBufferSize, ULng32 replyBufferSize,
+                     int numOutputBuffers, int outputBufferSize, int requestBufferSize, int replyBufferSize,
 
                      ex_expr *inputExpr, ex_expr *outputExpr, ex_expr *scanExpr, ex_expr *projExpr,
 
-                     unsigned short requestTuppIndex, unsigned short replyTuppIndex, ULng32 requestRowLen,
-                     ULng32 replyRowLen, ULng32 outputRowLen,
+                     unsigned short requestTuppIndex, unsigned short replyTuppIndex, int requestRowLen,
+                     int replyRowLen, int outputRowLen,
 
-                     ULng32 numChildInputs, ex_expr **childInputExprs, ComTdb **childTdbs,
+                     int numChildInputs, ex_expr **childInputExprs, ComTdb **childTdbs,
 
                      Queue *optionalData,
 
@@ -210,7 +189,7 @@ int ComTdbUdr::unpack(void *base, void *reallocator) {
   return ComTdb::unpack(base, reallocator);
 }
 
-void ComTdbUdr::displayContents(Space *space, ULng32 flag) {
+void ComTdbUdr::displayContents(Space *space, int flag) {
   ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
   if (flag & 0x00000008) {

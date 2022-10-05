@@ -326,7 +326,7 @@ class ComTdbExplain : public ComTdb {
   // Constructor used by the generator.
   ComTdbExplain(ex_cri_desc *criDescParentDown, ex_cri_desc *criDescParentUp, queue_index queueSizeDown,
                 queue_index queueSizeUp, const unsigned short tuppIndex, ex_expr *scanPred, ex_cri_desc *criDescParams,
-                int tupleLength, ex_expr *paramsExpr, int numBuffers, ULng32 bufferSize);
+                int tupleLength, ex_expr *paramsExpr, int numBuffers, int bufferSize);
 
   // This always returns TRUE from now
   int orderedQueueProtocol() const;
@@ -353,7 +353,7 @@ class ComTdbExplain : public ComTdb {
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
   // ---------------------------------------------------------------------
-  void displayContents(Space *space, ULng32 flag);
+  void displayContents(Space *space, int flag);
 
   // The index of the ATP being returned to the parent, that has the
   // new row (explain Info)

@@ -386,7 +386,7 @@ class ExHbaseAccessTcb : public ex_tcb {
   HbaseStr rowID_;
 
   // length of aligned format row created by eval method.
-  ULng32 insertRowlen_;
+  int insertRowlen_;
 
   int rowIDAllocatedLen_;
   char *rowIDAllocatedVal_;

@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef NASTDIOFILE_H
 #define NASTDIOFILE_H
 
@@ -76,7 +55,7 @@ class CNADataSource {
   virtual int WriteString(const char *strLine) = 0;
   virtual int Write(const char *buffer, int bufferSize) = 0;
 
-  virtual ULng32 CheckIOCompletion() = 0;
+  virtual int CheckIOCompletion() = 0;
   virtual NABoolean IsEOF() = 0;
   void SetFileName(const char *fileName) { m_sourceName = fileName; }
 
@@ -168,7 +147,7 @@ class CNAProcess : public CNADataSource {
   int WriteString(const char *strLine);
   int Write(const char *buffer, int bufferSize);
 
-  ULng32 CheckIOCompletion();
+  int CheckIOCompletion();
   NABoolean IsEOF();
 
   // double-byte typed string related routines
@@ -201,7 +180,7 @@ class CNAStdioFile : public CNADataSource {
   int Write(const char *buffer, int bufferSize);
   int Flush();
 
-  ULng32 CheckIOCompletion();
+  int CheckIOCompletion();
   NABoolean IsEOF();
   NABoolean IsOpen();
 
@@ -228,7 +207,7 @@ inline int CNADataSource::ReadBlock(char *buffer, int bufferSize, NABoolean flip
   return 0;
 }
 
-inline ULng32 CNADataSource::CheckIOCompletion() {
+inline int CNADataSource::CheckIOCompletion() {
   // Added to take care of unresolved externals in MXCMP
   ComASSERT(FALSE);
   return 0;

@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ******************************************************************************
 *
@@ -78,7 +57,7 @@ short Describe::codeGen(Generator *generator) {
   ex_cri_desc *returned_desc = new (space) ex_cri_desc(given_desc->noTuples() + 1, space);
 
   ExpTupleDesc *tuple_desc = 0;
-  ULng32 tupleLength;
+  int tupleLength;
   exp_gen->processValIdList(getTableDesc()->getClusteringIndex()->getIndexColumns(),
                             ExpTupleDesc::SQLARK_EXPLODED_FORMAT, tupleLength, 0,
                             // where the fetched row will be
@@ -90,7 +69,7 @@ short Describe::codeGen(Generator *generator) {
   char *query = space->allocateAndCopyToAlignedSpace(originalQuery_, strlen(originalQuery_), 0);
 
   ComTdbDescribe::DescribeType type = ComTdbDescribe::INVOKE_;
-  ULng32 flags = 0;
+  int flags = 0;
   if (format_ == INVOKE_)
     type = ComTdbDescribe::INVOKE_;
   else if (format_ == SHOWSTATS_)
@@ -844,7 +823,7 @@ TrafDesc *HbaseAccess::createVirtualTableDesc(const char *name, NAList<char *> &
 
 short HbaseAccess::genRowIdExpr(Generator *generator, const NAColumnArray &keyColumns,
                                 NAList<HbaseSearchKey *> &searchKeys, ex_cri_desc *work_cri_desc, const int work_atp,
-                                const int rowIdAsciiTuppIndex, const int rowIdTuppIndex, ULng32 &rowIdAsciiRowLen,
+                                const int rowIdAsciiTuppIndex, const int rowIdTuppIndex, int &rowIdAsciiRowLen,
                                 ExpTupleDesc *&rowIdAsciiTupleDesc, UInt32 &rowIdLength, ex_expr *&rowIdExpr,
                                 NABoolean encodeKeys) {
   Space *space = generator->getSpace();
@@ -921,7 +900,7 @@ short HbaseAccess::genRowIdExpr(Generator *generator, const NAColumnArray &keyCo
 short HbaseAccess::genRowIdExprForNonSQ(Generator *generator, const NAColumnArray &keyColumns,
                                         NAList<HbaseSearchKey *> &searchKeys, ex_cri_desc *work_cri_desc,
                                         const int work_atp, const int rowIdAsciiTuppIndex,
-                                        const int rowIdTuppIndex, ULng32 &rowIdAsciiRowLen,
+                                        const int rowIdTuppIndex, int &rowIdAsciiRowLen,
                                         ExpTupleDesc *&rowIdAsciiTupleDesc, UInt32 &rowIdLength, ex_expr *&rowIdExpr) {
   Space *space = generator->getSpace();
   ExpGenerator *expGen = generator->getExpGenerator();
@@ -1504,12 +1483,12 @@ short HbaseAccess::codeGen(Generator *generator) {
   const int hbaseTagTuppIndex = 10;
   const int hbaseRowidIndex = 11;
 
-  ULng32 asciiRowLen;
+  int asciiRowLen;
   ExpTupleDesc *asciiTupleDesc = 0;
   ExpTupleDesc *convertTupleDesc = NULL;
   ExpTupleDesc *hbaseFilterValTupleDesc = NULL;
 
-  ULng32 hbaseFilterValRowLen = 0;
+  int hbaseFilterValRowLen = 0;
 
   ex_cri_desc *work_cri_desc = NULL;
   work_cri_desc = new (space) ex_cri_desc(12, space);
@@ -1778,8 +1757,8 @@ short HbaseAccess::codeGen(Generator *generator) {
 
   ExpTupleDesc *tuple_desc = 0;
   ExpTupleDesc *hdfs_desc = 0;
-  ULng32 executorPredColsRecLength;
-  ULng32 convertRowLen = 0;
+  int executorPredColsRecLength;
+  int convertRowLen = 0;
   ExpHdrInfo hdrInfo;
 
   expGen->generateContiguousMoveExpr(convertExprCastVids,        // [IN] source ValueIds
@@ -1847,9 +1826,9 @@ short HbaseAccess::codeGen(Generator *generator) {
   }
 
   ex_expr *encodedKeyExpr = NULL;
-  ULng32 encodedKeyLen = 0;
+  int encodedKeyLen = 0;
   if (getMdamKeyPtr()) {
-    ULng32 firstKeyColumnOffset = 0;
+    int firstKeyColumnOffset = 0;
     expGen->generateKeyEncodeExpr(getIndexDesc(),
                                   work_atp,  // (IN) Destination Atp
                                   keyTuppIndex, ExpTupleDesc::SQLMX_KEY_FORMAT, encodedKeyLen, &encodedKeyExpr, FALSE,
@@ -2036,10 +2015,10 @@ short HbaseAccess::codeGen(Generator *generator) {
     }
   }
 
-  ULng32 rowIdAsciiRowLen = 0;
+  int rowIdAsciiRowLen = 0;
   ExpTupleDesc *rowIdAsciiTupleDesc = 0;
   ex_expr *rowIdExpr = NULL;
-  ULng32 rowIdLength = 0;
+  int rowIdLength = 0;
   Queue *tdbListOfRangeRows = NULL;
   Queue *tdbListOfUniqueRows = NULL;
 
@@ -2073,7 +2052,7 @@ short HbaseAccess::codeGen(Generator *generator) {
   if (NOT hbRidVIDlist.isEmpty()) expGen->assignAtpAndAtpIndex(hbRidVIDlist, 0, returnedDesc->noTuples() - 1);
 
   Cardinality expectedRows = (Cardinality)getEstRowsUsed().getValue();
-  ULng32 buffersize = 3 * getDefault(GEN_DPSO_BUFFER_SIZE);
+  int buffersize = 3 * getDefault(GEN_DPSO_BUFFER_SIZE);
   queue_index upqueuelength = (queue_index)getDefault(GEN_DPSO_SIZE_UP);
   queue_index downqueuelength = (queue_index)getDefault(GEN_DPSO_SIZE_DOWN);
   int numBuffers = getDefault(GEN_DPUO_NUM_BUFFERS);
@@ -2091,7 +2070,7 @@ short HbaseAccess::codeGen(Generator *generator) {
   UInt32 bufRowlen = MAXOF(convertRowLen, 1000);
   if (bufRowlen > FiveM) upqueuelength = 2;
 
-  ULng32 cbuffersize = SqlBufferNeededSize((upqueuelength * 2 / numBuffers),
+  int cbuffersize = SqlBufferNeededSize((upqueuelength * 2 / numBuffers),
                                            bufRowlen);  // returnedRowlen);
   // But use at least the default buffer size.
   //

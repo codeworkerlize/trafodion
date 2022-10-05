@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef NAROUTINE_H
 #define NAROUTINE_H
 /* -*-C++-*-
@@ -70,10 +49,10 @@ class NARoutineDBKey : public NABasicObject {
   ExtendedQualName routine_;  // Routine name.
   ExtendedQualName action_;   // Action name (blank for routines).
 
-  ULng32 hash() const;
+  int hash() const;
 };  // class NARoutineDBKey
 
-ULng32 hashKey(const NARoutineDBKey &);
+int hashKey(const NARoutineDBKey &);
 
 class NARoutine : public NABasicObject {
   friend class NARoutineDB;
@@ -143,7 +122,7 @@ class NARoutine : public NABasicObject {
   inline const NAString &getSystemName() const { return systemName_; }
   inline const NAString &getDataSource() const { return dataSource_; }
   inline const NAString &getFileSuffix() const { return fileSuffix_; }
-  inline ULng32 getSize() { return heapSize_; }
+  inline int getSize() { return heapSize_; }
   inline const ExtendedQualName *getRoutineName() const { return extRoutineName_; }
   inline const NAString *getActionName() const { return extActionName_; }
   inline const ComObjectName *getIntActionName() const { return intActionName_; }
@@ -223,7 +202,7 @@ class NARoutine : public NABasicObject {
   // The heap for the dynamic allocation of the NARoutine members.
   // -----------------------------------------------------------------------
   NAMemory *heap_;
-  ULng32 heapSize_;     // Size of this heap, set in constructor
+  int heapSize_;     // Size of this heap, set in constructor
                         // (Each NARoutine should be on own heap if cached)
   QualifiedName name_;  // SP name
   ExtendedQualName *extRoutineName_;

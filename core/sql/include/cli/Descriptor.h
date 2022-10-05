@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef DESCRIPTOR_H
 #define DESCRIPTOR_H
 
@@ -63,12 +42,12 @@ class BulkMoveInfo {
  public:
   friend class Descriptor;
 
-  ULng32 maxEntries() { return maxEntries_; };
-  ULng32 usedEntries() { return usedEntries_; };
+  int maxEntries() { return maxEntries_; };
+  int usedEntries() { return usedEntries_; };
 
   // returns info about the i'th entry. Entry num is 0 based.
   NABoolean isExeDataPtr(int i) { return bmiArray_[i].isExePtr(); };
-  ULng32 getLength(int i) { return bmiArray_[i].length_; };
+  int getLength(int i) { return bmiArray_[i].length_; };
   char *getDescDataPtr(int i) { return bmiArray_[i].descDataPtr_; };
   short getExeAtpIndex(int i) { return bmiArray_[i].exeAtpIndex_; };
   Long getExeOffset(int i) { return bmiArray_[i].exeOffset_; };
@@ -78,7 +57,7 @@ class BulkMoveInfo {
   NABoolean isVarchar(int i) { return bmiArray_[i].isVarchar(); };
   NABoolean isNullable(int i) { return bmiArray_[i].isNullable(); };
 
-  void addEntry(ULng32 length, char *descDataPtr, short exeAtpIndex, NABoolean exeIsPtr, Long exeOffset,
+  void addEntry(int length, char *descDataPtr, short exeAtpIndex, NABoolean exeIsPtr, Long exeOffset,
                 short firstEntryNum, short lastEntryNum, NABoolean isVarchar, NABoolean isNullable);
 
  private:
@@ -94,7 +73,7 @@ class BulkMoveInfo {
     NABoolean isNullable() { return (bmiFlags_ & IS_NULLABLE) != 0; }
     void setIsNullable(NABoolean v) { (v ? bmiFlags_ |= IS_NULLABLE : bmiFlags_ &= ~IS_NULLABLE); }
 
-    ULng32 length_;
+    int length_;
     char *descDataPtr_;
     short exeAtpIndex_;
     short bmiFlags_;
@@ -106,9 +85,9 @@ class BulkMoveInfo {
     short lastEntryNum_;
   };
 
-  ULng32 flags_;
-  ULng32 maxEntries_;
-  ULng32 usedEntries_;
+  int flags_;
+  int maxEntries_;
+  int usedEntries_;
 
   BMInfoStruct bmiArray_[1];
 };
@@ -263,9 +242,9 @@ class Descriptor : public ExGod {
   int max_entries;         // Max entries of desc_struct
   int used_entries;        // Num active entries of desc_struct
 
-  ULng32 flags_;
+  int flags_;
 
-  ULng32 compoundStmtsInfo_;  // contains information needed for compound statements
+  int compoundStmtsInfo_;  // contains information needed for compound statements
 
   int rowwiseRowsetSize;      // Number of rows in rowset array they
                                 // are being passed in stacked rowwise.
@@ -349,7 +328,7 @@ class Descriptor : public ExGod {
     int data_offset;
     int null_ind_offset;
 
-    ULng32 desc_flags;
+    int desc_flags;
 
     // Vicz: three new descriptor items to support call stmt description
     short parameterMode;
@@ -458,9 +437,9 @@ class Descriptor : public ExGod {
 
   Long getCurrRowPtrInRowwiseRowset() { return (rowwiseRowsetPtr + rowwiseRowsetRowLen * rowsetNumProcessed); }
 
-  ULng32 getCompoundStmtsInfo() const;
+  int getCompoundStmtsInfo() const;
 
-  void setCompoundStmtsInfo(ULng32 info);
+  void setCompoundStmtsInfo(int info);
 
   inline NABoolean thereIsACompoundStatement() const {
     return ((compoundStmtsInfo_ & ComTdbRoot::COMPOUND_STATEMENT_IN_QUERY) != 0);
@@ -478,8 +457,8 @@ class Descriptor : public ExGod {
     inline long getModuleNameLen()
       { return GET_SQL_MODULE_NAME_LEN_PTR(descriptor_id.module); };
   */
-  inline ULng32 getDescFlags();
-  inline void setDescFlags(ULng32 f);
+  inline int getDescFlags();
+  inline void setDescFlags(int f);
   // static helper functions to deal with FS types
   static int ansiTypeFromFSType(int datatype);
   static const char *ansiTypeStrFromFSType(int datatype);
@@ -654,8 +633,8 @@ inline short Descriptor::dynAllocated() { return dyn_alloc_flag; }
 inline int Descriptor::getMaxEntryCount() { return max_entries; }
 
 inline void Descriptor::setMaxEntryCount(int max_entries_) { max_entries = max_entries_; }
-inline ULng32 Descriptor::getDescFlags() { return flags_; }
-inline void Descriptor::setDescFlags(ULng32 f) { flags_ = f; }
+inline int Descriptor::getDescFlags() { return flags_; }
+inline void Descriptor::setDescFlags(int f) { flags_ = f; }
 
 void stripBlanks(char *buf, int &len);
 

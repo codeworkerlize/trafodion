@@ -566,7 +566,7 @@ class ComTdbRoot : public ComTdb {
   ComTdbRoot();
 
   void init(ComTdb *child_tdb, ex_cri_desc *cri_desc, InputOutputExpr *input_expr, InputOutputExpr *output_expr,
-            int input_vars_size, ex_expr *pkey_expr, ULng32 pkey_len, ex_expr *pred_expr, ex_cri_desc *work_cri_desc,
+            int input_vars_size, ex_expr *pkey_expr, int pkey_len, ex_expr *pred_expr, ex_cri_desc *work_cri_desc,
             ExFragDir *fragDir, TransMode *transMode, char *fetchedCursorName, short fetchedCursorHvar,
             NABoolean delCurrOf, int numUpdateCol, int *updateColList, NABoolean selectInto, short tableCount,
             long firstNRows, NABoolean userInputVars, double cost, SqlTableOpenInfo **stoiList,
@@ -609,7 +609,7 @@ class ComTdbRoot : public ComTdb {
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
   // ---------------------------------------------------------------------
-  virtual void displayContents(Space *space, ULng32 flag);
+  virtual void displayContents(Space *space, int flag);
 
   //-------------------------------------------------------------------------
   // GSH : This function is called from within arkcmp if the user requested
@@ -990,9 +990,9 @@ class ComTdbRoot : public ComTdb {
                                            // statement in query
   };
 
-  inline ULng32 getCompoundStmtsInfo() const { return compoundStmtsInfo_; };
+  inline int getCompoundStmtsInfo() const { return compoundStmtsInfo_; };
 
-  inline void setCompoundStmtsInfo(ULng32 info) { compoundStmtsInfo_ = (short)info; };
+  inline void setCompoundStmtsInfo(int info) { compoundStmtsInfo_ = (short)info; };
 
   // parameterBuffer_ and cacheVarsSize_ are used by Query Caching
   NABasicPtr getParameterBuffer() const {
@@ -1020,7 +1020,7 @@ class ComTdbRoot : public ComTdb {
 
   NABoolean containsUdrInteractions() const;
 
-  inline ULng32 getPlanVersion() const { return planVersion_; }
+  inline int getPlanVersion() const { return planVersion_; }
 
   void setQueryType(QueryType q) { queryType_ = q; }
 

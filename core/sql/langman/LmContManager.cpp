@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ******************************************************************************
 *
@@ -288,7 +267,7 @@ void LmContainerManagerCache::containerLoaded(ComUInt32 size) {
   ++updates_;
   curSize_ += size;
   LM_DEBUG0("  After updating data members:");
-  LM_DEBUG3("    updates_ %lu, curSize_ %lu, maxSize_ %lu", (ULng32)updates_, curSize_, maxSize_);
+  LM_DEBUG3("    updates_ %lu, curSize_ %lu, maxSize_ %lu", (int)updates_, curSize_, maxSize_);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -537,7 +516,7 @@ LmContainer *LmMetaContainerCache::getContainer(const char *containerName, ComDi
   LM_DEBUG0("Inside LmMetaContainerCache::getContainer()...");
   LM_DEBUG2("  path %s, container %s", getPath(), containerName);
   LM_DEBUG2("  LM just loaded %u bytes. MC capacity_ is now %u", size, capacity_);
-  LM_DEBUG1("  About to notify our CM that we loaded %u bytes", (ULng32)(size - capacity_));
+  LM_DEBUG1("  About to notify our CM that we loaded %u bytes", (int)(size - capacity_));
   cm()->containerLoaded(size - capacity_);
 
   // Re-set the capacity.

@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -90,7 +69,7 @@ class ExSqlComp : public ExGod {
             short compilerVersion = COM_VERS_COMPILER_VERSION, char *nodeName_ = NULL, IpcEnvironment *env = NULL);
 
   // requests processing, return a serial number of the request
-  ReturnStatus sendRequest(Operator, const char *input_data = 0, ULng32 size = 0, NABoolean waited = TRUE,
+  ReturnStatus sendRequest(Operator, const char *input_data = 0, int size = 0, NABoolean waited = TRUE,
                            long *id = 0, int charset = SQLCHARSETCODE_UNKNOWN, NABoolean resendFlg = FALSE,
                            const char *parentQid = NULL, int parentQidLen = 0);
 
@@ -102,16 +81,16 @@ class ExSqlComp : public ExGod {
   //
   // sendRequest sends the CmpMessageISPRequest to arkcmp for execution.
   ReturnStatus sendRequest(const char *procName = 0,                              // ISP name, null terminated
-                           void *inputExpr = 0, ULng32 inputExprSize = 0,         // input expr
-                           void *outputExpr = 0, ULng32 outputExprSize = 0,       // output expr
-                           void *keyExpr = 0, ULng32 keyExprSize = 0,             // keys expr
-                           void *inputData = 0, ULng32 inputDataSize = 0,         // input data
-                           ULng32 outputRecSize = 0, ULng32 outputTotalSize = 0,  // output data
+                           void *inputExpr = 0, int inputExprSize = 0,         // input expr
+                           void *outputExpr = 0, int outputExprSize = 0,       // output expr
+                           void *keyExpr = 0, int keyExprSize = 0,             // keys expr
+                           void *inputData = 0, int inputDataSize = 0,         // input data
+                           int outputRecSize = 0, int outputTotalSize = 0,  // output data
                            NABoolean waited = TRUE, long *id = 0, const char *parentQid = NULL,
                            int parentQidLen = 0);
   // send a CmpMessageISPGetNext request with the outstanding request (id)
   // if id is 0 , use the current outstanding one.
-  ReturnStatus getNext(ULng32 bufSize, long id = 0, NABoolean waited = TRUE, const char *parentQid = NULL,
+  ReturnStatus getNext(int bufSize, long id = 0, NABoolean waited = TRUE, const char *parentQid = NULL,
                        int parentQidLen = 0);
 
   // status of the request with id asspecified. If id=0, the current outstanding
@@ -134,7 +113,7 @@ class ExSqlComp : public ExGod {
   // in the case of MOREDATA, getNext(reqId) should be
   // called again to retrieve data.
 
-  ReturnStatus getReply(char *&reply, ULng32 &size, ULng32 maxSize = 0,
+  ReturnStatus getReply(char *&reply, int &size, int maxSize = 0,
                         long id = 0 /* the request id returned previously */, NABoolean getDataWithErrReply = FALSE);
 
   // get the diagnostics area, this area will be clean up in the next
@@ -178,7 +157,7 @@ class ExSqlComp : public ExGod {
 
   // Some helper routines for internal usage
 
-  NABoolean getEnvironment(char *&data, ULng32 &size);
+  NABoolean getEnvironment(char *&data, int &size);
 
   // preSendRequest is to initialize the objects for each request.
   ReturnStatus preSendRequest(NABoolean doRefreshEnvs);
@@ -255,7 +234,7 @@ class ExSqlComp : public ExGod {
 
   // for the one process option
   char *replyData_;
-  ULng32 replyDatalen_;
+  int replyDatalen_;
   ReturnStatus retval_;
   long recentIpcTimestamp_;
 };  // end of ExSqlComp

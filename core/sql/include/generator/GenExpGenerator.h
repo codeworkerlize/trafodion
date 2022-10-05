@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef GEN_EXPGENERATOR_H
 #define GEN_EXPGENERATOR_H
 
@@ -300,13 +279,13 @@ class ExpGenerator : public NABasicObject {
   AListNode *persistentList_;
 
   // length of constants area
-  ULng32 constants_length;
+  int constants_length;
 
   // length of temps area
   long temps_length;
 
   // length of persistent area
-  ULng32 persistentLength_;
+  int persistentLength_;
 
   enum Flags {
     // this flag, if set, indicates that the 'address' of
@@ -378,7 +357,7 @@ class ExpGenerator : public NABasicObject {
   UInt16 pCodeMode_;
   Int16 savedPCodeMode_;
 
-  ULng32 flags_;
+  int flags_;
 
   // For processing ROWS SINCE operator.
 
@@ -436,15 +415,15 @@ class ExpGenerator : public NABasicObject {
   );
 
   // Generate a bulk move for Exploded Format
-  short generateBulkMove(const ValueIdList &inValIdList, ValueIdList &outValIdList, ULng32 tupleLength,
+  short generateBulkMove(const ValueIdList &inValIdList, ValueIdList &outValIdList, int tupleLength,
                          int *bulkMoveSrcStartOffset = NULL);  // IN(O)
 
   // See GenExpGenerator.C for details.
   NABoolean processKeyEncodingOptimization(const NAColumnArray &allColumns, const NAColumnArray &indexKeyColumns,
-                                           const ValueIdList &indexKey, const short keyTag, ULng32 &keyLen,
-                                           ULng32 &firstKeyColumnOffset);
+                                           const ValueIdList &indexKey, const short keyTag, int &keyLen,
+                                           int &firstKeyColumnOffset);
 
-  NABoolean isKeyEncodingNeeded(const IndexDesc *indexDesc, ULng32 &keyLen, ULng32 &firstKeyColumnOffset);
+  NABoolean isKeyEncodingNeeded(const IndexDesc *indexDesc, int &keyLen, int &firstKeyColumnOffset);
 
   ItemExpr *generateKeyCast(const ValueId vid, ItemExpr *dataConversionErrorFlag, NABoolean desc_flag,
                             ExpTupleDesc::TupleDataFormat tf, int &possibleErrorCount,
@@ -452,7 +431,7 @@ class ExpGenerator : public NABasicObject {
 
   // get the key value. Currently used during hbase checkAndDelete/Update
   // calls. Used to validate that this value exists in the database.
-  short generateKeyColValueExpr(const ValueId vid, int atp, int atp_index, ULng32 &len, ex_expr **colValExpr);
+  short generateKeyColValueExpr(const ValueId vid, int atp, int atp_index, int &len, ex_expr **colValExpr);
 
   // input is the index descriptor. Generate an expression to
   // extract and encode the key of the table and create a
@@ -461,20 +440,20 @@ class ExpGenerator : public NABasicObject {
   // be avoided. If so, return the offset to the first key column in
   // the data row.
   short generateKeyEncodeExpr(const IndexDesc *indexDesc, int atp, int atp_index, ExpTupleDesc::TupleDataFormat tf,
-                              ULng32 &keyLen, ex_expr **key_expr, NABoolean optimizeKeyEncoding,
-                              ULng32 &firstKeyColumnOffset, const ValueIdList *keyList = NULL,
+                              int &keyLen, ex_expr **key_expr, NABoolean optimizeKeyEncoding,
+                              int &firstKeyColumnOffset, const ValueIdList *keyList = NULL,
                               NABoolean handleSerialization = FALSE);
 
   short generateExtractKeyColsExpr(const ValueIdList &colVidList,  // const IndexDesc * indexDesc,
-                                   int atp, int atp_index, ULng32 &keyLen, ex_expr **key_expr);
+                                   int atp, int atp_index, int &keyLen, ex_expr **key_expr);
 
   // input is a value id list of key predicates
   short generateKeyExpr(const NAColumnArray &indexKeyColumns, const ValueIdList &val_id_list, int atp,
                         int atp_index, ItemExpr *dataConversionErrorFlag, ExpTupleDesc::TupleDataFormat tf,
-                        ULng32 &keyLen, ex_expr **key_expr, NABoolean allChosenPredsAreEqualPreds);
+                        int &keyLen, ex_expr **key_expr, NABoolean allChosenPredsAreEqualPreds);
 
   short generateDeserializedMoveExpr(const ValueIdList &valIdList, int atp, int atpIndex,
-                                     ExpTupleDesc::TupleDataFormat tdataF, ULng32 &tupleLength, ex_expr **moveExpr,
+                                     ExpTupleDesc::TupleDataFormat tdataF, int &tupleLength, ex_expr **moveExpr,
                                      ExpTupleDesc **tupleDesc, ExpTupleDesc::TupleDescFormat tdescF,
                                      ValueIdList &deserColVIDlist, ValueIdSet &alreadyDeserialized);
 
@@ -532,13 +511,13 @@ class ExpGenerator : public NABasicObject {
                                    int atp,                                                          // IN
                                    int atpIndex,                                                     // IN
                                    ExpTupleDesc::TupleDataFormat tf,                                   // IN
-                                   ULng32 &tupleLength,                                                // OUT
+                                   int &tupleLength,                                                // OUT
                                    ex_expr **moveExpr,                                                 // OUT
                                    ExpTupleDesc **tupleDesc = NULL,                                    // OUT(O)
                                    ExpTupleDesc::TupleDescFormat tdescF = ExpTupleDesc::SHORT_FORMAT,  // IN(O)
                                    MapTable **newMapTable = NULL,                                      // OUT(O)
                                    ValueIdList *tgtValues = NULL,                                      // OUT(O)
-                                   ULng32 start_offset = 0,                                            // IN(O)
+                                   int start_offset = 0,                                            // IN(O)
                                    int *bulkMoveSrcStartOffset = NULL,                               // IN(O)
                                    NABoolean disableConstFolding = FALSE,                              // IN
                                    NAColumnArray *colArray = NULL,                                     // IN
@@ -551,13 +530,13 @@ class ExpGenerator : public NABasicObject {
                                  int atp,                                                          // IN
                                  int atpIndex,                                                     // IN
                                  ExpTupleDesc::TupleDataFormat tf,                                   // IN
-                                 ULng32 &tupleLength,                                                // OUT
+                                 int &tupleLength,                                                // OUT
                                  ex_expr **moveExpr,                                                 // OUT
                                  ExpTupleDesc **tupleDesc = NULL,                                    // OUT(O)
                                  ExpTupleDesc::TupleDescFormat tdescF = ExpTupleDesc::SHORT_FORMAT,  // IN(O)
                                  MapTable **newMapTable = NULL,                                      // OUT(O)
                                  ValueIdList *tgtValues = NULL,                                      // OUT(O)
-                                 ULng32 start_offset = 0);                                           // IN(O)
+                                 int start_offset = 0);                                           // IN(O)
 
   // static method to evaluate a predicate at compile time
   static ex_expr::exp_return_type genEvalPredicate(ItemExpr *rootPtr, ComDiagsArea *diagsArea);
@@ -567,23 +546,23 @@ class ExpGenerator : public NABasicObject {
   // (optional) tuple descriptor (either in long or in short format).
   // Don't generate expression, don't update any map tables.
   ///////////////////////////////////////////////////////////////////////
-  short processAttributes(ULng32 numAttrs, Attributes **attrs, ExpTupleDesc::TupleDataFormat tdataF,
-                          ULng32 &tupleLength, int atp, int atpIndex, ExpTupleDesc **tupleDesc = NULL,
-                          ExpTupleDesc::TupleDescFormat tdescF = ExpTupleDesc::SHORT_FORMAT, ULng32 startOffset = 0,
+  short processAttributes(int numAttrs, Attributes **attrs, ExpTupleDesc::TupleDataFormat tdataF,
+                          int &tupleLength, int atp, int atpIndex, ExpTupleDesc **tupleDesc = NULL,
+                          ExpTupleDesc::TupleDescFormat tdescF = ExpTupleDesc::SHORT_FORMAT, int startOffset = 0,
                           ExpHdrInfo *hdrInfo = NULL, Attributes **offsets = NULL);
 
   ///////////////////////////////////////////////////////////////////////
   // similar to processAttributes, but this time we create new Attributes
   // and add them as a new map table to the current stack of map tables
   ///////////////////////////////////////////////////////////////////////
-  short processValIdList(ValueIdList valIdList, ExpTupleDesc::TupleDataFormat tdataF, ULng32 &tupleLength, int atp,
+  short processValIdList(ValueIdList valIdList, ExpTupleDesc::TupleDataFormat tdataF, int &tupleLength, int atp,
                          int atpIndex, ExpTupleDesc **tupleDesc = NULL,
                          ExpTupleDesc::TupleDescFormat tdescF = ExpTupleDesc::SHORT_FORMAT, int startOffset = 0,
                          Attributes ***returnedAttrs = NULL,  // sorry about the *** :-(
                          NAColumnArray *colArray = NULL, NABoolean isIndex = FALSE,
                          NABoolean placeGuOutputFunctionsAtEnd = FALSE, ExpHdrInfo *hdrInfo = NULL);
 
-  short computeTupleSize(const ValueIdList &valIdList, ExpTupleDesc::TupleDataFormat tdataF, ULng32 &tupleLength,
+  short computeTupleSize(const ValueIdList &valIdList, ExpTupleDesc::TupleDataFormat tdataF, int &tupleLength,
                          int startOffset = 0, UInt32 *varCharSize = NULL, UInt32 *headerSizePtr = NULL);
 
   short assignAtpAndAtpIndex(ValueIdList valIdList, int atp, int atpIndex);
@@ -599,13 +578,13 @@ class ExpGenerator : public NABasicObject {
                             int atp,                                                          // IN
                             int atpIndex,                                                     // IN
                             ExpTupleDesc::TupleDataFormat tf,                                   // IN
-                            ULng32 &tupleLength,                                                // OUT
+                            int &tupleLength,                                                // OUT
                             ex_expr **moveExpr,                                                 // OUT
                             ExpTupleDesc **tupleDesc = NULL,                                    // OUT(O)
                             ExpTupleDesc::TupleDescFormat tdescF = ExpTupleDesc::SHORT_FORMAT,  // IN(O)
                             MapTable **newMapTable = NULL,                                      // OUT(O)
                             ValueIdList *tgtValues = NULL,                                      // OUT(O)
-                            ULng32 start_offset = 0);                                           // IN(O)
+                            int start_offset = 0);                                           // IN(O)
 
   short generateHeaderClause(int atp, int atpIndex, ExpHdrInfo *hdrInfo);
 
@@ -652,7 +631,7 @@ class ExpGenerator : public NABasicObject {
   void linkPersistent(void *expTree);
   AListNode *getPersistentList();
   MapInfo *addPersistent(ValueId val, MapTable *mapTable);
-  inline ULng32 &persistentLength() { return persistentLength_; };
+  inline int &persistentLength() { return persistentLength_; };
 
   // static utility functions to create min/max constants and to convert
   // an NAType to an Attributes object
@@ -727,8 +706,8 @@ class ExpGenerator : public NABasicObject {
   // maptable allocated at the start of generating an expression.
   inline MapTable *getExprMapTable() { return mapTable_; };
 
-  inline ULng32 getConstLength() { return constants_length; }
-  inline void addConstLength(ULng32 length) { constants_length += length; }
+  inline int getConstLength() { return constants_length; }
+  inline void addConstLength(int length) { constants_length += length; }
 
   MapInfo *addTemporary(ValueId val, MapTable *mapTable);
   //
@@ -740,32 +719,32 @@ class ExpGenerator : public NABasicObject {
   inline long getTempsLength() { return temps_length; }
   inline void addTempsLength(long length) { temps_length += length; }
 
-  void setFixupConstsAndTemps(ULng32 v) {
+  void setFixupConstsAndTemps(int v) {
     if (v != 0)
       flags_ |= FIXUP_CONSTS_AND_TEMPS;
     else
       flags_ &= ~FIXUP_CONSTS_AND_TEMPS;
   };
 
-  ULng32 getFixupConstsAndTemps() { return flags_ & FIXUP_CONSTS_AND_TEMPS; }
+  int getFixupConstsAndTemps() { return flags_ & FIXUP_CONSTS_AND_TEMPS; }
 
-  void setShowplan(ULng32 v) {
+  void setShowplan(int v) {
     if (v != 0)
       flags_ |= SHOWPLAN_;
     else
       flags_ &= ~SHOWPLAN_;
   };
 
-  ULng32 getShowplan() { return flags_ & SHOWPLAN_; }
+  int getShowplan() { return flags_ & SHOWPLAN_; }
 
-  void setNoTransaction(ULng32 v) {
+  void setNoTransaction(int v) {
     if (v != 0)
       flags_ |= NOTRANSACTION_;
     else
       flags_ &= ~NOTRANSACTION_;
   };
 
-  ULng32 getNoTransaction() { return flags_ & NOTRANSACTION_; }
+  int getNoTransaction() { return flags_ & NOTRANSACTION_; }
 
   void setClauseLinked(NABoolean v) {
     if (v)

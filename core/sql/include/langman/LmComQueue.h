@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ****************************************************************************
 *
@@ -111,7 +90,7 @@ class Q_Entry {
   Long pack(void *space);
   int unpack(void *base);
 
-  ULng32 packedLength() { return packedLength_; }
+  int packedLength() { return packedLength_; }
 };
 
 // ---------------------------------------------------------------------
@@ -151,13 +130,13 @@ class Queue {
   ~Queue();
 
   // inserts at tail
-  void insert(void *entry_, ULng32 entryPackedLength = 0);
+  void insert(void *entry_, int entryPackedLength = 0);
 
   // returns the head entry
   void *get();
 
   // returns the i'th entry
-  void *get(ULng32 i);
+  void *get(int i);
 
   // returns the head entry
   void *getHead();
@@ -186,7 +165,7 @@ class Queue {
   // removes the 'entry' entry
   void remove(void *entry);
 
-  void packCurrEntryIntoBuffer(char *buffer, ULng32 &currPos);
+  void packCurrEntryIntoBuffer(char *buffer, int &currPos);
 
   Long pack(void *space);
 
@@ -197,14 +176,14 @@ class Queue {
 
   int numEntries() { return numEntries_; }
 
-  ULng32 packedLength() { return packedLength_; }
+  int packedLength() { return packedLength_; }
 
   // packs 'this' into a contiguous buffer. Converts pointers
   // to offsets. The passed buflen must not be less than
   // packedLength_. Returns TRUE, if no error.
-  NABoolean packIntoBuffer(char *buffer, ULng32 &buflen);
+  NABoolean packIntoBuffer(char *buffer, int &buflen);
 
-  void packTailIntoBuffer(char *buffer, ULng32 &currPos, Queue *packedQueue);
+  void packTailIntoBuffer(char *buffer, int &currPos, Queue *packedQueue);
 };
 
 // A HashQueue is basically a container which is accessed by
@@ -223,7 +202,7 @@ class HashQueueEntry : public NABasicObject {
   friend class HashQueue;
 
  public:
-  HashQueueEntry(void *entry, HashQueueEntry *prev, HashQueueEntry *next, ULng32 hashValue)
+  HashQueueEntry(void *entry, HashQueueEntry *prev, HashQueueEntry *next, int hashValue)
       : entry_(entry), prev_(prev), next_(next), hashValue_(hashValue) {}
 
   ~HashQueueEntry() {}
@@ -232,25 +211,25 @@ class HashQueueEntry : public NABasicObject {
   HashQueueEntry *prev_;
   HashQueueEntry *next_;
   void *entry_;
-  ULng32 hashValue_;
+  int hashValue_;
 };
 
 class HashQueue : public NABasicObject {
  public:
-  HashQueue(CollHeap *heap, ULng32 hashTableSize = 513);
+  HashQueue(CollHeap *heap, int hashTableSize = 513);
 
   HashQueue(const NABoolean shadowCopy, const HashQueue &other);
 
   ~HashQueue();
 
-  ULng32 entries() { return entries_; }
+  int entries() { return entries_; }
 
-  ULng32 size() { return hashTableSize_; }
+  int size() { return hashTableSize_; }
 
-  void insert(char *data, ULng32 dataLength, void *entry);
+  void insert(char *data, int dataLength, void *entry);
 
   // position by hashing
-  void position(char *data, ULng32 dataLength);
+  void position(char *data, int dataLength);
 
   // posuition globaly
   void position();
@@ -268,18 +247,18 @@ class HashQueue : public NABasicObject {
   int numEntries() { return (int)entries_; }
 
  private:
-  ULng32 entries_;                // number of entries in this HashQueue
-  ULng32 hashTableSize_;          // size of the hash table
+  int entries_;                // number of entries in this HashQueue
+  int hashTableSize_;          // size of the hash table
   HashQueueEntry **hashTable_;    // the hash table itself
   HashQueueEntry *lastReturned_;  // the last entry returned by getNext()
   HashQueueEntry *current_;       // points to the current entry
-  ULng32 currentChain_;           // the chain were current_ is located
-  ULng32 hashValue_;              // hash value of the last position
+  int currentChain_;           // the chain were current_ is located
+  int hashValue_;              // hash value of the last position
   NABoolean globalScan_;          // if true, getNext ignores hashValue
   CollHeap *heap_;                // the heap a HashQueue allocates from
   NABoolean shadowCopy_;          // TRUE if constructed by shadow copy
 
-  void getHashValue(char *data, ULng32 dataLength);
+  void getHashValue(char *data, int dataLength);
 };
 }  // namespace LangManPack
 using namespace LangManPack;

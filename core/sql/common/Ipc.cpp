@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -190,7 +169,7 @@ IpcProcessId::IpcProcessId(const char *asciiRepresentation) : IpcMessageObj(IPC_
       if (NOT sen.hasError()) {
         pid_.ipAddress_ = ipAddr.getRawAddress();
         // now parse the port number
-        ULng32 portNo = 0;
+        int portNo = 0;
         colonPos++;
         while (asciiRepresentation[colonPos] >= '0' AND asciiRepresentation[colonPos] <= '9') {
           portNo = portNo * 10 + (asciiRepresentation[colonPos] - '0');
@@ -499,7 +478,7 @@ void IpcServer::logEspRelease(const char *filename, int lineNum, const char *msg
     if (cc->castToGuaConnectionToServer()) guaError = cc->castToGuaConnectionToServer()->getGuardianError();
 
     // get replySeqNum_ and state_
-    ULng32 replySeqNum = cc->getReplySeqNum();
+    int replySeqNum = cc->getReplySeqNum();
 
     char *state = (char *)"No State";
     switch (cc->getState()) {
@@ -1091,7 +1070,7 @@ void IpcAllConnections::checkLocalIntegrity(void) {
 
   // check integrity of the set of connections
   CollIndex conn = 0;
-  ULng32 entriesChecked = 0;
+  int entriesChecked = 0;
 
   // find first IpcConnection * (if any)
   while (entriesChecked < entries()) {
@@ -1105,7 +1084,7 @@ void IpcAllConnections::checkLocalIntegrity(void) {
 
 #endif
 
-CollIndex IpcAllConnections::fillInListOfPendingPins(char *buff, ULng32 buffSize, CollIndex numOfPins) {
+CollIndex IpcAllConnections::fillInListOfPendingPins(char *buff, int buffSize, CollIndex numOfPins) {
   CollIndex i;
   CollIndex firstConnInd = 0;
   CollIndex numOfPendings = MINOF(numOfPins, pendingIOs_->entriesMutex());
@@ -1116,7 +1095,7 @@ CollIndex IpcAllConnections::fillInListOfPendingPins(char *buff, ULng32 buffSize
   for (i = 0; i < numOfPendings; i++) {
     if (NOT pendingIOs_->nextUsedMutex(firstConnInd)) break;  // should not happen
     len = pendingIOs_->element(firstConnInd)->getOtherEnd().toAscii(tempB, 300);
-    if (len > 0 && (ULng32)len + 2 < buffSize) {
+    if (len > 0 && (int)len + 2 < buffSize) {
       if (buff[0] != '\0')  // not the first entry
       {
         str_cat(buff, ", ", buff);
@@ -1421,7 +1400,7 @@ WaitReturnStatus IpcWaitableSetOfConnections::waitOnSet(IpcTimeout timeout, NABo
   CollIndex firstConnInd, currentFirstConnInd;
   IpcConnection *firstConnection = NULL;  // For ESP it's conn to the Master
   NABoolean somethingCompleted = FALSE;
-  ULng32 seqNo = 0;
+  int seqNo = 0;
   IpcAllConnections *allc = NULL;
   int currTimeSlices = timeSlices;
   IpcEnvironment *env = env_;
@@ -2093,11 +2072,11 @@ CollIndex IpcMessageBuffer::getLockCount(IpcMessageObjSize offset) {
 }
 
 void IpcMessageBuffer::alignOffset(IpcMessageObjSize &offset) {
-  ULng32 offs = (ULng32)offset;  // just for safety
+  int offs = (int)offset;  // just for safety
 
   // clear the last 3 bits of the address to round it down to
   // the next address that is divisible by 8
-  ULng32 roundedDown = offs LAND 0xFFFFFFF8;
+  int roundedDown = offs LAND 0xFFFFFFF8;
 
   // if that didn't change anything we're done, the offset was
   // aligned already
@@ -4670,7 +4649,7 @@ short getDefineShort(char *defineName) {
   return (short)retVal;
 }
 
-static ULng32 pid_t_HashFunc(const pid_t &k) { return (ULng32)(k % 65536); }
+static int pid_t_HashFunc(const pid_t &k) { return (int)(k % 65536); }
 
 // -----------------------------------------------------------------------
 // Methods for IpcEnvironment
@@ -4845,7 +4824,7 @@ void IpcEnvironment::closeTrace(unsigned short line, short clientFileNumber, int
   (*closeTraceArray_)[i].seqNum_ = seqNum;
   closeTraceIndex_ = i;
 }
-void IpcEnvironment::bawaitioxTrace(IpcSetOfConnections *ipcSetOfConnections, ULng32 recursionCount,
+void IpcEnvironment::bawaitioxTrace(IpcSetOfConnections *ipcSetOfConnections, int recursionCount,
                                     CollIndex firstConnectionIndex, IpcConnection *firstConnection,
                                     IpcAwaitiox *ipcAwaitiox) {
   unsigned short i = bawaitioxTraceIndex_ == bawaitioxTraceEntries - 1 ? 0 : bawaitioxTraceIndex_ + 1;

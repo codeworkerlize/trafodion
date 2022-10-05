@@ -554,7 +554,7 @@ struct rec_record_struct {
 
 struct key_field_struct {
   short field_num;
-  ULng32 flags;
+  int flags;
 };
 
 struct key_record_struct {

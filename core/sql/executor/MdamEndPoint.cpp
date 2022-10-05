@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ********************************************************************************
 *
@@ -84,7 +63,7 @@ void MdamEndPoint::adjustIntervalPtr(MdamInterval *&intervalPtr, const int logic
   };
 }
 
-MdamEnums::MdamOrder MdamEndPoint::compare(const MdamEndPoint *other, const ULng32 keyLen) const {
+MdamEnums::MdamOrder MdamEndPoint::compare(const MdamEndPoint *other, const int keyLen) const {
   MdamEnums::MdamOrder tempOrderResult = pointPtr_->compare(other->pointPtr_, keyLen);
   if (tempOrderResult != MdamEnums::MDAM_EQUAL) {
     return tempOrderResult;
@@ -102,7 +81,7 @@ MdamEnums::MdamOrder MdamEndPoint::compare(const MdamEndPoint *other, const ULng
 // If an interval were to be formed using this MdamEndPoint as the end endpoint
 // and previousEndPoint MdamEndPoint as the begin endpoint, this function determines
 // if the resulting interval would be empty.
-NABoolean MdamEndPoint::givesNonEmptyInterval(const MdamEndPoint *previousEndPoint, const ULng32 keyLen) const {
+NABoolean MdamEndPoint::givesNonEmptyInterval(const MdamEndPoint *previousEndPoint, const int keyLen) const {
   // Genesis case 10-980205-3598: changed test to consider value but
   // not inclusion nor endPointType.
   if (pointPtr_->compare(previousEndPoint->pointPtr_, keyLen) != MdamEnums::MDAM_EQUAL ||

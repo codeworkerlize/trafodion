@@ -17,7 +17,7 @@ class ComTdbSequence : public ComTdb {
   ComTdbSequence(ex_expr *sequenceExpr, ex_expr *returnExpr, ex_expr *postPred, ex_expr *cancelExpr, int minFollowing,
                  int reclen, const unsigned short tupp_index, ComTdb *child_tdb, ex_cri_desc *given_cri_desc,
                  ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
-                 ULng32 buffer_size,      // for SQL buffer (with results)
+                 int buffer_size,      // for SQL buffer (with results)
                  int OLAP_buffer_size,  // for OLAP buffer
                  // olap_number_of_buffers is for testing purposes, can be removed later
                  int max_number_of_OLAP_buffers,  // number of olap buffers
@@ -48,7 +48,7 @@ class ComTdbSequence : public ComTdb {
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
   // ---------------------------------------------------------------------
-  virtual void displayContents(Space *space, ULng32 flag);
+  virtual void displayContents(Space *space, int flag);
 
   inline ComTdb *getChildTdb();
 
@@ -101,7 +101,7 @@ class ComTdbSequence : public ComTdb {
   NABoolean logDiagnostics() const { return (OLAPFlags_ & LOG_DIAGNOSTICS) != 0; }
   // Is this Sequence Operator under the right child of a TSJ ?
   NABoolean isPossibleMultipleCalls() const { return (OLAPFlags_ & POSSIBLE_MULTIPLE_CALLS) != 0; }
-  ULng32 memoryQuotaMB() const { return (ULng32)memoryQuotaMB_; }
+  int memoryQuotaMB() const { return (int)memoryQuotaMB_; }
   void setMemoryQuotaMB(UInt16 v) { memoryQuotaMB_ = v; }
 
   int getOLAPBufferSize() const { return OLAPBufferSize_; }

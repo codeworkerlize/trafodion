@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef EX_IO_CONTROL_H
 #define EX_IO_CONTROL_H
 
@@ -51,9 +30,9 @@ class ControlInfo {
   inline up_state &getUpState();
   inline down_state &getDownState();
 
-  inline ULng32 getBufferSequenceNumber();
+  inline int getBufferSequenceNumber();
 
-  inline void setBufferSequenceNumber(ULng32 snum);
+  inline void setBufferSequenceNumber(int snum);
   inline NABoolean getIsDiagsAreaPresent() const;
   inline void setIsDiagsAreaPresent(NABoolean);
   inline NABoolean getIsDiagsAreaUnpacked() const;
@@ -86,7 +65,7 @@ class ControlInfo {
     HAS_EXT_STATSAREA = 0x10,
     IS_DIAGSAREA_UNPACKED = 0x20
   };
-  ULng32 ciFlags_;
+  int ciFlags_;
 };
 
 //
@@ -97,9 +76,9 @@ inline up_state &ControlInfo::getUpState() { return upState_; };
 
 inline down_state &ControlInfo::getDownState() { return downState_; };
 
-inline ULng32 ControlInfo::getBufferSequenceNumber() { return downState_.requestValue; }
+inline int ControlInfo::getBufferSequenceNumber() { return downState_.requestValue; }
 
-inline void ControlInfo::setBufferSequenceNumber(ULng32 snum) { downState_.requestValue = (int)snum; }
+inline void ControlInfo::setBufferSequenceNumber(int snum) { downState_.requestValue = (int)snum; }
 
 inline NABoolean ControlInfo::getIsDiagsAreaPresent() const { return (ciFlags_ & HAS_DIAGSAREA); }
 

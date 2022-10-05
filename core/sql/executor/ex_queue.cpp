@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ******************************************************************************
 *
@@ -58,7 +37,7 @@ ex_queue::ex_queue(const queue_type type, queue_index initialSize, ex_cri_desc *
       resizeLimit_(0),
       needsPstates_(FALSE),
       needsAtps_(FALSE) {
-  ULng32 i;
+  int i;
 
   // make size a power of 2 and greater than 1.
   //
@@ -685,7 +664,7 @@ void ex_queue::injectErrorOrCancel() {
   ex_queue_entry *qe = getQueueEntry(tail_ - 1);
 
   // DO the ol' switcheroo, but not every time.
-  ULng32 freq = insertSubtask_->getTcb()->getGlobals()->getInjectErrorAtQueue();
+  int freq = insertSubtask_->getTcb()->getGlobals()->getInjectErrorAtQueue();
   if (freq == 0) return;
   if (upDown_ == UP_QUEUE) {
     if ((rand() & (freq - 1)) != 0) return;
@@ -801,7 +780,7 @@ void ex_queue::logRemoveHead() {
 }
 
 queue_index ex_queue::roundUp2Power(queue_index i) {
-  ULng32 count = 1;
+  int count = 1;
   queue_index s = i - 1;
   while (s > 1) {
     count++;

@@ -154,7 +154,7 @@ short ProbeCache::codeGen(Generator *generator) {
   hvAsList.insert(hvAsIe->getValueId());
 
   ex_expr *hvExpr = NULL;
-  ULng32 hvLength;
+  int hvLength;
   exp_gen->generateContiguousMoveExpr(hvAsList,
                                       0,  // don't add convert node
                                       work_atp, hashValIdx, ExpTupleDesc::SQLARK_EXPLODED_FORMAT, hvLength, &hvExpr);
@@ -194,7 +194,7 @@ short ProbeCache::codeGen(Generator *generator) {
   }
 
   ex_expr *encodeInputExpr = NULL;
-  ULng32 encodedInputLength;
+  int encodedInputLength;
   exp_gen->generateContiguousMoveExpr(encodeInputAsList,
                                       0,  // don't add conv nodes
                                       work_atp, encodedProbeDataIdx, ExpTupleDesc::SQLARK_EXPLODED_FORMAT,
@@ -216,7 +216,7 @@ short ProbeCache::codeGen(Generator *generator) {
   ExpTupleDesc::TupleDataFormat tupleFormat = generator->getInternalFormat();
   // tupleFormat = determineInternalFormat( innerTableAsList, this, useCif,generator);
 
-  ULng32 innerRecLength = 0;
+  int innerRecLength = 0;
   ExpTupleDesc *innerRecTupleDesc = 0;
   MapTable *returnedMapTable = NULL;
 
@@ -282,7 +282,7 @@ short ProbeCache::codeGen(Generator *generator) {
     if (estimatedMemory > memoryLimitPerInstance) numCachedProbes_ = memoryLimitPerInstance / encodedInputLength;
   }
 
-  ULng32 pcNumEntries = numCachedProbes_;
+  int pcNumEntries = numCachedProbes_;
 
   // Number of entries in the probe cache cannot be less than
   // max parent down queue size.  Before testing and adjusting the

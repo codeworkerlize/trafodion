@@ -742,9 +742,9 @@ void NARoutine::getPrivileges(TrafDesc *priv_desc, BindWA *bindWA) {
   }
 }
 
-ULng32 NARoutineDBKey::hash() const { return routine_.hash() ^ action_.hash(); }
+int NARoutineDBKey::hash() const { return routine_.hash() ^ action_.hash(); }
 
-ULng32 hashKey(const NARoutineDBKey &key) { return key.hash(); }
+int hashKey(const NARoutineDBKey &key) { return key.hash(); }
 // NARoutineDB member functions (NARoutine caching)
 #define DEFAULT_ROUTINEDB_CACHE_SZ 20  // in MB
 
@@ -796,7 +796,7 @@ void NARoutineDB::moveRoutineToDeleteList(NARoutine *cachedNARoutine, const NARo
   remove(key);
 
   // Adjust cache size
-  if ((ULng32)cachedNARoutine->getSize() <= currentCacheSize_) {
+  if ((int)cachedNARoutine->getSize() <= currentCacheSize_) {
     currentCacheSize_ -= cachedNARoutine->getSize();
     if (entries_ > 0) entries_--;
   } else {
@@ -832,7 +832,7 @@ void NARoutineDB::invalidateSPSQLRoutines(LIST(NARoutine *) & routines) {
   }
   sql.append(";')");
   if (found) {
-    ULng32 savedParserFlags = 0;
+    int savedParserFlags = 0;
     SQL_EXEC_GetParserFlagsForExSqlComp_Internal(savedParserFlags);
     SQL_EXEC_SetParserFlagsForExSqlComp_Internal(INTERNAL_QUERY_FROM_EXEUTIL);
     PushAndSetSqlParserFlags parserFlags(INTERNAL_QUERY_FROM_EXEUTIL);
@@ -1082,7 +1082,7 @@ NABoolean NARoutineDB::enforceMemorySpaceConstraints() {
       if (entries_ > 0) entries_--;
       delete oldestRoutine;
     }
-    if ((ULng32)oldestRoutine->getSize() <= currentCacheSize_) {
+    if ((int)oldestRoutine->getSize() <= currentCacheSize_) {
       currentCacheSize_ -= oldestRoutine->getSize();
       if (entries_ > 0) entries_--;
     } else {
@@ -1198,12 +1198,12 @@ SP_STATUS NARoutineCacheStatStoredProcedure::sp_ProcessRoutine(SP_PROCESS_ACTION
     }
     NARoutineCacheStats stats;
     if (!it->getNext(stats)) return SP_SUCCESS;
-    fFunc(0, outputData, sizeof(ULng32), &(stats.numLookups), 0);
-    fFunc(1, outputData, sizeof(ULng32), &(stats.numCacheHits), 0);
-    fFunc(2, outputData, sizeof(ULng32), &(stats.numEntries), 0);
-    fFunc(3, outputData, sizeof(ULng32), &(stats.currentCacheSize), 0);
-    fFunc(4, outputData, sizeof(ULng32), &(stats.highWaterMark), 0);
-    fFunc(5, outputData, sizeof(ULng32), &(stats.maxCacheSize), 0);
+    fFunc(0, outputData, sizeof(int), &(stats.numLookups), 0);
+    fFunc(1, outputData, sizeof(int), &(stats.numCacheHits), 0);
+    fFunc(2, outputData, sizeof(int), &(stats.numEntries), 0);
+    fFunc(3, outputData, sizeof(int), &(stats.currentCacheSize), 0);
+    fFunc(4, outputData, sizeof(int), &(stats.highWaterMark), 0);
+    fFunc(5, outputData, sizeof(int), &(stats.maxCacheSize), 0);
     return SP_MOREDATA;
   }
 
@@ -1221,7 +1221,7 @@ SP_STATUS NARoutineCacheStatStoredProcedure::sp_ProcessAction(SP_PROCESS_ACTION 
                                                               SP_PROCESS_HANDLE *spProcHandle, SP_HANDLE spObj,
                                                               SP_ERROR_STRUCT *error) {
   struct InfoStruct {
-    ULng32 counter;
+    int counter;
   };
 
   SP_STATUS status = SP_SUCCESS;
@@ -1245,12 +1245,12 @@ SP_STATUS NARoutineCacheStatStoredProcedure::sp_ProcessAction(SP_PROCESS_ACTION 
 
       if (is->counter > 0) break;
       is->counter++;
-      fFunc(0, outputData, sizeof(ULng32), &(tableDB->totalLookupsCount_), 0);
-      fFunc(1, outputData, sizeof(ULng32), &(tableDB->totalCacheHits_), 0);
-      fFunc(2, outputData, sizeof(ULng32), &(tableDB->entries_), 0);
-      fFunc(3, outputData, sizeof(ULng32), &(tableDB->currentCacheSize_), 0);
-      fFunc(4, outputData, sizeof(ULng32), &(tableDB->highWatermarkCache_), 0);
-      fFunc(5, outputData, sizeof(ULng32), &(tableDB->maxCacheSize_), 0);
+      fFunc(0, outputData, sizeof(int), &(tableDB->totalLookupsCount_), 0);
+      fFunc(1, outputData, sizeof(int), &(tableDB->totalCacheHits_), 0);
+      fFunc(2, outputData, sizeof(int), &(tableDB->entries_), 0);
+      fFunc(3, outputData, sizeof(int), &(tableDB->currentCacheSize_), 0);
+      fFunc(4, outputData, sizeof(int), &(tableDB->highWatermarkCache_), 0);
+      fFunc(5, outputData, sizeof(int), &(tableDB->maxCacheSize_), 0);
       status = SP_MOREDATA;
       break;
 
@@ -1299,7 +1299,7 @@ SP_STATUS NARoutineCacheDeleteStoredProcedure::sp_Process(SP_PROCESS_ACTION acti
                                                           SP_HANDLE spObj, SP_ERROR_STRUCT *error) {
   // Not sure what "counter" is used for, can be removed?
   struct InfoStruct {
-    ULng32 counter;
+    int counter;
     int resetOnly;
   };
 

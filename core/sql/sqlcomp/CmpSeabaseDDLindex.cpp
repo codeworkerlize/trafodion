@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 
 /* -*-C++-*-
  *****************************************************************************
@@ -93,7 +72,7 @@ short CmpSeabaseDDL::updateColAndKeyInfo(const NAColumn *keyCol, CollIndex i, NA
   NAString charsetStr;
   SQLCHARSET_CODE charset = SQLCHARSETCODE_UNKNOWN;
   CharInfo::Collation collationSequence = CharInfo::DefaultCollation;
-  ULng32 colFlags = 0;
+  int colFlags = 0;
 
   retcode = CmpSeabaseDDL::getTypeInfo(naType, alignedFormat, FALSE, colInfoEntry->datatype, colInfoEntry->length,
                                        precision, scale, dtStart, dtEnd, upshifted, colInfoEntry->nullable, charsetStr,
@@ -2281,7 +2260,7 @@ void CmpSeabaseDDL::dropSeabaseIndex(StmtDDLDropIndex *dropIndexNode, NAString &
   ActiveSchemaDB()->getNATableDB()->useCache();
 
   // save the current parserflags setting
-  ULng32 savedParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
+  int savedParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
   Set_SqlParser_Flags(ALLOW_VOLATILE_SCHEMA_IN_TABLE_NAME);
 
   // Save parser flags settings so they can be restored later

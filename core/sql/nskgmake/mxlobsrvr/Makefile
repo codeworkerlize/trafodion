@@ -52,9 +52,6 @@ DEP_LIBS :=  \
 		arkcmp_dll
 
 
-#                tdm_mtmpi
-# sqlcilib \
-#else
 
 DEP_LIBS :=  \
                 tdm_sqlcli \
@@ -73,10 +70,6 @@ DEP_LIBS :=  \
 		arkcmp_dll
 
 
-#                tdm_mtmpi
-# sqlcilib \
-
-#endif
 ifeq ($(FLAVOR),release)
   DEP_DLLS := ZCLIDLL
 endif

@@ -103,25 +103,25 @@ class ExRsInfo : public NABasicObject {
   ExRsInfo();
   virtual ~ExRsInfo();
 
-  void populate(ULng32 index, const char *proxySyntax);
-  void bind(ULng32 index, Statement *statement);
+  void populate(int index, const char *proxySyntax);
+  void bind(int index, Statement *statement);
   void unbind(Statement *statement);
-  void setOpenAttempted(ULng32 index);
-  void setCloseAttempted(ULng32 index);
-  void setPrepared(ULng32 index);
+  void setOpenAttempted(int index);
+  void setCloseAttempted(int index);
+  void setPrepared(int index);
   void reset();
-  NABoolean statementExists(ULng32 index) const;
-  NABoolean openAttempted(ULng32 index) const;
-  NABoolean closeAttempted(ULng32 index) const;
-  NABoolean isPrepared(ULng32 index) const;
-  NABoolean getRsInfo(ULng32 position,            // IN
+  NABoolean statementExists(int index) const;
+  NABoolean openAttempted(int index) const;
+  NABoolean closeAttempted(int index) const;
+  NABoolean isPrepared(int index) const;
+  NABoolean getRsInfo(int position,            // IN
                       Statement *&statement,      // OUT
                       const char *&proxySyntax,   // OUT
                       NABoolean &openAttempted,   // OUT
                       NABoolean &closeAttempted,  // OUT
                       NABoolean &isPrepared)      // OUT
       const;
-  ULng32 getIndex(Statement *statement) const;
+  int getIndex(Statement *statement) const;
 
   ExUdrServer *getUdrServer() const { return udrServer_; }
   const IpcProcessId &getIpcProcessId() const { return ipcProcessId_; }
@@ -130,8 +130,8 @@ class ExRsInfo : public NABasicObject {
   void setIpcProcessId(const IpcProcessId &ipcProcessId);
   void setUdrHandle(long udrHandle) { udrHandle_ = udrHandle; }
 
-  ULng32 getNumReturnedByLastCall() const { return numReturnedByLastCall_; }
-  ULng32 getNumClosedSinceLastCall() const { return numClosedSinceLastCall_; }
+  int getNumReturnedByLastCall() const { return numReturnedByLastCall_; }
+  int getNumClosedSinceLastCall() const { return numClosedSinceLastCall_; }
 
   NABoolean allResultsAreClosed() const { return (numClosedSinceLastCall_ >= numReturnedByLastCall_ ? TRUE : FALSE); }
 
@@ -146,8 +146,8 @@ class ExRsInfo : public NABasicObject {
   // behavior. It is a side-effect of using NAArray in the
   // implementation of this class, and may change in the future.
   void setNumEntries(ComUInt32 maxEntries);
-  const ULng32 getNumEntries() const {
-    ULng32 n = rsInfoArray_.getSize();
+  const int getNumEntries() const {
+    int n = rsInfoArray_.getSize();
     // We return (n-1) to account for the never-used entry in slot 0
     return (n > 0 ? n - 1 : 0);
   }
@@ -221,8 +221,8 @@ class ExRsInfo : public NABasicObject {
   // ExRsInfo instance is going away.
   UdrClientControlStream *exitOrSuspendStream_;
 
-  ULng32 numReturnedByLastCall_;
-  ULng32 numClosedSinceLastCall_;
+  int numReturnedByLastCall_;
+  int numClosedSinceLastCall_;
 
 #ifdef _DEBUG
  public:

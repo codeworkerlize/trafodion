@@ -18,13 +18,12 @@
  *****************************************************************************
  */
 
-#include "sqlci/SqlciNode.h"
 #include "sqlci/SqlciEnv.h"
+#include "sqlci/SqlciNode.h"
 
 class SqlciCmd : public SqlciNode {
  public:
   enum sqlci_cmd_type {
-    ENV_TYPE,
     ERROR_TYPE,
     EXIT_TYPE,
     FC_TYPE,
@@ -98,50 +97,6 @@ class Statistics : public SqlciCmd {
   char *getStatsOptions() { return statsOptions_; }
 };
 
-class QueryId : public SqlciCmd {
- public:
-  QueryId(char *argument_, int arglen_, NABoolean isSet, char *qidVal);
-  ~QueryId();
-  short process(SqlciEnv *sqlci_env);
-
- private:
-  NABoolean isSet_;
-  char *qidVal_;
-};
-
-class FixCommand : public SqlciCmd {
-  int cmd_num;
-  char *cmd;
-  short neg_num;
-
- public:
-  FixCommand(char *, int);
-  FixCommand(int, short);
-  ~FixCommand(){};
-  short process(SqlciEnv *sqlci_env);
-};
-
-class FCRepeat : public SqlciCmd {
-  int cmd_num;
-  char *cmd;
-  short neg_num;
-
- public:
-  FCRepeat(char *, int);
-  FCRepeat(int, short);
-  ~FCRepeat(){};
-  short process(SqlciEnv *sqlci_env);
-};
-
-class Obey : public SqlciCmd {
-  char *section_name;
-
- public:
-  Obey(char *, int arglen_, char *section_name_);
-  ~Obey(){};
-  short process(SqlciEnv *sqlci_env);
-};
-
 class Log : public SqlciCmd {
  public:
   enum log_type { CLEAR_, APPEND_, STOP_ };
@@ -153,18 +108,6 @@ class Log : public SqlciCmd {
  public:
   Log(char *, int arglen_, log_type type_, int commands_only);
   ~Log(){};
-  short process(SqlciEnv *sqlci_env);
-};
-
-class History : public SqlciCmd {
- public:
-  History(char *, int arglen_);
-  short process(SqlciEnv *sqlci_env);
-};
-
-class ListCount : public SqlciCmd {
- public:
-  ListCount(char *, int);
   short process(SqlciEnv *sqlci_env);
 };
 
@@ -180,19 +123,6 @@ class Mode : public SqlciCmd {
   NABoolean value;
   short process_sql(SqlciEnv *sqlci_env);
   short process_display(SqlciEnv *sqlci_env);
-};
-
-class Verbose : public SqlciCmd {
- public:
-  enum VerboseCmdType { SET_ON, SET_OFF };
-
- private:
-  VerboseCmdType type_;
-
- public:
-  Verbose(char *, int arglen_, VerboseCmdType);
-  ~Verbose(){};
-  short process(SqlciEnv *sqlci_env);
 };
 
 class ParserFlags : public SqlciCmd {
@@ -281,25 +211,6 @@ class Help : public SqlciCmd {
   short process(SqlciEnv *sqlci_env);
 };
 
-class Env : public SqlciCmd {
- public:
-  Env(char *, int arglen_);
-  short process(SqlciEnv *sqlci_env);
-};
-
-class ChangeUser : public SqlciCmd {
- public:
-  ChangeUser(char *, int argLen_, char *);
-  ~ChangeUser() {
-    if (tenantName) delete tenantName;
-    tenantName = NULL;
-  }
-  short process(SqlciEnv *sqlci_env);
-
- private:
-  char *tenantName;
-};
-
 class Exit : public SqlciCmd {
  public:
   Exit(char *, int arglen_);
@@ -375,31 +286,6 @@ class SetPattern : public SqlciCmd {
   ~SetPattern();
 
   // this method defined in Param.cpp
-  short process(SqlciEnv *sqlci_env);
-};
-
-class Show : public SqlciCmd {
- public:
-  enum show_type { CURSOR_, PARAM_, PATTERN_, PREPARED_, CONTROL_, SESSION_, VERSION_ };
-
- private:
-  show_type type;
-
-  // show values if set by shell/tacl before invoking mxci.
-  // Currently used to show defines only.
-  NABoolean allValues_;
-
-  short show_control(SqlciEnv *sqlci_env);
-  short show_cursor(SqlciEnv *sqlci_env);
-  short show_param(SqlciEnv *sqlci_env);
-  short show_pattern(SqlciEnv *sqlci_env);
-  short show_prepared(SqlciEnv *sqlci_env);
-  short show_session(SqlciEnv *sqlci_env);
-  short show_version(SqlciEnv *sqlci_env);
-
- public:
-  Show(show_type type, NABoolean allValues);
-  ~Show();
   short process(SqlciEnv *sqlci_env);
 };
 

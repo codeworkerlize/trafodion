@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef SCRATCHFILE_BASE_H
 #define SCRATCHFILE_BASE_H
 
@@ -74,7 +53,7 @@ class AsyncIOBuffer : public NABasicObject {
 
   // Not used on NSK
   int currentIOByteLength_;  // expected IO size read
-  ULng32 tag_;
+  int tag_;
 
   void reset(void) {
     state_ = IDLE;
@@ -137,10 +116,10 @@ class ScratchFile : public NABasicObject {
   virtual RESULT serveAsynchronousReadQueue(long &ioWaitTime, NABoolean onlyIfFreeHandles = FALSE,
                                             NABoolean waited = FALSE);
   virtual RESULT processAsynchronousReadCompletion(int index);
-  virtual RESULT completeSomeAsynchronousReadIO(DWORD timeout, ULng32 &eventIndex, long &ioWaitTime) {
+  virtual RESULT completeSomeAsynchronousReadIO(DWORD timeout, int &eventIndex, long &ioWaitTime) {
     return SCRATCH_FAILURE;
   }
-  virtual RESULT completeAsynchronousReadIO(ULng32 eventIndex, long &ioWaitTime) { return SCRATCH_FAILURE; }
+  virtual RESULT completeAsynchronousReadIO(int eventIndex, long &ioWaitTime) { return SCRATCH_FAILURE; }
   // Truncate file and cancel any pending I/O operation
   virtual void truncate(void) = 0;
 

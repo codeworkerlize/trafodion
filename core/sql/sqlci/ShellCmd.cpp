@@ -1,42 +1,3 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-//
-**********************************************************************/
-/* -*-C++-*-
- *****************************************************************************
- *
- * File:         ShellCmd.C
- * RCS:          $Id: ShellCmd.cpp,v 1.6 1997/06/09 16:52:35  Exp $
- * Description:
- *
- *
- * Created:      4/15/95
- * Language:     C++
- * Status:       $State: Exp $
- *
- *
- *
- *****************************************************************************
- */
 
 #include "common/Platform.h"
 
@@ -135,19 +96,10 @@ short Shell::process(SqlciEnv *sqlci_env) {
     return 0;
   }
 
-  // Close the log file before running the command. This is to prevent
-  // any logging activities (to the sqlci log file) in the command to
-  // interfere with the data already written and flushed to the log file.
-  Logfile *logfile = sqlci_env->get_logfile();
-  if (logfile) logfile->Close_();
-
   if (!*cmd)  // empty (i.e. "sh;" was input)
     system("sh");
   else
     system(cmd);
-
-  // reopen the log file in append mode
-  if (logfile) logfile->Reopen();
 
   if (sqlci_env->isInteractiveNow()) cout << endl;
 

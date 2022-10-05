@@ -550,8 +550,6 @@ static char * FCString (const char *idString, int isFC)
 %token TOK_RELEASE
 
 %union {
-	 enum ComRoutineSQLAccess sql_access_mode_type;
-	 SqlCliCmd * sqlcli_cmd_type;
          SqlciCmd * sqlci_cmd_type;
          SqlciNode * sql_cmd_type;
 	 ShellCmd * shell_cmd_type;
@@ -559,12 +557,9 @@ static char * FCString (const char *idString, int isFC)
 	 char * stringval_type;
 	 dml_type dml_stmt_type;
 	 Reset::reset_type reset_stmt_type_;
-	 Show::show_type show_stmt_type_;
          SqlciCursorInfo *cursor_info_type_;
        }
 
-%type <sql_access_mode_type> sql_access_mode;
-%type <sqlcli_cmd_type> sqlcli_cmd
 %type <sqlci_cmd_type> sqlci_cmd
 %type <sql_cmd_type> sql_cmd
 %type <shell_cmd_type> shell_cmd
@@ -580,8 +575,6 @@ static char * FCString (const char *idString, int isFC)
 %type <dml_stmt_type> dml_type
 %type <dml_stmt_type> dml_simple_table_type
 %type <reset_stmt_type_> reset_type_;
-%type <show_stmt_type_> show_type_;
-%type <stringval_type> section_name_;
 %type <stringval_type> HYPHEN;
 %type <intval_type>    commands_only;
 %type <intval_type>    stats_active_clause;
@@ -593,15 +586,7 @@ static char * FCString (const char *idString, int isFC)
 
 %start statement
 %%
-statement :	sqlcli_cmd
-		{
-
-		   SqlciParseTree = (SqlciNode *) $1;
-		   YYACCEPT;
-
-		}
-
-	|	sqlci_cmd
+statement :	sqlci_cmd
 		{
 			// Accept if we're at/past the end of the cmd
 			// or if only blanks and semicolons remain;
@@ -635,151 +620,14 @@ statement :	sqlcli_cmd
 		}
 ;
 
-sqlcli_cmd :	CHECKVIOLATION
-		{
-		  $$ = new CheckViolation();
-		}
-	    |	RESETVIOLATION sql_access_mode
-		{
-		  $$ = new ResetViolation($2);
-		}
-	    |	CREATECONTEXT
-		{
-		  $$ = new CreateContext();
-		}
-	    |	CREATECONTEXT NoAutoXact
-		{
-		  $$ = new CreateContext(TRUE/* noAutoXact */);
- 		}
-            |   CURRENTCONTEXT
-                {
-		  $$ = new CurrentContext();
-		}
-	    |	SWITCHCONTEXT NUMBER
-		{
-		  $$ = new SwitchContext(atoi($2));
-		}
 
-	    |	DELETECONTEXT NUMBER
-		{
-		  $$ = new DeleteContext(atoi($2));
-		}
-	    |	RESETCONTEXT NUMBER
-		{
-		  $$ = new ResetContext(atoi($2));
-		}
-;
-
-sql_access_mode :   NOSQL
-		    {
-		      $$ = COM_NO_SQL;
-		    }
-		|   CONTAINSQL
-		    {
-		      $$ = COM_CONTAINS_SQL;
-		    }
-		|   READSQL
-		    {
-		      $$ = COM_READS_SQL;
-		    }
-		|   MODIFYSQL
-		    {
-		      $$ = COM_MODIFIES_SQL;
-		    }
-;
 
 sqlci_cmd :	MODE SQL
 		  {
 			$$ = new Mode (Mode::SQL_ , TRUE);
 		  }	
-		|   OBEY FILENAME section_name_
-                  { 
-			$$ = new Obey($2, strlen($2), $3);
-		  }
-		|	MXCI_TOK_ENV
-		  { 
-			$$ = new Env(0,0);
-		  }
-                |   USERtoken IDENTIFIER
-                  {
-                    char userName[strlen($2)+1];
-                    for (size_t i=0; i < strlen($2); i++)
-                      {
-                        userName[i] = toupper($2[i]);
-                      }
-                    userName[strlen($2)] = 0;
-                    $$ = new ChangeUser(userName, strlen(userName), NULL);
-                  }
 
-                |   USERtoken IDENTIFIER TENANTtoken IDENTIFIER
-                  {
-                    char userName[strlen($2)+1];
-                    for (size_t i=0; i < strlen($2); i++)
-                      {
-                        userName[i] = toupper($2[i]);
-                      }
-                    userName[strlen($2)] = 0;
 
-                    char tenantName[strlen($4)+1];
-                    for (size_t i=0; i < strlen($4); i++)
-                      {
-                        tenantName[i] = toupper($4[i]);
-                      }
-                    tenantName[strlen($4)] = 0;
-
-                    $$ = new ChangeUser(userName, strlen(userName), tenantName);
-                  }
-
-		|	REPEAT
-          	  {
-		    // "!" command, a la SQL/MP aRepeat (0,0);
-			$$ = new FCRepeat (0,(short)0);
-		  }
-		|	REPEAT REPEAT
-          	  {
-		    // "!!" command, a la Unix csh
-		    $$ = new FCRepeat (0,(short)0);
-		  }
-        |   REPEAT NUMBER
-          {
-		    $$ = new FCRepeat (atoi($2), 0);
-		  }
-        |   REPEAT HYPHEN NUMBER
-          {
-		    $$ = new FCRepeat (atoi($3), -1);
-		  }
-        |   REPEAT IDENTIFIER
-          {
-		   char *fcString = FCString ($2, 0);
-               	   $$ = new FCRepeat(fcString, (long)strlen(fcString));
-                   REPOSITION_SqlciParse_InputPos;
-          }
-        |   REPEAT LPAREN NUMBER RPAREN
-          {
-		    $$ = new FCRepeat (atoi($3), 0);
-	  }
-        |   FC
-          {
-		    $$ = new FixCommand(0, (short)0);
-	  }
-	|   FC NUMBER
-          {
-		    $$ = new FixCommand(atoi($2), 0);
-	  }
-	|  FC HYPHEN NUMBER
-          {
-		    $$ = new FixCommand(atoi($3), -1);
-	  }
-	| FC IDENTIFIER
-          {
-		   char *fcString = FCString ($2, 1);
-	           $$ = new FixCommand(fcString, (long)strlen(fcString));
-	           REPOSITION_SqlciParse_InputPos;
-          }
-		| FC LPAREN NUMBER RPAREN
-          {
-		   $$ = new FixCommand(atoi($3), 0);
-          }
 		| LOG IDENTIFIER commands_only
          {
 		   identifier_name_internal = new char[strlen($2)+1];
@@ -815,15 +663,7 @@ sqlci_cmd :	MODE SQL
 			$$ = new Log(0,0, Log::STOP_, 0);
 		  }
 
-		|	HISTORY
-		  { 
-			$$ = new History(0,0);   
-		  }
 
-		|	HISTORY NUMBER
-		  { 
-			$$ = new History($2,strlen($2));
-		  }
 
 		|	EXIT
                   { 
@@ -1100,28 +940,8 @@ sqlci_cmd :	MODE SQL
 					$9);
                   }
 
-        |       SETtoken LISTCOUNT NUMBER
-                  {
-                    $$ = new ListCount($3, strlen($3));
-                  }
 
-        |       SETtoken LISTCOUNT
-		  {
-		    if ((sqlcitext) && (sqlcitext[0] != ';'))
-		      {sqlcierror("");YYERROR;}
 
-		    $$ = new ListCount(0, 0);
-		  }
-
-	|	SETtoken VERBOSE ON
-		{
-		    $$ = new Verbose(0, 0, Verbose::SET_ON);
-		}
-
-	|	SETtoken VERBOSE OFF
-		{
-		    $$ = new Verbose(0, 0, Verbose::SET_OFF);
-		}
 
 	|	SETtoken TERMINAL_CHARSET IDENTIFIER
 		{
@@ -1157,32 +977,6 @@ sqlci_cmd :	MODE SQL
 		    $$ = new SetInferCharset((char *)"FALSE");
 		}
 
-        |      SETtoken QID IDENTIFIER
-                {
-                  // save qid val.
-                   identifier_name_internal = new char[strlen($3)+1]; 
-                   str_cpy_convert(identifier_name_internal, $3, strlen($3), TRUE); 
-                   identifier_name_internal[strlen($3)] = 0;
-                }
-              FORtoken 
-                {
-                  pos_internal = SqlciParse_InputPos;
-                }
-              IDENTIFIER
-                {
-                  // remove trailing ";"
-                  char * id = &SqlciParse_OriginalStr[pos_internal];
-                  int i = strlen(&SqlciParse_OriginalStr[pos_internal]) -1;
-                  while ((i > 0) && (id[i] != ';'))
-                    i--;
-                  id[i] = 0;
-
-                  char * id2 = new char[strlen(id)+1];
-                  str_cpy_convert(id2, id, strlen(id), TRUE);
-                  id2[strlen(id)] = 0;
-                  $$ = new QueryId (id2, strlen(id2),
-                                    TRUE, identifier_name_internal);
-                }
 
 	|	RESET PARAM PARAM_NAME
 		  {
@@ -1200,36 +994,13 @@ sqlci_cmd :	MODE SQL
 		    $$ = new Reset($2);
 		  }
 
-	|	SHOW show_type_
-		  {
-		    $$ = new Show($2, TRUE);
-		  }
-    |       DISPLAY_QUERYID FORtoken IDENTIFIER
-                  {
-                    identifier_name_internal = new char[strlen($3)+1]; 
-                    str_cpy_convert(identifier_name_internal, $3, strlen($3), TRUE); 
-                    identifier_name_internal[strlen($3)] = 0;
-                    $$ = new QueryId (identifier_name_internal,strlen(identifier_name_internal),
-                                      FALSE, NULL);
-                  }
-    |       DISPLAY_QUERYID
-                  {
-                    $$ = new QueryId (0,0, FALSE, NULL);
-                  }
 
 
-        |       SHOW PREPARED
-		  {
-		    if ((sqlcitext) && (sqlcitext[0] != ';'))
-		      {sqlcierror("");YYERROR;}
 
-		    $$ = new Show(Show::PREPARED_, TRUE);
-		  }
 
-        |       SHOW PREPARED ALLtoken
-		  {
-		    $$ = new Show(Show::PREPARED_, TRUE);
-		  }
+
+
+
 
         |       WAITtoken
                   {
@@ -1252,22 +1023,11 @@ commands_only :
 empty :
 ;
 
-section_name_:
-	        LPAREN IDENTIFIER RPAREN  {$$ = $2;}
-     	|	                          {$$ = 0;}
-;
 
 reset_type_ :
                 PARAM   	{$$ = Reset::PARAM_;}
 ;
 
-show_type_ :
-                CURSORtoken     {$$ = Show::CURSOR_;}
-        |       PARAM    	{$$ = Show::PARAM_;}
-        |       SQ_LINUX_PATTERN  	{$$ = Show::PATTERN_;}
-        |       SESSIONtoken  	{$$ = Show::SESSION_;}
-        |       VERSIONtoken  	{$$ = Show::VERSION_;}
-;
 
 
 stats_active_clause :
@@ -1437,11 +1197,7 @@ sql_cmd :
 
 		|	EXECUTEtoken IDENTIFIER
 			{
-			  // ## This kind of foolishness could be partly done
-			  // ## away with, consolidated at least, if most of
-			  // ## these "sql_cmd" productions were made
-			  // ## "sqlci_cmd" ones (the pre-YYACCEPT logic for
-			  // ## the latter would handle this generically).
+
 			  if (sqlcitext[0] && sqlcitext[0] != ';')
 			    {sqlcierror("");YYERROR;}
 
@@ -1710,18 +1466,7 @@ sql_cmd :
 					delete [] get_stats_str;
 					delete [] newStr1;
 				  }
-	| DISPLAY_QC
-	  {
-	    $$ = new QueryCacheSt(0);
-      }
-	| DISPLAY_QC_ENTRIES
-	  {
-	    $$ = new QueryCacheSt(1);
-      }
-	| DISPLAY_QC_ENTRIES_NOTIME
-	  {
-	    $$ = new QueryCacheSt(2);
-      }
+
 	|	DISPLAY
 			{
 			  pos_internal = 7;
@@ -1778,10 +1523,7 @@ sql_cmd :
 		  $$ = new DML(SqlciParse_OriginalStr, DML_DESCRIBE_TYPE, NULL);
 		}
 
-        |       QUIESCE
-		        { 
-                          $$ = new Quiesce();
-                        }
+
 
         |       ERRORtoken NUMBER COMMA GETtoken
                   { 
@@ -1792,14 +1534,7 @@ sql_cmd :
 		    $$ = new DML(newStr, DML_DESCRIBE_TYPE, NULL);
 		  }
 
-        |      STOREtoken EXPLAIN FORtoken IDENTIFIER INtoken REPOSITORYtoken
-                {
-                  identifier_name_internal = new char[strlen($4)+1]; 
-                  str_cpy_convert(identifier_name_internal, $4, strlen($4), TRUE); 
-                  identifier_name_internal[strlen($4)] = 0;
- 
-                  $$ = new StoreExplain(identifier_name_internal);
-                }
+
 
 
 optional_rs_index : empty

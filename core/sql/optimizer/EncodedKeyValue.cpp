@@ -303,7 +303,7 @@ short encodeKeyValues(TrafDesc *column_descs, TrafDesc *key_descs,
   ex_cri_desc *workCriDesc = new (space) ex_cri_desc(3, space);
   short keyAtpIndex = 2;  // where the encoded key will be built
 
-  ULng32 encodedKeyLen;
+  int encodedKeyLen;
   ex_expr *keExpr = 0;
   expGen.generateContiguousMoveExpr(encodedValueIdList, 0 /*don't add conv nodes*/, 0 /*atp*/, keyAtpIndex,
                                     ExpTupleDesc::SQLMX_KEY_FORMAT, encodedKeyLen, &keExpr);

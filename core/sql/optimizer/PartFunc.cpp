@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 **************************************************************************
 *
@@ -160,14 +139,14 @@ const NodeMap *PartitioningFunction::getNodeMap() const { return nodeMap_; }
 // matches my partition count requirement
 void PartitioningFunction::useNodeMapFromReqOrChild(PartitioningRequirement *req, PartitioningFunction *childPF,
                                                     NABoolean forESP) {
-  ULng32 partCnt = (ULng32)getCountOfPartitions();
+  int partCnt = (int)getCountOfPartitions();
   NodeMap *myNodeMap = NULL;
   if (req->isRequirementFullySpecified() && (CmpCommon::getDefault(COMP_BOOL_87) != DF_ON) && getNodeMap() &&
       (getNodeMap()->getNumEntries() == partCnt)) {
     // we are a copy of a partitioning function that realizes a fully specified
     // partitioning requirement. So, do nothing. our nodemap is good enough.
     return;
-  } else if ((CmpCommon::getDefault(COMP_BOOL_87) != DF_ON) && (partCnt == (ULng32)childPF->getCountOfPartitions()) &&
+  } else if ((CmpCommon::getDefault(COMP_BOOL_87) != DF_ON) && (partCnt == (int)childPF->getCountOfPartitions()) &&
              childPF->getNodeMap() && (childPF->getNodeMap()->getNumEntries() == partCnt)) {
     // we are a copy of a partitioning function that realizes a fuzzy
     // partitioning requirement. childPF is the partitioning function of
@@ -4153,7 +4132,7 @@ NodeMap *LogPhysPartitioningFunction::getOrMakeSuitableNodeMap(NABoolean forESP)
   // if logical partn func's nodemap entry count == log partn func partn count
   // then return logical partn func's nodemap
   NodeMap *nodemap = (NodeMap *)logPartFunc_->getNodeMap();
-  ULng32 partCnt = (ULng32)logPartFunc_->getCountOfPartitions();
+  int partCnt = (int)logPartFunc_->getCountOfPartitions();
   if (nodemap && nodemap->getNumEntries() == partCnt) {
     // the logical partitioning of the result already has a suitable nodemap.
     // fall thru and use it.

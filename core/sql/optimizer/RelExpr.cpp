@@ -920,7 +920,7 @@ Context *RelExpr::shareContext(int childIndex, const ReqdPhysicalProperty *const
                                                                                     parentContext, inputLogProp);
 }  // RelExpr::shareContext()
 
-ULng32 RelExpr::getDefault(DefaultConstants id) { return ActiveSchemaDB()->getDefaults().getAsULong(id); }
+int RelExpr::getDefault(DefaultConstants id) { return ActiveSchemaDB()->getDefaults().getAsULong(id); }
 
 void RelExpr::addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) const {
   if (selection_ != NULL OR NOT predicates_.isEmpty()) {
@@ -12553,7 +12553,7 @@ RelExpr *PhysTranspose::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
 // -----------------------------------------------------------------------
 
 // Constructor
-Pack::Pack(ULng32 pf, RelExpr *child, ItemExpr *packingExprTree, CollHeap *oHeap)
+Pack::Pack(int pf, RelExpr *child, ItemExpr *packingExprTree, CollHeap *oHeap)
     : RelExpr(REL_PACK, child, NULL, oHeap),
       packingFactorLong_(pf),
       packingFactorTree_(NULL),
@@ -12720,7 +12720,7 @@ void Pack::addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) const 
 // -----------------------------------------------------------------------
 // methods for class PhyPack
 // -----------------------------------------------------------------------
-PhyPack::PhyPack(ULng32 packingFactor /*= 0*/, RelExpr *child /*= NULL*/,
+PhyPack::PhyPack(int packingFactor /*= 0*/, RelExpr *child /*= NULL*/,
                  CollHeap *oHeap /*= CmpCommon::statementHeap()*/)
     : Pack(packingFactor, child, NULL, oHeap) {
   if (oHeap)

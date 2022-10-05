@@ -91,7 +91,7 @@ class HeapLog {
   int addEntry(void *objAddr, int objSize, int heapNum, const char *heapName = NULL);
 
   // Prepare to fetch from packdata.
-  int fetchInit(ULng32 flags, char *packdata, int datalen);
+  int fetchInit(int flags, char *packdata, int datalen);
   // Fetch a single line from the log.
   // sqlci: 0->called by arkcmp, 1->called by sqlci.
   int fetchLine(char *buf, int sqlci);

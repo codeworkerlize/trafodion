@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -1446,7 +1425,7 @@ ex_expr::exp_return_type InputOutputExpr::outputValues(atp_struct *atp, void *ou
           }  // implicit conversion
 
           ConvInstruction case_index = CONV_UNKNOWN;
-          ULng32 convFlags = 0;
+          int convFlags = 0;
           if ((source) && (NOT implicitConversion) &&
               (((sourceType == REC_DATETIME) ||
                 ((sourceType >= REC_MIN_INTERVAL) && (sourceType <= REC_MAX_INTERVAL))) &&
@@ -2305,7 +2284,7 @@ ex_expr::exp_return_type InputOutputExpr::inputSingleRowValue(atp_struct *atp, v
           sourcePrecision = 0;
         }
 
-        ULng32 convFlags = 0;
+        int convFlags = 0;
         if ((NOT implicitConversion) &&
             (((sourceType == REC_DATETIME) || ((sourceType >= REC_MIN_INTERVAL) && (sourceType <= REC_MAX_INTERVAL))) &&
              (NOT isIFIO))) {
@@ -3178,7 +3157,7 @@ ex_expr::exp_return_type InputOutputExpr::inputValues(atp_struct *atp, void *inp
             sourcePrecision = 0;
           }
 
-          ULng32 convFlags = 0;
+          int convFlags = 0;
           if ((NOT implicitConversion) && (((sourceType == REC_DATETIME) ||
                                             ((sourceType >= REC_MIN_INTERVAL) && (sourceType <= REC_MAX_INTERVAL))) &&
                                            (NOT isIFIO))) {
@@ -3370,13 +3349,13 @@ ex_expr::exp_return_type InputOutputExpr::inputValues(atp_struct *atp, void *inp
                 }
 
               case REC_BIN32_UNSIGNED:
-                if (*((ULng32 *)target) == 0) {  // unsigned long is the same as unsigned int
+                if (*((int *)target) == 0) {  // unsigned long is the same as unsigned int
                   // raise error
                   ExRaiseSqlError(heap, &diagsArea, EXE_ROWSET_NEGATIVE_SIZE);
                   if (diagsArea != atp->getDiagsArea()) atp->setDiagsArea(diagsArea);
                   return ex_expr::EXPR_ERROR;
                 } else {
-                  dynamicRowsetSize = *((ULng32 *)target);
+                  dynamicRowsetSize = *((int *)target);
                   break;
                 }
 

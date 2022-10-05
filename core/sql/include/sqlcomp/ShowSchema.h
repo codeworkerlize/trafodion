@@ -56,16 +56,7 @@ class ShowSchema {
 
   static NABoolean getDefaultCatAndSch(NAString &cat, NAString &sch);
 
-  // When you PREPARE the ShowSchema::ShowSchemaStmt(),
-  // Describe::bindNode() returns "error" ShowSchema::DiagSqlCode().
-  //
-  // The intent of function ShowSchema::getDefaultCatAndSch()
-  // is to do
-  //	EXEC SQL GET DIAGNOSTICS :cat = CATALOG_NAME, :sch = SCHEMA_NAME;
-  // but it is not written yet.
-  //
-  // See sqlci Env command, SqlciEnv::specialError/specialHandler,
-  // and HandleCLIError for another way to get the same information.
+
 };
 
 class GetControlDefaults {  // Genesis 10-981211-5986

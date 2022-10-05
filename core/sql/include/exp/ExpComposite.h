@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef EXP_COMPOSITE_H
 #define EXP_COMPOSITE_H
 
@@ -153,8 +132,8 @@ class CompositeAttributes : public Attributes {
 ///////////////////////////////////////////////////////////////
 class ExpCompositeBase : public ex_function_clause {
  public:
-  ExpCompositeBase(OperatorTypeEnum oper_type, short type, ULng32 numElements, short numAttrs, Attributes **attr,
-                   ULng32 tupleLen, ex_expr *compExpr, ex_cri_desc *compCriDesc, AttributesPtr compAttrs, Space *space);
+  ExpCompositeBase(OperatorTypeEnum oper_type, short type, int numElements, short numAttrs, Attributes **attr,
+                   int tupleLen, ex_expr *compExpr, ex_cri_desc *compCriDesc, AttributesPtr compAttrs, Space *space);
   ExpCompositeBase(){};
 
   virtual ex_expr::exp_return_type fixup(Space *space, CollHeap *exHeap, char *constantsArea, char *tempsArea,
@@ -168,9 +147,9 @@ class ExpCompositeBase : public ex_function_clause {
   virtual ex_expr::exp_return_type pCodeGenerate(Space *space, UInt32 flags);
 
   virtual void displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea,
-                               ULng32 flag);
+                               int flag);
 
-  ULng32 numElements() { return numElements_; }
+  int numElements() { return numElements_; }
 
   ex_expr *getCompExpr() { return compExpr_; }
 
@@ -182,9 +161,9 @@ class ExpCompositeBase : public ex_function_clause {
   AttributesPtr compAttrs_;
   short type_;
   UInt16 flags_;
-  ULng32 numElements_;
+  int numElements_;
 
-  ULng32 compRowLen_;
+  int compRowLen_;
   char filler1_[4];
 
   char errBuf_[64];
@@ -207,7 +186,7 @@ class ExpCompositeArrayLength : public ExpCompositeBase {
   virtual ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea ** = 0);
 
   virtual void displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea,
-                               ULng32 flag);
+                               int flag);
 
   virtual short getClassSize() { return (short)sizeof(*this); }
 
@@ -286,7 +265,7 @@ class ExpCompositeConcat : public ExpCompositeBase {
   virtual int unpack(void *base, void *reallocator);
 
   virtual void displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea,
-                               ULng32 flag);
+                               int flag);
 
   virtual short getClassSize() { return (short)sizeof(*this); }
 
@@ -300,8 +279,8 @@ class ExpCompositeConcat : public ExpCompositeBase {
 ///////////////////////////////////////////////////////
 class ExpCompositeCreate : public ExpCompositeBase {
  public:
-  ExpCompositeCreate(OperatorTypeEnum oper_type, short type, ULng32 numElements, short numAttrs, Attributes **attr,
-                     ULng32 tupleLen, ex_expr *compExpr, ex_cri_desc *compCriDesc, AttributesPtr compAttrs,
+  ExpCompositeCreate(OperatorTypeEnum oper_type, short type, int numElements, short numAttrs, Attributes **attr,
+                     int tupleLen, ex_expr *compExpr, ex_cri_desc *compCriDesc, AttributesPtr compAttrs,
                      Space *space);
   ExpCompositeCreate(){};
 
@@ -315,7 +294,7 @@ class ExpCompositeCreate : public ExpCompositeBase {
   virtual int isNullRelevant() const { return 0; };
 
   virtual void displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea,
-                               ULng32 flag);
+                               int flag);
 
   virtual short getClassSize() { return (short)sizeof(*this); }
 
@@ -329,7 +308,7 @@ class ExpCompositeCreate : public ExpCompositeBase {
 ///////////////////////////////////////////////////////
 class ExpCompositeDisplay : public ExpCompositeBase {
  public:
-  ExpCompositeDisplay(OperatorTypeEnum oper_type, short type, ULng32 numElements, short numAttrs, Attributes **attr,
+  ExpCompositeDisplay(OperatorTypeEnum oper_type, short type, int numElements, short numAttrs, Attributes **attr,
                       ex_cri_desc *compCriDesc, AttributesPtr compAttrs, Space *space);
   ExpCompositeDisplay(){};
 
@@ -347,7 +326,7 @@ class ExpCompositeDisplay : public ExpCompositeBase {
 /////////////////////////////////////////////////////
 class ExpCompositeExtract : public ExpCompositeBase {
  public:
-  ExpCompositeExtract(OperatorTypeEnum oper_type, short type, ULng32 numElements, int elemNum, short numAttrs,
+  ExpCompositeExtract(OperatorTypeEnum oper_type, short type, int numElements, int elemNum, short numAttrs,
                       Attributes **attr, AttributesPtr compAttrs, int numSearchAttrs, char *searchAttrTypeList,
                       char *searchAttrIndexList, Space *space);
   ExpCompositeExtract(){};
@@ -364,12 +343,12 @@ class ExpCompositeExtract : public ExpCompositeBase {
   virtual short getClassSize() { return (short)sizeof(*this); }
 
   static ex_expr::exp_return_type extractValue(Attributes *compAttrs, int elemNum, char *tgtPtr, char *srcPtr,
-                                               int maxNumElems, NABoolean &isNullVal, ULng32 &attrLen,
+                                               int maxNumElems, NABoolean &isNullVal, int &attrLen,
                                                int &numElems, CollHeap *heap, ComDiagsArea **diagsArea);
 
  private:
   ex_expr::exp_return_type searchAndExtractValue(Attributes *inAttrs, char *tgtPtr, char *srcPtr, NABoolean &isNullVal,
-                                                 ULng32 &attrLen, CollHeap *heap, ComDiagsArea **diagsArea);
+                                                 int &attrLen, CollHeap *heap, ComDiagsArea **diagsArea);
 
   int numSearchAttrs() { return numSearchAttrs_; }
   int getSearchAttrType(int i) {

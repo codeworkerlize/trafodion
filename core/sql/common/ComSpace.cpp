@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -156,11 +135,11 @@ int Space::defaultBlockSize(SpaceType type) {
 // Round up input value to nearest multiple of 8.
 //
 static int roundUp8(int val) {
-  ULng32 uval = (ULng32)val;
+  int uval = (int)val;
 
   // clear the last 3 bits, which effectively rounds
   // down to the nearest multiple of 8
-  ULng32 roundedDown = uval LAND 0xFFFFFFF8;
+  int roundedDown = uval LAND 0xFFFFFFF8;
 
   // if that didn't change anything we're done
   if (uval != roundedDown) {
@@ -264,7 +243,7 @@ void Space::setFirstBlock(char *blockAddr, int blockLen, NABoolean failureIsFata
   allocateBlock(type_, 0, TRUE, blockAddr, failureIsFatal);
 }
 
-char *Space::privateAllocateSpace(ULng32 size, NABoolean failureIsFatal) {
+char *Space::privateAllocateSpace(int size, NABoolean failureIsFatal) {
   if (size <= 0) return NULL;
 
   if (!firstBlock_) {
@@ -359,7 +338,7 @@ char *Space::allocateAlignedSpace(size_t size, NABoolean failureIsFatal) {
   if (!checkSize(size, failureIsFatal)) return NULL;
 
   // return aligned space on an 8 byte boundary
-  return privateAllocateSpace((ULng32)roundUp8((int)size), failureIsFatal);
+  return privateAllocateSpace((int)roundUp8((int)size), failureIsFatal);
 }
 
 // If countPrefixSize == 0, make a null-terminated string;
@@ -424,7 +403,7 @@ void Space::display(char *buf, size_t buflen, size_t countPrefixSize, ostream &o
         dlen = *(unsigned short *)buf;
         break;
       case sizeof(int):
-        dlen = *(ULng32 *)buf;
+        dlen = *(int *)buf;
         break;
       default:
         ComASSERT(0 == 1);
@@ -490,7 +469,7 @@ void *Space::convertToPtr(Long offset) const {
 }
 
 // The method is not called elsewhere
-int Space::allocAndCopy(void *from, ULng32 size, NABoolean failureIsFatal) {
+int Space::allocAndCopy(void *from, int size, NABoolean failureIsFatal) {
   char *to = allocateAlignedSpace(size, failureIsFatal);
   str_cpy_all(to, (char *)from, size);
   return (convertToOffset(to));
@@ -506,7 +485,7 @@ short Space::isOffset(void * ptr)
 }
 #endif
 
-NABoolean Space::isOverlappingMyBlocks(char *buf, ULng32 size) {
+NABoolean Space::isOverlappingMyBlocks(char *buf, int size) {
   Block *curr_block = firstBlock_;
   while (curr_block) {
     if (curr_block->isOverlapping(buf, size)) return TRUE;
@@ -517,7 +496,7 @@ NABoolean Space::isOverlappingMyBlocks(char *buf, ULng32 size) {
 
 // moves all the Blocks into the output contiguous buffer.
 
-char *Space::makeContiguous(char *out_buf, ULng32 out_buflen) {
+char *Space::makeContiguous(char *out_buf, int out_buflen) {
   Block *curr_block = firstBlock_;
   int curr_offset = 0;
   while (curr_block) {
@@ -580,7 +559,7 @@ void Block::init(int block_size, int data_size, char *data_ptr) {
   nextSearchBlock_ = NULL;
 }
 
-char *Block::allocateMemory(ULng32 size) {
+char *Block::allocateMemory(int size) {
   if (freeSpaceSize_ < (int)size) return 0;
 
   freeSpaceSize_ -= size;
@@ -593,7 +572,7 @@ char *Block::allocateMemory(ULng32 size) {
   return s;
 }
 
-NABoolean Block::isOverlapping(char *buf, ULng32 size) {
+NABoolean Block::isOverlapping(char *buf, int size) {
   if ((buf >= dataPtr_) && (buf < (dataPtr_ + blockSize_)))
     // buf starts within block.
     return TRUE;

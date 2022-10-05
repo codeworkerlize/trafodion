@@ -116,9 +116,9 @@ class ComTdbMj : public ComTdb {
   ComTdbMj(ComTdb *left_tdb, ComTdb *right_tdb, ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc,
            ex_expr *merge_expr, ex_expr *comp_expr, ex_expr *left_check_dup_expr, ex_expr *right_check_dup_expr,
            ex_expr *lj_expr, ex_expr *ni_expr, ex_expr *right_copy_dup_expr, int right_dup_reclen, int reclen,
-           ex_cri_desc *work_cri_desc, short instantiated_row_atp_index, ULng32 encoded_key_len,
+           ex_cri_desc *work_cri_desc, short instantiated_row_atp_index, int encoded_key_len,
            short encoded_key_work_atp_index, ex_expr *pre_join_expr, ex_expr *post_join_expr, queue_index down,
-           queue_index up, Cardinality estimatedRowCount, int num_buffers, ULng32 buffer_size, int semi_join,
+           queue_index up, Cardinality estimatedRowCount, int num_buffers, int buffer_size, int semi_join,
            int left_join, int anti_join, NABoolean left_is_unique = FALSE, NABoolean right_is_unique = FALSE,
            bool isOverflowEnabled = false, UInt16 scratchThresholdPct = 10, UInt16 quotaMB = 0, UInt16 quotaPct = 0,
            bool yieldQuota = true);
@@ -162,7 +162,7 @@ class ComTdbMj : public ComTdb {
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
   // ---------------------------------------------------------------------
-  virtual void displayContents(Space *space, ULng32 flag);
+  virtual void displayContents(Space *space, int flag);
 
   // GUI functions
   virtual const ComTdb *getChild(int pos) const {

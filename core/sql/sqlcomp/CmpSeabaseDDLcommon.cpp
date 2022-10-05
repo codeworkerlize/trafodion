@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 
 /* -*-C++-*-
  *****************************************************************************
@@ -1780,7 +1759,7 @@ label_return:
 void CmpSeabaseDDL::saveAllFlags() {
   // save the current parserflags setting from this compiler and executor context
   savedCmpParserFlags_.push(Get_SqlParser_Flags(0xFFFFFFFF));
-  ULng32 savedCliParserFlags;
+  int savedCliParserFlags;
   SQL_EXEC_GetParserFlagsForExSqlComp_Internal(savedCliParserFlags);
   savedCliParserFlags_.push(savedCliParserFlags);
 }
@@ -3413,7 +3392,7 @@ short CmpSeabaseDDL::checkDefaultValue(const NAString &colExtName, const NAType 
 short CmpSeabaseDDL::getTypeInfo(const NAType *naType, NABoolean alignedFormat, int serializedOption, int &datatype,
                                  int &length, int &precision, int &scale, int &dtStart, int &dtEnd,
                                  int &upshifted, int &nullable, NAString &charset,
-                                 CharInfo::Collation &collationSequence, ULng32 &hbaseColFlags) {
+                                 CharInfo::Collation &collationSequence, int &hbaseColFlags) {
   short rc = 0;
 
   datatype = 0;
@@ -3527,7 +3506,7 @@ short CmpSeabaseDDL::getNAColumnFromColDef(ElemDDLColDef *colNode, NAColumn *&na
   ComColumnDefaultClass defaultClass;
   NAString charset, defVal;
   NAString heading;
-  ULng32 hbaseColFlags;
+  int hbaseColFlags;
   long colFlags;
   NAString compDefnStr;
   ComLobsStorageType lobStorage;
@@ -3572,7 +3551,7 @@ short CmpSeabaseDDL::getColInfo(ElemDDLColDef *colNode, NABoolean isMetadataHist
                                 int &precision, int &scale, int &dtStart, int &dtEnd, int &upshifted,
                                 int &nullable, NAString &charset, ComColumnClass &colClass,
                                 ComColumnDefaultClass &defaultClass, NAString &defVal, NAString &heading,
-                                ComLobsStorageType &lobStorage, NAString &compDefnStr, ULng32 &hbaseColFlags,
+                                ComLobsStorageType &lobStorage, NAString &compDefnStr, int &hbaseColFlags,
                                 long &colFlags) {
   short rc = 0;
 
@@ -4283,8 +4262,8 @@ long CmpSeabaseDDL::getSchemaUID(const char *catName, const char *schName) {
   int cliRC = 0;
 
   // expand function saveAllFlags(), to use local variable, not member variable
-  ULng32 savedCliParserFlags = 0;
-  ULng32 savedCmpParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
+  int savedCliParserFlags = 0;
+  int savedCmpParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
   SQL_EXEC_GetParserFlagsForExSqlComp_Internal(savedCliParserFlags);
 
   // expand function setAllFlags(), to set DISABLE_EXTERNAL_AUTH_CHECKS
@@ -4340,8 +4319,8 @@ short CmpSeabaseDDL::getSchemaName(const char *schUID, NAString &schName) {
   int cliRC = 0;
 
   // expand function saveAllFlags(), to use local variable, not member variable
-  ULng32 savedCliParserFlags = 0;
-  ULng32 savedCmpParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
+  int savedCliParserFlags = 0;
+  int savedCmpParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
   SQL_EXEC_GetParserFlagsForExSqlComp_Internal(savedCliParserFlags);
 
   // expand function setAllFlags(), to set DISABLE_EXTERNAL_AUTH_CHECKS
@@ -4385,8 +4364,8 @@ short CmpSeabaseDDL::getSchemaName(const char *schUID, NAString &schName) {
   return 0;
 }
 
-ULng32 hashOnObjectInfoKey(const SystemObjectInfoKey &key) {
-  ULng32 code = key.catName.hash() ^ key.schName.hash() ^ key.objName.hash() ^ (UInt32)(key.objectType) ^
+int hashOnObjectInfoKey(const SystemObjectInfoKey &key) {
+  int code = key.catName.hash() ^ key.schName.hash() ^ key.objName.hash() ^ (UInt32)(key.objectType) ^
                 (UInt32)(key.checkForValidDef);
 
   return code;
@@ -7179,7 +7158,7 @@ short CmpSeabaseDDL::buildColInfoArray(ComObjectType objType, NABoolean isMetada
     ComColumnDefaultClass defaultClass;
     NAString charset, defVal;
     NAString heading;
-    ULng32 hbaseColFlags;
+    int hbaseColFlags;
     long colFlags;
     ComLobsStorageType lobStorage;
     NAString compDefnStr;
@@ -7306,7 +7285,7 @@ short CmpSeabaseDDL::buildColInfoArray(ElemDDLParamDefArray *paramArray, ComTdbV
     ComColumnDefaultClass defaultClass;
     NAString charset, defVal;
     NAString heading;
-    ULng32 hbaseColFlags;
+    int hbaseColFlags;
     long colFlags;
     ComLobsStorageType lobStorage;
     NAString compDefnStr;
@@ -9002,7 +8981,7 @@ short CmpSeabaseDDL::createSchemaObjects(ExeCliInterface *cliInterface)
   if (beginXnIfNotInProgress(cliInterface, xnWasStartedHere)) return -1;
 
   // save the current parserflags setting
-  ULng32 savedParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
+  int savedParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
   Set_SqlParser_Flags(INTERNAL_QUERY_FROM_EXEUTIL);
 
   for (size_t s = 0; s < schemaNames.size(); s++) {
@@ -11517,11 +11496,6 @@ short CmpSeabaseDDL::executeSeabaseDDL(DDLExpr *ddlExpr, ExprNode *ddlNode, NASt
       StmtDDLDropPackage *dropPackageParseNode = ddlNode->castToStmtDDLNode()->castToStmtDDLDropPackage();
 
       dropSeabasePackage(&cliInterface, dropPackageParseNode, currCatName, currSchName);
-    } else if (ddlNode->getOperatorType() == DDL_CREATE_ROUTINE) {
-      // create seabase routine
-      StmtDDLCreateRoutine *createRoutineParseNode = ddlNode->castToStmtDDLNode()->castToStmtDDLCreateRoutine();
-
-      createSeabaseRoutine(createRoutineParseNode, currCatName, currSchName);
     } else if (ddlNode->getOperatorType() == DDL_DROP_ROUTINE) {
       // drop seabase routine
       StmtDDLDropRoutine *dropRoutineParseNode = ddlNode->castToStmtDDLNode()->castToStmtDDLDropRoutine();

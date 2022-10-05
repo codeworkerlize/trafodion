@@ -127,7 +127,7 @@ class keyRangeEx : public ExGod {
 
   short getEkExcludeFlag() { return ekExcludeFlag_; };
 
-  ULng32 getKeyLength() { return tdbKey_.getKeyLength(); };
+  int getKeyLength() { return tdbKey_.getKeyLength(); };
 };
 
 #endif

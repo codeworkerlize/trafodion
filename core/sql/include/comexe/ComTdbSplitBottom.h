@@ -82,7 +82,7 @@ class ComTdbSplitBottom : public ComTdb {
                     int partInputDataLen, Cardinality estimatedRowCount, ex_cri_desc *givenCriDesc,
                     ex_cri_desc *returnedCriDesc, ex_cri_desc *workCriDesc, NABoolean combineRequests, int topNumESPs,
                     int topNumParts, int bottomNumESPs, int bottomNumParts, SplitBottomSkewInfo *skewInfo,
-                    short minMaxValsWorkAtpIndex, ULng32 minMaxRowLength, ULng32 minValStartOffset, ex_expr *minMaxExpr,
+                    short minMaxValsWorkAtpIndex, int minMaxRowLength, int minValStartOffset, ex_expr *minMaxExpr,
                     ex_expr *minMaxMoveOutExpr);
 
   // ---------------------------------------------------------------------
@@ -108,7 +108,7 @@ class ComTdbSplitBottom : public ComTdb {
 
   ComTdbSendBottom *getSendBottomTdb() const { return sendTdb_; }
 
-  inline ULng32 getPlanVersion() const { return planVersion_; }
+  inline int getPlanVersion() const { return planVersion_; }
 
   virtual void setPlanVersion(UInt32 value) { planVersion_ = value; }
 
@@ -168,7 +168,7 @@ class ComTdbSplitBottom : public ComTdb {
   virtual const char *getExpressionName(int pos) const;
 
   // for showplan
-  virtual void displayContents(Space *space, ULng32 flag);
+  virtual void displayContents(Space *space, int flag);
 
   // For parallel extract
   NABoolean getExtractProducerFlag() const { return (splitBottomFlags_ & EXTRACT_PRODUCER) ? TRUE : FALSE; }

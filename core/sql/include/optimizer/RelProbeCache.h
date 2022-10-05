@@ -48,7 +48,7 @@ class ProbeCache;
 class ProbeCache : public RelExpr {
  public:
   // Constructor
-  ProbeCache(RelExpr *child, ULng32 numCachedProbes, CollHeap *oHeap = CmpCommon::statementHeap())
+  ProbeCache(RelExpr *child, int numCachedProbes, CollHeap *oHeap = CmpCommon::statementHeap())
       : RelExpr(REL_PROBE_CACHE, child,
                 NULL,  // no right child.
                 oHeap),
@@ -78,8 +78,8 @@ class ProbeCache : public RelExpr {
   // but in the future, the optimizer may set these, or at least supply
   // suggestions or initial settings.  That is why they are members of this
   // class.
-  ULng32 numCachedProbes_;
-  ULng32 numInnerTuples_;
+  int numCachedProbes_;
+  int numInnerTuples_;
 
 };  // ProbeCache
 

@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef EX_GLOBALS_H
 #define EX_GLOBALS_H
 
@@ -122,13 +101,13 @@ class ex_globals : public ExGod {
   virtual int getNumOfInstances() const = 0;
   virtual int getMyInstanceNumber() const = 0;
 
-  inline ULng32 getInjectErrorAtExpr() const { return injectErrorAtExprFreq_; }
+  inline int getInjectErrorAtExpr() const { return injectErrorAtExprFreq_; }
 
-  inline void setInjectErrorAtExpr(ULng32 cif) { injectErrorAtExprFreq_ = cif; }
+  inline void setInjectErrorAtExpr(int cif) { injectErrorAtExprFreq_ = cif; }
 
-  inline ULng32 getInjectErrorAtQueue() const { return injectErrorAtQueueFreq_; }
+  inline int getInjectErrorAtQueue() const { return injectErrorAtQueueFreq_; }
 
-  inline void setInjectErrorAtQueue(ULng32 cif) { injectErrorAtQueueFreq_ = cif; }
+  inline void setInjectErrorAtQueue(int cif) { injectErrorAtQueueFreq_ = cif; }
 
   const LIST(ex_tcb *) & tcbList() const { return tcbList_; }
 
@@ -215,10 +194,10 @@ class ex_globals : public ExGod {
   // of cancel injection as the denominator in the fraction
   // 1/cancelInjectionFreq_.  The fraction is used w/ a random
   // number.
-  ULng32 injectErrorAtQueueFreq_;  // used by ex_queue::insert.
-  ULng32 injectErrorAtExprFreq_;   // used by ex_expr::eval.
+  int injectErrorAtQueueFreq_;  // used by ex_queue::insert.
+  int injectErrorAtExprFreq_;   // used by ex_expr::eval.
 
-  ULng32 flags_;
+  int flags_;
 
   // pointer to LDONE consumed indicator for Nowait CLI
   // and LSIG consumed indicator of event driven IpcSetOfConnections::wait

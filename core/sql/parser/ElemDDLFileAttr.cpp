@@ -186,7 +186,7 @@ NAString ElemDDLFileAttrAuditCompress::getSyntax() const {
 // -----------------------------------------------------------------------
 
 // constructor
-ElemDDLFileAttrBlockSize::ElemDDLFileAttrBlockSize(ULng32 blockSizeInBytes)
+ElemDDLFileAttrBlockSize::ElemDDLFileAttrBlockSize(int blockSizeInBytes)
     : ElemDDLFileAttr(ELM_FILE_ATTR_BLOCK_SIZE_ELEM) {
   if (isLegalBlockSizeValue(blockSizeInBytes)) {
     // On Linux, only 32K blocksize is supported. For other specified
@@ -208,7 +208,7 @@ ElemDDLFileAttrBlockSize::ElemDDLFileAttrBlockSize(ULng32 blockSizeInBytes)
 ElemDDLFileAttrBlockSize::~ElemDDLFileAttrBlockSize() {}
 
 // is the input value a legal block size value?
-NABoolean ElemDDLFileAttrBlockSize::isLegalBlockSizeValue(ULng32 blockSize) const {
+NABoolean ElemDDLFileAttrBlockSize::isLegalBlockSizeValue(int blockSize) const {
   // Determine whether the DB Limits checks for large blocks, rows, and keys
   // should be used.
   NABoolean useDBLimits = ((CmpCommon::getDefault(CAT_LARGE_BLOCKS_LARGE_KEYS) == DF_ON) ||
@@ -860,7 +860,7 @@ void ElemDDLFileAttrMaxSize::initializeMaxSize(int maxSize) {
 // helpers
 //
 
-void ParSetDefaultMaxSize(ULng32 &maxSize, ComUnits &maxSizeUnit) {
+void ParSetDefaultMaxSize(int &maxSize, ComUnits &maxSizeUnit) {
   maxSize = ElemDDLFileAttrMaxSize::DEFAULT_MAX_SIZE_IN_BYTES;
   maxSizeUnit = COM_BYTES;
 }
@@ -953,7 +953,7 @@ void ElemDDLFileAttrExtents::initializePriExtent(int priExt) {
 // helpers
 //
 
-void ParSetDefaultExtents(ULng32 &priExt, ULng32 &secExt) {
+void ParSetDefaultExtents(int &priExt, int &secExt) {
   priExt = ElemDDLFileAttrExtents::DEFAULT_PRI_EXTENT;
   secExt = ElemDDLFileAttrExtents::DEFAULT_SEC_EXTENT;
 }
@@ -1009,7 +1009,7 @@ void ElemDDLFileAttrMaxExtents::initializeMaxExtents(int maxExt) {
 // helpers
 //
 
-void ParSetDefaultMaxExtents(ULng32 &maxExt) { maxExt = ElemDDLFileAttrMaxExtents::DEFAULT_MAX_EXTENT; }
+void ParSetDefaultMaxExtents(int &maxExt) { maxExt = ElemDDLFileAttrMaxExtents::DEFAULT_MAX_EXTENT; }
 
 //
 // methods for tracing - Do we need this for Extents ? Verify and then add.

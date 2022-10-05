@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ******************************************************************************
 *
@@ -206,11 +185,11 @@ class NodeCountHelper {
 
 class NodeNameHelper {
   friend class NodeHashHelper;
-  friend ULng32 nodeNameHashFunc(const NodeNameHelper &n);
+  friend int nodeNameHashFunc(const NodeNameHelper &n);
 
  public:
   const char *const getNodeName(void) { return nodeName_; }
-  ULng32 hash() const { return nodeNameHashFunc(*this); }
+  int hash() const { return nodeNameHashFunc(*this); }
   inline NABoolean operator==(const NodeNameHelper &other) const {
     if (stricmp(nodeName_, other.nodeName_) != 0)
       return FALSE;
@@ -222,8 +201,8 @@ class NodeNameHelper {
   char nodeName_[ComGUARDIAN_SYSTEM_NAME_PART_CHAR_MAX_LEN + 1];
 };
 
-ULng32 nodeNameHashFunc(const NodeNameHelper &n) {
-  ULng32 retval = 0;
+int nodeNameHashFunc(const NodeNameHelper &n) {
+  int retval = 0;
   const char *const c = n.nodeName_;
   int i = 0;
   do {
@@ -234,7 +213,7 @@ ULng32 nodeNameHashFunc(const NodeNameHelper &n) {
 
 class NodeDiskNameHelper {
   friend class NodeHashHelper;
-  friend ULng32 nodeDiskNameHashFunc(const NodeDiskNameHelper &n);
+  friend int nodeDiskNameHashFunc(const NodeDiskNameHelper &n);
 
  public:
   inline NABoolean operator==(const NodeDiskNameHelper &other) const {
@@ -244,7 +223,7 @@ class NodeDiskNameHelper {
       return TRUE;
   }
 
-  ULng32 hash() const { return nodeDiskNameHashFunc(*this); }
+  int hash() const { return nodeDiskNameHashFunc(*this); }
 
  private:
   char nodeDiskName_[ComGUARDIAN_SYSTEM_NAME_PART_CHAR_MAX_LEN + 1    // + 1 for the dot.
@@ -252,8 +231,8 @@ class NodeDiskNameHelper {
   ];
 };
 
-ULng32 nodeDiskNameHashFunc(const NodeDiskNameHelper &n) {
-  ULng32 retval = 0;
+int nodeDiskNameHashFunc(const NodeDiskNameHelper &n) {
+  int retval = 0;
   const char *const c = n.nodeDiskName_;
   int i = 0;
   do {
@@ -731,11 +710,11 @@ short RelRoot::codeGen(Generator *generator) {
   CollIndex i;
 
   ex_expr *pkey_expr = NULL;
-  ULng32 pkey_len = 0;
+  int pkey_len = 0;
 
   ex_expr *pred_expr = NULL;
 
-  ULng32 cacheVarsSize = 0;
+  int cacheVarsSize = 0;
   //  unsigned long tablenameCacheVarsSize = 0;
 
   // max number of rows in user rowwise rowset.
@@ -904,7 +883,7 @@ short RelRoot::codeGen(Generator *generator) {
     attrs[i] = generator->addMapInfo(newInputVars[i], NULL)->getAttr();
   }
 
-  ULng32 input_vars_size = 0;
+  int input_vars_size = 0;
   exp_gen->processAttributes(newInputVars.entries(), attrs, ExpTupleDesc::SQLARK_EXPLODED_FORMAT, input_vars_size,
                              0 /*atp*/, num_tupps /*atpIdx*/);
 
@@ -1014,7 +993,7 @@ short RelRoot::codeGen(Generator *generator) {
     // No real atp index is to be assigned.
     // Cannot make it -1 as processAttrs doesn't like that.
     // Make atp index to be SHRT_MAX (out of reach).
-    ULng32 len;
+    int len;
     exp_gen->processAttributes(rwrsVars.entries(), rwrsAttrs, ExpTupleDesc::SQLARK_EXPLODED_FORMAT, len, 0 /*atp*/,
                                SHRT_MAX /*atpIdx*/);
     rwrsMaxInternalRowlen = len;
@@ -2417,7 +2396,7 @@ short RelRoot::codeGen(Generator *generator) {
   exFragDir->setScratchFileOptions(genScratchFileOptions(generator));
 
   // move ESP nodemask into frag dir
-  exFragDir->setNodeMask((ULng32)getDefault(PARALLEL_ESP_NODEMASK));
+  exFragDir->setNodeMask((int)getDefault(PARALLEL_ESP_NODEMASK));
 
   exFragDir->setMaxESPsPerNode(CmpCommon::getDefaultLong(MAX_ESPS_PER_NODE));
 
@@ -2555,13 +2534,13 @@ short RelRoot::codeGen(Generator *generator) {
 }  // RelRoot::codeGen()
 
 short Sort::generateTdb(Generator *generator, ComTdb *child_tdb, ex_expr *sortKeyExpr, ex_expr *sortRecExpr,
-                        ULng32 sortKeyLen, ULng32 sortRecLen, ULng32 sortPrefixKeyLen, ex_cri_desc *given_desc,
+                        int sortKeyLen, int sortRecLen, int sortPrefixKeyLen, ex_cri_desc *given_desc,
                         ex_cri_desc *returned_desc, ex_cri_desc *work_cri_desc, int saveNumEsps,
                         ExplainTuple *childExplainTuple, NABoolean resizeCifRecord, NABoolean considerBufferDefrag,
                         NABoolean operatorCIF) {
   NADefaults &defs = ActiveSchemaDB()->getDefaults();
 
-  ULng32 numBuffers = (ULng32)getDefault(GEN_SORT_NUM_BUFFERS);
+  int numBuffers = (int)getDefault(GEN_SORT_NUM_BUFFERS);
 
   CostScalar bufferSize = getDefault(GEN_SORT_MAX_BUFFER_SIZE);
 
@@ -2604,7 +2583,7 @@ short Sort::generateTdb(Generator *generator, ComTdb *child_tdb, ex_expr *sortKe
     // overflow buffer size must be multiple of 512 byte boundary
     // due to O_DIRECT requirements.
     // For calculation, refer to ALIGN_OFFSET in NAMemory.
-    ULng32 padlen =
+    int padlen =
         ((sort_options->scratchIOBlockSize() & 511) == 0) ? 0 : (512 - (sort_options->scratchIOBlockSize() & 511));
     sort_options->scratchIOBlockSize() += padlen;
   }
@@ -3075,8 +3054,8 @@ short SortFromTop::codeGen(Generator *generator) {
 
   MapTable *myMapTable = generator->appendAtEnd();
 
-  ULng32 sort_rec_len = 0;
-  ULng32 sort_key_len = 0;
+  int sort_rec_len = 0;
+  int sort_key_len = 0;
   ex_expr *sort_rec_expr = 0;
   ex_expr *sort_key_expr = 0;
   ExpTupleDesc *tuple_desc = 0;
@@ -3345,7 +3324,7 @@ short TupleList::codeGen(Generator *generator) {
   generator->getExpGenerator()->setEnableCommonSubexpressionElimination(FALSE);
 
   Queue *qList = new (generator->getSpace()) Queue(generator->getSpace());
-  ULng32 tupleLen = 0;
+  int tupleLen = 0;
   ExpTupleDesc *tupleDesc = 0;
   ExprValueId eVid(tupleExprTree());
   ItemExprTreeAsList tupleList(&eVid, ITM_ITEM_LIST);
@@ -3445,10 +3424,10 @@ short TupleList::codeGen(Generator *generator) {
   // Compute the buffer size based on upqueue size and row size.
   // Try to get enough buffer space to hold twice as many records
   // as the up queue.
-  ULng32 buffersize = getDefault(GEN_TUPL_BUFFER_SIZE);
+  int buffersize = getDefault(GEN_TUPL_BUFFER_SIZE);
   int numBuffers = getDefault(GEN_TUPL_NUM_BUFFERS);
   queue_index upqueuelength = (queue_index)getDefault(GEN_TUPL_SIZE_UP);
-  ULng32 cbuffersize =
+  int cbuffersize =
       ((tupleLen + sizeof(tupp_descriptor)) * (upqueuelength * 2 / numBuffers)) + SqlBufferNeededSize(0, 0);
   buffersize = buffersize > cbuffersize ? buffersize : cbuffersize;
 
@@ -3512,7 +3491,7 @@ short ExplainFunc::codeGen(Generator *generator) {
   }
 
   ExpTupleDesc *explTupleDesc = 0;
-  ULng32 explTupleLength = 0;
+  int explTupleLength = 0;
   expGen->processAttributes(numColumns, attrs, ExpTupleDesc::SQLARK_EXPLODED_FORMAT, explTupleLength, 0,
                             returnedDesc->noTuples() - 1, &explTupleDesc, ExpTupleDesc::SHORT_FORMAT);
 
@@ -3535,7 +3514,7 @@ short ExplainFunc::codeGen(Generator *generator) {
   ex_expr *moveExpr = 0;
 
   ExpTupleDesc *tupleDesc = 0;
-  ULng32 tupleLength = 0;
+  int tupleLength = 0;
   if (!getProcInputParamsVids().isEmpty()) {
     expGen->generateContiguousMoveExpr(getProcInputParamsVids(), -1, 0, paramsDesc->noTuples() - 1,
                                        ExpTupleDesc::SQLARK_EXPLODED_FORMAT, tupleLength, &moveExpr, &tupleDesc,
@@ -3546,7 +3525,7 @@ short ExplainFunc::codeGen(Generator *generator) {
   }
 
   // allocate buffer space to contain atleast 2 rows.
-  ULng32 bufferSize = (explTupleLength + 100 /*padding*/) * 2 /*rows*/;
+  int bufferSize = (explTupleLength + 100 /*padding*/) * 2 /*rows*/;
   bufferSize = MAXOF(bufferSize, 30000);  // min buf size 30000
   int numBuffers = 3;                   // allocate 3 buffers
 
@@ -3677,7 +3656,7 @@ short PhysTranspose::codeGen(Generator *generator) {
   // The length of the new tuple which will contain the columns
   // generated by transpose.
   //
-  ULng32 transColsTupleLen;
+  int transColsTupleLen;
 
   // The Transpose node contains a vector of ValueIdLists. There is
   // one entry for each transpose set, plus one entry for the key
@@ -4094,7 +4073,7 @@ short PhyPack::codeGen(Generator *generator) {
   const int atp = 0;
 
   // To store length of the last tupp introduced by PhyPack.
-  ULng32 tupleLen = 0;
+  int tupleLen = 0;
 
   // Will be generated to describe the last tupp introduced by PhyPack.
   ExpTupleDesc *tupleDesc = 0;
@@ -4255,7 +4234,7 @@ short StatisticsFunc::codeGen(Generator *generator) {
   }
 
   ExpTupleDesc *tupleDesc = 0;
-  ULng32 tupleLength = 0;
+  int tupleLength = 0;
 
   // StatisticsFunc must use Exploded Format for now.
   ExpTupleDesc::TupleDataFormat tupleFormat = ExpTupleDesc::SQLARK_EXPLODED_FORMAT;
@@ -4281,7 +4260,7 @@ short StatisticsFunc::codeGen(Generator *generator) {
   // generate move expression for the parameter list
   ex_expr *inputExpr = 0;
   ExpTupleDesc *inputTupleDesc = 0;
-  ULng32 inputTupleLength = 0;
+  int inputTupleLength = 0;
 
   if (!getProcInputParamsVids().isEmpty()) {
     expGen->generateContiguousMoveExpr(getProcInputParamsVids(), -1, work_atp, input_row_atp_index, tupleFormat,
@@ -4565,8 +4544,8 @@ short ConnectBy::codeGen(Generator *generator) {
   ex_cri_desc *right_child_desc = generator->getCriDesc(Generator::UP);
 
   // process the pseudo columns
-  ULng32 ptupleLength = 0;
-  ULng32 pathTupleLen = 0;
+  int ptupleLength = 0;
+  int pathTupleLen = 0;
   if (pseudoColList().entries() > 0) {
     Attributes **attrs = new (generator->wHeap()) Attributes *[pseudoColList().entries()];
     for (CollIndex i = 0; i < pseudoColList().entries(); i++) {
@@ -4636,8 +4615,8 @@ short ConnectBy::codeGen(Generator *generator) {
     priorRightSrcList.insert(newcnode->getValueId());
   }
 
-  ULng32 leftRowLength = 0;
-  ULng32 rightRowLength = 0;
+  int leftRowLength = 0;
+  int rightRowLength = 0;
   ExpTupleDesc::TupleDataFormat tupleFormat = ExpTupleDesc::SQLARK_EXPLODED_FORMAT;
 
   if (left_val_id_list.entries() > 0) {
@@ -4809,7 +4788,7 @@ short ConnectByTempTable::codeGen(Generator *generator) {
   hvAsListInput.insert(hvAsIeInput->getValueId());
 
   ex_expr *hvInputExpr = NULL;
-  ULng32 hvLengthInput;
+  int hvLengthInput;
   expGen->generateContiguousMoveExpr(hvAsListInput,
                                      0,  // don't add convert node
                                      work_atp, hashInputValIdx, ExpTupleDesc::SQLARK_EXPLODED_FORMAT, hvLengthInput,
@@ -4844,7 +4823,7 @@ short ConnectByTempTable::codeGen(Generator *generator) {
   }
 
   ex_expr *encodeInputHostVarExpr = NULL;
-  ULng32 encodedInputLengthInput;
+  int encodedInputLengthInput;
   expGen->generateContiguousMoveExpr(encodeInputAsListInput,
                                      0,  // don't add conv nodes
                                      work_atp, encodeInputProbeDataIdx, ExpTupleDesc::SQLARK_EXPLODED_FORMAT,
@@ -4856,7 +4835,7 @@ short ConnectByTempTable::codeGen(Generator *generator) {
   NABoolean useCif = FALSE;
   ExpTupleDesc::TupleDataFormat tupleFormat = generator->getInternalFormat();
 
-  ULng32 innerRecLength = 0;
+  int innerRecLength = 0;
   ExpTupleDesc *innerRecTupleDesc = 0;
   MapTable *returnedMapTable = NULL;
 
@@ -4890,7 +4869,7 @@ short ConnectByTempTable::codeGen(Generator *generator) {
   hvAsList.insert(hvAsIe->getValueId());
 
   ex_expr *hvExpr = NULL;
-  ULng32 hvLength;
+  int hvLength;
   expGen->generateContiguousMoveExpr(hvAsList,
                                      0,  // don't add convert node
                                      work_atp, hashValIdx, ExpTupleDesc::SQLARK_EXPLODED_FORMAT, hvLength, &hvExpr);
@@ -4921,7 +4900,7 @@ short ConnectByTempTable::codeGen(Generator *generator) {
   }
 
   ex_expr *encodeInputExpr = NULL;
-  ULng32 encodedInputLength;
+  int encodedInputLength;
   expGen->generateContiguousMoveExpr(encodeInputAsList,
                                      0,  // don't add conv nodes
                                      work_atp, encodedProbeDataIdx, ExpTupleDesc::SQLARK_EXPLODED_FORMAT,
@@ -4938,7 +4917,7 @@ short ConnectByTempTable::codeGen(Generator *generator) {
     attrib->setAtpIndex(returned_desc->noTuples() - 1);
   }
 
-  ULng32 pcNumEntries = getBucketNum();
+  int pcNumEntries = getBucketNum();
 
   ex_expr *selectPred = NULL;
 
@@ -5016,7 +4995,7 @@ short QueryInvalidationFunc::codeGen(Generator *generator) {
   }
 
   ExpTupleDesc *tupleDesc = 0;
-  ULng32 tupleLength = 0;
+  int tupleLength = 0;
 
   ExpTupleDesc::TupleDataFormat tupleFormat = ExpTupleDesc::SQLARK_EXPLODED_FORMAT;
 
@@ -5036,7 +5015,7 @@ short QueryInvalidationFunc::codeGen(Generator *generator) {
   // generate move expression for the parameter list
   ex_expr *inputExpr = 0;
   ExpTupleDesc *inputTupleDesc = 0;
-  ULng32 inputTupleLength = 0;
+  int inputTupleLength = 0;
 
   if (!getProcInputParamsVids().isEmpty()) {
     expGen->generateContiguousMoveExpr(getProcInputParamsVids(), -1, work_atp, input_row_atp_index, tupleFormat,

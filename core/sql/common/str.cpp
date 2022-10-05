@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -188,7 +167,7 @@ int str_cat(const char *first, const char *second, char *result) {
   return 0;
 }
 
-char *str_itoa(ULng32 i, char *outstr) {
+char *str_itoa(int i, char *outstr) {
   assert(outstr);
 
   if (i == 0) {
@@ -196,7 +175,7 @@ char *str_itoa(ULng32 i, char *outstr) {
     outstr[1] = 0;
   } else {
     short j = 0;
-    ULng32 temp = i;
+    int temp = i;
 
     // check how many digits there are in the output string
     while (temp > 0) {
@@ -362,9 +341,9 @@ int str_len(const char *s) {
   return i;
 }
 
-int str_inc(const ULng32 length, char *s) {
+int str_inc(const int length, char *s) {
   unsigned char *s_ = (unsigned char *)s;
-  ULng32 i;
+  int i;
   int carry = 1;
   for (i = length; i > 0 && carry; i--) {
     if (s_[i - 1] == 255) {
@@ -381,8 +360,8 @@ int str_inc(const ULng32 length, char *s) {
   return 0;
 }
 
-void str_complement(const ULng32 length, char *s) {
-  for (ULng32 i = 0; i < length; i++) s[i] = ~(s[i]);
+void str_complement(const int length, char *s) {
+  for (int i = 0; i < length; i++) s[i] = ~(s[i]);
 }
 
 // ----------------------------------------------------------------------

@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ******************************************************************************
 *
@@ -105,7 +84,7 @@ static void addOptionalData(Queue *optData, NAString &description) {
 
 ExplainTuple *IsolatedNonTableUDR::addSpecificExplainInfo(ExplainTupleMaster *explainTuple, ComTdb *tdb,
                                                           Generator *generator) {
-  ULng32 i;
+  int i;
   char buf[128];
   const QualifiedName &qname = getEffectiveNARoutine()->getSqlName();
   NAString ansiName = qname.getQualifiedNameAsString();
@@ -114,7 +93,7 @@ ExplainTuple *IsolatedNonTableUDR::addSpecificExplainInfo(ExplainTupleMaster *ex
   description += ansiName;
 
   description += " parameter_modes: ";
-  const ULng32 numParams = getEffectiveNARoutine()->getParamCount();
+  const int numParams = getEffectiveNARoutine()->getParamCount();
 
   if (numParams == 0) {
     description += "none";
@@ -293,7 +272,7 @@ ExplainTuple *SPProxyFunc::addExplainInfo(ComTdb *tdb, ExplainTuple *leftChild, 
 
 ExplainTuple *PhysicalTableMappingUDF::addSpecificExplainInfo(ExplainTupleMaster *explainTuple, ComTdb *tdb,
                                                               Generator *generator) {
-  ULng32 i;
+  int i;
   NAString name = getUserTableName().getCorrNameAsString();
   const NAColumnArray &formalInputParams = getScalarInputParams();
   const NAColumnArray &outputColumns = getOutputParams();
@@ -332,13 +311,13 @@ ExplainTuple *PhysicalTableMappingUDF::addSpecificExplainInfo(ExplainTupleMaster
   return explainTuple;
 }
 
-static ULng32 min_sql_buffer_overhead() {
+static int min_sql_buffer_overhead() {
   // When we compute buffer sizes for IPC messages, we sometimes want
   // to know how much SqlBuffer overhead is required to send one data
   // row plus a NO_DATA indicator. This function returns the number of
   // bookkeeping bytes required. The bookkeeping consists of SqlBuffer
   // class members, two control rows, and one data row.
-  const ULng32 bufferPad = sizeof(SqlBuffer) + (2 * (sizeof(ControlInfo) + sizeof(tupp_descriptor))) +
+  const int bufferPad = sizeof(SqlBuffer) + (2 * (sizeof(ControlInfo) + sizeof(tupp_descriptor))) +
                            sizeof(tupp_descriptor)  // for the data row
                            + 100                    // just to be safe
       ;
@@ -358,9 +337,9 @@ static ULng32 min_sql_buffer_overhead() {
 static short udr_codegen(Generator *generator, RelExpr &relExpr, ComTdbUdr *&newTdb, const RoutineDesc *rdesc,
                          const ValueIdList *inVids, const ValueIdList *outVids, const NAColumnArray *inColumns,
                          const NAColumnArray *outColumns, const NAColumnArray *formalColumns,
-                         Cardinality estimatedRowCount, ULng32 downQueueMaxSize, ULng32 upQueueMaxSize,
-                         ULng32 outputBufferSize, ULng32 requestBufferSize, ULng32 replyBufferSize,
-                         ULng32 numOutputBuffers, const char *runtimeOptsFromCaller,
+                         Cardinality estimatedRowCount, int downQueueMaxSize, int upQueueMaxSize,
+                         int outputBufferSize, int requestBufferSize, int replyBufferSize,
+                         int numOutputBuffers, const char *runtimeOptsFromCaller,
                          const char *runtimeOptDelimsFromCaller, ComTdb **childTdbs, Queue *optionalData,
                          tmudr::UDRInvocationInfo *udrInvocationInfo, tmudr::UDRPlanInfo *udrPlanInfo) {
   CmpContext *cmpContext = generator->currentCmpContext();
@@ -373,12 +352,12 @@ static short udr_codegen(Generator *generator, RelExpr &relExpr, ComTdbUdr *&new
   ex_expr *scan_expr = NULL;
   ex_expr *proj_expr = NULL;
   ex_expr **childInput_exprs = NULL;
-  ULng32 i;
-  ULng32 requestRowLen = 0;
-  ULng32 replyRowLen = 0;
-  ULng32 outputRowLen = 0;
-  ULng32 childInputRowLen = 0;
-  ULng32 combinedRequestChildOutputRowLen = 0;
+  int i;
+  int requestRowLen = 0;
+  int replyRowLen = 0;
+  int outputRowLen = 0;
+  int childInputRowLen = 0;
+  int combinedRequestChildOutputRowLen = 0;
   ExpTupleDesc *requestTupleDesc = NULL;     // input params in langman format
   ExpTupleDesc *replyTupleDesc = NULL;       // output row/params in langman format
   ExpTupleDesc *outputTupleDesc = NULL;      // output row/params in executor format
@@ -392,10 +371,10 @@ static short udr_codegen(Generator *generator, RelExpr &relExpr, ComTdbUdr *&new
   OperatorTypeEnum relExprType = relExpr.getOperatorType();
   NABoolean isResultSet = (relExprType == REL_SP_PROXY ? TRUE : FALSE);
 
-  const ULng32 numInValues = (inVids ? inVids->entries() : 0);
-  const ULng32 numOutValues = (outVids ? outVids->entries() : 0);
+  const int numInValues = (inVids ? inVids->entries() : 0);
+  const int numOutValues = (outVids ? outVids->entries() : 0);
 
-  ULng32 totalNumParams = (rdesc ? (rdesc->getInParamColumnList().entries() + rdesc->getOutputColumnList().entries())
+  int totalNumParams = (rdesc ? (rdesc->getInParamColumnList().entries() + rdesc->getOutputColumnList().entries())
                                  : (numInValues + numOutValues));
   if (relExpr.castToTableMappingUDF()) totalNumParams = (numInValues + numOutValues);
 
@@ -470,8 +449,8 @@ static short udr_codegen(Generator *generator, RelExpr &relExpr, ComTdbUdr *&new
   //
   //----------------------------------------------------------------------
 
-  ULng32 numChildInputs = 0;
-  ULng32 numChildInputCols = 0;
+  int numChildInputs = 0;
+  int numChildInputCols = 0;
   TableMappingUDFChildInfo *childInfo = NULL;
   if (relExpr.castToTableMappingUDF()) {
     numChildInputs = relExpr.getArity();
@@ -751,7 +730,7 @@ static short udr_codegen(Generator *generator, RelExpr &relExpr, ComTdbUdr *&new
 
   // Make sure all buffer sizes are large enough to accomodate two
   // control rows plus one data row.
-  const ULng32 bufferPad = min_sql_buffer_overhead();
+  const int bufferPad = min_sql_buffer_overhead();
   // request buffer is used to sent parent down queue entries to
   // udrserver, and also to send child output rows to udrserver
   requestBufferSize = MAXOF(requestBufferSize, combinedRequestChildOutputRowLen + bufferPad);
@@ -1182,17 +1161,17 @@ short IsolatedScalarUDF::codeGen(Generator *generator) {
   // These are All the Formal Columns from Metadata
   const NAColumnArray &formalColumns = effectiveMetadata.getParams();
 
-  const ULng32 downQueueMaxSize = getDefault(GEN_UDR_SIZE_DOWN);
-  const ULng32 upQueueMaxSize = getDefault(GEN_UDR_SIZE_UP);
+  const int downQueueMaxSize = getDefault(GEN_UDR_SIZE_DOWN);
+  const int upQueueMaxSize = getDefault(GEN_UDR_SIZE_UP);
 
   // We pass in buffer sizes of zero and let the udr_codegen
   // subroutine choose minimal but sufficient buffer sizes for
   // single-row interactions. When UDR operators are used for
   // multi-row interactions then we should choose larger buffer sizes.
-  const ULng32 defaultBufferSize = getDefault(GEN_UDR_BUFFER_SIZE);
-  const ULng32 outputBufferSize = defaultBufferSize;
-  const ULng32 requestBufferSize = defaultBufferSize;
-  const ULng32 replyBufferSize = defaultBufferSize;
+  const int defaultBufferSize = getDefault(GEN_UDR_BUFFER_SIZE);
+  const int outputBufferSize = defaultBufferSize;
+  const int requestBufferSize = defaultBufferSize;
+  const int replyBufferSize = defaultBufferSize;
 
   // We could get by with one buffer in the output pool for standalone
   // CALL statements because they always return one row. However by
@@ -1210,7 +1189,7 @@ short IsolatedScalarUDF::codeGen(Generator *generator) {
   //
   // The default value of GEN_UDR_NUM_BUFFERS is 2.
   //
-  const ULng32 numOutputBuffers = getDefault(GEN_UDR_NUM_BUFFERS);
+  const int numOutputBuffers = getDefault(GEN_UDR_NUM_BUFFERS);
 
   // The TDB stores but makes no use of this estimated row count
   Cardinality estimatedRowCount = 1;
@@ -1382,16 +1361,16 @@ short CallSP::codeGen(Generator *generator) {
   const NAColumnArray &outColumns = metadata.getOutParams();
   const NAColumnArray &formalColumns = metadata.getParams();
 
-  const ULng32 downQueueMaxSize = getDefault(GEN_UDR_SIZE_DOWN);
-  const ULng32 upQueueMaxSize = getDefault(GEN_UDR_SIZE_UP);
+  const int downQueueMaxSize = getDefault(GEN_UDR_SIZE_DOWN);
+  const int upQueueMaxSize = getDefault(GEN_UDR_SIZE_UP);
 
   // We pass in buffer sizes of zero and let the udr_codegen
   // subroutine choose minimal but sufficient buffer sizes for
   // single-row interactions. When UDR operators are used for
   // multi-row interactions then we should choose larger buffer sizes.
-  const ULng32 outputBufferSize = 0;
-  const ULng32 requestBufferSize = 0;
-  const ULng32 replyBufferSize = 0;
+  const int outputBufferSize = 0;
+  const int requestBufferSize = 0;
+  const int replyBufferSize = 0;
 
   // We could get by with one buffer in the output pool for standalone
   // CALL statements because they always return one row. However by
@@ -1409,7 +1388,7 @@ short CallSP::codeGen(Generator *generator) {
   //
   // The default value of GEN_UDR_NUM_BUFFERS is 2.
   //
-  const ULng32 numOutputBuffers = getDefault(GEN_UDR_NUM_BUFFERS);
+  const int numOutputBuffers = getDefault(GEN_UDR_NUM_BUFFERS);
 
   // Look up defaults for JVM startup options. The third parameter to
   // getDefault() is named "errOrWarn" and is explained in commentary
@@ -1474,14 +1453,14 @@ short PhysicalSPProxyFunc::codeGen(Generator *generator) {
   const ValueIdList &outVids = getTableDesc()->getColumnList();
   const NAColumnArray &outColumns = getTableDesc()->getNATable()->getNAColumnArray();
 
-  const ULng32 requestBufferSize = 0;
-  const ULng32 replyBufferSize = getDefault(GEN_UDRRS_BUFFER_SIZE);
-  const ULng32 outputBufferSize = replyBufferSize;
+  const int requestBufferSize = 0;
+  const int replyBufferSize = getDefault(GEN_UDRRS_BUFFER_SIZE);
+  const int outputBufferSize = replyBufferSize;
 
-  const ULng32 downQueueMaxSize = getDefault(GEN_UDRRS_SIZE_DOWN);
-  const ULng32 upQueueMaxSize = getDefault(GEN_UDRRS_SIZE_UP);
+  const int downQueueMaxSize = getDefault(GEN_UDRRS_SIZE_DOWN);
+  const int upQueueMaxSize = getDefault(GEN_UDRRS_SIZE_UP);
 
-  const ULng32 numOutputBuffers = getDefault(GEN_UDRRS_NUM_BUFFERS);
+  const int numOutputBuffers = getDefault(GEN_UDRRS_NUM_BUFFERS);
 
   // The TDB stores but makes no use of this estimated row count
   Cardinality estimatedRowCount = 100;
@@ -1564,14 +1543,14 @@ short PhysicalTableMappingUDF::codeGen(Generator *generator) {
   // These are the Formal Output Columns from DLL/Metadata
   const NAColumnArray &outColumns = getOutputParams();
 
-  const ULng32 downQueueMaxSize = getDefault(GEN_UDR_SIZE_DOWN);
-  const ULng32 upQueueMaxSize = getDefault(GEN_UDR_SIZE_UP);
+  const int downQueueMaxSize = getDefault(GEN_UDR_SIZE_DOWN);
+  const int upQueueMaxSize = getDefault(GEN_UDR_SIZE_UP);
 
-  const ULng32 defaultBufferSize = getDefault(GEN_UDR_BUFFER_SIZE);
-  const ULng32 outputBufferSize = defaultBufferSize;
-  const ULng32 requestBufferSize = defaultBufferSize;
-  const ULng32 replyBufferSize = defaultBufferSize;
-  const ULng32 numOutputBuffers = getDefault(GEN_UDR_NUM_BUFFERS);
+  const int defaultBufferSize = getDefault(GEN_UDR_BUFFER_SIZE);
+  const int outputBufferSize = defaultBufferSize;
+  const int requestBufferSize = defaultBufferSize;
+  const int replyBufferSize = defaultBufferSize;
+  const int numOutputBuffers = getDefault(GEN_UDR_NUM_BUFFERS);
 
   // The TDB stores but makes no use of this estimated row count
   Cardinality estimatedRowCount = 1;

@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ****************************************************************************
 *
@@ -128,7 +107,7 @@ Queue::~Queue() {
   curr = head = tail = (Q_EntryPtr)NULL;
 }
 
-void Queue::insert(void *entry_, ULng32 packedLength) {
+void Queue::insert(void *entry_, int packedLength) {
   tail->entry = entry_;
   tail->packedLength_ += packedLength;
   packedLength_ += tail->packedLength();
@@ -180,9 +159,9 @@ void *Queue::getNext() {
   return temp;
 }
 
-void *Queue::get(ULng32 i) {
+void *Queue::get(int i) {
   position();
-  for (ULng32 j = 0; j < i; j++) getNext();
+  for (int j = 0; j < i; j++) getNext();
 
   return getCurr();
 }
@@ -317,7 +296,7 @@ int Queue::unpack(void *base) {
   return 0;
 }
 
-NABoolean Queue::packIntoBuffer(char *buffer, ULng32 &currPos) {
+NABoolean Queue::packIntoBuffer(char *buffer, int &currPos) {
   Queue *q = (Queue *)&buffer[currPos];
 
   str_cpy_all((char *)q, (char *)this, sizeof(*this));
@@ -334,7 +313,7 @@ NABoolean Queue::packIntoBuffer(char *buffer, ULng32 &currPos) {
   return TRUE;
 }
 
-void Queue::packCurrEntryIntoBuffer(char *buffer, ULng32 &currPos) {
+void Queue::packCurrEntryIntoBuffer(char *buffer, int &currPos) {
   Q_Entry *currBufEntry = (Q_Entry *)&buffer[currPos];
 
   str_cpy_all((char *)currBufEntry, (char *)(curr.pointer()), sizeof(Q_Entry));
@@ -353,7 +332,7 @@ void Queue::packCurrEntryIntoBuffer(char *buffer, ULng32 &currPos) {
   currBufEntry->entry.pack(buffer, 0);
 }
 
-void Queue::packTailIntoBuffer(char *buffer, ULng32 &currPos, Queue *packedQueue) {
+void Queue::packTailIntoBuffer(char *buffer, int &currPos, Queue *packedQueue) {
   Q_Entry *currBufEntry = (Q_Entry *)&buffer[currPos];
 
   str_cpy_all((char *)currBufEntry, (char *)(tail.pointer()), sizeof(Q_Entry));
@@ -373,7 +352,7 @@ void Queue::packTailIntoBuffer(char *buffer, ULng32 &currPos, Queue *packedQueue
 // methods for HashQueue
 ////////////////////////////////////////////////////////////////////////
 
-HashQueue::HashQueue(CollHeap *heap, ULng32 hashTableSize)
+HashQueue::HashQueue(CollHeap *heap, int hashTableSize)
     : entries_(0),
       hashTableSize_(hashTableSize),
       lastReturned_(NULL),
@@ -419,7 +398,7 @@ HashQueue::~HashQueue() {
     delete[] hashTable_;
 };
 
-void HashQueue::insert(char *data, ULng32 dataLength, void *entry) {
+void HashQueue::insert(char *data, int dataLength, void *entry) {
   // set the hashValue_, currentChain_, and current_
   getHashValue(data, dataLength);
 
@@ -439,7 +418,7 @@ void HashQueue::insert(char *data, ULng32 dataLength, void *entry) {
   hashValue_ = 0;
 };
 
-void HashQueue::position(char *data, ULng32 dataLength) {
+void HashQueue::position(char *data, int dataLength) {
   // if we do not have entries in this hash queue, do not even
   // bother to calculate the hash value.
   if (!entries_) {
@@ -581,9 +560,9 @@ void HashQueue::remove(void *entry) {
 };
 
 // simple method to calculate a hash value
-void HashQueue::getHashValue(char *data, ULng32 dataLength) {
+void HashQueue::getHashValue(char *data, int dataLength) {
   hashValue_ = 0;
-  for (ULng32 i = 0; i < dataLength; i++) hashValue_ += (unsigned char)data[i];
+  for (int i = 0; i < dataLength; i++) hashValue_ += (unsigned char)data[i];
 
   // we never return 0 as hashValue_
   if (!hashValue_) hashValue_ = 1;

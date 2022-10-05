@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -80,7 +59,7 @@ ESPTraceEntry::ESPTraceEntry(ex_globals *glob, char *t1) : globals_(glob) {
 
   timestamp_ = CONVERTTIMESTAMP(JULIANTIMESTAMP(0, 0, 0, -1), 0, -1, 0);
 
-  ULng32 pid = -1;
+  int pid = -1;
   pid_ = exeGlob->getPid();
 
   int len = str_len(t1);
@@ -121,7 +100,7 @@ ESPTraceList::~ESPTraceList() { clearAndDestroy(); }
 
 // Remove all entries the list and call their destructors
 void ESPTraceList::clearAndDestroy() {
-  for (ULng32 i = 0; i < entries(); i++) {
+  for (int i = 0; i < entries(); i++) {
     ESPTraceEntry *entry = (ESPTraceEntry *)at(i);
     remove(entry);
     NADELETE(entry, ESPTraceEntry, globals_->getDefaultHeap());
@@ -524,7 +503,7 @@ ExMasterStmtGlobals::ExMasterStmtGlobals(short num_temps, CliGlobals *cliGlobals
   }
 #endif
 
-  localSnapshotOfTimeoutChangeCounter_ = (ULng32)-1;
+  localSnapshotOfTimeoutChangeCounter_ = (int)-1;
 }
 
 // Warning! Despite the name, this method does NOT destroy this
@@ -768,7 +747,7 @@ void ExMasterStmtGlobals::deleteResultSetInfo() {
   }
 }
 
-void ExMasterStmtGlobals::acquireRSInfoFromParent(ULng32 &rsIndex,          // OUT
+void ExMasterStmtGlobals::acquireRSInfoFromParent(int &rsIndex,          // OUT
                                                   long &udrHandle,         // OUT
                                                   ExUdrServer *&udrServer,  // OUT
                                                   IpcProcessId &pid,        // OUT
@@ -864,7 +843,7 @@ void ExMasterStmtGlobals::insertExtractSecurityKey(const char *key) {
   str_cpy_all(extractInfo_->securityKey_, key, len + 1);
 }
 
-short ExMasterStmtGlobals::getExtractEspCpu(ULng32 index) const {
+short ExMasterStmtGlobals::getExtractEspCpu(int index) const {
   short result = -1;
   if (extractInfo_ && extractInfo_->esps_) {
     if (extractInfo_->esps_->used(index)) {
@@ -875,7 +854,7 @@ short ExMasterStmtGlobals::getExtractEspCpu(ULng32 index) const {
   return result;
 }
 
-int ExMasterStmtGlobals::getExtractEspNodeNumber(ULng32 index) const {
+int ExMasterStmtGlobals::getExtractEspNodeNumber(int index) const {
   int result = -1;
   if (extractInfo_ && extractInfo_->esps_) {
     if (extractInfo_->esps_->used(index)) {
@@ -886,7 +865,7 @@ int ExMasterStmtGlobals::getExtractEspNodeNumber(ULng32 index) const {
   return result;
 }
 
-const char *ExMasterStmtGlobals::getExtractEspPhandleText(ULng32 index) const {
+const char *ExMasterStmtGlobals::getExtractEspPhandleText(int index) const {
   const char *result = NULL;
   if (extractInfo_ && extractInfo_->esps_) {
     if (extractInfo_->esps_->used(index)) {
@@ -921,7 +900,7 @@ const char *ExMasterStmtGlobals::getSMTraceFilePrefix() const {
 
 ExEspStmtGlobals::ExEspStmtGlobals(short num_temps, CliGlobals *cliGlobals, short create_gui_sched, Space *space,
                                    CollHeap *heap, ExEspFragInstanceDir *espFragInstanceDir, int handle,
-                                   ULng32 injectErrorAtExprFreq, NABoolean multiThreadedEsp, char *queryId,
+                                   int injectErrorAtExprFreq, NABoolean multiThreadedEsp, char *queryId,
                                    int queryIdLen)
     : ExExeStmtGlobals(num_temps, cliGlobals, create_gui_sched, space, heap),
       sendTopTcbs_(heap),

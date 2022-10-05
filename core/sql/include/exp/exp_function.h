@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef EXP_FUNCTION_H
 #define EXP_FUNCTION_H
 
@@ -1590,7 +1569,7 @@ class ex_function_hash : public ex_function_clause {
   // that the size of the object remains the same (and is modulo 8).
   // ---------------------------------------------------------------------
   char fillers_[8];  // 00-07
-  ULng32 HashHash(ULng32 inValue);
+  int HashHash(int inValue);
 };
 
 class ex_function_hivehash : public ex_function_clause {
@@ -1672,7 +1651,7 @@ class ExHiveHashComb : public ex_function_clause {
 
 // 256 pregenerated randome 32-bit values.
 // Do not edit.
-static const ULng32 randomHashValues[256] = {
+static const int randomHashValues[256] = {
     0x905ebe29, 0x95ff0b84, 0xe5357ed6, 0x2cffae90, 0x8350b3f1, 0x1748a7eb, 0x2a0695db, 0x1e7ca00c, 0x60f80c24,
     0x9a41fe1c, 0xa985a647, 0x0ed7e512, 0xcd34ef43, 0xe06325a6, 0xecbf735a, 0x76540d38, 0x35cba55d, 0xff539efc,
     0x64545d45, 0xd7112c0d, 0x17e09e1c, 0x02359d32, 0x45976350, 0xd630a578, 0x34cd0c12, 0x754546f6, 0x1bf4f249,
@@ -1734,12 +1713,12 @@ class ExHDPHash : public ex_function_clause {
   Long pack(void *);
   ex_expr::exp_return_type pCodeGenerate(Space *space, UInt32 f);
 
-  static ULng32 hash(const char *data, UInt32 flags, int length);
+  static int hash(const char *data, UInt32 flags, int length);
 
   static UInt64 hashP(const unsigned char *src1, const unsigned char *src2, int len1, int len2) {
     int i = 0;
-    ULng32 hash1 = 0;
-    ULng32 hash2 = 0;
+    int hash1 = 0;
+    int hash2 = 0;
 
     // Loop over all the bytes of the value and compute the hash value.
     for (; i < len1; i++) {
@@ -1760,9 +1739,9 @@ class ExHDPHash : public ex_function_clause {
   }
 
   // Hash an 8 byte long key
-  static ULng32 hash8(const char *data, UInt32 flags) {
+  static int hash8(const char *data, UInt32 flags) {
     unsigned char *valp = (unsigned char *)data;
-    ULng32 hashValue = 0;
+    int hashValue = 0;
 
     switch (flags) {
       case NO_FLAGS: {
@@ -1808,9 +1787,9 @@ class ExHDPHash : public ex_function_clause {
   }
 
   // Hash a 4-byte long key
-  static ULng32 hash4(const char *data, UInt32 flags) {
+  static int hash4(const char *data, UInt32 flags) {
     unsigned char *valp = (unsigned char *)data;
-    ULng32 hashValue = 0;
+    int hashValue = 0;
 
     switch (flags) {
       case NO_FLAGS: {
@@ -1843,9 +1822,9 @@ class ExHDPHash : public ex_function_clause {
   }
 
   // Hash a 2-byte long key
-  static ULng32 hash2(const char *data, UInt32 flags) {
+  static int hash2(const char *data, UInt32 flags) {
     unsigned char *valp = (unsigned char *)data;
-    ULng32 hashValue = 0;
+    int hashValue = 0;
 
     switch (flags) {
       case NO_FLAGS: {
@@ -3267,8 +3246,8 @@ class ExFunctionHbaseVisibility : public ex_function_clause {
  private:
   int colIndex_;
   int tagType_;
-  ULng32 flags_;
-  ULng32 filler_;
+  int flags_;
+  int filler_;
   // ---------------------------------------------------------------------
 };
 
@@ -3314,7 +3293,7 @@ class ExFunctionHbaseTimestamp : public ex_function_clause {
 
  private:
   int colIndex_;
-  ULng32 flags_;
+  int flags_;
   // ---------------------------------------------------------------------
 };
 
@@ -3331,7 +3310,7 @@ class ExFunctionHbaseVersion : public ex_function_clause {
 
  private:
   int colIndex_;
-  ULng32 flags_;
+  int flags_;
   // ---------------------------------------------------------------------
 };
 
@@ -3464,7 +3443,7 @@ class ex_function_endkey : public ex_function_clause {
 };
 
 #ifndef ULONG
-#define ULONG ULng32
+#define ULONG int
 #endif
 
 #endif

@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -128,7 +107,7 @@ SQLMXLoggingArea::~SQLMXLoggingArea(){
  intercepts requests to return the diag to log
  * any errors or warnings in the diag.
  */
-void SQLMXLoggingArea::logSQLMXEventForError(ULng32 sqlcode, const char *msgTxt, const char *sqlId,
+void SQLMXLoggingArea::logSQLMXEventForError(int sqlcode, const char *msgTxt, const char *sqlId,
                                              NABoolean isWarning) {
   if (!lockMutex()) {
     printf("%s\n", msgTxt);
@@ -164,7 +143,7 @@ void SQLMXLoggingArea::logCompNQCretryEvent(const char *stmt) {
   unlockMutex();
 }
 
-void SQLMXLoggingArea::logExecRtInfo(const char *fileName, ULng32 lineNo, const char *msgTxt, int explainSeqNum) {
+void SQLMXLoggingArea::logExecRtInfo(const char *fileName, int lineNo, const char *msgTxt, int explainSeqNum) {
   if (!lockMutex()) {
     printf("%s  Explain Sequence Number: %d FILE: %s LINE: %d\n", msgTxt, explainSeqNum, fileName, lineNo);
     return;
@@ -181,7 +160,7 @@ void SQLMXLoggingArea::logExecRtInfo(const char *fileName, ULng32 lineNo, const 
   unlockMutex();
 }
 
-void SQLMXLoggingArea::logExecRtDebug(const char *fileName, ULng32 lineNo, const char *msgTxt, int explainSeqNum) {
+void SQLMXLoggingArea::logExecRtDebug(const char *fileName, int lineNo, const char *msgTxt, int explainSeqNum) {
   if (!lockMutex()) {
     printf("%s  Explain Sequence Number: %d FILE: %s LINE: %d\n", msgTxt, explainSeqNum, fileName, lineNo);
     return;
@@ -203,7 +182,7 @@ void SQLMXLoggingArea::logExecRtDebug(const char *fileName, ULng32 lineNo, const
 //
 // When privMgr debugging is set, logs information
 // ----------------------------------------------------------------------------
-void SQLMXLoggingArea::logPrivMgrInfo(const char *filename, ULng32 lineNo, const char *msg, int level) {
+void SQLMXLoggingArea::logPrivMgrInfo(const char *filename, int lineNo, const char *msg, int level) {
   if (!lockMutex()) {
     printf("%s\n", msg);
     return;

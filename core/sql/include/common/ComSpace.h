@@ -60,7 +60,7 @@ typedef class ComSpace : public CollHeap {
                       // this.
   // don't call this directly, as allocateAlignedSpace() won't work
   // if some of the requests are for non-aligned space
-  char *privateAllocateSpace(ULng32 size, NABoolean failureIsFatal = TRUE);
+  char *privateAllocateSpace(int size, NABoolean failureIsFatal = TRUE);
 
   // allocate a block of the indicated length (must be a multiple
   // of 8)
@@ -97,14 +97,14 @@ typedef class ComSpace : public CollHeap {
 
   void *convertToPtr(Long offset) const;
 
-  int allocAndCopy(void *, ULng32, NABoolean failureIsFatal = TRUE);
+  int allocAndCopy(void *, int, NABoolean failureIsFatal = TRUE);
 
   short isOffset(void *);
 
-  NABoolean isOverlappingMyBlocks(char *buf, ULng32 size);
+  NABoolean isOverlappingMyBlocks(char *buf, int size);
 
   // moves all the Blocks into the output contiguous buffer.
-  char *makeContiguous(char *out_buf, ULng32 out_buflen);
+  char *makeContiguous(char *out_buf, int out_buflen);
 
 #if (defined(_DEBUG) || defined(NSK_MEMDEBUG))
   void dumpSpaceInfo(ostream *outstream, int indent);
@@ -154,9 +154,9 @@ class Block {
   void init(int block_size, int data_size, char *data_ptr);
 
   // allocate 'size' amount of space in this block
-  char *allocateMemory(ULng32 size);
+  char *allocateMemory(int size);
 
-  NABoolean isOverlapping(char *buf, ULng32 size);
+  NABoolean isOverlapping(char *buf, int size);
 
   inline int getAllocatedSize() { return allocatedSize_; };
 

@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef CASCADESBASIC_H
 #define CASCADESBASIC_H
 /* -*-C++-*-
@@ -80,7 +59,7 @@ const CollIndex INVALID_GROUP_ID = NULL_COLL_INDEX;
 
 class HashValue : public NABasicObject {
  public:
-  HashValue(ULng32 v = 0x0) { val_ = v; }
+  HashValue(int v = 0x0) { val_ = v; }
 
   inline NABoolean operator==(const HashValue &other) { return (val_ == other.val_); }
 
@@ -91,31 +70,31 @@ class HashValue : public NABasicObject {
     return *this;
   }
   inline HashValue &operator^=(UInt32 other) {
-    val_ ^= (ULng32)other;
+    val_ ^= (int)other;
     return *this;
   }
   inline HashValue &operator^=(unsigned short other) {
-    val_ ^= (ULng32)other;
+    val_ ^= (int)other;
     return *this;
   }
   inline HashValue &operator^=(unsigned char other) {
-    val_ ^= (ULng32)other;
+    val_ ^= (int)other;
     return *this;
   }
   inline HashValue &operator^=(int other) {
-    val_ ^= (ULng32)other;
+    val_ ^= (int)other;
     return *this;
   }
   inline HashValue &operator^=(short other) {
-    val_ ^= (ULng32)other;
+    val_ ^= (int)other;
     return *this;
   }
   inline HashValue &operator^=(char other) {
-    val_ ^= (ULng32)other;
+    val_ ^= (int)other;
     return *this;
   }
   inline HashValue &operator^=(void *other) {
-    val_ ^= (ULng32)((Long)other);
+    val_ ^= (int)((Long)other);
     return *this;
   }
   HashValue &operator^=(const NAString &other);
@@ -123,10 +102,10 @@ class HashValue : public NABasicObject {
   HashValue &operator^=(const ValueIdSet &other);
   HashValue &operator^=(const CANodeIdSet &other);
 
-  inline ULng32 getValue() { return val_; }
+  inline int getValue() { return val_; }
 
  private:
-  ULng32 val_;
+  int val_;
 };
 
 // -----------------------------------------------------------------------

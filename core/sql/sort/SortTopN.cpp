@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ******************************************************************************
 *
@@ -57,7 +36,7 @@
 //------------------------------------------------------------------------
 // Class Constructor.
 //------------------------------------------------------------------------
-SortTopN::SortTopN(ULng32 runsize, ULng32 sortmaxmem, ULng32 recsize, NABoolean doNotallocRec, ULng32 keysize,
+SortTopN::SortTopN(int runsize, int sortmaxmem, int recsize, NABoolean doNotallocRec, int keysize,
                    SortScratchSpace *scratch, NABoolean iterSort, CollHeap *heap, SortError *sorterror,
                    int explainNodeId, ExBMOStats *bmoStats, SortUtil *sortutil)
     : SortAlgo(runsize, recsize, doNotallocRec, keysize, scratch, explainNodeId, bmoStats),
@@ -97,7 +76,7 @@ SortTopN::~SortTopN(void) {
   if (bmoStats_) bmoStats_->updateBMOHeapUsage((NAHeap *)heap_);
 }
 
-int SortTopN::sortSend(void *rec, ULng32 len, void *tupp) {
+int SortTopN::sortSend(void *rec, int len, void *tupp) {
   // if heap not built means, TopN array has more slots
   // available to fill.
   if (!isHeapified_) {
@@ -149,7 +128,7 @@ void SortTopN::satisfyHeap() {
   for (int i = (runSize_ / 2); i >= 0; i--) siftDown(topNKeys_, i, runSize_ - 1);
 }
 
-void SortTopN::insertRec(void *rec, ULng32 len, void *tupp) {
+void SortTopN::insertRec(void *rec, int len, void *tupp) {
   ex_assert(isHeapified_, "TopN::insertRec: not heapified");
 
   int root = 0;  // Always, root node is the zero'th element in array.
@@ -200,12 +179,12 @@ void SortTopN::sortHeap() {
   }
 }
 
-int SortTopN::sortReceive(void *rec, ULng32 &len) {
+int SortTopN::sortReceive(void *rec, int &len) {
   // This method applicable to overflow records only
   return SORT_FAILURE;
 }
 
-int SortTopN::sortReceive(void *&rec, ULng32 &len, void *&tupp) {
+int SortTopN::sortReceive(void *&rec, int &len, void *&tupp) {
   if (recNum_ < runSize_) {
     topNKeys_[recNum_].rec_->getRecordTupp(rec, recSize_, tupp);
     len = recSize_;

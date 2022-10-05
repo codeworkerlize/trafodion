@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ******************************************************************************
 *
@@ -292,7 +271,7 @@ ExplainTuple *RelExpr::addExplainInfo(ComTdb *tdb, ExplainTuple *leftChild, Expl
       break;
 
     case ComTdb::ex_HASH_GRBY: {
-      ULng32 mqt = ((ComTdbHashGrby *)tdb)->memoryQuotaMB();
+      int mqt = ((ComTdbHashGrby *)tdb)->memoryQuotaMB();
       if (mqt > 0) {
         sprintf(buf, memory_quota_str, mqt);
         fragdescr += buf;
@@ -620,7 +599,7 @@ static void appendListOfColumns(Queue *listOfColNames, ComTdb *tdb, NAString &ou
       else if (colNameLen == sizeof(unsigned short))
         v = *(UInt16 *)colName;
       else if (colNameLen == sizeof(int))
-        v = *(ULng32 *)colName;
+        v = *(int *)colName;
       else
         v = 0;
       if (j == 0)
@@ -707,7 +686,7 @@ static void appendPushedDownExpression(ComTdb *tdb, NAString &outNAString) {
         else if (colNameLen == sizeof(unsigned short))
           v = *(UInt16 *)colName;
         else if (colNameLen == sizeof(int))
-          v = *(ULng32 *)colName;
+          v = *(int *)colName;
         else
           v = 0;
         str_sprintf(buf2, "%s%s%ld", colFam, (withAt ? "@" : ""), v);
@@ -1254,7 +1233,7 @@ ExplainTuple *RelRoot::addSpecificExplainInfo(ExplainTupleMaster *explainTuple, 
   //
   statement += "affinity_value: ";
 
-  ULng32 affinity = generator->getAffinityValueUsed();
+  int affinity = generator->getAffinityValueUsed();
 
   sprintf(buf, "%u ", affinity);
 
@@ -1263,7 +1242,7 @@ ExplainTuple *RelRoot::addSpecificExplainInfo(ExplainTupleMaster *explainTuple, 
   ComTdbRoot *rootTdb = (ComTdbRoot *)tdb;
 
   NADefaults &defs = ActiveSchemaDB()->getDefaults();
-  ULng32 mlimit = defs.getAsLong(BMO_MEMORY_LIMIT_PER_NODE_IN_MB);
+  int mlimit = defs.getAsLong(BMO_MEMORY_LIMIT_PER_NODE_IN_MB);
 
   if (mlimit == 0 && rootTdb->getQueryCostInfo()) {
     int memEst = (int)rootTdb->getQueryCostInfo()->totalMem();
@@ -1966,7 +1945,7 @@ ExplainTuple *ExeUtilLongRunning::addSpecificExplainInfo(ExplainTupleMaster *exp
   sprintf(buf, "%s", "ON");
   buffer += buf;
 
-  ULng32 multiCommitSize = ((ComTdbExeUtilLongRunning *)tdb)->getMultiCommitSize();
+  int multiCommitSize = ((ComTdbExeUtilLongRunning *)tdb)->getMultiCommitSize();
   sprintf(buf, " multi_commit_size: %d ", multiCommitSize);
 
   buffer += buf;

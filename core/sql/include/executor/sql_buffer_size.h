@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef SQL_BUFFER_SIZE_H
 #define SQL_BUFFER_SIZE_H
 
@@ -48,7 +27,7 @@
 // SqlBufferNeededSize or SqlBufferGetTuppSize to include this file (11/01/2003)
 //
 
-static inline ULng32 SqlBufferHeaderSize(SqlBufferHeader::BufferType bufType) {
+static inline int SqlBufferHeaderSize(SqlBufferHeader::BufferType bufType) {
   // Return the buffer header size
   int headerSize = 0;
   switch (bufType) {
@@ -74,7 +53,7 @@ static inline ULng32 SqlBufferHeaderSize(SqlBufferHeader::BufferType bufType) {
   return (headerSize);
 }
 
-static inline ULng32 SqlBufferGetTuppSize(int recordLength = 0,
+static inline int SqlBufferGetTuppSize(int recordLength = 0,
                                           SqlBufferHeader::BufferType bufType = SqlBufferHeader::NORMAL_) {
   int sizeofTuppDescriptor =
       ((bufType == SqlBufferHeader::DENSE_) ? ROUND8(sizeof(TupleDescInfo)) : sizeof(tupp_descriptor));
@@ -82,7 +61,7 @@ static inline ULng32 SqlBufferGetTuppSize(int recordLength = 0,
   return ROUND8(recordLength) + sizeofTuppDescriptor;
 }
 
-static inline ULng32 SqlBufferNeededSize(int numTuples = 0, int recordLength = 0,
+static inline int SqlBufferNeededSize(int numTuples = 0, int recordLength = 0,
                                          SqlBufferHeader::BufferType bufType = SqlBufferHeader::NORMAL_) {
   // Return the header size plus the size of any tuple descriptors
   // beyond the first (which is included in the header) plus the

@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ******************************************************************************
 *
@@ -2954,7 +2933,7 @@ NABoolean JoinToTSJRule::topMatch(RelExpr *expr, Context *context) {
   // in the inner side (i.e. the right side)
   GroupAnalysis *grpA1 = ((Join *)expr)->child(1).getGroupAttr()->getGroupAnalysis();
   if (grpA1)
-    if (grpA1->getAllSubtreeTables().entries() > (ULng32)(ActiveSchemaDB()->getDefaults()).getAsLong(COMP_INT_10))
+    if (grpA1->getAllSubtreeTables().entries() > (int)(ActiveSchemaDB()->getDefaults()).getAsLong(COMP_INT_10))
       return FALSE;
     else if ((((Join *)expr)->child(1).getGroupAttr()->getNumBaseTables() >
               (ActiveSchemaDB()->getDefaults()).getAsLong(COMP_INT_10)) &&
@@ -4283,7 +4262,7 @@ NABoolean AggrDistinctEliminationRule::topMatch(RelExpr *expr, Context *context)
     }
   }
 
-  ULng32 dc = distinctColumns.entries();
+  int dc = distinctColumns.entries();
 
   if (dc == 0) {
     // Do not fire this rule if there are no aggregate distincts.

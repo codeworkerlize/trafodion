@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 **************************************************************************
 *
@@ -175,12 +154,12 @@ static int skipTrailingBlanks(const char *keyValueBuffer, const int startIndex) 
 // calculates a hash value given a QualifiedName.Hash value is mod by
 // the hashTable size in HashDictionary.
 //----------------------------------------------------------------------
-ULng32 qualNameHashFunc(const QualifiedName &qualName) {
-  ULng32 index = 0;
+int qualNameHashFunc(const QualifiedName &qualName) {
+  int index = 0;
   const NAString &name = qualName.getObjectName();
 
   for (UInt32 i = 0; i < name.length(); i++) {
-    index += (ULng32)(name[i]);
+    index += (int)(name[i]);
   }
   return index;
 }
@@ -445,10 +424,10 @@ void HistogramCache::createColStatsList(NATable &table, HistogramsCacheEntry *ca
       // Did we find statistics in the cache for all the columns
       // whose statistics we needed?
       if (colArray.entries() > coveredList) {
-        ULng32 histCacheHeapSize = heap_->getAllocSize();
+        int histCacheHeapSize = heap_->getAllocSize();
         cachedHistograms->addToCachedEntry(colArray, (*statsListForFetch));
-        ULng32 entrySizeGrowth = (heap_->getAllocSize() - histCacheHeapSize);
-        ULng32 entrySize = cachedHistograms->getSize() + entrySizeGrowth;
+        int entrySizeGrowth = (heap_->getAllocSize() - histCacheHeapSize);
+        int entrySize = cachedHistograms->getSize() + entrySizeGrowth;
         cachedHistograms->setSize(entrySize);
         size_ += entrySizeGrowth;
 
@@ -596,15 +575,15 @@ int HistogramCache::getStatsListFromCache(StatsList &list,                      
 void HistogramCache::putStatsListIntoCache(StatsList &colStatsList, const NAColumnArray &colArray,
                                            const QualifiedName &qualifiedName, long tableUID, long statsTime,
                                            const long &redefTime, NABoolean allFakeStats) {
-  ULng32 histCacheHeapSize = heap_->getAllocSize();
+  int histCacheHeapSize = heap_->getAllocSize();
   // create memory efficient representation of colStatsList
   HistogramsCacheEntry *histogramsForCache =
       new (heap_) HistogramsCacheEntry(colStatsList, qualifiedName, tableUID, statsTime, redefTime, heap_);
-  ULng32 cacheEntrySize = heap_->getAllocSize() - histCacheHeapSize;
+  int cacheEntrySize = heap_->getAllocSize() - histCacheHeapSize;
 
   if (CmpCommon::getDefault(CACHE_HISTOGRAMS_CHECK_FOR_LEAKS) == DF_ON) {
     delete histogramsForCache;
-    ULng32 histCacheHeapSize2 = heap_->getAllocSize();
+    int histCacheHeapSize2 = heap_->getAllocSize();
     CMPASSERT(histCacheHeapSize == histCacheHeapSize2);
     histogramsForCache =
         new (heap_) HistogramsCacheEntry(colStatsList, qualifiedName, tableUID, statsTime, redefTime, heap_);
@@ -657,12 +636,12 @@ HistogramsCacheEntry *HistogramCache::lookUp(NATable &table) {
 // decache entry
 void HistogramCache::deCache(HistogramsCacheEntry **entry) {
   if (entry && (*entry)) {
-    ULng32 entrySize = (*entry)->getSize();
+    int entrySize = (*entry)->getSize();
     histogramsCache_->remove(const_cast<QualifiedName *>((*entry)->getName()));
     lruQ_.remove(*entry);
-    ULng32 heapSizeBeforeDelete = heap_->getAllocSize();
+    int heapSizeBeforeDelete = heap_->getAllocSize();
     delete (*entry);
-    ULng32 memReclaimed = heapSizeBeforeDelete - heap_->getAllocSize();
+    int memReclaimed = heapSizeBeforeDelete - heap_->getAllocSize();
     if (CmpCommon::getDefault(CACHE_HISTOGRAMS_CHECK_FOR_LEAKS) == DF_ON) CMPASSERT(memReclaimed >= entrySize);
     *entry = NULL;
     size_ -= entrySize;
@@ -674,7 +653,7 @@ void HistogramCache::resizeCache(size_t limit) {
   enforceMemorySpaceConstraints();
 }
 
-ULng32 HistogramCache::entries() const { return histogramsCache_ ? histogramsCache_->entries() : 0; }
+int HistogramCache::entries() const { return histogramsCache_ ? histogramsCache_->entries() : 0; }
 
 void HistogramCache::display() const { HistogramCache::print(); }
 
@@ -1956,7 +1935,7 @@ RangePartitionBoundaries *createRangePartitionBoundariesFromStats(const IndexDes
   // NOTE: The RangePartitionBoundaries is 0 based.
   // ---------------------------------------------------------------------
   int counter = 1;
-  ULng32 totalEncodedKeyLength = 0;
+  int totalEncodedKeyLength = 0;
 
   Interval iter = hist->getFirstInterval();
 
@@ -2022,7 +2001,7 @@ RangePartitionBoundaries *createRangePartitionBoundariesFromStats(const IndexDes
 
       encodeExpr->synthTypeAndValueId();
       const NAType &eeNT = encodeExpr->getValueId().getType();
-      ULng32 encodedKeyLength = eeNT.getEncodedKeyLength();
+      int encodedKeyLength = eeNT.getEncodedKeyLength();
 
       char *encodedKeyBuffer = new (heap) char[encodedKeyLength];
 
@@ -2583,8 +2562,8 @@ static void createHiveKeyColumns(const NAColumnArray &colArray /*IN*/, NAColumnA
 // that maps indexname to the corresponding list of indexes having that name
 //
 //*************************************************************************
-ULng32 naStringHashFunc(const NAString &indexName) {
-  ULng32 hash = (ULng32)NAString::hash(indexName);
+int naStringHashFunc(const NAString &indexName) {
+  int hash = (int)NAString::hash(indexName);
   return hash;
 }
 
@@ -3246,7 +3225,7 @@ static NABoolean createConstraintInfo(const TrafDesc *table_desc /*IN*/, const Q
 
 }  // static createConstraintInfo()
 
-ULng32 hashColPosList(const CollIndexSet &colSet) { return colSet.hash(); }
+int hashColPosList(const CollIndexSet &colSet) { return colSet.hash(); }
 
 // ----------------------------------------------------------------------------
 // method: lookupObjectUidByName
@@ -3407,7 +3386,7 @@ NABoolean NATable::fetchObjectUIDForNativeTable(const CorrName &corrName, NABool
 
 const int initHeapSize = 32 * 1024;  // ## 32K: tune this someday!
 
-ULng32 minmaxKeyHashFunction(const minmaxKey &key) { return key.hash(); }
+int minmaxKeyHashFunction(const minmaxKey &key) { return key.hash(); }
 
 ////////////////////////////////////////////////////////////////////
 short NATable::addEncryptionInfo() {
@@ -5260,7 +5239,7 @@ void NATable::getPrivileges(TrafDesc *priv_desc, BindWA *bindWA) {
   if (priv_desc == NULL) {
     // TDB - add schema level privs to hive tables
     if (!isSeabaseTable()) {
-      ULng32 savedParserFlags = 0;
+      int savedParserFlags = 0;
       ContextCli *ctxCli = GetCliGlobals()->currContext();
       if (ctxCli) savedParserFlags = ctxCli->getSqlParserFlags();
       readPrivileges();
@@ -6145,7 +6124,6 @@ NATable *NATableDB::get(const ExtendedQualName *key, BindWA *bindWA, NABoolean f
 // this method will mark columns for appropriate histograms depending on
 // where they have been referenced in the query
 void NATable::markColumnsForHistograms() {
-  // Check if Show Query Stats command is being run
   NABoolean runningShowQueryStatsCmd = CmpCommon::context()->showQueryStats();
 
   // we want to get 1 key column that is not SYSKEY

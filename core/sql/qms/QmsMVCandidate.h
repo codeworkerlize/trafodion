@@ -446,7 +446,7 @@ class MVCandidatesForJBBSubset : public NAIntrusiveSharedPtrObject {
    * Get the number of MVCandidate objects contained in this JBBSubset.
    * @return The number of MVCandidate objects contained in this JBBSubset.
    */
-  ULng32 entries() { return candidateList_.entries(); }
+  int entries() { return candidateList_.entries(); }
 
   /**
    * Get MVCandidate object number i from the list.

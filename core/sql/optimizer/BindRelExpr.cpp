@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ******************************************************************************
 *
@@ -1511,7 +1490,7 @@ NATable *BindWA::getNATableInternal(CorrName &corrName,
                                     NABoolean catmanCollectTableUsages,  // default TRUE
                                     TrafDesc *inTableDescStruct,         // default NULL
                                     NABoolean extTableDrop, NABoolean intQryFromExeutil) {
-  ULng32 savedParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
+  int savedParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
   Set_SqlParser_Flags(ALLOW_VOLATILE_SCHEMA_IN_TABLE_NAME);
 
   if (intQryFromExeutil) Set_SqlParser_Flags(INTERNAL_QUERY_FROM_EXEUTIL);
@@ -1834,7 +1813,7 @@ RelExpr *BindWA::bindView(const CorrName &viewName, const NATable *naTable, cons
         viewName.getQualifiedNameObj(), viewName.getSpecialType(), TRUE /*isView*/, bindWA->viewCount()));
 
   // save the current parserflags setting
-  ULng32 savedParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
+  int savedParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
 
   // allow funny characters in the tablenames used in the select list.
   // This enables views to be created on 'internal' secret table
@@ -7196,7 +7175,7 @@ RelExpr *GroupByAgg::bindNode(BindWA *bindWA) {
         ValueId vid = groupByList[i];
         if ((vid.getItemExpr()->getOperatorType() == ITM_SEL_INDEX) &&
             (((SelIndex *)(vid.getItemExpr()))->renamedColNameInGrbyClause())) {
-          ULng32 indx = ((SelIndex *)(vid.getItemExpr()))->getSelIndex() - 1;
+          int indx = ((SelIndex *)(vid.getItemExpr()))->getSelIndex() - 1;
           if (origSelectList.entries() > indx && origSelectList[indx]->getOperatorType() == ITM_RENAME_COL) {
             const ColRefName &selectListColRefName = *((RenameCol *)origSelectList[indx])->getNewColRefName();
             ColumnNameMap *baseColExpr = childRETDesc->findColumn(selectListColRefName);
@@ -10247,7 +10226,7 @@ RelExpr *Insert::bindNode(BindWA *bindWA) {
           Parser parser(bindWA->currentCmpContext());
 
           // save the current parserflags setting
-          ULng32 savedParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
+          int savedParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
           Set_SqlParser_Flags(INTERNAL_QUERY_FROM_EXEUTIL);
           Set_SqlParser_Flags(ALLOW_VOLATILE_SCHEMA_IN_TABLE_NAME);
           defaultValueExpr = parser.getItemExprTree(defaultValueStr);
@@ -11264,7 +11243,7 @@ RelExpr *Update::bindNode(BindWA *bindWA) {
   // if this is an HBase mapped table update, it needs to be transformed
   // to delete+insert. Set specialtabletype flag to handle internal HB_MAP
   // schema during bind.
-  ULng32 savedParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
+  int savedParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
   if (getTableDesc()->getNATable()->isHbaseMapTable()) Set_SqlParser_Flags(ALLOW_SPECIALTABLETYPE);
   NABoolean transformUpdateKey = updatesClusteringKeyOrUniqueIndexKey(bindWA);
   if (getTableDesc()->getNATable()->isHbaseMapTable()) Assign_SqlParser_Flags(savedParserFlags);
@@ -11285,7 +11264,7 @@ RelExpr *Update::bindNode(BindWA *bindWA) {
 
   // transform hbasemap table update to delete + insert
   if (getTableDesc()->getNATable()->isHbaseMapTable()) {
-    ULng32 savedParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
+    int savedParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
     Set_SqlParser_Flags(ALLOW_SPECIALTABLETYPE);
     boundExpr = transformUpdatePrimaryKey(bindWA);
     Assign_SqlParser_Flags(savedParserFlags);
@@ -15663,7 +15642,7 @@ RelExpr *RowsetInto::bindNode(BindWA *bindWA) {
 
   NABoolean hasDifferentSizes = FALSE;
   int maxRowsetSize = 0; /* Maximum number of Rows in Rowset */
-  ULng32 numOutputHostvars = 0;
+  int numOutputHostvars = 0;
 
   ItemExpr *rowsetSizeExpr;
   ItemExpr *hostVarTree;
@@ -16289,11 +16268,11 @@ RelExpr *CallSP::bindNode(BindWA *bindWA) {
   // add the routine to the UdrStoiList.  The UdrStoi list is used
   // to check valid privileges
   LIST(OptUdrOpenInfo *) udrList = bindWA->getUdrStoiList();
-  ULng32 numUdrs = udrList.entries();
+  int numUdrs = udrList.entries();
   NABoolean udrReferenced = FALSE;
 
   // See if UDR already exists
-  for (ULng32 stoiIndex = 0; stoiIndex < numUdrs; stoiIndex++) {
+  for (int stoiIndex = 0; stoiIndex < numUdrs; stoiIndex++) {
     if (0 == udrList[stoiIndex]->getUdrName().compareTo(getRoutineName().getQualifiedNameAsAnsiString())) {
       udrReferenced = TRUE;
       break;
@@ -16964,11 +16943,11 @@ RelExpr *TableMappingUDF::bindNode(BindWA *bindWA) {
   // add the routine to the UdrStoiList.  The UdrStoi list is used
   // to check valid privileges
   LIST(OptUdrOpenInfo *) udrList = bindWA->getUdrStoiList();
-  ULng32 numUdrs = udrList.entries();
+  int numUdrs = udrList.entries();
   NABoolean udrReferenced = FALSE;
 
   // See if UDR already exists
-  for (ULng32 stoiIndex = 0; stoiIndex < numUdrs; stoiIndex++) {
+  for (int stoiIndex = 0; stoiIndex < numUdrs; stoiIndex++) {
     if (0 == udrList[stoiIndex]->getUdrName().compareTo(getRoutineName().getQualifiedNameAsAnsiString())) {
       udrReferenced = TRUE;
       break;

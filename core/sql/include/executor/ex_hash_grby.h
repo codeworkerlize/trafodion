@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef EX_HASH_GRBY_H
 #define EX_HASH_GRBY_H
 
@@ -177,7 +156,7 @@ class ex_hash_grby_tcb : public ex_tcb {
   HashGrbyState oldState_;
   NABoolean readingChild_;  // in middle of reading child rows
   queue_index index_;       // index into down queue
-  ULng32 bucketCount_;
+  int bucketCount_;
   Bucket *buckets_;
   Cluster *rCluster_;       // the cluster for which we return all
                             // matching rows
@@ -261,7 +240,7 @@ class ex_hash_grby_tcb : public ex_tcb {
 
   void workEvaluate();
 
-  ULng32 workReturnRows(NABoolean tryToDefrag);
+  int workReturnRows(NABoolean tryToDefrag);
 
   void workDone();
 

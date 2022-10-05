@@ -78,7 +78,7 @@ class Q_Entry {
   Long pack(void *space);
   int unpack(void *base);
 
-  ULng32 packedLength() { return packedLength_; }
+  int packedLength() { return packedLength_; }
 };
 
 class Queue : public NAVersionedObject {
@@ -126,16 +126,16 @@ class Queue : public NAVersionedObject {
   void cleanup();
 
   // inserts at tail
-  void insert(const void *entry_, ULng32 entryPackedLength = 0);
+  void insert(const void *entry_, int entryPackedLength = 0);
 
   // inserts at tail, returns addr of Queue entry inserted
-  void insert(const void *entry_, ULng32 entryPackedLength, void **queueEntry);
+  void insert(const void *entry_, int entryPackedLength, void **queueEntry);
 
   // returns the head entry
   void *get();
 
   // returns the i'th entry. 0 based. First entry is i = 0
-  void *get(ULng32 i);
+  void *get(int i);
 
   // returns the head entry
   void *getHead();
@@ -193,7 +193,7 @@ class Queue : public NAVersionedObject {
 
   int entries() { return numEntries(); }
 
-  ULng32 packedLength() { return packedLength_; }
+  int packedLength() { return packedLength_; }
 
   void setDoSpaceOpt(short v) { (v ? flags_ |= DO_SPACE_OPT : flags_ &= ~DO_SPACE_OPT); };
   NABoolean doSpaceOpt() { return (flags_ & DO_SPACE_OPT) != 0; };
@@ -221,7 +221,7 @@ class HashQueueEntry {
   friend class HashQueue;
 
  public:
-  HashQueueEntry(void *entry, HashQueueEntry *prev, HashQueueEntry *next, ULng32 hashValue)
+  HashQueueEntry(void *entry, HashQueueEntry *prev, HashQueueEntry *next, int hashValue)
       : entry_(entry), prev_(prev), next_(next), hashValue_(hashValue){};
 
   ~HashQueueEntry(){};
@@ -230,25 +230,25 @@ class HashQueueEntry {
   HashQueueEntry *prev_;
   HashQueueEntry *next_;
   void *entry_;
-  ULng32 hashValue_;
+  int hashValue_;
 };
 
 class HashQueue : public NABasicObject {
  public:
-  HashQueue(CollHeap *heap, ULng32 hashTableSize = 513);
+  HashQueue(CollHeap *heap, int hashTableSize = 513);
 
   HashQueue(const NABoolean shadowCopy, const HashQueue &other);
 
   ~HashQueue();
 
-  ULng32 entries() { return entries_; }
+  int entries() { return entries_; }
 
-  ULng32 size() { return hashTableSize_; }
+  int size() { return hashTableSize_; }
 
-  void insert(const char *data, ULng32 dataLength, void *entry);
+  void insert(const char *data, int dataLength, void *entry);
 
   // position by hashing
-  void position(const char *data, ULng32 dataLength);
+  void position(const char *data, int dataLength);
 
   // position globally
   void position();
@@ -268,7 +268,7 @@ class HashQueue : public NABasicObject {
   void remove();
 
   // To remove the entry by passing in the hashing fields and the corresponding entry
-  void remove(const char *data, ULng32 dataLength, void *entry);
+  void remove(const char *data, int dataLength, void *entry);
 
   int numEntries() { return (int)entries_; }
 
@@ -284,33 +284,33 @@ class HashQueue : public NABasicObject {
     SEQUENTIAL_ADD = 0x0001
   };
 
-  ULng32 entries_;                // number of entries in this HashQueue
-  ULng32 hashTableSize_;          // size of the hash table
+  int entries_;                // number of entries in this HashQueue
+  int hashTableSize_;          // size of the hash table
   HashQueueEntry **hashTable_;    // the hash table itself
   HashQueueEntry *lastReturned_;  // the last entry returned by getNext()
   HashQueueEntry *current_;       // points to the current entry
-  ULng32 currentChain_;           // the chain were current_ is located
-  ULng32 hashValue_;              // hash value of the last position
+  int currentChain_;           // the chain were current_ is located
+  int hashValue_;              // hash value of the last position
   NABoolean globalScan_;          // if true, getNext ignores hashValue
   CollHeap *heap_;                // the heap a HashQueue allocates from
   NABoolean shadowCopy_;          // TRUE if constructed by shadow copy
 
-  ULng32 flags_;
+  int flags_;
 
-  void getHashValue(const char *data, ULng32 dataLength);
+  void getHashValue(const char *data, int dataLength);
 
   void removeLastReturned();
 };
 
 class SyncHashQueue : public HashQueue {
  public:
-  SyncHashQueue(CollHeap *heap, ULng32 hashTableSize = 513);
-  void position(const char *data, ULng32 dataLength);
+  SyncHashQueue(CollHeap *heap, int hashTableSize = 513);
+  void position(const char *data, int dataLength);
   void position();
   void remove(void *entry);
   void remove();
-  void remove(const char *data, ULng32 dataLength, void *entry);
-  void insert(const char *data, ULng32 dataLength, void *entry);
+  void remove(const char *data, int dataLength, void *entry);
+  void insert(const char *data, int dataLength, void *entry);
 };
 
 #endif

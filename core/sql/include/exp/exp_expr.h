@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef EXP_EXPR_H
 #define EXP_EXPR_H
 
@@ -247,7 +226,7 @@ class ex_expr : public NAVersionedObject {
 
   // Accessors for interogation
   //
-  virtual void displayContents(ComSpace *space, short mode, const char *displayStr, ULng32 flag = 0x00000006);
+  virtual void displayContents(ComSpace *space, short mode, const char *displayStr, int flag = 0x00000006);
 
   // Accessors for the clause linked list
   //
@@ -295,7 +274,7 @@ class ex_expr : public NAVersionedObject {
   // exp/exp_eval.cpp for details.
   ////////////////////////////////////////////////////////////////////
   inline exp_return_type eval(atp_struct *atp1, atp_struct *atp2, atp_struct *atp3, CollHeap *exHeap, int datalen,
-                              ULng32 *rowLen, short *lastFldIndex, char *fetchedDataPtr
+                              int *rowLen, short *lastFldIndex, char *fetchedDataPtr
 #ifdef TRACE_EXPR_EVAL
                               ,
                               int clause2display = -1, int operand2display = -1
@@ -327,7 +306,7 @@ class ex_expr : public NAVersionedObject {
   // exp/exp_eval.cpp for details.
   ////////////////////////////////////////////////////////////////////
   inline exp_return_type eval(atp_struct *atp1, atp_struct *atp2, CollHeap *exHeap = 0, int datalen = -1,
-                              ULng32 *rowLen = NULL, short *lastFldIndex = 0, char *fetchedDataPtr = NULL) {
+                              int *rowLen = NULL, short *lastFldIndex = 0, char *fetchedDataPtr = NULL) {
     return eval(atp1, atp2, NULL, exHeap, datalen, rowLen, lastFldIndex, fetchedDataPtr);
   }
 
@@ -337,10 +316,10 @@ class ex_expr : public NAVersionedObject {
   // update processing. See processUpdate() in ex_dp2_oper.cpp and
   // exp/exp_eval.cpp for details.
   ////////////////////////////////////////////////////////////////////
-  exp_return_type evalPCodeAligned(PCodeBinary *pCode, atp_struct *, atp_struct *, ULng32 *rowlen);
+  exp_return_type evalPCodeAligned(PCodeBinary *pCode, atp_struct *, atp_struct *, int *rowlen);
 
   exp_return_type evalPCode(PCodeBinary *pCode, atp_struct *, atp_struct *, atp_struct *, int datalen,
-                            ULng32 *rowlen);
+                            int *rowlen);
 
   // Inlined implementation of various expressions.  The number after "evalFast"
   // in the routine name specifies the opcode of the dominant pcode instruction
@@ -391,7 +370,7 @@ class ex_expr : public NAVersionedObject {
 
   exp_return_type reportOverflowError(atp_struct *, PCodeBinary *pCodeOpcode, PCodeBinary *pCode, Long *stack);
 
-  exp_return_type evalClauses(ex_clause *, atp_struct *, atp_struct *, atp_struct *, int datalen, ULng32 *rowLen,
+  exp_return_type evalClauses(ex_clause *, atp_struct *, atp_struct *, atp_struct *, int datalen, int *rowLen,
                               short *lastFldIndex, char *fetchedDataPtr
 #ifdef TRACE_EXPR_EVAL
                               ,
@@ -758,7 +737,7 @@ class AggrExpr : public ex_expr {
   virtual int unpack(void *, void *reallocator);
   virtual exp_return_type fixup(int, unsigned short, const ex_tcb *tcb, ComSpace *space = 0, CollHeap *exHeap = 0,
                                 NABoolean computeSpaceOnly = FALSE, ex_globals *glob = 0);
-  virtual void displayContents(ComSpace *space, short mode, const char *displayStr, ULng32 flag);
+  virtual void displayContents(ComSpace *space, short mode, const char *displayStr, int flag);
 
   // ---------------------------------------------------------------------
   // Redefinition of methods inherited from NAVersionedObject.
@@ -1018,7 +997,7 @@ class ex_expr_lean : public ex_expr {
   void convAddrToOffsetInPCode(void *space);
   void convOffsetToAddrInPCode(void *base);
 
-  virtual void displayContents(ComSpace *space, short mode, const char *displayStr, ULng32 flag = 0x00000006);
+  virtual void displayContents(ComSpace *space, short mode, const char *displayStr, int flag = 0x00000006);
 
   //  int *getMyPCode()
   //  {

@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ****************************************************************************
 *
@@ -41,11 +20,11 @@
 // Constructor
 ComTdbSort::ComTdbSort() : ComTdb(ComTdb::ex_SORT, eye_SORT), tuppIndex_(0){};
 
-ComTdbSort::ComTdbSort(ex_expr *sort_key_expr, ex_expr *sort_rec_expr, ULng32 sort_key_len, ULng32 sort_rec_len,
-                       ULng32 sort_partial_key_len, const unsigned short tupp_index, ComTdb *child_tdb,
+ComTdbSort::ComTdbSort(ex_expr *sort_key_expr, ex_expr *sort_rec_expr, int sort_key_len, int sort_rec_len,
+                       int sort_partial_key_len, const unsigned short tupp_index, ComTdb *child_tdb,
                        ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, ex_cri_desc *work_cri_desc,
                        queue_index down, queue_index up, Cardinality estimatedRowCount, int num_buffers,
-                       ULng32 buffer_size, ULng32 maxNumBuffers, SortOptions *sort_options, short sortGrowthPercent)
+                       int buffer_size, int maxNumBuffers, SortOptions *sort_options, short sortGrowthPercent)
     : ComTdb(ComTdb::ex_SORT, eye_SORT, estimatedRowCount, given_cri_desc, returned_cri_desc, down, up, num_buffers,
              buffer_size),
       sortKeyExpr_(sort_key_expr),
@@ -88,7 +67,7 @@ int ComTdbSort::unpack(void *base, void *reallocator) {
   return ComTdb::unpack(base, reallocator);
 }
 
-void ComTdbSort::displayContents(Space *space, ULng32 flag) {
+void ComTdbSort::displayContents(Space *space, int flag) {
   ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
   if (flag & 0x00000008) {

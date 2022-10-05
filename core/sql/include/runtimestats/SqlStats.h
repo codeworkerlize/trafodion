@@ -178,7 +178,7 @@ class StmtStats {
   void setExplainFrag(void *explainFrag, int len, int topNodeOffset);
   RtsExplainFrag *getExplainInfo() { return explainInfo_; }
   void deleteExplainFrag();
-  ULng32 getFlags() const { return flags_; }
+  int getFlags() const { return flags_; }
   NABoolean reportError(pid_t pid);
 
  private:
@@ -202,7 +202,7 @@ class StmtStats {
   ExStatisticsArea *stats_;
   long lastMergedTime_;
   ExStatisticsArea *mergedStats_;
-  ULng32 flags_;
+  int flags_;
   void *backRef_;  // This member is for the debug purposes to analyze halts
                    // It should never be used
                    // It points to Statement object for master and ExEspStmtGlobals
@@ -724,7 +724,7 @@ class ObjectEpochCacheEntryName {
 
 class ObjectEpochCacheKey {
  public:
-  ObjectEpochCacheKey(const char *objectName, ULng32 hash, ComObjectType objectType = COM_UNKNOWN_OBJECT,
+  ObjectEpochCacheKey(const char *objectName, int hash, ComObjectType objectType = COM_UNKNOWN_OBJECT,
                       NAHeap *heap = 0);
 
   ObjectEpochCacheKey(const ObjectEpochCacheKey &key, NAHeap *heap = 0)
@@ -733,7 +733,7 @@ class ObjectEpochCacheKey {
 
   const NAString &objectName() const { return objectName_; }
   ComObjectType objectType() const { return objectType_; }
-  ULng32 hash() const { return hash_; }
+  int hash() const { return hash_; }
 
   NABoolean operator==(const ObjectEpochCacheKey &other) const {
     return (objectType_ == other.objectType()) && (hash_ == other.hash()) && (objectName_ == other.objectName());
@@ -741,7 +741,7 @@ class ObjectEpochCacheKey {
 
  private:
   NAString objectName_;
-  ULng32 hash_;
+  int hash_;
   ComObjectType objectType_;
 };
 
@@ -775,7 +775,7 @@ class ObjectEpochCacheEntry {
 // The ObjectEpochCache class stores ObjectEpochCacheEntry instances
 // in a hash table (NAHashDictionary).
 class ObjectEpochCache {
-  static ULng32 hashFunc(const ObjectEpochCacheKey &key) { return key.hash(); }
+  static int hashFunc(const ObjectEpochCacheKey &key) { return key.hash(); }
 
  public:
   enum {
@@ -856,7 +856,7 @@ class ObjectKey {
   ~ObjectKey() {}
 
   const char *keyName() const { return keyName_; }
-  ULng32 hash() const { return hash_; }
+  int hash() const { return hash_; }
   bool isInternal() const { return internal_; }
 
   NABoolean operator==(const ObjectKey &other) const {

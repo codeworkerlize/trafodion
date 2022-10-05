@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef RELEXEUTIL_H
 #define RELEXEUTIL_H
 /* -*-C++-*-
@@ -1442,7 +1421,7 @@ class ExeUtilConnectby : public ExeUtilExpr {
 
  private:
   NABoolean isDual_;
-  ULng32 flags_;
+  int flags_;
 };
 
 class ExeUtilMaintainObject : public ExeUtilExpr {
@@ -2067,8 +2046,8 @@ class ExeUtilLongRunning : public ExeUtilExpr {
     LR_END_OF_RANGE = 99  // Ensure an end of range
   };
 
-  ExeUtilLongRunning(const CorrName &name, const char *predicate, ULng32 predicateLen, enum LongRunningType type,
-                     ULng32 multiCommitSize, CollHeap *oHeap = CmpCommon::statementHeap());
+  ExeUtilLongRunning(const CorrName &name, const char *predicate, int predicateLen, enum LongRunningType type,
+                     int multiCommitSize, CollHeap *oHeap = CmpCommon::statementHeap());
 
   virtual ~ExeUtilLongRunning();
 
@@ -2097,7 +2076,7 @@ class ExeUtilLongRunning : public ExeUtilExpr {
 
   void addPredicateTree(ItemExpr *predicate) { predicateExpr_ = predicate; };
 
-  ULng32 getMultiCommitSize() { return multiCommitSize_; }
+  int getMultiCommitSize() { return multiCommitSize_; }
 
   // MV NOMVLOG option for LRU operations
   NABoolean isNoLogOperation() const { return isNoLogOperation_; }
@@ -2127,7 +2106,7 @@ class ExeUtilLongRunning : public ExeUtilExpr {
   ItemExpr *predicateExpr_;
 
   // The N in the COMMIT EVERY N ROWS.
-  ULng32 multiCommitSize_;
+  int multiCommitSize_;
 
   // MV NOMVLOG option for LRU operations
   NABoolean isNoLogOperation_;

@@ -542,7 +542,7 @@ class ComTdbHbaseAccess : public ComTdb {
 
                     ex_cri_desc *workCriDesc, ex_cri_desc *criDescParentDown, ex_cri_desc *criDescParentUp,
                     queue_index queueSizeDown, queue_index queueSizeUp, Cardinality expectedRows, int numBuffers,
-                    ULng32 bufferSize, char *server, char *zkPort, HbasePerfAttributes *hbasePerfAttributes,
+                    int bufferSize, char *server, char *zkPort, HbasePerfAttributes *hbasePerfAttributes,
                     Float32 samplingRate = -1, HbaseSnapshotScanAttributes *hbaseSnapshotScanAttributes = NULL,
 
                     ComHbaseAccessOptions *comHbaseAccessOptions = NULL,
@@ -557,7 +557,7 @@ class ComTdbHbaseAccess : public ComTdb {
 
                     ex_cri_desc *workCriDesc, ex_cri_desc *criDescParentDown, ex_cri_desc *criDescParentUp,
                     queue_index queueSizeDown, queue_index queueSizeUp, Cardinality expectedRows, int numBuffers,
-                    ULng32 bufferSize, char *server, char *zkPort);
+                    int bufferSize, char *server, char *zkPort);
 
   ~ComTdbHbaseAccess();
 
@@ -615,7 +615,7 @@ class ComTdbHbaseAccess : public ComTdb {
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
   // ---------------------------------------------------------------------
-  void displayContents(Space *space, ULng32 flag);
+  void displayContents(Space *space, int flag);
 
   // Virtual routines to provide a consistent interface to TDB's
 
@@ -1240,9 +1240,9 @@ class ComTdbHbaseCoProcAccess : public ComTdbHbaseAccess {
 
                           ex_cri_desc *workCriDesc, ex_cri_desc *criDescParentDown, ex_cri_desc *criDescParentUp,
                           queue_index queueSizeDown, queue_index queueSizeUp, Cardinality expectedRows,
-                          int numBuffers, ULng32 bufferSize, char *server, char *zkPort,
+                          int numBuffers, int bufferSize, char *server, char *zkPort,
                           HbasePerfAttributes *hbasePerfAttributes, Queue *tdbListOfRangeRows, ex_expr *rowIdExpr,
-                          int rowIdTuppIndex, int rowIdAsciiTuppIndex, ULng32 rowIdLength, ULng32 rowIdAsciiRowLen);
+                          int rowIdTuppIndex, int rowIdAsciiTuppIndex, int rowIdLength, int rowIdAsciiRowLen);
 
   CoProcType getCoProcType() { return (CoProcType)coProcType_; }
 
@@ -1279,9 +1279,9 @@ class ComTdbHbaseCoProcAggr : public ComTdbHbaseCoProcAccess {
 
                         ex_cri_desc *workCriDesc, ex_cri_desc *criDescParentDown, ex_cri_desc *criDescParentUp,
                         queue_index queueSizeDown, queue_index queueSizeUp, Cardinality expectedRows, int numBuffers,
-                        ULng32 bufferSize, char *server, char *zkPort, HbasePerfAttributes *hbasePerfAttributes,
+                        int bufferSize, char *server, char *zkPort, HbasePerfAttributes *hbasePerfAttributes,
                         Queue *tdbListOfRangeRows, ex_expr *rowIdExpr, int rowIdTuppIndex, int rowIdAsciiTuppIndex,
-                        ULng32 rowIdLength, ULng32 rowIdAsciiRowLen, int filterForNull);
+                        int rowIdLength, int rowIdAsciiRowLen, int filterForNull);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.

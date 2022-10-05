@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef NATABLE_H
 #define NATABLE_H
 
@@ -68,7 +47,7 @@ class PrivMgrUserPrivs;
 class ExpHbaseInterface;
 
 typedef QualifiedName *QualifiedNamePtr;
-typedef ULng32 (*HashFunctionPtr)(const QualifiedName &);
+typedef int (*HashFunctionPtr)(const QualifiedName &);
 typedef SUBARRAY(int) CollIndexSet;
 
 NAType *getSQColTypeForHive(const char *hiveType, NAMemory *heap);
@@ -160,7 +139,7 @@ class HistogramsCacheEntry : public NABasicObject {
 
   inline void allStatsFake(NABoolean allFakeStats) { allFakeStats_ = allFakeStats; }
 
-  inline ULng32 getSize() { return size_; }
+  inline int getSize() { return size_; }
 
   long getTableUID() const { return tableUID_; };
 
@@ -169,7 +148,7 @@ class HistogramsCacheEntry : public NABasicObject {
   void monitor(FILE *ofd) const;
 
  private:
-  inline void setSize(ULng32 newSize) { size_ = newSize; }
+  inline void setSize(int newSize) { size_ = newSize; }
 
   NAMemory *heap_;
 
@@ -212,7 +191,7 @@ class HistogramsCacheEntry : public NABasicObject {
   QualifiedName *name_;
   long tableUID_;
   NABoolean accessedInCurrentStatement_;
-  ULng32 size_;
+  int size_;
 };  // class HistogramsCacheEntry
 
 /****************************************************************************
@@ -241,14 +220,14 @@ class HistogramCache : public NABasicObject {
   // set an upper limit for the heap used by the HistogramCache
   void setHeapUpperLimit(size_t newUpperLimit) { heap_->setUpperLimit(newUpperLimit); }
 
-  inline ULng32 hits() { return hits_; }
-  inline ULng32 lookups() { return lookups_; }
+  inline int hits() { return hits_; }
+  inline int lookups() { return lookups_; }
 
   inline void resetIntervalWaterMark() { heap_->resetIntervalWaterMark(); }
 
   void resizeCache(size_t limit);
 
-  inline ULng32 getSize() { return size_; }
+  inline int getSize() { return size_; }
 
   // reset all entries to not accessedInCurrentStatement
   void resetAfterStatement();
@@ -298,7 +277,7 @@ class HistogramCache : public NABasicObject {
   // decache entry and set it to NULL
   void deCache(HistogramsCacheEntry **entry);
 
-  ULng32 entries() const;
+  int entries() const;
 
   void display() const;
   void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT, const char *title = "HistogramCache") const;
@@ -319,9 +298,9 @@ class HistogramCache : public NABasicObject {
   NAHashDictionary<QualifiedName, HistogramsCacheEntry> *histogramsCache_;
 
   long lastTouchTime_;  // last time cache was touched
-  ULng32 hits_;          // cache hit counter
-  ULng32 lookups_;       // entries lookup counter
-  ULng32 size_;
+  int hits_;          // cache hit counter
+  int lookups_;       // entries lookup counter
+  int size_;
   FILE *tfd_;  // trace file handle
   FILE *mfd_;  // monitor file handle
 };             // class HistogramCache
@@ -569,8 +548,8 @@ class NATable : public NABasicObject {
   const int &getSchemaOwner() const { return schemaOwner_; }
 
   const void *getRCB() const { return rcb_; }
-  ULng32 getRCBLength() const { return rcbLen_; }
-  ULng32 getKeyLength() const { return keyLength_; }
+  int getRCBLength() const { return rcbLen_; }
+  int getKeyLength() const { return keyLength_; }
 
   const char *getParentTableName() const { return parentTableName_; }
   const ComPartitioningScheme &getPartitioningScheme() const { return partitioningScheme_; }
@@ -1386,8 +1365,8 @@ class NATable : public NABasicObject {
 
   // RCB information, to be used for parallel label operations.
   void *rcb_;
-  ULng32 rcbLen_;
-  ULng32 keyLength_;
+  int rcbLen_;
+  int keyLength_;
 
   char *parentTableName_;
 
@@ -1501,14 +1480,14 @@ class NATable : public NABasicObject {
 
 struct NATableCacheStats {
   char contextType[8];
-  ULng32 numLookups;
-  ULng32 numCacheHits;
-  ULng32 preloadedCacheSize;
-  ULng32 currentCacheSize;
-  ULng32 defaultCacheSize;
-  ULng32 maxCacheSize;
-  ULng32 highWaterMark;
-  ULng32 numEntries;
+  int numLookups;
+  int numCacheHits;
+  int preloadedCacheSize;
+  int currentCacheSize;
+  int defaultCacheSize;
+  int maxCacheSize;
+  int highWaterMark;
+  int numEntries;
 };
 
 // ***********************************************************************
@@ -1587,18 +1566,18 @@ class NATableDB : public NAKeyLookup<ExtendedQualName, NATable> {
 
   void getCacheStats(NATableCacheStats &stats);
 
-  ULng32 preloadedCacheSize() { return preloadedCacheSize_; }
-  void setPreloadedCacheSize(ULng32 v) { preloadedCacheSize_ = v; }
+  int preloadedCacheSize() { return preloadedCacheSize_; }
+  void setPreloadedCacheSize(int v) { preloadedCacheSize_ = v; }
 
-  ULng32 defaultCacheSize() { return defaultCacheSize_; }
-  void setDefaultCacheSize(ULng32 v) { defaultCacheSize_ = v; }
+  int defaultCacheSize() { return defaultCacheSize_; }
+  void setDefaultCacheSize(int v) { defaultCacheSize_ = v; }
 
-  ULng32 maxCacheSize() { return (preloadedCacheSize_ + defaultCacheSize_); }
+  int maxCacheSize() { return (preloadedCacheSize_ + defaultCacheSize_); }
 
-  inline ULng32 currentCacheSize() { return currentCacheSize_; }
-  inline ULng32 intervalWaterMark() { return intervalWaterMark_; }
-  inline ULng32 hits() { return totalCacheHits_; }
-  inline ULng32 lookups() { return totalLookupsCount_; }
+  inline int currentCacheSize() { return currentCacheSize_; }
+  inline int intervalWaterMark() { return intervalWaterMark_; }
+  inline int hits() { return totalCacheHits_; }
+  inline int lookups() { return totalLookupsCount_; }
 
   void resetIntervalWaterMark() { intervalWaterMark_ = currentCacheSize_; }
 
@@ -1634,20 +1613,20 @@ class NATableDB : public NAKeyLookup<ExtendedQualName, NATable> {
   NABoolean enforceMemorySpaceConstraints();
 
   // maximum size of cache specified via default METADATA_CACHE_SIZE
-  ULng32 defaultCacheSize_;
+  int defaultCacheSize_;
 
   // current size of the cache
-  ULng32 currentCacheSize_;
+  int currentCacheSize_;
 
   // size of cache after metadata preload
-  ULng32 preloadedCacheSize_;
+  int preloadedCacheSize_;
 
   // high Watermark of currentCacheSize_ ever reached for statistics
-  ULng32 highWatermarkCache_;  // High watermark of currentCacheSize_
-  ULng32 totalLookupsCount_;   // NATable entries lookup counter
-  ULng32 totalCacheHits_;      // cache hit counter
+  int highWatermarkCache_;  // High watermark of currentCacheSize_
+  int totalLookupsCount_;   // NATable entries lookup counter
+  int totalCacheHits_;      // cache hit counter
 
-  ULng32 intervalWaterMark_;  // resettable watermark
+  int intervalWaterMark_;  // resettable watermark
 
   // List of tables used during the current statement
   LIST(NATable *) statementTableList_;

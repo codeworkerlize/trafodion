@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef EX_CONNECT_BY_TEMP_TABLE_H
 #define EX_CONNECT_BY_TEMP_TABLE_H
 
@@ -125,10 +104,10 @@ class ExConnectByTempTableTcb : public ex_tcb {
   atp_struct *workAtp_;
 
   tupp_descriptor probeHashTupp_;
-  ULng32 probeHashVal_;
+  int probeHashVal_;
 
   tupp_descriptor probeInputHashTupp_;
-  ULng32 probeInputHashVal_;
+  int probeInputHashVal_;
 
   UInt32 nextRequest_;  // idx of next value to find, given same key return many rows
 
@@ -221,9 +200,9 @@ class ExConnectByHashEntry {
     } flags_;
   };
 
-  ULng32 probeHashVal_;  // hash value of probe data.
+  int probeHashVal_;  // hash value of probe data.
 
-  ULng32 refCnt_;  // # down queue entries interested in me.
+  int refCnt_;  // # down queue entries interested in me.
 
   ex_queue::up_status upstateStatus_;  // from CACHE_MISS's original reply.
 
@@ -240,22 +219,22 @@ class ExConnectByHashTable : public NABasicObject {
   friend class ExConnectByTempTableTcb;
 
  public:
-  ExConnectByHashTable(Space *space, ULng32 numEntries, ULng32 probeLength, ExConnectByTempTableTcb *tcb);
+  ExConnectByHashTable(Space *space, int numEntries, int probeLength, ExConnectByTempTableTcb *tcb);
 
   ~ExConnectByHashTable();
 
   enum FoundOrNotFound { FOUND, NOTFOUND };
 
-  FoundOrNotFound findEntry(ULng32 probeHashVal, char *probeBytes, UInt32 nextRequest, ExConnectByHashEntry *&pcEntry);
+  FoundOrNotFound findEntry(int probeHashVal, char *probeBytes, UInt32 nextRequest, ExConnectByHashEntry *&pcEntry);
   ExConnectByHashEntry *getSlot();
 
  private:
-  ExConnectByHashEntry *addEntry(ULng32 probeHashVal, char *probeBytes);
+  ExConnectByHashEntry *addEntry(int probeHashVal, char *probeBytes);
 
-  ULng32 numBuckets_;
+  int numBuckets_;
 
   // How many bytes in the probe data?
-  ULng32 probeLen_;
+  int probeLen_;
 
   // This points to an array of collision chain headers.
   ExConnectByHashEntry **buckets_;
@@ -271,7 +250,7 @@ class ExConnectByHashTable : public NABasicObject {
   // The size of each of entries_'s  array elements.  We need to
   // keep track of this in our code in order to do correct pointer
   // arithmetic.
-  ULng32 sizeofExConnectByHashEntry_;
+  int sizeofExConnectByHashEntry_;
 
   // Remember our heap and use it in the dtor.
   Space *space_;
@@ -279,8 +258,8 @@ class ExConnectByHashTable : public NABasicObject {
   // To access the runtime stats.
   ExConnectByTempTableTcb *tcb_;
 
-  ULng32 nextSlot_;
-  ULng32 max_slots_;
+  int nextSlot_;
+  int max_slots_;
 };
 
 #endif

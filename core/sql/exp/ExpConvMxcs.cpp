@@ -1,40 +1,3 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
-/* -*-C++-*-
- *****************************************************************************
- *
- * File:         ExpConvMxcs.cpp
- * Description:
- *
- *
- * Created:      8/30/2007
- * Language:     C++
- *
- *
- *
- *
- *****************************************************************************
- */
 
 #include <string.h>
 #include <limits.h>
@@ -190,10 +153,10 @@ static short BigNumHelper_ConvBcdToBigNumHelper(int sourceLength, int targetLeng
     // of the current chunk to it. It is more efficient to insert the
     // multiplication and addition code here than to call the Helper()
     // methods.
-    temp = ((ULng32)targetDataInShorts[0]) * power + temp1;
+    temp = ((int)targetDataInShorts[0]) * power + temp1;
     targetDataInShorts[0] = tempParts.remainder;
     for (j = 1; j < finalTargetLengthInShorts; j++) {
-      temp = ((ULng32)targetDataInShorts[j]) * power + tempParts.carry;
+      temp = ((int)targetDataInShorts[j]) * power + tempParts.carry;
       targetDataInShorts[j] = tempParts.remainder;
     }
     if (tempParts.carry) {
@@ -338,7 +301,7 @@ static short BigNumHelper_ConvBigNumWithSignToBcdHelper(int sourceLength, int ta
 }
 
 static short convInt64ToDecMxcs(char *target, int targetLen, long source) {
-  ULng32 flags = 0;
+  int flags = 0;
   bool negative = (source < 0);
   int currPos = targetLen - 1;
 
@@ -742,9 +705,9 @@ static short convLargeDecToAsciiMxcs(char *target, int targetLen, char *source, 
 
     int realLength = 1 + (sourceLen - 2) / 5;
     for (int srcPos = sourceLen - 1; srcPos; srcPos--) {
-      ULng32 r = 0;
+      int r = 0;
       for (int i = 1; i <= realLength; i++) {
-        ULng32 q = (realSource[i] + r) / 10;
+        int q = (realSource[i] + r) / 10;
         r = (r + realSource[i]) - 10 * q;
         realSource[i] = (short)q;
         r <<= 16;
@@ -1011,7 +974,7 @@ static int getDigitCount(long value) {
 // This function is used for ASCII to INTERVAL conversions only.
 // Blanks and sign are already removed.
 ///////////////////////////////////////////////////////////////////
-static short convAsciiFieldToInt64Mxcs(long &target, int targetScale, char *source, int &sourceLen, ULng32 flags) {
+static short convAsciiFieldToInt64Mxcs(long &target, int targetScale, char *source, int &sourceLen, int flags) {
   int currPos = 0;  // current position in the string
   target = 0;         // result
   while ((currPos < sourceLen) && ((source[currPos] >= '0') && (source[currPos] <= '9'))) {
@@ -1040,7 +1003,7 @@ static short convAsciiFieldToInt64Mxcs(long &target, int targetScale, char *sour
 ///////////////////////////////////////////////////////////////////
 static short convAsciiToIntervalMxcs(char *target, int targetLen, int targetDatatype, int leadingPrecision,
                                      int fractionPrecision, char *source, int sourceLen, short allowSignInInterval,
-                                     ULng32 flags) {
+                                     int flags) {
   short retCode = 0;
 
   // skip leading and trailing blanks and adjust source and sourceLen
@@ -1139,7 +1102,7 @@ static short convAsciiToIntervalMxcs(char *target, int targetLen, int targetData
   // if the end field is SECOND, it may have a fractional part
   if ((end == REC_DATE_SECOND) && (source[strIndex] == '.')) {
     int sourcePrecision = (sourceLen - strIndex - 1);
-    ULng32 fraction = 0;
+    int fraction = 0;
     if (sourcePrecision) {
       long interm;
       retCode = convAsciiFieldToInt64Mxcs(interm, 0, &source[strIndex + 1],
@@ -1162,8 +1125,8 @@ static short convAsciiToIntervalMxcs(char *target, int targetLen, int targetData
       sourcePrecision++;
     }
 
-    ULng32 oldFraction = fraction;
-    ULng32 scaleDownValue = 1;
+    int oldFraction = fraction;
+    int scaleDownValue = 1;
 
     while (sourcePrecision > fractionPrecision) {
       fraction /= 10;

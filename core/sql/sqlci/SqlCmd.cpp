@@ -1,87 +1,34 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-//
-**********************************************************************/
-/* -*-C++-*-
- *****************************************************************************
- *
- * File:         SqlCmd.C
- * RCS:          $Id: SqlCmd.cpp,v 1.1 2007/10/09 19:40:29  Exp $
- * Description:
- *
- *
- * Created:      4/15/95
- * Modified:     $ $Date: 2007/10/09 19:40:29 $ (GMT)
- * Language:     C++
- * Status:       $State: Exp $
- *
- *
- *
- *
- *****************************************************************************
- */
-
-#include "common/Platform.h"
-
-#include <ctype.h>
-#include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sstream>
-#include <unistd.h>
-
-#include "common/ComAnsiNamePart.h"
-#include "common/ComGuardianFileNameParts.h"
-#include "common/ComASSERT.h"
-#include "sqlci/Formatter.h"
-#include "sqlci/SqlciStats.h"
-#include "common/NAString.h"
-#include "sqlmsg/ErrorMessage.h"         // NAWriteConsole
-#include "common/IntervalType.h"  // NAType::convertTypeToText etc.
-#include "sqlci/SqlciError.h"
-#include "cli/SQLCLIdev.h"
 #include "sqlci/sqlcmd.h"
+
+#include <ostream>
+
 #include "cli/sql_id.h"
+#include "common/ComASSERT.h"
+#include "common/ComAnsiNamePart.h"
+#include "common/ComCextdecs.h"
 #include "common/ComSqlId.h"
-#include "common/ComRtUtils.h"
+#include "common/IntervalType.h"
+#include "common/NAType.h"
+#include "common/NLSConversion.h"
+#include "common/conversionHex.h"
+#include "common/nawstring.h"
+#include "common/sqtypes.h"
+#include "common/stringBuf.h"
+#include "executor/ExExeUtilCli.h"
+#include "exp/ExpErrorEnums.h"
+#include "qmscommon/QRLogger.h"
+#include "sqlci/Formatter.h"
+#include "sqlci/Param.h"
+#include "sqlci/Prepare.h"
+#include "sqlci/SqlciEnv.h"
+#include "sqlci/SqlciError.h"
+#include "sqlci/SqlciStats.h"
+#include "sqlmsg/ErrorMessage.h"
+
+using namespace std;
+
 #define CAT_MAX_HEADING_LEN 132
 #define CM_GUA_ENAME_LEN    36
-#include "common/dfs2rec.h"
-#include "executor/ex_error.h"
-#include "common/str.h"
-#include "common/stringBuf.h"
-#include "common/charinfo.h"
-#include "common/NLSConversion.h"
-#include "common/nawstring.h"
-
-#include "common/ComCextMisc.h"
-#include "common/ComCextdecs.h"
-#include "common/conversionHex.h"
-
-#include "comexe/ComQueue.h"
-#include "executor/ExExeUtilCli.h"
-#include "qmscommon/QRLogger.h"
-
 extern SqlciEnv *global_sqlci_env;  // global sqlci_env for break key handling purposes.
 extern ComDiagsArea sqlci_DA;
 extern NAHeap sqlci_Heap;
@@ -155,7 +102,7 @@ void HandleCLIError(SQLSTMT_ID *stmt, int &error, SqlciEnv *sqlci_env, NABoolean
 void HandleCLIError(int &error, SqlciEnv *sqlci_env, NABoolean displayErr, NABoolean *isEOD, int prepcode,
                     NABoolean getWarningsWithEOF) {
   if (error == 100) {
-    if (isEOD != NULL) *isEOD = 1;
+    if (isEOD != nullptr) *isEOD = 1;
     if (!getWarningsWithEOF) {
       SqlCmd::clearCLIDiagnostics();
       return;
@@ -316,7 +263,7 @@ void HandleCLIError(int &error, SqlciEnv *sqlci_env, NABoolean displayErr, NABoo
             wcbuf = csetToUnicode(cbuf, 0, wcbuf, CharInfo::UTF8 /*msgcharset*/, errorcode);
             NAString *tempstr;
             if (errorcode == 0) {
-              tempstr = unicodeToChar(wcbuf->data(), wcbuf->getStrLen(), TCS, NULL, TRUE);
+              tempstr = unicodeToChar(wcbuf->data(), wcbuf->getStrLen(), TCS, nullptr, TRUE);
               TrimNAStringSpace(*tempstr, FALSE, TRUE);  // trim trailing blanks
               strcpy(msgtext, tempstr->data());
             }
@@ -343,13 +290,13 @@ void HandleCLIError(int &error, SqlciEnv *sqlci_env, NABoolean displayErr, NABoo
             if (displayErr)  // || (SQLCode > 0))
               log->WriteAll((NAWchar *)outtext, NAWstrlen((NAWchar *)outtext));
 #else  // not wide, so don't use NAWxxx
-            //
-            // Rather than returning from the first executable statements in
-            // HandleCLIError, a couple of breakReceived conditional checks are
-            // performed to suppress the outputting of error messages after a
-            // break key was encountered. This allows MXCI to have more control
-            // of issuing (future break processing enhancements) warning and
-            // error messages during break key processing.
+       //
+       // Rather than returning from the first executable statements in
+       // HandleCLIError, a couple of breakReceived conditional checks are
+       // performed to suppress the outputting of error messages after a
+       // break key was encountered. This allows MXCI to have more control
+       // of issuing (future break processing enhancements) warning and
+       // error messages during break key processing.
             if (!breakReceived) {
               if (showSQLSTATE) {
                 if (displayErr)  // || (SQLCode > 0))
@@ -412,7 +359,7 @@ void handleLocalError(ComDiagsArea *diags, SqlciEnv *sqlci_env) {
   lastLineWasABlank = TRUE;
 
   ostringstream errMsg;
-  NADumpDiags(errMsg, diags, TRUE /*newline*/, 0, NULL, log->isVerbose(), sqlci_env->getTerminalCharset());
+  NADumpDiags(errMsg, diags, TRUE /*newline*/, 0, nullptr, log->isVerbose(), sqlci_env->getTerminalCharset());
 
   errMsg << ends;
 
@@ -421,7 +368,7 @@ void handleLocalError(ComDiagsArea *diags, SqlciEnv *sqlci_env) {
 
 long getRowsAffected(SQLSTMT_ID *stmt) {
   int rc;
-  rc = SQL_EXEC_GetDiagnosticsStmtInfo2(stmt, SQLDIAG_ROW_COUNT, &rowsAffected, NULL, 0, NULL);
+  rc = SQL_EXEC_GetDiagnosticsStmtInfo2(stmt, SQLDIAG_ROW_COUNT, &rowsAffected, nullptr, 0, nullptr);
   if (rc == 0)
     return rowsAffected;
   else
@@ -431,7 +378,7 @@ long getRowsAffected(SQLSTMT_ID *stmt) {
 int getDiagsCondCount(SQLSTMT_ID *stmt) {
   int rc;
   int diagsCondCount;
-  rc = SQL_EXEC_GetDiagnosticsStmtInfo2(stmt, SQLDIAG_NUMBER, &diagsCondCount, NULL, 0, NULL);
+  rc = SQL_EXEC_GetDiagnosticsStmtInfo2(stmt, SQLDIAG_NUMBER, &diagsCondCount, nullptr, 0, nullptr);
   if (rc >= 0)
     return diagsCondCount;
   else
@@ -447,7 +394,7 @@ static char *upshiftStr(char *inStr, char *outStr, UInt32 len) {
 }
 
 char *SqlCmd::replacePattern(SqlciEnv *sqlci_env, char *str) {
-  if (str == NULL) return NULL;
+  if (str == nullptr) return nullptr;
 
   UInt32 len = strlen(str);
 
@@ -550,8 +497,6 @@ char *SqlCmd::replacePattern(SqlciEnv *sqlci_env, char *str) {
         }
         skipChar = FALSE;
         break;
-
-
     }
     if (skipChar) {
       outstr[k] = str[i];
@@ -689,7 +634,7 @@ short SqlCmd::cleanupAfterError(int retcode, SqlciEnv *sqlci_env, SQLSTMT_ID *st
     delete sql_src;
     delete[] stmt->identifier;
     delete stmt;
-    if (resetLastExecStmt) sqlci_env->lastExecutedStmt() = NULL;
+    if (resetLastExecStmt) sqlci_env->lastExecutedStmt() = nullptr;
 
     SqlCmd::clearCLIDiagnostics();
 
@@ -701,8 +646,6 @@ short SqlCmd::cleanupAfterError(int retcode, SqlciEnv *sqlci_env, SQLSTMT_ID *st
 
 short SqlCmd::do_prepare(SqlciEnv *sqlci_env, PrepStmt *prep_stmt, char *sqlStmt, NABoolean resetLastExecStmt,
                          int rsIndex, int *prepcode, int *statisticsType) {
-
-
   SQLSTMT_ID *stmt = new SQLSTMT_ID;
   SQLDESC_ID *sql_src = new SQLDESC_ID;
   SQLDESC_ID *output_desc = new SQLDESC_ID;
@@ -737,7 +680,7 @@ short SqlCmd::do_prepare(SqlciEnv *sqlci_env, PrepStmt *prep_stmt, char *sqlStmt
   //  char * str = replacePattern(sqlci_env, sqlStmt);
   char *str = sqlStmt;
 
-  prep_stmt->set(str, NULL, stmt, 0, NULL, 0, NULL);
+  prep_stmt->set(str, nullptr, stmt, 0, nullptr, 0, nullptr);
 
   char *stmtName = prep_stmt->getStmtName();
 
@@ -827,13 +770,13 @@ short SqlCmd::do_prepare(SqlciEnv *sqlci_env, PrepStmt *prep_stmt, char *sqlStmt
     // Get cost and set unique query id as well
     strcpy(uniqueQueryIdBuf, "    ");
 
-    ULng32 prepFlags = 0;
+    int prepFlags = 0;
     if ((stmt->identifier_len > 0) && (strncmp(stmt->identifier, "__SQLCI_DML_", strlen("__SQLCI_DML_")) == 0)) {
       prepFlags |= PREPARE_STANDALONE_QUERY;
     }
     prepFlags |= PREPARE_USE_EMBEDDED_ARKCMP;  // mxosrvr needs to set this too.
-    retcode = SQL_EXEC_Prepare2(stmt, sql_src, NULL, 0, NULL, &queryCostInfo, &queryCompStatsInfo, uniqueQueryIdPtr,
-                                uniqueQueryIdLenPtr, prepFlags);
+    retcode = SQL_EXEC_Prepare2(stmt, sql_src, nullptr, 0, nullptr, &queryCostInfo, &queryCompStatsInfo,
+                                uniqueQueryIdPtr, uniqueQueryIdLenPtr, prepFlags);
 
     // save returned query id in prep_stmt
     if (prep_stmt->uniqueQueryId()) {
@@ -849,7 +792,7 @@ short SqlCmd::do_prepare(SqlciEnv *sqlci_env, PrepStmt *prep_stmt, char *sqlStmt
       prep_stmt->uniqueQueryId()[prep_stmt->uniqueQueryIdLen()] = 0;
     }
 
-    if (prepcode != NULL) *prepcode = retcode;
+    if (prepcode != nullptr) *prepcode = retcode;
     HandleCLIError(retcode, sqlci_env);
 
     // if SQL_EXEC_Prepare returned a value < 0, it is an error.
@@ -859,19 +802,18 @@ short SqlCmd::do_prepare(SqlciEnv *sqlci_env, PrepStmt *prep_stmt, char *sqlStmt
     }
   }  // if (!skipPrepare)
 
-  // Statistics Collection Type
-  if (statisticsType != NULL) *statisticsType = queryCompStatsInfo.statsCollectionType;
+  if (statisticsType != nullptr) *statisticsType = queryCompStatsInfo.statsCollectionType;
   delete (SQLMODULE_ID *)input_desc->module;
   delete (SQLMODULE_ID *)output_desc->module;
-  input_desc->module = output_desc->module = NULL;
+  input_desc->module = output_desc->module = nullptr;
 
   // find the statement type
   if (!skipPrepare) {
-    retcode = SQL_EXEC_GetStmtAttr(stmt, SQL_ATTR_QUERY_TYPE, &prep_stmt->queryType(), NULL, 0, NULL);
+    retcode = SQL_EXEC_GetStmtAttr(stmt, SQL_ATTR_QUERY_TYPE, &prep_stmt->queryType(), nullptr, 0, nullptr);
     HandleCLIError(retcode, sqlci_env);
     int subqueryType;
 
-    retcode = SQL_EXEC_GetStmtAttr(stmt, SQL_ATTR_SUBQUERY_TYPE, &subqueryType, NULL, 0, NULL);
+    retcode = SQL_EXEC_GetStmtAttr(stmt, SQL_ATTR_SUBQUERY_TYPE, &subqueryType, nullptr, 0, nullptr);
     HandleCLIError(retcode, sqlci_env);
     prep_stmt->setSubqueryType(subqueryType);
   } else if (isResultSet)
@@ -935,7 +877,7 @@ short SqlCmd::do_prepare(SqlciEnv *sqlci_env, PrepStmt *prep_stmt, char *sqlStmt
       retcode = SQL_EXEC_AllocDesc(input_desc, num_input_entries);
       HandleCLIError(retcode, sqlci_env);
 
-      retcode = SQL_EXEC_DescribeStmt(stmt, input_desc, NULL);
+      retcode = SQL_EXEC_DescribeStmt(stmt, input_desc, nullptr);
       HandleCLIError(retcode, sqlci_env);
     }
 
@@ -946,7 +888,7 @@ short SqlCmd::do_prepare(SqlciEnv *sqlci_env, PrepStmt *prep_stmt, char *sqlStmt
       retcode = SQL_EXEC_AllocDesc(output_desc, num_output_entries);
       HandleCLIError(retcode, sqlci_env);
 
-      retcode = SQL_EXEC_DescribeStmt(stmt, NULL, output_desc);
+      retcode = SQL_EXEC_DescribeStmt(stmt, nullptr, output_desc);
       HandleCLIError(retcode, sqlci_env);
     }
   }
@@ -967,7 +909,7 @@ short SqlCmd::do_prepare(SqlciEnv *sqlci_env, PrepStmt *prep_stmt, char *sqlStmt
   addOutputInfoToPrepStmt(sqlci_env, prep_stmt);
 
   if (resetLastExecStmt) {
-    sqlci_env->lastExecutedStmt() = NULL;
+    sqlci_env->lastExecutedStmt() = nullptr;
     sqlci_env->lastDmlStmtStatsType() = SQLCLIDEV_NO_STATS;
   }
 
@@ -1077,15 +1019,15 @@ void SqlCmd::addOutputInfoToPrepStmt(SqlciEnv *sqlci_env, PrepStmt *prep_stmt) {
 
       if (DFS2REC::isAnyCharacter(datatype)) {
         int isCaseInsensitive = 0;
-        retcode =
-            SQL_EXEC_GetDescItem(output_desc, entry, SQLDESC_CASEINSENSITIVE, &isCaseInsensitive, NULL, 0, NULL, 0);
+        retcode = SQL_EXEC_GetDescItem(output_desc, entry, SQLDESC_CASEINSENSITIVE, &isCaseInsensitive, nullptr, 0,
+                                       nullptr, 0);
         HandleCLIError(retcode, sqlci_env);
       }
 
       // add space to display the returned data.
       int out_buflen_this_col = 0;
       int display_len = Formatter::display_length(datatype, length, precision, scale, charsetEnum, heading_len,
-                                                    sqlci_env, &out_buflen_this_col);
+                                                  sqlci_env, &out_buflen_this_col);
 
       output_buflen += out_buflen_this_col + ((entry < num_output_entries) ? Formatter::BLANK_SEP_WIDTH : 0);
 
@@ -1151,7 +1093,7 @@ short SqlCmd::doDescribeInput(SqlciEnv *sqlci_env, SQLSTMT_ID *stmt, PrepStmt *p
                               CharInfo::CharSet *unnamedParamCharSetArray) {
   int retcode = 0;
   int num_named_params = 0;
-  ComDiagsArea *diags = NULL;
+  ComDiagsArea *diags = nullptr;
 
   SQLDESC_ID *input_desc = prep_stmt->getInputDesc();
 
@@ -1227,9 +1169,9 @@ short SqlCmd::doDescribeInput(SqlciEnv *sqlci_env, SQLSTMT_ID *stmt, PrepStmt *p
       // if length of parameter name is zero, parameter is unnamed
       NABoolean isUnnamed = !returned_len;
 
-      Param *param = NULL;
+      Param *param = nullptr;
 
-     if (isUnnamed) {
+      if (isUnnamed) {
         short entryOffset = entry - num_named_params;
         sprintf(param_name, "(UNNAMED_%hd)", entryOffset);
         if (numUnnamedParams > 0) {
@@ -1252,8 +1194,7 @@ short SqlCmd::doDescribeInput(SqlciEnv *sqlci_env, SQLSTMT_ID *stmt, PrepStmt *p
             } else
               param = new Param(param_name, unnamedParamArray[entryOffset - 1]);
 
-
-            // the parameter value is NULL, so set the nullValue_ field
+            // the parameter value is nullptr, so set the nullValue_ field
             // in the param
             if (!param->getValue()) param->makeNull();
           }  // unnamed param found in Execute's USING list
@@ -1270,13 +1211,13 @@ short SqlCmd::doDescribeInput(SqlciEnv *sqlci_env, SQLSTMT_ID *stmt, PrepStmt *p
 
           int previousEntry = 0;
 
-          if (diags != NULL) previousEntry = diags->getNumber(DgSqlCode::ERROR_);
+          if (diags != nullptr) previousEntry = diags->getNumber(DgSqlCode::ERROR_);
 
           if (DFS2REC::isAnyCharacter(datatype)) scale = (int)charset;  // pass in target charset in argument 'scale'
 
           retcode = param->convertValue(sqlci_env, datatype, length, precision, scale, vcIndLen, diags);
           int newestEntry = 0;
-          if (diags != NULL) newestEntry = diags->getNumber(DgSqlCode::ERROR_);
+          if (diags != nullptr) newestEntry = diags->getNumber(DgSqlCode::ERROR_);
 
           // if the convertValue gets a string overflow warning, convert
           // it to error for non characters and it remains warning for characters
@@ -1352,7 +1293,7 @@ short SqlCmd::doDescribeInput(SqlciEnv *sqlci_env, SQLSTMT_ID *stmt, PrepStmt *p
                                       (short)precision, (short)intLeadPrec, FALSE /*upshift*/,
                                       FALSE /*caseinsensitive*/, (CharInfo::CharSet)charSet,
                                       (CharInfo::Collation)collation,
-                                      NULL);  // displaydatatype
+                                      nullptr);  // displaydatatype
 
             // All PARAMS are character type.
             // #We should single-quote it and double-up any embedded quotes
@@ -1360,14 +1301,14 @@ short SqlCmd::doDescribeInput(SqlciEnv *sqlci_env, SQLSTMT_ID *stmt, PrepStmt *p
             NAString srcval(param->getDisplayValue(sqlci_env->getTerminalCharset()));
             if (srcval.isNull()) srcval = "''";  // empty string literal
 
-            if (diags == NULL) diags = ComDiagsArea::allocate(&sqlci_Heap);
+            if (diags == nullptr) diags = ComDiagsArea::allocate(&sqlci_Heap);
             *diags << DgSqlCode(-SQLCI_PARAM_BAD_CONVERT) << DgString0(Param::getExternalName(param_name))
                    << DgString1(srcval) << DgString2(tgttype);
           }  // convertValue failed
         }    // not null param
       }      // if param
       else {
-        if (diags == NULL) diags = ComDiagsArea::allocate(&sqlci_Heap);
+        if (diags == nullptr) diags = ComDiagsArea::allocate(&sqlci_Heap);
         *diags << DgSqlCode(-SQLCI_PARAM_NOT_FOUND) << DgString0(Param::getExternalName(param_name));
       }
 
@@ -1376,7 +1317,7 @@ short SqlCmd::doDescribeInput(SqlciEnv *sqlci_env, SQLSTMT_ID *stmt, PrepStmt *p
       prep_stmt->inputEntries()[entry - 1] = new PrepEntry(datatype, length, scale, precision,
                                                            (param ? param->isNull() : 0),  // null_flag,
                                                            0,                              // TBD
-                                                           NULL, 0, param_name, returned_len, 0, 0, 0, NULL, 0);
+                                                           nullptr, 0, param_name, returned_len, 0, 0, 0, nullptr, 0);
       if (param) {
         if (param->isNull()) prep_stmt->inputEntries()[entry - 1]->setIndPtr(param->getNullValue());
         prep_stmt->inputEntries()[entry - 1]->setVarPtr(param->getConvertedValue());
@@ -1387,13 +1328,13 @@ short SqlCmd::doDescribeInput(SqlciEnv *sqlci_env, SQLSTMT_ID *stmt, PrepStmt *p
   }  // if num_input_entries
 
   if (numUnnamedParams > 0 && numUnnamedParams > num_input_entries - num_named_params) {
-    if (diags == NULL) diags = ComDiagsArea::allocate(&sqlci_Heap);
+    if (diags == nullptr) diags = ComDiagsArea::allocate(&sqlci_Heap);
     // Warning only, so continue processing after this!
     *diags << DgSqlCode(+SQLCI_EXTRA_PARAMS_SUPPLIED)  // + (i.e. warning)
            << DgInt0(numUnnamedParams) << DgInt1(num_input_entries - num_named_params);
   }
 
-  if (diags != NULL) {
+  if (diags != nullptr) {
     handleLocalError(diags, sqlci_env);
     if (diags->getNumber(DgSqlCode::ERROR_)) {
       return SQL_Error;
@@ -1460,7 +1401,6 @@ short SqlCmd::doExec(SqlciEnv *sqlci_env, SQLSTMT_ID *stmt, PrepStmt *prep_stmt,
   retcode = SQL_EXEC_Exec(stmt, input_desc, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
   if (handleError) HandleCLIError(stmt, retcode, sqlci_env, TRUE);
 
-
   if (retcode > 0) getRowsAffected(stmt);
   return (short)retcode;
 }  // SqlCmd::doExec
@@ -1493,9 +1433,9 @@ short SqlCmd::doClearExecFetchClose(SqlciEnv *sqlci_env, SQLSTMT_ID *stmt, PrepS
                             unnamedParamCharSetArray);
   if (retcode == SQL_Error) return (short)retcode;
 
-  retcode = SQL_EXEC_ClearExecFetchClose(stmt, ((prep_stmt->numInputEntries() > 0) ? prep_stmt->getInputDesc() : NULL),
-                                         ((prep_stmt->numOutputEntries() > 0) ? prep_stmt->getOutputDesc() : NULL), 0,
-                                         0, 0, 0);
+  retcode = SQL_EXEC_ClearExecFetchClose(
+      stmt, ((prep_stmt->numInputEntries() > 0) ? prep_stmt->getInputDesc() : nullptr),
+      ((prep_stmt->numOutputEntries() > 0) ? prep_stmt->getOutputDesc() : nullptr), 0, 0, 0, 0);
 
   int queryType = prep_stmt->queryType();
   if (queryType != SQL_SELECT_UNIQUE) {
@@ -1560,9 +1500,6 @@ short SqlCmd::getHeadingInfo(SqlciEnv *sqlci_env, PrepStmt *prep_stmt, char *hea
 short SqlCmd::displayHeading(SqlciEnv *sqlci_env, PrepStmt *prep_stmt) {
   int retcode = 0;
 
-  Logfile *log = sqlci_env->get_logfile();
-  if (!lastLineWasABlank) log->WriteAll("");
-
   if (prep_stmt->getType() != DML_DISPLAY_NO_HEADING_TYPE) {
     // Only obtain and display header row if requested
     int output_buflen = prep_stmt->outputBuflen();
@@ -1573,32 +1510,26 @@ short SqlCmd::displayHeading(SqlciEnv *sqlci_env, PrepStmt *prep_stmt) {
 
     if (sqlci_env->getTerminalCharset() != CharInfo::UTF8) {
       char *converted_heading_row = new char[output_buflen * 4 + 1];
-      char *pFirstUntranslatedChar = NULL;
+      char *pFirstUntranslatedChar = nullptr;
       UInt32 outLen = 0;
       UInt32 translatedCharCount = 0;
-      int retCode =
-          UTF8ToLocale(cnv_version1, (const char *)heading_row, (const int)strlen(heading_row),
-                       (const char *)converted_heading_row, (const int)output_buflen * 4 + 1,
-                       (cnv_charset)convertCharsetEnum((int)sqlci_env->getTerminalCharset()),
-                       (char *&)pFirstUntranslatedChar, (UInt32 *)&outLen  // unsigned int *output_data_len_p
-                       ,
-                       (const int)TRUE  // const int addNullAtEnd_flag
-                       ,
-                       (const int)TRUE  // const int allow_invalids
-                       ,
-                       (UInt32 *)&translatedCharCount  // unsigned int * translated_char_cnt_p
-                       ,
-                       (const char *)NULL  // const char *substitution_char_p
-          );
-      log->WriteAll(converted_heading_row);
+      int retCode = UTF8ToLocale(cnv_version1, (const char *)heading_row, (const int)strlen(heading_row),
+                                 (const char *)converted_heading_row, (const int)output_buflen * 4 + 1,
+                                 (cnv_charset)convertCharsetEnum((int)sqlci_env->getTerminalCharset()),
+                                 (char *&)pFirstUntranslatedChar, (UInt32 *)&outLen  // unsigned int *output_data_len_p
+                                 ,
+                                 (const int)TRUE  // const int addNullAtEnd_flag
+                                 ,
+                                 (const int)TRUE  // const int allow_invalids
+                                 ,
+                                 (UInt32 *)&translatedCharCount  // unsigned int * translated_char_cnt_p
+                                 ,
+                                 (const char *)nullptr  // const char *substitution_char_p
+      );
       delete[] converted_heading_row;
     } else
-      log->WriteAll(heading_row);
 
-    log->WriteAll(underline);
-    log->WriteAll("");
-
-    delete[] heading_row;
+      delete[] heading_row;
     delete[] underline;
   }
   lastLineWasABlank = TRUE;
@@ -1647,16 +1578,15 @@ short SqlCmd::do_execute(SqlciEnv *sqlci_env, PrepStmt *prep_stmt, int numUnname
                          CharInfo::CharSet *unnamedParamCharSetArray, int prepcode) {
   int retcode = 0;
   // short ret;
-  Logfile *log = sqlci_env->get_logfile();
   SQLSTMT_ID *stmt = prep_stmt->getStmt();
   dml_type stmt_type = prep_stmt->getType();
-  ULng32 num_rows_returned = 0;
-  ULng32 listcount = sqlci_env->getListCount();
+  int num_rows_returned = 0;
+  int listcount = sqlci_env->getListCount();
   NABoolean listcountReached = ((listcount == 0) ? TRUE : FALSE);
   NABoolean noScreenOutput = (getenv("NO_SCREEN_OUTPUT") ? TRUE : FALSE);
   NABoolean displayFirstRow = (getenv("DISPLAY_FIRST_ROW") ? TRUE : FALSE);
   int useCout = 0;  // Flag which tells LOG::WRITEALL to use COUT
-                      // versus COUT.WRITE.
+                    // versus COUT.WRITE.
 
   // Bookkeeping for stored procedure result sets
   NABoolean isResultSet = (stmt_type == DML_CALL_STMT_RS_TYPE ? TRUE : FALSE);
@@ -1705,12 +1635,6 @@ short SqlCmd::do_execute(SqlciEnv *sqlci_env, PrepStmt *prep_stmt, int numUnname
 
   if (queryType == SQL_EXE_UTIL && (subqueryType == SQL_STMT_HBASE_LOAD || subqueryType == SQL_STMT_HBASE_UNLOAD))
     doHBL = TRUE;
-
-#if 0
-  if ((queryType == SQL_DDL || queryType == SQL_DDL_WITH_STATUS) &&
-      (subqueryType == SQL_DDL_SHARED_CACHE_OP ))
-    doSharedCacheOp = TRUE;
-#endif
 
   if (NOT doCEFC) {
     retcode = doExec(sqlci_env, prep_stmt->getStmt(), prep_stmt, numUnnamedParams, unnamedParamArray,
@@ -1763,23 +1687,18 @@ short SqlCmd::do_execute(SqlciEnv *sqlci_env, PrepStmt *prep_stmt, int numUnname
           prep_stmt->outputBuf()[curpos] = 0;
         }
 
-        if (!noScreenOutput)
-          log->WriteAll(prep_stmt->outputBuf(), curpos, useCout);
-        else if ((displayFirstRow) && (NOT firstRowDisplayed)) {
-          log->WriteAll(prep_stmt->outputBuf(), curpos, useCout);
+        if ((displayFirstRow) && (NOT firstRowDisplayed)) {
           firstRowDisplayed = TRUE;
         }
 
-        // Child QueryId Processing
         if (doCTAS && (NOT noScreenOutput)) {
           if (strstr(prep_stmt->outputBuf(), "childQidBegin")) {
             int rc = SQL_EXEC_GetChildQueryInfo(stmt, childQueryId, ComSqlId::MAX_QUERY_ID_LEN, &childQueryIdLen,
-                                                  &childQueryCostInfo, &childQueryCompilerStatsInfo);
+                                                &childQueryCostInfo, &childQueryCompilerStatsInfo);
             HandleCLIError(rc, sqlci_env);
             if (rc >= 0) {
               childQueryId[childQueryIdLen] = '\0';
               sprintf(prep_stmt->outputBuf(), "Child Query Id about to execute is %s", childQueryId);
-              log->WriteAll(prep_stmt->outputBuf(), prep_stmt->outputBuflen(), useCout);
             }
           }
           if (strstr(prep_stmt->outputBuf(), "childQidEnd")) {
@@ -1918,12 +1837,10 @@ short SqlCmd::do_execute(SqlciEnv *sqlci_env, PrepStmt *prep_stmt, int numUnname
   if (listcountReached) strcat(donemsg, LISTCOUNT_MESSAGE);
 
   if (!lastLineWasABlank) {
-    log->WriteAll("");
     lastLineWasABlank = TRUE;
   }
 
   if (donemsg[0] != '\0') {
-    log->WriteAll(donemsg);
     lastLineWasABlank = FALSE;
   }
 
@@ -2005,7 +1922,7 @@ DML::DML(const char *argument_, dml_type type_, const char *stmt_name_)
     this_stmt_name = new char[strlen(stmt_name_) + 1];
     strcpy(this_stmt_name, stmt_name_);
   } else
-    this_stmt_name = NULL;
+    this_stmt_name = nullptr;
 
   type = type_;
 }
@@ -2063,13 +1980,13 @@ Execute::~Execute() {
 /* input: 24, cat, 'dog';                              */
 /* output: none                                        */
 /*******************************************************/
-static int errorParams(int err, const char *str0 = NULL, int int0 = -99) {
+static int errorParams(int err, const char *str0 = nullptr, int int0 = -99) {
   sqlci_DA << DgSqlCode(err) << DgString0(str0) << DgInt0(int0);
   return err;
 }
 
 int Execute::storeParams(char *argument_, short &num_params, char *using_params[],
-                           CharInfo::CharSet using_param_charsets[], SqlciEnv *sqlci_env) {
+                         CharInfo::CharSet using_param_charsets[], SqlciEnv *sqlci_env) {
   ComASSERT(argument_);
   num_params = 0;
 
@@ -2092,7 +2009,7 @@ int Execute::storeParams(char *argument_, short &num_params, char *using_params[
     while (isspace((unsigned char)*args)) args++;  // For VS2003
 
     if (num_params >= MAX_NUM_UNNAMED_PARAMS)
-      return errorParams(-SQLCI_NUM_PARAMS_OVERFLOW, NULL, MAX_NUM_UNNAMED_PARAMS);
+      return errorParams(-SQLCI_NUM_PARAMS_OVERFLOW, nullptr, MAX_NUM_UNNAMED_PARAMS);
 
     char *errarg = args;                    // points to a non-blank value
     char param[MAX_LEN_UNNAMED_PARAM + 1];  // buffer for current value
@@ -2165,7 +2082,7 @@ int Execute::storeParams(char *argument_, short &num_params, char *using_params[
 
           if (CharInfo::UnknownCharSet == using_param_charsets[num_params]) {
             // The character set attribute of a quoted string without a charset prefix is ...
-            if (sqlci_env != NULL)
+            if (sqlci_env != nullptr)
               using_param_charsets[num_params] = sqlci_env->getTerminalCharset();
             else
               using_param_charsets[num_params] = CharInfo::UnknownCharSet;
@@ -2202,7 +2119,7 @@ int Execute::storeParams(char *argument_, short &num_params, char *using_params[
           while (args[j] && (NOT isHex) && (j < MAX_LEN_UNNAMED_PARAM)) {
             if (args[j] == '\'') {
               NAWString pvalue_in_wchar(CharInfo::ISO88591, &args[2], arglen);
-              void *result = NULL;
+              void *result = nullptr;
               enum hex_conversion_code code = verifyAndConvertHex(pvalue_in_wchar, pvalue_in_wchar.length(), L'\'',
                                                                   CharInfo::ISO88591, &sqlci_Heap, result);
               if (code == INVALID) {
@@ -2280,15 +2197,15 @@ int Execute::storeParams(char *argument_, short &num_params, char *using_params[
     // dynamically get space for the param value and store it in the array
     param[i] = '\0';
 
-    // if there's a NULL value and it was not included in quotes, the param
-    // value is NULL.  Otherwise, allocate a space for the param value in
+    // if there's a nullptr value and it was not included in quotes, the param
+    // value is nullptr.  Otherwise, allocate a space for the param value in
     // using_params
 #ifdef _EMPTYSTRING_EQUIVALENT_NULL
-    if (!literal && !strcasecmp(param, "NULL") || strlen(param) == 0)
+    if (!literal && !strcasecmp(param, "nullptr") || strlen(param) == 0)
 #else
-    if (!literal && !strcasecmp(param, "NULL"))
+    if (!literal && !strcasecmp(param, "nullptr"))
 #endif
-      using_params[num_params] = NULL;
+      using_params[num_params] = nullptr;
     else if (isHex) {
       using_params[num_params] = new char[i + 1];
       str_cpy_all(using_params[num_params], param, i);
@@ -2307,8 +2224,6 @@ int Execute::storeParams(char *argument_, short &num_params, char *using_params[
   return 0;  // no error
 }
 
-QueryCacheSt::QueryCacheSt(short option) : SqlCmd(SqlCmd::QUERYCACHE_TYPE, ""), option_(option) {}
-
 short SqlCmd::deallocate(SqlciEnv *sqlci_env, PrepStmt *prep_stmt) {
   int retcode;
 
@@ -2316,7 +2231,7 @@ short SqlCmd::deallocate(SqlciEnv *sqlci_env, PrepStmt *prep_stmt) {
   retcode = SQL_EXEC_DeallocDesc(prep_stmt->getSqlSrc());
   if (prep_stmt->getSqlSrc()) {
     if (prep_stmt->getSqlSrc()->module) delete (SQLMODULE_ID *)prep_stmt->getSqlSrc()->module;
-    prep_stmt->getSqlSrc()->module = NULL;
+    prep_stmt->getSqlSrc()->module = nullptr;
   }
   HandleCLIError(retcode, sqlci_env);
 
@@ -2330,13 +2245,13 @@ short SqlCmd::deallocate(SqlciEnv *sqlci_env, PrepStmt *prep_stmt) {
   if (prep_stmt->getStmt()) {
     if (prep_stmt->getStmt()->module) delete (SQLMODULE_ID *)prep_stmt->getStmt()->module;
     if (prep_stmt->getStmt()->identifier) delete[](char *) prep_stmt->getStmt()->identifier;
-    prep_stmt->getStmt()->identifier = NULL;
+    prep_stmt->getStmt()->identifier = nullptr;
   }
 
   HandleCLIError(retcode, sqlci_env);
 
   if (prep_stmt) delete prep_stmt;
-  prep_stmt = NULL;
+  prep_stmt = nullptr;
 
   return retcode;
 }
@@ -2355,7 +2270,7 @@ short DML::process(SqlciEnv *sqlci_env) {
   if (!isResultSet) HandleCLIErrorInit();
 
   char dml_stmt_name[50];
-  // if this_stmt_name is not NULL, then this method was invoked by
+  // if this_stmt_name is not nullptr, then this method was invoked by
   // an sqlci internal method (like stats...etc).
   if (!this_stmt_name)
     strcpy(dml_stmt_name, "__SQLCI_DML_LAST__");  // generate a dummy name
@@ -2363,7 +2278,6 @@ short DML::process(SqlciEnv *sqlci_env) {
     strcpy(dml_stmt_name, this_stmt_name);
 
   PrepStmt *prep_stmt;
-
 
   prep_stmt = new PrepStmt(dml_stmt_name, type);
 
@@ -2385,7 +2299,7 @@ short DML::process(SqlciEnv *sqlci_env) {
     if (!po && !eo) {
       logDDLQuery(prep_stmt);
       LOGDEBUG(CAT_SQL_CI, "Execute SQL: %s", get_sql_stmt());
-      retcodeExe = do_execute(sqlci_env, prep_stmt, 0, NULL, NULL, prepareCode);
+      retcodeExe = do_execute(sqlci_env, prep_stmt, 0, nullptr, nullptr, prepareCode);
     } else {
       // only adding prepareOnly for DML. Other cases could
       // be added later.
@@ -2393,7 +2307,7 @@ short DML::process(SqlciEnv *sqlci_env) {
           ((prep_stmt->getType() == DML_SELECT_TYPE) || (prep_stmt->getType() == DML_UPDATE_TYPE) ||
            (prep_stmt->getType() == DML_INSERT_TYPE) || (prep_stmt->getType() == DML_DELETE_TYPE))) {
         // don't execute in this case.
-        sqlci_env->lastExecutedStmt() = NULL;
+        sqlci_env->lastExecutedStmt() = nullptr;
 
         Logfile *log = sqlci_env->get_logfile();
         if (!lastLineWasABlank) log->WriteAll("");
@@ -2421,7 +2335,7 @@ short DML::process(SqlciEnv *sqlci_env) {
 
   // do not display stats for internal invocations. Do it for user
   // entered standalone non-prepared queries only.
-  if ((this_stmt_name == NULL) && (deallocStmt) && (sqlci_env->lastExecutedStmt()) &&
+  if ((this_stmt_name == nullptr) && (deallocStmt) && (sqlci_env->lastExecutedStmt()) &&
       (statisticsType != SQLCLI_NO_STATS)) {
     sqlci_env->getStats()->displayStats(sqlci_env);
   }
@@ -2432,7 +2346,7 @@ short DML::process(SqlciEnv *sqlci_env) {
     // there is no need to deallocate it in the interrupt handler.
     if (!isResultSet) {
       if (!retcode) global_sqlci_env->resetDeallocateStmt();
-      sqlci_env->lastExecutedStmt() = NULL;
+      sqlci_env->lastExecutedStmt() = nullptr;
     }
   }
 
@@ -2463,7 +2377,6 @@ short Prepare::process(SqlciEnv *sqlci_env) {
   HandleCLIErrorInit();
   PrepStmt *prep_stmt;
 
-
   prep_stmt = new PrepStmt(this_stmt_name, type);
 
   sqlci_env->getStats()->startStats(prep_stmt);
@@ -2477,8 +2390,6 @@ short Prepare::process(SqlciEnv *sqlci_env) {
     global_sqlci_env->resetDeallocateStmt();
   }
 
-
-
   // This is Prepare; no Exe time at all
   sqlci_env->getStats()->startExeStats();
   sqlci_env->getStats()->endExeStats();
@@ -2488,216 +2399,23 @@ short Prepare::process(SqlciEnv *sqlci_env) {
   return 0;
 }
 
-// Prepare::process has already set up the PrepStmt by calling
-// DescribeStmt CLI call and allocate PrepStmt. Some descriptor items
-// has already been extracted from the output descriptor, such as
-// type, length, precision, scale.
-///////////////////////////////////////////////////////
-// Begin DESCRIBESTMT
-//////////////////////////////////////////////////////
-short DescribeStmt::displayEntries(SqlciEnv *sqlci_env, SQLDESC_ID *desc, int numEntries, Logfile *log) {
-  char scratchBuffer[512];
-  char charVal[ComAnsiNamePart::MAX_IDENTIFIER_EXT_LEN + 1];
-  int intVal;
-  int retcode;
-
-  // For each entry produce the following output
-  //
-  // [i] NAME "column-name", HEADING "column-heading"
-  //     TYPE n, FS n, LEN n, OCTLEN n, CHARSET n
-  //     PREC n, LPREC n, SCALE n, DTCODE n, NULL n, MODE n, IDX n, ORDPOS n
-  //     CAT "catalog-name", SCH "schema-name", TABLE "table-name"
-
-  for (int entry = 1; entry <= numEntries; entry++) {
-    sprintf(scratchBuffer, "[%d] ", entry);
-    log->WriteAllWithoutEOL(scratchBuffer);
-
-    retcode = SQL_EXEC_GetDescItem(desc, entry, SQLDESC_NAME, 0, charVal, ComAnsiNamePart::MAX_IDENTIFIER_EXT_LEN,
-                                   &intVal, 0);
-    HandleCLIError(retcode, sqlci_env);
-    charVal[intVal] = 0;
-    sprintf(scratchBuffer, "NAME \"%s\", ", charVal);
-    log->WriteAllWithoutEOL(scratchBuffer);
-
-    retcode = SQL_EXEC_GetDescItem(desc, entry, SQLDESC_HEADING, 0, charVal, ComAnsiNamePart::MAX_IDENTIFIER_EXT_LEN,
-                                   &intVal, 0);
-    HandleCLIError(retcode, sqlci_env);
-    charVal[intVal] = 0;
-    sprintf(scratchBuffer, "HEADING \"%s\"", charVal);
-    log->WriteAll(scratchBuffer);
-
-    // ------------------------------------------------
-    int datatype = 0;
-    retcode = SQL_EXEC_GetDescItem(desc, entry, SQLDESC_TYPE, &intVal, 0, 0, 0, 0);
-    HandleCLIError(retcode, sqlci_env);
-    sprintf(scratchBuffer, "    TYPE %d, ", intVal);
-    log->WriteAllWithoutEOL(scratchBuffer);
-
-    retcode = SQL_EXEC_GetDescItem(desc, entry, SQLDESC_TYPE_FS, &intVal, 0, 0, 0, 0);
-    HandleCLIError(retcode, sqlci_env);
-    sprintf(scratchBuffer, "FS %d, ", intVal);
-    log->WriteAllWithoutEOL(scratchBuffer);
-    datatype = intVal;
-
-    retcode = SQL_EXEC_GetDescItem(desc, entry, SQLDESC_LENGTH, &intVal, 0, 0, 0, 0);
-    HandleCLIError(retcode, sqlci_env);
-    sprintf(scratchBuffer, "LEN %d, ", intVal);
-    log->WriteAllWithoutEOL(scratchBuffer);
-
-    retcode = SQL_EXEC_GetDescItem(desc, entry, SQLDESC_OCTET_LENGTH, &intVal, 0, 0, 0, 0);
-    HandleCLIError(retcode, sqlci_env);
-    sprintf(scratchBuffer, "OCTLEN %d, ", intVal);
-    log->WriteAllWithoutEOL(scratchBuffer);
-
-    retcode = SQL_EXEC_GetDescItem(desc, entry, SQLDESC_CHAR_SET, &intVal, 0, 0, 0, 0);
-    HandleCLIError(retcode, sqlci_env);
-    sprintf(scratchBuffer, "CHARSET %d", intVal);
-    log->WriteAll(scratchBuffer);
-
-    // ------------------------------------------------
-
-    retcode = SQL_EXEC_GetDescItem(desc, entry, SQLDESC_PRECISION, &intVal, 0, 0, 0, 0);
-    HandleCLIError(retcode, sqlci_env);
-    sprintf(scratchBuffer, "    PREC %d, ", intVal);
-    log->WriteAllWithoutEOL(scratchBuffer);
-
-    retcode = SQL_EXEC_GetDescItem(desc, entry, SQLDESC_INT_LEAD_PREC, &intVal, 0, 0, 0, 0);
-    HandleCLIError(retcode, sqlci_env);
-    sprintf(scratchBuffer, "LPREC %d, ", intVal);
-    log->WriteAllWithoutEOL(scratchBuffer);
-
-    retcode = SQL_EXEC_GetDescItem(desc, entry, SQLDESC_SCALE, &intVal, 0, 0, 0, 0);
-    HandleCLIError(retcode, sqlci_env);
-    sprintf(scratchBuffer, "SCALE %d, ", intVal);
-    log->WriteAllWithoutEOL(scratchBuffer);
-
-    retcode = SQL_EXEC_GetDescItem(desc, entry, SQLDESC_DATETIME_CODE, &intVal, 0, 0, 0, 0);
-    HandleCLIError(retcode, sqlci_env);
-    sprintf(scratchBuffer, "DTCODE %d, ", intVal);
-    log->WriteAllWithoutEOL(scratchBuffer);
-
-    retcode = SQL_EXEC_GetDescItem(desc, entry, SQLDESC_NULLABLE, &intVal, 0, 0, 0, 0);
-    HandleCLIError(retcode, sqlci_env);
-    sprintf(scratchBuffer, "NULL %d, ", intVal);
-    log->WriteAllWithoutEOL(scratchBuffer);
-
-    retcode = SQL_EXEC_GetDescItem(desc, entry, SQLDESC_PARAMETER_MODE, &intVal, 0, 0, 0, 0);
-    HandleCLIError(retcode, sqlci_env);
-    sprintf(scratchBuffer, "MODE %d, ", intVal);
-    log->WriteAllWithoutEOL(scratchBuffer);
-
-    retcode = SQL_EXEC_GetDescItem(desc, entry, SQLDESC_PARAMETER_INDEX, &intVal, 0, 0, 0, 0);
-    HandleCLIError(retcode, sqlci_env);
-    sprintf(scratchBuffer, "IDX %d, ", intVal);
-    log->WriteAllWithoutEOL(scratchBuffer);
-
-    retcode = SQL_EXEC_GetDescItem(desc, entry, SQLDESC_ORDINAL_POSITION, &intVal, 0, 0, 0, 0);
-    HandleCLIError(retcode, sqlci_env);
-    sprintf(scratchBuffer, "ORDPOS %d", intVal);
-    log->WriteAll(scratchBuffer);
-
-    if ((datatype == REC_BLOB) || (datatype == REC_CLOB)) {
-      retcode = SQL_EXEC_GetDescItem(desc, entry, SQLDESC_LOB_INLINE_DATA_MAXLEN, &intVal, 0, 0, 0, 0);
-      HandleCLIError(retcode, sqlci_env);
-      sprintf(scratchBuffer, "    INLINE %d, ", intVal);
-      log->WriteAllWithoutEOL(scratchBuffer);
-
-      retcode = SQL_EXEC_GetDescItem(desc, entry, SQLDESC_LOB_CHUNK_MAXLEN, &intVal, 0, 0, 0, 0);
-      HandleCLIError(retcode, sqlci_env);
-      sprintf(scratchBuffer, "CHUNK %d", intVal);
-      log->WriteAll(scratchBuffer);
-    }
-
-    // ------------------------------------------------
-
-    retcode = SQL_EXEC_GetDescItem(desc, entry, SQLDESC_CATALOG_NAME, 0, charVal,
-                                   ComAnsiNamePart::MAX_IDENTIFIER_EXT_LEN, &intVal, 0);
-    HandleCLIError(retcode, sqlci_env);
-    charVal[intVal] = 0;
-    sprintf(scratchBuffer, "    CAT \"%s\", ", charVal);
-    log->WriteAllWithoutEOL(scratchBuffer);
-
-    retcode = SQL_EXEC_GetDescItem(desc, entry, SQLDESC_SCHEMA_NAME, 0, charVal,
-                                   ComAnsiNamePart::MAX_IDENTIFIER_EXT_LEN, &intVal, 0);
-    HandleCLIError(retcode, sqlci_env);
-    charVal[intVal] = 0;
-    sprintf(scratchBuffer, "SCH \"%s\", ", charVal);
-    log->WriteAllWithoutEOL(scratchBuffer);
-
-    retcode = SQL_EXEC_GetDescItem(desc, entry, SQLDESC_TABLE_NAME, 0, charVal, ComAnsiNamePart::MAX_IDENTIFIER_EXT_LEN,
-                                   &intVal, 0);
-    HandleCLIError(retcode, sqlci_env);
-    charVal[intVal] = 0;
-    sprintf(scratchBuffer, "TABLE \"%s\"", charVal);
-    log->WriteAll(scratchBuffer);
-  }
-
-  return 0;
-}
-
 short DescribeStmt::process(SqlciEnv *sqlci_env) {
   HandleCLIErrorInit();
   PrepStmt *prep_stmt;
 
-
   sqlci_env->getStats()->startStats(prep_stmt);
   sqlci_env->getStats()->startExeStats();
 
-  // meat of the body
-  Logfile *log = sqlci_env->get_logfile();
   SQLDESC_ID *input_desc = prep_stmt->getInputDesc();
   SQLDESC_ID *output_desc = prep_stmt->getOutputDesc();
   int num_input_entries = prep_stmt->numInputEntries();
   int num_output_entries = prep_stmt->numOutputEntries();
-
-  if (num_input_entries > 0) {
-    log->WriteAll("---Describing the INPUT entries---");
-    displayEntries(sqlci_env, input_desc, num_input_entries, log);
-  }
-
-  if (num_output_entries > 0) {
-    log->WriteAll("---Describing the OUTPUT entries---");
-    displayEntries(sqlci_env, output_desc, num_output_entries, log);
-  }
 
   // eye marker
   sqlci_env->getStats()->endExeStats();
   sqlci_env->getStats()->endStats(sqlci_env);
 
   sqlci_env->getStats()->displayStats(sqlci_env);
-
-  return 0;
-}
-
-short StoreExplain::process(SqlciEnv *sqlci_env) {
-  int retcode;
-  HandleCLIErrorInit();
-  PrepStmt *prep_stmt;
-
-
-
-  retcode = updateRepos(sqlci_env, prep_stmt->getStmt(), prep_stmt->uniqueQueryId());
-
-  char donemsg[100];
-  donemsg[0] = '\0';
-
-  if (retcode == 0)
-    sprintf(donemsg, OP_COMPLETE_MESSAGE);
-  else if (retcode > 0)
-    sprintf(donemsg, OP_COMPLETED_WARNINGS);
-  else
-    sprintf(donemsg, OP_COMPLETED_ERRORS);
-
-  Logfile *log = sqlci_env->get_logfile();
-  if (!lastLineWasABlank) {
-    log->WriteAll("");
-    lastLineWasABlank = TRUE;
-  }
-
-  if (donemsg[0] != '\0') {
-    log->WriteAll(donemsg);
-    lastLineWasABlank = FALSE;
-  }
 
   return 0;
 }
@@ -2710,7 +2428,6 @@ short Execute::process(SqlciEnv *sqlci_env) {
   int retcode;
   HandleCLIErrorInit();
   PrepStmt *prep_stmt;
-
 
   sqlci_env->getStats()->startStats(prep_stmt);
   sqlci_env->getStats()->startExeStats();
@@ -2763,11 +2480,9 @@ short Cursor::declareC(SqlciEnv *sqlci_env, char *donemsg, int &retcode) {
 short Cursor::declareCursorStmt(SqlciEnv *sqlci_env, int &retcode) {
   short result = 0;
   CursorStmt *cursor;
-  PrepStmt *prepStmt = NULL;
+  PrepStmt *prepStmt = nullptr;
 
   retcode = SQL_Success;
-
-
 
   if (internalPrepare_) {
     NAString nameForPrepStmt("__SQLCI_PREPSTMT_FOR_CURSOR_");
@@ -2826,7 +2541,7 @@ short Cursor::declareCursorStmt(SqlciEnv *sqlci_env, int &retcode) {
     if (isHoldable()) {
       int attrValue = SQL_HOLDABLE;
 
-      retcode = SQL_EXEC_SetStmtAttr(cursorStmtId, SQL_ATTR_CURSOR_HOLDABLE, attrValue, NULL);
+      retcode = SQL_EXEC_SetStmtAttr(cursorStmtId, SQL_ATTR_CURSOR_HOLDABLE, attrValue, nullptr);
       HandleCLIError(retcode, sqlci_env);
       if (retcode < 0) {
         int cleanupRetcode;
@@ -2862,14 +2577,12 @@ short Cursor::declareCursorStmt(SqlciEnv *sqlci_env, int &retcode) {
 //           retcode contains indication if it succeeded(=0) or failed(!= 0)
 short Cursor::declareCursorStmtForRS(SqlciEnv *sqlci_env, int &retcode) {
   short result = 0;  // the return value of this function
-  PrepStmt *prepStmt = NULL;
-  CursorStmt *cursor = NULL;
-  CursorStmt *parentCursor = NULL;
+  PrepStmt *prepStmt = nullptr;
+  CursorStmt *cursor = nullptr;
+  CursorStmt *parentCursor = nullptr;
   char *nameOfParent = get_sql_stmt();
 
   retcode = SQL_Success;
-
-
 
   // Create a PrepStmt for this result set. It will be used later to
   // store the column descriptions. It doesn't get used for anything
@@ -2890,19 +2603,19 @@ short Cursor::declareCursorStmtForRS(SqlciEnv *sqlci_env, int &retcode) {
   // output columns will be filled in later. It becomes available only
   // after the parent CALL statement executes.
   prepStmt->set((char *)dummyName.data(),
-                NULL,   // SQLDESC_ID *sql_src_
-                NULL,   // SQLSTMT_ID *stmt_
-                0,      // int numInputEntries
-                NULL,   // SQLDESC_ID *input_desc_
-                0,      // int numOutputEntries
-                NULL);  // SQLDESC_ID *output_desc_
+                nullptr,   // SQLDESC_ID *sql_src_
+                nullptr,   // SQLSTMT_ID *stmt_
+                0,         // int numInputEntries
+                nullptr,   // SQLDESC_ID *input_desc_
+                0,         // int numOutputEntries
+                nullptr);  // SQLDESC_ID *output_desc_
 
   // Make a statement ID for the new result set statement
   SQLSTMT_ID *childStmtId = new SQLSTMT_ID;
   SQLSTMT_ID *parentStmtId = parentCursor->cursorStmtId();
   *childStmtId = *parentStmtId;
   childStmtId->name_mode = stmt_handle;
-  childStmtId->identifier = NULL;
+  childStmtId->identifier = nullptr;
   childStmtId->identifier_len = 0;
 
   retcode = SQL_EXEC_AllocStmtForRS(parentStmtId, resultSetIndex_, childStmtId);
@@ -2926,7 +2639,6 @@ short Cursor::open(SqlciEnv *sqlci_env, char *donemsg, int &retcode) {
   HandleCLIErrorInit();
 
   retcode = SQL_Success;
- 
 
   retcode = doExec(sqlci_env, cursor->cursorStmtId(), cursor->prepStmt());
 
@@ -2950,7 +2662,7 @@ short Cursor::open(SqlciEnv *sqlci_env, char *donemsg, int &retcode) {
       }
 
       if (retcode >= 0) {
-        retcode = SQL_EXEC_DescribeStmt(cursor->cursorStmtId(), NULL, output_desc);
+        retcode = SQL_EXEC_DescribeStmt(cursor->cursorStmtId(), nullptr, output_desc);
         HandleCLIError(retcode, sqlci_env);
       }
 
@@ -2987,7 +2699,6 @@ short Cursor::fetch(SqlciEnv *sqlci_env, NABoolean doDisplayRow, char *donemsg, 
 
   retcode = SQL_Success;
 
-
   PrepStmt *p = cursor->prepStmt();
   if (p && p->numOutputEntries() < 1) doDisplayRow = FALSE;
 
@@ -2998,8 +2709,6 @@ short Cursor::fetch(SqlciEnv *sqlci_env, NABoolean doDisplayRow, char *donemsg, 
 
       displayRow(sqlci_env, p);
 
-      Logfile *log = sqlci_env->get_logfile();
-      log->WriteAll(p->outputBuf());
       lastLineWasABlank = FALSE;
     }
 
@@ -3021,7 +2730,6 @@ short Cursor::close(SqlciEnv *sqlci_env, char *donemsg, int &retcode) {
 
   retcode = SQL_Success;
 
-
   retcode = SQL_EXEC_CloseStmt(cursor->cursorStmtId());
   HandleCLIError(retcode, sqlci_env);
   if (retcode > 0) getRowsAffected(cursor->cursorStmtId());
@@ -3039,7 +2747,6 @@ short Cursor::dealloc(SqlciEnv *sqlci_env, char *donemsg, int &retcode) {
   HandleCLIErrorInit();
 
   retcode = SQL_Success;
-
 
   cleanupCursorStmt(sqlci_env, cursor);
 
@@ -3098,7 +2805,6 @@ void Cursor::cleanupCursorStmt(SqlciEnv *sqlci_env, CursorStmt *c) {
       HandleCLIError(retcode, sqlci_env);
     }
   }
-
 }
 
 short Cursor::process(SqlciEnv *sqlci_env) {
@@ -3136,131 +2842,5 @@ short Cursor::process(SqlciEnv *sqlci_env) {
       break;
   }
 
-  // All the CURSOR methods return 0 or -1. Write the completion
-  // message when (rc == 0). In case of rs==-1, the diags is filled with
-  // error conditions.
-  if (rc == 0) {
-    Logfile *log = sqlci_env->get_logfile();
-    if (!lastLineWasABlank) log->WriteAll("");
-    if (donemsg[0] != '\0') log->WriteAll(donemsg);
-  }
-
-  return 0;
-}
-// unified display_qc to display data as follows:
-// CURSIZE    MAXSIZE    ENTRIES     PLANS       LOOKUPS     HITS        HITRATE
-// ---------  ---------  ----------  ----------  ----------  ----------  -------
-// 429.49MB   29.49GB    858992      858992      429.496E+7  420.000E+7  97.78%
-// hit rate = hits / lookups
-static const char *query_cache_query =
-    " SELECT "
-    " (CASE WHEN CURRENT_SIZE > 1048575 THEN "
-    "  CONCAT(RTRIM(CAST(CAST(CURRENT_SIZE/1048576 AS NUMERIC(7,2)) AS CHAR(7) CHARACTER SET ISO88591)), "
-    "_ISO88591'GB') ELSE "
-    "  (CASE WHEN CURRENT_SIZE > 1023 THEN "
-    "   CONCAT(RTRIM(CAST(CAST(CURRENT_SIZE/1024 AS NUMERIC(7,2)) AS CHAR(7) CHARACTER SET ISO88591)), _ISO88591'MB') "
-    "ELSE "
-    "    CONCAT(RTRIM(CAST(CURRENT_SIZE AS CHAR(7) CHARACTER SET ISO88591)), _ISO88591'KB') "
-    "  END) "
-    " END) AS CURSIZE, "
-    " (CASE WHEN MAX_CACHE_SIZE > 1048575 THEN "
-    "  CONCAT(RTRIM(CAST(CAST(MAX_CACHE_SIZE/1048576 AS NUMERIC(7,2)) AS CHAR(7) CHARACTER SET ISO88591)), "
-    "_ISO88591'GB') ELSE "
-    "  (CASE WHEN MAX_CACHE_SIZE > 1023 THEN "
-    "   CONCAT(RTRIM(CAST(CAST(MAX_CACHE_SIZE/1024 AS NUMERIC(7,2)) AS CHAR(7) CHARACTER SET ISO88591)), "
-    "_ISO88591'MB') ELSE "
-    "    CONCAT(RTRIM(CAST(MAX_CACHE_SIZE AS CHAR(7) CHARACTER SET ISO88591)), _ISO88591'KB') "
-    "  END) "
-    " END) AS MAXSIZE, "
-    " (CASE WHEN NUM_ENTRIES + TEXT_ENTRIES > 9999999 THEN "
-    "  CONCAT(RTRIM(CAST(CAST((NUM_ENTRIES + TEXT_ENTRIES)/10000000 AS NUMERIC(7,3)) "
-    "   AS CHAR(7) CHARACTER SET ISO88591)), _ISO88591'E+7') ELSE "
-    "  CAST(NUM_ENTRIES + TEXT_ENTRIES AS CHAR(7) CHARACTER SET ISO88591) "
-    " END) AS ENTRIES, "
-    " (CASE WHEN NUM_PLANS > 9999999 THEN "
-    "  CONCAT(RTRIM(CAST(CAST((NUM_PLANS)/10000000 AS NUMERIC(7,3)) "
-    "   AS CHAR(7) CHARACTER SET ISO88591)), _ISO88591'E+7') ELSE "
-    "  CAST(NUM_PLANS AS CHAR(7) CHARACTER SET ISO88591) "
-    " END) AS PLANS, "
-    " (CASE WHEN NUM_LOOKUPS > 9999999 THEN "
-    "  CONCAT(RTRIM(CAST(CAST(NUM_LOOKUPS/10000000 AS NUMERIC(7,3)) AS CHAR(7) CHARACTER SET ISO88591)), "
-    "_ISO88591'E+7') ELSE "
-    "  CAST(NUM_LOOKUPS AS CHAR(7) CHARACTER SET ISO88591) "
-    " END) AS LOOKUPS, "
-    " (CASE WHEN NUM_CACHE_HITS_PARSING + NUM_CACHE_HITS_BINDING + TEXT_CACHE_HITS> 9999999 THEN "
-    "  CONCAT(RTRIM(CAST(CAST((NUM_CACHE_HITS_PARSING + NUM_CACHE_HITS_BINDING + "
-    "   TEXT_CACHE_HITS)/10000000 AS NUMERIC(7,3)) AS CHAR(7) CHARACTER SET ISO88591)), _ISO88591'E+7') ELSE "
-    "  CAST(NUM_CACHE_HITS_PARSING + NUM_CACHE_HITS_BINDING + TEXT_CACHE_HITS AS CHAR(7) CHARACTER SET ISO88591) "
-    " END) AS HITS, "
-    " (CASE WHEN NUM_LOOKUPS <=0 THEN _ISO88591'NA' ELSE "
-    "  CONCAT(RTRIM(CAST(CAST(100*(NUM_CACHE_HITS_PARSING + NUM_CACHE_HITS_BINDING + "
-    "   TEXT_CACHE_HITS)/NUM_LOOKUPS AS NUMERIC(6,2)) AS CHAR(6) CHARACTER SET ISO88591)), _ISO88591'%') "
-    " END) AS HITRATE "
-    " FROM TABLE(QUERYCACHE()) ";
-
-#define SELECT_LIST1                                                                                       \
-  " select  "                                                                                              \
-  " (CASE WHEN ROW_ID > 99999999 THEN _ISO88591'OVERFLOW' ELSE "                                           \
-  "   CAST(ROW_ID AS CHAR(8) CHARACTER SET ISO88591) END) AS ROWID, "                                      \
-  " SUBSTRING(TEXT, 0, 36) AS TEXT, "                                                                      \
-  " (CASE WHEN NUM_HITS > 99999999 THEN _ISO88591'OVERFLOW' ELSE "                                         \
-  "   CAST(NUM_HITS AS CHAR(8) CHARACTER SET ISO88591) END) AS NUMHITS, "                                  \
-  " (CASE PHASE WHEN _ISO88591'PARSING' THEN _ISO88591'P' WHEN _ISO88591'BINDING' THEN _ISO88591'B' ELSE " \
-  "_ISO88591'T' END) AS PH "
-
-#define FROMQUERYCACHEENTRIES " from table(querycacheentries()) "
-
-static const char *query_cache_ent_query = SELECT_LIST1
-    ",(CASE WHEN COMPILATION_TIME > 99999999 THEN _ISO88591'OVERFLOW' ELSE "
-    "   CAST(COMPILATION_TIME AS CHAR(8) CHARACTER SET ISO88591) END) AS COMPTIME, "
-
-    " (CASE WHEN AVERAGE_HIT_TIME > 99999999 THEN _ISO88591'OVERFLOW' ELSE "
-    "   CAST(AVERAGE_HIT_TIME AS CHAR(8) CHARACTER SET ISO88591) END) AS AVGHTIME " FROMQUERYCACHEENTRIES;
-
-static const char *query_cache_ent_query_notime = SELECT_LIST1 FROMQUERYCACHEENTRIES;
-
-short QueryCacheSt::process(SqlciEnv *sqlci_env) {
-  int retcode;
-  DML *query;
-
-  switch (option_) {
-    case 0:
-    default: {
-      query = new DML(query_cache_query, DML_CONTROL_TYPE);
-    } break;
-
-    case 1: {
-      query = new DML(query_cache_ent_query, DML_CONTROL_TYPE);
-    } break;
-
-    case 2: {
-      query = new DML(query_cache_ent_query_notime, DML_CONTROL_TYPE);
-    } break;
-  }
-
-  retcode = query->process(sqlci_env);
-
-  if (query) delete query;
-
-  return (short)retcode;
-}
-
-//////////////////////////////////////////
-// begin QUIESCE
-//////////////////////////////////////////
-
-// Methods for class Quiesce
-Quiesce::Quiesce() : SqlCmd(SqlCmd::QUIESCE_TYPE, NULL) {}
-
-Quiesce::~Quiesce() {}
-
-short Quiesce::process(SqlciEnv *sqlci_env) {
-  if (!getenv("SQLCI_CURSOR")) {
-    sqlci_env->diagsArea() << DgSqlCode(-SQLCI_CURSOR_NOT_SUPPORTED);
-    return 0;
-  }
-
-  int retcode = SQL_EXEC_Xact(SQLTRANS_QUIESCE, NULL);
-  cout << endl << " SQL_EXEC_Xact(SQLTRANS_QUIESCE, NULL) returned " << retcode << endl << endl;
   return 0;
 }

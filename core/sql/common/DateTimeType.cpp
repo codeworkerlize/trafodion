@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 **************************************************************************
 *
@@ -65,8 +44,8 @@ NAString DEFAULT_DATE_DISPLAY_FORMAT("YYYY-MM-DD");
 //
 static const UInt32 maxFieldLen[] = {4, 2, 2, 2, 2, 2, DatetimeType::MAX_FRACTION_PRECISION};
 static const UInt32 storageLen[] = {2, 1, 1, 1, 1, 1, 4};
-static const ULng32 minValue[] = {0001, 01, 01, 00, 00, 00, 000000000};
-static const ULng32 maxValue[] = {9999, 12, 31, 23, 59, 59, 999999999};
+static const int minValue[] = {0001, 01, 01, 00, 00, 00, 000000000};
+static const int maxValue[] = {9999, 12, 31, 23, 59, 59, 999999999};
 static const char minValueString[] = "0001-01-01 00:00:00.000000000";
 static const char maxValueString[] = "9999-12-31 23:59:59.999999999";
 static const size_t valueStringLen = /*12345678901234567890123456789*/ 29;
@@ -75,7 +54,7 @@ static const char precedingPunc[] = "^-- ::.";
 //  punctuation before YEAR, of course.
 static const UInt32 daysInMonth[] = {0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
-ULng32 DatetimeType::getMinValue(int field, int digitsInFraction) {
+int DatetimeType::getMinValue(int field, int digitsInFraction) {
   // field 6 is the fraction part which requires special handling.
   if (field < 6) return minValue[field];
 
@@ -90,7 +69,7 @@ ULng32 DatetimeType::getMinValue(int field, int digitsInFraction) {
   return 0;
 }
 
-ULng32 DatetimeType::getMaxValue(int field, int digitsInFraction) {
+int DatetimeType::getMaxValue(int field, int digitsInFraction) {
   // field 6 is the fraction part which requires special handling.
   if (field < 6) return maxValue[field];
 
@@ -222,13 +201,13 @@ int DatetimeType::getStorageSize(rec_datetime_field startField, rec_datetime_fie
 //
 // ***********************************************************************
 
-void DatetimeType::datetimeToLong(void *bufPtr, ULng32 values[]) const {
+void DatetimeType::datetimeToLong(void *bufPtr, int values[]) const {
   char *str = (char *)bufPtr;
   short sw;
   int size;
   int start = getStartField();
   int end = getExtendedEndField(getEndField(), getFractionPrecision());
-  ULng32 val = 0;
+  int val = 0;
 
   for (int i = start; i <= end; i++) {
     size = storageLen[i - 1];
@@ -264,7 +243,7 @@ void DatetimeType::datetimeToLong(void *bufPtr, ULng32 values[]) const {
 //
 // ***********************************************************************
 
-int DatetimeType::gregorianDays(const ULng32 values[]) {
+int DatetimeType::gregorianDays(const int values[]) {
   int year = values[0] - 1;
 
   int leapDays = year / 4 + year / 400 - year / 100;
@@ -323,7 +302,7 @@ long DatetimeType::julianTimestampValue(const char *value, const short valueLen,
 //
 // ***********************************************************************
 
-int DatetimeType::secondsInTime(const ULng32 values[]) { return (values[0] * 60 * 60 + values[1] * 60 + values[2]); }
+int DatetimeType::secondsInTime(const int values[]) { return (values[0] * 60 * 60 + values[1] * 60 + values[2]); }
 
 enum DatetimeType::Subtype DatetimeType::validate(rec_datetime_field startField, rec_datetime_field endField,
                                                   UInt32 fractionPrecision) {
@@ -863,7 +842,7 @@ double SQLDate::encode(void *bufPtr) const {
   double val;
 
   if (supportsSQLnull()) valPtr += getSQLnullHdrSize();
-  ULng32 w[10];
+  int w[10];
 
   for (int i = 0; i < 10; i++) w[i] = 0;
 
@@ -942,7 +921,7 @@ double SQLTime::encode(void *bufPtr) const {
   double val;
 
   if (supportsSQLnull()) valPtr += getSQLnullHdrSize();
-  ULng32 w[6];
+  int w[6];
 
   for (int i = 0; i < 6; i++) w[i] = 0;
 
@@ -1019,7 +998,7 @@ double SQLTimestamp::encode(void *bufPtr) const {
   double val;
 
   if (supportsSQLnull()) valPtr += getSQLnullHdrSize();
-  ULng32 w[10];
+  int w[10];
 
   for (int i = 0; i < 10; i++) w[i] = 0;
 
@@ -1121,7 +1100,7 @@ double SQLMPDatetime::encode(void *bufPtr) const {
   double val;
 
   if (supportsSQLnull()) valPtr += getSQLnullHdrSize();
-  ULng32 w[10];
+  int w[10];
 
   w[REC_DATE_YEAR - 1] = 1;  // should use min values here
   w[REC_DATE_MONTH - 1] = 1;
@@ -1198,7 +1177,7 @@ DatetimeValue::DatetimeValue(const char *strValue, rec_datetime_field startField
   ComDiagsArea *diags = NULL;
 
   int trueFP = DatetimeType::MAX_FRACTION_PRECISION;
-  ULng32 flags = 0;
+  int flags = 0;
   flags |= CONV_NO_HADOOP_DATE_FIX;
   short rc = ExpDatetime::convAsciiToDatetime((char *)strValue, strlen(strValue), dstValue, 100, startField, endField,
                                               ExpDatetime::DATETIME_FORMAT_NONE, trueFP, NULL, &diags, flags);
@@ -1242,7 +1221,7 @@ void DatetimeValue::oldConstructor(const char *strValue, rec_datetime_field star
   // If this contains a YEAR, MONTH or DAY, scan it as a DATE
   //
   DatetimeFormat format = FORMAT_ANY;
-  ULng32 values[N_DATETIME_FIELDS];
+  int values[N_DATETIME_FIELDS];
   if (startField <= REC_DATE_DAY && (!scanDate(strValue /* INOUT */
                                                ,
                                                format /* OUT */
@@ -1306,7 +1285,7 @@ DatetimeValue::DatetimeValue(const char *value, int storageSize)
   memcpy(value_, value, valueLen_);
 }  // DatetimeValue ctor
 
-NABoolean DatetimeValue::scanDate(const char *&strValue, DatetimeFormat &format, ULng32 values[],
+NABoolean DatetimeValue::scanDate(const char *&strValue, DatetimeFormat &format, int values[],
                                   NABoolean validate) const {
   //
   // Determine the datetime format (DEFAULT, USA, or EUROPEAN).
@@ -1403,11 +1382,11 @@ NABoolean DatetimeValue::scanDate(const char *&strValue, DatetimeFormat &format,
   return TRUE;
 }  // DatetimeValue::scanDate
 
-NABoolean DatetimeValue::scanAndReturnFields(const char *&strValue, DatetimeFormat &format, ULng32 values[]) const {
+NABoolean DatetimeValue::scanAndReturnFields(const char *&strValue, DatetimeFormat &format, int values[]) const {
   return scanDate(strValue, format, values, FALSE);
 }
 
-NABoolean DatetimeValue::scanTime(const char *&strValue, DatetimeFormat format, ULng32 values[],
+NABoolean DatetimeValue::scanTime(const char *&strValue, DatetimeFormat format, int values[],
                                   UInt32 &fractionPrecision) const {
   static const char separator[] = "::.:";
   NABoolean needSeparator = FALSE;
@@ -1484,12 +1463,12 @@ NABoolean DatetimeValue::scanTime(const char *&strValue, DatetimeFormat format, 
   return TRUE;
 }  // DatetimeValue::scanTime
 
-NABoolean DatetimeValue::scanField(const char *&strValue, DatetimeField field, ULng32 values[],
+NABoolean DatetimeValue::scanField(const char *&strValue, DatetimeField field, int values[],
                                    NABoolean validate) const {
   //
   // Compute the value of the datetime field.
   //
-  ULng32 value = 0;
+  int value = 0;
   UInt32 i = 0;
   UInt32 digits = 0;
   for (; i < maxFieldLen[field] && isdigit(strValue[i]); i++) {
@@ -1526,7 +1505,7 @@ NABoolean DatetimeValue::scanField(const char *&strValue, DatetimeField field, U
   return TRUE;
 }  // DatetimeValue::scanField
 
-NABoolean DatetimeValue::validateDate(const ULng32 values[]) const {
+NABoolean DatetimeValue::validateDate(const int values[]) const {
   //
   // If the days field is more than the number of days in the month, the date
   // is invalid.
@@ -1548,7 +1527,7 @@ NABoolean DatetimeValue::validateDate(const ULng32 values[]) const {
 
 // Note how this mirrors the structure of DatetimeType::getStorageSize()
 void DatetimeValue::setValue(rec_datetime_field startField, rec_datetime_field endField, UInt32 fractionPrecision,
-                             const ULng32 values[]) {
+                             const int values[]) {
   valueLen_ = (unsigned short)DatetimeType::getStorageSize(startField, endField, fractionPrecision);
   unsigned char *value = value_ = new unsigned char[valueLen_];
   int end = DatetimeType::getExtendedEndField(endField, fractionPrecision);
@@ -1566,7 +1545,7 @@ void DatetimeValue::setValue(rec_datetime_field startField, rec_datetime_field e
         memcpy(value, &v, storageLen[index]);
         break;
       }
-      case sizeof(ULng32):
+      case sizeof(int):
         memcpy(value, &values[index], storageLen[index]);
         break;
       default:
@@ -1582,7 +1561,7 @@ NAString DatetimeValue::getValueAsString(const DatetimeType &dt) const {
 
   char cbuf[DatetimeType::MAX_FRACTION_PRECISION + 1];  // +1 for sprintf '\0'
   int clen;
-  ULng32 ulbuf = 0;
+  int ulbuf = 0;
   unsigned short usbuf;
   unsigned char ucbuf;
   const unsigned char *value = getValue();
@@ -1603,7 +1582,7 @@ NAString DatetimeValue::getValueAsString(const DatetimeType &dt) const {
           memcpy(&usbuf, value, storageLen[index]);
           ulbuf = usbuf;
           break;
-        case sizeof(ULng32):
+        case sizeof(int):
           memcpy(&ulbuf, value, storageLen[index]);
           break;
         default:

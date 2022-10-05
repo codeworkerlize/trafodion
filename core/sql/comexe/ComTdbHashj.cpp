@@ -22,23 +22,23 @@ ComTdbHashj::ComTdbHashj(
     ex_expr *nullInstForLeftJoinExpr, ex_expr *beforeJoinPred1, ex_expr *beforeJoinPred2, ex_expr *afterJoinPred1,
     ex_expr *afterJoinPred2, ex_expr *afterJoinPred3, ex_expr *afterJoinPred4, ex_expr *afterJoinPred5,
     ex_expr *checkInputPred, ex_expr *moveInputExpr, int inputValuesLen, short prevInputTuppIndex,
-    ULng32 rightRowLength, ULng32 extRightRowLength, ULng32 leftRowLength, ULng32 extLeftRowLength,
-    ULng32 instRowForLeftJoinLength, ex_cri_desc *workCriDesc, short leftRowAtpIndex, short extLeftRowAtpIndex,
+    int rightRowLength, int extRightRowLength, int leftRowLength, int extLeftRowLength,
+    int instRowForLeftJoinLength, ex_cri_desc *workCriDesc, short leftRowAtpIndex, short extLeftRowAtpIndex,
     short rightRowAtpIndex, short extRightRowAtpIndex1, short extRightRowAtpIndex2, short hashValueAtpIndex,
     short instRowForLeftJoinAtpIndex, short returnedLeftRowAtpIndex, short returnedRightRowAtpIndex,
     short returnedInstRowForLeftJoinAtpIndex, unsigned short memUsagePercent, short pressureThreshold,
     short scratchThresholdPct, queue_index down, queue_index up, int isSemiJoin, int isLeftJoin,
     int isAntiSemiJoin, int isUniqueHashJoin, int isNoOverflow, int isReuse, int numBuffers,
-    ULng32 bufferSize, ULng32 hashBufferSize, Cardinality estimatedRowCount, Cardinality innerExpectedRows,
+    int bufferSize, int hashBufferSize, Cardinality estimatedRowCount, Cardinality innerExpectedRows,
     Cardinality outerExpectedRows, int isRightJoin, ex_expr *rightJoinExpr,
     // nullInstForRightJoinExpr(i.e)instantiates the
     // left row.
     ex_expr *nullInstForRightJoinExpr, short instRowForRightJoinAtpIndex, short returnedInstRowForRightJoinAtpIndex,
-    ULng32 instRowForRightJoinLength, unsigned short minBuffersToFlush, ULng32 numInBatch,
+    int instRowForRightJoinLength, unsigned short minBuffersToFlush, int numInBatch,
     // unsigned short minBuffersToFlush,
     ex_expr *checkInnerNullExpr, ex_expr *checkOuterNullExpr, short hjGrowthPercent, short minMaxValsAtpIndex,
-    ULng32 minMaxRowLength, ex_expr *minMaxExpr, ex_cri_desc *leftDownCriDesc, ex_expr *rangeSpecPackingExpr,
-    ULng32 rangeSpecSanityCheckCycle)
+    int minMaxRowLength, ex_expr *minMaxExpr, ex_cri_desc *leftDownCriDesc, ex_expr *rangeSpecPackingExpr,
+    int rangeSpecSanityCheckCycle)
     : ComTdb(ComTdb::ex_HASHJ, eye_HASHJ, estimatedRowCount, criDescDown, criDescUp, down, up, numBuffers, bufferSize),
       leftChildTdb_(leftChildTdb),
       rightChildTdb_(rightChildTdb),
@@ -212,7 +212,7 @@ int ComTdbHashj::unpack(void *base, void *reallocator) {
   return ComTdb::unpack(base, reallocator);
 }
 
-void ComTdbHashj::displayContents(Space *space, ULng32 flag) {
+void ComTdbHashj::displayContents(Space *space, int flag) {
   ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
   if (flag & 0x00000008) {

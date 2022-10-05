@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef OBJECTNAMES_H
 #define OBJECTNAMES_H
 /* -*-C++-*-
@@ -218,8 +197,8 @@ class QualifiedName : public SchemaName {
   inline NABoolean operator!=(const NAString &) const;
 
   // accessors
-  ULng32 hash() const;
-  static ULng32 hash(const QualifiedName &name) { return name.hash(); }
+  int hash() const;
+  static int hash(const QualifiedName &name) { return name.hash(); }
 
   NAString getQualifiedNameAsString(NABoolean formatForDisplay = FALSE, NABoolean externalDisplay = FALSE) const;
   const NAString getQualifiedNameAsAnsiString(NABoolean formatForDisplay = FALSE,
@@ -406,7 +385,7 @@ class PartitionClause : public NABasicObject {
   NABoolean operator==(const PartitionClause &) const;
   NABoolean operator!=(const PartitionClause &) const;
   PartitionClause &operator=(const PartitionClause &);
-  ULng32 hash() const;
+  int hash() const;
   NABoolean isEmpty() const;
 
   // accessors
@@ -505,7 +484,7 @@ class ExtendedQualName : public NABasicObject {
   NABoolean operator!=(const ExtendedQualName &) const;
 
   // accessors
-  ULng32 hash() const;
+  int hash() const;
   NABoolean isEmpty() const;
   NABoolean isLocationNameSpecified() const { return NOT getLocationName().isNull(); }
   NABoolean isPartitionNameSpecified() const {
@@ -683,7 +662,7 @@ class CorrName : public NABasicObject {
   // accessors
   StringPos getNamePosition() const { return qualName_.getNamePosition(); }
   HostVar *getPrototype() const { return prototype_; }
-  ULng32 hash() const;
+  int hash() const;
   NABoolean isEmpty() const;
   NABoolean isFabricated() const { return flagbits_ & ISFABRICATED; }
 
@@ -847,7 +826,7 @@ class ColRefName : public NABasicObject {
 
   // accessors
   StringPos getNamePosition() const { return corrName_.getNamePosition(); }
-  ULng32 hash() const;
+  int hash() const;
   NABoolean isEmpty() const;
   NABoolean isFabricated() const { return corrName_.isFabricated(); }
 
@@ -1007,7 +986,7 @@ inline NABoolean QualifiedName::operator!=(const QualifiedName &other) const { r
 
 inline NABoolean QualifiedName::operator!=(const NAString &simpleName) const { return NOT operator==(simpleName); }
 
-inline ULng32 QualifiedName::hash() const {
+inline int QualifiedName::hash() const {
   return getObjectName().hash() ^ getSchemaName().hash() ^ getCatalogName().hash();
 }
 
@@ -1017,7 +996,7 @@ inline ULng32 QualifiedName::hash() const {
 
 inline NABoolean ExtendedQualName::operator!=(const ExtendedQualName &other) const { return NOT operator==(other); }
 
-inline ULng32 ExtendedQualName::hash() const { return getQualifiedNameObj().hash() ^ getPartnClause().hash(); }
+inline int ExtendedQualName::hash() const { return getQualifiedNameObj().hash() ^ getPartnClause().hash(); }
 
 inline NABoolean ExtendedQualName::isEmpty() const {
   ExtendedQualName empty;
@@ -1051,7 +1030,7 @@ inline NABoolean CorrName::operator!=(const NAString &other) const { return NOT 
 // -----------------------------------------------------------------------
 inline NABoolean ColRefName::isEmpty() const { return getColName() == (const char *)""; }
 
-inline ULng32 ColRefName::hash() const { return getCorrNameObj().hash() ^ getColName().hash(); }
+inline int ColRefName::hash() const { return getCorrNameObj().hash() ^ getColName().hash(); }
 
 // -----------------------------------------------------------------------
 // Inline methods for class PartitionClause
@@ -1065,8 +1044,8 @@ inline NABoolean PartitionClause::operator==(const PartitionClause &other) const
 
 inline NABoolean PartitionClause::operator!=(const PartitionClause &other) const { return NOT operator==(other); }
 
-inline ULng32 PartitionClause::hash() const {
-  ULng32 hashVal = getPartitionName().hash() ^ getBeginPartitionNumber() ^ getLocationName().hash();
+inline int PartitionClause::hash() const {
+  int hashVal = getPartitionName().hash() ^ getBeginPartitionNumber() ^ getLocationName().hash();
 
   if (getEndPartitionNumber() > 0) hashVal ^= getEndPartitionNumber();
 
@@ -1085,10 +1064,10 @@ inline NABoolean PartitionClause::isEmpty() const {
 // -----------------------------------------------------------------------
 
 // For NAKeyLookup
-ULng32 hashKey(const QualifiedName &);
-ULng32 hashKey(const ExtendedQualName &);
-ULng32 hashKey(const CorrName &);
-ULng32 hashKey(const ColRefName &);
+int hashKey(const QualifiedName &);
+int hashKey(const ExtendedQualName &);
+int hashKey(const CorrName &);
+int hashKey(const ColRefName &);
 
 // -----------------------------------------------------------------------
 // ObjectCounter class

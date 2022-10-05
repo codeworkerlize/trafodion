@@ -976,9 +976,9 @@ class HostArraysWA : public NABasicObject {
 
   NABoolean getHasDerivedRowsets() { return hasDerivedRowsets_; }
 
-  ULng32 getInputArrayMaxSize() const { return inputArrayMaxSize_; }
+  int getInputArrayMaxSize() const { return inputArrayMaxSize_; }
 
-  void setInputArrayMaxSize(const ULng32 size) { inputArrayMaxSize_ = size; }
+  void setInputArrayMaxSize(const int size) { inputArrayMaxSize_ = size; }
 
   NABoolean hasHostArraysInTuple() const { return hasHostArraysInTuple_; }
 
@@ -1097,7 +1097,7 @@ class HostArraysWA : public NABasicObject {
 
   // Maximum array size; used for ODBC queries. It is specified by an ODBC
   // process and passed to mxcmp
-  ULng32 inputArrayMaxSize_;
+  int inputArrayMaxSize_;
 
   // Flag to indicate if this HostArraysWA contains any arrays used for insert
   NABoolean hasHostArraysInTuple_;
@@ -1242,7 +1242,7 @@ class BindWA : public NABasicObject {
   // complete discussion of how/why this method is used.
   BindScope *getSubqueryScope(BindScope *currentScope) const;
 
-  static ULng32 qualNameHashFunc(const QualifiedName &qualName);
+  static int qualNameHashFunc(const QualifiedName &qualName);
 
   // --------------------------------------------------------------------
   // Methods for the XCNM of constants, params, and host variables.
@@ -1841,7 +1841,7 @@ class BindWA : public NABasicObject {
   // --------------------------------------------------------------------
   short viewCount_;
 
-  ULng32 flags_;
+  int flags_;
 
   // points to a class used by RowSets code.
   HostArraysWA *hostArraysArea_;

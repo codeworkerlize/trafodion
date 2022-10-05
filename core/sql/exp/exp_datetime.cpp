@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -1459,9 +1438,9 @@ static int sizeofDatetimeFields(rec_datetime_field startField, rec_datetime_fiel
   return sizeInBytes;
 }
 
-static NABoolean leapYear(ULng32 year) { return ((year % 4 == 0) && ((year % 100 != 0) || (year % 400 == 0))); }
+static NABoolean leapYear(int year) { return ((year % 4 == 0) && ((year % 100 != 0) || (year % 400 == 0))); }
 
-static NABoolean IsLastDayOfMonth(ULng32 year, ULng32 month, ULng32 day) {
+static NABoolean IsLastDayOfMonth(int year, int month, int day) {
   static const short daysInMonth[] = {0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
   static const short daysInMonthNonLeap[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
@@ -1971,7 +1950,7 @@ static NABoolean containsField(rec_datetime_field field, rec_datetime_field star
 // =====================================================================
 //
 static NABoolean scanField(char *&src, char *srcEnd, rec_datetime_field field, char exptDelim, int &fractPrec,
-                           int &value, CollHeap *heap, ComDiagsArea **diagsArea, ULng32 flags) {
+                           int &value, CollHeap *heap, ComDiagsArea **diagsArea, int flags) {
   NABoolean noDatetimeValidation = (flags & CONV_NO_DATETIME_VALIDATION) != 0;
   NABoolean noHadoopDateFix = (flags & CONV_NO_HADOOP_DATE_FIX) != 0;
 
@@ -2084,7 +2063,7 @@ short ExpDatetime::convAsciiDatetimeToUtcOrLocal(char *srcData, int srcLen, char
 
   char dstValue[101];
 
-  ULng32 flags = 0;
+  int flags = 0;
   flags |= CONV_NO_HADOOP_DATE_FIX;
   flags |= CONV_NO_DATETIME_VALIDATION;
   rc = convDoIt((char *)srcData, srcLen, REC_BYTE_F_ASCII, 0, 0, dstValue, 100, REC_DATETIME, REC_DTCODE_TIMESTAMP, 0,
@@ -2113,7 +2092,7 @@ short ExpDatetime::convAsciiDatetimeToUtcOrLocal(char *srcData, int srcLen, char
 
 short ExpDatetime::convAsciiToDatetime(char *srcData, int srcLen, char *dstData, int dstLen,
                                        rec_datetime_field dstStartField, rec_datetime_field dstEndField, int format,
-                                       int &scale, CollHeap *heap, ComDiagsArea **diagsArea, ULng32 flags) {
+                                       int &scale, CollHeap *heap, ComDiagsArea **diagsArea, int flags) {
   NABoolean noDatetimeValidation = (flags & CONV_NO_DATETIME_VALIDATION) != 0;
   int originalSrcLen = srcLen;
   char *originalSrcData = srcData;
@@ -2462,7 +2441,7 @@ short ExpDatetime::convAsciiToDatetime(char *srcData, int srcLen, char *dstData,
 }
 
 short ExpDatetime::convAsciiToDatetime(char *srcData, int srcLen, char *dstData, int dstLen, int format,
-                                       CollHeap *heap, ComDiagsArea **diagsArea, ULng32 flags) {
+                                       CollHeap *heap, ComDiagsArea **diagsArea, int flags) {
   rec_datetime_field dstStartField;
   rec_datetime_field dstEndField;
 
@@ -2615,7 +2594,7 @@ static NABoolean lcl_FormatWithNanosecond(int nFormat) {
 // =====================================================================
 //
 short ExpDatetime::convAsciiToDate(char *srcData, int inSrcLen, char *dstData, int dstLen, int format,
-                                   CollHeap *heap, ComDiagsArea **diagsArea, ULng32 flags) {
+                                   CollHeap *heap, ComDiagsArea **diagsArea, int flags) {
   NABoolean noDatetimeValidation = (flags & CONV_NO_DATETIME_VALIDATION) != 0;
   char *timeData = NULL;  // assume no time data
   char *origSrcData = srcData;
@@ -3630,7 +3609,7 @@ static void convertToNanosecondAscii(const char *srcData, char *dstDataPtr, Int1
 //
 int ExpDatetime::convDatetimeToASCII(char *srcData, char *dstData, int dstLen, int format, char *formatStr,
                                        CollHeap *heap, ComDiagsArea **diagsArea, int caseSensitive,
-                                       ULng32 nsrcLen /*= -1*/) {
+                                       int nsrcLen /*= -1*/) {
   // Get the start and end fields of the datetime value.
   //
   rec_datetime_field startField;

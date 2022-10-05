@@ -670,7 +670,7 @@ void ExProbeCachePrivateState::init() {
 ///////////////////////////////////////////////////////////////////
 // Methods for the Probe Cache Manager
 ///////////////////////////////////////////////////////////////////
-ExPCMgr::ExPCMgr(Space *space, ULng32 numEntries, ULng32 probeLength, ExProbeCacheTcb *tcb)
+ExPCMgr::ExPCMgr(Space *space, int numEntries, int probeLength, ExProbeCacheTcb *tcb)
     : space_(space),
       numBuckets_(numEntries),
       probeLen_(probeLength),
@@ -705,7 +705,7 @@ ExPCMgr::~ExPCMgr() {
 }
 
 ///////////////////////////////////////////////////////////////////
-ExPCMgr::AddedOrFound ExPCMgr::addOrFindEntry(ULng32 probeHashVal, char *probeBytes, queue_index qIdxForCancel,
+ExPCMgr::AddedOrFound ExPCMgr::addOrFindEntry(int probeHashVal, char *probeBytes, queue_index qIdxForCancel,
                                               ExPCE *&pcEntry) {
   AddedOrFound retcode;
   const int bucketNum = probeHashVal % numBuckets_;
@@ -749,7 +749,7 @@ ExPCMgr::AddedOrFound ExPCMgr::addOrFindEntry(ULng32 probeHashVal, char *probeBy
 }
 
 ///////////////////////////////////////////////////////////////////
-ExPCE *ExPCMgr::addEntry(int buckNum, ULng32 probeHashVal, char *probeBytes, queue_index qIdxForCancel) {
+ExPCE *ExPCMgr::addEntry(int buckNum, int probeHashVal, char *probeBytes, queue_index qIdxForCancel) {
   ExProbeCacheStats *stats = tcb_->getProbeCacheStats();
   bool foundVictim = false;
   ExPCE *pce;
@@ -833,7 +833,7 @@ ExPCE *ExPCMgr::getPossibleVictim() {
   // Note assumption that # buckets == # cache entries.
   if (nextVictim_ == numBuckets_) nextVictim_ = 0;
 
-  ULng32 offsetToEntry = nextVictim_++ * sizeofExPCE_;
+  int offsetToEntry = nextVictim_++ * sizeofExPCE_;
 
   return (ExPCE *)&entries_[offsetToEntry];
 }

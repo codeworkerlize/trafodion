@@ -62,7 +62,7 @@ class VEGRewritePairs : public NABasicObject {
 
   ~VEGRewritePairs();
 
-  static ULng32 valueIdHashFunc(const CollIndex &v);
+  static int valueIdHashFunc(const CollIndex &v);
 
   // ----------------
   // -- Accesors:

@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ****************************************************************************
 *
@@ -103,13 +82,13 @@ class ComTdbHashGrby : public ComTdb {
                  ex_expr *bitMuxExpr, ex_expr *bitMuxAggrExpr, ex_expr *hbMoveInExpr, ex_expr *ofMoveInExpr,
                  ex_expr *resMoveInExpr, ex_expr *hbAggrExpr, ex_expr *ofAggrExpr, ex_expr *resAggrExpr,
                  ex_expr *havingExpr, ex_expr *moveOutExpr, ex_expr *hbSearchExpr, ex_expr *ofSearchExpr,
-                 ULng32 keyLength, ULng32 resultRowLength, ULng32 extGroupRowLength, ex_cri_desc *workCriDesc,
+                 int keyLength, int resultRowLength, int extGroupRowLength, ex_cri_desc *workCriDesc,
                  short hbRowAtpIndex, short ofRowAtpIndex, short hashValueAtpIndex, short bitMuxAtpIndex,
                  short bitMuxCountOffset, short resultRowAtpIndex, short returnedAtpIndex,
                  unsigned short memUsagePercent, short pressureThreshold, short scrThreshold, queue_index fromParent,
                  queue_index toParent, NABoolean isPartialGroup, Cardinality estimatedRowCount, int numBuffers,
-                 ULng32 bufferSize, ULng32 partialGrbyFlushThreshold, ULng32 partialGrbyRowsPerCluster,
-                 ULng32 initialHashTableSize, unsigned short minBuffersToFlush, ULng32 numInBatch,
+                 int bufferSize, int partialGrbyFlushThreshold, int partialGrbyRowsPerCluster,
+                 int initialHashTableSize, unsigned short minBuffersToFlush, int numInBatch,
                  short hgbGrowthPercent);
 
   ~ComTdbHashGrby();
@@ -142,7 +121,7 @@ class ComTdbHashGrby : public ComTdb {
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
   // ---------------------------------------------------------------------
-  virtual void displayContents(Space *space, ULng32 flag);
+  virtual void displayContents(Space *space, int flag);
 
 #if 0
 
@@ -263,11 +242,11 @@ class ComTdbHashGrby : public ComTdb {
 
   void setForceOverflowEvery(UInt16 times) { forceOverflowEvery_ = times; }
 
-  ULng32 memoryQuotaMB() { return (ULng32)memoryQuotaMB_; }
+  int memoryQuotaMB() { return (int)memoryQuotaMB_; }
 
   void setMemoryQuotaMB(UInt16 v) { memoryQuotaMB_ = v; }
 
-  ULng32 partialGrbyMemoryMB() { return (ULng32)partialGrbyMemoryMB_; }
+  int partialGrbyMemoryMB() { return (int)partialGrbyMemoryMB_; }
 
   void setPartialGrbyMemoryMB(UInt16 v) { partialGrbyMemoryMB_ = v; }
 

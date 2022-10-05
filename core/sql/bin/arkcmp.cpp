@@ -127,7 +127,7 @@ void testHQC(char *testData) {
 
   QueryCache *qcache = new (CTXTHEAP) QueryCache();
 
-  ULng32 maxSize = UINT_MAX;
+  int maxSize = UINT_MAX;
 
   char *file = strdup(testData);
   char *ptr = strchr(file, ':');

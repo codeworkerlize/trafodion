@@ -11,11 +11,11 @@ class ComTdbConnectByTempTable : public ComTdb {
   ComTdbConnectByTempTable();
 
   ComTdbConnectByTempTable(ComTdb *child_tdb, ex_expr *hash_probe_expr, ex_expr *encode_probe_expr,
-                           ex_expr *move_inner_expr, ULng32 probe_len, ULng32 inner_rec_len, ULng32 cache_size,
+                           ex_expr *move_inner_expr, int probe_len, int inner_rec_len, int cache_size,
                            const unsigned short tupp_index, const unsigned short hashValIdx,
                            const unsigned short encodedProbeDataIdx, const unsigned short innerRowDataIdx,
                            ex_cri_desc *workCriDesc, ex_cri_desc *givenCriDesc, ex_cri_desc *returnedCriDesc,
-                           queue_index down, queue_index up, int numBuffers, ULng32 bufferSize,
+                           queue_index down, queue_index up, int numBuffers, int bufferSize,
                            ex_expr *encodeInputHostVarExpr, ex_expr *hvExprInput, UInt16 hashInputValIdx,
                            UInt16 encodeInputProbeDataIdx, ex_expr *scanExpr);
 
@@ -90,7 +90,7 @@ class ComTdbConnectByTempTable : public ComTdb {
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
   // ---------------------------------------------------------------------
-  virtual void displayContents(Space *space, ULng32 flag);
+  virtual void displayContents(Space *space, int flag);
 
  protected:
   ComTdbPtr tdbChild_;  // 08-15

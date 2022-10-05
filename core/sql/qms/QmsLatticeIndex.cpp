@@ -263,8 +263,8 @@ const int QRLatticeIndex::SEQNUM_UNASSIGNED = -1;
 const char *const QRLatticeIndex::TOP_NODE_NAME = "Top";
 const char *const QRLatticeIndex::BOTTOM_NODE_NAME = "Bottom";
 
-static ULng32 ordinalsHashFn(const NAString &s) { return NAString::hash(s); }
-static ULng32 exactSetsHashFn(const LatticeKeySubArray &bitmap) { return bitmap.hash(); }
+static int ordinalsHashFn(const NAString &s) { return NAString::hash(s); }
+static int exactSetsHashFn(const LatticeKeySubArray &bitmap) { return bitmap.hash(); }
 
 QRLatticeIndex::QRLatticeIndex(CollHeap *heap, ADD_MEMCHECK_ARGS_DEF(CollIndex maxNumKeys))
     : NAIntrusiveSharedPtrObject(ADD_MEMCHECK_ARGS_PASS(heap)),

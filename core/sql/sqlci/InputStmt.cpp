@@ -1,61 +1,23 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-//
-**********************************************************************/
-/* -*-C++-*-
- *****************************************************************************
- *
- * File:         InputStmt.C
- * RCS:          $Id: InputStmt.cpp,v 1.2 2007/10/19 16:07:26  Exp $
- * Description:
- *
- * Created:      4/15/95
- * Modified:     $ $Date: 2007/10/19 16:07:26 $ (GMT)
- * Language:     C++
- * Status:       $State: Exp $
- *
- *
- *
- *
- *****************************************************************************
- */
+
+
+#include "sqlci/InputStmt.h"
 
 #include <ctype.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string>
-#include <algorithm>
 
-#include "common/Platform.h"
+#include <algorithm>
+#include <string>
+
 #include "common/ComASSERT.h"
-#include "sqlci/InputStmt.h"
-#include "sqlmsg/ParserMsg.h"
+#include "common/Platform.h"
+#include "common/str.h"
+#include "export/ComDiags.h"
 #include "sqlci/SqlciEnv.h"
 #include "sqlci/SqlciError.h"
 #include "sqlci/SqlciParser.h"
-#include "common/str.h"
-
-#include "export/ComDiags.h"
+#include "sqlmsg/ParserMsg.h"
 extern ComDiagsArea sqlci_DA;
 
 InputStmt::InputStmt(SqlciEnv *the_sqlci_env) {
@@ -149,7 +111,6 @@ void InputStmt::operator=(const InputStmt *source) {
   }
 
 }  // operator=()
-
 
 #define CLEAR_STDIN_EOF \
   {                     \
@@ -544,15 +505,6 @@ int InputStmt::consumeLine(FILE *nonstdin) {
   return rc;
 }
 
-////////////////////////////////////////////////////////
-// Returns:
-//          0, if string is fine, and semicolon-terminated
-//         -1, invalid string
-//         -2, eof (^Z or F6 on NT, ^D on Unix, ^Y on NSK)
-//	   -20, non-first-line interactive eof (used by FixCommand::process)
-//		OR break (^C)
-//         -99, error
-////////////////////////////////////////////////////////
 int InputStmt::readStmt(FILE *nonstdin, int suppress_blank_line_output) {
   //  char input_str[MAX_FRAGMENT_LEN+1];
   char *input_str = new char[MAX_FRAGMENT_LEN + 1];
@@ -561,11 +513,7 @@ int InputStmt::readStmt(FILE *nonstdin, int suppress_blank_line_output) {
   int error = 0;
   StringFragment *prev_fragment = NULL;
   int done = 0;
-  // char buffer[256];
-  // SYSTEMTIME sysTime;
 
-  // If called by FixCommand, with a partially completed statement,
-  // blip past the get-first-line do-loop.
   if (first_fragment) {
     skip_first_fragment = 1;
     delete packed_string;
@@ -678,14 +626,6 @@ int InputStmt::readStmt(FILE *nonstdin, int suppress_blank_line_output) {
         }
       }
 
-      // Log an all-blank line here simply as a prompt;
-      // also, if the input is not from terminal or
-      // input is from an obey file, display the blank line on stdout
-      // (logging and echoing of non-blank lines is done separately, in
-      // SqlciEnv::executeCommands, Obey::process,
-      // Repeat::process, FixCommand::process).
-      // Except don't log trailing blanks in a multi-stmt line, e.g.
-      // log "abc;def; " as "abc;" and "def;" but not the final "".
       if (input_str[0] == '\0' && !suppress_blank_line_output)
         if (eolSeenOrig || eolSeenOrig == sqlci_env->eolSeenOnInput()) {
           if (!prompt) cout << ">>" << endl;

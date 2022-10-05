@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 *****************************************************************************
 *
@@ -994,12 +973,6 @@ void SPInfo::prepareToReply(UdrServerReplyStream &msgStream) {
 
   if (doTrace) ServerDebug("[UdrServ (%s)] Preparing to reply", moduleName);
 
-  // Check if we have to Quiesce the executor.
-  // If the message came with transaciton, we may have to quiesce
-  // the executor.
-
-  // If we do have a request waiting in txStream_ then, we are sure
-  // that the message did not carry transaction.
   if (txStream_->getState() == IpcMessageStream::RECEIVED) {
     // We are under an Enter Tx message, no need to quiesce.
     if (doTrace) ServerDebug("         Quiesce is not needed for the current reply.");
@@ -1020,10 +993,7 @@ void SPInfo::prepareToReply(UdrServerDataStream &msgStream) {
 
   if (doTrace) ServerDebug("[UdrServ (%s)] Preparing to reply", moduleName);
 
-  // Check if we have to Quiesce the executor.
 
-  // If we do have a request waiting in txStream_ then, we are sure
-  // that the message did not carry transaction.
   if (txStream_->getState() == IpcMessageStream::RECEIVED) {
     // We are under an Enter Tx message, no need to quiesce.
     if (doTrace) ServerDebug("         Quiesce is not needed for the current reply.");
@@ -1063,7 +1033,6 @@ void SPInfo::quiesceExecutor() {
       ServerDebug("         Current Transid is %Ld.", tx_id);
     }
 
-    // Quiesce the executor if the message carried a transaction
     if (tmfCode == 0) {
       if (doTrace)
         ServerDebug(
@@ -1304,7 +1273,7 @@ RequestRowProcessingStatus SPInfo::processOneRequestRow(SqlBuffer *reqSqlBuf, Sq
   if (traceInvokeDataAreas) {
     ComUInt32 requestRowLen = requestRow.getAllocatedSize();
     ServerDebug("[UdrServ (%s)] Request info: queue index %d", moduleName, (int)requestQueueIndex);
-    ServerDebug("[UdrServ (%s)] Request Row Length %u", moduleName, (ULng32)requestRowLen);
+    ServerDebug("[UdrServ (%s)] Request Row Length %u", moduleName, (int)requestRowLen);
     ServerDebug("[UdrServ (%s)] Dump of Request Invoke Data", moduleName);
     dumpBuffer((unsigned char *)requestData, requestRowLen);
   }

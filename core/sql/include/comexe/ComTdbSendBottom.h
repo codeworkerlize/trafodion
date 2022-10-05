@@ -72,7 +72,7 @@ class ComTdbSendBottom : public ComTdb {
   // its executor twin is used, ignore
 
   // For SHOWPLAN
-  virtual void displayContents(Space *space, ULng32 flag);
+  virtual void displayContents(Space *space, int flag);
 
   // For parallel extract
   NABoolean getExtractProducerFlag() const { return (sendBottomFlags_ & EXTRACT_PRODUCER) ? TRUE : FALSE; }

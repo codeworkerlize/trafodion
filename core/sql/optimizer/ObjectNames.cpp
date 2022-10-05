@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ******************************************************************************
 *
@@ -473,7 +452,7 @@ QualifiedName::QualifiedName(const NAString &ansiString, int minNameParts, CollH
     Parser parser(cmpContext);
     NAString ns("TABLE " + ansiString + ";", CmpCommon::statementHeap());
     // save the current parserflags setting
-    ULng32 savedParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
+    int savedParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
     StmtQuery *stmt = (StmtQuery *)parser.parseDML(ns, ns.length(), GetAnsiNameCharSet());
     // Restore parser flags settings
     Set_SqlParser_Flags(savedParserFlags);
@@ -610,7 +589,7 @@ NABoolean QualifiedName::isLOBDesc() const {
 // Methods for class CorrName
 // -----------------------------------------------------------------------
 
-ULng32 CorrName::hash() const {
+int CorrName::hash() const {
   if (corrName_ != (const char *)"") {
     if (formatAsAnsiIdentifier)
       return ToAnsiIdentifier(corrName_).hash();
@@ -722,7 +701,7 @@ void CorrName::applyPrototype(BindWA *bindWA) {
   Parser parser(bindWA->currentCmpContext());
   NAString ns("TABLE " + proto->getPrototypeValue() + ";", CmpCommon::statementHeap());
   // save the current parserflags setting
-  ULng32 savedParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
+  int savedParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
   StmtQuery *stmt = (StmtQuery *)parser.parseDML(ns, ns.length(), GetAnsiNameCharSet());
   // Restore parser flags settings
   Set_SqlParser_Flags(savedParserFlags);
@@ -1383,10 +1362,10 @@ const NAString ExtendedQualName::getTextWithSpecialType() const {
 // --MV
 // For NAKeyLookup
 
-ULng32 hashKey(const QualifiedName &name) { return name.hash(); }
-ULng32 hashKey(const ExtendedQualName &name) { return name.hash(); }
-ULng32 hashKey(const CorrName &name) { return name.hash(); }
-ULng32 hashKey(const ColRefName &name) { return name.hash(); }
+int hashKey(const QualifiedName &name) { return name.hash(); }
+int hashKey(const ExtendedQualName &name) { return name.hash(); }
+int hashKey(const CorrName &name) { return name.hash(); }
+int hashKey(const ColRefName &name) { return name.hash(); }
 
 // For TaskMonitor display
 ostream &operator<<(ostream &out, TaskMonitor t) {

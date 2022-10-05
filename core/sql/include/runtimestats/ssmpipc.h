@@ -81,10 +81,10 @@ class SsmpGlobals {
   NAHeap *getHeap() { return heap_; }
   StatsGlobals *getStatsGlobals() { return statsGlobals_; }
   void releaseOrphanEntries() {}
-  ULng32 allocateServers();
+  int allocateServers();
   IpcServer *allocateServer(char *nodeName, short nodeNameLen, short cpuNum);
   void allocateServerOnNextRequest(char *nodeName, short nodeNameLen, short cpuNum);
-  ULng32 deAllocateServer(char *nodeName, short nodeNameLen, short cpuNum);
+  int deAllocateServer(char *nodeName, short nodeNameLen, short cpuNum);
   void work();
   long getStatsCollectionInterval() { return statsCollectionInterval_; }
   long getStatsMergeTimeout() { return statsTimeout_; }

@@ -47,7 +47,7 @@
 
 const UInt32 char_size = 0x08;  // 8 bits in 1 char(unsigned)
 
-ULng32 computeHashTableSizeInBytes(UInt32 m,  // Input: # of bits for the hash table
+int computeHashTableSizeInBytes(UInt32 m,  // Input: # of bits for the hash table
                                    float p    // Input: probability of false positive
 );
 
@@ -73,8 +73,8 @@ class BloomFilter : public NABasicObject {
   // keys of fixed length (e.g. the info is SWAP_FOUR for SQL INTEGER).
   void setKenLengthInfo(int x) { keyLenInfo_ = x; };
 
-  virtual ULng32 packIntoBuffer(char *&buffer);
-  virtual ULng32 unpackBuffer(char *&buffer);
+  virtual int packIntoBuffer(char *&buffer);
+  virtual int unpackBuffer(char *&buffer);
 
   static UInt32 minPackedLength();
 
@@ -108,7 +108,7 @@ class simple_cbf_key : public NABasicObject {
   char *getKey() const { return key_; };
   UInt32 getKeyLen() const { return keyLen_; };
 
-  friend ULng32 scbfHashFunc(const simple_cbf_key &key);
+  friend int scbfHashFunc(const simple_cbf_key &key);
 
  protected:
   UInt32 keyLen_;
@@ -146,7 +146,7 @@ class cbf_key : public simple_cbf_key {
 
   MFV_ENUM getMFV() const { return mfv_; }
 
-  friend ULng32 cbfHashFunc(const cbf_key &key);
+  friend int cbfHashFunc(const cbf_key &key);
 
  protected:
   // char* key_;
@@ -288,8 +288,8 @@ class CountingBloomFilter : public BloomFilter {
                                       // bucket only
                                       UInt32 numBuckets = 1);
 
-  ULng32 packIntoBuffer(char *&buffer);
-  ULng32 unpackBuffer(char *&buffer);
+  int packIntoBuffer(char *&buffer);
+  int unpackBuffer(char *&buffer);
 
   void setTotalMemSize(int x) { totalMemSz_ = x; };
   int getTotalMemSize() { return totalMemSz_; };
@@ -401,8 +401,8 @@ class CountingBloomFilterWithKnownSkews : public CountingBloomFilter {
   virtual UInt32 getOverflowEntries() { return actualOverflowF2s_; };
   virtual UInt64 highF2(UInt32 i, UInt64 &freq, UInt32 &bucket);
 
-  ULng32 packIntoBuffer(char *&buffer);
-  ULng32 unpackBuffer(char *&buffer);
+  int packIntoBuffer(char *&buffer);
+  int unpackBuffer(char *&buffer);
 
  protected:
   virtual void insertIntoOverflowTable(const cbf_key &);
@@ -484,8 +484,8 @@ class RegularBloomFilter : public BloomFilter {
 
   ~RegularBloomFilter(){};
 
-  ULng32 packIntoBuffer(char *&buffer);
-  ULng32 unpackBuffer(char *&buffer);
+  int packIntoBuffer(char *&buffer);
+  int unpackBuffer(char *&buffer);
 
   NABoolean insert(char *key, UInt32 key_len);
   NABoolean contain(char *key, UInt32 key_len);
@@ -503,16 +503,16 @@ class RegularBloomFilter : public BloomFilter {
   NABoolean isUseful(int maxNumEntries = -1, float falseProbThreshold = 0.2);
 
   // return # of distinct keys in the table.
-  ULng32 entries(NABoolean estimate = FALSE /* ignored */);
+  int entries(NABoolean estimate = FALSE /* ignored */);
 
-  ULng32 bitsSet() { return hashTable_.bitsSet(); }
+  int bitsSet() { return hashTable_.bitsSet(); }
 
   void clear() {
     entries_ = 0;
     hashTable_.clear();
   }
 
-  ULng32 getPackedLength();
+  int getPackedLength();
   static UInt32 minPackedLength();
 
   void dump(ostream &out, const char *msg = NULL);

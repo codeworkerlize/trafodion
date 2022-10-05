@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -154,7 +133,7 @@ fstream &getKeyStream(istream &in) {
   return keyStream;
 }
 
-ULng32 getDefaultInK(const int &key) { return (ULng32)1024 * ActiveSchemaDB()->getDefaults().getAsLong(key); }
+int getDefaultInK(const int &key) { return (int)1024 * ActiveSchemaDB()->getDefaults().getAsLong(key); }
 
 // convert DefaultToken optimization level into OptLevel
 CompilerEnv::OptLevel CompilerEnv::defToken2OptLevel(DefaultToken tok) {
@@ -361,8 +340,8 @@ void CQDefaultSet::addCQD(CQDefPtr cqd) {
 }
 
 // return byte size of this CQDefaultSet
-ULng32 CQDefaultSet::getByteSize() const {
-  ULng32 result = sizeof(*this) + arrSiz * sizeof(CQDefPtr);
+int CQDefaultSet::getByteSize() const {
+  int result = sizeof(*this) + arrSiz * sizeof(CQDefPtr);
   for (int x = 0; x < nEntries; x++) {
     if (CQDarray[x]) {
       result += CQDarray[x]->getByteSize();
@@ -419,8 +398,8 @@ void CtrlTblSet::addCT(CtrlTblPtr ct) {
 }
 
 // return byte size of this CtrlTblSet
-ULng32 CtrlTblSet::getByteSize() const {
-  ULng32 result = sizeof(*this) + arrSiz * sizeof(CtrlTblPtr);
+int CtrlTblSet::getByteSize() const {
+  int result = sizeof(*this) + arrSiz * sizeof(CtrlTblPtr);
   for (int x = 0; x < nEntries; x++) {
     result += CTarray[x]->getByteSize();
   }
@@ -643,8 +622,8 @@ CompilerEnv::~CompilerEnv() {
 }
 
 // return byte size of this CompilerEnv
-ULng32 CompilerEnv::getSize() const {
-  ULng32 result = sizeof(*this) + cat_.getAllocatedSize() + schema_.getAllocatedSize();
+int CompilerEnv::getSize() const {
+  int result = sizeof(*this) + cat_.getAllocatedSize() + schema_.getAllocatedSize();
 
   // add size of s' TransMode setting
   if (tmode_) {
@@ -741,7 +720,7 @@ NABoolean CompilerEnv::isEqual(const CompilerEnv &other, CmpPhase phase) const
 }
 
 // compute hash address of this CompilerEnv
-ULng32 CompilerEnv::hashKey() const {
+int CompilerEnv::hashKey() const {
   // ignore optLvl_ (and controls) because we want 2 cache entries that
   // differ only in optLvl_ (and controls) to hash to the same address.
   // controls don't contribute to the hash for simplicity (and also because
@@ -803,8 +782,8 @@ ParameterTypeList::~ParameterTypeList() {
 }
 
 // return this ParameterTypeList's contribution to a CacheKey's hash value
-ULng32 ParameterTypeList::hashKey() const {
-  ULng32 result = 0;
+int ParameterTypeList::hashKey() const {
+  int result = 0;
   CollIndex x, limit = entries();
   for (x = 0; x < limit; x++) {
     result = (result << 1) + (*this)[x].type_->hashKey();
@@ -822,9 +801,9 @@ NABoolean ParameterTypeList::amSafeToHash() const {
 }
 
 // return this ParameterTypeList's elements' total byte size
-ULng32 ParameterTypeList::getSize() const {
+int ParameterTypeList::getSize() const {
   CollIndex x, limit = entries();
-  ULng32 result = limit * sizeof(NAType *);  // amount of space allocated
+  int result = limit * sizeof(NAType *);  // amount of space allocated
                                              // for the array of type NAType*.
   for (x = 0; x < limit; x++) {
     result += (*this)[x].type_->getSize();
@@ -978,8 +957,8 @@ SelParamTypeList::~SelParamTypeList() {
 }
 
 // return this SelParamTypeList's contribution to a CacheKey's hash value
-ULng32 SelParamTypeList::hashKey() const {
-  ULng32 result = 0;
+int SelParamTypeList::hashKey() const {
+  int result = 0;
   CollIndex x, limit = entries();
   for (x = 0; x < limit; x++) {
     result = (result << 1) + (*this)[x].type_->hashKey();
@@ -997,9 +976,9 @@ NABoolean SelParamTypeList::amSafeToHash() const {
 }
 
 // return this SelParamTypeList's elements' total byte size
-ULng32 SelParamTypeList::getSize() const {
+int SelParamTypeList::getSize() const {
   CollIndex x, limit = entries();
-  ULng32 result = limit * sizeof(SelParamType);
+  int result = limit * sizeof(SelParamType);
   for (x = 0; x < limit; x++) {
     result += (*this)[x].type_->getSize();
   }
@@ -1167,7 +1146,7 @@ const char *Key::getSchema() const {
 }
 
 // return this Key's total size in bytes
-ULng32 Key::getSize() const { return sizeof(*this) + (env_ ? env_->getSize() : 0); }
+int Key::getSize() const { return sizeof(*this) + (env_ ? env_->getSize() : 0); }
 
 void Key::print(ostream &out) {
   env_->print(out);
@@ -1177,8 +1156,8 @@ void Key::print(ostream &out) {
 
 // return hash value of this Key; used by hashKeyFunc() which is called
 // by NAHashDictionary<K,V>::getHashCode() to compute a key's hash address.
-ULng32 Key::hashKey() const {
-  ULng32 hval = (phase_ << 1);
+int Key::hashKey() const {
+  int hval = (phase_ << 1);
   if (env_) {
     hval = (hval << 1) + env_->hashKey();
   }
@@ -1317,8 +1296,8 @@ NABoolean CacheKey::operator==(const CacheKey &other) const {
 }
 
 // return this CacheKey's total size in bytes
-ULng32 CacheKey::getSize() const {
-  ULng32 x = sizeof(*this) - sizeof(Key) + Key::getSize() + stmt_.getAllocatedSize() + actuals_.getSize() +
+int CacheKey::getSize() const {
+  int x = sizeof(*this) - sizeof(Key) + Key::getSize() + stmt_.getAllocatedSize() + actuals_.getSize() +
              sels_.getSize() + reqdShape_.getAllocatedSize();
 
   return x;
@@ -1326,8 +1305,8 @@ ULng32 CacheKey::getSize() const {
 
 // return hash value of this CacheKey; used by hashKeyFunc() which is called
 // by NAHashDictionary<K,V>::getHashCode() to compute a key's hash address.
-ULng32 CacheKey::hashKey() const {
-  ULng32 hval = Key::hashKey() + stmt_.hash();
+int CacheKey::hashKey() const {
+  int hval = Key::hashKey() + stmt_.hash();
   // hval = (hval << 1) + reqdShape_.hash();
   hval = (hval << 1) + actuals_.hashKey();
   hval = (hval << 1) + sels_.hashKey();
@@ -1425,7 +1404,7 @@ NABoolean TextKey::operator==(const TextKey &other) const {
 }
 
 // return this TextKey's total size in bytes
-ULng32 TextKey::getSize() const { return Key::getSize() + sText_.length(); }
+int TextKey::getSize() const { return Key::getSize() + sText_.length(); }
 
 void TextKey::print(ostream &out) {
   out << "TextKey dump begin" << endl;
@@ -1440,17 +1419,17 @@ void TextKey::print(ostream &out) {
 
 // return hash value of this TextKey; used by hashKeyFunc() which is called
 // by NAHashDictionary<K,V>::getHashCode() to compute a key's hash address.
-ULng32 TextKey::hashKey() const { return Key::hashKey() + sText_.hash() + charset_; }
+int TextKey::hashKey() const { return Key::hashKey() + sText_.hash() + charset_; }
 
 // return true iff it is safe to call TextKey::hashKey on me
 NABoolean TextKey::amSafeToHash() const { return Key::amSafeToHash() && sText_.data() != NULL; }
 
 // return hash value of a CacheKey; this is called (and required) by
 // NAHashDictionary<K,V>::getHashCode() to compute a key's hash address.
-static ULng32 hashHQCKeyFunc(const HQCCacheKey &key) { return key.hashKey(); }
+static int hashHQCKeyFunc(const HQCCacheKey &key) { return key.hashKey(); }
 // return hash value of a CacheKey; this is called (and required) by
 // NAHashDictionary<K,V>::getHashCode() to compute a key's hash address.
-static ULng32 hashKeyFunc(const CacheKey &key) {
+static int hashKeyFunc(const CacheKey &key) {
   // this function must have the following properties:
   // 1) very fast
   // 2) hashKey(k1) == hashKey(k2) if k1 == k2
@@ -1460,7 +1439,7 @@ static ULng32 hashKeyFunc(const CacheKey &key) {
 
 // return hash value of a TextKey; this is called (and required) by
 // NAHashDictionary<K,V>::getHashCode() to compute a key's hash address.
-static ULng32 hashTextFunc(const TextKey &key) {
+static int hashTextFunc(const TextKey &key) {
   // this function must have the following properties:
   // 1) very fast
   // 2) hashKey(k1) == hashKey(k2) if k1 == k2
@@ -1510,7 +1489,7 @@ void Plan::print(ostream &out) {
 
 void Plan::packIntoBuffer(TMUDRSerializableObject &t, char *&buffer, int &bufferSize) {
   // plan size is too big, throw exception
-  ULng32 len = getPlanLen();
+  int len = getPlanLen();
   if (len > bufferSize - 512 * 1024) throw len;
   t.serializeInt(len, buffer, bufferSize);
   t.serializeLong(getId(), buffer, bufferSize);
@@ -1518,7 +1497,7 @@ void Plan::packIntoBuffer(TMUDRSerializableObject &t, char *&buffer, int &buffer
 }
 
 Plan *Plan::unpackFromBuffer(TMUDRSerializableObject &t, const char *&buffer, int &bufferSize) {
-  ULng32 plen;
+  int plen;
   t.deserializeInt((int &)plen, buffer, bufferSize);
   long id;
   t.deserializeLong(id, buffer, bufferSize);
@@ -1560,7 +1539,7 @@ CacheData::CacheData(Generator *plan, const ParameterTypeList &f, const SelParam
 }
 
 // constructor
-TextData::TextData(NAHeap *h, char *p, ULng32 l, CacheEntry *e)
+TextData::TextData(NAHeap *h, char *p, int l, CacheEntry *e)
     : CData(h), entry_(e), actLen_(l), indexInTextEntries_(0), heap_(h) {
   // make a copy of the actual parameters because these constants
   // will be destroyed when the cache miss query compilation completes.
@@ -1694,7 +1673,7 @@ void CacheData::packIntoBuffer(ComDiagsArea *diags, TMUDRSerializableObject &t, 
   int numOfTextEntries = tpArray.entries();
   TextData *textData = NULL;
   char *params = NULL;
-  ULng32 paramSize = 0;
+  int paramSize = 0;
 
   if (tpArray != NULL && tpArray[0] != NULL) {
     textData = (TextData *)tpArray[0]->data_.second_;
@@ -1800,19 +1779,19 @@ TextData::~TextData() {
 
 // return this CacheData's entry size in bytes. Note the plan size
 // is not included!!!
-ULng32 CacheData::getSize() const {
-  ULng32 hqcTypesSize = (hqcListOfConstParamPos_.entries() * sizeof(int)) +
+int CacheData::getSize() const {
+  int hqcTypesSize = (hqcListOfConstParamPos_.entries() * sizeof(int)) +
                         (hqcListOfSelParamPos_.entries() * sizeof(int)) +
                         (hqcListOfConstPos_.entries() * sizeof(int));
-  ULng32 x = sizeof(*this) + formals_.getSize() + fSels_.getSize() + hqcTypesSize +
+  int x = sizeof(*this) + formals_.getSize() + fSels_.getSize() + hqcTypesSize +
              (origStmt_ ? strlen(origStmt_) : 0) + (normalizedStmt_ ? strlen(normalizedStmt_) : 0);
 
   return x;
 }
 
 // return byte size of this CacheData's preparser entries
-ULng32 CacheData::getSizeOfPreParserEntries() const {
-  ULng32 byteSize = 0;
+int CacheData::getSizeOfPreParserEntries() const {
+  int byteSize = 0;
   CollIndex x, count = textentries_.entries();
   for (x = 0; x < count; x++) {
     byteSize += sizeof(CacheEntry) + TextHashTbl::getBucketEntrySize();
@@ -1824,21 +1803,21 @@ ULng32 CacheData::getSizeOfPreParserEntries() const {
 }
 
 // return this TextData's size in bytes
-ULng32 TextData::getSize() const {
+int TextData::getSize() const {
   return sizeof(*this) + actLen_;
   // don't add postparser entry's memory usage because it
   // has already been accounted for by the postparser cache
 }
 
 // allocate and copy plan
-void CacheData::allocNcopyPlan(NAHeap *h, char **plan, ULng32 *pLen) {
+void CacheData::allocNcopyPlan(NAHeap *h, char **plan, int *pLen) {
   *pLen = plan_->getPlanLen();
   *plan = new (h) char[*pLen];
   str_cpy_all(*plan, plan_->getPlan(), (int)*pLen);
 }
 
 // helper method to unpack parameter buffer part of plan_
-NABoolean CacheData::unpackParms(NABasicPtr &parameterBuffer, ULng32 &parmSz) {
+NABoolean CacheData::unpackParms(NABasicPtr &parameterBuffer, int &parmSz) {
   // We partially unpack plan_ to get parameterBuffer
   ComTdbRoot *root = NULL;
   if (plan_->inGenerator() == FALSE) {
@@ -1882,7 +1861,7 @@ NABoolean CacheData::unpackParms(NABasicPtr &parameterBuffer, ULng32 &parmSz) {
 // backpatch for HQC queries
 NABoolean CacheData::backpatchParams(LIST(hqcConstant *) & listOfConstantParameters,
                                      LIST(hqcDynParam *) & listOfDynamicParameters, BindWA &bindWA, char *&params,
-                                     ULng32 &parameterBufferSize) {
+                                     int &parameterBufferSize) {
   // exit early if there's nothing to backpatch
   parameterBufferSize = 0;
   CollIndex countP = listOfConstantParameters.entries();
@@ -2074,7 +2053,7 @@ NABoolean CacheData::backpatchParams(const ConstantParameters &listOfConstantPar
                                      const SelParameters &listOfSelParameters,
                                      const LIST(int) & listOfConstParamPositionsInSql,
                                      const LIST(int) & listOfSelParamPositionsInSql, BindWA &bindWA, char *&params,
-                                     ULng32 &parameterBufferSize) {
+                                     int &parameterBufferSize) {
   // exit early if there's nothing to backpatch
   parameterBufferSize = 0;
   CollIndex countP = listOfConstantParameters.entries();
@@ -2267,7 +2246,7 @@ NABoolean CacheData::backpatchParams(const ConstantParameters &listOfConstantPar
 }
 
 // copies actuals_ into this CacheData's plan_
-NABoolean CacheData::backpatchPreParserParams(char *actuals, ULng32 actLen) {
+NABoolean CacheData::backpatchPreParserParams(char *actuals, int actLen) {
   // exit early if there's nothing to backpatch
   if (!actuals || actLen <= 0) {
     return TRUE;
@@ -2275,7 +2254,7 @@ NABoolean CacheData::backpatchPreParserParams(char *actuals, ULng32 actLen) {
 
   // get parameter buffer part of plan_
   NABasicPtr parameterBuffer;
-  ULng32 formals_len;
+  int formals_len;
   if (!unpackParms(parameterBuffer, formals_len)) {
     return FALSE;
   }
@@ -2349,8 +2328,8 @@ long CData::timeSince(TimeVal &begTime) {
 
 // return the prime number closest to nEntries used by QCache::QCache() &
 // QCache::resizeCache() to determine number of buckets for its hash tables
-static ULng32 npBuckets(ULng32 nEntries) {
-  static const ULng32 primes[] = {
+static int npBuckets(int nEntries) {
+  static const int primes[] = {
       7,    11,   13,   17,   19,   23,   29,   31,   37,   41,   43,   47,   53,   59,   61,   67,   71,   73,   79,
       83,   89,   97,   101,  103,  107,  109,  113,  127,  131,  137,  139,  149,  151,  157,  163,  167,  173,  179,
       181,  191,  193,  197,  199,  211,  223,  227,  229,  233,  239,  241,  251,  257,  263,  269,  271,  277,  281,
@@ -2404,17 +2383,17 @@ static ULng32 npBuckets(ULng32 nEntries) {
       7529, 7537, 7541, 7547, 7549, 7559, 7561, 7573, 7577, 7583, 7589, 7591, 7603, 7607, 7621, 7639, 7643, 7649, 7669,
       7673, 7681, 7687, 7691, 7699, 7703, 7717, 7723, 7727, 7741, 7753, 7757, 7759, 7789, 7793, 7817, 7823, 7829, 7841,
       7853, 7867, 7873, 7877, 7879, 7883, 7901, 7907, 7919};
-  ULng32 result = nEntries;
+  int result = nEntries;
   if (result <= primes[1]) {
     return primes[1];
   }
 
-  ULng32 limit = sizeof(primes) / sizeof(primes[0]), hi = limit - 1;
+  int limit = sizeof(primes) / sizeof(primes[0]), hi = limit - 1;
   if (result >= primes[hi - 1]) {
     return primes[hi - 1];
   }
 
-  ULng32 lo = 0, mid;
+  int lo = 0, mid;
   while (lo < hi) {
     mid = (lo + hi) / 2;
     if (primes[mid - 1] <= result && result <= primes[mid + 1]) {
@@ -2438,8 +2417,8 @@ const int A_BIND = CmpMain::BIND;
 // return the prime number closest to (maxHeapSz/avgPlanSz)*2.
 // used by QCache::QCache() and QCache::resizeCache() to determine
 // number of buckets for CacheHashTbl.
-static ULng32 nBuckets(ULng32 maxHeapSz, ULng32 avgPlanSz) {
-  ULng32 nEntries = (ULng32)((maxHeapSz / avgPlanSz) * 1.2);
+static int nBuckets(int maxHeapSz, int avgPlanSz) {
+  int nEntries = (int)((maxHeapSz / avgPlanSz) * 1.2);
   return npBuckets(nEntries);
 }
 
@@ -2458,7 +2437,7 @@ void QCache::clearStats() {
 }
 
 // constructor for query cache
-QCache::QCache(QueryCache &qc, ULng32 maxSize, ULng32 maxVictims, ULng32 avgPlanSz)
+QCache::QCache(QueryCache &qc, int maxSize, int maxVictims, int avgPlanSz)
     : querycache_(qc),
       maxSiz_(maxSize),
       limit_(maxVictims),
@@ -2483,7 +2462,7 @@ QCache::QCache(QueryCache &qc, ULng32 maxSize, ULng32 maxVictims, ULng32 avgPlan
   logmsg("begin QCache::QCache()");
 #endif
 
-  ULng32 x = heap_->getAllocSize();
+  int x = heap_->getAllocSize();
 
   cache_ = new (heap_) CacheHashTbl(hashKeyFunc,  // use hash function defined above
                                                   // compute nBuckets from maxSize & avgPlanSz
@@ -2506,7 +2485,7 @@ QCache::QCache(QueryCache &qc, ULng32 maxSize, ULng32 maxVictims, ULng32 avgPlan
   exportPrefix_ = "";
 
 #ifdef DBG_QCACHE
-  ULng32 y = heap_->getAllocSize();
+  int y = heap_->getAllocSize();
   logmsg("after allocate CacheHashTbl", y - x);
   logmsg("end QCache::QCache()");
 #endif
@@ -2548,10 +2527,10 @@ void QCache::makeEmpty() {
 }
 
 // return bytes that can be freed by evicting this postparser cache entry
-ULng32 QCache::getSizeOfPostParserEntry(KeyDataPair &entry) {
+int QCache::getSizeOfPostParserEntry(KeyDataPair &entry) {
   Plan *p = ((CacheData *)entry.second_)->getPlan();
   p->visitOnce();
-  ULng32 planSize = (p->getVisits() == p->getRefCount()) ? p->getSize() : 0;
+  int planSize = (p->getVisits() == p->getRefCount()) ? p->getSize() : 0;
 
   return entry.first_->getSize() + entry.second_->getSize() + planSize +
          +((CacheData *)(entry.second_))->getSizeOfPreParserEntries() + sizeof(CacheEntry) +
@@ -2569,8 +2548,8 @@ void QCache::sanityCheck(int mark) {
 }
 
 // return TRUE iff cache can accommodate a new entry of this size
-NABoolean QCache::canFit(ULng32 size) {
-  ULng32 x = 0, freeable = getFreeSize(), bytesNeeded = size;
+NABoolean QCache::canFit(int size) {
+  int x = 0, freeable = getFreeSize(), bytesNeeded = size;
   // compute total freeable bytes of prospective LRU entries
   LRUList::iterator lru = clruQ_.end();
   while (x < limit_ && lru != clruQ_.begin() && freeable < bytesNeeded) {
@@ -2592,7 +2571,7 @@ NABoolean QCache::canFit(ULng32 size) {
 
 // try to add this new postparser (and preparser) entry into the cache
 CacheKey *QCache::addEntry(TextKey *tkey, CacheKey *stmt, CacheData *plan, TimeVal &begTime, char *params,
-                           ULng32 parmSz) {
+                           int parmSz) {
   CacheKey *ckeyInQCache = NULL;
 
   // stmt and plan and tkey are well formed
@@ -2650,7 +2629,7 @@ CacheKey *QCache::addEntry(TextKey *tkey, CacheKey *stmt, CacheData *plan, TimeV
   }
 
   // does heap have sufficient free space to hold smt + plan?
-  ULng32 bytesNeeded =
+  int bytesNeeded =
 
       // size of template cache entry is:
       sizeof(CacheEntry) + stmt->getSize()  // key part (CacheEntry.first_)
@@ -2712,7 +2691,7 @@ CacheKey *QCache::addEntry(TextKey *tkey, CacheKey *stmt, CacheData *plan, TimeV
 }
 
 // make room for and add this new preparser entry into the cache
-void QCache::addPreParserEntry(TextKey *tkey, char *params, ULng32 parmSz, CacheEntry *entry, TimeVal &begTime) {
+void QCache::addPreParserEntry(TextKey *tkey, char *params, int parmSz, CacheEntry *entry, TimeVal &begTime) {
   // do nothing if preparser caching is off
   if (!isPreparserCachingOn(TRUE)) return;
 
@@ -2845,7 +2824,7 @@ void QCache::deCachePostParserEntry(CacheEntry *entry) {
 
 #ifdef DBG_QCACHE
   logmsg("begin QCache::deCachePostParserEntry");
-  ULng32 x = heap_->getAllocSize();
+  int x = heap_->getAllocSize();
 #endif
 
   querycache_.getHQC()->delEntryWithCacheKey((CacheKey *)(entry->data_.first_));
@@ -2853,7 +2832,7 @@ void QCache::deCachePostParserEntry(CacheEntry *entry) {
   cache_->remove((CacheKey *)(entry->data_.first_));
 
 #ifdef DBG_QCACHE
-  ULng32 y = heap_->getAllocSize();
+  int y = heap_->getAllocSize();
   logmsg("after call QCache::remove(CacheKey*)", x - y);
 #endif
 
@@ -2956,7 +2935,7 @@ void QCache::incNOfCacheableCompiles(CmpPhase stage) {
 }
 
 // return number of cacheable compiles at this stage
-ULng32 QCache::nOfCacheableCompiles(CmpPhase stage) const {
+int QCache::nOfCacheableCompiles(CmpPhase stage) const {
   if (stage < N_STAGES) {
     return nOfCacheableCompiles_[stage];
   }
@@ -2971,13 +2950,13 @@ void QCache::incNOfCacheHits(CmpPhase stage) {
 }
 
 // return number of cache hits at this stage
-ULng32 QCache::nOfCacheHits(CmpPhase stage) const {
+int QCache::nOfCacheHits(CmpPhase stage) const {
   if (stage < N_STAGES) {
     return nOfCacheHits_[stage];
   }
   // return the cummulative number of hits
   else if (stage == N_STAGES) {
-    ULng32 totalHits = 0;
+    int totalHits = 0;
     for (int i = 0; i < N_STAGES; i++) {
       totalHits += nOfCacheHits_[i];
     }
@@ -2987,8 +2966,8 @@ ULng32 QCache::nOfCacheHits(CmpPhase stage) const {
 }
 
 // compute total number of plans in template cache
-ULng32 QCache::nOfPlans() {
-  ULng32 plans = 0;
+int QCache::nOfPlans() {
+  int plans = 0;
   LRUList::iterator lru = clruQ_.end();
   while (lru != clruQ_.begin()) {
     KeyDataPair &entry = *(--lru);
@@ -3011,10 +2990,10 @@ ULng32 QCache::nOfPlans() {
 void QCache::incNOfCacheableButTooLarge() { nOfCacheableButTooLarge_++; }
 
 // increment number of displaced entries
-void QCache::incNOfDisplacedEntries(ULng32 howMany) { nOfDisplacedEntries_ += howMany; }
+void QCache::incNOfDisplacedEntries(int howMany) { nOfDisplacedEntries_ += howMany; }
 
 // increment number of displaced preparser entries
-void QCache::incNOfDisplacedPreParserEntries(ULng32 howMany) { nOfDisplacedPreParserEntries_ += howMany; }
+void QCache::incNOfDisplacedPreParserEntries(int howMany) { nOfDisplacedPreParserEntries_ += howMany; }
 
 // Free all entries with specified QI Object Redefinition or Security Key
 void QCache::free_entries_with_QI_keys(int pNumKeys, SQL_QIKEY *pSiKeyEntry) {
@@ -3104,16 +3083,16 @@ void QCache::free_entries_with_QI_keys(int pNumKeys, SQL_QIKEY *pSiKeyEntry) {
 }
 
 // free least recently used entries to make room for a new entry
-NABoolean QCache::freeLRUentries(ULng32 newFreeBytes, ULng32 maxVictims) {
+NABoolean QCache::freeLRUentries(int newFreeBytes, int maxVictims) {
   if (newFreeBytes <= getFreeSize()) {
     return TRUE;
   }
 
   // start freeing least recently used entries
   LRUList::iterator lru = clruQ_.end();
-  ULng32 freedEntries = 0;
+  int freedEntries = 0;
   // check list size to prevent infinite looping just in case, soln 10-090224-9516
-  ULng32 size = clruQ_.size();
+  int size = clruQ_.size();
   while ((getFreeSize() < newFreeBytes) && (freedEntries < maxVictims) && (clruQ_.size() > 0) &&
          (lru != clruQ_.begin())) {
     KeyDataPair &entry = *(--lru);
@@ -3136,7 +3115,7 @@ void QCache::freeLRUPreParserEntry() {
 }
 
 // reconfigure cache to have new maxSize and new maxVictims
-QCache *QCache::resizeCache(ULng32 maxSize, ULng32 maxVictims) {
+QCache *QCache::resizeCache(int maxSize, int maxVictims) {
   // empty cache if maxSize <= 0
   if (maxSize <= 0) {
     incNOfDisplacedEntries(clruQ_.size());
@@ -3148,7 +3127,7 @@ QCache *QCache::resizeCache(ULng32 maxSize, ULng32 maxVictims) {
   } else {                    // desired size is nonzero and not same as before
     if (maxSize < maxSiz_) {  // desired size is smaller
       // shrink cache to fit within maxSize
-      ULng32 currentSize = heap_->getAllocSize();
+      int currentSize = heap_->getAllocSize();
       if (currentSize > maxSize) {
         // free LRU entries until cache is small enough
         //
@@ -3180,7 +3159,7 @@ QCache *QCache::resizeCache(ULng32 maxSize, ULng32 maxVictims) {
         //                          amount of space.
         //
         freeLRUentries(
-            getFreeSize() + currentSize - maxSize - ULng32(totalHashTblSize_ * (1 - float(maxSize) / currentSize)),
+            getFreeSize() + currentSize - maxSize - int(totalHashTblSize_ * (1 - float(maxSize) / currentSize)),
             INT_MAX);
       }
     } else {  // desired size is bigger
@@ -3189,15 +3168,15 @@ QCache *QCache::resizeCache(ULng32 maxSize, ULng32 maxVictims) {
     // reconfigure cache_ hashtable to have less or more buckets
     NADELETE(cache_, CacheHashTbl, heap_);
 
-    ULng32 x = heap_->getAllocSize();
+    int x = heap_->getAllocSize();
     cache_ = new (heap_) CacheHashTbl(hashKeyFunc, nBuckets(maxSize, avgPlanSize()), TRUE, heap_);
 
     totalHashTblSize_ = heap_->getAllocSize() - x;
     // insert surviving entries into new cache_
     LRUList::iterator mru = clruQ_.begin();
     // check list size to prevent infinite looping just in case, soln 10-090224-9516
-    ULng32 size = clruQ_.size();
-    ULng32 cnt = 0;
+    int size = clruQ_.size();
+    int cnt = 0;
     for (; mru != clruQ_.end();) {
       CacheKey *reinsert = cache_->insert((CacheKey *)((*mru).first_), mru.node_);
 
@@ -3247,9 +3226,9 @@ QCache *QCache::resizeCache(ULng32 maxSize, ULng32 maxVictims) {
     // Can not delete tHash_ earlier because deCachePreParserEntries()
     // call potentially made above can access tHash_.
     NADELETE(tHash_, TextHashTbl, heap_);
-    ULng32 maxEntries = maxPreParserEntries(maxSize, avgTextEntrySize());
+    int maxEntries = maxPreParserEntries(maxSize, avgTextEntrySize());
 
-    ULng32 numBuckets = npBuckets(maxEntries);
+    int numBuckets = npBuckets(maxEntries);
     tHash_ = new (heap_) TextHashTbl(hashTextFunc, numBuckets, TRUE, heap_);
     // check list size to prevent infinite looping just in case, soln 10-090224-9516
     size = tlruQ_.size();
@@ -3274,14 +3253,14 @@ QCache *QCache::resizeCache(ULng32 maxSize, ULng32 maxVictims) {
 
 // return average plan size of existing entries if any or
 // return previous average plan size if cache has no entries
-ULng32 QCache::avgPlanSize() {
+int QCache::avgPlanSize() {
   // if there are no cache entries then return previous average
   if (clruQ_.size() <= 0) {
     return planSz_;
   }
 
   // otherwise recompute and return the actual average plan size
-  ULng32 totalSz = 0;
+  int totalSz = 0;
   for (LRUList::iterator mru = clruQ_.begin(); mru != clruQ_.end(); ++mru) {
     KeyDataPair &entry = *mru;
     int cnt = ((CacheData *)entry.second_)->getPlan()->getRefCount();
@@ -3296,14 +3275,14 @@ ULng32 QCache::avgPlanSize() {
 }
 
 // return average text entry size
-ULng32 QCache::avgTextEntrySize() {
+int QCache::avgTextEntrySize() {
   // if there are no cache entries then return previous average
   if (tlruQ_.size() <= 0) {
     return tEntSz_;
   }
 
   // otherwise recompute and return the actual average text entry size
-  ULng32 totalSz = 0, newSz;
+  int totalSz = 0, newSz;
   for (LRUList::iterator mru = tlruQ_.begin(); mru != tlruQ_.end(); ++mru) {
     KeyDataPair &entry = *mru;
     totalSz += (entry.first_->getSize() + entry.second_->getSize());
@@ -3341,7 +3320,7 @@ int QCache::writeUserQueryCacheToHBase(ComDiagsArea *diagsArea, CacheKey *cKey, 
   int num = rootTdb->getNumObjectUIDs();
   const long *planObjectUIDs = rootTdb->getUnpackedPtrToObjectUIDs(base);
 
-  ULng32 h = cKey->hashKey();
+  int h = cKey->hashKey();
   char queryBuf[1000] = {0};
   DefaultToken querycache_replace = CmpCommon::getDefault(GENERATE_USER_QUERYCACHE_REPLACE);
   ExeCliInterface cliInterface(STMTHEAP);
@@ -3528,16 +3507,16 @@ NABoolean QCache::isPreparserCachingOn(NABoolean duringAddEntry) const {
 }
 
 // return maximum number of preparser entries
-ULng32 QCache::maxPreParserEntries(ULng32 maxByteSz, ULng32 avgEntrySz) {
+int QCache::maxPreParserEntries(int maxByteSz, int avgEntrySz) {
   // assume text cache size <= 20% of text+template cache size
-  ULng32 limit = (maxByteSz / 5) / avgEntrySz;
+  int limit = (maxByteSz / 5) / avgEntrySz;
   return limit;
 }
 
 // load-time initialization
 // THREAD_P QCache* QueryCache::cache_ = NULL;
 
-QueryCache::QueryCache(ULng32 maxSize, ULng32 maxVictims, ULng32 avgPlanSz) {
+QueryCache::QueryCache(int maxSize, int maxVictims, int avgPlanSz) {
   cache_ = NULL;
   hqc_ = NULL;
   resizeCache(maxSize, maxVictims, avgPlanSz);
@@ -3770,7 +3749,7 @@ void QueryCache::getEntryDetails(LRUList::iterator i,         // (IN) : query ca
 }
 
 // resize query cache
-void QueryCache::resizeCache(ULng32 maxSize, ULng32 maxVictims, ULng32 avgPlanSz) {
+void QueryCache::resizeCache(int maxSize, int maxVictims, int avgPlanSz) {
   if (cache_ != NULL) {
     cache_ = cache_->resizeCache(maxSize, maxVictims);
   } else {
@@ -3779,7 +3758,7 @@ void QueryCache::resizeCache(ULng32 maxSize, ULng32 maxVictims, ULng32 avgPlanSz
 
   // do the same for Hybrid Query Cache
   // set HQC HashTable to have same bucket number as CacheKey HashTable
-  ULng32 numBuckets = cache_->getNumBuckets();
+  int numBuckets = cache_->getNumBuckets();
   if (hqc_) {
     hqc_->resizeCache(numBuckets, maxSize);
   } else {
@@ -3788,7 +3767,7 @@ void QueryCache::resizeCache(ULng32 maxSize, ULng32 maxVictims, ULng32 avgPlanSz
   hqc_->setMaxSize(maxHybridQueryCacheSize(maxSize));
 }
 
-ULng32 QueryCache::maxHybridQueryCacheSize(ULng32 maxSize) { return maxSize / 5; }
+int QueryCache::maxHybridQueryCacheSize(int maxSize) { return maxSize / 5; }
 
 void QueryCache::setQCache(QCache *qCache) { cache_ = qCache; }
 
@@ -3806,7 +3785,7 @@ CacheKey *QueryCache::addEntry(TextKey *tkey,    // (IN) : preparser key
                                CacheData *plan,  // (IN) : sql statement's compiled plan
                                TimeVal &begT,    // (IN) : time at start of this compile
                                char *params,     // (IN) : parameters for preparser entry
-                               ULng32 parmSz)    // (IN) : len of params for preparser entry
+                               int parmSz)    // (IN) : len of params for preparser entry
 {
   return (cache_) ? cache_->addEntry(tkey, stmt, plan, begT, params, parmSz) : NULL;
 }
@@ -3814,7 +3793,7 @@ CacheKey *QueryCache::addEntry(TextKey *tkey,    // (IN) : preparser key
 // add a new preparser entry into the cache
 void QueryCache::addPreParserEntry(TextKey *tkey,      // (IN) : a cachable sql statement
                                    char *actuals,      // (IN) : actual parameters
-                                   ULng32 actLen,      // (IN) : len of actuals
+                                   int actLen,      // (IN) : len of actuals
                                    CacheEntry *entry,  // (IN) : postparser cache entry
                                    TimeVal &begT)      // (IN) : time at start of this compile
 {
@@ -3832,7 +3811,7 @@ void QueryCache::free_entries_with_QI_keys(int NumSiKeys, SQL_QIKEY *pSiKeyEntry
 KeyDataPair::~KeyDataPair() {
 #ifdef DBG_QCACHE
   NAHeap *heap = NULL;
-  ULng32 x, y;
+  int x, y;
 
   if (first_) {
     heap = first_->heap();
@@ -4118,7 +4097,7 @@ void hqcConstant::addRange(const EncodedValue &hiBound, const EncodedValue &loBo
   histRange_ = new (heap_) HistIntRangeForHQC(hiBound, loBound, hiinc, loinc, heap_);
 }
 
-HybridQCache::HybridQCache(QueryCache &qc, ULng32 nOfBuckets, ULng32 maxSize)
+HybridQCache::HybridQCache(QueryCache &qc, int nOfBuckets, int maxSize)
     : querycache_(qc),
       heap_(new CTXTHEAP NABoundedHeap("hybrid query cache heap", (NAHeap *)CTXTHEAP, 0, 0)),
       hashTbl_(new (heap_) HQCHashTbl(hashHQCKeyFunc, nOfBuckets, TRUE, heap_)),
@@ -4192,7 +4171,7 @@ NABoolean HybridQCache::addEntry(HQCParseKey *hkey, CacheKey *ckey) {
 
   HQCCacheEntry *storedValue = new (heap_) HQCCacheEntry(hkey->getParams(), ckey, heap_);
 
-  ULng32 bytesNeeded = _hkey->getSize() + storedValue->getSize();
+  int bytesNeeded = _hkey->getSize() + storedValue->getSize();
 
   // cout << "bytesNeeded (C1)=" << bytesNeeded << endl;
 
@@ -4322,7 +4301,7 @@ void HybridQCache::addToUsageQueue(HQCCacheKey *hkey) {
   if (!mruTail_) mruTail_ = hkey;
 }
 
-NABoolean HybridQCache::ejectHQCKeyAndData(ULng32 bytesNeeded) {
+NABoolean HybridQCache::ejectHQCKeyAndData(int bytesNeeded) {
   HQCCacheKey *lruKey = mruTail_;
   HQCCacheKey *prevLruKey = NULL;
 
@@ -4470,10 +4449,10 @@ void HybridQCache::deCache(HQCCacheKey *hkey) {  // hkey must point to internal 
   NADELETE(hkey, HQCCacheKey, heap_);
 }
 
-ULng32 HybridQCache::getNumSQCKeys() const {
+int HybridQCache::getNumSQCKeys() const {
   // count number of SQCKeys in HQC
   // one HQCkey entry may have multiple SQCKeys
-  ULng32 counter = 0;
+  int counter = 0;
 
   HQCHashTblItor hqcHashItor(*hashTbl_);
 
@@ -4493,7 +4472,7 @@ ULng32 HybridQCache::getNumSQCKeys() const {
   return counter;
 }
 
-void HybridQCache::resizeCache(ULng32 numBuckets, ULng32 maxSize) {
+void HybridQCache::resizeCache(int numBuckets, int maxSize) {
   // empty cache if numBuckets <= 0 or maxSize <= 0
   if (numBuckets <= 0 || maxSize <= 0) {
     clear();
@@ -4530,7 +4509,7 @@ void HybridQCache::resizeCache(ULng32 numBuckets, ULng32 maxSize) {
 
     // Next trim off the Heap allocated space to no more than maxSize, if needed
     if (getSize() > maxSize) {
-      ULng32 bytesNeeded = getSize() - maxSize;
+      int bytesNeeded = getSize() - maxSize;
       ejectHQCKeyAndData(bytesNeeded);
     }
   }
@@ -5172,7 +5151,7 @@ void QueryCacheDeleter::doDelete() {
   }
 }
 
-ULng32 hqcConstant::getSize() {
+int hqcConstant::getSize() {
   // Data members:
   // ConstValue* constValue_;
   // ConstValue* binderRetConstVal_;
@@ -5192,12 +5171,12 @@ ULng32 hqcConstant::getSize() {
                                                              : 0 + sizeof(index_) + sizeof(NAHeap *) + sizeof(flags_);
 }
 
-ULng32 HQCDParamPair::getSize() {
+int HQCDParamPair::getSize() {
   return sizeof(*this) - sizeof(original_) - sizeof(normalized_) - original_.getAllocatedSize() +
          normalized_.getAllocatedSize();
 }
 
-ULng32 hqcDynParam::getSize() {
+int hqcDynParam::getSize() {
   // Data members:
   //   DynamicParam* dynParam_;
   //   NAString normalizedName_;
@@ -5209,7 +5188,7 @@ ULng32 hqcDynParam::getSize() {
              : 0 + normalizedName_.getAllocatedSize() + originalName_.getAllocatedSize() + sizeof(index_);
 }
 
-ULng32 HQCParams::getSize() {
+int HQCParams::getSize() {
   // Data members:
   // NAHeap      *heap_;
   // NAList <hqcConstant * > ConstantList_;
@@ -5217,7 +5196,7 @@ ULng32 HQCParams::getSize() {
   // NAList <NAString> NPLiterals_;
   // NAList <hqcConstant* > * tmpList_;
 
-  ULng32 sz = sizeof(NAHeap *);
+  int sz = sizeof(NAHeap *);
 
   sz += sizeof(ConstantList_);
   for (int i = 0; i < ConstantList_.entries(); i++) {
@@ -5244,7 +5223,7 @@ ULng32 HQCParams::getSize() {
   return sz;
 }
 
-ULng32 HQCCacheKey::getSize() {
+int HQCCacheKey::getSize() {
   // data members
   // NAString  keyText_;
   // NAString  reqdShape_;    // control query shape or empty string
@@ -5257,7 +5236,7 @@ ULng32 HQCCacheKey::getSize() {
          sizeof(numDynParams_) + sizeof(prev_) + sizeof(next_);
 }
 
-ULng32 HQCCacheEntry::getSize() {
+int HQCCacheEntry::getSize() {
   // data members:
   // NAHeap      *heap_;
   // HQCParams   *params_;
@@ -5267,7 +5246,7 @@ ULng32 HQCCacheEntry::getSize() {
   return sizeof(HQCCacheEntry) + (params_) ? params_->getSize() : 0;
 }
 
-ULng32 HQCParseKey::getSize() {
+int HQCParseKey::getSize() {
   // data members
   //
   //  HQCParams params_;
@@ -5281,13 +5260,13 @@ ULng32 HQCParseKey::getSize() {
          sizeof(nOfTokens_) + sizeof(isStringNormalized_) + sizeof(paramStart_);
 }
 
-ULng32 HQCCacheData::getSize() {
+int HQCCacheData::getSize() {
   // parent class LIST (HQCCacheEntry*)
   // data members
   //  NAHeap* heap_;
   //  int maxEntries_;
 
-  ULng32 sz = 0;
+  int sz = 0;
   for (CollIndex x = 0; x < entries(); x++) {
     sz += (*this)[x]->getSize();
   }
@@ -5295,12 +5274,12 @@ ULng32 HQCCacheData::getSize() {
   return sz + sizeof(*this) - sizeof(NAHeap *) - sizeof(maxEntries_);
 }
 
-ULng32 HybridQCache::computeSize() {
+int HybridQCache::computeSize() {
   // data members
   // QueryCache & querycache_;
   // NAHeap* heap_;
   // HQCHashTbl* hashTbl_;
-  // ULng32  maxValuesPerKey_;
+  // int  maxValuesPerKey_;
   // HQCParseKey * currentKey_;
 
   // HQCCacheKey* mruHead_; // most recently used key
@@ -5493,7 +5472,7 @@ void HybridQCache::test(istream &in, ostream &out, NABoolean simpleFormat) {
   }
 }
 
-void QueryCache::test(char *filePath, ULng32 maxSize) {
+void QueryCache::test(char *filePath, int maxSize) {
   fstream in(filePath, ios::in);
 
   if (in.is_open() && hqc_) {

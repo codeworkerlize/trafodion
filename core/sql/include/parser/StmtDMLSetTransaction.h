@@ -51,7 +51,7 @@ class StmtDMLSetTransaction : public StmtNode {
   int getAutoAbortInterval() const { return autoabortInterval_; }
   TransMode::MultiCommit getMultiCommit() const { return multiCommit_; }
 
-  ULng32 getMultiCommitSize() const { return multiCommitSize_; }
+  int getMultiCommitSize() const { return multiCommitSize_; }
 
   NABoolean isIsolationLevelSpec() const { return isolationLevel_ != TransMode::IL_NOT_SPECIFIED_; }
 
@@ -83,7 +83,7 @@ class StmtDMLSetTransaction : public StmtNode {
   TransMode::IsolationLevel isolationLevel_;
   TransMode::RollbackMode rollbackMode_;
   int autoabortInterval_;
-  ULng32 multiCommitSize_;
+  int multiCommitSize_;
   TransMode::MultiCommit multiCommit_;
   TransMode::AutoOption beginAO_;
   TransMode::AutoOption commitAO_;
@@ -137,13 +137,13 @@ class TxnAutoabortIntervalItem : public ItemExpr {
 
 class TxnMultiCommitItem : public ItemExpr {
  public:
-  TxnMultiCommitItem(ULng32 val, NABoolean mc);
+  TxnMultiCommitItem(int val, NABoolean mc);
   TxnMultiCommitItem(NABoolean mc);
-  ULng32 getMultiCommitSize() const { return multiCommitSize_; }
+  int getMultiCommitSize() const { return multiCommitSize_; }
   TransMode::MultiCommit getMultiCommit() const { return multiCommit_; }
 
  private:
-  ULng32 multiCommitSize_;
+  int multiCommitSize_;
   TransMode::MultiCommit multiCommit_;
 };
 

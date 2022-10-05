@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ******************************************************************************
 *
@@ -86,7 +65,7 @@ HashBuffer::HashBuffer(Cluster *cluster)
 // Cluster object.
 // Currently, this is only used by the UniqueHashJoin (ExUniqueHashJoinTcb).
 //
-HashBuffer::HashBuffer(ULng32 bufferSize, ULng32 rowSize, NABoolean useVariableLength, CollHeap *heap,
+HashBuffer::HashBuffer(int bufferSize, int rowSize, NABoolean useVariableLength, CollHeap *heap,
                        ClusterDB *clusterDb, ExeErrorCode *rc)
     : cluster_(NULL),
       bufferSize_(bufferSize),
@@ -150,8 +129,8 @@ HashBufferSerial::HashBufferSerial(Cluster *cluster) : HashBuffer(cluster){};
 // Currently, this is only used by the UniqueHashJoin (ExUniqueHashJoinTcb).
 //
 /*
-HashBufferSerial::HashBufferSerial(ULng32 bufferSize,
-                                   ULng32 rowSize,
+HashBufferSerial::HashBufferSerial(int bufferSize,
+                                   int rowSize,
                                    NABoolean useVariableLength,
                                    CollHeap *heap,
                                    ExeErrorCode * rc)
@@ -214,8 +193,8 @@ HashBuffer::~HashBuffer() {
 #ifdef DO_DEBUG
     if (!next_ && !cluster_->keepRecentBuffer_) {  // DEBUG
       char msg[256];
-      sprintf(msg, "NULL bufferPool_ for (%lu %lu). recent %lu inMemBuffs %lu ", (ULng32)cluster_ & 0x0FFF,
-              (ULng32)cluster_->clusterDb_ & 0x0FFF, (ULng32)cluster_->keepRecentBuffer_ & 0x0FFF,
+      sprintf(msg, "NULL bufferPool_ for (%lu %lu). recent %lu inMemBuffs %lu ", (int)cluster_ & 0x0FFF,
+              (int)cluster_->clusterDb_ & 0x0FFF, (int)cluster_->keepRecentBuffer_ & 0x0FFF,
               cluster_->numInMemBuffers_);
       // log an EMS event and continue
       SQLMXLoggingArea::logExecRtInfo(NULL, 0, msg, cluster_->clusterDb_->explainNodeId_);
@@ -239,19 +218,19 @@ void Bucket::init() {
 };
 /////////////////////////////////////////////////////////////////////////////
 
-ClusterDB::ClusterDB(HashOperator hashOperator, ULng32 bufferSize, atp_struct *workAtp, int explainNodeId,
+ClusterDB::ClusterDB(HashOperator hashOperator, int bufferSize, atp_struct *workAtp, int explainNodeId,
                      short hashTableRowAtpIndex1, short hashTableRowAtpIndex2, ex_expr *searchExpr, Bucket *buckets,
-                     ULng32 bucketCount, ULng32 availableMemory, short pressureThreshold, ExExeStmtGlobals *stmtGlobals,
+                     int bucketCount, int availableMemory, short pressureThreshold, ExExeStmtGlobals *stmtGlobals,
                      ExeErrorCode *rc, NABoolean noOverFlow, NABoolean isPartialGroupBy,
-                     unsigned short minBuffersToFlush, ULng32 numInBatch,
+                     unsigned short minBuffersToFlush, int numInBatch,
 
                      UInt16 forceOverflowEvery, UInt16 forceHashLoopAfterNumBuffers, UInt16 forceClusterSplitAfterMB,
 
                      ExSubtask *ioEventHandler, ex_tcb *callingTcb, UInt16 scratchThresholdPct, NABoolean doLog,
-                     NABoolean bufferedWrites, NABoolean disableCmpHintsOverflow, ULng32 memoryQuotaMB,
-                     ULng32 minMemoryQuotaMB, ULng32 minMemBeforePressureCheck, Float32 bmoCitizenshipFactor,
+                     NABoolean bufferedWrites, NABoolean disableCmpHintsOverflow, int memoryQuotaMB,
+                     int minMemoryQuotaMB, int minMemBeforePressureCheck, Float32 bmoCitizenshipFactor,
                      int pMemoryContingencyMB, Float32 estimateErrorPenalty, Float32 hashMemEstInKBPerNode,
-                     ULng32 initialHashTableSize, ExOperStats *hashOperStats)
+                     int initialHashTableSize, ExOperStats *hashOperStats)
     : hashOperator_(hashOperator),
       bufferSize_(bufferSize),
       bufferHeap_(NULL),
@@ -419,7 +398,7 @@ void ClusterDB::yieldAllMemoryQuota() {
 ////////
 void ClusterDB::YieldQuota(UInt32 memNeeded) {
   // Convert to MegaBytes, upper ceiling
-  ULng32 memNeededMB = memNeeded / ONE_MEG;
+  int memNeededMB = memNeeded / ONE_MEG;
   if (memNeeded % ONE_MEG) memNeededMB++;  // one more
 
   // Do not get below the minimum quota
@@ -477,14 +456,14 @@ NABoolean ClusterDB::checkQuotaOrYield(UInt32 numFlushed, UInt32 maxSizeMB) {
 // HGB gives theOFList (HJ keeps OF clusters with the regular cluster list)
 // Calculate memory needed - max of what is in memory, or the largest on
 // disk plus those extra buffers - and yield the rest.
-void ClusterDB::yieldUnusedMemoryQuota(Cluster *theOFList, ULng32 extraBuffers) {
+void ClusterDB::yieldUnusedMemoryQuota(Cluster *theOFList, int extraBuffers) {
   if (memoryQuotaMB_ == 0) return;  // nothing to yield
 
   // Need to keep the greater of what is currently used, or the largest
   // flushed (inner) cluster plus a needed hash table
 
   long maxFlushedClusterSize = 0;  // find max size of flushed cluster
-  ULng32 maxRowCount = 0;
+  int maxRowCount = 0;
   // HGB uses a seperate list for the overflown clusters
   Cluster *clusters = theOFList ? theOFList : clusterList_;
 
@@ -500,12 +479,12 @@ void ClusterDB::yieldUnusedMemoryQuota(Cluster *theOFList, ULng32 extraBuffers) 
   maxFlushedClusterSize += maxRowCount * sizeof(HashTableHeader) * 3 / 2;
 
   // Needed is max: either what's in memory now, or the largest flushed cluster
-  ULng32 memNeeded = MAXOF(memoryUsed_, (ULng32)maxFlushedClusterSize);
+  int memNeeded = MAXOF(memoryUsed_, (int)maxFlushedClusterSize);
   // add buffers (either one for the outer for HJ, or one per each new
   // cluster for HGB)
   memNeeded += extraBuffers * bufferSize_;
   // Convert to MegaBytes, upper ceiling
-  ULng32 memNeededMB = memNeeded / ONE_MEG;
+  int memNeededMB = memNeeded / ONE_MEG;
   if (memNeeded % ONE_MEG) memNeededMB++;  // one more
 
   // Do not get below the minimum quota
@@ -541,14 +520,14 @@ void ClusterDB::yieldUnusedMemoryQuota(Cluster *theOFList, ULng32 extraBuffers) 
 // (Used to avoid common prime factors with the hash table size)
 // (Smallest value returned == 3)
 //
-static const ULng32 primes[70] = {3 /*2*/, 3,   5,   7,   11,  13,  17,  19,  23,  29,  31,  37,  41,  43,
+static const int primes[70] = {3 /*2*/, 3,   5,   7,   11,  13,  17,  19,  23,  29,  31,  37,  41,  43,
                                   47,      53,  59,  61,  67,  71,  73,  79,  83,  89,  97,  101, 103, 107,
                                   109,     113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181,
                                   191,     193, 197, 199, 211, 223, 227, 229, 233, 239, 241, 251, 257, 263,
                                   269,     271, 277, 281, 283, 293, 307, 311, 313, 317, 331, 337, 347, 349};
 
-ULng32 ClusterDB::roundUpToPrime(ULng32 noOfClusters) {
-  ULng32 ind = noOfClusters / 5;             // approximate (floor) index
+int ClusterDB::roundUpToPrime(int noOfClusters) {
+  int ind = noOfClusters / 5;             // approximate (floor) index
   if (ind >= 70) return noOfClusters;        // handle absurd case: #clusters >= 350
   while (primes[ind] < noOfClusters) ind++;  // find next prime
   return primes[ind];
@@ -563,7 +542,7 @@ ULng32 ClusterDB::roundUpToPrime(ULng32 noOfClusters) {
 //    3. Is there a system memory pressure.
 //    4. Do the hints from the compiler suggest we start overflow early ?
 /////////////////////////////////////////////////////////////////////////////
-NABoolean ClusterDB::enoughMemory(ULng32 reqSize, NABoolean checkCompilerHints) {
+NABoolean ClusterDB::enoughMemory(int reqSize, NABoolean checkCompilerHints) {
   char msg[512];  // for logging messages
 
   // For testing overflow only -- Simulate extreme memory conditions
@@ -628,8 +607,8 @@ NABoolean ClusterDB::enoughMemory(ULng32 reqSize, NABoolean checkCompilerHints) 
         if ( ! sawPressure_ && doLog_ ) { // log first time
           sprintf(msg,
                   "USAGE OVERFLOW started. Memory used %u, last seg size %u, free size %u, total size %u",
-                  memoryUsed_, (ULng32)lastSegSize,
-                  (ULng32)freeSize, (ULng32)totalSize );
+                  memoryUsed_, (int)lastSegSize,
+                  (int)freeSize, (int)totalSize );
           // log an EMS event and continue
           SQLMXLoggingArea::logExecRtInfo(NULL, 0, msg, explainNodeId_);
         }
@@ -906,10 +885,10 @@ NABoolean ClusterDB::setOuterClusterToRead(Cluster *oCluster, ExeErrorCode *rc) 
 
 ////////////////////////////////////////////////////////////////////////
 
-ClusterBitMap::ClusterBitMap(ULng32 size, ExeErrorCode *rc) : size_(size) {
+ClusterBitMap::ClusterBitMap(int size, ExeErrorCode *rc) : size_(size) {
   // assume success
   *rc = EXE_OK;
-  ULng32 charCount = size_ / 8;
+  int charCount = size_ / 8;
   if (size_ % 8) charCount++;
   bitMap_ = (char *)collHeap()->allocateMemory((size_t)charCount, FALSE);
   if (!bitMap_) {
@@ -918,20 +897,20 @@ ClusterBitMap::ClusterBitMap(ULng32 size, ExeErrorCode *rc) : size_(size) {
   };
 
   // initialize bitMap to zero
-  for (ULng32 i = 0; i < charCount; i++) bitMap_[i] = 0;
+  for (int i = 0; i < charCount; i++) bitMap_[i] = 0;
 };
 
 ClusterBitMap::~ClusterBitMap() {
   if (bitMap_) collHeap()->deallocateMemory((void *)bitMap_);
 };
 
-void ClusterBitMap::setBit(ULng32 bitIndex) {
+void ClusterBitMap::setBit(int bitIndex) {
   ex_assert((bitIndex < size_), "ClusterBitMap::setBit() ot of bounds");
   char bitMask = (char)(1 << (bitIndex & 7));
   bitMap_[bitIndex >> 3] |= bitMask;
 };
 
-NABoolean ClusterBitMap::testBit(ULng32 bitIndex) {
+NABoolean ClusterBitMap::testBit(int bitIndex) {
   ex_assert((bitIndex < size_), "ClusterBitMap::testBit() ot of bounds");
   char bitMask = (char)(1 << (bitIndex & 7));
   return (NABoolean)(bitMap_[bitIndex >> 3] & bitMask);
@@ -986,7 +965,7 @@ HashTable *Cluster::createHashTable(UInt32 memForHashTable, ExeErrorCode *rc,
   return hashTable_;
 }
 
-Cluster::Cluster(ClusterState state, ClusterDB *clusterDb, Bucket *buckets, ULng32 bucketCount, ULng32 rowLength,
+Cluster::Cluster(ClusterState state, ClusterDB *clusterDb, Bucket *buckets, int bucketCount, int rowLength,
                  NABoolean useVariableLength, NABoolean considerBufferDefrag, short insertAtpIndex, NABoolean isInner,
                  NABoolean bitMapEnable, Cluster *next, ExeErrorCode *rc, HashBuffer *bufferPool)
     : state_(state),
@@ -1042,7 +1021,7 @@ Cluster::Cluster(ClusterState state, ClusterDB *clusterDb, Bucket *buckets, ULng
   };
 
   // set up pointers from buckets to clusters
-  ULng32 i = 0;
+  int i = 0;
   for (; i < bucketCount_; i++)
     if (isInner) {
       // determine the rowCount_. For the initial clusters this will
@@ -1104,7 +1083,7 @@ Cluster::~Cluster() {
 
   // remove references to this cluster from the buckets
   if (buckets_)
-    for (ULng32 i = 0; i < bucketCount_; i++)
+    for (int i = 0; i < bucketCount_; i++)
       if (isInner_)
         buckets_[i].setInnerCluster(NULL);
       else
@@ -1138,7 +1117,7 @@ void ClusterDB::chooseClusterToFlush(Cluster *lastResort) {
 
   Cluster *maxBuffsFlushedCluster = NULL;
   Cluster *anyNonFlushedCluster = NULL;
-  ULng32 maxBuffers = 0;
+  int maxBuffers = 0;
   NABoolean outersOnly = !lastResort->isInner_;  // HJ in phase 2
   unsigned short minNumBuffersToFlush = outersOnly ? minNumWriteOuterBatch_ : minBuffersToFlush_;
 
@@ -1190,8 +1169,8 @@ void ClusterDB::chooseClusterToFlush(Cluster *lastResort) {
 #ifdef DO_DEBUG
   if (doLog_ && clusterToFlush_->seqIDIndex_ > 0) {  // DEBUG
     char msg[256];
-    sprintf(msg, "chooseClusterToFlush() (%lu %lu). next buff %lu inMemBuffs %lu ", (ULng32)clusterToFlush_ & 0x0FFF,
-            (ULng32)this & 0x0FFF, (ULng32)clusterToFlush_->nextBufferToFlush_ & 0x0FFF,
+    sprintf(msg, "chooseClusterToFlush() (%lu %lu). next buff %lu inMemBuffs %lu ", (int)clusterToFlush_ & 0x0FFF,
+            (int)this & 0x0FFF, (int)clusterToFlush_->nextBufferToFlush_ & 0x0FFF,
             clusterToFlush_->numInMemBuffers_);
     // log an EMS event and continue
     SQLMXLoggingArea::logExecRtInfo(NULL, 0, msg, explainNodeId_);
@@ -1363,7 +1342,7 @@ NABoolean Cluster::insert(atp_struct *newEntry, ex_expr *moveExpr, SimpleHashVal
     if (resizeNeeded) {
       NABoolean enoughMem = clusterDb_->enoughMemory(hashTable_->resizeTo());
 
-      ULng32 memAdded = hashTable_->resize(enoughMem);
+      int memAdded = hashTable_->resize(enoughMem);
 
       // if Hash-Table was resized up, then update memory use
       clusterDb_->memoryUsed_ += memAdded;
@@ -1484,7 +1463,7 @@ NABoolean Cluster::flush(ExeErrorCode *rc) {
   // assume success
   *rc = EXE_OK;
   RESULT writeStatus = SCRATCH_SUCCESS;
-  ULng32 bufferSize = clusterDb_->bufferSize_;
+  int bufferSize = clusterDb_->bufferSize_;
 
   // ensure that the scratch file was created
   if (!tempFile_)
@@ -1603,7 +1582,7 @@ NABoolean Cluster::spill(ExeErrorCode *rc, NABoolean noAggregates) {
     if (keepRecentBuffer_) {
       HashBuffer *hb = bufferPool_;
       HashRow *dataPointer = hb->castToSerial()->getFirstRow();
-      for (ULng32 rowIndex = 0; rowIndex < hb->getRowCount(); rowIndex++) {
+      for (int rowIndex = 0; rowIndex < hb->getRowCount(); rowIndex++) {
         hashTable_->insert(dataPointer);  // no resize
         dataPointer = hb->castToSerial()->getNextRow(dataPointer);
       }
@@ -1703,7 +1682,7 @@ NABoolean Cluster::squeezeOutRowsOfOtherClusters(ExeErrorCode *rc) {
       // Check each row of the current buffer
       HashRow *row = oldBuff->castToSerial()->getFirstRow();
       for (UInt32 i = 0; i < oldBuff->getRowCount(); i++) {
-        ULng32 bucketId = row->hashValue() % clusterDb_->bucketCount_;
+        int bucketId = row->hashValue() % clusterDb_->bucketCount_;
 
         // If this row belongs to this cluster, copy it to the
         // destination.  Otherwise, ignore it.
@@ -1854,7 +1833,7 @@ NABoolean Cluster::squeezeOutRowsOfOtherClusters(ExeErrorCode *rc) {
 
         char *toDataPointer = toBuff->getFirstRow() + toRowPos * rowLength;
         HashRow *row = (HashRow *)toDataPointer;
-        ULng32 bucketId = row->hashValue() % clusterDb_->bucketCount_;
+        int bucketId = row->hashValue() % clusterDb_->bucketCount_;
         // Are we done ? If end of this batch -- finish up and return
         if (toBuff == fromBuff &&        // only check when "to" and "from" are same
             (row->bitSet() ||            // was this new row already checked by "from" ?
@@ -1903,7 +1882,7 @@ NABoolean Cluster::squeezeOutRowsOfOtherClusters(ExeErrorCode *rc) {
         // If row at from-pos belongs to this cluster -- use it !
         char *fromDataPointer = fromBuff->getFirstRow() + fromRowPos * rowLength;
         HashRow *row = (HashRow *)fromDataPointer;
-        ULng32 bucketId = row->hashValue() % clusterDb_->bucketCount_;
+        int bucketId = row->hashValue() % clusterDb_->bucketCount_;
         if (clusterDb_->buckets_[bucketId].getInnerCluster() == this)
           fromRow = fromDataPointer;
         else
@@ -2032,7 +2011,7 @@ NABoolean Cluster::read(ExeErrorCode *rc) {
       if (buffersRead_) {
         // We need enough space for another buffer (we might need memory for
         // two buffers, because we need one buffer for the outer cluster)
-        ULng32 requiredMem = clusterDb_->bufferSize_;
+        int requiredMem = clusterDb_->bufferSize_;
         if (getOuterCluster() &&  // avoid case of right join without an outer
             !getOuterCluster()->bufferPool_)
           requiredMem *= 2;
@@ -2316,10 +2295,10 @@ NABoolean Cluster::chain(NABoolean forceChaining, ExeErrorCode *rc) {
   // allocate hash chain headers for all row in the inner table
   // (rowCount_). Instead, we use readCount_ which tells us how many
   // rows we have read in this loop.
-  ULng32 hashTableEntryCount = (readCount_ ? readCount_ : rowCount_);
+  int hashTableEntryCount = (readCount_ ? readCount_ : rowCount_);
 
   if (hashTableEntryCount > 10000) {
-    ULng32 origRowCount = hashTableEntryCount;
+    int origRowCount = hashTableEntryCount;
 
     // do debugging/logging only for large hash tables
     if (getenv("HASH_TABLE_ENTRY_COUNT")) hashTableEntryCount = atoi(getenv("HASH_TABLE_ENTRY_COUNT"));
@@ -2362,7 +2341,7 @@ NABoolean Cluster::chain(NABoolean forceChaining, ExeErrorCode *rc) {
     hb->castToSerial()->fixup();
 
     HashRow *dataPointer = hb->castToSerial()->getFirstRow();
-    for (ULng32 rowIndex = 0; rowIndex < hb->getRowCount(); rowIndex++) {
+    for (int rowIndex = 0; rowIndex < hb->getRowCount(); rowIndex++) {
       if (clusterDb_->hashOperator_ == ClusterDB::CROSS_PRODUCT) {
         hashTable_->insertSingleChain(dataPointer);
       } else {
@@ -2382,7 +2361,7 @@ NABoolean Cluster::chain(NABoolean forceChaining, ExeErrorCode *rc) {
 
 /////////////////////////////////////////////////////////////////////////////
 
-ExeErrorCode Cluster::setUpOuter(ULng32 rowLength, short atpIndex, NABoolean bitMapEnable) {
+ExeErrorCode Cluster::setUpOuter(int rowLength, short atpIndex, NABoolean bitMapEnable) {
   // assume success
   ExeErrorCode rc = EXE_OK;
 
@@ -2412,7 +2391,7 @@ ExeErrorCode Cluster::setUpOuter(ULng32 rowLength, short atpIndex, NABoolean bit
 
   bufferPool_ = NULL;
 
-  for (ULng32 i = 0; i < bucketCount_; i++) buckets_[i].setOuterCluster(oCluster);
+  for (int i = 0; i < bucketCount_; i++) buckets_[i].setOuterCluster(oCluster);
 
   return rc;
 };
@@ -2463,8 +2442,8 @@ void Cluster::resetForHashLoop() {
 ExClusterStats *Cluster::getStats(CollHeap *heap) {
   ExStatsCounter hashChains;
   if (hashTable_)
-    for (ULng32 i = 0; i < hashTable_->getHeaderCount(); i++) {
-      ULng32 value = hashTable_->getChainSize(i);
+    for (int i = 0; i < hashTable_->getHeaderCount(); i++) {
+      int value = hashTable_->getChainSize(i);
       if (value != 0) hashChains.addEntry(value);
     };
 
@@ -2506,7 +2485,7 @@ HashRow *Cluster::getCurrentRow() {
   return dataPointer;
 };
 
-ULng32 Cluster::getMemorySizeForHashTable(ULng32 entryCount) {
+int Cluster::getMemorySizeForHashTable(int entryCount) {
   // see constraints in hash_table.h
   entryCount = MINOF(entryCount, MAX_HEADER_COUNT);
   entryCount = MAXOF(entryCount, MIN_HEADER_COUNT);  // just a sanity
@@ -2579,7 +2558,7 @@ void ClusterDB::updateMemoryStats() {
     hashOperStats_->castToExHashJoinStats()->updMemorySize(memoryUsed_);
 }
 
-ULng32 Cluster::getTotalRowCount() const {
+int Cluster::getTotalRowCount() const {
   UInt32 ct = 0;
   const Cluster *ptr = this;
   while (ptr) {

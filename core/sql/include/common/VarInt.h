@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef INCLUDE_VARINT_H
 #define INCLUDE_VARINT_H
 /* -*-C++-*-
@@ -39,17 +18,17 @@
 #include "common/NAMemory.h"
 #include <iostream>
 
-ULng32 pack(char *&buffer, UInt16 x);
-ULng32 pack(char *&buffer, ULng32 x);
-ULng32 pack(char *&buffer, int x);
-ULng32 pack(char *&buffer, UInt64 x);
-ULng32 pack(char *&buffer, ULng32 *ptr, ULng32 x);
+int pack(char *&buffer, UInt16 x);
+int pack(char *&buffer, int x);
+int pack(char *&buffer, int x);
+int pack(char *&buffer, UInt64 x);
+int pack(char *&buffer, int *ptr, int x);
 
-ULng32 unpack(char *&buffer, UInt16 &x);
-ULng32 unpack(char *&buffer, ULng32 &x);
-ULng32 unpack(char *&buffer, int &x);
-ULng32 unpack(char *&buffer, UInt64 &x);
-ULng32 unpack(char *&buffer, ULng32 *&ptr, ULng32 &x, NAHeap *heap);
+int unpack(char *&buffer, UInt16 &x);
+int unpack(char *&buffer, int &x);
+int unpack(char *&buffer, int &x);
+int unpack(char *&buffer, UInt64 &x);
+int unpack(char *&buffer, int *&ptr, int &x, NAHeap *heap);
 
 //----------------------------------------------------------------------------------
 // Array of unsigned integers with a bit width between 1 and 32.
@@ -65,13 +44,13 @@ ULng32 unpack(char *&buffer, ULng32 *&ptr, ULng32 &x, NAHeap *heap);
 //----------------------------------------------------------------------------------
 
 class VarUIntArray {
-  static const ULng32 BitsPerWord = 32;
-  static const ULng32 AllOnes = 0xFFFFFFFF;
+  static const int BitsPerWord = 32;
+  static const int AllOnes = 0xFFFFFFFF;
 
  public:
   // create an array with a given length of number of bits per entry (up to 32 allowed)
   // and initialize it to zeroes
-  VarUIntArray(ULng32 numEntries, ULng32 numBits, NAHeap *heap);
+  VarUIntArray(int numEntries, int numBits, NAHeap *heap);
 
   // copy constructor
   VarUIntArray(const VarUIntArray &, NAHeap *heap);
@@ -84,19 +63,19 @@ class VarUIntArray {
   void clear();
 
   // get array entry at index ix
-  ULng32 get(ULng32 ix) const { return (*this)[ix]; }
-  ULng32 operator[](ULng32 ix) const;
+  int get(int ix) const { return (*this)[ix]; }
+  int operator[](int ix) const;
 
   // overwrite array entry at index ix with a new value,
   // return TRUE if an overflow occurred
-  NABoolean put(ULng32 ix, ULng32 val, NABoolean *prevBitOff = NULL);
+  NABoolean put(int ix, int val, NABoolean *prevBitOff = NULL);
 
   // add to existing value, return TRUE if overflow occurred
-  NABoolean add(ULng32 ix, ULng32 val, ULng32 &result);
+  NABoolean add(int ix, int val, int &result);
 
   // subtract from existing value, return TRUE if value
   // did overflow in the past.
-  NABoolean sub(ULng32 ix, ULng32 val, ULng32 &minuend);
+  NABoolean sub(int ix, int val, int &minuend);
 
   // merge two arrays together. Each resultant bit is
   // the OR of the two corresponding bits.
@@ -105,7 +84,7 @@ class VarUIntArray {
   NABoolean mergeViaOR(const VarUIntArray &);
 
   // maximum value  (this value is used to indicate overflow)
-  ULng32 getMaxVal() const { return maxVal_; }
+  int getMaxVal() const { return maxVal_; }
 
   UInt32 entries() const { return numEntries_; };
   UInt32 numBits() const { return numBits_; };
@@ -115,7 +94,7 @@ class VarUIntArray {
 
   // estimate amount of memory needed to store x entries with b bits per entry
   // The estimation is expressed in bytes.
-  static UInt64 estimateMemoryInBytes(ULng32 x, ULng32 b);
+  static UInt64 estimateMemoryInBytes(int x, int b);
 
   static UInt32 minPackedLength();
   UInt32 getPackedLength();
@@ -123,17 +102,17 @@ class VarUIntArray {
   // Modeled based on the following method
   // IpcMessageObjSize ComCondition::packObjIntoMessage(char* buffer,
   //                         NABoolean swapBytes)
-  ULng32 packIntoBuffer(char *&buffer);
-  ULng32 unpackBuffer(char *&buffer);
+  int packIntoBuffer(char *&buffer);
+  int unpackBuffer(char *&buffer);
 
   void dump(ostream &, const char *msg = NULL);
 
  private:
-  ULng32 numEntries_;
-  ULng32 numWords_;
-  ULng32 numBits_;
-  ULng32 maxVal_;
-  ULng32 *counters_;
+  int numEntries_;
+  int numWords_;
+  int numBits_;
+  int maxVal_;
+  int *counters_;
 
   NAHeap *heap_;
 };

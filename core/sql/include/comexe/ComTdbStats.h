@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ****************************************************************************
 *
@@ -140,8 +119,8 @@ class CompilationStatsData : public NAVersionedObject {
 
   CompilationStatsData(long compileStartTime, long compileEndTime, char *compilerId, int cmpCpuTotal,
                        int cmpCpuBinder, int cmpCpuNormalizer, int cmpCpuAnalyzer, int cmpCpuOptimizer,
-                       int cmpCpuGenerator, ULng32 metadataCacheHits, ULng32 metadataCacheLookups,
-                       int queryCacheState, ULng32 histogramCacheHits, ULng32 histogramCacheLookups,
+                       int cmpCpuGenerator, int metadataCacheHits, int metadataCacheLookups,
+                       int queryCacheState, int histogramCacheHits, int histogramCacheLookups,
                        int stmtHeapSize, int cxtHeapSize, int optTasks, int optContexts, short isRecompile,
                        char *compileInfo, int compileInfoLen)
       : NAVersionedObject(-1),
@@ -190,11 +169,11 @@ class CompilationStatsData : public NAVersionedObject {
   int cmpCpuAnalyzer() { return cmpCpuAnalyzer_; }
   int cmpCpuOptimizer() { return cmpCpuOptimizer_; }
   int cmpCpuGenerator() { return cmpCpuGenerator_; }
-  ULng32 metadataCacheHits() { return metadataCacheHits_; }
-  ULng32 metadataCacheLookups() { return metadataCacheLookups_; }
+  int metadataCacheHits() { return metadataCacheHits_; }
+  int metadataCacheLookups() { return metadataCacheLookups_; }
   int queryCacheState() { return queryCacheState_; }
-  ULng32 histogramCacheHits() { return histogramCacheHits_; }
-  ULng32 histogramCacheLookups() { return histogramCacheLookups_; }
+  int histogramCacheHits() { return histogramCacheHits_; }
+  int histogramCacheLookups() { return histogramCacheLookups_; }
   int stmtHeapSize() { return stmtHeapSize_; }
   int contextHeapSize() { return cxtHeapSize_; }
   int optTasks() { return optTasks_; }
@@ -1017,9 +996,9 @@ class ComTdbStats : public ComTdb {
   ComTdbStats();
 
   // Constructor used by the generator.
-  ComTdbStats(ULng32 tupleLen, ULng32 returnedTuplelen, ULng32 inputTuplelen, ex_cri_desc *criDescParentDown,
+  ComTdbStats(int tupleLen, int returnedTuplelen, int inputTuplelen, ex_cri_desc *criDescParentDown,
               ex_cri_desc *criDescParentUp, queue_index queueSizeDown, queue_index queueSizeUp, int numBuffers,
-              ULng32 bufferSize, ex_expr *scanExpr, ex_expr *inputExpr, ex_expr *projExpr, ex_cri_desc *workCriDesc,
+              int bufferSize, ex_expr *scanExpr, ex_expr *inputExpr, ex_expr *projExpr, ex_cri_desc *workCriDesc,
               UInt16 stats_row_atp_index, UInt16 input_row_atp_index);
 
   // This always returns TRUE for now

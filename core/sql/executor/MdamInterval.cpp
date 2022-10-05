@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ********************************************************************************
 *
@@ -91,7 +70,7 @@ void MdamInterval::operator delete(void *) { ex_assert(0, "MdamInterval::operato
 
 // Determines if the value specified by the arguement, v, is contained
 // within this interval.
-NABoolean MdamInterval::contains(const ULng32 keyLen, const char *v) const {
+NABoolean MdamInterval::contains(const int keyLen, const char *v) const {
   if (beginPoint_.beginContains(keyLen, v) && endPoint_.endContains(keyLen, v)) {
     return TRUE;
   } else {
@@ -105,7 +84,7 @@ NABoolean MdamInterval::contains(const ULng32 keyLen, const char *v) const {
 // Otherwise, it returns false.  Failure can occur if the begin
 // end point is excluded and incrementing the value results
 // in an error or a value that is outside the interval.
-NABoolean MdamInterval::getFirstValue(const ULng32 keyLen, char *s) const {
+NABoolean MdamInterval::getFirstValue(const int keyLen, char *s) const {
   // Move the string.
   str_cpy_all(s, beginPoint_.getDataPointer(), int(keyLen));
 
@@ -141,7 +120,7 @@ NABoolean MdamInterval::getFirstValue(const ULng32 keyLen, char *s) const {
 // is successful, the function returns true.  Otherwise, it returns
 // false.  Failure can occur if incrementing the value results in an
 // error or a value that is outside the interval.
-NABoolean MdamInterval::getNextValue(const ULng32 keyLen, char *s) const {
+NABoolean MdamInterval::getNextValue(const int keyLen, char *s) const {
   // Increment the string.
   int returnCode = str_inc(keyLen, s);
   // Check if the string was successfully incremented.

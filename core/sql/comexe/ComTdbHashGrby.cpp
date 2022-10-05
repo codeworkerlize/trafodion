@@ -17,13 +17,13 @@ ComTdbHashGrby::ComTdbHashGrby(
     ComTdb *childTdb, ex_cri_desc *givenDesc, ex_cri_desc *returnedDesc, ex_expr *hashExpr, ex_expr *bitMuxExpr,
     ex_expr *bitMuxAggrExpr, ex_expr *hbMoveInExpr, ex_expr *ofMoveInExpr, ex_expr *resMoveInExpr, ex_expr *hbAggrExpr,
     ex_expr *ofAggrExpr, ex_expr *resAggrExpr, ex_expr *havingExpr, ex_expr *moveOutExpr, ex_expr *hbSearchExpr,
-    ex_expr *ofSearchExpr, ULng32 keyLength, ULng32 resultRowLength, ULng32 extGroupedRowLength,
+    ex_expr *ofSearchExpr, int keyLength, int resultRowLength, int extGroupedRowLength,
     ex_cri_desc *workCriDesc, short hbRowAtpIndex, short ofRowAtpIndex, short hashValueAtpIndex, short bitMuxAtpIndex,
     short bitMuxCountOffset, short resultRowAtpIndex, short returnedAtpIndex, unsigned short memUsagePercent,
     short pressureThreshold, short scratchThresholdPct, queue_index fromParent, queue_index toParent,
-    NABoolean isPartialGroup, Cardinality estimatedRowCount, int numBuffers, ULng32 bufferSize,
-    ULng32 partialGrbyFlushThreshold, ULng32 partialGrbyRowsPerCluster, ULng32 initialHashTableSize,
-    unsigned short minBuffersToFlush, ULng32 numInBatch, short hgbGrowthPercent)
+    NABoolean isPartialGroup, Cardinality estimatedRowCount, int numBuffers, int bufferSize,
+    int partialGrbyFlushThreshold, int partialGrbyRowsPerCluster, int initialHashTableSize,
+    unsigned short minBuffersToFlush, int numInBatch, short hgbGrowthPercent)
     : ComTdb(ComTdb::ex_HASH_GRBY, eye_HASH_GRBY, estimatedRowCount, givenDesc, returnedDesc, fromParent, toParent,
              numBuffers, bufferSize),
       childTdb_(childTdb),
@@ -129,7 +129,7 @@ int ComTdbHashGrby::unpack(void *base, void *reallocator) {
   return ComTdb::unpack(base, reallocator);
 };
 
-void ComTdbHashGrby::displayContents(Space *space, ULng32 flag) {
+void ComTdbHashGrby::displayContents(Space *space, int flag) {
   ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
   if (flag & 0x00000008) {

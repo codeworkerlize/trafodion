@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ******************************************************************************
 *
@@ -81,7 +60,7 @@ TreeNode::~TreeNode() {
 //
 //-----------------------------------------------------------------------
 
-void TreeNode::initialize(ULng32 nodenum, ULng32 associatedrun, TreeNode *fi, TreeNode *fe, Record *rec, CollHeap *heap,
+void TreeNode::initialize(int nodenum, int associatedrun, TreeNode *fi, TreeNode *fe, Record *rec, CollHeap *heap,
                           SortError *sorterror, SortScratchSpace *scratch, NABoolean merge, NABoolean waited) {
   key_ = NULL;
   record_ = NULL;
@@ -147,7 +126,7 @@ void TreeNode::deallocate() {
 //   None.
 //
 //----------------------------------------------------------------------
-RESULT TreeNode::outputScr(ULng32 run, ULng32 reclen, SortScratchSpace *scratch, NABoolean waited) {
+RESULT TreeNode::outputScr(int run, int reclen, SortScratchSpace *scratch, NABoolean waited) {
   RESULT status = SCRATCH_SUCCESS;
   if (scratch->getDiskPool() == NULL) {
     scratch->generateDiskTable(sortError_);
@@ -170,8 +149,8 @@ RESULT TreeNode::outputScr(ULng32 run, ULng32 reclen, SortScratchSpace *scratch,
 // Return Value :
 //   0 - If record read successfully.
 //----------------------------------------------------------------------
-RESULT TreeNode::inputScr(ULng32 keylen, ULng32 reclen, SortScratchSpace *scratch, ULng32 &actRecLen,
-                          // ULng32 keySize,
+RESULT TreeNode::inputScr(int keylen, int reclen, SortScratchSpace *scratch, int &actRecLen,
+                          // int keySize,
                           NABoolean waited, Int16 numberOfBytesForRecordSize) {
   RESULT status;
   status =
@@ -181,8 +160,8 @@ RESULT TreeNode::inputScr(ULng32 keylen, ULng32 reclen, SortScratchSpace *scratc
   return status;
 }
 /*
-NABoolean TreeNode::setRecord(void *rec, ULng32 reclen,
-                              ULng32 keylen,
+NABoolean TreeNode::setRecord(void *rec, int reclen,
+                              int keylen,
                               Int16 numberOfBytesForRecordSize)
 {
   NABoolean status;
@@ -191,7 +170,7 @@ NABoolean TreeNode::setRecord(void *rec, ULng32 reclen,
   return(status);
 }
 */
-NABoolean TreeNode::setRecordTupp(void *rec, ULng32 reclen, ULng32 keylen, void *tupp,
+NABoolean TreeNode::setRecordTupp(void *rec, int reclen, int keylen, void *tupp,
                                   Int16 numberOfBytesForRecordSize) {
   NABoolean status;
   status = record_->setRecordTupp(rec, reclen, tupp);
@@ -199,7 +178,7 @@ NABoolean TreeNode::setRecordTupp(void *rec, ULng32 reclen, ULng32 keylen, void 
   return (status);
 }
 
-NABoolean TreeNode::getRecord(void *rec, ULng32 reclen) { return record_->getRecord(rec, reclen); }
+NABoolean TreeNode::getRecord(void *rec, int reclen) { return record_->getRecord(rec, reclen); }
 
 //-----------------------------------------------------------------------
 // Name         : getXXXXXX and setXXXXXX
@@ -225,6 +204,6 @@ TreeNode *TreeNode::getLoser() { return (loser_); }
 
 char *TreeNode::getKey() { return key_; }
 
-ULng32 TreeNode::getRun() { return (run_); }
+int TreeNode::getRun() { return (run_); }
 
-void TreeNode::setRun(ULng32 run) { run_ = run; }
+void TreeNode::setRun(int run) { run_ = run; }

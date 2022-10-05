@@ -30,12 +30,12 @@ ComTdbProbeCache::ComTdbProbeCache() : ComTdb(ComTdb::ex_PROBE_CACHE, eye_PROBE_
 // Constructor
 
 ComTdbProbeCache::ComTdbProbeCache(ex_expr *hash_probe_expr, ex_expr *encode_probe_expr, ex_expr *move_inner_expr,
-                                   ex_expr *select_pred, ULng32 probe_len, ULng32 inner_rec_len, ULng32 cache_size,
+                                   ex_expr *select_pred, int probe_len, int inner_rec_len, int cache_size,
                                    const unsigned short tupp_index, const unsigned short hashValIdx,
                                    const unsigned short encodedProbeDataIdx, const unsigned short innerRowDataIdx,
                                    ComTdb *child_tdb, ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc,
                                    queue_index down, queue_index up, Cardinality estimatedRowCount,
-                                   ULng32 numInnerTuples)
+                                   int numInnerTuples)
     : ComTdb(ComTdb::ex_PROBE_CACHE, eye_PROBE_CACHE, estimatedRowCount, given_cri_desc, returned_cri_desc, down, up,
              0,   // num_buffers - we use numInnerTuples_ instead.
              0),  // buffer_size - we use numInnerTuples_ instead.
@@ -76,7 +76,7 @@ int ComTdbProbeCache::unpack(void *base, void *reallocator) {
   return ComTdb::unpack(base, reallocator);
 }
 
-void ComTdbProbeCache::displayContents(Space *space, ULng32 flag) {
+void ComTdbProbeCache::displayContents(Space *space, int flag) {
   ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
   if (flag & 0x00000008) {

@@ -309,7 +309,7 @@ struct PersistentOpenEntry {
 };
 struct BawaitioxTraceEntry {
   unsigned short count_;
-  ULng32 recursionCount_;
+  int recursionCount_;
   IpcSetOfConnections *ipcSetOfConnections_;
   CollIndex firstConnectionIndex_;
   IpcConnection *firstConnection_;
@@ -556,7 +556,7 @@ class IpcConnection : public NABasicObject {
   // who are we connected to
   inline const IpcProcessId &getOtherEnd() const { return otherEnd_; }
 
-  ULng32 getReplySeqNum() { return replySeqNum_; }
+  int getReplySeqNum() { return replySeqNum_; }
 
   virtual bool isServerSide();
 
@@ -759,7 +759,7 @@ class IpcConnection : public NABasicObject {
   // sequence number of the next expected msg reply. the server side puts
   // seq number in reply buffer before msg send. the client side verifies
   // reply seq number upon msg receive.
-  ULng32 replySeqNum_;
+  int replySeqNum_;
 
   // lists used to match message stream callbacks with incoming messages
   LIST(IpcMessageStreamBase *) recvStreams_;
@@ -3034,7 +3034,7 @@ class IpcAllConnections : public ARRAY(IpcConnection *) {
 
   // get the list of connections with pending I/Os and save the node names,
   // CPUs and PINs of the first <n> processes of the other ends in given buff
-  CollIndex fillInListOfPendingPins(char *buff, ULng32 buffSize, CollIndex numOfPins);
+  CollIndex fillInListOfPendingPins(char *buff, int buffSize, CollIndex numOfPins);
 
   void fillInListOfPendingPhandles(GuaProcessHandle *phandles, CollIndex &numOfPhandles);
 
@@ -3265,7 +3265,7 @@ class IpcEnvironment : public NABasicObject {
   // atomic
   inline short getNumOpensInProgress() const { return numOpensInProgress_; }
   void closeTrace(unsigned short, short, int, int, SB_Int64_Type);
-  void bawaitioxTrace(IpcSetOfConnections *ipcSetOfConnections, ULng32 recursionCount, CollIndex firstConnectionIndex,
+  void bawaitioxTrace(IpcSetOfConnections *ipcSetOfConnections, int recursionCount, CollIndex firstConnectionIndex,
                       IpcConnection *firstConnection, IpcAwaitiox *ipcAwaitiox);
   // Methods to aid executor tracing for data send and receive
   void registTraceInfo(ExeTraceInfo *ti);

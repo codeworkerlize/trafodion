@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ****************************************************************************
 *
@@ -254,7 +233,7 @@ void HeapLogRoot::control(HeapControlEnum option) {
 // -----------------------------------------------------------------------
 // Do session control based on syntax clauses.
 // -----------------------------------------------------------------------
-void HeapLogRoot::control2(ULng32 flags, ULng32 mask) {
+void HeapLogRoot::control2(int flags, int mask) {
   if ((flags & mask) == 0) {
     control(LOG_RESET_DISABLE);
     return;
@@ -311,7 +290,7 @@ int HeapLogRoot::getPackSize() {
 // ---------------------------------------------------------------------
 // Pack log data into a flat buffer.
 // ---------------------------------------------------------------------
-void HeapLogRoot::pack(char *buf, ULng32 flags) {
+void HeapLogRoot::pack(char *buf, int flags) {
   if (HeapLogRoot::log == NULL || ((flags & LeakDescribe::FLAG_ARKCMP) == 0)) {  // eof, pack null chars.
     buf[0] = buf[1] = '\0';
     control2(flags, LeakDescribe::FLAG_ARKCMP);
@@ -342,7 +321,7 @@ void HeapLogRoot::pack(char *buf, ULng32 flags) {
 // Optionally prompt the user for input.
 // return FETCH_EOF if eof else 0.
 // ---------------------------------------------------------------------
-int HeapLogRoot::fetchLine(char *buf, ULng32 flags, char *packdata /*=NULL*/
+int HeapLogRoot::fetchLine(char *buf, int flags, char *packdata /*=NULL*/
                              ,
                              int datalen /*=0*/
 ) {
@@ -533,7 +512,7 @@ int HeapLog::addEntry(void *addr, int size, int heapNum, const char *heapName) {
 // -----------------------------------------------------------------------
 // Prepare to fetch packdata returned from arkcmp.
 // -----------------------------------------------------------------------
-int HeapLog::fetchInit(ULng32 flags, char *packdata, int datalen) {
+int HeapLog::fetchInit(int flags, char *packdata, int datalen) {
   if (status_ != PHASE_CLOSED)
     // fetchInit has been performed.
     return 0;

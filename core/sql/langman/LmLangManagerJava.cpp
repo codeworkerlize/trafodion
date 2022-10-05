@@ -238,8 +238,8 @@ void LmLanguageManagerJava::initialize(LmResult &result, ComUInt32 maxLMJava, Lm
     LM_DEBUG0("");
 #endif
 
-    ULng32 numUserOpts = actualJvmOptions->entries();
-    ULng32 numHookOpts = 3;  // for abort, exit, vfprintf hooks
+    int numUserOpts = actualJvmOptions->entries();
+    int numHookOpts = 3;  // for abort, exit, vfprintf hooks
 #ifdef _DEBUG
     int debugPort = 0;
     int debugTimeout = 0;
@@ -260,7 +260,7 @@ void LmLanguageManagerJava::initialize(LmResult &result, ComUInt32 maxLMJava, Lm
 
     JavaVMOption *vmOptions = NULL;
     if ((numUserOpts + numHookOpts) > 0) {
-      const ULng32 numBytes = (numUserOpts + numHookOpts) * sizeof(JavaVMOption);
+      const int numBytes = (numUserOpts + numHookOpts) * sizeof(JavaVMOption);
       vmOptions = (JavaVMOption *)new (collHeap()) char[numBytes];
       memset((char *)vmOptions, 0, numBytes);
     }
@@ -271,7 +271,7 @@ void LmLanguageManagerJava::initialize(LmResult &result, ComUInt32 maxLMJava, Lm
     // called because they've already been registered. This can
     // happen, for example, if a security policy file is specified in
     // a user option and there is a syntax error in that file.
-    ULng32 i = 0;
+    int i = 0;
     if (numHookOpts > 0) {
       vmOptions[i].optionString = (char *)"vfprintf";
       vmOptions[i++].extraInfo = (void *)LmJavaHooks::vfprintfHookJVM;

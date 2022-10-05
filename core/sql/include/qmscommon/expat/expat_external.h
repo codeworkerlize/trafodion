@@ -108,7 +108,7 @@ typedef UInt64 XML_Size;
 #endif
 #else
 typedef int XML_Index;
-typedef ULng32 XML_Size;
+typedef int XML_Size;
 #endif /* XML_LARGE_SIZE */
 
 #ifdef __cplusplus

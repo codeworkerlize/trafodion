@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef CLI_SESSION_DEFAULTS_H
 #define CLI_SESSION_DEFAULTS_H
 
@@ -864,7 +843,7 @@ class AQRStatementAttributes : public NABasicObject {
   CollHeap *heap_;
   SQLATTRHOLDABLE_INTERNAL_TYPE holdable_;
   Statement::AtomicityType rowsetAtomicity_;
-  ULng32 inputArrayMaxsize_;
+  int inputArrayMaxsize_;
   char *uniqueStmtId_;
   int uniqueStmtIdLen_;
   char *parentQID_;
@@ -880,7 +859,7 @@ class AQRStatementInfo : public NABasicObject {
     savedStmtAttributes_ = NULL;
   }
 
-  ULng32 getRetryPrepareFlags() { return retryPrepareFlags_; }
+  int getRetryPrepareFlags() { return retryPrepareFlags_; }
 
   SQLSTMT_ID *getRetryStatementId() { return retryStatementId_; }
   SQLDESC_ID *getRetrySqlSource() { return retrySqlSource_; }
@@ -904,7 +883,7 @@ class AQRStatementInfo : public NABasicObject {
   void setRetrySqlSource(SQLDESC_ID *v) { retrySqlSource_ = v; }
   void setRetryInputDesc(SQLDESC_ID *v) { retryInputDesc_ = v; }
   void setRetryOutputDesc(SQLDESC_ID *v) { retryOutputDesc_ = v; }
-  void setRetryPrepareFlags(ULng32 v) { retryPrepareFlags_ = v; }
+  void setRetryPrepareFlags(int v) { retryPrepareFlags_ = v; }
 
   void setRetryTempInputDesc(SQLDESC_ID *v) { retryTempInputDesc_ = v; }
   void setRetryTempOutputDesc(SQLDESC_ID *v) { retryTempOutputDesc_ = v; }
@@ -929,7 +908,7 @@ class AQRStatementInfo : public NABasicObject {
   SQLDESC_ID *retryTempInputDesc_;
   SQLDESC_ID *retryTempOutputDesc_;
 
-  ULng32 retryPrepareFlags_;
+  int retryPrepareFlags_;
   UInt32 retryFlags_;
   enum RetryFlags {
     // first fetch, stmt could be retried.

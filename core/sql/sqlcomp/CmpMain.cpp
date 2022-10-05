@@ -310,7 +310,7 @@ static const char *getCOMPILE_TIME_MONITOR_OUTPUT_FILEname() {
     x.append(".");
 
     char buf[30];
-    str_itoa((ULng32)pid, buf);
+    str_itoa((int)pid, buf);
 
     x.append(buf);
 
@@ -509,7 +509,7 @@ void CmpMain::FlushQueryCachesIfLongTime(int begTimeInSec) {
 CmpMain::ReturnStatus CmpMain::sqlcomp(QueryText &input,                  // IN
                                        int /*input_strlen*/,            // UNUSED
                                        char **gen_code,                   // OUT
-                                       ULng32 *gen_code_len,              // OUT
+                                       int *gen_code_len,              // OUT
                                        CollHeap *heap,                    // IN
                                        CompilerPhase phase,               // IN
                                        FragmentDir **fragmentDir,         // OUT
@@ -579,7 +579,7 @@ CmpMain::ReturnStatus CmpMain::sqlcomp(QueryText &input,                  // IN
   int here = CmpCommon::diags()->mark();
   CmpMain::ReturnStatus rs = PARSERERROR;
 
-  ULng32 originalParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
+  int originalParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
 
   NABoolean Retried_for_priv_failure = FALSE;
   NABoolean Retried_without_QC = FALSE;
@@ -764,7 +764,7 @@ CmpMain::ReturnStatus CmpMain::sqlcomp(QueryText &input,                  // IN
 CmpMain::ReturnStatus CmpMain::sqlcompStatic(QueryText &input,        // IN
                                              int /*input_strlen*/,  // UNUSED
                                              char **gen_code,         // OUT
-                                             ULng32 *gen_code_len,    // OUT
+                                             int *gen_code_len,    // OUT
                                              CollHeap *heap,          // IN
                                              CompilerPhase phase,     // IN
                                              IpcMessageObjType op)    // IN
@@ -822,7 +822,7 @@ CmpMain::ReturnStatus CmpMain::sqlcompStatic(QueryText &input,        // IN
 
   int here = CmpCommon::diags()->mark();
   CmpMain::ReturnStatus rc = PARSERERROR;
-  ULng32 originalParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
+  int originalParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
   for (int x = 0; x < 2; x++) {
     //
     // Do any Query Invalidation that must be done due to recent REVOKE
@@ -953,11 +953,11 @@ CmpMain::ReturnStatus CmpMain::sqlcompStatic(QueryText &input,        // IN
 // default constructor
 CmpMain::CmpMain() : attrs() { cmpISPInterface.InitISPFuncs(); }
 
-void CmpMain::setInputArrayMaxsize(const ULng32 maxsize) {
+void CmpMain::setInputArrayMaxsize(const int maxsize) {
   attrs.addStmtAttribute(SQL_ATTR_INPUT_ARRAY_MAXSIZE, maxsize);
 }
 
-ULng32 CmpMain::getInputArrayMaxsize() const {
+int CmpMain::getInputArrayMaxsize() const {
   for (int x = 0; x < attrs.nEntries; x++) {
     if (attrs.attrs[x].attr == SQL_ATTR_INPUT_ARRAY_MAXSIZE) {
       return attrs.attrs[x].value;
@@ -1247,7 +1247,7 @@ NABoolean CmpMain::compileFromCache(const char *sText,     // (IN) : sql stateme
                                     BindWA *bindWA,        // (IN) : work area (used by backpatchParams)
                                     CacheWA &cachewa,      // (IN) : work area for normalizeForCache
                                     char **plan,           // (OUT): compiled plan or NULL
-                                    ULng32 *pLen,          // (OUT): length of compiled plan or 0
+                                    int *pLen,          // (OUT): length of compiled plan or 0
                                     NAHeap *heap,          // (IN) : heap to use for compiled plan
                                     IpcMessageObjType op,  //(IN): SQLTEXT_{STATIC_}COMPILE or
                                                            //      SQLTEXT_{STATIC_}RECOMPILE
@@ -1390,7 +1390,7 @@ NABoolean CmpMain::compileFromCache(const char *sText,     // (IN) : sql stateme
     if (ckey && CURRENTQCACHE->lookUp(ckey, cdata, entry, phase, onlyForcedPlan)) {
       // backpatch parameters in plan
       char *params;
-      ULng32 parmSize;
+      int parmSize;
       if (hqcHit)  // HQC case
         bPatchOK = cdata->backpatchParams(hkey->getParams().getConstantList(), hkey->getParams().getDynParamList(),
                                           *bindWA, params, parmSize);
@@ -1508,7 +1508,7 @@ CmpMain::ReturnStatus CmpMain::sqlcomp(const char *input_str,             // IN
                                        int charset,                     // IN
                                        RelExpr *&queryExpr,               // INOUT
                                        char **gen_code,                   // OUT
-                                       ULng32 *gen_code_len,              // OUT
+                                       int *gen_code_len,              // OUT
                                        CollHeap *heap,                    // IN
                                        CompilerPhase phase,               // IN
                                        FragmentDir **fragmentDir,         // OUT
@@ -1604,7 +1604,7 @@ static void fixupCompilationStats(ComTdbRoot *rootTdb, Space *rootSpace) {
   }
 }
 
-void CmpMain::setSqlParserFlags(ULng32 f) {
+void CmpMain::setSqlParserFlags(int f) {
   // set special flags
   if (CmpCommon::getDefault(MODE_SPECIAL_4) == DF_ON) {
     f |= IN_MODE_SPECIAL_4;
@@ -1621,7 +1621,7 @@ CmpMain::ReturnStatus CmpMain::compile(const char *input_str,             // IN
                                        int charset,                     // IN
                                        RelExpr *&queryExpr,               // INOUT
                                        char **gen_code,                   // OUT
-                                       ULng32 *gen_code_len,              // OUT
+                                       int *gen_code_len,              // OUT
                                        CollHeap *heap,                    // IN
                                        CompilerPhase phase,               // IN
                                        FragmentDir **fragmentDir,         // OUT
@@ -2184,7 +2184,7 @@ CmpMain::ReturnStatus CmpMain::compile(const char *input_str,             // IN
                        CmpCommon::statementHeap());
         // backpatch parameters in query plan
         char *params;
-        ULng32 paramSize;
+        int paramSize;
         if (data.backpatchParams(cachewa.getConstParams(), cachewa.getSelParams(),
                                  cachewa.getConstParamPositionsInSql(), cachewa.getSelParamPositionsInSql(), bindWA,
                                  params, paramSize)) {
@@ -2549,7 +2549,7 @@ QryStmtAttributeSet::QryStmtAttributeSet(const QryStmtAttributeSet &s) : nEntrie
 }
 
 // add a query stmt attribute to attrs
-void QryStmtAttributeSet::addStmtAttribute(SQLATTR_TYPE a, ULng32 v) {
+void QryStmtAttributeSet::addStmtAttribute(SQLATTR_TYPE a, int v) {
   int x;
   NABoolean found = FALSE;
   for (x = 0; x < nEntries; x++) {

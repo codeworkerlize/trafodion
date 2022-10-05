@@ -48,7 +48,7 @@ void CmpMessageObj::unpackBuffer(IpcConstMessageBufferPtr &buffer, char *&strPtr
   }
 }
 
-void CmpMessageObj::unpackBuffer(IpcConstMessageBufferPtr &buffer, char *strPtr, ULng32 maxSize, ULng32 &sizeMoved) {
+void CmpMessageObj::unpackBuffer(IpcConstMessageBufferPtr &buffer, char *strPtr, int maxSize, int &sizeMoved) {
   CmpMsgBufLenType length;
   // NOT a recursive call.
   ::unpackBuffer(buffer, length);
@@ -154,7 +154,7 @@ void CmpMessageReplyBasic::unpackMyself(IpcMessageObjType objType, IpcMessageObj
 }
 
 CmpCompileInfo::CmpCompileInfo(char *sourceStr, int sourceStrLen, int sourceStrCharSet, char *schemaName,
-                               int schemaNameLen, ULng32 inputArrayMaxsize, short atomicity)
+                               int schemaNameLen, int inputArrayMaxsize, short atomicity)
     : flags_(0),
       sqltext_(sourceStr),
       sqlTextLen_(sourceStrLen),
@@ -348,7 +348,7 @@ void CmpDDLwithStatusInfo::unpack(char *base) {
 // -----------------------------------------------------------------------
 
 CmpMessageReply::CmpMessageReply(MessageTypeEnum e, ID request, CollHeap *h, char *preAllocatedData,
-                                 ULng32 preAllocatedSize, CollHeap *outh)
+                                 int preAllocatedSize, CollHeap *outh)
     : CmpMessageReplyBasic(e, request, h) {
   data_ = 0;
   sz_ = 0;
@@ -388,7 +388,7 @@ void CmpMessageReply::unpackMyself(IpcMessageObjType objType, IpcMessageObjVersi
     data_ = 0;
   if (preAllocatedData_ && preAllocatedSize_ >= sz_) {
     // use the preAllocatedData_ to hold the reply
-    ULng32 temp;
+    int temp;
     unpackBuffer(buffer, preAllocatedData_, preAllocatedSize_, temp);
     data_ = preAllocatedData_;
     dataAllocated_ = FALSE;
@@ -427,7 +427,7 @@ IpcMessageObjSize CmpMessageReplyCode::packMyself(IpcMessageBufferPtr &buffer) {
   size += ::packIntoBuffer(buffer, getSize());
   if (getSize() > 0) {
     int outputLengthSoFar = 0;
-    ULng32 out_buflen = getSize();
+    int out_buflen = getSize();
     for (CollIndex i = 0; i < fragmentDir_->entries(); i++) {
       // copy the next space into the buffer
       if (fragmentDir_->getSpace(i)->makeContiguous(&buffer[outputLengthSoFar], out_buflen - outputLengthSoFar) == 0)
@@ -445,7 +445,7 @@ IpcMessageObjSize CmpMessageReplyCode::copyFragsToBuffer(IpcMessageBufferPtr &bu
   IpcMessageObjSize size = 0;
   if (getSize() > 0) {
     int outputLengthSoFar = 0;
-    ULng32 out_buflen = getSize();
+    int out_buflen = getSize();
     for (CollIndex i = 0; i < fragmentDir_->entries(); i++) {
       // copy the next space into the buffer
       if (fragmentDir_->getSpace(i)->makeContiguous(&buffer[outputLengthSoFar], out_buflen - outputLengthSoFar) == 0)
@@ -650,9 +650,9 @@ CmpMessageEnvs::~CmpMessageEnvs() { destroyMe(); }
 // Methods for CmpMessageISPRequest
 // -----------------------------------------------------------------------
 
-CmpMessageISPRequest::CmpMessageISPRequest(char *procName, void *inputExpr, ULng32 inputExprSize, void *outputExpr,
-                                           ULng32 outputExprSize, void *keyExpr, ULng32 keyExprSize, void *inputData,
-                                           ULng32 inputDataSize, ULng32 outputRowSize, ULng32 outputTotalSize,
+CmpMessageISPRequest::CmpMessageISPRequest(char *procName, void *inputExpr, int inputExprSize, void *outputExpr,
+                                           int outputExprSize, void *keyExpr, int keyExprSize, void *inputData,
+                                           int inputDataSize, int outputRowSize, int outputTotalSize,
                                            CollHeap *h, const char *parentQid, int parentQidLen)
     : CmpMessageRequest(INTERNALSP_REQUEST, NULL, 0, h, SQLCHARSETCODE_UNKNOWN, parentQid, parentQidLen) {
   procName_ = procName;
@@ -740,7 +740,7 @@ void CmpMessageISPRequest::unpackMyself(IpcMessageObjType objType, IpcMessageObj
 // Methods for CmpMessageISPGetNext
 // -----------------------------------------------------------------------
 
-CmpMessageISPGetNext::CmpMessageISPGetNext(ULng32 bufSize, ID ispRequest, int serialNo, CollHeap *h,
+CmpMessageISPGetNext::CmpMessageISPGetNext(int bufSize, ID ispRequest, int serialNo, CollHeap *h,
                                            const char *parentQid, int parentQidLen)
     : CmpMessageRequest(INTERNALSP_GETNEXT, NULL, 0, h, SQLCHARSETCODE_UNKNOWN, parentQid, parentQidLen) {
   bufSize_ = bufSize;

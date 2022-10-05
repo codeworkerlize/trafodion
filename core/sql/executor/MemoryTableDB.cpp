@@ -36,7 +36,7 @@
 #include <sys/time.h>
 #include "sqlcomp/SharedCache.h"
 
-ULng32 NAStringHashFunc(const NAString &x) { return x.hash(); }
+int NAStringHashFunc(const NAString &x) { return x.hash(); }
 
 void fixupVTable(HTableCache *targetTableCache) {
   static HTableCache tableCache;

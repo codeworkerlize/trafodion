@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ****************************************************************************
 *
@@ -50,11 +29,11 @@ class ComTdbGenericUtil : public ComTdb {
  public:
   ComTdbGenericUtil() : ComTdb(ComTdb::ex_DDL, eye_DDL){};
 
-  ComTdbGenericUtil(char *query, ULng32 querylen, Int16 querycharset, char *objectName, ULng32 objectNameLen,
-                    ex_expr *input_expr, ULng32 input_rowlen, ex_expr *output_expr, ULng32 output_rowlen,
+  ComTdbGenericUtil(char *query, int querylen, Int16 querycharset, char *objectName, int objectNameLen,
+                    ex_expr *input_expr, int input_rowlen, ex_expr *output_expr, int output_rowlen,
                     ex_cri_desc *work_cri_desc, const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
                     ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
-                    ULng32 buffer_size);
+                    int buffer_size);
 
   ~ComTdbGenericUtil();
 
@@ -163,10 +142,10 @@ class ComTdbDDL : public ComTdbGenericUtil {
  public:
   ComTdbDDL() : ComTdbGenericUtil() {}
 
-  ComTdbDDL(char *ddl_query, ULng32 ddl_querylen, Int16 ddl_querycharset, char *schemaName, ULng32 schemaNameLen,
-            ex_expr *input_expr, ULng32 input_rowlen, ex_expr *output_expr, ULng32 output_rowlen,
+  ComTdbDDL(char *ddl_query, int ddl_querylen, Int16 ddl_querycharset, char *schemaName, int schemaNameLen,
+            ex_expr *input_expr, int input_rowlen, ex_expr *output_expr, int output_rowlen,
             ex_cri_desc *work_cri_desc, const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
-            ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers, ULng32 buffer_size);
+            ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers, int buffer_size);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -229,11 +208,11 @@ class ComTdbDDLwithStatus : public ComTdbDDL {
  public:
   ComTdbDDLwithStatus() : ComTdbDDL() {}
 
-  ComTdbDDLwithStatus(char *ddl_query, ULng32 ddl_querylen, Int16 ddl_querycharset, char *schemaName,
-                      ULng32 schemaNameLen, ex_expr *input_expr, ULng32 input_rowlen, ex_expr *output_expr,
-                      ULng32 output_rowlen, ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
+  ComTdbDDLwithStatus(char *ddl_query, int ddl_querylen, Int16 ddl_querycharset, char *schemaName,
+                      int schemaNameLen, ex_expr *input_expr, int input_rowlen, ex_expr *output_expr,
+                      int output_rowlen, ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
                       ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
-                      int num_buffers, ULng32 buffer_size);
+                      int num_buffers, int buffer_size);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -288,13 +267,13 @@ class ComTdbProcessVolatileTable : public ComTdbDDL {
  public:
   ComTdbProcessVolatileTable() : ComTdbDDL() {}
 
-  ComTdbProcessVolatileTable(char *ddl_query, ULng32 ddl_querylen, Int16 ddl_querycharset, char *volTabName,
-                             ULng32 volTabNameLen, NABoolean isCreate, NABoolean isTable, NABoolean isIndex,
-                             NABoolean isSchema, char *schemaName, ULng32 schemaNameLen, ex_expr *input_expr,
-                             ULng32 input_rowlen, ex_expr *output_expr, ULng32 output_rowlen,
+  ComTdbProcessVolatileTable(char *ddl_query, int ddl_querylen, Int16 ddl_querycharset, char *volTabName,
+                             int volTabNameLen, NABoolean isCreate, NABoolean isTable, NABoolean isIndex,
+                             NABoolean isSchema, char *schemaName, int schemaNameLen, ex_expr *input_expr,
+                             int input_rowlen, ex_expr *output_expr, int output_rowlen,
                              ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
                              ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
-                             queue_index up, int num_buffers, ULng32 buffer_size);
+                             queue_index up, int num_buffers, int buffer_size);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -337,13 +316,13 @@ class ComTdbProcessInMemoryTable : public ComTdbDDL {
  public:
   ComTdbProcessInMemoryTable() : ComTdbDDL() {}
 
-  ComTdbProcessInMemoryTable(char *ddl_query, ULng32 ddl_querylen, Int16 ddl_querycharset, char *objName,
-                             ULng32 objNameLen, NABoolean isCreate, NABoolean isVolatile, NABoolean isTable,
-                             NABoolean isIndex, NABoolean isMV, char *schemaName, ULng32 schemaNameLen,
-                             ex_expr *input_expr, ULng32 input_rowlen, ex_expr *output_expr, ULng32 output_rowlen,
+  ComTdbProcessInMemoryTable(char *ddl_query, int ddl_querylen, Int16 ddl_querycharset, char *objName,
+                             int objNameLen, NABoolean isCreate, NABoolean isVolatile, NABoolean isTable,
+                             NABoolean isIndex, NABoolean isMV, char *schemaName, int schemaNameLen,
+                             ex_expr *input_expr, int input_rowlen, ex_expr *output_expr, int output_rowlen,
                              ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
                              ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
-                             queue_index up, int num_buffers, ULng32 buffer_size);
+                             queue_index up, int num_buffers, int buffer_size);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -390,9 +369,9 @@ class ComTdbDescribe : public ComTdbDDL {
 
   ComTdbDescribe() : ComTdbDDL(){};
 
-  ComTdbDescribe(char *query, ULng32 querylen, Int16 querycharset, ex_expr *input_expr, ULng32 input_rowlen,
-                 ex_expr *output_expr, ULng32 output_rowlen, ex_cri_desc *work_cri_desc,
-                 const unsigned short work_atp_index, DescribeType type, ULng32 flags, ex_cri_desc *given_cri_desc,
+  ComTdbDescribe(char *query, int querylen, Int16 querycharset, ex_expr *input_expr, int input_rowlen,
+                 ex_expr *output_expr, int output_rowlen, ex_cri_desc *work_cri_desc,
+                 const unsigned short work_atp_index, DescribeType type, int flags, ex_cri_desc *given_cri_desc,
                  ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
                  int buffer_size);
 

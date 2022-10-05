@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ****************************************************************************
 *
@@ -56,7 +35,7 @@ class ComTdbUnion : public ComTdb {
   ComTdbUnion(ComTdb *left_tdb, ComTdb *right_tdb, ex_expr *left_expr, ex_expr *right_expr, ex_expr *merge_expr,
               ex_expr *cond_expr, ex_expr *trig_expr, int union_reclen, const unsigned short tupp_index,
               ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
-              Cardinality estimatedRowCount, int num_buffers, ULng32 buffer_size, NABoolean ordered_union,
+              Cardinality estimatedRowCount, int num_buffers, int buffer_size, NABoolean ordered_union,
               int blocked_union,  // ++ Triggers -, add blocked_union
               int hasNoOutputs,   // ++ Triggers -, add noOutputs
               NABoolean rowsFromLeft, NABoolean rowsFromRight, NABoolean AfterUpdate, NABoolean inNotAtomicStmt);
@@ -98,7 +77,7 @@ class ComTdbUnion : public ComTdb {
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
   // ---------------------------------------------------------------------
-  virtual void displayContents(Space *space, ULng32 flag);
+  virtual void displayContents(Space *space, int flag);
 
   inline NABoolean expectingLeftRows() const { return (csErrFlags_ & ROWS_FROM_LEFT) != 0; }
 

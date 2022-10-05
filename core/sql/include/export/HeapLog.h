@@ -144,10 +144,10 @@ class HeapLogRoot {
 
   // called by arkcmp.
   static int getPackSize();
-  static void pack(char *buf, ULng32 flags);
+  static void pack(char *buf, int flags);
 
   // called by executor.
-  static int fetchLine(char *buf, ULng32 flags, char *packdata = NULL, int datalen = 0);
+  static int fetchLine(char *buf, int flags, char *packdata = NULL, int datalen = 0);
 
   // called by heap constructor.
   static int assignHeapNum();
@@ -155,7 +155,7 @@ class HeapLogRoot {
   virtual void pureVirtual() = 0;
 
  private:
-  static void control2(ULng32 flags, ULng32 mask);
+  static void control2(int flags, int mask);
   // Init the log;
   static void initLog();
   // Reset the log.

@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -68,21 +47,21 @@ const SQLATTR_TYPE SQL_ATTR_SQLPARSERFLAGS = (SQLATTR_TYPE)0;
 // NB: SQL_ATTR_SQLPARSERFLAGS  must be distinct & different
 //     from all other SQLATTR_TYPE values in cli/sqlcli.h
 const SQLATTR_TYPE SQL_ATTR_NOT_SET = (SQLATTR_TYPE)666;
-const ULng32 SQL_ATTR_NO_VALUE = 999;
+const int SQL_ATTR_NO_VALUE = 999;
 
 class QryStmtAttribute : public NABasicObject {
   friend class QryStmtAttributeSet;
   friend class CmpMain;
   friend class CompilerEnv;
   SQLATTR_TYPE attr;  // name of query statement attribute
-  ULng32 value;       // value of query statement attribute
+  int value;       // value of query statement attribute
 
  public:
   // default constructor
   QryStmtAttribute() : attr(SQL_ATTR_NOT_SET), value(SQL_ATTR_NO_VALUE) {}
 
   // constructor
-  QryStmtAttribute(SQLATTR_TYPE a, ULng32 v) : attr(a), value(v) {}
+  QryStmtAttribute(SQLATTR_TYPE a, int v) : attr(a), value(v) {}
 
   // copy constructor
   QryStmtAttribute(const QryStmtAttribute &s) : attr(s.attr), value(s.value) {}
@@ -114,7 +93,7 @@ class QryStmtAttributeSet : public NABasicObject {
   virtual ~QryStmtAttributeSet() {}
 
   // add a query statement attribute to attrs
-  void addStmtAttribute(SQLATTR_TYPE a, ULng32 v);
+  void addStmtAttribute(SQLATTR_TYPE a, int v);
 
   // return true if set has given statement attribute
   NABoolean has(const QryStmtAttribute &a) const;
@@ -191,13 +170,13 @@ class CmpMain {
 #endif
 
   // sqlcomp will compile a string of sql text into code from generator
-  ReturnStatus sqlcomp(QueryText &input, int /*unused*/, char **gen_code, ULng32 *gen_code_len, NAMemory *h = NULL,
+  ReturnStatus sqlcomp(QueryText &input, int /*unused*/, char **gen_code, int *gen_code_len, NAMemory *h = NULL,
                        CompilerPhase = END, FragmentDir **framentDir = NULL,
                        IpcMessageObjType op = CmpMessageObj::SQLTEXT_COMPILE,
                        QueryCachingOption useQueryCache = NORMAL);
 
   // sqlcomp will compile a RelExpr into code from generator
-  ReturnStatus sqlcomp(const char *input_str, int charset, RelExpr *&queryExpr, char **gen_code, ULng32 *gen_code_len,
+  ReturnStatus sqlcomp(const char *input_str, int charset, RelExpr *&queryExpr, char **gen_code, int *gen_code_len,
                        NAMemory *h = NULL, CompilerPhase p = END, FragmentDir **fragmentDir = NULL,
                        IpcMessageObjType op = CmpMessageObj::SQLTEXT_COMPILE,
                        QueryCachingOption useQueryCache = NOCACHE, NABoolean *cacheable = NULL, TimeVal *begTime = NULL,
@@ -206,7 +185,7 @@ class CmpMain {
   // sqlcomp will compile a string of sql text into code from generator.
   // This string is from a static program and is being recompiled
   // dynamically at runtime.
-  ReturnStatus sqlcompStatic(QueryText &input, int /*unused*/, char **gen_code, ULng32 *gen_code_len,
+  ReturnStatus sqlcompStatic(QueryText &input, int /*unused*/, char **gen_code, int *gen_code_len,
                              NAMemory *h = NULL, CompilerPhase = END,
                              IpcMessageObjType op = CmpMessageObj::SQLTEXT_COMPILE);
 
@@ -229,11 +208,11 @@ class CmpMain {
 
   // input arrays maximum size. Required to bind rowsets from ODBC.
   // Value is obtained from CLI statement attribute.
-  void setInputArrayMaxsize(const ULng32 maxsize);
-  ULng32 getInputArrayMaxsize() const;
+  void setInputArrayMaxsize(const int maxsize);
+  int getInputArrayMaxsize() const;
 
   // save non-zero parserFlags
-  void setSqlParserFlags(ULng32 f);
+  void setSqlParserFlags(int f);
 
   // get query statement attributes
   const QryStmtAttributeSet &getStmtAttributes() const { return attrs; }
@@ -261,7 +240,7 @@ class CmpMain {
   const CmpMain &operator=(const CmpMain &);
   QryStmtAttributeSet attrs;
 
-  ReturnStatus compile(const char *input_str, int charset, RelExpr *&queryExpr, char **gen_code, ULng32 *gen_code_len,
+  ReturnStatus compile(const char *input_str, int charset, RelExpr *&queryExpr, char **gen_code, int *gen_code_len,
                        NAMemory *h, CompilerPhase p, FragmentDir **fragmentDir, IpcMessageObjType op,
                        QueryCachingOption useQueryCache, NABoolean *cacheable, TimeVal *begTime, NABoolean shouldLog);
 
@@ -272,7 +251,7 @@ class CmpMain {
                              BindWA *bindWA,        // (IN) : work area (used by backpatchParams)
                              CacheWA &cachewa,      // (IN) : work area for normalizeForCache
                              char **plan,           // (OUT): compiled plan or NULL
-                             ULng32 *pLen,          // (OUT): length of compiled plan or 0
+                             int *pLen,          // (OUT): length of compiled plan or 0
                              NAHeap *heap,          // (IN) : heap to use for compiled plan
                              IpcMessageObjType op,  //(IN): SQLTEXT_COMPILE or SQLTEXT_RECOMPILE
                              NABoolean &bPatchOK,   //(OUT): true iff backpatch succeeded
@@ -313,8 +292,8 @@ RelRoot *CmpTransform(RelExpr *queryExpr);  // global func for convenience
 
 const int CmpDescribeSpaceCountPrefix = sizeof(short);
 
-short CmpDescribe(const char *describeStmt, const RelExpr *queryExpr, char *&outbuf, ULng32 &outbuflen, NAMemory *h);
+short CmpDescribe(const char *describeStmt, const RelExpr *queryExpr, char *&outbuf, int &outbuflen, NAMemory *h);
 
-short CmpDescribeControl(Describe *d, char *&outbuf, ULng32 &outbuflen, NAMemory *h);
+short CmpDescribeControl(Describe *d, char *&outbuf, int &outbuflen, NAMemory *h);
 
 #endif

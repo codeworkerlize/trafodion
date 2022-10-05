@@ -61,12 +61,12 @@ void computeParams(UInt32 maxHashFuncs,  // max hash funcs
   }
 }
 
-ULng32 computeHashTableSizeInBytes(UInt32 m,  // Input: # of bits for the hash table
+int computeHashTableSizeInBytes(UInt32 m,  // Input: # of bits for the hash table
                                    float p    // Input: probability of false positive
 ) {
   // n: the number bytes of the hash table
   // n = -(m Ln(2)^2) / Ln(p)
-  ULng32 n = (UInt32)ceil(-(m * pow(ln(2), 2)) / ln(p));
+  int n = (UInt32)ceil(-(m * pow(ln(2), 2)) / ln(p));
 
   return n;
 }
@@ -76,7 +76,7 @@ void computeParams(UInt32 maxHashFuncs,  // max hash funcs
                    float p,              // Input: probability of false positive
                    UInt16 &k             // output
 ) {
-  ULng32 n = computeHashTableSizeInBytes(m, p);
+  int n = computeHashTableSizeInBytes(m, p);
 
   // optimal k
   // k (the optimial # of hash functions, given m and n) = (m/n) Ln(2)
@@ -165,21 +165,21 @@ double BloomFilter::density() {
   return 0;
 }
 
-ULng32 BloomFilter::packIntoBuffer(char *&buffer) {
-  ULng32 size = pack(buffer, m_);
+int BloomFilter::packIntoBuffer(char *&buffer) {
+  int size = pack(buffer, m_);
   size += pack(buffer, k_);
   size += pack(buffer, keyLenInfo_);
   return size;
 }
 
-ULng32 BloomFilter::unpackBuffer(char *&buffer) {
-  ULng32 size = unpack(buffer, m_);
+int BloomFilter::unpackBuffer(char *&buffer) {
+  int size = unpack(buffer, m_);
   size += unpack(buffer, k_);
   size += unpack(buffer, keyLenInfo_);
   return size;
 }
 
-ULng32 BloomFilter::minPackedLength() { return sizeof(m_) + sizeof(k_) + sizeof(keyLenInfo_); }
+int BloomFilter::minPackedLength() { return sizeof(m_) + sizeof(k_) + sizeof(keyLenInfo_); }
 
 ///////////////////////////////////////////////////////////////
 //
@@ -187,9 +187,9 @@ ULng32 BloomFilter::minPackedLength() { return sizeof(m_) + sizeof(k_) + sizeof(
 //
 ///////////////////////////////////////////////////////////////
 
-ULng32 scbfHashFunc(const simple_cbf_key &key) { return ExHDPHash::hash(key.key_, ExHDPHash::NO_FLAGS, key.keyLen_); }
+int scbfHashFunc(const simple_cbf_key &key) { return ExHDPHash::hash(key.key_, ExHDPHash::NO_FLAGS, key.keyLen_); }
 
-ULng32 cbfHashFunc(const cbf_key &key) { return ExHDPHash::hash(key.key_, ExHDPHash::NO_FLAGS, key.keyLen_); }
+int cbfHashFunc(const cbf_key &key) { return ExHDPHash::hash(key.key_, ExHDPHash::NO_FLAGS, key.keyLen_); }
 
 //    #entries = 2^(bitsCT)
 //    #bits per entry = ceil(Ln(m))
@@ -232,8 +232,8 @@ UInt64 CountingBloomFilter::estimateMemoryInBytes(UInt32 maxHashFuncs,
   return totalMem;
 }
 
-ULng32 CountingBloomFilter::packIntoBuffer(char *&buffer) {
-  ULng32 sz = BloomFilter::packIntoBuffer(buffer);
+int CountingBloomFilter::packIntoBuffer(char *&buffer) {
+  int sz = BloomFilter::packIntoBuffer(buffer);
 
   sz += freqsL_.packIntoBuffer(buffer);
 
@@ -260,8 +260,8 @@ ULng32 CountingBloomFilter::packIntoBuffer(char *&buffer) {
   return sz;
 }
 
-ULng32 CountingBloomFilter::unpackBuffer(char *&buffer) {
-  ULng32 sz = BloomFilter::unpackBuffer(buffer);
+int CountingBloomFilter::unpackBuffer(char *&buffer) {
+  int sz = BloomFilter::unpackBuffer(buffer);
 
   sz += freqsL_.unpackBuffer(buffer);
 
@@ -372,16 +372,16 @@ int freqStruct::operator==(freqStruct &y) {
 }
 
 /*
-ULng32 freqStruct::pack(char* buffer, NABoolean swapBytes)
+int freqStruct::pack(char* buffer, NABoolean swapBytes)
 {
-   ULng32 sz = pack(buffer, freq_, swapBytes);
+   int sz = pack(buffer, freq_, swapBytes);
    sz += pack(buffer, bucket_, swapBytes);
    return sz;
 }
 
-ULng32 freqStruct::unpack(char* buffer)
+int freqStruct::unpack(char* buffer)
 {
-   ULng32 sz = unpack(buffer, freq_);
+   int sz = unpack(buffer, freq_);
    sz += unpack(buffer, bucket_);
    return sz;
 }
@@ -548,7 +548,7 @@ CountingBloomFilter::INSERT_ENUM CountingBloomFilter::insert(char *key, UInt32 k
   UInt32 hashValueCommon = ExHDPHash::hash(key, keyLenInfo_, key_len);
 
   UInt32 f = 0xFFFFFFFF;
-  ULng32 newFreq = 0;
+  int newFreq = 0;
   NABoolean slotFound = FALSE;
 
   for (int i = 0; i < k_; i++) {
@@ -665,7 +665,7 @@ NABoolean CountingBloomFilter::remove(char *key, UInt32 key_len, UInt32 bucket, 
   UInt32 flags = ExHDPHash::NO_FLAGS;
   UInt32 hashValueCommon = ExHDPHash::hash(key, keyLenInfo_, key_len);
 
-  ULng32 currentFreq = 0;
+  int currentFreq = 0;
   UInt32 f = 0xFFFFFFFF;
   NABoolean slotFound = FALSE;
 
@@ -701,7 +701,7 @@ NABoolean CountingBloomFilter::remove(char *key, UInt32 key_len, UInt32 bucket, 
 
   if (!slotFound) return FALSE;
 
-  ULng32 dummy;
+  int dummy;
 
   NABoolean lowFreq = TRUE;
 
@@ -933,8 +933,8 @@ CountingBloomFilterWithKnownSkews::CountingBloomFilterWithKnownSkews(NAHeap *hea
 
 CountingBloomFilterWithKnownSkews::~CountingBloomFilterWithKnownSkews() {}
 
-ULng32 CountingBloomFilterWithKnownSkews::packIntoBuffer(char *&buffer) {
-  ULng32 sz = CountingBloomFilter::packIntoBuffer(buffer);
+int CountingBloomFilterWithKnownSkews::packIntoBuffer(char *&buffer) {
+  int sz = CountingBloomFilter::packIntoBuffer(buffer);
 
   for (CollIndex i = 0; i < actualOverflowF2s_; i++) {
     sz += pack(buffer, freq2sH_[i]);
@@ -943,8 +943,8 @@ ULng32 CountingBloomFilterWithKnownSkews::packIntoBuffer(char *&buffer) {
   return sz;
 }
 
-ULng32 CountingBloomFilterWithKnownSkews::unpackBuffer(char *&buffer) {
-  ULng32 sz = CountingBloomFilter::unpackBuffer(buffer);
+int CountingBloomFilterWithKnownSkews::unpackBuffer(char *&buffer) {
+  int sz = CountingBloomFilter::unpackBuffer(buffer);
 
   // actualOverflowF2s_ should be unpacked and available after
   // calling the above method.
@@ -1067,7 +1067,7 @@ NABoolean FastStatsCountingBloomFilter::insert(char *key, UInt32 key_len, UInt32
   UInt32 hashValueCommon = ExHDPHash::hash(key, keyLenInfo_, key_len);
 
   UInt32 f = 0xFFFFFFFF;
-  ULng32 newFreq = 0;
+  int newFreq = 0;
   NABoolean slotFound = FALSE;
 
   for (int i = 0; i < k_; i++) {
@@ -1114,7 +1114,7 @@ NABoolean FastStatsCountingBloomFilter::remove(char *key, UInt32 key_len) {
   UInt32 flags = ExHDPHash::NO_FLAGS;
   UInt32 hashValueCommon = ExHDPHash::hash(key, keyLenInfo_, key_len);
 
-  ULng32 currentFreq = 0;
+  int currentFreq = 0;
   UInt32 f = 0xFFFFFFFF;
   NABoolean slotFound = FALSE;
 
@@ -1140,7 +1140,7 @@ NABoolean FastStatsCountingBloomFilter::remove(char *key, UInt32 key_len) {
     }
   }
 
-  ULng32 dummy;
+  int dummy;
 
   NABoolean lowFreq = TRUE;
 
@@ -1314,23 +1314,23 @@ RegularBloomFilter::RegularBloomFilter(NAHeap *heap,
 
 RegularBloomFilter::RegularBloomFilter(NAHeap *heap) : BloomFilter(heap), hashTable_(0, 1, heap_), entries_(0) {}
 
-ULng32 RegularBloomFilter::minPackedLength() {
+int RegularBloomFilter::minPackedLength() {
   return BloomFilter::minPackedLength() + sizeof(entries_) + VarUIntArray::minPackedLength();
 }
 
-ULng32 RegularBloomFilter::getPackedLength() {
+int RegularBloomFilter::getPackedLength() {
   return BloomFilter::minPackedLength() + sizeof(entries_) + hashTable_.getPackedLength();
 }
 
-ULng32 RegularBloomFilter::packIntoBuffer(char *&buffer) {
-  ULng32 sz = BloomFilter::packIntoBuffer(buffer);
+int RegularBloomFilter::packIntoBuffer(char *&buffer) {
+  int sz = BloomFilter::packIntoBuffer(buffer);
   sz += pack(buffer, entries_);
   sz += hashTable_.packIntoBuffer(buffer);
   return sz;
 }
 
-ULng32 RegularBloomFilter::unpackBuffer(char *&buffer) {
-  ULng32 sz = BloomFilter::unpackBuffer(buffer);
+int RegularBloomFilter::unpackBuffer(char *&buffer) {
+  int sz = BloomFilter::unpackBuffer(buffer);
   sz += unpack(buffer, entries_);
   sz += hashTable_.unpackBuffer(buffer);
 
@@ -1590,11 +1590,11 @@ void RegularBloomFilter::test(const char *dataFile, UInt32 maxFuncs, UInt32 byte
   char *ptr2 = buf;  // for unpacking
 
   bf.dump(cout, "bf=");
-  ULng32 packedSize = bf.packIntoBuffer(ptr1);
+  int packedSize = bf.packIntoBuffer(ptr1);
   cout << "Packed size=" << packedSize << endl;
 
   RegularBloomFilter bf1(heap);
-  ULng32 unpackedSize = bf1.unpackBuffer(ptr2);
+  int unpackedSize = bf1.unpackBuffer(ptr2);
 
   bf1.dump(cout, "unpacked bf=");
   cout << "Unpacked size=" << unpackedSize << endl;

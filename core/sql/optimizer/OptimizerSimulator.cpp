@@ -128,7 +128,7 @@ const char *OptimizerSimulator::logFileNames_[NUM_OF_LOGS] = {"ESTIMATED_ROWS.tx
                                                               "HIVE_TABLE_LIST.txt",
                                                               "TENANT.txt"};
 
-static ULng32 intHashFunc(const int &Int) { return (ULng32)Int; }
+static int intHashFunc(const int &Int) { return (int)Int; }
 
 static NABoolean isFileExists(const char *filename, NABoolean &isDir) {
   struct stat sb;
@@ -2183,10 +2183,10 @@ void OptimizerSimulator::cleanupSimulator() {
 
 void OptimizerSimulator::cleanupAfterStatement() { CLIInitialized_ = FALSE; };
 
-NABoolean OptimizerSimulator::isCallDisabled(ULng32 callBitPosition) {
+NABoolean OptimizerSimulator::isCallDisabled(int callBitPosition) {
   if (callBitPosition > 32) return FALSE;
 
-  ULng32 bitMask = SingleBitArray[callBitPosition];
+  int bitMask = SingleBitArray[callBitPosition];
 
   if (bitMask & sysCallsDisabled_) return TRUE;
 

@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef EX_HASHJ_H
 #define EX_HASHJ_H
 /* -*-C++-*-
@@ -213,7 +192,7 @@ class ex_hashj_tcb : public ex_tcb {
   ex_expr *rangeSpecPackingExpr_;
 
   long totalRowsEvaledByMinMax_;  // total # rows evaluated by minmaxExpr_.
-  ULng32 sanityCheckCycle_;        // The number of minmax rows to accumulate before
+  int sanityCheckCycle_;        // The number of minmax rows to accumulate before
                                    // a sanity check starts. A value of 0 disables
                                    // the check.
 
@@ -242,7 +221,7 @@ class ex_hashj_tcb : public ex_tcb {
                                 //  if any right row was read
 
   // number of buckets
-  ULng32 bucketCount_;
+  int bucketCount_;
 
   NABoolean doNotChainDup_;  // Can HashTable::position ignore duplicates?
 
@@ -292,7 +271,7 @@ class ex_hashj_tcb : public ex_tcb {
   // a very low rate (as can happen if there is a post-join predicate
   // that eliminates almost all rows.  This is to allow the scheduler
   // to enfore CPU limits.
-  ULng32 numJoinedRowsRejected_;
+  int numJoinedRowsRejected_;
 
   // flag used with hash anti semi join optimization to indicate
   // whether the inner table is empty or no.
@@ -532,12 +511,12 @@ class ExUniqueHashJoinTcb : public ex_hashj_tcb {
 
   // The buffer size used to allocate the HashBuffers
   //
-  const ULng32 bufferSize_;
+  const int bufferSize_;
 
   // The size of the row allocated from the HashBuffer and inserted
   // into the hash table
   //
-  const ULng32 extRowSize_;
+  const int extRowSize_;
 
   // The non-extended row size.  This is the size of the row returned
   // from the right hand side of the join.
@@ -550,11 +529,11 @@ class ExUniqueHashJoinTcb : public ex_hashj_tcb {
 
   // The number of available rows in the current HashBuffer.
   //
-  ULng32 availRows_;
+  int availRows_;
 
   // The number of rows in the bufferPool (all the HashBuffers).
   //
-  ULng32 totalRows_;
+  int totalRows_;
 
   // A Chain of HashBuffers, used to hold the rows of the hash table.
   //

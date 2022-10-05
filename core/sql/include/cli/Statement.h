@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef STATEMENT_H
 #define STATEMENT_H
 
@@ -89,7 +68,7 @@ class StatementInfo : public ExGod {
   Statement *&statement() { return statement_; }
   Descriptor *&inputDesc() { return inputDesc_; }
   Descriptor *&outputDesc() { return outputDesc_; }
-  ULng32 hashValue() { return hashValue_; }
+  int hashValue() { return hashValue_; }
 
   NABoolean moduleAdded() { return (flags_ & MODULE_ADDED) != 0; };
   void setModuleAdded(NABoolean v) { (v ? flags_ |= MODULE_ADDED : flags_ &= ~MODULE_ADDED); };
@@ -100,8 +79,8 @@ class StatementInfo : public ExGod {
   Statement *statement_;
   Descriptor *inputDesc_;
   Descriptor *outputDesc_;
-  ULng32 hashValue_;
-  ULng32 flags_;
+  int hashValue_;
+  int flags_;
 };
 
 class Statement : public ExGod {
@@ -255,7 +234,7 @@ class Statement : public ExGod {
 
   Descriptor *default_output_desc;
 
-  ULng32 flags_;
+  int flags_;
 
   Queue *clonedStatements;  // List of statements cloned from this statement.
                             // Will be empty for a clone.
@@ -284,7 +263,7 @@ class Statement : public ExGod {
 
   LateNameInfoList *lnil_;
   char *inputData_;
-  ULng32 inputDatalen_;
+  int inputDatalen_;
 
   ExecState state_;
 
@@ -307,7 +286,7 @@ class Statement : public ExGod {
   // holds max length of input parameter arrays for dynamic statements, prior to compilation.
   // all input parameters are arrays of this maximum length.
   // set only by ODBC through CLI call as of Release 1.5.
-  ULng32 inputArrayMaxsize_;
+  int inputArrayMaxsize_;
 
   // Used to denote that a rowset insert statement is NOT ATOMIC by ODBC
   // can take three values UNSPECIFIED_, ATOMIC_, or NOT_ATOMIC_
@@ -355,7 +334,7 @@ class Statement : public ExGod {
   NABoolean standaloneStatement_;  // this statement is part of an ExecDirect ststemant . It is not an explicitly
                                    // prepared user statement. This is used during AQR
   NABoolean wmsMonitorQuery_;
-  ULng32 tasks_;
+  int tasks_;
   int fileNumber_;
 
   // the following fields are used to hold the defaults related information
@@ -480,7 +459,7 @@ class Statement : public ExGod {
   // prepare of proxy syntax is required and if so, do the internal
   // prepare
   RETCODE rsProxyPrepare(ExRsInfo &rsInfo,          // IN
-                         ULng32 rsIndex,            // IN
+                         int rsIndex,            // IN
                          ComDiagsArea &diagsArea);  // INOUT
 
   // For stored procedure result set proxy statements, return TRUE if
@@ -498,11 +477,11 @@ class Statement : public ExGod {
             char *cursorName = 0, Module *module = NULL);
   ~Statement();
 
-  RETCODE prepare(char *source, ComDiagsArea &diagsArea, char *passed_gen_code, ULng32 passed_gen_code_len,
-                  int charset = SQLCHARSETCODE_ISO88591, NABoolean unpackTdbs = TRUE, ULng32 cliFlags = 0);
+  RETCODE prepare(char *source, ComDiagsArea &diagsArea, char *passed_gen_code, int passed_gen_code_len,
+                  int charset = SQLCHARSETCODE_ISO88591, NABoolean unpackTdbs = TRUE, int cliFlags = 0);
 
-  RETCODE prepare2(char *source, ComDiagsArea &diagsArea, char *gen_code, ULng32 gen_code_len, int charset,
-                   NABoolean unpackTdbs, ULng32 cliFlags);
+  RETCODE prepare2(char *source, ComDiagsArea &diagsArea, char *gen_code, int gen_code_len, int charset,
+                   NABoolean unpackTdbs, int cliFlags);
 
   int unpackAndInit(ComDiagsArea &diagsArea, short indexIntoCompilerArray);
 
@@ -510,7 +489,7 @@ class Statement : public ExGod {
                 NABoolean &partitionUnavailable, const NABoolean donePrepare);
 
   RETCODE execute(CliGlobals *cliGlobals, Descriptor *input_desc, ComDiagsArea &diagsArea, ExecState = INITIAL_STATE_,
-                  NABoolean fixupOnly = FALSE, ULng32 cliFlags = 0);
+                  NABoolean fixupOnly = FALSE, int cliFlags = 0);
   RETCODE fetch(CliGlobals *cliGlobals, Descriptor *output_desc, ComDiagsArea &diagsArea, NABoolean newOperation);
 
   RETCODE error(ComDiagsArea &diagsArea);
@@ -529,7 +508,7 @@ class Statement : public ExGod {
 
   RETCODE doQuerySimilarityCheck(TrafQuerySimilarityInfo *qsi, NABoolean &simCheckFailed, ComDiagsArea &diagsArea);
 
-  RETCODE mvSimilarityCheck(char *table, ULng32 siMvBitmap, ULng32 rcbMvBitmap, NABoolean &simCheckFailed,
+  RETCODE mvSimilarityCheck(char *table, int siMvBitmap, int rcbMvBitmap, NABoolean &simCheckFailed,
                             ComDiagsArea &diagsArea);
 
   NABoolean isIudTargetTable(char *tableName, SqlTableOpenInfoPtr *stoiList);
@@ -618,7 +597,7 @@ class Statement : public ExGod {
   inline StatementType getStatementType();
   int getQueryType();
 
-  void copyGenCode(char *gen_code, ULng32 gen_code_len, NABoolean unpackTDBs = TRUE);
+  void copyGenCode(char *gen_code, int gen_code_len, NABoolean unpackTDBs = TRUE);
 
   void copyInSourceStr(char *in_source_str_, int in_source_length_, int charset = SQLCHARSETCODE_ISO88591);
 
@@ -737,7 +716,7 @@ class Statement : public ExGod {
   inline NABoolean isAnsiHoldable() { return holdable_ == SQLCLIDEV_ANSI_HOLDABLE; }
 
   RETCODE setInputArrayMaxsize(ComDiagsArea &diagsArea, const int inpArrSize);
-  inline ULng32 getInputArrayMaxsize() const { return inputArrayMaxsize_; }
+  inline int getInputArrayMaxsize() const { return inputArrayMaxsize_; }
 
   RETCODE setRowsetAtomicity(ComDiagsArea &diagsArea, const AtomicityType atomicity);
   inline AtomicityType getRowsetAtomicity() const { return (AtomicityType)rowsetAtomicity_; }
@@ -822,8 +801,8 @@ class Statement : public ExGod {
 
     return rc;
   };
-  inline ULng32 getStmtTasks(void) { return tasks_; };
-  inline void setStmtTasks(ULng32 tasks) { tasks_ = tasks; };
+  inline int getStmtTasks(void) { return tasks_; };
+  inline void setStmtTasks(int tasks) { tasks_ = tasks; };
 
   inline NAHeap *stmtHeap() { return &heap_; };
 
@@ -837,9 +816,9 @@ class Statement : public ExGod {
   void issuePlanVersioningWarnings(ComDiagsArea &diagsArea);
 
   // For returning statement attributes related to parallel extract
-  int getConsumerQueryLen(ULng32 index);
-  void getConsumerQuery(ULng32 index, char *buf, int buflen);
-  int getConsumerCpu(ULng32 index);
+  int getConsumerQueryLen(int index);
+  void getConsumerQuery(int index, char *buf, int buflen);
+  int getConsumerCpu(int index);
   int initStrTarget(SQLDESC_ID *sql_source, ContextCli &currContext, ComDiagsArea &diags, StrTarget &strTarget);
   // auto query retry
   AQRStatementInfo *aqrStmtInfo() { return aqrStmtInfo_; };

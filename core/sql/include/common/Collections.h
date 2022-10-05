@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef COLLECTIONS_H
 #define COLLECTIONS_H
 /* -*-C++-*-
@@ -533,27 +512,7 @@ class NACollection : public NABasicObject
   NABoolean failureIsFatal_;  // TRUE: memory allocation failure is fatal.
 };                            // NACollection
 
-// ***********************************************************************
-// NASubCollection: A subset of a NACollection
-//
-// A NASubCollection is an array of bits. The array contains 512 bits
-// initially but it grows from and shrinks to this inital allocation
-// on demand. Each bit is addressed using its bit position as
-// illustrated in the figure below:
-//
-// |...............|...............|...............|...............|......
-// 0               32              64              96              128
-//
-// The array is implemented in units of 32 bit "words". Bits 0 through
-// 31 are in word 0, bits 32 through 63 are in word 1, and so on.
-//
-// The ON/OFF state of each bit indicates the presence/absence
-// respectively of corresponding elements in the NACollection.
-//
-// An NASubCollection object with no superset can also be used as a
-// bit vector.
-//
-// ***********************************************************************
+
 const int BuiltinSubsetWords = 8;  // size of the built-in array
 
 typedef uint64_t DblWordAsBits;
@@ -592,7 +551,7 @@ const int bitsSet[] = {
 //
 // ***********************************************************************
 
-inline int firstOne(ULng32 x) {
+inline int firstOne(int x) {
 #define FIRSTHALFWORDBITS           0xFFFF0000
 #define FIRSTQUARTERWORDBITS        0xFF000000
 #define FIRSTEIGHTHWORDBITS         0xF0000000
@@ -766,7 +725,7 @@ inline int firstOne(ULng32 x) {
 //        to compiler intrinsic _m64_popcnt - much *MUCH* faster.
 //
 // ***********************************************************************
-inline int lastOne(ULng32 x) {
+inline int lastOne(int x) {
 #define LASTHALFWORDBITS            0x0000FFFF
 #define LASTQUARTERWORDBITS         0x000000FF
 #define LASTEIGHTHWORDBITS          0x0000000F
@@ -934,7 +893,7 @@ inline int lastOne(ULng32 x) {
 // argument.
 //
 // ***********************************************************************
-inline int ones(ULng32 x) {
+inline int ones(int x) {
   unsigned char *px = (unsigned char *)&x;
 
   return (bitsSet[px[0]] + bitsSet[px[1]] + bitsSet[px[2]] + bitsSet[px[3]]);
@@ -1415,15 +1374,15 @@ inline CollIndex NASubCollection<T>::prevUsed(CollIndex start) const {
 
 // Returns the ordinal position of the last bit set in the uint64_t passed as
 // an argument.
-inline ULng32 FindLastOne(uint64_t x) {
+inline int FindLastOne(uint64_t x) {
   // Set bits right of, and clear bits left of, last bit set.
   uint64_t y = x ^ (x - 1);
 
   // Return count of all bits set in the computed value.  Fast version
   // implemented for each targetted OS.
-  ULng32 result;
-  ULng32 *ptr = ((ULng32 *)&y);
-  ULng32 z;
+  int result;
+  int *ptr = ((int *)&y);
+  int z;
 
   // Quickly count the number of set bits in the first word using a well known
   // population count algorithm
@@ -1453,8 +1412,8 @@ inline ULng32 FindLastOne(uint64_t x) {
 template <class T>
 CollIndex NASubCollection<T>::prevUsedSlow(CollIndex start) const {
   int startWordBucket;
-  ULng32 startWord;
-  ULng32 shiftAmount;
+  int startWord;
+  int shiftAmount;
 
   startWordBucket = (int)(start >> 5);               // word bucket to start search in
   shiftAmount = 32 - (start & 0x1f) - 1;               // used to calculate prev bit position
@@ -1494,7 +1453,7 @@ CollIndex NASubCollection<T>::prevUsedSlow(CollIndex start) const {
 template <class T>
 inline CollIndex NASubCollection<T>::prevUsedFast(CollIndex start) const {
   uint64_t startDoubleWord;
-  ULng32 shiftAmount;
+  int shiftAmount;
 
   // Amount to shift start bit to least significant bit position.
   shiftAmount = 64 - start - 1;
@@ -1549,7 +1508,7 @@ inline NABoolean NASubCollection<T>::nextUsedFast(CollIndex &start) const {
 
   if (w >> 31) return TRUE;  // starting bit is set
 
-  ULng32 j, k;
+  int j, k;
   // Do a lookup for each 4 bits.
   // first 8 bits.
   if (j = (w >> 24)) {
@@ -2413,13 +2372,13 @@ class NAHashDictionary : public NABasicObject {
   // this work.
   //  NAHashDictionary(
   //#else // the old way
-  NAHashDictionary(ULng32 (*hashFunction)(const K &),
+  NAHashDictionary(int (*hashFunction)(const K &),
                    //#endif
-                   ULng32 initialHashSize = NAHashDictionary_Default_Size, NABoolean enforceUniqueness = FALSE,
+                   int initialHashSize = NAHashDictionary_Default_Size, NABoolean enforceUniqueness = FALSE,
                    CollHeap *heap = 0, /* where to allocate memory */
                    NABoolean failureIsFatal = TRUE);
 
-  NAHashDictionary(ULng32 (*hashFunction)(const K &), ULng32 initialHashSize, NABoolean enforceUniqueness,
+  NAHashDictionary(int (*hashFunction)(const K &), int initialHashSize, NABoolean enforceUniqueness,
                    CollHeap *heap, /* where to allocate memory */
                    NABoolean failureIsFatal,
                    NABoolean useMutex);  // use Mutex in NAList
@@ -2441,11 +2400,11 @@ class NAHashDictionary : public NABasicObject {
 
   // Check whether this dictionary contains a certain key, or a
   // certain key value pair.
-  inline NABoolean contains(const K *key, ULng32 (*hashFunc)(const K &) = NULL, bool checkAll = false) const {
+  inline NABoolean contains(const K *key, int (*hashFunc)(const K &) = NULL, bool checkAll = false) const {
     return (*hashTable_)[getHashCode(*key, hashFunc)]->contains(key, checkAll);
   }
 
-  inline NABoolean contains(const K *key, const V *value, ULng32 (*hashFunc)(const K &) = NULL) const {
+  inline NABoolean contains(const K *key, const V *value, int (*hashFunc)(const K &) = NULL) const {
     return (*hashTable_)[getHashCode(*key, hashFunc)]->contains(key, value);
   }
 
@@ -2458,7 +2417,7 @@ class NAHashDictionary : public NABasicObject {
   // Find the first value corresponding to the given key.
   // This method is especially useful(and effcient) when the hash
   // dictionary enforces uniqueness.
-  V *getFirstValue(const K *key, ULng32 (*ptr)(const K &) = NULL) const {
+  V *getFirstValue(const K *key, int (*ptr)(const K &) = NULL) const {
     return (*hashTable_)[getHashCode(*key, ptr)]->getFirstValue(key);
   }
 
@@ -2503,22 +2462,22 @@ class NAHashDictionary : public NABasicObject {
   // Returns a NULL if the insertion fails, such as when a
   // duplicate key is inserted into a dictionary that enforces
   // uniqueness on keys.
-  K *insert(K *key, V *value, ULng32 (*hashFunction)(const K &) = NULL, NABoolean *inserted = NULL);
+  K *insert(K *key, V *value, int (*hashFunction)(const K &) = NULL, NABoolean *inserted = NULL);
 
   // Remove one key value pair corresponding to the given key, when
   // removeKV is set to TRUE, both the key and value are deleted,
   // along with the pair (aka NAHashBucketEntry) itself.
   // Returns the given key value if the removal is successful.
   // Returns NULL if the given key value is not found in the dictionary.
-  K *remove(K *key, ULng32 (*hashFunc)(const K &) = NULL, NABoolean removeKV = FALSE);
+  K *remove(K *key, int (*hashFunc)(const K &) = NULL, NABoolean removeKV = FALSE);
 
   // enable all entries with key matching 'key'.
-  K *enable(K *key, ULng32 (*hashFunc)(const K &) = NULL);
+  K *enable(K *key, int (*hashFunc)(const K &) = NULL);
 
   // disable all entries with key matching 'key'.
-  K *disable(K *key, ULng32 (*hashFunc)(const K &) = NULL);
+  K *disable(K *key, int (*hashFunc)(const K &) = NULL);
 
-  NABoolean isEnable(K *key, ULng32 (*hashFunc)(const K &) = NULL);
+  NABoolean isEnable(K *key, int (*hashFunc)(const K &) = NULL);
 
   virtual void display() const;
 
@@ -2530,7 +2489,7 @@ class NAHashDictionary : public NABasicObject {
   // return byte size of one NAHashBucketEntry
   static int getBucketEntrySize() { return sizeof(NAHashBucketEntry<K, V>); }
 
-  ULng32 getNumBuckets() { return hashSize_; }
+  int getNumBuckets() { return hashSize_; }
 
   CollHeap *getHeap() { return heap_; }
 
@@ -2549,14 +2508,14 @@ class NAHashDictionary : public NABasicObject {
   // --------------------------------------------------------------------
   // Helper function for creating/destroying a hash table
   // --------------------------------------------------------------------
-  void createHashTable(ULng32 hashSize);
-  void createHashTable(ULng32 hashSize, NABoolean useMutex);
+  void createHashTable(int hashSize);
+  void createHashTable(int hashSize, NABoolean useMutex);
   void destroyHashTable();
 
   // --------------------------------------------------------------------
   // Private method for generating a hash code.
   // --------------------------------------------------------------------
-  ULng32 getHashCode(const K &key, ULng32 (*ptr)(const K &) = NULL) const;
+  int getHashCode(const K &key, int (*ptr)(const K &) = NULL) const;
 
  private:
   // Needed only for the old way of NAHashDictionary -- see comment above
@@ -2564,7 +2523,7 @@ class NAHashDictionary : public NABasicObject {
   // The hash function that is applied to the key for determining the
   // bucket to which it belongs.
   // --------------------------------------------------------------------
-  ULng32 (*hash_)(const K &);
+  int (*hash_)(const K &);
 
   // --------------------------------------------------------------------
   // The hash table is an array of hash buckets.
@@ -2574,7 +2533,7 @@ class NAHashDictionary : public NABasicObject {
   // --------------------------------------------------------------------
   // The hashSize is stored here for improving efficiency.
   // --------------------------------------------------------------------
-  ULng32 hashSize_;
+  int hashSize_;
 
   // --------------------------------------------------------------------
   // The number of key value pairs existing in the hash dictionary are
@@ -2675,7 +2634,7 @@ class NAHashDictionaryIterator : public NABasicObject {
  public:
   // basic ctor
   NAHashDictionaryIterator<K, V>(const NAHashDictionary<K, V> &dict, const K *key = NULL, const V *value = NULL,
-                                 CollHeap *heap = NULL, ULng32 (*hashFunc)(const K &) = NULL,
+                                 CollHeap *heap = NULL, int (*hashFunc)(const K &) = NULL,
                                  NABoolean failureIsFatal = TRUE);
 
   // copy ctor
@@ -2741,7 +2700,7 @@ class NAHashDictionaryIteratorNoCopy : public NABasicObject {
   NAHashDictionaryIteratorNoCopy<K, V>(const NAHashDictionary<K, V> &dict,
                                        enum iteratorEntryType type = iteratorEntryType::EVERYTHING, const K *key = NULL,
                                        const V *value = NULL, CollHeap *heap = NULL,
-                                       ULng32 (*hashFunc)(const K &) = NULL);
+                                       int (*hashFunc)(const K &) = NULL);
 
   // copy ctor
   NAHashDictionaryIteratorNoCopy<K, V>(const NAHashDictionaryIteratorNoCopy<K, V> &other, CollHeap *heap);
@@ -2797,12 +2756,12 @@ class CorrName;
 class ColRefName;
 class NAString;
 class NARoutineDBKey;
-ULng32 hashKey(const QualifiedName &);
-ULng32 hashKey(const ExtendedQualName &);
-ULng32 hashKey(const CorrName &);
-ULng32 hashKey(const ColRefName &);
-ULng32 hashKey(const NAString &);
-ULng32 hashKey(const NARoutineDBKey &);
+int hashKey(const QualifiedName &);
+int hashKey(const ExtendedQualName &);
+int hashKey(const CorrName &);
+int hashKey(const ColRefName &);
+int hashKey(const NAString &);
+int hashKey(const NARoutineDBKey &);
 
 // **********************************************************************
 // NAKeyLookup : A Descriptor Store

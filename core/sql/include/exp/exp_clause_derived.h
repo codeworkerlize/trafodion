@@ -1013,7 +1013,7 @@ class ex_comp_clause : public ex_clause {
   // Construction
   //
   ex_comp_clause() : flags_(0){};
-  ex_comp_clause(OperatorTypeEnum oper_type, Attributes **attr, Space *space, ULng32 flags_);
+  ex_comp_clause(OperatorTypeEnum oper_type, Attributes **attr, Space *space, int flags_);
 
   // Accessors
   //
@@ -1741,7 +1741,7 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
                                   int varCharLenSize,  // 0 if not a varChar
                                   CollHeap *heap = 0, ComDiagsArea **diagsArea = 0,
                                   ConvInstruction index = CONV_UNKNOWN, int *dataConversionErrorFlag = 0,
-                                  ULng32 flags = 0);
+                                  int flags = 0);
 
 ex_expr::exp_return_type scaleDoIt(char *operand,           // ptr to operand
                                    int operandLen,        // len of operand
@@ -1754,10 +1754,10 @@ ex_expr::exp_return_type scaleDoIt(char *operand,           // ptr to operand
                                    CollHeap *heap);
 
 ex_expr::exp_return_type convAsciiToInt64(long &target, int targetScale, char *source, int sourceLen,
-                                          CollHeap *heap, ComDiagsArea **diagsArea, ULng32 flags);
+                                          CollHeap *heap, ComDiagsArea **diagsArea, int flags);
 
 ex_expr::exp_return_type convAsciiToFloat64(char *target, char *source, int sourceLen, CollHeap *heap,
-                                            ComDiagsArea **diagsArea, ULng32 flags);
+                                            ComDiagsArea **diagsArea, int flags);
 
 // convert decimal returned from hive orc/parquet into traf numeric format
 ex_expr::exp_return_type convHiveDecimalToNumeric(char *sourceData, int srcLen, char *targetData, Attributes *attr,

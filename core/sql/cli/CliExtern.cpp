@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ******************************************************************************
 *
@@ -1260,9 +1239,9 @@ int SQL_EXEC_ResetUdrErrorFlags_Internal() {
 }
 
 int SQL_EXEC_SetUdrRuntimeOptions_Internal(/*IN*/ const char *options,
-                                             /*IN*/ ULng32 optionsLen,
+                                             /*IN*/ int optionsLen,
                                              /*IN*/ const char *delimiters,
-                                             /*IN*/ ULng32 delimsLen) {
+                                             /*IN*/ int delimsLen) {
   int retcode;
   CLISemaphore *tmpSemaphore = NULL;
   ContextCli *threadContext;
@@ -3862,7 +3841,7 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
                           /*INOUT*/ SQL_QUERY_COMPILER_STATS_INFO *comp_stats_info,
                           /*INOUT*/ char *uniqueStmtId,
                           /*INOUT*/ int *uniqueStmtIdLen,
-                          /*IN*/ ULng32 flags) {
+                          /*IN*/ int flags) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -4649,8 +4628,8 @@ int SQL_EXEC_SetAuthID(
   // This method returns the CLI diags area in packed format
   int SQL_EXEC_GetPackedDiagnostics_Internal(
       /*OUT*/ char *message_buffer_ptr,
-      /*IN*/ ULng32 message_obj_size,
-      /*OUT*/ ULng32 *message_obj_size_needed,
+      /*IN*/ int message_obj_size,
+      /*OUT*/ int *message_obj_size_needed,
       /*OUT*/ int *message_obj_type,
       /*OUT*/ int *message_obj_version) {
     int retcode;
@@ -4682,12 +4661,12 @@ int SQL_EXEC_SetAuthID(
   }
 
   // For internal use only -- do not document!
-  void SQL_EXEC_SetParserFlagsForExSqlComp_Internal(ULng32 flagbits) {
+  void SQL_EXEC_SetParserFlagsForExSqlComp_Internal(int flagbits) {
     SQL_EXEC_SetParserFlagsForExSqlComp_Internal2(flagbits);
   }
 
   // For internal use only -- do not document!
-  int SQL_EXEC_SetParserFlagsForExSqlComp_Internal2(ULng32 flagbits) {
+  int SQL_EXEC_SetParserFlagsForExSqlComp_Internal2(int flagbits) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -4737,7 +4716,7 @@ int SQL_EXEC_SetAuthID(
     return retcode;
   }
 
-  int SQL_EXEC_AssignParserFlagsForExSqlComp_Internal(ULng32 flagbits) {
+  int SQL_EXEC_AssignParserFlagsForExSqlComp_Internal(int flagbits) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -4765,7 +4744,7 @@ int SQL_EXEC_SetAuthID(
     return retcode;
   }
 
-  int SQL_EXEC_GetParserFlagsForExSqlComp_Internal(ULng32 & flagbits) {
+  int SQL_EXEC_GetParserFlagsForExSqlComp_Internal(int & flagbits) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -4795,12 +4774,12 @@ int SQL_EXEC_SetAuthID(
   }
 
   // For internal use only -- do not document!
-  void SQL_EXEC_ResetParserFlagsForExSqlComp_Internal(ULng32 flagbits) {
+  void SQL_EXEC_ResetParserFlagsForExSqlComp_Internal(int flagbits) {
     SQL_EXEC_ResetParserFlagsForExSqlComp_Internal2(flagbits);
   }
 
   // For internal use only -- do not document!
-  int SQL_EXEC_ResetParserFlagsForExSqlComp_Internal2(ULng32 flagbits) {
+  int SQL_EXEC_ResetParserFlagsForExSqlComp_Internal2(int flagbits) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -4838,7 +4817,7 @@ int SQL_EXEC_SetAuthID(
   // #include "CliDll.cpp"
 
   int SQL_EXEC_GetCollectStatsType_Internal(
-      /*OUT*/ ULng32 * collectStatsType,
+      /*OUT*/ int * collectStatsType,
       /*IN*/ SQLSTMT_ID * statement_id) {
     int retcode = 0;
     CLISemaphore *tmpSemaphore = NULL;

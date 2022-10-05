@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef PARDDLFILEATTRSALTERTABLE_H
 #define PARDDLFILEATTRSALTERTABLE_H
 /* -*-C++-*-
@@ -129,7 +108,7 @@ class ParDDLFileAttrsAlterTable : public ParDDLFileAttrs {
   inline ComCompressionType getCompressionType() const;
   // Returns the value of COMPRESSION TYPE
 
-  inline ULng32 getMaxSize() const;
+  inline int getMaxSize() const;
 
   // Returns the value appearing in the specified MaxSize phrase.
   // The return value has no meanings when the MaxSize phrase
@@ -149,7 +128,7 @@ class ParDDLFileAttrsAlterTable : public ParDDLFileAttrs {
   // Same as getMaxSizeUnit() except that the returned size unit
   // is in string format so it can be used for tracing purposes.
 
-  inline ULng32 getMaxExt() const;
+  inline int getMaxExt() const;
 
   // Returns the maxext phrase.
 
@@ -321,17 +300,17 @@ class ParDDLFileAttrsAlterTable : public ParDDLFileAttrs {
   // MAXSIZE
   NABoolean isMaxSizeSpec_;
   NABoolean isMaxSizeUnbounded_;
-  ULng32 maxSize_;
+  int maxSize_;
   ComUnits maxSizeUnit_;
 
   // EXTENT
   NABoolean isExtentSpec_;
-  ULng32 priExt_;
-  ULng32 secExt_;
+  int priExt_;
+  int secExt_;
 
   // MAXEXTENT
   NABoolean isMaxExtentSpec_;
-  ULng32 maxExt_;
+  int maxExt_;
 
   // NO LABEL UPDATE
   NABoolean isNoLabelUpdateSpec_;
@@ -389,11 +368,11 @@ inline NABoolean ParDDLFileAttrsAlterTable::getIsBuffered() const { return isBuf
 
 inline NABoolean ParDDLFileAttrsAlterTable::getIsClearOnPurge() const { return isClearOnPurge_; }
 
-inline ULng32 ParDDLFileAttrsAlterTable::getMaxSize() const { return maxSize_; }
+inline int ParDDLFileAttrsAlterTable::getMaxSize() const { return maxSize_; }
 
 inline ComUnits ParDDLFileAttrsAlterTable::getMaxSizeUnit() const { return maxSizeUnit_; }
 
-inline ULng32 ParDDLFileAttrsAlterTable::getMaxExt() const { return maxExt_; }
+inline int ParDDLFileAttrsAlterTable::getMaxExt() const { return maxExt_; }
 
 // is the Allocate phrase specified?
 inline NABoolean ParDDLFileAttrsAlterTable::isAllocateSpecified() const { return isAllocateSpec_; }

@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /*
 ******************************************************************************
 *
@@ -466,7 +445,7 @@ short ex_hash_grby_tcb::work() {
             bmoStats_->setBmoPhase(PHASE_END - HGB_RETURN_PHASE);
 
           // now we are ready to return a row
-          ULng32 retCode = workReturnRows(tryToDefrag);
+          int retCode = workReturnRows(tryToDefrag);
 
           // if retCode = 0. Do nothing. Continue in the current state.
           // if retCode = 1 && state_ == HASH_GRBY_RETURN_BITMUX_ROWS
@@ -610,12 +589,12 @@ void ex_hash_grby_tcb::workInitialize() {
 
   // For now, we don't do cluster splits for hash grouping. Thus, we have
   // just one bucket per cluster from the beginning
-  ULng32 bucketsPerCluster = 1;
+  int bucketsPerCluster = 1;
 
-  ULng32 noOfClusters = 0;
+  int noOfClusters = 0;
 
   // We use memUsagePercent_ of the physical memory for the HGB.
-  ULng32 availableMemory = 1024;
+  int availableMemory = 1024;
 
   // Available memory should not exceed the quota (if set) because the initial
   // hash tables allocated (one per CHAINED cluster) may consume a large
@@ -640,12 +619,12 @@ void ex_hash_grby_tcb::workInitialize() {
       innerTableSize = MAXOF(MIN_INPUT_SIZE, (long)innerTableSizeF);
 
     // required number of buffers for table
-    ULng32 totalResBuffers = (ULng32)(innerTableSize / hashGrbyTdb().bufferSize_);
+    int totalResBuffers = (int)(innerTableSize / hashGrbyTdb().bufferSize_);
 
     if (!totalResBuffers) totalResBuffers++;
 
     // total number of buffers available
-    ULng32 totalBuffers = availableMemory / hashGrbyTdb().bufferSize_;
+    int totalBuffers = availableMemory / hashGrbyTdb().bufferSize_;
 
     noOfClusters = totalResBuffers / totalBuffers;
     if (totalResBuffers % totalBuffers) noOfClusters++;
@@ -658,7 +637,7 @@ void ex_hash_grby_tcb::workInitialize() {
     noOfClusters = ClusterDB::roundUpToPrime(noOfClusters);
 
     // the extreme case, each cluster has only one bucket and only one buffer
-    ULng32 maxNoOfClusters = totalBuffers / bucketsPerCluster;
+    int maxNoOfClusters = totalBuffers / bucketsPerCluster;
     noOfClusters = MINOF(noOfClusters, maxNoOfClusters);
   } else {
     // partial group by. we need only one cluster. If this cluster is full
@@ -689,13 +668,13 @@ void ex_hash_grby_tcb::workInitialize() {
   // allocate the buckets
   buckets_ = (Bucket *)heap_->allocateMemory(bucketCount_ * sizeof(Bucket));
 
-  ULng32 bucketIdx = 0;
+  int bucketIdx = 0;
   for (; bucketIdx < bucketCount_; bucketIdx++) buckets_[bucketIdx].init();
 
   // if multiple inputs then don't yield memory below the original quota
-  ULng32 minMemQuotaMB = hashGrbyTdb().isPossibleMultipleCalls() ? hashGrbyTdb().memoryQuotaMB() : 0;
+  int minMemQuotaMB = hashGrbyTdb().isPossibleMultipleCalls() ? hashGrbyTdb().memoryQuotaMB() : 0;
 
-  ULng32 minB4Chk = hashGrbyTdb().getBmoMinMemBeforePressureCheck() * ONE_MEG;
+  int minB4Chk = hashGrbyTdb().getBmoMinMemBeforePressureCheck() * ONE_MEG;
 
   clusterDb_ = new (heap_)
       ClusterDB(ClusterDB::HASH_GROUP_BY, hashGrbyTdb().bufferSize_, workAtp_, hashGrbyTdb().getExplainNodeId(),
@@ -748,7 +727,7 @@ void ex_hash_grby_tcb::workInitialize() {
   clusterDb_->setBMOMaxMemThresholdMB(hashGrbyTdb().getBMOMaxMemThresholdMB());
 
   Cluster *cluster = NULL;
-  ULng32 i;
+  int i;
   bucketIdx = 0;
   // allocate the clusters
   for (i = 0; i < noOfClusters; i++) {
@@ -947,7 +926,7 @@ void ex_hash_grby_tcb::workReadChild() {
         oldState_ = HASH_GRBY_READ_CHILD;
 
       // determine the bucket and cluster where the row belongs
-      ULng32 bucketId = hashValue_ % bucketCount_;
+      int bucketId = hashValue_ % bucketCount_;
       Cluster *cluster = buckets_[bucketId].getInnerCluster();
       HashTable *ht = cluster->getHashTable();
       ex_assert(ht, "ex_hash_grby_tcb::work() cluster without hash table");
@@ -1057,7 +1036,7 @@ void ex_hash_grby_tcb::workReadChild() {
 
         // if had overflow, then provide some data about the clusters
         if (haveSpilled_) {
-          ULng32 ind, numSpilled = 0;
+          int ind, numSpilled = 0;
           long nonSpilledSize = 0, spilledSize = 0;
           long maxSpilledSize = 0, minSpilledSize = -1;
           long maxNonSpilledSize = 0, minNonSpilledSize = -1;
@@ -1263,7 +1242,7 @@ void ex_hash_grby_tcb::workReadOverFlowRow() {
       oldState_ = HASH_GRBY_READ_OF_ROW;
 
     // determine the bucket and cluster where the row belongs
-    ULng32 bucketId = hashValue_ % bucketCount_;
+    int bucketId = hashValue_ % bucketCount_;
     Cluster *cluster = buckets_[bucketId].getInnerCluster();
     HashTable *ht = cluster->getHashTable();
     ex_assert(ht, "ex_hash_grby_tcb::work() cluster without hash table");
@@ -1482,16 +1461,16 @@ void ex_hash_grby_tcb::workEvaluate() {
     ofClusterList_ = ofClusterList_->getNext();
     inputCluster->setNext(NULL);
 
-    ULng32 i;
+    int i;
 
     // re-initialize all buckets
     for (i = 0; i < bucketCount_; i++) buckets_[i].init();
 
     // allocate new clusters. Currently, a cluster
     // contains always one bucket. This might change in the future?
-    ULng32 bucketIdx = 0;
-    ULng32 noOfClusters = bucketCount_;
-    ULng32 bucketsPerCluster = bucketCount_ / noOfClusters;
+    int bucketIdx = 0;
+    int noOfClusters = bucketCount_;
+    int bucketsPerCluster = bucketCount_ / noOfClusters;
 
     Cluster *newCluster = NULL;
 
@@ -1546,7 +1525,7 @@ void ex_hash_grby_tcb::workEvaluate() {
 /////////////////////////////////////////////////////////////////////////////
 // workReturnRows: return rows to parent
 /////////////////////////////////////////////////////////////////////////////
-ULng32 ex_hash_grby_tcb::workReturnRows(NABoolean tryToDefrag) {
+int ex_hash_grby_tcb::workReturnRows(NABoolean tryToDefrag) {
   HashRow *dataPointer = NULL;
   ExOperStats *statsEntry = getStatsEntry();
   ex_queue_entry *downParentEntry = parentQueue_.down->getHeadEntry();
@@ -1722,7 +1701,7 @@ void ex_hash_grby_tcb::resetClusterAndReadFromChild() {
   // the cluster.
   //
   Cluster *cluster = NULL;
-  ULng32 bucketIdx = 0;
+  int bucketIdx = 0;
 
   buckets_[bucketIdx].init();
 

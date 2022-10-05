@@ -13,7 +13,7 @@
 
 #define EXECMPIPCVERSION 100
 
-typedef ULng32 CmpMsgBufLenType;
+typedef int CmpMsgBufLenType;
 
 // this file contains
 
@@ -93,8 +93,8 @@ class CmpMessageObj : public IpcMessageObj {
   CollHeap *getHeap() { return h_; }
   ID id() const { return id_; }
 
-  virtual ULng32 getFlags() const { return 0L; }
-  virtual void setFlags(ULng32) {}
+  virtual int getFlags() const { return 0L; }
+  virtual void setFlags(int) {}
 
   friend ostream &operator<<(ostream &, const CmpMessageObj &);
 
@@ -128,7 +128,7 @@ class CmpMessageObj : public IpcMessageObj {
   // unpack a char* buffer, but strPtr is a preallocated space
   // with size maxSize. maxSize has to be big enough to hold the
   // whole buffer.
-  void unpackBuffer(const char *&buffer, char *strPtr, ULng32 maxSize, ULng32 &sizeMoved);
+  void unpackBuffer(const char *&buffer, char *strPtr, int maxSize, int &sizeMoved);
 
   void advanceSize(IpcMessageObjSize &size, const void *const buffPtr, int sz = 0) {
     const int lenSize = sizeof(CmpMsgBufLenType);
@@ -223,7 +223,7 @@ class CmpMessageReplyBasic : public CmpMessageObj {
 class CmpCompileInfo {
  public:
   CmpCompileInfo(char *sourceStr, int sourceStrLen, int sourceStrCharSet, char *schemaName, int schemaNameLen,
-                 ULng32 inputArrayMaxsize, short rowsetAtomicity);
+                 int inputArrayMaxsize, short rowsetAtomicity);
   CmpCompileInfo();
 
   void init();
@@ -237,7 +237,7 @@ class CmpCompileInfo {
 
   void getUnpackedFields(char *&sqltext, char *&schemaName);
 
-  const ULng32 getInputArrayMaxsize() { return inputArrayMaxsize_; }
+  const int getInputArrayMaxsize() { return inputArrayMaxsize_; }
 
   const short getRowsetAtomicity();
 
@@ -339,8 +339,8 @@ class CmpCompileInfo {
   char *schemaName_;          // 16-23
   int schemaNameLen_;       // 24-27
   int unused2_;             // 28-31
-  ULng32 inputArrayMaxsize_;  // 32-35
-  ULng32 flags_;              // 36-39
+  int inputArrayMaxsize_;  // 32-35
+  int flags_;              // 36-39
 
   int sqlTextCharSet_;          // 40-43
   char fillerBytes_[FILLERSIZE];  // 44-103
@@ -368,8 +368,8 @@ class CmpMessageRequest : public CmpMessageRequestBasic {
   char *data() const { return data_; }
   int charSet() const { return charSet_; }
 
-  virtual ULng32 getFlags() const { return flags_; }
-  virtual void setFlags(ULng32 f) { flags_ = f; }
+  virtual int getFlags() const { return flags_; }
+  virtual void setFlags(int f) { flags_ = f; }
 
   virtual void destroyMe();
   virtual ~CmpMessageRequest() { destroyMe(); }
@@ -386,7 +386,7 @@ class CmpMessageRequest : public CmpMessageRequestBasic {
 
   char *data_;
   CmpMsgBufLenType sz_;
-  ULng32 flags_;
+  int flags_;
   int charSet_;  // sender's character set
   int parentQidLen_;
   const char *parentQid_;
@@ -405,7 +405,7 @@ class CmpMessageReply : public CmpMessageReplyBasic {
   // NADELETEBASIC will be called to delete the memory.
 
   CmpMessageReply(MessageTypeEnum e, ID request = 0, CollHeap *h = 0, char *preAllocatedData = 0,
-                  ULng32 preAllocatedDataSize = 0, CollHeap *outh = 0);
+                  int preAllocatedDataSize = 0, CollHeap *outh = 0);
 
   IpcMessageObjSize mypackedLength();
   IpcMessageObjSize packMyself(IpcMessageBufferPtr &buffer);
@@ -947,7 +947,7 @@ class CmpMessageDatabaseUser : public CmpMessageRequest {
 
 class CmpMessageReplyCode : public CmpMessageReply {
  public:
-  CmpMessageReplyCode(CollHeap *h = 0, ID request = 0, char *preAllocatedData = 0, ULng32 preAllocatedSize = 0,
+  CmpMessageReplyCode(CollHeap *h = 0, ID request = 0, char *preAllocatedData = 0, int preAllocatedSize = 0,
                       CollHeap *outh_ = 0, FragmentDir *fragmentDir = NULL)
       : CmpMessageReply(REPLY_CODE, request, h, preAllocatedData, preAllocatedSize, outh_), fragmentDir_(fragmentDir) {}
 
@@ -994,9 +994,9 @@ class CmpMessageISPRequest : public CmpMessageRequest {
   // will be allocated and contents will be copied over. Then this class
   // owns the pointers and delete them at the desructor time.
   //
-  CmpMessageISPRequest(char *procName = 0, void *inputExpr = 0, ULng32 inputExprSize = 0, void *outputExpr = 0,
-                       ULng32 outputExprSize = 0, void *keyExpr = 0, ULng32 keyExprSize = 0, void *inputData = 0,
-                       ULng32 inputDataSize = 0, ULng32 ouputRowSize = 0, ULng32 outputTotalSize = 0, CollHeap *h = 0,
+  CmpMessageISPRequest(char *procName = 0, void *inputExpr = 0, int inputExprSize = 0, void *outputExpr = 0,
+                       int outputExprSize = 0, void *keyExpr = 0, int keyExprSize = 0, void *inputData = 0,
+                       int inputDataSize = 0, int ouputRowSize = 0, int outputTotalSize = 0, CollHeap *h = 0,
                        const char *parentQid = NULL, int parentQidLen = 0);
 
   virtual ~CmpMessageISPRequest();
@@ -1018,18 +1018,18 @@ class CmpMessageISPRequest : public CmpMessageRequest {
   // methods to access private members
 
   const char *procName() const { return procName_; }
-  const ULng32 inputExprSize() const { return inputExprSize_; }
+  const int inputExprSize() const { return inputExprSize_; }
   const void *inputExpr() const { return inputExpr_; }
-  const ULng32 outputExprSize() const { return outputExprSize_; }
+  const int outputExprSize() const { return outputExprSize_; }
   const void *outputExpr() const { return outputExpr_; }
-  const ULng32 keyExprSize() const { return keyExprSize_; }
+  const int keyExprSize() const { return keyExprSize_; }
   const void *keyExpr() const { return keyExpr_; }
-  const ULng32 inputDataSize() const { return inputDataSize_; }
+  const int inputDataSize() const { return inputDataSize_; }
   const void *inputData() const { return inputData_; }
-  const ULng32 keyDataSize() const { return keyDataSize_; }
+  const int keyDataSize() const { return keyDataSize_; }
   const void *keyData() const { return keyData_; }
-  const ULng32 outputRowSize() const { return outputRowSize_; }
-  const ULng32 outputTotalSize() const { return outputTotalSize_; }
+  const int outputRowSize() const { return outputRowSize_; }
+  const int outputTotalSize() const { return outputTotalSize_; }
 
  private:
   CmpMessageISPRequest(const CmpMessageISPRequest &);
@@ -1041,23 +1041,23 @@ class CmpMessageISPRequest : public CmpMessageRequest {
   // The expressions are packed as (length, data) by executor before
   // construct this object. executor will provide methods to access
   // the values.
-  ULng32 inputExprSize_;   // size of the inputExpr
+  int inputExprSize_;   // size of the inputExpr
   void *inputExpr_;        // expression for input data
-  ULng32 outputExprSize_;  // size of the outputExpr
+  int outputExprSize_;  // size of the outputExpr
   void *outputExpr_;       // expression for output data
-  ULng32 keyExprSize_;     // size of the key data
+  int keyExprSize_;     // size of the key data
   void *keyExpr_;          // expression for key expression
 
   // The data is packed by executor before construct this object.
   // executor will provide methods to access the values.
 
-  ULng32 inputDataSize_;  // size of input data
+  int inputDataSize_;  // size of input data
   void *inputData_;       // input data
-  ULng32 keyDataSize_;    // size of the key data
+  int keyDataSize_;    // size of the key data
   void *keyData_;         // key data
 
-  ULng32 outputRowSize_;    // the size of each row of output data
-  ULng32 outputTotalSize_;  // buffer size for output data, once the
+  int outputRowSize_;    // the size of each row of output data
+  int outputTotalSize_;  // buffer size for output data, once the
   // output exceeds the limit, it should be sent back in multiple
   // replies.
 
@@ -1081,7 +1081,7 @@ class CmpMessageISPRequest : public CmpMessageRequest {
 
 class CmpMessageISPGetNext : public CmpMessageRequest {
  public:
-  CmpMessageISPGetNext(ULng32 bufSize = 0, ID ispRequest = 0, int serialNo = 0, CollHeap *h = 0,
+  CmpMessageISPGetNext(int bufSize = 0, ID ispRequest = 0, int serialNo = 0, CollHeap *h = 0,
                        const char *parentQid = NULL, int parentQidLen = 0);
   virtual ~CmpMessageISPGetNext();
 
@@ -1097,7 +1097,7 @@ class CmpMessageISPGetNext : public CmpMessageRequest {
     unpackMyself(objType, objVersion, sameEndianness, objSize, buffer);
   }
 
-  ULng32 bufSize() const { return bufSize_; }
+  int bufSize() const { return bufSize_; }
   ID ispRequest() const { return ispRequest_; }
 
  private:
@@ -1105,7 +1105,7 @@ class CmpMessageISPGetNext : public CmpMessageRequest {
   const CmpMessageISPGetNext &operator=(const CmpMessageISPGetNext &);
 
   // members
-  ULng32 bufSize_;
+  int bufSize_;
   ID ispRequest_;
   int serialNo_;
 };
@@ -1117,7 +1117,7 @@ class CmpMessageISPGetNext : public CmpMessageRequest {
 
 class CmpMessageReplyISP : public CmpMessageReply {
  public:
-  CmpMessageReplyISP(CollHeap *h = 0, ID request = 0, char *preAllocatedData = 0, ULng32 preAllocatedSize = 0,
+  CmpMessageReplyISP(CollHeap *h = 0, ID request = 0, char *preAllocatedData = 0, int preAllocatedSize = 0,
                      CollHeap *outh_ = 0)
       : CmpMessageReply(REPLY_ISP, request, h, preAllocatedData, preAllocatedSize, outh_) {
     areMore_ = 0;

@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -100,7 +79,7 @@ void Parser::reset(NABoolean on_entry_reset_was_needed) {
   if (with_clauses_) with_clauses_->clear();
 }
 
-ULng32 cmmHashFunc_NAString(const NAString &str) { return (ULng32)NAString::hash(str); }
+int cmmHashFunc_NAString(const NAString &str) { return (int)NAString::hash(str); }
 
 Parser::Parser(const CmpContext *cmpContext)
     : hasOlapFunctions_(NULL), hasTDFunctions_(NULL), hasConnectBy_(FALSE), potentialOlapFunctions_(NULL) {
@@ -1100,7 +1079,7 @@ ExprNode *Parser::getExprTree(const char *str, UInt32 strlength, CharInfo::CharS
 
   // parseDML method resets all SqlParser_Flags.
   // save the current SqlParser_Flags and restore them after parse step.
-  ULng32 saved_SqlParser_Flags = SqlParser_Flags;
+  int saved_SqlParser_Flags = SqlParser_Flags;
 
   parseDML(newstr, newlen, strCharSet, &node, token, paramItemList);
   delete paramItemList;

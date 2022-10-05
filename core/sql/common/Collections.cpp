@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 **************************************************************************
 *
@@ -1523,7 +1502,7 @@ NABoolean NAHashBucket<K, V>::sanityCheck() {
 template <class K, class V>
 NAHashDictionary<K, V>::NAHashDictionary(
     // see long detailed comment in Collections.h about the hash function param.
-    ULng32 (*hashFunction)(const K &), ULng32 hashSize, NABoolean enforceUniqueness, NAMemory *heap,
+    int (*hashFunction)(const K &), int hashSize, NABoolean enforceUniqueness, NAMemory *heap,
     NABoolean failureIsFatal)
     : failureIsFatal_(failureIsFatal),
       heap_(heap),
@@ -1538,7 +1517,7 @@ NAHashDictionary<K, V>::NAHashDictionary(
 template <class K, class V>
 NAHashDictionary<K, V>::NAHashDictionary(
     // see long detailed comment in Collections.h about the hash function param.
-    ULng32 (*hashFunction)(const K &), ULng32 hashSize, NABoolean enforceUniqueness, NAMemory *heap,
+    int (*hashFunction)(const K &), int hashSize, NABoolean enforceUniqueness, NAMemory *heap,
     NABoolean failureIsFatal, NABoolean useMutex)
     : failureIsFatal_(failureIsFatal),
       heap_(heap),
@@ -1586,13 +1565,13 @@ NAHashDictionary<K, V>::~NAHashDictionary() {
 // ----------------------------------------------------------------------
 template <class K, class V>
 void NAHashDictionary<K, V>::clear(NABoolean deleteContents) {
-  for (ULng32 index = 0; index < hashSize_; index++) (*hashTable_)[index]->clear(deleteContents);
+  for (int index = 0; index < hashSize_; index++) (*hashTable_)[index]->clear(deleteContents);
   entries_ = entriesEnabled_ = 0;
 }  //  NAHashDictionary<K,V>::clear()
 
 template <class K, class V>
 void NAHashDictionary<K, V>::detachHashBuckets() {
-  for (ULng32 index = 0; index < hashSize_; index++) (*hashTable_)[index] = NULL;
+  for (int index = 0; index < hashSize_; index++) (*hashTable_)[index] = NULL;
 }
 
 // ----------------------------------------------------------------------
@@ -1600,7 +1579,7 @@ void NAHashDictionary<K, V>::detachHashBuckets() {
 // Helper function for creating a hash table.
 // ----------------------------------------------------------------------
 template <class K, class V>
-void NAHashDictionary<K, V>::createHashTable(ULng32 hashSize) {
+void NAHashDictionary<K, V>::createHashTable(int hashSize) {
   assert(hashSize > 0);
   hashSize_ = hashSize;
   hashTable_ = new (heap_, failureIsFatal_) NAArray<NAHashBucket<K, V> *>(heap_, hashSize, failureIsFatal_);
@@ -1628,7 +1607,7 @@ void NAHashDictionary<K, V>::createHashTable(ULng32 hashSize) {
 }  //  NAHashDictionary<K,V>::createHashTable()
 
 template <class K, class V>
-void NAHashDictionary<K, V>::createHashTable(ULng32 hashSize, NABoolean useMutex) {
+void NAHashDictionary<K, V>::createHashTable(int hashSize, NABoolean useMutex) {
   assert(hashSize > 0);
   hashSize_ = hashSize;
   hashTable_ = new (heap_, failureIsFatal_) NAArray<NAHashBucket<K, V> *>(heap_, hashSize, failureIsFatal_);
@@ -1679,11 +1658,11 @@ void NAHashDictionary<K, V>::destroyHashTable() {
 // Function for generating a hash code
 // ----------------------------------------------------------------------
 template <class K, class V>
-ULng32 NAHashDictionary<K, V>::getHashCode(const K &key, ULng32 (*ptr)(const K &)) const {
+int NAHashDictionary<K, V>::getHashCode(const K &key, int (*ptr)(const K &)) const {
   // use the key's hash method to get the hash value
   //  unsigned long hashValue = key.hash() % hashSize_;
   //#else
-  ULng32 hashValue = (ptr) ? ptr(key) % hashSize_ : hash_(key) % hashSize_;
+  int hashValue = (ptr) ? ptr(key) % hashSize_ : hash_(key) % hashSize_;
   //#endif
   assert(hashValue < hashSize_);
   return hashValue;
@@ -1693,7 +1672,7 @@ ULng32 NAHashDictionary<K, V>::getHashCode(const K &key, ULng32 (*ptr)(const K &
 // NAHashDictionary::insert()
 // ----------------------------------------------------------------------
 template <class K, class V>
-K *NAHashDictionary<K, V>::insert(K *key, V *value, ULng32 (*ptr)(const K &), NABoolean *inserted) {
+K *NAHashDictionary<K, V>::insert(K *key, V *value, int (*ptr)(const K &), NABoolean *inserted) {
   if (enforceUniqueness_ AND contains(key, ptr)) {
     assert(enforceUniqueness_);
     return NULL;  // don't insert a duplicate key
@@ -1716,7 +1695,7 @@ template <class K, class V>
 NABoolean NAHashDictionary<K, V>::sanityCheck() {
   if (!isComplete_) return FALSE;
 
-  for (ULng32 index = 0; index < hashSize_; index++) {
+  for (int index = 0; index < hashSize_; index++) {
     if ((*hashTable_)[index]->sanityCheck() == FALSE) return FALSE;
   }
 
@@ -1737,7 +1716,7 @@ void NAHashDictionary<K, V>::fixupMyVTable(NAHashDictionary *ptr) {
 // ----------------------------------------------------------------------
 template <class K, class V>
 NAHashDictionaryIterator<K, V>::NAHashDictionaryIterator(const NAHashDictionary<K, V> &dict, const K *key,
-                                                         const V *value, CollHeap *heap, ULng32 (*hashFunc)(const K &),
+                                                         const V *value, CollHeap *heap, int (*hashFunc)(const K &),
                                                          NABoolean failureIsFatal)
     // use the supplied heap for iterator_ if not null
     : iterator_((heap) ? heap : dict.heap_, failureIsFatal) {
@@ -1810,7 +1789,7 @@ template <class K, class V>
 NAHashDictionaryIteratorNoCopy<K, V>::NAHashDictionaryIteratorNoCopy(const NAHashDictionary<K, V> &dict,
                                                                      enum iteratorEntryType type, const K *key,
                                                                      const V *value, CollHeap *heap,
-                                                                     ULng32 (*hashFunc)(const K &))
+                                                                     int (*hashFunc)(const K &))
     : dict_(dict), type_(type) {
   if (key) {
     beginBucket_ = endBucket_ = dict_.getHashCode(*key, hashFunc);
@@ -1929,26 +1908,26 @@ void NAHashDictionaryIteratorNoCopy<K, V>::display(const char *msg) const {
 // NAHashDictionary::remove()
 // ----------------------------------------------------------------------
 template <class K, class V>
-K *NAHashDictionary<K, V>::remove(K *key, ULng32 (*hashFunc)(const K &), NABoolean removeKV) {
+K *NAHashDictionary<K, V>::remove(K *key, int (*hashFunc)(const K &), NABoolean removeKV) {
   K *removedKey = (*hashTable_)[getHashCode(*key, hashFunc)]->remove(key, entriesEnabled_, removeKV);
   if (removedKey) entries_--;
   return removedKey;
 }  // NAHashDictionary<K,V>::remove()
 
 template <class K, class V>
-K *NAHashDictionary<K, V>::enable(K *key, ULng32 (*hashFunc)(const K &)) {
+K *NAHashDictionary<K, V>::enable(K *key, int (*hashFunc)(const K &)) {
   K *enabledKey = (*hashTable_)[getHashCode(*key, hashFunc)]->enable(key, enforceUniqueness_, entriesEnabled_);
   return enabledKey;
 }
 
 template <class K, class V>
-K *NAHashDictionary<K, V>::disable(K *key, ULng32 (*hashFunc)(const K &)) {
+K *NAHashDictionary<K, V>::disable(K *key, int (*hashFunc)(const K &)) {
   K *disabledKey = (*hashTable_)[getHashCode(*key, hashFunc)]->disable(key, enforceUniqueness_, entriesEnabled_);
   return disabledKey;
 }
 
 template <class K, class V>
-NABoolean NAHashDictionary<K, V>::isEnable(K *key, ULng32 (*hashFunc)(const K &)) {
+NABoolean NAHashDictionary<K, V>::isEnable(K *key, int (*hashFunc)(const K &)) {
   return (*hashTable_)[getHashCode(*key, hashFunc)]->isEnable(key, enforceUniqueness_);
 }
 
@@ -1984,7 +1963,7 @@ int NAHashDictionary<K, V>::printStatistics(char *buf) {
   return c;
 }  //  NAHashDictionary<K,V>::printStatistics()
 
-static ULng32 hashFunc(const int &x) { return (ULng32)x; }
+static int hashFunc(const int &x) { return (int)x; }
 
 template <class K, class V>
 NABoolean NAHashDictionary<K, V>::operator==(const NAHashDictionary<K, V> &other) const {

@@ -173,7 +173,7 @@ static int SQLCLI_ReturnCode(ContextCli *context, int retcode) {
 }
 
 // Move this method to Statement class. TBD.
-static int SQLCLI_Prepare_Setup_Pre(ContextCli &currContext, Statement *stmt, ULng32 flags) {
+static int SQLCLI_Prepare_Setup_Pre(ContextCli &currContext, Statement *stmt, int flags) {
   long compStartTime = NA_JulianTimestamp();
   StmtStats *stmtStats = stmt->getStmtStats();
   ExMasterStats *masterStats;
@@ -198,7 +198,7 @@ static int SQLCLI_Prepare_Setup_Pre(ContextCli &currContext, Statement *stmt, UL
   return 0;
 }
 
-static int SQLCLI_Prepare_Setup_Post(ContextCli &currContext, Statement *stmt, ULng32 flags) {
+static int SQLCLI_Prepare_Setup_Post(ContextCli &currContext, Statement *stmt, int flags) {
   StmtStats *stmtStats = stmt->getStmtStats();
   long compEndTime = stmt->getCompileEndTime();
   ExMasterStats *masterStats;
@@ -1011,9 +1011,9 @@ int SQLCLI_ResetUdrErrorFlags_Internal(/*IN*/ CliGlobals *cliGlobals) {
 // startup options in the UDR server
 int SQLCLI_SetUdrRuntimeOptions_Internal(/*IN*/ CliGlobals *cliGlobals,
                                            /*IN*/ const char *options,
-                                           /*IN*/ ULng32 optionsLen,
+                                           /*IN*/ int optionsLen,
                                            /*IN*/ const char *delimiters,
-                                           /*IN*/ ULng32 delimsLen) {
+                                           /*IN*/ int delimsLen) {
   if (!cliGlobals) {
     return -CLI_NO_CURRENT_CONTEXT;
   }
@@ -1463,7 +1463,7 @@ retError:
 }
 
 static int SQLCLI_RetryQuery(
-    /*IN*/ CliGlobals *cliGlobals, AQRStatementInfo *aqrSI, ULng32 flags, short afterPrepare, short afterExec,
+    /*IN*/ CliGlobals *cliGlobals, AQRStatementInfo *aqrSI, int flags, short afterPrepare, short afterExec,
     short afterFetch, short afterCEFC, StmtStats *savedStmtStats) {
   int retcode = 0;
 
@@ -1854,7 +1854,7 @@ int SQLCLI_ProcessRetryQuery(
           numRetries++;
 
           if (NOT isERROR(retcode)) {
-            ULng32 flags = aqrSI->getRetryPrepareFlags();
+            int flags = aqrSI->getRetryPrepareFlags();
             flags |= PREPARE_AUTO_QUERY_RETRY;
 
             if (type == AQRInfo::RETRY_WITH_DECACHE)
@@ -2009,7 +2009,7 @@ int SQLCLI_ProcessRetryQuery(
 ////////////////////////////////////////////////////////////////////////
 int SQLCLI_PerformTasks(
     /*IN*/ CliGlobals *cliGlobals,
-    /*IN*/ ULng32 tasks,
+    /*IN*/ int tasks,
     /*IN*/ SQLSTMT_ID *statement_id,
     /*IN  OPTIONAL*/ SQLDESC_ID *input_descriptor,
     /*IN  OPTIONAL*/ SQLDESC_ID *output_descriptor,
@@ -2397,7 +2397,7 @@ int SQLCLI_PerformTasks(
 
 int SQLCLI_CloseStmt(/*IN*/ CliGlobals *cliGlobals,
                        /*IN*/ SQLSTMT_ID *statement_id) {
-  ULng32 tasks = CLI_PT_PROLOGUE | CLI_PT_CLOSE | CLI_PT_EPILOGUE |
+  int tasks = CLI_PT_PROLOGUE | CLI_PT_CLOSE | CLI_PT_EPILOGUE |
                  // stmt lookup opt also done for version_2 queries
                  // with stmt_name name mode. Currently only jdbc
                  // could make use of this optimization.
@@ -2415,7 +2415,7 @@ int SQLCLI_Exec(/*IN*/ CliGlobals *cliGlobals,
                   /*IN*/ int num_ap,
                   /*IN*/ va_list ap,
                   /*IN*/ SQLCLI_PTR_PAIRS ptr_pairs[]) {
-  ULng32 tasks = CLI_PT_PROLOGUE | CLI_PT_GET_INPUT_DESC | CLI_PT_EXEC | CLI_PT_SET_AQR_INFO | CLI_PT_EPILOGUE |
+  int tasks = CLI_PT_PROLOGUE | CLI_PT_GET_INPUT_DESC | CLI_PT_EXEC | CLI_PT_SET_AQR_INFO | CLI_PT_EPILOGUE |
                  // stmt lookup opt also done for version_2 queries
                  // with stmt_name name mode. Currently only jdbc
                  // could make use of this optimization.
@@ -2433,7 +2433,7 @@ int SQLCLI_ExecClose(/*IN*/ CliGlobals *cliGlobals,
                        /*IN*/ int num_ap,
                        /*IN*/ va_list ap,
                        /*IN*/ SQLCLI_PTR_PAIRS ptr_pairs[]) {
-  ULng32 tasks = CLI_PT_PROLOGUE | CLI_PT_GET_INPUT_DESC | CLI_PT_EXEC | CLI_PT_CLOSE_ON_ERROR | CLI_PT_EPILOGUE;
+  int tasks = CLI_PT_PROLOGUE | CLI_PT_GET_INPUT_DESC | CLI_PT_EXEC | CLI_PT_CLOSE_ON_ERROR | CLI_PT_EPILOGUE;
   return SQLCLI_PerformTasks(cliGlobals, tasks, statement_id, input_descriptor, NULL, num_ptr_pairs, 0, num_ap, ap,
                              ptr_pairs, 0);
 }
@@ -2501,7 +2501,7 @@ int SQLCLI_ExecDirect(/*IN*/ CliGlobals *cliGlobals,
 
   stmt->issuePlanVersioningWarnings(diags);
 
-  ULng32 tasks =
+  int tasks =
       CLI_PT_GET_INPUT_DESC | CLI_PT_EXEC | CLI_PT_FETCH | CLI_PT_CLOSE | CLI_PT_SPECIAL_END_PROCESS | CLI_PT_EPILOGUE;
   return SQLCLI_PerformTasks(cliGlobals, tasks, statement_id, input_descriptor, NULL, num_ptr_pairs, 0, num_ap, ap,
                              ptr_pairs, 0);
@@ -2571,7 +2571,7 @@ int SQLCLI_ExecDirect2(/*IN*/ CliGlobals *cliGlobals,
 
   stmt->issuePlanVersioningWarnings(diags);
 
-  ULng32 tasks =
+  int tasks =
       CLI_PT_GET_INPUT_DESC | CLI_PT_EXEC | CLI_PT_FETCH | CLI_PT_CLOSE | CLI_PT_SPECIAL_END_PROCESS | CLI_PT_EPILOGUE;
   return SQLCLI_PerformTasks(cliGlobals, tasks, statement_id, input_descriptor, NULL, num_ptr_pairs, 0, num_ap, ap,
                              ptr_pairs, 0);
@@ -2610,7 +2610,7 @@ int SQLCLI_ClearExecFetchClose(/*IN*/ CliGlobals *cliGlobals,
                                  /*IN*/ va_list ap,
                                  /*IN*/ SQLCLI_PTR_PAIRS input_ptr_pairs[],
                                  /*IN*/ SQLCLI_PTR_PAIRS output_ptr_pairs[]) {
-  ULng32 tasks = CLI_PT_PROLOGUE | CLI_PT_CLEAR_DIAGS | CLI_PT_GET_INPUT_DESC | CLI_PT_GET_OUTPUT_DESC | CLI_PT_EXEC |
+  int tasks = CLI_PT_PROLOGUE | CLI_PT_CLEAR_DIAGS | CLI_PT_GET_INPUT_DESC | CLI_PT_GET_OUTPUT_DESC | CLI_PT_EXEC |
                  CLI_PT_FETCH | CLI_PT_CLOSE | CLI_PT_SET_AQR_INFO | CLI_PT_SPECIAL_END_PROCESS | CLI_PT_EPILOGUE |
                  CLI_PT_CLEAREXECFETCHCLOSE | ((statement_id->name_mode == stmt_name) ? CLI_PT_OPT_STMT_INFO : 0);
   return SQLCLI_PerformTasks(cliGlobals, tasks, statement_id, input_descriptor, output_descriptor, num_input_ptr_pairs,
@@ -2624,7 +2624,7 @@ int SQLCLI_ExecFetch(/*IN*/ CliGlobals *cliGlobals,
                        /*IN*/ int num_ap,
                        /*IN*/ va_list ap,
                        /*IN*/ SQLCLI_PTR_PAIRS ptr_pairs[]) {
-  ULng32 tasks = CLI_PT_PROLOGUE | CLI_PT_GET_INPUT_DESC | CLI_PT_SET_AQR_INFO | CLI_PT_EXEC | CLI_PT_FETCH |
+  int tasks = CLI_PT_PROLOGUE | CLI_PT_GET_INPUT_DESC | CLI_PT_SET_AQR_INFO | CLI_PT_EXEC | CLI_PT_FETCH |
                  CLI_PT_CLOSE | CLI_PT_SPECIAL_END_PROCESS | CLI_PT_EPILOGUE |
                  // stmt lookup opt also done for version_2 queries
                  // with stmt_name name mode. Currently only jdbc
@@ -2643,7 +2643,7 @@ int SQLCLI_Fetch(/*IN*/ CliGlobals *cliGlobals,
                    /*IN*/ int num_ap,
                    /*IN*/ va_list ap,
                    /*IN*/ SQLCLI_PTR_PAIRS ptr_pairs[]) {
-  ULng32 tasks = CLI_PT_PROLOGUE | CLI_PT_GET_OUTPUT_DESC | CLI_PT_FETCH | CLI_PT_SET_AQR_INFO | CLI_PT_EPILOGUE |
+  int tasks = CLI_PT_PROLOGUE | CLI_PT_GET_OUTPUT_DESC | CLI_PT_FETCH | CLI_PT_SET_AQR_INFO | CLI_PT_EPILOGUE |
                  // stmt lookup opt also done for version_2 queries
                  // with stmt_name name mode. Currently only jdbc
                  // could make use of this optimization.
@@ -2661,7 +2661,7 @@ int SQLCLI_FetchClose(/*IN*/ CliGlobals *cliGlobals,
                         /*IN*/ int num_ap,
                         /*IN*/ va_list ap,
                         /*IN*/ SQLCLI_PTR_PAIRS ptr_pairs[]) {
-  ULng32 tasks = CLI_PT_GET_OUTPUT_DESC | CLI_PT_FETCH | CLI_PT_CLOSE | CLI_PT_EPILOGUE;
+  int tasks = CLI_PT_GET_OUTPUT_DESC | CLI_PT_FETCH | CLI_PT_CLOSE | CLI_PT_EPILOGUE;
   return SQLCLI_PerformTasks(cliGlobals, tasks, statement_id, NULL, output_descriptor, 0, num_ptr_pairs, num_ap, ap, 0,
                              ptr_pairs);
 }
@@ -4212,7 +4212,7 @@ int SQLCLI_Prepare2(/*IN*/ CliGlobals *cliGlobals,
                       /*INOUT*/ SQL_QUERY_COMPILER_STATS_INFO *query_comp_stats_info,
                       /*INOUT*/ char *uniqueStmtId,
                       /*INOUT*/ int *uniqueStmtIdLen,
-                      /*IN*/ ULng32 flags) {
+                      /*IN*/ int flags) {
   int retcode = 0;
 
   // create initial context, if first call, and add module, if any.
@@ -6184,7 +6184,7 @@ int SQLCLI_GetRootTdbSize_Internal(/*IN*/ CliGlobals *cliGlobals,
 
 // For internal use only -- do not document!
 int SQLCLI_GetCollectStatsType_Internal(/*IN*/ CliGlobals *cliGlobals,
-                                          /*OUT*/ ULng32 *collectStatsType,
+                                          /*OUT*/ int *collectStatsType,
                                           /*IN*/ SQLSTMT_ID *statement_id) {
   int retcode = 0;
   Statement *statement;
@@ -6196,14 +6196,14 @@ int SQLCLI_GetCollectStatsType_Internal(/*IN*/ CliGlobals *cliGlobals,
     statement = currContext.getStatement(statement_id);
 
     if ((!statement) || (!statement->getRootTdb()))
-      *collectStatsType = (ULng32)ComTdb::NO_STATS;
+      *collectStatsType = (int)ComTdb::NO_STATS;
     else
-      *collectStatsType = (ULng32)((ComTdb *)statement->getRootTdb())->getCollectStatsType();
+      *collectStatsType = (int)((ComTdb *)statement->getRootTdb())->getCollectStatsType();
   } else {
     if (currContext.getStats())
-      *collectStatsType = (ULng32)currContext.getStats()->getCollectStatsType();
+      *collectStatsType = (int)currContext.getStats()->getCollectStatsType();
     else
-      *collectStatsType = (ULng32)ComTdb::NO_STATS;
+      *collectStatsType = (int)ComTdb::NO_STATS;
   }
 
   return retcode;
@@ -6225,28 +6225,28 @@ int SQLCLI_GetTotalTcbSpace(/*IN*/ CliGlobals *cliGlobals,
 
 int SQLCLI_SetParserFlagsForExSqlComp_Internal(
     /*IN*/ CliGlobals *cliGlobals,
-    /*IN*/ ULng32 flagbits) {
+    /*IN*/ int flagbits) {
   if (cliGlobals->currContext()) cliGlobals->currContext()->setSqlParserFlags(flagbits);
   return 0;
 }
 
 int SQLCLI_ResetParserFlagsForExSqlComp_Internal(
     /*IN*/ CliGlobals *cliGlobals,
-    /*IN*/ ULng32 flagbits) {
+    /*IN*/ int flagbits) {
   if (cliGlobals->currContext()) cliGlobals->currContext()->resetSqlParserFlags(flagbits);
   return 0;
 }
 
 int SQLCLI_AssignParserFlagsForExSqlComp_Internal(
     /*IN*/ CliGlobals *cliGlobals,
-    /*IN*/ ULng32 flagbits) {
+    /*IN*/ int flagbits) {
   if (cliGlobals->currContext()) cliGlobals->currContext()->assignSqlParserFlags(flagbits);
   return 0;
 }
 
 int SQLCLI_GetParserFlagsForExSqlComp_Internal(
     /*IN*/ CliGlobals *cliGlobals,
-    /*IN*/ ULng32 &flagbits) {
+    /*IN*/ int &flagbits) {
   flagbits = 0;
   if (cliGlobals->currContext()) flagbits = cliGlobals->currContext()->getSqlParserFlags();
   return 0;

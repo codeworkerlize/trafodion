@@ -54,7 +54,7 @@ void TODOEMSABORT(const char *msg) {
 // in its own window, i.e. not from a cmd shell.
 void ArkcmpDelayExit() {
 #define DEFAULT_DELAY_SECS 10
-  ULng32 secs = DEFAULT_DELAY_SECS;
+  int secs = DEFAULT_DELAY_SECS;
   char *ev = getenv("SQL_ERROR_SLEEP");  // scripts: set to 0 (off), 60, etc
   if (ev) {
     char *tmp;

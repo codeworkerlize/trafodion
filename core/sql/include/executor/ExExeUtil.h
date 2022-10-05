@@ -1937,8 +1937,8 @@ class ExExeUtilGetRTSStatisticsTcb : public ExExeUtilTcb {
 
   ExExeUtilGetStatisticsTdb &getStatsTdb() const { return (ExExeUtilGetStatisticsTdb &)tdb; };
 
-  void deleteSqlStatItems(SQLSTATS_ITEM *sqlStatsItem, ULng32 noOfStatsItem);
-  void initSqlStatsItems(SQLSTATS_ITEM *sqlStatsItem, ULng32 noOfStatsItem, NABoolean initTdbIdOnly);
+  void deleteSqlStatItems(SQLSTATS_ITEM *sqlStatsItem, int noOfStatsItem);
+  void initSqlStatsItems(SQLSTATS_ITEM *sqlStatsItem, int noOfStatsItem, NABoolean initTdbIdOnly);
   NABoolean singleLineFormat() { return singleLineFormat_; }
   enum OperatorStatsOptions { ALL = 1, DATA_USED = 2 };
 

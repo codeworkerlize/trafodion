@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 *************************************************************************
 *
@@ -1033,14 +1012,14 @@ void HostArraysWA::processArrayHostVar(ItemExpr *parent, int childNumber) {
   HostVar *node;
 
   if (child->getOperatorType() == ITM_DYN_PARAM) {
-    ULng32 inputArrayMaxSize;
+    int inputArrayMaxSize;
     if (((inputArrayMaxSize = getInputArrayMaxSize()) > 0) || (((DynamicParam *)child)->getRowsetSize() > 0)) {
       setHasDynamicRowsets(TRUE);                  // dynamic rowsets from either ODBC (first cond.)
                                                    // (second cond.) or embedded SQL
       bindWA_->setHasDynamicRowsetsInQuery(TRUE);  // setting a flag that is global in scope
 
       DynamicParam *param = (DynamicParam *)child;
-      ULng32 size;
+      int size;
       if (inputArrayMaxSize > 0) {
         size = inputArrayMaxSize;
         param->setRowsetSize(size);  // for ODBC queries set rowsetsize_ attribute.
@@ -1498,7 +1477,7 @@ CollIndex BindWA::addTrigger(const ComTimestamp &triggerId) {
 }
 
 // apply xformRowsetsInTree to our descendants & return transformed tree
-RelExpr *RelExpr::xformRowsetsInTree(BindWA &wa, const ULng32 arrayMaxsize, const AtomicityType atomicity) {
+RelExpr *RelExpr::xformRowsetsInTree(BindWA &wa, const int arrayMaxsize, const AtomicityType atomicity) {
   for (int i = 0; i < getArity(); i++) {
     if (child(i)) {
       child(i) = child(i)->xformRowsetsInTree(wa, arrayMaxsize);
@@ -1509,7 +1488,7 @@ RelExpr *RelExpr::xformRowsetsInTree(BindWA &wa, const ULng32 arrayMaxsize, cons
 }
 
 // apply xformRowsetsInTree to RelRoot & return transformed tree
-RelExpr *RelRoot::xformRowsetsInTree(BindWA &wa, const ULng32 arrayMaxsize, const AtomicityType atomicity) {
+RelExpr *RelRoot::xformRowsetsInTree(BindWA &wa, const int arrayMaxsize, const AtomicityType atomicity) {
   if (hostArraysArea_) return this;  // we've been here, done that
 
   if (wa.getHostArraysArea()) {
@@ -1719,12 +1698,12 @@ NABoolean BindWA::queryCanUseSeaMonster() {
 // calculates a hash value given a QualifiedName.Hash value is mod by
 // the hashTable size in HashDictionary.
 //----------------------------------------------------------------------
-ULng32 BindWA::qualNameHashFunc(const QualifiedName &qualName) {
-  ULng32 index = 0;
+int BindWA::qualNameHashFunc(const QualifiedName &qualName) {
+  int index = 0;
   const NAString &name = qualName.getObjectName();
 
   for (UInt32 i = 0; i < name.length(); i++) {
-    index += (ULng32)(name[i]);
+    index += (int)(name[i]);
   }
   return index;
 }

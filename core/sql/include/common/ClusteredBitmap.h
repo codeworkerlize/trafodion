@@ -106,7 +106,7 @@ class ClusteredBitmap : public NABasicObject {
   void clear();
 
   // Get hash value based on set bits in the bitmap.
-  ULng32 hash() const;
+  int hash() const;
 
   // Insert values or other sets into into the bitmap.
   ClusteredBitmap &addSet(const ClusteredBitmap &other);

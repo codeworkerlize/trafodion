@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -541,8 +520,8 @@ CostScalar SimpleFileScanOptimizer::estimateNumberOfSeeksPerScan(const CostScala
   // reads. We will ignore adjustment if it is smaller than 1 seek.
 
   NADefaults &defs = ActiveSchemaDB()->getDefaults();
-  ULng32 maxDp2ReadInKB = defs.getAsULong(DP2_MAX_READ_PER_ACCESS_IN_KB);
-  ULng32 seqReadsBeforeSwitch = defs.getAsULong(DP2_SEQ_READS_WITHOUT_SEEKS);
+  int maxDp2ReadInKB = defs.getAsULong(DP2_MAX_READ_PER_ACCESS_IN_KB);
+  int seqReadsBeforeSwitch = defs.getAsULong(DP2_SEQ_READS_WITHOUT_SEEKS);
 
   seeks += (seqKB / maxDp2ReadInKB / seqReadsBeforeSwitch).getFloor();
 
@@ -905,7 +884,7 @@ CostScalar SimpleFileScanOptimizer::estimateCPUExePredPerRowInstrs() const {
   //        executor predicate costing.
   // IF >2 - Always use new "Simple" File Scan Optimizer.
   //
-  ULng32 fsoToUse = defs.getAsULong(FSO_TO_USE);
+  int fsoToUse = defs.getAsULong(FSO_TO_USE);
 
   // Should we use the old way of costing predicates?
   //
@@ -919,7 +898,7 @@ CostScalar SimpleFileScanOptimizer::estimateCPUExePredPerRowInstrs() const {
 
   // Count the number of operators (non-leaf) in the predicate
   //
-  ULng32 numOps = 0;
+  int numOps = 0;
 
   // Account for the implied AND operators in the ValueIdSet
   //

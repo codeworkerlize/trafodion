@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ****************************************************************************
 *
@@ -264,9 +243,9 @@ class ExFragDir : public NAVersionedObject {
 
   inline const ExScratchFileOptions *getScratchFileOptions() const { return scratchFileOptions_; }
   inline void setScratchFileOptions(ExScratchFileOptions *sfo) { scratchFileOptions_ = sfo; }
-  inline ULng32 getNodeMask() const { return nodeMask_; }
+  inline int getNodeMask() const { return nodeMask_; }
   inline const ComASNodes *getTenantASNodes() const { return tenantASNodes_; }
-  inline void setNodeMask(ULng32 nm) { nodeMask_ = nm; }
+  inline void setNodeMask(int nm) { nodeMask_ = nm; }
   inline int getMaxESPsPerNode() { return maxESPsPerNode_; }
   inline void setMaxESPsPerNode(int v) { maxESPsPerNode_ = v; }
 
@@ -304,8 +283,8 @@ class ExFragDir : public NAVersionedObject {
   inline ExPartInputDataDesc *getPartDesc(ExFragId ix) const { return fragments_[ix]->partDescriptor_; }
   inline ExEspNodeMap *getEspNodeMap(ExFragId ix) const { return &fragments_[ix]->espNodeMap_; }
   inline int needsTransaction(ExFragId ix) const { return fragments_[ix]->isNeedsTransaction(); }
-  inline ULng32 getPlanVersion(void) const { return planVersion_; }
-  inline void setPlanVersion(ULng32 pv) { planVersion_ = pv; }
+  inline int getPlanVersion(void) const { return planVersion_; }
+  inline void setPlanVersion(int pv) { planVersion_ = pv; }
   inline NABoolean isCompressFrag(ExFragId ix) const { return fragments_[ix]->isCompressFrag(); }
   inline NABoolean soloFrag(ExFragId ix) const { return fragments_[ix]->isSoloFrag(); }
   inline UInt16 getFragmentMemoryQuota(ExFragId ix) const { return fragments_[ix]->fragmentMemoryQuota_; }

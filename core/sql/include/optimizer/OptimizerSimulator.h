@@ -209,7 +209,7 @@ class OptimizerSimulator : public NABasicObject {
   NABoolean readStmt(ifstream &DDLFile, NAString &stmt, NAString &comment);
   NABoolean massageTableUID(OsimHistogramEntry *entry, NAHashDictionary<NAString, QualifiedName> *modifiedPathList,
                             NABoolean isHive);
-  NABoolean isCallDisabled(ULng32 callBitPosition);
+  NABoolean isCallDisabled(int callBitPosition);
 
   NABoolean runningSimulation();
   NABoolean runningInCaptureMode();
@@ -311,7 +311,7 @@ class OptimizerSimulator : public NABasicObject {
   ExeCliInterface *cliInterface_;
   Queue *queue_;
   // for debugging
-  ULng32 sysCallsDisabled_;
+  int sysCallsDisabled_;
   // in respond to force option of osim load,
   // e.g. osim load from '/xxx/xxx/osim-dir', force
   // if true, when loading osim tables/views/indexes

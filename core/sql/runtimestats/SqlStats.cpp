@@ -1781,7 +1781,7 @@ void ObjectEpochCache::appendToStats(ExStatisticsArea *statsArea, const char *ob
   if (semRetCode == 1) releaseRTSSemaphore();
 }
 
-ObjectEpochCacheKey::ObjectEpochCacheKey(const char *objectName, ULng32 hash, ComObjectType objectType, NAHeap *heap)
+ObjectEpochCacheKey::ObjectEpochCacheKey(const char *objectName, int hash, ComObjectType objectType, NAHeap *heap)
     : objectName_(heap), hash_(hash), objectType_(objectType) {
   // Unfortunately, our engine is very sloppy in its handling of
   // double quotes for delimited identifiers. Sometimes they are

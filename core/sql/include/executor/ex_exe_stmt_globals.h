@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef EX_EXE_STMT_GLOBALS_H
 #define EX_EXE_STMT_GLOBALS_H
 
@@ -75,7 +54,7 @@ class ESPTraceEntry {
   void createMessage(char *msg);
 
   // get the espNum from (int) espGlob->getMyInstanceNumber();
-  ULng32 espNum_;
+  int espNum_;
 
   // from  ExEspStmtGlobals->getPid()
   pid_t pid_;
@@ -278,7 +257,7 @@ class ExExeStmtGlobals : public ex_globals {
   // returns a reference to the internal pointer (used inter alia for setting)
   TimeoutData **getTimeoutData() { return &timeouts_; };
 
-  inline NABoolean grabMemoryQuotaIfAvailable(ULng32 size) {
+  inline NABoolean grabMemoryQuotaIfAvailable(int size) {
     CliGlobals *cli_globals = GetCliGlobals();
     if (cli_globals->isEspProcess()) return cli_globals->grabMemoryQuotaIfAvailable(size);
     if (unusedBMOsMemoryQuota_ < size) return FALSE;
@@ -292,13 +271,13 @@ class ExExeStmtGlobals : public ex_globals {
     unusedBMOsMemoryQuota_ = 0;
   }
 
-  inline ULng32 unusedMemoryQuota() {
+  inline int unusedMemoryQuota() {
     CliGlobals *cli_globals = GetCliGlobals();
     if (cli_globals->isEspProcess()) return cli_globals->unusedMemoryQuota();
     return unusedBMOsMemoryQuota_;
   }
 
-  inline void yieldMemoryQuota(ULng32 size) {
+  inline void yieldMemoryQuota(int size) {
     CliGlobals *cli_globals = GetCliGlobals();
     if (cli_globals->isEspProcess()) return cli_globals->yieldMemoryQuota(size);
     unusedBMOsMemoryQuota_ += size;
@@ -323,7 +302,7 @@ class ExExeStmtGlobals : public ex_globals {
 
   void incExecutionCount() { executionCount_++; }
 
-  ULng32 getExecutionCount() { return executionCount_; }
+  int getExecutionCount() { return executionCount_; }
 
   void cancelOperation(long transId);
 
@@ -383,13 +362,13 @@ class ExExeStmtGlobals : public ex_globals {
   TimeoutData *timeouts_;
 
   // memory quota allocation given back by BMOs to be used by other BMOs
-  ULng32 unusedBMOsMemoryQuota_;
+  int unusedBMOsMemoryQuota_;
 
 #if defined(_DEBUG) && defined(TRACE_ESP_ACCESS)
   ESPTraceList *espTraceList_;
 #endif
 
-  ULng32 executionCount_;
+  int executionCount_;
 
  protected:
   inline void setUdrServer(ExUdrServer *udrServ) { udrServer_ = udrServ; }
@@ -503,7 +482,7 @@ class ExMasterStmtGlobals : public ExExeStmtGlobals {
 
   ExRsInfo *getResultSetInfo(NABoolean createIfNecessary = FALSE);
   void deleteResultSetInfo();
-  void acquireRSInfoFromParent(ULng32 &rsIndex,          // OUT
+  void acquireRSInfoFromParent(int &rsIndex,          // OUT
                                long &udrHandle,         // OUT
                                ExUdrServer *&udrServer,  // OUT
                                IpcProcessId &pid,        // OUT
@@ -524,9 +503,9 @@ class ExMasterStmtGlobals : public ExExeStmtGlobals {
   // involved in a parallel extract operation
   void insertExtractEsp(const IpcProcessId &);
   void insertExtractSecurityKey(const char *key);
-  short getExtractEspCpu(ULng32 index) const;
-  int getExtractEspNodeNumber(ULng32 index) const;
-  const char *getExtractEspPhandleText(ULng32 index) const;
+  short getExtractEspCpu(int index) const;
+  int getExtractEspNodeNumber(int index) const;
+  const char *getExtractEspPhandleText(int index) const;
   const char *getExtractSecurityKey() const;
 
   inline void addSMConnection(SMConnection *conn) { allSMConnections_.insert(conn); }
@@ -558,7 +537,7 @@ class ExMasterStmtGlobals : public ExExeStmtGlobals {
 
   // local snapshot of the global timeout-change-counter at the time this
   // stmt was fixed up (speeds up checking that timeout values are up-to-date)
-  ULng32 localSnapshotOfTimeoutChangeCounter_;
+  int localSnapshotOfTimeoutChangeCounter_;
 
   // Store Procedure Result Set Info
   // will always be NULL except for CALL statements that produce result sets.
@@ -599,7 +578,7 @@ class ExMasterStmtGlobals : public ExExeStmtGlobals {
 class ExEspStmtGlobals : public ExExeStmtGlobals {
  public:
   ExEspStmtGlobals(short num_temps, CliGlobals *cliGlobals, short create_gui_sched, Space *space, CollHeap *heap,
-                   ExEspFragInstanceDir *espFragInstanceDir, int handle, ULng32 injectErrorAtExprFreq,
+                   ExEspFragInstanceDir *espFragInstanceDir, int handle, int injectErrorAtExprFreq,
                    NABoolean multiThreadedEsp, char *queryId = NULL, int queryIdLen = 0);
 
   virtual void deleteMe(NABoolean fatalError);
@@ -741,7 +720,7 @@ class ExEspStmtGlobals : public ExExeStmtGlobals {
 
   mutable int cachedMyInstanceNum_;
 
-  mutable ULng32 cachedMyFragId_;
+  mutable int cachedMyFragId_;
 };
 
 #endif

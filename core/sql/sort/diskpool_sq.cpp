@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 // diskpool.C -*-C++-*-
 #include "common/Platform.h"
 #include "DiskPool_sq.h"
@@ -57,7 +36,7 @@ SQDisk::~SQDisk() {
 //    if the answer is right and mismatch if answer is wrong.
 //--------------------------------------------------------------------------
 
-NABoolean SQDisk::generateDiskTable(const ExScratchDiskDrive *scratchDiskSpecified, ULng32 numSpecified,
+NABoolean SQDisk::generateDiskTable(const ExScratchDiskDrive *scratchDiskSpecified, int numSpecified,
                                     char *volumeNameMask, answer including, NABoolean includeAuditTrailDisks) {
   diskTablePtr_ = new (heap_) DiskDetailsPtr[1];  // YJC, local disk on /tmp
   numberOfDisks_ = 1;
@@ -76,7 +55,7 @@ NABoolean SQDisk::generateDiskTable(const ExScratchDiskDrive *scratchDiskSpecifi
 //   -refreshes each disk and recalculates the weight.
 //   -picks the disk of the highest weight.
 //--------------------------------------------------------------------------
-NABoolean SQDisk::returnBestDisk(char **diskname, ULng32 espInstance, ULng32 numEsps, unsigned short threshold) {
+NABoolean SQDisk::returnBestDisk(char **diskname, int espInstance, int numEsps, unsigned short threshold) {
   if (numberOfDisks_ == 0 && diskTablePtr_ == NULL) {
     *diskname = NULL;
     sortError_->setErrorInfo(EScrNoDisks  // sort error

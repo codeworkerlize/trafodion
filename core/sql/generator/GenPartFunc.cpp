@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -83,7 +62,7 @@ void PartitioningFunction::generatePivLayout(Generator *generator, int &partitio
   ExpGenerator *expGen = generator->getExpGenerator();
 
   expGen->processValIdList(getPartitionInputValuesLayout(), ExpTupleDesc::SQLARK_EXPLODED_FORMAT,
-                           (ULng32 &)partitionInputDataLength, atp, atpIndex, NULL, ExpTupleDesc::SHORT_FORMAT, 0,
+                           (int &)partitionInputDataLength, atp, atpIndex, NULL, ExpTupleDesc::SHORT_FORMAT, 0,
                            pivAttrs);
 }
 
@@ -295,13 +274,13 @@ short RangePartitioningFunction::codeGen(Generator *generator, int partInputData
 
   // now fill in the individual partition boundaries
   // (NOTE: there is one more than there are partitions)
-  ULng32 boundaryDataLength = 0;
+  int boundaryDataLength = 0;
   for (int i = 0; i <= getCountOfPartitions(); i++) {
     const ItemExprList *iel = partitionBoundaries_->getBoundaryValues(i);
     ex_expr *generatedExpr = NULL;
 
     ValueIdList boundaryColValues;
-    ULng32 checkedBoundaryLength;
+    int checkedBoundaryLength;
 
     // convert the ItemExpressionList iel into a ValueIdList
     for (CollIndex kc = 0; kc < iel->entries(); kc++) {
@@ -367,7 +346,7 @@ void RangePartitioningFunction::generatePivLayout(Generator *generator, int &par
   CollIndex i = 0;
   for (i = 0; i < numPartKeyCols; i++) partialPivs.insert(getPartitionInputValuesLayout()[i]);
 
-  expGen->processValIdList(partialPivs, ExpTupleDesc::SQLARK_EXPLODED_FORMAT, (ULng32 &)partitionInputDataLength, atp,
+  expGen->processValIdList(partialPivs, ExpTupleDesc::SQLARK_EXPLODED_FORMAT, (int &)partitionInputDataLength, atp,
                            atpIndex, NULL, ExpTupleDesc::SHORT_FORMAT, 0, &localPartialAttrs);
 
   if (returnedAttrs)
@@ -396,7 +375,7 @@ void RangePartitioningFunction::generatePivLayout(Generator *generator, int &par
   partialPivs.clear();
   for (i = numPartKeyCols; i < numPartInputs - 1; i++) partialPivs.insert(getPartitionInputValuesLayout()[i]);
 
-  expGen->processValIdList(partialPivs, ExpTupleDesc::SQLARK_EXPLODED_FORMAT, (ULng32 &)partitionInputDataLength, atp,
+  expGen->processValIdList(partialPivs, ExpTupleDesc::SQLARK_EXPLODED_FORMAT, (int &)partitionInputDataLength, atp,
                            atpIndex, NULL, ExpTupleDesc::SHORT_FORMAT, alignedPartKeyLen, &localPartialAttrs);
 
   if (returnedAttrs)
@@ -408,7 +387,7 @@ void RangePartitioningFunction::generatePivLayout(Generator *generator, int &par
   partialPivs.clear();
   partialPivs.insert(getPartitionInputValuesLayout()[numPartInputs - 1]);
 
-  expGen->processValIdList(partialPivs, ExpTupleDesc::SQLARK_EXPLODED_FORMAT, (ULng32 &)partitionInputDataLength, atp,
+  expGen->processValIdList(partialPivs, ExpTupleDesc::SQLARK_EXPLODED_FORMAT, (int &)partitionInputDataLength, atp,
                            atpIndex, NULL, ExpTupleDesc::SHORT_FORMAT, 2 * alignedPartKeyLen, &localPartialAttrs);
 
   // set up return values

@@ -294,7 +294,7 @@ class NAMemory : public NABasicObject {
 
   void decrementStats(size_t size);
 
-  void showStats(ULng32 level = 0);
+  void showStats(int level = 0);
 
   inline size_t getTotalSize() { return totalSize_; };
 

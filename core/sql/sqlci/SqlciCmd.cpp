@@ -1,72 +1,36 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-//
-**********************************************************************/
-/* -*-C++-*-
- *****************************************************************************
- *
- * File:         SqlciCmd.C
- * Description:
- *
- * Created:      4/15/95
- * Language:     C++
- *
- *
- *
- *
- *****************************************************************************
- */
 
-#include <errno.h>
-#include <iostream>
-#include <sstream>
-#include <stdio.h>
-#include <limits.h>
+
+#include "sqlci/SqlciCmd.h"
+
 #include <ctype.h>
+#include <errno.h>
+#include <limits.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <wchar.h>
 
-#include "common/Platform.h"
-#include "common/NAWinNT.h"
+#include <iostream>
+#include <sstream>
 
+#include "cli/sql_id.h"
 #include "common/ComCextdecs.h"
-#include "export/ComDiags.h"
+#include "common/ComRtUtils.h"
 #include "common/ComSmallDefs.h"
-#include "sqlmsg/ErrorMessage.h"
-#include "sqlmsg/GetErrorMessage.h"
+#include "common/ComUser.h"
+#include "common/NAWinNT.h"
+#include "common/Platform.h"
+#include "common/charinfo.h"
+#include "common/str.h"
+#include "export/ComDiags.h"
 #include "sqlci/InputStmt.h"
-#include "sqlci/SqlciError.h"
-#include "sqlci/SqlciCmd.h"
-#include "sqlci/sqlcmd.h"
 #include "sqlci/ShellCmd.h"
+#include "sqlci/Sqlci.h"
+#include "sqlci/SqlciEnv.h"
 #include "sqlci/SqlciError.h"
 #include "sqlci/SqlciParser.h"
-#include "common/str.h"
-#include "common/charinfo.h"
-#include "sqlci/SqlciEnv.h"
-#include "sqlci/Sqlci.h"
-#include "cli/sql_id.h"
-#include "common/ComRtUtils.h"
-#include "common/ComUser.h"
+#include "sqlci/sqlcmd.h"
+#include "sqlmsg/ErrorMessage.h"
+#include "sqlmsg/GetErrorMessage.h"
 
 extern ComDiagsArea sqlci_DA;
 
@@ -110,25 +74,6 @@ SqlciCmd::SqlciCmd(const sqlci_cmd_type cmd_type_, int argument_)
 
 SqlciCmd::~SqlciCmd() { delete[] argument; };
 
-FixCommand::FixCommand(char *argument_, int arglen_) : SqlciCmd(SqlciCmd::FC_TYPE, argument_, arglen_) {
-  cmd = argument_;
-};
-
-FixCommand::FixCommand(int argument_, short neg_num_) : SqlciCmd(SqlciCmd::FC_TYPE, argument_) {
-  cmd_num = argument_;
-  neg_num = neg_num_;
-  cmd = 0;
-};
-
-Obey::Obey(char *argument_, int arglen_, char *section_name_) : SqlciCmd(SqlciCmd::OBEY_TYPE, argument_, arglen_) {
-  if (section_name_) {
-    section_name = new char[strlen(section_name_) + 1];
-    strcpy(section_name, section_name_);
-  } else {
-    section_name = 0;
-  }
-};
-
 Log::Log(char *argument_, int arglen_, log_type type_, int commands_only)
     : SqlciCmd(SqlciCmd::LOG_TYPE, argument_, arglen_), type(type_), commandsOnly_(commands_only){};
 
@@ -149,26 +94,7 @@ Statistics::~Statistics() {
   if (statsOptions_) delete[] statsOptions_;
 };
 
-QueryId::QueryId(char *argument_, int arglen_, NABoolean isSet, char *qidVal)
-    : SqlciCmd(SqlciCmd::QUERYID_TYPE, argument_, arglen_), isSet_(isSet), qidVal_(NULL) {
-  if ((isSet_) && (qidVal)) {
-    qidVal_ = new char[strlen(qidVal) + 1];
-    strcpy(qidVal_, qidVal);
-  }
-};
-
-QueryId::~QueryId() {
-  if (qidVal_) delete qidVal_;
-}
-
-History::History(char *argument_, int arglen_) : SqlciCmd(SqlciCmd::HISTORY_TYPE, argument_, arglen_){};
-
-ListCount::ListCount(char *argument_, int arglen_) : SqlciCmd(SqlciCmd::LISTCOUNT_TYPE, argument_, arglen_){};
-
 Mode::Mode(ModeType type_, NABoolean value) : SqlciCmd(SqlciCmd::MODE_TYPE), value(value) { type = type_; };
-
-Verbose::Verbose(char *argument_, int arglen_, VerboseCmdType type)
-    : SqlciCmd(SqlciCmd::VERBOSE_TYPE, argument_, arglen_), type_(type){};
 
 ParserFlags::ParserFlags(ParserFlagsOperation opType_, int param_) : SqlciCmd(SqlciCmd::PARSERFLAGS_TYPE, param_) {
   opType = opType_;
@@ -182,16 +108,6 @@ Error::Error(char *argument_, int arglen_, error_type type_) : SqlciCmd(SqlciCmd
 SubError::SubError(char *argument_, int arglen_, suberror_type type_)
     : SqlciCmd(SqlciCmd::ERROR_TYPE, argument_, arglen_) {
   type = type_;
-};
-
-FCRepeat::FCRepeat(char *argument_, int arglen_) : SqlciCmd(SqlciCmd::REPEAT_TYPE, argument_, arglen_) {
-  cmd = argument_;
-};
-
-FCRepeat::FCRepeat(int argument_, short neg_num_) : SqlciCmd(SqlciCmd::REPEAT_TYPE, argument_) {
-  cmd_num = argument_;
-  neg_num = neg_num_;
-  cmd = 0;
 };
 
 Exit::Exit(char *argument_, int arglen_) : SqlciCmd(SqlciCmd::EXIT_TYPE, argument_, arglen_){};
@@ -424,10 +340,6 @@ short SetInferCharset::process(SqlciEnv *sqlci_env) {
   return 0;
 }
 
-Show::Show(show_type type_, NABoolean allValues) : SqlciCmd(SqlciCmd::SHOW_TYPE), allValues_(allValues) {
-  type = type_;
-};
-
 SleepVal::SleepVal(int v) : SqlciCmd(SqlciCmd::SLEEP_TYPE), val_(v){};
 
 Wait::Wait(char *argument_, int arglen_) : SqlciCmd(SqlciCmd::WAIT_TYPE, argument_, arglen_){};
@@ -437,8 +349,6 @@ short Exit::process(SqlciEnv *sqlci_env) {
   // Default is to exit sqlci. In the special case of an
   // active transaction, the user may choose not to exit.
   short retval = -1;
-
-
 
   // tell CLI that this user session is finished.
   SqlCmd::executeQuery("SET SESSION DEFAULT SQL_SESSION 'DROP';", sqlci_env);
@@ -576,7 +486,6 @@ short Error::process(SqlciEnv *sqlci_env) {
 // Begin SHAPE
 ///////////////////////////////////////////////////
 short Shape::process(SqlciEnv *sqlci_env) {
-
   if (!infile_) return 0;
 
   // open the infile to read Sql statements from
@@ -722,8 +631,6 @@ short Shape::processNextStmt(SqlciEnv *sqlci_env, FILE *fStream) {
             input_stmt->logStmt(TRUE);
           }
 
-          sqlci_env->displayDiagnostics();
-
           // Clear the DiagnosticsArea for the next command...
           sqlci_DA.clear();
 
@@ -829,171 +736,6 @@ short Mode::process_sql(SqlciEnv *sqlci_env) {
   }
 
   sqlci_env->setMode(SqlciEnv::SQL_);
-
-  return 0;
-}
-
-short QueryId::process(SqlciEnv *sqlci_env) {
-  int retcode = 0;
-
-  HandleCLIErrorInit();
-
-  char *stmtName = get_argument();
-
-  PrepStmt *prep_stmt = NULL;
-
-
-  Logfile *log = sqlci_env->get_logfile();
-  char sprintfBuf[225];
-
-  if (!stmtName) {
-    // try to find the last executed statement if present
-    if (sqlci_env->lastExecutedStmt() && sqlci_env->lastExecutedStmt()->getStmtNameLen() > 0)
-      stmtName = sqlci_env->lastExecutedStmt()->getStmtName();
-    // if not, try to find the last prepared statement if present
-    else if (sqlci_env->getLastAllocatedStmt() && sqlci_env->getLastAllocatedStmt()->identifier_len > 0)
-      stmtName = (char *)sqlci_env->getLastAllocatedStmt()->identifier;
-  }
-
-  if (!stmtName)
-  // no statement name found Display error.
-  {
-    sprintf(sprintfBuf, "No statement found. Enter command with valid statement name.");
-    log->WriteAll(sprintfBuf);
-    return 0;
-  }
-
-  SQLSTMT_ID stmt;
-  SQLMODULE_ID module;
-  init_SQLMODULE_ID(&module);
-  init_SQLSTMT_ID(&stmt, SQLCLI_CURRENT_VERSION, stmt_name, &module);
-
-  char *id = new char[strlen(stmtName) + 1];
-  stmt.identifier_len = strlen(stmtName);
-  str_cpy_all(id, stmtName, stmt.identifier_len);
-  id[stmt.identifier_len] = 0;
-  stmt.identifier = id;
-
-  char queryId[200];
-  int queryIdLen;
-
-  if (isSet_) {
-    // change query id in prep_stmt
-    if (prep_stmt->uniqueQueryId()) {
-      delete prep_stmt->uniqueQueryId();
-      prep_stmt->uniqueQueryIdLen() = 0;
-    }
-
-    prep_stmt->uniqueQueryIdLen() = strlen(qidVal_);
-    prep_stmt->uniqueQueryId() = new char[prep_stmt->uniqueQueryIdLen() + 1];
-    strcpy(prep_stmt->uniqueQueryId(), qidVal_);
-
-    retcode = SQL_EXEC_SetStmtAttr(&stmt, SQL_ATTR_UNIQUE_STMT_ID, 0, qidVal_);
-    delete[] id;
-
-    log->WriteAll("");
-
-    return 0;
-  }
-
-  retcode = SQL_EXEC_GetStmtAttr(&stmt, SQL_ATTR_UNIQUE_STMT_ID, NULL, queryId, 200, &queryIdLen);
-  delete[] id;
-
-  if (queryIdLen < 200)
-    queryId[queryIdLen] = 0;
-  else
-    queryId[199] = 0;
-
-  HandleCLIError(retcode, sqlci_env);
-
-  if (retcode == 0) {
-    snprintf(sprintfBuf, 225, "QID is %s", queryId);
-    log->WriteAll(sprintfBuf);
-    log->WriteAll("");
-  }
-
-  // display details of this query
-  // for string attributes, use {type,maxLength,char[maxLength+1]}
-  UNIQUEQUERYID_ATTR queryIdAttrs[11] = {{UNIQUEQUERYID_SEGMENTNUM, 0, 0},
-                                         {UNIQUEQUERYID_SEGMENTNAME, 10, new char[11]},
-                                         {UNIQUEQUERYID_CPU, 0, 0},
-                                         {UNIQUEQUERYID_PIN, 0, 0},
-                                         {UNIQUEQUERYID_EXESTARTTIME, 0, 0},
-                                         {UNIQUEQUERYID_SESSIONNUM, 0, 0},
-                                         {UNIQUEQUERYID_USERNAME, 24, new char[25]},
-                                         {UNIQUEQUERYID_SESSIONNAME, 32, new char[33]},
-                                         {UNIQUEQUERYID_QUERYNUM, 0, 0},
-                                         {UNIQUEQUERYID_STMTNAME, 110, new char[111]},
-                                         {UNIQUEQUERYID_SESSIONID, 104, new char[105]}};
-
-  retcode = SQL_EXEC_GetUniqueQueryIdAttrs(queryId, queryIdLen, 11, queryIdAttrs);
-  HandleCLIError(retcode, sqlci_env);
-
-  if (retcode == 0) {
-    snprintf(sprintfBuf, 225, "QID details: ");
-    log->WriteAll(sprintfBuf);
-    log->WriteAll("============");
-
-    // display UNIQUEQUERYID_SEGMENTNUM
-    snprintf(sprintfBuf, 225, "  Segment Num:  " PFLL, queryIdAttrs[0].num_val_or_len);
-    log->WriteAll(sprintfBuf);
-
-    // display UNIQUEQUERYID_SEGMENTNAME
-    snprintf(sprintfBuf, 225, "  Segment Name: %s", queryIdAttrs[1].string_val);
-    log->WriteAll(sprintfBuf);
-
-    // display UNIQUEQUERYID_CPU
-    snprintf(sprintfBuf, 225, "  Cpu:          " PFLL, queryIdAttrs[2].num_val_or_len);
-    log->WriteAll(sprintfBuf);
-
-    // display UNIQUEQUERYID_PIN
-    snprintf(sprintfBuf, 225, "  Pin:          " PFLL, queryIdAttrs[3].num_val_or_len);
-    log->WriteAll(sprintfBuf);
-
-    // UNIQUEQUERYID_EXESTARTTIME
-    short startTimeArray[8];
-    long long startTime = queryIdAttrs[4].num_val_or_len;
-    short error;
-
-    INTERPRETTIMESTAMP(CONVERTTIMESTAMP(startTime, 0,  // GMT to LCT
-                                        -1,            // use current node
-                                        &error),
-                       startTimeArray);
-    sprintf(sprintfBuf, "  ExeStartTime: " PF64 "= %02d/%02d/%02d %02d:%02d:%02d.%03d%03d LCT", startTime,
-            startTimeArray[0], startTimeArray[1], startTimeArray[2], startTimeArray[3], startTimeArray[4],
-            startTimeArray[5], startTimeArray[6], startTimeArray[7]);
-    log->WriteAll(sprintfBuf);
-
-    // display UNIQUEQUERYID_SESSIONNUM
-    sprintf(sprintfBuf, "  SessionNum:   " PFLL, queryIdAttrs[5].num_val_or_len);
-    log->WriteAll(sprintfBuf);
-
-    // display UNIQUEQUERYID_USERNAME
-    sprintf(sprintfBuf, "  UserName:     %s", queryIdAttrs[6].string_val);
-    log->WriteAll(sprintfBuf);
-
-    // display UNIQUEQUERYID_SESSIONNAME
-    if (strlen(queryIdAttrs[7].string_val) > 0)
-      sprintf(sprintfBuf, "  SessionName:  %s", queryIdAttrs[7].string_val);
-    else
-      sprintf(sprintfBuf, "  SessionName:  NULL");
-
-    log->WriteAll(sprintfBuf);
-
-    // display UNIQUEQUERYID_QUERYNUM
-    sprintf(sprintfBuf, "  QueryNum:     " PFLL, queryIdAttrs[8].num_val_or_len);
-    log->WriteAll(sprintfBuf);
-
-    // display UNIQUEQUERYID_STMTNAME:
-    sprintf(sprintfBuf, "  StmtName:     %s", queryIdAttrs[9].string_val);
-    log->WriteAll(sprintfBuf);
-
-    // display UNIQUEQUERYID_SESSIONID:
-    sprintf(sprintfBuf, "  SessionId:    %s", queryIdAttrs[10].string_val);
-    log->WriteAll(sprintfBuf);
-
-    log->WriteAll("");
-  }
 
   return 0;
 }

@@ -548,7 +548,7 @@ static int allocAndReadPos(ModuleOSFile &file, char *&buf, int pos, int len, NAM
 
 RETCODE ContextCli::allocateDesc(SQLDESC_ID *descriptor_id, int max_entries) {
   const char *hashData;
-  ULng32 hashDataLength;
+  int hashDataLength;
 
   if (descriptor_id->name_mode != desc_handle) {
     /* find if this descriptor exists. Return error, if so */
@@ -609,7 +609,7 @@ Descriptor *ContextCli::getDescriptor(SQLDESC_ID *descriptor_id) {
   SQLDESC_ID *desc2 = 0;
 
   const char *hashData = NULL;
-  ULng32 hashDataLength = 0;
+  int hashDataLength = 0;
 
   //
   // First, get the descriptor name into descName1...
@@ -759,7 +759,7 @@ Statement *ContextCli::getStatement(SQLSTMT_ID *statement_id, HashQueue *stmtLis
   // the following two variables are used to hash into
   // the statmentlist
   const char *hashData = NULL;
-  ULng32 hashDataLength = 0;
+  int hashDataLength = 0;
 
   //
   // First, get the statement name.
@@ -889,7 +889,7 @@ Statement *ContextCli::getStatement(SQLSTMT_ID *statement_id, HashQueue *stmtLis
 RETCODE ContextCli::allocateStmt(SQLSTMT_ID *statement_id, Statement::StatementType stmt_type,
                                  SQLSTMT_ID *cloned_from_stmt_id) {
   const char *hashData = NULL;
-  ULng32 hashDataLength = 0;
+  int hashDataLength = 0;
 
   if (statement_id->name_mode != stmt_handle) {
     /* find if this statement exists. Return error, if so */
@@ -1037,8 +1037,8 @@ RETCODE ContextCli::deallocStmt(SQLSTMT_ID *statement_id, NABoolean deallocStati
 
   ExRsInfo *rsInfo = stmt->getResultSetInfo();
   if (rsInfo) {
-    ULng32 numChildren = rsInfo->getNumEntries();
-    for (ULng32 i = 1; i <= numChildren; i++) {
+    int numChildren = rsInfo->getNumEntries();
+    for (int i = 1; i <= numChildren; i++) {
       Statement *rsChild = NULL;
       const char *proxySyntax;
       NABoolean open;
@@ -1563,7 +1563,7 @@ int ContextCli::completeSetAuthID(const USERS_INFO &usersInfo, const char *authT
 }
 //******************* End of ContextCli::completeSetAuthID *********************
 
-int ContextCli::boundsCheckMemory(void *startAddress, ULng32 length) {
+int ContextCli::boundsCheckMemory(void *startAddress, int length) {
   int retcode = 0;
 
   if (cliGlobals_->boundsCheck(startAddress, length, retcode)) diagsArea_ << DgSqlCode(retcode);
@@ -1587,7 +1587,7 @@ void ContextCli::removeCursor(SQLSTMT_ID *cursorName, const SQLMODULE_ID *module
 
 void ContextCli::addToOpenStatementList(SQLSTMT_ID *statement_id, Statement *statement) {
   const char *hashData = NULL;
-  ULng32 hashDataLength = 0;
+  int hashDataLength = 0;
 
   if (statement_id->name_mode == stmt_handle) {
     hashData = (char *)&(statement_id->handle);
@@ -1933,7 +1933,7 @@ ExUdrServer *ContextCli::acquireUdrServer(const char *runtimeOptions, const char
     }
 
     const char *hashData = runtimeOptions;
-    ULng32 hashDataLength = str_len(runtimeOptions);
+    int hashDataLength = str_len(runtimeOptions);
     udrServerList_->insert(hashData, hashDataLength, (void *)udrServer);
 
     if (dedicated) {
@@ -1991,8 +1991,8 @@ void ContextCli::releaseUdrServers() {
 // (currently the only supported options are JVM startup
 // options). Once UDR options have been set, those options take
 // precedence over options that were compiled into a plan.
-int ContextCli::setUdrRuntimeOptions(const char *options, ULng32 optionsLen, const char *delimiters,
-                                       ULng32 delimsLen) {
+int ContextCli::setUdrRuntimeOptions(const char *options, int optionsLen, const char *delimiters,
+                                       int delimsLen) {
   // A NULL or empty option string tells us to clear the current UDR
   // options
   if (options == NULL || optionsLen == 0) {
@@ -2044,7 +2044,7 @@ ExUdrServer *ContextCli::findUdrServer(const char *runtimeOptions, const char *o
                                        IpcThreadInfo *threadInfo, NABoolean dedicated) {
   if (udrServerList_) {
     const char *hashData = runtimeOptions;
-    ULng32 hashDataLength = str_len(runtimeOptions);
+    int hashDataLength = str_len(runtimeOptions);
     ExUdrServer *s;
 
     udrServerList_->position(hashData, hashDataLength);
@@ -2434,9 +2434,9 @@ void ContextCli::createMxcmpSession() {
   if (getSessionDefaults()->callEmbeddedArkcmp() && isEmbeddedArkcmpInitialized() && CmpCommon::context() &&
       (CmpCommon::context()->getRecursionLevel() == 0)) {
     char *dummyReply = NULL;
-    ULng32 dummyLen;
+    int dummyLen;
     ComDiagsArea *diagsArea = NULL;
-    cmpStatus = CmpCommon::context()->compileDirect(pMessage, (ULng32)sizeof(userMessage), &exHeap_,
+    cmpStatus = CmpCommon::context()->compileDirect(pMessage, (int)sizeof(userMessage), &exHeap_,
                                                     SQLCHARSETCODE_UTF8, EXSQLCOMP::DATABASE_USER, dummyReply, dummyLen,
                                                     getSqlParserFlags(), NULL, 0, diagsArea);
     if (cmpStatus != 0) {
@@ -2463,7 +2463,7 @@ void ContextCli::createMxcmpSession() {
     short indexIntoCompilerArray = getIndexToCompilerArray();
     ExSqlComp *exSqlComp = cliGlobals_->getArkcmp(indexIntoCompilerArray);
     ex_assert(exSqlComp, "CliGlobals::getArkcmp() returned NULL");
-    exSqlComp->sendRequest(EXSQLCOMP::DATABASE_USER, (const char *)pMessage, (ULng32)strlen(pMessage));
+    exSqlComp->sendRequest(EXSQLCOMP::DATABASE_USER, (const char *)pMessage, (int)strlen(pMessage));
   }
 
   // Send one of two CQDs to the compiler
@@ -2582,7 +2582,7 @@ int ContextCli::updateMxcmpSession() {
   ExSqlComp::ReturnStatus cmpStatus;
   ExSqlComp *exSqlComp = getArkcmp();
   ex_assert(exSqlComp, "CliGlobals::getArkcmp() returned NULL");
-  cmpStatus = exSqlComp->sendRequest(EXSQLCOMP::DATABASE_USER, (const char *)pMessage, (ULng32)strlen(pMessage));
+  cmpStatus = exSqlComp->sendRequest(EXSQLCOMP::DATABASE_USER, (const char *)pMessage, (int)strlen(pMessage));
   if (cmpStatus == ExSqlComp::ERROR) return -1;
 
   return 0;
@@ -2615,7 +2615,7 @@ void ContextCli::beginSession(char *userSpecifiedSessionName) {
 void ContextCli::endMxcmpSession(NABoolean cleanupEsps, NABoolean clearCmpCache) {
   int flags = 0;
   char *dummyReply = NULL;
-  ULng32 dummyLength;
+  int dummyLength;
 
   if (cleanupEsps) flags |= CmpMessageEndSession::CLEANUP_ESPS;
 
@@ -2627,9 +2627,9 @@ void ContextCli::endMxcmpSession(NABoolean cleanupEsps, NABoolean clearCmpCache)
   if (getSessionDefaults()->callEmbeddedArkcmp() && isEmbeddedArkcmpInitialized() && CmpCommon::context() &&
       (CmpCommon::context()->getRecursionLevel() == 0)) {
     char *dummyReply = NULL;
-    ULng32 dummyLen;
+    int dummyLen;
     ComDiagsArea *diagsArea = NULL;
-    cmpStatus = CmpCommon::context()->compileDirect((char *)&flags, (ULng32)sizeof(int), &exHeap_,
+    cmpStatus = CmpCommon::context()->compileDirect((char *)&flags, (int)sizeof(int), &exHeap_,
                                                     SQLCHARSETCODE_UTF8, EXSQLCOMP::END_SESSION, dummyReply, dummyLen,
                                                     getSqlParserFlags(), NULL, 0, diagsArea);
     if (cmpStatus != 0) {
@@ -2899,7 +2899,7 @@ ExSqlComp::ReturnStatus ContextCli::sendXnMsgToArkcmp(char *data, int dataSize, 
   // initialization of variables afer goto statements.
 
   char *dummyReply = NULL;
-  ULng32 dummyLength;
+  int dummyLength;
   ContextCli *currCtxt = this;
   int cmpRet = 0;
 
@@ -4654,7 +4654,7 @@ int ContextCli::getUserAttrs(const char *username, const char *tenantname, USERS
     std::vector<int32_t> groupIDs;
     usersInfo->groupList.clear();
     // Read metadata about the user
-    ULng32 flagBits = getSqlParserFlags();
+    int flagBits = getSqlParserFlags();
     setSqlParserFlags(0x20000);
     if (CmpSeabaseDDLauth::STATUS_GOOD == authInfo.getUserGroups(groupIDs)) {
       std::vector<std::string> tmp;
@@ -4718,7 +4718,7 @@ int ContextCli::addUserInfo(const char *username, USERS_INFO *usersInfo, struct 
   */
 
   // Read metadata about the user
-  ULng32 flagBits = getSqlParserFlags();
+  int flagBits = getSqlParserFlags();
   CmpSeabaseDDLauth::AuthStatus authStatus;
   setSqlParserFlags(0x20000);
   authStatus = authInfo.getAuthDetails(username, true);
@@ -4762,7 +4762,7 @@ int ContextCli::addUserInfo(const char *username, USERS_INFO *usersInfo, struct 
 int ContextCli::addTenantInfo(const char *tenantname, USERS_INFO *usersInfo, struct SQLSEC_AuthDetails *authDetails,
                                 CmpSeabaseDDLauth &authInfo) {
   CmpSeabaseDDLauth::AuthStatus authStatus = CmpSeabaseDDLauth::STATUS_GOOD;
-  ULng32 flagBits = getSqlParserFlags();
+  int flagBits = getSqlParserFlags();
   Int16 retcode = 0;
 
   NAString tname(tenantname);
@@ -4939,7 +4939,7 @@ int ContextCli::registerUser(const char *username, const char *config, USERS_INF
   CmpSeabaseDDLuser userInfo;
   NAString dbUserName(username);
   NAString authPassword(AUTH_DEFAULT_WORD);
-  ULng32 flagBits = getSqlParserFlags();
+  int flagBits = getSqlParserFlags();
   setSqlParserFlags(0x20000);
 
   int retcode = userInfo.registerUserInternal(dbUserName, dbUserName, config, true, ROOT_USER_ID, authPassword);
@@ -4990,7 +4990,7 @@ int ContextCli::getAuthErrPwdCnt(int userid, Int16 &errcnt) {
 
   //  3. Perform the request
   CmpSeabaseDDLauth authInfo;
-  ULng32 flagBits = getSqlParserFlags();
+  int flagBits = getSqlParserFlags();
   setSqlParserFlags(0x20000);
   int retcode = authInfo.getErrPwdCnt(userid, errcnt);
   assignSqlParserFlags(flagBits);
@@ -5026,7 +5026,7 @@ int ContextCli::updateAuthErrPwdCnt(int userid, Int16 errcnt, bool reset) {
 
   //  3. Perform the request
   CmpSeabaseDDLuser userInfo;
-  ULng32 flagBits = getSqlParserFlags();
+  int flagBits = getSqlParserFlags();
   setSqlParserFlags(0x20000);
   int retcode = userInfo.updateErrPwdCnt(userid, errcnt, reset);
   assignSqlParserFlags(flagBits);
@@ -5101,7 +5101,7 @@ RETCODE ContextCli::retrieveAndSetTenantInfo(int tenantID) {
   char tenantName[MAX_USERNAME_LEN + 1];
   int tenantIDFromMetadata;
   TenantInfo tenantInfo(&exHeap_);
-  ULng32 flagBits = getSqlParserFlags();
+  int flagBits = getSqlParserFlags();
   setSqlParserFlags(0x20000);
 
   // See if the USERS row exists
@@ -5137,7 +5137,7 @@ RETCODE ContextCli::setTenantByName(const char *tenantName) {
   char tenantNameFromUsersTable[MAX_USERNAME_LEN + 1];
   int tenantIDFromUsersTable;
   TenantInfo tenantInfo(&exHeap_);
-  ULng32 flagBits = getSqlParserFlags();
+  int flagBits = getSqlParserFlags();
   setSqlParserFlags(0x20000);
 
   RETCODE result = authQuery(TENANT_BY_NAME,
@@ -6041,7 +6041,7 @@ int ContextCli::getGracePwdCnt(int userid, Int16 &graceCounter) {
 
   //  3. Perform the request
   CmpSeabaseDDLauth authInfo;
-  ULng32 flagBits = getSqlParserFlags();
+  int flagBits = getSqlParserFlags();
   setSqlParserFlags(0x20000);
   int retcode = authInfo.getGracePwdCnt(userid, graceCounter);
   assignSqlParserFlags(flagBits);
@@ -6077,7 +6077,7 @@ int ContextCli::updateGracePwdCnt(int userid, Int16 graceCounter) {
 
   //  3. Perform the request
   CmpSeabaseDDLuser userInfo;
-  ULng32 flagBits = getSqlParserFlags();
+  int flagBits = getSqlParserFlags();
   setSqlParserFlags(0x20000);
   int retcode = userInfo.updateGracePwdCnt(userid, graceCounter);
   assignSqlParserFlags(flagBits);

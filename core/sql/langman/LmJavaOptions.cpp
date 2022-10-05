@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ******************************************************************************
 *
@@ -47,15 +26,15 @@
 LmJavaOptions::LmJavaOptions() : options_(collHeap()) {}
 
 LmJavaOptions::~LmJavaOptions() {
-  ULng32 e = options_.entries();
-  for (ULng32 i = 0; i < e; i++) {
+  int e = options_.entries();
+  for (int i = 0; i < e; i++) {
     NADELETEBASIC(options_[i], collHeap());
   }
 }
 
-ULng32 LmJavaOptions::entries() const { return options_.entries(); }
+int LmJavaOptions::entries() const { return options_.entries(); }
 
-const char *LmJavaOptions::getOption(ULng32 i) const { return options_[i]; }
+const char *LmJavaOptions::getOption(int i) const { return options_[i]; }
 
 void LmJavaOptions::addOption(const char *option, NABoolean trim) {
   if (option == NULL || option[0] == '\0') {
@@ -76,14 +55,14 @@ void LmJavaOptions::addOption(const char *option, NABoolean trim) {
   }
 }
 
-void LmJavaOptions::removeOption(ULng32 index) {
+void LmJavaOptions::removeOption(int index) {
   NADELETEBASIC(options_[index], collHeap());
   options_.removeAt(index);
 }
 
 void LmJavaOptions::removeAllOptions() {
-  ULng32 e = options_.entries();
-  for (ULng32 i = 0; i < e; i++) {
+  int e = options_.entries();
+  for (int i = 0; i < e; i++) {
     NADELETEBASIC(options_[i], collHeap());
   }
   options_.clear();
@@ -142,8 +121,8 @@ void LmJavaOptions::addSystemProperty(const char *name, const char *value) {
 void LmJavaOptions::display() {
   LM_DEBUG0("[BEGIN LmJavaOptions]");
 
-  ULng32 e = entries();
-  for (ULng32 i = 0; i < e; i++) {
+  int e = entries();
+  for (int i = 0; i < e; i++) {
     const char *option = getOption(i);
     LM_DEBUG1("  '%s'", option);
   }
@@ -181,14 +160,14 @@ NABoolean LmJavaOptions::getSystemProperty(const char *name, char **callersOutpu
   NABoolean found = FALSE;
   char *valueToReturn = NULL;
 
-  const ULng32 nameLen = str_len(name);
-  const ULng32 prefixLen = nameLen + 2;
-  const ULng32 prefixWithEqualsLen = nameLen + 3;
+  const int nameLen = str_len(name);
+  const int prefixLen = nameLen + 2;
+  const int prefixWithEqualsLen = nameLen + 3;
   char *prefix = new (collHeap()) char[3 + nameLen + 1];
   str_cat("-D", (char *)name, prefix);
   str_cat(prefix, "=", prefix);
 
-  ULng32 i = entries();
+  int i = entries();
   while (i--) {
     const char *option = getOption(i);
 
@@ -226,7 +205,7 @@ NABoolean LmJavaOptions::getSystemProperty(const char *name, char **callersOutpu
           // Something appears after the equals sign
           found = TRUE;
           if (callerWantsValue && !valueToReturn) {
-            const ULng32 valueLen = optionLen - prefixWithEqualsLen;
+            const int valueLen = optionLen - prefixWithEqualsLen;
             valueToReturn = new (callersHeap) char[valueLen + 1];
             str_cpy_all(valueToReturn, &option[prefixWithEqualsLen], (int)(valueLen + 1));
           }
@@ -255,8 +234,8 @@ NABoolean LmJavaOptions::getSystemProperty(const char *name, char **callersOutpu
 // Append all options from other to this
 //
 void LmJavaOptions::merge(const LmJavaOptions &other) {
-  const ULng32 numOptions = other.entries();
-  for (ULng32 i = 0; i < numOptions; i++) {
+  const int numOptions = other.entries();
+  for (int i = 0; i < numOptions; i++) {
     const char *option = other.getOption(i);
     addOption(option, FALSE);
   }

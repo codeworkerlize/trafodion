@@ -4,12 +4,6 @@
 
 #include "common/NAWinNT.h"
 
-// NOTE 1:
-// These globals should really be made data members of class Parser,
-// and a single instance (or a stack) of Parser should be made global.
-
-// First define Parser globals that need to reside in common.lib
-// rather than parser.lib (so that DLLs which don't use parser.lib will link)
 #include "parser/SqlParserGlobalsCmn.h"
 
 #undef GLOB_
@@ -48,9 +42,9 @@ class ItemExprList;
 // It extends tokval by returning not just the token value/code/enum,
 // but also the original, case-preserved text.
 struct TokvalPlusYYText {
-  int tokval;           // overlays "int tokval" in %union of .y file
+  int tokval;             // overlays "int tokval" in %union of .y file
   const NAWchar *yytext;  // beginning of token in the input string
-  int yyleng;           // length of the token
+  int yyleng;             // length of the token
 };
 inline TokvalPlusYYText *ToTokvalPlusYYText(void *p) { return (TokvalPlusYYText *)p; }
 

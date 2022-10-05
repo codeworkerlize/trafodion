@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef TREENODE_H
 #define TREENODE_H
 /* -*-C++-*-
@@ -53,18 +32,18 @@ class TreeNode : public NABasicObject {
   TreeNode();
   ~TreeNode();
 
-  void initialize(ULng32 nodenum, ULng32 associatedrun, TreeNode *fi, TreeNode *fe, Record *rec, CollHeap *heap,
+  void initialize(int nodenum, int associatedrun, TreeNode *fi, TreeNode *fe, Record *rec, CollHeap *heap,
                   SortError *sorterror, SortScratchSpace *scratch, NABoolean merge, NABoolean waited);
   void deallocate();
 
-  // NABoolean setRecord(void* rec, ULng32 reclen,  ULng32 keylen, Int16 numberOfBytesForRecordSize);
-  NABoolean setRecordTupp(void *rec, ULng32 reclen, ULng32 keylen, void *tupp, Int16 numberOfBytesForRecordSize);
-  NABoolean getRecord(void *rec, ULng32 reclen);
+  // NABoolean setRecord(void* rec, int reclen,  int keylen, Int16 numberOfBytesForRecordSize);
+  NABoolean setRecordTupp(void *rec, int reclen, int keylen, void *tupp, Int16 numberOfBytesForRecordSize);
+  NABoolean getRecord(void *rec, int reclen);
 
-  RESULT inputScr(ULng32 keylen, ULng32 reclen, SortScratchSpace *scratch, ULng32 &actRecLen,
-                  // ULng32 keySize,
+  RESULT inputScr(int keylen, int reclen, SortScratchSpace *scratch, int &actRecLen,
+                  // int keySize,
                   NABoolean waited = FALSE, Int16 numberOfBytesForRecordSize = 0);
-  RESULT outputScr(ULng32 run, ULng32 reclen, SortScratchSpace *scratch, NABoolean waited = FALSE);
+  RESULT outputScr(int run, int reclen, SortScratchSpace *scratch, NABoolean waited = FALSE);
 
   TreeNode *getFe();
   TreeNode *getFi();
@@ -72,8 +51,8 @@ class TreeNode : public NABasicObject {
   void setLoser(TreeNode *node);
   TreeNode *getLoser();
   char *getKey();
-  ULng32 getRun();
-  void setRun(ULng32 run);
+  int getRun();
+  void setRun(int run);
 
   Record *&record() { return record_; }
 
@@ -86,8 +65,8 @@ class TreeNode : public NABasicObject {
   TreeNode *fe_;
 
   TreeNode *loser_;
-  ULng32 run_;
-  ULng32 nodenum_;
+  int run_;
+  int nodenum_;
 
   SortError *sortError_;
   CollHeap *heap_;

@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ******************************************************************************
 *
@@ -287,7 +266,7 @@ ex_hashj_tcb::ex_hashj_tcb(const ex_hashj_tdb &hashJoinTdb,
   if (hashJoinTdb.considerBufferDefrag()) {
     assert(hashJoinTdb.useVariableLength());
 
-    ULng32 defragLength = MAXOF(hashJoinTdb.leftRowLength_, hashJoinTdb.rightRowLength_);
+    int defragLength = MAXOF(hashJoinTdb.leftRowLength_, hashJoinTdb.rightRowLength_);
     resultPool_->addDefragTuppDescriptor(defragLength);
   }
 
@@ -425,7 +404,7 @@ ex_hashj_tcb::ex_hashj_tcb(const ex_hashj_tdb &hashJoinTdb,
   workAtp_->getTupp(hashJoinTdb.hashValueAtpIndex_) = &hashValueTupp_;
 
   // Use one null tuple for both Left and Right joins;
-  ULng32 nullLength = 0;
+  int nullLength = 0;
 
   if (leftJoinExpr_ && nullInstForLeftJoinExpr_ && (hashJoinTdb.instRowForLeftJoinLength_ > 0)) {
     nullLength = hashJoinTdb.instRowForLeftJoinLength_;
@@ -438,8 +417,8 @@ ex_hashj_tcb::ex_hashj_tcb(const ex_hashj_tdb &hashJoinTdb,
   // Allocate a NULL tuple for use in null instantiation.
   // Allocate the MinMax tuple if min/max optimazation is being used.
   if ((nullLength > 0) || (hashJoinTdb.minMaxRowLength_ > 0)) {
-    ULng32 tupleSize = MAXOF(nullLength, hashJoinTdb.minMaxRowLength_);
-    ULng32 numTuples = ((nullLength > 0) && (hashJoinTdb.minMaxRowLength_ > 0)) ? 2 : 1;
+    int tupleSize = MAXOF(nullLength, hashJoinTdb.minMaxRowLength_);
+    int numTuples = ((nullLength > 0) && (hashJoinTdb.minMaxRowLength_ > 0)) ? 2 : 1;
 
     int neededBufferSize = (int)SqlBufferNeededSize(numTuples, tupleSize);
 
@@ -757,7 +736,7 @@ ExWorkProcRetcode ex_hashj_tcb::workUp() {
   const ex_queue::down_request &request = downParentEntry->downState.request;
   ex_hashj_private_state &pstate = *((ex_hashj_private_state *)downParentEntry->pstate);
 
-  ULng32 xProductPreemptMax = hashJoinTdb().getXproductPreemptMax() ? hashJoinTdb().getXproductPreemptMax() : UINT_MAX;
+  int xProductPreemptMax = hashJoinTdb().getXproductPreemptMax() ? hashJoinTdb().getXproductPreemptMax() : UINT_MAX;
   numJoinedRowsRejected_ = 0;
 
   // loop forever, exit via return
@@ -1150,7 +1129,7 @@ NABoolean ex_hashj_tcb::allocateClusters() {
   }
 
   // We use memUsagePercent of the physical memory for the hash join.
-  ULng32 availableMemory = 1024;
+  int availableMemory = 1024;
 
   // if quota, and it's less than avail memory, then use that lower figure
   if (hashJoinTdb().memoryQuotaMB() > 0 && hashJoinTdb().memoryQuotaMB() * ONE_MEG < availableMemory)
@@ -1169,9 +1148,9 @@ NABoolean ex_hashj_tcb::allocateClusters() {
     innerTableSize = MAXOF(MIN_INPUT_SIZE, (long)innerTableSizeF);
 
   // we start with 4 buckets per cluster
-  ULng32 bucketsPerCluster = 4;
+  int bucketsPerCluster = 4;
 
-  ULng32 noOfClusters = 0;
+  int noOfClusters = 0;
 
   // Cross Product needs only one cluster / one bucket
   if (rightSearchExpr_ == NULL) {
@@ -1181,11 +1160,11 @@ NABoolean ex_hashj_tcb::allocateClusters() {
   }  // UHJ uses zero clusters
   else {
     // required number of buffers for inner table
-    ULng32 totalInnerBuffers = (ULng32)(innerTableSize / hashJoinTdb().hashBufferSize_);
+    int totalInnerBuffers = (int)(innerTableSize / hashJoinTdb().hashBufferSize_);
     if (innerTableSize % hashJoinTdb().hashBufferSize_) totalInnerBuffers++;
 
     // total number of buffers available
-    ULng32 totalBuffers = availableMemory / hashJoinTdb().hashBufferSize_;
+    int totalBuffers = availableMemory / hashJoinTdb().hashBufferSize_;
 
     noOfClusters = totalInnerBuffers / totalBuffers;
 
@@ -1202,7 +1181,7 @@ NABoolean ex_hashj_tcb::allocateClusters() {
     noOfClusters = ClusterDB::roundUpToPrime(noOfClusters);
 
     // the extreme case, each cluster has only one bucket and only one buffer
-    ULng32 maxNoOfClusters = totalBuffers / bucketsPerCluster;
+    int maxNoOfClusters = totalBuffers / bucketsPerCluster;
     noOfClusters = MINOF(noOfClusters, maxNoOfClusters);
   }
 
@@ -1210,15 +1189,15 @@ NABoolean ex_hashj_tcb::allocateClusters() {
   bucketCount_ = bucketsPerCluster * noOfClusters;
 
   // allocate the buckets
-  ULng32 bucketIdx = 0;
+  int bucketIdx = 0;
 
   if (bucketCount_) buckets_ = (Bucket *)heap_->allocateMemory(bucketCount_ * sizeof(Bucket));
 
   for (bucketIdx = 0; bucketIdx < bucketCount_; bucketIdx++) buckets_[bucketIdx].init();
 
-  ULng32 minMemQuotaMB = hashJoinTdb().isPossibleMultipleCalls() ? hashJoinTdb().memoryQuotaMB() : 0;
+  int minMemQuotaMB = hashJoinTdb().isPossibleMultipleCalls() ? hashJoinTdb().memoryQuotaMB() : 0;
 
-  ULng32 minB4Chk = hashJoinTdb().getBmoMinMemBeforePressureCheck() * ONE_MEG;
+  int minB4Chk = hashJoinTdb().getBmoMinMemBeforePressureCheck() * ONE_MEG;
   // estimate memory needed in phase 1 (not incl. hash tables)
   Float32 memEstInKBPerNode = (Float32)(innerTableSize / 1024);
 
@@ -1280,7 +1259,7 @@ NABoolean ex_hashj_tcb::allocateClusters() {
   clusterDb_->setBMOMaxMemThresholdMB(hashJoinTdb().getBMOMaxMemThresholdMB());
   bucketIdx = 0;
   Cluster *cluster = NULL;
-  ULng32 i;
+  int i;
   // allocate the (inner) clusters
   for (i = 0; i < noOfClusters; i++) {
     cluster = new (heap_) Cluster(Cluster::IN_MEMORY, clusterDb_, &buckets_[bucketIdx], bucketsPerCluster,
@@ -1528,7 +1507,7 @@ short ex_hashj_tcb::workReadInner() {
       pstate.setOldState(HASHJ_READ_INNER);
 
       // determine the bucket, where the row is stored
-      ULng32 bucketId = hashValue_ % bucketCount_;
+      int bucketId = hashValue_ % bucketCount_;
 
       ComDiagsArea *da = rightEntry->getDiagsArea();
       if (da) {
@@ -1779,11 +1758,11 @@ void ex_hashj_tcb::workEndPhase1() {
   // Yield memory quota (or if needed, flush another in-memory cluster
   // to free more memory for phase 2) .
   //    first get some information about the clusters (number, sizes, etc.)
-  ULng32 numClusters = 0;
-  ULng32 numFlushed = 0;
-  ULng32 totalSize = 0;
-  ULng32 maxSize = 0;
-  ULng32 minSize = UINT_MAX;
+  int numClusters = 0;
+  int numFlushed = 0;
+  int totalSize = 0;
+  int maxSize = 0;
+  int minSize = UINT_MAX;
   if (clusterDb_->sawPressure()) {  // only if an overflow happened
     Cluster *currCl, *inMemoryCluster = NULL;
     for (numClusters = 0, numFlushed = 0, totalSize = 0, maxSize = 0, minSize = UINT_MAX,
@@ -1793,7 +1772,7 @@ void ex_hashj_tcb::workEndPhase1() {
         if (currCl->getState() == Cluster::FLUSHED) ++numFlushed;
         // pick any in-memory cluster
         if (currCl->getState() == Cluster::CHAINED) inMemoryCluster = currCl;
-        ULng32 clusterSizeMB = (ULng32)(currCl->clusterSize() / ONE_MEG);
+        int clusterSizeMB = (int)(currCl->clusterSize() / ONE_MEG);
         totalSize += clusterSizeMB;
         if (maxSize < clusterSizeMB) maxSize = clusterSizeMB;
         if (minSize > clusterSizeMB) minSize = clusterSizeMB;
@@ -1904,7 +1883,7 @@ short ex_hashj_tcb::workReadOuter() {
       }
 
       // determine the bucket, where the row is stored
-      ULng32 bucketId = hashValue_ % bucketCount_;
+      int bucketId = hashValue_ % bucketCount_;
 
       // determine the corresponding outer Cluster
       Cluster *oCluster = buckets_[bucketId].getOuterCluster();
@@ -2113,14 +2092,14 @@ void ex_hashj_tcb::workEndPhase2() {
   if (hashJoinTdb().logDiagnostics() /* && clusterDb_->sawPressure() */) {
     // L O G
     //   count the number of clusters
-    ULng32 totalSize, maxSize, minSize;
+    int totalSize, maxSize, minSize;
 
     Cluster *iCluster = clusterDb_->getClusterList();
 
     for (iCluster = clusterDb_->getClusterList(), totalSize = 0, maxSize = 0, minSize = UINT_MAX; iCluster;
          iCluster = iCluster->getNext()) {
       Cluster *oCluster = iCluster->getOuterCluster();
-      ULng32 clusterSizeMB = NULL == oCluster ? 0 : (ULng32)(oCluster->clusterSize() / (1024 * 1024));
+      int clusterSizeMB = NULL == oCluster ? 0 : (int)(oCluster->clusterSize() / (1024 * 1024));
       totalSize += clusterSizeMB;
       if (maxSize < clusterSizeMB) maxSize = clusterSizeMB;
       if (minSize > clusterSizeMB) minSize = clusterSizeMB;
@@ -2173,9 +2152,9 @@ void ex_hashj_tcb::prepareForNextPairOfClusters(Cluster *iCluster) {
     long timeTook = currTime - iCluster->startTimePhase3();
     if (iCluster->numLoops()) {
       str_sprintf(msg, "HJ Finished cluster (%d) in Phase 3 (%d) with %d Hash-Loop iterations in %d seconds.",
-                  (ULng32)iCluster & 0xFFF, (ULng32)clusterDb_ & 0xFFF,
+                  (int)iCluster & 0xFFF, (int)clusterDb_ & 0xFFF,
                   iCluster->numLoops() + 1,  // add uncounted last iter
-                  (ULng32)(timeTook / 1000000));
+                  (int)(timeTook / 1000000));
 
       // log an EMS event and continue
       SQLMXLoggingArea::logExecRtInfo(NULL, 0, msg, tdb.getExplainNodeId());
@@ -2447,7 +2426,7 @@ short ex_hashj_tcb::workReturnRightRows() {
         // ex_expr::exp_return_type retCode;
         atp_struct *atp = NULL;
 
-        ULng32 bucketId = hashRow->hashValue() % bucketCount_;
+        int bucketId = hashRow->hashValue() % bucketCount_;
 
         if (buckets_[bucketId].getInnerCluster() != iCluster) {
           bucketId = hashRow->hashValue() % bucketCount_;
@@ -2794,12 +2773,12 @@ void ex_hashj_tcb::workDone() {
 #ifdef TEMP_DISABLE
     if (clusterDb_->numClustersNoHashLoop()) {
       str_sprintf(msg, "HJ Finished Phase 3 (%d). Time (sec): total %d (w/o HL) - max %d min %d avg %d (%d clusters)",
-                  (ULng32)clusterDb_ & 0xFFF, (ULng32)(clusterDb_->totalPhase3TimeNoHL() / 1000000),
-                  (ULng32)(clusterDb_->maxPhase3Time() / 1000000), (ULng32)(clusterDb_->minPhase3Time() / 1000000),
-                  (ULng32)(clusterDb_->totalPhase3TimeNoHL() / 1000000) / clusterDb_->numClustersNoHashLoop(),
+                  (int)clusterDb_ & 0xFFF, (int)(clusterDb_->totalPhase3TimeNoHL() / 1000000),
+                  (int)(clusterDb_->maxPhase3Time() / 1000000), (int)(clusterDb_->minPhase3Time() / 1000000),
+                  (int)(clusterDb_->totalPhase3TimeNoHL() / 1000000) / clusterDb_->numClustersNoHashLoop(),
                   clusterDb_->numClustersNoHashLoop());
     } else {
-      str_sprintf(msg, "HJ Finished Phase 3 (%d) - All clusters used Hash-Loop!", (ULng32)clusterDb_ & 0xFFF);
+      str_sprintf(msg, "HJ Finished Phase 3 (%d) - All clusters used Hash-Loop!", (int)clusterDb_ & 0xFFF);
     }
 #else
     str_sprintf(msg, "HJ Finished Phase 3 (%d)", 0);
@@ -3416,7 +3395,7 @@ short ExUniqueHashJoinTcb::workReadInner(UInt32 defragLength) {
 
 NABoolean ExUniqueHashJoinTcb::workChainInner() {
   if (!hashTable_) {
-    ULng32 hashEntries = (ULng32)totalRightRowsRead_;
+    int hashEntries = (int)totalRightRowsRead_;
 
     // Allow for %50 more entries in the hash table to avoid long chains.
     //
@@ -3435,12 +3414,12 @@ NABoolean ExUniqueHashJoinTcb::workChainInner() {
 
   // Keep track of how many rows have been chained.
   //
-  ULng32 numRows = 0;
+  int numRows = 0;
 
   HashBuffer *buffer = bufferPool_;
   while (buffer) {
     HashRow *dataPointer = buffer->castToSerial()->getFirstRow();
-    for (ULng32 rowIndex = 0; rowIndex < buffer->getRowCount(); rowIndex++) {
+    for (int rowIndex = 0; rowIndex < buffer->getRowCount(); rowIndex++) {
       // Insert the right row into the hash table.
       //
       hashTable_->insertUniq(dataPointer);

@@ -21,7 +21,7 @@ class ExSPInputOutput : public NAVersionedObject {
 
   ~ExSPInputOutput(){};
 
-  void initialize(ExpTupleDesc *tupleDesc, ULng32 totalLen, ConvInstruction *caseIndexArray);
+  void initialize(ExpTupleDesc *tupleDesc, int totalLen, ConvInstruction *caseIndexArray);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -35,13 +35,13 @@ class ExSPInputOutput : public NAVersionedObject {
   Long pack(void *space);
   int unpack(void *base, void *reallocator);
 
-  short inputValue(ULng32 fieldNum, char *inputRow, char *data, ULng32 datalen, NABoolean casting,
+  short inputValue(int fieldNum, char *inputRow, char *data, int datalen, NABoolean casting,
                    ComDiagsArea *diagsArea = NULL);
 
-  short outputValue(ULng32 fieldNum, char *outputRow, char *data, ULng32 datalen, NABoolean casting, CollHeap *heap,
+  short outputValue(int fieldNum, char *outputRow, char *data, int datalen, NABoolean casting, CollHeap *heap,
                     ComDiagsArea *diagsArea = NULL);
 
-  ULng32 getLength() { return totalLen_; };
+  int getLength() { return totalLen_; };
 
   ConvInstruction *getCaseIndexArray() { return (ConvInstruction *)(short *)caseIndexArray_; }
 
@@ -77,11 +77,11 @@ class ComTdbStoredProc : public ComTdb {
  public:
   ComTdbStoredProc() : ComTdb(ComTdb::ex_STORED_PROC, eye_STORED_PROC){};
 
-  ComTdbStoredProc(char *spName, ex_expr *inputExpr, ULng32 inputRowlen, ex_expr *outputExpr, ULng32 outputRowlen,
+  ComTdbStoredProc(char *spName, ex_expr *inputExpr, int inputRowlen, ex_expr *outputExpr, int outputRowlen,
                    ex_cri_desc *workCriDesc, const unsigned short workAtpIndex, ex_cri_desc *criDescParent,
                    ex_cri_desc *criDescReturned, ExSPInputOutput *extractInputExpr, ExSPInputOutput *moveOutputExpr,
                    queue_index fromParent, queue_index toParent, Cardinality estimatedRowCount, int numBuffers,
-                   ULng32 bufferSize, ex_expr *predExpr = NULL,
+                   int bufferSize, ex_expr *predExpr = NULL,
                    UInt16 arkcmpInfo = 0);  // constructor
 
   ~ComTdbStoredProc();

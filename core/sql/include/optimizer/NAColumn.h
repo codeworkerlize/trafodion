@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef NACOLUMN_H
 #define NACOLUMN_H
 /* -*-C++-*-
@@ -400,9 +379,9 @@ class NAColumn : public NABasicObject {
   }
   const NAString &getHbaseColQual() const { return hbaseColQual_; }
 
-  void setHbaseColFlags(const ULng32 colFlags) { hbaseColFlags_ = colFlags; }
+  void setHbaseColFlags(const int colFlags) { hbaseColFlags_ = colFlags; }
 
-  const ULng32 getHbaseColFlags() const { return hbaseColFlags_; }
+  const int getHbaseColFlags() const { return hbaseColFlags_; }
 
   void resetSerialization() { hbaseColFlags_ &= SEABASE_SERIALIZED; }
 
@@ -569,7 +548,7 @@ class NAColumn : public NABasicObject {
 
   NAString hbaseColFam_;
   NAString hbaseColQual_;
-  ULng32 hbaseColFlags_;
+  int hbaseColFlags_;
 
   // is this a virtual Hive column?
   VirtColType virtualColumnType_;
@@ -666,7 +645,7 @@ class NAColumnArray : public LIST(NAColumn *) {
   // numeric > 0. This method is used during alter table add
   // column to find the maximum value currently in use. Columns
   // are deleted during alter table drop column.
-  ULng32 getMaxTrafHbaseColQualifier() const;
+  int getMaxTrafHbaseColQualifier() const;
 
   NAString getColumnNamesAsString(char separator) const;
   NAString getColumnNamesAsString(char separator, UInt32 ct) const;

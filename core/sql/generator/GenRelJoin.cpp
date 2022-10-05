@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ******************************************************************************
 *
@@ -328,7 +307,7 @@ short HashJoin::codeGen(Generator *generator) {
   ex_cri_desc *leftDownDesc = givenDesc;
 
   // The length of the min max tuple used by the min/max optimization.
-  ULng32 minMaxRowLength = 0;
+  int minMaxRowLength = 0;
 
   // If we are doing min/max optimization, get the min/max values into
   // the map table and marked as codegen'ed before we codegen the left
@@ -916,7 +895,7 @@ short HashJoin::codeGen(Generator *generator) {
     mapAttr = (generator->addMapInfo(buildHashTree->getValueId(), 0))->getAttr();
     mapAttr->setAtp(workAtpPos);
     mapAttr->setAtpIndex(hashValueAtpIndex);
-    ULng32 len;
+    int len;
     ExpTupleDesc::computeOffsets(mapAttr, ExpTupleDesc::SQLARK_EXPLODED_FORMAT, len);
 
     // add the probe root value id to the map table. This is the hash value.
@@ -975,7 +954,7 @@ short HashJoin::codeGen(Generator *generator) {
   // generate the rightMoveInExpr
   ValueIdList rightMoveTargets1;
   MapTable *rightExtValMapTable = NULL;
-  ULng32 rightRowLength = 0;
+  int rightRowLength = 0;
 
   ExpTupleDesc *rightMoveInDesc = NULL;
   if (rightBufferValIds.entries() > 0) {
@@ -991,7 +970,7 @@ short HashJoin::codeGen(Generator *generator) {
     workCriDesc->setTupleDescriptor(extRightRowAtpIndex1, rightMoveInDesc);
   };
 
-  ULng32 extRightRowLength = rightRowLength + sizeof(HashRow);
+  int extRightRowLength = rightRowLength + sizeof(HashRow);
 
   // MT -> MT0 -> MT1 -> RC MT -> MT2 -> MT3 -> LC MT
   //    -> MT4 -> MT5 -> ERC (new valIds)
@@ -1012,7 +991,7 @@ short HashJoin::codeGen(Generator *generator) {
 
   // generate leftMoveExpr to move a left child row directly to the
   // parents buffer
-  ULng32 leftRowLength = 0;
+  int leftRowLength = 0;
   if (leftOutputValIds.entries() > 0) {
     expGen->generateContiguousMoveExpr(leftOutputValIds, -1, workAtpPos, leftRowAtpIndex, tupleFormat, leftRowLength,
                                        &leftMoveExpr);
@@ -1031,7 +1010,7 @@ short HashJoin::codeGen(Generator *generator) {
                                        ExpTupleDesc::SHORT_FORMAT, &leftExtValMapTable, &leftMoveTargets);
   };
 
-  ULng32 extLeftRowLength = leftRowLength + sizeof(HashRow);
+  int extLeftRowLength = leftRowLength + sizeof(HashRow);
 
   // MT -> MT0 -> MT3 -> LC MT -> MT4 -> MT5
   //    -> ERC (new valIds) -> ELC (new valIds)
@@ -1233,8 +1212,8 @@ short HashJoin::codeGen(Generator *generator) {
   // Here is how the map table list looks like now:
   // MT -> MT0
 
-  ULng32 instRowLength = 0;
-  ULng32 instRowForRightJoinLength = 0;
+  int instRowLength = 0;
+  int instRowForRightJoinLength = 0;
   MapTable *instNullForLeftJoinMapTable = NULL;
   // add MapTable for the right row
   if (rightOutputNeeded) {
@@ -1450,21 +1429,21 @@ short HashJoin::codeGen(Generator *generator) {
   // first determine the minimum size for the hash table buffers.
   // a buffer has to store at least one extended inner or outer row
   // plus overhead such as hash buffer header etc
-  ULng32 minHBufferSize = MAXOF(extLeftRowLength, extRightRowLength) + ROUND8(sizeof(HashBufferHeader)) + 8;
+  int minHBufferSize = MAXOF(extLeftRowLength, extRightRowLength) + ROUND8(sizeof(HashBufferHeader)) + 8;
 
   // determine the minimum result sql buffer size (may need to store result
   // rows comprising of both inner and outer incoming rows)
-  ULng32 minResBufferSize = leftRowLength + sizeof(tupp_descriptor);
+  int minResBufferSize = leftRowLength + sizeof(tupp_descriptor);
   if (rightOutputNeeded) minResBufferSize += rightRowLength + sizeof(tupp_descriptor);
 
   // get the default value for the (either hash or result) buffer size
-  ULng32 bufferSize = (ULng32)getDefault(GEN_HSHJ_BUFFER_SIZE);
+  int bufferSize = (int)getDefault(GEN_HSHJ_BUFFER_SIZE);
 
   // currently the default hash buffer size is 56K (DP2 can not take anything
   // larger), so if this Hash-Join may overflow, and the input row exceeds
   // this size, we issue an error. If overflow is not allowed, then we may
   // resize the hash buffer to accomodate the larger input row.
-  ULng32 hashBufferSize = bufferSize;
+  int hashBufferSize = bufferSize;
   if (minHBufferSize > bufferSize) {
     // On linux we can handle any size of overflow buffer
     hashBufferSize = minHBufferSize;  // use a larger Hash-Buffer
@@ -1472,7 +1451,7 @@ short HashJoin::codeGen(Generator *generator) {
     // overflow buffer size must be multiple of 512 byte boundary
     // due to O_DIRECT requirements.
     // For calculation, refer to ALIGN_OFFSET in NAMemory.
-    ULng32 padlen = ((hashBufferSize & 511) == 0) ? 0 : ((512 - (hashBufferSize & 511)) & 511);
+    int padlen = ((hashBufferSize & 511) == 0) ? 0 : ((512 - (hashBufferSize & 511)) & 511);
     hashBufferSize += padlen;
   }
 
@@ -1495,7 +1474,7 @@ short HashJoin::codeGen(Generator *generator) {
   // the right/inner child are the same as in the previous input.
   ex_expr *moveInputExpr = 0;
   ex_expr *checkInputPred = 0;
-  ULng32 inputValuesLen = 0;
+  int inputValuesLen = 0;
 
   if (isReuse()) {  // only if testing is needed
     // Create a copy of the input values. This set represent the saved input
@@ -1564,7 +1543,7 @@ short HashJoin::codeGen(Generator *generator) {
   short scrthreshold = (short)CmpCommon::getDefaultLong(SCRATCH_FREESPACE_THRESHOLD_PERCENT);
   short hjGrowthPercent = getGroupAttr()->getOutputLogPropList()[0]->getBMOgrowthPercent();
 
-  ULng32 sanityCheckCycle = (ULng32)CmpCommon::getDefaultLong(RANGE_OPTIMIZED_SCAN_SANITY_CHECK_CYCLE);
+  int sanityCheckCycle = (int)CmpCommon::getDefaultLong(RANGE_OPTIMIZED_SCAN_SANITY_CHECK_CYCLE);
 
   // now we have generated all the required expressions and the MapTable
   // reflects the returned rows. Let's generate the hash join TDB now
@@ -1713,7 +1692,7 @@ short HashJoin::codeGen(Generator *generator) {
 
   // Query limits.
   if ((afterJoinPred1 != NULL) || (afterJoinPred2 != NULL)) {
-    ULng32 joinedRowsBeforePreempt = (ULng32)getDefault(QUERY_LIMIT_SQL_PROCESS_CPU_XPROD);
+    int joinedRowsBeforePreempt = (int)getDefault(QUERY_LIMIT_SQL_PROCESS_CPU_XPROD);
 
     if ((joinedRowsBeforePreempt > 0)) hashj_tdb->setXproductPreemptMax(joinedRowsBeforePreempt);
   }
@@ -1854,7 +1833,7 @@ CostScalar HashJoin::getEstimatedRunTimeMemoryUsage(Generator *generator, NABool
   // Each record also uses a header (HashRow) in memory (8 bytes for 32bit).
   // Hash tables also take memory -- they are about %50 longer than the
   // number of entries.
-  const ULng32 memOverheadPerRecord = sizeof(HashRow) + sizeof(HashTableHeader) * 3 / 2;
+  const int memOverheadPerRecord = sizeof(HashRow) + sizeof(HashTableHeader) * 3 / 2;
 
   CostScalar estMemPerNode;
   CostScalar estMemPerInst;
@@ -2373,7 +2352,7 @@ short MergeJoin::codeGen(Generator *generator) {
 
   ValueIdList leftEncodedValIds;
   ValueIdList rightEncodedValIds;
-  ULng32 encoded_key_len = 0;
+  int encoded_key_len = 0;
 
   if (NOT doEncodedKeyCompOpt) {
     left_list = new (generator->wHeap()) ItemExprTreeAsList(&left_tree, ITM_ITEM_LIST, RIGHT_LINEAR_TREE);
@@ -2519,7 +2498,7 @@ short MergeJoin::codeGen(Generator *generator) {
   // generate expression to save the duplicate rows returned from right
   // child. Do it if rightUnique is false.
   ex_expr *right_copy_dup_expr = NULL;
-  ULng32 right_row_len = 0;
+  int right_row_len = 0;
   if (NOT fastMJEval) {
     ValueIdList resultValIdList;
     exp_gen->generateContiguousMoveExpr(rightChildOutput,
@@ -2620,7 +2599,7 @@ short MergeJoin::codeGen(Generator *generator) {
 
   ex_expr *lj_expr = 0;
   ex_expr *ni_expr = 0;
-  ULng32 rowlen = 0;
+  int rowlen = 0;
 
   if (nullInstantiatedOutput().entries() > 0) {
     instantiateValuesForLeftJoin(generator, 0, returned_instantiated_row_atp_index, &lj_expr, &ni_expr, &rowlen,
@@ -2932,7 +2911,7 @@ short NestedJoin::codeGen(Generator *generator) {
     // RHS of NestedJoin starts with LargeQueueSizes not in use (0).
     // If a SplitTop is found, it may set the largeQueueSize to
     // an appropriate value.
-    ULng32 largeQueueSize = generator->getLargeQueueSize();
+    int largeQueueSize = generator->getLargeQueueSize();
     generator->setLargeQueueSize(0);
 
     if ((is_semijoin || is_antisemijoin) && child(1)->getOperatorType() == REL_HBASE_DELETE)
@@ -2993,7 +2972,7 @@ short NestedJoin::codeGen(Generator *generator) {
 
   ex_expr *lj_expr = 0;
   ex_expr *ni_expr = 0;
-  ULng32 rowlen = 0;
+  int rowlen = 0;
 
   if (nullInstantiatedOutput().entries() > 0) {
     instantiateValuesForLeftJoin(generator, 0, returned_instantiated_row_atp_index, &lj_expr, &ni_expr, &rowlen,
@@ -3026,7 +3005,7 @@ short NestedJoin::codeGen(Generator *generator) {
   //--Triggers
 
   // get the default value for the buffer size
-  ULng32 bufferSize = (ULng32)getDefault(GEN_ONLJ_BUFFER_SIZE);
+  int bufferSize = (int)getDefault(GEN_ONLJ_BUFFER_SIZE);
 
   // adjust the default and compute the size of a buffer that can
   // accommodate five rows. The number five is an arbitrary number.
@@ -3184,7 +3163,7 @@ short NestedJoinFlow::codeGen(Generator *generator) {
     // RHS of Flow starts with LargeQueueSizes not in use (0).
     // If a SplitTop is found, it may set the largeQueueSize to
     // an appropriate value.
-    ULng32 largeQueueSize = generator->getLargeQueueSize();
+    int largeQueueSize = generator->getLargeQueueSize();
     generator->setLargeQueueSize(0);
 
     // generate code for right child tree
@@ -3262,7 +3241,7 @@ short NestedJoinFlow::codeGen(Generator *generator) {
 }
 
 short Join::instantiateValuesForLeftJoin(Generator *generator, short atp, short atp_index, ex_expr **lj_expr,
-                                         ex_expr **ni_expr, ULng32 *rowlen, MapTable **newMapTable,
+                                         ex_expr **ni_expr, int *rowlen, MapTable **newMapTable,
                                          ExpTupleDesc::TupleDataFormat tdf) {
   //////////////////////////////////////////////////////////////////////////////
   // Special handling for left joins:
@@ -3331,7 +3310,7 @@ short Join::instantiateValuesForLeftJoin(Generator *generator, short atp, short 
     null_val_id_set.insert(ie->getValueId());
   }
 
-  ULng32 rowlen2 = 0;
+  int rowlen2 = 0;
   exp_gen->generateContiguousMoveExpr(null_val_id_set,
                                       0,  // don't add convert nodes
                                       atp, atp_index, tupleFormat, rowlen2, ni_expr,
@@ -3343,7 +3322,7 @@ short Join::instantiateValuesForLeftJoin(Generator *generator, short atp, short 
   return 0;
 }
 short Join::instantiateValuesForRightJoin(Generator *generator, short atp, short atp_index, ex_expr **rj_expr,
-                                          ex_expr **ni_expr, ULng32 *rowlen, MapTable **newMapTable,
+                                          ex_expr **ni_expr, int *rowlen, MapTable **newMapTable,
                                           ExpTupleDesc::TupleDataFormat tdf) {
   ExpGenerator *exp_gen = generator->getExpGenerator();
   MapTable *map_table = generator->getMapTable();
@@ -3381,7 +3360,7 @@ short Join::instantiateValuesForRightJoin(Generator *generator, short atp, short
     null_val_id_set.insert(ie->getValueId());
   }
 
-  ULng32 rowlen2 = 0;
+  int rowlen2 = 0;
   exp_gen->generateContiguousMoveExpr(null_val_id_set,
                                       0,  // don't add convert nodes
                                       atp, atp_index, tupleFormat, rowlen2, ni_expr,

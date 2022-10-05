@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 
 #ifndef EXP_PCODE_OPTIMIZATIONS_H
 #define EXP_PCODE_OPTIMIZATIONS_H
@@ -222,7 +201,7 @@ typedef NAList<NExTempListEntry *> NExTEMPSLIST;
 
 typedef NAArray<PCodeBlock *> BLOCKARRAY;
 
-ULng32 collIndexHashFunc2(const CollIndex &o);
+int collIndexHashFunc2(const CollIndex &o);
 
 // -----------------------------------------------------------------------
 // Macros
@@ -571,7 +550,7 @@ class PCodeConstants {
   int len_;    // Length of data
   int align_;  // Alignment of data
 
-  friend ULng32 constHashFunc(const PCodeConstants &c);
+  friend int constHashFunc(const PCodeConstants &c);
 
   // Two constants are equal if their lengths, alignment, and data are the same.
   NABoolean operator==(const PCodeConstants &other) const {
@@ -652,7 +631,7 @@ class NullTriple {
   int idx_;  // Tupp index of null indicator
   int off_;  // Column offset of null indicator
 
-  friend ULng32 nullTripleHashFunc(const NullTriple &o);
+  friend int nullTripleHashFunc(const NullTriple &o);
 
   NABoolean operator==(const NullTriple &other) const {
     return ((other.off_ == off_) && (other.idx_ == idx_) && (other.atp_ == atp_));
@@ -812,9 +791,9 @@ class PCodeOperand {
 
  public:
   // Hash function used to insert operand bv element into hash table
-  friend ULng32 operandHashFunc(const PCodeOperand &o);
+  friend int operandHashFunc(const PCodeOperand &o);
 
-  friend ULng32 collIndexHashFunc(const CollIndex &o);
+  friend int collIndexHashFunc(const CollIndex &o);
 
   // Operator equals function to compare two operand bv elements
   NABoolean operator==(const PCodeOperand &other) const {
@@ -1211,7 +1190,7 @@ class PCodeBlock {
   NABitVector zeroesVector;  // Zeroes constant vector
   NABitVector neg1Vector;    // Neg1 constant vector
 
-  friend ULng32 collIndexHashFunc2(const CollIndex &o);
+  friend int collIndexHashFunc2(const CollIndex &o);
 
   ReachDefsTable *reachingDefsTab_;
 
@@ -1559,7 +1538,7 @@ class PCodeCfg {
   static const int MAX_HASHCOMB_BULK_OPERANDS = 100;
 
   // Friend classes
-  // friend ULng32 targetHashFunc(const int & o);
+  // friend int targetHashFunc(const int & o);
 
   // Constructor Routines
   PCodeCfg(ex_expr *expr, int *atpMap, int *atpIndexMap, CollHeap *heap, Space *space)

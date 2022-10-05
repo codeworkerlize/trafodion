@@ -128,7 +128,7 @@ class ex_split_bottom_tcb : public ex_tcb {
   atp_struct *workAtp_;
   tupp_descriptor partNumTupp_;  // target of part # expr.
   struct {
-    ULng32 calculatedPartNum_;  // target of part # expr.
+    int calculatedPartNum_;  // target of part # expr.
     char pad[4];                // alignment
     long partHash_;            // Used for skew buster only,
                                 // this is the intermediate

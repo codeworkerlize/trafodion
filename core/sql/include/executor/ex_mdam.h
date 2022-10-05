@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef EX_MDAM_H
 #define EX_MDAM_H
 
@@ -127,7 +106,7 @@ class MdamColumn : public ExGod {
   // situation changes.  This keeps us from generating lots of
   // non-productive fetch ranges when there are gaps between values in
   // some interval.
-  ULng32 lastProductiveFetchRangeCounter_;
+  int lastProductiveFetchRangeCounter_;
 
   // The next three fields are always FALSE when dense probing is
   // used.  When sparse probing is used, sparseProbeNeeded_ is set
@@ -231,14 +210,14 @@ class MdamColumn : public ExGod {
   //                        (but might not be the same value)
   //                        beginExclFlag and endExclFlag are both set and
   //                        should be applied to the key range as a whole
-  getNextValueReturnType getNextValue(ULng32 pFRCounter, char *bktarget, char *ektarget, short &beginExclFlag,
+  getNextValueReturnType getNextValue(int pFRCounter, char *bktarget, char *ektarget, short &beginExclFlag,
                                       short &endExclFlag, FixedSizeHeapManager &mdamRefListEntryHeap);
 
   void reportProbeResult(char *keyData);
 
   void completeKey(char *bktarget, char *ektarget, short bkexcl, short ekexcl);
 
-  ULng32 getOffset() { return columnGenInfo_->getOffset(); };
+  int getOffset() { return columnGenInfo_->getOffset(); };
 
 // Print function.
 #ifdef NA_MDAM_EXECUTOR_DEBUG
@@ -268,7 +247,7 @@ class keyMdamEx : public keyRangeEx {
 
   // the counter below is passed to MdamColumn::getNextValue, and helps
   // the MdamColumn decide whether to switch from dense probes to sparse
-  ULng32 productiveFetchRangeCounter_;  // unsigned to allow wrapping
+  int productiveFetchRangeCounter_;  // unsigned to allow wrapping
 
   // Memory management for MdamRefListEntry*s and MdamInterval*s.
   FixedSizeHeapManager mdamRefListEntryHeap_;

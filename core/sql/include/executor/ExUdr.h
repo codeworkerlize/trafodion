@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef __EX_UDR_H
 #define __EX_UDR_H
 
@@ -103,18 +82,18 @@ class ExUdrTdb : public ComTdbUdr {
   inline const char *getLibrarySqlName() const { return librarySqlName_; }
 
   // Number of parameters and result sets
-  inline ULng32 getNumParams() const { return numParams_; }
-  inline ULng32 getNumInputValues() const { return numInputValues_; }
-  inline ULng32 getNumOutputValues() const { return numOutputValues_; }
-  inline ULng32 getMaxResultSets() const { return maxResultSets_; }
+  inline int getNumParams() const { return numParams_; }
+  inline int getNumInputValues() const { return numInputValues_; }
+  inline int getNumOutputValues() const { return numOutputValues_; }
+  inline int getMaxResultSets() const { return maxResultSets_; }
 
   // UDR flags
-  inline ULng32 getUdrFlags() const { return flags_; }
+  inline int getUdrFlags() const { return flags_; }
 
   NABoolean isResultSetProxy() const { return ((flags_ & UDR_RESULT_SET) ? TRUE : FALSE); }
   NABoolean isTmudf() const { return flags_ & UDR_TMUDF ? TRUE : FALSE; }
   // Other UDR metadata
-  inline ULng32 getStateAreaSize() const { return stateAreaSize_; }
+  inline int getStateAreaSize() const { return stateAreaSize_; }
   inline ComRoutineType getUdrType() const { return (ComRoutineType)udrType_; }
   inline ComRoutineLanguage getLanguage() const { return (ComRoutineLanguage)languageType_; }
   inline ComRoutineParamStyle getParamStyle() const { return (ComRoutineParamStyle)paramStyle_; }
@@ -137,28 +116,28 @@ class ExUdrTdb : public ComTdbUdr {
   ex_expr *getPredicate() const { return scanExpr_; }
 
   // Defaults for the output buffer pool
-  inline ULng32 getNumOutputBuffers() const {
+  inline int getNumOutputBuffers() const {
     return numBuffers_;  // this field comes from the superclass
   }
-  inline ULng32 getOutputSqlBufferSize() const {
+  inline int getOutputSqlBufferSize() const {
     return bufferSize_;  // this field comes from the superclass
   }
 
   // Defaults for the input buffer pool
-  inline ULng32 getNumInputBuffers() const {
+  inline int getNumInputBuffers() const {
     return numChildTableInputs_;  // each child input needs one buffer
   }
-  inline ULng32 getInputSqlBufferSize() const {
+  inline int getInputSqlBufferSize() const {
     return bufferSize_;  // this field comes from the superclass
   }                      // keep it the same as output bufefr size for now
   // Default size of sql_buffers in message objects
-  inline ULng32 getRequestSqlBufferSize() const { return requestSqlBufferSize_; }
-  inline ULng32 getReplySqlBufferSize() const { return replySqlBufferSize_; }
+  inline int getRequestSqlBufferSize() const { return requestSqlBufferSize_; }
+  inline int getReplySqlBufferSize() const { return replySqlBufferSize_; }
 
   // Size of a single request/reply/output row
-  inline ULng32 getRequestRowLen() const { return requestRowLen_; }
-  inline ULng32 getReplyRowLen() const { return replyRowLen_; }
-  inline ULng32 getOutputRowLen() const { return outputRowLen_; }
+  inline int getRequestRowLen() const { return requestRowLen_; }
+  inline int getReplyRowLen() const { return replyRowLen_; }
+  inline int getOutputRowLen() const { return outputRowLen_; }
 
   // Attributes for input and output parameters. No checks
   // for NULL pointers are done and no bounds checking is done.

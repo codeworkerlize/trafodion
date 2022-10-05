@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 
 /* -*-C++-*-
  *****************************************************************************
@@ -293,7 +272,7 @@ void CmpSeabaseDDL::createSeabaseTableLike(ExeCliInterface *cliInterface, StmtDD
   }
 
   char *buf = NULL;
-  ULng32 buflen = 0;
+  int buflen = 0;
 
   retcode = CmpDescribeSeabaseTable(
       cn, 3 /*createlike*/, buf, buflen, STMTHEAP, createTableNode->isPartition(), NULL, NULL,
@@ -368,7 +347,7 @@ void CmpSeabaseDDL::createSeabaseTableLike(ExeCliInterface *cliInterface, StmtDD
     NAString newIndexNm;
     NAString indexQuery;
     char *indexBuf = NULL;
-    ULng32 indexBuflen = 0;
+    int indexBuflen = 0;
     NABoolean finish1 = FALSE;
     curPos = 0;
     NAString tgtCatNamePart = tgtTableName.getCatalogNamePartAsAnsiString();
@@ -404,7 +383,7 @@ void CmpSeabaseDDL::createSeabaseTableLike(ExeCliInterface *cliInterface, StmtDD
   if ((NOT likeOptions.getIsWithoutConstraints()) && naTable->isSeabaseTable()) {
     NABoolean finish2 = FALSE;
     char *constraintBuf = NULL;
-    ULng32 constraintBuflen = 0;
+    int constraintBuflen = 0;
     NAString constraintQuery;
     curPos = 0;
     NAString tgtCatNamePart = tgtTableName.getCatalogNamePartAsAnsiString();
@@ -558,7 +537,7 @@ short CmpSeabaseDDL::createSeabaseTableExternal(ExeCliInterface &cliInterface, S
   int datatype, length, precision, scale, dtStart, dtEnd, nullable, upshifted;
   NAString charset;
   CharInfo::Collation collationSequence = CharInfo::DefaultCollation;
-  ULng32 hbaseColFlags;
+  int hbaseColFlags;
 
   NABoolean alignedFormat = FALSE;
   int serializedOption = -1;
@@ -4400,7 +4379,7 @@ short CmpSeabaseDDL::dropSeabaseTable2(ExeCliInterface *cliInterface, StmtDDLDro
   if (CmpCommon::getDefault(TRAF_RELOAD_NATABLE_CACHE) == DF_OFF) ActiveSchemaDB()->getNATableDB()->useCache();
 
   // save the current parserflags setting
-  ULng32 savedParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
+  int savedParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
   Set_SqlParser_Flags(ALLOW_VOLATILE_SCHEMA_IN_TABLE_NAME);
 
   objectNamePart = tableName.getObjectNamePartAsAnsiString(TRUE);
@@ -8442,7 +8421,7 @@ short CmpSeabaseDDL::createSeabaseTableLike2(CorrName &cn, const NAString &likeT
   int retcode = 0;
 
   char *buf = NULL;
-  ULng32 buflen = 0;
+  int buflen = 0;
   retcode = CmpDescribeSeabaseTable(cn, 3 /*createlike*/, buf, buflen, STMTHEAP, FALSE, NULL, NULL, withPartns,
                                     withoutSalt, withoutDivision, withoutRowFormat,
                                     FALSE,  // include LOB columns (if any)
@@ -8514,7 +8493,7 @@ NABoolean CmpSeabaseDDL::isTableHasIBAttr(const NATable *naTable, ExpHbaseInterf
 short CmpSeabaseDDL::dropIBAttrForTable(const NATable *naTable, ExeCliInterface *cliInterface) {
   int retcode = 0;
   int cliRC = 0;
-  ULng32 savedParserFlags;
+  int savedParserFlags;
 
   NAString tempObjName(naTable->getTableName().getObjectName());
   QualifiedName qn(tempObjName, naTable->getTableName().getSchemaName(), naTable->getTableName().getCatalogName());
@@ -10671,7 +10650,7 @@ void CmpSeabaseDDL::alterSeabaseTableAddColumn(StmtDDLAlterTableAddColumn *alter
   ComColumnDefaultClass defaultClass;
   NAString charset, defVal;
   NAString heading;
-  ULng32 hbaseColFlags;
+  int hbaseColFlags;
   long colFlags;
   ComLobsStorageType lobStorage;
   NAString compDefnStr;
@@ -10776,7 +10755,7 @@ void CmpSeabaseDDL::alterSeabaseTableAddColumn(StmtDDLAlterTableAddColumn *alter
   char *col_name = new (STMTHEAP) char[colName.length() + 1];
   strcpy(col_name, (char *)colName.data());
 
-  ULng32 maxColQual = nacolArr.getMaxTrafHbaseColQualifier();
+  int maxColQual = nacolArr.getMaxTrafHbaseColQualifier();
 
   NAString quotedHeading;
   if (NOT heading.isNull()) {
@@ -12786,7 +12765,7 @@ short CmpSeabaseDDL::alignedFormatTableAlterColumnAttr(const NAString &catalogNa
   ComColumnDefaultClass defaultClass;
   NAString charset, defVal;
   NAString heading;
-  ULng32 hbaseColFlags;
+  int hbaseColFlags;
   long colFlags;
   ComLobsStorageType lobStorage;
   NAString compDefnStr;
@@ -13102,7 +13081,7 @@ short CmpSeabaseDDL::mdOnlyAlterColumnAttr(const NAString &catalogNamePart, cons
 
   NABoolean alignedFormat;
   int datatype, length, precision, scale, dtStart, dtEnd, upshifted, nullable;
-  ULng32 hbaseColFlags;
+  int hbaseColFlags;
   NAString charset;
 
   // update binlog meta
@@ -13541,7 +13520,7 @@ void CmpSeabaseDDL::alterSeabaseTableAlterColumnDatatype(StmtDDLAlterTableAlterC
       ComColumnDefaultClass defaultClass;
       NAString charset, defVal;
       NAString heading;
-      ULng32 hbaseColFlags;
+      int hbaseColFlags;
       long colFlags;
       ComLobsStorageType lobStorage;
       NAString compDefnStr;
@@ -14497,7 +14476,7 @@ void CmpSeabaseDDL::alterSeabaseTableAddPKeyConstraint(StmtDDLAddConstraint *alt
   }
 
   char *buf = NULL;
-  ULng32 buflen = 0;
+  int buflen = 0;
   retcode = CmpDescribeSeabaseTable(cn, 3 /*createlike*/, buf, buflen, STMTHEAP, FALSE,
                                     (pkeyName.isNull() ? NULL : pkeyName.data()), pkeyColsStr.data(), TRUE);
   if (retcode) {
@@ -17516,7 +17495,7 @@ TrafDesc *CmpSeabaseDDL::getSeabaseHistTableDesc(const NAString &catName, const 
   constrInfo->checkConstrLen = 0;
   constrInfo->checkConstrText = NULL;
 
-  ULng32 savedParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
+  int savedParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
   Set_SqlParser_Flags(INTERNAL_QUERY_FROM_EXEUTIL);
 
   if (getSpecialTableInfo(STMTHEAP, catName, schName, objName, extTableName, COM_BASE_TABLE_OBJECT, tableInfo)) {
@@ -17653,7 +17632,7 @@ int CmpSeabaseDDL::getTableDefForBinlogOp(ElemDDLColDefArray *colArray, ElemDDLC
     ComColumnDefaultClass defaultClass;
     NAString charset, defVal;
     NAString heading;
-    ULng32 hbaseColFlags;
+    int hbaseColFlags;
     long colFlags;
     ComLobsStorageType lobStorage;
     NAString compDefnStr;
@@ -17712,7 +17691,7 @@ int CmpSeabaseDDL::getTableDefForBinlogOp(ElemDDLColDefArray *colArray, ElemDDLC
     ComColumnDefaultClass defaultClass;
     NAString charset, defVal;
     NAString heading;
-    ULng32 hbaseColFlags;
+    int hbaseColFlags;
     long colFlags;
     ComLobsStorageType lobStorage;
     NAString compDefnStr;
@@ -17846,7 +17825,7 @@ int CmpSeabaseDDL::getSeabaseColumnInfo(ExeCliInterface *cliInterface, long objU
     else
       colInfo.upshifted = 0;
 
-    colInfo.hbaseColFlags = *(ULng32 *)oi->get(10);
+    colInfo.hbaseColFlags = *(int *)oi->get(10);
 
     colInfo.nullable = *(int *)oi->get(11);
 

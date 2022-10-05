@@ -259,7 +259,7 @@ class ContextCli : public ExGod {
 
   ExSqlComp::ReturnStatus sendXnMsgToArkcmp(char *data, int dataSize, int xnMsgType, ComDiagsArea *&diagsArea);
 
-  inline NABoolean grabMemoryQuotaIfAvailable(ULng32 size) {
+  inline NABoolean grabMemoryQuotaIfAvailable(int size) {
     if (unusedBMOsMemoryQuota_ < size) return FALSE;
     unusedBMOsMemoryQuota_ -= size;
     return TRUE;
@@ -267,9 +267,9 @@ class ContextCli : public ExGod {
 
   inline void resetMemoryQuota() { unusedBMOsMemoryQuota_ = 0; }
 
-  inline ULng32 unusedMemoryQuota() { return unusedBMOsMemoryQuota_; }
+  inline int unusedMemoryQuota() { return unusedBMOsMemoryQuota_; }
 
-  inline void yieldMemoryQuota(ULng32 size) { unusedBMOsMemoryQuota_ += size; }
+  inline void yieldMemoryQuota(int size) { unusedBMOsMemoryQuota_ += size; }
 
   void collectSpecialRTStats();
 
@@ -417,7 +417,7 @@ class ContextCli : public ExGod {
   CLISemaphore cancelSemaphore_;
 
   // parser flags to be sent to mxcmp
-  ULng32 sqlParserFlags_;
+  int sqlParserFlags_;
 
   // Hold all the dynamicly set (in this process) timeout data
   TimeoutData *timeouts_;  // it is NULL if not used
@@ -487,7 +487,7 @@ class ContextCli : public ExGod {
     IN_MEMORY_OBJECT_DEFN = 0x0008
   };
 
-  ULng32 flags_;
+  int flags_;
 
   // List of UDR servers servicing this context. Each list element is
   // an ExUdrServer pointer. There may be duplicates in the list. Each
@@ -615,7 +615,7 @@ class ContextCli : public ExGod {
   // back whenever this context is in use.
   HashQueue *trafSElist_;
   // memory quota allocation given back by BMOs to be used by other BMOs
-  ULng32 unusedBMOsMemoryQuota_;
+  int unusedBMOsMemoryQuota_;
   pid_t tid_;
   NABoolean clientConnected_;
 
@@ -877,7 +877,7 @@ class ContextCli : public ExGod {
   // only caller of that function.
   const char *getUdrRuntimeOptions() const { return udrRuntimeOptions_; }
   const char *getUdrRuntimeOptionDelimiters() const { return udrRuntimeOptionDelimiters_; }
-  int setUdrRuntimeOptions(const char *options, ULng32 optionsLen, const char *delimiters, ULng32 delimsLen);
+  int setUdrRuntimeOptions(const char *options, int optionsLen, const char *delimiters, int delimsLen);
 
   ExTransaction *getTransaction() { return transaction_; }
 
@@ -903,7 +903,7 @@ class ContextCli : public ExGod {
       return NULL;
   }
 
-  int boundsCheckMemory(void *startAddress, ULng32 length);
+  int boundsCheckMemory(void *startAddress, int length);
 
   inline SQLCTX_HANDLE getContextHandle() const { return contextHandle_; }
 
@@ -913,10 +913,10 @@ class ContextCli : public ExGod {
 
   void retrieveContextInfo(void *contextMsg);
 
-  inline ULng32 getSqlParserFlags() const { return sqlParserFlags_; }
-  inline void setSqlParserFlags(ULng32 flagbits) { sqlParserFlags_ |= flagbits; }
-  inline void resetSqlParserFlags(ULng32 flagbits) { sqlParserFlags_ &= ~flagbits; }
-  inline void assignSqlParserFlags(ULng32 flagbits) { sqlParserFlags_ = flagbits; }
+  inline int getSqlParserFlags() const { return sqlParserFlags_; }
+  inline void setSqlParserFlags(int flagbits) { sqlParserFlags_ |= flagbits; }
+  inline void resetSqlParserFlags(int flagbits) { sqlParserFlags_ &= ~flagbits; }
+  inline void assignSqlParserFlags(int flagbits) { sqlParserFlags_ = flagbits; }
 
   inline void semaphoreLock() { cancelSemaphore_.get(); }
   inline void semaphoreRelease() { cancelSemaphore_.release(); }

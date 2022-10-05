@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -257,18 +236,18 @@ void Generator::initTdbFields(ComTdb *tdb) {
     // we are calling this method
     NADefaults &def = ActiveSchemaDB()->getDefaults();
 
-    initialQueueSizeDown_ = (ULng32)def.getAsULong(DYN_QUEUE_RESIZE_INIT_DOWN);
-    initialQueueSizeUp_ = (ULng32)def.getAsULong(DYN_QUEUE_RESIZE_INIT_UP);
-    initialPaQueueSizeDown_ = (ULng32)def.getAsULong(DYN_PA_QUEUE_RESIZE_INIT_DOWN);
-    initialPaQueueSizeUp_ = (ULng32)def.getAsULong(DYN_PA_QUEUE_RESIZE_INIT_UP);
+    initialQueueSizeDown_ = (int)def.getAsULong(DYN_QUEUE_RESIZE_INIT_DOWN);
+    initialQueueSizeUp_ = (int)def.getAsULong(DYN_QUEUE_RESIZE_INIT_UP);
+    initialPaQueueSizeDown_ = (int)def.getAsULong(DYN_PA_QUEUE_RESIZE_INIT_DOWN);
+    initialPaQueueSizeUp_ = (int)def.getAsULong(DYN_PA_QUEUE_RESIZE_INIT_UP);
     queueResizeLimit_ = (short)def.getAsULong(DYN_QUEUE_RESIZE_LIMIT);
     queueResizeFactor_ = (short)def.getAsULong(DYN_QUEUE_RESIZE_FACTOR);
     makeOnljLeftQueuesBig_ = (def.getToken(GEN_ONLJ_SET_QUEUE_LEFT) == DF_ON);
-    onljLeftUpQueue_ = (ULng32)def.getAsULong(GEN_ONLJ_LEFT_CHILD_QUEUE_UP);
-    onljLeftDownQueue_ = (ULng32)def.getAsULong(GEN_ONLJ_LEFT_CHILD_QUEUE_DOWN);
+    onljLeftUpQueue_ = (int)def.getAsULong(GEN_ONLJ_LEFT_CHILD_QUEUE_UP);
+    onljLeftDownQueue_ = (int)def.getAsULong(GEN_ONLJ_LEFT_CHILD_QUEUE_DOWN);
     makeOnljRightQueuesBig_ = (def.getToken(GEN_ONLJ_SET_QUEUE_RIGHT) == DF_ON);
-    onljRightSideUpQueue_ = (ULng32)def.getAsULong(GEN_ONLJ_RIGHT_SIDE_QUEUE_UP);
-    onljRightSideDownQueue_ = (ULng32)def.getAsULong(GEN_ONLJ_RIGHT_SIDE_QUEUE_DOWN);
+    onljRightSideUpQueue_ = (int)def.getAsULong(GEN_ONLJ_RIGHT_SIDE_QUEUE_UP);
+    onljRightSideDownQueue_ = (int)def.getAsULong(GEN_ONLJ_RIGHT_SIDE_QUEUE_DOWN);
 
     dynQueueSizeValuesAreValid_ = TRUE;
   }
@@ -550,8 +529,8 @@ Generator::~Generator() {
 // is allocated from a list of buffers, then each of the buffer is
 // moved contiguously to out_buf. The caller MUST have allocated
 // sufficient space in out_buf to contain the generated code.
-char *Generator::getFinalObj(char *out_buf, ULng32 out_buflen) {
-  if (out_buflen < (ULng32)getFinalObjLength()) return NULL;
+char *Generator::getFinalObj(char *out_buf, int out_buflen) {
+  if (out_buflen < (int)getFinalObjLength()) return NULL;
 
   // copy the objects of all spaces into one big buffer
   int outputLengthSoFar = 0;
@@ -695,8 +674,8 @@ static NABoolean remapESPAllocationViaUserInputs(FragmentDir *fragDir, const cha
   NABoolean cycleSegs = (ActiveSchemaDB()->getDefaults()).getAsLong(AS_CYCLIC_ESP_PLACEMENT);
   int numCPUs = CURRCONTEXT_CLUSTERINFO->getTotalNumberOfCPUs();
 
-  ULng32 *utilcpus = new (heap) ULng32[numCPUs];
-  ULng32 *utilsegs = new (heap) ULng32[numCPUs];
+  int *utilcpus = new (heap) int[numCPUs];
+  int *utilsegs = new (heap) int[numCPUs];
 
   // Parse the espOrderString is specified.
   //
@@ -778,7 +757,7 @@ static NABoolean remapESPAllocationViaUserInputs(FragmentDir *fragDir, const cha
           // cpuNumber is the number relative to the whole
           // system (all segments)
           //
-          ULng32 cpuNumber = nextCPUToUse++;
+          int cpuNumber = nextCPUToUse++;
 
           // Wrap around if at end of list.
           //
@@ -1039,7 +1018,7 @@ void Generator::remapESPAllocationAS(const NAASNodes *asNodes) {
   // if CycleSegs TRUE, will cause ESP layers after layersInCycle to use the
   // next affinity_value.
   //
-  ULng32 layersInCycle = ((ActiveSchemaDB()->getDefaults()).getAsLong(AS_CYCLIC_ESP_PLACEMENT));
+  int layersInCycle = ((ActiveSchemaDB()->getDefaults()).getAsLong(AS_CYCLIC_ESP_PLACEMENT));
 
   NABoolean cycleSegs = (layersInCycle > 0);
   int espLayersInCurrentCycle = 0;
@@ -3152,7 +3131,7 @@ void Generator::setHBaseNumCacheRows(double estRowsAccessed, ComTdbHbaseAccess::
   // in the region server (and a possible OutOfOrderScannerNextException), where
   // a random row filter is used for sampling.
   if (cacheRows > cacheMin && samplePercent > 0.0) {
-    ULng32 sampleReturnInterval = ActiveSchemaDB()->getDefaults().getAsULong(USTAT_HBASE_SAMPLE_RETURN_INTERVAL);
+    int sampleReturnInterval = ActiveSchemaDB()->getDefaults().getAsULong(USTAT_HBASE_SAMPLE_RETURN_INTERVAL);
     int newScanCacheSize = (int)(sampleReturnInterval * samplePercent);
     if (newScanCacheSize < cacheRows) {
       if (newScanCacheSize >= cacheMin)

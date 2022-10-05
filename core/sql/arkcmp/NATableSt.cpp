@@ -109,12 +109,12 @@ SP_STATUS NATableCacheStatStoredProcedure::sp_Process(SP_PROCESS_ACTION action, 
     if (!it->getNext(stats)) return SP_SUCCESS;
 
     fFunc(0, outputData, sizeof(stats.contextType), &(stats.contextType), 0);
-    fFunc(1, outputData, sizeof(ULng32), &(stats.numLookups), 0);
-    fFunc(2, outputData, sizeof(ULng32), &(stats.numCacheHits), 0);
-    fFunc(3, outputData, sizeof(ULng32), &(stats.numEntries), 0);
-    fFunc(4, outputData, sizeof(ULng32), &(stats.currentCacheSize), 0);
-    fFunc(5, outputData, sizeof(ULng32), &(stats.highWaterMark), 0);
-    fFunc(6, outputData, sizeof(ULng32), &(stats.maxCacheSize), 0);
+    fFunc(1, outputData, sizeof(int), &(stats.numLookups), 0);
+    fFunc(2, outputData, sizeof(int), &(stats.numCacheHits), 0);
+    fFunc(3, outputData, sizeof(int), &(stats.numEntries), 0);
+    fFunc(4, outputData, sizeof(int), &(stats.currentCacheSize), 0);
+    fFunc(5, outputData, sizeof(int), &(stats.highWaterMark), 0);
+    fFunc(6, outputData, sizeof(int), &(stats.maxCacheSize), 0);
     return SP_MOREDATA;
   }
 

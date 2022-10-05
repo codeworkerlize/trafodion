@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef COM_TRANS_INFO_H
 #define COM_TRANS_INFO_H
 
@@ -223,7 +202,7 @@ class TransMode : public NAVersionedObject {
 
   TransMode(IsolationLevel il = IL_NOT_SPECIFIED_, AccessMode am = AM_NOT_SPECIFIED_, AutoCommit ac = AC_NOT_SPECIFIED_,
             RollbackMode rm = ROLLBACK_MODE_NOT_SPECIFIED_, int das = -1, int aiVal = -1,
-            MultiCommit mc = MC_NOT_SPECIFIED_, ULng32 mcs = 0)
+            MultiCommit mc = MC_NOT_SPECIFIED_, int mcs = 0)
       : il_(il),
         am_((short)am),
         autoCommit_((short)ac),
@@ -358,7 +337,7 @@ class TransMode : public NAVersionedObject {
   void updateTransMode(TransMode *trans_mode);
   void updateXnInProgress(TransMode *trans_mode);
 
-  ULng32 getByteSize() const { return sizeof(*this); }
+  int getByteSize() const { return sizeof(*this); }
 
   static IsolationLevel getIsolationLevel(const char *value);
 

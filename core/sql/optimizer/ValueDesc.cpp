@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ******************************************************************************
 *
@@ -4176,7 +4155,7 @@ ex_expr::exp_return_type ValueIdList::evalAtCompileTime(
     short addConvNodes,                // (IN) : 1 to add conv nodes, 0 otherwise
     ExpTupleDesc::TupleDataFormat tf,  // (IN) : tuple format of resulting expr(s)
     char *resultBuffer,                // (INOUT): tuple buffer of resulting expr(s)
-    ULng32 resultBufferLength,         // (IN): length of the result buffer
+    int resultBufferLength,         // (IN): length of the result buffer
     int *length,                     // (OUT) : length of 1st result expr
     int *offset,                     // (OUT) : offset of 1st result expr
     ComDiagsArea *diagsArea, NAHeap *wheap) const {
@@ -4210,7 +4189,7 @@ ex_expr::exp_return_type ValueIdList::evalAtCompileTime(
   ex_cri_desc *workCriDesc = new (space) ex_cri_desc(3, space);
   short keyAtpIndex = 2;  // where the encoded expr(s) will be built
 
-  ULng32 encodedKeyLen;
+  int encodedKeyLen;
   ex_expr *keExpr = 0;
   ValueIdList tempValueIdList;
 
@@ -4274,7 +4253,7 @@ ex_expr::exp_return_type ValueIdList::evalAtCompileTime(
 // 2.- encodedKeyBuffer, which is a pointer to the result.
 // 3.- The length of the result
 // 4.- The position in which the result starts
-short ValueIdList::evaluateTree(const ItemExpr *root, char *encodedKeyBuffer, ULng32 encodedKeyLength, int *length,
+short ValueIdList::evaluateTree(const ItemExpr *root, char *encodedKeyBuffer, int encodedKeyLength, int *length,
                                 int *offset, ComDiagsArea *diagsArea) {
   // Let's start with a list of size 4 rather than resizing continuously (?)
   ValueIdList encodedValueIdList(4);

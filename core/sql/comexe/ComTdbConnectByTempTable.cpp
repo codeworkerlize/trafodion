@@ -8,11 +8,11 @@ ComTdbConnectByTempTable::ComTdbConnectByTempTable()
     : ComTdb(ComTdb::ex_CONNECT_BY_TEMP_TABLE, eye_CONNECT_BY_TEMP_TABLE), tdbChild_(NULL) {}
 
 ComTdbConnectByTempTable::ComTdbConnectByTempTable(
-    ComTdb *child_tdb, ex_expr *hash_probe_expr, ex_expr *encode_probe_expr, ex_expr *move_inner_expr, ULng32 probe_len,
-    ULng32 inner_rec_len, ULng32 cache_size, const unsigned short tupp_index, const unsigned short hashValIdx,
+    ComTdb *child_tdb, ex_expr *hash_probe_expr, ex_expr *encode_probe_expr, ex_expr *move_inner_expr, int probe_len,
+    int inner_rec_len, int cache_size, const unsigned short tupp_index, const unsigned short hashValIdx,
     const unsigned short encodedProbeDataIdx, const unsigned short innerRowDataIdx, ex_cri_desc *workCriDesc,
     ex_cri_desc *givenCriDesc, ex_cri_desc *returnedCriDesc, queue_index down, queue_index up, int numBuffers,
-    ULng32 bufferSize, ex_expr *encodeInputHostVarExpr, ex_expr *hvExprInput, UInt16 hashInputValIdx,
+    int bufferSize, ex_expr *encodeInputHostVarExpr, ex_expr *hvExprInput, UInt16 hashInputValIdx,
     UInt16 encodeInputProbeDataIdx, ex_expr *scanExpr)
     : ComTdb(ComTdb::ex_CONNECT_BY_TEMP_TABLE, eye_CONNECT_BY_TEMP_TABLE, 0, givenCriDesc, returnedCriDesc, down, up,
              numBuffers, bufferSize),
@@ -64,7 +64,7 @@ int ComTdbConnectByTempTable::unpack(void *base, void *reallocator) {
   return ComTdb::unpack(base, reallocator);
 }
 
-void ComTdbConnectByTempTable::displayContents(Space *space, ULng32 flag) {
+void ComTdbConnectByTempTable::displayContents(Space *space, int flag) {
   ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
   if (flag & 0x00000008) {

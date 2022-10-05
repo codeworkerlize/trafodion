@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -93,11 +72,11 @@ inline void advanceSize2(UInt32 &size, const char *const buffPtr) {
 // class ExStatsBaseClass
 /////////////////////////////////////////////////////////////////////////
 void ExStatsBase::alignSizeForNextObj(UInt32 &size) {
-  ULng32 s = (ULng32)size;  // just for safety
+  int s = (int)size;  // just for safety
 
   // clear the last 3 bits of the size to round it down to
   // the next size that is divisible by 8
-  ULng32 roundedDown = s LAND 0xFFFFFFF8;
+  int roundedDown = s LAND 0xFFFFFFF8;
 
   // if that didn't change anything we're done, the size was
   // a multiple of 8 already
@@ -208,7 +187,7 @@ ExClusterStats::ExClusterStats()
       readIOCnt_(0),
       next_(NULL){};
 
-ExClusterStats::ExClusterStats(NABoolean isInner, ULng32 bucketCnt, long actRows, long totalSize,
+ExClusterStats::ExClusterStats(NABoolean isInner, int bucketCnt, long actRows, long totalSize,
                                ExStatsCounter hashChains, long writeIOCnt, long readIOCnt)
     : version_(StatsCurrVersion),
       isInner_(isInner),
@@ -288,14 +267,14 @@ void ExClusterStats::getVariableStatsInfoAggr(char *dataBuffer, char *dataLen, i
   ExClusterStats *tempNext = this;
 
   // form an aggregate of all clusters and display it first
-  ULng32 bucketCntTot = 0;
+  int bucketCntTot = 0;
   ExStatsCounter actRowsTot;
   ExStatsCounter totalSizeTot;
   ExStatsCounter hashChainsTot;
   long writeIOCntTot = 0;
   long readIOCntTot = 0;
-  ULng32 numClusters = 0;
-  ULng32 residentClusters = 0;
+  int numClusters = 0;
+  int residentClusters = 0;
 
   while (tempNext) {
     numClusters++;
@@ -348,7 +327,7 @@ void ExClusterStats::getVariableStatsInfoAggr(char *dataBuffer, char *dataLen, i
   // clusters and print out their statistics
   tempNext = this;
   int tempMaxLen = maxLen - (buf - dataBuffer);
-  ULng32 c = 0;
+  int c = 0;
   while (tempNext && tempMaxLen > 200) {
     sprintf(buf, "ClusterNo: %u ", c);
     tempMaxLen -= str_len(buf);
@@ -629,7 +608,7 @@ ExOperStats::ExOperStats(NAMemory *heap, StatType statType, ex_tcb *tcb, const C
   allStats.upQueueSize_ = 0;
   allStats.ntProcessId_ = -1;
   allStats.fillerForFutureUse_ = 0;
-  for (ULng32 i = 0; i < STATS_WORK_LAST_RETCODE + 2; i++) allStats.retCodes_[i] = 0;
+  for (int i = 0; i < STATS_WORK_LAST_RETCODE + 2; i++) allStats.retCodes_[i] = 0;
 }
 
 ExOperStats::ExOperStats(NAMemory *heap, StatType type)
@@ -667,7 +646,7 @@ ExOperStats::ExOperStats(NAMemory *heap, StatType type)
   allStats.upQueueSize_ = 0;
   allStats.ntProcessId_ = -1;
   allStats.fillerForFutureUse_ = 0;
-  for (ULng32 i = 0; i < STATS_WORK_LAST_RETCODE + 2; i++) allStats.retCodes_[i] = 0;
+  for (int i = 0; i < STATS_WORK_LAST_RETCODE + 2; i++) allStats.retCodes_[i] = 0;
 }
 
 ExOperStats::ExOperStats()
@@ -698,7 +677,7 @@ ExOperStats::ExOperStats()
   allStats.downQueueSize_ = 0;
   allStats.upQueueSize_ = 0;
   allStats.fillerForFutureUse_ = 0;
-  for (ULng32 i = 0; i < STATS_WORK_LAST_RETCODE + 2; i++) allStats.retCodes_[i] = 0;
+  for (int i = 0; i < STATS_WORK_LAST_RETCODE + 2; i++) allStats.retCodes_[i] = 0;
 }
 
 ExOperStats::ExOperStats(NAMemory *heap, StatType statType, ComTdb::CollectStatsType collectStatsType, ExFragId fragId,
@@ -737,7 +716,7 @@ ExOperStats::ExOperStats(NAMemory *heap, StatType statType, ComTdb::CollectStats
   allStats.upQueueSize_ = 0;
   allStats.ntProcessId_ = -1;
   allStats.fillerForFutureUse_ = 0;
-  for (ULng32 i = 0; i < STATS_WORK_LAST_RETCODE + 2; i++) allStats.retCodes_[i] = 0;
+  for (int i = 0; i < STATS_WORK_LAST_RETCODE + 2; i++) allStats.retCodes_[i] = 0;
   setStatsInTcb(TRUE);
   // dop is set to 1 since this stats entry is created without fragment using CLI to register the queryId
   // like in BDR
@@ -766,7 +745,7 @@ void ExOperStats::init(NABoolean resetDop) {
   allStats.downQueueStats_.init();
   allStats.upQueueStats_.init();
 
-  for (ULng32 i = 0; i < STATS_WORK_LAST_RETCODE + 2; i++) allStats.retCodes_[i] = 0;
+  for (int i = 0; i < STATS_WORK_LAST_RETCODE + 2; i++) allStats.retCodes_[i] = 0;
 }
 
 void ExOperStats::subTaskReturn(ExWorkProcRetcode rc) {
@@ -887,7 +866,7 @@ void ExOperStats::merge(ExOperStats *other) {
       allStats.downQueueSize_ = other->allStats.downQueueSize_;
     if (allStats.upQueueSize_ < other->allStats.upQueueSize_) allStats.upQueueSize_ = other->allStats.upQueueSize_;
 
-    for (ULng32 i = 0; i < STATS_WORK_LAST_RETCODE + 2; i++) allStats.retCodes_[i] += other->allStats.retCodes_[i];
+    for (int i = 0; i < STATS_WORK_LAST_RETCODE + 2; i++) allStats.retCodes_[i] += other->allStats.retCodes_[i];
   }
 }
 
@@ -987,9 +966,9 @@ void ExOperStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, int maxL
   if (collectStatsType_ == ComTdb::ALL_STATS) {
     // queue utilization
     if (allStats.upQueueSize_ || allStats.downQueueSize_) {
-      sprintf(buf, "QUtilUpMax: %u QUtilUpAvg: %u QUtilDnMax: %u QUtilDnAvg: %u ", (ULng32)allStats.upQueueStats_.max(),
-              (ULng32)allStats.upQueueStats_.mean(), (ULng32)allStats.downQueueStats_.max(),
-              (ULng32)allStats.downQueueStats_.mean());
+      sprintf(buf, "QUtilUpMax: %u QUtilUpAvg: %u QUtilDnMax: %u QUtilDnAvg: %u ", (int)allStats.upQueueStats_.max(),
+              (int)allStats.upQueueStats_.mean(), (int)allStats.downQueueStats_.max(),
+              (int)allStats.downQueueStats_.mean());
     }
 
     // Work procedure return codes other than WORK_OK
@@ -2086,8 +2065,8 @@ void ExOperStats::addMessage(const char *msg, int len) {
 //////////////////////////////////////////////////////////////////
 // class ExProbeCacheStats
 //////////////////////////////////////////////////////////////////
-ExProbeCacheStats::ExProbeCacheStats(NAMemory *heap, ex_tcb *tcb, ComTdb *tdb, ULng32 bufferSize,
-                                     ULng32 numCacheEntries)
+ExProbeCacheStats::ExProbeCacheStats(NAMemory *heap, ex_tcb *tcb, ComTdb *tdb, int bufferSize,
+                                     int numCacheEntries)
     : ExOperStats(heap, PROBE_CACHE_STATS, tcb, tdb), bufferSize_(bufferSize), numCacheEntries_(numCacheEntries) {
   init(FALSE);
   longestChain_ = 0;
@@ -2271,7 +2250,7 @@ void ExProbeCacheStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, in
 ////////////////////////////////////////////////////////////////
 // class ExPartitionAccessStats
 ////////////////////////////////////////////////////////////////
-ExPartitionAccessStats::ExPartitionAccessStats(NAMemory *heap, ex_tcb *tcb, ComTdb *tdb, ULng32 bufferSize)
+ExPartitionAccessStats::ExPartitionAccessStats(NAMemory *heap, ex_tcb *tcb, ComTdb *tdb, int bufferSize)
     : ExOperStats(heap, PARTITION_ACCESS_STATS, tcb, tdb), ansiName_(NULL), fileName_(NULL), opens_(0), openTime_(0) {}
 
 ExPartitionAccessStats::ExPartitionAccessStats(NAMemory *heap)
@@ -2546,7 +2525,7 @@ UInt32 ExHashGroupByStats::packedLength() {
   size += sizeof(clusterCnt_);
   ExClusterStats *s = clusterStats_;
 
-  for (ULng32 i = 0; i < clusterCnt_; i++) {
+  for (int i = 0; i < clusterCnt_; i++) {
     ex_assert(s, "Inconsistency between clusterCnt_ and clusterStats_");
     alignSizeForNextObj(size);
     size += s->packedLength();
@@ -2565,7 +2544,7 @@ UInt32 ExHashGroupByStats::pack(char *buffer) {
   size += packIntoBuffer(buffer, clusterCnt_);
   // pack all the clusterstats
   ExClusterStats *s = clusterStats_;
-  for (ULng32 i = 0; i < clusterCnt_; i++) {
+  for (int i = 0; i < clusterCnt_; i++) {
     ex_assert(s, "clusterCnt_ and clusterStats_ are inconsistent");
 
     UInt32 clusterStatsSize = s->alignedPack(buffer);
@@ -2583,11 +2562,11 @@ void ExHashGroupByStats::unpack(const char *&buffer) {
   unpackBuffer(buffer, partialGroups_);
   unpackBuffer(buffer, memSize_);
   unpackBuffer(buffer, ioSize_);
-  ULng32 clusterCnt;  // note: addClusterStats() updates the actual field clusterCnt_
+  int clusterCnt;  // note: addClusterStats() updates the actual field clusterCnt_
   unpackBuffer(buffer, clusterCnt);
   // unpack the clusterstats. make sure that the are in the same order
   // in the chain as they were when they were packed
-  for (ULng32 i = 0; i < clusterCnt; i++) {
+  for (int i = 0; i < clusterCnt; i++) {
     ExClusterStats *stats = new (heap_) ExClusterStats();
     stats->alignedUnpack(buffer);
     addClusterStats(stats);
@@ -2744,7 +2723,7 @@ UInt32 ExHashJoinStats::packedLength() {
   size += sizeof(hashLoops_);
   if (clusterCnt_) {
     ExClusterStats *s = clusterStats_;
-    for (ULng32 i = 0; i < clusterCnt_; i++) {
+    for (int i = 0; i < clusterCnt_; i++) {
       ex_assert(s, "clusterCnt_ and clusterStats_ are inconsistent");
       alignSizeForNextObj(size);
       size += s->packedLength();
@@ -2771,7 +2750,7 @@ UInt32 ExHashJoinStats::pack(char *buffer) {
   size += packIntoBuffer(buffer, hashLoops_);
   // pack all the clusterstats
   ExClusterStats *s = clusterStats_;
-  for (ULng32 i = 0; i < clusterCnt_; i++) {
+  for (int i = 0; i < clusterCnt_; i++) {
     UInt32 clusterStatsSize = s->alignedPack(buffer);
 
     buffer += clusterStatsSize;
@@ -2793,13 +2772,13 @@ void ExHashJoinStats::unpack(const char *&buffer) {
   unpackBuffer(buffer, memSize_);
   unpackBuffer(buffer, ioSize_);
   unpackBuffer(buffer, emptyChains_);
-  ULng32 clusterCnt;  // note: addClusterStats() updates the actual field clusterCnt_
+  int clusterCnt;  // note: addClusterStats() updates the actual field clusterCnt_
   unpackBuffer(buffer, clusterCnt);
   unpackBuffer(buffer, clusterSplits_);
   unpackBuffer(buffer, hashLoops_);
   // unpack the clusterstats. make sure that the are in the same order
   // in the chain as they were when they were packed
-  for (ULng32 i = 0; i < clusterCnt; i++) {
+  for (int i = 0; i < clusterCnt; i++) {
     ExClusterStats *stats = new (heap_) ExClusterStats();
 
     stats->alignedUnpack(buffer);
@@ -2946,7 +2925,7 @@ void ExHashJoinStats::deleteClusterStats() {
 ////////////////////////////////////////////////////////////////
 // class ExESPStats
 ////////////////////////////////////////////////////////////////
-ExESPStats::ExESPStats(NAMemory *heap, ULng32 sendBufferSize, ULng32 recdBufferSize, int numSubInst, ex_tcb *tcb,
+ExESPStats::ExESPStats(NAMemory *heap, int sendBufferSize, int recdBufferSize, int numSubInst, ex_tcb *tcb,
                        const ComTdb *tdb)
     : ExOperStats(heap, ESP_STATS, tcb, tdb), sendTopStatID_(-1) {
   setSubInstNum(numSubInst);
@@ -4049,7 +4028,7 @@ NABoolean ExMeasStats::filterForCpuStats() {
 ////////////////////////////////////////////////////////////////
 // class ExUDRStats
 ////////////////////////////////////////////////////////////////
-ExUDRStats::ExUDRStats(NAMemory *heap, ULng32 sendBufferSize, ULng32 recBufferSize, const ComTdb *tdb, ex_tcb *tcb)
+ExUDRStats::ExUDRStats(NAMemory *heap, int sendBufferSize, int recBufferSize, const ComTdb *tdb, ex_tcb *tcb)
     : ExUDRBaseStats(heap, UDR_STATS, tcb, tdb), UDRName_(NULL) {
   if (!tdb) return;
 
@@ -4154,20 +4133,20 @@ void ExUDRStats::getVariableStatsInfo(char *dataBuffer, char *datalen, int maxLe
   ExOperStats::getVariableStatsInfo(dataBuffer, datalen, maxLen);
   buf += *((short *)datalen);
 
-  ULng32 startUp = (ULng32)(UDRServerStart_ - UDRServerInit_);
-  ULng32 startUpSec = startUp / 1000000;
-  ULng32 startUpMilli = (startUp % 1000000) / 10000;
+  int startUp = (int)(UDRServerStart_ - UDRServerInit_);
+  int startUpSec = startUp / 1000000;
+  int startUpMilli = (startUp % 1000000) / 10000;
 
-  sprintf(buf, "SendBufferSize: %u RecvBufferSize: %u UDRServerId: %s ", (ULng32)bufferStats()->sendBufferSize(),
-          (ULng32)bufferStats()->recdBufferSize(), getUDRServerId() ? getUDRServerId() : "No Server Id info");
+  sprintf(buf, "SendBufferSize: %u RecvBufferSize: %u UDRServerId: %s ", (int)bufferStats()->sendBufferSize(),
+          (int)bufferStats()->recdBufferSize(), getUDRServerId() ? getUDRServerId() : "No Server Id info");
   buf += str_len(buf);
 
   sprintf(buf,
           "UDRServerInit: %u.%03u CtrlMsgNum: %u CtrlMsgMean: %f DataMsgNum: %u DataMsgMean: %f ContMsgNum: %u "
           "ContMsgMean: %f ",
-          startUpSec, startUpMilli, (ULng32)sentControlBuffers_.entryCnt(), sentControlBuffers_.mean(),
-          (ULng32)bufferStats()->sentBuffers().entryCnt(), bufferStats()->sentBuffers().mean(),
-          (ULng32)sentContinueBuffers_.entryCnt(), sentContinueBuffers_.mean());
+          startUpSec, startUpMilli, (int)sentControlBuffers_.entryCnt(), sentControlBuffers_.mean(),
+          (int)bufferStats()->sentBuffers().entryCnt(), bufferStats()->sentBuffers().mean(),
+          (int)sentContinueBuffers_.entryCnt(), sentContinueBuffers_.mean());
 
   buf += str_len(buf);
   *(short *)datalen = (short)(buf - dataBuffer);

@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #include <iostream>
 #include <fstream>
 #include <string.h>
@@ -38,7 +17,7 @@ Record::Record() {}
 //----------------------------------------------------------------------
 // Overloaded Record Constructor.
 //----------------------------------------------------------------------
-Record::Record(ULng32 size, NABoolean doNotallocRec, CollHeap *heap) {
+Record::Record(int size, NABoolean doNotallocRec, CollHeap *heap) {
   recSize_ = size;
   tupp_ = NULL;
   heap_ = heap;
@@ -52,7 +31,7 @@ Record::Record(ULng32 size, NABoolean doNotallocRec, CollHeap *heap) {
   }
 }
 
-Record::Record(void *rec, ULng32 reclen, void *tupp, CollHeap *heap, SortError *sorterror) {
+Record::Record(void *rec, int reclen, void *tupp, CollHeap *heap, SortError *sorterror) {
   recSize_ = reclen;
   sortError_ = sorterror;
   heap_ = heap;
@@ -73,7 +52,7 @@ Record::~Record(void) {
 //----------------------------------------------------------------------
 // Allocate space for record.
 //----------------------------------------------------------------------
-void Record::initialize(ULng32 recsize, NABoolean doNotallocRec, CollHeap *heap, SortError *sorterror) {
+void Record::initialize(int recsize, NABoolean doNotallocRec, CollHeap *heap, SortError *sorterror) {
   recSize_ = recsize;
   sortError_ = sorterror;
   heap_ = heap;
@@ -101,8 +80,8 @@ void Record::initialize(ULng32 recsize, NABoolean doNotallocRec, CollHeap *heap,
 //  1 if EOF encountered.
 //-----------------------------------------------------------------------
 
-RESULT Record::getFromScr(SortMergeNode *sortMergeNode, ULng32 reclen, SortScratchSpace *scratch, ULng32 &actRecLen,
-                          // ULng32 keySize,
+RESULT Record::getFromScr(SortMergeNode *sortMergeNode, int reclen, SortScratchSpace *scratch, int &actRecLen,
+                          // int keySize,
                           NABoolean waited, Int16 numberOfBytesForRecordSize) {
   RESULT status;
   status = scratch->readSortMergeNode(sortMergeNode, rec_, reclen, actRecLen, /*keySize,*/ waited,
@@ -144,7 +123,7 @@ RESULT Record::getFromScr(SortMergeNode *sortMergeNode, ULng32 reclen, SortScrat
 //  0 if Read Succesful.
 //  1 if EOF encountered.
 //-----------------------------------------------------------------------
-RESULT Record::putToScr(ULng32 run, ULng32 reclen, SortScratchSpace *scratch, NABoolean waited) {
+RESULT Record::putToScr(int run, int reclen, SortScratchSpace *scratch, NABoolean waited) {
   RESULT result = scratch->writeRunData(rec_, reclen, run, waited);
   if (tupp_ != NULL) {
     ReleaseTupp(tupp_);
@@ -183,9 +162,9 @@ void Record::releaseTupp(void) {
 //  0 if Read Succesful.
 //  1 if EOF encountered.
 //-----------------------------------------------------------------------
-char *Record::extractKey(ULng32 keylen, Int16 offset) { return (rec_ + offset); }
+char *Record::extractKey(int keylen, Int16 offset) { return (rec_ + offset); }
 
-NABoolean Record::setRecord(void *rec, ULng32 reclen) {
+NABoolean Record::setRecord(void *rec, int reclen) {
   if (allocatedRec_)
     memcpy(rec_, rec, (int)reclen);
   else
@@ -193,18 +172,18 @@ NABoolean Record::setRecord(void *rec, ULng32 reclen) {
   return SORT_SUCCESS;
 }
 
-NABoolean Record::getRecord(void *rec, ULng32 reclen) const {
+NABoolean Record::getRecord(void *rec, int reclen) const {
   memcpy(rec, rec_, (int)reclen);
   return SORT_SUCCESS;
 }
 
-NABoolean Record::setRecordTupp(void *rec, ULng32 reclen, void *tupp) {
+NABoolean Record::setRecordTupp(void *rec, int reclen, void *tupp) {
   rec_ = (char *)rec;
   tupp_ = tupp;
   return SORT_SUCCESS;
 }
 
-NABoolean Record::getRecordTupp(void *&rec, ULng32 reclen, void *&tupp) const {
+NABoolean Record::getRecordTupp(void *&rec, int reclen, void *&tupp) const {
   rec = rec_;
   tupp = tupp_;
   return SORT_SUCCESS;

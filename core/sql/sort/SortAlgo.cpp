@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 
 #include <iostream>
 
@@ -28,7 +7,7 @@
 //-----------------------------------------------------------------------
 //  Constructor.
 //-----------------------------------------------------------------------
-SortAlgo::SortAlgo(ULng32 runsize, ULng32 recsize, NABoolean doNotAllocRec, ULng32 keysize, SortScratchSpace *scratch,
+SortAlgo::SortAlgo(int runsize, int recsize, NABoolean doNotAllocRec, int keysize, SortScratchSpace *scratch,
                    int explainNodeId, ExBMOStats *bmoStats) {
   sendNotDone_ = TRUE_L;
   runSize_ = runsize;
@@ -54,7 +33,7 @@ SortAlgo::SortAlgo(ULng32 runsize, ULng32 recsize, NABoolean doNotAllocRec, ULng
 //
 //-----------------------------------------------------------------------
 
-ULng32 SortAlgo::getNumOfCompares() const { return numCompares_; }
+int SortAlgo::getNumOfCompares() const { return numCompares_; }
 
 //-----------------------------------------------------------------------
 // Name         : getScratch

@@ -133,48 +133,48 @@ class CompilerTrackingInfo {
   inline size_t cxtHeapIntervalWaterMark() { return CmpCommon::contextHeap()->getIntervalWaterMark(); }
   //
   // metadata cache
-  inline ULng32 metaDataCacheCurrentSize() { return ActiveSchemaDB()->getNATableDB()->currentCacheSize(); }
+  inline int metaDataCacheCurrentSize() { return ActiveSchemaDB()->getNATableDB()->currentCacheSize(); }
 
-  inline ULng32 metaDataCacheIntervalWaterMark() { return ActiveSchemaDB()->getNATableDB()->intervalWaterMark(); }
+  inline int metaDataCacheIntervalWaterMark() { return ActiveSchemaDB()->getNATableDB()->intervalWaterMark(); }
 
-  inline ULng32 metaDataCacheHits();
-  inline ULng32 metaDataCacheLookups();
+  inline int metaDataCacheHits();
+  inline int metaDataCacheLookups();
   void resetMetadataCacheCounters();
   //
   // query cache
-  inline ULng32 qCacheCurrentSize();
-  inline ULng32 qCacheIntervalWaterMark();
-  inline ULng32 qCacheHits();
-  inline ULng32 qCacheLookups();
-  inline ULng32 qCacheRecompiles();
+  inline int qCacheCurrentSize();
+  inline int qCacheIntervalWaterMark();
+  inline int qCacheHits();
+  inline int qCacheLookups();
+  inline int qCacheRecompiles();
   void resetQueryCacheCounters();
   //
   // histogram cache
-  inline ULng32 hCacheCurrentSize() {
+  inline int hCacheCurrentSize() {
     CMPASSERT(NULL != CURRCONTEXT_HISTCACHE);
     return CURRCONTEXT_HISTCACHE->getHeap()->getAllocSize();
   }
 
-  inline ULng32 hCacheIntervalWaterMark() {
+  inline int hCacheIntervalWaterMark() {
     CMPASSERT(NULL != CURRCONTEXT_HISTCACHE);
     return CURRCONTEXT_HISTCACHE->getHeap()->getIntervalWaterMark();
   }
 
-  inline ULng32 hCacheHits();
-  inline ULng32 hCacheLookups();
+  inline int hCacheHits();
+  inline int hCacheLookups();
   void resetHistogramCacheCounters();
 
   inline int systemHeapIntervalWaterMark() { return systemHeapWaterMark_; }
 
   inline int longestCompile() { return longestCompileClock_; }
 
-  inline ULng32 successfulQueryCount() { return successfulQueryCount_; }
+  inline int successfulQueryCount() { return successfulQueryCount_; }
 
-  inline ULng32 failedQueryCount() { return failedQueryCount_; }
+  inline int failedQueryCount() { return failedQueryCount_; }
 
-  inline ULng32 caughtExceptionCount() { return caughtExceptionCount_; }
+  inline int caughtExceptionCount() { return caughtExceptionCount_; }
 
-  inline ULng32 sessionCount();
+  inline int sessionCount();
 
   inline const char *compilerInfo() { return compilerInfo_; }
   //
@@ -218,32 +218,32 @@ class CompilerTrackingInfo {
   int longestCompileClock_;
   //
   // metadata cache counters
-  ULng32 mdCacheHits_;
-  ULng32 mdCacheLookups_;
+  int mdCacheHits_;
+  int mdCacheLookups_;
   //
   // query plan cache stats
   QCacheStats currentQCacheStats_;
-  ULng32 largestQCacheIntervalWaterMark_;
-  ULng32 qCacheHits_;
-  ULng32 qCacheLookups_;
-  ULng32 qCacheRecompiles_;
+  int largestQCacheIntervalWaterMark_;
+  int qCacheHits_;
+  int qCacheLookups_;
+  int qCacheRecompiles_;
   //
   // histogram cache counters
-  ULng32 hCacheHits_;
-  ULng32 hCacheLookups_;
+  int hCacheHits_;
+  int hCacheLookups_;
   //
   // the number of queries compiled during this interval
-  ULng32 successfulQueryCount_;
-  ULng32 failedQueryCount_;
+  int successfulQueryCount_;
+  int failedQueryCount_;
   //
   // the number of exceptions caught (2053 and 2078)
-  ULng32 caughtExceptionCount_;
+  int caughtExceptionCount_;
   //
   // the number of sessions
-  ULng32 sessionCount_;
+  int sessionCount_;
   //
   // the length of the last interval (set by CQD)
-  ULng32 prevInterval_;
+  int prevInterval_;
   //
   // additional compiler information
   char compilerInfo_[MAX_COMPILER_INFO_LEN];

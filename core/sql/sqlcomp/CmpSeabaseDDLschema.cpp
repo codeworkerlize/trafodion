@@ -2027,7 +2027,7 @@ bool CmpSeabaseDDL::dropOneTable(ExeCliInterface &cliInterface, const char *cata
     str_sprintf(buf, "DROP %s  TABLE %s \"%s\".\"%s\".\"%s\" CASCADE", volatileString, ifExistsString, catalogName,
                 schemaName, objectName);
 
-  ULng32 savedParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
+  int savedParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
 
   UInt32 savedCliParserFlags = 0;
   SQL_EXEC_GetParserFlagsForExSqlComp_Internal(savedCliParserFlags);

@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -88,7 +67,7 @@ class tokenClass {
 
   tokenClass(TOKENTYPE tt, void *pointerToInput) : type_(tt), tokenCode_(0), pointerToInput_(pointerToInput){};
 
-  tokenClass(TOKENTYPE tt, ULng32 tc, void *pointerToInput)
+  tokenClass(TOKENTYPE tt, int tc, void *pointerToInput)
       : type_(tt), tokenCode_(tc), pointerToInput_(pointerToInput){};
 
   tokenClass &operator=(const tokenClass &t) {
@@ -101,11 +80,11 @@ class tokenClass {
 
   TOKENTYPE getType() { return type_; };
   void *getDataPointer() { return pointerToInput_; };
-  ULng32 getTokenCode() { return tokenCode_; };
+  int getTokenCode() { return tokenCode_; };
 
  private:
   TOKENTYPE type_;
-  ULng32 tokenCode_;
+  int tokenCode_;
   void *pointerToInput_;
 };
 

@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -345,8 +324,8 @@ ExUdrTcb::ExUdrTcb(const ExUdrTdb &udrTdb, const ex_tcb **childTcbs, ex_globals 
 
   // Allocate output buffer pool
   if (udrTdb.getOutputExpression() != NULL) {
-    UdrDebug2("  Output pool: %u buffers of size %u", (ULng32)udrTdb.getNumOutputBuffers(),
-              (ULng32)udrTdb.getOutputSqlBufferSize());
+    UdrDebug2("  Output pool: %u buffers of size %u", (int)udrTdb.getNumOutputBuffers(),
+              (int)udrTdb.getOutputSqlBufferSize());
 
     outputPool_ = new (globSpace) sql_buffer_pool(
         (int)udrTdb.getNumOutputBuffers(), (int)udrTdb.getOutputSqlBufferSize(), globSpace, SqlBufferBase::NORMAL_);
@@ -354,8 +333,8 @@ ExUdrTcb::ExUdrTcb(const ExUdrTdb &udrTdb, const ex_tcb **childTcbs, ex_globals 
 
   // Allocate input buffer pool
   if (udrTdb.getInputExpression() != NULL) {
-    UdrDebug2("  Input pool: %u buffers of size %u", (ULng32)udrTdb.getNumInputBuffers(),
-              (ULng32)udrTdb.getInputSqlBufferSize());
+    UdrDebug2("  Input pool: %u buffers of size %u", (int)udrTdb.getNumInputBuffers(),
+              (int)udrTdb.getInputSqlBufferSize());
 
     inputPool_ = new (globSpace) sql_buffer_pool(
         (int)udrTdb.getNumInputBuffers(), (int)udrTdb.getInputSqlBufferSize(), globSpace, SqlBufferBase::NORMAL_);
@@ -1050,8 +1029,8 @@ ExWorkProcRetcode ExUdrTcb::buildAndSendRequestBuffer() {
   UdrDebug1("  [WORK] BEGIN ExUdrTcb::buildAndSendRequestBuffer() 0x%08x", this);
 
   ExWorkProcRetcode result = WORK_OK;
-  ULng32 numErrors = 0;
-  ULng32 numCancels = 0;
+  int numErrors = 0;
+  int numCancels = 0;
   NABoolean isResultSet = myTdb().isResultSetProxy();
 
   // Determine the transid we should send in data messages. We
@@ -1118,7 +1097,7 @@ ExWorkProcRetcode ExUdrTcb::buildAndSendRequestBuffer() {
     SqlBuffer *sqlBuf = requestBuffer_->getSqlBuffer();
     ex_assert(sqlBuf, "UDR request buffer is corrupt or contains no data");
 
-    ULng32 numRequestsAdded = 0;
+    int numRequestsAdded = 0;
 
     // Move as many rows as possible into the request buffer
     //
@@ -1168,7 +1147,7 @@ ExWorkProcRetcode ExUdrTcb::buildAndSendRequestBuffer() {
             if (myTdb().getInputExpression()) {
               workAtp_->getTupp(myTdb().getRequestTuppIndex()) = dataDesc;
 
-              ULng32 rowLen = myTdb().getRequestRowLen();
+              int rowLen = myTdb().getRequestRowLen();
               // Evaluate the input expression. If diags are generated they
               // will be left in the down entry ATP.
               expStatus = myTdb().getInputExpression()->eval(downEntry->getAtp(), workAtp_, 0, -1, &rowLen);
@@ -2130,7 +2109,7 @@ UdrDataBuffer *ExUdrTcb::getRequestBuffer() {
   // stream buffer size was set too low and we trigger an assertion
   // failure.
 
-  const ULng32 sqlBufferSize = myTdb().getRequestSqlBufferSize();
+  const int sqlBufferSize = myTdb().getRequestSqlBufferSize();
 
   NABoolean isResultSet = myTdb().isResultSetProxy();
   UdrMessageObj *header = NULL;
@@ -2325,7 +2304,7 @@ ExWorkProcRetcode ExUdrTcb::returnSingleRow() {
   ex_assert(sqlBuf, "UDR reply buffer is corrupt or contains no data");
 
   tupp output_row;
-  ULng32 numOutputValues = myTdb().getNumOutputValues();
+  int numOutputValues = myTdb().getNumOutputValues();
   NABoolean moveOutputValues = (myTdb().getOutputExpression() == NULL ? FALSE : TRUE);
 
   // At this point we do not know if the next entry in the reply
@@ -3333,8 +3312,8 @@ ExWorkProcRetcode ExUdrTcb::buildAndSendTmudfInput() {
 
   ExWorkProcRetcode result = WORK_OK;
   NABoolean done = FALSE;
-  ULng32 numErrors = 0;
-  ULng32 numCancels = 0;
+  int numErrors = 0;
+  int numCancels = 0;
   NABoolean sendSpaceAvailable = TRUE;
 
   // Determine the transid we should send in data messages. We
@@ -3451,7 +3430,7 @@ ExWorkProcRetcode ExUdrTcb::buildAndSendTmudfInput() {
         int numTuppsBefore = sqlBuf->getTotalTuppDescs();
 
         ex_assert(sqlBuf, "UDR request buffer is corrupt or contains no data");
-        ULng32 numRequestsAdded = 0;
+        int numRequestsAdded = 0;
         switch (request) {
           case ex_queue::GET_N:
           case ex_queue::GET_ALL: {

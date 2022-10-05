@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -48,13 +27,13 @@ short sendAllControls(NABoolean copyCQS, NABoolean sendAllCQDs, NABoolean sendUs
                       enum COM_VERSION versionOfCmplrRcvCntrlInfo = COM_VERS_COMPILER_VERSION,
                       NABoolean sendUserCSs = TRUE, CmpContext *prevContext = NULL);
 
-void sendParserFlag(ULng32 flag);
+void sendParserFlag(int flag);
 
 short setParentQidAtSession(NAHeap *heap, const char *parentQid);
 
 extern short CmpDescribeSeabaseTable(const CorrName &dtName,
                                      short type,  // 1, invoke. 2, showddl. 3, createLike
-                                     char *&outbuf, ULng32 &outbuflen, CollHeap *heap,
+                                     char *&outbuf, int &outbuflen, CollHeap *heap,
                                      NABoolean isCreatePartition = FALSE, const char *pkeyName = NULL,
                                      const char *pkeyStr = NULL, NABoolean withPartns = FALSE,
                                      NABoolean withoutSalt = FALSE, NABoolean withoutDivisioning = FALSE,

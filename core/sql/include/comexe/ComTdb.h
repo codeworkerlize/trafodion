@@ -250,7 +250,7 @@ class ComTdb : public NAVersionedObject {
   // ---------------------------------------------------------------------
   ComTdb(ex_node_type type, const char *eye, Cardinality estRowsUsed = 0.0, ex_cri_desc *criDown = NULL,
          ex_cri_desc *criUp = NULL, queue_index sizeDown = 0, queue_index sizeUp = 0, int numBuffers = 0,
-         UInt32 bufferSize = 0, int uniqueId = 0, ULng32 initialQueueSizeDown = 4, ULng32 initialQueueSizeUp = 4,
+         UInt32 bufferSize = 0, int uniqueId = 0, int initialQueueSizeDown = 4, int initialQueueSizeUp = 4,
          short queueResizeLimit = 9, short queueResizeFactor = 4, ComTdbParams *params = NULL);
 
   // ---------------------------------------------------------------------
@@ -306,9 +306,9 @@ class ComTdb : public NAVersionedObject {
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
   // ---------------------------------------------------------------------
-  virtual void displayContents(Space *space, ULng32 flag);
-  virtual void displayExpression(Space *space, ULng32 flag);
-  virtual void displayChildren(Space *space, ULng32 flag);
+  virtual void displayContents(Space *space, int flag);
+  virtual void displayExpression(Space *space, int flag);
+  virtual void displayChildren(Space *space, int flag);
 
   // ---------------------------------------------------------------------
   // Accessors/Mutators.
@@ -329,14 +329,14 @@ class ComTdb : public NAVersionedObject {
 
   inline void setEstRowsUsed(Cardinality estRowsUsed) { estRowsUsed_ = estRowsUsed; }
 
-  inline ULng32 getMaxQueueSizeDown() const { return queueSizeDown_; }
-  inline ULng32 getMaxQueueSizeUp() const { return queueSizeUp_; }
-  inline void setMaxQueueSizeUp(ULng32 qSize) { queueSizeUp_ = qSize; }
-  inline ULng32 getInitialQueueSizeDown() const { return initialQueueSizeDown_; }
-  inline ULng32 getInitialQueueSizeUp() const { return initialQueueSizeUp_; }
+  inline int getMaxQueueSizeDown() const { return queueSizeDown_; }
+  inline int getMaxQueueSizeUp() const { return queueSizeUp_; }
+  inline void setMaxQueueSizeUp(int qSize) { queueSizeUp_ = qSize; }
+  inline int getInitialQueueSizeDown() const { return initialQueueSizeDown_; }
+  inline int getInitialQueueSizeUp() const { return initialQueueSizeUp_; }
   inline short getQueueResizeLimit() const { return queueResizeLimit_; }
   inline short getQueueResizeFactor() const { return queueResizeFactor_; }
-  inline void setQueueResizeParams(ULng32 initialQueueSizeDown, ULng32 initialQueueSizeUp, short queueResizeLimit,
+  inline void setQueueResizeParams(int initialQueueSizeDown, int initialQueueSizeUp, short queueResizeLimit,
                                    short queueResizeFactor) {
     initialQueueSizeDown_ = initialQueueSizeDown;
     initialQueueSizeUp_ = initialQueueSizeUp;
@@ -730,7 +730,7 @@ class ComTdbVirtTableColumnInfo : public ComTdbVirtTableBase {
  public:
   ComTdbVirtTableColumnInfo(const char *cName, int cNum, ComColumnClass cc, int dt, int l, int n,
                             SQLCHARSET_CODE cs, int p, int s, int dtS, int dtE, int u, const char *ch,
-                            ULng32 flags, ComColumnDefaultClass dc, const char *defVal, const char *hcf,
+                            int flags, ComColumnDefaultClass dc, const char *defVal, const char *hcf,
                             const char *hcq, const char *pd, int io)
       : ComTdbVirtTableBase(),
         colName(cName),
@@ -773,7 +773,7 @@ class ComTdbVirtTableColumnInfo : public ComTdbVirtTableBase {
   int dtEnd;      // 1:year, 2:month, 3:day, 4:hour, 5:min, 6:sec, 0:n/a
   int upshifted;  // 0, regular. 1, UPSHIFT char datatype
   const char *colHeading;
-  ULng32 hbaseColFlags;
+  int hbaseColFlags;
   ComColumnDefaultClass defaultClass;
   const char *defVal;
   const char *initDefVal;

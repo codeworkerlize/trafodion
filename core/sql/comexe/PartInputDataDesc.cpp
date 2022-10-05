@@ -230,11 +230,11 @@ void ExHash2PartInputData::copyPartInputValue(int fromPartNum, int toPartNum, ch
   // down, the integer math when determining a hash boundary must round up.
   // This explains why " + numPartitions - 1" is seen in the numerator of
   // the division below.
-  ULng32 loHash = (ULng32)((((long)fromPartNum << 32) + numPartitions - 1) / numPartitions);
+  int loHash = (int)((((long)fromPartNum << 32) + numPartitions - 1) / numPartitions);
 
   // The hiHash value is one less than the hash boundary for the next
   // partition number.
-  ULng32 hiHash = (ULng32)(((((long)(toPartNum + 1) << 32) + numPartitions - 1) / numPartitions) - 1);
+  int hiHash = (int)(((((long)(toPartNum + 1) << 32) + numPartitions - 1) / numPartitions) - 1);
 
   str_cpy_all(buffer, (char *)&loHash, sizeof(int));
   str_cpy_all(&buffer[sizeof(int)], (char *)&hiHash, sizeof(int));

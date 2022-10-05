@@ -125,7 +125,7 @@ ex_mj_tcb::ex_mj_tcb(const ex_mj_tdb &mj_tdb, const ex_tcb &left_tcb, const ex_t
 
       // Allocate a NULL tuple for use in null instantiation.
       if (mjTdb().ljRecLen_ > 0) {
-        ULng32 nullLength = mjTdb().ljRecLen_;
+        int nullLength = mjTdb().ljRecLen_;
 
         int neededBufferSize = (int)SqlBufferNeededSize(1, nullLength);
         nullPool_ = new (space) sql_buffer_pool(1, neededBufferSize, space);

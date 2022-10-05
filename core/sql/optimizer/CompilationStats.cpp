@@ -129,7 +129,7 @@ The current metadata cache hit counter is calculated by
  the start of the query
 
 ************************************************************************/
-ULng32 CompilationStats::metadataCacheHits() { return ActiveSchemaDB()->getNATableDB()->hits() - mdCacheHitsBegin_; }
+int CompilationStats::metadataCacheHits() { return ActiveSchemaDB()->getNATableDB()->hits() - mdCacheHitsBegin_; }
 /************************************************************************
 method CompilationStats::metadataCacheLookups
 
@@ -138,7 +138,7 @@ The current metadata cache lookup counter is calculated by
  the start of the query
 
 ************************************************************************/
-ULng32 CompilationStats::metadataCacheLookups() {
+int CompilationStats::metadataCacheLookups() {
   return ActiveSchemaDB()->getNATableDB()->lookups() - mdCacheLookupsBegin_;
 }
 /************************************************************************
@@ -194,7 +194,7 @@ The current histogram cache hit counter is calculated by
  the start of the query
 
 ************************************************************************/
-ULng32 CompilationStats::histogramCacheHits() {
+int CompilationStats::histogramCacheHits() {
   if (CURRCONTEXT_HISTCACHE)
     return CURRCONTEXT_HISTCACHE->hits() - hCacheHitsBegin_;
   else
@@ -208,7 +208,7 @@ The current histogram cache lookup counter is calculated by
  the start of the query
 
 ************************************************************************/
-ULng32 CompilationStats::histogramCacheLookups() {
+int CompilationStats::histogramCacheLookups() {
   if (CURRCONTEXT_HISTCACHE)
     return CURRCONTEXT_HISTCACHE->lookups() - hCacheLookupsBegin_;
   else
@@ -228,7 +228,7 @@ int CompilationStats::getCompileInfoLen() { return str_len(compileInfo_); }
 
 void CompilationStats::incrOptContexts() { optContexts_++; }
 
-ULng32 CompilationStats::optimizationContexts() { return optContexts_; }
+int CompilationStats::optimizationContexts() { return optContexts_; }
 
 void CompilationStats::setIsRecompile() { isRecompile_ = TRUE; }
 

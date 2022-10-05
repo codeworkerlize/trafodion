@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ****************************************************************************
 *
@@ -91,7 +70,7 @@ void ComTdbParams::getValues(Cardinality &estimatedRowCount, ExCriDescPtr &criDo
 // -----------------------------------------------------------------------
 ComTdb::ComTdb(ex_node_type type, const char *eye, Cardinality estRowsUsed, ex_cri_desc *criDown, ex_cri_desc *criUp,
                queue_index sizeDown, queue_index sizeUp, int numBuffers, UInt32 bufferSize, int uniqueId,
-               ULng32 initialQueueSizeDown, ULng32 initialQueueSizeUp, short queueResizeLimit, short queueResizeFactor,
+               int initialQueueSizeDown, int initialQueueSizeUp, short queueResizeLimit, short queueResizeFactor,
                ComTdbParams *params)
     : criDescDown_(criDown),
       criDescUp_(criUp),
@@ -157,7 +136,7 @@ int ComTdb::unpack(void *base, void *reallocator) {
 // Used by the internal SHOWPLAN command to get attributes of a TDB in a
 // string.
 // -----------------------------------------------------------------------
-void ComTdb::displayContents(Space *space, ULng32 flag) {
+void ComTdb::displayContents(Space *space, int flag) {
   char buf[100];
   str_sprintf(buf, "Contents of %s [%d]:", getNodeName(), getExplainNodeId());
   int j = str_len(buf);
@@ -210,7 +189,7 @@ void ComTdb::displayContents(Space *space, ULng32 flag) {
   }
 }
 
-void ComTdb::displayExpression(Space *space, ULng32 flag) {
+void ComTdb::displayExpression(Space *space, int flag) {
   char buf[100];
 
   str_sprintf(buf, "\n# of Expressions = %d\n", numExpressions());
@@ -238,7 +217,7 @@ void ComTdb::displayExpression(Space *space, ULng32 flag) {
   }
 }
 
-void ComTdb::displayChildren(Space *space, ULng32 flag) {
+void ComTdb::displayChildren(Space *space, int flag) {
   for (int i = 0; i < numChildren(); i++) {
     // currTdb->getChildForGUI(i)->displayContents(space);
     if (getChild(i)) ((ComTdb *)getChild(i))->displayContents(space, flag);

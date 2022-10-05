@@ -57,7 +57,7 @@ class HashRow {
  public:
   inline HashRow(){};
   inline ~HashRow(){};
-  void print(ULng32 rowlength);
+  void print(int rowlength);
   inline SimpleHashValue hashValue() const { return hashValue_ & MASK31; }
 
   // Return the raw hash value (no masking)

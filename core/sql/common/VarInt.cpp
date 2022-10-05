@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -44,85 +23,85 @@
 // helper methods to pack and unpack
 // ----------------------------------------------------------------------------
 
-ULng32 pack(char *&buffer, UInt16 x) {
-  ULng32 sz = sizeof(UInt16);
+int pack(char *&buffer, UInt16 x) {
+  int sz = sizeof(UInt16);
   str_cpy_all((char *)buffer, (char *)&x, sz);
   buffer += sz;
   return sz;
 }
 
-ULng32 pack(char *&buffer, ULng32 x) {
-  ULng32 sz = sizeof(ULng32);
+int pack(char *&buffer, int x) {
+  int sz = sizeof(int);
   str_cpy_all((char *)buffer, (char *)&x, sz);
   buffer += sz;
   return sz;
 }
 
-ULng32 pack(char *&buffer, int x) {
-  ULng32 sz = sizeof(int);
+int pack(char *&buffer, int x) {
+  int sz = sizeof(int);
   str_cpy_all((char *)buffer, (char *)&x, sz);
   buffer += sz;
   return sz;
 }
 
-ULng32 pack(char *&buffer, UInt64 x) {
-  ULng32 sz = sizeof(UInt64);
+int pack(char *&buffer, UInt64 x) {
+  int sz = sizeof(UInt64);
   str_cpy_all((char *)buffer, (char *)&x, sz);
   buffer += sz;
   return sz;
 }
 
-ULng32 pack(char *&buffer, ULng32 *ptr, ULng32 x) {
-  ULng32 sz = sizeof(ULng32);
+int pack(char *&buffer, int *ptr, int x) {
+  int sz = sizeof(int);
   str_cpy_all((char *)buffer, (char *)&x, sz);
   buffer += sz;
 
-  ULng32 sz1 = x * sz;
+  int sz1 = x * sz;
   str_cpy_all((char *)buffer, (char *)ptr, sz1);
   buffer += sz1;
   return sz + sz1;
 }
 
-ULng32 unpack(char *&buffer, UInt16 &x) {
-  ULng32 sz = sizeof(UInt16);
+int unpack(char *&buffer, UInt16 &x) {
+  int sz = sizeof(UInt16);
   str_cpy_all((char *)&x, buffer, sz);
   buffer += sz;
   return sz;
 }
 
-ULng32 unpack(char *&buffer, ULng32 &x) {
-  ULng32 sz = sizeof(ULng32);
+int unpack(char *&buffer, int &x) {
+  int sz = sizeof(int);
   str_cpy_all((char *)&x, buffer, sz);
   buffer += sz;
   return sz;
 }
 
-ULng32 unpack(char *&buffer, int &x) {
-  ULng32 sz = sizeof(int);
+int unpack(char *&buffer, int &x) {
+  int sz = sizeof(int);
   str_cpy_all((char *)&x, buffer, sz);
   buffer += sz;
   return sz;
 }
 
-ULng32 unpack(char *&buffer, UInt64 &x) {
-  ULng32 sz = sizeof(UInt64);
+int unpack(char *&buffer, UInt64 &x) {
+  int sz = sizeof(UInt64);
   str_cpy_all((char *)&x, buffer, sz);
   buffer += sz;
   return sz;
 }
 
-ULng32 unpack(char *&buffer, ULng32 *&ptr, ULng32 &x, NAHeap *heap) {
-  ULng32 y = 0;  // unpacked # of UINT32s
-  ULng32 sz = unpack(buffer, y);
+int unpack(char *&buffer, int *&ptr, int &x, NAHeap *heap) {
+  int y = 0;  // unpacked # of UINT32s
+  int sz = unpack(buffer, y);
 
   if (y > x) {
     if (ptr) NADELETEBASIC(ptr, heap);
 
-    ptr = new (heap) ULng32[y];
+    ptr = new (heap) int[y];
     assert(ptr != NULL);
   }
 
-  ULng32 sz1 = y * sizeof(ULng32);
+  int sz1 = y * sizeof(int);
 
   if (y > 0) str_cpy_all((char *)ptr, buffer, sz1);
 
@@ -134,8 +113,8 @@ ULng32 unpack(char *&buffer, ULng32 *&ptr, ULng32 &x, NAHeap *heap) {
 
 ////////////////////////////////////////////////////////////////////
 
-UInt64 VarUIntArray::estimateMemoryInBytes(ULng32 x, ULng32 b) {
-  return (x * b + BitsPerWord - 1) / BitsPerWord * sizeof(ULng32) + sizeof(VarUIntArray);
+UInt64 VarUIntArray::estimateMemoryInBytes(int x, int b) {
+  return (x * b + BitsPerWord - 1) / BitsPerWord * sizeof(int) + sizeof(VarUIntArray);
 }
 
 UInt32 VarUIntArray::minPackedLength() {
@@ -144,15 +123,15 @@ UInt32 VarUIntArray::minPackedLength() {
 
 UInt32 VarUIntArray::getPackedLength() { return minPackedLength() + sizeof(numWords_) * numWords_; }
 
-VarUIntArray::VarUIntArray(ULng32 numEntries, ULng32 numBits, NAHeap *heap)
+VarUIntArray::VarUIntArray(int numEntries, int numBits, NAHeap *heap)
     : counters_(NULL), numEntries_(numEntries), numBits_(numBits), heap_(heap) {
   assert(numBits > 0 && numBits <= BitsPerWord);
 
-  numWords_ = (ULng32)((((UInt64)numEntries) * numBits + BitsPerWord - 1) / BitsPerWord);
+  numWords_ = (int)((((UInt64)numEntries) * numBits + BitsPerWord - 1) / BitsPerWord);
 
   if (numWords_ > 0) {
-    counters_ = new (heap_) ULng32[numWords_];
-    memset(counters_, 0, numWords_ * sizeof(ULng32));
+    counters_ = new (heap_) int[numWords_];
+    memset(counters_, 0, numWords_ * sizeof(int));
   }
 
   maxVal_ = AllOnes >> (BitsPerWord - numBits);
@@ -163,28 +142,28 @@ VarUIntArray::VarUIntArray(NAHeap *heap)
 
 VarUIntArray::VarUIntArray(const VarUIntArray &x, NAHeap *heap)
     : numEntries_(x.numEntries_), numWords_(x.numWords_), numBits_(x.numBits_), maxVal_(x.maxVal_), heap_(heap) {
-  counters_ = new (heap_) ULng32[numWords_];
-  str_cpy_all((char *)counters_, (char *)x.counters_, numWords_ * sizeof(ULng32));
+  counters_ = new (heap_) int[numWords_];
+  str_cpy_all((char *)counters_, (char *)x.counters_, numWords_ * sizeof(int));
 }
 
-void VarUIntArray::clear() { memset(counters_, 0, numWords_ * sizeof(ULng32)); }
+void VarUIntArray::clear() { memset(counters_, 0, numWords_ * sizeof(int)); }
 
-ULng32 VarUIntArray::operator[](ULng32 ix) const {
+int VarUIntArray::operator[](int ix) const {
   assert(ix >= 0 && ix < numEntries_);
 
   // compute bit and word offset of our counter
-  ULng32 lowBit = ix * numBits_;
-  ULng32 lowWord = lowBit >> 5;  // / BitsPerWord(which is 32);
-  ULng32 lowBitInWord = lowBit % BitsPerWord;
-  ULng32 nextCounterStart = lowBitInWord + numBits_;
+  int lowBit = ix * numBits_;
+  int lowWord = lowBit >> 5;  // / BitsPerWord(which is 32);
+  int lowBitInWord = lowBit % BitsPerWord;
+  int nextCounterStart = lowBitInWord + numBits_;
 
   // take the word where our counter starts, remove leading bits by
   // left-shifting, then shift our counter to the right part of the result
-  ULng32 result = (counters_[lowWord] << lowBitInWord) >> (BitsPerWord - numBits_);
+  int result = (counters_[lowWord] << lowBitInWord) >> (BitsPerWord - numBits_);
 
   // test if our counter continues into the next word
   if (nextCounterStart > BitsPerWord) {
-    ULng32 numRemainingBits = nextCounterStart - BitsPerWord;
+    int numRemainingBits = nextCounterStart - BitsPerWord;
 
     // set rightmost numRemaining bits in result to 0
     result &= (AllOnes << numRemainingBits);
@@ -195,21 +174,21 @@ ULng32 VarUIntArray::operator[](ULng32 ix) const {
   return result;
 }
 
-NABoolean VarUIntArray::put(ULng32 ix, ULng32 val, NABoolean *prevBitsOff) {
+NABoolean VarUIntArray::put(int ix, int val, NABoolean *prevBitsOff) {
   assert(ix >= 0 && ix < numEntries_);
 
   if (val > maxVal_) val = maxVal_;
 
   // compute bit and word offset of our counter
-  ULng32 lowBit = (ix * numBits_);
-  ULng32 lowWord = lowBit >> 5;  // / BitsPerWord(which is 32);
-  ULng32 lowBitInWord = lowBit % BitsPerWord;
-  ULng32 nextCounterStart = lowBitInWord + numBits_;
+  int lowBit = (ix * numBits_);
+  int lowWord = lowBit >> 5;  // / BitsPerWord(which is 32);
+  int lowBitInWord = lowBit % BitsPerWord;
+  int nextCounterStart = lowBitInWord + numBits_;
 
   // value to put, shifted to the correct position
-  ULng32 shiftedPut = val;
+  int shiftedPut = val;
   // mask indicating our counter in the word
-  ULng32 putMask = (AllOnes >> lowBitInWord);
+  int putMask = (AllOnes >> lowBitInWord);
 
   if (nextCounterStart > BitsPerWord) {
     // putMask is good to go for 1st word
@@ -252,18 +231,18 @@ NABoolean VarUIntArray::put(ULng32 ix, ULng32 val, NABoolean *prevBitsOff) {
   return (val == maxVal_);
 }
 
-NABoolean VarUIntArray::add(ULng32 ix, ULng32 val, ULng32 &result) {
-  ULng32 oldVal = (*this)[ix];
+NABoolean VarUIntArray::add(int ix, int val, int &result) {
+  int oldVal = (*this)[ix];
 
-  // check for overflow, both for exceeding maxVal_ and for overflow of ULng32
+  // check for overflow, both for exceeding maxVal_ and for overflow of int
   result = oldVal + val;
   if (result > maxVal_ || result < oldVal || result < val) result = maxVal_;
 
   return put(ix, result);
 }
 
-NABoolean VarUIntArray::sub(ULng32 ix, ULng32 val, ULng32 &minuend) {
-  ULng32 result = minuend = (*this)[ix];
+NABoolean VarUIntArray::sub(int ix, int val, int &minuend) {
+  int result = minuend = (*this)[ix];
 
   // don't change and return TRUE, if counter overflown before
   if (result == maxVal_) return TRUE;
@@ -344,8 +323,8 @@ void VarUIntArray::dump(ostream &out, const char *msg) {
 #endif
 }
 
-ULng32 VarUIntArray::packIntoBuffer(char *&buffer) {
-  ULng32 size = 0;
+int VarUIntArray::packIntoBuffer(char *&buffer) {
+  int size = 0;
   size += pack(buffer, numEntries_);
   size += pack(buffer, numBits_);
   size += pack(buffer, maxVal_);
@@ -354,8 +333,8 @@ ULng32 VarUIntArray::packIntoBuffer(char *&buffer) {
   return size;
 }
 
-ULng32 VarUIntArray::unpackBuffer(char *&buffer) {
-  ULng32 sz = unpack(buffer, numEntries_);
+int VarUIntArray::unpackBuffer(char *&buffer) {
+  int sz = unpack(buffer, numEntries_);
 
   sz += unpack(buffer, numBits_);
   sz += unpack(buffer, maxVal_);
@@ -375,7 +354,7 @@ int main(int argc, char *argv[])
   VarUIntArray fiveBitArray (100, 5);
   VarUIntArray eightBitArray(100, 8);
 
-  for (ULng32 i=0; i< 100; i++)
+  for (int i=0; i< 100; i++)
     {
       twoBitArray.put(i,   i % 2);
       threeBitArray.put(i, i % 8);
@@ -384,7 +363,7 @@ int main(int argc, char *argv[])
       eightBitArray.put(i, i % 256);
     }
 
- for (ULng32 i=0; i< 100; i++)
+ for (int i=0; i< 100; i++)
     {
       printf("i: %4d %4d %4d %4d %4d %4d\n",
              i,
@@ -395,7 +374,7 @@ int main(int argc, char *argv[])
              eightBitArray[i]);
     }
 
- for (ULng32 i=0; i<20; i++)
+ for (int i=0; i<20; i++)
    {
      twoBitArray.put(i,0);
      threeBitArray.put(i,0);

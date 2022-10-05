@@ -23,7 +23,7 @@
 #include "sqlcomp/NamedSemaphore.h"
 #include "SharedSegment.h"
 
-ULng32 NAStringHashFunc(const NAString &x) { return x.hash(); }
+int NAStringHashFunc(const NAString &x) { return x.hash(); }
 
 // The singular default shared segment object living in each SQL
 // process.
@@ -327,7 +327,7 @@ char *SharedCache::createSemaphoreName(char *buf, int len) {
   return NULL;
 }
 
-ULng32 QualifiedNameHashFunc(const QualifiedName &x) { return x.hash(); }
+int QualifiedNameHashFunc(const QualifiedName &x) { return x.hash(); }
 
 // ======================================================
 // SharedDescriptor Cache related methods
@@ -1723,7 +1723,7 @@ int testMemoryExhaustionOnNACollectionCreationTinyHeap() {
   return failed;
 }
 
-static ULng32 hashFunc(int x) { return x; }
+static int hashFunc(int x) { return x; }
 
 int testMemoryExhaustionOnNACollectionInsertion() {
   int failed = 0;

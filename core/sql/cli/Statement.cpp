@@ -560,8 +560,8 @@ Statement::~Statement() {
   // statement lists before calling this Statement destructor.
   ExRsInfo *rsInfo = getResultSetInfo();
   if (rsInfo) {
-    ULng32 numChildren = rsInfo->getNumEntries();
-    for (ULng32 i = 1; i <= numChildren; i++) {
+    int numChildren = rsInfo->getNumEntries();
+    for (int i = 1; i <= numChildren; i++) {
       Statement *rsChild = NULL;
       const char *proxySyntax = NULL;
       NABoolean open = FALSE;
@@ -1101,13 +1101,13 @@ RETCODE Statement::close(ComDiagsArea &diagsArea, NABoolean inRollback) {
     // the children.
     ExRsInfo *rsInfo = getResultSetInfo();
     if (rsInfo) {
-      ULng32 numChildren = rsInfo->getNumEntries();
+      int numChildren = rsInfo->getNumEntries();
       StmtDebug0("  About to close all result set proxy statements");
       StmtDebug1("  Num RS children: %d", (int)numChildren);
 
       ComDiagsArea *diagsFromProxy = NULL;
 
-      for (ULng32 i = 1; i <= numChildren && !readyToReturn; i++) {
+      for (int i = 1; i <= numChildren && !readyToReturn; i++) {
         Statement *proxyStmt = NULL;
         const char *proxySyntax = NULL;
         NABoolean open = FALSE;
@@ -1294,8 +1294,8 @@ NABoolean Statement::isStandaloneQ()
   return standaloneQ;
 }
 */
-RETCODE Statement::prepare(char *source, ComDiagsArea &diagsArea, char *passed_gen_code, ULng32 passed_gen_code_len,
-                           int charset, NABoolean unpackTdbs, ULng32 cliFlags) {
+RETCODE Statement::prepare(char *source, ComDiagsArea &diagsArea, char *passed_gen_code, int passed_gen_code_len,
+                           int charset, NABoolean unpackTdbs, int cliFlags) {
   StmtDebug1("[BEGIN prepare] %p", this);
   StmtDebug1("  Source: %s", source ? source : (source_str ? source_str : "(NULL)"));
 
@@ -1317,9 +1317,9 @@ RETCODE Statement::prepare(char *source, ComDiagsArea &diagsArea, char *passed_g
   return rc;
 }
 
-RETCODE Statement::prepare2(char *source, ComDiagsArea &diagsArea, char *passed_gen_code, ULng32 passed_gen_code_len,
-                            int charset, NABoolean unpackTdbs, ULng32 cliFlags) {
-  ULng32 fetched_gen_code_len = 0L;
+RETCODE Statement::prepare2(char *source, ComDiagsArea &diagsArea, char *passed_gen_code, int passed_gen_code_len,
+                            int charset, NABoolean unpackTdbs, int cliFlags) {
+  int fetched_gen_code_len = 0L;
   char *fetched_gen_code = NULL;
   short retcode = SUCCESS;
   short indexIntoCompilerArray = 0;
@@ -1488,7 +1488,7 @@ RETCODE Statement::prepare2(char *source, ComDiagsArea &diagsArea, char *passed_
     //    return prepareReturn (<retcode>);
     short retry = TRUE;
     char *data = NULL;
-    ULng32 dataLen = 0;
+    int dataLen = 0;
     ExSqlComp::Operator op;
     while (retry) {
       if (newOperation) {
@@ -2040,7 +2040,7 @@ RETCODE Statement::error(ComDiagsArea &diagsArea) {
 }
 
 RETCODE Statement::execute(CliGlobals *cliGlobals, Descriptor *input_desc, ComDiagsArea &diagsArea,
-                           ExecState execute_state, NABoolean fixupOnly, ULng32 cliflags) {
+                           ExecState execute_state, NABoolean fixupOnly, int cliflags) {
   StmtDebug2("[BEGIN execute] %p, stmt_state %s", this, stmtState(getState()));
 
   RETCODE retcode = SUCCESS;
@@ -2197,7 +2197,7 @@ RETCODE Statement::execute(CliGlobals *cliGlobals, Descriptor *input_desc, ComDi
           ExRsInfo *parentRsInfo = parentCall_->getResultSetInfo();
           ex_assert(parentRsInfo, "No parent RS info available");
 
-          ULng32 myIndex = parentRsInfo->getIndex(this);
+          int myIndex = parentRsInfo->getIndex(this);
           NABoolean openWasAttempted = parentRsInfo->openAttempted(myIndex);
 
           if (!openWasAttempted) {
@@ -3256,7 +3256,7 @@ RETCODE Statement::fetch(CliGlobals *cliGlobals, Descriptor *output_desc, ComDia
       ExRsInfo *parentRsInfo = parentCall_->getResultSetInfo();
       ex_assert(parentRsInfo, "No parent RS info available");
 
-      ULng32 rsIndex = parentRsInfo->getIndex(this);
+      int rsIndex = parentRsInfo->getIndex(this);
       parentRsInfo->setCloseAttempted(rsIndex);
       StmtDebug2("  [EOF] RS index %u, Num closed since CALL %u", rsIndex, parentRsInfo->getNumClosedSinceLastCall());
 
@@ -3777,10 +3777,10 @@ RETCODE Statement::releaseTcbs(NABoolean closeAllOpens) {
         StmtDebug0("  About to call ExRsInfo::reset()");
         rsInfo->reset();
 
-        ULng32 numChildren = rsInfo->getNumEntries();
+        int numChildren = rsInfo->getNumEntries();
         StmtDebug1("  Num RS children: %d", (int)numChildren);
 
-        for (ULng32 i = 1; i <= numChildren; i++) {
+        for (int i = 1; i <= numChildren; i++) {
           Statement *rsChild = NULL;
           const char *proxySyntax = NULL;
           NABoolean open = FALSE;
@@ -3887,7 +3887,7 @@ RETCODE Statement::describe(Descriptor *desc, int what_desc, ComDiagsArea &diags
   if (parentCall_) {
     ExRsInfo *rsInfo = parentCall_->getResultSetInfo();
     if (rsInfo) {
-      ULng32 rsIndex = rsInfo->getIndex(this);
+      int rsIndex = rsInfo->getIndex(this);
       RETCODE proxyRetcode = rsProxyPrepare(*rsInfo, rsIndex, diagsArea);
       if (proxyRetcode == ERROR) return ERROR;
     }
@@ -4006,7 +4006,7 @@ RETCODE Statement::describe(Descriptor *desc, int what_desc, ComDiagsArea &diags
   return SUCCESS;
 }
 
-void Statement::copyGenCode(char *gen_code, ULng32 gen_code_len, NABoolean unpackTDBs) {
+void Statement::copyGenCode(char *gen_code, int gen_code_len, NABoolean unpackTDBs) {
   StmtDebug3("[BEGIN copyGenCode] this %p, gen_code %p, len %u", this, gen_code, gen_code_len);
 
   ex_assert(!isCloned(), "copyGenCode() should not be called on a cloned statement");
@@ -4665,7 +4665,7 @@ void Statement::setState(State newState) {
           ExRsInfo *parentRsInfo = parentCall_->getResultSetInfo();
           if (parentRsInfo) {
             StmtDebug2("  setState() changing RS state to %s, this %p", stmtState(getState()), this);
-            ULng32 rsIndex = parentRsInfo->getIndex(this);
+            int rsIndex = parentRsInfo->getIndex(this);
             parentRsInfo->setCloseAttempted(rsIndex);
             StmtDebug2("  RS index %u, Num closed since CALL %u", rsIndex, parentRsInfo->getNumClosedSinceLastCall());
           }
@@ -5102,7 +5102,7 @@ NABoolean Statement::isIudTargetTable(char *tableName, SqlTableOpenInfoPtr *stoi
     return TRUE;
 }
 
-RETCODE Statement::mvSimilarityCheck(char *table, ULng32 siMvBitmap, ULng32 rcbMvBitmap, NABoolean &simCheckFailed,
+RETCODE Statement::mvSimilarityCheck(char *table, int siMvBitmap, int rcbMvBitmap, NABoolean &simCheckFailed,
                                      ComDiagsArea &diagsArea) {
   ComMvAttributeBitmap siBitmap;
   ComMvAttributeBitmap rcbBitmap;
@@ -5364,7 +5364,7 @@ void Statement::setStmtStats(NABoolean autoRetry) {
       if (stmtStats_) {
         char *parentQid = getParentQid();
         char *parentQidSystem = getParentQidSystem();
-        ULng32 parentQidSystemLen;
+        int parentQidSystemLen;
         if (parentQidSystem != NULL)
           parentQidSystemLen = str_len(parentQidSystem);
         else
@@ -5472,7 +5472,7 @@ NABoolean Statement::rsProxyCompare(const char *newSource) const {
 // prepare of proxy syntax is required and if so, do the internal
 // prepare
 RETCODE Statement::rsProxyPrepare(ExRsInfo &rsInfo,         // IN
-                                  ULng32 rsIndex,           // IN
+                                  int rsIndex,           // IN
                                   ComDiagsArea &diagsArea)  // INOUT
 {
   StmtDebug3("[BEGIN rsProxyPrepare] %p, rsIndex %u, stmt state %s", this, rsIndex, stmtState(getState()));
@@ -5943,7 +5943,7 @@ void Statement::buildConsumerQueryTemplate() {
   }
 }
 
-int Statement::getConsumerQueryLen(ULng32 index) {
+int Statement::getConsumerQueryLen(int index) {
   // First build the consumer query template
   buildConsumerQueryTemplate();
 
@@ -5965,7 +5965,7 @@ int Statement::getConsumerQueryLen(ULng32 index) {
   return result;
 }
 
-void Statement::getConsumerQuery(ULng32 index, char *buf, int buflen) {
+void Statement::getConsumerQuery(int index, char *buf, int buflen) {
   if (buflen < 1) return;
 
   // First build the consumer query template
@@ -5986,7 +5986,7 @@ void Statement::getConsumerQuery(ULng32 index, char *buf, int buflen) {
   str_sprintf(buf, tmpl, phandle, key);
 }
 
-int Statement::getConsumerCpu(ULng32 index) {
+int Statement::getConsumerCpu(int index) {
   int result = -1;
   short cpu = statementGlobals_->getExtractEspCpu(index);
   int nodeNumber = statementGlobals_->getExtractEspNodeNumber(index);

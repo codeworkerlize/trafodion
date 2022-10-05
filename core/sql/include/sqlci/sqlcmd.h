@@ -1,58 +1,16 @@
-/********************************************************************
-//
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-********************************************************************/
+#pragma once
 
-#ifndef SQLCMD_H
-#define SQLCMD_H
-
-/* -*-C++-*-
- *****************************************************************************
- *
- * File:         SqlCmd.h
- * RCS:          $Id: SqlCmd.h,v 1.13 1998/09/07 21:49:58  Exp $
- * Description:
- *
- *
- * Created:      4/15/95
- * Modified:     $ $Date: 1998/09/07 21:49:58 $ (GMT)
- * Language:     C++
- * Status:       $State: Exp $
- *
- *
- *
- *
- *****************************************************************************
- */
-
-#include "common/NAType.h"  // for DEFAULT_CHARACTER_LENGTH
+#include "cli/sqlcli.h"
+#include "common/NABoolean.h"
+#include "common/charinfo.h"
+#include "sqlci/SqlciDefs.h"
 #include "sqlci/SqlciNode.h"
-#include "sqlci/SqlciEnv.h"
-#include "common/ComDistribution.h"
-#include "qmscommon/QRLogger.h"
 
-// Revision 1.6.8.1  1998/04/17 16:27:46
-// reaching nchar milestone
-//
+class CursorStmt;
+class SqlciEnv;
+class ComDiagsArea;
+class PrepStmt;
+
 extern void HandleCLIErrorInit();
 extern void HandleCLIError(int &err, SqlciEnv *sqlci_env, NABoolean displayErr = TRUE, NABoolean *isEOD = NULL,
                            int prepcode = 0, NABoolean getWarningsWithEOF = FALSE);
@@ -62,7 +20,6 @@ extern void HandleCLIError(SQLSTMT_ID *stmt, int &err, SqlciEnv *sqlci_env, NABo
 void handleLocalError(ComDiagsArea *diags, SqlciEnv *sqlci_env);
 long getRowsAffected(SQLSTMT_ID *stmt);
 int getDiagsCondCount(SQLSTMT_ID *stmt);
-// for unnamed parameters
 #define MAX_NUM_UNNAMED_PARAMS 128
 #define MAX_LEN_UNNAMED_PARAM  300
 
@@ -102,19 +59,11 @@ class SqlCmd : public SqlciNode {
 
   static short do_execute(SqlciEnv *, PrepStmt *, int numUnnamedParams = 0, char **unnamedParamArray = NULL,
                           CharInfo::CharSet *unnamedParamCharSetArray = NULL, int prepcode = 0);
-  //////////////////////////////////////////////////////////
-  // made the change to add static in front of the function
-  // declaration! Reason - Beacause we will be accessing that
-  // method from outside the files from where it was decalred.  In
-  // that case you have to make it static to get to it otherwise
-  // it wont link.
-  ////////////////////////////////////////////////////////////
 
   static short doExec(SqlciEnv *, SQLSTMT_ID *, PrepStmt *, int numUnnamedParams = 0, char **unnamedParamArray = NULL,
                       CharInfo::CharSet *unnamedParamCharSetArray = NULL, NABoolean handleError = TRUE);
-  static short doDescribeInput(SqlciEnv *, SQLSTMT_ID *, PrepStmt *, int num_input_entries,
-                               int numUnnamedParams = 0, char **unnamedParamArray = NULL,
-                               CharInfo::CharSet *unnamedParamCharSetArray = NULL);
+  static short doDescribeInput(SqlciEnv *, SQLSTMT_ID *, PrepStmt *, int num_input_entries, int numUnnamedParams = 0,
+                               char **unnamedParamArray = NULL, CharInfo::CharSet *unnamedParamCharSetArray = NULL);
   static short doFetch(SqlciEnv *, SQLSTMT_ID *stmt, PrepStmt *prep_stmt, NABoolean firstFetch = FALSE,
                        NABoolean handleError = TRUE, int prepcode = 0);
   static short doClearExecFetchClose(SqlciEnv *, SQLSTMT_ID *, PrepStmt *, int numUnnamedParams = 0,
@@ -179,7 +128,6 @@ class DescribeStmt : public SqlCmd {
   DescribeStmt(char *stmtName, char *argument);
   ~DescribeStmt();
   short process(SqlciEnv *sqlciEnv);
-  short displayEntries(SqlciEnv *sqlci_env, SQLDESC_ID *desc, int numEntries, Logfile *log);
 };
 
 class Execute : public SqlCmd {
@@ -194,7 +142,7 @@ class Execute : public SqlCmd {
   ~Execute();
   short process(SqlciEnv *sqlci_env);
   static int storeParams(char *argument_, short &num_params, char *using_params[], CharInfo::CharSet[] = NULL,
-                           SqlciEnv *sqlci_env = NULL);
+                         SqlciEnv *sqlci_env = NULL);
   short getNumParams() const { return num_params; }
   char **getUnnamedParamArray() { return using_params; }
   CharInfo::CharSet *getUnnamedParamCharSetArray() { return using_param_charsets; }
@@ -235,42 +183,8 @@ class Cursor : public SqlCmd {
   char *cursorName_;
   CursorOperation operation_;
   Int16 internalPrepare_;  // if -1, then argument is a SQL statement that
-                           // has to be prepared. Otherwise, argument is the
-                           // name of a prepared statement.
-  // QSTUFF
-  // indicates holdable cursor
   NABoolean isHoldable_;
-  // QSTUFF
 
   NABoolean internalCursor_;
   int resultSetIndex_;
 };
-
-// This class is used by the query cache virtual interface to execute
-// the commands "display_qc" and "display_qc_entries" which will show
-// some important fields of the SQL/MX query cache.
-class QueryCacheSt : public SqlCmd {
- public:
-  QueryCacheSt(short option);
-  virtual ~QueryCacheSt(){};
-  short process(SqlciEnv *sqlci_env);
-
- private:
-  short option_;
-};
-
-class StoreExplain : public SqlCmd {
- public:
-  StoreExplain(char *argument) : SqlCmd(STORE_EXPLAIN_TYPE, argument) {}
-  ~StoreExplain() {}
-  short process(SqlciEnv *sqlciEnv);
-};
-
-class Quiesce : public SqlCmd {
- public:
-  Quiesce();
-  virtual ~Quiesce();
-  short process(SqlciEnv *sqlci_env);
-};
-
-#endif

@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -213,7 +192,7 @@ short ExStoredProcTcb::work() {
       } break;
       case PROCESS_REQUEST_: {
         // construct request
-        ULng32 sz = inputBuffer_->get_buffer_size();
+        int sz = inputBuffer_->get_buffer_size();
         inputBuffer_->drivePack();
         inputBuffer_->setBufferStatus(SqlBuffer::IN_USE);
         // The request is dynamically allocated here instead of using stack variable,
@@ -230,7 +209,7 @@ short ExStoredProcTcb::work() {
         // allocate returnedBuffer
         returnedBuffer_ = pool_->get_free_buffer(0);
         if (returnedBuffer_ == NULL) return WORK_POOL_BLOCKED;
-        ULng32 returnedBuflen = returnedBuffer_->get_buffer_size();
+        int returnedBuflen = returnedBuffer_->get_buffer_size();
         UInt32 dummyDatalen = 0;  // not used here
         int dummyCharSet = 0;   // not used here
         int cpStatus;
@@ -271,7 +250,7 @@ short ExStoredProcTcb::work() {
         CmpMessageISPGetNext ispRequestGetNext(returnedBuffer_->get_buffer_size(), requestId_, 0, 0);
         returnedBuffer_ = pool_->get_free_buffer(0);
         if (returnedBuffer_ == NULL) return WORK_POOL_BLOCKED;
-        ULng32 returnedBuflen = returnedBuffer_->get_buffer_size();
+        int returnedBuflen = returnedBuffer_->get_buffer_size();
         UInt32 dummyDatalen = 0;  // not used here
         int dummyCharSet = 0;   // not used here
         int cpStatus;
@@ -307,7 +286,7 @@ short ExStoredProcTcb::work() {
       } break;
 
       case SEND_INPUT_BUFFER_: {
-        ULng32 sz = inputBuffer_->get_buffer_size();
+        int sz = inputBuffer_->get_buffer_size();
         inputBuffer_->drivePack();
         inputBuffer_->setBufferStatus(SqlBuffer::IN_USE);
         // Send request to arkcomp and wait for reply.
@@ -399,7 +378,7 @@ short ExStoredProcTcb::work() {
         returnedBuffer_ = pool_->get_free_buffer(0);
         if (returnedBuffer_ == NULL) return WORK_POOL_BLOCKED;
 
-        ULng32 returnedBuflen_ = returnedBuffer_->get_buffer_size();
+        int returnedBuflen_ = returnedBuffer_->get_buffer_size();
         char *rb = (char *)returnedBuffer_;
         ExSqlComp::ReturnStatus status = arkcmp_->getReply(rb, returnedBuflen_, returnedBuflen_, requestId_);
         if (status == ExSqlComp::MOREDATA) {
@@ -587,7 +566,7 @@ ex_tcb_private_state *ExStoredProcPrivateState::allocate_new(const ex_tcb *tcb) 
 // Returns -1 in case of error. diagsArea contains the error number
 // in this case (well, almost always).
 ////////////////////////////////////////////////////////////////////
-short ExSPInputOutput::inputValue(ULng32 fieldNum, char *inputRow, char *data, ULng32 datalen, NABoolean casting,
+short ExSPInputOutput::inputValue(int fieldNum, char *inputRow, char *data, int datalen, NABoolean casting,
                                   ComDiagsArea *diagsArea) {
   Attributes *attr = tupleDesc_->getAttr((short)fieldNum);
   short varcharlen = 2;
@@ -635,7 +614,7 @@ short ExSPInputOutput::inputValue(ULng32 fieldNum, char *inputRow, char *data, U
 // Returns -1 in case of error. diagsArea contains the error number
 // in this case (well, almost always).
 ////////////////////////////////////////////////////////////////////
-short ExSPInputOutput::outputValue(ULng32 fieldNum, char *outputRow, char *data, ULng32 datalen, NABoolean casting,
+short ExSPInputOutput::outputValue(int fieldNum, char *outputRow, char *data, int datalen, NABoolean casting,
                                    CollHeap *heap, ComDiagsArea *diagsArea) {
   Attributes *attr = tupleDesc_->getAttr((short)fieldNum);
   ex_expr::exp_return_type status = ex_expr::EXPR_OK;

@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -57,12 +36,12 @@ void TimeoutTableEntry::setTableName(char *tableName, CollHeap *heap) {
   }
 }
 
-TimeoutHashTable::TimeoutHashTable(CollHeap *heap, ULng32 hashTableSize)
+TimeoutHashTable::TimeoutHashTable(CollHeap *heap, int hashTableSize)
     : entries_(0), hashTableSize_(hashTableSize), hashArray_(NULL), hashTableOriginalSize_(hashTableSize), heap_(heap) {
   ex_assert(heap, "Bad heap given to ctor");
 }
 
-TimeoutTableEntry *TimeoutHashTable::allocateHashTable(ULng32 size) {
+TimeoutTableEntry *TimeoutHashTable::allocateHashTable(int size) {
   // allocate the array
   return (TimeoutTableEntry *)heap_->allocateMemory(size * sizeof(TimeoutTableEntry));
 }
@@ -75,7 +54,7 @@ void TimeoutHashTable::clearAll() {
     entries_ = 0;
 
   // traverse array, deallocating long names if needed
-  for (ULng32 u = 0; u < hashTableSize_; u++) hashArray_[u].reset();
+  for (int u = 0; u < hashTableSize_; u++) hashArray_[u].reset();
   heap_->deallocateMemory(hashArray_);
 
   hashArray_ = NULL;
@@ -85,7 +64,7 @@ void TimeoutHashTable::clearAll() {
 // Double hash table size if became %50 full, or resize down if the
 // number of entries was significantly reduced
 void TimeoutHashTable::resizeHashTableIfNeeded() {
-  ULng32 newSize;
+  int newSize;
   if (entries_ * 2 >= hashTableSize_) {  // at least 50 percent full
     newSize = 2 * hashTableSize_;
   } else if (0 == entries_) {  // last entry removed
@@ -101,13 +80,13 @@ void TimeoutHashTable::resizeHashTableIfNeeded() {
 
   // allocate a new table and insert into it all the values from the old one
   TimeoutTableEntry *newHashArray = NULL;
-  for (ULng32 ul = 0; ul < hashTableSize_; ul++)
+  for (int ul = 0; ul < hashTableSize_; ul++)
     if (hashArray_[ul].used)
       // this call would also allocate the new array
       internalInsert(&newHashArray, newSize, hashArray_[ul].tableName(), hashArray_[ul].timeoutValue);
 
   // replace old hash array with the new one
-  ULng32 keepEntries = entries_;
+  int keepEntries = entries_;
   clearAll();  // removes the old hash array, alse resets entries_
   entries_ = keepEntries;
   hashArray_ = newHashArray;
@@ -116,7 +95,7 @@ void TimeoutHashTable::resizeHashTableIfNeeded() {
 
 // internal routine: insert entry into H.T., return TRUE iff entry is new
 // The table parameter is a pointer to a pointer to allow allocation
-NABoolean TimeoutHashTable::internalInsert(TimeoutTableEntry **hashTable, ULng32 hashTableSize, char *tableName,
+NABoolean TimeoutHashTable::internalInsert(TimeoutTableEntry **hashTable, int hashTableSize, char *tableName,
                                            int timeoutValue) {
   NABoolean itIsNew;
   // get the hashValue
@@ -128,7 +107,7 @@ NABoolean TimeoutHashTable::internalInsert(TimeoutTableEntry **hashTable, ULng32
     // allocate the array
     *hashTable = allocateHashTable(hashTableSize);
     // initialize each entry to "unused"
-    for (ULng32 ul = 0; ul < hashTableSize; ul++) (*hashTable)[ul].init();
+    for (int ul = 0; ul < hashTableSize; ul++) (*hashTable)[ul].init();
   }
 
   // find an available location for this tablename (if new), or
@@ -176,21 +155,21 @@ void TimeoutHashTable::remove(char *tableName) {
   // value to the hole index to eliminate the case of a chain that "started
   // after the hole" and thus should not be moved back (skip that entry).
 
-  ULng32 holeIndex = tempIndex_;  // index to where the "hole" is
+  int holeIndex = tempIndex_;  // index to where the "hole" is
   // base index shows where the whole used-sequence begins
-  ULng32 baseIndex = holeIndex;
+  int baseIndex = holeIndex;
   while (1) {
-    ULng32 prev = (baseIndex + hashTableSize_ - 1) % hashTableSize_;
+    int prev = (baseIndex + hashTableSize_ - 1) % hashTableSize_;
     if (!hashArray_[prev].used) break;  // previous not used ==> base found
     baseIndex = prev;
   }
   // iterate ahead and move entries back; finish when next is not used
-  for (ULng32 nextIndex = (tempIndex_ + 1) % hashTableSize_; hashArray_[nextIndex].used;
+  for (int nextIndex = (tempIndex_ + 1) % hashTableSize_; hashArray_[nextIndex].used;
        nextIndex = (nextIndex + 1) % hashTableSize_) {
     // Normalize the hole and hashValue indices (to simplify comparison)
-    ULng32 normHashValue = hashArray_[nextIndex].hashValue;
+    int normHashValue = hashArray_[nextIndex].hashValue;
     if (normHashValue < baseIndex) normHashValue += hashTableSize_;
-    ULng32 normHoleIndex = holeIndex;
+    int normHoleIndex = holeIndex;
     if (normHoleIndex < baseIndex) normHoleIndex += hashTableSize_;
 
     // If this entry was hashed to "no after" than the hole: OK to move
@@ -235,12 +214,12 @@ int TimeoutHashTable::getTimeoutHashValue(char *tableName) {
 // Methods for packing/unpacking (used for passing information to ESPs)
 IpcMessageObjSize TimeoutHashTable::packedLength() {
   if (0 == entries_) return 0;
-  IpcMessageObjSize result = sizeof(ULng32);  // #entries slot
-  ULng32 count = entries_;                    // used to speed-up hash array scanning
+  IpcMessageObjSize result = sizeof(int);  // #entries slot
+  int count = entries_;                    // used to speed-up hash array scanning
 
-  for (ULng32 ul = 0; count > 0 && ul < hashTableSize_; ul++) {
+  for (int ul = 0; count > 0 && ul < hashTableSize_; ul++) {
     if (!hashArray_[ul].used) continue;  // skip unused array entry
-    ULng32 nameLen = str_len(hashArray_[ul].tableName());
+    int nameLen = str_len(hashArray_[ul].tableName());
 
     // add an alignment (note: When already aligned, add four null bytes).
     // This requirement is from the packIntoBuffer method.
@@ -257,18 +236,18 @@ IpcMessageObjSize TimeoutHashTable::packedLength() {
 // pack or unpack, and move the pointer ("buffer") accordingly
 void TimeoutHashTable::packIntoBuffer(IpcMessageBufferPtr &buffer) {
   if (0 == entries_) return;
-  ULng32 count = *(ULng32 *)buffer = entries_;  // #entries is first in buffer
-  buffer = (char *)buffer + sizeof(ULng32);     // move pointer to next location
+  int count = *(int *)buffer = entries_;  // #entries is first in buffer
+  buffer = (char *)buffer + sizeof(int);     // move pointer to next location
 
-  for (ULng32 ul = 0; count > 0 && ul < hashTableSize_; ul++) {
+  for (int ul = 0; count > 0 && ul < hashTableSize_; ul++) {
     if (!hashArray_[ul].used) continue;  // skip unused array entry
     // copy the name of the table
     char *tblName = hashArray_[ul].tableName();
-    ULng32 nameLen = str_len(tblName);
+    int nameLen = str_len(tblName);
     strncpy(buffer, tblName, nameLen);
     buffer = (char *)buffer + nameLen;  // advance pointer
     // add an alignment (note: When already aligned, add four null bytes)
-    ULng32 alignedNameLen = 0;          // align on a 4 byte boundaries
+    int alignedNameLen = 0;          // align on a 4 byte boundaries
     alignedNameLen += 4 - nameLen % 4;  // Align to one of: 1,2,3,4 chars
     strncpy(buffer, "\0\0\0\0", alignedNameLen);
     buffer = (char *)buffer + alignedNameLen;  // advance pointer
@@ -283,12 +262,12 @@ void TimeoutHashTable::packIntoBuffer(IpcMessageBufferPtr &buffer) {
 // packed (into the buffer) hash table had one or more entries (because
 // an empty hash table does not pack anything into the buffer.)
 void TimeoutHashTable::unpackObj(IpcConstMessageBufferPtr &buffer) {
-  ULng32 entries = *(ULng32 *)buffer;
-  buffer += sizeof(ULng32);  // got # entries
+  int entries = *(int *)buffer;
+  buffer += sizeof(int);  // got # entries
 
   for (; entries > 0; entries--) {
     char *tblName = (char *)buffer;
-    ULng32 nameLen = str_len(tblName);
+    int nameLen = str_len(tblName);
     // add an alignment (note: When already aligned, add four null bytes).
     // This requirement is from the packIntoBuffer method.
     nameLen += 4 - nameLen % 4;  // add alignment size
@@ -308,7 +287,7 @@ void TimeoutHashTable::unpackObj(IpcConstMessageBufferPtr &buffer) {
 //
 ////////////////////////////////////////////////////////////////////////
 
-TimeoutData::TimeoutData(CollHeap *heap, ULng32 estimatedMaxEntries)
+TimeoutData::TimeoutData(CollHeap *heap, int estimatedMaxEntries)
     : noLockTimeoutsSet_(TRUE), forAll_(FALSE), streamTimeoutSet_(FALSE), timeoutsHT_(heap, estimatedMaxEntries * 2) {
   ex_assert(heap && estimatedMaxEntries > 0, "Bad parameters");
 };
@@ -451,7 +430,7 @@ NABoolean TimeoutData::isUpToDate(TimeoutData *anotherTD, ComTdbRoot *rootTdb) {
 //  Method for doing the (un)packing -- used to transfer this obj to ESPs
 //
 IpcMessageObjSize TimeoutData::packedLength() {
-  IpcMessageObjSize result = sizeof(ULng32);  // "flags" are always there
+  IpcMessageObjSize result = sizeof(int);  // "flags" are always there
 
   if (streamTimeoutSet_) result += sizeof(int);
   if (!noLockTimeoutsSet_ & forAll_) result += sizeof(int);
@@ -461,13 +440,13 @@ IpcMessageObjSize TimeoutData::packedLength() {
 
 void TimeoutData::packIntoBuffer(IpcMessageBufferPtr &buffer) {
   // pack the flags (must be in sync with unpackObj() )
-  ULng32 flags = streamTimeoutSet_ ? 0x01 : 0;
+  int flags = streamTimeoutSet_ ? 0x01 : 0;
   if (!noLockTimeoutsSet_) {
     flags |= 0x02;
     if (forAll_) flags |= 0x04;
     if (timeoutsHT_.entries() > 0) flags |= 0x08;  // is timeout HT empty ?
   }
-  *(ULng32 *)buffer = flags;                // store the flags
+  *(int *)buffer = flags;                // store the flags
   buffer = (char *)buffer + sizeof(int);  // incr buffer
   if (streamTimeoutSet_) {
     *(int *)buffer = streamTimeoutValue_;   // store the stream t/o value
@@ -482,8 +461,8 @@ void TimeoutData::packIntoBuffer(IpcMessageBufferPtr &buffer) {
 }
 
 void TimeoutData::unpackObj(IpcConstMessageBufferPtr &buffer) {
-  ULng32 flags = *(ULng32 *)buffer;
-  buffer += sizeof(ULng32);
+  int flags = *(int *)buffer;
+  buffer += sizeof(int);
 
   streamTimeoutSet_ = flags & 0x01;
   if (streamTimeoutSet_) {

@@ -28,7 +28,6 @@
 #include "common/ComSysUtils.h"
 #include "generator/Generator.h"
 #include "sqlcomp/CmpMain.h"
-#include "arkcmp/QueryCacheSt.h"
 #include "sqludr/sqludr.h"
 #include "optimizer/UdfDllInteraction.h"
 
@@ -68,7 +67,7 @@ typedef CacheData *CacheDataPtr;
 typedef CacheEntry *CacheEntryPtr;
 typedef TextData *TextDataPtr;
 
-ULng32 getDefaultInK(const int &key);
+int getDefaultInK(const int &key);
 
 class CQDefault : public NABasicObject {
   friend class CQDefaultSet;
@@ -90,7 +89,7 @@ class CQDefault : public NABasicObject {
   NABoolean isEqual(const CQDefault &o) const { return attr == o.attr && value == o.value; }
 
   // return byte size of this CQDefault
-  ULng32 getByteSize() const { return sizeof(*this) + attr.getAllocatedSize() + value.getAllocatedSize(); }
+  int getByteSize() const { return sizeof(*this) + attr.getAllocatedSize() + value.getAllocatedSize(); }
 };
 typedef CQDefault *CQDefPtr;
 
@@ -115,7 +114,7 @@ class CQDefaultSet : public NABasicObject {
   void addCQD(CQDefPtr cqd);
 
   // return byte size of this CQDefaultSet
-  ULng32 getByteSize() const;
+  int getByteSize() const;
 
   // comparison method for sorting & searching CQDarray
   static int Compare(const void *d1, const void *d2);
@@ -143,7 +142,7 @@ class CtrlTblOpt : public NABasicObject {
   NABoolean isEqual(const CtrlTblOpt &o) const { return tblNam == o.tblNam && attr == o.attr && value == o.value; }
 
   // return byte size of this CtrlTblOpt
-  ULng32 getByteSize() const {
+  int getByteSize() const {
     return sizeof(*this) + tblNam.getAllocatedSize() + attr.getAllocatedSize() + value.getAllocatedSize();
   }
 };
@@ -170,7 +169,7 @@ class CtrlTblSet : public NABasicObject {
   void addCT(CtrlTblPtr ct);
 
   // return byte size of this CtrlTblSet
-  ULng32 getByteSize() const;
+  int getByteSize() const;
 
   // comparison method for sorting & searching CTarray
   static int Compare(const void *t1, const void *t2);
@@ -202,13 +201,13 @@ class CompilerEnv : public NABasicObject {
   virtual ~CompilerEnv();
 
   // return byte size of this CompilerEnv
-  ULng32 getSize() const;
+  int getSize() const;
 
   // returns TRUE if cached plan's environment is better or as good as other's
   NABoolean isEqual(const CompilerEnv &other, CmpPhase phase) const;
 
   // compute hash address of this CompilerEnv
-  ULng32 hashKey() const;
+  int hashKey() const;
 
   // am I safe to hash?
   NABoolean amSafeToHash() const;
@@ -269,11 +268,11 @@ class ParameterTypeList : public LIST(ParamType) {
   virtual ~ParameterTypeList();
 
   // return our contribution to CacheKey::hashKey
-  ULng32 hashKey() const;
+  int hashKey() const;
   NABoolean amSafeToHash() const;
 
   // return our contribution to CacheKey::getSize & CacheData::getSize
-  ULng32 getSize() const;
+  int getSize() const;
 
   // return true if two ParameterTypeLists are equal
   NABoolean operator==(const ParameterTypeList &other) const;
@@ -307,11 +306,11 @@ class SelParamTypeList : public LIST(SelParamType) {
   virtual ~SelParamTypeList();
 
   // return our contribution to CacheKey::hashKey
-  ULng32 hashKey() const;
+  int hashKey() const;
   NABoolean amSafeToHash() const;
 
   // return our contribution to CacheKey::getSize & CacheData::getSize
-  ULng32 getSize() const;
+  int getSize() const;
 
   // return true if two SelParamTypeLists are equal on both types
   // and selectivities
@@ -349,7 +348,7 @@ class Key : public NABasicObject {
   virtual ~Key();
 
   // return hash value of a Key
-  ULng32 hashKey() const;
+  int hashKey() const;
 
   // am I safe to hash?
   NABoolean amSafeToHash() const;
@@ -360,7 +359,7 @@ class Key : public NABasicObject {
   // identify myself
   enum KeyType { KEY, CACHEKEY, TEXTKEY, HYBRIDKEY };
   virtual KeyType am() = 0;
-  ULng32 hash() const { return hashKey(); }
+  int hash() const { return hashKey(); }
 
   // accessors
   CmpPhase getCmpPhase() const { return phase_; }
@@ -385,7 +384,7 @@ class Key : public NABasicObject {
   virtual TransMode::RollbackMode getRollbackMode() { return TransMode::ROLLBACK_MODE_NOT_SPECIFIED_; }
 
   // return byte size of this Key
-  virtual ULng32 getSize() const;
+  virtual int getSize() const;
 
   void print(ostream &out);
 
@@ -403,7 +402,7 @@ struct HQCDParamPair {
   HQCDParamPair(NAString &ori, NAString &nor) : original_(ori), normalized_(nor) {}
   HQCDParamPair(const char *cori, const char *cnor) : original_(cori), normalized_(cnor) {}
 
-  ULng32 getSize();
+  int getSize();
 
   void display(ostream &) const;
 
@@ -415,7 +414,7 @@ class hqcTerm : public NABasicObject {
  public:
   virtual NABoolean isLookupHistRequired() const = 0;
 
-  ULng32 getSize() { return sizeof(*this); };
+  int getSize() { return sizeof(*this); };
 };
 
 struct HistIntRangeForHQC {
@@ -485,7 +484,7 @@ class hqcConstant : public hqcTerm {
 
   void setBinderRetConstVal(ConstValue *v) { binderRetConstVal_ = v; }
 
-  ULng32 getSize();
+  int getSize();
 
   void display(ostream &) const;
 
@@ -529,7 +528,7 @@ class hqcDynParam : public hqcTerm {
   NAString &getOriginalName() { return originalName_; }
   int &getIndex() { return index_; }
 
-  ULng32 getSize();
+  int getSize();
   void display(ostream &) const;
 
  protected:
@@ -567,7 +566,7 @@ class HQCParams : public NABasicObject {
   // histogram interval boundaries specified in other.
   NABoolean isApproximatelyEqualTo(HQCParams &other);
 
-  ULng32 getSize();
+  int getSize();
 
   void display(ostream &) const;
 
@@ -608,8 +607,8 @@ class HQCCacheKey : public Key {
   ~HQCCacheKey() {}
   const char *getText() const { return keyText_.data(); }
   NAString &getKey() { return keyText_; }
-  ULng32 hashKey() const {
-    ULng32 hval = Key::hashKey() + keyText_.hash();
+  int hashKey() const {
+    int hval = Key::hashKey() + keyText_.hash();
     return hval;
   }
 
@@ -623,7 +622,7 @@ class HQCCacheKey : public Key {
 
   int getNumConsts() const { return numConsts_; }
 
-  ULng32 getSize();
+  int getSize();
 
   HQCCacheKey *getPrev() { return prev_; }
   HQCCacheKey *getNext() { return next_; }
@@ -707,7 +706,7 @@ class HQCParseKey : public HQCCacheKey {
 
   void FixupForUnaryNegate(BiArith *itm);
 
-  ULng32 getSize();
+  int getSize();
 
   void display(ostream &out, NABoolean simpleFormat = FALSE) const;
 
@@ -745,7 +744,7 @@ class HQCCacheEntry : public NABasicObject {
   // only compare the parent class and the keyText_.
   virtual NABoolean operator==(const HQCCacheEntry &other) const;
 
-  ULng32 getSize();
+  int getSize();
 
   void display(ostream &) const;
 
@@ -777,7 +776,7 @@ class HQCCacheData : public LIST(HQCCacheEntry *) {
 
   NABoolean removeEntry(CacheKey *sqcCacheKey);
 
-  ULng32 getSize();
+  int getSize();
 
   void display(ostream &out) const;
 
@@ -792,7 +791,7 @@ class HQCCacheData : public LIST(HQCCacheEntry *) {
 
 class HybridQCache : public NABasicObject {
  public:
-  HybridQCache(QueryCache &qc, ULng32 nOfBuckets, ULng32 maxSize = UINT_MAX);
+  HybridQCache(QueryCache &qc, int nOfBuckets, int maxSize = UINT_MAX);
 
   ~HybridQCache();
 
@@ -813,17 +812,17 @@ class HybridQCache : public NABasicObject {
 
   void invalidateLogging();
 
-  void resizeCache(ULng32 numBuckets, ULng32 maxSize);
+  void resizeCache(int numBuckets, int maxSize);
 
-  void setMaxEntries(ULng32 v) { maxValuesPerKey_ = v; }
+  void setMaxEntries(int v) { maxValuesPerKey_ = v; }
 
-  ULng32 getMaxEntriesPerKey() const { return maxValuesPerKey_; }
+  int getMaxEntriesPerKey() const { return maxValuesPerKey_; }
 
-  ULng32 getNumBuckets() const { return hashTbl_->getNumBuckets(); }
+  int getNumBuckets() const { return hashTbl_->getNumBuckets(); }
 
-  ULng32 getEntries() const { return hashTbl_->entries(); }
+  int getEntries() const { return hashTbl_->entries(); }
 
-  ULng32 getNumSQCKeys() const;
+  int getNumSQCKeys() const;
 
   // create an iterator on the heap argument
   HQCHashTblItor *createNewIterator(CollHeap *heap);
@@ -840,20 +839,20 @@ class HybridQCache : public NABasicObject {
     if (currentKey_) currentKey_->collectBinderRetConstVal4HQC(origin, after);
   }
 
-  NABoolean ejectHQCKeyAndData(ULng32 bytesNeeded);
+  NABoolean ejectHQCKeyAndData(int bytesNeeded);
 
-  ULng32 getSize() { return currentSiz_; }
-  void increaseSize(ULng32 x) { currentSiz_ += x; }
-  void decreaseSize(ULng32 x) { currentSiz_ -= x; }
-  ULng32 computeSize();
+  int getSize() { return currentSiz_; }
+  void increaseSize(int x) { currentSiz_ += x; }
+  void decreaseSize(int x) { currentSiz_ -= x; }
+  int computeSize();
 
   // max bytes that HQC can use from the heap_ out of heap_->getAllocSize()
-  ULng32 getMaxSize() { return maxSiz_; }
-  void setMaxSize(ULng32 x) { maxSiz_ = x; }
+  int getMaxSize() { return maxSiz_; }
+  void setMaxSize(int x) { maxSiz_ = x; }
 
   // return free bytes left before we hit maxSiz_
-  ULng32 getFreeSize() {
-    ULng32 a = getSize();
+  int getFreeSize() {
+    int a = getSize();
     return maxSiz_ > a ? maxSiz_ - a : 0;
   }
 
@@ -901,15 +900,15 @@ class HybridQCache : public NABasicObject {
 
  private:
   // the max # of bytes that can be used out of heap_.
-  ULng32 maxSiz_;
+  int maxSiz_;
 
   // the # of bytes that is currently being used  out of heap_
-  ULng32 currentSiz_;
+  int currentSiz_;
 
   QueryCache &querycache_;
   NAHeap *heap_;
   HQCHashTbl *hashTbl_;
-  ULng32 maxValuesPerKey_;
+  int maxValuesPerKey_;
   HQCParseKey *currentKey_;
 
   HQCCacheKey *mruHead_;  // most recently used key
@@ -930,21 +929,21 @@ class HybridQCache : public NABasicObject {
 };
 
 struct HybridQueryCacheStats {
-  ULng32 nHKeys;
-  ULng32 nSKeys;
-  ULng32 nMaxValuesPerKey;
-  ULng32 nHashTableBuckets;
-  ULng32 nHQCHeapSize;
+  int nHKeys;
+  int nSKeys;
+  int nMaxValuesPerKey;
+  int nHashTableBuckets;
+  int nHQCHeapSize;
 };
 
 struct HybridQueryCacheDetails {
   long planId;
   NAString hkeyTxt;
   NAString skeyTxt;
-  ULng32 nHits;
-  ULng32 nOfPConst;
+  int nHits;
+  int nOfPConst;
   NAString PConst;
-  ULng32 nOfNPConst;
+  int nOfNPConst;
   NAString NPConst;
 };
 
@@ -971,7 +970,7 @@ class CacheKey : public Key {
   virtual KeyType am() { return CACHEKEY; };
 
   // return hash value of a CacheKey
-  ULng32 hashKey() const;
+  int hashKey() const;
 
   // am I safe to hash?
   NABoolean amSafeToHash() const;
@@ -994,7 +993,7 @@ class CacheKey : public Key {
   virtual const char *getParameterTypes(NAString *) const;
 
   // return byte size of this CacheKey
-  virtual ULng32 getSize() const;
+  virtual int getSize() const;
 
   virtual TransMode::IsolationLevel getIsoLvl() { return isoLvl_; }
   virtual TransMode::AccessMode getAccessMode() { return accMode_; }
@@ -1094,7 +1093,7 @@ class TextKey : public Key {
   virtual KeyType am() { return TEXTKEY; };
 
   // return hash value of a TextKey
-  ULng32 hashKey() const;
+  int hashKey() const;
 
   // equality operator
   NABoolean operator==(const TextKey &other) const;
@@ -1106,7 +1105,7 @@ class TextKey : public Key {
   NABoolean amSafeToHash() const;
 
   // return byte size of this TextKey
-  virtual ULng32 getSize() const;
+  virtual int getSize() const;
 
   void print(ostream &out);
 
@@ -1118,7 +1117,7 @@ class TextKey : public Key {
 
 class Plan {
  public:
-  Plan(char *plan, ULng32 planLen, long planId, NAHeap *h)
+  Plan(char *plan, int planLen, long planId, NAHeap *h)
       : plan_(plan), planL_(planLen), planId_(planId), heap_(h), refCount_(0), visits_(0){};
 
   Plan(Generator *gen, long planId, NAHeap *h)
@@ -1145,12 +1144,12 @@ class Plan {
 
   virtual long getId() const { return planId_; }
   virtual char *getPlan() const { return plan_; }
-  virtual ULng32 getPlanLen() const { return (planL_ == 0) ? ((Generator *)plan_)->getFinalObjLength() : planL_; }
+  virtual int getPlanLen() const { return (planL_ == 0) ? ((Generator *)plan_)->getFinalObjLength() : planL_; }
 
   virtual NABoolean inGenerator() const { return planL_ == 0; }
 
   // the total size of the Plan object plus the actual compiled plan
-  virtual ULng32 getSize() const { return getPlanLen() + sizeof(*this); };
+  virtual int getSize() const { return getPlanLen() + sizeof(*this); };
 
   int getVisits() { return visits_; };
   void visitOnce() { visits_++; };
@@ -1158,7 +1157,7 @@ class Plan {
 
  private:
   char *plan_;    // compiled query plan in packed form
-  ULng32 planL_;  // byte length of plan_
+  int planL_;  // byte length of plan_
   long planId_;  // from Generator
   NAHeap *heap_;  // heap used by dynamic allocs
 
@@ -1184,11 +1183,11 @@ class CData : public NABasicObject {
   virtual const char *getOrigStmt() const { return NULL; }
   virtual Plan *getPlan() const { return NULL; }
 
-  ULng32 getHits() const { return hits_; }
+  int getHits() const { return hits_; }
   NAHeap *heap() const { return heap_; }
 
-  ULng32 getCompTime() const { return (ULng32)compTime_; }
-  ULng32 getAvgHitTime() const { return hits_ ? (ULng32)(cumHitTime_ / hits_) : 0; }
+  int getCompTime() const { return (int)compTime_; }
+  int getAvgHitTime() const { return hits_ ? (int)(cumHitTime_ / hits_) : 0; }
 
   // mutators
   void incHits() { hits_++; }
@@ -1203,7 +1202,7 @@ class CData : public NABasicObject {
   static long timeSince(TimeVal &begTime);
 
   // return byte size of this CacheData
-  virtual ULng32 getSize() const { return 0; }
+  virtual int getSize() const { return 0; }
 
   void print(ostream &out);
 
@@ -1213,7 +1212,7 @@ class CData : public NABasicObject {
 
  private:
   // usage
-  ULng32 hits_;       // number of hits for this entry
+  int hits_;       // number of hits for this entry
   long compTime_;    // msec to compile this entry
   long cumHitTime_;  // cum. time of hits for this entry
 };
@@ -1275,12 +1274,12 @@ class CacheData : public CData {
   const char *getNormalizedStmt() const { return normalizedStmt_; }
 
   // return byte size of this CacheData
-  virtual ULng32 getSize() const;
+  virtual int getSize() const;
 
   virtual const ParameterTypeList &getParamTypeList() { return formals_; }
 
   // return byte size of this CacheData's preparser entries
-  ULng32 getSizeOfPreParserEntries() const;
+  int getSizeOfPreParserEntries() const;
 
   // This function copies the contents in listOfConstantParameters into
   // a field of the plan_ called parameterBuffer. To do this, it unpacks
@@ -1290,18 +1289,18 @@ class CacheData : public CData {
                             const SelParameters &listOfSelParameters,
                             const LIST(int) & listOfConstParamPositionsInSql,
                             const LIST(int) & listOfSelParamPositionsInSql, BindWA &bindWA, char *&params,
-                            ULng32 &paramSize);
+                            int &paramSize);
 
   // HQC backpatch
   NABoolean backpatchParams(LIST(hqcConstant *) & listOfConstantParameters,
                             LIST(hqcDynParam *) & listOfDynamicParameters, BindWA &bindWA, char *&params,
-                            ULng32 &parameterBufferSize);
+                            int &parameterBufferSize);
 
   // copies actuals_ into this CacheData's plan_
-  NABoolean backpatchPreParserParams(char *actuals, ULng32 actLen);
+  NABoolean backpatchPreParserParams(char *actuals, int actLen);
 
   // allocate and copy plan
-  void allocNcopyPlan(NAHeap *h, char **plan, ULng32 *pLen);
+  void allocNcopyPlan(NAHeap *h, char **plan, int *pLen);
 
   // add backpointer to given preparser cache entry
   void addTextEntry(CacheEntry *entry);
@@ -1327,7 +1326,7 @@ class CacheData : public CData {
   // back pointers to preparser instances of this postparser cache entry
 
   // helper method to unpack parameter buffer part of plan_
-  NABoolean unpackParms(NABasicPtr &params, ULng32 &parmSz);
+  NABoolean unpackParms(NABasicPtr &params, int &parmSz);
 
   long queryHash_;
 };
@@ -1359,7 +1358,7 @@ class TextData : public CData {
   // Constructor
   TextData(NAHeap *h,       // (IN) : heap to use
            char *p,         // (IN) : actual parameters
-           ULng32 l,        // (IN) : len of actual parameters
+           int l,        // (IN) : len of actual parameters
            CacheEntry *e);  // (IN) : postparser cache entry
 
   // Destructor
@@ -1374,14 +1373,14 @@ class TextData : public CData {
   CacheEntry *PostParserNode() const { return entry_; }
 
   // return byte size of this TextData
-  virtual ULng32 getSize() const;
+  virtual int getSize() const;
 
   // copies the contents of actuals_ into a field of post parser entry's
   // plan_ called parameterBuffer.
   NABoolean backpatchParams();
 
   // allocate and copy plan
-  void allocNcopyPlan(NAHeap *h, char **plan, ULng32 *pLen) { PostParserEntry()->allocNcopyPlan(h, plan, pLen); }
+  void allocNcopyPlan(NAHeap *h, char **plan, int *pLen) { PostParserEntry()->allocNcopyPlan(h, plan, pLen); }
 
   // tally hit time
   virtual void addHitTime(TimeVal &begTime);
@@ -1390,7 +1389,7 @@ class TextData : public CData {
   CollIndex getIndexInTextEntries() { return indexInTextEntries_; };
 
   char *getActuals() { return actuals_; };
-  ULng32 getActualLen() { return actLen_; };
+  int getActualLen() { return actLen_; };
 
   void print(ostream &out);
 
@@ -1398,14 +1397,14 @@ class TextData : public CData {
   // data
   NAHeap *heap_;       // Needed by TextData::~TextData destructor
   char *actuals_;      // list of actual constant parameters
-  ULng32 actLen_;      // length of actuals_
+  int actLen_;      // length of actuals_
   CacheEntry *entry_;  // pointer to postparser cache entry
   CollIndex indexInTextEntries_;
 };
 
 class LRUList : public NABasicObject {
  private:
-  ULng32 length_;       // number of elements in list
+  int length_;       // number of elements in list
   CacheEntry *anchor_;  // anchor of doubly linked list
   NAHeap *heap_;        // used to allocate nodes
 
@@ -1445,7 +1444,7 @@ class LRUList : public NABasicObject {
   }
 
   NABoolean empty() const { return length_ == 0; }
-  ULng32 size() const { return length_; }
+  int size() const { return length_; }
 
   struct iterator {
     CacheEntry *node_;
@@ -1542,9 +1541,9 @@ class QCache : public NABasicObject {
  public:
   // Constructor
   QCache(QueryCache &qc,             // (IN) : reference to its wrapper
-         ULng32 maxSize,             // (IN) : maximum heap size in bytes
-         ULng32 maxVictims = 40,     // (IN) : max # of victims replaceable by new entry
-         ULng32 avgPlanSz = 93070);  // (IN) : average plan size in bytes
+         int maxSize,             // (IN) : maximum heap size in bytes
+         int maxVictims = 40,     // (IN) : max # of victims replaceable by new entry
+         int avgPlanSz = 93070);  // (IN) : average plan size in bytes
 
   virtual ~QCache();  // destructor
 
@@ -1556,7 +1555,7 @@ class QCache : public NABasicObject {
                      CacheData *plan,  // (IN) : sql statement's compiled plan
                      TimeVal &begT,    // (IN) : time at start of this compile
                      char *params,     // (IN) : parameters for preparser entry
-                     ULng32 parmSz     // (IN) : len of params for preparser entry
+                     int parmSz     // (IN) : len of params for preparser entry
   );
 
   // requires: tkey,stmt are the keys of a cachable query
@@ -1571,7 +1570,7 @@ class QCache : public NABasicObject {
   // make room for and add a new preparser entry into the cache
   void addPreParserEntry(TextKey *tkey,      // (IN) : a cachable sql statement
                          char *params,       // (IN) : actual parameters
-                         ULng32 parmSz,      // (IN) : len of actual parameters
+                         int parmSz,      // (IN) : len of actual parameters
                          CacheEntry *entry,  // (IN) : postparser cache entry
                          TimeVal &begT);     // (IN) : time at start of this compile
   // requires: tkey is the preparser key of a cachable query q
@@ -1642,10 +1641,10 @@ class QCache : public NABasicObject {
   // effects : if stmt is in-cache then remove its entry from cache
 
   // return average template plan size
-  ULng32 avgPlanSize();
+  int avgPlanSize();
 
   // return average text entry size
-  ULng32 avgTextEntrySize();
+  int avgTextEntrySize();
 
   // return an iterator positioned at beginning of query cache's LRU list
   LRUList::iterator begin() { return clruQ_.begin(); }
@@ -1670,16 +1669,16 @@ class QCache : public NABasicObject {
   NABoolean empty() const { return clruQ_.empty() && tlruQ_.empty(); }
 
   // current size (in bytes) of query cache
-  ULng32 byteSize() const { return heap_->getAllocSize(); }
+  int byteSize() const { return heap_->getAllocSize(); }
 
   // set heap upper limit
   void setHeapUpperLimit(size_t newUpperLimit) { heap_->setUpperLimit(newUpperLimit); }
 
   // high water mark (in bytes) of query cache
-  ULng32 highWaterMark() const { return heap_->getHighWaterMark(); }
+  int highWaterMark() const { return heap_->getHighWaterMark(); }
 
   // high water mark over some interval
-  ULng32 intervalWaterMark() const { return heap_->getIntervalWaterMark(); }
+  int intervalWaterMark() const { return heap_->getIntervalWaterMark(); }
 
   // return an iterator positioned at end of query cache's LRU list
   LRUList::iterator end() { return clruQ_.end(); }
@@ -1692,47 +1691,47 @@ class QCache : public NABasicObject {
   NABoolean isPreparserCachingOn(NABoolean duringAddEntry = FALSE) const;
 
   // maximum size (in bytes) of query cache
-  ULng32 maxSize() const { return maxSiz_; }
+  int maxSize() const { return maxSiz_; }
 
   // maximum entries that can be displaced
-  ULng32 maxVictims() const { return limit_; }
+  int maxVictims() const { return limit_; }
 
-  ULng32 nOfCompiles() const { return nOfCompiles_; }
-  ULng32 nOfLookups() const { return nOfLookups_; }
-  ULng32 nOfRecompiles() const { return nOfRecompiles_; }
-  ULng32 nOfRetries() const { return nOfRetries_; }
+  int nOfCompiles() const { return nOfCompiles_; }
+  int nOfLookups() const { return nOfLookups_; }
+  int nOfRecompiles() const { return nOfRecompiles_; }
+  int nOfRetries() const { return nOfRetries_; }
 
-  ULng32 nOfCacheableCompiles(CmpPhase stage) const;
+  int nOfCacheableCompiles(CmpPhase stage) const;
 
-  ULng32 nOfCacheHits(CmpPhase stage) const;
+  int nOfCacheHits(CmpPhase stage) const;
 
   void resetIntervalWaterMark() { heap_->resetIntervalWaterMark(); }
 
-  ULng32 nOfCacheableButTooLarge() const { return nOfCacheableButTooLarge_; }
-  ULng32 nOfDisplacedEntries() const { return nOfDisplacedEntries_; }
-  ULng32 nOfDisplacedTextEntries() const { return nOfDisplacedPreParserEntries_; }
+  int nOfCacheableButTooLarge() const { return nOfCacheableButTooLarge_; }
+  int nOfDisplacedEntries() const { return nOfDisplacedEntries_; }
+  int nOfDisplacedTextEntries() const { return nOfDisplacedPreParserEntries_; }
 
   // current number of cache entries
-  ULng32 nOfPostParserEntries() const { return clruQ_.size(); }
-  ULng32 nOfPreParserEntries() const { return tlruQ_.size(); }
+  int nOfPostParserEntries() const { return clruQ_.size(); }
+  int nOfPreParserEntries() const { return tlruQ_.size(); }
 
   // current number of cached plans
-  ULng32 nOfPlans();
+  int nOfPlans();
 
   // resize the query cache
-  QCache *resizeCache(ULng32 maxSize,           // (IN) : maximum heap size in bytes
-                      ULng32 maxVictims = 40);  // (IN) : max # of victims replaceable by new entry
+  QCache *resizeCache(int maxSize,           // (IN) : maximum heap size in bytes
+                      int maxVictims = 40);  // (IN) : max # of victims replaceable by new entry
 
   // set average plan size
-  void setAvgPlanSz(ULng32 s) {
+  void setAvgPlanSz(int s) {
     if (clruQ_.size() <= 0) planSz_ = s;
   }
 
   // set limit on entries that can be displaced
-  void setMaxVictims(ULng32 v) { limit_ = v; }
+  void setMaxVictims(int v) { limit_ = v; }
 
   // return maximum number of preparser entries
-  static ULng32 maxPreParserEntries(ULng32 maxByteSz, ULng32 avgEntrySz);
+  static int maxPreParserEntries(int maxByteSz, int avgEntrySz);
 
   void sanityCheck(int x);
 
@@ -1768,11 +1767,11 @@ class QCache : public NABasicObject {
   // modifies: cache
   // effects : decache entries
   QueryCache &querycache_;  // reference to wapper object
-  ULng32 limit_;            // maximum number of victims replaceable
+  int limit_;            // maximum number of victims replaceable
   NABoundedHeap *heap_;     // heap for cache entries
-  ULng32 maxSiz_;           // maximum byte size of query cache
-  ULng32 planSz_;           // average template plan size in bytes
-  ULng32 tEntSz_;           // average text entry size in bytes
+  int maxSiz_;           // maximum byte size of query cache
+  int planSz_;           // average template plan size in bytes
+  int tEntSz_;           // average text entry size in bytes
 
   std::unordered_set<int> loadedOffset_;
   NABoolean loaded_;
@@ -1787,37 +1786,37 @@ class QCache : public NABasicObject {
   LRUList clruQ_;        // queue of LRU postparser entries
   LRUList tlruQ_;        // queue of LRU preparser entries
 
-  ULng32 nOfCompiles_;  // cummulative number of compilation requests (include queries, cqd, invalid queries, ...)
-  ULng32 nOfLookups_;   // cummulative number of query cache loopups = cache hits (text and template) + cache misses
+  int nOfCompiles_;  // cummulative number of compilation requests (include queries, cqd, invalid queries, ...)
+  int nOfLookups_;   // cummulative number of query cache loopups = cache hits (text and template) + cache misses
                         // (template cache insert attempts)
-  ULng32 nOfRecompiles_;
-  ULng32 nOfCacheableCompiles_[N_STAGES];
-  ULng32 nOfCacheHits_[N_STAGES];
-  ULng32 nOfCacheableButTooLarge_;
-  ULng32 nOfDisplacedEntries_;
-  ULng32 nOfDisplacedPreParserEntries_;
-  ULng32 nOfRetries_;
-  ULng32 totalHashTblSize_;  // the total space taken by
+  int nOfRecompiles_;
+  int nOfCacheableCompiles_[N_STAGES];
+  int nOfCacheHits_[N_STAGES];
+  int nOfCacheableButTooLarge_;
+  int nOfDisplacedEntries_;
+  int nOfDisplacedPreParserEntries_;
+  int nOfRetries_;
+  int totalHashTblSize_;  // the total space taken by
                              // the text and template hash table.
 
   // return TRUE iff cache can accommodate a new entry of given size
-  NABoolean canFit(ULng32 size);
+  NABoolean canFit(int size);
 
   // unconditionally cache new postparser (and preparser) entry
-  CacheKey *addEntry(TextKey *tkey, KeyDataPair &newEntry, TimeVal &begTime, char *params, ULng32 parmSz,
+  CacheKey *addEntry(TextKey *tkey, KeyDataPair &newEntry, TimeVal &begTime, char *params, int parmSz,
                      NABoolean sharePlan);
 
   // return free bytes left before we hit maxSiz_
-  ULng32 getFreeSize() {
-    ULng32 a = heap_->getAllocSize();
+  int getFreeSize() {
+    int a = heap_->getAllocSize();
     return maxSiz_ > a ? maxSiz_ - a : 0;
   }
 
   // return bytes that can be freed by evicting this postparser cache entry
-  ULng32 getSizeOfPostParserEntry(KeyDataPair &entry);
+  int getSizeOfPostParserEntry(KeyDataPair &entry);
 
   // free enough LRU entries to increase free space to desired value
-  NABoolean freeLRUentries(ULng32 newFreeBytes, ULng32 maxVictims);
+  NABoolean freeLRUentries(int newFreeBytes, int maxVictims);
 
   // free LRU preparser entry
   void freeLRUPreParserEntry();
@@ -1825,8 +1824,8 @@ class QCache : public NABasicObject {
   void incNOfCacheableCompiles(CmpPhase stage);
   void incNOfCacheHits(CmpPhase stage);
   void incNOfCacheableButTooLarge();
-  void incNOfDisplacedEntries(ULng32 howMany = 1);
-  void incNOfDisplacedPreParserEntries(ULng32 howMany = 1);
+  void incNOfDisplacedEntries(int howMany = 1);
+  void incNOfDisplacedPreParserEntries(int howMany = 1);
 };
 
 // QCacheStats is the structure interface for supplying the QueryCache
@@ -1836,40 +1835,40 @@ class QCache : public NABasicObject {
 // trying to compute avgPlanSize (which is not even used by the
 // CompilationStats & Compiler Tracking feature).
 struct QCacheStats {
-  ULng32 currentSize;   // current cache size in bytes
-  ULng32 nRecompiles;   // cum. count of recompiles
-  ULng32 nCacheableP;   // cum. count of cacheable after parse
-  ULng32 nCacheableB;   // cum. count of cacheable after bind
-  ULng32 nCacheHitsP;   // cum. count of cache hits after parse
-  ULng32 nCacheHitsB;   // cum. count of cache hits after bind
-  ULng32 nCacheHitsT;   // cum. count of cache hits (all phases)
-  ULng32 nCacheHitsPP;  // cum. count of cache hits before parse
-  ULng32 nLookups;      // cum. count of query cache lookups
+  int currentSize;   // current cache size in bytes
+  int nRecompiles;   // cum. count of recompiles
+  int nCacheableP;   // cum. count of cacheable after parse
+  int nCacheableB;   // cum. count of cacheable after bind
+  int nCacheHitsP;   // cum. count of cache hits after parse
+  int nCacheHitsB;   // cum. count of cache hits after bind
+  int nCacheHitsT;   // cum. count of cache hits (all phases)
+  int nCacheHitsPP;  // cum. count of cache hits before parse
+  int nLookups;      // cum. count of query cache lookups
 };
 
 // QueryCacheStats is the structure interface for supplying the QueryCache
 // fields needed by Javier's Virtual Tables for Query Plan Caching Statistics
 struct QueryCacheStats {
-  ULng32 avgPlanSize;    // average template plan size
-  ULng32 maxSize;        // maximum cache size in bytes
-  ULng32 highWaterMark;  // high water mark of cache size in bytes
-  ULng32 maxVictims;     // maximum entries that can be displaced
-  ULng32 nEntries;       // current number of template cache entries
-  ULng32 nPlans;         // current number of compiled plans in the template cache
-  ULng32 nCompiles;      // cum. count of sqlcomp calls
-  ULng32 nRetries;       // cum. count of successful compiler retries
+  int avgPlanSize;    // average template plan size
+  int maxSize;        // maximum cache size in bytes
+  int highWaterMark;  // high water mark of cache size in bytes
+  int maxVictims;     // maximum entries that can be displaced
+  int nEntries;       // current number of template cache entries
+  int nPlans;         // current number of compiled plans in the template cache
+  int nCompiles;      // cum. count of sqlcomp calls
+  int nRetries;       // cum. count of successful compiler retries
 
   QCacheStats s;
 
-  ULng32 nTooLarge;   // cum. count of cacheable-but-too-large
-  ULng32 nDisplaced;  // cum. count of displaced template cache entries
+  int nTooLarge;   // cum. count of cacheable-but-too-large
+  int nDisplaced;  // cum. count of displaced template cache entries
   int optimLvl;     // current optimization level
-  ULng32 envID;       // current environment ID
+  int envID;       // current environment ID
 
-  ULng32 avgTEntSize;        // average text entry size
-  ULng32 nTextEntries;       // current number of text cache entries
-  ULng32 nDispTEnts;         // cum. count of displaced text cache entries
-  ULng32 intervalWaterMark;  // high water mark resettable on interval
+  int avgTEntSize;        // average text entry size
+  int nTextEntries;       // current number of text cache entries
+  int nDispTEnts;         // cum. count of displaced text cache entries
+  int intervalWaterMark;  // high water mark resettable on interval
 };
 
 // QueryCacheDetails is the structure interface for supplying the
@@ -1878,18 +1877,18 @@ struct QueryCacheStats {
 struct QueryCacheDetails {
   long planId;                                // plan id from generator
   const char *qryTxt;                          // original sql statement text
-  ULng32 entrySize;                            // size in bytes of this cache entry, excluding plan size
-  ULng32 planLength;                           // size in bytes of the plan
-  ULng32 nOfHits;                              // total hits for this cache entry
+  int entrySize;                            // size in bytes of this cache entry, excluding plan size
+  int planLength;                           // size in bytes of the plan
+  int nOfHits;                              // total hits for this cache entry
   CmpPhase phase;                              // compiler phase of this cache entry
   int optLvl;                                // optimization level of this entry
-  ULng32 envID;                                // environment ID of this entry
+  int envID;                                // environment ID of this entry
   const char *catalog;                         // catalog name for this entry
   const char *schema;                          // schema name for this entry
   int nParams;                               // number of parameters of this entry
   const char *paramTypes;                      // parameter types of this entry
-  ULng32 compTime;                             // compile time in msec
-  ULng32 avgHitTime;                           // avg hit time in msec
+  int compTime;                             // compile time in msec
+  int avgHitTime;                           // avg hit time in msec
   const char *reqdShape;                       // control query shape or empty string
   TransMode::IsolationLevel isoLvl;            // tx isolation level
   TransMode::IsolationLevel isoLvlForUpdates;  // tx isolation level
@@ -1911,9 +1910,9 @@ struct QueryCacheDetails {
 // query_cache) or when mxcmp dies.
 class QueryCache {
  public:
-  QueryCache(ULng32 maxSize = 16384,     // (IN) : maximum heap size in bytes
-             ULng32 maxVictims = 40,     // (IN) : max # of victims replaceable by new entry
-             ULng32 avgPlanSz = 93070);  // (IN) : average plan size in bytes
+  QueryCache(int maxSize = 16384,     // (IN) : maximum heap size in bytes
+             int maxVictims = 40,     // (IN) : max # of victims replaceable by new entry
+             int avgPlanSz = 93070);  // (IN) : average plan size in bytes
 
   // add a new postparser entry into the cache
   CacheKey *addEntry(TextKey *tkey,    // (IN) : preparser key
@@ -1921,13 +1920,13 @@ class QueryCache {
                      CacheData *plan,  // (IN) : sql statement's compiled plan
                      TimeVal &begT,    // (IN) : time at start of this compile
                      char *params,     // (IN) : parameters for preparser entry
-                     ULng32 parmSz     // (IN) : len of params for preparser entry
+                     int parmSz     // (IN) : len of params for preparser entry
   );
 
   // add a new preparser entry into the cache
   void addPreParserEntry(TextKey *tkey,      // (IN) : a cachable sql statement
                          char *actuals,      // (IN) : actual parameters
-                         ULng32 actLen,      // (IN) : len of actuals
+                         int actLen,      // (IN) : len of actuals
                          CacheEntry *entry,  // (IN) : postparser cache entry
                          TimeVal &begT);     // (IN) : time at start of this compile
 
@@ -2053,17 +2052,17 @@ class QueryCache {
   }
 
   // reconfigure cache to have new maxSize and new maxVictims
-  void resizeCache(ULng32 maxSize,             // (IN) : maximum heap size in bytes
-                   ULng32 maxVictims = 40,     // (IN) : max # of victims replaceable by new entry
-                   ULng32 avgPlanSz = 93070);  // (IN) : average plan size in bytes
+  void resizeCache(int maxSize,             // (IN) : maximum heap size in bytes
+                   int maxVictims = 40,     // (IN) : max # of victims replaceable by new entry
+                   int avgPlanSz = 93070);  // (IN) : average plan size in bytes
 
   // set average plan size
-  void setAvgPlanSz(ULng32 s) {
+  void setAvgPlanSz(int s) {
     if (cache_) cache_->setAvgPlanSz(s);
   }
 
   // set limit on entries that can be displaced
-  void setMaxVictims(ULng32 v) {
+  void setMaxVictims(int v) {
     if (cache_) cache_->setMaxVictims(v);
   }
 
@@ -2096,12 +2095,12 @@ class QueryCache {
   HybridQCache *getHQC() { return hqc_; }
 
   // return maximum size of hybrid query cache
-  static ULng32 maxHybridQueryCacheSize(ULng32 maxByteSz);
+  static int maxHybridQueryCacheSize(int maxByteSz);
 
   // test operations on hybrid query cache. The path to an
   // operation data file is the argument. The 2nd argument
   // is the max size allowed
-  void test(char *path, ULng32 maxSize);
+  void test(char *path, int maxSize);
 
  private:
   QCache *cache_;  // cache of compiled plans on CmpContext

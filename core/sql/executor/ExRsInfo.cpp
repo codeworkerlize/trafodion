@@ -151,8 +151,8 @@ ExRsInfo::~ExRsInfo() {
 
   // For all RS entries in the collection deallocate
   // RS entry proxy syntax and then the RS entry
-  ULng32 e = getNumEntries();
-  for (ULng32 i = 1; i <= e; i++) {
+  int e = getNumEntries();
+  for (int i = 1; i <= e; i++) {
     if (rsInfoArray_.used(i)) {
       RsInfo *rsInfo = rsInfoArray_[i];
       if (rsInfo) {
@@ -180,7 +180,7 @@ ExRsInfo::~ExRsInfo() {
   this function with proxySyntax = NULL triggers assert with
   "invalid proxy syntax pointer".
 */
-void ExRsInfo::populate(ULng32 index, const char *proxySyntax) {
+void ExRsInfo::populate(int index, const char *proxySyntax) {
   ExRsDebug2("[BEGIN populate] index=%u, proxySyntax=%s", index, proxySyntax);
   exrsinfo_assert(index > 0, "ExRsInfo::populate() - invalid index");
   exrsinfo_assert(proxySyntax, "ExRsInfo::populate() - invalid proxy syntax pointer");
@@ -220,7 +220,7 @@ void ExRsInfo::populate(ULng32 index, const char *proxySyntax) {
   triggers assert with "invalid statement pointer".
 
 */
-void ExRsInfo::bind(ULng32 index, Statement *statement) {
+void ExRsInfo::bind(int index, Statement *statement) {
   ExRsDebug2("[BEGIN bind] index=%u, statement=%p", index, statement);
   exrsinfo_assert(index > 0, "ExRsInfo::bind() - invalid index");
   exrsinfo_assert(statement, "ExRsInfo::bind() - invalid statement pointer");
@@ -253,8 +253,8 @@ void ExRsInfo::unbind(Statement *statement) {
   ExRsDebug1("[BEGIN unbind] statement=%p", statement);
   exrsinfo_assert(statement, "ExRsInfo::unbind() - invalid statement pointer");
   NABoolean found = FALSE;
-  ULng32 e = getNumEntries();
-  for (ULng32 i = 1; i <= e; i++) {
+  int e = getNumEntries();
+  for (int i = 1; i <= e; i++) {
     if (rsInfoArray_.used(i)) {
       RsInfo *rsInfo = rsInfoArray_[i];
       if (rsInfo && rsInfo->getStatement() == statement) {
@@ -280,7 +280,7 @@ void ExRsInfo::unbind(Statement *statement) {
   assert with "invalid index". Triggers assert with "unknown index"
   if the given index is unused.
 */
-void ExRsInfo::setOpenAttempted(ULng32 index) {
+void ExRsInfo::setOpenAttempted(int index) {
   ExRsDebug1("[BEGIN setOpenAttempted] index %u", index);
   exrsinfo_assert(index > 0, "ExRsInfo::setOpenAttempted() - invalid index");
   NABoolean found = FALSE;
@@ -306,7 +306,7 @@ void ExRsInfo::setOpenAttempted(ULng32 index) {
   assert with "invalid index". Triggers assert with "unknown index"
   if the given index is unused.
 */
-void ExRsInfo::setCloseAttempted(ULng32 index) {
+void ExRsInfo::setCloseAttempted(int index) {
   ExRsDebug1("[BEGIN setCloseAttempted] index %u", index);
   exrsinfo_assert(index > 0, "ExRsInfo::setCloseAttempted() - invalid index");
   NABoolean found = FALSE;
@@ -336,7 +336,7 @@ void ExRsInfo::setCloseAttempted(ULng32 index) {
   triggers assert with "invalid index". Triggers assert with "unknown
   index" if the given index is unused.
 */
-void ExRsInfo::setPrepared(ULng32 index) {
+void ExRsInfo::setPrepared(int index) {
   ExRsDebug1("[BEGIN setPrepared] index %u", index);
   exrsinfo_assert(index > 0, "ExRsInfo::setPrepared() - invalid index");
   NABoolean found = FALSE;
@@ -363,8 +363,8 @@ void ExRsInfo::reset() {
   ExRsDebug0("[BEGIN reset]");
   ExRsDebug0("BEFORE");
   DisplayList();
-  ULng32 e = getNumEntries();
-  for (ULng32 i = 1; i <= e; i++) {
+  int e = getNumEntries();
+  for (int i = 1; i <= e; i++) {
     if (rsInfoArray_.used(i)) {
       RsInfo *rsInfo = rsInfoArray_[i];
       if (rsInfo) {
@@ -393,7 +393,7 @@ void ExRsInfo::reset() {
   statement field is not NULL, FALSE otherwise. Calling this function
   with an index < 1 triggers assert with "invalid index".
 */
-NABoolean ExRsInfo::statementExists(ULng32 index) const {
+NABoolean ExRsInfo::statementExists(int index) const {
   ExRsDebug1("[BEGIN exists] index %u", index);
   exrsinfo_assert(index > 0, "ExRsInfo::exists() - invalid index");
   NABoolean found = FALSE;
@@ -411,7 +411,7 @@ NABoolean ExRsInfo::statementExists(ULng32 index) const {
   triggers assert with "invalid index". Triggers assert with
   "unknown index" if the given index is not found.
 */
-NABoolean ExRsInfo::openAttempted(ULng32 index) const {
+NABoolean ExRsInfo::openAttempted(int index) const {
   ExRsDebug1("[BEGIN openAttempted] index %u", index);
   exrsinfo_assert(index > 0, "ExRsInfo::openAttempted() - invalid index");
   NABoolean found = FALSE;
@@ -441,7 +441,7 @@ NABoolean ExRsInfo::openAttempted(ULng32 index) const {
   triggers assert with "invalid index". Triggers assert with
   "unknown index" if the given index is not found.
 */
-NABoolean ExRsInfo::closeAttempted(ULng32 index) const {
+NABoolean ExRsInfo::closeAttempted(int index) const {
   ExRsDebug1("[BEGIN closeAttempted] index %u", index);
   exrsinfo_assert(index > 0, "ExRsInfo::closeAttempted() - invalid index");
   NABoolean found = FALSE;
@@ -471,7 +471,7 @@ NABoolean ExRsInfo::closeAttempted(ULng32 index) const {
   assert with "invalid index". Triggers assert with "unknown index"
   if the given index is unused.
 */
-NABoolean ExRsInfo::isPrepared(ULng32 index) const {
+NABoolean ExRsInfo::isPrepared(int index) const {
   ExRsDebug1("[BEGIN isPrepared] index %u", index);
   exrsinfo_assert(index > 0, "ExRsInfo::isPrepared() - invalid index");
   NABoolean found = FALSE;
@@ -501,7 +501,7 @@ NABoolean ExRsInfo::isPrepared(ULng32 index) const {
   positions ranging from 1 to getNumEntries() allows users of this
   class to iterate through every result set in the collection.
 */
-NABoolean ExRsInfo::getRsInfo(ULng32 position,            // IN
+NABoolean ExRsInfo::getRsInfo(int position,            // IN
                               Statement *&statement,      // OUT
                               const char *&proxySyntax,   // OUT
                               NABoolean &openAttempted,   // OUT
@@ -533,13 +533,13 @@ NABoolean ExRsInfo::getRsInfo(ULng32 position,            // IN
   "invalid statement".Triggers assert with "unknown statement" if the
   given statement is not found.
 */
-ULng32 ExRsInfo::getIndex(Statement *statement) const {
+int ExRsInfo::getIndex(Statement *statement) const {
   ExRsDebug1("[BEGIN getIndex] statement=%p", statement);
   exrsinfo_assert(statement, "ExRsInfo::getIndex() - invalid statement");
   NABoolean found = FALSE;
-  ULng32 index = 0;
-  ULng32 e = getNumEntries();
-  for (ULng32 i = 1; i <= e; i++) {
+  int index = 0;
+  int e = getNumEntries();
+  for (int i = 1; i <= e; i++) {
     if (rsInfoArray_.used(i)) {
       RsInfo *rsInfo = rsInfoArray_[i];
       if (rsInfo && rsInfo->getStatement() == statement) {
@@ -586,9 +586,9 @@ void ExRsInfo::setIpcProcessId(const IpcProcessId &ipcProcessId) {
 
 #ifdef _DEBUG
 void ExRsInfo::displayList() const {
-  ULng32 e = getNumEntries();
+  int e = getNumEntries();
   if (e > 0) {
-    for (ULng32 i = 1; i <= e; i++) {
+    for (int i = 1; i <= e; i++) {
       if (rsInfoArray_.used(i)) {
         NABoolean openAttempted = rsInfoArray_[i]->getOpenAttempted();
         NABoolean closeAttempted = rsInfoArray_[i]->getCloseAttempted();

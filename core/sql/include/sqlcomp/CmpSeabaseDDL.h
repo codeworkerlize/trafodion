@@ -541,7 +541,7 @@ class CmpSeabaseDDL {
 
   static NABoolean enabledForSerialization(NAColumn *nac);
 
-  static NABoolean isSerialized(ULng32 flags) { return (flags & NAColumn::SEABASE_SERIALIZED) != 0; }
+  static NABoolean isSerialized(int flags) { return (flags & NAColumn::SEABASE_SERIALIZED) != 0; }
 
   short buildColInfoArray(ComObjectType objType, NABoolean isMetadataHistOrReposObject, ElemDDLColDefArray *colArray,
                           ComTdbVirtTableColumnInfo *colInfoArray, NABoolean implicitPK, NABoolean alignedFormat,
@@ -652,9 +652,9 @@ class CmpSeabaseDDL {
   enum { MD_TABLE_CONSTRAINTS_PKEY_NOT_SERIALIZED_FLG = 0x0001 };
 
  protected:
-  void setFlags(ULng32 &flags, ULng32 flagbits) { flags |= flagbits; }
+  void setFlags(int &flags, int flagbits) { flags |= flagbits; }
 
-  void resetFlags(ULng32 &flags, ULng32 flagbits) { flags &= ~flagbits; }
+  void resetFlags(int &flags, int flagbits) { flags &= ~flagbits; }
 
   inline const char *getMDSchema() { return seabaseMDSchema_.data(); };
 
@@ -752,13 +752,13 @@ class CmpSeabaseDDL {
 
   short getTypeInfo(const NAType *naType, NABoolean alignedFormat, int serializedOption, int &datatype,
                     int &length, int &precision, int &scale, int &dtStart, int &dtEnd, int &upshifted,
-                    int &nullable, NAString &charset, CharInfo::Collation &collationSequence, ULng32 &colFlags);
+                    int &nullable, NAString &charset, CharInfo::Collation &collationSequence, int &colFlags);
 
   short getColInfo(ElemDDLColDef *colNode, NABoolean isMetadataHistOrReposColumn, NAString &colFamily,
                    NAString &colName, NABoolean alignedFormat, int &datatype, int &length, int &precision,
                    int &scale, int &dtStart, int &dtEnd, int &upshifted, int &nullable, NAString &charset,
                    ComColumnClass &colClass, ComColumnDefaultClass &defaultClass, NAString &defVal, NAString &heading,
-                   ComLobsStorageType &lobStorage, NAString &compDefnStr, ULng32 &hbaseColFlags, long &colFlags);
+                   ComLobsStorageType &lobStorage, NAString &compDefnStr, int &hbaseColFlags, long &colFlags);
 
   short getNAColumnFromColDef(ElemDDLColDef *colNode, NAColumn *&naCol);
 
@@ -1272,7 +1272,6 @@ class CmpSeabaseDDL {
   void alterSeabaseLibrary2(StmtDDLAlterLibrary *alterLibraryNode, NAString &currCatName, NAString &currSchName);
   short isLibBlobStoreValid(ExeCliInterface *cliInterface);
 
-  void createSeabaseRoutine(StmtDDLCreateRoutine *createRoutineNode, NAString &currCatName, NAString &currSchName);
 
   short createSPSQLRoutine(ExeCliInterface *cliInterface, NAString *quotedSql);
 
@@ -1954,8 +1953,8 @@ class CmpSeabaseDDL {
   enum { NUM_MAX_PARAMS = 20 };
 
   NAHeap *heap_;
-  stack<ULng32> savedCmpParserFlags_;
-  stack<ULng32> savedCliParserFlags_;
+  stack<int> savedCmpParserFlags_;
+  stack<int> savedCliParserFlags_;
 
   NAString seabaseSysCat_;
   NAString seabaseMDSchema_; /* Qualified metadata schema */

@@ -873,7 +873,7 @@ NABoolean ClusteredBitmap::operator==(const ClusteredBitmap &other) const {
 }
 
 // Provide a hash value based on bits that are set in the bitmaps
-ULng32 ClusteredBitmap::hash() const {
+int ClusteredBitmap::hash() const {
   cb_int_t hashVal = 0;
 
   for (UInt32 thisIdx = 0; thisIdx < numBitmaps_; thisIdx++) {
@@ -884,7 +884,7 @@ ULng32 ClusteredBitmap::hash() const {
 #if (CB_BITS_PER_WORD == 32)
   return hashVal;
 #else
-  return (ULng32)(hashVal & 0xFFFFFFFF) ^ (ULng32)(hashVal >> 32);
+  return (int)(hashVal & 0xFFFFFFFF) ^ (int)(hashVal >> 32);
 #endif
 }
 

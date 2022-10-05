@@ -177,7 +177,7 @@ CmpMemoryMonitor::CmpMemoryMonitor(CollHeap *heap) {
 }
 
 // Hash fucntion used for storing memory usage information.
-ULng32 cmmHashFunc_NAString(const NAString &str) { return (ULng32)NAString::hash(str); }
+int cmmHashFunc_NAString(const NAString &str) { return (int)NAString::hash(str); }
 
 void CmpMemoryMonitor::setIsMemMonitor(NABoolean isMemMonitor) {
   isMemMonitor_ = isMemMonitor;

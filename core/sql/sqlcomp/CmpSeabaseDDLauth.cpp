@@ -7595,7 +7595,7 @@ void CmpSeabaseDDLauth::getAuthDbNameByAuthIDs(std::map<int32_t, std::string *> 
   authIDs.replace(authIDs.length() - 1, 1, ")");
   NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
   int stmtSize = authIDs.length() + 500;
-  ULng32 flagBits = GetCliGlobals()->currContext()->getSqlParserFlags();
+  int flagBits = GetCliGlobals()->currContext()->getSqlParserFlags();
   CmpSeabaseDDLauth::AuthStatus authStatus;
   GetCliGlobals()->currContext()->setSqlParserFlags(0x20000);
   char buf[stmtSize];

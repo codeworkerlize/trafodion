@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef CLI_H
 #define CLI_H
 
@@ -168,9 +147,9 @@ int SQLCLI_ResetUdrErrorFlags_Internal(/*IN*/ CliGlobals *cliGlobals);
 
 int SQLCLI_SetUdrRuntimeOptions_Internal(/*IN*/ CliGlobals *cliGlobals,
                                            /*IN*/ const char *options,
-                                           /*IN*/ ULng32 optionsLen,
+                                           /*IN*/ int optionsLen,
                                            /*IN*/ const char *delimiters,
-                                           /*IN*/ ULng32 delimsLen);
+                                           /*IN*/ int delimsLen);
 
 int SQLCLI_DeallocDesc(/*IN*/ CliGlobals *cliGlobals,
                          /*IN*/ SQLDESC_ID *desc_id);
@@ -406,7 +385,7 @@ int SQLCLI_GetRootTdbSize_Internal(/*IN*/ CliGlobals *cliGlobals,
 
 int SQLCLI_GetCollectStatsType_Internal(
     /*IN*/ CliGlobals *cliGlobals,
-    /*OUT*/ ULng32 *collectStatsType,
+    /*OUT*/ int *collectStatsType,
     /*IN*/ SQLSTMT_ID *statement_id);
 
 int SQLCLI_GetTotalTcbSpace(/*IN*/ CliGlobals *cliGlobals,
@@ -430,7 +409,7 @@ int SQLCLI_CleanUpPfsResources(/*IN*/ CliGlobals *cliGlobals);
 
 int SQLCLI_PerformTasks(
     /*IN*/ CliGlobals *cliGlobals,
-    /*IN*/ ULng32 tasks,
+    /*IN*/ int tasks,
     /*IN*/ SQLSTMT_ID *statement_id,
     /*IN  OPTIONAL*/ SQLDESC_ID *input_descriptor,
     /*IN  OPTIONAL*/ SQLDESC_ID *output_descriptor,
@@ -455,7 +434,7 @@ int SQLCLI_Prepare2(/*IN*/ CliGlobals *cliGlobals,
                       /*INOUT*/ SQL_QUERY_COMPILER_STATS_INFO *comp_stats_info,
                       /*INOUT*/ char *uniqueStmtId,
                       /*INOUT*/ int *uniqueStmtIdLen,
-                      /*IN*/ ULng32 flags);
+                      /*IN*/ int flags);
 
 int SQLCLI_GetExplainData(
     /*IN*/ CliGlobals *cliGlobals,
@@ -674,19 +653,19 @@ int SQLCLI_GetDescItemsEntryCount(
 
 int SQLCLI_SetParserFlagsForExSqlComp_Internal(
     /*IN*/ CliGlobals *cliGlobals,
-    /*IN*/ ULng32 flagbits);
+    /*IN*/ int flagbits);
 
 int SQLCLI_ResetParserFlagsForExSqlComp_Internal(
     /*IN*/ CliGlobals *cliGlobals,
-    /*IN*/ ULng32 flagbits);
+    /*IN*/ int flagbits);
 
 int SQLCLI_AssignParserFlagsForExSqlComp_Internal(
     /*IN*/ CliGlobals *cliGlobals,
-    /*IN*/ ULng32 flagbits);
+    /*IN*/ int flagbits);
 
 int SQLCLI_GetParserFlagsForExSqlComp_Internal(
     /*IN*/ CliGlobals *cliGlobals,
-    /*IN*/ ULng32 &flagbits);
+    /*IN*/ int &flagbits);
 
 int SQLCLI_OutputValueIntoNumericHostvar(
     /*IN*/ CliGlobals *cliGlobals,

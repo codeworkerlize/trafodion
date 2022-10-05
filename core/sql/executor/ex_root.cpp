@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -479,7 +458,7 @@ void ex_root_tcb::inputPkeyRow(char *pkey_row) {
 // after recompilation.
 // Caller should copy the inputdata into its own space.
 ///////////////////////////////////////////////////////////////////////////
-void ex_root_tcb::getInputData(char *&inputData, ULng32 &inputDatalen) {
+void ex_root_tcb::getInputData(char *&inputData, int &inputDatalen) {
   inputData = NULL;
   inputDatalen = 0;
   if (root_tdb().inputVarsSize_ > 0) {
@@ -792,7 +771,7 @@ int ex_root_tcb::execute(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descrip
         // Don't expect this to work. b/c this code is compiled
         // with overlow trapping set to off.
         signed short willOverflow = 0x7ffc;
-        ULng32 loopCnt = (ULng32) this;
+        int loopCnt = (int) this;
         while (loopCnt--)
           willOverflow++;
         break;

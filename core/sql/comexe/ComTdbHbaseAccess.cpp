@@ -38,7 +38,7 @@ ComTdbHbaseAccess::ComTdbHbaseAccess(
     keyRangeGen *keyInfo, char *keyColName,
 
     ex_cri_desc *workCriDesc, ex_cri_desc *criDescParentDown, ex_cri_desc *criDescParentUp, queue_index queueSizeDown,
-    queue_index queueSizeUp, Cardinality expectedRows, int numBuffers, ULng32 bufferSize, char *server, char *zkPort,
+    queue_index queueSizeUp, Cardinality expectedRows, int numBuffers, int bufferSize, char *server, char *zkPort,
     HbasePerfAttributes *hbasePerfAttributes, Float32 samplingRate,
     HbaseSnapshotScanAttributes *hbaseSnapshotScanAttributes,
 
@@ -170,7 +170,7 @@ ComTdbHbaseAccess::ComTdbHbaseAccess(ComTdbAccessType type, char *tableName, cha
 
                                      ex_cri_desc *workCriDesc, ex_cri_desc *criDescParentDown,
                                      ex_cri_desc *criDescParentUp, queue_index queueSizeDown, queue_index queueSizeUp,
-                                     Cardinality expectedRows, int numBuffers, ULng32 bufferSize, char *server,
+                                     Cardinality expectedRows, int numBuffers, int bufferSize, char *server,
                                      char *zkPort)
     : ComTdb(ComTdb::ex_HBASE_ACCESS, eye_HBASE_ACCESS, expectedRows, criDescParentDown, criDescParentUp, queueSizeDown,
              queueSizeUp, numBuffers, bufferSize),
@@ -672,7 +672,7 @@ static void showColNames(Queue *listOfColNames, Space *space) {
     else if (colNameLen == sizeof(unsigned short))
       v = *(UInt16 *)colName;
     else if (colNameLen == sizeof(int))
-      v = *(ULng32 *)colName;
+      v = *(int *)colName;
     else
       v = 0;
 
@@ -855,7 +855,7 @@ const char *ComTdbHbaseAccess::getNodeName() const {
   return ("EX_HBASE_ACCESS");  // default name
 }
 
-void ComTdbHbaseAccess::displayContents(Space *space, ULng32 flag) {
+void ComTdbHbaseAccess::displayContents(Space *space, int flag) {
   ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
   if (flag & 0x00000008) {
@@ -1127,9 +1127,9 @@ ComTdbHbaseCoProcAccess::ComTdbHbaseCoProcAccess(
     Queue *listOfColNames,
 
     ex_cri_desc *workCriDesc, ex_cri_desc *criDescParentDown, ex_cri_desc *criDescParentUp, queue_index queueSizeDown,
-    queue_index queueSizeUp, Cardinality expectedRows, int numBuffers, ULng32 bufferSize, char *server, char *zkPort,
+    queue_index queueSizeUp, Cardinality expectedRows, int numBuffers, int bufferSize, char *server, char *zkPort,
     HbasePerfAttributes *hbasePerfAttributes, Queue *tdbListOfRangeRows, ex_expr *rowIdExpr, int rowIdTuppIndex,
-    int rowIdAsciiTuppIndex, ULng32 rowIdLength, ULng32 rowIdAsciiRowLen)
+    int rowIdAsciiTuppIndex, int rowIdLength, int rowIdAsciiRowLen)
     : ComTdbHbaseAccess(COPROC_, tableName, baseTableName, projExpr, NULL, rowIdExpr, NULL, NULL, NULL, NULL, NULL,
                         NULL, NULL, NULL, NULL, NULL, NULL, 0, projRowLen, 0, 0, 0, 0, rowIdLength, 0, rowIdAsciiRowLen,
                         0, 0, 0, 0, 0, projTuppIndex, 0, 0, 0, 0, 0, 0, rowIdTuppIndex, returnedTuppIndex,
@@ -1154,9 +1154,9 @@ ComTdbHbaseCoProcAggr::ComTdbHbaseCoProcAggr(
     Queue *listOfAggrTypes, Queue *listOfAggrColNames,
 
     ex_cri_desc *workCriDesc, ex_cri_desc *criDescParentDown, ex_cri_desc *criDescParentUp, queue_index queueSizeDown,
-    queue_index queueSizeUp, Cardinality expectedRows, int numBuffers, ULng32 bufferSize, char *server, char *zkPort,
+    queue_index queueSizeUp, Cardinality expectedRows, int numBuffers, int bufferSize, char *server, char *zkPort,
     HbasePerfAttributes *hbasePerfAttributes, Queue *tdbListOfRangeRows, ex_expr *rowIdExpr, int rowIdTuppIndex,
-    int rowIdAsciiTuppIndex, ULng32 rowIdLength, ULng32 rowIdAsciiRowLen, int filterForNull)
+    int rowIdAsciiTuppIndex, int rowIdLength, int rowIdAsciiRowLen, int filterForNull)
     : ComTdbHbaseCoProcAccess(tableName, baseTableName, ComTdbHbaseCoProcAccess::AGGR_, projExpr, projRowLen,
                               projTuppIndex, returnedTuppIndex, listOfAggrColNames, workCriDesc, criDescParentDown,
                               criDescParentUp, queueSizeDown, queueSizeUp, expectedRows, numBuffers, bufferSize, server,

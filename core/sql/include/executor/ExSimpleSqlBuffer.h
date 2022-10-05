@@ -139,11 +139,11 @@ class ExSimpleSQLBuffer : public ExGod {
 
   // getNumTuples - returns the total number of tupps in the buffer
   //
-  ULng32 getNumTuples() const { return numberTuples_; };
+  int getNumTuples() const { return numberTuples_; };
 
   // getTupleSize - returns the data size of each tupp in the buffer
   //
-  ULng32 getTupleSize() const { return tupleSize_; };
+  int getTupleSize() const { return tupleSize_; };
 
   void reinitializeTuples(void);
 

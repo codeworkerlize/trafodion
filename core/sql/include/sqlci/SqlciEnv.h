@@ -1,29 +1,25 @@
 #pragma once
-#include "common/Platform.h"
-#include "common/SqlCliDllDefines.h"
 
-#include <limits.h>
 #include <iostream>
-#include <stdio.h>
 
-#include "sqlci/SqlciStmts.h"
-#include "common/ComASSERT.h"
-#include "export/ComDiags.h"
-#include "sqlci/Define.h"
-#include "sqlci/Param.h"
-#include "sqlci/Prepare.h"
+#include "cli/sqlcli.h"
+#include "common/NABoolean.h"
+#include "common/charinfo.h"
 #include "common/sqtypes.h"
+#include "export/ComDiags.h"
+#include "export/NAStringDef.h"
 
-// forward references
 class SqlciStats;
 class ComSchemaName;
 class ComAnsiNamePart;
+class SqlciStmts;
+class PrepStmt;
 
 class Logfile {
  private:
   char *name;
   FILE *logfile_stream;
-  ULng32 flags_;
+  int flags_;
 
   enum Flags { VERBOSE_ = 0x0001, NO_LOG = 0x0002, NO_DISPLAY = 0x0004 };
 
@@ -67,7 +63,7 @@ class SqlciEnv {
   Logfile *logfile;
   SqlciStmts *sqlci_stmts;
   SqlciStats *sqlci_stats;
-  ULng32 list_count;
+  int list_count;
 
   CharInfo::CharSet terminal_charset_;
   CharInfo::CharSet iso_mapping_charset_;
@@ -89,7 +85,7 @@ class SqlciEnv {
   unsigned char defaultSubvol_[40];
 
   // see DML::process for details about this field.
-  ULng32 lastDmlStmtStatsType_;
+  int lastDmlStmtStatsType_;
 
   // last statement that was executed.
   // Used to retrieve stats. See SqlciStats.cpp for details.
@@ -112,7 +108,6 @@ class SqlciEnv {
 
   NAString userNameFromCommandLine_;
   NAString tenantNameFromCommandLine_;
-
 
  public:
   enum { MAX_LISTCOUNT = UINT_MAX };
@@ -144,40 +139,25 @@ class SqlciEnv {
   void setTerminalCharset(CharInfo::CharSet cs) { terminal_charset_ = cs; }
   CharInfo::CharSet getIsoMappingCharset() const { return iso_mapping_charset_; }
   void setIsoMappingCharset(CharInfo::CharSet cs) { iso_mapping_charset_ = cs; }
-  CharInfo::CharSet retrieveIsoMappingCharsetViaShowControlDefault();
   CharInfo::CharSet getDefaultCharset() const { return default_charset_; }
   void setDefaultCharset(CharInfo::CharSet cs) { default_charset_ = cs; }
-  CharInfo::CharSet retrieveDefaultCharsetViaShowControlDefault();
   NABoolean getInferCharset() const { return infer_charset_; }
   void setInferCharset(NABoolean setting) { infer_charset_ = setting; }
-  NABoolean retrieveInferCharsetViaShowControlDefault();
   Logfile *get_logfile() { return logfile; }
   SqlciStmts *getSqlciStmts() { return sqlci_stmts; }
   SqlciStats *getStats() { return sqlci_stats; }
   void setMode(ModeType mode_) { mode = mode_; }
-  void showMode(ModeType mode_);
   ModeType getMode() { return mode; }
-  void setListCount(ULng32 num = MAX_LISTCOUNT) { list_count = num; }
-  ULng32 getListCount() { return list_count; }
+  void setListCount(int num = MAX_LISTCOUNT) { list_count = num; }
+  int getListCount() { return list_count; }
   int specialError() { return specialError_; }
   SpecialHandler specialHandler() { return specialHandler_; }
   void resetSpecialError() { setSpecialError(0, NULL); }
   void setSpecialError(int err, SpecialHandler func) {
-    // * If err is 0, special error handling is disabled
-    // * If err is -1, console error messages are suppressed
-    // * Otherwise err is a sqlcode and func is a function to be called
-    //   when that sqlcode is encountered
-
-    // If err is not 0 or -1, make sure func is valid
-    ComASSERT((err == 0) || (err == -1) || func);
-
     specialError_ = err;
     specialHandler_ = func;
   }
-  void getDefaultCatAndSch(ComAnsiNamePart &defaultCat, ComAnsiNamePart &defaultSch);
   ComSchemaName &defaultCatAndSch(void) { return *defaultCatAndSch_; };
-
-  void updateDefaultCatAndSch();
 
   NABoolean doneWithPrologue() { return doneWithPrologue_; }
   void setDoneWithPrologue(NABoolean dwp) { doneWithPrologue_ = dwp; }
@@ -191,11 +171,7 @@ class SqlciEnv {
 
   void autoCommit();
 
-  void displayDiagnostics();
-
-  int executeCommands(InputStmt *&input_stmt);
-
-
+  int executeCommands();
 
   NABoolean &logCommands() { return logCommands_; };
 
@@ -203,35 +179,12 @@ class SqlciEnv {
   char *&defaultSchema() { return defaultSchema_; };
   unsigned char *defaultSubvol() { return defaultSubvol_; };
 
-  ULng32 &lastDmlStmtStatsType() { return lastDmlStmtStatsType_; };
+  int &lastDmlStmtStatsType() { return lastDmlStmtStatsType_; };
   PrepStmt *&lastExecutedStmt() { return lastExecutedStmt_; };
-  PrepStmt *&statsStmt() { return statsStmt_; };
 
   char *getPrepareOnly() { return prepareOnly_; }
   char *getExecuteOnly() { return executeOnly_; }
-
-  void setPrepareOnly(char *po);
-  void setExecuteOnly(char *eo);
-
-
-  // Retrieve database user information from CLI
-  int getExternalUserName(NAString &username);
-  int getDatabaseUserID(int &uid);
-  int getDatabaseUserName(NAString &username);
-
-  int getAuthState(bool &authenticationEnabled, bool &authorizationEnabled, bool &authorizationReady,
-                     bool &auditingEnabled);
-
-  int getAuthState2(int &authenticationType, bool &authorizationEnabled, bool &authorizationReady,
-                      bool &auditingEnabled);
-
-  // Retrieve tenant information from CLI
-  int getTenantID(int &uid);
-  int getTenantName(NAString &tenantName);
-
-
 };
 
 // BOOL _stdcall ControlSignalHandler(DWORD dwCtrlType);
 BOOL WINAPI CtrlHandler(DWORD dwCtrlType);
-

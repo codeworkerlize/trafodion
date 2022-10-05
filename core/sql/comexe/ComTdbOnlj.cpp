@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ****************************************************************************
 *
@@ -49,7 +28,7 @@ ComTdbOnlj::ComTdbOnlj() : ComTdb(ComTdb::ex_ONLJ, eye_ONLJ), instantiatedRowAtp
 
 ComTdbOnlj::ComTdbOnlj(ComTdb *leftTdb, ComTdb *rightTdb, ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc,
                        queue_index down, queue_index up, Cardinality estimatedRowCount, int num_buffers,
-                       ULng32 buffer_size, ex_expr *before_pred, ex_expr *after_pred, ex_expr *lj_expr,
+                       int buffer_size, ex_expr *before_pred, ex_expr *after_pred, ex_expr *lj_expr,
                        ex_expr * /*ni_expr*/, ex_cri_desc *work_cri_desc,
                        const unsigned short instantiated_row_atp_index, int lj_reclen, int semi_join,
                        int anti_semi_join, int left_join, int undo_join, int setNFError_join,
@@ -162,7 +141,7 @@ const ComTdb *ComTdbOnlj::getChild(int pos) const {
     return NULL;
 }
 
-void ComTdbOnlj::displayContents(Space *space, ULng32 flag) {
+void ComTdbOnlj::displayContents(Space *space, int flag) {
   ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
   if (flag & 0x00000008) {

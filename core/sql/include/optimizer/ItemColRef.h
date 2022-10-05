@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef ITEMCOLREF_H
 #define ITEMCOLREF_H
 /* -*-C++-*-
@@ -917,8 +896,8 @@ class HostVar : public ItemExpr {
   // get a printable string that identifies the operator
   const NAString getText() const;
 
-  inline ULng32 getRowsetInfo() { return rowsetInfo_; }
-  inline void setRowsetInfo(ULng32 rowsetInfo) { rowsetInfo_ = rowsetInfo; }
+  inline int getRowsetInfo() { return rowsetInfo_; }
+  inline void setRowsetInfo(int rowsetInfo) { rowsetInfo_ = rowsetInfo; }
 
   // Constants used by rowsetInfo_. They get populated in sqlparser.y
   // to indicate what they are in a rowset query
@@ -1012,7 +991,7 @@ class HostVar : public ItemExpr {
   NABoolean isSystemGenerated_;  // TRUE => internally generated host var
                                  // should not impact histogram statistics
 
-  ULng32 rowsetInfo_;  // Contains rowset information. Can be populated
+  int rowsetInfo_;  // Contains rowset information. Can be populated
                        // by constants in rowset enum
 
   ExtendedQualName::SpecialTableType specialSyntaxType_;
@@ -1279,13 +1258,13 @@ class DynamicParam : public Parameter {
 
   void setParamTablename(NAString tablename) { tablename_ = tablename; }
 
-  ULng32 getRowsetSize() const { return rowsetSize_; }
+  int getRowsetSize() const { return rowsetSize_; }
 
-  void setRowsetSize(const ULng32 size) { rowsetSize_ = size; }
+  void setRowsetSize(const int size) { rowsetSize_ = size; }
 
-  ULng32 getRowsetInfo() const { return rowsetInfo_; }
+  int getRowsetInfo() const { return rowsetInfo_; }
 
-  void setRowsetInfo(const ULng32 info) { rowsetInfo_ = info; }
+  void setRowsetInfo(const int info) { rowsetInfo_ = info; }
 
   // a virtual function for type propagating the node
   virtual const NAType *synthesizeType();
@@ -1355,8 +1334,8 @@ class DynamicParam : public Parameter {
   NAString heading_;
   NAString tablename_;
 
-  ULng32 rowsetSize_;
-  ULng32 rowsetInfo_;
+  int rowsetSize_;
+  int rowsetInfo_;
 
   // The following are only used when compiling a CALL statement:
   //
@@ -1560,7 +1539,7 @@ class RoutineParam : public Parameter {
 
 class SelIndex : public ItemExpr {
  public:
-  SelIndex(ULng32 i, ItemExpr *exprInGrbyClause = NULL)
+  SelIndex(int i, ItemExpr *exprInGrbyClause = NULL)
       : ItemExpr(ITM_SEL_INDEX),
         selIndex_(i),
         exprInGrbyClause_(exprInGrbyClause),
@@ -1573,8 +1552,8 @@ class SelIndex : public ItemExpr {
   virtual int getArity() const;
 
   // accessor functions
-  ULng32 getSelIndex() const { return selIndex_; }
-  void setSelIndex(ULng32 idx) { selIndex_ = idx; }
+  int getSelIndex() const { return selIndex_; }
+  void setSelIndex(int idx) { selIndex_ = idx; }
   const ItemExpr *getExprInGrbyClause() const { return exprInGrbyClause_; }
   ItemExpr *getExprInGrbyClause() { return exprInGrbyClause_; }
   NABoolean renamedColNameInGrbyClause() { return renamedColNameInGrbyClause_; }
@@ -1591,7 +1570,7 @@ class SelIndex : public ItemExpr {
  private:
   // An index into the select list.  The range is 1..n, where n is the number
   // of expressions in the select list.
-  ULng32 selIndex_;
+  int selIndex_;
 
   // points to the expression in the groupby clause that got replaced
   // by this SelIndex. See RelRoot::transformGroupByWithOrdinalPhase1

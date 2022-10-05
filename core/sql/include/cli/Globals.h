@@ -2,23 +2,6 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
-/* -*-C++-*-
- *****************************************************************************
- *
- * File:         Globals.h
- * Description:  CLI globals. For each process that uses the CLI there
- *               should be exactly one object of type CliGlobals.
- *
- * Created:      7/10/95
- * Language:     C++
- *
- *
- *
- *
- *****************************************************************************
- */
-
-/* this file is also sourced in from a C program, cli/fixup.c */
 #include "common/NAAssert.h"
 /* -----------------------------------------------------------------------
  * Some parameters for the first privileged NSK flat segment used by CLI
@@ -149,7 +132,7 @@ class CliGlobals : public NAAssertGlobals {
   // points into unallocated memory that doesn't violate the bounds
   // (note that the method always returns a SQLCODE value, AND that it
   // side-effects retcode in case of an error)
-  int boundsCheck(void *startAddress, ULng32 length, int &retcode);
+  int boundsCheck(void *startAddress, int length, int &retcode);
 
   inline NABoolean breakEnabled() { return breakEnabled_; }
   inline void setBreakEnabled(NABoolean enabled) {
@@ -297,10 +280,10 @@ class CliGlobals : public NAAssertGlobals {
 #ifdef _DEBUG
   void deleteContexts();
 #endif  // _DEBUG
-  NABoolean grabMemoryQuotaIfAvailable(ULng32 size);
+  NABoolean grabMemoryQuotaIfAvailable(int size);
   void resetMemoryQuota();
-  ULng32 unusedMemoryQuota();
-  void yieldMemoryQuota(ULng32 size);
+  int unusedMemoryQuota();
+  void yieldMemoryQuota(int size);
   NABoolean isEspProcess() { return espProcess_; }
   NABoolean isRmsProcess() { return rmsProcess_; }
 

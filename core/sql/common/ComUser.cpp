@@ -463,7 +463,7 @@ Int16 ComUser::getCurrentUserRoles(NAList<int> &roleIDs, NAList<int> &granteeIDs
 //   -1 is returned and ComDiags is setup with error.
 // ----------------------------------------------------------------------------
 Int16 ComUser::getUserGroups(const char *authName, bool allowMDAccess, NAList<int> &groupIDs, ComDiagsArea *diags) {
-  ULng32 flagBits = GetCliGlobals()->currContext()->getSqlParserFlags();
+  int flagBits = GetCliGlobals()->currContext()->getSqlParserFlags();
 
   if (allowMDAccess) GetCliGlobals()->currContext()->setSqlParserFlags(0x20000);
 

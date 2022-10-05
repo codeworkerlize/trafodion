@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef CLUSTER_H
 #define CLUSTER_H
 /* -*-C++-*-
@@ -44,7 +23,7 @@
 
 #include "ScratchSpace.h"
 #include "ex_exe_stmt_globals.h"
-#define END_OF_BUF_LIST ((ULng32)-1)
+#define END_OF_BUF_LIST ((int)-1)
 
 // To be used as the limits on input size estimates by HJ, HGB
 #define MAX_INPUT_SIZE 0x200000000LL
@@ -79,12 +58,12 @@ class HashBuffer : public NABasicObject {
   // Cluster object.
   // Currently, this is only used by the UniqueHashJoin (ExUniqueHashJoinTcb).
   //
-  HashBuffer(ULng32 bufferSize, ULng32 rowSize, NABoolean useVariableLength, CollHeap *heap, ClusterDB *clusterDb,
+  HashBuffer(int bufferSize, int rowSize, NABoolean useVariableLength, CollHeap *heap, ClusterDB *clusterDb,
              ExeErrorCode *rc);
 
   ~HashBuffer();
 
-  inline ULng32 getMaxRowLength() const;
+  inline int getMaxRowLength() const;
 
   inline HashBuffer *getPrev() const;
   inline void setPrev(HashBuffer *prev);
@@ -94,7 +73,7 @@ class HashBuffer : public NABasicObject {
 
   inline char *getDataPointer() const;
   inline void deallocateData(CollHeap *heap);
-  inline ULng32 getRowCount() const;
+  inline int getRowCount() const;
   inline HashBufferHeader *getHeader() const;
   void init(Cluster *cluster);
   inline char *getFirstRow() const;
@@ -108,17 +87,17 @@ class HashBuffer : public NABasicObject {
   // use the Serial Interface
   inline HashBufferSerial *castToSerial() const;
 
-  inline ULng32 getFreeSpace() const { return freeSpace_; }
+  inline int getFreeSpace() const { return freeSpace_; }
 
  private:
   Cluster *cluster_;            // the cluster to which the buffer belongs
-  ULng32 bufferSize_;           // the size of the buffer
-  ULng32 maxRowLength_;         // allocated size of a row
+  int bufferSize_;           // the size of the buffer
+  int maxRowLength_;         // allocated size of a row
   NABoolean isVariableLength_;  // Are the rows in this buffer variable length?
   NABoolean considerBufferDefrag_;
   char *rows_;                // points to row[0]
-  ULng32 maxNumFullRowsSer_;  // the number of full rows that will fit in buffer
-  ULng32 freeSpace_;          // amount of space left in buffer
+  int maxNumFullRowsSer_;  // the number of full rows that will fit in buffer
+  int freeSpace_;          // amount of space left in buffer
   char *currRow_;             // used for scanning the buffer
   char *nextAvailRow_;        // pointer to next row to allocate
   HashBuffer *next_;          // pointer to next buffer in memory
@@ -133,7 +112,7 @@ class HashBuffer : public NABasicObject {
 /////////////////////////////////////////////////////////////////////////////
 // inline functions of HashBufferHeader
 /////////////////////////////////////////////////////////////////////////////
-inline ULng32 HashBuffer::getMaxRowLength() const { return maxRowLength_; };
+inline int HashBuffer::getMaxRowLength() const { return maxRowLength_; };
 
 inline HashBuffer *HashBuffer::getPrev() const { return prev_; };
 
@@ -151,7 +130,7 @@ inline void HashBuffer::deallocateData(CollHeap *heap) {
 };
 
 // Access members of Header.
-inline ULng32 HashBuffer::getRowCount() const { return header_->getRowCount(); };
+inline int HashBuffer::getRowCount() const { return header_->getRowCount(); };
 
 // Does this buffer contain variable length or fixed length rows.
 inline NABoolean HashBuffer::isVariableLength() const { return isVariableLength_; };
@@ -181,7 +160,7 @@ class HashBufferSerial : public HashBuffer {
   // Cluster object.
   // Currently, this is only used by the UniqueHashJoin (ExUniqueHashJoinTcb).
   //
-  HashBufferSerial(ULng32 bufferSize, ULng32 rowSize, NABoolean useVariableLength, CollHeap *heap, ExeErrorCode *rc);
+  HashBufferSerial(int bufferSize, int rowSize, NABoolean useVariableLength, CollHeap *heap, ExeErrorCode *rc);
 
   ~HashBufferSerial(){};
 
@@ -190,7 +169,7 @@ class HashBufferSerial : public HashBuffer {
   // order (series) from the start of the buffer to the end.  Rows cannot be
   // accessed randomly (via a row index or number)
 
-  inline void setRowCount(ULng32 cnt);
+  inline void setRowCount(int cnt);
   // Set rowcount to 0 and reset buffer to be empty.
   inline void clearRowCount();
 
@@ -198,10 +177,10 @@ class HashBufferSerial : public HashBuffer {
 
   // Get the estimated number of rows per buffer.  It is an estimate
   // since the rows can be variable length
-  inline ULng32 getMaxNumFullRows() const;
+  inline int getMaxNumFullRows() const;
 
   // Recalculate the number of rows that can be allocated from this buffer.
-  inline ULng32 getRemainingNumFullRows() const;
+  inline int getRemainingNumFullRows() const;
 
   // Is this buffer full?
   inline NABoolean notFull() const;
@@ -223,14 +202,14 @@ class HashBufferSerial : public HashBuffer {
   // Allocate a row of size maxRowLength_ from this HashBuffer
   inline HashRow *getFreeRow();
 
-  inline HashRow *getFreeRow(ULng32 spaceNeeded);
+  inline HashRow *getFreeRow(int spaceNeeded);
 
   // Resize the last row allocated from this HashBuffer
-  inline void resizeLastRow(ULng32 newSize, HashRow *dataPointer);
+  inline void resizeLastRow(int newSize, HashRow *dataPointer);
 
   // Get row length.  If varLen, get length from row. If fixed, based
   // on maxRowLength_
-  inline ULng32 getRowLength(HashRow *row) const;
+  inline int getRowLength(HashRow *row) const;
   // Set the row length in the row.  If row is fixed length, this method does nothing
   inline void setRowLength(HashRow *row, UInt32 len);
 
@@ -247,7 +226,7 @@ inline void HashBufferSerial::fixup() {
   if (getRowCount() > 0 && nextAvailRow_ == rows_) {
     if (isVariableLength()) {
       nextAvailRow_ = rows_;
-      for (ULng32 i = 0; i < getRowCount(); i++) {
+      for (int i = 0; i < getRowCount(); i++) {
         HashRow *nextRow = (HashRow *)nextAvailRow_;
         nextRow->checkEye();
         nextAvailRow_ = ((char *)nextRow + nextRow->getRowLength() + sizeof(HashRow));
@@ -259,7 +238,7 @@ inline void HashBufferSerial::fixup() {
   }
 }
 
-inline void HashBufferSerial::setRowCount(ULng32 cnt) {
+inline void HashBufferSerial::setRowCount(int cnt) {
   header_->setRowCount(cnt);
 
   // Initialize nextAvailRow, fixup will set it to the right value based on cnt.
@@ -284,10 +263,10 @@ inline void HashBufferSerial::clearRowCount() {
 
 // Get the estimated number of rows per buffer.  It is an estimate
 // since the rows can be variable length
-inline ULng32 HashBufferSerial::getMaxNumFullRows() const { return maxNumFullRowsSer_; };
+inline int HashBufferSerial::getMaxNumFullRows() const { return maxNumFullRowsSer_; };
 
 // Recalculate the number of rows that can be allocated from this buffer.
-inline ULng32 HashBufferSerial::getRemainingNumFullRows() const { return (freeSpace_ / maxRowLength_); };
+inline int HashBufferSerial::getRemainingNumFullRows() const { return (freeSpace_ / maxRowLength_); };
 
 // Is this buffer full?
 inline NABoolean HashBufferSerial::notFull() const { return (freeSpace_ >= maxRowLength_); };
@@ -360,7 +339,7 @@ inline HashRow *HashBufferSerial::getFreeRow() {
 };
 
 // Allocate a row of size a given length from this HashBuffer
-inline HashRow *HashBufferSerial::getFreeRow(ULng32 spaceNeeded) {
+inline HashRow *HashBufferSerial::getFreeRow(int spaceNeeded) {
   spaceNeeded = ROUND4(spaceNeeded);
 
   if (freeSpace_ >= spaceNeeded) {
@@ -377,7 +356,7 @@ inline HashRow *HashBufferSerial::getFreeRow(ULng32 spaceNeeded) {
 };
 
 // Resize the last row allocated from this HashBuffer
-inline void HashBufferSerial::resizeLastRow(ULng32 newSize, HashRow *dataPointer) {
+inline void HashBufferSerial::resizeLastRow(int newSize, HashRow *dataPointer) {
   dataPointer->checkEye();
 
   if (isVariableLength()) {
@@ -399,10 +378,10 @@ inline void HashBufferSerial::resizeLastRow(ULng32 newSize, HashRow *dataPointer
 
 // Get row length.  If varLen, get length from row. If fixed, based
 // on maxRowLength_
-inline ULng32 HashBufferSerial::getRowLength(HashRow *row) const {
+inline int HashBufferSerial::getRowLength(HashRow *row) const {
   row->checkEye();
   if (isVariableLength()) {
-    ULng32 len = row->getRowLength();
+    int len = row->getRowLength();
     ex_assert(len <= maxRowLength_ - sizeof(HashRow), "Bad rowlength in HashBuffer");
     return len;
   } else {
@@ -428,7 +407,7 @@ class Bucket {
   Bucket();
   ~Bucket(){};
   void init();
-  inline ULng32 getRowCount() const;
+  inline int getRowCount() const;
   inline Cluster *getInnerCluster() const;
   inline Cluster *getOuterCluster() const;
   inline NABoolean insert(atp_struct *newEntry, ex_expr *moveExpr, SimpleHashValue hashValue, ExeErrorCode *rc,
@@ -439,13 +418,13 @@ class Bucket {
  private:
   Cluster *innerCluster_;  // corresponding inner Cluster
   Cluster *outerCluster_;  // corresponding outer Cluster
-  ULng32 rowCount_;        // # of inner Cluster rows in this bucket
+  int rowCount_;        // # of inner Cluster rows in this bucket
 };
 
 /////////////////////////////////////////////////////////////////////////////
 // inline functions for Bucket
 /////////////////////////////////////////////////////////////////////////////
-inline ULng32 Bucket::getRowCount() const { return rowCount_; };
+inline int Bucket::getRowCount() const { return rowCount_; };
 
 inline Cluster *Bucket::getInnerCluster() const { return innerCluster_; };
 
@@ -474,11 +453,11 @@ class ClusterDB : public NABasicObject {
     CROSS_PRODUCT,
     SEQUENCE_OLAP  // not a hash operator; but uses ClusterDB and Cluster
   };
-  ClusterDB(HashOperator hashOperator, ULng32 bufferSize, atp_struct *workAtp, int explainNodeId,
+  ClusterDB(HashOperator hashOperator, int bufferSize, atp_struct *workAtp, int explainNodeId,
             short hashTableRowAtpIndex1, short hashTableRowAtpIndex2, ex_expr *searchExpr, Bucket *buckets,
-            ULng32 bucketCount, ULng32 availableMemory, short pressureThreshold, ExExeStmtGlobals *stmtGlobals,
+            int bucketCount, int availableMemory, short pressureThreshold, ExExeStmtGlobals *stmtGlobals,
             ExeErrorCode *rc, NABoolean noOverFlow = FALSE, NABoolean isPartialGroupBy = FALSE,
-            unsigned short minBuffersToFlush = 1, ULng32 numInBatch = 0,
+            unsigned short minBuffersToFlush = 1, int numInBatch = 0,
 
             UInt16 forceOverflowEvery = FALSE, UInt16 forceHashLoopAfterNumBuffers = FALSE,
             UInt16 forceClusterSplitAfterMB = FALSE,
@@ -486,13 +465,13 @@ class ClusterDB : public NABasicObject {
             ExSubtask *ioEventHandler_ = NULL, ex_tcb *callingTcb_ = NULL, UInt16 scratchThresholdPct_ = 10,
 
             NABoolean doLog = FALSE, NABoolean bufferedWrites = FALSE, NABoolean disableCmpHintsOverflow = TRUE,
-            ULng32 memoryQuotaMB = 0,     // i.e. no limit
-            ULng32 minMemoryQuotaMB = 0,  // don't go below this min
+            int memoryQuotaMB = 0,     // i.e. no limit
+            int minMemoryQuotaMB = 0,  // don't go below this min
 
-            ULng32 minMemBeforePressureCheck = 0,  // min before check
+            int minMemBeforePressureCheck = 0,  // min before check
             Float32 bmoCitizenshipFactor = 0, int pMemoryContingencyMB = 0, Float32 estimateErrorPenalty = 0,
             Float32 hashMemEstInKBPerNode = 0,
-            ULng32 initialHashTableSize = 0,  // default not resizable
+            int initialHashTableSize = 0,  // default not resizable
             ExOperStats *hashOperStats = NULL);
   ~ClusterDB();
 
@@ -510,7 +489,7 @@ class ClusterDB : public NABasicObject {
   inline void setClusterReturnRightRows(Cluster *cluster);
   inline NABoolean isHashLoop() const { return hashLoop_; }
   inline long getMemoryHWM() const;
-  inline ULng32 getBufferSize() const { return bufferSize_; }
+  inline int getBufferSize() const { return bufferSize_; }
   void setScratchIOVectorSize(Int16 vectorSize) { scratchIOVectorSize_ = vectorSize; }
   int getScratchIOVectorSize() { return scratchIOVectorSize_; }
   void setScratchOverflowMode(ScratchOverflowMode ovMode) { overFlowMode_ = ovMode; }
@@ -525,7 +504,7 @@ class ClusterDB : public NABasicObject {
   inline long totalPhase3TimeNoHL() { return totalPhase3TimeNoHL_; }
   inline long maxPhase3Time() { return maxPhase3Time_; }
   inline long minPhase3Time() { return minPhase3Time_; }
-  inline ULng32 numClustersNoHashLoop() { return numClustersNoHashLoop_; }
+  inline int numClustersNoHashLoop() { return numClustersNoHashLoop_; }
 
   void updatePhase3Time(long someClusterTime);
 
@@ -538,9 +517,9 @@ class ClusterDB : public NABasicObject {
   NABoolean checkQuotaOrYield(UInt32 numFlushed, UInt32 maxSizeMB);
 
   // Yield un-needed memory quota
-  void yieldUnusedMemoryQuota(Cluster *theOFList = NULL, ULng32 extraBuffers = 1);
+  void yieldUnusedMemoryQuota(Cluster *theOFList = NULL, int extraBuffers = 1);
 
-  ULng32 memoryQuotaMB() { return memoryQuotaMB_; }
+  int memoryQuotaMB() { return memoryQuotaMB_; }
 
   // each cluster overflows into another sequence; sometimes a cluster needs
   // several sequences (after cluster-split, or for DISTINCT HGB)
@@ -548,9 +527,9 @@ class ClusterDB : public NABasicObject {
 
   void getScratchErrorDetail(int &scratchError, int &scratchSysError, int &scratchSysErrorDetail, char *errorMsg);
 
-  static ULng32 roundUpToPrime(ULng32 noOfClusters);
+  static int roundUpToPrime(int noOfClusters);
 
-  NABoolean enoughMemory(ULng32 size, NABoolean checkCompilerHints = FALSE);
+  NABoolean enoughMemory(int size, NABoolean checkCompilerHints = FALSE);
 
  private:
   void updateMemoryStats();
@@ -565,7 +544,7 @@ class ClusterDB : public NABasicObject {
                                 // ignored and we always try to allocate
                                 // new buffers in main memory. If the
                                 // allocation is not sucessfull, we die
-  ULng32 bufferSize_;           // global size of hash buffers
+  int bufferSize_;           // global size of hash buffers
   NAHeap *bufferHeap_;          // keep the I/O buffers for all the
                                 // clusters in a separate heap. This
                                 // should help to reduce fragmentation.
@@ -580,19 +559,19 @@ class ClusterDB : public NABasicObject {
   ex_expr *searchExpr_;  // to insert a row in the hash table
 
   Bucket *buckets_;         // global Buckets array
-  ULng32 bucketCount_;      // total number of buckets
-  ULng32 availableMemory_;  // for the HJ (in bytes)
-  ULng32 memoryUsed_;       // main memory used for buffers and HT
+  int bucketCount_;      // total number of buckets
+  int availableMemory_;  // for the HJ (in bytes)
+  int memoryUsed_;       // main memory used for buffers and HT
   // this is different from Cluster.totalClusterSize_. memoryUsed_ tells us how
   // much main memory the operator uses right now. Cluster.totalClusterSize_
   // tells us the size of a cluster!
   ExOperStats *hashOperStats_;  // stats for this hash operator
-  ULng32 totalIOCnt_;           // total IO ( # buffers read or writen )
+  int totalIOCnt_;           // total IO ( # buffers read or writen )
   short pressureThreshold_;
   NABoolean sawPressure_;            // set when we see pressure the
                                      // first time
   ExExeStmtGlobals *stmtGlobals_;    // for dynamic memory allocation
-  ULng32 maxClusterSize_;            // in bytes
+  int maxClusterSize_;            // in bytes
   Cluster *clusterToFlush_;          // cluster which is to be flushed
   Cluster *clusterToProbe_;          // cluster which is to be probed
   Cluster *clusterToRead_;           // cluster which is to be read
@@ -615,9 +594,9 @@ class ClusterDB : public NABasicObject {
   NABoolean doLog_;           // log to EMS major overflow events
   NABoolean bufferedWrites_;  // use bufferred writes
   NABoolean disableCmpHintsOverflow_;
-  ULng32 memoryQuotaMB_;              // can't use more than that (0 = no limit)
-  ULng32 minMemoryQuotaMB_;           // don't go below the minimum
-  ULng32 minMemBeforePressureCheck_;  // no pressure/hints checks below that
+  int memoryQuotaMB_;              // can't use more than that (0 = no limit)
+  int minMemoryQuotaMB_;           // don't go below the minimum
+  int minMemBeforePressureCheck_;  // no pressure/hints checks below that
   Float32 bmoCitizenshipFactor_;
   int pMemoryContingencyMB_;
   Float32 estimateErrorPenalty_;
@@ -626,18 +605,18 @@ class ClusterDB : public NABasicObject {
   long totalPhase3TimeNoHL_;
   long maxPhase3Time_;
   long minPhase3Time_;
-  ULng32 numClustersNoHashLoop_;
-  ULng32 bmoMaxMemThresholdMB_;
+  int numClustersNoHashLoop_;
+  int bmoMaxMemThresholdMB_;
 
   NABoolean earlyOverflowStarted_;  // if o/f based on compiler hints
 
   // These fields are used to ensure that #buckets and #hash-table-entries
   // have no common prime factors (to make even use of the hash table entries)
   NABoolean evenFactor_;  // # buckets is even (i.e., Hash-Join)
-  ULng32 primeFactor_;    // # buckets (divided by buckets-per-cluster)
+  int primeFactor_;    // # buckets (divided by buckets-per-cluster)
 
   // used by HGB only - initial HT size to be resized up as needed
-  ULng32 initialHashTableSize_;
+  int initialHashTableSize_;
 
   // The num of concurrent IOs is used as a minimum for the number of
   // buffers to keep for a flushed cluster before it is flushed again
@@ -678,13 +657,13 @@ inline HashScratchSpace *ClusterDB::getScratch() const { return tempFile_; };
 /////////////////////////////////////////////////////////////////////////////
 class ClusterBitMap : public NABasicObject {
  public:
-  ClusterBitMap(ULng32 size, ExeErrorCode *rc);
+  ClusterBitMap(int size, ExeErrorCode *rc);
   ~ClusterBitMap();
-  void setBit(ULng32 bitIndex);
-  NABoolean testBit(ULng32 bitIndex);
+  void setBit(int bitIndex);
+  NABoolean testBit(int bitIndex);
 
  private:
-  ULng32 size_;   // size of bitmap (# of bits)
+  int size_;   // size of bitmap (# of bits)
   char *bitMap_;  // the bitmap itself
 };
 
@@ -705,8 +684,8 @@ class Cluster : public NABasicObject {
   };
 
   Cluster(ClusterState state, ClusterDB *clusterDb, Bucket *buckets,
-          ULng32 bucketCount,  // for ths cluster
-          ULng32 rowLength, NABoolean useVariableLength, NABoolean considerBufferDefrag, short insertAtpIndex,
+          int bucketCount,  // for ths cluster
+          int rowLength, NABoolean useVariableLength, NABoolean considerBufferDefrag, short insertAtpIndex,
           NABoolean isInner,       // is this an inner Cluster?
           NABoolean bitMapEnable,  // Enable bitmap allocation for
                                    // left outer join and semi join
@@ -723,15 +702,15 @@ class Cluster : public NABasicObject {
   ~Cluster();
 
   inline ClusterState getState() const;
-  inline ULng32 getRowsInBuffer() const;
-  inline ULng32 getRowCount() const;
+  inline int getRowsInBuffer() const;
+  inline int getRowCount() const;
 
   // return the combined row count for all
   // clusters accessable through next_ from
   // this.
-  ULng32 getTotalRowCount() const;
+  int getTotalRowCount() const;
 
-  inline ULng32 getReadCount() const;
+  inline int getReadCount() const;
   inline void incReadCount();
   inline NABoolean endOfCluster();
   inline NABoolean hasBitMap();
@@ -803,7 +782,7 @@ class Cluster : public NABasicObject {
   NABoolean chain(NABoolean forceChaining, ExeErrorCode *rc);
 
   // set up an outer Cluster for this inner Cluster (if required).
-  ExeErrorCode setUpOuter(ULng32 rowLength, short atpIndex, NABoolean bitMapEnable);
+  ExeErrorCode setUpOuter(int rowLength, short atpIndex, NABoolean bitMapEnable);
 
   // initialize the global ClusterDB scratch file if needed, and set it for
   // this cluster. Also create a new read handle.
@@ -813,7 +792,7 @@ class Cluster : public NABasicObject {
   // of a hash loop
   void resetForHashLoop();
 
-  ULng32 numLoops() { return numLoops_; }  // if hash loop - how many times so far (logging)
+  int numLoops() { return numLoops_; }  // if hash loop - how many times so far (logging)
 
   long startTimePhase3() { return startTimePhase3_; };
   void setStartTimePhase3(long theTime) { startTimePhase3_ = theTime; };
@@ -862,13 +841,13 @@ class Cluster : public NABasicObject {
   HashBuffer *keepRecentBuffer_;  // don't flush most recent (not full) buffer
 
   // return the memory size for building a hash table of given entry count
-  ULng32 getMemorySizeForHashTable(ULng32 entryCount);
+  int getMemorySizeForHashTable(int entryCount);
 
   ClusterState state_;
   ClusterDB *clusterDb_;
   Bucket *buckets_;     // the buckets of this Cluster
-  ULng32 bucketCount_;  // # of buckets of the Cluster
-  ULng32 rowLength_;
+  int bucketCount_;  // # of buckets of the Cluster
+  int rowLength_;
   NABoolean useVariableLength_;
   NABoolean considerBufferDefrag_;
   short insertAtpIndex_;
@@ -885,16 +864,16 @@ class Cluster : public NABasicObject {
 
   ClusterBitMap *outerBitMap_;
   HashTable *hashTable_;
-  ULng32 rowCount_;    // # of rows stored in this cluster
-  ULng32 readCount_;   // for inner: number of rows read in
+  int rowCount_;    // # of rows stored in this cluster
+  int readCount_;   // for inner: number of rows read in
                        // this loop of a hash loop
                        // (== rowCount_ if no hash loop)
                        // for outer: total number of rows
                        // read
-  ULng32 writeIOCnt_;  // counters for overflow I/Os
-  ULng32 readIOCnt_;
+  int writeIOCnt_;  // counters for overflow I/Os
+  int readIOCnt_;
   HashBuffer *bufferPool_;    // first buffer of a potential list
-  ULng32 numInMemBuffers_;    // number of in-memory buffers for this cluster
+  int numInMemBuffers_;    // number of in-memory buffers for this cluster
   HashBuffer *scanPosition_;  // for scanning all buffers
 
   // for concurrent writing of multiple buffers, need to know which is next
@@ -916,7 +895,7 @@ class Cluster : public NABasicObject {
   HashRow *lastDataPointer_;
   NABoolean returnOverflowRows_;
 
-  ULng32 numLoops_;  // if hash loop - how many times so far (logging)
+  int numLoops_;  // if hash loop - how many times so far (logging)
 
   long startTimePhase3_;  // the time this cluster started phase 3 (logging)
 
@@ -947,12 +926,12 @@ inline Cluster::ClusterState Cluster::getState() const { return state_; };
 
 // get the number of rows of the Cluster which are in the buffer in main
 // memory
-inline ULng32 Cluster::getRowsInBuffer() const { return bufferPool_->getRowCount(); };
+inline int Cluster::getRowsInBuffer() const { return bufferPool_->getRowCount(); };
 
 // get the total number of rows in the Cluster
-inline ULng32 Cluster::getRowCount() const { return rowCount_; };
+inline int Cluster::getRowCount() const { return rowCount_; };
 
-inline ULng32 Cluster::getReadCount() const { return readCount_; };
+inline int Cluster::getReadCount() const { return readCount_; };
 
 inline void Cluster::incReadCount() { readCount_++; };
 
@@ -1008,7 +987,7 @@ inline void Cluster::setOuterCluster(Cluster *outerCluster) {
   if (outerCluster) outerCluster->isInner_ = FALSE;
 
   // set all references in the buckets
-  for (ULng32 i = 0; i < bucketCount_; i++) buckets_[i].setOuterCluster(outerCluster);
+  for (int i = 0; i < bucketCount_; i++) buckets_[i].setOuterCluster(outerCluster);
 };
 
 inline void Cluster::setNext(Cluster *next) { next_ = next; };

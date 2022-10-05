@@ -1,61 +1,15 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-//
-**********************************************************************/
-/* -*-C++-*-
- *****************************************************************************
- *
- * File:         SqlciParser.C
- * Description:
- *
- * Created:      4/15/95
- * Language:     C++
- * Status:       $State: Exp $
- *
- *
- *
- *
- *****************************************************************************
- */
-
-#include "common/Platform.h"
-
-#include <stdlib.h>
-#include <string.h>
-#include "sqlci/SqlciCmd.h"
 #include "sqlci/SqlciParser.h"
 #include "export/ComDiags.h"
-#include "common/str.h"
-#include "sqlci/SqlciParseGlobals.h"
-#include "sqlci/SqlciError.h"
+#include "common/NAAssert.h"
+#include "sqlci/SqlciNode.h"
 #include "sqlci/sqlcmd.h"
+#include "sqlci/SqlciParseGlobals.h"
 
-// Globals from SqlciEnv.C
 extern ComDiagsArea sqlci_DA;
-extern int sqlcidebug;
 
 static int sqlci_parser_subproc(char *instr, char *origstr, SqlciNode **node, SqlciEnv *sqlci_env) {
   int retval = 0;
-  *node = NULL;
+  *node = nullptr;
 
   // Set (reset) globals
   SqlciParse_InputStr = origstr;
@@ -72,7 +26,6 @@ static int sqlci_parser_subproc(char *instr, char *origstr, SqlciNode **node, Sq
     if (j >= 0) {
       SqlciLexReinit();
 
-      // sqlcidebug = 1;//uncomment it to turn on debug
       retval = sqlciparse();
 
       // success in parsing
@@ -83,7 +36,7 @@ static int sqlci_parser_subproc(char *instr, char *origstr, SqlciNode **node, Sq
         if (retval = SqlciParseTree->errorCode())  // oops, an error
         {
           delete SqlciParseTree;
-          SqlciParseTree = NULL;
+          SqlciParseTree = nullptr;
           retval = -ABS(retval);  // error, caller won't retry
         }
       } else
@@ -107,17 +60,13 @@ int sqlci_parser(char *instr, char *origstr, SqlciNode **node, SqlciEnv *sqlci_e
 
   int retval = sqlci_parser_subproc(instr, newstr, node, sqlci_env);
 
-  // There's still some weird error in the Sqlci Lexer
-  // ("OBEY F(S);FC 1;" and "OBEY F;!O;" fail -- bug in the <FNAME> state?).
-  // Here we *KLUDGE* around the problem, by retrying the parse once only.
-
   if (retval) {
-    sqlci_parser_syntax_error_cleanup(NULL, sqlci_env);
+    sqlci_parser_syntax_error_cleanup(nullptr, sqlci_env);
     if (!prevDiags && retval > 0)  // NOT the -99 from above!
     {
       sqlci_DA.clear();
       retval = sqlci_parser_subproc(instr, newstr, node, sqlci_env);
-      if (retval) sqlci_parser_syntax_error_cleanup(NULL, sqlci_env);
+      if (retval) sqlci_parser_syntax_error_cleanup(nullptr, sqlci_env);
     }
   }
 
@@ -133,12 +82,8 @@ int sqlci_parser(char *instr, char *origstr, SqlciNode **node, SqlciEnv *sqlci_e
 int sqlci_parser_syntax_error_cleanup(char *instr, SqlciEnv *sqlci_env) {
   SqlciNode *sqlci_node;
 
-  // Parser will emit syntax error message
-  // (if Parser already has emitted same, then pass this in as NULL)
   if (instr) sqlci_parser_subproc(instr, instr, &sqlci_node, sqlci_env);
 
-  // This *KLUDGE* will reset parser/lexer so that the next user-input stmt
-  // does not automatically get tagged as a syntax error.
   SqlciParse_HelpCmd = -1;
   char junk[4];
   strcpy(junk, ".;");

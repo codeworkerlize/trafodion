@@ -46,7 +46,7 @@
 
 
 KeyObject::KeyObject(ex_expr * lkey_expr, ex_expr * hkey_expr,
-		     ULng32 key_length)
+		     int key_length)
 {
 }
 

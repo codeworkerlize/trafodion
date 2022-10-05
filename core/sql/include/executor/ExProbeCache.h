@@ -188,7 +188,7 @@ class ExProbeCacheTcb : public ex_tcb {
   atp_struct *workAtp_;
 
   tupp_descriptor probeHashTupp_;
-  ULng32 probeHashVal_;
+  int probeHashVal_;
 
   tupp_descriptor probeEncodeTupp_;
   char *probeBytes_;
@@ -249,9 +249,9 @@ class ExPCE {
     } flags_;
   };
 
-  ULng32 probeHashVal_;  // hash value of probe data.
+  int probeHashVal_;  // hash value of probe data.
 
-  ULng32 refCnt_;  // # down queue entries interested in me.
+  int refCnt_;  // # down queue entries interested in me.
 
   ex_queue::up_status upstateStatus_;  // from CACHE_MISS's original reply.
 
@@ -269,27 +269,27 @@ class ExPCE {
 ///////////////////////////////////////////////////////////////////
 class ExPCMgr : public NABasicObject {
  public:
-  ExPCMgr(Space *space, ULng32 numEntries, ULng32 probeLength, ExProbeCacheTcb *tcb);
+  ExPCMgr(Space *space, int numEntries, int probeLength, ExProbeCacheTcb *tcb);
 
   ~ExPCMgr();
 
   enum AddedOrFound { FOUND, ADDED };
 
-  AddedOrFound addOrFindEntry(ULng32 probeHashVal, char *probeBytes, queue_index nextRequest, ExPCE *&pcEntry);
+  AddedOrFound addOrFindEntry(int probeHashVal, char *probeBytes, queue_index nextRequest, ExPCE *&pcEntry);
 
  private:
   // Reuse unused entry, or use an entry that has never been used.
-  ExPCE *addEntry(int bucket, ULng32 probeHashVal, char *probeBytes, queue_index qIdxForCancel);
+  ExPCE *addEntry(int bucket, int probeHashVal, char *probeBytes, queue_index qIdxForCancel);
 
   // Choose a possible victim for addEntry's second-chance
   // cache replacement logic.
   ExPCE *getPossibleVictim();
 
   // Set to max number of probes in cache.  So loading factor is 1.0.
-  ULng32 numBuckets_;
+  int numBuckets_;
 
   // How many bytes in the probe data?
-  ULng32 probeLen_;
+  int probeLen_;
 
   // This points to an array of collision chain headers.
   ExPCE **buckets_;
@@ -305,10 +305,10 @@ class ExPCMgr : public NABasicObject {
   // The size of each of entries_'s  array elements.  We need to
   // keep track of this in our code in order to do correct pointer
   // arithmetic.
-  ULng32 sizeofExPCE_;
+  int sizeofExPCE_;
 
   // For implementing the "second chance" replacement algorithm.
-  ULng32 nextVictim_;
+  int nextVictim_;
 
   // Remember our heap and use it in the dtor.
   Space *space_;

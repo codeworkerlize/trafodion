@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ******************************************************************************
 *
@@ -56,7 +35,7 @@
 //------------------------------------------------------------------------
 // Class Constructor.
 //------------------------------------------------------------------------
-Qsort::Qsort(ULng32 runsize, ULng32 sortmaxmem, ULng32 recsize, NABoolean doNotallocRec, ULng32 keysize,
+Qsort::Qsort(int runsize, int sortmaxmem, int recsize, NABoolean doNotallocRec, int keysize,
              SortScratchSpace *scratch, NABoolean iterSort, CollHeap *heap, SortError *sorterror, int explainNodeId,
              ExBMOStats *bmoStats, SortUtil *sortutil)
     : SortAlgo(runsize, recsize, doNotallocRec, keysize, scratch, explainNodeId, bmoStats),
@@ -130,7 +109,7 @@ Qsort::~Qsort(void) {
 //   SORT_FAILURE if any error encounterd.
 //
 //----------------------------------------------------------------------
-int Qsort::sortSend(void *rec, ULng32 len, void *tupp) {
+int Qsort::sortSend(void *rec, int len, void *tupp) {
   ex_assert(loopIndex_ >= 0, "Qsort::sortSend: loopIndex_ is < 0");
   ex_assert(loopIndex_ < allocRunSize_, "Qsort::sortSend: loopIndex_ > allocRunSize_");
   ex_assert(sendNotDone_, "Qsort::sortSend: sendNotDone_ is false");
@@ -180,7 +159,7 @@ int Qsort::sortSend(void *rec, ULng32 len, void *tupp) {
       // Now try double and copy once the above quota system/memory pressure/memory limits
       // checks are passed.
       if (overFlow == FALSE) {
-        ULng32 oldrunsize = allocRunSize_;
+        int oldrunsize = allocRunSize_;
         // Allocate a larger array and copy the old array to the new one
         allocRunSize_ = allocRunSize_ * 2;
 
@@ -223,7 +202,7 @@ int Qsort::sortSend(void *rec, ULng32 len, void *tupp) {
           // 2. Assign the rec_ and key_ pointers to point to the new
           //    tempRootRecord array members
 
-          ULng32 i = 0;
+          int i = 0;
           for (i = 0; i < oldrunsize; i++) {
             tempRecKeys[i].key_ =
                 tempRootRecord[i].extractKey(keySize_, sortUtil_->config()->numberOfBytesForRecordSize());
@@ -314,7 +293,7 @@ int Qsort::generateARun() {
     }
 
     for (loopIndex_ = 0; loopIndex_ < runSize_; loopIndex_++) {
-      ULng32 actRecLen = recKeys_[loopIndex_].rec_->getRecSize();
+      int actRecLen = recKeys_[loopIndex_].rec_->getRecSize();
 
       status = recKeys_[loopIndex_].rec_->putToScr(currentRun_, actRecLen, scratch_);
       if (status == IO_NOT_COMPLETE) return SORT_IO_IN_PROGRESS;
@@ -379,7 +358,7 @@ int Qsort::sortSendEnd() {
   return retcode;
 }
 
-int Qsort::sortReceive(void *rec, ULng32 &len) {
+int Qsort::sortReceive(void *rec, int &len) {
   //---------------------------------------------------------------
   // We use Qsort to receive records only in case of internal sort
   // for merging.
@@ -395,7 +374,7 @@ int Qsort::sortReceive(void *rec, ULng32 &len) {
   return SORT_SUCCESS;
 }
 
-int Qsort::sortReceive(void *&rec, ULng32 &len, void *&tupp) {
+int Qsort::sortReceive(void *&rec, int &len, void *&tupp) {
   //---------------------------------------------------------------
   // We use Qsort to receive records only in case of internal sort
   // for merging.

@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ****************************************************************************
 *
@@ -50,7 +29,7 @@ ComTdbSortGrby::ComTdbSortGrby() : ComTdb(ComTdb::ex_SORT_GRBY, eye_SORT_GRBY), 
 ComTdbSortGrby::ComTdbSortGrby(ex_expr *aggr_expr, ex_expr *grby_expr, ex_expr *move_expr, ex_expr *having_expr,
                                int reclen, const unsigned short tupp_index, ComTdb *child_tdb,
                                ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
-                               queue_index up, Cardinality estimatedRowCount, int num_buffers, ULng32 buffer_size,
+                               queue_index up, Cardinality estimatedRowCount, int num_buffers, int buffer_size,
                                NABoolean tolerateNonFatalError)
 
     : ComTdb(ComTdb::ex_SORT_GRBY, eye_SORT_GRBY, estimatedRowCount, given_cri_desc, returned_cri_desc, down, up,
@@ -90,7 +69,7 @@ int ComTdbSortGrby::unpack(void *base, void *reallocator) {
   if (havingExpr_.unpack(base, reallocator)) return -1;
   return ComTdb::unpack(base, reallocator);
 }
-void ComTdbSortGrby::displayContents(Space *space, ULng32 flag) {
+void ComTdbSortGrby::displayContents(Space *space, int flag) {
   ComTdb::displayContents(space, flag & 0xFFFFFFFE);
 
   if (flag & 0x00000008) {

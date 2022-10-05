@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ****************************************************************************
 *
@@ -226,7 +205,7 @@ class MdamColumnGen : public NAVersionedObject {
     preds_ = 0;
   };
 
-  MdamColumnGen(MdamColumnGen *previous, ULng32 columnLength, ULng32 keyBufferOffset, NABoolean useSparseProbes,
+  MdamColumnGen(MdamColumnGen *previous, int columnLength, int keyBufferOffset, NABoolean useSparseProbes,
                 ex_expr *loExpr, ex_expr *hiExpr, ex_expr *nonNullLoExpr, ex_expr *nonNullHiExpr)
       : columnLength_(columnLength),
         keyBufferOffset_(keyBufferOffset),
@@ -289,10 +268,10 @@ class MdamColumnGen : public NAVersionedObject {
 
   // the following function is used at MdamColumn constructor time
   // and during tree traversal
-  ULng32 getLength() { return columnLength_; };
+  int getLength() { return columnLength_; };
 
   // the following function is used during tree traversal
-  ULng32 getOffset() { return keyBufferOffset_; };
+  int getOffset() { return keyBufferOffset_; };
   NABoolean useSparseProbes() { return useSparseProbes_; };
 
   // the following function used when building an Mdam network
@@ -347,7 +326,7 @@ class keyMdamGen : public keyRangeGen {
     last_ = 0;
   };
 
-  keyMdamGen(ULng32 keyLen, ex_cri_desc *workCriDesc, unsigned short keyValuesAtpIndex,
+  keyMdamGen(int keyLen, ex_cri_desc *workCriDesc, unsigned short keyValuesAtpIndex,
              unsigned short excludeFlagAtpIndex, unsigned short dataConvErrorFlagAtpIndex, unsigned short valueAtpIndex,
              MdamColumnGen *first, MdamColumnGen *last, NABoolean complementKeysBeforeReturning, CollHeap *heap);
 

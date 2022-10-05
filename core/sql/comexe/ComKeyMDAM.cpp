@@ -4,7 +4,7 @@
 #include "comexe/ComPackDefs.h"
 #include "exp/exp_clause_derived.h"
 
-keyMdamGen::keyMdamGen(ULng32 keyLen, ex_cri_desc *workCriDesc, unsigned short keyValuesAtpIndex,
+keyMdamGen::keyMdamGen(int keyLen, ex_cri_desc *workCriDesc, unsigned short keyValuesAtpIndex,
                        unsigned short excludeFlagAtpIndex, unsigned short dataConvErrorFlagAtpIndex,
                        unsigned short valueAtpIndex, MdamColumnGen *first, MdamColumnGen *last,
                        NABoolean complementKeysBeforeReturning, CollHeap *heap)

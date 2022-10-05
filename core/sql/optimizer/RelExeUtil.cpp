@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ******************************************************************************
 *
@@ -3171,8 +3150,8 @@ void ExeUtilRegionStats::recomputeOuterReferences() {
 // -----------------------------------------------------------------------
 // Member functions for class ExeUtilLongRunning
 // -----------------------------------------------------------------------
-ExeUtilLongRunning::ExeUtilLongRunning(const CorrName &name, const char *predicate, ULng32 predicateLen,
-                                       LongRunningType type, ULng32 userSpecifiedCommitSize, CollHeap *oHeap)
+ExeUtilLongRunning::ExeUtilLongRunning(const CorrName &name, const char *predicate, int predicateLen,
+                                       LongRunningType type, int userSpecifiedCommitSize, CollHeap *oHeap)
     : ExeUtilExpr(LONG_RUNNING_, name, NULL, NULL, NULL, CharInfo::UnknownCharSet, oHeap),
       type_(type),
       lruStmt_(NULL),
@@ -3207,7 +3186,7 @@ ExeUtilLongRunning::ExeUtilLongRunning(const CorrName &name, const char *predica
     // statement or thro' SET TRANSACTION, then get the commit size from
     // the system defaults/CQD
     if (multiCommitSize_ == 0) {
-      multiCommitSize_ = (ULng32)CmpCommon::getDefaultNumeric(MULTI_COMMIT_SIZE);
+      multiCommitSize_ = (int)CmpCommon::getDefaultNumeric(MULTI_COMMIT_SIZE);
     }
 
   }  // (multiCommitSize == 0)
@@ -3227,7 +3206,7 @@ RelExpr *ExeUtilLongRunning::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap
 
   CMPASSERT(derivedNode == NULL);
 
-  result = new (outHeap) ExeUtilLongRunning(getTableName(), predicate_, (ULng32)predicateLen_,
+  result = new (outHeap) ExeUtilLongRunning(getTableName(), predicate_, (int)predicateLen_,
                                             LR_DELETE,  // currently only delete is supported. So, LRU_DELETE_
                                             multiCommitSize_, outHeap);
   ((ExeUtilLongRunning *)result)->setLongRunningType(type_);
@@ -5191,7 +5170,7 @@ PhysicalProperty *ExeUtilCompositeUnnest::synthPhysicalProperty(const Context *c
   return sppForMe;
 }
 
-ULng32 hashKey(const ComUID &cuid) {
+int hashKey(const ComUID &cuid) {
   unsigned long b = (unsigned long)cuid.get_value();
   return (int)((b >> 32) ^ cuid.get_value());
 };

@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 #ifndef TREE_H
 #define TREE_H
 
@@ -54,20 +33,20 @@ class SortUtil;
 class Tree : public SortAlgo {  // SortAlgo inherits from NABasciObject
 
  public:
-  Tree(ULng32 numruns, ULng32 runsize, ULng32 recsize, NABoolean doNotallocRec, ULng32 keysize,
+  Tree(int numruns, int runsize, int recsize, NABoolean doNotallocRec, int keysize,
        SortScratchSpace *scratch, CollHeap *heap, SortError *sorterror, int explainNodeId, ExBMOStats *bmoStats,
        SortUtil *sortUtil, int runnum = 0, NABoolean merge = FALSE_L, NABoolean waited = FALSE_L);
 
   ~Tree(void);
 
-  int sortSend(void *rec, ULng32 len, void *tupp);
+  int sortSend(void *rec, int len, void *tupp);
 
   int sortClientOutOfMem(void);
 
   int sortSendEnd();
 
-  int sortReceive(void *rec, ULng32 &len);
-  int sortReceive(void *&rec, ULng32 &len, void *&tupp);
+  int sortReceive(void *rec, int &len);
+  int sortReceive(void *&rec, int &len, void *&tupp);
 
   int generateInterRuns(void);
 
@@ -82,11 +61,11 @@ class Tree : public SortAlgo {  // SortAlgo inherits from NABasciObject
   TreeNode *winner_;
   char *keyOfLastWinner_;
   short height_;
-  ULng32 numRuns_;
-  ULng32 maxRuns_;
-  ULng32 currentRun_;
-  ULng32 winnerRun_;
-  ULng32 baseRun_;
+  int numRuns_;
+  int maxRuns_;
+  int currentRun_;
+  int winnerRun_;
+  int baseRun_;
   SortError *sortError_;
   CollHeap *heap_;
   SortUtil *sortUtil_;

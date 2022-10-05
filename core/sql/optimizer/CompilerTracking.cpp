@@ -230,7 +230,7 @@ The current metadata cache hit counter is calculated by
    for interval marking)
 
 ************************************************************************/
-inline ULng32 CompilerTrackingInfo::metaDataCacheHits() {
+inline int CompilerTrackingInfo::metaDataCacheHits() {
   return ActiveSchemaDB()->getNATableDB()->hits() - mdCacheHits_;
 }
 /************************************************************************
@@ -242,7 +242,7 @@ The current metadata cache lookups counter is calculated by
    for interval marking)
 
 ************************************************************************/
-inline ULng32 CompilerTrackingInfo::metaDataCacheLookups() {
+inline int CompilerTrackingInfo::metaDataCacheLookups() {
   return ActiveSchemaDB()->getNATableDB()->lookups() - mdCacheLookups_;
 }
 /************************************************************************
@@ -267,7 +267,7 @@ The current query cache hit counter is calculated by
    for interval marking)
 
 ************************************************************************/
-inline ULng32 CompilerTrackingInfo::qCacheHits() {
+inline int CompilerTrackingInfo::qCacheHits() {
   //
   // nCacheHitsT is the total for all stages
   return currentQCacheStats_.nCacheHitsT - qCacheHits_;
@@ -281,7 +281,7 @@ The current query cache lookups counter is calculated by
    for interval marking)
 
 ************************************************************************/
-inline ULng32 CompilerTrackingInfo::qCacheLookups() { return currentQCacheStats_.nLookups - qCacheLookups_; }
+inline int CompilerTrackingInfo::qCacheLookups() { return currentQCacheStats_.nLookups - qCacheLookups_; }
 /************************************************************************
 method CompilerTrackingInfo::qCacheRecompiles
 
@@ -291,14 +291,14 @@ The current query cache recompiles counter is calculated by
    for interval marking)
 
 ************************************************************************/
-inline ULng32 CompilerTrackingInfo::qCacheRecompiles() { return currentQCacheStats_.nRecompiles - qCacheRecompiles_; }
+inline int CompilerTrackingInfo::qCacheRecompiles() { return currentQCacheStats_.nRecompiles - qCacheRecompiles_; }
 /************************************************************************
 method CompilerTrackingInfo::qCacheCurrentSize
 
   The current query cache heap size (no need to reset this on interval)
 
 ************************************************************************/
-inline ULng32 CompilerTrackingInfo::qCacheCurrentSize() { return currentQCacheStats_.currentSize; }
+inline int CompilerTrackingInfo::qCacheCurrentSize() { return currentQCacheStats_.currentSize; }
 /************************************************************************
 method CompilerTrackingInfo::qCacheIntervalWaterMark
 
@@ -307,7 +307,7 @@ method CompilerTrackingInfo::qCacheIntervalWaterMark
   the interval
 
 ************************************************************************/
-inline ULng32 CompilerTrackingInfo::qCacheIntervalWaterMark() {
+inline int CompilerTrackingInfo::qCacheIntervalWaterMark() {
   updateQCacheIntervalWaterMark();
   return largestQCacheIntervalWaterMark_;
 }
@@ -368,7 +368,7 @@ The current histogram cache hit counter is calculated by
    for interval marking)
 
 ************************************************************************/
-inline ULng32 CompilerTrackingInfo::hCacheHits() {
+inline int CompilerTrackingInfo::hCacheHits() {
   CMPASSERT(NULL != CURRCONTEXT_HISTCACHE);
   return CURRCONTEXT_HISTCACHE->hits() - hCacheHits_;
 }
@@ -381,7 +381,7 @@ The current histogram cache lookups counter is calculated by
    for interval marking)
 
 ************************************************************************/
-inline ULng32 CompilerTrackingInfo::hCacheLookups() {
+inline int CompilerTrackingInfo::hCacheLookups() {
   CMPASSERT(NULL != CURRCONTEXT_HISTCACHE);
   return CURRCONTEXT_HISTCACHE->lookups() - hCacheLookups_;
 }
@@ -407,7 +407,7 @@ The sessionCount counter is calculated by
  (see CompilerTrackingInfo::resetInterval for interval marking)
 
 ************************************************************************/
-inline ULng32 CompilerTrackingInfo::sessionCount() {
+inline int CompilerTrackingInfo::sessionCount() {
   return CmpCommon::context()->sqlSession()->getNumSessions() - sessionCount_;
 }
 /************************************************************************

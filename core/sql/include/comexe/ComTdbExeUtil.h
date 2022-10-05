@@ -117,11 +117,11 @@ class ComTdbExeUtil : public ComTdbGenericUtil {
 
   ComTdbExeUtil() : ComTdbGenericUtil() {}
 
-  ComTdbExeUtil(int type, char *query, ULng32 querylen, Int16 querycharset, char *tableName, ULng32 tableNameLen,
-                ex_expr *input_expr, ULng32 input_rowlen, ex_expr *output_expr, ULng32 output_rowlen,
+  ComTdbExeUtil(int type, char *query, int querylen, Int16 querycharset, char *tableName, int tableNameLen,
+                ex_expr *input_expr, int input_rowlen, ex_expr *output_expr, int output_rowlen,
                 ex_expr_base *scan_expr, ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
                 ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
-                int num_buffers, ULng32 buffer_size);
+                int num_buffers, int buffer_size);
 
   char *getTableName() { return objectName_; }
   char *getObjectName() { return objectName_; }
@@ -277,11 +277,11 @@ class ComTdbExeUtilDisplayExplain : public ComTdbExeUtil {
  public:
   ComTdbExeUtilDisplayExplain() : ComTdbExeUtil() {}
 
-  ComTdbExeUtilDisplayExplain(char *query, ULng32 querylen, Int16 querycharset, char *moduleName, char *stmtName,
-                              ex_expr *input_expr, ULng32 input_rowlen, ex_expr *output_expr, ULng32 output_rowlen,
+  ComTdbExeUtilDisplayExplain(char *query, int querylen, Int16 querycharset, char *moduleName, char *stmtName,
+                              ex_expr *input_expr, int input_rowlen, ex_expr *output_expr, int output_rowlen,
                               ex_cri_desc *work_cri_desc, const unsigned short work_atp_index, int colDescSize,
                               int outputRowSize, ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc,
-                              queue_index down, queue_index up, int num_buffers, ULng32 buffer_size);
+                              queue_index down, queue_index up, int num_buffers, int buffer_size);
 
   Long pack(void *);
   int unpack(void *, void *reallocator);
@@ -314,7 +314,7 @@ class ComTdbExeUtilDisplayExplain : public ComTdbExeUtil {
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
   // ---------------------------------------------------------------------
-  void displayContents(Space *space, ULng32 flag);
+  void displayContents(Space *space, int flag);
 
   NABoolean isOptionE() { return ((flags_ & OPTION_E) != 0); };
   NABoolean isOptionF() { return ((flags_ & OPTION_F) != 0); };
@@ -362,11 +362,11 @@ class ComTdbExeUtilDisplayExplainComplex : public ComTdbExeUtil {
   ComTdbExeUtilDisplayExplainComplex() : ComTdbExeUtil() {}
 
   ComTdbExeUtilDisplayExplainComplex(int explainType, char *qry1, char *qry2, char *qry3, char *qry4,
-                                     char *objectName, int objectNameLen, ex_expr *input_expr, ULng32 input_rowlen,
-                                     ex_expr *output_expr, ULng32 output_rowlen, ex_cri_desc *work_cri_desc,
+                                     char *objectName, int objectNameLen, ex_expr *input_expr, int input_rowlen,
+                                     ex_expr *output_expr, int output_rowlen, ex_cri_desc *work_cri_desc,
                                      const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
                                      ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
-                                     int num_buffers, ULng32 buffer_size);
+                                     int num_buffers, int buffer_size);
 
   Long pack(void *);
   int unpack(void *, void *reallocator);
@@ -393,7 +393,7 @@ class ComTdbExeUtilDisplayExplainComplex : public ComTdbExeUtil {
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
   // ---------------------------------------------------------------------
-  void displayContents(Space *space, ULng32 flag);
+  void displayContents(Space *space, int flag);
 
  private:
   enum { IS_VOLATILE = 0x0001, IS_SHOWDDL = 0x0002, NO_LABEL_STATS = 0x0004, LOAD_IF_EXISTS = 0x0008 };
@@ -426,12 +426,12 @@ class ComTdbExeUtilMaintainObject : public ComTdbExeUtil {
 
   ComTdbExeUtilMaintainObject() : ComTdbExeUtil() {}
 
-  ComTdbExeUtilMaintainObject(char *objectName, ULng32 objectNameLen, char *schemaName, ULng32 schemaNameLen, UInt16 ot,
-                              char *parentTableName, ULng32 parentTableNameLen, ex_expr *input_expr,
-                              ULng32 input_rowlen, ex_expr *output_expr, ULng32 output_rowlen,
+  ComTdbExeUtilMaintainObject(char *objectName, int objectNameLen, char *schemaName, int schemaNameLen, UInt16 ot,
+                              char *parentTableName, int parentTableNameLen, ex_expr *input_expr,
+                              int input_rowlen, ex_expr *output_expr, int output_rowlen,
                               ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
                               ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
-                              queue_index up, int num_buffers, ULng32 buffer_size);
+                              queue_index up, int num_buffers, int buffer_size);
 
   Long pack(void *);
   int unpack(void *, void *reallocator);
@@ -878,7 +878,7 @@ class ComTdbExeUtilMaintainObject : public ComTdbExeUtil {
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
   // ---------------------------------------------------------------------
 
-  void displayContents(Space *space, ULng32 flag);
+  void displayContents(Space *space, int flag);
 
  protected:
   // enum for flags_
@@ -1066,11 +1066,11 @@ class ComTdbExeUtilLoadVolatileTable : public ComTdbExeUtil {
  public:
   ComTdbExeUtilLoadVolatileTable() : ComTdbExeUtil() {}
 
-  ComTdbExeUtilLoadVolatileTable(char *tableName, ULng32 tableNameLen, char *insertQuery, char *updStatsQuery,
+  ComTdbExeUtilLoadVolatileTable(char *tableName, int tableNameLen, char *insertQuery, char *updStatsQuery,
                                  Int16 querycharset, long threshold, ex_cri_desc *work_cri_desc,
                                  const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
                                  ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
-                                 ULng32 buffer_size);
+                                 int buffer_size);
 
   Long pack(void *);
   int unpack(void *, void *reallocator);
@@ -1085,7 +1085,7 @@ class ComTdbExeUtilLoadVolatileTable : public ComTdbExeUtil {
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
   // ---------------------------------------------------------------------
-  void displayContents(Space *space, ULng32 flag);
+  void displayContents(Space *space, int flag);
 
  private:
   NABasicPtr insertQuery_;    // 00-07
@@ -1105,10 +1105,10 @@ class ComTdbExeUtilCleanupVolatileTables : public ComTdbExeUtil {
  public:
   ComTdbExeUtilCleanupVolatileTables() : ComTdbExeUtil() {}
 
-  ComTdbExeUtilCleanupVolatileTables(char *catName, ULng32 catNameLen, ex_cri_desc *work_cri_desc,
+  ComTdbExeUtilCleanupVolatileTables(char *catName, int catNameLen, ex_cri_desc *work_cri_desc,
                                      const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
                                      ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
-                                     int num_buffers, ULng32 buffer_size);
+                                     int num_buffers, int buffer_size);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -1120,7 +1120,7 @@ class ComTdbExeUtilCleanupVolatileTables : public ComTdbExeUtil {
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
   // ---------------------------------------------------------------------
-  void displayContents(Space *space, ULng32 flag);
+  void displayContents(Space *space, int flag);
 
   void setCleanupAllTables(NABoolean v) { (v ? flags_ |= CLEANUP_ALL_TABLES : flags_ &= ~CLEANUP_ALL_TABLES); };
   NABoolean cleanupAllTables() { return (flags_ & CLEANUP_ALL_TABLES) != 0; };
@@ -1152,7 +1152,7 @@ class ComTdbExeUtilGetVolatileInfo : public ComTdbExeUtil {
   ComTdbExeUtilGetVolatileInfo(char *param1, char *param2, ex_cri_desc *work_cri_desc,
                                const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
                                ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
-                               ULng32 buffer_size);
+                               int buffer_size);
 
   Long pack(void *);
   int unpack(void *, void *reallocator);
@@ -1181,7 +1181,7 @@ class ComTdbExeUtilGetVolatileInfo : public ComTdbExeUtil {
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
   // ---------------------------------------------------------------------
-  void displayContents(Space *space, ULng32 flag);
+  void displayContents(Space *space, int flag);
 
  private:
   enum GetType {
@@ -1209,7 +1209,7 @@ class ComTdbExeUtilGetErrorInfo : public ComTdbExeUtil {
   ComTdbExeUtilGetErrorInfo(int errType, int errNum, ex_cri_desc *work_cri_desc,
                             const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
                             ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
-                            ULng32 buffer_size);
+                            int buffer_size);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -1221,7 +1221,7 @@ class ComTdbExeUtilGetErrorInfo : public ComTdbExeUtil {
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
   // ---------------------------------------------------------------------
-  void displayContents(Space *space, ULng32 flag);
+  void displayContents(Space *space, int flag);
 
  private:
   int errorType_;
@@ -1238,11 +1238,11 @@ class ComTdbExeUtilCreateTableAs : public ComTdbExeUtil {
  public:
   ComTdbExeUtilCreateTableAs() : ComTdbExeUtil() {}
 
-  ComTdbExeUtilCreateTableAs(char *tableName, ULng32 tableNameLen, char *createStmtStr, char *siStmtStr,
+  ComTdbExeUtilCreateTableAs(char *tableName, int tableNameLen, char *createStmtStr, char *siStmtStr,
                              char *viStmtStr, char *usStmtStr, long threshold, ex_cri_desc *work_cri_desc,
                              const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
                              ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
-                             ULng32 buffer_size);
+                             int buffer_size);
 
   Long pack(void *);
   int unpack(void *, void *reallocator);
@@ -1269,7 +1269,7 @@ class ComTdbExeUtilCreateTableAs : public ComTdbExeUtil {
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
   // ---------------------------------------------------------------------
-  void displayContents(Space *space, ULng32 flag);
+  void displayContents(Space *space, int flag);
 
  private:
   enum { LOAD_IF_EXISTS = 0x0001, NO_LOAD = 0x0002, IS_VOLATILE = 0x0004, DELETE_DATA = 0x0008 };
@@ -1297,9 +1297,9 @@ class ComTdbExeUtilCreateTableAs : public ComTdbExeUtil {
 class ComTdbExeUtilGetObjectEpochStats : public ComTdbExeUtil {
  public:
   ComTdbExeUtilGetObjectEpochStats() : ComTdbExeUtil(), cpu_(-1) {}
-  ComTdbExeUtilGetObjectEpochStats(char *objectName, ULng32 objectNameLen, short cpu, bool locked,
+  ComTdbExeUtilGetObjectEpochStats(char *objectName, int objectNameLen, short cpu, bool locked,
                                    ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
-                                   queue_index up, int num_buffers, ULng32 buffer_size)
+                                   queue_index up, int num_buffers, int buffer_size)
       : ComTdbExeUtil(ComTdbExeUtil::GET_OBJECT_EPOCH_STATS_, NULL, 0, 0, objectName, objectNameLen, NULL, 0, NULL, 0,
                       NULL, 0, 0,  // no work cri desc
                       given_cri_desc, returned_cri_desc, down, up, num_buffers, buffer_size),
@@ -1327,9 +1327,9 @@ class ComTdbExeUtilGetObjectEpochStats : public ComTdbExeUtil {
 class ComTdbExeUtilGetObjectLockStats : public ComTdbExeUtil {
  public:
   ComTdbExeUtilGetObjectLockStats() : ComTdbExeUtil(), cpu_(-1) {}
-  ComTdbExeUtilGetObjectLockStats(char *objectName, ULng32 objectNameLen, short cpu, bool entry,
+  ComTdbExeUtilGetObjectLockStats(char *objectName, int objectNameLen, short cpu, bool entry,
                                   ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
-                                  queue_index up, int num_buffers, ULng32 buffer_size)
+                                  queue_index up, int num_buffers, int buffer_size)
       : ComTdbExeUtil(ComTdbExeUtil::GET_OBJECT_LOCK_STATS_, NULL, 0, 0, objectName, objectNameLen, NULL, 0, NULL, 0,
                       NULL, 0, 0,  // no work cri desc
                       given_cri_desc, returned_cri_desc, down, up, num_buffers, buffer_size),
@@ -1365,7 +1365,7 @@ class ComTdbExeUtilGetStatistics : public ComTdbExeUtil {
   ComTdbExeUtilGetStatistics(char *stmtName, short statsReqType, short statsMergeType, short activeQueryNum,
                              ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
                              ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
-                             queue_index up, int num_buffers, ULng32 buffer_size, char *host = NULL, int port = 0,
+                             queue_index up, int num_buffers, int buffer_size, char *host = NULL, int port = 0,
                              char *path = NULL, UInt64 queryHash = 0L);
 
   Long pack(void *);
@@ -1410,7 +1410,7 @@ class ComTdbExeUtilGetStatistics : public ComTdbExeUtil {
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
   // ---------------------------------------------------------------------
-  void displayContents(Space *space, ULng32 flag);
+  void displayContents(Space *space, int flag);
   inline const char *getStmtName() const { return stmtName_.getPointer(); }
 
   UInt64 getQueryHash() { return queryHash_; }
@@ -1460,7 +1460,7 @@ class ComTdbExeUtilGetProcessStatistics : public ComTdbExeUtilGetStatistics {
   ComTdbExeUtilGetProcessStatistics(char *pid, short statsReqType, short statsMergeType, short activeQueryNum,
                                     ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
                                     ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
-                                    queue_index up, int num_buffers, ULng32 buffer_size)
+                                    queue_index up, int num_buffers, int buffer_size)
       : ComTdbExeUtilGetStatistics(pid, statsReqType, statsMergeType, activeQueryNum,
                                    // SQLCLI_STATS_REQ_QID, SQLCLI_DEFAULT_STATS, -1,
                                    work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc, down, up,
@@ -1480,7 +1480,7 @@ class ComTdbExeUtilGetProcessStatistics : public ComTdbExeUtilGetStatistics {
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
   // ---------------------------------------------------------------------
-  void displayContents(Space *space, ULng32 flag);
+  void displayContents(Space *space, int flag);
 
  private:
 };
@@ -1516,7 +1516,7 @@ class ComTdbExeUtilGetUID : public ComTdbExeUtil {
 
   ComTdbExeUtilGetUID(long uid, ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
                       ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
-                      int num_buffers, ULng32 buffer_size);
+                      int num_buffers, int buffer_size);
 
   Long pack(void *);
   int unpack(void *, void *reallocator);
@@ -1545,7 +1545,7 @@ class ComTdbExeUtilGetUID : public ComTdbExeUtil {
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
   // ---------------------------------------------------------------------
-  void displayContents(Space *space, ULng32 flag);
+  void displayContents(Space *space, int flag);
 
  private:
   long uid_;  // 00-07
@@ -1586,7 +1586,7 @@ class ComTdbExeUtilGetQID : public ComTdbExeUtil {
 
   ComTdbExeUtilGetQID(char *stmtName, ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
                       ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
-                      int num_buffers, ULng32 buffer_size);
+                      int num_buffers, int buffer_size);
 
   Long pack(void *);
   int unpack(void *, void *reallocator);
@@ -1615,7 +1615,7 @@ class ComTdbExeUtilGetQID : public ComTdbExeUtil {
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
   // ---------------------------------------------------------------------
-  void displayContents(Space *space, ULng32 flag);
+  void displayContents(Space *space, int flag);
 
  private:
   NABasicPtr stmtName_;
@@ -1637,7 +1637,7 @@ class ComTdbExeUtilPopulateInMemStats : public ComTdbExeUtil {
                                   char *sourceHistogramsTableName, char *sourceHistintsTableName,
                                   ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
                                   ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
-                                  queue_index up, int num_buffers, ULng32 buffer_size);
+                                  queue_index up, int num_buffers, int buffer_size);
 
   Long pack(void *);
   int unpack(void *, void *reallocator);
@@ -1652,7 +1652,7 @@ class ComTdbExeUtilPopulateInMemStats : public ComTdbExeUtil {
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
   // ---------------------------------------------------------------------
-  void displayContents(Space *space, ULng32 flag);
+  void displayContents(Space *space, int flag);
 
   inline const char *getInMemHistogramsTableName() const { return inMemHistogramsTableName_.getPointer(); };
 
@@ -1689,10 +1689,10 @@ class ComTdbExeUtilAqrWnrInsert : public ComTdbExeUtil {
  public:
   ComTdbExeUtilAqrWnrInsert() : ComTdbExeUtil() {}
 
-  ComTdbExeUtilAqrWnrInsert(char *tableName, ULng32 tableNameLen, ex_cri_desc *work_cri_desc,
+  ComTdbExeUtilAqrWnrInsert(char *tableName, int tableNameLen, ex_cri_desc *work_cri_desc,
                             const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
                             ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
-                            ULng32 buffer_size);
+                            int buffer_size);
 #if 0
   no need to pack/unpack until this subclass has some ptr type members.
   Long pack (void *);
@@ -1712,7 +1712,7 @@ class ComTdbExeUtilAqrWnrInsert : public ComTdbExeUtil {
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
   // ---------------------------------------------------------------------
-  void displayContents(Space *space, ULng32 flag);
+  void displayContents(Space *space, int flag);
 
  private:
   enum { LOCK_TARGET = 0x00000001 };
@@ -1725,10 +1725,10 @@ class ComTdbExeUtilLongRunning : public ComTdbExeUtil {
  public:
   ComTdbExeUtilLongRunning() : ComTdbExeUtil() {}
 
-  ComTdbExeUtilLongRunning(char *tableName, ULng32 tableNameLen, ex_cri_desc *work_cri_desc,
+  ComTdbExeUtilLongRunning(char *tableName, int tableNameLen, ex_cri_desc *work_cri_desc,
                            const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
                            ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
-                           ULng32 buffer_size);
+                           int buffer_size);
 
   Long pack(void *);
   int unpack(void *, void *reallocator);
@@ -1743,7 +1743,7 @@ class ComTdbExeUtilLongRunning : public ComTdbExeUtil {
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
   // ---------------------------------------------------------------------
-  void displayContents(Space *space, ULng32 flag);
+  void displayContents(Space *space, int flag);
 
   void setLongRunningDelete(NABoolean v) { (v ? flags_ |= LR_DELETE : flags_ &= ~LR_DELETE); };
   NABoolean longRunningDelete() { return (flags_ & LR_DELETE) != 0; };
@@ -1777,8 +1777,8 @@ class ComTdbExeUtilLongRunning : public ComTdbExeUtil {
 
   long getPredicateLen() { return predicateLen_; };
 
-  ULng32 getMultiCommitSize() { return multiCommitSize_; }
-  void setMultiCommitSize(ULng32 multiCommitSize) { multiCommitSize_ = multiCommitSize; };
+  int getMultiCommitSize() { return multiCommitSize_; }
+  void setMultiCommitSize(int multiCommitSize) { multiCommitSize_ = multiCommitSize; };
 
   char *getDefaultSchemaName() { return defaultSchemaName_; };
   void setDefaultSchemaName(char *p) { defaultSchemaName_ = p; };
@@ -1834,7 +1834,7 @@ class ComTdbExeUtilShowSet : public ComTdbExeUtil {
 
   ComTdbExeUtilShowSet(UInt16 type, char *param1, char *param2, ex_cri_desc *work_cri_desc,
                        const unsigned short work_atp_index, ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc,
-                       queue_index down, queue_index up, int num_buffers, ULng32 buffer_size);
+                       queue_index down, queue_index up, int num_buffers, int buffer_size);
 
   Long pack(void *);
   int unpack(void *, void *reallocator);
@@ -1851,7 +1851,7 @@ class ComTdbExeUtilShowSet : public ComTdbExeUtil {
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
   // ---------------------------------------------------------------------
-  void displayContents(Space *space, ULng32 flag);
+  void displayContents(Space *space, int flag);
 
  private:
   NABasicPtr param1_;  // 00-07
@@ -1873,7 +1873,7 @@ class ComTdbExeUtilAQR : public ComTdbExeUtil {
   ComTdbExeUtilAQR() : ComTdbExeUtil() {}
 
   ComTdbExeUtilAQR(int task, ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
-                   queue_index up, int num_buffers, ULng32 buffer_size);
+                   queue_index up, int num_buffers, int buffer_size);
 
   Long pack(void *);
   int unpack(void *, void *reallocator);
@@ -1898,7 +1898,7 @@ class ComTdbExeUtilAQR : public ComTdbExeUtil {
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
   // ---------------------------------------------------------------------
-  void displayContents(Space *space, ULng32 flag);
+  void displayContents(Space *space, int flag);
 
  private:
   int task_;
@@ -2075,7 +2075,7 @@ class ComTdbExeUtilGetMetadataInfo : public ComTdbExeUtil {
   ComTdbExeUtilGetMetadataInfo(QueryType queryType, char *cat, char *sch, char *obj, char *pattern, char *param1,
                                ex_expr_base *scan_expr, ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
                                ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
-                               queue_index up, int num_buffers, ULng32 buffer_size, char *server, char *zkPort);
+                               queue_index up, int num_buffers, int buffer_size, char *server, char *zkPort);
 
   Long pack(void *);
   int unpack(void *, void *reallocator);
@@ -2142,7 +2142,7 @@ class ComTdbExeUtilGetMetadataInfo : public ComTdbExeUtil {
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
   // ---------------------------------------------------------------------
-  void displayContents(Space *space, ULng32 flag);
+  void displayContents(Space *space, int flag);
 
  protected:
   enum {
@@ -2203,10 +2203,10 @@ class ComTdbExeUtilHBaseBulkLoad : public ComTdbExeUtil {
  public:
   ComTdbExeUtilHBaseBulkLoad() : ComTdbExeUtil() {}
 
-  ComTdbExeUtilHBaseBulkLoad(char *tableName, ULng32 tableNameLen, char *ldStmtStr, ex_expr_base *input_expr,
-                             ULng32 input_rowlen, ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
+  ComTdbExeUtilHBaseBulkLoad(char *tableName, int tableNameLen, char *ldStmtStr, ex_expr_base *input_expr,
+                             int input_rowlen, ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
                              ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
-                             queue_index up, int num_buffers, ULng32 buffer_size, char *errCountTab,
+                             queue_index up, int num_buffers, int buffer_size, char *errCountTab,
                              char *logLocation);
 
   Long pack(void *);
@@ -2282,7 +2282,7 @@ class ComTdbExeUtilHBaseBulkLoad : public ComTdbExeUtil {
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
   // ---------------------------------------------------------------------
-  void displayContents(Space *space, ULng32 flag);
+  void displayContents(Space *space, int flag);
 
  private:
   enum {
@@ -2881,10 +2881,10 @@ class ComTdbExeUtilRegionStats : public ComTdbExeUtil {
   ComTdbExeUtilRegionStats() : ComTdbExeUtil() {}
 
   ComTdbExeUtilRegionStats(char *tableName, char *catName, char *schName, char *objName, ex_expr_base *input_expr,
-                           ULng32 input_rowlen, ex_expr_base *scan_expr, ex_cri_desc *work_cri_desc,
+                           int input_rowlen, ex_expr_base *scan_expr, ex_cri_desc *work_cri_desc,
                            const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
                            ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
-                           ULng32 buffer_size);
+                           int buffer_size);
 
   void setIsIndex(NABoolean v) { (v ? flags_ |= IS_INDEX : flags_ &= ~IS_INDEX); };
   NABoolean isIndex() { return (flags_ & IS_INDEX) != 0; };
@@ -3660,12 +3660,12 @@ class ComTdbExeUtilConnectby : public ComTdbExeUtil {
   friend class ExExeUtilConnectbyTcb;
 
  public:
-  ComTdbExeUtilConnectby(char *query, ULng32 querylen, Int16 querycharset, char *tableName, Int16 tblNameLen,
-                         char *stmtName, ex_expr *input_expr, ULng32 input_rowlen, ex_expr *output_expr,
-                         ULng32 output_rowlen, ex_expr *scan_expr, ex_cri_desc *work_cri_desc,
+  ComTdbExeUtilConnectby(char *query, int querylen, Int16 querycharset, char *tableName, Int16 tblNameLen,
+                         char *stmtName, ex_expr *input_expr, int input_rowlen, ex_expr *output_expr,
+                         int output_rowlen, ex_expr *scan_expr, ex_cri_desc *work_cri_desc,
                          const unsigned short work_atp_index, int colDescSize, int outputRowSize,
                          ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
-                         int num_buffers, ULng32 buffer_size, ExCriDescPtr workCriDesc, ex_expr *startwith_expr);
+                         int num_buffers, int buffer_size, ExCriDescPtr workCriDesc, ex_expr *startwith_expr);
 
   ComTdbExeUtilConnectby() : ComTdbExeUtil() {
     hasStartWith_ = TRUE;
@@ -3735,7 +3735,7 @@ class ComTdbExeUtilCompositeUnnest : public ComTdbExeUtil {
                                ex_expr *returnColsExpr, UInt16 returnColsAtpIndex, UInt32 returnColsRowLen,
                                ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
                                ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
-                               queue_index up, int num_buffers, ULng32 buffer_size);
+                               queue_index up, int num_buffers, int buffer_size);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -3777,10 +3777,10 @@ class ComTdbExeUtilUpdataDelete : public ComTdbExeUtil {
  public:
   ComTdbExeUtilUpdataDelete() : ComTdbExeUtil() {}
 
-  ComTdbExeUtilUpdataDelete(char *tableName, ULng32 tableNameLen, char *ldStmtStr, ex_cri_desc *work_cri_desc,
+  ComTdbExeUtilUpdataDelete(char *tableName, int tableNameLen, char *ldStmtStr, ex_cri_desc *work_cri_desc,
                             const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
                             ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
-                            ULng32 buffer_size, ComStorageType storageType, char *server, char *zkPort);
+                            int buffer_size, ComStorageType storageType, char *server, char *zkPort);
 
   Long pack(void *);
   int unpack(void *, void *reallocator);
@@ -3795,7 +3795,7 @@ class ComTdbExeUtilUpdataDelete : public ComTdbExeUtil {
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
   // ---------------------------------------------------------------------
-  void displayContents(Space *space, ULng32 flag);
+  void displayContents(Space *space, int flag);
 
   Queue *listOfIndexesAndTable() { return listOfIndexesAndTable_; }
   void setListOfIndexesAndTable(Queue *val) { listOfIndexesAndTable_ = val; }

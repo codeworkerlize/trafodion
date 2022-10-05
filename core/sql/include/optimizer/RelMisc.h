@@ -389,7 +389,7 @@ class RelRoot : public RelExpr {
   void setHostArraysArea(HostArraysWA *ha) { hostArraysArea_ = ha; }
 
   // apply xforRowsetsInTree to RelRoot & return transformed tree
-  RelExpr *xformRowsetsInTree(BindWA &wa, const ULng32 inputArrayMaxsize = 0,
+  RelExpr *xformRowsetsInTree(BindWA &wa, const int inputArrayMaxsize = 0,
                               const RelExpr::AtomicityType atomicity = RelExpr::UNSPECIFIED_);
 
   // append an ascii-version of RelRoot into cachewa.qryText_
@@ -653,7 +653,7 @@ class RelRoot : public RelExpr {
   // this context will be passed to the new scope created by the root
   MvBindContext *pMvBindContextForScope_;
 
-  ULng32 flags_;
+  int flags_;
 
   // For defect id: 10-010522-2978
   // Points to ORDER BY required to properly support a lower level RelRoot
@@ -1843,7 +1843,7 @@ class Pack : public RelExpr {
   // ---------------------------------------------------------------------
 
   // Constructor.
-  Pack(ULng32 packingFactor = 0, RelExpr *child = NULL, ItemExpr *packingExprTree = NULL,
+  Pack(int packingFactor = 0, RelExpr *child = NULL, ItemExpr *packingExprTree = NULL,
        CollHeap *oHeap = CmpCommon::statementHeap());
 
   // Destructor.
@@ -1853,8 +1853,8 @@ class Pack : public RelExpr {
   virtual int getArity() const { return 1; }
 
   // Returns a (short-lived) r/w ref to packing factor in different forms.
-  ULng32 &packingFactorLong() { return packingFactorLong_; }
-  ULng32 packingFactorLong() const { return packingFactorLong_; }
+  int &packingFactorLong() { return packingFactorLong_; }
+  int packingFactorLong() const { return packingFactorLong_; }
   inline ValueIdSet &packingFactor() { return packingFactor_; }
   inline const ValueIdSet &packingFactor() const { return packingFactor_; }
 
@@ -1960,7 +1960,7 @@ class Pack : public RelExpr {
   // the packing factor (as opposed to through the ItemExpr) when it is
   // a constant. Not valid when equals zero.
   // ---------------------------------------------------------------------
-  ULng32 packingFactorLong_;
+  int packingFactorLong_;
 
   // ---------------------------------------------------------------------
   // This is the item expression tree for the packing factor. Right now,
@@ -2003,7 +2003,7 @@ class Pack : public RelExpr {
 class PhyPack : public Pack {
  public:
   // Constructor.
-  PhyPack(ULng32 packingFactor = 0, RelExpr *child = NULL, CollHeap *oHeap = CmpCommon::statementHeap());
+  PhyPack(int packingFactor = 0, RelExpr *child = NULL, CollHeap *oHeap = CmpCommon::statementHeap());
 
   // Destructor.
   virtual ~PhyPack();

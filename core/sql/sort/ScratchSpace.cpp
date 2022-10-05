@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ******************************************************************************
 *
@@ -359,7 +338,7 @@ RESULT ScratchSpace::CreateANewScrFileAndWrite(char *buffer, int blockNum, UInt3
 //       anymore.
 //
 //-----------------------------------------------------------------------
-RESULT ScratchSpace::writeThru(char *buf, ULng32 len, DWORD &blockNum) {
+RESULT ScratchSpace::writeThru(char *buf, int len, DWORD &blockNum) {
   long iowaittime = 0;
   RESULT retval = WRITE_EOF;
   DWORD byteAddr = 0;
@@ -498,7 +477,7 @@ RESULT ScratchSpace::writeThru(char *buf, ULng32 len, DWORD &blockNum) {
 //-----------------------------------------------------------------------
 RESULT ScratchSpace::readThru(char *buf,
                               int blockNum,  // block# starting from one
-                              ULng32 buflen, ScratchFile *readScratchFile, int readBlockOffset) {
+                              int buflen, ScratchFile *readScratchFile, int readBlockOffset) {
   // sanity check
   ex_assert(buflen == blockSize_, "ScratchSpace::readThru buffer size mismatch");
 
@@ -1209,7 +1188,7 @@ void SortScratchSpace::cleanupSortMergeBufferPool(void) {
   }
 }
 
-RESULT SortScratchSpace::writeRunData(char *data, ULng32 reclen, ULng32 run, NABoolean waited) {
+RESULT SortScratchSpace::writeRunData(char *data, int reclen, int run, NABoolean waited) {
   RESULT retcode = SCRATCH_SUCCESS;
   if (run != currentRun_) {
     // Start a New Run
@@ -1419,7 +1398,7 @@ RESULT SortScratchSpace::initiateSortMergeNodeRead(SortMergeNode *sortMergeNode,
 //
 //-----------------------------------------------------------------------
 
-RESULT SortScratchSpace::readSortMergeNode(SortMergeNode *sortMergeNode, char *&rec, ULng32 reclen, ULng32 &actRecLen,
+RESULT SortScratchSpace::readSortMergeNode(SortMergeNode *sortMergeNode, char *&rec, int reclen, int &actRecLen,
                                            NABoolean waited, Int16 numberOfBytesForRecordSize) {
   long ioWaitTime = 0;
   RESULT retval = SCRATCH_SUCCESS;

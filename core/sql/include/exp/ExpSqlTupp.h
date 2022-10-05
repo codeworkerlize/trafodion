@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ****************************************************************************
 *
@@ -80,7 +59,7 @@ class tupp {
   inline tupp_descriptor *get_tupp_descriptor();
 
   inline unsigned short getRefCount() const;
-  inline ULng32 getAllocatedSize() const;
+  inline int getAllocatedSize() const;
 
   Long pack(void *space);
   int unpack(int base);
@@ -126,14 +105,14 @@ class tupp_descriptor {
   };
 
   unsigned short filler_;
-  ULng32 allocatedSize_;
+  int allocatedSize_;
 
   union {
     tupp_descriptor *relocatedAddress_;  // addr where record is being copied
 
     struct {
-      ULng32 nextTDIOffset_;
-      ULng32 prevTDIOffset_;
+      int nextTDIOffset_;
+      int prevTDIOffset_;
     } tdiOffset_;
   };
 
@@ -143,15 +122,15 @@ class tupp_descriptor {
   };
 
  protected:
-  ULng32 &nextTDIOffset() { return tdiOffset_.nextTDIOffset_; }
-  ULng32 &prevTDIOffset() { return tdiOffset_.prevTDIOffset_; }
+  int &nextTDIOffset() { return tdiOffset_.nextTDIOffset_; }
+  int &prevTDIOffset() { return tdiOffset_.prevTDIOffset_; }
 
  public:
   tupp_descriptor();  //  construct and initiliaze a descriptor
 
   inline void init();  // initialize a newly allocated descriptor
 
-  inline void init(ULng32 allocatedSize, tupp_descriptor *relocatedAddress, char *tupleAddress);
+  inline void init(int allocatedSize, tupp_descriptor *relocatedAddress, char *tupleAddress);
 
   inline unsigned short getReferenceCount() const;
   void setReferenceCount(unsigned short ref_count) { referenceCount_ = ref_count; }
@@ -172,7 +151,7 @@ class tupp_descriptor {
 
   inline void setRelocatedAddress(tupp_descriptor *relocated_address) { relocatedAddress_ = relocated_address; }
 
-  inline ULng32 getAllocatedSize() { return allocatedSize_; };
+  inline int getAllocatedSize() { return allocatedSize_; };
 
   inline void setAllocatedSize(int size) { allocatedSize_ = size; }
 
@@ -303,7 +282,7 @@ inline char *tupp::getDataPointer() const {
 
 inline unsigned short tupp::getRefCount() const { return tuppDescPointer ? tuppDescPointer->getReferenceCount() : 0; };
 
-inline ULng32 tupp::getAllocatedSize() const { return tuppDescPointer->allocatedSize_; }
+inline int tupp::getAllocatedSize() const { return tuppDescPointer->allocatedSize_; }
 
 inline void tupp::setDataPointer(char *dp) { tuppDescPointer->tupleAddress_ = dp; };
 
@@ -320,7 +299,7 @@ inline unsigned short tupp_descriptor::getReferenceCount() const { return refere
 
 inline char *tupp_descriptor::getTupleAddress() const { return tupleAddress_; };
 
-inline void tupp_descriptor::init(ULng32 allocatedSize, tupp_descriptor *relocatedAddress, char *tupleAddress) {
+inline void tupp_descriptor::init(int allocatedSize, tupp_descriptor *relocatedAddress, char *tupleAddress) {
   referenceCount_ = 0;
   allocatedSize_ = allocatedSize;
 

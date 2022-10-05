@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ******************************************************************************
 *
@@ -77,7 +56,7 @@ short ExpGenerator::buildKeyInfo(keyRangeGen **keyInfo,  // out -- generated obj
                                           //   and MdamColumn::buildDisjunct
                                           //   requires this to be 1 more than
                                           //   key_column_atp_index
-  ULng32 keyLen;
+  int keyLen;
 
   // add an entry to the map table for work Atp
   MapTable *keyBufferPartMapTable = generator->appendAtEnd();
@@ -89,7 +68,7 @@ short ExpGenerator::buildKeyInfo(keyRangeGen **keyInfo,  // out -- generated obj
   ItemExpr *dataConversionErrorFlag = new (generator->wHeap()) HostVar(
       "_sys_dataConversionErrorFlag", new (generator->wHeap()) SQLInt(generator->wHeap(), TRUE, FALSE),  // int not null
       TRUE);
-  ULng32 temp_varb_tupp_len;
+  int temp_varb_tupp_len;
 
   dataConversionErrorFlag->bindNode(generator->getBindWA());
   temp_varb_list.insert(dataConversionErrorFlag->getValueId());
@@ -245,7 +224,7 @@ short ExpGenerator::buildKeyInfo(keyRangeGen **keyInfo,  // out -- generated obj
     // Compute offsets, lengths, etc. and assign them to the right
     // atp and atp index
 
-    processAttributes((ULng32)keyCount, attrs, tf, keyLen, work_atp, key_atp_index);
+    processAttributes((int)keyCount, attrs, tf, keyLen, work_atp, key_atp_index);
 
     // Now we have key column offsets and lengths stored in attrs.
 
@@ -310,7 +289,7 @@ short ExpGenerator::buildKeyInfo(keyRangeGen **keyInfo,  // out -- generated obj
       loList.insert(lo->getValueId());
 
       ex_expr *loExpr = 0;
-      ULng32 dataLen = 0;
+      int dataLen = 0;
 
       generateContiguousMoveExpr(loList,
                                  0,  // don't add convert nodes
@@ -369,7 +348,7 @@ short ExpGenerator::buildKeyInfo(keyRangeGen **keyInfo,  // out -- generated obj
       // (including the null indicator and the varchar length
       // indicator if present)
 
-      ULng32 column_offset = attrs[i]->getOffset();
+      int column_offset = attrs[i]->getOffset();
 
       if (attrs[i]->getNullFlag())
         column_offset = attrs[i]->getNullIndOffset();

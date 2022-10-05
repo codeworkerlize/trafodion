@@ -79,8 +79,8 @@ int CompositeAttributes::unpack(void *base, void *reallocator) {
 ////////////////////////////////////////////////////////////////////
 // ExpCompositeBase
 ////////////////////////////////////////////////////////////////////
-ExpCompositeBase::ExpCompositeBase(OperatorTypeEnum oper_type, short type, ULng32 numElements, short numAttrs,
-                                   Attributes **attr, ULng32 compRowLen, ex_expr *compExpr, ex_cri_desc *compCriDesc,
+ExpCompositeBase::ExpCompositeBase(OperatorTypeEnum oper_type, short type, int numElements, short numAttrs,
+                                   Attributes **attr, int compRowLen, ex_expr *compExpr, ex_cri_desc *compCriDesc,
                                    AttributesPtr compAttrs, Space *space)
     : ex_function_clause(oper_type, numAttrs, attr, space),
       compExpr_(compExpr),
@@ -134,7 +134,7 @@ ex_expr::exp_return_type ExpCompositeBase::fixup(Space *space, CollHeap *exHeap,
 }
 
 void ExpCompositeBase::displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea,
-                                       ULng32 flag) {
+                                       int flag) {
   char buf[200];
 
   compExprNum++;
@@ -207,7 +207,7 @@ ExpCompositeArrayLength::ExpCompositeArrayLength(OperatorTypeEnum oper_type, sho
     : ExpCompositeBase(oper_type, type, 0, 2, attr, 0, NULL, NULL, NULL, space) {}
 
 void ExpCompositeArrayLength::displayContents(Space *space, const char * /*displayStr*/, int clauseNum,
-                                              char *constsArea, ULng32 flag) {
+                                              char *constsArea, int flag) {
   ExpCompositeBase::displayContents(space, "ExpCompositeArrayLength", clauseNum, constsArea, flag);
 }
 
@@ -715,15 +715,15 @@ ex_expr::exp_return_type ExpCompositeConcat::eval(char *op_data[], CollHeap *hea
 }
 
 void ExpCompositeConcat::displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea,
-                                         ULng32 flag) {
+                                         int flag) {
   ExpCompositeBase::displayContents(space, "ExpCompositeConcat", clauseNum, constsArea, flag);
 }
 
 ////////////////////////////////////////////////////////////////////
 // ExpCompositeCreate
 ////////////////////////////////////////////////////////////////////
-ExpCompositeCreate::ExpCompositeCreate(OperatorTypeEnum oper_type, short type, ULng32 numElements, short numAttrs,
-                                       Attributes **attr, ULng32 compRowLen, ex_expr *compExpr,
+ExpCompositeCreate::ExpCompositeCreate(OperatorTypeEnum oper_type, short type, int numElements, short numAttrs,
+                                       Attributes **attr, int compRowLen, ex_expr *compExpr,
                                        ex_cri_desc *compCriDesc, AttributesPtr compAttrs, Space *space)
     : ExpCompositeBase(oper_type, type, numElements, numAttrs, attr, compRowLen, compExpr, compCriDesc, compAttrs,
                        space) {}
@@ -734,7 +734,7 @@ int ExpCompositeCreate::unpack(void *base, void *reallocator) { return ExpCompos
 
 ex_expr::exp_return_type ExpCompositeCreate::eval(char *op_data[], atp_struct *atp1, atp_struct *atp2, atp_struct *atp3,
                                                   CollHeap *heap, ComDiagsArea **diagsArea) {
-  ULng32 actualRowLen = 0;
+  int actualRowLen = 0;
   ex_expr::exp_return_type evalRetCode = getCompExpr()->eval(atp1, atp2, compAtp_, heap, -1, &actualRowLen, NULL, NULL);
   ComDiagsArea *tempDA = atp1->getDiagsArea();
   int actualElems = -1;
@@ -798,14 +798,14 @@ ex_expr::exp_return_type ExpCompositeCreate::eval(char *op_data[], atp_struct *a
 }
 
 void ExpCompositeCreate::displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea,
-                                         ULng32 flag) {
+                                         int flag) {
   ExpCompositeBase::displayContents(space, "ExpCompositeCreate", clauseNum, constsArea, flag);
 }
 
 ///////////////////////////////////////////////////////////
 // ExpCompositeDisplay
 ///////////////////////////////////////////////////////////
-ExpCompositeDisplay::ExpCompositeDisplay(OperatorTypeEnum oper_type, short type, ULng32 numElements, short numAttrs,
+ExpCompositeDisplay::ExpCompositeDisplay(OperatorTypeEnum oper_type, short type, int numElements, short numAttrs,
                                          Attributes **attr, ex_cri_desc *compCriDesc, AttributesPtr compAttrs,
                                          Space *space)
     : ExpCompositeBase(oper_type, type, numElements, numAttrs, attr, 0, NULL, compCriDesc, compAttrs, space) {}
@@ -940,7 +940,7 @@ ex_expr::exp_return_type ExpCompositeDisplay::eval(char *op_data[], CollHeap *he
 ///////////////////////////////////////////////////////////
 // ExpCompositeExtract
 ///////////////////////////////////////////////////////////
-ExpCompositeExtract::ExpCompositeExtract(OperatorTypeEnum oper_type, short type, ULng32 numElements, int elemNum,
+ExpCompositeExtract::ExpCompositeExtract(OperatorTypeEnum oper_type, short type, int numElements, int elemNum,
                                          short numAttrs, Attributes **attr, AttributesPtr compAttrs,
                                          int numSearchAttrs, char *searchAttrTypeList, char *searchAttrIndexList,
                                          Space *space)
@@ -1007,7 +1007,7 @@ void ExpCompositeExtract::displayContents(Space *space, const char * /*displaySt
 
 ex_expr::exp_return_type ExpCompositeExtract::extractValue(Attributes *inAttrs, int elemNum, char *tgtPtr,
                                                            char *srcPtr, int maxNumElems, NABoolean &isNullVal,
-                                                           ULng32 &attrLen, int &numElems, CollHeap *heap,
+                                                           int &attrLen, int &numElems, CollHeap *heap,
                                                            ComDiagsArea **diagsArea) {
   CompositeAttributes *compAttrs = (CompositeAttributes *)inAttrs;
   AttributesPtrPtr app = compAttrs->getElements();
@@ -1047,7 +1047,7 @@ ex_expr::exp_return_type ExpCompositeExtract::extractValue(Attributes *inAttrs, 
 }
 
 ex_expr::exp_return_type ExpCompositeExtract::searchAndExtractValue(Attributes *inAttrs, char *tgtPtr, char *srcPtr,
-                                                                    NABoolean &isNullVal, ULng32 &attrLen,
+                                                                    NABoolean &isNullVal, int &attrLen,
                                                                     CollHeap *heap, ComDiagsArea **diagsArea) {
   Attributes *currCompAttrs = inAttrs;
   Attributes *currAttr = NULL;

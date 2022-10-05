@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ******************************************************************************
 *
@@ -264,18 +243,18 @@ short Exchange::codeGenForESP(Generator *generator) {
   // length of the sent records
   ValueIdList sentInputValues;
   MapTable *initialESPMapTable = NULL;
-  ULng32 downRecordLength;
-  ULng32 downSqlBufferLength;
-  ULng32 numDownBuffers = getDefault(GEN_SNDT_NUM_BUFFERS);
+  int downRecordLength;
+  int downSqlBufferLength;
+  int numDownBuffers = getDefault(GEN_SNDT_NUM_BUFFERS);
   CostScalar numRowsDown = (CostScalar)1;  // $$$$ get from input log props
 
   ValueIdList returnedOutputValues;
   MapTable *returnedValuesMapTable = NULL;
-  ULng32 upRecordLength = 0;
-  ULng32 upSqlBufferLength = 0;
-  ULng32 numUpBuffers = getDefault(GEN_SNDB_NUM_BUFFERS);
+  int upRecordLength = 0;
+  int upSqlBufferLength = 0;
+  int numUpBuffers = getDefault(GEN_SNDB_NUM_BUFFERS);
   CostScalar numRowsUp = getEstRowsUsed().value();
-  ULng32 mergeKeyLength = 0;
+  int mergeKeyLength = 0;
 
   const PartitioningFunction *topPartFunc = getTopPartitioningFunction();
   const PartitioningFunction *bottomPartFunc = getBottomPartitioningFunction();
@@ -415,7 +394,7 @@ short Exchange::codeGenForESP(Generator *generator) {
   if (FALSE /*  enable this later $$$$ */) {
     ItemExpr *bottomPartExpr = ((PartitioningFunction *)bottomPartFunc)->createPartitioningExpression();
     ValueIdList bottomPartList;
-    ULng32 dummyLength;
+    int dummyLength;
 
     if (bottomPartExpr) {
       bottomPartList.insert(bottomPartExpr->getValueId());
@@ -433,15 +412,15 @@ short Exchange::codeGenForESP(Generator *generator) {
 
   // we MUST be able to fit at least one row into a buffer
 
-  downSqlBufferLength = MAXOF((ULng32)ComTdbSendTop::minSendBufferSize(downRecordLength),
-                              (ULng32)(downMessageBufferLength_.getValue() * 1024));
+  downSqlBufferLength = MAXOF((int)ComTdbSendTop::minSendBufferSize(downRecordLength),
+                              (int)(downMessageBufferLength_.getValue() * 1024));
 
   CollIndex childFragmentId = 0;
 
   NABoolean thisExchangeUsesSM = FALSE;
   if (thisExchangeCanUseSM(generator->getBindWA())) thisExchangeUsesSM = TRUE;
 
-  ULng32 minMaxValueDownRecordLength = 0;
+  int minMaxValueDownRecordLength = 0;
 
   if (isExtractConsumer_) {
     // Each extract consumer can change the format back to exploded if need be
@@ -453,7 +432,7 @@ short Exchange::codeGenForESP(Generator *generator) {
     // related to the bottom fragment. All we need to do before
     // generating the top fragment (the split top and send top TDBs)
     // is add reply buffer output values to the map table.
-    ULng32 dummyRecLen = 0;
+    int dummyRecLen = 0;
     expGen->processValIdList(returnedOutputValues,        // [IN] ValueIdList
                              tupleFormat,                 // [IN] tuple data format
                              dummyRecLen,                 // [OUT] tuple length
@@ -534,7 +513,7 @@ short Exchange::codeGenForESP(Generator *generator) {
       ((PartitioningFunction *)bottomPartFunc)
           ->generatePivLayout(generator, partitionInputDataLength, espChildAtp, espChildPartInpAtpIndex, NULL);
 
-      generator->getFragmentDir()->setPartInputDataLength(childFragmentId, (ULng32)partitionInputDataLength);
+      generator->getFragmentDir()->setPartInputDataLength(childFragmentId, (int)partitionInputDataLength);
     }
 
     // Copy #BMOs value from Exchange node into the fragment
@@ -564,7 +543,7 @@ short Exchange::codeGenForESP(Generator *generator) {
     // A List to contain the Min and Max aggregates
     ValueIdList mmPairs;
 
-    ULng32 minValStartOffset = 0;
+    int minValStartOffset = 0;
 
     if (getScanFilterInputs().entries()) {
       minMaxValsAtpIndexSendTop2Bottom = downTuppAtpIndex;
@@ -753,7 +732,7 @@ short Exchange::codeGenForESP(Generator *generator) {
       // A ReplicationPartitioningFunction has no partitioning expression.
       if (topPartExpr) {
         ValueIdList topPartExprAsList;
-        ULng32 partNoValLength;
+        int partNoValLength;
         ItemExpr *convErrExpr = topPartFunc->getConvErrorExpr();
 
         if (convErrExpr) {
@@ -953,8 +932,8 @@ short Exchange::codeGenForESP(Generator *generator) {
                                        NULL, ExpTupleDesc::SHORT_FORMAT, &returnedValuesMapTable);
 
     // we MUST be able to fit at least one row into a buffer
-    upSqlBufferLength = MAXOF((ULng32)ComTdbSendTop::minReceiveBufferSize(upRecordLength),
-                              (ULng32)(upMessageBufferLength_.getValue() * 1024));
+    upSqlBufferLength = MAXOF((int)ComTdbSendTop::minReceiveBufferSize(upRecordLength),
+                              (int)(upMessageBufferLength_.getValue() * 1024));
 
     // ---------------------------------------------------------------------
     // generate send bottom tdb
@@ -1321,27 +1300,27 @@ CostScalar Exchange::getEstimatedRunTimeMemoryUsage(Generator *generator, NABool
   // compute the buffer length (for both
   // sendTop and sendBottom) first.
   //////////////////////////////////////
-  ULng32 upRowLength = getGroupAttr()->getCharacteristicOutputs().getRowLength();
-  ULng32 downRowLength = getGroupAttr()->getCharacteristicInputs().getRowLength();
+  int upRowLength = getGroupAttr()->getCharacteristicOutputs().getRowLength();
+  int downRowLength = getGroupAttr()->getCharacteristicInputs().getRowLength();
 
   // make sure the up buffer can fit at least one row
-  ULng32 upSqlBufferLength = MAXOF((ULng32)ComTdbSendTop::minReceiveBufferSize(upRowLength),
-                                   (ULng32)(upMessageBufferLength_.getValue() * 1024));
+  int upSqlBufferLength = MAXOF((int)ComTdbSendTop::minReceiveBufferSize(upRowLength),
+                                   (int)(upMessageBufferLength_.getValue() * 1024));
 
   // make sure the down buffer can fit at least one row
-  ULng32 downSqlBufferLength = MAXOF((ULng32)ComTdbSendTop::minSendBufferSize(downRowLength),
-                                     (ULng32)(downMessageBufferLength_.getValue() * 1024));
+  int downSqlBufferLength = MAXOF((int)ComTdbSendTop::minSendBufferSize(downRowLength),
+                                     (int)(downMessageBufferLength_.getValue() * 1024));
 
-  ULng32 sqlBufferLengthUsed = MAXOF(upSqlBufferLength, downSqlBufferLength);
+  int sqlBufferLengthUsed = MAXOF(upSqlBufferLength, downSqlBufferLength);
 
   //////////////////////////////////////
   // compute the number of buffers
   //////////////////////////////////////
-  ULng32 numUpBuffersSendT = getDefault(GEN_SNDT_NUM_BUFFERS);
-  ULng32 numUpBuffersSendB = getDefault(GEN_SNDB_NUM_BUFFERS);
+  int numUpBuffersSendT = getDefault(GEN_SNDT_NUM_BUFFERS);
+  int numUpBuffersSendB = getDefault(GEN_SNDB_NUM_BUFFERS);
 
-  ULng32 numDownBuffersSendT = 1;  // only one down buffer allocated
-  ULng32 numDownBuffersSendB = 1;  // only one down buffer allocated
+  int numDownBuffersSendT = 1;  // only one down buffer allocated
+  int numDownBuffersSendB = 1;  // only one down buffer allocated
 
   double memoryRequired = 0;
 

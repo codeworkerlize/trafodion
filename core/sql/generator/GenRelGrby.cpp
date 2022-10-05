@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ******************************************************************************
 *
@@ -94,11 +73,11 @@ short GroupByAgg::genAggrGrbyExpr(Generator *generator, ValueIdSet &aggregateExp
   ////////////////////////////////////////////////////////////
   generator->setGenNoFloatValidatePCode(TRUE);
 
-  ULng32 recLen = 0;
+  int recLen = 0;
   ValueId valId;
 
   // find the number of aggregate and groupby entries
-  ULng32 numAttrs = 0;
+  int numAttrs = 0;
   if (NOT aggregateExpr.isEmpty()) numAttrs += aggregateExpr.entries();
   if (isRollup() && (NOT rollupGroupExprList.isEmpty()))
     numAttrs += rollupGroupExprList.entries();
@@ -638,10 +617,10 @@ short HashGroupBy::codeGen(Generator *generator) {
 
   // the size of the grouped row in the hash buffer (not including the
   // HashRow header).
-  ULng32 groupedRowLength = 0;
+  int groupedRowLength = 0;
 
   // find the number of aggregate and groupby entries
-  ULng32 numAttrs = ((NOT lowerAggrValIds.isEmpty()) ? lowerAggrValIds.entries() : 0) +
+  int numAttrs = ((NOT lowerAggrValIds.isEmpty()) ? lowerAggrValIds.entries() : 0) +
                     ((NOT groupValIds.isEmpty()) ? groupValIds.entries() : 0);
 
   Attributes **attrs = new (generator->wHeap()) Attributes *[numAttrs];
@@ -794,7 +773,7 @@ short HashGroupBy::codeGen(Generator *generator) {
                             ExpTupleDesc::SHORT_FORMAT, 0, hdrInfo);
 
   // the size of the grouped row in the hash buffer
-  ULng32 extGroupRowLength = groupedRowLength + sizeof(HashRow);
+  int extGroupRowLength = groupedRowLength + sizeof(HashRow);
 
   NADELETEBASIC(attrs, generator->wHeap());
 
@@ -821,7 +800,7 @@ short HashGroupBy::codeGen(Generator *generator) {
   Attributes *mapAttr = (generator->addMapInfo(leftExpr->getValueId(), 0))->getAttr();
   mapAttr->setAtp(workAtpPos);
   mapAttr->setAtpIndex(hashValueAtpIndex);
-  ULng32 len;
+  int len;
   ExpTupleDesc::computeOffsets(mapAttr, ExpTupleDesc::SQLARK_EXPLODED_FORMAT, len);
 
   // generate code to evaluate the hash expression
@@ -863,7 +842,7 @@ short HashGroupBy::codeGen(Generator *generator) {
   // Alter the map table so that the result of the bitMux expression
   // side effects the bitMuxAtpIndex of the workAtp.
   //
-  ULng32 keyLength;
+  int keyLength;
   mapAttr = generator->addMapInfo(bitMuxItemExpr->getValueId(), 0)->getAttr();
   mapAttr->setAtp(workAtpPos);
   mapAttr->setAtpIndex(bitMuxAtpIndex);
@@ -961,7 +940,7 @@ short HashGroupBy::codeGen(Generator *generator) {
 
   // generate the expression which moves a result row to the result buffer
   ValueIdList resultValIds;
-  ULng32 resultRowLength;
+  int resultRowLength;
   MapTable *resultValMapTable = NULL;
   ValueIdList moveOutValIdList;
   ValueIdList gendAggrValIdList;
@@ -1194,19 +1173,19 @@ short HashGroupBy::codeGen(Generator *generator) {
   // a buffer has to store at least one (extended) group/row plus tupp_desc
 
   // get the default value for the buffer size
-  ULng32 bufferSize = (ULng32)getDefault(GEN_HGBY_BUFFER_SIZE);
+  int bufferSize = (int)getDefault(GEN_HGBY_BUFFER_SIZE);
 
-  ULng32 hashBufferSize = extGroupRowLength + sizeof(tupp_descriptor);
+  int hashBufferSize = extGroupRowLength + sizeof(tupp_descriptor);
   bufferSize = MAXOF(hashBufferSize, bufferSize);
 
   // minimum result buffer size
-  ULng32 resBufferSize = resultRowLength + sizeof(tupp_descriptor);
+  int resBufferSize = resultRowLength + sizeof(tupp_descriptor);
   bufferSize = MAXOF(resBufferSize, bufferSize);
 
   // For overflow buffer size must be multiple of 512 byte boundary
   // due to O_DIRECT requirements.
   // For calculation, refer to ALIGN_OFFSET in NAMemory.
-  ULng32 padlen = ((bufferSize & 511) == 0) ? 0 : (512 - (bufferSize & 511));
+  int padlen = ((bufferSize & 511) == 0) ? 0 : (512 - (bufferSize & 511));
   bufferSize += padlen;
 
   short scrthreshold = (short)CmpCommon::getDefaultLong(SCRATCH_FREESPACE_THRESHOLD_PERCENT);
@@ -1221,11 +1200,11 @@ short HashGroupBy::codeGen(Generator *generator) {
       (queue_index)getDefault(GEN_HGBY_SIZE_DOWN), (queue_index)getDefault(GEN_HGBY_SIZE_UP), isPartialGroupBy,
       expectedRows, (int)getDefault(GEN_HGBY_NUM_BUFFERS), bufferSize,
       getDefault(GEN_HGBY_PARTIAL_GROUP_FLUSH_THRESHOLD), getDefault(GEN_HGBY_PARTIAL_GROUP_ROWS_PER_CLUSTER),
-      (ULng32)getDefault(EXE_HGB_INITIAL_HT_SIZE),
+      (int)getDefault(EXE_HGB_INITIAL_HT_SIZE),
       // To get the min number of buffers per a flushed cluster
       // before is can be flushed again
       (unsigned short)getDefault(EXE_NUM_CONCURRENT_SCRATCH_IOS) + (short)getDefault(COMP_INT_66),  // for testing
-      (ULng32)getDefault(COMP_INT_67),                                                              // numInBatch
+      (int)getDefault(COMP_INT_67),                                                              // numInBatch
       hgbGrowthPercent);
 
   hashGrbyTdb->setRecordLength(getGroupAttr()->getRecordLength());
@@ -1367,7 +1346,7 @@ CostScalar HashGroupBy::getEstimatedRunTimeMemoryUsage(Generator *generator, NAB
   // Each record also uses a header (HashRow) in memory (8 bytes for 32bit).
   // Hash tables also take memory -- they are about %50 longer than the
   // number of entries.
-  const ULng32 memOverheadPerRecord = sizeof(HashRow) + sizeof(HashTableHeader) * 3 / 2;
+  const int memOverheadPerRecord = sizeof(HashRow) + sizeof(HashTableHeader) * 3 / 2;
   CostScalar estMemPerNode;
   CostScalar estMemPerInst;
   // totalHashTableMemory is for all CPUs at this point of time.
@@ -1506,7 +1485,7 @@ short HbasePushdownAggr::codeGen(Generator *generator) {
   const int rowIdTuppIndex = 5;
   const int rowIdAsciiTuppIndex = 6;
 
-  ULng32 projRowLen = 0;
+  int projRowLen = 0;
   ExpTupleDesc *projTupleDesc = NULL;
 
   ex_cri_desc *work_cri_desc = NULL;
@@ -1525,7 +1504,7 @@ short HbasePushdownAggr::codeGen(Generator *generator) {
   ValueIdList aggrVidList;
   ValueIdList hbaseAggrVidList;
 
-  ULng32 numAttrs = aggregateExpr().entries();
+  int numAttrs = aggregateExpr().entries();
   Attributes **attrs = new (generator->wHeap()) Attributes *[numAttrs];
   int i = 0;
   for (ValueId valId = aggregateExpr().init(); aggregateExpr().next(valId); aggregateExpr().advance(valId), i++) {
@@ -1541,11 +1520,11 @@ short HbasePushdownAggr::codeGen(Generator *generator) {
   // Create the descriptor describing row where aggr returned by hbase will
   // be added.
   ExpTupleDesc *hbaseAggrTupleDesc = NULL;
-  ULng32 hbaseAggrRowLen = 0;
+  int hbaseAggrRowLen = 0;
 
   // Create the descriptor describing the aggr row and assign offset to attrs.
   ExpTupleDesc *tupleDesc = NULL;
-  ULng32 finalAggrRowLen = 0;
+  int finalAggrRowLen = 0;
   expGen->processAttributes(numAttrs, attrs, ExpTupleDesc::SQLARK_EXPLODED_FORMAT, finalAggrRowLen, workAtp,
                             finalAggrTuppIndex, &tupleDesc, ExpTupleDesc::SHORT_FORMAT);
 
@@ -1605,7 +1584,7 @@ short HbasePushdownAggr::codeGen(Generator *generator) {
   expGen->assignAtpAndAtpIndex(aggrVidList, 0, returnedDesc->noTuples() - 1);
 
   Cardinality expectedRows = (Cardinality)getEstRowsUsed().getValue();
-  ULng32 buffersize = 3 * getDefault(GEN_DPSO_BUFFER_SIZE);
+  int buffersize = 3 * getDefault(GEN_DPSO_BUFFER_SIZE);
   queue_index upqueuelength = (queue_index)getDefault(GEN_DPSO_SIZE_UP);
   queue_index downqueuelength = (queue_index)getDefault(GEN_DPSO_SIZE_DOWN);
   int numBuffers = getDefault(GEN_DPUO_NUM_BUFFERS);
@@ -1617,7 +1596,7 @@ short HbasePushdownAggr::codeGen(Generator *generator) {
   // This should be more sophisticate than this, and should maybe be done
   // within the buffer class, but for now this will do.
   //
-  ULng32 cbuffersize = SqlBufferNeededSize((upqueuelength * 2 / numBuffers),
+  int cbuffersize = SqlBufferNeededSize((upqueuelength * 2 / numBuffers),
                                            1000);  // returnedRowlen);
   // But use at least the default buffer size.
   //
@@ -1658,8 +1637,8 @@ short HbasePushdownAggr::codeGen(Generator *generator) {
   Queue *tdbListOfUniqueRows = NULL;
   HbaseAccess::genListsOfRows(generator, listOfRangeRows_, listOfUniqueRows_, tdbListOfRangeRows, tdbListOfUniqueRows);
 
-  ULng32 rowIdLength = 0;
-  ULng32 rowIdAsciiRowLen = 0;
+  int rowIdLength = 0;
+  int rowIdAsciiRowLen = 0;
   ExpTupleDesc *rowIdAsciiTupleDesc = 0;
   ex_expr *rowIdExpr = NULL;
 

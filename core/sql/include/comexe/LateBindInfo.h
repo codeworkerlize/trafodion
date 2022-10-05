@@ -1,25 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 /* -*-C++-*-
 ****************************************************************************
 *
@@ -319,17 +298,17 @@ class LateNameInfoList : public NAVersionedObject {
   void setLateNameInfo(int i, LateNameInfo *lni) { lateNameInfo_[i] = lni; }
 
   // unsigned long &numEntries() { return numEntries_; };
-  ULng32 getNumEntries() { return numEntries_; };
-  void setNumEntries(ULng32 num) { numEntries_ = num; };
+  int getNumEntries() { return numEntries_; };
+  void setNumEntries(int num) { numEntries_ = num; };
 
   // returns the length of total info that needs to be sent to compiler
   // at recomp time. This info is used to get to the actual tablename
   // (and not the prototype name) that was specified thru a hvar/param/env
   // var.
-  ULng32 getRecompLateNameInfoListLen();
+  int getRecompLateNameInfoListLen();
   // puts recomp info into 'buffer'. Space is to be allocated by caller.
   void getRecompLateNameInfoList(char *buffer);
-  ULng32 getRecompLateNameInfoListLenPre1800();
+  int getRecompLateNameInfoListLenPre1800();
 
   // puts recomp info into 'buffer'. Space is to be allocated by caller.
   void getRecompLateNameInfoListPre1800(char *buffer);
