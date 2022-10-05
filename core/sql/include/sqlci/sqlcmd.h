@@ -55,13 +55,13 @@
 //
 extern void HandleCLIErrorInit();
 extern void HandleCLIError(int &err, SqlciEnv *sqlci_env, NABoolean displayErr = TRUE, NABoolean *isEOD = NULL,
-                           Int32 prepcode = 0, NABoolean getWarningsWithEOF = FALSE);
+                           int prepcode = 0, NABoolean getWarningsWithEOF = FALSE);
 extern void HandleCLIError(SQLSTMT_ID *stmt, int &err, SqlciEnv *sqlci_env, NABoolean displayErr = TRUE,
-                           NABoolean *isEOD = NULL, Int32 prepcode = 0);
+                           NABoolean *isEOD = NULL, int prepcode = 0);
 
 void handleLocalError(ComDiagsArea *diags, SqlciEnv *sqlci_env);
 long getRowsAffected(SQLSTMT_ID *stmt);
-Int32 getDiagsCondCount(SQLSTMT_ID *stmt);
+int getDiagsCondCount(SQLSTMT_ID *stmt);
 // for unnamed parameters
 #define MAX_NUM_UNNAMED_PARAMS 128
 #define MAX_LEN_UNNAMED_PARAM  300
@@ -87,21 +87,21 @@ class SqlCmd : public SqlciNode {
  private:
   sql_cmd_type cmd_type;
   char *sql_stmt;
-  Int32 sql_stmt_oct_length;
+  int sql_stmt_oct_length;
 
  public:
   SqlCmd(const sql_cmd_type cmd_type_, const char *argument_);
   ~SqlCmd();
   char *get_sql_stmt() { return sql_stmt; }
-  inline Int32 get_sql_stmt_oct_length() { return sql_stmt_oct_length; };
+  inline int get_sql_stmt_oct_length() { return sql_stmt_oct_length; };
 
   static short do_prepare(SqlciEnv *, PrepStmt *, char *sqlStmt, NABoolean resetLastExecStmt = TRUE, int rsIndex = 0,
-                          Int32 *prepcode = NULL, int *statisticsType = NULL);
+                          int *prepcode = NULL, int *statisticsType = NULL);
 
   static short updateRepos(SqlciEnv *sqlci_env, SQLSTMT_ID *stmt, char *queryId);
 
-  static short do_execute(SqlciEnv *, PrepStmt *, Int32 numUnnamedParams = 0, char **unnamedParamArray = NULL,
-                          CharInfo::CharSet *unnamedParamCharSetArray = NULL, Int32 prepcode = 0);
+  static short do_execute(SqlciEnv *, PrepStmt *, int numUnnamedParams = 0, char **unnamedParamArray = NULL,
+                          CharInfo::CharSet *unnamedParamCharSetArray = NULL, int prepcode = 0);
   //////////////////////////////////////////////////////////
   // made the change to add static in front of the function
   // declaration! Reason - Beacause we will be accessing that
@@ -110,14 +110,14 @@ class SqlCmd : public SqlciNode {
   // it wont link.
   ////////////////////////////////////////////////////////////
 
-  static short doExec(SqlciEnv *, SQLSTMT_ID *, PrepStmt *, Int32 numUnnamedParams = 0, char **unnamedParamArray = NULL,
+  static short doExec(SqlciEnv *, SQLSTMT_ID *, PrepStmt *, int numUnnamedParams = 0, char **unnamedParamArray = NULL,
                       CharInfo::CharSet *unnamedParamCharSetArray = NULL, NABoolean handleError = TRUE);
   static short doDescribeInput(SqlciEnv *, SQLSTMT_ID *, PrepStmt *, int num_input_entries,
-                               Int32 numUnnamedParams = 0, char **unnamedParamArray = NULL,
+                               int numUnnamedParams = 0, char **unnamedParamArray = NULL,
                                CharInfo::CharSet *unnamedParamCharSetArray = NULL);
   static short doFetch(SqlciEnv *, SQLSTMT_ID *stmt, PrepStmt *prep_stmt, NABoolean firstFetch = FALSE,
-                       NABoolean handleError = TRUE, Int32 prepcode = 0);
-  static short doClearExecFetchClose(SqlciEnv *, SQLSTMT_ID *, PrepStmt *, Int32 numUnnamedParams = 0,
+                       NABoolean handleError = TRUE, int prepcode = 0);
+  static short doClearExecFetchClose(SqlciEnv *, SQLSTMT_ID *, PrepStmt *, int numUnnamedParams = 0,
                                      char **unnamedParamArray = NULL,
                                      CharInfo::CharSet *unnamedParamCharSetArray = NULL, NABoolean handleError = TRUE);
   static short getHeadingInfo(SqlciEnv *sqlci_env, PrepStmt *prep_stmt, char *headingRow, char *underline);

@@ -177,8 +177,8 @@ class ex_sort_grby_tcb : public ex_tcb {
 
   inline int recLen() { return sort_grby_tdb().recLen_; };
 
-  virtual Int32 numChildren() const { return 1; }
-  virtual const ex_tcb *getChild(Int32 pos) const {
+  virtual int numChildren() const { return 1; }
+  virtual const ex_tcb *getChild(int pos) const {
     ex_assert((pos >= 0), "");
     if (pos == 0)
       return childTcb_;

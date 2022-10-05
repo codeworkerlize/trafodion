@@ -53,26 +53,26 @@ class LmRoutineJavaObj : public LmRoutineJava {
   virtual LmResult invokeRoutineMethod(
       /* IN */ tmudr::UDRInvocationInfo::CallPhase phase,
       /* IN */ const char *serializedInvocationInfo,
-      /* IN */ Int32 invocationInfoLen,
-      /* OUT */ Int32 *invocationInfoLenOut,
+      /* IN */ int invocationInfoLen,
+      /* OUT */ int *invocationInfoLenOut,
       /* IN */ const char *serializedPlanInfo,
-      /* IN */ Int32 planInfoLen,
-      /* IN */ Int32 planNum,
-      /* OUT */ Int32 *planInfoLenOut,
+      /* IN */ int planInfoLen,
+      /* IN */ int planNum,
+      /* OUT */ int *planInfoLenOut,
       /* IN */ char *inputRow,
-      /* IN */ Int32 inputRowLen,
+      /* IN */ int inputRowLen,
       /* OUT */ char *outputRow,
-      /* IN */ Int32 outputRowLen,
+      /* IN */ int outputRowLen,
       /* IN/OUT */ ComDiagsArea *da);
 
   virtual LmResult getRoutineInvocationInfo(
       /* IN/OUT */ char *serializedInvocationInfo,
-      /* IN */ Int32 invocationInfoMaxLen,
-      /* OUT */ Int32 *invocationInfoLenOut,
+      /* IN */ int invocationInfoMaxLen,
+      /* OUT */ int *invocationInfoLenOut,
       /* IN/OUT */ char *serializedPlanInfo,
-      /* IN */ Int32 planInfoMaxLen,
-      /* IN */ Int32 planNum,
-      /* OUT */ Int32 *planInfoLenOut,
+      /* IN */ int planInfoMaxLen,
+      /* IN */ int planNum,
+      /* OUT */ int *planInfoLenOut,
       /* IN/OUT */ ComDiagsArea *da);
 
   virtual LmResult setFunctionPtrs(SQLUDR_GetNextRow getNextRowPtr, SQLUDR_EmitRow emitRowPtr, ComDiagsArea *da);
@@ -82,7 +82,7 @@ class LmRoutineJavaObj : public LmRoutineJava {
  protected:
   LmRoutineJavaObj(const char *sqlName, const char *externalName, const char *librarySqlName,
                    ComRoutineTransactionAttributes transactionAttrs, ComRoutineSQLAccess sqlAccessMode,
-                   ComRoutineExternalSecurity externalSecurity, Int32 routineOwnerId,
+                   ComRoutineExternalSecurity externalSecurity, int routineOwnerId,
                    const char *serializedInvocationInfo, int invocationInfoLen, const char *serializedPlanInfo,
                    int planInfoLen, LmLanguageManagerJava *lm, jobject udrObject, LmContainer *container,
                    ComDiagsArea *diagsArea);

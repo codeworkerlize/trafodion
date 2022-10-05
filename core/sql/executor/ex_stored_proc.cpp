@@ -232,8 +232,8 @@ short ExStoredProcTcb::work() {
         if (returnedBuffer_ == NULL) return WORK_POOL_BLOCKED;
         ULng32 returnedBuflen = returnedBuffer_->get_buffer_size();
         UInt32 dummyDatalen = 0;  // not used here
-        Int32 dummyCharSet = 0;   // not used here
-        Int32 cpStatus;
+        int dummyCharSet = 0;   // not used here
+        int cpStatus;
         ComDiagsArea *cpDiagsArea = ComDiagsArea::allocate(getHeap());
         // pass request and returnedBuffer_ to compileDirect
         cpStatus = CmpCommon::context()->compileDirect(
@@ -273,8 +273,8 @@ short ExStoredProcTcb::work() {
         if (returnedBuffer_ == NULL) return WORK_POOL_BLOCKED;
         ULng32 returnedBuflen = returnedBuffer_->get_buffer_size();
         UInt32 dummyDatalen = 0;  // not used here
-        Int32 dummyCharSet = 0;   // not used here
-        Int32 cpStatus;
+        int dummyCharSet = 0;   // not used here
+        int cpStatus;
         ComDiagsArea *cpDiagsArea = ComDiagsArea::allocate(getHeap());
         cpStatus = CmpCommon::context()->compileDirect(
             (char *)&ispRequestGetNext, dummyDatalen, master_glob->getStatement()->getContext()->exHeap(), dummyCharSet,

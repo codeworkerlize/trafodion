@@ -57,10 +57,10 @@ class ModuleOSFile {
  public:
   ModuleOSFile();
   ~ModuleOSFile();
-  Int32 open(const char *fname);
-  Int32 openGuardianFile(const char *fname);
-  Int32 close();
-  Int32 readpos(char *buf, int pos, int len, short &countRead);
+  int open(const char *fname);
+  int openGuardianFile(const char *fname);
+  int close();
+  int readpos(char *buf, int pos, int len, short &countRead);
 
  private:
   fstream fs_;
@@ -150,13 +150,13 @@ inline long ComRtGetJulianFromUTC(timespec ts) {
 int ComRtGetProgramInfo(char *pathName,       /* out */
                           int pathNameMaxLen, /* in */
                           short &processType,   /* out */
-                          Int32 &cpu,           /* cpu */
+                          int &cpu,           /* cpu */
                           pid_t &pin,           /* pin */
                           int &nodeNumber,
                           char *nodeName,  // GuaNodeNameMaxLen+1
                           short &nodeNameLen, long &processCreateTime, char *processNameString,
                           char *parentProcessNameString = NULL, SB_Verif_Type *verifier = NULL,
-                          Int32 *ancestorNid = NULL, pid_t *ancestorPid = NULL);
+                          int *ancestorNid = NULL, pid_t *ancestorPid = NULL);
 
 // OUT: processPriority: current priority of process
 int ComRtGetProcessPriority(int &processPriority /* out */);
@@ -210,7 +210,7 @@ int ComRtGetMXSysVolName(char *sysCatBuffer,              /* out */
 // Extract System MetaData Location ( VolumeName ).
 // -----------------------------------------------------------------------
 int extract_SMDLocation(char *buffer,       /* in */
-                          Int32 bufferLength, /* in */
+                          int bufferLength, /* in */
                           char *SMDLocation); /* out */
 
 // -----------------------------------------------------------------------
@@ -223,7 +223,7 @@ int validate_SMDLocation(char *SMDLocation); /* in */
 // the array will contain node ids 0 ... n-1, but sometimes there may
 // be holes in the assigned node ids, when CPUs (Linux nodes) get
 // removed from the cluster.
-Int32 ComRtPopulatePhysicalCPUArray(Int32 *&cpuArray, NAHeap *heap);
+int ComRtPopulatePhysicalCPUArray(int *&cpuArray, NAHeap *heap);
 
 NABoolean ComRtGetCpuStatus(char *nodeName, short cpuNum);
 int ComRtTransIdToText(long transId, char *buf, short len);
@@ -233,7 +233,7 @@ int ComRtTransIdToText(long transId, char *buf, short len);
 // value is encountered. The function is thread-safe. The returned
 // string can be overwritten by another call to the function from the
 // same thread.
-const char *ComRtGetUnknownString(Int32 val);
+const char *ComRtGetUnknownString(int val);
 
 void genLinuxCorefile(const char *eventMsg);  // no-op except on Linux.
 
@@ -242,8 +242,8 @@ static THREAD_P UInt32 TraceAllocSize = 0;
 void saveTrafStack(LIST(TrafAddrStack *) * la, void *addr);
 bool delTrafStack(LIST(TrafAddrStack *) * la, void *addr);
 void dumpTrafStack(LIST(TrafAddrStack *) * la, const char *header, bool toFile = false);
-void displayCurrentStack(Int32 depth);
-void displayCurrentStack(ostream &, Int32 depth);
+void displayCurrentStack(int depth);
+void displayCurrentStack(ostream &, int depth);
 #endif  // DEBUG
 
 Int16 getBDRClusterName(char *bdrClusterName);
@@ -251,7 +251,7 @@ Int16 getBDRClusterName(char *bdrClusterName);
 int get_phandle_with_retry(char *pname, SB_Phandle_Type *phandle);
 
 fstream &getPrintHandle();
-void genFullMessage(char *buf, Int32 len, const char *className, Int32 queryNodeId);
+void genFullMessage(char *buf, int len, const char *className, int queryNodeId);
 
 class RangeDate;
 class RangeTime;
@@ -363,7 +363,7 @@ class ScanFilterStats {
 
   Int16 getFilterId() const { return (Int16)packedBits_.filterId_; }
 
-  void getVariableStatsInfo(char *buf, Int32 len) const;
+  void getVariableStatsInfo(char *buf, int len) const;
   int getVariableStatsInfoLen() const;
 
   void setIsEnabled(NABoolean x) {
@@ -379,7 +379,7 @@ class ScanFilterStats {
   NABoolean getIsSelected() const { return (packedBits_.flags_ & FILTER_STATS_SELECTED) != 0; }
 
  protected:
-  Int32 getStateCode() const;
+  int getStateCode() const;
 
  private:
   long totalRowsAffected_;
@@ -402,7 +402,7 @@ class ScanFilterStatsList {
 
   void merge(ScanFilterStatsList &, ScanFilterStats::MergeSemantics);
 
-  void getVariableStatsInfo(char *buf, Int32 len, const char *msg = NULL) const;
+  void getVariableStatsInfo(char *buf, int len, const char *msg = NULL) const;
   int getVariableStatsInfoLen(const char *msg = NULL) const;
 
   void dump(ostream &out, const char *msg = NULL);
@@ -411,24 +411,24 @@ class ScanFilterStatsList {
 
   void clear() { entries_ = 0; }
 
-  Int32 entries() const { return (entries_ < MAX_FILTER_STATS) ? entries_ : MAX_FILTER_STATS; }
+  int entries() const { return (entries_ < MAX_FILTER_STATS) ? entries_ : MAX_FILTER_STATS; }
 
  protected:
   void merge(ScanFilterStats &source, ScanFilterStats::MergeSemantics);
 
  private:
-  Int32 entries_;
+  int entries_;
   ScanFilterStats scanFilterStats_[MAX_FILTER_STATS];
 };
 
 /*
 void outputOrcSearchArgLessThanPred(std::string& text,
                                     const char* colName,
-                                    const char* colType, Int32 v);
+                                    const char* colType, int v);
 
 void outputOrcSearchArgLessThanEqPred(std::string& text,
                                     const char* colName,
-                                    const char* colType, Int32 v);
+                                    const char* colType, int v);
 */
 
 pid_t ComRtGetConfiguredPidMax();
@@ -445,7 +445,7 @@ long getCurrentTime();
 // second: 1-byte
 // mllisec: integer (4-bytes)
 //
-Int32 convertJulianTimestamp(long julianTimestamp, char *target);
+int convertJulianTimestamp(long julianTimestamp, char *target);
 
 class ClusterRole {
  public:

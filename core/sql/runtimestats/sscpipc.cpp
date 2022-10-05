@@ -48,7 +48,7 @@
 SscpGlobals::SscpGlobals(NAHeap *sscpheap, StatsGlobals *statsGlobals)
     : heap_(sscpheap), statsGlobals_(statsGlobals), doLogCancelKillServers_(false) {
   int error;
-  Int32 myCpu;
+  int myCpu;
   char programDir[100];
   short processType;
   char myNodeName[MAX_SEGMENT_NAME_LEN + 1];
@@ -673,7 +673,7 @@ void SscpNewIncomingConnectionStream::processSecInvReq() {
 
   ex_assert(!moreObjects(), "unknown object follows SecInvalidKeyRequest.");
 
-  Int32 numSiks = request->getNumSiks();
+  int numSiks = request->getNumSiks();
   if (numSiks) {
     if (!revokeTimerInitialized) {
       revokeTimerInitialized = true;
@@ -696,7 +696,7 @@ void SscpNewIncomingConnectionStream::processSecInvReq() {
         bool keysAreInvalid = false;
         bool histAreInvalid = false;
         // for each new invalidation key
-        for (Int32 i = 0; i < numSiks && !keysAreInvalid; i++) {
+        for (int i = 0; i < numSiks && !keysAreInvalid; i++) {
           ComQIActionType siKeyType = ComQIActionTypeLiteralToEnum(request->getSik()[i].operation);
           if (siKeyType == COM_QI_OBJECT_REDEF) {
             // The statement may be in the progress of compiling,
@@ -708,7 +708,7 @@ void SscpNewIncomingConnectionStream::processSecInvReq() {
 
             // compare the new DDL invalidation key to each key in the
             // master stats.
-            for (Int32 m = 0; m < masterStats->getNumObjUIDs() && !keysAreInvalid; m++) {
+            for (int m = 0; m < masterStats->getNumObjUIDs() && !keysAreInvalid; m++) {
               if (masterStats->getObjUIDs()[m] == request->getSik()[i].ddlObjectUID) {
                 keysAreInvalid = true;
                 masterStats->setValidDDL(false);
@@ -727,7 +727,7 @@ void SscpNewIncomingConnectionStream::processSecInvReq() {
           else if (siKeyType != COM_QI_STATS_UPDATED) {
             // compare the new REVOKE invalidation key to each key in the
             // master stats.
-            for (Int32 m = 0; m < masterStats->getNumSIKeys() && !keysAreInvalid; m++) {
+            for (int m = 0; m < masterStats->getNumSIKeys() && !keysAreInvalid; m++) {
               if (!memcmp(&masterStats->getSIKeys()[m], &request->getSik()[i], sizeof(SQL_QIKEY))) {
                 keysAreInvalid = true;
                 masterStats->setValidPrivs(false);
@@ -736,7 +736,7 @@ void SscpNewIncomingConnectionStream::processSecInvReq() {
           }     // revoke
           else  // siKeyType == COM_QI_STATS_UPDATED
           {
-            for (Int32 m = 0; m < masterStats->getNumObjUIDs() && !histAreInvalid; m++) {
+            for (int m = 0; m < masterStats->getNumObjUIDs() && !histAreInvalid; m++) {
               if (masterStats->getObjUIDs()[m] == request->getSik()[i].ddlObjectUID) {
                 histAreInvalid = true;
                 masterStats->setValidHistogram(false);
@@ -756,7 +756,7 @@ void SscpNewIncomingConnectionStream::processSecInvReq() {
       str_sprintf(msg,
                   "MXSSCP has processed %d security invalidation "
                   "keys in %d milliseconds.",
-                  numSiks, (Int32)microSeconds / 1000);
+                  numSiks, (int)microSeconds / 1000);
 
       SQLMXLoggingArea::logExecRtInfo(__FILE__, __LINE__, msg, 0);
     }
@@ -1015,8 +1015,8 @@ void SscpNewIncomingConnectionStream::processObjectLockReq() {
   const char *objectName = request->getObjectName();
   ComObjectType objectType = request->getObjectType();
   ObjectLockRequest::OpType opType = request->getOpType();
-  Int32 lockNid = request->lockNid();
-  Int32 lockPid = request->lockPid();
+  int lockNid = request->lockNid();
+  int lockPid = request->lockPid();
 
   ex_assert(objectName != NULL, "NULL objectName in ObjectLockRequest.");
 

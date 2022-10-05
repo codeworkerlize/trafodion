@@ -161,7 +161,7 @@ static const UInt32 DEST_BUF_SIZE = 2 * ErrorMessage::MSG_BUF_SIZE;
 
 // little helper method for ComSQLSTATE()
 
-static inline void Encode36(char &dst, Int32 src) {
+static inline void Encode36(char &dst, int src) {
   char tc = (char)src;
   dst = (tc < 10 ? '0' + tc : 'A' + tc - 10);
 }
@@ -263,7 +263,7 @@ NABoolean ComSQLSTATE(int theSQLCODE, char *theSQLSTATE) {
 
       // UR2 CNTNSK. The State is always in ASCII.
       // Add a NULL at the end.
-      Int32 numBytes = UnicodeStringToLocale(CharInfo::ISO88591, source, 5, theSQLSTATE, 5, FALSE);
+      int numBytes = UnicodeStringToLocale(CharInfo::ISO88591, source, 5, theSQLSTATE, 5, FALSE);
 
       if (numBytes != 5)
         *theSQLSTATE = '\0';
@@ -522,16 +522,16 @@ void appendSafeStringInW(NAWchar *dest, CollHeap *heap, const char *s, CharInfo:
   char *pFirstUntranslatedChar = NULL;
   UInt32 outputDataLenInBytes = 0;
   UInt32 translatedtCharCount = 0;
-  Int32 convStatus = LocaleToUTF16(cnv_version1,                      // const enum cnv_version version
+  int convStatus = LocaleToUTF16(cnv_version1,                      // const enum cnv_version version
                                    src,                               // const char *in_bufr
                                    len,                               // const int in_len -- src str len in num of bytes
                                    (const char *)pOutputBuf->data(),  // const char *out_bufr
-                                   (const Int32)((len + 1) * sizeof(NAWchar)),  // output buffer size in # of bytes
+                                   (const int)((len + 1) * sizeof(NAWchar)),  // output buffer size in # of bytes
                                    convCS,                                      // enum cnv_charset charset -- output cs
                                    pFirstUntranslatedChar,                      // char * & first_untranslated_char
                                    &outputDataLenInBytes,                       // unsigned int *output_data_len_p
                                    0,                                           // const int cnv_flags (default is 0)
-                                   (const Int32)TRUE,                           // const int addNullAtEnd_flag
+                                   (const int)TRUE,                           // const int addNullAtEnd_flag
                                    &translatedtCharCount);                      // unsigned int *translated_char_cnt_p
   UInt32 outLenInW = outputDataLenInBytes / sizeof(NAWchar);
   pOutputBuf->data()[len] = WIDE_('\0');  // needed when conversion errors occured
@@ -579,7 +579,7 @@ NABoolean safeStringCheck(const char *const cp) {
 UInt32 computeMsgLen(const ComCondition &cond) {
   UInt32 totallen = DEST_BUF_SIZE, len = 0;
 
-  for (Int32 index = 0; index < ComCondition::NumOptionalParms; ++index) {
+  for (int index = 0; index < ComCondition::NumOptionalParms; ++index) {
     CharInfo::CharSet cs = cond.getOptionalStringCharSet(index);
     if (CharInfo::isSingleByteCharSet(cs)) {
       const char *optStr = cond.getOptionalString(index);
@@ -644,7 +644,7 @@ NAWString *terseParamDisplay(const ComCondition &cc, CollHeap *p) {
   }
 
   // Always display the optional string message params (as blanks if absent).
-  Int32 i = 0;
+  int i = 0;
   for (; i < ComCondition::NumOptionalParms; i++) {
     if (CharInfo::isSingleByteCharSet(cc.getOptionalStringCharSet(i))) {
       STRING_TO_DEST(cc.getOptionalString(i), cc.getOptionalStringCharSet(i));
@@ -693,11 +693,11 @@ NAWString *terseParamDisplay(const ComCondition &cc, CollHeap *p) {
 }
 
 #ifndef NDEBUG
-Int32 displayWCHAR(NAWchar *wstr, NAWchar *wend = NULL)  // for debugging
+int displayWCHAR(NAWchar *wstr, NAWchar *wend = NULL)  // for debugging
 {
   unsigned char str[2000 + 1];
   if (wend) *wend = '\0';
-  Int32 i = 0;
+  int i = 0;
   for (; i < 2000 && wstr[i]; i++) str[i] = (unsigned char)wstr[i];
   str[i] = '\0';
   cerr << "{{{" << endl << str << "}}}" << endl;
@@ -730,7 +730,7 @@ void ComEMSSeverity(int theSQLCODE, char *theEMSSeverity) {
 
   if (!sourceIsNotKnown) {
     // Message found.
-    Int32 numBytes = UnicodeStringToLocale(CharInfo::ISO88591, source, 5, theEMSSeverity, 5, FALSE);
+    int numBytes = UnicodeStringToLocale(CharInfo::ISO88591, source, 5, theEMSSeverity, 5, FALSE);
 
     if (numBytes != 5)
       *theEMSSeverity = '\0';
@@ -743,7 +743,7 @@ void ComEMSSeverity(int theSQLCODE, char *theEMSSeverity) {
 // ComCondition::getMessageEMSEventTarget()
 //
 void ComEMSEventTarget(int theSQLCODE, char *theEMSEventTarget, NABoolean forceDialout) {
-  Int32 numBytes = 0;
+  int numBytes = 0;
 
   // this function should not have been called for these
   // sqlcodes but just in case
@@ -800,7 +800,7 @@ void ComEMSExperienceLevel(int theSQLCODE, char *theEMSExperienceLevel) {
 
   if (!sourceIsNotKnown) {
     // Message found.
-    Int32 numBytes = UnicodeStringToLocale(CharInfo::ISO88591, source, 8, theEMSExperienceLevel, 8, FALSE);
+    int numBytes = UnicodeStringToLocale(CharInfo::ISO88591, source, 8, theEMSExperienceLevel, 8, FALSE);
 
     if (numBytes != 8)
       *theEMSExperienceLevel = '\0';
@@ -838,7 +838,7 @@ const NAWchar *ComCondition::getMessageText(NABoolean prefixAdded) {
 const NAWchar *const ComCondition::getMessageText(NABoolean prefixAdded, CharInfo::CharSet isoMapCS) {
   if (!isLocked_) {
     isLocked_ = TRUE;
-    Int32 arg = (Int32)theSQLCODE_;
+    int arg = (int)theSQLCODE_;
     assert(arg == theSQLCODE_);
     // Ignore the contents of isoMapCS because error messages on SeaQuest
     // is always in UTF8 - Set isoMapsCS to UTF8 to avoid using conditional
@@ -950,7 +950,7 @@ const NAWchar *const ComCondition::getMessageText(NABoolean prefixAdded, CharInf
             UInt32 tokIndex = 0;
             while (tokIndex != MAX_TOKEN && na_wcscmp(theToken, tokens[tokIndex])) tokIndex++;
 
-            Int32 optStrNum = 0;
+            int optStrNum = 0;
 
             switch (tokIndex) {
               case MAX_TOKEN:

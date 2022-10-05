@@ -230,7 +230,7 @@ void ExRtFragTable::setInactiveState() {
 void ExRtFragTable::assignEsps(NABoolean /*checkResourceGovernor*/, UInt32 &numOfTotalEspsUsed,
                                UInt32 &numOfEspsStarted, NABoolean checkDuplicateEsps) {
   Int16 esp_multi_fragment, esp_num_fragments;
-  Int32 entryNumber, numEntries, launchesStarted, launchesCompleted;
+  int entryNumber, numEntries, launchesStarted, launchesCompleted;
 
   if (state_ == NO_ESPS_USED) return;
 
@@ -258,8 +258,8 @@ void ExRtFragTable::assignEsps(NABoolean /*checkResourceGovernor*/, UInt32 &numO
   ExEspManager *espManager = glob_->getEspManager();
   int idleTimeout = getEspIdleTimeout();
   int assignTimeWindow = currentContext->getSessionDefaults()->getEspAssignTimeWindow();
-  Int32 totalESPLimit = fragDir_->getMaxESPsPerNode();
-  Int32 numNodesToUse = 0;
+  int totalESPLimit = fragDir_->getMaxESPsPerNode();
+  int numNodesToUse = 0;
 
   esp_multi_fragment = fragDir_->espMultiFragments();
   esp_num_fragments = fragDir_->espNumFragments();
@@ -270,7 +270,7 @@ void ExRtFragTable::assignEsps(NABoolean /*checkResourceGovernor*/, UInt32 &numO
     // statement clearly exceeds the limit of allowed ESPs
     // (based on an estimate of actual ESPs used)
 
-    Int32 numESPsNeeded = -1;
+    int numESPsNeeded = -1;
 
     // for tenants, apply the per node limit to tenant units...
     if (glob_->getContext()->getAvailableNodes())
@@ -813,7 +813,7 @@ void ExRtFragTable::downloadAndFixup() {
 
     // for each recipient add one to the number of outstanding fixup
     // messages
-    Int32 numRecipients = (Int32)mm->getRecipients().entries();
+    int numRecipients = (int)mm->getRecipients().entries();
     numLoadFixupMsgesOut_ += numRecipients;
 
     if (smQueryID > 0) {
@@ -1228,7 +1228,7 @@ void ExRtFragTable::releaseTransaction(NABoolean allWorkRequests, NABoolean alwa
           treq->key_ = masterFragmentInstanceKey_;
           treq->key_.setFragId(fragId);  // change to actual key
           treq->allWorkRequests_ = allWorkRequests;
-          treq->inactiveTimeout_ = (Int32)inactiveTimeout;
+          treq->inactiveTimeout_ = (int)inactiveTimeout;
 
           if (commitSavepoint || rollbackSavepoint) {
             treq->setSavepointCommit(commitSavepoint);
@@ -1495,18 +1495,18 @@ void ExRtFragTable::addLoadRequestToMessage(ExMasterEspMessage *msg, ExFragId fr
 
   // Retrieve the user details from ContextCli. These values will become part
   // of the ExMsgFragment message object that gets sent to the ESP.
-  Int32 userID = 0;
+  int userID = 0;
   const char *userName = NULL;
   int userNameLen = 0;
   const char *tenantName = NULL;
   int tenantNameLen = 0;
   ContextCli *context = glob_->getContext();
-  Int32 *pUserID = context->getDatabaseUserID();
-  userID = *((Int32 *)pUserID);
+  int *pUserID = context->getDatabaseUserID();
+  userID = *((int *)pUserID);
   userName = context->getDatabaseUserName();
-  userNameLen = (Int32)strlen(userName) + 1;
+  userNameLen = (int)strlen(userName) + 1;
   tenantName = context->getTenantName();
-  tenantNameLen = (Int32)strlen(tenantName) + 1;
+  tenantNameLen = (int)strlen(tenantName) + 1;
 #ifdef _DEBUG
   if (fragDir_->getType(fragId) == ExFragDir::ESP) {
     NABoolean doDebug = (getenv("DBUSER_DEBUG") ? TRUE : FALSE);
@@ -1671,9 +1671,9 @@ void ExRtFragTable::addFixupRequestToMessage(ExMasterEspMessage *msg, ExFragId f
   // Add SeaMonster info if needed
   if (glob_->getSMQueryID() > 0) {
     long smQueryID = glob_->getSMQueryID();
-    Int32 traceLevel = glob_->getSMTraceLevel();
+    int traceLevel = glob_->getSMTraceLevel();
     const char *traceFilePrefix = glob_->getSMTraceFilePrefix();
-    Int32 flags = 0;
+    int flags = 0;
 
     ExSMDownloadInfo *info = new (ipcHeap) ExSMDownloadInfo(ipcHeap, smQueryID, traceLevel, traceFilePrefix, flags);
 
@@ -1694,7 +1694,7 @@ void ExRtFragTable::addReleaseRequestToMessage(ExMasterEspMessage *msg, ExFragId
   req->key_.setFragId(fragId);  // change to actual frag instance key
   req->setDeleteStmt(releaseAll);
   req->setCloseAllOpens(closeAllOpens);
-  req->idleTimeout_ = (Int32)idleTimeout;
+  req->idleTimeout_ = (int)idleTimeout;
 
   // add the release request to the message
   *msg << *req;
@@ -1786,7 +1786,7 @@ void ExRtFragTable::dumpSMRouteTable() {
     }  // MASTER fragment
 
     else if (fragType == ExFragDir::ESP) {
-      Int32 parent = fragDir_->getParentId(frag);
+      int parent = fragDir_->getParentId(frag);
       EXSM_TRACE(EXSM_TRACE_TAG, "  frag[%d] parent %d", (int)frag, (int)parent);
 
       ExRtFragTableEntry &fragEntry = *fragmentEntries_[frag];
@@ -1809,10 +1809,10 @@ void ExRtFragTable::dumpSMRouteTable() {
   }    // for each fragment
 }
 
-void ExRtFragTable::reportESPLimitViolation(Int32 totalESPLimit, Int32 numOfNodes, Int32 numESPsNeeded,
+void ExRtFragTable::reportESPLimitViolation(int totalESPLimit, int numOfNodes, int numESPsNeeded,
                                             NABoolean singleStmtExceededLimit) {
   ComDiagsArea *diags = glob_->getAllocatedDiagsArea();
-  Int32 limitPerNode = (numOfNodes > 0 ? (totalESPLimit / numOfNodes) : totalESPLimit);
+  int limitPerNode = (numOfNodes > 0 ? (totalESPLimit / numOfNodes) : totalESPLimit);
   // at some point in the future, we could trigger AQR for these
   // errors and try to generate a plan with fewer ESPs
   int sqlcode = (singleStmtExceededLimit ? -8958 : -8959);
@@ -1954,7 +1954,7 @@ ExRtFragTableEntry::ExRtFragTableEntry(CollHeap *heap) : assignedEsps_(heap), as
 // Free up any memory allocated.
 // -----------------------------------------------------------------------
 void ExRtFragTableEntry::release() {
-  for (Int32 i = 0; i < (Int32)assignedEsps_.getSize(); i++) {
+  for (int i = 0; i < (int)assignedEsps_.getSize(); i++) {
     if (assignedEsps_.used(i) AND assignedEsps_[i] != NULL) assignedEsps_[i]->deleteMe();
   }
 }
@@ -2309,12 +2309,12 @@ ExEspManager::ExEspManager(IpcEnvironment *env, ContextCli *context) : env_(env)
   maxCpuNum_ = 0;
 
   /* Added with multi fragment esp support */
-  Int32 nodeCount = 0;
-  Int32 nodeMax = 0;
+  int nodeCount = 0;
+  int nodeMax = 0;
   MS_Mon_Node_Info_Entry_Type *nodeInfo = NULL;
 
   // Get the number of nodes to know how much info space to allocate
-  Int32 lv_ret = msg_mon_get_node_info(&nodeCount, 0, NULL);
+  int lv_ret = msg_mon_get_node_info(&nodeCount, 0, NULL);
   if ((lv_ret == 0) && (nodeCount > 0)) {
     // Allocate the space for node info entries
     nodeInfo = new (env->getHeap()) MS_Mon_Node_Info_Entry_Type[nodeCount];
@@ -2338,7 +2338,7 @@ ExEspManager::ExEspManager(IpcEnvironment *env, ContextCli *context) : env_(env)
         // MS_Mon_ZoneType_Backend = ( MS_Mon_ZoneType_Aggregation |
         //                             MS_Mon_ZoneType_Storage )
 
-        for (Int32 i = 0; i < nodeCount; i++) {
+        for (int i = 0; i < nodeCount; i++) {
           if ((nodeInfo[i].type & MS_Mon_ZoneType_Storage) && (!nodeInfo[i].spare_node)) maxCpuNum_++;
         }
       } else {
@@ -2352,20 +2352,20 @@ ExEspManager::ExEspManager(IpcEnvironment *env, ContextCli *context) : env_(env)
     ex_assert((nodeCount > 0), "msg_mon_get_node_info unexpected nodeCount");
   }
 
-  Int32 lv_nid = 0;
-  Int32 lv_pid = 0;
+  int lv_nid = 0;
+  int lv_pid = 0;
   char lv_name[MS_MON_MAX_PROCESS_NAME + 1];
-  Int32 lv_name_len = MS_MON_MAX_PROCESS_NAME;
-  Int32 lv_ptype = 0;
-  Int32 lv_zid = 0;
-  Int32 lv_os_pid = 0;
+  int lv_name_len = MS_MON_MAX_PROCESS_NAME;
+  int lv_ptype = 0;
+  int lv_zid = 0;
+  int lv_os_pid = 0;
   ThreadId lv_os_tid = 0;
   memset(lv_name, 0, MS_MON_MAX_PROCESS_NAME + 1);
   lv_ret = msg_mon_get_my_info(&lv_nid, &lv_pid, lv_name, lv_name_len, &lv_ptype, &lv_zid, &lv_os_pid, &lv_os_tid);
 
   if (lv_ret == 0) {
 #ifndef _DEBUG
-    roundRobinPosition_ = (Int32)lv_os_tid % maxCpuNum_;
+    roundRobinPosition_ = (int)lv_os_tid % maxCpuNum_;
 #else
     roundRobinPosition_ = lv_nid;
 #endif
@@ -2396,13 +2396,13 @@ ExEspManager::~ExEspManager() {
 ExEspDbEntry *ExEspManager::shareEsp(ComDiagsArea **diags,
                                      LIST(ExEspDbEntry *) & alreadyAssignedEsps,  // multi fragment esp
                                      CollHeap *statementHeap, Statement *statement, const char *clusterName,
-                                     NABoolean &startedANewEsp, IpcCpuNum cpuNum, short memoryQuota, Int32 user_id,
-                                     Int32 tenantId, const NAWNodeSet *availableNodes, NABoolean verifyESP,
+                                     NABoolean &startedANewEsp, IpcCpuNum cpuNum, short memoryQuota, int user_id,
+                                     int tenantId, const NAWNodeSet *availableNodes, NABoolean verifyESP,
                                      NABoolean *verifyCPUptr,  // both input and output
                                      IpcPriority priority, int espLevel, int idleTimeout, int assignTimeWindow,
                                      IpcGuardianServer **creatingEsp, NABoolean soloFragment, Int16 esp_multi_fragment,
                                      Int16 esp_num_fragments, bool esp_multi_threaded) {
-  Int32 nowaitDepth;
+  int nowaitDepth;
   IpcServer *server;
   ExEspDbEntry *result = NULL;
   char *ptrToClusterName = (char *)clusterName;
@@ -2558,9 +2558,9 @@ const char *EspEntryTraceDesc =
 
 ExEspDbEntry *ExEspManager::getEspFromCache(LIST(ExEspDbEntry *) & alreadyAssignedEsps,  // multi fragment esp
                                             CollHeap *statementHeap, Statement *statement, const char *clusterName,
-                                            IpcCpuNum cpuNum, short memoryQuota, Int32 user_id, Int32 tenantId,
+                                            IpcCpuNum cpuNum, short memoryQuota, int user_id, int tenantId,
                                             NABoolean verifyESP, int espLevel, int idleTimeout,
-                                            int assignTimeWindow, Int32 nowaitDepth, NABoolean &espServerError,
+                                            int assignTimeWindow, int nowaitDepth, NABoolean &espServerError,
                                             NABoolean soloFragment, Int16 esp_multi_fragment, Int16 esp_num_fragments,
                                             bool esp_multi_threaded) {
   ExEspDbEntry *result = NULL;
@@ -2585,12 +2585,12 @@ ExEspDbEntry *ExEspManager::getEspFromCache(LIST(ExEspDbEntry *) & alreadyAssign
     // ESP state tracing >>
     // These constants are defined in the header file
     if (lastEspTraceIndex_ > MAX_NUM_ESP_STATE_TRACE_ENTRIES) {
-      Int32 numTraceEntries = NUM_ESP_STATE_TRACE_ENTRIES;
+      int numTraceEntries = NUM_ESP_STATE_TRACE_ENTRIES;
       const char *envvar = getenv("ESP_NUM_TRACE_ENTRIES");
       if (envvar != NULL) {
         long nums = str_atoi(envvar, str_len(envvar));
         if (nums >= 0 && nums < MAX_NUM_ESP_STATE_TRACE_ENTRIES)
-          numTraceEntries = (Int32)nums;  // ignore any other value or invalid
+          numTraceEntries = (int)nums;  // ignore any other value or invalid
       }
 
       if (numTraceEntries == 0) {  // no tracing and don't check again (see few lines above)
@@ -2603,9 +2603,9 @@ ExEspDbEntry *ExEspManager::getEspFromCache(LIST(ExEspDbEntry *) & alreadyAssign
         // register trace to global trace info repository
         ExeTraceInfo *ti = context_->getExeTraceInfo();
         if (ti) {
-          Int32 lineWidth = 75;  // print width per trace entry
+          int lineWidth = 75;  // print width per trace entry
           void *regdTrace;
-          Int32 ret = ti->addTrace("EspManager", this, lastEspTraceIndex_, 2, this, getALine, &lastEspTraceIndex_,
+          int ret = ti->addTrace("EspManager", this, lastEspTraceIndex_, 2, this, getALine, &lastEspTraceIndex_,
                                    lineWidth, EspEntryTraceDesc, &regdTrace);
           if (ret == 0) {
             // trace info added successfully, now add entry fields
@@ -2768,7 +2768,7 @@ IpcCpuNum ExEspManager::getRoundRobinCPU(const NAWNodeSet *availableNodes) {
   IpcCpuNum result;
   CliGlobals *cliGlobals = GetCliGlobals();
   NABoolean usesDenseNumbers = TRUE;
-  Int32 numCpus = cliGlobals->getNAClusterInfo()->getTotalNumberOfCPUs();
+  int numCpus = cliGlobals->getNAClusterInfo()->getTotalNumberOfCPUs();
   const int assignedCpuWrapAround = 4096 * 9 * 25;
 
   // roundRobinPosition_ is incremented (modulo some number) for every
@@ -2903,7 +2903,7 @@ int ExEspManager::endSession(ContextCli *context) {
   ExProcessStats *processStats = GetCliGlobals()->getExProcessStats();
   for (CollIndex i = 0; i < iter.entries(); i++) {
     iter.getNext(key, espList);
-    Int32 pos = 0;
+    int pos = 0;
 
     numOfESPs_ -= espList->entries();
 
@@ -2978,9 +2978,9 @@ void ExEspManager::stopIdleEsps(ContextCli *context, NABoolean ignoreTimeout) {
 }
 
 // print esp trace entry one per call
-Int32 ExEspManager::printTrace(Int32 lineno, char *buf) {
+int ExEspManager::printTrace(int lineno, char *buf) {
   if (lineno >= maxEspTraceIndex_) return 0;
-  Int32 rv = 0;
+  int rv = 0;
   ExEspDbEntry *esp = espTraceArea_[lineno].espEntry_;
   if (!esp)  // not used entry
     rv = sprintf(buf, "%.4d   -                                      -\n", lineno);
@@ -2990,13 +2990,13 @@ Int32 ExEspManager::printTrace(Int32 lineno, char *buf) {
 
     char procName[200];
     short procNameLen = 200;
-    Int32 nid = -1;
-    Int32 pid = -1;
+    int nid = -1;
+    int pid = -1;
 
     // Phandle wrapper in porting layer
     NAProcessHandle phandle((SB_Phandle_Type *)&(igs->getServerId().getPhandle().phandle_));
 
-    Int32 guaRetcode = phandle.decompose();
+    int guaRetcode = phandle.decompose();
 
     if (!guaRetcode) {
       procNameLen = phandle.getPhandleStringLen();
@@ -3012,7 +3012,7 @@ Int32 ExEspManager::printTrace(Int32 lineno, char *buf) {
   return rv;
 }
 
-NABoolean ExEspManager::checkESPLimitPerNodeEst(ExFragDir *fragDir, Int32 totalESPLimit, Int32 &numESPsNeeded) {
+NABoolean ExEspManager::checkESPLimitPerNodeEst(ExFragDir *fragDir, int totalESPLimit, int &numESPsNeeded) {
   numESPsNeeded = 0;
 
   for (int f = 0; f < fragDir->getNumEntries(); f++) numESPsNeeded += fragDir->getNumESPs(f);
@@ -3030,7 +3030,7 @@ NABoolean ExEspManager::checkESPLimitPerNodeEst(ExFragDir *fragDir, Int32 totalE
 // -----------------------------------------------------------------------
 
 ExEspDbEntry::ExEspDbEntry(CollHeap *heap, IpcServer *server, const char *clusterName, IpcCpuNum cpuNum, int espLevel,
-                           Int32 userId, Int32 tenantId, bool multiThreaded) {
+                           int userId, int tenantId, bool multiThreaded) {
   key_ = new (heap) ExEspCacheKey(clusterName, cpuNum, userId, heap);
   server_ = server;
   espLevel_ = espLevel;
@@ -3060,11 +3060,11 @@ void ExEspDbEntry::setIdleTimestamp() { idleTimestamp_ = NA_JulianTimestamp(); }
 // Methods for class ExEspCacheKey
 // -----------------------------------------------------------------------
 
-ExEspCacheKey::ExEspCacheKey(const char *segment, IpcCpuNum cpu, Int32 userId, CollHeap *heap)
+ExEspCacheKey::ExEspCacheKey(const char *segment, IpcCpuNum cpu, int userId, CollHeap *heap)
     : cpu_(cpu), userId_(userId), heap_(heap) {
   if (segment && *segment) {
     if (heap) {
-      Int32 len = str_len(segment) + 1;
+      int len = str_len(segment) + 1;
       segment_ = (char *)heap->allocateMemory(len);
       str_cpy_all(segment_, segment, len);
     } else {
@@ -3085,7 +3085,7 @@ ULng32 ExEspCacheKey::hash() const {
   if (str) {
     // Bernstein's hash algorithm
     result = 5381;
-    Int32 c;
+    int c;
     while (c = *str++)
       // result * 33 + c
       result = ((result << 5) + result) + c;

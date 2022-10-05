@@ -50,7 +50,7 @@
 #include "optimizer/Triggers.h"
 #include "TriggerEnable.h"
 #ifndef NDEBUG
-static Int32 NCHAR_DEBUG = -1;  // note that, for perf, we call getenv only once
+static int NCHAR_DEBUG = -1;  // note that, for perf, we call getenv only once
 #endif
 
 #include "parser/SqlParserGlobalsCmn.h"
@@ -210,16 +210,16 @@ static void propagateCoAndCoToChildren(ItemExpr *parentOp, CharInfo::Collation c
   CMPASSERT(!parentOp->getOperator().match(ITM_ANY_CAST));
 #endif
 
-  for (Int32 i = 0; i < parentOp->getArity(); i++) {
+  for (int i = 0; i < parentOp->getArity(); i++) {
     ItemExpr *ie = parentOp->child(i);
     if (ie && ie->getValueId().getType().getTypeQualifier() == NA_CHARACTER_TYPE)
       parentOp->child(i) = propagateCoAndCoToItem(ie, co, ce);
   }
 }
 
-static Int32 getNumCHARACTERArgs(ItemExpr *parentOp) {
-  Int32 n = 0;
-  for (Int32 i = 0; i < parentOp->getArity(); i++) {
+static int getNumCHARACTERArgs(ItemExpr *parentOp) {
+  int n = 0;
+  for (int i = 0; i < parentOp->getArity(); i++) {
     ItemExpr *ie = parentOp->child(i);
     if (ie && ie->getValueId().getType().getTypeQualifier() == NA_CHARACTER_TYPE) n++;
   }
@@ -233,7 +233,7 @@ static Int32 getNumCHARACTERArgs(ItemExpr *parentOp) {
 // the ../arkcmp/CmpCommon global-diags-area.
 // -----------------------------------------------------------------------
 
-NABoolean NAType::isComparable(const NAType &other, ItemExpr *parentOp, Int32 emitErr, UInt32 *flags) const {
+NABoolean NAType::isComparable(const NAType &other, ItemExpr *parentOp, int emitErr, UInt32 *flags) const {
 #ifndef NDEBUG
   CMPASSERT(parentOp);  //## reserved for future errmsg 4034 w/ unparse,
 #endif                  // for CoAndCo propagation and for errmsgs!
@@ -273,7 +273,7 @@ NABoolean NAType::isComparable(const NAType &other, ItemExpr *parentOp, Int32 em
   return FALSE;
 }
 
-NABoolean CharType::isComparable(const NAType &otherNA, ItemExpr *parentOp, Int32 emitErr, UInt32 *flags) const {
+NABoolean CharType::isComparable(const NAType &otherNA, ItemExpr *parentOp, int emitErr, UInt32 *flags) const {
   if (NOT NAType::isComparable(otherNA, parentOp, emitErr, flags)) return FALSE;
 
   const CharType &other = (const CharType &)otherNA;
@@ -287,7 +287,7 @@ NABoolean CharType::isComparable(const NAType &otherNA, ItemExpr *parentOp, Int3
   if (cmpOK) {
     // a "mini-cache" to avoid proc call, for perf
     static THREAD_P CharInfo::Collation cachedCO = CharInfo::UNKNOWN_COLLATION;
-    static THREAD_P Int32 cachedFlags = CollationInfo::ALL_NEGATIVE_SYNTAX_FLAGS;
+    static THREAD_P int cachedFlags = CollationInfo::ALL_NEGATIVE_SYNTAX_FLAGS;
 
     if (cachedCO != co) {  // use the mini-cache
       cachedCO = co;
@@ -326,7 +326,7 @@ NABoolean CharType::isComparable(const NAType &otherNA, ItemExpr *parentOp, Int3
     parentOp->unparse(p);
     NAString s(getTypeSQLname(TRUE /*terse*/));
     s += NAString(" ") + getCollateClause(getCollation());
-    cerr << "CMP" << (cmpOK ? "==" : "<>") << ":\t" << (Int32)parentOp->getOperatorType() << '\t' << p << endl
+    cerr << "CMP" << (cmpOK ? "==" : "<>") << ":\t" << (int)parentOp->getOperatorType() << '\t' << p << endl
          << s << '\t' << getCoercibilityText(getCoercibility()) << endl;
 
     s = other.getTypeSQLname(TRUE /*terse*/);
@@ -341,7 +341,7 @@ NABoolean CharType::isComparable(const NAType &otherNA, ItemExpr *parentOp, Int3
   return cmpOK;
 }
 
-NABoolean SQLBinaryString::isComparable(const NAType &otherNA, ItemExpr *parentOp, Int32 emitErr, UInt32 *flags) const {
+NABoolean SQLBinaryString::isComparable(const NAType &otherNA, ItemExpr *parentOp, int emitErr, UInt32 *flags) const {
   if (NOT NAType::isComparable(otherNA, parentOp, emitErr, flags)) return FALSE;
 
   return TRUE;
@@ -951,7 +951,7 @@ const NAType *BuiltinFunction::synthesizeType() {
     case ITM_CONVERTTOBITS: {
       ValueId vid1 = child(0)->getValueId();
 
-      // untyped param operands are typed as Int32 Unsigned.
+      // untyped param operands are typed as int Unsigned.
       SQLInt si(NULL, FALSE);
       vid1.coerceType(si, NA_NUMERIC_TYPE);
 
@@ -959,7 +959,7 @@ const NAType *BuiltinFunction::synthesizeType() {
 
       // one byte of display size for each bit.
       // 8 bits per byte.
-      Int32 maxLength = typ1.getNominalSize() * 8;
+      int maxLength = typ1.getNominalSize() * 8;
 
       if (typ1.getTypeQualifier() == NA_CHARACTER_TYPE && typ1.isVaryingLen() == TRUE)
         retType = new HEAP SQLVarChar(HEAP, maxLength, typ1.supportsSQLnull());
@@ -1354,9 +1354,9 @@ const NAType *BuiltinFunction::synthesizeType() {
         }
       }
 
-      Int32 source_len = typ1.getNominalSize();
+      int source_len = typ1.getNominalSize();
 
-      Int32 maxLength = source_len;
+      int maxLength = source_len;
 
       // the origin string is short than encrypted string, so for descrypt process,
       // the length of source string is enough.
@@ -1368,10 +1368,10 @@ const NAType *BuiltinFunction::synthesizeType() {
         // the block_size should be get using EVP_CIPHER_block_size(), but in some Algorithm
         // type, it return 1 in OpenSSL 1.0.1e . So using EVP_MAX_BLOCK_LENGTH instead of it,
         // which can make sure longer then block size.
-        // Int32 aes_mode = CmpCommon::getDefaultNumeric(BLOCK_ENCRYPTION_MODE);
+        // int aes_mode = CmpCommon::getDefaultNumeric(BLOCK_ENCRYPTION_MODE);
         // size_t block_size = EVP_CIPHER_block_size(aes_algorithm_type[aes_mode]);
 
-        Int32 block_size = EVP_MAX_IV_LENGTH;
+        int block_size = EVP_MAX_IV_LENGTH;
         if (block_size > 1) {
           maxLength = block_size * (source_len / block_size) + block_size;
         }
@@ -1383,9 +1383,9 @@ const NAType *BuiltinFunction::synthesizeType() {
     case ITM_ENCODE_BASE64: {
       const NAType &typ1 = child(0)->getValueId().getType();
 
-      Int32 source_len = typ1.getNominalSize();
+      int source_len = typ1.getNominalSize();
 
-      Int32 maxLength = str_encoded_len_base64(source_len);
+      int maxLength = str_encoded_len_base64(source_len);
 
       retType = new HEAP SQLVarChar(HEAP, maxLength, typ1.supportsSQLnull());
     } break;
@@ -1454,9 +1454,9 @@ const NAType *DecodeBase64::synthesizeType() {
   if (type_) {
     retType = type_;
   } else {
-    Int32 source_len = typ1.getNominalSize();
-    Int32 maxByteLength = str_decoded_len_base64(source_len);
-    Int32 decodedCharLen = maxByteLength / CharInfo::minBytesPerChar(charSet_);
+    int source_len = typ1.getNominalSize();
+    int maxByteLength = str_decoded_len_base64(source_len);
+    int decodedCharLen = maxByteLength / CharInfo::minBytesPerChar(charSet_);
 
     retType = new HEAP SQLVarChar(HEAP, CharLenInfo(decodedCharLen, maxByteLength), typ1.supportsSQLnull(), FALSE,
                                   FALSE, charSet_);
@@ -1514,7 +1514,7 @@ const NAType *Abs::synthesizeType() {
     int precision = (ntyp1.getMagnitude() + 9) / 10 + ntyp1.getScale();
 
     if (precision <= MAX_NUMERIC_PRECISION) {
-      Int32 length;
+      int length;
       if (precision < 5)
         length = 2;
       else if (precision < 10)
@@ -2930,7 +2930,7 @@ const NAType *ConvertHex::synthesizeType() {
     }
   }
 
-  Int32 maxLength;
+  int maxLength;
   if (getOperatorType() == ITM_CONVERTTOHEX)
     maxLength = operand->getNominalSize() * 2;
   else
@@ -3615,10 +3615,10 @@ const NAType *CurrentTransId::synthesizeType() { return new HEAP SQLLargeInt(HEA
 // -----------------------------------------------------------------------
 const NAType *BitOperFunc::synthesizeType() {
   NABoolean nullable = FALSE;
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     // type cast any params
     ValueId vid = child(i)->getValueId();
-    // untyped param operands are typed as Int32 Unsigned.
+    // untyped param operands are typed as int Unsigned.
     SQLInt dp(NULL, FALSE);
     vid.coerceType(dp, NA_NUMERIC_TYPE);
 
@@ -3735,7 +3735,7 @@ const NAType *BitOperFunc::synthesizeType() {
       }
 
       // result can contain as many bits as the length of the operand.
-      // Make the result an Int32 or long.
+      // Make the result an int or long.
       NAType *result1 = NULL;
       if (ntyp1.getNominalSize() <= 9)
         result = new HEAP SQLInt(HEAP, TRUE, nullable);
@@ -3760,7 +3760,7 @@ const NAType *BitOperFunc::synthesizeType() {
 NAType *MathFunc::findReturnTypeForFloorCeil(NABoolean nullable) {
   assert(getArity() == 1);
 
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     ValueId vid = child(i)->getValueId();
     const NAType &typ = vid.getType();
 
@@ -3807,7 +3807,7 @@ const NAType *MathFunc::synthesizeType() {
 
   NABoolean nullable = FALSE;
 
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     // type cast any params
     ValueId vid = child(i)->getValueId();
 
@@ -4003,7 +4003,7 @@ const NAType *Repeat::synthesizeType() {
   long size_in_bytes;
   long size_in_chars;
 
-  Int32 maxCharColLen = CmpCommon::getDefaultNumeric(TRAF_MAX_CHARACTER_COL_LENGTH);
+  int maxCharColLen = CmpCommon::getDefaultNumeric(TRAF_MAX_CHARACTER_COL_LENGTH);
 
   // figure out the max length of result.
   NABoolean negate;
@@ -4183,20 +4183,20 @@ const NAType *Replace::synthesizeType() {
 
   if (ctyp1->getCharSet() == CharInfo::UNICODE) {
     if (ctype2Length_in_chars < ctype3Length_in_chars) {
-      Int32 maxOccurrences = size_in_chars / ctype2Length_in_chars;
-      Int32 remainder = size_in_chars - (maxOccurrences * ctype2Length_in_chars);
+      int maxOccurrences = size_in_chars / ctype2Length_in_chars;
+      int remainder = size_in_chars - (maxOccurrences * ctype2Length_in_chars);
       size_in_chars = maxOccurrences * ctype3Length_in_chars + remainder;
       size_in_bytes = size_in_chars * ctyp1->getBytesPerChar();
     }
   } else {
     if (ctype2Length_in_chars < ctype3Length_in_chars) {
-      Int32 maxOccurrences = size_in_chars / ctype2Length_in_chars;
-      Int32 remainder = size_in_chars - (maxOccurrences * ctype2Length_in_chars);
+      int maxOccurrences = size_in_chars / ctype2Length_in_chars;
+      int remainder = size_in_chars - (maxOccurrences * ctype2Length_in_chars);
       size_in_chars = maxOccurrences * ctype3Length_in_chars + remainder;
     }
     if (ctype2Length_in_bytes < ctype3Length_in_bytes) {
-      Int32 maxOccurrences = size_in_bytes / ctype2Length_in_bytes;
-      Int32 remainder = size_in_bytes - (maxOccurrences * ctype2Length_in_bytes);
+      int maxOccurrences = size_in_bytes / ctype2Length_in_bytes;
+      int remainder = size_in_bytes - (maxOccurrences * ctype2Length_in_bytes);
       size_in_bytes = maxOccurrences * ctype3Length_in_bytes + remainder;
     }
   }
@@ -4210,7 +4210,7 @@ const NAType *Replace::synthesizeType() {
     size_in_bytes = fudge_factor * size_in_bytes;
   }
 
-  Int32 maxLenInBytes = CmpCommon::getDefaultNumeric(TRAF_MAX_CHARACTER_COL_LENGTH);
+  int maxLenInBytes = CmpCommon::getDefaultNumeric(TRAF_MAX_CHARACTER_COL_LENGTH);
   if (size_in_bytes > maxLenInBytes) {
     size_in_bytes = maxLenInBytes;
     size_in_chars = size_in_bytes / CharInfo::minBytesPerChar(ctyp1->getCharSet());
@@ -5182,7 +5182,7 @@ const NAType *Trim::synthesizeType() {
   // Per Ansi 6.7 SR 6(g,h), the result
   // takes the collation and coercibility of the trim source.
   //
-  Int32 size = trimSource->getDataStorageSize();
+  int size = trimSource->getDataStorageSize();
 
   if (DFS2REC::isBinaryString(vid2.getType().getFSDatatype())) {
     return new HEAP SQLBinaryString(HEAP, size, trimChar->supportsSQLnull() OR trimSource->supportsSQLnull(), TRUE);
@@ -6116,7 +6116,7 @@ const NAType *ItmSeqDiff1::synthesizeType() {
   // Verify that children are numeric.
   // Return the result type of child(0) - child(0).
 
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     const NAType &operand = child(i)->getValueId().getType();
     NABuiltInTypeEnum opType = operand.getTypeQualifier();
     if ((opType != NA_NUMERIC_TYPE && opType != NA_DATETIME_TYPE && opType != NA_INTERVAL_TYPE) ||
@@ -6162,7 +6162,7 @@ const NAType *ItmSeqDiff2::synthesizeType() {
   // Verify that children are numeric.
   // Return the result type of child(0) - child(0).
 
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     const NAType &operand = child(i)->getValueId().getType();
     NABuiltInTypeEnum opType = operand.getTypeQualifier();
     if ((opType != NA_NUMERIC_TYPE && opType != NA_DATETIME_TYPE && opType != NA_INTERVAL_TYPE) ||
@@ -6598,7 +6598,7 @@ const NAType *ItmLeadOlapFunction::synthesizeType() {
           if (cv->canGetExactNumericValue()) {
             value = cv->getExactNumericValue();
             offsetOK = TRUE;
-            offset_ = (Int32)value;
+            offset_ = (int)value;
           }
         } else {
           offsetOK = TRUE;  // delay making the decision. It coud be a row subquery

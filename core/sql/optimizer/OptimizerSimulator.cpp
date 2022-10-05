@@ -128,11 +128,11 @@ const char *OptimizerSimulator::logFileNames_[NUM_OF_LOGS] = {"ESTIMATED_ROWS.tx
                                                               "HIVE_TABLE_LIST.txt",
                                                               "TENANT.txt"};
 
-static ULng32 intHashFunc(const Int32 &Int) { return (ULng32)Int; }
+static ULng32 intHashFunc(const int &Int) { return (ULng32)Int; }
 
 static NABoolean isFileExists(const char *filename, NABoolean &isDir) {
   struct stat sb;
-  Int32 rVal = stat(filename, &sb);
+  int rVal = stat(filename, &sb);
   isDir = FALSE;
   if (S_ISDIR(sb.st_mode)) isDir = TRUE;
   return rVal != -1;
@@ -171,7 +171,7 @@ void OsimAllHistograms::addEntry(const char *fullpath, const char *username, con
   list_.insert(en);
 }
 
-void OsimHistogramEntry::charData(void *parser, const char *data, Int32 len) {
+void OsimHistogramEntry::charData(void *parser, const char *data, int len) {
   if (!currentTag_.compareTo(TAG_FULL_PATH))
     fullPath_.append(data, len);
   else if (!currentTag_.compareTo(TAG_USER_NAME))
@@ -455,7 +455,7 @@ void OptimizerSimulator::dumpDDLs(const QualifiedName &qualifiedName) {
       if (!skippingSystemGeneratedIndex) {
         // skip heading newline, and add a comment line
         // for the DDL text upto the first trailing '\n'
-        Int32 ix = 0;
+        int ix = 0;
         for (; ptr[ix] == '\n'; ix++)
           ;
         if (strstr(ptr, "CREATE TABLE") || strstr(ptr, "CREATE INDEX") || strstr(ptr, "CREATE UNIQUE INDEX") ||
@@ -829,9 +829,9 @@ void NAClusterInfo::captureNAClusterInfo(ofstream &naclfile) {
   }
   naclfile << endl;
 
-  Int32 *nodeID = NULL;
+  int *nodeID = NULL;
   NAString *nodeName = NULL;
-  NAHashDictionaryIterator<Int32, NAString> nodeNameAndIDIter(*nodeIdToNodeNameMap_);
+  NAHashDictionaryIterator<int, NAString> nodeNameAndIDIter(*nodeIdToNodeNameMap_);
   naclfile << "nodeIdAndNodeNameMap: " << nodeNameAndIDIter.entries() << endl;
   for (nodeNameAndIDIter.getNext(nodeID, nodeName); nodeID && nodeName; nodeNameAndIDIter.getNext(nodeID, nodeName)) {
     naclfile << *nodeID << " " << nodeName->data() << endl;
@@ -852,7 +852,7 @@ OsimNAClusterInfoLinux::OsimNAClusterInfoLinux(CollHeap *heap) : NAClusterInfoLi
 // accordigly.
 //============================================================================
 void OsimNAClusterInfoLinux::simulateNAClusterInfo() {
-  Int32 i, ci;
+  int i, ci;
   char var[256];
 
   const char *filepath = CURRCONTEXT_OPTSIMULATOR->getLogFilePath(OptimizerSimulator::NACLUSTERINFO);
@@ -896,7 +896,7 @@ void OsimNAClusterInfoLinux::simulateNAClusterInfo() {
       naclfile >> numCPUcoresPerNode_;
       naclfile.ignore(OSIM_LINEMAX, '\n');
     } else if (!strcmp(var, "clusterToCPUMap_")) {
-      Int32 numClusters, clusterNum, cpuArray_entries, cpuNum;
+      int numClusters, clusterNum, cpuArray_entries, cpuNum;
 
       naclfile >> numClusters;
       naclfile.ignore(OSIM_LINEMAX, '\n');
@@ -917,12 +917,12 @@ void OsimNAClusterInfoLinux::simulateNAClusterInfo() {
         }
       }
     } else if (!strcmp(var, "nodeIdAndNodeNameMap")) {
-      Int32 id_name_entries;
-      Int32 nodeId;
+      int id_name_entries;
+      int nodeId;
       char nodeName[256];
-      nodeIdToNodeNameMap_ = new (heap_) NAHashDictionary<Int32, NAString>(&intHashFunc, 101, TRUE, heap_);
+      nodeIdToNodeNameMap_ = new (heap_) NAHashDictionary<int, NAString>(&intHashFunc, 101, TRUE, heap_);
 
-      nodeNameToNodeIdMap_ = new (heap_) NAHashDictionary<NAString, Int32>(&NAString::hash, 101, TRUE, heap_);
+      nodeNameToNodeIdMap_ = new (heap_) NAHashDictionary<NAString, int>(&NAString::hash, 101, TRUE, heap_);
       naclfile >> id_name_entries;
       naclfile.ignore(OSIM_LINEMAX, '\n');
       for (i = 0; i < id_name_entries; i++) {
@@ -930,13 +930,13 @@ void OsimNAClusterInfoLinux::simulateNAClusterInfo() {
         naclfile.ignore(OSIM_LINEMAX, '\n');
 
         // populate clusterId<=>clusterName map from file
-        Int32 *key_nodeId = new Int32(nodeId);
+        int *key_nodeId = new int(nodeId);
         NAString *val_nodeName = new (heap_) NAString(nodeName, heap_);
-        Int32 *retId = nodeIdToNodeNameMap_->insert(key_nodeId, val_nodeName);
+        int *retId = nodeIdToNodeNameMap_->insert(key_nodeId, val_nodeName);
         // CMPASSERT(retId);
 
         NAString *key_nodeName = new (heap_) NAString(nodeName, heap_);
-        Int32 *val_nodeId = new Int32(nodeId);
+        int *val_nodeId = new int(nodeId);
 
         if (nodeNameToNodeIdMap_->contains(key_nodeName))
           // duplicate node names, that means virtual nodes
@@ -1593,7 +1593,7 @@ NABoolean OptimizerSimulator::readHiveStmt(ifstream &DDLFile, NAString &stmt, NA
 }
 
 void OptimizerSimulator::histogramHDFSToLocal() {
-  Int32 status;
+  int status;
   struct hdfsBuilder *srcBld = hdfsNewBuilder();
   // build locfs handle
   hdfsBuilderSetNameNode(srcBld, NULL);
@@ -1648,9 +1648,9 @@ void OptimizerSimulator::removeHDFSCacheDirectory() {
 void OptimizerSimulator::createLogDir() {
   removeHDFSCacheDirectory();
   // create local dir
-  Int32 rval = mkdir(osimLogLocalDir_.data(), S_IRWXU | S_IRWXG);
+  int rval = mkdir(osimLogLocalDir_.data(), S_IRWXU | S_IRWXG);
 
-  Int32 error = errno;
+  int error = errno;
 
   if (rval != 0) switch (error) {
       case EACCES: {
@@ -1699,7 +1699,7 @@ void OptimizerSimulator::initHashDictionaries() {
     hashDict_Tables_ = new (heap_) NAHashDictionary<const QualifiedName, long>(&QualifiedName::hash, 101, TRUE, heap_);
 
     hashDict_Synonyms_ =
-        new (heap_) NAHashDictionary<const QualifiedName, Int32>(&QualifiedName::hash, 101, TRUE, heap_);
+        new (heap_) NAHashDictionary<const QualifiedName, int>(&QualifiedName::hash, 101, TRUE, heap_);
 
     hashDict_HiveTables_ =
         new (heap_) NAHashDictionary<const QualifiedName, long>(&QualifiedName::hash, 101, TRUE, heap_);
@@ -1765,7 +1765,7 @@ void OptimizerSimulator::capture_MYSYSTEMNUMBER(short sysNum) {
     ofstream *outLogfile = writeLogStreams_[MYSYSTEMNUMBER];
 
     // Write data at the end of the file.
-    Int32 origWidth = (*outLogfile).width();
+    int origWidth = (*outLogfile).width();
     (*outLogfile) << "  ";
     (*outLogfile).width(10);
     (*outLogfile) << sysNum << endl;
@@ -1840,7 +1840,7 @@ void OptimizerSimulator::capture_getEstimatedRows(const char *tableName, double 
     NAString *check = hashDict_getEstimatedRows_->insert(key_tableName, val_estRows);
     // Open file in append mode.
     ofstream *outLogfile = writeLogStreams_[ESTIMATED_ROWS];
-    Int32 origWidth = (*outLogfile).width();
+    int origWidth = (*outLogfile).width();
     // Write data at the end of the file.
     (*outLogfile) << "  ";
     (*outLogfile).width(36);
@@ -1883,7 +1883,7 @@ double OptimizerSimulator::simulate_getEstimatedRows(const char *tableName) {
   return -1;
 }
 
-void OptimizerSimulator::capture_getNodeAndClusterNumbers(short &nodeNum, Int32 &clusterNum) {
+void OptimizerSimulator::capture_getNodeAndClusterNumbers(short &nodeNum, int &clusterNum) {
   if (capturedNodeAndClusterNum_) return;
 
   nodeNum_ = nodeNum;
@@ -1895,7 +1895,7 @@ void OptimizerSimulator::capture_getNodeAndClusterNumbers(short &nodeNum, Int32 
 void OptimizerSimulator::log_getNodeAndClusterNumbers() {
   // Open file in append mode.
   ofstream *outLogfile = writeLogStreams_[NODE_AND_CLUSTER_NUMBERS];
-  Int32 origWidth = (*outLogfile).width();
+  int origWidth = (*outLogfile).width();
   // Write data at the end of the file.
   (*outLogfile) << "  ";
   (*outLogfile).width(8);
@@ -1907,7 +1907,7 @@ void OptimizerSimulator::log_getNodeAndClusterNumbers() {
 
 void OptimizerSimulator::readLogFile_getNodeAndClusterNumbers() {
   short nodeNum;
-  Int32 clusterNum;
+  int clusterNum;
   NABoolean isDir;
 
   if (!isFileExists(logFilePaths_[NODE_AND_CLUSTER_NUMBERS], isDir))
@@ -1930,12 +1930,12 @@ void OptimizerSimulator::readLogFile_getNodeAndClusterNumbers() {
   }
 }
 
-void OptimizerSimulator::simulate_getNodeAndClusterNumbers(short &nodeNum, Int32 &clusterNum) {
+void OptimizerSimulator::simulate_getNodeAndClusterNumbers(short &nodeNum, int &clusterNum) {
   nodeNum = nodeNum_;
   clusterNum = clusterNum_;
 }
 
-void OSIM_getNodeAndClusterNumbers(short &nodeNum, Int32 &clusterNum) {
+void OSIM_getNodeAndClusterNumbers(short &nodeNum, int &clusterNum) {
   OptimizerSimulator::osimMode mode = OptimizerSimulator::OFF;
 
   if (CURRCONTEXT_OPTSIMULATOR && !CURRCONTEXT_OPTSIMULATOR->isCallDisabled(10))
@@ -2023,7 +2023,7 @@ void OptimizerSimulator::capture_TableOrView(NATable *naTab) {
                         << synRefName << ";" << endl;
 
       QualifiedName *synonymName = new (heap_) QualifiedName(objQualifiedName, heap_);
-      Int32 *dummy = new Int32(0);
+      int *dummy = new int(0);
       hashDict_Synonyms_->insert(synonymName, dummy);
     }
   }
@@ -2054,7 +2054,7 @@ void OptimizerSimulator::capture_TableOrView(NATable *naTab) {
       // recursively call myself until no referred table.
       const AbstractRIConstraintList &refList = naTab->getRefConstraints();
       BindWA bindWA(ActiveSchemaDB(), CmpCommon::context(), FALSE /*inDDL*/);
-      for (Int32 i = 0; i < refList.entries(); i++) {
+      for (int i = 0; i < refList.entries(); i++) {
         AbstractRIConstraint *ariConstr = refList[i];
 
         if (ariConstr->getOperatorType() != ITM_REF_CONSTRAINT) continue;
@@ -2091,7 +2091,7 @@ void OptimizerSimulator::captureQueryText(const char *query) {
 
   //(*outLogfile) << "--BeginQuery" << endl;
   (*outLogfile) << query;
-  Int32 queryStrLen = strlen(query);
+  int queryStrLen = strlen(query);
   // put in a semi-colon at end of query if it is missing
   if (query[queryStrLen] != ';') (*outLogfile) << ";";
   (*outLogfile) << endl;
@@ -2280,7 +2280,7 @@ NABoolean OSIM_runningLoadEmbedded() {
   const LIST(CmpContext *) &cmpContextsInUse = GetCliGlobals()->currContext()->getCmpContextsInUse();
 
   // search backwards from the most current CmpContext.
-  for (Int32 i = cmpContextsInUse.entries() - 1; i >= 0; i--) {
+  for (int i = cmpContextsInUse.entries() - 1; i >= 0; i--) {
     CmpContext *cmpContext = cmpContextsInUse[i];
     OptimizerSimulator *simulator = cmpContext->getOptimizerSimulator();
     if (simulator && simulator->runningInLoadMode()) return TRUE;

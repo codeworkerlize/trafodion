@@ -255,8 +255,8 @@ class TransMode : public NAVersionedObject {
   /*RollbackMode&*/ Int16 &rollbackMode() { return rm_; }
   /*MultiCommit&*/ Int16 &multiCommit() { return multiCommit_; }
 
-  Int32 &diagAreaSize() { return diagAreaSize_; }
-  Int32 &autoAbortIntervalInSeconds() { return autoAbortInterval_; }
+  int &diagAreaSize() { return diagAreaSize_; }
+  int &autoAbortIntervalInSeconds() { return autoAbortInterval_; }
   UInt32 &multiCommitSize() { return multiCommitSize_; }
   IsolationLevel getIsolationLevel() { return (IsolationLevel)il_; }
   AccessMode getAccessMode() { return (AccessMode)am_; }
@@ -267,12 +267,12 @@ class TransMode : public NAVersionedObject {
   int getDiagAreaSize() { return diagAreaSize_; }
   Int16 getFlags() const { return flags_; }
   Int16 &setFlags() { return flags_; }
-  Int32 getAutoAbortIntervalInSeconds() const { return autoAbortInterval_; }
+  int getAutoAbortIntervalInSeconds() const { return autoAbortInterval_; }
   MultiCommit getMultiCommit() { return (MultiCommit)multiCommit_; }
   UInt32 getMultiCommitSize() const { return multiCommitSize_; }
 
   NABoolean stmtLevelAccessOptions() const { return flags_ & STMTLEVELACCESSOPTIONS_; }
-  void setStmtLevelAccessOptions(Int32 v = 1) {
+  void setStmtLevelAccessOptions(int v = 1) {
     if (v)
       flags_ |= STMTLEVELACCESSOPTIONS_;
     else
@@ -442,14 +442,14 @@ class TransMode : public NAVersionedObject {
 
   Int16 flags_;  // 06-07
 
-  Int32 diagAreaSize_;  // 08-11
+  int diagAreaSize_;  // 08-11
 
   // see enum RollbackMode
   Int16 rm_;  // 12-13
 
   Int16 multiCommit_;  // 14-15
 
-  Int32 autoAbortInterval_;  // 16-19
+  int autoAbortInterval_;  // 16-19
 
   UInt32 multiCommitSize_;  // 20-23
 

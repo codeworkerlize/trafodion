@@ -67,8 +67,8 @@ static NAHeap qmmHeap("QMM Heap", NAMemory::DERIVED_FROM_SYS_HEAP, (int)131072);
  * @param [out] startOpt Indicator of how QMP is to be started, if at all.
  * @param [out] listenOpt Whether to doreceive() or waitOnAll().
  */
-static void processCommandLine(Int32 argc, char *argv[], short &qmpCpu, StartOpt &startOpt, ListenOpt &listenOpt) {
-  Int32 currArg = 1;
+static void processCommandLine(int argc, char *argv[], short &qmpCpu, StartOpt &startOpt, ListenOpt &listenOpt) {
+  int currArg = 1;
   while (currArg < argc) {
     if (!stricmp(argv[currArg], "-qmpcpu")) {
       currArg++;
@@ -106,14 +106,14 @@ static void processCommandLine(Int32 argc, char *argv[], short &qmpCpu, StartOpt
 }  // processCommandLine
 
 // This is needed to avoid a link error.
-NABoolean NAType::isComparable(const NAType &other, ItemExpr *parentOp, Int32 emitErr) const { return FALSE; }
+NABoolean NAType::isComparable(const NAType &other, ItemExpr *parentOp, int emitErr) const { return FALSE; }
 
 static short getDefaultQmpCpu(const IpcEnvironment *ipcEnv) {
   short qmpCpu;
 
   // Default QMP location is the same cpu QMM is running on.
   SB_Phandle_Type procHandle;
-  Int32 lc_cpu;
+  int lc_cpu;
   XPROCESSHANDLE_GETMINE_(&procHandle);
   short error = XPROCESSHANDLE_DECOMPOSE_(&procHandle, &lc_cpu);
   qmpCpu = lc_cpu;
@@ -127,10 +127,10 @@ static short getDefaultQmpCpu(const IpcEnvironment *ipcEnv) {
 }
 
 extern "C" {
-Int32 sq_fs_dllmain();
+int sq_fs_dllmain();
 }
 
-Int32 main(Int32 argc, char *argv[]) {
+int main(int argc, char *argv[]) {
   dovers(argc, argv);
 
   try {

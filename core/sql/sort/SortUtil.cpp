@@ -519,7 +519,7 @@ int SortUtil::sortReceivePrepare(void) {
       if (bmoStats_) bmoStats_->updateBMOHeapUsage((NAHeap *)config_->heapAddr_);
 
       // subsequent merges in loop.
-      for (Int32 i = 0; i < stats_.numInterPasses_; i++) {
+      for (int i = 0; i < stats_.numInterPasses_; i++) {
         sortAlgo_ = new (config_->heapAddr_)
             Tree(stats_.mergeOrder_, initialRunSize, config_->recSize_, FALSE_L, config_->keySize_, scratch_,
                  config_->heapAddr_, &sortError_, explainNodeId_, bmoStats_, this, runnum, TRUE_L, TRUE);
@@ -831,7 +831,7 @@ void SortUtil::returnExcessMemoryQuota(UInt32 overheadPerRecord) {
   if (config_->memoryQuotaUsedBytes_ > maxEstimateMemoryBytes) maxEstimateMemoryBytes = config_->memoryQuotaUsedBytes_;
 
   // Lets check if we have more quota on hand that we can expense.
-  Int32 excessMemoryQuotaMB = config_->memoryQuotaMB_ - (Int16)(maxEstimateMemoryBytes / ONE_MB);
+  int excessMemoryQuotaMB = config_->memoryQuotaMB_ - (Int16)(maxEstimateMemoryBytes / ONE_MB);
 
   // if no more quota on hand, return, nothing much we can do now.
   if (excessMemoryQuotaMB <= 0) return;
@@ -1056,7 +1056,7 @@ void SortUtil::setupComputations(SortUtilConfig &config) {
   stats_.runSize_ = config.runSize_;
 }
 
-UInt32 SortUtil::estimateMergeOrder(UInt32 maxMergeMemory, Int32 sortMergeBlocksPerBuffer) {
+UInt32 SortUtil::estimateMergeOrder(UInt32 maxMergeMemory, int sortMergeBlocksPerBuffer) {
   UInt32 memoryPerTreeNode =
       ((SORT_MERGENODE_NUM_BUFFERS * sortMergeBlocksPerBuffer *
         (sizeof(SortMergeBuffer) + config_->getScratchIOBlockSize())) +  // We allocate IO block separately, hence..
@@ -1065,7 +1065,7 @@ UInt32 SortUtil::estimateMergeOrder(UInt32 maxMergeMemory, Int32 sortMergeBlocks
   return (maxMergeMemory / memoryPerTreeNode);
 }
 
-UInt32 SortUtil::estimateMemoryToAvoidIntMerge(UInt32 numruns, Int32 sortMergeBlocksPerBuffer) {
+UInt32 SortUtil::estimateMemoryToAvoidIntMerge(UInt32 numruns, int sortMergeBlocksPerBuffer) {
   // treeNodes and Record structure are allocated as an array.
 
   UInt32 maxMem = numruns * SORT_MERGENODE_NUM_BUFFERS * sortMergeBlocksPerBuffer *

@@ -48,7 +48,7 @@ class Module : public ExGod {
   char *path_name_;
   int path_name_len_;
   NAHeap *heap_;
-  Int32 statementCount_;
+  int statementCount_;
   COM_VERSION version_;
   char *vproc_;
 
@@ -60,8 +60,8 @@ class Module : public ExGod {
   inline int getModuleNameLen() { return module_name_len_; };
   inline char *getPathName() { return path_name_; };
   inline int getPathNameLen() { return path_name_len_; };
-  inline Int32 getStatementCount() { return statementCount_; }
-  inline void setStatementCount(Int32 c) { statementCount_ = c; }
+  inline int getStatementCount() { return statementCount_; }
+  inline void setStatementCount(int c) { statementCount_ = c; }
   void setVersion(COM_VERSION v) { version_ = v; }
   COM_VERSION getVersion() { return version_; }
   char *getVproc() { return vproc_; }

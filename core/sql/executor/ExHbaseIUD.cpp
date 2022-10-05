@@ -38,9 +38,9 @@
 
 static char *costThreshold = getenv("RECORD_TIME_COST_JNI");
 static char *costJniAll = getenv("RECORD_TIME_COST_JNI_ALL");
-static Int32 recordJniAll = costJniAll ? atoi(costJniAll) : -1;
+static int recordJniAll = costJniAll ? atoi(costJniAll) : -1;
 static pid_t pid = getpid();
-static Int32 callCount[40] = {0};
+static int callCount[40] = {0};
 static double sumCost[40] = {0};
 static long curTransId = 0;
 
@@ -58,7 +58,7 @@ ExWorkProcRetcode ExHbaseAccessInsertTcb::work() {
     if (curTransId >= 0) {
       long count = 0;
       long cost = 0;
-      for (Int32 idx = 0; idx < 40; idx++) {
+      for (int idx = 0; idx < 40; idx++) {
         count += callCount[idx];
         cost += sumCost[idx];
       }
@@ -249,7 +249,7 @@ ExWorkProcRetcode ExHbaseAccessInsertRowwiseTcb::work() {
     if (curTransId >= 0) {
       long count = 0;
       double cost = 0;
-      for (Int32 idx = 0; idx < 40; idx++) {
+      for (int idx = 0; idx < 40; idx++) {
         count += callCount[idx];
         cost += sumCost[idx];
       }
@@ -433,7 +433,7 @@ ExWorkProcRetcode ExHbaseAccessInsertSQTcb::work() {
     if (curTransId >= 0) {
       long count = 0;
       double cost = 0;
-      for (Int32 idx = 0; idx < 40; idx++) {
+      for (int idx = 0; idx < 40; idx++) {
         count += callCount[idx];
         cost += sumCost[idx];
       }
@@ -631,7 +631,7 @@ ExWorkProcRetcode ExHbaseAccessInsertSQTcb::work() {
       } break;
       case COMPLETE_ASYNC_INSERT: {
         if (resultArray_ == NULL) resultArray_ = new (getHeap()) NABoolean[1];
-        Int32 timeout;
+        int timeout;
         if (asyncCompleteRetryCount_ < 10)
           timeout = -1;
         else {
@@ -838,7 +838,7 @@ ExWorkProcRetcode ExHbaseAccessUpsertVsbbSQTcb::work() {
     if (curTransId >= 0) {
       long count = 0;
       double cost = 0;
-      for (Int32 idx = 0; idx < 40; idx++) {
+      for (int idx = 0; idx < 40; idx++) {
         count += callCount[idx];
         cost += sumCost[idx];
       }
@@ -1089,7 +1089,7 @@ ExWorkProcRetcode ExHbaseAccessUpsertVsbbSQTcb::work() {
       } break;
       case COMPLETE_ASYNC_INSERT: {
         if (resultArray_ == NULL) resultArray_ = new (getHeap()) NABoolean[hbaseAccessTdb().getHbaseRowsetVsbbSize()];
-        Int32 timeout;
+        int timeout;
         if (asyncCompleteRetryCount_ < 10)
           timeout = -1;
         else {
@@ -1363,7 +1363,7 @@ ExWorkProcRetcode ExHbaseUMDtrafUniqueTaskTcb::work(short &rc) {
     if (curTransId >= 0) {
       long count = 0;
       double cost = 0;
-      for (Int32 idx = 0; idx < 40; idx++) {
+      for (int idx = 0; idx < 40; idx++) {
         count += callCount[idx];
         cost += sumCost[idx];
       }
@@ -1754,7 +1754,7 @@ ExWorkProcRetcode ExHbaseUMDtrafUniqueTaskTcb::work(short &rc) {
 
       case COMPLETE_ASYNC_UPDATE: {
         if (tcb_->resultArray_ == NULL) tcb_->resultArray_ = new (tcb_->getHeap()) NABoolean[1];
-        Int32 timeout;
+        int timeout;
         if (asyncCompleteRetryCount_ < 10)
           timeout = -1;
         else {
@@ -2069,7 +2069,7 @@ ExWorkProcRetcode ExHbaseUMDtrafUniqueTaskTcb::work(short &rc) {
 
       case COMPLETE_ASYNC_DELETE: {
         if (tcb_->resultArray_ == NULL) tcb_->resultArray_ = new (tcb_->getHeap()) NABoolean[1];
-        Int32 timeout;
+        int timeout;
         if (asyncCompleteRetryCount_ < 10)
           timeout = -1;
         else {
@@ -2315,7 +2315,7 @@ ExWorkProcRetcode ExHbaseUMDnativeUniqueTaskTcb::work(short &rc) {
     if (curTransId >= 0) {
       long count = 0;
       double cost = 0;
-      for (Int32 idx = 0; idx < 40; idx++) {
+      for (int idx = 0; idx < 40; idx++) {
         count += callCount[idx];
         cost += sumCost[idx];
       }
@@ -2666,7 +2666,7 @@ ExWorkProcRetcode ExHbaseUMDtrafSubsetTaskTcb::work(short &rc) {
     if (curTransId >= 0) {
       long count = 0;
       double cost = 0;
-      for (Int32 idx = 0; idx < 40; idx++) {
+      for (int idx = 0; idx < 40; idx++) {
         count += callCount[idx];
         cost += sumCost[idx];
       }
@@ -3176,7 +3176,7 @@ ExWorkProcRetcode ExHbaseUMDnativeSubsetTaskTcb::work(short &rc) {
     if (curTransId >= 0) {
       long count = 0;
       double cost = 0;
-      for (Int32 idx = 0; idx < 40; idx++) {
+      for (int idx = 0; idx < 40; idx++) {
         count += callCount[idx];
         cost += sumCost[idx];
       }
@@ -3848,7 +3848,7 @@ ExWorkProcRetcode ExHbaseAccessSQRowsetTcb::work() {
     if (curTransId >= 0) {
       long count = 0;
       double cost = 0;
-      for (Int32 idx = 0; idx < 40; idx++) {
+      for (int idx = 0; idx < 40; idx++) {
         count += callCount[idx];
         cost += sumCost[idx];
       }
@@ -4284,7 +4284,7 @@ ExWorkProcRetcode ExHbaseAccessSQRowsetTcb::work() {
       } break;
       case COMPLETE_ASYNC_OPERATION: {
         if (resultArray_ == NULL) resultArray_ = new (getHeap()) NABoolean[hbaseAccessTdb().getHbaseRowsetVsbbSize()];
-        Int32 timeout;
+        int timeout;
         if (asyncCompleteRetryCount_ < 10)
           timeout = -1;
         else {

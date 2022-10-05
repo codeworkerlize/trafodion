@@ -81,13 +81,13 @@ extern "C" void __clear_cache(void *, void *);
 #define LIKELY(x)   __builtin_expect((x), 1)
 #define UNLIKELY(x) __builtin_expect((x), 0)
 
-void setVCLength(char *VCLen, Int32 VCLenSize, UInt32 value);
+void setVCLength(char *VCLen, int VCLenSize, UInt32 value);
 
 // --------------------------------------------------------------------
 // Generate 31 bit hash value by
 // multiplication, shift, and xor for every 4 byte.
 // --------------------------------------------------------------------
-UInt32 FastHash(char *data, Int32 length) {
+UInt32 FastHash(char *data, int length) {
   // FastHash should be removed someday
   assert(0 /* "FastHash should not be used!" */);
 
@@ -149,7 +149,7 @@ UInt32 FastHash(char *data, Int32 length) {
 
   if (length == 0) return EXP_CLEAR_SIGNBIT(result);
 
-  // Copy the remaining 1, 2, or 3 bytes to a Int32.
+  // Copy the remaining 1, 2, or 3 bytes to a int.
   if (length == 1)
     z = *((unsigned char *)source);
   else {
@@ -171,7 +171,7 @@ UInt32 FastHash(char *data, Int32 length) {
 // If the added column has no default or a default of null, then this
 // the nulldata pointer is set to NULL and this static array is not used.
 //
-static const Int32 nullBitmapData[] = {0, 0, 0, 0};
+static const int nullBitmapData[] = {0, 0, 0, 0};
 
 ex_expr::exp_return_type getDefaultValueForAddedColumn(UInt32 field_num,  // field number whose default value is to be
                                                                           // computed. Zero based.
@@ -224,7 +224,7 @@ ex_expr::exp_return_type getDefaultValueForAddedColumn(UInt32 field_num,  // fie
 // fields are stored without blank padding).
 /////////////////////////////////////////////////////////
 void computeDataPtr(char *start_data_ptr,  // start of data row
-                    Int32 field_num,       // field number whose address is to be
+                    int field_num,       // field number whose address is to be
                                            // computed. Zero based.
                     ExpTupleDesc *td,      // describes this row
                     char **opdata, char **nulldata, char **varlendata) {
@@ -235,7 +235,7 @@ void computeDataPtr(char *start_data_ptr,  // start of data row
 
   AttributesPtr *op = td->attrs();
   char *data_ptr = start_data_ptr;
-  for (Int32 i = 0; i < field_num; i++, op++) {
+  for (int i = 0; i < field_num; i++, op++) {
     data_ptr += ((*op)->getNullFlag() ? (*op)->getNullIndicatorLength() : 0);
     data_ptr += (*op)->getVCIndicatorLength() + (*op)->getLength(data_ptr);
   }
@@ -258,7 +258,7 @@ void displayData(Int16 dataType, char *dataPtr) {
       cout << "x=" << x << endl;
     } break;
     case REC_BIN32_SIGNED: {
-      Int32 x = *((Int32 *)(dataPtr));
+      int x = *((int *)(dataPtr));
       cout << "x=" << x << endl;
     } break;
     case REC_BIN64_SIGNED: {
@@ -277,10 +277,10 @@ void displayData(Int16 dataType, char *dataPtr) {
 // -- Helper for PCode abstract machine
 //
 ex_expr::exp_return_type ex_expr::evalClauses(ex_clause *clause, atp_struct *atp1, atp_struct *atp2, atp_struct *atp3,
-                                              Int32 datalen, UInt32 *rowLen, Int16 *lastFldIndex, char *fetchedDataPtr
+                                              int datalen, UInt32 *rowLen, Int16 *lastFldIndex, char *fetchedDataPtr
 #ifdef TRACE_EXPR_EVAL
                                               ,
-                                              Int32 clauseToDisplay, Int32 operandToDisplay
+                                              int clauseToDisplay, int operandToDisplay
 #endif
 ) {
   atp_struct *atps[] = {atp1, atp2, atp3};
@@ -312,7 +312,7 @@ ex_expr::exp_return_type ex_expr::evalClauses(ex_clause *clause, atp_struct *atp
   ex_expr::exp_mode mode = ex_expr::exp_UNKNOWN;
 
 #ifdef TRACE_EXPR_EVAL
-  Int32 ct = 1;
+  int ct = 1;
 #endif
 
   // ---------------------------------------------------------------------
@@ -421,7 +421,7 @@ ex_expr::exp_return_type ex_expr::evalClauses(ex_clause *clause, atp_struct *atp
                 // True for SQL/MP tables only.
                 // Needs special logic to compute the actual
                 // address of this field.
-                computeDataPtr(dataPtr, (Int32)(*op)->getRelOffset(), tuppDesc, &(*opdata), &(*nulldata), &(*vardata));
+                computeDataPtr(dataPtr, (int)(*op)->getRelOffset(), tuppDesc, &(*opdata), &(*nulldata), &(*vardata));
 
                 if ((mode == exp_WRITE) && (rowLen)) {
                   currAttr = *op;
@@ -465,7 +465,7 @@ ex_expr::exp_return_type ex_expr::evalClauses(ex_clause *clause, atp_struct *atp
                 // see if this column is present in the fetched
                 // row.
                 char *fetchedOpPtr;
-                computeDataPtr(fetchedDataPtr, (Int32)(*op)->getDefaultFieldNum(), tuppDesc, &fetchedOpPtr, NULL, NULL);
+                computeDataPtr(fetchedDataPtr, (int)(*op)->getDefaultFieldNum(), tuppDesc, &fetchedOpPtr, NULL, NULL);
                 if (fetchedOpPtr >= (fetchedDataPtr + datalen)) {
                   // (*op)->getDefaultFieldNum is the index of
                   // the first missing column.
@@ -695,7 +695,7 @@ ex_expr::exp_return_type ex_expr::evalClauses(ex_clause *clause, atp_struct *atp
     {
 #ifdef TRACE_EXPR_EVAL
       if (clauseToDisplay == ct) {
-        Int32 idx = 2 * ex_clause::MAX_OPERANDS;
+        int idx = 2 * ex_clause::MAX_OPERANDS;
         idx += operandToDisplay;
 
         char *dataPtr = op_data[idx];
@@ -1094,7 +1094,7 @@ static const long nullData[] = {
 // if src1 <  src2  --> compCode = 0
 //
 
-static const Int32 compTable[6][3] = {
+static const int compTable[6][3] = {
     /* ITM_EQUAL */ {0, 1, 0},
     /* ITM_NOT_EQUAL */ {1, 0, 1},
     /* ITM_LESS */ {1, 0, 0},
@@ -1146,7 +1146,7 @@ static const Int32 compTable[6][3] = {
                                                                                 \
   PCODE_DEF(p); /* Define pCode ptr */                                          \
                                                                                 \
-  Int32 startOffset = ((Int32)pCode[0] << 1) + 2; /* past 1st opcode */         \
+  int startOffset = ((int)pCode[0] << 1) + 2; /* past 1st opcode */         \
                                                                                 \
   stack[1] = (Long)(e->getConstantsArea()); /* Set up constants array */        \
                                                                                 \
@@ -1214,12 +1214,12 @@ ex_expr::exp_return_type reportErr(atp_struct *atp1, ex_expr *expr) {
   return ex_expr::EXPR_ERROR;
 }
 
-Int32 bignumSub(UInt16 *tgt, UInt16 *src1, UInt16 *src2, Int32 length) {
+int bignumSub(UInt16 *tgt, UInt16 *src1, UInt16 *src2, int length) {
   NABoolean performAdd = TRUE;
   UInt16 carry = 0;
-  Int32 i;
+  int i;
 
-  Int32 length16 = length >> 1;
+  int length16 = length >> 1;
 
   // Get source sign bits
   char src1Sign = BIGN_GET_SIGN(src1, length);
@@ -1275,8 +1275,8 @@ Int32 bignumSub(UInt16 *tgt, UInt16 *src1, UInt16 *src2, Int32 length) {
 
     // Sub shorts - this is because bignum stored this way.
     for (i = 0; i < length16; i++) {
-      Int32 result = (Int32)src1[i] - src2[i] + (Int16)carry;
-      tgt[i] = (UInt16)(result + (Int32)0x10000) & 0xffff;
+      int result = (int)src1[i] - src2[i] + (Int16)carry;
+      tgt[i] = (UInt16)(result + (int)0x10000) & 0xffff;
       carry = (result < 0) ? -1 : 0;
     }
   }
@@ -1347,8 +1347,8 @@ void ex_expr_base::setEvalPtr(NABoolean isSamePrimary) {
       // info.
       //
       void *pageStart = (void *)((Long)evalPtr_ & ~(getpagesize() - 1));
-      Int32 lenToAllow = (getConstantsArea() + getConstsLength()) - (char *)pageStart;
-      Int32 err = mprotect(pageStart, lenToAllow, PROT_READ | PROT_WRITE | PROT_EXEC);
+      int lenToAllow = (getConstantsArea() + getConstsLength()) - (char *)pageStart;
+      int err = mprotect(pageStart, lenToAllow, PROT_READ | PROT_WRITE | PROT_EXEC);
 
       // If error occurred, do not go through with opt
       if (err != 0) {
@@ -1375,7 +1375,7 @@ void ex_expr_base::setEvalPtr(NABoolean isSamePrimary) {
     return;
   }
 
-  Int32 length = *(Int32 *)(pCode++);
+  int length = *(int *)(pCode++);
   pCode += (2 * length);
 
   switch (pCode[0]) {
@@ -1480,8 +1480,8 @@ ex_expr::exp_return_type ex_expr_base::evalFast202(PCodeBinary *p, atp_struct *a
   SETUP_EVAL_STK(p, atp1, atp2, e);
 #pragma refaligned 8 pCode
 
-  PTR_DEF_ASSIGN(Int32, x, 0);
-  PTR_DEF_ASSIGN(Int32, y, 2);
+  PTR_DEF_ASSIGN(int, x, 0);
+  PTR_DEF_ASSIGN(int, y, 2);
 
   *x = *y;
   return ex_expr::EXPR_OK;
@@ -1572,8 +1572,8 @@ ex_expr::exp_return_type ex_expr_base::evalFast36(PCodeBinary *p, atp_struct *at
   SETUP_EVAL_STK(p, atp1, atp2, e);
 #pragma refaligned 8 pCode
 
-  PTR_DEF_ASSIGN(Int32, x, 2);
-  PTR_DEF_ASSIGN(Int32, y, 4);
+  PTR_DEF_ASSIGN(int, x, 2);
+  PTR_DEF_ASSIGN(int, y, 4);
 
   return (*x == *y) ? ex_expr::EXPR_TRUE : ex_expr::EXPR_FALSE;
 }
@@ -1672,7 +1672,7 @@ ex_expr::exp_return_type ex_expr_base::evalFast262(PCodeBinary *p, atp_struct *a
   SETUP_EVAL_STK(p, atp1, atp2, e);
 #pragma refaligned 8 pCode
 
-  UInt32 pCode3 = (pCode[7] == 1) ? *((Int32 *)(stack[pCode[2]] + pCode[4])) : pCode[3];
+  UInt32 pCode3 = (pCode[7] == 1) ? *((int *)(stack[pCode[2]] + pCode[4])) : pCode[3];
 
   NABoolean isNullCheck = (pCode[8] != 0);
 
@@ -1690,9 +1690,9 @@ ex_expr::exp_return_type ex_expr_base::evalFast275(PCodeBinary *p, atp_struct *a
   SETUP_EVAL_STK(p, atp1, atp2, e);
 #pragma refaligned 8 pCode
 
-  Int32 compCode;
+  int compCode;
 
-  const Int32 *table;
+  const int *table;
 #pragma refaligned 8 table
 
   // Set table pointer to appropriate position based on operation
@@ -1704,10 +1704,10 @@ ex_expr::exp_return_type ex_expr_base::evalFast275(PCodeBinary *p, atp_struct *a
 
   // Quick first byte compare
   if (x[0] == y[0]) {
-    DEF_ASSIGN(Int32, len1, 6);
-    DEF_ASSIGN(Int32, len2, 7);
-    // Int32 len1 = pCode[6];
-    // Int32 len2 = pCode[7];
+    DEF_ASSIGN(int, len1, 6);
+    DEF_ASSIGN(int, len2, 7);
+    // int len1 = pCode[6];
+    // int len2 = pCode[7];
 
     compCode = memcmp(x, y, len1);
 
@@ -1717,7 +1717,7 @@ ex_expr::exp_return_type ex_expr_base::evalFast275(PCodeBinary *p, atp_struct *a
     }
     // If strings are equal so far and lengths are different, compare more
     else if (len1 != len2) {
-      for (Int32 i = len1; i < len2; i++) {
+      for (int i = len1; i < len2; i++) {
         if (y[i] == ' ') continue;
 
         compCode = (' ' < y[i]) ? -1 : 1;
@@ -1764,7 +1764,7 @@ ex_expr::exp_return_type ex_expr::evalPCodeAligned(PCodeBinary *pCode32, atp_str
 //     char  *src = (char *)stack[pCode[2]];
 //
 // 2. Get the nullIndicator and VCIndicator lengths from the combo pcode
-//    Int32 comboLen = pCode[6];
+//    int comboLen = pCode[6];
 //    char* comboPtr = (char*)&comboLen;
 //    Int16 srcNullIndLen = (Int16)comboPtr[0];
 //    Int16 srcVCIndLen   = (Int16)comboPtr[1];
@@ -1905,9 +1905,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
   // current max variable field offset
   // incremented everytime a variable field in disk format is evaluated
-  Int32 varOffset = 0;
+  int varOffset = 0;
   // Keep track of write of varchars to aligned rows.  VOA values should always be increasing.
-  Int32 lastVoaOffset = 0;
+  int lastVoaOffset = 0;
 
   PCodeBinary *pCodeOpcPtr;
 
@@ -1965,18 +1965,18 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
             //
             BASE_PTR_DEF_ASSIGN(char, dataPtr, 0);
 
-            DEF_ASSIGN(Int32, comboLen, 4);
+            DEF_ASSIGN(int, comboLen, 4);
             char *comboPtr = (char *)&comboLen;
             Int16 nullIndLen = (Int16)comboPtr[0];
             Int16 vcIndLen = (Int16)comboPtr[1];
 
-            DEF_ASSIGN(Int32, vcLoc, 5);
-            Int32 dataLoc = vcLoc + ex_clause::MAX_OPERANDS;
+            DEF_ASSIGN(int, vcLoc, 5);
+            int dataLoc = vcLoc + ex_clause::MAX_OPERANDS;
 
             // If this is the first operand it is a write.
             // So set the VOA entry for this varchar.
             if (vcLoc == ex_clause::MAX_OPERANDS) {
-              DEF_ASSIGN(Int32, tgtVoaOffset, 2);
+              DEF_ASSIGN(int, tgtVoaOffset, 2);
 
               // VOA offsets should always be used in order.
               if (tgtVoaOffset > 0) {
@@ -2050,10 +2050,10 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
         // Hash all source operands
         do {
-          DEF_ASSIGN(Int32, len1, 2);
-          DEF_ASSIGN(Int32, len2, 6);
-          DEF_ASSIGN(Int32, pos1, 3);
-          DEF_ASSIGN(Int32, pos2, 7);
+          DEF_ASSIGN(int, len1, 2);
+          DEF_ASSIGN(int, len2, 6);
+          DEF_ASSIGN(int, pos1, 3);
+          DEF_ASSIGN(int, pos2, 7);
 
           PTR_DEF_ASSIGN(unsigned char, src1, 0);
           PTR_DEF_ASSIGN(unsigned char, src2, 4);
@@ -2074,7 +2074,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           PTR_DEF_ASSIGN(char, src1, 0);
 
           hashVals[pCode[3]] =
-              (pCode[2] == 0) ? *((UInt32 *)src1) : ExHDPHash::hash(src1, ExHDPHash::NO_FLAGS, (Int32)pCode[2]);
+              (pCode[2] == 0) ? *((UInt32 *)src1) : ExHDPHash::hash(src1, ExHDPHash::NO_FLAGS, (int)pCode[2]);
           pCode += 4;
         }
 
@@ -2089,13 +2089,13 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
       case PCIT::NOT_NULL_BRANCH_BULK: {
         NABoolean isNull = FALSE;
-        DEF_ASSIGN(Int32, length, 0);
+        DEF_ASSIGN(int, length, 0);
         length--;
 
-        Int32 btgt = length - 1;
+        int btgt = length - 1;
 
         if (pCode[1] == 0) {
-          Int32 i = 3;
+          int i = 3;
           Long tgt = stack[pCode[2]];
           do {
             // Retrieve null bit and check for nullness
@@ -2125,25 +2125,25 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::NULL_BITMAP_BULK: {
-        // Int32 i;
+        // int i;
         NABoolean isNull = FALSE;
-        DEF_ASSIGN(Int32, length, 0);
+        DEF_ASSIGN(int, length, 0);
         length--;
 
-        Int32 btgt = length - 1;
+        int btgt = length - 1;
 
         if (pCode[1] == 0) {
           PTR_DEF_ASSIGN(char, nullDataPtr, 2);
 
           PTR_TO_PCODE(char, bitmapMaskPtr, 5);
 
-          for (Int32 i = 0; i < (Int32)pCode[4]; i++) {
+          for (int i = 0; i < (int)pCode[4]; i++) {
             isNull = (nullDataPtr[i] & bitmapMaskPtr[i]);
             if (isNull) break;
           }
         } else {
-          for (Int32 i = 2; i < btgt; i += 3) {
-            DEF_ASSIGN(Int32, nbi, i + 2);
+          for (int i = 2; i < btgt; i += 3) {
+            DEF_ASSIGN(int, nbi, i + 2);
             PTR_DEF_ASSIGN(char, nullDataPtr, i);
 
             isNull = (nbi == -1) ? (*nullDataPtr != 0) : ExpAlignedFormat::isNullValue(nullDataPtr, (UInt16)nbi);
@@ -2157,8 +2157,8 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::MOVE_BULK: {
-        Int32 i;
-        DEF_ASSIGN(Int32, length, 0);
+        int i;
+        DEF_ASSIGN(int, length, 0);
         length--;
 
         Long tgtBase = stack[pCode[1]];
@@ -2191,7 +2191,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
               break;
 
             case PCIT::MOVE_MBIN32S_IBIN32S:
-              *((Int32 *)tgt) = (Int32)pCode[i + 2];
+              *((int *)tgt) = (int)pCode[i + 2];
               break;
 
             case PCIT::MOVE_MBIN8_MBIN8:
@@ -2230,7 +2230,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::MOVE_MBIN32S: {
-        PTR_DEF_ASSIGN(Int32, resultPtr, 0);
+        PTR_DEF_ASSIGN(int, resultPtr, 0);
         if (*resultPtr == 1)
           retCode = ex_expr::EXPR_TRUE;
         else
@@ -2264,14 +2264,14 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       // fixed length source to fixed length target. Lengths
       // are not equal. Currently only supports targetlen > srclen.
       case PCIT::MOVE_MASCII_MASCII_IBIN32S_IBIN32S: {
-        DEF_ASSIGN(Int32, maxTgtLen, 4);
-        DEF_ASSIGN(Int32, actualSrcLen, 5);
+        DEF_ASSIGN(int, maxTgtLen, 4);
+        DEF_ASSIGN(int, actualSrcLen, 5);
 
         PTR_DEF_ASSIGN(char, tgt, 0);
         PTR_DEF_ASSIGN(char, src, 2);
 
         char *pad = tgt + actualSrcLen;
-        Int32 padLen = (maxTgtLen - actualSrcLen);
+        int padLen = (maxTgtLen - actualSrcLen);
 
         str_cpy_all(tgt, src, actualSrcLen);
 
@@ -2285,14 +2285,14 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       // fixed length source to fixed length target. Lengths
       // are not equal. Currently only supports targetlen > srclen.
       case PCIT::MOVE_MUNI_MUNI_IBIN32S_IBIN32S: {
-        DEF_ASSIGN(Int32, maxTgtLen, 4);
-        DEF_ASSIGN(Int32, actualSrcLen, 5);
+        DEF_ASSIGN(int, maxTgtLen, 4);
+        DEF_ASSIGN(int, actualSrcLen, 5);
 
         PTR_DEF_ASSIGN(char, tgt, 0);
         PTR_DEF_ASSIGN(char, src, 2);
 
         NAWchar *pad = (NAWchar *)(tgt + actualSrcLen);
-        Int32 padLen = (maxTgtLen - actualSrcLen) >> 1;  // Shift for dbl-byte
+        int padLen = (maxTgtLen - actualSrcLen) >> 1;  // Shift for dbl-byte
 
         str_cpy_all(tgt, src, actualSrcLen);
 
@@ -2306,17 +2306,17 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       // move varchar source to varchar target
       // source or target may be indirect.
       case PCIT::MOVE_MATTR5_MATTR5: {
-        DEF_ASSIGN(Int32, maxTgtLen, 3);
-        Int32 srcLen, copyLen;
+        DEF_ASSIGN(int, maxTgtLen, 3);
+        int srcLen, copyLen;
         BASE_PTR_DEF_ASSIGN(char, src, 5);
         BASE_PTR_DEF_ASSIGN(char, tgt, 0);
 
-        DEF_ASSIGN(Int32, comboLen1, 4);
+        DEF_ASSIGN(int, comboLen1, 4);
         char *comboPtr1 = (char *)&comboLen1;
         Int16 tgtNullIndLen = (Int16)comboPtr1[0];
         Int16 tgtVCIndLen = (Int16)comboPtr1[1];
 
-        DEF_ASSIGN(Int32, comboLen2, 9);
+        DEF_ASSIGN(int, comboLen2, 9);
         char *comboPtr2 = (char *)&comboLen2;
         Int16 srcNullIndLen = (Int16)comboPtr2[0];
         Int16 srcVCIndLen = (Int16)comboPtr2[1];
@@ -2334,8 +2334,8 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
         src += srcVCIndLen;
 
-        DEF_ASSIGN(Int32, tgtOffset, 1);
-        DEF_ASSIGN(Int32, tgtVoaOffset, 2);
+        DEF_ASSIGN(int, tgtOffset, 1);
+        DEF_ASSIGN(int, tgtVoaOffset, 2);
 
         // VOA offsets should always be used in order.
         if (tgtVoaOffset > 0) {
@@ -2357,12 +2357,12 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       // move varchar source to fixed target
       // source may be indirect
       case PCIT::MOVE_MASCII_MATTR5_IBIN32S: {
-        DEF_ASSIGN(Int32, maxTgtLen, 7);
-        Int32 srcLen, copyLen, padLen = 0;
+        DEF_ASSIGN(int, maxTgtLen, 7);
+        int srcLen, copyLen, padLen = 0;
         PTR_DEF_ASSIGN(char, dst, 0);
         BASE_PTR_DEF_ASSIGN(char, src, 2);
 
-        DEF_ASSIGN(Int32, comboLen1, 6);
+        DEF_ASSIGN(int, comboLen1, 6);
         char *comboPtr1 = (char *)&comboLen1;
         Int16 srcNullIndLen = (Int16)comboPtr1[0];
         Int16 srcVCIndLen = (Int16)comboPtr1[1];
@@ -2395,18 +2395,18 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       case PCIT::MOVE_MATTR5_MASCII_IBIN32S: {
         PTR_DEF_ASSIGN(char, src, 5);
 
-        DEF_ASSIGN(Int32, srcLen, 7);
-        DEF_ASSIGN(Int32, maxTgtLen, 3);
-        Int32 copyLen = ((maxTgtLen >= srcLen) ? srcLen : maxTgtLen);
+        DEF_ASSIGN(int, srcLen, 7);
+        DEF_ASSIGN(int, maxTgtLen, 3);
+        int copyLen = ((maxTgtLen >= srcLen) ? srcLen : maxTgtLen);
 
-        DEF_ASSIGN(Int32, comboLen1, 4);
+        DEF_ASSIGN(int, comboLen1, 4);
         char *comboPtr1 = (char *)&comboLen1;
         Int16 tgtNullIndLen = (Int16)comboPtr1[0];
         Int16 tgtVCIndLen = (Int16)comboPtr1[1];
 
         BASE_PTR_DEF_ASSIGN(char, tgt, 0);
-        DEF_ASSIGN(Int32, tgtOffset, 1);
-        DEF_ASSIGN(Int32, tgtVoaOffset, 2);
+        DEF_ASSIGN(int, tgtOffset, 1);
+        DEF_ASSIGN(int, tgtVoaOffset, 2);
 
         // VOA offsets should always be used in order.
         if (tgtVoaOffset > 0) {
@@ -2424,15 +2424,15 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         pCode += 8;
       } break;
 
-      // convert varchar ptr source to Int32 or long
+      // convert varchar ptr source to int or long
       case PCIT::CONVVCPTR_MBIN32S_MATTR5_IBIN32S:
       case PCIT::CONVVCPTR_MBIN64S_MATTR5_IBIN32S: {
-        DEF_ASSIGN(Int32, maxTgtLen, 7);
-        Int32 srcLen = 0;
+        DEF_ASSIGN(int, maxTgtLen, 7);
+        int srcLen = 0;
         PTR_DEF_ASSIGN(char, dst, 0);
         BASE_PTR_DEF_ASSIGN(char, src, 2);
 
-        DEF_ASSIGN(Int32, comboLen1, 6);
+        DEF_ASSIGN(int, comboLen1, 6);
         char *comboPtr1 = (char *)&comboLen1;
         Int16 srcNullIndLen = (Int16)comboPtr1[0];
         Int16 srcVCIndLen = (Int16)comboPtr1[1];
@@ -2450,7 +2450,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         long ptrVal = *(long *)(src + srcVCIndLen);
         char *ptrSrc = (char *)ptrVal;
 
-        // convert source to target (Int32)
+        // convert source to target (int)
         // First try simple conversion. If that returns an error, try complex conversion.
         NABoolean neg = FALSE;
         if (ptrSrc[0] == '-') {
@@ -2479,9 +2479,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
             *(long *)dst = srcNumericVal;
         } else {
           if (neg)
-            *(int *)dst = -(Int32)srcNumericVal;
+            *(int *)dst = -(int)srcNumericVal;
           else
-            *(int *)dst = (Int32)srcNumericVal;
+            *(int *)dst = (int)srcNumericVal;
         }
 
         pCode += 8;
@@ -2489,12 +2489,12 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
         // convert varchar ptr source to Flt32
       case PCIT::CONVVCPTR_MFLT32_MATTR5_IBIN32S: {
-        DEF_ASSIGN(Int32, maxTgtLen, 7);
-        Int32 srcLen = 0;
+        DEF_ASSIGN(int, maxTgtLen, 7);
+        int srcLen = 0;
         PTR_DEF_ASSIGN(char, dst, 0);
         BASE_PTR_DEF_ASSIGN(char, src, 2);
 
-        DEF_ASSIGN(Int32, comboLen1, 6);
+        DEF_ASSIGN(int, comboLen1, 6);
         char *comboPtr1 = (char *)&comboLen1;
         Int16 srcNullIndLen = (Int16)comboPtr1[0];
         Int16 srcVCIndLen = (Int16)comboPtr1[1];
@@ -2541,17 +2541,17 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
       // convert varchar ptr source to varchar tgt
       case PCIT::CONVVCPTR_MATTR5_MATTR5: {
-        DEF_ASSIGN(Int32, maxTgtLen, 3);
-        Int32 srcLen, copyLen;
+        DEF_ASSIGN(int, maxTgtLen, 3);
+        int srcLen, copyLen;
         BASE_PTR_DEF_ASSIGN(char, src, 5);
         BASE_PTR_DEF_ASSIGN(char, tgt, 0);
 
-        DEF_ASSIGN(Int32, comboLen1, 4);
+        DEF_ASSIGN(int, comboLen1, 4);
         char *comboPtr1 = (char *)&comboLen1;
         Int16 tgtNullIndLen = (Int16)comboPtr1[0];
         Int16 tgtVCIndLen = (Int16)comboPtr1[1];
 
-        DEF_ASSIGN(Int32, comboLen2, 9);
+        DEF_ASSIGN(int, comboLen2, 9);
         char *comboPtr2 = (char *)&comboLen2;
         Int16 srcNullIndLen = (Int16)comboPtr2[0];
         Int16 srcVCIndLen = (Int16)comboPtr2[1];
@@ -2571,8 +2571,8 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         long ptrVal = *(long *)(src + srcVCIndLen);
         char *ptrSrc = (char *)ptrVal;
 
-        DEF_ASSIGN(Int32, tgtOffset, 1);
-        DEF_ASSIGN(Int32, tgtVoaOffset, 2);
+        DEF_ASSIGN(int, tgtOffset, 1);
+        DEF_ASSIGN(int, tgtVoaOffset, 2);
 
         // VOA offsets should always be used in order.
         if (tgtVoaOffset > 0) {
@@ -2607,7 +2607,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         BASE_PTR_DEF_ASSIGN(char, src, 2);
         UInt32 srcLen;
 
-        DEF_ASSIGN(Int32, comboLen, 6);
+        DEF_ASSIGN(int, comboLen, 6);
         char *comboPtr = (char *)&comboLen;
         Int16 srcNullIndLen = (Int16)comboPtr[0];
         Int16 srcVCIndLen = (Int16)comboPtr[1];
@@ -2630,11 +2630,11 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::LIKE_MBIN32S_MATTR5_MATTR5_IBIN32S_IBIN32S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
-        Int32 retVal = 1;
+        PTR_DEF_ASSIGN(int, result, 0);
+        int retVal = 1;
 
-        DEF_ASSIGN(Int32, comboLen1, 6);
-        DEF_ASSIGN(Int32, comboLen2, 11);
+        DEF_ASSIGN(int, comboLen1, 6);
+        DEF_ASSIGN(int, comboLen2, 11);
 
         //
         // NOTE: Use "unsigned char" in the next 2 lines so that we do not
@@ -2686,11 +2686,11 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         PTR_TO_PCODE(unsigned char, pLenPtr, 13);
 
         char *tempSrc = srcStr;
-        Int32 tempSrcLen = srcLen;
+        int tempSrcLen = srcLen;
 
-        Int32 numOfPatterns = comboPtr1[3];
-        Int32 flags = comboPtr1[2];
-        Int32 precision = comboPtr2[2];
+        int numOfPatterns = comboPtr1[3];
+        int flags = comboPtr1[2];
+        int precision = comboPtr2[2];
 
         // ignore trailing filler blanks for UTF-8 arguments with a char limit
         if (precision) tempSrcLen = srcLen = lightValidateUTF8Str(tempSrc, tempSrcLen, precision, 0);
@@ -2701,12 +2701,12 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         // so that searching can continue with next pattern.  Also, we generate
         // pcode *only* if there is at least one pattern.
 
-        for (Int32 i = 0; i < numOfPatterns; i++) {
-          Int32 pos;
+        for (int i = 0; i < numOfPatterns; i++) {
+          int pos;
           NABoolean fastCheck = FALSE;
 
           char *pat = patStr + pOffPtr[i];
-          Int32 patLen = pLenPtr[i];
+          int patLen = pLenPtr[i];
 
           if (patLen > tempSrcLen) {
             retVal = 0;
@@ -2745,11 +2745,11 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::POS_MBIN32S_MATTR5_MATTR5: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
-        Int32 pos;
+        PTR_DEF_ASSIGN(int, result, 0);
+        int pos;
 
-        DEF_ASSIGN(Int32, comboLen1, 6);
-        DEF_ASSIGN(Int32, comboLen2, 11);
+        DEF_ASSIGN(int, comboLen1, 6);
+        DEF_ASSIGN(int, comboLen2, 11);
         char *comboPtr1 = (char *)&comboLen1;
         char *comboPtr2 = (char *)&comboLen2;
 
@@ -2800,9 +2800,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::CONCAT_MATTR5_MATTR5_MATTR5: {
-        DEF_ASSIGN(Int32, comboLen1, 4);
-        DEF_ASSIGN(Int32, comboLen2, 9);
-        DEF_ASSIGN(Int32, comboLen3, 14);
+        DEF_ASSIGN(int, comboLen1, 4);
+        DEF_ASSIGN(int, comboLen2, 9);
+        DEF_ASSIGN(int, comboLen3, 14);
 
         char *comboPtr1 = (char *)&comboLen1;
         char *comboPtr2 = (char *)&comboLen2;
@@ -2843,12 +2843,12 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           src2 += src2Offset;
         }
 
-        Int32 tgtLen = src1Len + src2Len;
-        DEF_ASSIGN(Int32, maxTgtLen, 3);
+        int tgtLen = src1Len + src2Len;
+        DEF_ASSIGN(int, maxTgtLen, 3);
         if (tgtLen > maxTgtLen) goto Error1_;
 
-        DEF_ASSIGN(Int32, tgtOffset, 1);
-        DEF_ASSIGN(Int32, tgtVoaOffset, 2);
+        DEF_ASSIGN(int, tgtOffset, 1);
+        DEF_ASSIGN(int, tgtVoaOffset, 2);
 
         if (tgtVCIndLen > 0) {
           // VOA offsets should always be used in order.
@@ -2905,8 +2905,8 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           src += srcOffset;
         }
 
-        PTR_DEF_ASSIGN(Int32, startPtr, 10);
-        PTR_DEF_ASSIGN(Int32, lengthPtr, 12);
+        PTR_DEF_ASSIGN(int, startPtr, 10);
+        PTR_DEF_ASSIGN(int, lengthPtr, 12);
         long start = *startPtr;
         long length = *lengthPtr;
 
@@ -2921,21 +2921,21 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           return ex_expr::EXPR_ERROR;
         }
 
-        Int32 len0 = 0;
+        int len0 = 0;
         if ((start <= srcMaxLen) && (temp > 0)) {
           if (start < 1) start = 1;
           if (temp > (srcMaxLen + 1)) temp = srcMaxLen + 1;
-          len0 = (Int32)(temp - start);
+          len0 = (int)(temp - start);
 
           // The copy length can't be greater than the max target length
-          DEF_ASSIGN(Int32, maxTgtLen, 3);
+          DEF_ASSIGN(int, maxTgtLen, 3);
           if (len0 > maxTgtLen) len0 = maxTgtLen;
         }
 
         src += (start - 1);
 
-        DEF_ASSIGN(Int32, tgtOffset, 1);
-        DEF_ASSIGN(Int32, tgtVoaOffset, 2);
+        DEF_ASSIGN(int, tgtOffset, 1);
+        DEF_ASSIGN(int, tgtVoaOffset, 2);
 
         // VOA offsets should always be used in order.
         if (tgtVoaOffset > 0) {
@@ -2966,7 +2966,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         MOVE_INSTR(UInt16, UInt8);
 
       case PCIT::MOVE_MBIN32S_MBIN8S:
-        MOVE_INSTR(Int32, Int8);
+        MOVE_INSTR(int, Int8);
 
       case PCIT::MOVE_MBIN32U_MBIN8U:
         MOVE_INSTR(UInt32, UInt8);
@@ -2981,7 +2981,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         MOVE_INSTR(UInt32, UInt16);
 
       case PCIT::MOVE_MBIN32S_MBIN16U:
-        MOVE_INSTR(Int32, UInt16);
+        MOVE_INSTR(int, UInt16);
 
       case PCIT::MOVE_MBIN64S_MBIN16U:
         MOVE_INSTR(long, UInt16);
@@ -2990,7 +2990,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         MOVE_INSTR(UInt32, Int16);
 
       case PCIT::MOVE_MBIN32S_MBIN16S:
-        MOVE_INSTR(Int32, Int16);
+        MOVE_INSTR(int, Int16);
 
       case PCIT::MOVE_MBIN64S_MBIN16S:
         MOVE_INSTR(long, Int16);
@@ -2999,7 +2999,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         MOVE_INSTR(long, UInt32);
 
       case PCIT::MOVE_MBIN64S_MBIN32S:
-        MOVE_INSTR(long, Int32);
+        MOVE_INSTR(long, int);
 
       case PCIT::MOVE_MBIN8_MBIN8:
         MOVE_INSTR(unsigned char, unsigned char);
@@ -3031,7 +3031,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         } else {
           *tgt = (src[0] - '0');
         }
-        for (Int32 k = 1; k < pCode[4]; k++) {
+        for (int k = 1; k < pCode[4]; k++) {
           *tgt = *tgt * 10 + (src[k] - '0');
         }
 
@@ -3047,7 +3047,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         PTR_DEF_ASSIGN(long, tgt, 0);
 
         *tgt = 0;
-        for (Int32 k = 0; k < pCode[4]; k++) {
+        for (int k = 0; k < pCode[4]; k++) {
           *tgt = *tgt * 10 + (src[k] - '0');
         }
 
@@ -3058,7 +3058,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         MOVE_INSTR(double, short);
 
       case PCIT::MOVE_MFLT64_MBIN32S:
-        MOVE_INSTR(double, Int32);
+        MOVE_INSTR(double, int);
 
       case PCIT::MOVE_MFLT64_MBIN64S:
         MOVE_CAST_INSTR(double, double, long);
@@ -3078,7 +3078,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         if (pCode[4] == sizeof(Int16))
           *((UInt16 *)hdrStart) = (UInt16)pCode[3];
         else
-          *((Int32 *)hdrStart) = (Int32)pCode[3];
+          *((int *)hdrStart) = (int)pCode[3];
 
         // Set the bitmap offset if relevant (n/a for SQLMX_FORMAT)
         if (pCode[5] > 0) *((Int16 *)(data + pCode[6])) = (Int16)pCode[5];
@@ -3149,7 +3149,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         {
           PTR_DEF_ASSIGN(Int16, tmpPtr16, 2);
           DEF_ASSIGN(Int16, tmp16, 4);
-          PTR_DEF_ASSIGN(Int32, resultPtr, 0);
+          PTR_DEF_ASSIGN(int, resultPtr, 0);
           *resultPtr = (*tmpPtr16 == tmp16) ? 1 : 0;
           pCode += 5;
           break;
@@ -3176,7 +3176,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       } break;
 
       case PCIT::NOT_NULL_BRANCH_MBIN32S_MBIN16S_IBIN32S: {
-        PTR_DEF_ASSIGN(Int32, returnResultPtr32, 0);
+        PTR_DEF_ASSIGN(int, returnResultPtr32, 0);
         PTR_DEF_ASSIGN(Int16, resultPtr16, 2);
         *returnResultPtr32 = *resultPtr16;
         if (*resultPtr16 == 0)
@@ -3196,8 +3196,8 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           // where the actual offset can be found (read 4 bytes from VOA entry).
           // For exploded and aligned format the NullIndOffsets will never be
           // negative since the null indicator offset is known at compile time.
-          UInt32 op2NullIndOff = pCode[3] < 0 ? *((Int32 *)(stack[pCode[2]] + (-pCode[3]))) : pCode[3];
-          UInt32 op3NullIndOff = pCode[5] < 0 ? *((Int32 *)(stack[pCode[4]] + (-pCode[5]))) : pCode[5];
+          UInt32 op2NullIndOff = pCode[3] < 0 ? *((int *)(stack[pCode[2]] + (-pCode[3]))) : pCode[3];
+          UInt32 op3NullIndOff = pCode[5] < 0 ? *((int *)(stack[pCode[4]] + (-pCode[5]))) : pCode[5];
 
           // for target operand, if NullIndOffset is negative, use loop variable
           // varOffset to get to the next available varchar. This only applies
@@ -3240,7 +3240,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           // where the actual offset can be found (read 4 bytes from VOA entry).
           // For exploded and aligned format the NullIndOffsets will never be
           // negative since the null indicator offset is known at compile time.
-          UInt32 op2NullIndOff = pCode[3] < 0 ? *((Int32 *)(stack[pCode[2]] + (-pCode[3]))) : pCode[3];
+          UInt32 op2NullIndOff = pCode[3] < 0 ? *((int *)(stack[pCode[2]] + (-pCode[3]))) : pCode[3];
 
           // for target operand, if NullIndOffset is negative, use loop variable
           // varOffset to get to the next available varchar. This only applies
@@ -3276,8 +3276,8 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           // where the actual offset can be found (read 4 bytes from VOA entry).
           // For exploded and aligned format the NullIndOffsets will never be
           // negative since the null indicator offset is known at compile time.
-          UInt32 op2NullIndOff = pCode[3] < 0 ? *((Int32 *)(stack[pCode[2]] + (-pCode[3]))) : pCode[3];
-          UInt32 op3NullIndOff = pCode[5] < 0 ? *((Int32 *)(stack[pCode[4]] + (-pCode[5]))) : pCode[5];
+          UInt32 op2NullIndOff = pCode[3] < 0 ? *((int *)(stack[pCode[2]] + (-pCode[3]))) : pCode[3];
+          UInt32 op3NullIndOff = pCode[5] < 0 ? *((int *)(stack[pCode[4]] + (-pCode[5]))) : pCode[5];
 
           PCodeAttrNull *attrs = (PCodeAttrNull *)&pCode[6];
 
@@ -3288,9 +3288,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
               ExpTupleDesc::isNullValue((char *)(stack[pCode[4]] + op3NullIndOff), (Int16)attrs->op3NullBitIndex_,
                                         (ExpTupleDesc::TupleDataFormat)attrs->fmt_.op3Fmt_);
 
-          Int32 rslt = (op2Null || op3Null) ? -1 : 0;
+          int rslt = (op2Null || op3Null) ? -1 : 0;
 
-          PTR_DEF_ASSIGN(Int32, result, 0);
+          PTR_DEF_ASSIGN(int, result, 0);
           *result = rslt;
           if (rslt == 0)
             pCode += (long)pCode[10];
@@ -3307,7 +3307,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           // where the actual offset can be found (read 4 bytes from VOA entry).
           // For exploded and aligned format the NullIndOffsets will never be
           // negative since the null indicator offset is known at compile time.
-          UInt32 op2NullIndOff = pCode[3] < 0 ? *((Int32 *)(stack[pCode[2]] + (-pCode[3]))) : pCode[3];
+          UInt32 op2NullIndOff = pCode[3] < 0 ? *((int *)(stack[pCode[2]] + (-pCode[3]))) : pCode[3];
 
           PCodeAttrNull *attrs = (PCodeAttrNull *)&pCode[4];
 
@@ -3315,9 +3315,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
               ExpTupleDesc::isNullValue((char *)(stack[pCode[2]] + op2NullIndOff), (Int16)attrs->op2NullBitIndex_,
                                         (ExpTupleDesc::TupleDataFormat)attrs->fmt_.op2Fmt_);
 
-          Int32 rslt = (op2Null) ? -1 : 0;
+          int rslt = (op2Null) ? -1 : 0;
 
-          PTR_DEF_ASSIGN(Int32, result, 0);
+          PTR_DEF_ASSIGN(int, result, 0);
           *result = rslt;
           if (rslt == 0)
             pCode += (long)pCode[7];
@@ -3327,9 +3327,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         break;
 
       case PCIT::NOT_NULL_BRANCH_MBIN32S_MBIN16S_IBIN32S_IBIN32S: {
-        PTR_DEF_ASSIGN(Int32, resultPtr32, 0);
+        PTR_DEF_ASSIGN(int, resultPtr32, 0);
         PTR_DEF_ASSIGN(Int16, resultPtr16, 2);
-        DEF_ASSIGN(Int32, val32, 4);
+        DEF_ASSIGN(int, val32, 4);
 
         if (*resultPtr16 == 0)
           pCode += (long)pCode[5];
@@ -3340,7 +3340,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       } break;
 
       case PCIT::NOT_NULL_BRANCH_MBIN32S_MBIN16S_MBIN16S_IBIN32S: {
-        PTR_DEF_ASSIGN(Int32, ptr32, 0);
+        PTR_DEF_ASSIGN(int, ptr32, 0);
         PTR_DEF_ASSIGN(Int16, ptr16_1, 2);
         PTR_DEF_ASSIGN(Int16, ptr16_2, 4);
         Int16 result = *ptr16_1 | *ptr16_2;
@@ -3371,10 +3371,10 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         // Handles all formats ...
         // generated by nullBranchHelperForHash
         {
-          PTR_DEF_ASSIGN(Int32, retPtr, 0);
+          PTR_DEF_ASSIGN(int, retPtr, 0);
           PTR_DEF_ASSIGN(char, ptr, 2);
           DEF_ASSIGN(Int16, val, 4);
-          DEF_ASSIGN(Int32, retVal, 5);
+          DEF_ASSIGN(int, retVal, 5);
           NABoolean nullp = ExpTupleDesc::isNullValue(ptr, val);
 
           if (nullp) {
@@ -3389,7 +3389,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       case PCIT::NNB_SPECIAL_NULLS_MBIN32S_MATTR3_MATTR3_IBIN32S_IBIN32S:
         // Supports all data formats.
         {
-          PTR_DEF_ASSIGN(Int32, retPtr, 0);
+          PTR_DEF_ASSIGN(int, retPtr, 0);
           PTR_DEF_ASSIGN(char, ptr1, 2);
           PTR_DEF_ASSIGN(char, ptr2, 5);
           DEF_ASSIGN(Int16, val1, 4);
@@ -3453,13 +3453,13 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         {
           BASE_PTR_DEF_ASSIGN(char, data, 0);
           DEF_ASSIGN(UInt32, offset, 1);
-          DEF_ASSIGN(Int32, comboLen1, 4);
+          DEF_ASSIGN(int, comboLen1, 4);
 
           char *comboPtr1 = (char *)&comboLen1;
           Int16 attrNullIndLen = (Int16)comboPtr1[0];
           Int16 attrVCIndLen = (Int16)comboPtr1[1];
 
-          DEF_ASSIGN(Int32, voaOffset, 2);
+          DEF_ASSIGN(int, voaOffset, 2);
 
           offset = ExpTupleDesc::getVarOffset(data, offset, voaOffset, attrVCIndLen, attrNullIndLen);
 
@@ -3470,7 +3470,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           varOffset = offset;
 
           if (rowLen != NULL) {
-            DEF_ASSIGN(Int32, newLen, 5);
+            DEF_ASSIGN(int, newLen, 5);
             // the last varchar must adjust the overall length out if
             // in aligned format
             if (newLen > 0) {
@@ -3490,17 +3490,17 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           PTR_DEF_ASSIGN(char, srcData, 2);
 
           DEF_ASSIGN(UInt32, voaOffset, 4);
-          DEF_ASSIGN(Int32, comboLen1, 5);
+          DEF_ASSIGN(int, comboLen1, 5);
           char *comboPtr1 = (char *)&comboLen1;
           Int16 attrNullIndLen = (Int16)comboPtr1[0];
           Int16 attrVCIndLen = (Int16)comboPtr1[1];
 
           DEF_ASSIGN(Int16, alignment, 6);
-          DEF_ASSIGN(Int32, rowLength, 7);
+          DEF_ASSIGN(int, rowLength, 7);
 
           UInt32 copyLength = 0;
 
-          if (*(Int32 *)srcData == -1)  // if aliggned format header is 0xFFFFFFFF
+          if (*(int *)srcData == -1)  // if aliggned format header is 0xFFFFFFFF
           {                             // case of null instantiated row
             DBGASSERT(*(Int16 *)&srcData[voaOffset] == -1);
             copyLength = (UInt32)rowLength;
@@ -3541,9 +3541,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         break;
       }
       case PCIT::ADD_MBIN32S_MBIN32S_MBIN32S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
-        PTR_DEF_ASSIGN(Int32, operand1, 2);
-        PTR_DEF_ASSIGN(Int32, operand2, 4);
+        PTR_DEF_ASSIGN(int, result, 0);
+        PTR_DEF_ASSIGN(int, operand1, 2);
+        PTR_DEF_ASSIGN(int, operand2, 4);
         *result = *operand1 + *operand2;
         pCode += 6;
         break;
@@ -3575,7 +3575,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::ADD_MBIN32S_MBIN16S_MBIN16S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(Int16, operand1, 2);
         PTR_DEF_ASSIGN(Int16, operand2, 4);
         *result = *operand1 + *operand2;
@@ -3583,9 +3583,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         break;
       }
       case PCIT::ADD_MBIN32S_MBIN16S_MBIN32S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(Int16, operand1, 2);
-        PTR_DEF_ASSIGN(Int32, operand2, 4);
+        PTR_DEF_ASSIGN(int, operand2, 4);
         *result = *operand1 + *operand2;
         pCode += 6;
         break;
@@ -3593,7 +3593,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
       case PCIT::ADD_MBIN64S_MBIN32S_MBIN64S: {
         PTR_DEF_ASSIGN(long, result, 0);
-        PTR_DEF_ASSIGN(Int32, xptr32, 2);
+        PTR_DEF_ASSIGN(int, xptr32, 2);
         PTR_DEF_ASSIGN(long, yptr, 4);
 #if (!defined _DEBUG)
 
@@ -3626,9 +3626,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         break;
       }
       case PCIT::SUB_MBIN32S_MBIN32S_MBIN32S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
-        PTR_DEF_ASSIGN(Int32, operand1, 2);
-        PTR_DEF_ASSIGN(Int32, operand2, 4);
+        PTR_DEF_ASSIGN(int, result, 0);
+        PTR_DEF_ASSIGN(int, operand1, 2);
+        PTR_DEF_ASSIGN(int, operand2, 4);
         *result = *operand1 - *operand2;
         pCode += 6;
         break;
@@ -3660,7 +3660,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::SUB_MBIN32S_MBIN16S_MBIN16S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(Int16, operand1, 2);
         PTR_DEF_ASSIGN(Int16, operand2, 4);
         *result = *operand1 - *operand2;
@@ -3668,16 +3668,16 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         break;
       }
       case PCIT::SUB_MBIN32S_MBIN16S_MBIN32S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(Int16, operand1, 2);
-        PTR_DEF_ASSIGN(Int32, operand2, 4);
+        PTR_DEF_ASSIGN(int, operand2, 4);
         *result = *operand1 - *operand2;
         pCode += 6;
         break;
       }
       case PCIT::SUB_MBIN32S_MBIN32S_MBIN16S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
-        PTR_DEF_ASSIGN(Int32, operand1, 2);
+        PTR_DEF_ASSIGN(int, result, 0);
+        PTR_DEF_ASSIGN(int, operand1, 2);
         PTR_DEF_ASSIGN(Int16, operand2, 4);
         *result = *operand1 - *operand2;
         pCode += 6;
@@ -3692,9 +3692,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         break;
       }
       case PCIT::MUL_MBIN32S_MBIN32S_MBIN32S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
-        PTR_DEF_ASSIGN(Int32, operand1, 2);
-        PTR_DEF_ASSIGN(Int32, operand2, 4);
+        PTR_DEF_ASSIGN(int, result, 0);
+        PTR_DEF_ASSIGN(int, operand1, 2);
+        PTR_DEF_ASSIGN(int, operand2, 4);
         *result = *operand1 * *operand2;
         pCode += 6;
         break;
@@ -3702,7 +3702,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       case PCIT::MUL_MBIN64S_MBIN16S_MBIN32S: {
         PTR_DEF_ASSIGN(long, result, 0);
         PTR_DEF_ASSIGN(Int16, operand1, 2);
-        PTR_DEF_ASSIGN(Int32, operand2, 4);
+        PTR_DEF_ASSIGN(int, operand2, 4);
         *result = (long)*operand1 * (long)*operand2;
 
         pCode += 6;
@@ -3710,8 +3710,8 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
       case PCIT::MUL_MBIN64S_MBIN32S_MBIN32S: {
         PTR_DEF_ASSIGN(long, result, 0);
-        PTR_DEF_ASSIGN(Int32, operand1, 2);
-        PTR_DEF_ASSIGN(Int32, operand2, 4);
+        PTR_DEF_ASSIGN(int, operand1, 2);
+        PTR_DEF_ASSIGN(int, operand2, 4);
         *result = (long)*operand1 * (long)*operand2;
         pCode += 6;
         break;
@@ -3730,7 +3730,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::MUL_MBIN32S_MBIN16S_MBIN16S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(Int16, operand1, 2);
         PTR_DEF_ASSIGN(Int16, operand2, 4);
         *result = *operand1 * *operand2;
@@ -3738,9 +3738,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         break;
       }
       case PCIT::MUL_MBIN32S_MBIN16S_MBIN32S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(Int16, operand1, 2);
-        PTR_DEF_ASSIGN(Int32, operand2, 4);
+        PTR_DEF_ASSIGN(int, operand2, 4);
         *result = *operand1 * *operand2;
         pCode += 6;
         break;
@@ -3791,7 +3791,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         // upscale numerator by 1
         NABoolean upscaled;
         long temp;
-        DEF_ASSIGN(Int32, bitmap, 6);
+        DEF_ASSIGN(int, bitmap, 6);
         int roundingMode = (int)(bitmap & 0x77);
         NABoolean divToDownscale = ((bitmap & 0x100) != 0);
         if (divToDownscale) {
@@ -3985,7 +3985,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         DEF_ASSIGN(Int16, off1, 2);
         PTR_DEF_ASSIGN(char, nv2, 3);
         DEF_ASSIGN(Int16, off2, 5);
-        PTR_DEF_ASSIGN(Int32, target, 7);
+        PTR_DEF_ASSIGN(int, target, 7);
 
         if (ExpTupleDesc::isNullValue(nv2, off2)) {
           pCode += 11;
@@ -4012,8 +4012,8 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         //
       }
       case PCIT::SUM_MBIN32S_MBIN32S: {
-        PTR_DEF_ASSIGN(Int32, tgtPtr, 0);
-        PTR_DEF_ASSIGN(Int32, operPtr, 2);
+        PTR_DEF_ASSIGN(int, tgtPtr, 0);
+        PTR_DEF_ASSIGN(int, operPtr, 2);
         *tgtPtr += *operPtr;
         pCode += 4;
         break;
@@ -4111,9 +4111,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
       case PCIT::SUM_MBIN64S_MBIN32S: {
         PTR_DEF_ASSIGN(long, result, 0);
-        PTR_DEF_ASSIGN(Int32, yptr, 2);
+        PTR_DEF_ASSIGN(int, yptr, 2);
 #if (!defined _DEBUG)
-        Int32 y = *yptr;
+        int y = *yptr;
         long x = *result;
 
         long z = x + (long)y;
@@ -4223,11 +4223,11 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         break;
       }
       case PCIT::MINMAX_MBIN8_MBIN8_MBIN32S_IBIN32S:
-        if (*((Int32 *)(stack[pCode[4]] + pCode[5])) == 1)  // if TRUE
+        if (*((int *)(stack[pCode[4]] + pCode[5])) == 1)  // if TRUE
         {
           PTR_DEF_ASSIGN(char, target, 0);
           PTR_DEF_ASSIGN(char, source, 2);
-          DEF_ASSIGN(Int32, length, 6);
+          DEF_ASSIGN(int, length, 6);
           // make the current value the new min/max value
           str_cpy_all(target, source, length);
         }
@@ -4263,7 +4263,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         PTR_DEF_ASSIGN(UInt32, hashValuePtr, 0);
         PTR_DEF_ASSIGN(char, dataPtr, 2);
         DEF_ASSIGN(UInt32, flags, 4);
-        DEF_ASSIGN(Int32, length, 5);
+        DEF_ASSIGN(int, length, 5);
         *hashValuePtr = ExHDPHash::hash(dataPtr, flags, length);
 
         pCode += 6;
@@ -4278,7 +4278,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         BASE_PTR_DEF_ASSIGN(char, data, 2);
         PTR_DEF_ASSIGN(UInt32, tgt, 0);
         DEF_ASSIGN(UInt32, len, 5);
-        DEF_ASSIGN(Int32, comboLen, 6);
+        DEF_ASSIGN(int, comboLen, 6);
         char *comboPtr = (char *)&comboLen;
         Int16 attrNullIndLen = (Int16)comboPtr[0];
         Int16 attrVCIndLen = (Int16)comboPtr[1];
@@ -4316,7 +4316,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
       case PCIT::FILL_MEM_BYTES: {
         PTR_DEF_ASSIGN(char, str, 0);
-        DEF_ASSIGN(Int32, length, 2);
+        DEF_ASSIGN(int, length, 2);
         DEF_ASSIGN(char, padchar, 3);
         // for all fixed length fields
         str_pad(str, length, padchar);
@@ -4325,15 +4325,15 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::FILL_MEM_BYTES_VARIABLE: {
-        DEF_ASSIGN(Int32, comboLen1, 4);
+        DEF_ASSIGN(int, comboLen1, 4);
         char *comboPtr1 = (char *)&comboLen1;
         Int16 tgtNullIndLen = (Int16)comboPtr1[0];
         Int16 tgtVCIndLen = (Int16)comboPtr1[1];
 
         BASE_PTR_DEF_ASSIGN(char, tgt, 0);
-        DEF_ASSIGN(Int32, tgtOffset, 1);
-        DEF_ASSIGN(Int32, tgtVoaOffset, 2);
-        DEF_ASSIGN(Int32, copyLen, 5);
+        DEF_ASSIGN(int, tgtOffset, 1);
+        DEF_ASSIGN(int, tgtVoaOffset, 2);
+        DEF_ASSIGN(int, copyLen, 5);
         DEF_ASSIGN(char, padchar, 6);
 
         // VOA offsets should always be used in order.
@@ -4365,7 +4365,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           PTR_DEF_ASSIGN(unsigned char, src1, 2);
           PTR_DEF_ASSIGN(unsigned char, src2, 4);
 
-          DEF_ASSIGN(Int32, length, 6);
+          DEF_ASSIGN(int, length, 6);
 
           *tgt = (src1[0] != src2[0]) ? 0 : (memcmp(src1, src2, length) == 0);
 
@@ -4374,22 +4374,22 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         }
 
       case PCIT::COMP_MBIN32S_MUNI_MUNI_IBIN32S_IBIN32S_IBIN32S: {
-        Int32 i;
+        int i;
 
         PTR_DEF_ASSIGN(int, res, 0);
         PTR_DEF_ASSIGN(NAWchar, src1, 2);
         PTR_DEF_ASSIGN(NAWchar, src2, 4);
 
-        DEF_ASSIGN(Int32, src1Len, 6);
-        DEF_ASSIGN(Int32, src2Len, 7);
+        DEF_ASSIGN(int, src1Len, 6);
+        DEF_ASSIGN(int, src2Len, 7);
 
         NABoolean diffLens = (src1Len != src2Len);
 
-        const Int32 *table = compTable[pCode[8] - ITM_EQUAL];
+        const int *table = compTable[pCode[8] - ITM_EQUAL];
 
         // src1 is guaranteed to be smaller or equal in length to src2, so use
         // its length with memcmp.
-        Int32 compCode = wc_str_cmp(src1, src2, src1Len) + 1;
+        int compCode = wc_str_cmp(src1, src2, src1Len) + 1;
 
         if (diffLens && (compCode == 1)) {
           NAWchar space = unicode_char_set::space_char();
@@ -4408,19 +4408,19 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::COMP_MBIN32S_MASCII_MASCII_IBIN32S_IBIN32S_IBIN32S: {
-        Int32 i, compCode;
+        int i, compCode;
 
         PTR_DEF_ASSIGN(int, res, 0);
         PTR_DEF_ASSIGN(unsigned char, src1, 2);
         PTR_DEF_ASSIGN(unsigned char, src2, 4);
 
-        DEF_ASSIGN(Int32, src1Len, 6);
-        DEF_ASSIGN(Int32, src2Len, 7);
+        DEF_ASSIGN(int, src1Len, 6);
+        DEF_ASSIGN(int, src2Len, 7);
 
         NABoolean diffLens = (src1Len != src2Len);
 
         // Set table pointer to appropriate position based on operation
-        const Int32 *table = &(compTable[pCode[8] - ITM_EQUAL][1]);
+        const int *table = &(compTable[pCode[8] - ITM_EQUAL][1]);
 
         // Quick first byte compare
         if (src1[0] == src2[0]) {
@@ -4452,13 +4452,13 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
       case PCIT::COMP_MBIN32S_MUNIV_MUNIV_IBIN32S:
       case PCIT::COMP_MBIN32S_MATTR5_MATTR5_IBIN32S: {
-        PTR_DEF_ASSIGN(Int32, res, 0);
+        PTR_DEF_ASSIGN(int, res, 0);
 
         // Set table pointer to appropriate position based on operation
-        const Int32 *table = &(compTable[pCode[12] - ITM_EQUAL][1]);
+        const int *table = &(compTable[pCode[12] - ITM_EQUAL][1]);
 
         UInt32 len1, len2;
-        Int32 compCode;
+        int compCode;
 
         BASE_PTR_DEF_ASSIGN(char, src1Data, 2);
         BASE_PTR_DEF_ASSIGN(char, src2Data, 7);
@@ -4466,8 +4466,8 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         PTR_TO_PCODE(char, comboPtr1, 6);
         PTR_TO_PCODE(char, comboPtr2, 11);
 
-        UInt32 src1VCIndLen = (Int32)comboPtr1[1];
-        UInt32 src2VCIndLen = (Int32)comboPtr2[1];
+        UInt32 src1VCIndLen = (int)comboPtr1[1];
+        UInt32 src2VCIndLen = (int)comboPtr2[1];
         DEF_ASSIGN(UInt32, offset1, 3);
         DEF_ASSIGN(UInt32, offset2, 8);
 
@@ -4477,7 +4477,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           src1Data += ExpTupleDesc::getVarOffset(src1Data,  // atp_
                                                  offset1, voaOffset1,
                                                  src1VCIndLen,          // vcIndLen
-                                                 (Int32)comboPtr1[0]);  // nullIndLen
+                                                 (int)comboPtr1[0]);  // nullIndLen
 
           len1 = ExpTupleDesc::getVarLength(src1Data, src1VCIndLen);
           src1Data += src1VCIndLen;
@@ -4493,7 +4493,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           src2Data += ExpTupleDesc::getVarOffset(src2Data,  // atp_
                                                  offset2, voaOffset2,
                                                  src2VCIndLen,          // vcIndLen
-                                                 (Int32)comboPtr2[0]);  // nullIndLen
+                                                 (int)comboPtr2[0]);  // nullIndLen
 
           len2 = ExpTupleDesc::getVarLength(src2Data, src2VCIndLen);
           src2Data += src2VCIndLen;
@@ -4518,7 +4518,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::EQ_MBIN32S_MBIN8S_MBIN8S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(Int8, x, 2);
         PTR_DEF_ASSIGN(Int8, y, 4);
 
@@ -4529,7 +4529,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::NE_MBIN32S_MBIN8S_MBIN8S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(Int8, x, 2);
         PTR_DEF_ASSIGN(Int8, y, 4);
 
@@ -4540,7 +4540,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::LT_MBIN32S_MBIN8S_MBIN8S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(Int8, x, 2);
         PTR_DEF_ASSIGN(Int8, y, 4);
 
@@ -4551,7 +4551,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::GT_MBIN32S_MBIN8S_MBIN8S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(Int8, x, 2);
         PTR_DEF_ASSIGN(Int8, y, 4);
 
@@ -4562,7 +4562,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::LE_MBIN32S_MBIN8S_MBIN8S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(Int8, x, 2);
         PTR_DEF_ASSIGN(Int8, y, 4);
 
@@ -4573,7 +4573,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::GE_MBIN32S_MBIN8S_MBIN8S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(Int8, x, 2);
         PTR_DEF_ASSIGN(Int8, y, 4);
 
@@ -4584,7 +4584,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::EQ_MBIN32S_MBIN8U_MBIN8U: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(UInt8, x, 2);
         PTR_DEF_ASSIGN(UInt8, y, 4);
 
@@ -4595,7 +4595,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::NE_MBIN32S_MBIN8U_MBIN8U: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(UInt8, x, 2);
         PTR_DEF_ASSIGN(UInt8, y, 4);
 
@@ -4606,7 +4606,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::LT_MBIN32S_MBIN8U_MBIN8U: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(UInt8, x, 2);
         PTR_DEF_ASSIGN(UInt8, y, 4);
 
@@ -4617,7 +4617,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::GT_MBIN32S_MBIN8U_MBIN8U: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(UInt8, x, 2);
         PTR_DEF_ASSIGN(UInt8, y, 4);
 
@@ -4628,7 +4628,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::LE_MBIN32S_MBIN8U_MBIN8U: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(UInt8, x, 2);
         PTR_DEF_ASSIGN(UInt8, y, 4);
 
@@ -4639,7 +4639,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::GE_MBIN32S_MBIN8U_MBIN8U: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(UInt8, x, 2);
         PTR_DEF_ASSIGN(UInt8, y, 4);
 
@@ -4650,7 +4650,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::EQ_MBIN32S_MBIN16U_MBIN16S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(unsigned short, x, 2);
         PTR_DEF_ASSIGN(short, y, 4);
 
@@ -4661,7 +4661,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::EQ_MBIN32S_MBIN16S_MBIN16S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(short, x, 2);
         PTR_DEF_ASSIGN(short, y, 4);
 
@@ -4672,9 +4672,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::EQ_MBIN32S_MBIN16S_MBIN32S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(short, x, 2);
-        PTR_DEF_ASSIGN(Int32, y, 4);
+        PTR_DEF_ASSIGN(int, y, 4);
 
         *result = (*x == *y);
 
@@ -4683,9 +4683,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::EQ_MBIN32S_MBIN32S_MBIN32S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
-        PTR_DEF_ASSIGN(Int32, x, 2);
-        PTR_DEF_ASSIGN(Int32, y, 4);
+        PTR_DEF_ASSIGN(int, result, 0);
+        PTR_DEF_ASSIGN(int, x, 2);
+        PTR_DEF_ASSIGN(int, y, 4);
 
         *result = (*x == *y);
 
@@ -4694,7 +4694,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::EQ_MBIN32S_MBIN16U_MBIN16U: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(unsigned short, x, 2);
         PTR_DEF_ASSIGN(unsigned short, y, 4);
 
@@ -4705,7 +4705,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::EQ_MBIN32S_MBIN16U_MBIN32U: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(unsigned short, x, 2);
         PTR_DEF_ASSIGN(UInt32, y, 4);
 
@@ -4716,7 +4716,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::EQ_MBIN32S_MBIN32U_MBIN32U: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(UInt32, x, 2);
         PTR_DEF_ASSIGN(UInt32, y, 4);
 
@@ -4727,7 +4727,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::EQ_MBIN32S_MBIN16S_MBIN32U: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(short, x, 2);
         PTR_DEF_ASSIGN(UInt32, y, 4);
 
@@ -4739,7 +4739,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::EQ_MBIN32S_MBIN64S_MBIN64S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(long, x, 2);
         PTR_DEF_ASSIGN(long, y, 4);
 
@@ -4763,7 +4763,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::LT_MBIN32S_MBIN16U_MBIN16S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(unsigned short, x, 2);
         PTR_DEF_ASSIGN(short, y, 4);
 
@@ -4774,7 +4774,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::LT_MBIN32S_MBIN16S_MBIN16S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(short, x, 2);
         PTR_DEF_ASSIGN(short, y, 4);
 
@@ -4785,9 +4785,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::LT_MBIN32S_MBIN16S_MBIN32S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(short, x, 2);
-        PTR_DEF_ASSIGN(Int32, y, 4);
+        PTR_DEF_ASSIGN(int, y, 4);
 
         *result = (*x < *y);
 
@@ -4796,9 +4796,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::LT_MBIN32S_MBIN32S_MBIN32S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
-        PTR_DEF_ASSIGN(Int32, x, 2);
-        PTR_DEF_ASSIGN(Int32, y, 4);
+        PTR_DEF_ASSIGN(int, result, 0);
+        PTR_DEF_ASSIGN(int, x, 2);
+        PTR_DEF_ASSIGN(int, y, 4);
 
         *result = (*x < *y);
 
@@ -4807,7 +4807,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::LT_MBIN32S_MBIN16U_MBIN16U: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(unsigned short, x, 2);
         PTR_DEF_ASSIGN(unsigned short, y, 4);
 
@@ -4818,7 +4818,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::LT_MBIN32S_MBIN16U_MBIN32U: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(unsigned short, x, 2);
         PTR_DEF_ASSIGN(UInt32, y, 4);
 
@@ -4829,7 +4829,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::LT_MBIN32S_MBIN32U_MBIN32U: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(UInt32, x, 2);
         PTR_DEF_ASSIGN(UInt32, y, 4);
 
@@ -4840,7 +4840,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::LT_MBIN32S_MBIN16S_MBIN32U: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(short, x, 2);
         PTR_DEF_ASSIGN(UInt32, y, 4);
 
@@ -4852,7 +4852,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::LT_MBIN32S_MBIN64S_MBIN64S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(long, x, 2);
         PTR_DEF_ASSIGN(long, y, 4);
 
@@ -4876,7 +4876,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::GT_MBIN32S_MBIN16U_MBIN16S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(unsigned short, x, 2);
         PTR_DEF_ASSIGN(short, y, 4);
 
@@ -4887,7 +4887,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::GT_MBIN32S_MBIN16S_MBIN16S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(short, x, 2);
         PTR_DEF_ASSIGN(short, y, 4);
 
@@ -4898,9 +4898,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::GT_MBIN32S_MBIN16S_MBIN32S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(short, x, 2);
-        PTR_DEF_ASSIGN(Int32, y, 4);
+        PTR_DEF_ASSIGN(int, y, 4);
 
         *result = (*x > *y);
 
@@ -4909,9 +4909,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::GT_MBIN32S_MBIN32S_MBIN32S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
-        PTR_DEF_ASSIGN(Int32, x, 2);
-        PTR_DEF_ASSIGN(Int32, y, 4);
+        PTR_DEF_ASSIGN(int, result, 0);
+        PTR_DEF_ASSIGN(int, x, 2);
+        PTR_DEF_ASSIGN(int, y, 4);
 
         *result = (*x > *y);
 
@@ -4920,7 +4920,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::GT_MBIN32S_MBIN16U_MBIN16U: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(unsigned short, x, 2);
         PTR_DEF_ASSIGN(unsigned short, y, 4);
 
@@ -4931,7 +4931,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::GT_MBIN32S_MBIN16U_MBIN32U: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(unsigned short, x, 2);
         PTR_DEF_ASSIGN(UInt32, y, 4);
 
@@ -4942,7 +4942,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::GT_MBIN32S_MBIN32U_MBIN32U: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(UInt32, x, 2);
         PTR_DEF_ASSIGN(UInt32, y, 4);
 
@@ -4953,7 +4953,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::GT_MBIN32S_MBIN16S_MBIN32U: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(short, x, 2);
         PTR_DEF_ASSIGN(UInt32, y, 4);
 
@@ -4965,7 +4965,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::GT_MBIN32S_MBIN64S_MBIN64S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(long, x, 2);
         PTR_DEF_ASSIGN(long, y, 4);
 
@@ -4989,7 +4989,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::LE_MBIN32S_MBIN16U_MBIN16S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(unsigned short, x, 2);
         PTR_DEF_ASSIGN(short, y, 4);
 
@@ -5000,7 +5000,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::LE_MBIN32S_MBIN16S_MBIN16S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(short, x, 2);
         PTR_DEF_ASSIGN(short, y, 4);
 
@@ -5011,9 +5011,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::LE_MBIN32S_MBIN16S_MBIN32S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(short, x, 2);
-        PTR_DEF_ASSIGN(Int32, y, 4);
+        PTR_DEF_ASSIGN(int, y, 4);
 
         *result = (*x <= *y);
 
@@ -5022,9 +5022,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::LE_MBIN32S_MBIN32S_MBIN32S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
-        PTR_DEF_ASSIGN(Int32, x, 2);
-        PTR_DEF_ASSIGN(Int32, y, 4);
+        PTR_DEF_ASSIGN(int, result, 0);
+        PTR_DEF_ASSIGN(int, x, 2);
+        PTR_DEF_ASSIGN(int, y, 4);
 
         *result = (*x <= *y);
 
@@ -5033,7 +5033,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::LE_MBIN32S_MBIN16U_MBIN16U: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(unsigned short, x, 2);
         PTR_DEF_ASSIGN(unsigned short, y, 4);
 
@@ -5044,7 +5044,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::LE_MBIN32S_MBIN16U_MBIN32U: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(unsigned short, x, 2);
         PTR_DEF_ASSIGN(UInt32, y, 4);
 
@@ -5055,7 +5055,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::LE_MBIN32S_MBIN32U_MBIN32U: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(UInt32, x, 2);
         PTR_DEF_ASSIGN(UInt32, y, 4);
 
@@ -5066,7 +5066,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::LE_MBIN32S_MBIN16S_MBIN32U: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(short, x, 2);
         PTR_DEF_ASSIGN(UInt32, y, 4);
 
@@ -5078,7 +5078,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::LE_MBIN32S_MBIN64S_MBIN64S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(long, x, 2);
         PTR_DEF_ASSIGN(long, y, 4);
 
@@ -5102,7 +5102,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::GE_MBIN32S_MBIN16U_MBIN16S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(unsigned short, x, 2);
         PTR_DEF_ASSIGN(short, y, 4);
 
@@ -5113,7 +5113,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::GE_MBIN32S_MBIN16S_MBIN16S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(short, x, 2);
         PTR_DEF_ASSIGN(short, y, 4);
 
@@ -5124,9 +5124,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::GE_MBIN32S_MBIN16S_MBIN32S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(short, x, 2);
-        PTR_DEF_ASSIGN(Int32, y, 4);
+        PTR_DEF_ASSIGN(int, y, 4);
 
         *result = (*x >= *y);
 
@@ -5135,9 +5135,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::GE_MBIN32S_MBIN32S_MBIN32S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
-        PTR_DEF_ASSIGN(Int32, x, 2);
-        PTR_DEF_ASSIGN(Int32, y, 4);
+        PTR_DEF_ASSIGN(int, result, 0);
+        PTR_DEF_ASSIGN(int, x, 2);
+        PTR_DEF_ASSIGN(int, y, 4);
 
         *result = (*x >= *y);
 
@@ -5146,7 +5146,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::GE_MBIN32S_MBIN16U_MBIN16U: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(unsigned short, x, 2);
         PTR_DEF_ASSIGN(unsigned short, y, 4);
 
@@ -5157,7 +5157,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::GE_MBIN32S_MBIN16U_MBIN32U: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(unsigned short, x, 2);
         PTR_DEF_ASSIGN(UInt32, y, 4);
 
@@ -5168,7 +5168,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::GE_MBIN32S_MBIN32U_MBIN32U: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(UInt32, x, 2);
         PTR_DEF_ASSIGN(UInt32, y, 4);
 
@@ -5179,7 +5179,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::GE_MBIN32S_MBIN16S_MBIN32U: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(short, x, 2);
         PTR_DEF_ASSIGN(UInt32, y, 4);
 
@@ -5191,7 +5191,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::GE_MBIN32S_MBIN64S_MBIN64S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(long, x, 2);
         PTR_DEF_ASSIGN(long, y, 4);
 
@@ -5215,7 +5215,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::NE_MBIN32S_MBIN64S_MBIN64S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(long, x, 2);
         PTR_DEF_ASSIGN(long, y, 4);
 
@@ -5226,7 +5226,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::NE_MBIN32S_MBIN16S_MBIN16S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(short, x, 2);
         PTR_DEF_ASSIGN(short, y, 4);
 
@@ -5238,7 +5238,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
       // EQUAL TO ZERO operations
       case PCIT::ZERO_MBIN32S_MBIN32U: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(UInt32, x, 2);
 
         *result = (*x == 0);
@@ -5247,7 +5247,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
       // NOT EQUAL TO ZERO operations
       case PCIT::NOTZERO_MBIN32S_MBIN32U: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(UInt32, x, 2);
 
         *result = (*x != 0);
@@ -5255,9 +5255,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::AND_MBIN32S_MBIN32S_MBIN32S: {
-        PTR_DEF_ASSIGN(Int32, resultPtr, 0);
-        PTR_DEF_ASSIGN(Int32, opAPtr, 2);
-        PTR_DEF_ASSIGN(Int32, opBPtr, 4);
+        PTR_DEF_ASSIGN(int, resultPtr, 0);
+        PTR_DEF_ASSIGN(int, opAPtr, 2);
+        PTR_DEF_ASSIGN(int, opBPtr, 4);
 
         *resultPtr = *opAPtr & *opBPtr ? *opAPtr | *opBPtr : 0;
 
@@ -5265,9 +5265,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       } break;
 
       case PCIT::OR_MBIN32S_MBIN32S_MBIN32S: {
-        PTR_DEF_ASSIGN(Int32, resultPtr, 0);
-        PTR_DEF_ASSIGN(Int32, opAPtr, 2);
-        PTR_DEF_ASSIGN(Int32, opBPtr, 4);
+        PTR_DEF_ASSIGN(int, resultPtr, 0);
+        PTR_DEF_ASSIGN(int, opAPtr, 2);
+        PTR_DEF_ASSIGN(int, opBPtr, 4);
 
         *resultPtr = *opAPtr == 1 || *opBPtr == 1 ? 1 : *opAPtr | *opBPtr;
 
@@ -5275,9 +5275,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       } break;
 
       case PCIT::MOD_MBIN32S_MBIN32S_MBIN32S: {
-        PTR_DEF_ASSIGN(Int32, resultPtr, 0);
-        PTR_DEF_ASSIGN(Int32, opAPtr, 2);
-        PTR_DEF_ASSIGN(Int32, opBPtr, 4);
+        PTR_DEF_ASSIGN(int, resultPtr, 0);
+        PTR_DEF_ASSIGN(int, opAPtr, 2);
+        PTR_DEF_ASSIGN(int, opBPtr, 4);
 
         *resultPtr = *opAPtr % *opBPtr;
 
@@ -5287,7 +5287,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       case PCIT::MOD_MBIN32U_MBIN32U_MBIN32S: {
         PTR_DEF_ASSIGN(UInt32, resultPtr, 0);
         PTR_DEF_ASSIGN(UInt32, opAPtr, 2);
-        PTR_DEF_ASSIGN(Int32, opBPtr, 4);
+        PTR_DEF_ASSIGN(int, opBPtr, 4);
 
         *resultPtr = *opAPtr % *opBPtr;
 
@@ -5308,7 +5308,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       case PCIT::ENCODE_MASCII_MBIN8S_IBIN32S: {
         PTR_DEF_ASSIGN(Int8, outputPtr, 0);
         PTR_DEF_ASSIGN(Int8, resultPtr, 2);
-        DEF_ASSIGN(Int32, bitwiseNOT, 4);
+        DEF_ASSIGN(int, bitwiseNOT, 4);
         Int8 result = *resultPtr;
 
         result ^= 0x80;
@@ -5323,7 +5323,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       case PCIT::ENCODE_MASCII_MBIN8U_IBIN32S: {
         PTR_DEF_ASSIGN(Int8, outputPtr, 0);
         PTR_DEF_ASSIGN(Int8, resultPtr, 2);
-        DEF_ASSIGN(Int32, bitwiseNOT, 4);
+        DEF_ASSIGN(int, bitwiseNOT, 4);
         UInt8 result = *resultPtr;
 
         if (bitwiseNOT) result = ~result;
@@ -5336,7 +5336,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       case PCIT::ENCODE_MASCII_MBIN16S_IBIN32S: {
         PTR_DEF_ASSIGN(Int16, outputPtr, 0);
         PTR_DEF_ASSIGN(Int16, resultPtr, 2);
-        DEF_ASSIGN(Int32, bitwiseNOT, 4);
+        DEF_ASSIGN(int, bitwiseNOT, 4);
         Int16 result = *resultPtr;
 
         result ^= 0x8000;
@@ -5354,7 +5354,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       case PCIT::ENCODE_MASCII_MBIN16U_IBIN32S: {
         PTR_DEF_ASSIGN(Int16, outputPtr, 0);
         PTR_DEF_ASSIGN(Int16, resultPtr, 2);
-        DEF_ASSIGN(Int32, bitwiseNOT, 4);
+        DEF_ASSIGN(int, bitwiseNOT, 4);
         Int16 result = *resultPtr;
 
 #ifdef NA_LITTLE_ENDIAN
@@ -5369,10 +5369,10 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       } break;
 
       case PCIT::ENCODE_MASCII_MBIN32S_IBIN32S: {
-        PTR_DEF_ASSIGN(Int32, outputPtr, 0);
-        PTR_DEF_ASSIGN(Int32, resultPtr, 2);
-        DEF_ASSIGN(Int32, bitwiseNOT, 4);
-        Int32 result = *resultPtr;
+        PTR_DEF_ASSIGN(int, outputPtr, 0);
+        PTR_DEF_ASSIGN(int, resultPtr, 2);
+        DEF_ASSIGN(int, bitwiseNOT, 4);
+        int result = *resultPtr;
 
         result ^= 0x80000000;
 
@@ -5387,10 +5387,10 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       } break;
 
       case PCIT::ENCODE_MASCII_MBIN32U_IBIN32S: {
-        PTR_DEF_ASSIGN(Int32, outputPtr, 0);
-        PTR_DEF_ASSIGN(Int32, resultPtr, 2);
-        DEF_ASSIGN(Int32, bitwiseNOT, 4);
-        Int32 result = *resultPtr;
+        PTR_DEF_ASSIGN(int, outputPtr, 0);
+        PTR_DEF_ASSIGN(int, resultPtr, 2);
+        DEF_ASSIGN(int, bitwiseNOT, 4);
+        int result = *resultPtr;
 
 #ifdef NA_LITTLE_ENDIAN
         result = reversebytes((UInt32)result);
@@ -5405,7 +5405,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       case PCIT::ENCODE_MASCII_MBIN64S_IBIN32S: {
         PTR_DEF_ASSIGN(long, outputPtr, 0);
         PTR_DEF_ASSIGN(long, resultPtr, 2);
-        DEF_ASSIGN(Int32, bitwiseNOT, 4);
+        DEF_ASSIGN(int, bitwiseNOT, 4);
         long result = *resultPtr;
 
         result ^= 0x8000000000000000LL;
@@ -5422,10 +5422,10 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       case PCIT::ENCODE_NXX: {
         PTR_DEF_ASSIGN(char, tgt, 0);
         PTR_DEF_ASSIGN(char, src, 2);
-        DEF_ASSIGN(Int32, length, 4);
-        DEF_ASSIGN(Int32, desc, 5);
+        DEF_ASSIGN(int, length, 4);
+        DEF_ASSIGN(int, desc, 5);
         if (desc) {
-          for (Int32 k = 0; k < length; k++) tgt[k] = (char)(~(src[k]));
+          for (int k = 0; k < length; k++) tgt[k] = (char)(~(src[k]));
         } else {
           str_cpy_all(tgt, src, length);
         }
@@ -5435,14 +5435,14 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       case PCIT::ENCODE_DECS: {
         PTR_DEF_ASSIGN(char, tgt, 0);
         PTR_DEF_ASSIGN(char, src, 2);
-        DEF_ASSIGN(Int32, length, 4);
-        DEF_ASSIGN(Int32, desc, 5);
+        DEF_ASSIGN(int, length, 4);
+        DEF_ASSIGN(int, desc, 5);
         if (src[0] & 0200)  // negative
         {
           if (desc) {
             str_cpy_all(tgt, src, length);
           } else {
-            for (Int32 k = 0; k < length; k++) tgt[k] = (char)(~(src[k]));
+            for (int k = 0; k < length; k++) tgt[k] = (char)(~(src[k]));
           }
         } else  // positive
         {
@@ -5450,7 +5450,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
             str_cpy_all(tgt, src, length);
             tgt[0] = (char)(~(src[0] | 0200));
 
-            for (Int32 k = 1; k < length; k++) tgt[k] = (char)(~(tgt[k]));
+            for (int k = 1; k < length; k++) tgt[k] = (char)(~(tgt[k]));
           } else {
             str_cpy_all(tgt, src, length);
 
@@ -5464,7 +5464,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       case PCIT::DECODE_MASCII_MBIN16S_IBIN32S: {
         PTR_DEF_ASSIGN(Int16, outputPtr, 0);
         PTR_DEF_ASSIGN(Int16, resultPtr, 2);
-        DEF_ASSIGN(Int32, bitwiseNOT, 4);
+        DEF_ASSIGN(int, bitwiseNOT, 4);
         Int16 result = *resultPtr;
 
         if (bitwiseNOT) result = ~result;
@@ -5483,7 +5483,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       case PCIT::DECODE_MASCII_MBIN16U_IBIN32S: {
         PTR_DEF_ASSIGN(Int16, outputPtr, 0);
         PTR_DEF_ASSIGN(Int16, resultPtr, 2);
-        DEF_ASSIGN(Int32, bitwiseNOT, 4);
+        DEF_ASSIGN(int, bitwiseNOT, 4);
         Int16 result = *resultPtr;
 
         if (bitwiseNOT) result = ~result;
@@ -5498,10 +5498,10 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       } break;
 
       case PCIT::DECODE_MASCII_MBIN32S_IBIN32S: {
-        PTR_DEF_ASSIGN(Int32, outputPtr, 0);
-        PTR_DEF_ASSIGN(Int32, resultPtr, 2);
-        DEF_ASSIGN(Int32, bitwiseNOT, 4);
-        Int32 result = *resultPtr;
+        PTR_DEF_ASSIGN(int, outputPtr, 0);
+        PTR_DEF_ASSIGN(int, resultPtr, 2);
+        DEF_ASSIGN(int, bitwiseNOT, 4);
+        int result = *resultPtr;
 
         if (bitwiseNOT) result = ~result;
 
@@ -5517,10 +5517,10 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       } break;
 
       case PCIT::DECODE_MASCII_MBIN32U_IBIN32S: {
-        PTR_DEF_ASSIGN(Int32, outputPtr, 0);
-        PTR_DEF_ASSIGN(Int32, resultPtr, 2);
-        DEF_ASSIGN(Int32, bitwiseNOT, 4);
-        Int32 result = *resultPtr;
+        PTR_DEF_ASSIGN(int, outputPtr, 0);
+        PTR_DEF_ASSIGN(int, resultPtr, 2);
+        DEF_ASSIGN(int, bitwiseNOT, 4);
+        int result = *resultPtr;
 
         if (bitwiseNOT) result = ~result;
 
@@ -5536,7 +5536,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       case PCIT::DECODE_MASCII_MBIN64S_IBIN32S: {
         PTR_DEF_ASSIGN(long, outputPtr, 0);
         PTR_DEF_ASSIGN(long, resultPtr, 2);
-        DEF_ASSIGN(Int32, bitwiseNOT, 4);
+        DEF_ASSIGN(int, bitwiseNOT, 4);
         long result = *resultPtr;
 
         if (bitwiseNOT) result = ~result;
@@ -5554,10 +5554,10 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       case PCIT::DECODE_NXX: {
         PTR_DEF_ASSIGN(char, tgt, 0);
         PTR_DEF_ASSIGN(char, src, 2);
-        DEF_ASSIGN(Int32, length, 4);
-        DEF_ASSIGN(Int32, desc, 5);
+        DEF_ASSIGN(int, length, 4);
+        DEF_ASSIGN(int, desc, 5);
         if (desc) {
-          for (Int32 k = 0; k < length; k++) tgt[k] = (char)(~(src[k]));
+          for (int k = 0; k < length; k++) tgt[k] = (char)(~(src[k]));
         } else {
           str_cpy_all(tgt, src, length);
         }
@@ -5567,11 +5567,11 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       case PCIT::DECODE_DECS: {
         PTR_DEF_ASSIGN(char, tgt, 0);
         PTR_DEF_ASSIGN(char, src, 2);
-        DEF_ASSIGN(Int32, length, 4);
-        DEF_ASSIGN(Int32, desc, 5);
+        DEF_ASSIGN(int, length, 4);
+        DEF_ASSIGN(int, desc, 5);
 
         if (desc) {
-          for (Int32 k = 0; k < length; k++) tgt[k] = (char)(~(src[k]));
+          for (int k = 0; k < length; k++) tgt[k] = (char)(~(src[k]));
         }
 
         if (NOT(src[0] & 0200)) {
@@ -5585,7 +5585,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       } break;
 
       case PCIT::BRANCH_INDIRECT_MBIN32S: {
-        PTR_DEF_ASSIGN(Int32, srcPtr, 0);
+        PTR_DEF_ASSIGN(int, srcPtr, 0);
         pCode += (long)*srcPtr;
         break;
       }
@@ -5597,9 +5597,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
       case PCIT::BRANCH_AND: {
         // on 64-bit the first 2 operands are pointers
-        PTR_DEF_ASSIGN(Int32, tgtPtr, 2 * PCODEBINARIES_PER_PTR);
-        PTR_DEF_ASSIGN(Int32, srcPtr, 2 + 2 * PCODEBINARIES_PER_PTR);
-        Int32 src = *srcPtr;
+        PTR_DEF_ASSIGN(int, tgtPtr, 2 * PCODEBINARIES_PER_PTR);
+        PTR_DEF_ASSIGN(int, srcPtr, 2 + 2 * PCODEBINARIES_PER_PTR);
+        int src = *srcPtr;
 
         if (src == 0) {
           DEF_ASSIGN_PTR(long, branchOffset, 0);
@@ -5612,9 +5612,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       } break;
 
       case PCIT::BRANCH_AND_CNT: {
-        PTR_DEF_ASSIGN(Int32, tgtPtr, 2);
-        PTR_DEF_ASSIGN(Int32, srcPtr, 4);
-        Int32 src = *srcPtr;
+        PTR_DEF_ASSIGN(int, tgtPtr, 2);
+        PTR_DEF_ASSIGN(int, srcPtr, 4);
+        int src = *srcPtr;
 
         // Increment seen counter
         pCode[6]++;
@@ -5635,9 +5635,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
       case PCIT::BRANCH_OR: {
         // on 64-bit the first 2 operands are pointers
-        PTR_DEF_ASSIGN(Int32, tgtPtr, 2 * PCODEBINARIES_PER_PTR);
-        PTR_DEF_ASSIGN(Int32, srcPtr, 2 + 2 * PCODEBINARIES_PER_PTR);
-        Int32 src = *srcPtr;
+        PTR_DEF_ASSIGN(int, tgtPtr, 2 * PCODEBINARIES_PER_PTR);
+        PTR_DEF_ASSIGN(int, srcPtr, 2 + 2 * PCODEBINARIES_PER_PTR);
+        int src = *srcPtr;
 
         if (src == 1) {
           DEF_ASSIGN_PTR(long, branchOffset, 0);
@@ -5650,9 +5650,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       } break;
 
       case PCIT::BRANCH_OR_CNT: {
-        PTR_DEF_ASSIGN(Int32, tgtPtr, 2);
-        PTR_DEF_ASSIGN(Int32, srcPtr, 4);
-        Int32 src = *srcPtr;
+        PTR_DEF_ASSIGN(int, tgtPtr, 2);
+        PTR_DEF_ASSIGN(int, srcPtr, 4);
+        int src = *srcPtr;
 
         // Increment seen counter
         pCode[6]++;
@@ -5703,7 +5703,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
       case PCIT::RANGE_LOW_S32S64: {
         DEF_ASSIGN(int, op, RANGE_INST_LEN);  // the next op
-        PTR_DEF_ASSIGN(Int32, valPtr, 0);
+        PTR_DEF_ASSIGN(int, valPtr, 0);
         PTR_TO_PCODE(long, minvalPtr, 2);
 
         if (*valPtr < *minvalPtr) {
@@ -5723,7 +5723,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::RANGE_HIGH_S32S64: {
-        PTR_DEF_ASSIGN(Int32, valPtr, 0);
+        PTR_DEF_ASSIGN(int, valPtr, 0);
         PTR_TO_PCODE(long, maxvalPtr, 2);
         if (*valPtr > *maxvalPtr) {
           goto Error1_;
@@ -5896,7 +5896,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         PTR_DEF_ASSIGN(char, bitmap, 2);
         DEF_ASSIGN(UInt16, idx, 4);
         char *source;
-        DEF_ASSIGN(Int32, length, 9);
+        DEF_ASSIGN(int, length, 9);
 
         if (ExpTupleDesc::isNullValue(bitmap, idx)) {
           PTR_DEF_ASSIGN(char, nlres, 7);
@@ -6006,7 +6006,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         // NOT EQUAL TO ("<>") operation
         PTR_DEF_ASSIGN(float, fltPtr1, 2);
         PTR_DEF_ASSIGN(float, fltPtr2, 4);
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
 
         *result = *fltPtr1 != *fltPtr2;
 
@@ -6017,7 +6017,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         // NOT EQUAL TO ("<>") operation
         PTR_DEF_ASSIGN(double, dblPtr1, 2);
         PTR_DEF_ASSIGN(double, dblPtr2, 4);
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
 
         *result = *dblPtr1 != *dblPtr2;
 
@@ -6029,7 +6029,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         // GREATER THAN (">") operation
         PTR_DEF_ASSIGN(float, fltPtr1, 2);
         PTR_DEF_ASSIGN(float, fltPtr2, 4);
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
 
         *result = *fltPtr1 > *fltPtr2;
 
@@ -6040,7 +6040,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         // GREATER THAN (">") operation
         PTR_DEF_ASSIGN(double, dblPtr1, 2);
         PTR_DEF_ASSIGN(double, dblPtr2, 4);
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
 
         *result = *dblPtr1 > *dblPtr2;
 
@@ -6052,7 +6052,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         // GREATER THAN OR EQUAL TO (">=") operation
         PTR_DEF_ASSIGN(float, fltPtr1, 2);
         PTR_DEF_ASSIGN(float, fltPtr2, 4);
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
 
         *result = *fltPtr1 >= *fltPtr2;
 
@@ -6063,7 +6063,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         // GREATER THAN OR EQUAL TO (">=") operation
         PTR_DEF_ASSIGN(double, dblPtr1, 2);
         PTR_DEF_ASSIGN(double, dblPtr2, 4);
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
 
         *result = *dblPtr1 >= *dblPtr2;
 
@@ -6075,7 +6075,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         // EQUAL TO ("=") operation
         PTR_DEF_ASSIGN(float, fltPtr1, 2);
         PTR_DEF_ASSIGN(float, fltPtr2, 4);
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
 
         *result = *fltPtr1 == *fltPtr2;
 
@@ -6086,7 +6086,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         // EQUAL TO ("=") operation
         PTR_DEF_ASSIGN(double, dblPtr1, 2);
         PTR_DEF_ASSIGN(double, dblPtr2, 4);
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
 
         *result = *dblPtr1 == *dblPtr2;
 
@@ -6098,7 +6098,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         // LESS THAN OR EQUAL TO ("<=") operation
         PTR_DEF_ASSIGN(float, fltPtr1, 2);
         PTR_DEF_ASSIGN(float, fltPtr2, 4);
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
 
         *result = *fltPtr1 <= *fltPtr2;
 
@@ -6109,7 +6109,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         // LESS THAN OR EQUAL TO ("<=") operation
         PTR_DEF_ASSIGN(double, dblPtr1, 2);
         PTR_DEF_ASSIGN(double, dblPtr2, 4);
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
 
         *result = *dblPtr1 <= *dblPtr2;
 
@@ -6121,7 +6121,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         // LESS THAN ("<") operation
         PTR_DEF_ASSIGN(float, fltPtr1, 2);
         PTR_DEF_ASSIGN(float, fltPtr2, 4);
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
 
         *result = *fltPtr1 < *fltPtr2;
 
@@ -6132,7 +6132,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         // LESS THAN ("<") operation
         PTR_DEF_ASSIGN(double, dblPtr1, 2);
         PTR_DEF_ASSIGN(double, dblPtr2, 4);
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
 
         *result = *dblPtr1 < *dblPtr2;
 
@@ -6147,10 +6147,10 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           PTR_DEF_ASSIGN(char, tgtNull, 2);
           PTR_DEF_ASSIGN(char, src, 5);
           DEF_ASSIGN(Int16, indx, 4);
-          DEF_ASSIGN(Int32, srcLen, 7);
+          DEF_ASSIGN(int, srcLen, 7);
 
           NABoolean resultIsNull = TRUE;
-          for (Int32 i = 0; i < srcLen; i++) {
+          for (int i = 0; i < srcLen; i++) {
             tgt[i] = src[i];
             if (src[i] != 0) {
               resultIsNull = FALSE;
@@ -6174,10 +6174,10 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
             PTR_DEF_ASSIGN(char, tgt, 1);
             PTR_DEF_ASSIGN(char, tgtNull, 3);
             PTR_DEF_ASSIGN(char, src, 6);
-            DEF_ASSIGN(Int32, tgtNullIndicatorLen, 5);
-            DEF_ASSIGN(Int32, srcLen, 8);
+            DEF_ASSIGN(int, tgtNullIndicatorLen, 5);
+            DEF_ASSIGN(int, srcLen, 8);
             NABoolean resultIsNull = TRUE;
-            for (Int32 i = 0; i < srcLen; i++) {
+            for (int i = 0; i < srcLen; i++) {
               tgt[i] = src[i];
               if (src[i] != 0) {
                 resultIsNull = FALSE;
@@ -6193,7 +6193,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           } break;
 
           case ITM_RANDOMNUM: {
-            DEF_ASSIGN(Int32, seed, 8);
+            DEF_ASSIGN(int, seed, 8);
             PTR_DEF_ASSIGN(UInt32, resultPtr, 1);
             seed++;
             if (seed < 1) {
@@ -6203,7 +6203,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
                 // See also ExFunctionRandomNum::initSeed()
                 const char *fixSeed = getenv("FIXED_ROUND_ROBIN_SEED");
                 if (!fixSeed)
-                  seed = 1031 * (((Int32)GETTID()) % 1031);
+                  seed = 1031 * (((int)GETTID()) % 1031);
                 else
                   seed = getMyTcb()->getGlobals()->getMyInstanceNumber();
 
@@ -6230,8 +6230,8 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
             PTR_DEF_ASSIGN(char, tgt, 1);
             PTR_DEF_ASSIGN(char, op1, 3);
             PTR_DEF_ASSIGN(char, op2, 5);
-            DEF_ASSIGN(Int32, length1, 7);
-            DEF_ASSIGN(Int32, length2, 8);
+            DEF_ASSIGN(int, length1, 7);
+            DEF_ASSIGN(int, length2, 8);
 
             str_cpy_all(tgt, op1, length1);
             str_cpy_all(&tgt[length1], op2, length2);
@@ -6243,7 +6243,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           // and result. This has been validated during pcode gen for
           // this operation.
           case ITM_BITAND: {
-            DEF_ASSIGN(Int32, oper, 7);
+            DEF_ASSIGN(int, oper, 7);
             if (oper == REC_BIN32_UNSIGNED) {
               PTR_DEF_ASSIGN(UInt32, result, 1);
               PTR_DEF_ASSIGN(UInt32, op1, 3);
@@ -6251,9 +6251,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
               *result = *op1 & *op2;
             } else if (oper == REC_BIN32_SIGNED) {
-              PTR_DEF_ASSIGN(Int32, result, 1);
-              PTR_DEF_ASSIGN(Int32, op1, 3);
-              PTR_DEF_ASSIGN(Int32, op2, 5);
+              PTR_DEF_ASSIGN(int, result, 1);
+              PTR_DEF_ASSIGN(int, op1, 3);
+              PTR_DEF_ASSIGN(int, op2, 5);
 
               *result = *op1 & *op2;
             } else {
@@ -6268,7 +6268,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           } break;
 
           case ITM_BITOR: {
-            DEF_ASSIGN(Int32, oper, 7);
+            DEF_ASSIGN(int, oper, 7);
             if (oper == REC_BIN32_UNSIGNED) {
               PTR_DEF_ASSIGN(UInt32, result, 1);
               PTR_DEF_ASSIGN(UInt32, op1, 3);
@@ -6276,9 +6276,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
               *result = *op1 | *op2;
             } else if (oper == REC_BIN32_SIGNED) {
-              PTR_DEF_ASSIGN(Int32, result, 1);
-              PTR_DEF_ASSIGN(Int32, op1, 3);
-              PTR_DEF_ASSIGN(Int32, op2, 5);
+              PTR_DEF_ASSIGN(int, result, 1);
+              PTR_DEF_ASSIGN(int, op1, 3);
+              PTR_DEF_ASSIGN(int, op2, 5);
 
               *result = *op1 | *op2;
             } else {
@@ -6293,7 +6293,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           } break;
 
           case ITM_BITXOR: {
-            DEF_ASSIGN(Int32, oper, 7);
+            DEF_ASSIGN(int, oper, 7);
             if (oper == REC_BIN32_UNSIGNED) {
               PTR_DEF_ASSIGN(UInt32, result, 1);
               PTR_DEF_ASSIGN(UInt32, op1, 3);
@@ -6301,9 +6301,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
               *result = *op1 ^ *op2;
             } else if (oper == REC_BIN32_SIGNED) {
-              PTR_DEF_ASSIGN(Int32, result, 1);
-              PTR_DEF_ASSIGN(Int32, op1, 3);
-              PTR_DEF_ASSIGN(Int32, op2, 5);
+              PTR_DEF_ASSIGN(int, result, 1);
+              PTR_DEF_ASSIGN(int, op1, 3);
+              PTR_DEF_ASSIGN(int, op2, 5);
 
               *result = *op1 ^ *op2;
             } else {
@@ -6318,15 +6318,15 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           } break;
 
           case ITM_BITNOT: {
-            DEF_ASSIGN(Int32, oper, 7);
+            DEF_ASSIGN(int, oper, 7);
             if (oper == REC_BIN32_UNSIGNED) {
               PTR_DEF_ASSIGN(UInt32, result, 1);
               PTR_DEF_ASSIGN(UInt32, op1, 3);
 
               *result = ~*op1;
             } else if (oper == REC_BIN32_SIGNED) {
-              PTR_DEF_ASSIGN(Int32, result, 1);
-              PTR_DEF_ASSIGN(Int32, op1, 3);
+              PTR_DEF_ASSIGN(int, result, 1);
+              PTR_DEF_ASSIGN(int, op1, 3);
 
               *result = ~*op1;
             } else {
@@ -6347,12 +6347,12 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       case PCIT::GENFUNC_MATTR5_MATTR5_IBIN32S:          // upper, lower, trim
       case PCIT::GENFUNC_MATTR5_MATTR5_MBIN32S_IBIN32S:  // repeat
       {
-        Int32 srcLen = 0, tgtLen = 0, i = 0;
+        int srcLen = 0, tgtLen = 0, i = 0;
         BASE_PTR_DEF_ASSIGN(char, tgt, 0);
         BASE_PTR_DEF_ASSIGN(char, src, 5);
 
-        DEF_ASSIGN(Int32, tgtOffset, 1);
-        DEF_ASSIGN(Int32, tgtVoaOffset, 2);
+        DEF_ASSIGN(int, tgtOffset, 1);
+        DEF_ASSIGN(int, tgtVoaOffset, 2);
 
         // VOA offsets should always be used in order.
         if (tgtVoaOffset > 0) {
@@ -6360,8 +6360,8 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           lastVoaOffset = tgtVoaOffset;
         }
 
-        DEF_ASSIGN(Int32, comboLen1, 4);
-        DEF_ASSIGN(Int32, comboLen2, 9);
+        DEF_ASSIGN(int, comboLen1, 4);
+        DEF_ASSIGN(int, comboLen2, 9);
         char *comboPtr1 = (char *)&comboLen1;
         char *comboPtr2 = (char *)&comboLen2;
 
@@ -6370,8 +6370,8 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         Int16 srcNullIndLen = (Int16)comboPtr2[0];
         Int16 srcVCIndLen = (Int16)comboPtr2[1];
 
-        DEF_ASSIGN(Int32, offset, 6);
-        DEF_ASSIGN(Int32, voaOffset, 7);
+        DEF_ASSIGN(int, offset, 6);
+        DEF_ASSIGN(int, voaOffset, 7);
 
         src += ExpTupleDesc::getVarOffset(src,  // atp_
                                           offset, voaOffset,
@@ -6387,10 +6387,10 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         // advance to beginning of data
         src += srcVCIndLen;
 
-        DEF_ASSIGN(Int32, opRepeat, 12);
-        DEF_ASSIGN(Int32, opx, 10);
+        DEF_ASSIGN(int, opRepeat, 12);
+        DEF_ASSIGN(int, opx, 10);
 
-        Int32 subOpc = (pCodeOpc == PCIT::GENFUNC_MATTR5_MATTR5_MBIN32S_IBIN32S) ? opRepeat : opx;
+        int subOpc = (pCodeOpc == PCIT::GENFUNC_MATTR5_MATTR5_MBIN32S_IBIN32S) ? opRepeat : opx;
 
         switch (subOpc) {
           case ITM_UPPER:
@@ -6402,7 +6402,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
               tgt += tgtVCIndLen;
             }
 
-            for (Int32 i = 0; i < srcLen; i++) tgt[i] = (subOpc == ITM_UPPER) ? TOUPPER(src[i]) : TOLOWER(src[i]);
+            for (int i = 0; i < srcLen; i++) tgt[i] = (subOpc == ITM_UPPER) ? TOUPPER(src[i]) : TOLOWER(src[i]);
 
             pCode += 11;
             break;
@@ -6448,10 +6448,10 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           } break;
 
           case ITM_REPEAT: {
-            PTR_DEF_ASSIGN(Int32, repeatCntPtr, 10);
-            Int32 repeatCnt = *repeatCntPtr;
+            PTR_DEF_ASSIGN(int, repeatCntPtr, 10);
+            int repeatCnt = *repeatCntPtr;
             UInt32 totalSize = srcLen * repeatCnt;
-            DEF_ASSIGN(Int32, maxTargetLen, 3);
+            DEF_ASSIGN(int, maxTargetLen, 3);
 
             // If len is negative or the total bytes to write exceeds the max
             // target len, report an error.
@@ -6489,8 +6489,8 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       } break;
 
       case PCIT::OFFSET_IPTR_IPTR_MBIN32S_MBIN64S_MBIN64S: {
-        PTR_DEF_ASSIGN(Int32, indexPtr, 2 * PCODEBINARIES_PER_PTR);
-        Int32 index = *indexPtr;
+        PTR_DEF_ASSIGN(int, indexPtr, 2 * PCODEBINARIES_PER_PTR);
+        int index = *indexPtr;
 
         // Lookup the indexed row in the history buffer. Compute pointers
         // to the attribute data, null indicator, and varchar indicator.
@@ -6498,10 +6498,10 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         long *srcData = NULL;
 
         {
-          char *(*getRow)(void *, Int32, NABoolean, int, Int32 &);
-          Int32 rc;
+          char *(*getRow)(void *, int, NABoolean, int, int &);
+          int rc;
 
-          getRow = (char *(*)(void *, Int32, NABoolean, int, Int32 &))GetPCodeBinaryAsPtr(pCode, 0);
+          getRow = (char *(*)(void *, int, NABoolean, int, int &))GetPCodeBinaryAsPtr(pCode, 0);
 
           char *row = (*(getRow))((void *)GetPCodeBinaryAsPtr(pCode, PCODEBINARIES_PER_PTR), index, TRUE, 0, rc);
           if (rc) {
@@ -6524,7 +6524,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       } break;
 
       case PCIT::OFFSET_IPTR_IPTR_IBIN32S_MBIN64S_MBIN64S: {
-        DEF_ASSIGN(Int32, index, 2 * PCODEBINARIES_PER_PTR);
+        DEF_ASSIGN(int, index, 2 * PCODEBINARIES_PER_PTR);
 
         // Lookup the indexed row in the history buffer. Compute pointers
         // to the attribute data, null indicator, and varchar indicator.
@@ -6532,9 +6532,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         long *srcData = NULL;
 
         {
-          char *(*getRow)(void *, Int32, NABoolean, int, Int32 &);
-          Int32 rc;
-          getRow = (char *(*)(void *, Int32, NABoolean, int, Int32 &))GetPCodeBinaryAsPtr(pCode, 0);
+          char *(*getRow)(void *, int, NABoolean, int, int &);
+          int rc;
+          getRow = (char *(*)(void *, int, NABoolean, int, int &))GetPCodeBinaryAsPtr(pCode, 0);
           char *row = (*(getRow))((void *)GetPCodeBinaryAsPtr(pCode, PCODEBINARIES_PER_PTR), index, TRUE, 0, rc);
           if (rc) {
             diagsArea = atp1->getDiagsArea();
@@ -6556,16 +6556,16 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       } break;
 
       case PCIT::COMP_MBIN32S_MBIGS_MBIGS_IBIN32S_IBIN32S: {
-        PTR_DEF_ASSIGN(Int32, result, 0);
+        PTR_DEF_ASSIGN(int, result, 0);
         PTR_DEF_ASSIGN(UInt16, src1, 2);
         PTR_DEF_ASSIGN(UInt16, src2, 4);
-        DEF_ASSIGN(Int32, len, 6);
-        Int32 len16 = len >> 1;
+        DEF_ASSIGN(int, len, 6);
+        int len16 = len >> 1;
 
         // Pull out what type of comparison (e.g. ITM_EQUAL) to perform.
-        DEF_ASSIGN(Int32, op, 7);
+        DEF_ASSIGN(int, op, 7);
 
-        Int32 compCode = 1;  // Assume comparison is EQ
+        int compCode = 1;  // Assume comparison is EQ
 
         // Extract signs.
         char src1Sign = BIGN_GET_SIGN(src1, len);
@@ -6580,7 +6580,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         // the comparison should be
 
         if (src1Sign != src2Sign) {
-          for (Int32 i = 0; i < len16; i++) {
+          for (int i = 0; i < len16; i++) {
             if ((src1[i] != 0) || (src2[i] != 0)) {
               compCode = (src1Sign == 0) ? 2 : 0;
               break;
@@ -6588,7 +6588,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           }
         } else {
           // Both signs are different, so find out where the difference is
-          for (Int32 i = len16 - 1; i >= 0; i--) {
+          for (int i = len16 - 1; i >= 0; i--) {
             if (src1[i] == src2[i]) continue;
 
             // Here lies the difference.  Return 0, 1, or 2 for compCode,
@@ -6612,17 +6612,17 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::MOVE_MBIGS_MBIGS_IBIN32S_IBIN32S: {
-        Int32 i;
+        int i;
 
-        DEF_ASSIGN(Int32, tgtLength, 4);
-        DEF_ASSIGN(Int32, srcLength, 5);
+        DEF_ASSIGN(int, tgtLength, 4);
+        DEF_ASSIGN(int, srcLength, 5);
 
         PTR_DEF_ASSIGN(char, tgt, 0);
         PTR_DEF_ASSIGN(char, src, 2);
 
         // Get length in terms of double-words
-        Int32 tgtLength16 = tgtLength >> 1;
-        Int32 srcLength16 = srcLength >> 1;
+        int tgtLength16 = tgtLength >> 1;
+        int srcLength16 = srcLength >> 1;
 
         // Get source sign bit and then temporarily clear it
         char srcSign = BIGN_GET_SIGN(src, srcLength);
@@ -6656,10 +6656,10 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       case PCIT::MOVE_MBIGS_MBIN16S_IBIN32S:
       case PCIT::MOVE_MBIGS_MBIN32S_IBIN32S:
       case PCIT::MOVE_MBIGS_MBIN64S_IBIN32S: {
-        Int32 i;
+        int i;
 
-        DEF_ASSIGN(Int32, tgtLength, 4);
-        Int32 tgtLength16 = tgtLength >> 1;
+        DEF_ASSIGN(int, tgtLength, 4);
+        int tgtLength16 = tgtLength >> 1;
         PTR_DEF_ASSIGN(UInt16, tgt, 0);
         PTR_DEF_ASSIGN(long, src, 2);
         long *tgt64 = (long *)tgt;
@@ -6669,7 +6669,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         if (pCodeOpc == PCIT::MOVE_MBIGS_MBIN64S_IBIN32S)
           srcVal = *src;
         else if (pCodeOpc == PCIT::MOVE_MBIGS_MBIN32S_IBIN32S)
-          srcVal = *((Int32 *)(src));
+          srcVal = *((int *)(src));
         else
           srcVal = *((Int16 *)(src));
 
@@ -6700,10 +6700,10 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::MOVE_MBIN64S_MBIGS_IBIN32S: {
-        Int32 i;
+        int i;
 
-        DEF_ASSIGN(Int32, srcLength, 4);
-        Int32 srcLength16 = srcLength >> 1;
+        DEF_ASSIGN(int, srcLength, 4);
+        int srcLength16 = srcLength >> 1;
 
         PTR_DEF_ASSIGN(long, tgt, 0);
         PTR_DEF_ASSIGN(char, src, 2);
@@ -6748,20 +6748,20 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::MUL_MBIGS_MBIGS_MBIGS_IBIN32S: {
-        Int32 i, j, pos;
+        int i, j, pos;
         UInt16 carry;
 
         PTR_DEF_ASSIGN(UInt16, tgt, 0);
         PTR_DEF_ASSIGN(UInt16, src1, 2);
         PTR_DEF_ASSIGN(UInt16, src2, 4);
 
-        DEF_ASSIGN(Int32, tgtLength, 6);
-        DEF_ASSIGN(Int32, leftLength, 7);
-        DEF_ASSIGN(Int32, rightLength, 8);
+        DEF_ASSIGN(int, tgtLength, 6);
+        DEF_ASSIGN(int, leftLength, 7);
+        DEF_ASSIGN(int, rightLength, 8);
 
-        Int32 leftLength16 = leftLength >> 1;
-        Int32 rightLength16 = rightLength >> 1;
-        Int32 tgtLength16 = tgtLength >> 1;
+        int leftLength16 = leftLength >> 1;
+        int rightLength16 = rightLength >> 1;
+        int tgtLength16 = tgtLength >> 1;
 
         // Get source sign bit and then temporarily clear it
         char src1Sign = BIGN_GET_SIGN(src1, leftLength);
@@ -6806,17 +6806,17 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         UInt16 *tgt, *src1, *src2;
         NABoolean performAdd = TRUE;
         UInt16 carry = 0;
-        Int32 length;
-        Int32 i;
+        int length;
+        int i;
 
         if (pCodeOpc == PCIT::SUM_MATTR3_MATTR3_IBIN32S_MBIGS_MBIGS_IBIN32S) {
           PTR_DEF_ASSIGN(UInt16, tgtPtr, 7);
           src1 = tgt = tgtPtr;
           PTR_DEF_ASSIGN(UInt16, src2Ptr, 9);
           src2 = src2Ptr;
-          DEF_ASSIGN(Int32, lenVal, 11);
+          DEF_ASSIGN(int, lenVal, 11);
           length = lenVal;
-          DEF_ASSIGN(Int32, isNullable, 6);
+          DEF_ASSIGN(int, isNullable, 6);
 
           if (isNullable) {
             NABoolean isNull;
@@ -6853,11 +6853,11 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           tgt = tgtPtr;
           src1 = src1Ptr;
           src2 = src2Ptr;
-          DEF_ASSIGN(Int32, lenVal, 6);
+          DEF_ASSIGN(int, lenVal, 6);
           length = lenVal;
         }
 
-        Int32 length16 = length >> 1;
+        int length16 = length >> 1;
 
         // Get source sign bits
         char src1Sign = BIGN_GET_SIGN(src1, length);
@@ -6917,8 +6917,8 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
           // Sub shorts - this is because bignum stored this way.
           for (i = 0; i < length16; i++) {
-            Int32 result = (Int32)src1[i] - src2[i] + (Int16)carry;
-            tgt[i] = (UInt16)(result + (Int32)0x10000) & 0xffff;
+            int result = (int)src1[i] - src2[i] + (Int16)carry;
+            tgt[i] = (UInt16)(result + (int)0x10000) & 0xffff;
             carry = (result < 0) ? -1 : 0;
           }
         }
@@ -6946,8 +6946,8 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         PTR_DEF_ASSIGN(long, src, 2);
         DEF_ASSIGN(UInt32, flags, 7);
         NABoolean isInList = flags & 0x01;
-        DEF_ASSIGN(Int32, size, 6);
-        Int32 i;
+        DEF_ASSIGN(int, size, 6);
+        int i;
 
         //
         // Pointers to tables representing 64-bit values in IN-list and 32-bit
@@ -6962,7 +6962,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         Long *pcOffs = (Long *)(&vals[size]);  // i.e. the jump table
 
         // Assume no match
-        Int32 compCode = 0;
+        int compCode = 0;
 
         UInt32 hashVal = ExHDPHash::hash8((char *)src, ExHDPHash::NO_FLAGS);
         UInt32 index = hashVal % size;
@@ -6994,9 +6994,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         DEF_ASSIGN(UInt32, flags, 10);
         NABoolean isInList = flags & 0x01;
         NABoolean ignoreSpaces = flags & 0x02;
-        DEF_ASSIGN(Int32, size, 9);
-        Int32 compCode = -1;  // Assume no match
-        Int32 i;
+        DEF_ASSIGN(int, size, 9);
+        int compCode = -1;  // Assume no match
+        int i;
 
         //
         // Pointer to table representing constant strings in IN-list and 32-bit
@@ -7008,12 +7008,12 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         //             pcOff1, pcOff2, ..., pcOffDflt
         //
 
-        PTR_DEF_ASSIGN(Int32, table, 7);
+        PTR_DEF_ASSIGN(int, table, 7);
         Long *pcOffs = (isInList) ? NULL : (Long *)&(table[size << 1]);
 
-        DEF_ASSIGN(Int32, offset, 3);
-        DEF_ASSIGN(Int32, voaOffset, 4);
-        DEF_ASSIGN(Int32, comboLen1, 6);
+        DEF_ASSIGN(int, offset, 3);
+        DEF_ASSIGN(int, voaOffset, 4);
+        DEF_ASSIGN(int, comboLen1, 6);
         char *comboPtr1 = (char *)&comboLen1;
         Int16 srcNullIndLen = (Int16)comboPtr1[0];
         Int16 srcVCIndLen = (Int16)comboPtr1[1];
@@ -7047,7 +7047,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           compCode = ((len1 != len2) || memcmp(src1, src2, len1));
 
           // If match is false, try next entry in table (at most 4 checks).
-          if ((compCode == 0) || ((Int32)(index + 2) >= (size << 1))) break;
+          if ((compCode == 0) || ((int)(index + 2) >= (size << 1))) break;
 
           index += 2;
         }
@@ -7094,11 +7094,11 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         // use voaOffset to get to the nullIndicator.
         // The flag will not be set for aligned format.
         DEF_ASSIGN(Int16, idx, 6);
-        DEF_ASSIGN(Int32, flag1, 7);
-        DEF_ASSIGN(Int32, flag2, 8);
-        DEF_ASSIGN(Int32, val, 3);
-        PTR_DEF_ASSIGN(Int32, ptr, 0);
-        UInt32 pCode3 = flag1 == 1 ? *((Int32 *)(stack[pCode[2]] + pCode[4])) : val;
+        DEF_ASSIGN(int, flag1, 7);
+        DEF_ASSIGN(int, flag2, 8);
+        DEF_ASSIGN(int, val, 3);
+        PTR_DEF_ASSIGN(int, ptr, 0);
+        UInt32 pCode3 = flag1 == 1 ? *((int *)(stack[pCode[2]] + pCode[4])) : val;
 
         NABoolean srcNull =
             ExpTupleDesc::isNullValue((char *)(stack[pCode[2]] + pCode3), idx, (ExpTupleDesc::TupleDataFormat)pCode[5]);
@@ -7149,7 +7149,7 @@ ex_expr::exp_return_type ex_expr_base::reportOverflowError(atp_struct *atp1, PCo
   char *op1;
   char *op2;
   ExeErrorCode ovfl;
-  Int32 instr;
+  int instr;
 
   // Retrieve the pCode opcode associated with this failure.  Because certain
   // instructions fall into others during expression evaluation, we need to be
@@ -7236,7 +7236,7 @@ ex_expr::exp_return_type ex_expr_base::reportOverflowError(atp_struct *atp1, PCo
       op1 = ((char *)(stack[pCode[0]] + pCode[1]));
       op2 = (char *)(&pCode[2]);
 
-      if (((*((Int32 *)(stack[pCode[0]] + pCode[1]))) < 0) &&
+      if (((*((int *)(stack[pCode[0]] + pCode[1]))) < 0) &&
           ((*(long *)&pCode[2]) >= 0)) {  // conversion of -ve num to unsigned field
         ovfl = EXE_UNSIGNED_OVERFLOW;
       } else {

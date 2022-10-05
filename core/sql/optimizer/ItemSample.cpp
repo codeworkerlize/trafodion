@@ -103,8 +103,8 @@ void ItmBalance::rearrangeChildren() {
   }
 }
 
-Int32 ItmBalance::getArity() const {
-  Int32 arity = 2;
+int ItmBalance::getArity() const {
+  int arity = 2;
 
   if (sampleType() == RelSample::PERIODIC || sampleType() == RelSample::CLUSTER) arity++;
   if (getNextBalance() != NULL) arity++;
@@ -243,11 +243,11 @@ CostScalar ItmBalance::computeResultSize(CostScalar initialRowCount) {
   return result;
 }
 
-Int32 ItmBalance::checkErrors() {
+int ItmBalance::checkErrors() {
   RelSample::SampleTypeEnum sampType = sampleType();
   NABoolean absolute = isAbsolute();
   NABoolean absoluteSkip = isSkipAbsolute();
-  Int32 error = 0;
+  int error = 0;
 
   ItmBalance *balNode = this;
 

@@ -51,7 +51,7 @@ class ComTdbSample : public ComTdb {
  public:
   ComTdbSample();
 
-  ComTdbSample(ex_expr *initExpr, ex_expr *balanceExpr, Int32 returnFactorOffset, ex_expr *postPred, ComTdb *child_tdb,
+  ComTdbSample(ex_expr *initExpr, ex_expr *balanceExpr, int returnFactorOffset, ex_expr *postPred, ComTdb *child_tdb,
                ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down, queue_index up);
 
   ~ComTdbSample();
@@ -75,13 +75,13 @@ class ComTdbSample : public ComTdb {
 
   inline ComTdb *getChildTdb();
 
-  Int32 orderedQueueProtocol() const;
+  int orderedQueueProtocol() const;
 
-  virtual const ComTdb *getChild(Int32 pos) const;
-  virtual Int32 numChildren() const { return 1; }
+  virtual const ComTdb *getChild(int pos) const;
+  virtual int numChildren() const { return 1; }
   virtual const char *getNodeName() const { return "EX_SAMPLE"; };
-  virtual Int32 numExpressions() const { return 3; }
-  virtual ex_expr *getExpressionNode(Int32 pos) {
+  virtual int numExpressions() const { return 3; }
+  virtual ex_expr *getExpressionNode(int pos) {
     if (pos == 0)
       return initExpr_;
     else if (pos == 1)
@@ -91,7 +91,7 @@ class ComTdbSample : public ComTdb {
     else
       return NULL;
   }
-  virtual const char *getExpressionName(Int32 pos) const {
+  virtual const char *getExpressionName(int pos) const {
     if (pos == 0)
       return "initExpr_";
     else if (pos == 1)
@@ -107,7 +107,7 @@ class ComTdbSample : public ComTdb {
   ExExprPtr balanceExpr_;     // 08-15
   ExExprPtr postPred_;        // 16-23
   ComTdbPtr tdbChild_;        // 24-31
-  Int32 returnFactorOffset_;  // 32-35
+  int returnFactorOffset_;  // 32-35
   // ---------------------------------------------------------------------
   // Filler for potential future extensions without changing class size.
   // When a new member is added, size of this filler should be reduced so
@@ -125,7 +125,7 @@ inline ComTdb *ComTdbSample::getChildTdb() { return tdbChild_; };
   History     : Yeogirl Yun                                      8/22/95
                  Initial Revision.
 *****************************************************************************/
-inline const ComTdb *ComTdbSample::getChild(Int32 pos) const {
+inline const ComTdb *ComTdbSample::getChild(int pos) const {
   if (pos == 0)
     return tdbChild_;
   else

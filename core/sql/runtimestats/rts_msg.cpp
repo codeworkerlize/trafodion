@@ -672,7 +672,7 @@ void SuspendActivateServersRequest::unpackObj(IpcMessageObjType objType, IpcMess
   unpackBuffer(buffer, suspendLogging_);
 }
 
-SecInvalidKeyRequest::SecInvalidKeyRequest(NAMemory *heap, Int32 numSiks, SQL_QIKEY *sikPtr)
+SecInvalidKeyRequest::SecInvalidKeyRequest(NAMemory *heap, int numSiks, SQL_QIKEY *sikPtr)
     : RtsMessageObj(SECURITY_INVALID_KEY_REQ, CurrSecurityInvalidKeyVersionNumber, heap),
       numSiks_(numSiks),
       sikPtr_(NULL) {
@@ -717,7 +717,7 @@ void SecInvalidKeyRequest::unpackObj(IpcMessageObjType objType, IpcMessageObjVer
     sikPtr_ = NULL;
 }
 
-ObjectEpochChangeRequest::ObjectEpochChangeRequest(NAMemory *heap, Operation operation, Int32 objectNameLength,
+ObjectEpochChangeRequest::ObjectEpochChangeRequest(NAMemory *heap, Operation operation, int objectNameLength,
                                                    const char *objectName, long redefTime, UInt64 key,
                                                    UInt32 expectedEpoch, UInt32 expectedFlags, UInt32 newEpoch,
                                                    UInt32 newFlags)
@@ -817,7 +817,7 @@ void ObjectEpochChangeReply::unpackObj(IpcMessageObjType objType, IpcMessageObjV
 }
 
 ObjectLockRequest::ObjectLockRequest(NAMemory *heap, const char *objectName, int objectNameLen,
-                                     ComObjectType objectType, OpType opType, Int32 lockNid, Int32 lockPid,
+                                     ComObjectType objectType, OpType opType, int lockNid, int lockPid,
                                      UInt32 maxRetries, UInt32 delay)
     : RtsMessageObj(OBJECT_LOCK_REQ, CurrObjectLockRequestVersionNumber, heap),
       objectName_(NULL),

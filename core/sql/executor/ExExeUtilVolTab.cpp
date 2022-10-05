@@ -123,7 +123,7 @@ short ExExeUtilLoadVolatileTableTcb::work() {
         // the default_charset.
         // So we send the isoMapping charset instead of the
         // enum ISO_MAPPING.
-        Int32 savedIsoMapping = currContext->getSessionDefaults()->getIsoMappingEnum();
+        int savedIsoMapping = currContext->getSessionDefaults()->getIsoMappingEnum();
         cliInterface()->setIsoMapping(currContext->getSessionDefaults()->getIsoMappingEnum());
         cliRC = cliInterface()->executeImmediate(lvtTdb().insertQuery_, NULL, NULL, TRUE, &rowsAffected, TRUE);
         cliInterface()->setIsoMapping(savedIsoMapping);
@@ -367,7 +367,7 @@ short ExExeUtilCleanupVolatileTablesTcb::work() {
       } break;
 
       case FETCH_SCHEMA_NAMES_: {
-        Int32 schema_qry_array_size = sizeof(getAllVolatileSchemasQuery) / sizeof(QueryString);
+        int schema_qry_array_size = sizeof(getAllVolatileSchemasQuery) / sizeof(QueryString);
 
         const QueryString *schemaCleanupQueryString = getAllVolatileSchemasQuery;
 
@@ -637,7 +637,7 @@ short ExExeUtilGetVolatileInfoTcb::work() {
       } break;
 
       case APPEND_NEXT_QUERY_FRAGMENT_: {
-        Int32 info_qry_array_size = -1;
+        int info_qry_array_size = -1;
         const QueryString *infoQueryString = NULL;
 
         // extra space to be allocated to fill with "%s" fillers

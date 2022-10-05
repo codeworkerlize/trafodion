@@ -48,7 +48,7 @@
 
 #include "sqlmxevents/logmxevent.h"
 
-char *GetHistoryRowOLAP(void *data, Int32 n, NABoolean leading, int winSize, Int32 &retcode) {
+char *GetHistoryRowOLAP(void *data, int n, NABoolean leading, int winSize, int &retcode) {
   ExSequenceTcb *tcb = (ExSequenceTcb *)data;
 
   retcode = 0;
@@ -102,7 +102,7 @@ char *GetHistoryRowOLAP(void *data, Int32 n, NABoolean leading, int winSize, Int
   return tmpBuf->getFirstRow() + (tcb->maxRowsInOLAPBuffer_ - n) * tcb->recLen();
 };
 
-char *GetHistoryRowFollowingOLAP(void *data, Int32 n, NABoolean leading, int winSize, Int32 &retcode) {
+char *GetHistoryRowFollowingOLAP(void *data, int n, NABoolean leading, int winSize, int &retcode) {
   ExSequenceTcb *tcb = (ExSequenceTcb *)data;
 
   // flip the sign of n for now. The logic to handle negative offsets should be done
@@ -147,7 +147,7 @@ char *GetHistoryRowFollowingOLAP(void *data, Int32 n, NABoolean leading, int win
   return tmpBuf->getFirstRow() + n * tcb->recLen();
 };
 
-char *GetHistoryRow(void *data, Int32 n, NABoolean leading, int winSize, Int32 &retcode) {
+char *GetHistoryRow(void *data, int n, NABoolean leading, int winSize, int &retcode) {
   ExSequenceTcb *tcb = (ExSequenceTcb *)data;
 
   retcode = 0;
@@ -765,7 +765,7 @@ short ExSequenceTcb::work() {
             if (firstOLAPBufferFromOF_ == NULL) {
               firstOLAPBufferFromOF_ = firstOLAPBuffer_;
             }
-            for (Int32 i = 0; i < numberOfWinOLAPBuffers_; i++) {
+            for (int i = 0; i < numberOfWinOLAPBuffers_; i++) {
               firstOLAPBufferFromOF_ = firstOLAPBufferFromOF_->getNext();
               if (firstOLAPBufferFromOF_ == NULL) {
                 firstOLAPBufferFromOF_ = firstOLAPBuffer_;
@@ -1109,7 +1109,7 @@ void ExSequenceTcb::initializeHistory() {
 
   // allocate the minimum number of olap buffers
   if (firstOLAPBuffer_ == NULL) {
-    for (Int32 i = 0; i < minNumberOfOLAPBuffers_; i++) {
+    for (int i = 0; i < minNumberOfOLAPBuffers_; i++) {
       if (!addNewOLAPBuffer(FALSE /* No Memory Pressure Check */)) ex_assert(0, "No memory for minimal OLAP window!");
     }
   } else {

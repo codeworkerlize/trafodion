@@ -103,8 +103,8 @@ inline void ClusteredBitmap::initializeBitmap(cb_int_t *bits) {
 // Count the number of set bits in a 64-byte bitmap.
 //  NOTE:  On Yosemite, this is done 64-bits at a time, while on other
 //         platforms, it is done 32-bits at a time.
-inline Int32 ClusteredBitmap::countBits(cb_int_t *bits) {
-  Int32 numBits = 0;
+inline int ClusteredBitmap::countBits(cb_int_t *bits) {
+  int numBits = 0;
 
   numBits += popCnt(*bits++);
   numBits += popCnt(*bits++);
@@ -151,8 +151,8 @@ inline void ClusteredBitmap::copyBits(cb_int_t *tobits, cb_int_t *frombits) {
 
 // Copy each of the words in the bitmap and return the number of
 // bits that were set in the copy.
-inline Int32 ClusteredBitmap::copyCountBits(cb_int_t *tobits, cb_int_t *frombits) {
-  Int32 numBits = 0;
+inline int ClusteredBitmap::copyCountBits(cb_int_t *tobits, cb_int_t *frombits) {
+  int numBits = 0;
 
   // Copy to the other bitmap and call popCnt() to see how many bits
   // are set in the copied word.
@@ -167,8 +167,8 @@ inline Int32 ClusteredBitmap::copyCountBits(cb_int_t *tobits, cb_int_t *frombits
 
 // Logical OR two bit arrays storing the results in the first array.
 // The number of bits in the result array is returned.
-inline Int32 ClusteredBitmap::orBits(cb_int_t *tobits, cb_int_t *frombits) {
-  Int32 setBits = 0;
+inline int ClusteredBitmap::orBits(cb_int_t *tobits, cb_int_t *frombits) {
+  int setBits = 0;
 
   // Perform logical-OR on each bit set (when the bits are not equal)
   // and store the result in the tobits array.
@@ -183,8 +183,8 @@ inline Int32 ClusteredBitmap::orBits(cb_int_t *tobits, cb_int_t *frombits) {
 
 // Logically-AND two bit arrays storing the results in the first array
 // The number of set bits in the result array is returned.
-inline Int32 ClusteredBitmap::andBits(cb_int_t *tobits, cb_int_t *otherbits) {
-  Int32 numSetBits = 0;
+inline int ClusteredBitmap::andBits(cb_int_t *tobits, cb_int_t *otherbits) {
+  int numSetBits = 0;
 
   for (UInt32 wordIdx = WORDS_PER_BITMAP; wordIdx != 0; wordIdx--) {
     cb_int_t andVal = *tobits & *otherbits++;
@@ -196,8 +196,8 @@ inline Int32 ClusteredBitmap::andBits(cb_int_t *tobits, cb_int_t *otherbits) {
 }
 
 // Clear bits in the first array that are set in the second array.
-inline Int32 ClusteredBitmap::clearBits(cb_int_t *tobits, cb_int_t *removebits) {
-  Int32 numSetBits = 0;
+inline int ClusteredBitmap::clearBits(cb_int_t *tobits, cb_int_t *removebits) {
+  int numSetBits = 0;
 
   for (UInt32 wordIdx = WORDS_PER_BITMAP; wordIdx != 0; wordIdx--) {
     cb_int_t result = *tobits & ~(*removebits++);
@@ -357,9 +357,9 @@ void ClusteredBitmap::clear() {
 inline ClusteredBitmap::bitsToBitmap *ClusteredBitmap::findEqualOrGreaterBitmapMap(UInt32 sigBits) const {
   if (numBitmaps_ == 0) return NULL;
 
-  Int32 low = 0;
-  Int32 high = numBitmaps_ - 1;
-  Int32 middle;
+  int low = 0;
+  int high = numBitmaps_ - 1;
+  int middle;
   bitsToBitmap *map = NULL;
 
   while (low <= high) {
@@ -384,11 +384,11 @@ inline ClusteredBitmap::bitsToBitmap *ClusteredBitmap::findEqualOrGreaterBitmapM
 
 // findBitmap() uses a binary search to find a matching bitmap.
 inline ClusteredBitmap::cb_int_t *ClusteredBitmap::findBitmap(UInt32 significantBits) const {
-  Int32 low = 0;
-  Int32 high = (Int32)numBitmaps_ - 1;
+  int low = 0;
+  int high = (int)numBitmaps_ - 1;
 
   while (low <= high) {
-    Int32 middle = (low + high) >> 1;
+    int middle = (low + high) >> 1;
     bitsToBitmap *map = &bitmapMap_[middle];
 
     if (map->significantBits_ > significantBits)
@@ -527,12 +527,12 @@ ClusteredBitmap &ClusteredBitmap::subtractSet(const ClusteredBitmap &other) {
   UInt32 thisIdx = 0;
   UInt32 otherIdx = 0;
   UInt32 newMapIdx = 0;
-  Int32 numSetBits = 0;
+  int numSetBits = 0;
 
   // Examine each bitmap array
   while (thisIdx < numBitmaps_ && otherIdx < other.numBitmaps_) {
     if (bitmapMap_[thisIdx].significantBits_ == other.bitmapMap_[otherIdx].significantBits_) {
-      Int32 numBits = clearBits(bitmapMap_[thisIdx].bitmap_, other.bitmapMap_[otherIdx].bitmap_);
+      int numBits = clearBits(bitmapMap_[thisIdx].bitmap_, other.bitmapMap_[otherIdx].bitmap_);
       if (numBits == 0) {
         NADELETEBASIC(bitmapMap_[thisIdx].bitmap_, heap_);
         bitmapMap_[thisIdx].bitmap_ = 0;
@@ -914,8 +914,8 @@ void ClusteredBitmapIterator::advance() { idx_++; }
 void ClusteredBitmap::dump(ostream &out, const bitsToBitmap &bmap, const char *title) {
   if (title) out << title;
 
-  Int32 ct = 0;
-  for (Int32 wordIdx = 0; wordIdx < ClusteredBitmap::WORDS_PER_BITMAP; wordIdx++) {
+  int ct = 0;
+  for (int wordIdx = 0; wordIdx < ClusteredBitmap::WORDS_PER_BITMAP; wordIdx++) {
     // Store the word in a local variable
     cb_int_t wordVal = bmap.bitmap_[wordIdx];
 
@@ -950,7 +950,7 @@ void ClusteredBitmap::dump(ostream &out, const bitsToBitmap &bmap, const char *t
 
 NABoolean ClusteredBitmap::convertToList(std::string &text, const bitsToBitmap &bmap) {
   char buf[100];
-  for (Int32 wordIdx = 0; wordIdx < ClusteredBitmap::WORDS_PER_BITMAP; wordIdx++) {
+  for (int wordIdx = 0; wordIdx < ClusteredBitmap::WORDS_PER_BITMAP; wordIdx++) {
     // Store the word in a local variable
     cb_int_t wordVal = bmap.bitmap_[wordIdx];
 
@@ -1031,12 +1031,12 @@ UInt32 ClusteredBitmap::pack(char *buf, const bitsToBitmap &bmap) {
 
 UInt32 ClusteredBitmap::unpack(const char *buf, bitsToBitmap &bmap) {
   const char *ptr = buf;
-  Int32 sz = sizeof(bmap.significantBits_);
+  int sz = sizeof(bmap.significantBits_);
 
   memcpy((char *)&bmap.significantBits_, ptr, sz);
   ptr += sz;
 
-  Int32 totalSz = sz;
+  int totalSz = sz;
 
   sz = WORDS_PER_BITMAP * sizeof(cb_int_t);
 
@@ -1142,7 +1142,7 @@ UInt32 RangeOfValues::unpack(char *buf) {
 ClusteredBitmapForIntegers::ClusteredBitmapForIntegers(UInt32 cap, CollHeap *heap)
     : RangeOfValues(cap, heap), bitMapPos_(heap), bitMapNeg_(heap) {}
 
-NABoolean ClusteredBitmapForIntegers::insert(Int32 value) {
+NABoolean ClusteredBitmapForIntegers::insert(int value) {
   if (value >= 0)
     bitMapPos_.insert(value);
   else
@@ -1157,7 +1157,7 @@ NABoolean ClusteredBitmapForIntegers::insert(UInt32 value) {
   return TRUE;
 }
 
-RangeOfValues &ClusteredBitmapForIntegers::remove(Int32 value) {
+RangeOfValues &ClusteredBitmapForIntegers::remove(int value) {
   if (value >= 0)
     bitMapPos_.remove(value);
   else
@@ -1212,7 +1212,7 @@ UInt32 ClusteredBitmapForIntegers::unpack(char *buf) {
 /////////////////////////////////////////////////////////
 RangeSpecRT::RangeSpecRT(UInt32 cap, CollHeap *heap) : RangeOfValues(cap, heap), rs_(heap) {}
 
-NABoolean RangeSpecRT::insert(Int32 value) {
+NABoolean RangeSpecRT::insert(int value) {
   rs_.addPoint(heap_, value);
   return TRUE;
 }
@@ -1255,7 +1255,7 @@ NABoolean RangeSpecRT::insertTimestamp(char *ptr, int len) {
   return TRUE;
 }
 ///////////////////////////////////////////////////////////////////
-NABoolean RangeSpecRT::lookup(Int32 value) { return rs_.lookup(value); }
+NABoolean RangeSpecRT::lookup(int value) { return rs_.lookup(value); }
 
 NABoolean RangeSpecRT::lookup(UInt32 value) { return rs_.lookup(value); }
 
@@ -1281,7 +1281,7 @@ NABoolean RangeSpecRT::lookupTimestamp(char *ptr, int len) {
 }
 ////////////////////////////////////////////////////////////
 
-RangeOfValues &RangeSpecRT::remove(Int32 value) { return *this; }
+RangeOfValues &RangeSpecRT::remove(int value) { return *this; }
 
 void RangeSpecRT::dump(ostream &out, const char *title) {
   if (title) {
@@ -1336,7 +1336,7 @@ BloomFilterRT::BloomFilterRT(UInt32 cap, CollHeap *heap)
   if (rbf_.numBytes() == 0) setEnable(FALSE);
 }
 
-NABoolean BloomFilterRT::insert(Int32 value) {
+NABoolean BloomFilterRT::insert(int value) {
 #ifdef NA_LITTLE_ENDIAN
   value = reversebytes(value);
 #endif
@@ -1386,7 +1386,7 @@ NABoolean BloomFilterRT::insertTime(char *ptr, int len) { return rbf_.insert(ptr
 NABoolean BloomFilterRT::insertTimestamp(char *ptr, int len) { return rbf_.insert(ptr, len); }
 
 ///////////////////////////////////////////////////////////////////
-NABoolean BloomFilterRT::lookup(Int32 value) {
+NABoolean BloomFilterRT::lookup(int value) {
 #ifdef NA_LITTLE_ENDIAN
   value = reversebytes(value);
 #endif
@@ -1487,7 +1487,7 @@ int BloomFilterRT::computeMaxLength(UInt32 m, float p) {
 }
 
 /////////////////////////////////////////////////
-NABoolean NativeBloomFilterRT::insert(Int32 value) { return rbf_.insert((char *)&value, sizeof(value)); }
+NABoolean NativeBloomFilterRT::insert(int value) { return rbf_.insert((char *)&value, sizeof(value)); }
 
 NABoolean NativeBloomFilterRT::insert(UInt32 value) { return rbf_.insert((char *)&value, sizeof(value)); }
 
@@ -1498,7 +1498,7 @@ NABoolean NativeBloomFilterRT::insert(wchar_t *ptr, int len) {
   return res;
 }
 
-NABoolean NativeBloomFilterRT::lookup(Int32 value) { return rbf_.contain((char *)&value, sizeof(value)); }
+NABoolean NativeBloomFilterRT::lookup(int value) { return rbf_.contain((char *)&value, sizeof(value)); }
 
 NABoolean NativeBloomFilterRT::lookup(UInt32 value) { return rbf_.contain((char *)&value, sizeof(value)); }
 

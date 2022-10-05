@@ -129,7 +129,7 @@ void PCodePredicateGroup::print() {
   for (i = 0; i < predicates_.entries(); i++) printf(" %d ", predicates_[i]->getBlockNum());
 
   // Print counts and costs for this predicate group
-  printf(") Cost=%d, Seen=%d, Taken=%d ", (Int32)cost_, (Int32)seenCount_, (Int32)takenCount_);
+  printf(") Cost=%d, Seen=%d, Taken=%d ", (int)cost_, (int)seenCount_, (int)takenCount_);
 
   // Print reads
   printf(", Reads=");
@@ -250,7 +250,7 @@ void PCodePredicateGroup::setCost(GROUPLIST &unit, NABoolean isStatic) {
 //
 void PCodePredicateGroup::swap(PCodePredicateGroup *down, NABoolean adjacent) {
   CollIndex i;
-  Int32 tempOpc;
+  int tempOpc;
 
   BLOCKLIST origPredsDown(heap_);
   BLOCKLIST origPredsUp(heap_);
@@ -422,7 +422,7 @@ NABoolean PCodePredicateGroup::containsXBlock(GROUPLIST &unit, CollIndex head, C
   PCodePredicateGroup *bottom = unit[tail];
 
   // WAW violations - no violation if write are the same in all groups
-  for (i = tail - 1; (Int32)i >= (Int32)head; i--) {
+  for (i = tail - 1; (int)i >= (int)head; i--) {
     for (j = 0; j < bottom->getWrites().entries(); j++) {
       write = bottom->getWrites()[j];
       if (!(unit[i]->getWrites().contains(write))) return TRUE;
@@ -438,7 +438,7 @@ NABoolean PCodePredicateGroup::containsXBlock(GROUPLIST &unit, CollIndex head, C
   for (i = 0; i < bottom->getReads().entries(); i++) {
     read = bottom->getReads()[i];
     // Check if any of bottom's read operands conflict with write operands
-    for (j = tail - 1; (Int32)j >= (Int32)head; j--)
+    for (j = tail - 1; (int)j >= (int)head; j--)
       if (unit[j]->getWrites().contains(read)) return TRUE;
   }
 
@@ -446,7 +446,7 @@ NABoolean PCodePredicateGroup::containsXBlock(GROUPLIST &unit, CollIndex head, C
   for (i = 0; i < bottom->getWrites().entries(); i++) {
     write = bottom->getWrites()[i];
     // Check if any of bottom's write operands conflict with read operands
-    for (j = tail - 1; (Int32)j >= (Int32)head; j--)
+    for (j = tail - 1; (int)j >= (int)head; j--)
       if (unit[j]->getReads().contains(write)) return TRUE;
   }
 
@@ -612,7 +612,7 @@ NABoolean PCodePredicateGroup::findUnits(GROUPLIST &unit, GROUPLIST &workList, N
 
     PCodeBlock *target = group->getLastPredBlock()->getTargetBlock();
     PCodeBlock *siblingLastBlock = sibling->getLastPredBlock();
-    Int32 opc = group->getLastPredBlock()->getLastInst()->getOpcode();
+    int opc = group->getLastPredBlock()->getLastInst()->getOpcode();
 
     // If older and younger sibling have different opcodes...
     if (opc != siblingLastBlock->getLastInst()->getOpcode()) {
@@ -804,7 +804,7 @@ NABoolean PCodePredicateGroup::findUnits(GROUPLIST &unit, GROUPLIST &workList, N
 NABoolean PCodeCfg::reorderPredicates(NABoolean isStatic) {
   CollIndex i;
   GROUPLIST allGroups(heap_);
-  Int32 triggerCount;
+  int triggerCount;
 
   NABoolean swapPerformed = FALSE;
   NABoolean unitFound = FALSE;

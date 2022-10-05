@@ -77,7 +77,7 @@ class ComTdbSendTop : public ComTdb {
   //		  long myInstanceNum,
   //		  long childInstanceNum);
 
-  Int32 orderedQueueProtocol() const;
+  int orderedQueueProtocol() const;
 
   Long pack(void *);
   int unpack(void *, void *reallocator);
@@ -102,13 +102,13 @@ class ComTdbSendTop : public ComTdb {
   inline NABoolean logDiagnostics() const { return (sendTopFlags_ & LOG_DIAGNOSTICS) != 0; }
 
   // for GUI
-  virtual const ComTdb *getChild(Int32 pos) const;
-  virtual const ComTdb *getChildForGUI(Int32 pos, int base, void *frag_dir) const;
-  virtual Int32 numChildren() const;
+  virtual const ComTdb *getChild(int pos) const;
+  virtual const ComTdb *getChildForGUI(int pos, int base, void *frag_dir) const;
+  virtual int numChildren() const;
   virtual const char *getNodeName() const { return "EX_SEND_TOP"; };
-  virtual Int32 numExpressions() const;
-  virtual ex_expr *getExpressionNode(Int32 pos);
-  virtual const char *getExpressionName(Int32 pos) const;
+  virtual int numExpressions() const;
+  virtual ex_expr *getExpressionNode(int pos);
+  virtual const char *getExpressionName(int pos) const;
 
   // for showplan
   virtual void displayContents(Space *space, ULng32 flag);
@@ -133,8 +133,8 @@ class ComTdbSendTop : public ComTdb {
   // For SeaMonster: The SM tag is either an EXPLAIN ID or, if EXPLAIN
   // is disabled, an integer assigned to this exchange. The tag is
   // always unique within the plan.
-  Int32 getSMTag() const { return smTag_; }
-  void setSMTag(Int32 tag) { smTag_ = tag; }
+  int getSMTag() const { return smTag_; }
+  void setSMTag(int tag) { smTag_ = tag; }
 
   // Should the send top TCB restrict the number of outstanding send
   // buffers to 1. The restriction was enforced unconditionally prior
@@ -174,7 +174,7 @@ class ComTdbSendTop : public ComTdb {
   ExCriDescPtr workCriDesc_;        // 48-55
 
   // copied input row's pos. in workAtp
-  Int32 moveExprTuppIndex_;  // 56-59
+  int moveExprTuppIndex_;  // 56-59
 
   // guidelines for the executor's runtime parameters
 
@@ -185,18 +185,18 @@ class ComTdbSendTop : public ComTdb {
   UInt32 toParent_;  // 64-67
 
   // length of input or output row
-  Int32 downRecordLength_;  // 68-71
-  Int32 upRecordLength_;    // 72-75
+  int downRecordLength_;  // 68-71
+  int upRecordLength_;    // 72-75
 
   // recommended size of each buffer
-  Int32 sendBufferSize_;  // 76-79
+  int sendBufferSize_;  // 76-79
 
   // total no of buffers to allocate
-  Int32 numSendBuffers_;  // 80-83
+  int numSendBuffers_;  // 80-83
 
   // same for receive buffers
-  Int32 recvBufferSize_;  // 84-87
-  Int32 numRecvBuffers_;  // 88-91
+  int recvBufferSize_;  // 84-87
+  int numRecvBuffers_;  // 88-91
 
  private:
   // compiler estimate for # input rows
@@ -206,7 +206,7 @@ class ComTdbSendTop : public ComTdb {
   Float32 p_estNumRowsRecvd_;  // 96-99
 
  protected:
-  Int32 smTag_;                                    // 100-103
+  int smTag_;                                    // 100-103
   ComExtractConsumerInfoPtr extractConsumerInfo_;  // 104-111
 
   char fillersComTdbSendTop_[24];  // 112-131

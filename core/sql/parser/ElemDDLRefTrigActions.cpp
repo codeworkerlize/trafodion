@@ -53,7 +53,7 @@ ElemDDLRefTrigAct *ElemDDLRefTrigAct::castToElemDDLRefTrigAct() { return this; }
 //
 
 // get the degree of this node
-Int32 ElemDDLRefTrigAct::getArity() const { return MAX_ELEM_DDL_REF_TRIG_ACT_ARITY; }
+int ElemDDLRefTrigAct::getArity() const { return MAX_ELEM_DDL_REF_TRIG_ACT_ARITY; }
 
 ExprNode *ElemDDLRefTrigAct::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());

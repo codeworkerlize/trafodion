@@ -52,7 +52,7 @@ class ComTdbFirstN : public ComTdb {
 
   ~ComTdbFirstN();
 
-  Int32 orderedQueueProtocol() const { return -1; };
+  int orderedQueueProtocol() const { return -1; };
 
   ComTdb *getChildTdb() { return tdbChild_; };
 
@@ -73,18 +73,18 @@ class ComTdbFirstN : public ComTdb {
 
   void display() const;
 
-  virtual const ComTdb *getChild(Int32 pos) const {
+  virtual const ComTdb *getChild(int pos) const {
     if (pos == 0)
       return tdbChild_.getPointer();
     else
       return NULL;
   }
 
-  virtual Int32 numChildren() const { return 1; }
+  virtual int numChildren() const { return 1; }
   virtual const char *getNodeName() const { return "EX_FIRSTN"; };
-  virtual Int32 numExpressions() const { return 1; };
-  virtual ex_expr *getExpressionNode(Int32 pos) { return firstNRowsExpr_; };
-  virtual const char *getExpressionName(Int32 pos) const { return "firstNRowsExpr"; };
+  virtual int numExpressions() const { return 1; };
+  virtual ex_expr *getExpressionNode(int pos) { return firstNRowsExpr_; };
+  virtual const char *getExpressionName(int pos) const { return "firstNRowsExpr"; };
 
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.

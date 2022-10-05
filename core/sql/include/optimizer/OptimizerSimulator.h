@@ -111,7 +111,7 @@ class OsimHistogramEntry : public XMLElement {
  protected:
   virtual void serializeBody(XMLString &xml);
   virtual void endElement(void *parser, const char *elementName);
-  virtual void charData(void *parser, const char *data, Int32 len);
+  virtual void charData(void *parser, const char *data, int len);
   virtual void startElement(void *parser, const char *elementName, const char **atts);
 
  private:
@@ -226,9 +226,9 @@ class OptimizerSimulator : public NABasicObject {
   void capture_getEstimatedRows(const char *tableName, double estRows);
   void readLogfile_getEstimatedRows();
   double simulate_getEstimatedRows(const char *tableName);
-  void simulate_getNodeAndClusterNumbers(short &nodeNum, Int32 &clusterNum);
+  void simulate_getNodeAndClusterNumbers(short &nodeNum, int &clusterNum);
   void readLogFile_getNodeAndClusterNumbers();
-  void capture_getNodeAndClusterNumbers(short &nodeNum, Int32 &clusterNum);
+  void capture_getNodeAndClusterNumbers(short &nodeNum, int &clusterNum);
   void log_getNodeAndClusterNumbers();
 
   void readLogFile_captureSysType();
@@ -293,11 +293,11 @@ class OptimizerSimulator : public NABasicObject {
   NAHashDictionary<NAString, double> *hashDict_getEstimatedRows_;
   NAHashDictionary<const QualifiedName, long> *hashDict_Views_;
   NAHashDictionary<const QualifiedName, long> *hashDict_Tables_;
-  NAHashDictionary<const QualifiedName, Int32> *hashDict_Synonyms_;
+  NAHashDictionary<const QualifiedName, int> *hashDict_Synonyms_;
   NAHashDictionary<const QualifiedName, long> *hashDict_HiveTables_;
 
   short nodeNum_;
-  Int32 clusterNum_;
+  int clusterNum_;
   short mySystemNumber_;
   sysType captureSysType_;
   NABoolean capturedNodeAndClusterNum_;
@@ -323,7 +323,7 @@ class OptimizerSimulator : public NABasicObject {
 
 // System call wrappers.
 short OSIM_MYSYSTEMNUMBER();
-void OSIM_getNodeAndClusterNumbers(short &nodeNum, Int32 &clusterNum);
+void OSIM_getNodeAndClusterNumbers(short &nodeNum, int &clusterNum);
 void OSIM_captureTableOrView(NATable *naTab);
 void OSIM_capturePrologue();
 void OSIM_captureQueryShape(const char *shape);

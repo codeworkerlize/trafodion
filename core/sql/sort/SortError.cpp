@@ -51,7 +51,7 @@ void SortError::setErrorInfo(short sorterr, short syserr, short syserrdetail, co
   if (errorMsg == NULL)
     sortErrorMsg_[0] = '\0';
   else {
-    Int32 count = str_len(errorMsg);
+    int count = str_len(errorMsg);
     if (count >= sizeof(sortErrorMsg_)) count = sizeof(sortErrorMsg_) - 1;
     str_cpy(sortErrorMsg_, errorMsg, count);
     sortErrorMsg_[count] = '\0';

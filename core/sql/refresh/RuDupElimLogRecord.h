@@ -65,7 +65,7 @@ class CRUUpdateBitmap;
 
 class REFRESH_LIB_CLASS CRUIUDLogRecord {
  public:
-  CRUIUDLogRecord(CDMSqlTupleDesc &ckDesc, Int32 updateBmpSize);
+  CRUIUDLogRecord(CDMSqlTupleDesc &ckDesc, int updateBmpSize);
   CRUIUDLogRecord(const CRUIUDLogRecord &other);
 
   virtual ~CRUIUDLogRecord();
@@ -102,7 +102,7 @@ class REFRESH_LIB_CLASS CRUIUDLogRecord {
   //	Useful for statements where the whole tuple
   //	participates in a WHERE expression,
   //	or the whole tuple is dumped to the log.
-  void CopyCKTupleValuesToParams(CDMPreparedStatement &stmt, Int32 firstParam) const;
+  void CopyCKTupleValuesToParams(CDMPreparedStatement &stmt, int firstParam) const;
 
   const CDMSqlTuple &GetCKTuple() const { return ckTuple_; }
 
@@ -122,7 +122,7 @@ class REFRESH_LIB_CLASS CRUIUDLogRecord {
   //----------------------------//
  public:
   // Retrieve the data from the result set
-  void Build(CDMResultSet &rs, Int32 startCKColumn);
+  void Build(CDMResultSet &rs, int startCKColumn);
 
   void SetCKTag(TInt64 val) { ckTag_ = val; }
 
@@ -138,8 +138,8 @@ class REFRESH_LIB_CLASS CRUIUDLogRecord {
 
  private:
   // Constructor callees
-  void ReadControlColumns(CDMResultSet &rs, Int32 startCKColumn);
-  void ReadCKColumns(CDMResultSet &rs, Int32 startCKColumn);
+  void ReadControlColumns(CDMResultSet &rs, int startCKColumn);
+  void ReadCKColumns(CDMResultSet &rs, int startCKColumn);
 
  private:
   TInt64 syskey_;

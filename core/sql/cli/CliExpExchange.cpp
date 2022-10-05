@@ -542,8 +542,8 @@ Descriptor::BulkMoveStatus Descriptor::checkBulkMoveStatusV2(short entry, Attrib
   //
   // If nullable, make sure null indicator offsets match
   //
-  Int32 opIndOffset = 0;
-  Int32 descIndOffset = 0;
+  int opIndOffset = 0;
+  int descIndOffset = 0;
   if (descItem.nullable != 0) {
     if (op->getVCIndicatorLength())
       opIndOffset = op->getNullIndOffset() - op->getVCLenIndOffset();
@@ -813,7 +813,7 @@ ex_expr::exp_return_type InputOutputExpr::doBulkMove(atp_struct *atp, void *desc
 
   if (!bmi) return ex_expr::EXPR_OK;
 
-  for (Int32 i = 0; i < (int)bmi->usedEntries(); i++) {
+  for (int i = 0; i < (int)bmi->usedEntries(); i++) {
     char *dataPtr;
     if (NOT bmi->isExeDataPtr(i)) {
       // compute ptr from offset
@@ -944,7 +944,7 @@ ex_expr::exp_return_type InputOutputExpr::outputValues(atp_struct *atp, void *ou
   // Note that every output operands must participate in rowsets, or none of
   // them. That is, you cannot mix rowset host variables and simple host
   // variables for output purposes (INTO clause).
-  Int32 totalNumOfRowsets = 0;
+  int totalNumOfRowsets = 0;
 
   // Number of warnings found so far. This variable keeps track of the total number of
   // warnings reported so far and is used to set up the indicator if
@@ -1183,7 +1183,7 @@ ex_expr::exp_return_type InputOutputExpr::outputValues(atp_struct *atp, void *ou
               // sourceNullInd is missing. This indicates a null value.
               // Move null to the indicator.
               if (targetRowsetSize > 0) {
-                for (Int32 i = 0; i < indSize; i++) {
+                for (int i = 0; i < indSize; i++) {
                   targetIndPtr[i] = '\377';
                 }
               } else {
@@ -1194,7 +1194,7 @@ ex_expr::exp_return_type InputOutputExpr::outputValues(atp_struct *atp, void *ou
             } else {
               // move 'no null' to target indicator
               if (targetRowsetSize > 0) {
-                for (Int32 i = 0; i < indSize; i++) {
+                for (int i = 0; i < indSize; i++) {
                   targetIndPtr[i] = 0;
                 }
               } else {
@@ -2243,7 +2243,7 @@ ex_expr::exp_return_type InputOutputExpr::inputSingleRowValue(atp_struct *atp, v
         if ((sourceType == REC_BYTE_V_ANSI && CharInfo::is_NCHAR_MP(sourceCharSet)) ||
             sourceType == REC_NCHAR_V_ANSI_UNICODE) {
           int i = 0;
-          Int32 sourceLenInWchar = sourceLen / SQL_DBCHAR_SIZE;
+          int sourceLenInWchar = sourceLen / SQL_DBCHAR_SIZE;
           wchar_t *sourceInWchar = (wchar_t *)source;
           while ((i < sourceLenInWchar) && (sourceInWchar[i] != 0)) i++;
 
@@ -2366,8 +2366,8 @@ ex_expr::exp_return_type InputOutputExpr::inputSingleRowValue(atp_struct *atp, v
           errorCode = EXE_OK;
           goto error_return;
         } else if (diagsArea && diagsArea->mainSQLCODE() == EXE_STRING_OVERFLOW) {
-          Int32 warningMark2 = diagsArea->getNumber(DgSqlCode::WARNING_);
-          Int32 counter = warningMark2 - warningMark;
+          int warningMark2 = diagsArea->getNumber(DgSqlCode::WARNING_);
+          int counter = warningMark2 - warningMark;
 
           diagsArea->deleteWarning(warningMark2 - counter);
 
@@ -2529,7 +2529,7 @@ ex_expr::exp_return_type InputOutputExpr::inputRowwiseRowsetValues(atp_struct *a
     // Pass the buffer length plus size of length bytes.
     int compressedBuflen = *(int *)bufferAddr + sizeof(int);
     unsigned char *compressedBuf = (unsigned char *)(bufferAddr);
-    Int32 dcompressedBuflen = -1;
+    int dcompressedBuflen = -1;
     int param1 = 0;
     int param2 = 0;
     int rc = ExDecode(compressedBuf, compressedBuflen, (unsigned char *)rwrsInfo->getRWRSDcompressedBufferAddr(),
@@ -3067,7 +3067,7 @@ ex_expr::exp_return_type InputOutputExpr::inputValues(atp_struct *atp, void *inp
 
           // In the case of VARCHARS, we zero out remaining elements
           if (targetRowsetSize > 0 && !optLargVar) {
-            Int32 i;
+            int i;
             if ((sourceType >= REC_MIN_V_N_CHAR_H) && (sourceType <= REC_MAX_V_N_CHAR_H)) {
               if (strlen(source) < operand->getLength())
                 memset(target + strlen(source), 0, operand->getLength() - strlen(source));
@@ -3090,7 +3090,7 @@ ex_expr::exp_return_type InputOutputExpr::inputValues(atp_struct *atp, void *inp
           if ((sourceType == REC_BYTE_V_ANSI && CharInfo::is_NCHAR_MP(sourceCharSet)) ||
               sourceType == REC_NCHAR_V_ANSI_UNICODE) {
             int i = 0;
-            Int32 sourceLenInWchar = sourceLen / SQL_DBCHAR_SIZE;
+            int sourceLenInWchar = sourceLen / SQL_DBCHAR_SIZE;
             NAWchar *sourceInWchar = (NAWchar *)source;
             while ((i < sourceLenInWchar) && (sourceInWchar[i] != 0)) i++;
 
@@ -3267,9 +3267,9 @@ ex_expr::exp_return_type InputOutputExpr::inputValues(atp_struct *atp, void *inp
             // the first 4 bytes of data are actually the variable
             // length indicator
             int VCLen;
-            str_cpy_all((char *)&VCLen, source, sizeof(Int32));
+            str_cpy_all((char *)&VCLen, source, sizeof(int));
             sourceLen = (int)VCLen;
-            source = &source[sizeof(Int32)];
+            source = &source[sizeof(int)];
           }
           retcode =
               ::convDoIt(source, sourceLen, sourceType, sourcePrecision, sourceScale, target, operand->getLength(),
@@ -3287,8 +3287,8 @@ ex_expr::exp_return_type InputOutputExpr::inputValues(atp_struct *atp, void *inp
               return ex_expr::EXPR_ERROR;
           } else if (diagsArea && (diagsArea->mainSQLCODE() == EXE_STRING_OVERFLOW ||
                                    diagsArea->mainSQLCODE() == (ExeErrorCode)(-EXE_STRING_OVERFLOW))) {
-            Int32 warningMark2 = diagsArea->getNumber(DgSqlCode::WARNING_);
-            Int32 counter = warningMark2 - warningMark;
+            int warningMark2 = diagsArea->getNumber(DgSqlCode::WARNING_);
+            int counter = warningMark2 - warningMark;
 
             if (counter) {
               // if there are EXE_STRING_OVERFLOW warning, delete it and raise a error

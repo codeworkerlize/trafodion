@@ -78,7 +78,7 @@ ExScheduler::ExScheduler(ex_globals *glob) {
   maxSubtaskLoops_ = 32;
   localRootTcb_ = NULL;
   pExpFuncs_ = NULL;
-  Int32 i;
+  int i;
   for (i = 0; i < NumLastCalled; i++) {
     subtaskTrace_[i].lastCalledTask_ = NULL;
     subtaskTrace_[i].lastWorkRetcode_ = 777;
@@ -98,9 +98,9 @@ ExScheduler::~ExScheduler() {
   }
 }
 
-Int32 ExScheduler::printALiner(Int32 lineno, char *buf) {
+int ExScheduler::printALiner(int lineno, char *buf) {
   if (lineno >= NumLastCalled) return 0;
-  Int32 rv = 0;
+  int rv = 0;
   ExSubtask *st = subtaskTrace_[lineno].lastCalledTask_;
   if (!st)  // not used entry
     rv = sprintf(buf, "%.4d  -                        -  -\n", lineno);
@@ -127,10 +127,10 @@ ExWorkProcRetcode ExScheduler::work(long prevWaitTime) {
   ex_assert(glob_, "global pointer in scheduler is invalid");
 
   ExSubtask *subtask = subtasks_;
-  Int32 listHadWork = 0;
-  Int32 noWorkDone = TRUE;
-  Int32 poolsBlocked = 0;
-  Int32 prevPoolsBlocked = 0;
+  int listHadWork = 0;
+  int noWorkDone = TRUE;
+  int poolsBlocked = 0;
+  int prevPoolsBlocked = 0;
   ExWorkProcRetcode rc = WORK_OK;
   ExOperStats *stats = NULL;
   ExStatisticsArea *statsArea = glob_->getStatsArea();
@@ -143,8 +143,8 @@ ExWorkProcRetcode ExScheduler::work(long prevWaitTime) {
   ExSubtask *subtaskSetInGui = NULL;
 #endif
   long timeCost = JULIANTIMESTAMP();
-  Int32 taskCount = 0;
-  Int32 sTaskCount = 0;
+  int taskCount = 0;
+  int sTaskCount = 0;
 
   if (suspended_) return WORK_OK;
 
@@ -157,9 +157,9 @@ ExWorkProcRetcode ExScheduler::work(long prevWaitTime) {
   if (exeTrace_ == 0 && glob_->castToExExeStmtGlobals()->getCliGlobals()) {
     ExeTraceInfo *ti = glob_->castToExExeStmtGlobals()->getCliGlobals()->getExeTraceInfo();
     if (ti) {
-      Int32 lineWidth = 58;  // temp
+      int lineWidth = 58;  // temp
       void *regdTrace;
-      Int32 ret = ti->addTrace("Scheduler", this, NumLastCalled, 3, this, getALine,
+      int ret = ti->addTrace("Scheduler", this, NumLastCalled, 3, this, getALine,
                                //                               &subtaskTrace_[0],
                                &lastCalledIdx_, lineWidth, TraceDesc, &regdTrace);
       if (ret == 0) {
@@ -503,7 +503,7 @@ ExSubtask *ExScheduler::registerNonQueueSubtask(ExWorkProcPtr subtask, ex_tcb *t
   return addOrFindSubtask(subtask, tcb, taskName);
 }
 
-Int32 ExScheduler::hasActiveEvents(ex_tcb *tcb) {
+int ExScheduler::hasActiveEvents(ex_tcb *tcb) {
   ExSubtask *subtask = subtasks_;
 
   while (subtask) {
@@ -548,7 +548,7 @@ void ExScheduler::getProcInfoForGui(int &frag, int &inst, int &numInst, int &nid
                                     int procNameBufLen) {
   ExExeStmtGlobals *glob = glob_->castToExExeStmtGlobals();
   MyGuaProcessHandle myh;
-  Int32 myCpu, myPin, myNodeNum;
+  int myCpu, myPin, myNodeNum;
   SB_Int64_Type mySeqNum;
 
   frag = glob->getMyFragId();
@@ -686,7 +686,7 @@ const char *ExWorkProcRetcodeToString(ExWorkProcRetcode r) {
     case WORK_HASHJ_PREEMPT:
       return "WORK_HASHJ_PREEMPT";
     default:
-      return ComRtGetUnknownString((Int32)r);
+      return ComRtGetUnknownString((int)r);
   }
 }
 

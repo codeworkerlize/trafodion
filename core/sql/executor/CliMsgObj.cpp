@@ -43,7 +43,7 @@
 static char *dupCharStar(NAMemory *heap, char *source) {
   char *target = NULL;
   if (source) {
-    Int32 length = str_len(source);
+    int length = str_len(source);
     if (heap) {
       target = (char *)heap->allocateMemory(length + 1);
     } else {

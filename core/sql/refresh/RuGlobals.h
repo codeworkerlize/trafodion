@@ -209,13 +209,13 @@ class REFRESH_LIB_CLASS CRUGlobals {
   // Planting the exceptions
 
   // A "legal" exception
-  void Testpoint(Int32 testpointId, const CDSString &objName);
+  void Testpoint(int testpointId, const CDSString &objName);
   // A system exception (not a CDSException object)
-  void TestpointSevere(Int32 testpointId, const CDSString &objName);
+  void TestpointSevere(int testpointId, const CDSString &objName);
 
   void LogMessageWithTime(const char *msg);
 
-  void LogDebugMessage(Int32 testpointId, const CDSString &objName, const CDSString &msg, BOOL printRowNum = FALSE);
+  void LogDebugMessage(int testpointId, const CDSString &objName, const CDSString &msg, BOOL printRowNum = FALSE);
 
  private:
   void getCurrentParentQid();

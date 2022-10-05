@@ -119,7 +119,7 @@ ComTdbTranspose::ComTdbTranspose(const ComTdbTranspose *transTdb)
 // unsigned long bufferSize
 //  IN: Recommended size for pool buffers.
 //
-ComTdbTranspose::ComTdbTranspose(ComTdb *childTdb, ex_expr **transColExprs, Int32 numTransExprs,
+ComTdbTranspose::ComTdbTranspose(ComTdb *childTdb, ex_expr **transColExprs, int numTransExprs,
                                  ex_expr *afterTransPred, int transRowLen, const unsigned short transTuppIndex,
                                  ex_cri_desc *criDescDown, ex_cri_desc *criDescUp, queue_index fromParent,
                                  queue_index toParent, Cardinality estimatedRowCount, int numBuffers,

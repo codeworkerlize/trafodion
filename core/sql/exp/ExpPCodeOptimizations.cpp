@@ -39,10 +39,10 @@
 void PCodeCfg::printConstants() {
   char NExBuf[200];
   CollIndex i;
-  Int32 j;
+  int j;
 
   char *stk = expr_->getConstantsArea();
-  Int32 len = expr_->getConstsLength();
+  int len = expr_->getConstsLength();
 
   NExLog("Constants Table:\n----------------\n");
 
@@ -136,7 +136,7 @@ NABoolean PCodeBlock::print(NABoolean fullDebug) {
 
     cfg_->NExLog("Reaching: ");
     for (i = 0; reachingDefsTab_ && (i < reachingDefsTab_->getSize()); i++) {
-      Int32 hashVal = i % reachingDefsTab_->getSize();
+      int hashVal = i % reachingDefsTab_->getSize();
       ReachDefsTable::ReachDefsElem *node = reachingDefsTab_->getRDefIn()[hashVal];
 
       while (node) {
@@ -189,7 +189,7 @@ void PCodeInst::print(PCodeCfg *cfg, NABoolean fullDebug) {
   }
   cfg->NExLog(" ");
 
-  for (Int32 j = 0; j < PCode::getInstructionLength(pcode); j++) {
+  for (int j = 0; j < PCode::getInstructionLength(pcode); j++) {
     sprintf(NExBuf, "%d ", code[j]);
     cfg->NExLog(NExBuf);
   }
@@ -224,7 +224,7 @@ void PCodeOperand::print(PCodeCfg *cfg) {
 ULng32 constHashFunc(const PCodeConstants &c) {
   char *data = (char *)c.data_;
   ULng32 val = 0;
-  Int32 i;
+  int i;
 
   for (i = 0; i < min(c.len_, 256); i++) val += data[i];
 
@@ -255,7 +255,7 @@ ULng32 targetHashFunc(const ULong &o) {
 /*****************************************************************************
  * PCodeOperand
  *****************************************************************************/
-Int32 PCodeOperand::getAlign() {
+int PCodeOperand::getAlign() {
   // Alignment of varchar depends on vc indicator length.
   if (isVarchar()) return getVcIndicatorLen();
 
@@ -352,7 +352,7 @@ NABoolean PCodeConstants::canBeNeg1(CollIndex bvIndex, NABitVector &neg1) { retu
 // Get the constant associated with the specified index.  If no known constant
 // is found, return UNKNOWN value.
 //
-Int32 PCodeConstants::getConstantValue(CollIndex bvIndex, NABitVector &zeroes, NABitVector &ones, NABitVector &neg1) {
+int PCodeConstants::getConstantValue(CollIndex bvIndex, NABitVector &zeroes, NABitVector &ones, NABitVector &neg1) {
   NABoolean isZero = zeroes.testBit(bvIndex);
   NABoolean isOne = ones.testBit(bvIndex);
   NABoolean isNeg1 = neg1.testBit(bvIndex);
@@ -378,7 +378,7 @@ Int32 PCodeConstants::getConstantValue(CollIndex bvIndex, NABitVector &zeroes, N
 // Copy known constants of one index into another.  Return the known constant
 // if one is found.
 //
-Int32 PCodeConstants::copyConstantVectors(CollIndex bvIndexFrom, CollIndex bvIndexTo, NABitVector &zeroes,
+int PCodeConstants::copyConstantVectors(CollIndex bvIndexFrom, CollIndex bvIndexTo, NABitVector &zeroes,
                                           NABitVector &ones, NABitVector &neg1) {
   NABoolean isZero, isOne, isNeg1;
 
@@ -448,7 +448,7 @@ void PCodeConstants::mergeConstantVectors(NABitVector &newZeroes, NABitVector &n
 //
 // Set the constant in the given vectors for the specified index
 //
-void PCodeConstants::setConstantInVectors(Int32 constant, CollIndex bvIndex, NABitVector &zeroes, NABitVector &ones,
+void PCodeConstants::setConstantInVectors(int constant, CollIndex bvIndex, NABitVector &zeroes, NABitVector &ones,
                                           NABitVector &neg1) {
   switch (constant) {
     case 0:
@@ -483,7 +483,7 @@ void PCodeConstants::setConstantInVectors(Int32 constant, CollIndex bvIndex, NAB
 // Copy all reaching defs from incoming table into hash table.  Hash table is
 // assumed to be empty!
 //
-Int32 ReachDefsTable::copy(ReachDefsElem **from, NABoolean isInTab) {
+int ReachDefsTable::copy(ReachDefsElem **from, NABoolean isInTab) {
   CollIndex i, count = 0;
   ReachDefsElem **to = (isInTab) ? rDefIn_ : rDefOut_;
 
@@ -513,7 +513,7 @@ Int32 ReachDefsTable::copy(ReachDefsElem **from, NABoolean isInTab) {
 //
 // Merge all reaching defs from incoming table into hash table
 //
-Int32 ReachDefsTable::merge(ReachDefsElem **from, NABoolean isInTab) {
+int ReachDefsTable::merge(ReachDefsElem **from, NABoolean isInTab) {
   CollIndex i, count = 0;
 
   for (i = 0; i < size_; i++) {
@@ -535,7 +535,7 @@ Int32 ReachDefsTable::merge(ReachDefsElem **from, NABoolean isInTab) {
 // Find a reaching def in the hash table
 //
 PCodeInst *ReachDefsTable::find(CollIndex bv, NABoolean isInTab) {
-  Int32 hashVal = bv % size_;
+  int hashVal = bv % size_;
   ReachDefsElem **tab = (isInTab) ? rDefIn_ : rDefOut_;
 
   ReachDefsElem *node = tab[hashVal];
@@ -567,7 +567,7 @@ PCodeInst *ReachDefsTable::find(CollIndex bv) {
 // already exists, and true otherwise.
 //
 NABoolean ReachDefsTable::insert(CollIndex bv, PCodeInst *inst, NABoolean isInTab) {
-  Int32 hashVal = bv % size_;
+  int hashVal = bv % size_;
   ReachDefsElem **tab = (isInTab) ? rDefIn_ : rDefOut_;
 
   ReachDefsElem *node = tab[hashVal];
@@ -594,7 +594,7 @@ NABoolean ReachDefsTable::insert(CollIndex bv, PCodeInst *inst, NABoolean isInTa
 // Remove reaching def from table
 //
 void ReachDefsTable::remove(CollIndex bv, NABoolean isInTab) {
-  Int32 hashVal = bv % size_;
+  int hashVal = bv % size_;
   ReachDefsElem **tab = (isInTab) ? rDefIn_ : rDefOut_;
 
   ReachDefsElem *prev = NULL;
@@ -792,7 +792,7 @@ void PCodeBlock::fixupConstantVectors(PCodeBlock *targetBlock, NABitVector &newZ
   // be considered.
   if ((getSuccs().entries() >= 2) && (getSuccs()[0] == getSuccs()[1])) return;
 
-  Int32 opc = last_->getOpcode();
+  int opc = last_->getOpcode();
 
   switch (opc) {
     case PCIT::BRANCH_AND: {
@@ -854,7 +854,7 @@ void PCodeBlock::fixupConstantVectors(PCodeBlock *targetBlock, NABitVector &newZ
         // then read operand is really the 2nd operand (since first op is the
         // null bit mask
 
-        Int32 index = -1;
+        int index = -1;
 
         if ((opc == PCIT::NOT_NULL_BRANCH_BULK) || (opc == PCIT::NULL_BITMAP_BULK) && (last_->code[2] != 0)) {
           if (last_->getROps().entries() == 1) index = 0;
@@ -963,7 +963,7 @@ void PCodeBlock::fixupConstantVectors(PCodeBlock *targetBlock, NABitVector &newZ
                  (propIdx == inst->getWOps()[0]->getBvIndex())) {
         CollIndex readIdx = inst->getROps()[0]->getBvIndex();
         CollIndex writeIdx = inst->getWOps()[0]->getBvIndex();
-        Int32 constant = PCodeConstants::getConstantValue(propIdx, newZeroes, newOnes, newNeg1);
+        int constant = PCodeConstants::getConstantValue(propIdx, newZeroes, newOnes, newNeg1);
         // Access bit which indicates test direction
         if ((constant == 1) && (inst->code[9] != 0))
           PCodeConstants::setConstantInVectors(-1, readIdx, newZeroes, newOnes, newNeg1);
@@ -990,7 +990,7 @@ void PCodeBlock::fixupConstantVectors(PCodeBlock *targetBlock, NABitVector &newZ
  *****************************************************************************/
 
 NABoolean PCodeInst::isStringEqComp() {
-  Int32 opc = getOpcode();
+  int opc = getOpcode();
 
   switch (opc) {
     case PCIT::EQ_MBIN32S_MASCII_MASCII:
@@ -1007,7 +1007,7 @@ NABoolean PCodeInst::isStringEqComp() {
 }
 
 NABoolean PCodeInst::isIntEqComp() {
-  Int32 opc = getOpcode();
+  int opc = getOpcode();
 
   switch (opc) {
     case PCIT::EQ_MBIN32S_MBIN8S_MBIN8S:
@@ -1028,7 +1028,7 @@ NABoolean PCodeInst::isIntEqComp() {
 }
 
 NABoolean PCodeInst::isFloatEqComp() {
-  Int32 opc = getOpcode();
+  int opc = getOpcode();
 
   switch (opc) {
     case PCIT::EQ_MBIN32S_MFLT64_MFLT64:
@@ -1042,7 +1042,7 @@ NABoolean PCodeInst::isFloatEqComp() {
 NABoolean PCodeInst::isEqComp() { return (isStringEqComp() || isIntEqComp() || isFloatEqComp()); }
 
 NABoolean PCodeInst::isRange() {
-  Int32 opc = getOpcode();
+  int opc = getOpcode();
 
   switch (opc) {
     case PCIT::RANGE_LOW_S32S64:
@@ -1067,7 +1067,7 @@ NABoolean PCodeInst::isRange() {
 }
 
 NABoolean PCodeInst::isEncode() {
-  Int32 opc = getOpcode();
+  int opc = getOpcode();
 
   switch (opc) {
     case PCIT::ENCODE_MASCII_MBIN8S_IBIN32S:
@@ -1085,7 +1085,7 @@ NABoolean PCodeInst::isEncode() {
 }
 
 NABoolean PCodeInst::isDecode() {
-  Int32 opc = getOpcode();
+  int opc = getOpcode();
 
   switch (opc) {
     case PCIT::DECODE_MASCII_MBIN8S_IBIN32S:
@@ -1103,7 +1103,7 @@ NABoolean PCodeInst::isDecode() {
 }
 
 NABoolean PCodeInst::isOpdata() {
-  Int32 opc = getOpcode();
+  int opc = getOpcode();
 
   switch (opc) {
     case PCIT::OPDATA_MPTR32_IBIN32S:
@@ -1120,7 +1120,7 @@ NABoolean PCodeInst::isOpdata() {
 }
 
 NABoolean PCodeInst::isNullBitmap() {
-  Int32 opc = getOpcode();
+  int opc = getOpcode();
 
   switch (opc) {
     case PCIT::NULL_BITMAP:
@@ -1136,7 +1136,7 @@ NABoolean PCodeInst::isNullBitmap() {
 }
 
 NABoolean PCodeInst::isCopyMove() {
-  Int32 opc = getOpcode();
+  int opc = getOpcode();
 
   switch (opc) {
     case PCIT::MOVE_MBIN8_MBIN8_IBIN32S:
@@ -1154,7 +1154,7 @@ NABoolean PCodeInst::isCopyMove() {
 }
 
 NABoolean PCodeInst::isMove() {
-  Int32 opc = getOpcode();
+  int opc = getOpcode();
 
   switch (opc) {
     case PCIT::MOVE_MBIN8_MBIN8_IBIN32S:
@@ -1188,7 +1188,7 @@ NABoolean PCodeInst::isMove() {
 }
 
 NABoolean PCodeInst::isMoveToBignum() {
-  Int32 opc = getOpcode();
+  int opc = getOpcode();
 
   switch (opc) {
     case PCIT::MOVE_MBIGS_MBIN64S_IBIN32S:
@@ -1204,7 +1204,7 @@ NABoolean PCodeInst::isMoveToBignum() {
 }
 
 NABoolean PCodeInst::isConstMove() {
-  Int32 opc = getOpcode();
+  int opc = getOpcode();
 
   switch (opc) {
     case PCIT::MOVE_MBIN16U_IBIN16U:
@@ -1219,7 +1219,7 @@ NABoolean PCodeInst::isConstMove() {
 }
 
 NABoolean PCodeInst::isHash() {
-  Int32 opc = getOpcode();
+  int opc = getOpcode();
 
   switch (opc) {
     case PCIT::HASH_MBIN32U_MBIN64_IBIN32S_IBIN32S:
@@ -1237,7 +1237,7 @@ NABoolean PCodeInst::isHash() {
 }
 
 NABoolean PCodeInst::isSwitch() {
-  Int32 opc = code[0];
+  int opc = code[0];
 
   switch (opc) {
     case PCIT::SWITCH_MBIN32S_MBIN64S_MPTR32_IBIN32S_IBIN32S:
@@ -1249,7 +1249,7 @@ NABoolean PCodeInst::isSwitch() {
 }
 
 NABoolean PCodeInst::isInListSwitch() {
-  Int32 opc = code[0];
+  int opc = code[0];
 
   switch (opc) {
     case PCIT::SWITCH_MBIN32S_MBIN64S_MPTR32_IBIN32S_IBIN32S:
@@ -1264,17 +1264,17 @@ NABoolean PCodeInst::isInListSwitch() {
 NABoolean PCodeInst::isAnyLogicalBranch() { return (isLogicalBranch() || isLogicalCountedBranch()); }
 
 NABoolean PCodeInst::isLogicalBranch() {
-  Int32 opc = code[0];
+  int opc = code[0];
   return ((opc == PCIT::BRANCH_AND) || (opc == PCIT::BRANCH_OR));
 }
 
 NABoolean PCodeInst::isLogicalCountedBranch() {
-  Int32 opc = code[0];
+  int opc = code[0];
   return ((opc == PCIT::BRANCH_AND_CNT) || (opc == PCIT::BRANCH_OR_CNT));
 }
 
 NABoolean PCodeInst::isBranch() {
-  Int32 opc = code[0];
+  int opc = code[0];
 
   switch (opc) {
     case PCIT::NOT_NULL_BRANCH_MBIN32S_MBIN32S_MBIN32S_IATTR4_IBIN32S:
@@ -1308,7 +1308,7 @@ NABoolean PCodeInst::isBranch() {
 }
 
 NABoolean PCodeInst::isVarcharNullBranch() {
-  Int32 opc = code[0];
+  int opc = code[0];
 
   switch (opc) {
     case PCIT::NOT_NULL_BRANCH_MBIN32S_MBIN32S_MBIN32S_IATTR4_IBIN32S:
@@ -1322,7 +1322,7 @@ NABoolean PCodeInst::isVarcharNullBranch() {
 }
 
 NABoolean PCodeInst::isVarcharInstThatSupportsFixedCharOps() {
-  Int32 opc = code[0];
+  int opc = code[0];
 
   switch (opc) {
     case PCIT::SUBSTR_MATTR5_MATTR5_MBIN32S_MBIN32S:
@@ -1339,7 +1339,7 @@ NABoolean PCodeInst::isVarcharInstThatSupportsFixedCharOps() {
 }
 
 NABoolean PCodeInst::isBulkNullBranch() {
-  Int32 opc = code[0];
+  int opc = code[0];
 
   switch (opc) {
     case PCIT::NULL_BITMAP_BULK:
@@ -1350,7 +1350,7 @@ NABoolean PCodeInst::isBulkNullBranch() {
 }
 
 NABoolean PCodeInst::isNullBranch() {
-  Int32 opc = code[0];
+  int opc = code[0];
 
   switch (opc) {
     case PCIT::NULL_BITMAP_BULK:
@@ -1387,7 +1387,7 @@ NABoolean PCodeInst::containsIndirectVarcharOperand() {
 }
 
 NABoolean PCodeInst::mayFailIfNull() {
-  Int32 opc = code[0];
+  int opc = code[0];
 
   if (isRange()) return TRUE;
 
@@ -1407,7 +1407,7 @@ void PCodeInst::getBranchTargetOffsetPointers(NAList<PCodeBinary *> *targetOffPt
   if (isIndirectBranch()) assert(FALSE);
 
   PCodeBinary *pcode = code;
-  Int32 opc = pcode[0];
+  int opc = pcode[0];
 
   pcode++;
 
@@ -1485,20 +1485,20 @@ void PCodeInst::getBranchTargetPointers(NAList<Long *> *targetOffPtrs, PCodeCfg 
 
   PCodeInst *switchInst = prev;
 
-  Int32 size = 0;
-  Int32 *tab = NULL;
+  int size = 0;
+  int *tab = NULL;
   Long *jumpTab = NULL;
 
   switch (switchInst->getOpcode()) {
     case PCIT::SWITCH_MBIN32S_MBIN64S_MPTR32_IBIN32S_IBIN32S: {
       size = switchInst->code[7];
-      tab = (Int32 *)cfg->getPtrConstValue(switchInst->getROps()[1]);
+      tab = (int *)cfg->getPtrConstValue(switchInst->getROps()[1]);
       break;
     }
 
     case PCIT::SWITCH_MBIN32S_MATTR5_MPTR32_IBIN32S_IBIN32S: {
       size = switchInst->code[10];
-      tab = (Int32 *)cfg->getPtrConstValue(switchInst->getROps()[1]);
+      tab = (int *)cfg->getPtrConstValue(switchInst->getROps()[1]);
       break;
     }
   }
@@ -1507,7 +1507,7 @@ void PCodeInst::getBranchTargetPointers(NAList<Long *> *targetOffPtrs, PCodeCfg 
   jumpTab = (Long *)&(tab[size << 1]);
 
   // Go through all elements in table, including default case (+ 1)
-  for (Int32 i = 0; i < size + 1; i++) {
+  for (int i = 0; i < size + 1; i++) {
     if (jumpTab[i] == PCodeCfg::INVALID_LONG) continue;
 
     targetOffPtrs->insert(&jumpTab[i]);
@@ -1561,7 +1561,7 @@ PCIT::Instruction PCodeInst::generateInt64MoveOpc(PCIT::AddressingMode am) {
   return (PCIT::Instruction)-1;
 }
 
-Int32 PCodeInst::generateCopyMoveOpc(PCIT::AddressingMode am) {
+int PCodeInst::generateCopyMoveOpc(PCIT::AddressingMode am) {
   switch (am) {
     case PCIT::MBIN64S:
       return PCIT::MOVE_MBIN64S_MBIN64S;
@@ -1651,7 +1651,7 @@ void PCodeInst::replaceOperand(PCodeOperand *oldSrc, PCodeOperand *newSrc) {
 NABoolean PCodeInst::clauseOkayForConstFold(char *op_data[],
                                             CollHeap* heap)
 {
-  Int32 numOfReads, numOfWrites;
+  int numOfReads, numOfWrites;
   assert (isClauseEval());
 
   // Clauses which must process nulls are not welcome.
@@ -1693,7 +1693,7 @@ void PCodeCfg::runtimeOptimize() {
   NABoolean enableOpt = TRUE;
   PCodeBinary *pCode = expr_->getPCodeBinary();
   PCodeBinary *lastOrigPCodeInst;
-  Int32 debug = 0;
+  int debug = 0;
 
   assert(expr_->getType() == ex_expr::exp_SCAN_PRED);
 
@@ -1737,12 +1737,12 @@ void PCodeCfg::runtimeOptimize() {
 void PCodeCfg::optimize() {
   PCodeBinary *pCode = expr_->getPCodeBinary();
 
-  Int32 i;
+  int i;
 
-  Int32 enableOpt = 1;
-  Int32 optFlag = 1;
-  Int32 debugSome = 0;
-  Int32 debugAll = 0;
+  int enableOpt = 1;
+  int optFlag = 1;
+  int debugSome = 0;
+  int debugAll = 0;
   NABoolean pcodeExprIsCacheable = TRUE;
   NABoolean usingCachedPCodeExpr = FALSE;
   NABoolean foundCachedPCodeExpr = FALSE;
@@ -1751,7 +1751,7 @@ void PCodeCfg::optimize() {
   NABoolean bulkNullGenerated = FALSE;
 
   // Initialize rewiring flags
-  Int32 rewiringFlags = REMOVE_UNREACHABLE_BLOCKS | REMOVE_TRAMPOLINE_CODE | MERGE_BLOCKS | REMOVE_EMPTY_BLOCKS;
+  int rewiringFlags = REMOVE_UNREACHABLE_BLOCKS | REMOVE_TRAMPOLINE_CODE | MERGE_BLOCKS | REMOVE_EMPTY_BLOCKS;
 
 #if defined(_DEBUG)
   // static unsigned int count = 0;
@@ -2210,14 +2210,14 @@ considerNativeCodeGen:
 
 #endif  // OPT_PCC_DEBUG==1
 
-  Int32 constsLenAfterOpt = newConstsAreaLen_;
+  int constsLenAfterOpt = newConstsAreaLen_;
 
 #if OPT_PCC_DEBUG == 1
   UInt64 totalNEgenTime = 0;
 #endif  // OPT_PCC_DEBUG==1
 
   if (!usingCachedPCodeExpr) {
-    Int32 debugNE = (NExprDbgLvl_ >= VV_BD);  // Debugging Native Expr ?
+    int debugNE = (NExprDbgLvl_ >= VV_BD);  // Debugging Native Expr ?
 
     DUMP_PHASE("Before NE [15.5]", debugSome || debugNE, debugAll || debugNE);
 
@@ -2264,7 +2264,7 @@ considerNativeCodeGen:
       {
         // We have the newly generated optimized PCode and/or N.E.,
         // but we also found it was previously put in the PCode Expr Cache.
-        Int32 fatals = 0;
+        int fatals = 0;
 
         if (cachedNewConstsLen != constsLenAfterOpt) fatals |= 0x1;
         if (cachedPCodeLen != newPCodeLen)
@@ -2432,7 +2432,7 @@ void PCodeCfg::generateShowPlan(PCodeBinary *pCode, Space *space) {
 
       str_sprintf(buf, "    %s ", PCIT::instructionString(PCIT::Instruction(code[0])));
 
-      for (Int32 j = 0; j < PCode::getInstructionLength(code); j++) {
+      for (int j = 0; j < PCode::getInstructionLength(code); j++) {
         if (j == 0)
           str_sprintf(tbuf, "(%d) ", code[j]);
         else
@@ -2529,7 +2529,7 @@ NABoolean PCodeCfg::updateConstVectors(PCodeOperand *operand) {
     case PCIT::MBIN32S:
     case PCIT::MBIN32U:
       // -O0 will cause overflow error if UInt32 operand has -1 value
-      value = ((Int32)getIntConstValue(operand));
+      value = ((int)getIntConstValue(operand));
       break;
     case PCIT::MBIN64S:
       value = getIntConstValue(operand);
@@ -2540,7 +2540,7 @@ NABoolean PCodeCfg::updateConstVectors(PCodeOperand *operand) {
   }
 
   if (PCodeConstants::isQualifiedConstant(value)) {
-    PCodeConstants::setConstantInVectors((Int32)value, bvIndex, *zeroes_, *ones_, *neg1_);
+    PCodeConstants::setConstantInVectors((int)value, bvIndex, *zeroes_, *ones_, *neg1_);
     return TRUE;
   }
 
@@ -2589,7 +2589,7 @@ void PCodeCfg::initConstants() {
 
       if (offsetPtr != NULL) {
         // Replace the offset of the constant operand in the pcode bytestream
-        Int32 off = *offsetPtr;
+        int off = *offsetPtr;
 
         // If varchar, stored offset is null + vc ind lens.  Need to store
         // offset to start of actual string.
@@ -2631,8 +2631,8 @@ void PCodeCfg::initConstants() {
 //
 // Add a new temporary to the temps area of the expression.
 //
-Int32 PCodeCfg::addTemp(Int32 size, Int32 alignment) {
-  Int32 tempAreaLen = expr_->getTempsLength();
+int PCodeCfg::addTemp(int size, int alignment) {
+  int tempAreaLen = expr_->getTempsLength();
 
   switch (alignment) {
     case 1:
@@ -2674,8 +2674,8 @@ CollIndex *PCodeCfg::addConstant(PCodeOperand *op) {
   if ((op->getOffset() == -1) || (op->getAlign() == -1) || (op->getLen() == -1) && !(op->isVarchar())) return NULL;
 
   char *stk = expr_->getConstantsArea();
-  Int32 len = op->getLen();
-  Int32 off = op->getOffset();
+  int len = op->getLen();
+  int off = op->getOffset();
 
   void *data = (void *)(stk + off);
 
@@ -2683,13 +2683,13 @@ CollIndex *PCodeCfg::addConstant(PCodeOperand *op) {
   // the null and vc indicator lengths.
 
   if (op->isVarchar()) {
-    Int32 vcLen = op->getVcIndicatorLen();
-    Int32 vcNullLen = op->getVcNullIndicatorLen();
+    int vcLen = op->getVcIndicatorLen();
+    int vcNullLen = op->getVcNullIndicatorLen();
 
     // Clear out bytes from end of string to max length.  This is done so that
     // duplicate string constants can be found with strcmp across max length of
     // the varchar.
-    Int32 strLen = ((vcLen == 2) ? (Int32)(*((Int16 *)(stk + off - vcLen))) : (Int32)(*((Int32 *)(stk + off - vcLen))));
+    int strLen = ((vcLen == 2) ? (int)(*((Int16 *)(stk + off - vcLen))) : (int)(*((int *)(stk + off - vcLen))));
 
     // If space left over, zero it out
     if (op->getVcMaxLen() > strLen)  // Ensure arg3 to memset is positive
@@ -2740,7 +2740,7 @@ CollIndex *PCodeCfg::addConstant(PCodeOperand *op) {
 // already exists, the offset for that constant will be returned.  Otherwise
 // the constant is allocated in the hash table and a new offset is returned.
 //
-CollIndex *PCodeCfg::addConstant(void *data, Int32 len, Int32 alignment) {
+CollIndex *PCodeCfg::addConstant(void *data, int len, int alignment) {
   PCodeConstants c(data, len, alignment);
   void *newData;
 
@@ -3005,7 +3005,7 @@ void PCodeCfg::updateReachingDefs(PCodeBlock *block, CollIndex bvIndex, PCodeIns
 //
 // Compute a reaching definitions analysis
 //
-void PCodeCfg::computeReachingDefs(Int32 flags) {
+void PCodeCfg::computeReachingDefs(int flags) {
   char NExBuf[2048];
   CollIndex i, j;
   CollIndex numOfBlocks = 0;
@@ -3033,8 +3033,8 @@ void PCodeCfg::computeReachingDefs(Int32 flags) {
   // and the Out set.  The Out set was designed this way so as to save in space.
   //
   FOREACH_BLOCK_REV_DFO(block, firstInst, lastInst, index) {
-    Int32 inEntries = 0;
-    Int32 outEntries = 0;
+    int inEntries = 0;
+    int outEntries = 0;
 
     // Get the reaching def objects for this block.
     ReachDefsTable *rDefTab = block->reachingDefsTab_;
@@ -3220,7 +3220,7 @@ void PCodeCfg::assignBlockOffsetsAndFixup(BLOCKLIST &blockList) {
   PCodeInst *inst;
   PCodeBlock *block;
   CollIndex i, j;
-  Int32 offset = 0;
+  int offset = 0;
 
   // Assign block offsets first
   for (i = 0; i < blockList.entries(); i++) {
@@ -3233,7 +3233,7 @@ void PCodeCfg::assignBlockOffsetsAndFixup(BLOCKLIST &blockList) {
     // Walk through each instruction and increment offset with the length of
     // each instruction.
     for (inst = block->getFirstInst(); inst; inst = inst->next) {
-      Int32 instrOffset = offset;
+      int instrOffset = offset;
 
       offset += PCode::getInstructionLength(inst->code);
       if (inst == block->getLastInst()) {
@@ -3258,7 +3258,7 @@ void PCodeCfg::assignBlockOffsetsAndFixup(BLOCKLIST &blockList) {
       inst->getBranchTargetOffsetPointers(&targetOffsetPtrs, this);
 
       for (j = 0; j < targetOffsetPtrs.entries(); j++) {
-        Int32 targetOffset;
+        int targetOffset;
 
         PCodeBlock *succ = block->getTargetBlock();
 
@@ -3288,7 +3288,7 @@ void PCodeCfg::assignBlockOffsetsAndFixup(BLOCKLIST &blockList) {
         if (inst->isAnyLogicalBranch())
           *((Long *)(targetOffsetPtrs[j])) = targetOffset;
         else
-          *(targetOffsetPtrs[j]) = (Int32)targetOffset;
+          *(targetOffsetPtrs[j]) = (int)targetOffset;
       }
     } else if (inst && inst->isIndirectBranch()) {
       targetPtrs.clear();
@@ -3332,7 +3332,7 @@ void PCodeCfg::assignBlockOffsetsAndFixup(BLOCKLIST &blockList) {
 // the expression
 //
 NABoolean PCodeCfg::layoutCode() {
-  Int32 totalLength;
+  int totalLength;
   PCodeBinary *currPointer, *pcode, *newPcode;
   CollIndex i;
 
@@ -3366,7 +3366,7 @@ NABoolean PCodeCfg::layoutCode() {
   } else {
     // The size of the existing pcode bytestream space must be big enough to
     // hold the new pcode bytestream.
-    if ((Int32)(totalLength * sizeof(PCodeBinary)) > (Int32)expr_->getPCodeSegment()->getPCodeSegmentSize())
+    if ((int)(totalLength * sizeof(PCodeBinary)) > (int)expr_->getPCodeSegment()->getPCodeSegmentSize())
       return FALSE;
 
     newPcode = new (heap_) PCodeBinary[totalLength];
@@ -3388,7 +3388,7 @@ NABoolean PCodeCfg::layoutCode() {
     PCodeBlock *block = physBlockList[i];
 
     FOREACH_INST_IN_BLOCK(block, inst) {
-      Int32 length = PCode::getInstructionLength(inst->code);
+      int length = PCode::getInstructionLength(inst->code);
       memcpy(currPointer, inst->code, sizeof(PCodeBinary) * length);
       currPointer += length;
     }
@@ -3521,7 +3521,7 @@ PCodeInst *PCodeCfg::extendPaddedNullIndMoves(PCodeInst *moveInst) {
       NullTriple dst(atpMap_[dstIndex], atpIndexMap_[dstIndex], moveInst->getWOps()[0]->getOffset());
 
       if (nullToPadMap_->contains(&src) && nullToPadMap_->contains(&dst)) {
-        Int32 *srcPad, *dstPad;
+        int *srcPad, *dstPad;
 
         NullTriple *srcPtr = &src;
         NullTriple *dstPtr = &dst;
@@ -3725,7 +3725,7 @@ NABoolean PCodeCfg::doOperandsHaveSameDef(PCodeInst *head, PCodeInst *tail) {
 
 NABoolean PCodeCfg::doesInstQualifyForCSE(PCodeInst *inst) {
   CollIndex i;
-  Int32 opc = inst->getOpcode();
+  int opc = inst->getOpcode();
 
   // Exlcude certain cases.
   if (inst->isBranch() || inst->isIndirectBranch() || inst->isCopyMove() || inst->isConstMove() || inst->isEncode() ||
@@ -3791,7 +3791,7 @@ NABoolean PCodeCfg::doesInstQualifyForCSE(PCodeInst *inst) {
 
     // Also, one, and only one, write operand allowed.
     PCodeInst *opData = inst->prev;
-    Int32 numOfWrites = 0;
+    int numOfWrites = 0;
     for (; opData && opData->isOpdata(); opData = opData->prev) {
       if (opData->getWOps().entries()) numOfWrites++;
     }
@@ -3833,7 +3833,7 @@ NABoolean PCodeCfg::localCSE(INSTLIST **parent, PCodeBlock *tailBlock, NABoolean
 
   // Walk through all instructions and identify potential sub-exprs
   FOREACH_INST_IN_BLOCK(tailBlock, tail) {
-    Int32 opcode = tail->getOpcode();
+    int opcode = tail->getOpcode();
     if (parent[opcode]->entries() == 0) continue;
 
     if (!doesInstQualifyForCSE(tail)) continue;
@@ -3896,8 +3896,8 @@ NABoolean PCodeCfg::localCSE(INSTLIST **parent, PCodeBlock *tailBlock, NABoolean
         PCodeInst *prevHead = head->prev;
         PCodeInst *prevTail = tail->prev;
 
-        Int32 headCount = 0;
-        Int32 tailCount = 0;
+        int headCount = 0;
+        int tailCount = 0;
 
         while (prevHead && prevHead->isOpdata()) {
           headCount++;
@@ -4218,7 +4218,7 @@ NABoolean PCodeCfg::copyPropForwardsHelper2(PCodeInst *use, PCodeOperand *useSrc
 // the max allowed.
 //
 void PCodeCfg::copyPropForwardsHelper(PCodeBlock *block, PCodeInst *start, PCodeOperand *moveTgt, PCodeOperand *moveSrc,
-                                      Int32 level) {
+                                      int level) {
   CollIndex i;
 
   // Only recurse down so many levels
@@ -4250,7 +4250,7 @@ void PCodeCfg::copyPropForwardsHelper(PCodeBlock *block, PCodeInst *start, PCode
       if (!res && isSrcAConst && 
           moveTgt->canOverlap(useSrc) && (moveTgt->getLen() > useSrc->getLen()))
       {
-        Int32 diff = useSrc->getOffset() - moveTgt->getOffset();
+        int diff = useSrc->getOffset() - moveTgt->getOffset();
         PCodeOperand op(1, moveSrc->getOffset() + diff, -1, -1);
         use->replaceOperand(useSrc, &op);
         use->reloadOperands(this);
@@ -4281,7 +4281,7 @@ void PCodeCfg::copyPropForwardsHelper(PCodeBlock *block, PCodeInst *start, PCode
 // Copy propagation helper for global optimizations
 //
 NABoolean PCodeCfg::copyPropBackwardsHelper(INSTLIST &list, PCodeBlock *block, PCodeInst *start, PCodeOperand *moveTgt,
-                                            PCodeOperand *moveSrc, Int32 level) {
+                                            PCodeOperand *moveSrc, int level) {
   CollIndex i;
 
   // Only recurse up so many levels
@@ -4350,7 +4350,7 @@ NABoolean PCodeCfg::copyPropBackwardsHelper(INSTLIST &list, PCodeBlock *block, P
 //
 // Global copy propataion.
 //
-void PCodeCfg::copyPropagation(Int32 phase, NABoolean reachDefsAvailable) {
+void PCodeCfg::copyPropagation(int phase, NABoolean reachDefsAvailable) {
   /* Algorithm
    *
    * 1. Find a move/copy instruction.
@@ -4731,7 +4731,7 @@ NABoolean PCodeCfg::removeOrRewriteDeadCodeInstruction(PCodeInst *inst) {
       //
 
       PCodeInst *targetFirstInst;
-      Int32 constant;
+      int constant;
       NABoolean reuseReadOperand = TRUE;
 
       PCodeBlock *fallThroughSucc = inst->block->getFallThroughBlock();
@@ -4965,7 +4965,7 @@ CollIndex *PCodeCfg::createLookupTableForSwitch(OPLIST &constants, BLOCKLIST &bl
 
   NAList<UInt32> hashVals(heap_);
   NAList<char *> strVals(heap_);
-  NAList<Int32> strLens(heap_);
+  NAList<int> strLens(heap_);
   NAList<long> intVals(heap_);
 
   // Save last block in list of blocks - it's needed when processing default
@@ -4982,7 +4982,7 @@ CollIndex *PCodeCfg::createLookupTableForSwitch(OPLIST &constants, BLOCKLIST &bl
       // Strings
       case PCIT::MASCII:
       case PCIT::MATTR5: {
-        Int32 len, res;
+        int len, res;
         UInt32 hashVal;
 
         char *str = getStringConstValue(constant, &len);
@@ -5092,19 +5092,19 @@ CollIndex *PCodeCfg::createLookupTableForSwitch(OPLIST &constants, BLOCKLIST &bl
   NABoolean restart = TRUE;  // Flag to keep increasing table size.
 
   // Set up prime table for use in establishing hash table length.
-  Int32 primeIdx = 0;
+  int primeIdx = 0;
   const UInt32 MAX_NUM_OF_PRIMES = 10;
   UInt32 primes[MAX_NUM_OF_PRIMES] = {23, 53, 97, 193, 389, 769, 1543, 3079, 6151, 12289};
 
   // Make sure we start off with a "big" enough table to cover constants.
   while ((primeIdx < MAX_NUM_OF_PRIMES) && (primes[primeIdx] < 2 * constants.entries())) primeIdx++;
 
-  Int32 *table = NULL;
+  int *table = NULL;
   Long *jumpTable = NULL;
-  Int32 numTableEntries;
-  // jump table size depends on the pointer size in 4-byte (Int32) unit
-  Int32 numJumpTableEntries = 0;
-  Int32 totalTableSizeInBytes = 0;
+  int numTableEntries;
+  // jump table size depends on the pointer size in 4-byte (int) unit
+  int numJumpTableEntries = 0;
+  int totalTableSizeInBytes = 0;
 
   // Outer-loop when trying to create constant table with primeIdx-related size.
   while (restart && (primeIdx < MAX_NUM_OF_PRIMES)) {
@@ -5116,14 +5116,14 @@ CollIndex *PCodeCfg::createLookupTableForSwitch(OPLIST &constants, BLOCKLIST &bl
     // Allocate the constant lookup table / jump table.  We need to clear or
     // initialize table with 0xFE (INVALID_CHAR).
     if (forInList) {
-      totalTableSizeInBytes = sizeof(Int32) * numTableEntries;
+      totalTableSizeInBytes = sizeof(int) * numTableEntries;
     } else {
-      // jump table size depends on the pointer size in 4-byte (Int32) unit
+      // jump table size depends on the pointer size in 4-byte (int) unit
       numJumpTableEntries = (tableSize + 1) * (sizeof(Long) / 4);
-      totalTableSizeInBytes = sizeof(Int32) * (numTableEntries + numJumpTableEntries);
+      totalTableSizeInBytes = sizeof(int) * (numTableEntries + numJumpTableEntries);
     }
 
-    table = new (heap_) Int32[numTableEntries + numJumpTableEntries];
+    table = new (heap_) int[numTableEntries + numJumpTableEntries];
     memset((char *)(table), 0xFE, totalTableSizeInBytes);
 
     if (!forInList)
@@ -5226,8 +5226,8 @@ CollIndex *PCodeCfg::createLookupTableForSwitch(OPLIST &constants, BLOCKLIST &bl
     if (!restart && collisionOccurred) {
       long *table64 = (long *)table;
 
-      Int32 totalWorstCaseChecks = 0;
-      Int32 totalCount = 0;
+      int totalWorstCaseChecks = 0;
+      int totalCount = 0;
 
       // Walk through the table in search for valid entries.  Calculate the max
       // number of searches needed for such entries, and total everything up.
@@ -5486,7 +5486,7 @@ void PCodeCfg::indirectBranchOpt(NABoolean forInList) {
 
       if (eqComp->isIntEqComp() || eqComp->isFloatEqComp()) {
         // Create MOVE instruction from column type to MBIN64S
-        Int32 int64TempOff = addTemp(8, 8);
+        int int64TempOff = addTemp(8, 8);
 
         if (eqComp->isFloatEqComp())
           opc = eqComp->generateFloat64MoveOpc(var->getType());
@@ -5604,7 +5604,7 @@ void PCodeCfg::indirectBranchOpt(NABoolean forInList) {
   ENDFE_BLOCK_REV_DFO
 }
 
-void PCodeCfg::cfgRewiring(Int32 flags) {
+void PCodeCfg::cfgRewiring(int flags) {
   CollIndex i;
 
   // Remove unreachable blocks
@@ -5913,7 +5913,7 @@ ENDFE_BLOCK
 void PCodeCfg::initNullMapTable() {
   short i;
 
-  nullToPadMap_ = new (heap_) NAHashDictionary<NullTriple, Int32>(&nullTripleHashFunc, 100, TRUE, heap_);
+  nullToPadMap_ = new (heap_) NAHashDictionary<NullTriple, int>(&nullTripleHashFunc, 100, TRUE, heap_);
 
   ex_clause *clause = expr_->getClauses();
   while (clause) {
@@ -5926,7 +5926,7 @@ void PCodeCfg::initNullMapTable() {
       if (op->getNullFlag() && (op->getTupleFormat() == ExpTupleDesc::SQLARK_EXPLODED_FORMAT)) {
         NullTriple *nt = new (heap_) NullTriple(op->getAtp(), op->getAtpIndex(), op->getNullIndOffset());
 
-        Int32 *pad = new (heap_) Int32(op->getOffset() - op->getNullIndOffset());
+        int *pad = new (heap_) int(op->getOffset() - op->getNullIndOffset());
 
         nullToPadMap_->insert(nt, pad);
       }
@@ -5951,7 +5951,7 @@ PCodeInst *PCodeCfg::createInst(PCIT::Instruction instr) {
 //
 // Create a new PCodeInst with the passed in opcode and length
 //
-PCodeInst *PCodeCfg::createInst(PCIT::Instruction instr, Int32 length) {
+PCodeInst *PCodeCfg::createInst(PCIT::Instruction instr, int length) {
   // Create new instruction and copy bytecode
   PCodeInst *newInst = new (heap_) PCodeInst(heap_);
 
@@ -5970,7 +5970,7 @@ PCodeInst *PCodeCfg::createInst(PCIT::Instruction instr, Int32 length) {
 // Copy the given instruction and return the copy.
 //
 PCodeInst *PCodeCfg::copyInst(PCodeInst *inst) {
-  Int32 length = PCode::getInstructionLength(inst->code);
+  int length = PCode::getInstructionLength(inst->code);
 
   // Create new instruction, copy bytecode, and load operands
   PCodeInst *newInst = createInst((PCIT::Instruction)inst->getOpcode());
@@ -6270,7 +6270,7 @@ NABoolean PCodeCfg::canPCodeBeOptimized(PCodeBinary *pCode, NABoolean &pExprCach
   // expression is un-optimized.
 
   PCodeBinary *pCodeStart = pCode;
-  Int32 length = *(pCode++);
+  int length = *(pCode++);
   pCode += (2 * length);
 
   while (pCode[0] != PCIT::END) {
@@ -6333,7 +6333,7 @@ NABoolean PCodeCfg::cfgHasLoop() {
 // Create list of PCodeInsts
 //
 NABoolean PCodeCfg::createInsts(PCodeBinary *pcode) {
-  Int32 length = *(pcode++);
+  int length = *(pcode++);
   pcode += (2 * length);
 
   operandToIndexMap_ = new (heap_) NAHashDictionary<PCodeOperand, CollIndex>(&operandHashFunc, 100, TRUE, heap_);
@@ -6369,7 +6369,7 @@ NABoolean PCodeCfg::createInsts(PCodeBinary *pcode) {
 //
 // Used for Aligned Format to get null bit index of column
 //
-static Int32 getBitIndex(PCodeBinary *code, const Int32 idx) {
+static int getBitIndex(PCodeBinary *code, const int idx) {
   Attributes *attr = (Attributes *)GetPCodeBinaryAsPtr(code, idx);
   if (attr->getTupleFormat() == ExpTupleDesc::SQLMX_ALIGNED_FORMAT) return attr->getNullBitIndex();
   return -1;
@@ -6465,10 +6465,10 @@ return found;
 // to the specified operands list.  Additionally, update the hash tables
 // "operandToIndexMap" and "indexToOperandMap" for faster index
 //
-void PCodeCfg::addOperand(PCodeBinary *pcode, OPLIST &opListPtr, Int32 stackIdxPos, Int32 offsetPos, Int32 nullBitIdx,
-                          PCIT::AddressingMode am, Int32 len, Int32 voaOffset = -1) {
-  Int32 stackIdx = pcode[stackIdxPos];
-  Int32 offset;
+void PCodeCfg::addOperand(PCodeBinary *pcode, OPLIST &opListPtr, int stackIdxPos, int offsetPos, int nullBitIdx,
+                          PCIT::AddressingMode am, int len, int voaOffset = -1) {
+  int stackIdx = pcode[stackIdxPos];
+  int offset;
 
   // Negative offsetPos implies that an actual offset was passed in.
   if (offsetPos < 0)
@@ -6531,7 +6531,7 @@ ex_clause *PCodeCfg::findClausePtr(PCodeInst *inst) {
 // Set up varchar fields for operands in inst
 //
 void PCodeInst::modifyOperandsForVarchar(PCodeCfg *cfg) {
-  Int32 comboLen;
+  int comboLen;
   char *comboPtr = (char *)&comboLen;
   Int16 *comboPtr16 = (Int16 *)&comboLen;
   signed char vcLen, nullLen;
@@ -6657,10 +6657,10 @@ void PCodeCfg::loadOperandsOfInst(PCodeInst *newInst) {
   PCodeBinary opc = pcode[0];
 
   PCIT::AddressingMode type = PCIT::AM_NONE;
-  Int32 len;
+  int len;
 
   ex_clause *clause = newInst->clause_;
-  Int32 sz = newInst->opdataLen_;
+  int sz = newInst->opdataLen_;
 
   pcode++;
 
@@ -7045,7 +7045,7 @@ void PCodeCfg::loadOperandsOfInst(PCodeInst *newInst) {
 
     case PCIT::COMP_MBIN32S_MUNI_MUNI_IBIN32S_IBIN32S_IBIN32S:
     case PCIT::COMP_MBIN32S_MASCII_MASCII_IBIN32S_IBIN32S_IBIN32S: {
-      Int32 len1, len2;
+      int len1, len2;
 
       newInst->setCost(5);
 
@@ -7302,13 +7302,13 @@ void PCodeCfg::loadOperandsOfInst(PCodeInst *newInst) {
         analyzeClause = FALSE;
 
       while (opdata->isOpdata()) {
-        Int32 sz = -1;
+        int sz = -1;
         PCodeOperand *operand = opdata->getWOps().entries() ? opdata->getWOps()[0] : opdata->getROps()[0];
 
         for (i = 0; (i < clause->getNumOperands()) && (sz == -1); i++) {
           Attributes *op = clause->getOperand(i);
-          Int32 off = op->getOffset();
-          Int32 si = -1;
+          int off = op->getOffset();
+          int si = -1;
 
           // Is it a constant?
           if ((op->getAtp() == 0) && (op->getAtpIndex() == 0)) si = 1;
@@ -7367,8 +7367,8 @@ void PCodeCfg::loadOperandsOfInst(PCodeInst *newInst) {
       // Also add implicit write operands to start of string (assuming this is
       // a zero-fill for a string operand.  No harm done if it isn't.  This will
       // help reduce false-positives in identifying overlapping operands.
-      Int32 off = pcode[1] + 2;
-      Int32 len = pcode[2] - 2;
+      int off = pcode[1] + 2;
+      int len = pcode[2] - 2;
       if (pcode[2] > 2) addOperand(pcode, newInst->getWOps(), 0, -off, -1, PCIT::MPTR32, len);
 
       off = pcode[1] + 4;
@@ -7389,15 +7389,15 @@ void PCodeCfg::loadOperandsOfInst(PCodeInst *newInst) {
       break;
 
     case PCIT::HASHCOMB_BULK_MBIN32U: {
-      Int32 i, length = pcode[0];
+      int i, length = pcode[0];
 
       addOperand(pcode, newInst->getWOps(), 1, 2, -1, PCIT::MBIN32U, 4);
 
       for (i = 3; i < length - 1; i += 4) {
-        Int32 size = pcode[i + 2];
+        int size = pcode[i + 2];
 
         // Order in which to combine hash value - not recorded here
-        Int32 order = pcode[i + 3];
+        int order = pcode[i + 3];
 
         switch (size) {
           case 2:
@@ -7420,7 +7420,7 @@ void PCodeCfg::loadOperandsOfInst(PCodeInst *newInst) {
     }
 
     case PCIT::NULL_BITMAP_BULK: {
-      Int32 i, size, length = pcode[0];
+      int i, size, length = pcode[0];
 
       // Sub-opc determines whether all operands are from the same row or not
       if (pcode[1] == 0) {
@@ -7450,7 +7450,7 @@ void PCodeCfg::loadOperandsOfInst(PCodeInst *newInst) {
     }
 
     case PCIT::NOT_NULL_BRANCH_BULK: {
-      Int32 i, length = pcode[0];
+      int i, length = pcode[0];
 
       // Sub-opc determines whether all operands are from the same row or not
       if (pcode[1] == 0) {
@@ -7462,10 +7462,10 @@ void PCodeCfg::loadOperandsOfInst(PCodeInst *newInst) {
     }
 
     case PCIT::MOVE_BULK: {
-      Int32 i, size = 0, length = pcode[0];
+      int i, size = 0, length = pcode[0];
 
       for (i = 3; i != (length - 1); i += 3) {
-        Int32 opc = pcode[i];
+        int opc = pcode[i];
 
         switch (opc) {
           case PCIT::MOVE_MBIN8_MBIN8_IBIN32S:
@@ -7524,7 +7524,7 @@ void PCodeCfg::loadOperandsOfInst(PCodeInst *newInst) {
     case PCIT::BRANCH_AND_CNT:
     case PCIT::BRANCH_OR_CNT: {
       // 1st operand index located after 2 pointers for BRANCH PCode binaries
-      Int32 opdIdx = PCODEBINARIES_PER_PTR + PCODEBINARIES_PER_PTR;
+      int opdIdx = PCODEBINARIES_PER_PTR + PCODEBINARIES_PER_PTR;
       addOperand(pcode, newInst->getWOps(), opdIdx, opdIdx + 1, -1, PCIT::MBIN32S, 4);
       addOperand(pcode, newInst->getROps(), opdIdx + 2, opdIdx + 3, -1, PCIT::MBIN32S, 4);
       targets_->insert(new (heap_) ULong((ULong)(pcode + pcode[0])), &pcode[0]);
@@ -7713,7 +7713,7 @@ void PCodeCfg::loadOperandsOfInst(PCodeInst *newInst) {
     case PCIT::SUM_MATTR3_MATTR3_IBIN32S_MBIN64S_MBIN32S:
     case PCIT::SUM_MATTR3_MATTR3_IBIN32S_MFLT64_MFLT64:
     case PCIT::SUM_MATTR3_MATTR3_IBIN32S_MBIGS_MBIGS_IBIN32S: {
-      Int32 size;
+      int size;
 
       // Bignum sums are more expensive.
       if (opc == PCIT::SUM_MATTR3_MATTR3_IBIN32S_MBIGS_MBIGS_IBIN32S) newInst->setCost(5);
@@ -7736,7 +7736,7 @@ void PCodeCfg::loadOperandsOfInst(PCodeInst *newInst) {
 
       PCIT::AddressingMode type1 = PCIT::AM_NONE;
       PCIT::AddressingMode type2 = PCIT::AM_NONE;
-      Int32 len1 = 0, len2 = 0;
+      int len1 = 0, len2 = 0;
 
       switch (opc) {
         case PCIT::SUM_MATTR3_MATTR3_IBIN32S_MBIN32S_MBIN32S:
@@ -7829,14 +7829,14 @@ void PCodeCfg::loadOperandsOfInst(PCodeInst *newInst) {
       break;
 
     case PCIT::OFFSET_IPTR_IPTR_MBIN32S_MBIN64S_MBIN64S: {
-      Int32 idx = 2 * PCODEBINARIES_PER_PTR;
+      int idx = 2 * PCODEBINARIES_PER_PTR;
       addOperand(pcode, newInst->getWOps(), idx + 2, idx + 3, -1, PCIT::MBIN64S, 8);
       addOperand(pcode, newInst->getROps(), idx, idx + 1, -1, PCIT::MBIN32S, 4);
       break;
     }
 
     case PCIT::OFFSET_IPTR_IPTR_IBIN32S_MBIN64S_MBIN64S: {
-      Int32 idx = 1 + 2 * PCODEBINARIES_PER_PTR;
+      int idx = 1 + 2 * PCODEBINARIES_PER_PTR;
       addOperand(pcode, newInst->getWOps(), idx, idx + 1, -1, PCIT::MBIN64S, 8);
       break;
     }
@@ -7942,7 +7942,7 @@ void PCodeCfg::loadOperandsOfInst(PCodeInst *newInst) {
     }
 
     case PCIT::MOVE_MATTR5_MATTR5: {
-      Int32 len;
+      int len;
 
       voa = pcode[2];
       len = ((((char *)&pcode[4])[1]) > 0) ? -1 : pcode[3];
@@ -8007,7 +8007,7 @@ void PCodeCfg::loadOperandsOfInst(PCodeInst *newInst) {
     case PCIT::HASH_MBIN32U_MATTR5:
     case PCIT::STRLEN_MBIN32U_MATTR5:
     case PCIT::STRLEN_MBIN32U_MUNIV: {
-      Int32 len;
+      int len;
       addOperand(pcode, newInst->getWOps(), 0, 1, -1, PCIT::MBIN32S, 4);
 
       PCIT::AddressingMode type =
@@ -8020,7 +8020,7 @@ void PCodeCfg::loadOperandsOfInst(PCodeInst *newInst) {
     }
 
     case PCIT::NULL_TEST_MBIN32S_MATTR5_IBIN32S_IBIN32S: {
-      Int32 len;
+      int len;
       PCIT::AddressingMode type;
 
       addOperand(pcode, newInst->getWOps(), 0, 1, -1, PCIT::MBIN32S, 4);
@@ -8033,7 +8033,7 @@ void PCodeCfg::loadOperandsOfInst(PCodeInst *newInst) {
     }
 
     case PCIT::COMP_MBIN32S_MATTR4_MATTR4_IBIN32S_IBIN32S_IBIN32S: {
-      Int32 len, voa;
+      int len, voa;
 
       newInst->setCost(10);
 
@@ -8054,7 +8054,7 @@ void PCodeCfg::loadOperandsOfInst(PCodeInst *newInst) {
     case PCIT::COMP_MBIN32S_MATTR5_MATTR5_IBIN32S:
     case PCIT::LIKE_MBIN32S_MATTR5_MATTR5_IBIN32S_IBIN32S:
     case PCIT::POS_MBIN32S_MATTR5_MATTR5: {
-      Int32 len, voa;
+      int len, voa;
 
       newInst->setCost(10);
 
@@ -8074,7 +8074,7 @@ void PCodeCfg::loadOperandsOfInst(PCodeInst *newInst) {
     }
 
     case PCIT::GENFUNC_MATTR5_MATTR5_MBIN32S_IBIN32S: {
-      Int32 len, voa;
+      int len, voa;
 
       newInst->setCost(15);
 
@@ -8092,7 +8092,7 @@ void PCodeCfg::loadOperandsOfInst(PCodeInst *newInst) {
     }
 
     case PCIT::GENFUNC_MATTR5_MATTR5_IBIN32S: {
-      Int32 len, voa;
+      int len, voa;
 
       newInst->setCost(15);
 
@@ -8108,7 +8108,7 @@ void PCodeCfg::loadOperandsOfInst(PCodeInst *newInst) {
     }
 
     case PCIT::CONCAT_MATTR5_MATTR5_MATTR5: {
-      Int32 len, voa;
+      int len, voa;
 
       newInst->setCost(15);
 
@@ -8136,7 +8136,7 @@ void PCodeCfg::loadOperandsOfInst(PCodeInst *newInst) {
     }
 
     case PCIT::SWITCH_MBIN32S_MATTR5_MPTR32_IBIN32S_IBIN32S: {
-      Int32 len, voa;
+      int len, voa;
 
       newInst->setCost(10);
 
@@ -8262,7 +8262,7 @@ void PCodeCfg::loadOperandsOfInst(PCodeInst *newInst) {
     }
 
     case PCIT::SUBSTR_MATTR5_MATTR5_MBIN32S_MBIN32S: {
-      Int32 len, voa;
+      int len, voa;
 
       newInst->setCost(15);
 
@@ -8506,7 +8506,7 @@ PCECacheEntry *OptPCodeCache::findPCodeExprInCache(PCodeBinary *unOptPCodePtr, c
   // after the last matched entry and going in circular fashion until
   // we get back to where we started.
   //
-  Int32 nSrchd = 1;
+  int nSrchd = 1;
   for (; nSrchd <= numEntries_; nSrchd++, currEntry = nextEntry) {
     nextEntry = currEntry->getNextInCrOrder();
     if (nextEntry == NULL) nextEntry = createOrderHead_;
@@ -8562,7 +8562,7 @@ void OptPCodeCache::setPCDlogDirPath(NAString *logDirPth) {
   // These should not happen, but just in case ...
   if ((logDirPth == NULL) || (logDirPath_ != NULL)) return;
 
-  Int32 len = logDirPth->length();
+  int len = logDirPth->length();
 
   if (len == 0) return;
 
@@ -8592,7 +8592,7 @@ void OptPCodeCache::clearStats() {
 #endif  // OPT_PCC_DEBUG==1
 }
 
-void OptPCodeCache::resizeCache(Int32 newsiz) {
+void OptPCodeCache::resizeCache(int newsiz) {
   maxSize_ = newsiz;
   throwOutExcessCacheEntries();
 }
@@ -8627,7 +8627,7 @@ void OptPCodeCache::throwOutExcessCacheEntries() {
 #if OPT_PCC_DEBUG == 1
 void OptPCodeCache::genUniqFileNamePart() {
   if (fileNameTime_ == -1) {
-    Int32 myPid = getpid();
+    int myPid = getpid();
 
     timeval curTime;
     GETTIMEOFDAY(&curTime, 0);
@@ -8638,14 +8638,14 @@ void OptPCodeCache::genUniqFileNamePart() {
   }
 }
 
-void OptPCodeCache::logPCCEvent(Int32 eventType, PCECacheEntry *PCEptr, char *sqlStmt) {
+void OptPCodeCache::logPCCEvent(int eventType, PCECacheEntry *PCEptr, char *sqlStmt) {
 #define LNGBUFLEN 1900
 
   char longBuf[LNGBUFLEN];
 
   if ((PCECLoggingEnabled_ == 0) || (logDirPath_ == NULL) || (*logDirPath_ == '\0')) return;
 
-  Int32 logDirPathLen = strlen(logDirPath_);
+  int logDirPathLen = strlen(logDirPath_);
 
   // Form complete log file pathname, with unique part at end
   longBuf[0] = '\0';

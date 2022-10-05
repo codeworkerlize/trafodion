@@ -37,7 +37,7 @@ void Timer::timerOn() { startClock = times(&startTms); }
 
 void Timer::timerOff() { endClock = times(&endTms); }
 
-void Timer::timerLog(const char *msg, const char *file, Int32 line) {
+void Timer::timerLog(const char *msg, const char *file, int line) {
   fprintf(logFile, "---------------------------------\n");
   fprintf(logFile, "%s %s %d\n", msg, file, line);
   fprintf(logFile, "Elapsed Time: %fs\n", (endClock - startClock) / 1000000.0);

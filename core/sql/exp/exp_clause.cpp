@@ -52,7 +52,7 @@
 #include "exp/exp_datetime.h"
 #include "ttime.h"
 
-extern Int32 compExprNum;
+extern int compExprNum;
 
 static const char *ZERO_LENGTH_TIMESTAMP = " 00:00:00.000000";
 
@@ -69,16 +69,16 @@ void setVCLength(char *VCLen, int VCLenSize, ULng32 value);
 void ex_clause::copyOperands(ex_clause *clause, Space *space) {
   NABoolean showplan = (clause->getOperand() ? clause->getOperand(0)->showplan() : FALSE);
 
-  Int32 numOperands = ((showplan) ? (2 * clause->getNumOperands()) : clause->getNumOperands());
+  int numOperands = ((showplan) ? (2 * clause->getNumOperands()) : clause->getNumOperands());
 
   op_ = (AttributesPtr *)(space->allocateAlignedSpace(numOperands * sizeof(AttributesPtr)));
 
-  for (Int32 i = 0; i < numOperands; i++) {
+  for (int i = 0; i < numOperands; i++) {
     Attributes *attrOld = clause->getOperand(i);
     Attributes *attrNew = NULL;
 
     if (attrOld != NULL) {
-      Int32 size = attrOld->getClassSize();
+      int size = attrOld->getClassSize();
       attrNew = (Attributes *)new (space) char[size];
       memcpy((char *)attrNew, (char *)attrOld, size);
     }
@@ -143,14 +143,14 @@ void ex_clause::copyOperands(ex_clause *clause, Space *space) {
 
         // Set contraint name
         if (cName) {
-          Int32 len = strlen(cName);
+          int len = strlen(cName);
           char *temp = space->allocateAndCopyToAlignedSpace(cName, len, 0);
           func->setConstraintName(temp);
         }
 
         // Set table name
         if (tName) {
-          Int32 len = strlen(tName);
+          int len = strlen(tName);
           char *temp = space->allocateAndCopyToAlignedSpace(tName, len, 0);
           func->setTableName(temp);
         }
@@ -1971,15 +1971,15 @@ char *exClauseGetText(OperatorTypeEnum ote) {
     return itmText;
 }  // exClausegetText()
 
-void ex_clause::displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea) {
+void ex_clause::displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea) {
   return displayContents(space, displayStr, clauseNum, constsArea, 0, -1, NULL);
 }
 
-void ex_clause::displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea, UInt32 flag) {
+void ex_clause::displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea, UInt32 flag) {
   return displayContents(space, displayStr, clauseNum, constsArea, 0, -1, NULL);
 }
 
-void ex_clause::displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea,
+void ex_clause::displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea,
                                 UInt32 clauseFlags, Int16 instruction, const char *instrText) {
   char buf[100];
   if (displayStr) {
@@ -2023,7 +2023,7 @@ void ex_clause::displayContents(Space *space, const char *displayStr, Int32 clau
   if (numOperands_ > 0) {
     NABoolean showplan = getOperand(0)->showplan();
 
-    for (Int32 i = 0; i < numOperands_; i++) {
+    for (int i = 0; i < numOperands_; i++) {
       getOperand(i)->displayContents(space, i, constsArea, (showplan ? getOperand(i + numOperands_) : NULL));
       str_sprintf(buf, "\n");
       space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
@@ -2187,26 +2187,26 @@ ex_like_clause_doublebyte::ex_like_clause_doublebyte(OperatorTypeEnum oper_type,
 /////////////////////////////////////////////////////////////
 // Methods to display Contents
 /////////////////////////////////////////////////////////////
-void ex_aggr_one_row_clause::displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum,
+void ex_aggr_one_row_clause::displayContents(Space *space, const char * /*displayStr*/, int clauseNum,
                                              char *constsArea) {
   ex_clause::displayContents(space, "ex_aggr_one_row_clause", clauseNum, constsArea);
 }
 
-void ex_aggr_any_true_max_clause::displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum,
+void ex_aggr_any_true_max_clause::displayContents(Space *space, const char * /*displayStr*/, int clauseNum,
                                                   char *constsArea) {
   ex_clause::displayContents(space, "ex_aggr_any_true_max_clause", clauseNum, constsArea);
 }
-void ex_aggr_min_max_clause::displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum,
+void ex_aggr_min_max_clause::displayContents(Space *space, const char * /*displayStr*/, int clauseNum,
                                              char *constsArea) {
   ex_clause::displayContents(space, "ex_aggr_min_max_clause", clauseNum, constsArea);
 }
 
-void ex_pivot_group_clause::displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum,
+void ex_pivot_group_clause::displayContents(Space *space, const char * /*displayStr*/, int clauseNum,
                                             char *constsArea) {
   ex_clause::displayContents(space, "ex_pivot_group_clause", clauseNum, constsArea);
 }
 
-void ExFunctionGrouping::displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum, char *constsArea) {
+void ExFunctionGrouping::displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea) {
   ex_clause::displayContents(space, "ExFunctionGrouping", clauseNum, constsArea);
 
   char buf[100];
@@ -2214,7 +2214,7 @@ void ExFunctionGrouping::displayContents(Space *space, const char * /*displayStr
   space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
 }
 
-void ex_arith_clause::displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum, char *constsArea) {
+void ex_arith_clause::displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea) {
   setInstruction();
 
   char buf[100];
@@ -2232,27 +2232,27 @@ void ex_arith_clause::displayContents(Space *space, const char * /*displayStr*/,
                              ex_arith_clause::getInstructionStr(getInstrArrayIndex()));
 }
 
-void ex_arith_sum_clause::displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum,
+void ex_arith_sum_clause::displayContents(Space *space, const char * /*displayStr*/, int clauseNum,
                                           char *constsArea) {
   setInstruction();
   ex_clause::displayContents(space, "ex_arith_sum_clause", clauseNum, constsArea);
 }
 
-void ex_arith_count_clause::displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum,
+void ex_arith_count_clause::displayContents(Space *space, const char * /*displayStr*/, int clauseNum,
                                             char *constsArea) {
   setInstruction();
   ex_clause::displayContents(space, "ex_arith_count_clause", clauseNum, constsArea);
 }
 
-void ex_bool_clause::displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum, char *constsArea) {
+void ex_bool_clause::displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea) {
   ex_clause::displayContents(space, "ex_bool_clause", clauseNum, constsArea);
 }
 
-void bool_result_clause::displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum, char *constsArea) {
+void bool_result_clause::displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea) {
   ex_clause::displayContents(space, "bool_result_clause", clauseNum, constsArea);
 }
 
-void ex_branch_clause::displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum, char *constsArea) {
+void ex_branch_clause::displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea) {
   char buf[100];
   str_sprintf(buf, "  Clause #%d: ex_branch_clause", clauseNum);
   space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
@@ -2279,7 +2279,7 @@ void ex_branch_clause::displayContents(Space *space, const char * /*displayStr*/
   if (getNumOperands() > 0) {
     NABoolean showplan = getOperand(0)->showplan();
 
-    for (Int32 i = 0; i < getNumOperands(); i++) {
+    for (int i = 0; i < getNumOperands(); i++) {
       getOperand(i)->displayContents(space, i, constsArea, (showplan ? getOperand(i + getNumOperands()) : NULL));
       str_sprintf(buf, "\n");
       space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
@@ -2287,7 +2287,7 @@ void ex_branch_clause::displayContents(Space *space, const char * /*displayStr*/
   }
 }
 
-void ex_comp_clause::displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum, char *constsArea) {
+void ex_comp_clause::displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea) {
   setInstruction();
 
   char buf[100];
@@ -2305,55 +2305,55 @@ void ex_comp_clause::displayContents(Space *space, const char * /*displayStr*/, 
                              ex_comp_clause::getInstructionStr(getInstrArrayIndex()));
 }
 
-void ex_conv_clause::displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum, char *constsArea) {
+void ex_conv_clause::displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea) {
   setInstruction();
   ex_clause::displayContents(space, "ex_conv_clause", clauseNum, constsArea, flags_,
                              ex_conv_clause::getInstruction(getInstrArrayIndex()),
                              ex_conv_clause::getInstructionStr(getInstrArrayIndex()));
 }
 
-void ex_function_clause::displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum, char *constsArea) {
+void ex_function_clause::displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea) {
   ex_clause::displayContents(space, "ex_function_clause", clauseNum, constsArea);
 }
-void ex_function_abs::displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum, char *constsArea) {
+void ex_function_abs::displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea) {
   ex_clause::displayContents(space, "ex_function_abs", clauseNum, constsArea);
 }
 
-void ExFunctionMath::displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum, char *constsArea) {
+void ExFunctionMath::displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea) {
   ex_clause::displayContents(space, "ExFunctionMath", clauseNum, constsArea);
 }
 
-void ExFunctionBitOper::displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum, char *constsArea) {
+void ExFunctionBitOper::displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea) {
   ex_clause::displayContents(space, "ExFunctionBitOper", clauseNum, constsArea);
 }
-void ex_inout_clause::displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum, char *constsArea) {
+void ex_inout_clause::displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea) {
   ex_clause::displayContents(space, "ex_inout_clause", clauseNum, constsArea);
   //  cout << "Name  = " << getName() << endl;
 }
 
-void ex_noop_clause::displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum, char *constsArea) {
+void ex_noop_clause::displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea) {
   ex_clause::displayContents(space, "ex_noop_clause", clauseNum, constsArea);
 }
 
-void ex_unlogic_clause::displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum, char *constsArea) {
+void ex_unlogic_clause::displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea) {
   ex_clause::displayContents(space, "ex_unlogic_clause", clauseNum, constsArea);
 }
 
-void ex_like_clause_char::displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum,
+void ex_like_clause_char::displayContents(Space *space, const char * /*displayStr*/, int clauseNum,
                                           char *constsArea) {
   ex_clause::displayContents(space, "ex_like_clause_char", clauseNum, constsArea);
 }
 
-void ExRegexpClauseChar::displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum, char *constsArea) {
+void ExRegexpClauseChar::displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea) {
   ex_clause::displayContents(space, "ExRegexpClauseChar", clauseNum, constsArea);
 }
 
-void ex_like_clause_doublebyte::displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum,
+void ex_like_clause_doublebyte::displayContents(Space *space, const char * /*displayStr*/, int clauseNum,
                                                 char *constsArea) {
   ex_clause::displayContents(space, "ex_like_clause_doublebyte", clauseNum, constsArea);
 }
 
-void ExFunctionHbaseVisibility::displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum,
+void ExFunctionHbaseVisibility::displayContents(Space *space, const char * /*displayStr*/, int clauseNum,
                                                 char *constsArea) {
   char buf[100];
   str_sprintf(buf, "  Clause #%d: ExFunctionHbaseVisibility", clauseNum);
@@ -2365,7 +2365,7 @@ void ExFunctionHbaseVisibility::displayContents(Space *space, const char * /*dis
   ex_clause::displayContents(space, (const char *)NULL, clauseNum, constsArea);
 }
 
-void ExFunctionHbaseVisibilitySet::displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum,
+void ExFunctionHbaseVisibilitySet::displayContents(Space *space, const char * /*displayStr*/, int clauseNum,
                                                    char *constsArea) {
   char buf[100];
   str_sprintf(buf, "  Clause #%d: ExFunctionHbaseVisibilitySet", clauseNum);
@@ -2377,7 +2377,7 @@ void ExFunctionHbaseVisibilitySet::displayContents(Space *space, const char * /*
   ex_clause::displayContents(space, (const char *)NULL, clauseNum, constsArea);
 }
 
-void ExFunctionHbaseTimestamp::displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum,
+void ExFunctionHbaseTimestamp::displayContents(Space *space, const char * /*displayStr*/, int clauseNum,
                                                char *constsArea) {
   char buf[100];
   str_sprintf(buf, "  Clause #%d: ExFunctionHbaseTimestamp", clauseNum);
@@ -2389,7 +2389,7 @@ void ExFunctionHbaseTimestamp::displayContents(Space *space, const char * /*disp
   ex_clause::displayContents(space, (const char *)NULL, clauseNum, constsArea);
 }
 
-void ExFunctionHbaseVersion::displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum,
+void ExFunctionHbaseVersion::displayContents(Space *space, const char * /*displayStr*/, int clauseNum,
                                              char *constsArea) {
   char buf[100];
   str_sprintf(buf, "  Clause #%d: ExFunctionHbaseVersion", clauseNum);
@@ -2401,7 +2401,7 @@ void ExFunctionHbaseVersion::displayContents(Space *space, const char * /*displa
   ex_clause::displayContents(space, (const char *)NULL, clauseNum, constsArea);
 }
 
-void ExFunctionHbaseRowid::displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum,
+void ExFunctionHbaseRowid::displayContents(Space *space, const char * /*displayStr*/, int clauseNum,
                                            char *constsArea) {
   char buf[100];
   str_sprintf(buf, "  Clause #%d: ExFunctionHbaseRowid", clauseNum);
@@ -2410,7 +2410,7 @@ void ExFunctionHbaseRowid::displayContents(Space *space, const char * /*displayS
   ex_clause::displayContents(space, (const char *)NULL, clauseNum, constsArea);
 }
 
-void ex_function_dateformat::displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum,
+void ex_function_dateformat::displayContents(Space *space, const char * /*displayStr*/, int clauseNum,
                                              char *constsArea) {
   char buf[100];
   str_sprintf(buf, "  Clause #%d: ex_function_dateformat", clauseNum);
@@ -2423,7 +2423,7 @@ void ex_function_dateformat::displayContents(Space *space, const char * /*displa
 }
 
 // Function to compare two strings.
-Int32 charStringCompareWithPad(char *in_s1, Int32 length1, char *in_s2, Int32 length2, char padChar,
+int charStringCompareWithPad(char *in_s1, int length1, char *in_s2, int length2, char padChar,
                                NABoolean ignoreSpace) {
   static char *isTrailingBlankSensitive = NULL;
   bool strictCmp = false;
@@ -2431,7 +2431,7 @@ Int32 charStringCompareWithPad(char *in_s1, Int32 length1, char *in_s2, Int32 le
   unsigned char *s2 = (unsigned char *)in_s2;
 
   int compare_len;
-  Int32 compare_code;
+  int compare_code;
 
   if (isTrailingBlankSensitive == NULL) {
     isTrailingBlankSensitive = getenv("VARCHAR_TRAILING_BLANK_SENSITIVE");
@@ -2447,7 +2447,7 @@ Int32 charStringCompareWithPad(char *in_s1, Int32 length1, char *in_s2, Int32 le
 
   if ((compare_code == 0) && (length1 != length2)) {
     if (length1 > length2) {
-      Int32 j = compare_len;
+      int j = compare_len;
 
       while ((j < length1) && (compare_code == 0)) {
         if (s1[j] < padChar)
@@ -2459,7 +2459,7 @@ Int32 charStringCompareWithPad(char *in_s1, Int32 length1, char *in_s2, Int32 le
         j++;
       }
     } else {
-      Int32 j = compare_len;
+      int j = compare_len;
 
       while ((j < length2) && (compare_code == 0)) {
         if (s2[j] < padChar)
@@ -2479,13 +2479,13 @@ Int32 charStringCompareWithPad(char *in_s1, Int32 length1, char *in_s2, Int32 le
   return compare_code;
 }
 
-Int32 wcharStringCompareWithPad(NAWchar *s1, Int32 length1, NAWchar *s2, Int32 length2, NAWchar space) {
+int wcharStringCompareWithPad(NAWchar *s1, int length1, NAWchar *s2, int length2, NAWchar space) {
   char *isTrailingBlankSensitive = getenv("VARCHAR_TRAILING_BLANK_SENSITIVE");
   bool strictCmp = false;
   if (isTrailingBlankSensitive && atoi(isTrailingBlankSensitive) == 1) strictCmp = true;
 
   int compare_len;
-  Int32 compare_code;
+  int compare_code;
 
   if (length1 > length2)
     compare_len = length2;
@@ -2496,7 +2496,7 @@ Int32 wcharStringCompareWithPad(NAWchar *s1, Int32 length1, NAWchar *s2, Int32 l
 
   if ((compare_code == 0) && (length1 != length2)) {
     if (length1 > length2) {
-      Int32 j = compare_len;
+      int j = compare_len;
 
       while ((j < length1) && (compare_code == 0)) {
         if (s1[j] < space)
@@ -2508,7 +2508,7 @@ Int32 wcharStringCompareWithPad(NAWchar *s1, Int32 length1, NAWchar *s2, Int32 l
         j++;
       }
     } else {
-      Int32 j = compare_len;
+      int j = compare_len;
 
       while ((j < length2) && (compare_code == 0)) {
         if (s2[j] < space)
@@ -2528,7 +2528,7 @@ Int32 wcharStringCompareWithPad(NAWchar *s1, Int32 length1, NAWchar *s2, Int32 l
   return compare_code;
 }
 
-void ExFunctionRangeOfValues::displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea) {
+void ExFunctionRangeOfValues::displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea) {
   ex_clause::displayContents(space, "ex_rangeofvalues_clause", clauseNum, constsArea);
 }
 
@@ -2544,7 +2544,7 @@ ExFunctionRangeOfValues::ExFunctionRangeOfValues()
 ExFunctionRangeOfValues::ExFunctionRangeOfValues(OperatorTypeEnum oper_type, Attributes **attr, Space *space,
                                                  UInt32 cap, UInt32 numChildren, Int16 filterId,
                                                  NABoolean dumpDebugData, NABoolean dateAsTimestamp,
-                                                 NABoolean nativeByteOrder, Int32 maxEntries)
+                                                 NABoolean nativeByteOrder, int maxEntries)
     : ex_aggregate_clause(oper_type, numChildren + 1, attr, space),
       rangeOfValues_(NULL),
       totalSizeCap_(cap),
@@ -2564,7 +2564,7 @@ ex_expr::exp_return_type convDecToInt64(long &target, char *source, int sourceLe
                                         ComDiagsArea **diagsArea, ULng32 flags);
 
 Int16 convertDateTimeTimestampToAscii(char *target, int targetLen, char *source, int sourceLen, Int16 precision,
-                                      Int16 scale, Int32 format, CollHeap *heap) {
+                                      Int16 scale, int format, CollHeap *heap) {
   ExpDatetime srcDatetimeOpType;
 
   // Setup attribute for the source.
@@ -2616,7 +2616,7 @@ void ExFunctionRangeOfValues::displayOpData(fstream &out, const char *msg, char 
       break;
 
     case REC_BIN32_SIGNED:
-      out << (*(Int32 *)source);
+      out << (*(int *)source);
       break;
 
     case REC_BIN64_SIGNED:
@@ -2736,7 +2736,7 @@ NABoolean ExFunctionRangeOfValues::insertData(char *op_data[], CollHeap *heap) {
       return rangeOfValues_->insert(*(Int16 *)source);
 
     case REC_BIN32_SIGNED:
-      return rangeOfValues_->insert(*(Int32 *)source);
+      return rangeOfValues_->insert(*(int *)source);
 
     case REC_BIN64_SIGNED:
       return rangeOfValues_->insert(*(long *)source);
@@ -2840,7 +2840,7 @@ NABoolean ExFunctionRangeOfValues::lookupData(char *op_data[], CollHeap *heap) {
       return rangeOfValues_->lookup(*(Int16 *)source);
 
     case REC_BIN32_SIGNED:
-      return rangeOfValues_->lookup(*(Int32 *)source);
+      return rangeOfValues_->lookup(*(int *)source);
 
     case REC_BIN64_SIGNED:
       return rangeOfValues_->lookup(*(long *)source);

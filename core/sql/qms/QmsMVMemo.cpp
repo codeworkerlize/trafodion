@@ -41,7 +41,7 @@
 //  Class MVMemoPhysicalExpression
 //========================================================================
 
-MVMemoPhysicalExpression::MVMemoPhysicalExpression(const QRJoinSubGraphMapPtr map, Int32 groupNumber,
+MVMemoPhysicalExpression::MVMemoPhysicalExpression(const QRJoinSubGraphMapPtr map, int groupNumber,
                                                    const MVDetailsPtr mv, ADD_MEMCHECK_ARGS_DEF(CollHeap *heap))
     : MVMemoLogicalExpression(map->getHashKey(), groupNumber, ADD_MEMCHECK_ARGS_PASS(heap)), mv_(mv), map_(map) {}
 
@@ -253,7 +253,7 @@ void MVMemoGroup::FinishRenameMV() {
   tempExpr_ = NULL;
 }
 
-Int32 MVMemoGroup::getNumOfMVs() { return physicalExprsHash_.entries(); }
+int MVMemoGroup::getNumOfMVs() { return physicalExprsHash_.entries(); }
 
 /**
  * This method can be used to dump detailed usage stats to the log file,
@@ -289,7 +289,7 @@ void MVMemoGroup::reportStats(NAString &text) {
  * If this group has a GroupBy, cascade the work to the LatticeIndex.
  *****************************************************************************
  */
-void MVMemoGroup::collectMVGroups(WorkloadAnalysisPtr workload, Int32 minQueriesPerMV, CollHeap *heap) {
+void MVMemoGroup::collectMVGroups(WorkloadAnalysisPtr workload, int minQueriesPerMV, CollHeap *heap) {
   if (physicalExprsHash_.entries() == 0) return;
 
   // Iterate over all the physical expressions.
@@ -541,7 +541,7 @@ NABoolean MVMemo::handleInsertedSubgraph(QRJoinSubGraphMapPtr map, QRJBBPtr jbb,
   {
     // Yes - The expression hash key was found.
     MVMemoLogicalExpressionPtr expr = getExpression(key);
-    Int32 groupNumber = expr->getGroupNumber();
+    int groupNumber = expr->getGroupNumber();
     group = getGroup(groupNumber);
 
     // Found an existing logical expression - ignore.
@@ -614,7 +614,7 @@ MVMemoGroupPtr MVMemo::probeForSubGraph(HubIteratorPtr hubIterator, const QRJoin
  * Currently not used.
  *****************************************************************************
  */
-void MVMemo::reportStats(Int32 numOfMVs) {
+void MVMemo::reportStats(int numOfMVs) {
   typedef NAPtrList<MVMemoGroupPtr> GroupList;
   NAArray<GroupList *> groupsOrderedArray(heap_, numOfMVs);
   MVMemoGroupPtr currentGroup = NULL;
@@ -676,7 +676,7 @@ void MVMemo::reportStats(Int32 numOfMVs) {
  * Iterate over all the MVMemo groups to collect proposed MVs.
  *****************************************************************************
  */
-void MVMemo::collectMVGroups(WorkloadAnalysisPtr workload, Int32 minQueriesPerMV, CollHeap *heap) {
+void MVMemo::collectMVGroups(WorkloadAnalysisPtr workload, int minQueriesPerMV, CollHeap *heap) {
   CollIndex maxEntries = groupsArray_.entries();
   for (CollIndex i = 0; i < maxEntries; i++) {
     groupsArray_[i]->collectMVGroups(workload, minQueriesPerMV, heap);
@@ -931,7 +931,7 @@ ElementPtrList *GroupingListMinimizer::calcIndirectGroupingList() {
   do {
     tableWasReduced = FALSE;
     // Do loop backwards because we will be deleting tables we reduce.
-    for (Int32 i = tablesToReduce.entries() - 1; i >= 0; i--) {
+    for (int i = tablesToReduce.entries() - 1; i >= 0; i--) {
       JoinGraphTablePtr table = tablesToReduce[i];
       if (table->isOnTheEdge() == FALSE) continue;
 

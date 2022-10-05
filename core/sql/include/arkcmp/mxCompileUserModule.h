@@ -45,10 +45,10 @@ class mxCompileUserModule {
   virtual ~mxCompileUserModule();
 
   ComDiagsArea &operator<<(const DgBase &);
-  void internalError(const char *file, Int32 line, const char *msg);
+  void internalError(const char *file, int line, const char *msg);
 
   void dumpDiags();
-  Int32 diagsCount();
+  int diagsCount();
 
   ComDiagsArea &operator<<(mxcmpExitCode rc) {
     setReturnCode(rc);

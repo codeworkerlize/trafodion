@@ -152,13 +152,13 @@ TH_RetCode TenantHelper_JNI::init() {
   if (isInitialized()) return rc;
 
   if (javaMethodsInitialized_)
-    return (TH_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (Int32)JM_LAST,
+    return (TH_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (int)JM_LAST,
                                                  javaMethodsInitialized_);
   else {
     pthread_mutex_lock(&javaMethodsInitMutex_);
     if (javaMethodsInitialized_) {
       pthread_mutex_unlock(&javaMethodsInitMutex_);
-      return (TH_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (Int32)JM_LAST,
+      return (TH_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (int)JM_LAST,
                                                    javaMethodsInitialized_);
     }
     JavaMethods_ = new JavaMethodInit[JM_LAST];
@@ -181,7 +181,7 @@ TH_RetCode TenantHelper_JNI::init() {
     JavaMethods_[JM_CREATE_LOCAL_CGROUP].jm_signature = "(Ljava/lang/String;)V";
     JavaMethods_[JM_CREATE_LOCAL_CGROUP].isStatic = true;
 
-    rc = (TH_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (Int32)JM_LAST,
+    rc = (TH_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (int)JM_LAST,
                                                javaMethodsInitialized_);
     javaMethodsInitialized_ = TRUE;
     pthread_mutex_unlock(&javaMethodsInitMutex_);

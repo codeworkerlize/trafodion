@@ -463,7 +463,7 @@ void CRUUnAuditRefreshTaskExecutor::ComposeMySql() {
 
     pLockTablesTEDynamicContainer_ = new CRUSQLDynamicStatementContainer((short)tblList.GetCount());
 
-    Int32 i = 0;
+    int i = 0;
 
     while (NULL != pos) {
       CRUTbl *pTbl = tblList.GetNext(pos);
@@ -494,7 +494,7 @@ void CRUUnAuditRefreshTaskExecutor::ComposeIndexesSql() {
 
   DSListPosition pos = indexList.GetHeadPosition();
 
-  for (Int32 i = 0; NULL != pos; i++) {
+  for (int i = 0; NULL != pos; i++) {
     CDDIndex *pddIndex = indexList.GetNext(pos);
 
     CDSString popIdxRqst;
@@ -690,7 +690,7 @@ void CRUUnAuditRefreshTaskExecutor::EpilogueHandleOnStatementMV() {
   CRUTblList &tblList = mv.GetTablesUsedByMe();
   DSListPosition pos = tblList.GetHeadPosition();
 
-  Int32 i = 0;
+  int i = 0;
 
   while (NULL != pos) {
     CRUTbl *pTbl = tblList.GetNext(pos);

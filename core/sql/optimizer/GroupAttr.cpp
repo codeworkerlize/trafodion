@@ -645,7 +645,7 @@ void GroupAttributes::lomerge(GroupAttributes &other, NABoolean mergeCIO) {
   // between the two group attributes, there is no attempt to normalize
   // them.  Just keep the one from "this" group.
   for (CollIndex i = 0; i < other.getInputLogPropList().entries(); i++) {
-    Int32 index = existsInputLogProp(other.getInputLogPropList()[i]);
+    int index = existsInputLogProp(other.getInputLogPropList()[i]);
     if (index < 0)  // this ILP does not already exist
     {
       // ensure that there is a corresponding entry in the
@@ -1552,7 +1552,7 @@ void GroupAttributes::clearAllEstLogProp() {
 EstLogPropSharedPtr GroupAttributes::outputLogProp(const EstLogPropSharedPtr &inLP) {
   // See if the desired output log. property has already been synthesized.
   // If so, just return them.
-  Int32 index = existsInputLogProp(inLP);
+  int index = existsInputLogProp(inLP);
   if (index >= 0) return outputEstLogProp_[index];
 
   // OLP has not been synthesized ... synthesize now on demand
@@ -1735,7 +1735,7 @@ EstLogPropSharedPtr GroupAttributes::outputLogProp(const EstLogPropSharedPtr &in
 EstLogPropSharedPtr GroupAttributes::intermedOutputLogProp(const EstLogPropSharedPtr &inLP) {
   // See if the desired output log. property has already been synthesized.
   // If so, just return them.
-  Int32 index = existsInputLogProp(inLP);
+  int index = existsInputLogProp(inLP);
   if (index >= 0) return intermedOutputLogProp_[index];
 
   // OLP has not been synthesized ... synthesize now on demand
@@ -1810,7 +1810,7 @@ CostScalar GroupAttributes::getResultMaxCardinalityForInput(EstLogPropSharedPtr 
 // needs to be executed once per probe of the materialize.
 //----------------------------------------------------------------------
 
-EstLogPropSharedPtr GroupAttributes::materializeInputLogProp(const EstLogPropSharedPtr &inLP, Int32 *multipleReads) {
+EstLogPropSharedPtr GroupAttributes::materializeInputLogProp(const EstLogPropSharedPtr &inLP, int *multipleReads) {
   EstLogPropSharedPtr materialInLP(new (STMTHEAP) EstLogProp());
 
   const ColStatDescList &inColStatsList = inLP->getColStats();
@@ -1922,7 +1922,7 @@ EstLogPropSharedPtr GroupAttributes::materializeInputLogProp(const EstLogPropSha
 // needs to be executed once per probe of the materialize.
 //----------------------------------------------------------------------
 
-EstLogPropSharedPtr GroupAttributes::materializeOutputLogProp(const EstLogPropSharedPtr &inLP, Int32 *multipleReads) {
+EstLogPropSharedPtr GroupAttributes::materializeOutputLogProp(const EstLogPropSharedPtr &inLP, int *multipleReads) {
   return outputLogProp(materializeInputLogProp(inLP, multipleReads));
 }  // materializeInputLogProp
 
@@ -1931,7 +1931,7 @@ EstLogPropSharedPtr GroupAttributes::materializeOutputLogProp(const EstLogPropSh
 // exists in this set of group attributes.  If so, return the index
 // in the list.  Otherwise, return -1.
 // -----------------------------------------------------------------------
-Int32 GroupAttributes::existsInputLogProp(const EstLogPropSharedPtr &inputLP) const {
+int GroupAttributes::existsInputLogProp(const EstLogPropSharedPtr &inputLP) const {
   for (CollIndex i = 0; i < inputEstLogProp_.entries(); i++) {
     if (inputEstLogProp_[i]->compareEstLogProp(inputLP) == SAME) return i;
   }
@@ -1943,7 +1943,7 @@ Int32 GroupAttributes::existsInputLogProp(const EstLogPropSharedPtr &inputLP) co
 // for the set of input logical properties.
 // -----------------------------------------------------------------------
 NABoolean GroupAttributes::isPropSynthesized(const EstLogPropSharedPtr &inputLP) const {
-  Int32 index = existsInputLogProp(inputLP);
+  int index = existsInputLogProp(inputLP);
 
   if (index >= 0)
     return (outputEstLogProp_[index] != NULL);
@@ -2312,7 +2312,7 @@ double GroupAttributes::getAverageVarcharSize(const ValueId vId, const EstLogPro
 
   // Check cache for the desired output log. property
   EstLogPropSharedPtr outputLogProg;
-  Int32 index = existsInputLogProp(inLP);
+  int index = existsInputLogProp(inLP);
   if (index >= 0)
     outputLogProg = outputEstLogProp_[index];
   else
@@ -2419,8 +2419,8 @@ NABoolean GroupAttributes::allHiveColumnarTables(HiveFileType type) {
   return TRUE;
 }
 
-Int32 GroupAttributes::computeNumOfHiveColumnarTables(HiveFileType type) {
-  Int32 ct = 0;
+int GroupAttributes::computeNumOfHiveColumnarTables(HiveFileType type) {
+  int ct = 0;
   for (CollIndex i = 0; i < availableBtreeIndexes_.entries(); i++) {
     IndexDesc *iDesc = availableBtreeIndexes_[i];
 

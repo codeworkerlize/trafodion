@@ -793,7 +793,7 @@ NABoolean OptRangeSpec::buildRange(ItemExpr *origPredExpr) {
   ARRAY(ItemExpr *) IEarray(mvqrHeap_, 10);  // Initially 10 elements (no particular reason to choose 10)
   ARRAY(Int16) state(mvqrHeap_, 10);         // These ARRAYs will grow automatically as needed.)
 
-  Int32 currIdx = 0;
+  int currIdx = 0;
   IEarray.insertAt(currIdx, origPredExpr);  // Initialize 1st element in the ARRAYs
   state.insertAt(currIdx, AVR_STATE0);
 
@@ -1049,11 +1049,11 @@ static void downcastRangespecInt(long val, int scale, NAType *&type, long *numBu
     else
       type = new (heap) SQLNumeric(heap, sizeof(Int16), precision, scale, TRUE, FALSE);
   } else if (val <= INT_MAX && val >= INT_MIN) {
-    *((Int32 *)numBuf) = static_cast<Int32>(val);
+    *((int *)numBuf) = static_cast<int>(val);
     if (scale == 0)
       type = new (heap) SQLInt(heap, TRUE, FALSE);
     else
-      type = new (heap) SQLNumeric(heap, sizeof(Int32), precision, scale, TRUE, FALSE);
+      type = new (heap) SQLNumeric(heap, sizeof(int), precision, scale, TRUE, FALSE);
   } else {
     *numBuf = val;
     if (scale == 0)

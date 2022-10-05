@@ -49,7 +49,7 @@ SharedCacheDB::SharedCacheDB(const char eyeCatcher[4], NAMemory *sharedHeap, boo
 }
 
 // static
-char *SharedCacheDB::locateBaseAddr(Int32 &shmId, SharedCacheDB::CacheID cacheId) {
+char *SharedCacheDB::locateBaseAddr(int &shmId, SharedCacheDB::CacheID cacheId) {
   char *baseAddr = NULL;
 
 #ifdef USE_RMS_SHARED_SEGMENT_FOR_SHARED_CACHE
@@ -90,10 +90,10 @@ char *SharedCacheDB::locateBaseAddr(Int32 &shmId, SharedCacheDB::CacheID cacheId
 }
 
 // static.
-char *SharedCacheDB::collectSharedHeapInfo(Int32 &shmId, size_t &totalHeapSize, SharedCacheDB::CacheID cacheId) {
+char *SharedCacheDB::collectSharedHeapInfo(int &shmId, size_t &totalHeapSize, SharedCacheDB::CacheID cacheId) {
   char *baseAddr = SharedCacheDB::locateBaseAddr(shmId, cacheId);
 
-  Int32 sz = sizeof(SharedCacheDB);
+  int sz = sizeof(SharedCacheDB);
 
   size_t size = defaultSharedSegment(cacheId == 1).getSize();
 
@@ -115,7 +115,7 @@ NAMemory *SharedCacheDB::makeSharedHeap(NamedSemaphore *semaphore, SharedCacheDB
                    // ptr to make a shared heap.
     return NULL;
 
-  Int32 shmId = 0;
+  int shmId = 0;
   size_t totalHeapSize = 0;
 
   char *sharedHeapAddr = SharedCacheDB::collectSharedHeapInfo(shmId, totalHeapSize, cacheId);
@@ -148,7 +148,7 @@ NAMemory *SharedCacheDB::makeSharedHeap(LockController *controller, SharedSegmen
                     // ptr to make a shared heap.
     return NULL;
 
-  Int32 shmId = 0;
+  int shmId = 0;
   size_t totalHeapSize = 0;
 
   char *sharedHeapAddr = SharedCacheDB::collectSharedHeapInfo(shmId, totalHeapSize, cacheId);
@@ -174,7 +174,7 @@ NAMemory *SharedCacheDB::makeSharedHeap(LockController *controller, SharedSegmen
 // Locate an existing sharedCacheDB object.
 // static
 SharedCacheDB *SharedCacheDB::locate(char *&baseAddr, SharedCacheDB::CacheID cacheId) {
-  Int32 shmId = 0;
+  int shmId = 0;
   baseAddr = locateBaseAddr(shmId, cacheId);
 
   if (!baseAddr) return NULL;
@@ -310,8 +310,8 @@ SharedCache::SharedCache(const char eyeCatcher[4], NAMemory *sharedHeap, SharedC
   strncpy(eyeCatcher_, eyeCatcher, 4);
 }
 
-char *SharedCache::createSemaphoreName(char *buf, Int32 len) {
-  Int32 shmId = -1;
+char *SharedCache::createSemaphoreName(char *buf, int len) {
+  int shmId = -1;
 #ifdef USE_RMS_SHARED_SEGMENT_FOR_SHARED_CACHE
   StatsGlobals *statsGlobals = (StatsGlobals *)shareStatsSegment(shmId);
 
@@ -449,7 +449,7 @@ int SharedDescriptorCache::entries(const QualifiedName &inSchName) {
 
   if (inSchName.getSchemaName().isNull()) return table_->entriesEnabled();
 
-  Int32 ct = 0;
+  int ct = 0;
 
   NAHashDictionaryIteratorNoCopy<QualifiedName, NAString> itor(*table_, iteratorEntryType::ENABLED);
 
@@ -481,8 +481,8 @@ int SharedTableDataCache::entries() {
 void SharedDescriptorCache::findAll() {
   if (!table_) return;
 
-  Int32 ctEnabled = 0;
-  Int32 ctDisabled = 0;
+  int ctEnabled = 0;
+  int ctDisabled = 0;
   long totalSize = 0;
 
   NAHashDictionaryIteratorNoCopy<QualifiedName, NAString> itorForEnabled(*table_, iteratorEntryType::ENABLED);
@@ -542,8 +542,8 @@ void SharedDescriptorCache::findAll() {
 void SharedTableDataCache::findAll() {
   if (!memoryTableDB_) return;
 
-  Int32 ctEnabled = 0;
-  Int32 ctDisabled = 0;
+  int ctEnabled = 0;
+  int ctDisabled = 0;
   long totalSize = 0;
 
   NAHashDictionaryIteratorNoCopy<NAString, HTableCache> itorForEnabled(*(memoryTableDB_->tableNameToCacheEntryMap()),
@@ -615,13 +615,13 @@ char *SharedDescriptorCache::collectSummaryDataForTable(const QualifiedName &tab
   //  84 bytes for 4 long long values (21 bytes each)
   //  11 bytes for 1 long values (11 bytes each)
   //  total = 112 + 84 + 11 =207
-  const Int32 bufLen = 210;
+  const int bufLen = 210;
   static THREAD_P char buf[bufLen];
 
   QualifiedName *key = NULL;
   NAString *value = table_->getFirstValue(&tableName, QualifiedNameHashFunc);
 
-  Int32 len = 0;
+  int len = 0;
   if (value) {
     len = snprintf(buf, bufLen,
                    "a descriptor of %lu bytes is found for the table. heap_sizes(bytes): total=%ld, alloc=%ld, "
@@ -655,7 +655,7 @@ char *SharedDescriptorCache::collectSummaryDataForSchema(const QualifiedName &sc
   //  1 byte for 1 boolean value
   //
   //  total = 132 + 126 + 22 + 1 = 281
-  const Int32 bufLen = 300;
+  const int bufLen = 300;
   static THREAD_P char buf[bufLen];
 
   long totalSizeForAll = 0;
@@ -688,7 +688,7 @@ char *SharedDescriptorCache::collectSummaryDataForSchema(const QualifiedName &sc
     itorForEnabled.getNext(key, value);
   }
 
-  Int32 len = snprintf(buf, bufLen,
+  int len = snprintf(buf, bufLen,
                        "entries: total=%d, enabled=%d; sum_of_length(bytes): total=%ld, enabled=%ld; "
                        "heap_sizes(bytes): total=%ld, alloc=%ld, free=%ld; heap_starting_address=%p; sanity=%d",
                        table_->entries(), table_->entriesEnabled(), totalSizeForAll, totalSizeForEnabled,
@@ -714,7 +714,7 @@ char *SharedDescriptorCache::collectSummaryDataForAll() {
   //  1 byte for 1 boolean value
   //
   //  total = 132 + 126 + 22 +1 = 281
-  const Int32 bufLen = 300;
+  const int bufLen = 300;
   static THREAD_P char buf[bufLen];
 
   long totalSizeForAll = 0;
@@ -745,7 +745,7 @@ char *SharedDescriptorCache::collectSummaryDataForAll() {
     itorForEnabled.getNext(key, value);
   }
 
-  Int32 len = snprintf(buf, bufLen,
+  int len = snprintf(buf, bufLen,
                        "entries: total=%d, enabled=%d; sum_of_length(bytes): total=%ld, enabled=%ld; "
                        "heap_sizes(bytes): total=%ld, alloc=%ld, free=%ld; heap_starting_address=%p; sanity=%d",
                        table_->entries(), table_->entriesEnabled(), totalSizeForAll, totalSizeForEnabled,
@@ -770,10 +770,10 @@ char *SharedDescriptorCache::collectSummaryDataForHeap() {
   //  1 byte for 1 boolean value
   //
   //  total = 132 + 126 + 22 +1 = 281
-  const Int32 bufLen = 300;
+  const int bufLen = 300;
   static THREAD_P char buf[bufLen];
 
-  Int32 len =
+  int len =
       snprintf(buf, bufLen, "heap_sizes(bytes): total=%ld, alloc=%ld, free=%ld; heap_starting_address=%p; sanity=%d",
                heap->getTotalSize(), heap->getAllocSize(), heap->getTotalSize() - heap->getAllocSize(),
                static_cast<void *>((char *)(heap)), table_->sanityCheck());
@@ -783,10 +783,10 @@ char *SharedDescriptorCache::collectSummaryDataForHeap() {
   return buf;
 }
 
-Int32 SharedDescriptorCache::countAll(enum iteratorEntryType type) {
+int SharedDescriptorCache::countAll(enum iteratorEntryType type) {
   if (!table_) return 0;
 
-  Int32 ct = 0;
+  int ct = 0;
 
   NAHashDictionaryIteratorNoCopy<QualifiedName, NAString> itor(*table_, type);
 
@@ -951,12 +951,12 @@ SharedDescriptorCache *SharedDescriptorCache::destroyAndMake() {
 }
 
 void SharedDescriptorCache::populateWithSynthesizedData(int pairs, size_t maxValueLen) {
-  srand((Int32)19);
+  srand((int)19);
 
   SharedCacheDB *cacheDB = SharedCacheDB::locate();
   assert(cacheDB);
 
-  Int32 threshold = (Int32)(cacheDB->getSizeOfDefaultSegment() * 0.9);
+  int threshold = (int)(cacheDB->getSizeOfDefaultSegment() * 0.9);
 
   char *data = new char[maxValueLen];
   for (int i = 0; i < maxValueLen; i++) {
@@ -967,8 +967,8 @@ void SharedDescriptorCache::populateWithSynthesizedData(int pairs, size_t maxVal
   SharedCacheDB::display("Before loading synthesized data");
 #endif
 
-  Int32 i;
-  Int32 ct = 0;
+  int i;
+  int ct = 0;
   long totalSize = 0;
   NABoolean inserted = TRUE;
   for (i = 0; i < pairs; i++) {
@@ -1019,15 +1019,15 @@ void SharedDescriptorCache::populateWithSynthesizedData(int pairs, size_t maxVal
 }
 
 void SharedDescriptorCache::lookUpWithSynthesizedData(int pairs) {
-  srand((Int32)19);
+  srand((int)19);
 
   SharedCacheDB *cacheDB = SharedCacheDB::locate();
   assert(cacheDB);
 
-  Int32 threshold = (Int32)(cacheDB->getSizeOfDefaultSegment() * 0.9);
+  int threshold = (int)(cacheDB->getSizeOfDefaultSegment() * 0.9);
 
-  Int32 i;
-  Int32 ct = 0;
+  int i;
+  int ct = 0;
   long totalSize = 0;
   NAString *value = NULL;
   for (i = 0; i < pairs; i++) {
@@ -1055,15 +1055,15 @@ void SharedDescriptorCache::lookUpWithSynthesizedData(int pairs) {
 }
 
 void SharedDescriptorCache::enableDisableDeleteWithSynthesizedData(int pairs) {
-  srand((Int32)19);
+  srand((int)19);
 
-  Int32 i;
-  Int32 disabled = 0;
+  int i;
+  int disabled = 0;
   NABoolean ok = TRUE;
   char buf[20];
 
   // known entries in table_
-  Int32 ct = table_->entries();
+  int ct = table_->entries();
 
   // disable all keys with even length
   for (i = 0; i < pairs; i++) {
@@ -1076,9 +1076,9 @@ void SharedDescriptorCache::enableDisableDeleteWithSynthesizedData(int pairs) {
   }
 
   // lookup all disabled keys. None should be found
-  Int32 disabledFoundViaContain = 0;
-  Int32 disabledFoundViaGetFirstValue = 0;
-  srand((Int32)19);
+  int disabledFoundViaContain = 0;
+  int disabledFoundViaGetFirstValue = 0;
+  srand((int)19);
   for (i = 0; i < pairs; i++) {
     NAString idAsName(str_itoa(rand(), buf));
     QualifiedName key(idAsName);
@@ -1092,12 +1092,12 @@ void SharedDescriptorCache::enableDisableDeleteWithSynthesizedData(int pairs) {
     if (value) disabledFoundViaGetFirstValue++;
   }
 
-  Int32 disabledViaCountAll = countAll(iteratorEntryType::DISABLED);
-  Int32 enabledViaCountAll = countAll(iteratorEntryType::ENABLED);
+  int disabledViaCountAll = countAll(iteratorEntryType::DISABLED);
+  int enabledViaCountAll = countAll(iteratorEntryType::ENABLED);
 
   // Enable all disabled keys.
-  Int32 reEnabled = 0;
-  srand((Int32)19);
+  int reEnabled = 0;
+  srand((int)19);
   for (i = 0; i < pairs; i++) {
     NAString idAsName(str_itoa(rand(), buf));
     QualifiedName key(idAsName);
@@ -1108,8 +1108,8 @@ void SharedDescriptorCache::enableDisableDeleteWithSynthesizedData(int pairs) {
   }
 
   // Verify that all keys are present and enabled.
-  Int32 enabledAll = 0;
-  srand((Int32)19);
+  int enabledAll = 0;
+  srand((int)19);
   for (i = 0; i < pairs; i++) {
     NAString idAsName(str_itoa(rand(), buf));
     QualifiedName key(idAsName);
@@ -1128,8 +1128,8 @@ void SharedDescriptorCache::enableDisableDeleteWithSynthesizedData(int pairs) {
   cout << "Heap(after enable/disable): " << endl << summary << endl;
 
   // now handle deletion
-  Int32 removed = 0;
-  srand((Int32)19);
+  int removed = 0;
+  srand((int)19);
   for (i = 0; i < pairs; i++) {
     NAString idAsName(str_itoa(rand(), buf));
     QualifiedName key(idAsName);
@@ -1143,8 +1143,8 @@ void SharedDescriptorCache::enableDisableDeleteWithSynthesizedData(int pairs) {
   cout << "Heap(after deletion): " << endl << summary << endl;
 
   // Verify that all remaining keys are present and enabled.
-  Int32 remaining = 0;
-  srand((Int32)19);
+  int remaining = 0;
+  srand((int)19);
   for (i = 0; i < pairs; i++) {
     NAString idAsName(str_itoa(rand(), buf));
     QualifiedName key(idAsName);
@@ -1158,8 +1158,8 @@ void SharedDescriptorCache::enableDisableDeleteWithSynthesizedData(int pairs) {
   // For each key, pretend it to be a real SQL qualified name
   // and ask for entries in the cache that matches the schema
   // part in the key. The return count should be 0.
-  Int32 ctInSameSchema = 0;
-  srand((Int32)19);
+  int ctInSameSchema = 0;
+  srand((int)19);
   for (i = 0; i < pairs; i++) {
     QualifiedName key("obj", "sch", "cat");
 
@@ -1350,14 +1350,14 @@ NABoolean SharedTableDataCache::remove(const QualifiedName &name) {
   return ((!!keyTName));
 }
 
-char *SharedTableDataCache::collectSummaryDataForAll(bool showDetails, Int32 &blackBoxLen) {
+char *SharedTableDataCache::collectSummaryDataForAll(bool showDetails, int &blackBoxLen) {
   if (!memoryTableDB_) return NULL;
 
   NAMemory *heap = getSharedHeap();
 
   if (!heap) return NULL;
 
-  Int32 bufLen = 300;
+  int bufLen = 300;
   char *buf = new char[bufLen];
 
   long totalSizeForAll = 0;
@@ -1382,7 +1382,7 @@ char *SharedTableDataCache::collectSummaryDataForAll(bool showDetails, Int32 &bl
     itorForAll.getNext(key, value);
   }
 
-  Int32 len = snprintf(
+  int len = snprintf(
       buf, bufLen,
       "\nSummary: Total=%d, Enabled=%d; Shared Memory Heap(%p): Total=%ld, Used=%ld, Free=%ld; Shmaddr=%p; Shmid=%d",
       memoryTableDB_->entries(), memoryTableDB_->entriesEnabled(), static_cast<void *>((char *)(heap)),
@@ -1391,7 +1391,7 @@ char *SharedTableDataCache::collectSummaryDataForAll(bool showDetails, Int32 &bl
 
   if (len <= 0) return NULL;
 
-  int sizeInt32 = sizeof(Int32);
+  int sizeInt32 = sizeof(int);
   // int recodeLen = 180 * tableInfos.size() + ROUND4(len + 1) + sizeInt32 * 2 + 1;
   int recodeLen = sizeInt32 + sizeInt32 + ROUND4(len + 1);
   if (showDetails)
@@ -1403,14 +1403,14 @@ char *SharedTableDataCache::collectSummaryDataForAll(bool showDetails, Int32 &bl
   char *currPtr = blackBox;
 
   if (showDetails)
-    *(Int32 *)currPtr = tableInfos.size() + 1 + 1 + 1;  // total entries = number of tables + 3
+    *(int *)currPtr = tableInfos.size() + 1 + 1 + 1;  // total entries = number of tables + 3
   else
-    *(Int32 *)currPtr = 1;
+    *(int *)currPtr = 1;
 
   currPtr += sizeInt32;
   blackBoxLen += sizeInt32;
 
-  *(Int32 *)currPtr = len;
+  *(int *)currPtr = len;
   currPtr += sizeInt32;
   blackBoxLen += sizeInt32;
 
@@ -1423,7 +1423,7 @@ char *SharedTableDataCache::collectSummaryDataForAll(bool showDetails, Int32 &bl
     // if (tableInfos.size()>0)
     {
       len = snprintf(buf, bufLen, "\n\t%-60s %-20s %-20s %-20s", "Table Name", "Status", "Rows", "Size(bytes)");
-      *(Int32 *)currPtr = len;
+      *(int *)currPtr = len;
       currPtr += sizeInt32;
       blackBoxLen += sizeInt32;
       strncpy(currPtr, buf, len);
@@ -1432,10 +1432,10 @@ char *SharedTableDataCache::collectSummaryDataForAll(bool showDetails, Int32 &bl
       blackBoxLen += ROUND4(len + 1);
     }
     for (auto &&tInfo : tableInfos) {
-      Int32 cLen =
+      int cLen =
           snprintf(buf, bufLen, "\t%-60s %-20s %-10lu%-10s %-10lu", NAString(std::get<0>(tInfo).data(), 60).data(),
                    std::get<3>(tInfo) ? "Enable" : "Disable", std::get<1>(tInfo), "", std::get<2>(tInfo));
-      *(Int32 *)currPtr = cLen;
+      *(int *)currPtr = cLen;
       currPtr += sizeInt32;
       blackBoxLen += sizeInt32;
 
@@ -1445,7 +1445,7 @@ char *SharedTableDataCache::collectSummaryDataForAll(bool showDetails, Int32 &bl
       blackBoxLen += ROUND4(cLen + 1);
     }
     len = snprintf(buf, bufLen, "\n\t%82s%-20s %-10lu", "", "Total Size(bytes)", totalSizeForAll);
-    *(Int32 *)currPtr = len;
+    *(int *)currPtr = len;
     currPtr += sizeInt32;
     blackBoxLen += sizeInt32;
     strncpy(currPtr, buf, len);
@@ -1488,7 +1488,7 @@ char *SharedTableDataCache::collectSummaryDataForSchema(const QualifiedName &sch
 
   if (!heap) return NULL;
 
-  const Int32 bufLen = 300;
+  const int bufLen = 300;
   static THREAD_P char buf[bufLen];
 
   long totalSizeForAll = 0;
@@ -1507,7 +1507,7 @@ char *SharedTableDataCache::collectSummaryDataForSchema(const QualifiedName &sch
     itorForAll.getNext(key, value);
   }
 
-  Int32 len = snprintf(buf, bufLen,
+  int len = snprintf(buf, bufLen,
                        "Summary: Total=%d, Enabled=%d; Sum_of_length(bytes): Total=%ld, Shared Memory Heap(%p): "
                        "Total=%ld, Used=%ld, Free=%ld; Shmaddr=%p; Shmid=%d",
                        memoryTableDB_->entries(), memoryTableDB_->entriesEnabled(), totalSizeForAll,
@@ -1530,13 +1530,13 @@ char *SharedTableDataCache::collectSummaryDataForTable(const QualifiedName &tabl
   //  84 bytes for 4 long long values (21 bytes each)
   //  11 bytes for 1 long values (11 bytes each)
   //  total = 112 + 84 + 11 =207
-  const Int32 bufLen = 210;
+  const int bufLen = 210;
   static THREAD_P char buf[bufLen];
 
   auto key = tableName.getQualifiedNameAsString();
   HTableCache *value = memoryTableDB_->tableNameToCacheEntryMap()->getFirstValue(&key, NAStringHashFunc);
 
-  Int32 len = 0;
+  int len = 0;
   if (value) {
     auto tableInfo = value->tableSize<iteratorEntryType::EVERYTHING>();
     len = snprintf(buf, bufLen,
@@ -1558,12 +1558,12 @@ char *SharedTableDataCache::collectSummaryDataForTable(const QualifiedName &tabl
   return buf;
 }
 
-void testSharedMemorySequentialScan(Int32 argc, char **argv)
+void testSharedMemorySequentialScan(int argc, char **argv)
 
 {
   // find my segment id which will be used as a key to
   // access the shared segment
-  Int32 shmId;
+  int shmId;
   StatsGlobals *statsGlobals = (StatsGlobals *)shareStatsSegment(shmId);
 
   // the base address of the shared segment

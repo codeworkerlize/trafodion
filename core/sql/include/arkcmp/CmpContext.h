@@ -179,7 +179,7 @@ class DDLObjInfoList : public LIST(DDLObjInfo) {
   const void setHeap(CollHeap *heap) { heap_ = heap; }
   CollHeap *getHeap() { return heap_; }
 
-  Int32 findEntry(const NAString &objName) {
+  int findEntry(const NAString &objName) {
     for (int i = 0; i < entries(); i++) {
       DDLObjInfo &ddlObj = operator[](i);
       if (ddlObj.getObjName() == objName) return i;
@@ -192,7 +192,7 @@ class DDLObjInfoList : public LIST(DDLObjInfo) {
   }
 
   void updateObjUID(const NAString objName, long value) {
-    Int32 index = findEntry(objName);
+    int index = findEntry(objName);
     if (index >= 0) {
       DDLObjInfo &ddlObj = operator[](index);
       ddlObj.setObjUID(value);
@@ -202,7 +202,7 @@ class DDLObjInfoList : public LIST(DDLObjInfo) {
 #if 0
    void updateQIScope (const NAString &objName, ComQIScope value);
      {
-       Int32 index = findEntry(objName);
+       int index = findEntry(objName);
        if (index >= 0)
         {
            DDLObjInfo &ddlObj = operator[](index);
@@ -368,7 +368,7 @@ class CmpContextInfo {
     CMPCONTEXT_TYPE_LAST
   };
 
-  static const char *getCmpContextClassName(Int32 t) {
+  static const char *getCmpContextClassName(int t) {
     switch (t) {
       case CMPCONTEXT_TYPE_NONE:
         return ("NONE");
@@ -395,7 +395,7 @@ class CmpContextInfo {
   void decrUseCount() { useCount_--; }
 
   // access methods
-  Int32 getUseCount() { return useCount_; }
+  int getUseCount() { return useCount_; }
   CmpContext *getCmpContext() { return cmpContext_; }
   bool isSameClass(const char *name) { return !(strncmp(name_, name, CMPCONTEXT_CLASS_NAME_LEN)); }
   const char *getName() const { return name_; }
@@ -403,7 +403,7 @@ class CmpContextInfo {
  private:
   char name_[CMPCONTEXT_CLASS_NAME_LEN];  // care upto CMPCONTEXT_CLASS_NAME_LEN
   CmpContext *cmpContext_;
-  Int32 useCount_;
+  int useCount_;
 };
 
 class ContextCli;
@@ -481,7 +481,7 @@ class CmpContext {
   // get the cluster info (OSIM or global cluster info)
   NAClusterInfo *getClusterInfo() { return clusterInfo_; }
   // number of SMPs from NAClusterInfo, adjusted via CQDs
-  Int32 getNumOfSMPs();
+  int getNumOfSMPs();
 
   // set or reset specific OSIM NAClusterInfo for this context
   void setCompilerClusterInfo(NAClusterInfo *nac);
@@ -525,7 +525,7 @@ class CmpContext {
   NABoolean isInStepForInitSchemaDB() const { return flags_ & IN_INIT_SCH_STEP; }
   void setSecondaryMxcmp();
 
-  void setAuthorizationState(Int32 state);
+  void setAuthorizationState(int state);
 
   void setDoNotAbort(NABoolean v) { (v ? flags_ |= IS_DO_NOT_ABORT : flags_ &= ~IS_DO_NOT_ABORT); }
 
@@ -616,8 +616,8 @@ class CmpContext {
   CollIndex saveRetrievedCols_;
 
   // get/set storage for SQLMX_REGRESS environment variable
-  Int32 getSqlmxRegress() const { return sqlmxRegress_; }
-  void setSqlmxRegress(Int32 regressEnvVar) { sqlmxRegress_ = regressEnvVar; }
+  int getSqlmxRegress() const { return sqlmxRegress_; }
+  void setSqlmxRegress(int regressEnvVar) { sqlmxRegress_ = regressEnvVar; }
 
   CmpSqlSession *sqlSession() { return sqlSession_; }
 
@@ -629,7 +629,7 @@ class CmpContext {
   void reserveMemory();
   void freeReservedMemory();
 
-  Int32 gmtDiff() { return gmtDiff_; }
+  int gmtDiff() { return gmtDiff_; }
   const char *getCompilerId() const { return compilerId_; }
 
   int &uninitializedSeabaseErrNum() { return uninitializedSeabaseErrNum_; }
@@ -640,9 +640,9 @@ class CmpContext {
   void switchBackContext();
   void resetContext();
 
-  Int32 compileDirect(char *data, UInt32 dataLen, CollHeap *outHeap, Int32 charset, CmpMessageObj::MessageTypeEnum op,
+  int compileDirect(char *data, UInt32 dataLen, CollHeap *outHeap, int charset, CmpMessageObj::MessageTypeEnum op,
                       char *&gen_code, UInt32 &gen_code_len, UInt32 parserFlags, const char *parentQid,
-                      Int32 parentQidLen, ComDiagsArea *&diagsArea, NABoolean needToDoWork = TRUE);
+                      int parentQidLen, ComDiagsArea *&diagsArea, NABoolean needToDoWork = TRUE);
 
   // set/reset an env in compiler envs
   void setArkcmpEnvDirect(const char *name, const char *value, NABoolean unset);
@@ -701,14 +701,14 @@ class CmpContext {
   void setCIClass(CmpContextInfo::CmpContextClassType x) { ciClass_ = x; }
   CmpContextInfo::CmpContextClassType getCIClass() { return ciClass_; }
 
-  void setCIindex(Int32 x) { ciIndex_ = x; }
-  Int32 getCIindex() { return ciIndex_; }
+  void setCIindex(int x) { ciIndex_ = x; }
+  int getCIindex() { return ciIndex_; }
 
   CollationDBList *getCollationDBList() { return CDBList_; }
 
   void addInvocationInfo(tmudr::UDRInvocationInfo *ii) { invocationInfos_.insert(ii); }
   void addPlanInfo(tmudr::UDRPlanInfo *pi) { planInfos_.insert(pi); }
-  void addRoutineHandle(Int32 rh) { routineHandles_.insert(rh); }
+  void addRoutineHandle(int rh) { routineHandles_.insert(rh); }
 
   DDLObjInfoList &ddlObjsList() { return ddlObjs_; }
   DDLObjInfoList &ddlObjsInSPList() { return ddlObjsInSP_; }
@@ -742,7 +742,7 @@ class CmpContext {
 
   CNATestPointArray *getOrCreateTestPointArray();  // creates it if presently NULL
 
-  Int32 executeTestPoint(Int32 testPoint);
+  int executeTestPoint(int testPoint);
 
   int getNeedsRetryWithCachingOff() { return needsRetryWithCachingOff_; }
 
@@ -833,7 +833,7 @@ class CmpContext {
   // MV
 
   // Short to store environment variable SQLMX_REGRESS
-  Int32 sqlmxRegress_;
+  int sqlmxRegress_;
 
   // SQL session. Created when CmpContext is constructed.
   // Values are added or removed from it based on user session
@@ -856,7 +856,7 @@ class CmpContext {
 
   // difference between gmt and local time in minutes. Set once when arkcmp
   // is started.
-  Int32 gmtDiff_;
+  int gmtDiff_;
 
   // process start time, node num, pin, segment num on Seaquest.
   char compilerId_[COMPILER_ID_LEN];
@@ -915,7 +915,7 @@ class CmpContext {
   MDDescsInfo *trafMDDescsInfo_;
 
   CmpContextInfo::CmpContextClassType ciClass_;
-  Int32 ciIndex_;
+  int ciIndex_;
 
   CollationDBList *CDBList_;
 
@@ -923,7 +923,7 @@ class CmpContext {
   // after each statement has finished compiling
   LIST(tmudr::UDRInvocationInfo *) invocationInfos_;
   LIST(tmudr::UDRPlanInfo *) planInfos_;
-  LIST(Int32) routineHandles_;
+  LIST(int) routineHandles_;
 
   // if CmpSeabaseDDL::sendAllControlsAndFlags() has sent controls.
   NABoolean sacDone_;  //
@@ -956,7 +956,7 @@ class CmpContext {
 
  public:
   static NABoolean useReservedNameSpace_;
-  static Int32 authorizationState_;
+  static int authorizationState_;
 };  // end of CmpContext
 
 static inline CmpContext::InternalCompileEnum &InternalCompile() { return cmpCurrentContext->internalCompile(); }

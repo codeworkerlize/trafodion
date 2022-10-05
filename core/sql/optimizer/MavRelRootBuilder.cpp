@@ -754,7 +754,7 @@ ItemExpr *MavRelRootBuilder::buildSelfCancelingDeltaPredicate() {
 // first find the column name from mavCols_ (the MVInfo column list), and
 // then find that column by name from the RETDesc list (colList).
 //----------------------------------------------------------------------------
-ItemExpr *MavRelRootBuilder::buildDepColExpr(const CorrName &corrName, Int32 depIndex) const {
+ItemExpr *MavRelRootBuilder::buildDepColExpr(const CorrName &corrName, int depIndex) const {
   CMPASSERT(depIndex != -1);
 
   // Find the column name from the MVInfo list.

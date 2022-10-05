@@ -56,7 +56,7 @@ class ExpDP2Expr : public NAVersionedObject {
  private:
   ExExprBasePtr expr_;          // 00-07
   ExCriDescPtr criDesc_;        // 08-15
-  Int32 workAtpSpace_;          // 16-19
+  int workAtpSpace_;          // 16-19
   Int16 pCodeMode_;             // 20-21
   char fillersExpDP2Expr_[18];  // 22-39
 
@@ -75,7 +75,7 @@ class ExpDP2Expr : public NAVersionedObject {
   Long pack(void *space);
   int unpack(void *base, void *reallocator);
   int spaceNeededForWorkAtp();
-  Int32 workAtpSpace() { return workAtpSpace_; };
+  int workAtpSpace() { return workAtpSpace_; };
 
   // if inbuf is passed in, create work atp in it.
   // if createTempTupp is TRUE, allocate tupp descriptor for

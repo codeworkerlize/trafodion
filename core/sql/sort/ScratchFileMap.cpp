@@ -77,7 +77,7 @@ void ScratchFileMap::closeFiles(ScratchFile *keepFile) {
   bool foundKeepFile = false;
 
   if (fileMap_ != NULL) {
-    for (Int32 i = 0; i < numScratchFiles_; ++i) {
+    for (int i = 0; i < numScratchFiles_; ++i) {
       // delete this scratchFile
       FileMap &map = fileMap_[i];
       if (keepFile != NULL && (map.scrFile_ == keepFile)) {
@@ -114,7 +114,7 @@ void ScratchFileMap::closeFiles(ScratchFile *keepFile) {
 void ScratchFileMap::closeScrFilesUpto(SBN uptoBlockNum) {
   ex_assert(fileMap_ != NULL, "ScratchFileMap::closeFiles, fileMap_ is NULL");
 
-  for (Int32 i = 0; i < numScratchFiles_; i++) {
+  for (int i = 0; i < numScratchFiles_; i++) {
     // scenario 1: uptoBlocknum is first block of first(current) file.
     if (uptoBlockNum <= fileMap_[i].firstScrBlockWritten_)
       break;
@@ -153,8 +153,8 @@ void ScratchFileMap::closeScrFilesUpto(SBN uptoBlockNum) {
 //  NULL if unsuccessful.
 //-----------------------------------------------------------------------
 
-ScratchFile *ScratchFileMap::createNewScrFile(ScratchSpace *scratchSpace, Int32 scratchMgmtOption,
-                                              Int32 scratchMaxOpens, NABoolean preAllocateExtents,
+ScratchFile *ScratchFileMap::createNewScrFile(ScratchSpace *scratchSpace, int scratchMgmtOption,
+                                              int scratchMaxOpens, NABoolean preAllocateExtents,
                                               NABoolean asynchReadQueue) {
   FileMap *tempFileMap;
 
@@ -234,7 +234,7 @@ int ScratchFileMap::totalNumOfWrites() {
 ScratchFile *ScratchFileMap::mapBlockNumToScrFile(SBN blockNum, int &blockOffset) {
   ex_assert(blockNum > 0, "ScratchFileMap::mapBlockNumToScrFile, blockNum <= 0");
 
-  Int32 i = 0;
+  int i = 0;
   for (; i < numScratchFiles_; i++) {
     if (blockNum < fileMap_[i].firstScrBlockWritten_) {
       blockOffset = blockNum - fileMap_[i - 1].firstScrBlockWritten_;
@@ -279,7 +279,7 @@ void ScratchFileMap::setFirstScrBlockNum(SBN blockNum) {
 // Return Value : none
 //-----------------------------------------------------------------------
 SBN ScratchFileMap::getFirstScrBlockNum(ScratchFile *scr) {
-  for (Int32 i = 0; i < numScratchFiles_; i++) {
+  for (int i = 0; i < numScratchFiles_; i++) {
     if (fileMap_[i].scrFile_ == scr) {
       return fileMap_[i].firstScrBlockWritten_;
     }

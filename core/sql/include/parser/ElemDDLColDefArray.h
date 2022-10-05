@@ -67,7 +67,7 @@ class ElemDDLColDefArray : public LIST(ElemDDLColDef *) {
 
   // See if this columnName is in a ElemDDLColRefArray.  Returns the index,
   // -1 if not found.
-  Int32 getColumnIndex(const NAString &internalColumnName);
+  int getColumnIndex(const NAString &internalColumnName);
 
   // Returns -1 if the colDefParseNodeArray does not contain any division columns.
   // All division columns (if exist) are at the end of the list.

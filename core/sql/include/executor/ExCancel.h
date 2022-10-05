@@ -110,9 +110,9 @@ class ExCancelTcb : public ex_tcb {
 
   ex_queue_pair getParentQueue() const { return qparent_; }
 
-  virtual Int32 numChildren() const { return 0; }
+  virtual int numChildren() const { return 0; }
 
-  virtual const ex_tcb *getChild(Int32 /*pos*/) const { return NULL; }
+  virtual const ex_tcb *getChild(int /*pos*/) const { return NULL; }
 
   inline void tickleSchedulerWork(NABoolean noteCompletion = FALSE) {
     if (noteCompletion)
@@ -147,7 +147,7 @@ class ExCancelTcb : public ex_tcb {
   short cpu_;
   int pid_;
   bool retryQidNotActive_;
-  Int32 retryCount_;
+  int retryCount_;
 };
 
 // -----------------------------------------------------------------------

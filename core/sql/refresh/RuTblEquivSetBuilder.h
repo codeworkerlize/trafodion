@@ -86,9 +86,9 @@ class REFRESH_LIB_CLASS CRUTblEquivSetBuilder : public CRUEquivSetBuilder {
   virtual void Run();
 
   // These functions are used for retrieving the results
-  virtual Int32 GetNumOfSets() { return equivSetsList_.GetCount(); }
+  virtual int GetNumOfSets() { return equivSetsList_.GetCount(); }
 
-  CRUTblList &GetSet(Int32 num);
+  CRUTblList &GetSet(int num);
 
  public:
 #ifdef _DEBUG

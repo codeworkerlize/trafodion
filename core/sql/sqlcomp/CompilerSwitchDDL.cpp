@@ -4,7 +4,7 @@
 
 CompilerSwitchDDL::CompilerSwitchDDL() : cmpSwitched_(FALSE), savedCmpParserFlags_(0), savedCliParserFlags_(0) {}
 
-short CompilerSwitchDDL::switchCompiler(Int32 cntxtType) {
+short CompilerSwitchDDL::switchCompiler(int cntxtType) {
   cmpSwitched_ = FALSE;
   CmpContext *currContext = CmpCommon::context();
 
@@ -68,8 +68,8 @@ void CompilerSwitchDDL::restoreAllFlags() {
   return;
 }
 
-short CompilerSwitchDDL::sendAllControlsAndFlags(CmpContext *prevContext, Int32 cntxtType) {
-  Int32 cliRC;
+short CompilerSwitchDDL::sendAllControlsAndFlags(CmpContext *prevContext, int cntxtType) {
+  int cliRC;
   CmpContext *cmpctxt = CmpCommon::context();
 
   // already sent, just return

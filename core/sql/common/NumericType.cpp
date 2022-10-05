@@ -70,7 +70,7 @@ static void unsignedLongToAscii(ULng32 number, char *asciiString, NABoolean pref
 
   // reverse the string in place
   char temp;
-  Int32 i, j;
+  int i, j;
 
   for (i = 0, j = strlen(asciiString) - 1; i < j; i++, j--) {
     temp = asciiString[i];
@@ -89,7 +89,7 @@ static void signedLongToAscii(int number, char *asciiString) {
 }  // signedLongToAscii()
 
 // inserts the scale indicator dot ('.') in str
-static void insertScaleIndicator(NAString *str, Int32 scale) {
+static void insertScaleIndicator(NAString *str, int scale) {
   if (scale > 0) {
     assert(str->length() >= scale);
     str->insert(str->length() - scale, ".");
@@ -1277,7 +1277,7 @@ void SQLNumeric::minRepresentableValue(void *bufPtr, int *bufLen, NAString **str
         convertInt64ToAscii(temp, nameBuf);
       } break;
 
-      case sizeof(Int32): {
+      case sizeof(int): {
         int temp = 0;
         int i = 0;
         for (; i < getPrecision(); i++) {
@@ -1340,7 +1340,7 @@ void SQLNumeric::maxRepresentableValue(void *bufPtr, int *bufLen, NAString **str
       convertInt64ToAscii(temp, nameBuf);
     } break;
 
-    case sizeof(Int32): {
+    case sizeof(int): {
       int temp = 0;
       int i = 0;
       for (; i < getPrecision(); i++) {
@@ -1396,7 +1396,7 @@ NAString *SQLNumeric::convertToString(double v, CollHeap *h) const {
 
       } break;
 
-      case sizeof(Int32): {
+      case sizeof(int): {
         int temp = (int)v;
         signedLongToAscii(temp, nameBuf);
 
@@ -1439,7 +1439,7 @@ NAString *SQLNumeric::convertToString(long v, CollHeap *h) const {
 
       } break;
 
-      case sizeof(Int32): {
+      case sizeof(int): {
         int temp = (int)v;
         signedLongToAscii(temp, nameBuf);
 
@@ -1506,7 +1506,7 @@ double SQLNumeric::getMinValue() const {
         return double(temp);
       } break;
 
-      case sizeof(Int32): {
+      case sizeof(int): {
         int temp = 0;
         int i = 0;
         for (; i < getPrecision(); i++) {
@@ -1551,7 +1551,7 @@ double SQLNumeric::getMaxValue() const {
       return double(temp);
     } break;
 
-    case sizeof(Int32): {
+    case sizeof(int): {
       int temp = 0;
       int i = 0;
       for (; i < getPrecision(); i++) {
@@ -1595,7 +1595,7 @@ void SQLNumeric::getMaxValue(long *nValue) const {
       return;
     } break;
 
-    case sizeof(Int32): {
+    case sizeof(int): {
       int temp = 0;
       int i = 0;
       for (; i < getPrecision(); i++) {
@@ -1684,7 +1684,7 @@ void SQLDecimal::minRepresentableValue(void *bufPtr, int *bufLen, NAString **str
     }
 
     // and append the value.
-    (*stringLiteral)->append((char *)bufPtr, (Int32)(*bufLen));
+    (*stringLiteral)->append((char *)bufPtr, (int)(*bufLen));
 
     insertScaleIndicator(*stringLiteral, getScale());
   }
@@ -1705,7 +1705,7 @@ void SQLDecimal::maxRepresentableValue(void *bufPtr, int *bufLen, NAString **str
 
   // Convert to a string
   if (stringLiteral != NULL) {
-    *stringLiteral = new (h) NAString((char *)bufPtr, (Int32)(*bufLen), h);
+    *stringLiteral = new (h) NAString((char *)bufPtr, (int)(*bufLen), h);
     insertScaleIndicator(*stringLiteral, getScale());
   }
 }  // SQLDecimal::maxRepresentableValue()
@@ -1722,11 +1722,11 @@ NAString *SQLDecimal::convertToString(double v, CollHeap *h) const {
     signedLongToAscii(fraction, fractionBuf);
     fractionBuf[getScale()] = 0;
 
-  } else if (getNominalSize() <= sizeof(Int32)) {
+  } else if (getNominalSize() <= sizeof(int)) {
     int temp = (int)v;
     signedLongToAscii(temp, nameBuf);
 
-    Int32 fraction = Int32(v - double(temp));
+    int fraction = int(v - double(temp));
     signedLongToAscii(fraction, fractionBuf);
     fractionBuf[getScale()] = 0;
 
@@ -1878,7 +1878,7 @@ double SQLBigNum::getNormalizedValue(void *buf) const {
   unsigned short *valPtrInShorts = (unsigned short *)valPtr;
   // NOTE: The last bit contains the sign bit.  It must be 0 since, if not,
   //       we would have returned -1 above.
-  for (Int32 i = getNominalSize() / 2 - 1; i >= 0; i--) {
+  for (int i = getNominalSize() / 2 - 1; i >= 0; i--) {
     temp = temp * 65536 + valPtrInShorts[i];  // 65536 = 2^16, base for Big Nums
     // set a limit to prevent possible overflow
     if (temp >= 2.7430620343968440e+303) {  // max of double / 65536
@@ -1903,7 +1903,7 @@ double SQLBigNum::encode(void *input) const {
   // Clear sign bit
   BIGN_CLR_SIGN(valPtr, getNominalSize());
 
-  for (Int32 i = getNominalSize() / 2 - 1; i >= 0; i--) {
+  for (int i = getNominalSize() / 2 - 1; i >= 0; i--) {
     temp = temp * (USHRT_MAX + 1) + valPtrInShorts[i];  // USHRT_MAX + 1 = 2^16, i.e
                                                         // the base in which Big Nums
                                                         // are representated
@@ -1931,10 +1931,10 @@ void SQLBigNum::minRepresentableValue(void *bufPtr, int *bufLen, NAString **stri
   char *temp = new (h) char[getPrecision() + 1];  // one extra byte for the sign.
   if (NumericType::isUnsigned()) {
     temp[0] = '+';
-    for (Int32 i = 1; i <= getPrecision(); i++) temp[i] = '0';
+    for (int i = 1; i <= getPrecision(); i++) temp[i] = '0';
   } else {
     temp[0] = '-';
-    for (Int32 i = 1; i <= getPrecision(); i++) temp[i] = '9';
+    for (int i = 1; i <= getPrecision(); i++) temp[i] = '9';
   }
 
   // Convert ASCII to Big Num (with sign) representation
@@ -1943,7 +1943,7 @@ void SQLBigNum::minRepresentableValue(void *bufPtr, int *bufLen, NAString **stri
 
   // Convert to a string
   if (stringLiteral != NULL) {
-    *stringLiteral = new (h) NAString(temp, (Int32)(getPrecision() + 1), h);
+    *stringLiteral = new (h) NAString(temp, (int)(getPrecision() + 1), h);
     insertScaleIndicator(*stringLiteral, getScale());
   }
 
@@ -1958,7 +1958,7 @@ void SQLBigNum::maxRepresentableValue(void *bufPtr, int *bufLen, NAString **stri
   // Prepare ASCII representation of min permissible value in temp array.
   char *temp = new (h) char[getPrecision() + 1];  // one extra byte for the sign.
   temp[0] = '+';
-  for (Int32 i = 1; i <= getPrecision(); i++) temp[i] = '9';
+  for (int i = 1; i <= getPrecision(); i++) temp[i] = '9';
 
   // Convert ASCII to Big Num (with sign) representation
   BigNumHelper::ConvAsciiToBigNumWithSignHelper(getPrecision() + 1,  // extra byte for sign
@@ -1966,7 +1966,7 @@ void SQLBigNum::maxRepresentableValue(void *bufPtr, int *bufLen, NAString **stri
 
   // Convert to a string
   if (stringLiteral != NULL) {
-    *stringLiteral = new (h) NAString(temp, (Int32)(getPrecision() + 1), h);
+    *stringLiteral = new (h) NAString(temp, (int)(getPrecision() + 1), h);
     insertScaleIndicator(*stringLiteral, getScale());
   }
 
@@ -2021,7 +2021,7 @@ void LSDecimal::minRepresentableValue(void *bufPtr, int *bufLen, NAString **stri
 
   // Convert to a string
   if (stringLiteral != NULL) {
-    *stringLiteral = new (h) NAString((char *)bufPtr, (Int32)(*bufLen), h);
+    *stringLiteral = new (h) NAString((char *)bufPtr, (int)(*bufLen), h);
     insertScaleIndicator(*stringLiteral, getScale());
   }
 }  // LSDecimal::minRepresentableValue()
@@ -2034,7 +2034,7 @@ void LSDecimal::maxRepresentableValue(void *bufPtr, int *bufLen, NAString **stri
 
   // Convert to a string
   if (stringLiteral != NULL) {
-    *stringLiteral = new (h) NAString((char *)bufPtr, (Int32)(*bufLen), h);
+    *stringLiteral = new (h) NAString((char *)bufPtr, (int)(*bufLen), h);
     insertScaleIndicator(*stringLiteral, getScale());
   }
 }  // LSDecimal::maxRepresentableValue()

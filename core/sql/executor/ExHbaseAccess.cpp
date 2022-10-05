@@ -74,11 +74,11 @@ long getSavepointIDFromContext(long &pSavepiontId) {
   return savepointId;
 }
 
-Int32 getTransactionIsolationLevelFromContext() {
+int getTransactionIsolationLevelFromContext() {
   ExTransaction *ta = GetCliGlobals()->currContext()->getTransaction();
   TransMode *transMode = ta->getTransMode();
 
-  return (Int32)transMode->isolationLevel();
+  return (int)transMode->isolationLevel();
 }
 
 ex_tcb *ExHbaseAccessTdb::build(ex_globals *glob) {
@@ -178,7 +178,7 @@ int ExHbaseAccessTdb::execStatementTrigger(bool isBefore) {
       HBaseClient_JNI::getTriggerInfo(triggerInfo, type, isBefore, triggers, TRUE);
       if (triggerInfo.length() == 0) return 0;
 
-      Int32 cliRC = GetCliGlobals()->currContext()->prepareCallTrigger();
+      int cliRC = GetCliGlobals()->currContext()->prepareCallTrigger();
       if (cliRC < 0) {
         return -HBASE_ACCESS_ERROR;
       }
@@ -2414,9 +2414,9 @@ void ExHbaseAccessTcb::allocateDirectRowIDBufferForJNI(short maxRows) {
 
 short ExHbaseAccessTcb::createDirectRowBuffer(Text &colFamily, Text &colName, Text &colVal) {
   short colNameLen = colFamily.size() + colName.size() + 1;
-  Int32 colValLen = colVal.size();
+  int colValLen = colVal.size();
   UInt32 rowLen = sizeof(short) + sizeof(short) +  // numCols, column length
-                  colNameLen + sizeof(Int32) + colValLen;
+                  colNameLen + sizeof(int) + colValLen;
   if (rowLen > directRowBufferLen_) {
     if (directRowBuffer_ != NULL) {
       NADELETEBASIC(directRowBuffer_, getHeap());
@@ -2440,7 +2440,7 @@ short ExHbaseAccessTcb::createDirectRowBuffer(Text &colFamily, Text &colName, Te
   temp++;
   memcpy(temp, colName.data(), colName.size());
   temp += colName.size();
-  *(Int32 *)temp = bswap_32(colValLen);
+  *(int *)temp = bswap_32(colValLen);
   temp += sizeof(colValLen);
   memcpy(temp, colVal.data(), colValLen);
   temp += colValLen;
@@ -2449,15 +2449,15 @@ short ExHbaseAccessTcb::createDirectRowBuffer(Text &colFamily, Text &colName, Te
 }
 
 int ExHbaseAccessTcb::copyColToDirectBuffer(BYTE *rowCurPtr, char *colName, short colNameLen,
-                                              NABoolean prependNullVal, char nullVal, char *colVal, Int32 colValLen) {
-  Int32 bytesCopied;
+                                              NABoolean prependNullVal, char nullVal, char *colVal, int colValLen) {
+  int bytesCopied;
   assert(directRowBufferLen_ >= (row_.len + colNameLen + colValLen + 4));
   BYTE *temp = rowCurPtr;
   *(short *)temp = bswap_16(colNameLen);
   temp += sizeof(colNameLen);
   memcpy(temp, colName, colNameLen);
   temp += colNameLen;
-  *(Int32 *)temp = bswap_32(colValLen + prependNullVal);
+  *(int *)temp = bswap_32(colValLen + prependNullVal);
   temp += sizeof(colValLen);
   if (prependNullVal) *temp++ = nullVal;
   memcpy(temp, colVal, colValLen);
@@ -2499,7 +2499,7 @@ short ExHbaseAccessTcb::createDirectRowBuffer(UInt16 tuppIndex, char *tuppRow, Q
   Int16 datatype;
   Int16 scale = 0;
   union {
-    Int32 i;
+    int i;
     UInt32 ui;
     long i64;
     Int16 i16;
@@ -2515,7 +2515,7 @@ short ExHbaseAccessTcb::createDirectRowBuffer(UInt16 tuppIndex, char *tuppRow, Q
   char *colName;
   short nullVal = 0;
   short nullValLen = 0;
-  Int32 colValLen;
+  int colValLen;
   char *colVal;
   char *str;
   NABoolean prependNullVal;
@@ -2589,7 +2589,7 @@ short ExHbaseAccessTcb::createDirectRowBuffer(UInt16 tuppIndex, char *tuppRow, Q
         if (nullVal) nullValChar = -1;
       }
       colValLen = attr->getLength(&tuppRow[attr->getVCLenIndOffset()]);
-      Int32 bytesCopied =
+      int bytesCopied =
           copyColToDirectBuffer(rowCurPtr, colName, colNameLen, prependNullVal, nullValChar, colVal, colValLen);
       rowCurPtr += bytesCopied;
       row_.len += bytesCopied;
@@ -2613,7 +2613,7 @@ short ExHbaseAccessTcb::createDirectAlignedRowBuffer(UInt16 tuppIndex, char *tup
   char *colName;
   short nullVal = 0;
   short nullValLen = 0;
-  Int32 colValLen;
+  int colValLen;
   char *colVal;
   char *str;
   short *numColsPtr;
@@ -2632,7 +2632,7 @@ short ExHbaseAccessTcb::createDirectAlignedRowBuffer(UInt16 tuppIndex, char *tup
   colVal = tuppRow;
 
   colValLen = insertRowlen_;
-  Int32 bytesCopied = copyColToDirectBuffer(rowCurPtr, colName, colNameLen, FALSE, 0, colVal, colValLen);
+  int bytesCopied = copyColToDirectBuffer(rowCurPtr, colName, colNameLen, FALSE, 0, colVal, colValLen);
   rowCurPtr += bytesCopied;
   row_.len += bytesCopied;
 
@@ -2644,17 +2644,17 @@ short ExHbaseAccessTcb::createDirectAlignedRowBuffer(UInt16 tuppIndex, char *tup
 short ExHbaseAccessTcb::createDirectRowwiseBuffer(char *inputRow) {
   short numEntries;
   short colNameLen;
-  Int32 colValLen;
+  int colValLen;
   short nullVal;
   char *colName;
   char *colVal;
-  Int32 bytesCopied;
+  int bytesCopied;
   char nullValChar = 0;
-  Int32 rowLen;
+  int rowLen;
   char *curPtr;
   short maxColNameLen;
   short colValVCIndLen;
-  Int32 maxColValLen;
+  int maxColValLen;
 
   curPtr = inputRow;
   numEntries = *((short *)curPtr);
@@ -2663,11 +2663,11 @@ short ExHbaseAccessTcb::createDirectRowwiseBuffer(char *inputRow) {
   curPtr += sizeof(short);
   colValVCIndLen = *((short *)curPtr);
   curPtr += sizeof(short);
-  maxColValLen = *((Int32 *)curPtr);
+  maxColValLen = *((int *)curPtr);
   rowLen = sizeof(short) +  // For row number
            sizeof(short)    // For number of columns
            + (numEntries * (ROUND2(maxColNameLen) + ROUND2(maxColValLen) +
-                            (sizeof(short) + sizeof(Int32))));  // Store colNameLen and colValLen
+                            (sizeof(short) + sizeof(int))));  // Store colNameLen and colValLen
   short numCols = 0;
   short *numColsPtr;
   allocateDirectBufferForJNI(rowLen);
@@ -2677,7 +2677,7 @@ short ExHbaseAccessTcb::createDirectRowwiseBuffer(char *inputRow) {
   row_.len += sizeof(short);
 
   curPtr = inputRow;
-  curPtr += (3 * sizeof(short) + sizeof(Int32));  // skip numEntries, maxColNameLen,
+  curPtr += (3 * sizeof(short) + sizeof(int));  // skip numEntries, maxColNameLen,
                                                   // colValVCIndLen, maxColValLen
   for (int ij = 0; ij < numEntries; ij++) {
     colNameLen = *(short *)curPtr;
@@ -2693,8 +2693,8 @@ short ExHbaseAccessTcb::createDirectRowwiseBuffer(char *inputRow) {
       curPtr += sizeof(short);
     } else {
       curPtr = (char *)ROUND4((long)curPtr);
-      colValLen = *(Int32 *)curPtr;
-      curPtr += sizeof(Int32);
+      colValLen = *(int *)curPtr;
+      curPtr += sizeof(int);
     }
 
     colVal = curPtr;
@@ -2847,7 +2847,7 @@ int ExHbaseAccessTcb::createSQRowDirectFromMemoryTable() {
   ExpTupleDesc *convertTuppTD = hbaseAccessTdb().workCriDesc_->getTupleDescriptor(hbaseAccessTdb().convertTuppIndex_);
 
   BYTE *colVal = (BYTE *)asciiRow_;
-  Int32 colValLen, tagLen;
+  int colValLen, tagLen;
   int asciiRowLen = hbaseAccessTdb().asciiRowLen_;
   BYTE nullVal;
   BYTE *tag = NULL;

@@ -90,7 +90,7 @@ NABoolean MvQueryRewriteHandler::isMvqrSupportedForMV(QueryAnalysis *qa, RelExpr
  *                        element of the parsed document.
  * @return Status indicator.
  */
-static QRRequestResult parseXML(char *xmlText, Int32 xmlLen, XMLElementPtr &descriptor) {
+static QRRequestResult parseXML(char *xmlText, int xmlLen, XMLElementPtr &descriptor) {
   try {
     QRElementMapper em;
     XMLDocument doc = XMLDocument(STMTHEAP, em);
@@ -383,9 +383,9 @@ RelRoot *MvQueryRewriteHandler::handleAnalyzeOnlyQuery(RelRoot *rootExpr, NAStri
   if (xmlText == NULL) xmlText = &empty;
 
   CollHeap *heap = CmpCommon::statementHeap();
-  Int32 maxLen = xmlText->length();
-  Int32 pos = 0;
-  Int32 lastPos = -1;
+  int maxLen = xmlText->length();
+  int pos = 0;
+  int lastPos = -1;
   ItemExpr *tupleExpr = NULL;
 
   while (pos < maxLen - 1) {

@@ -111,8 +111,8 @@ class ExBMOStats;
 // to be used for quicksort.
 //----------------------------------------------------------------------
 
-void heapSort(RecKeyBuffer keysToSort[], Int32 runsize);
-void siftDown(RecKeyBuffer keysToSort[], Int32 root, Int32 bottom);
+void heapSort(RecKeyBuffer keysToSort[], int runsize);
+void siftDown(RecKeyBuffer keysToSort[], int root, int bottom);
 
 class Qsort : public SortAlgo {  // SortAlgo inherits from NABasicObject
 

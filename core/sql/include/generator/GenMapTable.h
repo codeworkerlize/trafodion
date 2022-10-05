@@ -120,7 +120,7 @@ class MapInfoContainer {
  public:
   MapInfoContainer(CollHeap *heap) {
     mapInfoArray_ = (MapInfo *)(new (heap) char[sizeof(MapInfo) * MICAsize]);
-    for (Int32 i = 0; i < MICAsize; i++) {
+    for (int i = 0; i < MICAsize; i++) {
       mapInfoArray_[i].init();
     }
 
@@ -201,10 +201,10 @@ class MapTable : public NABasicObject {
 // Bitmap for value ids in the map table.
 // ---------------------------------------------------------------------
 #define initMTBAsize 8            // initial map table bitmap array size
-  Int32 vidBitMapArraySize_;      // size of value id bitmap array
+  int vidBitMapArraySize_;      // size of value id bitmap array
   MTBitmapUnit *vidBitMapArray_;  // array of value id bitmaps
   short *vidsInBitMapArray_;      // array of number of value ids in bitmap
-  Int32 totalVids_;               // total number of value ids in map table
+  int totalVids_;               // total number of value ids in map table
                                   // it is the sum of vidsInBitMapArray_
 
 // ---------------------------------------------------------------------
@@ -212,7 +212,7 @@ class MapTable : public NABasicObject {
 // ---------------------------------------------------------------------
 #define initMTMIPAsize          8  // initial map table map info array size
 #define mapInfoPtrArrayStepSize 8  // increase the map info array size by 8
-  Int32 mapInfoPtrArraySize_;      // size of map info array ptr
+  int mapInfoPtrArraySize_;      // size of map info array ptr
   MapInfo **mapInfoPtrArray_;      // array of map infos ptrs
 
   // ---------------------------------------------------------------------
@@ -236,7 +236,7 @@ class MapTable : public NABasicObject {
   //
   // Get the bits that we are interested in.
   // ---------------------------------------------------------------------
-  inline MTBitmapUnit getBits(const CollIndex valueId, const Int32 whichMap);
+  inline MTBitmapUnit getBits(const CollIndex valueId, const int whichMap);
 
   // ---------------------------------------------------------------------
   // getIndexIntoMapInfoPtrArray()
@@ -245,7 +245,7 @@ class MapTable : public NABasicObject {
   // Inputs: whichMap -- the bitmap the value id is in
   //         inBits   -- the relevant bits that we're interested in
   // ---------------------------------------------------------------------
-  Int32 getIndexIntoMapInfoPtrArray(const Int32 whichMap, MTBitmapUnit inBits) const;
+  int getIndexIntoMapInfoPtrArray(const int whichMap, MTBitmapUnit inBits) const;
 
  public:
   void setAllAtp(short Atp);
@@ -301,7 +301,7 @@ class MapTable : public NABasicObject {
   MapTable *&next() { return next_; };
   MapTable *&prev() { return prev_; };
 
-  Int32 getTotalVids() { return totalVids_; };
+  int getTotalVids() { return totalVids_; };
 };
 
 // ---------------------------------------------------------------------
@@ -310,7 +310,7 @@ class MapTable : public NABasicObject {
 // Get the bits that we are interested in.
 // ---------------------------------------------------------------------
 
-MapTable::MTBitmapUnit MapTable::getBits(const CollIndex valueId, const Int32 whichMap) {
+MapTable::MTBitmapUnit MapTable::getBits(const CollIndex valueId, const int whichMap) {
   // Get the bitmap and right shift away the bits that we don't care about.
 
 #ifdef _DEBUG

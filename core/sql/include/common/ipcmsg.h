@@ -66,8 +66,8 @@ class GuaMsgConnectionToServer : public IpcConnection {
 
   virtual GuaMsgConnectionToServer *castToGuaMsgConnectionToServer();
 
-  virtual Int32 numQueuedSendMessages();
-  virtual Int32 numQueuedReceiveMessages();
+  virtual int numQueuedSendMessages();
+  virtual int numQueuedReceiveMessages();
 
   inline GuaErrorNumber getGuardianError() const { return guaErrorInfo_; }
 

@@ -80,7 +80,7 @@ class StmtDDLAlterSharedCache : public StmtDDLNode {
   // accessors
   //
 
-  virtual Int32 getArity() const { return 0; }
+  virtual int getArity() const { return 0; }
   virtual ExprNode *getChild(int index) { return NULL; }
 
   const QualifiedName &getQualifiedName() const { return qualName_; }

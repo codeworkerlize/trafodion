@@ -185,7 +185,7 @@ ex_hash_grby_tcb::ex_hash_grby_tcb(const ex_hash_grby_tdb &hash_grby_tdb, const 
   // controlled by GEN_HGBY_NUM_BUFFERS CQD at compile time.
   int numBuffers = ((hash_grby_tdb.numBuffers_ == 0) ? 5 : hash_grby_tdb.numBuffers_);
 
-  resultPool_ = new (space_) sql_buffer_pool(numBuffers, (Int32)hash_grby_tdb.bufferSize_, space_);
+  resultPool_ = new (space_) sql_buffer_pool(numBuffers, (int)hash_grby_tdb.bufferSize_, space_);
 
   if (hash_grby_tdb.considerBufferDefrag()) {
     assert(hash_grby_tdb.useVariableLength());
@@ -196,10 +196,10 @@ ex_hash_grby_tcb::ex_hash_grby_tcb(const ex_hash_grby_tdb &hash_grby_tdb, const 
 
   if (bitMuxExpr_) {
     // Try to get about 1Mb of memory for the Trie table.
-    Int32 memSize = 1000 * 1024;
+    int memSize = 1000 * 1024;
     bitMuxTable_ =
-        new (space_) ExBitMapTable((Int32)hashGrbyTdb().keyLength_, (Int32)hashGrbyTdb().extGroupedRowLength_,
-                                   (Int32)bitMuxCountOffset_, memSize, space_);
+        new (space_) ExBitMapTable((int)hashGrbyTdb().keyLength_, (int)hashGrbyTdb().extGroupedRowLength_,
+                                   (int)bitMuxCountOffset_, memSize, space_);
     bitMuxBuffer_ = (char *)space_->allocateMemory((size_t)hashGrbyTdb().extGroupedRowLength_);
 
     if (bitMuxTable_ && bitMuxBuffer_ && (bitMuxTable_->getMaximumNumberGroups() > 0)) {
@@ -207,12 +207,12 @@ ex_hash_grby_tcb::ex_hash_grby_tcb(const ex_hash_grby_tdb &hash_grby_tdb, const 
       // the actual key extracted by the bitMux expression may be shorter
       // that the grouped row length.
       //
-      for (Int32 i = 0; i < (Int32)hashGrbyTdb().extGroupedRowLength_; i++) bitMuxBuffer_[i] = 0;
+      for (int i = 0; i < (int)hashGrbyTdb().extGroupedRowLength_; i++) bitMuxBuffer_[i] = 0;
 
       // Initialize the tupp descriptor for the bitMux buffer if
       // bitMux'ing is on.
       //
-      bitMuxTupp_.init((Int32)hashGrbyTdb().extGroupedRowLength_, NULL, bitMuxBuffer_);
+      bitMuxTupp_.init((int)hashGrbyTdb().extGroupedRowLength_, NULL, bitMuxBuffer_);
     } else {
       // If resource allocation fails for any reason, simply turn off
       // bitMux'ing and free any of the resources that where allocated.
@@ -378,7 +378,7 @@ short ex_hash_grby_tcb::work() {
           if (!hasFreeTupp_) {
             // allocate space for the result tuple
             if (resultPool_->get_free_tuple(workAtp_->getTupp(resultRowAtpIndex_),
-                                            (Int32)hashGrbyTdb().resultRowLength_))
+                                            (int)hashGrbyTdb().resultRowLength_))
 
               // not enough space in pool. Return for now
               return WORK_POOL_BLOCKED;
@@ -401,7 +401,7 @@ short ex_hash_grby_tcb::work() {
         // space in the result buffer
         if (!hbAggrExpr_ && !hasFreeTupp_) {
           // allocate space for the result tuple
-          if (resultPool_->get_free_tuple(workAtp_->getTupp(resultRowAtpIndex_), (Int32)hashGrbyTdb().resultRowLength_))
+          if (resultPool_->get_free_tuple(workAtp_->getTupp(resultRowAtpIndex_), (int)hashGrbyTdb().resultRowLength_))
             // not enough space in pool. Return for now
             return WORK_POOL_BLOCKED;
           else
@@ -455,7 +455,7 @@ short ex_hash_grby_tcb::work() {
             } else
                 // allocate space for the result tuple
                 if (resultPool_->get_free_tuple(workAtp_->getTupp(resultRowAtpIndex_),
-                                                (Int32)hashGrbyTdb().resultRowLength_))
+                                                (int)hashGrbyTdb().resultRowLength_))
               // not enough space in pool. return for now
               return WORK_POOL_BLOCKED;
             else
@@ -1122,7 +1122,7 @@ void ex_hash_grby_tcb::workReadChild() {
 
 // workReadChildBitMux
 //
-Int32 ex_hash_grby_tcb::workReadChildBitMux() {
+int ex_hash_grby_tcb::workReadChildBitMux() {
   ex_queue_entry *childEntry;
   ex_queue_entry *upParentEntry = parentQueue_.up->getTailEntry();
   ex_queue_entry *downParentEntry = parentQueue_.down->getHeadEntry();
@@ -1148,7 +1148,7 @@ Int32 ex_hash_grby_tcb::workReadChildBitMux() {
     // Attempt to find a match for the data in the bitMuxBuffer_
     // in the bitMux table.
     //
-    Int32 result = bitMuxTable_->findOrAdd(bitMuxBuffer_);
+    int result = bitMuxTable_->findOrAdd(bitMuxBuffer_);
 
     // Set the hbRowAtpIndex tupp to reference the found group
     //
@@ -1193,7 +1193,7 @@ Int32 ex_hash_grby_tcb::workReadChildBitMux() {
         }
 
         // Free entry in parent queue was consumed; allocate a new one
-        if (resultPool_->get_free_tuple(workAtp_->getTupp(resultRowAtpIndex_), (Int32)hashGrbyTdb().resultRowLength_)) {
+        if (resultPool_->get_free_tuple(workAtp_->getTupp(resultRowAtpIndex_), (int)hashGrbyTdb().resultRowLength_)) {
           // not enough space in pool. This would be checked again before the
           // next call to workReadChild(), and then a WORK_POOL_BLOCKED would
           // be returned by work()

@@ -96,7 +96,7 @@ void init_SQLCLI_OBJ_ID(SQLCLI_OBJ_ID *x, int version, enum SQLOBJ_ID_NAME_MODE 
 // compare two SQL object ids for equality.
 ////////////////////////////////////////////
 
-Int32 isEqualByName(SQLCLI_OBJ_ID *x, SQLCLI_OBJ_ID *y) {
+int isEqualByName(SQLCLI_OBJ_ID *x, SQLCLI_OBJ_ID *y) {
   // 8/6/98: Unicode based comparison is not enabled yet
   // as it is still questionable whether a module will be
   // coded in Unicode.
@@ -110,7 +110,7 @@ Int32 isEqualByName(SQLCLI_OBJ_ID *x, SQLCLI_OBJ_ID *y) {
 // compare two SQL module ids for equality.
 ////////////////////////////////////////////
 
-Int32 isEqualByName(const SQLMODULE_ID *x, const SQLMODULE_ID *y) {
+int isEqualByName(const SQLMODULE_ID *x, const SQLMODULE_ID *y) {
   // 8/6/98: Unicode based comparison is not enabled yet
   // as it is still questionable whether a module will be
   // coded in Unicode.
@@ -216,7 +216,7 @@ char* getModNameInLocale(const SQLMODULE_ID* m)
    if (nameInWchar == 0)
      return 0;
 
-   Int32 wcNameLen = NAWstrlen(nameInWchar);
+   int wcNameLen = NAWstrlen(nameInWchar);
 
    static char* nameInLocale = new char[MAX_CHAR_SET_STRING_LENGTH+1];
 
@@ -247,7 +247,7 @@ char* getIdInLocale(SQLCLI_OBJ_ID* x)
    if (nameInWchar == 0)
      return 0;
 
-   Int32 wcNameLen = NAWstrlen(nameInWchar);
+   int wcNameLen = NAWstrlen(nameInWchar);
 
    static char* nameInLocale = new char[MAX_CHAR_SET_STRING_LENGTH+1];
 

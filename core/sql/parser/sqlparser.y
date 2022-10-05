@@ -209,9 +209,9 @@ static const UInt32 DEFAULT_STRING_SIZE = 1;
 
 extern NAArray<NAString> *startWithStr;
 
-THREAD_P Int32     externalDataTypeCnt_   = 0 ;
+THREAD_P int     externalDataTypeCnt_   = 0 ;
 THREAD_P NAString *externalDataTypeNames_ = NULL ;
-THREAD_P Int32 numberStartWith = 0;
+THREAD_P int numberStartWith = 0;
 static void beginCallStmtParsing ()
 {
   inCallStmt = TRUE;
@@ -261,12 +261,12 @@ static void prepareReferencingNames( TableRefList & nameList,
 //
 static NABoolean isInvalidSignalSqlstateValue(NAString *SqlState)
 {
-        Int32 wasError = FALSE;
+        int wasError = FALSE;
 
         if (SqlState->length() != 5)     // SQLSTATE must be 5 characters long.
                 wasError = TRUE;
 
-        for (Int32 i=0; i<5; i++)  // Each character must be alphanumeric.
+        for (int i=0; i<5; i++)  // Each character must be alphanumeric.
                 if (!isAlNum8859_1(SqlState->data()[i]))
                         wasError = TRUE;
 
@@ -321,8 +321,8 @@ THREAD_P NABoolean HexStringLiteralNotAllowed = FALSE;
 //(e.g. varchar) in VARCHAR for ODBC.
 THREAD_P NABoolean empty_charlen_specifier_allowed = FALSE;
 
-THREAD_P Int32 NumOfScalars = 0 ;
-THREAD_P Int32 NumOfArrays  = 0 ;
+THREAD_P int NumOfScalars = 0 ;
+THREAD_P int NumOfArrays  = 0 ;
 
 //This global is introduced to allow CAST to remember whether
 //or not the user specified a CHARACTER SET clause for the target
@@ -1797,7 +1797,7 @@ static void setPartionInfo(RelExpr *re)
 // which come with it.
 //
 #ifdef INCLUDE_UNION
-  Int32               	     	tokval;
+  int               	     	tokval;
   TokvalPlusYYText		tokval_plus_yytext;
   NAString             	     	*stringval;
   NAWString             	*wstringval;
@@ -3495,7 +3495,7 @@ character_literal_sbyte : sbyte_string_literal character_literal_notcasespecific
                          // Convert to DEFAULT_CHARSET if possible to preserve the old behavior.
                          NAString * newstr = charToChar ( (int)SqlParser_DEFAULT_CHARSET // targetCS
                                                         , $1->data()              // const char *s
-                                                        , $1->length()            // Int32 sLenInBytes
+                                                        , $1->length()            // int sLenInBytes
                                                         , (int)getStringCharSet(&$1)     // sourceCS
                                                         , PARSERHEAP() // heap for allocated target str
                                                         );
@@ -3899,7 +3899,7 @@ sbyte_string_literal : TOK_SBYTE_LITERAL
                 {
                    NAString * newcstr = charToChar ( (int)getStringCharSet(&$1) // targetCS
                                                    , $2->data()              // const char *s
-                                                   , $2->length()            // Int32 sLenInBytes
+                                                   , $2->length()            // int sLenInBytes
                                                    , (int)getStringCharSet(&$2) // sourceCS
                                                    , PARSERHEAP()            // heap for allocated target str
                                                    );
@@ -3951,7 +3951,7 @@ sbyte_string_literal : TOK_SBYTE_LITERAL
                 {
                   NAString * newstr = charToChar ( (int)getStringCharSet(&$2) // targetCS
                                                  , $1->data()              // const char *s
-                                                 , $1->length()            // Int32 sLenInBytes
+                                                 , $1->length()            // int sLenInBytes
                                                  , (int)getStringCharSet(&$1) // sourceCS
                                                  , PARSERHEAP()            // heap for allocated target str
                                                  );
@@ -5820,7 +5820,7 @@ special_table_loc_clause : TOK_LOCATION fully_expanded_guardian_loc_name
                   }
 		  |  TOK_PARTITION TOK_NUMBER NUMERIC_LITERAL_EXACT_NO_SCALE
 		  {
-		     Int32 partNum = (Int32)atoi(*$3);
+		     int partNum = (int)atoi(*$3);
 		     if (partNum < 0)
 		      YYERROR;
 
@@ -5829,10 +5829,10 @@ special_table_loc_clause : TOK_LOCATION fully_expanded_guardian_loc_name
                   }
 		  |  TOK_PARTITION TOK_NUMBER TOK_FROM NUMERIC_LITERAL_EXACT_NO_SCALE TOK_TO NUMERIC_LITERAL_EXACT_NO_SCALE
 		  {
-		    Int32 beginPartNum = (Int32)atoi(*$4);
+		    int beginPartNum = (int)atoi(*$4);
 		    if (beginPartNum <= 0)
 		      YYERROR;
-		    Int32 endPartNum = (Int32)atoi(*$6);
+		    int endPartNum = (int)atoi(*$6);
 		    if (endPartNum <= 0)
 		      YYERROR;
 		    
@@ -5847,7 +5847,7 @@ special_table_loc_clause : TOK_LOCATION fully_expanded_guardian_loc_name
                   }
 		  |  TOK_PARTITION TOK_NUMBER TOK_FROM NUMERIC_LITERAL_EXACT_NO_SCALE 
 		  {
-		    Int32 beginPartNum = (Int32)atoi(*$4);
+		    int beginPartNum = (int)atoi(*$4);
 		    if (beginPartNum <= 0)
 		      YYERROR;
 		    
@@ -5858,8 +5858,8 @@ special_table_loc_clause : TOK_LOCATION fully_expanded_guardian_loc_name
                   }
 		  |  TOK_PARTITION TOK_NUMBER TOK_TO NUMERIC_LITERAL_EXACT_NO_SCALE 
 		  {
-		    Int32 beginPartNum = -1;
-		    Int32 endPartNum = (Int32)atoi(*$4);
+		    int beginPartNum = -1;
+		    int endPartNum = (int)atoi(*$4);
 		    if (endPartNum <= 0)
 		      YYERROR;
 		    
@@ -6681,7 +6681,7 @@ TOK_TABLE '(' TOK_INTERNALSP '(' character_string_literal ')' ')'
   }
 | table_name optional_as_clause lateral_views
                    {
-                   Int32 numLatViews = $3->entries();
+                   int numLatViews = $3->entries();
                    if (numLatViews <= 0)
                      YYERROR;
 
@@ -6692,7 +6692,7 @@ TOK_TABLE '(' TOK_INTERNALSP '(' character_string_literal ')' ')'
                          RenameTable(tableScan, *$2);
                      }
                    RelExpr *join = tableScan;
-                   for (Int32 i=0; i<numLatViews; i++)
+                   for (int i=0; i<numLatViews; i++)
                      {
                        ExprNode *exprNode = $3->at(i);
                        ExeUtilCompositeUnnest *compUnnest = 
@@ -9358,7 +9358,7 @@ user_defined_scalar_function : user_defined_function_name '(' udr_value_expressi
 
 
         // Insert arguments from a one-sided tree to a list.
-        Int32 i=0;
+        int i=0;
         ItemExpr *expr = (ItemExpr *) $3;
         while (expr && expr->getOperatorType() == ITM_ITEM_LIST)
         { 
@@ -9380,7 +9380,7 @@ user_defined_scalar_function : user_defined_function_name '(' udr_value_expressi
         NAWchar *inputStr = SQLTEXTW();
         const ParScannedTokenQueue::scannedTokenInfo &tokInfo
             = ParScannedTokens->getScannedTokenInfo(0);
-        Int32 pos = tokInfo.tokenStrPos - tokInfo.tokenStrOffset +
+        int pos = tokInfo.tokenStrPos - tokInfo.tokenStrOffset +
                     tokInfo.tokenStrLen;
         //TRAFODION-2931
 	//Chinese character of inputStr will cause core dump
@@ -9395,7 +9395,7 @@ user_defined_scalar_function : user_defined_function_name '(' udr_value_expressi
         strncpy(inputC, input->data(), pos+1);
         delete input;
         
-        Int32 openParen=0, openQuote=0, openSQuote=0,
+        int openParen=0, openQuote=0, openSQuote=0,
               endOfUdfName=0, begOfUdfName=0, prevWasLetter=0, startPos=pos;
         do 
         {
@@ -10209,7 +10209,7 @@ string_function :
      | TOK_LTRIM '(' value_expression ')'
 	     { 
 		$$ = new (PARSERHEAP()) Trim
-                  ((Int32)Trim::LEADING,
+                  ((int)Trim::LEADING,
                    new (PARSERHEAP()) SystemLiteral(" ", WIDE_(" ")),
                    $3, TRUE); 
                 $$->setUserTextStr("ltrim");
@@ -10266,7 +10266,7 @@ string_function :
                     if (value == 0)
                       value = -1; 
 		    $$ = new (PARSERHEAP()) Repeat 
-                      ($3, $5, (Int32)value);
+                      ($3, $5, (int)value);
 		  }
 
      | TOK_REPLACE '(' value_expression ',' value_expression ',' value_expression ')'
@@ -10283,7 +10283,7 @@ string_function :
      | TOK_RTRIM '(' value_expression ')'
 	{ 
             $$ = new (PARSERHEAP()) Trim
-              ((Int32)Trim::TRAILING,
+              ((int)Trim::TRAILING,
                new (PARSERHEAP()) SystemLiteral(" ", WIDE_(" ")),
                $3, TRUE); 
             $$->setUserTextStr("rtrim");
@@ -10291,7 +10291,7 @@ string_function :
 
      | TOK_RTRIM '(' value_expression ',' value_expression ')'
 	{ 
-            $$ = new (PARSERHEAP()) Trim((Int32)Trim::TRAILING,
+            $$ = new (PARSERHEAP()) Trim((int)Trim::TRAILING,
                                          $5, $3);
             $$->setUserTextStr("rtrim");
         }
@@ -12265,9 +12265,9 @@ trim_operands : value_expression
         { $$ = new (PARSERHEAP()) Trim($1,$2,$4); }
 
 /* type uint */
-trim_spec : TOK_LEADING     {  $$ = (Int32) Trim::LEADING;  }
-        | TOK_TRAILING      {  $$ = (Int32) Trim::TRAILING; }
-        | TOK_BOTH          {  $$ = (Int32) Trim::BOTH;     }
+trim_spec : TOK_LEADING     {  $$ = (int) Trim::LEADING;  }
+        | TOK_TRAILING      {  $$ = (int) Trim::TRAILING; }
+        | TOK_BOTH          {  $$ = (int) Trim::BOTH;     }
 
 /* type stringval */
 date_format : TOK_DEFAULT   
@@ -12762,7 +12762,7 @@ non_int_type : numeric_type_token left_uint_uint_right signed_option
 	       if ($2->left() > (UInt32)CmpCommon::getDefaultNumeric(MAX_NUMERIC_PRECISION_ALLOWED))
 		 {
 		   *SqlParser_Diags << DgSqlCode(-3014) << DgInt0($2->left())
-				    << DgInt1((Int32)CmpCommon::getDefaultNumeric(MAX_NUMERIC_PRECISION_ALLOWED));
+				    << DgInt1((int)CmpCommon::getDefaultNumeric(MAX_NUMERIC_PRECISION_ALLOWED));
 		   delete $2;
 		   YYABORT;
 		 }
@@ -13065,7 +13065,7 @@ string_type : tok_char_or_character_or_byte new_optional_left_charlen_right char
                    emitError3435( $1, eCharSet, parCLU ); // BYTE[S] not allowed with UCS2 or type BYTE
                    YYERROR;
                  }
-               Int32 specifiedLength = $2/*new_optional_left_charlen_right*/->getCharLen();
+               int specifiedLength = $2/*new_optional_left_charlen_right*/->getCharLen();
                if (parCLU EQU ParAuxCharLenSpec::eBYTES OR eCharSet EQU CharInfo::UTF8 /* OR eCharSet EQU CharInfo::SJIS */)
                { // SeaQuest Unicode
                  if ( $1/*tok_char_or_character_or_byte*/ EQU TOK_BYTE )
@@ -13081,9 +13081,9 @@ string_type : tok_char_or_character_or_byte new_optional_left_charlen_right char
                    YYERROR;
                  }
                  CharInfo::CharSet eEncodingCharSet = eCharSet;
-                 Int32 maxLenInBytes = specifiedLength;
-                 Int32 characterLimit = specifiedLength;
-                 Int32 maxBytesPerChar = CharInfo::maxBytesPerChar(eEncodingCharSet);
+                 int maxLenInBytes = specifiedLength;
+                 int characterLimit = specifiedLength;
+                 int maxBytesPerChar = CharInfo::maxBytesPerChar(eEncodingCharSet);
                  if ( parCLU NEQ ParAuxCharLenSpec::eBYTES )
                  {
                    maxLenInBytes = characterLimit * maxBytesPerChar;
@@ -13133,7 +13133,7 @@ string_type : tok_char_or_character_or_byte new_optional_left_charlen_right char
                  emitError3435( $1, eCharSet, parCLU ); // BYTE[S] not allowed with UCS2
                  YYERROR;
                }
-               Int32 specifiedLength = $3/*toggled_optional_left_charlen_right*/->getCharLen();
+               int specifiedLength = $3/*toggled_optional_left_charlen_right*/->getCharLen();
                if (eCharSet EQU CharInfo::UTF8 OR eCharSet EQU CharInfo::SJIS)
                { // SeaQuest Unicode
                  if ( $1/*tok_char_or_character_or_byte*/ EQU TOK_BYTE )
@@ -13144,9 +13144,9 @@ string_type : tok_char_or_character_or_byte new_optional_left_charlen_right char
                    YYERROR;
                  }
                  CharInfo::CharSet eEncodingCharSet = eCharSet;
-                 Int32 maxLenInBytes  = specifiedLength;
-                 Int32 characterLimit = specifiedLength;
-                 Int32 maxBytesPerChar   = CharInfo::maxBytesPerChar(eEncodingCharSet);
+                 int maxLenInBytes  = specifiedLength;
+                 int characterLimit = specifiedLength;
+                 int maxBytesPerChar   = CharInfo::maxBytesPerChar(eEncodingCharSet);
                  if ( parCLU NEQ ParAuxCharLenSpec::eBYTES )
                  {
                    maxLenInBytes = characterLimit * maxBytesPerChar; 
@@ -13183,7 +13183,7 @@ string_type : tok_char_or_character_or_byte new_optional_left_charlen_right char
                  emitError3435( TOK_VARCHAR, eCharSet, parCLU ); // BYTE[S] not allowed with UCS2
                  YYERROR;
                }
-               Int32 specifiedLength = $2/*toggled_optional_left_charlen_right*/->getCharLen();
+               int specifiedLength = $2/*toggled_optional_left_charlen_right*/->getCharLen();
                if (eCharSet EQU CharInfo::UTF8 OR eCharSet EQU CharInfo::SJIS)
                { // Seaquest Unicode
                  if (eCharSet EQU CharInfo::SJIS) // not yet supported
@@ -13192,9 +13192,9 @@ string_type : tok_char_or_character_or_byte new_optional_left_charlen_right char
                    YYERROR;
                  }
                  CharInfo::CharSet eEncodingCharSet = eCharSet;
-                 Int32 maxLenInBytes  = specifiedLength;
-                 Int32 characterLimit = specifiedLength;
-                 Int32 maxBytesPerChar   = CharInfo::maxBytesPerChar(eEncodingCharSet);
+                 int maxLenInBytes  = specifiedLength;
+                 int characterLimit = specifiedLength;
+                 int maxBytesPerChar   = CharInfo::maxBytesPerChar(eEncodingCharSet);
                  if ( parCLU NEQ ParAuxCharLenSpec::eBYTES )
                  {
                    maxLenInBytes = characterLimit * maxBytesPerChar;
@@ -13230,7 +13230,7 @@ string_type : tok_char_or_character_or_byte new_optional_left_charlen_right char
                  emitError3435( TOK_VARCHAR2, eCharSet, parCLU ); // BYTE[S] not allowed with UCS2
                  YYERROR;
                }
-               Int32 specifiedLength = $2/*toggled_optional_left_charlen_right*/->getCharLen();
+               int specifiedLength = $2/*toggled_optional_left_charlen_right*/->getCharLen();
                if (eCharSet EQU CharInfo::UTF8 OR eCharSet EQU CharInfo::SJIS)
                { // Seaquest Unicode
                  if (eCharSet EQU CharInfo::SJIS) // not yet supported
@@ -13239,9 +13239,9 @@ string_type : tok_char_or_character_or_byte new_optional_left_charlen_right char
                    YYERROR;
                  }
                  CharInfo::CharSet eEncodingCharSet = eCharSet;
-                 Int32 maxLenInBytes  = specifiedLength;
-                 Int32 characterLimit = specifiedLength;
-                 Int32 maxBytesPerChar   = CharInfo::maxBytesPerChar(eEncodingCharSet);
+                 int maxLenInBytes  = specifiedLength;
+                 int characterLimit = specifiedLength;
+                 int maxBytesPerChar   = CharInfo::maxBytesPerChar(eEncodingCharSet);
                  if ( parCLU NEQ ParAuxCharLenSpec::eBYTES )
                  {
                    maxLenInBytes = characterLimit * maxBytesPerChar;
@@ -13273,7 +13273,7 @@ string_type : tok_char_or_character_or_byte new_optional_left_charlen_right char
          //           (until the Seaquest Unicode ES says otherwise).
 
          CharInfo::CharSet eCharSet = $3; // char_set
-         Int32 maxLenInBytes = getDefaultMaxLengthForLongVarChar(eCharSet);
+         int maxLenInBytes = getDefaultMaxLengthForLongVarChar(eCharSet);
 
          if (eCharSet EQU CharInfo::UTF8 OR eCharSet EQU CharInfo::SJIS)
          { // SeaQuest
@@ -13283,9 +13283,9 @@ string_type : tok_char_or_character_or_byte new_optional_left_charlen_right char
              YYERROR;
            }
            CharInfo::CharSet eEncodingCharSet = eCharSet;
-           Int32 maxBytesPerChar = CharInfo::maxBytesPerChar(eCharSet);
+           int maxBytesPerChar = CharInfo::maxBytesPerChar(eCharSet);
            // compute the length in UCS4 characters for the worse case scenarios
-           Int32 characterLimit = maxLenInBytes ;
+           int characterLimit = maxLenInBytes ;
            $$ = new (PARSERHEAP()) SQLLongVarChar ( PARSERHEAP(), CharLenInfo(characterLimit, maxLenInBytes),
                                                     FALSE, TRUE,
                                                     $5, $6, eCharSet, $4.collation_,
@@ -13313,7 +13313,7 @@ string_type : tok_char_or_character_or_byte new_optional_left_charlen_right char
          //           (until the Seaquest Unicode ES says otherwise).
 
          CharInfo::CharSet eCharSet = $3; // char_set
-         Int32 maxLenInBytes = getDefaultMaxLengthForLongVarChar(eCharSet);
+         int maxLenInBytes = getDefaultMaxLengthForLongVarChar(eCharSet);
 
          if (eCharSet EQU CharInfo::UTF8 OR eCharSet EQU CharInfo::SJIS)
          { // SeaQuest
@@ -13323,9 +13323,9 @@ string_type : tok_char_or_character_or_byte new_optional_left_charlen_right char
              YYERROR;
            }
            CharInfo::CharSet eEncodingCharSet = eCharSet;
-           Int32 maxBytesPerChar = CharInfo::maxBytesPerChar(eCharSet);
+           int maxBytesPerChar = CharInfo::maxBytesPerChar(eCharSet);
            // compute the length in UCS4 characters for the worse case scenarios
-           Int32 characterLimit = maxLenInBytes ;
+           int characterLimit = maxLenInBytes ;
            $$ = new (PARSERHEAP()) SQLLongVarChar ( PARSERHEAP(), CharLenInfo(characterLimit, maxLenInBytes),
                                                     FALSE, TRUE,
                                                     $5, $6, eCharSet, $4.collation_,
@@ -13357,15 +13357,15 @@ string_type : tok_char_or_character_or_byte new_optional_left_charlen_right char
              $3->setCharLenUnit(ParAuxCharLenSpec::eBYTES);
            }
 
-         Int32 maxLenInBytes = $3/*new_left_charlen_right*/->getCharLen();
+         int maxLenInBytes = $3/*new_left_charlen_right*/->getCharLen();
          ParAuxCharLenSpec::ECharLenUnit parCLU = $3/*new_left_charlen_right*/->getCharLenUnit();
 
-         Int32 maxSize = getDefaultMaxLengthForLongVarChar(eCharSet);
+         int maxSize = getDefaultMaxLengthForLongVarChar(eCharSet);
          if (maxLenInBytes > maxSize) {
            *SqlParser_Diags << DgSqlCode(-3213) << DgInt0(maxSize);
            YYABORT;
          }
-         Int32 minSize = getDefaultMinLengthForLongVarChar(eCharSet);
+         int minSize = getDefaultMinLengthForLongVarChar(eCharSet);
          if (maxLenInBytes < minSize) {
            *SqlParser_Diags << DgSqlCode(-3214) << DgInt0(minSize);
            YYABORT;
@@ -13384,9 +13384,9 @@ string_type : tok_char_or_character_or_byte new_optional_left_charlen_right char
              YYERROR;
            }
            CharInfo::CharSet eEncodingCharSet = eCharSet;
-           Int32 maxBytesPerChar = CharInfo::maxBytesPerChar(eCharSet);
+           int maxBytesPerChar = CharInfo::maxBytesPerChar(eCharSet);
            // compute the length in UCS4 characters for the worse case scenarios
-           Int32 characterLimit = maxLenInBytes ;
+           int characterLimit = maxLenInBytes ;
            $$ = new (PARSERHEAP()) SQLVarChar ( PARSERHEAP(), CharLenInfo ( characterLimit , maxLenInBytes)
                                               , TRUE // allowSQLnull
                                               , $6   // isUpShifted
@@ -13422,15 +13422,15 @@ string_type : tok_char_or_character_or_byte new_optional_left_charlen_right char
              $3->setCharLenUnit(ParAuxCharLenSpec::eBYTES);
            }
 
-         Int32 maxLenInBytes = $3/*new_left_charlen_right*/->getCharLen();
+         int maxLenInBytes = $3/*new_left_charlen_right*/->getCharLen();
          ParAuxCharLenSpec::ECharLenUnit parCLU = $3/*new_left_charlen_right*/->getCharLenUnit();
 
-         Int32 maxSize = getDefaultMaxLengthForLongVarChar(eCharSet);
+         int maxSize = getDefaultMaxLengthForLongVarChar(eCharSet);
          if (maxLenInBytes > maxSize) {
            *SqlParser_Diags << DgSqlCode(-3213) << DgInt0(maxSize);
            YYABORT;
          }
-         Int32 minSize = getDefaultMinLengthForLongVarChar(eCharSet);
+         int minSize = getDefaultMinLengthForLongVarChar(eCharSet);
          if (maxLenInBytes < minSize) {
            *SqlParser_Diags << DgSqlCode(-3214) << DgInt0(minSize);
            YYABORT;
@@ -13449,9 +13449,9 @@ string_type : tok_char_or_character_or_byte new_optional_left_charlen_right char
              YYERROR;
            }
            CharInfo::CharSet eEncodingCharSet = eCharSet;
-           Int32 maxBytesPerChar = CharInfo::maxBytesPerChar(eCharSet);
+           int maxBytesPerChar = CharInfo::maxBytesPerChar(eCharSet);
            // compute the length in UCS4 characters for the worse case scenarios
-           Int32 characterLimit = maxLenInBytes ;
+           int characterLimit = maxLenInBytes ;
            $$ = new (PARSERHEAP()) SQLVarChar ( PARSERHEAP(), CharLenInfo ( characterLimit , maxLenInBytes)
                                               , TRUE // allowSQLnull
                                               , $6   // isUpShifted
@@ -20684,7 +20684,7 @@ exe_util_display_explain: explain_starting_tokens TOK_QID qid_identifier TOK_FRO
               }
 exe_util_display_explain: explain_starting_tokens TOK_QID qid_identifier TOK_FROM TOK_REPOSITORY
               {
-                Int32 prefixLen = strlen("EXPLAIN_QID=");
+                int prefixLen = strlen("EXPLAIN_QID=");
                 char * tmpString = 
 			  new (PARSERHEAP()) char[$3->length() + prefixLen + 1];
 	        strcpy(tmpString, "EXPLAIN_QID=");
@@ -22351,7 +22351,7 @@ routine_invocation: routine_name '(' routine_arg_list ')'
 	    // Error
 	    NAString errName;
 	    errName.append($1->extract (0)->data ());
-	    for (Int32 i=1; i < $1->numParts (); i++)
+	    for (int i=1; i < $1->numParts (); i++)
 	    {
 	      errName.append (".");
 	      errName.append ($1->extract (i)->data ());
@@ -26297,7 +26297,7 @@ query_shape_control : shape_identifier
 					  return NULL;
 					}
 				      $$ = new (PARSERHEAP()) ScanForceWildCard();
-				      ((ScanForceWildCard*)$$)->setColumnOptions((Int32)numColumns,
+				      ((ScanForceWildCard*)$$)->setColumnOptions((int)numColumns,
 								ScanForceWildCard::MDAM_COLUMNS_NO_MORE);
 				    }
 
@@ -26509,13 +26509,13 @@ query_shape_control : shape_identifier
 				    {
 				      $$ = new (PARSERHEAP()) ScanForceWildCard();
 				      NABoolean dummyNegate = FALSE;
-				      Int32 numColumns = $4->entries();
+				      int numColumns = $4->entries();
 				      ItemExpr *itm;
 				      
 				      ScanForceWildCard::scanOptionEnum* columnAlgorithms
 					= new (PARSERHEAP()) ScanForceWildCard::scanOptionEnum[numColumns];
 				      
-				      for (Int32 i=0; i<numColumns; i++)
+				      for (int i=0; i<numColumns; i++)
 					{
 					  itm = $4->at(i)->castToItemExpr();
 					  if (itm == NULL OR 
@@ -28076,7 +28076,7 @@ set_session_default_statement : TOK_SET TOK_PARSERFLAGS NUMERIC_LITERAL_EXACT_NO
 	           | TOK_RESET TOK_PARSERFLAGS
                    {
 		     char flags[100];
-		     Int32 flagVal = 0x7FFFFFFF;
+		     int flagVal = 0x7FFFFFFF;
 		     str_itoa(flagVal, flags);
 		     
 		     $$ = new (PARSERHEAP())
@@ -32046,8 +32046,8 @@ file_attribute_pos_clause : TOK_INITIAL TOK_TABLE TOK_SIZE unsigned_integer
 				  // If num of local partns is 1, set the value
 				  // to zero.
 				  // 1 local partition is the same as no partitions.
-				  Int32 partitions = ($5 == 1 ? 0 : -1 * $5);
-				  $$ = new (PARSERHEAP()) ElemDDLFileAttrPOSNumPartns(($5 == 1 ? 0 : -(Int32)$5));
+				  int partitions = ($5 == 1 ? 0 : -1 * $5);
+				  $$ = new (PARSERHEAP()) ElemDDLFileAttrPOSNumPartns(($5 == 1 ? 0 : -(int)$5));
                                 }
                          |  TOK_NO_PARTITION
                                 {
@@ -32627,7 +32627,7 @@ division_by_clause_starting_tokens : TOK_DIVISION TOK_BY '('
 /* type pElemDDL sorry for the shift-reduce conflict this causes */
 salt_by_clause : TOK_SALT TOK_USING NUMERIC_LITERAL_EXACT_NO_SCALE TOK_PARTITIONS optional_salt_num_regions optional_salt_column_list
                                {
-                                 Int32 numParts = (Int32) atoi(*$3);
+                                 int numParts = (int) atoi(*$3);
                                  if (numParts < 0)
                                    YYERROR;
                                  $$ = new (PARSERHEAP()) ElemDDLSaltOptionsClause($6, numParts, $5);
@@ -32646,7 +32646,7 @@ optional_salt_num_regions : empty
                                      YYERROR;
                                    }
 
-                                 Int32 numRegions = (Int32) atoi(*$2);
+                                 int numRegions = (int) atoi(*$2);
                                  if (numRegions < 0)
                                    YYERROR;
                                  $$ = numRegions;
@@ -32827,7 +32827,7 @@ store_option : TOK_PRIMARY TOK_KEY
 /* type pElemDDL */
 replicate_by_clause : TOK_REPLICATE NUMERIC_LITERAL_EXACT_NO_SCALE TOK_WAYS
                                {
-                                 Int32 numTrafReplicas = (Int32) atoi(*$2);
+                                 int numTrafReplicas = (int) atoi(*$2);
                                  if ((numTrafReplicas < 2)||(numTrafReplicas > SHRT_MAX))
                                  {
                                    *SqlParser_Diags << DgSqlCode(-1205) <<  DgInt0(numTrafReplicas);
@@ -34503,7 +34503,7 @@ before_trigger_prefix: create_trigger_keywords ddl_qualified_name
 	       //
 	       //  Perform semantic checks
 	       //
-		   Int32 errCount =0;
+		   int errCount =0;
 	       if ( $5 != COM_UPDATE && $6 ) { // Only UPDATE can have columns
 		 *SqlParser_Diags << DgSqlCode(-11011);
 		 errCount++;
@@ -37985,63 +37985,63 @@ alter_table_drop_column_clause : TOK_DROP optional_col_keyword TOK_IF TOK_EXISTS
 /* type uint */
 alter_stored_descriptor_option : TOK_GENERATE TOK_STORED TOK_DESCRIPTOR
               {
-                $$ = (Int32)StmtDDLAlterTableStoredDesc::GENERATE_DESC;
+                $$ = (int)StmtDDLAlterTableStoredDesc::GENERATE_DESC;
               }
               | TOK_GENERATE TOK_STORED TOK_DESC
               {
-                $$ = (Int32)StmtDDLAlterTableStoredDesc::GENERATE_DESC;
+                $$ = (int)StmtDDLAlterTableStoredDesc::GENERATE_DESC;
               }
               | TOK_GENERATE TOK_STORED TOK_STATS
               {
-                $$ = (Int32)StmtDDLAlterTableStoredDesc::GENERATE_STATS;
+                $$ = (int)StmtDDLAlterTableStoredDesc::GENERATE_STATS;
               }
               | TOK_GENERATE TOK_STORED TOK_STATS TOK_FORCE
               {
-                $$ = (Int32)StmtDDLAlterTableStoredDesc::GENERATE_STATS_FORCE;
+                $$ = (int)StmtDDLAlterTableStoredDesc::GENERATE_STATS_FORCE;
               }
               | TOK_GENERATE TOK_STORED TOK_STATS TOK_INTERNAL
               {
-                $$ = (Int32)StmtDDLAlterTableStoredDesc::GENERATE_STATS_INTERNAL;
+                $$ = (int)StmtDDLAlterTableStoredDesc::GENERATE_STATS_INTERNAL;
               }
               | TOK_CHECK TOK_STORED TOK_DESCRIPTOR
               {
-                $$ = (Int32)StmtDDLAlterTableStoredDesc::CHECK_DESC;
+                $$ = (int)StmtDDLAlterTableStoredDesc::CHECK_DESC;
               }
               | TOK_CHECK TOK_STORED TOK_DESC
               {
-                $$ = (Int32)StmtDDLAlterTableStoredDesc::CHECK_DESC;
+                $$ = (int)StmtDDLAlterTableStoredDesc::CHECK_DESC;
               }
               | TOK_CHECK TOK_STORED TOK_STATS
               {
-                $$ = (Int32)StmtDDLAlterTableStoredDesc::CHECK_STATS;
+                $$ = (int)StmtDDLAlterTableStoredDesc::CHECK_STATS;
               }
               | TOK_DELETE TOK_STORED TOK_DESCRIPTOR
               {
-                $$ = (Int32)StmtDDLAlterTableStoredDesc::DELETE_DESC;
+                $$ = (int)StmtDDLAlterTableStoredDesc::DELETE_DESC;
               }
               | TOK_DELETE TOK_STORED TOK_DESC
               {
-                $$ = (Int32)StmtDDLAlterTableStoredDesc::DELETE_DESC;
+                $$ = (int)StmtDDLAlterTableStoredDesc::DELETE_DESC;
               }
               | TOK_DELETE TOK_STORED TOK_STATS
               {
-                $$ = (Int32)StmtDDLAlterTableStoredDesc::DELETE_STATS;
+                $$ = (int)StmtDDLAlterTableStoredDesc::DELETE_STATS;
               }
               | TOK_ENABLE TOK_STORED TOK_DESCRIPTOR
               {
-                $$ = (Int32)StmtDDLAlterTableStoredDesc::ENABLE;
+                $$ = (int)StmtDDLAlterTableStoredDesc::ENABLE;
               }
               | TOK_ENABLE TOK_STORED TOK_DESC
               {
-                $$ = (Int32)StmtDDLAlterTableStoredDesc::ENABLE;
+                $$ = (int)StmtDDLAlterTableStoredDesc::ENABLE;
               }
               | TOK_DISABLE TOK_STORED TOK_DESCRIPTOR
               {
-                $$ = (Int32)StmtDDLAlterTableStoredDesc::DISABLE;
+                $$ = (int)StmtDDLAlterTableStoredDesc::DISABLE;
               }
               | TOK_DISABLE TOK_STORED TOK_DESC
               {
-                $$ = (Int32)StmtDDLAlterTableStoredDesc::DISABLE;
+                $$ = (int)StmtDDLAlterTableStoredDesc::DISABLE;
               }
 
 
@@ -38835,7 +38835,7 @@ component_str_lit : std_char_string_literal
                                   {
                                     pCStr = charToChar ( (int)CharInfo::ISO88591    // targetCS
                                                        , $1->data()                   // const char *s - std_char_string_literal
-                                                       , $1->length()                 // Int32 sLenInBytes
+                                                       , $1->length()                 // int sLenInBytes
                                                        , (int)getStringCharSet(&$1) // sourceCS
                                                        , PARSERHEAP()                 // heap for allocated target string
                                                        );
@@ -39626,7 +39626,7 @@ showplan_options : optional_options
              else 
                {
                  // DEFAULT_CHARSET has no effect on QUOTED_STRING in this context
-                 Int32 i = 0;
+                 int i = 0;
                  char *str = (char *)$1->data();
                  ULng32 flag = 0;
                  while(str[i] != '\0')

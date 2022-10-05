@@ -175,7 +175,7 @@ void ExConnectByTcb::registerSubtasks() {
   if (getPool()) getPool()->setStaticMode(FALSE);
 }
 
-short ExConnectByTcb::setPseudoValue(Int32 lvl, Int32 isleaf, Int32 iscycle, char *path) {
+short ExConnectByTcb::setPseudoValue(int lvl, int isleaf, int iscycle, char *path) {
   if (pool_->get_free_tuple(pcoldata_, connectbyTdb().pseudoOutputRowLen_)) {
     return -1;
   }
@@ -226,7 +226,7 @@ short ExConnectByTcb::setPseudoValue(Int32 lvl, Int32 isleaf, Int32 iscycle, cha
   {
     ExpTupleDesc *pDesc = connectbyTdb().getCriDescUp()->getTupleDescriptor(connectbyTdb().pathPseudoColRowAtpIndex_);
     char *pathBuf = path;
-    Int32 pathlength = str_len(path);
+    int pathlength = str_len(path);
     if (pathlength > 3000) pathlength = 3000;
     UInt32 vcActualLen = 0;
 
@@ -352,7 +352,7 @@ short ExConnectByTcb::moveFromCacheToParent() {
   return 0;
 }
 
-short ExConnectByTcb::moveChildDataToParent(Int32 who, short state) {
+short ExConnectByTcb::moveChildDataToParent(int who, short state) {
   ex_expr::exp_return_type retCode = ex_expr::EXPR_TRUE;
   short ret = 0;
   if (who == 1) {
@@ -511,7 +511,7 @@ short ExConnectByTcb::work() {
         ex_queue_entry *pUpEntry = qparent_.up->getTailEntry();
         pentry_down->copyAtp(initialParentDownAtp_);  // maybe we can copy from cUpEntry?
         char *tmpPathBuffer = NULL;
-        Int32 tmpPathLen = 0;
+        int tmpPathLen = 0;
         currentLevel_ = 1;
         currentPath_ = NULL;
         switch (cUpEntry->upState.status) {
@@ -678,7 +678,7 @@ short ExConnectByTcb::work() {
         ex_queue_entry *cUpEntry = qConnectBychild_.up->getHeadEntry();
         ex_queue_entry *pUpEntry = qparent_.up->getTailEntry();
         char *tmpPathBuffer = NULL;
-        Int32 tmpPathLen = 0;
+        int tmpPathLen = 0;
         switch (cUpEntry->upState.status) {
           case ex_queue::Q_OK_MMORE: {
             // deep first, so should go down, but before go down
@@ -981,7 +981,7 @@ ex_tcb_private_state *ExConnectByPrivateState::allocate_new(const ex_tcb *tcb) {
   return new (((ex_tcb *)tcb)->getSpace()) ExConnectByPrivateState((ExConnectByTcb *)tcb);
 };
 
-Int32 ExConnectByTree::insert(ExConnectByTreeNode *n) {
+int ExConnectByTree::insert(ExConnectByTreeNode *n) {
   ExConnectByTreeNode *parentNode = NULL;
   short level = n->getLevel();
   if (level == 1) return -1;  // never should have level 1 pass in
@@ -1065,7 +1065,7 @@ void ExConnectByTreeNode::cleanup() {
 // deep first recursive call
 void ExConnectByTree::getPath(ExConnectByTreeNode *r, ExConnectByTreeNode *n, char *out, NAString del,
                               NABoolean getPathStarted) {
-  Int32 pathItemLen = 0;
+  int pathItemLen = 0;
   // from root to node n
   str_cat(out, del.data(), out);
   char *charptr = r->getPathItem(&pathItemLen);

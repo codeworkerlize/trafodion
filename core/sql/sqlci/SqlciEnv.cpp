@@ -80,8 +80,8 @@
 #include "qmscommon/QRLogger.h"
 #include "cli/Globals.h"
 
-Int32 total_opens = 0;
-Int32 total_closes = 0;
+int total_opens = 0;
+int total_closes = 0;
 
 NAHeap sqlci_Heap((char *)"temp heap", NAMemory::DERIVED_FROM_SYS_HEAP);
 ComDiagsArea sqlci_DA(&sqlci_Heap);
@@ -95,8 +95,6 @@ extern SqlciEnv *global_sqlci_env;  // Global sqlci_env for break key handling p
 static char brkMessage[] = "Break.";
 CRITICAL_SECTION g_CriticalSection;
 CRITICAL_SECTION g_InterruptCriticalSection;
-
-
 
 BOOL CtrlHandler(DWORD ctrlType) {
   if (Sqlci_PutbackChar == LOOK_FOR_BREAK)  // see InputStmt.cpp
@@ -176,39 +174,32 @@ BOOL CtrlHandler(DWORD ctrlType) {
   }
 }
 
-
 SqlciEnv::SqlciEnv(short serv_type, NABoolean macl_rw_flag) {
   ole_server = serv_type;
   logfile = new Logfile;
   sqlci_stmts = new SqlciStmts(50);
-  prepared_stmts = new SqlciList<PrepStmt>;
-  param_list = new SqlciList<Param>;
-  pattern_list = new SqlciList<Param>;
-  envvar_list = new SqlciList<Envvar>;
-  cursorList_ = new SqlciList<CursorStmt>;
   sqlci_stats = new SqlciStats();
   terminal_charset_ = CharInfo::UTF8;
   iso_mapping_charset_ = CharInfo::ISO88591;
   default_charset_ = CharInfo::ISO88591;
   infer_charset_ = FALSE;
   lastDmlStmtStatsType_ = SQLCLIDEV_NO_STATS;
-  lastExecutedStmt_ = NULL;
-  statsStmt_ = NULL;
-  lastAllocatedStmt_ = NULL;
+  lastExecutedStmt_ = nullptr;
+  statsStmt_ = nullptr;
+  lastAllocatedStmt_ = nullptr;
 
-  defaultCatalog_ = NULL;
-  defaultSchema_ = NULL;
+  defaultCatalog_ = nullptr;
+  defaultSchema_ = nullptr;
 
   doneWithPrologue_ = FALSE;
   noBanner_ = FALSE;
 
   setListCount(MAX_LISTCOUNT);
   resetSpecialError();
-  defaultCatAndSch_ = NULL;
+  defaultCatAndSch_ = nullptr;
 
   userNameFromCommandLine_ = "";
   tenantNameFromCommandLine_ = "";
-
 
   constructorFlag_ = FALSE;
 
@@ -222,7 +213,7 @@ SqlciEnv::SqlciEnv(short serv_type, NABoolean macl_rw_flag) {
 
   // Note that interactive_session is overwritten in SqlciEnv::run(infile) ...
   // Executing on NT
-  if ((Int32)cin.tellg() == EOF)
+  if ((int)cin.tellg() == EOF)
     interactive_session = -1;  // Std. input is terminal keyboard
   else
     interactive_session = 0;
@@ -230,18 +221,13 @@ SqlciEnv::SqlciEnv(short serv_type, NABoolean macl_rw_flag) {
 
   if (getenv("QA_TEST_WITH_EXEC")) interactive_session = -1;
 
-  prepareOnly_ = NULL;
-  executeOnly_ = NULL;
+  prepareOnly_ = nullptr;
+  executeOnly_ = nullptr;
 }
 
 SqlciEnv::~SqlciEnv() {
   delete logfile;
   delete sqlci_stmts;
-  delete prepared_stmts;
-  delete param_list;
-  delete pattern_list;
-  delete cursorList_;
-  delete envvar_list;
   delete sqlci_stats;
   sqlci_stmts = 0;
   // Report Writer and MACL Destructors has to be called only if the SqlciEnv constructor
@@ -269,52 +255,38 @@ void SqlciEnv::autoCommit() {
 }
 
 void SqlciEnv::run() {
-  InputStmt *input_stmt = NULL;
-  Int32 retval;
+  InputStmt *input_stmt = nullptr;
+  int retval;
   do {
     retval = executeCommands(input_stmt);
   } while (retval != 0);
-
 }
 
 static long costTh = -2;
 static pid_t pid = getpid();
 
-Int32 SqlciEnv::executeCommands(InputStmt *&input_stmt) {
-  Int32 retval = 0;
-  Int32 ignore_toggle = 0;
+int SqlciEnv::executeCommands(InputStmt *&input_stmt) {
+  int retval = 0;
+  int ignore_toggle = 0;
   SqlciNode *sqlci_node = 0;
   long time1 = 0, time2 = 0;
   struct timeval curtime;
 
   NABoolean inputPassedIn = (input_stmt ? TRUE : FALSE);
 
-  if (costTh == -2) {
-    char *costThreshold = getenv("RECORD_TIME_COST_SQL");
-    if (costThreshold != NULL) costTh = atoi(costThreshold);
-    if (costTh == -2) costTh = -1;
-  }
-
   try {
     while (!retval) {
       total_opens = 0;
       total_closes = 0;
 
-      // This is new'd here, deleted when history buffer fills up,
-      // in SqlciStmts::add/StmtEntry::set
       if (NOT inputPassedIn) input_stmt = new InputStmt(this);
 
-      Int32 read_error = 0;
-      if (NOT inputPassedIn) read_error = input_stmt->readStmt(NULL /*i.e. input is stdin*/);
+      int read_error = 0;
+      if (NOT inputPassedIn) read_error = input_stmt->readStmt(nullptr /*i.e. input is stdin*/);
 
-      if (costTh >= 0) {
-        gettimeofday(&curtime, NULL);
-        time1 = (curtime.tv_sec * 1000 + curtime.tv_usec / 1000);
-      }
       prev_err_flush_input = 0;
 
       if (cin.eof() || read_error == -99) {
-        // allow the other thread to process
         Sleep(50);  // milliseconds
         if (!input_stmt->isEmpty()) {
           // Unterminated statement in input file (redirected stdin).
@@ -336,7 +308,7 @@ Int32 SqlciEnv::executeCommands(InputStmt *&input_stmt) {
         if (sqlci_node) {
           retval = sqlci_node->process(this);
           delete sqlci_node;
-          sqlci_node = NULL;
+          sqlci_node = nullptr;
         }
       } else {
         if (!isInteractiveSession()) input_stmt->display((UInt16)0);
@@ -346,7 +318,7 @@ Int32 SqlciEnv::executeCommands(InputStmt *&input_stmt) {
         if (logCommands()) get_logfile()->setNoLog(TRUE);
 
         if (!input_stmt->sectionMatches()) {
-          Int32 ignore_stmt = input_stmt->isIgnoreStmt();
+          int ignore_stmt = input_stmt->isIgnoreStmt();
           if (ignore_stmt) ignore_toggle = ~ignore_toggle;
           if (ignore_stmt || ignore_toggle || input_stmt->ignoreJustThis()) {
             // ignore until stmt following the untoggling ?ignore
@@ -358,7 +330,7 @@ Int32 SqlciEnv::executeCommands(InputStmt *&input_stmt) {
               if (sqlci_node) {
                 retval = sqlci_node->process(this);
                 delete sqlci_node;
-                sqlci_node = NULL;
+                sqlci_node = nullptr;
 
                 if (retval == SQL_Canceled) retval = 0;
               } else {
@@ -399,7 +371,7 @@ Int32 SqlciEnv::executeCommands(InputStmt *&input_stmt) {
       if (inputPassedIn) retval = 1;
 
       if (costTh >= 0) {
-        gettimeofday(&curtime, NULL);
+        gettimeofday(&curtime, nullptr);
         time2 = (curtime.tv_sec * 1000 + curtime.tv_usec / 1000);
         if (time2 - time1 > costTh)
           QRWARN("SQLCI executeCommands PID %d txID %ld TTC %ld", pid,
@@ -416,52 +388,15 @@ Int32 SqlciEnv::executeCommands(InputStmt *&input_stmt) {
     sqlci_DA.clear();  // Clear the DiagnosticsArea for the next command...
 
     if (sqlci_node) delete sqlci_node;
-    sqlci_node = NULL;
+    sqlci_node = nullptr;
     cin.clear();
     LeaveCriticalSection(&g_CriticalSection);
     return -1;
   } catch (...) {
     return 1;
   }
-
-}  // executeCommands
-
-// returns -1, if a transaction is active; 0, otherwise.
-// Optionally returns the transaction identifier, if transid is passed in.
-short SqlciEnv::statusTransaction(long *transid) {
-  // if a transaction is active, get the transid by calling the CLI procedure.
-  SQLDESC_ID transid_desc;  // added for multi charset module names
-  SQLMODULE_ID module;
-
-  init_SQLCLI_OBJ_ID(&transid_desc);
-  init_SQLMODULE_ID(&module);
-
-  module.module_name = 0;
-  transid_desc.module = &module;
-  transid_desc.name_mode = desc_handle;
-
-  HandleCLIErrorInit();
-
-  int rc = SQL_EXEC_AllocDesc(&transid_desc, 1);
-
-  HandleCLIError(rc, this);
-
-  long transid_;
-  rc = SQL_EXEC_SetDescItem(&transid_desc, 1, SQLDESC_VAR_PTR, (Long)&transid_, 0);
-  if (rc) SQL_EXEC_DeallocDesc(&transid_desc);
-  HandleCLIError(rc, this);
-
-  rc = SQL_EXEC_Xact(SQLTRANS_STATUS, &transid_desc);
-  if (rc == 0) {
-    if (transid) *transid = transid_;  // return transID if arg was passed in.
-    rc = -1;                           // transaction is active.
-  } else
-    rc = 0;
-  SQL_EXEC_DeallocDesc(&transid_desc);
-
-  return (short)rc;
 }
-//
+
 void SqlciEnv::displayDiagnostics() {
   NADumpDiags(cout, &sqlci_DA, TRUE /*newline*/, FALSE /*comment-style*/, get_logfile()->GetLogfile());
 }
@@ -469,28 +404,28 @@ void SqlciEnv::displayDiagnostics() {
 void SqlciEnv::setPrepareOnly(char *prepareOnly) {
   if (prepareOnly_) delete prepareOnly_;
 
-  prepareOnly_ = NULL;
+  prepareOnly_ = nullptr;
 
   if (prepareOnly) {
     prepareOnly_ = new char[strlen(prepareOnly) + 1];
     strcpy(prepareOnly_, prepareOnly);
 
     delete executeOnly_;
-    executeOnly_ = NULL;
+    executeOnly_ = nullptr;
   }
 }
 
 void SqlciEnv::setExecuteOnly(char *executeOnly) {
   if (executeOnly_) delete executeOnly_;
 
-  executeOnly_ = NULL;
+  executeOnly_ = nullptr;
 
   if (executeOnly) {
     executeOnly_ = new char[strlen(executeOnly) + 1];
     strcpy(executeOnly_, executeOnly);
 
     delete prepareOnly_;
-    prepareOnly_ = NULL;
+    prepareOnly_ = nullptr;
   }
 }
 
@@ -553,8 +488,8 @@ short Env::process(SqlciEnv *sqlci_env) {
   bool authorizationEnabled = false;
   bool authorizationReady = false;
   bool auditingEnabled = false;
-  Int32 rc =
-      sqlci_env->getAuthState2((Int32 &)authenticationType, authorizationEnabled, authorizationReady, auditingEnabled);
+  int rc =
+      sqlci_env->getAuthState2((int &)authenticationType, authorizationEnabled, authorizationReady, auditingEnabled);
 
   // TDB: add auditing state
   log->WriteAllWithoutEOL("AUTHENTICATION     ");
@@ -582,7 +517,7 @@ short Env::process(SqlciEnv *sqlci_env) {
 
   log->WriteAllWithoutEOL("CURRENT DIRECTORY  ");
 
-  log->WriteAll(getcwd((char *)NULL, NA_MAX_PATH));
+  log->WriteAll(getcwd((char *)nullptr, NA_MAX_PATH));
 
   log->WriteAllWithoutEOL("INSTANCE ID        ");
   char *insID = getenv("TRAF_INSTANCE_ID");
@@ -640,14 +575,14 @@ short Env::process(SqlciEnv *sqlci_env) {
     charBuf cbufCat((unsigned char *)dCat.data(), dCat.length());
     charBuf cbufSch((unsigned char *)dSch.data(), dSch.length());
     NAWcharBuf *wcbuf = 0;
-    Int32 errorcode = 0;
+    int errorcode = 0;
 
     wcbuf = csetToUnicode(cbufCat, 0, wcbuf, CharInfo::UTF8, errorcode);
     NAString *tempstr;
     if (errorcode != 0) {
       tempstr = new NAString(defaultCat.getExternalName().data());
     } else {
-      tempstr = unicodeToChar(wcbuf->data(), wcbuf->getStrLen(), TCS, NULL, TRUE);
+      tempstr = unicodeToChar(wcbuf->data(), wcbuf->getStrLen(), TCS, nullptr, TRUE);
       TrimNAStringSpace(*tempstr, FALSE, TRUE);  // trim trailing blanks
     }
     log->WriteAllWithoutEOL("SQL CATALOG        ");
@@ -660,7 +595,7 @@ short Env::process(SqlciEnv *sqlci_env) {
     if (errorcode != 0) {
       tempstr = new NAString(defaultSch.getExternalName().data());
     } else {
-      tempstr = unicodeToChar(wcbuf->data(), wcbuf->getStrLen(), TCS, NULL, TRUE);
+      tempstr = unicodeToChar(wcbuf->data(), wcbuf->getStrLen(), TCS, nullptr, TRUE);
       TrimNAStringSpace(*tempstr, FALSE, TRUE);  // trim trailing blanks
     }
     log->WriteAllWithoutEOL("SQL SCHEMA         ");
@@ -689,7 +624,7 @@ short Env::process(SqlciEnv *sqlci_env) {
   else
     log->WriteAll("?");
 
-  Int32 uid = 0;
+  int uid = 0;
   rc = sqlci_env->getDatabaseUserID(uid);
   log->WriteAllWithoutEOL("SQL USER ID        ");
   if (rc >= 0)
@@ -719,14 +654,7 @@ short Env::process(SqlciEnv *sqlci_env) {
   log->WriteAll(CharInfo::getCharSetName(sqlci_env->getTerminalCharset()));
 
   long transid;
-  if (sqlci_env->statusTransaction(&transid)) {
-    // transaction is active.
-    char transid_str[20];
-    convertInt64ToAscii(transid, transid_str);
-    log->WriteAllWithoutEOL("TRANSACTION ID     ");
-    log->WriteAll(transid_str);
-    log->WriteAll("TRANSACTION STATE  in progress");
-  } else {
+  {
     log->WriteAll("TRANSACTION ID     ");
     log->WriteAll("TRANSACTION STATE  not in progress");
   }
@@ -750,7 +678,7 @@ ChangeUser::ChangeUser(char *argument_, int argLen_, char *tenant_)
     strncpy(tenantName, tenant_, strlen(tenant_));
     tenantName[strlen(tenant_)] = 0;
   } else
-    tenantName = NULL;
+    tenantName = nullptr;
 }
 
 short ChangeUser::process(SqlciEnv *sqlci_env) { return 0; }
@@ -766,15 +694,15 @@ void SqlciEnv::getDefaultCatAndSch(ComAnsiNamePart &defaultCat, ComAnsiNamePart 
   defaultSch = defaultCatAndSch_->getSchemaNamePart();
 
   delete defaultCatAndSch_;
-  defaultCatAndSch_ = NULL;
+  defaultCatAndSch_ = nullptr;
 }
 
 // Retrieve the external database user ID from CLI
-Int32 SqlciEnv::getExternalUserName(NAString &username) {
+int SqlciEnv::getExternalUserName(NAString &username) {
   HandleCLIErrorInit();
 
   char buf[1024] = "";
-  Int32 rc = SQL_EXEC_GetSessionAttr(SESSION_EXTERNAL_USER_NAME, NULL, buf, 1024, NULL);
+  int rc = SQL_EXEC_GetSessionAttr(SESSION_EXTERNAL_USER_NAME, nullptr, buf, 1024, nullptr);
   HandleCLIError(rc, this);
 
   if (rc >= 0) username = buf;
@@ -784,11 +712,11 @@ Int32 SqlciEnv::getExternalUserName(NAString &username) {
 }
 
 // Retrieve the database user ID from CLI
-Int32 SqlciEnv::getDatabaseUserID(Int32 &uid) {
+int SqlciEnv::getDatabaseUserID(int &uid) {
   HandleCLIErrorInit();
 
-  Int32 localUID = 0;
-  Int32 rc = SQL_EXEC_GetSessionAttr(SESSION_DATABASE_USER_ID, &localUID, NULL, 0, NULL);
+  int localUID = 0;
+  int rc = SQL_EXEC_GetSessionAttr(SESSION_DATABASE_USER_ID, &localUID, nullptr, 0, nullptr);
   HandleCLIError(rc, this);
 
   if (rc >= 0) uid = localUID;
@@ -796,21 +724,21 @@ Int32 SqlciEnv::getDatabaseUserID(Int32 &uid) {
   return rc;
 }
 
-Int32 SqlciEnv::getAuthState(bool &authenticationEnabled, bool &authorizationEnabled, bool &authorizationReady,
-                             bool &auditingEnabled) {
-  Int32 authenticationType = 0;
-  Int32 ret = getAuthState2(authenticationType, authorizationEnabled, authorizationReady, auditingEnabled);
+int SqlciEnv::getAuthState(bool &authenticationEnabled, bool &authorizationEnabled, bool &authorizationReady,
+                           bool &auditingEnabled) {
+  int authenticationType = 0;
+  int ret = getAuthState2(authenticationType, authorizationEnabled, authorizationReady, auditingEnabled);
   authenticationEnabled = authorizationReady;
   return ret;
 }
 
 // Retrieve the database user ID from CLI
-Int32 SqlciEnv::getAuthState2(Int32 &authenticationType, bool &authorizationEnabled, bool &authorizationReady,
-                              bool &auditingEnabled) {
+int SqlciEnv::getAuthState2(int &authenticationType, bool &authorizationEnabled, bool &authorizationReady,
+                            bool &auditingEnabled) {
   HandleCLIErrorInit();
 
-  Int32 localUID = 0;
-  Int32 rc = SQL_EXEC_GetAuthState(authenticationType, authorizationEnabled, authorizationReady, auditingEnabled);
+  int localUID = 0;
+  int rc = SQL_EXEC_GetAuthState(authenticationType, authorizationEnabled, authorizationReady, auditingEnabled);
   HandleCLIError(rc, this);
 
   return rc;
@@ -819,26 +747,26 @@ Int32 SqlciEnv::getAuthState2(Int32 &authenticationType, bool &authorizationEnab
 // Retrieve the database user name from CLI. This will be the
 // USER_NAME column from a USERS row not the EXTERNAL_USER_NAME
 // column.
-Int32 SqlciEnv::getDatabaseUserName(NAString &username) {
+int SqlciEnv::getDatabaseUserName(NAString &username) {
   HandleCLIErrorInit();
 
   char buf[1024] = "";
-  Int32 rc = SQL_EXEC_GetSessionAttr(SESSION_DATABASE_USER_NAME, NULL, buf, 1024, NULL);
+  int rc = SQL_EXEC_GetSessionAttr(SESSION_DATABASE_USER_NAME, nullptr, buf, 1024, nullptr);
   HandleCLIError(rc, this);
 
   if (rc >= 0) username = buf;
 
-  if (rc != 0) SQL_EXEC_ClearDiagnostics(NULL);
+  if (rc != 0) SQL_EXEC_ClearDiagnostics(nullptr);
 
   return rc;
 }
 
 // Retrieve the tenant ID from CLI
-Int32 SqlciEnv::getTenantID(Int32 &uid) {
+int SqlciEnv::getTenantID(int &uid) {
   HandleCLIErrorInit();
 
-  Int32 localUID = 0;
-  Int32 rc = SQL_EXEC_GetSessionAttr(SESSION_TENANT_ID, &localUID, NULL, 0, NULL);
+  int localUID = 0;
+  int rc = SQL_EXEC_GetSessionAttr(SESSION_TENANT_ID, &localUID, nullptr, 0, nullptr);
   HandleCLIError(rc, this);
 
   if (rc >= 0) uid = localUID;
@@ -847,16 +775,16 @@ Int32 SqlciEnv::getTenantID(Int32 &uid) {
 }
 
 // Retrieve the tenant name from CLI.
-Int32 SqlciEnv::getTenantName(NAString &tenantName) {
+int SqlciEnv::getTenantName(NAString &tenantName) {
   HandleCLIErrorInit();
 
   char buf[1024] = "";
-  Int32 rc = SQL_EXEC_GetSessionAttr(SESSION_TENANT_NAME, NULL, buf, 1024, NULL);
+  int rc = SQL_EXEC_GetSessionAttr(SESSION_TENANT_NAME, nullptr, buf, 1024, nullptr);
   HandleCLIError(rc, this);
 
   if (rc >= 0) tenantName = buf;
 
-  if (rc != 0) SQL_EXEC_ClearDiagnostics(NULL);
+  if (rc != 0) SQL_EXEC_ClearDiagnostics(nullptr);
 
   return rc;
 }

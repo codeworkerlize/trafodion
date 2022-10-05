@@ -107,7 +107,7 @@ typedef NAVersionedObjectPtrArrayTempl<ComTdbPtr> ComTdbPtrPtr;
 class ComTdbParams {
  public:
   ComTdbParams(Cardinality estimatedRowCount, ex_cri_desc *criDown, ex_cri_desc *criUp, queue_index sizeDown,
-               queue_index sizeUp, Int32 numBuffers, UInt32 bufferSize, Int32 firstNRows)
+               queue_index sizeUp, int numBuffers, UInt32 bufferSize, int firstNRows)
       : estimatedRowCount_(estimatedRowCount),
         criDown_(criDown),
         criUp_(criUp),
@@ -118,7 +118,7 @@ class ComTdbParams {
         firstNRows_(firstNRows){};
 
   void getValues(Cardinality &estimatedRowCount, ExCriDescPtr &criDown, ExCriDescPtr &criUp, queue_index &sizeDown,
-                 queue_index &sizeUp, Int32 &numBuffers, UInt32 &bufferSize, Int32 &firstNRows);
+                 queue_index &sizeUp, int &numBuffers, UInt32 &bufferSize, int &firstNRows);
 
  private:
   Cardinality estimatedRowCount_;
@@ -126,9 +126,9 @@ class ComTdbParams {
   ex_cri_desc *criUp_;
   queue_index sizeDown_;
   queue_index sizeUp_;
-  Int32 numBuffers_;
+  int numBuffers_;
   UInt32 bufferSize_;
-  Int32 firstNRows_;
+  int firstNRows_;
   char filler_[40];
 };
 
@@ -249,7 +249,7 @@ class ComTdb : public NAVersionedObject {
   // object passed in.
   // ---------------------------------------------------------------------
   ComTdb(ex_node_type type, const char *eye, Cardinality estRowsUsed = 0.0, ex_cri_desc *criDown = NULL,
-         ex_cri_desc *criUp = NULL, queue_index sizeDown = 0, queue_index sizeUp = 0, Int32 numBuffers = 0,
+         ex_cri_desc *criUp = NULL, queue_index sizeDown = 0, queue_index sizeUp = 0, int numBuffers = 0,
          UInt32 bufferSize = 0, int uniqueId = 0, ULng32 initialQueueSizeDown = 4, ULng32 initialQueueSizeUp = 4,
          short queueResizeLimit = 9, short queueResizeFactor = 4, ComTdbParams *params = NULL);
 
@@ -301,7 +301,7 @@ class ComTdb : public NAVersionedObject {
   // ---------------------------------------------------------------------
   // Whether the TDB supports out-of-order replies to its requests.
   // ---------------------------------------------------------------------
-  virtual Int32 orderedQueueProtocol() const { return 1; }
+  virtual int orderedQueueProtocol() const { return 1; }
 
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
@@ -353,7 +353,7 @@ class ComTdb : public NAVersionedObject {
   // ---------------------------------------------------------------------
   // numChildren() -- Returns the number of children for this TDB
   // ---------------------------------------------------------------------
-  virtual Int32 numChildren() const { return -1; }
+  virtual int numChildren() const { return -1; }
 
   // ---------------------------------------------------------------------
   // getNodeName() -- Returns the name of this TDB.
@@ -365,7 +365,7 @@ class ComTdb : public NAVersionedObject {
   // TDB. This function cannot be used to get children which reside in
   // other processes -- see getChildForGUI.
   // ---------------------------------------------------------------------
-  virtual const ComTdb *getChild(Int32) const { return NULL; }
+  virtual const ComTdb *getChild(int) const { return NULL; }
 
   // ---------------------------------------------------------------------
   // getChildForGUI() takes as additional arguments the fragment directory
@@ -377,23 +377,23 @@ class ComTdb : public NAVersionedObject {
   // to be looked up. See ComTdbPartnAccess.h_tdb::getChildForGUI() for an
   // example of how this could be done.
   // ---------------------------------------------------------------------
-  virtual const ComTdb *getChildForGUI(Int32 pos, int /*base*/, void * /*frag_dir*/) const { return getChild(pos); }
+  virtual const ComTdb *getChildForGUI(int pos, int /*base*/, void * /*frag_dir*/) const { return getChild(pos); }
 
   // ---------------------------------------------------------------------
   // numExpressions() -- Returns the number of expression for this TDB.
   // ---------------------------------------------------------------------
-  virtual Int32 numExpressions() const { return 0; }
+  virtual int numExpressions() const { return 0; }
 
   // ---------------------------------------------------------------------
   // GetExpressionName(int) -- Returns a string identifying the nth
   // expression for this TDB.
   // ---------------------------------------------------------------------
-  virtual const char *getExpressionName(Int32) const { return "none"; }
+  virtual const char *getExpressionName(int) const { return "none"; }
 
   // ---------------------------------------------------------------------
   // GetExpressionNode(int) -- Returns the nth expression for this TDB.
   // ---------------------------------------------------------------------
-  virtual ex_expr *getExpressionNode(Int32) { return 0; }
+  virtual ex_expr *getExpressionNode(int) { return 0; }
 
   // ---------------------------------------------------------------------
   // overloaded to return TRUE for root operators (master executor root,
@@ -409,12 +409,12 @@ class ComTdb : public NAVersionedObject {
   int getBufferSize() const { return bufferSize_; }
   int getNumBuffers() const { return numBuffers_; }
 
-  void resetBufInfo(Int32 numBuffers, UInt32 bufferSize) {
+  void resetBufInfo(int numBuffers, UInt32 bufferSize) {
     numBuffers_ = numBuffers;
     bufferSize_ = bufferSize;
   }
 
-  Int32 &firstNRows() { return firstNRows_; }
+  int &firstNRows() { return firstNRows_; }
 
   // ---------------------------------------------------------------------
   // do we collect statistics? This indicator is only set for root tdbs.
@@ -484,7 +484,7 @@ class ComTdb : public NAVersionedObject {
   void setCollectStatsType(CollectStatsType s) { collectStatsType_ = s; };
 
   int getExplainNodeId() const { return (int)explainNodeId_; }
-  void setExplainNodeId(int id) { explainNodeId_ = (Int32)id; }
+  void setExplainNodeId(int id) { explainNodeId_ = (int)id; }
 
   UInt16 getPertableStatsTdbId() const { return pertableStatsTdbId_; }
   void setPertableStatsTdbId(UInt16 id) { pertableStatsTdbId_ = id; }
@@ -570,7 +570,7 @@ class ComTdb : public NAVersionedObject {
   // ---------------------------------------------------------------------
   // Identification information
   // ---------------------------------------------------------------------
-  Int32 objectId_;             // 00-03
+  int objectId_;             // 00-03
   ex_eye_catcher eyeCatcher_;  // 04-07
 
   // ---------------------------------------------------------------------
@@ -582,7 +582,7 @@ class ComTdb : public NAVersionedObject {
   // ---------------------------------------------------------------------
   // Number and size of buffers to be allocated
   // ---------------------------------------------------------------------
-  Int32 numBuffers_;   // 16-19
+  int numBuffers_;   // 16-19
   UInt32 bufferSize_;  // 20-23
 
   // ---------------------------------------------------------------------
@@ -617,10 +617,10 @@ class ComTdb : public NAVersionedObject {
   // Executor stops processing (cancel) after
   // returning these many rows. If set to -1,
   // then all rows are to be returned.
-  Int32 firstNRows_;  // 64-67
+  int firstNRows_;  // 64-67
 
   // id of this TDB for statistics display
-  Int32 tdbId_;  // 68-71
+  int tdbId_;  // 68-71
 
   // ---------------------------------------------------------------------
   // Initial values for dynamically resized queues and buffer pools
@@ -652,7 +652,7 @@ class ComTdb : public NAVersionedObject {
   // link to the EXPLAIN node id of the corresponding node in
   // the EXPLAIN stored procedure (note that multiple TDBs can
   // map to one EXPLAIN node, like in PA or ESP exchange nodes).
-  Int32 explainNodeId_;  // 88-91
+  int explainNodeId_;  // 88-91
 
   Int16 overflowMode_;  // 92-93
 
@@ -675,7 +675,7 @@ class ComTdbVirtTableBase {
     char *dataMem = vtblPtr + sizeof(vtblPtr);
     memset(dataMem, '\0', (size() - sizeof(vtblPtr)));
   }
-  virtual Int32 size() { return 0; }
+  virtual int size() { return 0; }
 };
 
 class ComTdbVirtTableTableInfo : public ComTdbVirtTableBase {
@@ -686,7 +686,7 @@ class ComTdbVirtTableTableInfo : public ComTdbVirtTableBase {
     numTrafReplicas = 0;
   }
 
-  virtual Int32 size() { return sizeof(ComTdbVirtTableTableInfo); };
+  virtual int size() { return sizeof(ComTdbVirtTableTableInfo); };
 
   const char *tableName;
   long createTime;
@@ -695,8 +695,8 @@ class ComTdbVirtTableTableInfo : public ComTdbVirtTableBase {
   long objDataUID;
   int isAudited;
   int validDef;  // 0, invalid. 1, valid. 2, disabled.
-  Int32 objOwnerID;
-  Int32 schemaOwnerID;
+  int objOwnerID;
+  int schemaOwnerID;
   const char *hbaseCreateOptions;
   int numSaltPartns;          // num of salted partitions this table was created with.
   int numInitialSaltRegions;  // initial number of regions for salted table
@@ -718,7 +718,7 @@ class ComTdbVirtTableTableInfo : public ComTdbVirtTableBase {
   // if this table has LOB columns which are created with multiple datafiles
   // for each column, this field represents the number of hdfs datafiles.
   // See CmpSeabaseDDL::createSeabaseTable2 where datafiles are created.
-  Int32 numLOBdatafiles;
+  int numLOBdatafiles;
 
   long schemaUID;
 
@@ -758,7 +758,7 @@ class ComTdbVirtTableColumnInfo : public ComTdbVirtTableBase {
 
   ComTdbVirtTableColumnInfo() : ComTdbVirtTableBase() { init(); }
 
-  Int32 size() { return sizeof(ComTdbVirtTableColumnInfo); }
+  int size() { return sizeof(ComTdbVirtTableColumnInfo); }
 
   const char *colName;
   int colNumber;
@@ -792,7 +792,7 @@ class ComTdbVirtTableHistogramInfo : public ComTdbVirtTableBase {
  public:
   ComTdbVirtTableHistogramInfo() : ComTdbVirtTableBase() { init(); }
 
-  virtual Int32 size() { return sizeof(ComTdbVirtTableHistogramInfo); }
+  virtual int size() { return sizeof(ComTdbVirtTableHistogramInfo); }
 
   TrafHistogramDesc histogramDesc_;
 };
@@ -801,7 +801,7 @@ class ComTdbVirtTableHistintInfo : public ComTdbVirtTableBase {
  public:
   ComTdbVirtTableHistintInfo() : ComTdbVirtTableBase() { init(); }
 
-  virtual Int32 size() { return sizeof(ComTdbVirtTableHistintInfo); }
+  virtual int size() { return sizeof(ComTdbVirtTableHistintInfo); }
 
   TrafHistIntervalDesc histintDesc_;
 };
@@ -820,7 +820,7 @@ class ComTdbVirtTableKeyInfo : public ComTdbVirtTableBase {
 
   ComTdbVirtTableKeyInfo() : ComTdbVirtTableBase() { init(); }
 
-  virtual Int32 size() { return sizeof(ComTdbVirtTableKeyInfo); }
+  virtual int size() { return sizeof(ComTdbVirtTableKeyInfo); }
 
   const char *colName;
   int keySeqNum;
@@ -843,7 +843,7 @@ class ComTdbVirtTableIndexInfo : public ComTdbVirtTableBase {
     numTrafReplicas = 0;
   }
 
-  virtual Int32 size() { return sizeof(ComTdbVirtTableIndexInfo); }
+  virtual int size() { return sizeof(ComTdbVirtTableIndexInfo); }
 
   const char *baseTableName;
   const char *indexName;
@@ -869,7 +869,7 @@ class ComTdbVirtTableRefConstraints : public ComTdbVirtTableBase {
  public:
   ComTdbVirtTableRefConstraints() : ComTdbVirtTableBase() { init(); }
 
-  virtual Int32 size() { return sizeof(ComTdbVirtTableRefConstraints); }
+  virtual int size() { return sizeof(ComTdbVirtTableRefConstraints); }
 
   char *constrName;
   char *baseTableName;
@@ -879,7 +879,7 @@ class ComTdbVirtTableConstraintInfo : public ComTdbVirtTableBase {
  public:
   ComTdbVirtTableConstraintInfo() : ComTdbVirtTableBase() { init(); }
 
-  virtual Int32 size() { return sizeof(ComTdbVirtTableConstraintInfo); }
+  virtual int size() { return sizeof(ComTdbVirtTableConstraintInfo); }
 
   char *baseTableName;
   char *constrName;
@@ -908,7 +908,7 @@ class ComTdbVirtTableViewInfo : ComTdbVirtTableBase {
  public:
   ComTdbVirtTableViewInfo() : ComTdbVirtTableBase() { init(); }
 
-  virtual Int32 size() { return sizeof(ComTdbVirtTableViewInfo); }
+  virtual int size() { return sizeof(ComTdbVirtTableViewInfo); }
 
   char *viewName;
   char *viewText;
@@ -921,8 +921,8 @@ class ComTdbVirtTableViewInfo : ComTdbVirtTableBase {
 class ComTdbVirtTableRoutineInfo : public ComTdbVirtTableBase {
  public:
   ComTdbVirtTableRoutineInfo(const char *rn, const char *ut, const char *lt, Int16 d, const char *sa, Int16 con,
-                             Int16 i, const char *ps, const char *ta, Int32 mr, Int32 sas, const char *en,
-                             const char *p, const char *uv, const char *es, const char *em, const char *lf, Int32 lv,
+                             Int16 i, const char *ps, const char *ta, int mr, int sas, const char *en,
+                             const char *p, const char *uv, const char *es, const char *em, const char *lf, int lv,
                              const char *s, const char *ls, long luid)
       : ComTdbVirtTableBase(),
         routine_name(rn),
@@ -950,7 +950,7 @@ class ComTdbVirtTableRoutineInfo : public ComTdbVirtTableBase {
 
   ComTdbVirtTableRoutineInfo() : ComTdbVirtTableBase() { init(); }
 
-  virtual Int32 size() { return sizeof(ComTdbVirtTableRoutineInfo); }
+  virtual int size() { return sizeof(ComTdbVirtTableRoutineInfo); }
 
   const char *routine_name;
   char UDR_type[3];
@@ -961,20 +961,20 @@ class ComTdbVirtTableRoutineInfo : public ComTdbVirtTableBase {
   Int16 isolate;
   char param_style[3];
   char transaction_attributes[3];
-  Int32 max_results;
-  Int32 state_area_size;
+  int max_results;
+  int state_area_size;
   const char *external_name;
   char parallelism[3];
   char user_version[32];
   char external_security[3];
   char execution_mode[3];
   const char *library_filename;
-  Int32 library_version;
+  int library_version;
   const char *signature;
   const char *library_sqlname;
   long object_uid;
-  Int32 object_owner_id;
-  Int32 schema_owner_id;
+  int object_owner_id;
+  int schema_owner_id;
   long lib_redef_time;
   char *lib_blob_handle;
   char *lib_sch_name;
@@ -985,7 +985,7 @@ class ComTdbVirtTableSequenceInfo : public ComTdbVirtTableBase {
  public:
   ComTdbVirtTableSequenceInfo() : ComTdbVirtTableBase() { init(); }
 
-  virtual Int32 size() { return sizeof(ComTdbVirtTableSequenceInfo); }
+  virtual int size() { return sizeof(ComTdbVirtTableSequenceInfo); }
 
   int seqType;  // ComSequenceGeneratorType
   int datatype;
@@ -1006,7 +1006,7 @@ class ComTdbVirtTableSequenceInfo : public ComTdbVirtTableBase {
 // PrivMgrDesc's, one per distinct grantee.
 //
 //    PrivMgrDesc:
-//      grantee - Int32
+//      grantee - int
 //      schemaUID -  identifies the schema
 //      schemaPrivs - PrivMgrCoreDesc
 //      objectPrivs - PrivMgrCoreDesc
@@ -1019,7 +1019,7 @@ class ComTdbVirtTablePrivInfo : public ComTdbVirtTableBase {
  public:
   ComTdbVirtTablePrivInfo() : ComTdbVirtTableBase() { init(); }
 
-  virtual Int32 size() { return sizeof(ComTdbVirtTablePrivInfo); }
+  virtual int size() { return sizeof(ComTdbVirtTablePrivInfo); }
 
   PrivMgrDescList *privmgr_desc_list;
 };
@@ -1028,27 +1028,27 @@ class ComTdbVirtTableLibraryInfo : public ComTdbVirtTableBase {
  public:
   ComTdbVirtTableLibraryInfo() : ComTdbVirtTableBase() { init(); }
 
-  virtual Int32 size() { return sizeof(ComTdbVirtTableLibraryInfo); }
+  virtual int size() { return sizeof(ComTdbVirtTableLibraryInfo); }
 
   const char *library_name;
   long library_UID;
-  Int32 library_version;
+  int library_version;
   const char *library_filename;
-  Int32 object_owner_id;
-  Int32 schema_owner_id;
+  int object_owner_id;
+  int schema_owner_id;
 };
 
 class ComTdbVirtTableStatsInfo : public ComTdbVirtTableBase {
  public:
   ComTdbVirtTableStatsInfo() : ComTdbVirtTableBase() { init(); }
 
-  virtual Int32 size() { return sizeof(ComTdbVirtTableStatsInfo); };
+  virtual int size() { return sizeof(ComTdbVirtTableStatsInfo); };
 
   Float64 rowcount;
-  Int32 hbtBlockSize;
-  Int32 hbtIndexLevels;
-  Int32 numHistograms;     // num of histograms_descs
-  Int32 numHistIntervals;  // num of hist_interval_descs
+  int hbtBlockSize;
+  int hbtIndexLevels;
+  int numHistograms;     // num of histograms_descs
+  int numHistIntervals;  // num of hist_interval_descs
 
   ComTdbVirtTableHistogramInfo *histogramInfo;
   ComTdbVirtTableHistintInfo *histintInfo;
@@ -1058,7 +1058,7 @@ class ComTdbVirtIndexCommentInfo : public ComTdbVirtTableBase {
  public:
   ComTdbVirtIndexCommentInfo() : ComTdbVirtTableBase() { init(); }
 
-  virtual Int32 size() { return sizeof(ComTdbVirtIndexCommentInfo); }
+  virtual int size() { return sizeof(ComTdbVirtIndexCommentInfo); }
 
   const char *indexFullName;
   const char *indexComment;
@@ -1068,7 +1068,7 @@ class ComTdbVirtColumnCommentInfo : public ComTdbVirtTableBase {
  public:
   ComTdbVirtColumnCommentInfo() : ComTdbVirtTableBase() { init(); }
 
-  virtual Int32 size() { return sizeof(ComTdbVirtColumnCommentInfo); }
+  virtual int size() { return sizeof(ComTdbVirtColumnCommentInfo); }
 
   const char *columnName;
   const char *columnComment;
@@ -1087,15 +1087,15 @@ class ComTdbVirtObjCommentInfo : public ComTdbVirtTableBase {
     indexCommentArray = NULL;
   }
 
-  virtual Int32 size() { return sizeof(ComTdbVirtObjCommentInfo); }
+  virtual int size() { return sizeof(ComTdbVirtObjCommentInfo); }
 
   long objectUid;
   const char *objectComment;
 
-  Int32 numColumnComment;
+  int numColumnComment;
   ComTdbVirtColumnCommentInfo *columnCommentArray;
 
-  Int32 numIndexComment;
+  int numIndexComment;
   ComTdbVirtIndexCommentInfo *indexCommentArray;
 };
 
@@ -1122,7 +1122,7 @@ class ComTdbVirtTablePartInfo : public ComTdbVirtTableBase {
     subPartArray = NULL;
   }
 
-  Int32 size() { return sizeof(ComTdbVirtTablePartInfo); }
+  int size() { return sizeof(ComTdbVirtTablePartInfo); }
 
   long parentUid;
   long partitionUid;
@@ -1168,7 +1168,7 @@ class ComTdbVirtTablePartitionV2Info : public ComTdbVirtTableBase {
     flags = 0;
   }
 
-  Int32 size() { return sizeof(ComTdbVirtTablePartitionV2Info); }
+  int size() { return sizeof(ComTdbVirtTablePartitionV2Info); }
 
   long baseTableUid;
 

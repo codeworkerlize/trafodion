@@ -76,7 +76,7 @@ class REFRESH_LIB_CLASS CRUEquivSetBuilder {
   virtual void Run() = 0;
 
   // These functions are used for retrieving the results
-  virtual Int32 GetNumOfSets() = 0;
+  virtual int GetNumOfSets() = 0;
 
  public:
 #ifdef _DEBUG

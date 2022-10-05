@@ -198,7 +198,7 @@ Guidance *Rule::guidanceForOptimizingChild(Guidance *, Context *, int) {
   return (NULL);
 }  // Rule::guidanceForOptimizingChild
 
-Int32 Rule::promiseForExploration(RelExpr *expr, RelExpr *, Guidance *) {
+int Rule::promiseForExploration(RelExpr *expr, RelExpr *, Guidance *) {
   // by default, explore in exhaustive search
   // (only transformation rules are used for exploration)
   /*if (expr && CURRSTMT_OPTDEFAULTS->pruneByOptDefaults(this, expr))
@@ -206,7 +206,7 @@ Int32 Rule::promiseForExploration(RelExpr *expr, RelExpr *, Guidance *) {
   return (DefaultTransRulePromise);
 }  // Rule::promiseForExploration
 
-Int32 Rule::promiseForOptimization(RelExpr *expr, Guidance *, Context *) {
+int Rule::promiseForOptimization(RelExpr *expr, Guidance *, Context *) {
   /*if (expr && CURRSTMT_OPTDEFAULTS->pruneByOptDefaults(this, expr))
     return 0;*/
 
@@ -238,7 +238,7 @@ RelExpr *Rule::checkAndBindPattern(RelExpr *patt, ARRAY(CutOp *) & cuts, ARRAY(W
 
   if (patt->isCutOp()) {
     CutOp *acut = (CutOp *)patt;
-    Int32 ix = acut->getIndex();
+    int ix = acut->getIndex();
 
     if (!isSubstitute) {
       if (cuts.used(ix))
@@ -259,7 +259,7 @@ RelExpr *Rule::checkAndBindPattern(RelExpr *patt, ARRAY(CutOp *) & cuts, ARRAY(W
   }  // pattern is a cut
   else if (patt->isWildcard()) {
     WildCardOp *wild = (WildCardOp *)patt;
-    Int32 designator = wild->getDesignator();
+    int designator = wild->getDesignator();
 
     if (!isSubstitute) {
       // fill in the appropriate entry of the wildcards array
@@ -283,7 +283,7 @@ RelExpr *Rule::checkAndBindPattern(RelExpr *patt, ARRAY(CutOp *) & cuts, ARRAY(W
 
   // recurse
 
-  Int32 arity = patt->getArity();
+  int arity = patt->getArity();
 
   for (int i = 0; i < arity; i++) {
     result->child(i) = checkAndBindPattern(patt->child(i)->castToRelExpr(), cuts, wildcards, isSubstitute);
@@ -322,7 +322,7 @@ void RuleSubset::display() {
 // methods for class RuleSet
 // -----------------------------------------------------------------------
 
-RuleSet::RuleSet(Int32 approxNumRules, CollHeap *h)
+RuleSet::RuleSet(int approxNumRules, CollHeap *h)
     : allRules_(h, approxNumRules),
       passNRules_(h),
       oldRules_(&allRules_, h),

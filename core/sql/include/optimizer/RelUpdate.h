@@ -164,7 +164,7 @@ class GenericUpdate : public RelExpr {
   virtual RelExpr *normalizeForCache(CacheWA &cwa, BindWA &bindWA);
 
   // get the degree of this node (it is a unary op).
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   // accessor and mutator functions
   const CorrName &getTableName() const { return updatedTableName_; }
@@ -647,7 +647,7 @@ class GenericUpdate : public RelExpr {
   // If we are reading from the same table we are updating, check to
   // see if we can support this potential halloween problem
   //
-  NABoolean checkForHalloweenR2(Int32 numScansToFind);
+  NABoolean checkForHalloweenR2(int numScansToFind);
 
   NABoolean checkForNotAtomicStatement(BindWA *bindWA, int sqlcode, NAString objname, NAString tabname);
 
@@ -1571,7 +1571,7 @@ class HbaseDelete : public Delete {
   virtual const CorrName &getCorrName() { return corrName_; }
 
   // get the degree of this node (it is a leaf op).
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   virtual NABoolean isLogical() const { return FALSE; };
   virtual NABoolean isPhysical() const { return TRUE; };
@@ -1816,7 +1816,7 @@ class HbaseUpdate : public UpdateCursor {
   virtual const CorrName &getCorrName() { return corrName_; }
 
   // get the degree of this node (it is a leaf op).
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   virtual NABoolean isLogical() const { return FALSE; };
   virtual NABoolean isPhysical() const { return TRUE; };

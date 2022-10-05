@@ -61,8 +61,8 @@ class atp_struct {
   int unpack(int base);
 
   // ****  information for GUI  *** -------------
-  inline void set_tag(Int32 tag);
-  inline Int32 get_tag() const;
+  inline void set_tag(int tag);
+  inline int get_tag() const;
   inline void unset_tag();
 
   // The passed-in cri will be used if it is not NULL. Otherwise
@@ -74,25 +74,25 @@ class atp_struct {
 
   void dumpATupp(ostream &out, const char *title, Int16 dt, char *ptr, UInt32 len);
 
-  void dump(ostream &out, const char *title, Int32 idx = -1, ex_cri_desc *cri = NULL);
-  void dump(const char *title, Int32 idx = -1, ex_cri_desc *cri = NULL);
+  void dump(ostream &out, const char *title, int idx = -1, ex_cri_desc *cri = NULL);
+  void dump(const char *title, int idx = -1, ex_cri_desc *cri = NULL);
 
   // display the idx tupp as a min/max tuple
-  void dumpMinMaxTupp(const char *title, Int32 idx, ex_cri_desc *cri = NULL);
-  void dumpMinMaxTupp(ostream &, const char *title, Int32 idx, ex_cri_desc *cri = NULL);
-  void dumpMinMaxTupp2Log(logLevel level, const char *title, Int32 idx, ex_cri_desc *cri = NULL);
+  void dumpMinMaxTupp(const char *title, int idx, ex_cri_desc *cri = NULL);
+  void dumpMinMaxTupp(ostream &, const char *title, int idx, ex_cri_desc *cri = NULL);
+  void dumpMinMaxTupp2Log(logLevel level, const char *title, int idx, ex_cri_desc *cri = NULL);
 
   // return TRUE and set result argument to the value of the integer data
   // (32 bit or less) for tupp at index i, if the tupp is 16 or 32 bit
   // signed. If the data type is incorect or TUPP does not exist, return
   // FALSE.
-  NABoolean getRegularIntSigned(Int32 i, Int32 &result);
+  NABoolean getRegularIntSigned(int i, int &result);
 
   // return TRUE and set result argument to the value of the integer data
   // (32 bit or less) for tupp at index i, if the tupp is 16 or 32 bit
   // unsigned. If the data type is incorect or TUPP does not exist, return
   // FALSE.
-  NABoolean getRegularIntUnsigned(Int32 i, UInt32 &result);
+  NABoolean getRegularIntUnsigned(int i, UInt32 &result);
 
  protected:
   // On return:
@@ -101,7 +101,7 @@ class atp_struct {
   //
   //   void: not NULL. The pointer to the TUPP data
   //   dt: the data type of the TUPP at index i
-  void *checkAndGetMetaData(Int32 i, Int16 &dt);
+  void *checkAndGetMetaData(int i, Int16 &dt);
 
   //
   //---------------------------------------------
@@ -109,7 +109,7 @@ class atp_struct {
   //  inline              ~atp_struct();	// destructor
 
  private:
-  Int32 tagged_;             // TRUE or FALSE;
+  int tagged_;             // TRUE or FALSE;
   ex_cri_desc *criDesc_;     // descriptor (num tupps, etc.)
   ComDiagsArea *diagsArea_;  // diagnostics area
   // the following data member is just a filler. Statistics areas are not passed
@@ -140,7 +140,7 @@ atp_struct *createAtpInBuffer(ex_cri_desc *criDesc, char *&buf);
 
 void deallocateAtp(atp_struct *atp, CollHeap *space);
 
-atp_struct *allocateAtpArray(ex_cri_desc *criDesc, int cnt, Int32 *atpSize, CollHeap *space,
+atp_struct *allocateAtpArray(ex_cri_desc *criDesc, int cnt, int *atpSize, CollHeap *space,
                              NABoolean failureIsFatal = FALSE);
 
 void deallocateAtpArray(atp_struct **atp, CollHeap *space);
@@ -179,9 +179,9 @@ inline void atp_struct::setDiagsArea(ComDiagsArea *diagsArea) {
 
 inline void atp_struct::initDiagsArea(ComDiagsArea *diagsArea) { diagsArea_ = diagsArea; }
 
-inline void atp_struct::set_tag(Int32 tag) { tagged_ = (short)tag; }
+inline void atp_struct::set_tag(int tag) { tagged_ = (short)tag; }
 
-inline Int32 atp_struct::get_tag() const { return (Int32)tagged_; }
+inline int atp_struct::get_tag() const { return (int)tagged_; }
 
 inline void atp_struct::unset_tag() { tagged_ = 0; /* FALSE */ }
 
@@ -242,7 +242,7 @@ inline void atp_struct::release() {
   //
 
   unsigned short numTups = criDesc_->noTuples();
-  for (Int32 i = 0; i < numTups; i++) {
+  for (int i = 0; i < numTups; i++) {
     tuppArray_[i].release();
   }
 
@@ -254,7 +254,7 @@ inline void atp_struct::release() {
 inline void atp_struct::releasePartialAtp(short from_first_tupp, short last_tupp) {
   // Release each tupp.
   //
-  for (Int32 i = from_first_tupp; i <= last_tupp; i++) {
+  for (int i = from_first_tupp; i <= last_tupp; i++) {
     tuppArray_[i].release();
   }
 

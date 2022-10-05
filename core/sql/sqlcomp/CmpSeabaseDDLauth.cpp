@@ -166,11 +166,11 @@ short AuthConflictList::generateConflicts(ExeCliInterface *cliInterface) {
 
   // Create a AuthConflict for every unique (sourceID, targetID, authName, mdTable, mdCol) found
   tableQueue->position();
-  for (Int32 i = 0; i < tableQueue->numEntries(); i++) {
+  for (int i = 0; i < tableQueue->numEntries(); i++) {
     OutputInfo *pCliRow = (OutputInfo *)tableQueue->getNext();
 
-    Int32 sourceID(*(Int32 *)pCliRow->get(0));
-    Int32 targetID(*(Int32 *)pCliRow->get(1));
+    int sourceID(*(int *)pCliRow->get(0));
+    int targetID(*(int *)pCliRow->get(1));
     NAString authName((char *)pCliRow->get(2));
     NAString mdColumn((char *)pCliRow->get(3));
     NAString mdTable((char *)pCliRow->get(4));
@@ -192,7 +192,7 @@ short AuthConflictList::generateConflicts(ExeCliInterface *cliInterface) {
 // sourceID_ in the list (one for each table/column combination), but for each
 // of these entries; the sourceID, targetID, and authName are always the same.
 // ----------------------------------------------------------------------------
-CollIndex AuthConflictList::getIndexForSourceID(Int32 sourceID) {
+CollIndex AuthConflictList::getIndexForSourceID(int sourceID) {
   for (CollIndex i = 0; i < entries(); i++) {
     AuthConflict conflict = operator[](i);
     if (conflict.getSourceID() == sourceID) return i;
@@ -244,24 +244,24 @@ short AuthConflictList::updateObjects(ExeCliInterface *cliInterface) {
   //   column 0 - value of object_uid
   //   column 1 - value of schema_owner
   //   column 2 - value of object_owner
-  for (Int32 i = 0; i < tableQueue->numEntries(); i++) {
+  for (int i = 0; i < tableQueue->numEntries(); i++) {
     OutputInfo *pCliRow = (OutputInfo *)tableQueue->getNext();
 
     long objectUID(*(long *)pCliRow->get(0));
 
-    Int32 schOwner(*(Int32 *)pCliRow->get(1));
+    int schOwner(*(int *)pCliRow->get(1));
     CollIndex schIndex = getIndexForSourceID(schOwner);
     bool updateSchOwner = (schIndex == NULL_COLL_INDEX) ? false : true;
 
-    Int32 objOwner(*(Int32 *)pCliRow->get(2));
-    Int32 objIndex = getIndexForSourceID(objOwner);
+    int objOwner(*(int *)pCliRow->get(2));
+    int objIndex = getIndexForSourceID(objOwner);
     bool updateObjOwner = (objIndex == NULL_COLL_INDEX) ? false : true;
 
     NAString setClause;
     char intStr[20];
 
     if (updateSchOwner && updateObjOwner) {
-      Int32 targetID = operator[](schIndex).getTargetID();
+      int targetID = operator[](schIndex).getTargetID();
       setClause = "set schema_owner = ";
       setClause += str_itoa(targetID, intStr);
       targetID = operator[](objIndex).getTargetID();
@@ -270,13 +270,13 @@ short AuthConflictList::updateObjects(ExeCliInterface *cliInterface) {
     }
 
     else if (updateSchOwner) {
-      Int32 targetID = operator[](schIndex).getTargetID();
+      int targetID = operator[](schIndex).getTargetID();
       setClause = "set schema_owner = ";
       setClause += str_itoa(targetID, intStr);
     }
 
     else if (updateObjOwner) {
-      Int32 targetID = operator[](objIndex).getTargetID();
+      int targetID = operator[](objIndex).getTargetID();
       setClause += "set object_owner = ";
       setClause += str_itoa(targetID, intStr);
     }
@@ -353,9 +353,9 @@ short AuthConflictList::updatePrivs(ExeCliInterface *cliInterface, const char *s
   // value, continue to do other update. After that, we update it to the right value
   // again.
   int32_t diagsMark = CmpCommon::diags()->mark();
-  std::vector<Int32> uniqueConflictList;
+  std::vector<int> uniqueConflictList;
   int invalidUID = LOWER_INVALID_ID;
-  for (Int32 i = 0; i < entries(); i++) {
+  for (int i = 0; i < entries(); i++) {
     AuthConflict &conflict = operator[](i);
     if (strcmp(conflict.getMDTable().data(), objName) == 0) {
       str_sprintf(queryBuf, "update %s.\"%s\".%s set %s = %d where %s = '%s'", TRAFODION_SYSCAT_LIT, schName, objName,
@@ -389,7 +389,7 @@ short AuthConflictList::updatePrivs(ExeCliInterface *cliInterface, const char *s
   }
 
   if (uniqueConflictList.size() != 0) {
-    for (Int32 i = 0; i < uniqueConflictList.size(); i++) {
+    for (int i = 0; i < uniqueConflictList.size(); i++) {
       AuthConflict &conflict = operator[](uniqueConflictList[i]);
       if (strcmp(conflict.getMDTable().data(), objName) == 0) {
         str_sprintf(queryBuf, "update %s.\"%s\".%s set %s = %d where %s = '%s'", TRAFODION_SYSCAT_LIT, schName, objName,
@@ -525,18 +525,18 @@ bool CmpSeabaseDDLauth::describe(const NAString &authName, NAString &authText) {
 //    STATUS_GOOD     - found admin role ID
 //    STATUS_ERROR    - unexpected error (ComDiags set up with error)
 // -----------------------------------------------------------------------------
-CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::getAdminRole(const Int32 authID, Int32 &adminRoleID) {
+CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::getAdminRole(const int authID, int &adminRoleID) {
   // If there is no current tenant, just return
-  Int32 tenantID = ComTenant::getCurrentTenantID();
+  int tenantID = ComTenant::getCurrentTenantID();
   if (tenantID == NA_UserIdDefault) return STATUS_NOTFOUND;
 
   adminRoleID = NA_UserIdDefault;
-  std::vector<Int32> adminRoles;
+  std::vector<int> adminRoles;
   CmpSeabaseDDLauth::AuthStatus authStatus = STATUS_GOOD;
   authStatus = getAdminRoles(adminRoles);
   if (authStatus != STATUS_GOOD) return authStatus;
-  std::vector<Int32> myRoles;
-  std::vector<Int32> myGrantees;
+  std::vector<int> myRoles;
+  std::vector<int> myGrantees;
   authStatus = getRoleIDs(authID, myRoles, myGrantees);
 
   // if myRoles contain an admin role - return STATUS_GOOD
@@ -565,7 +565,7 @@ CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::getAdminRole(const Int32 authID
 //   STATUS_NOTFOUND - no roles were found
 //   STATUS_ERROR - unexpected error, ComDiags contains the error
 // ----------------------------------------------------------------------------
-CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::getAdminRoles(std::vector<Int32> &roleIDs) {
+CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::getAdminRoles(std::vector<int> &roleIDs) {
   long authFlags = 0;
   authFlags |= SEABASE_IS_ADMIN_ROLE;
 
@@ -588,7 +588,7 @@ CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::getAdminRoles(std::vector<Int32
 //   STATUS_NOTFOUND - no users or roles were found
 //   STATUS_ERROR - unexpected error, ComDiags contains the error
 // ----------------------------------------------------------------------------
-CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::getAuthsForCreator(Int32 authCreator,
+CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::getAuthsForCreator(int authCreator,
                                                                     std::vector<std::string> &userNames,
                                                                     std::vector<std::string> &roleNames) {
   long authFlags = 0;
@@ -673,7 +673,7 @@ CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::getAuthDetails(const char *pAut
 //       STATUS_WARNING: (not 100) warning was returned, diags area populated
 //       STATUS_ERROR: error was returned, diags area populated
 // ----------------------------------------------------------------------------
-CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::getAuthDetails(Int32 authID) {
+CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::getAuthDetails(int authID) {
   try {
     char buf[500];
     str_sprintf(buf, "where auth_id = %d ", authID);
@@ -704,7 +704,7 @@ CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::getAuthDetails(Int32 authID) {
 //       STATUS_NOTFOUND: no roles were granted
 //       STATUS_ERROR: error was returned, diags area populated
 // ----------------------------------------------------------------------------
-CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::getRoleIDs(const Int32 authID, std::vector<int32_t> &roleIDs,
+CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::getRoleIDs(const int authID, std::vector<int32_t> &roleIDs,
                                                             std::vector<int32_t> &grantees, bool fetchGroupRoles) {
   NAString privMgrMDLoc;
   CONCAT_CATSCH(privMgrMDLoc, systemCatalog_.data(), SEABASE_PRIVMGR_SCHEMA);
@@ -734,8 +734,8 @@ CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::getRoleIDs(const Int32 authID, 
 // ----------------------------------------------------------------------------
 CmpSeabaseDDLauth::AuthStatus 
 CmpSeabaseDDLauth::getDependentAuths(
-  const Int32 authID,
-  std::vector<Int32> &authList)
+  const int authID,
+  std::vector<int> &authList)
 {
   NAString whereClause ("where auth_type in ('R', 'U') and auth_creator = ");
   std::string roleID = PrivMgr::authIDToString(authID);
@@ -785,7 +785,7 @@ NAString CmpSeabaseDDLauth::getObjectName(const std::vector<int64_t> objectUIDs)
               sysCat.data(), SEABASE_MD_SCHEMA, SEABASE_OBJECTS, objectList.data());
 
   ExeCliInterface cliInterface(STMTHEAP);
-  Int32 cliRC = cliInterface.fetchRowsPrologue(buf, true /*no exec*/);
+  int cliRC = cliInterface.fetchRowsPrologue(buf, true /*no exec*/);
   if (cliRC != 0) {
     cliInterface.retrieveSQLDiagnostics(CmpCommon::diags());
     UserException excp(NULL, 0);
@@ -866,7 +866,7 @@ TenantGroupInfoList *CmpSeabaseDDLtenant::getTenantGroupList(TenantInfo &tenantI
       TenantUsage usage = (*tenantInfo.getUsageList())[i];
       if (usage.isGroupUsage()) {
         CmpSeabaseDDLgroup groupInfo;
-        groupInfo.getAuthDetails((Int32)usage.getUsageID());
+        groupInfo.getAuthDetails((int)usage.getUsageID());
 
         TenantGroupInfo *tenantGroup = new (heap)
             TenantGroupInfo(getAuthID(), groupInfo.getAuthExtName(), groupInfo.getAuthID(), groupInfo.getAuthConfig());
@@ -889,14 +889,14 @@ TenantGroupInfoList *CmpSeabaseDDLtenant::getTenantGroupList(TenantInfo &tenantI
 // Output: unique ID to use
 //   exception is generated if unable to generate a unique value
 // ----------------------------------------------------------------------------
-Int32 CmpSeabaseDDLauth::getUniqueAuthID(const Int32 minValue, const Int32 maxValue) {
-  Int32 newUserID = 0;
-  Int32 currentMaxUserID = 0;
+int CmpSeabaseDDLauth::getUniqueAuthID(const int minValue, const int maxValue) {
+  int newUserID = 0;
+  int currentMaxUserID = 0;
   char buf[300];
-  Int32 len = 0;
+  int len = 0;
   // If root auth does not exist, use it.
   if (isUserGroup() || isTenant()) {
-    Int32 len = (MAX_AUTHID_AS_STRING_LEN * 2) + 200;
+    int len = (MAX_AUTHID_AS_STRING_LEN * 2) + 200;
     char buf[len];
     snprintf(buf, len, "where auth_id = %d", minValue);
     NAString whereClause(buf);
@@ -907,7 +907,7 @@ Int32 CmpSeabaseDDLauth::getUniqueAuthID(const Int32 minValue, const Int32 maxVa
   int cliRC = 0;
   long metadataValue = 0;
   bool nullTerminate = false;
-  Int32 specialID = SUPER_USER;
+  int specialID = SUPER_USER;
 
   ExeCliInterface cliInterface(STMTHEAP);
   if (isUser()) {
@@ -917,7 +917,7 @@ Int32 CmpSeabaseDDLauth::getUniqueAuthID(const Int32 minValue, const Int32 maxVa
     assert(len <= 300);
 
     cliRC = cliInterface.executeImmediate(buf, (char *)&metadataValue, &len, nullTerminate);
-    currentMaxUserID = (cliRC == 0) ? (Int32)metadataValue : 0;
+    currentMaxUserID = (cliRC == 0) ? (int)metadataValue : 0;
     if (0 == currentMaxUserID) {
       currentMaxUserID = getMaxUserIdInUsed(&cliInterface);
     }
@@ -945,7 +945,7 @@ Int32 CmpSeabaseDDLauth::getUniqueAuthID(const Int32 minValue, const Int32 maxVa
       return 0;
     }
 
-    newUserID = (Int32)metadataValue;
+    newUserID = (int)metadataValue;
     if (newUserID == 0)
       newUserID = minValue;
     else
@@ -979,7 +979,7 @@ Int32 CmpSeabaseDDLauth::getUniqueAuthID(const Int32 minValue, const Int32 maxVa
     if (!componentPrivs.dropAllForGrantee(newUserID)) {
       *CmpCommon::diags() << DgSqlCode(CAT_WARN_USED_AUTHID) << DgInt0(newUserID);
 
-      Int32 newMinValue = newUserID + 1;
+      int newMinValue = newUserID + 1;
       newUserID = getUniqueAuthID(newUserID + 1, maxValue);
     }
   }
@@ -994,8 +994,8 @@ Int32 CmpSeabaseDDLauth::getUniqueAuthID(const Int32 minValue, const Int32 maxVa
 //  true - is an admin role
 //  false - not an admin role
 // ----------------------------------------------------------------------------
-bool CmpSeabaseDDLauth::isAdminAuthID(const Int32 authCreator) {
-  std::vector<Int32> adminRoles;
+bool CmpSeabaseDDLauth::isAdminAuthID(const int authCreator) {
+  std::vector<int> adminRoles;
   CmpSeabaseDDLauth::AuthStatus authStatus = getAdminRoles(adminRoles);
   if (authStatus != AuthStatus::STATUS_GOOD) return false;
   if (std::find(adminRoles.begin(), adminRoles.end(), authCreator) != adminRoles.end()) return true;
@@ -1150,11 +1150,11 @@ bool CmpSeabaseDDLauth::isPasswordValid(const NAString &password) {
 // Determines if an authID is in the role ID range
 //
 // Input:
-//    Int32 - authID -- numeric ID to check
+//    int - authID -- numeric ID to check
 //
 // Returns:  true if authID is a role ID, false otherwise
 // ----------------------------------------------------------------------------
-bool CmpSeabaseDDLauth::isRoleID(Int32 authID) { return (authID >= MIN_ROLEID && authID <= MAX_ROLEID); }
+bool CmpSeabaseDDLauth::isRoleID(int authID) { return (authID >= MIN_ROLEID && authID <= MAX_ROLEID); }
 
 // ----------------------------------------------------------------------------
 // method: isUserID
@@ -1162,11 +1162,11 @@ bool CmpSeabaseDDLauth::isRoleID(Int32 authID) { return (authID >= MIN_ROLEID &&
 // Determines if an authID is in the user ID range
 //
 // Input:
-//    Int32 - authID -- numeric ID to check
+//    int - authID -- numeric ID to check
 //
 // Returns:  true if authID is a user ID, false otherwise
 // ----------------------------------------------------------------------------
-bool CmpSeabaseDDLauth::isUserID(Int32 authID) { return (authID >= MIN_USERID && authID <= MAX_USERID); }
+bool CmpSeabaseDDLauth::isUserID(int authID) { return (authID >= MIN_USERID && authID <= MAX_USERID); }
 
 // ----------------------------------------------------------------------------
 // method: isTenantID
@@ -1174,11 +1174,11 @@ bool CmpSeabaseDDLauth::isUserID(Int32 authID) { return (authID >= MIN_USERID &&
 // Determines if an authID is in the user ID range
 //
 // Input:
-//    Int32 - authID -- numeric ID to check
+//    int - authID -- numeric ID to check
 //
 // Returns:  true if authID is a user ID, false otherwise
 // ----------------------------------------------------------------------------
-bool CmpSeabaseDDLauth::isTenantID(Int32 authID) { return (authID >= MIN_TENANTID && authID <= MAX_TENANTID); }
+bool CmpSeabaseDDLauth::isTenantID(int authID) { return (authID >= MIN_TENANTID && authID <= MAX_TENANTID); }
 
 // ----------------------------------------------------------------------------
 // method: isUserGroup
@@ -1186,11 +1186,11 @@ bool CmpSeabaseDDLauth::isTenantID(Int32 authID) { return (authID >= MIN_TENANTI
 // Determines if an authID is in the user group ID range
 //
 // Input:
-//    Int32 - authID -- numeric ID to check
+//    int - authID -- numeric ID to check
 //
 // Returns:  true if authID is a user ID, false otherwise
 // ----------------------------------------------------------------------------
-bool CmpSeabaseDDLauth::isUserGroupID(Int32 authID) { return (authID >= MIN_USERGROUP && authID <= MAX_USERGROUP); }
+bool CmpSeabaseDDLauth::isUserGroupID(int authID) { return (authID >= MIN_USERGROUP && authID <= MAX_USERGROUP); }
 
 // ----------------------------------------------------------------------------
 // method: isSystemAuth
@@ -1313,8 +1313,8 @@ bool CmpSeabaseDDLauth::createStandardAuth(const std::string authName, const int
   }
 
   try {
-    Int32 minAuthID = 0;
-    Int32 maxAuthID = 0;
+    int minAuthID = 0;
+    int maxAuthID = 0;
     switch (getAuthType()) {
       case COM_USER_CLASS:
         minAuthID = MIN_USERID;
@@ -1338,7 +1338,7 @@ bool CmpSeabaseDDLauth::createStandardAuth(const std::string authName, const int
         throw excp;
     }
 
-    Int32 newAuthID = (authID == NA_UserIdDefault) ? getUniqueAuthID(minAuthID, maxAuthID) : authID;
+    int newAuthID = (authID == NA_UserIdDefault) ? getUniqueAuthID(minAuthID, maxAuthID) : authID;
 
     setAuthID(newAuthID);
     setAuthCreator(ComUser::getRootUserID());
@@ -1417,7 +1417,7 @@ short CmpSeabaseDDLauth::updateSeabaseXDCDDLTable() {
 
   int dataLen = ddlLength_;
   char *dataToInsert = ddlQuery_;
-  Int32 maxLen = 10000;
+  int maxLen = 10000;
   char queryBuf[1000];
   int numRows = ((dataLen - 1) / maxLen) + 1;
   int currPos = 0;
@@ -1492,7 +1492,7 @@ void CmpSeabaseDDLauth::insertRow() {
               SEABASE_MD_SCHEMA, SEABASE_AUTHS, getAuthID(), getAuthDbName().data(), getAuthExtName().data(),
               authType.data(), getAuthCreator(), authValid.data(), getAuthCreateTime(), getAuthRedefTime(), authFlags);
 
-  Int32 cliRC = cliInterface.executeImmediate(buf);
+  int cliRC = cliInterface.executeImmediate(buf);
 
   // add password into SEABASE_TEXT table
   if (cliRC > -1 && authType == COM_USER_CLASS_LIT) {
@@ -1529,7 +1529,7 @@ void CmpSeabaseDDLauth::updateRow(NAString &setClause) {
   str_sprintf(buf, "update %s.\"%s\".%s %s auth_redef_time = %ld where auth_id = %d", sysCat.data(), SEABASE_MD_SCHEMA,
               SEABASE_AUTHS, setClause.data(), redefTime, getAuthID());
 
-  Int32 cliRC = cliInterface.executeImmediate(buf);
+  int cliRC = cliInterface.executeImmediate(buf);
 
   // update password
   if (cliRC > -1) {
@@ -1557,7 +1557,7 @@ void CmpSeabaseDDLauth::updateRow(NAString &setClause) {
   // what it means if one is returned, for now it is ignored.
 }
 
-static Int32 getSeqnumFromText(Int32 userid) {
+static int getSeqnumFromText(int userid) {
   char buf[1000];
   memset(buf, 0, 1000);
   ExeCliInterface cliInterface(STMTHEAP);
@@ -1567,7 +1567,7 @@ static Int32 getSeqnumFromText(Int32 userid) {
               SEABASE_MD_SCHEMA, SEABASE_TEXT, userid, COM_USER_PASSWORD);
 
   Queue *cntQueue = NULL;
-  Int32 cliRC = cliInterface.fetchAllRows(cntQueue, buf, 0, false, false, true);
+  int cliRC = cliInterface.fetchAllRows(cntQueue, buf, 0, false, false, true);
   if (cliRC < 0) {
     cliInterface.retrieveSQLDiagnostics(CmpCommon::diags());
     UserException excp(NULL, 0);
@@ -1591,11 +1591,11 @@ static Int32 getSeqnumFromText(Int32 userid) {
   cntQueue->position();
   OutputInfo *pCliRow = (OutputInfo *)cntQueue->getNext();
 
-  return *(Int32 *)pCliRow->get(0);
+  return *(int *)pCliRow->get(0);
 }
 
-Int32 CmpSeabaseDDLauth::getErrPwdCnt(Int32 userid, Int16 &errcnt) {
-  Int32 val = getSeqnumFromText(userid);
+int CmpSeabaseDDLauth::getErrPwdCnt(int userid, Int16 &errcnt) {
+  int val = getSeqnumFromText(userid);
   if (0 != val) {
     Int16 *ptr = (Int16 *)&val;
     if (is_little_endian()) {
@@ -1611,10 +1611,10 @@ Int32 CmpSeabaseDDLauth::getErrPwdCnt(Int32 userid, Int16 &errcnt) {
   return 0;
 }
 
-Int32 CmpSeabaseDDLauth::updateErrPwdCnt(Int32 userid, Int16 errcnt, bool reset) {
+int CmpSeabaseDDLauth::updateErrPwdCnt(int userid, Int16 errcnt, bool reset) {
   char buf[1000];
   memset(buf, 0, 1000);
-  Int32 val, val2;
+  int val, val2;
   bool isLittle = is_little_endian();
 
   val = getSeqnumFromText(userid);
@@ -1641,7 +1641,7 @@ Int32 CmpSeabaseDDLauth::updateErrPwdCnt(Int32 userid, Int16 errcnt, bool reset)
   NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
   str_sprintf(buf, "update  %s.\"%s\".%s set SEQ_NUM = %d where text_uid = %d and text_type = %d", sysCat.data(),
               SEABASE_MD_SCHEMA, SEABASE_TEXT, val, userid, COM_USER_PASSWORD);
-  Int32 cliRC = cliInterface.executeImmediate(buf);
+  int cliRC = cliInterface.executeImmediate(buf);
   if (cliRC < 0) {
     cliInterface.retrieveSQLDiagnostics(CmpCommon::diags());
     UserException excp(NULL, 0);
@@ -1661,7 +1661,7 @@ CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::updateRedefTime() {
   str_sprintf(buf, "update %s.\"%s\".%s set auth_redef_time = %ld where auth_id = %d", sysCat.data(), SEABASE_MD_SCHEMA,
               SEABASE_AUTHS, redefTime, getAuthID());
 
-  Int32 cliRC = cliInterface.executeImmediate(buf);
+  int cliRC = cliInterface.executeImmediate(buf);
 
   if (cliRC < 0)
     return STATUS_ERROR;
@@ -1687,7 +1687,7 @@ CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::selectAuthIDs(const NAString &w
   // set pointer in diags area
   int32_t diagsMark = CmpCommon::diags()->mark();
 
-  Int32 cliRC = cliInterface.fetchAllRows(queue, (char *)buf, 0, false, false, true);
+  int cliRC = cliInterface.fetchAllRows(queue, (char *)buf, 0, false, false, true);
   if (cliRC < 0) {
     cliInterface.retrieveSQLDiagnostics(CmpCommon::diags());
     return STATUS_ERROR;
@@ -1700,11 +1700,11 @@ CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::selectAuthIDs(const NAString &w
   }
 
   queue->position();
-  Int32 authID;
+  int authID;
   char type[3];
   for (int idx = 0; idx < queue->numEntries(); idx++) {
     OutputInfo *pCliRow = (OutputInfo *)queue->getNext();
-    authID = (*(Int32 *)pCliRow->get(0));
+    authID = (*(int *)pCliRow->get(0));
     authIDs.insert(authID);
   }
   return STATUS_GOOD;
@@ -1728,7 +1728,7 @@ CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::selectAuthIDAndNames(
   // set pointer in diags area
   int32_t diagsMark = CmpCommon::diags()->mark();
 
-  Int32 cliRC = cliInterface.fetchAllRows(queue, (char *)buf, 0, false, false, true);
+  int cliRC = cliInterface.fetchAllRows(queue, (char *)buf, 0, false, false, true);
   if (cliRC < 0) {
     cliInterface.retrieveSQLDiagnostics(CmpCommon::diags());
     return STATUS_ERROR;
@@ -1741,11 +1741,11 @@ CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::selectAuthIDAndNames(
   }
 
   queue->position();
-  Int32 authID;
+  int authID;
   char *authName;
   for (int idx = 0; idx < queue->numEntries(); idx++) {
     OutputInfo *pCliRow = (OutputInfo *)queue->getNext();
-    authID = (*(Int32 *)pCliRow->get(0));
+    authID = (*(int *)pCliRow->get(0));
     authName = (char *)pCliRow->get(1);
     if (consistentCheck) {
       if (nameAndIDs.count(authName) > 0) {
@@ -1809,7 +1809,7 @@ CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::selectAuthNames(const NAString 
 
 // select all based on the passed in whereClause
 CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::selectAllWhere(const NAString &whereClause,
-                                                                std::vector<Int32> &roleIDs) {
+                                                                std::vector<int> &roleIDs) {
   NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
   int stmtSize = whereClause.length() + 500;
   char buf[stmtSize];
@@ -1840,7 +1840,7 @@ CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::selectAllWhere(const NAString &
     int len = 0;
     OutputInfo *pCliRow = (OutputInfo *)queue->getNext();
     pCliRow->get(0, ptr, len);
-    Int32 roleID = *(reinterpret_cast<int32_t *>(ptr));
+    int roleID = *(reinterpret_cast<int32_t *>(ptr));
     roleIDs.push_back(roleID);
   }
   return STATUS_GOOD;
@@ -1859,7 +1859,7 @@ CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::selectExactRow(const NAString &
 
   ExeCliInterface cliInterface(STMTHEAP);
 
-  Int32 cliRC = cliInterface.fetchRowsPrologue(cmd.data(), true /*no exec*/);
+  int cliRC = cliInterface.fetchRowsPrologue(cmd.data(), true /*no exec*/);
   if (cliRC != 0) {
     cliInterface.retrieveSQLDiagnostics(CmpCommon::diags());
     DDLException excp(cliRC, NULL, 0);
@@ -1889,7 +1889,7 @@ CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::selectExactRow(const NAString &
 
   // value 1:  auth_id (int32)
   cliInterface.getPtrAndLen(1, ptr, len);
-  setAuthID(*(Int32 *)ptr);
+  setAuthID(*(int *)ptr);
 
   // value 2: auth_db_name (NAString)
   cliInterface.getPtrAndLen(2, ptr, len);
@@ -1918,7 +1918,7 @@ CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::selectExactRow(const NAString &
 
   // value 5: auth_creator (int32)
   cliInterface.getPtrAndLen(5, ptr, len);
-  setAuthCreator(*(Int32 *)ptr);
+  setAuthCreator(*(int *)ptr);
 
   // value 6: auth_is_valid (char)
   cliInterface.getPtrAndLen(6, ptr, len);
@@ -2014,7 +2014,7 @@ long CmpSeabaseDDLauth::selectCount(const NAString &whereClause) {
 }
 
 // selectMaxAuthID - gets the last used auth ID
-Int32 CmpSeabaseDDLauth::selectMaxAuthID(const NAString &whereClause) {
+int CmpSeabaseDDLauth::selectMaxAuthID(const NAString &whereClause) {
   NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
   char buf[400];
   str_sprintf(buf, "select nvl(max (auth_id),0) from %s.%s %s", MDSchema_.data(), SEABASE_AUTHS, whereClause.data());
@@ -2030,7 +2030,7 @@ Int32 CmpSeabaseDDLauth::selectMaxAuthID(const NAString &whereClause) {
     throw excp;
   }
 
-  return static_cast<Int32>(maxValue);
+  return static_cast<int>(maxValue);
 }
 
 // ----------------------------------------------------------------------------
@@ -2100,7 +2100,7 @@ CmpSeabaseDDLuser::CmpSeabaseDDLuser()
 //       STATUS_WARNING: (not 100) warning was returned, diags area populated
 //       STATUS_ERROR: error was returned, diags area populated
 // ----------------------------------------------------------------------------
-CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLuser::getUserDetails(Int32 userID) {
+CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLuser::getUserDetails(int userID) {
   CmpSeabaseDDLauth::AuthStatus retcode = getAuthDetails(userID);
   if (retcode == STATUS_GOOD && !isUser()) {
     *CmpCommon::diags() << DgSqlCode(-CAT_IS_NOT_A_USER) << DgString0(getAuthDbName().data());
@@ -2148,7 +2148,7 @@ CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLuser::getUserDetails(const char *pUse
 //     0 - operation successful
 //   100 - user not registered
 // -----------------------------------------------------------------------------
-Int32 CmpSeabaseDDLauth::getUserGroups(const char *userName, std::vector<int32_t> &groupIDs) {
+int CmpSeabaseDDLauth::getUserGroups(const char *userName, std::vector<int32_t> &groupIDs) {
   NAString user(userName);
   CmpSeabaseDDLauth authInfo;
   CmpSeabaseDDLauth::AuthStatus retcode = authInfo.getAuthDetails(user, false);
@@ -2293,7 +2293,7 @@ CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::getUserGroups(std::vector<int32
   // another authID, just ignore.  For example, there could be an AD/LDAP group
   // called "DB__ADMIN" which matches the Esgyn user called DB__ADMIN.
   for (size_t j = 0; j < authIDs.size(); j++) {
-    Int32 groupID = authIDs[j];
+    int groupID = authIDs[j];
     if (groupID >= MIN_USERGROUP && groupID <= MAX_USERGROUP) groupIDs.push_back(groupID);
   }
 
@@ -2310,7 +2310,7 @@ CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::getUserGroups(std::vector<int32
 // ----------------------------------------------------------------------------
 void CmpSeabaseDDLuser::registerUser(StmtDDLRegisterUser *pNode) {
   // See if the user has been granted an ADMIN role
-  Int32 adminRole = NA_UserIdDefault;
+  int adminRole = NA_UserIdDefault;
   bool hasAdminRole = false;
   if (msg_license_multitenancy_enabled()) {
     AuthStatus authStatus = getAdminRole(ComUser::getCurrentUser(), adminRole);
@@ -2343,9 +2343,9 @@ void CmpSeabaseDDLuser::registerUser(StmtDDLRegisterUser *pNode) {
     return;
   }
 
-  Int32 authCreator = hasAdminRole ? adminRole : ComUser::getCurrentUser();
+  int authCreator = hasAdminRole ? adminRole : ComUser::getCurrentUser();
 
-  Int32 retcode = registerUserInternal(pNode->getExternalUserName(), pNode->getDbUserName(), pNode->getConfig().data(),
+  int retcode = registerUserInternal(pNode->getExternalUserName(), pNode->getDbUserName(), pNode->getConfig().data(),
                                        false, authCreator, *userPwd);
   if (retcode) {
     NAString userName =
@@ -2372,8 +2372,8 @@ void CmpSeabaseDDLuser::registerUser(StmtDDLRegisterUser *pNode) {
 // This method does not verify access.  It assumes that privileges have been
 // checked prior to calling.
 // ----------------------------------------------------------------------------
-Int32 CmpSeabaseDDLuser::registerUserInternal(const NAString &extUserName, const NAString &dbUserName,
-                                              const char *config, bool autoCreated, Int32 authCreator,
+int CmpSeabaseDDLuser::registerUserInternal(const NAString &extUserName, const NAString &dbUserName,
+                                              const char *config, bool autoCreated, int authCreator,
                                               const NAString &authPassword) {
   // If this is an auth register user request, don't allow, return an error
   if (autoCreated && !(COM_LDAP_AUTH == currentAuthType_ && CmpCommon::getDefault(TRAF_AUTO_REGISTER_USER) == DF_ON)) {
@@ -2478,7 +2478,7 @@ Int32 CmpSeabaseDDLuser::registerUserInternal(const NAString &extUserName, const
     setAuthPassword(dePassword);
 
     // Get a unique auth ID number
-    Int32 userID = getUniqueAuthID(MIN_USERID, MAX_USERID);
+    int userID = getUniqueAuthID(MIN_USERID, MAX_USERID);
     assert(isUserID(userID));
     setAuthID(userID);
 
@@ -2535,7 +2535,7 @@ Int32 CmpSeabaseDDLuser::registerUserInternal(const NAString &extUserName, const
     // If there is no error, set up an internal error
     if (CmpCommon::diags()->getNumber(DgSqlCode::ERROR_) == 0)
       SEABASEDDL_INTERNAL_ERROR("Unexpected error in CmpSeabaseDDLuser::registerUser");
-    return (Int32)CmpCommon::diags()->mainSQLCODE();
+    return (int)CmpCommon::diags()->mainSQLCODE();
   }
   return 0;
 }
@@ -2549,7 +2549,7 @@ Int32 CmpSeabaseDDLuser::registerUserInternal(const NAString &extUserName, const
 // Output: the global diags area is set up with the result
 // ----------------------------------------------------------------------------
 void CmpSeabaseDDLuser::unregisterUser(StmtDDLRegisterUser *pNode) {
-  Int32 adminRole = NA_UserIdDefault;
+  int adminRole = NA_UserIdDefault;
   bool hasAdminRole = false;
   if (msg_license_multitenancy_enabled()) {
     AuthStatus authStatus = getAdminRole(ComUser::getCurrentUser(), adminRole);
@@ -2630,7 +2630,7 @@ void CmpSeabaseDDLuser::unregisterUser(StmtDDLRegisterUser *pNode) {
         return;
       if (roleNames.size() > 0) {
         NAString roleList;
-        Int32 num = (roleNames.size() <= 5) ? roleNames.size() : 5;
+        int num = (roleNames.size() <= 5) ? roleNames.size() : 5;
         for (size_t i = 0; i < num; i++) {
           if (i > 0) roleList += ", ";
           roleList += roleNames[i].c_str();
@@ -2650,7 +2650,7 @@ void CmpSeabaseDDLuser::unregisterUser(StmtDDLRegisterUser *pNode) {
     str_sprintf(buf, "SELECT COUNT(*) FROM %s.\"%s\".%s %s %d", sysCat.data(), SEABASE_MD_SCHEMA, SEABASE_OBJECTS,
                 whereClause2.data(), getAuthID());
 
-    Int32 len = 0;
+    int len = 0;
     long rowCount = 0;
     ExeCliInterface cliInterface(STMTHEAP);
     int cliRC = cliInterface.executeImmediate(buf, (char *)&rowCount, &len, FALSE);
@@ -2736,7 +2736,7 @@ void CmpSeabaseDDLuser::unregisterUser(StmtDDLRegisterUser *pNode) {
 // ----------------------------------------------------------------------------
 void CmpSeabaseDDLuser::alterUser(StmtDDLAlterUser *pNode) {
   try {
-    Int32 adminRole = NA_UserIdDefault;
+    int adminRole = NA_UserIdDefault;
     bool hasAdminRole = false;
     bool isAuthorization =
         CmpCommon::context()->isAuthorizationEnabled() && CmpCommon::context()->isAuthorizationReady();
@@ -3033,7 +3033,7 @@ void CmpSeabaseDDLuser::alterUser(StmtDDLAlterUser *pNode) {
             }
             itor++;
           }
-          Int32 (*func)(Int32, Int32) = (StmtDDLAlterUser::SET_USER_JOIN_GROUP == pNode->getAlterUserCmdSubType())
+          int (*func)(int, int) = (StmtDDLAlterUser::SET_USER_JOIN_GROUP == pNode->getAlterUserCmdSubType())
                                             ? &CmpSeabaseDDLauth::addGroupMember
                                             : &CmpSeabaseDDLauth::removeGroupMember;
           bool isAllowedGrantRoleToGroup = false;
@@ -3270,7 +3270,7 @@ bool CmpSeabaseDDLuser::describe(const NAString &authName, NAString &authText) {
   bool hasAdminRole = false;
   if (authName != ComUser::getCurrentUsername()) {
     if (msg_license_multitenancy_enabled()) {
-      Int32 adminRole = NA_UserIdDefault;
+      int adminRole = NA_UserIdDefault;
       AuthStatus authStatus = getAdminRole(ComUser::getCurrentUser(), adminRole);
       if (authStatus == STATUS_ERROR) return false;
       hasAdminRole = (authStatus == STATUS_GOOD);
@@ -3371,7 +3371,7 @@ void CmpSeabaseDDLrole::createRole(StmtDDLCreateRole *pNode) {
   }
 
   // See if the user has been granted an ADMIN role
-  Int32 adminRole = NA_UserIdDefault;
+  int adminRole = NA_UserIdDefault;
   bool hasAdminRole = false;
   if (msg_license_multitenancy_enabled()) {
     AuthStatus authStatus = getAdminRole(ComUser::getCurrentUser(), adminRole);
@@ -3459,7 +3459,7 @@ void CmpSeabaseDDLrole::createRole(StmtDDLCreateRole *pNode) {
     setAuthRedefTime(createTime);  // make redef time the same as create time
 
     // Get a unique role ID number
-    Int32 roleID = getUniqueAuthID(MIN_ROLEID, MAX_ROLEID);  // TODO: add role support
+    int roleID = getUniqueAuthID(MIN_ROLEID, MAX_ROLEID);  // TODO: add role support
     assert(isRoleID(roleID));
     setAuthID(roleID);
 
@@ -3467,14 +3467,14 @@ void CmpSeabaseDDLrole::createRole(StmtDDLCreateRole *pNode) {
     // authorization ID specified in this clause.
     // Need to translate the creator name to its authID
     std::string granteeName;
-    Int32 granteeID;
+    int granteeID;
     if (pNode->getOwner() == NULL) {
       // get effective user from the Context
       setAuthCreator(ComUser::getCurrentUser());
       granteeName = ComUser::getCurrentUsername();
     } else {
       const NAString creatorName = pNode->getOwner()->getAuthorizationIdentifier();
-      Int32 authID = NA_UserIdDefault;
+      int authID = NA_UserIdDefault;
       Int16 result = ComUser::getUserIDFromUserName(creatorName.data(), authID, CmpCommon::diags());
       if (result != 0) {
         *CmpCommon::diags() << DgSqlCode(-CAT_USER_NOT_EXIST) << DgString0(creatorName.data());
@@ -3542,7 +3542,7 @@ void CmpSeabaseDDLrole::createRole(StmtDDLCreateRole *pNode) {
 //
 // creates an admin role for a tenant.
 // ----------------------------------------------------------------------------
-Int32 CmpSeabaseDDLrole::createAdminRole(const NAString &roleName, const NAString &tenantName, const Int32 roleOwner,
+int CmpSeabaseDDLrole::createAdminRole(const NAString &roleName, const NAString &tenantName, const int roleOwner,
                                          const char *roleOwnerName) {
   bool enabled = msg_license_multitenancy_enabled();
   if (!enabled) {
@@ -3587,7 +3587,7 @@ Int32 CmpSeabaseDDLrole::createAdminRole(const NAString &roleName, const NAStrin
   setAuthRedefTime(createTime);  // make redef time the same as create time
 
   // Get a unique role ID number
-  Int32 roleID = getUniqueAuthID(MIN_ROLEID, MAX_ROLEID);  // TODO: add role support
+  int roleID = getUniqueAuthID(MIN_ROLEID, MAX_ROLEID);  // TODO: add role support
   setAuthID(roleID);
 
   // Add the role to AUTHS table
@@ -3660,7 +3660,7 @@ bool CmpSeabaseDDLrole::describe(const NAString &roleName, NAString &roleText) {
 
   if (!userIsAuthorized) {
     if (msg_license_multitenancy_enabled()) {
-      Int32 adminRole = NA_UserIdDefault;
+      int adminRole = NA_UserIdDefault;
       AuthStatus authStatus = getAdminRole(ComUser::getCurrentUser(), adminRole);
       if (authStatus == STATUS_ERROR) return false;
       if (authStatus == STATUS_GOOD) userIsAuthorized = true;
@@ -3800,7 +3800,7 @@ bool CmpSeabaseDDLrole::describe(const NAString &roleName, NAString &roleText) {
 //
 // removes admin role and its connection to its tenant.
 // ----------------------------------------------------------------------------
-Int32 CmpSeabaseDDLrole::dropAdminRole(const NAString &roleName, const Int32 tenantID) {
+int CmpSeabaseDDLrole::dropAdminRole(const NAString &roleName, const int tenantID) {
   // read role details from the AUTHS table
   CmpSeabaseDDLauth::AuthStatus retcode = getRoleDetails(roleName);
   if (retcode == STATUS_ERROR) return -1;
@@ -3903,7 +3903,7 @@ void CmpSeabaseDDLrole::dropRole(StmtDDLCreateRole *pNode)
     // when the tenant is unregistered
     if (isAuthAdmin()) {
       TenantInfo roleForTenant(STMTHEAP);
-      Int32 cliRC = TenantInfo::getTenantInfo(getAuthID(), roleForTenant);
+      int cliRC = TenantInfo::getTenantInfo(getAuthID(), roleForTenant);
 
       // cliRC of 1 means tenant no longer exists so go ahead and drop
       if (cliRC != 1) {
@@ -3921,7 +3921,7 @@ void CmpSeabaseDDLrole::dropRole(StmtDDLCreateRole *pNode)
     }
 
     // See if the user has been granted an ADMIN role
-    Int32 adminRole = NA_UserIdDefault;
+    int adminRole = NA_UserIdDefault;
     bool hasAdminRole = false;
     if (msg_license_multitenancy_enabled()) {
       AuthStatus authStatus = getAdminRole(ComUser::getCurrentUser(), adminRole);
@@ -4104,7 +4104,7 @@ CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLrole::getRoleDetails(const char *pRol
 //    true returned if role found
 //   false returned if role not found
 // ----------------------------------------------------------------------------
-bool CmpSeabaseDDLrole::getRoleIDFromRoleName(const char *roleName, Int32 &roleID)
+bool CmpSeabaseDDLrole::getRoleIDFromRoleName(const char *roleName, int &roleID)
 
 {
   CmpSeabaseDDLauth::AuthStatus authStatus = getAuthDetails(roleName, false);
@@ -4150,7 +4150,7 @@ CmpSeabaseDDLtenant::CmpSeabaseDDLtenant() : CmpSeabaseDDLauth() { isDetached_ =
 //   STATUS_NOTFOUND: authorization details were not found
 //   STATUS_ERROR: error was returned, diags area populated
 // ----------------------------------------------------------------------------
-CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLtenant::getTenantDetails(Int32 tenantID, TenantInfo &tenantInfo) {
+CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLtenant::getTenantDetails(int tenantID, TenantInfo &tenantInfo) {
   if (!msg_license_multitenancy_enabled())
     SEABASEDDL_INTERNAL_ERROR("CmpSeabaseDDLtenant::getTenantDetails, Invalid operation, tenant feature unavailable");
 
@@ -4166,7 +4166,7 @@ CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLtenant::getTenantDetails(Int32 tenant
   tenantInfo.setTenantName(getAuthDbName());
 
   // Read TENANTS to get attributes for the tenant
-  Int32 rc = TenantInfo::getTenantInfo(tenantID, tenantInfo);
+  int rc = TenantInfo::getTenantInfo(tenantID, tenantInfo);
   if (rc == 100) return STATUS_NOTFOUND;
 
   return (rc == 0) ? STATUS_GOOD : STATUS_ERROR;
@@ -4205,7 +4205,7 @@ CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLtenant::getTenantDetails(const char *
   tenantInfo.setTenantName(pTenantName);
 
   // Read TENANTS to get attributes for the tenant
-  Int32 rc = TenantInfo::getTenantInfo(getAuthID(), tenantInfo);
+  int rc = TenantInfo::getTenantInfo(getAuthID(), tenantInfo);
   if (rc == 100) return STATUS_NOTFOUND;
 
   return (rc == 0) ? STATUS_GOOD : STATUS_ERROR;
@@ -4250,7 +4250,7 @@ CmpSeabaseDDLtenant::getTenantDetails(
   }
 
   // Read TENANTS to get attributes for the tenant
-  Int32 rc = TenantInfo::getTenantInfo(getAuthID(), tenantInfo);
+  int rc = TenantInfo::getTenantInfo(getAuthID(), tenantInfo);
   if (rc == 100)
     return STATUS_NOTFOUND;
 
@@ -4275,7 +4275,7 @@ CmpSeabaseDDLtenant::getTenantDetails(
 //        0 - calculate a fresh tenantID
 //       >0 - tenantID to use
 // -----------------------------------------------------------------------------
-short CmpSeabaseDDLtenant::findDetachedTenant(const StmtDDLTenant *pNode, Int32 &adminRoleID, Int32 &tenantID) {
+short CmpSeabaseDDLtenant::findDetachedTenant(const StmtDDLTenant *pNode, int &adminRoleID, int &tenantID) {
   tenantID = 0;
   adminRoleID = 0;
 
@@ -4296,7 +4296,7 @@ short CmpSeabaseDDLtenant::findDetachedTenant(const StmtDDLTenant *pNode, Int32 
 
   // verify that authID is not used by another tenant
   TenantInfo tenantForRole(STMTHEAP);
-  Int32 retcode = TenantInfo::getTenantInfo(adminRoleID, tenantForRole);
+  int retcode = TenantInfo::getTenantInfo(adminRoleID, tenantForRole);
 
   if (retcode <= 0) {
     *CmpCommon::diags() << DgSqlCode(-CAT_ROLE_UNAVAILABLE) << DgString0(pNode->getRoleName()->data())
@@ -4339,7 +4339,7 @@ short CmpSeabaseDDLtenant::findDetachedTenant(const StmtDDLTenant *pNode, Int32 
 //    -1 = unexpected error reading metadata
 //     0 = operation successful
 // -----------------------------------------------------------------------------
-short CmpSeabaseDDLtenant::generateSchemaUsages(const Int32 &tenantID, const Int32 &adminRoleID,
+short CmpSeabaseDDLtenant::generateSchemaUsages(const int &tenantID, const int &adminRoleID,
                                                 TenantUsageList *&existingUsageList) {
   // Get the list of schemas that are owned by the adminRoleID
   std::vector<UIDAndOwner> objectRows;
@@ -4373,7 +4373,7 @@ short CmpSeabaseDDLtenant::generateSchemaUsages(const Int32 &tenantID, const Int
 // generate the list of existing tenants, add the detached tenants and
 // find a gap
 // -----------------------------------------------------------------------------
-short CmpSeabaseDDLtenant::generateTenantID(Int32 &tenantID) {
+short CmpSeabaseDDLtenant::generateTenantID(int &tenantID) {
   if (tenantID == 0) {
     // get list of all tenant IDs from AUTHS table
     NAString whereClause("where auth_id >= 1500100 and auth_id < 1599999");
@@ -4427,7 +4427,7 @@ short CmpSeabaseDDLtenant::generateTenantID(Int32 &tenantID) {
 // ----------------------------------------------------------------------------
 CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLtenant::getSchemaDetails(ExeCliInterface *cliInterface,
                                                                     const SchemaName *schemaName, long &schUID,
-                                                                    ComObjectType &schType, Int32 &schOwner) {
+                                                                    ComObjectType &schType, int &schOwner) {
   CMPASSERT(schemaName);
 
   NAString catName = schemaName->getCatalogName();
@@ -4456,7 +4456,7 @@ CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLtenant::getSchemaDetails(ExeCliInterf
 //
 // throws UserException if unsuccessful (ComDiags area is setup)
 // -----------------------------------------------------------------------------
-void CmpSeabaseDDLtenant::addGroups(const StmtDDLTenant *pNode, const Int32 tenantID,
+void CmpSeabaseDDLtenant::addGroups(const StmtDDLTenant *pNode, const int tenantID,
                                     const TenantUsageList *tenantGroupList, TenantUsageList *&usageList) {
   assert(usageList);
 
@@ -4475,7 +4475,7 @@ void CmpSeabaseDDLtenant::addGroups(const StmtDDLTenant *pNode, const Int32 tena
       throw excp;
     }
 
-    Int32 groupID = (retcode == STATUS_GOOD) ? groupInfo.getAuthID() : NA_UserIdDefault;
+    int groupID = (retcode == STATUS_GOOD) ? groupInfo.getAuthID() : NA_UserIdDefault;
     // If group already exists and config specified, should they be the same?
 
     // Register group
@@ -4678,7 +4678,7 @@ void CmpSeabaseDDLtenant::addResources(const StmtDDLTenant *pNode, ExeCliInterfa
 
     if (rgroupAllocated) {
       // turn off obsolete so it won't get deleted
-      for (Int32 i = 0; i < usageList->entries(); i++) {
+      for (int i = 0; i < usageList->entries(); i++) {
         if ((*usageList)[i].getUsageID() == tenantUsage.getUsageID() &&
             (*usageList)[i].getTenantID() == tenantUsage.getTenantID())
           (*usageList)[i].setIsObsolete(false);
@@ -4694,7 +4694,7 @@ void CmpSeabaseDDLtenant::addResources(const StmtDDLTenant *pNode, ExeCliInterfa
 
     // Modify existing node-tenant usages
     TenantResourceUsageList *rgroupUsageList = rgroup.getUsageList();
-    for (Int32 j = 0; j < rgroupUsageList->entries(); j++) {
+    for (int j = 0; j < rgroupUsageList->entries(); j++) {
       TenantResourceUsage *existingUsage = (*rgroupUsageList)[j];
       NAString usageName = existingUsage->getUsageName();
       TenantResourceUsage *resourceUsage =
@@ -4876,7 +4876,7 @@ void CmpSeabaseDDLtenant::dropResources(const StmtDDLTenant *pNode, ExeCliInterf
   }
 
   // return an error if all resource groups are dropped
-  Int32 numRGroups = tenantInfo.getNumberRGroupUsages(true);
+  int numRGroups = tenantInfo.getNumberRGroupUsages(true);
   if (numRGroups == 0) {
     *CmpCommon::diags() << DgSqlCode(-CAT_LAST_RESOURCE_GROUP) << DgString0(getAuthDbName().data());
     UserException excp(NULL, 0);
@@ -4930,12 +4930,12 @@ void CmpSeabaseDDLtenant::dropResources(const StmtDDLTenant *pNode, ExeCliInterf
 // the nodes defined in the cluster
 // ----------------------------------------------------------------------------
 short CmpSeabaseDDLtenant::getNodeDetails(ExeCliInterface *cliInterface, TenantNodeInfoList *&nodesToAdd) {
-  Int32 numNodes = CURRCONTEXT_CLUSTERINFO->hasVirtualNodes() ? 1 : CURRCONTEXT_CLUSTERINFO->getTotalNumberOfCPUs();
+  int numNodes = CURRCONTEXT_CLUSTERINFO->hasVirtualNodes() ? 1 : CURRCONTEXT_CLUSTERINFO->getTotalNumberOfCPUs();
   const NAArray<CollIndex> &nodeList = CURRCONTEXT_CLUSTERINFO->getCPUArray();
 
   // TBD: For performance, do a single metadata select that returns the list of
   // nodes that have not yet been added.
-  for (Int32 i = 0; i < numNodes; i++) {
+  for (int i = 0; i < numNodes; i++) {
     CollIndex nodeID = nodeList[i];
     NAString nodeName;
     bool result = CURRCONTEXT_CLUSTERINFO->mapNodeIdToNodeName(nodeID, nodeName);
@@ -4990,7 +4990,7 @@ short CmpSeabaseDDLtenant::getNodeDetails(const TenantResourceUsageList *nodesIn
       nodeName = usage->getUsageName();
     else
       nodeName = usage->getResourceName();
-    Int32 nodeID = -1;
+    int nodeID = -1;
 
     // check temp node list for valid names
     if (useTempNodes) {
@@ -5051,7 +5051,7 @@ short CmpSeabaseDDLtenant::getTenantResource(const NAString &resourceName, const
 // throws UserException if unsuccessful (ComDiags area is setup)
 // -----------------------------------------------------------------------------
 void CmpSeabaseDDLtenant::createSchemas(ExeCliInterface *cliInterface, const StmtDDLTenant *pNode,
-                                        const Int32 &tenantID, const TenantUsageList *origUsageList,
+                                        const int &tenantID, const TenantUsageList *origUsageList,
                                         NAString schemaOwner, long &defSchUID, TenantUsageList *&usageList) {
   defSchUID = NA_UserIdDefault;
 
@@ -5059,7 +5059,7 @@ void CmpSeabaseDDLtenant::createSchemas(ExeCliInterface *cliInterface, const Stm
 
   if (pNode->getSchemaList() && pNode->getSchemaList()->entries() > 0) {
     // Create schemas if they don't already exist
-    for (Int32 i = 0; i < pNode->getSchemaList()->entries(); i++) {
+    for (int i = 0; i < pNode->getSchemaList()->entries(); i++) {
       SchemaName *schemaName = (*pNode->getSchemaList())[i];
 
       // If schema already part of tenant, just continue
@@ -5148,7 +5148,7 @@ void CmpSeabaseDDLtenant::createSchemas(ExeCliInterface *cliInterface, const Stm
 
   // Add existing schema UIDs to list
   if (hasSchemaUsages && pNode->getAlterType() == StmtDDLTenant::NOT_ALTER) {
-    for (Int32 i = 0; i < origUsageList->entries(); i++) {
+    for (int i = 0; i < origUsageList->entries(); i++) {
       TenantUsage tenantUsage = (*origUsageList)[i];
       TenantUsage existingUsage;
       if (!usageList->findTenantUsage(tenantUsage.getUsageID(), existingUsage)) {
@@ -5166,15 +5166,15 @@ void CmpSeabaseDDLtenant::createSchemas(ExeCliInterface *cliInterface, const Stm
 //
 // throws UserException if unsuccessful (ComDiags area is setup)
 // -----------------------------------------------------------------------------
-void CmpSeabaseDDLtenant::dropSchemas(ExeCliInterface *cliInterface, const Int32 tenantID,
+void CmpSeabaseDDLtenant::dropSchemas(ExeCliInterface *cliInterface, const int tenantID,
                                       const NAList<NAString> *schemaList) {
   // drop (cleanup) schemas
-  for (Int32 i = 0; i < schemaList->entries(); i++) {
+  for (int i = 0; i < schemaList->entries(); i++) {
     // NAString dropStmt("CLEANUP SCHEMA ");
     NAString dropStmt("DROP SCHEMA ");
     dropStmt += (*schemaList)[i];
     dropStmt += (" CASCADE");
-    Int32 cliRC = cliInterface->executeImmediate(dropStmt);
+    int cliRC = cliInterface->executeImmediate(dropStmt);
     if (cliRC < 0) {
       cliInterface->retrieveSQLDiagnostics(CmpCommon::diags());
       UserException excp(NULL, 0);
@@ -5190,7 +5190,7 @@ NAString CmpSeabaseDDLtenant::getNodeName(const long nodeID) {
   NAString whereClause("where usage_uid = ");
   whereClause += (to_string((long long int)nodeID).c_str());
   NAString orderByClause("order by usage_name limit 1");
-  Int32 retcode = usageList.fetchUsages(whereClause, orderByClause);
+  int retcode = usageList.fetchUsages(whereClause, orderByClause);
   if (retcode != 0 || usageList.entries() == 0) return NAString("?");
 
   TenantResourceUsage *usage = usageList.operator[](0);
@@ -5257,9 +5257,9 @@ NAString CmpSeabaseDDLtenant::getSchemaName(const long schUID) {
 //     >0 - schemaUID
 // -----------------------------------------------------------------------------
 long CmpSeabaseDDLauth::getSchemaUID(ExeCliInterface *cliInterface, const SchemaName *schemaName) {
-  Int32 selectStmtSize = 600;
+  int selectStmtSize = 600;
   char selectStmt[selectStmtSize];
-  Int32 stmtSize = snprintf(selectStmt, sizeof(selectStmt),
+  int stmtSize = snprintf(selectStmt, sizeof(selectStmt),
                             "select object_uid from %s.\"%s\".%s  "
                             "where catalog_name = '%s' and schema_name = '%s' "
                             "and object_name = '%s'",
@@ -5272,9 +5272,9 @@ long CmpSeabaseDDLauth::getSchemaUID(ExeCliInterface *cliInterface, const Schema
     return -1;
   }
 
-  Int32 diagsMark = CmpCommon::diags()->mark();
+  int diagsMark = CmpCommon::diags()->mark();
   Queue *tableQueue = NULL;
-  Int32 cliRC = cliInterface->fetchAllRows(tableQueue, selectStmt, 0, false, false, true);
+  int cliRC = cliInterface->fetchAllRows(tableQueue, selectStmt, 0, false, false, true);
 
   if (cliRC < 0) {
     cliInterface->retrieveSQLDiagnostics(CmpCommon::diags());
@@ -5305,7 +5305,7 @@ long CmpSeabaseDDLauth::getSchemaUID(ExeCliInterface *cliInterface, const Schema
 //   -1 = error (ComDiags contains error)
 //    0 = successful, schemaUIDList contains value, schemaUIDList can be empty
 // -----------------------------------------------------------------------------
-Int32 CmpSeabaseDDLtenant::getTenantSchemas(ExeCliInterface *cliInterface, NAList<long> *&schemaUIDList) {
+int CmpSeabaseDDLtenant::getTenantSchemas(ExeCliInterface *cliInterface, NAList<long> *&schemaUIDList) {
   assert(schemaUIDList);
   NAString MDLoc;
   CONCAT_CATSCH(MDLoc, CmpSeabaseDDL::getSystemCatalogStatic(), SEABASE_TENANT_SCHEMA);
@@ -5317,7 +5317,7 @@ Int32 CmpSeabaseDDLtenant::getTenantSchemas(ExeCliInterface *cliInterface, NALis
 
   int32_t diagsMark = CmpCommon::diags()->mark();
   Queue *tableQueue = NULL;
-  Int32 cliRC = cliInterface->fetchAllRows(tableQueue, selectStmt, 0, false, false, true);
+  int cliRC = cliInterface->fetchAllRows(tableQueue, selectStmt, 0, false, false, true);
 
   if (cliRC < 0) {
     cliInterface->retrieveSQLDiagnostics(CmpCommon::diags());
@@ -5332,7 +5332,7 @@ Int32 CmpSeabaseDDLtenant::getTenantSchemas(ExeCliInterface *cliInterface, NALis
   }
 
   tableQueue->position();
-  for (Int32 i = 0; i < tableQueue->numEntries(); i++) {
+  for (int i = 0; i < tableQueue->numEntries(); i++) {
     OutputInfo *pCliRow = (OutputInfo *)tableQueue->getNext();
 
     // column 1:  usage_uid
@@ -5353,7 +5353,7 @@ Int32 CmpSeabaseDDLtenant::getTenantSchemas(ExeCliInterface *cliInterface, NALis
 // Output: the global diags area is set up with the result
 // ----------------------------------------------------------------------------
 void CmpSeabaseDDLtenant::alterTenant(ExeCliInterface *cliInterface, StmtDDLTenant *pNode) {
-  Int32 retcode;
+  int retcode;
 
   // Need multi-tenancy license
   if (!msg_license_multitenancy_enabled()) {
@@ -5392,7 +5392,7 @@ void CmpSeabaseDDLtenant::alterTenant(ExeCliInterface *cliInterface, StmtDDLTena
   TenantNodeInfoList *nodeList = NULL;
   TenantNodeInfoList *origNodeList = NULL;
   TenantResourceUsageList *resourceUsageList = NULL;
-  Int32 tenantSize = -1;
+  int tenantSize = -1;
   NAString origDefaultSchema = tenantInfo.getDefaultSchemaName();
 
   switch (pNode->getAlterType()) {
@@ -5452,7 +5452,7 @@ void CmpSeabaseDDLtenant::alterTenant(ExeCliInterface *cliInterface, StmtDDLTena
       // create admin role
       if (pNode->getRoleName()) {
         CmpSeabaseDDLrole adminRole;
-        Int32 adminRoleID = adminRole.createAdminRole(*pNode->getRoleName(), pNode->getTenantName(),
+        int adminRoleID = adminRole.createAdminRole(*pNode->getRoleName(), pNode->getTenantName(),
                                                       ComUser::getCurrentUser(), ComUser::getCurrentUsername());
         assert(adminRoleID > 0);
         tenantInfo.setAdminRoleID(adminRoleID);
@@ -5482,7 +5482,7 @@ void CmpSeabaseDDLtenant::alterTenant(ExeCliInterface *cliInterface, StmtDDLTena
           // If default schema not requested and only 1 schema for tenant including
           // existing schemas (tenantInfo.usageList_) and new schemas (usageList),
           // make it the default schema
-          Int32 totalSchemas = tenantInfo.getNumberSchemaUsages();
+          int totalSchemas = tenantInfo.getNumberSchemaUsages();
           totalSchemas += usageList->getNumberUsages(TenantUsage::TENANT_USAGE_SCHEMA, true);
           if (defSchUID == 0 && totalSchemas == 1) {
             if (pNode->getSchemaList()->entries() == 1)
@@ -5517,7 +5517,7 @@ void CmpSeabaseDDLtenant::alterTenant(ExeCliInterface *cliInterface, StmtDDLTena
         try {
           if (usageList == NULL) usageList = new (STMTHEAP) TenantUsageList(STMTHEAP);
           schemaList = new (STMTHEAP) NAList<NAString>(STMTHEAP);
-          for (Int32 i = 0; i < pNode->getSchemaList()->entries(); i++) {
+          for (int i = 0; i < pNode->getSchemaList()->entries(); i++) {
             // Verify schema is part of tenant
             SchemaName *schemaName = (*pNode->getSchemaList())[i];
             schUID = getSchemaUID(cliInterface, schemaName);
@@ -5588,11 +5588,11 @@ void CmpSeabaseDDLtenant::alterTenant(ExeCliInterface *cliInterface, StmtDDLTena
           return;
         }
 
-        Int32 origClusterSize = tenantInfo.getClusterSize();
-        Int32 clusterSize = -1;
-        Int32 origAffinity = tenantInfo.getAffinity();
-        Int32 affinity = -1;
-        Int32 origTenantSize = tenantInfo.getTenantNodes()->getTotalWeight();
+        int origClusterSize = tenantInfo.getClusterSize();
+        int clusterSize = -1;
+        int origAffinity = tenantInfo.getAffinity();
+        int affinity = -1;
+        int origTenantSize = tenantInfo.getTenantNodes()->getTotalWeight();
 
         // If call to balanceTenantNodeAlloc completes and an error occurs,
         // redo the registration process
@@ -5673,7 +5673,7 @@ void CmpSeabaseDDLtenant::alterTenant(ExeCliInterface *cliInterface, StmtDDLTena
 
               // Move current tenant-resource group usages to usageList and obsolete,
               // this simulates the drop of existing resource groups from the tenant
-              for (Int32 i = 0; i < tenantInfo.getUsageList()->entries(); i++) {
+              for (int i = 0; i < tenantInfo.getUsageList()->entries(); i++) {
                 TenantUsage usage = (*tenantInfo.getUsageList())[i];
                 if (usage.getUsageType() == TenantUsage::TENANT_USAGE_RESOURCE) {
                   TenantUsage newUsage = usage;
@@ -5713,7 +5713,7 @@ void CmpSeabaseDDLtenant::alterTenant(ExeCliInterface *cliInterface, StmtDDLTena
           if (CURRCONTEXT_CLUSTERINFO->hasVirtualNodes() && nodeAllocationList.length() > 0) {
             if (!AStenant) {
               if (nodeAllocationList.length() > 0) {
-                Int32 unitsToAllocate = tenantSize;
+                int unitsToAllocate = tenantSize;
                 tenantSize = predefinedNodeAllocations(unitsToAllocate, resourceUsageList);
               }
             }
@@ -5828,7 +5828,7 @@ void CmpSeabaseDDLtenant::alterTenant(ExeCliInterface *cliInterface, StmtDDLTena
 // Reads RESOURCE_USAGE to get the nodes assigned to the tenant from the list
 // of valid resource groups.
 // -----------------------------------------------------------------------------
-Int32 CmpSeabaseDDLtenant::getNodesForRGroups(const TenantUsageList *usageList, TenantResourceUsageList *&nodeList) {
+int CmpSeabaseDDLtenant::getNodesForRGroups(const TenantUsageList *usageList, TenantResourceUsageList *&nodeList) {
   assert(nodeList);
   char buf[200];
   NAString whereClause;
@@ -5869,7 +5869,7 @@ long CmpSeabaseDDLtenant::getDefSchemaUID(TenantInfo &tenantInfo, const TenantUs
     // Find the schema in the existingUsageList that is not in the
     // dropUsageList, make that the default schema
     const TenantUsageList *existingUsageList = tenantInfo.getUsageList();
-    Int32 i = 0;
+    int i = 0;
     NABoolean schemaInDropList = TRUE;
     while (schemaInDropList && i < existingUsageList->entries()) {
       TenantUsage existingUsage = (*existingUsageList)[i];
@@ -5898,14 +5898,14 @@ long CmpSeabaseDDLtenant::getDefSchemaUID(TenantInfo &tenantInfo, const TenantUs
 //   -1 - failed, ComDiags set up with error
 //    0 - succeeded
 // ----------------------------------------------------------------------------
-Int32 CmpSeabaseDDLtenant::registerStandardTenant(const std::string tenantName, const int32_t tenantID) {
+int CmpSeabaseDDLtenant::registerStandardTenant(const std::string tenantName, const int32_t tenantID) {
   setAuthType(COM_TENANT_CLASS);  // we are a tenant
   if (!createStandardAuth(tenantName, tenantID)) return -1;
 
   // Insert tenant information into metadata
   // If different values for affinity, node size, and cluster size are
   // required, then change this line
-  Int32 adminRole = (CmpCommon::context()->isAuthorizationEnabled()) ? ROOT_ROLE_ID : NA_UserIdDefault;
+  int adminRole = (CmpCommon::context()->isAuthorizationEnabled()) ? ROOT_ROLE_ID : NA_UserIdDefault;
 
   TenantInfo tenantInfo(tenantID, adminRole, 0, NULL, new (STMTHEAP) NAASNodes(-1, -1, -1), getAuthDbName(), STMTHEAP);
   return tenantInfo.addTenantInfo();
@@ -5930,7 +5930,7 @@ Int32 CmpSeabaseDDLtenant::registerStandardTenant(const std::string tenantName, 
 //    0 = successful
 //   -1 = failed (ComDiags contains error)
 // ----------------------------------------------------------------------------
-Int32 CmpSeabaseDDLtenant::registerTenantPrepare(StmtDDLTenant *pNode, Int32 &adminRoleID) {
+int CmpSeabaseDDLtenant::registerTenantPrepare(StmtDDLTenant *pNode, int &adminRoleID) {
   // if group list specified and advanced feature bit not set, return error
   bool enabled = (msg_license_advanced_enabled() || msg_license_multitenancy_enabled());
   if (pNode->getGroupList() && !enabled) {
@@ -5984,7 +5984,7 @@ Int32 CmpSeabaseDDLtenant::registerTenantPrepare(StmtDDLTenant *pNode, Int32 &ad
 
   // If admin role exists, see if should use detached tenant
   adminRoleID = 0;
-  Int32 tenantID = 0;
+  int tenantID = 0;
   if (findDetachedTenant(pNode, adminRoleID, tenantID) == -1) return -1;
 
   // tenantID is zero, then no detached tenant exists, go generate an ID
@@ -6020,18 +6020,18 @@ Int32 CmpSeabaseDDLtenant::registerTenantPrepare(StmtDDLTenant *pNode, Int32 &ad
 //    0 = successful
 //   -1 = failed (ComDiags contains error)
 // ----------------------------------------------------------------------------
-Int32 CmpSeabaseDDLtenant::registerTenant(ExeCliInterface *cliInterface, StmtDDLTenant *pNode, Int32 adminRoleID) {
+int CmpSeabaseDDLtenant::registerTenant(ExeCliInterface *cliInterface, StmtDDLTenant *pNode, int adminRoleID) {
   long defSchUID = 0;
   TenantUsageList *usageList = new (STMTHEAP) TenantUsageList(STMTHEAP);
   TenantNodeInfoList *nodeList = NULL;
   TenantResourceUsageList *resourceUsageList = NULL;
   TenantUsageList *existingUsageList = NULL;
   NAString tenantDefaultSchema;
-  Int32 tenantSize = -1;
-  Int32 clusterSize = 0;
+  int tenantSize = -1;
+  int clusterSize = 0;
   NAWNodeSet *tenantNodeSet = NULL;
   bool registrationComplete = false;
-  Int32 retcode = 0;
+  int retcode = 0;
 
   // Set up a global try/catch loop to cleanup after unexpected errors
   try {
@@ -6154,7 +6154,7 @@ Int32 CmpSeabaseDDLtenant::registerTenant(ExeCliInterface *cliInterface, StmtDDL
       // For testing, we skip the call to balance node allocations and set up
       // zookeeper and cgroups to test DDL only.
       if (!AStenant) {
-        Int32 unitsToAllocate = tenantSize;
+        int unitsToAllocate = tenantSize;
         tenantSize = predefinedNodeAllocations(unitsToAllocate, resourceUsageList);
       }
     } else {
@@ -6222,8 +6222,8 @@ Int32 CmpSeabaseDDLtenant::registerTenant(ExeCliInterface *cliInterface, StmtDDL
 // Input:  parse tree containing a definition of the tenant
 // Output: the global diags area is set up with the result
 // ----------------------------------------------------------------------------
-Int32 CmpSeabaseDDLtenant::unregisterTenant(ExeCliInterface *cliInterface, StmtDDLTenant *pNode) {
-  Int32 cliRC;
+int CmpSeabaseDDLtenant::unregisterTenant(ExeCliInterface *cliInterface, StmtDDLTenant *pNode) {
+  int cliRC;
   const NAString dbTenantName(pNode->getTenantName());
   TenantInfo tenantInfo(STMTHEAP);
   CmpSeabaseDDLauth::AuthStatus retcode = getTenantDetails(dbTenantName, tenantInfo);
@@ -6338,7 +6338,7 @@ Int32 CmpSeabaseDDLtenant::unregisterTenant(ExeCliInterface *cliInterface, StmtD
 //    0 = successful
 //   -1 = failed (ComDiags contains error)
 // ----------------------------------------------------------------------------
-Int32 CmpSeabaseDDLtenant::unregisterTenantPrepare(StmtDDLTenant *pNode) {
+int CmpSeabaseDDLtenant::unregisterTenantPrepare(StmtDDLTenant *pNode) {
   if (!verifyAuthority(SQLOperation::MANAGE_TENANTS)) {
     *CmpCommon::diags() << DgSqlCode(-CAT_NOT_AUTHORIZED);
     return -1;
@@ -6375,7 +6375,7 @@ bool CmpSeabaseDDLtenant::describe(const NAString &tenantName, NAString &tenantT
   if (tenantName != currentTenant) {
     bool hasAdminRole = false;
     if (msg_license_multitenancy_enabled()) {
-      Int32 adminRole = NA_UserIdDefault;
+      int adminRole = NA_UserIdDefault;
       AuthStatus authStatus = getAdminRole(ComUser::getCurrentUser(), adminRole);
       if (authStatus == STATUS_ERROR) return false;
       hasAdminRole = (authStatus == STATUS_GOOD);
@@ -6472,7 +6472,7 @@ bool CmpSeabaseDDLtenant::describe(const NAString &tenantName, NAString &tenantT
     NAString rgroupAllocationText;
     ExeCliInterface cliInterface(STMTHEAP);
     if (tenantInfo.getUsageList()) {
-      for (Int32 i = 0; i < tenantInfo.getUsageList()->entries(); i++) {
+      for (int i = 0; i < tenantInfo.getUsageList()->entries(); i++) {
         TenantUsage usage = (*tenantInfo.getUsageList())[i];
         if (usage.isGroupUsage()) {
           if (groupText.isNull())
@@ -6553,11 +6553,11 @@ bool CmpSeabaseDDLtenant::describe(const NAString &tenantName, NAString &tenantT
   return true;
 }
 
-Int32 CmpSeabaseDDLtenant::predefinedNodeAllocations(const Int32 unitsToAllocate,
+int CmpSeabaseDDLtenant::predefinedNodeAllocations(const int unitsToAllocate,
                                                      TenantResourceUsageList *&resourceUsageList) {
   // we have the list of nodes, the available units, use round robin
   // to allocate them
-  Int32 unitsAllocated = 0;
+  int unitsAllocated = 0;
   div_t unitValues;
   int numNodes = 0;
   int validUsage = 0;
@@ -6618,7 +6618,7 @@ CmpSeabaseDDLgroup::CmpSeabaseDDLgroup() : CmpSeabaseDDLauth() {}
 void CmpSeabaseDDLgroup::alterGroup(StmtDDLUserGroup *pNode) {
   CHECK_LICENSE;
 
-  Int32 adminRoleID = NA_UserIdDefault;
+  int adminRoleID = NA_UserIdDefault;
   if (!verifyAuthority(SQLOperation::MANAGE_GROUPS)) {
     *CmpCommon::diags() << DgSqlCode(-CAT_NOT_AUTHORIZED);
     return;
@@ -6713,7 +6713,7 @@ void CmpSeabaseDDLgroup::alterGroup(StmtDDLUserGroup *pNode) {
           itor++;
         }
 
-        Int32 (*func)(Int32, Int32) = (StmtDDLUserGroup::ADD_USER_GROUP_MEMBER == pNode->getUserGroupType())
+        int (*func)(int, int) = (StmtDDLUserGroup::ADD_USER_GROUP_MEMBER == pNode->getUserGroupType())
                                           ? &CmpSeabaseDDLauth::addGroupMember
                                           : &CmpSeabaseDDLauth::removeGroupMember;
         std::vector<int32_t> memberIDs;
@@ -6845,7 +6845,7 @@ void CmpSeabaseDDLgroup::registerGroup(StmtDDLUserGroup *pNode) {
 //   groupID is -1 then error (the global diags area is set up with the result)
 //
 // ----------------------------------------------------------------------------
-Int32 CmpSeabaseDDLgroup::registerGroupInternal(const NAString &groupName, const NAString &config, bool isAutoCreated) {
+int CmpSeabaseDDLgroup::registerGroupInternal(const NAString &groupName, const NAString &config, bool isAutoCreated) {
   // Verify that the name does not include unsupported special characters
   if (!isAuthNameValid(groupName)) {
     *CmpCommon::diags() << DgSqlCode(-CAT_INVALID_CHARS_IN_AUTH_NAME) << DgString0(groupName.data());
@@ -6879,7 +6879,7 @@ Int32 CmpSeabaseDDLgroup::registerGroupInternal(const NAString &groupName, const
   setAuthCreateTime(createTime);
   setAuthRedefTime(createTime);  // make redef time the same as create time
 
-  Int32 userID;
+  int userID;
   try {
     // Get a unique auth ID number
     userID = getUniqueAuthID(ROOT_USERGROUP, MAX_USERGROUP);
@@ -6893,7 +6893,7 @@ Int32 CmpSeabaseDDLgroup::registerGroupInternal(const NAString &groupName, const
 
       NAString whereClause(" WHERE USAGE_TYPE = 'G' AND USAGE_UID = ");
       whereClause += PrivMgr::authIDToString(userID).c_str();
-      Int32 rc = tenantUsageList->deleteUsages(whereClause.data());
+      int rc = tenantUsageList->deleteUsages(whereClause.data());
       NADELETE(tenantUsageList, TenantUsageList, STMTHEAP);
       if (rc == -1) {
         UserException excp(NULL, 0);
@@ -6934,7 +6934,7 @@ Int32 CmpSeabaseDDLgroup::registerGroupInternal(const NAString &groupName, const
 // Output: the global diags area is set up with the result
 // ----------------------------------------------------------------------------
 void CmpSeabaseDDLgroup::unregisterGroup(StmtDDLUserGroup *pNode) {
-  Int32 rc;
+  int rc;
 
   CHECK_LICENSE;
 
@@ -6984,7 +6984,7 @@ void CmpSeabaseDDLgroup::unregisterGroup(StmtDDLUserGroup *pNode) {
 
     if (roleNames.size() > 0) {
       NAString roleList;
-      Int32 num = (roleNames.size() <= 5) ? roleNames.size() : 5;
+      int num = (roleNames.size() <= 5) ? roleNames.size() : 5;
       for (size_t i = 0; i < num; i++) {
         if (i > 0) roleList += ", ";
         roleList += roleNames[i].c_str();
@@ -7179,7 +7179,7 @@ void CmpSeabaseDDLuser::exitAllJoinedUserGroup() {
   }
 }
 
-Int32 CmpSeabaseDDLauth::addGroupMember(Int32 groupid, Int32 userid) {
+int CmpSeabaseDDLauth::addGroupMember(int groupid, int userid) {
   char str[1000] = {0};
   if (!isUserGroupID(groupid)) {
     return -1;
@@ -7193,7 +7193,7 @@ Int32 CmpSeabaseDDLauth::addGroupMember(Int32 groupid, Int32 userid) {
   str_sprintf(str, "upsert into %s.\"%s\".%s values(%d,%d,%d,0,0,0)", sysCat.data(), SEABASE_MD_SCHEMA, SEABASE_TEXT,
               userid, COM_USER_GROUP_RELATIONSHIP, groupid);
 
-  Int32 cliRC = cliInterface.executeImmediate(str);
+  int cliRC = cliInterface.executeImmediate(str);
   if (cliRC < 0) {
     cliInterface.retrieveSQLDiagnostics(CmpCommon::diags());
     return -1;
@@ -7202,7 +7202,7 @@ Int32 CmpSeabaseDDLauth::addGroupMember(Int32 groupid, Int32 userid) {
   return cliRC;
 }
 
-Int32 CmpSeabaseDDLauth::removeGroupMember(Int32 groupid, Int32 userid) {
+int CmpSeabaseDDLauth::removeGroupMember(int groupid, int userid) {
   char str[1000] = {0};
   if (!isUserGroupID(groupid)) {
     return -1;
@@ -7216,7 +7216,7 @@ Int32 CmpSeabaseDDLauth::removeGroupMember(Int32 groupid, Int32 userid) {
   str_sprintf(str, "delete from %s.\"%s\".%s where TEXT_UID = %d and SUB_ID = %d and text_type = %d", sysCat.data(),
               SEABASE_MD_SCHEMA, SEABASE_TEXT, userid, groupid, COM_USER_GROUP_RELATIONSHIP);
 
-  Int32 cliRC = cliInterface.executeImmediate(str);
+  int cliRC = cliInterface.executeImmediate(str);
   if (cliRC < 0) {
     cliInterface.retrieveSQLDiagnostics(CmpCommon::diags());
     return -1;
@@ -7225,7 +7225,7 @@ Int32 CmpSeabaseDDLauth::removeGroupMember(Int32 groupid, Int32 userid) {
   return cliRC;
 }
 
-Int32 CmpSeabaseDDLauth::getUserGroupMembers(const char *groupName, std::vector<int32_t> &memberIDs) {
+int CmpSeabaseDDLauth::getUserGroupMembers(const char *groupName, std::vector<int32_t> &memberIDs) {
   CmpSeabaseDDLauth authInfo;
   CmpSeabaseDDLauth::AuthStatus retcode = authInfo.getAuthDetails(NAString(groupName), false);
   if (STATUS_GOOD != retcode || !isUserGroupID(authInfo.getAuthID())) return -1;
@@ -7296,7 +7296,7 @@ CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::getUserGroupMembers(std::vector
       str_sprintf(buf, "select distinct TEXT_UID from %s.\"%s\".%s where SUB_ID = %d and text_type = %d", sysCat.data(),
                   SEABASE_MD_SCHEMA, SEABASE_TEXT, this->getAuthID(), COM_USER_GROUP_RELATIONSHIP);
       Queue *cntQueue = NULL;
-      Int32 cliRC = cliInterface.fetchAllRows(cntQueue, buf, 0, false, false, true);
+      int cliRC = cliInterface.fetchAllRows(cntQueue, buf, 0, false, false, true);
       if (cliRC < 0) {
         cliInterface.retrieveSQLDiagnostics(CmpCommon::diags());
         UserException excp(NULL, 0);
@@ -7307,7 +7307,7 @@ CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::getUserGroupMembers(std::vector
       cntQueue->position();
       for (int count = cntQueue->numEntries(); count; count--) {
         OutputInfo *pCliRow = (OutputInfo *)cntQueue->getNext();
-        memberIDs.push_back(*((Int32 *)pCliRow->get(0)));
+        memberIDs.push_back(*((int *)pCliRow->get(0)));
       }
     } break;
   }
@@ -7389,7 +7389,7 @@ CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLuser::getAllJoinedUserGroup(std::vect
       str_sprintf(buf, "select distinct SUB_ID from %s.\"%s\".%s where TEXT_UID= %d and text_type = %d", sysCat.data(),
                   SEABASE_MD_SCHEMA, SEABASE_TEXT, this->getAuthID(), COM_USER_GROUP_RELATIONSHIP);
       Queue *cntQueue = NULL;
-      Int32 cliRC = cliInterface.fetchAllRows(cntQueue, buf, 0, false, false, true);
+      int cliRC = cliInterface.fetchAllRows(cntQueue, buf, 0, false, false, true);
       if (cliRC < 0) {
         cliInterface.retrieveSQLDiagnostics(CmpCommon::diags());
         UserException excp(NULL, 0);
@@ -7400,15 +7400,15 @@ CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLuser::getAllJoinedUserGroup(std::vect
       cntQueue->position();
       for (int count = cntQueue->numEntries(); count; count--) {
         OutputInfo *pCliRow = (OutputInfo *)cntQueue->getNext();
-        groupIDs.push_back(*((Int32 *)pCliRow->get(0)));
+        groupIDs.push_back(*((int *)pCliRow->get(0)));
       }
     } break;
   }
   return STATUS_GOOD;
 }
 
-Int32 CmpSeabaseDDLauth::getGracePwdCnt(Int32 userid, Int16 &num) {
-  Int32 val = getSeqnumFromText(userid);
+int CmpSeabaseDDLauth::getGracePwdCnt(int userid, Int16 &num) {
+  int val = getSeqnumFromText(userid);
   if (0 != val) {
     if (is_little_endian()) {
       num = *((Int16 *)&val);
@@ -7424,9 +7424,9 @@ Int32 CmpSeabaseDDLauth::getGracePwdCnt(Int32 userid, Int16 &num) {
   return 0;
 }
 
-Int32 CmpSeabaseDDLauth::updateGracePwdCnt(Int32 userid, Int16 num) {
+int CmpSeabaseDDLauth::updateGracePwdCnt(int userid, Int16 num) {
   char buf[1000] = {0};
-  Int32 val, val2;
+  int val, val2;
   bool isLittle = is_little_endian();
   val = getSeqnumFromText(userid);
   val2 = val;
@@ -7449,7 +7449,7 @@ Int32 CmpSeabaseDDLauth::updateGracePwdCnt(Int32 userid, Int16 num) {
   NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
   str_sprintf(buf, "update %s.\"%s\".%s set SEQ_NUM = %d where text_uid = %d and text_type = %d", sysCat.data(),
               SEABASE_MD_SCHEMA, SEABASE_TEXT, val, userid, COM_USER_PASSWORD);
-  Int32 cliRC = cliInterface.executeImmediate(buf);
+  int cliRC = cliInterface.executeImmediate(buf);
   if (cliRC < 0) {
     cliInterface.retrieveSQLDiagnostics(CmpCommon::diags());
     UserException excp(NULL, 0);
@@ -7468,7 +7468,7 @@ void CmpSeabaseDDLuser::reflashPasswordModTime() {
   NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
   str_sprintf(buf, "update  %s.\"%s\".%s set flags = %ld where text_uid = %d and text_type = %d", sysCat.data(),
               SEABASE_MD_SCHEMA, SEABASE_TEXT, getPasswdModTime(), getAuthID(), COM_USER_PASSWORD);
-  Int32 cliRC = cliInterface.executeImmediate(buf);
+  int cliRC = cliInterface.executeImmediate(buf);
   if (cliRC < 0) {
     cliInterface.retrieveSQLDiagnostics(CmpCommon::diags());
     UserException excp(NULL, 0);
@@ -7490,7 +7490,7 @@ void CmpSeabaseDDLauth::getAuthDbNameByAuthIDs(std::vector<int32_t> &idList, std
   selectAuthNames(whereClause, nameList, nameList, nameList);
 }
 
-NAString CmpSeabaseDDLuser::getDefAuthInfo(Int32 uid) {
+NAString CmpSeabaseDDLuser::getDefAuthInfo(int uid) {
   char buf[1024] = {0};
   static unsigned char dePassword[2 * (MAX_PASSWORD_LENGTH + EACH_ENCRYPTION_LENGTH) + 1];
   NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
@@ -7509,12 +7509,12 @@ END:
   return NAString(buf);
 }
 
-Int32 CmpSeabaseDDLauth::getMaxUserIdInUsed(ExeCliInterface *cliInterface) {
+int CmpSeabaseDDLauth::getMaxUserIdInUsed(ExeCliInterface *cliInterface) {
   Queue *cntQueue = NULL;
   char buf[1024] = {0};
   str_sprintf(buf, "select MAX(AUTH_ID) from %s.\"%s\".%s where AUTH_TYPE = '%s'",
               CmpSeabaseDDL::getSystemCatalogStatic().data(), SEABASE_MD_SCHEMA, SEABASE_AUTHS, COM_USER_CLASS_LIT);
-  Int32 cliRC = cliInterface->fetchAllRows(cntQueue, buf, 0, false, false, true);
+  int cliRC = cliInterface->fetchAllRows(cntQueue, buf, 0, false, false, true);
   if (cliRC < 0) {
     cliInterface->retrieveSQLDiagnostics(CmpCommon::diags());
     UserException excp(NULL, 0);
@@ -7523,7 +7523,7 @@ Int32 CmpSeabaseDDLauth::getMaxUserIdInUsed(ExeCliInterface *cliInterface) {
   cntQueue->position();
   OutputInfo *pCliRow = (OutputInfo *)cntQueue->getNext();
 
-  return *(Int32 *)pCliRow->get(0);
+  return *(int *)pCliRow->get(0);
 }
 
 void CmpSeabaseDDLauth::initAuthPwd(ExeCliInterface *cliInterface) {
@@ -7536,7 +7536,7 @@ void CmpSeabaseDDLauth::initAuthPwd(ExeCliInterface *cliInterface) {
               "TEXT_TYPE = %d",
               sysCat.data(), SEABASE_MD_SCHEMA, SEABASE_AUTHS, COM_USER_CLASS_LIT, sysCat.data(), SEABASE_MD_SCHEMA,
               SEABASE_TEXT, COM_USER_PASSWORD);
-  Int32 cliRC = cliInterface->fetchAllRows(cntQueue, buf, 0, false, false, true);
+  int cliRC = cliInterface->fetchAllRows(cntQueue, buf, 0, false, false, true);
   if (cliRC < 0) {
     cliInterface->retrieveSQLDiagnostics(CmpCommon::diags());
     cliInterface->rollbackWork();
@@ -7549,7 +7549,7 @@ void CmpSeabaseDDLauth::initAuthPwd(ExeCliInterface *cliInterface) {
   cntQueue->position();
   for (int count = cntQueue->numEntries(); count; count--) {
     OutputInfo *pCliRow = (OutputInfo *)cntQueue->getNext();
-    Int32 uid = *((Int32 *)pCliRow->get(0));
+    int uid = *((int *)pCliRow->get(0));
     NAString stmt = CmpSeabaseDDLuser::getDefAuthInfo(uid);
     if (stmt.isNull()) {
       continue;
@@ -7565,7 +7565,7 @@ void CmpSeabaseDDLauth::initAuthPwd(ExeCliInterface *cliInterface) {
 UPDATE_MAX_USERID:
   // update max userID in used
   {
-    Int32 maxUserID = getMaxUserIdInUsed(cliInterface);
+    int maxUserID = getMaxUserIdInUsed(cliInterface);
     char buf[1024] = {0};
     str_sprintf(buf, "update %s.\"%s\".%s set SUB_ID = %d where TEXT_UID = %d and TEXT_TYPE = %d", sysCat.data(),
                 SEABASE_MD_SCHEMA, SEABASE_TEXT, maxUserID, ROOT_USER_ID, COM_USER_PASSWORD);
@@ -7625,7 +7625,7 @@ void CmpSeabaseDDLauth::getAuthDbNameByAuthIDs(std::map<int32_t, std::string *> 
   queue->position();
   for (int idx = 0; idx < queue->numEntries(); idx++) {
     OutputInfo *pCliRow = (OutputInfo *)queue->getNext();
-    int32_t authID = *((Int32 *)pCliRow->get(0));
+    int32_t authID = *((int *)pCliRow->get(0));
     authMap[authID] = new (STMTHEAP) std::string((char *)pCliRow->get(1));
   }
   GetCliGlobals()->currContext()->setSqlParserFlags(flagBits);

@@ -93,9 +93,9 @@ class ErrorMessage {
 // if +1 (NADumpDiags only), only *warning* lines are comment-prefixed.
 // if +2 (NADumpDiags only), no SQL code prefix, no comment marker "-- "
 
-const Int32 NO_COMMENT = +2;
+const int NO_COMMENT = +2;
 
-void NADumpDiags(ostream &, ComDiagsArea *, NABoolean newline = FALSE, Int32 commentIf = 0, FILE *fp = NULL,
+void NADumpDiags(ostream &, ComDiagsArea *, NABoolean newline = FALSE, int commentIf = 0, FILE *fp = NULL,
                  short verbose = 1, CharInfo::CharSet terminalCharSet = CharInfo::ISO88591);
 
 int FixupMessageParam(NAWchar *paramName, MsgParamType paramType = NAMED_PARAM);

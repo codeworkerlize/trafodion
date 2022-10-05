@@ -84,7 +84,7 @@ CRUSQLDynamicStatementContainer::DynamicStmt::~DynamicStmt() {
 //--------------------------------------------------------------------------//
 
 void CRUSQLDynamicStatementContainer::PrepareSQL() {
-  for (Int32 i = 0; i < GetNumOfStmt(); i++) {
+  for (int i = 0; i < GetNumOfStmt(); i++) {
     PrepareStatement(i);
   }
 }
@@ -187,9 +187,9 @@ void CRUSQLDynamicStatementContainer::DynamicStmt::PrepareSqlText(char *buffer) 
   buffer[0] = '\0';
 
   // always point to the next char to copy from the sql text
-  Int32 pos = 0;
+  int pos = 0;
 
-  for (Int32 i = 0; i < paramNum_; i++) {
+  for (int i = 0; i < paramNum_; i++) {
     strncat(buffer, &sql_[pos], paramsPos_[i]);
 
     pos += paramsPos_[i] + 1;
@@ -244,7 +244,7 @@ void CRUSQLDynamicStatementContainer::DynamicStmt::PrepareStatement(BOOL DeleteU
   CDMPreparedStatement *pPrepStmt = NULL;
 
   short retry_delay = 1000;  // milliseconds.
-  for (Int32 retry = 0; retry < 2; retry++) {
+  for (int retry = 0; retry < 2; retry++) {
     retry_delay = retry_delay * (retry + 1);
     try {
       // need to add here the handling of compiled params
@@ -371,8 +371,8 @@ void CRUSQLDynamicStatementContainer::DynamicStmt::StoreData(CUOFsIpcMessageTran
 
   translator.WriteBlock(&paramNum_, sizeof(int));
 
-  for (Int32 i = 0; i < paramNum_; i++) {
-    translator.WriteBlock(&(paramsPos_[i]), sizeof(Int32));
+  for (int i = 0; i < paramNum_; i++) {
+    translator.WriteBlock(&(paramsPos_[i]), sizeof(int));
   }
 
   translator.WriteBlock(sql_, size);
@@ -394,8 +394,8 @@ void CRUSQLDynamicStatementContainer::DynamicStmt::LoadData(CUOFsIpcMessageTrans
 
   translator.ReadBlock(&paramNum_, sizeof(int));
 
-  for (Int32 i = 0; i < paramNum_; i++) {
-    translator.ReadBlock(&(paramsPos_[i]), sizeof(Int32));
+  for (int i = 0; i < paramNum_; i++) {
+    translator.ReadBlock(&(paramsPos_[i]), sizeof(int));
   }
 
   sql_ = new char[size];

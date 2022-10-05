@@ -45,7 +45,7 @@ $
 #include "ScratchFileConnection.h"
 #include "ex_ex.h"
 
-ScratchFileConnection::ScratchFileConnection(Int32 index, ScratchFile *sf, ExSubtask *eventHandler, IpcEnvironment *env,
+ScratchFileConnection::ScratchFileConnection(int index, ScratchFile *sf, ExSubtask *eventHandler, IpcEnvironment *env,
                                              ex_tcb *tcb, char *eye)
     : IpcConnection(env, IpcProcessId(), eye) {
   scratchFile_ = sf;
@@ -115,12 +115,12 @@ void ScratchFileConnection::receive(IpcMessageStreamBase *) {
   ex_assert(0, "Should never call SqlTableConnection::receive()");
 }
 
-Int32 ScratchFileConnection::numQueuedSendMessages() {
+int ScratchFileConnection::numQueuedSendMessages() {
   ex_assert(0, "Should never call SqlTableConnection::numQueuedSendMessages()");
   return 0;
 }
 
-Int32 ScratchFileConnection::numQueuedReceiveMessages() {
+int ScratchFileConnection::numQueuedReceiveMessages() {
   ex_assert(0, "Should never call SqlTableConnection::numQueuedReceiveMessages()");
   return 0;
 }

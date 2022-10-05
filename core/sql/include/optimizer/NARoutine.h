@@ -85,7 +85,7 @@ class NARoutine : public NABasicObject {
   // For now we use the statement heap, but once we figure out
   // How to set up the NARoutineDB and delete the NARoutineDB entry at the
   // end of the statement, use contextHeap()
-  NARoutine(const QualifiedName &name, const TrafDesc *TrafDesc, BindWA *bindWA, Int32 &errorOccurred,
+  NARoutine(const QualifiedName &name, const TrafDesc *TrafDesc, BindWA *bindWA, int &errorOccurred,
             NAMemory *heap = CmpCommon::contextHeap());
   NARoutine(NAMemory *heap);
 
@@ -111,10 +111,10 @@ class NARoutine : public NABasicObject {
   inline ComSInt32 getInParamCount() const { return inParams_->entries(); }
   inline const NAColumnArray &getOutParams() const { return *outParams_; }
   inline ComSInt32 getOutParamCount() const { return outParams_->entries(); }
-  inline const ARRAY(Int32) & getUecValues() const { return uecValues_; }
+  inline const ARRAY(int) & getUecValues() const { return uecValues_; }
   inline const NAColumnArray &getParams() const { return *params_; }
   inline ComSInt32 getParamCount() const { return params_->entries(); }
-  inline const Int32 getUdfFanOut() const { return udfFanOut_; }
+  inline const int getUdfFanOut() const { return udfFanOut_; }
   inline SimpleCostVector &getInitialRowCostVector() { return initialRowCost_; }
   inline SimpleCostVector &getNormalRowCostVector() { return normalRowCost_; }
   inline ComSInt32 getMaxResults() const { return maxResults_; }
@@ -132,14 +132,14 @@ class NARoutine : public NABasicObject {
   inline const QualifiedName &getSqlName() const { return name_; }
   inline ComSecurityKeySet getSecKeySet() { return secKeySet_; }
   inline const long getRoutineID() const { return objectUID_; }
-  inline const Int32 getStateAreaSize() const { return stateAreaSize_; }
+  inline const int getStateAreaSize() const { return stateAreaSize_; }
   inline const NAString &getDllName() const { return dllName_; }
   inline const NAString &getDllEntryPoint() const { return dllEntryPoint_; }
   inline const NAString &getParallelism() const { return comRoutineParallelism_; }
   inline const NAString &getSasFormatWidth() const { return sasFormatWidth_; }
   inline const long getDataNumEntries() const { return passThruDataNumEntries_; }
-  inline const char *getData(Int32 index) const { return passThruData_[index]; }
-  inline const long getDataSize(Int32 index) const { return passThruDataSize_[index]; }
+  inline const char *getData(int index) const { return passThruData_[index]; }
+  inline const long getDataSize(int index) const { return passThruDataSize_[index]; }
   inline const NAString &getSystemName() const { return systemName_; }
   inline const NAString &getDataSource() const { return dataSource_; }
   inline const NAString &getFileSuffix() const { return fileSuffix_; }
@@ -157,27 +157,27 @@ class NARoutine : public NABasicObject {
   inline ComRoutineTransactionAttributes getTxAttrs() const { return transactionAttributes_; }
   inline ComRoutineParamStyle getParamStyle() const { return paramStyle_; }
   inline ComRoutineExternalSecurity getExternalSecurity() const { return externalSecurity_; }
-  inline Int32 getActionPosition() const { return actionPosition_; }
+  inline int getActionPosition() const { return actionPosition_; }
 
   inline PrivMgrUserPrivs *getPrivInfo() const { return privInfo_; }
   inline PrivMgrDescList *getPrivDescs() const { return privDescs_; }
-  inline Int32 getObjectOwner() const { return objectOwner_; }
-  inline Int32 getSchemaOwner() const { return schemaOwner_; }
+  inline int getObjectOwner() const { return objectOwner_; }
+  inline int getSchemaOwner() const { return schemaOwner_; }
 
   inline void setSecKeySet(ComSecurityKeySet secKeySet) { secKeySet_ = secKeySet; }
 
   inline long getLibRedefTime() const { return libRedefTime_; }
   inline const NAString &getLibBlobHandle() const { return libBlobHandle_; }
   inline const NAString &getLibSchName() const { return libSchName_; }
-  inline Int32 getLibVersion() const { return libVersion_; }
+  inline int getLibVersion() const { return libVersion_; }
   inline long getLibObjUID() const { return libObjUID_; }
-  inline void setudfFanOut(Int32 fanOut) { udfFanOut_ = fanOut; }
+  inline void setudfFanOut(int fanOut) { udfFanOut_ = fanOut; }
   inline void setExternalPath(ComString path) { externalPath_ = path; }
   inline void setFile(ComString file) { externalFile_ = file; }
   inline void setExternalName(ComString fname) { externalName_ = fname; }
   inline void setLibRedefTime(long rtime) { libRedefTime_ = rtime; }
   inline void setLibBlobHandle(NAString lobHandle) { libBlobHandle_ = lobHandle; }
-  inline void setLibVersion(Int32 version) { libVersion_ = version; }
+  inline void setLibVersion(int version) { libVersion_ = version; }
   inline void setLibObjUID(long libobjuid) { libObjUID_ = libobjuid; }
   inline void setLibSchName(NAString schName) { libSchName_ = schName; }
   inline void setLibrarySqlName(ComObjectName lib) { librarySqlName_ = lib; }
@@ -185,7 +185,7 @@ class NARoutine : public NABasicObject {
   inline void setRoutineType(ComRoutineType typ) { UDRType_ = typ; }
   inline void setParamStyle(ComRoutineParamStyle st) { paramStyle_ = st; }
   inline void setLastUsedTime(long time) { lastUsedTime_ = time; }
-  inline void setUecForParam(Int32 index, Int32 uec) { uecValues_[index] = uec; }
+  inline void setUecForParam(int index, int uec) { uecValues_[index] = uec; }
 
   inline ComRoutineExecutionMode getExecutionMode() const { return executionMode_; }
 
@@ -250,7 +250,7 @@ class NARoutine : public NABasicObject {
   long libRedefTime_;
   NAString libBlobHandle_;
   NAString libSchName_;
-  Int32 libVersion_;
+  int libVersion_;
   long libObjUID_;
   ComString signature_;
   ComObjectName librarySqlName_;  // ANSI name of JAR/DLL
@@ -265,9 +265,9 @@ class NARoutine : public NABasicObject {
 
   long objectUID_;
   NABoolean isUniversal_;
-  Int32 actionPosition_;
+  int actionPosition_;
   ComRoutineExecutionMode executionMode_;
-  Int32 stateAreaSize_;
+  int stateAreaSize_;
   NAString dllName_;
   NAString dllEntryPoint_;
   NAString comRoutineParallelism_;
@@ -280,12 +280,12 @@ class NARoutine : public NABasicObject {
   NAString fileSuffix_;
   SimpleCostVector initialRowCost_;
   SimpleCostVector normalRowCost_;
-  Int32 udfFanOut_;
-  ARRAY(Int32) uecValues_;  // Use to store UEC values of outputCols
+  int udfFanOut_;
+  ARRAY(int) uecValues_;  // Use to store UEC values of outputCols
 
   COM_VERSION schemaVersionOfRoutine_;
-  Int32 objectOwner_;
-  Int32 schemaOwner_;
+  int objectOwner_;
+  int schemaOwner_;
 
   PrivMgrDescList *privDescs_;
   PrivMgrUserPrivs *privInfo_;

@@ -217,7 +217,7 @@ short BigNum::add(Attributes *left, Attributes *right, char *op_data[]) {
   BIGN_CLR_SIGN(op_data[1], getLength());
   BIGN_CLR_SIGN(op_data[2], getLength());
 
-  Int32 code;
+  int code;
 
   if ((!isUnsigned()) && ((leftSign) || (rightSign))) {
     // Signed addition. Either left or right is signed.
@@ -262,7 +262,7 @@ short BigNum::sub(Attributes *left, Attributes *right, char *op_data[]) {
   BIGN_CLR_SIGN(op_data[1], getLength());
   BIGN_CLR_SIGN(op_data[2], getLength());
 
-  Int32 code;
+  int code;
 
   if ((!isUnsigned()) && ((leftSign) || (rightSign))) {
     if (leftSign == 0) {  // left - (-right) => left + right
@@ -392,7 +392,7 @@ short BigNum::castFrom(Attributes *source, char *op_data[], NAMemory *heap, ComD
   }
 
   // Initialize magnitude of Big Num to zeros.
-  for (Int32 k = 0; k < getLength(); k++) op_data[0][k] = 0;
+  for (int k = 0; k < getLength(); k++) op_data[0][k] = 0;
 
   switch (sourceType) {
     case REC_BIN16_SIGNED: {
@@ -511,7 +511,7 @@ short BigNum::castFrom(Attributes *source, char *op_data[], NAMemory *heap, ComD
       // the precision, since it will be ignored.
 
       if (tempTarget[11] != '-') {
-        Int32 includeFirstDigit = (tempTarget[1] == '0') ? 0 : 1;
+        int includeFirstDigit = (tempTarget[1] == '0') ? 0 : 1;
         if ((exponent + includeFirstDigit) > (getPrecision() - getScale())) return -1;
       }
 
@@ -605,7 +605,7 @@ short BigNum::castFrom(Attributes *source, char *op_data[], NAMemory *heap, ComD
       // the precision, since it will be ignored.
 
       if (tempTarget[21] != '-') {
-        Int32 includeFirstDigit = (tempTarget[1] == '0') ? 0 : 1;
+        int includeFirstDigit = (tempTarget[1] == '0') ? 0 : 1;
         if ((exponent + includeFirstDigit) > (getPrecision() - getScale())) return -1;
       }
 
@@ -700,7 +700,7 @@ short BigNum::round(Attributes *left, Attributes *right, char *op_data[], NAMemo
         rightOperandValue = *((UInt16 *)op_data[2]);
         break;
       case REC_BIN32_SIGNED:
-        rightOperandValue = *((Int32 *)op_data[2]);
+        rightOperandValue = *((int *)op_data[2]);
         break;
       case REC_BIN32_UNSIGNED:
         rightOperandValue = *((UInt32 *)op_data[2]);
@@ -760,10 +760,10 @@ void BigNum::encode(const char *inBuf, char *outBuf, short desc) {
   //   copy in reverse the shorts of the magnitude.
 
 #ifdef NA_LITTLE_ENDIAN
-  Int32 i = 0;
+  int i = 0;
   for (i = 0; i < getLength(); i++) outBuf[getLength() - i - 1] = (neg ? ~inBuf[i] : inBuf[i]);
 #else
-  Int32 i = 0;
+  int i = 0;
   for (i = 0; i < getLength(); i += 2) {
     outBuf[getLength() - i - 2] = (neg ? ~inBuf[i] : inBuf[i]);
     outBuf[getLength() - i - 1] = (neg ? ~inBuf[i + 1] : inBuf[i + 1]);
@@ -790,10 +790,10 @@ void BigNum::decode(const char *inBuf, char *outBuf, short desc) {
   //   copy in reverse the shorts of the magnitude.
 
 #ifdef NA_LITTLE_ENDIAN
-  Int32 i = 0;
+  int i = 0;
   for (i = 0; i < getLength(); i++) outBuf[getLength() - i - 1] = (neg ? ~inBuf[i] : inBuf[i]);
 #else
-  Int32 i = 0;
+  int i = 0;
   for (i = 0; i < getLength(); i += 2) {
     outBuf[getLength() - i - 2] = (neg ? ~inBuf[i] : inBuf[i]);
     outBuf[getLength() - i - 1] = (neg ? ~inBuf[i + 1] : inBuf[i + 1]);
@@ -811,7 +811,7 @@ void BigNum::init(char *op_data, char *str)
   int strLength = str_len(str);
 
   // Skip ascii sign
-  Int32 skip = ((str[0] == '-') || (str[0] == '+')) ? 1 : 0;
+  int skip = ((str[0] == '-') || (str[0] == '+')) ? 1 : 0;
 
   // Convert magnitude from ASCII to Big Num without sign.
   BigNumHelper::ConvAsciiToBigNumHelper(strLength - skip, getLength(), str + skip, op_data);

@@ -36,5 +36,5 @@
  *****************************************************************************
  */
 
-__attribute__((visibility("default"))) Int32 arkcmp_main_entry();
+__attribute__((visibility("default"))) int arkcmp_main_entry();
 __attribute__((visibility("default"))) void arkcmp_main_exit();

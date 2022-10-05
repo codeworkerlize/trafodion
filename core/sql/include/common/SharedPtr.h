@@ -133,7 +133,7 @@ template <class T>
 struct SharedRefCountBase {
   SharedRefCountBase() : useCount_(0), objectP_(0) {}
 
-  SharedRefCountBase(T *t, Int32 use_count) : useCount_(use_count), objectP_(t) {}
+  SharedRefCountBase(T *t, int use_count) : useCount_(use_count), objectP_(t) {}
 
   // Functions to increment and decrement the use count
   void incrUseCount() { ++useCount_; }
@@ -156,7 +156,7 @@ struct SharedRefCountBase {
 // ***********************************************************************
 template <class T>
 struct SharedRefCount : public SharedRefCountBase<T> {
-  SharedRefCount(T *t, NAMemory *heap, Int32 use_count) : SharedRefCountBase<T>(t, use_count), heap_(heap) {}
+  SharedRefCount(T *t, NAMemory *heap, int use_count) : SharedRefCountBase<T>(t, use_count), heap_(heap) {}
 
   virtual void destroyObjects() {
     delete SharedRefCountBase<T>::objectP_;
@@ -182,7 +182,7 @@ struct SharedRefCount : public SharedRefCountBase<T> {
 // ***********************************************************************
 template <class T, class D>
 struct SharedRefCountDel : public SharedRefCountBase<T> {
-  SharedRefCountDel(T *t, NAMemory *heap, Int32 use_count, D deleter)
+  SharedRefCountDel(T *t, NAMemory *heap, int use_count, D deleter)
       : SharedRefCountBase<T>(t, use_count), heap_(heap), del_(deleter) {}
 
   virtual void destroyObjects() {
@@ -217,7 +217,7 @@ template <class T>
 struct IntrusiveSharedRefCount : public SharedRefCountBase<T> {
   IntrusiveSharedRefCount() {}
 
-  IntrusiveSharedRefCount(T *t, Int32 use_count) : SharedRefCountBase<T>(t, use_count) {}
+  IntrusiveSharedRefCount(T *t, int use_count) : SharedRefCountBase<T>(t, use_count) {}
 
   virtual void destroyObjects() {
     // Only the object pointer should be deleted for this class.

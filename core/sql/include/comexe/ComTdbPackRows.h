@@ -71,22 +71,22 @@ class ComTdbPackRows : public ComTdb {
   inline ComTdb *getChildTdb() { return childTdb_; }
 
   // We are observing order queue protocol.
-  Int32 orderedQueueProtocol() const;
+  int orderedQueueProtocol() const;
 
   // Return a pointer to the specifed (by position) child TDB.
-  virtual const ComTdb *getChild(Int32 pos) const {
+  virtual const ComTdb *getChild(int pos) const {
     if (pos == 0) return childTdb_;
     return NULL;
   }
 
   // Return the number of children for this node.
-  virtual Int32 numChildren() const { return 1; }
+  virtual int numChildren() const { return 1; }
 
   // Return the number of expression this node has.
-  virtual Int32 numExpressions() const { return 2; }
+  virtual int numExpressions() const { return 2; }
 
   // Return the expression by position.
-  virtual ex_expr *getExpressionNode(Int32 pos) {
+  virtual ex_expr *getExpressionNode(int pos) {
     switch (pos) {
       case 0:
         return packExpr_;
@@ -99,7 +99,7 @@ class ComTdbPackRows : public ComTdb {
   }
 
   // Return the name of an expression by position.
-  virtual const char *getExpressionName(Int32 pos) const {
+  virtual const char *getExpressionName(int pos) const {
     switch (pos) {
       case 0:
         return "packExpr";
@@ -130,7 +130,7 @@ class ComTdbPackRows : public ComTdb {
   ExCriDescPtr returnedCriDesc_;  // 32-39
 
   // The length of the packed record.
-  Int32 packTuppLen_;  // 40-43
+  int packTuppLen_;  // 40-43
 
   // The length of the down queue used to communicate with the parent.
   UInt32 fromParent_;  // 44-47

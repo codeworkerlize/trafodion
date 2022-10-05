@@ -854,8 +854,8 @@ short CmpSeabaseDDL::createOrDropLobMD(ExeCliInterface *cliInterface, NABoolean 
   NABoolean xnWasStartedHere = FALSE;
 
   const QString *qs = NULL;
-  Int32 sizeOfqs = 0;
-  Int32 qryArraySize = 0;
+  int sizeOfqs = 0;
+  int qryArraySize = 0;
   char *gluedQuery;
   int gluedQuerySize;
 

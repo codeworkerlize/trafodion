@@ -59,7 +59,7 @@ ComTdbQryInvalid::ComTdbQryInvalid(ULng32 tupleLen, ULng32 returnedTupleLen, ULn
       qiTupleAtpIndex_(qi_row_atp_index),
       inputTupleAtpIndex_(input_row_atp_index) {}
 
-const char *ComTdbQryInvalid::getExpressionName(Int32 expNum) const {
+const char *ComTdbQryInvalid::getExpressionName(int expNum) const {
   switch (expNum) {
     case 0:
       return "Scan Expr";
@@ -70,7 +70,7 @@ const char *ComTdbQryInvalid::getExpressionName(Int32 expNum) const {
   }
 }
 
-ex_expr *ComTdbQryInvalid::getExpressionNode(Int32 expNum) {
+ex_expr *ComTdbQryInvalid::getExpressionNode(int expNum) {
   switch (expNum) {
     case 0:
       return scanExpr_;

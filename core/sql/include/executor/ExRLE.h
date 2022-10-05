@@ -74,12 +74,12 @@
  */
 
 typedef struct buf_hdr {
-  Int32 compressed_len;
-  Int32 eye_catcher1;
-  Int32 eye_catcher2;
-  Int32 checksum;
-  Int32 exploded_len;
-  Int32 flags;
+  int compressed_len;
+  int eye_catcher1;
+  int eye_catcher2;
+  int checksum;
+  int exploded_len;
+  int flags;
 } buf_hdr;
 
 #define HDR_SIZE sizeof(buf_hdr)
@@ -120,16 +120,16 @@ typedef struct comp_buf {
 #define RLE_PACKBITS_MAXBUF_BYTE  (RLE_PACKBITS_MAXCOPY_BYTE + RLE_PACKBITS_MINRUN - 1)
 #define RLE_PACKBITS_MAXBUF_SHORT (RLE_PACKBITS_MAXCOPY_SHORT + RLE_PACKBITS_MINRUN - 1)
 
-static Int32 encode_byte(unsigned char *dbuf, Int32 dlen, unsigned char *ebuf, Int32 *elen);
-static Int32 pb_encode_byte(unsigned char *dbuf, Int32 dlen, unsigned char *ebuf, Int32 *elen);
-static Int32 encode_short(unsigned short *dbuf, Int32 dlen_bytes, unsigned short *ebuf, Int32 *elen_bytes);
-static Int32 pb_encode_short(unsigned short *dbuf, Int32 dlen_bytes, unsigned short *ebuf, Int32 *elen_bytes);
-static Int32 decode_byte(unsigned char *ebuf, Int32 elen, unsigned char *dbuf, Int32 *dlen);
-static Int32 pb_decode_byte(unsigned char *ebuf, Int32 elen, unsigned char *dbuf, Int32 *dlen);
-static Int32 decode_short(unsigned short *ebuf, Int32 elen_bytes, unsigned short *dbuf, Int32 *dlen_bytes);
-static Int32 pb_decode_short(unsigned short *ebuf, Int32 elen_bytes, unsigned short *dbuf, Int32 *dlen_bytes);
+static int encode_byte(unsigned char *dbuf, int dlen, unsigned char *ebuf, int *elen);
+static int pb_encode_byte(unsigned char *dbuf, int dlen, unsigned char *ebuf, int *elen);
+static int encode_short(unsigned short *dbuf, int dlen_bytes, unsigned short *ebuf, int *elen_bytes);
+static int pb_encode_short(unsigned short *dbuf, int dlen_bytes, unsigned short *ebuf, int *elen_bytes);
+static int decode_byte(unsigned char *ebuf, int elen, unsigned char *dbuf, int *dlen);
+static int pb_decode_byte(unsigned char *ebuf, int elen, unsigned char *dbuf, int *dlen);
+static int decode_short(unsigned short *ebuf, int elen_bytes, unsigned short *dbuf, int *dlen_bytes);
+static int pb_decode_short(unsigned short *ebuf, int elen_bytes, unsigned short *dbuf, int *dlen_bytes);
 
-Int32 ExEncode(unsigned char *dbuf, Int32 dlen, unsigned char *ebuf, Int32 *elen, Int32 flags);
-Int32 ExDecode(unsigned char *ebuf, Int32 elen, unsigned char *dbuf, Int32 *dlen, int &param1, int &param2);
+int ExEncode(unsigned char *dbuf, int dlen, unsigned char *ebuf, int *elen, int flags);
+int ExDecode(unsigned char *ebuf, int elen, unsigned char *dbuf, int *dlen, int &param1, int &param2);
 
 #endif

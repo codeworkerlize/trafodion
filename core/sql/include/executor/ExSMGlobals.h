@@ -175,8 +175,8 @@ class ExSMGlobals {
   static void incrFixupReplyCount() { fixupReplyCount_++; }
   static void initFixupReplyCount() { fixupReplyCount_ = 0; }
 
-  const Int32 getReaderThreadSmErrorNumber() { return readerThreadSmErrorNumber_; }
-  void setReaderThreadSmErrorNumber(Int32 error) { readerThreadSmErrorNumber_ = error; }
+  const int getReaderThreadSmErrorNumber() { return readerThreadSmErrorNumber_; }
+  void setReaderThreadSmErrorNumber(int error) { readerThreadSmErrorNumber_ = error; }
   const char *getReaderThreadSmErrorFunction() { return readerThreadSmErrorFunction_; }
   void setReaderThreadSmErrorFunction(const char *function) { strcpy(readerThreadSmErrorFunction_, function); }
 
@@ -231,7 +231,7 @@ class ExSMGlobals {
   // Reader thread: thread ID and state
   pthread_t readerThreadThreadId_;
   ThreadState readerThreadState_;
-  Int32 readerThreadSmErrorNumber_;
+  int readerThreadSmErrorNumber_;
   char readerThreadSmErrorFunction_[32];
 
   // A lock and condition variable for accessing reader thread state

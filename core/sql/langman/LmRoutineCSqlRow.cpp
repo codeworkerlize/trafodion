@@ -31,7 +31,7 @@
 #include "LmLangManagerC.h"
 
 // SQLROW function declaration
-typedef Int32 (*sqlrow_func)(SQLUDR_CHAR *input_row, SQLUDR_CHAR *output_row, SQLUDR_CHAR sqlstate[6],
+typedef int (*sqlrow_func)(SQLUDR_CHAR *input_row, SQLUDR_CHAR *output_row, SQLUDR_CHAR sqlstate[6],
                              SQLUDR_CHAR msgtext[256], SQLUDR_INT32 calltype, SQLUDR_STATEAREA *statearea,
                              SQLUDR_UDRINFO *udrinfo);
 
@@ -51,7 +51,7 @@ SQLUDR_INT32 SQLUDR_INVOKE_SQLROW(sqlrow_func func_ptr, SQLUDR_CHAR *input_row, 
 LmRoutineCSqlRow::LmRoutineCSqlRow(const char *sqlName, const char *externalName, const char *librarySqlName,
                                    ComUInt32 numSqlParam, char *routineSig, ComUInt32 maxResultSets,
                                    ComRoutineTransactionAttributes transactionAttrs, ComRoutineSQLAccess sqlAccessMode,
-                                   ComRoutineExternalSecurity externalSecurity, Int32 routineOwnerId,
+                                   ComRoutineExternalSecurity externalSecurity, int routineOwnerId,
                                    const char *parentQid, ComUInt32 inputRowLen, ComUInt32 outputRowLen,
                                    const char *currentUserName, const char *sessionUserName, LmParameter *parameters,
                                    LmLanguageManagerC *lm, LmHandle routine, LmContainer *container,
@@ -89,7 +89,7 @@ LmResult LmRoutineCSqlRow::invokeRoutine(void *inputRow, void *outputRow, ComDia
   str_pad(msgText_, SQLUDR_MSGTEXT_SIZE, '\0');
 
   // Call the function
-  Int32 retValue =
+  int retValue =
       SQLUDR_INVOKE_SQLROW((sqlrow_func)routine_, (SQLUDR_CHAR *)param_in_data, (SQLUDR_CHAR *)param_out_data,
                            sqlState_, msgText_, callType_, stateArea_, udrInfo_);
 

@@ -55,7 +55,7 @@
 // unicode.org.
 ///////////////////////////////////////////////////////////////////////
 
-inline Int32 in_range(Int32 x, Int32 lower, Int32 upper) { return (lower <= x && x <= upper) ? 1 : 0; }
+inline int in_range(int x, int lower, int upper) { return (lower <= x && x <= upper) ? 1 : 0; }
 
 // 1st block of single-byte characters in [0, 0x7F]
 #define isSingleByteSJIS1stBlock(x) in_range(x, 0x00, 0x7F)
@@ -143,7 +143,7 @@ NAWcharBuf *sjisToUnicode(const charBuf &sjisString, CollHeap *heap, NAWcharBuf 
   };
 
   unsigned char *source = sjisString.data();
-  Int32 sourceLen = sjisString.getStrLen();
+  int sourceLen = sjisString.getStrLen();
 
   // the output Unicode string will have at most sjisString.length()
   // characters. An extra char may be added depending on addNullAtEnd.
@@ -156,7 +156,7 @@ NAWcharBuf *sjisToUnicode(const charBuf &sjisString, CollHeap *heap, NAWcharBuf 
 
   unsigned char c, d;
   NAWchar u;
-  Int32 i = 0;
+  int i = 0;
 
   while (i < sourceLen) {
     c = source[i++];
@@ -179,7 +179,7 @@ NAWcharBuf *sjisToUnicode(const charBuf &sjisString, CollHeap *heap, NAWcharBuf 
         return 0;
       }
 
-      Int32 lead, trail;
+      int lead, trail;
 
       // find the range in which c is in.
       for (lead = 0; lead <= 4; lead++)
@@ -228,7 +228,7 @@ NAWcharBuf *sjisToUnicode(const charBuf &sjisString, CollHeap *heap, NAWcharBuf 
     target++;
   }
 
-  Int32 finalLength = target - base;
+  int finalLength = target - base;
 
   if (addNullAtEnd == TRUE) (output->data())[finalLength] = 0;
 
@@ -261,9 +261,9 @@ static NABoolean binarySearchU2STable(NAWchar u, NAWchar &sjis) {
 #include "sjis_from_ucs2.h"
   };
 
-  Int32 lowerLimit = 0;
-  Int32 upperLimit = sizeof(array_u2s) / sizeof(Unicode2SjisMapT) - 1;
-  Int32 middle = 0;
+  int lowerLimit = 0;
+  int upperLimit = sizeof(array_u2s) / sizeof(Unicode2SjisMapT) - 1;
+  int middle = 0;
 
   do {
     middle = (lowerLimit + upperLimit) / 2;
@@ -289,7 +289,7 @@ static NABoolean binarySearchU2STable(NAWchar u, NAWchar &sjis) {
 // bytes is returned by the function. The function returns 0 if the
 // Unicode character is not mappable from SJIS.
 //
-Int32 unicodeToSjisChar(NAWchar wc, unsigned char *sjis, NABoolean allowInvalidCodePoint) {
+int unicodeToSjisChar(NAWchar wc, unsigned char *sjis, NABoolean allowInvalidCodePoint) {
   NAWchar t;
 
   // single-byte SJIS characters, in [0, 0x7F]. The Unicode range is
@@ -335,7 +335,7 @@ Int32 unicodeToSjisChar(NAWchar wc, unsigned char *sjis, NABoolean allowInvalidC
 charBuf *unicodeToSjis(const NAWcharBuf &unicodeString, CollHeap *heap, charBuf *&sjisString, NABoolean addNullAtEnd,
                        NABoolean allowInvalidCodePoint) {
   NAWchar *source = unicodeString.data();
-  Int32 sourceLen = unicodeString.getStrLen();
+  int sourceLen = unicodeString.getStrLen();
 
   // the output Unicode string will have at most 2*unicodeString.length()
   // characters. An extra char may be added depending on addNullAtEnd.
@@ -346,8 +346,8 @@ charBuf *unicodeToSjis(const NAWcharBuf &unicodeString, CollHeap *heap, charBuf 
   unsigned char *base, *target;
   base = target = (unsigned char *)(output->data());
 
-  Int32 ct = 0;
-  for (Int32 i = 0; i < sourceLen; i++) {
+  int ct = 0;
+  for (int i = 0; i < sourceLen; i++) {
     ct = unicodeToSjisChar(source[i], target, allowInvalidCodePoint);
 
     if (ct == 0) {
@@ -362,7 +362,7 @@ charBuf *unicodeToSjis(const NAWcharBuf &unicodeString, CollHeap *heap, charBuf 
       target += ct;
   }
 
-  Int32 finalLength = target - base;
+  int finalLength = target - base;
 
   if (addNullAtEnd == TRUE) (output->data())[finalLength] = 0;
 
@@ -379,7 +379,7 @@ charBuf *unicodeToSjis(const NAWcharBuf &unicodeString, CollHeap *heap, charBuf 
 // Should only see complaining about 0xFFFF.
 //
 
-static Int32 leadbyte[] = {0x81, 0x82, 0x83, 0x84, 0x87, 0x88, 0x89, 0x8a, 0x8b, 0x8c, 0x8d, 0x8e, 0x8f, 0x90, 0x91,
+static int leadbyte[] = {0x81, 0x82, 0x83, 0x84, 0x87, 0x88, 0x89, 0x8a, 0x8b, 0x8c, 0x8d, 0x8e, 0x8f, 0x90, 0x91,
                            0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9a, 0x9b, 0x9c, 0x9d, 0x9e, 0x9f, 0xe0,
                            0xe1, 0xe2, 0xe3, 0xe4, 0xe5, 0xe6, 0xe7, 0xe8, 0xe9, 0xea, 0xed, 0xee, 0xfa, 0xfb, 0xfc};
 
@@ -387,7 +387,7 @@ void sjisDump() {
   charBuf sjis(2);
   NAWcharBuf *unicode = new NAWcharBuf(10);
 
-  for (Int32 i = 0; i < 0xFF; i++) {
+  for (int i = 0; i < 0xFF; i++) {
     sjis.data()[0] = i;
     sjis.setLength(1);
 
@@ -395,8 +395,8 @@ void sjisDump() {
     if (unicode) printf("0x%X  0x%X\n", i, unicode->data()[0]);
   }
 
-  for (i = 0; i < sizeof(leadbyte) / sizeof(Int32); i++)
-    for (Int32 j = 0x40; j <= 0xFF; j++) {
+  for (i = 0; i < sizeof(leadbyte) / sizeof(int); i++)
+    for (int j = 0x40; j <= 0xFF; j++) {
       sjis.data()[0] = leadbyte[i];
       sjis.data()[1] = j;
       sjis.setLength(2);
@@ -422,7 +422,7 @@ void sjis2Unicode2sjis() {
   charBuf *remapped_sjis = new charBuf(10);
 
   // do the test for single-byte chars
-  for (Int32 i = 0; i < 0xDF; i++) {
+  for (int i = 0; i < 0xDF; i++) {
     // skip non-SJIS chars
     if (in_range(i, 0x80, 0xA0)) continue;
 
@@ -450,8 +450,8 @@ void sjis2Unicode2sjis() {
   }
 
   // do the test for double-byte chars
-  for (i = 0; i < sizeof(leadbyte) / sizeof(Int32); i++)
-    for (Int32 j = 0x40; j <= 0xFF; j++) {
+  for (i = 0; i < sizeof(leadbyte) / sizeof(int); i++)
+    for (int j = 0x40; j <= 0xFF; j++) {
       sjis.data()[0] = leadbyte[i];
       sjis.data()[1] = j;
       sjis.setLength(2);
@@ -492,8 +492,8 @@ void UCS2ToSjis() {
   NAWcharBuf unicode(1);
   charBuf *sjis = new charBuf(10);
 
-  Int32 n = sizeof(array_u2s) / sizeof(Unicode2SjisMapT);
-  for (Int32 i = 0; i < n; i++) {
+  int n = sizeof(array_u2s) / sizeof(Unicode2SjisMapT);
+  for (int i = 0; i < n; i++) {
     unicode.data()[0] = array_u2s[i].Unicode;
     unicodeToSjis(unicode, 0, sjis);
 
@@ -557,7 +557,7 @@ void UCS2ToSjis() {
 // cl /nologo /Zp4 /W3 /GX /Od /MDd /D "_DEBUG" /D "NA_WINNT" /Z7 \
 // -o a.exe conversionsjis.cpp
 //
-Int32 main(Int32 argc, char **argv) {
+int main(int argc, char **argv) {
   // sjisDump();
   sjis2Unicode2sjis();
   UCS2ToSjis();

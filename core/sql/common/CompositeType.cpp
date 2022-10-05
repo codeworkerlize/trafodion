@@ -47,7 +47,7 @@
 //    Base class for ARRAY and ROW
 //
 // ***********************************************************************
-CompositeType::CompositeType(NAMemory *heap, const NAString &adtName, NABuiltInTypeEnum ev, Int32 compFormat)
+CompositeType::CompositeType(NAMemory *heap, const NAString &adtName, NABuiltInTypeEnum ev, int compFormat)
     : NAType(heap, adtName, ev, 0, TRUE, SQL_NULL_HDR_SIZE, TRUE /*varchar*/, SQL_VARCHAR_HDR_SIZE_4 /*4 bytes len*/
       ) {
   // composite datatypes are stored in either aligned format or exploded format.
@@ -73,7 +73,7 @@ NAString &CompositeType::getCompDefnStr() {
 //  SQLArray : The array data type
 //
 // ***********************************************************************
-SQLArray::SQLArray(NAMemory *heap, const NAType *elementType, const int arraySize, Int32 compFormat)
+SQLArray::SQLArray(NAMemory *heap, const NAType *elementType, const int arraySize, int compFormat)
     : CompositeType(heap, LiteralArray, NA_COMPOSITE_TYPE, compFormat),
       elementType_(elementType),
       arraySize_(arraySize) {
@@ -85,20 +85,20 @@ SQLArray::SQLArray(NAMemory *heap, const NAType *elementType, const int arraySiz
 
   int nominalSize = 0;
 
-  // Int32 containing number of entries in the created row.
+  // int containing number of entries in the created row.
   // This field precedes the actual contents.
   // See exp/ExpAlignedFormat.h for details on the format.
-  nominalSize = sizeof(Int32);
-  if (getCompFormat() == COM_SQLMX_ALIGNED_FORMAT) nominalSize += 4 * sizeof(Int32);  // aligned format header size
+  nominalSize = sizeof(int);
+  if (getCompFormat() == COM_SQLMX_ALIGNED_FORMAT) nominalSize += 4 * sizeof(int);  // aligned format header size
 
   if (elementType_) {
     nominalSize +=
-        ROUND4(elementType_->getTotalAlignedSize() + (elementType_->isVaryingLen() ? sizeof(Int32) : 0)) * arraySize_;
+        ROUND4(elementType_->getTotalAlignedSize() + (elementType_->isVaryingLen() ? sizeof(int) : 0)) * arraySize_;
   }
   setNominalSize(nominalSize);
 }
 
-NAType *SQLArray::newCopy2(Int32 compFormat, CollHeap *h) const {
+NAType *SQLArray::newCopy2(int compFormat, CollHeap *h) const {
   const NAType *pType = getElementType();
   NAType *newPType = NULL;
   if (pType->isComposite() && (compFormat != COM_UNINITIALIZED_FORMAT))
@@ -276,8 +276,8 @@ int SQLArray::getDisplayLength() const {
 }
 
 // need to be in sync with fillPrimitiveType method in TrafParquetFileReader.jave
-static Int32 getHivePrimitiveTypeLen(const NAType *elemType) {
-  Int32 len = 0;
+static int getHivePrimitiveTypeLen(const NAType *elemType) {
+  int len = 0;
   switch (elemType->getHiveType()) {
     case HIVE_BOOLEAN_TYPE:
     case HIVE_BYTE_TYPE:
@@ -320,19 +320,19 @@ static Int32 getHivePrimitiveTypeLen(const NAType *elemType) {
   return len;
 }
 
-Int32 SQLArray::getHiveSourceMaxLen() {
-  Int32 maxLen = 0;
+int SQLArray::getHiveSourceMaxLen() {
+  int maxLen = 0;
 
-  maxLen += sizeof(Int32);  // total length
-  maxLen += sizeof(Int32);  // numElems
+  maxLen += sizeof(int);  // total length
+  maxLen += sizeof(int);  // numElems
 
   const NAType *elemType = getElementType();
 
-  Int32 elemLen = 0;
+  int elemLen = 0;
   if (elemType->isComposite())
     elemLen += ((CompositeType *)elemType)->getHiveSourceMaxLen();
   else {
-    elemLen += sizeof(Int32);  // elemLen
+    elemLen += sizeof(int);  // elemLen
     elemLen += getHivePrimitiveTypeLen(elemType);
   }
 
@@ -351,7 +351,7 @@ SQLRow::SQLRow(NAMemory *heap) : CompositeType(heap, LiteralRow, NA_COMPOSITE_TY
   fieldTypes_ = new (heap) NAArray<NAType *>(heap);
 }
 
-SQLRow::SQLRow(NAMemory *heap, NAArray<NAString> *fieldNames, NAArray<NAType *> *fTypes, Int32 compFormat)
+SQLRow::SQLRow(NAMemory *heap, NAArray<NAString> *fieldNames, NAArray<NAType *> *fTypes, int compFormat)
     : CompositeType(heap, LiteralRow, NA_COMPOSITE_TYPE, compFormat), fieldNames_(fieldNames), fieldTypes_(fTypes) {
   int childMaxLevels = 0;
   int nominalSize = 0;
@@ -362,10 +362,10 @@ SQLRow::SQLRow(NAMemory *heap, NAArray<NAString> *fieldNames, NAArray<NAType *> 
     fieldNamesAdded = TRUE;
   }
 
-  if (getCompFormat() == COM_SQLMX_ALIGNED_FORMAT) nominalSize += 4 * sizeof(Int32);  // header size
-  for (Int32 i = 0; i < fieldTypes().entries(); i++) {
+  if (getCompFormat() == COM_SQLMX_ALIGNED_FORMAT) nominalSize += 4 * sizeof(int);  // header size
+  for (int i = 0; i < fieldTypes().entries(); i++) {
     nominalSize +=
-        ROUND4(fieldTypes()[i]->getTotalAlignedSize() + (fieldTypes()[i]->isVaryingLen() ? sizeof(Int32) : 0));
+        ROUND4(fieldTypes()[i]->getTotalAlignedSize() + (fieldTypes()[i]->isVaryingLen() ? sizeof(int) : 0));
 
     childMaxLevels = MAXOF(childMaxLevels, fieldTypes()[i]->getNumLevels());
 
@@ -382,7 +382,7 @@ SQLRow::SQLRow(NAMemory *heap, NAArray<NAString> *fieldNames, NAArray<NAType *> 
   numLevels_ = childMaxLevels + 1;
 }
 
-NAType *SQLRow::newCopy2(Int32 compFormat, CollHeap *h) const {
+NAType *SQLRow::newCopy2(int compFormat, CollHeap *h) const {
   SQLRow *p = (SQLRow *)this;
 
   NAArray<NAString> *fieldNames = NULL;
@@ -429,7 +429,7 @@ short SQLRow::getHiveTypeStr(int hiveType, int precision, int scale, NAString *o
   (*outputStr).append("struct<");
 
   SQLRow *sr = (SQLRow *)this;
-  for (Int32 i = 0; i < sr->getNumElements(); i++) {
+  for (int i = 0; i < sr->getNumElements(); i++) {
     NAType *elemType = sr->fieldTypes()[i];
     NAString elemName = sr->fieldNames()[i];
     elemName.toLower();
@@ -505,13 +505,13 @@ const NAType *SQLRow::getFieldType(CollIndex idx) const {
   return (*fieldTypes_)[idx - 1];
 }
 
-NABoolean SQLRow::getElementInfo(const NAString &fieldName, const NAType *&elemType, Int32 &elemNum) {
+NABoolean SQLRow::getElementInfo(const NAString &fieldName, const NAType *&elemType, int &elemNum) {
   elemNum = 0;
   elemType = NULL;
 
   if (!fieldNames_) return FALSE;
 
-  for (Int32 idx = 1; idx <= fieldNames().entries(); idx++) {
+  for (int idx = 1; idx <= fieldNames().entries(); idx++) {
     if (getFieldName(idx) == fieldName) {
       elemNum = idx;
       elemType = getElementType(idx);
@@ -656,18 +656,18 @@ int SQLRow::getDisplayLength() const {
   return totalDL;
 }
 
-Int32 SQLRow::getHiveSourceMaxLen() {
-  Int32 maxLen = 0;
+int SQLRow::getHiveSourceMaxLen() {
+  int maxLen = 0;
 
-  maxLen += sizeof(Int32);  // total length
-  maxLen += sizeof(Int32);  // numElems
+  maxLen += sizeof(int);  // total length
+  maxLen += sizeof(int);  // numElems
 
-  for (Int32 i = 0; i < getNumElements(); i++) {
+  for (int i = 0; i < getNumElements(); i++) {
     NAType *elemType = getElementType(i + 1);
     if (elemType->isComposite())
       maxLen += ((CompositeType *)elemType)->getHiveSourceMaxLen();
     else {
-      maxLen += sizeof(Int32);  // elemLen
+      maxLen += sizeof(int);  // elemLen
       maxLen += getHivePrimitiveTypeLen(elemType);
     }
   }

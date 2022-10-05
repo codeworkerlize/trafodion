@@ -93,7 +93,7 @@ class SsmpGlobals {
   IpcSetOfConnections getRecipients() { return recipients_; }
   void addRecipients(SscpClientMsgStream *msgStream);
   NAHeap *getStatsHeap() { return statsHeap_; }
-  Int32 myCpu() { return myCpu_; }
+  int myCpu() { return myCpu_; }
   pid_t myPin() { return myPin_; }
   NABoolean getForceMerge() { return forceMerge_; }
   int getNumDeallocatedServers() { return deallocatedSscps_->numEntries(); }
@@ -116,8 +116,8 @@ class SsmpGlobals {
   inline ActiveQueryMgr &getActiveQueryMgr() { return activeQueryMgr_; }
   inline PendingQueryMgr &getPendingQueryMgr() { return pendingQueryMgr_; }
   void cleanupDeletedSscpServers();
-  bool getQidFromPid(Int32 pid,         // IN
-                     Int32 minimumAge,  // IN
+  bool getQidFromPid(int pid,         // IN
+                     int minimumAge,  // IN
                      char *queryId,     // OUT
                      int &queryIdLen  // OUT
   );
@@ -139,7 +139,7 @@ class SsmpGlobals {
   long statsTimeout_;
   IpcSetOfConnections recipients_;
   Long semId_;
-  Int32 myCpu_;
+  int myCpu_;
   pid_t myPin_;
   NAHeap *statsHeap_;  // Heap to store merged stats
   Queue *deallocatedSscps_;
@@ -346,10 +346,10 @@ class SscpClientMsgStream : public IpcMessageStream {
   inline void setSubReqType(short subReqType) { subReqType_ = subReqType; }
   inline ObjectLockReply::LockState getObjectLockState() const { return objectLockState_; }
   inline void setObjectLockState(ObjectLockReply::LockState state) { objectLockState_ = state; }
-  inline Int32 getObjectLockConflictNid() const { return objectLockConflictNid_; }
-  inline void setObjectLockConflictNid(Int32 nid) { objectLockConflictNid_ = nid; }
-  inline Int32 getObjectLockConflictPid() const { return objectLockConflictPid_; }
-  inline void setObjectLockConflictPid(Int32 pid) { objectLockConflictPid_ = pid; }
+  inline int getObjectLockConflictNid() const { return objectLockConflictNid_; }
+  inline void setObjectLockConflictNid(int nid) { objectLockConflictNid_ = nid; }
+  inline int getObjectLockConflictPid() const { return objectLockConflictPid_; }
+  inline void setObjectLockConflictPid(int pid) { objectLockConflictPid_ = pid; }
 
  private:
   NAHeap *heap_;
@@ -380,8 +380,8 @@ class SscpClientMsgStream : public IpcMessageStream {
 
   // Object lock result state
   ObjectLockReply::LockState objectLockState_;
-  Int32 objectLockConflictNid_;
-  Int32 objectLockConflictPid_;
+  int objectLockConflictNid_;
+  int objectLockConflictPid_;
   // Merged stats for ObjectLockStatsReply
   ExStatisticsArea *mergedLockStats_;
 };
@@ -443,15 +443,15 @@ class SsmpClientMsgStream : public IpcMessageStream {
   RtsQueryId *getRtsQueryId() { return rtsQueryId_; }
   short getNumSscpReqFailed() { return numSscpReqFailed_; }
   RtsExplainFrag *getExplainFrag() { return explainFrag_; }
-  Int32 getOecrResult() { return oecrResult_; }
+  int getOecrResult() { return oecrResult_; }
   UInt32 getOecrMaxExpectedEpochFound() { return oecrMaxExpectedEpochFound_; }
   UInt32 getOecrMaxExpectedFlagsFound() { return oecrMaxExpectedFlagsFound_; }
   ObjectLockReply::LockState getObjectLockState() const { return objectLockState_; }
   void setObjectLockState(ObjectLockReply::LockState state) { objectLockState_ = state; }
-  inline Int32 getObjectLockConflictNid() const { return objectLockConflictNid_; }
-  inline void setObjectLockConflictNid(Int32 nid) { objectLockConflictNid_ = nid; }
-  inline Int32 getObjectLockConflictPid() const { return objectLockConflictPid_; }
-  inline void setObjectLockConflictPid(Int32 pid) { objectLockConflictPid_ = pid; }
+  inline int getObjectLockConflictNid() const { return objectLockConflictNid_; }
+  inline void setObjectLockConflictNid(int nid) { objectLockConflictNid_ = nid; }
+  inline int getObjectLockConflictPid() const { return objectLockConflictPid_; }
+  inline void setObjectLockConflictPid(int pid) { objectLockConflictPid_ = pid; }
 
  private:
   NAHeap *heap_;
@@ -464,14 +464,14 @@ class SsmpClientMsgStream : public IpcMessageStream {
   RtsExplainFrag *explainFrag_;
 
   // information saved from ObjectEpochChangeReply
-  Int32 oecrResult_;
+  int oecrResult_;
   UInt32 oecrMaxExpectedEpochFound_;
   UInt32 oecrMaxExpectedFlagsFound_;
 
   // Object lock reply state
   ObjectLockReply::LockState objectLockState_;
-  Int32 objectLockConflictNid_;
-  Int32 objectLockConflictPid_;
+  int objectLockConflictNid_;
+  int objectLockConflictPid_;
 };
 
 #endif  // _SSMPIPC_H_

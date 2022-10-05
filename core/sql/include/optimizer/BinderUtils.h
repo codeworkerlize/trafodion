@@ -98,7 +98,7 @@ class BinderUtils {
   static ItemExpr *getNamesListAsItemExpr(const ConstStringList &nameList, CollHeap *heap, OperatorTypeEnum itemType,
                                           const CorrName &tableName);
 
-  static ItemExpr *buildPredOnCol(OperatorTypeEnum opType, const NAString &colName, Int32 constVal, CollHeap *heap);
+  static ItemExpr *buildPredOnCol(OperatorTypeEnum opType, const NAString &colName, int constVal, CollHeap *heap);
 
   static ItemExpr *buildClusteringIndexVector(const NATable *naTable, CollHeap *heap,
                                               const CorrName *nameOverride = NULL, int specialFlags = 0,

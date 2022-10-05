@@ -66,22 +66,22 @@ short CmpSeabaseDDL::createXDCMeta(ExeCliInterface *cliInterface) {
 
   if (endXnIfStartedHere(cliInterface, xnWasStartedHere, cliRC) < 0) goto label_error;
 
-  for (Int32 i = 0; i < sizeof(allXDCMDUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
+  for (int i = 0; i < sizeof(allXDCMDUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
     const MDUpgradeInfo &rti = allXDCMDUpgradeInfo[i];
 
     if (!rti.newName) continue;
 
-    for (Int32 j = 0; j < NUM_MAX_PARAMS; j++) {
+    for (int j = 0; j < NUM_MAX_PARAMS; j++) {
       param_[j] = NULL;
     }
 
     const QString *qs = NULL;
-    Int32 sizeOfqs = 0;
+    int sizeOfqs = 0;
 
     qs = rti.newDDL;
     sizeOfqs = rti.sizeOfnewDDL;
 
-    Int32 qryArraySize = sizeOfqs / sizeof(QString);
+    int qryArraySize = sizeOfqs / sizeof(QString);
     char *gluedQuery;
     int gluedQuerySize;
     glueQueryFragments(qryArraySize, qs, gluedQuery, gluedQuerySize);
@@ -118,7 +118,7 @@ short CmpSeabaseDDL::dropXDCMeta(ExeCliInterface *cliInterface, NABoolean dropSc
   NABoolean xnWasStartedHere = FALSE;
   char queryBuf[1000];
 
-  for (Int32 i = 0; i < sizeof(allXDCMDUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
+  for (int i = 0; i < sizeof(allXDCMDUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
     const MDUpgradeInfo &rti = allXDCMDUpgradeInfo[i];
 
     str_sprintf(queryBuf, "drop table %s.\"%s\".%s cascade; ", getSystemCatalog(), SEABASE_XDC_MD_SCHEMA,

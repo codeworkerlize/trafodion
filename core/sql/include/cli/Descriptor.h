@@ -67,16 +67,16 @@ class BulkMoveInfo {
   ULng32 usedEntries() { return usedEntries_; };
 
   // returns info about the i'th entry. Entry num is 0 based.
-  NABoolean isExeDataPtr(Int32 i) { return bmiArray_[i].isExePtr(); };
-  ULng32 getLength(Int32 i) { return bmiArray_[i].length_; };
-  char *getDescDataPtr(Int32 i) { return bmiArray_[i].descDataPtr_; };
-  short getExeAtpIndex(Int32 i) { return bmiArray_[i].exeAtpIndex_; };
-  Long getExeOffset(Int32 i) { return bmiArray_[i].exeOffset_; };
-  char *getExeDataPtr(Int32 i) { return bmiArray_[i].exeDataPtr_; };
-  short getFirstEntryNum(Int32 i) { return bmiArray_[i].firstEntryNum_; };
-  short getLastEntryNum(Int32 i) { return bmiArray_[i].lastEntryNum_; };
-  NABoolean isVarchar(Int32 i) { return bmiArray_[i].isVarchar(); };
-  NABoolean isNullable(Int32 i) { return bmiArray_[i].isNullable(); };
+  NABoolean isExeDataPtr(int i) { return bmiArray_[i].isExePtr(); };
+  ULng32 getLength(int i) { return bmiArray_[i].length_; };
+  char *getDescDataPtr(int i) { return bmiArray_[i].descDataPtr_; };
+  short getExeAtpIndex(int i) { return bmiArray_[i].exeAtpIndex_; };
+  Long getExeOffset(int i) { return bmiArray_[i].exeOffset_; };
+  char *getExeDataPtr(int i) { return bmiArray_[i].exeDataPtr_; };
+  short getFirstEntryNum(int i) { return bmiArray_[i].firstEntryNum_; };
+  short getLastEntryNum(int i) { return bmiArray_[i].lastEntryNum_; };
+  NABoolean isVarchar(int i) { return bmiArray_[i].isVarchar(); };
+  NABoolean isNullable(int i) { return bmiArray_[i].isNullable(); };
 
   void addEntry(ULng32 length, char *descDataPtr, short exeAtpIndex, NABoolean exeIsPtr, Long exeOffset,
                 short firstEntryNum, short lastEntryNum, NABoolean isVarchar, NABoolean isNullable);
@@ -363,8 +363,8 @@ class Descriptor : public ExGod {
     int rowwise_ind_offset;  // testing logic
 #endif
 
-    Int32 lobInlinedDataMaxLen;
-    Int32 lobChunkMaxLen;
+    int lobInlinedDataMaxLen;
+    int lobChunkMaxLen;
   };
 
   desc_struct *desc;
@@ -410,24 +410,24 @@ class Descriptor : public ExGod {
 
   char *getVarData(int entry);
   char *getVarData(int entry, int idxrow);
-  Int32 getVarDataLength(int entry);
-  Int32 getVarIndicatorLength(int entry);
-  Int32 getVarDataType(int entry);
+  int getVarDataLength(int entry);
+  int getVarIndicatorLength(int entry);
+  int getVarDataType(int entry);
   const char *getVarDataCharSet(int entry);
   char *getIndData(int entry);
   char *getIndData(int entry, int idxrow);
-  Int32 getIndLength(int entry);
+  int getIndLength(int entry);
   RETCODE getDescItemMainVarInfo(int entry, short &var_isnullable, int &var_datatype, int &var_length,
                                  void **var_ptr, int &ind_datatype, int &ind_length, void **ind_ptr);
 
   RETCODE getDescItem(int entry, int what_to_get, void *numeric_value, char *string_value, int max_string_len,
                       int *returned_len, int start_from_offset, Descriptor *desc_to_get_more_info = 0,
-                      Int32 entry_in_desc_to_get_more_info = 0);
+                      int entry_in_desc_to_get_more_info = 0);
 
   RETCODE getDescItemPtr(int entry, int what_to_get, char **string_ptr, int *returned_len);
 
   RETCODE setDescItem(int entry, int what_to_set, Long numeric_value, char *string_value,
-                      Descriptor *desc_to_get_more_info = 0, Int32 entry_in_desc_to_get_more_info = 0);
+                      Descriptor *desc_to_get_more_info = 0, int entry_in_desc_to_get_more_info = 0);
 
   RETCODE setDescItemInternal(int entry, int what_to_set, int numeric_value, char *string_value);
 
@@ -498,7 +498,7 @@ class Descriptor : public ExGod {
   // This function gets char string content from an ASCII CHAR host variable.
   static char *getCharDataFromCharHostVar(ComDiagsArea &diags, NAHeap &heap, char *host_var_string_value,
                                           int host_var_string_value_length, const char *the_SQLDESC_option,
-                                          Descriptor *info_desc = 0, Int32 info_desc_index = 0, short target_type = -1);
+                                          Descriptor *info_desc = 0, int info_desc_index = 0, short target_type = -1);
 
   //////////////////////////////////////////////////
   // Methods to do Bulk Move

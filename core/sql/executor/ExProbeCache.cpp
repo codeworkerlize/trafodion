@@ -551,7 +551,7 @@ void ExProbeCacheTcb::makeReplyToParentUp(ex_queue_entry *pentry_down, ExProbeCa
                                           ex_queue::up_status reply_status) {
   ExOperStats *stats;
   ex_queue_entry *up_entry = qparent_.up->getTailEntry();
-  Int32 rowQualifies = 1;
+  int rowQualifies = 1;
 
   // Copy the pointers to the input data from parent
   up_entry->copyAtp(pentry_down);
@@ -688,7 +688,7 @@ ExPCMgr::ExPCMgr(Space *space, ULng32 numEntries, ULng32 probeLength, ExProbeCac
   sizeofExPCE_ = ROUND8(sizeof(ExPCE) + (probeLength - 1));
 
   // Get the size in bytes of the ExPCE array.
-  const Int32 totalExPCEsizeInBytes = numEntries * sizeofExPCE_;
+  const int totalExPCEsizeInBytes = numEntries * sizeofExPCE_;
 
   entries_ = new (space_) char[totalExPCEsizeInBytes];
 
@@ -708,7 +708,7 @@ ExPCMgr::~ExPCMgr() {
 ExPCMgr::AddedOrFound ExPCMgr::addOrFindEntry(ULng32 probeHashVal, char *probeBytes, queue_index qIdxForCancel,
                                               ExPCE *&pcEntry) {
   AddedOrFound retcode;
-  const Int32 bucketNum = probeHashVal % numBuckets_;
+  const int bucketNum = probeHashVal % numBuckets_;
   UInt32 chainLength = 1;
   ExProbeCacheStats *stats = tcb_->getProbeCacheStats();
 
@@ -749,7 +749,7 @@ ExPCMgr::AddedOrFound ExPCMgr::addOrFindEntry(ULng32 probeHashVal, char *probeBy
 }
 
 ///////////////////////////////////////////////////////////////////
-ExPCE *ExPCMgr::addEntry(Int32 buckNum, ULng32 probeHashVal, char *probeBytes, queue_index qIdxForCancel) {
+ExPCE *ExPCMgr::addEntry(int buckNum, ULng32 probeHashVal, char *probeBytes, queue_index qIdxForCancel) {
   ExProbeCacheStats *stats = tcb_->getProbeCacheStats();
   bool foundVictim = false;
   ExPCE *pce;
@@ -767,7 +767,7 @@ ExPCE *ExPCMgr::addEntry(Int32 buckNum, ULng32 probeHashVal, char *probeBytes, q
     // This entry has never been added.
   } else {
     // Unlink from old collision chain
-    const Int32 bucketNum = pce->probeHashVal_ % numBuckets_;
+    const int bucketNum = pce->probeHashVal_ % numBuckets_;
     ExPCE *pcEntryToUnlink = buckets_[bucketNum];
     ExPCE *prevPCE = NULL;
     UInt32 chainLength = 1;

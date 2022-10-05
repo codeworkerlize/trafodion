@@ -83,7 +83,7 @@ NABoolean QRMessageRequest::readRequestType(QRMessageTypeEnum &type) {
 size_t QRMessageRequest::readXml(char *buffer, size_t bufferSize) {
   if (!xmlTextPtr_ || !xmlCharsLeft_) return 0;
 
-  Int32 charsToCopy = (xmlCharsLeft_ <= bufferSize ? xmlCharsLeft_ : bufferSize);
+  int charsToCopy = (xmlCharsLeft_ <= bufferSize ? xmlCharsLeft_ : bufferSize);
   strncpy(buffer, xmlTextPtr_, charsToCopy);
   xmlTextPtr_ += charsToCopy;
   xmlCharsLeft_ -= charsToCopy;
@@ -244,7 +244,7 @@ QRRequestResult QRRequest::parseXMLDoc(QRRequest &request, XMLElementPtr &descri
     QRElementMapper em;
     XMLDocument doc = XMLDocument(xmlParseHeap, em);
 
-    Int32 charsRead = 1;  // make nonzero so we will enter loop
+    int charsRead = 1;  // make nonzero so we will enter loop
     while (charsRead) {
       charsRead = request.readXml(xmlBuffer, XML_BUFF_SIZE);
       if (charsRead)
@@ -516,7 +516,7 @@ QRMessageObj *QRMessageRequest::processRequestMessage(QRMessageStream *msgStream
   return responseMsgPtr;
 }  // End of processRequestMessage
 
-Int32 QRCommandLineRequest::processCommandLine(Int32 argc, char *argv[]) {
+int QRCommandLineRequest::processCommandLine(int argc, char *argv[]) {
   QmsInitializer &qmsInitializer = *QmsInitializer::getInstance();
   NAMemory *heap = qmsInitializer.getHeap();
 
@@ -565,7 +565,7 @@ Int32 QRCommandLineRequest::processCommandLine(Int32 argc, char *argv[]) {
   QRCommandLineRequest request(inFile);
 
   QRMessageTypeEnum requestType;
-  Int32 requestCount = 0;
+  int requestCount = 0;
   QRRequestResult result = Success;
 
   // Read the first request and enter the loop to process it. Keep looping while
@@ -606,7 +606,7 @@ Int32 QRCommandLineRequest::processCommandLine(Int32 argc, char *argv[]) {
       case WORKLOAD_REQUEST: {
         Qms &qms = *Qms::getInstance();
         NAString param(heap);
-        Int32 minQueriesPerMV = 0;
+        int minQueriesPerMV = 0;
         request.getNextParameter(param);
         if (param != "") {
           minQueriesPerMV = atoi(param.data());

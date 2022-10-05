@@ -34,9 +34,9 @@
 
 #include "executor/ex_transaction.h"
 
-ExControlEntry::ExControlEntry(CollHeap *heap, ControlQueryType cqt, Int32 reset, char *sqlText, Int32 lenX,
-                               Int16 sqlTextCharSet, char *value1, Int32 len1, char *value2, Int32 len2, char *value3,
-                               Int32 len3, Int16 actionType, ResendType resendType, NABoolean nonResettable)
+ExControlEntry::ExControlEntry(CollHeap *heap, ControlQueryType cqt, int reset, char *sqlText, int lenX,
+                               Int16 sqlTextCharSet, char *value1, int len1, char *value2, int len2, char *value3,
+                               int len3, Int16 actionType, ResendType resendType, NABoolean nonResettable)
     : heap_(heap),
       cqt_(cqt),
       reset_(reset),
@@ -60,10 +60,10 @@ ExControlEntry::ExControlEntry(CollHeap *heap, ControlQueryType cqt, Int32 reset
 
 ExControlEntry::~ExControlEntry() {
   NADELETEBASIC(sqlText_, heap_);
-  for (Int32 i = 0; i < this->getNumValues(); i++) NADELETEBASIC(this->getValue(i + 1), heap_);
+  for (int i = 0; i < this->getNumValues(); i++) NADELETEBASIC(this->getValue(i + 1), heap_);
 }
 
-char *ExControlEntry::getValue(Int32 i) {
+char *ExControlEntry::getValue(int i) {
   if (i == 1)
     return value1_;
   else if (i == 2)
@@ -74,7 +74,7 @@ char *ExControlEntry::getValue(Int32 i) {
     return NULL;
 }
 
-Int32 ExControlEntry::getLen(Int32 i) {
+int ExControlEntry::getLen(int i) {
   if (i == 1)
     return len1_;
   else if (i == 2)
@@ -85,13 +85,13 @@ Int32 ExControlEntry::getLen(Int32 i) {
     return 0;
 }
 
-Int32 ExControlEntry::match(ControlQueryType cqt, const char *value1, const char *value2, Int32 reset) {
+int ExControlEntry::match(ControlQueryType cqt, const char *value1, const char *value2, int reset) {
   if (cqt_ != cqt) return FALSE;
   if (reset_ > reset) return FALSE;
   if (cqt_ == SHAPE_) return TRUE;
-  Int32 v1 = !value1 || !*value1 || !str_cmp_ne(value1_, value1);
+  int v1 = !value1 || !*value1 || !str_cmp_ne(value1_, value1);
   if (cqt_ == TABLE_) {
-    Int32 v2 = !value2 || !*value2 || !str_cmp_ne(value2_, value2);
+    int v2 = !value2 || !*value2 || !str_cmp_ne(value2_, value2);
     v1 = v1 && v2;
   }
   return v1;
@@ -117,8 +117,8 @@ ExControlArea::~ExControlArea() {
   }
 }
 
-void ExControlArea::addControl(ControlQueryType type, Int32 reset, const char *sqlText, Int32 lenX, const char *value1,
-                               Int32 len1, const char *value2, Int32 len2, const char *value3, Int32 len3,
+void ExControlArea::addControl(ControlQueryType type, int reset, const char *sqlText, int lenX, const char *value1,
+                               int len1, const char *value2, int len2, const char *value3, int len3,
                                Int16 actionType, ExControlEntry::ResendType resendType, NABoolean isNonResettable) {
   NABoolean addToList = TRUE;
   Queue *q = controlList_;

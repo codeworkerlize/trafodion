@@ -110,16 +110,16 @@ class SQLMXLoggingArea {
 
   SQLEVENTS_LIB_FUNC static void resetSqlText();
   SQLEVENTS_LIB_FUNC static void logSeaquestInitEvent(char *msg);
-  SQLEVENTS_LIB_FUNC static void logSQLMXAbortEvent(const char *filename, Int32 lineno, const char *msg);
+  SQLEVENTS_LIB_FUNC static void logSQLMXAbortEvent(const char *filename, int lineno, const char *msg);
 
-  SQLEVENTS_LIB_FUNC static void logSQLMXAssertionFailureEvent(const char *filename, Int32 lineno, const char *msg,
+  SQLEVENTS_LIB_FUNC static void logSQLMXAssertionFailureEvent(const char *filename, int lineno, const char *msg,
                                                                const char *condition = NULL, const int *tid = NULL);
 
   // TBD
 
   SQLEVENTS_LIB_FUNC static void logSortDiskInfo(char *diskname, short percentfreespace, short diskerror);
 
-  SQLEVENTS_LIB_FUNC static Int32 logSQLMXEventForError(
+  SQLEVENTS_LIB_FUNC static int logSQLMXEventForError(
       ULng32 eventId, const char *ExperienceLevel, const char *SeverityLevel, const char *EventTarget,
       const char *msgtxt, const char *sqlId = NULL, const int Int0 = 0, const int Int1 = 0, const int Int2 = 0,
       const int Int3 = 0, const int Int4 = 0, const char *String0 = NULL, const char *String1 = NULL,
@@ -158,7 +158,7 @@ class SQLMXLoggingArea {
   SQLEVENTS_LIB_FUNC static void logUtilOperationStatusEvent(ULng32 eventId, const char *utilName, const char *objType,
                                                              const char *objAnsiName, const char *utilStatus);
 
-  SQLEVENTS_LIB_FUNC static void logUtilErrorsEvent(const char *utilName, const Int32 numOfErrors,
+  SQLEVENTS_LIB_FUNC static void logUtilErrorsEvent(const char *utilName, const int numOfErrors,
                                                     const int errorCode, const char *msg1, const char *msg2 = NULL,
                                                     const char *msg3 = NULL, const char *msg4 = NULL,
                                                     const char *msg5 = NULL);
@@ -193,7 +193,7 @@ class SQLMXLoggingArea {
 							TInt64 interval);
 
   SQLEVENTS_LIB_FUNC static void logPMErrorsEvent (const char *operation,
-						   const Int32 numOfErrors,
+						   const int numOfErrors,
 						   const int errorCode,
 						   const char *msg1,
 						   const char *msg2 = NULL,

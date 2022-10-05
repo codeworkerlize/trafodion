@@ -51,9 +51,9 @@
 
 #include "cli_stdh.h"
 
-static Int32 contextTest();
+static int contextTest();
 
-Int32 main() {
+int main() {
   // Create a Procedure
 
   // Prepare a CALL statement
@@ -67,7 +67,7 @@ Int32 main() {
   return 0;
 }
 
-Int32 contextTest() {
+int contextTest() {
 #define NUM_OF_CTX 8
   `
 #define NUM_OF_ITER 16
@@ -76,12 +76,12 @@ Int32 contextTest() {
 
   char idVec[NUM_OF_CTX][32];
 
-  for (Int32 i = 0; i < NUM_OF_CTX; i++) {
+  for (int i = 0; i < NUM_OF_CTX; i++) {
     char *authId = &idVec[i][0];
 
     itoa(i % 4 + 1000, authId, 10);
 
-    Int32 code = SQL_EXEC_CreateContext(&ctxVec[i], authId);
+    int code = SQL_EXEC_CreateContext(&ctxVec[i], authId);
 
     if (code != SUCCESS) {
       cout << "Error in Creating Context:" << i;
@@ -93,13 +93,13 @@ Int32 contextTest() {
   for (i = 0; i < NUM_OF_ITER; i++) {
     srand((UInt32)time(NULL));
 
-    Int32 hdNum = rand() % NUM_OF_CTX;
+    int hdNum = rand() % NUM_OF_CTX;
 
     SQLCTX_HANDLE currHandle = 0;
 
     SQLCTX_HANDLE prevHandle = 0;
 
-    Int32 code = SQL_EXEC_CurrentContext(&currHandle);
+    int code = SQL_EXEC_CurrentContext(&currHandle);
 
     if (code != SUCCESS) {
       cout << "Error in Obtaining Current Context";
@@ -123,9 +123,9 @@ Int32 contextTest() {
   for (i = 0; i < NUM_OF_ITER; i++) {
     srand((UInt32)time(NULL));
 
-    Int32 hdNum = rand() % NUM_OF_CTX;
+    int hdNum = rand() % NUM_OF_CTX;
 
-    Int32 code = SQL_EXEC_DeleteContext(ctxVec[hdNum]);
+    int code = SQL_EXEC_DeleteContext(ctxVec[hdNum]);
 
     if (code != SUCCESS) {
       cout << "Error in Deleting Context:" << ctxVec[hdNum];

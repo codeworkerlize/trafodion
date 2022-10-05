@@ -141,7 +141,7 @@ int ComSqlId::createSqlSessionId(char *sessionId,             // INOUT
                                    long sessionUniqueNum,      // IN
                                    int userNameLen,           // IN
                                    const char *userName,        // IN
-                                   Int32 tenantIdLen,           // IN
+                                   int tenantIdLen,           // IN
                                    const char *tenantId,        // IN
                                    int userSessionNameLen,    // IN
                                    const char *userSessionName  // IN
@@ -192,7 +192,7 @@ int ComSqlId::createSqlQueryId(char *queryId,            // INOUT
   //
   str_sprintf(queryId, "%s_%ld_", sessionId, queryUniqueNum);
 
-  Int32 queryIdLen = (Int32)strlen(queryId);
+  int queryIdLen = (int)strlen(queryId);
   // check queryName length
   if (queryNameLen > maxQueryIdLen - queryIdLen - 1) queryNameLen = maxQueryIdLen - queryIdLen - 1;
 
@@ -291,13 +291,13 @@ int ComSqlId::getSqlIdAttr(int attr,           // which attr (SqlQueryIDAttr)
     } break;
 
     case SQLQUERYID_SESSIONNAME: {
-      Int32 currOffset = USERNAMELEN_OFFSET;
+      int currOffset = USERNAMELEN_OFFSET;
       int userIdLen = (int)str_atoi(&queryId[currOffset], USERNAMELEN_LEN);
       if (userIdLen < 0) return -CLI_INVALID_ATTR_VALUE;
       // go past userid
       currOffset += USERNAMELEN_LEN + userIdLen;
       // get tenant id length
-      Int32 tenantIdLen = (Int32)str_atoi(&queryId[currOffset], TENANTIDLEN_LEN);
+      int tenantIdLen = (int)str_atoi(&queryId[currOffset], TENANTIDLEN_LEN);
       if (tenantIdLen < 0) return CLI_INVALID_ATTR_VALUE;
       // go past tenant id
       currOffset += TENANTIDLEN_LEN + tenantIdLen;
@@ -320,22 +320,22 @@ int ComSqlId::getSqlIdAttr(int attr,           // which attr (SqlQueryIDAttr)
       // session Id = qid from start thru SessionName
 
       // set current offset to userNameLen
-      Int32 currOffset = USERNAMELEN_OFFSET;
+      int currOffset = USERNAMELEN_OFFSET;
 
       // get userNameLen
-      Int32 nameLen = (Int32)str_atoi(&queryId[currOffset], USERNAMELEN_LEN);
+      int nameLen = (int)str_atoi(&queryId[currOffset], USERNAMELEN_LEN);
 
       // go past Username
       currOffset += USERNAMELEN_LEN + nameLen;
 
       // get tenant id length
-      Int32 tenantIdLen = (Int32)str_atoi(&queryId[currOffset], TENANTIDLEN_LEN);
+      int tenantIdLen = (int)str_atoi(&queryId[currOffset], TENANTIDLEN_LEN);
       if (tenantIdLen < 0) return CLI_INVALID_ATTR_VALUE;
       // go past tenant id
       currOffset += TENANTIDLEN_LEN + tenantIdLen;
 
       // get sessionName length
-      nameLen = (Int32)str_atoi(&queryId[currOffset], SESSIONNAMELEN_LEN);
+      nameLen = (int)str_atoi(&queryId[currOffset], SESSIONNAMELEN_LEN);
       if (nameLen < 0) return -CLI_INVALID_ATTR_VALUE;
 
       // go past sessionName
@@ -361,7 +361,7 @@ int ComSqlId::getSqlIdAttr(int attr,           // which attr (SqlQueryIDAttr)
       currOffset += USERNAMELEN_LEN + nameLen;
 
       // get tenant id length
-      Int32 tenantIdLen = (Int32)str_atoi(&queryId[currOffset], TENANTIDLEN_LEN);
+      int tenantIdLen = (int)str_atoi(&queryId[currOffset], TENANTIDLEN_LEN);
       if (tenantIdLen < 0) return CLI_INVALID_ATTR_VALUE;
       // go past tenant id
       currOffset += TENANTIDLEN_LEN + tenantIdLen;
@@ -397,7 +397,7 @@ int ComSqlId::getSqlIdAttr(int attr,           // which attr (SqlQueryIDAttr)
       currOffset += USERNAMELEN_LEN + nameLen;
 
       // get tenant id length
-      Int32 tenantIdLen = (Int32)str_atoi(&queryId[currOffset], TENANTIDLEN_LEN);
+      int tenantIdLen = (int)str_atoi(&queryId[currOffset], TENANTIDLEN_LEN);
       if (tenantIdLen < 0) return CLI_INVALID_ATTR_VALUE;
       // go past tenant id
       currOffset += TENANTIDLEN_LEN + tenantIdLen;
@@ -429,7 +429,7 @@ int ComSqlId::getSqlIdAttr(int attr,           // which attr (SqlQueryIDAttr)
       // get statementName length as remaining string except trailing blanks
       while (queryIdLen && queryId[queryIdLen - 1] == ' ') queryIdLen--;
 
-      Int32 qidStatementNameLen = queryIdLen - currOffset;
+      int qidStatementNameLen = queryIdLen - currOffset;
 
       // check for enough space in StringValue
       if (stringValue && value > qidStatementNameLen) {
@@ -498,7 +498,7 @@ int ComSqlId::extractSqlSessionIdAttrs(const char *sessionId,      // IN
                                          long &sessionUniqueNum,    // OUT
                                          int &userNameLen,         // OUT
                                          char *userName,             // OUT
-                                         Int32 &tenantIdLen,         // OUT
+                                         int &tenantIdLen,         // OUT
                                          char *tenantId,             // OUT
                                          int &userSessionNameLen,  // OUT
                                          char *userSessionName,      // OUT
@@ -629,7 +629,7 @@ int ComSqlId::decomposeDp2QueryIdString(char *queryId,     // input: buffer cont
 
 UInt64 ComSqlId::computeQueryHash(char *input_str) { return ComSqlId::computeQueryHash(input_str, strlen(input_str)); }
 
-UInt64 ComSqlId::computeQueryHash(char *input_str, Int32 len) {
+UInt64 ComSqlId::computeQueryHash(char *input_str, int len) {
   /*
   char buf[128];
   sprintf(buf, "/tmp/dop.rtstats.info.%d", getpid());
@@ -651,7 +651,7 @@ UInt64 ComSqlId::computeQueryHash(char *input_str, Int32 len) {
   // https://en.wikipedia.org/wiki/Fowler–Noll–Vo_hash_function.
   const UInt64 prime = 1099511628211;
   UInt64 hash = 0xcbf29ce484222325;
-  for (Int32 i = 0; i < len; i++) {
+  for (int i = 0; i < len; i++) {
     hash ^= input_str[i];
     hash *= prime;
   }

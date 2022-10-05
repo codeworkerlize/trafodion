@@ -87,7 +87,7 @@ void XTNM::insertNames(BindWA *bindWA, CorrName &corrName, ColumnDescList *cols)
   //
   NAString catName(CmpCommon::statementHeap()), schName(CmpCommon::statementHeap()),
       tblName(CmpCommon::statementHeap());
-  Int32 defaultMatch =
+  int defaultMatch =
       corrName.extractAndDefaultNameParts(bindWA, bindWA->getDefaultSchema(), catName, schName, tblName);
   CorrName cstCorr(tblName, CmpCommon::statementHeap(), schName, catName);
   CorrName stCorr(tblName, CmpCommon::statementHeap(), schName);
@@ -165,11 +165,11 @@ void TableViewUsageList::display() const { display(TRUE, 2); }
 // or at the top level itself
 // (if only seen in the latter case, the formatted list will be empty).
 //
-Int32 TableViewUsageList::getViewsOnTable(CollIndex begIx, CollIndex endIx, Int32 viewCount,
+int TableViewUsageList::getViewsOnTable(CollIndex begIx, CollIndex endIx, int viewCount,
                                           const QualifiedName &baseName, ExtendedQualName::SpecialTableType baseType,
                                           const QualifiedName *additionalNameToFormat,
                                           NAString &resultingViewNames) const {
-  Int32 baseNameSeen = 0;
+  int baseNameSeen = 0;
   const QualifiedName *topViewName = NULL;
   CollHeap *h = CmpCommon::statementHeap();
   LIST(TableNameMap *) tmpViewList(h);

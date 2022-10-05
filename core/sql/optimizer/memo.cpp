@@ -645,7 +645,7 @@ CascadesMemo::~CascadesMemo() {
 
     float m1 = (float)0, m2 = (float)0;
     for (int bucket_no = 0; bucket_no < hashSize_; bucket_no++) {
-      Int32 count = 0;
+      int count = 0;
       RelExpr *e;
       if (hash_.used(bucket_no)) {
         for (e = hash_[bucket_no]; e != NULL; e = e->getNextInBucket()) ++count;
@@ -726,7 +726,7 @@ RelExpr *CascadesMemo::include(RelExpr *expr, NABoolean &duplicateExprFlag, NABo
     // -----------------------------------------------------------------
     // recursively include all the node's children into CascadesMemo
     // -----------------------------------------------------------------
-    Int32 arity = result->getArity();
+    int arity = result->getArity();
     NABoolean inserted = FALSE;
     NABoolean childDuplicateExprFlag;  // ignore duplicates in the child nodes
     NABoolean childGroupMergeFlag;
@@ -843,7 +843,7 @@ RelExpr *CascadesMemo::include(RelExpr *expr, NABoolean &duplicateExprFlag, NABo
 }  // CascadesMemo::include
 //<pb>
 void CascadesMemo::addExpr(RelExpr *expr, HashValue hash_value) {
-  Int32 bucket = (Int32)(hash_value.getValue() % hashSize_);
+  int bucket = (int)(hash_value.getValue() % hashSize_);
   RelExpr *old_ptr = NULL;
 
   if (hash_.used(bucket)) old_ptr = hash_[bucket];
@@ -857,7 +857,7 @@ RelExpr *CascadesMemo::findDuplicate(RelExpr *expr) const {
   if (NOT hash_.used(bucket)) {
     return NULL;
   } else {
-    Int32 arity = expr->getArity();
+    int arity = expr->getArity();
     GroupAttributes *ga;
 
     // try all expressions in the appropriate hash bucket
@@ -898,19 +898,19 @@ CascadesGroupId CascadesMemo::makeNewGroup(GroupAttributes *ga) {
 void CascadesMemo::update(CascadesGroup *oldGroup, CascadesGroup *newGroup) {
   // scan through entire table, because the old group
   // might be the result of an earlier group merging
-  for (int groupId = (Int32)(group_.entries()); --groupId >= 0;)
+  for (int groupId = (int)(group_.entries()); --groupId >= 0;)
     if (group_[groupId] == oldGroup) {
       group_[groupId] = newGroup;
     }  // update group pointer
 
 }  // CascadesMemo::update
 //<pb>
-Int32 CascadesMemo::garbageCollection() {
+int CascadesMemo::garbageCollection() {
   LIST(RelExpr *) changed(STMTHEAP);  // list of outdated RelExprs
   RelExpr *e;                         // a single rel expr
   RelExpr *pred;                      // predecessor in the hash chain
-  Int32 nc;                           // number of children
-  Int32 i;                            // index for a child
+  int nc;                           // number of children
+  int i;                            // index for a child
   CascadesGroupId childGroupId;       // group # of child
   NABoolean found;                    // found an entry to clean up
 
@@ -985,12 +985,12 @@ Int32 CascadesMemo::garbageCollection() {
   }      // done with a hash chain
 
   // remember the state of group merging at this point
-  Int32 lowWaterMark = CURRSTMT_OPTGLOBALS->group_merge_count;
+  int lowWaterMark = CURRSTMT_OPTGLOBALS->group_merge_count;
 
   // ---------------------------------------------------------------------
   // now re-insert all the changed expressions into the hash chains
   // ---------------------------------------------------------------------
-  for (i = 0; i < (Int32)changed.entries(); i++) {
+  for (i = 0; i < (int)changed.entries(); i++) {
     RelExpr *d;
 
     e = changed[i];

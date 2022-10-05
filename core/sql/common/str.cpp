@@ -58,7 +58,7 @@
  *
  */
 
-Int32 isUpper8859_1(NAWchar c) {
+int isUpper8859_1(NAWchar c) {
   if ((c >= 'A') && (c <= 'Z')) return TRUE;
 
   if ((c >= 0xc0) && (c <= 0xde))  // between cap A with grave accent
@@ -72,7 +72,7 @@ Int32 isUpper8859_1(NAWchar c) {
   return FALSE;
 }
 
-Int32 isLower8859_1(NAWchar c) {
+int isLower8859_1(NAWchar c) {
   if ((c >= 'a') && (c <= 'z')) return TRUE;
 
   if ((c >= 0xdf) && (c <= 0xff))  // between lower german sharp S
@@ -86,7 +86,7 @@ Int32 isLower8859_1(NAWchar c) {
   return FALSE;
 }
 
-Int32 isAlpha8859_1(NAWchar c) {
+int isAlpha8859_1(NAWchar c) {
   if (((c >= 'a') && (c <= 'z')) || ((c >= 'A') && (c <= 'Z')))  // North american english alphabetic
   {
     return TRUE;
@@ -103,23 +103,23 @@ Int32 isAlpha8859_1(NAWchar c) {
   return FALSE;
 }
 
-Int32 isHexDigit8859_1(NAWchar c) { return (isDigit8859_1(c) || ('A' <= c AND c <= 'F') || ('a' <= c AND c <= 'f')); }
+int isHexDigit8859_1(NAWchar c) { return (isDigit8859_1(c) || ('A' <= c AND c <= 'F') || ('a' <= c AND c <= 'f')); }
 
-Int32 isAlNum8859_1(NAWchar c) { return (isAlpha8859_1(c) || isDigit8859_1(c)); }
+int isAlNum8859_1(NAWchar c) { return (isAlpha8859_1(c) || isDigit8859_1(c)); }
 
-Int32 isSpace8859_1(NAWchar c) {
+int isSpace8859_1(NAWchar c) {
   if (((c >= 0x09) && (c <= 0x0d)) || (c == 0x20)) return TRUE;
 
   return FALSE;
 }
 
-Int32 isDigit8859_1(NAWchar c)  // ISO 8859-1 char set safe isdigit routine
+int isDigit8859_1(NAWchar c)  // ISO 8859-1 char set safe isdigit routine
 {
   if ((c >= '0') && (c <= '9')) return TRUE;
   return FALSE;
 }
 
-Int32 isCaseInsensitive8859_1(NAWchar c)  // ISO 8859-1 char for which there is no
+int isCaseInsensitive8859_1(NAWchar c)  // ISO 8859-1 char for which there is no
                                           // upcase equivalent.  hex values 0xDF & 0xFF
 {
   if ((c == 0xDF) || (c == 0xFF)) return TRUE;
@@ -127,7 +127,7 @@ Int32 isCaseInsensitive8859_1(NAWchar c)  // ISO 8859-1 char for which there is 
   return FALSE;
 }
 
-Int32 isChineseCharacter(NAWchar c) {
+int isChineseCharacter(NAWchar c) {
   // Chinese code of Unicode
   return c >= 0x4e00 && c <= 0x9fbb;
 }
@@ -138,19 +138,19 @@ Int32 isChineseCharacter(NAWchar c) {
 // assert.
 void callAssert(const char *tgt, const char *src, int length) { assert((tgt && src) || !length); }
 
-Int32 str_cmp_ne(const char *left, const char *right) {
+int str_cmp_ne(const char *left, const char *right) {
   if (!left) return right ? -3 : 0;  // -3 = not equal, 0 = eq (both NULL)
   if (!right) return +3;             // +3 = not equal
-  Int32 len1 = str_len(left);
-  Int32 len2 = str_len(right);
+  int len1 = str_len(left);
+  int len2 = str_len(right);
   if (len1 != len2) return 2;         // 2 = not equal
   return str_cmp(left, right, len1);  // 0 = equal, neg/pos = not equal
 }
 
-Int32 str_cpy(char *tgt, const char *src, Int32 tgtlen, char padchar) {
+int str_cpy(char *tgt, const char *src, int tgtlen, char padchar) {
   assert((tgt && src) || !tgtlen);
 
-  Int32 copy_len = 0;
+  int copy_len = 0;
   while ((copy_len < tgtlen) && (src[copy_len] != 0)) copy_len++;
 
   str_cpy_all(tgt, src, copy_len);
@@ -160,10 +160,10 @@ Int32 str_cpy(char *tgt, const char *src, Int32 tgtlen, char padchar) {
   return 0;
 }
 
-Int32 byte_str_cpy(char *tgt, Int32 tgtlen, const char *src, Int32 srclen, char padchar) {
+int byte_str_cpy(char *tgt, int tgtlen, const char *src, int srclen, char padchar) {
   assert((tgt && src) || !tgtlen);
 
-  Int32 copy_len;
+  int copy_len;
   if (srclen < tgtlen)
     copy_len = srclen;
   else
@@ -176,11 +176,11 @@ Int32 byte_str_cpy(char *tgt, Int32 tgtlen, const char *src, Int32 srclen, char 
   return 0;
 }
 
-Int32 str_cat(const char *first, const char *second, char *result) {
+int str_cat(const char *first, const char *second, char *result) {
   assert(first && second && result);
 
-  Int32 firstlen = str_len(first);
-  Int32 secondlen = str_len(second);
+  int firstlen = str_len(first);
+  int secondlen = str_len(second);
 
   if (result != first) str_cpy_all(result, first, firstlen);
   str_cpy_all(&result[firstlen], second, secondlen);
@@ -263,13 +263,13 @@ long str_atoi(const char *instr, int instrLen) {
 
   long v = 0;
 
-  Int32 i = 0;
+  int i = 0;
   // skip leading blanks
   while ((i < instrLen) && (instr[i] == ' ')) i++;
 
   if (i == instrLen) return -1;
 
-  //  for (Int32 i = 0; i < instrLen; i++)
+  //  for (int i = 0; i < instrLen; i++)
   while (i < instrLen) {
     if ((instr[i] >= '0') && (instr[i] <= '9')) {
       v = v * 10 + (instr[i] - '0');
@@ -305,7 +305,7 @@ double str_ftoi(const char *instr, int instrLen) {
   return v;
 }
 
-Int32 mem_cpy_all(void *tgt, const void *src, int length) {
+int mem_cpy_all(void *tgt, const void *src, int length) {
   memmove(tgt, src, length);
   return 0;
 }
@@ -317,7 +317,7 @@ void str_memmove(char *tgt, const char *src, int length) {
 
 // copies src to tgt for length bytes.
 // Removes trailing blanks and puts the end_char.
-Int32 str_cpy_and_null(char *tgt, const char *src, int length, char end_char, char blank_char,
+int str_cpy_and_null(char *tgt, const char *src, int length, char end_char, char blank_char,
                        NABoolean nullTerminate) {
   assert((tgt && src) || !length);
 
@@ -342,7 +342,7 @@ Int32 str_cpy_and_null(char *tgt, const char *src, int length, char end_char, ch
 // else downshifts.
 // Src and Tgt may point to the same location.
 // ---------------------------------------------------------------
-Int32 str_cpy_convert(char *tgt, char *src, int length, Int32 upshift) {
+int str_cpy_convert(char *tgt, char *src, int length, int upshift) {
   assert((tgt && src) || !length);
 
   for (int i = 0; i < length; i++) {
@@ -354,18 +354,18 @@ Int32 str_cpy_convert(char *tgt, char *src, int length, Int32 upshift) {
   return 0;
 }
 
-Int32 str_len(const char *s) {
-  Int32 i = 0;
+int str_len(const char *s) {
+  int i = 0;
 
   while (s[i] != 0) i++;
 
   return i;
 }
 
-Int32 str_inc(const ULng32 length, char *s) {
+int str_inc(const ULng32 length, char *s) {
   unsigned char *s_ = (unsigned char *)s;
   ULng32 i;
-  Int32 carry = 1;
+  int carry = 1;
   for (i = length; i > 0 && carry; i--) {
     if (s_[i - 1] == 255) {
       s_[i - 1] = 0;
@@ -704,8 +704,8 @@ int str_to_ansi_id(char *src, char *tgt, int &tgtLen, short mustValidate, char *
 // given a qualified table name. Either the catalog or schema name can be
 // a delimited identifier name.
 // -----------------------------------------------------------------------
-Int32 extractDelimitedName(char *tgt, const char *const src, const char sep) {
-  Int32 i = 0, j = 0;
+int extractDelimitedName(char *tgt, const char *const src, const char sep) {
+  int i = 0, j = 0;
 
   assert(tgt);
 
@@ -737,7 +737,7 @@ void extractCatSchemaNames(char *catName, char *schName, char *qualTabName) {
   char *src = qualTabName;
 
   // extract the catalog name
-  Int32 buffLength = extractDelimitedName(catName, src);
+  int buffLength = extractDelimitedName(catName, src);
 
   // advance to the start of the schema name
   src = src + buffLength + ((src[0] == '\"') ? 2 : 1);
@@ -789,7 +789,7 @@ char *(str_replace)(char *s1, const char *s2, const char *s3) {
 }
 
 /* str_ncmp */
-Int32(str_ncmp)(const char *s1, const char *s2, size_t n) {
+int(str_ncmp)(const char *s1, const char *s2, size_t n) {
   unsigned char uc1, uc2;
   /* Nothing to compare?  Return zero.  */
   if (n == 0) return 0;
@@ -807,7 +807,7 @@ Int32(str_ncmp)(const char *s1, const char *s2, size_t n) {
 }
 
 /* str_chr */
-char *(str_chr)(const char *s, Int32 c) {
+char *(str_chr)(const char *s, int c) {
   /* Scan s for the character.  When this loop is finished,
      s will either point to the end of the string or the
      character we were looking for.  */
@@ -844,7 +844,7 @@ char *(str_ncpy)(char *s1, const char *s2, size_t n) {
   return s1;
 }
 
-Int32(str_cmp_c)(const char *s1, const char *s2) {
+int(str_cmp_c)(const char *s1, const char *s2) {
   unsigned char uc1, uc2;
   /* Move s1 and s2 to the first differing characters
      in each string, or the ends of the strings if they
@@ -1046,7 +1046,7 @@ size_t str_computeHexAsciiLen(size_t srcByteLen) { return 2 * srcByteLen; }
 // The output string does not include the 0x prefix.  By default a
 // NULL character - i.e. '\0' - is appended to the output string.
 // -----------------------------------------------------------------------
-Int32 str_convertToHexAscii(const char *src,             // in
+int str_convertToHexAscii(const char *src,             // in
                             const size_t srcLength,      // in
                             char *result,                // out
                             const size_t maxResultSize,  // in

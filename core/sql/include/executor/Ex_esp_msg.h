@@ -314,7 +314,7 @@ const IpcMessageObjVersion CurrLateCancelHdrVersion = 100;
 
 // When we send a boolean over the network, it gets sent as a long
 // (just to hedge ourselves against a possible redefinition of this type)
-typedef Int32 ExIpcMsgBoolean;
+typedef int ExIpcMsgBoolean;
 
 // -----------------------------------------------------------------------
 // Base class for all objects sent to an ESP
@@ -396,12 +396,12 @@ struct ExEspInputDataReqHeader : public ExEspRequestHeader {
   // data members
 
   int handle_;
-  Int32 myInstanceNum_;
+  int myInstanceNum_;
   char endianness_;  // big-endian, little endian
   char spare1_;
   Int16 spare2_;
   UInt32 injectErrorAtQueueFreq_;
-  Int32 spare3_, spare4_, spare5_;
+  int spare3_, spare4_, spare5_;
 };
 
 // -----------------------------------------------------------------------
@@ -430,11 +430,11 @@ struct ExEspContinueReqHeader : public ExEspRequestHeader {
   // data members
 
   int handle_;
-  Int32 myInstanceNum_;
+  int myInstanceNum_;
   char endianness_;  // big-endian, little endian
   char spare1_;
   Int16 spare2_;
-  Int32 spare3_;
+  int spare3_;
 };
 
 // -----------------------------------------------------------------------
@@ -463,7 +463,7 @@ struct ExEspReturnDataReplyHeader : public ExEspReplyHeader {
   char endianness_;                  // big-endian, little endian
   char spare1_;
   Int16 spare2_;
-  Int32 spare3_, spare4_;
+  int spare3_, spare4_;
 };
 
 // -----------------------------------------------------------------------
@@ -482,8 +482,8 @@ struct ExEspLoadFragmentReqHeader : public ExEspRequestHeader {
   // method needed to pack and unpack this object
   IpcMessageObjSize packedLength();
 
-  Int32 spare1_;
-  Int32 spare2_;
+  int spare1_;
+  int spare2_;
 };
 
 // -----------------------------------------------------------------------
@@ -610,11 +610,11 @@ struct ExEspReleaseFragmentReqHeader : public ExEspRequestHeader {
   // data members
 
   ExFragKey key_;
-  Int32 idleTimeout_;
+  int idleTimeout_;
   UInt32 flags_;
   ExIpcMsgBoolean detachFromMaster_;  // does master need my service any more?
-  Int32 spare1_;
-  Int32 spare2_;
+  int spare1_;
+  int spare2_;
 };
 
 // -----------------------------------------------------------------------
@@ -648,13 +648,13 @@ struct ExEspOpenReqHeader : public ExEspRequestHeader {
 
   ExFragKey key_;
   // the parent need to say which instance number it has (for repartitioning)
-  Int32 myInstanceNum_;
+  int myInstanceNum_;
   char endianness_;  // big-endian, little endian
   char openType_;    // type of open
   Int16 spare2_;
   long statID_;  // ID assigned to parent stat entry.
-  Int32 spare3_;
-  Int32 spare4_;
+  int spare3_;
+  int spare4_;
 };
 
 // -----------------------------------------------------------------------
@@ -695,8 +695,8 @@ struct ExEspPartInputDataReqHeader : public ExEspRequestHeader {
   // for more assignments.
   ExIpcMsgBoolean askForMoreWorkWhenDone_;
 
-  Int32 spare1_;
-  Int32 spare2_;
+  int spare1_;
+  int spare2_;
   char clientInfo_[MAX_CLIENT_INFO_LEN];
 };
 
@@ -720,8 +720,8 @@ struct ExEspWorkReqHeader : public ExEspRequestHeader {
   // data members
 
   ExFragKey key_;
-  Int32 spare1_;
-  Int32 spare2_;
+  int spare1_;
+  int spare2_;
 };
 
 // -----------------------------------------------------------------------
@@ -760,8 +760,8 @@ struct ExEspReleaseWorkReqHeader : public ExEspRequestHeader {
 
   ExFragKey key_;
   ExIpcMsgBoolean allWorkRequests_;
-  Int32 inactiveTimeout_;
-  Int32 flags_;
+  int inactiveTimeout_;
+  int flags_;
 
   // if this request is part of a savepoint, the next field contains the
   // id of that savepoint.
@@ -791,9 +791,9 @@ struct ExEspCancelReqHeader : public ExEspRequestHeader {
   // data members
   char endianness_;  // big-endian, little endian
   int handle_;
-  Int32 myInstanceNum_;
-  Int32 spare1_;
-  Int32 spare2_;
+  int myInstanceNum_;
+  int spare1_;
+  int spare2_;
 };
 
 // -----------------------------------------------------------------------
@@ -814,8 +814,8 @@ struct ExEspCancelReplyHeader : public ExEspReplyHeader {
   // method needed to pack and unpack this object
   IpcMessageObjSize packedLength();
 
-  Int32 spare1_;
-  Int32 spare2_;
+  int spare1_;
+  int spare2_;
 };
 
 // -----------------------------------------------------------------------
@@ -842,11 +842,11 @@ struct ExEspLateCancelReqHeader : public ExEspRequestHeader {
 
   // data members
   ExFragKey key_;
-  Int32 myInstanceNum_;
-  Int32 spare1_;
-  Int32 spare2_;
-  Int32 spare3_;
-  Int32 spare4_;
+  int myInstanceNum_;
+  int spare1_;
+  int spare2_;
+  int spare3_;
+  int spare4_;
 };
 
 // -----------------------------------------------------------------------
@@ -906,12 +906,12 @@ struct ExEspReturnStatusReplyHeader : public ExEspReplyHeader {
   int handle_;
 
   // return the state of the instance (as a long, enums are not portable)
-  Int32 instanceState_;
+  int instanceState_;
   char endianness_;  // big-endian, little endian
   char spare1_;
   Int16 spare2_;
-  Int32 spare3_;
-  Int32 spare4_;
+  int spare3_;
+  int spare4_;
 };
 
 // -----------------------------------------------------------------------
@@ -952,13 +952,13 @@ class TupMsgBuffer : public ExEspMsgObj {
 
  private:
   SqlBuffer *theBuffer_;
-  Int32 filler64BitPtr_;
-  Int32 allocSize_;  // may be larger than sql_buffer's size
+  int filler64BitPtr_;
+  int allocSize_;  // may be larger than sql_buffer's size
   char endianness_;  // big-endian, little endian
   char spare1_;
   Int16 spare2_;
-  Int32 spare3_;
-  Int32 spare4_;
+  int spare3_;
+  int spare4_;
 };
 
 // -----------------------------------------------------------------------
@@ -1079,12 +1079,12 @@ class ExMsgFragment : public ExEspMsgObj {
   // to make packing/unpacking easier, put all fixed size stuff into a struct
   struct {
     // data from the master's fragment directory
-    Int32 fragType_;  // really ExFragDir::ExFragEntryType
+    int fragType_;  // really ExFragDir::ExFragEntryType
     ExFragId parentId_;
-    Int32 topNodeOffset_;
+    int topNodeOffset_;
     IpcMessageObjSize fragmentLength_;
 
-    Int32 numTemps_;
+    int numTemps_;
     ExIpcMsgBoolean needsTransaction_;
     ExIpcMsgBoolean iOwnTheFragment_;  // TRUE means destructor deletes frag
     ExIpcMsgBoolean displayInGui_;
@@ -1104,7 +1104,7 @@ class ExMsgFragment : public ExEspMsgObj {
                            //   0 (no work)
                            //   1 (work)
     int needToWorkVecLen_;
-    Int32 reserved[6];
+    int reserved[6];
   } f_;
 };
 
@@ -1168,7 +1168,7 @@ class ExMsgTimeoutData : public ExEspMsgObj {
 class ExSMDownloadInfo : public ExEspMsgObj {
  public:
   // Constructor to send a message
-  ExSMDownloadInfo(NAMemory *heap, long smQueryID, Int32 smTraceLevel, const char *smTraceFilePrefix, Int32 flags);
+  ExSMDownloadInfo(NAMemory *heap, long smQueryID, int smTraceLevel, const char *smTraceFilePrefix, int flags);
 
   // Constructor to receive a message
   ExSMDownloadInfo(NAMemory *heap);
@@ -1185,15 +1185,15 @@ class ExSMDownloadInfo : public ExEspMsgObj {
 
   // Accessor methods
   long getQueryID() const { return smQueryID_; }
-  Int32 getTraceLevel() const { return smTraceLevel_; }
-  Int32 getFlags() const { return flags_; }
+  int getTraceLevel() const { return smTraceLevel_; }
+  int getFlags() const { return flags_; }
   const char *getTraceFilePrefix() const { return smTraceFilePrefix_; }
 
  private:
   long smQueryID_;
-  Int32 smTraceLevel_;
+  int smTraceLevel_;
   char *smTraceFilePrefix_;
-  Int32 flags_;
+  int flags_;
 };
 
 class ExMsgResourceInfo : public ExEspMsgObj {
@@ -1212,8 +1212,8 @@ class ExMsgResourceInfo : public ExEspMsgObj {
 
  private:
   const ExScratchFileOptions *sfo_;
-  Int32 totalNameLength_;
-  Int32 spare_;
+  int totalNameLength_;
+  int spare_;
   char *bufferForDependentObjects_;
 };
 

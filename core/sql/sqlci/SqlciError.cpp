@@ -109,7 +109,7 @@ void SqlciError(short errorCode, ...) {
   sqlci_DA.acceptNewCondition();
 };
 
-void SqlciError2(Int32 errorCode, ...) {
+void SqlciError2(int errorCode, ...) {
   UInt32 cur_string_p = 0;
   UInt32 cur_int_p = 0;
 

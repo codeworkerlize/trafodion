@@ -67,7 +67,7 @@ ExSsmpManager::~ExSsmpManager() {
 IpcServer *ExSsmpManager::getSsmpServer(NAHeap *heap, char *nodeName, short cpuNum, ComDiagsArea *&diagsArea) {
   char ssmpProcessName[50];
   IpcServer *ssmpServer = NULL;
-  Int32 processNameLen = 0;
+  int processNameLen = 0;
 
   char *tmpProcessName;
 
@@ -115,7 +115,7 @@ IpcServer *ExSsmpManager::getSsmpServer(NAHeap *heap, char *nodeName, short cpuN
 void ExSsmpManager::removeSsmpServer(char *nodeName, short cpuNum) {
   char ssmpProcessName[50];
   IpcServer *ssmpServer = NULL;
-  Int32 processNameLen = 0;
+  int processNameLen = 0;
 
   char *tmpProcessName;
   tmpProcessName = ssmpServerClass_->getProcessName(cpuNum, ssmpProcessName);
@@ -266,15 +266,15 @@ SsmpGlobals::~SsmpGlobals() {
 ULng32 SsmpGlobals::allocateServers() {
   // Attempt connect to all SSCPs
   if (sscpServerClass_ == NULL) {
-    Int32 noOfNodes;
-    Int32 *cpuArray = NULL;
+    int noOfNodes;
+    int *cpuArray = NULL;
 
     noOfNodes = ComRtPopulatePhysicalCPUArray(cpuArray, heap_);
 
     if (noOfNodes == 0) return 0;
     statsGlobals_->setNodesInCluster(noOfNodes);
     sscpServerClass_ = new (heap_) IpcServerClass(ipcEnv_, IPC_SQLSSCP_SERVER, IPC_USE_PROCESS);
-    for (Int32 i = 0; i < noOfNodes; i++) {
+    for (int i = 0; i < noOfNodes; i++) {
       allocateServer(NULL, 0, cpuArray[i]);
     }
     NADELETEBASIC(cpuArray, heap_);
@@ -548,8 +548,8 @@ void SsmpGlobals::removePendingSscpMessage(SscpClientMsgStream *sscpClientMsgStr
   }
 }
 
-bool SsmpGlobals::getQidFromPid(Int32 pid,         // IN
-                                Int32 minimumAge,  // IN
+bool SsmpGlobals::getQidFromPid(int pid,         // IN
+                                int minimumAge,  // IN
                                 char *queryId,     // OUT
                                 int &queryIdLen  // OUT
 ) {
@@ -644,8 +644,8 @@ bool SsmpGlobals::cancelQueryTree(char *queryId, int queryIdLen, CancelQueryRequ
 bool SsmpGlobals::cancelQuery(char *queryId, int queryIdLen, CancelQueryRequest *request, ComDiagsArea **diags) {
   bool didAttemptCancel = false;
   long cancelStartTime = request->getCancelStartTime();
-  Int32 ceFirstInterval = request->getFirstEscalationInterval();
-  Int32 ceSecondInterval = request->getSecondEscalationInterval();
+  int ceFirstInterval = request->getFirstEscalationInterval();
+  int ceSecondInterval = request->getSecondEscalationInterval();
   NABoolean ceSaveabend = request->getCancelEscalationSaveabend();
   bool cancelLogging = request->getCancelLogging();
 
@@ -900,7 +900,7 @@ void SsmpGuaReceiveControlConnection::actOnSystemMessage(short messageNum, IpcMe
     case ZSYS_VAL_SMSG_PROCDEATH: {
       zsys_ddl_smsg_procdeath_def *msg = (zsys_ddl_smsg_procdeath_def *)sysMsg;
       SB_Phandle_Type *phandle = (SB_Phandle_Type *)&msg->z_phandle;
-      Int32 cpu;
+      int cpu;
       pid_t pid;
       SB_Int64_Type seqNum = 0;
       if (XZFIL_ERR_OK == XPROCESSHANDLE_DECOMPOSE_(phandle, &cpu, &pid, NULL  // nodeNumber
@@ -1141,7 +1141,7 @@ void SsmpNewIncomingConnectionStream::actOnCancelQueryReq(IpcConnection *connect
   *this >> *request;
   setHandle(request->getHandle());
 
-  Int32 minimumAge = request->getMinimumAge();
+  int minimumAge = request->getMinimumAge();
   bool cancelByPid = request->getCancelByPid();
   char queryId[200];
   int queryIdLen = 0;
@@ -1498,8 +1498,8 @@ void SsmpNewIncomingConnectionStream::actOnObjectLockReq(IpcConnection *connecti
   const char *objectName = request->getObjectName();
   ComObjectType objectType = request->getObjectType();
   ObjectLockRequest::OpType opType = request->getOpType();
-  Int32 lockNid = request->lockNid();
-  Int32 lockPid = request->lockPid();
+  int lockNid = request->lockNid();
+  int lockPid = request->lockPid();
   UInt32 maxRetries = request->maxRetries();
   UInt32 delay = request->delay();
 
@@ -2371,8 +2371,8 @@ void SscpClientMsgStream::replyOEC() {
 
 void SscpClientMsgStream::replyOL() {
   ObjectLockReply::LockState state = getObjectLockState();
-  Int32 nid = getObjectLockConflictNid();
-  Int32 pid = getObjectLockConflictPid();
+  int nid = getObjectLockConflictNid();
+  int pid = getObjectLockConflictPid();
 
   ObjectLockReply *reply = new (getHeap()) ObjectLockReply(getHeap(), state, nid, pid);
 

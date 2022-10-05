@@ -41,7 +41,7 @@
 
 // Exclude this function from coverage as it is called only when there is an assertion in LM
 // which results in UDR server abend, so no coverage info can be generated.
-void lmAssert(const char *file, Int32 linenum, const char *msg) {
+void lmAssert(const char *file, int linenum, const char *msg) {
   if (!file) file = "";
   if (!msg) msg = "";
 

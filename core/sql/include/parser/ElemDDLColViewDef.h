@@ -68,7 +68,7 @@ class ElemDDLColViewDef : public ElemDDLNode {
   // accessors
   //
 
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
   virtual ExprNode *getChild(int index);
   inline const NAString &getColumnName() const;
   inline const NAString &getHeading() const;

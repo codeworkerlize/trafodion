@@ -86,16 +86,16 @@ int ComTdbTuple::unpack(void *base, void *reallocator) {
   return ComTdb::unpack(base, reallocator);
 }
 
-Int32 ComTdbTuple::numExpressions() const { return tupleExprList_->numEntries() + 1; }
+int ComTdbTuple::numExpressions() const { return tupleExprList_->numEntries() + 1; }
 
-ex_expr *ComTdbTuple::getExpressionNode(Int32 pos) {
+ex_expr *ComTdbTuple::getExpressionNode(int pos) {
   if (pos == 0)
     return predExpr_;
   else
     return (ex_expr *)(tupleExprList_->get(pos - 1));
 }
 
-const char *ComTdbTuple::getExpressionName(Int32 pos) const {
+const char *ComTdbTuple::getExpressionName(int pos) const {
   switch (pos) {
     case 0:
       return "predExpr_";

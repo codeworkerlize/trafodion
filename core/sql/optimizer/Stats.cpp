@@ -59,7 +59,7 @@
 // -----------------------------------------------------------------------
 //  methods on HistInt class
 // -----------------------------------------------------------------------
-HistInt::HistInt(Int32 intNum, const NAWchar *intBoundary, const NAColumnArray &columns, CostScalar card,
+HistInt::HistInt(int intNum, const NAWchar *intBoundary, const NAColumnArray &columns, CostScalar card,
                  CostScalar uec, NABoolean boundInc, CostScalar card2mfv)
     : rows_(card), uec_(uec), boundInc_(boundInc), hash_(0), rows2mfv_(card2mfv), MCBoundary_(STMTHEAP) {
   if (intBoundary) {
@@ -80,7 +80,7 @@ void HistInt::setupMCBoundary() {
     const NormValueList *nvl = boundary_.getValueList();
 
     if (nvl && (nvl->entries() > 1)) {
-      for (Int32 i = 0; i < nvl->entries(); i++) {
+      for (int i = 0; i < nvl->entries(); i++) {
         EncodedValue ev;
         ev.setValue(nvl->at(i));
         MCBoundary_.insert(ev);
@@ -2784,7 +2784,7 @@ ComUID ColStats::nextFakeHistogramID() { return ComUID(++fakeHistogramIDCounter_
 // -----------------------------------------------------------------------
 ColStats::ColStats(ComUID &histid, CostScalar uec, CostScalar rowcount, CostScalar baseRowCount, NABoolean unique,
                    NABoolean shapeChanged, const HistogramSharedPtr &dist, NABoolean modified, CostScalar rowRedFactor,
-                   CostScalar uecRedFactor, Int32 avgVCharSize, NAMemory *heap, NABoolean allowMinusOne)
+                   CostScalar uecRedFactor, int avgVCharSize, NAMemory *heap, NABoolean allowMinusOne)
     : columns_(heap),
       colPositions_(heap),
       minValue_(UNINIT_ENCODEDVALUE),
@@ -4509,7 +4509,7 @@ void ColStats::reduceToMaxIntervalCount() {
 // the transform is driven by the # of rowcount in each interval.
 //
 
-HistogramSharedPtr ColStats::transformOnIntervals(Int32 numIntvs) {
+HistogramSharedPtr ColStats::transformOnIntervals(int numIntvs) {
   CollIndex intervalCount = histogram_->entries() - 1;
 
   // for now, just do the transformation for the leading key column
@@ -4529,7 +4529,7 @@ HistogramSharedPtr ColStats::transformOnIntervals(Int32 numIntvs) {
 
   HistogramSharedPtr hist = getHistogram();
 
-  Int32 n = hist->numIntervals();
+  int n = hist->numIntervals();
 
   Interval iter;
   CostScalar availableRC;
@@ -4707,7 +4707,7 @@ NABoolean Interval::getMFV(const FrequentValueList &list, EncodedValue &mfv, Cos
 // the transform is driven by the # of rowcount in each interval.
 //
 
-HistogramSharedPtr ColStats::transformOnIntervalsForMC(Int32 numIntvs) {
+HistogramSharedPtr ColStats::transformOnIntervalsForMC(int numIntvs) {
   CollIndex intervalCount = histogram_->entries() - 1;
 
   CostScalar rc = getRowcount();
@@ -4728,7 +4728,7 @@ HistogramSharedPtr ColStats::transformOnIntervalsForMC(Int32 numIntvs) {
 
   hMCb.getValueList(hibp);
 
-  Int32 n = hist->numIntervals();
+  int n = hist->numIntervals();
 
   Interval iter;
   CostScalar availableRC;
@@ -6115,8 +6115,8 @@ void ColStats::setToSingleValue(const EncodedValue &newValue, ConstValue *constE
       (constExpr->getType()->getTypeQualifier() == NA_CHARACTER_TYPE) && constExpr->valueHasTrailingBlanks()) {
     const CharType *typ = (const CharType *)constExpr->getType();
     if (typ->getCharSet() == CharInfo::UNICODE) {
-      Int32 bytesPerChar = (CharInfo::maxBytesPerChar)(typ->getCharSet());
-      Int32 stringSize = constExpr->getStorageSize() / bytesPerChar;
+      int bytesPerChar = (CharInfo::maxBytesPerChar)(typ->getCharSet());
+      int stringSize = constExpr->getStorageSize() / bytesPerChar;
       NAWString constString((NAWchar *)(constExpr->getConstValue()), stringSize);
       TrimNAWStringSpace(constString, NAString::trailing);
       tempConstExpr =
@@ -6740,7 +6740,7 @@ NABoolean StatsList::allFakeStats() const {
 }
 
 // return count of single column histograms (include fake histograms)
-Int32 StatsList::getSingleColumnCount() const {
+int StatsList::getSingleColumnCount() const {
   UInt32 count = 0;
   for (UInt32 i = 0; i < entries(); i++) {
     const NAColumnArray &naca = (*this)[i]->getStatColumns();
@@ -6753,7 +6753,7 @@ Int32 StatsList::getSingleColumnCount() const {
 }
 
 // return count of multi-column histograms
-Int32 StatsList::getMultiColumnCount() const {
+int StatsList::getMultiColumnCount() const {
   UInt32 count = 0;
   for (UInt32 i = 0; i < entries(); i++) {
     if (((*this)[i]->getStatColumns()).entries() > 1) count++;
@@ -6762,7 +6762,7 @@ Int32 StatsList::getMultiColumnCount() const {
 }
 
 // return count of (single-column) expressions histograms
-Int32 StatsList::getExpressionsCount() const {
+int StatsList::getExpressionsCount() const {
   UInt32 count = 0;
   for (UInt32 i = 0; i < entries(); i++) {
     const NAColumnArray &naca = (*this)[i]->getStatColumns();
@@ -6905,7 +6905,7 @@ void MultiColumnHistogramList::addMultiColumnHistograms(const StatsList &colStat
 // from the "fat" colStats representation of multi-column histograms.
 {
   // how many multi-column histograms are in colStats?
-  Int32 multiColumnCount = colStats.getMultiColumnCount();
+  int multiColumnCount = colStats.getMultiColumnCount();
   if (multiColumnCount > 0) {
     // is this multi-column histogram already in the list?
     for (UInt32 i = 0; i < colStats.entries(); i++) {
@@ -7034,7 +7034,7 @@ void Histogram::compressHistogramForQueryPreds(ItemExpr *lowerBound, ItemExpr *u
   // If the lower bound is not passed in we set the lower
   // bound to the the lowest value in the histogram.
 
-  Int32 state = 0;  // 0 = looking for lower bound
+  int state = 0;  // 0 = looking for lower bound
                     // 1 = looking for upper bound
                     // 2 = found both lower and upper bounds
 
@@ -8208,14 +8208,14 @@ FrequentValue FrequentValueList::getMostFreqValue(EncodedValue value) const {
 // - for all other ranges k from 2 to r-1, the begin key is (vk1,...,vkn) where vki is computed as follow:
 //     vki = v(k-1)i + (hi-li)/n
 //
-void MCboundaryValueList::getMinMax(const MCboundaryValueList &lv, const MCboundaryValueList &hv, Int32 numParts,
+void MCboundaryValueList::getMinMax(const MCboundaryValueList &lv, const MCboundaryValueList &hv, int numParts,
                                     LIST(MCboundaryValueList) & vals) {
   vals.insert(lv);
 
-  for (Int32 i = 1; i < numParts; i++) {
+  for (int i = 1; i < numParts; i++) {
     MCboundaryValueList nv;
     // generated a mc boundary value based on the previous generated boundary value
-    for (Int32 j = 0; j < lv.entries(); j++) {
+    for (int j = 0; j < lv.entries(); j++) {
       double dbv1 = vals[i - 1][j].getDblValue();
       dbv1 += ((hv[j].getDblValue() - lv[j].getDblValue()) / numParts);
       EncodedValue ev(dbv1);
@@ -8230,7 +8230,7 @@ NAString *MCboundaryValueList::convertToString(const NAColumnArray &colArray, NA
 
   // Note that the number of MC columns
   // might be less then that of the number of columns
-  for (Int32 i = 0; i < colArray.entries(); i++) {
+  for (int i = 0; i < colArray.entries(); i++) {
     const NAType *nt = colArray[i]->getType();
 
     double ev = 0;
@@ -8263,7 +8263,7 @@ void MCboundaryValueList::print(FILE *ofd, const char *indent, const char *title
 
   fprintf(ofd, "list with %d items\n", this->entries());
   fprintf(ofd, "%svalues: ", NEW_INDENT2);
-  for (Int32 i = 0; i < this->entries(); i++) {
+  for (int i = 0; i < this->entries(); i++) {
     fprintf(ofd, " val: ");
     ((*this)[i].getValue()).display(ofd);
   }

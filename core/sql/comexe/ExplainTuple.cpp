@@ -218,7 +218,7 @@ int ExplainTuple::unpack(void *base, void *reallocator) {
 //  This is a method on ExplainTupleMaster since it should only be
 //  called during the generate phase (not at run time)
 //
-Int32 ExplainTupleMaster::init(Space *space, NABoolean doExplainSpaceOpt) {
+int ExplainTupleMaster::init(Space *space, NABoolean doExplainSpaceOpt) {
   descCursor_ = 0;
 
   explainTupleStr_ = NULL;
@@ -257,7 +257,7 @@ Int32 ExplainTupleMaster::init(Space *space, NABoolean doExplainSpaceOpt) {
 // - cursor     - the position within the field to start placing 'value'
 //                (only meaningful for Char fields and only used
 //                with the 'description' field.
-void ExplainTuple::setCol(Int32 col, void const *value,
+void ExplainTuple::setCol(int col, void const *value,
                           UInt32 dataLength,  // Used only by VarChar fields
                           UInt32 cursor) {
   char *e = NULL;
@@ -393,10 +393,10 @@ void ExplainTuple::setStatementName(const char *stmtName) { setCol(EX_COL_STMTNA
 
 void ExplainTupleMaster::setPlanId(long planId) { setCol(EX_COL_PLANID, &planId, 0, 0); }
 
-void ExplainTuple::setSeqNum(Int32 seqNum) { setCol(EX_COL_SEQNUM, &seqNum, 0, 0); }
+void ExplainTuple::setSeqNum(int seqNum) { setCol(EX_COL_SEQNUM, &seqNum, 0, 0); }
 
-Int32 ExplainTuple::getSeqNum() {
-  Int32 retval = 0;
+int ExplainTuple::getSeqNum() {
+  int retval = 0;
   char *e = NULL;
   if (explainTupleStr_)
     e = explainTupleStr_;
@@ -418,8 +418,8 @@ Int32 ExplainTuple::getSeqNum() {
       return -1;
     }
 
-    // Get pointer to seqnum and cast it to an Int32
-    Int32 *r = ((Int32 *)((char *)e + colOffset));
+    // Get pointer to seqnum and cast it to an int
+    int *r = ((int *)((char *)e + colOffset));
     retval = *r;
   }
   return retval;
@@ -427,8 +427,8 @@ Int32 ExplainTuple::getSeqNum() {
 
 void ExplainTupleMaster::setOperator(const char *op) { setCol(EX_COL_OPER, op, 0, 0); }
 
-void ExplainTuple::setChildSeqNum(Int32 child, Int32 seqNum) {
-  Int32 col = (child == 0 ? EX_COL_LEFTSEQNUM : EX_COL_RIGHTSEQNUM);
+void ExplainTuple::setChildSeqNum(int child, int seqNum) {
+  int col = (child == 0 ? EX_COL_LEFTSEQNUM : EX_COL_RIGHTSEQNUM);
 
   // A value of zero for seqNum indicates a NULL value,
   // so pass a NULL pointer.

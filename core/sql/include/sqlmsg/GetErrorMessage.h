@@ -73,7 +73,7 @@ const char *GetErrorMessageFileName();
 short GetErrorMessageRC(int num, NAWchar *msgBuf, int bufSize);
 
 short GetErrorMessage(ErrorType errType, int error_code, NAWchar *&return_text, MsgTextType M_type = ERROR_TEXT,
-                      NAWchar *alternate_return_text = NULL, Int32 recurse_level = 0, NABoolean prefixAdded = TRUE);
+                      NAWchar *alternate_return_text = NULL, int recurse_level = 0, NABoolean prefixAdded = TRUE);
 
 void ErrorMessageOverflowCheckW(NAWchar *buf, size_t maxsiz);
 

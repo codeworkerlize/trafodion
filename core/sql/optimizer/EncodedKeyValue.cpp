@@ -102,11 +102,11 @@ NAString **createInArrayForLowOrHighKeys(TrafDesc *column_descs, TrafDesc *key_d
 
   TrafDesc *column = column_descs;
   TrafDesc *key = key_descs;
-  Int32 i = 0;
+  int i = 0;
   while (key) {
     if (!isIndex) {
       column = column_descs;
-      for (Int32 j = 0; j < key->keysDesc()->tablecolnumber; j++) column = column->next;
+      for (int j = 0; j < key->keysDesc()->tablecolnumber; j++) column = column->next;
     }
 
     inValuesArray[i] = getMinMaxValue(column, key, highKey, h);
@@ -271,7 +271,7 @@ short encodeKeyValues(TrafDesc *column_descs, TrafDesc *key_descs,
   ValueIdList encodedValueIdList(4);
   TrafDesc *column = column_descs;
   TrafDesc *key = key_descs;
-  Int32 i = 0;
+  int i = 0;
 
   if (inValuesArray == NULL) deleteLater = TRUE;
 
@@ -280,7 +280,7 @@ short encodeKeyValues(TrafDesc *column_descs, TrafDesc *key_descs,
     // the following for loop is not needed.
     if (!isIndex) {
       column = column_descs;
-      for (Int32 j = 0; j < key->keysDesc()->tablecolnumber; j++) column = column->next;
+      for (int j = 0; j < key->keysDesc()->tablecolnumber; j++) column = column->next;
     }
 
     if (inValuesArray[i] == NULL) {

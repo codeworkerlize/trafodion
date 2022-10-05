@@ -103,7 +103,7 @@ class LmResultSetJava : public LmResultSet {
   // RS_INFO_OK : Result set information was retrieved successfully
   // RS_INFO_CLOSED : The result set object (rsRef) is already closed
   // RS_INFO_ERROR  : There was a problem getting result set information
-  LmResultSetJava(LmLanguageManagerJava *lm, LmHandle rsRef, Int32 paramPos, const char *routineName,
+  LmResultSetJava(LmLanguageManagerJava *lm, LmHandle rsRef, int paramPos, const char *routineName,
                   LmResultSetInfoStatus &status, NAList<LmConnection *> &lmConnList, ComDiagsArea *da);
 
   // Destructor:
@@ -111,10 +111,10 @@ class LmResultSetJava : public LmResultSet {
   // Should be called only from within the close() method
   ~LmResultSetJava();
 
-  void initType4ResultSet(Int32 paramPos, const char *routineName, LmResultSetInfoStatus &status,
+  void initType4ResultSet(int paramPos, const char *routineName, LmResultSetInfoStatus &status,
                           NAList<LmConnection *> &lmConnList, ComDiagsArea *da);
 
-  void initType2ResultSet(Int32 paramPos, const char *routineName, LmResultSetInfoStatus &status,
+  void initType2ResultSet(int paramPos, const char *routineName, LmResultSetInfoStatus &status,
                           NAList<LmConnection *> &lmConnList, ComDiagsArea *da);
 
   // Calls the close() method on the Java result set object
@@ -142,16 +142,16 @@ class LmResultSetJava : public LmResultSet {
 
   char *proxySyntax_;  // Proxy syntax (used when T4 conn is used)
 
-  Int32 firstBufferedRow_;  // The row position of the first row that JDBC/MX
+  int firstBufferedRow_;  // The row position of the first row that JDBC/MX
                             // has fetched from SQL/MX and that is still
                             // buffered in the JDBC/MX driver. The row
                             // numbers are 1-based.
 
-  Int32 lastBufferedRow_;  // The row position of the last row that JDBC/MX
+  int lastBufferedRow_;  // The row position of the last row that JDBC/MX
                            // has fetched from SQL/MX and that is still
                            // buffered in the JDBC/MX driver.
 
-  Int32 currentRowPosition_;  // The current row position of this
+  int currentRowPosition_;  // The current row position of this
                               // java.sql.ResultSet instance.
 
   LmResultSetType cursorType_;  // Indicates whether this is a scrollable

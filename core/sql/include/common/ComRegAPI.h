@@ -40,7 +40,7 @@
 #include "common/ComSmallDefs.h"
 
 // log the error message in the event log.
-void logErrorMessageInEventLog(Int32 msgId, const char *msg);
+void logErrorMessageInEventLog(int msgId, const char *msg);
 
 // retrieve the Tandem volume.
 ComString getTandemSysVol();

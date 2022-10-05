@@ -125,7 +125,7 @@ void ComTdbSort::displayContents(Space *space, ULng32 flag) {
   }
 }
 
-Int32 ComTdbSort::orderedQueueProtocol() const { return -1; };
+int ComTdbSort::orderedQueueProtocol() const { return -1; };
 
 void SortOptions::displayContents(Space *space) {
   char buf[100];

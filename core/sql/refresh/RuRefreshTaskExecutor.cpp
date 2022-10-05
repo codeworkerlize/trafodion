@@ -80,21 +80,21 @@ void CRURefreshTaskExecutor::StoreRequest(CUOFsIpcMessageTranslator &translator)
 
   translator.WriteBlock(&isRecompute_, sizeof(BOOL));
 
-  Int32 stringSize = rootMVName_.GetLength() + 1;
-  translator.WriteBlock(&stringSize, sizeof(Int32));
+  int stringSize = rootMVName_.GetLength() + 1;
+  translator.WriteBlock(&stringSize, sizeof(int));
   translator.WriteBlock(rootMVName_.c_string(), stringSize);
 
   stringSize = rootMVSchema_.GetLength() + 1;
-  translator.WriteBlock(&stringSize, sizeof(Int32));
+  translator.WriteBlock(&stringSize, sizeof(int));
   translator.WriteBlock(rootMVSchema_.c_string(), stringSize);
 
   stringSize = rootMVCatalog_.GetLength() + 1;
-  translator.WriteBlock(&stringSize, sizeof(Int32));
+  translator.WriteBlock(&stringSize, sizeof(int));
   translator.WriteBlock(rootMVCatalog_.c_string(), stringSize);
 
   translator.WriteBlock(&rootMVUID_, sizeof(TInt64));
 
-  translator.WriteBlock(&rootMVType_, sizeof(Int32));
+  translator.WriteBlock(&rootMVType_, sizeof(int));
 
   translator.WriteBlock(&forceFlags_, sizeof(TInt32));
 
@@ -135,27 +135,27 @@ void CRURefreshTaskExecutor::LoadRequest(CUOFsIpcMessageTranslator &translator) 
 
   translator.ReadBlock(&isRecompute_, sizeof(BOOL));
 
-  Int32 stringSize;
+  int stringSize;
   char buffer[CUOFsIpcMessageTranslator::MaxMsgSize];
 
-  translator.ReadBlock(&stringSize, sizeof(Int32));
+  translator.ReadBlock(&stringSize, sizeof(int));
   translator.ReadBlock(buffer, stringSize);
 
   rootMVName_ = CDSString(buffer);
 
-  translator.ReadBlock(&stringSize, sizeof(Int32));
+  translator.ReadBlock(&stringSize, sizeof(int));
   translator.ReadBlock(buffer, stringSize);
 
   rootMVSchema_ = CDSString(buffer);
 
-  translator.ReadBlock(&stringSize, sizeof(Int32));
+  translator.ReadBlock(&stringSize, sizeof(int));
   translator.ReadBlock(buffer, stringSize);
 
   rootMVCatalog_ = CDSString(buffer);
 
   translator.ReadBlock(&rootMVUID_, sizeof(TInt64));
 
-  translator.ReadBlock(&rootMVType_, sizeof(Int32));
+  translator.ReadBlock(&rootMVType_, sizeof(int));
 
   translator.ReadBlock(&forceFlags_, sizeof(TInt32));
 
@@ -339,7 +339,7 @@ void CRURefreshTaskExecutor::ComposeControlTableStmtForUsedTables() {
 
   CRUForceOptions::MdamOptions mdamOpt = CRUForceOptions::MDAM_NO_FORCE;
 
-  Int32 stmtIndex = FIRST_TBL_STAT;
+  int stmtIndex = FIRST_TBL_STAT;
 
   if (NULL != pForceOption) {
     VerifyForceTblListCorrectness();
@@ -369,7 +369,7 @@ void CRURefreshTaskExecutor::ComposeControlTableStmtForUsedTables() {
 // is to force MDAM
 //--------------------------------------------------------------------------//
 
-void CRURefreshTaskExecutor::ComposeControlTableStmtForUsedTable(CRUTbl &tbl, Int32 &stmtIndex,
+void CRURefreshTaskExecutor::ComposeControlTableStmtForUsedTable(CRUTbl &tbl, int &stmtIndex,
                                                                  CRUForceOptions::MdamOptions mdamOpt) {
   CRURefreshSQLComposer myComposer(GetRefreshTask());
 
@@ -399,7 +399,7 @@ void CRURefreshTaskExecutor::ComposeControlTableStmtForUsedTable(CRUTbl &tbl, In
 // then mdam must be forced on the table unless the user forced otherwise
 //--------------------------------------------------------------------------//
 CRUForceOptions::MdamOptions CRURefreshTaskExecutor::GetDefaultMdamOptForTable(CRUTbl &tbl) {
-  Int32 numTableKeyCol = tbl.GetKeyColumnList().GetCount();
+  int numTableKeyCol = tbl.GetKeyColumnList().GetCount();
 
   if (numTableKeyCol < 2) {
     return CRUForceOptions::MDAM_NO_FORCE;
@@ -904,7 +904,7 @@ void CRURefreshTaskExecutor::ApplyIRCompilerDefaults() {
   }
 
   if (FORCE_TABLE_MDAM & forceFlags_) {
-    for (Int32 i = FIRST_TBL_STAT; i < pRefreshTEDynamicContainer_->GetNumOfStmt(); i++) {
+    for (int i = FIRST_TBL_STAT; i < pRefreshTEDynamicContainer_->GetNumOfStmt(); i++) {
       CDMPreparedStatement *pStat = pRefreshTEDynamicContainer_->GetPreparedStatement(i);
 
       if (NULL == pStat) {
@@ -1344,17 +1344,17 @@ void CRUSingleTableLockProtocol::LoadData(CUOFsIpcMessageTranslator &translator)
 //	CRUSingleTableLockProtocol::StoreDataFileNameList()
 //--------------------------------------------------------------------------//
 void CRUSingleTableLockProtocol::StoreDataFileNameList(CUOFsIpcMessageTranslator &translator) {
-  Int32 size = pUsedTblFileNameList_->GetCount();
-  translator.WriteBlock(&size, sizeof(Int32));
+  int size = pUsedTblFileNameList_->GetCount();
+  translator.WriteBlock(&size, sizeof(int));
 
   DSListPosition pos = pUsedTblFileNameList_->GetHeadPosition();
   while (NULL != pos) {
-    Int32 stringSize;
+    int stringSize;
 
     CDSString &str = *(pUsedTblFileNameList_->GetNext(pos));
 
     stringSize = str.GetLength() + 1;
-    translator.WriteBlock(&stringSize, sizeof(Int32));
+    translator.WriteBlock(&stringSize, sizeof(int));
 
     translator.WriteBlock(str.c_string(), stringSize);
   }
@@ -1364,17 +1364,17 @@ void CRUSingleTableLockProtocol::StoreDataFileNameList(CUOFsIpcMessageTranslator
 //	CRUSingleTableLockProtocol::LoadDataFileNameList()
 //--------------------------------------------------------------------------//
 void CRUSingleTableLockProtocol::LoadDataFileNameList(CUOFsIpcMessageTranslator &translator) {
-  Int32 size;
-  translator.ReadBlock(&size, sizeof(Int32));
+  int size;
+  translator.ReadBlock(&size, sizeof(int));
 
   pUsedTblFileNameList_ = new CDSStringList();
 
-  for (Int32 i = 0; i < size; i++) {
-    Int32 stringSize;
-    const Int32 bufSize = CUOFsSystem::IpcMaxGuardianPathNameLength;
+  for (int i = 0; i < size; i++) {
+    int stringSize;
+    const int bufSize = CUOFsSystem::IpcMaxGuardianPathNameLength;
     char buf[bufSize];
 
-    translator.ReadBlock(&stringSize, sizeof(Int32));
+    translator.ReadBlock(&stringSize, sizeof(int));
 
     RUASSERT(bufSize > stringSize);
 

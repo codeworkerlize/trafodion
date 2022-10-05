@@ -176,19 +176,19 @@ enum ParTriggerScopeType { ParTRIG_SCOPE_NONE, ParTRIG_SCOPE_ROW, ParTRIG_SCOPE_
 // (that is, too many pushes LOSE data!) is acceptable.
 class LimitedStack {
   enum { STACK_LIMIT = 10, EMPTY_VALUE = 0 };
-  Int32 stack_[STACK_LIMIT];
-  Int32 index_;
+  int stack_[STACK_LIMIT];
+  int index_;
 
  public:
   void reset() { index_ = -1; }
-  Int32 entries() const { return index_ + 1; }
-  Int32 isEmpty() const { return index_ < 0; }
-  Int32 push(Int32 i) {
+  int entries() const { return index_ + 1; }
+  int isEmpty() const { return index_ < 0; }
+  int push(int i) {
     if (++index_ >= STACK_LIMIT) return index_--;
     stack_[index_] = i;
     return 0;  // return 0: success
   }
-  Int32 pop(Int32 &i) {
+  int pop(int &i) {
     if (isEmpty()) {
       i = EMPTY_VALUE;
       return -1;
@@ -199,7 +199,7 @@ class LimitedStack {
   void pop() {
     if (!isEmpty()) index_--;
   }
-  Int32 top(Int32 &i) {
+  int top(int &i) {
     if (isEmpty()) {
       i = EMPTY_VALUE;
       return -1;
@@ -207,13 +207,13 @@ class LimitedStack {
     i = stack_[index_];
     return 0;  // return 0: success
   }
-  Int32 operator()() {
+  int operator()() {
     if (isEmpty()) return EMPTY_VALUE;
     return stack_[index_];
   }
 };
 
-const Int32 STACKDELTA_ENSURES_NONZERO = 100;
+const int STACKDELTA_ENSURES_NONZERO = 100;
 extern THREAD_P LimitedStack *inJoinSpec;  // can handle <STACK_LIMIT> nested Joins
 
 char *SQLTEXT();
@@ -263,7 +263,7 @@ extern THREAD_P NABoolean ThereAreAssignments;
 
 void resetHostVars();
 
-extern THREAD_P Int32 in3GL_;
+extern THREAD_P int in3GL_;
 
 void MarkInteriorNodesAsInCompoundStmt(RelExpr *node);
 NAWString *localeMBStringToUnicode(NAString *localeString, int charset, CollHeap *heap = NULL);
@@ -445,8 +445,8 @@ class ShortStringSequence : public NABasicObject {
     numArrayIndexes_++;
   }
 
-  Int32 getFirstSeqArrayIndex() {
-    Int32 i = 0;
+  int getFirstSeqArrayIndex() {
+    int i = 0;
     while (i < MAX_NUM_PARTS) {
       if (seqArrayIndex_[i] > 0) return i;
       i++;
@@ -538,7 +538,7 @@ ColRefName *colRefNameFromStrings(ShortStringSequence *names);
 // would establish a transformed string in a separate buffer and then
 // copy it back into the original.
 
-NABoolean transformIdentifier(NAString &delimIdent, Int32 upCase = TRUE,
+NABoolean transformIdentifier(NAString &delimIdent, int upCase = TRUE,
                               NABoolean acceptCircumflex = FALSE  // VO: Fix genesis solution 10-040204-2957
                               ,
                               UInt16 toInternalIdentifierFlags =
@@ -634,9 +634,9 @@ NAType *picNAType(const NABoolean isString, const DISPLAY_STYLE style, const UIn
 ItemExpr *convertINvaluesToOR(ItemExpr *lhs, ItemExpr *rhs);
 
 // quantified_predicate : value_expression_list '=' quantifier rel_subquery
-ItemExpr *makeQuantifiedComp(ItemExpr *lhs, OperatorTypeEnum compOpType, Int32 quantifierTok, RelExpr *subquery);
+ItemExpr *makeQuantifiedComp(ItemExpr *lhs, OperatorTypeEnum compOpType, int quantifierTok, RelExpr *subquery);
 
-ItemExpr *makeBetween(ItemExpr *x, ItemExpr *y, ItemExpr *z, Int32 tok);
+ItemExpr *makeBetween(ItemExpr *x, ItemExpr *y, ItemExpr *z, int tok);
 // Triggers
 // static NABoolean isInvalidSignalSqlstateValue(NAString *SqlState);
 
@@ -861,9 +861,9 @@ class TableTokens : public NABasicObject {
 
 ItemExpr *buildUdfExpr(NAString *udfName, NAString *fixedInput, ItemExpr *valueList);
 
-ElemDDLNode *SqlParserAux_buildUdfOptimizationHint(Int32 tokvalStage  // in
+ElemDDLNode *SqlParserAux_buildUdfOptimizationHint(int tokvalStage  // in
                                                    ,
-                                                   Int32 tokvalResource  // in
+                                                   int tokvalResource  // in
                                                    ,
                                                    ComSInt32 cost  // in
 );

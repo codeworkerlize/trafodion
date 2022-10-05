@@ -43,7 +43,7 @@ class CompilerSwitchDDL {
   CompilerSwitchDDL();
   ~CompilerSwitchDDL(){};
 
-  short switchCompiler(Int32 cntxtType = CmpContextInfo::CMPCONTEXT_TYPE_META);
+  short switchCompiler(int cntxtType = CmpContextInfo::CMPCONTEXT_TYPE_META);
 
   short switchBackCompiler();
 
@@ -51,7 +51,7 @@ class CompilerSwitchDDL {
   void setAllFlags();
   void saveAllFlags();
   void restoreAllFlags();
-  short sendAllControlsAndFlags(CmpContext *prevContext, Int32 cntxtType);
+  short sendAllControlsAndFlags(CmpContext *prevContext, int cntxtType);
   void restoreAllControlsAndFlags();
 
  protected:

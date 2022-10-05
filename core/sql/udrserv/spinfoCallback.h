@@ -37,16 +37,16 @@
 #include "common/Platform.h"
 
 void SpInfoGetNextRow(char *rowData,               // OUT
-                      Int32 tableIndex,            // IN
+                      int tableIndex,            // IN
                       SQLUDR_Q_STATE *queue_state  // OUT
 );
 
-Int32 SpInfoEmitRow(char *rowData,               // IN
-                    Int32 tableIndex,            // IN
+int SpInfoEmitRow(char *rowData,               // IN
+                    int tableIndex,            // IN
                     SQLUDR_Q_STATE *queue_state  // IN/OUT
 );
 
 void SpInfoEmitRowCpp(char *rowData,               // IN
-                      Int32 tableIndex,            // IN
+                      int tableIndex,            // IN
                       SQLUDR_Q_STATE *queue_state  // IN/OUT
 );

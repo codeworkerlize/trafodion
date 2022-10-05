@@ -337,8 +337,8 @@ class ExTransaction : public NABasicObject {
   void updateRBVal(Int16 rbval) { rbVal_ = rbval; }
   Int16 getRBVal() { return rbVal_; }
 
-  void updateAIVal(Int32 aival) { aiVal_ = aival; }
-  Int32 getAIVal() { return aiVal_; }
+  void updateAIVal(int aival) { aiVal_ = aival; }
+  int getAIVal() { return aiVal_; }
 
   void setMayAlterDb(NABoolean x) { mayAlterDb_ = x; }
 
@@ -417,7 +417,7 @@ class ExTransaction : public NABasicObject {
   // set to TRUE, if user application ended (committed/aborted/started)
   // an executor started Xn (xnInProgress_ is TRUE).
   // According to ANSI, only a SQL agent that started the XN can
-  // end it.Int32 ExTransaction::checkAndWaitSnapshotInProgress()
+  // end it.int ExTransaction::checkAndWaitSnapshotInProgress()
   // Exe will stay in this state until user application 'ends' the
   // transaction by calling SQL commit/rollback.
   NABoolean userEndedExeXn_;
@@ -458,11 +458,11 @@ class ExTransaction : public NABasicObject {
   // Creates the diagsArea for the caller. This also sets
   // the optional integer and optional string for the diagnostics
   // area.
-  void createDiagsArea(Int32 error, Int32 retCode, const char *string);
+  void createDiagsArea(int error, int retCode, const char *string);
 
   Int16 roVal_;
   Int16 rbVal_;
-  Int32 aiVal_;
+  int aiVal_;
 
   // Two flags that help track whether a transaction can be suspended.
   NABoolean mayAlterDb_;
@@ -558,13 +558,13 @@ class ExTransTcb : public ex_tcb {
 
   virtual short work();
   ex_queue_pair getParentQueue() const { return qparent_; };
-  inline Int32 orderedQueueProtocol() const { return ((const ExTransTdb &)tdb).orderedQueueProtocol(); }
+  inline int orderedQueueProtocol() const { return ((const ExTransTdb &)tdb).orderedQueueProtocol(); }
 
   void freeResources(){};
 
-  Int32 numChildren() const { return 0; }
+  int numChildren() const { return 0; }
 
-  const ex_tcb *getChild(Int32 /*pos*/) const { return 0; }
+  const ex_tcb *getChild(int /*pos*/) const { return 0; }
 
   void beginTransaction(ExTransaction *ta);
   void commitTransaction(ExTransaction *ta);

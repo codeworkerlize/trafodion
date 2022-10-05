@@ -771,7 +771,7 @@ ElemDDLGroup *ElemDDLNode::castToElemDDLGroup() { return NULL; }
 // accessors
 //
 
-Int32 ElemDDLNode::getArity() const { return 0; }
+int ElemDDLNode::getArity() const { return 0; }
 
 ExprNode *ElemDDLNode::getChild(int /* index */) { return NULL; }
 
@@ -884,7 +884,7 @@ ElemDDLAlterTableMove *ElemDDLAlterTableMove::castToElemDDLAlterTableMove() { re
 //
 
 // get the degree of this node
-Int32 ElemDDLAlterTableMove::getArity() const { return MAX_ELEM_DDL_ALTER_TABLE_MOVE_ARITY; }
+int ElemDDLAlterTableMove::getArity() const { return MAX_ELEM_DDL_ALTER_TABLE_MOVE_ARITY; }
 
 ExprNode *ElemDDLAlterTableMove::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
@@ -976,7 +976,7 @@ ElemDDLKeyValue::ElemDDLKeyValue(ItemExpr *pConstValue) : ElemDDLNode(ELM_KEY_VA
 // virtual destructor
 ElemDDLKeyValue::~ElemDDLKeyValue() {
   // delete all children
-  for (Int32 i = 0; i < MAX_ELEM_DDL_KEY_VALUE_ARITY; i++) {
+  for (int i = 0; i < MAX_ELEM_DDL_KEY_VALUE_ARITY; i++) {
     if (getChild(i) NEQ NULL) delete getChild(i);
   }
 }
@@ -987,7 +987,7 @@ ElemDDLKeyValue *ElemDDLKeyValue::castToElemDDLKeyValue() { return this; }
 // accessors
 
 // get the degree of this node
-Int32 ElemDDLKeyValue::getArity() const { return MAX_ELEM_DDL_KEY_VALUE_ARITY; }
+int ElemDDLKeyValue::getArity() const { return MAX_ELEM_DDL_KEY_VALUE_ARITY; }
 
 ExprNode *ElemDDLKeyValue::getChild(int index) {
   ComASSERT(index EQU INDEX_KEY_VALUE);
@@ -1326,7 +1326,7 @@ ElemDDLPrivileges *ElemDDLPrivileges::castToElemDDLPrivileges() { return this; }
 //
 
 // get the degree of this node
-Int32 ElemDDLPrivileges::getArity() const { return MAX_ELEM_DDL_PRIVILEGES_ARITY; }
+int ElemDDLPrivileges::getArity() const { return MAX_ELEM_DDL_PRIVILEGES_ARITY; }
 
 ExprNode *ElemDDLPrivileges::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
@@ -1430,7 +1430,7 @@ const NAString ElemDDLPrivileges::getText() const { return "ElemDDLPrivileges"; 
 // virtual destructor
 ElemDDLReferences::~ElemDDLReferences() {
   // delete all children
-  for (Int32 index = 0; index < getArity(); index++) {
+  for (int index = 0; index < getArity(); index++) {
     delete getChild(index);
   }
 }
@@ -1442,7 +1442,7 @@ ElemDDLReferences *ElemDDLReferences::castToElemDDLReferences() { return this; }
 // accessors
 //
 
-Int32 ElemDDLReferences::getArity() const { return MAX_ELEM_DDL_REFERENCES_ARITY; }
+int ElemDDLReferences::getArity() const { return MAX_ELEM_DDL_REFERENCES_ARITY; }
 
 ExprNode *ElemDDLReferences::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
@@ -1692,7 +1692,7 @@ void ElemDDLDivisionClause::synthesize(ElemDDLNode *pColRefTree) {
     ElemDDLColRef *pElemDDLColRef = NULL;
     ItemExpr *pDivExpr = NULL;
     ComColumnOrdering eSortingOrder = COM_UNKNOWN_ORDER;
-    Int32 iInverseNodeCount = 0;
+    int iInverseNodeCount = 0;
 
     for (CollIndex i = 0; i < colRefEntries; i++) {
       pElemDDLColRef = ((*pElemDDLList)[i])->castToElemDDLColRef();
@@ -1766,8 +1766,8 @@ NAString ElemDDLDivisionClause::getSyntax() const {
 // methods for class ElemDDLSaltOptionsClause
 // -----------------------------------------------------------------------
 
-ElemDDLSaltOptionsClause::ElemDDLSaltOptionsClause(ElemDDLNode *pSaltExprTree, Int32 numPartitions,
-                                                   Int32 numInitialRegions)
+ElemDDLSaltOptionsClause::ElemDDLSaltOptionsClause(ElemDDLNode *pSaltExprTree, int numPartitions,
+                                                   int numInitialRegions)
     : ElemDDLNode(ELM_SALT_OPTIONS_ELEM),
       numPartitions_(numPartitions),
       numInitialRegions_(numInitialRegions),
@@ -1804,7 +1804,7 @@ ElemDDLSaltOptionsClause *ElemDDLSaltOptionsClause::castToElemDDLSaltOptionsClau
 const NAString ElemDDLSaltOptionsClause::getText() const { return "ElemDDLSaltOptionsClause"; }
 
 // get the degree of this node
-Int32 ElemDDLSaltOptionsClause::getArity() const { return MAX_ELEM_DDL_SALT_OPT_KEY_COLUMN_LIST_ARITY; }
+int ElemDDLSaltOptionsClause::getArity() const { return MAX_ELEM_DDL_SALT_OPT_KEY_COLUMN_LIST_ARITY; }
 
 ExprNode *ElemDDLSaltOptionsClause::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());

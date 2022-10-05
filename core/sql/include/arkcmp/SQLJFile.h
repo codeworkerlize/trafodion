@@ -34,7 +34,7 @@
  */
 #include "ApplicationFile.h"
 
-const Int32 MAXMDF = 1024;
+const int MAXMDF = 1024;
 
 class SQLJFile : public ApplicationFile {
  public:
@@ -60,8 +60,8 @@ class SQLJFile : public ApplicationFile {
   // return true if all OK.
   virtual bool processModule();
 
-  virtual Int32 modulesFound();
-  virtual Int32 modulesExtracted();
+  virtual int modulesFound();
+  virtual int modulesExtracted();
 
   // return true iff this is a SQLJ JAR or profile file
   static bool isSQLJ(std::string &filename);
@@ -76,12 +76,12 @@ class SQLJFile : public ApplicationFile {
   // print MDFWriter errors to cout
   void printMDFWriterErrors(char *errFileName);
 
-  Int32 nExtracted_;        // number of modules extracted
+  int nExtracted_;        // number of modules extracted
   std::string modNamList_;  // file with list of module names to extract
   char mdf_[MAXMDF];        // extracted module definition filename
 };
 
-inline Int32 SQLJFile::modulesExtracted() { return nExtracted_; }
-inline Int32 SQLJFile::modulesFound() { return modulesExtracted(); }
+inline int SQLJFile::modulesExtracted() { return nExtracted_; }
+inline int SQLJFile::modulesFound() { return modulesExtracted(); }
 
 #endif  // SQLJFILE__H

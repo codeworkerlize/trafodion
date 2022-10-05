@@ -65,7 +65,7 @@ void CRUMVEquivSetBuilder::AddMV(CRUMV *pMV) {
 //	CRUMVEquivSetBuilder::GetSet()
 //--------------------------------------------------------------------------//
 
-CRUMVList &CRUMVEquivSetBuilder::GetSet(Int32 num) {
+CRUMVList &CRUMVEquivSetBuilder::GetSet(int num) {
   RUASSERT(GetNumOfSets() >= num && 0 <= num);
 
   CRUMVList *pMVList = equivSetsRootsList_.GetAt(num);
@@ -162,10 +162,10 @@ void CRUMVEquivSetBuilder::AddOnRequestMV(CRUMV *pMV) {
 //--------------------------------------------------------------------------//
 
 void CRUMVEquivSetBuilder::BuildSets() {
-  Int32 equivSetsSize = GetDisJointAlg().GetNumOfSets();
+  int equivSetsSize = GetDisJointAlg().GetNumOfSets();
 
   // Initialize the list of root mv's sets
-  for (Int32 i = 0; i < equivSetsSize; i++) {
+  for (int i = 0; i < equivSetsSize; i++) {
     equivSetsRootsList_.AddTail(new CRUMVList(eItemsArentOwned));
   }
 
@@ -174,7 +174,7 @@ void CRUMVEquivSetBuilder::BuildSets() {
   while (NULL != mvPos) {
     CRUMV *pMV = rootsMvsList_.GetNext(mvPos);
 
-    Int32 setId = GetDisJointAlg().GetNodeSetId(pMV->GetUID());
+    int setId = GetDisJointAlg().GetNodeSetId(pMV->GetUID());
 
     equivSetsRootsList_.GetAt(setId)->AddTail(pMV);
   }
@@ -187,7 +187,7 @@ void CRUMVEquivSetBuilder::BuildSets() {
 //--------------------------------------------------------------------------//
 
 CRUMVList &CRUMVEquivSetBuilder::GetEquivSetsRootsByMVUID(TInt64 uid) {
-  Int32 setId = GetDisJointAlg().GetNodeSetId(uid);
+  int setId = GetDisJointAlg().GetNodeSetId(uid);
 
   RUASSERT(0 <= setId && setId < equivSetsRootsList_.GetCount())
 
@@ -206,7 +206,7 @@ void CRUMVEquivSetBuilder::DumpSets() {
   msg = "\nMV Equivalence sets: \n";
 
   CRUGlobals::GetInstance()->GetJournal().LogMessage(msg);
-  for (Int32 i = 0; i < GetNumOfSets(); i++) {
+  for (int i = 0; i < GetNumOfSets(); i++) {
     sprintf(tmpstr, "%d", i + 1);
     msg = "\nRoots of Set #" + CDSString(tmpstr) + ":\n";
 

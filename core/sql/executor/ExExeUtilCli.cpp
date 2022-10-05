@@ -46,7 +46,7 @@
 OutputInfo::OutputInfo(int numEntries) : numEntries_(numEntries) {
   ex_assert(numEntries <= MAX_OUTPUT_ENTRIES, "try to fetch more than max columns allowed");
 
-  for (Int32 i = 0; i < numEntries_; i++) {
+  for (int i = 0; i < numEntries_; i++) {
     data_[i] = NULL;
     len_[i] = 0;
   }
@@ -94,7 +94,7 @@ short OutputInfo::get(int index, char *&data, int &len, int &type, int *indOffse
 }
 
 void OutputInfo::dealloc(CollHeap *heap) {
-  for (Int32 i = 0; i < numEntries_; i++) {
+  for (int i = 0; i < numEntries_; i++) {
     if (data_[i] != NULL) NADELETEBASIC(data_[i], heap);
   }
 }
@@ -102,7 +102,7 @@ void OutputInfo::dealloc(CollHeap *heap) {
 /////////////////////////////////////////////////////////////////
 // class ExeCliInterface
 /////////////////////////////////////////////////////////////////
-ExeCliInterface::ExeCliInterface(CollHeap *heap, Int32 isoMapping, ContextCli *currContext, const char *parentQid)
+ExeCliInterface::ExeCliInterface(CollHeap *heap, int isoMapping, ContextCli *currContext, const char *parentQid)
     : heap_(heap),
       needToDestroyHeap_(FALSE),
       module_(NULL),
@@ -121,7 +121,7 @@ ExeCliInterface::ExeCliInterface(CollHeap *heap, Int32 isoMapping, ContextCli *c
       output_desc_withCK_(NULL),
       outputBuf_withCK_(NULL),
       rsInputBuffer_(NULL),
-      isoMapping_((Int32)SQLCHARSETCODE_ISO88591),  // ISO_MAPPING=ISO88591
+      isoMapping_((int)SQLCHARSETCODE_ISO88591),  // ISO_MAPPING=ISO88591
       parentQid_(parentQid),
       inputAttrs_(NULL),
       outputAttrs_(NULL),
@@ -140,7 +140,7 @@ ExeCliInterface::ExeCliInterface(CollHeap *heap, Int32 isoMapping, ContextCli *c
   }
 
   if (parentQid_) {
-    Int32 len = str_len(parentQid_);
+    int len = str_len(parentQid_);
     ex_assert(len >= ComSqlId::MIN_QUERY_ID_LEN, "parentQid too short.");
     ex_assert(len <= ComSqlId::MAX_QUERY_ID_LEN, "parentQid too long.");
     ex_assert(!str_cmp(parentQid_, COM_SESSION_ID_PREFIX, 4), "invalid parentQid.");
@@ -263,7 +263,7 @@ int ExeCliInterface::prepare(const char *stmtStr, SQLMODULE_ID *module, SQLSTMT_
                                Queue *outputVarPtrList, char **inputBuf, Queue *inputVarPtrList, char *uniqueStmtId,
                                int *uniqueStmtIdLen, SQL_QUERY_COST_INFO *query_cost_info,
                                SQL_QUERY_COMPILER_STATS_INFO *comp_stats_info, NABoolean monitorThis,
-                               NABoolean doNotCachePlan, Int32 *retGenCodeSize) {
+                               NABoolean doNotCachePlan, int *retGenCodeSize) {
   int retcode = 0;
   ULng32 prepFlags = 0;
   SQL_QUERY_COST_INFO local_query_cost_info;
@@ -285,7 +285,7 @@ int ExeCliInterface::prepare(const char *stmtStr, SQLMODULE_ID *module, SQLSTMT_
   retcode = SQL_EXEC_SetDescItem(sql_src, 1, SQLDESC_VAR_PTR, (Long)stmtStr, 0);
   if (retcode != SUCCESS) return retcode;
 
-  retcode = SQL_EXEC_SetDescItem(sql_src, 1, SQLDESC_CHAR_SET, (Int32)SQLCHARSETCODE_UTF8, 0);
+  retcode = SQL_EXEC_SetDescItem(sql_src, 1, SQLDESC_CHAR_SET, (int)SQLCHARSETCODE_UTF8, 0);
   if (retcode != SUCCESS) return retcode;
 
   char parentQid[ComSqlId::MAX_QUERY_ID_LEN + 1];
@@ -478,7 +478,7 @@ int ExeCliInterface::setupExplainData(SQLMODULE_ID *module, SQLSTMT_ID *stmt) {
 
   // get explain fragment.
   explainDataLen_ = 50000;  // start with 50K bytes
-  Int32 retExplainLen = 0;
+  int retExplainLen = 0;
   explainData_ = new (getHeap()) char[explainDataLen_ + 1];
   retcode = SQL_EXEC_GetExplainData(stmt, explainData_, explainDataLen_ + 1, &retExplainLen);
   if (retcode == -CLI_GENCODE_BUFFER_TOO_SMALL) {
@@ -746,7 +746,7 @@ int ExeCliInterface::executeImmediatePrepare2(const char *stmtStr, char *uniqueS
                                                 SQL_QUERY_COST_INFO *query_cost_info,
                                                 SQL_QUERY_COMPILER_STATS_INFO *comp_stats_info, char *outputBuf,
                                                 int *outputBufLen, long *rowsAffected, NABoolean monitorThis,
-                                                Int32 *retGenCodeSize) {
+                                                int *retGenCodeSize) {
   int retcode = 0;
 
   if (outputBufLen) *outputBufLen = 0;
@@ -770,7 +770,7 @@ int ExeCliInterface::executeImmediatePrepare2(const char *stmtStr, char *uniqueS
   return 0;
 }
 
-int ExeCliInterface::getGeneratedCode(char *genCodeBuf, Int32 genCodeSize) {
+int ExeCliInterface::getGeneratedCode(char *genCodeBuf, int genCodeSize) {
   int retcode = 0;
 
   retcode = SQL_EXEC_Prepare2(stmt_, NULL, genCodeBuf, genCodeSize, NULL, NULL, NULL, NULL, NULL, 0);
@@ -994,7 +994,7 @@ short ExeCliInterface::fetchAllRows(Queue *&infoList, const char *query, int inN
 
       OutputInfo *oi = new (getHeap()) OutputInfo(numOutputEntries);
 
-      for (Int32 j = 0; j < numOutputEntries; j++) {
+      for (int j = 0; j < numOutputEntries; j++) {
         char *ptr, *r;
         int len;
         int type;
@@ -1068,7 +1068,7 @@ short ExeCliInterface::clearExecFetchClose(char *inputBuf, int inputBufLen,
     *outputBufLen = 0;
     if (retcode != 100) {
       char *currPtr = outputBuf;
-      for (Int32 j = 0; j < numOutputEntries_; j++) {
+      for (int j = 0; j < numOutputEntries_; j++) {
         char *ptr;
         int len;
         getPtrAndLen(j + 1, ptr, len);
@@ -1112,7 +1112,7 @@ short ExeCliInterface::clearExecFetchCloseOpt(char *inputBuf, int inputBufLen,
       *outputBufLen = 0;
 
       char *currPtr = outputBuf;
-      for (Int32 j = 0; j < numOutputEntries_; j++) {
+      for (int j = 0; j < numOutputEntries_; j++) {
         char *ptr;
         int len;
         getPtrAndLen(j + 1, ptr, len);
@@ -1258,10 +1258,10 @@ int ExeCliInterface::cwrsPrepare(const char *stmtStr, int rs_maxsize, NABoolean 
   return 0;
 }
 
-int ExeCliInterface::cwrsExec(char *inputRow, Int32 inputRowLen, long *rowsAffected) {
+int ExeCliInterface::cwrsExec(char *inputRow, int inputRowLen, long *rowsAffected) {
   int retcode = 0;
 
-  Int32 rowset_status[1];  // Has no functionality currently.
+  int rowset_status[1];  // Has no functionality currently.
                            // However it is part of RowsetSetDesc API
 
   if ((inputRow) && (currRSrow_ < rsMaxsize_)) {
@@ -1363,7 +1363,7 @@ int ExeCliInterface::rwrsPrepare(const char *stmtStr, int rs_maxsize, NABoolean 
   return 0;
 }
 
-int ExeCliInterface::rwrsExec(char *inputRow, Int32 inputRowLen, long *rowsAffected) {
+int ExeCliInterface::rwrsExec(char *inputRow, int inputRowLen, long *rowsAffected) {
   int retcode = 0;
 
   clearGlobalDiags();
@@ -1547,7 +1547,7 @@ int ExeCliInterface::setCharsetTypes() {
 
 void ExeCliInterface::setOutputPtrsAsInputPtrs(Queue *outputVarPtrList, SQLDESC_ID *target_inputDesc) {
   // Process the queue
-  Int32 j = 1;
+  int j = 1;
   outputVarPtrList->position();
 
   while (NOT outputVarPtrList->atEnd()) {
@@ -1874,7 +1874,7 @@ int ExeCliInterface::setCQS(const char *shape, ComDiagsArea *globalDiags) {
 }
 
 int ExeCliInterface::resetCQS(ComDiagsArea *globalDiags) {
-  Int32 attempt = 10;
+  int attempt = 10;
   int cliRC;
 
   char buf[400];
@@ -1896,16 +1896,16 @@ int ExeCliInterface::resetCQS(ComDiagsArea *globalDiags) {
 
 int ExeCliInterface::getRoutine(
     /* IN */ const char *serializedInvocationInfo,
-    /* IN */ Int32 invocationInfoLen,
+    /* IN */ int invocationInfoLen,
     /* IN */ const char *serializedPlanInfo,
-    /* IN */ Int32 planInfoLen,
-    /* IN */ Int32 language,
-    /* IN */ Int32 paramStyle,
+    /* IN */ int planInfoLen,
+    /* IN */ int language,
+    /* IN */ int paramStyle,
     /* IN */ const char *externalName,
     /* IN */ const char *containerName,
     /* IN */ const char *externalPath,
     /* IN */ const char *librarySqlName,
-    /* OUT */ Int32 *handle,
+    /* OUT */ int *handle,
     /* IN/OUT */ ComDiagsArea *diags) {
   int retcode = 0;
 
@@ -1923,19 +1923,19 @@ int ExeCliInterface::getRoutine(
 }
 
 int ExeCliInterface::invokeRoutine(
-    /* IN */ Int32 handle,
-    /* IN */ Int32 phaseEnumAsInt,
+    /* IN */ int handle,
+    /* IN */ int phaseEnumAsInt,
     /* IN */ const char *serializedInvocationInfo,
-    /* IN */ Int32 invocationInfoLen,
-    /* OUT */ Int32 *invocationInfoLenOut,
+    /* IN */ int invocationInfoLen,
+    /* OUT */ int *invocationInfoLenOut,
     /* IN */ const char *serializedPlanInfo,
-    /* IN */ Int32 planInfoLen,
-    /* IN */ Int32 planNum,
-    /* OUT */ Int32 *planInfoLenOut,
+    /* IN */ int planInfoLen,
+    /* IN */ int planNum,
+    /* OUT */ int *planInfoLenOut,
     /* IN */ char *inputRow,
-    /* IN */ Int32 inputRowLen,
+    /* IN */ int inputRowLen,
     /* OUT */ char *outputRow,
-    /* IN */ Int32 outputRowLen,
+    /* IN */ int outputRowLen,
     /* IN/OUT */ ComDiagsArea *diags) {
   int retcode = 0;
 
@@ -1954,14 +1954,14 @@ int ExeCliInterface::invokeRoutine(
 }
 
 int ExeCliInterface::getRoutineInvocationInfo(
-    /* IN */ Int32 handle,
+    /* IN */ int handle,
     /* IN/OUT */ char *serializedInvocationInfo,
-    /* IN */ Int32 invocationInfoMaxLen,
-    /* OUT */ Int32 *invocationInfoLenOut,
+    /* IN */ int invocationInfoMaxLen,
+    /* OUT */ int *invocationInfoLenOut,
     /* IN/OUT */ char *serializedPlanInfo,
-    /* IN */ Int32 planInfoMaxLen,
-    /* IN */ Int32 planNum,
-    /* OUT */ Int32 *planInfoLenOut,
+    /* IN */ int planInfoMaxLen,
+    /* IN */ int planNum,
+    /* OUT */ int *planInfoLenOut,
     /* IN/OUT */ ComDiagsArea *diags) {
   int retcode = 0;
 
@@ -1980,7 +1980,7 @@ int ExeCliInterface::getRoutineInvocationInfo(
 }
 
 int ExeCliInterface::putRoutine(
-    /* IN */ Int32 handle,
+    /* IN */ int handle,
     /* IN/OUT */ ComDiagsArea *diags) {
   int retcode = 0;
 

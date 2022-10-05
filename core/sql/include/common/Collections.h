@@ -554,7 +554,7 @@ class NACollection : public NABasicObject
 // bit vector.
 //
 // ***********************************************************************
-const Int32 BuiltinSubsetWords = 8;  // size of the built-in array
+const int BuiltinSubsetWords = 8;  // size of the built-in array
 
 typedef uint64_t DblWordAsBits;
 typedef ULng32 WordAsBits;
@@ -2231,7 +2231,7 @@ class NAHashBucketEntry : public NABasicObject {
 
   void display() const;
 
-  Int32 printStatistics(char *buf);
+  int printStatistics(char *buf);
 
   // return byte size of this object
   int getByteSize() const { return sizeof(*this); }
@@ -2339,7 +2339,7 @@ class NAHashBucket : public NABasicObject {
 
   void display() const;
 
-  Int32 printStatistics(char *buf);
+  int printStatistics(char *buf);
 
   // return byte size of this object
   int getByteSize() const { return sizeof(*this) + (bucket_ ? bucket_->getByteSize() : 0); }
@@ -2522,7 +2522,7 @@ class NAHashDictionary : public NABasicObject {
 
   virtual void display() const;
 
-  Int32 printStatistics(char *buf);
+  int printStatistics(char *buf);
 
   // return byte size of this object
   int getByteSize() const { return sizeof(*this) + (hashTable_ ? hashTable_->getByteSize() : 0); }

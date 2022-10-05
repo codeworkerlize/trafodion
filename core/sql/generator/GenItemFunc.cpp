@@ -1358,7 +1358,7 @@ short DecodeBase64::codeGen(Generator *generator) {
   // if explicit type_ was specified, set the max buf len for decoded value.
   // If the target length for the specified type_ is not sufficient,
   // an error will be returned at runtime.
-  Int32 maxDecodedBuflen = -1;
+  int maxDecodedBuflen = -1;
   if (type_) {
     const NAType &typ1 = child(0)->getValueId().getType();
     maxDecodedBuflen = str_decoded_len_base64(typ1.getNominalSize());
@@ -1589,7 +1589,7 @@ short Translate::codeGen(Generator *generator) {
 
   if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
 
-  Int32 convType = CONV_UNKNOWN;
+  int convType = CONV_UNKNOWN;
   switch (map_table_id_) {
     case ISO88591_TO_UNICODE:
       convType = CONV_ASCII_UNICODE_V;
@@ -1756,8 +1756,8 @@ short RangeLookup::codeGen(Generator *generator) {
 
   // now allocate a third child for this clause, which is a constant
   // array of all the encoded start key values
-  Int32 numAttrs = arity + 2;
-  Int32 numAttrsShowPlan = (generator->getExpGenerator()->getShowplan() ? numAttrs : 0);
+  int numAttrs = arity + 2;
+  int numAttrsShowPlan = (generator->getExpGenerator()->getShowplan() ? numAttrs : 0);
 
   attr3 = new (generator->wHeap()) Attributes *[numAttrs + numAttrsShowPlan];
 
@@ -1932,7 +1932,7 @@ short RandomNum::codeGen(Generator *generator) {
   if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
 
   // see Exchange::codeGenForESP for allowed values of this CQD
-  Int32 randomNumCQD = getDefaultAsLong(USE_ROUND_ROBIN_FOR_RANDOMNUM);
+  int randomNumCQD = getDefaultAsLong(USE_ROUND_ROBIN_FOR_RANDOMNUM);
   NABoolean useThreadIdForRandomNum = (simpleRandom_ && ((randomNumCQD & 1) != 0));
 
   ex_clause *function_clause = new (space)

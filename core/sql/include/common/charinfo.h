@@ -176,9 +176,9 @@ class CharInfo {
   static NABoolean isMsgCharSetSupported(const char *name) { return isMsgCharSetSupported(getCharSetEnum(name)); }
 
   static void toggleCharSetSupport(CharSet cs);  // debugging only
-  static Int32 minBytesPerChar(CharSet cs);
-  static Int32 maxBytesPerChar(CharSet cs);
-  static Int32 bytesPerChar(CharSet cs) { return maxBytesPerChar(cs); }
+  static int minBytesPerChar(CharSet cs);
+  static int maxBytesPerChar(CharSet cs);
+  static int bytesPerChar(CharSet cs) { return maxBytesPerChar(cs); }
 
   static NABoolean isSingleByteCharSet(CharSet cs) {
     return maxBytesPerChar(cs) == 1 ||
@@ -189,9 +189,9 @@ class CharInfo {
 
   static NABoolean is_NCHAR_MP(CharSet cs) { return cs == KANJI_MP || cs == KSC5601_MP; }
 
-  static Int32 getFSTypeFixedChar(CharSet cs);
-  static Int32 getFSTypeVarChar(CharSet cs);
-  static Int32 getFSTypeANSIChar(CharSet cs);
+  static int getFSTypeFixedChar(CharSet cs);
+  static int getFSTypeVarChar(CharSet cs);
+  static int getFSTypeANSIChar(CharSet cs);
 
   static const char *getReplacementCharacter(CharSet cs);  // replacement for untranslatable chars
 
@@ -200,7 +200,7 @@ class CharInfo {
 
   static Collation getCollationEnum(const char *name, NABoolean formatNSK = FALSE, size_t maxlen = 0);
   static const char *getCollationName(Collation co, NABoolean retUnkAsBlank = FALSE);
-  static Int32 getCollationFlags(Collation co);
+  static int getCollationFlags(Collation co);
   static NABoolean isCollationUserDefined(Collation co) {
     return co >= FIRST_USER_DEFINED_COLLATION;
   }  // watch out for UNKNOWN_COLLATION!
@@ -210,11 +210,11 @@ class CharInfo {
 
   // check if the code point value for each character in the input string is
   // a valid UCS2 character
-  static NABoolean checkCodePoint(const NAWchar *inputStr, Int32 inputLen, CharInfo::CharSet cs);
+  static NABoolean checkCodePoint(const NAWchar *inputStr, int inputLen, CharInfo::CharSet cs);
 
   // Convert the int value returned by MBCS_DEFAULTCHARSET_()
   // to MX enum value.  See Guardian Procedure Calls Ref Manual.
-  static CharSet getCharSetEnumFromNSK_MBCS(Int32 n) {
+  static CharSet getCharSetEnumFromNSK_MBCS(int n) {
     switch (n) {
       case 1:
         return KANJI_MP;
@@ -231,7 +231,7 @@ class CharInfo {
   // Used by the sql_id and Formatter classes.
   static int findLocaleCharSet();
   static const char *getLocaleCharSetAsString();
-  static Int32 getTargetCharTypeFromLocale();
+  static int getTargetCharTypeFromLocale();
 
   // check whether the client character set (e.g., the cs of a hostvar) is
   // assignment compatible with the MX one (e.g., the cs of a column).
@@ -243,7 +243,7 @@ class CharInfo {
   // for an arbitrary string encoded in "sourceCS", with length
   // "sourceLenInBytes", what is the max. length in bytes of this
   // string after converting it to "targetCS"?
-  static Int32 getMaxConvertedLenInBytes(CharSet sourceCS, Int32 sourceLenInBytes, CharSet targetCS);
+  static int getMaxConvertedLenInBytes(CharSet sourceCS, int sourceLenInBytes, CharSet targetCS);
 
   static const CollationDB *builtinCollationDB();
 
@@ -307,7 +307,7 @@ class CollationInfo : public NABasicObject {
 
   CharInfo::Collation getCollationEnum() const { return co_; }
   const char *getCollationName() const { return name_; }
-  Int32 getCollationFlags() const { return flags_; }
+  int getCollationFlags() const { return flags_; }
 
   // for debugging
   void display() const;
@@ -356,7 +356,7 @@ class CollationInfo : public NABasicObject {
   // hence the third offset is 0 in this example.
   //
   CharInfo::Collation co_;
-  Int32 flags_;
+  int flags_;
   const char *name_;
   size_t namelen_;
   size_t synonymOffset_[OFFSETARRAY_SIZE];
@@ -403,7 +403,7 @@ class CollationDB : private CollationDBSupertype {
   friend class CharInfo;  // its static funx should be the only callers of these:
 
   CharInfo::Collation insert(const char *nam, size_t *sizArray, /* array[SIZEARRAY_SIZE] */
-                             CollationInfo::CollationFlags flags, Int32 defaultMatchCount);
+                             CollationInfo::CollationFlags flags, int defaultMatchCount);
   inline CollationDB *nextCDB() const;
 
   const CollationInfo *getCollationInfo(CharInfo::Collation co) const;
@@ -411,7 +411,7 @@ class CollationDB : private CollationDBSupertype {
   CharInfo::Collation getCollationEnum(const char *name, NABoolean formatNSK, size_t namlen) const;
   const char *getCollationName(CharInfo::Collation co, NABoolean retUnkAsBlank) const;
 
-  Int32 getCollationFlags(CharInfo::Collation co) const;
+  int getCollationFlags(CharInfo::Collation co) const;
 
   // data members
   CollHeap *heap_;

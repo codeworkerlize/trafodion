@@ -80,11 +80,11 @@ void UdrCfgParser::closeCfgFile() {
 // ---------------------------------------------------------------------------
 // strnicmp:
 // ---------------------------------------------------------------------------
-Int32 UdrCfgParser::strnicmp(const char *s1, const char *s2, Int32 n) {
+int UdrCfgParser::strnicmp(const char *s1, const char *s2, int n) {
   if (n == 0) return 0;
   do {
     if (tolower((unsigned char)*s1) != tolower((unsigned char)*s2++))
-      return (Int32)tolower((unsigned char)*s1) - (Int32)tolower((unsigned char)*--s2);
+      return (int)tolower((unsigned char)*s1) - (int)tolower((unsigned char)*--s2);
     if (*s1++ == 0) break;
   } while (--n != 0);
   return 0;
@@ -109,7 +109,7 @@ void UdrCfgParser::remEOL(char *buffer) {
 //----------------------------------------------------------------------------
 // titlePos: get a section title position & length in a string.
 //----------------------------------------------------------------------------
-char *UdrCfgParser::titlePos(char *buf, Int32 *len) {
+char *UdrCfgParser::titlePos(char *buf, int *len) {
   char *p = buf, *q;
 
   while (*p && isspace((unsigned char)*p)) p++;  // For VS2003
@@ -118,21 +118,21 @@ char *UdrCfgParser::titlePos(char *buf, Int32 *len) {
   q = p + 1;
   while (*q && *q != ']') q++;
   if (*q != ']') return 0;
-  if (len) *len = (Int32)(q - p - 1);
+  if (len) *len = (int)(q - p - 1);
   return p + 1;
 }
 
 //----------------------------------------------------------------------------
 // isTitleLine: check if a string is a section title line
 //----------------------------------------------------------------------------
-Int32 UdrCfgParser::isTitleLine(char *bufPtr) { return titlePos(bufPtr, 0) != 0; }
+int UdrCfgParser::isTitleLine(char *bufPtr) { return titlePos(bufPtr, 0) != 0; }
 
 //----------------------------------------------------------------------------
 // containTitle: check if a string contain a section a title
 //----------------------------------------------------------------------------
 NABoolean UdrCfgParser::containTitle(char *buf, const char *section) {
   char *p;
-  Int32 len;
+  int len;
 
   p = titlePos(buf, &len);
   if (p) {
@@ -165,7 +165,7 @@ NABoolean UdrCfgParser::gotoSection(FILE *is, const char *section, NAString &err
 //----------------------------------------------------------------------------
 char *UdrCfgParser::textPos(char *buf, const char *entry) {
   char *p, *p1, *p2;
-  Int32 len;
+  int len;
 
   p = buf;
   while (*p && isspace((unsigned char)*p)) p++;  // For VS2003
@@ -184,7 +184,7 @@ char *UdrCfgParser::textPos(char *buf, const char *entry) {
     ;  // For VS2003
   p1++;
 
-  len = (Int32)(p1 - p);
+  len = (int)(p1 - p);
   if ((signed)strlen(entry) == len && strnicmp(p, entry, len) == 0) return p2;
 
   return 0;
@@ -224,8 +224,8 @@ void UdrCfgParser::rtrim(char *buf) {
 // readSection: position to BOF for a new section,
 // do continuous reads until len < 0
 //---------------------------------------------------------------------------
-Int32 UdrCfgParser::readSection(const char *section, char *buf, Int32 bufLen, NAString &errorText) {
-  Int32 len = -1;
+int UdrCfgParser::readSection(const char *section, char *buf, int bufLen, NAString &errorText) {
+  int len = -1;
   static NABoolean newSection = TRUE;
 
   if (cfgFile) {
@@ -246,10 +246,10 @@ Int32 UdrCfgParser::readSection(const char *section, char *buf, Int32 bufLen, NA
 // ---------------------------------------------------------------------------
 // readPair: read content of entry
 // ---------------------------------------------------------------------------
-Int32 UdrCfgParser::readPair(FILE *is, char *buf, Int32 bufSize, NAString &errorText) {
+int UdrCfgParser::readPair(FILE *is, char *buf, int bufSize, NAString &errorText) {
   char lineBuf[BUFFMAX + 2];
   char *p, *cur;
-  Int32 len = -1;
+  int len = -1;
   NABoolean quote = FALSE;
 
   while (fgets(lineBuf, sizeof(lineBuf), is)) {
@@ -265,7 +265,7 @@ Int32 UdrCfgParser::readPair(FILE *is, char *buf, Int32 bufSize, NAString &error
 
     rtrim(p);
 
-    if ((len = (Int32)strlen(p)) == 0) continue;
+    if ((len = (int)strlen(p)) == 0) continue;
 
     if (bufSize - 1 < len) {
       errorText += "*** ERROR: UdrCfgParser():fgets read line longer than BUFFMAX of ";

@@ -289,16 +289,16 @@ class Int16ObjectContainer : public ObjectContainer {
 
 class IntegerObjectContainer : public ObjectContainer {
  public:
-  IntegerObjectContainer(Int32 *value);
+  IntegerObjectContainer(int *value);
   virtual ~IntegerObjectContainer();
-  Int32 *getValue();
-  void setValue(Int32 *value);
+  int *getValue();
+  void setValue(int *value);
   virtual void pack(Packer *packer, PackerInput *input, PackerOutput *output);
   virtual void unPack(UnPacker *unPacker, UnPackerInput *input, UnPackerOutput *output);
   virtual void length(Lengther *lengther, LengtherInput *input, LengtherOutput *output);
 
  private:
-  Int32 *value_;
+  int *value_;
 };
 
 class LongObjectContainer : public ObjectContainer {

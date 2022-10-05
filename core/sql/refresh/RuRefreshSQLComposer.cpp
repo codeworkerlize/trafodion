@@ -175,9 +175,9 @@ void CRURefreshSQLComposer::AddUpdatedColumnsClause(const CRUUpdateBitmap *pUpda
   sql_ += "COLUMNS (";
 
   BOOL isFirst = TRUE;
-  Int32 numOfColumns = pUpdateBitmap->GetSize() * 8;
+  int numOfColumns = pUpdateBitmap->GetSize() * 8;
 
-  for (Int32 index = 0; index < numOfColumns; index++) {
+  for (int index = 0; index < numOfColumns; index++) {
     if (FALSE == pUpdateBitmap->IsColumnUpdated(index)) {
       continue;
     }

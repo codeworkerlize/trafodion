@@ -124,12 +124,12 @@ class ExTimeoutTcb : public ex_tcb {
 
   ex_queue_pair getParentQueue() const { return qparent_; };
 
-  inline Int32 orderedQueueProtocol() const { return ((const ExTimeoutTdb &)tdb).orderedQueueProtocol(); }
+  inline int orderedQueueProtocol() const { return ((const ExTimeoutTdb &)tdb).orderedQueueProtocol(); }
 
   void freeResources(){};
 
-  Int32 numChildren() const { return 0; }
-  const ex_tcb *getChild(Int32 /*pos*/) const { return 0; }
+  int numChildren() const { return 0; }
+  const ex_tcb *getChild(int /*pos*/) const { return 0; }
 
  private:
   // holds the ANSI name of the table (for which the timeout value is set)

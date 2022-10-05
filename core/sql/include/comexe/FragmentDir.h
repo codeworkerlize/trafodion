@@ -74,7 +74,7 @@ class FragmentDirEntry : public NABasicObject {
   inline NABoolean operator==(const FragmentDirEntry &other) const { return space_ == other.space_; }
 
  private:
-  Int32 type_;
+  int type_;
   Space *space_;
   CollIndex parentIndex_;
   char *topNode_;

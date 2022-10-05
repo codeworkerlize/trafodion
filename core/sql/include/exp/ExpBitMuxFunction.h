@@ -85,7 +85,7 @@ class ExpBitMuxFunction : public ex_function_clause {
  public:
   // Construction - this is the "real" constructor
   //
-  ExpBitMuxFunction(OperatorTypeEnum oper_type, Int32 arity, Attributes **attr, Space *space);
+  ExpBitMuxFunction(OperatorTypeEnum oper_type, int arity, Attributes **attr, Space *space);
   // This constructor is used only to get at the virtual function table.
   //
   ExpBitMuxFunction();
@@ -93,12 +93,12 @@ class ExpBitMuxFunction : public ex_function_clause {
   // isNullInNullOut - Must redefine this virtual function to return 0
   // since a NULL input does not simply produce a NULL output.
   //
-  Int32 isNullInNullOut() const { return 0; };
+  int isNullInNullOut() const { return 0; };
 
   // isNullRelevant - Must redefine this virtual function to return 0
   // since all the work is done in eval and none in processNulls.
   //
-  Int32 isNullRelevant() const { return 0; };
+  int isNullRelevant() const { return 0; };
 
   // eval - Must redefine eval to compute the BitMuxing function.
   //

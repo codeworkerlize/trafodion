@@ -717,7 +717,7 @@ short ExSortTcb::workUp() {
 
       case ExSortTcb::SORT_CANCELED: {
         // ignore all up rows from child. wait for Q_NO_DATA.
-        Int32 done = 0;
+        int done = 0;
         while (!done) {
           if (qchild_.up->isEmpty()) {
             return workStatus(WORK_OK);
@@ -1348,7 +1348,7 @@ short ExSortTcb::sortReceive(ex_queue_entry *pentry_down, ex_queue::down_request
       if (resizeCifRecord() > 0 && (topNSortPool_ == NULL)) {
         if (buf) {
           char *dataPointer = tgtEntry->getAtp()->getTupp(sortTdb().tuppIndex_).getDataPointer();
-          buf->resize_tupp_desc(*((Int32 *)dataPointer), dataPointer);  //
+          buf->resize_tupp_desc(*((int *)dataPointer), dataPointer);  //
         }
       }
       // bump the data pointer past the encoded sort keys

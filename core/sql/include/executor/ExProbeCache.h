@@ -121,8 +121,8 @@ class ExProbeCacheTcb : public ex_tcb {
 
   ex_queue_pair getParentQueue() const { return qparent_; }
 
-  virtual Int32 numChildren() const { return 1; }
-  virtual const ex_tcb *getChild(Int32 /*pos*/) const { return childTcb_; }
+  virtual int numChildren() const { return 1; }
+  virtual const ex_tcb *getChild(int /*pos*/) const { return childTcb_; }
 
   virtual NABoolean needStatsEntry();
 
@@ -279,7 +279,7 @@ class ExPCMgr : public NABasicObject {
 
  private:
   // Reuse unused entry, or use an entry that has never been used.
-  ExPCE *addEntry(Int32 bucket, ULng32 probeHashVal, char *probeBytes, queue_index qIdxForCancel);
+  ExPCE *addEntry(int bucket, ULng32 probeHashVal, char *probeBytes, queue_index qIdxForCancel);
 
   // Choose a possible victim for addEntry's second-chance
   // cache replacement logic.

@@ -113,25 +113,25 @@ class SQLLM_LIB_FUNC LmRoutine : public NABasicObject {
   virtual LmResult invokeRoutineMethod(
       /* IN */ tmudr::UDRInvocationInfo::CallPhase phase,
       /* IN */ const char *serializedInvocationInfo,
-      /* IN */ Int32 invocationInfoLen,
-      /* OUT */ Int32 *invocationInfoLenOut,
+      /* IN */ int invocationInfoLen,
+      /* OUT */ int *invocationInfoLenOut,
       /* IN */ const char *serializedPlanInfo,
-      /* IN */ Int32 planInfoLen,
-      /* IN */ Int32 planNum,
-      /* OUT */ Int32 *planInfoLenOut,
+      /* IN */ int planInfoLen,
+      /* IN */ int planNum,
+      /* OUT */ int *planInfoLenOut,
       /* IN */ char *inputRow,
-      /* IN */ Int32 inputRowLen,
+      /* IN */ int inputRowLen,
       /* OUT */ char *outputRow,
-      /* IN */ Int32 outputRowLen,
+      /* IN */ int outputRowLen,
       /* IN/OUT */ ComDiagsArea *da);
   virtual LmResult getRoutineInvocationInfo(
       /* IN/OUT */ char *serializedInvocationInfo,
-      /* IN */ Int32 invocationInfoMaxLen,
-      /* OUT */ Int32 *invocationInfoLenOut,
+      /* IN */ int invocationInfoMaxLen,
+      /* OUT */ int *invocationInfoLenOut,
       /* IN/OUT */ char *serializedPlanInfo,
-      /* IN */ Int32 planInfoMaxLen,
-      /* IN */ Int32 planNum,
-      /* OUT */ Int32 *planInfoLenOut,
+      /* IN */ int planInfoMaxLen,
+      /* IN */ int planNum,
+      /* OUT */ int *planInfoLenOut,
       /* IN/OUT */ ComDiagsArea *da);
 
   virtual LmResult setFunctionPtrs(SQLUDR_GetNextRow getNextRowPtr, SQLUDR_EmitRow emitRowPtr, ComDiagsArea *da);
@@ -140,12 +140,12 @@ class SQLLM_LIB_FUNC LmRoutine : public NABasicObject {
   ComRoutineParamStyle getParamStyle() const { return paramStyle_; }
 
   ComRoutineExternalSecurity getExternalSecurity() const { return externalSecurity_; }
-  Int32 getRoutineOwnerId() const { return routineOwnerId_; }
+  int getRoutineOwnerId() const { return routineOwnerId_; }
 
   LmParameter *getLmParams() const { return lmParams_; }
 
-  Int32 getInputParamRowLen() const { return inputParamRowLen_; }
-  Int32 getOutputRowLen() const { return outputRowLen_; }
+  int getInputParamRowLen() const { return inputParamRowLen_; }
+  int getOutputRowLen() const { return outputRowLen_; }
 
   // Returns the routine name to use for error reporting.
   // For command-line operations the sqlName_ is not available
@@ -167,8 +167,8 @@ class SQLLM_LIB_FUNC LmRoutine : public NABasicObject {
   LmRoutine(LmHandle container, LmHandle routine, const char *sqlName, const char *externalName,
             const char *librarySqlName, ComUInt32 numParam, ComUInt32 maxResultSets, ComRoutineLanguage language,
             ComRoutineParamStyle paramStyle, ComRoutineTransactionAttributes transactionAttrs,
-            ComRoutineSQLAccess sqlAccessMode, ComRoutineExternalSecurity externalSecurity, Int32 routineOwnerId,
-            const char *parentQid, const char *clientInfo, Int32 inputParamRowLen, Int32 outputRowLen,
+            ComRoutineSQLAccess sqlAccessMode, ComRoutineExternalSecurity externalSecurity, int routineOwnerId,
+            const char *parentQid, const char *clientInfo, int inputParamRowLen, int outputRowLen,
             const char *currentUserName, const char *sessionUserName, LmParameter *lmParams, LmLanguageManager *lm);
 
   LmLanguageManager *lm_;     // Owning LM
@@ -199,10 +199,10 @@ class SQLLM_LIB_FUNC LmRoutine : public NABasicObject {
   ComRoutineParamStyle paramStyle_;
 
   ComRoutineExternalSecurity externalSecurity_;
-  Int32 routineOwnerId_;
+  int routineOwnerId_;
 
-  Int32 inputParamRowLen_;
-  Int32 outputRowLen_;
+  int inputParamRowLen_;
+  int outputRowLen_;
 
   const char *udrCatalog_;  // Default catalog value
   const char *udrSchema_;   // Default schema value

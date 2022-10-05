@@ -280,7 +280,7 @@ class MjvOnRequestMultiDeltaBuilder : public MjvOnRequestBuilder {
   void incrementDeleteBlockCounter() { deleteBlockCounter_++; }
 
  private:
-  Int32 deleteBlockCounter_;
+  int deleteBlockCounter_;
 
 };  // class MjvOnRequestMultiDeltaBuilder
 

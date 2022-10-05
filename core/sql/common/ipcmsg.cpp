@@ -107,7 +107,7 @@ GuaMsgConnectionToServer::GuaMsgConnectionToServer(IpcEnvironment *env, const Ip
   activeIOs_ = new (env) ActiveIOQueueEntry[nowaitDepth_];
   // get the length of the request/reply control structure
   //  int controllen = sizeof(fs_fs_template) + sizeof(fs_fs_template::__writeread);
-  Int32 controllen = sizeof(fs_fs_writeread);
+  int controllen = sizeof(fs_fs_writeread);
 
   // initialize each entry in the Active IOs queue
   for (unsigned short i = 0; i < nowaitDepth_; i++) {
@@ -149,7 +149,7 @@ GuaMsgConnectionToServer::~GuaMsgConnectionToServer() {
   closePhandle();
 
   CollHeap *heap = getEnvironment()->getHeap();
-  for (Int32 i = 0; i < nowaitDepth_; i++) {
+  for (int i = 0; i < nowaitDepth_; i++) {
     ActiveIOQueueEntry &entry = activeIOs_[i];
     heap->deallocateMemory(entry.writeDataCBAPtr_);
     heap->deallocateMemory(entry.readDataCBAPtr_);
@@ -264,7 +264,7 @@ WaitReturnStatus GuaMsgConnectionToServer::wait(IpcTimeout timeout, UInt32 *even
   // where we started checking for IO completion
   unsigned short start = currentEntry_;
   // indicates we found a completed message
-  Int32 a_message_is_done = 0;
+  int a_message_is_done = 0;
 
   // check if anyone of our messages has completed
   do {
@@ -585,9 +585,9 @@ WaitReturnStatus GuaMsgConnectionToServer::wait(IpcTimeout timeout, UInt32 *even
 
 GuaMsgConnectionToServer *GuaMsgConnectionToServer::castToGuaMsgConnectionToServer() { return this; }
 
-Int32 GuaMsgConnectionToServer::numQueuedSendMessages() { return sendQueueEntries(); }
+int GuaMsgConnectionToServer::numQueuedSendMessages() { return sendQueueEntries(); }
 
-Int32 GuaMsgConnectionToServer::numQueuedReceiveMessages() { return receiveQueueEntries(); }
+int GuaMsgConnectionToServer::numQueuedReceiveMessages() { return receiveQueueEntries(); }
 
 void GuaMsgConnectionToServer::populateDiagsArea(ComDiagsArea *&diags, CollHeap *diagsHeap) {
   if (guaErrorInfo_ != GuaOK) {
@@ -1084,7 +1084,7 @@ void GuaMsgConnectionToServer::openPhandle(char *processName) {
   stat = SETMODE(openFile_, 74, -1);
   if (_status_ne(stat)) {
     // get a Guardian error code
-    Int32 errcode2 = FILE_GETINFO_(openFile_, &guaErrorInfo_);
+    int errcode2 = FILE_GETINFO_(openFile_, &guaErrorInfo_);
 
     if (errcode2 != 0) guaErrorInfo_ = errcode2;  // not even FILE_GETINFO_ worked
     setErrorInfo(-1);
@@ -1096,7 +1096,7 @@ void GuaMsgConnectionToServer::openPhandle(char *processName) {
   stat = SETMODE(openFile_, 30, 3);
   if (_status_ne(stat)) {
     // get a Guardian error code
-    Int32 errcode2 = FILE_GETINFO_(openFile_, &guaErrorInfo_);
+    int errcode2 = FILE_GETINFO_(openFile_, &guaErrorInfo_);
 
     if (errcode2 != 0) guaErrorInfo_ = errcode2;  // not even FILE_GETINFO_ worked
     setErrorInfo(-1);
@@ -1109,7 +1109,7 @@ void GuaMsgConnectionToServer::openPhandle(char *processName) {
     _cc_status stat = SETMODE(openFile_, 117, 1);
     if (_status_ne(stat)) {
       // get a Guardian error code
-      Int32 errcode2 = FILE_GETINFO_(openFile_, &guaErrorInfo_);
+      int errcode2 = FILE_GETINFO_(openFile_, &guaErrorInfo_);
 
       if (errcode2 != 0) guaErrorInfo_ = errcode2;  // not even FILE_GETINFO_ worked
       setErrorInfo(-1);
@@ -1183,7 +1183,7 @@ void GuaMsgConnectionToServer::closePhandle() {
 short GuaMsgConnectionToServer::setupRequestInfo(void *control, long transid) {
   // Redirected to T9055 to insulate SQL/MX from changes in
   // ACB_REQUEST_TEMPLATE
-  Int32 retcode = FS_SQL_SETUPREQUESTINFO(openFile_, (fs_fs_template *)control, transid);
+  int retcode = FS_SQL_SETUPREQUESTINFO(openFile_, (fs_fs_template *)control, transid);
   return retcode;
 
 #if 0
@@ -1293,7 +1293,7 @@ short GuaMsgConnectionToServer::setupRequestInfo(void *control, long transid) {
 void GuaMsgConnectionToServer::putMsgIdinACB(UInt32 msgid) {
   // Redirected to T9055 to insulate SQL/MX from changes in
   // ACB_REQUEST_TEMPLATE
-  Int32 retcode = FS_SQL_PUTMSGIDINACB(openFile_, msgid);
+  int retcode = FS_SQL_PUTMSGIDINACB(openFile_, msgid);
 #if 0
   direct_globals_template * pfsptr;//pointer to the PFS
   acb_standard_template * acb;//pointer to the acb for openFile_
@@ -1326,7 +1326,7 @@ void GuaMsgConnectionToServer::putMsgIdinACB(UInt32 msgid) {
 void GuaMsgConnectionToServer::resetAfterReply(UInt32 msgid, short error, long *transid) {
   // Redirected to T9055 to insulate SQL/MX from changes in
   // ACB_REQUEST_TEMPLATE
-  Int32 retcode = FS_SQL_RESETAFTERREPLY(openFile_, msgid, error, transid, abortXnOnPathErrors_);
+  int retcode = FS_SQL_RESETAFTERREPLY(openFile_, msgid, error, transid, abortXnOnPathErrors_);
 
 #if 0
   direct_globals_template * pfsptr;//pointer to the PFS

@@ -50,7 +50,7 @@ CRUMultiTxnRefreshSQLComposer::CRUMultiTxnRefreshSQLComposer(CRURefreshTask *pTa
 //	CRUMultiTxnRefreshSQLComposer::ComposeRefresh()
 //--------------------------------------------------------------------------//
 
-void CRUMultiTxnRefreshSQLComposer::ComposeRefresh(Int32 phase, BOOL catchup) {
+void CRUMultiTxnRefreshSQLComposer::ComposeRefresh(int phase, BOOL catchup) {
   StartInternalRefresh();
 
   sql_ += " FROM SINGLEDELTA ";
@@ -72,7 +72,7 @@ void CRUMultiTxnRefreshSQLComposer::ComposeRefresh(Int32 phase, BOOL catchup) {
 //	CRUMultiTxnRefreshSQLComposer::AddNRowsClause()
 //--------------------------------------------------------------------------//
 
-void CRUMultiTxnRefreshSQLComposer::AddNRowsClause(Int32 phase, BOOL catchup) {
+void CRUMultiTxnRefreshSQLComposer::AddNRowsClause(int phase, BOOL catchup) {
   sql_ += "\n\t COMMIT EACH ";
   sql_ += TInt32ToStr(GetRootMV().GetCommitNRows());
 

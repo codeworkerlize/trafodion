@@ -134,7 +134,7 @@ EHBoolean EHExceptionHandler::catchException(EHExceptionTypeEnum exceptionType) 
   return FALSE;
 }
 
-void EHExceptionHandler::setExceptionType(Int32 exceptionType) {
+void EHExceptionHandler::setExceptionType(int exceptionType) {
   EH_ASSERT(exceptionType >= EH_NORMAL AND exceptionType < EH_LAST_EXCEPTION_TYPE_ENUM);
   exceptionType_ = (EHExceptionTypeEnum)exceptionType;
 }

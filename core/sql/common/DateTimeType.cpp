@@ -173,8 +173,8 @@ NAType::SynthesisPrecedence DatetimeType::getSynthesisPrecedence() const { retur
 // ***********************************************************************
 
 // For indexing through the static arrays above.
-Int32 DatetimeType::getExtendedEndField(rec_datetime_field endField, UInt32 fractionPrecision) {
-  Int32 result = endField;
+int DatetimeType::getExtendedEndField(rec_datetime_field endField, UInt32 fractionPrecision) {
+  int result = endField;
   if (fractionPrecision > 0) {
     if (endField == REC_DATE_SECOND)
       result++;  // The FRACTION field of the
@@ -207,9 +207,9 @@ Int32 DatetimeType::getExtendedEndField(rec_datetime_field endField, UInt32 frac
 int DatetimeType::getStorageSize(rec_datetime_field startField, rec_datetime_field endField,
                                    UInt32 fractionPrecision) {
   int storageSize = 0;
-  Int32 end = getExtendedEndField(endField, fractionPrecision);
-  for (Int32 field = startField; field <= end; field++) {
-    Int32 index = field - REC_DATE_YEAR;
+  int end = getExtendedEndField(endField, fractionPrecision);
+  for (int field = startField; field <= end; field++) {
+    int index = field - REC_DATE_YEAR;
     storageSize += storageLen[index];
   }
   return storageSize;
@@ -226,11 +226,11 @@ void DatetimeType::datetimeToLong(void *bufPtr, ULng32 values[]) const {
   char *str = (char *)bufPtr;
   short sw;
   int size;
-  Int32 start = getStartField();
-  Int32 end = getExtendedEndField(getEndField(), getFractionPrecision());
+  int start = getStartField();
+  int end = getExtendedEndField(getEndField(), getFractionPrecision());
   ULng32 val = 0;
 
-  for (Int32 i = start; i <= end; i++) {
+  for (int i = start; i <= end; i++) {
     size = storageLen[i - 1];
     switch (size) {
       case sizeof(char):
@@ -272,7 +272,7 @@ int DatetimeType::gregorianDays(const ULng32 values[]) {
 
   int month = values[1];
 
-  for (Int32 i = 1; i < month; i++) days += daysInMonth[i];
+  for (int i = 1; i < month; i++) days += daysInMonth[i];
 
   if ((month > 2) && !leapYear(year + 1)) days--;
 
@@ -414,7 +414,7 @@ DatetimeType *DatetimeType::constructSubtype(NABoolean allowSQLnull, rec_datetim
 // ***********************************************************************
 
 int DatetimeType::getDisplayLength() const {
-  Int32 field = getStartField() - REC_DATE_YEAR;
+  int field = getStartField() - REC_DATE_YEAR;
   size_t displayLength = maxFieldLen[field];
   while (field < (getEndField() - REC_DATE_YEAR)) displayLength += 1 /* for separator */ + maxFieldLen[++field];
   if (getFractionPrecision() > 0) {
@@ -536,7 +536,7 @@ const NAType *DatetimeType::synthesizeType(enum NATypeSynthRuleEnum synthRule, c
           // Result is numeric.
           return new (h) SQLInt(h);
         } else {
-          Int32 leadingPrecision =
+          int leadingPrecision =
               IntervalType::computeLeadingPrecision(datetime1->getEndField(), SQLInterval::MAX_LEADING_PRECISION,
                                                     datetime1->getEndField(), fractionPrecision);
 
@@ -607,9 +607,9 @@ const NAType *DatetimeType::synthesizeTernary(enum NATypeSynthRuleEnum synthRule
 
 void DatetimeType::getRepresentableValue(const char *inValueString, void *bufPtr, int *bufLen,
                                          NAString **stringLiteral, NAMemory *h) const {
-  Int32 startIndex = getStartField() - REC_DATE_YEAR;
-  Int32 endIndex = getEndField() - REC_DATE_YEAR;
-  Int32 startOff, endOff, i = 0;
+  int startIndex = getStartField() - REC_DATE_YEAR;
+  int endIndex = getEndField() - REC_DATE_YEAR;
+  int startOff, endOff, i = 0;
   UInt32 fracPrec = 0;
 
   for (startOff = 0; i < startIndex; i++)
@@ -628,7 +628,7 @@ void DatetimeType::getRepresentableValue(const char *inValueString, void *bufPtr
   if (getSubtype() == SUBTYPE_SQLMPDatetime) {
     fracPrec = getFractionPrecision();
     if (getStartField() == REC_DATE_FRACTION_MP) {
-      Int32 adjust = (6 - fracPrec) + 2;  // move past "00." (seconds + decimal pt.)
+      int adjust = (6 - fracPrec) + 2;  // move past "00." (seconds + decimal pt.)
       startOff += adjust;
       i -= adjust;
     }
@@ -865,7 +865,7 @@ double SQLDate::encode(void *bufPtr) const {
   if (supportsSQLnull()) valPtr += getSQLnullHdrSize();
   ULng32 w[10];
 
-  for (Int32 i = 0; i < 10; i++) w[i] = 0;
+  for (int i = 0; i < 10; i++) w[i] = 0;
 
   datetimeToLong(valPtr, w);
   assert(w[0] <= 9999);
@@ -944,7 +944,7 @@ double SQLTime::encode(void *bufPtr) const {
   if (supportsSQLnull()) valPtr += getSQLnullHdrSize();
   ULng32 w[6];
 
-  for (Int32 i = 0; i < 6; i++) w[i] = 0;
+  for (int i = 0; i < 6; i++) w[i] = 0;
 
   datetimeToLong(valPtr, w);
   assert(w[0] <= 24);
@@ -1021,7 +1021,7 @@ double SQLTimestamp::encode(void *bufPtr) const {
   if (supportsSQLnull()) valPtr += getSQLnullHdrSize();
   ULng32 w[10];
 
-  for (Int32 i = 0; i < 10; i++) w[i] = 0;
+  for (int i = 0; i < 10; i++) w[i] = 0;
 
   datetimeToLong(valPtr, w);
   assert(w[0] <= 9999);
@@ -1096,7 +1096,7 @@ double SQLTimestamp::getMinValue() const {
 double SQLTimestamp::getMaxValue() const {
   char source[50];
   // initialize length to size without the fraction part
-  Int32 len = 19;
+  int len = 19;
   sprintf(source, "9999-12-31 23:59:59");
   // 0123456789012345678901234567890  = 18 characters
 
@@ -1104,7 +1104,7 @@ double SQLTimestamp::getMaxValue() const {
     char *fraction = source + strlen(source);
     fraction[0] = '.';  // 19 chars
     fraction++;
-    for (Int32 i = 0; i < getScale(); i++) {
+    for (int i = 0; i < getScale(); i++) {
       fraction[i] = '9';  // getScale() <= 6
     }
   }
@@ -1126,7 +1126,7 @@ double SQLMPDatetime::encode(void *bufPtr) const {
   w[REC_DATE_YEAR - 1] = 1;  // should use min values here
   w[REC_DATE_MONTH - 1] = 1;
   w[REC_DATE_DAY - 1] = 1;
-  for (Int32 i = REC_DATE_HOUR - 1; i < 10; i++) w[i] = 0;
+  for (int i = REC_DATE_HOUR - 1; i < 10; i++) w[i] = 0;
 
   datetimeToLong(valPtr, &w[getStartField() - 1]);
   assert(w[0] <= 9999);
@@ -1311,7 +1311,7 @@ NABoolean DatetimeValue::scanDate(const char *&strValue, DatetimeFormat &format,
   //
   // Determine the datetime format (DEFAULT, USA, or EUROPEAN).
   //
-  Int32 firstFieldSize = 0;
+  int firstFieldSize = 0;
   const char *s = strValue;
   while (isdigit(*s)) {
     s++;
@@ -1328,7 +1328,7 @@ NABoolean DatetimeValue::scanDate(const char *&strValue, DatetimeFormat &format,
   if (startField_ == endField_ || startField_ == REC_DATE_DAY) {
     format = FORMAT_DEFAULT;
   } else {
-    Int32 i = FORMAT_DEFAULT;
+    int i = FORMAT_DEFAULT;
     for (; separator[i] != '\0'; i++)
       if (*s == separator[i]) {
         currSeparator = separator[i];
@@ -1551,9 +1551,9 @@ void DatetimeValue::setValue(rec_datetime_field startField, rec_datetime_field e
                              const ULng32 values[]) {
   valueLen_ = (unsigned short)DatetimeType::getStorageSize(startField, endField, fractionPrecision);
   unsigned char *value = value_ = new unsigned char[valueLen_];
-  Int32 end = DatetimeType::getExtendedEndField(endField, fractionPrecision);
-  for (Int32 field = startField; field <= end; field++) {
-    Int32 index = field - REC_DATE_YEAR;
+  int end = DatetimeType::getExtendedEndField(endField, fractionPrecision);
+  for (int field = startField; field <= end; field++) {
+    int index = field - REC_DATE_YEAR;
     // This is portable, on endianness
     switch (storageLen[index]) {
       case sizeof(unsigned char): {
@@ -1581,14 +1581,14 @@ NAString DatetimeValue::getValueAsString(const DatetimeType &dt) const {
   if (!isValid()) return result;
 
   char cbuf[DatetimeType::MAX_FRACTION_PRECISION + 1];  // +1 for sprintf '\0'
-  Int32 clen;
+  int clen;
   ULng32 ulbuf = 0;
   unsigned short usbuf;
   unsigned char ucbuf;
   const unsigned char *value = getValue();
-  Int32 end = dt.getExtendedEndField(dt.getEndField(), dt.getFractionPrecision());
-  for (Int32 field = dt.getStartField(); field <= end; field++) {
-    Int32 index = field - REC_DATE_YEAR;
+  int end = dt.getExtendedEndField(dt.getEndField(), dt.getFractionPrecision());
+  for (int field = dt.getStartField(); field <= end; field++) {
+    int index = field - REC_DATE_YEAR;
     if (value - getValue() >= getValueLen()) {
       assert(index == FRACTION);
       ulbuf = 0;  // optional seconds fraction value defaults to zero
@@ -1722,7 +1722,7 @@ void DatetimeValue::decodeTimestamp(bool useUTCTimestmap, long inTimeVal, bool i
   tsFields[DAY] = day;
 }
 
-int DatetimeValue::convertToUtcFromDatetime(const char *value, Int32 valueLen, Int32 fractionPrec, time_t &utcTime,
+int DatetimeValue::convertToUtcFromDatetime(const char *value, int valueLen, int fractionPrec, time_t &utcTime,
                                             int &nanoSecs) {
   const char *datetimeOpData = value;
   short year;
@@ -1777,7 +1777,7 @@ int DatetimeValue::convertToUtcFromDatetime(const char *value, Int32 valueLen, I
   return 0;
 }
 
-int DatetimeValue::convertToUtcFromDate(const char *value, Int32 valueLen, time_t &utcTime) {
+int DatetimeValue::convertToUtcFromDate(const char *value, int valueLen, time_t &utcTime) {
   const char *datetimeOpData = value;
   short year;
   char month;

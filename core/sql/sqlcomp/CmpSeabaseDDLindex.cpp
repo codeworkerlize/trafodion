@@ -173,7 +173,7 @@ short CmpSeabaseDDL::createIndexColAndKeyInfoArrays(
     NABoolean hasSyskey, NABoolean alignedFormat, NAString &defaultColFam, const NAColumnArray &baseTableNAColArray,
     const NAColumnArray &baseTableKeyArr, int &keyColCount, int &nonKeyColCount, int &totalColCount,
     ComTdbVirtTableColumnInfo *&colInfoArray, ComTdbVirtTableKeyInfo *&keyInfoArray, NAList<NAString> &selColList,
-    int &keyLength, NAMemory *heap, Int32 numSaltPartns) {
+    int &keyLength, NAMemory *heap, int numSaltPartns) {
   int retcode = 0;
   keyLength = 0;
 
@@ -679,12 +679,12 @@ void CmpSeabaseDDL::createSeabaseIndex(StmtDDLCreateIndex *createIndexNode, NASt
   // will delete this limitation later
   const NAString &colName = createIndexNode->getColRefArray()[0]->getColumnName();
   const NAFileSetList &indexList = naTable->getIndexList();
-  for (Int32 i = 0; i < indexList.entries(); i++) {
+  for (int i = 0; i < indexList.entries(); i++) {
     const NAFileSet *naf = indexList[i];
     if (naf->ngramIndex() == createIndexNode->isNgramSpecified()) continue;
     const NAColumnArray &indexColumns = naf->getIndexKeyColumns();
-    Int32 colNum = indexColumns.entries();
-    for (Int32 j = 0; j < colNum; j++) {
+    int colNum = indexColumns.entries();
+    for (int j = 0; j < colNum; j++) {
       if (indexColumns[j]->getColName() == colName) {
         // This is a base table with clustering keys
         if (naTable->objectUid().castToInt64() == naf->getIndexUID())
@@ -759,8 +759,8 @@ void CmpSeabaseDDL::createSeabaseIndex(StmtDDLCreateIndex *createIndexNode, NASt
   ElemDDLColRefArray &indexColRefArray = createIndexNode->getColRefArray();
   const NAFileSet *nafs = naTable->getClusteringIndex();
   const NAColumnArray &baseTableKeyArr = nafs->getIndexKeyColumns();
-  Int32 numSaltPartns = 0;
-  Int32 numInitialSaltRegions = 1;
+  int numSaltPartns = 0;
+  int numInitialSaltRegions = 1;
   int numSplits = 0;
   Int16 numTrafReplicas = naTable->getNumTrafReplicas();
   CollIndex numPrefixColumns = 0;
@@ -1661,7 +1661,7 @@ void CmpSeabaseDDL::populateSeabaseIndex(StmtDDLPopulateIndex *populateIndexNode
     const NAPartitionArray &partArray = naTable->getPartitionArray();
     // if populate all index on table
     // update index status on base table
-    for (Int32 i = 0; i < indexList.entries(); i++) {
+    for (int i = 0; i < indexList.entries(); i++) {
       const NAFileSet *naf = indexList[i];
       if (naf->getKeytag() == 0) continue;
 
@@ -1691,7 +1691,7 @@ void CmpSeabaseDDL::populateSeabaseIndex(StmtDDLPopulateIndex *populateIndexNode
     }
 
     // populate all index on partitions
-    for (Int32 i = 0; i < naTable->FisrtLevelPartitionCount(); i++) {
+    for (int i = 0; i < naTable->FisrtLevelPartitionCount(); i++) {
       char partitionIndexName[256];
       if (ispopulateForASingle) {
         objectNamePart = indexList[index]->getFileSetName().getObjectName().data();
@@ -1713,7 +1713,7 @@ void CmpSeabaseDDL::populateSeabaseIndex(StmtDDLPopulateIndex *populateIndexNode
     }
     endXnIfStartedHere(&cliInterface, xnWasStartedHere, 0, FALSE /*modifyEpoch*/, FALSE /*clearObjectLocks*/);
   } else {
-    for (Int32 i = 0; i < indexList.entries(); i++) {
+    for (int i = 0; i < indexList.entries(); i++) {
       const NAFileSet *naf = indexList[i];
       if (naf->getKeytag() == 0) continue;
 
@@ -2051,8 +2051,8 @@ void CmpSeabaseDDL::dropSeabaseIndex(StmtDDLDropIndex *dropIndexNode, NAString &
   NAString btSchName;
   NAString btObjName;
   long btUID;
-  Int32 btObjOwner = 0;
-  Int32 btSchemaOwner = 0;
+  int btObjOwner = 0;
+  int btSchemaOwner = 0;
   if (getBaseTable(&cliInterface, catalogNamePart, schemaNamePart, objectNamePart, btCatName, btSchName, btObjName,
                    btUID, btObjOwner, btSchemaOwner)) {
     processReturn();
@@ -2480,8 +2480,8 @@ void CmpSeabaseDDL::alterSeabaseTableDisableOrEnableIndex(ExprNode *ddlNode, NAS
   }
 
   long btUID = 0;
-  Int32 btObjOwner = 0;
-  Int32 btSchemaOwner = 0;
+  int btObjOwner = 0;
+  int btSchemaOwner = 0;
   long btObjectFlags = 0;
   long objDataUID = 0;
   if ((btUID = getObjectInfo(&cliInterface, btCatName, btSchName, btObjName, COM_BASE_TABLE_OBJECT, btObjOwner,
@@ -2563,7 +2563,7 @@ void CmpSeabaseDDL::alterSeabaseTableDisableOrEnableIndex(ExprNode *ddlNode, NAS
     if (isPartitionTable) {
       // update flags for every partition table
       const NAPartitionArray &partArray = naTable->getPartitionArray();
-      for (Int32 i = 0; i < naTable->FisrtLevelPartitionCount(); i++) {
+      for (int i = 0; i < naTable->FisrtLevelPartitionCount(); i++) {
         char partitionIndexName[256];
         getPartitionIndexName(partitionIndexName, 256, objectNamePart, partArray[i]->getPartitionEntityName());
         if (alterSeabaseTableDisableOrEnableIndex(btCatName.data(), btSchName.data(), partitionIndexName,
@@ -2914,8 +2914,8 @@ void CmpSeabaseDDL::alterSeabaseIndexHBaseOptions(StmtDDLAlterIndexHBaseOptions 
   NAString btSchName;
   NAString btObjName;
   long btUID;
-  Int32 btObjOwner = 0;
-  Int32 btSchemaOwner = 0;
+  int btObjOwner = 0;
+  int btSchemaOwner = 0;
   if (getBaseTable(&cliInterface, catalogNamePart, schemaNamePart, objectNamePart, btCatName, btSchName, btObjName,
                    btUID, btObjOwner, btSchemaOwner)) {
     processReturn();
@@ -3051,7 +3051,7 @@ void CmpSeabaseDDL::alterSeabaseIndexHBaseOptions(StmtDDLAlterIndexHBaseOptions 
 // In:  the fileAttrs to update
 //      description of the parent table
 // -----------------------------------------------------------------------------
-Int32 CmpSeabaseDDL::alterSeabaseIndexAttributes(ExeCliInterface *cliInterface, ParDDLFileAttrsAlterTable &fileAttrs,
+int CmpSeabaseDDL::alterSeabaseIndexAttributes(ExeCliInterface *cliInterface, ParDDLFileAttrsAlterTable &fileAttrs,
                                                  NATable *naTable, int alterReadonlyOP) {
   char queryBuf[1000];
   int cliRC = 0;

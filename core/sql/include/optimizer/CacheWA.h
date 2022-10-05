@@ -204,9 +204,9 @@ class CacheWA : public NABasicObject {
   // return current query's selection parameters for backpatching cached plan
   SelParameters &getSelParams() { return sels_; }
 
-  LIST(Int32) & getConstParamPositionsInSql() { return sqlStmtConstParamPos_; }
-  LIST(Int32) & getSelParamPositionsInSql() { return sqlStmtSelParamPos_; }
-  LIST(Int32) & getHQCConstPositionsInSql() { return hqcSqlConstPos_; }
+  LIST(int) & getConstParamPositionsInSql() { return sqlStmtConstParamPos_; }
+  LIST(int) & getSelParamPositionsInSql() { return sqlStmtSelParamPos_; }
+  LIST(int) & getHQCConstPositionsInSql() { return hqcSqlConstPos_; }
 
   void bindConstant2SQC(BaseColumn *base, ConstantParameter *cParameter) {
     if (HQCKey_ && HQCKey_->isCacheable()) HQCKey_->bindConstant2SQC(base, cParameter, hqcSqlConstPos_);
@@ -315,16 +315,16 @@ class CacheWA : public NABasicObject {
 
   HQCParseKey *HQCKey_;  // collect histogram info for a Hybrid Cache Key during NormalizeForCache.
 
-  Int32 numberOfExprs_;  // number of ExprNodes in current query
+  int numberOfExprs_;  // number of ExprNodes in current query
   // a query with more than N ExprNodes is not cacheable
 
-  Int32 numberOfScans_;  // number of Scan nodes in current query
+  int numberOfScans_;  // number of Scan nodes in current query
 
   TableDescPtr *tabDescPtr_;  // array of TableDesc pointers
   ValueIdSet **usedKyPtr_;    // array of ValueIdSet pointers
-  Int32 tabArraySize_;        // size of the tabDescPtr_ and usedKyPtr_ arrays
+  int tabArraySize_;        // size of the tabDescPtr_ and usedKyPtr_ arrays
 
-  Int32 requiredPrefixKeys_;
+  int requiredPrefixKeys_;
 
   NABoolean hasPredicate_;  // TRUE if query has a WHERE clause
   NABoolean predHasNoLit_;  // TRUE if predicate has no constants
@@ -345,15 +345,15 @@ class CacheWA : public NABasicObject {
   int autoabortInterval_;            // tx autoabortInterval
 
   SelParameters sels_;  // list of actual selection parameters
-  LIST(Int32) sqlStmtConstParamPos_;
+  LIST(int) sqlStmtConstParamPos_;
   // list of positions in sql stmt
   // that each constant occurs. Each is replaced
   // by a const parameter
-  LIST(Int32) sqlStmtSelParamPos_;
+  LIST(int) sqlStmtSelParamPos_;
   // list of positions in sql stmt
   // that each constant occurs. Each is replaced
   // by a selParameter
-  LIST(Int32) hqcSqlConstPos_;
+  LIST(int) hqcSqlConstPos_;
   // used by the HQC logic to keep track of the correct
   // order of the query constants
   UInt32 posCounter_;

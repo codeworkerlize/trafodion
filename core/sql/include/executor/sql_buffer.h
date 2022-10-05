@@ -276,8 +276,8 @@ class SqlBufferBase : public SqlBufferHeader {
   inline void setBufferStatus(buffer_status_type buf_stat) { bufferStatus_ = buf_stat; }
 
   // get the buffer status
-  inline Int32 isFull() const { return (bufferStatus_ == FULL); }
-  inline Int32 isEmpty() const { return (bufferStatus_ == EMPTY); }
+  inline int isFull() const { return (bufferStatus_ == FULL); }
+  inline int isEmpty() const { return (bufferStatus_ == EMPTY); }
 
   virtual moveStatus moveInSendOrReplyData(NABoolean isSend,         // TRUE = send
                                            NABoolean doMoveControl,  // TRUE = move
@@ -504,7 +504,7 @@ class SqlBuffer : public SqlBufferBase {
   void setSignature();
   inline void setInvalidSignature() { signature_ = (long)INVALID_SIGNATURE; }
   inline long getSignature(void) const { return signature_; }
-  NABoolean checkSignature(const Int32 nid, const Int32 pid, long *signature, const Int32 action);
+  NABoolean checkSignature(const int nid, const int pid, long *signature, const int action);
 
   ////////////////////////////////////////////////////////////////////////
   // SEND* requests: These flags set by sender which sends input requests
@@ -642,7 +642,7 @@ class SqlBuffer : public SqlBufferBase {
   // for details on how this variable is used.
   ControlInfo srControlInfo_;
 
-  virtual tupp_descriptor *tupleDesc(Int32 i) { return 0; }
+  virtual tupp_descriptor *tupleDesc(int i) { return 0; }
 
  private:
   enum PROCEED_OR_DEFER {
@@ -650,7 +650,7 @@ class SqlBuffer : public SqlBufferBase {
     PROCEED_MORE_TUPPS
   };
 
-  Int32 setupSrControlInfo(NABoolean isSend, tupp_descriptor *tuppDesc);
+  int setupSrControlInfo(NABoolean isSend, tupp_descriptor *tuppDesc);
 };
 
 /////////////////////////////////////////////////////////////////////
@@ -780,7 +780,7 @@ class SqlBufferNormal : public SqlBuffer {
   virtual tupp_descriptor *getCurr() { return getCurrNormal(); };
   tupp_descriptor *getCurrNormal() {
     if (tuppDescIndex_ < maxTuppDesc_)
-      return tupleDesc((Int32)tuppDescIndex_);
+      return tupleDesc((int)tuppDescIndex_);
     else
       return 0;
   }
@@ -825,7 +825,7 @@ class SqlBufferNormal : public SqlBuffer {
   unsigned short normalBufFlags_;
 
   virtual tupp_descriptor *tupleDesc(
-      Int32 i) {  // tuple descs are allocated in reverse order, from the end of the buffer.
+      int i) {  // tuple descs are allocated in reverse order, from the end of the buffer.
     return &((tupp_descriptor *)((char *)this + tupleDescOffset_))[-(i + 1)];
   };
 };
@@ -992,11 +992,11 @@ class SqlBufferDense : public SqlBuffer {
 
   TupleDescInfo *&currTupleDesc() { return currTupleDesc_; };
 
-  virtual tupp_descriptor *tupleDesc(Int32 i) {
+  virtual tupp_descriptor *tupleDesc(int i) {
     if (i >= maxTuppDesc_) return NULL;
 
     TupleDescInfo *tdi = firstTupleDesc();
-    for (Int32 j = 0; j < i; j++) {
+    for (int j = 0; j < i; j++) {
       setNextTupleDesc(tdi, getNextTupleDesc(tdi));
     }
 
@@ -1440,14 +1440,14 @@ class sql_buffer_pool : public ExGod {
 
   // private methods
   // get the current buffer with enough free space
-  inline SqlBuffer *getCurrentBuffer(int freeSpace, Int32 mustBeEmpty = 0);
+  inline SqlBuffer *getCurrentBuffer(int freeSpace, int mustBeEmpty = 0);
 
   // try to find a buffer that is not in use by an I/O operation and that
   // has at least freeSpace free space without performing any cleanup
-  SqlBufferBase *findBuffer(int freeSpace, Int32 mustBeEmpty = 0);
+  SqlBufferBase *findBuffer(int freeSpace, int mustBeEmpty = 0);
 
   // same as above, but try to free up some space if needed
-  SqlBufferBase *getBuffer(int freeSpace, Int32 mustBeEmpty = 0);
+  SqlBufferBase *getBuffer(int freeSpace, int mustBeEmpty = 0);
 
   SqlBufferBase *addBuffer(Queue *bufferList, int totalBufferSize, SqlBufferBase::BufferType bufType,
                            bool failureIsFatal = true);

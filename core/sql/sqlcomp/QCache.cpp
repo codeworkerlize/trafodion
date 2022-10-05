@@ -154,7 +154,7 @@ fstream &getKeyStream(istream &in) {
   return keyStream;
 }
 
-ULng32 getDefaultInK(const Int32 &key) { return (ULng32)1024 * ActiveSchemaDB()->getDefaults().getAsLong(key); }
+ULng32 getDefaultInK(const int &key) { return (ULng32)1024 * ActiveSchemaDB()->getDefaults().getAsLong(key); }
 
 // convert DefaultToken optimization level into OptLevel
 CompilerEnv::OptLevel CompilerEnv::defToken2OptLevel(DefaultToken tok) {
@@ -325,10 +325,10 @@ void CompilerEnv::unpackFromBuffer(TMUDRSerializableObject &t, const char *&buff
 }
 
 // constructor for control query default settings
-CQDefaultSet::CQDefaultSet(Int32 n, NAHeap *h) : nEntries(0), heap(h), CQDarray(0), arrSiz(n) {
+CQDefaultSet::CQDefaultSet(int n, NAHeap *h) : nEntries(0), heap(h), CQDarray(0), arrSiz(n) {
   if (arrSiz > 0) {
     CQDarray = new (h) CQDefPtr[arrSiz];
-    for (Int32 x = 0; x < arrSiz; x++) CQDarray[x] = NULL;
+    for (int x = 0; x < arrSiz; x++) CQDarray[x] = NULL;
   }
 }
 
@@ -337,7 +337,7 @@ CQDefaultSet::CQDefaultSet(const CQDefaultSet &s, NAHeap *h)
     : nEntries(s.nEntries), heap(h), CQDarray(0), arrSiz(s.nEntries) {
   if (nEntries > 0) {
     CQDarray = new (h) CQDefPtr[nEntries];
-    for (Int32 x = 0; x < nEntries; x++) {
+    for (int x = 0; x < nEntries; x++) {
       CQDarray[x] = new (heap) CQDefault(*s.CQDarray[x], heap);
     }
   }
@@ -346,7 +346,7 @@ CQDefaultSet::CQDefaultSet(const CQDefaultSet &s, NAHeap *h)
 // destructor frees all control query default settings
 CQDefaultSet::~CQDefaultSet() {
   if (CQDarray) {
-    for (Int32 x = 0; x < nEntries; x++) {
+    for (int x = 0; x < nEntries; x++) {
       NADELETE(CQDarray[x], CQDefault, heap);
     }
     NADELETEBASIC(CQDarray, heap);
@@ -363,7 +363,7 @@ void CQDefaultSet::addCQD(CQDefPtr cqd) {
 // return byte size of this CQDefaultSet
 ULng32 CQDefaultSet::getByteSize() const {
   ULng32 result = sizeof(*this) + arrSiz * sizeof(CQDefPtr);
-  for (Int32 x = 0; x < nEntries; x++) {
+  for (int x = 0; x < nEntries; x++) {
     if (CQDarray[x]) {
       result += CQDarray[x]->getByteSize();
     }
@@ -372,7 +372,7 @@ ULng32 CQDefaultSet::getByteSize() const {
 }
 
 // comparison method for sorting & searching CQDarray
-Int32 CQDefaultSet::Compare(const void *d1, const void *d2) {
+int CQDefaultSet::Compare(const void *d1, const void *d2) {
   // cast (void *) pointers to (CQDefPtr*) which they must be
   CQDefPtr *def1 = (CQDefPtr *)d1;
   CQDefPtr *def2 = (CQDefPtr *)d2;
@@ -384,10 +384,10 @@ Int32 CQDefaultSet::Compare(const void *d1, const void *d2) {
 }
 
 // constructor for control table settings
-CtrlTblSet::CtrlTblSet(Int32 n, NAHeap *h) : nEntries(0), heap(h), CTarray(0), arrSiz(n) {
+CtrlTblSet::CtrlTblSet(int n, NAHeap *h) : nEntries(0), heap(h), CTarray(0), arrSiz(n) {
   if (arrSiz > 0) {
     CTarray = new (h) CtrlTblPtr[arrSiz];
-    for (Int32 x = 0; x < arrSiz; x++) CTarray[x] = NULL;
+    for (int x = 0; x < arrSiz; x++) CTarray[x] = NULL;
   }
 }
 
@@ -395,7 +395,7 @@ CtrlTblSet::CtrlTblSet(Int32 n, NAHeap *h) : nEntries(0), heap(h), CTarray(0), a
 CtrlTblSet::CtrlTblSet(const CtrlTblSet &s, NAHeap *h) : nEntries(s.nEntries), heap(h), CTarray(0), arrSiz(s.nEntries) {
   if (nEntries > 0) {
     CTarray = new (h) CtrlTblPtr[nEntries];
-    for (Int32 x = 0; x < nEntries; x++) {
+    for (int x = 0; x < nEntries; x++) {
       CTarray[x] = new (heap) CtrlTblOpt(*s.CTarray[x], heap);
     }
   }
@@ -404,7 +404,7 @@ CtrlTblSet::CtrlTblSet(const CtrlTblSet &s, NAHeap *h) : nEntries(s.nEntries), h
 // destructor frees all control table settings
 CtrlTblSet::~CtrlTblSet() {
   if (CTarray) {
-    for (Int32 x = 0; x < nEntries; x++) {
+    for (int x = 0; x < nEntries; x++) {
       NADELETE(CTarray[x], CtrlTblOpt, heap);
     }
     heap->deallocateMemory(CTarray);
@@ -421,14 +421,14 @@ void CtrlTblSet::addCT(CtrlTblPtr ct) {
 // return byte size of this CtrlTblSet
 ULng32 CtrlTblSet::getByteSize() const {
   ULng32 result = sizeof(*this) + arrSiz * sizeof(CtrlTblPtr);
-  for (Int32 x = 0; x < nEntries; x++) {
+  for (int x = 0; x < nEntries; x++) {
     result += CTarray[x]->getByteSize();
   }
   return result;
 }
 
 // comparison method for sorting & searching CTarray
-Int32 CtrlTblSet::Compare(const void *t1, const void *t2) {
+int CtrlTblSet::Compare(const void *t1, const void *t2) {
   // cast (void *) pointers to (CtrlTblPtr*) which they must be
   CtrlTblPtr *opt1 = (CtrlTblPtr *)t1;
   CtrlTblPtr *opt2 = (CtrlTblPtr *)t2;
@@ -436,7 +436,7 @@ Int32 CtrlTblSet::Compare(const void *t1, const void *t2) {
   CMPASSERT(opt1 != NULL && opt2 != NULL && *opt1 != NULL && *opt2 != NULL);
 
   // return -1 if opt1 < opt2, 0 if opt1 == opt2, +1 if opt1 > opt2
-  Int32 result = (*opt1)->tblNam.compareTo((*opt2)->tblNam);
+  int result = (*opt1)->tblNam.compareTo((*opt2)->tblNam);
   return result ? result : (*opt1)->attr.compareTo((*opt2)->attr);
 }
 
@@ -495,7 +495,7 @@ CompilerEnv::CompilerEnv(NAHeap *h, CmpPhase phase, const QryStmtAttributeSet &a
   if (cdb) {
     cnt = cdb->getCQDList().entries();
     if (cnt > 0) {
-      CQDset_ = new (heap_) CQDefaultSet((Int32)cnt, heap_);
+      CQDset_ = new (heap_) CQDefaultSet((int)cnt, heap_);
       for (x = 0; x < cnt; x++) {
         ControlQueryDefault *cqd = cdb->getCQDList()[x];
         switch (cqd->getAttrEnum()) {
@@ -574,7 +574,7 @@ CompilerEnv::CompilerEnv(NAHeap *h, CmpPhase phase, const QryStmtAttributeSet &a
     cnt = cdb->getCTList().entries();
     if (cnt > 0) {
       // determine total number of control table settings
-      Int32 totalEntries = 0;
+      int totalEntries = 0;
       for (x = 0; x < cnt; x++) {
         totalEntries += cdb->getCTList()[x]->numEntries();
       }
@@ -690,7 +690,7 @@ NABoolean CompilerEnv::isEqual(const CompilerEnv &other, CmpPhase phase) const
   }
 
   // both must have same number of statement attributes & parserFlags
-  Int32 nAttrs, x, nCQD, nCT;
+  int nAttrs, x, nCQD, nCT;
   if ((nAttrs = attrs_.nEntries) != other.attrs_.nEntries) {
     return FALSE;
   }
@@ -1151,7 +1151,7 @@ NABoolean Key::isEqual(const Key &other) const {
   return phase_ == other.phase_ && (env_ == other.env_ || (env_ && other.env_ && (*env_).isEqual(*other.env_, phase_)));
 }
 
-Int32 Key::getOptLvl() const {
+int Key::getOptLvl() const {
   CMPASSERT(env_ != NULL);
   return env_ ? env_->getOptLvl() : CompilerEnv::OPT_UNDEFINED;
 }
@@ -1533,12 +1533,12 @@ Plan *Plan::unpackFromBuffer(TMUDRSerializableObject &t, const char *&buffer, in
 // constructor
 CData::CData(NAHeap *h) : hits_(0), heap_(h), compTime_(0), cumHitTime_(0) {}
 
-const Int32 initialTextPtrArrayLen = 10;
+const int initialTextPtrArrayLen = 10;
 
 // constructor used by CmpMain::sqlcomp on a cache miss to create a new
 // cache entry of a compiled plan for possible addition into the cache.
-CacheData::CacheData(Generator *plan, const ParameterTypeList &f, const SelParamTypeList &s, LIST(Int32) hqcParamPos,
-                     LIST(Int32) hqcSelPos, LIST(Int32) hqcConstPos, long planId, const char *text, int cs,
+CacheData::CacheData(Generator *plan, const ParameterTypeList &f, const SelParamTypeList &s, LIST(int) hqcParamPos,
+                     LIST(int) hqcSelPos, LIST(int) hqcConstPos, long planId, const char *text, int cs,
                      long queryHash, NAHeap *h)
     : CData(h),
       formals_(f, h),
@@ -1723,7 +1723,7 @@ CacheData *CacheData::unpackFromBuffer(ComDiagsArea *diags, TMUDRSerializableObj
   t.deserializeInt(entries, buffer, bufferSize);
   if (entries < 0 || entries > 102400) throw 1;
 
-  LIST(Int32) *hqcListOfConstParamPos = new STMTHEAP LIST(Int32)(STMTHEAP, entries);
+  LIST(int) *hqcListOfConstParamPos = new STMTHEAP LIST(int)(STMTHEAP, entries);
   int param;
   for (int i = 0; i < entries; i++) {
     t.deserializeInt(param, buffer, bufferSize);
@@ -1732,7 +1732,7 @@ CacheData *CacheData::unpackFromBuffer(ComDiagsArea *diags, TMUDRSerializableObj
 
   t.deserializeInt(entries, buffer, bufferSize);
   if (entries < 0 || entries > 102400) throw 1;
-  LIST(Int32) *hqcListOfSelParamPos = new STMTHEAP LIST(Int32)(STMTHEAP, entries);
+  LIST(int) *hqcListOfSelParamPos = new STMTHEAP LIST(int)(STMTHEAP, entries);
   for (int i = 0; i < entries; i++) {
     t.deserializeInt(param, buffer, bufferSize);
     hqcListOfSelParamPos->insert(param);
@@ -1740,7 +1740,7 @@ CacheData *CacheData::unpackFromBuffer(ComDiagsArea *diags, TMUDRSerializableObj
 
   t.deserializeInt(entries, buffer, bufferSize);
   if (entries < 0 || entries > 102400) throw 1;
-  LIST(Int32) *hqcListOfConstPos = new STMTHEAP LIST(Int32)(STMTHEAP, entries);
+  LIST(int) *hqcListOfConstPos = new STMTHEAP LIST(int)(STMTHEAP, entries);
   for (int i = 0; i < entries; i++) {
     t.deserializeInt(param, buffer, bufferSize);
     hqcListOfConstPos->insert(param);
@@ -1801,9 +1801,9 @@ TextData::~TextData() {
 // return this CacheData's entry size in bytes. Note the plan size
 // is not included!!!
 ULng32 CacheData::getSize() const {
-  ULng32 hqcTypesSize = (hqcListOfConstParamPos_.entries() * sizeof(Int32)) +
-                        (hqcListOfSelParamPos_.entries() * sizeof(Int32)) +
-                        (hqcListOfConstPos_.entries() * sizeof(Int32));
+  ULng32 hqcTypesSize = (hqcListOfConstParamPos_.entries() * sizeof(int)) +
+                        (hqcListOfSelParamPos_.entries() * sizeof(int)) +
+                        (hqcListOfConstPos_.entries() * sizeof(int));
   ULng32 x = sizeof(*this) + formals_.getSize() + fSels_.getSize() + hqcTypesSize +
              (origStmt_ ? strlen(origStmt_) : 0) + (normalizedStmt_ ? strlen(normalizedStmt_) : 0);
 
@@ -1897,8 +1897,8 @@ NABoolean CacheData::backpatchParams(LIST(hqcConstant *) & listOfConstantParamet
   // collect all the constants types in the order the constants appear in the query
   CollIndex x = 0;
   CollIndex y = 0;
-  Int32 countP2 = formals_.entries();
-  Int32 countS2 = fSels_.entries();
+  int countP2 = formals_.entries();
+  int countS2 = fSels_.entries();
   LIST(NAType *) hqcTypes(STMTHEAP);
 
   for (CollIndex j = 0; j < (countP2 + countS2); j++) {
@@ -2027,7 +2027,7 @@ NABoolean CacheData::backpatchParams(LIST(hqcConstant *) & listOfConstantParamet
       }
 
       char *charVal = (char *)(constVal->getConstValue());
-      Int32 val = 0;
+      int val = 0;
       long val64 = 0;
       short source_fstype = (short)sourceType->getFSDatatype();
 
@@ -2036,7 +2036,7 @@ NABoolean CacheData::backpatchParams(LIST(hqcConstant *) & listOfConstantParamet
           ((((NumericType *)targetType)->getSimpleTypeName() == "NUMERIC") ||
            (((NumericType *)targetType)->getSimpleTypeName() == "BIG NUM")) &&
           (targetScale > sourceScale)) {
-        val = *((Int32 *)(constVal->getConstValue()));
+        val = *((int *)(constVal->getConstValue()));
         val = val * pow(10, targetScale - sourceScale);
         charVal = (char *)(&val);
       }
@@ -2072,8 +2072,8 @@ NABoolean CacheData::backpatchParams(LIST(hqcConstant *) & listOfConstantParamet
 // copies listOfConstantParameters into this CacheData's plan_
 NABoolean CacheData::backpatchParams(const ConstantParameters &listOfConstantParameters,
                                      const SelParameters &listOfSelParameters,
-                                     const LIST(Int32) & listOfConstParamPositionsInSql,
-                                     const LIST(Int32) & listOfSelParamPositionsInSql, BindWA &bindWA, char *&params,
+                                     const LIST(int) & listOfConstParamPositionsInSql,
+                                     const LIST(int) & listOfSelParamPositionsInSql, BindWA &bindWA, char *&params,
                                      ULng32 &parameterBufferSize) {
   // exit early if there's nothing to backpatch
   parameterBufferSize = 0;
@@ -2228,7 +2228,7 @@ NABoolean CacheData::backpatchParams(const ConstantParameters &listOfConstantPar
       }
 
       char *charVal = (char *)(constVal->getConstValue());
-      Int32 val = 0;
+      int val = 0;
       long val64 = 0;
       short source_fstype = (short)sourceType->getFSDatatype();
 
@@ -2237,7 +2237,7 @@ NABoolean CacheData::backpatchParams(const ConstantParameters &listOfConstantPar
           ((((NumericType *)targetType)->getSimpleTypeName() == "NUMERIC") ||
            (((NumericType *)targetType)->getSimpleTypeName() == "BIG NUM")) &&
           (targetScale > sourceScale)) {
-        val = *((Int32 *)(constVal->getConstValue()));
+        val = *((int *)(constVal->getConstValue()));
         val = val * pow(10, targetScale - sourceScale);
         charVal = (char *)(&val);
       }
@@ -2430,10 +2430,10 @@ static ULng32 npBuckets(ULng32 nEntries) {
   return primes[limit - 1];
 }
 
-const Int32 AVGTEXTENTRYSIZE = 500;
-const Int32 A_PREPARSE = CmpMain::PREPARSE;
-const Int32 A_PARSE = CmpMain::PARSE;
-const Int32 A_BIND = CmpMain::BIND;
+const int AVGTEXTENTRYSIZE = 500;
+const int A_PREPARSE = CmpMain::PREPARSE;
+const int A_PARSE = CmpMain::PARSE;
+const int A_BIND = CmpMain::BIND;
 
 // return the prime number closest to (maxHeapSz/avgPlanSz)*2.
 // used by QCache::QCache() and QCache::resizeCache() to determine
@@ -2559,7 +2559,7 @@ ULng32 QCache::getSizeOfPostParserEntry(KeyDataPair &entry) {
 }
 
 // this routine is used for debugging qcache bugs only
-void QCache::sanityCheck(Int32 mark) {
+void QCache::sanityCheck(int mark) {
   // compute total freeable bytes of prospective LRU entries
   LRUList::iterator lru = clruQ_.end();
   while (lru != clruQ_.begin()) {
@@ -2978,7 +2978,7 @@ ULng32 QCache::nOfCacheHits(CmpPhase stage) const {
   // return the cummulative number of hits
   else if (stage == N_STAGES) {
     ULng32 totalHits = 0;
-    for (Int32 i = 0; i < N_STAGES; i++) {
+    for (int i = 0; i < N_STAGES; i++) {
       totalHits += nOfCacheHits_[i];
     }
     return totalHits;
@@ -3017,7 +3017,7 @@ void QCache::incNOfDisplacedEntries(ULng32 howMany) { nOfDisplacedEntries_ += ho
 void QCache::incNOfDisplacedPreParserEntries(ULng32 howMany) { nOfDisplacedPreParserEntries_ += howMany; }
 
 // Free all entries with specified QI Object Redefinition or Security Key
-void QCache::free_entries_with_QI_keys(Int32 pNumKeys, SQL_QIKEY *pSiKeyEntry) {
+void QCache::free_entries_with_QI_keys(int pNumKeys, SQL_QIKEY *pSiKeyEntry) {
   LRUList::iterator lru = clruQ_.end();
   // loop thru query cache entries
   while ((clruQ_.size() > 0) && (lru != clruQ_.begin())) {
@@ -3033,7 +3033,7 @@ void QCache::free_entries_with_QI_keys(Int32 pNumKeys, SQL_QIKEY *pSiKeyEntry) {
 
     NABoolean found = FALSE;
     // loop thru the keys passed as params
-    for (Int32 jj = 0; jj < pNumKeys && !found; jj++) {
+    for (int jj = 0; jj < pNumKeys && !found; jj++) {
       // empty qikey to enable querycache reload from HDFS
       if (pSiKeyEntry[jj].ddlObjectUID == 0) {
         loadedOffset_.clear();
@@ -3048,7 +3048,7 @@ void QCache::free_entries_with_QI_keys(Int32 pNumKeys, SQL_QIKEY *pSiKeyEntry) {
           // this key passed in as a param is for object redefinition
           // (DDL) so look for matching ObjectUIDs.
           const long *planObjectUIDs = rootTdb->getUnpackedPtrToObjectUIDs(base);
-          for (Int32 ii = 0; ii < rootTdb->getNumObjectUIDs() && !found; ii++) {
+          for (int ii = 0; ii < rootTdb->getNumObjectUIDs() && !found; ii++) {
             if (planObjectUIDs[ii] == pSiKeyEntry[jj].ddlObjectUID) found = TRUE;
           }
         }
@@ -3378,7 +3378,7 @@ text_type=%d and SUB_ID = %d and flags = 3",
       }
     }
 
-    for (Int32 i = 0; i < num; i++) {
+    for (int i = 0; i < num; i++) {
       long objUID = planObjectUIDs[i];
       // stored querycache in HDFS could not exceed 4g
       char *data = (char *)cData->getNormalizedStmt();
@@ -3823,7 +3823,7 @@ void QueryCache::addPreParserEntry(TextKey *tkey,      // (IN) : a cachable sql 
   }
 }
 
-void QueryCache::free_entries_with_QI_keys(Int32 NumSiKeys, SQL_QIKEY *pSiKeyEntry) {
+void QueryCache::free_entries_with_QI_keys(int NumSiKeys, SQL_QIKEY *pSiKeyEntry) {
   if (cache_) {
     cache_->free_entries_with_QI_keys(NumSiKeys, pSiKeyEntry);
   }
@@ -3864,7 +3864,7 @@ KeyDataPair::~KeyDataPair() {
 #endif
 }
 
-void HQCParseKey::bindConstant2SQC(BaseColumn *base, ConstantParameter *cParameter, LIST(Int32) & hqcConstPos) {
+void HQCParseKey::bindConstant2SQC(BaseColumn *base, ConstantParameter *cParameter, LIST(int) & hqcConstPos) {
   if (!cParameter->getConstVal() || cParameter->getConstVal()->getOperatorType() != ITM_CONSTANT || !isCacheable())
     return;
 
@@ -3874,7 +3874,7 @@ void HQCParseKey::bindConstant2SQC(BaseColumn *base, ConstantParameter *cParamet
   // its correspondant in NPLiterals will be set empty.
   hqcConstant *matchedItem = NULL;
   LIST(hqcConstant *) &tmpL = *(getParams().getTmpList());
-  for (Int32 i = paramStart_; i < tmpL.entries(); i++) {
+  for (int i = paramStart_; i < tmpL.entries(); i++) {
     if ((tmpL[i]->getConstValue() == cParameter->getConstVal() ||
          tmpL[i]->getBinderRetConstVal() == cParameter->getConstVal()) &&
         !tmpL[i]->isProcessed()) {
@@ -4007,7 +4007,7 @@ void HQCParseKey::collectItem4HQC(ItemExpr *itm) {
           new (heap_) hqcConstant((ConstValue *)itm, getParams().getNPLiterals().entries() - 1, heap_);
       getParams().getTmpList()->insert(constPtr);
     } else if (itm->getOperatorType() == ITM_DYN_PARAM) {
-      for (Int32 i = 0; i < HQCDynParamMap_.entries(); i++) {
+      for (int i = 0; i < HQCDynParamMap_.entries(); i++) {
         if (HQCDynParamMap_[i].original_ == ((DynamicParam *)itm)->getText()) {
           hqcDynParam *dynPtr = new (heap_) hqcDynParam((DynamicParam *)itm, params_.getDynParamList().entries(),
                                                         HQCDynParamMap_[i].normalized_, HQCDynParamMap_[i].original_);
@@ -4026,7 +4026,7 @@ void HQCParseKey::collectBinderRetConstVal4HQC(ConstValue *origin, ConstValue *a
   // save pointer of new ConstValue, which will be used in bindConstant2SQC,
   // to identify corresponding hqcConstant
   LIST(hqcConstant *) &tmpL = *(getParams().getTmpList());
-  for (Int32 i = 0; i < tmpL.entries(); i++)
+  for (int i = 0; i < tmpL.entries(); i++)
     if (tmpL[i]->getConstValue() == origin) tmpL[i]->setBinderRetConstVal(after);
 }
 
@@ -4569,7 +4569,7 @@ void HQCParseKey::verifyCacheability(CacheKey *ckey) {
   DCMPASSERT(getHeap()->isStmtHeap());
 
   NAList<hqcConstant *> &paramConstList = getParams().getConstantList();
-  for (Int32 i = 0; i < paramConstList.entries(); i++) {
+  for (int i = 0; i < paramConstList.entries(); i++) {
     if (paramConstList[i]->getConstValue() && paramConstList[i]->isParameterized() &&
         !paramConstList[i]->isProcessed()) {
       setIsCacheable(FALSE);
@@ -4581,7 +4581,7 @@ void HQCParseKey::verifyCacheability(CacheKey *ckey) {
       return;
     }
     // or
-    Int32 literalIndex = paramConstList[i]->getIndex();
+    int literalIndex = paramConstList[i]->getIndex();
     if (!getParams().getNPLiterals()[literalIndex].isNull()) {
       setIsCacheable(FALSE);
       return;
@@ -4601,7 +4601,7 @@ void HQCParseKey::verifyCacheability(CacheKey *ckey) {
 // This constructor is used add a hqc constant into a HQC key. It is
 // very important to keep the pointer to cv. Never construct a new
 // ConstValue object here.
-hqcConstant::hqcConstant(ConstValue *cv, Int32 index, NAHeap *h)
+hqcConstant::hqcConstant(ConstValue *cv, int index, NAHeap *h)
     : constValue_(cv),
       binderRetConstVal_(cv),
       SQCType_(NULL),
@@ -4714,7 +4714,7 @@ HQCParams::HQCParams(NAHeap *h, istream &in)
       DynParamList_(h),
       NPLiterals_(h),
       tmpList_(new (STMTHEAP) NAList<hqcConstant *>(STMTHEAP)) {
-  Int32 len, n = 0;
+  int len, n = 0;
   char buf[1000];
 
   readATag(in, (char *)"#HQCParams");
@@ -4723,7 +4723,7 @@ HQCParams::HQCParams(NAHeap *h, istream &in)
   // populate ConstantList_
   in >> len;
   in.get(c);  // skip newline
-  for (Int32 i = 0; i < len; i++) {
+  for (int i = 0; i < len; i++) {
     readALine(in, buf, sizeof(buf));
 
     NAString strval;
@@ -4737,7 +4737,7 @@ HQCParams::HQCParams(NAHeap *h, istream &in)
   // populate NPLiterals_
   in >> len;
   in.get(c);  // skip newline
-  for (Int32 i = 0; i < len; i++) {
+  for (int i = 0; i < len; i++) {
     readALine(in, buf, sizeof(buf));
 
     NAString strval;
@@ -4760,13 +4760,13 @@ HQCParams::HQCParams(NAHeap *h)
 // copy constructor
 HQCParams::HQCParams(const HQCParams &other, NAHeap *h)
     : heap_(h), ConstantList_(h), DynParamList_(h), NPLiterals_(other.NPLiterals_, h), tmpList_(NULL) {
-  for (Int32 i = 0; i < other.ConstantList_.entries(); i++) {
+  for (int i = 0; i < other.ConstantList_.entries(); i++) {
     hqcConstant *src = other.ConstantList_[i];
     hqcConstant *des = new (h) hqcConstant(*src, h);
     ConstantList_.insert(des);
   }
 
-  for (Int32 i = 0; i < other.DynParamList_.entries(); i++) {
+  for (int i = 0; i < other.DynParamList_.entries(); i++) {
     hqcDynParam *src = other.DynParamList_[i];
     hqcDynParam *des = new (h) hqcDynParam(*src);
     DynParamList_.insert(des);
@@ -4775,9 +4775,9 @@ HQCParams::HQCParams(const HQCParams &other, NAHeap *h)
 }
 
 HQCParams::~HQCParams() {
-  for (Int32 i = 0; i < ConstantList_.entries(); i++) NADELETE(ConstantList_[i], hqcConstant, heap_);
+  for (int i = 0; i < ConstantList_.entries(); i++) NADELETE(ConstantList_[i], hqcConstant, heap_);
 
-  for (Int32 i = 0; i < DynParamList_.entries(); i++) NADELETE(DynParamList_[i], hqcDynParam, heap_);
+  for (int i = 0; i < DynParamList_.entries(); i++) NADELETE(DynParamList_[i], hqcDynParam, heap_);
 }
 
 NABoolean HQCParams::isApproximatelyEqualTo(HQCParams &otherParam) {
@@ -4858,16 +4858,16 @@ NABoolean HQCCacheData::feasibleToAdd() { return (this->entries() < this->maxEnt
 // logic to decide whether we need to replace an exisiting
 // value for a given key. This is needed if the maximum
 // allowed number of values is exhausted
-NABoolean HQCCacheData::feasibleToReplace(Int32 bytesNeeded) {
+NABoolean HQCCacheData::feasibleToReplace(int bytesNeeded) {
   if (this->entries() == 0) return FALSE;
 
-  Int32 minHits = (*this)[0]->getNumHits();
+  int minHits = (*this)[0]->getNumHits();
   CollIndex minHitsLoc = 0;
 
   // list is full, we need to eject the LRU entry
   // find it first
   for (CollIndex x = 1; x < entries(); x++) {
-    Int32 numHits = (*this)[x]->getNumHits();
+    int numHits = (*this)[x]->getNumHits();
     if (numHits < minHits) {
       minHits = numHits;
       minHitsLoc = x;
@@ -5178,7 +5178,7 @@ ULng32 hqcConstant::getSize() {
   // ConstValue* binderRetConstVal_;
   // NAType *SQCType_;
   // HistIntRangeForHQC * histRange_;
-  // Int32 index_;
+  // int index_;
   // NAHeap* heap_;
   // UInt32 flags_;
 
@@ -5202,7 +5202,7 @@ ULng32 hqcDynParam::getSize() {
   //   DynamicParam* dynParam_;
   //   NAString normalizedName_;
   //   NAString originalName_;
-  //   Int32 index_
+  //   int index_
 
   return hqcTerm::getSize() + sizeof(DynamicParam *) + (dynParam_)
              ? sizeof(DynamicParam)
@@ -5220,23 +5220,23 @@ ULng32 HQCParams::getSize() {
   ULng32 sz = sizeof(NAHeap *);
 
   sz += sizeof(ConstantList_);
-  for (Int32 i = 0; i < ConstantList_.entries(); i++) {
+  for (int i = 0; i < ConstantList_.entries(); i++) {
     sz += ConstantList_[i]->getSize();
   }
 
   sz += sizeof(DynParamList_);
-  for (Int32 i = 0; i < DynParamList_.entries(); i++) {
+  for (int i = 0; i < DynParamList_.entries(); i++) {
     sz += DynParamList_[i]->getSize();
   }
 
   sz += sizeof(NPLiterals_);
-  for (Int32 i = 0; i < NPLiterals_.entries(); i++) {
+  for (int i = 0; i < NPLiterals_.entries(); i++) {
     sz += NPLiterals_[i].getAllocatedSize();
   }
 
   sz += sizeof(NAList<hqcConstant *>);
   if (tmpList_) {
-    for (Int32 i = 0; i < tmpList_->entries(); i++) {
+    for (int i = 0; i < tmpList_->entries(); i++) {
       sz += (*tmpList_)[i]->getSize();
     }
   }
@@ -5248,8 +5248,8 @@ ULng32 HQCCacheKey::getSize() {
   // data members
   // NAString  keyText_;
   // NAString  reqdShape_;    // control query shape or empty string
-  // Int32     numConsts_;
-  // Int32     numDynParams_; // number of dynamic parameters
+  // int     numConsts_;
+  // int     numDynParams_; // number of dynamic parameters
   // HQCCacheKey* prev_;
   // HQCCacheKey* next_;
 
@@ -5262,7 +5262,7 @@ ULng32 HQCCacheEntry::getSize() {
   // NAHeap      *heap_;
   // HQCParams   *params_;
   // CacheKey    *sqcCacheKey_;
-  // Int32       numHits_;
+  // int       numHits_;
 
   return sizeof(HQCCacheEntry) + (params_) ? params_->getSize() : 0;
 }
@@ -5275,7 +5275,7 @@ ULng32 HQCParseKey::getSize() {
   //  NABoolean isCacheable_;
   //  int nOfTokens_i
   //  NABoolean isStringNormalized_;
-  //  Int32 paramStart_;
+  //  int paramStart_;
 
   return HQCCacheKey::getSize() + params_.getSize() + HQCDynParamMap_.getSize() + sizeof(isCacheable_) +
          sizeof(nOfTokens_) + sizeof(isStringNormalized_) + sizeof(paramStart_);
@@ -5285,7 +5285,7 @@ ULng32 HQCCacheData::getSize() {
   // parent class LIST (HQCCacheEntry*)
   // data members
   //  NAHeap* heap_;
-  //  Int32 maxEntries_;
+  //  int maxEntries_;
 
   ULng32 sz = 0;
   for (CollIndex x = 0; x < entries(); x++) {
@@ -5508,7 +5508,7 @@ void hqcConstant::display(ostream &out) const {
   // ConstValue* binderRetConstVal_;
   // NAType *SQCType_;
   // HistIntRangeForHQC * histRange_;
-  // Int32 index_;
+  // int index_;
   // NAHeap* heap_;
   // UInt32 flags_;
 
@@ -5538,7 +5538,7 @@ void hqcDynParam::display(ostream &out) const {
   //   DynamicParam* dynParam_;
   //   NAString normalizedName_;
   //   NAString originalName_;
-  //   Int32 index_
+  //   int index_
 
   out << "hqcDynParam:" << endl;
   out << "  normalizedName_=" << normalizedName_.data() << endl;
@@ -5557,25 +5557,25 @@ void HQCParams::display(ostream &out) const {
   out << "HQCParams:" << endl;
 
   out << "  ConstantList_=" << endl;
-  for (Int32 i = 0; i < ConstantList_.entries(); i++) {
+  for (int i = 0; i < ConstantList_.entries(); i++) {
     out << " ";
     ConstantList_[i]->display(out);
   }
 
   out << "  DynParamList_=" << endl;
-  for (Int32 i = 0; i < DynParamList_.entries(); i++) {
+  for (int i = 0; i < DynParamList_.entries(); i++) {
     out << " ";
     DynParamList_[i]->display(out);
   }
 
   out << "  NPLiterals_=" << endl;
-  for (Int32 i = 0; i < NPLiterals_.entries(); i++) {
+  for (int i = 0; i < NPLiterals_.entries(); i++) {
     out << " [" << i << "]=" << NPLiterals_[i].data() << endl;
   }
 
   if (tmpList_) {
     out << "  tmpList_=" << endl;
-    for (Int32 i = 0; i < tmpList_->entries(); i++) {
+    for (int i = 0; i < tmpList_->entries(); i++) {
       out << " ";
       (*tmpList_)[i]->display(out);
     }
@@ -5752,8 +5752,8 @@ void HQCCacheKey::display(ostream &out, NABoolean simpleFormat) const {
   // data members
   // NAString  keyText_;
   // NAString  reqdShape_;    // control query shape or empty string
-  // Int32     numConsts_;
-  // Int32     numDynParams_; // number of dynamic parameters
+  // int     numConsts_;
+  // int     numDynParams_; // number of dynamic parameters
   // HQCCacheKey* prev_;
   // HQCCacheKey* next_;
 
@@ -5774,7 +5774,7 @@ void HQCCacheEntry::display(ostream &out) const {
   // NAHeap      *heap_;
   // HQCParams   *params_;
   // CacheKey    *sqcCacheKey_;
-  // Int32       numHits_;
+  // int       numHits_;
   //
   out << "HQCCacheEntry:" << endl;
 
@@ -5791,7 +5791,7 @@ void HQCParseKey::display(ostream &out, NABoolean simpleFormat) const {
   //  NABoolean isCacheable_;
   //  int nOfTokens_i
   //  NABoolean isStringNormalized_;
-  //  Int32 paramStart_;
+  //  int paramStart_;
 
   if (simpleFormat) {
     HQCCacheKey::display(out);
@@ -5811,7 +5811,7 @@ void HQCParseKey::display(ostream &out, NABoolean simpleFormat) const {
 void HQCCacheData::display(ostream &out) const {
   out << "HQCCacheData=" << endl;
   out << "  maxEntries_" << maxEntries_ << endl;
-  for (Int32 i = 0; i < entries(); i++) {
+  for (int i = 0; i < entries(); i++) {
     HQCCacheEntry *entry = (*this)[i];
     entry->display(out);
   }

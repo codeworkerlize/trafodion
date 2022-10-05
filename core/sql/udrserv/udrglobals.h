@@ -185,7 +185,7 @@ class UdrGlobals {
   NABoolean showSPInfo_;  // True - activate logging for SPInfo class
   NABoolean showUnload_;  // True - activate logging for unload message
 
-  Int32 traceLevel_;  // Trace Facility - level of trace.
+  int traceLevel_;  // Trace Facility - level of trace.
                       // See udrdefs.h for values
 
   // Logging for Result Set related messages

@@ -87,7 +87,7 @@ class ParKeyWord : public NABasicObject {
   //
   ParKeyWord(const ParKeyWord &other, NAMemory *h = 0);
   ParKeyWord(NAMemory *h = 0){};
-  ParKeyWord(const char *kwd, Int32 code, UInt32 flags, NAMemory *h = 0);
+  ParKeyWord(const char *kwd, int code, UInt32 flags, NAMemory *h = 0);
 
   // Destructor
   //
@@ -103,7 +103,7 @@ class ParKeyWord : public NABasicObject {
   // Accessor methods.
   //
   inline const char *getKeyWord() const { return keyword_; };
-  inline Int32 getTokenCode() const { return tokenCode_; };
+  inline int getTokenCode() const { return tokenCode_; };
 
   // Is the word an identifier.
   //
@@ -130,7 +130,7 @@ class ParKeyWord : public NABasicObject {
 
   // The token representing the keyword.
   //
-  Int32 tokenCode_;
+  int tokenCode_;
 
   // Attributes of the key word.
   //
@@ -170,7 +170,7 @@ class ParKeyWords : public NABasicObject {
  private:
   // Comparision method for searching keyword table.
   //
-  static Int32 keyCompare(const void *keyval, const void *datum);
+  static int keyCompare(const void *keyval, const void *datum);
 
   // Encapulates the searching of the keyword table.
   //

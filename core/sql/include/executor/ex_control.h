@@ -115,13 +115,13 @@ class ExControlTcb : public ex_tcb {
   virtual short work();
 
   ex_queue_pair getParentQueue() const { return qparent_; };
-  inline Int32 orderedQueueProtocol() const { return ((const ExControlTdb &)tdb).orderedQueueProtocol(); }
+  inline int orderedQueueProtocol() const { return ((const ExControlTdb &)tdb).orderedQueueProtocol(); }
 
   void display() const {};
   void freeResources();
 
-  const ex_tcb *getChild(Int32 /*pos*/) const { return 0; };
-  Int32 numChildren() const { return 0; }
+  const ex_tcb *getChild(int /*pos*/) const { return 0; };
+  int numChildren() const { return 0; }
 
  protected:
   ex_queue_pair qparent_;

@@ -38,7 +38,7 @@ Int16 ComTracePointInfo::parseTPString(char *traceString,           // in
   char tpChar;
   UInt32 num = 0;
   UInt16 actions = 0;
-  Int32 countMax = 0;
+  int countMax = 0;
   UInt32 op = 0;
 
   if (NULL == traceString) return rc;
@@ -46,7 +46,7 @@ Int16 ComTracePointInfo::parseTPString(char *traceString,           // in
   // These next 3 arrays are maintained for a given operator to collect
   // up all the trace points for the operator and then allocate them all
   // in 1 chunk.
-  const Int32 tpCount = 8;
+  const int tpCount = 8;
   UInt32 tps[tpCount];
   UInt16 tpActions[tpCount];
   UInt32 counters[tpCount];
@@ -132,7 +132,7 @@ Int16 ComTracePointInfo::parseTPString(char *traceString,           // in
   // memory for all the trace points.
   if (tpIdx > 0) {
     ComTracePointInfo *tmp;
-    Int32 sz = (sizeof(ComTracePointInfo) * tpIdx);
+    int sz = (sizeof(ComTracePointInfo) * tpIdx);
     char *buff = (char *)space->allocateMemory(sz, FALSE);
 
     *tpInfo = (ComTracePointInfo *)buff;

@@ -134,11 +134,11 @@ class ExSampleTcb : public ex_tcb {
 
   inline ex_expr *initExpr() const;
   inline ex_expr *balanceExpr() const;
-  inline Int32 returnFactorOffset() const;
+  inline int returnFactorOffset() const;
   inline ex_expr *postPred() const;
 
-  virtual Int32 numChildren() const;
-  virtual const ex_tcb *getChild(Int32 pos) const;
+  virtual int numChildren() const;
+  virtual const ex_tcb *getChild(int pos) const;
 
  private:
   const ex_tcb *childTcb_;
@@ -155,13 +155,13 @@ inline ex_expr *ExSampleTcb::initExpr() const { return myTdb().initExpr_; };
 
 inline ex_expr *ExSampleTcb::balanceExpr() const { return myTdb().balanceExpr_; };
 
-inline Int32 ExSampleTcb::returnFactorOffset() const { return myTdb().returnFactorOffset_; };
+inline int ExSampleTcb::returnFactorOffset() const { return myTdb().returnFactorOffset_; };
 
 inline ex_expr *ExSampleTcb::postPred() const { return myTdb().postPred_; };
 
-inline Int32 ExSampleTcb::numChildren() const { return 1; }
+inline int ExSampleTcb::numChildren() const { return 1; }
 
-inline const ex_tcb *ExSampleTcb::getChild(Int32 pos) const {
+inline const ex_tcb *ExSampleTcb::getChild(int pos) const {
   ex_assert((pos >= 0), "");
   if (pos == 0)
     return childTcb_;

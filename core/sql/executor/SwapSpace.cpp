@@ -234,7 +234,7 @@ IoStatus SwapSpace::fetch(void) {
   readingFirstBuffer_ = false;
 
   // ScratchSapce blockNums are 1..N
-  Int32 blockNum = static_cast<Int32>(swapRead_ / swapBufferSize_) + 1;
+  int blockNum = static_cast<int>(swapRead_ / swapBufferSize_) + 1;
   status = mapStatus(store_->readThru(readBuffer_, blockNum, swapBufferSize_));
   // status is OK if read was successfully initiated
 

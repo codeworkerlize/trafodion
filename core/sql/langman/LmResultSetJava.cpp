@@ -46,7 +46,7 @@
 // to get result set information for the passed in
 // java.sql.ResultSet object (parameter rsRef) and
 // initializes the data members accordingly.
-LmResultSetJava::LmResultSetJava(LmLanguageManagerJava *lm, LmHandle rsRef, Int32 paramPos, const char *routineName,
+LmResultSetJava::LmResultSetJava(LmLanguageManagerJava *lm, LmHandle rsRef, int paramPos, const char *routineName,
                                  LmResultSetInfoStatus &status, NAList<LmConnection *> &lmConnList, ComDiagsArea *da)
 
     : LmResultSet(),
@@ -71,7 +71,7 @@ LmResultSetJava::LmResultSetJava(LmLanguageManagerJava *lm, LmHandle rsRef, Int3
   status = RS_INFO_OK;
 
   // Find if this Result Set is using  T2 or T4 connection.
-  Int32 connType =
+  int connType =
       jni->CallStaticIntMethod((jclass)lmj_->utilityClass_, (jmethodID)lmj_->utilityGetConnTypeId_, (jobject)rsRef);
 
   connectionType_ = (LmJDBCConnectionType)connType;
@@ -92,7 +92,7 @@ LmResultSetJava::LmResultSetJava(LmLanguageManagerJava *lm, LmHandle rsRef, Int3
   }
 }
 
-void LmResultSetJava::initType4ResultSet(Int32 paramPos, const char *routineName, LmResultSetInfoStatus &status,
+void LmResultSetJava::initType4ResultSet(int paramPos, const char *routineName, LmResultSetInfoStatus &status,
                                          NAList<LmConnection *> &lmConnList, ComDiagsArea *da) {
   JNIEnv *jni = (JNIEnv *)lmj_->jniEnv_;
 
@@ -159,7 +159,7 @@ void LmResultSetJava::initType4ResultSet(Int32 paramPos, const char *routineName
   const char *str = jni->GetStringUTFChars(pSyntax, NULL);
   ComUInt32 strSize = str_len(str);
   proxySyntax_ = new (collHeap()) char[strSize + 1];
-  str_cpy(proxySyntax_, str, (Int32)strSize);
+  str_cpy(proxySyntax_, str, (int)strSize);
   proxySyntax_[strSize] = '\0';
   jni->ReleaseStringUTFChars(pSyntax, str);
   jni->DeleteLocalRef(pSyntax);
@@ -200,7 +200,7 @@ void LmResultSetJava::initType4ResultSet(Int32 paramPos, const char *routineName
 }
 
 // Exclude the following functions for coverage as Type 2 JDBC is not used any more
-void LmResultSetJava::initType2ResultSet(Int32 paramPos, const char *routineName, LmResultSetInfoStatus &status,
+void LmResultSetJava::initType2ResultSet(int paramPos, const char *routineName, LmResultSetInfoStatus &status,
                                          NAList<LmConnection *> &lmConnList, ComDiagsArea *da) {
   JNIEnv *jni = (JNIEnv *)lmj_->jniEnv_;
 
@@ -215,7 +215,7 @@ void LmResultSetJava::initType2ResultSet(Int32 paramPos, const char *routineName
 
   // The magic number 9 below is to match one of the output int
   // array parameter returned by a call to LmUtility.getRSInfo().
-  const Int32 arrSize = 9;
+  const int arrSize = 9;
 
   // Allocate the parameters for the JNI call.
   rsInfoLArray_ = jni->NewLongArray(arrSize);
@@ -498,10 +498,10 @@ int LmResultSetJava::fetchSpecialRows(void *dataPtr, LmParameter *colDesc, ComUI
 
   if (ret) {  // got next row
     currentRowPosition_++;
-    Int32 has_warning = 0;
+    int has_warning = 0;
 
     for (ComUInt32 index = 0; index < numCols; index++) {
-      Int32 conv_ret = 0;
+      int conv_ret = 0;
       NABoolean wasNull = FALSE;
       LmParameter *col = &colDesc[index];
       char *thisColDataPtr = (char *)dataPtr + col->outDataOffset();
@@ -568,7 +568,7 @@ int LmResultSetJava::fetchSpecialRows(void *dataPtr, LmParameter *colDesc, ComUI
           if (!wasNull) {
             // Now cast jlong to appropriate value
             if (col->fsType() == COM_SIGNED_BIN32_FSDT) {
-              Int32 ival = (Int32)jlval;
+              int ival = (int)jlval;
               memcpy(thisColDataPtr, (char *)&ival, col->outSize());
             } else {
               UInt32 ival = (UInt32)jlval;
@@ -745,7 +745,7 @@ int LmResultSetJava::fetchSpecialRows(void *dataPtr, LmParameter *colDesc, ComUI
                       short sval = (short)jlval;
                       memcpy(thisColDataPtr, (char *)&sval, col->outSize());
                     } else if ((col->fsType() == COM_SIGNED_BIN32_FSDT) || (col->fsType() == COM_UNSIGNED_BIN32_FSDT)) {
-                      Int32 ival = (Int32)jlval;
+                      int ival = (int)jlval;
                       memcpy(thisColDataPtr, (char *)&ival, col->outSize());
                     } else {
                       // 64 bit value

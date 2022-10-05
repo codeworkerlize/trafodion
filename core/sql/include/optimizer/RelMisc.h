@@ -115,9 +115,9 @@ class CostMethodTuple;
 struct TreeStore : public NABasicObject {
  public:
   RelExpr *rep;  // rel expr ptr
-  Int32 cindex;  // compressed index
+  int cindex;  // compressed index
   // constructor
-  TreeStore(RelExpr *r, Int32 c) {
+  TreeStore(RelExpr *r, int c) {
     rep = r;
     cindex = c;
   }
@@ -147,13 +147,13 @@ class RelRoot : public RelExpr {
   virtual ~RelRoot();
 
   // get the degree of this node (it is a unary op).
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   void setFirstNRowsParam(ItemExpr *firstNRowsParam) { firstNRowsParam_ = firstNRowsParam; }
   ItemExpr *getFirstNRowsParam() { return firstNRowsParam_; }
 
   // access (get and set) the count of output variables for this (dynamic) query
-  Int32 &outputVarCnt() { return outputVarCnt_; }
+  int &outputVarCnt() { return outputVarCnt_; }
   NABoolean outputVarCntValid() const { return outputVarCnt_ >= 0; }
 
   // get and set the input variables as a parse tree
@@ -234,8 +234,8 @@ class RelRoot : public RelExpr {
   NABoolean &rollbackOnError() { return rollbackOnError_; }
 
   ItemExpr *buildDefaultOrderByForRownum(BindWA *bindWA, const CorrName *renameTab);
-  NABoolean detectRownumReference(ItemExpr *itm, NAList<ItemExpr *> &parentItmList, NAList<Int32> &parentArityList,
-                                  ItemExpr *parent, Int32 arity);
+  NABoolean detectRownumReference(ItemExpr *itm, NAList<ItemExpr *> &parentItmList, NAList<int> &parentArityList,
+                                  ItemExpr *parent, int arity);
   void processRownum(BindWA *bindWA);
 
   // a virtual function for performing name binding within the query tree
@@ -520,7 +520,7 @@ class RelRoot : public RelExpr {
 
   NABoolean trueRoot_;  // set in the true root of the query tree
                         // reset in the roots of all subquery trees
-  Int32 outputVarCnt_;  // -1 if not true root, else no. of output :hv's
+  int outputVarCnt_;  // -1 if not true root, else no. of output :hv's
   NABoolean subRoot_;   // true iff this is a subroot (ie, the root of a
   // sql statement that's inside a compound statement)
   ItemExpr *compExprTree_;
@@ -623,10 +623,10 @@ class RelRoot : public RelExpr {
   NABoolean needFirstSortedRows_;
 
   // Tells how many scalar variables this node contains
-  Int32 numSimpleVar_;
+  int numSimpleVar_;
 
   // Tells how many host array variables this node contains
-  Int32 numHostVar_;
+  int numHostVar_;
 
   // if set to TRUE, then message buffers between FS and DP2 could
   // be small. This is set by binder if the true root of query tree
@@ -802,7 +802,7 @@ class Tuple : public RelExpr {
   virtual ~Tuple();
 
   // get the degree of this node (it is a leaf op).
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   // get and set the tuple predicate, add and remove individual predicates
   // from the list of expressions
@@ -981,7 +981,7 @@ class TupleList : public Tuple {
   // inserted into a table.
   ValueIdList castToList_;
 
-  Int32 flags_;
+  int flags_;
 };  // class TupleList
 
 // -----------------------------------------------------------------------
@@ -1034,7 +1034,7 @@ class Filter : public RelExpr {
   virtual ~Filter();
 
   // get the degree of this node (it is a unary op).
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   virtual HashValue topHash();
   virtual NABoolean duplicateMatch(const RelExpr &other) const;
@@ -1089,7 +1089,7 @@ class Rename : public RelExpr {
   virtual ~Rename();
 
   // get the degree of this node (it is a unary op).
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   // Each operator supports a (virtual) method for transforming its
   // scalar expressions to a canonical form
@@ -1262,7 +1262,7 @@ class BeforeTrigger : public Rename {
   virtual ~BeforeTrigger();
 
   // get the degree of this node (it is a unary op).
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   // a virtual function for performing name binding within the query tree
   RelExpr *bindNode(BindWA *bindWAPtr);
@@ -1330,7 +1330,7 @@ class BinderOnlyNode : public RelExpr {
   virtual void cleanupBeforeSelfDestruct() = 0;
 
   // get the degree of this node (it is a unary op).
-  virtual Int32 getArity() const { return 0; }
+  virtual int getArity() const { return 0; }
 
   // This is where all the action is.
   // Pure virtual - implemented by sub-classes.
@@ -1359,7 +1359,7 @@ class MapValueIds : public RelExpr {
   virtual ~MapValueIds();
 
   // various PC methods
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
   virtual void addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) const;
   virtual HashValue topHash();
   virtual NABoolean duplicateMatch(const RelExpr &other) const;
@@ -1417,7 +1417,7 @@ class MapValueIds : public RelExpr {
 
   NABoolean includesFavoriteMV() const { return includesFavoriteMV_; }
 
-  NABoolean assignRTStats(NAArray<long> &rtStats, Int32 &order);
+  NABoolean assignRTStats(NAArray<long> &rtStats, int &order);
 
  private:
   ValueIdMap map_;
@@ -1503,7 +1503,7 @@ class FirstN : public RelExpr {
   // various PC methods
 
   // get the degree of this node
-  virtual Int32 getArity() const { return 1; };
+  virtual int getArity() const { return 1; };
   virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *outHeap = 0);
   virtual const NAString getText() const;
 
@@ -1615,7 +1615,7 @@ class Transpose : public RelExpr {
 
   // Transpose has one child.
   //
-  virtual Int32 getArity() const { return 1; };
+  virtual int getArity() const { return 1; };
 
   // Return a pointer to the transpose Values tree.
   //
@@ -1850,7 +1850,7 @@ class Pack : public RelExpr {
   virtual ~Pack();
 
   // No of children.
-  virtual Int32 getArity() const { return 1; }
+  virtual int getArity() const { return 1; }
 
   // Returns a (short-lived) r/w ref to packing factor in different forms.
   ULng32 &packingFactorLong() { return packingFactorLong_; }
@@ -2052,7 +2052,7 @@ class Rowset : public RelExpr {
 
   virtual ~Rowset();
   virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *outHeap = 0);
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
   virtual const NAString getText() const;
   virtual RelExpr *bindNode(BindWA *bindWA);
   // returns the name of the exposed index of the Rowset
@@ -2081,7 +2081,7 @@ class RowsetRowwise : public Rowset {
   virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *outHeap = 0);
   virtual const NAString getText() const;
   virtual RelExpr *bindNode(BindWA *bindWA);
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
  private:
 };  // class RowsetRowwise
@@ -2098,7 +2098,7 @@ class RowsetInto : public RelExpr {
 
   virtual ~RowsetInto();
   virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *outHeap = 0);
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
   virtual const NAString getText() const;
   virtual RelExpr *bindNode(BindWA *bindWA);
 
@@ -2149,7 +2149,7 @@ class RowsetFor : public RelExpr {
 
   virtual ~RowsetFor();
   virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *outHeap = 0);
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
   virtual const NAString getText() const;
   virtual RelExpr *bindNode(BindWA *bindWA);
 
@@ -2291,7 +2291,7 @@ class ControlRunningQuery : public RelExpr {
 
   virtual NABoolean isLogical() const;
   virtual NABoolean isPhysical() const;
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
   virtual const NAString getText() const;
   virtual ExplainTuple *addSpecificExplainInfo(ExplainTupleMaster *, ComTdb *, Generator *);
 
@@ -2368,16 +2368,16 @@ class CSEInfo : public NABasicObject {
         insertIntoTemp_(NULL) {}
 
   const NAString &getName() const { return name_; }
-  Int32 getCSEId() const { return cseId_; }
+  int getCSEId() const { return cseId_; }
   const LIST(CountedCSEInfo) & getChildCSEs() const { return childCSEs_; }
   const CollIndex getNumConsumers() const { return consumers_.entries(); }
   CommonSubExprRef *getConsumer(CollIndex i) const { return consumers_[i]; }
-  Int32 getNumLexicalRefs() const { return numLexicalRefs_; }
-  Int32 getTotalNumRefs(Int32 restrictToSingleConsumer = -1) const;
+  int getNumLexicalRefs() const { return numLexicalRefs_; }
+  int getTotalNumRefs(int restrictToSingleConsumer = -1) const;
 
-  Int32 getIdOfAnalyzingConsumer() const { return idOfAnalyzingConsumer_; }
-  CSEAnalysisOutcome getAnalysisOutcome(Int32 id) const;
-  NABoolean isShared(Int32 id) const { return analysisOutcome_ == CREATE_TEMP; }
+  int getIdOfAnalyzingConsumer() const { return idOfAnalyzingConsumer_; }
+  CSEAnalysisOutcome getAnalysisOutcome(int id) const;
+  NABoolean isShared(int id) const { return analysisOutcome_ == CREATE_TEMP; }
   NABoolean usesATempTable() const { return insertIntoTemp_ != NULL; }
   CSETempTableType getTempTableType() const { return tempTableType_; }
   const NABitVector &getNeededColumns() const { return neededColumns_; }
@@ -2390,13 +2390,13 @@ class CSEInfo : public NABasicObject {
   const NATable *getTempNATable() const { return tempNATable_; }
   RelExpr *getInsertIntoTemp() const { return insertIntoTemp_; }
 
-  void setCSEId(Int32 id) { cseId_ = id; }
-  Int32 addChildCSE(CSEInfo *childInfo, NABoolean addLexicalRef);
+  void setCSEId(int id) { cseId_ = id; }
+  int addChildCSE(CSEInfo *childInfo, NABoolean addLexicalRef);
   void addCSERef(CommonSubExprRef *cse);
   void eliminate() { analysisOutcome_ == ELIMINATED_IN_BINDER; }
   void registerAnAlternativeConsumer(CommonSubExprRef *c) { alternativeConsumers_.insert(c); }
   void replaceConsumerWithAnAlternative(CommonSubExprRef *c);
-  void setIdOfAnalyzingConsumer(Int32 id) { idOfAnalyzingConsumer_ = id; }
+  void setIdOfAnalyzingConsumer(int id) { idOfAnalyzingConsumer_ = id; }
   void setAnalysisOutcome(CSEAnalysisOutcome outcome) { analysisOutcome_ = outcome; }
   void setTempTableType(CSETempTableType t) { tempTableType_ = t; }
 
@@ -2416,7 +2416,7 @@ class CSEInfo : public NABasicObject {
   NAString name_;
 
   // id of this CSE within the statement
-  Int32 cseId_;
+  int cseId_;
 
   // list of other CSEs that are referenced by this one
   LIST(CountedCSEInfo) childCSEs_;
@@ -2438,7 +2438,7 @@ class CSEInfo : public NABasicObject {
 
   // number of lexical refs in the query for this expression
   // (how many time does it appear in the query text)
-  Int32 numLexicalRefs_;
+  int numLexicalRefs_;
 
   // a common list of columns and predicate to use used for a
   // materialized CSE
@@ -2460,7 +2460,7 @@ class CSEInfo : public NABasicObject {
   NABitVector cseTreeKeyColumns_;
 
   // information for the materialization of the CSE
-  Int32 idOfAnalyzingConsumer_;
+  int idOfAnalyzingConsumer_;
   CSEAnalysisOutcome analysisOutcome_;
   CSETempTableType tempTableType_;
   QualifiedName tempTableName_;
@@ -2473,18 +2473,18 @@ class CSEInfo : public NABasicObject {
 class CountedCSEInfo {
  public:
   CountedCSEInfo() : info_(NULL), lexicalCount_(-1) {}
-  CountedCSEInfo(CSEInfo *info, Int32 cnt = 0) : info_(info), lexicalCount_(cnt) {}
+  CountedCSEInfo(CSEInfo *info, int cnt = 0) : info_(info), lexicalCount_(cnt) {}
   CountedCSEInfo(const CountedCSEInfo &other) : info_(other.info_), lexicalCount_(other.lexicalCount_) {}
   ~CountedCSEInfo() {}
 
   CSEInfo *getInfo() const { return info_; }
-  Int32 getLexicalCount() const { return lexicalCount_; }
+  int getLexicalCount() const { return lexicalCount_; }
 
   void incrementLexicalCount() { lexicalCount_++; }
 
  private:
   CSEInfo *info_;
-  Int32 lexicalCount_;
+  int lexicalCount_;
 };
 
 // -----------------------------------------------------------------------
@@ -2516,13 +2516,13 @@ class CommonSubExprRef : public RelExpr {
 
   // the name used in the CTE or a generated name
   const NAString &getName() const { return internalName_; }
-  Int32 getId() const { return id_; }
-  Int32 getParentCSEId() const { return parentCSEId_; }
-  Int32 getParentConsumerId() const { return parentRefId_; }
-  Int32 getLexicalRefNumFromParent() const { return lexicalRefNumFromParent_; }
+  int getId() const { return id_; }
+  int getParentCSEId() const { return parentCSEId_; }
+  int getParentConsumerId() const { return parentRefId_; }
+  int getLexicalRefNumFromParent() const { return lexicalRefNumFromParent_; }
   NABoolean isAChildOfTheMainQuery() const;
 
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   // return a read-only reference to the initial list of columns
   const ValueIdList &getColumnList() const { return columnList_; }
@@ -2531,7 +2531,7 @@ class CommonSubExprRef : public RelExpr {
   const ValueIdSet &getPushedPredicates() const { return pushedPredicates_; }
   const EstLogPropSharedPtr &getEstLogProps() const { return cseEstLogProps_; }
 
-  void setId(Int32 id) {
+  void setId(int id) {
     CMPASSERT(id_ == -1);
     id_ = id;
   }
@@ -2669,7 +2669,7 @@ class CommonSubExprRef : public RelExpr {
 
   // One or more CommonSubExprRef operators may refer to the same
   // common subexprssion. These references are numbered 0, 1, ...
-  Int32 id_;
+  int id_;
 
   // indicate different flavors of CommonSubExprRef nodes and point
   // back to the original node(s), if any
@@ -2701,9 +2701,9 @@ class CommonSubExprRef : public RelExpr {
   //     of references and only from a particular parent CSE
   //     (or the main query).
   //
-  Int32 parentCSEId_;
-  Int32 parentRefId_;
-  Int32 lexicalRefNumFromParent_;
+  int parentCSEId_;
+  int parentRefId_;
+  int lexicalRefNumFromParent_;
 
   // The list of columns produced by the common subexpression.
   // We keep the full list here, even when the characteristic
@@ -2837,7 +2837,7 @@ class ConnectBy : public RelExpr {
   virtual NABoolean isLogical() const { return TRUE; };
   virtual NABoolean isPhysical() const { return TRUE; };
 
-  virtual Int32 getArity() const { return 2; };
+  virtual int getArity() const { return 2; };
 
   virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *outHeap = 0);
   virtual const NAString getText() const;
@@ -2975,7 +2975,7 @@ class ConnectByTempTable : public RelExpr {
   virtual NABoolean isLogical() const { return TRUE; };
   virtual NABoolean isPhysical() const { return TRUE; };
 
-  virtual Int32 getArity() const { return 1; };
+  virtual int getArity() const { return 1; };
 
   virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *outHeap = 0);
   virtual const NAString getText() const;
@@ -2988,13 +2988,13 @@ class ConnectByTempTable : public RelExpr {
   inline ValueIdList &probeValues() { return probeValues_; }
   inline const ValueIdList &probeValues() const { return probeValues_; }
 
-  void setBucketNum(Int32 v) { bucketNum_ = v; }
-  Int32 getBucketNum() { return bucketNum_; }
+  void setBucketNum(int v) { bucketNum_ = v; }
+  int getBucketNum() { return bucketNum_; }
 
  private:
   ValueIdList keyColumns_;
   ValueIdList probeValues_;
-  Int32 bucketNum_;
+  int bucketNum_;
 };
 
 #endif /* RELMISC_H */

@@ -929,7 +929,7 @@ RelExpr *HostArraysWA::modifyTupleNode(RelExpr *node) {
 // the expression and stores in listOfHostArrays_ all host arrays found;
 // it also replaces the array with a new variable that will appear
 // in a Rename node.
-void HostArraysWA::collectHostVarsInPred(ItemExpr *parent, Int32 childNumber) {
+void HostArraysWA::collectHostVarsInPred(ItemExpr *parent, int childNumber) {
   if (!parent || !parent->child(childNumber)) {
     return;
   }
@@ -1028,7 +1028,7 @@ NABoolean HostArraysWA::findHostVar(ItemExpr **inputVar, ItemExpr *list) {
 
 // We have found an array host variable in the parse tree.
 // We store it and replace it with a name that will be used in the rename node.
-void HostArraysWA::processArrayHostVar(ItemExpr *parent, Int32 childNumber) {
+void HostArraysWA::processArrayHostVar(ItemExpr *parent, int childNumber) {
   ItemExpr *child = parent->child(childNumber);
   HostVar *node;
 
@@ -1077,8 +1077,8 @@ void HostArraysWA::processArrayHostVar(ItemExpr *parent, Int32 childNumber) {
 
   ItemExpr *ptrList = listOfHostArrays_;
 
-  Int32 found = FALSE;
-  Int32 i = 0;
+  int found = FALSE;
+  int i = 0;
   numHostArrays_++;
 
   // Traverse the list of name we already have stored to see if our
@@ -1122,7 +1122,7 @@ void HostArraysWA::processArrayHostVar(ItemExpr *parent, Int32 childNumber) {
   parent->setChild(childNumber, ptr);
 }
 
-void HostArraysWA::processKeyVar(ItemExpr *parent, Int32 childNumber) {}
+void HostArraysWA::processKeyVar(ItemExpr *parent, int childNumber) {}
 
 // Traverses listOfHostArrays_ and creates a list of mapping variable names
 // that will be used in the Rename node. The list of names is pointed by newNames_
@@ -1133,7 +1133,7 @@ void HostArraysWA::createNewNames() {
 
   CollHeap *heap = bindWA_->wHeap();
 
-  for (Int32 i = 0; tmp; i++, tmp = tmp->child(1)) {
+  for (int i = 0; tmp; i++, tmp = tmp->child(1)) {
 #ifdef NA_ITOA_NOT_SUPPORTED
     sprintf(tmp1, "%d", i);
 #else
@@ -1176,7 +1176,7 @@ short BindWA::validateNumTables(RelExpr *node) {
     incrNumTablesPerSelect();
     incrNumTablesPerQuery();
 
-    Int32 v = CmpCommon::getDefaultNumeric(TRAF_MAX_TABLES_PER_SELECT);
+    int v = CmpCommon::getDefaultNumeric(TRAF_MAX_TABLES_PER_SELECT);
     if ((v >= 0) && (numTablesPerSelect() > v)) {
       char errBuf[1000];
       sprintf(errBuf, "Number of tables(%d) exceed the maximum allowed tables(%d) for each select.",
@@ -1264,7 +1264,7 @@ void HostArraysWA::collectHostVarsInRelExprTree(RelExpr *root, RelExpr::Atomicit
     // This ON clause is part of the scan node which is update's child.
     if (node->isMerge()) {
       // Process the children of this node
-      for (Int32 i = 0; i < root->getArity(); i++) {
+      for (int i = 0; i < root->getArity(); i++) {
         collectHostVarsInRelExprTree(root->child(i), atomicity);
         if (bindWA_->errStatus()) return;
       }
@@ -1359,7 +1359,7 @@ void HostArraysWA::collectHostVarsInRelExprTree(RelExpr *root, RelExpr::Atomicit
 
   if (NOT doneWithChildren) {
     // Process the children of this node
-    for (Int32 i = 0; i < root->getArity(); i++) {
+    for (int i = 0; i < root->getArity(); i++) {
       collectHostVarsInRelExprTree(root->child(i), atomicity);
       if (bindWA_->errStatus()) return;
     }
@@ -1499,7 +1499,7 @@ CollIndex BindWA::addTrigger(const ComTimestamp &triggerId) {
 
 // apply xformRowsetsInTree to our descendants & return transformed tree
 RelExpr *RelExpr::xformRowsetsInTree(BindWA &wa, const ULng32 arrayMaxsize, const AtomicityType atomicity) {
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     if (child(i)) {
       child(i) = child(i)->xformRowsetsInTree(wa, arrayMaxsize);
     }
@@ -1555,7 +1555,7 @@ RelExpr *RelRoot::xformRowsetsInTree(BindWA &wa, const ULng32 arrayMaxsize, cons
 // retrive the source/target schema names from OVERRIDE_SCHEMA
 void BindWA::initializeOverrideSchema() {
   NAString osSettings = schemaDB_->getDefaults().getValue(OVERRIDE_SCHEMA);
-  Int32 len = osSettings.length();
+  int len = osSettings.length();
 
   osFromSchema_ = "";
   osToSchema_ = "";
@@ -1586,7 +1586,7 @@ void BindWA::initializeOverrideSchema() {
 void extractOverrideSchemas(const char *value, NAString &fromSchema, NAString &toSchema) {
   fromSchema = "";
   toSchema = "";
-  Int32 len = strlen(value);
+  int len = strlen(value);
 
   if ((len > ComMAX_1_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES * 2 + 2) || (len < 3))  // at least x:y
     return;

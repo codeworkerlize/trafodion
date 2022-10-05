@@ -226,7 +226,7 @@ class OptDefaults {
     return ((queryComplexity_ >= shortOptPassThreshold_) OR(numTables_ >= 5));
   };
   inline ULng32 getNumOfBlocksPerAccess() { return numOfBlocksPerAccess_; };
-  inline Int32 getNumTables() { return numTables_; };
+  inline int getNumTables() { return numTables_; };
   inline NABoolean isFakeHardware() { return fakeHardware_; };
   inline NABoolean isAdditiveResourceCosting() { return additiveResourceCosting_; };
   inline double getQueryComplexity() { return queryComplexity_; };
@@ -425,14 +425,14 @@ class OptDefaults {
   NABoolean pruneByOptLevel(Rule *rule, RelExpr *relExpr);
   NABoolean pruneByRProbability(Rule *rule, RelExpr *relExpr);
   NABoolean pruneByPotential(Rule *rule, RelExpr *relExpr);
-  Int32 optimizerGracefulTermination() { return optimizerGracefulTermination_; };
+  int optimizerGracefulTermination() { return optimizerGracefulTermination_; };
 
   RequiredResources *estimateRequiredResources(RelExpr *rootExpr);
   // initialize portion of the cache based on ActiveSchemaDB's optDefaults
   // and the pass-in argument rootExpr
   void initialize(RelExpr *rootExpr);
 
-  Int32 getRulePriority(Rule *rule);
+  int getRulePriority(Rule *rule);
 
   double getReductionToPushGBPastTSJ() { return reduction_to_push_gb_past_tsj_; };
   // -----------------------------------------------------------------------
@@ -482,7 +482,7 @@ class OptDefaults {
   void recalibrateLocalMsgTransfer();
   void recalibrateRemoteMsg();
   void recalibrateRemoteMsgTransfer();
-  double recalibrate(Int32 calEnum, Int32 baseEnum, Int32 endEnum);
+  double recalibrate(int calEnum, int baseEnum, int endEnum);
 
   NABoolean newMemoryLimit(RelExpr *rootExpr, NABoolean recompute);
 
@@ -583,7 +583,7 @@ class OptDefaults {
   int level1ImmunityLimit_;
   int level1MJEnumLimit_;
   ULng32 numOfBlocksPerAccess_;
-  Int32 numTables_;
+  int numTables_;
   double queryComplexity_;
   double queryMJComplexity_;
   NABoolean isComplexMJQuery_;
@@ -906,7 +906,7 @@ class CascadesPlan : public ReferenceCounter {
 
   const Cost *getCostForChild(int childIndex) const;
 
-  NABoolean exprOccursInChildTree(RelExpr *newExpr, Int32 maxDepth = 1) const;
+  NABoolean exprOccursInChildTree(RelExpr *newExpr, int maxDepth = 1) const;
 
   // ---------------------------------------------------------------------
   // Utility methods
@@ -1787,7 +1787,7 @@ class CascadesMemo : public NABasicObject {
   inline CascadesGroup *operator[](CascadesGroupId groupId) { return group_[groupId]; }
 
   // consolidate group pointers after group merge(s)
-  Int32 garbageCollection();
+  int garbageCollection();
 
   // check for inconsistencies (return FALSE if something wrong)
   NABoolean consistencyCheck() const;
@@ -1847,7 +1847,7 @@ class CascadesTask : public NABasicObject {
 
   virtual void perform(int taskId) = 0;
 
-  virtual void garbageCollection(RelExpr *oldx, RelExpr *newx, Int32 groupMergeCount);
+  virtual void garbageCollection(RelExpr *oldx, RelExpr *newx, int groupMergeCount);
 
   virtual NAString taskText() const;
 
@@ -1952,7 +1952,7 @@ class OptimizeExprTask : public CascadesTask {
 
   virtual void perform(int taskId);
 
-  virtual void garbageCollection(RelExpr *oldx, RelExpr *newx, Int32 groupMergeCount);
+  virtual void garbageCollection(RelExpr *oldx, RelExpr *newx, int groupMergeCount);
 
   void print(FILE *f = stdout, const char *prefix = "", const char *suffix = "") const;
 
@@ -2008,7 +2008,7 @@ class ExploreExprTask : public CascadesTask {
 
   virtual void perform(int taskId);
 
-  virtual void garbageCollection(RelExpr *oldx, RelExpr *newx, Int32 groupMergeCount);
+  virtual void garbageCollection(RelExpr *oldx, RelExpr *newx, int groupMergeCount);
   void print(FILE *f = stdout, const char *prefix = "", const char *suffix = "") const;
 
   virtual NAString taskText() const;
@@ -2038,7 +2038,7 @@ class ApplyRuleTask : public CascadesTask {
 
   virtual void perform(int taskId);
 
-  virtual void garbageCollection(RelExpr *oldx, RelExpr *newx, Int32 groupMergeCount);
+  virtual void garbageCollection(RelExpr *oldx, RelExpr *newx, int groupMergeCount);
 
   void print(FILE *f = stdout, const char *prefix = "", const char *suffix = "") const;
   virtual NAString taskText() const;
@@ -2080,7 +2080,7 @@ class CreatePlanTask : public CascadesTask {
 
   virtual void perform(int taskId);
 
-  virtual void garbageCollection(RelExpr *oldx, RelExpr *newx, Int32 groupMergeCount);
+  virtual void garbageCollection(RelExpr *oldx, RelExpr *newx, int groupMergeCount);
 
   virtual cascadesTaskTypeEnum taskType() { return CascadesTask::CREATE_PLAN_TASK; }
 
@@ -2109,7 +2109,7 @@ class GarbageCollectionTask : public CascadesTask {
   ~GarbageCollectionTask();
   virtual void perform(int taskId);
 
-  virtual void garbageCollection(RelExpr *oldx, RelExpr *newx, Int32 groupMergeCount);
+  virtual void garbageCollection(RelExpr *oldx, RelExpr *newx, int groupMergeCount);
 
   void print(FILE *f = stdout, const char *prefix = "", const char *suffix = "") const;
 
@@ -2220,7 +2220,7 @@ class OptDebug {
   // ---------------------------------------------------------------------
   // Functions to show CascadeTask for debugging purpose.
   // ---------------------------------------------------------------------
-  void showTask(Int32 pass = -1, Int32 groupId = -1, Int32 task_count = -1, const CascadesTask *task = NULL,
+  void showTask(int pass = -1, int groupId = -1, int task_count = -1, const CascadesTask *task = NULL,
                 const ExprNode *tree = NULL, const CascadesPlan *plan = NULL, const char *prefix = "");
 
   void showNode(const ExprNode *tree = NULL, const CascadesPlan *plan = NULL, const char *prefix = "",
@@ -2321,7 +2321,7 @@ class QueryOptimizerDriver {
   NABoolean printCounters_;
 };
 
-void opt_qsort(void *base, UInt32 num, UInt32 width, Int32 (*comp)(const void *, const void *));
+void opt_qsort(void *base, UInt32 num, UInt32 width, int (*comp)(const void *, const void *));
 
 // class to wrap some optimizer global variables.
 class OptGlobals {
@@ -2353,8 +2353,8 @@ class OptGlobals {
   // ----------------------------------------------------------------
   // counters for evaluating ASM
   // -----------------------------------------------------------------
-  Int32 asm_count;
-  Int32 cascade_count;
+  int asm_count;
+  int cascade_count;
 
   // TaskMonitor cascadesTasksMonitor[CascadesTask::NUMBER_OF_TASK_TYPES];
   TaskMonitor *cascadesTasksMonitor[CascadesTask::NUMBER_OF_TASK_TYPES];
@@ -2425,9 +2425,9 @@ class OptGlobals {
   char returnString[500];  // global output string for debugging
 
   // for debugging only
-  Int32 group_merge_count;
-  Int32 garbage_expr_count;
-  Int32 pruned_tasks_count;
+  int group_merge_count;
+  int garbage_expr_count;
+  int pruned_tasks_count;
   NABoolean countExpr;
 
   CascadesMemo *memo;

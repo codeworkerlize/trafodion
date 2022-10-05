@@ -53,7 +53,7 @@ class ExeCliInterface : public NABasicObject {
   };
 
  public:
-  ExeCliInterface(CollHeap *heap = NULL, Int32 isoMapping = 0, ContextCli *currContext = NULL,
+  ExeCliInterface(CollHeap *heap = NULL, int isoMapping = 0, ContextCli *currContext = NULL,
                   const char *parentQid = NULL);
 
   virtual ~ExeCliInterface();
@@ -74,10 +74,10 @@ class ExeCliInterface : public NABasicObject {
   int executeImmediatePrepare2(const char *stmt, char *uniqueStmtId, int *uniqueStmtIdLen,
                                  SQL_QUERY_COST_INFO *query_cost_info, SQL_QUERY_COMPILER_STATS_INFO *comp_stats_info,
                                  char *outputBuf = NULL, int *outputBufLen = NULL, long *rowsAffected = NULL,
-                                 NABoolean monitorThis = FALSE, Int32 *retGenCodeSize = NULL);
+                                 NABoolean monitorThis = FALSE, int *retGenCodeSize = NULL);
 
   // retrieve generated code for a previously prepared stmt
-  int getGeneratedCode(char *genCodeBuf, Int32 genCodeSize);
+  int getGeneratedCode(char *genCodeBuf, int genCodeSize);
 
   int executeImmediateExec(const char *stmt, char *outputBuf = NULL, int *outputBufLen = NULL,
                              NABoolean nullTerminate = TRUE, long *rowsAffected = NULL,
@@ -88,7 +88,7 @@ class ExeCliInterface : public NABasicObject {
                 char **inputBuf = NULL, Queue *inputVarPtrList = NULL, char *uniqueStmtId = NULL,
                 int *uniqueStmtIdLen = NULL, SQL_QUERY_COST_INFO *query_cost_info = NULL,
                 SQL_QUERY_COMPILER_STATS_INFO *comp_stats_info = NULL, NABoolean monitorThis = FALSE,
-                NABoolean doNotCachePlan = FALSE, Int32 *retGenCodeSize = NULL);
+                NABoolean doNotCachePlan = FALSE, int *retGenCodeSize = NULL);
 
   int setupExplainData(SQLMODULE_ID *module, SQLSTMT_ID *stmt);
   int setupExplainData();
@@ -113,7 +113,7 @@ class ExeCliInterface : public NABasicObject {
 
   int rwrsPrepare(const char *stmStr, int rs_maxsize, NABoolean monitorThis = FALSE);
 
-  int rwrsExec(char *inputRow, Int32 inputRowLen, long *rowsAffected);
+  int rwrsExec(char *inputRow, int inputRowLen, long *rowsAffected);
 
   int rwrsClose();
 
@@ -125,7 +125,7 @@ class ExeCliInterface : public NABasicObject {
 
   int cwrsPrepare(const char *stmtStr, int rs_maxsize, NABoolean monitorThis = FALSE);
 
-  int cwrsExec(char *inputRow, Int32 inputRowLen, long *rowsAffected);
+  int cwrsExec(char *inputRow, int inputRowLen, long *rowsAffected);
 
   int cwrsClose(long *rowsAffected);
 
@@ -190,17 +190,17 @@ class ExeCliInterface : public NABasicObject {
   CollHeap *getHeap() { return heap_; }
 
   char *outputBuf() { return outputBuf_; };
-  Int32 outputDatalen() { return outputDatalen_; };
+  int outputDatalen() { return outputDatalen_; };
 
   char *inputBuf() { return inputBuf_; };
-  Int32 inputDatalen() { return inputDatalen_; };
+  int inputDatalen() { return inputDatalen_; };
 
   NABoolean isAllocated() { return (stmt_ ? TRUE : FALSE); }
 
   void clearGlobalDiags();
 
-  Int32 getIsoMapping() { return isoMapping_; };
-  void setIsoMapping(Int32 isoMapping) { isoMapping_ = isoMapping; };
+  int getIsoMapping() { return isoMapping_; };
+  void setIsoMapping(int isoMapping) { isoMapping_ = isoMapping; };
 
   int GetRowsAffected(long *rowsAffected);
 
@@ -227,47 +227,47 @@ class ExeCliInterface : public NABasicObject {
   // methods for routine invocation
   int getRoutine(
       /* IN */ const char *serializedInvocationInfo,
-      /* IN */ Int32 invocationInfoLen,
+      /* IN */ int invocationInfoLen,
       /* IN */ const char *serializedPlanInfo,
-      /* IN */ Int32 planInfoLen,
-      /* IN */ Int32 language,
-      /* IN */ Int32 paramStyle,
+      /* IN */ int planInfoLen,
+      /* IN */ int language,
+      /* IN */ int paramStyle,
       /* IN */ const char *externalName,
       /* IN */ const char *containerName,
       /* IN */ const char *externalPath,
       /* IN */ const char *librarySqlName,
-      /* OUT */ Int32 *handle,
+      /* OUT */ int *handle,
       /* IN/OUT */ ComDiagsArea *diags);
 
   int invokeRoutine(
-      /* IN */ Int32 handle,
-      /* IN */ Int32 phaseEnumAsInt,
+      /* IN */ int handle,
+      /* IN */ int phaseEnumAsInt,
       /* IN */ const char *serializedInvocationInfo,
-      /* IN */ Int32 invocationInfoLen,
-      /* OUT */ Int32 *invocationInfoLenOut,
+      /* IN */ int invocationInfoLen,
+      /* OUT */ int *invocationInfoLenOut,
       /* IN */ const char *serializedPlanInfo,
-      /* IN */ Int32 planInfoLen,
-      /* IN */ Int32 planNum,
-      /* OUT */ Int32 *planInfoLenOut,
+      /* IN */ int planInfoLen,
+      /* IN */ int planNum,
+      /* OUT */ int *planInfoLenOut,
       /* IN */ char *inputRow,
-      /* IN */ Int32 inputRowLen,
+      /* IN */ int inputRowLen,
       /* OUT */ char *outputRow,
-      /* IN */ Int32 outputRowLen,
+      /* IN */ int outputRowLen,
       /* IN/OUT */ ComDiagsArea *diags);
 
   int getRoutineInvocationInfo(
-      /* IN */ Int32 handle,
+      /* IN */ int handle,
       /* IN/OUT */ char *serializedInvocationInfo,
-      /* IN */ Int32 invocationInfoMaxLen,
-      /* OUT */ Int32 *invocationInfoLenOut,
+      /* IN */ int invocationInfoMaxLen,
+      /* OUT */ int *invocationInfoLenOut,
       /* IN/OUT */ char *serializedPlanInfo,
-      /* IN */ Int32 planInfoMaxLen,
-      /* IN */ Int32 planNum,
-      /* OUT */ Int32 *planInfoLenOut,
+      /* IN */ int planInfoMaxLen,
+      /* IN */ int planNum,
+      /* OUT */ int *planInfoLenOut,
       /* IN/OUT */ ComDiagsArea *diags);
 
   int putRoutine(
-      /* IN */ Int32 handle,
+      /* IN */ int handle,
       /* IN/OUT */ ComDiagsArea *diags);
 
   char *sqlStmtStr() { return sqlStmtStr_; }
@@ -289,22 +289,22 @@ class ExeCliInterface : public NABasicObject {
   SQLDESC_ID *input_desc_;
   SQLDESC_ID *output_desc_;
   char *outputBuf_;
-  Int32 isoMapping_;
-  Int32 outputDatalen_;
+  int isoMapping_;
+  int outputDatalen_;
 
   char *explainData_;
-  Int32 explainDataLen_;
+  int explainDataLen_;
 
-  Int32 numInputEntries_;
-  Int32 numOutputEntries_;
+  int numInputEntries_;
+  int numOutputEntries_;
   struct Attrs *inputAttrs_;
   struct Attrs *outputAttrs_;
 
   SQLDESC_ID *rs_input_maxsize_desc_;
-  Int32 rs_maxsize_;
+  int rs_maxsize_;
 
   char *inputBuf_;
-  Int32 inputDatalen_;
+  int inputDatalen_;
 
   SQLMODULE_ID *moduleWithCK_;
   SQLSTMT_ID *stmtWithCK_;
@@ -314,11 +314,11 @@ class ExeCliInterface : public NABasicObject {
   char *outputBuf_withCK_;
 
   // variables to process rowwise rowset
-  Int32 rsMaxsize_;      // max number of of rows in a rowset
+  int rsMaxsize_;      // max number of of rows in a rowset
   char *rsInputBuffer_;  // rwrs buffer passed to sql/cli
-  Int32 currRSrow_;      // current number of rows in the rsInputBuffer_
+  int currRSrow_;      // current number of rows in the rsInputBuffer_
 
-  Int32 numQuadFields_;
+  int numQuadFields_;
   struct SQLCLI_QUAD_FIELDS *quadFields_;
 
   CollHeap *heap_;

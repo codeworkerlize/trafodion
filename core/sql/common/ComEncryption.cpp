@@ -124,7 +124,7 @@ short ComEncryption::initEncryptionInfo(long encryptionKeyID, Int16 rowidCipherT
 //               On output, keyValLen is actualSize of keyVal
 // Output:       keyVal containing key of length keyVal
 /////////////////////////////////////////////////////////////////////////////
-short ComEncryption::getKeyFromKeyStore(char *keyId, Int32 keyIdLen, unsigned char *keyVal, Int32 &keyValLen) {
+short ComEncryption::getKeyFromKeyStore(char *keyId, int keyIdLen, unsigned char *keyVal, int &keyValLen) {
   // Code below is temporary. Will be replaced with KeyStore communication
   // code.
 
@@ -218,10 +218,10 @@ void ComEncryption::cleanupEVP() {
   ERR_free_strings();
 }
 
-short ComEncryption::extractEncryptionInfo(const EncryptionInfo &encInfo, Int32 &header, Int16 &rowidCipherType,
-                                           Int16 &dataCipherType, unsigned char *&rowIdKey, Int32 &rowIdKeyLen,
-                                           unsigned char *&dataKey, Int32 &dataKeyLen, unsigned char *&rowidInitVec,
-                                           Int32 &rowidInitVecLen, unsigned char *&dataInitVec, Int32 &dataInitVecLen) {
+short ComEncryption::extractEncryptionInfo(const EncryptionInfo &encInfo, int &header, Int16 &rowidCipherType,
+                                           Int16 &dataCipherType, unsigned char *&rowIdKey, int &rowIdKeyLen,
+                                           unsigned char *&dataKey, int &dataKeyLen, unsigned char *&rowidInitVec,
+                                           int &rowidInitVecLen, unsigned char *&dataInitVec, int &dataInitVecLen) {
   header = encInfo.header;
   rowidCipherType = encInfo.rowidCipherType;
   dataCipherType = encInfo.dataCipherType;

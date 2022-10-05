@@ -77,7 +77,7 @@ class SortLogical : public RelExpr {
   inline ValueIdList &getSortKey() { return sortKey_; }
 
   // get the degree of this node (it is a unary op).
-  virtual Int32 getArity() const { return 1; };
+  virtual int getArity() const { return 1; };
 
  private:
   // the sort key list
@@ -104,7 +104,7 @@ class Sort : public RelExpr {
   virtual ~Sort();
 
   // get the degree of this node (it is a unary op).
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   virtual NABoolean isUniqueOper();
 
@@ -243,7 +243,7 @@ class pcgEspFragment {
   pcgEspFragment(RelExpr *root, CollHeap *heap);
   ~pcgEspFragment(){};
 
-  Int32 getDesirableDoP() { return desirableDoP_; }
+  int getDesirableDoP() { return desirableDoP_; }
 
   void addChild(Exchange *esp);
 
@@ -253,10 +253,10 @@ class pcgEspFragment {
 
   CostScalar getTotaleRows() { return totalRows_; };
 
-  Int32 getNumOfHiveTables() { return numOfHiveTables_; };
+  int getNumOfHiveTables() { return numOfHiveTables_; };
 
   // get number of non-exchange operators within the fragment
-  Int32 getNumOfOperators() { return numOfOperators_; };
+  int getNumOfOperators() { return numOfOperators_; };
 
   /*
     NABoolean isValid() const { return valid_; };
@@ -302,10 +302,10 @@ class pcgEspFragment {
   NABoolean valid_;  // whether this fragment is a candidate for
                      // over parallelization correction.
 
-  Int32 desirableDoP_;
+  int desirableDoP_;
 
-  Int32 numOfHiveTables_;
-  Int32 numOfOperators_;
+  int numOfHiveTables_;
+  int numOfOperators_;
   ;
 
   CostScalar totalDataSize_;
@@ -400,7 +400,7 @@ class Exchange : public RelExpr {
   virtual ~Exchange();
 
   // get the degree of this node (it is a unary op).
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   virtual NABoolean isUniqueOper();
 

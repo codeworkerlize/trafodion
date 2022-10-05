@@ -21,7 +21,7 @@ class ComTdbConnectByTempTable : public ComTdb {
 
   ~ComTdbConnectByTempTable();
 
-  Int32 orderedQueueProtocol() const { return -1; };
+  int orderedQueueProtocol() const { return -1; };
 
   ComTdb *getChildTdb() { return tdbChild_; };
 
@@ -42,17 +42,17 @@ class ComTdbConnectByTempTable : public ComTdb {
 
   void display() const;
 
-  virtual const ComTdb *getChild(Int32 pos) const {
+  virtual const ComTdb *getChild(int pos) const {
     if (pos == 0)
       return tdbChild_.getPointer();
     else
       return NULL;
   }
 
-  virtual Int32 numChildren() const { return 1; }
+  virtual int numChildren() const { return 1; }
   virtual const char *getNodeName() const { return "EX_CONNECT_BY_TEMP_TABLE"; };
-  virtual Int32 numExpressions() const { return 6; };
-  virtual ex_expr *getExpressionNode(Int32 pos) {
+  virtual int numExpressions() const { return 6; };
+  virtual ex_expr *getExpressionNode(int pos) {
     switch (pos) {
       case 0:
         return hashProbeExpr_;
@@ -69,7 +69,7 @@ class ComTdbConnectByTempTable : public ComTdb {
     }
     return NULL;
   };
-  virtual const char *getExpressionName(Int32 pos) const {
+  virtual const char *getExpressionName(int pos) const {
     switch (pos) {
       case 0:
         return "hashProbeExpr_";

@@ -28,18 +28,18 @@
 //  Helper functions for ISO 8859_1 (8-bit european) alphabet processing
 // ---------------------------------------------------------------------
 //
-Int32 isUpper8859_1(NAWchar c);
-Int32 isLower8859_1(NAWchar c);
-Int32 isAlpha8859_1(NAWchar c);
-Int32 isAlNum8859_1(NAWchar c);
-Int32 isSpace8859_1(NAWchar c);
-Int32 isHexDigit8859_1(NAWchar c);  // 0, 1, .., A, B, C, D, E, F (case insensitive)
+int isUpper8859_1(NAWchar c);
+int isLower8859_1(NAWchar c);
+int isAlpha8859_1(NAWchar c);
+int isAlNum8859_1(NAWchar c);
+int isSpace8859_1(NAWchar c);
+int isHexDigit8859_1(NAWchar c);  // 0, 1, .., A, B, C, D, E, F (case insensitive)
 
-Int32 isDigit8859_1(NAWchar c);
+int isDigit8859_1(NAWchar c);
 
-Int32 isCaseInsensitive8859_1(NAWchar c);  // ISO 8859-1 char for which there is no
+int isCaseInsensitive8859_1(NAWchar c);  // ISO 8859-1 char for which there is no
                                            // upcase equivalent.  hex values 0xDF & 0xFF
-Int32 isChineseCharacter(NAWchar c);
+int isChineseCharacter(NAWchar c);
 
 // -----------------------------------------------------------------------
 // Compare strings <left> and <right> (using unsigned comparison).
@@ -48,14 +48,14 @@ Int32 isChineseCharacter(NAWchar c);
 // return 0 if left == right,
 // return 1 if left > right.
 // -----------------------------------------------------------------------
-inline Int32 str_cmp(const char *left, const char *right, Int32 length) {
-  Int32 result = memcmp(left, right, length);
+inline int str_cmp(const char *left, const char *right, int length) {
+  int result = memcmp(left, right, length);
   if (result == 0)
     return 0;
   else
     return ((result > 0) ? 1 : -1);
 }
-Int32 str_cmp_ne(const char *left, const char *right);
+int str_cmp_ne(const char *left, const char *right);
 
 // str_cmp_c() takes two strings as arguments and returns a value less
 // than zero if the first is lexographically less than the second, a
@@ -63,7 +63,7 @@ Int32 str_cmp_ne(const char *left, const char *right);
 // than the second, or zero if the two strings are equal. The
 // comparison is done by comparing the coded (ascii) value of the
 // chararacters, character by character.
-Int32(str_cmp_c)(const char *s1, const char *s2);
+int(str_cmp_c)(const char *s1, const char *s2);
 
 // The str_ncmp() function shall compare not more than n bytes
 // (bytes that follow a null byte are not compared) from the array
@@ -71,7 +71,7 @@ Int32(str_cmp_c)(const char *s1, const char *s2);
 // non-zero return value is determined by the sign of the difference
 // between the values of the first pair of bytes (both interpreted
 //  as type unsigned char) that differ in the strings being compared.
-Int32(str_ncmp)(const char *s1, const char *s2, size_t n);
+int(str_ncmp)(const char *s1, const char *s2, size_t n);
 
 // The str_str() function shall locate the first occurrence in the
 // string pointed to by s1 of the sequence of bytes (excluding the
@@ -87,7 +87,7 @@ char *(str_str)(const char *s1, const char *s2);
 //  returns the location of the found character, or a null pointer
 //  if the character was not found.
 //  This function is used to find certain characters in strings.
-char *(str_chr)(const char *s, Int32 c);
+char *(str_chr)(const char *s, int c);
 
 // The str_replace() function shall locate all occurrences in the
 // string pointed to by s1 of the sequence of bytes (excluding the
@@ -102,7 +102,7 @@ char *(str_replace)(char *s1, const char *s2, const char *s3);
 // -----------------------------------------------------------------------
 // fill string <str>  for <length> bytes with <padchar>
 // -----------------------------------------------------------------------
-inline Int32 str_pad(char *str, Int32 length, char padchar = ' ') {
+inline int str_pad(char *str, int length, char padchar = ' ') {
   // Below is a more efficient version of str_pad. The C++ runtime
   // routine memset() provides the same service, but hopefully with
   // better performance. On NSK, memset is part of the system library.
@@ -131,13 +131,13 @@ inline Int32 str_pad(char *str, Int32 length, char padchar = ' ') {
 //          work.  You may want to use str_cpy_all() instead; that
 //          routine works more like memcpy() and behaves well.
 // -----------------------------------------------------------------------
-Int32 str_cpy(char *tgt, const char *src, Int32 tgtlen, char padchar = ' ');
+int str_cpy(char *tgt, const char *src, int tgtlen, char padchar = ' ');
 
 // -----------------------------------------------------------------------
 // This routine behaves like str_cpy except that the length of
 // the target is also supplied.
 // -----------------------------------------------------------------------
-Int32 byte_str_cpy(char *tgt, Int32 tgtlen, const char *src, Int32 srclen, char padchar);
+int byte_str_cpy(char *tgt, int tgtlen, const char *src, int srclen, char padchar);
 
 // Perform a true C style strcpy()
 // The str_cpy_c() function shall copy the string pointed to by s2
@@ -160,7 +160,7 @@ char *(str_ncpy)(char *s1, const char *s2, size_t n);
 // -----------------------------------------------------------------------
 // concatenate <first> and <second> and store the result in <result>
 // -----------------------------------------------------------------------
-Int32 str_cat(const char *first, const char *second, char *result);
+int str_cat(const char *first, const char *second, char *result);
 
 // The str_cat_c() function shall append a copy of the string pointed to
 // by s2 (including the terminating null byte) to the end of the string
@@ -233,13 +233,13 @@ void str_memmove(char *tgt, const char *src, int length);
 //
 // Compare convertNAString in String.h
 // -----------------------------------------------------------------------
-Int32 str_varchar_alloc_and_copy(char *tgt, const char *src, int length);
+int str_varchar_alloc_and_copy(char *tgt, const char *src, int length);
 
 // -----------------------------------------------------------------------
 // Copies <src> to <tgt> for <length> bytes.
 // Removes trailing <blank_char>s by putting an <end_char> as terminator.
 // -----------------------------------------------------------------------
-Int32 str_cpy_and_null(char *tgt, const char *src, int length, char end_char = '\0', char blank_char = ' ',
+int str_cpy_and_null(char *tgt, const char *src, int length, char end_char = '\0', char blank_char = ' ',
                        NABoolean nullTerminate = FALSE);
 
 // ---------------------------------------------------------------
@@ -247,15 +247,15 @@ Int32 str_cpy_and_null(char *tgt, const char *src, int length, char end_char = '
 // else downshifts.
 // Src and Tgt may point to the same location.
 // ---------------------------------------------------------------
-Int32 str_cpy_convert(char *tgt, char *src, int length, Int32 upshift);
+int str_cpy_convert(char *tgt, char *src, int length, int upshift);
 
-Int32 str_len(const char *s);
+int str_len(const char *s);
 
 // -----------------------------------------------------------------------
 // "Increments" a string.  If successful, 0 is returned.  Otherwise, 1
 // is returned.
 // -----------------------------------------------------------------------
-Int32 str_inc(const ULng32 length, char *s);
+int str_inc(const ULng32 length, char *s);
 
 // -----------------------------------------------------------------------
 // Complements a string.
@@ -313,7 +313,7 @@ int str_to_ansi_id(char *src, char *tgt, int &tgtLen, short mustValidate = 1, ch
 // following function is used to extract a name that may be delimited
 // from a given string.  The name may end with a separator or end of line.
 // -----------------------------------------------------------------------
-Int32 extractDelimitedName(char *tgt, const char *const src, const char sep = '.');
+int extractDelimitedName(char *tgt, const char *const src, const char sep = '.');
 
 // -----------------------------------------------------------------------
 // following function is used to return the catalog and schema names
@@ -324,7 +324,7 @@ Int32 extractDelimitedName(char *tgt, const char *const src, const char sep = '.
 void extractCatSchemaNames(char *catName, char *schName, char *qualTabName);
 
 // inline
-Int32 mem_cpy_all(void *tgt, const void *src, int length);
+int mem_cpy_all(void *tgt, const void *src, int length);
 //{
 //#if defined (NA_YOS)
 //  for (int i = 0; i < length; i++)
@@ -365,7 +365,7 @@ size_t str_computeHexAsciiLen(size_t srcByteLen);
 // The output string does not include the 0x prefix.  By default a
 // NULL character - i.e. '\0' - is appended to the output string.
 // -----------------------------------------------------------------------
-Int32 str_convertToHexAscii(const char *src,                 // in
+int str_convertToHexAscii(const char *src,                 // in
                             const size_t srcLength,          // in
                             char *result,                    // out
                             const size_t maxResultSize,      // in - including NULL terminator if addNullAtEnd

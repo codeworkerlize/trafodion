@@ -60,7 +60,7 @@
 // We avoid sourcing in more header files into this simple header NAWinNT.h
 // file due to the complexity of the build of the SQL Engine products.
 //
-// inline void wc_str_pad(NAWchar *str, Int32 length,
+// inline void wc_str_pad(NAWchar *str, int length,
 //                                   NAWchar padchar = unicode_char_set::SPACE);
 
 #define NAWisspace  na_iswspace
@@ -88,13 +88,13 @@ inline UInt32 na_wcslen(const NAWchar *wstr) {
   return s - wstr;
 }
 
-inline Int32 na_iswspace(NAWchar wc) { return (wc == NAWCHR(' ')); }
+inline int na_iswspace(NAWchar wc) { return (wc == NAWCHR(' ')); }
 
 NAWchar *na_wcscat(NAWchar *, const NAWchar *);
-Int32 na_wcscmp(const NAWchar *, const NAWchar *);
-Int32 na_wcsicmp(const NAWchar *, const NAWchar *);
-Int32 na_wcsncmp(const NAWchar *, const NAWchar *, UInt32);
-Int32 na_wcsincmp(const NAWchar *, const NAWchar *, UInt32);
+int na_wcscmp(const NAWchar *, const NAWchar *);
+int na_wcsicmp(const NAWchar *, const NAWchar *);
+int na_wcsncmp(const NAWchar *, const NAWchar *, UInt32);
+int na_wcsincmp(const NAWchar *, const NAWchar *, UInt32);
 NAWchar *na_wcsncpy(NAWchar *dest, const NAWchar *src, UInt32 n);
 
 // We define these functions on Linux because we have chosen to use the
@@ -109,7 +109,7 @@ size_t na_mbstowcs(NAWchar *, const char *, size_t);
 NAWchar *na_wcswcs(const NAWchar *, const NAWchar *);
 
 // This compares two strings that can have embedded nulls.
-Int32 na_wcsnncmp(const NAWchar *wstr1, UInt32 len1, const NAWchar *wstr2, UInt32 len2);
+int na_wcsnncmp(const NAWchar *wstr1, UInt32 len1, const NAWchar *wstr2, UInt32 len2);
 
 inline NAWchar *na_wcscpy(NAWchar *dest, const NAWchar *src) {
   NAWchar *q = dest;
@@ -120,7 +120,7 @@ inline NAWchar *na_wcscpy(NAWchar *dest, const NAWchar *src) {
   return dest;
 }
 
-inline Int32 na_wcs_has_only_ascii_chars(const NAWchar *src, size_t srcLenInNAWchars) {
+inline int na_wcs_has_only_ascii_chars(const NAWchar *src, size_t srcLenInNAWchars) {
   for (size_t i = 0; i < srcLenInNAWchars; i++)
     if (src[i] > 0x7F) return 0;  // FALSE
 
@@ -168,10 +168,10 @@ int na_wcstol(const NAWchar *);
 NAWchar *na_wcschr(const NAWchar *, NAWchar);
 NAWchar *na_wcschrSkipOverParenText(const NAWchar *, NAWchar);
 NAWchar *na_wcsrchr(const NAWchar *, NAWchar);
-Int32 na_wsprintf(NAWchar *buffer, const NAWchar *format, ...);
-NAWchar *na_wmemchr(const NAWchar *ws, NAWchar wc, Int32 n);  // used by swsprintf
+int na_wsprintf(NAWchar *buffer, const NAWchar *format, ...);
+NAWchar *na_wmemchr(const NAWchar *ws, NAWchar wc, int n);  // used by swsprintf
 
-Int32 na_swscanf(const NAWchar *buffer, const NAWchar *format, ...);
+int na_swscanf(const NAWchar *buffer, const NAWchar *format, ...);
 double na_wcstod(const NAWchar *, NAWchar **);  // used by swscanf
 
 #define T_TEXT(q) WIDE_(q)  // q is "string"

@@ -458,7 +458,7 @@ class RangeInfo : public NABasicObject {
   virtual ~RangeInfo() { delete rangeSpec_; }
 
   // Required by NAHashDictionaryIterator
-  Int32 operator==(const RangeInfo &other);
+  int operator==(const RangeInfo &other);
 
   OptRangeSpec *getRangeSpec() const { return rangeSpec_; }
 

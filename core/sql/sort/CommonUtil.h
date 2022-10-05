@@ -28,7 +28,7 @@
 #include <stdlib.h>
 #include "common/Platform.h"
 
-typedef Int32 answer;
+typedef int answer;
 const answer right = 1;
 const answer wrong = 0;
 

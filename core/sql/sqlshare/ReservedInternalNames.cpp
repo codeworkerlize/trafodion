@@ -35,7 +35,7 @@
 // returns true if the name is an internal and/or generated name;
 // returns false otherwise.
 //
-static Int32 isDelimitedIdentifierReservedForInternalUse(const char *delimitedIdentWithoutTheLeadingQuote,
+static int isDelimitedIdentifierReservedForInternalUse(const char *delimitedIdentWithoutTheLeadingQuote,
                                                          size_t identLen)
 // delimitedIdentWithoutTheLeadingQuote may or may not be '\0' terminated.
 // Rely on indentLen to get the length of delimitedIdentWithoutTheLeadingQuote

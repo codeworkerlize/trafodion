@@ -149,8 +149,8 @@ int CNATestPoint::GetDetails() {
 //
 // Executes the requested testpoint
 // -----------------------------------------------------------------------
-Int32 CNATestPoint::Execute(void) {
-  Int32 executeSuccessful = 1;
+int CNATestPoint::Execute(void) {
+  int executeSuccessful = 1;
   switch (m_eRqst) {
     case (CNATestPoint::eERROR): {
       if (m_iError == IDS_PM_ERROR_MSG_TEST_POINT) {
@@ -175,8 +175,8 @@ Int32 CNATestPoint::Execute(void) {
       // in comparisons.
       // 8 - (SIGFPE): floating point exception -- arithmetic over/underflow
       if (m_iTrapError == 8) {
-        Int32 divisor = 0;
-        Int32 result = 100 / divisor;
+        int divisor = 0;
+        int result = 100 / divisor;
       }
 
       // 11 - (SIGSEGV): segmentation violation -- using an invalid address
@@ -246,7 +246,7 @@ void CNATestPoint::SetDelayTime(const int delayTime) {
 // to avoid special code in NSK and NT, the numeric values are used
 // in comparisons.
 // ------------------------------------------------------------------------
-void CNATestPoint::SetTrapError(const Int32 trapError) {
+void CNATestPoint::SetTrapError(const int trapError) {
   if (trapError == 8 || trapError == 11 || trapError == 25)
     m_iTrapError = trapError;
   else
@@ -308,7 +308,7 @@ CNATestPointList::~CNATestPointList() {}
 //   details - optional details: e.g. how long to wait for a DELAY
 // ---------------------------------------------------------------------
 void CNATestPointList::AddTestPoint(const int number, const int iterator, const int innerLoopIterator,
-                                    const NAString rqstStr, const Int32 details) {
+                                    const NAString rqstStr, const int details) {
   CNATestPoint::ETestPointRqst rqst = ConvertStrToENum(rqstStr);
   CNATestPoint *pTestPoint = new CNATestPoint(number, iterator, rqst);
   pTestPoint->SetInnerLoopIterator(innerLoopIterator);
@@ -525,8 +525,8 @@ void CNATestPointArray::resetAllTestPoints() {
   }
 }
 
-Int32 CNATestPointArray::executeTestPoint(enum ETestPointValue testPoint) {
-  Int32 retcode = 0;
+int CNATestPointArray::executeTestPoint(enum ETestPointValue testPoint) {
+  int retcode = 0;
   if ((testPoint >= 0) && (testPoint < LAST_TESTPOINT))  // do nothing if testPoint is out of bounds
   {
     if (testPoints_[testPoint])  // do nothing if testPoint is not configured

@@ -67,8 +67,8 @@
 
 // Called by GroupByAgg::codeGen()
 short GroupByAgg::genAggrGrbyExpr(Generator *generator, ValueIdSet &aggregateExpr, ValueIdSet &groupExpr,
-                                  ValueIdList &rollupGroupExprList, ValueIdSet &selectionPred, Int32 workAtp,
-                                  Int32 workAtpIndex, short returnedAtpIndex, ex_expr **aggrExpr, ex_expr **grbyExpr,
+                                  ValueIdList &rollupGroupExprList, ValueIdSet &selectionPred, int workAtp,
+                                  int workAtpIndex, short returnedAtpIndex, ex_expr **aggrExpr, ex_expr **grbyExpr,
                                   ex_expr **moveExpr, ex_expr **havingExpr, ComTdb **childTdb,
                                   ExpTupleDesc **tupleDesc) {
   ExpGenerator *expGen = generator->getExpGenerator();
@@ -121,7 +121,7 @@ short GroupByAgg::genAggrGrbyExpr(Generator *generator, ValueIdSet &aggregateExp
   }
 
   // add the elements in the aggr list to the map table
-  Int32 i = 0;
+  int i = 0;
   Attributes **attrs = NULL;
 
   if (NOT isAggrOneRow_) {
@@ -647,7 +647,7 @@ short HashGroupBy::codeGen(Generator *generator) {
   Attributes **attrs = new (generator->wHeap()) Attributes *[numAttrs];
 
   // add the elements in the aggr list to the map table
-  Int32 i = 0;
+  int i = 0;
   if (NOT lowerAggrValIds.isEmpty()) {
     for (valId = lowerAggrValIds.init(); lowerAggrValIds.next(valId); lowerAggrValIds.advance(valId), i++) {
       attrs[i] = (generator->addMapInfo(valId, 0))->getAttr();
@@ -667,7 +667,7 @@ short HashGroupBy::codeGen(Generator *generator) {
   ValueIdSet hbSearchValIds;
 
   // remember index of first group attr
-  Int32 attrIdx = i;
+  int attrIdx = i;
 
   if (NOT groupValIds.isEmpty()) {
     for (valId = groupValIds.init(); groupValIds.next(valId); groupValIds.advance(valId), i++) {
@@ -1020,7 +1020,7 @@ short HashGroupBy::codeGen(Generator *generator) {
 
     // add the elements of the upper aggregate to the map table
     attrs = new (generator->wHeap()) Attributes *[numAttrs];
-    Int32 i = 0;
+    int i = 0;
     if (NOT upperAggrValIds.isEmpty()) {
       for (valId = upperAggrValIds.init(); upperAggrValIds.next(valId); upperAggrValIds.advance(valId), i++) {
         attrs[i] = (generator->addMapInfo(valId, 0))->getAttr();
@@ -1499,12 +1499,12 @@ short HbasePushdownAggr::codeGen(Generator *generator) {
 
   ex_cri_desc *returnedDesc = NULL;
 
-  const Int32 workAtp = 1;
-  Int32 finalAggrTuppIndex = 2;
-  Int32 hbaseAggrTuppIndex = 3;
-  Int32 projTuppIndex = 4;
-  const Int32 rowIdTuppIndex = 5;
-  const Int32 rowIdAsciiTuppIndex = 6;
+  const int workAtp = 1;
+  int finalAggrTuppIndex = 2;
+  int hbaseAggrTuppIndex = 3;
+  int projTuppIndex = 4;
+  const int rowIdTuppIndex = 5;
+  const int rowIdAsciiTuppIndex = 6;
 
   ULng32 projRowLen = 0;
   ExpTupleDesc *projTupleDesc = NULL;
@@ -1513,7 +1513,7 @@ short HbasePushdownAggr::codeGen(Generator *generator) {
   work_cri_desc = new (space) ex_cri_desc(7, space);
 
   returnedDesc = new (space) ex_cri_desc(givenDesc->noTuples() + 1, space);
-  const Int32 returnedTuppIndex = returnedDesc->noTuples() - 1;
+  const int returnedTuppIndex = returnedDesc->noTuples() - 1;
 
   if (aggregateExpr().isEmpty()) {
     GenAssert(0, "aggregateExpr() cannot be empty.");
@@ -1527,7 +1527,7 @@ short HbasePushdownAggr::codeGen(Generator *generator) {
 
   ULng32 numAttrs = aggregateExpr().entries();
   Attributes **attrs = new (generator->wHeap()) Attributes *[numAttrs];
-  Int32 i = 0;
+  int i = 0;
   for (ValueId valId = aggregateExpr().init(); aggregateExpr().next(valId); aggregateExpr().advance(valId), i++) {
     // this value will be populated at runtime by aggr returned by HBASE.
     // It will not be aggregated by the aggr expression.
@@ -1552,7 +1552,7 @@ short HbasePushdownAggr::codeGen(Generator *generator) {
   NADELETEBASIC(attrs, generator->wHeap());
 
   NABoolean isAlignedFormat = tableDesc_->getNATable()->isAlignedFormat(NULL);
-  for (Int32 j = 0; j < numAttrs; j++) {
+  for (int j = 0; j < numAttrs; j++) {
     ValueId &valId = aggrVidList[j];
 
     if (NOT((Aggregate *)valId.getItemExpr())->isPushdown()) {
@@ -1608,7 +1608,7 @@ short HbasePushdownAggr::codeGen(Generator *generator) {
   ULng32 buffersize = 3 * getDefault(GEN_DPSO_BUFFER_SIZE);
   queue_index upqueuelength = (queue_index)getDefault(GEN_DPSO_SIZE_UP);
   queue_index downqueuelength = (queue_index)getDefault(GEN_DPSO_SIZE_DOWN);
-  Int32 numBuffers = getDefault(GEN_DPUO_NUM_BUFFERS);
+  int numBuffers = getDefault(GEN_DPUO_NUM_BUFFERS);
 
   // Compute the buffer size based on upqueue size and row size.
   // Try to get enough buffer space to hold twice as many records

@@ -14,7 +14,7 @@ ComTdbCancel::ComTdbCancel()
 
 // Constructor
 
-ComTdbCancel::ComTdbCancel(char *qid, char *pname, Int32 nid, Int32 pid, Int32 minAge, Int16 action, Int16 forced,
+ComTdbCancel::ComTdbCancel(char *qid, char *pname, int nid, int pid, int minAge, Int16 action, Int16 forced,
                            char *comment, ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
                            queue_index up)
     : ComTdb(ComTdb::ex_CANCEL, eye_CANCEL,

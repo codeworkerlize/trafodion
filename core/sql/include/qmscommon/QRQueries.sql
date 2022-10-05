@@ -55,8 +55,8 @@ EXEC SQL CONTROl QUERY DEFAULT STREAM_TIMEOUT '500';
 
 EXEC SQL BEGIN DECLARE SECTION;
 
-static Int32 SQLCODE;
-static Int32 result;
+static int SQLCODE;
+static int result;
  
 #define MAX_NODE_NAME 9
 #define MAX_CATSYS_NAME 50                // + "CATSYS" = 41+1+1 = 43
@@ -106,7 +106,7 @@ struct QRMVDataStruct
   long long  objectUID_; 
   long long  redefTime_;
   long long  refreshedAt_;
-  Int32 hasIgnoreChanges_;
+  int hasIgnoreChanges_;
   char mvText_[MAX_MV_UTF8_TEXT_IN_BYTES];
 };
 
@@ -119,7 +119,7 @@ struct MVQR_PublishStruct
   long long  catalogUID_;                  
   char objectName_[MAX_OBJECT_NAME];
   char objectNewName_[MAX_OBJECT_NAME];
-  Int32 descriptorIndex_;
+  int descriptorIndex_;
   char operationType_[MAX_OPERATION_TYPE];
   char ignoreChangesUsed_[MAX_OPERATION_TYPE];
   short nullindObjectNewName_;
@@ -162,12 +162,12 @@ EXEC SQL END DECLARE SECTION;
 /*********************************************************
 // Strip trailing NAWchar blanks
 *********************************************************/
-static void StripTrailingBlanks(NAWchar *x, const Int32 bufSizeInNAWchars)
+static void StripTrailingBlanks(NAWchar *x, const int bufSizeInNAWchars)
 {
-  Int32 i=bufSizeInNAWchars-1;
+  int i=bufSizeInNAWchars-1;
   x[i]=0; /* Make sure there is a NULL terminator*/
   i -= 1;  
-  Int32 more=1/*TRUE*/;
+  int more=1/*TRUE*/;
   while(more)
   {
     if(x[i]==' ')
@@ -207,7 +207,7 @@ void QRQueries::setSystemDefaultsName(char *name)
 // QRQueries::beginTransaction()
 //
 *********************************************************/
-Int32 QRQueries::beginTransaction()
+int QRQueries::beginTransaction()
 {
   EXEC SQL BEGIN WORK;
 
@@ -219,7 +219,7 @@ Int32 QRQueries::beginTransaction()
 // QRQueries::commitTransaction()
 //
 *********************************************************/
-Int32 QRQueries::commitTransaction()
+int QRQueries::commitTransaction()
 {
   EXEC SQL COMMIT WORK;
 
@@ -231,7 +231,7 @@ Int32 QRQueries::commitTransaction()
 // QRQueries::rollbackTransaction()
 //
 *********************************************************/
-Int32 QRQueries::rollbackTransaction()
+int QRQueries::rollbackTransaction()
 {
   EXEC SQL ROLLBACK WORK;
 
@@ -269,7 +269,7 @@ int QRQueries::fetchSystemDefault(char* value)
 {
   EXEC SQL BEGIN DECLARE SECTION;
     char defaultValue[MAX_DEFAULTS_UTF8_VALUE_IN_BYTES];
-    Int32 textSize;
+    int textSize;
   EXEC SQL END DECLARE SECTION;
    
   EXEC SQL FETCH ObtainSystemDefaults INTO :defaultValue,
@@ -290,7 +290,7 @@ int QRQueries::fetchSystemDefault(char* value)
 /*********************************************************
 // QRQueries::closeSystemDefault
 *********************************************************/
-Int32 QRQueries::closeSystemDefault()
+int QRQueries::closeSystemDefault()
 {
   EXEC SQL CLOSE ObtainSystemDefaults;
 
@@ -344,9 +344,9 @@ int QRQueries::fetchCatalogName(NAString& catalogName)
     char * p1stUnstranslatedChar = NULL;
     UInt32 outStrLenInBytes = 0;
     UInt32 charCount = 0;  /* number of characters translated/converted */
-    Int32 cnvErrStatus = 0;
+    int cnvErrStatus = 0;
     char *pSubstitutionChar = NULL; /* Use ? */
-    Int32 convFlags = 0;
+    int convFlags = 0;
     cnvErrStatus = UTF16ToLocale
                     ( cnv_version1              /* in  - const enum cnv_version version */
                     , (const char *)catName     /* in  - const char *in_bufr */
@@ -357,8 +357,8 @@ int QRQueries::fetchCatalogName(NAString& catalogName)
                     , p1stUnstranslatedChar     /* out - char * & first_untranslated_char */
                     , &outStrLenInBytes         /* out - unsigned int *output_data_len_p */
                     , convFlags                 /* in  - const int cnv_flags */
-                    , (Int32)TRUE               /* in  - const int addNullAtEnd_flag */
-                    , (Int32)TRUE               /* in  - const int allow_invalids */
+                    , (int)TRUE               /* in  - const int addNullAtEnd_flag */
+                    , (int)TRUE               /* in  - const int allow_invalids */
                     , &charCount                /* out - unsigned int * translated_char_cnt_p */
                     , pSubstitutionChar         /* in  - const char *substitution_char */
                     );
@@ -372,7 +372,7 @@ int QRQueries::fetchCatalogName(NAString& catalogName)
 /*********************************************************
 // QRQueries::closeCatalogName
 *********************************************************/
-Int32 QRQueries::closeCatalogName()
+int QRQueries::closeCatalogName()
 {
   EXEC SQL CLOSE ObtainCatalogName;
 
@@ -423,7 +423,7 @@ int QRQueries::fetchCatalogUID(long long & catalogUID)
 /*********************************************************
 // QRQueries::closeCatalogUID
 *********************************************************/
-Int32 QRQueries::closeCatalogUID()
+int QRQueries::closeCatalogUID()
 {
   EXEC SQL CLOSE ObtainCatalogUID;
 
@@ -456,10 +456,10 @@ int QRQueries::openVersion(long long  catalogUID)
 /*********************************************************
 // QRQueries::fetchVersion
 *********************************************************/
-int QRQueries::fetchVersion(Int32& version)
+int QRQueries::fetchVersion(int& version)
 {
   EXEC SQL BEGIN DECLARE SECTION;
-    Int32 ver;
+    int ver;
   EXEC SQL END DECLARE SECTION;
  
   EXEC SQL FETCH ObtainSystemSchemaVersion INTO :ver;
@@ -472,7 +472,7 @@ int QRQueries::fetchVersion(Int32& version)
 /*********************************************************
 // QRQueries::closeVersion
 *********************************************************/
-Int32 QRQueries::closeVersion()
+int QRQueries::closeVersion()
 {
   EXEC SQL CLOSE ObtainSystemSchemaVersion;
 
@@ -518,9 +518,9 @@ int QRQueries::fetchCatalogNames(NAString& catalogName)
     char * p1stUnstranslatedChar = NULL;
     UInt32 outStrLenInBytes = 0;
     UInt32 charCount = 0;  /* number of characters translated/converted */
-    Int32 cnvErrStatus = 0;
+    int cnvErrStatus = 0;
     char *pSubstitutionChar = NULL; /* Use ? */
-    Int32 convFlags = 0;
+    int convFlags = 0;
     cnvErrStatus = UTF16ToLocale
                     ( cnv_version1              /* in  - const enum cnv_version version */
                     , (const char *)catName     /* in  - const char *in_bufr */
@@ -531,8 +531,8 @@ int QRQueries::fetchCatalogNames(NAString& catalogName)
                     , p1stUnstranslatedChar     /* out - char * & first_untranslated_char */
                     , &outStrLenInBytes         /* out - unsigned int *output_data_len_p */
                     , convFlags                 /* in  - const int cnv_flags */
-                    , (Int32)TRUE               /* in  - const int addNullAtEnd_flag */
-                    , (Int32)TRUE               /* in  - const int allow_invalids */
+                    , (int)TRUE               /* in  - const int addNullAtEnd_flag */
+                    , (int)TRUE               /* in  - const int allow_invalids */
                     , &charCount                /* out - unsigned int * translated_char_cnt_p */
                     , pSubstitutionChar         /* in  - const char *substitution_char */
                     );
@@ -546,7 +546,7 @@ int QRQueries::fetchCatalogNames(NAString& catalogName)
 /*********************************************************
 // QRQueries::closeCatalogNames
 *********************************************************/
-Int32 QRQueries::closeCatalogNames()
+int QRQueries::closeCatalogNames()
 {
   EXEC SQL CLOSE ObtainCatalogNames;
 
@@ -664,11 +664,11 @@ int QRQueries::openMvDescriptorText(const NAString& textTable,
 /*********************************************************
 // QRQueries::fetchMvDescriptorText
 *********************************************************/
-Int32 QRQueries::fetchMvDescriptorText(QRMVData *data)
+int QRQueries::fetchMvDescriptorText(QRMVData *data)
 {
   EXEC SQL BEGIN DECLARE SECTION;
     QRMVDataStruct *hostVarP = data;
-    Int32 textSizeInNAWchars = 0;
+    int textSizeInNAWchars = 0;
     char CHARACTER SET IS UCS2 mvDescText[MAX_MV_UCS2_TEXT_SIZE_PLUS_1];
   EXEC SQL END DECLARE SECTION;  
   
@@ -686,9 +686,9 @@ Int32 QRQueries::fetchMvDescriptorText(QRMVData *data)
   char * p1stUnstranslatedChar = NULL;
   UInt32 outStrLenInBytes = 0;
   UInt32 charCount = 0;  /* number of characters translated/converted */
-  Int32 cnvErrStatus = 0;
+  int cnvErrStatus = 0;
   char *pSubstitutionChar = NULL; /* Use ? */
-  Int32 convFlags = 0;
+  int convFlags = 0;
   cnvErrStatus = UTF16ToLocale
                   ( cnv_version1              /* in  - const enum cnv_version version */
                   , (const char *)mvDescText  /* in  - const char *in_bufr */
@@ -699,8 +699,8 @@ Int32 QRQueries::fetchMvDescriptorText(QRMVData *data)
                   , p1stUnstranslatedChar     /* out - char * & first_untranslated_char */
                   , &outStrLenInBytes         /* out - unsigned int *output_data_len_p */
                   , convFlags                 /* in  - const int cnv_flags */
-                  , (Int32)TRUE               /* in  - const int addNullAtEnd_flag */
-                  , (Int32)TRUE               /* in  - const int allow_invalids */
+                  , (int)TRUE               /* in  - const int addNullAtEnd_flag */
+                  , (int)TRUE               /* in  - const int allow_invalids */
                   , &charCount                /* out - unsigned int * translated_char_cnt_p */
                   , pSubstitutionChar         /* in  - const char *substitution_char */
                   );
@@ -711,7 +711,7 @@ Int32 QRQueries::fetchMvDescriptorText(QRMVData *data)
 /*********************************************************
 // QRQueries::closeMvDescriptorText
 *********************************************************/
-Int32 QRQueries::closeMvDescriptorText()
+int QRQueries::closeMvDescriptorText()
 {
   EXEC SQL CLOSE ObtainMvDescriptorText;
 
@@ -792,14 +792,14 @@ int QRQueries::fetchRewritePublish(MVQR_Publish *publish)
      NAWchar tmpObjName[MAX_OBJECT_NAME_IN_NAWCHARS+1]; /* plus 1 extra NAWchar */
      NAWstrncpy(tmpObjName, (const NAWchar *)objectName, MAX_OBJECT_NAME_IN_NAWCHARS-1);
      tmpObjName[MAX_OBJECT_NAME_IN_NAWCHARS-1] = 0;
-     StripTrailingBlanks (tmpObjName, (Int32)MAX_OBJECT_NAME_IN_NAWCHARS);
+     StripTrailingBlanks (tmpObjName, (int)MAX_OBJECT_NAME_IN_NAWCHARS);
 
      char * p1stUnstranslatedChar = NULL;
      UInt32 outStrLenInBytes = 0;
      UInt32 charCount = 0;  /* number of characters translated/converted */
-     Int32 cnvErrStatus = 0;
+     int cnvErrStatus = 0;
      char *pSubstitutionChar = NULL; /* Use ? as the substitute character for invalid chars - the default*/
-     Int32 convFlags = 0;
+     int convFlags = 0;
      cnvErrStatus = UTF16ToLocale
                      ( cnv_version1              /* in  - const enum cnv_version version */
                      , (const char *)tmpObjName  /* in  - const char *in_bufr */
@@ -810,15 +810,15 @@ int QRQueries::fetchRewritePublish(MVQR_Publish *publish)
                      , p1stUnstranslatedChar     /* out - char * & first_untranslated_char */
                      , &outStrLenInBytes         /* out - unsigned int *output_data_len_p */
                      , convFlags                 /* in  - const int cnv_flags */
-                     , (Int32)TRUE               /* in  - const int addNullAtEnd_flag */
-                     , (Int32)TRUE               /* in  - const int allow_invalids */
+                     , (int)TRUE               /* in  - const int addNullAtEnd_flag */
+                     , (int)TRUE               /* in  - const int allow_invalids */
                      , &charCount                /* out - unsigned int * translated_char_cnt_p */
                      , pSubstitutionChar         /* in  - const char *substitution_char */
                      );
 
      NAWstrncpy(tmpObjName, (const NAWchar *)objectNewName, MAX_OBJECT_NAME_IN_NAWCHARS-1);
      tmpObjName[MAX_OBJECT_NAME_IN_NAWCHARS-1] = 0;
-     StripTrailingBlanks (tmpObjName, (Int32)MAX_OBJECT_NAME_IN_NAWCHARS);
+     StripTrailingBlanks (tmpObjName, (int)MAX_OBJECT_NAME_IN_NAWCHARS);
 
      p1stUnstranslatedChar = NULL;
      outStrLenInBytes = 0;
@@ -836,8 +836,8 @@ int QRQueries::fetchRewritePublish(MVQR_Publish *publish)
                      , p1stUnstranslatedChar     /* out - char * & first_untranslated_char */
                      , &outStrLenInBytes         /* out - unsigned int *output_data_len_p */
                      , convFlags                 /* in  - const int cnv_flags */
-                     , (Int32)TRUE               /* in  - const int addNullAtEnd_flag */
-                     , (Int32)TRUE               /* in  - const int allow_invalids */
+                     , (int)TRUE               /* in  - const int addNullAtEnd_flag */
+                     , (int)TRUE               /* in  - const int allow_invalids */
                      , &charCount                /* out - unsigned int * translated_char_cnt_p */
                      , pSubstitutionChar         /* in  - const char *substitution_char */
                      );
@@ -896,7 +896,7 @@ int QRQueries::fetchRewritePublish(MVQR_Publish *publish)
 /*********************************************************
 // QRQueries::closeRewritePublish
 *********************************************************/
-Int32 QRQueries::closeRewritePublish()
+int QRQueries::closeRewritePublish()
 {
   EXEC SQL CLOSE ObtainRewritePublish;
 

@@ -58,8 +58,8 @@ ULng32 pack(char *&buffer, ULng32 x) {
   return sz;
 }
 
-ULng32 pack(char *&buffer, Int32 x) {
-  ULng32 sz = sizeof(Int32);
+ULng32 pack(char *&buffer, int x) {
+  ULng32 sz = sizeof(int);
   str_cpy_all((char *)buffer, (char *)&x, sz);
   buffer += sz;
   return sz;
@@ -97,8 +97,8 @@ ULng32 unpack(char *&buffer, ULng32 &x) {
   return sz;
 }
 
-ULng32 unpack(char *&buffer, Int32 &x) {
-  ULng32 sz = sizeof(Int32);
+ULng32 unpack(char *&buffer, int &x) {
+  ULng32 sz = sizeof(int);
   str_cpy_all((char *)&x, buffer, sz);
   buffer += sz;
   return sz;

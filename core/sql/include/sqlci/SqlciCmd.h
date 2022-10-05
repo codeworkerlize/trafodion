@@ -57,13 +57,13 @@ class SqlciCmd : public SqlciNode {
   sqlci_cmd_type cmd_type;
   char *argument;
   int arglen;
-  Int32 numeric_arg;
+  int numeric_arg;
 
  public:
   SqlciCmd(const sqlci_cmd_type cmd_type_);
   SqlciCmd(const sqlci_cmd_type cmd_type_, char *, int);
   SqlciCmd(const sqlci_cmd_type cmd_type_, NAWchar *, int);
-  SqlciCmd(const sqlci_cmd_type cmd_type_, Int32);
+  SqlciCmd(const sqlci_cmd_type cmd_type_, int);
   ~SqlciCmd();
   inline char *get_argument(char *dummy_arg = 0) { return argument; };
   inline int get_arglen() { return arglen; };
@@ -116,7 +116,7 @@ class FixCommand : public SqlciCmd {
 
  public:
   FixCommand(char *, int);
-  FixCommand(Int32, short);
+  FixCommand(int, short);
   ~FixCommand(){};
   short process(SqlciEnv *sqlci_env);
 };
@@ -128,7 +128,7 @@ class FCRepeat : public SqlciCmd {
 
  public:
   FCRepeat(char *, int);
-  FCRepeat(Int32, short);
+  FCRepeat(int, short);
   ~FCRepeat(){};
   short process(SqlciEnv *sqlci_env);
 };
@@ -148,10 +148,10 @@ class Log : public SqlciCmd {
 
  private:
   log_type type;
-  Int32 commandsOnly_;
+  int commandsOnly_;
 
  public:
-  Log(char *, int arglen_, log_type type_, Int32 commands_only);
+  Log(char *, int arglen_, log_type type_, int commands_only);
   ~Log(){};
   short process(SqlciEnv *sqlci_env);
 };
@@ -204,7 +204,7 @@ class ParserFlags : public SqlciCmd {
   ParserFlagsOperation opType;
 
  public:
-  ParserFlags(ParserFlagsOperation, Int32 param_);
+  ParserFlags(ParserFlagsOperation, int param_);
   ~ParserFlags(){};
   short process(SqlciEnv *sqlci_env);
 };

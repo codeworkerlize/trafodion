@@ -197,9 +197,9 @@ NARoutine::NARoutine(const QualifiedName &name, CollHeap *heap)
 
   // Construct the CostVectors
   // CQDs are checked at Bind time.
-  Int32 initCpuCost = -1;
-  Int32 initIOCost = -1;
-  Int32 initMsgCost = -1;
+  int initCpuCost = -1;
+  int initIOCost = -1;
+  int initMsgCost = -1;
 
   CostScalar initialCpuCost(initCpuCost);
   CostScalar initialIOCost(initIOCost);
@@ -209,9 +209,9 @@ NARoutine::NARoutine(const QualifiedName &name, CollHeap *heap)
   initialRowCost_.setIOTime(initIOCost < 0 ? csMinusOne : initialIOCost);
   initialRowCost_.setMSGTime(initMsgCost < 0 ? csMinusOne : initialMsgCost);
 
-  Int32 normCpuCost = -1;
-  Int32 normIOCost = -1;
-  Int32 normMsgCost = -1;
+  int normCpuCost = -1;
+  int normIOCost = -1;
+  int normMsgCost = -1;
 
   CostScalar normalCpuCost(normCpuCost);
   CostScalar normalIOCost(normIOCost);
@@ -322,7 +322,7 @@ NARoutine::NARoutine(const NARoutine &old, CollHeap *h)
   } else {
     passThruData_ = new (h) char *[(UInt32)passThruDataNumEntries_];
     passThruDataSize_ = new (h) long[(UInt32)passThruDataNumEntries_];
-    for (Int32 i = 0; i < passThruDataNumEntries_; i++) {
+    for (int i = 0; i < passThruDataNumEntries_; i++) {
       passThruDataSize_[i] = old.passThruDataSize_[i];
       passThruData_[i] = new (h) char[(UInt32)passThruDataSize_[i] + 1];
       memcpy(passThruData_[i], old.passThruData_[i], (size_t)passThruDataSize_[i]);
@@ -335,7 +335,7 @@ NARoutine::NARoutine(const NARoutine &old, CollHeap *h)
   heapSize_ = (h ? h->getTotalSize() : 0);
 }
 
-NARoutine::NARoutine(const QualifiedName &name, const TrafDesc *routine_desc, BindWA *bindWA, Int32 &errorOccurred,
+NARoutine::NARoutine(const QualifiedName &name, const TrafDesc *routine_desc, BindWA *bindWA, int &errorOccurred,
                      NAMemory *heap)
     : name_(name, heap),
       hashKey_(name, heap),
@@ -454,9 +454,9 @@ NARoutine::NARoutine(const QualifiedName &name, const TrafDesc *routine_desc, Bi
   //
   // Construct the CostVectors
   // CQDs are checked at Bind time.
-  Int32 initCpuCost = -1;
-  Int32 initIOCost = -1;
-  Int32 initMsgCost = -1;
+  int initCpuCost = -1;
+  int initIOCost = -1;
+  int initMsgCost = -1;
 
   CostScalar initialCpuCost(initCpuCost);
   CostScalar initialIOCost(initIOCost);
@@ -466,9 +466,9 @@ NARoutine::NARoutine(const QualifiedName &name, const TrafDesc *routine_desc, Bi
   initialRowCost_.setIOTime(initIOCost < 0 ? csMinusOne : initialIOCost);
   initialRowCost_.setMSGTime(initMsgCost < 0 ? csMinusOne : initialMsgCost);
 
-  Int32 normCpuCost = -1;
-  Int32 normIOCost = -1;
-  Int32 normMsgCost = -1;
+  int normCpuCost = -1;
+  int normIOCost = -1;
+  int normMsgCost = -1;
 
   CostScalar normalCpuCost(normCpuCost);
   CostScalar normalIOCost(normIOCost);
@@ -604,7 +604,7 @@ NARoutine::~NARoutine() {
   delete intActionName_;
   uecValues_.clear();  // delete all its elements.
   if (passThruData_ NEQ NULL) {
-    for (Int32 i = 0; i < passThruDataNumEntries_; i++)
+    for (int i = 0; i < passThruDataNumEntries_; i++)
       NADELETEBASIC(passThruData_[i], heap_);  // Can't use NADELETEARRAY on C types.
     NADELETEBASIC(passThruData_, heap_);       // Can't use NADELETEARRAY on C types.
   }
@@ -718,8 +718,8 @@ void NARoutine::getPrivileges(TrafDesc *priv_desc, BindWA *bindWA) {
   }
 
   // get roles granted to current user
-  NAList<Int32> roleIDs(heap_);
-  NAList<Int32> grantees(heap_);
+  NAList<int> roleIDs(heap_);
+  NAList<int> grantees(heap_);
   if (ComUser::getCurrentUserRoles(roleIDs, grantees, CmpCommon::diags()) != 0) return;
 
   // set up privileges for current user
@@ -733,7 +733,7 @@ void NARoutine::getPrivileges(TrafDesc *priv_desc, BindWA *bindWA) {
 
     if (privInfo_->getSchemaPrivBitmap().any()) {
       // Add schema's security keys
-      for (Int32 i = 0; i < schemaTable->getSecKeySet().entries(); i++) {
+      for (int i = 0; i < schemaTable->getSecKeySet().entries(); i++) {
         ComSecurityKey key = schemaTable->getSecKeySet()[i];
         secKeySet_.insert(key);
       }
@@ -887,7 +887,7 @@ void NARoutineDB::resetAfterStatement() {
 // numKeys - number of existing invalidation keys
 // qiKeyArray - actual keys
 // ----------------------------------------------------------------------------
-void NARoutineDB::free_entries_with_QI_key(Int32 numKeys, SQL_QIKEY *qiKeyArray) {
+void NARoutineDB::free_entries_with_QI_key(int numKeys, SQL_QIKEY *qiKeyArray) {
   NAHashDictionaryIterator<NARoutineDBKey, NARoutine> iter(*this);
   NARoutineDBKey *key;
   NARoutine *routine;
@@ -901,11 +901,11 @@ void NARoutineDB::free_entries_with_QI_key(Int32 numKeys, SQL_QIKEY *qiKeyArray)
 }
 
 void NARoutineDB::reset_priv_entries() {
-  Int32 len = 500;
+  int len = 500;
   char msg[len];
 
   // If error getting current roles, clear the cache list and return
-  NAList<Int32> roleIDs(heap_);
+  NAList<int> roleIDs(heap_);
   Int16 retcode = ComUser::getCurrentUserRoles(roleIDs, NULL /*don't update diags*/);
 
   // If unable to get roles, then just clear the list
@@ -927,7 +927,7 @@ void NARoutineDB::reset_priv_entries() {
     return;
   }
 
-  Int32 userID = ComUser::getCurrentUser();
+  int userID = ComUser::getCurrentUser();
 
   NAHashDictionaryIterator<NARoutineDBKey, NARoutine> iter(*this);
   NARoutineDBKey *key;
@@ -1300,7 +1300,7 @@ SP_STATUS NARoutineCacheDeleteStoredProcedure::sp_Process(SP_PROCESS_ACTION acti
   // Not sure what "counter" is used for, can be removed?
   struct InfoStruct {
     ULng32 counter;
-    Int32 resetOnly;
+    int resetOnly;
   };
 
   SP_STATUS status = SP_SUCCESS;

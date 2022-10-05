@@ -211,7 +211,7 @@ enum IpcMessageTypeEnum {
 
 };
 
-typedef Int32 IpcMessageType;
+typedef int IpcMessageType;
 
 // -----------------------------------------------------------------------
 // Types for objects inside messages (a different space of numbers for
@@ -221,12 +221,12 @@ typedef Int32 IpcMessageType;
 // allows us to manage the enum types separately per component of the
 // SQL system without forcing global recompiles on small changes.
 // -----------------------------------------------------------------------
-typedef Int32 IpcMessageObjType;
+typedef int IpcMessageObjType;
 
 // -----------------------------------------------------------------------
 // Version of a message header or of an object in a message
 // -----------------------------------------------------------------------
-typedef Int32 IpcMessageObjVersion;
+typedef int IpcMessageObjVersion;
 
 // -----------------------------------------------------------------------
 // Reserved numbers for certain common objects in messages, to be
@@ -258,7 +258,7 @@ const IpcMessageObjVersion IpcCurrSqlDiagnosticsAreaVersion = 100;
 const IpcMessageObjVersion IpcCurrSqlStatisticsVersion = 100;
 const IpcMessageObjVersion IpcCurrProcessIdVersion = 100;
 
-typedef Int32 IpcMessageType;
+typedef int IpcMessageType;
 
 // -----------------------------------------------------------------------
 // size of objects in bytes
@@ -270,7 +270,7 @@ typedef UInt32 IpcMessageObjSize;
 // Reference count of a message header or of an object in a message
 // (used mainly when objects are shared across the IPC interface)
 // -----------------------------------------------------------------------
-typedef Int32 IpcMessageRefCount;
+typedef int IpcMessageRefCount;
 
 // -----------------------------------------------------------------------
 // A buffer pointer to a raw, byte-adressable  message buffer, used for
@@ -315,14 +315,14 @@ const short IpcMyAlignment = IpcAlignment8;
 // a value of 100 means 1 sec), 0 means return immediately,
 // IpcInfiniteTimeout waits forever
 // -----------------------------------------------------------------------
-typedef Int32 IpcTimeout;
+typedef int IpcTimeout;
 const IpcTimeout IpcImmediately = 0;
 const IpcTimeout IpcInfiniteTimeout = -1;
 
 // -----------------------------------------------------------------------
 // CPU number in a node
 // -----------------------------------------------------------------------
-typedef Int32 IpcCpuNum;
+typedef int IpcCpuNum;
 
 // an invalid CPU number in a node
 const IpcCpuNum IPC_CPU_DONT_CARE = -1;
@@ -330,7 +330,7 @@ const IpcCpuNum IPC_CPU_DONT_CARE = -1;
 // -----------------------------------------------------------------------
 // Priority of a started process
 // -----------------------------------------------------------------------
-typedef Int32 IpcPriority;
+typedef int IpcPriority;
 
 const IpcPriority IPC_PRIORITY_DONT_CARE = -1;
 

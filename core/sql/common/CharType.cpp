@@ -60,7 +60,7 @@ CharType::CharType(NAMemory *h, const NAString &adtName, int maxLenInBytesOrNAWc
                    NABoolean nullTerminated, NABoolean allowSQLnull, NABoolean isUpShifted, NABoolean isCaseInsensitive,
                    NABoolean varLenFlag, CharInfo::CharSet cs, CharInfo::Collation co, CharInfo::Coercibility ce,
                    CharInfo::CharSet encoding,
-                   Int32 vcIndLen  // default is 0
+                   int vcIndLen  // default is 0
                    )
     : NAType(h, adtName, NA_CHARACTER_TYPE,
              (maxLenInBytesOrNAWchars + (nullTerminated ? 1 : 0)) * CharInfo::minBytesPerChar(cs), allowSQLnull,
@@ -152,7 +152,7 @@ NAString CharType::getCoercibilityText(CharInfo::Coercibility ce) {
 NAString CharType::getSPSQLTypeName() const {
   char buf[30];
   char *sp = buf;
-  Int32 len = getStrCharLimit();
+  int len = getStrCharLimit();
   NAString rName(getSimpleTypeName());
   sprintf(sp, "(%d)", len);
   rName += sp;
@@ -178,13 +178,13 @@ NAString CharType::getTypeSQLname(NABoolean terse) const {
                                            getEncodingCharSet() == CharInfo::SJIS ) */ )
   {
     if (getStrCharLimit() * getBytesPerChar() == getNominalSize()) {
-      Int32 charLen = getStrCharLimit();
+      int charLen = getStrCharLimit();
       if (charLen == 1)
         sprintf(sp, "(1 CHAR) ");
       else
         sprintf(sp, "(%d CHARS) ", charLen);
     } else {
-      Int32 byteLen = getNominalSize();
+      int byteLen = getNominalSize();
       if (byteLen == 1)
         sprintf(sp, "(1 BYTE) ");
       else
@@ -267,7 +267,7 @@ NAString *CharType::convertToString(double v, NAMemory *h) const {
   // compute the actual string length as any character
   // decoded could be a \0.
 
-  Int32 i = 0;
+  int i = 0;
   for (i = 1; i <= 7; i++)
     if (bits[i] == 0) {
       bits[i] = '\'';
@@ -690,7 +690,7 @@ NABoolean CharType::createSQLLiteral(const char *buf, NAString *&stringLiteral, 
   NABoolean result = TRUE;
   NAString *resultLiteral = new (h) NAString(getCharSetAsPrefix());
   const char *valPtr = buf + getSQLnullHdrSize();
-  Int32 valLen = 0;
+  int valLen = 0;
   CharInfo::CharSet sourceCS = getCharSet();
   char *tempBuf = NULL;
 
@@ -700,7 +700,7 @@ NABoolean CharType::createSQLLiteral(const char *buf, NAString *&stringLiteral, 
     if (getVarLenHdrSize() == 2)
       valLen = *((Int16 *)valPtr);
     else if (getVarLenHdrSize() == 4)
-      valLen = *((Int32 *)valPtr);
+      valLen = *((int *)valPtr);
     else
       ComASSERT(FALSE);
 
@@ -728,7 +728,7 @@ NABoolean CharType::createSQLLiteral(const char *buf, NAString *&stringLiteral, 
       // try it the easy way, for all ASCII chars
       NABoolean allAscii = TRUE;
       unsigned char *ucharBuf = (unsigned char *)valPtr;
-      for (Int32 i = 0; i < valLen && allAscii; i++)
+      for (int i = 0; i < valLen && allAscii; i++)
         if (ucharBuf[i] > 127) allAscii = FALSE;
       if (allAscii) {
         *resultLiteral += NAString((char *)valPtr, valLen);
@@ -740,7 +740,7 @@ NABoolean CharType::createSQLLiteral(const char *buf, NAString *&stringLiteral, 
     case CharInfo::UNICODE: {
       char *firstUntranslatedChar = NULL;
       unsigned int outputLength = 0;
-      Int32 tempBufSize = CharInfo::getMaxConvertedLenInBytes(sourceCS, valLen, CharInfo::UTF8);
+      int tempBufSize = CharInfo::getMaxConvertedLenInBytes(sourceCS, valLen, CharInfo::UTF8);
       tempBuf = new (h) char[tempBufSize];
 
       int retCode = LocaleToUTF8(cnv_version1, valPtr, valLen, tempBuf, tempBufSize, convertCharsetEnum(sourceCS),
@@ -954,7 +954,7 @@ void CharType::print(FILE *ofd, const char *indent) {
 // -----------------------------------------------------------------------
 // to determine varchar header size
 // -----------------------------------------------------------------------
-Int32 CharType::determineVCHdrSize(Int32 len) {
+int CharType::determineVCHdrSize(int len) {
   return ((len & 0xFFFF8000) ? SQL_VARCHAR_HDR_SIZE_4 : SQL_VARCHAR_HDR_SIZE);
 }
 
@@ -966,11 +966,11 @@ NAString *CharType::getKey(CollHeap *h) const { return new (h) NAString(getTypeS
 
 void CharType::minMaxRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral, NABoolean isMax,
                                         CollHeap *h) const {
-  Int32 i;
-  Int32 vcLenHdrSize = getVarLenHdrSize();
+  int i;
+  int vcLenHdrSize = getVarLenHdrSize();
   char *valPtr = reinterpret_cast<char *>(bufPtr) + vcLenHdrSize;
-  Int32 valBufLen = getNominalSize();
-  Int32 valLen = valBufLen;  // output length of min/max value
+  int valBufLen = getNominalSize();
+  int valLen = valBufLen;  // output length of min/max value
   char minmax_char;
   wchar_t minmax_wchar;
 
@@ -1014,8 +1014,8 @@ void CharType::minMaxRepresentableValue(void *bufPtr, int *bufLen, NAString **st
   if (vcLenHdrSize == sizeof(short)) {
     short vc_len = (short)valLen;
     str_cpy_all((char *)bufPtr, (char *)&vc_len, vcLenHdrSize);
-  } else if (vcLenHdrSize == sizeof(Int32)) {
-    Int32 vc_len = (Int32)valLen;
+  } else if (vcLenHdrSize == sizeof(int)) {
+    int vc_len = (int)valLen;
     str_cpy_all((char *)bufPtr, (char *)&vc_len, vcLenHdrSize);
   } else
     ComASSERT(vcLenHdrSize == 0);
@@ -1124,8 +1124,8 @@ const CharType *CharType::findPushDownCharType(CharInfo::CharSet cs, const CharT
 
   if (first == NULL) return desiredCharType(cs);
 
-  Int32 total = 0;
-  Int32 ct = 0;
+  int total = 0;
+  int ct = 0;
 
   do {
     total++;

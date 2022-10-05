@@ -71,7 +71,7 @@ class ExSimpleSQLBufferEntry {
   // init - Initializes an entry by setting initializing the tupp
   // descriptor and setting the next field to NULL.
   //
-  void init(Int32 size) {
+  void init(int size) {
     tuppDesc_.init(size, 0, data_);
     next_ = 0;
   };
@@ -122,12 +122,12 @@ class ExSimpleSQLBuffer : public ExGod {
  public:
   // ExSimpleSQLBuffer - constructor
   //
-  ExSimpleSQLBuffer(Int32 numTuples, Int32 tupleSize, NAMemory *);
+  ExSimpleSQLBuffer(int numTuples, int tupleSize, NAMemory *);
 
   // ExSimpleSQLBuffer - constructor specially designed for mapping
   // sql_buffer_pool construction calls to ExSimpleSQLBuffer calls.
   //
-  ExSimpleSQLBuffer(Int32 numBuffers, Int32 bufferSize, Int32 tupleSize, NAMemory *);
+  ExSimpleSQLBuffer(int numBuffers, int bufferSize, int tupleSize, NAMemory *);
 
   // ~ExSimpleSQLBuffer - destructor
   //
@@ -135,7 +135,7 @@ class ExSimpleSQLBuffer : public ExGod {
 
   // getFreeTuple - sets <tp> to reference a free tuple from the buffer
   //
-  Int32 getFreeTuple(tupp &tp);
+  int getFreeTuple(tupp &tp);
 
   // getNumTuples - returns the total number of tupps in the buffer
   //
@@ -166,17 +166,17 @@ class ExSimpleSQLBuffer : public ExGod {
   // numberTuples_ - The total number of tuples in the buffer (free and used).
   // Set in the constructor and accesible using getNumTuples().
   //
-  Int32 numberTuples_;
+  int numberTuples_;
 
   // tupleSize_ - The data size of each tuple in the buffer. Set in the
   // constructor and accesible using getTupleSize().
   //
-  Int32 tupleSize_;
+  int tupleSize_;
 
   // allocationSize_ - The allocated size of each ExSimpleSQLBufferEntry.
   // Set in the constructor and never accessed afterwards.
   //
-  Int32 allocationSize_;
+  int allocationSize_;
 
   // freeList_ - Linked list of free (unreferenced) tuples
   // usedList_ - Linked list of used (referenced) tuples

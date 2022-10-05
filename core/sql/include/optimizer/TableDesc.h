@@ -84,7 +84,7 @@ class PartRangePerCol : public NABasicObject {
   // ---------------------------------------------------------------------
   // Constructor functions
   // ---------------------------------------------------------------------
-  PartRangePerCol(NAMemory *heap, const Int32 partIdx, const Int32 partColPos)
+  PartRangePerCol(NAMemory *heap, const int partIdx, const int partColPos)
       : heap_(heap),
         partIdx_(partIdx),
         partColPos_(partColPos),
@@ -107,7 +107,7 @@ class PartRangePerCol : public NABasicObject {
                      CollHeap *c = NULL, char *buf = NULL) const;
 
   void display();
-  const Int32 getPartIndex() const { return partIdx_; }
+  const int getPartIndex() const { return partIdx_; }
   OptRangeSpec *&getInterval() { return intervalRange_; }
   OptRangeSpec *&getHighBoundary() { return highBoundRange_; }
   ItemExpr *&getLowBoundExpr() { return lowBoundaryExpr_; }
@@ -134,8 +134,8 @@ class PartRangePerCol : public NABasicObject {
   //  partition p3 values less than (30, 10)
   // );
   // example for p2, col c1 0
-  const Int32 partIdx_;           // part number is 1
-  const Int32 partColPos_;        // c1 is the first partition column, position is 0
+  const int partIdx_;           // part number is 1
+  const int partColPos_;        // c1 is the first partition column, position is 0
   OptRangeSpec *intervalRange_;   // c1 :[10...20)            |
   OptRangeSpec *highBoundRange_;  // c1 :[20...20]            |
   ItemExpr *lowBoundaryExpr_;     // c1 :c1 = 10
@@ -152,7 +152,7 @@ class PartRangePerCol : public NABasicObject {
 
 class PartRange : public LIST(PartRangePerCol *) {
  public:
-  PartRange(CollHeap *h = CmpCommon::statementHeap(), const NATable *naTable = NULL, const Int32 partIdx = -1,
+  PartRange(CollHeap *h = CmpCommon::statementHeap(), const NATable *naTable = NULL, const int partIdx = -1,
             const NAString partEntityName = "")
       : LIST(PartRangePerCol *)(h), table_(naTable), partIdx_(partIdx), partEntityName_(partEntityName) {}
 
@@ -162,19 +162,19 @@ class PartRange : public LIST(PartRangePerCol *) {
 
   void display();
   const NAString &getPartEntityName() { return partEntityName_; }
-  const Int32 getPartIndex() { return partIdx_; }
+  const int getPartIndex() { return partIdx_; }
 
  private:
   const NATable *table_;
-  const Int32 partIdx_;
+  const int partIdx_;
   const NAString partEntityName_;
 };
 
 class Partition : public NABasicObject {
  public:
   enum PartitionType { UNKNOWN, RANGE_PARTITION, LIST_PARTITION, HASH_PARTITION };
-  Partition(CollHeap *heap = CmpCommon::statementHeap(), PartitionType partType = UNKNOWN, const Int32 partIdx = -1,
-            const Int32 partCount = 0, const NAString partName = "", const NAString partEntityName = "")
+  Partition(CollHeap *heap = CmpCommon::statementHeap(), PartitionType partType = UNKNOWN, const int partIdx = -1,
+            const int partCount = 0, const NAString partName = "", const NAString partEntityName = "")
       : heap_(heap),
         partType_(partType),
         partIdx_(partIdx),
@@ -197,7 +197,7 @@ class Partition : public NABasicObject {
   void display();
   const NAString &getPartEntityName() { return partEntityName_; }
   const NAString &getPartName() { return partName_; }
-  const Int32 getPartIndex() { return partIdx_; }
+  const int getPartIndex() { return partIdx_; }
   ItemExpr *&getlowBoundary() { return lowBoundary_; }
   ItemExpr *&getHighBoundary() { return highBoundary_; }
   ValueIdList &getLowValueList() { return lowValueList_; }
@@ -205,21 +205,21 @@ class Partition : public NABasicObject {
   ItemExpr *&getColList() { return colList_; }
   ItemExprList *&getListBoundary() { return listBoundary_; }
   NABoolean &isLastPart() { return isLastPart_; }
-  Int32 &getFirstMaxvalIdx() { return firstMaxvalIdx_; }
-  Int32 &getFirstLowMaxvalIdx() { return firstLowMaxvalIdx_; }
+  int &getFirstMaxvalIdx() { return firstMaxvalIdx_; }
+  int &getFirstLowMaxvalIdx() { return firstLowMaxvalIdx_; }
   NABoolean &isDefaultPartition() { return isDefaultPartition_; }
   NABoolean &isSubPartition() { return isSubPartition_; }
 
  private:
   const NAMemory *heap_;
   PartitionType partType_;
-  const Int32 partIdx_;
+  const int partIdx_;
   const NAString partName_;
   const NAString partEntityName_;
-  const Int32 partCount_;
+  const int partCount_;
   NABoolean isLastPart_;
-  Int32 firstMaxvalIdx_;
-  Int32 firstLowMaxvalIdx_;
+  int firstMaxvalIdx_;
+  int firstLowMaxvalIdx_;
   ItemExpr *lowBoundary_;
   ItemExpr *highBoundary_;
   ValueIdList lowValueList_;

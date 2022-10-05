@@ -61,7 +61,7 @@ class RelSample : public RelExpr {
   virtual ~RelSample();
 
   // RelSample operator has only one child
-  virtual Int32 getArity() const { return 1; };
+  virtual int getArity() const { return 1; };
 
   virtual const NAString getText() const { return "Sample"; };
 

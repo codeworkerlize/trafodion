@@ -139,7 +139,7 @@ class OptConstraint : public ItemExpr {
   virtual ~OptConstraint() {}
 
   virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = 0);
-  virtual Int32 getArity() const = 0;
+  virtual int getArity() const = 0;
 };
 
 // -----------------------------------------------------------------------
@@ -176,7 +176,7 @@ class CheckConstraint : public Constraint {
         isViewWithCheckOption_(chek.isViewWithCheckOption_) {}
 
   virtual ~CheckConstraint() {}
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
   virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = 0);
   void unparse(NAString &result, PhaseEnum phase, UnparseFormatEnum form, TableDesc *tabId = NULL) const;
   const NAString getText() const;
@@ -228,7 +228,7 @@ class CardConstraint : public OptConstraint {
   virtual ~CardConstraint() {}
 
   // get the degree of this node (it is a leaf).
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
@@ -267,7 +267,7 @@ class UniqueOptConstraint : public OptConstraint {
   virtual ~UniqueOptConstraint() {}
 
   // get the degree of this node (it is a leaf).
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
@@ -298,7 +298,7 @@ class FuncDependencyConstraint : public OptConstraint {
   virtual ~FuncDependencyConstraint() {}
 
   // get the degree of this node (it is a leaf).
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
@@ -341,7 +341,7 @@ class CheckOptConstraint : public OptConstraint {
   virtual ~CheckOptConstraint();
 
   // get the degree of this node (it is a leaf).
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
@@ -378,7 +378,7 @@ class AbstractRIConstraint : public Constraint {
       : Constraint(aric, h), defTableName_(aric.defTableName_), keyColumns_(aric.keyColumns_, h) {}
 
   virtual ~AbstractRIConstraint();
-  virtual Int32 getRefConstraints(BindWA *bindWA, const ColSignature &updateCols, RefConstraintList &resultList) = 0;
+  virtual int getRefConstraints(BindWA *bindWA, const ColSignature &updateCols, RefConstraintList &resultList) = 0;
 
   virtual void resetAfterStatement() = 0;
 
@@ -464,7 +464,7 @@ class UniqueConstraint : public AbstractRIConstraint {
 
   virtual ~UniqueConstraint();
   virtual void resetAfterStatement();
-  virtual Int32 getRefConstraints(BindWA *bindWA, const ColSignature &updateCols, RefConstraintList &resultList);
+  virtual int getRefConstraints(BindWA *bindWA, const ColSignature &updateCols, RefConstraintList &resultList);
   void setRefConstraintsReferencingMe(const struct TrafConstrntsDesc *, CollHeap *, BindWA *);
   NABoolean hasRefConstraintsReferencingMe() { return NOT refConstraintsReferencingMe_.isEmpty(); };
 
@@ -534,7 +534,7 @@ class RefConstraint : public AbstractRIConstraint {
   virtual ~RefConstraint();
   virtual void resetAfterStatement() { uniqueConstraintReferencedByMe_.resetAfterStatement(); };
 
-  virtual Int32 getRefConstraints(BindWA *bindWA, const ColSignature &updateCols, RefConstraintList &resultList);
+  virtual int getRefConstraints(BindWA *bindWA, const ColSignature &updateCols, RefConstraintList &resultList);
 
   inline NABoolean selfRef() const;
   inline NABoolean isaForeignKeyinTableBeingUpdated() const;
@@ -605,7 +605,7 @@ class AbstractRIConstraintList : public LIST(AbstractRIConstraint *) {
 
   virtual ~AbstractRIConstraintList() {}
 
-  Int32 getRefConstraints(BindWA *bindWA, const ValueIdSet &assigns, RefConstraintList &resultList) const;
+  int getRefConstraints(BindWA *bindWA, const ValueIdSet &assigns, RefConstraintList &resultList) const;
   void resetAfterStatement();
 };
 
@@ -666,7 +666,7 @@ class RefOptConstraint : public OptConstraint {
   virtual ~RefOptConstraint() {}
 
   // get the degree of this node (it is a leaf).
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = NULL);
 
@@ -733,7 +733,7 @@ class ComplementaryRefOptConstraint : public OptConstraint {
         isMatchedForElimination_(constr.isMatchedForElimination_) {}
 
   virtual ~ComplementaryRefOptConstraint() {}
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
   virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = NULL);
   virtual void unparse(NAString &result, PhaseEnum phase, UnparseFormatEnum form, TableDesc *tabId = NULL) const;
   virtual const NAString getText() const;

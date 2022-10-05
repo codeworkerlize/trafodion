@@ -36,7 +36,7 @@ static const ENCODING * const NS(encodings)[] = {
   &ns(utf8_encoding).enc /* NO_ENC */
 };
 
-static Int32 PTRCALL
+static int PTRCALL
 NS(initScanProlog)(const ENCODING *enc, const char *ptr, const char *end,
                    const char **nextTokPtr)
 {
@@ -44,7 +44,7 @@ NS(initScanProlog)(const ENCODING *enc, const char *ptr, const char *end,
                   XML_PROLOG_STATE, ptr, end, nextTokPtr);
 }
 
-static Int32 PTRCALL
+static int PTRCALL
 NS(initScanContent)(const ENCODING *enc, const char *ptr, const char *end,
                     const char **nextTokPtr)
 {
@@ -52,11 +52,11 @@ NS(initScanContent)(const ENCODING *enc, const char *ptr, const char *end,
                   XML_CONTENT_STATE, ptr, end, nextTokPtr);
 }
 
-Int32
+int
 NS(XmlInitEncoding)(INIT_ENCODING *p, const ENCODING **encPtr,
                     const char *name)
 {
-  Int32 i = getEncodingIndex(name);
+  int i = getEncodingIndex(name);
   if (i == UNKNOWN_ENC)
     return 0;
   SET_INIT_ENC_INDEX(p, i);
@@ -74,7 +74,7 @@ NS(findEncoding)(const ENCODING *enc, const char *ptr, const char *end)
 #define ENCODING_MAX 128
   char buf[ENCODING_MAX];
   char *p = buf;
-  Int32 i;
+  int i;
   XmlUtf8Convert(enc, &ptr, end, &p, p + ENCODING_MAX - 1);
   if (ptr != end)
     return 0;
@@ -87,8 +87,8 @@ NS(findEncoding)(const ENCODING *enc, const char *ptr, const char *end)
   return NS(encodings)[i];
 }
 
-Int32
-NS(XmlParseXmlDecl)(Int32 isGeneralTextEntity,
+int
+NS(XmlParseXmlDecl)(int isGeneralTextEntity,
                     const ENCODING *enc,
                     const char *ptr,
                     const char *end,
@@ -97,7 +97,7 @@ NS(XmlParseXmlDecl)(Int32 isGeneralTextEntity,
                     const char **versionEndPtr,
                     const char **encodingName,
                     const ENCODING **encoding,
-                    Int32 *standalone)
+                    int *standalone)
 {
   return doParseXmlDecl(NS(findEncoding),
                         isGeneralTextEntity,

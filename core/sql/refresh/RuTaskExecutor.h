@@ -184,7 +184,7 @@ class REFRESH_LIB_CLASS CRUTaskExecutor {
   void AllocateBuffer();
 
   // Resize the IPC buffer by the constant factor (if it's not big enough)
-  void ReAllocateBuffer(Int32 factor);
+  void ReAllocateBuffer(int factor);
 
   void ExecuteStatement(CDMPreparedStatement &stmt, int errorCode, const char *errorArgument = NULL,
                         BOOL needRowCount = FALSE, BOOL isQuery = FALSE);
@@ -236,7 +236,7 @@ class REFRESH_LIB_CLASS CRUTaskExecutor {
  private:
   void SetTransIdx(int transIdx) { transIdx_ = transIdx; }
 
-  void CreateBufferAndTranslator(Int32 bufsize);
+  void CreateBufferAndTranslator(int bufsize);
 
  private:
   CRUTask *pParentTask_;

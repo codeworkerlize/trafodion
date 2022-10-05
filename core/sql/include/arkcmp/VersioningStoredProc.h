@@ -290,11 +290,11 @@ class FeatureVersionInfoSPContext : public VersioningSPContextBase {
   virtual ~FeatureVersionInfoSPContext(void){};
 
   // Accessors
-  Int32 getInputVersion(void) { return eVersion_; };
+  int getInputVersion(void) { return eVersion_; };
 
   CatFeatureVersionInfoSet &getFeatureVersionInfoSet(void) { return featureVersionInfoSet_; };
 
-  void setInputVersion(Int32 inVersion) { eVersion_ = inVersion; };
+  void setInputVersion(int inVersion) { eVersion_ = inVersion; };
 
   // Input validation
   FeatureVersionInfoSPInputType validateInputType(void);
@@ -303,7 +303,7 @@ class FeatureVersionInfoSPContext : public VersioningSPContextBase {
   void deleteMe(void);
 
  private:
-  Int32 eVersion_;
+  int eVersion_;
   CatFeatureVersionInfoSet featureVersionInfoSet_;
 };
 
@@ -312,8 +312,8 @@ class FeatureVersionInfoSPContext : public VersioningSPContextBase {
 NABoolean getVarcharInputParameter(int fieldNo, SP_EXTRACT_FUNCPTR eFunc, SP_ROW_DATA inputData, size_t maxSize,
                                    char *receivingField, SP_ERROR_STRUCT *error);
 
-Int32 getIntInputParameter(int fieldNo, SP_EXTRACT_FUNCPTR eFunc, SP_ROW_DATA inputData, size_t maxSize,
-                           Int32 receivingField, SP_ERROR_STRUCT *error);
+int getIntInputParameter(int fieldNo, SP_EXTRACT_FUNCPTR eFunc, SP_ROW_DATA inputData, size_t maxSize,
+                           int receivingField, SP_ERROR_STRUCT *error);
 
 NABoolean validateInputValue(const ComObjectName &object, VersioningSPContextBase *context, SP_ERROR_STRUCT *error);
 
@@ -323,6 +323,6 @@ NABoolean validateInputValue(const ComAnsiNamePart &catalog, VersioningSPContext
 
 NABoolean validateInputValue(const ComNodeName &node, VersioningSPContextBase *context, SP_ERROR_STRUCT *error);
 
-NABoolean validateInputVersion(Int32 inVersion, VersioningSPContextBase *context, SP_ERROR_STRUCT *error);
+NABoolean validateInputVersion(int inVersion, VersioningSPContextBase *context, SP_ERROR_STRUCT *error);
 
 #endif

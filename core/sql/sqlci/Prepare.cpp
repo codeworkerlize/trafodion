@@ -183,7 +183,7 @@ void PrepStmt::remove() {
 
   // delete input and output entries. TBD.
   if (inputEntries_) {
-    for (Int32 i = 0; i < numInputEntries_; i++) {
+    for (int i = 0; i < numInputEntries_; i++) {
       delete inputEntries_[i];
     }
 
@@ -192,7 +192,7 @@ void PrepStmt::remove() {
   }
 
   if (outputEntries_) {
-    for (Int32 i = 0; i < numOutputEntries_; i++) {
+    for (int i = 0; i < numOutputEntries_; i++) {
       delete outputEntries_[i];
     }
 

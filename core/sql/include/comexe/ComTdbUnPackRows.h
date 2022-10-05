@@ -203,12 +203,12 @@ class ComTdbUnPackRows : public ComTdb {
   //
   // Exclude this code from coverage analysis.
   // This code could be deleted since it is the same as the base implementation.
-  Int32 orderedQueueProtocol() const { return -1; }
+  int orderedQueueProtocol() const { return -1; }
 
   // return a pointer to the specifed (by position) child TDB.
   // UnPackRows has only one child.
   //
-  virtual const ComTdb *getChild(Int32 pos) const {
+  virtual const ComTdb *getChild(int pos) const {
     if (pos == 0) return childTdb_;
     return NULL;
   }
@@ -216,11 +216,11 @@ class ComTdbUnPackRows : public ComTdb {
   // Return the number of children for this node.
   // UnPackRows has one child.
   //
-  virtual Int32 numChildren() const { return (childTdb_ ? 1 : 0); }
+  virtual int numChildren() const { return (childTdb_ ? 1 : 0); }
 
   // Return the number of expression this node has.
   //
-  virtual Int32 numExpressions() const {
+  virtual int numExpressions() const {
     if (rowwiseRowset())
       return 3;
     else
@@ -231,7 +231,7 @@ class ComTdbUnPackRows : public ComTdb {
   // The UnPackRows expressions come first, followed
   // by the selection pred.
   //
-  virtual ex_expr *getExpressionNode(Int32 pos) {
+  virtual ex_expr *getExpressionNode(int pos) {
     switch (pos) {
       case 0:
         if (rowwiseRowset())
@@ -257,7 +257,7 @@ class ComTdbUnPackRows : public ComTdb {
   // The UnPackRows expressions come first, followed
   // by the selection pred.
   //
-  virtual const char *getExpressionName(Int32 pos) const {
+  virtual const char *getExpressionName(int pos) const {
     switch (pos) {
       case 0:
         if (rowwiseRowset())
@@ -320,7 +320,7 @@ class ComTdbUnPackRows : public ComTdb {
   // The length of the tuple which will hold the unpacked values.  This
   // tuple will be allocated by the UnPackRows node.
   //
-  Int32 unPackColsTupleLen_;  // 32-35
+  int unPackColsTupleLen_;  // 32-35
 
   // The index of the UnPackRows tupp in the ATP.
   //

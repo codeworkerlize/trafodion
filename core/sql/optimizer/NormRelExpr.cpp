@@ -180,14 +180,14 @@ void RelExpr::transformNode(NormWA &normWARef, ExprGroupId &locationOfPointerToM
   //        from being a sufficient set to being a sufficient minimal
   //        set.
   // ---------------------------------------------------------------------
-  Int32 arity = getArity();
+  int arity = getArity();
 
   // ---------------------------------------------------------------------
   // Transform each child.
   // Pull up their transformed predicates
   // recompute their required inputs.
   // ---------------------------------------------------------------------
-  for (Int32 i = 0; i < arity; i++) {
+  for (int i = 0; i < arity; i++) {
     // ---------------------------------------------------------------------
     // Make values available to child
     // ---------------------------------------------------------------------
@@ -221,9 +221,9 @@ void RelExpr::transformNode(NormWA &normWARef, ExprGroupId &locationOfPointerToM
 RelExpr::rwErrorStatus RelExpr::checkReadWriteConflicts(NormWA &normWARef) {
   rwErrorStatus rc;
 
-  Int32 arity = getArity();
+  int arity = getArity();
 
-  for (Int32 i = 0; i < arity; i++) {
+  for (int i = 0; i < arity; i++) {
     if ((rc = child(i)->checkReadWriteConflicts(normWARef)) != RWOKAY) return rc;
   }
 
@@ -259,9 +259,9 @@ RelExpr::rwErrorStatus RelRoot::checkReadWriteConflicts(NormWA &normWARef) {
 
   rwErrorStatus rc;
 
-  Int32 arity = getArity();
+  int arity = getArity();
 
-  for (Int32 i = 0; i < arity; i++) {
+  for (int i = 0; i < arity; i++) {
     if ((rc = child(i)->checkReadWriteConflicts(normWARef)) != RWOKAY) return rc;
   }
 
@@ -355,9 +355,9 @@ static void applyTruthTable(ValueIdSet &vs) {
 }
 
 // Breadth First Traversal to print the transformed and source tree.
-Int32 printTree(ItemExpr *ptrToTree, ItemExpr *parent, Int32 depth, Int32 l1) {
+int printTree(ItemExpr *ptrToTree, ItemExpr *parent, int depth, int l1) {
   if (ptrToTree != NULL) {
-    Int32 left, right;
+    int left, right;
 
     if (depth == 0) {
       if (l1 == 0) cout << "root ";
@@ -516,7 +516,7 @@ ItemExpr *Scan::applyAssociativityAndCommutativity(QRDescGenerator *descGenerato
   ARRAY(Int16) state(heap, 10);         // These ARRAYs will grow automatically as needed.)
   ARRAY(ItemExpr *) leftNodeArray(heap, 10);
 
-  Int32 currIdx = 0;
+  int currIdx = 0;
   IEarray.insertAt(currIdx, origPtrToOldTree);
   state.insertAt(currIdx, AVR_STATE0);
 
@@ -763,8 +763,8 @@ void RelExpr::pullUpPreds() {
   // PullUpPreds gets from all the children the predicates they
   // can surrender is adds them to the local selectionPred()
   // ---------------------------------------------------------------------
-  Int32 arity = getArity();
-  for (Int32 i = 0; i < arity; i++) {
+  int arity = getArity();
+  for (int i = 0; i < arity; i++) {
     selectionPred() += child(i)->getSelectionPred();
     child(i)->selectionPred().clear();
     child(i)->recomputeOuterReferences();
@@ -808,8 +808,8 @@ void RelExpr::recomputeOuterReferences() {
   selectionPred().weedOutUnreferenced(outerRefs);
 
   // Add to outerRefs those that my children need.
-  Int32 arity = getArity();
-  for (Int32 i = 0; i < arity; i++) {
+  int arity = getArity();
+  for (int i = 0; i < arity; i++) {
     outerRefs += child(i).getPtr()->getGroupAttr()->getCharacteristicInputs();
   }
 
@@ -824,8 +824,8 @@ void RelExpr::rewriteNode(NormWA &normWARef) {
   // ---------------------------------------------------------------------
   // Rewrite the expressions of each child.
   // ---------------------------------------------------------------------
-  Int32 nc = getArity();
-  for (Int32 i = 0; i < nc; i++) child(i)->rewriteNode(normWARef);
+  int nc = getArity();
+  for (int i = 0; i < nc; i++) child(i)->rewriteNode(normWARef);
   // ---------------------------------------------------------------------
   // Rewrite the expressions in the selection preidcates.
   // ---------------------------------------------------------------------
@@ -851,7 +851,7 @@ RelExpr *RelExpr::normalizeNode(NormWA &normWARef) {
   if (nodeIsNormalized()) return this;
   markAsNormalized();
 
-  Int32 arity = getArity();
+  int arity = getArity();
   // --------------------------------------------------------------------
   // Check which expressions can be evaluated by my child.
   // Modify the Group Attributes of those children who
@@ -865,7 +865,7 @@ RelExpr *RelExpr::normalizeNode(NormWA &normWARef) {
   // ---------------------------------------------------------------------
   // Transform each child.
   // ---------------------------------------------------------------------
-  for (Int32 i = 0; i < arity; i++) child(i) = child(i)->normalizeNode(normWARef);
+  for (int i = 0; i < arity; i++) child(i) = child(i)->normalizeNode(normWARef);
 
   // The essential char. outputs of my child can be fully computed only
   // when the essential char. outputs of my grandchildren are fully computed
@@ -887,12 +887,12 @@ RelExpr *RelExpr::normalizeNode(NormWA &normWARef) {
 // RelExpr::semanticQueryOptimizeNode()
 // -----------------------------------------------------------------------
 RelExpr *RelExpr::semanticQueryOptimizeNode(NormWA &normWARef) {
-  Int32 arity = getArity();
+  int arity = getArity();
 
   // ---------------------------------------------------------------------
   // SemanticQueryOptimize each child.
   // ---------------------------------------------------------------------
-  for (Int32 i = 0; i < arity; i++) child(i) = child(i)->semanticQueryOptimizeNode(normWARef);
+  for (int i = 0; i < arity; i++) child(i) = child(i)->semanticQueryOptimizeNode(normWARef);
 
   return this;
 
@@ -918,7 +918,7 @@ NABoolean RelExpr::getMoreOutputsIfPossible(ValueIdSet &outputsNeeded) {
   // no additional outputs are needed.
   if (outputsNeeded.isEmpty()) return TRUE;
 
-  Int32 i, nc;
+  int i, nc;
   ValueIdSet tempSet, potentialOutputsFromChildren, newOutputsNeeded;
   ValueIdSet emptySet, coveredExprs, coveredSubExprs;
   GroupAttributes fakeGA;
@@ -2351,7 +2351,7 @@ RelExpr *Join::eliminateRedundantJoin(NormWA &normWARef) {
 }  // Join::eliminateRedundantJoin()
 
 void RelExpr::getAllTableDescs(TableDescList &tableDescs) {
-  Int32 arity = getArity();
+  int arity = getArity();
   if (arity == 0) {
     switch (getOperatorType()) {
       case REL_SCAN:
@@ -2364,7 +2364,7 @@ void RelExpr::getAllTableDescs(TableDescList &tableDescs) {
         break;
     }
   } else {
-    for (Int32 i = 0; i < arity; i++) {
+    for (int i = 0; i < arity; i++) {
       child(i)->getAllTableDescs(tableDescs);
     }
   }
@@ -2542,7 +2542,7 @@ static RelExpr *copyNode(RelExpr *oldNode, CollHeap *heap) {
 // -----------------------------------------------------------------------
 static RelExpr *copyNodeAndSetChildren(RelExpr *oldNode, CollHeap *heap) {
   RelExpr *newNode = copyNode(oldNode, heap);
-  for (Int32 i = 0; i < oldNode->getArity(); i++) {
+  for (int i = 0; i < oldNode->getArity(); i++) {
     newNode->child(i) = oldNode->child(i);
   }
   return newNode;
@@ -3821,7 +3821,7 @@ NABoolean GroupByAgg::subqueryUnnestFinalize(ValueIdSet &newGrbyGroupExpr, NormW
   availableInputs += newRightChild->getGroupAttr()->getCharacteristicInputs();
   availableInputs.getOuterReferences(outerReferences);
   availableInputs -= outerReferences;
-  for (Int32 i = 0; i < 2; i++) {
+  for (int i = 0; i < 2; i++) {
     // --------------------------------------------------------------------
     // Check to see if we have any Outer References in our child's selection
     // predicate
@@ -5562,7 +5562,7 @@ void Scan::rewriteNode(NormWA &normWARef) {
   // -------------------------------------------------------------------------
   // Normalize the indexes.
   // -------------------------------------------------------------------------
-  for (i = 0; i < (Int32)getTableDesc()->getIndexes().entries(); i++) {
+  for (i = 0; i < (int)getTableDesc()->getIndexes().entries(); i++) {
     IndexDesc *idesc = getTableDesc()->getIndexes()[i];
     ValueIdList indexOrder(idesc->getOrderOfKeyValues());
 
@@ -5581,7 +5581,7 @@ void Scan::rewriteNode(NormWA &normWARef) {
   // -------------------------------------------------------------------------
   // Normalize the Vertical Partitions.
   // -------------------------------------------------------------------------
-  for (i = 0; i < (Int32)getTableDesc()->getVerticalPartitions().entries(); i++) {
+  for (i = 0; i < (int)getTableDesc()->getVerticalPartitions().entries(); i++) {
     IndexDesc *idesc = getTableDesc()->getVerticalPartitions()[i];
     ValueIdList indexOrder(idesc->getOrderOfKeyValues());
 
@@ -6221,7 +6221,7 @@ void GenericUpdate::rewriteNode(NormWA &normWARef) {
   // -------------------------------------------------------------------------
   // Normalize the indexes.
   // -------------------------------------------------------------------------
-  for (j = 0; j < (Int32)getTableDesc()->getIndexes().entries(); j++) {
+  for (j = 0; j < (int)getTableDesc()->getIndexes().entries(); j++) {
     IndexDesc *idesc = getTableDesc()->getIndexes()[j];
     ValueIdList indexOrder(idesc->getOrderOfKeyValues());
 
@@ -6407,8 +6407,8 @@ void GenericUpdate::recomputeOuterReferences() {
   allMyExpr.weedOutUnreferenced(outerRefs);
 
   // Add references needed by children, if any
-  Int32 arity = getArity();
-  for (Int32 i = 0; i < arity; i++) {
+  int arity = getArity();
+  for (int i = 0; i < arity; i++) {
     outerRefs += child(i).getPtr()->getGroupAttr()->getCharacteristicInputs();
   }
 
@@ -7253,10 +7253,10 @@ RelExpr *RelRoot::semanticQueryOptimizeNode(NormWA &normWARef) {
 }  // RelRoot::semanticQueryOptimizeNode()
 
 void RelExpr::decideFeasibleToTransformForAggrPushdown(NABoolean checkAll) {
-  Int32 arity = getArity();
+  int arity = getArity();
 
   // GroupByAggr has its own version of this method.
-  for (Int32 i = 0; i < arity; i++) {
+  for (int i = 0; i < arity; i++) {
     child(i)->decideFeasibleToTransformForAggrPushdown(checkAll);
   }
 }
@@ -7313,7 +7313,7 @@ RelExpr *RelRoot::inlineTempTablesForCSEs(NormWA &normWARef) {
         NABoolean isReady = TRUE;
 
         for (CollIndex p = 0; p < predecessors.entries(); p++) {
-          Int32 cseId = predecessors[p].getInfo()->getCSEId();
+          int cseId = predecessors[p].getInfo()->getCSEId();
 
           CMPASSERT(cses->at(cseId)->getCSEId() == cseId);
           if (!doneVec.contains(cseId) && cses->at(cseId)->getInsertIntoTemp() != NULL)
@@ -7503,7 +7503,7 @@ void RelExpr::eliminateFilterChild() {
 // (c) The pullUpGroupBy transformation calls pushDownCoveredExpr only
 // upto the children of the join being transformed and not all the way down.
 void RelExpr::recursivePushDownCoveredExpr(NormWA *normWAPtr, NABoolean doSynthLogProp) {
-  Int32 arity = getArity();
+  int arity = getArity();
   // --------------------------------------------------------------------
   // Check which expressions can be evaluated by my child.
   // Modify the Group Attributes of those children who
@@ -7527,7 +7527,7 @@ void RelExpr::recursivePushDownCoveredExpr(NormWA *normWAPtr, NABoolean doSynthL
   // ---------------------------------------------------------------------
   // pushDown expressions from children
   // ---------------------------------------------------------------------
-  for (Int32 i = 0; i < arity; i++) child(i)->recursivePushDownCoveredExpr(normWAPtr);
+  for (int i = 0; i < arity; i++) child(i)->recursivePushDownCoveredExpr(normWAPtr);
 
   if (doSynthLogProp) processCompRefOptConstraints(normWAPtr);
 
@@ -8710,7 +8710,7 @@ CSEInfo::CSEAnalysisOutcome CommonSubExprRef::analyzeAndPrepareForSharing(CSEInf
   ItemExpr *nonCommonPredicatesORed = NULL;
   int numORedPreds = 0;
   NABoolean singleLexicalRefWithTempedAncestors = (info.getNumLexicalRefs() == 1);
-  Int32 numPreliminaryRefs = 0;
+  int numPreliminaryRefs = 0;
   ValueIdSet childTreeKeyColumns;
 
   // ------------------------------------------------------------------
@@ -8958,7 +8958,7 @@ CSEInfo::CSEAnalysisOutcome CommonSubExprRef::analyzeAndPrepareForSharing(CSEInf
     double maxTableSizeBasedOnMaxCard = ActiveSchemaDB()->getDefaults().getAsDouble(CSE_TEMP_TABLE_MAX_MAX_SIZE);
 
     // cumulative number of key columns referenced in consumers
-    Int32 totalKeyColPreds = 0;
+    int totalKeyColPreds = 0;
 
     // key cols that are referenced by a predicate in all consumers
     ValueIdSet commonKeyCols(childTreeKeyColumns);
@@ -9399,7 +9399,7 @@ void CqsWA::gatherCANodeIDTableNamepairsForNormalizedTree(RelExpr *nqtExpr)
       getTableCANodeList()->insert(tableIdPair);
     }
   } else {
-    Int32 i = 0;
+    int i = 0;
     for (; i < nqtExpr->getArity(); i++) {
       gatherCANodeIDTableNamepairsForNormalizedTree(nqtExpr->child(i));
     }
@@ -9422,7 +9422,7 @@ void CqsWA::gatherNodeIdSetsForCQSTree(RelExpr *cqsExpr)
 //*************************************************************************
 
 CANodeIdSet CQSRelExprCANodeIdMap::gatherNodeIdSetsForCQSTree(RelExpr *cqsExpr, CqsWA *cwa) {
-  Int32 arity = cqsExpr->getArity();
+  int arity = cqsExpr->getArity();
 
   if ((arity == 0) && (cqsExpr->getOperatorType() == REL_FORCE_ANY_SCAN)) {
     CQSRelExprCANodeIdPair *relExprNodeId = new (CmpCommon::statementHeap()) CQSRelExprCANodeIdPair();
@@ -9905,7 +9905,7 @@ NABoolean CqsWA::containsNotSupportedOperator(RelExpr *nqtExpr) {
 
     return TRUE;
 
-  for (Int32 i = 0; i < nqtExpr->getArity(); i++) {
+  for (int i = 0; i < nqtExpr->getArity(); i++) {
     if (containsNotSupportedOperator(nqtExpr->child(i))) return TRUE;
   }
   return FALSE;
@@ -9914,7 +9914,7 @@ NABoolean CqsWA::containsNotSupportedOperator(RelExpr *nqtExpr) {
 NABoolean CqsWA::containsCutOp(RelExpr *cqsExpr) {
   if (cqsExpr->isCutOp()) return TRUE;
 
-  for (Int32 i = 0; i < cqsExpr->getArity(); i++) {
+  for (int i = 0; i < cqsExpr->getArity(); i++) {
     if (containsCutOp(cqsExpr->child(i))) return TRUE;
   }
   return FALSE;

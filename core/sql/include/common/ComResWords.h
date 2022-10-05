@@ -137,7 +137,7 @@ class ComResWords : public NABasicObject {
 
   // Comparision method for searching reserved word table.
   //
-  static Int32 wordCompare(const void *val1, const void *val2);
+  static int wordCompare(const void *val1, const void *val2);
 
   static ComResWord *binarySearch(ComResWord *val);
 

@@ -129,7 +129,7 @@ Int16 ExtPushdownPredInfo::extractFilterId(const ValueId &operValId) {
 
 NAString ExtPushdownPredInfoList::getText() {
   NAString text;
-  for (Int32 i = 0; i < entries(); i++) {
+  for (int i = 0; i < entries(); i++) {
     text += (*this)[i].getText();
     text += " ";
   }

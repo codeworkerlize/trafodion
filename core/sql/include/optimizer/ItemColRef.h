@@ -88,7 +88,7 @@ class BaseColumn : public ItemExpr {
   virtual ~BaseColumn();
 
   // get the degree of this node (it is a leaf).
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   // virtual method to fixup tree for code generation.
   virtual ItemExpr *preCodeGen(Generator *);
@@ -196,7 +196,7 @@ class IndexColumn : public ItemExpr {
   virtual ~IndexColumn();
 
   // get the degree of this node (it is a leaf).
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   // a virtual function for type propagating the node
   virtual const NAType *synthesizeType();
@@ -281,7 +281,7 @@ class ColReference : public ItemExpr {
   virtual ~ColReference() {}
 
   // get the degree of this node (it is a leaf).
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   // accessor functions
   const ColRefName &getColRefNameObj() const { return *colRefName_; }
@@ -441,7 +441,7 @@ class ConstValue : public ItemExpr {
   virtual ConstValue *castToConstValue(NABoolean &negate);
 
   // get the degree of this node (it is a leaf).
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   // A method that returns for "user-given" input values.
   // These are values that are either constants, host variables, parameters,
@@ -726,7 +726,7 @@ class DefaultSpecification : public ItemExpr {
 
   virtual ~DefaultSpecification() {}
 
-  virtual Int32 getArity() const { return 0; }
+  virtual int getArity() const { return 0; }
 
   // a virtual function for performing name binding within the query tree
   virtual ItemExpr *bindNode(BindWA *bindWA);
@@ -843,7 +843,7 @@ class HostVar : public ItemExpr {
   virtual ~HostVar() {}
 
   // get the degree of this node (it is a leaf).
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   const NAString &getName() const { return varName_; }
   const NAType *getType() const { return varType_; }
@@ -971,9 +971,9 @@ class HostVar : public ItemExpr {
   // Parameter  mode, ordinal position and variable index
   // needed for (java) stored procedures
   ComColumnDirection getParamMode() const { return paramMode_; };
-  Int32 getOrdinalPosition() const { return ordinalPosition_; };
-  Int32 getHVorDPIndex() const { return hvIndex_; }
-  virtual void setPMOrdPosAndIndex(ComColumnDirection paramMode, Int32 ordinalPosition, Int32 index);
+  int getOrdinalPosition() const { return ordinalPosition_; };
+  int getHVorDPIndex() const { return hvIndex_; }
+  virtual void setPMOrdPosAndIndex(ComColumnDirection paramMode, int ordinalPosition, int index);
 
   // Param heading and tablename needed here for JDBC/WLI, when dynamic rowsets are used.
   const NAString &getParamHeading() const { return heading_; }
@@ -986,8 +986,8 @@ class HostVar : public ItemExpr {
   //
   ItemExpr *removeNonPushablePredicatesForORC() { return this; };
 
-  Int32 &lobInlinedDataMaxLen() { return lobInlinedDataMaxLen_; }
-  Int32 &lobChunkMaxLen() { return lobChunkMaxLen_; }
+  int &lobInlinedDataMaxLen() { return lobInlinedDataMaxLen_; }
+  int &lobChunkMaxLen() { return lobChunkMaxLen_; }
 
  private:
   // name (in embedded host language syntax) of the variable and possibly indic
@@ -1021,8 +1021,8 @@ class HostVar : public ItemExpr {
   // Parameter  mode, ordinal position and variable index
   // needed for (java) stored procedures
   ComColumnDirection paramMode_;
-  Int32 ordinalPosition_;
-  Int32 hvIndex_;
+  int ordinalPosition_;
+  int hvIndex_;
   // In certain cases, the hostvar is assigned non-datatype attributes of
   // the target column when it is typed.
   // For internal use only, used to implement the 'temporary' blob/clob
@@ -1035,8 +1035,8 @@ class HostVar : public ItemExpr {
   // from JDBC/WLI. See similar comment below for DynamicParams.
   NAString heading_;
   NAString tablename_;
-  Int32 lobInlinedDataMaxLen_;
-  Int32 lobChunkMaxLen_;  // in MBs
+  int lobInlinedDataMaxLen_;
+  int lobChunkMaxLen_;  // in MBs
 
 };  // class HostVar
 
@@ -1054,7 +1054,7 @@ class Parameter : public ItemExpr {
   virtual ~Parameter() {}
 
   // get the degree of this node (it is a leaf).
-  virtual Int32 getArity() const { return 0; }
+  virtual int getArity() const { return 0; }
 
   // A method that returns true for "user-given" input values.
   // These are values that are either constants, host variables, parameters,
@@ -1302,9 +1302,9 @@ class DynamicParam : public Parameter {
 
   // Methods to support CALL statement processing
   ComColumnDirection getParamMode() const { return paramMode_; };
-  Int32 getOrdinalPosition() const { return ordinalPosition_; };
-  Int32 getHVorDPIndex() const { return dpIndex_; }
-  virtual void setPMOrdPosAndIndex(ComColumnDirection paramMode, Int32 ordinalPosition, Int32 index);
+  int getOrdinalPosition() const { return ordinalPosition_; };
+  int getHVorDPIndex() const { return dpIndex_; }
+  virtual void setPMOrdPosAndIndex(ComColumnDirection paramMode, int ordinalPosition, int index);
   void setUdrFormalParamName(const NAString &name) { udrFormalParamName_ = name; }
   const NAString &getUdrFormalParamName() const { return udrFormalParamName_; }
 
@@ -1334,8 +1334,8 @@ class DynamicParam : public Parameter {
 
   inline NABoolean isRowInRowwiseRowset() { return ((rowsetInfo_ & HostVar::HV_ROW_IN_ROWWISE_ROWSET) != 0); }
 
-  Int32 &lobInlinedDataMaxLen() { return lobInlinedDataMaxLen_; }
-  Int32 &lobChunkMaxLen() { return lobChunkMaxLen_; }
+  int &lobInlinedDataMaxLen() { return lobInlinedDataMaxLen_; }
+  int &lobChunkMaxLen() { return lobChunkMaxLen_; }
 
  private:
   // the name of the param ("" for unnamed params) and the indicator (if any)
@@ -1385,14 +1385,14 @@ class DynamicParam : public Parameter {
   //   themselves.
   //
   ComColumnDirection paramMode_;
-  Int32 ordinalPosition_;
-  Int32 dpIndex_;
+  int ordinalPosition_;
+  int dpIndex_;
   NAString udrFormalParamName_;
 
   DynamicParam *original_;  // null or param we were copyTopNode from
 
-  Int32 lobInlinedDataMaxLen_;
-  Int32 lobChunkMaxLen_;  // in MBs
+  int lobInlinedDataMaxLen_;
+  int lobChunkMaxLen_;  // in MBs
 
 };  // class DynamicParam
 
@@ -1518,9 +1518,9 @@ class RoutineParam : public Parameter {
 
   void setParamMode(ComColumnDirection direction) { paramMode_ = direction; }
 
-  const Int32 getOrdinalPos() const { return ordinalPosition_; }
+  const int getOrdinalPos() const { return ordinalPosition_; }
 
-  void setOrdinalPos(Int32 pos) { ordinalPosition_ = pos; }
+  void setOrdinalPos(int pos) { ordinalPosition_ = pos; }
 
   const RoutineDesc *getRoutineDesc() const { return rdesc_; }
 
@@ -1537,7 +1537,7 @@ class RoutineParam : public Parameter {
   const NAString getText() const;
 
   // Methods to support CALL statement processing
-  Int32 getOrdinalPosition() const { return ordinalPosition_; };
+  int getOrdinalPosition() const { return ordinalPosition_; };
 
   // redefine pushDownType()
   const NAType *pushDownType(NAType &desiredType, enum NABuiltInTypeEnum defaultQualifier) { return &desiredType; }
@@ -1548,7 +1548,7 @@ class RoutineParam : public Parameter {
   NABoolean optionalParam_;
   NABoolean isCacheable_;
   ComColumnDirection paramMode_;
-  Int32 ordinalPosition_;
+  int ordinalPosition_;
   RoutineDesc *rdesc_;
   char argumentType_[3];
 
@@ -1570,7 +1570,7 @@ class SelIndex : public ItemExpr {
   virtual ~SelIndex() {}
 
   // get the degree of this node (it is a leaf).
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   // accessor functions
   ULng32 getSelIndex() const { return selIndex_; }

@@ -117,7 +117,7 @@ void InvalidateProcessId(IpcProcessId &id) {
 // -----------------------------------------------------------------------
 // ExUdrServer
 // -----------------------------------------------------------------------
-ExUdrServer::ExUdrServer(IpcEnvironment *env, const Int32 &userId, const char *options, const char *optionDelimiters,
+ExUdrServer::ExUdrServer(IpcEnvironment *env, const int &userId, const char *options, const char *optionDelimiters,
                          const char *userName, const char *userPassword, IpcThreadInfo *threadInfo,
                          IpcServerClass *serverClass)
     : state_(EX_UDR_NOT_STARTED),
@@ -146,7 +146,7 @@ ExUdrServer::ExUdrServer(IpcEnvironment *env, const Int32 &userId, const char *o
 
   CollHeap *h = myIpcHeap();
 
-  Int32 len = str_len(options);
+  int len = str_len(options);
   options_ = new (h) char[len + 1];
   str_cpy_all(options_, options, len + 1);
 
@@ -384,12 +384,12 @@ void ExUdrServer::sendStartupOptions(ComDiagsArea **diags, CollHeap *diagsHeap, 
   // Send the user name also in startup options as
   // "-Dsqlmx.udr.username=userName_"
   char *userNameOption = NULL;
-  Int32 userNameOptionLen = 0;
+  int userNameOptionLen = 0;
 
   if (userName_) {
     const char *userNamePrefix = "-Dsqlmx.udr.username=";
-    Int32 userNamePrefixLen = str_len(userNamePrefix);
-    Int32 userNameLen = str_len(userName_);
+    int userNamePrefixLen = str_len(userNamePrefix);
+    int userNameLen = str_len(userName_);
     userNameOption = new (ipcHeap) char[userNamePrefixLen + userNameLen + 1];
     str_sprintf(userNameOption, "%s%s", userNamePrefix, userName_);
     userNameOptionLen = str_len(userNameOption);
@@ -398,24 +398,24 @@ void ExUdrServer::sendStartupOptions(ComDiagsArea **diags, CollHeap *diagsHeap, 
   // Send the user password also in startup options as
   // "-Dsqlmx.udr.password=userPassword_"
   char *passwordOption = NULL;
-  Int32 passwordOptionLen = 0;
+  int passwordOptionLen = 0;
 
   if (userPassword_) {
     const char *passwordPrefix = "-Dsqlmx.udr.password=";
-    Int32 passwordPrefixLen = str_len(passwordPrefix);
-    Int32 passwordLen = str_len(userPassword_);
+    int passwordPrefixLen = str_len(passwordPrefix);
+    int passwordLen = str_len(userPassword_);
     passwordOption = new (ipcHeap) char[passwordPrefixLen + passwordLen + 1];
     str_sprintf(passwordOption, "%s%s", passwordPrefix, userPassword_);
     passwordOptionLen = str_len(passwordOption);
   }
 
   char *optionsToSend = NULL;
-  Int32 delimiterLen = 1;
-  Int32 tmpLen = 0;
+  int delimiterLen = 1;
+  int tmpLen = 0;
   if (str_cmp_ne(options_, "OFF") != 0 && str_cmp_ne(options_, "ANYTHING") != 0) {
     if (userName_) {
-      Int32 optionsLen = str_len(options_);
-      Int32 len = optionsLen + delimiterLen + userNameOptionLen + delimiterLen + passwordOptionLen;
+      int optionsLen = str_len(options_);
+      int len = optionsLen + delimiterLen + userNameOptionLen + delimiterLen + passwordOptionLen;
 
       optionsToSend = new (ipcHeap) char[len + 1];
       str_cpy_all(optionsToSend, options_, optionsLen);
@@ -430,14 +430,14 @@ void ExUdrServer::sendStartupOptions(ComDiagsArea **diags, CollHeap *diagsHeap, 
       str_cpy_all(optionsToSend + tmpLen + delimiterLen, passwordOption, passwordOptionLen);
       optionsToSend[len] = '\0';
     } else {
-      Int32 optionsLen = str_len(options_);
+      int optionsLen = str_len(options_);
       optionsToSend = new (ipcHeap) char[optionsLen + 1];
       str_cpy_all(optionsToSend, options_, optionsLen + 1);
     }
   } else {
     if (userName_) {
       if (userPassword_) {
-        Int32 len = userNameOptionLen + delimiterLen + passwordOptionLen;
+        int len = userNameOptionLen + delimiterLen + passwordOptionLen;
 
         optionsToSend = new (ipcHeap) char[len + 1];
 
@@ -594,11 +594,11 @@ ExUdrServer::ExUdrServerStatus ExUdrServer::kill(ComDiagsArea *diags) {
   if (!ProcessIdIsNull(serverProcessId_)) {
     if (serverProcessId_.getDomain() == IPC_DOM_GUA_PHANDLE) {
       NAProcessHandle serverPhandle((SB_Phandle_Type *)&(serverProcessId_.getPhandle().phandle_));
-      Int32 guaRetcode = serverPhandle.decompose();
+      int guaRetcode = serverPhandle.decompose();
       if (XZFIL_ERR_OK == guaRetcode) msg_mon_stop_process_name(serverPhandle.getPhandleString());
-      UdrDebug1("  PROCESS_STOP_ returned %d", (Int32)result);
+      UdrDebug1("  PROCESS_STOP_ returned %d", (int)result);
       if (diags != NULL) {
-        *diags << DgSqlCode(EXE_UDR_ATTEMPT_TO_KILL) << DgString0(asciiPhandle) << DgInt0((Int32)result);
+        *diags << DgSqlCode(EXE_UDR_ATTEMPT_TO_KILL) << DgString0(asciiPhandle) << DgInt0((int)result);
       }
     } else {
       UdrDebug0("  *** ERROR: UDR Server is not a Guardian process");
@@ -753,7 +753,7 @@ void ExUdrServer::completeUdrRequests(IpcConnection *conn, NABoolean waitForAllI
 
 // Matchmaking logic to determine if this server has the requested
 // attributes
-NABoolean ExUdrServer::match(const Int32 &userId, const char *options, const char *optionDelimiters,
+NABoolean ExUdrServer::match(const int &userId, const char *options, const char *optionDelimiters,
                              IpcThreadInfo *threadInfo) const {
   // Two instances are considered a match if they have the same user
   // identity and thread info and any of the following are true:
@@ -847,7 +847,7 @@ ExUdrServerManager::~ExUdrServerManager() {
 // Successful completion of this method does not guarantee that the
 // server process is actually started.
 //
-ExUdrServer *ExUdrServerManager::acquireUdrServer(const Int32 &userId, const char *options,
+ExUdrServer *ExUdrServerManager::acquireUdrServer(const int &userId, const char *options,
                                                   const char *optionDelimiters, const char *userName,
                                                   const char *userPassword, IpcThreadInfo *threadInfo,
                                                   NABoolean dedicated) {

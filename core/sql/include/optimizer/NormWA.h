@@ -66,7 +66,7 @@ enum SqoChangedRelExprEnum { SQO_REASSIGNED_VREGION };
 class SqoChangedItemExprs : public NABasicObject {
  public:
   // Constructor
-  SqoChangedItemExprs(ValueId changedId, SqoChangedItemExprEnum what, ItemExpr *old, Int32 changedChild, int subqId)
+  SqoChangedItemExprs(ValueId changedId, SqoChangedItemExprEnum what, ItemExpr *old, int changedChild, int subqId)
       : changedVid_(changedId), whatChanged_(what), oldItemExpr_(old), changedChild_(changedChild), subqId_(subqId) {}
 
   SqoChangedItemExprs(ValueId changedId, SqoChangedItemExprEnum what, ItemExpr *old, const OperatorTypeEnum oldOpType,
@@ -143,7 +143,7 @@ class SqoWA : public NABasicObject {
   }
 
   void insertChangedItemExpr(ValueId changedId, SqoChangedItemExprEnum whatChanged, ItemExpr *origExpr,
-                             Int32 changedChild) {
+                             int changedChild) {
     changedItemExprs_.insert(new (CmpCommon::statementHeap())
                                  SqoChangedItemExprs(changedId, whatChanged, origExpr, changedChild, subqId_));
   }
@@ -154,7 +154,7 @@ class SqoWA : public NABasicObject {
                                  SqoChangedItemExprs(changedId, whatChanged, origExpr, origOp, subqId_));
   }
   void insertChangedRelExpr(RelExpr *originalRel, RelExpr *changedRel, SqoChangedRelExprEnum whatChanged,
-                            RegionId vregionId, Int32 origRegionChild, Int32 newRegionChild) {
+                            RegionId vregionId, int origRegionChild, int newRegionChild) {
     changedRelExprs_.insert(new (CmpCommon::statementHeap()) SqoChangedRelExprs(
         vregionId, whatChanged, changedRel, originalRel, origRegionChild, newRegionChild, subqId_));
   }
@@ -638,10 +638,10 @@ class NormWA : public NABasicObject {
   RelExpr *getExtraHubVertex() { return extraHubVertex_; }
   void setExtraHubVertex(RelExpr *ptr) { extraHubVertex_ = ptr; }
 
-  Int32 getCommonSubExprRefCount() { return commonSubExprCount_; }
+  int getCommonSubExprRefCount() { return commonSubExprCount_; }
   void incrementCommonSubExprRefCount() { commonSubExprCount_++; }
 
-  Int32 getIntersectsToXformCount() { return intersectsToXformCount_; }
+  int getIntersectsToXformCount() { return intersectsToXformCount_; }
   void incrementIntersectsToXformCount() { intersectsToXformCount_++; }
 
   NABoolean createPredicateForFirstN() { return createPredicateForFirstN_; }
@@ -708,7 +708,7 @@ class NormWA : public NABasicObject {
   void resetAllSeqFunctions() { allSeqFunctions_.clear(); }
   void addSeqFunction(ValueId v) { allSeqFunctions_ += v; }
   ValueId getEquivalentItmSequenceFunction(ValueId newSeqId);
-  void optimizeSeqFunctions(ItemExpr *ie, ItemExpr *pie, Int32 idx);
+  void optimizeSeqFunctions(ItemExpr *ie, ItemExpr *pie, int idx);
 
   void resetSeqFunctionsCache() {
     origSeqFunction_.clear();
@@ -857,9 +857,9 @@ class NormWA : public NABasicObject {
 
   RelExpr *extraHubVertex_;
 
-  Int32 commonSubExprCount_;
+  int commonSubExprCount_;
 
-  Int32 intersectsToXformCount_;
+  int intersectsToXformCount_;
 
   // Pointer to Semantic Query Optimization WA. Used for error recovery
   SqoWA *sqoWARef_;

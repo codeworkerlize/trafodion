@@ -1194,7 +1194,7 @@ class AccessPathAnalysis : public NABasicObject {
   // is this the Clustering Index (i.e. base table)?
   NABoolean isClustering() const;
 
-  Int32 numIndexPrefixCovered(const ValueIdSet &vidSet, NABoolean exactMatch, NABoolean useKeyCols = FALSE);
+  int numIndexPrefixCovered(const ValueIdSet &vidSet, NABoolean exactMatch, NABoolean useKeyCols = FALSE);
   NABoolean isPartKeyCovered(const ValueIdSet &vidSet, NABoolean exactMatch);
 
   // is the accessPath Key covered
@@ -1553,8 +1553,8 @@ class JBBC : public JBBItem {
   ValueIdSet constPredsWithPredecessors_;
   Join *origParentJoin_;
   NABoolean isFullOuterJoinOrTSJJBBC_;
-  Int32 isGuaranteedEqualizer_;
-  Int32 hasNonExpandingJoin_;
+  int isGuaranteedEqualizer_;
+  int hasNonExpandingJoin_;
   NABoolean isOneRowMax_;
   OperatorTypeEnum parentJoinType_;
   CANodeIdSet jbbcsRequiringInputFromMe_;
@@ -1837,7 +1837,7 @@ class JBBSubsetAnalysis : public NABasicObject
   NAList<CANodeIdSet> *listOfEdges_;
 
   // optimal position of FactTable in list of edges
-  Int32 optimalFTLocation_;
+  int optimalFTLocation_;
 
   // lowest data access cost of doing nested join into FactTable
   CostScalar lowestFactNJCost_;

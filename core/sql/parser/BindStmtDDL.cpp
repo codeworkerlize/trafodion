@@ -76,7 +76,7 @@ void CatCollectCheckConstraintUsages(const StmtDDLAddConstraintCheck &addCheckNo
 // -----------------------------------------------------------------------
 
 ExprNode *ElemDDLConstraintRI::bindNode(BindWA *pBindWA) {
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     if (getChild(i)) {
       getChild(i)->castToElemDDLNode()->bindNode(pBindWA);
     }
@@ -1058,8 +1058,8 @@ ExprNode *StmtDDLCreateLibrary::bindNode(BindWA *pBindWA) {
 ExprNode *StmtDDLCreatePackage::bindNode(BindWA *pBindWA) {
   ComASSERT(pBindWA);
 
-  Int32 defaulted = packageQualName_.applyDefaults(pBindWA->getDefaultSchema());
-  Int32 actionDefaulted = 0;
+  int defaulted = packageQualName_.applyDefaults(pBindWA->getDefaultSchema());
+  int actionDefaulted = 0;
   if (pBindWA->violateAccessDefaultSchemaOnly(packageQualName_)) return this;
 
   //
@@ -1094,8 +1094,8 @@ ExprNode *StmtDDLCreateRoutine::bindNode(BindWA *pBindWA) {
   // expands routine name
   //
 
-  Int32 defaulted = routineQualName_.applyDefaults(pBindWA->getDefaultSchema());
-  Int32 actionDefaulted = 0;
+  int defaulted = routineQualName_.applyDefaults(pBindWA->getDefaultSchema());
+  int actionDefaulted = 0;
   if (pBindWA->violateAccessDefaultSchemaOnly(routineQualName_)) return this;
   if (NOT actionQualName_.getObjectName().isNull()) {
     ComASSERT(getRoutineType() EQU COM_ACTION_UDF_TYPE);
@@ -1452,7 +1452,7 @@ ExprNode *StmtDDLCreateView::bindNode(BindWA *pBindWA) {
   // not allowed on volatile objects.
   CmpCommon::context()->sqlSession()->disableVolatileSchemaInUse();
 
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     if (getChild(i)) {
       if (getChild(i)->castToElemDDLNode()) {
         getChild(i)->castToElemDDLNode()->bindNode(pBindWA);
@@ -1827,7 +1827,7 @@ ExprNode *StmtDDLAlterTableAlterColumnLoggable::bindNode(BindWA *pBindWA) {
 ExprNode *StmtDDLDropPackage::bindNode(BindWA *pBindWA) {
   ComASSERT(pBindWA);
 
-  Int32 defaulted = packageQualName_.applyDefaults(pBindWA->getDefaultSchema());
+  int defaulted = packageQualName_.applyDefaults(pBindWA->getDefaultSchema());
 
   //
   // diagnose if non-ANSI defaults were applied to the name
@@ -1857,8 +1857,8 @@ ExprNode *StmtDDLDropPackage::bindNode(BindWA *pBindWA) {
 ExprNode *StmtDDLDropRoutine::bindNode(BindWA *pBindWA) {
   ComASSERT(pBindWA);
 
-  Int32 defaulted = routineQualName_.applyDefaults(pBindWA->getDefaultSchema());
-  Int32 actionDefaulted = 0;
+  int defaulted = routineQualName_.applyDefaults(pBindWA->getDefaultSchema());
+  int actionDefaulted = 0;
   if (pBindWA->violateAccessDefaultSchemaOnly(routineQualName_)) return this;
   if (NOT routineActionQualName_.getObjectName().isNull()) {
     ComASSERT(getRoutineType() EQU COM_ACTION_UDF_TYPE);
@@ -2150,7 +2150,7 @@ ExprNode *StmtDDLTenant::bindNode(BindWA *pBindWA) {
     NAList<NAString> newSchemaList(pBindWA->wHeap(), schemaList_->entries());
 
     // set default catalog if not found and check for duplicate schema names
-    for (Int32 i = 0; i < schemaList_->entries(); i++) {
+    for (int i = 0; i < schemaList_->entries(); i++) {
       const SchemaName *schemaName = (*schemaList_)[i];
       if (schemaName && schemaName->getCatalogName().isNull())
         ((SchemaName *)schemaName)->setCatalogName(pBindWA->getDefaultSchema().getCatalogName());
@@ -2223,12 +2223,12 @@ ExprNode *StmtDDLResourceGroup::bindNode(BindWA *pBindWA) {
     NAList<NAString> newNodeList(pBindWA->wHeap(), nodeList_->entries());
 
     // set check for duplicate node names
-    for (Int32 i = 0; i < nodeList_->entries(); i++) {
+    for (int i = 0; i < nodeList_->entries(); i++) {
       NAString *nodeName = (NAString *)(*nodeList_)[i];
       size_t pos = nodeName->first('.');
       if (pos != NA_NPOS) nodeName->remove(pos);
 
-      for (Int32 j = 0; j < newNodeList.entries(); j++) {
+      for (int j = 0; j < newNodeList.entries(); j++) {
         NAString newName = newNodeList[j];
 
         if (*nodeName == newName) {

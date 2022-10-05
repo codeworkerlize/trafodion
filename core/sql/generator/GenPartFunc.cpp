@@ -231,8 +231,8 @@ short RangePartitioningFunction::codeGen(Generator *generator, int partInputData
   ExpGenerator *exp_gen = generator->getExpGenerator();
   int myOwnPartInputDataLength;
 
-  const Int32 pivMoveAtp = 0;                      // only one atp is used for this expr
-  const Int32 pivMoveAtpIndex = 2;                 // 0: consts, 1: temps, 2: result
+  const int pivMoveAtp = 0;                      // only one atp is used for this expr
+  const int pivMoveAtpIndex = 2;                 // 0: consts, 1: temps, 2: result
   const ExpTupleDesc::TupleDataFormat pivFormat =  // format of PIVs
       ExpTupleDesc::SQLARK_EXPLODED_FORMAT;
   ex_cri_desc *partInputCriDesc = new (generator->getSpace()) ex_cri_desc(pivMoveAtpIndex + 1, generator->getSpace());
@@ -248,16 +248,16 @@ short RangePartitioningFunction::codeGen(Generator *generator, int partInputData
   GenAssert(2 * numPartKeyCols + 1 == numPartInputs, "NOT 2*numPartKeyCols+1 == numPartInputs");
 
   Attributes **begEndAttrs;
-  Int32 alignedPartKeyLen;
+  int alignedPartKeyLen;
 
   // make a layout of the partition input data record
   generatePivLayout(generator, myOwnPartInputDataLength, pivMoveAtp, pivMoveAtpIndex, &begEndAttrs);
 
   // the aligned part key length is where the end key values start
-  alignedPartKeyLen = (Int32)begEndAttrs[numPartKeyCols]->getOffset();
+  alignedPartKeyLen = (int)begEndAttrs[numPartKeyCols]->getOffset();
 
   if (begEndAttrs[numPartKeyCols]->getNullIndicatorLength() > 0)
-    alignedPartKeyLen = MINOF(alignedPartKeyLen, (Int32)begEndAttrs[numPartKeyCols]->getNullIndOffset());
+    alignedPartKeyLen = MINOF(alignedPartKeyLen, (int)begEndAttrs[numPartKeyCols]->getNullIndOffset());
 
   if (begEndAttrs[numPartKeyCols]->getVCIndicatorLength() > 0)
     alignedPartKeyLen = MINOF(alignedPartKeyLen, begEndAttrs[numPartKeyCols]->getVCLenIndOffset());

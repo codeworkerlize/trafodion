@@ -261,7 +261,7 @@ RelExpr *Scan::normalizeForCache(CacheWA &cwa, BindWA &bindWA) {
         new (bindWA.wHeap()) ConstantParameter(*cv, bindWA.wHeap(), cwa.getPhase() == CmpMain::PARSE);
     result->synthTypeAndValueId();
     cwa.addConstParam(result, bindWA);
-    hv->setPMOrdPosAndIndex(COM_UNKNOWN_DIRECTION, -1, (Int32)cwa.getConstParams().entries());
+    hv->setPMOrdPosAndIndex(COM_UNKNOWN_DIRECTION, -1, (int)cwa.getConstParams().entries());
   }
 
   // replace descendants' literals into ConstantParameters
@@ -677,7 +677,7 @@ NABoolean RelExpr::cacheableKids(CacheWA &cwa) {
   switch (cwa.getPhase()) {
     case CmpMain::PARSE:
     case CmpMain::BIND: {
-      Int32 arity = getArity();
+      int arity = getArity();
       if (arity <= 0) {  // we have no kids
         if (cwa.isConditionallyCacheable()) {
           // we're conditionally cacheable and have no kids
@@ -690,7 +690,7 @@ NABoolean RelExpr::cacheableKids(CacheWA &cwa) {
         }
       }
       // cacheability of child(ren) determine our cacheability
-      for (Int32 x = 0; x < arity; x++) {
+      for (int x = 0; x < arity; x++) {
         if (!child(x) ||  // cases like "insert into t default values"
                           // return 1 from getArity() even if child(0) is NULL; so
                           // guard against this potential mxcmp crash and consider
@@ -764,7 +764,7 @@ void RelExpr::generateCacheKeyNode(CacheWA &cwa) const {
 
 // append an ascii-version of RelExpr's kids into cachewa.qryText_
 void RelExpr::generateCacheKeyForKids(CacheWA &cwa) const {
-  Int32 maxi = getArity();
+  int maxi = getArity();
   if (maxi) {
     cwa += " kids(";
     for (int i = 0; i < maxi; i++) {
@@ -786,8 +786,8 @@ Scan *RelExpr::getAnyScanNode() const {
     return (Scan *)this;
   }
   Scan *result = NULL;
-  Int32 arity = getArity();
-  for (Int32 x = 0; x < arity && !result; x++) {
+  int arity = getArity();
+  for (int x = 0; x < arity && !result; x++) {
     if (child(x)) {
       result = child(x)->getAnyScanNode();
     }
@@ -885,8 +885,8 @@ RelExpr *RelExpr::normalizeForCache(CacheWA &cwa, BindWA &bindWA) {
 
 // change literals in cacheable query's kids into ConstantParameters
 void RelExpr::normalizeKidsForCache(CacheWA &cachewa, BindWA &bindWA) {
-  Int32 arity = getArity();
-  for (Int32 x = 0; x < arity; x++) {
+  int arity = getArity();
+  for (int x = 0; x < arity; x++) {
     child(x) = child(x)->normalizeForCache(cachewa, bindWA);
   }
 }

@@ -187,14 +187,14 @@ char *Record::extractKey(ULng32 keylen, Int16 offset) { return (rec_ + offset); 
 
 NABoolean Record::setRecord(void *rec, ULng32 reclen) {
   if (allocatedRec_)
-    memcpy(rec_, rec, (Int32)reclen);
+    memcpy(rec_, rec, (int)reclen);
   else
     rec_ = (char *)rec;
   return SORT_SUCCESS;
 }
 
 NABoolean Record::getRecord(void *rec, ULng32 reclen) const {
-  memcpy(rec, rec_, (Int32)reclen);
+  memcpy(rec, rec_, (int)reclen);
   return SORT_SUCCESS;
 }
 

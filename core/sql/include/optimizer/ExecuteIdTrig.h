@@ -36,5 +36,5 @@ typedef struct {
 } ExecuteId;
 
 // This constant is used by the Catman when it creates the temp table
-const Int32 SIZEOF_UNIQUE_EXECUTE_ID = sizeof(ExecuteId);
+const int SIZEOF_UNIQUE_EXECUTE_ID = sizeof(ExecuteId);
 #endif  // EXECUTE_ID_TRIGGERS_H

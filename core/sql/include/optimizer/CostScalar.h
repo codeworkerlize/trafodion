@@ -256,12 +256,12 @@ class CostScalar {
   }
 
   // postfix
-  inline CostScalar operator++(Int32) {
+  inline CostScalar operator++(int) {
     CostScalar temp(*this);
     ++dpv_;
     return temp;
   }
-  inline CostScalar operator--(Int32) {
+  inline CostScalar operator--(int) {
     CostScalar temp(*this);
     --dpv_;
     return temp;
@@ -374,8 +374,8 @@ class CostScalar {
  private:
   double dpv_;
 
-  static THREAD_P Int32 ovflwCount_;
-  static THREAD_P Int32 udflwCount_;
+  static THREAD_P int ovflwCount_;
+  static THREAD_P int udflwCount_;
 
 };  // class CostScalar
 //<pb>

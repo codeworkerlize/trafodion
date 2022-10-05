@@ -341,7 +341,7 @@ class REFRESH_LIB_CLASS CRUMV : public CRUObject {
   virtual CDDLockList *GetDDLLockList() { return pddMV_->GetDDLLockList(); }
 
   virtual CDDLock *AddDDLLock(CDSString lockName, CDDObject::EOperationType op, const CDDDetailTextList &details,
-                              CDSLocationList *locationList, Int32 status) {
+                              CDSLocationList *locationList, int status) {
     return pddMV_->AddDDLLock(lockName, op, details, locationList, status);
   }
 

@@ -67,16 +67,16 @@ class SortOptions : public NAVersionedObject {
 
   virtual short getClassSize() { return (short)sizeof(SortOptions); }
 
-  Int32 &internalSort() { return internalSort_; };
+  int &internalSort() { return internalSort_; };
   Int16 &sortMaxHeapSize() { return sortMaxHeapSizeMB_; };
   UInt16 &scratchFreeSpaceThresholdPct() { return scratchFreeSpaceThreshold_; }
   Int16 &sortType() { return sortType_; };
-  Int32 &dontOverflow() { return dontOverflow_; };
+  int &dontOverflow() { return dontOverflow_; };
   Int16 &memoryQuotaMB() { return memoryQuotaMB_; };
   UInt16 &bmoMaxMemThresholdMB() { return bmoMaxMemThresholdMB_; };
   Int16 &pressureThreshold() { return pressureThreshold_; }
   Int16 &mergeBufferUnit() { return mergeBufferUnit_; };
-  Int32 &scratchIOBlockSize() { return scratchIOBlockSize_; }
+  int &scratchIOBlockSize() { return scratchIOBlockSize_; }
   Int16 &scratchIOVectorSize() { return scratchIOVectorSize_; }
 
   NABoolean bufferedWrites() { return (flags_ & BUFFERED_WRITES_) != 0; }
@@ -116,17 +116,17 @@ class SortOptions : public NAVersionedObject {
     CONSIDER_BUFFER_DEFRAG_ = 0x0020
   };
 
-  Int32 internalSort_;                // 00-03
+  int internalSort_;                // 00-03
   Int16 sortMaxHeapSizeMB_;           // 04-05
   UInt16 scratchFreeSpaceThreshold_;  // 06-07
-  Int32 dontOverflow_;                // 08-11
+  int dontOverflow_;                // 08-11
   Int16 sortType_;                    // 12-13
   UInt16 flags_;                      // 14-15
   Int16 memoryQuotaMB_;               // 16-17
   Int16 pressureThreshold_;           // 18-19
   Int16 mergeBufferUnit_;             // 20-21
   Int16 scratchIOVectorSize_;         // 22-23
-  Int32 scratchIOBlockSize_;          // 24-27
+  int scratchIOBlockSize_;          // 24-27
   UInt16 bmoMaxMemThresholdMB_;       // 28-29
   char fillersSortOptions_[26];       // 30-55
 };
@@ -164,9 +164,9 @@ class ComTdbSort : public ComTdb {
   ComTdbPtr tdbChild_;  // 32-39
 
   // length of input row to sort.
-  Int32 sortRecLen_;  // 40-43
+  int sortRecLen_;  // 40-43
 
-  Int32 sortKeyLen_;  // 44-47
+  int sortKeyLen_;  // 44-47
 
   // index into atp of new sorted row tupp
   UInt16 tuppIndex_;  // 48-49
@@ -174,18 +174,18 @@ class ComTdbSort : public ComTdb {
   UInt16 flags_;  // 50-51
 
   // estimated number of records to be sorted
-  Int32 maxNumBuffers_;  // 52-55
+  int maxNumBuffers_;  // 52-55
 
   // length of partially sorted key.
-  Int32 sortPartialKeyLen_;  // 56-59
+  int sortPartialKeyLen_;  // 56-59
 
   UInt32 minimalSortRecs_;         // 60-63
   Float32 sortMemEstInKBPerNode_;  // 64-67
   Float32 bmoCitizenshipFactor_;   // 68-71
-  Int32 pMemoryContingencyMB_;     // 72-75
+  int pMemoryContingencyMB_;     // 72-75
   UInt16 sortGrowthPercent_;       // 76-77
   char filler_1[2];                // 78-79
-  Int32 topNThreshold_;            // 80-83
+  int topNThreshold_;            // 80-83
   Float32 estMemoryUsage_;         // 84-87
   Float32 bmoQuotaRatio_;          // 88-91
   char fillersComTdbSort_[4];      // 92-95
@@ -222,19 +222,19 @@ class ComTdbSort : public ComTdb {
   // inline methods
   inline ComTdb *getChildTdb() { return tdbChild_; };
 
-  Int32 orderedQueueProtocol() const;
+  int orderedQueueProtocol() const;
 
-  virtual const ComTdb *getChild(Int32 pos) const {
+  virtual const ComTdb *getChild(int pos) const {
     if (pos == 0)
       return tdbChild_.getPointer();
     else
       return NULL;
   }
 
-  virtual Int32 numChildren() const { return 1; }
+  virtual int numChildren() const { return 1; }
   virtual const char *getNodeName() const { return "EX_SORT"; };
-  virtual Int32 numExpressions() const { return 2; }
-  virtual ex_expr *getExpressionNode(Int32 pos) {
+  virtual int numExpressions() const { return 2; }
+  virtual ex_expr *getExpressionNode(int pos) {
     if (pos == 0)
       return sortKeyExpr_;
     else if (pos == 1)
@@ -243,7 +243,7 @@ class ComTdbSort : public ComTdb {
       return NULL;
   }
 
-  virtual const char *getExpressionName(Int32 pos) const {
+  virtual const char *getExpressionName(int pos) const {
     if (pos == 0)
       return "sortKeyExpr_";
     else if (pos == 1)
@@ -276,15 +276,15 @@ class ComTdbSort : public ComTdb {
 
   void setBmoCitizenshipFactor(Float32 bmoCf) { bmoCitizenshipFactor_ = bmoCf; }
   Float32 getBmoCitizenshipFactor(void) { return bmoCitizenshipFactor_; }
-  void setMemoryContingencyMB(Int32 mCMB) { pMemoryContingencyMB_ = mCMB; }
-  Int32 getMemoryContingencyMB(void) { return pMemoryContingencyMB_; }
+  void setMemoryContingencyMB(int mCMB) { pMemoryContingencyMB_ = mCMB; }
+  int getMemoryContingencyMB(void) { return pMemoryContingencyMB_; }
 
   void setSortMemEstInKBPerNode(Float32 s) { sortMemEstInKBPerNode_ = s; }
   Float32 getSortMemEstInKBPerNode() { return sortMemEstInKBPerNode_; }
   Float32 sortGrowthPercent() { return Float32(sortGrowthPercent_ / 100.0); }
 
-  void setTopNThreshold(Int32 limit) { topNThreshold_ = limit; }
-  Int32 getTopNThreshold(void) { return topNThreshold_; }
+  void setTopNThreshold(int limit) { topNThreshold_ = limit; }
+  int getTopNThreshold(void) { return topNThreshold_; }
 
   void setEstimatedMemoryUsage(Float32 estMemory) { estMemoryUsage_ = estMemory; }
   virtual Float32 getEstimatedMemoryUsage(void) { return estMemoryUsage_; }

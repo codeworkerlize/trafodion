@@ -45,7 +45,7 @@ int ComTdbExeUtil::unpack(void *base, void *reallocator) {
   return ComTdbGenericUtil::unpack(base, reallocator);
 }
 
-const ComTdb *ComTdbExeUtil::getChild(Int32 pos) const {
+const ComTdb *ComTdbExeUtil::getChild(int pos) const {
   if (pos == 0)
     return child_;
   else
@@ -774,7 +774,7 @@ ComTdbExeUtilGetStatistics::ComTdbExeUtilGetStatistics(char *stmtName, short sta
                                                        short activeQueryNum, ex_cri_desc *work_cri_desc,
                                                        const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
                                                        ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
-                                                       int num_buffers, ULng32 buffer_size, char *host, Int32 port,
+                                                       int num_buffers, ULng32 buffer_size, char *host, int port,
                                                        char *path, UInt64 queryHash)
     : ComTdbExeUtil(ComTdbExeUtil::GET_STATISTICS_, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, NULL, 0, NULL, 0, NULL, 0,
                     NULL, work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc, down, up, num_buffers,
@@ -1527,9 +1527,9 @@ int ComTdbExeUtilCompositeUnnest::unpack(void *base, void *reallocator) {
   return ComTdbExeUtil::unpack(base, reallocator);
 }
 
-Int32 ComTdbExeUtilCompositeUnnest::numExpressions() const { return (ComTdbExeUtil::numExpressions() + 2); }
+int ComTdbExeUtilCompositeUnnest::numExpressions() const { return (ComTdbExeUtil::numExpressions() + 2); }
 
-ex_expr *ComTdbExeUtilCompositeUnnest::getExpressionNode(Int32 pos) {
+ex_expr *ComTdbExeUtilCompositeUnnest::getExpressionNode(int pos) {
   if (pos >= numExpressions())
     return NULL;
   else if (pos < ComTdbExeUtil::numExpressions())
@@ -1540,7 +1540,7 @@ ex_expr *ComTdbExeUtilCompositeUnnest::getExpressionNode(Int32 pos) {
     return returnColsExpr_;
 }
 
-const char *ComTdbExeUtilCompositeUnnest::getExpressionName(Int32 pos) const {
+const char *ComTdbExeUtilCompositeUnnest::getExpressionName(int pos) const {
   if (pos >= numExpressions())
     return NULL;
   else if (pos < ComTdbExeUtil::numExpressions())

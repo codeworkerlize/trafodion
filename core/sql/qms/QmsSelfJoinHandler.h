@@ -70,7 +70,7 @@ typedef NAPtrArray<SelfJoinSegmentPtr> SelfJoinSegmentArray;
 #include "QmsJoinGraph.h"
 
 /**
- * Array2D is an encapsulation of a fixed two-dimentional array of Int32 elements.
+ * Array2D is an encapsulation of a fixed two-dimentional array of int elements.
  *****************************************************************************
  */
 class Array2D : public NAIntrusiveSharedPtrObject {
@@ -82,7 +82,7 @@ class Array2D : public NAIntrusiveSharedPtrObject {
    * @param initValue Initial value (default is 0).
    * @param heap Heap pointer.
    */
-  Array2D(UInt32 rows, UInt32 cols, Int32 initValue = 0, ADD_MEMCHECK_ARGS_DECL(CollHeap *heap = NULL));
+  Array2D(UInt32 rows, UInt32 cols, int initValue = 0, ADD_MEMCHECK_ARGS_DECL(CollHeap *heap = NULL));
 
   virtual ~Array2D();
 
@@ -98,7 +98,7 @@ class Array2D : public NAIntrusiveSharedPtrObject {
    */
   UInt32 getCols() { return cols_; }
 
-  typedef Int32 *Row;
+  typedef int *Row;
 
   /**
    * Get an array element.
@@ -106,7 +106,7 @@ class Array2D : public NAIntrusiveSharedPtrObject {
    * @param col The column.
    * @return The value.
    */
-  Int32 getElement(UInt32 row, UInt32 col);
+  int getElement(UInt32 row, UInt32 col);
 
   /**
    * Set an array element.
@@ -114,7 +114,7 @@ class Array2D : public NAIntrusiveSharedPtrObject {
    * @param col The column.
    * @param value The value.
    */
-  void setElement(UInt32 row, UInt32 col, Int32 value);
+  void setElement(UInt32 row, UInt32 col, int value);
 
   /**
    * Return a textual representation of the Array2D.
@@ -125,7 +125,7 @@ class Array2D : public NAIntrusiveSharedPtrObject {
  private:
   UInt32 rows_;
   UInt32 cols_;
-  Int32 **array_;
+  int **array_;
   CollHeap *heap_;
 };
 
@@ -162,7 +162,7 @@ class ShiftMatrix : public NAIntrusiveSharedPtrObject {
    * @param size The number of elements to rearrange.
    * @param heap
    */
-  ShiftMatrix(Int32 size, ADD_MEMCHECK_ARGS_DEF(CollHeap *heap));
+  ShiftMatrix(int size, ADD_MEMCHECK_ARGS_DEF(CollHeap *heap));
 
   virtual ~ShiftMatrix();
 
@@ -172,7 +172,7 @@ class ShiftMatrix : public NAIntrusiveSharedPtrObject {
    * @param element The element number within the combination.
    * @return theh shift value.
    */
-  Int32 getElement(UInt32 combination, UInt32 element);
+  int getElement(UInt32 combination, UInt32 element);
 
   /**
    * Return a textual representation of the ShiftMatrix.
@@ -185,7 +185,7 @@ class ShiftMatrix : public NAIntrusiveSharedPtrObject {
    * @param num The input value.
    * @return The factorial of the input value.
    */
-  static Int32 factorial(Int32 num);
+  static int factorial(int num);
 
  private:
   /**
@@ -235,7 +235,7 @@ class ShiftMatrixFactory : public NAIntrusiveSharedPtrObject {
    * @param size Required size of ShiftMatrix
    * @return
    */
-  const ShiftMatrixPtr getMatrixForSize(Int32 size);
+  const ShiftMatrixPtr getMatrixForSize(int size);
 
  private:
   /**
@@ -410,13 +410,13 @@ class SelfJoinHandler : public NAIntrusiveSharedPtrObject {
    * Step 3. Get the next ShiftVector.
    * @param shiftVector
    */
-  void getNextShiftVector(Int32 *shiftVector);
+  void getNextShiftVector(int *shiftVector);
 
   /**
    * How many self-join permutations for this join graph?
    * @return
    */
-  Int32 howmanyPermutations();
+  int howmanyPermutations();
 
   void dump(NAString &text);
 
@@ -433,8 +433,8 @@ class SelfJoinHandler : public NAIntrusiveSharedPtrObject {
   SegmentState state_;
   const NAString *lastTable_;
   static const NAString firstTable_;
-  Int32 segmentStart_;
-  Int32 segmentEnd_;
+  int segmentStart_;
+  int segmentEnd_;
 
   UInt32 totalPermutations_;
   UInt32 currentPermutation_;

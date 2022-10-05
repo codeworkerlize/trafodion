@@ -207,12 +207,12 @@ NABoolean Parser::fixupParserInputBufAndAppendSemicolon() {
 
   // Note that inputBuf_->getBufSize() returns the size of the buffer
   // (including the trailing null characters)
-  Int32 bufferSize = inputBuf_->getBufSize();
+  int bufferSize = inputBuf_->getBufSize();
   unsigned char *s = inputBuf_->data();
 
   // exclude the trailing null characters from the count
-  Int32 initialInputStrLen = inputStrLen();
-  Int32 i = initialInputStrLen - 1;  // position of the last elements in the buffer
+  int initialInputStrLen = inputStrLen();
+  int i = initialInputStrLen - 1;  // position of the last elements in the buffer
 
   // replace trailing white space with null character and
   while (i >= 0 && (isSpace8859_1(s[i]) || s[i] == nullchar)) s[i--] = nullchar;
@@ -229,9 +229,9 @@ NABoolean Parser::fixupParserInputBufAndAppendSemicolon() {
   // keep the leftmost semicolon  and replace the characters to
   // the right of that semicolon with null characters
   if (i >= 0) {
-    Int32 ix = i;
-    Int32 nullcharPos = -1;
-    Int32 semicolonPos = -1;
+    int ix = i;
+    int nullcharPos = -1;
+    int semicolonPos = -1;
     for (; ix >= 0 && (isSpace8859_1(s[ix]) || s[ix] == semicolon || s[ix] == nullchar); ix--) {
       if (s[ix] == semicolon)
         semicolonPos = ix;
@@ -251,7 +251,7 @@ NABoolean Parser::fixupParserInputBufAndAppendSemicolon() {
       } else if (semicolonPos + 1 == bufferSize) {
         // cannot append a null char to the existing buffer because there is
         // no more room left in the buffer - Allocate a new (bigger) buffer.
-        charBuf *pNewCharBuf = new (wHeap()) charBuf(bufferSize + 16 /* Int32 newBufferSize */, wHeap());
+        charBuf *pNewCharBuf = new (wHeap()) charBuf(bufferSize + 16 /* int newBufferSize */, wHeap());
         memcpy((void *)pNewCharBuf->data(), (const void *)inputBuf_->data(), bufferSize /*in_bytes*/);
         pNewCharBuf->data()[bufferSize] = nullchar;
         pNewCharBuf->setStrLen(bufferSize);
@@ -298,7 +298,7 @@ NABoolean Parser::fixupParserInputBufAndAppendSemicolon() {
     newInputStr.append(semicolon);
     // NAString is always null terminated and the null terminator is excluded from
     // the count returned by the NAString length() method.
-    Int32 newInputStrLen = (Int32)newInputStr.length();
+    int newInputStrLen = (int)newInputStr.length();
     unsigned char *pNewInputStr = (unsigned char *)newInputStr.data();
     NADELETE(inputBuf_, charBuf, wHeap());
     inputBuf_ = new (wHeap()) charBuf(newInputStrLen + 16  // int newBufferSize
@@ -323,9 +323,9 @@ NAHashDictionary<NAString, NAString> *Parser::getOrNewCqdHashDictionaryInHint() 
   return pCqdsHashDictionaryInHint_;  // Will be deleted in destructor of Hint
 }
 
-Int32 Parser::SetAndHoldCqdsInHint() {
+int Parser::SetAndHoldCqdsInHint() {
   Hint *pHint = SqlParser_CurrentParser->getHint();
-  Int32 nRet = 0;
+  int nRet = 0;
   NAList<NAString> restoreList(wHeap_);
   NADefaults &defs = ActiveSchemaDB()->getDefaults();
 #ifndef NDEBUG
@@ -382,12 +382,12 @@ NABoolean Parser::fixupParserWInputBufAndAppendSemicolon() {
 
   // Note that wInputBuf_->getBufSize() returns the size of the buffer
   // (including the trailing null characters)
-  Int32 bufferSize = wInputBuf_->getBufSize();
+  int bufferSize = wInputBuf_->getBufSize();
   NAWchar *s = wInputBuf_->data();
 
   // exclude the trailing null characters from the count
-  Int32 initialWInputStrLen = wInputStrLen();
-  Int32 i = initialWInputStrLen - 1;  // position of the last elements in the buffer
+  int initialWInputStrLen = wInputStrLen();
+  int i = initialWInputStrLen - 1;  // position of the last elements in the buffer
 
   // replace trailing white space with null character and
   while (i >= 0 && (isSpace8859_1(s[i]) || s[i] == nullchar)) s[i--] = nullchar;
@@ -404,9 +404,9 @@ NABoolean Parser::fixupParserWInputBufAndAppendSemicolon() {
   // keep the leftmost semicolon  and replace the characters to
   // the right of that semicolon with null characters
   if (i >= 0) {
-    Int32 ix = i;
-    Int32 nullcharPos = -1;
-    Int32 semicolonPos = -1;
+    int ix = i;
+    int nullcharPos = -1;
+    int semicolonPos = -1;
     for (; ix >= 0 && (isSpace8859_1(s[ix]) || s[ix] == semicolon || s[ix] == nullchar); ix--) {
       if (s[ix] == semicolon)
         semicolonPos = ix;
@@ -426,7 +426,7 @@ NABoolean Parser::fixupParserWInputBufAndAppendSemicolon() {
       } else if (semicolonPos + 1 == bufferSize) {
         // cannot append a null char to the existing buffer because there is
         // no more room left in the buffer - Allocate a new (bigger) buffer.
-        NAWcharBuf *pNewNAWCharBuf = new (wHeap()) NAWcharBuf(bufferSize + 4 /* Int32 newBufferSize */, wHeap());
+        NAWcharBuf *pNewNAWCharBuf = new (wHeap()) NAWcharBuf(bufferSize + 4 /* int newBufferSize */, wHeap());
         NAWstrncpy(pNewNAWCharBuf->data(), wInputBuf_->data(), bufferSize /*in_NAWchars*/);
         pNewNAWCharBuf->data()[bufferSize /*in_NAWchars*/] = nullchar;
         pNewNAWCharBuf->setStrLen(bufferSize /*in_NAWchars*/);
@@ -473,7 +473,7 @@ NABoolean Parser::fixupParserWInputBufAndAppendSemicolon() {
     newInputStr.append(semicolon);
     // NAWString is always NAWchar null terminated and the null terminator is
     // excluded from the count returned by the NAWString length() method.
-    Int32 newInputStrLen = (Int32)newInputStr.length();
+    int newInputStrLen = (int)newInputStr.length();
     const NAWchar *pNewInputStr = newInputStr.data();
     NADELETE(wInputBuf_, NAWcharBuf, wHeap());
     wInputBuf_ = new (wHeap()) NAWcharBuf(newInputStrLen + 16  // int newBufSize
@@ -492,11 +492,11 @@ NABoolean Parser::fixupParserWInputBufAndAppendSemicolon() {
 }
 
 static NAWcharBuf *parserCharSetToUTF16(const charBuf &inCharBuf, CollHeap *heap, NAWcharBuf *&outNAWcharBuf,
-                                        Int32 inStrCharSet, Int32 &outErrorCode, NABoolean addNullAtEnd = TRUE,
-                                        Int32 *outCharCount = NULL, Int32 *outErrorByteOff = NULL) {
+                                        int inStrCharSet, int &outErrorCode, NABoolean addNullAtEnd = TRUE,
+                                        int *outCharCount = NULL, int *outErrorByteOff = NULL) {
   NAWcharBuf *result = NULL;
-  Int32 iCharCount = 0;
-  Int32 iErrorByteOff = 0;
+  int iCharCount = 0;
+  int iErrorByteOff = 0;
   if (outCharCount == NULL) outCharCount = &iCharCount;
   if (outErrorByteOff == NULL) outErrorByteOff = &iErrorByteOff;
 
@@ -519,15 +519,15 @@ static NAWcharBuf *parserCharSetToUTF16(const charBuf &inCharBuf, CollHeap *heap
 }
 
 charBuf *parserUTF16ToCharSet(const NAWcharBuf &pr_UTF16StrBuf, CollHeap *heap, charBuf *&pr_pOutCharSetStrBuf,
-                              Int32 inStrCharSet, Int32 &outErrorCode,
+                              int inStrCharSet, int &outErrorCode,
                               NABoolean addNullAtEnd,           // default is TRUE
                               NABoolean allowInvalidCodePoint,  // default is TRUE
-                              Int32 *outCharCount,              // default is NULL
-                              Int32 *outErrorByteOff)           // default is NULL
+                              int *outCharCount,              // default is NULL
+                              int *outErrorByteOff)           // default is NULL
 {
   charBuf *result = NULL;
-  Int32 iCharCount = 0;
-  Int32 iErrorByteOff = 0;
+  int iCharCount = 0;
+  int iErrorByteOff = 0;
   if (outCharCount == NULL) outCharCount = &iCharCount;
   if (outErrorByteOff == NULL) outErrorByteOff = &iErrorByteOff;
   result = unicodeTocset(pr_UTF16StrBuf, heap, pr_pOutCharSetStrBuf, inStrCharSet, outErrorCode, addNullAtEnd,
@@ -555,7 +555,7 @@ charBuf *parserUTF16ToCharSet(const NAWcharBuf &pr_UTF16StrBuf, CollHeap *heap, 
 // quoted text as seen in a (hostvar) prototype value.  This code should remain
 // here, and the (much more complicated) code in InputStmt removed, IMHO.
 //
-static NABoolean stringScanWillTerminateInParser(const NAWchar *str, Int32 internalExpr, Int32 sLen) {
+static NABoolean stringScanWillTerminateInParser(const NAWchar *str, int internalExpr, int sLen) {
   // Encoded strings from GenRfork's buildEncodeTree
   // (calling via GenExpGenerator.h's createExprTree) are weird,
   // often having embedded squotes that DO terminate in Parser, so return OK.
@@ -565,7 +565,7 @@ static NABoolean stringScanWillTerminateInParser(const NAWchar *str, Int32 inter
   NAWchar quote_seen = NAWCHR('\0');
   enum seen { NOT_SEEN, SEEN, SEEN_EMBEDDED };
   seen semicolon = NOT_SEEN;
-  Int32 len = 0;
+  int len = 0;
   for (const NAWchar *s = str; len < sLen; s++, len++) {
     if (quote_seen)
       if (*s == quote_seen)
@@ -607,8 +607,8 @@ static NABoolean stringScanWillTerminateInParser(const NAWchar *str, Int32 inter
 //               uses wInputStr() for lexing and parsing
 //               uses inputStr() for error reporting
 //             returns 0 if all OK, 1 otherwise
-Int32 Parser::parseSQL(ExprNode **node,              // (OUT): parse tree if all OK
-                       Int32 internalExpr,           // (IN) : NORMAL_TOKEN, INTERNALEXPR_TOKEN, etc
+int Parser::parseSQL(ExprNode **node,              // (OUT): parse tree if all OK
+                       int internalExpr,           // (IN) : NORMAL_TOKEN, INTERNALEXPR_TOKEN, etc
                        ItemExprList *paramItemList)  // (IN) : assigned to SqlParser_ParamItemList
 {
   // set the SQL text to the event logging area if the buffer there
@@ -692,7 +692,7 @@ Int32 Parser::parseSQL(ExprNode **node,              // (OUT): parse tree if all
   //
   int diagsMark = CmpCommon::diags()->mark();
   int initialErrCnt = SqlParser_Diags->getNumber(DgSqlCode::ERROR_);
-  Int32 parseError = 1;  // error
+  int parseError = 1;  // error
 
   // This static flag will be TRUE on entry if a previous yyparse ComASSERTed
   // (longjmp'd), which the try block below does *NOT* catch...
@@ -813,7 +813,7 @@ Int32 Parser::parseSQL(ExprNode **node,              // (OUT): parse tree if all
 }
 
 // parseDML widens the locale-based str and scans & parses it
-Int32 Parser::parseDML(const char *instr, Int32 inlen, CharInfo::CharSet charset, ExprNode **node, Int32 internalExpr,
+int Parser::parseDML(const char *instr, int inlen, CharInfo::CharSet charset, ExprNode **node, int internalExpr,
                        ItemExprList *paramItemList) {
   initialInputCharSet_ = charset;
 
@@ -828,7 +828,7 @@ Int32 Parser::parseDML(const char *instr, Int32 inlen, CharInfo::CharSet charset
     inputBuf_ = NULL;
   }
 
-  Int32 len = 0;
+  int len = 0;
   if (charset == CharInfo::UCS2) {
     NADELETE(wInputBuf_, NAWcharBuf, wHeap());
     size_t wInputBufSizeInNAWchars = (size_t)((inlen /*in_bytes*/ + 16) / BYTES_PER_NAWCHAR);
@@ -860,9 +860,9 @@ Int32 Parser::parseDML(const char *instr, Int32 inlen, CharInfo::CharSet charset
     }
   }
 
-  Int32 errorcode = 0;
-  Int32 charCount = 0;
-  Int32 errorByteOff = 0;
+  int errorcode = 0;
+  int charCount = 0;
+  int errorByteOff = 0;
 
   if (inputBuf_) {
     switch (charset) {
@@ -890,7 +890,7 @@ Int32 Parser::parseDML(const char *instr, Int32 inlen, CharInfo::CharSet charset
         if (errorcode) return 1;
         break;
       default: {
-        Int32 CharsetNotSupported = 0;
+        int CharsetNotSupported = 0;
         PARSERASSERT(CharsetNotSupported);
       } break;
     }
@@ -918,7 +918,7 @@ Int32 Parser::parseDML(const char *instr, Int32 inlen, CharInfo::CharSet charset
 }
 
 // parseDML widens the locale-based str and scans & parses it
-Int32 Parser::parseDML(QueryText &txt, ExprNode **node, Int32 internalExpr, ItemExprList *paramItemList) {
+int Parser::parseDML(QueryText &txt, ExprNode **node, int internalExpr, ItemExprList *paramItemList) {
   initialInputCharSet_ = (CharInfo::CharSet)txt.charSet();
 
   // set up input string buffer. avoid SqlParser globals. (tcr)
@@ -930,14 +930,14 @@ Int32 Parser::parseDML(QueryText &txt, ExprNode **node, Int32 internalExpr, Item
                      // write on deleted memory.
   wInputBuf_ = NULL;
 
-  Int32 len = txt.octetLength();
+  int len = txt.octetLength();
   while (len > 0 && txt.text()[len - 1] == 0)  // exclude trailing null characters from the count
     len--;
   charset_ = (CharInfo::CharSet)txt.charSet();  // needed by lexer
 
-  Int32 errorcode = 0;
-  Int32 charCount = 0;
-  Int32 errorByteOff = 0;
+  int errorcode = 0;
+  int charCount = 0;
+  int errorByteOff = 0;
 
   switch ((SQLCHARSET_CODE)charset_) {
     case SQLCHARSETCODE_ISO88591:
@@ -969,7 +969,7 @@ Int32 Parser::parseDML(QueryText &txt, ExprNode **node, Int32 internalExpr, Item
       if (errorcode) return 1;
       break;
     default: {
-      Int32 CharsetNotSupported = 0;
+      int CharsetNotSupported = 0;
       PARSERASSERT(CharsetNotSupported);
     } break;
   }
@@ -1005,7 +1005,7 @@ Int32 Parser::parseDML(QueryText &txt, ExprNode **node, Int32 internalExpr, Item
 // str is a unicode-encoded SQL statement (or stmt fragment);
 // scan and parse str; narrow str to the given charset when doing
 // other text processing stuff, such as, error reporting, etc
-Int32 Parser::parse_w_DML(const NAWchar *instr, Int32 inlen, ExprNode **node, Int32 internalExpr,
+int Parser::parse_w_DML(const NAWchar *instr, int inlen, ExprNode **node, int internalExpr,
                           ItemExprList *paramItemList) {
   initialInputCharSet_ = CharInfo::UCS2;
 
@@ -1018,7 +1018,7 @@ Int32 Parser::parse_w_DML(const NAWchar *instr, Int32 inlen, ExprNode **node, In
                                         wHeap());
   NAWstrncpy(wInputBuf_->data(), instr, inlen);
   // Fill the remaining with null characters
-  wInputBuf_->zeroOutBuf(inlen /*Int32 startPos*/);
+  wInputBuf_->zeroOutBuf(inlen /*int startPos*/);
   wInputBuf_->setStrLen(inlen);
   fixupParserWInputBufAndAppendSemicolon();
 
@@ -1029,7 +1029,7 @@ Int32 Parser::parse_w_DML(const NAWchar *instr, Int32 inlen, ExprNode **node, In
   charset_ = CharInfo::UCS2;  // needed by lexer
   if (wInputStrLen() > 0) {
     charset_ = CharInfo::UTF8;  // needed by lexer
-    Int32 errorcode = 0;
+    int errorcode = 0;
     NADELETE(inputBuf_, charBuf, wHeap());
     inputBuf_ = NULL;  // set to NULL to ask parserUTF16ToCharSet to allocate a new buffer
     inputBuf_ =
@@ -1048,16 +1048,16 @@ Int32 Parser::parse_w_DML(const NAWchar *instr, Int32 inlen, ExprNode **node, In
   return parseSQL(node, internalExpr, paramItemList);
 }
 
-ExprNode *Parser::parseDML(const char *str, Int32 len, CharInfo::CharSet charset) {
+ExprNode *Parser::parseDML(const char *str, int len, CharInfo::CharSet charset) {
   ExprNode *node = NULL;
   parseDML(str, len, charset, &node, 0, NULL);
   return node;
 }
 
-ExprNode *Parser::getExprTree(const char *str, UInt32 strlength, CharInfo::CharSet strCharSet, Int32 num_params,
+ExprNode *Parser::getExprTree(const char *str, UInt32 strlength, CharInfo::CharSet strCharSet, int num_params,
                               ItemExpr *p1, ItemExpr *p2, ItemExpr *p3, ItemExpr *p4, ItemExpr *p5, ItemExpr *p6,
                               ItemExprList *otherParams,
-                              Int32 internal_expr)  // getItemExprTree is caller
+                              int internal_expr)  // getItemExprTree is caller
 {
   char *newstr;
   SQLParserStartToken token = (internal_expr ? INTERNALEXPR_TOKEN : NORMAL_TOKEN);
@@ -1114,9 +1114,9 @@ ExprNode *Parser::getExprTree(const char *str, UInt32 strlength, CharInfo::CharS
 }
 
 ExprNode *Parser::get_w_ExprTree(const NAWchar *str,  // strCharSet should be CharInfo::UCS2
-                                 UInt32 strlength, Int32 num_params, ItemExpr *p1, ItemExpr *p2, ItemExpr *p3,
+                                 UInt32 strlength, int num_params, ItemExpr *p1, ItemExpr *p2, ItemExpr *p3,
                                  ItemExpr *p4, ItemExpr *p5, ItemExpr *p6, ItemExprList * /*paramItemList not used*/,
-                                 Int32 internal_expr)  // getItemExprTree is caller
+                                 int internal_expr)  // getItemExprTree is caller
 {
   NAWchar *newstr;
   SQLParserStartToken token = (internal_expr ? INTERNALEXPR_TOKEN : NORMAL_TOKEN);
@@ -1159,7 +1159,7 @@ ExprNode *Parser::get_w_ExprTree(const NAWchar *str,  // strCharSet should be Ch
   return node;
 }
 
-ItemExpr *Parser::getItemExprTree(const char *str, UInt32 len, CharInfo::CharSet strCharSet, Int32 num_params,
+ItemExpr *Parser::getItemExprTree(const char *str, UInt32 len, CharInfo::CharSet strCharSet, int num_params,
                                   ItemExpr *p1, ItemExpr *p2, ItemExpr *p3, ItemExpr *p4, ItemExpr *p5, ItemExpr *p6,
                                   ItemExprList *paramItemList) {
   ExprNode *et =
@@ -1188,7 +1188,7 @@ ItemExpr *Parser::getItemExprTree(const char *str, UInt32 len, CharInfo::CharSet
                          firstSix[4], firstSix[5], &remainder);
 }
 
-ItemExpr *Parser::get_w_ItemExprTree(const NAWchar *str, UInt32 len, Int32 num_params, ItemExpr *p1, ItemExpr *p2,
+ItemExpr *Parser::get_w_ItemExprTree(const NAWchar *str, UInt32 len, int num_params, ItemExpr *p1, ItemExpr *p2,
                                      ItemExpr *p3, ItemExpr *p4, ItemExpr *p5, ItemExpr *p6,
                                      ItemExprList *paramItemList) {
   ExprNode *et = get_w_ExprTree(str, len, num_params, p1, p2, p3, p4, p5, p6, paramItemList, INTERNALEXPR_TOKEN);
@@ -1200,7 +1200,7 @@ ItemExpr *Parser::get_w_ItemExprTree(const NAWchar *str, UInt32 len, Int32 num_p
 ElemDDLColDef *Parser::parseColumnDefinition(const char *str, size_t strLen, CharInfo::CharSet strCharSet) {
   ExprNode *node;
   // If strLen is passed in, use it so non-null-terminated strings can be passed to parser.
-  Int32 len = (Int32)(strLen > 0 ? strLen : strlen(str)) + 2;
+  int len = (int)(strLen > 0 ? strLen : strlen(str)) + 2;
   char *newStr = new (wHeap()) char[len];
   sprintf(newStr, "%s;", str);
   parseDML(newStr, len, strCharSet, &node, COLUMNDEF_TOKEN, NULL);
@@ -1214,7 +1214,7 @@ ElemDDLColDef *Parser::parseColumnDefinition(const char *str, size_t strLen, Cha
 ElemDDLPartitionClause *Parser::parseSplitDefinition(const char *str, size_t strLen, CharInfo::CharSet strCharSet) {
   ExprNode *node;
   // If strLen is passed in, use it so non-null-terminated strings can be passed to parser.
-  Int32 len = (Int32)(strLen > 0 ? strLen : strlen(str)) + 2;
+  int len = (int)(strLen > 0 ? strLen : strlen(str)) + 2;
   char *newStr = new (wHeap()) char[len];
   sprintf(newStr, "%s;", str);
   parseDML(newStr, len, strCharSet, &node, SPLITDEF_TOKEN, NULL);
@@ -1228,7 +1228,7 @@ ElemDDLPartitionClause *Parser::parseSplitDefinition(const char *str, size_t str
 NAType *Parser::parseCompositeDefinition(const char *str, size_t strLen, CharInfo::CharSet strCharSet) {
   ExprNode *node;
   // If strLen is passed in, use it so non-null-terminated strings can be passed to parser.
-  Int32 len = (Int32)(strLen > 0 ? strLen : strlen(str)) + 2;
+  int len = (int)(strLen > 0 ? strLen : strlen(str)) + 2;
   char *newStr = new (wHeap()) char[len];
   sprintf(newStr, "%s;", str);
   parseDML(newStr, len, strCharSet, &node, COMPOSITEDEF_TOKEN, NULL);
@@ -1243,7 +1243,7 @@ NABoolean Parser::parseUtilISPCommand(const char *command, size_t cmdLen, CharIn
                                       ExprNode **node) {
   if (cmdLen == 0) cmdLen = strlen(command);
   if (cmdLen == 0) return FALSE;
-  Int32 inStrLen = cmdLen;
+  int inStrLen = cmdLen;
   // Exclude trailing null characters from the count
   while (inStrLen > 0 && command[inStrLen - 1] == 0) inStrLen--;
 
@@ -1275,7 +1275,7 @@ NABoolean Parser::parseUtilISPCommand(const char *command, size_t cmdLen, CharIn
 
   NABoolean utilISPFound = FALSE;
   NABoolean isPurgedata = FALSE;
-  Int32 index = 0;
+  int index = 0;
   if (p) {
     if (displayFound) {
       // Upshift the token before comparing
@@ -1323,7 +1323,7 @@ NABoolean Parser::processSpecialDDL(const char *inputStr, size_t inputStrLen, Ex
   NABoolean ustat = FALSE;  // will be TRUE if the special DDL is for Update Statistics
 
   if (inputStrLen == 0) inputStrLen = strlen(inputStr);
-  Int32 newStrLen = inputStrLen;
+  int newStrLen = inputStrLen;
   // Exclude trailing null characters from the count
   while (newStrLen > 0 && inputStr[newStrLen - 1] == 0) newStrLen--;
 
@@ -1407,7 +1407,7 @@ void Parser::ResetLexer(void) {
   ParNameLocListPtr = NULL;
 }
 
-void HQCParseKey::addTokenToNormalizedString(Int32 &tokCod) {
+void HQCParseKey::addTokenToNormalizedString(int &tokCod) {
   if (SqlParser_CurrentParser->getLexer()->isLiteral4HQC(tokCod)) {
     keyText_ += "#np# ";
     NAString *literal = unicodeToChar(SqlParser_CurrentParser->YYText(), SqlParser_CurrentParser->YYLeng(),
@@ -1458,7 +1458,7 @@ void HQCParseKey::addTokenToNormalizedString(Int32 &tokCod) {
 //KSKSKS
 NAWchar *Parser::wInputStr()
 {
-  Int32 i;
+  int i;
   static NAWchar *temp2 = (NAWchar *)  111111111;  // 0x069F68C7
   static NAWchar *temp3 = (NAWchar *) 1412509744;  // 0x54313030
 
@@ -1478,9 +1478,9 @@ NAWchar *Parser::wInputStr()
 //KSKSKS
 */
 
-Int32 yylex(YYSTYPE *lvalp) { return SqlParser_CurrentParser ? SqlParser_CurrentParser->yylex(lvalp) : 0; }
+int yylex(YYSTYPE *lvalp) { return SqlParser_CurrentParser ? SqlParser_CurrentParser->yylex(lvalp) : 0; }
 
-void ParserAssertInternal(const char *condition, const char *file, Int32 num) {
+void ParserAssertInternal(const char *condition, const char *file, int num) {
   // Put the internal error into the diags area if there is one
 
   *SqlParser_Diags << DgSqlCode(-3000) << DgInt0(num) << DgString0(condition) << DgString1(file);
@@ -1488,7 +1488,7 @@ void ParserAssertInternal(const char *condition, const char *file, Int32 num) {
   CmpInternalException(condition, file, num).throwException();
 }
 
-void ParserAbortInternal(const char *condition, const char *file, Int32 num) {
+void ParserAbortInternal(const char *condition, const char *file, int num) {
   cerr << "Internal error (" << condition << ") at " << file << ", line " << num << ", aborting." << endl;
   throw EHBreakException(file, num);
 }
@@ -1497,10 +1497,10 @@ void ParserAbortInternal(const char *condition, const char *file, Int32 num) {
 // The parsing routine which the preprocessor must call,
 // as well as arkcmp/cmpmod.cpp routines.
 // -----------------------------------------------------------------------
-Int32 sql_parse(const char *str, Int32 len, CharInfo::CharSet charset, StmtNode **stmt_node_ptr_ptr
+int sql_parse(const char *str, int len, CharInfo::CharSet charset, StmtNode **stmt_node_ptr_ptr
                 /***, SqlParser_Flags_Enum flags ***/) {
   ExprNode *node;
-  Int32 result = 0;
+  int result = 0;
 
   Parser *parser = new Parser(cmpCurrentContext);
   try {

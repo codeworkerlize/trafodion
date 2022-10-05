@@ -95,15 +95,15 @@ const CostScalar csOneKiloBytes = 1024.0;
 // Because IEEE exponent is biased (increased by 1023)
 // If we want to check the result of IEEE multiplication we need to
 // compare the sum of two exponents with 2046 + CS_MAX_BIN_EXP
-const Int32 maxBiasedExpForMult = CS_MAX_BIN_EXP + 2046;
-const Int32 minBiasedExpForMult = CS_MIN_BIN_EXP + 2046;
+const int maxBiasedExpForMult = CS_MAX_BIN_EXP + 2046;
+const int minBiasedExpForMult = CS_MIN_BIN_EXP + 2046;
 
 CostScalar CostScalar::operator*(const CostScalar &other) const {
   {
     IEEE_double *X = (IEEE_double *)&dpv_;
     IEEE_double *Y = (IEEE_double *)&(other.dpv_);
 
-    register Int32 prodExp = X->field.exp + Y->field.exp;
+    register int prodExp = X->field.exp + Y->field.exp;
     if (prodExp < minBiasedExpForMult) {
       udflwCount_++;
       return csZero;
@@ -132,7 +132,7 @@ CostScalar CostScalar::operator/(const CostScalar &other) const {
         return csMin;
     }
 
-    register Int32 divExp = X->field.exp;
+    register int divExp = X->field.exp;
     divExp -= Y->field.exp;
     if (divExp < CS_MIN_BIN_EXP) {
       udflwCount_++;

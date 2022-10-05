@@ -270,7 +270,7 @@ const size_t DEFAULT_MAX_INCREMENT = 4194304;
 #ifdef NA_YOS_SIMULATION
 // On Windows NT, use malloc16() and free16() to aligned memory like it
 // is on NSK.
-void *malloc16(Int32 size) {
+void *malloc16(int size) {
   int startAddr, retAddr, *saveStartAddr;
   startAddr = (int)malloc(size + 20);
   if (startAddr == 0) return (void *)NULL;
@@ -511,7 +511,7 @@ inline NATreeFragment **NATreeFragment::getChildAddr(UInt32 childNo) { return &c
 inline NATreeFragment *NATreeFragment::leftmostChild() { return (child_[0] != 0 ? child_[0] : child_[1]); }
 
 // Set either the left or right child of an NATreeFragment
-inline void NATreeFragment::setChild(Int32 childNo, NATreeFragment *p) { child_[childNo] = p; }
+inline void NATreeFragment::setChild(int childNo, NATreeFragment *p) { child_[childNo] = p; }
 
 // Get the parent of an NATreeFragment
 inline NATreeFragment *NATreeFragment::getParent() { return parent_; }
@@ -536,7 +536,7 @@ int NAMemory::getVmSize() {
   pid_t myPid;
   char fileName[32], buffer[1024], *currPtr;
   size_t bytesRead;
-  Int32 success;
+  int success;
   ULng32 memSize;  // VMSize in KB
   if (procStatusFile_ == 0) {
     myPid = getpid();
@@ -600,7 +600,7 @@ NABlock *NAMemory::allocateMMapBlock(size_t s) {
 // calling this function.
 inline void NAMemory::deallocateMMapBlock(NABlock *blk) {
   allocationDecrement(blk->size_);
-  Int32 munmapRetVal;
+  int munmapRetVal;
   munmapRetVal = munmap((void *)blk, blk->size_);
   if (munmapRetVal == -1) munmapErrno_ = errno;
 }
@@ -1927,8 +1927,8 @@ NABlock *NAHeap::allocateBlock(size_t size, NABoolean failureIsFatal) {
           // making one core-file of myself while holding semaphore.
           // Then bring down this node.
           genLinuxCorefile("Shared Segment might be full");
-          Int32 nid = 0;
-          Int32 pid = 0;
+          int nid = 0;
+          int pid = 0;
           if (XZFIL_ERR_OK == msg_mon_get_my_info(&nid, &pid, NULL, 0, NULL, NULL, NULL, NULL)) {
             // The SSMP is responsible for preventing leaks. So get a
             // corefile of it.
@@ -1950,7 +1950,7 @@ NABlock *NAHeap::allocateBlock(size_t size, NABoolean failureIsFatal) {
               char coreFile[1024];
               msg_mon_dump_process_name(NULL, ssmpName, coreFile);
             }
-            Int32 ndRetcode = msg_mon_node_down2(nid, "RMS shared segment is exhausted.");
+            int ndRetcode = msg_mon_node_down2(nid, "RMS shared segment is exhausted.");
             sleep(30);
             NAExit(0);  // already made a core.
           } else
@@ -1989,8 +1989,8 @@ NABlock *NAHeap::allocateBlock(size_t size, NABoolean failureIsFatal) {
 
 void NAMemory::showStats(ULng32 level) {
   char indent[100];
-  Int32 i = 0;
-  for (; i < (2 + 2 * (Int32)level); i++) indent[i] = ' ';
+  int i = 0;
+  for (; i < (2 + 2 * (int)level); i++) indent[i] = ' ';
   indent[i] = '\0';
 
   cerr << indent << "NAMemory: " << this << " is a ";
@@ -2859,7 +2859,7 @@ void NAHeap::deallocateHeapMemory(void *addr) {
   NAHeapFragment *q = p;
   size_t qsize = psize;
 
-  Int32 mergeFlags = NO_MERGE;
+  int mergeFlags = NO_MERGE;
 
   if (p->pinuse()) {
     firstFragmentBit = p->getFirstFragmentBit();
@@ -3612,15 +3612,15 @@ void DefaultIpcHeap::dumpIpcHeapInfo(ostream *outstream, int indent) {
 
 // Release unused memory in the heap back to kernel. This will help
 // reduce the memory pressure and increase the free page count.
-void NAHeapFragment::releaseFreePages(NAHeapFragment *prev, NAHeapFragment *next, Int32 mergeFlags) {}
+void NAHeapFragment::releaseFreePages(NAHeapFragment *prev, NAHeapFragment *next, int mergeFlags) {}
 
 SEG_ID gStatsSegmentId_ = -1;
 
 SEG_ID getStatsSegmentId()
 
 {
-  Int32 segid;
-  Int32 error;
+  int segid;
+  int error;
   if (gStatsSegmentId_ == -1) {
     error = msg_mon_get_my_segid(&segid);
     assert(error == 0);  // XZFIL_ERR_OK);

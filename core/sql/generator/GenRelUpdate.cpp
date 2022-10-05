@@ -135,7 +135,7 @@ static short genUpdExpr(Generator *generator,
                         TableDesc *tableDesc,            // IN
                         const IndexDesc *indexDesc,      // IN
                         ValueIdArray &recExprArray,      // IN
-                        const Int32 updatedRowAtpIndex,  // IN
+                        const int updatedRowAtpIndex,  // IN
                         ex_expr **updateExpr,            // OUT
                         ULng32 &updateRowLen,            // OUT
                         ExpTupleDesc **ufRowTupleDesc,   // OUT fetched/updated RowTupleDesc,
@@ -320,14 +320,14 @@ static short genUpdConstraintExpr(Generator *generator, ItemExpr *constrTree, co
 
 static short genHbaseUpdOrInsertExpr(Generator *generator, NABoolean isInsert,
                                      ValueIdArray &updRecExprArray,          // IN
-                                     const Int32 updateTuppIndex,            // IN
+                                     const int updateTuppIndex,            // IN
                                      ex_expr **updateExpr,                   // OUT
                                      ULng32 &updateRowLen,                   // OUT
                                      ExpTupleDesc **updateTupleDesc,         // OUT updated RowTupleDesc,
                                      Queue *&listOfUpdatedColNames,          // OUT
                                      ex_expr **mergeInsertRowIdExpr,         // out
                                      ULng32 &mergeInsertRowIdLen,            // OUT
-                                     const Int32 mergeInsertRowIdTuppIndex,  // IN
+                                     const int mergeInsertRowIdTuppIndex,  // IN
                                      const IndexDesc *indexDesc,             // IN
                                      const TableDesc *tableDesc)             // IN
 {
@@ -538,7 +538,7 @@ static void orderColumnsByAlignment(NAArray<BaseColumn *> columns, UInt32 numCol
   NAList<BaseColumn *> align1(STMTHEAP, 5);
   BaseColumn *currColumn;
   CollIndex i, k;
-  Int32 alignmentSize;
+  int alignmentSize;
 
   for (i = 0, k = 0; i < numColumns; i++) {
     if (columns.used(i)) {
@@ -612,12 +612,12 @@ short HbaseDelete::codeGen(Generator *generator) {
 
   ex_cri_desc *returnedDesc = NULL;
 
-  const Int32 work_atp = 1;
-  const Int32 convertTuppIndex = 2;
-  const Int32 rowIdTuppIndex = 3;
-  const Int32 asciiTuppIndex = 4;
-  const Int32 rowIdAsciiTuppIndex = 5;
-  const Int32 keyColValTuppIndex = 6;
+  const int work_atp = 1;
+  const int convertTuppIndex = 2;
+  const int rowIdTuppIndex = 3;
+  const int asciiTuppIndex = 4;
+  const int rowIdAsciiTuppIndex = 5;
+  const int keyColValTuppIndex = 6;
 
   ULng32 asciiRowLen = 0;
   ExpTupleDesc *asciiTupleDesc = 0;
@@ -931,7 +931,7 @@ short HbaseDelete::codeGen(Generator *generator) {
   buffersize = MAXOF(3 * convertRowLen, buffersize);
   queue_index upqueuelength = (queue_index)getDefault(GEN_DPSO_SIZE_UP);
   queue_index downqueuelength = (queue_index)getDefault(GEN_DPSO_SIZE_DOWN);
-  Int32 numBuffers = getDefault(GEN_DPUO_NUM_BUFFERS);
+  int numBuffers = getDefault(GEN_DPUO_NUM_BUFFERS);
 
   char *tablename = NULL;
   if (FileScan::genTableName(generator, space, getTableName(), getTableDesc()->getNATable(),
@@ -1228,19 +1228,19 @@ short HbaseUpdate::codeGen(Generator *generator) {
 
   ex_cri_desc *returnedDesc = NULL;
 
-  const Int32 work_atp = 1;
-  const Int32 convertTuppIndex = 2;
-  const Int32 rowIdTuppIndex = 3;
-  const Int32 asciiTuppIndex = 4;
-  const Int32 rowIdAsciiTuppIndex = 5;
-  const Int32 updateTuppIndex = 6;
-  const Int32 mergeInsertTuppIndex = 7;
-  const Int32 mergeInsertRowIdTuppIndex = 8;
-  const Int32 keyColValTuppIndex = 9;
-  Int32 mergeIUDIndicatorTuppIndex = 0;
+  const int work_atp = 1;
+  const int convertTuppIndex = 2;
+  const int rowIdTuppIndex = 3;
+  const int asciiTuppIndex = 4;
+  const int rowIdAsciiTuppIndex = 5;
+  const int updateTuppIndex = 6;
+  const int mergeInsertTuppIndex = 7;
+  const int mergeInsertRowIdTuppIndex = 8;
+  const int keyColValTuppIndex = 9;
+  int mergeIUDIndicatorTuppIndex = 0;
   // Do not use 10 as the next available tupp index. Please use 11 and up next
   // The 10th tuple index is used by merge statement below.
-  const Int32 hbTagTuppIndex = 11;
+  const int hbTagTuppIndex = 11;
 
   Attributes *iudIndicatorAttr = NULL;
 
@@ -1799,7 +1799,7 @@ short HbaseUpdate::codeGen(Generator *generator) {
 
   queue_index upqueuelength = (queue_index)getDefault(GEN_DPSO_SIZE_UP);
   queue_index downqueuelength = (queue_index)getDefault(GEN_DPSO_SIZE_DOWN);
-  Int32 numBuffers = getDefault(GEN_DPUO_NUM_BUFFERS);
+  int numBuffers = getDefault(GEN_DPUO_NUM_BUFFERS);
 
   char *tablename = NULL;
   if (FileScan::genTableName(generator, space, getTableName(), getTableDesc()->getNATable(),
@@ -2048,9 +2048,9 @@ short HbaseInsert::codeGen(Generator *generator) {
 
   if (returnRow) returnedDesc = new (space) ex_cri_desc(givenDesc->noTuples() + 1, space);
 
-  const Int32 returnRowTuppIndex = returnedDesc->noTuples() - 1;
+  const int returnRowTuppIndex = returnedDesc->noTuples() - 1;
 
-  const Int32 work_atp = 1;
+  const int work_atp = 1;
   ex_cri_desc *workCriDesc = NULL;
   const UInt16 insertTuppIndex = 2;
   const UInt16 rowIdTuppIndex = 3;
@@ -2470,7 +2470,7 @@ short HbaseInsert::codeGen(Generator *generator) {
 
   queue_index upqueuelength = (queue_index)getDefault(GEN_DP2I_SIZE_UP);
   queue_index downqueuelength = (queue_index)getDefault(GEN_DP2I_SIZE_DOWN);
-  Int32 numBuffers = getDefault(GEN_DP2I_NUM_BUFFERS);
+  int numBuffers = getDefault(GEN_DP2I_NUM_BUFFERS);
 
   if ((getInsertType() == Insert::VSBB_INSERT_USER ||  // covers upsert
        getInsertType() == Insert::UPSERT_LOAD) &&      // covers upsert using load and bulk load

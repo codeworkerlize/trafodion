@@ -25,7 +25,7 @@
 #include "common/str.h"
 #include "ExpAlignedFormat.h"
 
-Int32 ExpAlignedFormat::setupHeaderAndVOAs(UInt32 numFields, UInt32 numNullableFields, UInt32 numVarcharFields) {
+int ExpAlignedFormat::setupHeaderAndVOAs(UInt32 numFields, UInt32 numNullableFields, UInt32 numVarcharFields) {
   UInt32 hdrSize = getHdrSize();
   firstFixed_ = hdrSize;
   bitmapOffset_ = hdrSize;
@@ -43,12 +43,12 @@ Int32 ExpAlignedFormat::setupHeaderAndVOAs(UInt32 numFields, UInt32 numNullableF
   return 0;
 }
 
-Int32 ExpAlignedFormat::copyData(UInt32 fieldNum, char *dataPtr, UInt32 dataLen, NABoolean isVarchar) {
+int ExpAlignedFormat::copyData(UInt32 fieldNum, char *dataPtr, UInt32 dataLen, NABoolean isVarchar) {
   if (isVarchar) return -1;
 
   clearNullValue(fieldNum);
 
-  Int32 currEndOffset = getFirstFixedOffset() + (fieldNum - 1) * dataLen;
+  int currEndOffset = getFirstFixedOffset() + (fieldNum - 1) * dataLen;
   char *eafDataPtr = (char *)this + currEndOffset;
   str_cpy_all(eafDataPtr, dataPtr, dataLen);
 

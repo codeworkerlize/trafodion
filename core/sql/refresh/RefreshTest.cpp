@@ -109,7 +109,7 @@ void SetUser(const char *argAfterOp) {
 	
 	UInt32 buflen = MAX_PRINTABLE_SID_LENGTH;
 	char sBuf[MAX_PRINTABLE_SID_LENGTH]; // Buffer for printable SID.
-	Int32 status;
+	int status;
 
 	if ( SECURITY_APP_PRIV_() )   // Silently ignore, if not Super.
      {
@@ -140,7 +140,7 @@ void HandleExecuteException(CDSException &ex) {
   char buffer[BUFSIZE];
   CDSString msg;
 
-  for (Int32 i = 0; i < nerr; i++) {
+  for (int i = 0; i < nerr; i++) {
     ex.GetErrorMsg(i, buffer, BUFSIZE);
 
     if (buffer[0] != 0) {
@@ -157,8 +157,8 @@ void HandleExecuteException(CDSException &ex) {
 
 // Main Params :	1. number of allowed remote processes
 //					2. Sql user id
-Int32 main(Int32 argc, char *argv[]) {
-  Int32 numOfProcesses = 0;
+int main(int argc, char *argv[]) {
+  int numOfProcesses = 0;
   if (argc != 3) {
     cout << "The command line parameters should be :" << endl;
     cout << "1. Number of processes" << endl;
@@ -200,7 +200,7 @@ void RefreshTestController::Init() {
 
   transManager_.OpenTMF();
 
-  for (Int32 i = 0; i < numOfProcesses_; i++) {
+  for (int i = 0; i < numOfProcesses_; i++) {
     InitiateTaskProcess();
   }
 
@@ -219,9 +219,9 @@ void RefreshTestController::Init() {
 
   CDMResultSet *pResult = pStat->ExecuteQuery();
 
-  const Int32 kGroupId = 1;
-  const Int32 kProcessId = 2;
-  const Int32 kNumOfStatements = 3;
+  const int kGroupId = 1;
+  const int kProcessId = 2;
+  const int kNumOfStatements = 3;
 
   BOOL first = TRUE;
 
@@ -266,10 +266,10 @@ void RefreshTestController::Init() {
 //--------------------------------------------------------------------------//
 //	RefreshTestController::InitiateTaskProcess()
 //--------------------------------------------------------------------------//
-Int32 RefreshTestController::InitiateTaskProcess() {
+int RefreshTestController::InitiateTaskProcess() {
   CRUOptions option;
 
-  const Int32 bufferSize = CUOFsIpcMessageTranslator::MaxMsgSize;
+  const int bufferSize = CUOFsIpcMessageTranslator::MaxMsgSize;
 
   char buffer[bufferSize];
 
@@ -375,7 +375,7 @@ void RefreshTestController::GroupSendForInitialization() {
 //--------------------------------------------------------------------------//
 //	RefreshTestController::SendForInitialization()
 //--------------------------------------------------------------------------//
-void RefreshTestController::SendForInitialization(Int32 groupId, Int32 processId, Int32 numOfStmt) {
+void RefreshTestController::SendForInitialization(int groupId, int processId, int numOfStmt) {
   CRUTestTaskExecutor *pExecutor = new CRUTestTaskExecutor();
 
   pExecutor->Init();
@@ -400,7 +400,7 @@ void RefreshTestController::SendForInitialization(Int32 groupId, Int32 processId
 void RefreshTestController::SendExecutor(CRUTaskExecutor &executor) {
   CUOFsIpcMessageTranslator *pTranslator = NULL;
 
-  for (Int32 i = 2;; i * 2) {
+  for (int i = 2;; i * 2) {
     pTranslator = &(executor.GetTranslator());
 
     try {
@@ -451,7 +451,7 @@ void RefreshTestController::SendSyncToAllExecutors() {
 //	RefreshTestController::SendExecutor()
 //--------------------------------------------------------------------------//
 void RefreshTestController::WaitForAll() {
-  Int32 return_counter = 0;
+  int return_counter = 0;
 
   while (return_counter < activeProcesses_) {
     int pid = processPool_.ReceiveFromAnyProcess(-1);  // An indefinite wait
@@ -489,9 +489,9 @@ void RefreshTestController::HandleReturnOfExecutor(int pid) {
     ex.SetError(IDS_RU_REMOTE_EXECUTION_FAILURE);
 
     cout << "Remote Exception recieved ,Details are :" << endl;
-    Int32 num = ex.GetNumErrors();
-    for (Int32 i = 0; i < num; i++) {
-      const Int32 len = ERROR_BUFF_SIZE;  // buffer length
+    int num = ex.GetNumErrors();
+    for (int i = 0; i < num; i++) {
+      const int len = ERROR_BUFF_SIZE;  // buffer length
       char buffer[len];                   // exception message buffer
 
       int code = ex.GetErrorCode(i);
@@ -531,10 +531,10 @@ CRUTaskExecutor *RefreshTestController::FindRunningExecutor(int pid) {
 //--------------------------------------------------------------------------//
 //	RefreshTestController::SaveTime()
 //--------------------------------------------------------------------------//
-void RefreshTestController::SaveTime(Int32 groupId, Int32 processId) {
+void RefreshTestController::SaveTime(int groupId, int processId) {
   CDMPreparedStatement *pStmt = dynamicSQLContainer_.GetPreparedStatement(1);
 
-  Int32 afterSyncInt = GetState() == EX_WAIT_FOR_ALL_RETURN_FROM_COMPILATION ? 0 : 1;
+  int afterSyncInt = GetState() == EX_WAIT_FOR_ALL_RETURN_FROM_COMPILATION ? 0 : 1;
   pStmt->SetInt(1, groupId);
   pStmt->SetInt(2, processId + 1);
   pStmt->SetInt(3, afterSyncInt);

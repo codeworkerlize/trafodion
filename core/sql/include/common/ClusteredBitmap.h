@@ -205,23 +205,23 @@ class ClusteredBitmap : public NABasicObject {
   static void initializeBitmap(cb_int_t *bits);
 
   // Count the number of set bits in a 64-byte bitmap.
-  static Int32 countBits(cb_int_t *bits);
+  static int countBits(cb_int_t *bits);
 
   // Copy the 64-byte bitmap to another 64-byte bitmap
   static void copyBits(cb_int_t *tobits, cb_int_t *frombits);
 
   // Copy the 64-byte bitmap to another 64-byte bitmap.  Also return
   // the number of bits that are set.
-  static Int32 copyCountBits(cb_int_t *tobits, cb_int_t *frombits);
+  static int copyCountBits(cb_int_t *tobits, cb_int_t *frombits);
 
   // Logically-OR two bit arrays storing the results in the first array
-  static Int32 orBits(cb_int_t *tobits, cb_int_t *frombits);
+  static int orBits(cb_int_t *tobits, cb_int_t *frombits);
 
   // Logically-AND two bit arrays storing the results in the first array
-  static Int32 andBits(cb_int_t *tobits, cb_int_t *otherbits);
+  static int andBits(cb_int_t *tobits, cb_int_t *otherbits);
 
   // Clear bits in the first array that are set in the second array.
-  static Int32 clearBits(cb_int_t *tobits, cb_int_t *frombits);
+  static int clearBits(cb_int_t *tobits, cb_int_t *frombits);
 
   // Increase the size of the bitmap if needed
   void increaseBitmapMapSize(UInt32 numNeeded);
@@ -268,7 +268,7 @@ class ClusteredBitmapIterator : public NABasicObject {
 
  private:
   ClusteredBitmap &bitMap_;
-  Int32 idx_;
+  int idx_;
 };
 
 // An abstract class to represent ranges of values.
@@ -283,7 +283,7 @@ class RangeOfValues : public NABasicObject {
 
   virtual RangeOfValues *clone(UInt32 packedSpaceCap, CollHeap *heap) = 0;
 
-  virtual NABoolean insert(Int32 value) = 0;
+  virtual NABoolean insert(int value) = 0;
   virtual NABoolean insert(UInt32 value) = 0;
   virtual NABoolean insert(long value) = 0;
   virtual NABoolean insert(char *, int) = 0;
@@ -292,7 +292,7 @@ class RangeOfValues : public NABasicObject {
   virtual NABoolean insertTime(char *, int) = 0;
   virtual NABoolean insertTimestamp(char *, int) = 0;
 
-  virtual NABoolean lookup(Int32 value) = 0;
+  virtual NABoolean lookup(int value) = 0;
   virtual NABoolean lookup(UInt32 value) = 0;
   virtual NABoolean lookup(long value) = 0;
   virtual NABoolean lookup(char *, int) = 0;
@@ -301,7 +301,7 @@ class RangeOfValues : public NABasicObject {
   virtual NABoolean lookupTime(char *, int) = 0;
   virtual NABoolean lookupTimestamp(char *, int) = 0;
 
-  virtual RangeOfValues &remove(Int32 value) { return *this; };
+  virtual RangeOfValues &remove(int value) { return *this; };
 
   // total number of ranges
   virtual UInt32 entries(NABoolean estimate = FALSE) = 0;
@@ -327,7 +327,7 @@ class RangeOfValues : public NABasicObject {
   void setEnable(NABoolean x) { enabled_ = x; };
 
   // The useful status, when enabled.
-  virtual NABoolean isUseful(Int32 maxNumEntries = -1) { return TRUE; };
+  virtual NABoolean isUseful(int maxNumEntries = -1) { return TRUE; };
 
   static UInt32 minPackedLength() { return sizeof(UInt32) + sizeof(NABoolean); }
 
@@ -362,7 +362,7 @@ class ClusteredBitmapForIntegers : public RangeOfValues {
     return new (heap) ClusteredBitmapForIntegers(packedSpaceCap, heap);
   }
 
-  NABoolean insert(Int32 value);
+  NABoolean insert(int value);
   NABoolean insert(UInt32 value);
   NABoolean insert(long value) { return TRUE; };
   NABoolean insert(char *, int) { return TRUE; };
@@ -371,7 +371,7 @@ class ClusteredBitmapForIntegers : public RangeOfValues {
   NABoolean insertTime(char *, int) { return TRUE; };
   NABoolean insertTimestamp(char *, int) { return TRUE; };
 
-  NABoolean lookup(Int32 value) { return FALSE; };
+  NABoolean lookup(int value) { return FALSE; };
   NABoolean lookup(UInt32 value) { return FALSE; };
   NABoolean lookup(long value) { return FALSE; };
   NABoolean lookup(char *, int) { return FALSE; };
@@ -380,7 +380,7 @@ class ClusteredBitmapForIntegers : public RangeOfValues {
   NABoolean lookupTime(char *, int) { return FALSE; };
   NABoolean lookupTimestamp(char *, int) { return FALSE; };
 
-  RangeOfValues &remove(Int32 value);
+  RangeOfValues &remove(int value);
 
   UInt32 entries(NABoolean estimate = FALSE);
 
@@ -420,7 +420,7 @@ class RangeSpecRT : public RangeOfValues {
 
   RangeOfValues *clone(UInt32 packedSpaceCap, CollHeap *heap) { return new (heap) RangeSpecRT(packedSpaceCap, heap); }
 
-  NABoolean insert(Int32 value);
+  NABoolean insert(int value);
   NABoolean insert(UInt32 value);
   NABoolean insert(long value);
   NABoolean insert(char *, int);
@@ -429,7 +429,7 @@ class RangeSpecRT : public RangeOfValues {
   NABoolean insertTime(char *, int);
   NABoolean insertTimestamp(char *, int);
 
-  NABoolean lookup(Int32 value);
+  NABoolean lookup(int value);
   NABoolean lookup(UInt32 value);
   NABoolean lookup(long value);
   NABoolean lookup(char *, int);
@@ -438,7 +438,7 @@ class RangeSpecRT : public RangeOfValues {
   NABoolean lookupTime(char *, int);
   NABoolean lookupTimestamp(char *, int);
 
-  RangeOfValues &remove(Int32 value);
+  RangeOfValues &remove(int value);
 
   UInt32 entries(NABoolean estimate = FALSE) { return rs_.getTotalRanges(); };
 
@@ -477,7 +477,7 @@ class BloomFilterRT : public RangeOfValues {
 
   // Compute the hash with the data
   // in big endian byte order.
-  NABoolean insert(Int32 value);
+  NABoolean insert(int value);
   NABoolean insert(UInt32 value);
   NABoolean insert(long value);
   NABoolean insert(wchar_t *, int);
@@ -494,7 +494,7 @@ class BloomFilterRT : public RangeOfValues {
 
   // Compute the hash with the data
   // in big endian byte order.
-  NABoolean lookup(Int32 value);
+  NABoolean lookup(int value);
   NABoolean lookup(UInt32 value);
   NABoolean lookup(long value);
   NABoolean lookup(wchar_t *, int);
@@ -513,7 +513,7 @@ class BloomFilterRT : public RangeOfValues {
 
   void clear() { rbf_.clear(); }
 
-  NABoolean isUseful(Int32 maxNumEntries = -1) { return rbf_.isUseful(maxNumEntries); }
+  NABoolean isUseful(int maxNumEntries = -1) { return rbf_.isUseful(maxNumEntries); }
 
   UInt32 getPackedLength() { return RangeOfValues::getPackedLength() + rbf_.getPackedLength(); }
 
@@ -549,14 +549,14 @@ class NativeBloomFilterRT : public BloomFilterRT {
 
   // Compute the hash with the data
   // in big endian byte order.
-  NABoolean insert(Int32 value);
+  NABoolean insert(int value);
   NABoolean insert(UInt32 value);
   NABoolean insert(long value);
   NABoolean insert(wchar_t *, int);
 
   // Compute the hash with the data
   // in big endian byte order.
-  NABoolean lookup(Int32 value);
+  NABoolean lookup(int value);
   NABoolean lookup(UInt32 value);
   NABoolean lookup(long value);
   NABoolean lookup(wchar_t *, int);

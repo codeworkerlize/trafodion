@@ -98,10 +98,10 @@ void ComTdbRoot::init(
     int uniqueExecuteIdOffset,  // ++Triggers -
     int triggersStatusOffset, short triggersCount, long *triggersList, short tempTableCount,
     short baseTablenamePosition, NABoolean updDelInsert, NABoolean retryableStmt, NABoolean streamScan,
-    NABoolean embeddedUpdateOrDelete, Int32 streamTimeout, long explainPlanId, NABasicPtr qCacheInfo,
-    Int32 cacheVarsSize, SqlTableOpenInfo **udrStoiList, short udrCount, short maxResultSets, NABasicPtr queryCostInfo,
+    NABoolean embeddedUpdateOrDelete, int streamTimeout, long explainPlanId, NABasicPtr qCacheInfo,
+    int cacheVarsSize, SqlTableOpenInfo **udrStoiList, short udrCount, short maxResultSets, NABasicPtr queryCostInfo,
     UninitializedMvName *uninitializedMvList, short uninitializedMvCount, NABasicPtr compilerStatsInfo,
-    NABasicPtr rwrsInfo, Int32 numObjectUIDs, long *objectUIDs, CompilationStatsData *compilationStatsData,
+    NABasicPtr rwrsInfo, int numObjectUIDs, long *objectUIDs, CompilationStatsData *compilationStatsData,
     long sentryAuthExpirationTimeStamp, char *snapTmpLocation, Queue *listOfSnapshotscanTables, long queryHash) {
   rtFlags1_ = 0;
   rtFlags2_ = 0;
@@ -236,7 +236,7 @@ ComTdbRoot::~ComTdbRoot() {
   rtFlags1_ = 0;
 };
 
-Int32 ComTdbRoot::orderedQueueProtocol() const { return 0; }
+int ComTdbRoot::orderedQueueProtocol() const { return 0; }
 
 Long ComTdbRoot::pack(void *space) {
   if (childTdb.isNull()) {
@@ -348,12 +348,12 @@ NABoolean ComTdbRoot::isUpdateCol(const ComTdbRoot *updateTdb) {
 
   // Determine if all columns in the update TDB are contained in
   // this TDB which represents the root of a cursor declaration.
-  Int32 numFound = 0;
+  int numFound = 0;
 
-  for (Int32 i = 0; i < updateTdb->numUpdateCol_; i++) {
+  for (int i = 0; i < updateTdb->numUpdateCol_; i++) {
     int updateCol = updateTdb->updateColList_[i];
 
-    for (Int32 j = 0; j < numUpdateCol_; j++) {
+    for (int j = 0; j < numUpdateCol_; j++) {
       if (updateCol == updateColList_[j]) {
         numFound++;
         break;
@@ -364,14 +364,14 @@ NABoolean ComTdbRoot::isUpdateCol(const ComTdbRoot *updateTdb) {
   return numFound == updateTdb->numUpdateCol_;
 }
 
-void ComTdbRoot::setDisplayExecution(Int32 flag) {
+void ComTdbRoot::setDisplayExecution(int flag) {
   if (flag == 1)
     rtFlags1_ |= DISPLAY_EXECUTION;
   else if (flag == 2)
     rtFlags1_ |= DISPLAY_EXECUTION_USING_MSGUI;
 }
 
-Int32 ComTdbRoot::displayExecution() const {
+int ComTdbRoot::displayExecution() const {
   if (rtFlags1_ & DISPLAY_EXECUTION)
     return 1;
   else if (rtFlags1_ & DISPLAY_EXECUTION_USING_MSGUI)
@@ -406,7 +406,7 @@ void ComTdbRoot::displayContents(Space *space, ULng32 flag) {
     str_sprintf(buf, "rtFlags5_ = %#x ", rtFlags5_);
     space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
 
-    str_sprintf(buf, "queryType_ = %d", (Int32)queryType_);
+    str_sprintf(buf, "queryType_ = %d", (int)queryType_);
     space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
 
     str_sprintf(buf, "inputVarsSize_ = %d", inputVarsSize());
@@ -423,15 +423,15 @@ void ComTdbRoot::displayContents(Space *space, ULng32 flag) {
     }
 
     if (udrCount_ > 0 || maxResultSets_ > 0) {
-      str_sprintf(buf, "UDR count = %d, Max Result Sets = %d", (Int32)udrCount_, (Int32)maxResultSets_);
+      str_sprintf(buf, "UDR count = %d, Max Result Sets = %d", (int)udrCount_, (int)maxResultSets_);
       space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
     }
 
     if (uninitializedMvCount_ > 0) {
-      str_sprintf(buf, "Uninitialized MV count = %d", (Int32)uninitializedMvCount_);
+      str_sprintf(buf, "Uninitialized MV count = %d", (int)uninitializedMvCount_);
       space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
 
-      for (Int32 i = 0; i < uninitializedMvCount_; i++) {
+      for (int i = 0; i < uninitializedMvCount_; i++) {
         UninitializedMvName currentMv = uninitializedMvList_[i];
         str_sprintf(buf, "Uninitialized MV (physical=%s,ansi=%s)\n", currentMv.getPhysicalName(),
                     currentMv.getAnsiName());
@@ -579,7 +579,7 @@ NABoolean ComTdbRoot::aqrEnabledForSqlcode(int sqlcode) {
     return FALSE;
 }
 
-Int32 ComTdbRoot::getNumberOfUnpackedSecKeys(char *base) {
+int ComTdbRoot::getNumberOfUnpackedSecKeys(char *base) {
   // Since plan is "packed" when this routine is called, we must
   // find "real" pointer
   SecurityInvKeyInfo *SikInfoP = (SecurityInvKeyInfo *)(base - (char *)sikPtr_.getPointer());

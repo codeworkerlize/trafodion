@@ -49,7 +49,7 @@ class GroupOfNAString;
 class ControlAbstractClass : public RelExpr {
  public:
   ControlAbstractClass(OperatorTypeEnum otype, const NAString &sqlText, CharInfo::CharSet sqlTextCharSet,
-                       const NAString &token, const NAString &value, NABoolean dynamic, CollHeap *h, Int32 reset = 0)
+                       const NAString &token, const NAString &value, NABoolean dynamic, CollHeap *h, int reset = 0)
       : RelExpr(otype, NULL, NULL, h),
         sqlText_(sqlText, h),
         sqlTextCharSet_(sqlTextCharSet),
@@ -68,7 +68,7 @@ class ControlAbstractClass : public RelExpr {
   // virtual destructor
   virtual ~ControlAbstractClass();
 
-  virtual Int32 getArity() const { return 0; }
+  virtual int getArity() const { return 0; }
   virtual NABoolean isPhysical() const { return TRUE; }
   virtual HashValue topHash() { return 0; }
   virtual void getPotentialOutputValues(ValueIdSet &vs) const { vs.clear(); }
@@ -87,7 +87,7 @@ class ControlAbstractClass : public RelExpr {
   const NAString &getValue() const { return value_; }
   NAString &mutateToken() { return token_; }
   NAString &mutateValue() { return value_; }
-  Int32 &reset() { return reset_; }  // mutator
+  int &reset() { return reset_; }  // mutator
   NABoolean dynamic() const { return dynamic_; }
   NABoolean alterArkcmpEnvNow() const;
 
@@ -104,7 +104,7 @@ class ControlAbstractClass : public RelExpr {
   // because   SET SCHEMA '';   must *NOT* be allowed to mean CQD SCHEMA RESET
   // because Ansi says we must issue a syntax error for this.
   // It must be an int (values 0, 1, 2) for CQD * RESET RESET;
-  Int32 reset_;        // value is ignored; instead, RESET to prior val
+  int reset_;        // value is ignored; instead, RESET to prior val
   NABoolean dynamic_;  // a SET stmt, to be evaluated at runtime
 
  private:
@@ -174,7 +174,7 @@ class ControlQueryDefault : public ControlAbstractClass {
  public:
   ControlQueryDefault(const NAString &sqlText, CharInfo::CharSet sqlTextCharSet, const NAString &token,
                       const NAString &value, NABoolean dyn = FALSE, int holdOrRestoreCQD = 0,
-                      CollHeap *h = CmpCommon::statementHeap(), Int32 reset = 0);
+                      CollHeap *h = CmpCommon::statementHeap(), int reset = 0);
 
   // copy ctor
   ControlQueryDefault(const ControlQueryDefault &orig,
@@ -215,7 +215,7 @@ class ControlQueryDefault : public ControlAbstractClass {
 class ControlQueryDefaults : public ControlQueryDefault {
  public:
   ControlQueryDefaults(const NAString &sqlText, CharInfo::CharSet sqlTextCharSet, const NAList<GroupOfNAString *> *cqds,
-                       int holdOrRestoreCQD = 0, Int32 reset = 0, CollHeap *h = CmpCommon::statementHeap());
+                       int holdOrRestoreCQD = 0, int reset = 0, CollHeap *h = CmpCommon::statementHeap());
 
   // copy ctor
   ControlQueryDefaults(const ControlQueryDefaults &orig,

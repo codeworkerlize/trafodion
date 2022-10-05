@@ -210,11 +210,11 @@ void CRUObject::CreateDDLLock() {
   // Set up dummy (default) parameter values
   CDDDetailTextList details;
   CDSLocationList *pLocationList = NULL;
-  Int32 status = 0;
+  int status = 0;
   CreateDDLLock(details, pLocationList, status);
 }
 
-void CRUObject::CreateDDLLock(const CDDDetailTextList &details, CDSLocationList *pLocationList, Int32 status) {
+void CRUObject::CreateDDLLock(const CDDDetailTextList &details, CDSLocationList *pLocationList, int status) {
   // Write through the DDOL
   CDDLock *pLock = AddDDLLock("", CDDObject::eREFRESH, details, pLocationList, status);
   SaveDDLLockOperation();

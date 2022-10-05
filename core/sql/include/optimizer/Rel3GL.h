@@ -55,7 +55,7 @@ class CompoundStmt : public RelExpr {
 
   virtual ~CompoundStmt() {}
 
-  virtual Int32 getArity() const { return 2; }
+  virtual int getArity() const { return 2; }
 
   // Binder methods.
   virtual RelExpr *bindNode(BindWA *);
@@ -85,8 +85,8 @@ class CompoundStmt : public RelExpr {
 
  protected:
   // Internal support methods.
-  void enterVEGRegion(NormWA &, Int32 id, NABoolean create = FALSE);
-  void leaveVEGRegion(NormWA &, Int32 id);
+  void enterVEGRegion(NormWA &, int id, NABoolean create = FALSE);
+  void leaveVEGRegion(NormWA &, int id);
 };
 
 class PhysCompoundStmt : public CompoundStmt {

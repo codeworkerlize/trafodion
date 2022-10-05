@@ -580,7 +580,7 @@ void TableDesc::addPartPredToPrecondition(BindWA *bindWA, ItemExpr *selectPred) 
   ItemExpr *lowVal = NULL;
   ItemExpr *highVal = NULL;
   for (int i = 0; i < colCount; i++) {
-    Int32 position = colIdxArray[i];
+    int position = colIdxArray[i];
     QRDescGenerator *descGenerator = new (bindWA->wHeap()) QRDescGenerator(false, bindWA->wHeap());
     ValueIdSet colPredSet;
     for (int j = 0; j < selPredList.entries(); j++) {
@@ -644,9 +644,9 @@ void TableDesc::addPartPredToPrecondition(BindWA *bindWA, ItemExpr *selectPred) 
   ItemExpr *lowExpr = NULL;
   ItemExpr *highExpr = NULL;
   ItemExpr *condExpr = NULL;
-  Int32 lowValCount = low.entries();
-  Int32 highValCount = high.entries();
-  Int32 eqValCount = eqValueList.entries();
+  int lowValCount = low.entries();
+  int highValCount = high.entries();
+  int eqValCount = eqValueList.entries();
   if (eqValCount) {
     if (lowValCount > 0) {
       if (lowValCount == eqValCount) {
@@ -732,8 +732,8 @@ void TableDesc::addPartPredToConstraint(BindWA *bindWA) {
   PartRange *part = partitions_[0];
   BoolVal *retTrue = new (bindWA->wHeap()) BoolVal(ITM_RETURN_TRUE);
   BoolVal *retFalse = new (bindWA->wHeap()) BoolVal(ITM_RETURN_FALSE);
-  Int32 partColCount = part->entries();
-  const Int32 partIdx = part->getPartIndex();
+  int partColCount = part->entries();
+  const int partIdx = part->getPartIndex();
   CMPASSERT(partIdx >= 0);
   PartRangePerCol *partCol0 = (*part)[0];
 
@@ -885,7 +885,7 @@ void TableDesc::genPartitions(BindWA *bindWA, const NAPartitionArray &partList)
     NAString partEntityName(partList[i]->getPartitionEntityName(), bindWA->wHeap());
     Partition *partition =
         new (bindWA->wHeap()) Partition(bindWA->wHeap(), Partition::RANGE_PARTITION, partList[i]->getPartPosition(),
-                                        (Int32)partList.entries(), partName, partEntityName);
+                                        (int)partList.entries(), partName, partEntityName);
     partition->isSubPartition() = FALSE;
     LIST(BoundaryValue *) &boundList = partList[i]->getBoundaryValueList();
     const NATable *naTable = getNATable();
@@ -897,8 +897,8 @@ void TableDesc::genPartitions(BindWA *bindWA, const NAPartitionArray &partList)
     if (i == partList.entries() - 1) partition->isLastPart() = TRUE;
 
     NAColumnArray colAry = naTable->getNAColumnArray();
-    const Int32 *idxAry = naTable->getPartitionColIdxArray();
-    Int32 colCount = naTable->getPartitionColCount();
+    const int *idxAry = naTable->getPartitionColIdxArray();
+    int colCount = naTable->getPartitionColCount();
     CMPASSERT(colCount == boundList.entries());
     char buf[1000];
     for (int j = 0; j < boundList.entries(); j++) {
@@ -1299,9 +1299,9 @@ NABoolean TableDesc::isAnyHistWithPredsFakeOrSmallSample(const ValueIdSet &local
 LIST(NAString) * TableDesc::getMatchedPartions(BindWA *bindWA, ItemList *values) {
   ItemExpr *valExpr = values;
   ItemExpr *tmpExpr = values;
-  Int32 colCount = getNATable()->getPartitionColCount();
-  Int32 valCount = 0;
-  Int32 nullPos = -1;
+  int colCount = getNATable()->getPartitionColCount();
+  int valCount = 0;
+  int nullPos = -1;
 
   if (values && values->getOperatorType() == ITM_CONSTANT) {
     valCount = 1;
@@ -1333,7 +1333,7 @@ LIST(NAString) * TableDesc::getMatchedPartions(BindWA *bindWA, ItemList *values)
   LIST(NAString) *partNames = new (bindWA->wHeap()) LIST(NAString)(bindWA->wHeap());
 
   const LIST(Partition *) &partitions = getPartitionList();
-  const Int32 partCount = partitions.entries();
+  const int partCount = partitions.entries();
   int nullIndex = nullPos;
 
   for (int j = 0; j < partCount; j++) {
@@ -1375,7 +1375,7 @@ LIST(NAString) * TableDesc::getMatchedPartions(BindWA *bindWA, ItemList *values)
         if (constFoldExpr && cv) {
           // can get ConstValue
           if (cv && cv->getType()->getTypeQualifier() == NA_BOOLEAN_TYPE &&
-              *(reinterpret_cast<Int32 *>(cv->getConstValue())) == -1) {
+              *(reinterpret_cast<int *>(cv->getConstValue())) == -1) {
             *CmpCommon::diags() << DgSqlCode(-2304);
             bindWA->setErrStatus();
             return NULL;
@@ -1396,7 +1396,7 @@ LIST(NAString) * TableDesc::getMatchedPartions(BindWA *bindWA, ItemList *values)
     } else
       lowMatched = TRUE;
 
-    Int32 index = partitions[j]->getFirstMaxvalIdx();
+    int index = partitions[j]->getFirstMaxvalIdx();
     // the MAXVALUE partition, the first column's value is MAXVALUE
     if (index == 0) {
       if (lowMatched && partitions[j]->getFirstMaxvalIdx() == 0) partNames->insert(partitions[j]->getPartEntityName());
@@ -1460,7 +1460,7 @@ LIST(NAString) * TableDesc::getMatchedPartions(BindWA *bindWA, ItemList *values)
       if (constFoldExpr && cv) {
         // can get ConstValue
         if (cv && cv->getType()->getTypeQualifier() == NA_BOOLEAN_TYPE &&
-            *(reinterpret_cast<Int32 *>(cv->getConstValue())) == -1) {
+            *(reinterpret_cast<int *>(cv->getConstValue())) == -1) {
           *CmpCommon::diags() << DgSqlCode(-2304);
           bindWA->setErrStatus();
           return NULL;
@@ -1515,7 +1515,7 @@ LIST(NAString) * TableDesc::getMatchedPartInfo(BindWA *bindWA, ItemExprList valL
   }
 
   const LIST(PartRange *) &partRanges = getPartitions();
-  const Int32 partCount = partRanges.entries();
+  const int partCount = partRanges.entries();
   // The table has only one partition and the first partition
   // column's bounday is MAXVALUE, that means no limitation
   if (partCount == 1 && (*partRanges[0])[0]->isMaxValue()) {
@@ -1605,7 +1605,7 @@ LIST(NAString) * TableDesc::getMatchedPartInfo(BindWA *bindWA, ItemExpr *selectP
   int colCount = getNATable()->getPartitionColCount();
 
   const LIST(PartRange *) &partRanges = getPartitions();
-  const Int32 partCount = partRanges.entries();
+  const int partCount = partRanges.entries();
   // The table has only one partition and the first partition column's
   // bounday is MAXVALUE, that means no limitation
   if (partCount == 1 && (*partRanges[0])[0]->isMaxValue()) {
@@ -1638,7 +1638,7 @@ LIST(NAString) * TableDesc::getMatchedPartInfo(BindWA *bindWA, ItemExpr *selectP
   }
   if (tmpSelPredList.entries() > 0) {
     for (int i = 0; i < colCount; i++) {
-      Int32 position = colIdxArray[i];
+      int position = colIdxArray[i];
       QRDescGenerator *descGenerator = new (bindWA->wHeap()) QRDescGenerator(false, bindWA->wHeap());
       ValueIdSet colPredSet;
       for (int j = 0; j < tmpSelPredList.entries(); j++) {
@@ -1660,7 +1660,7 @@ LIST(NAString) * TableDesc::getMatchedPartInfo(BindWA *bindWA, ItemExpr *selectP
             colPredSet.addMember(item);
           else {
           }
-          // Int32 entries = colPredSet.entries();
+          // int entries = colPredSet.entries();
         } else if (child1.getItemExpr()->getOperatorType() == ITM_BASECOLUMN) {
           itemCol = child1.getItemExpr();
           const NAColumn *predCol = child1.getNAColumn();
@@ -1679,14 +1679,14 @@ LIST(NAString) * TableDesc::getMatchedPartInfo(BindWA *bindWA, ItemExpr *selectP
       OptRangeSpec *range = OptRangeSpec::createRangeSpec(descGenerator, colPredTmp->child(0), bindWA->wHeap(), FALSE);
       if (range == NULL) break;
       rangeList->insert(range);
-      Int32 rangeEntries = rangeList->entries();
+      int rangeEntries = rangeList->entries();
     }
   }
   if (rangeList->entries() > 0) {
     for (int i = 0; i < partCount; i++) {
       PartRange *partRange = partRanges[i];
       OptRangeSpec *selRange = NULL;
-      // Int32 colCount = rangeList->entries();
+      // int colCount = rangeList->entries();
       for (int j = 0; j < rangeList->entries(); j++) {
         PartRangePerCol *partRangePerCol = (*partRange)[j];
         if (partRangePerCol->isMaxValue() && j != 0) {

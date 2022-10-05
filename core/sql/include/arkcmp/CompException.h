@@ -71,12 +71,12 @@ class UserException : public BaseException {
 
 class DDLException : public BaseException {
  public:
-  DDLException(Int32 sqlcode, const char *fileName, UInt32 lineNum);
+  DDLException(int sqlcode, const char *fileName, UInt32 lineNum);
   virtual void throwException();
-  Int32 getSqlcode(void) { return sqlcode_; }
+  int getSqlcode(void) { return sqlcode_; }
 
  private:
-  Int32 sqlcode_;
+  int sqlcode_;
 };
 
 // FatalException is unrecoverable, give up the compilation if one is thrown
@@ -185,7 +185,7 @@ class CompCCAssert : public NABasicObject {
   static THREAD_P NABoolean useCCMPAssert_;
 };
 
-extern void CmpCCAssert(char *, char *, Int32);
+extern void CmpCCAssert(char *, char *, int);
 // The following CCMPASSERT is for supporting an assert mechanism
 // This is to let QA catch some assertions during their testing, but
 // also we do not want the customer to be effected.

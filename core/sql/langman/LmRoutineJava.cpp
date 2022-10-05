@@ -49,7 +49,7 @@ LmRoutineJava::LmRoutineJava(const char *sqlName, const char *externalName, cons
                              ComUInt32 numSqlParam, LmParameter *returnValue, ComUInt32 maxResultSets, char *routineSig,
                              ComBoolean udrForSPSQL, ComRoutineParamStyle paramStyle,
                              ComRoutineTransactionAttributes transactionAttrs, ComRoutineSQLAccess sqlAccessMode,
-                             ComRoutineExternalSecurity externalSecurity, Int32 routineOwnerId, const char *parentQid,
+                             ComRoutineExternalSecurity externalSecurity, int routineOwnerId, const char *parentQid,
                              const char *clientInfo, ComUInt32 inputRowLen, ComUInt32 outputRowLen,
                              const char *currentUserName, const char *sessionUserName, LmParameter *parameters,
                              LmLanguageManagerJava *lm, LmHandle routine, LmContainer *container, ComDiagsArea *da)
@@ -114,14 +114,14 @@ LmRoutineJava::LmRoutineJava(const char *sqlName, const char *externalName, cons
   if (isSPSQL()) {
     // SPSQL
     numParamsInSig_ = numSqlParam_ + maxResultSets_;
-    for (Int32 i = 0; i < (Int32)numSqlParam_; i++) {
+    for (int i = 0; i < (int)numSqlParam_; i++) {
       LmParameter &p = lmParams_[i];
       p.setObjMapping();
     }
   } else {
     LmJavaSignature lmSig(routineSig, collHeap());
-    Int32 result = lmSig.getParamCount();
-    if (result < (Int32)numSqlParam_) {
+    int result = lmSig.getParamCount();
+    if (result < (int)numSqlParam_) {
       *da << DgSqlCode(-LME_INTERNAL_ERROR)
           << DgString0(": LmJavaSignature::getParamCount() returned an invalid value.");
       return;
@@ -142,8 +142,8 @@ LmRoutineJava::LmRoutineJava(const char *sqlName, const char *externalName, cons
   // Allocate a 1-element array for each OUT/INOUT mode parameter.
   jvalue *jval = (jvalue *)javaParams_;
 
-  Int32 i = 0;
-  for (i = 0; i < (Int32)numSqlParam_; i++) {
+  int i = 0;
+  for (i = 0; i < (int)numSqlParam_; i++) {
     LmParameter &p = lmParams_[i];
 
     if (p.direction() == COM_INPUT_COLUMN) continue;
@@ -227,7 +227,7 @@ LmRoutineJava::LmRoutineJava(const char *sqlName, const char *externalName, cons
   }  // for()
 
   // Allocate a 1-element array for each result set parameter.
-  for (i = (Int32)numSqlParam_; i < (Int32)numParamsInSig_; i++) {
+  for (i = (int)numSqlParam_; i < (int)numParamsInSig_; i++) {
     jobjectArray ja = NULL;
 
     ja = jni->NewObjectArray(1, (jclass)lm->resultSetClass_, NULL);
@@ -263,7 +263,7 @@ LmRoutineJava::~LmRoutineJava() {
 
   // Release array refs for params, indicated
   // by non-null object.
-  for (Int32 i = 0; i < (Int32)numParamsInSig_; i++) {
+  for (int i = 0; i < (int)numParamsInSig_; i++) {
     if (jval[i].l != NULL) jni->DeleteLocalRef(jval[i].l);
   }
 
@@ -298,7 +298,7 @@ LmResult LmRoutineJava::generateDefAuthToken(char *defAuthToken, ComDiagsArea *d
   const int MAX_PROGRAM_DIR_LEN = 1024;
   char myProgramDir[MAX_PROGRAM_DIR_LEN + 1];
   short myProcessType;
-  Int32 myNode;
+  int myNode;
   char myNodeName[MAX_SEGMENT_NAME_LEN + 1];
   int myNodeNum;
   short myNodeNameLen = MAX_SEGMENT_NAME_LEN;
@@ -518,7 +518,7 @@ NABoolean LmRoutineJava::isDuplicateRS(LmHandle newRS) {
 //            in the Java method signature.
 // da       - ComDiagsArea object to report any errors.
 //            This object should not be NULL.
-LmResult LmRoutineJava::populateResultSetInfo(LmHandle newRS, Int32 paramPos, ComDiagsArea *da) {
+LmResult LmRoutineJava::populateResultSetInfo(LmHandle newRS, int paramPos, ComDiagsArea *da) {
   LmResult result = LM_OK;
   jobject newRSRef = (jobject)newRS;
 
@@ -586,7 +586,7 @@ LmResult LmRoutineJava::voidRoutine(void *dataPtr, LmParameter *) {
 
   if (isSPSQL()) {
     // This is a SPSQL in disguise
-    Int32 numParams = numParamsInSig_;
+    int numParams = numParamsInSig_;
     jvalue *params = (jvalue *)javaParams_;
     jstring name = jni->NewStringUTF(getSqlName());
     jobjectArray args = (jobjectArray)jni->NewObjectArray(numParams, jni->FindClass("java/lang/Object"), NULL);

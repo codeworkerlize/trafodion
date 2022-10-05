@@ -444,7 +444,7 @@ StmtDDLDropSequence *StmtDDLDropSequence::castToStmtDDLDropSequence() { return t
 // accessors
 //
 
-Int32 StmtDDLDropSequence::getArity() const { return 0; }
+int StmtDDLDropSequence::getArity() const { return 0; }
 
 ExprNode *StmtDDLDropSequence::getChild(int index) { return NULL; }
 

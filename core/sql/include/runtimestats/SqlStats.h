@@ -102,7 +102,7 @@ class ObjectEpochCache;
 
 // Test method invoked from tdm_arkcmp (as a test program) when
 // proper test options are suppiled to tdm_arkcmp.
-void testObjectEpochCache(Int32 argc, char **argv);
+void testObjectEpochCache(int argc, char **argv);
 
 class StmtStats {
  public:
@@ -239,7 +239,7 @@ class QueryIdInfo {
 
 class LockHolder {
  public:
-  LockHolder(Int32 nid = -1, Int32 pid = -1) : nid_(nid), pid_(pid) {}
+  LockHolder(int nid = -1, int pid = -1) : nid_(nid), pid_(pid) {}
 
   LockHolder(CliGlobals *cliGlobals);
 
@@ -247,10 +247,10 @@ class LockHolder {
     nid_ = -1;
     pid_ = -1;
   }
-  Int32 getNid() const { return nid_; }
-  Int32 getPid() const { return pid_; }
-  void setNid(Int32 nid) { nid_ = nid; }
-  void setPid(Int32 pid) { pid_ = pid; }
+  int getNid() const { return nid_; }
+  int getPid() const { return pid_; }
+  void setNid(int nid) { nid_ = nid; }
+  void setPid(int pid) { pid_ = pid; }
 
   bool valid() const { return (nid_ >= 0 && pid_ > 0); }
 
@@ -265,8 +265,8 @@ class LockHolder {
   }
 
  private:
-  Int32 nid_;
-  Int32 pid_;
+  int nid_;
+  int pid_;
 };
 
 #define OBJECT_LOCK_NAME_LEN 255
@@ -606,11 +606,11 @@ class StatsGlobals {
   inline void setAbortedSemPid() { abortedSemPid_ = semPid_; }
   long getNewestRevokeTimestamp() const { return newestRevokeTimestamp_; }
   void cleanupOldSikeys(long gcInterval);
-  int getSecInvalidKeys(CliGlobals *cliGlobals, long lastCallTimestamp, SQL_QIKEY[], Int32 maxNumSiKeys,
-                          Int32 *returnedNumSiKeys);
-  Int32 checkLobLock(CliGlobals *cliGlobals, char *&lobLockId);
+  int getSecInvalidKeys(CliGlobals *cliGlobals, long lastCallTimestamp, SQL_QIKEY[], int maxNumSiKeys,
+                          int *returnedNumSiKeys);
+  int checkLobLock(CliGlobals *cliGlobals, char *&lobLockId);
 
-  void mergeNewSikeys(Int32 numSikeys, SQL_QIKEY sikeys[]);
+  void mergeNewSikeys(int numSikeys, SQL_QIKEY sikeys[]);
 
   void init();
   NABoolean isShmDirty() { return isBeingUpdated_; }
@@ -626,14 +626,14 @@ class StatsGlobals {
   void setSsmpProcSemId(Long semId) { ssmpProcSemId_ = semId; }
   Long &getSsmpProcSemId() { return ssmpProcSemId_; }
   void setSscpProcSemId(Long semId) { sscpProcSemId_ = semId; }
-  void setSeabedError(Int32 error) { seabedError_ = error; }
-  void setRmsDeadLockSecs(Int32 secs) { rmsDeadLockSecs_ = secs; }
+  void setSeabedError(int error) { seabedError_ = error; }
+  void setRmsDeadLockSecs(int secs) { rmsDeadLockSecs_ = secs; }
   void setDumpRmsDeadLockProcess(NABoolean dump) { dumpRmsDeadLockProcess_ = dump; }
   NABoolean getInitError(pid_t pid, NABoolean &reportError);
   void setObjectEpochCache(ObjectEpochCache *epochCache) { epochCache_ = epochCache; }
   ObjectEpochCache *getObjectEpochCache();
   NAHeap *getEpochHeap();
-  Int32 calLimitLevel();
+  int calLimitLevel();
   void setDMLLockArraySize(unsigned short size) { dmlLockArraySize_ = size; }
   unsigned short dmlLockArraySize() const { return dmlLockArraySize_; }
   void setDDLLockArraySize(unsigned short size) { ddlLockArraySize_ = size; }
@@ -671,7 +671,7 @@ class StatsGlobals {
   pid_t releasingSemPid_;
   timespec releasingTimestamp_;
   timespec lockingTimestamp_;
-  Int32 seabedError_;
+  int seabedError_;
   bool seabedPidRecycle_;  // if true, then the most recent call to
                            // cleanupDanglingSemaphore detected the semaphore
                            // holding process is gone, but its pid was
@@ -686,14 +686,14 @@ class StatsGlobals {
   pid_t configuredPidMax_;
   SyncHashQueue *lobLocks_;
   long pidViolationCount_;
-  Int32 rmsDeadLockSecs_;  // tolerate RMS deadlock for these seconds
+  int rmsDeadLockSecs_;  // tolerate RMS deadlock for these seconds
   NABoolean dumpRmsDeadLockProcess_;
   ObjectEpochCache *epochCache_;
   unsigned short dmlLockArraySize_;
   unsigned short ddlLockArraySize_;
 };
-StatsGlobals *shareStatsSegment(Int32 &shmid, NABoolean checkForSSMP = TRUE);
-StatsGlobals *shareStatsSegmentWithRetry(Int32 &shmid, NABoolean checkForSSMP = TRUE);
+StatsGlobals *shareStatsSegment(int &shmid, NABoolean checkForSSMP = TRUE);
+StatsGlobals *shareStatsSegmentWithRetry(int &shmid, NABoolean checkForSSMP = TRUE);
 short getMasterCpu(char *uniqueStmtId, int uniqueStmtIdLen, char *nodeName, short maxLen, short &cpu);
 short getStmtNameInQid(char *uniqueStmtId, int uniqueStmtIdLen, char *stmtName, short maxLen);
 NABoolean filterStmtStats(ExMasterStats *masterStats, short activeQueryNum, short &queryNum);

@@ -114,9 +114,9 @@ bool HTableCache::insert(HbaseStr &rowID, HbaseStr &colValue) {
   return true;
 }
 
-Int32 HTableCache::startGet(const HbaseStr &rowID, NAList<HTableRow *> &kvArray) {
+int HTableCache::startGet(const HbaseStr &rowID, NAList<HTableRow *> &kvArray) {
   NAString key(rowID.val, rowID.len);
-  Int32 rowsReturn = -1;
+  int rowsReturn = -1;
 
   HTableRow *row = keyValueMap_->getFirstValue(&key, NAStringHashFunc);
   if (row) {
@@ -126,10 +126,10 @@ Int32 HTableCache::startGet(const HbaseStr &rowID, NAList<HTableRow *> &kvArray)
   return rowsReturn;
 }
 
-Int32 HTableCache::startGets(const NAList<HbaseStr> *rowIDs, NAList<HTableRow *> &kvArray) {
+int HTableCache::startGets(const NAList<HbaseStr> *rowIDs, NAList<HTableRow *> &kvArray) {
   if (rowIDs->entries() <= 0) return -1;
 
-  Int32 rowsReturn = 0;
+  int rowsReturn = 0;
   for (int i = 0; i < rowIDs->entries(); i++) {
     NAString key((*rowIDs)[i].val, (*rowIDs)[i].len);
 
@@ -144,14 +144,14 @@ Int32 HTableCache::startGets(const NAList<HbaseStr> *rowIDs, NAList<HTableRow *>
   return rowsReturn;
 }
 
-Int32 HTableCache::startGets(const HbaseStr &rowIDs, const UInt32 keyLen, NAList<HTableRow *> &kvArray) {
+int HTableCache::startGets(const HbaseStr &rowIDs, const UInt32 keyLen, NAList<HTableRow *> &kvArray) {
   short numReqRows = *(short *)(&rowIDs)->val;
   short entries = bswap_16(numReqRows);
 
   if (entries <= 0) return -1;
 
   // see ExHbaseAccessTcb::copyRowIDToDirectBuffer
-  Int32 rowsReturn = 0;
+  int rowsReturn = 0;
   char *rowId = rowIDs.val;
   rowId += sizeof(short);
   UInt32 rowIdLen = 0;
@@ -177,12 +177,12 @@ Int32 HTableCache::startGets(const HbaseStr &rowIDs, const UInt32 keyLen, NAList
   return rowsReturn;
 }
 
-/*Int32 compareKeys(const HbaseStr &key1, const Text &key2)
+/*int compareKeys(const HbaseStr &key1, const Text &key2)
 {
   NABoolean isLargerEqual = false;
-  Int32 len1 = key1.len, len2 = key2.size();
-  Int32 cmpLen = len1 > len2 ? len2 : len1;
-  Int32 compare_code = memcmp(key1.val, key2.data(), cmpLen);
+  int len1 = key1.len, len2 = key2.size();
+  int cmpLen = len1 > len2 ? len2 : len1;
+  int compare_code = memcmp(key1.val, key2.data(), cmpLen);
   if ((compare_code == 0) && (len1 != len2))
   {
     if (len1 > len2)
@@ -193,11 +193,11 @@ Int32 HTableCache::startGets(const HbaseStr &rowIDs, const UInt32 keyLen, NAList
   return compare_code;
 }*/
 
-Int32 compareKeys(const NAString *key1, const Text &key2) {
+int compareKeys(const NAString *key1, const Text &key2) {
   NABoolean isLargerEqual = false;
-  Int32 len1 = key1->length(), len2 = key2.size();
-  Int32 cmpLen = len1 > len2 ? len2 : len1;
-  Int32 compare_code = memcmp(key1->data(), key2.data(), cmpLen);
+  int len1 = key1->length(), len2 = key2.size();
+  int cmpLen = len1 > len2 ? len2 : len1;
+  int compare_code = memcmp(key1->data(), key2.data(), cmpLen);
   if ((compare_code == 0) && (len1 != len2)) {
     if (len1 > len2)
       compare_code = 1;
@@ -207,17 +207,17 @@ Int32 compareKeys(const NAString *key1, const Text &key2) {
   return compare_code;
 }
 
-Int32 HTableCache::getStartPos(const Text &startRow) {
+int HTableCache::getStartPos(const Text &startRow) {
   if (startRow.size() == 0 || startRow.data() == NULL) return 0;
 
   if (table_->entries() == 0) return 0;
 
-  Int32 low = 0;
-  Int32 high = table_->entries() - 1;
+  int low = 0;
+  int high = table_->entries() - 1;
   if (compareKeys((*table_)[high]->key, startRow) < 0) return -1;
 
   while (high != low) {
-    Int32 middle = (high + low) / 2;
+    int middle = (high + low) / 2;
     HTableRow *row = (*table_)[middle];
     int temp = compareKeys(row->key, startRow);
     if (temp == 0)
@@ -245,12 +245,12 @@ NABoolean HTableCache::isLargerOrEqual(const NAString *key1, const Text &key2) {
     return FALSE;
 }
 
-Int32 HTableCache::fetchRows(Int32 numReqRows, Int32 &fetchStartPos, NAList<HTableRow *> &kvArray,
+int HTableCache::fetchRows(int numReqRows, int &fetchStartPos, NAList<HTableRow *> &kvArray,
                              const Text &stopRow) {
-  Int32 rowNum = 0;
+  int rowNum = 0;
   bool toTheEnd = false;
   if (stopRow.size() == 0 || stopRow.data() == NULL) toTheEnd = true;
-  Int32 start = fetchStartPos;
+  int start = fetchStartPos;
   kvArray.clear();
 
   for (int idx = start; idx < table_->entries() && rowNum < numReqRows; idx++) {

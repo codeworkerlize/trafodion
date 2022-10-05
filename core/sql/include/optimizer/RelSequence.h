@@ -78,7 +78,7 @@ class RelSequence : public RelExpr {
 
   // RelSequence has one child.
   //
-  virtual Int32 getArity() const { return 1; };
+  virtual int getArity() const { return 1; };
 
   //++MV
   void addRequiredOrderTree(ItemExpr *orderExpr);

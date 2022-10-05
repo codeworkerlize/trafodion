@@ -84,7 +84,7 @@ class ActiveQueryStream : public IpcMessageStream {
 class ActiveQueryEntry : public NABasicObject {
  public:
   ActiveQueryEntry(char *qid, int qidLen, long startTime, GuaProcessHandle master, short masterFileNum,
-                   Int32 executionCount, IpcEnvironment *ipcEnv, SsmpGlobals *ssmpG);
+                   int executionCount, IpcEnvironment *ipcEnv, SsmpGlobals *ssmpG);
 
   ~ActiveQueryEntry();
 
@@ -102,7 +102,7 @@ class ActiveQueryEntry : public NABasicObject {
 
   ActiveQueryStream *getReplyStartedStream() { return replyStartedStream_; }
 
-  Int32 getExecutionCount() const { return executionCount_; }
+  int getExecutionCount() const { return executionCount_; }
 
   void releaseStream();
 
@@ -113,7 +113,7 @@ class ActiveQueryEntry : public NABasicObject {
   long queryStartTime_;
   GuaProcessHandle master_;
   short masterFileNum_;
-  Int32 executionCount_;
+  int executionCount_;
 };  // ActiveQueryEntry
 
 /////////////////////////////////////////////////////////////
@@ -130,7 +130,7 @@ class ActiveQueryMgr : public NABasicObject {
   ActiveQueryEntry *getActiveQuery(char *qid, int qidLen);
 
   // Called from actOnQueryStartedReq for the Begin Query msg
-  void addActiveQuery(char *qid, int qidLen, long startTime, GuaProcessHandle masterPhandle, Int32 executionCount,
+  void addActiveQuery(char *qid, int qidLen, long startTime, GuaProcessHandle masterPhandle, int executionCount,
                       SsmpNewIncomingConnectionStream *cStream, IpcConnection *conn);
 
   // Called from actOnQueryFinishedReq for the Finished Query msg.  This call
@@ -156,7 +156,7 @@ class ActiveQueryMgr : public NABasicObject {
 
 class PendingQueryEntry : public NABasicObject {
  public:
-  PendingQueryEntry(char *qid, int qidLen, Int32 executionCount, GuaProcessHandle master, short masterFileNum,
+  PendingQueryEntry(char *qid, int qidLen, int executionCount, GuaProcessHandle master, short masterFileNum,
                     long escalateTime1, long escalateTime2, bool cancelEscalationSaveabend, bool cancelLogging);
 
   ~PendingQueryEntry();
@@ -165,7 +165,7 @@ class PendingQueryEntry : public NABasicObject {
 
   int getQidLen() const { return qidLen_; }
 
-  Int32 getExecutionCount() const { return executionCount_; }
+  int getExecutionCount() const { return executionCount_; }
 
   long getEscalateTime1() const { return escalateTime1_; }
 
@@ -186,7 +186,7 @@ class PendingQueryEntry : public NABasicObject {
  private:
   char *qid_;
   int qidLen_;
-  Int32 executionCount_;
+  int executionCount_;
   long escalateTime1_;
   long escalateTime2_;
   bool cancelEscalationSaveabend_;
@@ -203,7 +203,7 @@ class PendingQueryMgr : public NABasicObject {
   ~PendingQueryMgr(){};
 
   // Called from actOnCancelRequest
-  void addPendingQuery(ActiveQueryEntry *aq, Int32 ceFirstInterval, Int32 ceSecondInterval, NABoolean ceSaveabend,
+  void addPendingQuery(ActiveQueryEntry *aq, int ceFirstInterval, int ceSecondInterval, NABoolean ceSaveabend,
                        NABoolean cancelLogging);
 
   // Called from SsmpGlobals::work every time it awakes.

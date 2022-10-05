@@ -100,7 +100,7 @@ void ComTdbConnectBy::displayContents(Space *space, ULng32 flag) {
     displayChildren(space, flag);
   }
 }
-const char *ComTdbConnectBy::getExpressionName(Int32 pos) const {
+const char *ComTdbConnectBy::getExpressionName(int pos) const {
   switch (pos) {
     case 0:
       return "leftDataMoveExpr_";
@@ -123,7 +123,7 @@ const char *ComTdbConnectBy::getExpressionName(Int32 pos) const {
   }
 }
 
-ex_expr *ComTdbConnectBy::getExpressionNode(Int32 pos) {
+ex_expr *ComTdbConnectBy::getExpressionNode(int pos) {
   switch (pos) {
     case 0:
       return leftMoveExpr_;

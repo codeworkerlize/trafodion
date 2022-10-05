@@ -58,12 +58,12 @@ static unsigned short getHexDigitValue(NAWchar wc) {
 // spaces are allowed in hexadecimal format string literals
 // these spaces have to be removed
 //
-static NAWString *removeWSpaces(const NAWchar *s, Int32 &len, NAWchar quote, CollHeap *heap) {
+static NAWString *removeWSpaces(const NAWchar *s, int &len, NAWchar quote, CollHeap *heap) {
   NAWString *r = new (heap) NAWString(heap);
-  Int32 tmpLen = 0;
+  int tmpLen = 0;
   if (!s || len <= 0) return r;
 
-  for (Int32 x = 0; x < len; x++) {
+  for (int x = 0; x < len; x++) {
     if (s[x] == quote) {
       // prematurely end the process
       break;
@@ -78,7 +78,7 @@ static NAWString *removeWSpaces(const NAWchar *s, Int32 &len, NAWchar quote, Col
 }
 
 // a helper function converting a hexdecimal digit to a single-byte string
-static NAString *convHexToChar(const NAWchar *s, Int32 inputLen, CharInfo::CharSet cs, CollHeap *heap) {
+static NAString *convHexToChar(const NAWchar *s, int inputLen, CharInfo::CharSet cs, CollHeap *heap) {
   ComASSERT((inputLen % SQL_DBCHAR_SIZE) == 0);
   NAString *r = new (heap) NAString(heap);
   if (!s || inputLen <= 0) return r;
@@ -86,7 +86,7 @@ static NAString *convHexToChar(const NAWchar *s, Int32 inputLen, CharInfo::CharS
   unsigned char upper4Bits;
   unsigned char lower4Bits;
 
-  for (Int32 i = 0; i < inputLen; i = i + 2) {
+  for (int i = 0; i < inputLen; i = i + 2) {
     if (isHexDigit8859_1(s[i]) AND isHexDigit8859_1(s[i + 1])) {
       upper4Bits = getHexDigitValue(s[i]);
       lower4Bits = getHexDigitValue(s[i + 1]);
@@ -102,14 +102,14 @@ static NAString *convHexToChar(const NAWchar *s, Int32 inputLen, CharInfo::CharS
 }
 
 // a helper function converting a hexdecimal digit to a double-byte string
-static NAWString *convHexToWChar(const NAWchar *s, Int32 inputLen, CharInfo::CharSet cs, CollHeap *heap) {
+static NAWString *convHexToWChar(const NAWchar *s, int inputLen, CharInfo::CharSet cs, CollHeap *heap) {
   if (cs == CharInfo::UNICODE) {
     NAWString *r = new (heap) NAWString(heap);
     if (!s || inputLen <= 0) return r;
 
     assert((inputLen % 4) == 0);
 
-    for (Int32 i = 0; i < inputLen; i = i + 4) {
+    for (int i = 0; i < inputLen; i = i + 4) {
       if (isHexDigit8859_1(s[i]) AND isHexDigit8859_1(s[i + 1]) AND isHexDigit8859_1(s[i + 2])
               AND isHexDigit8859_1(s[i + 3])) {
         unsigned short first4Bits = getHexDigitValue(s[i]);
@@ -136,12 +136,12 @@ static NAWString *convHexToWChar(const NAWchar *s, Int32 inputLen, CharInfo::Cha
 }
 
 // verify whether a hexadecimal string is in valid format.
-static NABoolean isValidHexFormat(const NAWchar *str, Int32 len, CharInfo::CharSet cs) {
+static NABoolean isValidHexFormat(const NAWchar *str, int len, CharInfo::CharSet cs) {
   // specified by  _charsetname'([0-9, a-f, A-F])*'
 
   // ISO88591:               hex digits per char = 2
   // UCS2/KSC5601/KANJI:     hex digits per char = 4
-  Int32 hexPerChar = 2 * CharInfo::minBytesPerChar(cs);
+  int hexPerChar = 2 * CharInfo::minBytesPerChar(cs);
 
   // The following while loop recognizes regular expression:
   // space* [non-space]\{hexPerChar\} space*
@@ -154,11 +154,11 @@ static NABoolean isValidHexFormat(const NAWchar *str, Int32 len, CharInfo::CharS
   // Examples of illegal hexdecimal literals.
   //       x' 98F F  F0' (ISO88591)
   //       _ucs2 x'9FF 3dF0' (UCS2)
-  Int32 i = 0;
+  int i = 0;
   while (i < len) {
     if (str[i] != L' ') {
       // at least hexPerChar non-space chars should be present, starting at i
-      for (Int32 j = 0; j < hexPerChar; j++) {
+      for (int j = 0; j < hexPerChar; j++) {
         if (i >= len || !isHexDigit8859_1(str[i++])) {
           // invalid format
           return FALSE;
@@ -170,7 +170,7 @@ static NABoolean isValidHexFormat(const NAWchar *str, Int32 len, CharInfo::CharS
   return TRUE;
 }
 
-hex_conversion_code verifyAndConvertHex(const NAWchar *str, Int32 len, NAWchar quote, CharInfo::CharSet cs,
+hex_conversion_code verifyAndConvertHex(const NAWchar *str, int len, NAWchar quote, CharInfo::CharSet cs,
                                         CollHeap *heap, void *&result) {
   if (CharInfo::isHexFormatSupported(cs) == FALSE) return NOT_SUPPORTED;
 
@@ -188,14 +188,14 @@ hex_conversion_code verifyAndConvertHex(const NAWchar *str, Int32 len, NAWchar q
     case CharInfo::ISO88591:
     case CharInfo::UTF8:
     case CharInfo::BINARY: {
-      Int32 StrLength = (Int32)(tmpStr->length());
+      int StrLength = (int)(tmpStr->length());
       result = convHexToChar(tmpStr->data(), StrLength, cs, heap);
       if (result) {
         ok = SINGLE_BYTE;  // Assume good data for now
         if (cs == CharInfo::UTF8) {
           // Verify UTF8 code point values are valid
-          Int32 iii = 0;
-          Int32 rtnv = 0;
+          int iii = 0;
+          int rtnv = 0;
           NAString *reslt = (NAString *)result;
           UInt32 UCS4 = 0;
           StrLength = StrLength / 2;  // Orig StrLength was for hex-ASCII string
@@ -212,7 +212,7 @@ hex_conversion_code verifyAndConvertHex(const NAWchar *str, Int32 len, NAWchar q
     } break;
 
     case CharInfo::UNICODE: {
-      result = convHexToWChar(tmpStr->data(), (Int32)(tmpStr->length()), cs, heap);
+      result = convHexToWChar(tmpStr->data(), (int)(tmpStr->length()), cs, heap);
       if (result) ok = DOUBLE_BYTE;
     } break;
 

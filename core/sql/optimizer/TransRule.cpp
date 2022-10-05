@@ -1917,7 +1917,7 @@ NABoolean doesValueIdEvaluateToFalse(ValueId predId) {
     NABoolean negate;
     ConstValue *cv = predId.getItemExpr()->castToConstValue(negate);
     if (cv && cv->getType()->getTypeQualifier() == NA_BOOLEAN_TYPE) {
-      Int32 val = *((Int32 *)cv->getConstValue());
+      int val = *((int *)cv->getConstValue());
       if (val == 0) {
         return TRUE;
       }
@@ -2145,7 +2145,7 @@ RelExpr *OrOptimizationRule::nextSubstitute(RelExpr *before, Context * /*context
 
       CollIndex bestIxNum = NULL_COLL_INDEX;
       IndexDesc *ixDesc;
-      Int32 colNumInIndex;
+      int colNumInIndex;
       CollIndex ixNum = 0;  // artificial numbering scheme
 
       CollIndex numIndexDescs = s->numUsableIndexes();
@@ -2303,7 +2303,7 @@ RelExpr *OrOptimizationRule::nextSubstitute(RelExpr *before, Context * /*context
   return result;
 }
 
-CostScalar OrOptimizationRule::rateIndexForColumn(Int32 colNumInIndex, Scan *s, IndexDesc *ixDesc,
+CostScalar OrOptimizationRule::rateIndexForColumn(int colNumInIndex, Scan *s, IndexDesc *ixDesc,
                                                   NABoolean indexOnly) {
   // yes, try to estimate how useful the index would be:
   // - Add one penalty point for each "MDAM skip" we would
@@ -2570,11 +2570,11 @@ RelExpr *RoutineJoinToTSJRule::nextSubstitute(RelExpr *before, Context *context,
 
 }  // RoutineJoinToTSJRule::nextSubstitute()
 
-Int32 RoutineJoinToTSJRule::promiseForOptimization(RelExpr *, Guidance *, Context *) {
+int RoutineJoinToTSJRule::promiseForOptimization(RelExpr *, Guidance *, Context *) {
   // Transforming logical joins to logical TSJs enable the physical
   // NestedJoin rule to fire.  Thus, we would like this rule to fire
   // prior to other join transformation rules.
-  return (Int32)(DefaultTransRulePromise - 1000 /*+ 1000*/);
+  return (int)(DefaultTransRulePromise - 1000 /*+ 1000*/);
 }
 
 NABoolean RoutineJoinToTSJRule::canBePruned(RelExpr *expr) const {
@@ -2608,7 +2608,7 @@ static void collectLimitsForNJ2Hive(const NATable *natable, int &outerTablesThre
 
     nj_compute_probes_maxcard = (int)(ActiveSchemaDB()->getDefaults()).getAsLong(ORC_NJS_CPS_MAXCARDINALITY);
 
-    tableName = (char *)ActiveSchemaDB()->getDefaults().getValue((Int32)ORC_NJS_CPS_TABLE);
+    tableName = (char *)ActiveSchemaDB()->getDefaults().getValue((int)ORC_NJS_CPS_TABLE);
 
     numProbesThreshold = (int)(ActiveSchemaDB()->getDefaults()).getAsLong(ORC_NJS_PROBES_THRESHOLD);
 
@@ -3188,11 +3188,11 @@ RelExpr *JoinToTSJRule::nextSubstitute(RelExpr *before, Context * /*context*/, R
   return result;
 }
 
-Int32 JoinToTSJRule::promiseForOptimization(RelExpr *, Guidance *, Context *) {
+int JoinToTSJRule::promiseForOptimization(RelExpr *, Guidance *, Context *) {
   // Transforming logical joins to logical TSJs enable the physical
   // NestedJoin rule to fire.  Thus, we would like this rule to fire
   // prior to other join transformation rules.
-  return (Int32)(DefaultTransRulePromise - 1000 /*+ 1000*/);
+  return (int)(DefaultTransRulePromise - 1000 /*+ 1000*/);
 }
 
 NABoolean JoinToTSJRule::canBePruned(RelExpr *expr) const {
@@ -3750,7 +3750,7 @@ RelExpr *FilterRule2::nextSubstitute(RelExpr *before, Context * /*context*/, Rul
   return result;
 }
 
-Int32 FilterRule::promiseForOptimization(RelExpr *, Guidance *, Context *) {
+int FilterRule::promiseForOptimization(RelExpr *, Guidance *, Context *) {
   // Eliminating the filter has the highest promise, higher than
   // any enforcer rule (only enforcer rules compete with this rule anyway)
   return AlwaysBetterPromise;
@@ -3896,7 +3896,7 @@ NABoolean GroupByEliminationRule::topMatch(RelExpr *expr, Context *context) {
   return (grby->child(0).getGroupAttr()->isUnique(grby->groupExpr()));
 }
 
-Int32 GroupByEliminationRule::promiseForOptimization(RelExpr *, Guidance *, Context *) {
+int GroupByEliminationRule::promiseForOptimization(RelExpr *, Guidance *, Context *) {
   // give this highest priority, no groupby is always faster than a groupby
   return AlwaysBetterPromise;
 }
@@ -4516,10 +4516,10 @@ RelExpr *AggrDistinctEliminationRule::nextSubstitute(RelExpr *before, Context * 
   }
 
   // add the lower and upper valueIds to the appropriate sets
-  Int32 valusIdIdx = 0;
-  for (; valusIdIdx < (Int32)lowerValueIds.entries(); valusIdIdx++)
+  int valusIdIdx = 0;
+  for (; valusIdIdx < (int)lowerValueIds.entries(); valusIdIdx++)
     lowerGB->aggregateExpr() += lowerValueIds[valusIdIdx];
-  for (valusIdIdx = 0; valusIdIdx < (Int32)upperValueIds.entries(); valusIdIdx++)
+  for (valusIdIdx = 0; valusIdIdx < (int)upperValueIds.entries(); valusIdIdx++)
     upperGB->aggregateExpr() += upperValueIds[valusIdIdx];
 
   // Set aggDistElimRuleCreates flag to TRUE for both new GroupByAgg exprs.
@@ -4760,10 +4760,10 @@ RelExpr *GroupBySplitRule::nextSubstitute(RelExpr *before, Context * /*context*/
   }
 
   // add the lower and upper valueIds to the appropriate sets
-  Int32 valusIdIdx = 0;
-  for (; valusIdIdx < (Int32)lowerValueIds.entries(); valusIdIdx++)
+  int valusIdIdx = 0;
+  for (; valusIdIdx < (int)lowerValueIds.entries(); valusIdIdx++)
     lowerGB->aggregateExpr() += lowerValueIds[valusIdIdx];
-  for (valusIdIdx = 0; valusIdIdx < (Int32)upperValueIds.entries(); valusIdIdx++)
+  for (valusIdIdx = 0; valusIdIdx < (int)upperValueIds.entries(); valusIdIdx++)
     upperGB->aggregateExpr() += upperValueIds[valusIdIdx];
 
   // Set the grouping expression for the lower groupby: it has the
@@ -4812,7 +4812,7 @@ RelExpr *GroupBySplitRule::nextSubstitute(RelExpr *before, Context * /*context*/
   return topMap;
 }
 
-Int32 GroupBySplitRule::promiseForOptimization(RelExpr *, Guidance *, Context *) { return DefaultTransRulePromise; }
+int GroupBySplitRule::promiseForOptimization(RelExpr *, Guidance *, Context *) { return DefaultTransRulePromise; }
 
 NABoolean GroupBySplitRule::canMatchPattern(const RelExpr *pattern) const {
   // consider the both the substitute (a map value ids) and its child
@@ -5180,11 +5180,11 @@ RelExpr *GroupByOnJoinRule::nextSubstitute(RelExpr *before, Context * /*context*
   // -- pruning based on potential -- begin
   // combinedPotential determines if a task on a expression is pruned
   // CURRSTMT_OPTDEFAULTS->pruneByOptLevel
-  Int32 oldJoinCombinedPotential = oldJoin->getPotential() + oldJoin->getGroupAttr()->getPotential();
-  Int32 originalGroupPotential = before->getGroupAttr()->getPotential();
+  int oldJoinCombinedPotential = oldJoin->getPotential() + oldJoin->getGroupAttr()->getPotential();
+  int originalGroupPotential = before->getGroupAttr()->getPotential();
 
   // newJoin should have the same combined potential as the oldJoin
-  Int32 newJoinPotential = oldJoinCombinedPotential - originalGroupPotential;
+  int newJoinPotential = oldJoinCombinedPotential - originalGroupPotential;
   newJoin->setPotential(newJoinPotential);
 
   // newGB should have the same combined potential as the new join, this is
@@ -5945,7 +5945,7 @@ NABoolean CommonSubExprRule::canMatchPattern(const RelExpr * /*pattern*/) const 
 // generator will detect that a plan for CLUSTER sampling could not be
 // found.
 //
-Int32 SampleScanRule::promiseForOptimization(RelExpr *, Guidance *, Context *) { return AlwaysBetterPromise; }
+int SampleScanRule::promiseForOptimization(RelExpr *, Guidance *, Context *) { return AlwaysBetterPromise; }
 
 NABoolean SampleScanRule::topMatch(RelExpr *expr, Context *context) {
   // If the rule doesn't match the general pattern, quit.

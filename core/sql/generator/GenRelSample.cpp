@@ -148,7 +148,7 @@ short PhysSample::codeGen(Generator *generator) {
   // Geneate the sampling expression.
   //
   ex_expr *balExpr = NULL;
-  Int32 returnFactorOffset = 0;
+  int returnFactorOffset = 0;
   ValueId val;
   val = balanceExpr().init();
   if (balanceExpr().next(val)) expGen->generateSamplingExpr(val, &balExpr, returnFactorOffset);

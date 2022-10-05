@@ -55,7 +55,7 @@
 #include "exp/exp_clause_derived.h"
 
 // WARNING: assuming varchar length indicator of sizeof(long) == 4
-#define VCPREFIX_LEN sizeof(Int32)
+#define VCPREFIX_LEN sizeof(int)
 
 // extern declaration
 extern short convertTypeToText_basic(char *text, int fs_datatype, int length, int precision, int scale,
@@ -255,7 +255,7 @@ Descriptor::~Descriptor() {
 NABoolean Descriptor::operator==(Descriptor &other) {
   if (getUsedEntryCount() != other.getUsedEntryCount()) return FALSE;
 
-  Int32 i = 0;
+  int i = 0;
   while (i < getUsedEntryCount()) {
     desc_struct &descItem = desc[i];
     desc_struct &otherDescItem = other.desc[i];
@@ -352,22 +352,22 @@ char *Descriptor::getIndData(int entry, int idxrow) {
   return getIndItem(desc[entry - 1], idxrow - 1);  // Zero Base
 }
 
-Int32 Descriptor::getVarDataLength(int entry) {
+int Descriptor::getVarDataLength(int entry) {
   register int entryZB = entry - 1;
   return desc[entryZB].length;
 }
 
-Int32 Descriptor::getVarIndicatorLength(int entry) {
+int Descriptor::getVarIndicatorLength(int entry) {
   register int entryZB = entry - 1;
   return desc[entryZB].vc_ind_length;
 }
 
-Int32 Descriptor::getIndLength(int entry) {
+int Descriptor::getIndLength(int entry) {
   register int entryZB = entry - 1;
   return desc[entryZB].ind_length;
 }
 
-Int32 Descriptor::getVarDataType(int entry) {
+int Descriptor::getVarDataType(int entry) {
   register int entryZB = entry - 1;
   return desc[entryZB].datatype;
 }
@@ -406,8 +406,8 @@ static void setVCLength(char *tgt, int len, size_t vcPrefixLength) {
     return;
   }
 
-  if (vcPrefixLength == sizeof(Int32)) {
-    str_cpy_all(tgt, (char *)&len, sizeof(Int32));
+  if (vcPrefixLength == sizeof(int)) {
+    str_cpy_all(tgt, (char *)&len, sizeof(int));
   } else if (vcPrefixLength == sizeof(short)) {
     assert(len <= USHRT_MAX);
     unsigned short temp = (unsigned short)len;
@@ -426,8 +426,8 @@ static int getVCLength(const char *source_string, size_t vcPrefixLength) {
     return 0L;
   }
 
-  if (vcPrefixLength == sizeof(Int32)) {
-    str_cpy_all((char *)&returned_len, source_string, sizeof(Int32));
+  if (vcPrefixLength == sizeof(int)) {
+    str_cpy_all((char *)&returned_len, source_string, sizeof(int));
   } else if (vcPrefixLength == sizeof(short)) {
     unsigned short temp;
 
@@ -480,7 +480,7 @@ static int desc_set_string_value_from_varchar(char *string_value, int max_string
 // details (such as its type).
 //
 static RETCODE setCharHostVar(char *source, char *host_var_buf, int host_var_buf_size, int *returned_len,
-                              Descriptor *info_desc = 0, Int32 info_desc_index = 0) {
+                              Descriptor *info_desc = 0, int info_desc_index = 0) {
   int target_type;
 
   if (info_desc == 0 ||
@@ -667,85 +667,85 @@ static NABoolean unicodeDataType (long type)
 
 RETCODE Descriptor::getDescItem(int entry, int what_to_get, void *numeric_value, char *string_value,
                                 int max_string_len, int *returned_len, int /*start_from_offset*/,
-                                Descriptor *info_desc, Int32 info_desc_index) {
+                                Descriptor *info_desc, int info_desc_index) {
   desc_struct &descItem = desc[entry - 1];  // Zero base
   int idxrow = rowsetHandle;
 
   switch (what_to_get) {
     case SQLDESC_TYPE:
-      *(Int32 *)numeric_value = ansiTypeFromFSType(descItem.datatype);
+      *(int *)numeric_value = ansiTypeFromFSType(descItem.datatype);
       // In case the flags bit 1 is set, then we set it in SetDescItem to
       // indicate that this is really a numeric type.
       if (descItem.desc_flags & descItem.IS_NUMERIC)
-        *(Int32 *)numeric_value = SQLTYPECODE_NUMERIC;
+        *(int *)numeric_value = SQLTYPECODE_NUMERIC;
       else if (descItem.desc_flags & descItem.IS_NUMERIC_UNSIGNED)
-        *(Int32 *)numeric_value = SQLTYPECODE_NUMERIC_UNSIGNED;
+        *(int *)numeric_value = SQLTYPECODE_NUMERIC_UNSIGNED;
 
       break;
 
     case SQLDESC_DATETIME_CODE:
 #if 0
-      *(Int32 *)numeric_value = descItem.datetime_code;
+      *(int *)numeric_value = descItem.datetime_code;
 #else
       // assuming that type is correctly set...
       // if not, the datetime code is probably not right either
       if (isIntervalFSType(descItem.datatype)) {
-        *(Int32 *)numeric_value = getDatetimeCodeFromFSType(descItem.datatype);
+        *(int *)numeric_value = getDatetimeCodeFromFSType(descItem.datatype);
       } else {
-        *(Int32 *)numeric_value = descItem.datetime_code;
+        *(int *)numeric_value = descItem.datetime_code;
       }
 #endif
       break;
 
     case SQLDESC_TYPE_FS:
-      *(Int32 *)numeric_value = descItem.datatype;
+      *(int *)numeric_value = descItem.datatype;
 
       break;
 
     case SQLDESC_LENGTH: {
       // Compiler may report length as negative if greater than INT_MAX
       if (descItem.length < 0) return ERROR;
-      *(Int32 *)numeric_value = descItem.length;
+      *(int *)numeric_value = descItem.length;
       if (descItem.charset == CharInfo::UNICODE || CharInfo::is_NCHAR_MP((CharInfo::CharSet)descItem.charset))
-        *(Int32 *)numeric_value /= SQL_DBCHAR_SIZE;
+        *(int *)numeric_value /= SQL_DBCHAR_SIZE;
     } break;
 
     case SQLDESC_OCTET_LENGTH:
       // Compiler may report length as negative if greater than INT_MAX
       if (descItem.length < 0) return ERROR;
-      *(Int32 *)numeric_value = descItem.length;
+      *(int *)numeric_value = descItem.length;
       break;
 
     case SQLDESC_PRECISION:
-      *(Int32 *)numeric_value = descItem.precision;
+      *(int *)numeric_value = descItem.precision;
       break;
 
     case SQLDESC_SCALE:
-      *(Int32 *)numeric_value = descItem.scale;
+      *(int *)numeric_value = descItem.scale;
       break;
 
     case SQLDESC_INT_LEAD_PREC:
-      *(Int32 *)numeric_value = descItem.int_leading_precision;
+      *(int *)numeric_value = descItem.int_leading_precision;
       break;
 
     case SQLDESC_NULLABLE:
-      *(Int32 *)numeric_value = descItem.nullable;
+      *(int *)numeric_value = descItem.nullable;
       break;
 
     case SQLDESC_CASEINSENSITIVE:
       if (descItem.desc_flags & descItem.IS_CASE_INSENSITIVE)
-        *(Int32 *)numeric_value = 1;
+        *(int *)numeric_value = 1;
       else
-        *(Int32 *)numeric_value = 0;
+        *(int *)numeric_value = 0;
       break;
 
     // internal use only
     case SQLDESC_CHAR_SET:
-      *(Int32 *)numeric_value = descItem.charset;
+      *(int *)numeric_value = descItem.charset;
       break;
 
     case SQLDESC_COLLATION:
-      *(Int32 *)numeric_value = descItem.coll_seq;
+      *(int *)numeric_value = descItem.coll_seq;
       // *returned_len = desc_set_string_value_from_varchar(string_value,
       //                                              max_string_len,
       //                                              descItem.coll_seq);
@@ -757,7 +757,7 @@ RETCODE Descriptor::getDescItem(int entry, int what_to_get, void *numeric_value,
     } break;
 
     case SQLDESC_UNNAMED:
-      *(Int32 *)numeric_value = descItem.generated_output_name;
+      *(int *)numeric_value = descItem.generated_output_name;
       break;
 
     case SQLDESC_HEADING:
@@ -770,29 +770,29 @@ RETCODE Descriptor::getDescItem(int entry, int what_to_get, void *numeric_value,
       break;
 
     case SQLDESC_IND_TYPE:
-      *(Int32 *)numeric_value = descItem.ind_datatype;
+      *(int *)numeric_value = descItem.ind_datatype;
       break;
 
     case SQLDESC_IND_LENGTH:
-      *(Int32 *)numeric_value = descItem.ind_length;
+      *(int *)numeric_value = descItem.ind_length;
       break;
 
     case SQLDESC_VC_IND_LENGTH:
-      *(Int32 *)numeric_value = descItem.vc_ind_length;
+      *(int *)numeric_value = descItem.vc_ind_length;
       break;
 
     case SQLDESC_ALIGNED_LENGTH:
       // Compiler may report length as negative if greater than INT_MAX
       if ((descItem.aligned_length < 0) || (descItem.length < 0)) return ERROR;
-      *(Int32 *)numeric_value = descItem.aligned_length;
+      *(int *)numeric_value = descItem.aligned_length;
       break;
 
     case SQLDESC_DATA_OFFSET:
-      *(Int32 *)numeric_value = descItem.data_offset;
+      *(int *)numeric_value = descItem.data_offset;
       break;
 
     case SQLDESC_NULL_IND_OFFSET:
-      *(Int32 *)numeric_value = descItem.null_ind_offset;
+      *(int *)numeric_value = descItem.null_ind_offset;
       break;
 
     case SQLDESC_VAR_PTR: {
@@ -828,13 +828,13 @@ RETCODE Descriptor::getDescItem(int entry, int what_to_get, void *numeric_value,
     } break;
 
     case SQLDESC_RET_LEN:
-      *(Int32 *)numeric_value = getVCLength(descItem.var_data, VCPREFIX_LEN);
+      *(int *)numeric_value = getVCLength(descItem.var_data, VCPREFIX_LEN);
       if (CharInfo::maxBytesPerChar((CharInfo::CharSet)descItem.charset) == SQL_DBCHAR_SIZE)
-        *(Int32 *)numeric_value = *(Int32 *)numeric_value / SQL_DBCHAR_SIZE;
+        *(int *)numeric_value = *(int *)numeric_value / SQL_DBCHAR_SIZE;
       break;
 
     case SQLDESC_RET_OCTET_LEN:
-      *(Int32 *)numeric_value = getVCLength(descItem.var_data, VCPREFIX_LEN);
+      *(int *)numeric_value = getVCLength(descItem.var_data, VCPREFIX_LEN);
       break;
 
     case SQLDESC_VAR_DATA:
@@ -842,31 +842,31 @@ RETCODE Descriptor::getDescItem(int entry, int what_to_get, void *numeric_value,
       break;
 
     case SQLDESC_IND_DATA:
-      *(Int32 *)numeric_value = descItem.ind_data;
+      *(int *)numeric_value = descItem.ind_data;
       break;
 
     case SQLDESC_ROWSET_VAR_LAYOUT_SIZE:
-      *(Int32 *)numeric_value = descItem.rowsetVarLayoutSize;
+      *(int *)numeric_value = descItem.rowsetVarLayoutSize;
       break;
 
     case SQLDESC_ROWSET_IND_LAYOUT_SIZE:
-      *(Int32 *)numeric_value = descItem.rowsetIndLayoutSize;
+      *(int *)numeric_value = descItem.rowsetIndLayoutSize;
       break;
 
     case SQLDESC_ROWSET_SIZE:
-      *(Int32 *)numeric_value = rowsetSize;
+      *(int *)numeric_value = rowsetSize;
       break;
 
     case SQLDESC_ROWWISE_ROWSET_SIZE:
       if (NOT rowwiseRowset()) return ERROR;
 
-      *(Int32 *)numeric_value = rowwiseRowsetSize;
+      *(int *)numeric_value = rowwiseRowsetSize;
       break;
 
     case SQLDESC_ROWWISE_ROWSET_ROW_LEN:
       if (NOT rowwiseRowset()) return ERROR;
 
-      *(Int32 *)numeric_value = rowwiseRowsetRowLen;
+      *(int *)numeric_value = rowwiseRowsetRowLen;
       break;
 
     case SQLDESC_ROWWISE_ROWSET_PTR:
@@ -878,18 +878,18 @@ RETCODE Descriptor::getDescItem(int entry, int what_to_get, void *numeric_value,
     case SQLDESC_ROWWISE_ROWSET_PARTN_NUM:
       if (NOT rowwiseRowset()) return ERROR;
 
-      *(Int32 *)numeric_value = rowwiseRowsetPartnNum;
+      *(int *)numeric_value = rowwiseRowsetPartnNum;
       break;
 
     case SQLDESC_ROWSET_STATUS_PTR:
       *(Long *)numeric_value = (Long)rowsetStatusPtr;
 
     case SQLDESC_ROWSET_NUM_PROCESSED:
-      *(Int32 *)numeric_value = rowsetNumProcessed;
+      *(int *)numeric_value = rowsetNumProcessed;
       break;
 
     case SQLDESC_ROWSET_HANDLE:
-      *(Int32 *)numeric_value = rowsetHandle;
+      *(int *)numeric_value = rowsetHandle;
       break;
 
     case SQLDESC_TABLE_NAME:
@@ -921,27 +921,27 @@ RETCODE Descriptor::getDescItem(int entry, int what_to_get, void *numeric_value,
 
     case SQLDESC_PARAMETER_INDEX:
 
-      *(Int32 *)numeric_value = descItem.parameterIndex;
+      *(int *)numeric_value = descItem.parameterIndex;
       break;
 
     case SQLDESC_DESCRIPTOR_TYPE:
       if (isDescTypeWide())
-        *(Int32 *)numeric_value = (int)DESCRIPTOR_TYPE_WIDE;
+        *(int *)numeric_value = (int)DESCRIPTOR_TYPE_WIDE;
       else
-        *(Int32 *)numeric_value = (int)DESCRIPTOR_TYPE_NARROW;
+        *(int *)numeric_value = (int)DESCRIPTOR_TYPE_NARROW;
       break;
 
       // Vicz: add two new desc item to support call stmt
 
     case SQLDESC_PARAMETER_MODE:
 
-      *(Int32 *)numeric_value = descItem.parameterMode;
+      *(int *)numeric_value = descItem.parameterMode;
 
       break;
 
     case SQLDESC_ORDINAL_POSITION:
 
-      *(Int32 *)numeric_value = descItem.ordinalPosition;
+      *(int *)numeric_value = descItem.ordinalPosition;
 
       break;
 
@@ -957,21 +957,21 @@ RETCODE Descriptor::getDescItem(int entry, int what_to_get, void *numeric_value,
       break;
 
     case SQLDESC_LOB_INLINE_DATA_MAXLEN:
-      *(Int32 *)numeric_value = descItem.lobInlinedDataMaxLen;
+      *(int *)numeric_value = descItem.lobInlinedDataMaxLen;
       break;
 
     case SQLDESC_LOB_CHUNK_MAXLEN:
-      *(Int32 *)numeric_value = descItem.lobChunkMaxLen;
+      *(int *)numeric_value = descItem.lobChunkMaxLen;
       break;
 
 #ifdef _DEBUG
       // - start testing logic *****
     case SQLDESC_ROWWISE_VAR_OFFSET:
-      *(Int32 *)numeric_value = descItem.rowwise_var_offset;
+      *(int *)numeric_value = descItem.rowwise_var_offset;
       break;
 
     case SQLDESC_ROWWISE_IND_OFFSET:
-      *(Int32 *)numeric_value = descItem.rowwise_ind_offset;
+      *(int *)numeric_value = descItem.rowwise_ind_offset;
       break;
 // - end testing logic *****
 #endif
@@ -1524,7 +1524,7 @@ void Descriptor::DescItemDefaultsForType(/*INOUT*/ desc_struct &descItem,
 //
 char *Descriptor::getCharDataFromCharHostVar(ComDiagsArea &diags, NAHeap &heap, char *host_var_string_value,
                                              int host_var_string_value_length, const char *the_SQLDESC_option,
-                                             Descriptor *info_desc, Int32 info_desc_index, short target_type) {
+                                             Descriptor *info_desc, int info_desc_index, short target_type) {
   int source_type = 0;
 
   if (info_desc == 0 || info_desc->getDescItem(info_desc_index + 1, SQLDESC_TYPE_FS, &source_type, 0, 0, 0, 0) <
@@ -1714,7 +1714,7 @@ RETCODE Descriptor::processNumericDatatypeWithPrecision(desc_struct &descItem, C
 }
 
 RETCODE Descriptor::setDescItem(int entry, int what_to_set, Long numeric_value, char *string_value,
-                                Descriptor *info_desc, Int32 info_desc_index) {
+                                Descriptor *info_desc, int info_desc_index) {
   RETCODE rc = SUCCESS;
 
   desc_struct &descItem = ((entry > 0) ? desc[entry - 1] : desc[0]);  // Zero base
@@ -1849,7 +1849,7 @@ RETCODE Descriptor::setDescItem(int entry, int what_to_set, Long numeric_value, 
       case SQLDESC_LENGTH:
       case SQLDESC_IND_TYPE:
         targetType = REC_BIN32_SIGNED;
-        targetLen = sizeof(Int32);
+        targetLen = sizeof(int);
         targetPrecision = 31;
         targetScale = 0;
         break;
@@ -2068,7 +2068,7 @@ RETCODE Descriptor::setDescItem(int entry, int what_to_set, Long numeric_value, 
         fprintf(stderr,
                 "setDescItem: indicator length of %d"
                 "must match %d\n",
-                (Int32)numeric_value, descItem.ind_length);
+                (int)numeric_value, descItem.ind_length);
         fflush(stderr);
 #else
         assert(0);
@@ -2085,7 +2085,7 @@ RETCODE Descriptor::setDescItem(int entry, int what_to_set, Long numeric_value, 
         fprintf(stderr,
                 "setDescItem: indicator length of %d"
                 "must match %d\n",
-                (Int32)numeric_value, descItem.ind_length);
+                (int)numeric_value, descItem.ind_length);
         fflush(stderr);
 #else
         assert(0);
@@ -2236,7 +2236,7 @@ RETCODE Descriptor::setDescItem(int entry, int what_to_set, Long numeric_value, 
 
     case SQLDESC_ROWSET_HANDLE:
       if (numeric_value > rowsetSize)
-        diags << DgSqlCode(-30002) << DgInt0((Int32)(numeric_value)) << DgInt1((Int32)rowsetSize);
+        diags << DgSqlCode(-30002) << DgInt0((int)(numeric_value)) << DgInt1((int)rowsetSize);
       else
         rowsetHandle = numeric_value;
       break;
@@ -2594,7 +2594,7 @@ RETCODE Descriptor::alloc(int used_entries_) {
 
   // initialize entries. Maybe desc_struct should be a class
   // and call constructor here.
-  for (Int32 i = 0; i < used_entries_; i++) {
+  for (int i = 0; i < used_entries_; i++) {
     // desc_struct &descItem = desc[i];
 
     // initialize everything
@@ -2644,7 +2644,7 @@ RETCODE Descriptor::alloc(int used_entries_) {
 RETCODE Descriptor::dealloc() {
   if (desc) {
     NAHeap *heap = context_->exHeap();
-    for (Int32 i = 0; i < used_entries; i++) {
+    for (int i = 0; i < used_entries; i++) {
       if (desc[i].output_name) heap->deallocateMemory(desc[i].output_name);
       if (desc[i].heading) heap->deallocateMemory(desc[i].heading);
       if (desc[i].var_data) heap->deallocateMemory(desc[i].var_data);
@@ -2683,7 +2683,7 @@ RETCODE Descriptor::allocBulkMoveInfo() {
   bmInfo_->flags_ = 0;
   bmInfo_->usedEntries_ = 0;
 
-  for (Int32 i = 0; i < (used_entries - 1); i++) bmInfo_->bmiArray_[i].bmiFlags_ = 0;
+  for (int i = 0; i < (used_entries - 1); i++) bmInfo_->bmiArray_[i].bmiFlags_ = 0;
 
   return SUCCESS;
 }
@@ -2744,7 +2744,7 @@ RETCODE Descriptor::addEntry(int entry) {
     // newly allocated desc.
 
     if (entry > currUsedEntries) {
-      for (Int32 i = 0; i < currUsedEntries; i++) {
+      for (int i = 0; i < currUsedEntries; i++) {
         str_cpy_all((char *)(&desc[i]), (char *)(&currDesc[i]), sizeof(desc_struct));
       }
     }
@@ -2762,7 +2762,7 @@ void stripBlanks(char *buf, int &len) {
   char *p = 0;  // for locating the first non-blank char.
 
   // find the real length
-  Int32 i = 0;
+  int i = 0;
   for (; i < len; i++) {
     if (buf[i] == 0) break;
 

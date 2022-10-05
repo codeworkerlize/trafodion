@@ -48,13 +48,13 @@ ComSafePrinter::ComSafePrinter() {}
 
 ComSafePrinter::~ComSafePrinter() {}
 
-Int32 ComSafePrinter::vsnPrintf(char *str, size_t n, const char *format, va_list args) {
+int ComSafePrinter::vsnPrintf(char *str, size_t n, const char *format, va_list args) {
   if (!str || n == 0 || !format) {
     return 0;
   }
 
-  Int32 targetLen = (n > INT_MAX ? INT_MAX : (Int32)n);
-  Int32 result = -1;
+  int targetLen = (n > INT_MAX ? INT_MAX : (int)n);
+  int result = -1;
 
   // Otherwise we buffer data in a temporary file
   if (!outfile_) {
@@ -72,8 +72,8 @@ Int32 ComSafePrinter::vsnPrintf(char *str, size_t n, const char *format, va_list
   }
 
   if (result > 0) {
-    Int32 totalLength = result;
-    Int32 numWritten = 0;
+    int totalLength = result;
+    int numWritten = 0;
 
     if (totalLength < targetLen) {
       numWritten = vsprintf(str, format, args);
@@ -84,7 +84,7 @@ Int32 ComSafePrinter::vsnPrintf(char *str, size_t n, const char *format, va_list
       }
     } else {
       rewind(outfile_);
-      numWritten = (Int32)fread(str, sizeof(char), targetLen - 1, outfile_);
+      numWritten = (int)fread(str, sizeof(char), targetLen - 1, outfile_);
       if (numWritten == (targetLen - 1)) {
         str[targetLen - 1] = 0;
         result = numWritten;
@@ -98,10 +98,10 @@ Int32 ComSafePrinter::vsnPrintf(char *str, size_t n, const char *format, va_list
 
 }  // ComSafePrinter::vsnPrintf()
 
-Int32 ComSafePrinter::snPrintf(char *str, size_t n, const char *format, ...) {
+int ComSafePrinter::snPrintf(char *str, size_t n, const char *format, ...) {
   va_list args;
   va_start(args, format);
-  Int32 result = vsnPrintf(str, n, format, args);
+  int result = vsnPrintf(str, n, format, args);
   va_end(args);
   return result;
 }

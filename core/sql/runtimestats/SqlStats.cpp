@@ -298,8 +298,8 @@ void StatsGlobals::removeProcess(pid_t pid, NABoolean calledAtAdd) {
 }
 
 static bool DeadPollingInitialized = false;
-static Int32 CheckDeadFreq = 120;
-static Int32 CheckDeadTs = 0;
+static int CheckDeadFreq = 120;
+static int CheckDeadTs = 0;
 
 void StatsGlobals::checkForDeadProcesses(pid_t myPid) {
   int error = 0;
@@ -345,7 +345,7 @@ void StatsGlobals::checkForDeadProcesses(pid_t myPid) {
       pidRemainingToCheck--;
 
       char processName[MS_MON_MAX_PROCESS_NAME];
-      Int32 ln_error = msg_mon_get_process_name(cpu_, statsArray_[pidToCheck_].processId_, processName);
+      int ln_error = msg_mon_get_process_name(cpu_, statsArray_[pidToCheck_].processId_, processName);
       if (ln_error == XZFIL_ERR_NOSUCHDEV) {
         pidsRemoved[numPidsRemoved++];
         removeProcess(pidToCheck_);
@@ -378,7 +378,7 @@ void StatsGlobals::cleanupDanglingSemaphore(NABoolean checkForSemaphoreHolders) 
   // generic SQL process' exit.  But this code has been unit tested
   // using gdb sessions on the generic process and on this MXSSMP
   // process.
-  Int32 lockedTimeInSecs = 0;
+  int lockedTimeInSecs = 0;
   timespec ts;
   clock_gettime(CLOCK_REALTIME, &ts);
   lockedTimeInSecs = ts.tv_sec - lockingTimestamp_.tv_sec;
@@ -393,7 +393,7 @@ void StatsGlobals::cleanupDanglingSemaphore(NABoolean checkForSemaphoreHolders) 
     char processName[MS_MON_MAX_PROCESS_NAME + 1];
     pid_t tempPid = semPid_;
     bool semHoldingProcessExists = true;
-    Int32 ln_error = msg_mon_get_process_name(myPhandle.getCpu(), tempPid, processName);
+    int ln_error = msg_mon_get_process_name(myPhandle.getCpu(), tempPid, processName);
     if (ln_error == XZFIL_ERR_NOSUCHDEV) {
       semHoldingProcessExists = false;
       seabedError_ = ln_error;
@@ -532,7 +532,7 @@ int StatsGlobals::getStatsSemaphore(Long &semId, pid_t pid, NABoolean calledByVe
   if (error == 0) {
     if (isShmDirty()) {
       genLinuxCorefile("Shared Segment might be corrupted");
-      Int32 ndRetcode = msg_mon_node_down2(getCpu(), "RMS shared segment is corrupted.");
+      int ndRetcode = msg_mon_node_down2(getCpu(), "RMS shared segment is corrupted.");
       sleep(30);
       NAExit(0);  // already made a core.
     }
@@ -1036,7 +1036,7 @@ int StatsGlobals::updateStats(ComDiagsArea &diags, SQLQUERY_ID *query_id, void *
   if (retcode < 0) diags << DgSqlCode(-CLI_INTERNAL_ERROR);
   return retcode;
 }
-Int32 StatsGlobals::checkLobLock(CliGlobals *cliGlobals, char *&lobLockId) {
+int StatsGlobals::checkLobLock(CliGlobals *cliGlobals, char *&lobLockId) {
   int error = getStatsSemaphore(cliGlobals->getSemId(), cliGlobals->myPin());
   if ((lobLocks_ == NULL) || lobLocks_->isEmpty()) {
     lobLockId = NULL;
@@ -1053,11 +1053,11 @@ Int32 StatsGlobals::checkLobLock(CliGlobals *cliGlobals, char *&lobLockId) {
   return 0;
 }
 int StatsGlobals::getSecInvalidKeys(CliGlobals *cliGlobals, long lastCallTimestamp, SQL_QIKEY siKeys[],
-                                      Int32 maxNumSiKeys, Int32 *returnedNumSiKeys) {
+                                      int maxNumSiKeys, int *returnedNumSiKeys) {
   int retcode = 0;
   int error = getStatsSemaphore(cliGlobals->getSemId(), cliGlobals->myPin());
 
-  Int32 numToReturn = 0;
+  int numToReturn = 0;
   RecentSikey *recentSikey = NULL;
   recentSikeys_->position();
   while (NULL != (recentSikey = (RecentSikey *)recentSikeys_->getNext())) {
@@ -1073,9 +1073,9 @@ int StatsGlobals::getSecInvalidKeys(CliGlobals *cliGlobals, long lastCallTimesta
   return retcode;
 }
 
-void StatsGlobals::mergeNewSikeys(Int32 numSikeys, SQL_QIKEY sikeys[]) {
+void StatsGlobals::mergeNewSikeys(int numSikeys, SQL_QIKEY sikeys[]) {
   newestRevokeTimestamp_ = NA_JulianTimestamp();
-  for (Int32 i = 0; i < numSikeys; i++) {
+  for (int i = 0; i < numSikeys; i++) {
     SQL_QIKEY newKey;
     memset(&newKey, 0, sizeof(SQL_QIKEY));
     newKey.operation[0] = sikeys[i].operation[0];
@@ -1384,7 +1384,7 @@ void StatsGlobals::getMemOffender(ExStatisticsArea *statsArea, size_t filter) {
   }
 }
 
-StatsGlobals *shareStatsSegmentWithRetry(Int32 &shmid, NABoolean checkForSSMP) {
+StatsGlobals *shareStatsSegmentWithRetry(int &shmid, NABoolean checkForSSMP) {
   int retry = 5;
   StatsGlobals *statsGlobals;
   for (int i = 0; i < retry; i++) {
@@ -1399,7 +1399,7 @@ StatsGlobals *shareStatsSegmentWithRetry(Int32 &shmid, NABoolean checkForSSMP) {
   return statsGlobals;
 }
 
-StatsGlobals *shareStatsSegment(Int32 &shmid, NABoolean checkForSSMP) {
+StatsGlobals *shareStatsSegment(int &shmid, NABoolean checkForSSMP) {
   void *statsGlobalsAddr = NULL;
   StatsGlobals *statsGlobals;
   long enableHugePages;
@@ -1464,7 +1464,7 @@ void StatsGlobals::logProcessDeath(short cpu, pid_t pid, const char *reason) {
 }
 
 short getMasterCpu(char *uniqueStmtId, int uniqueStmtIdLen, char *nodeName, short maxLen, short &cpu) {
-  Int32 nodeNumber = 0;
+  int nodeNumber = 0;
   cpu = 0;
   short rc;
   int retcode;
@@ -1472,7 +1472,7 @@ short getMasterCpu(char *uniqueStmtId, int uniqueStmtIdLen, char *nodeName, shor
   long value = 0;
   retcode = ComSqlId::getSqlQueryIdAttr(ComSqlId::SQLQUERYID_SEGMENTNUM, uniqueStmtId, uniqueStmtIdLen, value, NULL);
   if (retcode == 0)
-    nodeNumber = (Int32)value;
+    nodeNumber = (int)value;
   else
     return -1;
 
@@ -1814,7 +1814,7 @@ ObjectEpochCacheKey::ObjectEpochCacheKey(const char *objectName, ULng32 hash, Co
     objectName_ = temp;
 }
 
-void testObjectEpochCache(Int32 argc, char **argv) {
+void testObjectEpochCache(int argc, char **argv) {
   // find the ObjectEpochCache
 
   CliGlobals *cliGlobals = GetCliGlobals();
@@ -1949,10 +1949,10 @@ ObjectEpochCache *StatsGlobals::getObjectEpochCache() {
   return epochCache_;
 }
 
-Int32 StatsGlobals::calLimitLevel() {
+int StatsGlobals::calLimitLevel() {
   char *limitLevel = getenv("LIMIT_LEVEL");
   if (limitLevel) return atoi(limitLevel);
-  Int32 level = Statement::NO_LIMIT;
+  int level = Statement::NO_LIMIT;
   const size_t level1Percent = 60;
   const size_t level2Percent = 80;
   NAHeap *statsHeap = getStatsHeap();
@@ -2351,7 +2351,7 @@ ObjectLockController::Result ObjectLockController::lockDDL(const LockHolder &hol
   StatsGlobals *statsGlobals = cliGlobals->getStatsGlobals();
   ex_assert(statsGlobals, "StatsGlobals not properly initialized");
   RTSSemaphoreController sem;
-  Int32 nid = cliGlobals->myNodeNumber();
+  int nid = cliGlobals->myNodeNumber();
   pid_t pid = 0;
   pid_t maxPid = statsGlobals->maxPid();
   for (pid = 0; pid <= maxPid; pid++) {
@@ -2431,7 +2431,7 @@ void ObjectLockController::releaseDMLLocksHeldBy(const LockHolder &holder) {
   ex_assert(cliGlobals, "CliGlobals not properly initialized");
   StatsGlobals *statsGlobals = cliGlobals->getStatsGlobals();
   ex_assert(statsGlobals, "StatsGlobals not properly initialized");
-  Int32 nid = cliGlobals->myNodeNumber();
+  int nid = cliGlobals->myNodeNumber();
   if (nid != holder.getNid()) {
     return;
   }
@@ -2444,7 +2444,7 @@ void ObjectLockController::releaseDMLLocksHeldBy(const LockHolder &holder) {
 }
 
 void ObjectLockController::removeLocksHeldByProcess(pid_t pid) {
-  Int32 nid = GetCliGlobals()->myNodeNumber();
+  int nid = GetCliGlobals()->myNodeNumber();
   LockHolder holder(nid, pid);
   releaseLocksHeldBy(holder);
 }
@@ -2525,7 +2525,7 @@ void DDLScope::startDDLStmt() {
   }
   StatsGlobals *statsGlobals = cliGlobals->getStatsGlobals();
   ex_assert(statsGlobals, "StatsGlobals not properly initialized");
-  Int32 pid = cliGlobals->myPin();
+  int pid = cliGlobals->myPin();
   myProcessStats_ = statsGlobals->checkProcess(pid);
   ex_assert(myProcessStats_, "ProcessStats not properly initialized");
 

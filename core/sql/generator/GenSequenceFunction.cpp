@@ -78,7 +78,7 @@ ItemExpr *ItmSeqOffset::preCodeGen(Generator *generator) {
 
       if (scale == 0 && value >= 0 && value < INT_MAX) {
         value = (negate ? -value : value);
-        offsetConstantValue_ = (Int32)value;
+        offsetConstantValue_ = (int)value;
         child(1) = NULL;
       }
     }
@@ -1012,7 +1012,7 @@ short ItmSeqNotTHISFunction::codeGen(Generator *generator) {
 // they have already been code-generated.
 //
 void ItemExpr::protectiveSequenceFunctionTransformation(Generator *generator) {
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     MapInfo *mapInfo = generator->getMapInfoAsIs(child(i));
     if (!mapInfo || !mapInfo->isCodeGenerated()) child(i)->protectiveSequenceFunctionTransformation(generator);
   }

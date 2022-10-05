@@ -328,7 +328,7 @@ ElemDDLFileAttrClause *ElemDDLFileAttrClause::castToElemDDLFileAttrClause() { re
 //
 
 // get the degree of this node
-Int32 ElemDDLFileAttrClause::getArity() const { return MAX_ELEM_DDL_FILE_ATTR_CLAUSE_ARITY; }
+int ElemDDLFileAttrClause::getArity() const { return MAX_ELEM_DDL_FILE_ATTR_CLAUSE_ARITY; }
 
 ExprNode *ElemDDLFileAttrClause::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
@@ -388,7 +388,7 @@ ElemDDLMVFileAttrClause *ElemDDLMVFileAttrClause::castToElemDDLMVFileAttrClause(
 //
 
 // get the degree of this node
-Int32 ElemDDLMVFileAttrClause::getArity() const { return MAX_ELEM_DDL_MV_FILE_ATTR_CLAUSE_ARITY; }
+int ElemDDLMVFileAttrClause::getArity() const { return MAX_ELEM_DDL_MV_FILE_ATTR_CLAUSE_ARITY; }
 
 ExprNode *ElemDDLMVFileAttrClause::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());

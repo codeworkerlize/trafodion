@@ -127,8 +127,8 @@ class LateNameInfo : public NAVersionedObject {
   short getInputListIndex() { return inputListIndex_; };
   void setInputListIndex(short ilix) { inputListIndex_ = ilix; };
 
-  Int32 getCachedParamOffset() { return cachedParamOffset_; }
-  void setCachedParamOffset(Int32 o) { cachedParamOffset_ = o; }
+  int getCachedParamOffset() { return cachedParamOffset_; }
+  void setCachedParamOffset(int o) { cachedParamOffset_ = o; }
 
   char *variableName() { return varName_; };
   char *compileTimeAnsiName();
@@ -239,7 +239,7 @@ class LateNameInfo : public NAVersionedObject {
   // Is this a base table or index being resolved? ComAnsiNameSpace (see
   // ComSmallDefs.h)
   //
-  Int32 nameSpace_;  //  08- 11
+  int nameSpace_;  //  08- 11
 
   // index into the input hvar/param descriptors
   // where the table name host variable or param is.
@@ -271,7 +271,7 @@ class LateNameInfo : public NAVersionedObject {
   char lastUsedAnsiName_[MAX_ANSI_IDENTIFIER_LEN + 1];  // 582-840
 
   char filler1_[3];                // 841-843
-  Int32 cachedParamOffset_;        // 844-847
+  int cachedParamOffset_;        // 844-847
   char fillersLateNameInfo_[102];  // 848-949
 };
 
@@ -314,9 +314,9 @@ class LateNameInfoList : public NAVersionedObject {
     lateNameInfo_.allocatePtrArray(space, numEntries);
   }
 
-  LateNameInfo &getLateNameInfo(Int32 i) { return *(lateNameInfo_[i]); };
+  LateNameInfo &getLateNameInfo(int i) { return *(lateNameInfo_[i]); };
 
-  void setLateNameInfo(Int32 i, LateNameInfo *lni) { lateNameInfo_[i] = lni; }
+  void setLateNameInfo(int i, LateNameInfo *lni) { lateNameInfo_[i] = lni; }
 
   // unsigned long &numEntries() { return numEntries_; };
   ULng32 getNumEntries() { return numEntries_; };
@@ -395,8 +395,8 @@ class AnsiName : public NABasicObject {
 ///////////////////////////////////////////////////////////
 class TrafSimilarityTableInfo : public NAVersionedObject {
  public:
-  TrafSimilarityTableInfo(char *tableName, NABoolean isHive, char *hdfsRootDir, long modTS, Int32 numPartnLevels,
-                          Queue *hdfsDirsToCheck, char *hdfsHostName, Int32 hdfsPort);
+  TrafSimilarityTableInfo(char *tableName, NABoolean isHive, char *hdfsRootDir, long modTS, int numPartnLevels,
+                          Queue *hdfsDirsToCheck, char *hdfsHostName, int hdfsPort);
 
   TrafSimilarityTableInfo();
   ~TrafSimilarityTableInfo();
@@ -416,14 +416,14 @@ class TrafSimilarityTableInfo : public NAVersionedObject {
   int unpack(void *, void *reallocator);
 
   long modTS() { return modTS_; }
-  Int32 numPartnLevels() { return numPartnLevels_; }
+  int numPartnLevels() { return numPartnLevels_; }
 
   char *tableName() { return tableName_; }
   char *hdfsRootDir() { return hdfsRootDir_; }
   Queue *hdfsDirsToCheck() { return hdfsDirsToCheck_; }
 
   char *hdfsHostName() { return hdfsHostName_; }
-  Int32 hdfsPort() { return hdfsPort_; }
+  int hdfsPort() { return hdfsPort_; }
 
   NABoolean isHive() { return ((flags_ & HIVE) != 0); };
   void setIsHive(NABoolean v) { (v ? flags_ |= HIVE : flags_ &= ~HIVE); };
@@ -432,7 +432,7 @@ class TrafSimilarityTableInfo : public NAVersionedObject {
   enum Flags { HIVE = 0x0001 };
 
   long modTS_;
-  Int32 numPartnLevels_;
+  int numPartnLevels_;
   UInt32 flags_;
 
   NABasicPtr tableName_;
@@ -440,7 +440,7 @@ class TrafSimilarityTableInfo : public NAVersionedObject {
   QueuePtr hdfsDirsToCheck_;
 
   NABasicPtr hdfsHostName_;
-  Int32 hdfsPort_;
+  int hdfsPort_;
 
   char fillers_[12];
 };

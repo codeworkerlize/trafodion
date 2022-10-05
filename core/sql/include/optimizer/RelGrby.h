@@ -142,7 +142,7 @@ class GroupByAgg : public RelExpr {
   virtual ~GroupByAgg();
 
   // get the degree of this node (it is a unary op).
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   virtual NABoolean isUniqueOper();
   // get and set the grouping and aggregate expressions as parse trees
@@ -392,7 +392,7 @@ class GroupByAgg : public RelExpr {
   // SortGroupBy::codeGen.
   // Defined in file GenRelGrby.C
   short genAggrGrbyExpr(Generator *generator, ValueIdSet &aggregateExpr, ValueIdSet &groupExpr,
-                        ValueIdList &rollupGroupExprList, ValueIdSet &selectionPred, Int32 workAtp, Int32 workAtpIndex,
+                        ValueIdList &rollupGroupExprList, ValueIdSet &selectionPred, int workAtp, int workAtpIndex,
                         short returnedAtpIndex, ex_expr **aggr_expr, ex_expr **grby_expr, ex_expr **move_expr,
                         ex_expr **having_expr, ComTdb **child_tdb, ExpTupleDesc **tuple_desc);
 
@@ -765,7 +765,7 @@ class HbasePushdownAggr : public GroupByAgg {
 
   virtual ~HbasePushdownAggr();
 
-  virtual Int32 getArity() const { return 0; }
+  virtual int getArity() const { return 0; }
 
   virtual NABoolean isLogical() const { return FALSE; };
   virtual NABoolean isPhysical() const { return TRUE; };

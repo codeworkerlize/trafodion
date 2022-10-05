@@ -67,7 +67,7 @@ class RelInternalSP : public TableValuedFunction {
   };
 
   // get the degree of this node (it is a leaf op).
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   // a virtual function for performing name binding within the query tree
   virtual RelExpr *bindNode(BindWA *bindWAPtr);

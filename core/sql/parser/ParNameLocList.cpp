@@ -151,7 +151,7 @@ NABoolean ParSetTextEndPos(ElemDDLDivisionClause *pDivClauseParseNode) {
   // Case #2:
   //   TOK_DIVISION TOK_BY '(' TOK_USING '(' sort_by_value_expression_list ')' ...current_position...
 
-  Int32 tokIndex = 0;
+  int tokIndex = 0;
   const ParScannedTokenQueue::scannedTokenInfo *pTokInfo = ParScannedTokens->getScannedTokenInfoPtr(tokIndex);
   NAString tokStr((size_t)50);  // pre-allocate 50-byte memory space
   tokStr.append(&pInputStr[pTokInfo->tokenStrPos], pTokInfo->tokenStrLen);
@@ -191,7 +191,7 @@ NABoolean ParSetTextEndPos(StmtDDLCreateView *pCreateViewParseNode) {
   const ParScannedTokenQueue::scannedTokenInfo *tokInfo = ParScannedTokens->getScannedTokenInfoPtr(0);
   NAString tokStr(&pInputStr[tokInfo->tokenStrPos], tokInfo->tokenStrInputLen);
   size_t finalTokenPos = tokInfo->tokenStrPos;
-  Int32 isoOffset = 0;
+  int isoOffset = 0;
   tokStr.toUpper();
   NABoolean isEndOfInputStr = tokStr.isNull();
   if (NOT isEndOfInputStr AND tokStr NEQ ";" AND tokStr NEQ "ALTER" AND tokStr NEQ "CREATE" AND tokStr NEQ
@@ -296,7 +296,7 @@ void ParSetTextStartPosForCreateTrigger(ParNameLocList *pNameLocList) {
   // from ParScannedTokens circular queue
   //
 
-  Int32 triggerTokIndex = 0 /*index of most-recently-scanned token*/;
+  int triggerTokIndex = 0 /*index of most-recently-scanned token*/;
   const ParScannedTokenQueue::scannedTokenInfo &tokInfo = ParScannedTokens->getScannedTokenInfo(triggerTokIndex);
   NAString tokStr(&pInputStr[tokInfo.tokenStrPos], tokInfo.tokenStrLen);
   tokStr.toUpper();
@@ -316,7 +316,7 @@ void ParSetTextStartPosForCreateTrigger(ParNameLocList *pNameLocList) {
   // the token before the "TRIGGER" token should be white space(s)
   //
 
-  Int32 prevTokIndex = triggerTokIndex - 1;
+  int prevTokIndex = triggerTokIndex - 1;
   ComASSERT(ParScannedTokens->isQueueIndexWithinRange(prevTokIndex));
   const ParScannedTokenQueue::scannedTokenInfo &prevTokInfo = ParScannedTokens->getScannedTokenInfo(prevTokIndex);
   NAString prevTokStr(&pInputStr[prevTokInfo.tokenStrPos], prevTokInfo.tokenStrLen);
@@ -327,7 +327,7 @@ void ParSetTextStartPosForCreateTrigger(ParNameLocList *pNameLocList) {
   // from ParScannedTokens circular queue
   //
 
-  Int32 createTokIndex = triggerTokIndex - 2;
+  int createTokIndex = triggerTokIndex - 2;
   ComASSERT(ParScannedTokens->isQueueIndexWithinRange(createTokIndex));
   const ParScannedTokenQueue::scannedTokenInfo &createTokInfo = ParScannedTokens->getScannedTokenInfo(createTokIndex);
   NAString createTokStr(&pInputStr[createTokInfo.tokenStrPos], createTokInfo.tokenStrLen);
@@ -385,7 +385,7 @@ void ParSetEndOfOptionalColumnListPos(ParNameLocList *pNameLocList) {
   ComASSERT(pInputStr NEQ NULL);
 
   // locates the ')' token
-  Int32 MVTokIndex = 0; /* index of most-recently-scanned token */
+  int MVTokIndex = 0; /* index of most-recently-scanned token */
   const ParScannedTokenQueue::scannedTokenInfo &tokInfo = ParScannedTokens->getScannedTokenInfo(MVTokIndex);
   NAString tokStr(&pInputStr[tokInfo.tokenStrPos], tokInfo.tokenStrLen);
   tokStr.toUpper();
@@ -417,7 +417,7 @@ void ParSetBeginingOfFileOptionsListPos(ParNameLocList *pNameLocList) {
   const char *pInputStr = pNameLocList->getInputStringPtr();
   ComASSERT(pInputStr NEQ NULL);
 
-  Int32 MVTokIndex = 0; /* index of most-recently-scanned token */
+  int MVTokIndex = 0; /* index of most-recently-scanned token */
   const ParScannedTokenQueue::scannedTokenInfo &tokInfo = ParScannedTokens->getScannedTokenInfo(MVTokIndex);
   NAString tokStr(&pInputStr[tokInfo.tokenStrPos], tokInfo.tokenStrLen);
   tokStr.toUpper();
@@ -441,7 +441,7 @@ void ParSetBeginOfMVQueryPos(ParNameLocList *pNameLocList) {
 
   ComASSERT(pInputStr NEQ NULL);
 
-  Int32 MVTokIndex = 0;  // index of most-recently-scanned token
+  int MVTokIndex = 0;  // index of most-recently-scanned token
 
   const ParScannedTokenQueue::scannedTokenInfo &tokInfo = ParScannedTokens->getScannedTokenInfo(MVTokIndex);
 
@@ -451,7 +451,7 @@ void ParSetBeginOfMVQueryPos(ParNameLocList *pNameLocList) {
 
   ComASSERT("AS" == tokStr);
 
-  Int32 nextWhiteSpacePos = tokInfo.tokenStrPos + sizeof("AS") - 1;
+  int nextWhiteSpacePos = tokInfo.tokenStrPos + sizeof("AS") - 1;
 
   NAString space(&pInputStr[nextWhiteSpacePos], 1);
 
@@ -470,7 +470,7 @@ void ParSetEndOfSelectColumnListPos(ParNameLocList *pNameLocList) {
   ComASSERT(pInputStr NEQ NULL);
 
   // current token should be 'FROM'
-  Int32 MVTokIndex = 0; /* index of most-recently-scanned token */
+  int MVTokIndex = 0; /* index of most-recently-scanned token */
   const ParScannedTokenQueue::scannedTokenInfo &tokInfo = ParScannedTokens->getScannedTokenInfo(MVTokIndex);
   NAString tokStr(&pInputStr[tokInfo.tokenStrPos], tokInfo.tokenStrLen);
   tokStr.toUpper();
@@ -505,7 +505,7 @@ void ParSetEndOfFileOptionsListPos(ParNameLocList *pNameLocList) {
   const char *pInputStr = pNameLocList->getInputStringPtr();
   ComASSERT(pInputStr NEQ NULL);
 
-  Int32 MVTokIndex = 0; /* index of most-recently-scanned token */
+  int MVTokIndex = 0; /* index of most-recently-scanned token */
   const ParScannedTokenQueue::scannedTokenInfo &tokInfo = ParScannedTokens->getScannedTokenInfo(MVTokIndex);
   NAString tokStr(&pInputStr[tokInfo.tokenStrPos], tokInfo.tokenStrLen);
   tokStr.toUpper();  // tokStr is Only for debugging
@@ -557,7 +557,7 @@ void ParSetTextStartPosForCreateMV(ParNameLocList *pNameLocList) {
   // from ParScannedTokens circular queue
   //
 
-  Int32 MVTokIndex = 0; /* index of most-recently-scanned token */
+  int MVTokIndex = 0; /* index of most-recently-scanned token */
   const ParScannedTokenQueue::scannedTokenInfo &tokInfo = ParScannedTokens->getScannedTokenInfo(MVTokIndex);
   NAString tokStr(&pInputStr[tokInfo.tokenStrPos], tokInfo.tokenStrLen);
   tokStr.toUpper();
@@ -587,7 +587,7 @@ void ParSetTextStartPosForCreateMV(ParNameLocList *pNameLocList) {
   // the token before the "MV" token should be white space(s)
   //
 
-  Int32 prevTokIndex = MVTokIndex - 1;
+  int prevTokIndex = MVTokIndex - 1;
   ComASSERT(ParScannedTokens->isQueueIndexWithinRange(prevTokIndex));
   const ParScannedTokenQueue::scannedTokenInfo &prevTokInfo = ParScannedTokens->getScannedTokenInfo(prevTokIndex);
   NAString prevTokStr(&pInputStr[prevTokInfo.tokenStrPos], prevTokInfo.tokenStrLen);
@@ -597,8 +597,8 @@ void ParSetTextStartPosForCreateMV(ParNameLocList *pNameLocList) {
   // Locate the "CREATE" token. There may be an intervening "GHOST" token.
   //
 
-  Int32 createTokIndex;
-  Int32 ghostTokIndex = MVTokIndex - 2;
+  int createTokIndex;
+  int ghostTokIndex = MVTokIndex - 2;
   ComASSERT(ParScannedTokens->isQueueIndexWithinRange(ghostTokIndex));
   const ParScannedTokenQueue::scannedTokenInfo &ghostTokInfo = ParScannedTokens->getScannedTokenInfo(ghostTokIndex);
   NAString ghostTokStr(&pInputStr[ghostTokInfo.tokenStrPos], ghostTokInfo.tokenStrLen);
@@ -650,7 +650,7 @@ void ParSetBeginOfCreateTableAsQueryPos(ParNameLocList *pNameLocList) {
 
   ComASSERT(pInputStr NEQ NULL);
 
-  Int32 CTTokIndex = 0;  // index of most-recently-scanned token
+  int CTTokIndex = 0;  // index of most-recently-scanned token
 
   const ParScannedTokenQueue::scannedTokenInfo &tokInfo = ParScannedTokens->getScannedTokenInfo(CTTokIndex);
 
@@ -660,7 +660,7 @@ void ParSetBeginOfCreateTableAsQueryPos(ParNameLocList *pNameLocList) {
 
   ComASSERT("AS" == tokStr);
 
-  Int32 nextWhiteSpacePos = tokInfo.tokenStrPos + sizeof("AS") - 1;
+  int nextWhiteSpacePos = tokInfo.tokenStrPos + sizeof("AS") - 1;
 
   NAString space(&pInputStr[nextWhiteSpacePos], 1);
 
@@ -679,7 +679,7 @@ void ParSetBeginOfCreateTableAsAttrList(ParNameLocList *pNameLocList) {
 
   ComASSERT(pInputStr NEQ NULL);
 
-  Int32 CTTokIndex = 0;  // index of most-recently-scanned token
+  int CTTokIndex = 0;  // index of most-recently-scanned token
 
   const ParScannedTokenQueue::scannedTokenInfo &tokInfo = ParScannedTokens->getScannedTokenInfo(CTTokIndex);
 
@@ -687,7 +687,7 @@ void ParSetBeginOfCreateTableAsAttrList(ParNameLocList *pNameLocList) {
 
   tokStr.toUpper();
 
-  Int32 nextPos = 0;
+  int nextPos = 0;
   if (")" == tokStr) {
     nextPos = tokInfo.tokenStrPos + sizeof(")") - 1;
   } else
@@ -706,7 +706,7 @@ void ParSetEndOfCreateTableAsAttrList(ParNameLocList *pNameLocList) {
 
   ComASSERT(pInputStr NEQ NULL);
 
-  Int32 CTTokIndex = 0;  // index of most-recently-scanned token
+  int CTTokIndex = 0;  // index of most-recently-scanned token
 
   const ParScannedTokenQueue::scannedTokenInfo &tokInfo = ParScannedTokens->getScannedTokenInfo(CTTokIndex);
 
@@ -714,7 +714,7 @@ void ParSetEndOfCreateTableAsAttrList(ParNameLocList *pNameLocList) {
 
   tokStr.toUpper();
 
-  Int32 nextPos = 0;
+  int nextPos = 0;
   /*  if ("NO" == tokStr)
     {
       nextPos = tokInfo.tokenStrPos + sizeof("NO") - 1;
@@ -739,7 +739,7 @@ void ParSetEndOfCreateTableAsWithClause(ParNameLocList *pNameLocList) {
 
   ComASSERT(pInputStr NEQ NULL);
 
-  Int32 CTTokIndex = 0;  // index of most-recently-scanned token
+  int CTTokIndex = 0;  // index of most-recently-scanned token
 
   const ParScannedTokenQueue::scannedTokenInfo &tokInfo = ParScannedTokens->getScannedTokenInfo(CTTokIndex);
 
@@ -747,7 +747,7 @@ void ParSetEndOfCreateTableAsWithClause(ParNameLocList *pNameLocList) {
 
   tokStr.toUpper();
 
-  Int32 nextPos = 0;
+  int nextPos = 0;
   nextPos = tokInfo.tokenStrPos;
 
   ParEndOfCreateTableAsWithClausePos = nextPos;
@@ -760,8 +760,8 @@ NABoolean ParSetTextEndPos(StmtDDLCreateTable *pCreateCTParseNode) {
   pCreateCTParseNode->setStartOfCreateTableAsAttrListPosition(ParBeginingOfCreateTableAsAttrList);
   pCreateCTParseNode->setEndOfCreateTableAsAttrListPosition(ParEndOfCreateTableAsAttrList);
   pCreateCTParseNode->setEndOfCreateTableAsWithClausePosition(ParEndOfCreateTableAsWithClausePos);
-  pCreateCTParseNode->setCreateTableAsScannedInputCharset((Int32)ParScannedInputCharset);
-  pCreateCTParseNode->setCreateTableAsIsoMapping((Int32)SqlParser_ISO_MAPPING);
+  pCreateCTParseNode->setCreateTableAsScannedInputCharset((int)ParScannedInputCharset);
+  pCreateCTParseNode->setCreateTableAsIsoMapping((int)SqlParser_ISO_MAPPING);
   return FALSE;  // no error
 }
 
@@ -781,7 +781,7 @@ void ParSetTextStartPosForCheckConstraint(ParNameLocList *pNameLocList) {
   // from ParScannedTokens circular queue
   //
 
-  Int32 leftParenTokIndex = 0;  // index of most-recently-scanned token
+  int leftParenTokIndex = 0;  // index of most-recently-scanned token
   const ParScannedTokenQueue::scannedTokenInfo &tokInfo = ParScannedTokens->getScannedTokenInfo(leftParenTokIndex);
   NAString tokStr(&pInputStr[tokInfo.tokenStrPos], 1);  // only looking for open paren
   StringPos leftParenStrPos = tokInfo.tokenStrPos;
@@ -815,7 +815,7 @@ void ParSetTextStartPosForCheckConstraint(ParNameLocList *pNameLocList) {
   // optional white space(s) and "CHECK"
   //
 
-  Int32 prevTokIndex = leftParenTokIndex - 1;
+  int prevTokIndex = leftParenTokIndex - 1;
   ComASSERT(ParScannedTokens->isQueueIndexWithinRange(prevTokIndex));
   const ParScannedTokenQueue::scannedTokenInfo &prevTokInfo = ParScannedTokens->getScannedTokenInfo(prevTokIndex);
   NAString prevTokStr(&pInputStr[prevTokInfo.tokenStrPos], prevTokInfo.tokenStrLen);
@@ -823,7 +823,7 @@ void ParSetTextStartPosForCheckConstraint(ParNameLocList *pNameLocList) {
   if (prevTokStr NEQ "CHECK") {
     ComASSERT(IsNAStringSpace(prevTokStr));
 
-    Int32 prevTokIndex = leftParenTokIndex - 2;
+    int prevTokIndex = leftParenTokIndex - 2;
     ComASSERT(ParScannedTokens->isQueueIndexWithinRange(prevTokIndex));
     const ParScannedTokenQueue::scannedTokenInfo &prevTokInfo = ParScannedTokens->getScannedTokenInfo(prevTokIndex);
     NAString prevTokStr(&pInputStr[prevTokInfo.tokenStrPos], prevTokInfo.tokenStrLen);
@@ -864,10 +864,10 @@ void ParSetTextStartPosForDivisionByClause(ParNameLocList *pNameLocList) {
   // token information record from ParScannedTokens circular queue
   //
 
-  Int32 leftParenTokIndex = 0;
+  int leftParenTokIndex = 0;
   const ParScannedTokenQueue::scannedTokenInfo *pLeftParenTokInfo = NULL;
 
-  Int32 tokIndex = 0;  // index of most-recently-scanned token
+  int tokIndex = 0;  // index of most-recently-scanned token
   const ParScannedTokenQueue::scannedTokenInfo *pTokInfo = ParScannedTokens->getScannedTokenInfoPtr(tokIndex);
   NAString tokStr((size_t)50);  // pre-allocate 50 bytes memory space
   tokStr.append(&pInputStr[pTokInfo->tokenStrPos], pTokInfo->tokenStrLen);
@@ -969,7 +969,7 @@ void ParSetTextStartPosForCreateView(ParNameLocList *pNameLocList) {
   // from ParScannedTokens circular queue
   //
 
-  Int32 viewTokIndex = 0 /*index of most-recently-scanned token*/;
+  int viewTokIndex = 0 /*index of most-recently-scanned token*/;
 
   // The maximum number of tokens that can exist in this sytax are:
   // TOK_CREATE<sp><TOK_OR><sp><TOK_REPLACE><sp><TOK_VIEW><sp><TOK_CASCADE>
@@ -980,8 +980,8 @@ void ParSetTextStartPosForCreateView(ParNameLocList *pNameLocList) {
   // for CREATE.
 
   ParScannedTokenQueue::scannedTokenInfo tokInfo;
-  Int32 maxCount = 9;     // This will change when the syntax changes.
-  Int32 toksScanned = 0;  // counter for number of tokens scanned.
+  int maxCount = 9;     // This will change when the syntax changes.
+  int toksScanned = 0;  // counter for number of tokens scanned.
   NABoolean foundCreate = FALSE;
   NAString tokStr;
   while ((foundCreate == FALSE) || (toksScanned < maxCount)) {
@@ -1020,12 +1020,12 @@ void ParSetTextStartPosForDisplayExplain(ParNameLocList *pNameLocList) {
   // from ParScannedTokens circular queue
   //
 
-  Int32 leftParenTokIndex = 0;  // index of most-recently-scanned token
+  int leftParenTokIndex = 0;  // index of most-recently-scanned token
   const ParScannedTokenQueue::scannedTokenInfo &tokInfo = ParScannedTokens->getScannedTokenInfo(leftParenTokIndex);
   NAString tokStr(&pInputStr[tokInfo.tokenStrPos], tokInfo.tokenStrLen);
   StringPos qryStrPos = tokInfo.tokenStrPos;
 
-  Int32 c;
+  int c;
   c = tokStr.compareTo("EXPLAIN", NAString::ignoreCase);
   if ((c != 0) && (tokStr.data()[0] NEQ '\'')) {
     leftParenTokIndex = -2;
@@ -1046,7 +1046,7 @@ void ParSetTextStartPosForDisplayExplain(ParNameLocList *pNameLocList) {
     // key word for the stmt "explain options '<str>' ..."
     // Skip string that follows the "options" keyword
     char *trailingQ = strchr((char *)tokStr.data() + 1, '\'');
-    Int32 len = trailingQ - tokStr.data() + 1;
+    int len = trailingQ - tokStr.data() + 1;
     qryStrPos = qryStrPos + len;
   }
 
@@ -1102,7 +1102,7 @@ void ParSetTextStartPosForMultiCommit(ParNameLocList *pNameLocList) {
   StringPos qryStrPos = tokInfo.tokenStrPos;
 
   // Check to see if we have the WHERE clause.
-  Int32 c;
+  int c;
   c = tokStr.compareTo("WHERE", NAString::ignoreCase);
   if (c == 0) {
     //

@@ -57,7 +57,7 @@ void ActiveQueryStream::actOnSend(IpcConnection *connection) {
 ///////////////////////////////////////////////////////////////////////
 
 ActiveQueryEntry::ActiveQueryEntry(char *qid, int qidLen, long startTime, GuaProcessHandle master,
-                                   short masterFileNum, Int32 executionCount, IpcEnvironment *ipcEnv,
+                                   short masterFileNum, int executionCount, IpcEnvironment *ipcEnv,
                                    SsmpGlobals *ssmpG)
     : queryStartTime_(startTime),
       master_(master),
@@ -109,7 +109,7 @@ void ActiveQueryEntry::replyToQueryStarted(NAHeap *ipcHeap, NextActionForSubject
   if (cancelLogging) {
     char pname[40];
     pname[0] = '\0';
-    Int32 pnameLen = getMasterPhandle().toAscii(pname, sizeof(pname));
+    int pnameLen = getMasterPhandle().toAscii(pname, sizeof(pname));
     pname[pnameLen] = '\0';
 
     char msg[90 +  // the constant text
@@ -141,14 +141,14 @@ ActiveQueryEntry *ActiveQueryMgr::getActiveQuery(char *qid, int qidLen) {
   activeQueries_.position(qid, (ULng32)qidLen);
   aq = (ActiveQueryEntry *)activeQueries_.getNext();
   while (aq != NULL) {
-    if (str_cmp(aq->getQid(), qid, (Int32)qidLen) == 0) return aq;
+    if (str_cmp(aq->getQid(), qid, (int)qidLen) == 0) return aq;
     aq = (ActiveQueryEntry *)activeQueries_.getNext();
   }
   return NULL;
 }
 
 void ActiveQueryMgr::addActiveQuery(char *qid, int qidLen, long startTime, GuaProcessHandle masterPhandle,
-                                    Int32 executionCount, SsmpNewIncomingConnectionStream *cStream,
+                                    int executionCount, SsmpNewIncomingConnectionStream *cStream,
                                     IpcConnection *conn) {
   GuaConnectionToClient *gctc = conn->castToGuaConnectionToClient();
   ex_assert(gctc,
@@ -199,7 +199,7 @@ void ActiveQueryMgr::clientIsGone(const GuaProcessHandle &c, short fileNum) {
 // Methods for ActiveQueryEntry
 ///////////////////////////////////////////////////////////////////////
 
-PendingQueryEntry::PendingQueryEntry(char *qid, int qidLen, Int32 executionCount, GuaProcessHandle master,
+PendingQueryEntry::PendingQueryEntry(char *qid, int qidLen, int executionCount, GuaProcessHandle master,
                                      short masterFileNum, long escalateTime1, long escalateTime2,
                                      bool cancelEscalationSaveabend, bool cancelLogging)
     : qidLen_(qidLen),
@@ -229,7 +229,7 @@ PendingQueryEntry::~PendingQueryEntry() {
 PendingQueryMgr::PendingQueryMgr(SsmpGlobals *ssmpGlobals, NAHeap *heap)
     : pendingQueries_(heap), ssmpGlobals_(ssmpGlobals) {}
 
-void PendingQueryMgr::addPendingQuery(ActiveQueryEntry *aq, Int32 ceFirstInterval, Int32 ceSecondInterval,
+void PendingQueryMgr::addPendingQuery(ActiveQueryEntry *aq, int ceFirstInterval, int ceSecondInterval,
                                       NABoolean ceSaveabend, NABoolean cancelLogging) {
   char *qid = aq->getQid();
   int qidLen = aq->getQidLen();
@@ -362,7 +362,7 @@ void PendingQueryMgr::killPendingCanceled() {
         if (pq->getCancelLogging()) {
           char pname[40];
           pname[0] = '\0';
-          Int32 pnameLen = gph.toAscii(pname, sizeof(pname));
+          int pnameLen = gph.toAscii(pname, sizeof(pname));
           pname[pnameLen] = '\0';
 
           char msg[80 +                             // the constant text

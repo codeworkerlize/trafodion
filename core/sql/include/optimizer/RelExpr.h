@@ -186,7 +186,7 @@ class RelExpr : public ExprNode {
   // ---------------------------------------------------------------------
   virtual ~RelExpr();
 
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   NABoolean isAnyJoin() const;
 
@@ -247,7 +247,7 @@ class RelExpr : public ExprNode {
 
   CostScalar getRTDataUsed() { return rtDataUsed_; }
   void setRTDataUsed(CostScalar x) { rtDataUsed_ = x; }
-  virtual NABoolean assignRTStats(NAArray<long> &, Int32 &);
+  virtual NABoolean assignRTStats(NAArray<long> &, int &);
 
   void establishReverseParentPointers(RelExpr *parent = NULL);
 
@@ -255,10 +255,10 @@ class RelExpr : public ExprNode {
   NABoolean decideAllScansAreORCScans();
 
  protected:
-  void collectNumNativeParquetScans(Int32 &totalScans, Int32 &numNativeParquetScans);
-  void collectNumOrcScans(Int32 &totalScans, Int32 &numOrcScans);
+  void collectNumNativeParquetScans(int &totalScans, int &numNativeParquetScans);
+  void collectNumOrcScans(int &totalScans, int &numOrcScans);
 
-  NABoolean assignRTStatsPostProcessing(NAArray<long> &, Int32 &);
+  NABoolean assignRTStatsPostProcessing(NAArray<long> &, int &);
 
   // append an ascii-version of RelExpr node into cachewa.qryText_
   void generateCacheKeyNode(CacheWA &cwa) const;
@@ -932,11 +932,11 @@ class RelExpr : public ExprNode {
   // ---------------------------------------------------------------------
 
   // determine how many promising moves to pursue in exploration
-  virtual Int32 computeExploreExprCutoff(RuleWithPromise promisingMoves[], Int32 numberOfMoves, RelExpr *pattern,
+  virtual int computeExploreExprCutoff(RuleWithPromise promisingMoves[], int numberOfMoves, RelExpr *pattern,
                                          Guidance *myGuidance);
 
   // determine how many promising moves to pursue in optimization
-  virtual Int32 computeOptimizeExprCutoff(RuleWithPromise promisingMoves[], Int32 numberOfMoves, Guidance *myGuidance,
+  virtual int computeOptimizeExprCutoff(RuleWithPromise promisingMoves[], int numberOfMoves, Guidance *myGuidance,
                                           Context *myContext);
 
   // ---------------------------------------------------------------------
@@ -1156,7 +1156,7 @@ class RelExpr : public ExprNode {
 
   // -- Triggers
   // Count the number of nodes in the tree.
-  Int32 nodeCount() const;
+  int nodeCount() const;
 
   // Determine whether a node of the given type exists in the tree.
   NABoolean containsNode(OperatorTypeEnum nodeType);
@@ -1261,9 +1261,9 @@ class RelExpr : public ExprNode {
   inline void setIsExtraHub(NABoolean b) { isExtraHub_ = b; }
 
   // methods to set, get and update substitute potential
-  void setPotential(Int32 potential) { potential_ = potential; };
-  Int32 getPotential() const { return potential_; };
-  Int32 updatePotential(Int32 potential) {
+  void setPotential(int potential) { potential_ = potential; };
+  int getPotential() const { return potential_; };
+  int updatePotential(int potential) {
     if ((potential != -1) && (potential_ == -1)) {
       potential_ = potential;
     }
@@ -1308,8 +1308,8 @@ class RelExpr : public ExprNode {
 
   virtual NABoolean isHashJoin();
 
-  void setOrder(Int32 x) { order_ = x; }
-  Int32 getOrder() { return order_; }
+  void setOrder(int x) { order_ = x; }
+  int getOrder() { return order_; }
 
   static NABoolean findRtStatsStorePath(NAString &);
   static NABoolean isValidRtStatsFileName(char *filename);
@@ -1488,7 +1488,7 @@ class RelExpr : public ExprNode {
   NABoolean isExtraHub_;
 
   // potential of the substitute
-  Int32 potential_;
+  int potential_;
 
   // Used to help determine whether hash join
   // optimizations may be turned on
@@ -1503,7 +1503,7 @@ class RelExpr : public ExprNode {
   short stride_;        // that created this RelExpr
 
   CascadesGroupId sourceGroupId_;  // GroupId of creator task of this relexpr
-  Int32 birthId_;                  // TaskCount when this relexpr was created
+  int birthId_;                  // TaskCount when this relexpr was created
 
   ULng32 memoExprId_;        // MemoExprId of this relexpr
   ULng32 sourceMemoExprId_;  // MemoExprId of the source of this relexpr
@@ -1534,7 +1534,7 @@ class RelExpr : public ExprNode {
   CostScalar rtDataUsed_;
 
   // The traversal order of this node in the query plan;
-  Int32 order_;
+  int order_;
 
   NAString operKey_;
 
@@ -1575,7 +1575,7 @@ class RelExpr : public ExprNode {
   // begin: accessors & mutators for relexpr tracking info
   int getParentTaskId() { return parentTaskId_; }
   short getSubTaskId() { return stride_; }
-  Int32 getBirthId() { return birthId_; }
+  int getBirthId() { return birthId_; }
 
   const NAString getCascadesTraceInfoStr();
   void setCascadesTraceInfo(RelExpr *src);
@@ -1596,8 +1596,8 @@ class RelExpr : public ExprNode {
 
   CostScalar getChild0Cardinality(const Context *);
 
-  virtual Int32 findHiveTables(NABoolean inEspFragment);
-  virtual Int32 findNumOperators(NABoolean inEspFragment);
+  virtual int findHiveTables(NABoolean inEspFragment);
+  virtual int findNumOperators(NABoolean inEspFragment);
 
   virtual void collectTableNames(NAString &queryData);
 
@@ -1605,10 +1605,10 @@ class RelExpr : public ExprNode {
 
   // compute # of max forced DoP, mainly for required shape RelExpr
   // tree.
-  Int32 maxForcedDoP();
+  int maxForcedDoP();
 
  protected:
-  virtual Int32 myMaxForcedDoP() { return 0; };
+  virtual int myMaxForcedDoP() { return 0; };
 };  // class RelExpr
 
 // -----------------------------------------------------------------------
@@ -1640,7 +1640,7 @@ class RelExprList : public LIST(RelExpr *) {
 // -----------------------------------------------------------------------
 class CutOp : public RelExpr {
  public:
-  CutOp(Int32 index, CollHeap *oHeap = CmpCommon::statementHeap()) : RelExpr(REL_CUT_OP, NULL, NULL, oHeap) {
+  CutOp(int index, CollHeap *oHeap = CmpCommon::statementHeap()) : RelExpr(REL_CUT_OP, NULL, NULL, oHeap) {
     index_ = index;
     expr_ = NULL;
   }
@@ -1648,10 +1648,10 @@ class CutOp : public RelExpr {
   virtual ~CutOp();
 
   virtual void print(FILE *f = stdout, const char *prefix = "", const char *suffix = "") const;
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
   virtual NABoolean isCutOp() const;
   virtual RelExpr *copyTopNode(RelExpr *, CollHeap *outHeap = 0);
-  inline Int32 getIndex() { return index_; }
+  inline int getIndex() { return index_; }
   void setGroupIdAndAttr(CascadesGroupId groupId);
   inline RelExpr *getExpr() const { return expr_; }
   void setExpr(RelExpr *e);
@@ -1661,7 +1661,7 @@ class CutOp : public RelExpr {
   virtual const NAString getText() const;
 
  private:
-  Int32 index_;    // in rules, used to distinguish multiple children
+  int index_;    // in rules, used to distinguish multiple children
   RelExpr *expr_;  // only for bindings fixed to a particular expression
 
 };  // CutOp
@@ -1680,7 +1680,7 @@ class SubtreeOp : public RelExpr {
  public:
   inline SubtreeOp(NABoolean all) : RelExpr(REL_TREE_OP) { all_ = all; }
   virtual ~SubtreeOp();
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
   virtual NABoolean isSubtreeOp() const;
   virtual const NAString getText() const;
   virtual RelExpr *copyTopNode(RelExpr *, CollHeap *outHeap = 0);
@@ -1699,7 +1699,7 @@ class SubtreeOp : public RelExpr {
 // -----------------------------------------------------------------------
 class WildCardOp : public RelExpr {
  public:
-  WildCardOp(OperatorType otype, Int32 designator = 0, RelExpr *child0 = NULL, RelExpr *child1 = NULL,
+  WildCardOp(OperatorType otype, int designator = 0, RelExpr *child0 = NULL, RelExpr *child1 = NULL,
              CollHeap *outHeap = CmpCommon::statementHeap())
       : RelExpr(otype, child0, child1, outHeap) {
     designator_ = designator;
@@ -1708,9 +1708,9 @@ class WildCardOp : public RelExpr {
 
   virtual ~WildCardOp();
 
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
-  inline Int32 getDesignator() { return designator_; }
+  inline int getDesignator() { return designator_; }
   virtual NABoolean isWildcard() const;
   virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
@@ -1720,7 +1720,7 @@ class WildCardOp : public RelExpr {
   virtual const NAString getText() const;
 
  private:
-  Int32 designator_;
+  int designator_;
   RelExpr *corrNode_;
 
 };  // WildCardOp
@@ -1831,25 +1831,25 @@ class JoinForceWildCard : public WildCardOp {
   // either use any scan on the table with a given exposed name
   // or only use an index scan on the specified index
   JoinForceWildCard(OperatorTypeEnum type, RelExpr *child0, RelExpr *child1, forcedPlanEnum plan = ANY_PLAN,
-                    Int32 numOfEsps = 0, CollHeap *outHeap = CmpCommon::statementHeap());
+                    int numOfEsps = 0, CollHeap *outHeap = CmpCommon::statementHeap());
 
   virtual ~JoinForceWildCard();
 
   virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
   inline forcedPlanEnum getPlan() const { return plan_; }
-  inline Int32 getNumOfEsps() const { return numOfEsps_; }
+  inline int getNumOfEsps() const { return numOfEsps_; }
 
   virtual const NAString getText() const;
 
   // helper function on CQS Tree
   virtual RelExpr *generateMatchingExpr(CANodeIdSet &, CANodeIdSet &, RelExpr *);
 
-  Int32 myMaxForcedDoP() { return numOfEsps_; };
+  int myMaxForcedDoP() { return numOfEsps_; };
 
  private:
   forcedPlanEnum plan_;  // ANY_PLAN means don't force the plan type
-  Int32 numOfEsps_;      // 0 means don't force number of ESPs
+  int numOfEsps_;      // 0 means don't force number of ESPs
 };
 
 // -----------------------------------------------------------------------
@@ -1893,7 +1893,7 @@ class ExchangeForceWildCard : public WildCardOp {
   // helper function on CQS Tree
   virtual RelExpr *generateMatchingExpr(CANodeIdSet &, CANodeIdSet &, RelExpr *);
 
-  Int32 myMaxForcedDoP() { return howMany_; };
+  int myMaxForcedDoP() { return howMany_; };
 
  private:
   forcedExchEnum which_;  // which of the flavors of Exchange we want
@@ -1966,8 +1966,8 @@ class RequiredResources : public NABasicObject {
   void incrementNumOfHBaseTables() { numOfHBaseTables_++; };
   void incrementNumOfHiveTables() { numOfHiveTables_++; };
 
-  Int32 getNumOfHbaseTables() { return numOfHBaseTables_; };
-  Int32 getNumOfHiveTables() { return numOfHiveTables_; };
+  int getNumOfHbaseTables() { return numOfHBaseTables_; };
+  int getNumOfHiveTables() { return numOfHiveTables_; };
 
  private:
   CostScalar memoryResources_;
@@ -1978,8 +1978,8 @@ class RequiredResources : public NABasicObject {
   CostScalar maxOperDataAccessCost_;
   CostScalar maxMaxCardinality_;
 
-  Int32 numOfHBaseTables_;  // number of Hbase tables accumulated
-  Int32 numOfHiveTables_;   // number of Hive tables accumulated
+  int numOfHBaseTables_;  // number of Hbase tables accumulated
+  int numOfHiveTables_;   // number of Hive tables accumulated
 };                          // RequiredResources
 
 // *********************************************************************

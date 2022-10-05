@@ -443,7 +443,7 @@ void CRUDupElimSingleRowResolver::ExecuteDeleteRecord(CRUIUDLogRecord *pRec) {
   pStmt->SetInt(1, pRec->GetEpoch());
   pRec->CopyCKTupleValuesToParams(*pStmt, 2);
 
-  Int32 syskeyPos = 2 + pRec->GetCKLength();
+  int syskeyPos = 2 + pRec->GetCKLength();
   pStmt->SetLargeInt(syskeyPos, pRec->GetSyskey());
 
   pStmt->ExecuteUpdate();
@@ -478,7 +478,7 @@ void CRUDupElimSingleRowResolver::ExecuteUpdateIgnMark(CRUIUDLogRecord *pRec) {
   pStmt->SetInt(2, pRec->GetEpoch());
   pRec->CopyCKTupleValuesToParams(*pStmt, 3);
 
-  Int32 syskeyPos = 3 + pRec->GetCKLength();
+  int syskeyPos = 3 + pRec->GetCKLength();
   pStmt->SetLargeInt(syskeyPos, pRec->GetSyskey());
 
   pStmt->ExecuteUpdate();

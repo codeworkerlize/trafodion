@@ -84,7 +84,7 @@ class DatetimeType : public DatetimeIntervalCommonType {
   static int getStorageSize(rec_datetime_field startField, rec_datetime_field endField, UInt32 fractionPrecision = 0);
 
   // Used by DatetimeValue
-  static Int32 getExtendedEndField(rec_datetime_field endField, UInt32 fractionPrecision);
+  static int getExtendedEndField(rec_datetime_field endField, UInt32 fractionPrecision);
 
   void datetimeToLong(void *bufPtr, ULng32 values[]) const;
 
@@ -485,9 +485,9 @@ class DatetimeValue {
   static void decodeTimestamp(long julianTimestamp, UInt32 fracSec, UInt32 *dtvFields);
 
   static void decodeTimestamp(bool useUTCTimestamp, long inTimeVal, bool inMillis, short *tsFields);
-  static int convertToUtcFromDatetime(const char *value, Int32 valueLen, Int32 fractionPrec, time_t &utcTime,
+  static int convertToUtcFromDatetime(const char *value, int valueLen, int fractionPrec, time_t &utcTime,
                                       int &nanoSecs);
-  static int convertToUtcFromDate(const char *value, Int32 valueLen, time_t &utcTime);
+  static int convertToUtcFromDate(const char *value, int valueLen, time_t &utcTime);
   // ---------------------------------------------------------------------
   // Scan the date and return individual fields. Dont validate the date.
   // ---------------------------------------------------------------------

@@ -67,11 +67,11 @@ static long juliantimestamp_() {
 }
 
 SQScratchFile::SQScratchFile(ScratchSpace *scratchSpace, SortError *sorterror, CollHeap *heap, NABoolean breakEnabled,
-                             Int32 scratchMaxOpens, NABoolean asynchReadQueue)
+                             int scratchMaxOpens, NABoolean asynchReadQueue)
     : ScratchFile(scratchSpace, SCRATCH_FILE_SIZE, sorterror, heap, scratchMaxOpens, breakEnabled),
       vectorSize_(scratchSpace->getScratchIOVectorSize()),
       vector_(NULL) {
-  Int32 error = 0;
+  int error = 0;
   resultFileSize_ = SCRATCH_FILE_SIZE;
   asynchReadQueue_ = asynchReadQueue;
   doDiskCheck_ = FALSE;
@@ -115,7 +115,7 @@ SQScratchFile::SQScratchFile(ScratchSpace *scratchSpace, SortError *sorterror, C
   // Error 0 is success, 1 is unknown overflow type
   // error 2 is specified overflow type not configured.
   if (error) {
-    Int32 errorType = EUnexpectErr;
+    int errorType = EUnexpectErr;
     switch (error) {
       case 1:
         errorType = EUnKnownOvType;
@@ -170,7 +170,7 @@ SQScratchFile::SQScratchFile(ScratchSpace *scratchSpace, SortError *sorterror, C
 
   if (scratchSpace_->getScratchOverflowMode() != SCRATCH_MMAP) {
     // change to non-blocking I/O
-    Int32 flags = STFS_fcntl(fileHandle_[0].fileNum, F_GETFL);
+    int flags = STFS_fcntl(fileHandle_[0].fileNum, F_GETFL);
 
     // other flags
     flags |= O_APPEND;
@@ -279,7 +279,7 @@ SQScratchFile::SQScratchFile(ScratchSpace *scratchSpace, SortError *sorterror, C
   // Regression testing support for simulating IO Pending state.
   envIOPending_ = getenv("SCRATCH_IO_PENDING");
   if (envIOPending_)
-    envIOBlockCount_ = (Int32)str_atoi(envIOPending_, str_len(envIOPending_));
+    envIOBlockCount_ = (int)str_atoi(envIOPending_, str_len(envIOPending_));
   else
     envIOBlockCount_ = -1;
 #endif
@@ -306,7 +306,7 @@ NABoolean SQScratchFile::checkDirectory(char *path) {
   char cwd[1024 + 1];
   char *currentDir = getcwd(cwd, 1024);  // get current working directory
   if (currentDir == NULL) return SORT_FAILURE;
-  Int32 answerOfLife = chdir(path);
+  int answerOfLife = chdir(path);
   chdir(currentDir);  // change current directory
   if (answerOfLife == 0) {
     return SORT_SUCCESS;
@@ -317,7 +317,7 @@ NABoolean SQScratchFile::checkDirectory(char *path) {
 //--------------------------------------------------------------------------
 // seekOffset
 //--------------------------------------------------------------------------
-RESULT SQScratchFile::seekOffset(Int32 index, int offset, long &iowaittime, int *transfered, DWORD seekDirection) {
+RESULT SQScratchFile::seekOffset(int index, int offset, long &iowaittime, int *transfered, DWORD seekDirection) {
   // Assert that there is no pending IO on this file num.
   ex_assert(fileHandle_[index].IOPending == FALSE, "SQScratchFile::seekOffset, Pending IO on file handle");
 
@@ -346,8 +346,8 @@ RESULT SQScratchFile::seekOffset(Int32 index, int offset, long &iowaittime, int 
 // IO_COMPLETE, SCRATCH_FAILURE and DISK_FULL only. Rest of the errors
 // is returned as part of sortError structure. Layers above will handle
 // the errors as appropriate.
-RESULT SQScratchFile::checkScratchIO(Int32 index, DWORD timeout, NABoolean initiateIO) {
-  Int32 error = 0;
+RESULT SQScratchFile::checkScratchIO(int index, DWORD timeout, NABoolean initiateIO) {
+  int error = 0;
   NABoolean retry = TRUE;
   RESULT result;
 
@@ -410,10 +410,10 @@ RESULT SQScratchFile::checkScratchIO(Int32 index, DWORD timeout, NABoolean initi
   return SCRATCH_SUCCESS;
 }
 
-Int32 SQScratchFile::redriveIO(Int32 index, int &count, int timeout) {
-  Int32 err = 0;
+int SQScratchFile::redriveIO(int index, int &count, int timeout) {
+  int err = 0;
   RESULT result;
-  Int32 retval;
+  int retval;
 
   switch (type_) {
     case PEND_READ:
@@ -440,14 +440,14 @@ Int32 SQScratchFile::redriveIO(Int32 index, int &count, int timeout) {
   return err;
 }
 
-RESULT SQScratchFile::doSelect(Int32 index, DWORD timeout, EPendingIOType type, Int32 &err) {
+RESULT SQScratchFile::doSelect(int index, DWORD timeout, EPendingIOType type, int &err) {
   if (scratchSpace_->getScratchOverflowMode() == SCRATCH_MMAP) {
     return SCRATCH_SUCCESS;
   }
 
   fd_set fds;
   struct timeval tv;
-  Int32 retval;
+  int retval;
 
   long tLeft = LONG_MAX;
   if (timeout >= 0) tLeft = timeout * 10000;
@@ -495,7 +495,7 @@ RESULT SQScratchFile::doSelect(Int32 index, DWORD timeout, EPendingIOType type, 
   return SCRATCH_SUCCESS;
 }
 
-RESULT SQScratchFile::writeBlock(Int32 index, char *data, int length, long &iowaittime, Int32 blockNum,
+RESULT SQScratchFile::writeBlock(int index, char *data, int length, long &iowaittime, int blockNum,
                                  int *transfered, NABoolean waited) {
   ex_assert(vectorIndex_ < vectorSize_, "SQScratchFile::writeBlock, vectorIndex is out of bounds");
 
@@ -542,8 +542,8 @@ RESULT SQScratchFile::writeBlock(Int32 index, char *data, int length, long &iowa
   return executeVectorIO();
 }
 
-RESULT SQScratchFile::readBlock(Int32 index, char *data, int length, long &iowaittime, int *transfered,
-                                Int32 synchronous) {
+RESULT SQScratchFile::readBlock(int index, char *data, int length, long &iowaittime, int *transfered,
+                                int synchronous) {
   ex_assert(vectorIndex_ < vectorSize_, "SQScratchFile::readBlockV, vectorIndex is out of bounds");
 
   // This assert is necessary to catch mixing of write and read operations before
@@ -673,7 +673,7 @@ RESULT SQScratchFile::executeVectorIO() {
 // operation. The return values are typically interpretted by the caller.
 // IOPending flags are pushed to this method so that IOPending flag is not
 // set or reset at different places in the code.
-Int32 SQScratchFile::redriveVectorIO(Int32 index) {
+int SQScratchFile::redriveVectorIO(int index) {
   ssize_t bytesCompleted = 0;
   ExBMOStats *bmoStats = scratchSpace_->bmoStats();
   // Other book keeping
@@ -764,7 +764,7 @@ Int32 SQScratchFile::redriveVectorIO(Int32 index) {
   return 0;
 }
 
-NABoolean SQScratchFile::isNewVecElemPossible(long byteOffset, Int32 blockSize) {
+NABoolean SQScratchFile::isNewVecElemPossible(long byteOffset, int blockSize) {
   if (vectorIndex_ == 0)  // vector not populated
     return TRUE;
   else if (type_ = PEND_READ)  // vector populated for READ
@@ -788,7 +788,7 @@ short SQScratchFile::obtainError() { return errno; }
 // looks at the value to determine wether to return an "ERROR" value or
 // assert(0) because the error is very bad.
 //--------------------------------------------------------------------------
-RESULT SQScratchFile::getError(Int32 index) {
+RESULT SQScratchFile::getError(int index) {
   //------------------------------------------------------------------------
   // call obtain error and then determine the right value to return.
   //------------------------------------------------------------------------
@@ -830,7 +830,7 @@ void SQScratchFile::copyVectorElements(ScratchFile *newFile) {
   nFile->bytesRequested_ = bytesRequested_;
   nFile->blockNumFirstVectorElement_ = blockNumFirstVectorElement_;
 
-  Int32 count = nFile->vectorIndex_ = vectorIndex_;
+  int count = nFile->vectorIndex_ = vectorIndex_;
   while (count > 0) {
     nFile->vector_[count - 1].iov_base = vector_[count - 1].iov_base;
     nFile->vector_[count - 1].iov_len = vector_[count - 1].iov_len;

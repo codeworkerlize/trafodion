@@ -550,7 +550,7 @@ class StmtDDLCreateView : public StmtDDLNode {
   // accessors
   //
 
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   inline NABoolean getIsUpdatable() const { return isUpdatable_; }
   inline NABoolean getIsInsertable() const { return isInsertable_; }

@@ -145,7 +145,7 @@ NABoolean RelExpr::preventPushDownPartReq(const ReqdPhysicalProperty *rppForMe, 
   }
 
   NABoolean childIsPartitioned = TRUE;
-  for (Int32 i = 0; i < 2; i++) {
+  for (int i = 0; i < 2; i++) {
     const CascadesPlan *childPlan = (*CURRSTMT_OPTGLOBALS->memo)[child(i).getGroupId()]->getFirstPlan();
     if (childPlan AND childPlan->succeededInCurrentPass()
             AND((child(i).outputLogProp(inLogProp))->getResultCardinality().value() <
@@ -194,7 +194,7 @@ RelExpr *RelExpr::optimize(NABoolean exceptionMode, Guidance *guidance, ReqdPhys
                            CostLimit *costLimit) {
   CascadesGroupId root;
   RelExpr *plan = NULL;
-  Int32 task_count = 0;
+  int task_count = 0;
   short stride = 0;
 #ifdef _DEBUG
   // this is to facilitate debugging in Visual inspect
@@ -203,7 +203,7 @@ RelExpr *RelExpr::optimize(NABoolean exceptionMode, Guidance *guidance, ReqdPhys
   // task_count if comparison is true we would stop at actual
   // no op. but the value of tha variable will be incremented
   // to avoid warning.
-  Int32 taskCountToStop = 0;
+  int taskCountToStop = 0;
 #endif
   NABoolean duplicate_expr;
   NABoolean group_merge;
@@ -232,7 +232,7 @@ RelExpr *RelExpr::optimize(NABoolean exceptionMode, Guidance *guidance, ReqdPhys
   }
 
   //////////////////////////////////////////////////////
-  for (Int32 ti = 0; ti < CascadesTask::NUMBER_OF_TASK_TYPES; ti++)
+  for (int ti = 0; ti < CascadesTask::NUMBER_OF_TASK_TYPES; ti++)
     (*CURRSTMT_OPTGLOBALS->cascadesTasksMonitor[ti]).init(0);
   (*CURRSTMT_OPTGLOBALS->cascadesPassMonitor).init(0);
   if (CURRSTMT_OPTDEFAULTS->optimizerHeuristic2()) {  //#ifdef _DEBUG
@@ -441,8 +441,8 @@ RelExpr *RelExpr::optimize(NABoolean exceptionMode, Guidance *guidance, ReqdPhys
 
 #ifdef NA_DEBUG_GUI
         if (CmpMain::msGui_ && CURRENTSTMT->displayGraph()) {
-          CmpMain::pExpFuncs_->fpDoMemoStep((Int32)GlobalRuleSet->getCurrentPassNumber(),
-                                            (Int32)next_task->getGroupId(), task_count, next_task, next_task->getExpr(),
+          CmpMain::pExpFuncs_->fpDoMemoStep((int)GlobalRuleSet->getCurrentPassNumber(),
+                                            (int)next_task->getGroupId(), task_count, next_task, next_task->getExpr(),
                                             next_task->getPlan());
         }
 #endif
@@ -450,7 +450,7 @@ RelExpr *RelExpr::optimize(NABoolean exceptionMode, Guidance *guidance, ReqdPhys
 #ifdef _DEBUG
         // Show task.
         if ((CmpCommon::getDefault(NSK_DBG) == DF_ON) && (CmpCommon::getDefault(NSK_DBG_PRINT_TASK) == DF_ON)) {
-          CURRCONTEXT_OPTDEBUG->showTask((Int32)GlobalRuleSet->getCurrentPassNumber(), (Int32)next_task->getGroupId(),
+          CURRCONTEXT_OPTDEBUG->showTask((int)GlobalRuleSet->getCurrentPassNumber(), (int)next_task->getGroupId(),
                                          task_count, next_task, next_task->getExpr(), next_task->getPlan(), " ");
         }
         // stop at this task if necessary when debugging
@@ -551,7 +551,7 @@ RelExpr *RelExpr::optimize(NABoolean exceptionMode, Guidance *guidance, ReqdPhys
 #endif
 
       if (context->getSolution() && (CmpCommon::getDefault(NSK_DBG) == DF_ON)) {
-        Int32 passNumber = GlobalRuleSet->getCurrentPassNumber();
+        int passNumber = GlobalRuleSet->getCurrentPassNumber();
         if ((passNumber == 1 && CmpCommon::getDefault(NSK_DBG_SHOW_PASS1_PLAN) == DF_ON)
                 OR(passNumber == 2 && CmpCommon::getDefault(NSK_DBG_SHOW_PASS2_PLAN) == DF_ON)) {
           CURRCONTEXT_OPTDEBUG->stream() << endl << "Plan chosen after Pass " << passNumber << endl;
@@ -584,7 +584,7 @@ RelExpr *RelExpr::optimize(NABoolean exceptionMode, Guidance *guidance, ReqdPhys
 
     NABoolean compilation_did_not_complete_pass_one = GlobalRuleSet->getCurrentPassNumber() > 1;
 
-    Int32 currentPass = GlobalRuleSet->getCurrentPassNumber();
+    int currentPass = GlobalRuleSet->getCurrentPassNumber();
 
     // turn off any CQSWA pointers
     CURRENTSTMT->clearCqsWA();
@@ -675,7 +675,7 @@ RelExpr *RelExpr::optimize(NABoolean exceptionMode, Guidance *guidance, ReqdPhys
   if (didNotCompleteFinalOptimizationPass) {
     // check if there was no previous plan, this would happen if we were in
     // the second pass and the first pass was skipped
-    if (skipShortOptimizationPass && (Int32)GlobalRuleSet->getCurrentPassNumber() == 2) {
+    if (skipShortOptimizationPass && (int)GlobalRuleSet->getCurrentPassNumber() == 2) {
       delete CURRSTMT_OPTGLOBALS->task_list;
       CURRSTMT_OPTGLOBALS->task_list = NULL;
       // do not delete memo at this point yet
@@ -1015,7 +1015,7 @@ NAString Context::getRPPString() const {
 // GTOOL
 NAString Context::getIPPString() const {
   // Return a one-line description of the input physical properties.
-  const Int32 MAX_STR_LEN = 1001;
+  const int MAX_STR_LEN = 1001;
 
   NAString propString("", CmpCommon::statementHeap());
 
@@ -1137,11 +1137,11 @@ NABoolean Context::findBestSolution() {
   // Scan all other contexts in this group to find optimal plans to steal,
   // or, if pruning is enabled, candidate plans to steal.
   // ---------------------------------------------------------------------
-  Int32 maxc = (Int32)((*CURRSTMT_OPTGLOBALS->memo)[groupId_]->getCountOfContexts());  //# of contxts in grp
+  int maxc = (int)((*CURRSTMT_OPTGLOBALS->memo)[groupId_]->getCountOfContexts());  //# of contxts in grp
   Context *otherContext;                                                               // another contxt in grp
   CascadesPlan *plan;                                                                  // a potential solution
   COMPARE_RESULT comp;                                                                 // this ?? otherContext
-  Int32 i, j;
+  int i, j;
 
   for (i = 0; i < maxc; i++) {
     otherContext = (*CURRSTMT_OPTGLOBALS->memo)[groupId_]->getContext(i);
@@ -1472,7 +1472,7 @@ RelExpr *Context::bindSolutionTree(NABoolean getPrevSolution) const {
     result->setMaxCardEst(
         (*CURRSTMT_OPTGLOBALS->memo)[getGroupId()]->getGroupAttr()->outputLogProp(iLP)->getMaxCardEst());
 
-    Int32 nc = result->getArity();
+    int nc = result->getArity();
 
     // bind the child nodes to the optimal solutions for the child contexts
     for (int i = 0; i < nc; i++) {
@@ -1529,7 +1529,7 @@ NABoolean Context::setPreviousSolution() {
   const CascadesPlan *plan = getPreviousSolution();
 
   RelExpr *result = plan->getPhysicalExpr();
-  Int32 nc = result->getArity();
+  int nc = result->getArity();
 
   for (int i = 0; i < nc; i++) {
     if (plan->getContextForChild(i)) {
@@ -1767,7 +1767,7 @@ void Context::addCandidatePlan(CascadesPlan *plan) {
 void Context::decrOutstanding() {
   if (--outstanding_ == 0) {
     // this optimization task is complete, mark it
-    doneInPass_ = (Int32)GlobalRuleSet->getCurrentPassNumber();
+    doneInPass_ = (int)GlobalRuleSet->getCurrentPassNumber();
   }
 }
 
@@ -1891,14 +1891,14 @@ const Cost *CascadesPlan::getCostForChild(int childIndex) const {
   return (IFX getSolutionForChild(childIndex) THENX getSolutionForChild(childIndex)->getRollUpCost() ELSEX NULL);
 }
 
-NABoolean CascadesPlan::exprOccursInChildTree(RelExpr *newExpr, Int32 maxDepth) const {
+NABoolean CascadesPlan::exprOccursInChildTree(RelExpr *newExpr, int maxDepth) const {
   if (maxDepth <= 0) return FALSE;
   // walk the plan tree and check for occurrences of newExpr in the
   // solutions of the child contexts, up to a depth of "maxDepth"
   // groups
   if (newExpr) {
-    Int32 arity = newExpr->getArity();
-    for (Int32 i = 0; i < arity; i++) {
+    int arity = newExpr->getArity();
+    for (int i = 0; i < arity; i++) {
       Context *cc = getContextForChild(i);
       if (cc AND cc->getSolution()) {
         // Is newExpr the top node of the this child's solution?
@@ -2606,7 +2606,7 @@ void CascadesTaskList::print(FILE *f, const char *prefix, const char *suffix) co
     fprintf(f, "%s%s OPEN %s\n", prefix, LINE_STRING, LINE_STRING);
 
     // loop over all tasks to be done
-    Int32 count = 0;
+    int count = 0;
     for (CascadesTask *task = first_; task != NULL; task = task->next_)
       fprintf(f, "%d -- ", ++count), task->print(f, "", "");
 
@@ -2717,7 +2717,7 @@ CascadesBinding::~CascadesBinding() {
   // if an expression exists, delete it and its children
   if (state_ == VALID_BINDING OR state_ == ALMOST_EXHAUSTED) {
     CascadesBinding *childBinding;
-    for (int childIndex = (Int32)(children_.entries()); --childIndex >= 0;) {
+    for (int childIndex = (int)(children_.entries()); --childIndex >= 0;) {
       childBinding = children_[childIndex];
       delete childBinding;
     }
@@ -2777,7 +2777,7 @@ RelExpr *CascadesBinding::extract_expr() {
 
   else  // general invocation of extract_expr
   {
-    const Int32 arity = curExpr_->getArity();
+    const int arity = curExpr_->getArity();
 
     result = curExpr_;
 
@@ -2834,7 +2834,7 @@ void CascadesBinding::release_expr() {
 
   else  // non-cut node
   {
-    Int32 arity = curExpr_->getArity();
+    int arity = curExpr_->getArity();
 
     // release child expressions
     for (int childIndex = 0; childIndex < arity; ++childIndex) {
@@ -2884,7 +2884,7 @@ NABoolean CascadesBinding::advance() {
   // loop until either failure or success
   for (;;) {
     // to cache some function results
-    Int32 arity = 0, childIndex;
+    int arity = 0, childIndex;
 
     // state analysis and transitions
     switch (state_) {
@@ -3359,7 +3359,7 @@ NABoolean OptDefaults::pruneByOptDefaults(Rule *rule, RelExpr *relExpr) {
   return FALSE;
 }
 
-Int32 OptDefaults::getRulePriority(Rule *rule) {
+int OptDefaults::getRulePriority(Rule *rule) {
   // Pass 1 rules have the priority = 1 (least chance of pruning)
   // with exception of JoinToTSJ which has priority = 2
   // All Pass 2 transformation rules have priority = 2
@@ -3414,7 +3414,7 @@ NABoolean OptDefaults::pruneByRProbability(Rule *rule, RelExpr *relExpr) {
   // get memUsed in MBs
   int memUsed = getMemUsed();
 
-  Int32 rulePriority = getRulePriority(rule);
+  int rulePriority = getRulePriority(rule);
   double pruneRate = 0;
 
   // rules with priority 1 have highest survival chance
@@ -3483,7 +3483,7 @@ NABoolean OptDefaults::pruneByPotential(Rule *rule, RelExpr *relExpr) {
   double survivorFactor = MAXOF(0, (1 - pruneFactor));
 
   // determine adjustment
-  Int32 adjustment = 0;
+  int adjustment = 0;
 
   if ((survivorFactor >= 0.7) && (survivorFactor < 1))
     adjustment = 1;
@@ -3495,7 +3495,7 @@ NABoolean OptDefaults::pruneByPotential(Rule *rule, RelExpr *relExpr) {
     return TRUE;
 
   // get threshold
-  Int32 combinedPotentialThreshold = getEnumPotentialThreshold();
+  int combinedPotentialThreshold = getEnumPotentialThreshold();
 
   // adjust potential threshold
   if (adjustment) {
@@ -3504,11 +3504,11 @@ NABoolean OptDefaults::pruneByPotential(Rule *rule, RelExpr *relExpr) {
     combinedPotentialThreshold = MAXOF(0, (combinedPotentialThreshold - adjustment));
   }
 
-  Int32 groupPotential = relExpr->getGroupAttr()->getPotential();
+  int groupPotential = relExpr->getGroupAttr()->getPotential();
 
-  Int32 exprPotential = relExpr->getPotential();
+  int exprPotential = relExpr->getPotential();
 
-  Int32 combinedPotential = groupPotential + exprPotential;
+  int combinedPotential = groupPotential + exprPotential;
 
   if (exprPotential < 0) combinedPotential = -1;
 
@@ -3882,7 +3882,7 @@ RequiredResources *OptDefaults::estimateRequiredResources(RelExpr *rootExpr) {
         }
         // cout << "minESPsPerNode=" << minESPsPerNode << endl;
         // cout << "totalNumOfNodes=" << totalNumOfNodes_ << endl;
-        maxDoP = MAXOF(maxDoP, (Int32)ceil(minESPsPerNode * numOfNodes));
+        maxDoP = MAXOF(maxDoP, (int)ceil(minESPsPerNode * numOfNodes));
         // cout << "maxDoP=" << maxDoP << endl;
       }
 
@@ -4085,7 +4085,7 @@ void OptDefaults::initialize(RelExpr *rootExpr) {
 
   // if analysis is OFF and query complexity is very high
   // then reduce opt level to MINIMUM
-  Int32 tbase = defs_->getAsLong(COMP_INT_23);
+  int tbase = defs_->getAsLong(COMP_INT_23);
   if ((!QueryAnalysis::Instance()->isAnalysisON()) && queryComplexity_ > tbase * pow(2, tbase - 1))
     optLevel_ = OptDefaults::MINIMUM;
 
@@ -4597,7 +4597,7 @@ void OptDefaults::recalibrateRemoteMsgTransfer() {
       recalibrate(MSCF_ET_REMOTE_MSG_TRANSFER, REFERENCE_MSG_REMOTE_RATE, TARGET_MSG_REMOTE_RATE);
 }
 
-double OptDefaults::recalibrate(Int32 calEnum, Int32 referenceEnum, Int32 targetEnum) {
+double OptDefaults::recalibrate(int calEnum, int referenceEnum, int targetEnum) {
   float referenceTime, targetTime;
   float calValue;
   // These asserts are required because the get functions side-effect
@@ -4763,7 +4763,7 @@ void OptDebug::showTree(const ExprNode *tree, const CascadesPlan *plan, const ch
       index++;
     }
   } else {
-    Int32 nc = re->getArity();
+    int nc = re->getArity();
     for (int i = 0; i < nc; i++) {
       showTree(re->child(i).getPtr(), plan, indent, showDetail);
     }
@@ -4827,7 +4827,7 @@ void OptDebug::showItemExpr(const ExprNode *tree, const CascadesPlan *plan, cons
 
   // add the remaining list elements to the list of
   // children of this expression widget
-  Int32 numIE = 0;
+  int numIE = 0;
   while (localExpList.getFirst(currExpr)) {
     localLabelList.getFirst(currLabel);
     out << indent.data() << "<IE #" << numIE << ">" << endl << indent.data() << currLabel.data() << endl;
@@ -5077,8 +5077,8 @@ void OptDebug::showContext(const RelExpr *re, const CascadesPlan *plan, const ch
 
   // Now display each of its child contexts.
   const RelExpr *physExpr = plan->getPhysicalExpr();
-  Int32 nc = (physExpr != NULL) ? physExpr->getArity() : 0;
-  for (Int32 i = 0; i < nc; i++) {
+  int nc = (physExpr != NULL) ? physExpr->getArity() : 0;
+  for (int i = 0; i < nc; i++) {
     if (plan->getContextForChild(i) != NULL) {
       out << indent.data() << "Context[" << i << "]: " << plan->getContextForChild(i)->getRequirementsString().data()
           << endl;
@@ -5197,7 +5197,7 @@ void OptDebug::showPhysicalProperties(const RelExpr *re, const CascadesPlan *pla
   const ValueIdList &sortKey = pp->getSortKey();
   if (sortKey.entries() > 0) {
     propText = "ordered_by(";
-    for (Int32 i = 0; i < (Int32)sortKey.entries(); i++) {
+    for (int i = 0; i < (int)sortKey.entries(); i++) {
       if (i > 0) propText += ", ";
       sortKey[i].getItemExpr()->unparse(propText, DEFAULT_PHASE, EXPLAIN_FORMAT);
     }
@@ -5338,8 +5338,8 @@ void OptDebug::showEstLogProp(const EstLogPropSharedPtr &estLogProp, const char 
   }
 
   const ColStatDescList &stats = estLogProp->getColStats();
-  Int32 numStats = (Int32)stats.entries();
-  for (Int32 i = 0; i < numStats; i++) {
+  int numStats = (int)stats.entries();
+  for (int i = 0; i < numStats; i++) {
     if (i > 0) out << prefix << "---------------------------------" << endl;
 
     ColStatsSharedPtr colStats = stats[i]->getColStats();
@@ -5380,7 +5380,7 @@ void OptDebug::showEstLogProp(const EstLogPropSharedPtr &estLogProp, const char 
         // now we want to filter out any unnecessary references to
         // SYSKEY's, INDEXes, etc., in the applied-predicate list
 
-        Int32 loop_escape = 0;
+        int loop_escape = 0;
         while (propText.contains("\\NSK")) {
           if (loop_escape++ > 100) break;  // avoid infinite loops!
 
@@ -5508,7 +5508,7 @@ void OptDebug::showSimpleCostVectorDetail(const SimpleCostVector &scv, const cha
 // Show current task.
 // ---------------------------------------------------------------------
 
-void OptDebug::showTask(Int32 pass, Int32 groupId, Int32 task_count, const CascadesTask *task, const ExprNode *tree,
+void OptDebug::showTask(int pass, int groupId, int task_count, const CascadesTask *task, const ExprNode *tree,
                         const CascadesPlan *plan, const char *prefix) {
   ostream &out = stream();
 
@@ -6119,7 +6119,7 @@ void QueryOptimizerDriver::DEBUG_BREAK_ON_TASK() {
 
 void QueryOptimizerDriver::DEBUG_SHOW_TASK(CascadesTask *task) {
   if ((CmpCommon::getDefault(NSK_DBG) == DF_ON) && (CmpCommon::getDefault(NSK_DBG_PRINT_TASK) == DF_ON)) {
-    CURRCONTEXT_OPTDEBUG->showTask((Int32)GlobalRuleSet->getCurrentPassNumber(), (Int32)task->getGroupId(), taskCount_,
+    CURRCONTEXT_OPTDEBUG->showTask((int)GlobalRuleSet->getCurrentPassNumber(), (int)task->getGroupId(), taskCount_,
                                    task, task->getExpr(), task->getPlan(), " ");
   }
 }
@@ -6127,7 +6127,7 @@ void QueryOptimizerDriver::DEBUG_SHOW_TASK(CascadesTask *task) {
 void QueryOptimizerDriver::DEBUG_GUI_DO_MEMO_STEP(CascadesTask *task) {
 #ifdef NA_DEBUG_GUI
   if (CmpMain::msGui_ && CURRENTSTMT->displayGraph()) {
-    CmpMain::pExpFuncs_->fpDoMemoStep((Int32)GlobalRuleSet->getCurrentPassNumber(), (Int32)task->getGroupId(),
+    CmpMain::pExpFuncs_->fpDoMemoStep((int)GlobalRuleSet->getCurrentPassNumber(), (int)task->getGroupId(),
                                       taskCount_, task, task->getExpr(), task->getPlan());
   }
 #endif
@@ -6220,7 +6220,7 @@ void QueryOptimizerDriver::DEBUG_RESET_PWSCOUNT() {
 
 void QueryOptimizerDriver::DEBUG_SHOW_PLAN(Context *context) {
   if (context->getSolution() && (CmpCommon::getDefault(NSK_DBG) == DF_ON)) {
-    Int32 passNumber = GlobalRuleSet->getCurrentPassNumber();
+    int passNumber = GlobalRuleSet->getCurrentPassNumber();
     if ((passNumber == 1 && CmpCommon::getDefault(NSK_DBG_SHOW_PASS1_PLAN) == DF_ON)
             OR(passNumber == 2 && CmpCommon::getDefault(NSK_DBG_SHOW_PASS2_PLAN) == DF_ON)) {
       CURRCONTEXT_OPTDEBUG->stream() << endl << "Plan chosen after Pass " << passNumber << endl;
@@ -6242,7 +6242,7 @@ void QueryOptimizerDriver::DEBUG_SHOW_PLAN(Context *context) {
 }
 
 void QueryOptimizerDriver::initializeMonitors() {
-  for (Int32 ti = 0; ti < CascadesTask::NUMBER_OF_TASK_TYPES; ti++)
+  for (int ti = 0; ti < CascadesTask::NUMBER_OF_TASK_TYPES; ti++)
     (*CURRSTMT_OPTGLOBALS->cascadesTasksMonitor[ti]).init(0);
   (*CURRSTMT_OPTGLOBALS->cascadesPassMonitor).init(0);
   if (CURRSTMT_OPTDEFAULTS->optimizerHeuristic2()) {
@@ -6279,16 +6279,16 @@ void QueryOptimizerDriver::TEST_ERROR_HANDLING() {
 
 #define OPT_QSORT_THRESHOLD 8
 
-static void opt_qsort_shortsort(char *lo, char *hi, UInt32 width, Int32 (*comp)(const void *, const void *));
+static void opt_qsort_shortsort(char *lo, char *hi, UInt32 width, int (*comp)(const void *, const void *));
 static void opt_qsort_swap(char *p, char *q, UInt32 width);
 
-void opt_qsort(void *base, UInt32 num, UInt32 width, Int32 (*comp)(const void *, const void *)) {
+void opt_qsort(void *base, UInt32 num, UInt32 width, int (*comp)(const void *, const void *)) {
   char *lo, *hi;
   char *mid;
   char *loguy, *higuy;
   UInt32 size;
   char *lostk[30], *histk[30];
-  Int32 stkptr;
+  int stkptr;
 
   if (num < 2 || width == 0) return;
   stkptr = 0;
@@ -6355,7 +6355,7 @@ recurse:
     return;
 }
 
-static void opt_qsort_shortsort(char *lo, char *hi, UInt32 width, Int32 (*comp)(const void *, const void *)) {
+static void opt_qsort_shortsort(char *lo, char *hi, UInt32 width, int (*comp)(const void *, const void *)) {
   char *p, *max;
 
   while (hi > lo) {
@@ -6425,7 +6425,7 @@ OptGlobals::OptGlobals(NAHeap *heap) : heap_(heap) {
   cascade_count = 0;
 
   // TaskMonitor cascadesTasksMonitor[CascadesTask::NUMBER_OF_TASK_TYPES];
-  for (Int32 i = 0; i < CascadesTask::NUMBER_OF_TASK_TYPES; i++) cascadesTasksMonitor[i] = new (heap_) TaskMonitor;
+  for (int i = 0; i < CascadesTask::NUMBER_OF_TASK_TYPES; i++) cascadesTasksMonitor[i] = new (heap_) TaskMonitor;
 
   cascadesPassMonitor = new (heap_) TaskMonitor;
 

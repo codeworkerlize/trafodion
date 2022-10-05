@@ -386,7 +386,7 @@ typedef struct __zsys_ddl_receiveinformation {
 #ifndef USE_SB_NEW_RI
   short z_maxreplycount;
 #else
-  Int32 z_maxreplycount;
+  int z_maxreplycount;
 #endif
   short z_messagetag;
   short z_filenum;

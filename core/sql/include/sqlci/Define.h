@@ -22,8 +22,8 @@ class Envvar {
 
   short contains(const char *value) const;
 
-  Int32 set();
-  Int32 reset();
+  int set();
+  int reset();
 };
 
 #endif

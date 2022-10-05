@@ -82,7 +82,7 @@ void testXML() {
   }
 }
 
-Int32 main() {
+int main() {
   testXML();
   return 0;
 }

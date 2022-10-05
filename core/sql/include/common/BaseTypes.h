@@ -181,9 +181,9 @@ typedef NAUnsigned SimpleHashValue;
 
 #define BUMP_INDENT(X)                                                     \
   char newindent[MAX_INDENT_SIZE + 1];                                     \
-  Int32 indentlen = strlen(X) + MIN_INDENT_SIZE;                           \
+  int indentlen = strlen(X) + MIN_INDENT_SIZE;                           \
   indentlen = (indentlen < MAX_INDENT_SIZE ? indentlen : MAX_INDENT_SIZE); \
-  for (Int32 fli = 0; fli < indentlen; fli++) newindent[fli] = ' ';        \
+  for (int fli = 0; fli < indentlen; fli++) newindent[fli] = ' ';        \
   newindent[indentlen] = '\0';
 
 #define NEW_INDENT newindent
@@ -247,7 +247,7 @@ extern void NADebug();
 // -----------------------------------------------------------------------
 
 #define ABORT(msg) NAAbort(__FILE__, __LINE__, (msg))
-extern void NAAbort(const char *, Int32, const char *);
+extern void NAAbort(const char *, int, const char *);
 
 // -----------------------------------------------------------------------
 // the NAString datatype used to be Tools.h++'s RWCString; now it's a

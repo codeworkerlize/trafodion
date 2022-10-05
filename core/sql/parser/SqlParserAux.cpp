@@ -135,7 +135,7 @@ void yyerror(const char *errtext) {
 #ifndef NDEBUG  //## tmp code...
   if (inputStr && !getenv("YYERROR_QUIET")) {
     cerr << "yyerror: ";
-    for (Int32 i = 0; i >= -2; i--) {
+    for (int i = 0; i >= -2; i--) {
       const ParScannedTokenQueue::scannedTokenInfo &tok = ParScannedTokens->getScannedTokenInfo(i);
       if (tok.tokenStrLen) {
         NAString *ti = unicodeToChar(&inputStr[tok.tokenStrPos], tok.tokenStrLen, CharInfo::UTF8, PARSERHEAP(), TRUE);
@@ -160,7 +160,7 @@ void yyerror(const char *errtext) {
       *SqlParser_Diags << DgSqlCode(-SQLCI_SYNTAX_ERROR);
       // Point to the end of offending token,
       // knowing that the Lexer has looked ahead by 2 characters
-      Int32 pos = SqlParser_CurrentParser->getLexer()->getInputPos();
+      int pos = SqlParser_CurrentParser->getLexer()->getInputPos();
       StoreSyntaxError(inputStr, pos, *SqlParser_Diags, 0, CharInfo::UTF8);
     }
   } else {
@@ -262,7 +262,7 @@ void resetHostVars() {
 
 void MarkInteriorNodesAsInCompoundStmt(RelExpr *node) {
   node->setBlockStmt(TRUE);
-  for (Int32 i = 0; i < node->getArity(); i++) {
+  for (int i = 0; i < node->getArity(); i++) {
     if (node->child(i)) MarkInteriorNodesAsInCompoundStmt(node->child(i));
   }
 }
@@ -270,7 +270,7 @@ void MarkInteriorNodesAsInCompoundStmt(RelExpr *node) {
 NAWString *localeMBStringToUnicode(NAString *localeString, int charset, CollHeap *heap) {
   charBuf cbuf((unsigned char *)(localeString->data()), localeString->length());
   NAWcharBuf *wcbuf = 0;
-  Int32 errorcode = 0;
+  int errorcode = 0;
   switch (charset) {
     case SQLCHARSETCODE_ISO88591:
       wcbuf = ISO88591ToUnicode(cbuf, 0, wcbuf);
@@ -297,7 +297,7 @@ NAWString *localeMBStringToUnicode(NAString *localeString, int charset, CollHeap
     return new (heap) NAWString();
 }
 
-THREAD_P Int32 in3GL_ = 0;
+THREAD_P int in3GL_ = 0;
 
 static int findNameInList(ItemExprList &iel, const NAString &name) {
   for (CollIndex i = 0; i < iel.entries(); i++) {
@@ -507,10 +507,10 @@ NABoolean finalizeAccessOptions(RelExpr *top, TransMode::AccessType at, LockMode
 
 NAString *getSqlStmtStr(CharInfo::CharSet &refparam_targetCharSet, CollHeap *heap) {
   NAWchar *inputStr = SQLTEXTW();
-  Int32 start_pos = 0;
+  int start_pos = 0;
   if (NAWstrlen(inputStr) >= 7) {
     NAWchar temp[10];
-    Int32 i = 0;
+    int i = 0;
     while (i < 7) {
       temp[i] = na_towupper(inputStr[i]);
       i++;
@@ -800,7 +800,7 @@ ItemExpr *literalOfNumericPassingScale(NAString *strptr, char sign, NAString *cv
   return returnValue;
 }
 
-static Int32 removeDecimalPointReturnScale(NAString *strptr, NAString &tmpstr) {
+static int removeDecimalPointReturnScale(NAString *strptr, NAString &tmpstr) {
   // remove the decimal point, if any, from tmpstr
   size_t i, j, dot = 0, strSize = strptr->length();
   for (i = j = dot; i < strSize; i++)
@@ -810,14 +810,14 @@ static Int32 removeDecimalPointReturnScale(NAString *strptr, NAString &tmpstr) {
       dot = j;       // Remember the position of the decimal point
   tmpstr.resize(j);  // adjust the size
   // return number's scale
-  return Int32(strSize - dot - 1);
+  return int(strSize - dot - 1);
 }
 
 NABoolean literalToNumeric(NAString *strptr, double &val, char sign) {
   // Create a new string after removing the decimal point, if any.
   NAString tmpstr(*strptr, strptr->length());
   size_t strSize;
-  Int32 scale = removeDecimalPointReturnScale(strptr, tmpstr);
+  int scale = removeDecimalPointReturnScale(strptr, tmpstr);
 
   // convert number into a double
   short shortVal;
@@ -903,7 +903,7 @@ NABoolean literalToDouble(NAString *strptr, double &val, NABoolean &floatP, char
   errno = 0;
   val = strtod(*strptr, &endPtr);
 
-  Int32 numErr = 0;
+  int numErr = 0;
 
   numErr = errno;
 
@@ -1284,9 +1284,9 @@ void ShortStringSequence::invalidate() {
 // For ex:  {a.b.c}.d.e
 //   will populate c,d,e.
 short ShortStringSequence::populateLists(NAList<NAString> &names, NAList<UInt32> &indexes) {
-  Int32 startNum = (numCompositeColRefParts() > 0 ? numCompositeColRefParts() - 1 : 0);
+  int startNum = (numCompositeColRefParts() > 0 ? numCompositeColRefParts() - 1 : 0);
 
-  for (Int32 i = startNum; i < numParts(); i++) {
+  for (int i = startNum; i < numParts(); i++) {
     names.insert(*seq[i]);
     indexes.insert(seqArrayIndex_[i]);
   }
@@ -1302,8 +1302,8 @@ const ParScannedTokenQueue::scannedTokenInfo &ShortStringSequence::getTokInfo(NA
 
   const ParScannedTokenQueue::scannedTokenInfo *tokInfoPtr = NULL;
   NAWchar *inputStr = SQLTEXTW();
-  Int32 downTo = -1;
-  for (Int32 i = 0; i >= downTo; i--) {
+  int downTo = -1;
+  for (int i = 0; i >= downTo; i--) {
     const ParScannedTokenQueue::scannedTokenInfo &tokInfo = ParScannedTokens->getScannedTokenInfo(i);
 
     // is the i'th tok a valid SQL identifier?
@@ -1578,7 +1578,7 @@ ColRefName *colRefNameFromStrings(ShortStringSequence *names) {
 // would establish a transformed string in a separate buffer and then
 // copy it back into the original.
 
-NABoolean transformIdentifier(NAString &delimIdent, Int32 upCase,
+NABoolean transformIdentifier(NAString &delimIdent, int upCase,
                               NABoolean acceptCircumflex  // VO: Fix genesis solution 10-040204-2957
                               ,
                               UInt16 toInternalIdentifierFlags) {
@@ -1595,9 +1595,9 @@ NABoolean transformIdentifier(NAString &delimIdent, Int32 upCase,
     if (sqlcode > 0) sqlcode = -sqlcode;
     if (sqlcode != -3118) {
       if (sqlcode == -3127) {
-        Int32 i = -delimIdent[(size_t)0];  // count of scanned chars
+        int i = -delimIdent[(size_t)0];  // count of scanned chars
         if (i > 0) i = -i;
-        i += ((Int32)origIdent.length()) - 1;
+        i += ((int)origIdent.length()) - 1;
         if (i > 0) {
           SqlParser_CurrentParser->getLexer()->setInputPos(i);
           // point to the illegal character
@@ -1764,7 +1764,7 @@ NABoolean PicStream::skipCount(UInt32 *result, const char pattern, NABoolean isC
       if (isCharType == TRUE && (ch == 'C' || ch == 'c')) {
         char len_unit_array[11];                 // len("CHARACTERS") = 10
         len_unit_array[0] = ch;                  // store 'c'
-        Int32 n = sgetn(len_unit_array + 1, 9);  // get the rest of "haracters"
+        int n = sgetn(len_unit_array + 1, 9);  // get the rest of "haracters"
         len_unit_array[10] = 0;
         assert(n == 9 && strcasecmp(len_unit_array, "CHARACTERS") == 0);
 
@@ -1863,9 +1863,9 @@ NAType *picNAType(const NABoolean isString, const DISPLAY_STYLE style, const UIn
     switch (style) {
       case STYLE_DISPLAY: {
         CharInfo::CharSet eEncodingCharSet = charset;
-        Int32 maxLenInBytes = precision;
-        Int32 characterLimit = precision;
-        Int32 maxBytesPerChar = CharInfo::maxBytesPerChar(charset);
+        int maxLenInBytes = precision;
+        int characterLimit = precision;
+        int maxBytesPerChar = CharInfo::maxBytesPerChar(charset);
         returnValue = new (PARSERHEAP())
             //            SQLChar(precision,TRUE,FALSE,isCaseinsensitive,FALSE,charset,collation,coerc);
             SQLChar(PARSERHEAP(), CharLenInfo(characterLimit, maxLenInBytes), TRUE, FALSE, isCaseinsensitive, FALSE,
@@ -1874,8 +1874,8 @@ NAType *picNAType(const NABoolean isString, const DISPLAY_STYLE style, const UIn
       } break;
       case STYLE_UPSHIFT: {
         CharInfo::CharSet eEncodingCharSet = charset;
-        Int32 maxLenInBytes = precision;
-        Int32 characterLimit = precision;
+        int maxLenInBytes = precision;
+        int characterLimit = precision;
 
         returnValue = new (PARSERHEAP()) SQLChar(PARSERHEAP(), CharLenInfo(characterLimit, maxLenInBytes), TRUE, TRUE,
                                                  isCaseinsensitive, FALSE, charset, collation, coerc, eEncodingCharSet);
@@ -1997,7 +1997,7 @@ ItemExpr *convertINvaluesToOR(ItemExpr *lhs, ItemExpr *rhs) {
 }
 
 // quantified_predicate : value_expression_list '=' quantifier rel_subquery
-ItemExpr *makeQuantifiedComp(ItemExpr *lhs, OperatorTypeEnum compOpType, Int32 quantifierTok, RelExpr *subquery) {
+ItemExpr *makeQuantifiedComp(ItemExpr *lhs, OperatorTypeEnum compOpType, int quantifierTok, RelExpr *subquery) {
   assert(quantifierTok == TOK_ALL || quantifierTok == TOK_ANY);
   NABoolean all = (quantifierTok == TOK_ALL);
 
@@ -2111,7 +2111,7 @@ ItemExpr *processINlist(ItemExpr *lhs, ItemExpr *rhs) {
   return retItemExpr;
 }
 
-ItemExpr *makeBetween(ItemExpr *x, ItemExpr *y, ItemExpr *z, Int32 tok) {
+ItemExpr *makeBetween(ItemExpr *x, ItemExpr *y, ItemExpr *z, int tok) {
   ItemExpr *result = new (PARSERHEAP()) Between(x, y, z);
   if (tok == TOK_NOT_BETWEEN) result = new (PARSERHEAP()) UnLogic(ITM_NOT, result);
   return result;
@@ -2681,9 +2681,9 @@ ItemExpr *buildUdfExpr(NAString *udfName, NAString *fixedInput, ItemExpr *valueL
 // SqlParserAux_buildUdfOptimizationHint
 // -----------------------------------------------------------------------
 
-ElemDDLNode *SqlParserAux_buildUdfOptimizationHint(Int32 tokvalStage  // in
+ElemDDLNode *SqlParserAux_buildUdfOptimizationHint(int tokvalStage  // in
                                                    ,
-                                                   Int32 tokvalResource  // in
+                                                   int tokvalResource  // in
                                                    ,
                                                    ComSInt32 cost  // in
 ) {
@@ -3160,7 +3160,7 @@ ItemExpr *OlapMultiWindowExpander::replaceOlapWithAlias(ItemExpr *itemExprTree) 
     }
   }
 
-  for (Int32 i = 0; i < itemExprTree->getArity(); i++)
+  for (int i = 0; i < itemExprTree->getArity(); i++)
     itemExprTree->child(i) = replaceOlapWithAlias(itemExprTree->child(i));
 
   return itemExprTree;
@@ -3375,7 +3375,7 @@ void OlapMultiWindowExpander::collectOlapFunctions(ItemExpr *itemExprTree) {
   if (!itemExprTree) return;
   if (itemExprTree->isOlapFunction()) olapFunctions().insert(itemExprTree);
 
-  for (Int32 i = 0; i < itemExprTree->getArity(); i++) collectOlapFunctions(itemExprTree->child(i));
+  for (int i = 0; i < itemExprTree->getArity(); i++) collectOlapFunctions(itemExprTree->child(i));
 }
 
 // called before any process to original select list (replaceOlapWithAlias()),
@@ -3400,7 +3400,7 @@ void OlapMultiWindowExpander::collectReferencedColumns(ItemExpr *itemExprTree) {
   if (itemExprTree->isAnAggregate() && !itemExprTree->isOlapFunction()) return;
 
   // collect children
-  for (Int32 i = 0; i < itemExprTree->getArity(); i++) collectReferencedColumns(itemExprTree->child(i));
+  for (int i = 0; i < itemExprTree->getArity(); i++) collectReferencedColumns(itemExprTree->child(i));
 }
 
 NABoolean OlapMultiWindowExpander::hasRenamedAggregate(const ColRefName &colRefName) {
@@ -3465,7 +3465,7 @@ ItemExpr *OlapMultiWindowExpander::replaceAggrWithAlias(ItemExpr *itemExprTree) 
   }
 
   // replace children
-  for (Int32 i = 0; i < itemExprTree->getArity(); i++)
+  for (int i = 0; i < itemExprTree->getArity(); i++)
     itemExprTree->child(i) = replaceAggrWithAlias(itemExprTree->child(i));
 
   // return itself if not replaced by any others
@@ -3498,7 +3498,7 @@ ItemExpr *buildDelimterFromPivotOptions(NAList<PivotGroup::PivotOption *> *optio
   ItemExpr *delimiter = NULL;
 
   if (options != NULL) {
-    for (Int32 i = 0; i < options->entries(); i++) {
+    for (int i = 0; i < options->entries(); i++) {
       PivotGroup::PivotOption *option = options->at(i);
       if (option->getOptionType() == PivotGroup::DELIMITER_) {
         delimiter = option->getOptionItemExpr();
@@ -3904,7 +3904,7 @@ static short checkSysConnectByPathKeywords(NAString *in, int *pos) {
 }
 
 NAString *getSysConnectByPathExprString(NAString *in, CollHeap *h) {
-  Int32 strSize = in->length();
+  int strSize = in->length();
   char *tmpStr = new (h) char[strSize + 1];
   memset(tmpStr, 0, strSize + 1);
   int j = 0;
@@ -3951,7 +3951,7 @@ NAString *getSysConnectByPathExprString(NAString *in, CollHeap *h) {
 }
 
 NAString *normConnectByString(NAString *in, NAString *outs, CollHeap *h) {
-  Int32 strSize = in->length();
+  int strSize = in->length();
   short cpyMode = 0;  // 0 means do norm, 1 means keep the original string unchanged
   short startStr = 0;
   char *tmpStr = new (h) char[strSize + 1];

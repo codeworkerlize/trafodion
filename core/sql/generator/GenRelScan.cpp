@@ -205,11 +205,11 @@ int HbaseAccess::createAsciiColAndCastExprForExtStorage(Generator *generator, co
   if (asciiType->isComposite()) {
     NAType *newCompType = ((CompositeType *)asciiType)->newCopy2(COM_SQLARK_EXPLODED_FORMAT, h);
 
-    Int32 hiveSrcMaxLen = ((CompositeType *)asciiType)->getHiveSourceMaxLen();
+    int hiveSrcMaxLen = ((CompositeType *)asciiType)->getHiveSourceMaxLen();
     SQLVarChar *vcAsciiType =
         new (h) SQLVarChar(h, hiveSrcMaxLen, TRUE, FALSE, FALSE, CharInfo::DefaultCharSet, CharInfo::DefaultCollation,
                            CharInfo::COERCIBLE, CharInfo::UnknownCharSet,
-                           // sizeof(Int32));
+                           // sizeof(int));
                            0);
     asciiType = vcAsciiType;
     asciiValue = new (h) NATypeToItem((NAType *)asciiType);
@@ -286,18 +286,18 @@ int HbaseAccess::createAsciiColAndCastExpr(Generator *generator, const NAType &g
   if (DFS2REC::isDoubleCharacter(newGivenType->getFSDatatype())) {
     asciiType = new (h) SQLVarChar(h, sizeof(long) / 2, newGivenType->supportsSQLnull(), FALSE, FALSE,
                                    newGivenType->getCharSet(), CharInfo::DefaultCollation, CharInfo::COERCIBLE,
-                                   CharInfo::UnknownCharSet, (srcIsInt32Varchar ? sizeof(Int32) : 0));
+                                   CharInfo::UnknownCharSet, (srcIsInt32Varchar ? sizeof(int) : 0));
   }
   // set the source charset to GBK if HIVE_FILE_CHARSET is set
   // HIVE_FILE_CHARSET can only be empty or GBK
   else if (needTranslate == TRUE) {
     asciiType = new (h) SQLVarChar(h, sizeof(long), newGivenType->supportsSQLnull(), FALSE, FALSE, CharInfo::GBK,
                                    CharInfo::DefaultCollation, CharInfo::COERCIBLE, CharInfo::UnknownCharSet,
-                                   (srcIsInt32Varchar ? sizeof(Int32) : 0));
+                                   (srcIsInt32Varchar ? sizeof(int) : 0));
   } else {
     asciiType = new (h) SQLVarChar(h, sizeof(long), newGivenType->supportsSQLnull(), FALSE, FALSE,
                                    CharInfo::DefaultCharSet, CharInfo::DefaultCollation, CharInfo::COERCIBLE,
-                                   CharInfo::UnknownCharSet, (srcIsInt32Varchar ? sizeof(Int32) : 0));
+                                   CharInfo::UnknownCharSet, (srcIsInt32Varchar ? sizeof(int) : 0));
   }
 
   asciiValue = new (h) NATypeToItem(asciiType->newCopy(h));
@@ -452,8 +452,8 @@ char *FileScan::genExplodedHivePartKeyVals(Generator *generator, ExpTupleDesc *p
   return tgt;
 }
 
-static Int32 computeMinBytesForPrecision(Int32 precision) {
-  Int32 numBytes = 1;
+static int computeMinBytesForPrecision(int precision) {
+  int numBytes = 1;
   while (pow(2.0, 8 * numBytes - 1) < pow(10.0, precision)) {
     numBytes += 1;
   }
@@ -505,8 +505,8 @@ static short genParqColSchStr(Generator *generator, const NAString &inColName, c
     case HIVE_DECIMAL_TYPE: {
       char buf1[100];
       char buf2[100];
-      Int32 precision = nat->getPrecision();
-      Int32 scale = nat->getScale();
+      int precision = nat->getPrecision();
+      int scale = nat->getScale();
 
       int numBytes = computeMinBytesForPrecision(precision);
       schStrNAS += NAString(" fixed_len_byte_array(") + str_itoa(numBytes, buf1) + ") ";
@@ -534,7 +534,7 @@ static short genParqColSchStr(Generator *generator, const NAString &inColName, c
     case HIVE_STRUCT_TYPE: {
       SQLRow *sr = (SQLRow *)nat;
       schStrNAS += " group " + colName + " { \n";
-      for (Int32 i = 0; i < sr->getNumElements(); i++) {
+      for (int i = 0; i < sr->getNumElements(); i++) {
         const NAType *elemType = sr->fieldTypes()[i];
         const NAString &elemName = sr->fieldNames()[i];
         if (genParqColSchStr(generator, elemName.data(), elemType, schStrNAS)) return -1;
@@ -597,10 +597,10 @@ short FileScan::createHiveColNameAndTypeLists(Generator *generator, const NAColu
     char *cnameInList = space->allocateAndCopyToAlignedSpace(colName.data(), colName.length(), 0);
     colNameList->insert(cnameInList);
 
-    Int32 hiveType = hiveNAType->getHiveType();
-    Int32 hiveLength = hiveNAType->getNominalSize();
-    Int32 hivePrecision = hiveNAType->getPrecision();
-    Int32 hiveScale = hiveNAType->getScale();
+    int hiveType = hiveNAType->getHiveType();
+    int hiveLength = hiveNAType->getNominalSize();
+    int hivePrecision = hiveNAType->getPrecision();
+    int hiveScale = hiveNAType->getScale();
 
     int typeInfo[4];
     typeInfo[0] = hiveType;
@@ -653,7 +653,7 @@ NABoolean HbaseAccess::validateVirtualTableDesc(NATable *naTable) {
   return TRUE;
 }
 
-void populateRangeDescForBeginKey(char *buf, Int32 len, struct TrafDesc *target, NAMemory *heap) {
+void populateRangeDescForBeginKey(char *buf, int len, struct TrafDesc *target, NAMemory *heap) {
   target->nodetype = DESC_HBASE_RANGE_REGION_TYPE;
   target->hbaseRegionDesc()->beginKey = buf;
   target->hbaseRegionDesc()->beginKeyLen = len;
@@ -671,7 +671,7 @@ TrafDesc *HbaseAccess::createVirtualTableDesc(const char *name, NABoolean isRW, 
         ComTdbHbaseAccess::getVirtTableRowwiseNumKeys(), ComTdbHbaseAccess::getVirtTableRowwiseKeyInfo(),
         0,      // numConstrs = 0
         NULL,   // constrInfo = NULL
-        0,      // Int32 numIndexes = 0
+        0,      // int numIndexes = 0
         NULL,   // *indexInfo = NULL
         0,      // numViews = 0
         NULL,   // viewInfo = NULL
@@ -689,7 +689,7 @@ TrafDesc *HbaseAccess::createVirtualTableDesc(const char *name, NABoolean isRW, 
         ComTdbHbaseAccess::getVirtTableNumKeys(), ComTdbHbaseAccess::getVirtTableKeyInfo(),
         0,      // numConstrs = 0
         NULL,   // constrInfo = NULL
-        0,      // Int32 numIndexes = 0
+        0,      // int numIndexes = 0
         NULL,   // *indexInfo = NULL
         0,      // numViews = 0
         NULL,   // viewInfo = NULL
@@ -843,8 +843,8 @@ TrafDesc *HbaseAccess::createVirtualTableDesc(const char *name, NAList<char *> &
 }
 
 short HbaseAccess::genRowIdExpr(Generator *generator, const NAColumnArray &keyColumns,
-                                NAList<HbaseSearchKey *> &searchKeys, ex_cri_desc *work_cri_desc, const Int32 work_atp,
-                                const Int32 rowIdAsciiTuppIndex, const Int32 rowIdTuppIndex, ULng32 &rowIdAsciiRowLen,
+                                NAList<HbaseSearchKey *> &searchKeys, ex_cri_desc *work_cri_desc, const int work_atp,
+                                const int rowIdAsciiTuppIndex, const int rowIdTuppIndex, ULng32 &rowIdAsciiRowLen,
                                 ExpTupleDesc *&rowIdAsciiTupleDesc, UInt32 &rowIdLength, ex_expr *&rowIdExpr,
                                 NABoolean encodeKeys) {
   Space *space = generator->getSpace();
@@ -920,8 +920,8 @@ short HbaseAccess::genRowIdExpr(Generator *generator, const NAColumnArray &keyCo
 
 short HbaseAccess::genRowIdExprForNonSQ(Generator *generator, const NAColumnArray &keyColumns,
                                         NAList<HbaseSearchKey *> &searchKeys, ex_cri_desc *work_cri_desc,
-                                        const Int32 work_atp, const Int32 rowIdAsciiTuppIndex,
-                                        const Int32 rowIdTuppIndex, ULng32 &rowIdAsciiRowLen,
+                                        const int work_atp, const int rowIdAsciiTuppIndex,
+                                        const int rowIdTuppIndex, ULng32 &rowIdAsciiRowLen,
                                         ExpTupleDesc *&rowIdAsciiTupleDesc, UInt32 &rowIdLength, ex_expr *&rowIdExpr) {
   Space *space = generator->getSpace();
   ExpGenerator *expGen = generator->getExpGenerator();
@@ -1492,17 +1492,17 @@ short HbaseAccess::codeGen(Generator *generator) {
 
   ex_cri_desc *returnedDesc = NULL;
 
-  const Int32 work_atp = 1;
-  const Int32 convertTuppIndex = 2;
-  const Int32 rowIdTuppIndex = 3;
-  const Int32 asciiTuppIndex = 4;
-  const Int32 rowIdAsciiTuppIndex = 5;
-  const Int32 keyTuppIndex = 6;
-  const Int32 hbaseFilterValTuppIndex = 7;
-  const Int32 hbaseTimestampTuppIndex = 8;
-  const Int32 hbaseVersionTuppIndex = 9;
-  const Int32 hbaseTagTuppIndex = 10;
-  const Int32 hbaseRowidIndex = 11;
+  const int work_atp = 1;
+  const int convertTuppIndex = 2;
+  const int rowIdTuppIndex = 3;
+  const int asciiTuppIndex = 4;
+  const int rowIdAsciiTuppIndex = 5;
+  const int keyTuppIndex = 6;
+  const int hbaseFilterValTuppIndex = 7;
+  const int hbaseTimestampTuppIndex = 8;
+  const int hbaseVersionTuppIndex = 9;
+  const int hbaseTagTuppIndex = 10;
+  const int hbaseRowidIndex = 11;
 
   ULng32 asciiRowLen;
   ExpTupleDesc *asciiTupleDesc = 0;
@@ -1579,7 +1579,7 @@ short HbaseAccess::codeGen(Generator *generator) {
   }
 
   LatestSnpSupportEnum latestSnpSupport = latest_snp_supported;
-  Int32 computedHBaseRowSizeFromMetaData = getTableDesc()->getNATable()->computeHBaseRowSizeFromMetaData();
+  int computedHBaseRowSizeFromMetaData = getTableDesc()->getNATable()->computeHBaseRowSizeFromMetaData();
 
   if (CmpCommon::getDefault(TRAF_TABLE_SNAPSHOT_SCAN) != DF_NONE) {
     if ((getTableDesc()->getNATable()->isHbaseRowTable()) || (getTableDesc()->getNATable()->isHbaseCellTable()) ||
@@ -2076,7 +2076,7 @@ short HbaseAccess::codeGen(Generator *generator) {
   ULng32 buffersize = 3 * getDefault(GEN_DPSO_BUFFER_SIZE);
   queue_index upqueuelength = (queue_index)getDefault(GEN_DPSO_SIZE_UP);
   queue_index downqueuelength = (queue_index)getDefault(GEN_DPSO_SIZE_DOWN);
-  Int32 numBuffers = getDefault(GEN_DPUO_NUM_BUFFERS);
+  int numBuffers = getDefault(GEN_DPUO_NUM_BUFFERS);
 
   // Compute the buffer size based on upqueue size and row size.
   // Try to get enough buffer space to hold twice as many records

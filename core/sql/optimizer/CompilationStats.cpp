@@ -147,7 +147,7 @@ method CompilationStats::QueryCacheState
  get the QueryCacheState for this compilation
 
 ************************************************************************/
-Int32 CompilationStats::getQueryCacheState() {
+int CompilationStats::getQueryCacheState() {
   // so we can assert later that it found a valid status
   QCacheState state = QCSTATE_UNKNOWN;
 
@@ -224,7 +224,7 @@ void CompilationStats::getCompileInfo(char *cmpInfo) {
   cmpInfo[0] = '\0';  // TBD
 }
 
-Int32 CompilationStats::getCompileInfoLen() { return str_len(compileInfo_); }
+int CompilationStats::getCompileInfoLen() { return str_len(compileInfo_); }
 
 void CompilationStats::incrOptContexts() { optContexts_++; }
 

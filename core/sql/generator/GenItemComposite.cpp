@@ -189,9 +189,9 @@ short CompositeCreate::codeGen(Generator *generator) {
 
   AttributesPtr compAttrs = createCompositeAttributes(generator, &getValueId().getType());
 
-  // Int32 containing number of entries in the created row.
+  // int containing number of entries in the created row.
   // This field precedes the actual contents.
-  if (type_ == ARRAY_TYPE) compRowLen += sizeof(Int32);
+  if (type_ == ARRAY_TYPE) compRowLen += sizeof(int);
 
   ex_clause *comp_clause = new (generator->getSpace())
       ExpCompositeCreate(getOperatorType(), type_, numEntries, 1, attr, compRowLen, (ex_expr *)compExprStr, compCriDesc,
@@ -301,10 +301,10 @@ short CompositeExtract::codeGen(Generator *generator) {
   else
     type = CompositeCreate::ROW_TYPE;
 
-  Int32 *searchAttrTypeList = (Int32 *)(space->allocateAlignedSpace(attrTypeList_.entries() * sizeof(Int32)));
-  Int32 *searchAttrIndexList = (Int32 *)(space->allocateAlignedSpace(attrIndexList_.entries() * sizeof(Int32)));
+  int *searchAttrTypeList = (int *)(space->allocateAlignedSpace(attrTypeList_.entries() * sizeof(int)));
+  int *searchAttrIndexList = (int *)(space->allocateAlignedSpace(attrIndexList_.entries() * sizeof(int)));
 
-  for (Int32 i = 0; i < attrTypeList_.entries(); i++) {
+  for (int i = 0; i < attrTypeList_.entries(); i++) {
     searchAttrTypeList[i] = attrTypeList_[i];
     searchAttrIndexList[i] = attrIndexList_[i];
   }

@@ -711,7 +711,7 @@ NABoolean ControlDB::validate(ControlTable *ct) {
           if (value.data()[i] < '0' || value.data()[i] > '9') valid = FALSE;
         }
         if (valid) {
-          Int32 priority = atoi(value.data());
+          int priority = atoi(value.data());
 
           // priority must be between 1 and 199.
           if (priority < 1 || priority > 199) valid = FALSE;
@@ -730,7 +730,7 @@ NABoolean ControlDB::validate(ControlTable *ct) {
           if (value.data()[i] < '0' || value.data()[i] > '9') valid = FALSE;
         }
         if (valid) {
-          Int32 priority = atoi(&value.data()[(negative ? 1 : 0)]);
+          int priority = atoi(&value.data()[(negative ? 1 : 0)]);
           if (negative) priority = -priority;
           // priority must be between 1 and 199.
           if (priority < -199 || priority > 199) valid = FALSE;
@@ -1162,7 +1162,7 @@ int ControlDB::unpackControlTableOptionsFromBuffer(char *buffer) {
   int curPos = 0;
   str_cpy_all((char *)&numEntries, buffer, sizeof(int));
   curPos += sizeof(int);
-  for (Int32 i = 0; i < numEntries; i++) {
+  for (int i = 0; i < numEntries; i++) {
     int numCTO;
     str_cpy_all((char *)&numCTO, &buffer[curPos], sizeof(int));
     curPos += sizeof(int);
@@ -1172,7 +1172,7 @@ int ControlDB::unpackControlTableOptionsFromBuffer(char *buffer) {
     getCTList().insert(cto);
     curPos += strlen(&buffer[curPos]) + 1;
 
-    for (Int32 j = 0; j < numCTO; j++) {
+    for (int j = 0; j < numCTO; j++) {
       char *token = &buffer[curPos];
       curPos += strlen(&buffer[curPos]) + 1;
       char *value = &buffer[curPos];
@@ -1329,8 +1329,8 @@ ExprNode *DecodeShapeSyntax(const NAString &fname, ExprNodePtrList *args, ComDia
   // is a list of sparse, dense, or system options passed as ConstValues.
 
   if (fname == "SCAN" OR fname == "FILE_SCAN" OR fname == "INDEX_SCAN") {
-    Int32 numArgs = args->entries();
-    Int32 firstNonStringArg = 0;
+    int numArgs = args->entries();
+    int firstNonStringArg = 0;
     NAString tableName(CmpCommon::statementHeap());
     NAString indexName(CmpCommon::statementHeap());
     NABoolean dummyNegate = FALSE;
@@ -1341,7 +1341,7 @@ ExprNode *DecodeShapeSyntax(const NAString &fname, ExprNodePtrList *args, ComDia
     // scan('t1',...) and scan('t1','i1',...).
 
     NABoolean exitFlag = FALSE;
-    Int32 i;
+    int i;
 
     for (i = 0; i < numArgs; i++) {
       itm = args->at(i)->castToItemExpr();
@@ -1417,12 +1417,12 @@ ExprNode *DecodeShapeSyntax(const NAString &fname, ExprNodePtrList *args, ComDia
   else if (fname == "MDAM_COLUMNS") {
     result = new (heap) ScanForceWildCard();
     NABoolean dummyNegate = FALSE;
-    Int32 numColumns = args->entries();
+    int numColumns = args->entries();
     ItemExpr *itm;
 
     ScanForceWildCard::scanOptionEnum *columnAlgorithms = new (heap) ScanForceWildCard::scanOptionEnum[numColumns];
 
-    for (Int32 i = 0; i < numColumns; i++) {
+    for (int i = 0; i < numColumns; i++) {
       itm = args->at(i)->castToItemExpr();
       if (itm == NULL OR itm->castToConstValue(dummyNegate) == NULL) {
         *diags << DgSqlCode(-3113) << DgString0("Illegal MDAM_COLUMNS (...) argument");
@@ -1550,7 +1550,7 @@ ExprNode *DecodeShapeSyntax(const NAString &fname, ExprNodePtrList *args, ComDia
 
     result = new (heap) RelSample(args->at(0)->castToRelExpr(), RelSample::ANY, NULL);
   } else if (fname == "ISOLATED_SCALAR_UDF") {
-    Int32 numArgs = args->entries();
+    int numArgs = args->entries();
     if (numArgs > 2) {
       // No more than two arguments allowed.
       *diags << DgSqlCode(-3113)
@@ -1563,7 +1563,7 @@ ExprNode *DecodeShapeSyntax(const NAString &fname, ExprNodePtrList *args, ComDia
 
     // Update result with the 'isolated_scalar_udf' options given
     // in the CQS using mergeUDFOptions() function.
-    for (Int32 i = 0; i < numArgs; i++) {
+    for (int i = 0; i < numArgs; i++) {
       if (args->at(i)->getOperatorType() != REL_FORCE_ANY_SCALAR_UDF) {
         *diags << DgSqlCode(-3113) << DgString0("Illegal isolated_scalar_udf argument.");
         return NULL;
@@ -1582,7 +1582,7 @@ ExprNode *DecodeShapeSyntax(const NAString &fname, ExprNodePtrList *args, ComDia
       return NULL;
     }
   } else if (fname == "TMUDF") {
-    Int32 numArgs = args->entries();
+    int numArgs = args->entries();
     OperatorTypeEnum op = REL_ANY_LEAF_TABLE_MAPPING_UDF;
     RelExpr *child0 = NULL;
     RelExpr *child1 = NULL;
@@ -1618,10 +1618,10 @@ ExprNode *DecodeShapeSyntax(const NAString &fname, ExprNodePtrList *args, ComDia
     }
 
     JoinForceWildCard::forcedPlanEnum whichPlan = JoinForceWildCard::ANY_PLAN;
-    Int32 numOfEsps = 0;
+    int numOfEsps = 0;
 
     if (args->entries() > 2) {
-      for (Int32 i = 2; i < (Int32)args->entries(); i++) {
+      for (int i = 2; i < (int)args->entries(); i++) {
         NABoolean dummyNegate = FALSE;
         if (NOT(args->at(i)->castToItemExpr() AND args->at(i)->castToItemExpr()->castToConstValue(dummyNegate))) {
           *diags << DgSqlCode(-3113) << DgString0("Additional join arguments must be TYPE1, TYPE2 or a number.");
@@ -1689,7 +1689,7 @@ ExprNode *DecodeShapeSyntax(const NAString &fname, ExprNodePtrList *args, ComDia
     }
 
     if (args->entries() > 1) {
-      for (Int32 i = 1; i < (Int32)args->entries(); i++) {
+      for (int i = 1; i < (int)args->entries(); i++) {
         NABoolean dummyNegate = FALSE;
         if (NOT(args->at(i)->castToItemExpr() AND args->at(i)->castToItemExpr()->castToConstValue(dummyNegate))) {
           *diags << DgSqlCode(-3113)

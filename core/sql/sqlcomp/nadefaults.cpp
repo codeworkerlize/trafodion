@@ -3167,27 +3167,27 @@ NABoolean NADefaults::readFromDefaultsTable_ = FALSE;
 //       'enum' values to defaultDefaults[] entries.
 static size_t defDefIx_[__NUM_DEFAULT_ATTRIBUTES];
 
-inline static const char *getAttrName(Int32 attrEnum) { return defaultDefaults[defDefIx_[attrEnum]].attrName; }
+inline static const char *getAttrName(int attrEnum) { return defaultDefaults[defDefIx_[attrEnum]].attrName; }
 
-inline static const char *getDefaultDefaultValue(Int32 attrEnum) { return defaultDefaults[defDefIx_[attrEnum]].value; }
+inline static const char *getDefaultDefaultValue(int attrEnum) { return defaultDefaults[defDefIx_[attrEnum]].value; }
 
-inline static const DefaultValidator *validator(Int32 attrEnum) {
+inline static const DefaultValidator *validator(int attrEnum) {
   return defaultDefaults[defDefIx_[attrEnum]].validator;
 }
 
-inline static UInt32 getFlags(Int32 attrEnum) { return defaultDefaults[defDefIx_[attrEnum]].flags; }
+inline static UInt32 getFlags(int attrEnum) { return defaultDefaults[defDefIx_[attrEnum]].flags; }
 
-inline static NABoolean isFlagOn(Int32 attrEnum, NADefaultFlags flagbit) {
+inline static NABoolean isFlagOn(int attrEnum, NADefaultFlags flagbit) {
   return defaultDefaults[defDefIx_[attrEnum]].flags & (UInt32)flagbit;
 }
 
-inline static void setFlagOn(Int32 attrEnum, NADefaultFlags flagbit) {
+inline static void setFlagOn(int attrEnum, NADefaultFlags flagbit) {
   defaultDefaults[defDefIx_[attrEnum]].flags |= (UInt32)flagbit;
 }
 
 static NABoolean isSynonymOfRESET(NAString &value) { return (value == "RESET"); }
 
-static NABoolean isSynonymOfSYSTEM(Int32 attrEnum, NAString &value) {
+static NABoolean isSynonymOfSYSTEM(int attrEnum, NAString &value) {
   if (value == "") return TRUE;
   if (value == "SYSTEM") return !isFlagOn(attrEnum, DEFAULT_ALLOWS_SEPARATE_SYSTEM);
   if (value == "ENABLE") {
@@ -3689,7 +3689,7 @@ void NADefaults::deleteMe() {
 // -----------------------------------------------------------------------
 // Find the attribute name from its enum value in the defaults table.
 // -----------------------------------------------------------------------
-const char *NADefaults::lookupAttrName(Int32 attrEnum, Int32 errOrWarn) {
+const char *NADefaults::lookupAttrName(int attrEnum, int errOrWarn) {
   if (ATTR_RANGE_CHECK) return getAttrName(attrEnum);
 
   static THREAD_P char noSuchAttr[20];
@@ -3702,7 +3702,7 @@ const char *NADefaults::lookupAttrName(Int32 attrEnum, Int32 errOrWarn) {
 // -----------------------------------------------------------------------
 // Find the enum value from its string representation in the defaults table.
 // -----------------------------------------------------------------------
-enum DefaultConstants NADefaults::lookupAttrName(const char *name, Int32 errOrWarn, Int32 *position) {
+enum DefaultConstants NADefaults::lookupAttrName(const char *name, int errOrWarn, int *position) {
   NAString attrName(name);
   TrimNAStringSpace(attrName, FALSE, TRUE);  // trim trailing blanks only
   attrName.toUpper();
@@ -3711,7 +3711,7 @@ enum DefaultConstants NADefaults::lookupAttrName(const char *name, Int32 errOrWa
   size_t lo = 0;
   size_t hi = numDefaultAttributes();
   size_t split;
-  Int32 cresult;
+  int cresult;
 
   // perform a binary search in the ordered table defaultDefaults
   do {
@@ -3750,14 +3750,14 @@ static void utoa_(UInt32 val, char *buf) { sprintf(buf, "%u", val); }
 
 static void ultoa_(long val, char *buf) { sprintf(buf, "%lu", val); }
 
-static void itoa_(Int32 val, char *buf) { sprintf(buf, "%d", val); }
+static void itoa_(int val, char *buf) { sprintf(buf, "%d", val); }
 
 static void ftoa_(float val, char *buf) { snprintf(buf, WIDEST_CPUARCH_VALUE, "%0.2f", val); }
 
 // Updates the system parameters in the defaultDefaults table based on
 // the flag passed.
 void NADefaults::updateSystemParameters(NABoolean updateDefaultDefaults) {
-  static Int32 arrayOfSystemParameters[] = {
+  static int arrayOfSystemParameters[] = {
       DEF_CPU_ARCHITECTURE, DEF_DISCS_ON_CLUSTER, DEF_INSTRUCTIONS_SECOND, DEF_PAGE_SIZE, DEF_LOCAL_CLUSTER_NUMBER,
       DEF_LOCAL_SMP_NODE_NUMBER, DEF_NUM_SMP_CPUS, MAX_ESPS_PER_CPU_PER_OP, DEFAULT_DEGREE_OF_PARALLELISM,
       DEF_NUM_NODES_IN_ACTIVE_CLUSTERS,
@@ -3772,7 +3772,7 @@ void NADefaults::updateSystemParameters(NABoolean updateDefaultDefaults) {
 
   //  Extract SMP node number and cluster number where this arkcmp is running.
   short nodeNum = 0;
-  Int32 clusterNum = 0;
+  int clusterNum = 0;
   try {
     OSIM_getNodeAndClusterNumbers(nodeNum, clusterNum);
   } catch (OsimLogException &e) {
@@ -3787,7 +3787,7 @@ void NADefaults::updateSystemParameters(NABoolean updateDefaultDefaults) {
       defDefIx_[defaultDefaults[i].attrEnum] = i;
     }
   }
-  size_t numElements = sizeof(arrayOfSystemParameters) / sizeof(Int32);
+  size_t numElements = sizeof(arrayOfSystemParameters) / sizeof(int);
 
   for (size_t i = 0; i < numElements; i++) {
     if (updateDefaultDefaults)
@@ -3896,17 +3896,17 @@ void NADefaults::updateSystemParameters(NABoolean updateDefaultDefaults) {
       } break;
 
       case DEF_INSTRUCTIONS_SECOND: {
-        Int32 frequency, speed;
+        int frequency, speed;
         frequency = nac->processorFrequency();
         switch (nac->cpuArchitecture()) {
           case CPU_ARCH_PENTIUM_PRO:
-            speed = (Int32)(frequency * 0.5);
+            speed = (int)(frequency * 0.5);
             break;
           case CPU_ARCH_PENTIUM:
-            speed = (Int32)(frequency * 0.4);
+            speed = (int)(frequency * 0.4);
             break;
           default:
-            speed = (Int32)(frequency * 0.3);
+            speed = (int)(frequency * 0.3);
             break;
         }
         itoa_(speed, valuestr);
@@ -3926,7 +3926,7 @@ void NADefaults::updateSystemParameters(NABoolean updateDefaultDefaults) {
         break;
     }  // switch (arrayOfSystemParameters)
     if (updateDefaultDefaults) {
-      Int32 j = defDefIx_[arrayOfSystemParameters[i]];
+      int j = defDefIx_[arrayOfSystemParameters[i]];
       defaultDefaults[j].value = newValue;
     } else
       ActiveSchemaDB()->getDefaults().updateCurrentDefaultsForOSIM(arrayOfSystemParameters[i], newValue);
@@ -3936,12 +3936,12 @@ void NADefaults::updateSystemParameters(NABoolean updateDefaultDefaults) {
 //==============================================================================
 // Get SMP node number and cluster number on which this arkcmp.exe is running.
 //==============================================================================
-void NADefaults::getNodeAndClusterNumbers(short &nodeNum, Int32 &clusterNum) {
+void NADefaults::getNodeAndClusterNumbers(short &nodeNum, int &clusterNum) {
   SB_Phandle_Type pHandle;
-  Int32 error = XPROCESSHANDLE_GETMINE_(&pHandle);
+  int error = XPROCESSHANDLE_GETMINE_(&pHandle);
 
-  Int32 nodeNumInt;  // XPROCESSHANDLE_DECOMPOSE_ takes an integer.
-  Int32 pin;
+  int nodeNumInt;  // XPROCESSHANDLE_DECOMPOSE_ takes an integer.
+  int pin;
   error = XPROCESSHANDLE_DECOMPOSE_(&pHandle, &nodeNumInt, &pin, &clusterNum);
   nodeNum = nodeNumInt;  // Store 4-byte integer back to short integer
 
@@ -3961,7 +3961,7 @@ const SQLMODULE_ID __SQL_mod_866668761818000 = {
     /* char set */ "ISO88591",
     /* name length */ 47};
 
-void NADefaults::readFromDefaultsTable(Provenance overwriteIfNotYet, Int32 errOrWarn) {
+void NADefaults::readFromDefaultsTable(Provenance overwriteIfNotYet, int errOrWarn) {
   NABoolean cat = FALSE;
   NABoolean sch = FALSE;
 
@@ -4008,7 +4008,7 @@ void NADefaults::readFromDefaultsTable(Provenance overwriteIfNotYet, Int32 errOr
 }  // NADefaults::readFromDefaultsTable()
 
 // This method is used by SchemaDB::initPerStatement
-const char *NADefaults::getValueWhileInitializing(Int32 attrEnum) { return getValue(attrEnum); }
+const char *NADefaults::getValueWhileInitializing(int attrEnum) { return getValue(attrEnum); }
 
 // This method is used by SchemaDB::initPerStatement *and*
 // by CmpCommon, CmpStatement, and SQLC/SQLCO.
@@ -4018,8 +4018,8 @@ void NADefaults::getCatalogAndSchema(NAString &cat, NAString &sch) {
 }
 
 // Should be called only privately and by DefaultValidator!
-Int32 NADefaults::validateFloat(const char *value, float &result, Int32 attrEnum, Int32 errOrWarn) const {
-  Int32 n = -1;  // NT's scanf("%n") is not quite correct; hence this code-around
+int NADefaults::validateFloat(const char *value, float &result, int attrEnum, int errOrWarn) const {
+  int n = -1;  // NT's scanf("%n") is not quite correct; hence this code-around
   sscanf(value, "%g%n", &result, &n);
   if (n > 0 && value[n] == '\0') {
     switch (attrEnum) {
@@ -4055,7 +4055,7 @@ Int32 NADefaults::validateFloat(const char *value, float &result, Int32 attrEnum
   return FALSE;  // not valid
 }
 
-NABoolean NADefaults::insert(Int32 attrEnum, const NAString &value, Int32 errOrWarn) {
+NABoolean NADefaults::insert(int attrEnum, const NAString &value, int errOrWarn) {
   // private method; callers have all already done this:    ATTR_RANGE_ASSERT;
   assert(errOrWarn != SilentIfSYSTEM);  // yeh private, but just in case
 
@@ -4116,28 +4116,28 @@ NABoolean NADefaults::insert(Int32 attrEnum, const NAString &value, Int32 errOrW
   return TRUE;
 }
 
-NADefaults::Provenance NADefaults::getProvenance(Int32 attrEnum) const {
+NADefaults::Provenance NADefaults::getProvenance(int attrEnum) const {
   ATTR_RANGE_ASSERT;
   return (Provenance)provenances_[attrEnum];
 }
 
-NABoolean NADefaults::getValue(Int32 attrEnum, NAString &result) const {
+NABoolean NADefaults::getValue(int attrEnum, NAString &result) const {
   ATTR_RANGE_ASSERT;
   result = currentDefaults_[attrEnum];
   return TRUE;  // we always have a STRING REPRESENTATION value
 }
 
-NAString NADefaults::getString(Int32 attrEnum) const {
+NAString NADefaults::getString(int attrEnum) const {
   ATTR_RANGE_ASSERT;
   return currentDefaults_[attrEnum];
 }
 
-const char *NADefaults::getValue(Int32 attrEnum) const {
+const char *NADefaults::getValue(int attrEnum) const {
   ATTR_RANGE_ASSERT;
   return currentDefaults_[attrEnum];
 }
 
-NABoolean NADefaults::getFloat(Int32 attrEnum, float &result) const {
+NABoolean NADefaults::getFloat(int attrEnum, float &result) const {
   ATTR_RANGE_ASSERT;
   if (currentFloats_[attrEnum]) {
     result = *currentFloats_[attrEnum];
@@ -4151,7 +4151,7 @@ NABoolean NADefaults::getFloat(Int32 attrEnum, float &result) const {
   return TRUE;
 }
 
-double NADefaults::getAsDouble(Int32 attrEnum) const {
+double NADefaults::getAsDouble(int attrEnum) const {
   // No domainMatch() needed: any float or double (or int or uint) is okay;
   // getFloat()/validateFloat() will disallow any non-numerics.
   float flt;
@@ -4159,7 +4159,7 @@ double NADefaults::getAsDouble(Int32 attrEnum) const {
   return double(flt);
 }
 
-int NADefaults::getAsLong(Int32 attrEnum) const {
+int NADefaults::getAsLong(int attrEnum) const {
   float flt;
   getFloat(attrEnum, flt);
   if (!domainMatch(attrEnum, VALID_INT, &flt)) {
@@ -4168,7 +4168,7 @@ int NADefaults::getAsLong(Int32 attrEnum) const {
   return int(flt);
 }
 
-ULng32 NADefaults::getAsULong(Int32 attrEnum) const {
+ULng32 NADefaults::getAsULong(int attrEnum) const {
   float flt;
   getFloat(attrEnum, flt);
   if (!domainMatch(attrEnum, VALID_UINT, &flt)) {
@@ -4267,7 +4267,7 @@ ULng32 NADefaults::getTotalNumOfESPs(NABoolean &fakeEnv) const {
   return MAXOF(ceil(espsPerNode * numOfNodes), 1);
 }
 
-NABoolean NADefaults::domainMatch(Int32 attrEnum, Int32 expectedType /*DefaultValidatorType*/, float *flt) const {
+NABoolean NADefaults::domainMatch(int attrEnum, int expectedType /*DefaultValidatorType*/, float *flt) const {
   if (validator(attrEnum)->getType() == expectedType) return TRUE;  // yes, domains match
 
   // Emit error messages only if the value is actually out-of-range.
@@ -4317,7 +4317,7 @@ NABoolean NADefaults::domainMatch(Int32 attrEnum, Int32 expectedType /*DefaultVa
 //	Useful for apps that dynamically send startup settings that ought
 //	to be preserved -- ODBC and SQLCI do this.
 //
-void NADefaults::resetAll(NAString &value, short reset, Int32 errOrWarn) {
+void NADefaults::resetAll(NAString &value, short reset, int errOrWarn) {
   size_t i, numAttrs = numDefaultAttributes();
 
   if (reset == 1) {  // CQD * RESET; (not RESET RESET)
@@ -4419,7 +4419,7 @@ NABoolean NADefaults::isNonResetableAttribute(const char *attrName) const {
 }
 
 // these defaults can be set only once by user.
-NABoolean NADefaults::isSetOnceAttribute(Int32 attrEnum) const {
+NABoolean NADefaults::isSetOnceAttribute(int attrEnum) const {
   if (attrEnum == DEFAULT_SCHEMA_ACCESS_ONLY) return TRUE;
 
   return FALSE;
@@ -4430,7 +4430,7 @@ void NADefaults::resetSessionOnlyDefaults() {
   validateAndInsert("TRAFCI_PROCESS", value, 3, 0);
 }
 
-void NADefaults::setMultiCQDSValue(DefaultConstants attrEnum, NAString &rqoValue, Int32 errOrWarn) {
+void NADefaults::setMultiCQDSValue(DefaultConstants attrEnum, NAString &rqoValue, int errOrWarn) {
   DefaultToken tk = getToken(attrEnum, errOrWarn);
   switch (tk) {
     case DF_MAXIMUM: {
@@ -4459,10 +4459,10 @@ void NADefaults::setMultiCQDSValue(DefaultConstants attrEnum, NAString &rqoValue
     } break;
     case DF_SYSTEM: {
       NAString val(rqoValue);
-      Int32 rqoGroupArray[] = {
+      int rqoGroupArray[] = {
           RISK_PREMIUM_NJ,    RISK_PREMIUM_SERIAL, PARTITIONING_SCHEME_SHARING, ROBUST_HJ_TO_NJ_FUDGE_FACTOR,
           ROBUST_SORTGROUPBY, RISK_PREMIUM_MJ};
-      for (Int32 i = 0; i < sizeof(rqoGroupArray) / sizeof(Int32); i++) {
+      for (int i = 0; i < sizeof(rqoGroupArray) / sizeof(int); i++) {
         if (isSynonymOfSYSTEM(rqoGroupArray[i], rqoValue)) val = getDefaultDefaultValue(rqoGroupArray[i]);
         insert(rqoGroupArray[i], val, errOrWarn);
       }
@@ -4476,7 +4476,7 @@ void NADefaults::setMultiCQDSValue(DefaultConstants attrEnum, NAString &rqoValue
 // Parameter <reset> must not be a reference (&);
 // see <value = ... fall thru> below.
 enum DefaultConstants NADefaults::validateAndInsert(const char *attrName, NAString &value, NABoolean reset,
-                                                    Int32 errOrWarn, Provenance overwriteIfNotYet) {
+                                                    int errOrWarn, Provenance overwriteIfNotYet) {
   NABoolean overwrite = FALSE;
   NABoolean isJDBC = FALSE;
   NABoolean isODBC = FALSE;
@@ -4646,7 +4646,7 @@ enum DefaultConstants NADefaults::validateAndInsert(const char *attrName, NAStri
 
         if (attrEnum != __INVALID_DEFAULT_ATTRIBUTE) {
           UInt32 newMaxLength;
-          Int32 n = -1;
+          int n = -1;
           sscanf(value.data(), "%u%n", &newMaxLength, &n);
           if (n > 0 && (UInt32)n == value.length()) {  // a valid unsigned number
             if (newMaxLength < minLength) {
@@ -4672,7 +4672,7 @@ enum DefaultConstants NADefaults::validateAndInsert(const char *attrName, NAStri
 
         if (attrEnum != __INVALID_DEFAULT_ATTRIBUTE) {
           UInt32 newMinLength;
-          Int32 n = -1;
+          int n = -1;
           sscanf(value.data(), "%u%n", &newMinLength, &n);
           if (n > 0 && (UInt32)n == value.length()) {  // a valid unsigned number
             if (newMinLength > maxLength) {
@@ -4712,11 +4712,11 @@ enum DefaultConstants NADefaults::validateAndInsert(const char *attrName, NAStri
         case TRAF_PASSWORD_GRACE_COUNTER:
         case PASSWORD_LIFE_TIME: {
           NABoolean isInternalOperation = CmpCommon::context()->isInStepForInitSchemaDB();
-          Int32 uid = ComUser::getCurrentUser();
+          int uid = ComUser::getCurrentUser();
           if (NOT isInternalOperation && NOT ComUser::isManagerUserID(uid)) {
             bool isAuthorization =
                 CmpCommon::context()->isAuthorizationEnabled() && CmpCommon::context()->isAuthorizationReady();
-            Int32 adminRole = NA_UserIdDefault;
+            int adminRole = NA_UserIdDefault;
             CmpSeabaseDDLauth authInfo;
             bool hasPriv =
                 authInfo.verifyAuthority(SQLOperation::MANAGE_PRIVILEGES);  // chenge MANAGE_USERS to MANAGE_SECURE
@@ -4779,7 +4779,7 @@ enum DefaultConstants NADefaults::validateAndInsert(const char *attrName, NAStri
         // to repeat them (besides, that causes Executor to choke on the
         // warnings in the diags and say 'Error fetching from TCB tree').
 
-        Int32 isValid = TRUE;
+        int isValid = TRUE;
         if (!overwrite || currentState_ < SET_BY_CQD || validator(attrEnum) != &validateCollList)
           isValid = validator(attrEnum)->validate(value, this, attrEnum, errOrWarn);
 
@@ -5057,7 +5057,7 @@ enum DefaultConstants NADefaults::validateAndInsert(const char *attrName, NAStri
             if (schSetByNametype())  // only when schema was changed by this CQD
             {
               // do not change catSchSetToUserID_ flag
-              Int32 preVal = catSchSetToUserID_;
+              int preVal = catSchSetToUserID_;
               NAString v("");
               validateAndInsert("SCHEMA", v, TRUE);
               catSchSetToUserID_ = preVal;
@@ -5289,7 +5289,7 @@ enum DefaultConstants NADefaults::holdOrRestore(const char *attrName, int holdOr
 
 const SqlParser_NADefaults *NADefaults::getSqlParser_NADefaults() { return SqlParser_NADefaults_; }
 
-static void setCatSchErr(NAString &value, int sqlCode, Int32 errOrWarn, NABoolean catErr = FALSE) {
+static void setCatSchErr(NAString &value, int sqlCode, int errOrWarn, NABoolean catErr = FALSE) {
   if (!sqlCode || !errOrWarn) return;
 
   TrimNAStringSpace(value);  // prettify further (neater errmsg)
@@ -5342,7 +5342,7 @@ static void setCatSchErr(NAString &value, int sqlCode, Int32 errOrWarn, NABoolea
   if (errOrWarn > 0) NegateAllErrors(CmpCommon::diags());
 }
 
-NABoolean NADefaults::setCatalog(NAString &value, Int32 errOrWarn, NABoolean overwrite, NABoolean alreadyCanonical) {
+NABoolean NADefaults::setCatalog(NAString &value, int errOrWarn, NABoolean overwrite, NABoolean alreadyCanonical) {
   setCatUserID(currentState_ == COMPUTED);
 
   // The input value is in external (Ansi) format.
@@ -5375,7 +5375,7 @@ NABoolean NADefaults::setCatalog(NAString &value, Int32 errOrWarn, NABoolean ove
   }
 }
 
-NABoolean NADefaults::setSchema(NAString &value, Int32 errOrWarn, NABoolean overwrite, NABoolean alreadyCanonical) {
+NABoolean NADefaults::setSchema(NAString &value, int errOrWarn, NABoolean overwrite, NABoolean alreadyCanonical) {
   // if this is part of CQD *RESET and it was initialized with role name
   // do not change the following flags
   // to allow DEFAULT_SCHEMA_NAMETYPE to set its value
@@ -5541,9 +5541,9 @@ const char *NADefaults::keywords_[DF_lastToken] = {"ACCUMULATED",
 // file is: int (*)(const char *, const char *).  In general, we're
 // doing a lot of type casting in here.
 
-static Int32 stringCompare(const void *s1, const void *s2) { return strcmp(*(char **)s1, *(char **)s2); }
+static int stringCompare(const void *s1, const void *s2) { return strcmp(*(char **)s1, *(char **)s2); }
 
-DefaultToken NADefaults::token(Int32 attrEnum, NAString &value, NABoolean valueAlreadyGotten, Int32 errOrWarn) const {
+DefaultToken NADefaults::token(int attrEnum, NAString &value, NABoolean valueAlreadyGotten, int errOrWarn) const {
   ATTR_RANGE_ASSERT;
 
   if (!valueAlreadyGotten) {
@@ -5569,7 +5569,7 @@ DefaultToken NADefaults::token(Int32 attrEnum, NAString &value, NABoolean valueA
         attrEnum == ISO_MAPPING || attrEnum == INPUT_CHARSET || attrEnum == TRAF_DEFAULT_COL_CHARSET ||
         attrEnum == DYNAMIC_PARAM_DEFAULT_CHARSET) {
       CharInfo::CharSet cs = CharInfo::getCharSetEnum(value);
-      Int32 err_found = 0;
+      int err_found = 0;
 
       if (!CharInfo::isCharSetSupported(cs)) {
         err_found = 1;
@@ -6094,7 +6094,7 @@ DefaultToken NADefaults::token(Int32 attrEnum, NAString &value, NABoolean valueA
   return tok;
 }
 
-DefaultToken NADefaults::getToken(const Int32 attrEnum, const Int32 errOrWarn) const {
+DefaultToken NADefaults::getToken(const int attrEnum, const int errOrWarn) const {
   if (moduleCheck(attrEnum)) return DF_OFF;
 
   // Check the cache first.
@@ -6194,8 +6194,8 @@ NABoolean NADefaults::isSameCQD(int numEntriesInBuffer, char *buffer, int bufLen
 
   if (bufLen == 0) return FALSE;
 
-  Int32 curPos = 0;
-  for (Int32 i = 0; i < numEntriesInBuffer; i++) {
+  int curPos = 0;
+  for (int i = 0; i < numEntriesInBuffer; i++) {
     if (strcmp(currentDefaults_[i], &buffer[curPos]) != 0) return FALSE;
     curPos += strlen(&buffer[curPos]) + 1;
   }
@@ -6204,8 +6204,8 @@ NABoolean NADefaults::isSameCQD(int numEntriesInBuffer, char *buffer, int bufLen
   return TRUE;
 }
 
-void NADefaults::updateCurrentDefaultsForOSIM(Int32 attrEnum, const char *value) {
-  Int32 errOrWarn;
+void NADefaults::updateCurrentDefaultsForOSIM(int attrEnum, const char *value) {
+  int errOrWarn;
 
   if (!insert(attrEnum, value, errOrWarn)) {
     *CmpCommon::diags() << DgSqlCode(-2055) << DgString0(value) << DgString1(lookupAttrName(attrEnum));
@@ -6246,7 +6246,7 @@ int NADefaults::figureOutMaxLength(UInt32 uec) {
   return maxLength;
 }
 
-bool NADefaults::moduleCheck(const Int32 attrEnum) const {
+bool NADefaults::moduleCheck(const int attrEnum) const {
   bool ret = 0;
   switch (attrEnum) {
     case TRAF_OBJECT_LOCK:

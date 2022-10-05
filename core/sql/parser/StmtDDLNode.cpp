@@ -200,7 +200,7 @@ StmtDDLGrant::StmtDDLGrant(ElemDDLNode *pPrivileges, const QualifiedName &object
 // virtual destructor
 StmtDDLGrant::~StmtDDLGrant() {
   // delete all children
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     delete getChild(i);
   }
 }
@@ -212,7 +212,7 @@ StmtDDLGrant *StmtDDLGrant::castToStmtDDLGrant() { return this; }
 // accessors
 //
 
-Int32 StmtDDLGrant::getArity() const { return MAX_STMT_DDL_GRANT_ARITY; }
+int StmtDDLGrant::getArity() const { return MAX_STMT_DDL_GRANT_ARITY; }
 
 ExprNode *StmtDDLGrant::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
@@ -392,7 +392,7 @@ StmtDDLSchGrant::StmtDDLSchGrant(ElemDDLNode *pPrivileges, const ElemDDLSchemaNa
 // virtual destructor
 StmtDDLSchGrant::~StmtDDLSchGrant() {
   // delete all children
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     delete getChild(i);
   }
 }
@@ -404,7 +404,7 @@ StmtDDLSchGrant *StmtDDLSchGrant::castToStmtDDLSchGrant() { return this; }
 // accessors
 //
 
-Int32 StmtDDLSchGrant::getArity() const { return MAX_STMT_DDL_GRANT_ARITY; }
+int StmtDDLSchGrant::getArity() const { return MAX_STMT_DDL_GRANT_ARITY; }
 
 ExprNode *StmtDDLSchGrant::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
@@ -769,7 +769,7 @@ StmtDDLRevoke::StmtDDLRevoke(NABoolean isGrantOptionFor, ElemDDLNode *pPrivilege
 // virtual destructor
 StmtDDLRevoke::~StmtDDLRevoke() {
   // delete all children
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     delete getChild(i);
   }
 }
@@ -781,7 +781,7 @@ StmtDDLRevoke *StmtDDLRevoke::castToStmtDDLRevoke() { return this; }
 // accessors
 //
 
-Int32 StmtDDLRevoke::getArity() const { return MAX_STMT_DDL_REVOKE_ARITY; }
+int StmtDDLRevoke::getArity() const { return MAX_STMT_DDL_REVOKE_ARITY; }
 
 ExprNode *StmtDDLRevoke::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
@@ -969,7 +969,7 @@ StmtDDLSchRevoke::StmtDDLSchRevoke(NABoolean isGrantOptionFor, ElemDDLNode *pPri
 // virtual destructor
 StmtDDLSchRevoke::~StmtDDLSchRevoke() {
   // delete all children
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     delete getChild(i);
   }
 }
@@ -981,7 +981,7 @@ StmtDDLSchRevoke *StmtDDLSchRevoke::castToStmtDDLSchRevoke() { return this; }
 // accessors
 //
 
-Int32 StmtDDLSchRevoke::getArity() const { return MAX_STMT_DDL_REVOKE_ARITY; }
+int StmtDDLSchRevoke::getArity() const { return MAX_STMT_DDL_REVOKE_ARITY; }
 
 ExprNode *StmtDDLSchRevoke::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());

@@ -102,7 +102,7 @@ static ExScratchDiskDrive *genScratchDisks(const NAString &def, int &numDirs, Ge
   int allDirNamesLen = 0;
   char *generatedDirNames = NULL;
 
-  Int32 i = 0;
+  int i = 0;
   for (; i < numDirs; i++) {
     allDirNamesLen += str_len(tempList[i]->getDirName()) + 1;
   }

@@ -97,14 +97,14 @@ void RelExpr::cleanupAfterCompilation() {
 }  // RelExpr::cleanupAfterCompilation()
 
 // how many moves to pursue during exploration?
-Int32 RelExpr::computeExploreExprCutoff(RuleWithPromise[], Int32 numberOfMoves, RelExpr *, Guidance *) {
+int RelExpr::computeExploreExprCutoff(RuleWithPromise[], int numberOfMoves, RelExpr *, Guidance *) {
   // default implementation: use all promising moves
   return numberOfMoves;
 }  // RelExpr::computeExploreExprCutoff()
 
 // given an array of moves (rule applications with a given
 // promise), now many of the moves should actually be performed?
-Int32 RelExpr::computeOptimizeExprCutoff(RuleWithPromise[], Int32 numberOfMoves, Guidance *, Context *) {
+int RelExpr::computeOptimizeExprCutoff(RuleWithPromise[], int numberOfMoves, Guidance *, Context *) {
   // default implementation: use all promising moves
   return numberOfMoves;
 }  // RelExpr::computeOptimizeExprCutoff()
@@ -284,7 +284,7 @@ EstLogPropSharedPtr RelExpr::synthEstLogPropForUnaryLeafOp(const EstLogPropShare
       CollIndex i;
       for (i = 0; i < childStats.entries(); i++) {
         ColStatDescSharedPtr columnStatDesc = childStats[i];
-        for (outerInd = 0; (Int32)outerInd < outerRefCount; outerInd++) {
+        for (outerInd = 0; (int)outerInd < outerRefCount; outerInd++) {
           ColStatDescSharedPtr outerStatDesc = outerColStatsList[outerInd];
 
           if (outerStatDesc->getMergeState().contains(columnStatDesc->getMergeState())) {
@@ -292,7 +292,7 @@ EstLogPropSharedPtr RelExpr::synthEstLogPropForUnaryLeafOp(const EstLogPropShare
             break;
           }
         }
-        if ((Int32)outerInd == outerRefCount) {
+        if ((int)outerInd == outerRefCount) {
           ColStatDescSharedPtr tmpColStatDescPtr(new (HISTHEAP) ColStatDesc(*childStats[i]), HISTHEAP);
           ColStatsSharedPtr tmpColStatsPtr = tmpColStatDescPtr->getColStatsToModify();
           tmpColStatsPtr->copyAndScaleHistogram(1);
@@ -533,9 +533,9 @@ void RelExpr::synthLogProp(NormWA *normWAPtr) {
 
   GroupAttributes *GA = getGroupAttr();
 
-  Int32 numChildren = getArity();
-  Int32 numBaseTables = 0;  // add up all base tables from children
-  Int32 numTMUDFs = 0;      // ditto for TMUDFs
+  int numChildren = getArity();
+  int numBaseTables = 0;  // add up all base tables from children
+  int numTMUDFs = 0;      // ditto for TMUDFs
   // synthesize the log props for all children
   for (int i = 0; i < numChildren; i++) {
     // only if the child is not a Cascadesgroup or NULL
@@ -590,7 +590,7 @@ void RelExpr::synthLogProp(NormWA *normWAPtr) {
 void RelExpr::finishSynthEstLogProp() {
   GroupAttributes *GA = getGroupAttr();
 
-  Int32 numChildren = getArity();
+  int numChildren = getArity();
   CostScalar minRowCount = COSTSCALAR_MAX;
 
   // finish synthesis of log props for all children
@@ -612,7 +612,7 @@ void RelExpr::finishSynthEstLogProp() {
 
 // clear logical properties of me and my children
 void RelExpr::clearAllEstLogProp() {
-  Int32 numChildren = getArity();
+  int numChildren = getArity();
 
   // clear the log props for all children
   for (int i = 0; i < numChildren; i++) {
@@ -712,7 +712,7 @@ RelExpr *RelExpr::checkAndReorderTree() {
 }
 // The reorderTree() is used also for pre-optimizer pass
 RelExpr *RelExpr::reorderTree(NABoolean &treeModified, NABoolean doReorderJoin) {
-  Int32 nc = getArity();
+  int nc = getArity();
   NABoolean childModified = FALSE;
   treeModified = FALSE;
 
@@ -730,7 +730,7 @@ RelExpr *RelExpr::reorderTree(NABoolean &treeModified, NABoolean doReorderJoin) 
 }  // RelExpr::reorderTree()
 
 RelExpr *RelExpr::fixupTriggers(NABoolean &treeModified) {
-  Int32 nc = getArity();
+  int nc = getArity();
   NABoolean childModified = FALSE;
   NABoolean myTreeModified = FALSE;
 
@@ -1318,7 +1318,7 @@ void Join::synthEstLogProp(const EstLogPropSharedPtr &inputEstLogProp) {
   CostScalar outerRefRowCount = inputEstLogProp->getResultCardinality().minCsOne();
 
   CostScalar newRowCount = 1;
-  Int32 outerMatchCount = 0;
+  int outerMatchCount = 0;
   CollIndex i = 0;
   CollIndex j = 0;
 
@@ -2010,7 +2010,7 @@ CostScalar Join::estimateMaxCardinality(const EstLogPropSharedPtr &inLP, ColStat
   CostScalar maxCardEstz =
       CostScalar(1.6) * rightFreqMin * leftFreqMin + MINOF(leftMax * rightAvgFreq, rightMax * leftAvgFreq);
 
-  Int32 cqd = (ActiveSchemaDB()->getDefaults()).getAsLong(COMP_INT_47);
+  int cqd = (ActiveSchemaDB()->getDefaults()).getAsLong(COMP_INT_47);
   CostScalar maxCardEst;
   switch (cqd) {
     case 1:
@@ -2188,10 +2188,10 @@ void Join::synthConstraints(NormWA *normWAPtr) {
       }  // interesting uniqueness constraint on left table
     }    // for loop over
   } else if (rightHasUniqueMatches_ == FALSE) {
-    Int32 maxNumConstraints = (ActiveSchemaDB()->getDefaults()).getAsLong(MAX_NUM_UNIQUE_CONSTRAINTS_FOR_JOIN);
+    int maxNumConstraints = (ActiveSchemaDB()->getDefaults()).getAsLong(MAX_NUM_UNIQUE_CONSTRAINTS_FOR_JOIN);
 
     // total number of constraints tried so far
-    Int32 numConstraintsTried = 0;
+    int numConstraintsTried = 0;
 
     // Neither side has a unique match from the other.
     // walk the constraints of the left child table
@@ -3023,7 +3023,7 @@ void GroupByAgg::synthEstLogProp(const EstLogPropSharedPtr &inputEstLogProp) {
   // We will now get the Estimated Logical Properties of the child of
   // Materialize; also multipleCalls will tell us whether or not such
   // child gets called only once.
-  Int32 multipleCalls;
+  int multipleCalls;
   EstLogPropSharedPtr modInputLP;
   if (inputEstLogProp->getResultCardinality() > CostScalar(1) &&
       CmpCommon::getDefault(COSTING_SHORTCUT_GROUPBY_FIX) != DF_ON) {
@@ -4100,7 +4100,7 @@ void Filter::synthEstLogProp(const EstLogPropSharedPtr &inputEstLogProp) {
   // We will now get the Estimated Logical Properties of the child
   // also multipleCalls will tell us whether or not such
   // child gets called only once.
-  Int32 multipleCalls;
+  int multipleCalls;
   EstLogPropSharedPtr modInputLP;
 
   const CostScalar orgRowcount = inputEstLogProp->getResultCardinality();
@@ -4863,7 +4863,7 @@ void GenericUpdate::synthLogProp(NormWA *normWAPtr) {
   // for this equivalent log. expression.
   if (getGroupAttr()->existsLogExprForSynthesis()) return;
 
-  Int32 numBaseTables;
+  int numBaseTables;
 
   // synthesize logical properties for me and my child (if any).
   RelExpr::synthLogProp(normWAPtr);
@@ -5065,7 +5065,7 @@ void Transpose::synthEstLogProp(const EstLogPropSharedPtr &inputEstLogProp) {
 
   }  // (transUnionVector()[0].entries() > 0)
 
-  Int32 haveAllColStats = 0;
+  int haveAllColStats = 0;
 
   for (CollIndex vec = 1; vec < transUnionVectorSize(); vec++) {
     ValueIdList &valIdList = transUnionVector()[vec];
@@ -5508,7 +5508,7 @@ void CallSP::synthEstLogProp(const EstLogPropSharedPtr &inputEstLogProp) {
   if (getGroupAttr()->isPropSynthesized(inputEstLogProp) == TRUE) return;
 
   // Create a new Output Log Property with cardinality of 1
-  const Int32 myCardinality = 1;
+  const int myCardinality = 1;
   EstLogPropSharedPtr myEstProps(new (HISTHEAP) EstLogProp(myCardinality));
 
   getGroupAttr()->addInputOutputLogProp(inputEstLogProp, myEstProps);

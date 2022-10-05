@@ -25,7 +25,7 @@
 #include "common/charinfo.h"
 #include "common/nawstring.h"
 
-NAWString *charToUnicode(int charset, const char *s, Int32 len, CollHeap *h) {
+NAWString *charToUnicode(int charset, const char *s, int len, CollHeap *h) {
   NAString str(s, len);
 
   NAWString *ws = NULL;
@@ -37,8 +37,8 @@ NAWString *charToUnicode(int charset, const char *s, Int32 len, CollHeap *h) {
   return ws;
 }
 
-NAString *unicodeToChar(const NAWchar *wstr, Int32 wlen, int charset, CollHeap *h, NABoolean allowInvalidChar) {
-  Int32 slen;
+NAString *unicodeToChar(const NAWchar *wstr, int wlen, int charset, CollHeap *h, NABoolean allowInvalidChar) {
+  int slen;
   switch (charset) {
     case CharInfo::ISO88591:
     case CharInfo::SJIS:
@@ -82,7 +82,7 @@ NAString *unicodeToChar(const NAWchar *wstr, Int32 wlen, int charset, CollHeap *
   return res;
 }
 
-NAString *charToChar(int targetCS, const char *s, Int32 sLenInBytes, int sourceCS, NAMemory *h /* = NULL */,
+NAString *charToChar(int targetCS, const char *s, int sLenInBytes, int sourceCS, NAMemory *h /* = NULL */,
                      NABoolean allowInvalidChar /* = FALSE */) {
   NAString *res = NULL;
   if (s == NULL || sourceCS == (int)CharInfo::UnknownCharSet || targetCS == (int)CharInfo::UnknownCharSet) {

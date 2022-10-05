@@ -1120,7 +1120,7 @@ CDDSchema *CRUCache::GetPublicSchema() {
 
   CDSString pubCat;
   CDSString pubSch;
-  Int32 retPubSch = CDDControlQueryDefault::RetrievePublicSchema(options.GetDefaultSchema(), pubCat, pubSch);
+  int retPubSch = CDDControlQueryDefault::RetrievePublicSchema(options.GetDefaultSchema(), pubCat, pubSch);
 
   if (retPubSch == 0) return NULL;
 

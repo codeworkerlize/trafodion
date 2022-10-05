@@ -57,7 +57,7 @@ class ElemDDLSaltOptionsClause : public ElemDDLNode {
   // constructors
   //
 
-  ElemDDLSaltOptionsClause(ElemDDLNode *pSaltExprTree, Int32 numPartitions, Int32 numRegions = -1);
+  ElemDDLSaltOptionsClause(ElemDDLNode *pSaltExprTree, int numPartitions, int numRegions = -1);
 
   ElemDDLSaltOptionsClause(NABoolean likeTable);
 
@@ -71,14 +71,14 @@ class ElemDDLSaltOptionsClause : public ElemDDLNode {
   // accessors
   //
 
-  inline Int32 getNumPartitions() const { return numPartitions_; }
+  inline int getNumPartitions() const { return numPartitions_; }
 
-  inline Int32 getNumInitialRegions() const { return numInitialRegions_; }
+  inline int getNumInitialRegions() const { return numInitialRegions_; }
 
   inline ElemDDLColRefArray &getSaltColRefArray() { return saltColumnArray_; }
 
   // get the degree of this node
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
   virtual ExprNode *getChild(int index);
   // name we choose for the system column that contains the salting value
   static const char *getSaltSysColName() { return "_SALT_"; }
@@ -89,7 +89,7 @@ class ElemDDLSaltOptionsClause : public ElemDDLNode {
 
   void setChild(int index, ExprNode *pChildNode);
 
-  void setNumPartns(Int32 numPartns) { numPartitions_ = numPartns; }
+  void setNumPartns(int numPartns) { numPartitions_ = numPartns; }
 
   //
   // methods for tracing and/or building text
@@ -113,8 +113,8 @@ class ElemDDLSaltOptionsClause : public ElemDDLNode {
   // data members
   //
 
-  Int32 numPartitions_;
-  Int32 numInitialRegions_;
+  int numPartitions_;
+  int numInitialRegions_;
   ElemDDLColRefArray saltColumnArray_;
   NABoolean likeTable_;  // salt an index like its base table
 

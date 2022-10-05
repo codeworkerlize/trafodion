@@ -308,7 +308,7 @@ ExConnectByTempTableTcb::MoveStatus ExConnectByTempTableTcb::moveReplyToCache(ex
 void ExConnectByTempTableTcb::makeReplyToParentUp(ex_queue_entry *pentry_down, ExConnectByTempTablePrivateState &pstate,
                                                   ex_queue::up_status reply_status) {
   ex_queue_entry *up_entry = qparent_.up->getTailEntry();
-  Int32 rowQualifies = 1;
+  int rowQualifies = 1;
 
   up_entry->copyAtp(pentry_down);
   if ((reply_status == ex_queue::Q_OK_MMORE) && (pstate.pcEntry_->innerRowTupp_.isAllocated())) {
@@ -380,7 +380,7 @@ ExConnectByHashTable::ExConnectByHashTable(Space *space, ULng32 numEntries, ULng
   sizeofExConnectByHashEntry_ = ROUND8(sizeof(ExConnectByHashEntry) + (probeLength - 1));
 
   // Get the size in bytes of the ExConnectByHashEntry array.
-  const Int32 totalExConnectByHashEntrysizeInBytes =
+  const int totalExConnectByHashEntrysizeInBytes =
       numEntries * sizeofExConnectByHashEntry_ * CONNECT_BY_HASHTABLE_SIZE_FACTOR;
 
   max_slots_ = numEntries * CONNECT_BY_HASHTABLE_SIZE_FACTOR;
@@ -403,7 +403,7 @@ ExConnectByHashTable::~ExConnectByHashTable() {
 ExConnectByHashTable::FoundOrNotFound ExConnectByHashTable::findEntry(ULng32 probeHashVal, char *probeBytes,
                                                                       UInt32 getIndex, ExConnectByHashEntry *&pcEntry) {
   FoundOrNotFound retcode = NOTFOUND;
-  const Int32 bucketNum = probeHashVal % numBuckets_;
+  const int bucketNum = probeHashVal % numBuckets_;
   UInt32 chainLength = 1;
   UInt32 hitSeq = 0;  // must be same as getIndex for a FOUND
 
@@ -434,7 +434,7 @@ ExConnectByHashEntry *ExConnectByHashTable::addEntry(ULng32 probeHashVal, char *
   bool foundVictim = false;
   ExConnectByHashEntry *pce;
 
-  const Int32 bucketNum = probeHashVal % numBuckets_;
+  const int bucketNum = probeHashVal % numBuckets_;
   ExConnectByHashEntry *bucketHead = buckets_[bucketNum];
   ExConnectByHashEntry *bucketptr = bucketHead;
   // go the end of the bucket

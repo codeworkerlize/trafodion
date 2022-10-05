@@ -1430,7 +1430,7 @@ PrivStatus MyTable::selectWhere(const std::string &whereClause, std::vector<MyRo
 // Row read successfully.  Extract the columns.
 void MyTable::setRow(OutputInfo *pCliRow, MyRow &row) {
   char *ptr = NULL;
-  Int32 len = 0;
+  int len = 0;
   char value[500];
 
   // column 1:  COMPONENT_UID

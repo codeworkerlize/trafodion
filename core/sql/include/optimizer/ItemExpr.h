@@ -257,13 +257,13 @@ class ItemExpr : public ExprNode {
   // Take an item expression and remove all nodes from its top that form
   // a "backbone". Then add the value ids of all the remaining nodes to
   // a ValueIdSet.
-  Int32 convertToValueIdSet(ValueIdSet &vs, BindWA *bindWA = NULL, OperatorTypeEnum backboneType = ITM_AND,
+  int convertToValueIdSet(ValueIdSet &vs, BindWA *bindWA = NULL, OperatorTypeEnum backboneType = ITM_AND,
                             NABoolean transformSubqueries = TRUE, NABoolean flattenLists = FALSE);
 
   // Take an item expression and remove all nodes from its top that form
   // a "backbone". Then add the value ids of all the remaining nodes to
   // a ValueIdList.
-  Int32 convertToValueIdList(ValueIdList &vl, BindWA *bindWA = NULL, OperatorTypeEnum backboneType = ITM_ITEM_LIST,
+  int convertToValueIdList(ValueIdList &vl, BindWA *bindWA = NULL, OperatorTypeEnum backboneType = ITM_ITEM_LIST,
                              RelExpr *parent = NULL);
 
   // rewrite this expression by replacing all value ids in it with
@@ -409,7 +409,7 @@ class ItemExpr : public ExprNode {
   void setOrigOpType(OperatorTypeEnum o) { origOpType_ = o; }
 
   // OperatorTypeEnum &origOpTypeBeingBound()	{ return origOpTypeBeingBound_; }
-  // Int32 &origOpTypeCounter()                      { return origOpTypeCounter_;}
+  // int &origOpTypeCounter()                      { return origOpTypeCounter_;}
 
   // the NON-virtual encapsulating function for type-propagating the node
   // (calls the virtual one, below)
@@ -429,7 +429,7 @@ class ItemExpr : public ExprNode {
 
   ItemExpr *performImplicitCasting(CharInfo::CharSet cs, BindWA *bindWA);
   virtual ItemExpr *tryToDoImplicitCasting(BindWA *bindWA);
-  Int32 shouldPushTranslateDown(CharInfo::CharSet chrset) const;
+  int shouldPushTranslateDown(CharInfo::CharSet chrset) const;
 
   virtual NABoolean CanChild0BeImplicitlyCast() { return TRUE; };
 
@@ -861,7 +861,7 @@ class ItemExpr : public ExprNode {
                                           const GroupAttributes *right_ga = NULL);
 
   ItemExpr *replaceVEGExpressions1(VEGRewritePairs *lookup);
-  void replaceVEGExpressions2(Int32 index, const ValueIdSet &availableValues, const ValueIdSet &inputValues,
+  void replaceVEGExpressions2(int index, const ValueIdSet &availableValues, const ValueIdSet &inputValues,
                               ValueIdSet &currAvailableValues, const GroupAttributes *left_ga,
                               const GroupAttributes *right_ga);
 
@@ -1094,9 +1094,9 @@ class ItemExpr : public ExprNode {
 
   // Defined only for HV's and Dynamic parameters
   virtual ComColumnDirection getParamMode() const;
-  virtual Int32 getOrdinalPosition() const;
-  virtual Int32 getHVorDPIndex() const;
-  virtual void setPMOrdPosAndIndex(ComColumnDirection paramMode, Int32 ordinalPosition, Int32 index) { CMPASSERT(0); }
+  virtual int getOrdinalPosition() const;
+  virtual int getHVorDPIndex() const;
+  virtual void setPMOrdPosAndIndex(ComColumnDirection paramMode, int ordinalPosition, int index) { CMPASSERT(0); }
 
   NABoolean isARangePredicate() const;
 
@@ -1154,7 +1154,7 @@ class ItemExpr : public ExprNode {
 
   // output degree functions for ItemExprs that can have
   // multiple outputs (such as scalar UDFs and subqueries).
-  virtual Int32 getOutputDegree() { return 1; }
+  virtual int getOutputDegree() { return 1; }
   virtual ItemExpr *getOutputItem(UInt32 i) { return this; }
 
   // remove non-pushabe predicates for ORC, default implementation.
@@ -1350,7 +1350,7 @@ class ItemExpr : public ExprNode {
   NAString userTextStr_;
 
   // static THREAD_P OperatorTypeEnum origOpTypeBeingBound_;
-  // static THREAD_P Int32 origOpTypeCounter_;
+  // static THREAD_P int origOpTypeCounter_;
 
   // ------------------
   // Object Counter

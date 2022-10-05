@@ -65,7 +65,7 @@ const char *getESPStreamTypeString(ESPMessageTypeEnum t) {
     case IPC_MSG_SQLESP_SERVER_INCOMING:
       return "IPC_MSG_SQLESP_SERVER_INCOMING";
     default:
-      return ComRtGetUnknownString((Int32)t);
+      return ComRtGetUnknownString((int)t);
   }
 }
 
@@ -128,7 +128,7 @@ const char *getESPMessageObjTypeString(ESPMessageObjTypeEnum t) {
     case IPC_SQL_STATS_AREA:
       return "IPC_SQL_STATS_AREA";
     default:
-      return ComRtGetUnknownString((Int32)t);
+      return ComRtGetUnknownString((int)t);
   }
 }
 
@@ -566,7 +566,7 @@ ExProcessIdsOfFrag::ExProcessIdsOfFrag(NAMemory *heap, ExFragId fragId)
 IpcMessageObjSize ExProcessIdsOfFrag::packedLength() {
   // we pack the fragment id, number of entries, and then all the process ids
   IpcMessageObjSize result =
-      baseClassPackedLength() + sizeof(spare_) + sizeof(fragmentId_) + sizeof(Int32) /* num entries */;
+      baseClassPackedLength() + sizeof(spare_) + sizeof(fragmentId_) + sizeof(int) /* num entries */;
 
   CollIndex np = processIds_.entries();
   for (CollIndex i = 0; i < np; i++) {
@@ -579,7 +579,7 @@ IpcMessageObjSize ExProcessIdsOfFrag::packedLength() {
 
 IpcMessageObjSize ExProcessIdsOfFrag::packObjIntoMessage(IpcMessageBufferPtr buffer) {
   IpcMessageObjSize result = packBaseClassIntoMessage(buffer);
-  Int32 np = processIds_.entries();
+  int np = processIds_.entries();
 
   // pack fragment id and number of entries
   str_cpy_all(buffer, (const char *)&spare_, sizeof(spare_));
@@ -614,7 +614,7 @@ void ExProcessIdsOfFrag::unpackObj(IpcMessageObjType objType, IpcMessageObjVersi
   unpackBaseClass(buffer);
 
   // unpack fragment id and number of entries
-  Int32 np;
+  int np;
   buffer += sizeof(spare_);
   str_cpy_all((char *)&fragmentId_, buffer, sizeof(fragmentId_));
   buffer += sizeof(fragmentId_);
@@ -666,7 +666,7 @@ ExMsgFragment::ExMsgFragment(NAMemory *heap) : ExEspMsgObj(ESP_FRAGMENT, CurrFra
   f_.tenantNameLen_ = 0;
   f_.needToWorkVec_ = NULL;
   f_.needToWorkVecLen_ = 0;
-  for (Int32 i = 0; i < 6; i++) f_.reserved[i] = 0;
+  for (int i = 0; i < 6; i++) f_.reserved[i] = 0;
 }
 
 ExMsgFragment::ExMsgFragment(const ExFragKey &key, ExFragDir::ExFragEntryType fragType, ExFragId parentId,
@@ -734,7 +734,7 @@ ExMsgFragment::ExMsgFragment(const ExFragKey &key, ExFragDir::ExFragEntryType fr
 
   f_.compressedLength_ = compressedLength;
 
-  for (Int32 i = 0; i < 6; i++) f_.reserved[i] = 0;
+  for (int i = 0; i < 6; i++) f_.reserved[i] = 0;
 }
 
 ExMsgFragment::~ExMsgFragment() {
@@ -1015,8 +1015,8 @@ void ExMsgTimeoutData::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion
 // -----------------------------------------------------------------------
 
 // Constructor to send a message
-ExSMDownloadInfo::ExSMDownloadInfo(NAMemory *heap, long smQueryID, Int32 smTraceLevel, const char *smTraceFilePrefix,
-                                   Int32 flags)
+ExSMDownloadInfo::ExSMDownloadInfo(NAMemory *heap, long smQueryID, int smTraceLevel, const char *smTraceFilePrefix,
+                                   int flags)
     : ExEspMsgObj(ESP_SM_DOWNLOAD_INFO, CurrSMDownloadInfoVersion, heap),
       smQueryID_(smQueryID),
       smTraceLevel_(smTraceLevel),
@@ -1049,8 +1049,8 @@ IpcMessageObjSize ExSMDownloadInfo::packedLength() {
   UInt32 len = (smTraceFilePrefix_ ? (str_len(smTraceFilePrefix_) + 1) : 0);
 
   return baseClassPackedLength() + sizeof(long)  // smQueryID_
-         + sizeof(Int32)                          // smTraceLevel_
-         + sizeof(Int32)                          // flags_
+         + sizeof(int)                          // smTraceLevel_
+         + sizeof(int)                          // flags_
          + sizeof(UInt32)                         // length of smTraceFilePrefix_
          + len;                                   // smTraceFilePrefix_
 }

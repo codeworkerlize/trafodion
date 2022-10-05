@@ -375,9 +375,9 @@ ExSqlComp::OperationStatus ExSqlComp::status(long reqId) {
 // --------------------------------------------------------------------------
 // Parse the info fetched from Describe::bindNode().  Genesis 10-981211-5986.
 //
-static NABoolean pairLenTxt(Int32 &len, const char *&txt, const char *&cqd) {
+static NABoolean pairLenTxt(int &len, const char *&txt, const char *&cqd) {
   len = 0;
-  for (Int32 i = 3; i--; cqd++) {
+  for (int i = 3; i--; cqd++) {
     //      if (isdigit(*cqd))      	len = (10 * len) + *cqd - '0';
     //      else if (isspace(*cqd)) 	len = (10 * len);
     if (isDigit8859_1((unsigned char)*cqd))
@@ -423,12 +423,12 @@ static ExSqlComp::ReturnStatus saveControls(ExControlArea *ca, const char *cqd) 
 
   ExSqlComp::ReturnStatus ret = ExSqlComp::SUCCESS;
   char sqlText[2200];
-  Int32 lenP = str_len(ca->getText(DEFAULT_));        // len of prefix:
+  int lenP = str_len(ca->getText(DEFAULT_));        // len of prefix:
   str_cpy_all(sqlText, ca->getText(DEFAULT_), lenP);  // "CQD"
   sqlText[lenP++] = ' ';                              // "CQD "
 
   while (*cqd) {
-    Int32 lenN, lenV, lenX = lenP;
+    int lenN, lenV, lenX = lenP;
     const char *nam, *val;
 
     if (pairLenTxt(lenN, nam, cqd) || pairLenTxt(lenV, val, cqd) || lenN == 0)  // name can't be blank; value can be.
@@ -499,7 +499,7 @@ ExSqlComp::ReturnStatus ExSqlComp::resetAllDefaults() {
   const char *buf[] = {"control query default * reset", "control query shape off", "control table * reset",
                        "control session * reset"};
 
-  for (Int32 i = 0; i < sizeof(buf) / sizeof(char *); i++) {
+  for (int i = 0; i < sizeof(buf) / sizeof(char *); i++) {
     int len = str_len(buf[i]) + 1;
     CmpCompileInfo c((char *)buf[i], len, (int)SQLCHARSETCODE_UTF8, NULL, 0, 0, 0);
     size_t dataLen = c.getLength();
@@ -560,8 +560,8 @@ ExSqlComp::ReturnStatus ExSqlComp::resendControls(NABoolean ctxSw)  // Genesis 1
     //     integer tenant ID
     //     tenant name
     // See CmpStatement::process (CmpMessageDatabaseUser) for more details
-    Int32 *userID = ctxt->getDatabaseUserID();
-    Int32 userAsInt = *userID;
+    int *userID = ctxt->getDatabaseUserID();
+    int userAsInt = *userID;
     CmpContext *cmpCntxt = CmpCommon::context();
     NABoolean authOn = cmpCntxt ? cmpCntxt->isAuthorizationEnabled() : FALSE;
     NAText serializedNodes;
@@ -626,7 +626,7 @@ ExSqlComp::ReturnStatus ExSqlComp::resendControls(NABoolean ctxSw)  // Genesis 1
 
         h_->deallocateMemory(data);
 
-        Int32 mainSqlcode = (Int32)diagArea_->mainSQLCODE();
+        int mainSqlcode = (int)diagArea_->mainSQLCODE();
         if (ret != ERROR && ABS(mainSqlcode) == ABS(EXE_INFO_CQD_NAME_VALUE_PAIRS)) {
           // This dang diagArea error list is [1]-based, not [0]-based...
           const char *cqd = (*diagArea_)[1].getOptionalString(0);
@@ -1254,7 +1254,7 @@ void CmpMessageStream::actOnSend(IpcConnection *) {
     sqlcomp_->badConnection_ = TRUE;
     sqlcomp_->breakReceived_ = TRUE;
     NAProcessHandle phandle((SB_Phandle_Type *)&(sqlcomp_->server_->getServerId().getPhandle().phandle_));
-    Int32 guaRetcode = phandle.decompose();
+    int guaRetcode = phandle.decompose();
     if (XZFIL_ERR_OK == guaRetcode) {
       msg_mon_stop_process_name(phandle.getPhandleString());
     }
@@ -1314,10 +1314,10 @@ void CmpMessageStream::actOnReceive(IpcConnection *) {
       sqlcomp_->currentISPRequest_ = 0;
       sqlcomp_->outstandingSendBuffers_.ioStatus_ = ExSqlComp::FINISHED;
       if (getState() == BREAK_RECEIVED) {
-        Int32 nid = 0;
-        Int32 pid = 0;
+        int nid = 0;
+        int pid = 0;
         NAProcessHandle phandle((SB_Phandle_Type *)&(sqlcomp_->server_->getServerId().getPhandle().phandle_));
-        Int32 guaRetcode = phandle.decompose();
+        int guaRetcode = phandle.decompose();
         if (XZFIL_ERR_OK == guaRetcode) {
           msg_mon_stop_process_name(phandle.getPhandleString());
         }

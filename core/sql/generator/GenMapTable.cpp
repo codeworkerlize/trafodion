@@ -104,18 +104,18 @@ short MapInfo::isOffsetAssigned() {
 
 MapInfo *MapTable::addMapInfoToThis(const ValueId &value_id, Attributes *attr) {
   const CollIndex valueId = value_id;
-  const Int32 whichMap = valueId / bitsPerUnit;
+  const int whichMap = valueId / bitsPerUnit;
 
   // --------------------------------------------------
   // Do we need to allocate more memory for the bitmaps?
   // --------------------------------------------------
   if (whichMap >= vidBitMapArraySize_) {
     // Double the size needed.
-    const Int32 newBitMapArraySize =
+    const int newBitMapArraySize =
         ((vidBitMapArraySize_ == 0) ? (MAXOF(initMTBAsize, 2 * whichMap)) : (2 * whichMap));
 
     // How many bytes is needed for the bitmap array and the integer array.
-    const Int32 bytesToAllocate = newBitMapArraySize * (sizeof(MTBitmapUnit) + sizeof(short));
+    const int bytesToAllocate = newBitMapArraySize * (sizeof(MTBitmapUnit) + sizeof(short));
 
     // Allocate memory from statement heap, which is always defined when
     // compiling a SQL statement.
@@ -149,7 +149,7 @@ MapInfo *MapTable::addMapInfoToThis(const ValueId &value_id, Attributes *attr) {
   // Do we need to allocate memory for the map info?
   // --------------------------------------------------
   if (totalVids_ >= mapInfoPtrArraySize_) {
-    Int32 newMapInfoPtrArraySize =
+    int newMapInfoPtrArraySize =
         ((mapInfoPtrArraySize_ == 0) ? initMTMIPAsize : mapInfoPtrArraySize_ + mapInfoPtrArrayStepSize);
 
     MapInfo **newMapInfoPtrArray = new (collHeap()) MapInfo *[newMapInfoPtrArraySize];
@@ -159,7 +159,7 @@ MapInfo *MapTable::addMapInfoToThis(const ValueId &value_id, Attributes *attr) {
     // Make it eye-catching and if we ever try dereferencing
     // an odd pointer, it'll crash.
 
-    for (Int32 i = 0; i < newMapInfoPtrArraySize; i++) {
+    for (int i = 0; i < newMapInfoPtrArraySize; i++) {
       newMapInfoPtrArray[i] = (MapInfo *)0xBBBBBBBB;
     }
 #endif
@@ -184,12 +184,12 @@ MapInfo *MapTable::addMapInfoToThis(const ValueId &value_id, Attributes *attr) {
   MTBitmapUnit bits = getBits(valueId, whichMap);
 #endif
 
-  Int32 index = getIndexIntoMapInfoPtrArray(whichMap, getBits(valueId, whichMap));
+  int index = getIndexIntoMapInfoPtrArray(whichMap, getBits(valueId, whichMap));
 
   // --------------------------------------------------
   // Move map infos around if necessary.
   // --------------------------------------------------
-  Int32 mapInfosLeftToMove;
+  int mapInfosLeftToMove;
   if ((mapInfosLeftToMove = totalVids_ - index) > 0) {
     // Some map infos are behind me in the map info array.  Move them.
     // This will happen when value ids are not inserted in ascending order.
@@ -198,12 +198,12 @@ MapInfo *MapTable::addMapInfoToThis(const ValueId &value_id, Attributes *attr) {
 #define moveXMapInfoPtrsAtATime 8
     MapInfo *tmpMapInfoPtrArray[moveXMapInfoPtrsAtATime];
 
-    Int32 end = totalVids_;
+    int end = totalVids_;
     while (mapInfosLeftToMove > 0) {
-      const Int32 ptrsToMove =
+      const int ptrsToMove =
           (mapInfosLeftToMove > moveXMapInfoPtrsAtATime) ? moveXMapInfoPtrsAtATime : mapInfosLeftToMove;
 
-      const Int32 bytesToMove = sizeof(MapInfo *) * ptrsToMove;
+      const int bytesToMove = sizeof(MapInfo *) * ptrsToMove;
 
       // Copy to a local array.
       memcpy(tmpMapInfoPtrArray, &mapInfoPtrArray_[end - ptrsToMove], bytesToMove);
@@ -225,7 +225,7 @@ MapInfo *MapTable::addMapInfoToThis(const ValueId &value_id, Attributes *attr) {
   *(vidBitMapArray_ + whichMap) |= (0x1 << (bitsPerUnitMinus1 - (valueId % bitsPerUnit)));
 
   // Allocate a new MapInfo entry and insert it into the map info array.
-  Int32 containerIndex = totalVids_ % MICAsize;
+  int containerIndex = totalVids_ % MICAsize;
   if (containerIndex == 0) {
     MapInfoContainer *mic = new (collHeap()) MapInfoContainer(collHeap());
     if (firstMapInfoContainer_ == NULL) {
@@ -252,8 +252,8 @@ MapInfo *MapTable::addMapInfoToThis(const ValueId &value_id, Attributes *attr) {
     cerr << "addMapEntry:      " << this << " " << value_id << "\t" << attr << "\t me=" << mapEntry << endl;
 
   // Sanity checks.
-  Int32 numVids = 0;
-  for (Int32 i = 0; i < vidBitMapArraySize_; i++) {
+  int numVids = 0;
+  for (int i = 0; i < vidBitMapArraySize_; i++) {
     numVids += vidsInBitMapArray_[i];
   }
   CMPASSERT(totalVids_ == numVids);
@@ -275,7 +275,7 @@ MapInfo *MapTable::getMapInfoFromThis(const ValueId &value_id) {
   // Find the bits in the bitmap that we're interested in.
   // --------------------------------------------------
   const CollIndex valueId = value_id;
-  const Int32 whichMap = valueId / bitsPerUnit;
+  const int whichMap = valueId / bitsPerUnit;
 
   // Range check.
   if (whichMap >= vidBitMapArraySize_) {
@@ -296,7 +296,7 @@ MapInfo *MapTable::getMapInfoFromThis(const ValueId &value_id) {
 
 #ifdef _DEBUG
 
-  Int32 index = getIndexIntoMapInfoPtrArray(whichMap, bits);
+  int index = getIndexIntoMapInfoPtrArray(whichMap, bits);
   MapInfo *mapInfo = mapInfoPtrArray_[index];
   return mapInfo;
 
@@ -311,7 +311,7 @@ void MapTable::setAllAtp(short Atp) {
   MapTable *me = this;
 
   do {
-    for (Int32 i = 0; i < me->totalVids_; i++) {
+    for (int i = 0; i < me->totalVids_; i++) {
 #ifdef _DEBUG
       MapInfo *info = *(me->mapInfoPtrArray_ + i);
       Attributes *attr = info->getAttr();
@@ -335,7 +335,7 @@ void MapTable::resetCodeGen() {
   MapTable *me = this;
 
   do {
-    for (Int32 i = 0; i < me->totalVids_; i++) {
+    for (int i = 0; i < me->totalVids_; i++) {
       MapInfo *info = *(me->mapInfoPtrArray_ + i);
       info->resetCodeGenerated();
     }
@@ -348,7 +348,7 @@ void MapTable::shiftAtpIndex(short shiftIndex) {
   MapTable *me = this;
 
   do {
-    for (Int32 i = 0; i < me->totalVids_; i++) {
+    for (int i = 0; i < me->totalVids_; i++) {
 #ifdef _DEBUG
       MapInfo *info = *(me->mapInfoPtrArray_ + i);
       Attributes *attr = info->getAttr();
@@ -375,7 +375,7 @@ void MapTable::shiftAtpIndex(short shiftIndex) {
 //         bits     -- the relevant bits that we're interested in
 // ---------------------------------------------------------------------
 
-Int32 MapTable::getIndexIntoMapInfoPtrArray(const Int32 whichMap, MTBitmapUnit inBits) const {
+int MapTable::getIndexIntoMapInfoPtrArray(const int whichMap, MTBitmapUnit inBits) const {
 #ifdef _DEBUG
   DCMPASSERT(whichMap >= 0 AND whichMap < vidBitMapArraySize_);
 #endif
@@ -383,12 +383,12 @@ Int32 MapTable::getIndexIntoMapInfoPtrArray(const Int32 whichMap, MTBitmapUnit i
   // It is the sum of the number of value ids that is
   // smaller than me in this map table.
   // --------------------------------------------------
-  Int32 arrayIndex = 0;
+  int arrayIndex = 0;
 
   // --------------------------------------------------
   // First, add up the number of value ids in the bitmaps before me.
   // --------------------------------------------------
-  for (Int32 i = 0; i < whichMap; i++) {
+  for (int i = 0; i < whichMap; i++) {
     arrayIndex += *(vidsInBitMapArray_ + i);
   }
 
@@ -401,7 +401,7 @@ Int32 MapTable::getIndexIntoMapInfoPtrArray(const Int32 whichMap, MTBitmapUnit i
   // This is done differently than the release version.
   // See the explanation below.
 
-  for (Int32 k = 0; k < bitsPerUnit && inBits != 0; k++) {
+  for (int k = 0; k < bitsPerUnit && inBits != 0; k++) {
     // Right shift 1 bit.
     // If the least significant bit is 'ON', add index by 1.
     inBits >>= 1;
@@ -438,7 +438,7 @@ void MapTable::printToFile(FILE *f) {
   fprintf(f, "Map Table: %p\n", this);
 
   // print each map info (value id, unparsed text, attributes, if present)
-  for (Int32 i = 0; i < totalVids_; i++) {
+  for (int i = 0; i < totalVids_; i++) {
     MapInfo *info = mapInfoPtrArray_[i];
 
     Attributes *attr = info->getAttr();
@@ -479,7 +479,7 @@ void MapTable::display(char *title) {
   cout << "#vids=" << getTotalVids() << ", ";
 
   MapInfo *info = NULL;
-  for (Int32 i = 0; i < totalVids_; i++) {
+  for (int i = 0; i < totalVids_; i++) {
     info = mapInfoPtrArray_[i];
 
     NAString unparsed(collHeap());

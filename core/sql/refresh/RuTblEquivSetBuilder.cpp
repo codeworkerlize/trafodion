@@ -82,7 +82,7 @@ void CRUTblEquivSetBuilder::AddMV(CRUMV *pMV) {
 //	CRUTblEquivSetBuilder::GetSet()
 //--------------------------------------------------------------------------//
 
-CRUTblList &CRUTblEquivSetBuilder::GetSet(Int32 num) {
+CRUTblList &CRUTblEquivSetBuilder::GetSet(int num) {
   RUASSERT(GetNumOfSets() >= num && 0 <= num);
 
   CRUTblList *pTblList = equivSetsList_.GetAt(num);
@@ -304,10 +304,10 @@ void CRUTblEquivSetBuilder::AddSyncTable(CRUTbl *pTbl) {
 
 void CRUTblEquivSetBuilder::BuildSets() {
   // Initialize the array of sets of CRUTbl
-  Int32 equivSetsSize = GetDisJointAlg().GetNumOfSets();
+  int equivSetsSize = GetDisJointAlg().GetNumOfSets();
 
   // Initialize the sets of CRUTbl
-  for (Int32 i = 0; i < equivSetsSize; i++) {
+  for (int i = 0; i < equivSetsSize; i++) {
     equivSetsList_.AddTail(new CRUTblList(eItemsArentOwned));
   }
 
@@ -317,7 +317,7 @@ void CRUTblEquivSetBuilder::BuildSets() {
   while (NULL != tblPos) {
     CRUTbl *pTbl = syncTablesList_.GetNext(tblPos);
 
-    Int32 setId = GetDisJointAlg().GetNodeSetId(pTbl->GetUID());
+    int setId = GetDisJointAlg().GetNodeSetId(pTbl->GetUID());
 
     equivSetsList_.GetAt(setId)->AddTail(pTbl);
   }
@@ -346,7 +346,7 @@ void CRUTblEquivSetBuilder::DumpSets() {
   msg = "\n Equivalent sets: \n";
 
   CRUGlobals::GetInstance()->GetJournal().LogMessage(msg);
-  for (Int32 i = 0; i < GetNumOfSets(); i++) {
+  for (int i = 0; i < GetNumOfSets(); i++) {
     msg = "\n Table Set: \n";
 
     CRUGlobals::GetInstance()->GetJournal().LogMessage(msg);

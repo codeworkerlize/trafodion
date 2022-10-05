@@ -46,7 +46,7 @@
 
 #ifndef EHBOOLEAN_DEFINED
 #define EHBOOLEAN_DEFINED
-typedef Int32 EHBoolean;
+typedef int EHBoolean;
 #endif
 
 #ifndef TRUE
@@ -90,7 +90,7 @@ const EHBoolean FALSE = (0 == 1);
 #ifndef EH_ABORT
 #define EH_ABORT(msg) EHAbort(__FILE__, __LINE__, (msg))
 #endif
-void EHAbort(const char *filename, Int32 lineno, const char *msg);
+void EHAbort(const char *filename, int lineno, const char *msg);
 
 // -----------------------------------------------------------------------
 // Abort program if AssertTruth condition fails

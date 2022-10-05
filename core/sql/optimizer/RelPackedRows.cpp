@@ -1102,7 +1102,7 @@ RelExpr *UnPackRows::bindNode(BindWA *bindWA) {
       ItemExpr *exp = unPackExprTree();
       while (exp) {
         ItemExpr *elem;
-        for (Int32 i = 0; i < exp->getArity(); i++) {
+        for (int i = 0; i < exp->getArity(); i++) {
           elem = (ItemExpr *)(exp->getChild(i));
           if (elem->origOpType() == ITM_ROWSETARRAY_SCAN) {
             const NAType *elemType = ((RowsetArrayScan *)elem)->getType();

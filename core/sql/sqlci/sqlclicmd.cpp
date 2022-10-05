@@ -85,7 +85,7 @@ short ResetViolation::process(SqlciEnv *sqlciEnv) {
 
 // CreateContext's methods
 CreateContext::CreateContext() : noAutoXact_(FALSE) {}
-CreateContext::CreateContext(Int32 noAutoXact) : noAutoXact_(noAutoXact) {}
+CreateContext::CreateContext(int noAutoXact) : noAutoXact_(noAutoXact) {}
 CreateContext::~CreateContext() {}
 short CreateContext::process(SqlciEnv *sqlciEnv) {
   SQLCTX_HANDLE ctxhdl = 0;

@@ -66,9 +66,9 @@ class Subquery : public ItemExpr {
   virtual ~Subquery() {}
 
   // get the degree of this node
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
-  Int32 getDegree() const { return getRETDesc()->getDegree(); }
+  int getDegree() const { return getRETDesc()->getDegree(); }
 
   const RETDesc *getRETDesc() const {
     const RETDesc *rd = getSubquery()->getRETDesc();
@@ -153,7 +153,7 @@ class Subquery : public ItemExpr {
 
   // output degree functions to handle multi-output subqueries.
   // Returns the number of outputs and the ItemExpr for each.
-  virtual Int32 getOutputDegree();
+  virtual int getOutputDegree();
   virtual ItemExpr *getOutputItem(UInt32 i);
 
   ValueIdSet dynParamInStartWith_;

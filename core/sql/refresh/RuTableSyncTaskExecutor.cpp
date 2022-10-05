@@ -110,8 +110,8 @@ void CRUTableSyncTaskExecutor::PrepareCatApi() {
 void CRUTableSyncTaskExecutor::StoreRequest(CUOFsIpcMessageTranslator &translator) {
   inherited::StoreRequest(translator);
 
-  Int32 stringSize = tableName_.GetLength() + 1;
-  translator.WriteBlock(&stringSize, sizeof(Int32));
+  int stringSize = tableName_.GetLength() + 1;
+  translator.WriteBlock(&stringSize, sizeof(int));
   translator.WriteBlock(tableName_.c_string(), stringSize);
   ;
 
@@ -127,11 +127,11 @@ void CRUTableSyncTaskExecutor::StoreRequest(CUOFsIpcMessageTranslator &translato
 void CRUTableSyncTaskExecutor::LoadRequest(CUOFsIpcMessageTranslator &translator) {
   inherited::LoadRequest(translator);
 
-  Int32 stringSize;
-  Int32 const maxStringSize = CUOFsIpcMessageTranslator::MaxMsgSize;
+  int stringSize;
+  int const maxStringSize = CUOFsIpcMessageTranslator::MaxMsgSize;
   char buffer[maxStringSize];
 
-  translator.ReadBlock(&stringSize, sizeof(Int32));
+  translator.ReadBlock(&stringSize, sizeof(int));
 
   RUASSERT(maxStringSize > stringSize);
 

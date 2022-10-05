@@ -71,7 +71,7 @@ class ElemDDLConstraintRI : public ElemDDLConstraint {
   // accessors
   //
 
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
   virtual ExprNode *getChild(int index);
 
   inline ComRCDeleteRule getDeleteRule() const;

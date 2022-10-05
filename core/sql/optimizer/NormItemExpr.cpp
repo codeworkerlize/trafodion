@@ -78,7 +78,7 @@ static void applyTruthTable(ItemExpr *ie, ExprValueId &locationOfPointerToMe) {
     NOP_ = ITM_NO_OP
   };  // continue|leave as is
   truthResultEnum t, f, u, result = NOP_;
-  Int32 ucnt = 0;
+  int ucnt = 0;
   ItemExpr *ptrToMe = locationOfPointerToMe.getPtr();
   if (!ptrToMe) return;
   switch (ptrToMe->getOperatorType()) {
@@ -123,7 +123,7 @@ static void applyTruthTable(ItemExpr *ie, ExprValueId &locationOfPointerToMe) {
   }
   DBGSETDBG("TRANSFORM_DEBUG")
   DBGIF(cerr << "## " << ptrToMe->getText();)
-  Int32 i = ptrToMe->getArity();
+  int i = ptrToMe->getArity();
   for (; result == NOP_ && i--;) {
     ItemExpr *child = ptrToMe->child(i);
     // If child was eliminated, it must have always evaluated to True
@@ -204,7 +204,7 @@ ItemExpr *buildComparisonPred(ItemExpr *rootPtr, ItemExpr *leftSubtreePtr, ItemE
   return buildPredTree(rootPtr, eqPredPtr, ITM_AND);
 }  // buildComparisonPred()
 
-inline static Int32 isAColumnOrUserInput(const ItemExpr *ie) {
+inline static int isAColumnOrUserInput(const ItemExpr *ie) {
   if (((ItemExpr *)ie)->isAColumnReference()) return 10;
   // VEG on ITM_UNIQUE_EXECUTE_ID is disabled, see triggers team for explanation
   if (ie->isAUserSuppliedInput() && ie->getOperatorType() != ITM_UNIQUE_EXECUTE_ID)  // -- Triggers
@@ -226,9 +226,9 @@ inline static Int32 isAColumnOrUserInput(const ItemExpr *ie) {
 // trigger backbone top node is a BlockedUnion.
 //
 // --------------------------------------------------------------------
-inline static Int32 bothAreColumnsOrUserInput(  // AND AT LEAST ONE IS A COLUMN
+inline static int bothAreColumnsOrUserInput(  // AND AT LEAST ONE IS A COLUMN
     NormWA &normWARef, const ItemExpr *i0, const ItemExpr *i1) {
-  Int32 ret = isAColumnOrUserInput(i0);
+  int ret = isAColumnOrUserInput(i0);
 
   if (ret) {
     ret += isAColumnOrUserInput(i1);
@@ -257,9 +257,9 @@ void ItemExpr::transformNode(NormWA &normWARef, ExprValueId &locationOfPointerTo
     locationOfPointerToMe = getReplacementExpr();
     return;
   }
-  Int32 arity = getArity();
+  int arity = getArity();
 
-  for (Int32 i = 0; i < arity; i++)
+  for (int i = 0; i < arity; i++)
     child(i)->getReplacementExpr()->transformNode(normWARef, child(i), introduceSemiJoinHere, externalInputs);
 
   markAsTransformed();
@@ -308,9 +308,9 @@ ItemExpr *ItemExpr::normalizeNode(NormWA &normWARef) {
     // -----------------------------------------------------------------
     // Normalize the child.
     // -----------------------------------------------------------------
-    Int32 arity = getArity();
+    int arity = getArity();
 
-    for (Int32 i = 0; i < arity; i++) child(i) = child(i)->getReplacementExpr()->normalizeNode(normWARef);
+    for (int i = 0; i < arity; i++) child(i) = child(i)->getReplacementExpr()->normalizeNode(normWARef);
 
     // Now do non-recursive part
     return (normalizeNode2(normWARef));
@@ -323,13 +323,13 @@ ItemExpr *ItemExpr::normalizeNode(NormWA &normWARef) {
 
     if ((NOT normWARef.isInJoinPredicate()) || (CmpCommon::getDefault(COMP_BOOL_124) == DF_ON)) {
       markAsNormalized();
-      Int32 arity = getArity();
-      for (Int32 i = 0; i < arity; i++) child(i) = child(i)->getReplacementExpr()->normalizeNode(normWARef);
+      int arity = getArity();
+      for (int i = 0; i < arity; i++) child(i) = child(i)->getReplacementExpr()->normalizeNode(normWARef);
     } else {
-      Int32 arity = getArity();
+      int arity = getArity();
       ItemExpr *newExpr = this->copyTopNode(NULL, CmpCommon::statementHeap());
 
-      for (Int32 i = 0; i < arity; i++) newExpr->setChild(i, child(i)->getReplacementExpr()->normalizeNode(normWARef));
+      for (int i = 0; i < arity; i++) newExpr->setChild(i, child(i)->getReplacementExpr()->normalizeNode(normWARef));
       newExpr->setReplacementExpr(newExpr);
 
       newExpr->synthTypeAndValueId();
@@ -373,9 +373,9 @@ ItemExpr *ItemExpr::normalizeNode2(NormWA &normWARef) {
 //  Traverses tree looking for THIS functions.
 //
 void ItemExpr::transformNotTHISFunction() {
-  Int32 arity = getArity();
+  int arity = getArity();
 
-  for (Int32 i = 0; i < arity; i++) {
+  for (int i = 0; i < arity; i++) {
     if (child(i)->containsTHISFunction()) {
       if (child(i)->getOperatorType() != ITM_THIS) {
         child(i)->transformNotTHISFunction();
@@ -395,14 +395,14 @@ void ItemExpr::transformNotTHISFunction() {
 // Redefined for ItmSequenceFunction classes
 
 NABoolean ItemExpr::containsTHISFunction() {
-  Int32 arity = getArity();
+  int arity = getArity();
   NABoolean result = FALSE;
 
   // --------------------------------------------------------
   // This check cannot exit early, because it also must
   // perform an illegal nesting check on all the children.
   // --------------------------------------------------------
-  for (Int32 i = 0; i < arity; i++) {
+  for (int i = 0; i < arity; i++) {
     if (child(i)->containsTHISFunction()) result = TRUE;
   }
   return result;
@@ -657,7 +657,7 @@ void Between::transformNode(NormWA &normWARef, ExprValueId &locationOfPointerToM
                             const ValueIdSet &externalInputs) {
   DBGSETDBG("TRANSFORM_DEBUG")
   DBGIF(unp = ""; unparse(unp);
-        cerr << (Int32)getOperatorType() << " " << (Int32)getValueId() << " " << (void *)this << " " << unp << endl;)
+        cerr << (int)getOperatorType() << " " << (int)getValueId() << " " << (void *)this << " " << unp << endl;)
 
   // ---------------------------------------------------------------------
   // Transform the operands of the Between
@@ -804,11 +804,11 @@ void UDFunction::transformToRelExpr(NormWA &normWARef, ExprValueId &locationOfPo
     case COM_ACTION_UDF_TYPE: {
       ItemExprList *params = new (normWARef.wHeap()) ItemExprList(normWARef.wHeap());
 
-      Int32 arity = getArity();
+      int arity = getArity();
 
       IsolatedScalarUDF *isUdf;
 
-      for (Int32 i = 0; i < arity; i++) {
+      for (int i = 0; i < arity; i++) {
         params->insertAt(i, child(i)->castToItemExpr());
       }
 
@@ -1175,10 +1175,10 @@ ItemExpr *BiLogic::transformMultiValuePredicate(NABoolean flatten, ChildConditio
 
   DBGSETDBG("TRANSFORM_DEBUG")
   DBGIF(unp = ""; if (child(0)) child(0)->unparse(unp);
-        cerr << "BiLogic c0: " << (Int32)condBiRelat << " " << unp << " " << endl; unp = "";
-        if (child(1)) child(1)->unparse(unp); cerr << "BiLogic c1: " << (Int32)condBiRelat << " " << unp << " " << endl;
-        unp = ""; if (t0) t0->unparse(unp); cerr << "BiLogic t0: " << (Int32)condBiRelat << " " << unp << " " << endl;
-        unp = ""; if (t1) t1->unparse(unp); cerr << "BiLogic t1: " << (Int32)condBiRelat << " " << unp << " " << endl;)
+        cerr << "BiLogic c0: " << (int)condBiRelat << " " << unp << " " << endl; unp = "";
+        if (child(1)) child(1)->unparse(unp); cerr << "BiLogic c1: " << (int)condBiRelat << " " << unp << " " << endl;
+        unp = ""; if (t0) t0->unparse(unp); cerr << "BiLogic t0: " << (int)condBiRelat << " " << unp << " " << endl;
+        unp = ""; if (t1) t1->unparse(unp); cerr << "BiLogic t1: " << (int)condBiRelat << " " << unp << " " << endl;)
 
   OperatorTypeEnum op = ITM_AND;
 
@@ -1219,7 +1219,7 @@ void BiLogic::transformNode(NormWA &normWARef, ExprValueId &locationOfPointerToM
 
   DBGSETDBG("TRANSFORM_DEBUG")
   DBGIF(unp = ""; unparse(unp);
-        cerr << (Int32)getOperatorType() << " " << (Int32)getValueId() << " " << (void *)this << " " << unp << endl;)
+        cerr << (int)getOperatorType() << " " << (int)getValueId() << " " << (void *)this << " " << unp << endl;)
 
   switch (getOperatorType()) {
     case ITM_AND: {
@@ -1576,7 +1576,7 @@ static ItemExpr *dissectOutSubqueries(ItemExpr *thisIE, NABoolean flattenSubquer
 
   ItemExpr *newPred = NULL;
 
-  Int32 i = thisIE->getArity();
+  int i = thisIE->getArity();
   for (; i--;)
     if (thisIE->child(i)->getOperatorType() == ITM_ITEM_LIST) {
       ItemExprList list(thisIE->child(i).getPtr(), HEAP, ITM_ITEM_LIST, FALSE);
@@ -1641,7 +1641,7 @@ static ItemExpr *transformMultiValueComparison(BiRelat *thisCmp, NABoolean flatt
                   // For exampl OneRow aggregate
   }
 
-  Int32 i = lhs.entries() - 1;
+  int i = lhs.entries() - 1;
 
   // As an extension to Ansi, we allow predicates like
   //   select x,y from xy where((select a,b from t),x) = (y,(select m,n from s))
@@ -1818,7 +1818,7 @@ void BiRelat::transformNode(NormWA &normWARef, ExprValueId &locationOfPointerToM
 
   DBGSETDBG("TRANSFORM_DEBUG")
   DBGIF(unp = ""; unparse(unp);
-        cerr << (Int32)getOperatorType() << " " << (Int32)getValueId() << " " << (void *)this << " " << unp << endl;)
+        cerr << (int)getOperatorType() << " " << (int)getValueId() << " " << (void *)this << " " << unp << endl;)
   // ---------------------------------------------------------------------
   // Transform multi-value equality predicates.
   // Special transformation (i.e., done only if both children)
@@ -3286,7 +3286,7 @@ ItemExpr *UnLogic::transformMultiValuePredicate(NABoolean flattenSubqueries, Chi
 // -----------------------------------------------------------------------
 ItemExpr *UnLogicMayBeAnEliminableTruthTest(ItemExpr *unlogic, NABoolean aggOK) {
   ItemExpr *itm = unlogic;
-  Int32 notVal = 0;
+  int notVal = 0;
   for (; itm->getOperatorType() == ITM_NOT; notVal++) itm = itm->child(0);
   notVal %= 2;
   if ((notVal && itm->getOperatorType() == ITM_IS_UNKNOWN) ||
@@ -3308,7 +3308,7 @@ ItemExpr *UnLogicMayBeAnEliminableTruthTest(ItemExpr *unlogic, NABoolean aggOK) 
         //   . an aggregate (e.g. ITM_ONE_ROW)
 
         DBGSETDBG("TRANSFORM_DEBUG")
-        DBGIF(cerr << (Int32)itm->getOperatorType() << " " << (void *)itm << " of " << (Int32)unlogic->getOperatorType()
+        DBGIF(cerr << (int)itm->getOperatorType() << " " << (void *)itm << " of " << (int)unlogic->getOperatorType()
                    << " " << (void *)unlogic << " may be eliminable" << endl;)
         return itm;
       }
@@ -3331,7 +3331,7 @@ void UnLogic::transformNode2(NormWA &normWARef, ExprValueId &locationOfPointerTo
                              const ValueIdSet &externalInputs) {
   DBGSETDBG("TRANSFORM_DEBUG")
   DBGIF(unp = ""; unparse(unp);
-        cerr << (Int32)getOperatorType() << " " << (Int32)getValueId() << " " << (void *)this << " " << unp << endl;)
+        cerr << (int)getOperatorType() << " " << (int)getValueId() << " " << (void *)this << " " << unp << endl;)
 
   // First convert an IS FALSE to a NOT if they are equivalent.
   // If we are transforming a constraint, we cannot use its
@@ -3361,7 +3361,7 @@ void UnLogic::transformNode2(NormWA &normWARef, ExprValueId &locationOfPointerTo
     }
     if (descendant) {
       DBGSETDBG("TRANSFORM_DEBUG")
-      DBGIF(cerr << (eliminate ? "Eliminating" : "Collapsing") << " pred " << (Int32)getOperatorType() << " "
+      DBGIF(cerr << (eliminate ? "Eliminating" : "Collapsing") << " pred " << (int)getOperatorType() << " "
                  << (void *)descendant << " in this " << (void *)this << endl;)
       markAsTransformed();
       if (eliminate)
@@ -3863,10 +3863,10 @@ void ZZZBinderFunction::transformNode(NormWA &normWARef, ExprValueId &locationOf
 // any other sequence function.
 //
 NABoolean ItmSequenceFunction::containsTHISFunction() {
-  Int32 arity = getArity();
+  int arity = getArity();
   NABoolean result = FALSE;
 
-  for (Int32 i = 0; i < arity; i++) {
+  for (int i = 0; i < arity; i++) {
     if (child(i)->containsTHISFunction()) {
       result = TRUE;
       if (getOperatorType() != ITM_ROWS_SINCE) {
@@ -4610,7 +4610,7 @@ void ItmSeqRowsSince::transformNode(NormWA &normWARef, ExprValueId &locationOfPo
                                     ExprGroupId &introduceSemiJoinHere, const ValueIdSet &externalInputs) {
   DBGSETDBG("TRANSFORM_DEBUG");
   DBGIF(unp = ""; unparse(unp);
-        cerr << (Int32)getOperatorType() << " " << (Int32)getValueId() << " " << (void *)this << " " << unp << endl;);
+        cerr << (int)getOperatorType() << " " << (int)getValueId() << " " << (void *)this << " " << unp << endl;);
 
   if (nodeIsTransformed()) {
     locationOfPointerToMe = getReplacementExpr();
@@ -5051,7 +5051,7 @@ static ItemExpr *createCastNodesonLeaves3(ItemExpr *tfm, NormWA &normref) {
     inst->synthTypeAndValueId(TRUE);
     return inst;
   } else {
-    for (Int32 i = 0; i < tfm->getArity(); i++) {
+    for (int i = 0; i < tfm->getArity(); i++) {
       tfm->child(i) = createCastNodesonLeaves3(tfm->child(i)->castToItemExpr(), normref);
     }
     return tfm;
@@ -5082,7 +5082,7 @@ static ItemExpr *createCastNodesonLeaves2(ItemExpr *tfm, NormWA &normref) {
     return castNode;
   }*/
   else {
-    for (Int32 i = 0; i < tfm->getArity(); i++) {
+    for (int i = 0; i < tfm->getArity(); i++) {
       tfm->child(i) = createCastNodesonLeaves2(tfm->child(i)->castToItemExpr(), normref);
     }
     return tfm;
@@ -5147,7 +5147,7 @@ ItemExpr *ItemExpr::removeOneRowAggregate(ItemExpr *tfm, NormWA &normref) {
 
     return tfm;
   } else {
-    for (Int32 i = 0; i < tfm->getArity(); i++) {
+    for (int i = 0; i < tfm->getArity(); i++) {
       tfm->child(i) = removeOneRowAggregate(tfm->child(i)->castToItemExpr(), normref);
     }
     return tfm;

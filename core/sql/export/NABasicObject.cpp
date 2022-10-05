@@ -243,7 +243,7 @@ void NABasicObject::operator delete[](void *p, NAMemory *h, NABoolean) {
 // This finds latent bugs.)
 
 #if !defined(NDEBUG)
-Int32 NABasicObject::checkInvalidObject(const void *const referencingObject) {
+int NABasicObject::checkInvalidObject(const void *const referencingObject) {
   if (this && maybeInvalidObject()) {
     int stackVar = (char *)this - (char *)&stackVar;
     if (stackVar < 0) stackVar = -stackVar;

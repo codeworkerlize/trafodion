@@ -390,8 +390,8 @@ char *Space::allocateAndCopyToAlignedSpace(const char *dp, size_t dlen, size_t c
     case sizeof(short):
       ComASSERT(dlen <= USHRT_MAX) * (short *)rp = dlen;
       break;
-    case sizeof(Int32):
-      ComASSERT(dlen <= UINT_MAX) * (Int32 *)rp = dlen;
+    case sizeof(int):
+      ComASSERT(dlen <= UINT_MAX) * (int *)rp = dlen;
       break;
     default:
       ComASSERT(0 == 1);

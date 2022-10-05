@@ -318,7 +318,7 @@ class Statement : public ExGod {
   int notAtomicFailureLimit_;
 
   // statement index in a module, to identify Measure statement counters.
-  Int32 statementIndex_;
+  int statementIndex_;
 
   // The following supports implicit transactions which are started and
   // committed in the scope of Statement::execute when the statement would
@@ -343,7 +343,7 @@ class Statement : public ExGod {
   // RTMD fetches, etc.
   Int16 savedRoVal_;
   Int16 savedRbVal_;
-  Int32 savedAiVal_;
+  int savedAiVal_;
 
   // Support for UDR security/runtime re-compilation
   LIST(UdrSecurityInfo *) * udrSecurity_;
@@ -472,9 +472,9 @@ class Statement : public ExGod {
   void commitImplicitTransAndResetTmodes(void);
 
   NABoolean isExeDebug(char *src, int charset);
-  Int32 octetLen(char *s, int charset);
-  Int32 octetLenplus1(char *s, int charset);
-  Int32 sourceLenplus1();
+  int octetLen(char *s, int charset);
+  int octetLenplus1(char *s, int charset);
+  int sourceLenplus1();
 
   // For stored procedure result set proxy statements, see if a
   // prepare of proxy syntax is required and if so, do the internal
@@ -567,8 +567,8 @@ class Statement : public ExGod {
 
   inline Module *getModule() { return module_; }
 
-  inline Int32 getStatementIndex() { return statementIndex_; };
-  inline void setStatementIndex(Int32 i) { statementIndex_ = i; };
+  inline int getStatementIndex() { return statementIndex_; };
+  inline void setStatementIndex(int i) { statementIndex_ = i; };
 
   SQLSTMT_ID *getStmtId() { return (SQLSTMT_ID *)statement_id; };
   const SQLMODULE_ID *getModuleId() { return statement_id->module; };

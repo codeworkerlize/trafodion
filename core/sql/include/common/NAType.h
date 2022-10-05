@@ -171,7 +171,7 @@ class NAType : public NABasicObject {
   // ---------------------------------------------------------------------
   enum { EmitErrNever = FALSE, EmitErrAlways = TRUE, EmitErrIfAnyChar = 991 };
 #ifndef CLI_SRL
-  virtual NABoolean isComparable(const NAType &other, ItemExpr *parentOp, Int32 emitErr = EmitErrAlways,
+  virtual NABoolean isComparable(const NAType &other, ItemExpr *parentOp, int emitErr = EmitErrAlways,
                                  UInt32 *flags = NULL) const;
 #endif
 
@@ -244,7 +244,7 @@ class NAType : public NABasicObject {
   // variable length data (total size >= nominal size).
   // ---------------------------------------------------------------------
   int getNominalSize() const { return dataStorageSize_; }
-  void setNominalSize(Int32 newSize) { dataStorageSize_ = newSize; }
+  void setNominalSize(int newSize) { dataStorageSize_ = newSize; }
 
   NABoolean isValid() const { return dataStorageSize_ > 0; }
 
@@ -583,11 +583,11 @@ class NAType : public NABasicObject {
 
   void setHiveType(const HiveProtoTypeKind ht) { hiveType_ = ht; }
 
-  Int32 &getHiveType() { return hiveType_; }
-  const Int32 &getHiveType() const { return hiveType_; }
+  int &getHiveType() { return hiveType_; }
+  const int &getHiveType() const { return hiveType_; }
   const NAString getHiveTypeName() const { return getHiveTypeName(hiveType_); }
-  static const NAString getHiveTypeName(Int32 hiveType) { return hiveProtoTypeKindStr[hiveType]; }
-  void setHiveType(Int32 hiveType) { hiveType_ = hiveType; }
+  static const NAString getHiveTypeName(int hiveType) { return hiveProtoTypeKindStr[hiveType]; }
+  void setHiveType(int hiveType) { hiveType_ = hiveType; }
 
  protected:
   // ---------------------------------------------------------------------
@@ -648,7 +648,7 @@ class NAType : public NABasicObject {
   // corresponding to the original hive type.
   // For ex: hive 'string' type is represented
   // as SQLVarChar and this field will contain HIVE_STRING.
-  Int32 hiveType_;
+  int hiveType_;
 };  // class NAType
 
 #endif /* NATYPE_H */

@@ -110,7 +110,7 @@ const char *TransIdToText(long transId) {
   short actualLen;
   short error = TRANSIDTOTEXT(transId, text, 255, &actualLen);
   if (error)
-    str_sprintf(text, "(error %d)", (Int32)error);
+    str_sprintf(text, "(error %d)", (int)error);
   else
     text[actualLen] = 0;
   return &text[0];
@@ -137,7 +137,7 @@ const char *RetcodeToString(RETCODE r) {
     case NOT_FINISHED:
       return "NOT_FINISHED";
     default:
-      return ComRtGetUnknownString((Int32)r);
+      return ComRtGetUnknownString((int)r);
   }
 }
 
@@ -973,12 +973,12 @@ RETCODE Statement::lockTables() {
 
   ex_assert(root_tdb, "Statement::lockTables called with NULL root TDB");
   SqlTableOpenInfoPtr *stoiList = root_tdb->stoiStoiList();
-  Int32 tableCount = root_tdb->getTableCount();
-  for (Int32 i = 0; i < tableCount; i++) {
+  int tableCount = root_tdb->getTableCount();
+  for (int i = 0; i < tableCount; i++) {
     SqlTableOpenInfo *stoi = stoiList[i];
     if (stoi->isUserBaseTable()) {
       LOGDEBUG(CAT_SQL_LOCK, "Locking table: %s", stoi->ansiName());
-      Int32 rc = SQL_EXEC_LockObjectDML(stoi->ansiName(), COM_BASE_TABLE_OBJECT);
+      int rc = SQL_EXEC_LockObjectDML(stoi->ansiName(), COM_BASE_TABLE_OBJECT);
       if (rc < 0) {
         LOGERROR(CAT_SQL_LOCK, "Lock failed: %s", stoi->ansiName());
         return ERROR;
@@ -1006,7 +1006,7 @@ NABoolean Statement::ddlValid() {
     if (stoiList) {
       StatsGlobals *statsGlobals = cliGlobals_->getStatsGlobals();
       ObjectEpochCache *objectEpochCache = statsGlobals->getObjectEpochCache();
-      for (Int32 i = 0; i < root_tcb->getTableCount(); i++) {
+      for (int i = 0; i < root_tcb->getTableCount(); i++) {
         SqlTableOpenInfo *stoi = stoiList[i];
         if (stoi->ddlValidationRequired()) {
           // obtain the ObjectEpochCacheEntry for this object
@@ -1075,7 +1075,7 @@ RETCODE Statement::close(ComDiagsArea &diagsArea, NABoolean inRollback) {
           (root_tdb->getQueryType() < ComTdbRoot::SQL_SELECT_UNIQUE) ||
           (root_tdb->getQueryType() > ComTdbRoot::SQL_DELETE_NON_UNIQUE));
 
-      Int32 rc1 = root_tcb->cancel(statementGlobals_, diagsPtr, pickUpDiags);
+      int rc1 = root_tcb->cancel(statementGlobals_, diagsPtr, pickUpDiags);
 
       if (rc1 == TRIGGER_EXECUTE_EXCEPTION) {
         isStatementTriggerError = TRUE;
@@ -1235,19 +1235,19 @@ NABoolean Statement::isExeDebug(char *src, int charset) {
   }
 }
 
-Int32 Statement::octetLen(char *s, int charset) {
+int Statement::octetLen(char *s, int charset) {
   return charset == SQLCHARSETCODE_UCS2
              ? na_wcslen((const NAWchar *)s) * CharInfo::maxBytesPerChar((CharInfo::CharSet)charset)
              : str_len(s);
 }
 
-Int32 Statement::octetLenplus1(char *s, int charset) {
+int Statement::octetLenplus1(char *s, int charset) {
   return charset == SQLCHARSETCODE_UCS2
              ? (na_wcslen((const NAWchar *)s) + 1) * CharInfo::maxBytesPerChar((CharInfo::CharSet)charset)
              : str_len(s) + 1;
 }
 
-Int32 Statement::sourceLenplus1() {
+int Statement::sourceLenplus1() {
   return (source_length + 1) * CharInfo::maxBytesPerChar((CharInfo::CharSet)charset_);
 }
 
@@ -1568,7 +1568,7 @@ RETCODE Statement::prepare2(char *source, ComDiagsArea &diagsArea, char *passed_
             (CmpCommon::context()->getRecursionLevel() == 0))
         //! aqRetry  && cliGlobals_->isEmbeddedArkcmpInitialized())
         {
-          Int32 compStatus;
+          int compStatus;
           ComDiagsArea *da = NULL;
 
           // clean up diags area of regular arkcmp, it could contain
@@ -1757,7 +1757,7 @@ int Statement::unpackAndInit(ComDiagsArea &diagsArea, short indexIntoCompilerArr
 RETCODE Statement::closeTables(ComDiagsArea &diagsArea) {
   // cancel the down request to my child
   ComDiagsArea *diagsPtr = NULL;
-  Int32 retcode = root_tcb->cancel(statementGlobals_, diagsPtr);
+  int retcode = root_tcb->cancel(statementGlobals_, diagsPtr);
   StmtDebug1("  root_tcb->cancel() returned %s", RetcodeToString((RETCODE)retcode));
   if (diagsPtr) {
     diagsArea.mergeAfter(*diagsPtr);
@@ -1776,7 +1776,7 @@ RETCODE Statement::closeTables(ComDiagsArea &diagsArea) {
 RETCODE Statement::reOpenTables(ComDiagsArea &diagsArea) {
   closeTables(diagsArea);
 
-  Int32 retcode = root_tcb->reOpenTables(statementGlobals_, statementGlobals_->getRtFragTable());
+  int retcode = root_tcb->reOpenTables(statementGlobals_, statementGlobals_->getRtFragTable());
   if (retcode) return ERROR;
 
   return SUCCESS;
@@ -1854,7 +1854,7 @@ error_return:
 
 RETCODE Statement::fixup(CliGlobals *cliGlobals, Descriptor *input_desc, ComDiagsArea &diagsArea, NABoolean &doSimCheck,
                          NABoolean &partitionUnavailable, const NABoolean donePrepare) {
-  Int32 retcode;
+  int retcode;
   ExMasterStats *masterStats;
 
   if ((stmtStats_) && ((masterStats = stmtStats_->getMasterStats()) != NULL)) masterStats->setStmtState(STMT_FIXUP_);
@@ -2879,7 +2879,7 @@ RETCODE Statement::execute(CliGlobals *cliGlobals, Descriptor *input_desc, ComDi
           masterStats->setStmtState(STMT_EXECUTE_);
         }
 
-        Int32 rc = 0;
+        int rc = 0;
         if (getRootTdb()->useDlockForSharedCache()) {
           // Special case, a distributed lock of infinite waiting (0)
           // is necessary here. Unlock is done when the object is
@@ -2993,8 +2993,8 @@ RETCODE Statement::fetch(CliGlobals *cliGlobals, Descriptor *output_desc, ComDia
 
   StmtDebug2("[BEGIN fetch] %p, stmt state %s", this, stmtState(getState()));
 
-  Int32 timeout = 0;
-  Int32 retcode = SUCCESS;
+  int timeout = 0;
+  int retcode = SUCCESS;
   if (stmt_state == CLOSE_) {
     // trying to fetch from a statement which is in CLOSE state
     diagsArea << DgSqlCode(-CLI_STMT_CLOSE);
@@ -3399,7 +3399,7 @@ void Statement::updateTModeValues() {
 
 RETCODE Statement::doOltExecute(CliGlobals *cliGlobals, Descriptor *input_desc, Descriptor *output_desc,
                                 ComDiagsArea &diagsArea, NABoolean &doNormalExecute, NABoolean &reExecute) {
-  Int32 retcode;
+  int retcode;
 
   if (!root_tdb) {
     diagsArea << DgSqlCode(-CLI_STMT_NOT_EXISTS);
@@ -3708,8 +3708,8 @@ void Statement::releaseStats() {
   ExStatisticsArea *ctxStats = context_->getStats();
   ExStatisticsArea *newStats;
   StatsGlobals *statsGlobals = cliGlobals_->getStatsGlobals();
-  if (ctxStats && (ctxStats == myStats) && ((Int32)myStats->getCollectStatsType() != SQLCLI_NO_STATS)) {
-    if (statsGlobals != NULL && stmtStats_ != NULL && (Int32)myStats->getCollectStatsType() != SQLCLI_ALL_STATS) {
+  if (ctxStats && (ctxStats == myStats) && ((int)myStats->getCollectStatsType() != SQLCLI_NO_STATS)) {
+    if (statsGlobals != NULL && stmtStats_ != NULL && (int)myStats->getCollectStatsType() != SQLCLI_ALL_STATS) {
       int error = statsGlobals->getStatsSemaphore(cliGlobals_->getSemId(), cliGlobals_->myPin());
       // Make sure the ex_globals doesn't delete this stats area
       // in case of dynamic statements, since stmtStats is also
@@ -3743,7 +3743,7 @@ void Statement::releaseStats() {
     // in case of dynamic statements, since stmtStats is also
     // pointing to the same area
     if (stmtStats_ != NULL && myOrigStatsArea != NULL &&
-        (Int32)myOrigStatsArea->getCollectStatsType() != SQLCLI_ALL_STATS)
+        (int)myOrigStatsArea->getCollectStatsType() != SQLCLI_ALL_STATS)
       getGlobals()->setStatsArea(NULL);
   }
 }
@@ -3799,7 +3799,7 @@ RETCODE Statement::releaseTcbs(NABoolean closeAllOpens) {
 
       // This call to deallocAndDelete() will trigger destructor calls
       // for all TCBs
-      Int32 retcode = root_tcb->deallocAndDelete(statementGlobals_, ft);
+      int retcode = root_tcb->deallocAndDelete(statementGlobals_, ft);
 
       if (retcode < 0) {
         context_->diags() << DgSqlCode(-EXE_INTERNAL_ERROR);
@@ -3898,7 +3898,7 @@ RETCODE Statement::describe(Descriptor *desc, int what_desc, ComDiagsArea &diags
   InputOutputExpr *expr;
   enum ex_expr::exp_return_type expRType;
 
-  Int32 retcode = 0;  // be optimistic
+  int retcode = 0;  // be optimistic
 
   // A special case for DESCRIBE is when the SQL statement is a CALL
   // statement and the CLI caller wants to use a "wide" descriptor for
@@ -4066,7 +4066,7 @@ void Statement::copyInSourceStr(char *in_source_str_, int src_len_in_octets, int
     return;
   }
 
-  Int32 maxBytesPerChar = CharInfo::maxBytesPerChar((CharInfo::CharSet)charset);
+  int maxBytesPerChar = CharInfo::maxBytesPerChar((CharInfo::CharSet)charset);
   source_str = new (heap) char[src_len_in_octets + maxBytesPerChar];
   str_cpy_all(source_str, in_source_str_, src_len_in_octets);
   if (charset == SQLCHARSETCODE_UCS2)
@@ -4086,7 +4086,7 @@ void Statement::copyOutSourceStr(char *out_source_str,
     return;
   }
 
-  Int32 maxBytesPerChar = CharInfo::maxBytesPerChar((CharInfo::CharSet)charset_);
+  int maxBytesPerChar = CharInfo::maxBytesPerChar((CharInfo::CharSet)charset_);
   str_cpy_all(out_source_str, source_str, source_length);
   if (charset_ == SQLCHARSETCODE_UCS2)
     ((NAWchar *)out_source_str)[source_length / maxBytesPerChar] = 0;
@@ -4954,7 +4954,7 @@ ex_root_tdb *Statement::assignRootTdb(ex_root_tdb *new_root_tdb) {
       // solution 10-040803-8511: root_tdb is not unpacked for SHOWPLAN
       // the lateNameInfoList is still the offset, not valid pointer
       if (!root_tdb->isPacked() && root_tdb->getLateNameInfoList() != NULL)
-        for (Int32 i = 0; i < (Int32)(root_tdb->getLateNameInfoList()->getNumEntries()); i++)
+        for (int i = 0; i < (int)(root_tdb->getLateNameInfoList()->getNumEntries()); i++)
           root_tdb->getLateNameInfoList()->getLateNameInfo(i).zeroLastUsedAnsiName();
       CollHeap *h = cliGlobals_->getArkcmp()->getHeap();
       h->deallocateMemory((void *)root_tdb);
@@ -4988,7 +4988,7 @@ RETCODE Statement::addDescInfoIntoStaticDesc(Descriptor *desc, int what_desc, Co
   InputOutputExpr *expr;
   enum ex_expr::exp_return_type expRType;
 
-  Int32 retcode = 0;  // be optimistic
+  int retcode = 0;  // be optimistic
 
   // A special case for DESCRIBE is when the SQL statement is a CALL
   // statement and the CLI caller wants to use a "wide" descriptor for
@@ -5043,7 +5043,7 @@ RETCODE Statement::getTriggersStatus(SqlTableOpenInfoPtr *stoiList, ComDiagsArea
   SqlTableOpenInfo *stoi;
   RETCODE rc = SUCCESS;
 
-  for (Int32 i = 0; i < root_tcb->getTableCount(); i++) {
+  for (int i = 0; i < root_tcb->getTableCount(); i++) {
     stoi = stoiList[i];
     if (stoi->subjectTable()) {
       // save the current diags before entering CLI again
@@ -5068,7 +5068,7 @@ RETCODE Statement::getTriggersStatus(SqlTableOpenInfoPtr *stoiList, ComDiagsArea
     char int64Str[128];
     cout << "Trigger Ids in TDB:" << endl;
     cout << "-------------------" << endl;
-    for (Int32 i = 0; i < triggerStatusWA.getTotalTriggersCount(); i++) {
+    for (int i = 0; i < triggerStatusWA.getTotalTriggersCount(); i++) {
       convertInt64ToAscii(root_tdb->getTriggersList()[i], int64Str);
       cout << i << " : " << int64Str << endl;
     }
@@ -5087,7 +5087,7 @@ RETCODE Statement::getTriggersStatus(SqlTableOpenInfoPtr *stoiList, ComDiagsArea
 // insert/update/delete operation, or if the table does not appear in stoi.
 NABoolean Statement::isIudTargetTable(char *tableName, SqlTableOpenInfoPtr *stoiList) {
   NABoolean found = FALSE;
-  for (Int32 i = 0; root_tcb && i < root_tcb->getTableCount(); i++) {
+  for (int i = 0; root_tcb && i < root_tcb->getTableCount(); i++) {
     SqlTableOpenInfo *stoi = stoiList[i];
 
     if (!strcmp(stoi->ansiName(), tableName)) {
@@ -5285,7 +5285,7 @@ ExStatisticsArea *Statement::getCompileStatsArea() {
 NABoolean Statement::isExcludedFromRMS() {
   if (source_str == NULL) return false;
   const char sql[] = "select1fromdual";
-  Int32 len1 = strlen(sql), len2 = strlen(source_str);
+  int len1 = strlen(sql), len2 = strlen(source_str);
 
   int pos = 0;
   for (int i = 0; i < len2; i++) {
@@ -5335,7 +5335,7 @@ void Statement::setStmtStats(NABoolean autoRetry) {
     }
     if (getUniqueStmtId() != NULL) {
       if (!stmtStatsRetained) {
-        Int32 limitLevel = statsGlobals->calLimitLevel();
+        int limitLevel = statsGlobals->calLimitLevel();
         setRmsLimitLevel((RmsLimitLevel)limitLevel);
         NABoolean useEmbeddedArk = false;
         SessionDefaults *sd = context_->getSessionDefaults();
@@ -5441,7 +5441,7 @@ const char *Statement::stmtState(State state) {
     case STMT_FIXUP_:
       return "FIXUP";
     default:
-      return ComRtGetUnknownString((Int32)state);
+      return ComRtGetUnknownString((int)state);
   }
 }
 
@@ -5498,11 +5498,11 @@ RETCODE Statement::rsProxyPrepare(ExRsInfo &rsInfo,         // IN
     NABoolean found = rsInfo.getRsInfo(rsIndex, proxyStmt, proxySyntax, openFlag, closedFlag, preparedFlag);
   }
 
-  StmtDebug2("  rsIndex %u, prepared flag %d", rsIndex, (Int32)preparedFlag);
+  StmtDebug2("  rsIndex %u, prepared flag %d", rsIndex, (int)preparedFlag);
   StmtDebug1("  proxySyntax [%s]", (proxySyntax ? proxySyntax : "(NULL)"));
 
   if (proxySyntax == NULL) {
-    diagsArea << DgSqlCode(-EXE_UDR_RS_NOT_AVAILABLE) << DgInt0((Int32)rsIndex);
+    diagsArea << DgSqlCode(-EXE_UDR_RS_NOT_AVAILABLE) << DgInt0((int)rsIndex);
     result = ERROR;
   }
 
@@ -5661,7 +5661,7 @@ RETCODE Statement::getProxySyntax(char *proxy, int maxlength, int *spaceRequired
     spaceLeft -= prefixLen;
   }
 
-  for (Int32 entry = 1; entry <= expr->getNumEntries(); entry++) {
+  for (int entry = 1; entry <= expr->getNumEntries(); entry++) {
     char *name = NULL;
     int nameLen;
 
@@ -6135,9 +6135,9 @@ void Statement::updateStatsAreaInContext() {
   ExMasterStats *masterStats;
   statsArea = getStatsArea();
   if (stmtStats_ != NULL && statsArea &&
-      ((statsType = statsArea->getCollectStatsType()) != (Int32)SQLCLIDEV_NO_STATS) &&
+      ((statsType = statsArea->getCollectStatsType()) != (int)SQLCLIDEV_NO_STATS) &&
       stmt_type == Statement::DYNAMIC_STMT) {
-    if (statsType == (Int32)SQLCLIDEV_ALL_STATS) {
+    if (statsType == (int)SQLCLIDEV_ALL_STATS) {
       if ((masterStats = statsArea->getMasterStats()) != NULL) {
         NADELETE(masterStats, ExMasterStats, masterStats->getHeap());
         statsArea->setMasterStats(NULL);

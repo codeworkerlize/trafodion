@@ -58,7 +58,7 @@ void CRUMultiTxnContext::ReadRowsFromContextLog(CDMPreparedStatement *readStmt) 
     CDMResultSet *pResult = readStmt->ExecuteQuery();
 
     while (pResult->Next()) {
-      const Int32 kEpoch = 1;
+      const int kEpoch = 1;
 
       stack_.AddHead(pResult->GetInt(kEpoch));
     }

@@ -686,14 +686,14 @@ class MVColumnInfo : public NABasicObject {
   MVColumnInfo(MVInfoForDDL &mvInfoObj, CollHeap *heap);
 
   // Ctor for link only columns (duplicate, redundant or complex).
-  MVColumnInfo(Int32 colNum, const QualifiedName &origTableName, Int32 origColNumber, ComMVColType colType,
+  MVColumnInfo(int colNum, const QualifiedName &origTableName, int origColNumber, ComMVColType colType,
                CollHeap *heap);
 
   // Explicit Ctor for DML
-  MVColumnInfo(CollHeap *heap, Int32 colNumber, const NAString &colName, ComMVColType colType,
-               OperatorTypeEnum operatorType, NABoolean isSystem, const NAString &normalizedColText, Int32 dep1,
-               Int32 dep2, Int32 dep3, ComMVSUsageType usageType, const QualifiedName *origTableName,
-               Int32 origColNumber, NABoolean isComplex);
+  MVColumnInfo(CollHeap *heap, int colNumber, const NAString &colName, ComMVColType colType,
+               OperatorTypeEnum operatorType, NABoolean isSystem, const NAString &normalizedColText, int dep1,
+               int dep2, int dep3, ComMVSUsageType usageType, const QualifiedName *origTableName,
+               int origColNumber, NABoolean isComplex);
 
   // Copy Ctor
   MVColumnInfo(const MVColumnInfo &other, CollHeap *heap);
@@ -702,23 +702,23 @@ class MVColumnInfo : public NABasicObject {
   NABoolean operator==(const MVColumnInfo &other) const;
 
   // Information about the column in the MV
-  Int32 getColNumber() const { return colNumber_; }
+  int getColNumber() const { return colNumber_; }
   const NAString &getColName() const { return colName_; }
   const NAType *getColDataType() const { return colDataType_; }
   ComMVColType getColType() const { return colType_; }
   OperatorTypeEnum getOperatorType() const { return operatorType_; }
   NABoolean isSystem() const { return isSystem_; }
   const NAString &getNormalizedColText() const { return normalizedColText_; }
-  Int32 getDepCol1() const { return dep1_; }
-  Int32 getDepCol2() const { return dep2_; }
-  Int32 getDepCol3() const { return dep3_; }
+  int getDepCol1() const { return dep1_; }
+  int getDepCol2() const { return dep2_; }
+  int getDepCol3() const { return dep3_; }
   NABoolean isInMVCI() const { return isInMVCI_; }
   NABoolean isARealColumn() const { return (colType_ != COM_MVCOL_DUPLICATE) && (colType_ != COM_MVCOL_COMPLEX); }
 
   // Information about the column used in the base table
   ComMVSUsageType getUsageType() const { return usageType_; }
   const QualifiedName &getOrigTableName() const { return origTableName_; }
-  Int32 getOrigColNumber() const { return origColNumber_; }
+  int getOrigColNumber() const { return origColNumber_; }
   NABoolean getIsComplex() const { return isComplex_; }
   const NAString &getBaseColHashKey() const { return baseColHashKey_; }
 
@@ -759,28 +759,28 @@ class MVColumnInfo : public NABasicObject {
   NABoolean isColumnExpressionComplex(ItemExpr *expr);
   void calcNormalizedTextForComplexCols(MVInfoForDDL &mvInfoObj, ValueId directColValueId);
   void setColTypeAndExpr(ItemExpr *expr, ComMVType mvType, ValueId directColValueId, BindWA *bindWA);
-  Int32 newMavDependentColumn(ExpressionHash &expHash, const NAString &exprTextForHash, MVInfoForDDL &mvInfoObj,
+  int newMavDependentColumn(ExpressionHash &expHash, const NAString &exprTextForHash, MVInfoForDDL &mvInfoObj,
                               MVAggFunc depIndex, ItemExpr *depExpr, CollHeap *heap);
 
-  Int32 newStddevwDepColumn(Int32 childNo, ExpressionHash &expHash, const NAString &exprTextForHash,
+  int newStddevwDepColumn(int childNo, ExpressionHash &expHash, const NAString &exprTextForHash,
                             MVInfoForDDL &mvInfoObj, CollHeap *heap);
 
   // Information about the column in the MV
-  const Int32 colNumber_;          // column ordinal in the MV
+  const int colNumber_;          // column ordinal in the MV
   NAString colName_;               // column name
   const NAType *colDataType_;      // data type (used by DDL only)
   ComMVColType colType_;           //
   OperatorTypeEnum operatorType_;  // Which aggregate/function
   const NABoolean isSystem_;       // was added by the system
   NAString normalizedColText_;     //
-  Int32 dep1_;
-  Int32 dep2_;
-  Int32 dep3_;
+  int dep1_;
+  int dep2_;
+  int dep3_;
 
   // Information about the column used in the base table.
   ComMVSUsageType usageType_;
   QualifiedName origTableName_;
-  Int32 origColNumber_;  // if mapped 1-to-1 to this col
+  int origColNumber_;  // if mapped 1-to-1 to this col
   NABoolean isComplex_;  // too complex function, or > 1 columns
 
   NABoolean isUsed_;
@@ -948,7 +948,7 @@ class MVInfo : public NABasicObject {
   void setIsIncremental(NABoolean isInc) { isIncremental_ = isInc; }
   void setMinMaxIsUsed() { isMinMaxUsed_ = TRUE; }
   void setMvType(ComMVType mvType) { mvType_ = mvType; }
-  void newJoinGraph(Int32 initialSize);
+  void newJoinGraph(int initialSize);
 
   // Called by buildMVSelectTree().
   void fixMvSelectList(RelRoot *mvSelectTree) const;
@@ -1038,7 +1038,7 @@ class MVInfoForDDL : public MVInfo {
 
   // Used by the class MVColumnInfo.
   NABoolean isLeftJoinInnerTable(const QualifiedName &tableName) const;
-  Int32 getNextColIndex() { return realColumnCount_++; }
+  int getNextColIndex() { return realColumnCount_++; }
   void addSystemColumnText(const NAString &colName, const NAString &colExp);
   void NewSystemColumName(const NAString &midText, NAString &colNameString);
   const NAString *getUnBoundTextFor(CollIndex index) const;

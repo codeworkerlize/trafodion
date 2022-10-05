@@ -199,7 +199,7 @@ class QualifiedName : public SchemaName {
         objectNameSpace_(COM_UNKNOWN_NAME),
         flagbits_(0) {}
 
-  QualifiedName(const NAString &ansiString, Int32 minNameParts, CollHeap *h = 0, BindWA *bindWA = NULL);
+  QualifiedName(const NAString &ansiString, int minNameParts, CollHeap *h = 0, BindWA *bindWA = NULL);
 
   QualifiedName(const ComObjectName &comObjNam, CollHeap *h = 0);
 
@@ -233,7 +233,7 @@ class QualifiedName : public SchemaName {
 
   NABoolean fullyExpanded() const { return catalogName_ != (const char *)""; }
 
-  Int32 numberExpanded() const {
+  int numberExpanded() const {
     if (NOT catalogName_.isNull()) return 3;
     if (NOT schemaName_.isNull()) return 2;
     if (NOT objectName_.isNull()) return 1;
@@ -244,18 +244,18 @@ class QualifiedName : public SchemaName {
   // this object is not modified.
   // Function return value is the number of names that match the default,
   // {0, 1, 2} = {no matches, catalog matches, catalog&schema match}.
-  Int32 extractAndDefaultNameParts(const SchemaName &defCatSch, NAString &catName, NAString &schName,
+  int extractAndDefaultNameParts(const SchemaName &defCatSch, NAString &catName, NAString &schName,
                                    NAString &objName) const;
 
   // Mutator to fill in default catalog & schema if not already present.
-  Int32 applyDefaults(const SchemaName &defCatSch);
+  int applyDefaults(const SchemaName &defCatSch);
 
   // apply defaults and validate the object existence
-  Int32 applyDefaultsValidate(const SchemaName &defCatSch, ComAnsiNameSpace nameSpace = COM_TABLE_NAME);
+  int applyDefaultsValidate(const SchemaName &defCatSch, ComAnsiNameSpace nameSpace = COM_TABLE_NAME);
 
   NABoolean applyShortAnsiDefault(NAString &catName, NAString &schName) const;
 
-  NABoolean verifyAnsiNameQualification(Int32 nbrPartsDefaulted) const;
+  NABoolean verifyAnsiNameQualification(int nbrPartsDefaulted) const;
 
   static NABoolean isHive(const NAString &catName);
   static NABoolean isHbase(const NAString &catName);
@@ -314,7 +314,7 @@ class QualifiedName : public SchemaName {
   NAString objectName_;
   ComAnsiNameSpace objectNameSpace_;
 
-  Int32 flagbits_;
+  int flagbits_;
 
 };  // QualifiedName
 
@@ -341,7 +341,7 @@ class PartitionClause : public NABasicObject {
         partnValsSpecified_(FALSE),
         partnVals_(NULL) {}
 
-  PartitionClause(const Int32 pnum, CollHeap *h = 0)
+  PartitionClause(const int pnum, CollHeap *h = 0)
       : partName_("", h),
         beginPartNumber_(pnum),
         endPartNumber_(-1),
@@ -377,7 +377,7 @@ class PartitionClause : public NABasicObject {
         partnValsSpecified_(TRUE),
         partnVals_(itemList) {}
 
-  PartitionClause(const Int32 beginPnum, const Int32 endPnum, CollHeap *h = 0)
+  PartitionClause(const int beginPnum, const int endPnum, CollHeap *h = 0)
       : partName_("", h),
         beginPartNumber_(beginPnum),
         endPartNumber_(endPnum),
@@ -411,9 +411,9 @@ class PartitionClause : public NABasicObject {
 
   // accessors
   const NAString &getPartitionName() const { return partName_; }
-  const Int32 getPartitionNumber() const { return beginPartNumber_; }
-  const Int32 getBeginPartitionNumber() const { return beginPartNumber_; }
-  const Int32 getEndPartitionNumber() const { return endPartNumber_; }
+  const int getPartitionNumber() const { return beginPartNumber_; }
+  const int getBeginPartitionNumber() const { return beginPartNumber_; }
+  const int getEndPartitionNumber() const { return endPartNumber_; }
 
   const NAString &getLocationName() const { return locationName_; }
 
@@ -431,8 +431,8 @@ class PartitionClause : public NABasicObject {
 
  private:
   NAString partName_;
-  Int32 beginPartNumber_;
-  Int32 endPartNumber_;
+  int beginPartNumber_;
+  int endPartNumber_;
   NAString locationName_;
 
   NABoolean partnNameSpecified_;
@@ -736,13 +736,13 @@ class CorrName : public NABasicObject {
   // In addition, if this CorrName contains a correlation name
   // (masking a qualified name), the function return is always 0
   // and the name parts are *not* filled in (they're meaningless).
-  Int32 extractAndDefaultNameParts(BindWA *bindWA, const SchemaName &defCatSch, NAString &catName, NAString &schName,
+  int extractAndDefaultNameParts(BindWA *bindWA, const SchemaName &defCatSch, NAString &catName, NAString &schName,
                                    NAString &objName);
 
   // Mutator to fill in default catalog & schema if not already present.
   // Does *NOT* look at this CorrName's corr name
   // (unlike CorrName::extractAndDefaultNameParts above).
-  Int32 applyDefaults(BindWA *bindWA, const SchemaName &defCatSch);
+  int applyDefaults(BindWA *bindWA, const SchemaName &defCatSch);
 
   // Mutator to fill in qualified name from prototype value, if one.
   void applyPrototype(BindWA *bindWA);
@@ -793,9 +793,9 @@ class CorrName : public NABasicObject {
   NAString ugivenName_;
   // ct-bug-10-030102-3803 -End
   NABoolean bound_;
-  Int32 flagbits_;  // identity-discriminant
+  int flagbits_;  // identity-discriminant
   HostVar *prototype_;
-  Int32 defaultMatchCount_;
+  int defaultMatchCount_;
 
   // Before adding new members to this class, think about whether it is
   // an identity-discriminating field and so should be compared against
@@ -818,12 +818,12 @@ class ColRefName : public NABasicObject {
 
   // Only Parser uses the first two ctors, which set the isStar flag.
   // Parser and Binder both use the others.
-  ColRefName(Int32 forceStar, CollHeap *h = 0)
+  ColRefName(int forceStar, CollHeap *h = 0)
       : colName_("", h), corrName_("", h), isStar_(IS_STAR), isOLAPInternal_(FALSE) {
     CMPASSERT(forceStar == TRUE);
   }
 
-  ColRefName(Int32 forceStar, const CorrName &corr, CollHeap *h = 0)
+  ColRefName(int forceStar, const CorrName &corr, CollHeap *h = 0)
       : colName_("", h), corrName_(corr, h), isStar_(IS_STAR), isOLAPInternal_(FALSE) {
     CMPASSERT(forceStar == TRUE);
   }
@@ -944,7 +944,7 @@ class TableRefName : public NABasicObject {
   inline const ColumnDescList *getColumnList() const { return columnList_; }
   inline void setColumnList(ColumnDescList *columnList) { columnList_ = columnList; }
 
-  Int32 lookupTableName(RETDesc *retDesc);
+  int lookupTableName(RETDesc *retDesc);
   void bindRefColumns(BindWA *bindWA) const;
 
  private:

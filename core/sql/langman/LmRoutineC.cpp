@@ -37,7 +37,7 @@ LmRoutineC::LmRoutineC(const char *sqlName, const char *externalName, const char
                        char *routineSig, ComUInt32 maxResultSets, ComRoutineLanguage language,
                        ComRoutineParamStyle paramStyle, ComRoutineTransactionAttributes transactionAttrs,
                        ComRoutineSQLAccess sqlAccessMode, ComRoutineExternalSecurity externalSecurity,
-                       Int32 routineOwnerId, const char *parentQid, ComUInt32 inputParamRowLen, ComUInt32 outputRowLen,
+                       int routineOwnerId, const char *parentQid, ComUInt32 inputParamRowLen, ComUInt32 outputRowLen,
                        const char *currentUserName, const char *sessionUserName, LmParameter *parameters,
                        LmLanguageManagerC *lm, LmHandle routine, LmContainer *container, ComDiagsArea *diagsArea)
     : LmRoutine(container, routine, sqlName, externalName, librarySqlName, numSqlParam, maxResultSets, language,
@@ -320,12 +320,12 @@ LmResult LmRoutineC::processReturnStatus(ComSInt32 retcode, ComDiagsArea *diags)
   // Check the returned SQLSTATE value and raise appropriate
   // SQL code. Valid SQLSTATE values begin with "38" except "38000"
   if ((strncmp(sqlState_, "38", 2) == 0) && (strncmp(sqlState_, "38000", 5) != 0)) {
-    Int32 sqlCode = (retcode == SQLUDR_ERROR) ? -LME_CUSTOM_ERROR : LME_CUSTOM_WARNING;
+    int sqlCode = (retcode == SQLUDR_ERROR) ? -LME_CUSTOM_ERROR : LME_CUSTOM_WARNING;
 
     *diags << DgSqlCode(sqlCode) << DgString0(returnMsgText) << DgString1(sqlState_);
     *diags << DgCustomSQLState(sqlState_);
   } else {
-    Int32 sqlCode = (retcode == SQLUDR_ERROR) ? -LME_UDF_ERROR : LME_UDF_WARNING;
+    int sqlCode = (retcode == SQLUDR_ERROR) ? -LME_UDF_ERROR : LME_UDF_WARNING;
 
     *diags << DgSqlCode(sqlCode) << DgString0(getNameForDiags()) << DgString1(sqlState_) << DgString2(returnMsgText);
   }

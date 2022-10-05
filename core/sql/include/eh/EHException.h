@@ -240,7 +240,7 @@ class NABasicObject;
 class EHBreakException  // EH conversion.
 {
  public:
-  EHBreakException(const char *fileName = NULL, Int32 num = 0) : lineNum_(num) {
+  EHBreakException(const char *fileName = NULL, int num = 0) : lineNum_(num) {
     if (fileName) {
       strncpy(fileName_, fileName, sizeof(fileName_));
       fileName_[sizeof(fileName_) - 1] = 0;
@@ -272,7 +272,7 @@ class EHExceptionHandler {
   EHExceptionJmpBufNode::env environment;
 
   // contains the value returned by setjmp()
-  Int32 setjmpStatus;
+  int setjmpStatus;
 
   // ---------------------------------------------------------------------
   // public methods
@@ -300,7 +300,7 @@ class EHExceptionHandler {
 
   EHBoolean catchException(EHExceptionTypeEnum exceptionType);
 
-  void setExceptionType(Int32 setjmpStatus);
+  void setExceptionType(int setjmpStatus);
 
   // register the type of the exception handlers
   // associating with the following try block

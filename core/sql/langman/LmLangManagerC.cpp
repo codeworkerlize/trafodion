@@ -65,7 +65,7 @@ LmResult LmLanguageManagerC::getRoutine(
     ComRoutineSQLAccess sqlAccessMode, const char *parentQid, const char *clientInfo, ComUInt32 inputRowLen,
     ComUInt32 outputRowLen, const char *sqlName, const char *externalName, const char *routineSig,
     const char *containerName, const char *externalPath, const char *librarySqlName, const char *currentUserName,
-    const char *sessionUserName, ComRoutineExternalSecurity externalSecurity, Int32 routineOwnerId, LmRoutine **handle,
+    const char *sessionUserName, ComRoutineExternalSecurity externalSecurity, int routineOwnerId, LmRoutine **handle,
     LmHandle getNextRowPtr, LmHandle emitRowPtr, ComUInt32 maxResultSets, ComDiagsArea *diagsArea) {
   *handle = NULL;
   LmContainer *container = NULL;
@@ -254,7 +254,7 @@ LmResult LmLanguageManagerC::invokeRoutine(LmRoutine *handle, void *inputRow, vo
   if (routine->getParamStyle() == COM_STYLE_CPP_OBJ) {
     LmRoutineCppObj *cppRoutine = static_cast<LmRoutineCppObj *>(routine);
     tmudr::UDRInvocationInfo *invocationInfo = cppRoutine->getInvocationInfo();
-    Int32 dummy1, dummy2;
+    int dummy1, dummy2;
 
     // this path is only used for the run-time call, where we
     // have already received the UDRInvocationInfo/UDRPlanInfo

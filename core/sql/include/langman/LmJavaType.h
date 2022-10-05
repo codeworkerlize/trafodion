@@ -115,7 +115,7 @@ class LmJavaType {
  private:
   Type type_;             // Type
   LmParameter *lmParam_;  // Corresponding parameter
-  Int32 index_;           // index into JavaTypeTable
+  int index_;           // index into JavaTypeTable
 
   static TypeElement javaTypeTable[];
 };

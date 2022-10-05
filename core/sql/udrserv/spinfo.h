@@ -85,7 +85,7 @@ class SPInfo : public NABasicObject {
          ComRoutineTransactionAttributes transactionAttrs, ComRoutineSQLAccess psqlAccessMode,
          ComRoutineLanguage pLanguage, ComRoutineParamStyle paramStyle, NABoolean pIsolate, NABoolean pCallOnNull,
          NABoolean pExtraCall, NABoolean pDeterministic, ComRoutineExternalSecurity pExternalSecurity,
-         Int32 pRoutineOwnerId, ComUInt32 requestBufferSize, ComUInt32 replyBufferSize, ComUInt32 requestRowSize,
+         int pRoutineOwnerId, ComUInt32 requestBufferSize, ComUInt32 replyBufferSize, ComUInt32 requestRowSize,
          ComUInt32 replyRowSize, ComDiagsArea &d, char *parentQid, char *clientInfo);
 
   //
@@ -175,7 +175,7 @@ class SPInfo : public NABasicObject {
   NABoolean getExtraCall() const { return extraCall_; }
   NABoolean getDeterministic() const { return deterministic_; }
   ComRoutineExternalSecurity getExternalSecurity() const { return externalSecurity_; }
-  Int32 getRoutineOwnerId() const { return routineOwnerId_; }
+  int getRoutineOwnerId() const { return routineOwnerId_; }
 
   UdrServerReplyStream *getTxStream() const { return txStream_; }
   UdrServerDataStream *getDataStream() const { return dataStream_; }
@@ -230,7 +230,7 @@ class SPInfo : public NABasicObject {
   inline void setExtraCall(NABoolean t) { extraCall_ = t; }
   inline void setDeterministic(NABoolean t) { deterministic_ = t; }
   inline void setExternalSecurity(ComRoutineExternalSecurity t) { externalSecurity_ = t; }
-  inline void setRoutineOwnerId(Int32 t) { routineOwnerId_ = t; }
+  inline void setRoutineOwnerId(int t) { routineOwnerId_ = t; }
 
   NABoolean activateTransaction();
   void replyToEnterTxMsg(NABoolean doneWithRS = FALSE);
@@ -325,7 +325,7 @@ class SPInfo : public NABasicObject {
 
   // Definer Rights related fields
   ComRoutineExternalSecurity externalSecurity_;
-  Int32 routineOwnerId_;
+  int routineOwnerId_;
 
   ComUInt32 maxNumResultSets_;
   ComUInt32 numResultSets_;

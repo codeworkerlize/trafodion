@@ -48,7 +48,7 @@
 
 // Constructor.
 MdamIntervalIterator::MdamIntervalIterator(const MdamIntervalList *intervalListPtr,
-                                           const Int32 logicalIntervalListNumber)
+                                           const int logicalIntervalListNumber)
     : logicalIntervalListNumber_(logicalIntervalListNumber),
       intervalPtr_(0),
       endPointType_(MdamEnums::MDAM_BEGIN),

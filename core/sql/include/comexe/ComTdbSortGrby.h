@@ -58,7 +58,7 @@ class ComTdbSortGrby : public ComTdb {
   ExExprPtr havingExpr_;  // 32-39
 
   // length of the aggregated row
-  Int32 recLen_;  // 40-43
+  int recLen_;  // 40-43
 
   // index into atp of new sort_grby tupp
   UInt16 tuppIndex_;  // 44-45
@@ -103,18 +103,18 @@ class ComTdbSortGrby : public ComTdb {
 
   inline ComTdb *getChildTdb();
 
-  Int32 orderedQueueProtocol() const;
+  int orderedQueueProtocol() const;
 
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
   // ---------------------------------------------------------------------
   virtual void displayContents(Space *space, ULng32 flag);
 
-  virtual const ComTdb *getChild(Int32 pos) const;
-  virtual Int32 numChildren() const { return 1; }
+  virtual const ComTdb *getChild(int pos) const;
+  virtual int numChildren() const { return 1; }
   virtual const char *getNodeName() const { return "EX_SORT_GRBY"; };
-  virtual Int32 numExpressions() const { return 4; }
-  virtual ex_expr *getExpressionNode(Int32 pos) {
+  virtual int numExpressions() const { return 4; }
+  virtual ex_expr *getExpressionNode(int pos) {
     if (pos == 0)
       return aggrExpr_;
     else if (pos == 1)
@@ -126,7 +126,7 @@ class ComTdbSortGrby : public ComTdb {
     else
       return NULL;
   }
-  virtual const char *getExpressionName(Int32 pos) const {
+  virtual const char *getExpressionName(int pos) const {
     if (pos == 0)
       return "aggrExpr_";
     else if (pos == 1)
@@ -152,7 +152,7 @@ inline ComTdb *ComTdbSortGrby::getChildTdb() { return tdbChild_; };
   History     :
                  Initial Revision.
 *****************************************************************************/
-inline const ComTdb *ComTdbSortGrby::getChild(Int32 pos) const {
+inline const ComTdb *ComTdbSortGrby::getChild(int pos) const {
   if (pos == 0)
     return tdbChild_;
   else

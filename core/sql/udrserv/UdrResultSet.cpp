@@ -49,7 +49,7 @@
 #include "common/ComRtUtils.h"
 
 extern NABoolean allocateReplyRow(UdrGlobals *UdrGlob, SqlBuffer &replyBuffer, queue_index parentIndex,
-                                  Int32 replyRowLen, char *&newReplyRow, ControlInfo *&newControlInfo,
+                                  int replyRowLen, char *&newReplyRow, ControlInfo *&newControlInfo,
                                   ex_queue::up_status upStatus);
 
 extern NABoolean allocateErrorRow(UdrGlobals *UdrGlob, SqlBuffer &replyBuffer, queue_index parentIndex,
@@ -89,7 +89,7 @@ char *TmpBuffer::getNextRow(ComDiagsArea *&rowDiags, NABoolean singleRowFetchEna
   if (moreRowsToCopy()) {
     retptr = buffer_ + (index_ * fetchRowSize_);
 
-    Int32 rowNumber = index_ + 1;
+    int rowNumber = index_ + 1;
     while (cliDiags_->getNumber(DgSqlCode::WARNING_)) {
       // We stop checking the conditions when we hit a condition whose
       // row number is more than the current row number. Until then, we
@@ -300,7 +300,7 @@ const char *UdrResultSet::stateString() {
     case RS_EARLY_CLOSE:
       return "RS_EARLY_CLOSE";
     default:
-      return ComRtGetUnknownString((Int32)state_);
+      return ComRtGetUnknownString((int)state_);
   }
 }
 
@@ -311,7 +311,7 @@ const char *UdrResultSet::stateString() {
 //
 // Returns 0 for success
 //         -1 for error
-Int32 UdrResultSet::reInit(LmResultSet *lmRS, ComDiagsArea &d, SQLSTMT_ID *stmt_id) {
+int UdrResultSet::reInit(LmResultSet *lmRS, ComDiagsArea &d, SQLSTMT_ID *stmt_id) {
   state_ = RS_REINITIATED;
 
   lmResultSet_ = lmRS;
@@ -460,7 +460,7 @@ SQLSTMT_ID *UdrResultSet::copyStatementID(SQLSTMT_ID *srcStmtID, NABoolean reset
 
 // Sets RS's context and returns the current context handle in oldCtx
 // Returns 0 for success and other values for failure
-Int32 UdrResultSet::setContext(SQLCTX_HANDLE &oldCtx, ComDiagsArea &d) {
+int UdrResultSet::setContext(SQLCTX_HANDLE &oldCtx, ComDiagsArea &d) {
   // Set the return value, oldCtx, to 0
   oldCtx = 0;
 
@@ -472,7 +472,7 @@ Int32 UdrResultSet::setContext(SQLCTX_HANDLE &oldCtx, ComDiagsArea &d) {
   if (lmResultSet_ == NULL || getContextHandle() == 0) return 0;
 
   SQLCTX_HANDLE tmpCtx;
-  Int32 result = SQL_EXEC_SwitchContext((int)getContextHandle(), &tmpCtx);
+  int result = SQL_EXEC_SwitchContext((int)getContextHandle(), &tmpCtx);
 
   if (result < 0) {
     d << DgSqlCode(-UDR_ERR_INTERNAL_CLI_ERROR) << DgString0("SQL_EXEC_SwitchContext") << DgInt0(result);
@@ -484,11 +484,11 @@ Int32 UdrResultSet::setContext(SQLCTX_HANDLE &oldCtx, ComDiagsArea &d) {
   return 0;
 }  // UdrResultSet::setContext
 
-Int32 UdrResultSet::resetContext(SQLCTX_HANDLE ctxHandle, ComDiagsArea &d) {
+int UdrResultSet::resetContext(SQLCTX_HANDLE ctxHandle, ComDiagsArea &d) {
   if (lmResultSet_ == NULL || getContextHandle() == 0) return 0;
 
   SQLCTX_HANDLE tmpCtxHandle;
-  Int32 result = SQL_EXEC_SwitchContext_Internal(ctxHandle, &tmpCtxHandle, TRUE);
+  int result = SQL_EXEC_SwitchContext_Internal(ctxHandle, &tmpCtxHandle, TRUE);
 
   if (result < 0) {
     d << DgSqlCode(-UDR_ERR_INTERNAL_CLI_ERROR) << DgString0("SQL_EXEC_SwitchContext") << DgInt0(result);
@@ -502,7 +502,7 @@ Int32 UdrResultSet::resetContext(SQLCTX_HANDLE ctxHandle, ComDiagsArea &d) {
 }  // UdrResultSet::resetContext
 
 // populates proxySyntax_ field
-Int32 UdrResultSet::generateProxySyntax(ComDiagsArea &d) {
+int UdrResultSet::generateProxySyntax(ComDiagsArea &d) {
   int retcode = 0;
   ComUInt32 index = 0;
 
@@ -1033,7 +1033,7 @@ NABoolean UdrResultSet::setupQuadFields(ComDiagsArea &d) {
   UDR_DEBUG2("Fetch size for Result Set %p is set to %d.", this, rowsPerFetch);
 
   int rowset_status[1];
-  Int32 retcode =
+  int retcode =
       SQL_EXEC_SETROWSETDESCPOINTERS(output_desc_, rowsPerFetch, rowset_status, 1, (int)numColumns_, quad_fields_);
   if (retcode < 0) {
     d << DgSqlCode(-UDR_ERR_INTERNAL_CLI_ERROR) << DgString0("SQL_EXEC_SETROWSETDESCPOINTERS") << DgInt0(retcode);
@@ -1314,7 +1314,7 @@ char *UdrResultSet::fixDataRow(char *rowPtr, ComDiagsArea *rowDiags) {
       if (colInfo.isNullable()) {
         nullIndPtr = rowPtr + colInfo.getNullIndicatorOffset();
 
-        for (Int32 i = 0; i < nullIndLen; i++)
+        for (int i = 0; i < nullIndLen; i++)
           if (!(nullIndPtr[i] & NEG_BIT_MASK)) nullIndPtr[i] = '\0';
       }
     }

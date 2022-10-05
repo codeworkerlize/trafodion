@@ -163,11 +163,11 @@ class ExOnljTcb : public ex_tcb {
   static short sWorkPhase2(ex_tcb *tcb) { return ((ExOnljTcb *)tcb)->work_phase2(); }
   static short sWorkPhase3(ex_tcb *tcb) { return ((ExOnljTcb *)tcb)->work_phase3(); }
 
-  inline Int32 isSemiJoin() const;          // True if we are doing a semi-join
-  inline Int32 isLeftJoin() const;          // True if we are doing a left-join
-  inline Int32 isAntiJoin() const;          // True if we are doing a anti-join
-  inline Int32 vsbbInsertOn() const;        // TRUE if right child is a VSBB Insert
-  inline Int32 isDrivingMVLogging() const;  // True if right child is an isert to an MV IUD log
+  inline int isSemiJoin() const;          // True if we are doing a semi-join
+  inline int isLeftJoin() const;          // True if we are doing a left-join
+  inline int isAntiJoin() const;          // True if we are doing a anti-join
+  inline int vsbbInsertOn() const;        // TRUE if right child is a VSBB Insert
+  inline int isDrivingMVLogging() const;  // True if right child is an isert to an MV IUD log
 
  public:
   // Step in processing the parent row
@@ -205,8 +205,8 @@ class ExOnljTcb : public ex_tcb {
   virtual ex_tcb_private_state *allocatePstates(int &numElems,       // inout, desired/actual elements
                                                 int &pstateLength);  // out, length of one element
 
-  virtual const ex_tcb *getChild(Int32 pos) const;
-  virtual Int32 numChildren() const { return 2; }
+  virtual const ex_tcb *getChild(int pos) const;
+  virtual int numChildren() const { return 2; }
 };
 
 /*****************************************************************************
@@ -216,7 +216,7 @@ class ExOnljTcb : public ex_tcb {
   History     : Yeogirl Yun                                      8/14/95
                  Initial Revision.
 *****************************************************************************/
-inline const ex_tcb *ExOnljTcb::getChild(Int32 pos) const {
+inline const ex_tcb *ExOnljTcb::getChild(int pos) const {
   ex_assert((pos >= 0), "");
   if (pos == 0)
     return tcbLeft_;
@@ -289,15 +289,15 @@ class ExOnljPrivateState : public ex_tcb_private_state {
 
 // check the tdb to see if the join is semi and/or outer
 
-inline Int32 ExOnljTcb::isSemiJoin() const { return ((ExOnljTdb &)tdb).isSemiJoin(); };
+inline int ExOnljTcb::isSemiJoin() const { return ((ExOnljTdb &)tdb).isSemiJoin(); };
 
-inline Int32 ExOnljTcb::isAntiJoin() const { return ((ExOnljTdb &)tdb).isAntiJoin(); };
+inline int ExOnljTcb::isAntiJoin() const { return ((ExOnljTdb &)tdb).isAntiJoin(); };
 
-inline Int32 ExOnljTcb::isLeftJoin() const { return ((ExOnljTdb &)tdb).isLeftJoin(); };
+inline int ExOnljTcb::isLeftJoin() const { return ((ExOnljTdb &)tdb).isLeftJoin(); };
 
-inline Int32 ExOnljTcb::vsbbInsertOn() const { return ((ExOnljTdb &)tdb).vsbbInsertOn(); };
+inline int ExOnljTcb::vsbbInsertOn() const { return ((ExOnljTdb &)tdb).vsbbInsertOn(); };
 
-inline Int32 ExOnljTcb::isDrivingMVLogging() const { return ((ExOnljTdb &)tdb).isDrivingMVLogging(); };
+inline int ExOnljTcb::isDrivingMVLogging() const { return ((ExOnljTdb &)tdb).isDrivingMVLogging(); };
 
 inline ExOnljTdb &ExOnljTcb::onljTdb() const { return (ExOnljTdb &)tdb; }
 

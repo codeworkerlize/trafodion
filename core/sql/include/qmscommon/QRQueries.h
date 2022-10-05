@@ -117,7 +117,7 @@ struct QRMVData {
    * set with IGNORE CHANGES.  If this summation is greater than zero,
    * then IGNORE CHANGES exists for tables on the MV.
    */
-  Int32 hasIgnoreChanges_;
+  int hasIgnoreChanges_;
 
   /**
    * mvText_ The MV descriptor text
@@ -171,7 +171,7 @@ struct MVQR_Publish {
   /**
    * descriptorIndex_ The index number of the descriptor
    */
-  Int32 descriptorIndex_;
+  int descriptorIndex_;
 
   /**
    * operationType_ The operation type of the published row
@@ -307,7 +307,7 @@ class QRQueries {
    * @param [OUT] the schema version of the needed catalog.
    * @return The return code from the query cursor fetch.
    */
-  int fetchVersion(Int32 &version);
+  int fetchVersion(int &version);
 
   /**
    * closeVersion closes the SQL cursor used to obtain the

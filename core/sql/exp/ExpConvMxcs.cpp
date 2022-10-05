@@ -141,7 +141,7 @@ static short BigNumHelper_ConvBcdToBigNumHelper(int sourceLength, int targetLeng
   unsigned short *targetDataInShorts = (unsigned short *)targetData;
 
   // Initialize the Big Num to zero.
-  Int32 i = 0;
+  int i = 0;
   for (i = 0; i < targetLengthInShorts; i++) targetDataInShorts[i] = 0;
   int finalTargetLengthInShorts = 1;
 
@@ -150,7 +150,7 @@ static short BigNumHelper_ConvBcdToBigNumHelper(int sourceLength, int targetLeng
   while (zeros < sourceLength && !sourceData[zeros]) zeros++;
   if (zeros == sourceLength) return 0;
 
-  Int32 actualSourceLength = sourceLength - zeros;
+  int actualSourceLength = sourceLength - zeros;
   char *actualSourceData = sourceData + zeros;
 
 #if defined(NA_LITTLE_ENDIAN) || defined(NA_MXCS)
@@ -179,7 +179,7 @@ static short BigNumHelper_ConvBcdToBigNumHelper(int sourceLength, int targetLeng
   for (i = 0; i < actualSourceLength; i += 4) {
     // Compute the numeric value of the next 4-digit chunk.
     unsigned short temp1 = 0;
-    Int32 j = 0;
+    int j = 0;
     while ((j < 4) && (i + j < actualSourceLength)) {
       temp1 = temp1 * 10 + actualSourceData[i + j];
       j++;
@@ -236,7 +236,7 @@ static short BigNumHelper_ConvBigNumToBcdHelper(int sourceLength, int targetLeng
 
   unsigned short *tempSourceDataInShorts = new unsigned short[sourceLength / 2];
 
-  Int32 i = 0;
+  int i = 0;
   for (i = 0; i < sourceLengthInShorts; i++) tempSourceDataInShorts[i] = sourceDataInShorts[i];
 
   // Initialize the BCD to zero.
@@ -272,7 +272,7 @@ static short BigNumHelper_ConvBigNumToBcdHelper(int sourceLength, int targetLeng
   while ((actualSourceLengthInShorts != 1) || (tempSourceDataInShorts[actualSourceLengthInShorts - 1] >= 10000)) {
     // Divide the Big Num by 10^4. It is more efficient to insert
     // the division code than to call SimpleDivideHelper();
-    Int32 j = 0;
+    int j = 0;
     for (j = actualSourceLengthInShorts - 1; j >= 0; j--) {
 #if defined(NA_LITTLE_ENDIAN) || defined(NA_MXCS)
       temp1[0] = tempSourceDataInShorts[j];
@@ -346,7 +346,7 @@ static short convInt64ToDecMxcs(char *target, int targetLen, long source) {
     if (source == LLONG_MIN) {
       // before we can convert this to a positive number, we have to
       // work on the first digit. Otherwise, we would cause an overflow.
-      Int32 temp = (Int32)(source % 10);
+      int temp = (int)(source % 10);
       target[currPos--] = (char)('0' + (temp < 0 ? -temp : temp));
       source /= 10;
     };
@@ -373,7 +373,7 @@ static short convInt64ToDecMxcs(char *target, int targetLen, long source) {
 }
 
 static short safe_add_digit_to_double(double dvalue,  // Original value
-                                      Int32 digit,    // Single digit to be added
+                                      int digit,    // Single digit to be added
                                       double *result) {
   *result = dvalue * 10 + digit;
   return 0;
@@ -405,12 +405,12 @@ static short convAsciiToFloat64Mxcs(char *target, char *source, int sourceLen) {
 
   enum State { START, SKIP_BLANKS, MANT_BEFORE_SIGN, MANT_AFTER_SIGN, EXP_START, EXPONENT, ERROR_CONV };
 
-  Int32 cp = 0;
+  int cp = 0;
   double mantissa = 0;
   double exponent = 0;
   bool negMantissa = false;
   bool negExponent = false;
-  Int32 numScale = 0;
+  int numScale = 0;
   bool validNum = false;
 
   State state = START;
@@ -740,10 +740,10 @@ static short convLargeDecToAsciiMxcs(char *target, int targetLen, char *source, 
     else
       source[0] = '+';
 
-    Int32 realLength = 1 + (sourceLen - 2) / 5;
-    for (Int32 srcPos = sourceLen - 1; srcPos; srcPos--) {
+    int realLength = 1 + (sourceLen - 2) / 5;
+    for (int srcPos = sourceLen - 1; srcPos; srcPos--) {
       ULng32 r = 0;
-      for (Int32 i = 1; i <= realLength; i++) {
+      for (int i = 1; i <= realLength; i++) {
         ULng32 q = (realSource[i] + r) / 10;
         r = (r + realSource[i]) - 10 * q;
         realSource[i] = (short)q;
@@ -988,7 +988,7 @@ static int getDigitCount(long value) {
                                    99999999999999999LL,
                                    999999999999999999LL};
 
-  for (Int32 i = 4; i <= 16; i += 4)
+  for (int i = 4; i <= 16; i += 4)
     if (value <= decValue[i]) {
       if (value <= decValue[i - 3]) return (i - 3);
       if (value <= decValue[i - 2]) return (i - 2);
@@ -1090,8 +1090,8 @@ static short convAsciiToIntervalMxcs(char *target, int targetLen, int targetData
   int strIndex = fieldLen;
   long fieldValue;
 
-  for (Int32 field = start + 1; field <= end; field++) {
-    Int32 index = field - REC_DATE_YEAR;
+  for (int field = start + 1; field <= end; field++) {
+    int index = field - REC_DATE_YEAR;
 
     // Make sure there is still some string left before we look
     // for the delimiter. The '+1' in the test also makes sure
@@ -1200,9 +1200,9 @@ static short convAsciiToIntervalMxcs(char *target, int targetLen, int targetData
         return EXE_CONVERT_INTERVAL_ERROR;
       };
       if (negInterval)
-        *(Int32 *)target = -(Int32)intermediate;
+        *(int *)target = -(int)intermediate;
       else
-        *(Int32 *)target = (Int32)intermediate;
+        *(int *)target = (int)intermediate;
       break;
 
     case SQL_LARGE_SIZE:
@@ -1382,7 +1382,7 @@ static short convIntervalToAsciiMxcs(char *source, int sourceLen, int leadingPre
   char *target = inTarget;
   if ((leftPad) && (targetLen > realTargetLen)) {
     // left blankpad the target.
-    for (Int32 i = 0; i < (targetLen - realTargetLen); i++) {
+    for (int i = 0; i < (targetLen - realTargetLen); i++) {
       target[i] = ' ';
     }
 
@@ -1413,7 +1413,7 @@ static short convIntervalToAsciiMxcs(char *source, int sourceLen, int leadingPre
   };
 
   // if target is fixed length, fill target string flushed right
-  for (Int32 i = 0; i < (targetLen - realTargetLen); i++, target++) *target = ' ';
+  for (int i = 0; i < (targetLen - realTargetLen); i++, target++) *target = ' ';
 
   // convert fraction part if any. targetIndex was set earlier
   if (fractionPrecision) {
@@ -1433,8 +1433,8 @@ static short convIntervalToAsciiMxcs(char *source, int sourceLen, int leadingPre
   };
 
   // Now rest of the fields except leading field...
-  for (Int32 field = endField; field > startField; field--) {
-    Int32 index = field - REC_DATE_YEAR;  // zero-based array index!
+  for (int field = endField; field > startField; field--) {
+    int index = field - REC_DATE_YEAR;  // zero-based array index!
 
     factor = (short)maxFieldValue[index] + 1;
     fieldVal = value;

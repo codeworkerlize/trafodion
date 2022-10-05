@@ -52,7 +52,7 @@ extern void my_mpi_fclose();
 DEFINE_DOVERS(memtest)
 
 extern "C" {
-Int32 sq_fs_dllmain();
+int sq_fs_dllmain();
 }
 
 void process_mem_usage(long &vm_usage, long &resident_set) {
@@ -194,7 +194,7 @@ int main(int argc, char **argv) {
   printf("memtest: phase III tests (larger than 2GB chunk (de)allocate):\n");
 
   for (int i = 1; i < 12; i++) {
-    Int32 j = 1 << i;
+    int j = 1 << i;
     printf("memtest: to allocate %d GB chunk...\n", j);
     voidPtr z = hp.allocateHeapMemory(size_t(j * ONE_G), FALSE);
     if (z != NULL) {

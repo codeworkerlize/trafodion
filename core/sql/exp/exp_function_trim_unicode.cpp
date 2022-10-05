@@ -44,7 +44,7 @@
 ex_function_trim_doublebyte::ex_function_trim_doublebyte(){};
 
 ex_function_trim_doublebyte::ex_function_trim_doublebyte(OperatorTypeEnum oper_type, Attributes **attr, Space *space,
-                                                         Int32 mode)
+                                                         int mode)
     : ex_function_trim(oper_type, attr, space, mode){};
 
 ex_expr::exp_return_type ex_function_trim_doublebyte::processNulls(char *op_data[], CollHeap *heap,

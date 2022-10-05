@@ -58,7 +58,7 @@ class ex_cri_desc : public NAVersionedObject {
 
   void display(const char *title = "");
 
-  void display(Int32 pid, Int32 ExNodeId, const char *title = "");
+  void display(int pid, int ExNodeId, const char *title = "");
 
   // ---------------------------------------------------------------------
   // Redefinition of methods inherited from NAVersionedObject.

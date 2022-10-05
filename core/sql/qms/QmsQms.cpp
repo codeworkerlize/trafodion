@@ -44,7 +44,7 @@
  */
 
 // This is needed to avoid a link error.
-NABoolean NAType::isComparable(const NAType &other, ItemExpr *parentOp, Int32 emitErr) const { return FALSE; }
+NABoolean NAType::isComparable(const NAType &other, ItemExpr *parentOp, int emitErr) const { return FALSE; }
 
 Qms *Qms::instance_ = NULL;
 
@@ -73,7 +73,7 @@ Qms::~Qms() {
  * @param requestHeap The heap from which to allocate temporary objects.
  */
 QRResultDescriptorPtr Qms::match(QRQueryDescriptorPtr qryDescPtr, NAMemory *requestHeap) {
-  static Int32 queryNumber = 0;
+  static int queryNumber = 0;
 
   try {
     DescriptorDetailsPtr queryDetails =
@@ -135,7 +135,7 @@ QRResultDescriptorPtr Qms::match(QRQueryDescriptorPtr qryDescPtr, NAMemory *requ
  * @param mvDescPtr Descriptor of MV.
  */
 void Qms::insert(QRMVDescriptorPtr mvDescPtr, const QRMVDefinition *mvDefPtr) {
-  static Int32 mvNumber = 0;
+  static int mvNumber = 0;
 
   try {
     // Count this query being matched.
@@ -321,7 +321,7 @@ void Qms::dumpInventoryHash() {
  *   2. Perform perdicate analysis on each group.
  *   3. Generate the SQL text for the CREATE MV command for the MV we ar proposing.
  */
-void Qms::workloadAnalysis(ofstream &ofs, Int32 minQueriesPerMV, NAMemory *requestHeap) {
+void Qms::workloadAnalysis(ofstream &ofs, int minQueriesPerMV, NAMemory *requestHeap) {
   WorkloadAnalysisPtr workload = new (requestHeap) WorkloadAnalysis(requestHeap);
   // Collect the join graph + GroupBy list information
   mvMemo_.collectMVGroups(workload, minQueriesPerMV, requestHeap);

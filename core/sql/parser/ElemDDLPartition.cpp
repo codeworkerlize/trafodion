@@ -81,7 +81,7 @@ ElemDDLPartitionV2::ElemDDLPartitionV2(NAString &pname, ItemExpr *partValue, Ele
   numPartitions_ = 0;
 }
 
-ElemDDLPartitionV2::ElemDDLPartitionV2(Int32 numPart, ElemDDLNode *subPart)
+ElemDDLPartitionV2::ElemDDLPartitionV2(int numPart, ElemDDLNode *subPart)
     : ElemDDLNode(ELM_ANY_PARTITION_ELEM),
       partitionName_(""),
       numPartitions_(numPart),
@@ -278,7 +278,7 @@ ElemDDLPartitionClause *ElemDDLPartitionClause::castToElemDDLPartitionClause() {
 //
 
 // get the degree of this node
-Int32 ElemDDLPartitionClause::getArity() const { return MAX_ELEM_DDL_PARTITION_CLAUSE_ARITY; }
+int ElemDDLPartitionClause::getArity() const { return MAX_ELEM_DDL_PARTITION_CLAUSE_ARITY; }
 
 ExprNode *ElemDDLPartitionClause::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
@@ -417,7 +417,7 @@ ElemDDLPartitionSystem::ElemDDLPartitionSystem(OperatorTypeEnum operType, ElemDD
 // Virtual destructor
 ElemDDLPartitionSystem::~ElemDDLPartitionSystem() {
   // delete all children
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     delete getChild(i);
   }
 }
@@ -430,7 +430,7 @@ ElemDDLPartitionSystem *ElemDDLPartitionSystem::castToElemDDLPartitionSystem() {
 //
 
 // get the degree of this node
-Int32 ElemDDLPartitionSystem::getArity() const { return MAX_ELEM_DDL_PARTITION_SYSTEM_ARITY; }
+int ElemDDLPartitionSystem::getArity() const { return MAX_ELEM_DDL_PARTITION_SYSTEM_ARITY; }
 
 ExprNode *ElemDDLPartitionSystem::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
@@ -807,7 +807,7 @@ ElemDDLPartitionRange::~ElemDDLPartitionRange() {
   // ElemDDLPartitionSystem does the deletion(s) of the other
   // child parse node(s).
   //
-  for (Int32 i = ElemDDLPartitionSystem::getArity(); i < getArity(); i++) {
+  for (int i = ElemDDLPartitionSystem::getArity(); i < getArity(); i++) {
     delete getChild(i);
   }
 }
@@ -820,7 +820,7 @@ ElemDDLPartitionRange *ElemDDLPartitionRange::castToElemDDLPartitionRange() { re
 //
 
 // get the degree of this node
-Int32 ElemDDLPartitionRange::getArity() const { return MAX_ELEM_DDL_PARTITION_RANGE_ARITY; }
+int ElemDDLPartitionRange::getArity() const { return MAX_ELEM_DDL_PARTITION_RANGE_ARITY; }
 
 ExprNode *ElemDDLPartitionRange::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
@@ -1031,7 +1031,7 @@ ElemDDLPartitionByColumnList *ElemDDLPartitionByColumnList::castToElemDDLPartiti
 //
 
 // get the degree of this node
-Int32 ElemDDLPartitionByColumnList::getArity() const { return MAX_ELEM_DDL_PARTITION_BY_COLUMN_LIST_ARITY; }
+int ElemDDLPartitionByColumnList::getArity() const { return MAX_ELEM_DDL_PARTITION_BY_COLUMN_LIST_ARITY; }
 
 ExprNode *ElemDDLPartitionByColumnList::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
@@ -1127,7 +1127,7 @@ void ElemDDLPartitionClauseV2::setChild(int index, ExprNode *pChildNode) {
   }
 }
 
-Int32 ElemDDLPartitionClauseV2::getArity() const { return MAX_ELEM_DDL_PARTITION_CLAUSE_ARITY_V2; }
+int ElemDDLPartitionClauseV2::getArity() const { return MAX_ELEM_DDL_PARTITION_CLAUSE_ARITY_V2; }
 
 // cast virtual function
 ElemDDLPartitionClauseV2 *ElemDDLPartitionClauseV2::castToElemDDLPartitionClauseV2() { return this; }

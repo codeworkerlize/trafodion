@@ -54,7 +54,7 @@ keyRangeGen::keyRangeGen(key_type keyType, ULng32 keyLen, ex_cri_desc *workCriDe
       NAVersionedObject(keyType),
       keytag_(0),
       flags_(0) {
-  for (Int32 i = 0; i < FILLER_LENGTH; i++) fillersKeyRangeGen_[i] = '\0';
+  for (int i = 0; i < FILLER_LENGTH; i++) fillersKeyRangeGen_[i] = '\0';
 }
 
 // -----------------------------------------------------------------------

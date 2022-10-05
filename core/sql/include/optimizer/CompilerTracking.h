@@ -54,7 +54,7 @@ class CompilerTrackingInfo {
   // static void initGlobalInstance();
   //
   // log all of the data members of this object
-  void logCompilerStatusOnInterval(Int32 intervalLengthMins);
+  void logCompilerStatusOnInterval(int intervalLengthMins);
   //
   // the cpu time for the longest compilation is updated
   // if the parameter is longer than the current longest
@@ -94,13 +94,13 @@ class CompilerTrackingInfo {
  protected:
   //
   // check to see if an interval has expired
-  NABoolean intervalExpired(Int32 intervalLengthMins);
+  NABoolean intervalExpired(int intervalLengthMins);
   //
   // start the new interval (at the current time, clock())
   void resetInterval();
 
   // the duration of the interval in minutes
-  Int32 currentIntervalDuration(long endTime);
+  int currentIntervalDuration(long endTime);
   //
   // the cpu time for the interval
   int cpuPathLength();

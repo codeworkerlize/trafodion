@@ -62,7 +62,7 @@ class RefreshTestController {
   };
 
  public:
-  RefreshTestController(Int32 numOfProcesses)
+  RefreshTestController(int numOfProcesses)
       : numOfProcesses_(numOfProcesses),
         activeProcesses_(0),
         processPool_("tdm_arkutp.exe"),
@@ -77,29 +77,29 @@ class RefreshTestController {
   virtual ~RefreshTestController() {}
 
  public:
-  Int32 GetState() { return state_; }
-  void SetState(Int32 state) { state_ = state; }
+  int GetState() { return state_; }
+  void SetState(int state) { state_ = state; }
 
  public:
   void Init();
   void Work();
 
  private:
-  Int32 InitiateTaskProcess();
+  int InitiateTaskProcess();
   void GroupSendForInitialization();
-  void SendForInitialization(Int32 groupId, Int32 processId, Int32 numOfStmt);
+  void SendForInitialization(int groupId, int processId, int numOfStmt);
   void SendExecutor(CRUTaskExecutor &executor);
   void WaitForAll();
   void SendSyncToAllExecutors();
   void HandleReturnOfExecutor(int pid);
   CRUTaskExecutor *FindRunningExecutor(int pid);
-  void SaveTime(Int32 groupId, Int32 processId);
+  void SaveTime(int groupId, int processId);
 
  private:
-  Int32 state_;
-  Int32 numOfProcesses_;
-  Int32 activeProcesses_;
-  Int32 currentGroupId_;
+  int state_;
+  int numOfProcesses_;
+  int activeProcesses_;
+  int currentGroupId_;
   BOOL endFlag_;
 
   CUOFsTaskProcessPool processPool_;
@@ -120,9 +120,9 @@ class RefreshTestController {
 };
 
 struct GroupStatement {
-  Int32 groupId_;
-  Int32 processId_;
-  Int32 num_of_executions;
+  int groupId_;
+  int processId_;
+  int num_of_executions;
 };
 
 #endif

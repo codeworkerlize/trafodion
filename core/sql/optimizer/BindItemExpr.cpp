@@ -154,8 +154,8 @@ enum errSQLnullChild {
 static errSQLnullChild checkForSQLnullChild(const ItemExpr *ie, NABoolean SQLnullIsLegal, errSQLnullChild err) {
   // Shallow (nonrecursive) testing of children,
   // except for ItemLists whose arity 2 really implements an n-ary list.
-  Int32 arity = ie->getArity();
-  for (Int32 i = 0; i < arity; i++) {
+  int arity = ie->getArity();
+  for (int i = 0; i < arity; i++) {
     ItemExpr *ieChild = ie->child(i);
     if (!ieChild) break;  // could be optional children eg. STDDEV
 
@@ -233,7 +233,7 @@ static inline OperatorTypeEnum getOperatorTypeFlat(const ItemExpr *ie) {
 // ##   so upshift is unnecessary.
 // ##   SynthType.cpp should probably set the isUpshifted flag of the CharType..
 //
-static ItemExpr *applyUpperToSource(BindWA *bindWA, ItemExpr *ie, Int32 srcIndex) {
+static ItemExpr *applyUpperToSource(BindWA *bindWA, ItemExpr *ie, int srcIndex) {
   OperatorTypeEnum opSelf = getOperatorTypeFlat(ie);
   CMPASSERT(opSelf == ITM_ASSIGN || ie->getOperator().match(ITM_ANY_CAST));
   ItemExpr *src = ie->child(srcIndex);
@@ -584,8 +584,8 @@ static void BindUtil_UpdateNameLocForStarExpansion(BindWA *bindWA, const ColumnD
 // member functions for class ItemExpr
 // -----------------------------------------------------------------------
 void ItemExpr::bindChildren(BindWA *bindWA) {
-  Int32 savedCurrChildNo = currChildNo();
-  for (Int32 i = 0; i < getArity(); i++, currChildNo()++) {
+  int savedCurrChildNo = currChildNo();
+  for (int i = 0; i < getArity(); i++, currChildNo()++) {
     if (child(i) != NULL) {
       ItemExpr *boundExpr = child(i)->bindNode(bindWA);
       if (bindWA->errStatus()) return;
@@ -617,7 +617,7 @@ void ItemExpr::bindSelf(BindWA *bindWA) {
   //
   NABoolean defaultSpecBoundAsSQLnull = FALSE;
 
-  for (Int32 i = 0; i < getArity(); i++, currChildNo()++) {
+  for (int i = 0; i < getArity(); i++, currChildNo()++) {
     ItemExpr *boundExpr = child(i)->bindNode(bindWA);
     if (bindWA->errStatus()) return;
     if (!boundExpr) {
@@ -680,11 +680,11 @@ void ItemExpr::bindSelf(BindWA *bindWA) {
 //
 // Always return this.
 ItemExpr *ItemExpr::tryToRelaxCharTypeMatchRules(BindWA *bindWA) {
-  Int32 ucs2s = 0;
+  int ucs2s = 0;
   CharInfo::CharSet cs = CharInfo::UnknownCharSet;
 
   // determine whether the ANSI character type matching rule is violated
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     const NAType &type = child(i)->getValueId().getType();
 
     if (type.getTypeQualifier() == NA_CHARACTER_TYPE) {
@@ -717,7 +717,7 @@ ItemExpr *ItemExpr::tryToRelaxCharTypeMatchRules(BindWA *bindWA) {
 // Always return this.
 ItemExpr *ItemExpr::performRelaxation(CharInfo::CharSet cs, BindWA *bindWA) {
   // perofrm relaxation on any relaxable child
-  for (Int32 i = 0; i < (Int32)currChildNo(); i++) {
+  for (int i = 0; i < (int)currChildNo(); i++) {
     if (((ItemExpr *)child(i))->isCharTypeMatchRulesRelaxable()) {
       // for R2 FCS, the target is fixed at 88591. With Phase II work, it is
       // possible to set the target charset in Translator cstr.
@@ -733,10 +733,10 @@ ItemExpr *ItemExpr::performRelaxation(CharInfo::CharSet cs, BindWA *bindWA) {
   return this;
 }
 
-Int32 find_translate_type(CharInfo::CharSet src_cs,   // Source charset
+int find_translate_type(CharInfo::CharSet src_cs,   // Source charset
                           CharInfo::CharSet dest_cs)  // Destination charset
 {
-  Int32 tran_type = Translate::UNKNOWN_TRANSLATION;
+  int tran_type = Translate::UNKNOWN_TRANSLATION;
 
   switch (dest_cs) {
     case CharInfo::ISO88591:
@@ -836,7 +836,7 @@ ItemExpr *ItemExpr::performImplicitCasting(CharInfo::CharSet cs, BindWA *bindWA)
   // method will return "this", but maybe with modified children.
   if (getValueId() != NULL_VALUE_ID) result = copyTopNode();
 
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     // initialize the result's child, assuming for now that it won't change
     if (result != this) result->setChild(i, getChild(i));
 
@@ -863,7 +863,7 @@ ItemExpr *ItemExpr::performImplicitCasting(CharInfo::CharSet cs, BindWA *bindWA)
     enum cnv_charset eCnvCS = convertCharsetEnum(desired_cs);
     enum cnv_charset eCnvChild_cs = convertCharsetEnum(child_cs);
 
-    Int32 tran_type = find_translate_type(child_cs, desired_cs);
+    int tran_type = find_translate_type(child_cs, desired_cs);
 
     if (tran_type == Translate::UNKNOWN_TRANSLATION) continue;
 
@@ -908,17 +908,17 @@ ItemExpr *ItemExpr::performImplicitCasting(CharInfo::CharSet cs, BindWA *bindWA)
         // First find length of constant string in characters.
         // Also find length of result string in bytes.
         //
-        Int32 byte_offset = 0;
-        Int32 cv_len_in_chars = 0;
-        Int32 rslt_len_in_bytes = 0;
+        int byte_offset = 0;
+        int cv_len_in_chars = 0;
+        int rslt_len_in_bytes = 0;
         while (byte_offset < cv_StorageSize) {
-          Int32 firstCharLenInBuf;
+          int firstCharLenInBuf;
           UInt32 UCS4value;
           firstCharLenInBuf =
               LocaleCharToUCS4(&cv_ConstValue[byte_offset], cv_StorageSize - byte_offset, &UCS4value, eCnvChild_cs);
           if (firstCharLenInBuf < 0) {
             *CmpCommon::diags() << DgSqlCode(-2109) << DgString0(CharInfo::getCharSetName(child_cs))
-                                << DgString1("UCS4") << DgInt0(cv_len_in_chars) << DgInt1((Int32)(byte_offset));
+                                << DgString1("UCS4") << DgInt0(cv_len_in_chars) << DgInt1((int)(byte_offset));
             bindWA->setErrStatus();
             break;
           }
@@ -926,11 +926,11 @@ ItemExpr *ItemExpr::performImplicitCasting(CharInfo::CharSet cs, BindWA *bindWA)
           cv_len_in_chars++;
 
           Int16 tmpBuf[4];
-          Int32 len_in_bytes = UCS4ToLocaleChar(&UCS4value, (char *)tmpBuf, 8, eCnvCS);
+          int len_in_bytes = UCS4ToLocaleChar(&UCS4value, (char *)tmpBuf, 8, eCnvCS);
           if (len_in_bytes < 0) {
             *CmpCommon::diags() << DgSqlCode(-2109) << DgString0(CharInfo::getCharSetName(child_cs))
                                 << DgString1(CharInfo::getCharSetName(desired_cs)) << DgInt0(cv_len_in_chars)
-                                << DgInt1((Int32)(byte_offset));
+                                << DgInt1((int)(byte_offset));
             bindWA->setErrStatus();
             break;
           }
@@ -940,21 +940,21 @@ ItemExpr *ItemExpr::performImplicitCasting(CharInfo::CharSet cs, BindWA *bindWA)
         // Now we know the exact length of the output buffer and
         // the length of the string (in chars!)
         //
-        Int32 out_length = rslt_len_in_bytes + ((desired_cs == CharInfo::UNICODE) ? 2 : 1);
+        int out_length = rslt_len_in_bytes + ((desired_cs == CharInfo::UNICODE) ? 2 : 1);
         char *tmpbufr = new (bindWA->wHeap()) char[out_length];
 
-        Int32 rslt_len = 0;
+        int rslt_len = 0;
 
         byte_offset = 0;
         while (byte_offset < cv_StorageSize) {
-          Int32 firstCharLenInBuf;
+          int firstCharLenInBuf;
           UInt32 UCS4value;
           firstCharLenInBuf =
               LocaleCharToUCS4(&cv_ConstValue[byte_offset], cv_StorageSize - byte_offset, &UCS4value, eCnvChild_cs);
           if (firstCharLenInBuf < 0) break;  // Error would have already been reported above
 
           byte_offset += firstCharLenInBuf;
-          Int32 len_in_bytes = UCS4ToLocaleChar(&UCS4value, tmpbufr + rslt_len, 8, eCnvCS);
+          int len_in_bytes = UCS4ToLocaleChar(&UCS4value, tmpbufr + rslt_len, 8, eCnvCS);
           if (len_in_bytes < 0) break;  // Error would have already been reported above
 
           rslt_len += len_in_bytes;
@@ -985,7 +985,7 @@ ItemExpr *ItemExpr::performImplicitCasting(CharInfo::CharSet cs, BindWA *bindWA)
       ItemExpr *new_chld_ie = new_cv->bindNode(bindWA);
       if (cv_is_NULL) {
         CharType myCharType = (const CharType &)type;
-        Int32 bytesPerCh = myCharType.getBytesPerChar();
+        int bytesPerCh = myCharType.getBytesPerChar();
         NAType *newType = new (HEAP) SQLChar(
             HEAP, (cv_ValueId == NULL_VALUE_ID) ? 0 : type.getNominalSize() / bytesPerCh, TRUE, FALSE, FALSE, FALSE,
             cs,  // The target charset
@@ -1054,8 +1054,8 @@ ItemExpr *ItemExpr::performImplicitCasting(CharInfo::CharSet cs, BindWA *bindWA)
 //        0       if this is not a good idea
 //        - num   if this is a bad idea (or not even possible)
 //
-Int32 ItemExpr::shouldPushTranslateDown(CharInfo::CharSet chrset) const {
-  Int32 Goodness = 1;  // Good if number of Translate Nodes would not increase
+int ItemExpr::shouldPushTranslateDown(CharInfo::CharSet chrset) const {
+  int Goodness = 1;  // Good if number of Translate Nodes would not increase
   NABoolean sawChildWithDiffCS = FALSE;
 
   // Not the root cause for Mantis 12842
@@ -1147,7 +1147,7 @@ Int32 ItemExpr::shouldPushTranslateDown(CharInfo::CharSet chrset) const {
     default:;  // go on, it's ok to push the translate operator down
   }
 
-  for (Int32 ii = 0; ii < getArity(); ii++) {
+  for (int ii = 0; ii < getArity(); ii++) {
     const NAType &type = child(ii)->getValueId().getType();
     if (type.getTypeQualifier() != NA_CHARACTER_TYPE) continue;  // Skip non-char types
 
@@ -1171,7 +1171,7 @@ Int32 ItemExpr::shouldPushTranslateDown(CharInfo::CharSet chrset) const {
         continue;
 
       default:
-        Int32 chld_goodness = child(ii)->shouldPushTranslateDown(chrset);
+        int chld_goodness = child(ii)->shouldPushTranslateDown(chrset);
         if (chld_goodness < 0)
           Goodness = 0;  // Cannot push down any lower (at least for now)
         else if (chld_goodness > 1)
@@ -1208,7 +1208,7 @@ ItemExpr *BiRelat::tryToRelaxCharTypeMatchRules(BindWA *bindWA) {
     if (leafList1->entries() != leafList2->entries()) return this;
 
     // relax by pairs
-    for (Int32 i = 0; i < leafList1->entries(); i++) {
+    for (int i = 0; i < leafList1->entries(); i++) {
       if (performRelaxation((*leafList1)[i], (*leafList2)[i], bindWA) == FALSE)
         return this;  // If one pair can not be made to be type-compatible, return
                       // right away. The type synthesise code will flag the
@@ -1224,7 +1224,7 @@ ItemExpr *BiRelat::tryToRelaxCharTypeMatchRules(BindWA *bindWA) {
 ExprValueIdList *ItemList::collectLeaves(CollHeap *heap, ExprValueIdList *list) {
   if (list == NULL) list = new (heap) ExprValueIdList(heap);
 
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     ItemExpr *c = this->child(i);
     if (c) {
       if (((ItemExpr *)child(i))->getOperatorType() != ITM_ITEM_LIST)
@@ -1238,7 +1238,7 @@ ExprValueIdList *ItemList::collectLeaves(CollHeap *heap, ExprValueIdList *list) 
 }
 
 void ItemList::setResolveIncompleteTypeStatus(NABoolean x) {
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     ItemExpr *child = this->child(i);
     if (child) child->setResolveIncompleteTypeStatus(x);
   }
@@ -1328,17 +1328,17 @@ ItemExpr *Assign::tryToRelaxCharTypeMatchRules(BindWA *bindWA) { return performR
 ItemExpr *ItemExpr::tryToDoImplicitCasting(BindWA *bindWA) {
   ItemExpr *result = this;
   enum { iUCS2 = 0, iISO = 1, iUTF8 = 2, iSJIS = 3, iGBK = 4, iUNK = 5 };
-  Int32 Literals_involved[6] = {0, 0, 0, 0, 0, 0};
-  Int32 nonLiterals_involved[6] = {0, 0, 0, 0, 0, 0};
-  Int32 charsets_involved[6] = {0, 0, 0, 0, 0, 0};
-  Int32 charsetsCount = 0;
+  int Literals_involved[6] = {0, 0, 0, 0, 0, 0};
+  int nonLiterals_involved[6] = {0, 0, 0, 0, 0, 0};
+  int charsets_involved[6] = {0, 0, 0, 0, 0, 0};
+  int charsetsCount = 0;
   CharInfo::CharSet cs = CharInfo::UnknownCharSet;
   CharInfo::CharSet curr_chld_cs = CharInfo::UnknownCharSet;
   CharInfo::CharSet chld0_cs = CharInfo::UnknownCharSet;
   OperatorTypeEnum chld0_opType = ITM_FIRST_ITEM_OP;
   OperatorTypeEnum curr_chld_opType = ITM_FIRST_ITEM_OP;
 
-  Int32 arity = getArity();
+  int arity = getArity();
   if (arity <= 0)  // This method works only if there are children
     return this;
   //
@@ -1347,7 +1347,7 @@ ItemExpr *ItemExpr::tryToDoImplicitCasting(BindWA *bindWA) {
   //
   // Step 1: Determine if we have children with different character set attributes
   //
-  for (Int32 i = 0; i < arity; i++) {
+  for (int i = 0; i < arity; i++) {
     const NAType &type = child(i)->getValueId().getType();
     if (type.getTypeQualifier() == NA_CHARACTER_TYPE) {
       curr_chld_cs = ((const CharType &)type).getCharSet();
@@ -1393,7 +1393,7 @@ ItemExpr *ItemExpr::tryToDoImplicitCasting(BindWA *bindWA) {
     }
   }
 
-  for (Int32 j = 0; j < iUNK; j++) {
+  for (int j = 0; j < iUNK; j++) {
     if (charsets_involved[j] > 0) charsetsCount++;
   }
 
@@ -1470,9 +1470,9 @@ ItemExpr *ItemExpr::tryToDoImplicitCasting(BindWA *bindWA) {
           // Leave the child's charset alone and change desired type to match it.
           NAType *newType = desiredType->newCopy(bindWA->wHeap());
           CharType *newCType = (CharType *)newType;
-          Int32 child_bpc = CharInfo::maxBytesPerChar(chld_cs);
-          Int32 child_charLimit = ((const CharType &)chldType).getStrCharLimit();
-          Int32 Desired_charLimit = ((const CharType *)desiredType)->getStrCharLimit();
+          int child_bpc = CharInfo::maxBytesPerChar(chld_cs);
+          int child_charLimit = ((const CharType &)chldType).getStrCharLimit();
+          int Desired_charLimit = ((const CharType *)desiredType)->getStrCharLimit();
 
           newCType->setCharSet(chld_cs);
           newCType->setBytesPerChar(child_bpc);
@@ -1676,7 +1676,7 @@ ItemExpr *ItemExpr::bindUDFsOrSubqueries(BindWA *bindWA) {
 
     default:
       // Walk the rest of the tree.
-      for (Int32 chld = 0; chld < getArity(); chld++) {
+      for (int chld = 0; chld < getArity(); chld++) {
         child(chld) = child(chld)->bindUDFsOrSubqueries(bindWA);
       }
   }
@@ -2002,7 +2002,7 @@ ItemExpr *BiRelat::transformPredForExtPushdown(BindWA *bindWA, ItemExpr *thisPtr
     NABoolean dateSameAsLastDate = FALSE;
     char buf[2000];
     buf[0] = 0;
-    Int32 numParams = 0;
+    int numParams = 0;
     ItemExpr *param1 = NULL;
     switch (op) {
       case ITM_GREATER:
@@ -2271,9 +2271,7 @@ ItemExpr *BiRelat::bindNode(BindWA *bindWA) {
   const NAType &type1 = child(0)->castToItemExpr()->getValueId().getType();
   const NAType &type2 = child(1)->castToItemExpr()->getValueId().getType();
 
-  // Check and cast real type. If SqlCmd::doDescribeInput
-  // and Parser do same operation about float in future,
-  // the code following should be removed.
+
 
   auto child0isCol = (child(0)->getOperatorType() == ITM_BASECOLUMN || child(0)->getOperatorType() == ITM_INDEXCOLUMN);
   auto child1isCol = (child(1)->getOperatorType() == ITM_BASECOLUMN || child(1)->getOperatorType() == ITM_INDEXCOLUMN);
@@ -2399,8 +2397,8 @@ ItemExpr *BiRelat::bindNode(BindWA *bindWA) {
   NABoolean bInWhere = bindWA->getCurrentScope()->context()->inWhereClause();
   if (bInWhere) {
     const int PRECISON = 64;
-    Int32 nDynParamIdx = -1;
-    Int32 nNumericIdx = -1;
+    int nDynParamIdx = -1;
+    int nNumericIdx = -1;
     ItemExpr *ie1 = child(0);
     ItemExpr *ie2 = child(1);
     if ((ie1->getOperatorType() == ITM_DYN_PARAM || ie1->getOperatorType() == ITM_ROWSETARRAY_SCAN) &&
@@ -2501,7 +2499,7 @@ ItemExpr *BiRelat::bindNode(BindWA *bindWA) {
 
     if (child(0)->getOperatorType() == ITM_CONSTANT || child(1)->getOperatorType() == ITM_CONSTANT) {
       NABoolean checkRebind = FALSE;
-      Int32 cvExprIndex;
+      int cvExprIndex;
       if (child(1)->getOperatorType() == ITM_CONSTANT AND oper == ITM_EQUAL) {
         checkRebind = TRUE;
         cvExprIndex = 1;
@@ -2608,9 +2606,9 @@ static ItemExpr *ItemExpr_handleIncompatibleComparison(BindWA *bindWA, ItemExpr 
     // The check for the conditions under which this is allowed
     // has already been done in BiRelat::synthesizeType.
 
-    Int32 srcOpIndex = -1;  // index of src child
-    Int32 tgtOpIndex = -1;  // index of tgt child
-    Int32 conversion = 0;   // 0 = no conversion
+    int srcOpIndex = -1;  // index of src child
+    int tgtOpIndex = -1;  // index of tgt child
+    int conversion = 0;   // 0 = no conversion
                            // 1 = cast char to numeric
                            // 2 = cast char to date
                            // 3 = cast date to numeric
@@ -2967,7 +2965,7 @@ BiRelat *BiRelat::handleIncompatibleComparison(BindWA *bindWA) {
     child0->convertToValueIdList(vl0, bindWA, ITM_ITEM_LIST);
     child1->convertToValueIdList(vl1, bindWA, ITM_ITEM_LIST);
     if (vl0.entries() == vl1.entries())
-      for (Int32 i = 0; i < vl0.entries(); i++) {
+      for (int i = 0; i < vl0.entries(); i++) {
         ItemExpr *tmpChild0 = NULL;
         ItemExpr *tmpChild1 = NULL;
         ItemExpr *leftExpr = vl0[i].getItemExpr();
@@ -3297,7 +3295,7 @@ ItemExpr *Between::checkAndApplySubstrTransformation() {
 
   NAMemory *heap = CmpCommon::statementHeap();
 
-  Int32 column_len = 0;
+  int column_len = 0;
   NABoolean col_support_null = FALSE;
   int substr_len = 0;
 
@@ -3392,7 +3390,7 @@ ItemExpr *Between::checkAndApplySubstrTransformation() {
   // ----------------------------
 
   // Figure out the number of character 0x00 or 0xff to pad
-  Int32 chars_to_pad = column_len - substr_len;
+  int chars_to_pad = column_len - substr_len;
 
   // modify the Construct the new constant
   ConstValue *cv = (ConstValue *)literal1;
@@ -3503,12 +3501,12 @@ ItemExpr *BuiltinFunction::bindNode(BindWA *bindWA) {
     // want to allow specifying just an mvf or subquery of degree 2, we need
     // to change the parser...
 
-    Int32 childDegree = 0;
+    int childDegree = 0;
     Subquery *subq = NULL;
     UDFunction *udf = NULL;
-    Int32 origArity = getArity();
+    int origArity = getArity();
 
-    for (Int32 chld = 0; chld < origArity; chld++) {
+    for (int chld = 0; chld < origArity; chld++) {
       switch (child(chld)->getOperatorType()) {
         case ITM_ROW_SUBQUERY:
           subq = (Subquery *)child(chld)->castToItemExpr();
@@ -3794,7 +3792,7 @@ ItemExpr *BuiltinFunction::bindNode(BindWA *bindWA) {
   ///////////////////////////////////////////////////////////////////////
   NABoolean doCastFix = TRUE;
   if ((doCastFix) && (protectFromVEGs())) {
-    for (Int32 i = 0; i < ie->getArity(); i++) {
+    for (int i = 0; i < ie->getArity(); i++) {
       if ((child(i)) &&
           ((child(i)->getOperatorType() == ITM_REFERENCE) || (child(i)->getOperatorType() == ITM_BASECOLUMN))) {
         ItemExpr *newChild = new (bindWA->wHeap()) Cast(ie->child(i), &ie->child(i)->getValueId().getType());
@@ -3827,7 +3825,7 @@ ItemExpr *BuiltinFunction::bindNode(BindWA *bindWA) {
 ItemExpr *Modulus::bindNode(BindWA *bindWA) {
   if (nodeIsBound()) return getValueId().getItemExpr();
 
-  Int32 nPrecision1, nPrecision2, nScale1, nScale2;
+  int nPrecision1, nPrecision2, nScale1, nScale2;
 
   ItemExpr *tempBoundTree1 = child(0)->castToItemExpr()->bindNode(bindWA);
   ItemExpr *tempBoundTree2 = child(1)->castToItemExpr()->bindNode(bindWA);
@@ -3876,7 +3874,7 @@ ItemExpr *Modulus::bindNode(BindWA *bindWA) {
   // you can find out it on "ex_function_mod::eval"
   if (type_op1.isBigNum() || type_op2.isBigNum() || nPrecision1 + nScale2 > 18 ||
       nPrecision2 + nScale1 > 18) {  // we are processing big number cases here
-    Int32 tempPrecison;
+    int tempPrecison;
     char buf[100];
     ItemExpr *parseTree;
     Parser parser(bindWA->currentCmpContext());
@@ -4021,7 +4019,7 @@ ItemExpr *Concat::bindNode(BindWA *bindWA) {
 
   if (CmpCommon::getDefault(ALLOW_INCOMPATIBLE_OPERATIONS) == DF_ON) {
     // allow DATE, NUMERIC, NULL for all operands
-    for (Int32 idx = 0; idx < getArity(); idx++) {
+    for (int idx = 0; idx < getArity(); idx++) {
       const NAType &type = child(idx)->castToItemExpr()->getValueId().getType();
       ItemExpr *newChild = NULL;
 
@@ -4041,7 +4039,7 @@ ItemExpr *Concat::bindNode(BindWA *bindWA) {
       } else if (type.getTypeQualifier() == NA_NUMERIC_TYPE) {
         // trim will convert to string first
         newChild = new (bindWA->wHeap())
-            Trim((Int32)Trim::TRAILING, new (PARSERHEAP()) SystemLiteral(" ", WIDE_(" ")), child(idx));
+            Trim((int)Trim::TRAILING, new (PARSERHEAP()) SystemLiteral(" ", WIDE_(" ")), child(idx));
         newChild = newChild->bindNode(bindWA);
         if (bindWA->errStatus()) return this;
 
@@ -4055,12 +4053,12 @@ ItemExpr *Concat::bindNode(BindWA *bindWA) {
   if ((child(0)->getOperatorType() == ITM_DYN_PARAM || child(1)->getOperatorType() == ITM_DYN_PARAM) &&
       (type1.getCharSet() != type2.getCharSet())) {
     NAString cs = CmpCommon::getDefaultString(DYNAMIC_PARAM_DEFAULT_CHARSET);
-    for (Int32 idx = 0; idx < getArity(); idx++) {
+    for (int idx = 0; idx < getArity(); idx++) {
       const NAType &type = child(idx)->castToItemExpr()->getValueId().getType();
       ItemExpr *newChild = NULL;
       if (CharInfo::getCharSetEnum(cs) != type.getCharSet() && type.getCharSet() != CharInfo::UnknownCharSet) {
         if (type.getCharSet() == CharInfo::UTF8) continue;
-        Int32 nMode = find_translate_type(type.getCharSet(), CharInfo::UTF8);
+        int nMode = find_translate_type(type.getCharSet(), CharInfo::UTF8);
         ItemExpr *newChild = new (bindWA->wHeap()) Translate(child(idx), nMode);
         newChild = newChild->bindNode(bindWA);
         if (bindWA->errStatus()) return this;
@@ -4957,7 +4955,7 @@ ItemExpr *ItemExpr::bindUserInput(BindWA *bindWA, const NAType *type, const NASt
 // require a left-linear or right-linear backbone, any shape tree with
 // 0 or more nodes of type 'backboneType' on its top will work)
 // -----------------------------------------------------------------------
-Int32 ItemExpr::convertToValueIdList(ValueIdList &vl, BindWA *bindWA, OperatorTypeEnum backboneType, RelExpr *parent) {
+int ItemExpr::convertToValueIdList(ValueIdList &vl, BindWA *bindWA, OperatorTypeEnum backboneType, RelExpr *parent) {
   // use local stack to implement recursive calls
   stack<ItemExpr *> stk;
   ItemExpr *current_ie;
@@ -5115,7 +5113,7 @@ Int32 ItemExpr::convertToValueIdList(ValueIdList &vl, BindWA *bindWA, OperatorTy
 // require a left-linear or right-linear backbone, any shape tree with
 // 0 or more nodes of type 'backboneType' on its top will work)
 // -----------------------------------------------------------------------
-Int32 ItemExpr::convertToValueIdSet(ValueIdSet &vs, BindWA *bindWA, OperatorTypeEnum backboneType, NABoolean tfmSubq,
+int ItemExpr::convertToValueIdSet(ValueIdSet &vs, BindWA *bindWA, OperatorTypeEnum backboneType, NABoolean tfmSubq,
                                     NABoolean flattenLists) {
   //
   // convertToValueIdSet() used to be called recursively not just
@@ -5133,11 +5131,11 @@ Int32 ItemExpr::convertToValueIdSet(ValueIdSet &vs, BindWA *bindWA, OperatorType
   ARRAY(ItemExpr *) IEarray(HEAP, 10);  // Initially 10 elements (no particular reason to choose 10)
   ARRAY(Int16) state(HEAP, 10);         // These ARRAYs will grow automatically as needed.)
 
-  Int32 currIdx = 0;
+  int currIdx = 0;
   IEarray.insertAt(currIdx, this);  // Initialize first array element
   state.insertAt(currIdx, AVR_STATE0);
 
-  Int32 status = FALSE;
+  int status = FALSE;
 
   while (currIdx >= 0) {
     ItemExpr *currIE = IEarray[currIdx];
@@ -5410,9 +5408,9 @@ ItemExpr *Aggregate::bindNode(BindWA *bindWA) {
   CollIndex childDegree = 0;
   Subquery *subq = NULL;
   UDFunction *udf = NULL;
-  Int32 origArity = getArity();
+  int origArity = getArity();
 
-  for (Int32 chld = 0; chld < origArity; chld++) {
+  for (int chld = 0; chld < origArity; chld++) {
     switch (child(chld)->getOperatorType()) {
       case ITM_ROW_SUBQUERY:
       case ITM_USER_DEF_FUNCTION: {
@@ -5679,7 +5677,7 @@ ItemExpr *Variance::bindNode(BindWA *bindWA) {
 
   // Needed to do this check after binding our inputs in case we had
   // a MVF or subquery > 1 as an input.
-  const Int32 weighted = (getArity() >= 2);
+  const int weighted = (getArity() >= 2);
 
   // Variance/Stddev does not support both Distinct and Weighted simultaneously.
   //
@@ -5920,12 +5918,12 @@ ItemExpr *BiArith::bindNode(BindWA *bindWA) {
   bindChildren(bindWA);
   if (bindWA->errStatus()) return this;
 
-  Int32 childDegree = 0;
+  int childDegree = 0;
   Subquery *subq = NULL;
   UDFunction *udf = NULL;
-  Int32 origArity = getArity();
+  int origArity = getArity();
 
-  for (Int32 chld = 0; chld < origArity; chld++) {
+  for (int chld = 0; chld < origArity; chld++) {
     if (child(chld)->getOperatorType() == ITM_USER_DEF_FUNCTION) {
       udf = (UDFunction *)child(chld)->castToItemExpr();
       childDegree += udf->getRoutineDesc()->getOutputColumnList().entries();
@@ -6002,7 +6000,7 @@ ItemExpr *BiArith::bindNode(BindWA *bindWA) {
             sprintf(str, "CAST((@A1) AS INTERVAL DAY(%d))", maxDigits);
             interval_format = parser.getItemExprTree(str, strlen(str), BINDITEMEXPR_STMTCHARSET, 1, child(1));
           } else if (datetime->getTypeName() == "TIMESTAMP") {
-            Int32 timeScale = datetime->getScale();
+            int timeScale = datetime->getScale();
             // get the interval format from day to second of input param
             //                                        day                hour                             min sec(6)
             // interval_format = parser.getItemExprTree("floor(@A1) ||' '|| floor(MOD(@A1 * 24, 24)) ||':'||
@@ -6184,8 +6182,8 @@ ItemExpr *BiArith::bindNode(BindWA *bindWA) {
       setChild(1, newChild->bindNode(bindWA));
       if (bindWA->errStatus()) return this;
     } else {
-      Int32 srcChildIndex = -1;
-      Int32 otherChildIndex = -1;
+      int srcChildIndex = -1;
+      int otherChildIndex = -1;
       if (naType0->getTypeQualifier() == NA_CHARACTER_TYPE) {
         srcChildIndex = 0;
         otherChildIndex = 1;
@@ -6569,9 +6567,7 @@ ItemExpr *Assign::bindNode(BindWA *bindWA) {
       setChild(1, newChild->bindNode(bindWA));
       if (bindWA->errStatus()) return boundExpr;
     } else if (target->getFSDatatype() == REC_FLOAT32) {
-      // Check and cast real type. If SqlCmd::doDescribeInput
-      // and Parser do same operation about float in future,
-      // the code following should be removed.
+
       ItemExpr *realExpr = NULL;
       realExpr = new (bindWA->wHeap()) Cast(child(1), new (bindWA->wHeap()) SQLDoublePrecision(bindWA->wHeap(), TRUE));
       realExpr->bindNode(bindWA);
@@ -6886,7 +6882,7 @@ ItemExpr *Like::applyBeginEndKeys(BindWA *bindWA, ItemExpr *boundExpr, CollHeap 
     // CMPASSERT(matchCharType->getBytesPerChar() == 1);
 
     const char *escapeChar = NULL;
-    Int32 escapeChar_len = 0;
+    int escapeChar_len = 0;
     if (escapeNode) {
       CharInfo::CharSet cs = matchCharType->getCharSet();
       escapeChar_len = escapeNode->getRawText()->length();
@@ -6971,7 +6967,7 @@ ItemExpr *Like::applyBeginEndKeys(BindWA *bindWA, ItemExpr *boundExpr, CollHeap 
     }
 
     const char *pattern_str = 0;
-    Int32 pattern_str_len = 0;
+    int pattern_str_len = 0;
 
     pattern_str = patternNode->getRawText()->data();
     pattern_str_len = patternNode->getRawText()->length();
@@ -7016,7 +7012,7 @@ ItemExpr *Like::applyBeginEndKeys(BindWA *bindWA, ItemExpr *boundExpr, CollHeap 
       // N are converted to TRUE.
       // For nullable columns, the LIKE predicate is transformed to IS_NOT_NULL.
 
-      Int32 BytesInNonWildCardChars = getBytesInNonWildcardChars();
+      int BytesInNonWildCardChars = getBytesInNonWildcardChars();
       if (BytesInNonWildCardChars == 0) {
         if ((pattern.getNextHeader() && !pattern.getNextHeader()->getNextHeader() &&
              (pattern.getNextHeader()->getType() == LikePatternStringIterator::PERCENT) &&
@@ -8137,12 +8133,12 @@ ItemExpr *ColReference::bindNode(BindWA *bindWA) {
       char ii = ctxt->inItemList() ? 'i' : ' ';
       char jj = ctxt->inJoinPred() ? 'j' : ' ';
       char mm = ctxt->inMultaryPred() ? 'm' : ' ';
-      Int32 iia = ii == ' ' ? -99 : ctxt->inItemList()->getArity();
-      Int32 iic = ii == ' ' ? -99 : ctxt->inItemList()->currChildNo();
-      Int32 jja = jj == ' ' ? -99 : ctxt->inJoinPred()->getArity();
-      Int32 jjc = jj == ' ' ? -99 : ctxt->inJoinPred()->currChildNo();
-      Int32 mma = mm == ' ' ? -99 : ctxt->inMultaryPred()->getArity();
-      Int32 mmc = mm == ' ' ? -99 : ctxt->inMultaryPred()->currChildNo();
+      int iia = ii == ' ' ? -99 : ctxt->inItemList()->getArity();
+      int iic = ii == ' ' ? -99 : ctxt->inItemList()->currChildNo();
+      int jja = jj == ' ' ? -99 : ctxt->inJoinPred()->getArity();
+      int jjc = jj == ' ' ? -99 : ctxt->inJoinPred()->currChildNo();
+      int mma = mm == ' ' ? -99 : ctxt->inMultaryPred()->getArity();
+      int mmc = mm == ' ' ? -99 : ctxt->inMultaryPred()->currChildNo();
       cout << getColRefNameObj().getColRefAsAnsiString() << "	(" << ii << " " << iia << " " << iic << ") "
            << "	(" << jj << " " << jja << " " << jjc << ") "
            << "	(" << mm << " " << mma << " " << mmc << ") " << endl;
@@ -8656,7 +8652,7 @@ ItemExpr *Parameter::bindNode(BindWA *bindWA) {
       return this;
     }
 
-    setPMOrdPosAndIndex(bindWA->getCurrParamMode(), (Int32)bindWA->getCurrOrdinalPosition(), getHVorDPIndex());
+    setPMOrdPosAndIndex(bindWA->getCurrParamMode(), (int)bindWA->getCurrOrdinalPosition(), getHVorDPIndex());
     bindWA->addHVorDPToSPDups(this);
 
     if (!bindWA->getDupWarning() && bindWA->checkMultiOutSPParams(this)) {
@@ -8719,7 +8715,7 @@ ItemExpr *HostVar::bindNode(BindWA *bindWA) {
       return this;
     }
 
-    setPMOrdPosAndIndex(bindWA->getCurrParamMode(), (Int32)bindWA->getCurrOrdinalPosition(), hvIndex_);
+    setPMOrdPosAndIndex(bindWA->getCurrParamMode(), (int)bindWA->getCurrOrdinalPosition(), hvIndex_);
     bindWA->addHVorDPToSPDups(this);
 
     if (!bindWA->getDupWarning() && bindWA->checkMultiOutSPParams(this)) {
@@ -8975,7 +8971,7 @@ ItemExpr *CharLength::bindNode(BindWA *bindWA) {
 
   if (type1.getTypeQualifier() == NA_NUMERIC_TYPE) {
     ItemExpr *newChild = new (bindWA->wHeap())
-        Trim((Int32)Trim::TRAILING, new (bindWA->wHeap()) SystemLiteral(" ", WIDE_(" ")), child(0));
+        Trim((int)Trim::TRAILING, new (bindWA->wHeap()) SystemLiteral(" ", WIDE_(" ")), child(0));
 
     setChild(0, newChild);
   }
@@ -9115,7 +9111,7 @@ ItemExpr *OctetLength::bindNode(BindWA *bindWA) {
 
   if (type1.getTypeQualifier() == NA_NUMERIC_TYPE) {
     ItemExpr *newChild =
-        new (bindWA->wHeap()) Trim((Int32)Trim::TRAILING, new (PARSERHEAP()) SystemLiteral(" ", WIDE_(" ")), child(0));
+        new (bindWA->wHeap()) Trim((int)Trim::TRAILING, new (PARSERHEAP()) SystemLiteral(" ", WIDE_(" ")), child(0));
 
     setChild(0, newChild);
   }
@@ -9561,7 +9557,7 @@ ItemExpr *UDFunction::bindNode(BindWA *bindWA) {
   try {
     if (CmpCommon::getDefault(COMP_BOOL_191) == DF_OFF)  // temporary switch for
     {                                                    // real and old metadata.
-      Int32 catSchNameChosen = 1;                        // Will be set to 1, 2 or 3 based on
+      int catSchNameChosen = 1;                        // Will be set to 1, 2 or 3 based on
                                                          // which cat.sch or package action is found in.
 
       // Set functionName1 to current cat.sch - unless cat.sch specified.
@@ -9676,7 +9672,7 @@ ItemExpr *UDFunction::bindNode(BindWA *bindWA) {
       }
       // Remove -1001 through -1004 (not found errors) - the binder reports these.
       CollIndex i;
-      for (Int32 err = -1004; err <= -1001; err++)
+      for (int err = -1004; err <= -1001; err++)
         while ((i = CmpCommon::diags()->returnIndex(err)) != NULL_COLL_INDEX) CmpCommon::diags()->deleteError(i);
       // Remove -1389 (not found error)
       while ((i = CmpCommon::diags()->returnIndex(-1389)) != NULL_COLL_INDEX) CmpCommon::diags()->deleteError(i);
@@ -9736,7 +9732,7 @@ ItemExpr *UDFunction::bindNode(BindWA *bindWA) {
 
     // IS req 3, 7.3. Instantiate NARoutine object.
     // NARoutine data members will be assigned from udfMetadata.
-    Int32 errors = 0;
+    int errors = 0;
     NAString empty = "";
     if (CmpCommon::getDefault(COMP_BOOL_191) == DF_OFF)
       udf = new (routineHeap) NARoutine(functionName_, udfMetadata, bindWA, errors, routineHeap);
@@ -9771,15 +9767,15 @@ ItemExpr *UDFunction::bindNode(BindWA *bindWA) {
   // allocated when we insert into the List.
   ItemExprList *inParams =
       new (CmpCommon::statementHeap()) ItemExprList(udf->getInParamCount(), CmpCommon::statementHeap());
-  Int32 minUdfInputs = 0;
-  Int32 maxUdfInputs = udf->getInParamCount();
+  int minUdfInputs = 0;
+  int maxUdfInputs = udf->getInParamCount();
   // Check input and output arguments from the ROUTINE_PARAMS table.
   // Get expected num of inputs by checking if an argument is optional.
   // If inputs from ROUTINE_PARAMS do not match input arguments from
   // function, emit error.
   //
   NABoolean foundOptional = FALSE;
-  for (Int32 i = 0; i < maxUdfInputs; i++) {
+  for (int i = 0; i < maxUdfInputs; i++) {
     // Check if parameter specified as optional.  'i' should never
     // be out of range - based on assignment, however if it is, getColumn()
     // via NAList::operator[] will issue NAAbort().
@@ -9799,7 +9795,7 @@ ItemExpr *UDFunction::bindNode(BindWA *bindWA) {
   }
 
   // Make sure that outputs are not optional.
-  for (Int32 i = 0; i < udf->getOutParamCount(); i++) {
+  for (int i = 0; i < udf->getOutParamCount(); i++) {
     // Check to make sure output not spec'd as optional.  'i' should never
     // be out of range - based on assignment, however if it is, getColumn()
     // via NAList::operator[] will issue NAAbort().
@@ -9844,7 +9840,7 @@ ItemExpr *UDFunction::bindNode(BindWA *bindWA) {
     // REPLICAS, and TEXT metadata tables.
 
     // Set up routine params in routine descriptor.
-    for (Int32 i = 0; i < udf->getInParamCount(); i++) {
+    for (int i = 0; i < udf->getInParamCount(); i++) {
       // This will update the input params lists in the rdesc to
       // reflect those of the UDF.
       if (rdesc->createRoutineParam(bindWA, i, udf, &(rdesc->getUDFInParamColumnList()),
@@ -9855,20 +9851,20 @@ ItemExpr *UDFunction::bindNode(BindWA *bindWA) {
     }
 
     // Bind all the children, so we will know their output degree.
-    for (Int32 i = 0; i < getNumChildren(); i++) {
+    for (int i = 0; i < getNumChildren(); i++) {
       child(i).getPtr()->bindNode(bindWA);  // If 'i' out of range, will CMPASSERT.
       if (bindWA->errStatus()) return FALSE;
     }
     // Process UDF input arguments.  If an input argument is a subquery or UDF,
     // it may have multiple outputs.  In that case, we add to the inputs of the
     // UDF here by creating ValueIdProxy class for each added argument.
-    Int32 numInputs = 0;
-    for (Int32 i = 0; i < getNumChildren(); i++) {
+    int numInputs = 0;
+    for (int i = 0; i < getNumChildren(); i++) {
       ItemExpr *cmdArg = child(i).getPtr();  // If 'i' out of range, will CMPASSERT.
 
       // Function arguments are in descending order.
-      Int32 childOutputDegree = child(i).getPtr()->getOutputDegree();
-      for (Int32 j = 0; j < childOutputDegree; j++) {
+      int childOutputDegree = child(i).getPtr()->getOutputDegree();
+      for (int j = 0; j < childOutputDegree; j++) {
         if (childOutputDegree == 1)  // The argument only represents one input.
           // setInOrOutParam(rdesc, cmdArg, numInputs, COM_INPUT_COLUMN, bindWA);
           setInOrOutParam(rdesc, cmdArg, numInputs, COM_INPUT_COLUMN, inParams, bindWA);
@@ -9907,7 +9903,7 @@ ItemExpr *UDFunction::bindNode(BindWA *bindWA) {
       return this;
     } else {
       // Check output arguments against information in the COLS table.
-      for (Int32 i = 0; i < udf->getOutParamCount(); i++) {
+      for (int i = 0; i < udf->getOutParamCount(); i++) {
         // This will update the output params lists in the rdesc to
         // reflect those of the UDF.
         if (rdesc->createRoutineParam(bindWA, i + maxUdfInputs, udf, &(rdesc->getUDFInParamColumnList()),
@@ -9994,7 +9990,7 @@ ItemExpr *UDFunction::bindNode(BindWA *bindWA) {
 
   // Save off a copy of the chilren array
   ARRAY(ExprValueId) copyOfChildren(HEAP);
-  for (Int32 i = 0; i < getArity(); i++) copyOfChildren.insertAt(i, child(i));
+  for (int i = 0; i < getArity(); i++) copyOfChildren.insertAt(i, child(i));
 
   ItemExpr *retExpr = Function::bindNode(bindWA);
 
@@ -10004,7 +10000,7 @@ ItemExpr *UDFunction::bindNode(BindWA *bindWA) {
   // Make sure the number of parameters didn't change
   CCMPASSERT(copyOfChildren.entries() == getArity());
 
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     // If Function::bindNode() changed the child, update our inputVars
     if (child(i)->castToItemExpr() != copyOfChildren[i]->castToItemExpr()) {
       // If the new child still contains the old valueId, we don't need to
@@ -10059,7 +10055,7 @@ ItemExpr *UDFunction::bindNode(BindWA *bindWA) {
   return retExpr;
 }  // UDFunction::bindNode()
 
-void UDFunction::setInOrOutParam(RoutineDesc *routine, ItemExpr *argument, Int32 position, ComColumnDirection paramMode,
+void UDFunction::setInOrOutParam(RoutineDesc *routine, ItemExpr *argument, int position, ComColumnDirection paramMode,
                                  ItemExprList *inParams, BindWA *bindWA) {
   // This function is based on CallSP::setInOrOutParam().
   CollIndex ordinalPosition = position;
@@ -10161,7 +10157,7 @@ void UDFunction::setInOrOutParam(RoutineDesc *routine, ItemExpr *argument, Int32
     if (!(paramType == inputType)) {
       // First create a Translate node if the character sets are not identical
       if (throwInTranslateNode) {
-        Int32 tran_type = find_translate_type(inputCS, paramCS);
+        int tran_type = find_translate_type(inputCS, paramCS);
 
         ItemExpr *newTranslateChild = new (bindWA->wHeap()) Translate(boundExpr, tran_type);
         boundExpr = newTranslateChild->bindNode(bindWA);
@@ -10202,9 +10198,9 @@ ItemExpr *ValueIdUnion::bindNode(BindWA *bindWA) {
     const NAType &type1 = getLeftSource().getType();
     const NAType &type2 = getRightSource().getType();
 
-    Int32 srcChildIndex = -1;
-    Int32 otherChildIndex = -1;
-    Int32 convType = -1;
+    int srcChildIndex = -1;
+    int otherChildIndex = -1;
+    int convType = -1;
     if ((type1.getTypeQualifier() == NA_NUMERIC_TYPE) && (DFS2REC::isCharacterString(type2.getFSDatatype()))) {
       // convert leftSource(NUMERIC) to char type
       srcChildIndex = 0;
@@ -10281,16 +10277,16 @@ ItemExpr *ValueIdUnion::bindNode(BindWA *bindWA) {
 ItemExpr *ValueIdUnion::tryToDoImplicitCasting(BindWA *bindWA) {
   const NAType *entryType;
   CharInfo::CharSet savedMostGeneral_CS = CharInfo::UnknownCharSet;
-  Int32 savedMaxLen = 0;
-  Int32 getBytesPerChar = 0;
-  Int32 getStrCharLimit = 0;
+  int savedMaxLen = 0;
+  int getBytesPerChar = 0;
+  int getStrCharLimit = 0;
   NABoolean savedAllowNull = FALSE;
   NABoolean savedUpShifted = TRUE;
   NABoolean savedCaseInsensitive = TRUE;
   CharInfo::Collation savedCollation = CharInfo::DefaultCollation;
 
   enum { iUCS2 = 0, iISO = 1, iUTF8 = 2, iSJIS = 3, iUNK = 4 };
-  Int32 charsets_involved[5] = {0, 0, 0, 0, 0};
+  int charsets_involved[5] = {0, 0, 0, 0, 0};
   CollIndex i = 0;
 
   //
@@ -10305,10 +10301,10 @@ ItemExpr *ValueIdUnion::tryToDoImplicitCasting(BindWA *bindWA) {
 
       Int16 maxLen = ctI->getMaxLenInBytesOrNAWChars();
 
-      Int32 maxgetBytesPerChar = ctI->getBytesPerChar();
+      int maxgetBytesPerChar = ctI->getBytesPerChar();
       getBytesPerChar = (getBytesPerChar > maxgetBytesPerChar ? getBytesPerChar : maxgetBytesPerChar);
 
-      Int32 maxgetStrCharLimit = ctI->getStrCharLimit();
+      int maxgetStrCharLimit = ctI->getStrCharLimit();
       getStrCharLimit = (getStrCharLimit > maxgetStrCharLimit ? getStrCharLimit : maxgetStrCharLimit);
 
       if (savedMaxLen < maxLen) savedMaxLen = maxLen;
@@ -10355,8 +10351,8 @@ ItemExpr *ValueIdUnion::tryToDoImplicitCasting(BindWA *bindWA) {
     }
   }
 
-  Int32 charsetsCount = 0;
-  for (Int32 j = 0; j < iUNK; j++)
+  int charsetsCount = 0;
+  for (int j = 0; j < iUNK; j++)
     if (charsets_involved[j] > 0) charsetsCount++;
   if (charsetsCount <= 1) return this;
   CMPASSERT(savedMostGeneral_CS != CharInfo::UnknownCharSet);  // Shouldn't happen since charsetsCount > 1
@@ -10379,7 +10375,7 @@ ItemExpr *ValueIdUnion::tryToDoImplicitCasting(BindWA *bindWA) {
       if (ctI->getCharSet() != savedMostGeneral_CS) {
         // Do Implicit Cast to the Most General Character Set
         //
-        Int32 iTranslateFromTo = find_translate_type(ctI->getCharSet(), savedMostGeneral_CS);
+        int iTranslateFromTo = find_translate_type(ctI->getCharSet(), savedMostGeneral_CS);
         if (iTranslateFromTo == Translate::UNKNOWN_TRANSLATION) continue;  // Just skip this entry!
 
         ValueId vidi = getSource(i);
@@ -10413,8 +10409,8 @@ ItemExpr *ValueIdUnion::tryToDoImplicitCasting(BindWA *bindWA) {
 // if the padding string is not a varchar. The method returns -2 is there is an error
 // and -1 if the length is a varchar or for some other reason the length cannot
 // be determined.
-Int32 ZZZBinderFunction::getPadStringLength(ItemExpr *padExpr, BindWA *bindWA) {
-  Int32 padStringLength = -1;
+int ZZZBinderFunction::getPadStringLength(ItemExpr *padExpr, BindWA *bindWA) {
+  int padStringLength = -1;
   if (padExpr) {
     ItemExpr *tempPadString = padExpr->castToItemExpr()->bindNode(bindWA);
     if (bindWA->errStatus()) return -2;
@@ -10433,8 +10429,8 @@ Int32 ZZZBinderFunction::getPadStringLength(ItemExpr *padExpr, BindWA *bindWA) {
 // if the second argument is a constant that is not null.
 // The method returns -2 is there is an error
 // and -1 if max-len is an expression or null.
-Int32 ZZZBinderFunction::getPadLength(ItemExpr *padLengthExpr, BindWA *bindWA) {
-  Int32 padLengthMax = -1;
+int ZZZBinderFunction::getPadLength(ItemExpr *padLengthExpr, BindWA *bindWA) {
+  int padLengthMax = -1;
   if (padLengthExpr) {
     ItemExpr *tempPadLength = padLengthExpr->bindNode(bindWA);
     if (bindWA->errStatus()) return -2;
@@ -10453,7 +10449,7 @@ Int32 ZZZBinderFunction::getPadLength(ItemExpr *padLengthExpr, BindWA *bindWA) {
       ConstValue *cv = tempPadLength->castToConstValue(negate);
       if (!cv->isNull()) {
         if (cv->canGetExactNumericValue()) {
-          padLengthMax = (Int32)cv->getExactNumericValue();
+          padLengthMax = (int)cv->getExactNumericValue();
           if (padLengthMax > CmpCommon::getDefaultNumeric(TRAF_MAX_CHARACTER_COL_LENGTH)) {
             *CmpCommon::diags() << DgSqlCode(-4129) << DgString0(getTextUpper());
             bindWA->setErrStatus();
@@ -10491,7 +10487,7 @@ NABoolean ZZZBinderFunction::isPadWithSpace(ExprValueId &padExpr, CharInfo::Char
   if ((padExpr->castToItemExpr()->getOperatorType() == ITM_CONSTANT) &&
       (!((ConstValue *)padExpr->castToItemExpr())->getText().isNull())) {
     NAString padString(((ConstValue *)padExpr->castToItemExpr())->getConstStr(FALSE));
-    Int32 i = 0;
+    int i = 0;
     NABoolean foundSingleQuote = FALSE;
     for (const char *s = padString.data(); *s; s++) {
       i++;
@@ -10884,9 +10880,9 @@ ItemExpr *ZZZBinderFunction::bindNode(BindWA *bindWA) {
     } break;
 
     case ITM_DECODE: {
-      Int32 savedCurrChildNo = currChildNo();
+      int savedCurrChildNo = currChildNo();
 
-      for (Int32 i = 0; i < getArity(); i++, currChildNo()++) {
+      for (int i = 0; i < getArity(); i++, currChildNo()++) {
         ItemExpr *boundExpr = child(i)->bindNode(bindWA);
         child(i) = boundExpr;
       }
@@ -10908,7 +10904,7 @@ ItemExpr *ZZZBinderFunction::bindNode(BindWA *bindWA) {
       IfThenElse *firstITE = NULL;
       IfThenElse *currITE = NULL;
 
-      Int32 numExprs = decodeList.entries();
+      int numExprs = decodeList.entries();
 
       if (numExprs < 3) {
         *CmpCommon::diags() << DgSqlCode(-15001) << DgString0(")");
@@ -11034,7 +11030,7 @@ ItemExpr *ZZZBinderFunction::bindNode(BindWA *bindWA) {
     } break;
 
     case ITM_LPAD: {
-      Int32 padStringLength = 0;
+      int padStringLength = 0;
       ItemExpr *tempBoundTree0 = NULL;
       ItemExpr *tempBoundTree2 = NULL;
       if (child(0)) {
@@ -11113,7 +11109,7 @@ ItemExpr *ZZZBinderFunction::bindNode(BindWA *bindWA) {
                "END, 1, @A2 ) ;");
       } else {
         // pad with the third param.
-        Int32 lpadLength = getPadLength(child(1)->castToItemExpr(), bindWA);
+        int lpadLength = getPadLength(child(1)->castToItemExpr(), bindWA);
         if (bindWA->errStatus()) return this;
 
         // If result size needed is less than some threshold, use fast path
@@ -11168,7 +11164,7 @@ ItemExpr *ZZZBinderFunction::bindNode(BindWA *bindWA) {
             // pattern string and the column must be the same type - an error
             // would occur otherwise at compile-time.
 
-            Int32 maxRepeatLength = lpadLength;
+            int maxRepeatLength = lpadLength;
 
             if (parseTree && parseTree->getOperatorType() == ITM_SUBSTR) {
               NAList<int> childNumList(CmpCommon::statementHeap(), 7);
@@ -11315,8 +11311,8 @@ ItemExpr *ZZZBinderFunction::bindNode(BindWA *bindWA) {
     } break;
 
     case ITM_RPAD: {
-      Int32 padStringLength = 0;
-      Int32 rpadLength = -3;  // -2, -1 and 0 have a distinct meaning, see
+      int padStringLength = 0;
+      int rpadLength = -3;  // -2, -1 and 0 have a distinct meaning, see
       // comment near function definition.
       ItemExpr *tempBoundTree0;
       ItemExpr *tempBoundTree2;
@@ -11446,7 +11442,7 @@ ItemExpr *ZZZBinderFunction::bindNode(BindWA *bindWA) {
       } else {
         // pad with the third param.
 
-        Int32 rpadLength = getPadLength(child(1)->castToItemExpr(), bindWA);
+        int rpadLength = getPadLength(child(1)->castToItemExpr(), bindWA);
         if (bindWA->errStatus()) return this;
 
         // If result size needed is less than some threshold, use fast path
@@ -11493,7 +11489,7 @@ ItemExpr *ZZZBinderFunction::bindNode(BindWA *bindWA) {
             // pattern string and the column must be the same type - an error
             // would occur otherwise at compile-time.
 
-            Int32 maxRepeatLength = rpadLength;
+            int maxRepeatLength = rpadLength;
 
             if (parseTree && parseTree->getOperatorType() == ITM_SUBSTR) {
               NAList<int> childNumList(CmpCommon::statementHeap(), 6);
@@ -11967,7 +11963,7 @@ ItemExpr *ZZZBinderFunction::bindNode(BindWA *bindWA) {
         buf[0] = 0;
         if ((roundTo >= 0) && (type_op1.getScale() > roundTo)) {
           denom = 1;
-          Int32 i = (type_op1.getScale() - roundTo);
+          int i = (type_op1.getScale() - roundTo);
           while (i > 0) {
             denom = denom * 10;
             i--;
@@ -12270,8 +12266,8 @@ ItemExpr *ZZZBinderFunction::bindNode(BindWA *bindWA) {
         // the result type/precision/scale should be.
         // Give default precision/scale to cover most of cases.
         // Max out precision at max bignum precision supported.
-        Int32 scale = 6;  // default scale of 6
-        Int32 precision = MAXOF(type_op1.getNominalSize() + scale, MAX_NUMERIC_PRECISION);
+        int scale = 6;  // default scale of 6
+        int precision = MAXOF(type_op1.getNominalSize() + scale, MAX_NUMERIC_PRECISION);
         precision = MINOF(precision, (UInt32)CmpCommon::getDefaultNumeric(MAX_NUMERIC_PRECISION_ALLOWED));
 
         str_sprintf(buf, "CAST(@A1 as NUMERIC(%d, %d));", precision, scale);
@@ -13434,7 +13430,7 @@ ItemExpr *HbaseRowid::bindNode(BindWA *bindWA) {
   const NAColumnArray &indexColumns = ciFileSet->getIndexKeyColumns();
 
   rowidLen_ = 0;
-  for (Int32 i = 0; i < indexColumns.entries(); i++) {
+  for (int i = 0; i < indexColumns.entries(); i++) {
     NAColumn *col = indexColumns[i];
 
     rowidLen_ += col->getType()->getNominalSize();
@@ -13533,7 +13529,7 @@ ItemExpr *HbaseRowidRef::bindNode(BindWA *bindWA) {
 
   // find a column for ROWID function
   if (col() == NULL) {
-    Int32 idx = 0;
+    int idx = 0;
 
     if (corrName_ == NULL) {
       // multi tables found, then ROWID is ambiguous
@@ -13733,8 +13729,8 @@ ItemExpr *RowNumFunc::bindNode(BindWA *bindWA) {
 }  // RowNumFunc::bindNode
 
 NABoolean ItemExpr::canBeUsedInGBorOB(NABoolean setErr) {
-  Int32 arity = getArity();
-  for (Int32 i = 0; i < arity; i++) {
+  int arity = getArity();
+  for (int i = 0; i < arity; i++) {
     ItemExpr *ieChild = child(i);
     if (NOT ieChild->canBeUsedInGBorOB(setErr)) return FALSE;
   }

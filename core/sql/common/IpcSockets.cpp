@@ -46,7 +46,7 @@
 // #define LOG_IPC
 
 #ifdef LOG_IPC
-void IpcSockLogTimestamp(Int32 fdesc);  // see bottom of file
+void IpcSockLogTimestamp(int fdesc);  // see bottom of file
 #endif
 
 #ifndef DISABLE_SOCKET_IPC
@@ -55,7 +55,7 @@ void IpcSockLogTimestamp(Int32 fdesc);  // see bottom of file
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
-const Int32 SOCKET_ERROR = -1;
+const int SOCKET_ERROR = -1;
 typedef size_t length_t;
 
 #include <errno.h>
@@ -115,12 +115,12 @@ SockConnection *SockConnection::castToSockConnection() {
   return NULL;
 }
 
-Int32 SockConnection::numQueuedSendMessages() {
+int SockConnection::numQueuedSendMessages() {
   ABORT("Stub for int SockConnection::numQueuedSendMessages()");
   return 0;
 }
 
-Int32 SockConnection::numQueuedReceiveMessages() {
+int SockConnection::numQueuedReceiveMessages() {
   ABORT("Stub for int SockConnection::numQueuedReceiveMessages()");
   return 0;
 }
@@ -177,7 +177,7 @@ SockErrNo SockIPAddress::set(const char *hostName) {
 // -----------------------------------------------------------------------
 // Methods for class SockErrNo
 // -----------------------------------------------------------------------
-Int32 SockErrNo::setFromerrno() {
+int SockErrNo::setFromerrno() {
 #ifdef NA_ERRNO_AS_PROCEDURE
   ... insert code for GUARDIAN style errno here
 #else
@@ -296,7 +296,7 @@ SockSocket::~SockSocket() {
 SockPortNumber SockSocket::bindOrConnect(const SockIPAddress &ipAddr, SockPortNumber port, NABoolean bindOnly) {
   struct sockaddr targetSockAddr;
   SockPortNumber result = port;
-  Int32 retcode;
+  int retcode;
 
   lastError_.clear();
 
@@ -309,7 +309,7 @@ SockPortNumber SockSocket::bindOrConnect(const SockIPAddress &ipAddr, SockPortNu
   targetSockAddr.sa_data[3] = ipAddr.a_.ipAddress_[1];
   targetSockAddr.sa_data[4] = ipAddr.a_.ipAddress_[2];
   targetSockAddr.sa_data[5] = ipAddr.a_.ipAddress_[3];
-  for (Int32 i = 6; i < 14; i++) targetSockAddr.sa_data[i] = 0;
+  for (int i = 6; i < 14; i++) targetSockAddr.sa_data[i] = 0;
 
   // this code depends on the definition of sockaddr, make sure
   // we don't do the wrong thing
@@ -367,13 +367,13 @@ SockPortNumber SockSocket::receiveListnerPortNum() {
   // Listening to port xxxxxxxxxxx\n
   // 012345678901234567890123456789
 
-  const Int32 numCharsInListnerMsg = 30;
-  const Int32 numCharsInPrefix = 18;
+  const int numCharsInListnerMsg = 30;
+  const int numCharsInPrefix = 18;
 
   char listnerMsg[numCharsInListnerMsg];
 
   // wait for the server to send the port number and read it into a buffer
-  Int32 receivedBytes = recv(fdesc_, listnerMsg, numCharsInListnerMsg, 0);
+  int receivedBytes = recv(fdesc_, listnerMsg, numCharsInListnerMsg, 0);
 
   // make sure we got the right message
   short temp = str_cmp(listnerMsg, "Listening to port ", numCharsInPrefix);
@@ -434,7 +434,7 @@ NABoolean SockSocket::send(IpcMessageBuffer *message, IpcTimeout timeout) {
     timeOutVal.tv_sec = timeout / 100;
     timeOutVal.tv_usec = timeout % 100;
 
-    Int32 retcode = select(FD_SETSIZE, NULL, &readyDescriptors, NULL, &timeOutVal);
+    int retcode = select(FD_SETSIZE, NULL, &readyDescriptors, NULL, &timeOutVal);
 
     if (retcode < 0) {
       // indicate an error by returning TRUE and setting the error status
@@ -452,7 +452,7 @@ NABoolean SockSocket::send(IpcMessageBuffer *message, IpcTimeout timeout) {
   // call ::send until all of the data is sent (do it waited from here)
   // ---------------------------------------------------------------------
   while (bytesToSend > 0 AND NOT lastError_.hasError()) {
-    bytesSentThisTime = ::send(fdesc_, message->data(bytesSentSoFar), (Int32)bytesToSend, 0);
+    bytesSentThisTime = ::send(fdesc_, message->data(bytesSentSoFar), (int)bytesToSend, 0);
     if (bytesSentThisTime <= 0) {
       setFromerrno("::send()");
     } else {
@@ -531,7 +531,7 @@ NABoolean SockSocket::receive(IpcMessageBuffer *&message, IpcTimeout timeout) {
       timeOutVal.tv_usec = timeout % 100;
 
       timeval *tt = (timeval *)&timeOutVal;
-      Int32 retcode = select(FD_SETSIZE, &readyDescriptors, NULL, NULL, tt);
+      int retcode = select(FD_SETSIZE, &readyDescriptors, NULL, NULL, tt);
 
       if (retcode < 0) {
         // indicate an error by returning TRUE and length 0
@@ -554,7 +554,7 @@ NABoolean SockSocket::receive(IpcMessageBuffer *&message, IpcTimeout timeout) {
     }  // non-infinite timeout
 
     receivedBytesThisTime =
-        recv(fdesc_, &sockReceiveBuffer[receivedBytesSoFar_], (Int32)(expectedBytes_ - receivedBytesSoFar_), 0);
+        recv(fdesc_, &sockReceiveBuffer[receivedBytesSoFar_], (int)(expectedBytes_ - receivedBytesSoFar_), 0);
 
     if (receivedBytesThisTime <= 0) {
       setFromerrno("::recv()");
@@ -649,7 +649,7 @@ NABoolean SockSocket::accept(SockFdesc &fdesc, IpcTimeout timeout) {
     timeOutVal.tv_sec = timeout / 100;
     timeOutVal.tv_usec = timeout % 100;
 
-    Int32 retcode = select(FD_SETSIZE, &readyDescriptors, NULL, NULL, &timeOutVal);
+    int retcode = select(FD_SETSIZE, &readyDescriptors, NULL, NULL, &timeOutVal);
 
     if (retcode < 0) {
       // indicate an error by returning TRUE and setting the error
@@ -668,7 +668,7 @@ NABoolean SockSocket::accept(SockFdesc &fdesc, IpcTimeout timeout) {
   socklen_t addrlen = sizeof(clientSockAddr);
 
   // call the accept() system call, waiting until a client wants to connect
-  Int32 retcode = ::accept(fdesc_, &clientSockAddr, &addrlen);
+  int retcode = ::accept(fdesc_, &clientSockAddr, &addrlen);
 
   if (retcode >= 0) {
     // for successful calls, accept() returns the file descriptor
@@ -771,7 +771,7 @@ SockConnection::SockConnection(IpcEnvironment *env, SockFdesc fdesc, NABoolean i
 
 SockConnection::~SockConnection() {
   // deallocate ioq entries
-  for (Int32 i = 0; i < (Int32)ioq_.entries(); i++) {
+  for (int i = 0; i < (int)ioq_.entries(); i++) {
     getEnvironment()->getHeap()->deallocateMemory(ioq_[i]);
   }
 }
@@ -805,7 +805,7 @@ void SockConnection::send(IpcMessageBuffer *buffer) {
     replyTag = buffer->getReplyTag();
 
     // find the correct reply tag in the I/O queue
-    for (Int32 i = 0; i < (Int32)ioq_.entries() AND sendEntry == NULL; i++) {
+    for (int i = 0; i < (int)ioq_.entries() AND sendEntry == NULL; i++) {
       if (ioq_[i]->replyTag_ == replyTag) sendEntry = ioq_[i];
     }
     assert(sendEntry AND sendEntry->recvBuffer_ == NULL AND NOT sendEntry->receiving_);
@@ -845,7 +845,7 @@ void SockConnection::receive(IpcMessageStreamBase *msg) {
   if (isClient_) {
     // in the client, find the send I/O that was issued by this message
     // stream
-    for (Int32 i = 0; i < (Int32)ioq_.entries() AND receiveEntry == NULL; i++) {
+    for (int i = 0; i < (int)ioq_.entries() AND receiveEntry == NULL; i++) {
       if (ioq_[i]->msg_ == msg) receiveEntry = ioq_[i];
     }
     // make sure there is an entry that has been sent already
@@ -877,7 +877,7 @@ WaitReturnStatus SockConnection::wait(IpcTimeout timeout, UInt32 *eventConsumed,
 
   // loop over the I/O queue and try to receive some messages and try
   // to call callbacks
-  for (Int32 i = 0; i < (Int32)ioq_.entries(); i++) {
+  for (int i = 0; i < (int)ioq_.entries(); i++) {
     socketIOQueueEntry *e = ioq_[i];
 
     if (e->receiving_) {
@@ -906,7 +906,7 @@ WaitReturnStatus SockConnection::wait(IpcTimeout timeout, UInt32 *eventConsumed,
           // in the client, use the reply tag to find the associated
           // entry
           NABoolean found = FALSE;
-          for (Int32 j = 0; j < (Int32)ioq_.entries() AND NOT found; j++) {
+          for (int j = 0; j < (int)ioq_.entries() AND NOT found; j++) {
             if (ioq_[j]->replyTag_ == replyTag) {
               e = ioq_[j];
               found = TRUE;
@@ -1002,14 +1002,14 @@ WaitReturnStatus SockConnection::wait(IpcTimeout timeout, UInt32 *eventConsumed,
 
 SockConnection *SockConnection::castToSockConnection() { return this; }
 
-Int32 SockConnection::numQueuedSendMessages() {
+int SockConnection::numQueuedSendMessages() {
   // the current implementation assumes that no messages can
   // be queued and that only one message can be sent nowait
   assert(sendQueueEntries() == 0 OR sendQueueEntries() == 1 AND sendIOPending());
   return sendQueueEntries();
 }
 
-Int32 SockConnection::numQueuedReceiveMessages() {
+int SockConnection::numQueuedReceiveMessages() {
   // the current implementation assumes that no messages can
   // be queued and that only one message can be received nowait
   assert(receiveQueueEntries() == 0 OR receiveQueueEntries() == 1 AND receiveIOPending());
@@ -1053,7 +1053,7 @@ SockPortNumber SockConnection::connect(const SockIPAddress &ipAddr, SockPortNumb
 void SockConnection::tryToSendMore() {
   // while there are unsent entries left, try to send them if the socket
   // is ready
-  for (Int32 i = 0; i < (Int32)ioq_.entries(); i++) {
+  for (int i = 0; i < (int)ioq_.entries(); i++) {
     // can we send the message in this io queue entry?
     if (NOT ioq_[i]->sent_ AND ioq_[i]->sendBuffer_) {
       // try to send the next message
@@ -1158,7 +1158,7 @@ SockControlConnection::SockControlConnection(IpcEnvironment *env, const char *ey
   cout << "Listening to port " << setw(11) << listnerPortNum_ << "\n" << flush;
 }
 
-SockControlConnection::SockControlConnection(IpcEnvironment *env, Int32 inheritedSocket, Int32 passedPort,
+SockControlConnection::SockControlConnection(IpcEnvironment *env, int inheritedSocket, int passedPort,
                                              const char *eye)
     : IpcControlConnection(IPC_DOM_INTERNET), listnerSocket_(env) {
   assert(0);
@@ -1202,7 +1202,7 @@ IpcConnection *IpcServerClass::forkProcess(ComDiagsArea **diags, CollHeap *diags
                                            const char *className, IpcCpuNum /*cpuNum*/,
                                            NABoolean /*usesTransactions*/) {
   IpcConnection *result = NULL;
-  Int32 serverPid;
+  int serverPid;
   SockPairConnection *sockPairServerConn;
   SockPairConnection *clientConn;
 
@@ -1253,7 +1253,7 @@ IpcConnection *IpcServerClass::forkProcess(ComDiagsArea **diags, CollHeap *diags
 }
 
 #ifdef LOG_IPC
-void IpcSockLogTimestamp(Int32 fdesc) { cerr << getpid() << "(" << fdesc << ") "; }
+void IpcSockLogTimestamp(int fdesc) { cerr << getpid() << "(" << fdesc << ") "; }
 #endif
 
 #endif /* DISABLE_SOCKET_IPC */

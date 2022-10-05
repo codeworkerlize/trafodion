@@ -50,7 +50,7 @@ class UdrGlobals;
 // for each column to generate Proxy Syntax. Right now we are interested in
 // SQLDESC_CATALOG_NAME, SQLDESC_SCHEMA_NAME, SQLDESC_TABLE_NAME,
 // SQLDESC_NAME, SQLDESC_TEXT_FORMAT, SQLDESC_HEADING, SQLDESC_NULLABLE
-const Int32 NUMDESC_ITEMS = 7;
+const int NUMDESC_ITEMS = 7;
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -213,7 +213,7 @@ class UdrResultSet : public NABasicObject {
   // mutators
   void setState(RSState state) { state_ = state; }
   // Reinitialize the object. columnDesc_ will not be changed.
-  Int32 reInit(LmResultSet *lmRS, ComDiagsArea &d, SQLSTMT_ID *stmt_id = NULL);
+  int reInit(LmResultSet *lmRS, ComDiagsArea &d, SQLSTMT_ID *stmt_id = NULL);
 
   // Prepare for reinvoke
   // Deallocates and run cleanup methods on the non-reusable fields
@@ -265,11 +265,11 @@ class UdrResultSet : public NABasicObject {
   SQLSTMT_ID *copyStatementID(SQLSTMT_ID *stmt_id, NABoolean resetStmtInfo = TRUE);
 
   // Context setting methods
-  Int32 setContext(SQLCTX_HANDLE &oldCtx, ComDiagsArea &d);
-  Int32 resetContext(SQLCTX_HANDLE ctxHandle, ComDiagsArea &d);
+  int setContext(SQLCTX_HANDLE &oldCtx, ComDiagsArea &d);
+  int resetContext(SQLCTX_HANDLE ctxHandle, ComDiagsArea &d);
 
   // Populates proxySyntax_ field
-  Int32 generateProxySyntax(ComDiagsArea &d);
+  int generateProxySyntax(ComDiagsArea &d);
 
   // Allocates and populates rsColumnDesc_ & rsColDescForLM_ fields
   void populateColumnDesc(UdrParameterInfo *paramInfo);

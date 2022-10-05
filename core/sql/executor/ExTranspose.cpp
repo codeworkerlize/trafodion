@@ -123,7 +123,7 @@ ExTransposeTcb::ExTransposeTcb(const ExTransposeTdb &transTdbLocal, const ex_tcb
 
   // The transpose expressions.
   //
-  for (Int32 i = 0; i < transTdb().numTransExprs_; i++) {
+  for (int i = 0; i < transTdb().numTransExprs_; i++) {
     if (transTdb().transColExprs_[i])
       transTdb().transColExprs_[i]->fixup(0, getExpressionMode(), this, glob->getSpace(), glob->getDefaultHeap(), FALSE,
                                           glob);
@@ -396,7 +396,7 @@ ExWorkProcRetcode ExTransposeTcb::workUp() {
 
       } else {
         ex_expr::exp_return_type retCode = ex_expr::EXPR_TRUE;
-        Int32 cancelled = FALSE;
+        int cancelled = FALSE;
 
         // While we still have expressions to apply to the current
         // child entry and the parent can accept rows.

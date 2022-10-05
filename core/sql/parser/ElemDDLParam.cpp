@@ -70,7 +70,7 @@ ElemDDLParamDef *ElemDDLParamDef::castToElemDDLParamDef() { return this; }
 //
 
 // get the degree of this node
-Int32 ElemDDLParamDef::getArity() const { return MAX_ELEM_DDL_PARAM_DEF_ARITY; }
+int ElemDDLParamDef::getArity() const { return MAX_ELEM_DDL_PARAM_DEF_ARITY; }
 
 ExprNode *ElemDDLParamDef::getChild(int index) {
   ComASSERT(FALSE);  // No child node exists -- should not call this.

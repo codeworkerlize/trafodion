@@ -74,7 +74,7 @@
 // helper functions used by Aggregate::codeGen() and
 // Aggregate::code_gen_set_attributes()
 ////////////////////////////////////////////////////////////////////////////
-void findnumleaves(ItemExpr *exp, Int32 &degree) {
+void findnumleaves(ItemExpr *exp, int &degree) {
   for (short i = 0; i < exp->getArity(); i++) {
     if (exp->child(i)->getOperatorType() != ITM_ITEM_LIST)
       ++degree;
@@ -83,7 +83,7 @@ void findnumleaves(ItemExpr *exp, Int32 &degree) {
   }
 }  // findnumleaves()
 
-void collectAttributes(ItemExpr *exp, int degree, Int32 &counter, Attributes **attr, Generator *generator) {
+void collectAttributes(ItemExpr *exp, int degree, int &counter, Attributes **attr, Generator *generator) {
   GenAssert((counter <= degree), "Row attributes not set properly");
 
   for (short i = 0; i < exp->getArity(); i++) {
@@ -126,7 +126,7 @@ void Aggregate::codegen_and_set_attributes(Generator *generator, Attributes **at
     // note that variable num_attrs gives the number of leaves,
     // but not the arity
 
-    Int32 counter = 0;
+    int counter = 0;
     collectAttributes(this, num_attrs, counter, attr, generator);
   }
 }  // Aggregate::codegen_and_set_attributes()
@@ -147,7 +147,7 @@ short Aggregate::codeGen(Generator *generator) {
 
   switch (getOperatorType()) {
     case ITM_ONE_ROW: {
-      Int32 degree = 0;
+      int degree = 0;
       findnumleaves(this, degree);  // degree has number of leaves in the tree
 
       if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + degree), -1) == 1) return 0;
@@ -178,7 +178,7 @@ short Aggregate::codeGen(Generator *generator) {
       NABoolean nativeByteOrder = generator->bloomFilterUseNativeByteOrder();
 
       // Apply the max entries threshold only for the INSERT operation.
-      Int32 maxEntries = (getOperatorType() == ITM_RANGE_VALUES_INSERT)
+      int maxEntries = (getOperatorType() == ITM_RANGE_VALUES_INSERT)
                              ? ActiveSchemaDB()->getDefaults().getAsLong(RANGE_OPTIMIZED_SCAN_MAX_NUM_KEYS)
                              : -1;
 
@@ -358,7 +358,7 @@ void markGeneratedEntries(Generator *generator, ItemExpr *item, ValueIdSet &mark
 
     if (mapInfo && mapInfo->isCodeGenerated()) marks += item->getValueId();
 
-    for (Int32 i = 0; i < item->getArity(); i++) {
+    for (int i = 0; i < item->getArity(); i++) {
       markGeneratedEntries(generator, item->child(i), marks);
     }
   }
@@ -377,7 +377,7 @@ void unGenerate(Generator *generator, ItemExpr *item) {
 
     if (mapInfo) mapInfo->resetCodeGenerated();
 
-    for (Int32 i = 0; i < item->getArity(); i++) {
+    for (int i = 0; i < item->getArity(); i++) {
       unGenerate(generator, item->child(i));
     }
   }

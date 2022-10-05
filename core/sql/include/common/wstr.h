@@ -52,7 +52,7 @@
 // return 0 if left == right,
 // return a positive value if left > right.
 // -----------------------------------------------------------------------
-Int32 compareWcharWithBlankPadding(const NAWchar *wstr1, UInt32 len1, const NAWchar *wstr2, UInt32 len2);
+int compareWcharWithBlankPadding(const NAWchar *wstr1, UInt32 len1, const NAWchar *wstr2, UInt32 len2);
 
 // -----------------------------------------------------------------------
 // Compare strings <left> and <right> (using unsigned comparison).
@@ -61,8 +61,8 @@ Int32 compareWcharWithBlankPadding(const NAWchar *wstr1, UInt32 len1, const NAWc
 // return 0 if left == right,
 // return a positive value if left > right.
 // -----------------------------------------------------------------------
-inline Int32 wc_str_cmp(const NAWchar *left, const NAWchar *right, Int32 length) {
-  for (Int32 i = 0; i < length; i++) {
+inline int wc_str_cmp(const NAWchar *left, const NAWchar *right, int length) {
+  for (int i = 0; i < length; i++) {
     if (left[i] < right[i]) return -1;
     if (left[i] > right[i]) return 1;
   }
@@ -73,18 +73,18 @@ inline Int32 wc_str_cmp(const NAWchar *left, const NAWchar *right, Int32 length)
 // fill string <str>  for <length> bytes with <padchar>
 // -----------------------------------------------------------------------
 
-inline void wc_str_pad(NAWchar *str, Int32 length, NAWchar padchar = unicode_char_set::SPACE) {
-  for (Int32 i = 0; i < length; i++) str[i] = padchar;
+inline void wc_str_pad(NAWchar *str, int length, NAWchar padchar = unicode_char_set::SPACE) {
+  for (int i = 0; i < length; i++) str[i] = padchar;
 }
 
 // Swap bytes for each NAWchar in the string.
-inline void wc_swap_bytes(NAWchar *str, Int32 length) {
+inline void wc_swap_bytes(NAWchar *str, int length) {
   unsigned char *ptr;
   unsigned char temp;
 
   if (str == 0 || length == 0) return;
 
-  for (Int32 i = 0; i < length; i++) {
+  for (int i = 0; i < length; i++) {
     ptr = (unsigned char *)&str[i];
     temp = *ptr;
     *ptr = *(ptr + 1);
@@ -92,6 +92,6 @@ inline void wc_swap_bytes(NAWchar *str, Int32 length) {
   }
 }
 
-Int32 na_wstr_cpy_convert(NAWchar *tgt, NAWchar *src, int length, Int32 upshift);
+int na_wstr_cpy_convert(NAWchar *tgt, NAWchar *src, int length, int upshift);
 
 #endif

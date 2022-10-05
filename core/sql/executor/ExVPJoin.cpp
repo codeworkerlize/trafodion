@@ -74,7 +74,7 @@ ExVPJoinTcb::ExVPJoinTcb(const ExVPJoinTdb &vpjTdb, const ex_tcb **childTcbs, ex
 
   // Initialize array.
   //
-  Int32 i;
+  int i;
   for (i = 0; i < numChildren_; i++) {
     qChild_[i] = childTcbs_[i]->getParentQueue();
   }
@@ -105,12 +105,12 @@ ExVPJoinTcb::~ExVPJoinTcb() {
 
 ex_queue_pair ExVPJoinTcb::getParentQueue() const { return qParent_; }
 
-const ex_tcb *ExVPJoinTcb::getChild(Int32 pos) const {
+const ex_tcb *ExVPJoinTcb::getChild(int pos) const {
   ex_assert((pos >= 0) && (pos < numChildren()), "");
   return childTcbs_[pos];
 }
 
-Int32 ExVPJoinTcb::numChildren() const { return vpJoinTdb().numChildren(); }
+int ExVPJoinTcb::numChildren() const { return vpJoinTdb().numChildren(); }
 
 void ExVPJoinTcb::freeResources() {}
 
@@ -120,7 +120,7 @@ void ExVPJoinTcb::registerSubtasks() {
   // parent and child down queues are handled by workDown()
   sched->registerInsertSubtask(sWorkDown, this, qParent_.down, "Work Down");
   sched->registerCancelSubtask(sWorkCancel, this, qParent_.down, "Work Cancel");
-  Int32 i;
+  int i;
   for (i = 0; i < numChildren_; i++) {
     sched->registerUnblockSubtask(sWorkDown, this, qChild_[i].down);
   }
@@ -168,7 +168,7 @@ ExWorkProcRetcode ExVPJoinTcb::workDown() {
     // However, the bookkeeping overhead and complexity of this more lenient
     // approach hardly seems worth it.
     //
-    Int32 i;
+    int i;
     for (i = 0; i < numChildren_; i++)
       if (qChild_[i].down->isFull()) return WORK_OK;
 
@@ -223,8 +223,8 @@ ExWorkProcRetcode ExVPJoinTcb::workUp() {
     ex_queue_entry *pentry = qParent_.down->getHeadEntry();
     ExVPJoinPrivateState &pstate = *((ExVPJoinPrivateState *)pentry->pstate);
     const ex_queue::down_request &request = pentry->downState.request;
-    Int32 requestCancelled = (request == ex_queue::GET_NOMORE);
-    Int32 isGetNRowsRequest = (request == ex_queue::GET_N);
+    int requestCancelled = (request == ex_queue::GET_NOMORE);
+    int isGetNRowsRequest = (request == ex_queue::GET_N);
     int numRowsOfGetNRequest = pentry->downState.requestValue;
 
     if (pstate.started_) {
@@ -243,7 +243,7 @@ ExWorkProcRetcode ExVPJoinTcb::workUp() {
       while (!eodReply) {
         // If a child up-queue is empty, then return.
         //
-        Int32 i;
+        int i;
         for (i = 0; i < numChildren_; i++)
           if (qChild_[i].up->isEmpty()) return WORK_OK;
 
@@ -370,7 +370,7 @@ void ExVPJoinTcb::cancelParentRequest(ex_queue_entry *pentry, queue_index pix) {
   pentry->downState.request = ex_queue::GET_NOMORE;
 
   if (pstate.started_) {
-    Int32 i;
+    int i;
     for (i = 0; i < numChildren_; i++) {
       qChild_[i].down->cancelRequestWithParentIndex(pix);
     }

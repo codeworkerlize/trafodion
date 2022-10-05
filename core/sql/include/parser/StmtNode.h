@@ -120,7 +120,7 @@ class StmtNode : public ExprNode {
     return re->isAStaticOnlyStatement() ? re : NULL;
   }
 
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   // QSTUFF
   // is used to indicate whether a cursor is holdable or not. This is put
@@ -150,7 +150,7 @@ class StmtQuery : public StmtNode {
 
   virtual const NAString getText() const;
 
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   virtual void print(FILE *f, const char *prefix, const char *) const;
 

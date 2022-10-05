@@ -59,7 +59,7 @@ class ComTdbConnectBy : public ComTdb {
 
   ~ComTdbConnectBy();
 
-  Int32 orderedQueueProtocol() const { return -1; };
+  int orderedQueueProtocol() const { return -1; };
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -78,18 +78,18 @@ class ComTdbConnectBy : public ComTdb {
 
   void display() const;
 
-  virtual Int32 numChildren() const { return 2; }
+  virtual int numChildren() const { return 2; }
   virtual const char *getNodeName() const { return "EX_CONNECTBY"; };
 
-  virtual const ComTdb *getChild(Int32 pos) const {
+  virtual const ComTdb *getChild(int pos) const {
     if (pos == 0)
       return tdbSChild_.getPointer();
     else
       return tdbCChild_.getPointer();
   }
-  virtual Int32 numExpressions() const { return 8; };
-  virtual ex_expr *getExpressionNode(Int32 pos);
-  virtual const char *getExpressionName(Int32 pos) const;  // { return "firstNRowsExpr"; };
+  virtual int numExpressions() const { return 8; };
+  virtual ex_expr *getExpressionNode(int pos);
+  virtual const char *getExpressionName(int pos) const;  // { return "firstNRowsExpr"; };
 
   void setDel(NAString d) { del_ = d; }
   void setNoCycle(NABoolean b) { nocycle_ = b; }
@@ -104,7 +104,7 @@ class ComTdbConnectBy : public ComTdb {
   // ---------------------------------------------------------------------
   virtual void displayContents(Space *space, ULng32 flag);
 
-  ComTdb *getChild(Int32 i) {
+  ComTdb *getChild(int i) {
     if (i == 0)
       return tdbSChild_;
     else if (i == 1)

@@ -101,9 +101,9 @@ LmResult LmLanguageManager::convertOut(NAType *src, NAType **dst, NAMemory *mem)
 //////////////////////////////////////////////////////////////////////
 // skipURLProtocol.
 //////////////////////////////////////////////////////////////////////
-Int32 LmLanguageManager::skipURLProtocol(const char *externalPath) {
+int LmLanguageManager::skipURLProtocol(const char *externalPath) {
   static const char *protocol = "file://";
-  static const Int32 len = str_len(protocol);
+  static const int len = str_len(protocol);
 
   if (strncmp(externalPath, protocol, len) != 0) return 0;
 

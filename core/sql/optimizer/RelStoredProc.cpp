@@ -85,7 +85,7 @@ RelInternalSP::RelInternalSP(const RelInternalSP &other, CollHeap *h)
 
 RelInternalSP::~RelInternalSP() {}
 
-Int32 RelInternalSP::getArity() const { return 0; }
+int RelInternalSP::getArity() const { return 0; }
 
 // -----------------------------------------------------------------------
 // A virtual method for computing output values that an operator can
@@ -279,7 +279,7 @@ RelExpr *RelInternalSP::bindNode(BindWA *bindWA) {
     // traverse the procType_ itemExpr* list to check whether the
     // target datatype is compatible with the source getProcAllParamsTree()
     // entered in the query
-    for (Int32 i = 0; i < nParams; i++) {
+    for (int i = 0; i < nParams; i++) {
       //   Cannot be done with a stack-allocated tmpAssign
       //   because ItemExpr destructor will delete children,
       //   which we (and parent) are still referencing!
@@ -303,11 +303,11 @@ RelExpr *RelInternalSP::bindNode(BindWA *bindWA) {
 
   NABoolean b = TRUE;
   ConstValue *c;
-  Int32 newInputSize = 0;
+  int newInputSize = 0;
 
   if (getProcAllParamsVids().entries() > 0) {
     if (!getSuppressDefaultSchema()) {
-      Int32 inputSize;
+      int inputSize;
       NAString defaultSchema = schemaDB->getDefaultSchema().getSchemaNameAsAnsiString();
       c = getProcAllParamsVids()[0].getItemExpr()->castToConstValue(b);
       if (c) {

@@ -185,7 +185,7 @@ class REFRESH_LIB_CLASS CRUDupElimTaskExecutor : public CRUTaskExecutor {
   CRUDupElimRangeResolver *pRangeResolver_;
 
   TInt32 txnTimeLimit_;
-  Int32 phase_;
+  int phase_;
   CRUDupElimGlobals globals_;
 
   // CONTROL QUERY SHAPE/CONTROL TABLE statements

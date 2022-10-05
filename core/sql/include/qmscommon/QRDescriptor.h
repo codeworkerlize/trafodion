@@ -38,7 +38,7 @@ typedef NAHashDictionary<const NAString, Scan> TableNameScanHash;
 // itoa is a nonstandard function not available with c89 compiler. This define
 // was borrowed from sqlutils\inc\ds.h.
 #ifndef itoa
-#define itoa(intval, bufptr, radix) (((Int32)radix == 10) ? (sprintf(bufptr, "%u", intval), bufptr) : NULL)
+#define itoa(intval, bufptr, radix) (((int)radix == 10) ? (sprintf(bufptr, "%u", intval), bufptr) : NULL)
 #endif
 
 /////////////////////////////////////////////////////////////////
@@ -432,7 +432,7 @@ class QRElement : public XMLElement {
    * @return 0 if equal, -1 if first object is less than second, 1 if first
    *         object is greater than second.
    */
-  static Int32 cmpQRElement(const void *p1, const void *p2);
+  static int cmpQRElement(const void *p1, const void *p2);
 
   /**
    * Replaces any special characters occurring in the passed attribute value
@@ -621,7 +621,7 @@ class QRElement : public XMLElement {
    * @param[in] data   The character data.
    * @param[in] len    The length of the character data.
    */
-  virtual void charData(void *parser, const char *data, Int32 len) {
+  virtual void charData(void *parser, const char *data, int len) {
     stripWhitespace(data, len);
     charData_.append(data, len);
   }
@@ -1311,7 +1311,7 @@ class QRInfo : public QRElement {
   virtual const char *getElementName() const { return elemName; }
 
   // @ZX -- for use with NAHashDictionary
-  Int32 operator==(const QRInfo &rhs) const { return text_ == rhs.text_; }
+  int operator==(const QRInfo &rhs) const { return text_ == rhs.text_; }
 
   // Getters/setters
 
@@ -1343,7 +1343,7 @@ class QRInfo : public QRElement {
    * @param[in] data   The character data.
    * @param[in] len    The length of the character data.
    */
-  virtual void charData(void *parser, const char *data, Int32 len) { charData_.append(data, len); }
+  virtual void charData(void *parser, const char *data, int len) { charData_.append(data, len); }
 
   /**
    * This redefinition simply writes the content of the string directly to
@@ -1599,7 +1599,7 @@ class QRTable : public QRElement {
    * Returns the number of columns in the table.
    * @return \c Number of columns in the table.
    */
-  Int32 getNumCols() const { return numCols_; }
+  int getNumCols() const { return numCols_; }
 
   /**
    * Returns the bitmap of columns with range predicates.
@@ -1662,7 +1662,7 @@ class QRTable : public QRElement {
    * and residual predicate bitmaps accordingly.
    * @param numCols Number of columns in the table.
    */
-  void setNumCols(Int32 numCols) {
+  void setNumCols(int numCols) {
     numCols_ = numCols;
     rangeBits_.resize((numCols + BitsPerWord) / BitsPerWord);
     residualBits_.resize((numCols + BitsPerWord) / BitsPerWord);
@@ -1716,9 +1716,9 @@ class QRTable : public QRElement {
 
   const NAString &getCorrelationName() const { return correlationName_; }
 
-  void setJoinOrder(Int32 order) { joinOrder_ = order; }
+  void setJoinOrder(int order) { joinOrder_ = order; }
 
-  const Int32 getJoinOrder() const { return joinOrder_; }
+  const int getJoinOrder() const { return joinOrder_; }
 
  protected:
   virtual void serializeAttrs(XMLString &xml);
@@ -1736,13 +1736,13 @@ class QRTable : public QRElement {
   NABoolean isAnMV_;
   NAString &tableName_;
   NABoolean isKeyCovered_;
-  Int32 numCols_;
+  int numCols_;
   XMLBitmap rangeBits_;
   XMLBitmap residualBits_;
   NABoolean hasLOJParent_;
   QRKeyPtr key_;
   NAString correlationName_;
-  Int32 joinOrder_;
+  int joinOrder_;
 
   // Temp flag used during descriptor construction.
   NABoolean isExtraHub_;
@@ -1974,7 +1974,7 @@ class QRColumn : public QRExplicitExpr {
   virtual QRColumnPtr downCastToQRColumn() { return this; }
 
   // Redefined to initialize the non-fully qualified column name.
-  virtual void charData(void *parser, const char *data, Int32 len);
+  virtual void charData(void *parser, const char *data, int len);
 
   virtual const char *getElementName() const { return elemName; }
 
@@ -2065,7 +2065,7 @@ class QRColumn : public QRExplicitExpr {
    * Returns the ordinal position of this column within the table.
    * @return The column's ordinal position.
    */
-  Int32 getColIndex() const { return colIndex_; }
+  int getColIndex() const { return colIndex_; }
 
   /**
    * Is the column nullable.
@@ -2104,7 +2104,7 @@ class QRColumn : public QRExplicitExpr {
    * Sets the ordinal position of the column in the table.
    * @param colIndex Ordinal position of the column in the table.
    */
-  void setColIndex(Int32 colIndex) { colIndex_ = colIndex; }
+  void setColIndex(int colIndex) { colIndex_ = colIndex; }
 
   /**
    * Sets the isNullable_ attribute.
@@ -2171,7 +2171,7 @@ class QRColumn : public QRExplicitExpr {
   NAString tableId_;
   NAString &fqColumnName_;  // Fully qualified column name - from XML
   NAString columnName_;     // Minimal column name - computed after parsing.
-  Int32 colIndex_;
+  int colIndex_;
   NABoolean isNullable_;
 
   // Temp flag used during descriptor construction.
@@ -2649,7 +2649,7 @@ class QRRangePred : public QRElement {
 
   NABoolean isSingleValue();
 
-  Int32 getSize();
+  int getSize();
 
  protected:
   virtual void serializeAttrs(XMLString &xml);
@@ -2686,7 +2686,7 @@ class QRRangeOperator : public QRElement {
 
   virtual void unparse(NAString &text, const NAString &rangeItem) = 0;
 
-  virtual Int32 getSize() { return 1; }
+  virtual int getSize() { return 1; }
 
  protected:
   QRRangeOperator(ElementType eType, ADD_MEMCHECK_ARGS_DECL(NAMemory *heap = 0))
@@ -2768,7 +2768,7 @@ class QROpEQ : public QRRangeOperator {
 
   virtual void unparse(NAString &text, const NAString &rangeItem);
 
-  virtual Int32 getSize() { return valueList_.entries(); }
+  virtual int getSize() { return valueList_.entries(); }
 
  protected:
   virtual void serializeBody(XMLString &xml);
@@ -3167,7 +3167,7 @@ class QROpBT : public QRRangeOperator {
   QROpBT(const QROpBT &);
   QROpBT &operator=(const QROpBT &);
 
-  Int32 valueCount_;
+  int valueCount_;
 
   // Attributes and contained elements.
   QRScalarValuePtr startValue_;
@@ -3294,7 +3294,7 @@ class QRNumericVal : public QRScalarValue {
    * @return Scale of the value.
    * @see getUnscaledNumericVal()
    */
-  const Int32 getNumericScale() const { return numericScale_; }
+  const int getNumericScale() const { return numericScale_; }
 
   /**
    * Returns the string representation of the scale of this fixed-point
@@ -3316,7 +3316,7 @@ class QRNumericVal : public QRScalarValue {
 
   virtual void setValue(const NAString &value);
 
-  void setNumericVal(long unscaledVal, Int32 scale);
+  void setNumericVal(long unscaledVal, int scale);
 
   virtual QRExplicitExprPtr deepCopy(subExpressionRewriteHash &subExpressions, CollHeap *heap) {
     QRNumericValPtr result = new (heap) QRNumericVal(*this, ADD_MEMCHECK_ARGS(heap));
@@ -3349,7 +3349,7 @@ class QRNumericVal : public QRScalarValue {
 
   // Attributes and contained elements.
   long unscaledNumericVal_;
-  Int32 numericScale_;
+  int numericScale_;
   NAString scale_;
   char buf[50];  // Used for converting value and scale to their string
                  //   representations with sprintf
@@ -3420,7 +3420,7 @@ class QRStringVal : public QRScalarValue {
    * @param[in] data   The character data.
    * @param[in] len    The length of the character data.
    */
-  virtual void charData(void *parser, const char *data, Int32 len) { charData_.append(data, len); }
+  virtual void charData(void *parser, const char *data, int len) { charData_.append(data, len); }
 
   /**
    * This redefinition simply writes the content of the string directly to
@@ -3523,7 +3523,7 @@ class QRWStringVal : public QRScalarValue {
    * @param[in] len    The length of the character data in bytes, not Unicode
    *                   characters.
    */
-  virtual void charData(void *parser, const char *data, Int32 len);
+  virtual void charData(void *parser, const char *data, int len);
 
   /**
    * This redefinition encodes each character in the string to hex, and writes
@@ -3647,7 +3647,7 @@ class QRFloatVal : public QRScalarValue {
   }
 
  protected:
-  virtual void charData(void *parser, const char *data, Int32 len) {
+  virtual void charData(void *parser, const char *data, int len) {
     QRScalarValue::charData(parser, data, len);
     floatVal_ = atof(stringRep_.data());
   }
@@ -4039,7 +4039,7 @@ class QROutput : public QRElementList {
    * @return 0-based position of the output item in the MV's column list, or
    *         -1 if it has not been matched to an MV column.
    */
-  Int32 getColPos() const { return colPos_; }
+  int getColPos() const { return colPos_; }
 
   /**
    * Sets the name of the MV column corresponding to this output expression.
@@ -4077,7 +4077,7 @@ class QROutput : public QRElementList {
    * @param colPos The 0-based position of this output item within the MV's
    *               column list.
    */
-  void setColPos(Int32 colPos) { colPos_ = colPos; }
+  void setColPos(int colPos) { colPos_ = colPos; }
 
  protected:
   virtual void serializeAttrs(XMLString &xml);
@@ -4092,7 +4092,7 @@ class QROutput : public QRElementList {
 
   NAString name_;
   ExprResult result_;
-  Int32 colPos_;
+  int colPos_;
 };  // QROutput
 
 /**
@@ -4470,7 +4470,7 @@ class QRParameter : public QRElement {
 
   void setValue(const char *strVal) { paramValue_ = strVal; }
 
-  void setValue(Int32 intVal) {
+  void setValue(int intVal) {
     char sbuf[20];
     sprintf(sbuf, "%d", intVal);
     paramValue_ = sbuf;
@@ -4930,7 +4930,7 @@ class QRMVMisc : public QRElement {
    * Returns the isolation level of the MV.
    * @return MV's isolation level.
    */
-  Int32 getIsolationLevel() const { return isolationLevel_; }
+  int getIsolationLevel() const { return isolationLevel_; }
 
   /**
    * Tells whether the MV is incremental or not.
@@ -4954,7 +4954,7 @@ class QRMVMisc : public QRElement {
    * Sets the isolation level of the MV.
    * @param isolationLevel The isolation level enum value.
    */
-  void setIsolationLevel(Int32 isolationLevel) { isolationLevel_ = isolationLevel; }
+  void setIsolationLevel(int isolationLevel) { isolationLevel_ = isolationLevel; }
 
   /**
    * Set the incremental update indicator for this MV descriptor.
@@ -5001,7 +5001,7 @@ class QRMVMisc : public QRElement {
 
   // Attributes and contained elements.
 
-  Int32 isolationLevel_;  // Values are from enum DP2LockFlags::ConsistencyLevel in ComTransInfo.h
+  int isolationLevel_;  // Values are from enum DP2LockFlags::ConsistencyLevel in ComTransInfo.h
   NABoolean isIncremental_;
   NABoolean isImmediate_;
   NABoolean isFromQuery_;
@@ -5941,7 +5941,7 @@ class QRInclude : public QRElement {
   virtual const char *getElementName() const { return elemName; }
 
   // @ZX -- for use with NAHashDictionary
-  Int32 operator==(const QRInclude &rhs) const { return fileName_ == rhs.fileName_; }
+  int operator==(const QRInclude &rhs) const { return fileName_ == rhs.fileName_; }
 
   // Getters/setters
 

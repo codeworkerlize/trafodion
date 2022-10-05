@@ -37,8 +37,8 @@ LmRoutine::LmRoutine(LmHandle container, LmHandle routine, const char *sqlName, 
                      const char *librarySqlName, ComUInt32 numParam, ComUInt32 maxResultSets,
                      ComRoutineLanguage language, ComRoutineParamStyle paramStyle,
                      ComRoutineTransactionAttributes transactionAttrs, ComRoutineSQLAccess sqlAccessMode,
-                     ComRoutineExternalSecurity externalSecurity, Int32 routineOwnerId, const char *parentQid,
-                     const char *clientInfo, Int32 inputParamRowLen, Int32 outputRowLen, const char *currentUserName,
+                     ComRoutineExternalSecurity externalSecurity, int routineOwnerId, const char *parentQid,
+                     const char *clientInfo, int inputParamRowLen, int outputRowLen, const char *currentUserName,
                      const char *sessionUserName, LmParameter *lmParams, LmLanguageManager *lm)
     : container_(container),
       routine_(routine),
@@ -94,16 +94,16 @@ LmRoutine::~LmRoutine() {
 LmResult LmRoutine::invokeRoutineMethod(
     /* IN */ tmudr::UDRInvocationInfo::CallPhase phase,
     /* IN */ const char *serializedInvocationInfo,
-    /* IN */ Int32 invocationInfoLen,
-    /* OUT */ Int32 *invocationInfoLenOut,
+    /* IN */ int invocationInfoLen,
+    /* OUT */ int *invocationInfoLenOut,
     /* IN */ const char *serializedPlanInfo,
-    /* IN */ Int32 planInfoLen,
-    /* IN */ Int32 planNum,
-    /* OUT */ Int32 *planInfoLenOut,
+    /* IN */ int planInfoLen,
+    /* IN */ int planNum,
+    /* OUT */ int *planInfoLenOut,
     /* IN */ char *inputRow,
-    /* IN */ Int32 inputRowLen,
+    /* IN */ int inputRowLen,
     /* OUT */ char *outputRow,
-    /* IN */ Int32 outputRowLen,
+    /* IN */ int outputRowLen,
     /* IN/OUT */ ComDiagsArea *da) {
   LM_ASSERT(0);  // should not call this method on the base class
   return LM_ERR;
@@ -116,12 +116,12 @@ LmResult LmRoutine::setRuntimeInfo(const char *parentQid, int totalNumInstances,
 
 LmResult LmRoutine::getRoutineInvocationInfo(
     /* IN/OUT */ char *serializedInvocationInfo,
-    /* IN */ Int32 invocationInfoMaxLen,
-    /* OUT */ Int32 *invocationInfoLenOut,
+    /* IN */ int invocationInfoMaxLen,
+    /* OUT */ int *invocationInfoLenOut,
     /* IN/OUT */ char *serializedPlanInfo,
-    /* IN */ Int32 planInfoMaxLen,
-    /* IN */ Int32 planNum,
-    /* OUT */ Int32 *planInfoLenOut,
+    /* IN */ int planInfoMaxLen,
+    /* IN */ int planNum,
+    /* OUT */ int *planInfoLenOut,
     /* IN/OUT */ ComDiagsArea *da) {
   LM_ASSERT(0);  // should not call this method on the base class
   return LM_ERR;

@@ -90,7 +90,7 @@ void CRUGlobals::Init(CRUOptions &options, CRUJournal &journal, CUOFsTransManage
 //	throw the CRUException object!
 //--------------------------------------------------------------------------//
 
-void CRUGlobals::Testpoint(Int32 testpointId, const CDSString &objName) {
+void CRUGlobals::Testpoint(int testpointId, const CDSString &objName) {
   CRUOptions::DebugOption *pDO = options_.FindDebugOption(testpointId, objName);
 
   if (NULL != pDO) {
@@ -108,7 +108,7 @@ void CRUGlobals::Testpoint(Int32 testpointId, const CDSString &objName) {
 //	throw the 0 value!
 //--------------------------------------------------------------------------//
 
-void CRUGlobals::TestpointSevere(Int32 testpointId, const CDSString &objName) {
+void CRUGlobals::TestpointSevere(int testpointId, const CDSString &objName) {
   CRUOptions::DebugOption *pDO = options_.FindDebugOption(testpointId, objName);
 
   if (NULL != pDO) {
@@ -187,7 +187,7 @@ CDSString CRUGlobals::GetCurrentUser() {
 //	debug option for the corresponding message type.
 //--------------------------------------------------------------------------//
 
-void CRUGlobals::LogDebugMessage(Int32 testpointId, const CDSString &objName, const CDSString &msg, BOOL printRowNum) {
+void CRUGlobals::LogDebugMessage(int testpointId, const CDSString &objName, const CDSString &msg, BOOL printRowNum) {
 #ifdef _DEBUG
   CRUOptions::DebugOption *pDO = options_.FindDebugOption(testpointId, objName);
 

@@ -48,7 +48,7 @@ class IOBuffer {
  public:
   enum BufferStatus { PARTIAL = 0, FULL, EMPTY, ERR };
 
-  IOBuffer(char *buffer, Int32 bufSize) : bytesLeft_(bufSize), bufSize_(bufSize), numRows_(0), status_(EMPTY) {
+  IOBuffer(char *buffer, int bufSize) : bytesLeft_(bufSize), bufSize_(bufSize), numRows_(0), status_(EMPTY) {
     data_ = buffer;
     // memset(data_, '\0', bufSize);
   }
@@ -59,9 +59,9 @@ class IOBuffer {
   BufferStatus getStatus() { return status_; }
 
   char *data_;
-  Int32 bytesLeft_;
-  Int32 bufSize_;
-  Int32 numRows_;
+  int bytesLeft_;
+  int bufSize_;
+  int numRows_;
   BufferStatus status_;
 };
 //----------------------------------------------------------------------

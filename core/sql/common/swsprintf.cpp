@@ -77,10 +77,10 @@
 
 //#define FLOATING_POINT 1
 
-Int32 vfprintf(SPRINTF_BUF *fp, const NAWchar *fmt0, va_list ap);
+int vfprintf(SPRINTF_BUF *fp, const NAWchar *fmt0, va_list ap);
 
-Int32 na_wsprintf(NAWchar *str, NAWchar const *fmt, ...) {
-  Int32 ret;
+int na_wsprintf(NAWchar *str, NAWchar const *fmt, ...) {
+  int ret;
   va_list ap;
   SPRINTF_BUF f;
 
@@ -105,8 +105,8 @@ Int32 na_wsprintf(NAWchar *str, NAWchar const *fmt, ...) {
 
 #define __P(x) x
 
-static char *cvt __P((double, Int32, Int32, char *, Int32 *, Int32, Int32 *));
-static Int32 exponent __P((char *, Int32, Int32));
+static char *cvt __P((double, int, int, char *, int *, int, int *));
+static int exponent __P((char *, int, int));
 
 #else /* no FLOATING_POINT */
 #undef BUF
@@ -136,25 +136,25 @@ static Int32 exponent __P((char *, Int32, Int32));
 #define SHORTINT 0x040 /* short integer */
 #define ZEROPAD  0x080 /* zero (as opposed to blank) pad */
 #define FPT      0x100 /* Floating point number */
-Int32 vfprintf(SPRINTF_BUF *fp, const NAWchar *fmt0, va_list ap) {
+int vfprintf(SPRINTF_BUF *fp, const NAWchar *fmt0, va_list ap) {
   register NAWchar *fmt; /* format string */
-  register Int32 ch;     /* character from fmt */
-  register Int32 n, m;   /* handy integers (short term usage) */
+  register int ch;     /* character from fmt */
+  register int n, m;   /* handy integers (short term usage) */
   register NAWchar *cp;  /* handy char pointer (short term usage) */
   // register struct __siov *iovp;/* for PRINT macro */
-  register Int32 flags; /* flags as above */
-  Int32 ret;            /* return value accumulator */
-  Int32 width;          /* width from format (%8d), or 0 */
-  Int32 prec;           /* precision from format (%.3d), or -1 */
+  register int flags; /* flags as above */
+  int ret;            /* return value accumulator */
+  int width;          /* width from format (%8d), or 0 */
+  int prec;           /* precision from format (%.3d), or -1 */
   NAWchar sign;         /* sign prefix (' ', '+', '-', or \0) */
   NAWchar wc;
 #ifdef FLOATING_POINT
   NAWchar *decimal_point = /*localeconv()->decimal_point*/ WIDE_(".");
   NAWchar softsign;  /* temporary negative sign for floats */
   double _double;    /* double precision arguments %[eEfgG] */
-  Int32 expt;        /* integer value of exponent */
-  Int32 expsize;     /* character count for expstr */
-  Int32 ndig;        /* actual number of digits returned by cvt */
+  int expt;        /* integer value of exponent */
+  int expsize;     /* character count for expstr */
+  int ndig;        /* actual number of digits returned by cvt */
   NAWchar expstr[7]; /* buffer for exponent string */
 #endif
 
@@ -165,9 +165,9 @@ Int32 vfprintf(SPRINTF_BUF *fp, const NAWchar *fmt0, va_list ap) {
 
   u_quad_t _uquad;             /* integer arguments %[diouxX] */
   enum { OCT, DEC, HEX } base; /* base for [diouxX] conversion */
-  Int32 dprec;                 /* a copy of prec if [diouxX], 0 otherwise */
-  Int32 realsz;                /* field size expanded by dprec */
-  Int32 size;                  /* size of converted field or string */
+  int dprec;                 /* a copy of prec if [diouxX], 0 otherwise */
+  int realsz;                /* field size expanded by dprec */
+  int size;                  /* size of converted field or string */
   NAWchar *xdigs = NULL;       /* digits for [xX] conversion */
 #define NIOV 8
   // struct __suio uio;	/* output information: summary */
@@ -218,12 +218,12 @@ Int32 vfprintf(SPRINTF_BUF *fp, const NAWchar *fmt0, va_list ap) {
 #define SARG()                                           \
   (flags & QUADINT ? va_arg(ap, quad_t)                  \
                    : flags & LONGINT ? va_arg(ap, int) \
-                                     : flags & SHORTINT ? (int)(short)va_arg(ap, Int32) : (int)va_arg(ap, Int32))
+                                     : flags & SHORTINT ? (int)(short)va_arg(ap, int) : (int)va_arg(ap, int))
 #define UARG()                                \
   (flags & QUADINT                            \
        ? va_arg(ap, u_quad_t)                 \
        : flags & LONGINT ? va_arg(ap, u_long) \
-                         : flags & SHORTINT ? (u_long)(u_short)va_arg(ap, Int32) : (u_long)va_arg(ap, u_int))
+                         : flags & SHORTINT ? (u_long)(u_short)va_arg(ap, int) : (u_long)va_arg(ap, u_int))
 
   /* sorry, fprintf(read_only_SPRINTF_BUF, "") returns EOF, not 0 */
   // if (cantwrite(fp))
@@ -294,7 +294,7 @@ Int32 vfprintf(SPRINTF_BUF *fp, const NAWchar *fmt0, va_list ap) {
          *	-- ANSI X3J11
          * They don't exclude field widths read from args.
          */
-        if ((width = va_arg(ap, Int32)) >= 0) goto rflag;
+        if ((width = va_arg(ap, int)) >= 0) goto rflag;
         width = -width;
         /* FALLTHROUGH */
       case L'-':
@@ -305,7 +305,7 @@ Int32 vfprintf(SPRINTF_BUF *fp, const NAWchar *fmt0, va_list ap) {
         goto rflag;
       case L'.':
         if ((ch = *fmt++) == L'*') {
-          n = va_arg(ap, Int32);
+          n = va_arg(ap, int);
           prec = n < 0 ? -1 : n;
           goto rflag;
         }
@@ -360,7 +360,7 @@ Int32 vfprintf(SPRINTF_BUF *fp, const NAWchar *fmt0, va_list ap) {
         flags |= QUADINT;
         goto rflag;
       case L'c':
-        *(cp = buf) = va_arg(ap, Int32);
+        *(cp = buf) = va_arg(ap, int);
         size = 1;
         sign = L'\0';
         break;
@@ -443,7 +443,7 @@ Int32 vfprintf(SPRINTF_BUF *fp, const NAWchar *fmt0, va_list ap) {
         else if (flags & SHORTINT)
           *va_arg(ap, short *) = ret;
         else
-          *va_arg(ap, Int32 *) = ret;
+          *va_arg(ap, int *) = ret;
         continue; /* no output */
       case L'O':
         flags |= LONGINT;
@@ -674,14 +674,14 @@ error:
 
 #ifdef FLOATING_POINT
 
-extern "C" char *__dtoa(double, Int32, Int32, Int32 *, Int32 *, char **, char **);
+extern "C" char *__dtoa(double, int, int, int *, int *, char **, char **);
 
-static NAWchar *cvt(double value, Int32 ndigits, Int32 flags, NAWchar *sign, Int32 *decpt, Int32 ch, Int32 *length)
+static NAWchar *cvt(double value, int ndigits, int flags, NAWchar *sign, int *decpt, int ch, int *length)
 // double value;
 // int ndigits, flags, *decpt, ch, *length;
 // char *sign;
 {
-  Int32 mode, dsgn;
+  int mode, dsgn;
   NAWchar *digits, *bp, *rve;
 
   if (ch == L'f') {
@@ -718,7 +718,7 @@ static NAWchar *cvt(double value, Int32 ndigits, Int32 flags, NAWchar *sign, Int
   return (digits);
 }
 
-static Int32 exponent(NAWchar *p0, Int32 exp, Int32 fmtch)
+static int exponent(NAWchar *p0, int exp, int fmtch)
 // char *p0;
 // int exp, fmtch;
 {

@@ -250,10 +250,10 @@ short SequenceValueGenerator::getCurrSeqVal(SequenceGeneratorAttributes &sga, lo
 }
 
 short SequenceValueGenerator::getIdtmSeqVal(SequenceGeneratorAttributes &sga, long &seqVal, ComDiagsArea **diags) {
-  Int32 retcode = 0;
+  int retcode = 0;
   short rc = 0;
   //  system wide unique id option is set, call interface to get the next value from idtmsrv
-  Int32 trycount = 0;
+  int trycount = 0;
   long idtm_nextVal = 0;
   long timeout = sga.getSGTimeout();
   // For debugging only. Remove after perf tests are complete

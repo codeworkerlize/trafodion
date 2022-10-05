@@ -68,8 +68,8 @@ class DefaultValidator {
   CaseSensitivity caseSensitive() const { return caseSensitivity_; }
   void applyUpper(NAString &value) const;
 
-  virtual Int32 validate(const char *value,  // returns FALSE if invalid
-                         const NADefaults *nad, Int32 attrEnum, Int32 errOrWarn = -1, float *flt = NULL) const;
+  virtual int validate(const char *value,  // returns FALSE if invalid
+                         const NADefaults *nad, int attrEnum, int errOrWarn = -1, float *flt = NULL) const;
 
  protected:
   const DefaultValidatorType type_;
@@ -80,8 +80,8 @@ class ValidateKeyword : public DefaultValidator {
  public:
   ValidateKeyword() : DefaultValidator(VALID_KWD, CASE_INSENSITIVE) {}
 
-  virtual Int32 validate(const char *value,  // returns FALSE if invalid
-                         const NADefaults *nad, Int32 attrEnum, Int32 errOrWarn = -1, float *flt = NULL) const;
+  virtual int validate(const char *value,  // returns FALSE if invalid
+                         const NADefaults *nad, int attrEnum, int errOrWarn = -1, float *flt = NULL) const;
 };
 
 class ValidateCollationList : public DefaultValidator {
@@ -95,8 +95,8 @@ class ValidateCollationList : public DefaultValidator {
         cntCoParsed_(0),
         lastCoInserted_(CharInfo::UNKNOWN_COLLATION) {}
 
-  virtual Int32 validate(const char *value,  // returns FALSE if invalid
-                         const NADefaults *nad, Int32 attrEnum, Int32 errOrWarn = -1, float *flt = NULL) const;
+  virtual int validate(const char *value,  // returns FALSE if invalid
+                         const NADefaults *nad, int attrEnum, int errOrWarn = -1, float *flt = NULL) const;
 
   UInt32 insertIntoCDB(SchemaDB *sdb,     // Returns count of collations
                        CollationDB *cdb,  // that it parsed & inserted
@@ -117,7 +117,7 @@ class ValidateCollationList : public DefaultValidator {
 class ValidateTraceStr : public DefaultValidator {
  public:
   // returns FALSE if invalid
-  virtual Int32 validate(const char *value, const NADefaults *nad, Int32 attrEnum, Int32 errOrWarn = -1,
+  virtual int validate(const char *value, const NADefaults *nad, int attrEnum, int errOrWarn = -1,
                          float *flt = NULL) const;
 };
 
@@ -126,8 +126,8 @@ class ValidateAnsiList : public DefaultValidator {
   ValidateAnsiList() : DefaultValidator() {}  // use VALID_ANY
 
   virtual NABoolean caseSensitive() const { return FALSE; }
-  virtual Int32 validate(const char *value,  // returns FALSE if invalid
-                         const NADefaults *nad, Int32 attrEnum, Int32 errOrWarn = -1, float *flt = NULL) const;
+  virtual int validate(const char *value,  // returns FALSE if invalid
+                         const NADefaults *nad, int attrEnum, int errOrWarn = -1, float *flt = NULL) const;
 };
 
 class ValidateRoleNameList : public DefaultValidator  // based on ValidateAnsiList
@@ -136,16 +136,16 @@ class ValidateRoleNameList : public DefaultValidator  // based on ValidateAnsiLi
   ValidateRoleNameList() : DefaultValidator() {}  // use VALID_ANY
 
   virtual NABoolean caseSensitive() const { return FALSE; }
-  virtual Int32 validate(const char *value,  // returns FALSE if invalid
-                         const NADefaults *nad, Int32 attrEnum, Int32 errOrWarn = -1, float *flt = NULL) const;
+  virtual int validate(const char *value,  // returns FALSE if invalid
+                         const NADefaults *nad, int attrEnum, int errOrWarn = -1, float *flt = NULL) const;
 };
 
 class ValidatePOSTableSizes : public DefaultValidator {
  public:
   ValidatePOSTableSizes() : DefaultValidator(VALID_ANY, CASE_INSENSITIVE) {}
 
-  virtual Int32 validate(const char *value,  // returns FALSE if invalid
-                         const NADefaults *nad, Int32 attrEnum, Int32 errOrWarn = -1, float *flt = NULL) const;
+  virtual int validate(const char *value,  // returns FALSE if invalid
+                         const NADefaults *nad, int attrEnum, int errOrWarn = -1, float *flt = NULL) const;
 };
 
 class ValidateNumericRange : public DefaultValidator {
@@ -153,8 +153,8 @@ class ValidateNumericRange : public DefaultValidator {
   ValidateNumericRange(DefaultValidatorType vt, float mn, float mx)
       : DefaultValidator(vt, CASE_INSENSITIVE), min_(mn), max_(mx), multiple_(0) {}
 
-  virtual Int32 validate(const char *value,  // returns FALSE if invalid
-                         const NADefaults *nad, Int32 attrEnum, Int32 errOrWarn = -1, float *flt = NULL) const;
+  virtual int validate(const char *value,  // returns FALSE if invalid
+                         const NADefaults *nad, int attrEnum, int errOrWarn = -1, float *flt = NULL) const;
 
   // All numerics are expressed as floats.  Thus there is loss of precision at
   // the high end, which results in things like long(float(LONG_MAX)) printing
@@ -408,7 +408,7 @@ class ValidateOverrideSchema : public DefaultValidator {
  public:
   ValidateOverrideSchema() : DefaultValidator() {}
 
-  virtual Int32 validate(const char *value, const NADefaults *nad, Int32 attrEnum, Int32 errOrWarn = -1,
+  virtual int validate(const char *value, const NADefaults *nad, int attrEnum, int errOrWarn = -1,
                          float *flt = NULL) const;
 };
 
@@ -416,13 +416,13 @@ class ValidatePublicSchema : public DefaultValidator {
  public:
   ValidatePublicSchema() : DefaultValidator() {}
 
-  virtual Int32 validate(const char *value, const NADefaults *nad, Int32 attrEnum, Int32 errOrWarn = -1,
+  virtual int validate(const char *value, const NADefaults *nad, int attrEnum, int errOrWarn = -1,
                          float *flt = NULL) const;
 };
 
 class ValidateReplIoVersion : public DefaultValidator {
  public:
-  ValidateReplIoVersion(Int32 minReplIoVersion, Int32 maxReplIoVersion) : DefaultValidator() {
+  ValidateReplIoVersion(int minReplIoVersion, int maxReplIoVersion) : DefaultValidator() {
     min_ = minReplIoVersion;
     max_ = maxReplIoVersion;
   }
@@ -431,8 +431,8 @@ class ValidateReplIoVersion : public DefaultValidator {
                        float *flt = NULL) const;
 
  protected:
-  Int32 max_;
-  Int32 min_;
+  int max_;
+  int min_;
 };
 
 class ValidateMVAge : public DefaultValidator {
@@ -440,8 +440,8 @@ class ValidateMVAge : public DefaultValidator {
   ValidateMVAge() : DefaultValidator() {}  // use VALID_ANY
 
   virtual NABoolean caseSensitive() const { return FALSE; }
-  virtual Int32 validate(const char *value,  // returns FALSE if invalid
-                         const NADefaults *nad, Int32 attrEnum, Int32 errOrWarn = -1, float *flt = NULL) const;
+  virtual int validate(const char *value,  // returns FALSE if invalid
+                         const NADefaults *nad, int attrEnum, int errOrWarn = -1, float *flt = NULL) const;
 };
 
 #endif /* _NADEFAULTVALIDATOR_H */

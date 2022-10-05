@@ -48,7 +48,7 @@
 NAFileSet::NAFileSet(const QualifiedName &fileSetName, const QualifiedName &extFileSetObj,
                      const NAString &extFileSetName, enum FileOrganizationEnum org, NABoolean isSystemTable,
                      int numberOfFiles, Cardinality estimatedNumberOfRecords, int recordLength, int blockSize,
-                     Int32 indexLevels, const NAColumnArray &allColumns, const NAColumnArray &indexKeyColumns,
+                     int indexLevels, const NAColumnArray &allColumns, const NAColumnArray &indexKeyColumns,
                      const NAColumnArray &horizontalPartKeyColumns, const NAColumnArray &hiveSortKeyColumns,
                      PartitioningFunction *forHorizontalPartitioning, short keytag, long redefTime, NABoolean audited,
                      NABoolean auditCompressed, NABoolean compressed, ComCompressionType dcompressed,
@@ -124,7 +124,7 @@ NAFileSet::NAFileSet(const QualifiedName &fileSetName, const QualifiedName &extF
   }
 
   NABoolean nullablePkey = FALSE;
-  for (Int32 i = 0; ((NOT nullablePkey) && (i < indexKeyColumns.entries())); i++) {
+  for (int i = 0; ((NOT nullablePkey) && (i < indexKeyColumns.entries())); i++) {
     if (indexKeyColumns.getColumn(i)->getType()->supportsSQLnull()) nullablePkey = TRUE;
   }
   setNullablePkey(nullablePkey);
@@ -271,8 +271,8 @@ NABoolean NAFileSet::containsPartition(const NAString &partitionName) const {
   return partFunc_ && partFunc_->getNodeMap()->containsPartition(partitionName);
 }
 
-Int32 NAFileSet::numHivePartCols() const {
-  Int32 result = 0;
+int NAFileSet::numHivePartCols() const {
+  int result = 0;
 
   for (CollIndex i = 0; i < allColumns_.entries(); i++)
     if (allColumns_[i]->isHivePartColumn()) result++;
@@ -290,7 +290,7 @@ NABoolean NAFileSet::isSyskeyLeading() const {
           indexKeyColumns_[0]->isSyskeyColumn());
 }
 
-Int32 NAFileSet::getSysKeyPosition() const {
+int NAFileSet::getSysKeyPosition() const {
   for (CollIndex i = 0; i < indexKeyColumns_.entries(); i++) {
     if (indexKeyColumns_[i]->isSyskeyColumn()) return i;
   }
@@ -306,14 +306,14 @@ NABoolean NAFileSet::hasSyskey() const {
   //  not in the clustering key, then the system key falls between the store
   //  by columns and the hash columns.
 
-  Int32 numKeyCols = indexKeyColumns_.entries();
+  int numKeyCols = indexKeyColumns_.entries();
   if (numKeyCols == 0) return TRUE;
 
   if (indexKeyColumns_[numKeyCols - 1]->isSyskeyColumn()) return TRUE;
 
   // the array element index right before the first partition key col in the
   // indexKeyColumns_[]
-  Int32 otherSyskeyLoc = numKeyCols - partitioningKeyColumns_.entries() - 1;
+  int otherSyskeyLoc = numKeyCols - partitioningKeyColumns_.entries() - 1;
 
   return (otherSyskeyLoc >= 0) ? indexKeyColumns_[otherSyskeyLoc]->isSyskeyColumn() : FALSE;
 }
@@ -421,7 +421,7 @@ static double srandom() {
 const QualifiedName &NAFileSet::getRandomPartition() const {
   if (!partFunc_) return getFileSetName();
 
-  Int32 numEntries = partFunc_->getNodeMap()->getNumEntries();
+  int numEntries = partFunc_->getNodeMap()->getNumEntries();
   const NodeMapEntry *nme = partFunc_->getNodeMapEntry((CollIndex)floor(srandom() * numEntries));
   QualifiedName *partQName = new (STMTHEAP) QualifiedName(nme->getPartitionName(), 3, STMTHEAP, NULL);
   return *partQName;

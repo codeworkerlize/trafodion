@@ -480,10 +480,10 @@ void setStatsArea__10ContextCliFP16ExStatisticsAreaiN22() {
 void __ct__12ExpTupleDescFv() { ex_assert(0, "Entering stub __ct__12ExpTupleDescFv"); }
 }
 
-void CmpAssertInternal(const char *, const char *, Int32) {
+void CmpAssertInternal(const char *, const char *, int) {
   ex_assert(0, "Entering stub CmpAssertInternal(const char*, const char*, int)");
 }
 
-void NA_MM_FreeMemory_(char *startAddr, Int32 byteCount) {
+void NA_MM_FreeMemory_(char *startAddr, int byteCount) {
   // do nothing and do not assert here.
 }

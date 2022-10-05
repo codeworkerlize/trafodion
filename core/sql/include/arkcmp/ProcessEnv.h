@@ -54,8 +54,8 @@ class ProcessEnv : public NABasicObject {
   void setEnv(char **newenvs, int nEnvs);
   void addOrChangeEnv(char **newenvs, int nEnvs);
   void resetEnv(const char *envName);
-  Int32 unsetEnv(char *env);
-  Int32 chdir(char *dir);
+  int unsetEnv(char *env);
+  int chdir(char *dir);
   void dumpEnvs();
 
   virtual ~ProcessEnv();

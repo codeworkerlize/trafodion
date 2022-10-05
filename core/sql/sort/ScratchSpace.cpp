@@ -77,8 +77,8 @@
 // for their own purposes and do not need a run directory.
 //-----------------------------------------------------------------------------
 
-ScratchSpace::ScratchSpace(CollHeap *heap, SortError *sorterror, int blocksize, Int32 scratchIOVectorSize,
-                           Int32 explainNodeId, NABoolean logInfoEvent, Int32 scratchMgmtOption)
+ScratchSpace::ScratchSpace(CollHeap *heap, SortError *sorterror, int blocksize, int scratchIOVectorSize,
+                           int explainNodeId, NABoolean logInfoEvent, int scratchMgmtOption)
     : sortError_(sorterror),
       heap_(heap),
       explainNodeId_(explainNodeId),
@@ -197,7 +197,7 @@ void ScratchSpace::setCallingTcb(ex_tcb *tcb) {
   scratch file. Vector elements in the previous scrath file that are partially filled will get flushed by
   scratchSpace::checkio(checkall).
 */
-RESULT ScratchSpace::CreateANewScrFileAndWrite(char *buffer, Int32 blockNum, UInt32 blockLen, NABoolean waited) {
+RESULT ScratchSpace::CreateANewScrFileAndWrite(char *buffer, int blockNum, UInt32 blockLen, NABoolean waited) {
   RESULT retval = SCRATCH_SUCCESS;
 
   long iowaittime = 0;
@@ -214,7 +214,7 @@ RESULT ScratchSpace::CreateANewScrFileAndWrite(char *buffer, Int32 blockNum, UIn
   // scenario of creating a new scratch file when there is a pending IO is not
   // possible.
   if (previousWriteScrFile_ != NULL) {
-    for (Int32 index = 0; index < scratchMaxOpens_; index++) {
+    for (int index = 0; index < scratchMaxOpens_; index++) {
       RESULT retval = previousWriteScrFile_->checkScratchIO(index, INFINITE);
       if ((retval != IO_COMPLETE) && (retval != SCRATCH_SUCCESS)) return retval;
     }
@@ -243,7 +243,7 @@ RESULT ScratchSpace::CreateANewScrFileAndWrite(char *buffer, Int32 blockNum, UIn
 
   currentWriteScrFile_->setEventHandler(ioEventHandler_, ipcEnv_, callingTcb_);
 
-  Int32 fileIndex = currentWriteScrFile_->getFreeFileHandle();
+  int fileIndex = currentWriteScrFile_->getFreeFileHandle();
   if (fileIndex < 0) {
     sortError_->setErrorInfo(EUnexpectErr  // should not happen
                              ,
@@ -364,7 +364,7 @@ RESULT ScratchSpace::writeThru(char *buf, ULng32 len, DWORD &blockNum) {
   RESULT retval = WRITE_EOF;
   DWORD byteAddr = 0;
   long byteOffset = 0;
-  Int32 fileIndex = -1;
+  int fileIndex = -1;
 
   // ScratchSpace::WriteThru is only applicable for single opens to
   // scratch file. Return error if that is not the case.
@@ -498,7 +498,7 @@ RESULT ScratchSpace::writeThru(char *buf, ULng32 len, DWORD &blockNum) {
 //-----------------------------------------------------------------------
 RESULT ScratchSpace::readThru(char *buf,
                               int blockNum,  // block# starting from one
-                              ULng32 buflen, ScratchFile *readScratchFile, Int32 readBlockOffset) {
+                              ULng32 buflen, ScratchFile *readScratchFile, int readBlockOffset) {
   // sanity check
   ex_assert(buflen == blockSize_, "ScratchSpace::readThru buffer size mismatch");
 
@@ -516,7 +516,7 @@ RESULT ScratchSpace::readThru(char *buf,
 
   long iowaittime = 0;
   int blockOffset = 0, byteOffset = 0;
-  Int32 fileIndex = -1;
+  int fileIndex = -1;
 
   if (readScratchFile != NULL) {
     currentIOScrFile_ = currentReadScrFile_ = readScratchFile;
@@ -575,7 +575,7 @@ RESULT ScratchSpace::writeFile(char *block, UInt32 blockNum, UInt32 blockLen) {
   int blockOffset = 0;
   long byteOffset = 0;
   long iowaittime = 0;
-  Int32 fileIndex = -1;
+  int fileIndex = -1;
 
   //---------------------------------------------------------------
   // First Position to the appropriate offset.
@@ -701,7 +701,7 @@ RESULT ScratchSpace::checkIO(ScratchFile *sFile, NABoolean checkAll) {
   if (!checkAll) {
     if (tempFile != NULL) {
       // if there is even one free handle, return success.
-      for (Int32 index = 0; index < scratchMaxOpens_; index++) {
+      for (int index = 0; index < scratchMaxOpens_; index++) {
         if (!tempFile->fileHandle_[index].IOPending) {
           // Before returning IO_COMPLETE, check to see if
           // if the IO on this file prior to its completion
@@ -718,7 +718,7 @@ RESULT ScratchSpace::checkIO(ScratchFile *sFile, NABoolean checkAll) {
 
       // Since none of the handles are free, try checking for their
       // IO completion.
-      for (Int32 index = 0; index < scratchMaxOpens_; index++) {
+      for (int index = 0; index < scratchMaxOpens_; index++) {
         RESULT retval = tempFile->checkScratchIO(index);
         // WRITE_EOF can only happen in the case of varying size blocks used by
         // ScratchSpace::WriteThru. This is only used by swapspace.cpp.
@@ -746,10 +746,10 @@ RESULT ScratchSpace::checkIO(ScratchFile *sFile, NABoolean checkAll) {
     }
   } else  // checkAll is TRUE
   {
-    for (Int32 i = 0; i < scrFilesMap_->numScratchFiles_; i++) {
+    for (int i = 0; i < scrFilesMap_->numScratchFiles_; i++) {
       tempFile = scrFilesMap_->fileMap_[i].scrFile_;
 
-      for (Int32 index = 0; index < scratchMaxOpens_; index++) {
+      for (int index = 0; index < scratchMaxOpens_; index++) {
         if (tempFile->isVectorPartiallyFilledAndPending(index)) {
           if (tempFile->executeVectorIO() != SCRATCH_SUCCESS) {
             if (sortError_->getSysError() == ENOSPC) {
@@ -805,7 +805,7 @@ RESULT ScratchSpace::completeWriteIO(void) {
 
   if (!currentWriteScrFile_) return SCRATCH_SUCCESS;
 
-  Int32 index = 0;
+  int index = 0;
   do {
     if (currentWriteScrFile_->fileHandle_[index].IOPending) {
       RESULT retval = currentWriteScrFile_->checkScratchIO(index, INFINITE);
@@ -1102,8 +1102,8 @@ Int16 ScratchSpace::getLastSqlCode(void) {
   return exeError;
 }
 
-SortScratchSpace::SortScratchSpace(CollHeap *heap, SortError *error, Int32 explainNodeId, Int32 scratchIOBlockSize,
-                                   Int32 scratchIOVectorSize, NABoolean logInfoEvent, Int32 scratchMgmtOption)
+SortScratchSpace::SortScratchSpace(CollHeap *heap, SortError *error, int explainNodeId, int scratchIOBlockSize,
+                                   int scratchIOVectorSize, NABoolean logInfoEvent, int scratchMgmtOption)
     : ScratchSpace(heap, error, scratchIOBlockSize, scratchIOVectorSize, explainNodeId, logInfoEvent,
                    scratchMgmtOption) {
   blockHead_.thisBlockNum_ = 0L;
@@ -1161,11 +1161,11 @@ SortScratchSpace::~SortScratchSpace() {
   cleanupSortMergeBufferPool();
 }
 
-RESULT SortScratchSpace::setupSortMergeBufferPool(Int32 numBuffers) {
+RESULT SortScratchSpace::setupSortMergeBufferPool(int numBuffers) {
   ex_assert(freeSortMergeBufferPool_ == NULL,
             "SortScratchSpace::setupSortMergeBufferPool, freeSortMergeBufferPool_ is not NULL");
 
-  Int32 count = numBuffers;
+  int count = numBuffers;
   while (count > 0) {
     // FailureIsFatal flag set to FALSE so that we handle allocation
     // failure.
@@ -1226,7 +1226,7 @@ RESULT SortScratchSpace::writeRunData(char *data, ULng32 reclen, ULng32 run, NAB
   // down.
   // We could do some cleanup to not perform subtraction for every row.
   if ((blockHead_.bytesUsed_ + (int)reclen) <= (blockSize_ - DP2_CHECKSUM_BYTES)) {
-    memcpy(nextWritePosition_, data, (Int32)reclen);
+    memcpy(nextWritePosition_, data, (int)reclen);
     blockHead_.bytesUsed_ += reclen;
     blockHead_.numRecs_ += 1;
     nextWritePosition_ += reclen;
@@ -1239,7 +1239,7 @@ RESULT SortScratchSpace::writeRunData(char *data, ULng32 reclen, ULng32 run, NAB
     retcode = SortScratchSpace::flushRun(FALSE_L, waited);
     if (retcode != SCRATCH_SUCCESS) return retcode;
 
-    memcpy(nextWritePosition_, data, (Int32)reclen);
+    memcpy(nextWritePosition_, data, (int)reclen);
     blockHead_.bytesUsed_ += reclen;
     blockHead_.numRecs_ += 1;
     nextWritePosition_ += reclen;
@@ -1325,7 +1325,7 @@ RESULT SortScratchSpace::flushRun(NABoolean endrun, NABoolean waited) {
 RESULT SortScratchSpace::initiateSortMergeNodeRead(SortMergeNode *sortMergeNode, NABoolean waited) {
   int blockOffset;
   long iowaittime = 0;
-  Int32 numOutStandingIO = 0;
+  int numOutStandingIO = 0;
   SortMergeBuffer *mbTemp;
   RESULT retval = SCRATCH_SUCCESS;
 
@@ -1354,7 +1354,7 @@ RESULT SortScratchSpace::initiateSortMergeNodeRead(SortMergeNode *sortMergeNode,
   if (sortMergeNode->numReadQBlocks_ > sortMergeBlocksPerBuffer_) {
     return SCRATCH_SUCCESS;
   }
-  for (Int32 count = 0;
+  for (int count = 0;
        (count < sortMergeBlocksPerBuffer_) && (sortMergeNode->nextIOBlockNum_ <= sortMergeNode->endBlockNum_);
        count++) {
     // get a io buffer from pool.
@@ -1554,7 +1554,7 @@ RESULT SortScratchSpace::serveAnyFreeSortMergeBufferRead(void) {
   RESULT retval;
   long ioWaitTime = 0;
   ScratchFile *tempFile;
-  for (Int32 i = 0; i < scrFilesMap_->numScratchFiles_; i++) {
+  for (int i = 0; i < scrFilesMap_->numScratchFiles_; i++) {
     tempFile = scrFilesMap_->fileMap_[i].scrFile_;
     retval = tempFile->serveAsynchronousReadQueue(ioWaitTime, TRUE);
     if (retval != SCRATCH_SUCCESS) return retval;
@@ -1615,8 +1615,8 @@ int SortScratchSpace::getTotalNumOfRuns(void) { return runDirectory_->getTotalNu
 // Hash operator specific interface. Book keeping of cluster Ids and
 // corresponding blocks are maintained by this class.
 //-------------------------------------------------------------
-HashScratchSpace::HashScratchSpace(CollHeap *heap, SortError *error, Int32 explainNodeId, Int32 blockSize,
-                                   Int32 scratchIOVectorSize, NABoolean logInfoEvent, Int32 scratchMgmtOption)
+HashScratchSpace::HashScratchSpace(CollHeap *heap, SortError *error, int explainNodeId, int blockSize,
+                                   int scratchIOVectorSize, NABoolean logInfoEvent, int scratchMgmtOption)
     : ScratchSpace(heap, error, blockSize, scratchIOVectorSize, explainNodeId, logInfoEvent, scratchMgmtOption) {
   numClusters_ = INITIAL_MAX_CLUSTERS;
   clusterDList_ = (ClusterDirectory *)new (heap_) ClusterDirectory[numClusters_];
@@ -1662,10 +1662,10 @@ RESULT HashScratchSpace::writeThru(char *buf, UInt32 clusterID) {
 RESULT HashScratchSpace::readThru(char *buf, UInt32 clusterID, ClusterPassBack *cPassBack) {
   RESULT retval = SCRATCH_SUCCESS;
   ScratchFile *readScratchFile = cPassBack->scratchFile_;
-  Int32 readBlockOffset = cPassBack->blockOffset_;
+  int readBlockOffset = cPassBack->blockOffset_;
 
   DWORD blockNumToRead = getClusterBlockNum(clusterID, cPassBack);
-  if ((Int32)blockNumToRead <= 0) {
+  if ((int)blockNumToRead <= 0) {
     sortError_->setErrorInfo(EInvScrBlockNum  // sort error
                              ,
                              0  // syserr: the actual FS err
@@ -1735,7 +1735,7 @@ RESULT HashScratchSpace::checkIOWrite(void) {
 RESULT HashScratchSpace::checkIORead(ClusterPassBack *cPassBack, UInt32 clusterID) {
   RESULT retval;
   ScratchFile *sFile = NULL;
-  Int32 blockOffset = -1;
+  int blockOffset = -1;
 
   if (cPassBack != NULL && (cPassBack->scratchFile_ != NULL)) {
     retval = ScratchSpace::checkIO(cPassBack->scratchFile_);
@@ -1862,7 +1862,7 @@ DWORD HashScratchSpace::getClusterBlockNum(UInt32 clusterID, ClusterPassBack *cP
   }
   // if scratch file for current block is asked, map the current block to
   // scratch file and return the scratch file.
-  if (getCurrentBlock && (Int32)blockNumToRead > 0) {
+  if (getCurrentBlock && (int)blockNumToRead > 0) {
     cPassBack->scratchFile_ = scrFilesMap_->mapBlockNumToScrFile(blockNumToRead, cPassBack->blockOffset_);
 
     ex_assert(cPassBack->scratchFile_ != NULL, "HashScratchSpace::getClusterBlockNum, block number is invalid0");
@@ -2074,7 +2074,7 @@ RESULT SortMergeNode::checkIO(long &ioWaitTime, NABoolean waited) {
 
   // if this I/O is in progress check/wait for it to complete.
   if (readQHead_->state_ == READING) {
-    for (Int32 index = 0; index < readQHead_->currentScrFile_->getNumOpens(); index++) {
+    for (int index = 0; index < readQHead_->currentScrFile_->getNumOpens(); index++) {
       readQHead_->retval_ = readQHead_->currentScrFile_->checkScratchIO(index, waited ? INFINITE : 0);
 
       if ((readQHead_->retval_ != IO_COMPLETE) && (readQHead_->retval_ != SCRATCH_SUCCESS) &&

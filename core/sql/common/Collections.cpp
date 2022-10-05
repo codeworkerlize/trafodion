@@ -599,7 +599,7 @@ NASubCollection<T> &NASubCollection<T>::complement() {
   maxWords = getWordSize();
 
   // for each used entry in the superset, toggle the corresponding subset bit
-  for (Int32 i = 0; i < (Int32)superSetSize; i++) {
+  for (int i = 0; i < (int)superSetSize; i++) {
     if (superset_->getUsage(i) == UNUSED_COLL_ENTRY) {
       // a subset shouldn't have an element that's not part of
       // the superset
@@ -1090,7 +1090,7 @@ void NAHashBucketEntry<K, V>::display() const {
 }  //  NAHashBucketEntry<K,V>::display()
 
 template <class K, class V>
-Int32 NAHashBucketEntry<K, V>::printStatistics(char *buf) {
+int NAHashBucketEntry<K, V>::printStatistics(char *buf) {
   return sprintf(buf, "(0X%X,0X%X) ", key_, value_);
 }  //  NAHashBucketEntry<K,V>::printStatistics()
 
@@ -1229,9 +1229,9 @@ void NAHashBucket<K, V>::display() const {
 // NAHashBucket::printStatistics()
 // -----------------------------------------------------------------------
 template <class K, class V>
-Int32 NAHashBucket<K, V>::printStatistics(char *buf) {
+int NAHashBucket<K, V>::printStatistics(char *buf) {
   CollIndex ne = bucket_.entries();
-  Int32 c = 0;
+  int c = 0;
   if (ne > 0) {
     for (CollIndex index = 0; index < ne; index++) {
       NAHashBucketEntry<K, V> *bep = bucket_[index];
@@ -1971,8 +1971,8 @@ void NAHashDictionary<K, V>::display() const {
 // NAHashDictionary::printStatistics()
 // ----------------------------------------------------------------------
 template <class K, class V>
-Int32 NAHashDictionary<K, V>::printStatistics(char *buf) {
-  Int32 c = 0;
+int NAHashDictionary<K, V>::printStatistics(char *buf) {
+  int c = 0;
   if (hashSize_ > 0) {
     for (CollIndex index = 0; index < hashSize_; index++) {
       c += sprintf(buf + c, "\nbucket[%d] : \n", index);
@@ -1984,7 +1984,7 @@ Int32 NAHashDictionary<K, V>::printStatistics(char *buf) {
   return c;
 }  //  NAHashDictionary<K,V>::printStatistics()
 
-static ULng32 hashFunc(const Int32 &x) { return (ULng32)x; }
+static ULng32 hashFunc(const int &x) { return (ULng32)x; }
 
 template <class K, class V>
 NABoolean NAHashDictionary<K, V>::operator==(const NAHashDictionary<K, V> &other) const {

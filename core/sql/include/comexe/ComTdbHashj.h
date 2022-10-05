@@ -63,10 +63,10 @@ class ComTdbHashj : public ComTdb {
               short extLeftRowAtpIndex, short rightRowAtpIndex, short extRightRowAtpIndex1, short extRightRowAtpIndex2,
               short hashValueAtpIndex, short instRowForLeftJoinAtpIndex, short returnedLeftRowAtpIndex,
               short returnedRightRowAtpIndex, short returnedInstRowForLeftJoinAtpIndex, unsigned short memUsagePercent,
-              short pressureThreshold, short scrThreshold, queue_index down, queue_index up, Int32 isSemiJoin,
-              Int32 isLeftJoin, Int32 isAntiSemiJoin, Int32 isUniqueHashJoin, Int32 isNoOverflow, Int32 isReuse,
+              short pressureThreshold, short scrThreshold, queue_index down, queue_index up, int isSemiJoin,
+              int isLeftJoin, int isAntiSemiJoin, int isUniqueHashJoin, int isNoOverflow, int isReuse,
               int numBuffers, ULng32 bufferSize, ULng32 hashBufferSize, Cardinality estimatedRowount,
-              Cardinality innerExpectedRows, Cardinality outerExpectedRows, Int32 isRightJoin, ex_expr *rightJoinExpr,
+              Cardinality innerExpectedRows, Cardinality outerExpectedRows, int isRightJoin, ex_expr *rightJoinExpr,
               ex_expr *nullInstForRightJoinExpr, short instRowForRightJoinAtpIndex,
               short returnedInstRowForRightJoinAtpIndex, ULng32 instRowForRightJoinLength,
               unsigned short minBuffersToFlush, ULng32 numInBatch, ex_expr *checkInnerNullExpr,
@@ -91,7 +91,7 @@ class ComTdbHashj : public ComTdb {
   ///////////////////////////////////////////////////////////////////////
   void display() const;
   // ex_queue_pair  getParentQueue() const;
-  Int32 orderedQueueProtocol() const;
+  int orderedQueueProtocol() const;
   Long pack(void *);
   int unpack(void *, void *reallocator);
 
@@ -105,11 +105,11 @@ class ComTdbHashj : public ComTdb {
 
   // ****  information for GUI  *** -------------
 
-  virtual const ComTdb *getChild(Int32 pos) const;
-  virtual Int32 numChildren() const { return 2; }
+  virtual const ComTdb *getChild(int pos) const;
+  virtual int numChildren() const { return 2; }
   virtual const char *getNodeName() const { return "EX_HASHJ"; };
-  virtual Int32 numExpressions() const { return 27; }
-  virtual ex_expr *getExpressionNode(Int32 pos) {
+  virtual int numExpressions() const { return 27; }
+  virtual ex_expr *getExpressionNode(int pos) {
     if (pos == 0)
       return rightHashExpr_;
     else if (pos == 1)
@@ -167,7 +167,7 @@ class ComTdbHashj : public ComTdb {
     else
       return NULL;
   }
-  virtual const char *getExpressionName(Int32 pos) const {
+  virtual const char *getExpressionName(int pos) const {
     if (pos == 0)
       return "rightHashExpr_";
     else if (pos == 1)
@@ -296,7 +296,7 @@ class ComTdbHashj : public ComTdb {
 
   inline UInt32 getXproductPreemptMax(void) const { return xProductPreemptMax_; };
 
-  Int32 scratchIOVectorSize() { return (Int32)scratchIOVectorSize_; }
+  int scratchIOVectorSize() { return (int)scratchIOVectorSize_; }
   void setScratchIOVectorSize(Int16 v) { scratchIOVectorSize_ = v; }
 
   // set this to true if the left side has an IUD operation
@@ -385,7 +385,7 @@ class ComTdbHashj : public ComTdb {
   ExExprPtr checkInputPred_;  // 224-231
   // move/save current input
   ExExprPtr moveInputExpr_;     // 232-239
-  Int32 inputValuesLen_;        // 240-243
+  int inputValuesLen_;        // 240-243
   UInt16 scratchThresholdPct_;  // 244-245
 
   // max memory this operator should allocate. In Mbytes.
@@ -411,7 +411,7 @@ class ComTdbHashj : public ComTdb {
   ExExprPtr afterJoinPred5_;             // 312-319
   Float32 hjMemEstInKBPerNode_;          // 320-323
   Float32 bmoCitizenshipFactor_;         // 324-327
-  Int32 pMemoryContingencyMB_;           // 328-331
+  int pMemoryContingencyMB_;           // 328-331
   Int16 scratchIOVectorSize_;            // 332-333
   UInt16 bmoMinMemBeforePressureCheck_;  // 334-335
   UInt16 bmoMaxMemThresholdMB_;          // 336-337
@@ -445,13 +445,13 @@ class ComTdbHashj : public ComTdb {
   ULng32 rangeSpecSanityCheckCycle_;  // 385-388
 
  protected:
-  inline Int32 isSemiJoin() const;
-  inline Int32 isLeftJoin() const;
-  inline Int32 isAntiSemiJoin() const;
-  inline Int32 isNoOverflow() const;
-  inline Int32 isReuse() const;
-  inline Int32 isRightJoin() const;
-  inline Int32 isFullJoin() const;
+  inline int isSemiJoin() const;
+  inline int isLeftJoin() const;
+  inline int isAntiSemiJoin() const;
+  inline int isNoOverflow() const;
+  inline int isReuse() const;
+  inline int isRightJoin() const;
+  inline int isFullJoin() const;
 
   Float32 innerExpectedRows() { return getFloatValue((char *)&p_innerExpectedRows_); }
   Float32 outerExpectedRows() { return getFloatValue((char *)&p_outerExpectedRows_); }
@@ -459,8 +459,8 @@ class ComTdbHashj : public ComTdb {
  public:
   void setBmoCitizenshipFactor(Float32 bmoCf) { bmoCitizenshipFactor_ = bmoCf; }
   Float32 getBmoCitizenshipFactor(void) { return bmoCitizenshipFactor_; }
-  void setMemoryContingencyMB(Int32 mCMB) { pMemoryContingencyMB_ = mCMB; }
-  Int32 getMemoryContingencyMB(void) { return pMemoryContingencyMB_; }
+  void setMemoryContingencyMB(int mCMB) { pMemoryContingencyMB_ = mCMB; }
+  int getMemoryContingencyMB(void) { return pMemoryContingencyMB_; }
 
   void setHjMemEstInKBPerNode(Float32 s) { hjMemEstInKBPerNode_ = s; }
   Float32 getHjMemEstInKBPerNode() { return hjMemEstInKBPerNode_; }
@@ -480,21 +480,21 @@ inline ComTdb *ComTdbHashj::getLeftChildTdb() { return leftChildTdb_; };
 
 inline ComTdb *ComTdbHashj::getRightChildTdb() { return rightChildTdb_; };
 
-inline Int32 ComTdbHashj::isSemiJoin() const { return (hjFlags_ & SEMI_JOIN); };
+inline int ComTdbHashj::isSemiJoin() const { return (hjFlags_ & SEMI_JOIN); };
 
-inline Int32 ComTdbHashj::isLeftJoin() const { return (hjFlags_ & LEFT_JOIN); };
+inline int ComTdbHashj::isLeftJoin() const { return (hjFlags_ & LEFT_JOIN); };
 
-inline Int32 ComTdbHashj::isRightJoin() const { return (hjFlags_ & RIGHT_JOIN); };
+inline int ComTdbHashj::isRightJoin() const { return (hjFlags_ & RIGHT_JOIN); };
 
-inline Int32 ComTdbHashj::isFullJoin() const { return (isLeftJoin() && isRightJoin()); };
+inline int ComTdbHashj::isFullJoin() const { return (isLeftJoin() && isRightJoin()); };
 
-inline Int32 ComTdbHashj::isAntiSemiJoin() const { return (hjFlags_ & ANTI_SEMI_JOIN); };
+inline int ComTdbHashj::isAntiSemiJoin() const { return (hjFlags_ & ANTI_SEMI_JOIN); };
 
-inline Int32 ComTdbHashj::isNoOverflow() const { return (hjFlags_ & NO_OVERFLOW); };
+inline int ComTdbHashj::isNoOverflow() const { return (hjFlags_ & NO_OVERFLOW); };
 
-inline Int32 ComTdbHashj::isReuse() const { return (hjFlags_ & REUSE); };
+inline int ComTdbHashj::isReuse() const { return (hjFlags_ & REUSE); };
 
-inline Int32 ComTdbHashj::orderedQueueProtocol() const {
+inline int ComTdbHashj::orderedQueueProtocol() const {
   return -1;  // return true
 };
 
@@ -505,7 +505,7 @@ inline Int32 ComTdbHashj::orderedQueueProtocol() const {
   History     : Yeogirl Yun                                      8/22/95
                  Initial Revision.
 *****************************************************************************/
-inline const ComTdb *ComTdbHashj::getChild(Int32 pos) const {
+inline const ComTdb *ComTdbHashj::getChild(int pos) const {
   if (pos == 0)
     return leftChildTdb_;
   else if (pos == 1)

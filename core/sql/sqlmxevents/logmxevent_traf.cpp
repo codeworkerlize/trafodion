@@ -203,7 +203,7 @@ void SQLMXLoggingArea::logExecRtDebug(const char *fileName, ULng32 lineNo, const
 //
 // When privMgr debugging is set, logs information
 // ----------------------------------------------------------------------------
-void SQLMXLoggingArea::logPrivMgrInfo(const char *filename, ULng32 lineNo, const char *msg, Int32 level) {
+void SQLMXLoggingArea::logPrivMgrInfo(const char *filename, ULng32 lineNo, const char *msg, int level) {
   if (!lockMutex()) {
     printf("%s\n", msg);
     return;
@@ -219,7 +219,7 @@ void SQLMXLoggingArea::logPrivMgrInfo(const char *filename, ULng32 lineNo, const
   unlockMutex();
 }
 
-Int32 writeStackTrace(char *s, int bufLen) {
+int writeStackTrace(char *s, int bufLen) {
   void *bt[20];
   char **strings;
   size_t funcsize = 256;
@@ -323,7 +323,7 @@ void SQLMXLoggingArea::logSQLMXPredefinedEvent(const char *msg, logLevel level) 
   unlockMutex();
 }
 
-void SQLMXLoggingArea::logSQLMXDebugEvent(const char *msg, short errorcode, Int32 line) {
+void SQLMXLoggingArea::logSQLMXDebugEvent(const char *msg, short errorcode, int line) {
   if (!lockMutex()) {
     printf("%s ERRORCODE:%d LINE:%d\n", msg, errorcode, line);
     return;
@@ -340,7 +340,7 @@ void SQLMXLoggingArea::logSQLMXDebugEvent(const char *msg, short errorcode, Int3
 }
 
 // log an ABORT event
-void SQLMXLoggingArea::logSQLMXAbortEvent(const char *file, Int32 line, const char *msgTxt) {
+void SQLMXLoggingArea::logSQLMXAbortEvent(const char *file, int line, const char *msgTxt) {
   const char *file_name = "";
   if (file) {
     file_name = file;
@@ -363,14 +363,14 @@ void SQLMXLoggingArea::logSQLMXAbortEvent(const char *file, Int32 line, const ch
 }
 
 // log an ASSERTION FAILURE event
-void SQLMXLoggingArea::logSQLMXAssertionFailureEvent(const char *file, Int32 line, const char *msgTxt,
+void SQLMXLoggingArea::logSQLMXAssertionFailureEvent(const char *file, int line, const char *msgTxt,
                                                      const char *condition, const int *tid, const char *stackTrace) {
-  Int32 LEN = SQLEVENT_BUF_SIZE + STACK_TRACE_SIZE;
+  int LEN = SQLEVENT_BUF_SIZE + STACK_TRACE_SIZE;
   char msg[LEN];
   memset(msg, 0, LEN);
 
-  Int32 sLen = str_len(msgTxt);
-  Int32 sTotalLen = sLen;
+  int sLen = str_len(msgTxt);
+  int sTotalLen = sLen;
   str_cpy_all(msg, msgTxt, sLen);
 
   char fileLineStr[200];
@@ -452,7 +452,7 @@ void SQLMXLoggingArea::logMVRefreshErrorEvent(const char *msg) {
 
 void SQLMXLoggingArea::logCliReclaimSpaceEvent(int freeSize, int totalSize, int totalContexts,
                                                int totalStatements) {
-  Int32 LEN = 8192;
+  int LEN = 8192;
   char msg[8192];
   memset(msg, 0, LEN);
 

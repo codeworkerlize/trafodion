@@ -98,22 +98,22 @@ class ComTdbProbeCache : public ComTdb {
 
   inline ComTdb *getChildTdb();
 
-  Int32 orderedQueueProtocol() const;
+  int orderedQueueProtocol() const;
 
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
   // ---------------------------------------------------------------------
   virtual void displayContents(Space *space, ULng32 flag);
 
-  virtual const ComTdb *getChild(Int32 pos) const;
+  virtual const ComTdb *getChild(int pos) const;
 
-  virtual Int32 numChildren() const { return 1; }
+  virtual int numChildren() const { return 1; }
 
   virtual const char *getNodeName() const { return "EX_PROBE_CACHE"; };
 
-  virtual Int32 numExpressions() const { return 4; }
+  virtual int numExpressions() const { return 4; }
 
-  virtual ex_expr *getExpressionNode(Int32 pos) {
+  virtual ex_expr *getExpressionNode(int pos) {
     if (pos == 0)
       return hashProbeExpr_;
     else if (pos == 1)
@@ -126,7 +126,7 @@ class ComTdbProbeCache : public ComTdb {
       return NULL;
   }
 
-  virtual const char *getExpressionName(Int32 pos) const {
+  virtual const char *getExpressionName(int pos) const {
     if (pos == 0)
       return "hashProbeExpr_";
     else if (pos == 1)
@@ -149,7 +149,7 @@ inline ComTdb *ComTdbProbeCache::getChildTdb() { return tdbChild_; };
   History     : Yeogirl Yun                                      8/22/95
                  Initial Revision.
 *****************************************************************************/
-inline const ComTdb *ComTdbProbeCache::getChild(Int32 pos) const {
+inline const ComTdb *ComTdbProbeCache::getChild(int pos) const {
   if (pos == 0)
     return tdbChild_;
   else

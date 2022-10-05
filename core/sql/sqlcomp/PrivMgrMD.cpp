@@ -245,7 +245,7 @@ PrivStatus PrivMgrMDAdmin::initializeComponentPrivileges() {
 
       // Grant component operations to DB__ADMINROLE role.
       CmpSeabaseDDLrole role;
-      Int32 roleID = 0;
+      int roleID = 0;
       if (!role.getRoleIDFromRoleName(DB__ADMINROLE, roleID))
         PRIVMGR_INTERNAL_ERROR("Unable to get role_id for DB__ADMINROLE");
       privStatus = componentPrivileges.grantPrivilegeInternal(
@@ -328,7 +328,7 @@ PrivStatus PrivMgrMDAdmin::initializeMetadata(std::vector<std::string> tablesCre
     return STATUS_ERROR;
   }
 
-  Int32 cliRC = 0;
+  int cliRC = 0;
   if (cliInterface == NULL) {
     PRIVMGR_INTERNAL_ERROR("Missing required parameter");
     return STATUS_ERROR;
@@ -390,7 +390,7 @@ PrivStatus PrivMgrMDAdmin::initializeMetadata(std::vector<std::string> tablesCre
 
   // Grant privileges to default roles
   if (initializeMD) {
-    Int32 roleID = NA_UserIdDefault;
+    int roleID = NA_UserIdDefault;
     PrivMgrRoles roles;
     CmpSeabaseDDLrole auth;
     if (!auth.getRoleIDFromRoleName(DB__ADMINROLE, roleID)) {
@@ -441,7 +441,7 @@ PrivStatus PrivMgrMDAdmin::dropMetadata(const std::vector<std::string> &objectsT
   }
 
   ExeCliInterface cliInterface(STMTHEAP, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
-  Int32 cliRC = 0;
+  int cliRC = 0;
   if (doCleanup)
     cleanupMetadata(cliInterface);
   else {
@@ -521,8 +521,8 @@ void PrivMgrMDAdmin::cleanupMetadata(ExeCliInterface &cliInterface) {
 
   // cleanup histogram tables, if they exist
   std::vector<std::string> histTables = CmpSeabaseDDL::getHistogramTables();
-  Int32 numHistTables = histTables.size();
-  for (Int32 i = 0; i < numHistTables; i++) {
+  int numHistTables = histTables.size();
+  for (int i = 0; i < numHistTables; i++) {
     cleanupTable(histTables[i].c_str(), cliInterface, pDiags_);
   }
 
@@ -580,7 +580,7 @@ PrivStatus PrivMgrMDAdmin::getColumnReferences(ObjectReference *objectRef) {
   }
 
   char *ptr = NULL;
-  Int32 len = 0;
+  int len = 0;
 
   objectRef->columnReferences = new std::vector<ColumnReference *>;
 
@@ -639,7 +639,7 @@ PrivStatus PrivMgrMDAdmin::getViewColUsages(ViewUsage &viewUsage) {
   }
 
   char *ptr = NULL;
-  Int32 len = 0;
+  int len = 0;
 
   // the text column length in the TEXT table is 10000
   char value[10000 + 1];
@@ -722,7 +722,7 @@ PrivStatus PrivMgrMDAdmin::getViewsThatReferenceObject(const ObjectUsage &object
   }
 
   char *ptr = NULL;
-  Int32 len = 0;
+  int len = 0;
   char value[MAX_SQL_IDENTIFIER_NAME_LEN + 1];
 
   // For each row returned, add it to the viewUsages structure.
@@ -820,7 +820,7 @@ PrivStatus PrivMgrMDAdmin::getObjectsThatViewReferences(const ViewUsage &viewUsa
   }
 
   char *ptr = NULL;
-  Int32 len = 0;
+  int len = 0;
   char value[MAX_SQL_IDENTIFIER_NAME_LEN + 1];
 
   // For each row returned, add it to the viewUsages structure.
@@ -906,7 +906,7 @@ PrivStatus PrivMgrMDAdmin::getUdrsThatReferenceLibrary(const ObjectUsage &object
   }
 
   char *ptr = NULL;
-  Int32 len = 0;
+  int len = 0;
   char value[MAX_SQL_IDENTIFIER_NAME_LEN + 1];
 
   // For each row returned, add it to the objectReferences structure.
@@ -1055,7 +1055,7 @@ PrivStatus PrivMgrMDAdmin::getReferencingTablesForConstraints(const ObjectUsage 
   }
 
   char *ptr = NULL;
-  Int32 len = 0;
+  int len = 0;
   char value[MAX_SQL_IDENTIFIER_NAME_LEN + 1];
   objectsQueue->position();
 
@@ -1218,7 +1218,7 @@ bool PrivMgrMDAdmin::getConstraintName(const int64_t referencedTableUID, const i
 
   // Return the constraint name.
   char *ptr = NULL;
-  Int32 len = 0;
+  int len = 0;
   char value[MAX_SQL_IDENTIFIER_NAME_LEN + 1];
   objectsQueue->position();
   OutputInfo *pCliRow = (OutputInfo *)objectsQueue->getNext();
@@ -1254,7 +1254,7 @@ int32_t createTable(const char *tableName, const QString *tableDDL, ExeCliInterf
   createStmt += tableName;
   createStmt += tableDDL->str;
 
-  Int32 cliRC = cliInterface->executeImmediate(createStmt.c_str());
+  int cliRC = cliInterface->executeImmediate(createStmt.c_str());
   if (cliRC != 0) cliInterface->retrieveSQLDiagnostics(pDiags);
 
   return cliRC;
@@ -1279,7 +1279,7 @@ static int32_t dropTable(const char *tableName, ExeCliInterface &cliInterface, C
   std::string tableDDL("DROP TABLE IF EXISTS ");
   tableDDL += tableName;
 
-  Int32 cliRC = cliInterface.executeImmediate(tableDDL.c_str());
+  int cliRC = cliInterface.executeImmediate(tableDDL.c_str());
   if (cliRC < 0) cliInterface.retrieveSQLDiagnostics(pDiags);
 
   return cliRC;
@@ -1302,7 +1302,7 @@ static void cleanupTable(const char *tableName, ExeCliInterface &cliInterface, C
   std::string tableDDL("CLEANUP TABLE ");
   tableDDL += tableName;
   int32_t diagsMark = pDiags->mark();
-  Int32 cliRC = cliInterface.executeImmediate(tableDDL.c_str());
+  int cliRC = cliInterface.executeImmediate(tableDDL.c_str());
   if (cliRC < 0) pDiags->rewind(diagsMark);
 }
 
@@ -1329,7 +1329,7 @@ static int32_t renameTable(const char *originalObjectName, const char *newObject
   tableDDL += " RENAME TO ";
   tableDDL += originalObjectName;
 
-  Int32 cliRC = cliInterface.executeImmediate(tableDDL.c_str());
+  int cliRC = cliInterface.executeImmediate(tableDDL.c_str());
   if (cliRC < 0) cliInterface.retrieveSQLDiagnostics(pDiags);
 
   return cliRC;
@@ -1438,7 +1438,7 @@ PrivStatus PrivMgrMDAdmin::updatePrivMgrMetadata(const bool shouldPopulateObject
 short PrivMgrMDAdmin::alterRenamePMTbl(ExeCliInterface *cliInterface, NABoolean origToOld) {
   int cliRC = 0;
 
-  Int32 bufSize = (strlen(TRAFODION_SYSCAT_LIT) * 2) + (strlen(SEABASE_MD_SCHEMA) * 2) + (256 * 2) + 100;
+  int bufSize = (strlen(TRAFODION_SYSCAT_LIT) * 2) + (strlen(SEABASE_MD_SCHEMA) * 2) + (256 * 2) + 100;
   char queryBuf[bufSize];
 
   CmpSeabaseDDL cmpDDL(STMTHEAP);
@@ -1456,7 +1456,7 @@ short PrivMgrMDAdmin::alterRenamePMTbl(ExeCliInterface *cliInterface, NABoolean 
   int tables_upgraded = 0;
 
   // Rename each table slated for upgrade
-  for (Int32 i = 0; i < sizeof(allPrivMgrUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
+  for (int i = 0; i < sizeof(allPrivMgrUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
     const MDUpgradeInfo &pmti = allPrivMgrUpgradeInfo[i];
 
     //  If not upgrading the table, skip
@@ -1523,7 +1523,7 @@ short PrivMgrMDAdmin::alterRenamePMTbl(ExeCliInterface *cliInterface, NABoolean 
 // ----------------------------------------------------------------------------
 short PrivMgrMDAdmin::checkForOldPMTbl(ExeCliInterface *cliInterface) {
   int cliRC = 0;
-  Int32 bufSize = (strlen(TRAFODION_SYSCAT_LIT) * 2) + strlen(SEABASE_MD_SCHEMA) + strlen(SEABASE_OBJECTS) +
+  int bufSize = (strlen(TRAFODION_SYSCAT_LIT) * 2) + strlen(SEABASE_MD_SCHEMA) + strlen(SEABASE_OBJECTS) +
                   strlen(SEABASE_PRIVMGR_SCHEMA) + (3 * 60);
   char queryBuf[bufSize];
 
@@ -1560,7 +1560,7 @@ short PrivMgrMDAdmin::checkForOldPMTbl(ExeCliInterface *cliInterface) {
 // ----------------------------------------------------------------------------
 short PrivMgrMDAdmin::copyPMOldToNew(ExeCliInterface *cliInterface) {
   int cliRC = 0;
-  Int32 bufSize = 10000;
+  int bufSize = 10000;
   char queryBuf[bufSize];
   CmpSeabaseDDL cmpDDL(STMTHEAP);
   NABoolean xnWasStartedHere = FALSE;
@@ -1572,7 +1572,7 @@ short PrivMgrMDAdmin::copyPMOldToNew(ExeCliInterface *cliInterface) {
   }
 
   // Copy data for tables marked for upgrade
-  for (Int32 i = 0; i < sizeof(allPrivMgrUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
+  for (int i = 0; i < sizeof(allPrivMgrUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
     const MDUpgradeInfo &pmti = allPrivMgrUpgradeInfo[i];
 
     // If not upgrading the table, skip
@@ -1622,7 +1622,7 @@ short PrivMgrMDAdmin::copyPMOldToNew(ExeCliInterface *cliInterface) {
 // ----------------------------------------------------------------------------
 short PrivMgrMDAdmin::createPMTbl(ExeCliInterface *cliInterface) {
   int cliRC = 0;
-  Int32 bufSize = strlen(TRAFODION_SYSCAT_LIT) + strlen(SEABASE_PRIVMGR_SCHEMA) + 300;
+  int bufSize = strlen(TRAFODION_SYSCAT_LIT) + strlen(SEABASE_PRIVMGR_SCHEMA) + 300;
 
   char queryBuf[bufSize];
   CmpSeabaseDDL cmpDDL(STMTHEAP);
@@ -1639,7 +1639,7 @@ short PrivMgrMDAdmin::createPMTbl(ExeCliInterface *cliInterface) {
 
   // create required tables in the schema
   int tables_upgraded = 0;
-  for (Int32 i = 0; i < sizeof(allPrivMgrUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
+  for (int i = 0; i < sizeof(allPrivMgrUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
     const MDUpgradeInfo &pmti = allPrivMgrUpgradeInfo[i];
 
     // If this is not a new metadata table and not doing an upgrade, skip
@@ -1697,7 +1697,7 @@ short PrivMgrMDAdmin::dropAndLogPMViews(ExeCliInterface *cliInterface, NABoolean
   // For each table that has been migrated, drop any views that existed
   // on the old table and save their view text. (In the future, we can
   // add logic to recreate the views on the new tables.)
-  for (Int32 i = 0; i < sizeof(allPrivMgrUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
+  for (int i = 0; i < sizeof(allPrivMgrUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
     const MDUpgradeInfo &pmti = allPrivMgrUpgradeInfo[i];
 
     if ((!pmti.oldName) || (NOT pmti.upgradeNeeded)) continue;
@@ -1748,7 +1748,7 @@ short PrivMgrMDAdmin::dropAndLogPMViews(ExeCliInterface *cliInterface, NABoolean
 // ----------------------------------------------------------------------------
 short PrivMgrMDAdmin::dropPMTbl(ExeCliInterface *cliInterface, NABoolean oldPMTbl, NABoolean inRecovery) {
   int cliRC = 0;
-  Int32 bufSize = 500;
+  int bufSize = 500;
   char queryBuf[bufSize];
   CmpSeabaseDDL cmpDDL(STMTHEAP);
   NABoolean xnWasStartedHere = FALSE;
@@ -1766,7 +1766,7 @@ short PrivMgrMDAdmin::dropPMTbl(ExeCliInterface *cliInterface, NABoolean oldPMTb
   }
 
   // drop relevant tables
-  for (Int32 i = 0; i < sizeof(allPrivMgrUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
+  for (int i = 0; i < sizeof(allPrivMgrUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
     const MDUpgradeInfo &pmti = allPrivMgrUpgradeInfo[i];
 
     // Asked to remove tables with the "_OLD_MD" suffix
@@ -1851,7 +1851,7 @@ short PrivMgrMDAdmin::grantPMTbl(ExeCliInterface *cliInterface, NABoolean inReco
   }
 
   // grant owner level privileges on tables
-  for (Int32 i = 0; i < sizeof(allPrivMgrUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
+  for (int i = 0; i < sizeof(allPrivMgrUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
     const MDUpgradeInfo &pmti = allPrivMgrUpgradeInfo[i];
 
     // If this is not a new metadata table and not doing an upgrade, skip
@@ -1939,7 +1939,7 @@ short PrivMgrMDAdmin::revokePMTbl(ExeCliInterface *cliInterface, NABoolean oldPM
   }
 
   // revoke privileges
-  for (Int32 i = 0; i < sizeof(allPrivMgrUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
+  for (int i = 0; i < sizeof(allPrivMgrUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
     const MDUpgradeInfo &pmti = allPrivMgrUpgradeInfo[i];
 
     // If this is not a new metadata table and not doing an upgrade, skip

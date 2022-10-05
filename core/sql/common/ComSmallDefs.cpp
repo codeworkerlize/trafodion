@@ -106,8 +106,8 @@ void ComUID::convertTo19BytesFixedWidthStringWithZeroesPrefix(ComString &tgt) co
 ostream &operator<<(ostream &s, const ComUID &uid) {
   char buf[21];
   long num;
-  Int32 i;
-  Int32 digit;
+  int i;
+  int digit;
 
   // "buf" is big enough to hold the biggest num possible.   We fill it
   // from right to left 'cause its easier then print from the first
@@ -116,7 +116,7 @@ ostream &operator<<(ostream &s, const ComUID &uid) {
   i = 19;
   num = uid.data;
   while (num > 0) {
-    digit = (Int32)(num % 10);
+    digit = (int)(num % 10);
     num = num / 10;
     buf[i--] = digit + '0';
   }

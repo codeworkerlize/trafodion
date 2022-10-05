@@ -198,7 +198,7 @@ class ComTdbQryInvalid : public ComTdb {
                    ULng32 bufferSize, ex_expr *scanExpr, ex_expr *inputExpr, ex_expr *projExpr,
                    ex_cri_desc *workCriDesc, UInt16 qi_row_atp_index, UInt16 input_row_atp_index);
 
-  Int32 orderedQueueProtocol() const { return -1; };
+  int orderedQueueProtocol() const { return -1; };
 
   virtual unsigned char getClassVersionID() { return 1; }
 
@@ -229,23 +229,23 @@ class ComTdbQryInvalid : public ComTdb {
 
   // Virtual routines to provide a consistent interface to TDB's
 
-  virtual const ComTdb *getChild(Int32 /*child*/) const { return NULL; };
+  virtual const ComTdb *getChild(int /*child*/) const { return NULL; };
 
   // numChildren always returns 0 for ComTdbQryInvalid
-  virtual Int32 numChildren() const { return 0; };
+  virtual int numChildren() const { return 0; };
 
   virtual const char *getNodeName() const { return "EX_QRY_INVALID"; };
 
   // numExpressions always returns 2 for ComTdbQryInvalid
-  virtual Int32 numExpressions() const { return 2; };
+  virtual int numExpressions() const { return 2; };
 
   // The names of the expressions
-  virtual const char *getExpressionName(Int32) const;
+  virtual const char *getExpressionName(int) const;
 
   // The expressions themselves
-  virtual ex_expr *getExpressionNode(Int32);
+  virtual ex_expr *getExpressionNode(int);
 
-  static Int32 getVirtTableNumCols() {
+  static int getVirtTableNumCols() {
     return sizeof(queryInvalidateVirtTableColumnInfo) / sizeof(ComTdbVirtTableColumnInfo);
   }
 
@@ -253,7 +253,7 @@ class ComTdbQryInvalid : public ComTdb {
     return (ComTdbVirtTableColumnInfo *)queryInvalidateVirtTableColumnInfo;
   }
 
-  static Int32 getVirtTableNumKeys() {
+  static int getVirtTableNumKeys() {
     return sizeof(queryInvalidateVirtTableKeyInfo) / sizeof(ComTdbVirtTableKeyInfo);
   }
 
@@ -268,13 +268,13 @@ class ComTdbQryInvalid : public ComTdb {
   ExExprPtr inputExpr_;  // 16-23
 
   // Length of qi tuple to be allocated
-  Int32 tupleLen_;  // 24-27
+  int tupleLen_;  // 24-27
 
-  Int32 returnedTupleLen_;  // 28-31
+  int returnedTupleLen_;  // 28-31
 
-  Int32 inputTupleLen_;  // 32-35
+  int inputTupleLen_;  // 32-35
 
-  Int32 filler0ComTdbQryInvalid_;  // 36-39 unused
+  int filler0ComTdbQryInvalid_;  // 36-39 unused
 
   ExCriDescPtr workCriDesc_;  // 40-47
 

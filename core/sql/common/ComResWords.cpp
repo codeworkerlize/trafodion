@@ -243,7 +243,7 @@ ComResWords::ComResWords(const ComResWords &other, NAMemory *h) {}
 //          positive if val1 > val2
 // =====================================================================
 //
-Int32 ComResWords::wordCompare(const void *val1, const void *val2) {
+int ComResWords::wordCompare(const void *val1, const void *val2) {
   // Cast the (void *) pointers to the (ComResWord *) which they must
   // be.
   //
@@ -257,10 +257,10 @@ Int32 ComResWords::wordCompare(const void *val1, const void *val2) {
   // case-sensitive comparison
   // (all words are uppercase)
   //
-  Int32 len1 = str_len(val->getResWord());
-  Int32 len2 = str_len(entry->getResWord());
+  int len1 = str_len(val->getResWord());
+  int len2 = str_len(entry->getResWord());
 
-  Int32 maxlen = (len1 > len2) ? len1 : len2;
+  int maxlen = (len1 > len2) ? len1 : len2;
 
   return str_cmp(val->getResWord(), entry->getResWord(), maxlen);
 }
@@ -301,13 +301,13 @@ NABoolean ComResWords::isSqlReservedWord(const char *word, UInt32 ifSetFlags) {
 }
 
 ComResWord *ComResWords::binarySearch(ComResWord *val) {
-  Int32 lower = 0;
+  int lower = 0;
   size_t numEntries = sizeof(resWords_) / sizeof(ComResWord);
 
-  Int32 upper = numEntries - 1;
+  int upper = numEntries - 1;
   short result = 0;
   while (lower <= upper) {
-    Int32 middle = (lower + upper) >> 1;
+    int middle = (lower + upper) >> 1;
     result = wordCompare(&(resWords_[middle]), val);
 
     if (result == 0) return (ComResWord *)(&(resWords_[middle]));

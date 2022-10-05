@@ -95,14 +95,14 @@ ReferenceCounter::~ReferenceCounter() {
   referenceCount_ = -1;  // to detect really weird problems
 }
 
-void ReferenceCounter::incrementReferenceCount(Int32 delta) {
+void ReferenceCounter::incrementReferenceCount(int delta) {
   if (delta <= 0) ABORT("illegal increment delta for reference count");
   if (referenceCount_ < 0) ABORT("illegal reference count");
 
   referenceCount_ += delta;
 }
 
-void ReferenceCounter::decrementReferenceCount(Int32 delta) {
+void ReferenceCounter::decrementReferenceCount(int delta) {
   if (delta <= 0) ABORT("illegal decrement delta for reference count");
   if (referenceCount_ < delta) {
 #ifndef NDEBUG
@@ -131,4 +131,4 @@ void ReferenceCounter::decrementReferenceCount(Int32 delta) {
   if (referenceCount_ == 0) delete this;
 }
 
-Int32 ReferenceCounter::getReferenceCount() const { return (referenceCount_); }
+int ReferenceCounter::getReferenceCount() const { return (referenceCount_); }

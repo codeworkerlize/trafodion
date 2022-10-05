@@ -65,7 +65,7 @@ class StmtDDLResourceGroup : public StmtDDLNode {
         alterType_(NOT_ALTER) {}
 
   // alter resource group
-  StmtDDLResourceGroup(const Int32 alterType, const NAString &rGroupName, const ConstStringList *nodeList,
+  StmtDDLResourceGroup(const int alterType, const NAString &rGroupName, const ConstStringList *nodeList,
                        CollHeap *heap)
       : StmtDDLNode(DDL_ALTER_RESOURCE_GROUP),
         rGroupName_(rGroupName),

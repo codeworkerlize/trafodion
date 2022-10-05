@@ -96,7 +96,7 @@ StmtDDLRoleGrant::StmtDDLRoleGrant(ElemDDLNode *pRolesList, ElemDDLNode *pGrante
 // virtual destructor
 StmtDDLRoleGrant::~StmtDDLRoleGrant() {
   // delete all children
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     delete getChild(i);
   }
 }
@@ -107,7 +107,7 @@ StmtDDLRoleGrant *StmtDDLRoleGrant::castToStmtDDLRoleGrant() { return this; }
 // accessors
 //
 
-Int32 StmtDDLRoleGrant::getArity() const { return MAX_STMT_DDL_GRANT_ARITY; }
+int StmtDDLRoleGrant::getArity() const { return MAX_STMT_DDL_GRANT_ARITY; }
 
 ExprNode *StmtDDLRoleGrant::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());

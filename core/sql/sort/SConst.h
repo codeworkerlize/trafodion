@@ -91,17 +91,17 @@
 #include "common/Platform.h"
 
 #include "common/BaseTypes.h"
-const Int32 SORT_SUCCESS = 0;
-const Int32 SORT_FAILURE = 1;
+const int SORT_SUCCESS = 0;
+const int SORT_FAILURE = 1;
 
 const short REPL_SELECT = 1;
 const short QUICKSORT = 2;
 const short ITER_QUICKSORT = 3;
-const Int32 SCRATCH_BLOCK_SIZE = 56 * 1024;
-const Int32 MAXSCRFILES = 128;
-const Int32 FILENAMELEN = 48;
-const Int32 MAXRUNS = 512;
-const Int32 OVERHEAD = 20;  // The overhead for Scratch Buffer header struct
+const int SCRATCH_BLOCK_SIZE = 56 * 1024;
+const int MAXSCRFILES = 128;
+const int FILENAMELEN = 48;
+const int MAXRUNS = 512;
+const int OVERHEAD = 20;  // The overhead for Scratch Buffer header struct
 
 const short INITIAL_PHASE = 0;
 const short RUN_GENERATION_PHASE = 1;
@@ -114,7 +114,7 @@ const short KEY1_IS_SMALLER = -1;
 const short KEY1_IS_GREATER = 1;
 
 typedef int SBN;
-const Int32 TRUE_L = 1;
-const Int32 FALSE_L = 0;
+const int TRUE_L = 1;
+const int FALSE_L = 0;
 
 #endif

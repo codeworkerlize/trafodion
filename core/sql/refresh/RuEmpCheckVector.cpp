@@ -52,7 +52,7 @@ CRUEmpCheckVector::CRUEmpCheckVector(const CRUEmpCheckVector &other) : size_(oth
 
   pVec_ = new Elem[size_];
 
-  for (Int32 i = 0; i < size_; i++) {
+  for (int i = 0; i < size_; i++) {
     pVec_[i] = other.pVec_[i];  // Default copy
   }
 }
@@ -75,7 +75,7 @@ void CRUEmpCheckVector::LoadData(CUOFsIpcMessageTranslator &translator) {
   }
 
   // Handle pVec_ data member
-  for (Int32 i = 0; i < size_; i++) {
+  for (int i = 0; i < size_; i++) {
     translator.ReadBlock(&(pVec_[i].epoch_), sizeof(TInt32));
     translator.ReadBlock(&(pVec_[i].checkBitmap_), sizeof(int));
   }
@@ -93,7 +93,7 @@ void CRUEmpCheckVector::StoreData(CUOFsIpcMessageTranslator &translator) {
   translator.WriteBlock(&isFinal_, sizeof(BOOL));
 
   // Handle pVec_ data member
-  for (Int32 i = 0; i < size_; i++) {
+  for (int i = 0; i < size_; i++) {
     translator.WriteBlock(&(pVec_[i].epoch_), sizeof(TInt32));
     translator.WriteBlock(&(pVec_[i].checkBitmap_), sizeof(int));
   }
@@ -115,7 +115,7 @@ CRUEmpCheckVector &CRUEmpCheckVector::operator=(const CRUEmpCheckVector &other) 
     pVec_ = new Elem[size_];
   }
 
-  for (Int32 i = 0; i < size_; i++) {
+  for (int i = 0; i < size_; i++) {
     pVec_[i] = other.pVec_[i];  // Default copy
   }
 
@@ -153,7 +153,7 @@ CRUEmpCheckVector &CRUEmpCheckVector::operator=(const CRUEmpCheckVector &other) 
 BOOL CRUEmpCheckVector::IsDeltaNonEmpty(TInt32 epoch, int checkMask) const {
   RUASSERT(NULL != pVec_);
 
-  for (Int32 i = size_ - 1; i >= 0; i--) {
+  for (int i = size_ - 1; i >= 0; i--) {
     Elem &el = pVec_[i];
 
     if (0 != (checkMask & el.checkBitmap_)) {
@@ -175,7 +175,7 @@ BOOL CRUEmpCheckVector::IsDeltaInsertOnly(TInt32 epoch) const {
   RUASSERT(NULL != pVec_);
 
   // Look for deleted or updates
-  for (Int32 i = size_ - 1; i >= 0; i--) {
+  for (int i = size_ - 1; i >= 0; i--) {
     Elem &el = pVec_[i];
 
     if (0 != (CRUTbl::SINGLE_ROW_OTHER & el.checkBitmap_)) {
@@ -228,7 +228,7 @@ void CRUEmpCheckVector::Build() {
 //--------------------------------------------------------------------------//
 
 void CRUEmpCheckVector::SetDeltaNonEmpty(TInt32 epoch, CRUTbl::IUDLogContentType ct) {
-  for (Int32 i = 0; i < size_; i++) {
+  for (int i = 0; i < size_; i++) {
     Elem &el = pVec_[i];
 
     el.checkBitmap_ |= ct;  // Raise the bit
@@ -254,7 +254,7 @@ void CRUEmpCheckVector::SetDeltaNonEmpty(TInt32 epoch, CRUTbl::IUDLogContentType
 //--------------------------------------------------------------------------//
 
 void CRUEmpCheckVector::SetAllDeltasNonEmpty() {
-  for (Int32 i = 0; i < size_; i++) {
+  for (int i = 0; i < size_; i++) {
     pVec_[i].checkBitmap_ |= CRUTbl::SINGLE_ROW;
   }
 }
@@ -265,6 +265,6 @@ void CRUEmpCheckVector::SetAllDeltasNonEmpty() {
 //	The function serves for the quicksort criteria.
 //--------------------------------------------------------------------------//
 
-Int32 CRUEmpCheckVector::CompareElem(const void *pEl1, const void *pEl2) {
+int CRUEmpCheckVector::CompareElem(const void *pEl1, const void *pEl2) {
   return (((CRUEmpCheckVector::Elem *)pEl1)->epoch_ < ((CRUEmpCheckVector::Elem *)pEl2)->epoch_) ? -1 : 1;
 }

@@ -34,7 +34,7 @@
 // -----------------------------------------------------------------------
 TrafDesc *TrafMakeColumnDesc(const char *tablename, const char *colname,
                              int &colnumber,  // INOUT
-                             Int32 datatype, int length,
+                             int datatype, int length,
                              int &offset,  // INOUT
                              NABoolean null_flag, SQLCHARSET_CODE datacharset, NAMemory *space) {
 #undef COLUMN
@@ -971,8 +971,8 @@ short TrafTableStatsDesc::fetchHistogramCursor(void *histogram_id, void *column_
   TrafHistogramDesc *h = currHistogramDesc->histogramDesc();
 
   *(long *)histogram_id = h->histogram_id;
-  *(Int32 *)column_number = h->column_number;
-  *(Int32 *)colcount = h->colcount;
+  *(int *)column_number = h->column_number;
+  *(int *)colcount = h->colcount;
   *(Int16 *)interval_count = h->interval_count;
   *(long *)rowcount = h->rowcount;
   *(long *)total_uec = h->total_uec;
@@ -986,14 +986,14 @@ short TrafTableStatsDesc::fetchHistogramCursor(void *histogram_id, void *column_
     ptr = (char *)low_value;
     len = (Int16)(*(int *)h->low_value);
     *(Int16 *)ptr = len;
-    str_cpy_all(&ptr[sizeof(len)], &h->low_value[sizeof(Int32)], len);
+    str_cpy_all(&ptr[sizeof(len)], &h->low_value[sizeof(int)], len);
   }
 
   if (h->high_value) {
     ptr = (char *)high_value;
     len = (Int16)(*(int *)h->high_value);
     *(Int16 *)ptr = len;
-    str_cpy_all(&ptr[sizeof(len)], &h->high_value[sizeof(Int32)], len);
+    str_cpy_all(&ptr[sizeof(len)], &h->high_value[sizeof(int)], len);
   }
 
   *(long *)read_time = h->read_time;
@@ -1043,7 +1043,7 @@ short TrafTableStatsDesc::fetchHistintCursor(void *histogram_id, void *interval_
     ptr = (char *)interval_boundary;
     len = (Int16)(*(int *)h->interval_boundary);
     *(Int16 *)ptr = len;
-    str_cpy_all(&ptr[sizeof(len)], &h->interval_boundary[sizeof(Int32)], len);
+    str_cpy_all(&ptr[sizeof(len)], &h->interval_boundary[sizeof(int)], len);
   }
 
   *(Float64 *)std_dev_of_freq = h->std_dev_of_freq;
@@ -1054,7 +1054,7 @@ short TrafTableStatsDesc::fetchHistintCursor(void *histogram_id, void *interval_
     ptr = (char *)v5;
     len = (Int16)(*(int *)h->v5);
     *(Int16 *)ptr = len;
-    str_cpy_all(&ptr[sizeof(len)], &h->v5[sizeof(Int32)], len);
+    str_cpy_all(&ptr[sizeof(len)], &h->v5[sizeof(int)], len);
   }
 
   // advance currHistintDesc

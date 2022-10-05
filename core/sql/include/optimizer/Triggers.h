@@ -181,7 +181,7 @@ class Trigger : public NABasicObject {
 
   // recursion counter used to enforce the limit on the depth of recursive
   // triggers. Inc/Dec are called from RelExpr::bindChildren.
-  inline Int32 getRecursionCounter() const { return recursionCounter_; }
+  inline int getRecursionCounter() const { return recursionCounter_; }
   inline void incRecursionCounter() { recursionCounter_++; }
   inline void decRecursionCounter() { recursionCounter_--; }
 

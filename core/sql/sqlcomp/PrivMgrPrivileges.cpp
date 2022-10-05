@@ -1413,9 +1413,9 @@ PrivStatus PrivMgrPrivileges::grantObjectPriv(const ComObjectType objectType, co
 // *           *: Not all privs were granted.  Error in CLI diags area.
 // *
 // *****************************************************************************
-PrivStatus PrivMgrPrivileges::grantToOwners(const ComObjectType objectType, const Int32 granteeID,
-                                            const std::string &granteeName, const Int32 ownerID,
-                                            const std::string &ownerName, const Int32 creatorID,
+PrivStatus PrivMgrPrivileges::grantToOwners(const ComObjectType objectType, const int granteeID,
+                                            const std::string &granteeName, const int ownerID,
+                                            const std::string &ownerName, const int creatorID,
                                             const std::string &creatorName)
 
 {
@@ -2459,7 +2459,7 @@ PrivStatus PrivMgrPrivileges::getGrantorDetailsForObject(const bool isGrantedByS
     }
     // User is DB__ROOT.  Get the effective grantor name.
     char authName[MAX_USERNAME_LEN + 1];
-    Int32 actualLen = 0;
+    int actualLen = 0;
     retcode = ComUser::getAuthNameFromAuthID(objectOwner, authName, MAX_USERNAME_LEN + 1, actualLen);
     if (retcode != 0) {
       *pDiags_ << DgSqlCode(-20235) << DgInt0(retcode) << DgInt1(objectOwner);
@@ -4754,7 +4754,7 @@ PrivStatus ObjectPrivsMDTable::selectWhere(const std::string &whereClause, const
 // Row read successfully.  Extract the columns.
 void ObjectPrivsMDTable::setRow(OutputInfo *pCliRow, ObjectPrivsMDRow &row) {
   char *ptr = NULL;
-  Int32 len = 0;
+  int len = 0;
   char value[500];
 
   // column 1:  object uid
@@ -5357,7 +5357,7 @@ void ColumnPrivsMDTable::setRow(OutputInfo *pCliRow, ColumnPrivsMDRow &row)
 
 {
   char *ptr = NULL;
-  Int32 len = 0;
+  int len = 0;
   char value[500];
 
   // column 0:  object uid

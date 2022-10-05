@@ -87,7 +87,7 @@ class MdamPred : public NAVersionedObject {
   // is TRUE if this is the first predicate in its OR group.  Note that
   // if a predicate is not OR'd with any other predicate, it forms an
   // OR-group by itself and this field would be set to TRUE.
-  Int32 firstInOrGroup_;  // 24-27
+  int firstInOrGroup_;  // 24-27
 
   UInt32 disjunctNumber_;  // 28-31
   Int16 predType_;         // 32-33
@@ -216,7 +216,7 @@ class MdamColumnGen : public NAVersionedObject {
   UInt32 keyBufferOffset_;  // 68-71
 
   // true for sparse algorithm, false for dense
-  Int32 useSparseProbes_;  // 72-75
+  int useSparseProbes_;  // 72-75
 
   char fillersMdamColumnGen_[20];  // 76-95
 
@@ -312,19 +312,19 @@ class keyMdamGen : public keyRangeGen {
   // least significant key column
   MdamColumnGenPtr last_;  // 08-15
 
-  Int32 maxDisjunctNumber_;  // 16-19
+  int maxDisjunctNumber_;  // 16-19
 
   // The next two fields give upper bounds on storage requirements
   // for an Mdam network.
 
   // max number of MdamInterval's required
-  Int32 maxMdamIntervals_;  // 20-23
+  int maxMdamIntervals_;  // 20-23
 
   // max number of MdamRefListEntry's required
-  Int32 maxMdamRefs_;  // 24-27
+  int maxMdamRefs_;  // 24-27
 
   // max number of MdamRefListEntry's required to build the stop lists.
-  Int32 maxMdamRefsForStopLists_;  // 28-31
+  int maxMdamRefsForStopLists_;  // 28-31
 
   // For reverse scans, we complement the encoded key values in the
   // Mdam network (this is done via the encode expressions created by
@@ -333,7 +333,7 @@ class keyMdamGen : public keyRangeGen {
   // to be uncomplemented.  So, we need to know whether to
   // uncomplement them before returning.  The following member tells us.
   //
-  Int32 complementKeysBeforeReturning_;  // 32-35
+  int complementKeysBeforeReturning_;  // 32-35
 
   // used for evaluating expressions that give values in key predicates
   UInt16 valueAtpIndex_;  // 36-37
@@ -381,7 +381,7 @@ class keyMdamGen : public keyRangeGen {
 
   virtual Long pack(void *space);
   virtual int unpack(void *base, void *reallocator);
-  virtual ex_expr *getExpressionNode(Int32 pos);
+  virtual ex_expr *getExpressionNode(int pos);
 
   virtual keyMdamGen *castToKeyMdamGen() { return this; }
 

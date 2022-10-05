@@ -130,8 +130,8 @@ class PrivMgrPrivileges : public PrivMgr {
   PrivStatus grantObjectPriv(const ComObjectType objectType, const int32_t granteeID,
                              const PrivObjectBitmap privsBitmap, const PrivObjectBitmap grantableBitmap);
 
-  PrivStatus grantToOwners(const ComObjectType objectType, const Int32 granteeID, const std::string &granteeName,
-                           const Int32 ownerID, const std::string &ownerName, const Int32 creatorID,
+  PrivStatus grantToOwners(const ComObjectType objectType, const int granteeID, const std::string &granteeName,
+                           const int ownerID, const std::string &ownerName, const int creatorID,
                            const std::string &creatorName);
 
   PrivStatus insertPrivRowsForObject(const int64_t objectUID, const std::vector<ObjectPrivsRow> &objectPrivsRows);

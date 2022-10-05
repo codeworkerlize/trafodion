@@ -204,7 +204,7 @@ void QmsInitializer::processCatalogs(const NAStringList *catalogNames) {
 // ***************************************************************
 
 void QmsInitializer::processMvDescriptor(const QRMVDefinition *mvDef, const NAString *mvDescriptorText) {
-  Int32 len = 0;
+  int len = 0;
 
   try {
     QRElementMapper em;
@@ -337,7 +337,7 @@ NABoolean QmsInitializer::collectMVNames(const NAStringList *catalogNames, NAStr
 // ***************************************************************
 void QmsInitializer::reDescribeMVs(NAStringList &mvNames, NABoolean rePublish) {
   // For each MV
-  for (Int32 i = (Int32)mvNames.entries() - 1; i >= 0; i--) {
+  for (int i = (int)mvNames.entries() - 1; i >= 0; i--) {
     const NAString *mv = mvNames[i];
 
     // Regenerate the descriptor.

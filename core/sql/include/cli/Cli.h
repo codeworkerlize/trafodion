@@ -116,17 +116,17 @@ int SQLCLI_AssocFileNumber(/*IN*/ CliGlobals *cliGlobals,
                              /*IN*/ SQLSTMT_ID *statement_id,
                              /*IN*/ short file_number);
 
-Int32 SQLCLI_GetDiskMaxSize(
+int SQLCLI_GetDiskMaxSize(
     /*IN*/ CliGlobals *cliGlobals,
     /*IN*/ char *volname,
     /*OUT*/ long *totalCapacity,
     /*OUT*/ long *totalFreespace);
-Int32 SQLCLI_GetListOfDisks(
+int SQLCLI_GetListOfDisks(
     /*IN*/ CliGlobals *cliGlobals,
     /*IN/OUT*/ char *diskBuffer,
-    /* OUT */ Int32 *numTSEs,
-    /* OUT */ Int32 *maxTSELength,
-    /* IN/OUT */ Int32 *diskBufferLength);
+    /* OUT */ int *numTSEs,
+    /* OUT */ int *maxTSELength,
+    /* IN/OUT */ int *diskBufferLength);
 int SQLCLI_BreakEnabled(/*IN*/ CliGlobals *cliGlobals,
                           /*IN*/ UInt32 enabled);
 
@@ -394,9 +394,9 @@ int SQLCLI_GetCobolSQLSTATE(/*IN*/ CliGlobals *cliGlobals,
 // For internal use only -- do not document!
 int SQLCLI_GetRootTdb_Internal(/*IN*/ CliGlobals *cliGlobals,
                                  /*INOUT*/ char *roottdb_ptr,
-                                 /*IN*/ Int32 roottdb_len,
+                                 /*IN*/ int roottdb_len,
                                  /*INOUT*/ char *srcstr_ptr,
-                                 /*IN*/ Int32 srcstr_len,
+                                 /*IN*/ int srcstr_len,
                                  /*IN*/ SQLSTMT_ID *statement_id);
 
 int SQLCLI_GetRootTdbSize_Internal(/*IN*/ CliGlobals *cliGlobals,
@@ -423,9 +423,9 @@ int SQLCLI_GetMPCatalog(/*IN*/ CliGlobals *cliGlobals,
                           /*OUT*/ int *MPCatalogNameLen);
 
 int SQLCLI_GetPfsSize(/*IN*/ CliGlobals *cliGlobals,
-                        /*OUT*/ Int32 *pfsSize,
-                        /*OUT*/ Int32 *pfsCurUse,
-                        /*OUT*/ Int32 *pfsMaxUse);
+                        /*OUT*/ int *pfsSize,
+                        /*OUT*/ int *pfsCurUse,
+                        /*OUT*/ int *pfsMaxUse);
 int SQLCLI_CleanUpPfsResources(/*IN*/ CliGlobals *cliGlobals);
 
 int SQLCLI_PerformTasks(
@@ -461,15 +461,15 @@ int SQLCLI_GetExplainData(
     /*IN*/ CliGlobals *cliGlobals,
     /*IN*/ SQLSTMT_ID *statement_id,
     /*INOUT*/ char *explain_ptr,
-    /*IN*/ Int32 explain_len,
-    /*INOUT*/ Int32 *ret_explain_len);
+    /*IN*/ int explain_len,
+    /*INOUT*/ int *ret_explain_len);
 
 int SQLCLI_StoreExplainData(
     /*IN*/ CliGlobals *cliGlobals,
     /*IN*/ long *exec_start_utc_ts,
     /*IN*/ char *query_id,
     /*INOUT*/ char *explain_ptr,
-    /*IN*/ Int32 explain_len);
+    /*IN*/ int explain_len);
 
 int SQLCLI_ResDescName(/*IN*/ CliGlobals *cliGlobals,
                          /*INOUT*/ SQLDESC_ID *statement_id,
@@ -520,51 +520,51 @@ int SQLCLI_GetDatabaseUserID(/*IN*/ CliGlobals *cliGlobals,
                                /*IN*/ char *string_value,
                                /*OUT*/ int *numeric_value);
 
-Int32 SQLCLI_GetAuthState(
+int SQLCLI_GetAuthState(
     /*IN*/ CliGlobals *cliGlobals,
-    /*OUT*/ Int32 &authenticationType,
+    /*OUT*/ int &authenticationType,
     /*OUT*/ bool &authorizationEnabled,
     /*OUT*/ bool &authorizationReady,
     /*OUT*/ bool &auditingEnabled);
 
-int SQLCLI_GetRoleList(CliGlobals *cliGlobals, Int32 &numEntries, Int32 *&roleIDs, Int32 *&granteeIDs);
+int SQLCLI_GetRoleList(CliGlobals *cliGlobals, int &numEntries, int *&roleIDs, int *&granteeIDs);
 
 int SQLCLI_ResetRoleList(
     /*IN*/ CliGlobals *cliGlobals);
 
-Int32 SQLCLI_GetUserAttrs(
+int SQLCLI_GetUserAttrs(
     /*IN*/ CliGlobals *cliGlobals,
     /*IN*/ const char *username,
     /*IN*/ const char *tenant_name,
     /*OUT*/ USERS_INFO *users_info,
     /*OUT*/ struct SQLSEC_AuthDetails *auth_details);
 
-Int32 SQLCLI_RegisterUser(
+int SQLCLI_RegisterUser(
     /*IN*/ CliGlobals *cliGlobals,
     /*IN*/ const char *username,
     /*IN*/ const char *config,
     /*OUT*/ USERS_INFO *usersInfo,
     /*OUT*/ struct SQLSEC_AuthDetails *auth_details);
 
-Int32 SQLCLI_GetAuthErrPwdCnt(
+int SQLCLI_GetAuthErrPwdCnt(
     /*IN*/ CliGlobals *cliGlobals,
-    /*IN*/ Int32 userid,
+    /*IN*/ int userid,
     /*OUT*/ Int16 &errcnt);
 
-Int32 SQLCLI_UpdateAuthErrPwdCnt(
+int SQLCLI_UpdateAuthErrPwdCnt(
     /*IN*/ CliGlobals *cliGlobals,
-    /*IN*/ Int32 userid,
+    /*IN*/ int userid,
     /*IN*/ Int16 errcnt,
     /*IN*/ bool reset);
 
-Int32 SQLCLI_GetAuthGracePwdCnt(
+int SQLCLI_GetAuthGracePwdCnt(
     /*IN*/ CliGlobals *,
-    /*IN*/ Int32,
+    /*IN*/ int,
     /*OUT*/ Int16 &);
 
-Int32 SQLCLI_UpdateAuthGracePwdCnt(
+int SQLCLI_UpdateAuthGracePwdCnt(
     /*IN*/ CliGlobals *cliGlobals,
-    /*IN*/ Int32 userid,
+    /*IN*/ int userid,
     /*IN*/ Int16 graceCnt = 0);
 
 int SQLCLI_GetUniqueQueryIdAttrs(/*IN*/ CliGlobals *cliGlobals,
@@ -626,7 +626,7 @@ int SQLCLI_GetRowsetNumprocessed(CliGlobals *cliGlobals, SQLDESC_ID *desc_id, in
 int SQLCLI_SwitchContext(/*IN*/ CliGlobals *cliGlobals,
                            /*IN*/ SQLCTX_HANDLE ctxt_handle,
                            /*OUT OPTIONAL*/ SQLCTX_HANDLE *prev_ctxt_handle,
-                           /*IN */ Int32 allowSwitchBackToDefault);
+                           /*IN */ int allowSwitchBackToDefault);
 
 int SQLCLI_Xact(/*IN*/ CliGlobals *cliGlobals,
                   /*IN* (SQLTRANS_COMMAND) */ int command,
@@ -635,10 +635,10 @@ int SQLCLI_Xact(/*IN*/ CliGlobals *cliGlobals,
 int SQLCLI_SetAuthID(CliGlobals *cliGlobals,      /*IN*/
                        const USERS_INFO &usersInfo, /*IN*/
                        const char *authToken,       /*IN*/
-                       Int32 authTokenLen,          /*IN*/
+                       int authTokenLen,          /*IN*/
                        const char *slaName,         /*IN*/
                        const char *profileName,     /*IN*/
-                       Int32 resetAttributes);      /*IN*/
+                       int resetAttributes);      /*IN*/
 
 /* temporary functions -- for use by sqlcat simulator only */
 
@@ -670,7 +670,7 @@ int SQLCLI_GetDescItemsEntryCount(
     /*IN*/ SQLDESC_ITEM desc_items[],
     /*IN*/ SQLDESC_ID *value_num_descriptor,
     /*IN*/ SQLDESC_ID *output_descriptor,
-    /*Out*/ Int32 &error_occurred);
+    /*Out*/ int &error_occurred);
 
 int SQLCLI_SetParserFlagsForExSqlComp_Internal(
     /*IN*/ CliGlobals *cliGlobals,
@@ -707,31 +707,31 @@ short SQLCLI_GETANSINAME(CliGlobals *cliGlobals, const char *guardianName, int g
 int SQLCLI_DecodeAndFormatKey(CliGlobals *cliGlobals,
                                 void *RCB_Pointer_Addr,     // in
                                 void *KeyAddr,              // in
-                                Int32 KeyLength,            // in
+                                int KeyLength,            // in
                                 void *DecodedKeyBufAddr,    // in/out: where decoded key to be returned
                                 void *FormattedKeyBufAddr,  // in/out: formatted key to be returned
-                                Int32 FormattedKeyBufLen,   // in
-                                Int32 *NeededKeyBufLen);    // out: required buffer size to be returned
+                                int FormattedKeyBufLen,   // in
+                                int *NeededKeyBufLen);    // out: required buffer size to be returned
 
-int SQLCLI_GetPartitionKeyFromRow(CliGlobals *cliGlobals, void *RCB_Pointer_Addr, void *Row_Addr, Int32 Row_Length,
-                                    void *KeyAddr, Int32 KeyLength);
+int SQLCLI_GetPartitionKeyFromRow(CliGlobals *cliGlobals, void *RCB_Pointer_Addr, void *Row_Addr, int Row_Length,
+                                    void *KeyAddr, int KeyLength);
 
 int SQLCLI_SetErrorCodeInRTS(CliGlobals *cliGlobals, SQLSTMT_ID *statement_id, int sqlErrorCode);
 
 int SQLCLI_SetSecInvalidKeys(CliGlobals *cliGlobals,
-                               /* IN */ Int32 numSiKeys,
+                               /* IN */ int numSiKeys,
                                /* IN */ SQL_QIKEY siKeys[]);
 
 int SQLCLI_GetSecInvalidKeys(CliGlobals *cliGlobals,
                                /* IN */ long prevTimestamp,
                                /* IN/OUT */ SQL_QIKEY siKeys[],
-                               /* IN */ Int32 maxNumSiKeys,
-                               /* IN/OUT */ Int32 *returnedNumSiKeys,
+                               /* IN */ int maxNumSiKeys,
+                               /* IN/OUT */ int *returnedNumSiKeys,
                                /* IN/OUT */ long *maxTimestamp);
 
-Int32 SQLCLI_SetObjectEpochEntry(CliGlobals *cliGlobals,
-                                 /* IN */ Int32 operation,
-                                 /* IN */ Int32 objectNameLength,
+int SQLCLI_SetObjectEpochEntry(CliGlobals *cliGlobals,
+                                 /* IN */ int operation,
+                                 /* IN */ int objectNameLength,
                                  /* IN */ const char *objectName,
                                  /* IN */ long redefTime,
                                  /* IN */ long key,
@@ -781,25 +781,25 @@ int SQLCLI_GetStatisticsItems(CliGlobals *cliGlobals,
 int SQLCLI_ProcessRetryQuery(CliGlobals *cliGlobals, SQLSTMT_ID *statement_id, int sqlcode, short afterPrepare,
                                short afterExec, short afterFetch, short afterCEFC);
 
-int SQLCLI_LocaleToUTF8(CliGlobals *cliGlobals, Int32 conv_charset, void *Input_Buffer_Addr,
-                          Int32 Input_Buffer_Length, void *Output_Buffer_Addr, Int32 Output_Buffer_Length,
-                          void **First_Untranslated_Char_Addr, Int32 *Output_Data_Length, Int32 add_null_at_end_Flag,
-                          Int32 *num_translated_char);
+int SQLCLI_LocaleToUTF8(CliGlobals *cliGlobals, int conv_charset, void *Input_Buffer_Addr,
+                          int Input_Buffer_Length, void *Output_Buffer_Addr, int Output_Buffer_Length,
+                          void **First_Untranslated_Char_Addr, int *Output_Data_Length, int add_null_at_end_Flag,
+                          int *num_translated_char);
 
-int SQLCLI_LocaleToUTF16(CliGlobals *cliGlobals, Int32 conv_charset, void *Input_Buffer_Addr,
-                           Int32 Input_Buffer_Length, void *Output_Buffer_Addr, Int32 Output_Buffer_Length,
-                           void **First_Untranslated_Char_Addr, Int32 *Output_Data_Length, Int32 conv_flags,
-                           Int32 add_null_at_end_Flag, Int32 *num_translated_char);
+int SQLCLI_LocaleToUTF16(CliGlobals *cliGlobals, int conv_charset, void *Input_Buffer_Addr,
+                           int Input_Buffer_Length, void *Output_Buffer_Addr, int Output_Buffer_Length,
+                           void **First_Untranslated_Char_Addr, int *Output_Data_Length, int conv_flags,
+                           int add_null_at_end_Flag, int *num_translated_char);
 
-int SQLCLI_UTF8ToLocale(CliGlobals *cliGlobals, Int32 conv_charset, void *Input_Buffer_Addr,
-                          Int32 Input_Buffer_Length, void *Output_Buffer_Addr, Int32 Output_Buffer_Length,
-                          void **First_Untranslated_Char_Addr, Int32 *Output_Data_Length, Int32 add_null_at_end_Flag,
-                          Int32 allow_invalids, Int32 *num_translated_char, void *substitution_char_addr);
+int SQLCLI_UTF8ToLocale(CliGlobals *cliGlobals, int conv_charset, void *Input_Buffer_Addr,
+                          int Input_Buffer_Length, void *Output_Buffer_Addr, int Output_Buffer_Length,
+                          void **First_Untranslated_Char_Addr, int *Output_Data_Length, int add_null_at_end_Flag,
+                          int allow_invalids, int *num_translated_char, void *substitution_char_addr);
 
-int SQLCLI_UTF16ToLocale(CliGlobals *cliGlobals, Int32 conv_charset, void *Input_Buffer_Addr,
-                           Int32 Input_Buffer_Length, void *Output_Buffer_Addr, Int32 Output_Buffer_Length,
-                           void **First_Untranslated_Char_Addr, Int32 *Output_Data_Length, Int32 conv_flags,
-                           Int32 add_null_at_end_Flag, Int32 allow_invalids, Int32 *num_translated_char,
+int SQLCLI_UTF16ToLocale(CliGlobals *cliGlobals, int conv_charset, void *Input_Buffer_Addr,
+                           int Input_Buffer_Length, void *Output_Buffer_Addr, int Output_Buffer_Length,
+                           void **First_Untranslated_Char_Addr, int *Output_Data_Length, int conv_flags,
+                           int add_null_at_end_Flag, int allow_invalids, int *num_translated_char,
                            void *substitution_char_addr);
 
 int SQLCLI_RegisterQuery(CliGlobals *cliGlobals, SQLQUERY_ID *queryId, int fragId, int tdbId, int explainTdbId,
@@ -837,15 +837,15 @@ int SQLCLI_GetChildQueryInfo(CliGlobals *cliGlobals, SQLSTMT_ID *statement_id, c
                                int uniqueQueryIdMaxLen, int *uniqueQueryIdLen, SQL_QUERY_COST_INFO *query_cost_info,
                                SQL_QUERY_COMPILER_STATS_INFO *comp_stats_info);
 
-Int32 SQLCLI_SWITCH_TO_COMPILER_TYPE(
+int SQLCLI_SWITCH_TO_COMPILER_TYPE(
     /*IN*/ CliGlobals *cliGlobals,
-    /*IN*/ Int32 cmpCntxtType);
+    /*IN*/ int cmpCntxtType);
 
-Int32 SQLCLI_SWITCH_TO_COMPILER(
+int SQLCLI_SWITCH_TO_COMPILER(
     /*IN*/ CliGlobals *cliGlobals,
     /*IN*/ void *cmpCntxt);
 
-Int32 SQLCLI_SWITCH_BACK_COMPILER(
+int SQLCLI_SWITCH_BACK_COMPILER(
     /*IN*/ CliGlobals *cliGlobals);
 
 int SQLCLI_SEcliInterface(
@@ -874,58 +874,58 @@ int SQLCLI_OrderSeqXDCCliInterface(CliGlobals *cliGlobals,
                                                               OUT: if returned, save it and pass it back in */
                                      void *seqGenAttrs, long endValue);
 
-Int32 SQLCLI_GetRoutine(
+int SQLCLI_GetRoutine(
     /* IN */ CliGlobals *cliGlobals,
     /* IN */ const char *serializedInvocationInfo,
-    /* IN */ Int32 invocationInfoLen,
+    /* IN */ int invocationInfoLen,
     /* IN */ const char *serializedPlanInfo,
-    /* IN */ Int32 planInfoLen,
-    /* IN */ Int32 language,
-    /* IN */ Int32 paramStyle,
+    /* IN */ int planInfoLen,
+    /* IN */ int language,
+    /* IN */ int paramStyle,
     /* IN */ const char *externalName,
     /* IN */ const char *containerName,
     /* IN */ const char *externalPath,
     /* IN */ const char *librarySqlName,
-    /* OUT */ Int32 *handle);
+    /* OUT */ int *handle);
 
-Int32 SQLCLI_InvokeRoutine(
+int SQLCLI_InvokeRoutine(
     /* IN */ CliGlobals *cliGlobals,
-    /* IN */ Int32 handle,
-    /* IN */ Int32 phaseEnumAsInt,
+    /* IN */ int handle,
+    /* IN */ int phaseEnumAsInt,
     /* IN */ const char *serializedInvocationInfo,
-    /* IN */ Int32 invocationInfoLen,
-    /* OUT */ Int32 *invocationInfoLenOut,
+    /* IN */ int invocationInfoLen,
+    /* OUT */ int *invocationInfoLenOut,
     /* IN */ const char *serializedPlanInfo,
-    /* IN */ Int32 planInfoLen,
-    /* IN */ Int32 planNum,
-    /* OUT */ Int32 *planInfoLenOut,
+    /* IN */ int planInfoLen,
+    /* IN */ int planNum,
+    /* OUT */ int *planInfoLenOut,
     /* IN */ char *inputRow,
-    /* IN */ Int32 inputRowLen,
+    /* IN */ int inputRowLen,
     /* OUT */ char *outputRow,
-    /* IN */ Int32 outputRowLen);
+    /* IN */ int outputRowLen);
 
-Int32 SQLCLI_GetRoutineInvocationInfo(
+int SQLCLI_GetRoutineInvocationInfo(
     /* IN */ CliGlobals *cliGlobals,
-    /* IN */ Int32 handle,
+    /* IN */ int handle,
     /* IN/OUT */ char *serializedInvocationInfo,
-    /* IN */ Int32 invocationInfoMaxLen,
-    /* OUT */ Int32 *invocationInfoLenOut,
+    /* IN */ int invocationInfoMaxLen,
+    /* OUT */ int *invocationInfoLenOut,
     /* IN/OUT */ char *serializedPlanInfo,
-    /* IN */ Int32 planInfoMaxLen,
-    /* IN */ Int32 planNum,
-    /* OUT */ Int32 *planInfoLenOut);
+    /* IN */ int planInfoMaxLen,
+    /* IN */ int planNum,
+    /* OUT */ int *planInfoLenOut);
 
-Int32 SQLCLI_PutRoutine(
+int SQLCLI_PutRoutine(
     /* IN */ CliGlobals *cliGlobals,
-    /* IN */ Int32 handle);
+    /* IN */ int handle);
 
-Int32 SQLCLI_LoadTrafMetadataInCache(
+int SQLCLI_LoadTrafMetadataInCache(
     /* IN */ CliGlobals *cliGlobals);
 
-Int32 SQLCLI_LoadTrafMetadataIntoSharedCache(
+int SQLCLI_LoadTrafMetadataIntoSharedCache(
     /* IN */ CliGlobals *cliGlobals);
 
-Int32 SQLCLI_LoadTrafDataIntoSharedCache(
+int SQLCLI_LoadTrafDataIntoSharedCache(
     /* IN */ CliGlobals *cliGlobals);
 
 int SQLCLI_GetTransactionId(

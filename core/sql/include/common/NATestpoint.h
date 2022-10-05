@@ -95,9 +95,9 @@ class CNATestPoint {
   CNATestPoint::ETestPointRqst GetRqst() const { return m_eRqst; }
   void GetRqstText(char *text);
   int GetDelayTime() const { return m_iDelayTime; }
-  Int32 GetError() const { return m_iError; }
-  Int32 GetFSError() const { return m_iFSError; }
-  Int32 GetTrapError() const { return m_iTrapError; }
+  int GetError() const { return m_iError; }
+  int GetFSError() const { return m_iFSError; }
+  int GetTrapError() const { return m_iTrapError; }
   int GetDetails();
 
   // mutators
@@ -106,11 +106,11 @@ class CNATestPoint {
   void SetInnerLoopIterator(const int innerLoopIterator) { m_iInnerLoopIterator = innerLoopIterator; }
   void SetRqst(const CNATestPoint::ETestPointRqst rqst) { m_eRqst = rqst; }
   void SetDelayTime(const int delayTime);
-  void SetError(const Int32 error) { m_iError = error; }
-  void SetFSError(const Int32 fsError) { m_iFSError = fsError; }
-  void SetTrapError(const Int32 trapError);
+  void SetError(const int error) { m_iError = error; }
+  void SetFSError(const int fsError) { m_iFSError = fsError; }
+  void SetTrapError(const int trapError);
 
-  Int32 Execute(void);
+  int Execute(void);
   void Wait(int delayTime_in_millisecs);
 
  protected:
@@ -125,9 +125,9 @@ class CNATestPoint {
   int m_iInnerLoopIterator;  // iteration of inner loop - 0 if no inner loop
   ETestPointRqst m_eRqst;
   int m_iDelayTime;
-  Int32 m_iError;
-  Int32 m_iFSError;
-  Int32 m_iTrapError;
+  int m_iError;
+  int m_iFSError;
+  int m_iTrapError;
 
   void RecursiveCall(char buffer[100000]);
 };
@@ -142,10 +142,10 @@ class CNATestPointList : public NAList<CNATestPoint *> {
   CNATestPointList(EOwnership ownership = eItemsAreOwned);
   ~CNATestPointList();
 
-  inline void AddTestPoint(const int number, const int iterator, const NAString rqstStr, const Int32 details);
+  inline void AddTestPoint(const int number, const int iterator, const NAString rqstStr, const int details);
 
   void AddTestPoint(const int number, const int outermostLoopIterator, const int innerLoopIterator,
-                    const NAString rqstStr, const Int32 details);
+                    const NAString rqstStr, const int details);
 
   CNATestPoint *Find(const int number,
                      const int iterator,                // iteration of outermost loop
@@ -171,7 +171,7 @@ class CNATestPointList : public NAList<CNATestPoint *> {
 //   details - optional details: e.g. how long to wait for a DELAY
 // ---------------------------------------------------------------------
 inline void CNATestPointList::AddTestPoint(const int number, const int iterator, const NAString rqstStr,
-                                           const Int32 details) {
+                                           const int details) {
   AddTestPoint(number, iterator,
                0,  // no inner loop
                rqstStr, details);
@@ -192,7 +192,7 @@ class CNATestPointArray {
   bool configureTestPoint(const NAString &testPointSpec);  // returns false if bad spec
   bool configureDelayTestPoint(enum ETestPointValue testPoint, const int delayInSeconds);
   void resetAllTestPoints();
-  Int32 executeTestPoint(enum ETestPointValue testPoint);
+  int executeTestPoint(enum ETestPointValue testPoint);
 
  private:
   NAHeap *heap_;

@@ -47,13 +47,13 @@
 // A helper function to unpack (decode) an encoded Java signature.
 // Input: encodedSignature (the encoded signature),  unpackedSignature (pointing at the pre-allocated space receiving
 // the unpacked signature) Output: unpackedSignature (unpacked signature)
-Int32 unpackSignature(const char *encodedSignature, char *unpackedSignature);
+int unpackSignature(const char *encodedSignature, char *unpackedSignature);
 
 // A helper function to return the size if an encoded string is unpacked.
 // Input: encodedSignature (the encoded signature)
 // Return: - the size if the encoded signature is unpacked
 //		   - the total number of parameters present in the
 //           packed method signature
-Int32 getUnpackedSignatureSize(const char *encodedSignature, Int32 *numParams = NULL);
+int getUnpackedSignatureSize(const char *encodedSignature, int *numParams = NULL);
 
 #endif

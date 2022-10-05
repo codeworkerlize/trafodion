@@ -51,7 +51,7 @@ class ex_function_abs : public ex_function_clause {
   ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea **diagsArea = 0);
   // Display
   //
-  virtual void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea);
+  virtual void displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea);
 
   // ---------------------------------------------------------------------
   // Redefinition of methods inherited from NAVersionedObject.
@@ -81,7 +81,7 @@ class ExFunctionBitOper : public ex_function_clause {
   ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea **diagsArea = 0);
   // Display
   //
-  virtual void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea);
+  virtual void displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea);
 
   // ---------------------------------------------------------------------
   // Redefinition of methods inherited from NAVersionedObject.
@@ -114,7 +114,7 @@ class ExFunctionMath : public ex_function_clause {
 
   // Display
   //
-  virtual void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea);
+  virtual void displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea);
 
   // ---------------------------------------------------------------------
   // Redefinition of methods inherited from NAVersionedObject.

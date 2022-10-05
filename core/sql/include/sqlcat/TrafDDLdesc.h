@@ -307,10 +307,10 @@ class TrafColumnsDesc : public TrafDesc {
 
   char *colname;
 
-  Int32 colnumber;
-  Int32 datatype;
+  int colnumber;
+  int datatype;
 
-  Int32 offset;
+  int offset;
   int length;
 
   int scale;
@@ -377,7 +377,7 @@ class TrafConstrntKeyColsDesc : public TrafDesc {
   }
 
   char *colname;
-  Int32 position;
+  int position;
 
   long constrntKeyColsDescFlags;  // my flags
 
@@ -427,7 +427,7 @@ class TrafConstrntsDesc : public TrafDesc {
 
   Int16 /*ConstraintType*/ type;
   Int16 fillerInt16;
-  Int32 colcount;
+  int colcount;
 
   long constrntsDescFlags;  // my flags
 
@@ -546,10 +546,10 @@ class TrafHistogramDesc : public TrafDesc {
   long table_uid;
   long histogram_id;
 
-  Int32 col_position;
-  Int32 column_number;
-  Int32 colcount;
-  Int32 interval_count;
+  int col_position;
+  int column_number;
+  int colcount;
+  int interval_count;
 
   long rowcount;
   long total_uec;
@@ -561,7 +561,7 @@ class TrafHistogramDesc : public TrafDesc {
   long sample_secs;
   long col_secs;
 
-  Int32 read_count;
+  int read_count;
   Int16 sample_percent;
   Int16 reason;
 
@@ -611,8 +611,8 @@ class TrafHistIntervalDesc : public TrafDesc {
 
   long histogram_id;
 
-  Int32 interval_number;
-  Int32 fillerInt32;
+  int interval_number;
+  int fillerInt32;
 
   long interval_rowcount;
   long interval_uec;
@@ -718,10 +718,10 @@ class TrafIndexesDesc : public TrafDesc {
                     // for ARK tables.
   long indexUID;
 
-  Int32 keytag;
-  Int32 record_length;
-  Int32 colcount;
-  Int32 blocksize;
+  int keytag;
+  int record_length;
+  int colcount;
+  int blocksize;
 
   Int16 /*ComPartitioningScheme*/ partitioningScheme_;
   Int16 /*ComRowFormat*/ rowFormat_;
@@ -789,8 +789,8 @@ class TrafKeysDesc : public TrafDesc {
   }
 
   char *keyname;
-  Int32 keyseqnumber;
-  Int32 tablecolnumber;
+  int keyseqnumber;
+  int tablecolnumber;
 
   long keysDescFlags;  // my flags
 
@@ -829,9 +829,9 @@ class TrafLibraryDesc : public TrafDesc {
   char *libraryName;
   char *libraryFilename;
   long libraryUID;
-  Int32 libraryVersion;
-  Int32 libraryOwnerID;
-  Int32 librarySchemaOwnerID;
+  int libraryVersion;
+  int libraryOwnerID;
+  int librarySchemaOwnerID;
 
   char filler[20];
 };
@@ -867,7 +867,7 @@ class TrafPartnsDesc : public TrafDesc {
   }
 
   char *tablename;
-  Int32 primarypartition;
+  int primarypartition;
   char *partitionname;
   char *logicalpartitionname;
   char *firstkey;
@@ -876,10 +876,10 @@ class TrafPartnsDesc : public TrafDesc {
   char *encodedkey;
   char *lowKey;
   char *highKey;
-  Int32 indexlevel;
-  Int32 priExt;
-  Int32 secExt;
-  Int32 maxExt;
+  int indexlevel;
+  int priExt;
+  int secExt;
+  int maxExt;
   char *givenname;
 };
 
@@ -971,17 +971,17 @@ class TrafRoutineDesc : public TrafDesc {
   NABoolean isIsolate;
   ComRoutineExternalSecurity externalSecurity;
   ComRoutineExecutionMode executionMode;
-  Int32 stateAreaSize;
+  int stateAreaSize;
   ComRoutineParallelism parallelism;
-  Int32 owner;
-  Int32 schemaOwner;
+  int owner;
+  int schemaOwner;
   DescStructPtr priv_desc;
 
   long routineDescFlags;  // my flags
   long libRedefTime;
   char *libBlobHandle;
   char *libSchName;
-  Int32 libVersion;
+  int libVersion;
   long libObjUID;
   char filler[24];
 };
@@ -1180,10 +1180,10 @@ class TrafTableDesc : public TrafDesc {
   // then baseTableUID is the uid of the base table for that index.
   long baseTableUID;
 
-  Int32 mvAttributesBitmap;
-  Int32 record_length;
-  Int32 colcount;
-  Int32 constr_count;
+  int mvAttributesBitmap;
+  int record_length;
+  int colcount;
+  int constr_count;
 
   Int16 /*ComInsertMode*/ insertMode_;
   Int16 /*ComPartitioningScheme*/ partitioningScheme_;
@@ -1272,11 +1272,11 @@ class TrafTableStatsDesc : public TrafDesc {
   }
 
   Float64 rowcount;
-  Int32 hbtBlockSize;
-  Int32 hbtIndexLevels;
+  int hbtBlockSize;
+  int hbtIndexLevels;
 
-  Int32 numHistograms;     // num of histograms_descs
-  Int32 numHistIntervals;  // num of hist_interval_descs
+  int numHistograms;     // num of histograms_descs
+  int numHistIntervals;  // num of hist_interval_descs
 
   long tableStatsDescFlags;  // my flags
 
@@ -1332,8 +1332,8 @@ class TrafUsingMvDesc : public TrafDesc {
   }
 
   char *mvName;
-  Int32 rewriteEnabled;
-  Int32 isInitialized;
+  int rewriteEnabled;
+  int isInitialized;
   Int16 /*ComMVRefreshType*/ refreshType_;  // unknown here means "non incremental"
 
   char filler[14];
@@ -1459,7 +1459,7 @@ class TrafPrivGranteeDesc : public TrafDesc {
             COMPARE_DESC_SMART_PTR(columnBitmaps, other.columnBitmaps));
   }
 
-  Int32 grantee;
+  int grantee;
   long schemaUID;
   DescStructPtr schemaBitmap;
   DescStructPtr objectBitmap;
@@ -1491,7 +1491,7 @@ class TrafPrivBitmapDesc : public TrafDesc {
             privWGOBitmap == other.privWGOBitmap);
   }
 
-  Int32 columnOrdinal;
+  int columnOrdinal;
   long privBitmap;
   long privWGOBitmap;
   char filler[20];
@@ -1504,7 +1504,7 @@ TrafDesc *TrafAllocateDDLdesc(desc_nodetype nodetype, NAMemory *space);
 
 TrafDesc *TrafMakeColumnDesc(const char *tablename, const char *colname,
                              int &colnumber,  // INOUT
-                             Int32 datatype, int length,
+                             int datatype, int length,
                              int &offset,  // INOUT
                              NABoolean null_flag,
                              SQLCHARSET_CODE datacharset,  // i.e., use CharInfo::DefaultCharSet;
@@ -1544,19 +1544,19 @@ class TrafPartDesc : public TrafDesc {
   long partitionUid;
   char *partitionName;
   char *partitionEntityName;
-  Int32 isSubPartition;
-  Int32 hasSubPartition;
-  Int32 partPosition;
+  int isSubPartition;
+  int hasSubPartition;
+  int partPosition;
   char *partitionValueExpr;
-  Int32 partitionValueExprLen;
+  int partitionValueExprLen;
   char *prevPartitionValueExpr;
-  Int32 prevPartitionValueExprLen;
-  Int32 isValid;
-  Int32 isReadonly;
-  Int32 isInMemory;
+  int prevPartitionValueExprLen;
+  int isValid;
+  int isReadonly;
+  int isInMemory;
   long defTime;
   long flags;
-  Int32 subpartitionCnt;
+  int subpartitionCnt;
 
   DescStructPtr subpart_desc;  // TrafPartDesc
   char filler[8];
@@ -1591,21 +1591,21 @@ class TrafPartitionV2Desc : public TrafDesc {
   virtual TrafPartitionV2Desc *partitionV2Desc() const { return (TrafPartitionV2Desc *)this; }
 
   long baseTableUid;
-  Int32 partitionType;
+  int partitionType;
   char *partitionColIdx;
-  Int32 partitionColCount;
+  int partitionColCount;
 
-  Int32 subpartitionType;
+  int subpartitionType;
   char *subpartitionColIdx;
-  Int32 subpartitionColCount;
+  int subpartitionColCount;
 
   char *partitionInterval;
   char *subpartitionInterval;
-  Int32 partitionAutolist;
-  Int32 subpartitionAutolist;
+  int partitionAutolist;
+  int subpartitionAutolist;
 
   long flags;
-  Int32 stlPartitionCnt;
+  int stlPartitionCnt;
   DescStructPtr part_desc;
   char filler[8];
 };

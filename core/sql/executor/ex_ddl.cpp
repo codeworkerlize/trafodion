@@ -119,11 +119,11 @@ ExDDLTcb::~ExDDLTcb() {
 
 ex_queue_pair ExDDLTcb::getParentQueue() const { return qparent_; }
 
-Int32 ExDDLTcb::orderedQueueProtocol() const { return ((const ExDDLTdb &)tdb).orderedQueueProtocol(); }
+int ExDDLTcb::orderedQueueProtocol() const { return ((const ExDDLTdb &)tdb).orderedQueueProtocol(); }
 
-Int32 ExDDLTcb::numChildren() const { return 0; }
+int ExDDLTcb::numChildren() const { return 0; }
 
-const ex_tcb *ExDDLTcb::getChild(Int32 /*pos*/) const { return 0; };
+const ex_tcb *ExDDLTcb::getChild(int /*pos*/) const { return 0; };
 
 void ExDDLTcb::freeResources() {
   delete pool_;
@@ -254,7 +254,7 @@ short ExDDLTcb::work() {
       CmpCommon::context()->sqlSession()->setParentQid(parentQid);
       // Despite its name, the compileDirect method is where
       // the DDL is actually performed.
-      Int32 cpStatus = CmpCommon::context()->compileDirect(
+      int cpStatus = CmpCommon::context()->compileDirect(
           data, dataLen, currContextCli->exHeap(), ddlTdb().queryCharSet_, EXSQLCOMP::PROCESSDDL, dummyReply,
           dummyLength, currContextCli->getSqlParserFlags(), parentQid, str_len(parentQid), cpDiagsArea);
       getHeap()->deallocateMemory(data);
@@ -333,7 +333,7 @@ short ExDDLTcb::work() {
       getHeap()->deallocateMemory(data);
 
       if (cmpStatus != ExSqlComp::SUCCESS) {
-        handleErrors(pentry_down, cmp->getDiags(), (Int32)cmpStatus);
+        handleErrors(pentry_down, cmp->getDiags(), (int)cmpStatus);
         // If its an error don't proceed further.
         if (cmpStatus == ExSqlComp::ERROR) goto endOfData;
       }
@@ -341,7 +341,7 @@ short ExDDLTcb::work() {
       cmpStatus = cmp->getReply(dummyReply, dummyLength);
       cmp->getHeap()->deallocateMemory((void *)dummyReply);
       if (cmpStatus != ExSqlComp::SUCCESS) {
-        handleErrors(pentry_down, cmp->getDiags(), (Int32)cmpStatus);
+        handleErrors(pentry_down, cmp->getDiags(), (int)cmpStatus);
         // Don't proceed if its an error.
         if (cmpStatus == ExSqlComp::ERROR) goto endOfData;
       }
@@ -579,7 +579,7 @@ short ExDDLwithStatusTcb::work() {
       } break;
 
       case CALL_EMBEDDED_CMP_: {
-        Int32 cmpStatus;
+        int cmpStatus;
         CmpCommon::context()->sqlSession()->setParentQid(parentQid);
 
         cmpStatus = CmpCommon::context()->compileDirect(data_, dataLen_, currContextCli->exHeap(),
@@ -667,9 +667,9 @@ short ExDDLwithStatusTcb::work() {
           char *blackBox = replyDWS_->blackBox();
           currPtr_ = blackBox;
 
-          numEntries_ = *(Int32 *)currPtr_;
+          numEntries_ = *(int *)currPtr_;
           currEntry_ = 0;
-          currPtr_ += sizeof(Int32);
+          currPtr_ += sizeof(int);
 
           step_ = RETURN_DETAILS_;
         } else
@@ -717,11 +717,11 @@ short ExDDLwithStatusTcb::work() {
           break;
         }
 
-        Int32 currEntrySize = *(Int32 *)currPtr_;
-        char *currValue = currPtr_ + sizeof(Int32);
+        int currEntrySize = *(int *)currPtr_;
+        char *currValue = currPtr_ + sizeof(int);
         if (moveRowToUpQueue(&qparent_, ddlTdb().tuppIndex(), currValue, currEntrySize, &rc)) return rc;
 
-        currPtr_ += sizeof(Int32);
+        currPtr_ += sizeof(int);
         currPtr_ += ROUND4(currEntrySize + 1);
         currEntry_++;
 
@@ -764,7 +764,7 @@ short ExDDLwithStatusTcb::work() {
   return WORK_OK;
 }
 
-void ExDDLTcb::handleErrors(ex_queue_entry *pentry_down, ComDiagsArea *da, Int32 error) {
+void ExDDLTcb::handleErrors(ex_queue_entry *pentry_down, ComDiagsArea *da, int error) {
   ex_queue_entry *up_entry = qparent_.up->getTailEntry();
   ExDDLPrivateState &pstate = *((ExDDLPrivateState *)pentry_down->pstate);
 
@@ -902,7 +902,7 @@ short ExDescribeTcb::work() {
         if (currContext() && currContext()->isEmbeddedArkcmpInitialized() &&
             currContext()->getSessionDefaults()->callEmbeddedArkcmp() && CmpCommon::context() &&
             (CmpCommon::context()->getRecursionLevel() == 0)) {
-          Int32 compStatus;
+          int compStatus;
           const char *parentQid = masterGlob->getStatement()->getUniqueStmtId();
           CmpCommon::context()->sqlSession()->setParentQid(parentQid);
 
@@ -1299,7 +1299,7 @@ short ExProcessVolatileTableTcb::work() {
         // but not both
         if (currContext->isEmbeddedArkcmpInitialized() && currContext->getSessionDefaults()->callEmbeddedArkcmp() &&
             pvtTdb().hbaseDDL() && CmpCommon::context() && (CmpCommon::context()->getRecursionLevel() == 0)) {
-          Int32 embCmpStatus;
+          int embCmpStatus;
           const char *parentQid = masterGlob->getStatement()->getUniqueStmtId();
           CmpCommon::context()->sqlSession()->setParentQid(parentQid);
           if (embCmpDiagsArea == NULL) embCmpDiagsArea = ComDiagsArea::allocate(getHeap());
@@ -1348,7 +1348,7 @@ short ExProcessVolatileTableTcb::work() {
 
           if (cmpStatus != ExSqlComp::SUCCESS) {
             // If its an error don't proceed further.
-            handleErrors(pentry_down, cmp->getDiags(), (Int32)cmpStatus);
+            handleErrors(pentry_down, cmp->getDiags(), (int)cmpStatus);
             if (cmpStatus == ExSqlComp::ERROR) {
               step_ = ERROR_;
               break;
@@ -1359,7 +1359,7 @@ short ExProcessVolatileTableTcb::work() {
           cmp->getHeap()->deallocateMemory((void *)dummyReply);
           if (cmpStatus != ExSqlComp::SUCCESS) {
             // If its an error don't proceed further.
-            handleErrors(pentry_down, cmp->getDiags(), (Int32)cmpStatus);
+            handleErrors(pentry_down, cmp->getDiags(), (int)cmpStatus);
             if (cmpStatus == ExSqlComp::ERROR) {
               step_ = ERROR_;
               break;
@@ -1367,7 +1367,7 @@ short ExProcessVolatileTableTcb::work() {
           }
 
           if (cmp->status() != ExSqlComp::FETCHED) {
-            handleErrors(pentry_down, cmp->getDiags(), (Int32)cmpStatus);
+            handleErrors(pentry_down, cmp->getDiags(), (int)cmpStatus);
 
             step_ = ERROR_;
             break;
@@ -1624,7 +1624,7 @@ short ExProcessInMemoryTableTcb::work() {
 
         if (cmpStatus != ExSqlComp::SUCCESS) {
           // If its an error don't proceed further.
-          handleErrors(pentry_down, cmp->getDiags(), (Int32)cmpStatus);
+          handleErrors(pentry_down, cmp->getDiags(), (int)cmpStatus);
           if (cmpStatus == ExSqlComp::ERROR) {
             step_ = DROP_;
             break;
@@ -1635,7 +1635,7 @@ short ExProcessInMemoryTableTcb::work() {
         cmp->getHeap()->deallocateMemory((void *)dummyReply);
         if (cmpStatus != ExSqlComp::SUCCESS) {
           // If its an error don't proceed further.
-          handleErrors(pentry_down, cmp->getDiags(), (Int32)cmpStatus);
+          handleErrors(pentry_down, cmp->getDiags(), (int)cmpStatus);
           if (cmpStatus == ExSqlComp::ERROR) {
             step_ = DROP_;
             break;
@@ -1643,7 +1643,7 @@ short ExProcessInMemoryTableTcb::work() {
         }
 
         if (cmp->status() != ExSqlComp::FETCHED) {
-          handleErrors(pentry_down, cmp->getDiags(), (Int32)cmpStatus);
+          handleErrors(pentry_down, cmp->getDiags(), (int)cmpStatus);
 
           step_ = DROP_;
           break;

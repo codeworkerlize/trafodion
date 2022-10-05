@@ -64,7 +64,7 @@ extern THREAD_P NABoolean CmpMainISPConnection;
 
 static char *mainNewHandler_CharSave = new char[4096];
 
-static Int32 mainNewHandler(size_t s) {
+static int mainNewHandler(size_t s) {
   if (mainNewHandler_CharSave) {
     delete[] mainNewHandler_CharSave;
     mainNewHandler_CharSave = NULL;
@@ -86,7 +86,7 @@ static void longJumpHandler() {
 // this copy is used by remote tdm_arkcmp process
 static jmp_buf CmpInternalErrorJmpBuf;
 
-static void initializeArkcmp(Int32 argc, char **argv) {
+static void initializeArkcmp(int argc, char **argv) {
   if (setjmp(ExportJmpBuf)) longJumpHandler();
 
   ExportJmpBufPtr = &ExportJmpBuf;
@@ -146,7 +146,7 @@ static Cmdline_Args cmdlineArgs;
 static int g_cmp_argc;
 static char **g_cmp_argv = 0;
 
-Int32 main(Int32 argc, char **argv) {
+int main(int argc, char **argv) {
   dovers(argc, argv);
   try {
     file_init_attach(&argc, &argv, TRUE, (char *)"");
@@ -239,7 +239,7 @@ Int32 main(Int32 argc, char **argv) {
     case Cmdline_Args::WATCH_DLOCK: {
       const char *lockName = (argc >= 3) ? argv[2] : SHARED_CACHE_DLOCK_KEY;
       const char *intervalStr = (argc == 4) ? argv[3] : NULL;
-      Int32 interval = (intervalStr) ? atoi(intervalStr) : 1;
+      int interval = (intervalStr) ? atoi(intervalStr) : 1;
 
       DistributedLockObserver::watchDLocks(lockName, interval);
       exit(0);
@@ -248,7 +248,7 @@ Int32 main(Int32 argc, char **argv) {
     case Cmdline_Args::LIST_DLOCK: {
       const char *lockName = (argc >= 3) ? argv[2] : SHARED_CACHE_DLOCK_KEY;
       const char *intervalStr = (argc == 4) ? argv[3] : NULL;
-      Int32 interval = (intervalStr) ? atoi(intervalStr) : 1;
+      int interval = (intervalStr) ? atoi(intervalStr) : 1;
 
       DistributedLockObserver::listDLocks(lockName, interval);
       exit(0);
@@ -343,7 +343,7 @@ Int32 main(Int32 argc, char **argv) {
 }
 
 // stubs
-Int32 arkcmp_main_entry() {  // return 1 for embedded cmpiler not created
+int arkcmp_main_entry() {  // return 1 for embedded cmpiler not created
   return 1;
 }
 // no-op

@@ -81,7 +81,7 @@ ostream &operator<<(ostream &dest, const ComDiagsArea &da);
 
 static char *mainNewHandler_CharSave = new char[4096];
 
-static Int32 mainNewHandler(size_t s)
+static int mainNewHandler(size_t s)
 
 {
   if (mainNewHandler_CharSave) {
@@ -116,7 +116,7 @@ void deinitializeArkcmp() {
 // RETURN:  0, no error.
 //          2, error during NADefaults creation.
 //          1, other errors during CmpContext creation.
-Int32 arkcmp_main_entry() {
+int arkcmp_main_entry() {
 #ifdef _DEBUG
   if (getenv("SQL_CMP_MSGBOX_PROCESS") != NULL)
     MessageBox(NULL, "Server: Process Launched", "tdm_arkcmp", MB_OK | MB_ICONINFORMATION);

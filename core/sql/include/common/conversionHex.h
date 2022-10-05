@@ -73,7 +73,7 @@ enum hex_conversion_code {
 //   . the converted string of type NAWString* if result code is DOUBLE_BYTE
 //   The result string should be properly deleted after use.
 //
-hex_conversion_code verifyAndConvertHex(const NAWchar *str, Int32 len, NAWchar quote, CharInfo::CharSet cs,
+hex_conversion_code verifyAndConvertHex(const NAWchar *str, int len, NAWchar quote, CharInfo::CharSet cs,
                                         CollHeap *heap, void *&result);
 
 #endif

@@ -135,7 +135,7 @@ class MJExpandRule : public Rule {
 
   virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
 
-  virtual Int32 promiseForOptimization(RelExpr *relExpr, Guidance *guidance, Context *context);
+  virtual int promiseForOptimization(RelExpr *relExpr, Guidance *guidance, Context *context);
 
   virtual NABoolean isImplementationRule() const { return FALSE; }
 };
@@ -238,7 +238,7 @@ class MJStarJoinIRuleWA : public NABasicObject {
   NAList<CANodeIdSet> *listOfEdges_;
 
   // optimal position of FactTable in list of edges
-  Int32 optimalFTLocation_;
+  int optimalFTLocation_;
 
   // Nodes that are not part of the fringes
   CANodeIdSet availableNodes_;
@@ -492,7 +492,7 @@ class OrOptimizationRule : public Rule {
   virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
 
  private:
-  CostScalar rateIndexForColumn(Int32 colNumInIndex, Scan *s, IndexDesc *ixDesc, NABoolean indexOnly);
+  CostScalar rateIndexForColumn(int colNumInIndex, Scan *s, IndexDesc *ixDesc, NABoolean indexOnly);
   RelExpr *makeSubstituteScan(Scan *s, const ValueIdSet &disjuncts, RelExpr *partialResult,
                               const ValueIdSet disjunctsProcessedSoFar, const ValueIdList &origCharOutputList,
                               ValueIdList &resultCharOutputs);
@@ -522,7 +522,7 @@ class RoutineJoinToTSJRule : public Rule {
   virtual ~RoutineJoinToTSJRule();
   virtual NABoolean topMatch(RelExpr *relExpr, Context *context);
   virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
-  virtual Int32 promiseForOptimization(RelExpr *relExpr, Guidance *guidance, Context *context);
+  virtual int promiseForOptimization(RelExpr *relExpr, Guidance *guidance, Context *context);
 
   virtual NABoolean canBePruned(RelExpr *expr) const;
 };
@@ -539,7 +539,7 @@ class JoinToTSJRule : public Rule {
   virtual NABoolean topMatch(RelExpr *expr, Context *context);
 
   virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
-  virtual Int32 promiseForOptimization(RelExpr *relExpr, Guidance *guidance, Context *context);
+  virtual int promiseForOptimization(RelExpr *relExpr, Guidance *guidance, Context *context);
   virtual NABoolean canBePruned(RelExpr *expr) const;
 };
 
@@ -589,7 +589,7 @@ class FilterRule : public Rule {
   virtual ~FilterRule() {}
   virtual Guidance *guidanceForExploringChild(Guidance *guidance, Context *context, int childIndex);
   virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory) = 0;
-  virtual Int32 promiseForOptimization(RelExpr *relExpr, Guidance *guidance, Context *context);
+  virtual int promiseForOptimization(RelExpr *relExpr, Guidance *guidance, Context *context);
 };
 
 class FilterRule0 : public FilterRule {
@@ -631,7 +631,7 @@ class GroupByEliminationRule : public Rule {
 
   virtual ~GroupByEliminationRule();
   virtual NABoolean topMatch(RelExpr *expr, Context *context);
-  virtual Int32 promiseForOptimization(RelExpr *relExpr, Guidance *guidance, Context *context);
+  virtual int promiseForOptimization(RelExpr *relExpr, Guidance *guidance, Context *context);
   virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
 };
 
@@ -684,7 +684,7 @@ class GroupBySplitRule : public Rule {
   virtual ~GroupBySplitRule();
 
   virtual NABoolean topMatch(RelExpr *expr, Context *context);
-  virtual Int32 promiseForOptimization(RelExpr *relExpr, Guidance *guidance, Context *context);
+  virtual int promiseForOptimization(RelExpr *relExpr, Guidance *guidance, Context *context);
   virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
   virtual NABoolean canMatchPattern(const RelExpr *pattern) const;
 };
@@ -753,7 +753,7 @@ class SampleScanRule : public Rule {
   virtual NABoolean topMatch(RelExpr *expr, Context *context);
   virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
 
-  virtual Int32 promiseForOptimization(RelExpr *relExpr, Guidance *guidance, Context *context);
+  virtual int promiseForOptimization(RelExpr *relExpr, Guidance *guidance, Context *context);
 };
 
 //++MV,

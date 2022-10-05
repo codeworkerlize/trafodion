@@ -93,7 +93,7 @@ bool ApplicationFile::mxcmpModule(char *mdf) {
   mxcmp = mxcmp ? mxcmp : DEFAULT_MXCMP;
   // make sure we have enough space for the mxcmp invocation string
   assert(args_ != NULL);
-  Int32 cmdLen = strlen(mxcmp) + args_->application().length() + args_->otherArgs().length() + strlen(mdf) + 7;
+  int cmdLen = strlen(mxcmp) + args_->application().length() + args_->otherArgs().length() + strlen(mdf) + 7;
   // for efficiency we try to use the stack-allocated cmd variable.
   // but, no matter how big we declare it, eg: char cmd[12345],
   // it is always possible for someone like QA try something like
@@ -121,7 +121,7 @@ bool ApplicationFile::mxcmpModule(char *mdf) {
   strcat(cmdP, " ");
   strcat(cmdP, mdf);
   cout << cmdP << endl;
-  Int32 rc = system(cmdP);
+  int rc = system(cmdP);
   // free any space used by mxcmp invocation string
   if (cmdP && cmdP != cmd) {
     delete cmdP;
@@ -136,7 +136,7 @@ bool ApplicationFile::mxcmpModule(char *mdf) {
     *mxCUMptr << FAIL << DgSqlCode(-2221) << DgInt0(rc);
     nFailures_++;
   } else {  // unsuccessful mxcmp invocation
-    Int32 sqlcode, int0;
+    int sqlcode, int0;
     mxcmpExitCode retcode;
     int0 = rc;
     retcode = ERROR;  // cannot tell ERROR from WARNING on NT

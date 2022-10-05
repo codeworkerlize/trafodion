@@ -396,7 +396,7 @@ class ValueIdList : public LIST(ValueId) {
   // Warning: before using this function, take a look at the function
   // getLengthOfCoveredPrefix() and determine what functionality you want.
   // ---------------------------------------------------------------------
-  Int32 prefixCoveredInSet(const ValueIdSet &vidSet) const;
+  int prefixCoveredInSet(const ValueIdSet &vidSet) const;
 
   // Are all members of this list are covered in the provided set?
   // If exactMatch is set:
@@ -435,7 +435,7 @@ class ValueIdList : public LIST(ValueId) {
   // list with the one in the original provided set - i.e. "complify"
   // it.
   // ---------------------------------------------------------------------
-  Int32 complifyAndCheckPrefixCovered(const ValueIdSet &vidSet, const GroupAttributes *ga);
+  int complifyAndCheckPrefixCovered(const ValueIdSet &vidSet, const GroupAttributes *ga);
 
   // ---------------------------------------------------------------------
   // Check whether a prefix of this list is covered by the provided set.
@@ -587,7 +587,7 @@ class ValueIdList : public LIST(ValueId) {
   // encodedKeyBuffer, and the key length into keyBufLen. Allocate an buffer
   // if encodedKeyBuffer points at NULL from STMTHEAP. Also return the buffer pointer
   // if everything is OK.  Return NULL otherwise.
-  char *computeEncodedKey(const TableDesc *tDesc, NABoolean isMaxKey, char *&encodedKeyBuffer, Int32 &keyBufLen) const;
+  char *computeEncodedKey(const TableDesc *tDesc, NABoolean isMaxKey, char *&encodedKeyBuffer, int &keyBufLen) const;
 
   // remove NotCovered expressions that appear in cols from this list.
   void removeNotCoveredExpr(const ValueIdSet &cols);
@@ -647,10 +647,10 @@ class ValueIdList : public LIST(ValueId) {
   static short evaluateTree(const ItemExpr *root, char *encodedKeyBuffer, ULng32 encodedKeyLength, int *length,
                             int *offset, ComDiagsArea *diagsArea = NULL);
 
-  static int evaluateConstantTree(const ValueId &parent, const ValueId &ch, Int32 childNumber, ItemExpr **outItemExpr,
+  static int evaluateConstantTree(const ValueId &parent, const ValueId &ch, int childNumber, ItemExpr **outItemExpr,
                                     ComDiagsArea *diagsArea = NULL);
 
-  static Int32 evaluateExpr(const ValueId &parent, const ValueId &ch, Int32 childNumber, NABoolean simplifyExpr = TRUE,
+  static int evaluateExpr(const ValueId &parent, const ValueId &ch, int childNumber, NABoolean simplifyExpr = TRUE,
                             NABoolean evalAllConsts = FALSE, ItemExpr **outAllConstsItemExpr = NULL,
                             ComDiagsArea *diagsArea = NULL);
 
@@ -662,10 +662,10 @@ class ValueIdList : public LIST(ValueId) {
   static ConstValue *getConstant(ItemExpr *ie);
 
   // count the number of prefix constants
-  Int32 countConstantsAsPrefixes();
+  int countConstantsAsPrefixes();
 
  private:
-  static NABoolean canSimplify(ItemExpr *itemExpr, const ValueId &parent, Int32 i, Int32 childNumber, Int32 &moved);
+  static NABoolean canSimplify(ItemExpr *itemExpr, const ValueId &parent, int i, int childNumber, int &moved);
 
   static THREAD_P ObjectCounter *counter_;
 
@@ -719,10 +719,10 @@ class ValueIdSet : public ClusteredBitmap {
   NABoolean isDensePrefix(const ValueIdList &other) const;
 
   // how many prefix columns of other are found in this predicate?
-  Int32 prefixMatchesOf(const ValueIdList &other) const;
+  int prefixMatchesOf(const ValueIdList &other) const;
 
   // Does this contain the first N elements of the "other" ValueIdList?
-  NABoolean coversFirstN(const ValueIdList &other, Int32 N = INT_MAX) const;
+  NABoolean coversFirstN(const ValueIdList &other, int N = INT_MAX) const;
 
   // ---------------------------------------------------------------------
   //  Calculate the number of character columns
@@ -860,7 +860,7 @@ class ValueIdSet : public ClusteredBitmap {
   // are covered by the available inputs.
   // It returns the number of elements removed.
   // --------------------------------------------------------------------
-  Int32 removeCoveredExprs(const ValueIdSet &newExternalInputs, ValueIdSet *usedInputs = NULL);
+  int removeCoveredExprs(const ValueIdSet &newExternalInputs, ValueIdSet *usedInputs = NULL);
 
   // this method removes isNull or isNotNull predicates that refer to
   // columns in nullPredsCols from this, and place all such predicates
@@ -882,7 +882,7 @@ class ValueIdSet : public ClusteredBitmap {
   // are NOT covered by the available inputs.
   // It returns the number of elements removed.
   // --------------------------------------------------------------------
-  Int32 removeUnCoveredExprs(const ValueIdSet &newExternalInputs);
+  int removeUnCoveredExprs(const ValueIdSet &newExternalInputs);
 
   // ---------------------------------------------------------------------
   // simplifyOrderExpr()
@@ -1030,7 +1030,7 @@ class ValueIdSet : public ClusteredBitmap {
   // Check whether any of the members of this ValueIdSet are contained
   // in the provided ValueIdSet.  Return the number of members found.
   // --------------------------------------------------------------------
-  Int32 membersCoveredInSet(const ValueIdSet &vidSet, NABoolean lookBelowInstantiateNull) const;
+  int membersCoveredInSet(const ValueIdSet &vidSet, NABoolean lookBelowInstantiateNull) const;
 
   // --------------------------------------------------------------------
   // return true iff ValueIdSet has predicates that guarantee
@@ -1224,7 +1224,7 @@ class ValueIdSet : public ClusteredBitmap {
   //  valueidset contains a "constant expression", i.e. a constant,
   //  host variable or a parameter.
   // -----------------------------------------------------------------------
-  Int32 referencesConstExprCount() const;
+  int referencesConstExprCount() const;
 
   // -----------------------------------------------------------------------
   //  referencesBignumNumericKeyColumns

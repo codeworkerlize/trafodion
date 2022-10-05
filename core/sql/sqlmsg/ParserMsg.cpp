@@ -88,21 +88,21 @@
 // The rest of the routine is fairly straightforward --- particularly if you
 // read above about the purpose of this function.
 
-void StoreSyntaxError(const char *input_str, Int32 input_pos, ComDiagsArea &diags, Int32 dgStrNum,
+void StoreSyntaxError(const char *input_str, int input_pos, ComDiagsArea &diags, int dgStrNum,
                       CharInfo::CharSet input_str_cs, CharInfo::CharSet terminal_cs) {
   if (!input_str) return;
 
   NAWchar wCharBuffer[ErrorMessage::MSG_BUF_SIZE + 1];  // extra space for NULL
-  Int32 slen = strlen(input_str);
+  int slen = strlen(input_str);
 
-  Int32 input_pos_in_numOfNAWchars = input_pos;
+  int input_pos_in_numOfNAWchars = input_pos;
   if (input_str_cs != CharInfo::ISO88591) {
     // Compute to get the input position in number of NAWcharacters
-    enum cnv_charset eCnvCS = convertCharsetEnum((Int32)input_str_cs);
+    enum cnv_charset eCnvCS = convertCharsetEnum((int)input_str_cs);
     char *p1stUnstranslatedChar = NULL;
     UInt32 outputOctetLen = 0;
     UInt32 translatedCharCount = 0;
-    Int32 cnvErrStatus =
+    int cnvErrStatus =
         LocaleToUTF16(cnv_version1  // in  - const enum cnv_version version
                       ,
                       input_str  // in  - const char *in_bufr
@@ -122,14 +122,14 @@ void StoreSyntaxError(const char *input_str, Int32 input_pos, ComDiagsArea &diag
                       ,
                       0  // in  - const int cnv_flags
                       ,
-                      (const Int32)FALSE  // in  - const int addNullAtEnd_flag
+                      (const int)FALSE  // in  - const int addNullAtEnd_flag
                       ,
                       &translatedCharCount  // out - unsigned int * translated_char_cnt_p
         );
-    if (outputOctetLen > 0) input_pos_in_numOfNAWchars = (Int32)((outputOctetLen - 1) / sizeof(NAWchar));
+    if (outputOctetLen > 0) input_pos_in_numOfNAWchars = (int)((outputOctetLen - 1) / sizeof(NAWchar));
   }
 
-  Int32 ulen = LocaleStringToUnicode(input_str_cs, input_str, slen, wCharBuffer, ErrorMessage::MSG_BUF_SIZE + 1, TRUE);
+  int ulen = LocaleStringToUnicode(input_str_cs, input_str, slen, wCharBuffer, ErrorMessage::MSG_BUF_SIZE + 1, TRUE);
 
   if (ulen == 0 || (input_str_cs == CharInfo::ISO88591 && ulen < slen))
     cerr << input_str << endl;
@@ -141,14 +141,14 @@ void StoreSyntaxError(const char *input_str, Int32 input_pos, ComDiagsArea &diag
 static const size_t MAX_FORMAT_LINE = 79;
 static const size_t MAX_DGSTRING_SIZE = MINOF(ErrorMessage::MSG_BUF_SIZE, 1024) - MAX_FORMAT_LINE;
 
-void StoreSyntaxError(const NAWchar *input_str, Int32 input_pos, ComDiagsArea &diags, Int32 dgStrNum,
+void StoreSyntaxError(const NAWchar *input_str, int input_pos, ComDiagsArea &diags, int dgStrNum,
                       CharInfo::CharSet charset) {
   if (!input_str) return;
 
   NAWString errMsg;
   NABoolean internalError = FALSE;
 
-  Int32 buffLen = na_wcslen(input_str);
+  int buffLen = na_wcslen(input_str);
   if (buffLen == 0) {
     errMsg.append(WIDE_("\n;\n^"));
   } else {
@@ -216,10 +216,10 @@ void StoreSyntaxError(const NAWchar *input_str, Int32 input_pos, ComDiagsArea &d
       //    with this:
 
       char bufferInLocale[(MAX_FORMAT_LINE + 1) * 8];  // allow for utf8 characters
-      Int32 byteCount =
+      int byteCount =
           UnicodeStringToLocale(charset, (NAWchar *)left, charCount, bufferInLocale, (MAX_FORMAT_LINE + 1) * 8);
 
-      for (Int32 i = 0; i < byteCount; i++) errMsg.append(WIDE_(" "));
+      for (int i = 0; i < byteCount; i++) errMsg.append(WIDE_(" "));
 
       errMsg.append(WIDE_("^ ("));
       char bytestr_str[10];

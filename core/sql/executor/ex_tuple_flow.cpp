@@ -216,7 +216,7 @@ short ExTupleFlowTcb::work() {
               //
               if (tcbSrc_->getNodeType() == ComTdb::ex_PACKROWS) {
                 char *packTuppPtr = src_entry->getTupp(src_entry->numTuples() - 1).getDataPointer();
-                Int32 noOfRows = *((Int32 *)packTuppPtr);
+                int noOfRows = *((int *)packTuppPtr);
                 pstate.noOfUnPackedRows_ += (noOfRows - 1);
               }
               //

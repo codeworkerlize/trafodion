@@ -656,7 +656,7 @@ void Generator::setGenObj(const RelExpr *node, ComTdb *genObj_) {
   // my child and set it in my tdb. At runtime, my tcb's work method will
   // ask my child for N rows with a GET_N request.
   //  if (node && node->child(0) && genObj)
-  //    genObj->firstNRows() = (Int32)((RelExpr *)node)->child(0)->getFirstNRows();
+  //    genObj->firstNRows() = (int)((RelExpr *)node)->child(0)->getFirstNRows();
 };
 
 ComTdbRoot *Generator::getTopRoot() {
@@ -693,7 +693,7 @@ static NABoolean remapESPAllocationViaUserInputs(FragmentDir *fragDir, const cha
   // CPU in the list.
   //
   NABoolean cycleSegs = (ActiveSchemaDB()->getDefaults()).getAsLong(AS_CYCLIC_ESP_PLACEMENT);
-  Int32 numCPUs = CURRCONTEXT_CLUSTERINFO->getTotalNumberOfCPUs();
+  int numCPUs = CURRCONTEXT_CLUSTERINFO->getTotalNumberOfCPUs();
 
   ULng32 *utilcpus = new (heap) ULng32[numCPUs];
   ULng32 *utilsegs = new (heap) ULng32[numCPUs];
@@ -744,7 +744,7 @@ static NABoolean remapESPAllocationViaUserInputs(FragmentDir *fragDir, const cha
     }
   }
 
-  Int32 numEntries = i;
+  int numEntries = i;
 
   if (!espOrderOK) {
     return FALSE;
@@ -753,7 +753,7 @@ static NABoolean remapESPAllocationViaUserInputs(FragmentDir *fragDir, const cha
     // Remap Each ESP fragment.
     //
 
-    Int32 nextCPUToUse = 0;
+    int nextCPUToUse = 0;
 
     for (i = 0; i < fragDir->entries(); i++) {
       if (fragDir->getPartitioningFunction(i) != NULL && fragDir->getType(i) == FragmentDir::ESP) {
@@ -1171,7 +1171,7 @@ void Generator::remapESPAllocationAS(const NAASNodes *asNodes) {
 void Generator::remapESPAllocationRandomly() {
   NAClusterInfo *nac = CmpCommon::context()->getClusterInfo();
   int numCPUs = nac->getTotalNumberOfCPUs();
-  for (Int32 i = 0; i < fragmentDir_->entries(); i++) {
+  for (int i = 0; i < fragmentDir_->entries(); i++) {
     if (fragmentDir_->getPartitioningFunction(i) != NULL && fragmentDir_->getType(i) == FragmentDir::ESP) {
       // Get the node map for this ESP fragment.
       NodeMap *nodeMap = (NodeMap *)fragmentDir_->getPartitioningFunction(i)->getNodeMap();
@@ -1245,7 +1245,7 @@ TrafDesc *Generator::createColDescs(const char *tableName, ComTdbVirtTableColumn
 
     UInt32 colOffset = ExpTupleDesc::sqlarkExplodedOffsets(offset, info->length, (Int16)info->datatype, info->nullable);
 
-    Int32 i = colNum;                 // Don't want colNum altered by the call
+    int i = colNum;                 // Don't want colNum altered by the call
     int tmpOffset = (int)offset;  // Ignore returned offset
     SQLCHARSET_CODE info_charset = info->charset;
     if (info_charset == SQLCHARSETCODE_UNKNOWN &&
@@ -1391,14 +1391,14 @@ static void initKeyDescStruct(TrafKeysDesc *tgt, const ComTdbVirtTableKeyInfo *s
     tgt->hbaseColQual = NULL;
 }
 
-TrafDesc *Generator::createKeyDescs(Int32 numKeys, const ComTdbVirtTableKeyInfo *keyInfo, NAMemory *space) {
+TrafDesc *Generator::createKeyDescs(int numKeys, const ComTdbVirtTableKeyInfo *keyInfo, NAMemory *space) {
   TrafDesc *first_key_desc = NULL;
 
   if (keyInfo == NULL) return NULL;
 
   // create key descs
   TrafDesc *prev_desc = NULL;
-  for (Int32 keyNum = 0; keyNum < numKeys; keyNum++) {
+  for (int keyNum = 0; keyNum < numKeys; keyNum++) {
     TrafDesc *key_desc = TrafAllocateDDLdesc(DESC_KEYS_TYPE, space);
     if (prev_desc)
       prev_desc->next = key_desc;
@@ -1413,7 +1413,7 @@ TrafDesc *Generator::createKeyDescs(Int32 numKeys, const ComTdbVirtTableKeyInfo 
   return first_key_desc;
 }
 
-TrafDesc *Generator::createConstrKeyColsDescs(Int32 numKeys, ComTdbVirtTableKeyInfo *keyInfo,
+TrafDesc *Generator::createConstrKeyColsDescs(int numKeys, ComTdbVirtTableKeyInfo *keyInfo,
                                               ComTdbVirtTableColumnInfo *columnInfo, NAMemory *space) {
   TrafDesc *first_key_desc = NULL;
 
@@ -1421,7 +1421,7 @@ TrafDesc *Generator::createConstrKeyColsDescs(Int32 numKeys, ComTdbVirtTableKeyI
 
   // create key descs
   TrafDesc *prev_desc = NULL;
-  for (Int32 keyNum = 0; keyNum < numKeys; keyNum++) {
+  for (int keyNum = 0; keyNum < numKeys; keyNum++) {
     TrafDesc *key_desc = TrafAllocateDDLdesc(DESC_CONSTRNT_KEY_COLS_TYPE, space);
     if (prev_desc)
       prev_desc->next = key_desc;
@@ -1525,7 +1525,7 @@ TrafDesc *Generator::createPrivDescs(const ComTdbVirtTablePrivInfo *privInfo, NA
 }
 
 // this method is used to create both referencing and referenced constraint structs.
-TrafDesc *Generator::createRefConstrDescStructs(Int32 numConstrs, ComTdbVirtTableRefConstraints *refConstrs,
+TrafDesc *Generator::createRefConstrDescStructs(int numConstrs, ComTdbVirtTableRefConstraints *refConstrs,
                                                 NAMemory *space) {
   TrafDesc *first_constr_desc = NULL;
 
@@ -1533,7 +1533,7 @@ TrafDesc *Generator::createRefConstrDescStructs(Int32 numConstrs, ComTdbVirtTabl
 
   // create constr descs
   TrafDesc *prev_desc = NULL;
-  for (Int32 constrNum = 0; constrNum < numConstrs; constrNum++) {
+  for (int constrNum = 0; constrNum < numConstrs; constrNum++) {
     TrafDesc *constr_desc = TrafAllocateDDLdesc(DESC_REF_CONSTRNTS_TYPE, space);
     if (prev_desc)
       prev_desc->next = constr_desc;
@@ -1560,7 +1560,7 @@ TrafDesc *Generator::createRefConstrDescStructs(Int32 numConstrs, ComTdbVirtTabl
   return first_constr_desc;
 }
 
-static int createDescStructs(char *tableName, Int32 numCols, ComTdbVirtTableColumnInfo *columnInfo, Int32 numKeys,
+static int createDescStructs(char *tableName, int numCols, ComTdbVirtTableColumnInfo *columnInfo, int numKeys,
                                ComTdbVirtTableKeyInfo *keyInfo, TrafDesc *&colDescs, TrafDesc *&keyDescs,
                                NAMemory *space) {
   colDescs = NULL;
@@ -1575,14 +1575,14 @@ static int createDescStructs(char *tableName, Int32 numCols, ComTdbVirtTableColu
   return (int)reclen;
 }
 
-static void populateRegionDescForEndKey(char *buf, Int32 len, struct TrafDesc *target) {
+static void populateRegionDescForEndKey(char *buf, int len, struct TrafDesc *target) {
   target->hbaseRegionDesc()->beginKey = NULL;
   target->hbaseRegionDesc()->beginKeyLen = 0;
   target->hbaseRegionDesc()->endKey = buf;
   target->hbaseRegionDesc()->endKeyLen = len;
 }
 
-static void populateRegionDescAsRANGE(char *buf, Int32 len, struct TrafDesc *target) {
+static void populateRegionDescAsRANGE(char *buf, int len, struct TrafDesc *target) {
   target->nodetype = DESC_HBASE_RANGE_REGION_TYPE;
   populateRegionDescForEndKey(buf, len, target);
 }
@@ -1596,11 +1596,11 @@ TrafDesc *Generator::assembleDescs(NAArray<HbaseStr> *keyArray, NAMemory *space)
   if (keyArray == NULL) return NULL;
 
   TrafDesc *result = NULL;
-  Int32 entries = keyArray->entries();
-  Int32 len = 0;
+  int entries = keyArray->entries();
+  int len = 0;
   char *buf = NULL;
 
-  for (Int32 i = entries - 1; i >= 0; i--) {
+  for (int i = entries - 1; i >= 0; i--) {
     len = keyArray->at(i).len;
     if (len > 0) {
       buf = new GENHEAP(space) char[len];
@@ -1620,11 +1620,11 @@ TrafDesc *Generator::assembleDescs(NAArray<HbaseStr> *keyArray, NAMemory *space)
 }
 
 TrafDesc *Generator::createVirtualTableDesc(
-    const char *inTableName, NAMemory *heap, Int32 numCols, ComTdbVirtTableColumnInfo *columnInfo, Int32 numKeys,
-    ComTdbVirtTableKeyInfo *keyInfo, Int32 numConstrs, ComTdbVirtTableConstraintInfo *constrInfo, Int32 numIndexes,
-    ComTdbVirtTableIndexInfo *indexInfo, Int32 numViews, ComTdbVirtTableViewInfo *viewInfo,
+    const char *inTableName, NAMemory *heap, int numCols, ComTdbVirtTableColumnInfo *columnInfo, int numKeys,
+    ComTdbVirtTableKeyInfo *keyInfo, int numConstrs, ComTdbVirtTableConstraintInfo *constrInfo, int numIndexes,
+    ComTdbVirtTableIndexInfo *indexInfo, int numViews, ComTdbVirtTableViewInfo *viewInfo,
     ComTdbVirtTableTableInfo *tableInfo, ComTdbVirtTableSequenceInfo *seqInfo, ComTdbVirtTableStatsInfo *statsInfo,
-    NAArray<HbaseStr> *endKeyArray, NABoolean genPackedDesc, Int32 *packedDescLen, NABoolean isSharedSchema,
+    NAArray<HbaseStr> *endKeyArray, NABoolean genPackedDesc, int *packedDescLen, NABoolean isSharedSchema,
     ComTdbVirtTablePrivInfo *privInfo, const char *nameSpace, ComTdbVirtTablePartitionV2Info *partitionV2Info) {
   // If genPackedDesc is set, then use Space class to allocate descriptors and
   // returned contiguous packed copy of it.
@@ -2222,7 +2222,7 @@ TrafDesc *Generator::createVirtualLibraryDesc(const char *libraryName, ComTdbVir
 }
 
 TrafDesc *Generator::createVirtualRoutineDesc(const char *routineName, ComTdbVirtTableRoutineInfo *routineInfo,
-                                              Int32 numParams, ComTdbVirtTableColumnInfo *paramsArray,
+                                              int numParams, ComTdbVirtTableColumnInfo *paramsArray,
                                               ComTdbVirtTablePrivInfo *privInfo, Space *space) {
   TrafDesc *routine_desc = TrafAllocateDDLdesc(DESC_ROUTINE_TYPE, space);
   routine_desc->routineDesc()->objectUID = routineInfo->object_uid;
@@ -2326,8 +2326,8 @@ PhysicalProperty *Generator::genPartitionedPhysProperty(const IndexDesc *clusInd
           new (CmpCommon::statementHeap()) NodeMap(CmpCommon::statementHeap(), forcedEsps, NodeMapEntry::ACTIVE);
 
       CollIndex entryNum = 0;
-      Int32 currNodeNum = -1;
-      Int32 i = 0;
+      int currNodeNum = -1;
+      int i = 0;
       while (i < forcedEsps) {
         if (entryNum == h2pf->getNodeMap()->getNumEntries()) {
           entryNum = 0;
@@ -2627,13 +2627,13 @@ MapTable *Generator::unlinkLast() {
   return lastMapTable;
 }
 
-void Generator::displayMapTables(Int32 depth, const char *msg) {
+void Generator::displayMapTables(int depth, const char *msg) {
   if (msg) cout << msg << ". ";
 
   cout << "All mapTables of up to a depth of " << depth << "." << endl;
   MapTable *x = lastMapTable_;
 
-  Int32 i = 0;
+  int i = 0;
   char buf[100];
 
   while (x && i < depth) {
@@ -2658,7 +2658,7 @@ void Generator::displayMapTables(Int32 depth, const char *msg) {
 void Generator::reportMappingInfo(ostream &out, const ValueIdList &list, const char *title) {
   if (title) cout << title << endl;
 
-  for (Int32 i = 0; i < list.entries(); i++) {
+  for (int i = 0; i < list.entries(); i++) {
     ValueId id = list[i];
 
     MapTable *mapt = getMapTable(id);
@@ -2920,7 +2920,7 @@ const NAString GenGetQualifiedName(const CorrName &corr, NABoolean formatForDisp
     return corr.getQualifiedNameObj().getQualifiedNameAsString(formatForDisplay);
 }
 
-void GeneratorAssert(const char *file, Int32 line, const char *assertionMsg, const char *errorMessage) {
+void GeneratorAssert(const char *file, int line, const char *assertionMsg, const char *errorMessage) {
   NAString msg;
   if (errorMessage)
     msg += NAString("Error Message: ") + errorMessage;
@@ -2934,7 +2934,7 @@ void GeneratorAssert(const char *file, Int32 line, const char *assertionMsg, con
   GeneratorExit(file, line);
 }
 
-void GeneratorExit(const char *file, Int32 line) { UserException(file, line).throwException(); }
+void GeneratorExit(const char *file, int line) { UserException(file, line).throwException(); }
 /*****************************
  Determine the tuple data format to use based on some heuristics.
  and whether we want to resize or not
@@ -3123,7 +3123,7 @@ NABoolean Generator::considerDefragmentation(const ValueIdList &valIdList, Group
 }
 
 void Generator::setHBaseNumCacheRows(double estRowsAccessed, ComTdbHbaseAccess::HbasePerfAttributes *hbpa,
-                                     Int32 hbaseRowSize, Float32 samplePercent, NABoolean isNeedPushDownLimit) {
+                                     int hbaseRowSize, Float32 samplePercent, NABoolean isNeedPushDownLimit) {
   // compute the number of rows accessed per scan node instance and use it
   // to set HBase scan cache size (in units of number of rows). This cache
   // is in the HBase client, i.e. in the java side of
@@ -3164,15 +3164,15 @@ void Generator::setHBaseNumCacheRows(double estRowsAccessed, ComTdbHbaseAccess::
 
   // Limit the scanner cache size to a fixed number if we are dealing with
   // very wide rows eg rows with varchar(16MB)
-  Int32 maxRowSizeInCache = CmpCommon::getDefaultNumeric(TRAF_MAX_ROWSIZE_IN_CACHE) * 1024 * 1024;
+  int maxRowSizeInCache = CmpCommon::getDefaultNumeric(TRAF_MAX_ROWSIZE_IN_CACHE) * 1024 * 1024;
   if (hbaseRowSize > maxRowSizeInCache) cacheRows = 2;
   if (CmpCommon::getDefault(AUTO_ADJUST_CACHEROWS) == DF_ON) {
     // check whether total size > JVM_MAX_HEAP_SIZE_MB or ESP_JVM_MAX_HEAP_SIZE_MB,
     // and limit the scanner cache size to a fixed number.
     long nTotalSize = cacheRows * hbaseRowSize;
     char *jvm_env = getenv("JVM_MAX_HEAP_SIZE_MB");
-    Int32 nJvmHeapSize = 0;
-    Int32 nEspJvmHeapSize = 0;
+    int nJvmHeapSize = 0;
+    int nEspJvmHeapSize = 0;
     if (jvm_env) nJvmHeapSize = atoi(jvm_env);
     if (bParallel) {
       jvm_env = getenv("ESP_JVM_MAX_HEAP_SIZE_MB");
@@ -3198,7 +3198,7 @@ void Generator::setHBaseNumCacheRows(double estRowsAccessed, ComTdbHbaseAccess::
   hbpa->setNumCacheRows(cacheRows);
 }
 
-void Generator::setHBaseCacheBlocks(Int32 hbaseRowSize, double estRowsAccessed,
+void Generator::setHBaseCacheBlocks(int hbaseRowSize, double estRowsAccessed,
                                     ComTdbHbaseAccess::HbasePerfAttributes *hbpa) {
   if (CmpCommon::getDefault(HBASE_CACHE_BLOCKS) == DF_ON)
     hbpa->setCacheBlocks(TRUE);
@@ -3210,7 +3210,7 @@ void Generator::setHBaseCacheBlocks(Int32 hbaseRowSize, double estRowsAccessed,
   }
 }
 
-void Generator::setHBaseSmallScanner(Int32 hbaseRowSize, double estRowsAccessed, int hbaseBlockSize,
+void Generator::setHBaseSmallScanner(int hbaseRowSize, double estRowsAccessed, int hbaseBlockSize,
                                      ComTdbHbaseAccess::HbasePerfAttributes *hbpa) {
   if (CmpCommon::getDefault(HBASE_SMALL_SCANNER) == DF_SYSTEM) {
     if (((hbaseRowSize * estRowsAccessed) < hbaseBlockSize) &&

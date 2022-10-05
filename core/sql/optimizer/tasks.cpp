@@ -82,7 +82,7 @@ RelExpr *CascadesTask::getExpr() { return NULL; }
 
 CascadesPlan *CascadesTask::getPlan() { return NULL; }
 
-void CascadesTask::garbageCollection(RelExpr *, RelExpr *, Int32) {
+void CascadesTask::garbageCollection(RelExpr *, RelExpr *, int) {
   // do nothing, unless the method is redefined
 }
 
@@ -106,10 +106,10 @@ NABoolean CascadesTask::taskNumberExceededLimit(int id) {
   */
 
 /* Function to compare the promise of rule applications */
-Int32 comparePromisingMoves(const void *ax, const void *bx) {
+int comparePromisingMoves(const void *ax, const void *bx) {
   RuleWithPromise *a = (RuleWithPromise *)ax;
   RuleWithPromise *b = (RuleWithPromise *)bx;
-  Int32 result = 0;
+  int result = 0;
 
   if (a->promise > b->promise)
     result = -1;
@@ -404,7 +404,7 @@ void OptimizeExprTask::perform(int taskId) {
   // identify valid and promising rules
   // ---------------------------------------------------------------------
   RuleWithPromise promisingMove[MAX_RULE_COUNT];
-  Int32 numberOfMoves = 0;  // # of moves already collected
+  int numberOfMoves = 0;  // # of moves already collected
   short stride = 0;
 
   RuleSubset applRules(CmpCommon::statementHeap());
@@ -448,7 +448,7 @@ void OptimizeExprTask::perform(int taskId) {
     }
 
     // or if any of its children has an xp
-    Int32 nc = expr_->getArity();
+    int nc = expr_->getArity();
     for (int i = 0; i < nc; i++) {
       const JBBSubset *childlocalView = expr_->child(i).getGroupAttr()->getGroupAnalysis()->getLocalJBBView();
 
@@ -468,7 +468,7 @@ void OptimizeExprTask::perform(int taskId) {
   // loop through all applicable rules
   for (CollIndex ruleId = 0; applRules.nextUsed(ruleId); ++ruleId) {
     Rule *rule = GlobalRuleSet->rule(ruleId);
-    Int32 promise;
+    int promise;
 
     // insert a valid and promising move into the array
     if (rule->topMatch(expr_, context_) AND(promise = rule->promiseForOptimization(expr_, guidance_, context_)) >
@@ -557,7 +557,7 @@ void OptimizeExprTask::perform(int taskId) {
 
         CURRSTMT_OPTGLOBALS->task_list->push(new (CmpCommon::statementHeap()) ExploreGroupTask(
             (*expr_)[childIndex].getGroupId(), patternInput,
-            rule->guidanceForExploringChild(guidance_, context_, (Int32)childIndex), taskId, ++stride));
+            rule->guidanceForExploringChild(guidance_, context_, (int)childIndex), taskId, ++stride));
       }  // endif expand an input to match the pattern
 
     }  // end for earlier tasks: expand all children to match the pattern
@@ -580,7 +580,7 @@ void OptimizeExprTask::perform(int taskId) {
 
 }  // OptimizeExprTask::perform
 
-void OptimizeExprTask::garbageCollection(RelExpr *oldx, RelExpr *newx, Int32 /* groupMergeCount */) {
+void OptimizeExprTask::garbageCollection(RelExpr *oldx, RelExpr *newx, int /* groupMergeCount */) {
   if (expr_ == oldx) expr_ = newx;
 }  // OptimizeExprTask::garbageCollection
 //<pb>
@@ -686,11 +686,11 @@ RelExpr *ExploreExprTask::getExpr() { return expr_; }
 //<pb>
 void ExploreExprTask::perform(int taskId) {
   // arity of the log expr's top node
-  Int32 arity = expr_->getArity();
+  int arity = expr_->getArity();
 
   // identify valid and promising rules
   RuleWithPromise promisingMove[MAX_RULE_COUNT];
-  Int32 numberOfMoves = 0;  // # of moves already collected
+  int numberOfMoves = 0;  // # of moves already collected
   short stride = 0;
 
   const RuleSubset *applRules;
@@ -703,7 +703,7 @@ void ExploreExprTask::perform(int taskId) {
   // Iterate over all the applicable rules
   for (CollIndex ruleId = 0; applRules->nextUsed(ruleId); ruleId++) {
     Rule *rule = GlobalRuleSet->rule(ruleId);
-    Int32 promise;
+    int promise;
 
     // Consider transformation rules only, ignore all implementation rules.
     if (rule->isTransformationRule()) {
@@ -773,7 +773,7 @@ void ExploreExprTask::perform(int taskId) {
         // schedule a task with new guidance and context
         CURRSTMT_OPTGLOBALS->task_list->push(new (CmpCommon::statementHeap()) ExploreGroupTask(
             (*expr_)[childIndex].getGroupId(), (*new_rule_pattern)[childIndex],
-            rule->guidanceForExploringChild(guidance_, NULL, (Int32)childIndex), taskId, ++stride));
+            rule->guidanceForExploringChild(guidance_, NULL, (int)childIndex), taskId, ++stride));
       }  // expand an child to match the pattern
     }    // earlier tasks: expand all children to match the pattern
   }      // schedule valid rules in order of promise
@@ -788,7 +788,7 @@ void ExploreExprTask::perform(int taskId) {
 
 }  // ExploreExprTask::perform
 
-void ExploreExprTask::garbageCollection(RelExpr *oldx, RelExpr *newx, Int32 /* groupMergeCount */) {
+void ExploreExprTask::garbageCollection(RelExpr *oldx, RelExpr *newx, int /* groupMergeCount */) {
   if (expr_ == oldx) expr_ = newx;
 }  // ExploreExprTask::garbageCollection
 //<pb>
@@ -875,7 +875,7 @@ void ApplyRuleTask::perform(int taskId) {
 
     for (; binding->advance(); binding->release_expr()) {
       RuleSubstituteMemory *ruleMemory = NULL;
-      Int32 count = 0;
+      int count = 0;
 
       // extract an actual expression from the binding
       before = binding->extract_expr();
@@ -1043,7 +1043,7 @@ void ApplyRuleTask::perform(int taskId) {
 
 }  // ApplyRuleTask::perform
 
-void ApplyRuleTask::garbageCollection(RelExpr *oldx, RelExpr *newx, Int32 /* groupMergeCount */) {
+void ApplyRuleTask::garbageCollection(RelExpr *oldx, RelExpr *newx, int /* groupMergeCount */) {
   if (expr_ != NULL AND expr_ == oldx) expr_ = newx;
 }  // ApplyRuleTask::garbageCollection
 //<pb>
@@ -1314,7 +1314,7 @@ void CreatePlanTask::perform(int taskId) {
 
 }  // CreatePlanTask::perform
 //<pb>
-void CreatePlanTask::garbageCollection(RelExpr * /* oldx */, RelExpr * /* newx */, Int32 /* groupMergeCount */) {
+void CreatePlanTask::garbageCollection(RelExpr * /* oldx */, RelExpr * /* newx */, int /* groupMergeCount */) {
 }  // CreatePlanTask::garbageCollection
 
 void CreatePlanTask::print(FILE *f, const char *prefix, const char *suffix) const {
@@ -1363,14 +1363,14 @@ NAString GarbageCollectionTask::taskText() const { return "Garbage Collection"; 
 
 void GarbageCollectionTask::perform(int /*taskId*/) {
   if (NOT alreadyDone_) {
-    Int32 changedExprs = CURRSTMT_OPTGLOBALS->memo->garbageCollection();
+    int changedExprs = CURRSTMT_OPTGLOBALS->memo->garbageCollection();
     CURRSTMT_OPTGLOBALS->garbage_expr_count += changedExprs;
   }
 
   delete this;
 }
 
-void GarbageCollectionTask::garbageCollection(RelExpr * /* oldx */, RelExpr * /* newx */, Int32 groupMergeCount) {
+void GarbageCollectionTask::garbageCollection(RelExpr * /* oldx */, RelExpr * /* newx */, int groupMergeCount) {
   // If we come here, another GarbageCollectionTask task is currently
   // executing. If that task has caught up with all the group
   // merges already, then it is not necessary to schedule

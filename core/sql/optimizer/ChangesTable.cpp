@@ -824,7 +824,7 @@ ItemExpr *MvIudLog::createAtColExpr(const NAColumn *naColumn, NABoolean isInsert
       // ALIGNMENT is not used
       CMPASSERT(!colName.compareTo(COMMV_ALIGNMENT_COL));
       {
-        Int32 bitmapSize = naColumn->getType()->getNominalSize();
+        int bitmapSize = naColumn->getType()->getNominalSize();
         NAString *bitmap = new (heap_) NAString('\0', bitmapSize, heap_);
         result = new (heap_) SystemLiteral(*bitmap);
       }
@@ -856,7 +856,7 @@ ItemExpr *MvIudLog::createColExprForOpType(NABoolean isInsert, NABoolean isUpdat
     CMPASSERT(isInsert)
     result = new (heap_) ColReference(new (heap_) ColRefName(InliningInfo::getRowTypeVirtualColName(), heap_));
   } else {
-    Int32 typeValue = isInsert ? ComMvRowType_Insert : ComMvRowType_Delete;
+    int typeValue = isInsert ? ComMvRowType_Insert : ComMvRowType_Delete;
     if (isUndo) typeValue = ComMvRowType_Delete;
     if (isUpdate) typeValue |= ComMvRowType_Update;
     result = new (heap_) SystemLiteral(typeValue);
@@ -882,7 +882,7 @@ ItemExpr *MvIudLog::createColExprForBitmap(const NAColumn *naColumn, NABoolean i
   if (!isUpdate) {
     result = new (heap_) SystemLiteral();  // NULL
   } else {
-    Int32 bitmapSize = naColumn->getType()->getNominalSize();
+    int bitmapSize = naColumn->getType()->getNominalSize();
 
     CMPASSERT(updatedColumns_ != NULL);
     unsigned char *colsBitmap = new (heap_) unsigned char[bitmapSize];
@@ -1089,7 +1089,7 @@ NABoolean MvIudLog::fixReferencesFromBaseTableToLog(ItemExpr *expr) const {
   NABoolean result = TRUE;
 
   if (expr->getArity() > 0) {
-    for (Int32 i = 0; i < expr->getArity(); i++) result &= fixReferencesFromBaseTableToLog(expr->child(i));
+    for (int i = 0; i < expr->getArity(); i++) result &= fixReferencesFromBaseTableToLog(expr->child(i));
   } else {
     if (expr->getOperatorType() == ITM_REFERENCE) {
       ColReference *colRef = (ColReference *)expr;
@@ -1120,7 +1120,7 @@ ItemExpr *MvIudLog::buildOrigScanPredicate() const {
   ItemExpr *origScanPredicate = parser.getItemExprTree((char *)textPredicate.data());
 
   ItemExprList predicateList(origScanPredicate, bindWA_->wHeap(), ITM_AND);
-  for (Int32 i = predicateList.entries() - 1; i >= 0; i--) {
+  for (int i = predicateList.entries() - 1; i >= 0; i--) {
     if (fixReferencesFromBaseTableToLog(predicateList[i]) == FALSE) predicateList.removeAt(i);
   }
   ItemExpr *fixedPredicate = predicateList.convertToItemExpr();
@@ -1176,7 +1176,7 @@ ItemExpr *MvIudLog::constructUpdateBitmapFromList(const LIST(int) & columnList) 
 
   CMPASSERT(!currentTempCol->getColName().compareTo(COMMV_BITMAP_COL));
 
-  Int32 bitmapSize = currentTempCol->getType()->getNominalSize();
+  int bitmapSize = currentTempCol->getType()->getNominalSize();
 
   // Initialize a constant bitmap from the used cols list of the mv
   unsigned char *usedColsBitmap = new (heap_) unsigned char[bitmapSize];
@@ -1260,7 +1260,7 @@ ItemExpr *MvIudLogForMvLog::createColExprForEpoch() const {
 // In the context row, this field is used for storing the MSW of the MV UID.
 //////////////////////////////////////////////////////////////////////////////
 ItemExpr *MvIudLogForMvLog::createColExprForOpType(NABoolean isInsert, NABoolean isUpdate, NABoolean isUndo) const {
-  Int32 typeValue = isInsert ? ComMvRowType_EndRange : ComMvRowType_BeginRange;
+  int typeValue = isInsert ? ComMvRowType_EndRange : ComMvRowType_BeginRange;
   return new (heap_) SystemLiteral(typeValue);
 }
 

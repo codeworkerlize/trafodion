@@ -100,8 +100,8 @@ class SortMergeNode {
   SBN beginBlockNum_;       // beginning block number of run associated with this node
   SBN endBlockNum_;         // end block number of the run associated with this node
   SBN nextIOBlockNum_;      // next block to be read for this run.
-  Int32 numReadQBlocks_;    // realtime num of blocks attached to readQHead
-  Int32 numOutStandingIO_;  // realtime num of blocks beginning from readQHead that have outstanding IO.
+  int numReadQBlocks_;    // realtime num of blocks attached to readQHead
+  int numOutStandingIO_;  // realtime num of blocks beginning from readQHead that have outstanding IO.
   SortScratchSpace *scratch_;
   SortMergeNode(int associatedrun, SortScratchSpace *sortScratchSpace);
   ~SortMergeNode();
@@ -113,15 +113,15 @@ class SortMergeNode {
 
 class ScratchSpace : public NABasicObject {
  public:
-  ScratchSpace(CollHeap *heap, SortError *error, int blocksize, Int32 scratchIOVectorSize, Int32 explainNodeId,
-               NABoolean logInfoEvent = FALSE, Int32 scratchMgmtOption = 0);
+  ScratchSpace(CollHeap *heap, SortError *error, int blocksize, int scratchIOVectorSize, int explainNodeId,
+               NABoolean logInfoEvent = FALSE, int scratchMgmtOption = 0);
   ~ScratchSpace(void);
 
   virtual RESULT writeFile(char *block, ULng32 blockNum, ULng32 blockLen);
 
   RESULT writeThru(char *buf, ULng32 bufLen, DWORD &blockNum);
   RESULT readThru(char *buf, int blockNum, ULng32 buflen, ScratchFile *readScratchFile = NULL,
-                  Int32 readBlockOffset = -1);
+                  int readBlockOffset = -1);
 
   DiskPool *getDiskPool();
   NABoolean generateDiskTable(SortError *sortError);
@@ -177,13 +177,13 @@ class ScratchSpace : public NABasicObject {
   void setPreallocateExtents(NABoolean v) { preAllocateExtents_ = v; }
   void setScratchDiskLogging(NABoolean v) { scratchDiskLogging_ = v; }
   NABoolean scratchDiskLogging(void) { return scratchDiskLogging_; }
-  void setScratchIOVectorSize(Int32 vectorSize) { scratchIOVectorSize_ = vectorSize; }
-  inline Int32 getScratchIOVectorSize(void) { return scratchIOVectorSize_; }
+  void setScratchIOVectorSize(int vectorSize) { scratchIOVectorSize_ = vectorSize; }
+  inline int getScratchIOVectorSize(void) { return scratchIOVectorSize_; }
 
   void setAsyncReadQueue(NABoolean v) { asyncReadQueue_ = v; }
 
-  void setScratchMaxOpens(Int32 scratchMaxOpens) { scratchMaxOpens_ = scratchMaxOpens; }
-  Int32 getExplainNodeID(void) { return explainNodeId_; }
+  void setScratchMaxOpens(int scratchMaxOpens) { scratchMaxOpens_ = scratchMaxOpens; }
+  int getExplainNodeID(void) { return explainNodeId_; }
   ExBMOStats *bmoStats() { return bmoStats_; }
   void setScratchOverflowMode(ScratchOverflowMode ovMode) { ovMode_ = ovMode; }
   ScratchOverflowMode getScratchOverflowMode(void) { return ovMode_; }
@@ -196,7 +196,7 @@ class ScratchSpace : public NABasicObject {
   CollHeap *heap_;
   ScratchFileMap *scrFilesMap_;
   long totalIoWaitTime_;
-  RESULT CreateANewScrFileAndWrite(char *buffer, Int32 blockNum, UInt32 blockLen, NABoolean waited = FALSE_L);
+  RESULT CreateANewScrFileAndWrite(char *buffer, int blockNum, UInt32 blockLen, NABoolean waited = FALSE_L);
   ScratchFile *currentWriteScrFile_;
 
  private:
@@ -209,7 +209,7 @@ class ScratchSpace : public NABasicObject {
   ScratchFile *currentReadScrFile_;
   IpcEnvironment *ipcEnv_;
   DiskPool *diskPool_;
-  Int32 explainNodeId_;  // For logging support.
+  int explainNodeId_;  // For logging support.
   NABoolean logInfoEvent_;
   NABoolean logDone_;
   const ExScratchDiskDrive *scratchDirListSpec_;  // Information about scratchvols to  include or exclude.
@@ -219,21 +219,21 @@ class ScratchSpace : public NABasicObject {
   unsigned short scratchThreshold_;
   ExSubtask *ioEventHandler_;
   ex_tcb *callingTcb_;
-  Int32 scratchMgmtOption_;
-  Int32 scratchMaxOpens_;
-  Int32 scratchExtentSize_;
+  int scratchMgmtOption_;
+  int scratchMaxOpens_;
+  int scratchExtentSize_;
   NABoolean preAllocateExtents_;
   NABoolean scratchDiskLogging_;
   ExBMOStats *bmoStats_;
   NABoolean asyncReadQueue_;
-  Int32 scratchIOVectorSize_;
+  int scratchIOVectorSize_;
   ScratchOverflowMode ovMode_;
 };
 
 class SortScratchSpace : public ScratchSpace {
  public:
-  SortScratchSpace(CollHeap *heap, SortError *error, Int32 explainNodeId, Int32 scratchIOBlockSize,
-                   Int32 scratchIOVectorSize, NABoolean logInfoEvent = FALSE, Int32 scratchMgmtOption = 0);
+  SortScratchSpace(CollHeap *heap, SortError *error, int explainNodeId, int scratchIOBlockSize,
+                   int scratchIOVectorSize, NABoolean logInfoEvent = FALSE, int scratchMgmtOption = 0);
   ~SortScratchSpace(void);
 
   RESULT writeRunData(char *data, ULng32 reclen, ULng32 run, NABoolean waited);
@@ -246,9 +246,9 @@ class SortScratchSpace : public ScratchSpace {
   int getTotalNumOfRuns(void);
   SortMergeBuffer *getFreeSortMergeBuffer(void);
   void returnFreeSortMergeBuffer(SortMergeBuffer *mb);
-  RESULT setupSortMergeBufferPool(Int32 numBuffers);
+  RESULT setupSortMergeBufferPool(int numBuffers);
   void cleanupSortMergeBufferPool(void);
-  void setSortMergeBlocksPerBuffer(Int32 smbb) { sortMergeBlocksPerBuffer_ = smbb; }
+  void setSortMergeBlocksPerBuffer(int smbb) { sortMergeBlocksPerBuffer_ = smbb; }
 
   // Cleanup scratch files in between intermediate merges. This call
   // is not to be called for general cleanup of scratch files.
@@ -280,7 +280,7 @@ class SortScratchSpace : public ScratchSpace {
   // No need to deallocate in scratchSpace destructor
   SortMergeBuffer *freeSortMergeBufferPool_;
 
-  Int32 sortMergeBlocksPerBuffer_;  // number of blocks that constitute a merge buffer, to reduce disk seek time.
+  int sortMergeBlocksPerBuffer_;  // number of blocks that constitute a merge buffer, to reduce disk seek time.
 
   NABoolean switchScratchBuffers(void);
 
@@ -324,7 +324,7 @@ class ClusterPassBack : public NABasicObject {
   friend class HashScratchSpace;
   CBlock *cBlock_;               // next block to read
   ScratchFile *scratchFile_;     // scratch file corresponding to the next block
-  Int32 blockOffset_;            // offset inside the scratch file the next block begins
+  int blockOffset_;            // offset inside the scratch file the next block begins
   NABoolean endOfClusterBatch_;  // indicates if the next block is end of series writes.
  public:
   ClusterPassBack() { initCPB(); }
@@ -340,8 +340,8 @@ class ClusterPassBack : public NABasicObject {
 
 class HashScratchSpace : public ScratchSpace {
  public:
-  HashScratchSpace(CollHeap *heap, SortError *error, Int32 explainNodeId, Int32 blockSize, Int32 scratchIOVectorSize,
-                   NABoolean logInfoEvent = FALSE, Int32 scratchMgmtOption = 0);
+  HashScratchSpace(CollHeap *heap, SortError *error, int explainNodeId, int blockSize, int scratchIOVectorSize,
+                   NABoolean logInfoEvent = FALSE, int scratchMgmtOption = 0);
   ~HashScratchSpace(void);
 
   RESULT writeThru(char *buf, UInt32 clusterID);

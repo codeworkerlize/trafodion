@@ -55,7 +55,7 @@
 #include <wctype.h>
 #include "common/Platform.h"
 
-#define VARHDRSZ    ((Int32)sizeof(Int32))
+#define VARHDRSZ    ((int)sizeof(int))
 #define TRGMHDRSIZE (VARHDRSZ + sizeof(UInt8))
 #define GETARR(x)   ((trgm *)((char *)x + TRGMHDRSIZE))
 
@@ -83,7 +83,7 @@ typedef union {
 #define NGRAM_LENGTH 3
 typedef char trgm[NGRAM_LENGTH];
 typedef struct {
-  Int32 vl_len_; /* varlena header (do not touch directly!) */
+  int vl_len_; /* varlena header (do not touch directly!) */
   UInt8 flag;
   char data[1];
 } TRGM;

@@ -360,7 +360,7 @@ NABoolean QualifiedName::applyShortAnsiDefault(NAString &catName, NAString &schN
 // If NAMETYPE is NSK, the SchemaDB puts the current MPLOC into the defCatSch;
 // so this method has to handle **only one** tiny NSK naming detail.
 //
-Int32 QualifiedName::extractAndDefaultNameParts(const SchemaName &defCatSch, NAString &catName  // OUT
+int QualifiedName::extractAndDefaultNameParts(const SchemaName &defCatSch, NAString &catName  // OUT
                                                 ,
                                                 NAString &schName  // OUT
                                                 ,
@@ -398,7 +398,7 @@ Int32 QualifiedName::extractAndDefaultNameParts(const SchemaName &defCatSch, NAS
   CMPASSERT(NOT catName.isNull());
   CMPASSERT(NOT schName.isNull());
 
-  Int32 defaultMatches = 0;
+  int defaultMatches = 0;
   if (catName == defCatSch.getCatalogName()) {
     defaultMatches++;
     if (schName == defCatSch.getSchemaName()) defaultMatches++;
@@ -424,7 +424,7 @@ Int32 QualifiedName::extractAndDefaultNameParts(const SchemaName &defCatSch, NAS
 // Applies the default catalog & schema to *this -- if either name part of this
 // is empty, it is filled in (updated) with the default.
 //
-Int32 QualifiedName::applyDefaults(const SchemaName &defCatSch) {
+int QualifiedName::applyDefaults(const SchemaName &defCatSch) {
   return extractAndDefaultNameParts(defCatSch, catalogName_, schemaName_, objectName_);
 }
 
@@ -433,7 +433,7 @@ Int32 QualifiedName::applyDefaults(const SchemaName &defCatSch) {
 // search in the public schema if necessary.
 // This is used to replace the above function when
 // we need to consider PUBLIC_SCHEMA_NAME
-Int32 QualifiedName::applyDefaultsValidate(const SchemaName &defCatSch, ComAnsiNameSpace nameSpace) {
+int QualifiedName::applyDefaultsValidate(const SchemaName &defCatSch, ComAnsiNameSpace nameSpace) {
   // need to try public schema if it is specified
   // and the object schema is not specified
   NAString publicSchema = "";
@@ -444,7 +444,7 @@ Int32 QualifiedName::applyDefaultsValidate(const SchemaName &defCatSch, ComAnsiN
     pubSchemaIntName = pubSchema.getSchemaNamePart().getInternalName();
   }
 
-  Int32 ret = extractAndDefaultNameParts(defCatSch, catalogName_, schemaName_, objectName_);
+  int ret = extractAndDefaultNameParts(defCatSch, catalogName_, schemaName_, objectName_);
 
   // try public schema if the table does not exist
   if (!pubSchemaIntName.isNull()) {
@@ -461,7 +461,7 @@ Int32 QualifiedName::applyDefaultsValidate(const SchemaName &defCatSch, ComAnsiN
 //
 // This code cloned for CorrName::applyPrototype below.
 //
-QualifiedName::QualifiedName(const NAString &ansiString, Int32 minNameParts, CollHeap *h, BindWA *bindWA)
+QualifiedName::QualifiedName(const NAString &ansiString, int minNameParts, CollHeap *h, BindWA *bindWA)
     : SchemaName(h), objectName_(h), objectNameSpace_(COM_UNKNOWN_NAME), flagbits_(0) {
   if (HasMPLocPrefix(ansiString.data())) {
     ComMPLoc loc(ansiString);
@@ -490,7 +490,7 @@ QualifiedName::QualifiedName(const NAString &ansiString, Int32 minNameParts, Col
     }
   }
 
-  Int32 nameParts = 0;
+  int nameParts = 0;
   if (minNameParts > 0) {
     nameParts = getCatalogName() != "" ? 3 : getSchemaName() != "" ? 2 : getObjectName() != "" ? 1 : 0;
     CMPASSERT(nameParts >= minNameParts);
@@ -533,7 +533,7 @@ const NAString QualifiedName::getQualifiedNameAsAnsiString(size_t *lenArray /* a
 //  and NAMETYPE was specified as other than ANSI
 //    return FALSE;  else return TRUE.
 
-NABoolean QualifiedName::verifyAnsiNameQualification(Int32 nbrPartsDefaulted) const {
+NABoolean QualifiedName::verifyAnsiNameQualification(int nbrPartsDefaulted) const {
   if (nbrPartsDefaulted > 0)
     if ((SqlParser_NADefaults_Glob != NULL) AND(SqlParser_NADefaults_Glob->NAMETYPE_ != DF_ANSI)) return FALSE;
 
@@ -699,7 +699,7 @@ void CorrName::applyPrototype(BindWA *bindWA) {
       return;
     }
     // upcase value returned by getenv
-    Int32 len = strlen(value);
+    int len = strlen(value);
     char *ucValue = new (bindWA->wHeap()) char[len + 1];
     str_cpy_convert(ucValue, value, len, -1 /*upshift*/);
     ucValue[len] = 0;
@@ -756,7 +756,7 @@ void CorrName::applyPrototype(BindWA *bindWA) {
 
 #ifndef NDEBUG
       if (getenv("HV_DEBUG"))
-        cout << "HostVar/Prototype: parsed (" << (Int32)proto->nodeIsBound() << ") " << proto->getName() << " "
+        cout << "HostVar/Prototype: parsed (" << (int)proto->nodeIsBound() << ") " << proto->getName() << " "
              << protoCorrName.getExposedNameAsAnsiString() << endl;
 #endif
 
@@ -794,7 +794,7 @@ void CorrName::applyPrototype(BindWA *bindWA) {
 // masking a qualified name like "c.s.t", -- then we always return 0
 // and the name parts are *not* filled in with defaults (they're meaningless).
 //
-Int32 CorrName::extractAndDefaultNameParts(BindWA *bindWA, const SchemaName &defCatSch,
+int CorrName::extractAndDefaultNameParts(BindWA *bindWA, const SchemaName &defCatSch,
                                            NAString &catName,  // OUT
                                            NAString &schName,  // OUT
                                            NAString &objName)  // OUT
@@ -828,7 +828,7 @@ Int32 CorrName::extractAndDefaultNameParts(BindWA *bindWA, const SchemaName &def
 // *even if* this CorrName contains a correlation name string.
 // (And thus it's not safe to set the defaultMatchCount_ member.)
 //
-Int32 CorrName::applyDefaults(BindWA *bindWA, const SchemaName &defCatSch) {
+int CorrName::applyDefaults(BindWA *bindWA, const SchemaName &defCatSch) {
   if (defaultMatchCount_ >= 0) return defaultMatchCount_;  // for perf
 
   applyPrototype(bindWA);
@@ -836,7 +836,7 @@ Int32 CorrName::applyDefaults(BindWA *bindWA, const SchemaName &defCatSch) {
 
   if (isFabricated()) return (defaultMatchCount_ = 0);  // assignment, not ==
 
-  Int32 retval = getQualifiedNameObj().applyDefaults(defCatSch);
+  int retval = getQualifiedNameObj().applyDefaults(defCatSch);
   if (retval == -1)  // Only NSK platform will return -1
     bindWA->setErrStatus();
   return retval;

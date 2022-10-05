@@ -67,12 +67,12 @@ short ExpGenerator::buildKeyInfo(keyRangeGen **keyInfo,  // out -- generated obj
 {
   Space *space = generator->getSpace();
 
-  const Int32 work_atp = 1;
-  const Int32 key_atp_index = 2;
-  const Int32 exclude_flag_atp_index = 3;
-  const Int32 data_conv_error_atp_index = 4;
-  const Int32 key_column_atp_index = 5;   // used only for Mdam
-  const Int32 key_column2_atp_index = 6;  // used only for Mdam MDAM_BETWEEN pred;
+  const int work_atp = 1;
+  const int key_atp_index = 2;
+  const int exclude_flag_atp_index = 3;
+  const int data_conv_error_atp_index = 4;
+  const int key_column_atp_index = 5;   // used only for Mdam
+  const int key_column2_atp_index = 6;  // used only for Mdam MDAM_BETWEEN pred;
                                           //   code in BiLogic::mdamPredGenSubrange
                                           //   and MdamColumn::buildDisjunct
                                           //   requires this to be 1 more than

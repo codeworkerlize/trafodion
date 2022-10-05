@@ -70,7 +70,7 @@ class ScratchFileMap : public NABasicObject {
   ~ScratchFileMap();
   void setBreakEnabled(NABoolean flag) { breakEnabled_ = flag; };
   void closeFiles(ScratchFile *keepFile = NULL);
-  ScratchFile *createNewScrFile(ScratchSpace *scratchSpace, Int32 scratchMgmtOption, Int32 scratchMaxOpens,
+  ScratchFile *createNewScrFile(ScratchSpace *scratchSpace, int scratchMgmtOption, int scratchMaxOpens,
                                 NABoolean preAllocateExtents, NABoolean asynchReadQueue);
 
   ScratchFile *mapBlockNumToScrFile(SBN blockNum, int &blockOffset);

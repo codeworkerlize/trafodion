@@ -77,7 +77,7 @@ class REFRESH_LIB_CLASS CRUCacheDDLLockHandler {
   void SortObjectsByUid();
 
   // Sorting criteria
-  static Int32 CompareElem(const void *pEl1, const void *pEl2);
+  static int CompareElem(const void *pEl1, const void *pEl2);
 
  private:
   // Do we need to handle the DDL locks at all?

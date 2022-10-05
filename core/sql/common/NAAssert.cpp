@@ -49,7 +49,7 @@
 //   files you aren't interested in breaking on each time),
 //   - and rebuild;
 // - Set a breakpoint here, after the filtering-out lines you added.
-void NAInlineBreakpointFunc(char *file_, Int32 line_) {
+void NAInlineBreakpointFunc(char *file_, int line_) {
   cout << "Tracepoint at: file " << file_ << ", line " << line_ << "\n";
 }
 

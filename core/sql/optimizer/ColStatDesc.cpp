@@ -63,7 +63,7 @@
 // which we attempt to do exact histogram-manipulation; for IN-lists of
 // cardinality greater than this constant, we do some massive
 // simplifications (see CSDL::estimateCardinality)
-const Int32 HIST_MAX_IN_LIST_MEMBERS = 40;
+const int HIST_MAX_IN_LIST_MEMBERS = 40;
 
 // -----------------------------------------------------------------------
 //  Methods on ColStatDesc class
@@ -1461,7 +1461,7 @@ CostScalar ColStatDesc::selForRelativeRange(const OperatorTypeEnum op, const Val
     // Identify which is the constant and which the host variable
     //  If this is a more complicated expression, (has more than 1 operator)
     //   we will not find either the constant or host variable.
-    for (Int32 arity = 0; arity < twoPred->getArity(); arity++) {
+    for (int arity = 0; arity < twoPred->getArity(); arity++) {
       ItemExpr *operand = (*twoPred)[arity].getPtr();
       // Use the actual node hidding behind the cast / not covered node.
       if ((operand->getOperatorType() == ITM_CAST) || (operand->getOperatorType() == ITM_NOTCOVERED))
@@ -1964,7 +1964,7 @@ void ColStatDescList::addColStatDescForVirtualCol(const CostScalar &uec, const C
 // the motivation for writing this code in the first place!
 // ---------------------------------------------------------------------
 
-NABoolean isPredTransformedInList(const ValueId &predId, const ValueId &column, Int32 &leaves) {
+NABoolean isPredTransformedInList(const ValueId &predId, const ValueId &column, int &leaves) {
   const ItemExpr *pred = predId.getItemExpr();
   OperatorTypeEnum op = pred->getOperatorType();
 
@@ -3690,7 +3690,7 @@ CostScalar ColStatDescList::applyBiLogicPred(CostScalar &tempRowcount, ValueIdSe
         inListCase = FALSE;
       }
 
-      Int32 in_list_members = 1;  // count the first right child (above)
+      int in_list_members = 1;  // count the first right child (above)
       if ((Lop == ITM_OR AND Rop ==
            ITM_EQUAL AND
                    // at this point we're reasonably sure that we're inside an OR-tree
@@ -4031,7 +4031,7 @@ CostScalar ColStatDescList::applyBiLogicPred(CostScalar &tempRowcount, ValueIdSe
             // copyStatsList is a copy of THIS statsList, during
             // the process of applying predicates to THIS and
             // the copy, we should not have dropped any columns.
-            Int32 stophere = 0;
+            int stophere = 0;
           }
 
           for (currentL = 0; currentL < entries(); currentL++) {
@@ -4872,7 +4872,7 @@ void ColStatDescList::applyDefaultPred(ItemExpr *pred, CostScalar &globalPredica
   // params are identified through the virtual method
   // SelParameter::castToConstValue().
   // -------------------------------------------------------------------
-  for (Int32 arity = 0; arity < pred->getArity(); arity++) {
+  for (int arity = 0; arity < pred->getArity(); arity++) {
     const ItemExpr *operand = (*pred)[arity].getPtr();
     if ((operand->getOperatorType() == ITM_HOSTVAR) && ((HostVar *)operand)->isSystemGenerated() ||
         (operand->getOperatorType() == ITM_CACHE_PARAM && operand->castToSelParameter())) {
@@ -7104,7 +7104,7 @@ ColStatsSharedPtr ColStatDescList::getColStatsPtrForPredicate(const ValueId &pre
   const ItemExpr *predIE = predicate.getItemExpr();
   if (!predIE->isAPredicate()) return NULL;
 
-  const Int32 arity = predIE->getArity();  // for debugging
+  const int arity = predIE->getArity();  // for debugging
   switch (arity) {
     case 3:
     case 2: {
@@ -8459,7 +8459,7 @@ ValueIdSet MultiColumnUecList::findMatchingColumns(const ValueIdSet &t1Cols,    
 // A help function to break the tie of two table descs. The side with
 // smaller ipFactor, smaller mcUec or larger valueId value of the
 // first column wins.
-Int32 tieBreaker(CostScalar ipFactor1, CostScalar mcUec1, TableDesc *tabDesc1, CostScalar ipFactor2, CostScalar mcUec2,
+int tieBreaker(CostScalar ipFactor1, CostScalar mcUec1, TableDesc *tabDesc1, CostScalar ipFactor2, CostScalar mcUec2,
                  TableDesc *tabDesc2) {
   if (ipFactor1 < ipFactor2) return 1;
 
@@ -9396,7 +9396,7 @@ NABoolean MultiColumnUecList::createMCUECWithOverlappingColSets(ValueIdSet &rema
     ValueIdSet overlappingCol;
     MultiColumnUecListIterator iter(*this);
 
-    Int32 i;
+    int i;
     double smallestIPFactor = 1;
     ValueIdSet *setWithMinIPFactor = NULL;
 
@@ -9526,7 +9526,7 @@ MultiColumnUecList *MultiColumnUecList::createMCListForRemainingCols(ValueIdSet 
   MultiColumnUecListIterator iter(*this);
 
   // traverse through the multi-column uec list to get the relevant mc entries
-  Int32 i;
+  int i;
 
   for (iter.getNext(keyEntry, uecEntry), i = 1; keyEntry != NULL && uecEntry != NULL;
        iter.getNext(keyEntry, uecEntry), i++) {
@@ -9603,7 +9603,7 @@ void MultiColumnUecList::print(FILE *ofd, const char *prefix, const char *suffix
   fprintf(ofd, "================================================\n");
   fprintf(ofd, "%sEntries: %i\n", prefix, this->entries());
 
-  Int32 i;
+  int i;
   for (iter.getNext(keyEntry, uecEntry), i = 1; keyEntry != NULL && uecEntry != NULL;
        iter.getNext(keyEntry, uecEntry), i++) {
     fprintf(ofd, "%s  (** entry %i**) ", prefix, i);

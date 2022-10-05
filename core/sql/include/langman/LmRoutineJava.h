@@ -76,7 +76,7 @@ class LmRoutineJava : public LmRoutine {
   LmRoutineJava(const char *sqlName, const char *externalName, const char *librarySqlName, ComUInt32 numSqlParam,
                 LmParameter *returnValue, ComUInt32 maxResultSets, char *routineSig, ComBoolean udrForSPSQL,
                 ComRoutineParamStyle paramStyle, ComRoutineTransactionAttributes transactionAttrs,
-                ComRoutineSQLAccess sqlAccessMode, ComRoutineExternalSecurity externalSecurity, Int32 routineOwnerId,
+                ComRoutineSQLAccess sqlAccessMode, ComRoutineExternalSecurity externalSecurity, int routineOwnerId,
                 const char *parentQid, const char *clientInfo, ComUInt32 inputRowLen, ComUInt32 outputRowLen,
                 const char *currentUserName, const char *sessionUserName, LmParameter *parameters,
                 LmLanguageManagerJava *lm, LmHandle routine, LmContainer *container, ComDiagsArea *diagsArea);
@@ -109,7 +109,7 @@ class LmRoutineJava : public LmRoutine {
   // Java result set only when the result set is not null, not closed
   // and not a duplicate. The newly created LmResultSet object is
   // added to a NAList data structure.
-  LmResult populateResultSetInfo(LmHandle rs, Int32 paramPos, ComDiagsArea *da);
+  LmResult populateResultSetInfo(LmHandle rs, int paramPos, ComDiagsArea *da);
 
   // Checks if the passed in Java result set object is already
   // part of a LmResultSet object in the result set list.

@@ -209,7 +209,7 @@ class ComSqlId {
                                   long sessionUniqueNum,      // IN
                                   int userNameLen,           // IN
                                   const char *userName,        // IN
-                                  Int32 tenantIdLen,           // IN
+                                  int tenantIdLen,           // IN
                                   const char *tenantId,        // IN
                                   int userSessionNameLen,    // IN
                                   const char *userSessionName  // IN
@@ -234,7 +234,7 @@ class ComSqlId {
                                         long &sessionUniqueNum,    // OUT
                                         int &userNameLen,         // OUT
                                         char *userName,             // OUT
-                                        Int32 &tenantIdLen,         // OUT
+                                        int &tenantIdLen,         // OUT
                                         char *tenantId,             // OUT
                                         int &userSessionNameLen,  // OUT
                                         char *userSessionName,      // OUT
@@ -255,7 +255,7 @@ class ComSqlId {
   );
 
   static UInt64 computeQueryHash(char *input_str);
-  static UInt64 computeQueryHash(char *input_str, Int32 len);
+  static UInt64 computeQueryHash(char *input_str, int len);
 
  private:
   static int getSqlIdAttr(int attr,           // which attr (SqlQueryIDAttr)

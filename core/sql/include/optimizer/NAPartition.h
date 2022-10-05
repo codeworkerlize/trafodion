@@ -75,8 +75,8 @@ class BoundaryValue : public NABasicObject {
 class NAPartition : public NABasicObject {
  public:
   NAPartition(NAMemory *h, long parentUid, long partitionUid, char *partName, char *entityName,
-              NABoolean isSubPartition, NABoolean hasSubPartition, Int32 partPosition, NABoolean isValid,
-              NABoolean isReadonly, NABoolean isInMemory, long defTime, long flags, Int32 subpartitionCnt)
+              NABoolean isSubPartition, NABoolean hasSubPartition, int partPosition, NABoolean isValid,
+              NABoolean isReadonly, NABoolean isInMemory, long defTime, long flags, int subpartitionCnt)
       : heap_(h),
         parentUid_(parentUid),
         partitionUid_(partitionUid),
@@ -126,8 +126,8 @@ class NAPartition : public NABasicObject {
 
   const char *getPartitionName() const { return partitionName_; }
   const char *getPartitionEntityName() const { return partitionEntityName_; }
-  const Int32 getPartPosition() const { return partPosition_; }
-  const Int32 getSubPartitionCount() const { return subpartitionCnt_; }
+  const int getPartPosition() const { return partPosition_; }
+  const int getSubPartitionCount() const { return subpartitionCnt_; }
   long getParentUID() const { return parentUid_; }
   long getPartitionUID() const { return partitionUid_; }
 
@@ -142,8 +142,8 @@ class NAPartition : public NABasicObject {
   char *partitionEntityName_;
   NABoolean isSubparition_;
   NABoolean hasSubPartition_;
-  Int32 partPosition_;
-  Int32 subpartitionCnt_;
+  int partPosition_;
+  int subpartitionCnt_;
   LIST(BoundaryValue *) boundaryValueList_;
   PartitionMaxvalueBitMap maxValMap_;
 

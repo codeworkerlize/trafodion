@@ -56,7 +56,7 @@ class MvQueryRewriteServer : public NABasicObject {
 
   static NABoolean processExists(const short *processHandle);
 
-  static void getSegmentName(Int32 segmentNumber, char *segmentName);
+  static void getSegmentName(int segmentNumber, char *segmentName);
 
   /**
    * Creates or reuses a server process of the class specified by \c serverClass.
@@ -67,7 +67,7 @@ class MvQueryRewriteServer : public NABasicObject {
    *        allocateServerProcess.
    * @return Pointer to the server process.
    */
-  static IpcServer *createServerProcess(IpcServerClass *serverClass, Int32 segmentNumber, short cpu,
+  static IpcServer *createServerProcess(IpcServerClass *serverClass, int segmentNumber, short cpu,
                                         NABoolean usesTran);
   /**
    * Returns a pointer to a QMS server.

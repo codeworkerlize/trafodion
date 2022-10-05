@@ -566,7 +566,7 @@ BOOL CRUForceOptionsParser::GetNextToken() {
     if ('\0' == *pCurrentChar_) return FALSE;
   }
 
-  Int32 i = 0;
+  int i = 0;
   do {
     // copy characters from the buffer to the current token.
     currentToken_[i++] = *pCurrentChar_++;
@@ -612,8 +612,8 @@ BOOL CRUForceOptionsParser::IsCurrentWord(const char *word) { return 0 == strcmp
 //----------------------------------------------------------------------------
 
 void CRUForceOptionsParser::UpCase(char *aLine) {
-  Int32 len = strlen(aLine);
-  Int32 i;
+  int len = strlen(aLine);
+  int i;
   for (i = 0; i < len; i++) {
     if ((aLine[i] >= 'a') && (aLine[i] <= 'z')) {
       aLine[i] -= 32;

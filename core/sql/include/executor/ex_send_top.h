@@ -142,7 +142,7 @@ class ex_send_top_tcb : public ex_tcb {
   void freeResources();     // free resources
   void registerSubtasks();  // add extra event for IPC I/O completion
 
-  virtual Int32 fixup();
+  virtual int fixup();
 
   short work();
 
@@ -168,9 +168,9 @@ class ex_send_top_tcb : public ex_tcb {
       ioSubtask_->schedule();
   }
 
-  virtual Int32 numChildren() const;
+  virtual int numChildren() const;
 
-  virtual const ex_tcb *getChild(Int32 pos) const;
+  virtual const ex_tcb *getChild(int pos) const;
 
   virtual ExOperStats *doAllocateStatsEntry(CollHeap *heap, ComTdb *tdb);
 

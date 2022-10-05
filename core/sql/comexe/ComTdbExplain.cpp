@@ -63,15 +63,15 @@ ComTdbExplain::ComTdbExplain(ex_cri_desc *criDescParentDown, ex_cri_desc *criDes
 void ComTdbExplain::display() const {}
 
 // The explain TDB has no children
-Int32 ComTdbExplain::numChildren() const { return (0); }
+int ComTdbExplain::numChildren() const { return (0); }
 
 // Return the number of expressions held by the explain TDB (2)
 // They are enumerated as: 0 - scanPred, 1 - paramsExpr
-Int32 ComTdbExplain::numExpressions() const { return (2); }
+int ComTdbExplain::numExpressions() const { return (2); }
 
 // Return the expression names of the explain TDB based on some
 // enumeration. 0 - scanPred, 1 - paramsExpr
-const char *ComTdbExplain::getExpressionName(Int32 expNum) const {
+const char *ComTdbExplain::getExpressionName(int expNum) const {
   switch (expNum) {
     case 0:
       return "Scan Pred";
@@ -84,7 +84,7 @@ const char *ComTdbExplain::getExpressionName(Int32 expNum) const {
 
 // Return the expressions of the explain TDB based on some
 // enumeration. 0 - scanPred, 1 - paramsExpr
-ex_expr *ComTdbExplain::getExpressionNode(Int32 expNum) {
+ex_expr *ComTdbExplain::getExpressionNode(int expNum) {
   switch (expNum) {
     case 0:
       return scanPred_;

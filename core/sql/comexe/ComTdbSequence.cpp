@@ -52,7 +52,7 @@ ComTdbSequence::ComTdbSequence(ex_expr *sequenceExpr, ex_expr *returnExpr, ex_ex
                                int minFollowing, int reclen, const unsigned short tupp_index, ComTdb *child_tdb,
                                ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
                                queue_index up, int num_buffers, ULng32 buffer_size, int OLAP_buffer_size,
-                               int max_number_of_OLAP_buffers, Int32 maxHistoryRows, NABoolean unboundedFollowing,
+                               int max_number_of_OLAP_buffers, int maxHistoryRows, NABoolean unboundedFollowing,
                                NABoolean logDiagnostics, NABoolean possibleMultipleCalls, short scratchThresholdPct,
                                unsigned short memUsagePercent, short pressureThreshold, int maxRowsInOLAPBuffer,
                                int minNumberOfOLAPBuffers, int numberOfWinOLAPBuffers, NABoolean noOverflow,
@@ -133,7 +133,7 @@ void ComTdbSequence::displayContents(Space *space, ULng32 flag) {
   }
 }
 
-Int32 ComTdbSequence::orderedQueueProtocol() const { return -1; }
+int ComTdbSequence::orderedQueueProtocol() const { return -1; }
 
 Long ComTdbSequence::pack(void *space) {
   tdbChild_.pack(space);

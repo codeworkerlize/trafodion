@@ -141,7 +141,7 @@ class REFRESH_LIB_CLASS CRURefreshTaskExecutor : public CRUTaskExecutor {
     return SIZE_OF_PACK_BUFFER;  // Initial size
   }
 
-  Int32 GetForceFlags() { return forceFlags_; }
+  int GetForceFlags() { return forceFlags_; }
 
  protected:
   enum FORCE_FLAGS {
@@ -227,7 +227,7 @@ class REFRESH_LIB_CLASS CRURefreshTaskExecutor : public CRUTaskExecutor {
  private:
   // ComposeForceStatements() callee
   void ComposeControlTableStmtForUsedTables();
-  void ComposeControlTableStmtForUsedTable(CRUTbl &tbl, Int32 &stmtIndex, CRUForceOptions::MdamOptions mdamOpt);
+  void ComposeControlTableStmtForUsedTable(CRUTbl &tbl, int &stmtIndex, CRUForceOptions::MdamOptions mdamOpt);
   void ComposeCQSStatements();
   void ComposeMDAMStatements();
 
@@ -249,7 +249,7 @@ class REFRESH_LIB_CLASS CRURefreshTaskExecutor : public CRUTaskExecutor {
   BOOL isRecompute_;
   TInt32 numOfStmtInContainer_;
   CRUSQLDynamicStatementContainer *pRefreshTEDynamicContainer_;
-  Int32 forceFlags_;
+  int forceFlags_;
 };
 
 //--------------------------------------------------------------------------//

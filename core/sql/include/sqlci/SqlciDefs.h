@@ -73,7 +73,7 @@ enum SQLCI_CLI_RETCODE {
 // A simple structure used by the sqlci parser to hold information
 // about a cursor
 struct SqlciCursorInfo {
-  Int32 queryTextSpecified_;
+  int queryTextSpecified_;
   char *queryTextOrStmtName_;
   int resultSetIndex_;
   SqlciCursorInfo() {

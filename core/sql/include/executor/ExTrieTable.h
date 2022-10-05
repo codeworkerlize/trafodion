@@ -49,11 +49,11 @@ typedef char **ExTrie;
 
 class ExTrieTable : public ExGod {
  public:
-  ExTrieTable(Int32 keySize, Int32 dataSize, Int32 memSize, NAMemory *heap);
+  ExTrieTable(int keySize, int dataSize, int memSize, NAMemory *heap);
   ~ExTrieTable();
 
-  Int32 getMaximumNumberTuples() const { return maximumNumberTuples_; };
-  Int32 getMinimumNumberTuples() const { return minimumNumberTuples_; };
+  int getMaximumNumberTuples() const { return maximumNumberTuples_; };
+  int getMinimumNumberTuples() const { return minimumNumberTuples_; };
   char *getData() const { return data_; };
 
   char *getReturnRow() const {
@@ -63,25 +63,25 @@ class ExTrieTable : public ExGod {
   void advanceReturnRow() { returnRow_++; };
   void resetReturnRow() { returnRow_ = 0; };
 
-  Int32 findOrAdd(char *key);
+  int findOrAdd(char *key);
 
  private:
-  Int32 keySize_;
-  Int32 dataSize_;
-  Int32 memSize_;
+  int keySize_;
+  int dataSize_;
+  int memSize_;
   NAMemory *heap_;
 
   char *memory_;
-  Int32 maximumNumberTuples_;
-  Int32 minimumNumberTuples_;
+  int maximumNumberTuples_;
+  int minimumNumberTuples_;
 
   ExTrie rootTrie_;
   ExTrie nextTrie_;
   char *data_;
 
   char *rootTuple_;
-  Int32 numberTuples_;
-  Int32 returnRow_;
+  int numberTuples_;
+  int returnRow_;
 };
 
 #endif

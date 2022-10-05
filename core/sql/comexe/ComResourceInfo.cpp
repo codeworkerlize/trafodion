@@ -7,7 +7,7 @@ int ExScratchDiskDrive::unpack(void *base, void *reallocator) { return dirName_.
 
 Long ExScratchFileOptions::pack(void *space) {
   // pack the contents of the array
-  Int32 i;
+  int i;
 
   for (i = 0; i < numSpecifiedDirs_; i++) {
     specifiedScratchDirs_[i].pack(space);
@@ -23,7 +23,7 @@ int ExScratchFileOptions::unpack(void *base, void *reallocator) {
   if (specifiedScratchDirs_.unpackShallow(base)) return -1;
 
   // pack the contents of the array
-  Int32 i;
+  int i;
 
   for (i = 0; i < numSpecifiedDirs_; i++) {
     if (specifiedScratchDirs_[i].unpack(base, reallocator)) return -1;
@@ -33,7 +33,7 @@ int ExScratchFileOptions::unpack(void *base, void *reallocator) {
 }
 
 int ExScratchFileOptions::ipcPackedLength() const {
-  int result = 2 * sizeof(Int32);  // the 2 length fields
+  int result = 2 * sizeof(int);  // the 2 length fields
 
   // add lengths of the ExScratchDiskDrive object
   result += (numSpecifiedDirs_) * sizeof(ExScratchDiskDrive);
@@ -64,8 +64,8 @@ int ExScratchFileOptions::ipcPackObjIntoMessage(char *buffer) const {
   int dlen;
 
   // pack only the length fields of myself
-  str_cpy_all(currPtr, (char *)&numSpecifiedDirs_, sizeof(Int32));
-  currPtr += sizeof(Int32);
+  str_cpy_all(currPtr, (char *)&numSpecifiedDirs_, sizeof(int));
+  currPtr += sizeof(int);
   str_cpy_all(currPtr, (char *)&scratchFlags_, sizeof(UInt32));
   currPtr += sizeof(UInt32);
 
@@ -96,8 +96,8 @@ void ExScratchFileOptions::ipcUnpackObj(int objSize, const char *buffer, CollHea
   char *startBufferForDependents;
 
   // unpack the 3 length fields
-  str_cpy_all((char *)&numSpecifiedDirs_, currPtr, sizeof(Int32));
-  currPtr += sizeof(Int32);
+  str_cpy_all((char *)&numSpecifiedDirs_, currPtr, sizeof(int));
+  currPtr += sizeof(int);
 
   str_cpy_all((char *)&scratchFlags_, currPtr, sizeof(UInt32));
   currPtr += sizeof(UInt32);

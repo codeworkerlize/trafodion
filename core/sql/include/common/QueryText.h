@@ -45,12 +45,12 @@ class QueryText {
   NAWchar *wText() { return (NAWchar *)text_; }
 
   // other accessors
-  inline Int32 canBeUsedBySqlcompTest(char **text);
-  Int32 isNullText() { return !text_; }
+  inline int canBeUsedBySqlcompTest(char **text);
+  int isNullText() { return !text_; }
 
-  inline Int32 octetLength();
-  inline Int32 octetLenPlusOne();
-  inline Int32 length();
+  inline int octetLength();
+  inline int octetLenPlusOne();
+  inline int length();
   NABoolean isDISPLAY() {
     if (!text()) return FALSE;
     if (charSet() == SQLCHARSETCODE_UCS2) {
@@ -73,7 +73,7 @@ class QueryText {
   int charset_;
 };
 
-inline Int32 QueryText::canBeUsedBySqlcompTest(char **text) {
+inline int QueryText::canBeUsedBySqlcompTest(char **text) {
   if (charset_ == SQLCHARSETCODE_UCS2 || !text_) {
     return 0;
   } else {
@@ -82,16 +82,16 @@ inline Int32 QueryText::canBeUsedBySqlcompTest(char **text) {
   }
 }
 
-inline Int32 QueryText::octetLength() {
+inline int QueryText::octetLength() {
   return charset_ == SQLCHARSETCODE_UCS2
              ? na_wcslen((const NAWchar *)wText()) * CharInfo::maxBytesPerChar((CharInfo::CharSet)charset_)
              : str_len(text());
 }
 
-inline Int32 QueryText::octetLenPlusOne() {
+inline int QueryText::octetLenPlusOne() {
   return octetLength() + CharInfo::maxBytesPerChar((CharInfo::CharSet)charset_);
 }
 
-inline Int32 QueryText::length() { return charset_ == SQLCHARSETCODE_UCS2 ? na_wcslen(wText()) : str_len(text()); }
+inline int QueryText::length() { return charset_ == SQLCHARSETCODE_UCS2 ? na_wcslen(wText()) : str_len(text()); }
 
 #endif

@@ -599,7 +599,7 @@ ComBoolean ComObjectName::operator>=(const ComObjectName &rhs) const {
   if (nameSpace_ GT rhs.nameSpace_) return FALSE;
   if (nameSpace_ LT rhs.nameSpace_) return TRUE;
 
-  Int32 compResult = catalogNamePart_.compareTo(rhs.catalogNamePart_);
+  int compResult = catalogNamePart_.compareTo(rhs.catalogNamePart_);
   if (compResult GT 0) return FALSE;
   if (compResult LT 0) return TRUE;
 

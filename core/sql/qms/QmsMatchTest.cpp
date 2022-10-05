@@ -293,8 +293,8 @@ NABoolean MatchTest::matchPass2() {
   } else {
     // Yes - then lets check them out.
     RewriteInstructionsItemList &pendingList = getListOfPendingWork();
-    Int32 maxEntries = pendingList.entries();
-    for (Int32 i = maxEntries - 1; i >= 0; i--) {
+    int maxEntries = pendingList.entries();
+    for (int i = maxEntries - 1; i >= 0; i--) {
       RewriteInstructionsItemPtr pending = pendingList[i];
 
       // Remove the item from the pending list.
@@ -352,7 +352,7 @@ NABoolean MatchTest::verifyExtraHubAndBackJoinColumns(RewriteInstructionsItemPtr
   } else if (pending->getActualQueryElement()->getElementType() == ET_Expr) {
     // Check the input columns for back joins.
     RewriteInstructionsItemList &backJoinList = pending->getSubElements()->backJoinInputs_;
-    for (Int32 i = backJoinList.entries() - 1; i >= 0; i--) {
+    for (int i = backJoinList.entries() - 1; i >= 0; i--) {
       RewriteInstructionsItemPtr rewrite = backJoinList[i];
 
       rewrite->setResultCode(RC_NOTPROVIDED);
@@ -362,7 +362,7 @@ NABoolean MatchTest::verifyExtraHubAndBackJoinColumns(RewriteInstructionsItemPtr
     // Check the input columns for extra hubs.
     RewriteInstructionsItemList &extraHubList = pending->getSubElements()->extrahubInputs_;
     RewriteInstructionsItemList &providedList = pending->getSubElements()->providedInputs_;
-    for (Int32 j = extraHubList.entries() - 1; j >= 0; j--) {
+    for (int j = extraHubList.entries() - 1; j >= 0; j--) {
       RewriteInstructionsItemPtr rewrite = extraHubList[j];
       extraHubList.removeAt(j);
 
@@ -390,7 +390,7 @@ NABoolean MatchTest::verifyExtraHubAndBackJoinColumns(RewriteInstructionsItemPtr
     if (subElements->extrahubInputs_.entries() > 0) {
       RewriteInstructionsItemList &extraHubList = subElements->extrahubInputs_;
 
-      for (Int32 k = extraHubList.entries() - 1; k >= 0; k--) {
+      for (int k = extraHubList.entries() - 1; k >= 0; k--) {
         RewriteInstructionsItemPtr rewrite = extraHubList[k];
         extraHubList.removeAt(k);
 
@@ -3211,9 +3211,9 @@ NABoolean MatchJoinPreds::matchPass1() {
 // ***************************************************************************
 NABoolean MatchJoinPreds::analyzeJoinPredicate(const QRJoinPredPtr joinPred, NABoolean isPass1) {
   // For this join pred, are the equality set members from the MV hub?
-  Int32 mvTables = 0;                   // how many are from the MV hub?
-  Int32 ehTables = 0;                   // how many are from the MV extra-hub?
-  Int32 outTables = 0;                  // how many are from Outside tables?
+  int mvTables = 0;                   // how many are from the MV hub?
+  int ehTables = 0;                   // how many are from the MV extra-hub?
+  int outTables = 0;                  // how many are from Outside tables?
   ColumnNodesList mvColumns(heap_);     // Columns from the MV hub.
   NAPtrList<QRExprPtr> mvExprs(heap_);  // Expressions from the MV hub.
 
@@ -3311,7 +3311,7 @@ NABoolean MatchJoinPreds::analyzeJoinPredicate(const QRJoinPredPtr joinPred, NAB
 // Check if this equality set member is on an MV hub, extrahub table or
 // on an Outside table.
 // ***************************************************************************
-void MatchJoinPreds::analyzeEQMember(QRElementPtr elem, Int32 &mvTables, Int32 &ehTables, Int32 &outTables,
+void MatchJoinPreds::analyzeEQMember(QRElementPtr elem, int &mvTables, int &ehTables, int &outTables,
                                      ColumnNodesList &mvColumns, NAPtrList<QRExprPtr> &mvExprs, NABoolean isPass1) {
   // Get a simple column from this equality set member.
   QRColumnPtr col = elem->getFirstColumn();

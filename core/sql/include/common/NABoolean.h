@@ -12,7 +12,7 @@
 
 #ifndef NABOOLEAN_DEFINED
 #define NABOOLEAN_DEFINED
-typedef Int32 NABoolean;
+typedef int NABoolean;
 #endif
 
 #undef TRUE

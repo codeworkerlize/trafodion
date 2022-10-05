@@ -456,7 +456,7 @@ class XMLAttributeIterator {
   XMLAttributeIterator &operator=(const XMLAttributeIterator &);
 
   AttributeList atts_;
-  Int32 inx_;
+  int inx_;
   NABoolean inRange_;
 };  // XMLAttributeIterator
 
@@ -542,7 +542,7 @@ class XMLDocument {
    * @param[in] charData  Text appearing as content of an element.
    * @param[in] len       Length of the text.
    */
-  static void charDataHandler(void *xmlParser, const char *charData, Int32 len);
+  static void charDataHandler(void *xmlParser, const char *charData, int len);
 
   /**
    * Returns a pointer to the object representing the current element being
@@ -611,7 +611,7 @@ class XMLDocument {
    *         has successfully been parsed, a pointer to the document (outermost)
    *         element is returned.
    */
-  XMLElementPtr parse(const char *buf, Int32 len, Int32 done);
+  XMLElementPtr parse(const char *buf, int len, int done);
 
   /**
    * Converts the hierarchy of objects representing an XML document into its
@@ -776,7 +776,7 @@ class XMLElement : public NAIntrusiveSharedPtrObject {
    * @param[in] data   Text appearing as content of an element.
    * @param[in] len    Length of the text.
    */
-  virtual void charData(void *parser, const char *data, Int32 len) {
+  virtual void charData(void *parser, const char *data, int len) {
     // Throw exception if there is any character date (ignore whitespace-only
     // text). This function is overridden for elements that can have character
     // content.
@@ -811,7 +811,7 @@ class XMLElement : public NAIntrusiveSharedPtrObject {
    * @param [in,out] len  Length of string; leading/trailing whitespace will
    *                      be subtracted.
    */
-  void stripWhitespace(const char *&data, Int32 &len);
+  void stripWhitespace(const char *&data, int &len);
 
   NABoolean isspace(char c);
 

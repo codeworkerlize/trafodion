@@ -561,18 +561,18 @@ class ComTdbHbaseAccess : public ComTdb {
 
   ~ComTdbHbaseAccess();
 
-  static Int32 getVirtTableNumCols() { return sizeof(hbaseTableColumnInfo) / sizeof(ComTdbVirtTableColumnInfo); }
+  static int getVirtTableNumCols() { return sizeof(hbaseTableColumnInfo) / sizeof(ComTdbVirtTableColumnInfo); }
 
   static ComTdbVirtTableColumnInfo *getVirtTableColumnInfo() {
     return (ComTdbVirtTableColumnInfo *)hbaseTableColumnInfo;
   }
 
-  static Int32 getVirtTableNumKeys() { return sizeof(hbaseTableKeyInfo) / sizeof(ComTdbVirtTableKeyInfo); }
+  static int getVirtTableNumKeys() { return sizeof(hbaseTableKeyInfo) / sizeof(ComTdbVirtTableKeyInfo); }
 
   static ComTdbVirtTableKeyInfo *getVirtTableKeyInfo() { return (ComTdbVirtTableKeyInfo *)hbaseTableKeyInfo; }
 
   // rowwise table format
-  static Int32 getVirtTableRowwiseNumCols() {
+  static int getVirtTableRowwiseNumCols() {
     return sizeof(hbaseTableRowwiseColumnInfo) / sizeof(ComTdbVirtTableColumnInfo);
   }
 
@@ -580,7 +580,7 @@ class ComTdbHbaseAccess : public ComTdb {
     return (ComTdbVirtTableColumnInfo *)hbaseTableRowwiseColumnInfo;
   }
 
-  static Int32 getVirtTableRowwiseNumKeys() {
+  static int getVirtTableRowwiseNumKeys() {
     return sizeof(hbaseTableRowwiseKeyInfo) / sizeof(ComTdbVirtTableKeyInfo);
   }
 
@@ -589,7 +589,7 @@ class ComTdbHbaseAccess : public ComTdb {
   }
 
   // This always returns TRUE for now
-  Int32 orderedQueueProtocol() const { return -1; };
+  int orderedQueueProtocol() const { return -1; };
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -619,22 +619,22 @@ class ComTdbHbaseAccess : public ComTdb {
 
   // Virtual routines to provide a consistent interface to TDB's
 
-  virtual const ComTdb *getChild(Int32 /*child*/) const { return NULL; };
+  virtual const ComTdb *getChild(int /*child*/) const { return NULL; };
 
   // numChildren always returns 0 for ComTdbStats
-  virtual Int32 numChildren() const { return 0; };
+  virtual int numChildren() const { return 0; };
 
   virtual const char *getNodeName() const;
   // virtual const char *getNodeName() const { return "EX_HBASE_ACCESS"; };
 
   // numExpressions always returns 2 for ComTdbStats
-  virtual Int32 numExpressions() const;
+  virtual int numExpressions() const;
 
   // The names of the expressions
-  virtual const char *getExpressionName(Int32) const;
+  virtual const char *getExpressionName(int) const;
 
   // The expressions themselves
-  virtual ex_expr *getExpressionNode(Int32);
+  virtual ex_expr *getExpressionNode(int);
 
   keySingleSubsetGen *keySubsetGen() const {
     return (keyInfo_ && keyInfo_->castToKeySingleSubsetGen() ? keyInfo_->castToKeySingleSubsetGen() : NULL);
@@ -976,10 +976,10 @@ class ComTdbHbaseAccess : public ComTdb {
   NABoolean getHasCallBeforeTrigger() { return hasCallBeforeTrigger_; }
   void setHasCallAfterTrigger(NABoolean v) { hasCallAfterTrigger_ = v; }
   NABoolean getHasCallAfterTrigger() { return hasCallAfterTrigger_; }
-  Int32 getLockMode() { return lockMode_; }
-  void setLockMode(Int32 lockMode) { lockMode_ = lockMode; }
-  Int32 getIsolationLevel() { return isolationLevel_; }
-  void setIsolationLevel(Int32 isolationLevel) { isolationLevel_ = isolationLevel; }
+  int getLockMode() { return lockMode_; }
+  void setLockMode(int lockMode) { lockMode_ = lockMode; }
+  int getIsolationLevel() { return isolationLevel_; }
+  void setIsolationLevel(int isolationLevel) { isolationLevel_ = isolationLevel; }
   void setNumReplications(int numReplications) { numReplications_ = numReplications; }
 
   const int getNumReplications() { return numReplications_; }
@@ -1210,8 +1210,8 @@ class ComTdbHbaseAccess : public ComTdb {
   NABoolean hasCallBeforeTrigger_;
   NABoolean hasCallAfterTrigger_;
 
-  Int32 lockMode_;
-  Int32 isolationLevel_;
+  int lockMode_;
+  int isolationLevel_;
   int numReplications_;
 
   // fields needed to detect DDL changes at run time -- these are the values
@@ -1242,7 +1242,7 @@ class ComTdbHbaseCoProcAccess : public ComTdbHbaseAccess {
                           queue_index queueSizeDown, queue_index queueSizeUp, Cardinality expectedRows,
                           int numBuffers, ULng32 bufferSize, char *server, char *zkPort,
                           HbasePerfAttributes *hbasePerfAttributes, Queue *tdbListOfRangeRows, ex_expr *rowIdExpr,
-                          Int32 rowIdTuppIndex, Int32 rowIdAsciiTuppIndex, ULng32 rowIdLength, ULng32 rowIdAsciiRowLen);
+                          int rowIdTuppIndex, int rowIdAsciiTuppIndex, ULng32 rowIdLength, ULng32 rowIdAsciiRowLen);
 
   CoProcType getCoProcType() { return (CoProcType)coProcType_; }
 
@@ -1280,7 +1280,7 @@ class ComTdbHbaseCoProcAggr : public ComTdbHbaseCoProcAccess {
                         ex_cri_desc *workCriDesc, ex_cri_desc *criDescParentDown, ex_cri_desc *criDescParentUp,
                         queue_index queueSizeDown, queue_index queueSizeUp, Cardinality expectedRows, int numBuffers,
                         ULng32 bufferSize, char *server, char *zkPort, HbasePerfAttributes *hbasePerfAttributes,
-                        Queue *tdbListOfRangeRows, ex_expr *rowIdExpr, Int32 rowIdTuppIndex, Int32 rowIdAsciiTuppIndex,
+                        Queue *tdbListOfRangeRows, ex_expr *rowIdExpr, int rowIdTuppIndex, int rowIdAsciiTuppIndex,
                         ULng32 rowIdLength, ULng32 rowIdAsciiRowLen, int filterForNull);
 
   // ---------------------------------------------------------------------

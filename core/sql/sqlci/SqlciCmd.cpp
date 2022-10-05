@@ -102,7 +102,7 @@ SqlciCmd::SqlciCmd(const sqlci_cmd_type cmd_type_, NAWchar *argument_, int argle
   }
 };
 
-SqlciCmd::SqlciCmd(const sqlci_cmd_type cmd_type_, Int32 argument_)
+SqlciCmd::SqlciCmd(const sqlci_cmd_type cmd_type_, int argument_)
     : SqlciNode(SqlciNode::SQLCI_CMD_TYPE), cmd_type(cmd_type_) {
   numeric_arg = argument_;
   argument = 0;
@@ -114,7 +114,7 @@ FixCommand::FixCommand(char *argument_, int arglen_) : SqlciCmd(SqlciCmd::FC_TYP
   cmd = argument_;
 };
 
-FixCommand::FixCommand(Int32 argument_, short neg_num_) : SqlciCmd(SqlciCmd::FC_TYPE, argument_) {
+FixCommand::FixCommand(int argument_, short neg_num_) : SqlciCmd(SqlciCmd::FC_TYPE, argument_) {
   cmd_num = argument_;
   neg_num = neg_num_;
   cmd = 0;
@@ -129,7 +129,7 @@ Obey::Obey(char *argument_, int arglen_, char *section_name_) : SqlciCmd(SqlciCm
   }
 };
 
-Log::Log(char *argument_, int arglen_, log_type type_, Int32 commands_only)
+Log::Log(char *argument_, int arglen_, log_type type_, int commands_only)
     : SqlciCmd(SqlciCmd::LOG_TYPE, argument_, arglen_), type(type_), commandsOnly_(commands_only){};
 
 Shape::Shape(NABoolean type, char *infile, char *outfile)
@@ -170,7 +170,7 @@ Mode::Mode(ModeType type_, NABoolean value) : SqlciCmd(SqlciCmd::MODE_TYPE), val
 Verbose::Verbose(char *argument_, int arglen_, VerboseCmdType type)
     : SqlciCmd(SqlciCmd::VERBOSE_TYPE, argument_, arglen_), type_(type){};
 
-ParserFlags::ParserFlags(ParserFlagsOperation opType_, Int32 param_) : SqlciCmd(SqlciCmd::PARSERFLAGS_TYPE, param_) {
+ParserFlags::ParserFlags(ParserFlagsOperation opType_, int param_) : SqlciCmd(SqlciCmd::PARSERFLAGS_TYPE, param_) {
   opType = opType_;
   param = param_;
 };
@@ -188,7 +188,7 @@ FCRepeat::FCRepeat(char *argument_, int arglen_) : SqlciCmd(SqlciCmd::REPEAT_TYP
   cmd = argument_;
 };
 
-FCRepeat::FCRepeat(Int32 argument_, short neg_num_) : SqlciCmd(SqlciCmd::REPEAT_TYPE, argument_) {
+FCRepeat::FCRepeat(int argument_, short neg_num_) : SqlciCmd(SqlciCmd::REPEAT_TYPE, argument_) {
   cmd_num = argument_;
   neg_num = neg_num_;
   cmd = 0;
@@ -251,7 +251,7 @@ short SetTerminalCharset::process(SqlciEnv *sqlci_env) {
   HandleCLIErrorInit();
 
   char *tcs = get_argument();
-  Int32 tcs_len;
+  int tcs_len;
 
   if (tcs != NULL && ((tcs_len = strlen(tcs)) <= 128)) {
     char tcs_uppercase[129];
@@ -296,7 +296,7 @@ short SetIsoMapping::process(SqlciEnv *sqlci_env) {
   HandleCLIErrorInit();
 
   char *omcs = get_argument();
-  Int32 omcs_len;
+  int omcs_len;
 
   if (omcs != NULL && ((omcs_len = strlen(omcs)) <= 128)) {
     char omcs_uppercase[129];
@@ -331,7 +331,7 @@ short SetDefaultCharset::process(SqlciEnv *sqlci_env) {
   HandleCLIErrorInit();
 
   char *dcs = get_argument();
-  Int32 dcs_len;
+  int dcs_len;
 
   if (dcs != NULL && ((dcs_len = strlen(dcs)) <= 128)) {
     char dcs_uppercase[129];
@@ -378,7 +378,7 @@ short SetInferCharset::process(SqlciEnv *sqlci_env) {
   HandleCLIErrorInit();
 
   char *ics = get_argument();
-  Int32 ics_len;
+  int ics_len;
 
   if (ics != NULL && ((ics_len = strlen(ics)) <= 128)) {
     char ics_uppercase[129];
@@ -438,71 +438,7 @@ short Exit::process(SqlciEnv *sqlci_env) {
   // active transaction, the user may choose not to exit.
   short retval = -1;
 
-  if (sqlci_env->statusTransaction()) {
-    // ## The following English text needs to come from the message file
-    // ## so it can be translated, for I18N:
 
-    sqlci_env->get_logfile()->WriteAll("\nThere is an active transaction.  Do you want to commit the transaction?");
-    sqlci_env->get_logfile()->WriteAll("                 Y to commit transaction");
-    sqlci_env->get_logfile()->WriteAll("                 N to abort transaction");
-    sqlci_env->get_logfile()->WriteAllWithoutEOL("                 Any other key to resume in MXCI: ");
-
-    char response[2];
-    response[0] = 'N';   // noninteractive default
-    response[1] = '\0';  // terminate string for WriteAll
-    if (sqlci_env->isInteractiveSession()) {
-      cin.clear();
-      clearerr(stdin);
-      cin.get(response[0]);
-      if (cin.eof()) {
-        // EOF encountered. Treat this as any key other than [YyNn]
-        response[0] = '\0';
-
-        // Output a '\n' since EOF keeps the cursor on the same line
-        cout << endl;
-
-        cin.clear();
-        clearerr(stdin);
-      }
-    }
-
-    // If not EOF and not simple ENTER/RETURN, then
-    // display the character; if furthermore we're interactive, then
-    // throw away the rest of the input line.
-    if (response[0] == '\n')
-      sqlci_env->get_logfile()->WriteAll("", 0);  // write ONE endl, not 2
-    else if (response[0]) {
-      sqlci_env->get_logfile()->WriteAll(response, 1);
-      if (sqlci_env->isInteractiveSession()) {
-        InputStmt ignore(sqlci_env);
-        ignore.consumeLine();
-      }
-    }
-
-    // What if the executeQuery's below fail? should we still emit the
-    // WriteAll "Transaction XXXed" message and proceed to exit?
-    switch (response[0]) {
-      case 'y':
-      case 'Y':
-        SqlCmd::executeQuery("COMMIT WORK;", sqlci_env);
-        sqlci_env->get_logfile()->WriteAll("Transaction committed.");  //##I18N
-        retval = -1;
-        break;
-
-      case 'n':
-      case 'N':
-        SqlCmd::executeQuery("ROLLBACK WORK;", sqlci_env);
-        sqlci_env->get_logfile()->WriteAll("Transaction aborted.");  // ##I18N
-        retval = -1;
-        break;
-
-      default:
-        sqlci_env->get_logfile()->WriteAll("Transaction state maintained.");  // ##I18N
-        retval = 0;
-        break;
-    }
-
-  }  // if transaction is active
 
   // tell CLI that this user session is finished.
   SqlCmd::executeQuery("SET SESSION DEFAULT SQL_SESSION 'DROP';", sqlci_env);
@@ -519,7 +455,7 @@ short Exit::process(SqlciEnv *sqlci_env) {
 ////////////////////////////////////////////////
 short SubError::process(SqlciEnv *sqlci_env) {
   NAWchar *error_msg;
-  Int32 codeE, codeW;
+  int codeE, codeW;
   char stateE[10], stateW[10];
   NABoolean msgNotFound;
   ErrorType errType = (type == HBASE_ ? SUBERROR_HBASE : SUBERROR_TM);
@@ -560,7 +496,7 @@ short SubError::process(SqlciEnv *sqlci_env) {
 ////////////////////////////////////////////////
 short Error::process(SqlciEnv *sqlci_env) {
   NAWchar *error_msg;
-  Int32 codeE, codeW;
+  int codeE, codeW;
   char stateE[10], stateW[10];
   NABoolean msgNotFound;
 
@@ -728,8 +664,8 @@ short Shape::processNextStmt(SqlciEnv *sqlci_env, FILE *fStream) {
 
   enum ShapeState { PROCESS_STMT, DONE };
 
-  Int32 done = 0;
-  Int32 ignore_toggle = 0;
+  int done = 0;
+  int ignore_toggle = 0;
   ShapeState state;
   InputStmt *input_stmt;
   SqlciNode *sqlci_node = NULL;
@@ -738,7 +674,7 @@ short Shape::processNextStmt(SqlciEnv *sqlci_env, FILE *fStream) {
 
   while (!done) {
     input_stmt = new InputStmt(sqlci_env);
-    Int32 read_error = 0;
+    int read_error = 0;
     if (state != DONE) {
       read_error = input_stmt->readStmt(fStream, TRUE);
 
@@ -761,7 +697,7 @@ short Shape::processNextStmt(SqlciEnv *sqlci_env, FILE *fStream) {
 
     switch (state) {
       case PROCESS_STMT: {
-        Int32 ignore_stmt = input_stmt->isIgnoreStmt();
+        int ignore_stmt = input_stmt->isIgnoreStmt();
         if (ignore_stmt) ignore_toggle = ~ignore_toggle;
 
         if (ignore_stmt || ignore_toggle || input_stmt->ignoreJustThis()) {
@@ -832,7 +768,7 @@ short SleepVal::process(SqlciEnv *sqlci_env) {
 
 //////////////////////////////////////////////////
 short ParserFlags::process(SqlciEnv *sqlci_env) {
-  Int32 retCode;
+  int retCode;
 
   if (!ComUser::isRootUserID()) {
     // Return - "not authorized" error
@@ -905,10 +841,7 @@ short QueryId::process(SqlciEnv *sqlci_env) {
   char *stmtName = get_argument();
 
   PrepStmt *prep_stmt = NULL;
-  if ((stmtName) && (!(prep_stmt = sqlci_env->get_prep_stmts()->get(stmtName)))) {
-    sqlci_env->diagsArea() << DgSqlCode(-SQLCI_STMT_NOT_FOUND) << DgString0(stmtName);
-    return 0;
-  }
+
 
   Logfile *log = sqlci_env->get_logfile();
   char sprintfBuf[225];

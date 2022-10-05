@@ -123,7 +123,7 @@ class SQLLM_LIB_FUNC LmLanguageManager : public NABasicObject {
                               ComUInt32 outputRowLen, const char *sqlName, const char *externalName,
                               const char *routineSig, const char *containerName, const char *externalPath,
                               const char *librarySqlName, const char *currentUserName, const char *sessionUserName,
-                              ComRoutineExternalSecurity externalSecurity, Int32 routineOwnerId, LmRoutine **handle,
+                              ComRoutineExternalSecurity externalSecurity, int routineOwnerId, LmRoutine **handle,
                               LmHandle getNextRowPtr, LmHandle emitRowPtr, ComUInt32 maxResultSets = 0,
                               ComDiagsArea *diagsArea = NULL) = 0;
 
@@ -197,7 +197,7 @@ class SQLLM_LIB_FUNC LmLanguageManager : public NABasicObject {
   // skipURLProtocol: Returns the index in externalPath beyond the file
   // protocol of a file URL. File URLs without the protocol are allowed.
   //////////////////////////////////////////////////////////////////////
-  Int32 skipURLProtocol(const char *externalPath);
+  int skipURLProtocol(const char *externalPath);
 
   //////////////////////////////////////////////////////////////////////
   // Functions allowing LM callers to inspect properties of the

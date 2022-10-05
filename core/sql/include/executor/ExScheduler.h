@@ -114,7 +114,7 @@ typedef ExWorkProcRetcode (*ExWorkProcPtr)(ex_tcb *);
 // do not do it by default.
 // -----------------------------------------------------------------------
 
-const Int32 NumLastCalled = 8;
+const int NumLastCalled = 8;
 
 struct TraceEntry {
   ExSubtask *lastCalledTask_;
@@ -197,7 +197,7 @@ class ExScheduler : public ExGod {
   // Acessor methods
   // ---------------------------------------------------------------------
 
-  Int32 hasActiveEvents(ex_tcb *tcb);
+  int hasActiveEvents(ex_tcb *tcb);
 
   inline NABoolean externalEventCompleted(void) { return externalEventCompleted_; };
 
@@ -222,7 +222,7 @@ class ExScheduler : public ExGod {
   // ---------------------------------------------------------------------
   void setMaxCpuTime(long m) { maxCpuTime_ = m * 1000L * 1000L; }
 
-  void setCpuLimitCheckFreq(Int32 m) {
+  void setCpuLimitCheckFreq(int m) {
     maxSubtaskLoops_ = m;
     subtaskLoopCnt_ = maxSubtaskLoops_;  // A trick to ensure we check CPU
                                          // time on the the first iteration.
@@ -252,8 +252,8 @@ class ExScheduler : public ExGod {
   // ---------------------------------------------------------------------
   // Method to aid executor tracing
   // ---------------------------------------------------------------------
-  Int32 printALiner(Int32 lineno, char *buf);
-  static Int32 getALine(void *mine, Int32 lineno, char *buf) { return ((ExScheduler *)mine)->printALiner(lineno, buf); }
+  int printALiner(int lineno, char *buf);
+  static int getALine(void *mine, int lineno, char *buf) { return ((ExScheduler *)mine)->printALiner(lineno, buf); }
 
   // for debugging
   void scheduleAllTasks();
@@ -270,7 +270,7 @@ class ExScheduler : public ExGod {
 
   // helps with debugging loops
   TraceEntry subtaskTrace_[NumLastCalled];
-  Int32 lastCalledIdx_;
+  int lastCalledIdx_;
   // helps with executor tracing
   ExeTrace *exeTrace_;
 
@@ -305,8 +305,8 @@ class ExScheduler : public ExGod {
 
   // Query execution limits - max times through the subtask list
   // before evaluating CPU limit.
-  Int32 subtaskLoopCnt_;
-  Int32 maxSubtaskLoops_;
+  int subtaskLoopCnt_;
+  int maxSubtaskLoops_;
 
   // private methods
 
@@ -333,7 +333,7 @@ class ExSubtask {
 
  public:
   inline ex_tcb *getTcb() const { return tcb_; }
-  inline Int32 isScheduled() const { return scheduled_; }
+  inline int isScheduled() const { return scheduled_; }
   inline void schedule() { scheduled_ = 1; }
   inline void scheduleAndNoteCompletion() {
     scheduled_ = 1;
@@ -342,10 +342,10 @@ class ExSubtask {
 
   // for GUI
   //
-  inline Int32 getBreakPoint() const { return breakPoint_; }
-  inline void setBreakPoint(Int32 val) { breakPoint_ = val; }
+  inline int getBreakPoint() const { return breakPoint_; }
+  inline void setBreakPoint(int val) { breakPoint_ = val; }
   inline const char *getTaskName() const { return taskName_; }
-  inline Int32 *getScheduledAddr() { return &scheduled_; }
+  inline int *getScheduledAddr() { return &scheduled_; }
   inline ExSubtask *getNextForGUI() { return next_; }
 
  protected:
@@ -368,7 +368,7 @@ class ExSubtask {
   ExScheduler *scheduler_;
 
   // an indicator whether the subtask is to be scheduled or not (boolean)
-  Int32 scheduled_;
+  int scheduled_;
 
   // pointer to the work procedure that gets scheduled when the event is
   // triggered
@@ -381,7 +381,7 @@ class ExSubtask {
   ExSubtask *next_;
 
   // **	**  information for GUI  *** -------------
-  Int32 breakPoint_;
+  int breakPoint_;
 
   const char *taskName_;
 
@@ -430,7 +430,7 @@ class ExExceptionSubtaskEntry {
   // the name is mostly for debugging
   const char *taskName_;
 
-  inline Int32 matches(ExWorkProcPtr workProc, ex_tcb *tcb) const { return (workProc_ == workProc && tcb_ == tcb); }
+  inline int matches(ExWorkProcPtr workProc, ex_tcb *tcb) const { return (workProc_ == workProc && tcb_ == tcb); }
 };
 
 #endif /* EX_SCHEDULER_H */

@@ -47,51 +47,51 @@
 #define RTS_STATS_MSG_BUF_SIZE 32000  // same as IpcDefGuaMaxMsgIOSize in Ipc.h
 #endif
 
-const Int32 CurrSsmpRequestMessageVersion = 100;
-const Int32 CurrSsmpReplyMessageVersion = 100;
-const Int32 CurrSscpRequestMessageVersion = 100;
-const Int32 CurrSscpReplyMessageVersion = 100;
-const Int32 CurrRmsReplyMessageVersion = 100;
+const int CurrSsmpRequestMessageVersion = 100;
+const int CurrSsmpReplyMessageVersion = 100;
+const int CurrSscpRequestMessageVersion = 100;
+const int CurrSscpReplyMessageVersion = 100;
+const int CurrRmsReplyMessageVersion = 100;
 
-const Int32 currRtsQueryIdVersionNumber = 102;
-const Int32 currRtsStatsReqVersionNumber = 101;
-const Int32 currRtsStatsReplyVersionNumber = 101;
-const Int32 currRtsCpuStatsReqVersionNumber = 100;
-const Int32 currRtsExplainFragVersionNumber = 100;
-const Int32 currRtsExplainReqVersionNumber = 100;
-const Int32 currRtsExplainReplyVersionNumber = 100;
+const int currRtsQueryIdVersionNumber = 102;
+const int currRtsStatsReqVersionNumber = 101;
+const int currRtsStatsReplyVersionNumber = 101;
+const int currRtsCpuStatsReqVersionNumber = 100;
+const int currRtsExplainFragVersionNumber = 100;
+const int currRtsExplainReqVersionNumber = 100;
+const int currRtsExplainReplyVersionNumber = 100;
 
-const Int32 CurrQueryStartedReqVersionNumber = 100;
-const Int32 CurrQueryStartedReplyVersionNumber = 101;
-const Int32 CurrQueryFinishedReqVersionNumber = 100;
-const Int32 CurrCancelQueryReqVersionNumber = 101;
-const Int32 CurrControlQueryReplyVersionNumber = 100;
-const Int32 CurrKillServersReqVersionNumber = 100;
-const Int32 CurrKillServersReplyVersionNumber = 100;
-const Int32 CurrSuspendQueryReqVersionNumber = 100;
-const Int32 CurrSuspendQueryReplyVersionNumber = 100;
-const Int32 CurrActivateQueryReqVersionNumber = 100;
-const Int32 CurrActivateQueryReplyVersionNumber = 100;
-const Int32 CurrSecurityInvalidKeyVersionNumber = 100;
-const Int32 CurrSnapshotLockVersionNumber = 100;
-const Int32 CurrSnapshotUnLockVersionNumber = 100;
+const int CurrQueryStartedReqVersionNumber = 100;
+const int CurrQueryStartedReplyVersionNumber = 101;
+const int CurrQueryFinishedReqVersionNumber = 100;
+const int CurrCancelQueryReqVersionNumber = 101;
+const int CurrControlQueryReplyVersionNumber = 100;
+const int CurrKillServersReqVersionNumber = 100;
+const int CurrKillServersReplyVersionNumber = 100;
+const int CurrSuspendQueryReqVersionNumber = 100;
+const int CurrSuspendQueryReplyVersionNumber = 100;
+const int CurrActivateQueryReqVersionNumber = 100;
+const int CurrActivateQueryReplyVersionNumber = 100;
+const int CurrSecurityInvalidKeyVersionNumber = 100;
+const int CurrSnapshotLockVersionNumber = 100;
+const int CurrSnapshotUnLockVersionNumber = 100;
 
-const Int32 CurrLobLockVersionNumber = 100;
+const int CurrLobLockVersionNumber = 100;
 
-const Int32 CurrObjectEpochChangeReqVersionNumber = 100;
-const Int32 CurrObjectEpochChangeReplyVersionNumber = 100;
+const int CurrObjectEpochChangeReqVersionNumber = 100;
+const int CurrObjectEpochChangeReplyVersionNumber = 100;
 
-const Int32 CurrObjectEpochStatsRequestVersionNumber = 100;
-const Int32 CurrObjectEpochStatsReplyVersionNumber = 100;
+const int CurrObjectEpochStatsRequestVersionNumber = 100;
+const int CurrObjectEpochStatsReplyVersionNumber = 100;
 
-const Int32 CurrObjectLockRequestVersionNumber = 100;
-const Int32 CurrObjectLockReplyVersionNumber = 100;
+const int CurrObjectLockRequestVersionNumber = 100;
+const int CurrObjectLockReplyVersionNumber = 100;
 
-const Int32 CurrObjectLockStatsRequestVersionNumber = 100;
-const Int32 CurrObjectLockStatsReplyVersionNumber = 100;
+const int CurrObjectLockStatsRequestVersionNumber = 100;
+const int CurrObjectLockStatsReplyVersionNumber = 100;
 
-const Int32 CurrQueryInvalidationStatsRequestVersionNumber = 100;
-const Int32 CurrQueryInvalidationStatsReplyVersionNumber = 100;
+const int CurrQueryInvalidationStatsRequestVersionNumber = 100;
+const int CurrQueryInvalidationStatsReplyVersionNumber = 100;
 //
 // An enumeration of all IPC objects for RTS Servers.
 // Includes both message objects and stream objects.
@@ -623,7 +623,7 @@ class QueryStarted : public RtsMessageObj {
     XPROCESSHANDLE_NULLIT_(&master_.phandle_);
   }
 
-  QueryStarted(const RtsHandle &h, NAMemory *heap, long startTime, Int32 executionCount)
+  QueryStarted(const RtsHandle &h, NAMemory *heap, long startTime, int executionCount)
       : RtsMessageObj(CANCEL_QUERY_STARTED_REQ, CurrQueryStartedReqVersionNumber, heap),
         startTime_(startTime),
         executionCount_(executionCount),
@@ -641,7 +641,7 @@ class QueryStarted : public RtsMessageObj {
 
   GuaProcessHandle getMasterPhandle() const { return master_; }
 
-  Int32 getExecutionCount() const { return executionCount_; }
+  int getExecutionCount() const { return executionCount_; }
 
  private:
   // Compare to Cancel message's timestamp to disallow cancel
@@ -655,9 +655,9 @@ class QueryStarted : public RtsMessageObj {
   // When escalating to a kill, check current
   // ExFragRootOperStats::executionCount_ against the
   // count when the query started.
-  Int32 executionCount_;
+  int executionCount_;
 
-  Int32 qsFlags_;
+  int qsFlags_;
 };
 
 // This reply from the MXSSMP, acting as a "control broker", is interpreted by
@@ -748,9 +748,9 @@ class CancelQueryRequest : public RtsMessageObj {
     setHandle(h);
   }
 
-  CancelQueryRequest(const RtsHandle &h, NAMemory *heap, long startTime, Int32 firstEscalationInterval,
-                     Int32 secondEscalationInterval, NABoolean cancelEscalationSaveabend, char *comment,
-                     Int32 commentLength, bool cancelLogging, bool cancelByPid, Int32 cancelPid, Int32 minimumAge)
+  CancelQueryRequest(const RtsHandle &h, NAMemory *heap, long startTime, int firstEscalationInterval,
+                     int secondEscalationInterval, NABoolean cancelEscalationSaveabend, char *comment,
+                     int commentLength, bool cancelLogging, bool cancelByPid, int cancelPid, int minimumAge)
       : RtsMessageObj(CANCEL_QUERY_REQ, CurrCancelQueryReqVersionNumber, heap),
         cancelStartTime_(startTime),
         firstEscalationInterval_(firstEscalationInterval),
@@ -778,23 +778,23 @@ class CancelQueryRequest : public RtsMessageObj {
 
   long getCancelStartTime() const { return cancelStartTime_; }
 
-  Int32 getFirstEscalationInterval() const { return firstEscalationInterval_; }
+  int getFirstEscalationInterval() const { return firstEscalationInterval_; }
 
-  Int32 getSecondEscalationInterval() const { return secondEscalationInterval_; }
+  int getSecondEscalationInterval() const { return secondEscalationInterval_; }
 
   NABoolean getCancelEscalationSaveabend() const { return cancelEscalationSaveabend_; }
 
   char *getComment() const { return comment_; }
 
-  Int32 getCommentLen() const { return commentLen_; }
+  int getCommentLen() const { return commentLen_; }
 
   bool getCancelLogging() const { return cancelLogging_; }
 
   bool getCancelByPid() const { return cancelByPid_; }
 
-  Int32 getCancelPid() const { return cancelPid_; }
+  int getCancelPid() const { return cancelPid_; }
 
-  Int32 getMinimumAge() const { return minimumAge_; }
+  int getMinimumAge() const { return minimumAge_; }
 
  private:
   // Compare to target query's timestamp to disallow cancel
@@ -802,22 +802,22 @@ class CancelQueryRequest : public RtsMessageObj {
   long cancelStartTime_;
 
   // CANCEL_ESCALATION_INTERVAL1 - in seconds
-  Int32 firstEscalationInterval_;
+  int firstEscalationInterval_;
 
   // CANCEL_ESCALATION_INTERVAL2 - in seconds
-  Int32 secondEscalationInterval_;
+  int secondEscalationInterval_;
 
   // CANCEL_ESCALATION_SAVEABEND
   NABoolean cancelEscalationSaveabend_;
 
-  Int32 commentLen_;
+  int commentLen_;
   char *comment_;
 
   bool cancelLogging_;
 
   bool cancelByPid_;
-  Int32 cancelPid_;
-  Int32 minimumAge_;  // in seconds
+  int cancelPid_;
+  int minimumAge_;  // in seconds
 };
 
 // This is the reply message, sent from the control broker, MXSSMP,
@@ -923,7 +923,7 @@ class CancelQueryKillServersRequest : public RtsMessageObj {
     XPROCESSHANDLE_NULLIT_(&master_.phandle_);
   }
 
-  CancelQueryKillServersRequest(const RtsHandle &h, NAMemory *heap, Int32 executionCount, GuaProcessHandle *master,
+  CancelQueryKillServersRequest(const RtsHandle &h, NAMemory *heap, int executionCount, GuaProcessHandle *master,
                                 bool makeSaveabend, bool cancelLogging)
       : RtsMessageObj(CANCEL_QUERY_KILL_SERVERS_REQ, CurrKillServersReqVersionNumber, heap),
         executionCount_(executionCount),
@@ -940,7 +940,7 @@ class CancelQueryKillServersRequest : public RtsMessageObj {
   void unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
                  IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer);
 
-  Int32 getExecutionCount() const { return executionCount_; }
+  int getExecutionCount() const { return executionCount_; }
   GuaProcessHandle getMasterPhandle() const { return master_; }
   bool getMakeSaveabend() const { return makeSaveabend_; }
   bool getCancelLogging() const { return cancelLogging_; }
@@ -949,7 +949,7 @@ class CancelQueryKillServersRequest : public RtsMessageObj {
   // When escalating to a kill, check current
   // ExFragRootOperStats::executionCount_ against the
   // count when the query started.
-  Int32 executionCount_;
+  int executionCount_;
   GuaProcessHandle master_;
   bool makeSaveabend_;
   bool cancelLogging_;
@@ -1013,7 +1013,7 @@ class SecInvalidKeyRequest : public RtsMessageObj {
         numSiks_(0),
         sikPtr_(NULL) {}
 
-  SecInvalidKeyRequest(NAMemory *heap, Int32 numSiks, SQL_QIKEY *sikPtr);
+  SecInvalidKeyRequest(NAMemory *heap, int numSiks, SQL_QIKEY *sikPtr);
 
   virtual ~SecInvalidKeyRequest();
 
@@ -1022,11 +1022,11 @@ class SecInvalidKeyRequest : public RtsMessageObj {
   void unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
                  IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer);
 
-  Int32 getNumSiks() const { return numSiks_; }
+  int getNumSiks() const { return numSiks_; }
   SQL_QIKEY *getSik() const { return sikPtr_; }
 
  private:
-  Int32 numSiks_;
+  int numSiks_;
   SQL_QIKEY *sikPtr_;
 };
 
@@ -1100,7 +1100,7 @@ class ObjectEpochChangeRequest : public RtsMessageObj {
     // nothing else to do
   }
 
-  ObjectEpochChangeRequest(NAMemory *heap, Operation operation, Int32 objectNameLength, const char *objectName,
+  ObjectEpochChangeRequest(NAMemory *heap, Operation operation, int objectNameLength, const char *objectName,
                            long redefTime, UInt64 key, UInt32 expectedEpoch, UInt32 expectedFlags, UInt32 newEpoch,
                            UInt32 newFlags);
 
@@ -1111,8 +1111,8 @@ class ObjectEpochChangeRequest : public RtsMessageObj {
   void unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
                  IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer);
 
-  Int32 operation() { return operation_; };
-  Int32 objectNameLength() { return objectNameLength_; };
+  int operation() { return operation_; };
+  int objectNameLength() { return objectNameLength_; };
   const char *objectName() { return objectName_; };
   UInt64 redefTime() { return redefTime_; };
   UInt64 key() { return key_; };
@@ -1122,8 +1122,8 @@ class ObjectEpochChangeRequest : public RtsMessageObj {
   UInt32 newFlags() { return newFlags_; };
 
  private:
-  Int32 operation_;  // takes value from enum Operation
-  Int32 objectNameLength_;
+  int operation_;  // takes value from enum Operation
+  int objectNameLength_;
   char *objectName_;
   long redefTime_;       // redefinition timestamp of object (0 if not available)
   UInt64 key_;            // key for Object Epoch Entry
@@ -1173,7 +1173,7 @@ class ObjectEpochChangeReply : public RtsMessageObj {
   UInt32 maxExpectedFlagsFound() { return maxExpectedFlagsFound_; };
 
  private:
-  Int32 result_;                  // values taken from enum Result, Int32 for pack/unpack
+  int result_;                  // values taken from enum Result, int for pack/unpack
   UInt32 maxExpectedEpochFound_;  // set if UNEXPECTED_VALUES_FOUND is returned
   UInt32 maxExpectedFlagsFound_;  // or of unexpected flags if UNEXPECTED_VALUES_FOUND is returned
 };
@@ -1290,7 +1290,7 @@ class ObjectLockRequest : public RtsMessageObj {
 
   ObjectLockRequest(NAMemory *heap) : RtsMessageObj(OBJECT_LOCK_REQ, CurrObjectLockRequestVersionNumber, heap) {}
   ObjectLockRequest(NAMemory *heap, const char *objectName, int objectNameLen, ComObjectType objectType,
-                    OpType opType, Int32 lockNid, Int32 lockPid, UInt32 maxRetries, UInt32 delay);
+                    OpType opType, int lockNid, int lockPid, UInt32 maxRetries, UInt32 delay);
 
   virtual ~ObjectLockRequest() {
     if (objectName_ != NULL) {
@@ -1312,8 +1312,8 @@ class ObjectLockRequest : public RtsMessageObj {
   ComObjectType getObjectType() const { return objectType_; }
   OpType getOpType() const { return opType_; }
   const char *getOpTypeLit() const { return opTypeLit(opType_); }
-  Int32 lockNid() const { return lockNid_; }
-  Int32 lockPid() const { return lockPid_; }
+  int lockNid() const { return lockNid_; }
+  int lockPid() const { return lockPid_; }
   UInt32 maxRetries() const { return maxRetries_; }
   UInt32 delay() const { return delay_; }
 
@@ -1322,8 +1322,8 @@ class ObjectLockRequest : public RtsMessageObj {
   int objectNameLen_;
   ComObjectType objectType_;
   OpType opType_;
-  Int32 lockNid_;
-  Int32 lockPid_;
+  int lockNid_;
+  int lockPid_;
   UInt32 maxRetries_;
   UInt32 delay_;
 };
@@ -1349,7 +1349,7 @@ class ObjectLockReply : public RtsMessageObj {
         lockState_(LOCK_UNKNOWN),
         conflictNid_(-1),
         conflictPid_(-1) {}
-  ObjectLockReply(NAMemory *heap, LockState lockState, Int32 nid = -1, Int32 pid = -1)
+  ObjectLockReply(NAMemory *heap, LockState lockState, int nid = -1, int pid = -1)
       : RtsMessageObj(OBJECT_LOCK_REPLY, CurrObjectLockReplyVersionNumber, heap),
         lockState_(lockState),
         conflictNid_(nid),
@@ -1380,15 +1380,15 @@ class ObjectLockReply : public RtsMessageObj {
   void setLockState(LockState state) { lockState_ = state; }
   LockState getLockState() const { return lockState_; }
   const char *getLockStateLit() const { return lockStateLit(lockState_); }
-  void setConflictNid(Int32 nid) { conflictNid_ = nid; }
-  Int32 getConflictNid() const { return conflictNid_; }
-  void setConflictPid(Int32 pid) { conflictPid_ = pid; }
-  Int32 getConflictPid() const { return conflictPid_; }
+  void setConflictNid(int nid) { conflictNid_ = nid; }
+  int getConflictNid() const { return conflictNid_; }
+  void setConflictPid(int pid) { conflictPid_ = pid; }
+  int getConflictPid() const { return conflictPid_; }
 
  private:
   LockState lockState_;
-  Int32 conflictNid_;
-  Int32 conflictPid_;
+  int conflictNid_;
+  int conflictPid_;
 };
 
 class ObjectLockStatsRequest : public RtsMessageObj {

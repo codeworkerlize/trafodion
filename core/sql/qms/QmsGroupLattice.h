@@ -111,7 +111,7 @@ class QRGroupLattice : public NAIntrusiveSharedPtrObject {
   /**
    * Collect data on query (MV) groups with shared join+GroupBy.
    */
-  void collectMVGroups(WorkloadAnalysisPtr workload, Int32 minQueriesPerMV, CollHeap *heap);
+  void collectMVGroups(WorkloadAnalysisPtr workload, int minQueriesPerMV, CollHeap *heap);
 
  private:
   // Copy construction/assignment not defined.

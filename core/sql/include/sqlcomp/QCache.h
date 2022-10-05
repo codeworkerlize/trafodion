@@ -68,7 +68,7 @@ typedef CacheData *CacheDataPtr;
 typedef CacheEntry *CacheEntryPtr;
 typedef TextData *TextDataPtr;
 
-ULng32 getDefaultInK(const Int32 &key);
+ULng32 getDefaultInK(const int &key);
 
 class CQDefault : public NABasicObject {
   friend class CQDefaultSet;
@@ -97,13 +97,13 @@ typedef CQDefault *CQDefPtr;
 class CQDefaultSet : public NABasicObject {
   friend class CompilerEnv;
   CQDefPtr *CQDarray;  // array of pointers to control query default settings
-  Int32 nEntries;      // number of elements in CQDarray
-  Int32 arrSiz;        // allocated size of CQDarray
+  int nEntries;      // number of elements in CQDarray
+  int arrSiz;        // allocated size of CQDarray
   NAHeap *heap;        // heap used to allocate CQD settings
 
  public:
   // constructor for control query default settings
-  CQDefaultSet(Int32 n, NAHeap *h);
+  CQDefaultSet(int n, NAHeap *h);
 
   // constructor for control query default settings
   CQDefaultSet(const CQDefaultSet &s, NAHeap *h);
@@ -118,7 +118,7 @@ class CQDefaultSet : public NABasicObject {
   ULng32 getByteSize() const;
 
   // comparison method for sorting & searching CQDarray
-  static Int32 Compare(const void *d1, const void *d2);
+  static int Compare(const void *d1, const void *d2);
 };
 
 class CtrlTblOpt : public NABasicObject {
@@ -152,13 +152,13 @@ typedef CtrlTblOpt *CtrlTblPtr;
 class CtrlTblSet : public NABasicObject {
   friend class CompilerEnv;
   CtrlTblPtr *CTarray;  // array of pointers to control table settings
-  Int32 nEntries;       // number of elements in CTarray
-  Int32 arrSiz;         // allocated size of CTarray
+  int nEntries;       // number of elements in CTarray
+  int arrSiz;         // allocated size of CTarray
   NAHeap *heap;         // heap used to allocate control table settings
 
  public:
   // constructor for control table settings
-  CtrlTblSet(Int32 n, NAHeap *h);
+  CtrlTblSet(int n, NAHeap *h);
 
   // copy constructor for control table settings
   CtrlTblSet(const CtrlTblSet &s, NAHeap *h);
@@ -173,7 +173,7 @@ class CtrlTblSet : public NABasicObject {
   ULng32 getByteSize() const;
 
   // comparison method for sorting & searching CTarray
-  static Int32 Compare(const void *t1, const void *t2);
+  static int Compare(const void *t1, const void *t2);
 };
 
 // CompilerEnv represents changes to the query compiler's environment that
@@ -218,7 +218,7 @@ class CompilerEnv : public NABasicObject {
   // convert DefaultToken optimization level into OptLevel
   static OptLevel defToken2OptLevel(DefaultToken tok);
 
-  Int32 getOptLvl() const { return optLvl_; }
+  int getOptLvl() const { return optLvl_; }
   const char *getCatalog() const { return cat_.data(); }
   const char *getSchema() const { return schema_.data(); }
 
@@ -249,8 +249,8 @@ class CompilerEnv : public NABasicObject {
   // Set compiler environment's optimization level
   void setOptimizationLevel(DefaultToken optLvl);
 
-  Int32 CQDcnt() const { return CQDset_ ? CQDset_->nEntries : 0; }
-  Int32 CTcnt() const { return CTset_ ? CTset_->nEntries : 0; }
+  int CQDcnt() const { return CQDset_ ? CQDset_->nEntries : 0; }
+  int CTcnt() const { return CTset_ ? CTset_->nEntries : 0; }
 };
 
 // ParameterTypeList is used to represent the type signature of a cache entry
@@ -364,7 +364,7 @@ class Key : public NABasicObject {
 
   // accessors
   CmpPhase getCmpPhase() const { return phase_; }
-  Int32 getOptLvl() const;
+  int getOptLvl() const;
   const char *getCatalog() const;
   const char *getSchema() const;
 
@@ -372,7 +372,7 @@ class Key : public NABasicObject {
   NAHeap *getHeap() const { return heap_; }
 
   CompilerEnv *env() const { return env_; }
-  virtual Int32 getNofParameters() const { return 0; }
+  virtual int getNofParameters() const { return 0; }
   virtual const char *getParameterTypes(NAString *) const { return ""; }
   virtual const char *getReqdShape() const { return ""; }
   virtual TransMode::IsolationLevel getIsoLvl() { return TransMode::IL_NOT_SPECIFIED_; }
@@ -447,7 +447,7 @@ class hqcConstant : public hqcTerm {
     IS_PROCESSED = 0x8
   };
 
-  hqcConstant(ConstValue *cv, Int32 index, NAHeap *h);
+  hqcConstant(ConstValue *cv, int index, NAHeap *h);
 
   hqcConstant(const hqcConstant &other, NAHeap *h);
 
@@ -461,7 +461,7 @@ class hqcConstant : public hqcTerm {
 
   ConstValue *&getConstValue() { return constValue_; }
 
-  Int32 &getIndex() { return index_; }
+  int &getIndex() { return index_; }
 
   HistIntRangeForHQC *getRange() { return histRange_; }
 
@@ -499,7 +499,7 @@ class hqcConstant : public hqcTerm {
 
   HistIntRangeForHQC *histRange_;
 
-  Int32 index_;
+  int index_;
 
   NAHeap *heap_;
 
@@ -514,7 +514,7 @@ class hqcConstant : public hqcTerm {
 
 class hqcDynParam : public hqcTerm {
  public:
-  hqcDynParam(DynamicParam *dm, Int32 idx, const NAString &normalizedName, const NAString &originalName)
+  hqcDynParam(DynamicParam *dm, int idx, const NAString &normalizedName, const NAString &originalName)
       : dynParam_(dm), normalizedName_(normalizedName), originalName_(originalName), index_(idx) {}
   hqcDynParam(const hqcDynParam &other)
       : dynParam_(other.dynParam_),
@@ -527,7 +527,7 @@ class hqcDynParam : public hqcTerm {
 
   NAString &getNormalizedName() { return normalizedName_; }
   NAString &getOriginalName() { return originalName_; }
-  Int32 &getIndex() { return index_; }
+  int &getIndex() { return index_; }
 
   ULng32 getSize();
   void display(ostream &) const;
@@ -536,7 +536,7 @@ class hqcDynParam : public hqcTerm {
   DynamicParam *dynParam_;
   NAString normalizedName_;
   NAString originalName_;
-  Int32 index_;
+  int index_;
 };
 
 class HQCParams : public NABasicObject {
@@ -621,7 +621,7 @@ class HQCCacheKey : public Key {
 
   virtual const char *getReqdShape() const { return reqdShape_.data(); }
 
-  Int32 getNumConsts() const { return numConsts_; }
+  int getNumConsts() const { return numConsts_; }
 
   ULng32 getSize();
 
@@ -642,8 +642,8 @@ class HQCCacheKey : public Key {
   // number of constants,
   // its value valid only in a compile cycle,
   // not valid in static senario, i.e. one HQCCacheKey maps to multiple HQCCacheEntry in hashtable
-  Int32 numConsts_;
-  Int32 numDynParams_;  // number of dynamic parameters
+  int numConsts_;
+  int numDynParams_;  // number of dynamic parameters
   // disable standard copy constructor
   HQCCacheKey(const HQCCacheKey &other);
   // disable operator=() for this class
@@ -688,7 +688,7 @@ class HQCParseKey : public HQCCacheKey {
 
   void verifyCacheability(CacheKey *ckey);
 
-  void addTokenToNormalizedString(Int32 &tokCod);
+  void addTokenToNormalizedString(int &tokCod);
 
   inline NAString &getNormalizedQueryString() {
     if (keyText_.isNull()) return keyText_;
@@ -703,7 +703,7 @@ class HQCParseKey : public HQCCacheKey {
 
   void collectBinderRetConstVal4HQC(ConstValue *origin, ConstValue *after);
 
-  void bindConstant2SQC(BaseColumn *base, ConstantParameter *cParameter, LIST(Int32) & hqcConstPos);
+  void bindConstant2SQC(BaseColumn *base, ConstantParameter *cParameter, LIST(int) & hqcConstPos);
 
   void FixupForUnaryNegate(BiArith *itm);
 
@@ -718,7 +718,7 @@ class HQCParseKey : public HQCCacheKey {
   NABoolean isCacheable_;
   int nOfTokens_;
   NABoolean isStringNormalized_;
-  Int32 paramStart_;
+  int paramStart_;
   // disable standard copy constructor
   HQCParseKey(const HQCParseKey &other);
 };
@@ -737,7 +737,7 @@ class HQCCacheEntry : public NABasicObject {
   virtual ~HQCCacheEntry();
 
   void incrementNumHits() { numHits_++; }
-  Int32 getNumHits() const { return numHits_; }
+  int getNumHits() const { return numHits_; }
 
   HQCParams *getParams() const { return params_; }
   CacheKey *getSQCKey() const { return sqcCacheKey_; }
@@ -753,7 +753,7 @@ class HQCCacheEntry : public NABasicObject {
   NAHeap *heap_;
   HQCParams *params_;
   CacheKey *sqcCacheKey_;
-  Int32 numHits_;
+  int numHits_;
   // disable standard copy constructor
   HQCCacheEntry(const HQCCacheEntry &other);
 };
@@ -771,7 +771,7 @@ class HQCCacheData : public LIST(HQCCacheEntry *) {
   NABoolean isFull() { return (maxEntries_ == entries()); }
 
   NABoolean feasibleToAdd();                       // feasible to add an new entry to the list
-  NABoolean feasibleToReplace(Int32 bytesNeeded);  // feasible to replace an entry
+  NABoolean feasibleToReplace(int bytesNeeded);  // feasible to replace an entry
 
   CacheKey *findMatchingSQCKey(HQCParams &param);
 
@@ -785,7 +785,7 @@ class HQCCacheData : public LIST(HQCCacheEntry *) {
 
  private:
   NAHeap *heap_;
-  Int32 maxEntries_;
+  int maxEntries_;
   // disable standard copy constructor
   HQCCacheData(const HQCCacheData &otherList);
 };
@@ -989,7 +989,7 @@ class CacheKey : public Key {
   virtual const char *getReqdShape() const { return reqdShape_.data(); }
   const char *getText() const { return stmt_.data(); }
 
-  virtual Int32 getNofParameters() const { return Int32(actuals_.entries() + sels_.entries()); }
+  virtual int getNofParameters() const { return int(actuals_.entries() + sels_.entries()); }
 
   virtual const char *getParameterTypes(NAString *) const;
 
@@ -1139,7 +1139,7 @@ class Plan {
   // how many times this plan is reused (shared) in the template cache.
   // The ref. count is increased whenever the plan is shared by another
   // and decreased when an entry is bumped out of the cache.
-  virtual Int32 getRefCount() { return refCount_; };
+  virtual int getRefCount() { return refCount_; };
   virtual void incRefCount() { refCount_++; };
   virtual void decRefCount() { refCount_--; };
 
@@ -1152,7 +1152,7 @@ class Plan {
   // the total size of the Plan object plus the actual compiled plan
   virtual ULng32 getSize() const { return getPlanLen() + sizeof(*this); };
 
-  Int32 getVisits() { return visits_; };
+  int getVisits() { return visits_; };
   void visitOnce() { visits_++; };
   void resetVisits() { visits_ = 0; };
 
@@ -1162,9 +1162,9 @@ class Plan {
   long planId_;  // from Generator
   NAHeap *heap_;  // heap used by dynamic allocs
 
-  Int32 refCount_;  // reference count
+  int refCount_;  // reference count
 
-  Int32 visits_;  // # of visits. Used by QCache::canFit()
+  int visits_;  // # of visits. Used by QCache::canFit()
 };
 
 // CData is the base class for CacheData and TextData
@@ -1224,17 +1224,17 @@ class CacheData : public CData {
   CacheData(Generator *plan,                     // (IN) : access to sql query's compiled plan
             const ParameterTypeList &f,          // (IN) : list of formal ParameterTypes
             const SelParamTypeList &s,           // (IN) : list of formal SelParamTypes
-            LIST(Int32) hqcListOfConstParamPos,  // (IN) : list of positions of formal params
-            LIST(Int32) hqcListOfSelParamPos,    // (IN) : list of positions of sel params
-            LIST(Int32) hqcListOfAllConstPos,    // (IN) : list of positions of all params
+            LIST(int) hqcListOfConstParamPos,  // (IN) : list of positions of formal params
+            LIST(int) hqcListOfSelParamPos,    // (IN) : list of positions of sel params
+            LIST(int) hqcListOfAllConstPos,    // (IN) : list of positions of all params
             long planId,                        // (IN) : id from generator
             const char *text,                    // (IN) : original sql statement text
             int cs,                            // (IN) : character set of sql statement text
             long queryHash,                     // (IN) : query signature
             NAHeap *h);                          // (IN) : heap to use for formals_
 
-  CacheData(Plan *plan, const ParameterTypeList &f, const SelParamTypeList &s, LIST(Int32) hqcParamPos,
-            LIST(Int32) hqcSelPos, LIST(Int32) hqcConstPos, const char *text, const char *normalized_text, int cs,
+  CacheData(Plan *plan, const ParameterTypeList &f, const SelParamTypeList &s, LIST(int) hqcParamPos,
+            LIST(int) hqcSelPos, LIST(int) hqcConstPos, const char *text, const char *normalized_text, int cs,
             long queryHash, NAHeap *h)
       : CData(h),
         formals_(f, h),
@@ -1288,8 +1288,8 @@ class CacheData : public CData {
   // to do the copy.
   NABoolean backpatchParams(const ConstantParameters &listOfConstantParameters,
                             const SelParameters &listOfSelParameters,
-                            const LIST(Int32) & listOfConstParamPositionsInSql,
-                            const LIST(Int32) & listOfSelParamPositionsInSql, BindWA &bindWA, char *&params,
+                            const LIST(int) & listOfConstParamPositionsInSql,
+                            const LIST(int) & listOfSelParamPositionsInSql, BindWA &bindWA, char *&params,
                             ULng32 &paramSize);
 
   // HQC backpatch
@@ -1317,9 +1317,9 @@ class CacheData : public CData {
 
   ParameterTypeList formals_;           // list of ParameterTypes
   SelParamTypeList fSels_;              // list of SelParamTypes
-  LIST(Int32) hqcListOfConstParamPos_;  // list of positions of formal params
-  LIST(Int32) hqcListOfSelParamPos_;    // list of positions of sel params
-  LIST(Int32) hqcListOfConstPos_;       // list of positions of all params
+  LIST(int) hqcListOfConstParamPos_;  // list of positions of formal params
+  LIST(int) hqcListOfSelParamPos_;    // list of positions of sel params
+  LIST(int) hqcListOfConstPos_;       // list of positions of all params
   const char *origStmt_;                // original sql text
   const char *normalizedStmt_;          // normalized sql text
   int charset_;                       // character set of original sql text
@@ -1458,7 +1458,7 @@ class LRUList : public NABasicObject {
       node_ = node_->next_;
       return *this;
     }
-    iterator operator++(Int32) {
+    iterator operator++(int) {
       iterator tmp = *this;
       ++*this;
       return tmp;
@@ -1467,7 +1467,7 @@ class LRUList : public NABasicObject {
       node_ = node_->prev_;
       return *this;
     }
-    iterator operator--(Int32) {
+    iterator operator--(int) {
       iterator tmp = *this;
       --*this;
       return tmp;
@@ -1533,7 +1533,7 @@ class LRUList : public NABasicObject {
 };  // end of class LRUList
 
 // The mxcmp cache has 3 stages: before PARSE, after PARSE, after BIND
-const Int32 N_STAGES = 3;
+const int N_STAGES = 3;
 
 // QCache is a helper class that implements the mxcmp query cache
 class QCache : public NABasicObject {
@@ -1734,13 +1734,13 @@ class QCache : public NABasicObject {
   // return maximum number of preparser entries
   static ULng32 maxPreParserEntries(ULng32 maxByteSz, ULng32 avgEntrySz);
 
-  void sanityCheck(Int32 x);
+  void sanityCheck(int x);
 
   // reset counters
   void clearStats();
 
   // free Query Cache entries with specified QI Security Key
-  void free_entries_with_QI_keys(Int32 NumSiKeys, SQL_QIKEY *pSiKeyArray);
+  void free_entries_with_QI_keys(int NumSiKeys, SQL_QIKEY *pSiKeyArray);
 
   int getNumBuckets() { return cache_->getNumBuckets(); }
 
@@ -1863,7 +1863,7 @@ struct QueryCacheStats {
 
   ULng32 nTooLarge;   // cum. count of cacheable-but-too-large
   ULng32 nDisplaced;  // cum. count of displaced template cache entries
-  Int32 optimLvl;     // current optimization level
+  int optimLvl;     // current optimization level
   ULng32 envID;       // current environment ID
 
   ULng32 avgTEntSize;        // average text entry size
@@ -1882,11 +1882,11 @@ struct QueryCacheDetails {
   ULng32 planLength;                           // size in bytes of the plan
   ULng32 nOfHits;                              // total hits for this cache entry
   CmpPhase phase;                              // compiler phase of this cache entry
-  Int32 optLvl;                                // optimization level of this entry
+  int optLvl;                                // optimization level of this entry
   ULng32 envID;                                // environment ID of this entry
   const char *catalog;                         // catalog name for this entry
   const char *schema;                          // schema name for this entry
-  Int32 nParams;                               // number of parameters of this entry
+  int nParams;                               // number of parameters of this entry
   const char *paramTypes;                      // parameter types of this entry
   ULng32 compTime;                             // compile time in msec
   ULng32 avgHitTime;                           // avg hit time in msec
@@ -1949,7 +1949,7 @@ class QueryCache {
 
   void deleteUserQueryCache(int offset);
 
-  void sanityCheck(Int32 x) {
+  void sanityCheck(int x) {
     {
       if (cache_) cache_->sanityCheck(x);
     }
@@ -2068,7 +2068,7 @@ class QueryCache {
   }
 
   // set limit on entries per key in hqc
-  void setHQCMaxValuesPerKey(Int32 v) {
+  void setHQCMaxValuesPerKey(int v) {
     if (hqc_) hqc_->setMaxEntries(v);
   }
 
@@ -2078,7 +2078,7 @@ class QueryCache {
   }
 
   // free (remove) entires in the Query Cache that have a particular SQL_QIKEY
-  void free_entries_with_QI_keys(Int32 NumSiKeys, SQL_QIKEY *pSiKeyEntry);
+  void free_entries_with_QI_keys(int NumSiKeys, SQL_QIKEY *pSiKeyEntry);
   void setQCache(QCache *qCache);
 
   NABoolean HQCAddEntry(HQCParseKey *hkey, CacheKey *ckey);
@@ -2136,10 +2136,10 @@ class QueryCacheEntriesISPIterator : public ISPIterator {
                                const NAArray<CmpContextInfo *> &ctxs, CollHeap *h);
 
   NABoolean getNext(QueryCacheDetails &details);
-  Int32 &counter() { return counter_; }
+  int &counter() { return counter_; }
 
  protected:
-  Int32 counter_;
+  int counter_;
   QueryCache *currQCache_;
   LRUList::iterator SQCIterator_;
 };
@@ -2165,8 +2165,8 @@ class HybridQueryCacheEntriesISPIterator : public ISPIterator {
   NABoolean getNext(HybridQueryCacheDetails &details);
 
  protected:
-  Int32 currEntryIndex_;
-  Int32 currEntriesPerKey_;
+  int currEntryIndex_;
+  int currEntriesPerKey_;
   HQCCacheKey *currHKeyPtr_;
   HQCCacheData *currValueList_;
   HQCHashTblItor *HQCIterator_;

@@ -46,7 +46,7 @@
 #endif
 
 ScratchFile::ScratchFile(ScratchSpace *scratchSpace, long fileSize, SortError *sorterror, CollHeap *heap,
-                         Int32 numOpens, NABoolean breakEnabled)
+                         int numOpens, NABoolean breakEnabled)
     : asynchronousReadQueueHead_(NULL),
       asynchronousReadQueueTail_(NULL),
       breakEnabled_(breakEnabled),
@@ -63,7 +63,7 @@ ScratchFile::ScratchFile(ScratchSpace *scratchSpace, long fileSize, SortError *s
       numOfWrites_(0),
       numOfAwaitio_(0),
       asynchReadQueue_(FALSE) {
-  for (Int32 i = 0; i < MAX_SCRATCH_FILE_OPENS; i++) {
+  for (int i = 0; i < MAX_SCRATCH_FILE_OPENS; i++) {
     fileHandle_[i].fileNum = STFS_NULL_FHNDL;
     fileHandle_[i].IOBuffer = NULL;
     fileHandle_[i].IOPending = FALSE;
@@ -118,7 +118,7 @@ AsyncIOBuffer *ScratchFile::dequeueAsynchronousRead(void) {
 RESULT ScratchFile::serveAsynchronousReadQueue(long &ioWaitTime, NABoolean onlyIfFreeHandles, NABoolean waited) {
   RESULT rc = SCRATCH_SUCCESS;  // assume success
   ioWaitTime = 0;
-  Int32 index = -1;
+  int index = -1;
   NABoolean atLeastOneReadInitiated = FALSE;
   NABoolean retry = FALSE;
 
@@ -187,7 +187,7 @@ RESULT ScratchFile::serveAsynchronousReadQueue(long &ioWaitTime, NABoolean onlyI
   return rc;
 }
 
-RESULT ScratchFile::processAsynchronousReadCompletion(Int32 index) {
+RESULT ScratchFile::processAsynchronousReadCompletion(int index) {
   RESULT rc = SCRATCH_SUCCESS;  // assume success
 
   // NSK can only have one I/O pending.

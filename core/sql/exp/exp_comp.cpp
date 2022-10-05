@@ -111,7 +111,7 @@ ex_expr::exp_return_type ex_comp_clause::processNulls(char *op_data[], CollHeap 
   return ex_expr::EXPR_OK;
 }
 
-ex_expr::exp_return_type ex_comp_clause::processResult(Int32 compare_code, int *result, CollHeap *heap,
+ex_expr::exp_return_type ex_comp_clause::processResult(int compare_code, int *result, CollHeap *heap,
                                                        ComDiagsArea **diagsArea) {
   *result = 0;
 
@@ -251,7 +251,7 @@ ex_expr::exp_return_type ex_comp_clause::eval(char *op_data[], CollHeap *heap, C
     case EQ_ASCII_F_F:
     case EQ_UNICODE_F_F:  // 11/3/97 added for Unicode support
 
-      if (str_cmp(op_data[1], op_data[2], (Int32)getOperand(1)->getLength()) == 0)
+      if (str_cmp(op_data[1], op_data[2], (int)getOperand(1)->getLength()) == 0)
         *(int *)op_data[0] = 1;
       else
         *(int *)op_data[0] = 0;
@@ -362,14 +362,14 @@ ex_expr::exp_return_type ex_comp_clause::eval(char *op_data[], CollHeap *heap, C
     case NE_DECU_DECU:
     case NE_DECS_DECS:
     case NE_ASCII_F_F:
-      if (str_cmp(op_data[1], op_data[2], (Int32)getOperand(1)->getLength()) != 0)
+      if (str_cmp(op_data[1], op_data[2], (int)getOperand(1)->getLength()) != 0)
         *(int *)op_data[0] = 1;
       else
         *(int *)op_data[0] = 0;
       break;
 
     case NE_UNICODE_F_F:  // 11/3/97: Added for Unicode support
-      if (wc_str_cmp((NAWchar *)op_data[1], (NAWchar *)op_data[2], (Int32)getOperand(1)->getLength() >> 1) != 0)
+      if (wc_str_cmp((NAWchar *)op_data[1], (NAWchar *)op_data[2], (int)getOperand(1)->getLength() >> 1) != 0)
         *(int *)op_data[0] = 1;
       else
         *(int *)op_data[0] = 0;
@@ -482,7 +482,7 @@ ex_expr::exp_return_type ex_comp_clause::eval(char *op_data[], CollHeap *heap, C
         if ((op_data[2][0] & 0200) == 0) {
           // second operand is positive
           if (str_cmp(op_data[1], op_data[2],
-                      (Int32)getOperand(1)->getLength()) < 0)  // l < r
+                      (int)getOperand(1)->getLength()) < 0)  // l < r
             *(int *)op_data[0] = 1;
           else
             *(int *)op_data[0] = 0;
@@ -498,7 +498,7 @@ ex_expr::exp_return_type ex_comp_clause::eval(char *op_data[], CollHeap *heap, C
         } else {
           // second operand is negative
           if (str_cmp(op_data[1], op_data[2],
-                      (Int32)getOperand(1)->getLength()) <= 0)  // l <= r
+                      (int)getOperand(1)->getLength()) <= 0)  // l <= r
             *(int *)op_data[0] = 0;
           else
             *(int *)op_data[0] = 1;
@@ -508,14 +508,14 @@ ex_expr::exp_return_type ex_comp_clause::eval(char *op_data[], CollHeap *heap, C
 
     case LT_DECU_DECU:
     case LT_ASCII_F_F:
-      if (str_cmp(op_data[1], op_data[2], (Int32)getOperand(1)->getLength()) < 0)
+      if (str_cmp(op_data[1], op_data[2], (int)getOperand(1)->getLength()) < 0)
         *(int *)op_data[0] = 1;
       else
         *(int *)op_data[0] = 0;
       break;
 
     case LT_UNICODE_F_F:  // 11/5/97: added for Unicode support
-      if (wc_str_cmp((NAWchar *)op_data[1], (NAWchar *)op_data[2], (Int32)getOperand(1)->getLength() >> 1) < 0)
+      if (wc_str_cmp((NAWchar *)op_data[1], (NAWchar *)op_data[2], (int)getOperand(1)->getLength() >> 1) < 0)
         *(int *)op_data[0] = 1;
       else
         *(int *)op_data[0] = 0;
@@ -633,7 +633,7 @@ ex_expr::exp_return_type ex_comp_clause::eval(char *op_data[], CollHeap *heap, C
         if ((op_data[2][0] & 0200) == 0) {
           // second operand is positive
           if (str_cmp(op_data[1], op_data[2],
-                      (Int32)getOperand(1)->getLength()) <= 0)  // l <= r
+                      (int)getOperand(1)->getLength()) <= 0)  // l <= r
             *(int *)op_data[0] = 1;
           else
             *(int *)op_data[0] = 0;
@@ -649,7 +649,7 @@ ex_expr::exp_return_type ex_comp_clause::eval(char *op_data[], CollHeap *heap, C
         } else {
           // second operand is negative
           if (str_cmp(op_data[1], op_data[2],
-                      (Int32)getOperand(1)->getLength()) < 0)  // l < r
+                      (int)getOperand(1)->getLength()) < 0)  // l < r
             *(int *)op_data[0] = 0;
           else
             *(int *)op_data[0] = 1;
@@ -659,14 +659,14 @@ ex_expr::exp_return_type ex_comp_clause::eval(char *op_data[], CollHeap *heap, C
 
     case LE_DECU_DECU:
     case LE_ASCII_F_F:
-      if (str_cmp(op_data[1], op_data[2], (Int32)getOperand(1)->getLength()) <= 0)
+      if (str_cmp(op_data[1], op_data[2], (int)getOperand(1)->getLength()) <= 0)
         *(int *)op_data[0] = 1;
       else
         *(int *)op_data[0] = 0;
       break;
 
     case LE_UNICODE_F_F:  // 11/5/97: added for Unicode support
-      if (wc_str_cmp((NAWchar *)op_data[1], (NAWchar *)op_data[2], (Int32)getOperand(1)->getLength() >> 1) <= 0)
+      if (wc_str_cmp((NAWchar *)op_data[1], (NAWchar *)op_data[2], (int)getOperand(1)->getLength() >> 1) <= 0)
         *(int *)op_data[0] = 1;
       else
         *(int *)op_data[0] = 0;
@@ -783,7 +783,7 @@ ex_expr::exp_return_type ex_comp_clause::eval(char *op_data[], CollHeap *heap, C
         if ((op_data[2][0] & 0200) == 0) {
           // second operand is positive
           if (str_cmp(op_data[1], op_data[2],
-                      (Int32)getOperand(1)->getLength()) > 0)  // l > r
+                      (int)getOperand(1)->getLength()) > 0)  // l > r
             *(int *)op_data[0] = 1;
           else
             *(int *)op_data[0] = 0;
@@ -799,7 +799,7 @@ ex_expr::exp_return_type ex_comp_clause::eval(char *op_data[], CollHeap *heap, C
         } else {
           // second operand is negative
           if (str_cmp(op_data[1], op_data[2],
-                      (Int32)getOperand(1)->getLength()) >= 0)  // l >= r
+                      (int)getOperand(1)->getLength()) >= 0)  // l >= r
             *(int *)op_data[0] = 0;
           else
             *(int *)op_data[0] = 1;
@@ -809,7 +809,7 @@ ex_expr::exp_return_type ex_comp_clause::eval(char *op_data[], CollHeap *heap, C
 
     case GT_DECU_DECU:
     case GT_ASCII_F_F:
-      if (str_cmp(op_data[1], op_data[2], (Int32)getOperand(1)->getLength()) > 0)
+      if (str_cmp(op_data[1], op_data[2], (int)getOperand(1)->getLength()) > 0)
         *(int *)op_data[0] = 1;
       else
         *(int *)op_data[0] = 0;
@@ -817,7 +817,7 @@ ex_expr::exp_return_type ex_comp_clause::eval(char *op_data[], CollHeap *heap, C
 
     case GT_UNICODE_F_F:
       // 11/3/97: added for Unicode
-      if (wc_str_cmp((NAWchar *)op_data[1], (NAWchar *)op_data[2], (Int32)(getOperand(1)->getLength()) >> 1) > 0)
+      if (wc_str_cmp((NAWchar *)op_data[1], (NAWchar *)op_data[2], (int)(getOperand(1)->getLength()) >> 1) > 0)
         *(int *)op_data[0] = 1;
       else
         *(int *)op_data[0] = 0;
@@ -932,7 +932,7 @@ ex_expr::exp_return_type ex_comp_clause::eval(char *op_data[], CollHeap *heap, C
         if ((op_data[2][0] & 0200) == 0) {
           // second operand is positive
           if (str_cmp(op_data[1], op_data[2],
-                      (Int32)getOperand(1)->getLength()) >= 0)  // l >= r
+                      (int)getOperand(1)->getLength()) >= 0)  // l >= r
             *(int *)op_data[0] = 1;
           else
             *(int *)op_data[0] = 0;
@@ -948,7 +948,7 @@ ex_expr::exp_return_type ex_comp_clause::eval(char *op_data[], CollHeap *heap, C
         } else {
           // second operand is negative
           if (str_cmp(op_data[1], op_data[2],
-                      (Int32)getOperand(1)->getLength()) > 0)  // l > r
+                      (int)getOperand(1)->getLength()) > 0)  // l > r
             *(int *)op_data[0] = 0;
           else
             *(int *)op_data[0] = 1;
@@ -958,7 +958,7 @@ ex_expr::exp_return_type ex_comp_clause::eval(char *op_data[], CollHeap *heap, C
 
     case GE_DECU_DECU:
     case GE_ASCII_F_F:
-      if (str_cmp(op_data[1], op_data[2], (Int32)getOperand(1)->getLength()) >= 0)
+      if (str_cmp(op_data[1], op_data[2], (int)getOperand(1)->getLength()) >= 0)
         *(int *)op_data[0] = 1;
       else
         *(int *)op_data[0] = 0;
@@ -966,7 +966,7 @@ ex_expr::exp_return_type ex_comp_clause::eval(char *op_data[], CollHeap *heap, C
 
     case GE_UNICODE_F_F:
       // 11/3/97: added for Unicode
-      if (wc_str_cmp((NAWchar *)op_data[1], (NAWchar *)op_data[2], (Int32)(getOperand(1)->getLength()) >> 1) >= 0)
+      if (wc_str_cmp((NAWchar *)op_data[1], (NAWchar *)op_data[2], (int)(getOperand(1)->getLength()) >> 1) >= 0)
         *(int *)op_data[0] = 1;
       else
         *(int *)op_data[0] = 0;
@@ -1003,7 +1003,7 @@ ex_expr::exp_return_type ex_comp_clause::eval(char *op_data[], CollHeap *heap, C
         padChar = 0;
       }
 
-      Int32 compare_code;
+      int compare_code;
       if (getInstruction() == ASCII_COMP)  // char vs char, ignore trailing blank
         compare_code = charStringCompareWithPad(op_data[1], length1, op_data[2], length2, padChar, true);
       else
@@ -1018,7 +1018,7 @@ ex_expr::exp_return_type ex_comp_clause::eval(char *op_data[], CollHeap *heap, C
       int length1 = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
       int length2 = getOperand(2)->getLength(op_data[-MAX_OPERANDS + 2]);
 
-      Int32 compare_code = wcharStringCompareWithPad((NAWchar *)op_data[1], length1 >> 1, (NAWchar *)op_data[2],
+      int compare_code = wcharStringCompareWithPad((NAWchar *)op_data[1], length1 >> 1, (NAWchar *)op_data[2],
                                                      length2 >> 1, unicode_char_set::space_char());
 
       retcode = processResult(compare_code, (int *)op_data[0], heap, diagsArea);
@@ -1062,7 +1062,7 @@ ex_expr::exp_return_type ex_comp_clause::eval(char *op_data[], CollHeap *heap, C
 
       char padChar = 0;
 
-      Int32 compare_code;
+      int compare_code;
       if (getInstruction() == BINARY_COMP)
         compare_code = charStringCompareWithPad(op_data[1], length1, op_data[2], length2, padChar, true);
       else

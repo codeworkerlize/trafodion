@@ -92,7 +92,7 @@ const NAString RelLock::getText() const {
 }
 
 void RelLock::addTableNameToList(RelExpr *node) {
-  for (Int32 i = 0; i < node->getArity(); i++) {
+  for (int i = 0; i < node->getArity(); i++) {
     addTableNameToList(node->child(i)->castToRelExpr());
   }
 

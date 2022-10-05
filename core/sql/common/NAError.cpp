@@ -73,7 +73,7 @@ NAErrorParamArray::NAErrorParamArray(int numParams, NAErrorParam *errParam1, NAE
 }  // NAErrorParamArray::NAErrorParamArray()
 
 NAErrorParamArray::~NAErrorParamArray(void) {
-  for (Int32 index = 0; index < entries(); index++) {
+  for (int index = 0; index < entries(); index++) {
     if (array_[index].errParam_ != 0) delete array_[index].errParam_;
   };
 

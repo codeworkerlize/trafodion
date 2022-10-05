@@ -126,7 +126,7 @@ class ComTdbTranspose : public ComTdb {
   // unsigned long bufferSize
   //  IN: Recommended size for pool buffers.
   //
-  ComTdbTranspose(ComTdb *childTdb, ex_expr **transColExprs, Int32 numTransExprs, ex_expr *afterTransPred,
+  ComTdbTranspose(ComTdb *childTdb, ex_expr **transColExprs, int numTransExprs, ex_expr *afterTransPred,
                   int transRowLen, const unsigned short transTuppIndex, ex_cri_desc *givenCriDesc,
                   ex_cri_desc *returnedCriDesc, queue_index down, queue_index up, Cardinality estimatedRowCount,
                   int numBuffers, ULng32 bufferSize, Space *space);
@@ -189,12 +189,12 @@ class ComTdbTranspose : public ComTdb {
   //
   // Exclude this code from coverage analysis.
   // This code could be deleted since it is the same as the base implementation.
-  Int32 orderedQueueProtocol() const { return -1; }
+  int orderedQueueProtocol() const { return -1; }
 
   // return a pointer to the specifed (by position) child TDB.
   // Transpose has only one child.
   //
-  virtual const ComTdb *getChild(Int32 pos) const {
+  virtual const ComTdb *getChild(int pos) const {
     if (pos == 0) return childTdb_;
     return NULL;
   }
@@ -202,20 +202,20 @@ class ComTdbTranspose : public ComTdb {
   // Return the number of children for this node.
   // Transpose has one child.
   //
-  virtual Int32 numChildren() const { return 1; }
+  virtual int numChildren() const { return 1; }
 
   // Return the number of expression this node has.
   // Transpose has a variable number of expressions.
   // There are numTransExprs_ transpose expressions, plus
   // the afterTransPred_ selection predicate.
   //
-  virtual Int32 numExpressions() const { return numTransExprs_ + 1; }
+  virtual int numExpressions() const { return numTransExprs_ + 1; }
 
   // Return the expression by position.
   // The transpose expressions come first, followed
   // by the selection pred.
   //
-  virtual ex_expr *getExpressionNode(Int32 pos) {
+  virtual ex_expr *getExpressionNode(int pos) {
     if (transColExprs_ && (pos >= 0) && (pos < numTransExprs_))
       return (transColExprs_[pos]);
     else if (pos == numTransExprs_)
@@ -227,7 +227,7 @@ class ComTdbTranspose : public ComTdb {
   // The transpose expressions come first, followed
   // by the selection pred.
   //
-  virtual const char *getExpressionName(Int32 pos) const {
+  virtual const char *getExpressionName(int pos) const {
     if (transColExprs_ && (pos >= 0) && (pos < numTransExprs_))
       return ("transColExpr");
     else if (pos == numTransExprs_)
@@ -240,7 +240,7 @@ class ComTdbTranspose : public ComTdb {
   // Return the number of transpose expressions.  Used by
   // the Transpose TDB and TCB methods.
   //
-  Int32 numTransExprs() { return numTransExprs_; };
+  int numTransExprs() { return numTransExprs_; };
 
  protected:
   // The child of this Transpose TDB.
@@ -257,12 +257,12 @@ class ComTdbTranspose : public ComTdb {
 
   // The number of expressions in transColsExprs.
   //
-  Int32 numTransExprs_;  // 16-19
+  int numTransExprs_;  // 16-19
 
   // The length of the tuple which will hold the generated values.  This
   // tuple will be allocated by the transpose node.
   //
-  Int32 transRowLen_;  // 20-23
+  int transRowLen_;  // 20-23
 
   // The selection Predicate for the Transpose operator. This expression
   // is applied after the transpose columns have been generated (so this

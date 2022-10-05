@@ -108,7 +108,7 @@ void processAnRSLoadMessage(UdrGlobals *UdrGlob, UdrServerReplyStream &msgStream
 void processAnRSCloseMessage(UdrGlobals *UdrGlob, UdrServerReplyStream &msgStream, UdrRSCloseMsg &request);
 void processAnRSUnloadMessage(UdrGlobals *UdrGlob, UdrServerReplyStream &msgStream, UdrRSUnloadMsg &request);
 
-NABoolean processCmdLine(UdrGlobals *UdrGlob, Int32 argc, char **argv);
+NABoolean processCmdLine(UdrGlobals *UdrGlob, int argc, char **argv);
 
 // static long getClientId(UdrGlobals *udrGlob);
 
@@ -131,15 +131,15 @@ static ComDiagsArea *addOrCreateErrorDiags(UdrGlobals *UdrGlob, int errorNumber,
 static const char *MXUDR_PREFIX = "[MXUDR]";
 static const char *MXUDR_PREFIX_PLUS_SPACE = "[MXUDR] ";
 static FILE *MXUDR_OUTFILE = stdout;  // TODO: fix when stderr available
-static Int32 invokeUdrMethod(const char *method, const char *container, const char *path, NABoolean isJava,
-                             NABoolean isUdf, NABoolean txRequired, NABoolean useVarchar, Int32 argc, char *argv[],
-                             Int32 nResultSets, Int32 nTimesToInvoke, UdrGlobals &glob);
+static int invokeUdrMethod(const char *method, const char *container, const char *path, NABoolean isJava,
+                             NABoolean isUdf, NABoolean txRequired, NABoolean useVarchar, int argc, char *argv[],
+                             int nResultSets, int nTimesToInvoke, UdrGlobals &glob);
 
 // Dead Code
 // These methods are not used, and the interface has not been tested for a long time.
 // We might want to retire them
-static Int32 processCommandsFromFile(const char *filename, UdrGlobals &glob);
-static Int32 processSingleCommandFromFile(FILE *f, UdrGlobals &glob);
+static int processCommandsFromFile(const char *filename, UdrGlobals &glob);
+static int processSingleCommandFromFile(FILE *f, UdrGlobals &glob);
 
 static NAString initErrText("");
 /*************************************************************************
@@ -203,7 +203,7 @@ void InitializeJavaOptionsFromEnvironment(LmJavaOptions &javaOptions, NAMemory *
 
 //-----------------------------------------------------------------
 
-static void runServer(Int32 argc, char **argv);
+static void runServer(int argc, char **argv);
 
 static int g_argc;
 static char **g_argv = 0;
@@ -238,8 +238,8 @@ void *thread_main(void *p_arg) {
   // variables
   const char *stdOutFile = getenv("SQLMX_UDR_STDOUT");
   const char *stdErrFile = getenv("SQLMX_UDR_STDERR");
-  Int32 fdOut = -1;
-  Int32 fdErr = -1;
+  int fdOut = -1;
+  int fdErr = -1;
 
   if (stdOutFile && stdOutFile[0]) {
     fdOut = open(stdOutFile, O_WRONLY | O_APPEND | O_CREAT | O_SYNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
@@ -275,7 +275,7 @@ void *thread_main(void *p_arg) {
   return (void *)lv_thread_ret;
 }
 
-Int32 main(Int32 argc, char **argv) {
+int main(int argc, char **argv) {
   dovers(argc, argv);
   file_debug_hook("udrserv", "udrserv.hook");
   try {
@@ -317,11 +317,11 @@ Int32 main(Int32 argc, char **argv) {
   return 0;
 }
 
-static void runServer(Int32 argc, char **argv) {
+static void runServer(int argc, char **argv) {
 #ifdef _DEBUG
   UDR_DEBUG1("Process ID: %ld", (int)GETPID());
   UDR_DEBUG0("[BEGIN argv]");
-  Int32 i;
+  int i;
   for (i = 0; i < argc; i++) {
     if (argv[i])
       UDR_DEBUG1("  '%s'", argv[i]);
@@ -341,7 +341,7 @@ static void runServer(Int32 argc, char **argv) {
   const char *moduleName = "runServer";
 
   NABoolean showMsgBox = FALSE;
-  static Int32 pid = getpid();
+  static int pid = getpid();
   char stmp[255];
   sprintf(stmp, "Process Launched %d", pid);
 
@@ -897,7 +897,7 @@ static void displayUsageInfo() {
   fprintf(stdout, "\n");
 }
 
-NABoolean processCmdLine(UdrGlobals *UdrGlob, Int32 argc, char **argv) {
+NABoolean processCmdLine(UdrGlobals *UdrGlob, int argc, char **argv) {
   const char *moduleName = "processCmdLine";
 
   doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS, UdrGlob->showMain_, moduleName);
@@ -966,7 +966,7 @@ NABoolean processCmdLine(UdrGlobals *UdrGlob, Int32 argc, char **argv) {
   //  -obey          Process commands from a text file
   //
 
-  for (Int32 i = 1; i < argc; i++) {
+  for (int i = 1; i < argc; i++) {
     if (!stricmp(argv[i], "-help")) {
       UdrGlob->setCommandLineMode(TRUE);
       displayUsageInfo();
@@ -983,8 +983,8 @@ NABoolean processCmdLine(UdrGlobals *UdrGlob, Int32 argc, char **argv) {
     else if (!stricmp(argv[i], "-invoke")) {
       UdrGlob->setCommandLineMode(TRUE);
 
-      Int32 nTimesToInvoke = 1;
-      Int32 nResultSets = 0;
+      int nTimesToInvoke = 1;
+      int nResultSets = 0;
       NABoolean usageError = FALSE;
       const char *paramStyle = "java";
       NABoolean txRequired = TRUE;
@@ -1055,7 +1055,7 @@ NABoolean processCmdLine(UdrGlobals *UdrGlob, Int32 argc, char **argv) {
       const char *method = argv[++i];
       const char *container = argv[++i];
       const char *path = argv[++i];
-      Int32 methodArgc = argc - (i + 1);
+      int methodArgc = argc - (i + 1);
       char **methodArgv = NULL;
       if (methodArgc > 0) {
         methodArgv = &(argv[i + 1]);
@@ -1067,7 +1067,7 @@ NABoolean processCmdLine(UdrGlobals *UdrGlob, Int32 argc, char **argv) {
       // stored procedure
       if (!isJava) isUdf = TRUE;
 
-      Int32 result = invokeUdrMethod(method, container, path, isJava, isUdf, txRequired, useVarchar, methodArgc,
+      int result = invokeUdrMethod(method, container, path, isJava, isUdf, txRequired, useVarchar, methodArgc,
                                      methodArgv, nResultSets, nTimesToInvoke, *UdrGlob);
 
       exit(result);
@@ -1093,7 +1093,7 @@ NABoolean processCmdLine(UdrGlobals *UdrGlob, Int32 argc, char **argv) {
 
       i++;
 
-      Int32 result = processCommandsFromFile(argv[i], *UdrGlob);
+      int result = processCommandsFromFile(argv[i], *UdrGlob);
       exit(result);
 
     }  // -obey
@@ -1145,7 +1145,7 @@ int getClientId(UdrGlobals *UdrGlob)
   short retcode = GETTRANSID(UdrGlob->transId_);
 
   // Locate ID in openerProcessId list
-  for (Int32 i=0; i<UdrGlob->gNumOpeners_; i++)
+  for (int i=0; i<UdrGlob->gNumOpeners_; i++)
   {
     if (openPhandle == UdrGlob->gOpenerPhandle_[i])
     {
@@ -1191,7 +1191,7 @@ static ComDiagsArea *addOrCreateErrorDiags(UdrGlobals *UdrGlob, int errorNumber,
       case UDR_ERR_UNKNOWN_MSG_TYPE:
       case UDR_ERR_TOO_MANY_OPENERS:
         *diags << DgSqlCode(-errorNumber);
-        *diags << DgInt0((Int32)intErrorInfo);
+        *diags << DgInt0((int)intErrorInfo);
         break;
 
       case UDR_ERR_MISSING_UDRHANDLE:
@@ -1204,7 +1204,7 @@ static ComDiagsArea *addOrCreateErrorDiags(UdrGlobals *UdrGlob, int errorNumber,
         break;
 
       case UDR_ERR_INVALID_RS_INDEX:
-        *diags << DgSqlCode(-errorNumber) << DgString0(charErrorInfo) << DgInt0((Int32)intErrorInfo);
+        *diags << DgSqlCode(-errorNumber) << DgString0(charErrorInfo) << DgInt0((int)intErrorInfo);
         break;
 
       case UDR_ERR_INVALID_RS_STATE:
@@ -1370,7 +1370,7 @@ static const char *LmResultToString(const LmResult &r) {
     case LM_PARAM_OVERFLOW:
       return "LM_PARAM_OVERFLOW";
     default:
-      return ComRtGetUnknownString((Int32)r);
+      return ComRtGetUnknownString((int)r);
   }
 }
 
@@ -1401,15 +1401,15 @@ static void DumpDiags(ostream &stream, ComDiagsArea *d, const char *prefix) {
 //   (2) All arguments are considered INOUT params, except as given in (3)
 //   (3) for 'main' method the arguments are considered to be IN params
 //
-static Int32 invokeUdrMethod(const char *method, const char *container, const char *path, NABoolean isJava,
-                             NABoolean isUdf, NABoolean txRequired, NABoolean useVarchar, Int32 argc, char *argv[],
-                             Int32 nResultSets, Int32 nTimesToInvoke, UdrGlobals &glob) {
+static int invokeUdrMethod(const char *method, const char *container, const char *path, NABoolean isJava,
+                             NABoolean isUdf, NABoolean txRequired, NABoolean useVarchar, int argc, char *argv[],
+                             int nResultSets, int nTimesToInvoke, UdrGlobals &glob) {
   LmResult result = LM_OK;
   FILE *f = MXUDR_OUTFILE;
   const char *prefix = MXUDR_PREFIX;
   const char *prefixPlusSpace = MXUDR_PREFIX_PLUS_SPACE;
   NAMemory *h = glob.getUdrHeap();
-  Int32 i;
+  int i;
   int cliResult = 0;
 
   fprintf(f, "%s Preparing to invoke a routine body\n", prefix);
@@ -1449,8 +1449,8 @@ static Int32 invokeUdrMethod(const char *method, const char *container, const ch
   if (isJava && result == LM_OK) {
     const char *stringSig = "[Ljava/lang/String;";
     const char *rsSig = "[Ljava/sql/ResultSet;";
-    Int32 stringSigLen = str_len(stringSig);
-    Int32 rsSigLen = str_len(rsSig);
+    int stringSigLen = str_len(stringSig);
+    int rsSigLen = str_len(rsSig);
     sig = new (h) char[(argc * stringSigLen) + (nResultSets * rsSigLen) + 20];
     sig[0] = 0;
     str_cat(sig, "(", sig);
@@ -1475,12 +1475,12 @@ static Int32 invokeUdrMethod(const char *method, const char *container, const ch
   // be a character string of no more than 32 bytes.
   ComUInt32 maxUdfOutLen = 32;
   LmParameter *lmParams = NULL;
-  Int32 numLmParams = argc;
+  int numLmParams = argc;
 
   if (isUdf && result == LM_OK) numLmParams++;
 
-  Int32 inputRowLen = 0;
-  Int32 outputRowLen = 0;
+  int inputRowLen = 0;
+  int outputRowLen = 0;
 
   if (result == LM_OK) {
     // Find the input row length
@@ -1519,13 +1519,13 @@ static Int32 invokeUdrMethod(const char *method, const char *container, const ch
     }
 
     ComFSDataType fsType(useVarchar ? COM_VCHAR_FSDT : COM_FCHAR_FSDT);
-    Int32 currParamOffset = 0;
+    int currParamOffset = 0;
     for (i = 0; i < argc; i++) {
       currParamOffset = ROUND8(currParamOffset);
-      Int32 argLen = str_len(argv[i]);
+      int argLen = str_len(argv[i]);
 
       // Figure out the type and varchar indicator offsets
-      Int32 vcIndOffset = 0, vcIndLen = 0;
+      int vcIndOffset = 0, vcIndLen = 0;
       UInt32 dataOffset = currParamOffset + 4;
       if (useVarchar) {
         vcIndOffset = currParamOffset + 4;
@@ -1627,14 +1627,14 @@ static Int32 invokeUdrMethod(const char *method, const char *container, const ch
   i = 0;
 
   ComRoutineExternalSecurity externalSecurity = COM_ROUTINE_EXTERNAL_SECURITY_INVOKER;
-  Int32 routineOwnerId = ROOT_USER_ID;  // dbRoot
+  int routineOwnerId = ROOT_USER_ID;  // dbRoot
 
   while (result == LM_OK && i++ < nTimesToInvoke) {
     // Begin a transaction
     if (txRequired && result == LM_OK) {
-      Int32 transtag;
-      Int32 tmfResult;
-      tmfResult = BEGINTRANSACTION((Int32 *)&transtag);
+      int transtag;
+      int tmfResult;
+      tmfResult = BEGINTRANSACTION((int *)&transtag);
       if (tmfResult != 0) {
         fprintf(f, "%s BEGINTRANSACTION() returned %d\n", prefix, tmfResult);
         fflush(f);
@@ -1716,7 +1716,7 @@ static Int32 invokeUdrMethod(const char *method, const char *container, const ch
 
     // End the transaction
     if (txRequired && result == LM_OK) {
-      Int32 tmfResult = ENDTRANSACTION();
+      int tmfResult = ENDTRANSACTION();
       if (tmfResult != 0) {
         fprintf(f, "%s ENDTRANSACTION() returned %d\n", prefix, tmfResult);
         fflush(f);
@@ -1780,8 +1780,8 @@ static Int32 invokeUdrMethod(const char *method, const char *container, const ch
 
 // Function to open a file and then repeatedly call a helper function
 // that will process one command from that file.
-static Int32 processCommandsFromFile(const char *filename, UdrGlobals &glob) {
-  Int32 result = 0;
+static int processCommandsFromFile(const char *filename, UdrGlobals &glob) {
+  int result = 0;
   FILE *out = MXUDR_OUTFILE;
   const char *prefix = MXUDR_PREFIX;
 
@@ -1804,7 +1804,7 @@ static Int32 processCommandsFromFile(const char *filename, UdrGlobals &glob) {
 // Function to process one command from a text file. Returns 0 if the
 // command was successfully processed, non-zero otherwise. Error
 // messages are written to MXUDR_OUTFILE if anything goes wrong.
-static Int32 processSingleCommandFromFile(FILE *in, UdrGlobals &glob) {
+static int processSingleCommandFromFile(FILE *in, UdrGlobals &glob) {
   FILE *out = MXUDR_OUTFILE;
   const char *prefix = MXUDR_PREFIX;
 
@@ -1829,7 +1829,7 @@ static Int32 processSingleCommandFromFile(FILE *in, UdrGlobals &glob) {
     }
 
     // Trim leading and trailing spaces
-    Int32 len = str_len(target);
+    int len = str_len(target);
     trimmed = target;
     if (len > 0) {
       while (isSpace8859_1(trimmed[0])) {
@@ -1887,8 +1887,8 @@ static Int32 processSingleCommandFromFile(FILE *in, UdrGlobals &glob) {
     return 1;
   }
 
-  Int32 nTimesToInvoke = 1;
-  Int32 nResultSets = 0;
+  int nTimesToInvoke = 1;
+  int nResultSets = 0;
   const char *paramStyle = "java";
   if (stricmp(tok, "-n") == 0) {
     tok = strtok(NULL, delim);
@@ -1939,9 +1939,9 @@ static Int32 processSingleCommandFromFile(FILE *in, UdrGlobals &glob) {
 
   // Done with semantic checks. All remaining arguments will be input
   // to the user's Java method. We collect them into the argv array.
-  const Int32 maxNumArgs = 1024;
+  const int maxNumArgs = 1024;
   char *argv[maxNumArgs];
-  Int32 argc = 0;
+  int argc = 0;
   while ((tok = strtok(NULL, delim)) != NULL) {
     if (argc < maxNumArgs) {
       argv[argc] = tok;
@@ -1963,14 +1963,14 @@ static Int32 processSingleCommandFromFile(FILE *in, UdrGlobals &glob) {
   fprintf(out, "%s  Command: %s\n", prefix, originalCommand);
   fprintf(out, "%s %s\n", prefix, longLine);
 
-  Int32 result = invokeUdrMethod(method, container, path, isJava, isUdf, txRequired, useVarchar, argc, argv,
+  int result = invokeUdrMethod(method, container, path, isJava, isUdf, txRequired, useVarchar, argc, argv,
                                  nResultSets, nTimesToInvoke, glob);
 
   return result;
 
 }  // processSingleCommandFromFile
 
-void udrAssert(const char *f, Int32 l, const char *m) {
+void udrAssert(const char *f, int l, const char *m) {
   if (!f) f = "";
   if (!m) m = "";
   cout << "MXUDR Assertion: " << m << endl;
@@ -1979,7 +1979,7 @@ void udrAssert(const char *f, Int32 l, const char *m) {
   // should not reach here
 }
 
-void udrAbort(const char *f, Int32 l, const char *m) {
+void udrAbort(const char *f, int l, const char *m) {
   if (!f) f = "";
   if (!m) m = "";
   cout << "MXUDR Abort: " << m << endl;
@@ -1993,9 +1993,9 @@ void udrAbort(const char *f, Int32 l, const char *m) {
 #include "common/CharType.h"
 #include "common/NAType.h"
 
-NABoolean NAType::isComparable(const NAType &other, ItemExpr *parentOp, Int32 emitErr) const { return FALSE; }
+NABoolean NAType::isComparable(const NAType &other, ItemExpr *parentOp, int emitErr) const { return FALSE; }
 
-NABoolean CharType::isComparable(const NAType &other, ItemExpr *parentOp, Int32 emitErr) const { return FALSE; }
+NABoolean CharType::isComparable(const NAType &other, ItemExpr *parentOp, int emitErr) const { return FALSE; }
 #endif
 
 //
@@ -2027,19 +2027,19 @@ void processASessionMessage(UdrGlobals *glob, UdrServerReplyStream &msgStream, U
 
   char *pname = getenv("MXUDR_SESSION_SIGNAL");
   if (pname && pname[0]) {
-    Int32 pnum = atoi(pname);
-    Int32 signum = SIGINT;
+    int pnum = atoi(pname);
+    int signum = SIGINT;
 
     UDR_DEBUG2("*** About to call kill(%d,%d) because environment", pnum, signum);
     UDR_DEBUG1("*** variable MXUDR_SESSION_SIGNAL is set to '%s'.", pname);
 
-    Int32 result = kill(pnum, signum);
+    int result = kill(pnum, signum);
     UDR_DEBUG1("*** kill() returned %d", result);
 
     // Now sleep for 5 seconds. Sometimes the signal does not get
     // delivered right away and we do not want the client to receive
     // our reply message before the signal is processed.
-    const Int32 secondsToSleep = 5;
+    const int secondsToSleep = 5;
     DELAY(secondsToSleep * 100);
   }
 
@@ -2150,11 +2150,11 @@ static void DumpProcessInfo() {
 
   if (rc) {
     UDR_DEBUG0("  *** Error occurred in PROCESS_GETINFOLIST_");
-    UDR_DEBUG2("  *** Return code %d, error detail %d", (Int32)rc, (Int32)errordetail);
+    UDR_DEBUG2("  *** Return code %d, error detail %d", (int)rc, (int)errordetail);
   } else {
-    UDR_DEBUG1("  Process ID %d", (Int32)return_values_list[0]);
+    UDR_DEBUG1("  Process ID %d", (int)return_values_list[0]);
     UDR_DEBUG1("  Program file %s", (char *)&return_values_list[22]);
-    UDR_DEBUG1("  Current pages %d", (Int32)return_values_list[1]);
+    UDR_DEBUG1("  Current pages %d", (int)return_values_list[1]);
     UDR_DEBUG1("  Page faults %ld", *((int *)&return_values_list[2]));
     UDR_DEBUG1("  PFS size %ld", *((int *)&return_values_list[4]));
     UDR_DEBUG1("  Max PFS size %ld", *((int *)&return_values_list[6]));
@@ -2164,7 +2164,7 @@ static void DumpProcessInfo() {
     UDR_DEBUG1("  Native heap size %ld", *((int *)&return_values_list[14]));
     UDR_DEBUG1("  Max native heap size %ld", *((int *)&return_values_list[16]));
     UDR_DEBUG1("  Guaranteed swap space %ld", *((int *)&return_values_list[18]));
-    UDR_DEBUG1("  TNS/R Native flag %d", (Int32)return_values_list[20]);
+    UDR_DEBUG1("  TNS/R Native flag %d", (int)return_values_list[20]);
   }
 
   UDR_DEBUG0("[END DumpProcessInfo]");
@@ -2266,7 +2266,7 @@ void processAnExitTxMessage(UdrGlobals *glob, UdrServerReplyStream &msgStream, U
   reply->decrRefCount();
 }
 
-Int32 PerformWaitedReplyToClient(UdrGlobals *UdrGlob, UdrServerDataStream &msgStream) {
+int PerformWaitedReplyToClient(UdrGlobals *UdrGlob, UdrServerDataStream &msgStream) {
   // Most of the calls here is copied from runServer() above.
 
   sendDataReply(UdrGlob, msgStream, NULL);

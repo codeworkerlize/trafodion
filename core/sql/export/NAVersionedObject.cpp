@@ -223,7 +223,7 @@ int NAVersionedObject::migrateToNewVersion(NAVersionedObject *&newImage) {
     // this case.
     // ---------------------------------------------------------------
     unsigned char *versionIDArray = getImageVersionIDArray();
-    for (Int32 i = 0; i < VERSION_ID_ARRAY_SIZE; i++) {
+    for (int i = 0; i < VERSION_ID_ARRAY_SIZE; i++) {
       if ((versionIDArray[i] != 0) && (versionIDArray[i] != 1) && (versionIDArray[i] != 2) && (versionIDArray[i] != 3))
         return -1;
     }

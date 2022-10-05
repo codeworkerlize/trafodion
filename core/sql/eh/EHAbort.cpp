@@ -45,7 +45,7 @@
 // -----------------------------------------------------------------------
 // global function to abort the process
 // -----------------------------------------------------------------------
-void EHAbort(const char *filename, Int32 lineno, const char *msg) {
+void EHAbort(const char *filename, int lineno, const char *msg) {
   fflush(stdout);
   fprintf(stderr,
           "\n*** Fatal Error *** Exception handler aborted "

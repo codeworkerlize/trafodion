@@ -183,7 +183,7 @@ void CRURangeCollection::PrepareForFlush() {
   pSortedRangeVector_ = new PCRURange[size];
 
   DSListPosition pos = rangeList_.GetHeadPosition();
-  for (Int32 i = 0; NULL != pos; i++) {
+  for (int i = 0; NULL != pos; i++) {
     CRURange *pRange = rangeList_.GetNext(pos);
 
     // Initialize the fragment list
@@ -214,10 +214,10 @@ void CRURangeCollection::PrepareForFlush() {
 void CRURangeCollection::PerformRangeAnalysis() {
   int size = GetSize();
 
-  for (Int32 oldIndex = 0; oldIndex < size; oldIndex++) {
+  for (int oldIndex = 0; oldIndex < size; oldIndex++) {
     CRURange *pOlderRng = pSortedRangeVector_[oldIndex];
 
-    for (Int32 youngIndex = oldIndex + 1; youngIndex < size; youngIndex++) {
+    for (int youngIndex = oldIndex + 1; youngIndex < size; youngIndex++) {
       CRURange *pYoungerRng = pSortedRangeVector_[youngIndex];
       pOlderRng->PerformRangeAnalysis(*pYoungerRng);
     }
@@ -345,7 +345,7 @@ void CRURangeCollection::VerifyBalance() {
 //	The function serves for the quicksort criteria.
 //--------------------------------------------------------------------------//
 
-Int32 CRURangeCollection::CompareElem(const void *pEl1, const void *pEl2) {
+int CRURangeCollection::CompareElem(const void *pEl1, const void *pEl2) {
   CRURange *pRng1 = *(CRURange **)pEl1;
   CRURange *pRng2 = *(CRURange **)pEl2;
 

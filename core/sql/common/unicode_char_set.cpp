@@ -71,9 +71,9 @@ static const unicode_mapping_t unicode_upper2lower_mapping_table[] = {
 #include "11_ut2l.h"
 };
 
-NAWchar binary_search(NAWchar wc, Int32 lower, Int32 upper, unicode_mapping_t table[]) {
+NAWchar binary_search(NAWchar wc, int lower, int upper, unicode_mapping_t table[]) {
   while (lower <= upper) {
-    Int32 middle = (lower + upper) >> 1;
+    int middle = (lower + upper) >> 1;
     if (table[middle].code1 == wc) return table[middle].code2;
 
     if (table[middle].code1 < wc)
@@ -85,9 +85,9 @@ NAWchar binary_search(NAWchar wc, Int32 lower, Int32 upper, unicode_mapping_t ta
 }
 
 // search the lower to upper full mapping table
-NAWchar *binary_search(NAWchar wc, Int32 lower, Int32 upper, unicode_mapping_full_t table[]) {
+NAWchar *binary_search(NAWchar wc, int lower, int upper, unicode_mapping_full_t table[]) {
   while (lower <= upper) {
-    Int32 middle = (lower + upper) >> 1;
+    int middle = (lower + upper) >> 1;
     if (table[middle].code1 == wc) return (NAWchar *)table[middle].code2;
 
     if (table[middle].code1 < wc)
@@ -200,24 +200,24 @@ NAWchar unicode_char_set::to_lower(const NAWchar x) {
 // UTF-8 related functions
 //
 
-Int32 IndexOfLastByteOfUTF8CharAtOrBeforePos(const unsigned char *utf8Str, const Int32 utf8StrLenInBytes,
-                                             const Int32 bytePos) {
+int IndexOfLastByteOfUTF8CharAtOrBeforePos(const unsigned char *utf8Str, const int utf8StrLenInBytes,
+                                             const int bytePos) {
   if (utf8Str == NULL || utf8StrLenInBytes <= 0 || bytePos < 0 || bytePos >= utf8StrLenInBytes) return -1;  // error
   if (IS_7_BIT_ASCII_IN_UTF8_CHAR(utf8Str[bytePos])) return bytePos;
-  Int32 indexOf1stByteOfUtf8Char = IndexOfFirstByteOfUTF8CharAtOrBeforePos(utf8Str, utf8StrLenInBytes, bytePos);
+  int indexOf1stByteOfUtf8Char = IndexOfFirstByteOfUTF8CharAtOrBeforePos(utf8Str, utf8StrLenInBytes, bytePos);
   if (indexOf1stByteOfUtf8Char < 0)  // could not find the first byte in a UTF-8 character in the string
     return -1;                       // cannot tell if this is the last byte
-  Int32 byteCountForUtf8Char = UTF8CharLenInBytes(utf8Str[indexOf1stByteOfUtf8Char]);
+  int byteCountForUtf8Char = UTF8CharLenInBytes(utf8Str[indexOf1stByteOfUtf8Char]);
   if (byteCountForUtf8Char <= 0)  // error
     return -1;                    // cannot tell if this is the last byte
-  Int32 indexOfLastByteOfUtf8Char = indexOf1stByteOfUtf8Char + byteCountForUtf8Char - 1;
+  int indexOfLastByteOfUtf8Char = indexOf1stByteOfUtf8Char + byteCountForUtf8Char - 1;
   if (indexOfLastByteOfUtf8Char == bytePos) return bytePos;
   if (indexOf1stByteOfUtf8Char > 0)
     return IndexOfLastByteOfUTF8CharAtOrBeforePos(utf8Str, utf8StrLenInBytes, indexOf1stByteOfUtf8Char - 1 /*bytePos*/);
   return -1;  // error
 }
 
-Int32 UTF8CharLenInBytes(const unsigned char firstByteOfTheUtf8Char) {
+int UTF8CharLenInBytes(const unsigned char firstByteOfTheUtf8Char) {
   if (IS_NOT_1ST_BYTE_IN_UTF8_CHAR(firstByteOfTheUtf8Char)) return 0;  // error
   if (IS_7_BIT_ASCII_IN_UTF8_CHAR(firstByteOfTheUtf8Char)) return 1;
   if (((firstByteOfTheUtf8Char & 0xE0) >> 5) == 0x06) return 2;
@@ -234,22 +234,22 @@ Int32 UTF8CharLenInBytes(const unsigned char firstByteOfTheUtf8Char) {
   return 0;  // error
 }
 
-Int32 IndexOfFirstByteOfUTF8CharAtOrBeforePos(const unsigned char *utf8Str, const Int32 utf8StrLenInBytes,
-                                              const Int32 bytePos) {
+int IndexOfFirstByteOfUTF8CharAtOrBeforePos(const unsigned char *utf8Str, const int utf8StrLenInBytes,
+                                              const int bytePos) {
   if (utf8Str == NULL || utf8StrLenInBytes <= 0 || bytePos < 0 || bytePos >= utf8StrLenInBytes) return -1;  // error
   if (IS_7_BIT_ASCII_IN_UTF8_CHAR(utf8Str[bytePos])) return bytePos;
-  Int32 i = bytePos;
+  int i = bytePos;
   while (i >= 0 && IS_NOT_1ST_BYTE_IN_UTF8_CHAR(utf8Str[i])) i--;
   if (i >= 0 && IS_1ST_BYTE_IN_UTF8_CHAR(utf8Str[i])) return i;
   return -1;  // error
 }
 
-Int32 maxBytesInUTF8String(char *str, Int32 len) {
-  Int32 maxBytes = 1;
+int maxBytesInUTF8String(char *str, int len) {
+  int maxBytes = 1;
 
   char *ptr = str;
   char *end = str + len;
-  Int32 bytesInChar = 0;
+  int bytesInChar = 0;
   while (ptr < end) {
     bytesInChar = UTF8CharLenInBytes(*ptr);
     if (bytesInChar == 0) {

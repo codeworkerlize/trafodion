@@ -88,7 +88,7 @@ class Queue : public NAVersionedObject {
 
   CollHeap *heap_;
 
-  Int32 numEntries_;  // 32-35
+  int numEntries_;  // 32-35
 
   // length of queue in 'packed' (contiguous) form.
   // This field is updated whenever a new queue entry is added (removed).
@@ -187,7 +187,7 @@ class Queue : public NAVersionedObject {
   virtual int unpack(void *base, void *reallocator);
 
   // returns -1, if queue is empty. Otherwise, returns 0.
-  Int32 isEmpty() { return ((numEntries() == 0) ? -1 : 0); }
+  int isEmpty() { return ((numEntries() == 0) ? -1 : 0); }
 
   int numEntries() { return numEntries_; }
 
@@ -275,7 +275,7 @@ class HashQueue : public NABasicObject {
   NABoolean sequentialAdd() { return (flags_ & SEQUENTIAL_ADD) != 0; }
 
   void setSequentialAdd(NABoolean v) { (v ? flags_ |= SEQUENTIAL_ADD : flags_ &= ~SEQUENTIAL_ADD); }
-  Int32 isEmpty() { return ((entries_ == 0) ? -1 : 0); }
+  int isEmpty() { return ((entries_ == 0) ? -1 : 0); }
 
  private:
   enum Flags {

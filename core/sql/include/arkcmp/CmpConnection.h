@@ -64,7 +64,7 @@ class CmpIpcEnvironment : public IpcEnvironment {
  public:
   CmpIpcEnvironment() : IpcEnvironment() {}
 
-  void initControl(IpcServerAllocationMethod, Int32 sockArg = 0, Int32 portArg = 0);
+  void initControl(IpcServerAllocationMethod, int sockArg = 0, int portArg = 0);
 
   ~CmpIpcEnvironment() {}
 

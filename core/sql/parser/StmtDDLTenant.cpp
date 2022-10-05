@@ -183,7 +183,7 @@ StmtDDLTenant::StmtDDLTenant(const NAString &tenantName, ElemDDLNode *optionList
 }
 
 // constructor used for ALTER TENANT
-StmtDDLTenant::StmtDDLTenant(const Int32 alterType, const NAString &tenantName, ElemDDLNode *optionList,
+StmtDDLTenant::StmtDDLTenant(const int alterType, const NAString &tenantName, ElemDDLNode *optionList,
                              SchemaName *tenantSchema, ElemDDLNode *schemaList, CollHeap *heap)
     : StmtDDLNode(DDL_ALTER_TENANT),
       tenantAlterType_((TenantAlterType)alterType),

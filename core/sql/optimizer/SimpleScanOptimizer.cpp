@@ -937,7 +937,7 @@ CostScalar SimpleFileScanOptimizer::estimateCPUExePredPerRowInstrs() const {
     for (ValueId valId = exePreds.init(); exePreds.next(valId); exePreds.advance(valId)) {
       ItemExpr *oper = valId.getItemExpr();
 
-      Int32 numChildren = oper->getArity();
+      int numChildren = oper->getArity();
 
       if (numChildren == 0 && (oper->getOperatorType() == ITM_VEG_PREDICATE)) {
         // If this is a VEGPred count it as an operator.
@@ -957,7 +957,7 @@ CostScalar SimpleFileScanOptimizer::estimateCPUExePredPerRowInstrs() const {
 
         // Schedule all the children for examination
         //
-        for (Int32 i = 0; i < numChildren; i++) {
+        for (int i = 0; i < numChildren; i++) {
           children += oper->child(i)->getValueId();
         }
       }

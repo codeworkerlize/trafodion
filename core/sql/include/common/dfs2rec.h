@@ -250,23 +250,23 @@ enum { REC_SYSTEM_DEFAULT = -1, REC_NO_DEFAULT = -2, REC_NULL_DEFAULT = -3 };
 
 class DFS2REC {
  public:
-  static Int32 isAnyCharacter(Int32 d) { return REC_MIN_CHARACTER <= d && d <= REC_MAX_CHARACTER; }
+  static int isAnyCharacter(int d) { return REC_MIN_CHARACTER <= d && d <= REC_MAX_CHARACTER; }
 
-  static Int32 isSQLFixedChar(Int32 d) { return REC_MIN_F_CHAR_H <= d && d <= REC_MAX_F_CHAR_H; }
+  static int isSQLFixedChar(int d) { return REC_MIN_F_CHAR_H <= d && d <= REC_MAX_F_CHAR_H; }
 
   // REC_BYTE_V_ASCII, REC_BYTE_V_DOUBLE, REC_BYTE_V_ASCII_LONG
-  static Int32 isSQLVarChar(Int32 d) { return REC_MIN_V_CHAR_H <= d && d < REC_MIN_V_N_CHAR_H; }
+  static int isSQLVarChar(int d) { return REC_MIN_V_CHAR_H <= d && d < REC_MIN_V_N_CHAR_H; }
 
-  static Int32 isSQLDateTime(Int32 d) { return REC_DATETIME == d; }
+  static int isSQLDateTime(int d) { return REC_DATETIME == d; }
 
   // REC_BYTE_V_ANSI, REC_BYTE_V_ANSI_DOUBLE
-  static Int32 isANSIVarChar(Int32 d) { return ((REC_MIN_V_N_CHAR_H <= d && d <= REC_MAX_V_N_CHAR_H)); }
+  static int isANSIVarChar(int d) { return ((REC_MIN_V_N_CHAR_H <= d && d <= REC_MAX_V_N_CHAR_H)); }
 
-  static Int32 isAnyVarChar(Int32 d) {
+  static int isAnyVarChar(int d) {
     return ((REC_MIN_V_CHAR_H <= d && d <= REC_MAX_V_CHAR_H) || (isLOB(d)) || (isComposite(d)));
   }
 
-  static Int32 isDoubleCharacter(Int32 d) {
+  static int isDoubleCharacter(int d) {
     switch (d) {
       case REC_BYTE_F_DOUBLE:
       case REC_BYTE_V_DOUBLE:
@@ -277,7 +277,7 @@ class DFS2REC {
     }
   }
 
-  static Int32 is8bitCharacter(Int32 datatype) {
+  static int is8bitCharacter(int datatype) {
     switch (datatype) {
       case REC_BYTE_F_ASCII:
       case REC_BYTE_V_ASCII:
@@ -292,32 +292,32 @@ class DFS2REC {
     }
   }
 
-  static Int32 isDateTime(Int32 d) { return REC_DATETIME == d; }
+  static int isDateTime(int d) { return REC_DATETIME == d; }
 
-  static Int32 isInterval(Int32 d) { return REC_MIN_INTERVAL <= d && d <= REC_MAX_INTERVAL; }
+  static int isInterval(int d) { return REC_MIN_INTERVAL <= d && d <= REC_MAX_INTERVAL; }
 
-  static Int32 isInterval_MP(Int32 d) { return REC_MIN_INTERVAL <= d && d <= REC_MAX_INTERVAL_MP; }
+  static int isInterval_MP(int d) { return REC_MIN_INTERVAL <= d && d <= REC_MAX_INTERVAL_MP; }
 
   // isDecimal should not include bignums
-  static Int32 isDecimal(Int32 d) { return REC_MIN_DECIMAL <= d && d <= REC_DECIMAL_LSE; }
+  static int isDecimal(int d) { return REC_MIN_DECIMAL <= d && d <= REC_DECIMAL_LSE; }
 
-  static Int32 isFloat(Int32 d) { return REC_MIN_FLOAT <= d && d <= REC_MAX_FLOAT; }
+  static int isFloat(int d) { return REC_MIN_FLOAT <= d && d <= REC_MAX_FLOAT; }
 
-  static Int32 isBinaryNumeric(Int32 d) { return (REC_MIN_BINARY_NUMERIC <= d) && (d <= REC_MAX_BINARY_NUMERIC); }
+  static int isBinaryNumeric(int d) { return (REC_MIN_BINARY_NUMERIC <= d) && (d <= REC_MAX_BINARY_NUMERIC); }
 
-  static Int32 isNumeric(Int32 d) { return (REC_MIN_NUMERIC <= d) && (d <= REC_MAX_NUMERIC); }
+  static int isNumeric(int d) { return (REC_MIN_NUMERIC <= d) && (d <= REC_MAX_NUMERIC); }
 
-  static Int32 isBigNum(Int32 d) { return ((REC_NUM_BIG_SIGNED == d) || (d == REC_NUM_BIG_UNSIGNED)); }
+  static int isBigNum(int d) { return ((REC_NUM_BIG_SIGNED == d) || (d == REC_NUM_BIG_UNSIGNED)); }
 
-  static Int32 isLOB(Int32 d) { return ((REC_BLOB == d) || (d == REC_CLOB)); }
+  static int isLOB(int d) { return ((REC_BLOB == d) || (d == REC_CLOB)); }
 
-  static Int32 isTinyint(Int32 d) { return ((d == REC_BIN8_SIGNED) || (d == REC_BIN8_UNSIGNED)); }
+  static int isTinyint(int d) { return ((d == REC_BIN8_SIGNED) || (d == REC_BIN8_UNSIGNED)); }
 
-  static Int32 isComposite(Int32 d) { return ((d == REC_ARRAY) || (d == REC_ROW)); }
+  static int isComposite(int d) { return ((d == REC_ARRAY) || (d == REC_ROW)); }
 
-  static Int32 isBinaryString(Int32 d) { return ((d == REC_BINARY_STRING) || (d == REC_VARBINARY_STRING)); }
+  static int isBinaryString(int d) { return ((d == REC_BINARY_STRING) || (d == REC_VARBINARY_STRING)); }
 
-  static Int32 isCharacterString(Int32 d) {
+  static int isCharacterString(int d) {
     return ((REC_MIN_CHARACTER <= d && d <= REC_MAX_CHARACTER) && (!isBinaryString(d)));
   }
 };

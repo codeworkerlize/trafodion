@@ -41,13 +41,13 @@
 
 ULng32 pack(char *&buffer, UInt16 x);
 ULng32 pack(char *&buffer, ULng32 x);
-ULng32 pack(char *&buffer, Int32 x);
+ULng32 pack(char *&buffer, int x);
 ULng32 pack(char *&buffer, UInt64 x);
 ULng32 pack(char *&buffer, ULng32 *ptr, ULng32 x);
 
 ULng32 unpack(char *&buffer, UInt16 &x);
 ULng32 unpack(char *&buffer, ULng32 &x);
-ULng32 unpack(char *&buffer, Int32 &x);
+ULng32 unpack(char *&buffer, int &x);
 ULng32 unpack(char *&buffer, UInt64 &x);
 ULng32 unpack(char *&buffer, ULng32 *&ptr, ULng32 &x, NAHeap *heap);
 

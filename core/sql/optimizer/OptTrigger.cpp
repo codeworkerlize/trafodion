@@ -744,7 +744,7 @@ void OptTriggersBackbone::addToTriggerList(RelExpr *drivingNode, NABoolean isRow
 //  1 elem1 greater than elem2
 //-----------------------------------------------------------------------------------
 
-static Int32 optTriggerTimeCompare(const void *elem1, const void *elem2) {
+static int optTriggerTimeCompare(const void *elem1, const void *elem2) {
   long timestamp1 = (*(OptTriggerPtr *)elem1)->getTriggerTimeStamp();
   long timestamp2 = (*(OptTriggerPtr *)elem2)->getTriggerTimeStamp();
 
@@ -761,7 +761,7 @@ static Int32 optTriggerTimeCompare(const void *elem1, const void *elem2) {
 
 void OptTriggersBackbone::reorder() {
   CollIndex idx;
-  Int32 triggerArraySize = triggerList_->entries();
+  int triggerArraySize = triggerList_->entries();
   // optTriggerPtrArray - array of pointers to OptTrigger , used for qsort
   OptTriggerPtr *optTriggerPtrArray = new (CmpCommon::statementHeap()) OptTriggerPtr[triggerArraySize];
   // copy triggerList to triggerArray
@@ -771,12 +771,12 @@ void OptTriggersBackbone::reorder() {
   opt_qsort(optTriggerPtrArray, triggerArraySize, sizeof(OptTriggerPtr), optTriggerTimeCompare);
 
   // move row triggers to the begining, as far as the access set conflicts allow
-  for (Int32 i = 1; i < triggerArraySize; i++) {
+  for (int i = 1; i < triggerArraySize; i++) {
     // if it is a statment trigger, don't try to move it
     if (!optTriggerPtrArray[i]->isRowTrigger()) continue;
 
     // if row trigger try to move it to the begining of the list
-    for (Int32 j = i; j > 0; j--) {
+    for (int j = i; j > 0; j--) {
       // if trigger j don't conflict with trigger j-1 replace them
       const SubTreeAccessSet *accessSet1 = optTriggerPtrArray[j]->getAccessSet();
       const SubTreeAccessSet *accessSet2 = optTriggerPtrArray[j - 1]->getAccessSet();
@@ -792,7 +792,7 @@ void OptTriggersBackbone::reorder() {
 
   // set triggerList_ based on the reordered array optTriggerPtrArray
   triggerList_->clear();
-  for (Int32 k = 0; k < triggerArraySize; k++) triggerList_->insert(optTriggerPtrArray[k]);
+  for (int k = 0; k < triggerArraySize; k++) triggerList_->insert(optTriggerPtrArray[k]);
 
   // free the temporary array
   // exclude coverage - we don't seem to handle macro expansion very well
@@ -1146,7 +1146,7 @@ void OptTriggersBackbone::fixCardinalityAndCollectTempUsage(RelExpr *rootNode, N
   }
 
   // recursive call for each child
-  for (Int32 i = 0; i < rootNode->getArity(); i++) {
+  for (int i = 0; i < rootNode->getArity(); i++) {
     fixCardinalityAndCollectTempUsage(rootNode->getChild(i)->castToRelExpr(), FALSE);
   }
 }

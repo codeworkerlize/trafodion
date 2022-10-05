@@ -2598,7 +2598,7 @@ RelExpr *HashJoinRule::nextSubstitute(RelExpr *before, Context *context, RuleSub
   // then no HJ node can satisfy the order req.
   if (context->requiresOrder() AND(NOT orderedCrossProduct) AND(NOT requiresOnlyLeftOrder)) return NULL;
 
-  Int32 multipleCallsToChild = FALSE;
+  int multipleCallsToChild = FALSE;
 
   // Build the result tree,
   // temporarily assume a hybrid hash join when choosing an operator type
@@ -2991,7 +2991,7 @@ NABoolean PhysCompoundStmtRule::topMatch(RelExpr *relExpr, Context *context) {
     // to support large rows.
 
     if (rppForMe->executeInDP2() == TRUE) {
-      Int32 limit = (CmpCommon::getDefault(GEN_DBLIMITS_LARGER_BUFSIZE) == DF_OFF) ? ROWSIZE_TO_EXECUTE_IN_DP2
+      int limit = (CmpCommon::getDefault(GEN_DBLIMITS_LARGER_BUFSIZE) == DF_OFF) ? ROWSIZE_TO_EXECUTE_IN_DP2
                                                                                    : ROWSIZE_TO_EXECUTE_IN_DP2_DBL;
 
       if (relExpr->getGroupAttr()->getCharacteristicInputs().getRowLength() +
@@ -3526,7 +3526,7 @@ NABoolean PhysicalUnPackRowsRule::topMatch(RelExpr *relExpr, Context *context) {
     // This value should always be equal to the #define EXPAND_LIMIT
     // as defined in dml/fsglobals.h.
     //
-    const Int32 expandLimit = 31000;
+    const int expandLimit = 31000;
 
     RowSize inputRowSize = UnPackRowsNode->child(0).getGroupAttr()->getRecordLength();
 
@@ -3723,7 +3723,7 @@ RelExpr *SortEnforcerRule::nextSubstitute(RelExpr *before, Context *context, Rul
   return result;
 }
 
-Int32 SortEnforcerRule::promiseForOptimization(RelExpr *, Guidance *, Context *) {
+int SortEnforcerRule::promiseForOptimization(RelExpr *, Guidance *, Context *) {
   // A sort enforcer is less promising than an implementation or
   // a transformation rule. This way, we will optimize the expressions
   // with a required order before trying the enforcer. When we try the
@@ -3760,7 +3760,7 @@ RelExpr *ExchangeEnforcerRule::nextSubstitute(RelExpr *before, Context *context,
   return result;
 }
 
-Int32 ExchangeEnforcerRule::promiseForOptimization(RelExpr *, Guidance *, Context *) {
+int ExchangeEnforcerRule::promiseForOptimization(RelExpr *, Guidance *, Context *) {
   // A sort enforcer is less promising than an implementation or
   // a transformation rule. This way, we will optimize the expressions
   // with a required order before trying the enforcer. When we try the
@@ -4181,7 +4181,7 @@ RelExpr *PhysicalTMUDFRule::nextSubstitute(RelExpr *before, Context * /*context*
 
   // now set the group attributes of the result's top node
   result->setGroupAttr(before->getGroupAttr());
-  for (Int32 i = 0; i < before->getArity(); i++) result->child(i) = before->child(i);
+  for (int i = 0; i < before->getArity(); i++) result->child(i) = before->child(i);
 
   return result;
 }

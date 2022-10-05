@@ -57,7 +57,7 @@ class MdamRefListIterator {
 
   // Iteration operator returns a boolean that indicates if there was or
   // was not a "next" entry and the corresponding disjunct number.
-  NABoolean operator()(Int32 &disjunctNum_);
+  NABoolean operator()(int &disjunctNum_);
 
   // Iteration operator returns a pointer to the next entry.
   MdamRefListEntry *operator()();

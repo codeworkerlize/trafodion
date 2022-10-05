@@ -113,7 +113,7 @@
 // given a packingFactor.
 //
 int PackedColDesc::determinePackedColSize(int packingFactor) const {
-  const Int32 BitsPerByte = 8;
+  const int BitsPerByte = 8;
 
   const NAType *colType = getType();
 
@@ -173,7 +173,7 @@ int PackedColDesc::determinePackedColSize(int packingFactor) const {
 void PackedColDesc::generatePackingInfo(int packingFactor) {
   CMPASSERT(packingFactor > 1);
 
-  const Int32 BitsPerByte = 8;
+  const int BitsPerByte = 8;
 
   const NAType *colType = getType();
 
@@ -209,7 +209,7 @@ void PackedColDesc::generatePackingInfo(int packingFactor) {
 // given maxPackedRecLen.
 //
 int PackedAPDesc::determinePackingFactor(int maxPackedRecLen) const {
-  const Int32 BitsPerByte = 8;
+  const int BitsPerByte = 8;
 
   PackedColDescList apCols = getAPColumns();
 
@@ -432,11 +432,11 @@ void PackedTableDesc::generatePackingInfo() {
   // The maximum size of any packed AP (which could have more than
   // one column.
   //
-  const Int32 MaxPackedAPSize = 4000;
+  const int MaxPackedAPSize = 4000;
 
   // The maximum size of all the packed AP's of this table.
   //
-  const Int32 MaxPackedTableSize = 24000;
+  const int MaxPackedTableSize = 24000;
 
   // The current minimum packing factor.  This will be the packing
   // factor limited by MaxPackedAPSize for the worst case AP.
@@ -481,7 +481,7 @@ void PackedTableDesc::generatePackingInfo() {
       //
       if (packedTableSize > MaxPackedTableSize) {
         float packingFactorAdj = MaxPackedTableSize / (float)packedTableSize;
-        minPackingFactor = (Int32)(minPackingFactor * packingFactorAdj) - 1;
+        minPackingFactor = (int)(minPackingFactor * packingFactorAdj) - 1;
       }
     }
   }

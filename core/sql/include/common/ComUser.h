@@ -66,38 +66,38 @@ class ComUser {
   };
 
   // static accessors
-  static Int32 getCurrentUser();
+  static int getCurrentUser();
   static const char *getCurrentUsername();
   static const char *getCurrentExternalUsername();
-  static bool isManagerUserID(Int32 userID);
+  static bool isManagerUserID(int userID);
   static bool isManagerUser() { return isManagerUserID(getCurrentUser()); };
-  static Int32 getSessionUser();
+  static int getSessionUser();
   static const char *getSessionUsername();
   static bool isRootUserID();
-  static bool isRootUserID(Int32 userID);
-  static bool isPublicUserID(Int32 userID) { return (userID == PUBLIC_USER); };
-  static bool isSystemUserID(Int32 userID) { return (userID == SYSTEM_USER); };
-  static bool isUserID(Int32 userID) { return (userID >= MIN_USERID && userID <= MAX_USERID); };
-  static Int32 getRootUserID() { return SUPER_USER; }
-  static Int32 getPublicUserID() { return PUBLIC_USER; }
-  static Int32 getSystemUserID() { return SYSTEM_USER; }
+  static bool isRootUserID(int userID);
+  static bool isPublicUserID(int userID) { return (userID == PUBLIC_USER); };
+  static bool isSystemUserID(int userID) { return (userID == SYSTEM_USER); };
+  static bool isUserID(int userID) { return (userID >= MIN_USERID && userID <= MAX_USERID); };
+  static int getRootUserID() { return SUPER_USER; }
+  static int getPublicUserID() { return PUBLIC_USER; }
+  static int getSystemUserID() { return SYSTEM_USER; }
   static const char *getRootUserName() { return DB__ROOT; }
   static const char *getPublicUserName() { return PUBLIC_AUTH_NAME; }
   static const char *getSystemUserName() { return SYSTEM_AUTH_NAME; }
-  static char getAuthType(Int32 authID);
-  static Int16 getUserNameFromUserID(Int32 userID, char *userName, Int32 maxLen, Int32 &actualLen, ComDiagsArea *diags);
-  static Int16 getUserIDFromUserName(const char *userName, Int32 &userID, ComDiagsArea *diags);
-  static Int16 getAuthNameFromAuthID(Int32 authID, char *authName, Int32 maxLen, Int32 &actualLen,
+  static char getAuthType(int authID);
+  static Int16 getUserNameFromUserID(int userID, char *userName, int maxLen, int &actualLen, ComDiagsArea *diags);
+  static Int16 getUserIDFromUserName(const char *userName, int &userID, ComDiagsArea *diags);
+  static Int16 getAuthNameFromAuthID(int authID, char *authName, int maxLen, int &actualLen,
                                      NABoolean clearDiags = FALSE, ComDiagsArea *diags = NULL);
-  static Int16 getAuthIDFromAuthName(const char *authName, Int32 &authID, ComDiagsArea *diags);
-  static bool currentUserHasRole(Int32 roleID, ComDiagsArea *diags = NULL, bool resetRoleList = false);
-  static Int16 getCurrentUserRoles(NAList<Int32> &roleIDs, ComDiagsArea *diags);
-  static Int16 getCurrentUserRoles(NAList<Int32> &roleIDs, NAList<Int32> &granteeIDs, ComDiagsArea *diags);
-  static Int16 getUserGroups(const char *userName, bool allowMDAccess, NAList<Int32> &groupIDs, ComDiagsArea *diags);
+  static Int16 getAuthIDFromAuthName(const char *authName, int &authID, ComDiagsArea *diags);
+  static bool currentUserHasRole(int roleID, ComDiagsArea *diags = NULL, bool resetRoleList = false);
+  static Int16 getCurrentUserRoles(NAList<int> &roleIDs, ComDiagsArea *diags);
+  static Int16 getCurrentUserRoles(NAList<int> &roleIDs, NAList<int> &granteeIDs, ComDiagsArea *diags);
+  static Int16 getUserGroups(const char *userName, bool allowMDAccess, NAList<int> &groupIDs, ComDiagsArea *diags);
   static bool currentUserHasElevatedPrivs(ComDiagsArea *diags);
-  static Int16 userHasElevatedPrivs(const Int32 userID, const std::vector<int32_t> &roleIDs, bool &hasElevatedPrivs,
+  static Int16 userHasElevatedPrivs(const int userID, const std::vector<int32_t> &roleIDs, bool &hasElevatedPrivs,
                                     ComDiagsArea *diags);
-  static Int16 getSystemRoleList(char *roleList, Int32 &actualLen, const Int32 maxLen, const char delimiter = '\'',
+  static Int16 getSystemRoleList(char *roleList, int &actualLen, const int maxLen, const char delimiter = '\'',
                                  const char separator = ',', const bool includeSpecialAuths = false);
   static bool roleIDsCached();
 
@@ -108,15 +108,15 @@ class ComUser {
 
 class ComTenant {
  public:
-  static Int32 getCurrentTenantID();
+  static int getCurrentTenantID();
   static NAString getCurrentTenantIDAsString();
   static const char *getCurrentTenantName();
   static const char *getSystemTenantName() { return DB__SYSTEMTENANT; };
-  static const Int32 getSystemTenantID() { return SYSTEM_TENANT_ID; };
-  static const bool isSystemTenant(Int32 tenantID) { return (tenantID == SYSTEM_TENANT_ID); };
-  static const Int32 getTenantAffinity() { return 0; };     // TBD
-  static const Int32 getTenantNodeSize() { return 0; };     // TBD
-  static const Int32 getTenantClusterSIze() { return 0; };  // TBD
+  static const int getSystemTenantID() { return SYSTEM_TENANT_ID; };
+  static const bool isSystemTenant(int tenantID) { return (tenantID == SYSTEM_TENANT_ID); };
+  static const int getTenantAffinity() { return 0; };     // TBD
+  static const int getTenantNodeSize() { return 0; };     // TBD
+  static const int getTenantClusterSIze() { return 0; };  // TBD
   static const bool isTenantNamespace(const char *ns);
 
  private:

@@ -64,7 +64,7 @@ class StatsGlobals;
 // fragments from multiple owners)
 // -----------------------------------------------------------------------
 
-const Int32 NumFiTraceElements = 32;
+const int NumFiTraceElements = 32;
 
 // state name strings, must match with the enums below
 static const char *FragmentInstanceStateName[] = {
@@ -224,14 +224,14 @@ class ExEspFragInstanceDir {
   NAHeap *getStatsHeap() { return statsHeap_; }
   pid_t getPid() { return pid_; };
   pid_t getTid() { return tid_; };
-  Int32 getCpu() { return cpu_; }
+  int getCpu() { return cpu_; }
   Long &getSemId() { return semId_; };
   NAHeap *getLocalStatsHeap();
 
   // A function to establish database user identity for this
   // process. On Linux, ContextCli data members will be updated. On
   // other platforms this call is a no-op.
-  void setDatabaseUserID(Int32 userID, const char *userName);
+  void setDatabaseUserID(int userID, const char *userName);
 
   NABoolean getUserIDEstablished() const { return userIDEstablished_; }
 
@@ -239,16 +239,16 @@ class ExEspFragInstanceDir {
   struct FiStateTrace {
     int fragId_;
     FragmentInstanceState fiState_;
-    Int32 lineNum_;
+    int lineNum_;
   };
 
-  Int32 printALiner(Int32 lineno, char *buf);
-  static Int32 getALine(void *mine, Int32 lineno, char *buf) {
+  int printALiner(int lineno, char *buf);
+  static int getALine(void *mine, int lineno, char *buf) {
     return ((ExEspFragInstanceDir *)mine)->printALiner(lineno, buf);
   }
 
   void initFiStateTrace();
-  FragmentInstanceState setFiState(int fragId, FragmentInstanceState newState, Int32 linenum);
+  FragmentInstanceState setFiState(int fragId, FragmentInstanceState newState, int linenum);
 
   // for testing and debugging
   void rescheduleAll();  // reschedule all tasks in all instances
@@ -278,7 +278,7 @@ class ExEspFragInstanceDir {
   NAHeap *statsHeap_;
   pid_t pid_;
   pid_t tid_;
-  Int32 cpu_;
+  int cpu_;
   Long semId_;
   NAHeap *localStatsHeap_;
 
@@ -290,7 +290,7 @@ class ExEspFragInstanceDir {
   mutable NAMutex mutex_;
   // Fragment instance trace
   FiStateTrace fiStateTrace_[NumFiTraceElements];
-  Int32 fiTidx_;
+  int fiTidx_;
   void *traceRef_;
 
   // private methods

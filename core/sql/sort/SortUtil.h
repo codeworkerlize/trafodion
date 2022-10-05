@@ -99,8 +99,8 @@ class SortUtil : public NABasicObject {
   NABoolean scratchInitialize(void);
   void setupComputations(SortUtilConfig &config);
   void setBMOStats(ExBMOStats *stat) { bmoStats_ = stat; };
-  UInt32 estimateMemoryToAvoidIntMerge(UInt32 numruns, Int32 sortMergeBlocksPerBuffer);
-  UInt32 estimateMergeOrder(UInt32 maxMergeMemory, Int32 sortMergeBlocksPerBuffer);
+  UInt32 estimateMemoryToAvoidIntMerge(UInt32 numruns, int sortMergeBlocksPerBuffer);
+  UInt32 estimateMergeOrder(UInt32 maxMergeMemory, int sortMergeBlocksPerBuffer);
   int getRunSize() const { return sortAlgo_->getRunSize(); };
 
  protected:

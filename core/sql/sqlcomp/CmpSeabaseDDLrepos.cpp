@@ -73,22 +73,22 @@ short CmpSeabaseDDL::createRepos(ExeCliInterface *cliInterface) {
 
   if (endXnIfStartedHere(cliInterface, xnWasStartedHere, cliRC) < 0) goto label_error;
 
-  for (Int32 i = 0; i < sizeof(allReposUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
+  for (int i = 0; i < sizeof(allReposUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
     const MDUpgradeInfo &rti = allReposUpgradeInfo[i];
 
     if (!rti.newName) continue;
 
-    for (Int32 j = 0; j < NUM_MAX_PARAMS; j++) {
+    for (int j = 0; j < NUM_MAX_PARAMS; j++) {
       param_[j] = NULL;
     }
 
     const QString *qs = NULL;
-    Int32 sizeOfqs = 0;
+    int sizeOfqs = 0;
 
     qs = rti.newDDL;
     sizeOfqs = rti.sizeOfnewDDL;
 
-    Int32 qryArraySize = sizeOfqs / sizeof(QString);
+    int qryArraySize = sizeOfqs / sizeof(QString);
     char *gluedQuery;
     int gluedQuerySize;
     glueQueryFragments(qryArraySize, qs, gluedQuery, gluedQuerySize);
@@ -128,7 +128,7 @@ short CmpSeabaseDDL::dropRepos(ExeCliInterface *cliInterface, NABoolean oldRepos
   NABoolean xnWasStartedHere = FALSE;
   char queryBuf[1000];
 
-  for (Int32 i = 0; i < sizeof(allReposUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
+  for (int i = 0; i < sizeof(allReposUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
     const MDUpgradeInfo &rti = allReposUpgradeInfo[i];
 
     // If we are dropping the new repository as part of a recovery action,
@@ -201,7 +201,7 @@ short CmpSeabaseMDupgrade::dropReposTables(ExpHbaseInterface *ehi, NABoolean old
   int retcode = 0;
   int errcode = 0;
 
-  for (Int32 i = 0; i < sizeof(allReposUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
+  for (int i = 0; i < sizeof(allReposUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
     const MDUpgradeInfo &rti = allReposUpgradeInfo[i];
 
     if ((NOT oldRepos) && (!rti.newName)) continue;
@@ -246,7 +246,7 @@ short CmpSeabaseDDL::alterRenameRepos(ExeCliInterface *cliInterface, NABoolean n
     return -1;
   }
 
-  for (Int32 i = 0; i < sizeof(allReposUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
+  for (int i = 0; i < sizeof(allReposUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
     const MDUpgradeInfo &rti = allReposUpgradeInfo[i];
 
     if ((!rti.newName) || (!rti.oldName) || (NOT rti.upgradeNeeded)) continue;
@@ -275,7 +275,7 @@ short CmpSeabaseDDL::copyOldReposToNew(ExeCliInterface *cliInterface) {
 
   char queryBuf[10000];
 
-  for (Int32 i = 0; i < sizeof(allReposUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
+  for (int i = 0; i < sizeof(allReposUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
     const MDUpgradeInfo &rti = allReposUpgradeInfo[i];
 
     if ((!rti.newName) || (!rti.oldName) || (NOT rti.upgradeNeeded)) continue;
@@ -305,7 +305,7 @@ short CmpSeabaseDDL::dropAndLogReposViews(ExeCliInterface *cliInterface, NABoole
   // on the old table and save their view text. (In the future, we can
   // add logic to recreate the views on the new tables.)
 
-  for (Int32 i = 0; i < sizeof(allReposUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
+  for (int i = 0; i < sizeof(allReposUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
     const MDUpgradeInfo &rti = allReposUpgradeInfo[i];
 
     if ((!rti.oldName) || (NOT rti.upgradeNeeded)) continue;

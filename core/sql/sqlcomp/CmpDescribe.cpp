@@ -88,9 +88,9 @@ enum Display_Schema_Object {
 extern "C" {
 int SQLCLI_GetRootTdb_Internal(/*IN*/ CliGlobals *cliGlobals,
                                  /*INOUT*/ char *roottdb_ptr,
-                                 /*IN*/ Int32 roottdb_len,
+                                 /*IN*/ int roottdb_len,
                                  /*INOUT*/ char *srcstr_ptr,
-                                 /*IN*/ Int32 srcstr_len,
+                                 /*IN*/ int srcstr_len,
                                  /*IN*/ SQLSTMT_ID *statement_id);
 
 int SQLCLI_GetRootTdbSize_Internal(/*IN*/ CliGlobals *cliGlobals,
@@ -130,7 +130,7 @@ short CmpDescribeSequence(const CorrName &dtName, char *&outbuf, ULng32 &outbufl
 
 bool CmpDescribeIsAuthorized(CollHeap *heap = NULL, SQLOperation operation = SQLOperation::UNKNOWN,
                              PrivMgrUserPrivs *privs = NULL, ComObjectType objectType = COM_UNKNOWN_OBJECT,
-                             Int32 objectOwner = NA_UserIdDefault);
+                             int objectOwner = NA_UserIdDefault);
 
 static short CmpDescribeTableHDFSCache(const CorrName &dtName, char *&outbuf, ULng32 &outbuflen, NAMemory *h);
 
@@ -144,7 +144,7 @@ static short CmpDescribeShowEnv(char *&outbuf, ULng32 &outbuflen, NAMemory *h);
 
 static short CmpDescribeTablePartitions(NATable *naTable, Space &space, char *buf, short type);
 
-static short CmpDescribePartitions(Int32 partType, NAPartition *naPartition, Space &space, char *buf,
+static short CmpDescribePartitions(int partType, NAPartition *naPartition, Space &space, char *buf,
                                    NABoolean isFirstPartition, NABoolean isFirst);
 
 // This method is to describe the normal index information of the partition entity table
@@ -192,7 +192,7 @@ void getPartitionIndexName(char *buf, int bufLen, const NAString &baseIndexName,
   }
 }
 
-void outputColumnLine(Space &space, NAString pretty, Int32 &colcount, NABoolean isForMV = FALSE,
+void outputColumnLine(Space &space, NAString pretty, int &colcount, NABoolean isForMV = FALSE,
                       NABoolean isDivisionColumn = FALSE) {
   // Must linebreak before prepending comma+space, else long colname won't
   // display correctly.
@@ -329,7 +329,7 @@ static size_t indexLastNewline(const NAString &text, size_t startPos, size_t max
   return newlinePos;
 }
 
-static Int32 displayDefaultValue(const char *defVal, const char *colName, NAString &displayableDefVal) {
+static int displayDefaultValue(const char *defVal, const char *colName, NAString &displayableDefVal) {
   displayableDefVal.append(defVal);
   return 0;
 }
@@ -706,7 +706,7 @@ short CmpDescribe(const char *query, const RelExpr *queryExpr, char *&outbuf, UL
         ;
 
       // Skip the SHOWPLAN token & option (if specified)(length to be determined) in front of the input query.
-      Int32 i = 8;
+      int i = 8;
       while (query[i] == ' ') i++;
       if (str_cmp(query + i, "option", 6) == 0 || str_cmp(query + i, "OPTION", 6) == 0) {
         while (query[i] != '\'' && query[i] != '\0') i++;
@@ -840,7 +840,7 @@ short CmpDescribe(const char *query, const RelExpr *queryExpr, char *&outbuf, UL
     if (isVolatile) Set_SqlParser_Flags(ALLOW_VOLATILE_SCHEMA_IN_TABLE_NAME);
 
     // Allocate enough for a big view or constraint definition
-    const Int32 LOCAL_BIGBUF_SIZE = 30000;
+    const int LOCAL_BIGBUF_SIZE = 30000;
     buf = new (CmpCommon::statementHeap()) char[LOCAL_BIGBUF_SIZE];
     CMPASSERT(buf);
 
@@ -929,7 +929,7 @@ short CmpDescribe(const char *query, const RelExpr *queryExpr, char *&outbuf, UL
     // this may be a problem when describing virtual tables like EXPLAIN
     *CmpCommon::diags() << DgSqlCode(-4222) << DgString0("SHOWDDL for TABLE");
 
-    Int32 pkey_colcount = 0;
+    int pkey_colcount = 0;
 
     // Flag for additional alter table statements for constraints
     NABoolean displayAlterTable = FALSE;
@@ -976,7 +976,7 @@ short CmpDescribe(const char *query, const RelExpr *queryExpr, char *&outbuf, UL
 }  // SHOWDDL
 
 short exeImmedCQD(const char *cqd, NABoolean hold) {
-  Int32 retcode = 0;
+  int retcode = 0;
 
   ExeCliInterface cliInterface(CmpCommon::statementHeap());
   if (hold)
@@ -993,7 +993,7 @@ short exeImmedCQD(const char *cqd, NABoolean hold) {
 }
 
 short exeImmedOneStmt(const char *controlStmt) {
-  Int32 retcode = 0;
+  int retcode = 0;
 
   ExeCliInterface cliInterface(CmpCommon::statementHeap());
   retcode = cliInterface.executeImmediate(controlStmt);
@@ -1011,7 +1011,7 @@ short sendAllControls(NABoolean copyCQS, NABoolean sendAllCQDs, NABoolean sendUs
   //  Given a SQL query, this procedure invokes the appropriate
   //  CLI calls to prepare and execute the statement.
   // -----------------------------------------------------------------------
-  Int32 retcode = 0;
+  int retcode = 0;
 
   char *buf = new (CmpCommon::statementHeap()) char[15000];
 
@@ -1146,7 +1146,7 @@ short sendAllControls(NABoolean copyCQS, NABoolean sendAllCQDs, NABoolean sendUs
 void sendParserFlag(ULng32 flag) { SQL_EXEC_SetParserFlagsForExSqlComp_Internal(flag); }
 
 short setParentQidAtSession(NAHeap *heap, const char *parentQid) {
-  Int32 retcode = 0;
+  int retcode = 0;
 
   short len = (short)strlen(parentQid);
   char *srcBuf = new (heap) char[len + 50];
@@ -1246,7 +1246,7 @@ static int CmpFormatPlan(ULng32 flags, char *rootTdbBuf, int rootTdbSize, char *
 
   // unpack each fragment independently;
   // unpacking converts offsets to actual pointers.
-  for (Int32 i = 0; i < fragDir->getNumEntries(); i++) {
+  for (int i = 0; i < fragDir->getNumEntries(); i++) {
     void *fragBase = (void *)((char *)baseAddr + fragDir->getGlobalOffset(i));
     void *fragStart = (void *)((char *)fragBase + fragDir->getTopNodeOffset(i));
 
@@ -1802,7 +1802,7 @@ short cmpDisplayColumn(const NAColumn *nac, char *inColName, const NAType *inNAT
 
   if (namesOnly) {
     NAString colString(buf);
-    Int32 j = ii;
+    int j = ii;
     outputColumnLine(*space, colString, j);
 
     return 0;
@@ -1921,7 +1921,7 @@ short cmpDisplayColumn(const NAColumn *nac, char *inColName, const NAType *inNAT
   sprintf(&buf[strlen(buf)], "%s %s", nas.data(), attrStr.data());
 
   NAString colString(buf);
-  Int32 j = ii;
+  int j = ii;
   if (inSpace) outputColumnLine(*space, colString, j);
 
   return 0;
@@ -1938,7 +1938,7 @@ short cmpDisplayColumns(const NAColumnArray &naColArr, short displayType, Space 
   int ii = 0;
   identityColPos = -1;
   NABoolean identityCol = FALSE;
-  for (Int32 i = 0; i < (Int32)naColArr.entries(); i++) {
+  for (int i = 0; i < (int)naColArr.entries(); i++) {
     NAColumn *nac = naColArr[i];
 
     if ((NOT displaySystemCols) && (nac->isSystemColumn())) {
@@ -1992,8 +1992,8 @@ short cmpDisplayPrimaryKey(const NAColumnArray &naColArr, int numKeys, NABoolean
     }
 
     NABoolean isFirst = TRUE;
-    Int32 j = -1;
-    for (Int32 jj = 0; jj < numKeys; jj++) {
+    int j = -1;
+    for (int jj = 0; jj < numKeys; jj++) {
       NAColumn *nac = naColArr[jj];
 
       if ((NOT displaySystemCols) && (nac->isSystemColumn())) {
@@ -2476,7 +2476,7 @@ short CmpDescribeSeabaseTable(const CorrName &dtName, short type, char *&outbuf,
     closeParan = TRUE;
   }
 
-  Int32 nonSystemKeyCols = 0;
+  int nonSystemKeyCols = 0;
   NABoolean isStoreBy = FALSE;
   NABoolean forceStoreBy = FALSE;
   NABoolean isSalted = FALSE;
@@ -2571,7 +2571,7 @@ short CmpDescribeSeabaseTable(const CorrName &dtName, short type, char *&outbuf,
       {
         const AbstractRIConstraintList &uniqueList = naTable->getUniqueConstraints();
 
-        for (Int32 i = 0; i < uniqueList.entries(); i++) {
+        for (int i = 0; i < uniqueList.entries(); i++) {
           AbstractRIConstraint *ariConstr = uniqueList[i];
 
           UniqueConstraint *uniqConstr = (UniqueConstraint *)ariConstr;
@@ -2626,7 +2626,7 @@ short CmpDescribeSeabaseTable(const CorrName &dtName, short type, char *&outbuf,
       // if all primary key columns are 'not serialized primary key',
       // then display that.
       NABoolean serialized = FALSE;
-      for (Int32 jj = 0; ((NOT serialized) && (jj < naf->getIndexKeyColumns().entries())); jj++) {
+      for (int jj = 0; ((NOT serialized) && (jj < naf->getIndexKeyColumns().entries())); jj++) {
         NAColumn *nac = (naf->getIndexKeyColumns())[jj];
         if (NOT nac->isPrimaryKeyNotSerialized()) serialized = TRUE;
       }
@@ -2961,7 +2961,7 @@ short CmpDescribeSeabaseTable(const CorrName &dtName, short type, char *&outbuf,
 
     if (subType != 2)  // not constraint
     {
-      for (Int32 i = 0; i < indexList.entries(); i++) {
+      for (int i = 0; i < indexList.entries(); i++) {
         const NAFileSet *naf = indexList[i];
         isAligned = naf->isSqlmxAlignedRowFormat();
         if (naf->getKeytag() == 0) continue;
@@ -3121,7 +3121,7 @@ short CmpDescribeSeabaseTable(const CorrName &dtName, short type, char *&outbuf,
     {
       const AbstractRIConstraintList &uniqueList = naTable->getUniqueConstraints();
 
-      for (Int32 i = 0; i < uniqueList.entries(); i++) {
+      for (int i = 0; i < uniqueList.entries(); i++) {
         AbstractRIConstraint *ariConstr = uniqueList[i];
 
         if (ariConstr->getOperatorType() != ITM_UNIQUE_CONSTRAINT) continue;
@@ -3138,7 +3138,7 @@ short CmpDescribeSeabaseTable(const CorrName &dtName, short type, char *&outbuf,
 
       const AbstractRIConstraintList &refList = naTable->getRefConstraints();
 
-      for (Int32 i = 0; i < refList.entries(); i++) {
+      for (int i = 0; i < refList.entries(); i++) {
         AbstractRIConstraint *ariConstr = refList[i];
 
         if (ariConstr->getOperatorType() != ITM_REF_CONSTRAINT) continue;
@@ -3153,7 +3153,7 @@ short CmpDescribeSeabaseTable(const CorrName &dtName, short type, char *&outbuf,
 
       const CheckConstraintList &checkList = naTable->getCheckConstraints();
 
-      for (Int32 i = 0; i < checkList.entries(); i++) {
+      for (int i = 0; i < checkList.entries(); i++) {
         CheckConstraint *checkConstr = (CheckConstraint *)checkList[i];
 
         const NAString &ansiConstrName = checkConstr->getConstraintName().getQualifiedNameAsAnsiString(TRUE);
@@ -3497,7 +3497,7 @@ short CmpDescribeSequence(const CorrName &dtName, char *&outbuf, ULng32 &outbufl
 // returns:  true if authorized, false otherwise
 // ----------------------------------------------------------------------------
 bool CmpDescribeIsAuthorized(CollHeap *heap, SQLOperation operation, PrivMgrUserPrivs *privs, ComObjectType objectType,
-                             Int32 owner)
+                             int owner)
 
 {
   if (!CmpCommon::context()->isAuthorizationEnabled()) return true;
@@ -3805,10 +3805,10 @@ short CmpDescribeRoutine(const CorrName &cn, char *&outbuf, ULng32 &outbuflen, C
   outputShortLine(*space, "  (");
 
   // Format the parameters
-  Int32 numParams = routine->getParamCount();
-  Int32 firstRETURNSparamIndex = -1;
+  int numParams = routine->getParamCount();
+  int firstRETURNSparamIndex = -1;
   const NAColumnArray &paramList = routine->getParams();
-  for (Int32 i = 0; i < numParams; i++) {
+  for (int i = 0; i < numParams; i++) {
     NAColumn &param = *(paramList[i]);
     ComColumnDirection direction = param.getColumnMode();
 
@@ -3854,7 +3854,7 @@ short CmpDescribeRoutine(const CorrName &cn, char *&outbuf, ULng32 &outbuflen, C
     if (routine->getLanguage() EQU COM_LANGUAGE_JAVA) {
       // Java does not support unsigned / signed as
       // it converts NUMERIC types to a Java BigDecimal.
-      Int32 typeLen = static_cast<Int32>(strlen(typeString));
+      int typeLen = static_cast<int>(strlen(typeString));
       if (typeLen >= 9 && 0 == strcmp(&typeString[typeLen - 9], " UNSIGNED")) {
         typeString[typeLen - 9] = '\0';
       } else if (typeLen >= 7 && 0 == strcmp(&typeString[typeLen - 7], " SIGNED")) {
@@ -3875,7 +3875,7 @@ short CmpDescribeRoutine(const CorrName &cn, char *&outbuf, ULng32 &outbuflen, C
     outputShortLine(*space, buf);
     outputShortLine(*space, "  (");
     // Build RETURN[S] clause from param list
-    for (Int32 i7 = firstRETURNSparamIndex; i7 < numParams; i7++) {
+    for (int i7 = firstRETURNSparamIndex; i7 < numParams; i7++) {
       NAColumn &param7 = *(paramList[i7]);
       ComColumnDirection direction7 = param7.getColumnMode();
 
@@ -3915,7 +3915,7 @@ short CmpDescribeRoutine(const CorrName &cn, char *&outbuf, ULng32 &outbuflen, C
       if (routine->getLanguage() EQU COM_LANGUAGE_JAVA) {
         // Java does not support UNSIGNED and SIGNED as
         // it converts NUMERIC types to a Java BigDecimal.
-        Int32 typeLen7 = static_cast<Int32>(strlen(typeString7));
+        int typeLen7 = static_cast<int>(strlen(typeString7));
         if (typeLen7 >= 9 AND 0 EQU strcmp(&typeString7[typeLen7 - 9], " UNSIGNED")) {
           typeString7[typeLen7 - 9] = '\0';
         } else if (typeLen7 >= 7 AND 0 EQU strcmp(&typeString7[typeLen7 - 7], " SIGNED")) {
@@ -3958,7 +3958,7 @@ short CmpDescribeRoutine(const CorrName &cn, char *&outbuf, ULng32 &outbuflen, C
     // Get the actual signature size
 
     LmJavaSignature lmSig(routine->getSignature().data(), heap);
-    Int32 sigSize = lmSig.getUnpackedSignatureSize();
+    int sigSize = lmSig.getUnpackedSignatureSize();
 
     if (0 == sigSize) {
       *CmpCommon::diags() << DgSqlCode(-11223) << DgString0(". Unable to determine signature size.");
@@ -4086,7 +4086,7 @@ short CmpDescribeRoutine(const CorrName &cn, char *&outbuf, ULng32 &outbuflen, C
   if (isProcedure) {
     // max result sets
     strcpy(buf, "  DYNAMIC RESULT SETS ");
-    sprintf(&buf[strlen(buf)], "%d", (Int32)routine->getMaxResults());
+    sprintf(&buf[strlen(buf)], "%d", (int)routine->getMaxResults());
     outputShortLine(*space, buf);
 
     // transaction required clause needs to be shown in the output from M9
@@ -4426,8 +4426,8 @@ static short CmpDescribeSchemaHDFSCache(const NAString &schemaText, char *&outbu
   NAString schName = schNameAsComAnsi.getInternalName();
 
   ExeCliInterface cliInterface(STMTHEAP, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
-  Int32 objectOwnerID = 0;
-  Int32 schemaOwnerID = 0;
+  int objectOwnerID = 0;
+  int schemaOwnerID = 0;
   ComObjectType objectType;
 
   long schemaUID = CmpSeabaseDDL::getObjectTypeandOwner(&cliInterface, catName.data(), schName.data(),
@@ -4562,7 +4562,7 @@ static short CmpDescribeShowEnv(char *&outbuf, ULng32 &outbuflen, NAMemory *heap
 }
 
 static short CmpDescribeTablePartitions(NATable *naTable, Space &space, char *buf, short type) {
-  Int32 partType = naTable->partitionType();
+  int partType = naTable->partitionType();
   NAString colName;
   const NAPartitionArray &partArray = naTable->getPartitionArray();
   naTable->getParitionColNameAsString(colName, FALSE);
@@ -4581,7 +4581,7 @@ static short CmpDescribeTablePartitions(NATable *naTable, Space &space, char *bu
 
   NAString tempInfo;
 
-  for (Int32 i = 0; i < naTable->FisrtLevelPartitionCount(); i++) {
+  for (int i = 0; i < naTable->FisrtLevelPartitionCount(); i++) {
     if (type == 1) {
       tempInfo.format(
           "\n    -- Definition of Trafodion Table %s\n"
@@ -4596,7 +4596,7 @@ static short CmpDescribeTablePartitions(NATable *naTable, Space &space, char *bu
   return 0;
 }
 
-static short CmpDescribePartitions(Int32 partType, NAPartition *naPartition, Space &space, char *buf,
+static short CmpDescribePartitions(int partType, NAPartition *naPartition, Space &space, char *buf,
                                    NABoolean isFirstPartition, NABoolean isFirst) {
   NAString dummyText, valueText;
   naPartition->boundaryValueToString(dummyText, valueText);
@@ -4617,7 +4617,7 @@ static short CmpDescribePartitions(Int32 partType, NAPartition *naPartition, Spa
 static short CmpDescribePartIndexDesc(BindWA *bindWA, short type, NATable *naTable, Space &space, char *buf,
                                       const CorrName &dtName, const CorrName *likeTabName) {
   const NAPartitionArray &partArray = naTable->getPartitionArray();
-  for (Int32 i = 0; i < naTable->FisrtLevelPartitionCount(); i++) {
+  for (int i = 0; i < naTable->FisrtLevelPartitionCount(); i++) {
     // get natable for partition entity table
     CorrName partEntityName(partArray[i]->getPartitionEntityName(), STMTHEAP,
                             dtName.getQualifiedNameObj().getSchemaName(),
@@ -4630,7 +4630,7 @@ static short CmpDescribePartIndexDesc(BindWA *bindWA, short type, NATable *naTab
     // partition table name
     const NAString &tableName = dtName.getQualifiedNameObj().getQualifiedNameAsAnsiString(TRUE);
     // Should we extract the code that shows index?
-    for (Int32 j = 0; j < indexList.entries(); j++) {
+    for (int j = 0; j < indexList.entries(); j++) {
       const NAFileSet *naf = indexList[j];
 
       // show normal partion index

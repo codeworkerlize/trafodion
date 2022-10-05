@@ -229,7 +229,7 @@ class ExTransposeTcb : public ex_tcb {
 
   // Return the transpose expression (index by number).
   //
-  inline ex_expr *transColExpr(Int32 i) { return transTdb().transColExprs_[i]; }
+  inline ex_expr *transColExpr(int i) { return transTdb().transColExprs_[i]; }
 
   // Return the selection Predicate.
   //
@@ -237,11 +237,11 @@ class ExTransposeTcb : public ex_tcb {
 
   // Transpose has one child.
   //
-  virtual Int32 numChildren() const { return 1; }
+  virtual int numChildren() const { return 1; }
 
   // Return the child of the transpose node by position.
   //
-  virtual const ex_tcb *getChild(Int32 pos) const {
+  virtual const ex_tcb *getChild(int pos) const {
     if (pos == 0) return childTcb_;
     return NULL;
   }
@@ -297,7 +297,7 @@ class ExTransposePrivateState : public ex_tcb_private_state {
   friend class ExTransposeTcb;
 
   long matchCount_;
-  Int32 transCount_;
+  int transCount_;
 
   ExTransposeTcb::TransChildState childState_;
 

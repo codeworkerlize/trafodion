@@ -137,7 +137,7 @@ void SearchKey::init(const ValueIdList &keyColumns, const ValueIdList &orderOfKe
         // So stop such scans. One way is to switch the scan keys.
         // We can achieve the same effect by switching the scan
         // direction.
-        Int32 val = *((Int32 *)cv->getConstValue());
+        int val = *((int *)cv->getConstValue());
         if (val == 0) {
           isPredFalse = TRUE;
           break;
@@ -1310,7 +1310,7 @@ void SearchKeyWorkSpace::computeBeginKeyAndEndKeyValues(
     ValueIdList &upperBoundValues, ValueIdSet &setOfKeyPredicates, ValueIdSet &setOfNonKeyPredicates,
     NABoolean &keyPredicatesUnique, NABoolean &beginKeyIsExclusive, NABoolean &endKeyIsExclusive,
     ValueId &beginKeyExclusionExpr, ValueId &endKeyExclusionExpr, NABoolean &allBeginKeysMissing,
-    NABoolean &allEndKeysMissing, NABoolean &allChosenPredsAreEqualPreds, Int32 &numLeadingKeyColsWithEquiPreds) {
+    NABoolean &allEndKeysMissing, NABoolean &allChosenPredsAreEqualPreds, int &numLeadingKeyColsWithEquiPreds) {
   // initialize variables for an equal predicate, the first non-equal
   // key predicate that comes along (if any) may change the variables
   keyPredicatesUnique = TRUE;
@@ -1667,10 +1667,10 @@ void SearchKey::replaceBegEndPivs(ValueIdSet &oldPivs, ValueIdSet &newPivs) {
     const ValueId &vid1 = (getBeginKeyValues())[i];
     const ValueId &vid2 = (getEndKeyValues())[i];
     if (oldPivs.contains(vid1) OR oldPivs.contains(vid2)) {
-      Int32 count = 0;
+      int count = 0;
       for (ValueId id = oldPivs.init(); oldPivs.next(id); oldPivs.advance(id)) {
         if (id == vid1 OR id == vid2) {
-          Int32 countn = 0;
+          int countn = 0;
           for (ValueId idn = newPivs.init(); newPivs.next(idn); newPivs.advance(idn)) {
             if (countn == count AND id == vid1) {
               beginKeyValues_.removeAt(i);
@@ -2191,7 +2191,7 @@ void SearchKey::computeCoveredLeadingKeys(NABoolean &isCoveredColumnUnique) {
     }
   }
 
-  Int32 columnsToTry = MINOF(numLeadingKeyColsWithEqualPreds_, coveredLeadingKeys_);
+  int columnsToTry = MINOF(numLeadingKeyColsWithEqualPreds_, coveredLeadingKeys_);
   for (int k = 0; k < columnsToTry; k++) {
     BaseColumn *leadingKeyCol = (BaseColumn *)(baseKeyCols[k].getItemExpr());
     NAColumn *naColumn = leadingKeyCol->getNAColumn();
@@ -2274,7 +2274,7 @@ void SearchKey::reportKeyAssignment(NAString &tname) {
   const ValueIdList &beginKeyValues = getBeginKeyValues();
   const ValueIdList &endKeyValues = getEndKeyValues();
 
-  Int32 columnsToTry = keyColumns.entries();
+  int columnsToTry = keyColumns.entries();
   for (int k = 0; k < columnsToTry; k++) {
     BaseColumn *leadingKeyCol = (BaseColumn *)(baseKeyCols[k].getItemExpr());
     NAColumn *naColumn = leadingKeyCol->getNAColumn();
@@ -2289,12 +2289,12 @@ void SearchKey::reportKeyAssignment(NAString &tname) {
   }
 }
 
-void SearchKey::setBeginKeyValue(Int32 index, ValueId x) {
+void SearchKey::setBeginKeyValue(int index, ValueId x) {
   CMPASSERT(index >= 0 && index < getBeginKeyValues().entries());
   beginKeyValues_[index] = x;
 }
 
-void SearchKey::setEndKeyValue(Int32 index, ValueId x) {
+void SearchKey::setEndKeyValue(int index, ValueId x) {
   CMPASSERT(index >= 0 && index < getBeginKeyValues().entries());
   endKeyValues_[index] = x;
 }

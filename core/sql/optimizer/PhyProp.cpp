@@ -758,7 +758,7 @@ RelExpr *ReqdPhysicalProperty::getInputMustMatch(int childIndex) const {
     return NULL;  // no pattern match required for this and for input
   else if (mustMatch_->getArity() > childIndex)
     // input must match i-th pattern input
-    return mustMatch_->child((Int32)childIndex);
+    return mustMatch_->child((int)childIndex);
   else
     return NULL;  // pattern has fewer children, no need for a match
 }
@@ -958,13 +958,13 @@ NABoolean ReqdPhysicalProperty::sortOrderTypeReqAndSynthCompatible(
     const SortOrderTypeEnum synthesizedSortOrderType) const {
   if (sortOrderTypeCompTab_ == NULL) initSortOrderTypeCompTab();
 
-  return sortOrderTypeCompTab_->getValue((Int32)synthesizedSortOrderType, (Int32)sortOrderTypeReq_);
+  return sortOrderTypeCompTab_->getValue((int)synthesizedSortOrderType, (int)sortOrderTypeReq_);
 }
 
 COMPARE_RESULT ReqdPhysicalProperty::compareSortOrderTypeReqToReq(const SortOrderTypeEnum otherSortOrderTypeReq) const {
   if (sortOrderTypeContextCompTab_ == NULL) initSortOrderTypeContextCompTab();
 
-  return sortOrderTypeContextCompTab_->getValue((Int32)otherSortOrderTypeReq, (Int32)sortOrderTypeReq_);
+  return sortOrderTypeContextCompTab_->getValue((int)otherSortOrderTypeReq, (int)sortOrderTypeReq_);
 }
 
 NABoolean ReqdPhysicalProperty::dp2SortOrderPartReqAndSynthCompatible(const PhysicalProperty *const spp) const {

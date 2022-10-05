@@ -185,7 +185,7 @@ class ExchangeEnforcerRule : public Rule {
   virtual ~ExchangeEnforcerRule();
   virtual NABoolean topMatch(RelExpr *relExpr, Context *context);
   virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
-  virtual Int32 promiseForOptimization(RelExpr *relExpr, Guidance *guidance, Context *context);
+  virtual int promiseForOptimization(RelExpr *relExpr, Guidance *guidance, Context *context);
 };
 
 class FileScanRule : public Rule {
@@ -396,7 +396,7 @@ class SortEnforcerRule : public Rule {
   virtual ~SortEnforcerRule();
   virtual NABoolean topMatch(RelExpr *relExpr, Context *context);
   virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
-  virtual Int32 promiseForOptimization(RelExpr *relExpr, Guidance *guidance, Context *context);
+  virtual int promiseForOptimization(RelExpr *relExpr, Guidance *guidance, Context *context);
 };
 
 class SortGroupByRule : public Rule {

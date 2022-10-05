@@ -82,7 +82,7 @@ int ComTdbGenericUtil::unpack(void *base, void *reallocator) {
   return ComTdb::unpack(base, reallocator);
 }
 
-Int32 ComTdbGenericUtil::orderedQueueProtocol() const { return -1; }
+int ComTdbGenericUtil::orderedQueueProtocol() const { return -1; }
 
 ///////////////////////////////////////////////////////////////////////////
 //

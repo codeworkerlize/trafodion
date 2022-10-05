@@ -69,13 +69,13 @@ class REFRESH_LIB_CLASS CRUMVEquivSetBuilder : public CRUEquivSetBuilder {
   // The whole graph is build from the given mv's
   virtual void AddMV(CRUMV *pMV);
 
-  CRUMVList &GetSet(Int32 num);
+  CRUMVList &GetSet(int num);
 
   // The main execution function for this class
   virtual void Run();
 
   // These functions are used for retrieving the results
-  virtual Int32 GetNumOfSets() { return equivSetsRootsList_.GetCount(); }
+  virtual int GetNumOfSets() { return equivSetsRootsList_.GetCount(); }
 
   CRUMVList &GetEquivSetsRootsByMVUID(TInt64 uid);
 

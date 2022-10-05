@@ -74,7 +74,7 @@ const NAString &ComSchemaName::getSchemaNamePartAsAnsiString(NABoolean) const {
 NAString ComSchemaName::getExternalName(NABoolean) const {
   NAString extSchemaName;
 #ifndef NDEBUG
-  Int32 ok = 0;
+  int ok = 0;
 #endif
 
   if (NOT schemaNamePart_.isEmpty()) {
@@ -169,7 +169,7 @@ NABoolean ComSchemaName::scan(const NAString &externalSchemaName, size_t &bytesS
   // Scan the last ANSI SQL name part
   // ---------------------------------------------------------------------
 
-  Int32 remainingLen = externalSchemaNameLen - bytesScanned;
+  int remainingLen = externalSchemaNameLen - bytesScanned;
   NAString remainingName = externalSchemaName(bytesScanned, remainingLen);
   count = 0;
   ComAnsiNamePart part2(remainingName, count);

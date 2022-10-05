@@ -89,7 +89,7 @@ class MVMemoLogicalExpression : public NAIntrusiveSharedPtrObject {
    * @param key The hash key for the new expression.
    * @param groupNumber The group number this expression will belong to
    */
-  MVMemoLogicalExpression(const NAString &key, Int32 groupNumber, ADD_MEMCHECK_ARGS_DECL(CollHeap *heap))
+  MVMemoLogicalExpression(const NAString &key, int groupNumber, ADD_MEMCHECK_ARGS_DECL(CollHeap *heap))
       : NAIntrusiveSharedPtrObject(ADD_MEMCHECK_ARGS_PASS(heap)), hashKey_(key, heap), groupNumber_(groupNumber) {}
 
   virtual ~MVMemoLogicalExpression() {}
@@ -105,7 +105,7 @@ class MVMemoLogicalExpression : public NAIntrusiveSharedPtrObject {
   /**
    * @return the group number
    */
-  Int32 getGroupNumber() { return groupNumber_; }
+  int getGroupNumber() { return groupNumber_; }
 
   /**
    * @return the hash key
@@ -119,7 +119,7 @@ class MVMemoLogicalExpression : public NAIntrusiveSharedPtrObject {
 
  private:
   const NAString hashKey_;
-  const Int32 groupNumber_;
+  const int groupNumber_;
 };  // class MVMemoLogicalExpression
 
 /**
@@ -139,7 +139,7 @@ class MVMemoPhysicalExpression : public MVMemoLogicalExpression {
    * @param groupNumber The group number this expression will belong to
    * @param mv The name of the MV.
    */
-  MVMemoPhysicalExpression(const QRJoinSubGraphMapPtr map, Int32 groupNumber, const MVDetailsPtr mv,
+  MVMemoPhysicalExpression(const QRJoinSubGraphMapPtr map, int groupNumber, const MVDetailsPtr mv,
                            ADD_MEMCHECK_ARGS_DECL(CollHeap *heap));
 
   virtual ~MVMemoPhysicalExpression();
@@ -194,7 +194,7 @@ class MVMemoGroup : public NAIntrusiveSharedPtrObject {
    * @param number The MVMemo group number
    * @param heap A heap pointer for internal allocations.
    */
-  MVMemoGroup(Int32 number, ADD_MEMCHECK_ARGS_DECL(CollHeap *heap))
+  MVMemoGroup(int number, ADD_MEMCHECK_ARGS_DECL(CollHeap *heap))
       : NAIntrusiveSharedPtrObject(ADD_MEMCHECK_ARGS_PASS(heap)),
         groupNumber_(number),
         logicalExprs_(heap),
@@ -213,7 +213,7 @@ class MVMemoGroup : public NAIntrusiveSharedPtrObject {
   /**
    * @return The group number.
    */
-  Int32 getGroupNumber() { return groupNumber_; }
+  int getGroupNumber() { return groupNumber_; }
 
   /**
    * Does this group have any physical expressions in it?
@@ -290,14 +290,14 @@ class MVMemoGroup : public NAIntrusiveSharedPtrObject {
    */
   QRGroupLatticePtr getGroupLattice() { return groupLattice_; }
 
-  Int32 getNumOfMVs();
+  int getNumOfMVs();
 
   void reportStats(NAString &text);
 
   /**
    * Collect data on query (MV) groups with shared join+GroupBy.
    */
-  void collectMVGroups(WorkloadAnalysisPtr workload, Int32 minQueriesPerMV, CollHeap *heap);
+  void collectMVGroups(WorkloadAnalysisPtr workload, int minQueriesPerMV, CollHeap *heap);
 
  private:
   // Copy construction/assignment not defined.
@@ -305,7 +305,7 @@ class MVMemoGroup : public NAIntrusiveSharedPtrObject {
   MVMemoGroup &operator=(const MVMemoGroup &);
 
  private:
-  const Int32 groupNumber_;
+  const int groupNumber_;
   NAPtrList<MVMemoLogicalExpressionPtr> logicalExprs_;
   GroupExpressionHash physicalExprsHash_;
   QRGroupLatticePtr groupLattice_;
@@ -351,7 +351,7 @@ class MVMemo : public NAIntrusiveSharedPtrObject {
   /**
    * Get the group with the specified number.
    */
-  MVMemoGroupPtr getGroup(Int32 number) {
+  MVMemoGroupPtr getGroup(int number) {
     assertLogAndThrow(CAT_MVMEMO_JOINGRAPH, LL_MVQR_FAIL, number < nextGroup_, QRLogicException,
                       "Invalid MVMemo group number.");
     return groupsArray_[number];
@@ -394,12 +394,12 @@ class MVMemo : public NAIntrusiveSharedPtrObject {
   /**
    * Report usage statistics to the log file.
    */
-  void reportStats(Int32 numOfMVs);
+  void reportStats(int numOfMVs);
 
   /**
    * Collect data on query (MV) groups with shared join+GroupBy.
    */
-  void collectMVGroups(WorkloadAnalysisPtr workload, Int32 minQueriesPerMV, CollHeap *heap);
+  void collectMVGroups(WorkloadAnalysisPtr workload, int minQueriesPerMV, CollHeap *heap);
 
  private:
   // Copy construction/assignment not defined.
@@ -410,7 +410,7 @@ class MVMemo : public NAIntrusiveSharedPtrObject {
   CollHeap *heap_;                          // Heap pointer from which to allocate internal objects.
   MVMemoExpressionHash expressionHash_;     // Hash table of logical and physical expressions.
   NAPtrArray<MVMemoGroupPtr> groupsArray_;  // Array of groups in MVMemo.
-  Int32 nextGroup_;                         // Index of the next group to be inserted.
+  int nextGroup_;                         // Index of the next group to be inserted.
 };                                          // class MVMemo
 
 /**

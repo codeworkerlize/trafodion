@@ -284,7 +284,7 @@ class QRCommandLineRequest : public QRRequest {
    * @param argv The command-line arguments: input and output file.
    * @return Status indicator.
    */
-  static Int32 processCommandLine(Int32 argc, char *argv[]);
+  static int processCommandLine(int argc, char *argv[]);
 
   /**
    * Reads the request type from the input file. The request type is given by
@@ -411,7 +411,7 @@ class QmsMessageStream : public QRMessageStream {
 
  private:
   QmsMessageStream(const QmsMessageStream &);
-  Int32 operator=(const QmsMessageStream &);
+  int operator=(const QmsMessageStream &);
 };  // QmsMessageStream
 
 #endif /* _QMSREQUEST_H_ */

@@ -196,7 +196,7 @@ static void BitmapToString(const NABitVector &bm, NAString &text) {
   CollIndex lastBit;
 
   bm.lastUsed(lastBit);
-  for (Int32 i = lastBit; i >= 0; i--) {
+  for (int i = lastBit; i >= 0; i--) {
     if (bm.testBit(i))
       text += "1  ";
     else
@@ -224,7 +224,7 @@ void MVJoinTable::print(FILE *ofd, const char *indent, const char *title) const 
   CollIndex lastBit;
 
   predicateBitmap_.lastUsed(lastBit);
-  for (Int32 i = lastBit; i >= 0; i--) {
+  for (int i = lastBit; i >= 0; i--) {
     snprintf(buffer, 20, "%d", i);
     titleString += buffer;
     titleString += ", ";

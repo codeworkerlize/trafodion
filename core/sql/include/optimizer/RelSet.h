@@ -70,7 +70,7 @@ class Intersect : public RelExpr {
   virtual ~Intersect();
 
   // get the degree of this node (it is a binary op).
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   const NAString getText() const;
 
@@ -92,7 +92,7 @@ class Except : public RelExpr {
   virtual ~Except();
 
   // get the degree of this node (it is a binary op).
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   const NAString getText() const;
 
@@ -166,7 +166,7 @@ class Union : public RelExpr {
   virtual ~Union();
 
   // get the degree of this node (it is a binary op).
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   // a virtual function for performing name binding within the query tree
   virtual RelExpr *bindNode(BindWA *bindWAPtr);
@@ -318,7 +318,7 @@ class Union : public RelExpr {
   ULng32 getUnionFlags() const { return flags_; }
   // UNION_BLOCKED was added for trigger project
   inline void setBlockedUnion() { flags_ = UNION_BLOCKED; }
-  inline Int32 getBlockedUnion() { return flags_ == UNION_BLOCKED; }
+  inline int getBlockedUnion() { return flags_ == UNION_BLOCKED; }
 
   // A "labeled" union is a union where we can tell for each row from
   // which child it came, by looking at a certain column that has a
@@ -330,7 +330,7 @@ class Union : public RelExpr {
   // controlFlags were added for trigger project
   // setNoOutput can be applied to OrderUnion or BlockedUnion
   void setNoOutputs();
-  inline Int32 hasNoOutputs() { return controlFlags_ & NO_OUTPUTS; }
+  inline int hasNoOutputs() { return controlFlags_ & NO_OUTPUTS; }
 
   // inNotAtomicStmt is applied for unary unions to raise an error during execution
   // if an after trigger is enabled and we are executing a notAtomicStatement.
@@ -343,8 +343,8 @@ class Union : public RelExpr {
   void setIsTemporary() { controlFlags_ |= IS_TEMPORARY; }
   NABoolean getIsTemporary() const { return (controlFlags_ & IS_TEMPORARY) != 0; }
 
-  inline void setControlFlags(Int32 flg) { controlFlags_ = flg; }
-  inline Int32 getControlFlags() const { return controlFlags_; }
+  inline void setControlFlags(int flg) { controlFlags_ = flg; }
+  inline int getControlFlags() const { return controlFlags_; }
 
   void addCondExprTree(ItemExpr *condExpr);
   ItemExpr *getCondExprTree();
@@ -481,7 +481,7 @@ class Union : public RelExpr {
 
   //++ Triggers -
   // see controlFlags
-  Int32 controlFlags_;
+  int controlFlags_;
 
   // true iff this Union is system-generated (ie, is not user-specified)
   NABoolean isSystemGenerated_;

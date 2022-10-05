@@ -33,7 +33,7 @@
 // convert a version number to a 4 character string
 #define VersionToString(v, s)                  \
   {                                            \
-    Int32 i = v, j = DIGITS_IN_VERSION_NUMBER; \
+    int i = v, j = DIGITS_IN_VERSION_NUMBER; \
     char *p = s;                               \
     p[DIGITS_IN_VERSION_NUMBER] = 0;           \
     while (j) {                                \

@@ -151,9 +151,9 @@ class ExSequenceTcb : public ex_tcb {
 
   inline ex_expr *moveExpr() const;
 
-  friend char *GetHistoryRow(void *data, Int32 n, NABoolean leading, int winSize, Int32 &);
-  friend char *GetHistoryRowOLAP(void *data, Int32 n, NABoolean leading, int winSize, Int32 &);
-  friend char *GetHistoryRowFollowingOLAP(void *data, Int32 n, NABoolean leading, int winSize, Int32 &);
+  friend char *GetHistoryRow(void *data, int n, NABoolean leading, int winSize, int &);
+  friend char *GetHistoryRowOLAP(void *data, int n, NABoolean leading, int winSize, int &);
+  friend char *GetHistoryRowFollowingOLAP(void *data, int n, NABoolean leading, int winSize, int &);
 
   // inline char * GetFirstHistoryRowPtr();
   //
@@ -186,8 +186,8 @@ class ExSequenceTcb : public ex_tcb {
   void setPartitionEnd(NABoolean v) { partitionEnd_ = v; }
   inline int recLen();
 
-  virtual Int32 numChildren() const;
-  virtual const ex_tcb *getChild(Int32 pos) const;
+  virtual int numChildren() const;
+  virtual const ex_tcb *getChild(int pos) const;
   virtual ex_tcb_private_state *allocatePstates(int &numElems,       // inout, desired/actual elements
                                                 int &pstateLength);  // out, length of one element
  private:
@@ -278,9 +278,9 @@ inline int ExSequenceTcb::recLen() {
   return allocRowLength_;
 };
 
-inline Int32 ExSequenceTcb::numChildren() const { return 1; }
+inline int ExSequenceTcb::numChildren() const { return 1; }
 
-inline const ex_tcb *ExSequenceTcb::getChild(Int32 pos) const {
+inline const ex_tcb *ExSequenceTcb::getChild(int pos) const {
   ex_assert((pos >= 0), "");
   if (pos == 0)
     return childTcb_;

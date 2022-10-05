@@ -44,7 +44,7 @@
 #include "common/charinfo.h"
 #include "common/CharType.h"
 
-const Int32 MAX_REL_ARITYS = 2;
+const int MAX_REL_ARITYS = 2;
 
 class ExplainTuple;
 class ExplainDesc;
@@ -56,9 +56,9 @@ class ExplainDesc;
 
 struct ExplainTupleColDesc {
   // type should correspond to DataType in desc.h
-  Int32 datatype;                    // 00-03
-  Int32 length;                      // 04-07
-  Int32 offset;                      // 08-11
+  int datatype;                    // 00-03
+  int length;                      // 04-07
+  int offset;                      // 08-11
   Int16 nullflag;                    // 12-13
   Int16 fillersExplainTupleColDesc;  // 14-15
 };
@@ -117,15 +117,15 @@ class ExplainDesc : public NAVersionedObject {
   inline ExplainTuple *getExplainTreeRoot();
 
   // set the column descriptions
-  inline void setColDescr(Int32 col, int datatype, int length, int offset, int nullflag);
+  inline void setColDescr(int col, int datatype, int length, int offset, int nullflag);
 
   // Get values of the various fields of the class
-  inline Int32 getRecLength();
-  inline Int32 getNumCols();
-  inline int getColLength(Int32 col);
-  inline int getColOffset(Int32 col);
-  inline short getColNullFlag(Int32 col);
-  inline int getColDataType(Int32 col);
+  inline int getRecLength();
+  inline int getNumCols();
+  inline int getColLength(int col);
+  inline int getColOffset(int col);
+  inline short getColNullFlag(int col);
+  inline int getColDataType(int col);
 
  private:
   // The version of the explain tree.  Might be useful to handle
@@ -134,10 +134,10 @@ class ExplainDesc : public NAVersionedObject {
   // (Handled in NAVersionedObject header now.)
 
   // Number of columns in the explainTuple.
-  Int32 numCols_;  // 00-03
+  int numCols_;  // 00-03
 
   // Number of bytes in the explainTuple.
-  Int32 recLength_;  // 04-07
+  int recLength_;  // 04-07
 
   // A pointer to an ExplainTupleColDesc array.
   ExplainTupleColDescPtr explainCols_;  // 08-15
@@ -152,24 +152,24 @@ inline void ExplainDesc::setExplainTreeRoot(ExplainTuple *rootExplainTuple) { ex
 
 inline ExplainTuple *ExplainDesc::getExplainTreeRoot() { return explainTreeRoot_; };
 
-inline void ExplainDesc::setColDescr(Int32 col, int datatype, int length, int offset, int nullflag) {
+inline void ExplainDesc::setColDescr(int col, int datatype, int length, int offset, int nullflag) {
   explainCols_[col].datatype = datatype;
   explainCols_[col].length = length;
   explainCols_[col].offset = offset;
   explainCols_[col].nullflag = (Int16)nullflag;
 }
 
-inline Int32 ExplainDesc::getRecLength() { return recLength_; };
+inline int ExplainDesc::getRecLength() { return recLength_; };
 
-inline Int32 ExplainDesc::getNumCols() { return numCols_; };
+inline int ExplainDesc::getNumCols() { return numCols_; };
 
-inline int ExplainDesc::getColLength(Int32 col) { return explainCols_[col].length; };
+inline int ExplainDesc::getColLength(int col) { return explainCols_[col].length; };
 
-inline int ExplainDesc::getColOffset(Int32 col) { return explainCols_[col].offset; };
+inline int ExplainDesc::getColOffset(int col) { return explainCols_[col].offset; };
 
-inline short ExplainDesc::getColNullFlag(Int32 col) { return explainCols_[col].nullflag; };
+inline short ExplainDesc::getColNullFlag(int col) { return explainCols_[col].nullflag; };
 
-inline int ExplainDesc::getColDataType(Int32 col) { return explainCols_[col].datatype; };
+inline int ExplainDesc::getColDataType(int col) { return explainCols_[col].datatype; };
 
 // ExplainTuple - A binary node of the explain tree.  Besides the root
 // node (ExplainDesc), the explain tree is made up of these
@@ -231,7 +231,7 @@ class ExplainTuple : public NAVersionedObject {
 
   // Copy the data pointed to by value to the specified col of the
   // explain tuple.
-  void setCol(Int32 col, void const *value, UInt32 length, UInt32 cursor);
+  void setCol(int col, void const *value, UInt32 length, UInt32 cursor);
 
   // Initialize specific columns of the explain Tuple.
   // These routines call setCol().
@@ -240,9 +240,9 @@ class ExplainTuple : public NAVersionedObject {
   // the class ExplainTupleMaster.
   void setModuleName(const char *modName);
   void setStatementName(const char *stmtName);
-  void setSeqNum(Int32 seqNum);
-  Int32 getSeqNum();
-  void setChildSeqNum(Int32 child, Int32 seqNum);
+  void setSeqNum(int seqNum);
+  int getSeqNum();
+  void setChildSeqNum(int child, int seqNum);
 
   // The state of this explain tuple.
   inline ExplainTupleState getState() const;
@@ -254,10 +254,10 @@ class ExplainTuple : public NAVersionedObject {
   inline ExplainTuple *getParent();
 
   // The number of children this node can have. (always returns 2)
-  inline Int32 numChildren() const;
+  inline int numChildren() const;
 
   // A reference to a child.
-  inline ExplainTuple *&child(Int32 index);
+  inline ExplainTuple *&child(int index);
 
   // A pointer to the explainTuple data;
   inline char *getExplainTuple();
@@ -268,15 +268,15 @@ class ExplainTuple : public NAVersionedObject {
 
   // Get info about the explain tuple.  These methods access the
   // ExplainDesc node at the root of the tree.
-  inline Int32 getRecLength();
-  inline Int32 getNumCols();
-  inline int getColLength(Int32 col);
-  inline int getColOffset(Int32 col);
-  inline short getColNullFlag(Int32 col);
-  inline int getColDataType(Int32 col);
+  inline int getRecLength();
+  inline int getNumCols();
+  inline int getColLength(int col);
+  inline int getColOffset(int col);
+  inline short getColNullFlag(int col);
+  inline int getColDataType(int col);
 
-  Int32 getUsedRecLength() { return usedRecLength_; }
-  void setUsedRecLength(Int32 v) { usedRecLength_ = v; }
+  int getUsedRecLength() { return usedRecLength_; }
+  void setUsedRecLength(int v) { usedRecLength_ = v; }
 
  protected:
   // Used for debugging and self checks.
@@ -290,7 +290,7 @@ class ExplainTuple : public NAVersionedObject {
   // The description field is filled in in peices.  The cursor
   // is used to keep track of the current position.
   UInt32 descCursor_;           // 08-11
-  Int32 fillersExplainTuple2_;  // 12-15
+  int fillersExplainTuple2_;  // 12-15
 
   // A pointer to the data.
   NABasicPtr explainTupleData_;  // 16-23
@@ -312,7 +312,7 @@ class ExplainTuple : public NAVersionedObject {
   char *explainTupleStr_;
 
   // Number of actual bytes of data in explainTuple.
-  Int32 usedRecLength_;
+  int usedRecLength_;
 
   char fillersExplainTuple_[36];  // 56-95
 };
@@ -321,9 +321,9 @@ class ExplainTuple : public NAVersionedObject {
 
 inline ExplainTuple::ExplainTupleState ExplainTuple::getState() const { return ExplainTupleState(state_); };
 
-inline Int32 ExplainTuple::numChildren() const { return MAX_REL_ARITYS; };
+inline int ExplainTuple::numChildren() const { return MAX_REL_ARITYS; };
 
-inline ExplainTuple *&ExplainTuple::child(Int32 index) { return children_[index].pointer(); };
+inline ExplainTuple *&ExplainTuple::child(int index) { return children_[index].pointer(); };
 
 inline void ExplainTuple::setParent(ExplainTuple *parent) { parent_ = parent; };
 
@@ -333,16 +333,16 @@ inline char *ExplainTuple::getExplainTuple() { return explainTupleData_; };
 
 inline ExplainDesc *ExplainTuple::getExplainDesc() { return explainDesc_; };
 
-inline Int32 ExplainTuple::getRecLength() { return explainDesc_->getRecLength(); };
+inline int ExplainTuple::getRecLength() { return explainDesc_->getRecLength(); };
 
-inline Int32 ExplainTuple::getNumCols() { return explainDesc_->getNumCols(); };
+inline int ExplainTuple::getNumCols() { return explainDesc_->getNumCols(); };
 
-inline int ExplainTuple::getColLength(Int32 col) { return explainDesc_->getColLength(col); };
+inline int ExplainTuple::getColLength(int col) { return explainDesc_->getColLength(col); };
 
-inline int ExplainTuple::getColOffset(Int32 col) { return explainDesc_->getColOffset(col); };
+inline int ExplainTuple::getColOffset(int col) { return explainDesc_->getColOffset(col); };
 
-inline short ExplainTuple::getColNullFlag(Int32 col) { return explainDesc_->getColNullFlag(col); };
+inline short ExplainTuple::getColNullFlag(int col) { return explainDesc_->getColNullFlag(col); };
 
-inline int ExplainTuple::getColDataType(Int32 col) { return explainDesc_->getColDataType(col); };
+inline int ExplainTuple::getColDataType(int col) { return explainDesc_->getColDataType(col); };
 
 #endif

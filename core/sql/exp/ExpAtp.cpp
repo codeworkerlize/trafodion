@@ -47,7 +47,7 @@ atp_struct *allocateAtp(ex_cri_desc *criDesc, CollHeap *space) {
   // Allocate space for the atp_struct (which has room for one tupp in
   // the tupp array) plus room for the remainder of the tupps.
   //
-  Int32 atp_size = sizeof(atp_struct) + (criDesc->noTuples() - 1) * sizeof(tupp);
+  int atp_size = sizeof(atp_struct) + (criDesc->noTuples() - 1) * sizeof(tupp);
 
   atp_struct *atp;
   atp = (atp_struct *)space->allocateMemory(atp_size);
@@ -99,7 +99,7 @@ atp_struct *allocateAtp(int numTuples, CollHeap *space) {
   // Allocate space for the atp_struct (which has room for one tupp in
   // the tupp array) plus room for the remainder of the tupps.
   //
-  Int32 atp_size = sizeof(atp_struct) + (numTuples - 1) * sizeof(tupp);
+  int atp_size = sizeof(atp_struct) + (numTuples - 1) * sizeof(tupp);
 
   atp_struct *atp;
   atp = (atp_struct *)space->allocateMemory(atp_size);
@@ -127,7 +127,7 @@ void deallocateAtp(atp_struct *atp, CollHeap *space) {
   if (space) space->deallocateMemory((char *)atp);
 }
 
-atp_struct *allocateAtpArray(ex_cri_desc *criDesc, int cnt, Int32 *atpSize, CollHeap *space,
+atp_struct *allocateAtpArray(ex_cri_desc *criDesc, int cnt, int *atpSize, CollHeap *space,
                              NABoolean failureIsFatal) {
   const int numTuples = criDesc->noTuples();
 
@@ -169,7 +169,7 @@ void deallocateAtpArray(atp_struct **atp, CollHeap *space) {
 }
 
 Long atp_struct::pack(void *space) {
-  for (Int32 i = 0; i < criDesc_->noTuples(); i++) {
+  for (int i = 0; i < criDesc_->noTuples(); i++) {
     tuppArray_[i].pack(space);
   }
 
@@ -183,7 +183,7 @@ int atp_struct::unpack(int base) {
   if (criDesc_) {
     criDesc_ = (ex_cri_desc *)CONVERT_TO_PTR(criDesc_, base);
     if (criDesc_->driveUnpack((void *)((long)base), &obj, NULL) == NULL) return -1;
-    for (Int32 i = 0; i < criDesc_->noTuples(); i++) {
+    for (int i = 0; i < criDesc_->noTuples(); i++) {
       tuppArray_[i].unpack(base);
     }
   }
@@ -199,7 +199,7 @@ void atp_struct::display(const char *title, ex_cri_desc *cri) {
 
   cout << "#tuples in ATP=" << tuples << endl;
 
-  for (Int32 i = 0; i < tuples; i++) {
+  for (int i = 0; i < tuples; i++) {
     ExpTupleDesc *tDesc = cri->getTupleDescriptor(i);
 
     cout << "tupleDesc[" << i << "]=" << tDesc << endl;
@@ -213,7 +213,7 @@ void atp_struct::display(const char *title, ex_cri_desc *cri) {
       // cout << "dataPtr=" << dataPtr << endl;
       cout << "attrs:" << endl;
       UInt32 attrs = tDesc->numAttrs();
-      for (Int32 j = 0; j < attrs; j++) {
+      for (int j = 0; j < attrs; j++) {
         Attributes *attr = tDesc->getAttr(j);
         Int16 dt = attr->getDatatype();
         UInt32 len = attr->getLength();
@@ -250,8 +250,8 @@ void atp_struct::dumpATupp(ostream &out, const char *title, Int16 dt, char *ptr,
     case REC_BYTE_V_ASCII:
     case REC_BYTE_F_ASCII: {
       /*
-                 for (Int32 i=0; i<len; i++) {
-                   out << (Int32)ptr[i];
+                 for (int i=0; i<len; i++) {
+                   out << (int)ptr[i];
 
                    if ( i<len-1 )
                     out << " ";
@@ -261,7 +261,7 @@ void atp_struct::dumpATupp(ostream &out, const char *title, Int16 dt, char *ptr,
       */
 
       out << "\"";
-      for (Int32 i = 0; i < len; i++) out << ptr[i];
+      for (int i = 0; i < len; i++) out << ptr[i];
 
       out << "\"";
 
@@ -288,13 +288,13 @@ void atp_struct::dumpATupp(ostream &out, const char *title, Int16 dt, char *ptr,
   }
 }
 
-void atp_struct::dump(ostream &out, const char *title, Int32 idx, ex_cri_desc *cri) {
+void atp_struct::dump(ostream &out, const char *title, int idx, ex_cri_desc *cri) {
   if (title) out << title << ", ";
 
   unsigned short tuples = numTuples();
 
-  Int32 start = 0;
-  Int32 end = tuples - 1;
+  int start = 0;
+  int end = tuples - 1;
 
   if (idx != -1) {
     if (idx < 0 || idx > tuples - 1) {
@@ -308,7 +308,7 @@ void atp_struct::dump(ostream &out, const char *title, Int32 idx, ex_cri_desc *c
 
   if (!cri) cri = getCriDesc();
 
-  for (Int32 i = start; i <= end; i++) {
+  for (int i = start; i <= end; i++) {
     ExpTupleDesc *tDesc = cri->getTupleDescriptor(i);
     cout << "tDesc[" << i << "]=" << tDesc << endl;
 
@@ -377,15 +377,15 @@ void atp_struct::dump(ostream &out, const char *title, Int32 idx, ex_cri_desc *c
   out << endl;
 }
 
-void atp_struct::dump(const char *title, Int32 idx, ex_cri_desc *cri) { dump(cout, title, idx, cri); }
+void atp_struct::dump(const char *title, int idx, ex_cri_desc *cri) { dump(cout, title, idx, cri); }
 
-void atp_struct::dumpMinMaxTupp(ostream &out, const char *title, Int32 idx, ex_cri_desc *cri) {
+void atp_struct::dumpMinMaxTupp(ostream &out, const char *title, int idx, ex_cri_desc *cri) {
   if (title) out << title << ", " << endl;
 
   unsigned short tuples = numTuples();
 
-  Int32 start = 0;
-  Int32 end = tuples - 1;
+  int start = 0;
+  int end = tuples - 1;
 
   if (idx != -1) {
     if (idx < 0 || idx > tuples - 1) {
@@ -399,7 +399,7 @@ void atp_struct::dumpMinMaxTupp(ostream &out, const char *title, Int32 idx, ex_c
 
   if (!cri) cri = getCriDesc();
 
-  for (Int32 i = start; i <= end; i++) {
+  for (int i = start; i <= end; i++) {
     ExpTupleDesc *tDesc = cri->getTupleDescriptor(i);
     char *ptr = (getTupp(i)).getDataPointer();
 
@@ -475,7 +475,7 @@ void atp_struct::dumpMinMaxTupp(ostream &out, const char *title, Int32 idx, ex_c
         dumpATupp(out, ", min:", dt, ptr + minAttr->getOffset(), minAttr->getLength());
         dumpATupp(out, ", max:", dt, ptr + maxAttr->getOffset(), maxAttr->getLength());
         // out << ", len=" << length << ", data=";
-        // for (Int32 i=0; i<length; i++)
+        // for (int i=0; i<length; i++)
         //  out << ptr[i];
 
         break;
@@ -488,19 +488,19 @@ void atp_struct::dumpMinMaxTupp(ostream &out, const char *title, Int32 idx, ex_c
   out << endl;
 }
 
-void atp_struct::dumpMinMaxTupp(const char *title, Int32 idx, ex_cri_desc *cri) {
+void atp_struct::dumpMinMaxTupp(const char *title, int idx, ex_cri_desc *cri) {
   fstream &fout = getPrintHandle();
   dumpMinMaxTupp(fout, title, idx, cri);
   fout.close();
 }
 
-void atp_struct::dumpMinMaxTupp2Log(logLevel level, const char *title, Int32 idx, ex_cri_desc *cri) {
+void atp_struct::dumpMinMaxTupp2Log(logLevel level, const char *title, int idx, ex_cri_desc *cri) {
   std::ostringstream out;
   dumpMinMaxTupp(out, title, idx, cri);
   QRLogger::log(CAT_SQL_EXE_MINMAX, level, "%s", out.str().c_str());
 }
 
-void *atp_struct::checkAndGetMetaData(Int32 i, Int16 &dt) {
+void *atp_struct::checkAndGetMetaData(int i, Int16 &dt) {
   unsigned short tuples = numTuples();
   if (i < 0 || i > tuples - 1) return NULL;
 
@@ -516,7 +516,7 @@ void *atp_struct::checkAndGetMetaData(Int32 i, Int16 &dt) {
   return (getTupp(i)).getDataPointer() + theAttr->getOffset();
 }
 
-NABoolean atp_struct::getRegularIntSigned(Int32 i, Int32 &result) {
+NABoolean atp_struct::getRegularIntSigned(int i, int &result) {
   Int16 dt = 0;
   char *ptr = (char *)checkAndGetMetaData(i, dt);
 
@@ -532,7 +532,7 @@ NABoolean atp_struct::getRegularIntSigned(Int32 i, Int32 &result) {
       return TRUE;
 
     case REC_BIN32_SIGNED:
-      result = *(Int32 *)ptr;
+      result = *(int *)ptr;
       return TRUE;
 
     default:
@@ -542,7 +542,7 @@ NABoolean atp_struct::getRegularIntSigned(Int32 i, Int32 &result) {
   return FALSE;
 }
 
-NABoolean atp_struct::getRegularIntUnsigned(Int32 i, UInt32 &result) {
+NABoolean atp_struct::getRegularIntUnsigned(int i, UInt32 &result) {
   Int16 dt = 0;
   char *ptr = (char *)checkAndGetMetaData(i, dt);
 

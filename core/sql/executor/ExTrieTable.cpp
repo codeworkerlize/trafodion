@@ -39,7 +39,7 @@
 //
 #include "ExTrieTable.h"
 
-ExTrieTable::ExTrieTable(Int32 keySize, Int32 dataSize, Int32 memSize, CollHeap *heap)
+ExTrieTable::ExTrieTable(int keySize, int dataSize, int memSize, CollHeap *heap)
     : keySize_(keySize),
       dataSize_(dataSize),
       memSize_(memSize),
@@ -57,7 +57,7 @@ ExTrieTable::ExTrieTable(Int32 keySize, Int32 dataSize, Int32 memSize, CollHeap 
   // return and the caller will check getMaximumNumberTuples and realize
   // that the table cannot store any tuples.
   //
-  const Int32 minimumMemorySize = sizeof(short *) * 256 * keySize_ + dataSize_;
+  const int minimumMemorySize = sizeof(short *) * 256 * keySize_ + dataSize_;
   memSize_ *= 2;
   while (!memory_ && (memSize_ > minimumMemorySize)) {
     memSize_ /= 2;
@@ -82,7 +82,7 @@ ExTrieTable::ExTrieTable(Int32 keySize, Int32 dataSize, Int32 memSize, CollHeap 
 
   // Initialize the root Trie.
   //
-  for (Int32 i = 0; i < 256; i++) rootTrie_[i] = 0;
+  for (int i = 0; i < 256; i++) rootTrie_[i] = 0;
 
   // The data tuples grow from the top of allocated memory down. Thus,
   // the first data tuple is at memory_ + memSize_ - dataSize_ - 1.
@@ -95,10 +95,10 @@ ExTrieTable::~ExTrieTable() {
   memory_ = NULL;
 }
 
-Int32 ExTrieTable::findOrAdd(char *key) {
+int ExTrieTable::findOrAdd(char *key) {
   ExTrie trie = rootTrie_;
   ExTrie lastTrie = 0;
-  Int32 i = 0;
+  int i = 0;
   for (; i < keySize_ && trie; i++) {
     lastTrie = trie;
     trie = (char **)trie[key[i]];
@@ -121,7 +121,7 @@ Int32 ExTrieTable::findOrAdd(char *key) {
   // If i-1 is less than keySize_-1, then additional Trie's need to be
   // added.
   //
-  Int32 j = i - 1;
+  int j = i - 1;
   for (; j < keySize_ - 1; j++) {
     lastTrie[key[j]] = (char *)nextTrie_;
     lastTrie = nextTrie_;

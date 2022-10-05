@@ -70,7 +70,7 @@ class ComTdbSplitTop : public ComTdb {
                  int partInputDataAtpIndex, int paPartNoAtpIndex, ex_cri_desc *givenCriDesc,
                  ex_cri_desc *returnedCriDesc, ex_cri_desc *downCriDesc, ex_cri_desc *workCriDesc,
                  NABoolean bufferedInserts, queue_index fromParent, queue_index toParent, Cardinality estimatedRowCount,
-                 int bottomNumParts, Int32 streamTimeout, int sidNumBuffers, ULng32 sidBufferSize);
+                 int bottomNumParts, int streamTimeout, int sidNumBuffers, ULng32 sidBufferSize);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -84,7 +84,7 @@ class ComTdbSplitTop : public ComTdb {
 
   virtual short getClassSize() { return (short)sizeof(ComTdbSplitTop); }
 
-  Int32 orderedQueueProtocol() const;
+  int orderedQueueProtocol() const;
   inline NABoolean needToSendInputData() const { return !partInputDataDesc_.isNull(); }
 
   const NABoolean bufferedInserts() const { return ((splitTopFlags_ & BUFFERED_INSERTS) != 0); }
@@ -100,15 +100,15 @@ class ComTdbSplitTop : public ComTdb {
 
   void display() const;
 
-  Int32 getBottomNumParts() { return bottomNumParts_; }
+  int getBottomNumParts() { return bottomNumParts_; }
 
   // for GUI
-  virtual const ComTdb *getChild(Int32 pos) const;
-  virtual Int32 numChildren() const;
+  virtual const ComTdb *getChild(int pos) const;
+  virtual int numChildren() const;
   virtual const char *getNodeName() const { return "EX_SPLIT_TOP"; };
-  virtual Int32 numExpressions() const;
-  virtual ex_expr *getExpressionNode(Int32 pos);
-  virtual const char *getExpressionName(Int32 pos) const;
+  virtual int numExpressions() const;
+  virtual ex_expr *getExpressionNode(int pos);
+  virtual const char *getExpressionName(int pos) const;
 
   // for showplan
   virtual void displayContents(Space *space, ULng32 flag);
@@ -138,8 +138,8 @@ class ComTdbSplitTop : public ComTdb {
   NABoolean getUseExtendedPState() const { return (splitTopFlags_ & USE_EXTENDED_PSTATE) ? TRUE : FALSE; }
   void setUseExtendedPState() { splitTopFlags_ |= USE_EXTENDED_PSTATE; }
 
-  Int32 getNumSharedBuffers() const { return numSharedBuffs_; }
-  void setNumSharedBuffers(Int32 n) { numSharedBuffs_ = n; }
+  int getNumSharedBuffers() const { return numSharedBuffs_; }
+  void setNumSharedBuffers(int n) { numSharedBuffs_ = n; }
   // these 2 lines won't be covered, feature not yet activated.
 
   // For SeaMonster
@@ -182,25 +182,25 @@ class ComTdbSplitTop : public ComTdb {
   UInt32 splitTopFlags_;  // 00-03
 
   // number of bottom partitions (may be modified at runtime)
-  Int32 bottomNumParts_;  // 04-07
+  int bottomNumParts_;  // 04-07
 
   // an expression used to determine to which input partition to send
   // a particular input queue entry; in most cases this is NULL, meaning
   // that an input queue entry is sent to all input partitions
   ExExprPtr childInputPartFunction_;  // 08-15
-  Int32 inputPartAtpIndex_;           // 16-19
+  int inputPartAtpIndex_;           // 16-19
 
   // the merge key expression helps in merging sorted input partition to a
   // sorted result stream of tuples, it encodes a binary key of length
   // mergeKeyLength_ for this child
-  Int32 mergeKeyAtpIndex_;  // 20-23
+  int mergeKeyAtpIndex_;  // 20-23
   ExExprPtr mergeKeyExpr_;  // 24-31
-  Int32 mergeKeyLength_;    // 32-35
+  int mergeKeyLength_;    // 32-35
 
   // If the split top node is responsible to pass partition input data
   // down to its child queues, a pointer to the partition input data
   // descriptor that describes the part. input values (fixed assignment)
-  Int32 partInputDataAtpIndex_;               // 36-39
+  int partInputDataAtpIndex_;               // 36-39
   ExPartInputDataDescPtr partInputDataDesc_;  // 40-47
 
   // child tdb (gets replicated bottomNumESPs_ times)
@@ -210,19 +210,19 @@ class ComTdbSplitTop : public ComTdb {
   ExCriDescPtr workCriDesc_;  // 64-71
 
   // ATP index where the partition number for the PA child is put
-  Int32 paPartNoAtpIndex_;  // 72-75
+  int paPartNoAtpIndex_;  // 72-75
 
   // BertBert VV
   // Timeout (.01 seconds) for waiting on a streaming cursor.
   // If streamTimeout_ == 0 then don't wait.
   // If streamTimeout_ < 0 then never timeout
-  Int32 streamTimeout_;  // 76-79
+  int streamTimeout_;  // 76-79
   // BertBert ^^
 
   ComExtractProducerInfoPtr extractProducerInfo_;  // 80-87
 
   // number of buffers in the shared pool, valid if SETUP_SHARED_POOL is set
-  Int32 numSharedBuffs_;            // 88-91
+  int numSharedBuffs_;            // 88-91
   char fillersComTdbSplitTop_[28];  // 91-119
 };
 

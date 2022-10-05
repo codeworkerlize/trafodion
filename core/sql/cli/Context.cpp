@@ -535,12 +535,12 @@ short ContextCli::moduleAdded(const SQLMODULE_ID *module_id) {
 }
 
 // common for NT and NSK
-static Int32 allocAndReadPos(ModuleOSFile &file, char *&buf, int pos, int len, NAMemory *heap,
+static int allocAndReadPos(ModuleOSFile &file, char *&buf, int pos, int len, NAMemory *heap,
                              ComDiagsArea &diagsArea, const char *mname) {
   // allocate memory and read the requested section into it
   buf = (char *)(heap->allocateMemory((size_t)len));
   short countRead;
-  Int32 retcode = file.readpos(buf, pos, len, countRead);
+  int retcode = file.readpos(buf, pos, len, countRead);
 
   if (retcode) diagsArea << DgSqlCode(-CLI_MODULEFILE_CORRUPTED) << DgString0(mname);
   return retcode;
@@ -1136,7 +1136,7 @@ void ContextCli::closeAllCursors(enum CloseCursorType type, enum closeTransactio
 
   Statement *statement;
   Statement **openStmtArray = NULL;
-  Int32 i;
+  int i;
   int noOfStmts;
   long currentXnId = executorXnId;
 
@@ -1293,7 +1293,7 @@ void ContextCli::closeAllCursorsFor(SQLSTMT_ID *statement_id) {
 // *  <authToken>                     const char *                    In       *
 // *    is the token generated for this user session.                          *
 // *                                                                           *
-// *  <authTokenLen>                  Int32                           In       *
+// *  <authTokenLen>                  int                           In       *
 // *    is the length of the token in bytes.                                   *
 // *                                                                           *
 // *  <slaName>                       const char *                    In       *
@@ -1302,13 +1302,13 @@ void ContextCli::closeAllCursorsFor(SQLSTMT_ID *statement_id) {
 // *  <profileName>                   const char *                    In       *
 // *    profile name assigned to the connection                                *
 // *                                                                           *
-// *  <resetAttributes>               Int32                           In       *
+// *  <resetAttributes>               int                           In       *
 // *    if TRUE, then reset all attributes and cached information              *
 // *                                                                           *
 // *****************************************************************************
 
-int ContextCli::setAuthID(const USERS_INFO &usersInfo, const char *authToken, Int32 authTokenLen, const char *slaName,
-                            const char *profileName, Int32 resetAttributes) {
+int ContextCli::setAuthID(const USERS_INFO &usersInfo, const char *authToken, int authTokenLen, const char *slaName,
+                            const char *profileName, int resetAttributes) {
   validAuthID_ = FALSE;  // Is TRUE only if a valid user found,set within completeSetAuthId()
 
   // Note authID being NULL is only to support sqlci processes and embedded apps
@@ -1402,7 +1402,7 @@ int ContextCli::setAuthID(const USERS_INFO &usersInfo, const char *authToken, In
 // *    is the credentials used for authenticating this user, specifically     *
 // *  a valid token key.                                                       *
 // *                                                                           *
-// *  <authTokenLen>                  Int32                           In       *
+// *  <authTokenLen>                  int                           In       *
 // *    is the credentials used for authenticating this user, specifically     *
 // *  a valid token key.                                                       *
 // *                                                                           *
@@ -1430,10 +1430,10 @@ int ContextCli::setAuthID(const USERS_INFO &usersInfo, const char *authToken, In
 //   profile name stored in zookeeper and passed in during session start       *
 //                                                                             *
 // *****************************************************************************
-Int32 ContextCli::completeSetAuthID(const USERS_INFO &usersInfo, const char *authToken, Int32 authTokenLen,
+int ContextCli::completeSetAuthID(const USERS_INFO &usersInfo, const char *authToken, int authTokenLen,
                                     const char *slaName, const char *profileName, bool eraseCQDs,
                                     bool releaseUDRServers, bool dropVolatileSchema, bool resetCQDs,
-                                    Int32 resetAttributes) {
+                                    int resetAttributes) {
   bool mtEnabled = msg_license_multitenancy_enabled();
   bool updateCredentials = false;
   if ((usersInfo.effectiveUserID != databaseUserID_) || (usersInfo.sessionUserID != sessionUserID_) ||
@@ -1551,9 +1551,9 @@ Int32 ContextCli::completeSetAuthID(const USERS_INFO &usersInfo, const char *aut
   validAuthID_ = TRUE;
 
   // Setup current user role list
-  Int32 numRoles = 0;
-  Int32 *cachedRoleIDs = NULL;
-  Int32 *cachedGranteeIDs = NULL;
+  int numRoles = 0;
+  int *cachedRoleIDs = NULL;
+  int *cachedGranteeIDs = NULL;
   if (getRoleList(numRoles, cachedRoleIDs, cachedGranteeIDs) != SUCCESS) {
     diagsArea_ << DgSqlCode(1057);  // CAT_UNABLE_TO_RETRIEVE_ROLES
     return WARNING;
@@ -2169,7 +2169,7 @@ bool ContextCli::unassignEsps(bool force) {
   return didUnassign;
 }
 
-void ContextCli::addToValidDDLCheckList(SqlTableOpenInfoPtr *stoiList, Int32 tableCount) {
+void ContextCli::addToValidDDLCheckList(SqlTableOpenInfoPtr *stoiList, int tableCount) {
   // Find out if this is a tdm_arkcmp process (unfortunately, the
   // CmpCommon::context() object is created later than ContextCli,
   // so we can't do this calculation in the ContextCli constructor)
@@ -2200,7 +2200,7 @@ void ContextCli::addToValidDDLCheckList(SqlTableOpenInfoPtr *stoiList, Int32 tab
   {
     StatsGlobals *statsGlobals = cliGlobals_->getStatsGlobals();
     ObjectEpochCache *objectEpochCache = statsGlobals->getObjectEpochCache();
-    for (Int32 i = 0; i < tableCount; i++) {
+    for (int i = 0; i < tableCount; i++) {
       SqlTableOpenInfo *stoi = stoiList[i];
 
       if (stoi->ddlValidationRequired())  // if there is a write to this object
@@ -2357,14 +2357,14 @@ void ContextCli::genSessionId() {
 
   // The userID type is unsigned. To test for negative numbers we
   // have to first cast the value to a signed data type.
-  Int32 localUserID = (Int32)databaseUserID_;
+  int localUserID = (int)databaseUserID_;
 
   char userName[32];
   if (localUserID >= 0)
     sprintf(userName, "U%d", (int)localUserID);
   else
     sprintf(userName, "U_NEG_%d", (int)-localUserID);
-  Int32 userNameLen = strlen(userName);
+  int userNameLen = strlen(userName);
 
   char tenantIdString[32];
   if (tenantID_ >= 0)
@@ -2372,10 +2372,10 @@ void ContextCli::genSessionId() {
   else
     sprintf(tenantIdString, "T_NEG_%d", (int)-tenantID_);
 
-  Int32 tenantIdLen = strlen(tenantIdString);
+  int tenantIdLen = strlen(tenantIdString);
 
   // generate a unique session ID and set it in context.
-  Int32 sessionIdLen;
+  int sessionIdLen;
   ComSqlId::createSqlSessionId(si, ComSqlId::MAX_SESSION_ID_LEN, sessionIdLen, getCliGlobals()->myNodeNumber(),
                                getCliGlobals()->myCpu(), getCliGlobals()->myPin(), getCliGlobals()->myStartTime(),
                                (int)getCliGlobals()->getSessionUniqueNumber(), userNameLen, userName, tenantIdLen,
@@ -2388,7 +2388,7 @@ void ContextCli::startUdrServer() {
   if (CmpCommon::getDefault(TRAF_START_UDR) == DF_ON && cliGlobals_->isMasterProcess()) {
     ExeCliInterface cliInterface(exHeap(), 0, this);
     char sql[] = "EXECUTE 'BEGIN NULL; END;'";
-    Int32 cliRC = cliInterface.executeImmediate(sql);
+    int cliRC = cliInterface.executeImmediate(sql);
   }
 }
 
@@ -2430,7 +2430,7 @@ void ContextCli::createMxcmpSession() {
 
   char *pMessage = (char *)&userMessage;
 
-  Int32 cmpStatus = 2;  // assume failure
+  int cmpStatus = 2;  // assume failure
   if (getSessionDefaults()->callEmbeddedArkcmp() && isEmbeddedArkcmpInitialized() && CmpCommon::context() &&
       (CmpCommon::context()->getRecursionLevel() == 0)) {
     char *dummyReply = NULL;
@@ -2547,7 +2547,7 @@ void ContextCli::createMxcmpSession() {
 //
 // Returns: 0 = succeeded; -1 = failed
 // ----------------------------------------------------------------------------
-Int32 ContextCli::updateMxcmpSession() {
+int ContextCli::updateMxcmpSession() {
   // If no child arkcmp, just return
   if (getArkcmp()->getServer() == NULL) return 0;
 
@@ -2623,7 +2623,7 @@ void ContextCli::endMxcmpSession(NABoolean cleanupEsps, NABoolean clearCmpCache)
 
   if (clearCmpCache) flags |= CmpMessageEndSession::CLEAR_CACHE;
 
-  Int32 cmpStatus = 2;  // assume failure
+  int cmpStatus = 2;  // assume failure
   if (getSessionDefaults()->callEmbeddedArkcmp() && isEmbeddedArkcmpInitialized() && CmpCommon::context() &&
       (CmpCommon::context()->getRecursionLevel() == 0)) {
     char *dummyReply = NULL;
@@ -2901,7 +2901,7 @@ ExSqlComp::ReturnStatus ContextCli::sendXnMsgToArkcmp(char *data, int dataSize, 
   char *dummyReply = NULL;
   ULng32 dummyLength;
   ContextCli *currCtxt = this;
-  Int32 cmpRet = 0;
+  int cmpRet = 0;
 
   // If use embedded compiler, send the settings to it
   if (currCtxt->getSessionDefaults()->callEmbeddedArkcmp() && currCtxt->isEmbeddedArkcmpInitialized() &&
@@ -2955,7 +2955,7 @@ ExSqlComp::ReturnStatus ContextCli::sendXnMsgToArkcmp(char *data, int dataSize, 
 }
 
 int ContextCli::setSecInvalidKeys(
-    /* IN */ Int32 numSiKeys,
+    /* IN */ int numSiKeys,
     /* IN */ SQL_QIKEY siKeys[]) {
   CliGlobals *cliGlobals = getCliGlobals();
 
@@ -3070,9 +3070,9 @@ TEXT_TYPE = %d and FLAGS = 0",
   return diagsArea_.mainSQLCODE();
 }
 
-Int32 ContextCli::setObjectEpochEntry(
-    /* IN */ Int32 operation,
-    /* IN */ Int32 objectNameLength,
+int ContextCli::setObjectEpochEntry(
+    /* IN */ int operation,
+    /* IN */ int objectNameLength,
     /* IN */ const char *objectName,
     /* IN */ long redefTime,
     /* IN */ long key,
@@ -3180,8 +3180,8 @@ Int32 ContextCli::setObjectEpochEntry(
   return diagsArea_.mainSQLCODE();
 }
 
-Int32 ContextCli::checkLobLock(char *inLobLockId, NABoolean *found) {
-  Int32 retcode = 0;
+int ContextCli::checkLobLock(char *inLobLockId, NABoolean *found) {
+  int retcode = 0;
   *found = FALSE;
   CliGlobals *cliGlobals = getCliGlobals();
   StatsGlobals *statsGlobals = GetCliGlobals()->getStatsGlobals();
@@ -3194,14 +3194,14 @@ Int32 ContextCli::checkLobLock(char *inLobLockId, NABoolean *found) {
   return retcode;
 }
 
-Int32 ContextCli::performObjectLockRequest(const char *objectName, ComObjectType objectType,
-                                           ObjectLockRequest::OpType opType, Int32 nid, Int32 pid, Int32 maxRetries,
-                                           Int32 delay) {
+int ContextCli::performObjectLockRequest(const char *objectName, ComObjectType objectType,
+                                           ObjectLockRequest::OpType opType, int nid, int pid, int maxRetries,
+                                           int delay) {
   int retries = 0;
   int retcode = 0;
   bool conflictLock = false;
-  Int32 conflictNid = -1;
-  Int32 conflictPid = -1;
+  int conflictNid = -1;
+  int conflictPid = -1;
   bool retryAfterClean = false;
   ComDiagsArea *tempDiagsArea = ComDiagsArea::allocate(STMTHEAP);
   while (retries < maxRetries || retryAfterClean) {
@@ -3242,10 +3242,10 @@ Int32 ContextCli::performObjectLockRequest(const char *objectName, ComObjectType
   return retcode;
 }
 
-Int32 ContextCli::performObjectLockRequest(const char *objectName, ComObjectType objectType,
-                                           ObjectLockRequest::OpType opType, Int32 nid, Int32 pid, bool &conflictLock,
-                                           Int32 &conflictNid, Int32 &conflictPid, ComDiagsArea *tempDiagsArea) {
-  Int32 retcode = 0;
+int ContextCli::performObjectLockRequest(const char *objectName, ComObjectType objectType,
+                                           ObjectLockRequest::OpType opType, int nid, int pid, bool &conflictLock,
+                                           int &conflictNid, int &conflictPid, ComDiagsArea *tempDiagsArea) {
+  int retcode = 0;
 
   conflictLock = false;
   LOGTRACE(CAT_SQL_LOCK, "ContextCli::performObjectLockRequest entry");
@@ -3371,14 +3371,14 @@ Int32 ContextCli::performObjectLockRequest(const char *objectName, ComObjectType
   return tempDiagsArea->mainSQLCODE();
 }
 
-Int32 ContextCli::lockObjectDDL(const char *objectName, ComObjectType objectType) {
+int ContextCli::lockObjectDDL(const char *objectName, ComObjectType objectType) {
   if (CmpCommon::getDefault(TRAF_OBJECT_LOCK) != DF_ON) {
     return 0;
   }
 
   CliGlobals *cliGlobals = getCliGlobals();
-  Int32 nid = cliGlobals->myAncestorNid();
-  Int32 pid = cliGlobals->myAncestorPid();
+  int nid = cliGlobals->myAncestorNid();
+  int pid = cliGlobals->myAncestorPid();
 
   int maxRetries = CmpCommon::getDefaultLong(TRAF_OBJECT_LOCK_DDL_RETRY_LIMIT);
   int delay = CmpCommon::getDefaultLong(TRAF_OBJECT_LOCK_DDL_RETRY_DELAY);
@@ -3425,7 +3425,7 @@ Int32 ContextCli::lockObjectDDL(const char *objectName, ComObjectType objectType
   return retcode;
 }
 
-Int32 ContextCli::unlockObjectDDL(const char *objectName, ComObjectType objectType, Int32 nid, Int32 pid, bool all) {
+int ContextCli::unlockObjectDDL(const char *objectName, ComObjectType objectType, int nid, int pid, bool all) {
   if (CmpCommon::getDefault(TRAF_OBJECT_LOCK) != DF_ON) {
     return 0;
   }
@@ -3448,25 +3448,25 @@ Int32 ContextCli::unlockObjectDDL(const char *objectName, ComObjectType objectTy
   return retcode;
 }
 
-Int32 ContextCli::unlockObjectDDL(const char *objectName, ComObjectType objectType) {
+int ContextCli::unlockObjectDDL(const char *objectName, ComObjectType objectType) {
   if (CmpCommon::getDefault(TRAF_OBJECT_LOCK) != DF_ON) {
     return 0;
   }
 
   CliGlobals *cliGlobals = getCliGlobals();
-  Int32 nid = cliGlobals->myAncestorNid();
-  Int32 pid = cliGlobals->myAncestorPid();
+  int nid = cliGlobals->myAncestorNid();
+  int pid = cliGlobals->myAncestorPid();
   return unlockObjectDDL(objectName, objectType, nid, pid);
 }
 
 bool ContextCli::cleanupStaleLockHolder(const LockHolder &holder) {
   char processName[MS_MON_MAX_PROCESS_NAME + 1];
-  Int32 nid = holder.getNid();
+  int nid = holder.getNid();
   pid_t pid = holder.getPid();
   bool force = CmpCommon::getDefault(TRAF_OBJECT_LOCK_FORCE) == DF_ON;
 
   LOGDEBUG(CAT_SQL_LOCK, "Check status of the lock holder node %d process %d", nid, pid);
-  Int32 rc = msg_mon_get_process_name(nid, pid, processName);
+  int rc = msg_mon_get_process_name(nid, pid, processName);
   if (rc != XZFIL_ERR_NOSUCHDEV) {
     LOGDEBUG(CAT_SQL_LOCK, "The lock holder is a running process %d on node %d", pid, nid);
     if (!force) {
@@ -3486,7 +3486,7 @@ bool ContextCli::cleanupStaleLockHolder(const LockHolder &holder) {
   return true;
 }
 
-Int32 ContextCli::lockObjectDML(const char *objectName, ComObjectType objectType) {
+int ContextCli::lockObjectDML(const char *objectName, ComObjectType objectType) {
   if (CmpCommon::getDefault(TRAF_OBJECT_LOCK) != DF_ON) {
     return 0;
   }
@@ -3540,7 +3540,7 @@ Int32 ContextCli::lockObjectDML(const char *objectName, ComObjectType objectType
     }
   }
 
-  Int32 retcode = -EXE_OL_UNABLE_TO_GET_DML_LOCK;
+  int retcode = -EXE_OL_UNABLE_TO_GET_DML_LOCK;
   if (state == ObjectLockReply::LOCK_CONFLICT_DDL) {
     LOGERROR(CAT_SQL_LOCK, "DML lock failed for %s %s, conflict with DDL operations on node %d process %d",
              comObjectTypeName(objectType), objectName, conflictHolder.getNid(), conflictHolder.getPid());
@@ -3559,7 +3559,7 @@ Int32 ContextCli::lockObjectDML(const char *objectName, ComObjectType objectType
   return retcode;
 }
 
-Int32 ContextCli::releaseAllDDLObjectLocks() {
+int ContextCli::releaseAllDDLObjectLocks() {
   if (CmpCommon::getDefault(TRAF_OBJECT_LOCK) != DF_ON) {
     return 0;
   }
@@ -3571,20 +3571,20 @@ Int32 ContextCli::releaseAllDDLObjectLocks() {
   }
   StatsGlobals *statsGlobals = cliGlobals->getStatsGlobals();
   ex_assert(statsGlobals, "StatsGlobals not properly initialized");
-  Int32 nid = cliGlobals->myNodeNumber();
-  Int32 pid = cliGlobals->myPin();
+  int nid = cliGlobals->myNodeNumber();
+  int pid = cliGlobals->myPin();
   ProcessStats *ps = statsGlobals->checkProcess(pid);
   ex_assert(ps, "ProcessStats not properly initialized");
   if (!ps->holdingDDLLocks()) {
     return 0;
   }
-  Int32 retcode = unlockObjectDDL("ALL",  // A dummy name, should not be used
+  int retcode = unlockObjectDDL("ALL",  // A dummy name, should not be used
                                   COM_BASE_TABLE_OBJECT, nid, pid, true /* all */);
   ps->setHoldingDDLLocks(false);
   return retcode;
 }
 
-Int32 ContextCli::releaseAllDMLObjectLocks() {
+int ContextCli::releaseAllDMLObjectLocks() {
   if (CmpCommon::getDefault(TRAF_OBJECT_LOCK) != DF_ON) {
     return 0;
   }
@@ -4123,13 +4123,13 @@ int parse_statsReq(short statsReqType, char *statsReqStr, int statsReqStrLen, ch
   char *timeTempPtr = (char *)NULL;
   char *queryNumTempPtr = (char *)NULL;
   short pHandle[10];
-  Int32 error;
-  Int32 tempCpu;
+  int error;
+  int tempCpu;
   pid_t tempPid;
   long tempTime = -1;
   int tempQnum = -1;
   short len;
-  Int32 cpuMinRange;
+  int cpuMinRange;
   CliGlobals *cliGlobals;
 
   if (statsReqStr == NULL || nodeName == NULL || statsReqStrLen > ComSqlId::MAX_QUERY_ID_LEN) return -1;
@@ -4238,7 +4238,7 @@ int parse_statsReq(short statsReqType, char *statsReqStr, int statsReqStrLen, ch
 
 void ContextCli::killIdleMxcmp() {
   long currentTimestamp;
-  Int32 compilerIdleTimeout;
+  int compilerIdleTimeout;
   long recentIpcTimestamp;
 
   if (arkcmpArray_.entries() == 0) return;
@@ -4313,8 +4313,8 @@ void ContextCli::initializeUserInfoFromOS() {}
 // *                                                                           *
 // *****************************************************************************
 
-RETCODE ContextCli::authQuery(AuthQueryType queryType, const char *authName, Int32 authID, char *authNameFromTable,
-                              Int32 authNameMaxLen, Int32 &authIDFromTable, TenantInfo *tenantInfo)
+RETCODE ContextCli::authQuery(AuthQueryType queryType, const char *authName, int authID, char *authNameFromTable,
+                              int authNameMaxLen, int &authIDFromTable, TenantInfo *tenantInfo)
 
 {
   // We may need to perform a transactional lookup into metadata.
@@ -4378,7 +4378,7 @@ RETCODE ContextCli::authQuery(AuthQueryType queryType, const char *authName, Int
   // merges the results from diagsArea_.
 
   // The CmpCommon::diags() may not be allocated yet.
-  Int32 diagsMark(-1);
+  int diagsMark(-1);
   NABoolean diagsExist = (CmpCommon::diags() != NULL);
   if (diagsExist) diagsMark = CmpCommon::diags()->mark();
 
@@ -4415,8 +4415,8 @@ RETCODE ContextCli::authQuery(AuthQueryType queryType, const char *authName, Int
       authStatus = authInfo.getRoleIDs(authID, roleIDs, granteeIDs);
       ex_assert((roleIDs.size() == granteeIDs.size()), "mismatch between roleIDs and granteeIDs");
       numRoles_ = roleIDs.size() + 1;  // extra for public role
-      roleIDs_ = new (&exHeap_) Int32[numRoles_];
-      granteeIDs_ = new (&exHeap_) Int32[numRoles_];
+      roleIDs_ = new (&exHeap_) int[numRoles_];
+      granteeIDs_ = new (&exHeap_) int[numRoles_];
 
       for (size_t i = 0; i < roleIDs.size(); i++) {
         roleIDs_[i] = roleIDs[i];
@@ -4424,7 +4424,7 @@ RETCODE ContextCli::authQuery(AuthQueryType queryType, const char *authName, Int
       }
 
       // Add the public user to the last entry
-      Int32 lastEntry = numRoles_ - 1;
+      int lastEntry = numRoles_ - 1;
       roleIDs_[lastEntry] = PUBLIC_USER;
       granteeIDs_[lastEntry] = databaseUserID_;
     } break;
@@ -4489,7 +4489,7 @@ RETCODE ContextCli::authQuery(AuthQueryType queryType, const char *authName, Int
                    << DgString0("Error returned but diags is not updated (ContextCLI::authQuery)");
       } else {
         diagsArea_.mergeAfter(*CmpCommon::diags());
-        Int32 primaryError = CmpCommon::diags()->getErrorEntry(1)->getSQLCODE();
+        int primaryError = CmpCommon::diags()->getErrorEntry(1)->getSQLCODE();
         diagsArea_ << DgSqlCode(-CLI_PROBLEM_READING_USERS) << DgString0(nameForDiags) << DgInt1(primaryError);
       }
       break;
@@ -4534,7 +4534,7 @@ RETCODE ContextCli::authQuery(AuthQueryType queryType, const char *authName, Int
 // Public method to update the databaseUserID_ and databaseUserName_
 // members and at the same time. It also calls dropSession() to create a
 // session boundary.
-void ContextCli::setDatabaseUser(const Int32 &uid, const char *uname) {
+void ContextCli::setDatabaseUser(const int &uid, const char *uname) {
   // Since this was moved from private to public, do some sanity checks
   // to make sure the passed in parameters are valid.  We don't want to
   // read any metadata since this could get into an infinte loop.
@@ -4559,9 +4559,9 @@ void ContextCli::setDatabaseUser(const Int32 &uid, const char *uname) {
 // Public method to establish a new user identity. userID will be
 // verified against metadata in the AUTHS table. If a matching row is
 // not found an error code will be returned and diagsArea_ populated.
-RETCODE ContextCli::setDatabaseUserByID(Int32 userID) {
+RETCODE ContextCli::setDatabaseUserByID(int userID) {
   char username[MAX_USERNAME_LEN + 1];
-  Int32 userIDFromMetadata;
+  int userIDFromMetadata;
 
   // See if the USERS row exists
   RETCODE result = authQuery(USERS_QUERY_BY_USER_ID,
@@ -4581,7 +4581,7 @@ RETCODE ContextCli::setDatabaseUserByID(Int32 userID) {
 // not found an error code will be returned and diagsArea_ populated.
 RETCODE ContextCli::setDatabaseUserByName(const char *userName) {
   char usersNameFromUsersTable[MAX_USERNAME_LEN + 1];
-  Int32 userIDFromUsersTable;
+  int userIDFromUsersTable;
 
   RETCODE result = authQuery(USERS_QUERY_BY_USER_NAME,
                              userName,                 // IN user name
@@ -4613,7 +4613,7 @@ RETCODE ContextCli::setDatabaseUserByName(const char *userName) {
 //    -1 - error occurred
 //     0 - successful (user and/or tenant may not exist)
 // -----------------------------------------------------------------------------
-Int32 ContextCli::getUserAttrs(const char *username, const char *tenantname, USERS_INFO *usersInfo,
+int ContextCli::getUserAttrs(const char *username, const char *tenantname, USERS_INFO *usersInfo,
                                struct SQLSEC_AuthDetails *authDetails) {
   ex_assert((username), "Invalid username was specified");
   ex_assert((tenantname), "Invalid tenant name was specified");
@@ -4632,7 +4632,7 @@ Int32 ContextCli::getUserAttrs(const char *username, const char *tenantname, USE
   NABoolean txWasInProgress = transaction_->xnInProgress();
 
   bool enabled = msg_license_multitenancy_enabled();
-  Int32 retcode = 0;
+  int retcode = 0;
 
   usersInfo->reset();
   authDetails->reset();
@@ -4693,7 +4693,7 @@ Int32 ContextCli::getUserAttrs(const char *username, const char *tenantname, USE
 //    -1 - unexpected error
 //     0 - successful
 // -----------------------------------------------------------------------------
-Int32 ContextCli::addUserInfo(const char *username, USERS_INFO *usersInfo, struct SQLSEC_AuthDetails *authDetails,
+int ContextCli::addUserInfo(const char *username, USERS_INFO *usersInfo, struct SQLSEC_AuthDetails *authDetails,
                               CmpSeabaseDDLauth &authInfo) {
   ComAuthenticationType authType = CmpCommon::getAuthenticationType();
   /*
@@ -4703,7 +4703,7 @@ Int32 ContextCli::addUserInfo(const char *username, USERS_INFO *usersInfo, struc
   //This is very insecure, so delete it
   if (strcmp(username, externalUsername_) == 0)
   {
-    Int32 authID = databaseUserID_;
+    int authID = databaseUserID_;
     usersInfo->dbUsername = new char[strlen(databaseUserName_) + 1];
     strcpy (usersInfo->dbUsername, databaseUserName_);
     usersInfo->effectiveUserID = databaseUserID_;
@@ -4759,7 +4759,7 @@ Int32 ContextCli::addUserInfo(const char *username, USERS_INFO *usersInfo, struc
 //    -1 - unexpected error
 //     0 - successful
 // -----------------------------------------------------------------------------
-Int32 ContextCli::addTenantInfo(const char *tenantname, USERS_INFO *usersInfo, struct SQLSEC_AuthDetails *authDetails,
+int ContextCli::addTenantInfo(const char *tenantname, USERS_INFO *usersInfo, struct SQLSEC_AuthDetails *authDetails,
                                 CmpSeabaseDDLauth &authInfo) {
   CmpSeabaseDDLauth::AuthStatus authStatus = CmpSeabaseDDLauth::STATUS_GOOD;
   ULng32 flagBits = getSqlParserFlags();
@@ -4782,7 +4782,7 @@ Int32 ContextCli::addTenantInfo(const char *tenantname, USERS_INFO *usersInfo, s
       // Since user details in the context have not been setup yet, can't use
       // ComUser::currentUserHasRole that checks the cached role list.
       // Instead, read metadata
-      Int32 servicesID = NA_UserIdDefault;
+      int servicesID = NA_UserIdDefault;
       setSqlParserFlags(0x20000);
       retcode = ComUser::getAuthIDFromAuthName(DB__SERVICESROLE, servicesID, NULL);
       assignSqlParserFlags(flagBits);
@@ -4889,7 +4889,7 @@ Int32 ContextCli::addTenantInfo(const char *tenantname, USERS_INFO *usersInfo, s
     if (inGroupList) {
       authDetails->num_groups = inGroupList->entries();
       authDetails->group_list = new SQLSEC_GroupInfo[authDetails->num_groups];
-      for (Int32 i = 0; i < inGroupList->entries(); i++) {
+      for (int i = 0; i < inGroupList->entries(); i++) {
         TenantGroupInfo *inGroup = (*inGroupList)[i];
         char *outGroupName = new char[inGroup->getGroupName().length() + 1];
         strcpy(outGroupName, inGroup->getGroupName().data());
@@ -4919,7 +4919,7 @@ Int32 ContextCli::addTenantInfo(const char *tenantname, USERS_INFO *usersInfo, s
 //    -1 = unexpected error (ComDiags is set up)
 //     n = authID for new user
 // -----------------------------------------------------------------------------
-Int32 ContextCli::registerUser(const char *username, const char *config, USERS_INFO *usersInfo,
+int ContextCli::registerUser(const char *username, const char *config, USERS_INFO *usersInfo,
                                struct SQLSEC_AuthDetails *authDetails) {
   ex_assert((username), "Invalid username was specified");
   ex_assert((usersInfo), "Invalid connection info was specified");
@@ -4942,7 +4942,7 @@ Int32 ContextCli::registerUser(const char *username, const char *config, USERS_I
   ULng32 flagBits = getSqlParserFlags();
   setSqlParserFlags(0x20000);
 
-  Int32 retcode = userInfo.registerUserInternal(dbUserName, dbUserName, config, true, ROOT_USER_ID, authPassword);
+  int retcode = userInfo.registerUserInternal(dbUserName, dbUserName, config, true, ROOT_USER_ID, authPassword);
   assignSqlParserFlags(flagBits);
   if (retcode == 0) {
     usersInfo->dbUsername = new char[userInfo.getAuthDbName().length() + 1];
@@ -4977,7 +4977,7 @@ Int32 ContextCli::registerUser(const char *username, const char *config, USERS_I
   return retcode;
 }
 
-Int32 ContextCli::getAuthErrPwdCnt(Int32 userid, Int16 &errcnt) {
+int ContextCli::getAuthErrPwdCnt(int userid, Int16 &errcnt) {
   //  1. Disable autocommit
   NABoolean autoCommitDisabled = FALSE;
   if (transaction_->autoCommit()) {
@@ -4992,7 +4992,7 @@ Int32 ContextCli::getAuthErrPwdCnt(Int32 userid, Int16 &errcnt) {
   CmpSeabaseDDLauth authInfo;
   ULng32 flagBits = getSqlParserFlags();
   setSqlParserFlags(0x20000);
-  Int32 retcode = authInfo.getErrPwdCnt(userid, errcnt);
+  int retcode = authInfo.getErrPwdCnt(userid, errcnt);
   assignSqlParserFlags(flagBits);
   if (retcode != 0) {
     diagsArea_.mergeAfter(*CmpCommon::diags());
@@ -5013,7 +5013,7 @@ Int32 ContextCli::getAuthErrPwdCnt(Int32 userid, Int16 &errcnt) {
   return retcode;
 }
 
-Int32 ContextCli::updateAuthErrPwdCnt(Int32 userid, Int16 errcnt, bool reset) {
+int ContextCli::updateAuthErrPwdCnt(int userid, Int16 errcnt, bool reset) {
   //  1. Disable autocommit
   NABoolean autoCommitDisabled = FALSE;
   if (transaction_->autoCommit()) {
@@ -5028,7 +5028,7 @@ Int32 ContextCli::updateAuthErrPwdCnt(Int32 userid, Int16 errcnt, bool reset) {
   CmpSeabaseDDLuser userInfo;
   ULng32 flagBits = getSqlParserFlags();
   setSqlParserFlags(0x20000);
-  Int32 retcode = userInfo.updateErrPwdCnt(userid, errcnt, reset);
+  int retcode = userInfo.updateErrPwdCnt(userid, errcnt, reset);
   assignSqlParserFlags(flagBits);
   if (retcode != 0) {
     diagsArea_.mergeAfter(*CmpCommon::diags());
@@ -5052,8 +5052,8 @@ Int32 ContextCli::updateAuthErrPwdCnt(Int32 userid, Int16 errcnt, bool reset) {
 // Public method to update the context with the tenant details
 // and members and at the same time.
 // ----- deprecated, remove in a future commit ------
-void ContextCli::setTenantInfoInContext(Int32 tenantID, const char *tenantName, Int32 affinity, Int32 nodeSize,
-                                        Int32 clusterSize, const char *tenantDefaultSchema) {
+void ContextCli::setTenantInfoInContext(int tenantID, const char *tenantName, int affinity, int nodeSize,
+                                        int clusterSize, const char *tenantDefaultSchema) {
   NAASNodes asNodes(nodeSize, clusterSize, affinity);
   NAText serializedNodes;
 
@@ -5064,7 +5064,7 @@ void ContextCli::setTenantInfoInContext(Int32 tenantID, const char *tenantName, 
 
 // Public method to update the context with the tenant details
 // and members and at the same time.
-void ContextCli::setTenantInfoInContext(Int32 tenantID, const char *tenantName, const char *serializedAvailableNodes,
+void ContextCli::setTenantInfoInContext(int tenantID, const char *tenantName, const char *serializedAvailableNodes,
                                         const char *tenantDefaultSchema) {
   // Do some sanity checks
   // to make sure the passed in parameters are valid.  We don't want to
@@ -5097,9 +5097,9 @@ void ContextCli::setTenantInfoInContext(Int32 tenantID, const char *tenantName, 
 // Public method to establish a new tenant identity. tenantID will be
 // verified against metadata in the AUTHS table. If a matching row is
 // not found an error code will be returned and diagsArea_ populated.
-RETCODE ContextCli::retrieveAndSetTenantInfo(Int32 tenantID) {
+RETCODE ContextCli::retrieveAndSetTenantInfo(int tenantID) {
   char tenantName[MAX_USERNAME_LEN + 1];
-  Int32 tenantIDFromMetadata;
+  int tenantIDFromMetadata;
   TenantInfo tenantInfo(&exHeap_);
   ULng32 flagBits = getSqlParserFlags();
   setSqlParserFlags(0x20000);
@@ -5135,7 +5135,7 @@ RETCODE ContextCli::retrieveAndSetTenantInfo(Int32 tenantID) {
 // Used only by sqlci to support sqlci -t <tenant name>
 RETCODE ContextCli::setTenantByName(const char *tenantName) {
   char tenantNameFromUsersTable[MAX_USERNAME_LEN + 1];
-  Int32 tenantIDFromUsersTable;
+  int tenantIDFromUsersTable;
   TenantInfo tenantInfo(&exHeap_);
   ULng32 flagBits = getSqlParserFlags();
   setSqlParserFlags(0x20000);
@@ -5160,7 +5160,7 @@ RETCODE ContextCli::setTenantByName(const char *tenantName) {
   return result;
 }
 
-void ContextCli::setTenantID(Int32 tenantID) {
+void ContextCli::setTenantID(int tenantID) {
   // Do some sanity checks
   // to make sure the passed in parameters are valid.  We don't want to
   // read any metadata since this could get into an infinte loop.
@@ -5207,7 +5207,7 @@ void ContextCli::setTenantDefaultSchema(const char *schemaName) {
 // *     current user and their groups from the Metadata and store in roleIDs_.
 // *
 // ****************************************************************************
-RETCODE ContextCli::getRoleList(Int32 &numEntries, Int32 *&roleIDs, Int32 *&granteeIDs) {
+RETCODE ContextCli::getRoleList(int &numEntries, int *&roleIDs, int *&granteeIDs) {
   // If role list has not been created, go read metadata
   // There will always be at least one role - PUBLIC in the list
   if (roleIDs_ == NULL) {
@@ -5216,9 +5216,9 @@ RETCODE ContextCli::getRoleList(Int32 &numEntries, Int32 *&roleIDs, Int32 *&gran
     ex_assert(cmpCntxt, "No compiler context exists");
     if (!cmpCntxt->isAuthorizationEnabled()) {
       numRoles_ = 1;
-      roleIDs_ = new (&exHeap_) Int32[numRoles_];
+      roleIDs_ = new (&exHeap_) int[numRoles_];
       roleIDs_[0] = PUBLIC_USER;
-      granteeIDs = new (&exHeap_) Int32[numRoles_];
+      granteeIDs = new (&exHeap_) int[numRoles_];
       granteeIDs[0] = databaseUserID_;
       numEntries = numRoles_;
       roleIDs = roleIDs_;
@@ -5261,7 +5261,7 @@ RETCODE ContextCli::getRoleList(Int32 &numEntries, Int32 *&roleIDs, Int32 *&gran
 
     // Get roles for userID
     char usersNameFromUsersTable[MAX_USERNAME_LEN + 1];
-    Int32 userIDFromUsersTable;
+    int userIDFromUsersTable;
     RETCODE result = authQuery(ROLES_QUERY_BY_AUTH_ID,
                                NULL,  // user name
                                databaseUserID_,
@@ -5314,7 +5314,7 @@ RETCODE ContextCli::resetRoleList() {
 // *  <authName>                      const char *                    In       *
 // *    is the authorization name to be mapped to a numeric ID.                *
 // *                                                                           *
-// *  <authID>                        Int32 &                         Out      *
+// *  <authID>                        int &                         Out      *
 // *    passes back the numeric ID.                                            *
 // *                                                                           *
 // *****************************************************************************
@@ -5326,7 +5326,7 @@ RETCODE ContextCli::resetRoleList() {
 // *                                                                           *
 // *****************************************************************************
 
-RETCODE ContextCli::getAuthIDFromName(const char *authName, Int32 &authID)
+RETCODE ContextCli::getAuthIDFromName(const char *authName, int &authID)
 
 {
   RETCODE result = SUCCESS;
@@ -5372,17 +5372,17 @@ RETCODE ContextCli::getAuthIDFromName(const char *authName, Int32 &authID)
 // *                                                                           *
 // *  Parameters:                                                              *
 // *                                                                           *
-// *  <authID>                        Int32                           In       *
+// *  <authID>                        int                           In       *
 // *    is the numeric ID to be mapped to a name.                              *
 // *                                                                           *
 // *  <authName>                      char *                          Out      *
 // *    passes back the name that the numeric ID mapped to.  If the ID does    *
 // *  not map to a name, the ASCII equivalent of the ID is passed back.        *
 // *                                                                           *
-// *  <maxBufLen>                     Int32                           In       *
+// *  <maxBufLen>                     int                           In       *
 // *    is the size of <authName>.                                             *
 // *                                                                           *
-// *  <requiredLen>                   Int32 &                         Out      *
+// *  <requiredLen>                   int &                         Out      *
 // *    is the size of the auth name in the table.  If larger than <maxBufLen> *
 // *  caller needs to supply a larger buffer.                                  *
 // *                                                                           *
@@ -5395,15 +5395,15 @@ RETCODE ContextCli::getAuthIDFromName(const char *authName, Int32 &authID)
 // *                                                                           *
 // *****************************************************************************
 
-RETCODE ContextCli::getAuthNameFromID(Int32 authID,        // IN
+RETCODE ContextCli::getAuthNameFromID(int authID,        // IN
                                       char *authName,      // OUT
-                                      Int32 maxBufLen,     // IN
-                                      Int32 &requiredLen)  // OUT optional
+                                      int maxBufLen,     // IN
+                                      int &requiredLen)  // OUT optional
 
 {
   RETCODE result = SUCCESS;
   char authNameFromTable[MAX_USERNAME_LEN + 1];
-  Int32 authIDFromTable;
+  int authIDFromTable;
   TenantInfo tenantInfo(&exHeap_);
 
   requiredLen = 0;
@@ -5414,7 +5414,7 @@ RETCODE ContextCli::getAuthNameFromID(Int32 authID,        // IN
   //   are not registered in the AUTHS table
   // * other users
 
-  if (authID == (Int32)databaseUserID_) return storeName(databaseUserName_, authName, maxBufLen, requiredLen);
+  if (authID == (int)databaseUserID_) return storeName(databaseUserName_, authName, maxBufLen, requiredLen);
 
   if (authID == ComUser::getPublicUserID())
     return storeName(ComUser::getPublicUserName(), authName, maxBufLen, requiredLen);
@@ -5476,7 +5476,7 @@ const char *ContextCli::getExternalUserName() {
   // Go find the actual name for the current user.
   RETCODE result = SUCCESS;
   char usersNameFromAuths[MAX_USERNAME_LEN + 1];
-  Int32 userIDFromAuths;
+  int userIDFromAuths;
 
   result = authQuery(QUERY_FOR_EXTERNAL_NAME, NULL, databaseUserID_,
                      usersNameFromAuths,  // OUT
@@ -5502,7 +5502,7 @@ const char *ContextCli::getExternalUserName() {
 // Public method only meant to be called in ESPs. All we do is call
 // the private method to update user ID data members. On platforms
 // other than Linux the method is a no-op.
-void ContextCli::setDatabaseUserInESP(const Int32 &uid, const char *uname, bool closeAllOpens) {
+void ContextCli::setDatabaseUserInESP(const int &uid, const char *uname, bool closeAllOpens) {
   // check if we need to close all opens to avoid share opens for different
   // users
   if (closeAllOpens) {
@@ -5529,7 +5529,7 @@ void ContextCli::setAuthStateInCmpContexts(NABoolean authEnabled, NABoolean auth
   }
 }
 
-void ContextCli::getAuthState(Int32 &authenticationType, bool &authorizationEnabled, bool &authorizationReady,
+void ContextCli::getAuthState(int &authenticationType, bool &authorizationEnabled, bool &authorizationReady,
                               bool &auditingEnabled) {
   // Check authorization state
   CmpContext *cmpCntxt = CmpCommon::context();
@@ -5538,7 +5538,7 @@ void ContextCli::getAuthState(Int32 &authenticationType, bool &authorizationEnab
   authorizationReady = cmpCntxt->isAuthorizationReady();
 
   // Check for authentication type
-  authenticationType = (Int32)GetCliGlobals()->getAuthenticationType();
+  authenticationType = (int)GetCliGlobals()->getAuthenticationType();
 
   // set auditingState to FALSE
   // TDB - add auditing support
@@ -5562,7 +5562,7 @@ NABoolean ContextCli::sqlAccessAllowed() const {
 }
 
 //********************** Switch CmpContext ************************************
-Int32 ContextCli::switchToCmpContext(Int32 cmpCntxtType) {
+int ContextCli::switchToCmpContext(int cmpCntxtType) {
   if (cmpCntxtType < 0 || cmpCntxtType >= CmpContextInfo::CMPCONTEXT_TYPE_LAST) return -2;
 
   const char *cmpCntxtName = CmpContextInfo::getCmpContextClassName(cmpCntxtType);
@@ -5587,7 +5587,7 @@ Int32 ContextCli::switchToCmpContext(Int32 cmpCntxtType) {
   if (i == cmpContextInfo_.entries()) {
     // find none to use, create new CmpContext instance
     CmpContext *savedCntxt = cmpCurrentContext;
-    Int32 rc = 0;
+    int rc = 0;
     if (rc = arkcmp_main_entry()) {
       cmpCurrentContext = savedCntxt;
       if (rc == 2)
@@ -5618,7 +5618,7 @@ Int32 ContextCli::switchToCmpContext(Int32 cmpCntxtType) {
   return 0;  // success
 }
 
-Int32 ContextCli::switchToCmpContext(void *cmpCntxt) {
+int ContextCli::switchToCmpContext(void *cmpCntxt) {
   if (!cmpCntxt) return -1;  // invalid input
 
   // check if given CmpContext is known
@@ -5664,7 +5664,7 @@ void ContextCli::copyDiagsAreaToPrevCmpContext() {
   if (curr->diags()->getNumber() > 0) prevCmpContext_->diags()->mergeAfter(*curr->diags());
 }
 
-Int32 ContextCli::switchBackCmpContext(void) {
+int ContextCli::switchBackCmpContext(void) {
   if (prevCmpContext_ == NULL) {
     ex_assert(cmpContextInUse_.entries(), "Invalid use of switch back call");
     if (cmpContextInUse_.getLast(prevCmpContext_) == FALSE) return -1;
@@ -5821,7 +5821,7 @@ void ContextCli::putTrustedRoutine(CollIndex ix) {
 // name and port. If the conection does not exist, a new connection is made and
 // cached in the hdfsHandleList_ hashqueue for later use. The hdfsHandleList_
 // gets cleaned up when the thread exits.
-hdfsFS ContextCli::getHdfsServerConnection(char *hdfs_server, Int32 port, hdfsConnectStruct **entryPtr) {
+hdfsFS ContextCli::getHdfsServerConnection(char *hdfs_server, int port, hdfsConnectStruct **entryPtr) {
   if (hdfs_server == NULL)  // guard against NULL and use default value.
   {
     // TODO: illegal assignment
@@ -5872,7 +5872,7 @@ void ContextCli::disconnectHdfsConnections() {
   }
 }
 
-Int32 ContextCli::loadTrafMetadataInCache() {
+int ContextCli::loadTrafMetadataInCache() {
   ComDiagsArea *diagsArea = &diagsArea_;
   ExeCliInterface cliInterface(exHeap(), 0, this);
   int retcode =
@@ -5886,7 +5886,7 @@ Int32 ContextCli::loadTrafMetadataInCache() {
   return 0;
 }
 
-Int32 ContextCli::loadTrafMetadataIntoSharedCache() {
+int ContextCli::loadTrafMetadataIntoSharedCache() {
   ComDiagsArea *diagsArea = &diagsArea_;
   ExeCliInterface cliInterface(exHeap(), 0, this);
   int retcode = cliInterface.executeImmediate((char *)"load trafodion metadata into shared cache;", NULL, NULL, TRUE,
@@ -5905,7 +5905,7 @@ Int32 ContextCli::loadTrafMetadataIntoSharedCache() {
   return 0;
 }
 
-Int32 ContextCli::loadTrafDataIntoSharedCache() {
+int ContextCli::loadTrafDataIntoSharedCache() {
   ComDiagsArea *diagsArea = &diagsArea_;
   ExeCliInterface cliInterface(exHeap(), 0, this);
   int retcode = cliInterface.executeImmediate((char *)"load trafodion data into shared cache;", NULL, NULL, TRUE,
@@ -5931,7 +5931,7 @@ void ContextCli::collectSpecialRTStats() {
 
   ExeCliInterface *cliInterface = new (exHeap()) ExeCliInterface(exHeap(), SQLCHARSETCODE_UTF8, this, NULL);
 
-  Int32 retcode = cliInterface->executeImmediate((char *)getRTStatsQuery,
+  int retcode = cliInterface->executeImmediate((char *)getRTStatsQuery,
                                                  NULL,   // outputBuf
                                                  NULL,   // outputBufLen
                                                  TRUE,   // null terminated
@@ -5944,9 +5944,9 @@ void ContextCli::collectSpecialRTStats() {
 
 NABoolean ContextCli::initEmbeddedArkcmp(NABoolean executeInESP) {
   if (!isEmbeddedArkcmpInitialized()) {
-    Int32 embeddedArkcmpSetup;
+    int embeddedArkcmpSetup;
     // embeddedArkcmpSetup = arkcmp_main_entry();
-    embeddedArkcmpSetup = switchToCmpContext((Int32)0);
+    embeddedArkcmpSetup = switchToCmpContext((int)0);
     if (embeddedArkcmpSetup == 0) {
       setEmbeddedArkcmpIsInitialized(TRUE);
     } else if (embeddedArkcmpSetup == -2) {
@@ -6028,7 +6028,7 @@ int ContextCli::executeCallTrigger(char *tblName, int isBefore, int opType, char
   setSkipCheckValidPrivs(false);
   return retCode;
 }
-Int32 ContextCli::getGracePwdCnt(Int32 userid, Int16 &graceCounter) {
+int ContextCli::getGracePwdCnt(int userid, Int16 &graceCounter) {
   //  1. Disable autocommit
   NABoolean autoCommitDisabled = FALSE;
   if (transaction_->autoCommit()) {
@@ -6043,7 +6043,7 @@ Int32 ContextCli::getGracePwdCnt(Int32 userid, Int16 &graceCounter) {
   CmpSeabaseDDLauth authInfo;
   ULng32 flagBits = getSqlParserFlags();
   setSqlParserFlags(0x20000);
-  Int32 retcode = authInfo.getGracePwdCnt(userid, graceCounter);
+  int retcode = authInfo.getGracePwdCnt(userid, graceCounter);
   assignSqlParserFlags(flagBits);
   if (retcode != 0) {
     diagsArea_.mergeAfter(*CmpCommon::diags());
@@ -6064,7 +6064,7 @@ Int32 ContextCli::getGracePwdCnt(Int32 userid, Int16 &graceCounter) {
   return retcode;
 }
 
-Int32 ContextCli::updateGracePwdCnt(Int32 userid, Int16 graceCounter) {
+int ContextCli::updateGracePwdCnt(int userid, Int16 graceCounter) {
   //  1. Disable autocommit
   NABoolean autoCommitDisabled = FALSE;
   if (transaction_->autoCommit()) {
@@ -6079,7 +6079,7 @@ Int32 ContextCli::updateGracePwdCnt(Int32 userid, Int16 graceCounter) {
   CmpSeabaseDDLuser userInfo;
   ULng32 flagBits = getSqlParserFlags();
   setSqlParserFlags(0x20000);
-  Int32 retcode = userInfo.updateGracePwdCnt(userid, graceCounter);
+  int retcode = userInfo.updateGracePwdCnt(userid, graceCounter);
   assignSqlParserFlags(flagBits);
   if (retcode != 0) {
     diagsArea_.mergeAfter(*CmpCommon::diags());

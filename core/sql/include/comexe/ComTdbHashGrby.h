@@ -66,7 +66,7 @@ class ComTdbHashGrby : public ComTdb {
   UInt32 keyLength_;                     // 120-123
   UInt32 resultRowLength_;               // 124-127
   UInt32 extGroupedRowLength_;           // 128-131
-  Int32 isPartialGroup_;                 // 132-135
+  int isPartialGroup_;                 // 132-135
   Int16 hbRowAtpIndex_;                  // 136-137
   Int16 ofRowAtpIndex_;                  // 138-139
   Int16 hashValueAtpIndex_;              // 140-141
@@ -133,7 +133,7 @@ class ComTdbHashGrby : public ComTdb {
 
   inline ComTdb *getChildTdb();
 
-  Int32 orderedQueueProtocol() const;
+  int orderedQueueProtocol() const;
 
   AggrExpr *hbAggrExpr() const { return (AggrExpr *)((ex_expr *)hbAggrExpr_); }
   AggrExpr *ofAggrExpr() const { return (AggrExpr *)((ex_expr *)ofAggrExpr_); }
@@ -153,15 +153,15 @@ class ComTdbHashGrby : public ComTdb {
 #endif
 
   // **** GUI ****
-  virtual const ComTdb *getChild(Int32 pos) const;
+  virtual const ComTdb *getChild(int pos) const;
 
-  virtual Int32 numChildren() const { return 1; };
+  virtual int numChildren() const { return 1; };
 
   virtual const char *getNodeName() const { return "EX_HASH_GRBY"; };
 
-  virtual Int32 numExpressions() const { return 13; };
+  virtual int numExpressions() const { return 13; };
 
-  virtual ex_expr *getExpressionNode(Int32 pos) {
+  virtual ex_expr *getExpressionNode(int pos) {
     if (pos == 0)
       return hashExpr_;
     else if (pos == 1)
@@ -192,7 +192,7 @@ class ComTdbHashGrby : public ComTdb {
       return NULL;
   };
 
-  virtual const char *getExpressionName(Int32 pos) const {
+  virtual const char *getExpressionName(int pos) const {
     if (pos == 0)
       return "hashExpr_";
     else if (pos == 1)
@@ -277,7 +277,7 @@ class ComTdbHashGrby : public ComTdb {
 
   Float32 hgbGrowthPercent() { return Float32(hgbGrowthPercent_ / 100.0); }
 
-  Int32 scratchIOVectorSize() { return (Int32)scratchIOVectorSize_; }
+  int scratchIOVectorSize() { return (int)scratchIOVectorSize_; }
 
   void setScratchIOVectorSize(Int16 v) { scratchIOVectorSize_ = v; }
 
@@ -307,7 +307,7 @@ inline ComTdb *ComTdbHashGrby::getChildTdb() { return childTdb_; };
   History     : Yeogirl Yun                                      8/22/95
                  Initial Revision.
 *****************************************************************************/
-inline const ComTdb *ComTdbHashGrby::getChild(Int32 pos) const {
+inline const ComTdb *ComTdbHashGrby::getChild(int pos) const {
   if (pos == 0)
     return childTdb_;
   else

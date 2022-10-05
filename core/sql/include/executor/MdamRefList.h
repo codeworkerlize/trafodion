@@ -66,7 +66,7 @@ class MdamRefList {
   MdamRefList() : lastEntryPtr_(0) {}
 
   // Constructor.  Creates a list with one entry.
-  inline MdamRefList(const Int32 disjunctNum, FixedSizeHeapManager &mdamRefListEntryHeap);
+  inline MdamRefList(const int disjunctNum, FixedSizeHeapManager &mdamRefListEntryHeap);
 
   // Copy constructor is not supported.
 
@@ -88,7 +88,7 @@ class MdamRefList {
   void deleteEntries(FixedSizeHeapManager &mdamRefListEntryHeap);
 
   // Insert an entry into the reference list.
-  MdamRefList &insert(const Int32 disjunctNum, FixedSizeHeapManager &mdamRefListEntryHeap);
+  MdamRefList &insert(const int disjunctNum, FixedSizeHeapManager &mdamRefListEntryHeap);
 
   // Calculate the intersection of two reference lists.
   void intersect(const MdamRefList &refList0Ref, const MdamRefList &refList1Ref,
@@ -128,7 +128,7 @@ class MdamRefList {
 // *****************************************************************************
 
 // Constructor.  Creates a list with one entry.
-inline MdamRefList::MdamRefList(const Int32 disjunctNum, FixedSizeHeapManager &mdamRefListEntryHeap)
+inline MdamRefList::MdamRefList(const int disjunctNum, FixedSizeHeapManager &mdamRefListEntryHeap)
     : lastEntryPtr_(0) {
   insert(disjunctNum, mdamRefListEntryHeap);
 }

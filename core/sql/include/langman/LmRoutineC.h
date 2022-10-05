@@ -51,7 +51,7 @@ class SQLLM_LIB_FUNC LmRoutineC : public LmRoutine {
   LmRoutineC(const char *sqlName, const char *externalName, const char *librarySqlName, ComUInt32 numSqlParam,
              char *routineSig, ComUInt32 maxResultSets, ComRoutineLanguage language, ComRoutineParamStyle paramStyle,
              ComRoutineTransactionAttributes transactionAttrs, ComRoutineSQLAccess sqlAccessMode,
-             ComRoutineExternalSecurity externalSecurity, Int32 routineOwnerId, const char *parentQid,
+             ComRoutineExternalSecurity externalSecurity, int routineOwnerId, const char *parentQid,
              ComUInt32 inputParamRowLen, ComUInt32 outputRowLen, const char *currentUserName,
              const char *sessionUserName, LmParameter *parameters, LmLanguageManagerC *lm, LmHandle routine,
              LmContainer *container, ComDiagsArea *diagsArea);

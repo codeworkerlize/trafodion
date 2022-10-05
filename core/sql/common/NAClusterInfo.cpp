@@ -39,7 +39,7 @@
 #include <sys/stat.h>
 #include "utility.h"
 
-static ULng32 intHashFunc(const Int32 &Int) { return (ULng32)Int; }
+static ULng32 intHashFunc(const int &Int) { return (ULng32)Int; }
 
 void fillNodeName(char *buf, int len);
 
@@ -66,20 +66,20 @@ void fillNodeName(char *buf, int len);
 NAClusterInfo::NAClusterInfo(CollHeap *heap, NABoolean isOsim)
     : heap_(heap), cpuArray_(heap), hasVirtualNodes_(FALSE), localSMP_(-1), numVirtualNodes_(0) {
   if (!isOsim) {
-    Int32 dummyClusterNum;
+    int dummyClusterNum;
 
     // Hash Map to store NodeName and NodeIds
-    nodeNameToNodeIdMap_ = new (heap) NAHashDictionary<NAString, Int32>(NAString::hash, 101, TRUE, heap_);
-    nodeIdToNodeNameMap_ = new (heap) NAHashDictionary<Int32, NAString>(&intHashFunc, 101, TRUE, heap);
+    nodeNameToNodeIdMap_ = new (heap) NAHashDictionary<NAString, int>(NAString::hash, 101, TRUE, heap_);
+    nodeIdToNodeNameMap_ = new (heap) NAHashDictionary<int, NAString>(&intHashFunc, 101, TRUE, heap);
 
     NADefaults::getNodeAndClusterNumbers(localSMP_, dummyClusterNum);
 
-    Int32 nodeCount = 0;
-    Int32 nodeMax = 0;
+    int nodeCount = 0;
+    int nodeMax = 0;
     MS_Mon_Node_Info_Entry_Type *nodeInfo = NULL;
 
     // Get the number of nodes to know how much info space to allocate
-    Int32 error = msg_mon_get_node_info(&nodeCount, 0, NULL);
+    int error = msg_mon_get_node_info(&nodeCount, 0, NULL);
     CMPASSERT(error == 0);
     CMPASSERT(nodeCount > 0);
 
@@ -113,10 +113,10 @@ NAClusterInfo::NAClusterInfo(CollHeap *heap, NABoolean isOsim)
     else {
       // fill the nodeInfo array with faked node info.
       const char *vNodeNamePrefix = "vnode";
-      Int32 vNodeNamePrefixLen = strlen(vNodeNamePrefix);
+      int vNodeNamePrefixLen = strlen(vNodeNamePrefix);
       char seqIdStr[20];
 
-      for (Int32 i = 0; i < nodeCount; i++) {
+      for (int i = 0; i < nodeCount; i++) {
         nodeInfo[i].spare_node = false;
         nodeInfo[i].type = MS_Mon_ZoneType_Storage;
         nodeInfo[i].nid = i;
@@ -124,9 +124,9 @@ NAClusterInfo::NAClusterInfo(CollHeap *heap, NABoolean isOsim)
         // fill node_name field with vnode<nid>:<nid>
         str_itoa(i, seqIdStr);
 
-        Int32 seqIdStrLen = strlen(seqIdStr);
+        int seqIdStrLen = strlen(seqIdStr);
         // nodeInfo[i].node_name is char[128];
-        Int32 idx = 0;
+        int idx = 0;
         strcpy(nodeInfo[i].node_name, vNodeNamePrefix);
         idx += vNodeNamePrefixLen;
         strcpy(nodeInfo[i].node_name + idx, seqIdStr);
@@ -141,7 +141,7 @@ NAClusterInfo::NAClusterInfo(CollHeap *heap, NABoolean isOsim)
 
     bool isFirst = TRUE;
     activeNodeNamesCommaSeparatedList_ = "";
-    for (Int32 i = 0; i < nodeCount; i++) {
+    for (int i = 0; i < nodeCount; i++) {
       if (nodeInfo[i].spare_node) continue;
 
       // The zone type must either be an aggregation node or storage node
@@ -169,7 +169,7 @@ NAClusterInfo::NAClusterInfo(CollHeap *heap, NABoolean isOsim)
         if (!isFirst) activeNodeNamesCommaSeparatedList_ += ",";
         isFirst = false;
         activeNodeNamesCommaSeparatedList_ += *key_nodeName;
-        Int32 *val_nodeId = new Int32(nodeInfo[i].nid);
+        int *val_nodeId = new int(nodeInfo[i].nid);
         nodeNameToNodeIdMap_->insert(key_nodeName, val_nodeId);
 
         // store nodeId->nadeName
@@ -197,7 +197,7 @@ NAClusterInfo::~NAClusterInfo() {
 
 int NAClusterInfo::mapNodeNameToNodeNum(const NAString &keyNodeName) const {
   if (nodeNameToNodeIdMap_->contains(&keyNodeName)) {
-    Int32 *nodeValue = nodeNameToNodeIdMap_->getFirstValue(&keyNodeName);
+    int *nodeValue = nodeNameToNodeIdMap_->getFirstValue(&keyNodeName);
     return *nodeValue;
   } else
     return IPC_CPU_DONT_CARE;
@@ -218,7 +218,7 @@ const NAString *NAClusterInfo::mapNodeNamesToNodeNums(ConstStringList *nodeNames
   return NULL;
 }
 
-NABoolean NAClusterInfo::mapNodeIdToNodeName(Int32 nodeId, NAString &nodeName) const {
+NABoolean NAClusterInfo::mapNodeIdToNodeName(int nodeId, NAString &nodeName) const {
   NAString *value = nodeIdToNodeNameMap_->getFirstValue(&nodeId);
 
   if (value) {
@@ -230,14 +230,14 @@ NABoolean NAClusterInfo::mapNodeIdToNodeName(Int32 nodeId, NAString &nodeName) c
   }
 }
 
-Int32 NAClusterInfo::mapLogicalToPhysicalNodeId(Int32 ix) {
+int NAClusterInfo::mapLogicalToPhysicalNodeId(int ix) {
   assert(ix >= 0 && ix < cpuArray_.entries());
   return cpuArray_[ix];
 }
 
-Int32 NAClusterInfo::mapPhysicalToLogicalNodeId(Int32 ix) {
+int NAClusterInfo::mapPhysicalToLogicalNodeId(int ix) {
   // start with ix as a likely result value (no holes in the ids)
-  Int32 result = ix;
+  int result = ix;
 
   if (result >= cpuArray_.entries()) result = cpuArray_.entries() - 1;
 
@@ -252,11 +252,11 @@ Int32 NAClusterInfo::mapPhysicalToLogicalNodeId(Int32 ix) {
   return -1;
 }
 
-Int32 NAClusterInfo::numberOfTenantUnitsInTheCluster() const {
+int NAClusterInfo::numberOfTenantUnitsInTheCluster() const {
   size_t numCores = numberOfCpusPerSMP();
   long physMemGB = physicalMemoryAvailableInKB() / (1024 * 1024);
 
-  Int32 result = MAXOF(
+  int result = MAXOF(
       MINOF(numCores / NAWNODESET_CORES_PER_SLICE, ((long)(physMemGB / (0.98 * NAWNODESET_MEMORY_GB_PER_SLICE)))), 1);
 
   // TODO: Handle heterogeneous clusters
@@ -307,13 +307,13 @@ NAClusterInfoLinux::NAClusterInfoLinux(CollHeap *heap, NABoolean isOsim)
 
 NAClusterInfoLinux::~NAClusterInfoLinux() {}
 
-Int32 NAClusterInfoLinux::processorFrequency() const { return frequency_; }
+int NAClusterInfoLinux::processorFrequency() const { return frequency_; }
 
 float NAClusterInfoLinux::ioTransferRate() const { return iorate_; }
 
 float NAClusterInfoLinux::seekTime() const { return seekTime_; }
 
-Int32 NAClusterInfoLinux::cpuArchitecture() const { return CPU_ARCH_UNKNOWN; }
+int NAClusterInfoLinux::cpuArchitecture() const { return CPU_ARCH_UNKNOWN; }
 
 size_t NAClusterInfoLinux::numberOfCpusPerSMP() const { return numCPUcoresPerNode_; }
 

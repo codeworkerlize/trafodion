@@ -285,11 +285,11 @@ ex_split_bottom_tcb::ex_split_bottom_tcb(const ex_split_bottom_tdb &splitBottomT
   const SplitBottomSkewInfoPtr sbSkewInfoP = splitBottomTdb.skewInfo_;
   if (sbSkewInfoP) {
     // Allocate the collision chain skewLinks_.
-    skewLinks_ = new (glob->getSpace()) Int32[sbSkewInfoP->getNumSkewHashValues()];
+    skewLinks_ = new (glob->getSpace()) int[sbSkewInfoP->getNumSkewHashValues()];
 
     // Initialize all collision links to noLink_ (-1 or 0xffffffff),
     // to indicate the end of the chain.
-    memset((char *)skewLinks_, 0xff, sizeof(Int32) * sbSkewInfoP->getNumSkewHashValues());
+    memset((char *)skewLinks_, 0xff, sizeof(int) * sbSkewInfoP->getNumSkewHashValues());
 
     // Initialize all indexes in skewHdrs_ to noLink_ (-1 or 0xffffffff),
     // to indicate that there is no skew key yet on the
@@ -297,9 +297,9 @@ ex_split_bottom_tcb::ex_split_bottom_tcb(const ex_split_bottom_tdb &splitBottomT
     memset((char *)skewHdrs_, 0xff, sizeof(skewHdrs_));
 
     // Populate the skewHdrs_ and skewLinks_ with the skew keys.
-    for (Int32 skewArrayIdx = 0; skewArrayIdx < sbSkewInfoP->getNumSkewHashValues(); skewArrayIdx++) {
+    for (int skewArrayIdx = 0; skewArrayIdx < sbSkewInfoP->getNumSkewHashValues(); skewArrayIdx++) {
       long sv = sbSkewInfoP->getSkewHashValues()[skewArrayIdx];
-      Int32 slot = (Int32)(sv % numSkewHdrs_);
+      int slot = (int)(sv % numSkewHdrs_);
       if (skewHdrs_[slot] == noLink_) {
         skewHdrs_[slot] = skewArrayIdx;
       } else {
@@ -322,9 +322,9 @@ void ex_split_bottom_tcb::enableHook() {
   memset(myHostName, 0, sizeof(myHostName));
   gethostname(myHostName, sizeof(myHostName));
 
-  Int32 instNum = glob_->getMyInstanceNumber();
-  Int32 fragId = glob_->getMyFragId();
-  Int32 nodeId = splitBottomTdb().getExplainNodeId();
+  int instNum = glob_->getMyInstanceNumber();
+  int fragId = glob_->getMyFragId();
+  int nodeId = splitBottomTdb().getExplainNodeId();
 
   /*
   cout << "split bottom: instance number=" << instNum;
@@ -335,7 +335,7 @@ void ex_split_bottom_tcb::enableHook() {
   */
 
   char *insNumStr = getenv("instance_number");
-  Int32 desiredInsNum = -1;
+  int desiredInsNum = -1;
   if (insNumStr) {
     desiredInsNum = atoi(insNumStr);
     // cout << "desired instance num=" << desiredInsNum << endl;
@@ -343,7 +343,7 @@ void ex_split_bottom_tcb::enableHook() {
     return;
 
   char *nodeIdStr = getenv("node_id");
-  Int32 desiredNodeId = -1;
+  int desiredNodeId = -1;
   if (nodeIdStr) {
     desiredNodeId = atoi(nodeIdStr);
     // cout << "desired node id=" << desiredNodeId << endl;
@@ -437,7 +437,7 @@ void ex_split_bottom_tcb::registerSubtasks() {
 
   // for each send node we are sitting on the queue's bottom end,
   // receiving down requests and sending data back up
-  for (Int32 i = 0; i < (Int32)sendNodes_.entries(); i++) {
+  for (int i = 0; i < (int)sendNodes_.entries(); i++) {
     sched->registerInsertSubtask(sWork, this, sendNodesDownQ_[i]);
     sched->registerCancelSubtask(sCancel, this, sendNodesDownQ_[i], "CN");
     sched->registerUnblockSubtask(sWork, this, sendNodesUpQ_[i]);
@@ -702,7 +702,7 @@ ExWorkProcRetcode ex_split_bottom_tcb::workOnWaitMinMaxInputs() {
 
 void ex_split_bottom_tcb::cleanupForMinMax() {
   if (needToWaitForMinMaxInputs()) {
-    for (Int32 i = 0; i < numOfParentInstances_; i++) {
+    for (int i = 0; i < numOfParentInstances_; i++) {
       minMaxInputsReceived_[i] = FALSE;
     }
 
@@ -913,7 +913,7 @@ ExWorkProcRetcode ex_split_bottom_tcb::work() {
 
     // inject events to test log4cxx
     if (splitBottomTdb().getAbendType() == ComTdbSplitBottom::TEST_LOG4CXX) {
-      Int32 LEN = 100;
+      int LEN = 100;
       char espInfo[LEN];
       snprintf(espInfo, LEN, "Test ESP Event on ESP with instance number (%d)", glob_->getMyInstanceNumber());
       SQLMXLoggingArea::logExecRtInfo(__FILE__, __LINE__, espInfo, 0);
@@ -940,7 +940,7 @@ ExWorkProcRetcode ex_split_bottom_tcb::work() {
           break;
         }
         case ComTdbSplitBottom::INVALID_MEMORY: {
-          return *(Int32 *)WORK_OK;
+          return *(int *)WORK_OK;
         }
         case ComTdbSplitBottom::SLEEP180: {
           timespec nanoDelayTime;
@@ -1022,12 +1022,12 @@ ExWorkProcRetcode ex_split_bottom_tcb::work() {
           ComDiagsArea *da = ComDiagsArea::allocate(getGlobals()->getDefaultHeap());
           *da << DgSqlCode(-EXE_QUERY_LIMITS_CPU);
           *da << DgInt0((int)splitBottomTdb().cpuLimit_);
-          *da << DgInt1((Int32)getGlobals()->getMyFragId());
+          *da << DgInt1((int)getGlobals()->getMyFragId());
 
           if (splitBottomTdb().getQueryLimitDebug()) {
             *da << DgSqlCode(EXE_QUERY_LIMITS_CPU_DEBUG);
             *da << DgInt0((int)splitBottomTdb().cpuLimit_);
-            *da << DgInt1((Int32)getGlobals()->getMyFragId());
+            *da << DgInt1((int)getGlobals()->getMyFragId());
 
             long localCpuTime = 0;
             ExFragRootOperStats *fragRootStats;
@@ -1175,8 +1175,8 @@ ExWorkProcRetcode ex_split_bottom_tcb::workUp() {
           NABoolean skewedValueFound = FALSE;
 
           // Find the collision chain.
-          Int32 slot = (Int32)(partNumInfo_.partHash_ % numSkewHdrs_);
-          Int32 skewArrayIdx = skewHdrs_[slot];
+          int slot = (int)(partNumInfo_.partHash_ % numSkewHdrs_);
+          int skewArrayIdx = skewHdrs_[slot];
 
           while (skewArrayIdx != noLink_) {
             if (partNumInfo_.partHash_ == splitBottomTdb().skewInfo_->getSkewHashValues()[skewArrayIdx]) {
@@ -1710,13 +1710,13 @@ void ex_split_bottom_tcb::acceptNewPartInputValues(NABoolean moreWork) {
   }
 }
 
-Int32 ex_split_bottom_tcb::numChildren() const { return 1 + (Int32)sendNodes_.entries(); }
+int ex_split_bottom_tcb::numChildren() const { return 1 + (int)sendNodes_.entries(); }
 
-const ex_tcb *ex_split_bottom_tcb::getChild(Int32 pos) const {
+const ex_tcb *ex_split_bottom_tcb::getChild(int pos) const {
   ex_assert((pos >= 0), "");
   if (pos == 0)
     return tcbChild_;
-  else if (pos > 0 AND pos <= (Int32)sendNodes_.entries())
+  else if (pos > 0 AND pos <= (int)sendNodes_.entries())
     return (ex_tcb *)sendNodes_[pos - 1];
   else
     return NULL;

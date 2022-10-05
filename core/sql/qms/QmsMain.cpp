@@ -63,10 +63,10 @@ static QmsGuaReceiveControlConnection *initializeIPC(IpcEnvironment *&env) {
 }
 
 extern "C" {
-Int32 sq_fs_dllmain();
+int sq_fs_dllmain();
 }
 
-Int32 main(Int32 argc, char *argv[]) {
+int main(int argc, char *argv[]) {
   dovers(argc, argv);
 
   try {
@@ -96,7 +96,7 @@ Int32 main(Int32 argc, char *argv[]) {
   QRLogger::log(CAT_QMS_MAIN, LL_INFO, "=================================================");
   QRLogger::log(CAT_QMS_MAIN, LL_INFO, "QMS process was started.");
   QRLogger::log(CAT_QMS_MAIN, LL_INFO, "QMS invoked with %d arguments.", argc);
-  for (Int32 i = 0; i < argc; i++) QRLogger::log(CAT_QMS_MAIN, LL_DEBUG, "  argument %d = %s", i, argv[i]);
+  for (int i = 0; i < argc; i++) QRLogger::log(CAT_QMS_MAIN, LL_DEBUG, "  argument %d = %s", i, argv[i]);
 
   IpcEnvironment *env = NULL;
   QmsGuaReceiveControlConnection *conn = NULL;

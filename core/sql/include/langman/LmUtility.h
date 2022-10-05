@@ -128,14 +128,14 @@ JNIEXPORT jlong JNICALL Java_com_tandem_sqlmx_LmT2Driver_getTransId(JNIEnv *, jc
 // Calls the RegisterNatives() JNI method to register
 // the native methods defined in this file to the
 // appropriate LM Java class.
-Int32 registerLmUtilityMethods(JNIEnv *env, jclass lmCls);
-Int32 registerLmT2DriverMethods(JNIEnv *env, jclass lmCls);
+int registerLmUtilityMethods(JNIEnv *env, jclass lmCls);
+int registerLmT2DriverMethods(JNIEnv *env, jclass lmCls);
 
 // See the LmUtility.cpp file for details on the below
 // methods
 void lmUtilityInitConnList(JNIEnv *env, jmethodID connCloseId);
 NAList<jobject> &lmUtilityGetConnList();
-void lmUtilitySetSqlAccessMode(Int32 mode);
-void lmUtilitySetTransactionAttrs(Int32 mode);
+void lmUtilitySetSqlAccessMode(int mode);
+void lmUtilitySetTransactionAttrs(int mode);
 
 #endif  // _LMUTILITY_H_

@@ -54,7 +54,7 @@
 
 #define PC_eyeCatcher     "PC 1"
 #define PC_eyeCatcherSize 4   // number of BYTES
-#define PC_fillerSize     16  // for a total of 16 * sizeof(Int32) bytes filler
+#define PC_fillerSize     16  // for a total of 16 * sizeof(int) bytes filler
 
 // Opcode map defines
 #define OPCODE_MAP_FIRSTSIX_BITS 0x000000000000003F
@@ -106,10 +106,10 @@ typedef PCodeInstructionMap PCIMap;
 struct PCodeInstructionMap {
  public:
   long instruction;
-  Int32 opcode;
+  int opcode;
   const char *opcodeString;
-  Int32 length;
-  Int32 numAmodes;
+  int length;
+  int numAmodes;
 };
 
 // class PCodeSegment
@@ -125,10 +125,10 @@ class PCodeSegment : public NAVersionedObject {
 
   // Takes pointer out of PCodeBinary sequences
   // Now a macro, see exp/ExpPCodeInstruction.h
-  // Long getPCodeBinaryAsPtr(PCodeBinary *pcode, Int32 idx)
+  // Long getPCodeBinaryAsPtr(PCodeBinary *pcode, int idx)
 
   // Adds pointer to PCodeBinary sequences and advance idx
-  Int32 setPtrAsPCodeBinary(PCodeBinary *pcode, Int32 idx, Long ptr) {
+  int setPtrAsPCodeBinary(PCodeBinary *pcode, int idx, Long ptr) {
     *(Long *)&(pcode[idx]) = ptr;
     return (sizeof(ptr) / sizeof(PCodeBinary));
   }
@@ -137,8 +137,8 @@ class PCodeSegment : public NAVersionedObject {
   void populateImageVersionIDArray() { setImageVersionID(0, getClassVersionID()); }
   // Checks version of pcode byte string, not PCodeSegment object.
   NABoolean versionOK() { return (str_cmp(eyeCatcher_.name_, PC_eyeCatcher, PC_eyeCatcherSize) == 0); }
-  Int32 getPCodeSegmentSize();
-  void setPCodeSegmentSize(Int32 size);
+  int getPCodeSegmentSize();
+  void setPCodeSegmentSize(int size);
   short getClassSize();
 
   Long pack(void *);
@@ -167,9 +167,9 @@ class PCodeSegment : public NAVersionedObject {
 
   UInt32 flags_;  // 04-07
 
-  Int32 filler_[PC_fillerSize];  // 08-71
+  int filler_[PC_fillerSize];  // 08-71
 
-  Int32 pCodeSegmentSize_;          // 72-75
+  int pCodeSegmentSize_;          // 72-75
   char fillerPCodeSegmentSize_[4];  // 76-79
 
   Int32Ptr pCodeSegment_;  // 80-87
@@ -205,17 +205,17 @@ class PCode {
 
   // Accessors
   //
-  Int32 size();
+  int size();
   static PCIT::Instruction getInstruction(PCI *pci);
-  const PCIMap &getMapEntry(Int32 i);
-  static Int32 getOpCodeMapElements(Int32 opcode, PCIT::Operation &operation, PCIT::AddressingMode am[],
-                                    Int32 &numAModes);
+  const PCIMap &getMapEntry(int i);
+  static int getOpCodeMapElements(int opcode, PCIT::Operation &operation, PCIT::AddressingMode am[],
+                                    int &numAModes);
 
-  static Int32 isInstructionRangeType(PCIT::Instruction instruction);
+  static int isInstructionRangeType(PCIT::Instruction instruction);
 
   // Generating byte code
   //
-  PCodeBinary *generateCodeSegment(Int32 length, Int32 *atpCode, Int32 *atpIndexCode, Int32 *codeSize);
+  PCodeBinary *generateCodeSegment(int length, int *atpCode, int *atpIndexCode, int *codeSize);
 
   // Translating PCI's to ID's and vice versa. Each PCI is identified
   // by a unique ID. Currently, this is simply the address of the PCI.
@@ -228,23 +228,23 @@ class PCode {
 
   // Profiling
   //
-  Int32 profileInit();
-  Int32 profilePrint();
-  Int32 isProfilingOn() { return profileCounts_ != 0; };
-  Int32 *profileCounts() { return profileCounts_; };
-  Int32 *profileTimes() { return profileTimes_; };
+  int profileInit();
+  int profilePrint();
+  int isProfilingOn() { return profileCounts_ != 0; };
+  int *profileCounts() { return profileCounts_; };
+  int *profileTimes() { return profileTimes_; };
 
-  static Int32 IsBranchOrTarget(PCI *);
-  static Int32 IsTemporaryStore(PCI *);
-  static Int32 IsTemporaryLoad(PCI *);
-  static Int32 IsTemporaryAccess(PCI *);
-  static Int32 ComputeTemporaryAccess(PCI *, Int32 &, int &, Int32);
-  static Int32 IsBranchInstruction(PCI *);
-  static Int32 IsTargetInstruction(PCI *);
-  static Int32 IsClauseEvalInstruction(PCI *);
-  static Int32 *getEmbeddedAddresses(Int32 opcode, Int32 addr[]);
-  static Int32 getInstructionLength(PCodeBinary *pcode);
-  static const char *getOpcodeString(Int32 opcode);
+  static int IsBranchOrTarget(PCI *);
+  static int IsTemporaryStore(PCI *);
+  static int IsTemporaryLoad(PCI *);
+  static int IsTemporaryAccess(PCI *);
+  static int ComputeTemporaryAccess(PCI *, int &, int &, int);
+  static int IsBranchInstruction(PCI *);
+  static int IsTargetInstruction(PCI *);
+  static int IsClauseEvalInstruction(PCI *);
+  static int *getEmbeddedAddresses(int opcode, int addr[]);
+  static int getInstructionLength(PCodeBinary *pcode);
+  static const char *getOpcodeString(int opcode);
 
   // Helper functions to generate PCode segments for common operations
   //
@@ -259,13 +259,13 @@ class PCode {
 
   // Loading attributes (and VC and NULL indicators)
   //
-  static PCIList loadOpDataNullBitmapAddress(Attributes *attr, Int32 loc, CollHeap *heap);
-  static PCIList loadOpDataNullAddress(Attributes *attr, Int32 loc, CollHeap *heap);
-  static PCIList loadOpDataVCAddress(Attributes *attr, Int32 loc, CollHeap *heap);
-  static PCIList loadOpDataDataAddress(Attributes *attr, Int32 loc, CollHeap *heap);
-  static PCIList loadOpDataAddress(Attributes *attr, Int32 offset, Int32 loc, CollHeap *heap);
-  static PCIList loadOpDataNullBitmap(Attributes *attr, Int32 loc, CollHeap *heap);
-  static PCIList loadOpDataNull(Attributes *attr, Int32 loc, CollHeap *heap);
+  static PCIList loadOpDataNullBitmapAddress(Attributes *attr, int loc, CollHeap *heap);
+  static PCIList loadOpDataNullAddress(Attributes *attr, int loc, CollHeap *heap);
+  static PCIList loadOpDataVCAddress(Attributes *attr, int loc, CollHeap *heap);
+  static PCIList loadOpDataDataAddress(Attributes *attr, int loc, CollHeap *heap);
+  static PCIList loadOpDataAddress(Attributes *attr, int offset, int loc, CollHeap *heap);
+  static PCIList loadOpDataNullBitmap(Attributes *attr, int loc, CollHeap *heap);
+  static PCIList loadOpDataNull(Attributes *attr, int loc, CollHeap *heap);
   static PCIList loadVCLenIndValue(Attributes *attr, CollHeap *heap);
   static PCIList loadNullIndValue(Attributes *attr, CollHeap *heap);
   static PCIList loadValue(Attributes *attr, CollHeap *heap);
@@ -280,8 +280,8 @@ class PCode {
 
   static PCIList storeVoa(Attributes *attr, CollHeap *heap);
   static PCIList storeVoaValue(Attributes *attr, uLong voaOffset, uLong value, CollHeap *heap, short varOnly = 0);
-  static PCIList storeValue(Int32 value, Attributes *attr, CollHeap *heap);
-  static PCIList storeValue(Int32 value, Attributes *attr, uLong offset, CollHeap *heap);
+  static PCIList storeValue(int value, Attributes *attr, CollHeap *heap);
+  static PCIList storeValue(int value, Attributes *attr, uLong offset, CollHeap *heap);
   static PCIList updateRowLen(Attributes *attr, CollHeap *heap, UInt32 f);
 
   // Moving attributes (and NULL indicators)
@@ -295,9 +295,9 @@ class PCode {
   static PCIList copyVarRow(Attributes *dst, Attributes *src, UInt32 lastVOAoffset, Int16 lastVcIndicatorLength,
                             Int16 lastNullIndicatorLength, Int16 alignment, CollHeap *heap);
 
-  static PCIID zeroFillNullValue(Attributes *dst, PCIList &code, PCIID notNullBranch, Int32 genUncondJump = -1);
+  static PCIID zeroFillNullValue(Attributes *dst, PCIList &code, PCIID notNullBranch, int genUncondJump = -1);
 
-  static PCIID generateJumpAndBranch(Attributes *dst, PCIList &code, PCIID notNullBranch, Int32 genUncondJump = -1);
+  static PCIID generateJumpAndBranch(Attributes *dst, PCIList &code, PCIID notNullBranch, int genUncondJump = -1);
 
   // Testing for NULL or NOT NULL
   //
@@ -329,8 +329,8 @@ class PCode {
   static void displayContents(PCodeBinary *pCode, Space *space);
 
   // for debug
-  static Int32 dumpContents(PCIList pciList, char *buf, Int32 bufLen);
-  static void dumpContents(PCodeBinary *pCode, char *buf, Int32 bufLen);
+  static int dumpContents(PCIList pciList, char *buf, int bufLen);
+  static void dumpContents(PCodeBinary *pCode, char *buf, int bufLen);
 
  private:
   // pciList_ - The list of PCI's for this PCode object.
@@ -342,12 +342,12 @@ class PCode {
   CollHeap *heap_;
   Space *space_;
 
-  Int32 *profileCounts_, *profileTimes_;
+  int *profileCounts_, *profileTimes_;
 };
 
 // For null processing, this struct stores the three tuple formats
 // as chars. It also computes the size of the pcode. Size of this
-// struct has to be Int32 so that it can be passed as a parameter.
+// struct has to be int so that it can be passed as a parameter.
 typedef struct PCodeTupleFormats {
   char op1Fmt_;
   char op2Fmt_;
@@ -379,9 +379,9 @@ typedef struct PCodeTupleFormats {
 // in this struct.
 typedef struct {
   PCodeTupleFormats fmt_;
-  Int32 op1NullBitIndex_;
-  Int32 op2NullBitIndex_;
-  Int32 op3NullBitIndex_;
+  int op1NullBitIndex_;
+  int op2NullBitIndex_;
+  int op3NullBitIndex_;
 
 #define EXPAND_PCODEATTRNULL3(tpf, op1, op2, op3) \
   tpf, op1->getNullBitIndex(), op2->getNullBitIndex(), op3->getNullBitIndex()

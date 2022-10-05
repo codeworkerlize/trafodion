@@ -118,8 +118,8 @@ class QRQueriesImpl {
    */
   NABoolean getCollectQMSStatsEnabled();
 
-  Int32 getMvqrCpusPerQMS();
-  Int32 getMvqrQMSCpuOffset();
+  int getMvqrCpusPerQMS();
+  int getMvqrQMSCpuOffset();
 
   /**
    * getCatalogUID obtains the CAT_UID for a

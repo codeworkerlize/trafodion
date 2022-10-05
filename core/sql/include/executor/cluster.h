@@ -490,7 +490,7 @@ class ClusterDB : public NABasicObject {
             ULng32 minMemoryQuotaMB = 0,  // don't go below this min
 
             ULng32 minMemBeforePressureCheck = 0,  // min before check
-            Float32 bmoCitizenshipFactor = 0, Int32 pMemoryContingencyMB = 0, Float32 estimateErrorPenalty = 0,
+            Float32 bmoCitizenshipFactor = 0, int pMemoryContingencyMB = 0, Float32 estimateErrorPenalty = 0,
             Float32 hashMemEstInKBPerNode = 0,
             ULng32 initialHashTableSize = 0,  // default not resizable
             ExOperStats *hashOperStats = NULL);
@@ -512,7 +512,7 @@ class ClusterDB : public NABasicObject {
   inline long getMemoryHWM() const;
   inline ULng32 getBufferSize() const { return bufferSize_; }
   void setScratchIOVectorSize(Int16 vectorSize) { scratchIOVectorSize_ = vectorSize; }
-  Int32 getScratchIOVectorSize() { return scratchIOVectorSize_; }
+  int getScratchIOVectorSize() { return scratchIOVectorSize_; }
   void setScratchOverflowMode(ScratchOverflowMode ovMode) { overFlowMode_ = ovMode; }
   ScratchOverflowMode getScratchOverflowMode(void) { return overFlowMode_; }
 
@@ -619,7 +619,7 @@ class ClusterDB : public NABasicObject {
   ULng32 minMemoryQuotaMB_;           // don't go below the minimum
   ULng32 minMemBeforePressureCheck_;  // no pressure/hints checks below that
   Float32 bmoCitizenshipFactor_;
-  Int32 pMemoryContingencyMB_;
+  int pMemoryContingencyMB_;
   Float32 estimateErrorPenalty_;
   Float32 hashMemEstInKBPerNode_;
 
@@ -647,7 +647,7 @@ class ClusterDB : public NABasicObject {
   unsigned short minNumWriteOuterBatch_;
   unsigned short maxNumWriteOuterBatch_;
   unsigned short numReadOuterBatch_;
-  Int32 scratchIOVectorSize_;
+  int scratchIOVectorSize_;
   ScratchOverflowMode overFlowMode_;
   ExBMOStats *bmoStats_;
 };

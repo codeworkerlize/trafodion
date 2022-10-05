@@ -128,7 +128,7 @@ NAString GenBulkloadSampleTableName(const NATable *pTable) {
   return sName;
 }
 
-short GenericUtilExpr::processOutputRow(Generator *generator, const Int32 work_atp, const Int32 output_row_atp_index,
+short GenericUtilExpr::processOutputRow(Generator *generator, const int work_atp, const int output_row_atp_index,
                                         ex_cri_desc *returnedDesc, NABoolean noAtpOrIndexChange) {
   ExpGenerator *expGen = generator->getExpGenerator();
   Space *space = generator->getSpace();
@@ -186,7 +186,7 @@ short ExeUtilProcessVolatileTable::codeGen(Generator *generator) {
 
   // remove trailing blanks and append a semicolon, if one is not present.
   char *ddlStmt = NULL;
-  Int32 i = strlen(getDDLStmtText());
+  int i = strlen(getDDLStmtText());
   while ((i > 0) && (getDDLStmtText()[i - 1] == ' ')) i--;
 
   if (getDDLStmtText()[i - 1] != ';') {
@@ -332,8 +332,8 @@ short ExeUtilDisplayExplain::codeGen(Generator *generator) {
   ex_cri_desc *returnedDesc = new (space) ex_cri_desc(givenDesc->noTuples() + 1, space);
 
   ex_cri_desc *workCriDesc = new (space) ex_cri_desc(4, space);
-  const Int32 work_atp = 1;
-  const Int32 exe_util_row_atp_index = 2;
+  const int work_atp = 1;
+  const int exe_util_row_atp_index = 2;
 
   short rc = processOutputRow(generator, work_atp, exe_util_row_atp_index, returnedDesc);
   if (rc) {
@@ -432,8 +432,8 @@ short ExeUtilDisplayExplainComplex::codeGen(Generator *generator) {
   ex_cri_desc *returnedDesc = new (space) ex_cri_desc(givenDesc->noTuples() + 1, space);
 
   ex_cri_desc *workCriDesc = new (space) ex_cri_desc(4, space);
-  const Int32 work_atp = 1;
-  const Int32 exe_util_row_atp_index = 2;
+  const int work_atp = 1;
+  const int exe_util_row_atp_index = 2;
 
   short rc = processOutputRow(generator, work_atp, exe_util_row_atp_index, returnedDesc);
   if (rc) {
@@ -579,8 +579,8 @@ short ExeUtilLoadVolatileTable::codeGen(Generator *generator) {
   ex_cri_desc *returnedDesc = new (space) ex_cri_desc(givenDesc->noTuples() + 1, space);
 
   ex_cri_desc *workCriDesc = new (space) ex_cri_desc(4, space);
-  const Int32 work_atp = 1;
-  const Int32 exe_util_row_atp_index = 2;
+  const int work_atp = 1;
+  const int exe_util_row_atp_index = 2;
 
   short rc = processOutputRow(generator, work_atp, exe_util_row_atp_index, returnedDesc);
   if (rc) {
@@ -634,8 +634,8 @@ short ExeUtilCleanupVolatileTables::codeGen(Generator *generator) {
   ex_cri_desc *returnedDesc = new (space) ex_cri_desc(givenDesc->noTuples() + 1, space);
 
   ex_cri_desc *workCriDesc = new (space) ex_cri_desc(4, space);
-  const Int32 work_atp = 1;
-  const Int32 exe_util_row_atp_index = 2;
+  const int work_atp = 1;
+  const int exe_util_row_atp_index = 2;
 
   short rc = processOutputRow(generator, work_atp, exe_util_row_atp_index, returnedDesc);
   if (rc) {
@@ -693,8 +693,8 @@ short ExeUtilGetVolatileInfo::codeGen(Generator *generator) {
   ex_cri_desc *returnedDesc = new (space) ex_cri_desc(givenDesc->noTuples() + 1, space);
 
   ex_cri_desc *workCriDesc = new (space) ex_cri_desc(4, space);
-  const Int32 work_atp = 1;
-  const Int32 exe_util_row_atp_index = 2;
+  const int work_atp = 1;
+  const int exe_util_row_atp_index = 2;
 
   short rc = processOutputRow(generator, work_atp, exe_util_row_atp_index, returnedDesc);
   if (rc) {
@@ -774,8 +774,8 @@ short ExeUtilGetErrorInfo::codeGen(Generator *generator) {
   ex_cri_desc *returnedDesc = new (space) ex_cri_desc(givenDesc->noTuples() + 1, space);
 
   ex_cri_desc *workCriDesc = new (space) ex_cri_desc(4, space);
-  const Int32 work_atp = 1;
-  const Int32 exe_util_row_atp_index = 2;
+  const int work_atp = 1;
+  const int exe_util_row_atp_index = 2;
 
   short rc = processOutputRow(generator, work_atp, exe_util_row_atp_index, returnedDesc);
   if (rc) {
@@ -842,8 +842,8 @@ short ExeUtilCreateTableAs::codeGen(Generator *generator) {
   ex_cri_desc *returnedDesc = new (space) ex_cri_desc(givenDesc->noTuples() + 1, space);
 
   ex_cri_desc *workCriDesc = new (space) ex_cri_desc(4, space);
-  const Int32 work_atp = 1;
-  const Int32 exe_util_row_atp_index = 2;
+  const int work_atp = 1;
+  const int exe_util_row_atp_index = 2;
 
   short rc = processOutputRow(generator, work_atp, exe_util_row_atp_index, returnedDesc);
   if (rc) {
@@ -902,8 +902,8 @@ short ExeUtilGetObjectEpochStats::codeGen(Generator *generator) {
   ex_cri_desc *returnedDesc = new (space) ex_cri_desc(givenDesc->noTuples() + 1, space);
 
   ex_cri_desc *workCriDesc = new (space) ex_cri_desc(4, space);
-  const Int32 work_atp = 1;
-  const Int32 exe_util_row_atp_index = 2;
+  const int work_atp = 1;
+  const int exe_util_row_atp_index = 2;
 
   short rc = processOutputRow(generator, work_atp, exe_util_row_atp_index, returnedDesc);
   if (rc) {
@@ -957,8 +957,8 @@ short ExeUtilGetObjectLockStats::codeGen(Generator *generator) {
   ex_cri_desc *returnedDesc = new (space) ex_cri_desc(givenDesc->noTuples() + 1, space);
 
   ex_cri_desc *workCriDesc = new (space) ex_cri_desc(4, space);
-  const Int32 work_atp = 1;
-  const Int32 exe_util_row_atp_index = 2;
+  const int work_atp = 1;
+  const int exe_util_row_atp_index = 2;
 
   short rc = processOutputRow(generator, work_atp, exe_util_row_atp_index, returnedDesc);
   if (rc) {
@@ -1012,8 +1012,8 @@ short ExeUtilGetStatistics::codeGen(Generator *generator) {
   ex_cri_desc *returnedDesc = new (space) ex_cri_desc(givenDesc->noTuples() + 1, space);
 
   ex_cri_desc *workCriDesc = new (space) ex_cri_desc(4, space);
-  const Int32 work_atp = 1;
-  const Int32 exe_util_row_atp_index = 2;
+  const int work_atp = 1;
+  const int exe_util_row_atp_index = 2;
 
   short rc = processOutputRow(generator, work_atp, exe_util_row_atp_index, returnedDesc);
   if (rc) {
@@ -1038,7 +1038,7 @@ short ExeUtilGetStatistics::codeGen(Generator *generator) {
     // used after the execution to save the special run-time stats.
     NAString host;
     char *hostPtr = NULL;
-    Int32 port = 0;
+    int port = 0;
     char *pathPtr = NULL;
 
     exe_util_tdb = new (space)
@@ -1107,8 +1107,8 @@ short ExeUtilGetUID::codeGen(Generator *generator) {
   ex_cri_desc *returnedDesc = new (space) ex_cri_desc(givenDesc->noTuples() + 1, space);
 
   ex_cri_desc *workCriDesc = new (space) ex_cri_desc(4, space);
-  const Int32 work_atp = 1;
-  const Int32 exe_util_row_atp_index = 2;
+  const int work_atp = 1;
+  const int exe_util_row_atp_index = 2;
 
   short rc = processOutputRow(generator, work_atp, exe_util_row_atp_index, returnedDesc);
   if (rc) {
@@ -1167,8 +1167,8 @@ short ExeUtilGetQID::codeGen(Generator *generator) {
   ex_cri_desc *returnedDesc = new (space) ex_cri_desc(givenDesc->noTuples() + 1, space);
 
   ex_cri_desc *workCriDesc = new (space) ex_cri_desc(4, space);
-  const Int32 work_atp = 1;
-  const Int32 exe_util_row_atp_index = 2;
+  const int work_atp = 1;
+  const int exe_util_row_atp_index = 2;
 
   short rc = processOutputRow(generator, work_atp, exe_util_row_atp_index, returnedDesc);
   if (rc) {
@@ -1213,8 +1213,8 @@ short ExeUtilPopulateInMemStats::codeGen(Generator *generator) {
   ex_cri_desc *returnedDesc = new (space) ex_cri_desc(givenDesc->noTuples() + 1, space);
 
   ex_cri_desc *workCriDesc = new (space) ex_cri_desc(4, space);
-  const Int32 work_atp = 1;
-  const Int32 exe_util_row_atp_index = 2;
+  const int work_atp = 1;
+  const int exe_util_row_atp_index = 2;
 
   short rc = processOutputRow(generator, work_atp, exe_util_row_atp_index, returnedDesc);
   if (rc) {
@@ -1304,8 +1304,8 @@ short ExeUtilGetMetadataInfo::codeGen(Generator *generator) {
   ex_cri_desc *returnedDesc = new (space) ex_cri_desc(givenDesc->noTuples() + 1, space);
 
   ex_cri_desc *workCriDesc = new (space) ex_cri_desc(4, space);
-  const Int32 work_atp = 1;
-  const Int32 exe_util_row_atp_index = 2;
+  const int work_atp = 1;
+  const int exe_util_row_atp_index = 2;
 
   if ((CmpCommon::context()->isUninitializedSeabase()) && (!Get_SqlParser_Flags(INTERNAL_QUERY_FROM_EXEUTIL))) {
     if (CmpCommon::context()->uninitializedSeabaseErrNum() == -TRAF_HBASE_ACCESS_ERROR)
@@ -1750,9 +1750,9 @@ short ExeUtilGetMetadataInfo::codeGen(Generator *generator) {
   infoType_.toUpper();
   objectType_.toUpper();
 
-  Int32 maxQueryInfoArraySize = sizeof(qis) / sizeof(QueryInfoStruct);
+  int maxQueryInfoArraySize = sizeof(qis) / sizeof(QueryInfoStruct);
   NABoolean found = FALSE;
-  Int32 j = 0;
+  int j = 0;
   ComTdbExeUtilGetMetadataInfo::QueryType queryType = ComTdbExeUtilGetMetadataInfo::NO_QUERY_;
   int maxParts = -1;
   NAString ausStr;
@@ -2135,8 +2135,8 @@ short ExeUtilMaintainObject::codeGen(Generator *generator) {
   ex_cri_desc *returnedDesc = new (space) ex_cri_desc(givenDesc->noTuples() + 1, space);
 
   ex_cri_desc *workCriDesc = new (space) ex_cri_desc(4, space);
-  const Int32 work_atp = 1;
-  const Int32 exe_util_row_atp_index = 2;
+  const int work_atp = 1;
+  const int exe_util_row_atp_index = 2;
 
   short rc = processOutputRow(generator, work_atp, exe_util_row_atp_index, returnedDesc);
   if (rc) {
@@ -2994,8 +2994,8 @@ short ExeUtilShowSet::codeGen(Generator *generator) {
   ex_cri_desc *returnedDesc = new (space) ex_cri_desc(givenDesc->noTuples() + 1, space);
 
   ex_cri_desc *workCriDesc = new (space) ex_cri_desc(4, space);
-  const Int32 work_atp = 1;
-  const Int32 exe_util_row_atp_index = 2;
+  const int work_atp = 1;
+  const int exe_util_row_atp_index = 2;
 
   short rc = processOutputRow(generator, work_atp, exe_util_row_atp_index, returnedDesc);
   if (rc) {
@@ -3125,7 +3125,7 @@ short ExeUtilHbaseDDL::codeGen(Generator *generator) {
   ULng32 buffersize = getDefault(GEN_DDL_BUFFER_SIZE);
   queue_index upqueuelength = (queue_index)getDefault(GEN_DDL_SIZE_UP);
   queue_index downqueuelength = (queue_index)getDefault(GEN_DDL_SIZE_DOWN);
-  Int32 numBuffers = getDefault(GEN_DDL_NUM_BUFFERS);
+  int numBuffers = getDefault(GEN_DDL_NUM_BUFFERS);
 
   NAString serverNAS = ActiveSchemaDB()->getDefaults().getValue(HBASE_SERVER);
   NAString zkPortNAS = ActiveSchemaDB()->getDefaults().getValue(HBASE_ZOOKEEPER_PORT);
@@ -3314,9 +3314,9 @@ short ExeUtilConnectby::codeGen(Generator *generator) {
 
   // there will only one expression used in ConnectBy execution TCB class
   // So there only need one ATP index, using 2 as the index
-  const Int32 work_atp = 1;
-  Int32 theAtpIndex = 2;
-  Int32 theAtpIndexForDynParam = 3;
+  const int work_atp = 1;
+  int theAtpIndex = 2;
+  int theAtpIndexForDynParam = 3;
 
   ValueIdList userColList;
   int attridx = 0;
@@ -3358,7 +3358,7 @@ short ExeUtilConnectby::codeGen(Generator *generator) {
       ItemExpr *iep = dp.getItemExpr();
       const NAType &oldNAT = dp.getType();
 
-      Int32 dlen = 128;  // default size
+      int dlen = 128;  // default size
 
       switch (oldNAT.getTypeQualifier()) {
         case NA_CHARACTER_TYPE:
@@ -3501,11 +3501,11 @@ short ExeUtilCompositeUnnest::codeGen(Generator *generator) {
   ex_cri_desc *returnedDesc = new (space) ex_cri_desc(givenDesc->noTuples() + 1, space);
   ex_cri_desc *workCriDesc = new (space) ex_cri_desc(7, space);
 
-  const Int32 work_atp = 1;
-  Int32 unnestColsAtpIndex = 2;
-  Int32 extractColAtpIndex = 3;
-  Int32 elemNumAtpIndex = 4;
-  Int32 workAtpIndex = 5;
+  const int work_atp = 1;
+  int unnestColsAtpIndex = 2;
+  int extractColAtpIndex = 3;
+  int elemNumAtpIndex = 4;
+  int workAtpIndex = 5;
 
   short returnedAtpIndex = (short)(returnedDesc->noTuples() - 1);
 
@@ -3596,7 +3596,7 @@ short ExeUtilCompositeUnnest::codeGen(Generator *generator) {
   // extract fields out of array element row. array element fields could be
   // composite(struct/row) or primitive
   if (compArrayElem->getValueId().getType().isComposite()) {
-    for (Int32 elem = 1; elem <= ((CompositeType &)compArrayElem->getValueId().getType()).getNumElements(); elem++) {
+    for (int elem = 1; elem <= ((CompositeType &)compArrayElem->getValueId().getType()).getNumElements(); elem++) {
       ItemExpr *elemIE = new (generator->wHeap()) CompositeExtract(compArrayElem, elem);
       elemIE->bindNode(generator->getBindWA());
       if (generator->getBindWA()->errStatus()) {
@@ -3628,7 +3628,7 @@ short ExeUtilCompositeUnnest::codeGen(Generator *generator) {
   }
 
   if (addnlColsVIDList_.entries() > 0) {
-    for (Int32 i = 0; i < addnlColsVIDList_.entries(); i++) {
+    for (int i = 0; i < addnlColsVIDList_.entries(); i++) {
       ValueId vid = addnlColsVIDList_[i];
       ItemExpr *cast = new (generator->wHeap()) Cast(vid.getItemExpr(), &vid.getType());
 
@@ -3727,9 +3727,9 @@ short ExeUtilHBaseBulkLoad::codeGen(Generator *generator) {
     strcpy(ldQuery, ldQueryNAS.data());
   }
 
-  const Int32 work_atp = 1;
-  const Int32 exe_util_row_atp_index = 2;
-  const Int32 work_row_atp_index = 2;
+  const int work_atp = 1;
+  const int exe_util_row_atp_index = 2;
+  const int work_row_atp_index = 2;
 
   ex_cri_desc *workCriDesc = NULL;
   ExpTupleDesc *inputParamsTupleDesc = 0;
@@ -3840,7 +3840,7 @@ short ExeUtilHBaseBulkLoadTask::codeGen(Generator *generator) {
   ULng32 buffersize = getDefault(GEN_DDL_BUFFER_SIZE);
   queue_index upqueuelength = (queue_index)getDefault(GEN_DDL_SIZE_UP);
   queue_index downqueuelength = (queue_index)getDefault(GEN_DDL_SIZE_DOWN);
-  Int32 numBuffers = getDefault(GEN_DDL_NUM_BUFFERS);
+  int numBuffers = getDefault(GEN_DDL_NUM_BUFFERS);
 
   NAString serverNAS = ActiveSchemaDB()->getDefaults().getValue(HBASE_SERVER);
   NAString zkPortNAS = ActiveSchemaDB()->getDefaults().getValue(HBASE_ZOOKEEPER_PORT);
@@ -3972,8 +3972,8 @@ short ExeUtilSnapShotUpdataDelete::codeGen(Generator *generator) {
     indexList->insert(indexName);
   }
 
-  const Int32 work_atp = 1;
-  const Int32 exe_util_row_atp_index = 2;
+  const int work_atp = 1;
+  const int exe_util_row_atp_index = 2;
 
   short rc = processOutputRow(generator, work_atp, exe_util_row_atp_index, returnedDesc);
   if (rc) {

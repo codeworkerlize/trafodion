@@ -202,7 +202,7 @@ int keyMdamGen::unpack(void *base, void *reallocator) {
   return keyRangeGen::unpack(base, reallocator);
 }
 
-ex_expr *keyMdamGen::getExpressionNode(Int32) { return NULL; }
+ex_expr *keyMdamGen::getExpressionNode(int) { return NULL; }
 
 ex_expr::exp_return_type MdamColumnGen::fixup(int base, unsigned short mode, Space *space, CollHeap *heap,
                                               const ex_tcb *tcb) {

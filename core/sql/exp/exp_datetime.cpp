@@ -387,7 +387,7 @@ void ExpDatetime::convertDatetimeToInterval(rec_datetime_field datetimeStartFiel
   short year;
   char month;
   char day;
-  for (Int32 field = datetimeStartField; field <= intervalEndField; field++) {
+  for (int field = datetimeStartField; field <= intervalEndField; field++) {
     switch (field) {
       case REC_DATE_YEAR:
         str_cpy_all((char *)&year, datetimeOpData, sizeof(year));
@@ -532,7 +532,7 @@ short ExpDatetime::convertIntervalToDatetime(long interval, char *intervalBignum
   char minute;
   char second;
   int fraction;
-  Int32 field = endField;
+  int field = endField;
   for (; field >= startField; field--) {
     switch (field) {
       case REC_DATE_SECOND:
@@ -577,7 +577,7 @@ short ExpDatetime::convertIntervalToDatetime(long interval, char *intervalBignum
         // be negative.
         //
         {
-          Int32 sec = (Int32)(interval % 60);
+          int sec = (int)(interval % 60);
           if ((interval < 0) && (sec > 0)) sec = -sec;
           interval /= 60;
           if (sec < 0) {
@@ -596,7 +596,7 @@ short ExpDatetime::convertIntervalToDatetime(long interval, char *intervalBignum
         // be negative.
         //
         {
-          Int32 mins = (Int32)(interval % 60);
+          int mins = (int)(interval % 60);
           if ((interval < 0) && (mins > 0)) mins = -mins;
           interval /= 60;
           if (mins < 0) {
@@ -615,7 +615,7 @@ short ExpDatetime::convertIntervalToDatetime(long interval, char *intervalBignum
         // be negative.
         //
         {
-          Int32 hrs = (Int32)(interval % 24);
+          int hrs = (int)(interval % 24);
           if ((interval < 0) && (hrs > 0)) hrs = -hrs;
           interval /= 24;
           if (hrs < 0) {
@@ -686,7 +686,7 @@ short ExpDatetime::computeLastDayOfMonth(rec_datetime_field startField, rec_date
   char day = 1;
   char lastDay = 1;
 
-  for (Int32 field = startField; field <= endField; field++) {
+  for (int field = startField; field <= endField; field++) {
     switch (field) {
       case REC_DATE_YEAR:
         str_cpy_all((char *)&year, inDatetimeOpData, sizeof(year));
@@ -735,7 +735,7 @@ short ExpDatetime::validateDate(rec_datetime_field startField, rec_datetime_fiel
   short uselastdateonerrflag = FALSE;
   short ErrorOnInterval = FALSE;
 
-  for (Int32 field = startField; field <= endField; field++) {
+  for (int field = startField; field <= endField; field++) {
     switch (field) {
       case REC_DATE_YEAR:
         str_cpy_all((char *)&year, datetimeOpData, sizeof(year));
@@ -889,7 +889,7 @@ short ExpDatetime::compDatetimes(const char *datetimeOpData1, const char *dateti
   // Compare each field from highest significance (YEAR) to least
   // significance (FRACTION).  The format is: YYMDHMSFFFF
   //
-  for (Int32 field = startField; field <= endField; field++) {
+  for (int field = startField; field <= endField; field++) {
     switch (field) {
       case REC_DATE_YEAR: {
         short year1;
@@ -1242,7 +1242,7 @@ short ExpDatetime::subDatetimeDatetime(Attributes *datetimeOpType, Attributes *i
     if (rc) {
       // convert interval value to ascii format
       char invalidVal[BigNum::BIGNUM_TEMP_PRECISION + 1];
-      Int32 len = BigNum::BIGNUM_TEMP_PRECISION;
+      int len = BigNum::BIGNUM_TEMP_PRECISION;
       memset(invalidVal, ' ', len);
       convDoIt(op_data[0], BigNum::BIGNUM_TEMP_LEN, REC_NUM_BIG_SIGNED, BigNum::BIGNUM_TEMP_PRECISION, 0, invalidVal,
                BigNum::BIGNUM_TEMP_PRECISION, REC_BYTE_F_ASCII, 0, 0, NULL, 0, NULL, NULL);
@@ -1303,7 +1303,7 @@ short ExpDatetime::subDatetimeDatetime(Attributes *datetimeOpType, Attributes *i
 // project.
 // ===================================================================
 //
-static int scaleFraction(Int32 srcFractPrec, int srcFraction, Int32 dstFractPrec,
+static int scaleFraction(int srcFractPrec, int srcFraction, int dstFractPrec,
                            NABoolean *roundedDownFlag = NULL) {
   // The roundedDownFlag indicates if any data is lost when scaling
   // the fraction field of the datetime value.
@@ -1390,7 +1390,7 @@ short ExpDatetime::currentTimeStamp(char *dstData, rec_datetime_field startField
 
   // Copy all the fields to the result value.
   //
-  for (Int32 field = startField; field <= endField; field++) {
+  for (int field = startField; field <= endField; field++) {
     switch (field) {
       case REC_DATE_YEAR:
         str_cpy_all(dstData, (char *)&year, sizeof(year));
@@ -1669,7 +1669,7 @@ static short copyDatetimeFields(rec_datetime_field startField, rec_datetime_fiel
 //
 static short minimumTimeStamp(char *dstData, rec_datetime_field dstStartField, rec_datetime_field dstEndField,
                               short dstFractPrec) {
-  for (Int32 field = dstStartField; field <= dstEndField; field++) {
+  for (int field = dstStartField; field <= dstEndField; field++) {
     switch (field) {
       case REC_DATE_YEAR: {
         short year = 1;
@@ -1834,7 +1834,7 @@ static ExpDatetime::DatetimeFormats determineFormat(char *src, rec_datetime_fiel
   // Find the first non-digit character.  This is the first delimiter
   //
   const char *s = src;
-  Int32 firstFieldSize = 0;
+  int firstFieldSize = 0;
   while (isDigit8859_1(*s)) {
     s++;
     firstFieldSize++;
@@ -2269,7 +2269,7 @@ short ExpDatetime::convAsciiToDatetime(char *srcData, int srcLen, char *dstData,
   // Iterate over all the fields in the order dictated by the format.
   // Only fields the should be present are actually scanned.
   //
-  Int32 field;
+  int field;
   int trueScale = scale;
   for (field = 0; field < DATETIME_MAX_NUM_FIELDS; field++) {
     // Determine the field expected for this format.
@@ -2481,7 +2481,7 @@ static NABoolean convertStrToMonth(int numSrcBytes, char *&srcData, char *result
   char *originalSrcData = srcData;
   const char *months[] = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
 
-  for (Int32 i = 0; i < 12; i++) {
+  for (int i = 0; i < 12; i++) {
     char upVal[numSrcBytes];
     str_cpy_convert(upVal, srcData, numSrcBytes, 1);
     if (memcmp(upVal, months[i], 3) == 0) {
@@ -2511,7 +2511,7 @@ static NABoolean convertStrToMonthLongFormat(char *&value, char *result) {
   const char *months[] = {"JANUARY", "FEBRUARY", "MARCH",     "APRIL",   "MAY",      "JUNE",
                           "JULY",    "AUGUST",   "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"};
 
-  for (Int32 i = 0; i < 12; i++) {
+  for (int i = 0; i < 12; i++) {
     char upVal[10];
     str_cpy_convert(upVal, value, strlen(months[i]), 1);
     if (memcmp(upVal, months[i], strlen(months[i])) == 0) {
@@ -2614,7 +2614,7 @@ static NABoolean lcl_FormatWithNanosecond(int nFormat) {
 //    dstData[0] .. dstData[2]    1-byte for hour through second.
 // =====================================================================
 //
-short ExpDatetime::convAsciiToDate(char *srcData, int inSrcLen, char *dstData, int dstLen, Int32 format,
+short ExpDatetime::convAsciiToDate(char *srcData, int inSrcLen, char *dstData, int dstLen, int format,
                                    CollHeap *heap, ComDiagsArea **diagsArea, ULng32 flags) {
   NABoolean noDatetimeValidation = (flags & CONV_NO_DATETIME_VALIDATION) != 0;
   char *timeData = NULL;  // assume no time data
@@ -2753,7 +2753,7 @@ short ExpDatetime::convAsciiToDate(char *srcData, int inSrcLen, char *dstData, i
       if (convSrcDataToDst(2, srcData, 1, &dstData[3], &sep, heap, diagsArea)) return -1;
 
       // the year
-      Int32 numOfYdigits = (srcFormat == DATETIME_FORMAT_USA6 ? 2 : 4);
+      int numOfYdigits = (srcFormat == DATETIME_FORMAT_USA6 ? 2 : 4);
       if (convSrcDataToDst(numOfYdigits, srcData, 2, dstData, NULL, heap, diagsArea)) return -1;
     }; break;
 
@@ -3554,7 +3554,7 @@ int ExpDatetime::getDatetimeFormatLen(int format, NABoolean to_date, rec_datetim
         return ExpDatetime::getDatetimeFormatLen(format);
       } else {
         int minReqDstLen = 0;
-        Int32 field;
+        int field;
         for (field = startField; field <= endField; field++) {
           switch (field) {
             case REC_DATE_YEAR:
@@ -3628,7 +3628,7 @@ static void convertToNanosecondAscii(const char *srcData, char *dstDataPtr, Int1
 // project.
 // =====================================================================
 //
-int ExpDatetime::convDatetimeToASCII(char *srcData, char *dstData, int dstLen, Int32 format, char *formatStr,
+int ExpDatetime::convDatetimeToASCII(char *srcData, char *dstData, int dstLen, int format, char *formatStr,
                                        CollHeap *heap, ComDiagsArea **diagsArea, int caseSensitive,
                                        ULng32 nsrcLen /*= -1*/) {
   // Get the start and end fields of the datetime value.
@@ -3675,7 +3675,7 @@ int ExpDatetime::convDatetimeToASCII(char *srcData, char *dstData, int dstLen, I
   // Capture the date portion of the datetime value in the
   // corresponding variable.
   //
-  Int32 field;
+  int field;
   for (field = startField; field <= endField && field <= REC_DATE_DAY; field++) {
     switch (field) {
       case REC_DATE_YEAR:
@@ -3769,7 +3769,7 @@ int ExpDatetime::convDatetimeToASCII(char *srcData, char *dstData, int dstLen, I
         }
       }
       if (year) {
-        Int32 numOfYdigits = (format == DATETIME_FORMAT_USA6 ? 2 : 4);
+        int numOfYdigits = (format == DATETIME_FORMAT_USA6 ? 2 : 4);
 
         convertToAscii(year, dstDataPtr, numOfYdigits);
       }
@@ -3777,7 +3777,7 @@ int ExpDatetime::convDatetimeToASCII(char *srcData, char *dstData, int dstLen, I
 
     case DATETIME_FORMAT_TS31: {
       if (year) {
-        Int32 numOfYdigits = 4;
+        int numOfYdigits = 4;
         convertToAscii(year, dstDataPtr, numOfYdigits);
       }
       if (month) {
@@ -4312,7 +4312,7 @@ int ExpDatetime::convDatetimeToASCII(char *srcData, char *dstData, int dstLen, I
         // is room in the destination string, format as much of the
         // fraction as possible.
         //
-        Int32 fractionPrecision = getScale();
+        int fractionPrecision = getScale();
         int fraction;
         if (fractionPrecision > 0) {
           // dstPrecision is the available space in the destination
@@ -4423,7 +4423,7 @@ int ExpDatetime::convDatetimeToASCII(char *srcData, char *dstData, int dstLen, I
 //
 // =====================================================================
 //
-int ExpDatetime::convNumericTimeToASCII(char *srcData, char *dstData, int dstLen, Int32 format, char *formatStr,
+int ExpDatetime::convNumericTimeToASCII(char *srcData, char *dstData, int dstLen, int format, char *formatStr,
                                           CollHeap *heap, ComDiagsArea **diagsArea) {
   if ((format != DATETIME_FORMAT_NUM1) && (format != DATETIME_FORMAT_NUM2)) return -1;
 
@@ -4490,7 +4490,7 @@ short ExpDatetime::getDisplaySize(int datetimeCode, short fractionPrecision) {
   rec_datetime_field startField, endField;
 
   getDatetimeFields(datetimeCode, startField, endField);
-  Int32 field = startField - REC_DATE_YEAR;
+  int field = startField - REC_DATE_YEAR;
   size_t displayLength = maxFieldLen[field];
   while (field < (endField - REC_DATE_YEAR)) displayLength += 1 /* for separator */ + maxFieldLen[++field];
   if (fractionPrecision > 0) {
@@ -4504,7 +4504,7 @@ short ExpDatetime::getDisplaySize(int datetimeCode, short fractionPrecision) {
 }
 
 short ExpDatetime::convAsciiDatetimeToASCII(char *srcData, int srcPrecision, int srcScale, int srcLen,
-                                            char *dstData, int dstLen, Int32 format, CollHeap *heap,
+                                            char *dstData, int dstLen, int format, CollHeap *heap,
                                             ComDiagsArea **diagsArea) {
   short rc = 0;
 
@@ -4579,7 +4579,7 @@ char *ExpDatetime::getDefaultStringValue(CollHeap *heap) {
   rec_datetime_field startField;
   rec_datetime_field endField;
   char *ptr;
-  Int32 len;
+  int len;
 
   // Get the start and end fields for this datetime type.
   //
@@ -4627,8 +4627,8 @@ char *ExpDatetime::getDefaultStringValue(CollHeap *heap) {
   // Construct the default value string, based on the start and end
   // fields.
   //
-  for (Int32 field = startField; field <= endField; field++) {
-    Int32 flen = str_len(defValues[field]);
+  for (int field = startField; field <= endField; field++) {
+    int flen = str_len(defValues[field]);
     str_cpy_all(ptr + len, defValues[field], flen);
     len += flen;
     if (field != endField) {
@@ -4643,7 +4643,7 @@ char *ExpDatetime::getDefaultStringValue(CollHeap *heap) {
   if (getPrecision() > REC_DTCODE_TIMESTAMP) {
     ptr[len++] = ' ';
 
-    Int32 flen = str_len(getFieldName(startField));
+    int flen = str_len(getFieldName(startField));
     str_cpy_all(ptr + len, getFieldName(startField), flen);
     len += flen;
     if (startField != endField) {

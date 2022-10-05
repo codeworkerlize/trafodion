@@ -71,8 +71,8 @@ struct mapCS {
   size_t namelen;  // len(SQLCHARSETSTRING_xxx)
   NABoolean supported;
   NABoolean fully_supported;
-  Int32 minBytesPerChar;
-  Int32 maxBytesPerChar;
+  int minBytesPerChar;
+  int maxBytesPerChar;
   const char *replacementChar;
 };
 
@@ -199,7 +199,7 @@ void CharInfo::toggleCharSetSupport(CharSet cs) {
     if (cs == mapCSArray[i].cs) break;
   cerr << "toggleCharSetSupport: " << getCharSetName(cs) << " ";
   if (cs == UnknownCharSet || i >= SIZEOF_CS)
-    cerr << "*not* toggled: " << (Int32)cs << ", " << i << endl;
+    cerr << "*not* toggled: " << (int)cs << ", " << i << endl;
   else {
     cerr << "toggled from " << mapCSArray[i].supported << " to " << !mapCSArray[i].supported << endl;
     NABoolean *nonconstSupported = (NABoolean *)&mapCSArray[i].supported;
@@ -228,25 +228,25 @@ CharInfo::CharSet CharInfo::getEncoding(const CharInfo::CharSet x) {
   }
 }
 
-Int32 CharInfo::minBytesPerChar(CharSet cs) {
+int CharInfo::minBytesPerChar(CharSet cs) {
   ComASSERT(cs >= CHARSET_MIN && cs <= CHARSET_MAX);
 
   return mapCSArray[cs - CHARSET_MIN].minBytesPerChar;
 }
 
-Int32 CharInfo::maxBytesPerChar(CharSet cs) {
+int CharInfo::maxBytesPerChar(CharSet cs) {
   ComASSERT(cs >= CHARSET_MIN && cs <= CHARSET_MAX);
 
   return mapCSArray[cs - CHARSET_MIN].maxBytesPerChar;
 }
 
-Int32 CharInfo::getFSTypeFixedChar(CharSet cs) {
+int CharInfo::getFSTypeFixedChar(CharSet cs) {
   if (cs == UCS2) return REC_BYTE_F_DOUBLE;
 
   return REC_BYTE_F_ASCII;
 }
 
-Int32 CharInfo::getFSTypeANSIChar(CharSet cs) {
+int CharInfo::getFSTypeANSIChar(CharSet cs) {
   if (cs == UCS2) return REC_BYTE_V_ANSI_DOUBLE;
 
   return REC_BYTE_V_ANSI;
@@ -266,11 +266,11 @@ NABoolean CharInfo::isVariableWidthMultiByteCharSet(CharSet cs) {
   return FALSE;
 }
 
-NABoolean CharInfo::checkCodePoint(const NAWchar *inputStr, Int32 inputLen, CharInfo::CharSet cs) {
+NABoolean CharInfo::checkCodePoint(const NAWchar *inputStr, int inputLen, CharInfo::CharSet cs) {
   if (!inputStr || (inputLen <= 0)) return TRUE;
 
   if (cs == CharInfo::UNICODE) {
-    for (Int32 i = 0; i < inputLen; i++) {
+    for (int i = 0; i < inputLen; i++) {
       if (!unicode_char_set::isValidUCS2CodePoint(inputStr[i])) return FALSE;
     }
     return TRUE;
@@ -388,7 +388,7 @@ const char *CollationDB::getCollationName(CharInfo::Collation co, NABoolean retU
   return retUnknownAsBlank ? "" : SQLCOLLATIONSTRING_UNKNOWN;
 }
 
-Int32 CollationDB::getCollationFlags(CharInfo::Collation co) const {
+int CollationDB::getCollationFlags(CharInfo::Collation co) const {
   const CollationInfo *ci = getCollationInfo(co);
   if (ci) return ci->flags_;
 
@@ -482,7 +482,7 @@ const char *CharInfo::getCollationName(Collation co, NABoolean retUnknownAsBlank
   return builtinCollationDB()->getCollationName(co, retUnknownAsBlank);
 }
 
-Int32 CharInfo::getCollationFlags(Collation co) { return builtinCollationDB()->getCollationFlags(co); }
+int CharInfo::getCollationFlags(Collation co) { return builtinCollationDB()->getCollationFlags(co); }
 
 //****************************************************************************
 // COERCIBILITY stuff
@@ -513,7 +513,7 @@ const char *CharInfo::getCoercibilityText(Coercibility ce) {
 // ## (As an aside, note that CharType::computeCoAndCo()
 // ## could be pulled out into a static CharInfo:: method placed here.)
 //
-Int32 CharInfo::compareCoercibility(CharInfo::Coercibility ce1, CharInfo::Coercibility ce2) {
+int CharInfo::compareCoercibility(CharInfo::Coercibility ce1, CharInfo::Coercibility ce2) {
   if (ce1 == ce2) return 0;
 
   if (ce1 == CharInfo::COERCIBLE) return 2;  // 1 yields to 2
@@ -558,9 +558,9 @@ const char *CharInfo::getLocaleCharSetAsString() {
   return SQLCHARSETSTRING_UNKNOWN;
 }
 
-Int32 CharInfo::getTargetCharTypeFromLocale() { return REC_SBYTE_LOCALE_F; }
+int CharInfo::getTargetCharTypeFromLocale() { return REC_SBYTE_LOCALE_F; }
 
-Int32 CharInfo::getMaxConvertedLenInBytes(CharSet sourceCS, Int32 sourceLenInBytes, CharSet targetCS) {
+int CharInfo::getMaxConvertedLenInBytes(CharSet sourceCS, int sourceLenInBytes, CharSet targetCS) {
   if (sourceCS == targetCS) {
     // trivial case, no conversion
     return sourceLenInBytes;

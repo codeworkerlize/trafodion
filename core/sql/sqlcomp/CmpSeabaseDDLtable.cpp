@@ -160,7 +160,7 @@ TrafDesc *CmpSeabaseDDL::convertVirtTableColumnInfoArrayToDescStructs(const ComO
                                                                       int numCols) {
   TrafDesc *prev_column_desc = NULL;
   TrafDesc *first_column_desc = NULL;
-  for (Int32 i = 0; i < numCols; i++) {
+  for (int i = 0; i < numCols; i++) {
     const ComTdbVirtTableColumnInfo *colInfo = &(colInfoArray[i]);
 
     // TrafAllocateDDLdesc() requires that HEAP (STMTHEAP)
@@ -183,7 +183,7 @@ TrafDesc *CmpSeabaseDDL::convertVirtTableKeyInfoArrayToDescStructs(const ComTdbV
                                                                    int numKeys) {
   TrafDesc *prev_key_desc = NULL;
   TrafDesc *first_key_desc = NULL;
-  for (Int32 i = 0; i < numKeys; i++) {
+  for (int i = 0; i < numKeys; i++) {
     const ComTdbVirtTableColumnInfo *colInfo = &(colInfoArray[keyInfoArray[i].tableColNum]);
     TrafDesc *key_desc = TrafAllocateDDLdesc(DESC_KEYS_TYPE, NULL);
     if (prev_key_desc != NULL)
@@ -473,7 +473,7 @@ label_return:
 // ----------------------------------------------------------------------------
 short CmpSeabaseDDL::createSeabaseTableExternal(ExeCliInterface &cliInterface, StmtDDLCreateTable *createTableNode,
                                                 const ComObjectName &tgtTableName, const ComObjectName &srcTableName) {
-  Int32 retcode = 0;
+  int retcode = 0;
 
   NABoolean isHive = tgtTableName.isExternalHive();
 
@@ -498,8 +498,8 @@ short CmpSeabaseDDL::createSeabaseTableExternal(ExeCliInterface &cliInterface, S
   const NAString objectNamePart = tgtTableName.getObjectNamePartAsAnsiString(TRUE);
 
   // Make sure current user has privileges
-  Int32 objectOwnerID = SUPER_USER;
-  Int32 schemaOwnerID = SUPER_USER;
+  int objectOwnerID = SUPER_USER;
+  int schemaOwnerID = SUPER_USER;
   long schemaUID = 0;
   ComSchemaClass schemaClass;
   retcode = verifyDDLCreateOperationAuthorized(&cliInterface, SQLOperation::CREATE_TABLE, catalogNamePart,
@@ -563,7 +563,7 @@ short CmpSeabaseDDL::createSeabaseTableExternal(ExeCliInterface &cliInterface, S
   NABoolean alignedFormat = FALSE;
   int serializedOption = -1;
 
-  Int32 numCols = 0;
+  int numCols = 0;
   ComTdbVirtTableColumnInfo *colInfoArray = NULL;
 
   ElemDDLColDefArray &colArray = createTableNode->getColDefArray();
@@ -647,7 +647,7 @@ short CmpSeabaseDDL::createSeabaseTableExternal(ExeCliInterface &cliInterface, S
 
     // if colArray has been specified, then look for this column in
     // that array and use the type specified there.
-    Int32 colIndex = -1;
+    int colIndex = -1;
     if ((colArray.entries() > 0) && ((colIndex = colArray.getColumnIndex(naCol->getColName())) >= 0)) {
       ElemDDLColDef *edcd = colArray[colIndex];
       const NAType *edcdType = edcd->getColumnDataType();
@@ -781,7 +781,7 @@ short CmpSeabaseDDL::createSeabaseTableExternal(ExeCliInterface &cliInterface, S
 }
 
 short CmpSeabaseDDL::updatePKeyInfo(StmtDDLAddConstraintPK *addPKNode, const char *catName, const char *schName,
-                                    const char *objName, const Int32 ownerID, const Int32 schemaOwnerID, int numKeys,
+                                    const char *objName, const int ownerID, const int schemaOwnerID, int numKeys,
                                     long *outPkeyUID, long *outTableUID, const ComTdbVirtTableKeyInfo *keyInfoArray,
                                     ExeCliInterface *cliInterface) {
   int retcode = 0;
@@ -969,7 +969,7 @@ short CmpSeabaseDDL::constraintErrorChecks(ExeCliInterface *cliInterface, StmtDD
   // make sure that there is no other constraint on this table with this name.
   NABoolean foundConstr = FALSE;
   const CheckConstraintList &checkList = naTable->getCheckConstraints();
-  for (Int32 i = 0; i < checkList.entries(); i++) {
+  for (int i = 0; i < checkList.entries(); i++) {
     CheckConstraint *checkConstr = (CheckConstraint *)checkList[i];
 
     const NAString &tableConstrName = checkConstr->getConstraintName().getQualifiedNameAsAnsiString();
@@ -981,7 +981,7 @@ short CmpSeabaseDDL::constraintErrorChecks(ExeCliInterface *cliInterface, StmtDD
 
   if (NOT foundConstr) {
     const AbstractRIConstraintList &ariList = naTable->getUniqueConstraints();
-    for (Int32 i = 0; i < ariList.entries(); i++) {
+    for (int i = 0; i < ariList.entries(); i++) {
       AbstractRIConstraint *ariConstr = (AbstractRIConstraint *)ariList[i];
 
       const NAString &tableConstrName = ariConstr->getConstraintName().getQualifiedNameAsAnsiString();
@@ -994,7 +994,7 @@ short CmpSeabaseDDL::constraintErrorChecks(ExeCliInterface *cliInterface, StmtDD
 
   if (NOT foundConstr) {
     const AbstractRIConstraintList &ariList = naTable->getRefConstraints();
-    for (Int32 i = 0; i < ariList.entries(); i++) {
+    for (int i = 0; i < ariList.entries(); i++) {
       AbstractRIConstraint *ariConstr = (AbstractRIConstraint *)ariList[i];
 
       const NAString &tableConstrName = ariConstr->getConstraintName().getQualifiedNameAsAnsiString();
@@ -1103,7 +1103,7 @@ short CmpSeabaseDDL::constraintErrorChecks(ExeCliInterface *cliInterface, StmtDD
 // If unnamedConstrNum is greater than 0, use it to generate name and
 // increment it before returning.
 // Otherwise, generate a name with a randone suffix
-short CmpSeabaseDDL::genUniqueName(StmtDDLAddConstraint *addConstrNode, Int32 *unnamedConstrNum, NAString &uniqueName,
+short CmpSeabaseDDL::genUniqueName(StmtDDLAddConstraint *addConstrNode, int *unnamedConstrNum, NAString &uniqueName,
                                    const char *catName, const char *schName, const char *objName) {
   ComObjectName tableName((addConstrNode ? addConstrNode->getTableName() : ""), COM_TABLE_NAME);
 
@@ -1552,8 +1552,8 @@ short CmpSeabaseDDL::setupAndErrorChecks(NAString &tabName, QualifiedName &origT
     return -2;
   }
 
-  Int32 objectOwnerID = 0;
-  Int32 schemaOwnerID = 0;
+  int objectOwnerID = 0;
+  int schemaOwnerID = 0;
   long objDataUID = 0;
   if (naTable) {
     ActiveSchemaDB()->getNATableDB()->useCache();
@@ -1655,7 +1655,7 @@ struct createTablePthreadArgs {
 };
 
 void *CmpSeabaseDDLcreateTable__pthreadCreate(void *_args) {
-  Int32 rc = 0;
+  int rc = 0;
 
   struct createTablePthreadArgs *args = (struct createTablePthreadArgs *)_args;
 
@@ -1674,7 +1674,7 @@ struct dropTablePthreadArgs {
 };
 
 void *CmpSeabaseDDLdropTable__pthreadDrop(void *_args) {
-  Int32 rc = 0;
+  int rc = 0;
 
   struct dropTablePthreadArgs *args = (struct dropTablePthreadArgs *)_args;
 
@@ -2015,8 +2015,8 @@ short CmpSeabaseDDL::createSeabaseTable2(ExeCliInterface &cliInterface, StmtDDLC
     return -1;
   }
 
-  Int32 objectOwnerID = SUPER_USER;
-  Int32 schemaOwnerID = SUPER_USER;
+  int objectOwnerID = SUPER_USER;
+  int schemaOwnerID = SUPER_USER;
   long schemaUID = -1;
   long schemaObjectFlags = 0;
   ComSchemaClass schemaClass;
@@ -2753,7 +2753,7 @@ short CmpSeabaseDDL::createSeabaseTable2(ExeCliInterface &cliInterface, StmtDDLC
     ActiveSchemaDB()->getDefaults().validateAndInsert("hbase_serialization", hbVal, FALSE);
   }
 
-  Int32 keyLength = 0;
+  int keyLength = 0;
 
   for (CollIndex i = 0; i < keyArray.entries(); i++) {
     const NAString &colName = keyArray[i]->getColumnName();
@@ -2867,15 +2867,15 @@ short CmpSeabaseDDL::createSeabaseTable2(ExeCliInterface &cliInterface, StmtDDLC
   }
 
   NABoolean isPartitionV2Spec = createTableNode->isPartitionByClauseV2Spec();
-  Int32 *partionColIdxArray = NULL;
-  Int32 *subpartionColIdxArray = NULL;
+  int *partionColIdxArray = NULL;
+  int *subpartionColIdxArray = NULL;
   if (isPartitionV2Spec) {
     // validate that partition by columns exist
     const ElemDDLColRefArray &partitionColArray = createTableNode->getPartitionV2ColRefArray();
     const ElemDDLColRefArray &subpartitionColArray = createTableNode->getSubpartitionColRefArray();
-    Int32 pColLength = 0, subpColLength = 0;
-    Int32 partionColCnt = partitionColArray.entries();
-    Int32 subpartionColCnt = subpartitionColArray.entries();
+    int pColLength = 0, subpColLength = 0;
+    int partionColCnt = partitionColArray.entries();
+    int subpartionColCnt = subpartitionColArray.entries();
     if (partionColCnt > 0) partionColIdxArray = new (STMTHEAP) int[partionColCnt];
     if (subpartionColCnt > 0) subpartionColIdxArray = new (STMTHEAP) int[subpartionColCnt];
 
@@ -2921,10 +2921,10 @@ short CmpSeabaseDDL::createSeabaseTable2(ExeCliInterface &cliInterface, StmtDDLC
     }
 
     ElemDDLPartitionV2Array &partitionV2Array = createTableNode->getPartitionV2Array();
-    NAHashDictionary<NAString, Int32> *partitionNameMap =
-        new (STMTHEAP) NAHashDictionary<NAString, Int32>(NAString::hash, 101, TRUE, STMTHEAP);
+    NAHashDictionary<NAString, int> *partitionNameMap =
+        new (STMTHEAP) NAHashDictionary<NAString, int>(NAString::hash, 101, TRUE, STMTHEAP);
 
-    Int32 rc = validatePartitionByExpr((&(partitionV2Array)), colDescs, pColDescs, partitionColArray.entries(),
+    int rc = validatePartitionByExpr((&(partitionV2Array)), colDescs, pColDescs, partitionColArray.entries(),
                                        pColLength, partitionNameMap);
     if (rc) {
       if (partitionNameMap) delete partitionNameMap;
@@ -2940,7 +2940,7 @@ short CmpSeabaseDDL::createSeabaseTable2(ExeCliInterface &cliInterface, StmtDDLC
     }
 
     if (subpartitionColArray.entries() > 0) {
-      for (Int32 i = 0; i < partitionV2Array.entries(); i++) {
+      for (int i = 0; i < partitionV2Array.entries(); i++) {
         if (partitionV2Array[i]->getSubpartitionArray() && partitionV2Array[i]->getSubpartitionArray()->entries() > 0) {
           rc = validatePartitionByExpr(partitionV2Array[i]->getSubpartitionArray(), colDescs, subpColDescs,
                                        subpartitionColArray.entries(), subpColLength, partitionNameMap);
@@ -3011,7 +3011,7 @@ short CmpSeabaseDDL::createSeabaseTable2(ExeCliInterface &cliInterface, StmtDDLC
         genHBaseObjName(catalogNamePart, schemaNamePart, objectNamePart, (NOT isMonarch ? tableNamespace : ""));
   }
 
-  for (Int32 i = 0; i < colArray.entries(); i++) {
+  for (int i = 0; i < colArray.entries(); i++) {
     ElemDDLColDef *column = colArray[i];
 
     int datatype = column->getColumnDataType()->getFSDatatype();
@@ -3089,7 +3089,7 @@ short CmpSeabaseDDL::createSeabaseTable2(ExeCliInterface &cliInterface, StmtDDLC
 
   if (createTableNode->isPartition()) CmpSeabaseDDL::setMDflags(tableInfo->objectFlags, MD_PARTITION_V2);
 
-  Int32 hbaseDropCreate = CmpCommon::getDefaultNumeric(TRAF_HBASE_DROP_CREATE);
+  int hbaseDropCreate = CmpCommon::getDefaultNumeric(TRAF_HBASE_DROP_CREATE);
   bool updPrivs = (hbaseDropCreate != 0);
   if (updateSeabaseMDTable(&cliInterface, catalogNamePart, schemaNamePart, objectNamePart, COM_BASE_TABLE_OBJECT,
                            COM_NO_LIT, tableInfo, numCols, colInfoArray, numKeys, keyInfoArray, 0, NULL, objUID,
@@ -3576,7 +3576,7 @@ int CmpSeabaseDDL::createSeabasePartitionTable(ExeCliInterface *cliInterface, co
 int CmpSeabaseDDL::createSeabasePartitionTableWithInfo(ExeCliInterface *cliInterface, const NAString &partName,
                                                          const NAString &currCatName, const NAString &currSchName,
                                                          const NAString &baseTableName, long objUID,
-                                                         Int32 partPositoin, NAString &PKey, NAString &pEntityNmae,
+                                                         int partPositoin, NAString &PKey, NAString &pEntityNmae,
                                                          NAString &PKcolName, NAString &PK, int i,
                                                          char *partitionTableName) {
   int ret;
@@ -3652,8 +3652,8 @@ int CmpSeabaseDDL::createSeabasePartitionTableWithInfo(ExeCliInterface *cliInter
 // the naTable, finds out the max <num> and returns "<num>+1"
 // If no unnamed constrs, returns inNum.
 // If an error, returns -1
-static Int32 extractNumVal(const NAString &constrName) {
-  Int32 numVal = -1;
+static int extractNumVal(const NAString &constrName) {
+  int numVal = -1;
 
   // constrName must be atleast "prefix + 3"(1 digit for num, 1 byte for '_',
   // and 1 byte for <tab>)
@@ -3669,33 +3669,33 @@ static Int32 extractNumVal(const NAString &constrName) {
   return numVal;
 }
 
-static Int32 getNextNumVal(const NAString &constrName, Int32 inNum) {
-  Int32 retNum = inNum;
-  Int32 numVal = extractNumVal(constrName);
+static int getNextNumVal(const NAString &constrName, int inNum) {
+  int retNum = inNum;
+  int numVal = extractNumVal(constrName);
   if ((numVal > 0) && (numVal > inNum)) retNum = numVal;
 
   return retNum;
 }
 
-Int32 CmpSeabaseDDL::getNextUnnamedConstrNum(NATable *naTable) {
-  Int32 nextNum = 0;
+int CmpSeabaseDDL::getNextUnnamedConstrNum(NATable *naTable) {
+  int nextNum = 0;
 
   const CheckConstraintList &ccList = naTable->getCheckConstraints();
-  for (Int32 i = 0; i < ccList.entries(); i++) {
+  for (int i = 0; i < ccList.entries(); i++) {
     CheckConstraint *cc = (CheckConstraint *)ccList[i];
     const NAString &constrName = cc->getConstraintName().getObjectName();
     nextNum = getNextNumVal(constrName, nextNum);
   }  // for
 
   const AbstractRIConstraintList &ucList = naTable->getUniqueConstraints();
-  for (Int32 i = 0; i < ucList.entries(); i++) {
+  for (int i = 0; i < ucList.entries(); i++) {
     AbstractRIConstraint *uc = (AbstractRIConstraint *)ucList[i];
     const NAString &constrName = uc->getConstraintName().getObjectName();
     nextNum = getNextNumVal(constrName, nextNum);
   }  // for
 
   const AbstractRIConstraintList &rcList = naTable->getRefConstraints();
-  for (Int32 i = 0; i < rcList.entries(); i++) {
+  for (int i = 0; i < rcList.entries(); i++) {
     AbstractRIConstraint *rc = (AbstractRIConstraint *)rcList[i];
     const NAString &constrName = rc->getConstraintName().getObjectName();
     nextNum = getNextNumVal(constrName, nextNum);
@@ -3710,7 +3710,7 @@ void CmpSeabaseDDL::addConstraints(ComObjectName &tableName, ComAnsiNamePart &cu
                                    ComAnsiNamePart &currSchAnsiName, StmtDDLNode *ddlNode,
                                    StmtDDLAddConstraintPK *pkConstr, StmtDDLAddConstraintUniqueArray &uniqueConstrArr,
                                    StmtDDLAddConstraintRIArray &riConstrArr,
-                                   StmtDDLAddConstraintCheckArray &checkConstrArr, Int32 inUnnamedConstrNum,
+                                   StmtDDLAddConstraintCheckArray &checkConstrArr, int inUnnamedConstrNum,
                                    NABoolean isCompound, NABoolean isPartitionV2) {
   int cliRC = 0;
 
@@ -3723,7 +3723,7 @@ void CmpSeabaseDDL::addConstraints(ComObjectName &tableName, ComAnsiNamePart &cu
 
   char buf[5000];
 
-  Int32 unnamedConstrNum = inUnnamedConstrNum;
+  int unnamedConstrNum = inUnnamedConstrNum;
   if (pkConstr) {
     NAString uniqueName;
     if (genUniqueName(pkConstr, NULL, uniqueName)) {
@@ -4148,7 +4148,7 @@ void CmpSeabaseDDL::createSeabaseTableCompound(StmtDDLCreateTable *createTableNo
         OutputInfo *idx = (OutputInfo *)indexes->getNext();
 
         // skip clustering index
-        if (*(Int32 *)idx->get(3) == 0) continue;
+        if (*(int *)idx->get(3) == 0) continue;
 
         NAString ixCatName(idx->get(0));
         NAString ixSchName(idx->get(1));
@@ -4245,7 +4245,7 @@ short CmpSeabaseDDL::dropSeabaseTable2(ExeCliInterface *cliInterface, StmtDDLDro
   NABoolean catNameSpecified = (NOT dropTableNode->getOrigTableNameAsQualifiedName().getCatalogName().isNull());
   NABoolean schNameSpecified = (NOT dropTableNode->getOrigTableNameAsQualifiedName().getSchemaName().isNull());
 
-  Int32 hbaseDropCreate = CmpCommon::getDefaultNumeric(TRAF_HBASE_DROP_CREATE);
+  int hbaseDropCreate = CmpCommon::getDefaultNumeric(TRAF_HBASE_DROP_CREATE);
 
   tableName.applyDefaults(currCatAnsiName, currSchAnsiName);
 
@@ -4596,7 +4596,7 @@ short CmpSeabaseDDL::dropSeabaseTable2(ExeCliInterface *cliInterface, StmtDDLDro
   // any of the unique constraints.
 
   if (dropTableNode->getDropBehavior() == COM_RESTRICT_DROP_BEHAVIOR) {
-    for (Int32 i = 0; i < uniqueList.entries(); i++) {
+    for (int i = 0; i < uniqueList.entries(); i++) {
       AbstractRIConstraint *ariConstr = uniqueList[i];
 
       if (ariConstr->getOperatorType() != ITM_UNIQUE_CONSTRAINT) continue;
@@ -4686,7 +4686,7 @@ short CmpSeabaseDDL::dropSeabaseTable2(ExeCliInterface *cliInterface, StmtDDLDro
   }
 
   // drop all referential constraints referencing me.
-  for (Int32 i = 0; i < uniqueList.entries(); i++) {
+  for (int i = 0; i < uniqueList.entries(); i++) {
     AbstractRIConstraint *ariConstr = uniqueList[i];
 
     if (ariConstr->getOperatorType() != ITM_UNIQUE_CONSTRAINT) continue;
@@ -4745,7 +4745,7 @@ short CmpSeabaseDDL::dropSeabaseTable2(ExeCliInterface *cliInterface, StmtDDLDro
     }    // if
   }      // for
 
-  for (Int32 i = 0; i < uniqueList.entries(); i++) {
+  for (int i = 0; i < uniqueList.entries(); i++) {
     AbstractRIConstraint *ariConstr = uniqueList[i];
 
     if (ariConstr->getOperatorType() != ITM_UNIQUE_CONSTRAINT) continue;
@@ -4809,7 +4809,7 @@ short CmpSeabaseDDL::dropSeabaseTable2(ExeCliInterface *cliInterface, StmtDDLDro
   // drop all referential constraints from metadata
   const AbstractRIConstraintList &refList = naTable->getRefConstraints();
 
-  for (Int32 i = 0; i < refList.entries(); i++) {
+  for (int i = 0; i < refList.entries(); i++) {
     AbstractRIConstraint *ariConstr = refList[i];
 
     if (ariConstr->getOperatorType() != ITM_REF_CONSTRAINT) continue;
@@ -4946,7 +4946,7 @@ short CmpSeabaseDDL::dropSeabaseTable2(ExeCliInterface *cliInterface, StmtDDLDro
   if (NOT(dropTableNode->getDropBehavior() == COM_NO_CHECK_DROP_BEHAVIOR) &&
       NOT(naTable->isPartitionEntityTable() && dropTableNode->isPartition())) {
     const CheckConstraintList &checkList = naTable->getCheckConstraints();
-    for (Int32 i = 0; i < checkList.entries(); i++) {
+    for (int i = 0; i < checkList.entries(); i++) {
       CheckConstraint *checkConstr = checkList[i];
 
       const NAString &constrCatName = checkConstr->getConstraintName().getCatalogName();
@@ -5266,7 +5266,7 @@ short CmpSeabaseDDL::dropSeabaseTable2(ExeCliInterface *cliInterface, StmtDDLDro
                                                     dropTableNode->ddlXns(), FALSE);
   }
 
-  for (Int32 i = 0; i < refList.entries(); i++) {
+  for (int i = 0; i < refList.entries(); i++) {
     AbstractRIConstraint *ariConstr = refList[i];
 
     if (ariConstr->getOperatorType() != ITM_REF_CONSTRAINT) continue;
@@ -5278,7 +5278,7 @@ short CmpSeabaseDDL::dropSeabaseTable2(ExeCliInterface *cliInterface, StmtDDLDro
                                                     dropTableNode->ddlXns(), FALSE);
   }
 
-  for (Int32 i = 0; i < uniqueList.entries(); i++) {
+  for (int i = 0; i < uniqueList.entries(); i++) {
     UniqueConstraint *uniqConstr = (UniqueConstraint *)uniqueList[i];
 
     // We will only reach here is cascade option is specified.
@@ -5485,13 +5485,13 @@ short CmpSeabaseDDL::invalidateStats(long tableUID) {
 //   Try creating again, using the latest epoch value
 // Release the distributed lock
 
-Int32 CmpSeabaseDDL::createObjectEpochCacheEntry(ObjectEpochCacheEntryName *name) {
+int CmpSeabaseDDL::createObjectEpochCacheEntry(ObjectEpochCacheEntryName *name) {
   if (CmpCommon::getDefault(TRAF_LOCK_DDL) == DF_OFF) return 0;
 
-  Int32 retcode = -EXE_OEC_UNABLE_TO_GET_DIST_LOCK;  // assume failure
+  int retcode = -EXE_OEC_UNABLE_TO_GET_DIST_LOCK;  // assume failure
   WaitedLockController lock(name->getDLockKey(), 1);
   if (lock.lockHeld()) {
-    Int32 objectNameLength = name->objectName().length();
+    int objectNameLength = name->objectName().length();
     const char *objectName = name->objectName().data();
     UInt32 expectedEpoch = 0;
     UInt32 expectedFlags = ObjectEpochChangeRequest::NO_DDL_IN_PROGRESS;
@@ -5541,14 +5541,14 @@ Int32 CmpSeabaseDDL::createObjectEpochCacheEntry(ObjectEpochCacheEntryName *name
 //   Report that error
 // Release the distributed lock
 
-Int32 CmpSeabaseDDL::modifyObjectEpochCacheStartDDL(ObjectEpochCacheEntryName *name, UInt32 expectedEpoch,
+int CmpSeabaseDDL::modifyObjectEpochCacheStartDDL(ObjectEpochCacheEntryName *name, UInt32 expectedEpoch,
                                                     bool readsAllowed) {
   if (CmpCommon::getDefault(TRAF_LOCK_DDL) == DF_OFF) return 0;
 
-  Int32 retcode = -EXE_OEC_UNABLE_TO_GET_DIST_LOCK;  // assume failure
+  int retcode = -EXE_OEC_UNABLE_TO_GET_DIST_LOCK;  // assume failure
   WaitedLockController lock(name->getDLockKey(), 1);
   if (lock.lockHeld()) {
-    Int32 objectNameLength = name->objectName().length();
+    int objectNameLength = name->objectName().length();
     const char *objectName = name->objectName().data();
     UInt32 newFlags = ObjectEpochChangeRequest::DDL_IN_PROGRESS;
     if (!readsAllowed) newFlags |= ObjectEpochChangeRequest::READS_DISALLOWED;
@@ -5599,13 +5599,13 @@ Int32 CmpSeabaseDDL::modifyObjectEpochCacheStartDDL(ObjectEpochCacheEntryName *n
 //   Report that error
 // Release the distributed lock
 
-Int32 CmpSeabaseDDL::modifyObjectEpochCacheContinueDDL(ObjectEpochCacheEntryName *name, UInt32 expectedEpoch) {
+int CmpSeabaseDDL::modifyObjectEpochCacheContinueDDL(ObjectEpochCacheEntryName *name, UInt32 expectedEpoch) {
   if (CmpCommon::getDefault(TRAF_LOCK_DDL) == DF_OFF) return 0;
 
-  Int32 retcode = -EXE_OEC_UNABLE_TO_GET_DIST_LOCK;    // assume failure
+  int retcode = -EXE_OEC_UNABLE_TO_GET_DIST_LOCK;    // assume failure
   WaitedLockController lock(name->getDLockKey(), 10);  // longer timeout because we'd prefer not to abort DDL
   if (lock.lockHeld()) {
-    Int32 objectNameLength = name->objectName().length();
+    int objectNameLength = name->objectName().length();
     const char *objectName = name->objectName().data();
     UInt32 maxExpectedEpochFound = 0;
     UInt32 maxExpectedFlagsFound = 0;
@@ -5650,13 +5650,13 @@ Int32 CmpSeabaseDDL::modifyObjectEpochCacheContinueDDL(ObjectEpochCacheEntryName
 //   Report that error
 // Release the distributed lock
 
-Int32 CmpSeabaseDDL::modifyObjectEpochCacheEndDDL(ObjectEpochCacheEntryName *name, UInt32 expectedEpoch) {
+int CmpSeabaseDDL::modifyObjectEpochCacheEndDDL(ObjectEpochCacheEntryName *name, UInt32 expectedEpoch) {
   if (CmpCommon::getDefault(TRAF_LOCK_DDL) == DF_OFF) return 0;
 
-  Int32 retcode = -EXE_OEC_UNABLE_TO_GET_DIST_LOCK;    // assume failure
+  int retcode = -EXE_OEC_UNABLE_TO_GET_DIST_LOCK;    // assume failure
   WaitedLockController lock(name->getDLockKey(), 10);  // longer timeout because we want this to succeed
   if (lock.lockHeld()) {
-    Int32 objectNameLength = name->objectName().length();
+    int objectNameLength = name->objectName().length();
     const char *objectName = name->objectName().data();
     UInt32 maxExpectedEpochFound = 0;
     UInt32 maxExpectedFlagsFound = 0;
@@ -5707,17 +5707,17 @@ Int32 CmpSeabaseDDL::modifyObjectEpochCacheEndDDL(ObjectEpochCacheEntryName *nam
 // and flags. If the force parameter is true, these are ignored. Normal abort
 // processing will use force == false. CLEANUP will use force == true.
 
-Int32 CmpSeabaseDDL::modifyObjectEpochCacheAbortDDL(ObjectEpochCacheEntryName *name, UInt32 expectedEpoch, bool force) {
+int CmpSeabaseDDL::modifyObjectEpochCacheAbortDDL(ObjectEpochCacheEntryName *name, UInt32 expectedEpoch, bool force) {
   if (CmpCommon::getDefault(TRAF_LOCK_DDL) == DF_OFF) return 0;
 
-  Int32 retcode = -EXE_OEC_UNABLE_TO_GET_DIST_LOCK;  // assume failure
+  int retcode = -EXE_OEC_UNABLE_TO_GET_DIST_LOCK;  // assume failure
   WaitedLockController lock(name->getDLockKey(), 10);
   if (lock.lockHeld()) {
-    Int32 objectNameLength = name->objectName().length();
+    int objectNameLength = name->objectName().length();
     const char *objectName = name->objectName().data();
     UInt32 maxExpectedEpochFound = 0;
     UInt32 maxExpectedFlagsFound = 0;
-    Int32 operation = ObjectEpochChangeRequest::ABORT_DDL_OPERATION;
+    int operation = ObjectEpochChangeRequest::ABORT_DDL_OPERATION;
     if (force) operation = ObjectEpochChangeRequest::FORCE;
     // reset the flags to show now DDL in progress; epoch stays the same as before
     retcode = SQL_EXEC_SetObjectEpochEntry(
@@ -5977,7 +5977,7 @@ short CmpSeabaseDDL::ddlSetObjectEpochHelper(const QualifiedName &qualName, ComO
   //   Y                  N           okay, flags match - return
   //   N                  Y           okay, flags match - return
   //   N                  N           okay, continue to update disallowReadsSet to TRUE
-  Int32 ddlListEntry = CmpCommon::context()->ddlObjsList().findEntry(tableName);
+  int ddlListEntry = CmpCommon::context()->ddlObjsList().findEntry(tableName);
   if (ddlListEntry >= 0) {
     NABoolean disallowReadsSet = (currentFlags & ObjectEpochChangeRequest::READS_DISALLOWED);
     if (disallowReadsSet) {
@@ -6087,7 +6087,7 @@ short CmpSeabaseDDL::lockObjectDDL(const QualifiedName &qualName, ComObjectType 
   if (isLOBDependentNameMatch(qualName.getObjectName())) return 0;
 
   NAString tabName = qualName.getQualifiedNameAsAnsiString();
-  Int32 cliRC = SQL_EXEC_LockObjectDDL(tabName.data(), COM_BASE_TABLE_OBJECT);
+  int cliRC = SQL_EXEC_LockObjectDDL(tabName.data(), COM_BASE_TABLE_OBJECT);
   if (cliRC < 0) {
     LOGERROR(CAT_SQL_EXE, "DDL lock failed for table %s", tabName.data());
     CmpCommon::diags()->mergeAfter(*(GetCliGlobals()->currContext()->getDiagsArea()));
@@ -6127,7 +6127,7 @@ short CmpSeabaseDDL::unlockObjectDDL(const QualifiedName &qualName, ComObjectTyp
   if (isLOBDependentNameMatch(qualName.getObjectName())) return 0;
 
   NAString tabName = qualName.getQualifiedNameAsAnsiString();
-  Int32 cliRC = SQL_EXEC_UnLockObjectDDL(tabName.data(), COM_BASE_TABLE_OBJECT);
+  int cliRC = SQL_EXEC_UnLockObjectDDL(tabName.data(), COM_BASE_TABLE_OBJECT);
   if (cliRC < 0) {
     LOGERROR(CAT_SQL_EXE, "DDL unlock failed for table %s", tabName.data());
     CmpCommon::diags()->mergeAfter(*(GetCliGlobals()->currContext()->getDiagsArea()));
@@ -6344,7 +6344,7 @@ void CmpSeabaseDDL::renameSeabaseTable(StmtDDLAlterTableRename *renameTableNode,
 
   // cannot rename if there are referential constraint referencing this table.
   const AbstractRIConstraintList &uniqueList = naTable->getUniqueConstraints();
-  for (Int32 i = 0; i < uniqueList.entries(); i++) {
+  for (int i = 0; i < uniqueList.entries(); i++) {
     AbstractRIConstraint *ariConstr = uniqueList[i];
 
     if (ariConstr->getOperatorType() != ITM_UNIQUE_CONSTRAINT) continue;
@@ -6387,7 +6387,7 @@ void CmpSeabaseDDL::renameSeabaseTable(StmtDDLAlterTableRename *renameTableNode,
     char buf[15000];
 
     if (naTable->getUniqueConstraints().entries() > 0) {
-      for (Int32 i = 0; i < uniqueList.entries(); i++) {
+      for (int i = 0; i < uniqueList.entries(); i++) {
         AbstractRIConstraint *ariConstr = uniqueList[i];
 
         if (ariConstr->getOperatorType() != ITM_UNIQUE_CONSTRAINT) continue;
@@ -6422,7 +6422,7 @@ void CmpSeabaseDDL::renameSeabaseTable(StmtDDLAlterTableRename *renameTableNode,
           //  "_Traf_UnNamed_Constr_1_T"
           // Replace it with:
           //  "_Traf_UnNamed_Constr_1_TRENAMED"
-          Int32 constrNum = extractNumVal(constrName);
+          int constrNum = extractNumVal(constrName);
           if (constrNum <= 0) {
             // internal error. Assert.
             // Should DDL lock be removed here?
@@ -6454,7 +6454,7 @@ void CmpSeabaseDDL::renameSeabaseTable(StmtDDLAlterTableRename *renameTableNode,
 
     if (naTable->getRefConstraints().entries() > 0) {
       const AbstractRIConstraintList &ariList = naTable->getRefConstraints();
-      for (Int32 i = 0; i < ariList.entries(); i++) {
+      for (int i = 0; i < ariList.entries(); i++) {
         AbstractRIConstraint *ariConstr = ariList[i];
         if (ariConstr->getOperatorType() != ITM_REF_CONSTRAINT) continue;
 
@@ -6487,7 +6487,7 @@ void CmpSeabaseDDL::renameSeabaseTable(StmtDDLAlterTableRename *renameTableNode,
           // Replace it with:
           //  "_Traf_UnNamed_Constr_1_TRENAMED"
           //
-          Int32 constrNum = extractNumVal(constrName);
+          int constrNum = extractNumVal(constrName);
           if (constrNum <= 0) {
             // internal error. Assert.
             // Should DDL lock be removed here?
@@ -6618,7 +6618,7 @@ void CmpSeabaseDDL::renameSeabaseTable(StmtDDLAlterTableRename *renameTableNode,
   // skip ConstrList
   if (!USE_UUID_AS_HBASE_TABLENAME && NOT naTable->isPartitionV2Table()) {
     // drop constraints
-    for (Int32 i = 0; i < dropConstrList.entries(); i++) {
+    for (int i = 0; i < dropConstrList.entries(); i++) {
       cliRC = cliInterface.executeImmediate(dropConstrList[i]);
       if (cliRC < 0) {
         cliInterface.retrieveSQLDiagnostics(CmpCommon::diags());
@@ -6628,7 +6628,7 @@ void CmpSeabaseDDL::renameSeabaseTable(StmtDDLAlterTableRename *renameTableNode,
     }
 
     // add constraints
-    for (Int32 i = 0; i < addConstrList.entries(); i++) {
+    for (int i = 0; i < addConstrList.entries(); i++) {
       cliRC = cliInterface.executeImmediate(addConstrList[i]);
       if (cliRC < 0) {
         cliInterface.retrieveSQLDiagnostics(CmpCommon::diags());
@@ -7202,7 +7202,7 @@ void CmpSeabaseDDL::alterSeabaseTableSplitPartition(StmtDDLAlterTableSplitPartit
 
   char tgtPartTableName[256];
   naTable->getParitionColNameAsString(PKcolName, FALSE);
-  Int32 partPosition = naPartition->getPartPosition();
+  int partPosition = naPartition->getPartPosition();
 
   NABoolean xnWasStartedHere = FALSE;
   if (beginXnIfNotInProgress(&cliInterface, xnWasStartedHere, TRUE /*clearDDLList*/, FALSE /*clearObjectLocks*/)) {
@@ -8272,7 +8272,7 @@ void CmpSeabaseDDL::alterSeabaseTableAttribute(StmtDDLAlterTableAttribute *alter
 
     // if this table has an identity column, update the repl attrs for the
     // internal seq gen object
-    Int32 idenColPos = naTable->getNAColumnArray().getIdentityColumnPosition();
+    int idenColPos = naTable->getNAColumnArray().getIdentityColumnPosition();
     if (idenColPos >= 0) {
       NAColumn *nac = naTable->getNAColumnArray().getColumn(idenColPos);
       NAString seqName;
@@ -8843,7 +8843,7 @@ short CmpSeabaseDDL::cloneAndTruncateTable(const NATable *naTable,  // IN: sourc
   // identity 'generated always' columns do not permit inserting user specified
   // values. Override it since we want to move original values to tgt.
   const NAColumnArray &naColArr = naTable->getNAColumnArray();
-  for (Int32 c = 0; c < naColArr.entries(); c++) {
+  for (int c = 0; c < naColArr.entries(); c++) {
     const NAColumn *nac = naColArr[c];
     if (nac->isIdentityColumnAlways()) {
       identityGenAlways = TRUE;
@@ -8980,8 +8980,8 @@ void CmpSeabaseDDL::alterTableMountPartition(StmtDDLAlterTableMountPartition *al
   int pColLength = 0;
   QualifiedName qn;
   long rowsAffected = 0;
-  Int32 count = 0;
-  int value_len = sizeof(Int32);
+  int count = 0;
+  int value_len = sizeof(int);
 
   ExeCliInterface cliInterface(STMTHEAP, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
 
@@ -9298,7 +9298,7 @@ void CmpSeabaseDDL::alterTableUnmountPartition(StmtDDLAlterTableUnmountPartition
     return;
   }
 
-  Int32 firstLevelPartCnt = naTable->FisrtLevelPartitionCount();
+  int firstLevelPartCnt = naTable->FisrtLevelPartitionCount();
   const NAPartitionArray &partitionArray = naTable->getPartitionArray();
   NAString partName;
   NAString partEntityName;
@@ -9521,15 +9521,15 @@ void CmpSeabaseDDL::alterTableAddPartition(StmtDDLAlterTableAddPartition *alterA
       curDesc = temp;
     }
   }
-  NAHashDictionary<NAString, Int32> *partitionNameMap =
-      new (STMTHEAP) NAHashDictionary<NAString, Int32>(NAString::hash, 101, TRUE, STMTHEAP);
+  NAHashDictionary<NAString, int> *partitionNameMap =
+      new (STMTHEAP) NAHashDictionary<NAString, int>(NAString::hash, 101, TRUE, STMTHEAP);
   retcode = validatePartitionByExpr(partitionV2Array, naTable->getColumnsDesc(), pColDescs,
                                     naTable->getPartitionColCount(), pColLength, partitionNameMap);
   if (retcode) return;
 
   // new partition bound must be higher than that of the last partition
   NAString err("");
-  Int32 firstLevelPartitionCnt = naTable->FisrtLevelPartitionCount();
+  int firstLevelPartitionCnt = naTable->FisrtLevelPartitionCount();
   NAPartition *lastNAPartition = naTable->getNAPartitionArray()[firstLevelPartitionCnt - 1];
   NAString lastPartitionName = lastNAPartition->getPartitionName();
   NAString lastPartitionExpr;
@@ -9662,7 +9662,7 @@ void CmpSeabaseDDL::alterTableMergePartition(StmtDDLAlterTableMergePartition *me
   NABoolean newPartCreated = FALSE;
   NABoolean newCloneCreated = FALSE;
 
-  Int32 isCommit = 0;  // 0 is commit, -1 is rollback
+  int isCommit = 0;  // 0 is commit, -1 is rollback
 
   NAPartition *tgtPartInfo = mergePartition->getTgtPart();
   NAList<NAPartition *> sortedSrcPart = mergePartition->getSortedSrcPart();
@@ -10133,8 +10133,8 @@ void CmpSeabaseDDL::alterTableExchangePartition(StmtDDLAlterTableExchangePartiti
   NAString partValLow("");
   NAString partValHigh("");
 
-  const Int32 *partColPosition = naTable->getPartitionColIdxArray();
-  Int32 partColCount = naTable->getPartitionColCount();
+  const int *partColPosition = naTable->getPartitionColIdxArray();
+  int partColCount = naTable->getPartitionColCount();
 
   BindWA bindWA(ActiveSchemaDB(), CmpCommon::context());
   naPartTable = ActiveSchemaDB()->getNATableDB()->get(exchgPartCN, &bindWA, NULL, FALSE);
@@ -10171,7 +10171,7 @@ void CmpSeabaseDDL::alterTableExchangePartition(StmtDDLAlterTableExchangePartiti
   }
 
   // do validate data of common table
-  for (Int32 i = 0; i < partColCount; i++) {
+  for (int i = 0; i < partColCount; i++) {
     if (i > 0) {
       partCols += ", ";
     }
@@ -10789,8 +10789,8 @@ void CmpSeabaseDDL::alterSeabaseTableAddColumn(StmtDDLAlterTableAddColumn *alter
   }
 
   long objUID = naTable->objectUid().castToInt64();
-  Int32 newColNum = naTable->getColumnCount();
-  for (Int32 cc = nacolArr.entries() - 1; cc >= 0; cc--) {
+  int newColNum = naTable->getColumnCount();
+  for (int cc = nacolArr.entries() - 1; cc >= 0; cc--) {
     const NAColumn *nac = nacolArr[cc];
 
     if ((NOT naTable->isSQLMXAlignedTable()) && (nac->isComputedColumn())) {
@@ -11061,7 +11061,7 @@ void CmpSeabaseDDL::alterSeabaseTableAddColumn(StmtDDLAlterTableAddColumn *alter
       dropIBAttrForTable(naTable, &cliInterface);
     }
     // find out the next unnamed constraint num
-    Int32 constrNum = getNextUnnamedConstrNum(naTable);
+    int constrNum = getNextUnnamedConstrNum(naTable);
     addConstraints(tableName, currCatAnsiName, currSchAnsiName, alterAddColNode, alterAddColNode->getAddConstraintPK(),
                    alterAddColNode->getAddConstraintUniqueArray(), alterAddColNode->getAddConstraintRIArray(),
                    alterAddColNode->getAddConstraintCheckArray(), constrNum, false, naTable->isPartitionV2Table());
@@ -11288,10 +11288,10 @@ short CmpSeabaseDDL::updateMDforDropCol(ExeCliInterface &cliInterface, const NAT
   // the text table comp col defn str.
   if (type->isComposite()) {
     char buf[100];
-    Int32 numCompCols = 0;
+    int numCompCols = 0;
     const NAColumnArray &nacolArr = naTable->getNAColumnArray();
     NAString textTableCompDefnStr;
-    for (Int32 i = 0; i < nacolArr.entries(); i++) {
+    for (int i = 0; i < nacolArr.entries(); i++) {
       const NAColumn *nacol = nacolArr[i];
 
       if ((nacol->getType()->isComposite()) && (nacol->getPosition() != dropColNum)) {
@@ -11447,7 +11447,7 @@ short CmpSeabaseDDL::alignedFormatTableDropColumn(const NAString &catalogNamePar
   ActiveSchemaDB()->getNATableDB()->removeNATable(cn, ComQiScope::REMOVE_FROM_ALL_USERS, COM_BASE_TABLE_OBJECT, ddlXns,
                                                   FALSE);
 
-  for (Int32 c = 0; c < naColArr.entries(); c++) {
+  for (int c = 0; c < naColArr.entries(); c++) {
     const NAColumn *nac = naColArr[c];
     if (nac->getColName() == dropColName) continue;
 
@@ -11784,7 +11784,7 @@ void CmpSeabaseDDL::alterSeabaseTableDropColumn(StmtDDLAlterTableDropColumn *alt
   }
 
   // If column is a V1 LOB column, return error
-  Int32 datatype = nacol->getType()->getFSDatatype();
+  int datatype = nacol->getType()->getFSDatatype();
 
   const NAFileSet *naFS = naTable->getClusteringIndex();
   const NAColumnArray &naKeyColArr = naFS->getIndexKeyColumns();
@@ -11806,7 +11806,7 @@ void CmpSeabaseDDL::alterSeabaseTableDropColumn(StmtDDLAlterTableDropColumn *alt
     if (naTable->getUniqueConstraints().entries() > 0) {
       const AbstractRIConstraintList &uniqueList = naTable->getUniqueConstraints();
 
-      for (Int32 i = 0; i < uniqueList.entries(); i++) {
+      for (int i = 0; i < uniqueList.entries(); i++) {
         AbstractRIConstraint *ariConstr = uniqueList[i];
         if (ariConstr->getOperatorType() != ITM_UNIQUE_CONSTRAINT) continue;
 
@@ -11820,7 +11820,7 @@ void CmpSeabaseDDL::alterSeabaseTableDropColumn(StmtDDLAlterTableDropColumn *alt
     NABoolean userDefinedRefConstr = FALSE;
     if (naTable->getRefConstraints().entries() > 0) {
       const AbstractRIConstraintList &ariList = naTable->getRefConstraints();
-      for (Int32 i = 0; i < ariList.entries(); i++) {
+      for (int i = 0; i < ariList.entries(); i++) {
         AbstractRIConstraint *ariConstr = ariList[i];
         if (ariConstr->getOperatorType() != ITM_REF_CONSTRAINT) continue;
 
@@ -12246,7 +12246,7 @@ void CmpSeabaseDDL::alterSeabaseTableDropPartition(StmtDDLAlterTableDropPartitio
     return;
   }
 
-  Int32 firstLevelPartCnt = naTable->FisrtLevelPartitionCount();
+  int firstLevelPartCnt = naTable->FisrtLevelPartitionCount();
   const NAPartitionArray &partitionArray = naTable->getPartitionArray();
 
   // all NAPartition which will be dropped
@@ -14291,7 +14291,7 @@ void CmpSeabaseDDL::alterSeabaseTableAddPKeyConstraint(StmtDDLAddConstraint *alt
   if (alterAddConstraint->getConstraint()->castToElemDDLConstraintPK()->isNullableSpecified())
     pkeyColsStr += " NULLABLE ";
   pkeyColsStr += "(";
-  for (Int32 j = 0; j < keyColumnArray.entries(); j++) {
+  for (int j = 0; j < keyColumnArray.entries(); j++) {
     const NAString &colName = keyColumnArray[j]->getColumnName();
     keyColList.insert(colName);
 
@@ -14773,7 +14773,7 @@ void CmpSeabaseDDL::alterSeabaseTableAddUniqueConstraint(StmtDDLAddConstraint *a
 
   NAList<NAString> keyColList(HEAP, keyColumnArray.entries());
   NAList<NAString> keyColOrderList(HEAP, keyColumnArray.entries());
-  for (Int32 j = 0; j < keyColumnArray.entries(); j++) {
+  for (int j = 0; j < keyColumnArray.entries(); j++) {
     const NAString &colName = keyColumnArray[j]->getColumnName();
     keyColList.insert(colName);
 
@@ -14790,7 +14790,7 @@ void CmpSeabaseDDL::alterSeabaseTableAddUniqueConstraint(StmtDDLAddConstraint *a
 
   // create unnamed constraints in deterministic format if table was
   // created for xDC replication.
-  Int32 constrNum =
+  int constrNum =
       ((naTable->xnRepl() != COM_REPL_NONE || naTable->incrBackupEnabled()) ? getNextUnnamedConstrNum(naTable) : 0);
   // update unique key constraint info
   NAString uniqueStr;
@@ -14942,7 +14942,7 @@ short CmpSeabaseDDL::isCircularDependent(CorrName &ringTable, CorrName &refdTabl
   // find all the tables the refdTable depends on.
   const AbstractRIConstraintList &refList = naTable->getRefConstraints();
 
-  for (Int32 i = 0; i < refList.entries(); i++) {
+  for (int i = 0; i < refList.entries(); i++) {
     AbstractRIConstraint *ariConstr = refList[i];
 
     if (ariConstr->getOperatorType() != ITM_REF_CONSTRAINT) continue;
@@ -15135,7 +15135,7 @@ void CmpSeabaseDDL::alterSeabaseTableAddRIConstraint(StmtDDLAddConstraint *alter
   NAList<NAString> ringKeyColOrderList(HEAP, ringCols.entries());
   NAString ringColListForValidation;
   NAString ringNullList;
-  for (Int32 j = 0; j < ringCols.entries(); j++) {
+  for (int j = 0; j < ringCols.entries(); j++) {
     const NAString &colName = ringCols[j]->getColumnName();
     ringKeyColList.insert(colName);
     ringKeyColOrderList.insert("ASC");
@@ -15170,7 +15170,7 @@ void CmpSeabaseDDL::alterSeabaseTableAddRIConstraint(StmtDDLAddConstraint *alter
 
   NAList<NAString> refdKeyColList(HEAP, referencedColNode.entries());
   NAString refdColListForValidation;
-  for (Int32 j = 0; j < referencedColNode.entries(); j++) {
+  for (int j = 0; j < referencedColNode.entries(); j++) {
     const NAString &colName = referencedColNode[j]->getColumnName();
     refdKeyColList.insert(colName);
 
@@ -15210,7 +15210,7 @@ void CmpSeabaseDDL::alterSeabaseTableAddRIConstraint(StmtDDLAddConstraint *alter
 
   const NAColumnArray &ringNACarr = ringNaTable->getNAColumnArray();
   const NAColumnArray &refdNACarr = refdNaTable->getNAColumnArray();
-  for (Int32 i = 0; i < ringKeyColList.entries(); i++) {
+  for (int i = 0; i < ringKeyColList.entries(); i++) {
     const NAString &ringColName = ringKeyColList[i];
     const NAString &refdColName = refdKeyColList[i];
 
@@ -15404,7 +15404,7 @@ void CmpSeabaseDDL::alterSeabaseTableAddRIConstraint(StmtDDLAddConstraint *alter
 
   // create unnamed constraints in deterministic format if table was
   // created for xDC replication.
-  Int32 constrNum = ((ringNaTable->xnRepl() != COM_REPL_NONE || ringNaTable->incrBackupEnabled())
+  int constrNum = ((ringNaTable->xnRepl() != COM_REPL_NONE || ringNaTable->incrBackupEnabled())
                          ? getNextUnnamedConstrNum(ringNaTable)
                          : 0);
 
@@ -16100,7 +16100,7 @@ void CmpSeabaseDDL::alterSeabaseTableDropConstraint(StmtDDLDropConstraint *alter
   if (isUniqConstr) {
     constrFound = FALSE;
     const AbstractRIConstraintList &ariList = naTable->getUniqueConstraints();
-    for (Int32 i = 0; i < ariList.entries(); i++) {
+    for (int i = 0; i < ariList.entries(); i++) {
       AbstractRIConstraint *ariConstr = ariList[i];
       UniqueConstraint *uniqueConstr = (UniqueConstraint *)ariList[i];
 
@@ -16142,7 +16142,7 @@ void CmpSeabaseDDL::alterSeabaseTableDropConstraint(StmtDDLDropConstraint *alter
     RefConstraint *refConstr = NULL;
 
     const AbstractRIConstraintList &ariList = naTable->getRefConstraints();
-    for (Int32 i = 0; i < ariList.entries(); i++) {
+    for (int i = 0; i < ariList.entries(); i++) {
       AbstractRIConstraint *ariConstr = ariList[i];
 
       const NAString &tableConstrName = ariConstr->getConstraintName().getQualifiedNameAsAnsiString();
@@ -16470,8 +16470,8 @@ void CmpSeabaseDDL::seabaseGrantRevoke(StmtDDLNode *stmtDDLNode, NABoolean isGra
 
   // get the objectUID and objectOwner
   long objectUID = 0;
-  Int32 objectOwnerID = 0;
-  Int32 schemaOwnerID = 0;
+  int objectOwnerID = 0;
+  int schemaOwnerID = 0;
   long objectFlags = 0;
   long objDataUID = 0;
   NATable *naTable = NULL;
@@ -16666,7 +16666,7 @@ void CmpSeabaseDDL::seabaseGrantRevoke(StmtDDLNode *stmtDDLNode, NABoolean isGra
   //
   // NOTE: If the user can grant privilege based on a role, we may want the
   // effective grantor to be the role instead of the current user.
-  Int32 effectiveGrantorID;
+  int effectiveGrantorID;
   std::string effectiveGrantorName;
   PrivStatus result = command.getGrantorDetailsForObject(isGrantedBySpecified, std::string(grantedByName.data()),
                                                          objectOwnerID, effectiveGrantorID, effectiveGrantorName);
@@ -16714,7 +16714,7 @@ void CmpSeabaseDDL::seabaseGrantRevoke(StmtDDLNode *stmtDDLNode, NABoolean isGra
 
   for (CollIndex j = 0; j < pGranteeArray.entries(); j++) {
     NAString authName(pGranteeArray[j]->getAuthorizationIdentifier());
-    Int32 grantee;
+    int grantee;
     if (pGranteeArray[j]->isPublic()) {
       // don't allow WGO for public auth ID
       if (isWGOSpecified) {
@@ -16745,9 +16745,9 @@ void CmpSeabaseDDL::seabaseGrantRevoke(StmtDDLNode *stmtDDLNode, NABoolean isGra
       if (CmpSeabaseDDLauth::isRoleID(grantee) && isWGOSpecified &&
           CmpCommon::getDefault(ALLOW_WGO_FOR_ROLES) == DF_OFF) {
         // If grantee is system role, allow grant
-        Int32 numberRoles = sizeof(systemRoles) / sizeof(SystemAuthsStruct);
+        int numberRoles = sizeof(systemRoles) / sizeof(SystemAuthsStruct);
         NABoolean isSystemRole = FALSE;
-        for (Int32 i = 0; i < numberRoles; i++) {
+        for (int i = 0; i < numberRoles; i++) {
           const SystemAuthsStruct &roleDefinition = systemRoles[i];
           NAString systemRole = roleDefinition.authName;
           if (systemRole == authName) {
@@ -17139,7 +17139,7 @@ void CmpSeabaseDDL::dropNativeHbaseTable(ExeCliInterface *cliInterface, StmtDDLD
 }
 
 short CmpSeabaseDDL::registerNativeTable(const NAString &catalogNamePart, const NAString &schemaNamePart,
-                                         const NAString &objectNamePart, Int32 objOwnerId, Int32 schemaOwnerId,
+                                         const NAString &objectNamePart, int objOwnerId, int schemaOwnerId,
                                          ExeCliInterface &cliInterface, NABoolean isRegister, NABoolean isInternal) {
   int retcode = 0;
 
@@ -17272,8 +17272,8 @@ short CmpSeabaseDDL::getSpecialTableInfo(NAMemory *heap, const NAString &catName
   int cliRC = 0;
   NABoolean switched = FALSE;
 
-  Int32 objectOwner = NA_UserIdDefault;
-  Int32 schemaOwner = NA_UserIdDefault;
+  int objectOwner = NA_UserIdDefault;
+  int schemaOwner = NA_UserIdDefault;
   long objUID = 0;
 
   // It's okay if the schema UID for special tables is 0
@@ -18036,7 +18036,7 @@ int CmpSeabaseDDL::getSeabaseColumnInfo(ExeCliInterface *cliInterface, long objU
 
 ComTdbVirtTableSequenceInfo *CmpSeabaseDDL::getSeabaseSequenceInfo(const NAString &catName, const NAString &schName,
                                                                    const NAString &seqName, NAString &extSeqName,
-                                                                   Int32 &objectOwner, Int32 &schemaOwner,
+                                                                   int &objectOwner, int &schemaOwner,
                                                                    long &seqUID) {
   int retcode = 0;
   int cliRC = 0;
@@ -18124,8 +18124,8 @@ ComTdbVirtTableSequenceInfo *CmpSeabaseDDL::getSeabaseSequenceInfo(const NAStrin
 //
 // returns a TrafDesc based on a schema object.
 // ----------------------------------------------------------------------------
-TrafDesc *CmpSeabaseDDL::getSeabaseSchemaDesc(const NAString &catName, const NAString &schName, const Int32 ctlFlags,
-                                              Int32 &packedDescLen) {
+TrafDesc *CmpSeabaseDDL::getSeabaseSchemaDesc(const NAString &catName, const NAString &schName, const int ctlFlags,
+                                              int &packedDescLen) {
   TrafDesc *tableDesc = NULL;
 
   int retcode = 0;
@@ -18137,8 +18137,8 @@ TrafDesc *CmpSeabaseDDL::getSeabaseSchemaDesc(const NAString &catName, const NAS
 
   ExeCliInterface cliInterface(STMTHEAP, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
 
-  Int32 objectOwner = NA_UserIdDefault;
-  Int32 schemaOwner = NA_UserIdDefault;
+  int objectOwner = NA_UserIdDefault;
+  int schemaOwner = NA_UserIdDefault;
   long schemaUID = -1;
   long objectFlags = 0;
   long objDataUID = 0;
@@ -18246,7 +18246,7 @@ TrafDesc *CmpSeabaseDDL::getSeabaseSchemaDesc(const NAString &catName, const NAS
 // ****************************************************************************
 ComTdbVirtTablePrivInfo *CmpSeabaseDDL::getSeabasePrivInfo(ExeCliInterface *cliInterface, const NAString &catName,
                                                            const NAString &schName, const long objUID,
-                                                           const ComObjectType objType, const Int32 schemaOwner) {
+                                                           const ComObjectType objType, const int schemaOwner) {
   if (!isAuthorizationEnabled()) return NULL;
 
   // Get the schema UID
@@ -18298,8 +18298,8 @@ TrafDesc *CmpSeabaseDDL::getSeabaseLibraryDesc(const NAString &catName, const NA
   TrafDesc *tableDesc = NULL;
 
   NAString extLibName;
-  Int32 objectOwner = 0;
-  Int32 schemaOwner = 0;
+  int objectOwner = 0;
+  int schemaOwner = 0;
   long objectFlags = 0;
   long objDataUID = 0;
 
@@ -18322,7 +18322,7 @@ TrafDesc *CmpSeabaseDDL::getSeabaseLibraryDesc(const NAString &catName, const NA
               "WHERE library_uid = %ld ",
               getSystemCatalog(), SEABASE_MD_SCHEMA, SEABASE_LIBRARIES, libUID);
 
-  Int32 cliRC = cliInterface.fetchRowsPrologue(buf, TRUE /*no exec*/);
+  int cliRC = cliInterface.fetchRowsPrologue(buf, TRUE /*no exec*/);
   if (cliRC < 0) {
     cliInterface.retrieveSQLDiagnostics(CmpCommon::diags());
     switchBackCompiler();
@@ -18357,7 +18357,7 @@ TrafDesc *CmpSeabaseDDL::getSeabaseLibraryDesc(const NAString &catName, const NA
   libraryInfo->library_filename = new (STMTHEAP) char[len + 1];
   str_cpy_and_null((char *)libraryInfo->library_filename, ptr, len, '\0', ' ', TRUE);
   cliInterface.getPtrAndLen(2, ptr, len);
-  libraryInfo->library_version = *(Int32 *)ptr;
+  libraryInfo->library_version = *(int *)ptr;
   libraryInfo->object_owner_id = objectOwner;
   libraryInfo->schema_owner_id = schemaOwner;
   libraryInfo->library_UID = libUID;
@@ -18373,8 +18373,8 @@ TrafDesc *CmpSeabaseDDL::getSeabaseSequenceDesc(const NAString &catName, const N
   TrafDesc *tableDesc = NULL;
 
   NAString extSeqName;
-  Int32 objectOwner = 0;
-  Int32 schemaOwner = 0;
+  int objectOwner = 0;
+  int schemaOwner = 0;
   long seqUID = -1;
   ComTdbVirtTableSequenceInfo *seqInfo =
       getSeabaseSequenceInfo(catName, schName, seqName, extSeqName, objectOwner, schemaOwner, seqUID);
@@ -18432,19 +18432,19 @@ TrafDesc *CmpSeabaseDDL::getSeabaseSequenceDesc(const NAString &catName, const N
 // we can use next region's Start Key instead.
 void lcl_checkEndKeys(NAArray<HbaseStr> *endKeyArray, ExpHbaseInterface *ehi, const NAString &extNameForHbase) {
   if (!endKeyArray || !ehi) return;
-  Int32 entries = endKeyArray->entries();
+  int entries = endKeyArray->entries();
   // A region with an empty end key is the last region in a table,
   // so we don't need to check the last region's End Key.
   NAArray<HbaseStr> *startKeyArray = NULL;
-  for (Int32 i = 0; i < entries - 1; ++i) {
-    Int32 len = endKeyArray->at(i).len;
+  for (int i = 0; i < entries - 1; ++i) {
+    int len = endKeyArray->at(i).len;
     if (0 == len)  // empty End Key
     {
       // use next region's Start Key instead.
-      Int32 startIdx = i + 1;
+      int startIdx = i + 1;
       if (!startKeyArray) startKeyArray = ehi->getRegionBeginKeys(extNameForHbase);
       if (startKeyArray) {
-        Int32 srclen = startKeyArray->at(startIdx).len;
+        int srclen = startKeyArray->at(startIdx).len;
         if (srclen) {
           if (endKeyArray->at(i).val) NADELETEBASIC(endKeyArray->at(i).val, ehi->getHeap());
           endKeyArray->at(i).val = new (ehi->getHeap()) char[srclen];
@@ -18497,7 +18497,7 @@ short CmpSeabaseDDL::genHbaseRegionDescs(TrafDesc *desc, const NAString &catName
 // queries defined in ustat/hs_read.cpp, method HSCursorGetHistQueries
 short CmpSeabaseDDL::generateStoredStats(long tableUID, long objDataUID, const NAString &catName,
                                          const NAString &schName, const NAString &objName, const NAString &nameSpace,
-                                         Int32 ctlFlags, Int32 partialRowSize, Int32 numCols, ExpHbaseInterface *ehi,
+                                         int ctlFlags, int partialRowSize, int numCols, ExpHbaseInterface *ehi,
                                          ComTdbVirtTableStatsInfo *&statsInfo) {
   int retcode;
 
@@ -18548,8 +18548,8 @@ short CmpSeabaseDDL::generateStoredStats(long tableUID, long objDataUID, const N
     }
   }
 
-  Int32 hbtIndexLevels = (ActiveSchemaDB()->getDefaults()).getAsLong(HBASE_INDEX_LEVEL);
-  Int32 hbtBlockSize = (ActiveSchemaDB()->getDefaults()).getAsLong(HBASE_BLOCK_SIZE);
+  int hbtIndexLevels = (ActiveSchemaDB()->getDefaults()).getAsLong(HBASE_INDEX_LEVEL);
+  int hbtBlockSize = (ActiveSchemaDB()->getDefaults()).getAsLong(HBASE_BLOCK_SIZE);
 
   // call getHbaseTableInfo if index level is set to 0
   if (hbtIndexLevels == 0) {
@@ -18591,8 +18591,8 @@ short CmpSeabaseDDL::generateStoredStats(long tableUID, long objDataUID, const N
     hdesc.nodetype = DESC_HISTOGRAM_TYPE;
     hdesc.version = TrafDesc::CURR_VERSION;
     hdesc.histogram_id = *(long *)vi->get(0);
-    hdesc.column_number = *(Int32 *)vi->get(1);
-    hdesc.colcount = *(Int32 *)vi->get(2);
+    hdesc.column_number = *(int *)vi->get(1);
+    hdesc.colcount = *(int *)vi->get(2);
     hdesc.interval_count = *(Int16 *)vi->get(3);
     hdesc.rowcount = *(long *)vi->get(4);
     hdesc.total_uec = *(long *)vi->get(5);
@@ -18695,7 +18695,7 @@ short CmpSeabaseDDL::generateStoredStats(long tableUID, long objDataUID, const N
   if (!statsExist) {
     // if statistics does not exist, estimate row count
     long estRowCount;
-    Int32 breadCrumb = 0;
+    int breadCrumb = 0;
     NABoolean useCoprocessor = (CmpCommon::getDefault(HBASE_ESTIMATE_ROW_COUNT_VIA_COPROCESSOR) == DF_ON);
     retcode = ehi->estimateRowCount(fqTblName, partialRowSize, numCols,
                                     5000,  // retry limit of 5 seconds (5000 milliseconds)
@@ -18743,7 +18743,7 @@ int CmpSeabaseDDL::getIndexInfo(ExeCliInterface &cliInterface, NABoolean include
 TrafDesc *CmpSeabaseDDL::getSeabaseUserTableDesc(const NAString &catName, const NAString &schName,
                                                  const NAString &objName, const ComObjectType objType,
                                                  NABoolean includeInvalidDefs, short includeBRLockedTables,
-                                                 Int32 ctlFlags, Int32 &packedDescLen, Int32 cntxtType) {
+                                                 int ctlFlags, int &packedDescLen, int cntxtType) {
   int retcode = 0;
   int cliRC = 0;
 
@@ -18759,8 +18759,8 @@ TrafDesc *CmpSeabaseDDL::getSeabaseUserTableDesc(const NAString &catName, const 
     return tableDesc;
   }
 
-  Int32 objectOwner = 0;
-  Int32 schemaOwner = 0;
+  int objectOwner = 0;
+  int schemaOwner = 0;
   long objUID = -1;
   long objDataUID = -1;
   long objectFlags = 0;
@@ -18895,7 +18895,7 @@ TrafDesc *CmpSeabaseDDL::getSeabaseUserTableDesc(const NAString &catName, const 
   long tablesFlags = 0;
   NABoolean isAudited = TRUE;
   int numSaltPartns = 0;
-  Int32 numInitialSaltRegions = -1;
+  int numInitialSaltRegions = -1;
   NABoolean alignedFormat = FALSE;
   ComReplType xnRepl = COM_REPL_NONE;
   ComStorageType storageType = COM_STORAGE_HBASE;
@@ -18904,7 +18904,7 @@ TrafDesc *CmpSeabaseDDL::getSeabaseUserTableDesc(const NAString &catName, const 
   NAString *hbaseSplitClause = new (STMTHEAP) NAString();
   NAString colFamStr;
   NAString tableNamespace;
-  Int32 numLOBdatafiles = -1;
+  int numLOBdatafiles = -1;
   if (cliRC == 0)  // read some rows
   {
     if (tableAttrQueue->entries() != 1)  // only one row should be returned
@@ -19606,7 +19606,7 @@ TrafDesc *CmpSeabaseDDL::getSeabaseUserTableDesc(const NAString &catName, const 
                                                  seqName);
 
     NAString extSeqName;
-    Int32 objectOwner;
+    int objectOwner;
     long seqUID;
     seqInfo = getSeabaseSequenceInfo(catName, schName, seqName, extSeqName, objectOwner, schemaOwner, seqUID);
   }
@@ -19753,7 +19753,7 @@ TrafDesc *CmpSeabaseDDL::getSeabaseTableDesc(const NAString &catName, const NASt
   ExpHbaseInterface *ehi = NULL;
   TrafDesc *tDesc = NULL;
   NABoolean isMDTable = (isSeabaseMD(catName, schName, objName) || isSeabasePrivMgrMD(catName, schName));
-  Int32 ctlFlags = 0;
+  int ctlFlags = 0;
   if (isMDTable && (objName != SEABASE_SCHEMA_OBJECTNAME)) {
     if (!CmpCommon::context()->getTrafMDDescsInfo()) {
       *CmpCommon::diags() << DgSqlCode(-1428);
@@ -19778,7 +19778,7 @@ TrafDesc *CmpSeabaseDDL::getSeabaseTableDesc(const NAString &catName, const NASt
       ctlFlags |= READ_OBJECT_DESC;
     }
 
-    Int32 packedDescLen = 0;
+    int packedDescLen = 0;
     tDesc = getSeabaseSchemaDesc(catName, schName, ctlFlags, packedDescLen);
     return tDesc;
   }
@@ -19828,7 +19828,7 @@ TrafDesc *CmpSeabaseDDL::getSeabaseTableDesc(const NAString &catName, const NASt
           tDesc = getSeabaseLibraryDesc(catName, schName, objName);
           break;
         default:
-          Int32 packedDescLen = 0;
+          int packedDescLen = 0;
 
           tDesc = getSeabaseUserTableDesc(catName, schName, objName, objType, includeInvalidDefs, includeBRLockedTables,
                                           ctlFlags, packedDescLen, (CmpContextInfo::CMPCONTEXT_TYPE_META));
@@ -20990,47 +20990,47 @@ bailout_label:
 //    4   strlen(<node_name>) + 2 + strlen(msg)
 //    y   <node_name> ": " msg
 //    1   for terminating null character
-static Int32 packIntoBlackBox(const char *msg, char *&newBuf) {
-  Int32 bufLen = 16 + MAX_SEGMENT_NAME_LEN + 1 + strlen(msg) + 1;
+static int packIntoBlackBox(const char *msg, char *&newBuf) {
+  int bufLen = 16 + MAX_SEGMENT_NAME_LEN + 1 + strlen(msg) + 1;
   newBuf = new (STMTHEAP) char[bufLen];
 
   char *ptr = newBuf;
 
-  *(Int32 *)ptr = 2;
-  ptr += sizeof(Int32);
-  bufLen -= sizeof(Int32);
+  *(int *)ptr = 2;
+  ptr += sizeof(int);
+  bufLen -= sizeof(int);
 
-  *(Int32 *)ptr = 1;
-  ptr += sizeof(Int32);
-  bufLen -= sizeof(Int32);
+  *(int *)ptr = 1;
+  ptr += sizeof(int);
+  bufLen -= sizeof(int);
 
   memset(ptr, ' ', 4);
   ptr += 4;
-  bufLen -= sizeof(Int32);
+  bufLen -= sizeof(int);
 
   // Pass over the length field for now so that the msg can
   // fill the buffer at the rigth position.
-  ptr += sizeof(Int32);
-  bufLen -= sizeof(Int32);
+  ptr += sizeof(int);
+  bufLen -= sizeof(int);
 
   char myNodeName[MAX_SEGMENT_NAME_LEN + 1];
   fillNodeName(myNodeName, sizeof(myNodeName));
 
-  Int32 len = snprintf(ptr, bufLen, "%s: %s", myNodeName, msg);
+  int len = snprintf(ptr, bufLen, "%s: %s", myNodeName, msg);
 
   if (len <= 0) return 0;
 
   ptr[len] = '\0';
 
   // position back at the total length field in the buffer.
-  ptr -= sizeof(Int32);
-  *(Int32 *)ptr = len;
+  ptr -= sizeof(int);
+  *(int *)ptr = len;
 
   // need to round up 4 bytes. Please refer to method
   // CmpSeabaseDDL::populateBlackBox().
   len += ROUND4(len + 1);
 
-  return len + 4 * sizeof(Int32);
+  return len + 4 * sizeof(int);
 }
 
 #define checkTrafSharedCache(T, MSG, FUN)                                           \
@@ -21039,7 +21039,7 @@ static Int32 packIntoBlackBox(const char *msg, char *&newBuf) {
     const char *reasonString = NULL;                                                \
                                                                                     \
     char *blackBox = NULL;                                                          \
-    Int32 filledBlackBoxLen = 0;                                                    \
+    int filledBlackBoxLen = 0;                                                    \
                                                                                     \
     sharedCache = T::locate();                                                      \
     if (!sharedCache) {                                                             \
@@ -21088,7 +21088,7 @@ int CmpSeabaseDDL::checkTrafDataSharedCacheForSchema(const QualifiedName &schema
 int CmpSeabaseDDL::checkTrafDataSharedCacheAll(CmpDDLwithStatusInfo *dws, bool showDetails) {
   char *blackBox = NULL;
   const char *reasonString = NULL;
-  Int32 filledBlackBoxLen = 0;
+  int filledBlackBoxLen = 0;
 
   SharedTableDataCache *sharedCache = SharedTableDataCache::locate();
   if (!sharedCache) {
@@ -21572,8 +21572,8 @@ TrafDesc *CmpSeabaseDDL::getSeabaseRoutineDescInternal(const NAString &catName, 
   ExeCliInterface cliInterface(STMTHEAP, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
 
   long objectUID = 0;
-  Int32 objectOwnerID = 0;
-  Int32 schemaOwnerID = 0;
+  int objectOwnerID = 0;
+  int schemaOwnerID = 0;
   long objectFlags = 0;
   long objDataUID = 0;
   ComObjectType objectType = COM_USER_DEFINED_ROUTINE_OBJECT;
@@ -21661,9 +21661,9 @@ TrafDesc *CmpSeabaseDDL::getSeabaseRoutineDescInternal(const NAString &catName, 
   str_cpy_all(routineInfo->transaction_attributes, ptr, len);
   routineInfo->transaction_attributes[len] = '\0';
   cliInterface.getPtrAndLen(9, ptr, len);
-  routineInfo->max_results = *(Int32 *)ptr;
+  routineInfo->max_results = *(int *)ptr;
   cliInterface.getPtrAndLen(10, ptr, len);
-  routineInfo->state_area_size = *(Int32 *)ptr;
+  routineInfo->state_area_size = *(int *)ptr;
   cliInterface.getPtrAndLen(11, ptr, len);
   routineInfo->external_name = new (STMTHEAP) char[len + 1];
   str_cpy_and_null((char *)routineInfo->external_name, ptr, len, '\0', ' ', TRUE);
@@ -21683,7 +21683,7 @@ TrafDesc *CmpSeabaseDDL::getSeabaseRoutineDescInternal(const NAString &catName, 
   routineInfo->library_filename = new (STMTHEAP) char[len + 1];
   str_cpy_and_null((char *)routineInfo->library_filename, ptr, len, '\0', ' ', TRUE);
   cliInterface.getPtrAndLen(17, ptr, len);
-  routineInfo->library_version = *(Int32 *)ptr;
+  routineInfo->library_version = *(int *)ptr;
   cliInterface.getPtrAndLen(18, ptr, len);
   routineInfo->signature = new (STMTHEAP) char[len + 1];
   str_cpy_and_null((char *)routineInfo->signature, ptr, len, '\0', ' ', TRUE);
@@ -21966,7 +21966,7 @@ int CmpSeabaseDDL::getSeabasePartitionBoundaryInfo(ExeCliInterface *cliInterface
 
   ComTdbVirtTablePartInfo *partInfo = new (STMTHEAP) ComTdbVirtTablePartInfo[partCnt];
 
-  Int32 offset;
+  int offset;
   for (int k = 0; k < partCnt; k++) {
     if (partCnt == 1 || (partCnt == 2 && k == 1))
       offset = 0;

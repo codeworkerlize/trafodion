@@ -187,7 +187,7 @@ void Between::generateCacheKey(CacheWA &cwa) const {
   cwa += rightBoundryIncluded_ ? "R1" : "R0";
   if (pDirectionVector_) {
     cwa += "dV";
-    Int32 x, limit = pDirectionVector_->entries();
+    int x, limit = pDirectionVector_->entries();
     for (x = 0; x < limit; x++) {
       cwa += ((pDirectionVector_->at(x) == -1) ? "d" : "a");
     }
@@ -279,7 +279,7 @@ void BiRelat::generateCacheKey(CacheWA &cwa) const {
   cwa += isaPartKeyPred_ ? "p1" : "p0";
   if (directionVector_) {
     cwa += "Dv";
-    Int32 x, limit = directionVector_->entries();
+    int x, limit = directionVector_->entries();
     for (x = 0; x < limit; x++) {
       cwa += ((directionVector_->at(x) == -1) ? "d" : "a");
     }
@@ -703,10 +703,10 @@ void PivotGroup::generateCacheKey(CacheWA &cwa) const {
 // append an ascii-version of ItemExpr into cachewa.qryText_
 void ItemExpr::generateCacheKey(CacheWA &cwa) const {
   if (getOperatorType() == ITM_POSITION) {
-    Int32 ij = 0;
+    int ij = 0;
   }
 
-  Int32 arity = getArity();
+  int arity = getArity();
   switch (arity) {
     case 0:
       // simply print the text out for a leaf operator
@@ -815,8 +815,8 @@ NABoolean ItemExpr::hasNoLiterals(CacheWA &cwa) {
       break;
   }
   NABoolean result = TRUE;
-  Int32 arity = getArity();
-  for (Int32 x = 0; x < arity && result; x++) {
+  int arity = getArity();
+  for (int x = 0; x < arity && result; x++) {
     if (child(x)) {
       result = child(x)->hasNoLiterals(cwa);
     }
@@ -842,12 +842,12 @@ NABoolean ItemExpr::isCacheableExpr(CacheWA &cwa) {
       if (isNonCacheable() || !cwa.isConditionallyCacheable()) {
         return FALSE;
       } else {  // we're either cacheable or maybecacheable
-        Int32 arity = getArity();
+        int arity = getArity();
         if (arity <= 0) {  // we have no kids & we're conditionally cacheable
           return TRUE;     // we're cacheable
         }
         // cacheability of child(ren) determine our cacheability
-        for (Int32 x = 0; x < arity; x++) {
+        for (int x = 0; x < arity; x++) {
           if (!child(x) || child(x)->isNonCacheable()) {
             // the 1st noncacheable child makes us noncacheable
             setNonCacheable();
@@ -882,8 +882,8 @@ NABoolean ItemExpr::isCacheableExpr(CacheWA &cwa) {
       } else {  // we're either cacheable or maybecacheable
         // Assume this ItemExpr is an operand of a function or a list. In
         // this case, a single noncacheable child renders us noncacheable.
-        Int32 arity = getArity();
-        for (Int32 x = 0; x < arity; x++) {
+        int arity = getArity();
+        for (int x = 0; x < arity; x++) {
           if (!child(x) || !child(x)->isCacheableExpr(cwa)) {
             // noncacheable child
             return FALSE;
@@ -916,8 +916,8 @@ NABoolean ItemExpr::isCacheableNode(CmpPhase phase) const {
 // is any literal in this expr safely coercible to its target type?
 NABoolean ItemExpr::isSafelyCoercible(CacheWA &cwa) const {
   if (cwa.getPhase() >= CmpMain::BIND) {
-    Int32 arity = getArity();
-    for (Int32 x = 0; x < arity; x++) {
+    int arity = getArity();
+    for (int x = 0; x < arity; x++) {
       if (!child(x)->isSafelyCoercible(cwa)) {
         return FALSE;
       }
@@ -950,8 +950,8 @@ ItemExpr *ItemExpr::normalizeForCache(CacheWA &cwa, BindWA &bindWA) {
   if (nodeIsNormalizedForCache()) {
     return this;
   }
-  Int32 arity = getArity();
-  for (Int32 x = 0; x < arity; x++) {
+  int arity = getArity();
+  for (int x = 0; x < arity; x++) {
     if (cwa.getPhase() == CmpMain::PARSE) {
       // we want to parameterize tuple inserts
       child(x) = child(x)->normalizeForCache(cwa, bindWA);
@@ -986,12 +986,12 @@ void ItemExpr::setCacheableNode(CmpPhase phase) {
 // does this query's selection predicate list qualify query
 // to be cacheable after this phase?
 NABoolean ItemList::isListOfCacheableSelPred(CacheWA &cwa, ItemList *other) const {
-  Int32 arity = getArity();
+  int arity = getArity();
   NABoolean result = FALSE;
   if (cwa.getPhase() >= CmpMain::BIND && other && arity == other->getArity()) {
     // assume this is an AND list, so, we need only one
     // cacheable conjunct to consider the list cacheable.
-    for (Int32 x = 0; x < arity; x++) {
+    for (int x = 0; x < arity; x++) {
       ItemExpr *leftC = child(x), *rightC = other->child(x);
       OperatorTypeEnum leftO = leftC->getOperatorType();
       OperatorTypeEnum rightO = rightC->getOperatorType();
@@ -1023,8 +1023,8 @@ NABoolean ItemList::isListOfCacheableSelPred(CacheWA &cwa, ItemList *other) cons
 // is any literal in this expr safely coercible to its target type?
 NABoolean ItemList::isSafelyCoercible(CacheWA &cwa) const {
   if (cwa.getPhase() >= CmpMain::BIND) {
-    Int32 arity = getArity();
-    for (Int32 x = 0; x < arity; x++) {
+    int arity = getArity();
+    for (int x = 0; x < arity; x++) {
       if (!child(x)->isSafelyCoercible(cwa)) {
         return FALSE;
       }
@@ -1036,9 +1036,9 @@ NABoolean ItemList::isSafelyCoercible(CacheWA &cwa) const {
 
 // change literals of a cacheable query into input parameters
 ItemExpr *ItemList::normalizeListForCache(CacheWA &cwa, BindWA &bindWA, ItemList *other) {
-  Int32 arity = getArity();
+  int arity = getArity();
   if (cwa.getPhase() >= CmpMain::BIND && other && arity == other->getArity()) {
-    for (Int32 x = 0; x < arity; x++) {
+    for (int x = 0; x < arity; x++) {
       ItemExpr *leftC = child(x), *rightC = other->child(x);
       OperatorTypeEnum leftO = leftC->getOperatorType();
       OperatorTypeEnum rightO = rightC->getOperatorType();
@@ -1262,7 +1262,7 @@ ItemExpr *UDFunction::normalizeForCache(CacheWA &cwa, BindWA &bindWA) {
   ValueIdSet origInputVars(inputVars_);
 
   // Loop through the given inputs
-  for (Int32 x = 0; x < getArity(); x++) {
+  for (int x = 0; x < getArity(); x++) {
     NABoolean origInputIsChildOfCast(FALSE);
     ItemExpr *origIe = child(x);
     ItemExpr *newIe = NULL;
@@ -1387,8 +1387,8 @@ void UDFunction::generateCacheKey(CacheWA &cwa) const {
 // is any literal in this expr safely coercible to its target type?
 NABoolean UDFunction::isSafelyCoercible(CacheWA &cwa) const {
   if (cwa.getPhase() >= CmpMain::BIND) {
-    Int32 arity = getArity();
-    for (Int32 x = 0; x < arity; x++) {
+    int arity = getArity();
+    for (int x = 0; x < arity; x++) {
       if (!child(x)->isSafelyCoercible(cwa)) {
         return FALSE;
       }

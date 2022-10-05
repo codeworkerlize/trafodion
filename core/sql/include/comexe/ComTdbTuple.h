@@ -59,7 +59,7 @@ class ComTdbTuple : public ComTdb {
   ~ComTdbTuple();
 
   // only derived class is used, see GenRelMisc.cpp
-  Int32 orderedQueueProtocol() const { return -1; };
+  int orderedQueueProtocol() const { return -1; };
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -80,13 +80,13 @@ class ComTdbTuple : public ComTdb {
 
   TupleTdbType getTupleType() { return (TupleTdbType)ttt_; }
 
-  virtual const ComTdb *getChild(Int32 pos) const { return NULL; }
+  virtual const ComTdb *getChild(int pos) const { return NULL; }
 
-  virtual Int32 numChildren() const { return 0; }
+  virtual int numChildren() const { return 0; }
   virtual const char *getNodeName() const { return NULL; };
-  virtual Int32 numExpressions() const;
-  virtual ex_expr *getExpressionNode(Int32 pos);
-  virtual const char *getExpressionName(Int32 pos) const;
+  virtual int numExpressions() const;
+  virtual ex_expr *getExpressionNode(int pos);
+  virtual const char *getExpressionName(int pos) const;
 
   // end of excluding the base tuple operator class from coverage checking
  protected:
@@ -128,7 +128,7 @@ class ComTdbTupleLeaf : public ComTdbTuple {
 
   virtual short getClassSize() { return (short)sizeof(ComTdbTupleLeaf); }
 
-  virtual Int32 numChildren() const { return 0; }
+  virtual int numChildren() const { return 0; }
   virtual const char *getNodeName() const { return "EX_TUPLE_LEAF_TDB"; }
 
  protected:
@@ -165,8 +165,8 @@ class ComTdbTupleNonLeaf : public ComTdbTuple {
   virtual Long pack(void *);
   virtual int unpack(void *, void *reallocator);
 
-  virtual Int32 numChildren() const { return 1; }
-  virtual const ComTdb *getChild(Int32 pos) const {
+  virtual int numChildren() const { return 1; }
+  virtual const ComTdb *getChild(int pos) const {
     if (pos == 0)
       return tdbChild_;
     else

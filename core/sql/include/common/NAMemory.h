@@ -460,8 +460,8 @@ class NAMemory : public NABasicObject {
   long allocationDelta_;        // Change in memory size since last check of VmSize
   FILE *procStatusFile_;         // FILE pointer for "reading" process status
   int executorVmReserveSize_;  // Size in MB of VM safety net
-  Int32 mmapErrno_;
-  Int32 munmapErrno_;
+  int mmapErrno_;
+  int munmapErrno_;
   int lastVmSize_;
   int maxVmSize_;
   DerivedClass derivedClass_;  // The derived class (removes virtual functions)
@@ -948,7 +948,7 @@ class NAHeapFragment {
 
   void cleanFreePages(size_t fragSize);  // mark free pages as "clean".
   // Release unused/free memory in the heap back to the kernel
-  void releaseFreePages(NAHeapFragment *prev, NAHeapFragment *next, Int32 mergeFlags);
+  void releaseFreePages(NAHeapFragment *prev, NAHeapFragment *next, int mergeFlags);
 
  private:
   enum inUseBits {
@@ -1042,7 +1042,7 @@ class NATreeFragment : public NAHeapFragment {
   NATreeFragment *getChild(UInt32 childNo);
   NATreeFragment **getChildAddr(UInt32 childNo);
   NATreeFragment *leftmostChild();
-  void setChild(Int32 childNo, NATreeFragment *p);
+  void setChild(int childNo, NATreeFragment *p);
   NATreeFragment *getParent();
   void setParent(NATreeFragment *p);
   NAHeap::bindex_t getIndex();

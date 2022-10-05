@@ -367,7 +367,7 @@ void TableMappingUDF::transformNode(NormWA &normWARef, ExprGroupId &locationOfPo
 }
 
 void TableMappingUDF::rewriteNode(NormWA &normWARef) {
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     childInfo_[i]->partitionBy_.normalizeNode(normWARef);
     childInfo_[i]->orderBy_.normalizeNode(normWARef);
     childInfo_[i]->outputs_.normalizeNode(normWARef);
@@ -386,7 +386,7 @@ void TableMappingUDF::getPotentialOutputValues(ValueIdSet &vs) const {
 void TableMappingUDF::getPotentialOutputValuesAsVEGs(ValueIdSet &outputs) const { CMPASSERT(0); };
 void TableMappingUDF::pullUpPreds() {
   // A TMUDF never pulls up predicates from its children.
-  for (Int32 i = 0; i < getArity(); i++) child(i)->recomputeOuterReferences();
+  for (int i = 0; i < getArity(); i++) child(i)->recomputeOuterReferences();
 };
 void TableMappingUDF::recomputeOuterReferences() {
   // ---------------------------------------------------------------------
@@ -419,8 +419,8 @@ void TableMappingUDF::recomputeOuterReferences() {
   leafExprSet.weedOutUnreferenced(outerRefs);
 
   // Add to outerRefs those that my children need.
-  Int32 arity = getArity();
-  for (Int32 i = 0; i < arity; i++) {
+  int arity = getArity();
+  for (int i = 0; i < arity; i++) {
     outerRefs += child(i).getPtr()->getGroupAttr()->getCharacteristicInputs();
   }
 
@@ -676,7 +676,7 @@ void TableMappingUDF::analyzeInitialPlan() { RelExpr::analyzeInitialPlan(); };
 SimpleHashValue TableMappingUDF::hash() { return RelExpr::hash(); };  // from ExprNode
 HashValue TableMappingUDF::topHash() {
   HashValue result = RelRoutine::topHash();
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     result ^= (childInfo_[i]->getPartitionBy());
     result ^= (childInfo_[i]->getOrderBy());
   }
@@ -691,7 +691,7 @@ NABoolean TableMappingUDF::duplicateMatch(const RelExpr &other) const {
 
   TableMappingUDF &o = (TableMappingUDF &)other;
 
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     if (NOT((childInfo_[i]->getPartitionBy()) == (o.childInfo_[i]->getPartitionBy()))) return FALSE;
     if (NOT((childInfo_[i]->getOrderBy()) == (o.childInfo_[i]->getOrderBy()))) return FALSE;
   }
@@ -712,7 +712,7 @@ void TableMappingUDF::checkAndCoerceScalarInputParamTypes(BindWA *bindWA) {
     return;
   }
 
-  for (Int32 i = 0; i < getScalarInputParamCount(); i++) {
+  for (int i = 0; i < getScalarInputParamCount(); i++) {
     const NAType &paramType = *(getScalarInputParams()[i]->getType());
     ValueId inputTypeId = getProcInputParamsVids()[i];
 
@@ -764,7 +764,7 @@ void TableMappingUDF::createOutputVids(BindWA *bindWA) {
     bindWA->setErrStatus();
     return;
   }
-  for (Int32 i = 0; i < getOutputParamCount(); i++) {
+  for (int i = 0; i < getOutputParamCount(); i++) {
     NAColumn &naColumn = *(getOutputParams()[i]);
     const NAType &paramType = *(naColumn.getType());
     // use a NamedTypeToItem, so EXPLAIN and other
@@ -815,7 +815,7 @@ NARoutine *TableMappingUDF::getRoutineMetadata(QualifiedName &routineName, CorrN
 
   // IS req 3, 7.3. Instantiate NARoutine object.
   // NARoutine data members will be assigned from udfMetadata.
-  Int32 errors = 0;
+  int errors = 0;
   result = new (bindWA->wHeap()) NARoutine(routineName, tmudfMetadata, bindWA, errors, bindWA->wHeap());
   if (NULL == result || errors != 0) {
     bindWA->setErrStatus();
@@ -1273,7 +1273,7 @@ void ProxyFunc::populateColumnDesc(char *tableNam, TrafDesc *&colDescs, int &rec
 
   for (size_t colNum = 0; colNum < colArray.entries(); colNum++) {
     char buf[128];
-    str_sprintf(buf, "C%d", (Int32)colNum + 1);
+    str_sprintf(buf, "C%d", (int)colNum + 1);
     const char *colName = &buf[0];
     char *col_name = new (STMTHEAP) char[strlen(colName) + 1];
     strcpy(col_name, (char *)colName);
@@ -1286,7 +1286,7 @@ void ProxyFunc::populateColumnDesc(char *tableNam, TrafDesc *&colDescs, int &rec
   TrafDesc *tempDescs = colDescs;
   for (ComUInt32 colNum = 0; colNum < numCols; colNum++) {
     NAType *naType = getColumn(colNum).getColumnDataType();
-    Int32 fsType = naType->getFSDatatype();
+    int fsType = naType->getFSDatatype();
 
     if (tempDescs->columnsDesc()->isNullable()) reclen += SQL_NULL_HDR_SIZE;
     if (DFS2REC::isSQLVarChar(fsType)) reclen += SQL_VARCHAR_HDR_SIZE;

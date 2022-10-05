@@ -78,16 +78,16 @@ class REFRESH_LIB_CLASS CRUDupElimSQLComposer : public CRUSQLComposer {
 
  public:
   // Generate the text of a delta computation query
-  void ComposeQueryText(Int32 type);
+  void ComposeQueryText(int type);
 
   // Generate the text of a statement for the single-row resolver
-  void ComposeSingleRowResolvText(Int32 type);
+  void ComposeSingleRowResolvText(int type);
 
   // Generate the text of a statement for the range resolver
-  void ComposeRangeResolvText(Int32 type);
+  void ComposeRangeResolvText(int type);
 
   // Generate the text of the MDAM control statement
-  void ComposeControlText(Int32 type);
+  void ComposeControlText(int type);
 
  private:
   //-- Prevent copying
@@ -158,8 +158,8 @@ class REFRESH_LIB_CLASS CRUDupElimSQLComposer : public CRUSQLComposer {
  private:
   CRUTbl &table_;
 
-  Int32 nCtrlColumns_;  // The number of control columns in selection list
-  Int32 updateBmpSize_;
+  int nCtrlColumns_;  // The number of control columns in selection list
+  int updateBmpSize_;
   TInt32 beginEpoch_;
   TInt32 endEpoch_;
 

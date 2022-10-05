@@ -63,12 +63,12 @@ class ex_aggregate_clause : public ex_clause {
 
   // Null Semantics
   //
-  Int32 isNullInNullOut() const { return 0; };
-  Int32 isNullRelevant() const { return 0; };
+  int isNullInNullOut() const { return 0; };
+  int isNullRelevant() const { return 0; };
 
   // Execution
   //
-  Int32 isEvalRelevant() const { return 1; };
+  int isEvalRelevant() const { return 1; };
   virtual ex_expr::exp_return_type init();
   virtual ex_expr::exp_return_type eval(char *op_data[], CollHeap * = 0, ComDiagsArea ** = 0);
 
@@ -110,7 +110,7 @@ class ex_aggr_one_row_clause : public ex_aggregate_clause {
 
   // Display
   //
-  void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea);
+  void displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea);
 
   // ---------------------------------------------------------------------
   // Redefinition of methods inherited from NAVersionedObject.
@@ -155,7 +155,7 @@ class ex_aggr_any_true_max_clause : public ex_aggregate_clause {
 
   // Display
   //
-  void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea);
+  void displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea);
 
   // ---------------------------------------------------------------------
   // Redefinition of methods inherited from NAVersionedObject.
@@ -200,7 +200,7 @@ class ex_aggr_min_max_clause : public ex_aggregate_clause {
 
   // Display
   //
-  void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea);
+  void displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea);
 
   // ---------------------------------------------------------------------
   // Redefinition of methods inherited from NAVersionedObject.
@@ -242,7 +242,7 @@ class ExFunctionGrouping : public ex_aggregate_clause {
 
   // Display
   //
-  void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea);
+  void displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea);
 
   Int16 getRollupGroupIndex() { return rollupGroupIndex_; }
   void setRollupNull(short v) { rollupNull_ = v; }
@@ -271,12 +271,12 @@ class ex_pivot_group_clause : public ex_aggregate_clause {
   ex_expr::exp_return_type init();
   ex_expr::exp_return_type eval(char *op_data[], CollHeap * = 0, ComDiagsArea ** = 0);
 
-  Int32 isNullInNullOut() const { return 0; };
-  Int32 isNullRelevant() const { return 0; };
+  int isNullInNullOut() const { return 0; };
+  int isNullRelevant() const { return 0; };
 
   // Display
   //
-  void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea);
+  void displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea);
 
   // ---------------------------------------------------------------------
   // Redefinition of methods inherited from NAVersionedObject.
@@ -433,12 +433,12 @@ class ex_arith_clause : public ex_clause {
 
   // Null Semantics
   //
-  Int32 isNullInNullOut() const { return 1; };
-  Int32 isNullRelevant() const { return 1; };
+  int isNullInNullOut() const { return 1; };
+  int isNullRelevant() const { return 1; };
 
   // Execution
   //
-  Int32 isEvalRelevant() const { return 1; };
+  int isEvalRelevant() const { return 1; };
   ex_expr::exp_return_type eval(char *op_data[], CollHeap * = 0, ComDiagsArea ** = 0);
 
   ex_expr::exp_return_type evalUnsupportedOperations(char *op_data[], CollHeap *heap, ComDiagsArea **diagsArea);
@@ -457,7 +457,7 @@ class ex_arith_clause : public ex_clause {
 
   // Display
   //
-  void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea);
+  void displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea);
 
   // ---------------------------------------------------------------------
   // Redefinition of methods inherited from NAVersionedObject.
@@ -512,11 +512,11 @@ class ex_arith_sum_clause : public ex_arith_clause {
 
   // Null Semantics
   //
-  Int32 isNullInNullOut() const { return 0; };
+  int isNullInNullOut() const { return 0; };
   ex_expr::exp_return_type processNulls(char *op_data[], CollHeap * = 0, ComDiagsArea ** = 0);
   // Display
   //
-  void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea);
+  void displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea);
 
   // ---------------------------------------------------------------------
   // Redefinition of methods inherited from NAVersionedObject.
@@ -550,11 +550,11 @@ class ex_arith_count_clause : public ex_arith_clause {
 
   // Null Semantics
   //
-  Int32 isNullInNullOut() const { return 0; };
+  int isNullInNullOut() const { return 0; };
   ex_expr::exp_return_type processNulls(char *op_data[], CollHeap * = 0, ComDiagsArea ** = 0);
   // Display
   //
-  void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea);
+  void displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea);
 
   // ---------------------------------------------------------------------
   // Redefinition of methods inherited from NAVersionedObject.
@@ -590,12 +590,12 @@ class ex_bool_clause : public ex_clause {
 
   // Null Semantics
   //
-  Int32 isNullInNullOut() const { return 0; };
-  Int32 isNullRelevant() const { return 0; };
+  int isNullInNullOut() const { return 0; };
+  int isNullRelevant() const { return 0; };
 
   // Execution
   //
-  Int32 isEvalRelevant() const { return 1; };
+  int isEvalRelevant() const { return 1; };
   ex_expr::exp_return_type eval(char *op_data[], CollHeap * = 0, ComDiagsArea ** = 0);
 
   // Fixup
@@ -605,7 +605,7 @@ class ex_bool_clause : public ex_clause {
 
   // Display
   //
-  void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea);
+  void displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea);
 
   // ---------------------------------------------------------------------
   // Redefinition of methods inherited from NAVersionedObject.
@@ -642,12 +642,12 @@ class bool_result_clause : public ex_clause {
 
   // Null Semantics
   //
-  Int32 isNullInNullOut() const { return 0; };
-  Int32 isNullRelevant() const { return 0; };
+  int isNullInNullOut() const { return 0; };
+  int isNullRelevant() const { return 0; };
 
   // Execution
   //
-  Int32 isEvalRelevant() const { return 1; };
+  int isEvalRelevant() const { return 1; };
   ex_expr::exp_return_type eval(char *op_data[], CollHeap * = 0, ComDiagsArea ** = 0);
 
   // Fixup
@@ -657,7 +657,7 @@ class bool_result_clause : public ex_clause {
 
   // Display
   //
-  void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea);
+  void displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea);
 
   // ---------------------------------------------------------------------
   // Redefinition of methods inherited from NAVersionedObject.
@@ -706,16 +706,16 @@ class ex_branch_clause : public ex_clause {
 
   // This is a branching clause
   //
-  Int32 isBranchingClause() const { return 1; };
+  int isBranchingClause() const { return 1; };
 
   // Null Semantics
   //
-  Int32 isNullInNullOut() const { return 0; };
-  Int32 isNullRelevant() const { return 0; };
+  int isNullInNullOut() const { return 0; };
+  int isNullRelevant() const { return 0; };
 
   // Execution
   //
-  Int32 isEvalRelevant() const { return 1; };
+  int isEvalRelevant() const { return 1; };
   ex_expr::exp_return_type eval(char *op_data[], CollHeap * = 0, ComDiagsArea ** = 0);
 
   // Fixup
@@ -726,7 +726,7 @@ class ex_branch_clause : public ex_clause {
                                  char *persistentArea = 0, short = 0, NABoolean spaceCompOnly = FALSE);
   ex_expr::exp_return_type pCodeGenerate(Space *space, UInt32 flags);
 
-  void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea);
+  void displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea);
 
   // ---------------------------------------------------------------------
   // Redefinition of methods inherited from NAVersionedObject.
@@ -1040,13 +1040,13 @@ class ex_comp_clause : public ex_clause {
 
   // Null Semantics
   //
-  Int32 isNullInNullOut() const { return 0; };
-  Int32 isNullRelevant() const { return 1; };
+  int isNullInNullOut() const { return 0; };
+  int isNullRelevant() const { return 1; };
   ex_expr::exp_return_type processNulls(char *op_data[], CollHeap * = 0, ComDiagsArea ** = 0);
 
   // Execution
   //
-  Int32 isEvalRelevant() const { return 1; };
+  int isEvalRelevant() const { return 1; };
   ex_expr::exp_return_type eval(char *op_data[], CollHeap * = 0, ComDiagsArea ** = 0);
 
   ex_expr::exp_return_type evalUnsupportedOperations(char *op_data[], CollHeap *heap, ComDiagsArea **diagsArea);
@@ -1061,7 +1061,7 @@ class ex_comp_clause : public ex_clause {
 
   // Display
   //
-  void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea);
+  void displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea);
 
   // ---------------------------------------------------------------------
   // Redefinition of methods inherited from NAVersionedObject.
@@ -1083,7 +1083,7 @@ class ex_comp_clause : public ex_clause {
  private:
   enum { COLLATION_ENCODE_COMP = 0x0001 };
 
-  Int32 filler0;  // 00-03
+  int filler0;  // 00-03
   Int16 flags_;   // 04-05
 
   // see optimizer/ItemLog.h, class BiRelat
@@ -1095,7 +1095,7 @@ class ex_comp_clause : public ex_clause {
   // that the size of the object remains the same (and is modulo 8).
   // ---------------------------------------------------------------------
   char fillers_[24];  // 08-31
-  ex_expr::exp_return_type processResult(Int32 compare_code, int *result, CollHeap *heap, ComDiagsArea **diagsArea);
+  ex_expr::exp_return_type processResult(int compare_code, int *result, CollHeap *heap, ComDiagsArea **diagsArea);
 
   const CompInstrStruct *getMatchingRow(OperatorTypeEnum op, short datatype1, short datatype2);
 
@@ -1515,14 +1515,14 @@ class ex_conv_clause : public ex_clause {
 
   // Null Semantics
   //
-  Int32 isNullInNullOut() const;
+  int isNullInNullOut() const;
 
-  Int32 isNullRelevant() const { return 1; };
+  int isNullRelevant() const { return 1; };
   ex_expr::exp_return_type processNulls(char *op_data[], CollHeap * = 0, ComDiagsArea ** = 0);
 
   // Execution
   //
-  Int32 isEvalRelevant() const { return 1; };
+  int isEvalRelevant() const { return 1; };
   ex_expr::exp_return_type eval(char *op_data[], CollHeap * = 0, ComDiagsArea ** = 0);
 
   // case index get and set
@@ -1583,7 +1583,7 @@ class ex_conv_clause : public ex_clause {
 
   // Display
   //
-  void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea);
+  void displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea);
 
   // ---------------------------------------------------------------------
   // Redefinition of methods inherited from NAVersionedObject.
@@ -1648,7 +1648,7 @@ class ex_conv_clause : public ex_clause {
   char fillers_[14];  // 04-31
 };
 
-inline Int32 ex_conv_clause::isNullInNullOut() const {
+inline int ex_conv_clause::isNullInNullOut() const {
   return ((((ex_conv_clause *)this)->getNumOperands() > 2) ? 0 : 1);
 }
 
@@ -1790,12 +1790,12 @@ class ex_function_clause : public ex_clause {
 
   // Null Semantics
   //
-  Int32 isNullInNullOut() const { return 1; };
-  Int32 isNullRelevant() const { return 1; };
+  int isNullInNullOut() const { return 1; };
+  int isNullRelevant() const { return 1; };
 
   // Execution
   //
-  Int32 isEvalRelevant() const { return 1; };
+  int isEvalRelevant() const { return 1; };
 
   // Fixup
   //
@@ -1815,7 +1815,7 @@ class ex_function_clause : public ex_clause {
 
   // Display
   //
-  virtual void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea);
+  virtual void displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea);
 
   // ---------------------------------------------------------------------
   // Redefinition of methods inherited from NAVersionedObject.
@@ -1840,7 +1840,7 @@ class ex_function_clause : public ex_clause {
  protected:
   // swap bytes in srcData for datatypes and return in tgtData.
   // Return TRUE, if data was swapped.
-  NABoolean swapBytes(Int32 datatype, const char *srcData, char *tgtData);
+  NABoolean swapBytes(int datatype, const char *srcData, char *tgtData);
 
  private:
   // there are times when a function is represented in terms of other
@@ -1858,7 +1858,7 @@ class ex_function_clause : public ex_clause {
     CI_OPERATION = 0x00000002
   };
 
-  Int32 flags_;                                      // 00-03
+  int flags_;                                      // 00-03
   Int16 /*OperatorTypeEnum*/ origFunctionOperType_;  // 04-05
 
   // ---------------------------------------------------------------------
@@ -1924,12 +1924,12 @@ class ex_inout_clause : public ex_clause {
 
   // Null Semantics
   //
-  Int32 isNullInNullOut() const { return 0; };
-  Int32 isNullRelevant() const { return 0; };
+  int isNullInNullOut() const { return 0; };
+  int isNullRelevant() const { return 0; };
 
   // Execution
   //
-  Int32 isEvalRelevant() const { return 0; };
+  int isEvalRelevant() const { return 0; };
   ex_expr::exp_return_type eval(char *op_data[], CollHeap * = 0, ComDiagsArea ** = 0);
 
   // Fixup
@@ -1940,7 +1940,7 @@ class ex_inout_clause : public ex_clause {
 
   // Display
   //
-  void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea);
+  void displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea);
 
   // ---------------------------------------------------------------------
   // Redefinition of methods inherited from NAVersionedObject.
@@ -1970,8 +1970,8 @@ class ex_inout_clause : public ex_clause {
   NABoolean excludeFromBulkMove() { return (flags_ & EXCLUDE_FROM_BULK_MOVE) != 0; }
   void setExcludeFromBulkMove(NABoolean v) { (v ? flags_ |= EXCLUDE_FROM_BULK_MOVE : v &= ~EXCLUDE_FROM_BULK_MOVE); }
 
-  Int32 &lobInlinedDataMaxLen() { return lobInlinedDataMaxLen_; }
-  Int32 &lobChunkMaxLen() { return lobChunkMaxLen_; }
+  int &lobInlinedDataMaxLen() { return lobInlinedDataMaxLen_; }
+  int &lobChunkMaxLen() { return lobChunkMaxLen_; }
 
  private:
   enum {
@@ -1997,8 +1997,8 @@ class ex_inout_clause : public ex_clause {
   short ordPos_;     // 52-53
   short udrFiller_;  // 54-55
 
-  Int32 lobInlinedDataMaxLen_;
-  Int32 lobChunkMaxLen_;
+  int lobInlinedDataMaxLen_;
+  int lobChunkMaxLen_;
 
   // ---------------------------------------------------------------------
   // Fillers for potential future extensions without changing class size.
@@ -2019,12 +2019,12 @@ class ex_noop_clause : public ex_clause {
 
   // Null Semantics
   //
-  Int32 isNullInNullOut() const { return 0; };
-  Int32 isNullRelevant() const { return 0; };
+  int isNullInNullOut() const { return 0; };
+  int isNullRelevant() const { return 0; };
 
   // Execution
   //
-  Int32 isEvalRelevant() const { return 0; };
+  int isEvalRelevant() const { return 0; };
   ex_expr::exp_return_type eval(char *op_data[], CollHeap * = 0, ComDiagsArea ** = 0);
 
   // Fixup
@@ -2034,7 +2034,7 @@ class ex_noop_clause : public ex_clause {
 
   // Display
   //
-  void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea);
+  void displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea);
 
   // ---------------------------------------------------------------------
   // Redefinition of methods inherited from NAVersionedObject.
@@ -2070,12 +2070,12 @@ class ex_unlogic_clause : public ex_clause {
 
   // Null Semantics
   //
-  Int32 isNullInNullOut() const { return 0; };
-  Int32 isNullRelevant() const { return 0; };
+  int isNullInNullOut() const { return 0; };
+  int isNullRelevant() const { return 0; };
 
   // Execution
   //
-  Int32 isEvalRelevant() const { return 1; };
+  int isEvalRelevant() const { return 1; };
   ex_expr::exp_return_type eval(char *op_data[], CollHeap * = 0, ComDiagsArea ** = 0);
 
   // Fixup
@@ -2085,7 +2085,7 @@ class ex_unlogic_clause : public ex_clause {
 
   // Display
   //
-  void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea);
+  void displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea);
 
   // ---------------------------------------------------------------------
   // Redefinition of methods inherited from NAVersionedObject.
@@ -2122,13 +2122,13 @@ class ExRegexpClauseBase : public ex_clause {
 
   // Null Semantics
   //
-  Int32 isNullInNullOut() const { return 0; };
-  Int32 isNullRelevant() const { return 1; };
+  int isNullInNullOut() const { return 0; };
+  int isNullRelevant() const { return 1; };
   ex_expr::exp_return_type processNulls(char *op_data[], CollHeap * = 0, ComDiagsArea ** = 0);
 
   // Execution
   //
-  Int32 isEvalRelevant() const { return 1; };
+  int isEvalRelevant() const { return 1; };
   ex_expr::exp_return_type eval(char *op_data[], CollHeap * = 0, ComDiagsArea ** = 0) = 0;
 
   // Fixup
@@ -2137,7 +2137,7 @@ class ExRegexpClauseBase : public ex_clause {
 
   // Display
   //
-  void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea){};
+  void displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea){};
 
   // ---------------------------------------------------------------------
   // Redefinition of methods inherited from NAVersionedObject.
@@ -2205,7 +2205,7 @@ class ExRegexpClauseChar : public ExRegexpClauseBase {
 
   // Display
   //
-  void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea);
+  void displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea);
 
   // ---------------------------------------------------------------------
   // Redefinition of methods inherited from NAVersionedObject.
@@ -2249,8 +2249,8 @@ class ex_like_clause_base : public ex_clause {
 
   // Null Semantics
   //
-  Int32 isNullInNullOut() const { return 0; };
-  Int32 isNullRelevant() const { return 1; };
+  int isNullInNullOut() const { return 0; };
+  int isNullRelevant() const { return 1; };
   ex_expr::exp_return_type processNulls(char *op_data[], CollHeap * = 0, ComDiagsArea ** = 0);
 
   NABoolean getAllowEscapeNull() { return allowEscapeNull_; };
@@ -2258,7 +2258,7 @@ class ex_like_clause_base : public ex_clause {
 
   // Execution
   //
-  Int32 isEvalRelevant() const { return 1; };
+  int isEvalRelevant() const { return 1; };
   ex_expr::exp_return_type eval(char *op_data[], CollHeap * = 0, ComDiagsArea ** = 0) = 0;
 
   // Fixup
@@ -2268,7 +2268,7 @@ class ex_like_clause_base : public ex_clause {
 
   // Display
   //
-  void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea){};
+  void displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea){};
 
   // ---------------------------------------------------------------------
   // Redefinition of methods inherited from NAVersionedObject.
@@ -2336,7 +2336,7 @@ class ex_like_clause_char : public ex_like_clause_base {
 
   // Display
   //
-  void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea);
+  void displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea);
 
   // ---------------------------------------------------------------------
   // Redefinition of methods inherited from NAVersionedObject.
@@ -2378,7 +2378,7 @@ class ex_like_clause_doublebyte : public ex_like_clause_base {
 
   // Display
   //
-  void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea);
+  void displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea);
 
   // ---------------------------------------------------------------------
   // Redefinition of methods inherited from NAVersionedObject.
@@ -2407,7 +2407,7 @@ class ExFunctionRangeOfValues : public ex_aggregate_clause {
   ExFunctionRangeOfValues(OperatorTypeEnum oper_type, Attributes **attr, Space *space, UInt32 cap,
                           UInt32 numChildren = 1, Int16 filterId = 0, NABoolean dumpDebugData = FALSE,
                           NABoolean dateAsTimeStamp = TRUE, NABoolean nativeByteOrder = TRUE,
-                          Int32 maxEntries = -1  // no limit
+                          int maxEntries = -1  // no limit
   );
   ExFunctionRangeOfValues();
   virtual ~ExFunctionRangeOfValues();
@@ -2454,7 +2454,7 @@ class ExFunctionRangeOfValues : public ex_aggregate_clause {
   // in bad shape.
   static ex_expr::exp_return_type conditionalSanityCheck(ex_clause *clause, OperatorTypeEnum op);
 
-  void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea);
+  void displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea);
 
   static void conditionalDisplay(ex_clause *cptr, OperatorTypeEnum op, const char *msg);
 
@@ -2481,7 +2481,7 @@ class ExFunctionRangeOfValues : public ex_aggregate_clause {
 
   NABoolean nativeByteOrder_;
 
-  Int32 maxNumEntries_;
+  int maxNumEntries_;
 
   char fillers_[54];
 };

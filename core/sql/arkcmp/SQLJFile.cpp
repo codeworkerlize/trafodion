@@ -78,7 +78,7 @@ bool SQLJFile::openFile(Cmdline_Args &args) {
   strcat(cmdP, " ");
   strcat(cmdP, args.application().c_str());
   cout << cmdP << endl;
-  Int32 rc = system(cmdP);
+  int rc = system(cmdP);
   if (cmdP != cmd) {
     delete cmdP;
   }
@@ -121,7 +121,7 @@ bool SQLJFile::findNextModule(std::string &modName) {
     if (strlen(mdf_) >= MAXMDF - 1) {  // filename is too long
       *mxCUMptr << WARNING << DgSqlCode(2236);
       // toss rest of line
-      Int32 nxtCh;
+      int nxtCh;
       do {
         nxtCh = fgetc(appFile_);
       } while (nxtCh != '\n' && nxtCh != EOF);
@@ -148,7 +148,7 @@ bool SQLJFile::processModule() {
 // requires: cmfn is long enough to hold "-CMFN=modNamList_".
 char *SQLJFile::getModuleNamesOption(Cmdline_Args &args, char *cmfn) {
   ExtQualModuleNames *EQMNs = args.getModuleNames();
-  Int32 count;
+  int count;
   if (!EQMNs || (count = EQMNs->count()) <= 0) {
     return "";  // means extract all
   } else {
@@ -163,7 +163,7 @@ char *SQLJFile::getModuleNamesOption(Cmdline_Args &args, char *cmfn) {
       return NULL;
     }
     // write into temp file the names of modules to be extracted
-    for (Int32 x = 0; x < count; x++) {
+    for (int x = 0; x < count; x++) {
       const ThreePartModuleName &modNam = EQMNs->at(x);
       fprintf(tFil, "%s\n", modNam.catalog.c_str());
       fprintf(tFil, "%s\n", modNam.schema.c_str());
@@ -182,7 +182,7 @@ char *SQLJFile::getModuleNamesOption(Cmdline_Args &args, char *cmfn) {
 // print MDFWriter errors to cout
 void SQLJFile::printMDFWriterErrors(char *errFileName) {
   char args[1024], EorW[10];
-  Int32 errNum;
+  int errNum;
   FILE *errFile = fopen(errFileName, "r");
   if (errFile) {
     // accommodate case of MDFWriter dumping more entries into its errFile
@@ -202,7 +202,7 @@ void SQLJFile::printMDFWriterErrors(char *errFileName) {
         }
         if (sLen >= 1023) {  // diagnostic msg is too long
           // toss rest of line
-          Int32 nxtCh;
+          int nxtCh;
           do {
             nxtCh = fgetc(errFile);
           } while (nxtCh != '\n' && nxtCh != EOF);

@@ -528,7 +528,7 @@ class CmpISPFuncs {
   // method to register function pointers for a built-in stored procedures,
   // indexed by name. This will be the callback function for built-in
   // stored procedures to register the function pointers.
-  static Int32 RegFuncs(const char *procName, SP_COMPILE_FUNCPTR compileFunc, SP_INPUTFORMAT_FUNCPTR inFormatFunc,
+  static int RegFuncs(const char *procName, SP_COMPILE_FUNCPTR compileFunc, SP_INPUTFORMAT_FUNCPTR inFormatFunc,
                         SP_PARSE_FUNCPTR parseFunc, SP_NUM_OUTPUTFIELDS_FUNCPTR outNumFormatFunc,
                         SP_OUTPUTFORMAT_FUNCPTR outFormatFunc, SP_PROCESS_FUNCPTR procFunc, SP_HANDLE spHandle,
                         const char *version);
@@ -613,8 +613,8 @@ class CmpInternalSP : public CmpStoredProc {
 };  // CmpInternalSP
 
 inline const CmpISPFuncs::ProcFuncsStruct &CmpISPFuncs::operator[](const NAString &name) const {
-  Int32 i;
-  for (i = 0; i < (Int32)(procFuncsArray_.entries() - 1); i++)
+  int i;
+  for (i = 0; i < (int)(procFuncsArray_.entries() - 1); i++)
     if (name == procFuncsArray_[i].procName_) return procFuncsArray_[i];
   return procFuncsArray_[i];
 }

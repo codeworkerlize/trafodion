@@ -132,15 +132,15 @@ void UpdateColumns::markColumnsOnBitmap(unsigned char *bitmap, CollIndex numByte
   // For every updated column, mark the corresponding bit.
   if (isAllColumns()) {
     // Mark all the bits as TRUE.
-    for (Int32 i = 0; i < numBytes; i++) bitmap[i] = 0xFF;
+    for (int i = 0; i < numBytes; i++) bitmap[i] = 0xFF;
   } else {
     // zero out the bitmap first
-    for (Int32 i = 0; i < numBytes; i++) bitmap[i] = 0;
+    for (int i = 0; i < numBytes; i++) bitmap[i] = 0;
 
     CollIndex numEntries = columns_->entries();
     for (CollIndex i = 0; i < numEntries; i++) {
-      Int32 byteIx = (*columns_)[i] / 8;
-      Int32 bitIx = (*columns_)[i] % 8;
+      int byteIx = (*columns_)[i] / 8;
+      int bitIx = (*columns_)[i] % 8;
 
       if (byteIx < numBytes) bitmap[byteIx] |= 0x01 << bitIx;
     }
@@ -391,7 +391,7 @@ typedef Trigger *TriggerPtr;
 //  1 elem1 greater than elem2
 //-----------------------------------------------------------------------------------
 
-static Int32 triggerTimeCompare(const void *elem1, const void *elem2) {
+static int triggerTimeCompare(const void *elem1, const void *elem2) {
   ComTimestamp ts1 = (*((TriggerPtr *)elem1))->getTimeStamp();
   ComTimestamp ts2 = (*((TriggerPtr *)elem2))->getTimeStamp();
   if (ts1 > ts2)

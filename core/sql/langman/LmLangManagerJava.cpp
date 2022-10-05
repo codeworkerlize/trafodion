@@ -310,7 +310,7 @@ void LmLanguageManagerJava::initialize(LmResult &result, ComUInt32 maxLMJava, Lm
     TIMER_ON(jvmTimer)
 
     LM_DEBUG0("About to call JNI_CreateJavaVM()...");
-    Int32 jniResult = JNI_CreateJavaVM(&LmSqlJVM, &jniEnv_, &args);
+    int jniResult = JNI_CreateJavaVM(&LmSqlJVM, &jniEnv_, &args);
     LM_DEBUG1("JNI_CreateJavaVM() returned %d", jniResult);
 
     result = (LmResult)jniResult;
@@ -730,7 +730,7 @@ void LmLanguageManagerJava::initialize(LmResult &result, ComUInt32 maxLMJava, Lm
     dsName = (jstring)jni->NewStringUTF(getenv("MXODBC_DATASOURCE"));
   else
     dsName = (jstring)jni->NewStringUTF(datasourceName_);
-  Int32 portNumber = 0;
+  int portNumber = 0;
   // set applicationName property for JDBC connection for identification purposes
   const int MAX_APP_NAME_LEN = 120;
   char appName[MAX_APP_NAME_LEN];
@@ -738,7 +738,7 @@ void LmLanguageManagerJava::initialize(LmResult &result, ComUInt32 maxLMJava, Lm
   const int MAX_PROGRAM_DIR_LEN = 1024;
   char myProgramDir[MAX_PROGRAM_DIR_LEN + 1];
   short myProcessType;
-  Int32 myCPU;
+  int myCPU;
   char myNodeName[MAX_SEGMENT_NAME_LEN + 1];
   int myNodeNum;
   short myNodeNameLen = MAX_SEGMENT_NAME_LEN;
@@ -1236,7 +1236,7 @@ LmResult LmLanguageManagerJava::getRoutine(
     ComRoutineSQLAccess sqlAccessMode, const char *parentQid, const char *clientInfo, ComUInt32 inputRowLen,
     ComUInt32 outputRowLen, const char *sqlName, const char *externalName, const char *routineSig,
     const char *containerName, const char *externalPath, const char *librarySqlName, const char *currentUserName,
-    const char *sessionUserName, ComRoutineExternalSecurity externalSecurity, Int32 routineOwnerId, LmRoutine **handle,
+    const char *sessionUserName, ComRoutineExternalSecurity externalSecurity, int routineOwnerId, LmRoutine **handle,
     LmHandle getNextRowPtr, LmHandle emitRowPtr, ComUInt32 maxResultSets, ComDiagsArea *diagsArea) {
   NABoolean status = lmRestoreJavaSignalHandlers();
   if (status != TRUE) {
@@ -1541,7 +1541,7 @@ LmResult LmLanguageManagerJava::invokeRoutine(LmRoutine *handle, void *inputRow,
 
   if (routine->getParamStyle() == COM_STYLE_JAVA_OBJ) {
     LmRoutineJavaObj *javaObjRoutine = static_cast<LmRoutineJavaObj *>(routine);
-    Int32 dummy1, dummy2;
+    int dummy1, dummy2;
 
     // this path is only used for the run-time call, where we
     // have already received the UDRInvocationInfo/UDRPlanInfo
@@ -1734,7 +1734,7 @@ LmResult LmLanguageManagerJava::processInParameters(LmRoutineJava *handle, LmPar
   LmResult result = LM_OK;
   ComBoolean isUdrForJavaMain = handle->isUdrForJavaMain();
 
-  for (Int32 i = 0; i < (Int32)handle->numSqlParam_; i++) {
+  for (int i = 0; i < (int)handle->numSqlParam_; i++) {
     LmParameter *p = &params[i];
 
     if (p->direction() == COM_OUTPUT_COLUMN) continue;
@@ -2010,12 +2010,12 @@ LmResult LmLanguageManagerJava::processOutParameters(LmRoutineJava *handle, LmPa
   jvalue *jval = (jvalue *)handle->javaParams_;
   jobject jobj;
   LmResult result = LM_OK;
-  Int32 i;
+  int i;
 
   // Do not process the OUT/INOUT Sql params when there
   // are uncaught exceptions from SPJ invocation
   if (!uncaughtExp) {
-    for (i = 0; i < (Int32)handle->numSqlParam_ && result == LM_OK; i++) {
+    for (i = 0; i < (int)handle->numSqlParam_ && result == LM_OK; i++) {
       LmParameter *p = &params[i];
 
       if (p->direction() == COM_INPUT_COLUMN) continue;
@@ -2192,7 +2192,7 @@ LmResult LmLanguageManagerJava::processOutParameters(LmRoutineJava *handle, LmPa
   LmResult rsResult = LM_OK;
 
   if (handle->maxResultSets_ > 0) {
-    for (i = (Int32)handle->numSqlParam_; i < (Int32)handle->numParamsInSig_; i++) {
+    for (i = (int)handle->numSqlParam_; i < (int)handle->numParamsInSig_; i++) {
       jobj = jni->GetObjectArrayElement((jobjectArray)jval[i].l, 0);
       LM_ASSERT(jni->ExceptionOccurred() == NULL);
 
@@ -2265,7 +2265,7 @@ void LmLanguageManagerJava::processParametersDone(LmRoutineJava *handle, LmParam
     return;
   }
 
-  for (Int32 i = 0; i < (Int32)handle->numSqlParam_; i++) {
+  for (int i = 0; i < (int)handle->numSqlParam_; i++) {
     LmParameter *p = &params[i];
 
     // No de-ref required for OUT/INOUT.
@@ -2428,7 +2428,7 @@ LmResult LmLanguageManagerJava::convertFromString(LmParameter *param, void *outp
     //
     // Here, we adjust 'len' to ignore the extra NULL Chars that exist
     // at the end of the string.
-    Int32 index;
+    int index;
     for (index = len - 1; (index >= 0 && rawBytes[index] == '\0'); index--)
       ;
 

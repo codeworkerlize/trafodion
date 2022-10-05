@@ -50,7 +50,7 @@ MdamIntervalListMerger::~MdamIntervalListMerger() {}
 // Iteration operator returns the next endpoint on each call.
 NABoolean MdamIntervalListMerger::operator()(MdamEndPoint &mdamEndPointRef) {
   previousActiveIntervals_ = activeIntervals_;
-  Int32 activeIntervalsDelta = 1;
+  int activeIntervalsDelta = 1;
   if (endPoint0_.exists()) {
     if (endPoint1_.exists()) {
       // Both endpoints exist, so compare them and return the LESSer.

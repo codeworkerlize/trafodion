@@ -329,7 +329,7 @@ class ComTdbExplain : public ComTdb {
                 int tupleLength, ex_expr *paramsExpr, int numBuffers, ULng32 bufferSize);
 
   // This always returns TRUE from now
-  Int32 orderedQueueProtocol() const;
+  int orderedQueueProtocol() const;
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -388,23 +388,23 @@ class ComTdbExplain : public ComTdb {
   // Virtual routines to provide a consistent interface to TDB's
 
   //
-  virtual const ComTdb *getChild(Int32 /*child*/) const { return NULL; };
+  virtual const ComTdb *getChild(int /*child*/) const { return NULL; };
 
   // numChildren always returns 0 for ComTdbExplain
-  virtual Int32 numChildren() const;
+  virtual int numChildren() const;
 
   virtual const char *getNodeName() const { return "EX_EXPLAIN"; };
 
   // numExpressions always returns 2 for ComTdbExplain
-  virtual Int32 numExpressions() const;
+  virtual int numExpressions() const;
 
   // The names of the expressions
-  virtual const char *getExpressionName(Int32) const;
+  virtual const char *getExpressionName(int) const;
 
   // The expressions thenselves
-  virtual ex_expr *getExpressionNode(Int32);
+  virtual ex_expr *getExpressionNode(int);
 
-  static Int32 getVirtTableNumCols() { return sizeof(explainVirtTableColumnInfo) / sizeof(ComTdbVirtTableColumnInfo); }
+  static int getVirtTableNumCols() { return sizeof(explainVirtTableColumnInfo) / sizeof(ComTdbVirtTableColumnInfo); }
 
   static ComTdbVirtTableColumnInfo *getVirtTableColumnInfo() {
     return (ComTdbVirtTableColumnInfo *)explainVirtTableColumnInfo;
@@ -426,7 +426,7 @@ class ComTdbExplain : public ComTdb {
   ExCriDescPtr criDescParams_;  // 16-23
 
   // Length of the paramsTuple_ to be allocated
-  Int32 tupleLength_;  // 24-27
+  int tupleLength_;  // 24-27
 
   // The index of the ATP being returned to the parent, that has the
   // new row (explain Info)
@@ -437,7 +437,7 @@ class ComTdbExplain : public ComTdb {
 
 // Inline Routines for ComTdbExplain:
 
-inline Int32 ComTdbExplain::orderedQueueProtocol() const {
+inline int ComTdbExplain::orderedQueueProtocol() const {
   return -1;  // returns true
 };
 

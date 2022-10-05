@@ -73,14 +73,14 @@ class ComTdbTransaction : public ComTdb {
   Long pack(void *);
   int unpack(void *, void *reallocator);
 
-  Int32 orderedQueueProtocol() const { return -1; };
+  int orderedQueueProtocol() const { return -1; };
 
-  virtual const ComTdb *getChild(Int32 /*child*/) const { return NULL; };
-  virtual Int32 numChildren() const { return 0; };
+  virtual const ComTdb *getChild(int /*child*/) const { return NULL; };
+  virtual int numChildren() const { return 0; };
   virtual const char *getNodeName() const { return "EX_TRANSACTION"; };
-  virtual Int32 numExpressions() const { return 1; };
-  virtual const char *getExpressionName(Int32) const { return "diagAreaSizeExpr_"; };
-  virtual ex_expr *getExpressionNode(Int32) { return diagAreaSizeExpr_; };
+  virtual int numExpressions() const { return 1; };
+  virtual const char *getExpressionName(int) const { return "diagAreaSizeExpr_"; };
+  virtual ex_expr *getExpressionNode(int) { return diagAreaSizeExpr_; };
 
   NABoolean setAllowedInXn() { return (flags_ & SET_ALLOWED_IN_XN) != 0; }
   void setSetAllowedInXn(NABoolean v) { (v ? flags_ |= SET_ALLOWED_IN_XN : flags_ &= ~SET_ALLOWED_IN_XN); }

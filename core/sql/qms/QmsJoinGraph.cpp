@@ -43,7 +43,7 @@
 //  0 elem1 equivalent   elem2
 //  1 elem1 greater than elem2
 //-----------------------------------------------------------------------------------
-static Int32 naStringCompare(const void *elem1, const void *elem2) {
+static int naStringCompare(const void *elem1, const void *elem2) {
   const NAString *s1 = *(NAStringPtr *)elem1;
   const NAString *s2 = *(NAStringPtr *)elem2;
   return s1->compareTo(*s2);
@@ -129,7 +129,7 @@ NABoolean JoinGraphTable::checkPredsOnKey(CollHeap *heap) {
 
     // Run the loop on the predicates backwards, because we will be deleting
     // the current entry every iteration.
-    for (Int32 j = predicatesToCheck.entries() - 1; j >= 0; j--) {
+    for (int j = predicatesToCheck.entries() - 1; j >= 0; j--) {
       JoinGraphEqualitySetPtr eqSet = predicatesToCheck[j];
 
       const JoinGraphHalfPredicatePtr halfPred = eqSet->findHalfPredTo(this);
@@ -191,10 +191,10 @@ void JoinGraphTable::getAndReducePredicateColumnsPointingToMe(ElementPtrList &po
 
 //*****************************************************************************
 //*****************************************************************************
-Int32 JoinGraphTable::getDegree() {
+int JoinGraphTable::getDegree() {
   if (isSelfJoinTable_) return 0;
 
-  Int32 degree = 0;
+  int degree = 0;
   CollIndex maxEntries = predList_.entries();
   for (CollIndex i = 0; i < maxEntries; i++) {
     JoinGraphEqualitySetPtr eqSet = predList_[i];
@@ -216,7 +216,7 @@ Int32 JoinGraphTable::getDegree() {
  *****************************************************************************
  */
 NABoolean JoinGraphEqualitySet::isInCurrentSubGraph() {
-  Int32 halfPredsIncluded = 0;
+  int halfPredsIncluded = 0;
 
   // Count the number of half-preds in this subgraph for which the temp number
   // is not equal to -1.
@@ -242,7 +242,7 @@ NABoolean JoinGraphEqualitySet::isInCurrentSubGraph() {
 NAString *JoinGraphEqualitySet::getHashKeyLine(CollHeap *heap) {
   char buffer[10];
   NAStringPtr *predsArray = new (heap) NAStringPtr[halfPreds_.entries()];
-  Int32 pos = 0;
+  int pos = 0;
 
   // Collect and format half preds.
   for (CollIndex i = 0; i < halfPreds_.entries(); i++) {
@@ -488,7 +488,7 @@ void QRJoinGraph::addTable(const QRTablePtr tableElement, NABoolean isHub, const
   if (nextTable_ >= 2 && newTablePtr->isHub()) {
     const NAString &thisName = newTablePtr->getName();
     const NAString &lastName = tableArray_[insertPos - 1]->getName();
-    Int32 compareResult = thisName.compareTo(lastName);
+    int compareResult = thisName.compareTo(lastName);
     if (compareResult < 0) {
       // If not - it means the table names are not sorted.
       // Looks like we will have to sort them here...
@@ -537,7 +537,7 @@ CollIndex QRJoinGraph::shiftArray(const NAString thisName) {
 
   while (insertPos > 0) {
     const NAString &prevName = tableArray_[insertPos - 1]->getName();
-    Int32 compareResult = thisName.compareTo(prevName);
+    int compareResult = thisName.compareTo(prevName);
     if (compareResult < 0) {
       // Not found yet. Shift the previous entry one position,
       // and change its ordinal number accordingly.
@@ -802,8 +802,8 @@ JoinGraphTablePtr QRJoinGraph::getFirstTable() {
   for (CollIndex i = 1; i < joinSize; i++) {
     JoinGraphTablePtr table = getTableByOrdinal(i);
     QRTablePtr tableElem = table->getTableElement();
-    Int32 joinOrder = tableElem->getJoinOrder();
-    Int32 degree = table->getDegree();
+    int joinOrder = tableElem->getJoinOrder();
+    int degree = table->getDegree();
     UInt32 pos = 0;
 
     // First sort by ascending joinOrder group.
@@ -1033,7 +1033,7 @@ void QRJoinSubGraph::doEqualitySetsPart(NAString &hashKey) const {
   EqualitySetList &eqSets = parentGraph_->getEqualitySets();
   // Use system heap for array allocations
   NAStringPtr *eqArray = new (heap) NAStringPtr[eqSets.entries()];
-  Int32 eqPos = 0;
+  int eqPos = 0;
   UInt32 maxLineSize = 0;
 
   for (CollIndex j = 0; j < eqSets.entries(); j++) {
@@ -1156,7 +1156,7 @@ void QRJoinSubGraphMap::addTable(CollIndex ix, const JoinGraphTablePtr table) {
 // The query side translation: find the hash key index for a particular table.
 // Return -1 if the table ID is not found (This can happen in multi-JBB queries)
 //*****************************************************************************
-Int32 QRJoinSubGraphMap::getIndexForTable(const NAString &id) const {
+int QRJoinSubGraphMap::getIndexForTable(const NAString &id) const {
   UnsignedInteger *ix = indexHashByID_.getFirstValue(&id);
   if (ix == NULL)
     return -1;
@@ -1195,7 +1195,7 @@ void QRJoinSubGraphMap::prepareForSelfJoinWork() {
   restoreTempNumbers();
 
   const NAString &hashKey = getHashKey();
-  Int32 firstESet = hashKey.subString("\nE").start();
+  int firstESet = hashKey.subString("\nE").start();
   NAString halfHashKey = hashKey(0, firstESet);
   halfHashKey += "\n";
   selfJoinHandler->setHalfHashKey(halfHashKey);
@@ -1218,7 +1218,7 @@ QRJoinSubGraphMapPtr QRJoinSubGraphMap::nextEquivalentMap() const {
   QRJoinSubGraphMapPtr newMap = new (heap) QRJoinSubGraphMap(*this, ADD_MEMCHECK_ARGS(heap));
   newMap->isACopy_ = FALSE;
 
-  Int32 *shiftRow = new (heap) Int32[numberOfTables];
+  int *shiftRow = new (heap) int[numberOfTables];
   selfJoinHandler->getNextShiftVector(shiftRow);
 
   if (QRLogger::isCategoryInDebug(CAT_MVMEMO_JOINGRAPH)) {
@@ -1490,7 +1490,7 @@ NABoolean HubIterator::isSelfJoinTooBig() {
   selfJoinHandler->doneAddingTables();
 
   // Now calculate the number of permutations in the top join graph
-  Int32 selfJoinPermutations = selfJoinHandler->howmanyPermutations();
+  int selfJoinPermutations = selfJoinHandler->howmanyPermutations();
   deletePtr(selfJoinHandler);
   if (selfJoinPermutations > MAX_SELFJOIN_PERMUTATIONS) {
     QRLogger::log(CAT_MVMEMO_JOINGRAPH, LL_WARN,

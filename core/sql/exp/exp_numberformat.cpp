@@ -1033,7 +1033,7 @@ int ExpNumerFormat::convertBigNumToChar(char *dataValue, char *result, Attribute
     char *pfindStr = strstr(dataValue, ".");
     if (pfindStr) nRealScale = strlen(dataValue) - (pfindStr - dataValue) - 1;
     if (nRealScale > Num.post) {
-      Int32 nBigNumLength = arg1->getLength();
+      int nBigNumLength = arg1->getLength();
       // Extract sign
       char leftSign = BIGN_GET_SIGN(arg1Str, nBigNumLength);
       // Clear sign bits
@@ -1187,7 +1187,7 @@ int ExpNumerFormat::convertFloatToChar(char *dataValue, char *result, Attributes
       if (tmpSource > 3999) {
         fill_str(numstr, '#', 15);
       } else {
-        int_to_roman((Int32)tmpSource, numstr);
+        int_to_roman((int)tmpSource, numstr);
       }
     }
   } else if (IS_EEEE(&Num)) {
@@ -1293,7 +1293,7 @@ int ExpNumerFormat::convertInt32ToChar(char *dataValue, char *result, Attributes
   char *numstr = new (heap) char[MAXDOUBLEWIDTH];
   memset(numstr, 0, MAXDOUBLEWIDTH);
   // char *orgnum = NULL;
-  Int32 nValue = atoi(dataValue);
+  int nValue = atoi(dataValue);
   if (IS_ROMAN(&Num)) {
     int_to_roman(nValue, numstr);
   } else if (IS_EEEE(&Num)) {
@@ -1317,7 +1317,7 @@ int ExpNumerFormat::convertInt32ToChar(char *dataValue, char *result, Attributes
       }
 
       long value = nValue * tmp;
-      if (nValue != (long)((Int32)nValue) || tmp != (long)((Int32)tmp)) {
+      if (nValue != (long)((int)nValue) || tmp != (long)((int)tmp)) {
         if (tmp != 0 && ((tmp == -1 && nValue < 0 && value < 0) || value / tmp != nValue)) {
           ExRaiseSqlError(heap, diagsArea, EXE_BAD_ARG_TO_MATH_FUNC);
           **diagsArea << DgString0("TO_CHAR");
@@ -1399,7 +1399,7 @@ int ExpNumerFormat::convertInt64ToChar(char *dataValue, char *result, Attributes
   memset(numstr, 0, MAXDOUBLEWIDTH);
   long nValue = lcl_atoi64(dataValue);
   if (IS_ROMAN(&Num)) {
-    int_to_roman((Int32)nValue, numstr);
+    int_to_roman((int)nValue, numstr);
   } else if (IS_EEEE(&Num)) {
     /* we can do it easily because float8 won't lose any precision */
     double val = (double)nValue;
@@ -1421,7 +1421,7 @@ int ExpNumerFormat::convertInt64ToChar(char *dataValue, char *result, Attributes
       }
 
       long value = nValue * tmp;
-      if (nValue != (long)((Int32)nValue) || tmp != (long)((Int32)tmp)) {
+      if (nValue != (long)((int)nValue) || tmp != (long)((int)tmp)) {
         if (tmp != 0 && ((tmp == -1 && nValue < 0 && value < 0) || value / tmp != nValue)) {
           ExRaiseSqlError(heap, diagsArea, EXE_BAD_ARG_TO_MATH_FUNC);
           **diagsArea << DgString0("TO_CHAR");

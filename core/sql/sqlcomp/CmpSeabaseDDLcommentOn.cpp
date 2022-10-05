@@ -261,8 +261,8 @@ void CmpSeabaseDDL::doSeabaseCommentOn(StmtDDLCommentOn *commentOnNode, NAString
 
   ExeCliInterface cliInterface(STMTHEAP, NULL, NULL, CmpCommon::context()->sqlSession()->getParentQid());
   long objUID = 0;
-  Int32 objectOwnerID = ROOT_USER_ID;
-  Int32 schemaOwnerID = ROOT_USER_ID;
+  int objectOwnerID = ROOT_USER_ID;
+  int schemaOwnerID = ROOT_USER_ID;
   long objectFlags = 0;
   long objDataUID = 0;
 

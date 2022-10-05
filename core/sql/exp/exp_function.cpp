@@ -306,15 +306,15 @@ ExFunctionInetNtoa::ExFunctionInetNtoa(OperatorTypeEnum oper_type, Attributes **
       };
 
 ExFunctionAESEncrypt::ExFunctionAESEncrypt(OperatorTypeEnum oper_type, Attributes **attr, Space *space, int in_args_num,
-                                           Int32 aes_mode)
+                                           int aes_mode)
     : ex_function_clause(oper_type, in_args_num + 1, attr, space), args_num(in_args_num), aes_mode(aes_mode){};
 
 ExFunctionAESDecrypt::ExFunctionAESDecrypt(OperatorTypeEnum oper_type, Attributes **attr, Space *space, int in_args_num,
-                                           Int32 aes_mode)
+                                           int aes_mode)
     : ex_function_clause(oper_type, in_args_num + 1, attr, space), args_num(in_args_num), aes_mode(aes_mode){};
 
 ExFunctionBase64EncDec::ExFunctionBase64EncDec(OperatorTypeEnum oper_type, Attributes **attr, Space *space,
-                                               NABoolean isEncode, Int32 maxBuflen)
+                                               NABoolean isEncode, int maxBuflen)
     : ex_function_clause(oper_type, 2, attr, space), isEncode_(isEncode), maxBuflen_(maxBuflen), decodedBuf_(NULL){};
 
 ExFunctionConvertHex::ExFunctionConvertHex(OperatorTypeEnum oper_type, Attributes **attr, Space *space)
@@ -481,18 +481,18 @@ ex_expr::exp_return_type ex_function_substring::processNulls(char *op_data[], Co
 };
 
 ex_function_translate::ex_function_translate(OperatorTypeEnum oper_type, Attributes **attr, Space *space,
-                                             Int32 conv_type, Int16 flags)
+                                             int conv_type, Int16 flags)
     : ex_function_clause(oper_type, 2, attr, space) {
   conv_type_ = conv_type;
   flags_ = flags;
 };
 
-ex_function_trim::ex_function_trim(OperatorTypeEnum oper_type, Attributes **attr, Space *space, Int32 mode)
+ex_function_trim::ex_function_trim(OperatorTypeEnum oper_type, Attributes **attr, Space *space, int mode)
     : ex_function_clause(oper_type, 3, attr, space) {
   mode_ = mode;
 };
 
-ex_function_trim_char::ex_function_trim_char(OperatorTypeEnum oper_type, Attributes **attr, Space *space, Int32 mode)
+ex_function_trim_char::ex_function_trim_char(OperatorTypeEnum oper_type, Attributes **attr, Space *space, int mode)
     : ex_function_trim(oper_type, attr, space, mode){};
 
 ex_expr::exp_return_type ex_function_trim_char::processNulls(char *op_data[], CollHeap *heap,
@@ -631,7 +631,7 @@ ex_function_converttimestamp::ex_function_converttimestamp(OperatorTypeEnum oper
       };
 
 ex_function_dateformat::ex_function_dateformat(OperatorTypeEnum oper_type, Attributes **attr, Space *space,
-                                               Int32 dateformat, int num_attrs, int nCaseSensitive)
+                                               int dateformat, int num_attrs, int nCaseSensitive)
     : ex_function_clause(oper_type, num_attrs, attr, space),
       dateformat_(dateformat),
       caseSensitivity_(nCaseSensitive){
@@ -725,7 +725,7 @@ ExFunctionHbaseColumnsDisplay::ExFunctionHbaseColumnsDisplay(OperatorTypeEnum op
     : ex_function_clause(oper_type, 2, attr, space), numCols_(numCols), colNames_(colNames){};
 
 ExFunctionHbaseColumnCreate::ExFunctionHbaseColumnCreate(OperatorTypeEnum oper_type, Attributes **attr,
-                                                         short numEntries, short colNameMaxLen, Int32 colValMaxLen,
+                                                         short numEntries, short colNameMaxLen, int colValMaxLen,
                                                          short colValVCIndLen, Space *space)
     : ex_function_clause(oper_type, 1, attr, space),
       numEntries_(numEntries),
@@ -924,10 +924,10 @@ ex_expr::exp_return_type ex_function_concat::eval(char *op_data[], CollHeap *hea
   CharInfo::CharSet cs = ((SimpleType *)getOperand(1))->getCharSet();
 
   if (cs == CharInfo::UTF8) {
-    Int32 prec1 = ((SimpleType *)getOperand(1))->getPrecision();
+    int prec1 = ((SimpleType *)getOperand(1))->getPrecision();
     len1 = Attributes::trimFillerSpaces(op_data[1], prec1, len1, cs);
 
-    Int32 prec2 = ((SimpleType *)getOperand(2))->getPrecision();
+    int prec2 = ((SimpleType *)getOperand(2))->getPrecision();
     len2 = Attributes::trimFillerSpaces(op_data[2], prec2, len2, cs);
   }
 
@@ -937,7 +937,7 @@ ex_expr::exp_return_type ex_function_concat::eval(char *op_data[], CollHeap *hea
     return ex_expr::EXPR_ERROR;
   }
 
-  Int32 actual_length = len1 + len2;
+  int actual_length = len1 + len2;
 
   // If operand 0 is varchar, store the sum of operand 1 length and
   // operand 2 length in the varlen area.
@@ -970,7 +970,7 @@ ex_expr::exp_return_type ExFunctionRepeat::eval(char *op_data[], CollHeap *heap,
 
   CharInfo::CharSet cs = ((SimpleType *)getOperand(1))->getCharSet();
   if (cs == CharInfo::UTF8) {
-    Int32 prec1 = ((SimpleType *)getOperand(1))->getPrecision();
+    int prec1 = ((SimpleType *)getOperand(1))->getPrecision();
     len1 = Attributes::trimFillerSpaces(op_data[1], prec1, len1, cs);
   }
 
@@ -983,7 +983,7 @@ ex_expr::exp_return_type ExFunctionRepeat::eval(char *op_data[], CollHeap *heap,
   }
 
   int currPos = 0;
-  for (Int32 i = 0; i < repeatCount; i++) {
+  for (int i = 0; i < repeatCount; i++) {
     str_cpy_all(&op_data[0][currPos], op_data[1], len1);
 
     currPos += len1;
@@ -1007,7 +1007,7 @@ ex_expr::exp_return_type ExFunctionReplace::eval(char *op_data[], CollHeap *heap
   char *str1 = op_data[1];
 
   if (cs == CharInfo::UTF8) {
-    Int32 prec1 = ((SimpleType *)getOperand(1))->getPrecision();
+    int prec1 = ((SimpleType *)getOperand(1))->getPrecision();
     len1 = Attributes::trimFillerSpaces(str1, prec1, len1, cs);
   }
 
@@ -1033,10 +1033,10 @@ ex_expr::exp_return_type ExFunctionReplace::eval(char *op_data[], CollHeap *heap
   char *str3 = op_data[3];
 
   if (cs == CharInfo::UTF8) {
-    Int32 prec2 = ((SimpleType *)getOperand(2))->getPrecision();
+    int prec2 = ((SimpleType *)getOperand(2))->getPrecision();
     len2 = Attributes::trimFillerSpaces(str2, prec2, len2, cs);
 
-    Int32 prec3 = ((SimpleType *)getOperand(3))->getPrecision();
+    int prec3 = ((SimpleType *)getOperand(3))->getPrecision();
     len3 = Attributes::trimFillerSpaces(str3, prec3, len3, cs);
   }
 
@@ -1045,10 +1045,10 @@ ex_expr::exp_return_type ExFunctionReplace::eval(char *op_data[], CollHeap *heap
 
   char *sourceStr = searchStr1;
   char *searchStr = str2;
-  Int32 lenSourceStr = len1;     // getArgEncodedLen(0);
-  Int32 lenSearchStr = len2;     // getArgEncodedLen(1);
-  Int32 effLenSourceStr = len1;  // getArgEncodedLen(0);
-  Int32 effLenSearchStr = len2;  // getArgEncodedLen(1);
+  int lenSourceStr = len1;     // getArgEncodedLen(0);
+  int lenSearchStr = len2;     // getArgEncodedLen(1);
+  int effLenSourceStr = len1;  // getArgEncodedLen(0);
+  int effLenSearchStr = len2;  // getArgEncodedLen(1);
 
   Int16 nPasses = 1;
 
@@ -1061,12 +1061,12 @@ ex_expr::exp_return_type ExFunctionReplace::eval(char *op_data[], CollHeap *heap
 
     sourceStr = new (heap) char[lenSourceStr];
     ex_function_encode::encodeCollationSearchKey((UInt8 *)str1, len1, (UInt8 *)sourceStr, lenSourceStr,
-                                                 (Int32 &)effLenSourceStr, nPasses, getCollation(), TRUE);
+                                                 (int &)effLenSourceStr, nPasses, getCollation(), TRUE);
 
     searchStr = new (heap) char[lenSearchStr];
 
     ex_function_encode::encodeCollationSearchKey((UInt8 *)str2, len2, (UInt8 *)searchStr, lenSearchStr,
-                                                 (Int32 &)effLenSearchStr, nPasses, getCollation(), TRUE);
+                                                 (int &)effLenSearchStr, nPasses, getCollation(), TRUE);
   }
 
   NABoolean done = FALSE;
@@ -1286,7 +1286,7 @@ ex_expr::exp_return_type ExRegexpSubstrOrCount::eval(char *op_data[], CollHeap *
     return ex_expr::EXPR_NULL;
   }
   if (cs == CharInfo::UTF8) {
-    Int32 prec1 = ((SimpleType *)getOperand(1))->getPrecision();
+    int prec1 = ((SimpleType *)getOperand(1))->getPrecision();
     srcLen = Attributes::trimFillerSpaces(op_data[1], prec1, srcLen, cs);
   }
   Attributes *op1 = getOperand(1);
@@ -1297,8 +1297,8 @@ ex_expr::exp_return_type ExRegexpSubstrOrCount::eval(char *op_data[], CollHeap *
     srcLen = srcLen / CharInfo::maxBytesPerChar(cs) * CharInfo::maxBytesPerChar(CharInfo::UTF8);
     srcStr = new (exHeap) char[srcLen + 1];
     if (::convDoIt(op_data[1], getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]), op1->getDatatype(),
-                   op1->getPrecision(), (Int32)(CharInfo::UCS2), srcStr, srcLen + 1, REC_BYTE_V_ASCII, 0,
-                   (Int32)(CharInfo::UTF8), (char *)&intermediateLen, sizeof(short), exHeap,
+                   op1->getPrecision(), (int)(CharInfo::UCS2), srcStr, srcLen + 1, REC_BYTE_V_ASCII, 0,
+                   (int)(CharInfo::UTF8), (char *)&intermediateLen, sizeof(short), exHeap,
                    diagsArea) != ex_expr::EXPR_OK)
       return ex_expr::EXPR_ERROR;
     srcLen = intermediateLen;
@@ -1318,7 +1318,7 @@ ex_expr::exp_return_type ExRegexpSubstrOrCount::eval(char *op_data[], CollHeap *
     return ex_expr::EXPR_NULL;
   }
   if (cs == CharInfo::UTF8) {
-    Int32 prec2 = ((SimpleType *)getOperand(2))->getPrecision();
+    int prec2 = ((SimpleType *)getOperand(2))->getPrecision();
     patLen = Attributes::trimFillerSpaces(op_data[2], prec2, patLen, cs);
   }
   Attributes *op2 = getOperand(2);
@@ -1328,8 +1328,8 @@ ex_expr::exp_return_type ExRegexpSubstrOrCount::eval(char *op_data[], CollHeap *
     patLen = patLen / CharInfo::maxBytesPerChar(cs) * CharInfo::maxBytesPerChar(CharInfo::UTF8);
     pattern = new (exHeap) char[patLen + 1];
     if (::convDoIt(op_data[2], getOperand(2)->getLength(op_data[-MAX_OPERANDS + 2]), op2->getDatatype(),
-                   op2->getPrecision(), (Int32)(CharInfo::UCS2), pattern, patLen + 1, REC_BYTE_V_ASCII, 0,
-                   (Int32)(CharInfo::UTF8), (char *)&intermediateLen, sizeof(short), exHeap,
+                   op2->getPrecision(), (int)(CharInfo::UCS2), pattern, patLen + 1, REC_BYTE_V_ASCII, 0,
+                   (int)(CharInfo::UTF8), (char *)&intermediateLen, sizeof(short), exHeap,
                    diagsArea) != ex_expr::EXPR_OK)
       return ex_expr::EXPR_ERROR;
     patLen = intermediateLen;
@@ -1349,7 +1349,7 @@ ex_expr::exp_return_type ExRegexpSubstrOrCount::eval(char *op_data[], CollHeap *
 
   if (getNumOperands() > 3) nStartPos = *(int *)op_data[3];
 
-  Int32 startByteOffset = 0;
+  int startByteOffset = 0;
   if (nStartPos > 1) {
     startByteOffset = Attributes::convertCharToOffset(srcStr, nStartPos, srcLen, input_cs);
     if (startByteOffset < 0) {
@@ -1440,8 +1440,8 @@ ex_expr::exp_return_type ExRegexpSubstrOrCount::eval(char *op_data[], CollHeap *
         str_cpy_all(tmpStr, pSearchStr + pm[0].rm_so, nResultLen);
         tmpStr[nLen] = 0;
         short intermediateLen;
-        if (::convDoIt(tmpStr, nResultLen, REC_BYTE_F_ASCII, 0, (Int32)(CharInfo::UTF8), op_data[0], nLen,
-                       REC_BYTE_V_ASCII, 0, (Int32)(CharInfo::UCS2), (char *)&intermediateLen, sizeof(short), exHeap,
+        if (::convDoIt(tmpStr, nResultLen, REC_BYTE_F_ASCII, 0, (int)(CharInfo::UTF8), op_data[0], nLen,
+                       REC_BYTE_V_ASCII, 0, (int)(CharInfo::UCS2), (char *)&intermediateLen, sizeof(short), exHeap,
                        diagsArea) != ex_expr::EXPR_OK)
           return ex_expr::EXPR_ERROR;
         nResultLen = intermediateLen;
@@ -1481,14 +1481,14 @@ ex_expr::exp_return_type ExRegexpSubstrOrCount::eval(char *op_data[], CollHeap *
 }
 
 ex_expr::exp_return_type ex_function_substring::eval(char *op_data[], CollHeap *heap, ComDiagsArea **diagsArea) {
-  Int32 len1_bytes = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
+  int len1_bytes = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
 
   // Get the starting position in characters from operand 2.
   // This may be a negative value!
-  Int32 specifiedCharStartPos = *(int *)op_data[2];
+  int specifiedCharStartPos = *(int *)op_data[2];
 
   // Starting position in bytes. It can NOT be a negative value.
-  Int32 startByteOffset = 0;  // Assume beginning of buffer for now.
+  int startByteOffset = 0;  // Assume beginning of buffer for now.
 
   CharInfo::CharSet cs = ((SimpleType *)getOperand(1))->getCharSet();
   char *resultNull = op_data[-2 * MAX_OPERANDS];
@@ -1511,10 +1511,10 @@ ex_expr::exp_return_type ex_function_substring::eval(char *op_data[], CollHeap *
   // If specifiedCharStartPos is 0, length is all of buf except last character.
   // If specifiedCharStartPos is negative, length is even less (by that negative amount).
 
-  Int32 inputLen_bytes = len1_bytes;           // Assume byte count = length of string for now
-  Int32 specifiedLenInChars = inputLen_bytes;  // Assume char count = byte count for now
+  int inputLen_bytes = len1_bytes;           // Assume byte count = length of string for now
+  int specifiedLenInChars = inputLen_bytes;  // Assume char count = byte count for now
 
-  Int32 prec1 = 0;
+  int prec1 = 0;
 
   if (getNumOperands() == 4) {
     specifiedLenInChars = *(int *)op_data[3];  // Use specified desired length for now
@@ -1528,12 +1528,12 @@ ex_expr::exp_return_type ex_function_substring::eval(char *op_data[], CollHeap *
 
   // NOTE: Following formula for lastChar works even if specifiedCharStartPos is 0 or negative.
 
-  Int32 lastChar = specifiedLenInChars + (specifiedCharStartPos - 1);
+  int lastChar = specifiedLenInChars + (specifiedCharStartPos - 1);
 
   // The end of the substr as a byte offset
-  Int32 endOff_bytes = inputLen_bytes;  // Assume length of input for now.
+  int endOff_bytes = inputLen_bytes;  // Assume length of input for now.
 
-  Int32 actualLenInBytes = 0;
+  int actualLenInBytes = 0;
 
   if (startByteOffset >= inputLen_bytes) {
     // Nothing left in buf to copy, so endOff_bytes and actualLenInBytes are OK as is.
@@ -1569,7 +1569,7 @@ ex_expr::exp_return_type ex_function_substring::eval(char *op_data[], CollHeap *
   //
   // Blankpad the target (if needed).
   //
-  Int32 len0_bytes = getOperand(0)->getLength();
+  int len0_bytes = getOperand(0)->getLength();
 
   if ((actualLenInBytes < len0_bytes) && prec1)
     str_pad(&op_data[0][actualLenInBytes], len0_bytes - actualLenInBytes, ' ');
@@ -1581,10 +1581,10 @@ ex_expr::exp_return_type ex_function_substring::eval(char *op_data[], CollHeap *
 }
 
 ex_expr::exp_return_type ex_function_trim_char::eval(char *op_data[], CollHeap *heap, ComDiagsArea **diagsArea) {
-  const Int32 lenSrcStrSmallBuf = 128;
+  const int lenSrcStrSmallBuf = 128;
   char srcStrSmallBuf[lenSrcStrSmallBuf];
 
-  const Int32 lenTrimCharSmallBuf = 8;
+  const int lenTrimCharSmallBuf = 8;
   char trimCharSmallBuf[lenTrimCharSmallBuf];
 
   // find out the length of trim character.
@@ -1594,11 +1594,11 @@ ex_expr::exp_return_type ex_function_trim_char::eval(char *op_data[], CollHeap *
   char *resultNull = op_data[-2 * MAX_OPERANDS];
 
   if (cs == CharInfo::UTF8) {
-    Int32 prec1 = ((SimpleType *)getOperand(1))->getPrecision();
+    int prec1 = ((SimpleType *)getOperand(1))->getPrecision();
     len1 = Attributes::trimFillerSpaces(op_data[1], prec1, len1, cs);
   }
 
-  Int32 number_bytes = 0;
+  int number_bytes = 0;
 
   number_bytes = Attributes::getFirstCharLength(op_data[1], len1, cs);
   if (number_bytes < 0) {
@@ -1620,7 +1620,7 @@ ex_expr::exp_return_type ex_function_trim_char::eval(char *op_data[], CollHeap *
 
   if (cs == CharInfo::UTF8)  // If so, must ignore any filler spaces at end of string
   {
-    Int32 prec2 = ((SimpleType *)getOperand(2))->getPrecision();
+    int prec2 = ((SimpleType *)getOperand(2))->getPrecision();
     len2 = Attributes::trimFillerSpaces(op_data[2], prec2, len2, cs);
   }
 
@@ -1652,7 +1652,7 @@ ex_expr::exp_return_type ex_function_trim_char::eval(char *op_data[], CollHeap *
 
     // get encoded key
     ex_function_encode::encodeCollationSearchKey((UInt8 *)op_data[2], len2, (UInt8 *)srcStr, lenSrcStr,
-                                                 (Int32 &)effLenSourceStr, nPasses, getCollation(), FALSE);
+                                                 (int &)effLenSourceStr, nPasses, getCollation(), FALSE);
 
     if (lenTrimChar <= lenTrimCharSmallBuf) {
       trimChar = trimCharSmallBuf;
@@ -1662,7 +1662,7 @@ ex_expr::exp_return_type ex_function_trim_char::eval(char *op_data[], CollHeap *
 
     // get encoded key
     ex_function_encode::encodeCollationSearchKey((UInt8 *)op_data[1], len1, (UInt8 *)trimChar, lenTrimChar,
-                                                 (Int32 &)effLenTrimChar, nPasses, getCollation(), FALSE);
+                                                 (int &)effLenTrimChar, nPasses, getCollation(), FALSE);
   }
   // Find how many leading characters in operand 2 correspond to the trim
   // character.
@@ -1672,7 +1672,7 @@ ex_expr::exp_return_type ex_function_trim_char::eval(char *op_data[], CollHeap *
 
   if ((getTrimMode() == 1) || (getTrimMode() == 2)) {
     while (start <= len2 - len1) {
-      for (Int32 i = 0; i < lenTrimChar; i++) {
+      for (int i = 0; i < lenTrimChar; i++) {
         if (trimChar[i] != srcStr[start * nPasses + i]) {
           notEqualFlag = 1;
           break;
@@ -1688,11 +1688,11 @@ ex_expr::exp_return_type ex_function_trim_char::eval(char *op_data[], CollHeap *
 
   // Find how many trailing characters in operand 2 correspond to the trim
   // character.
-  Int32 end = len2;
-  Int32 endt;
-  Int32 numberOfCharacterInBuf;
-  Int32 bufferLength = end - start;
-  const Int32 smallBufSize = 128;
+  int end = len2;
+  int endt;
+  int numberOfCharacterInBuf;
+  int bufferLength = end - start;
+  const int smallBufSize = 128;
   char smallBuf[smallBufSize];
 
   notEqualFlag = 0;
@@ -1750,7 +1750,7 @@ ex_expr::exp_return_type ex_function_trim_char::eval(char *op_data[], CollHeap *
 };
 
 ex_expr::exp_return_type ex_function_lower::eval(char *op_data[], CollHeap *heap, ComDiagsArea **diagsArea) {
-  Int32 len1 = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
+  int len1 = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
 
   CharInfo::CharSet cs = ((SimpleType *)getOperand(0))->getCharSet();
 
@@ -1759,7 +1759,7 @@ ex_expr::exp_return_type ex_function_lower::eval(char *op_data[], CollHeap *heap
   // in the case, len1=32. When comparing later, the left operand's length use 32,
   // so we can't trim the spaces.
   if (cs == CharInfo::UTF8 && getOperand(1)->getVCIndicatorLength() > 0) {
-    Int32 prec1 = ((SimpleType *)getOperand(1))->getPrecision();
+    int prec1 = ((SimpleType *)getOperand(1))->getPrecision();
     len1 = Attributes::trimFillerSpaces(op_data[1], prec1, len1, cs);
   }
 
@@ -1767,15 +1767,15 @@ ex_expr::exp_return_type ex_function_lower::eval(char *op_data[], CollHeap *heap
 
   cnv_charset charset = convertCharsetEnum(cs);
 
-  Int32 number_bytes;
-  Int32 total_bytes_out = 0;
+  int number_bytes;
+  int total_bytes_out = 0;
   char tmpBuf[4];
 
   UInt32 UCS4value;
   UInt16 UCS2value;
 
   // Now, copy the contents of operand 1 after the case change into operand 0.
-  Int32 len0 = 0;
+  int len0 = 0;
   if (cs == CharInfo::ISO88591) {
     while (len0 < len1) {
       op_data[0][len0] = TOLOWER(op_data[1][len0]);
@@ -1804,7 +1804,7 @@ ex_expr::exp_return_type ex_function_lower::eval(char *op_data[], CollHeap *heap
 
         UCS4value = unicode_char_set::to_lower(*(NAWchar *)&UCS2value);
 
-        Int32 number_bytes_out =
+        int number_bytes_out =
             UCS4ToLocaleChar((const UInt32 *)&UCS4value, tmpBuf, CharInfo::maxBytesPerChar(cs), charset);
 
         if (number_bytes_out < 0) {
@@ -1814,7 +1814,7 @@ ex_expr::exp_return_type ex_function_lower::eval(char *op_data[], CollHeap *heap
           return ex_expr::EXPR_ERROR;
         }
 
-        for (Int32 j = 0; j < number_bytes_out; j++) {
+        for (int j = 0; j < number_bytes_out; j++) {
           op_data[0][total_bytes_out] = tmpBuf[j];
           total_bytes_out++;
         }
@@ -1828,20 +1828,20 @@ ex_expr::exp_return_type ex_function_lower::eval(char *op_data[], CollHeap *heap
 };
 
 ex_expr::exp_return_type ex_function_upper::eval(char *op_data[], CollHeap *heap, ComDiagsArea **diagsArea) {
-  Int32 len1 = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
-  Int32 len0 = getOperand(0)->getLength();
+  int len1 = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
+  int len0 = getOperand(0)->getLength();
 
-  Int32 in_pos = 0;
-  Int32 out_pos = 0;
+  int in_pos = 0;
+  int out_pos = 0;
 
   CharInfo::CharSet cs = ((SimpleType *)getOperand(1))->getCharSet();
 
   if (cs == CharInfo::UTF8) {
-    Int32 prec1 = ((SimpleType *)getOperand(1))->getPrecision();
+    int prec1 = ((SimpleType *)getOperand(1))->getPrecision();
     len1 = Attributes::trimFillerSpaces(op_data[1], prec1, len1, cs);
   }
 
-  Int32 number_bytes;
+  int number_bytes;
 
   UInt32 UCS4value = 0;
   UInt16 UCS2value = 0;
@@ -1877,7 +1877,7 @@ ex_expr::exp_return_type ex_function_upper::eval(char *op_data[], CollHeap *heap
 
         UCS2value = UCS4value & 0XFFFF;
         NAWchar wcUpshift[3];
-        Int32 charCnt = 1;  // Default count to 1
+        int charCnt = 1;  // Default count to 1
 
         // search against unicode_lower2upper_mapping_table_full
         NAWchar *tmpWCP = unicode_char_set::to_upper_full(UCS2value);
@@ -1889,11 +1889,11 @@ ex_expr::exp_return_type ex_function_upper::eval(char *op_data[], CollHeap *heap
         } else
           wcUpshift[0] = unicode_char_set::to_upper(UCS2value);
 
-        for (Int32 ii = 0; ii < charCnt; ii++) {
+        for (int ii = 0; ii < charCnt; ii++) {
           UInt32 UCS4_val = wcUpshift[ii];
           char tmpBuf[8];
 
-          Int32 out_bytes = UCS4ToLocaleChar((const UInt32 *)&UCS4_val, tmpBuf, CharInfo::maxBytesPerChar(cs), charset);
+          int out_bytes = UCS4ToLocaleChar((const UInt32 *)&UCS4_val, tmpBuf, CharInfo::maxBytesPerChar(cs), charset);
           if (out_bytes < 0) {
             const char *csname = CharInfo::getCharSetName(cs);
             ExRaiseSqlError(heap, diagsArea, EXE_INVALID_CHARACTER);
@@ -1904,7 +1904,7 @@ ex_expr::exp_return_type ex_function_upper::eval(char *op_data[], CollHeap *heap
             ExRaiseFunctionSqlError(heap, diagsArea, EXE_STRING_OVERFLOW, derivedFunction(), origFunctionOperType());
             return ex_expr::EXPR_ERROR;
           }
-          for (Int32 j = 0; j < out_bytes; j++) {
+          for (int j = 0; j < out_bytes; j++) {
             op_data[0][out_pos] = tmpBuf[j];
             ++out_pos;
           }
@@ -1920,11 +1920,11 @@ ex_expr::exp_return_type ex_function_upper::eval(char *op_data[], CollHeap *heap
 ex_expr::exp_return_type ex_function_oct_length::eval(char *op_data[], CollHeap *, ComDiagsArea **) {
   // Move operand's length into result.
   // The data type of result is long.
-  Int32 len1 = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
+  int len1 = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
 
   CharInfo::CharSet cs = ((SimpleType *)getOperand(1))->getCharSet();
   if (cs == CharInfo::UTF8) {
-    Int32 prec1 = ((SimpleType *)getOperand(1))->getPrecision();
+    int prec1 = ((SimpleType *)getOperand(1))->getPrecision();
     len1 = Attributes::trimFillerSpaces(op_data[1], prec1, len1, cs);
   }
   *(int *)op_data[0] = len1;
@@ -1935,7 +1935,7 @@ ex_expr::exp_return_type ex_function_oct_length::eval(char *op_data[], CollHeap 
 ex_expr::exp_return_type ExFunctionAscii::eval(char *op_data[], CollHeap *heap, ComDiagsArea **diagsArea) {
   CharInfo::CharSet cs = ((SimpleType *)getOperand(1))->getCharSet();
 
-  Int32 len1 = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
+  int len1 = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
 
   if (len1 > 0) {
     switch (getOperType()) {
@@ -1958,7 +1958,7 @@ ex_expr::exp_return_type ExFunctionAscii::eval(char *op_data[], CollHeap *heap, 
       } break;
 
       case ITM_ASCII: {
-        Int32 val = (unsigned char)(op_data[1][0]);
+        int val = (unsigned char)(op_data[1][0]);
 
         if ((val > 0x7F) && (cs != CharInfo::ISO88591)) {
           ExRaiseSqlError(heap, diagsArea, EXE_BAD_ARG_TO_MATH_FUNC);
@@ -1989,12 +1989,12 @@ ex_expr::exp_return_type ExFunctionAscii::eval(char *op_data[], CollHeap *heap, 
             return ex_expr::EXPR_ERROR;
           }
         }
-        *(Int32 *)op_data[0] = UCS4value;
+        *(int *)op_data[0] = UCS4value;
         break;
       }
     }
   } else
-    *(Int32 *)op_data[0] = 0;
+    *(int *)op_data[0] = 0;
 
   return ex_expr::EXPR_OK;
 }
@@ -2002,7 +2002,7 @@ ex_expr::exp_return_type ExFunctionAscii::eval(char *op_data[], CollHeap *heap, 
 ex_expr::exp_return_type ExFunctionMaxBytes::eval(char *op_data[], CollHeap *heap, ComDiagsArea **diagsArea) {
   CharInfo::CharSet cs = ((SimpleType *)getOperand(1))->getCharSet();
 
-  Int32 len1 = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
+  int len1 = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
 
   if (len1 > 0) {
     switch (getOperType()) {
@@ -2019,19 +2019,19 @@ ex_expr::exp_return_type ExFunctionMaxBytes::eval(char *op_data[], CollHeap *hea
 
       case ITM_MAXBYTES:
       default: {
-        *(Int32 *)op_data[0] = 1;
+        *(int *)op_data[0] = 1;
         break;
       }
     }
   } else
-    *(Int32 *)op_data[0] = 0;
+    *(int *)op_data[0] = 0;
 
   return ex_expr::EXPR_OK;
 }
 
 ex_expr::exp_return_type ExFunctionChar::eval(char *op_data[], CollHeap *heap, ComDiagsArea **diagsArea) {
   UInt32 asciiCode = *(int *)op_data[1];
-  Int32 charLength = 1;
+  int charLength = 1;
 
   CharInfo::CharSet cs = ((SimpleType *)getOperand(0))->getCharSet();
 
@@ -2052,11 +2052,11 @@ ex_expr::exp_return_type ExFunctionChar::eval(char *op_data[], CollHeap *heap, C
       }
     } else  // Must be UTF8 (at least until we support SJIS or some other multi-byte charset)
     {
-      Int32 len0_bytes = getOperand(0)->getLength();
+      int len0_bytes = getOperand(0)->getLength();
 
       ULng32 *UCS4ptr = (ULng32 *)op_data[1];
 
-      Int32 charLength = UCS4ToLocaleChar(UCS4ptr, (char *)op_data[0], len0_bytes, cnv_UTF8);
+      int charLength = UCS4ToLocaleChar(UCS4ptr, (char *)op_data[0], len0_bytes, cnv_UTF8);
 
       if (charLength < 0) {
         const char *csname = CharInfo::getCharSetName(cs);
@@ -2107,18 +2107,18 @@ ex_expr::exp_return_type ExFunctionChar::eval(char *op_data[], CollHeap *heap, C
 }
 
 ex_expr::exp_return_type ex_function_char_length::eval(char *op_data[], CollHeap *heap, ComDiagsArea **diagsArea) {
-  Int32 offset = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
-  Int32 numOfChar = 0;
+  int offset = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
+  int numOfChar = 0;
 
   CharInfo::CharSet cs = ((SimpleType *)getOperand(1))->getCharSet();
 
   if (CharInfo::maxBytesPerChar(cs) == 1) {
-    *(Int32 *)op_data[0] = offset;
+    *(int *)op_data[0] = offset;
     return ex_expr::EXPR_OK;
   }
 
   if (cs == CharInfo::UTF8) {
-    Int32 prec1 = ((SimpleType *)getOperand(1))->getPrecision();
+    int prec1 = ((SimpleType *)getOperand(1))->getPrecision();
     offset = Attributes::trimFillerSpaces(op_data[1], prec1, offset, cs);
   }
 
@@ -2135,12 +2135,12 @@ ex_expr::exp_return_type ex_function_char_length::eval(char *op_data[], CollHeap
   // Move operand's length into result.
   // The data type of result is long.
 
-  *(Int32 *)op_data[0] = numOfChar;
+  *(int *)op_data[0] = numOfChar;
 
   return ex_expr::EXPR_OK;
 };
 
-NABoolean ex_function_clause::swapBytes(Int32 datatype, const char *srcData, char *tgtData) {
+NABoolean ex_function_clause::swapBytes(int datatype, const char *srcData, char *tgtData) {
   NABoolean dataWasSwapped = FALSE;
   switch (datatype) {
     case REC_BIN16_SIGNED:
@@ -2170,10 +2170,10 @@ ex_expr::exp_return_type ExFunctionConvertHex::eval(char *op_data[], CollHeap *h
 
   int len1 = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
   if (getOperType() == ITM_CONVERTTOHEX) {
-    Int32 i;
+    int i;
     if (DFS2REC::isDoubleCharacter(getOperand(1)->getDatatype())) {
       NAWchar *w_p = (NAWchar *)op_data[1];
-      Int32 w_len = len1 / sizeof(NAWchar);
+      int w_len = len1 / sizeof(NAWchar);
       for (i = 0; i < w_len; i++) {
         op_data[0][4 * i] = HexArray[0x0F & w_p[i] >> 12];
         op_data[0][4 * i + 1] = HexArray[0x0F & w_p[i] >> 8];
@@ -2183,7 +2183,7 @@ ex_expr::exp_return_type ExFunctionConvertHex::eval(char *op_data[], CollHeap *h
     } else {
       CharInfo::CharSet cs = ((SimpleType *)getOperand(1))->getCharSet();
       if (cs == CharInfo::UTF8) {
-        Int32 prec1 = ((SimpleType *)getOperand(1))->getPrecision();
+        int prec1 = ((SimpleType *)getOperand(1))->getPrecision();
         len1 = Attributes::trimFillerSpaces(op_data[1], prec1, len1, cs);
       }
 
@@ -2214,8 +2214,8 @@ ex_expr::exp_return_type ExFunctionConvertHex::eval(char *op_data[], CollHeap *h
       return ex_expr::EXPR_ERROR;
     }
 
-    Int32 i = 0;
-    Int32 j = 0;
+    int i = 0;
+    int j = 0;
     while (i < len1) {
       if (((op_data[1][i] >= '0') && (op_data[1][i] <= '9')) ||
           ((op_data[1][i] >= 'A') && (op_data[1][i] <= 'F')) &&
@@ -2317,8 +2317,8 @@ int ex_function_position::errorChecks(int startPos, int occurrence, NABoolean is
 // this method is called from pcode to evaluate position function when
 // iso charset is used and start position or number of occurrence are
 // not specified.
-Int32 ex_function_position::findPosition(char *pat, Int32 patLen, char *src, Int32 srcLen, NABoolean patternInFront) {
-  Int32 i, j, k;
+int ex_function_position::findPosition(char *pat, int patLen, char *src, int srcLen, NABoolean patternInFront) {
+  int i, j, k;
 
   // Pattern must be able to "fit" in source string
   if (patLen > srcLen) return 0;
@@ -2353,19 +2353,19 @@ int ex_function_position::findPosition(char *sourceStr, int sourceLen, char *sea
 
   if (searchLen <= 0) return 0;
 
-  Int32 position = 1;
-  Int32 collPosition = 1;
-  Int32 char_count = 1;
+  int position = 1;
+  int collPosition = 1;
+  int char_count = 1;
   while (position + searchLen - 1 <= sourceLen) {
     short rc;
-    rc = str_cmp(searchStr, &sourceStr[position - 1], (Int32)searchLen);
+    rc = str_cmp(searchStr, &sourceStr[position - 1], (int)searchLen);
     if (rc != 0)  // did not find a match
     {
       if (CollationInfo::isSystemCollation(collation)) {
         position += nPasses;
         collPosition++;
       } else {
-        Int32 number_bytes = Attributes::getFirstCharLength(&sourceStr[position - 1], sourceLen - position + 1, cs);
+        int number_bytes = Attributes::getFirstCharLength(&sourceStr[position - 1], sourceLen - position + 1, cs);
 
         if (number_bytes <= 0) return (int)-1;
 
@@ -2391,7 +2391,7 @@ int ex_function_position::findPosition(char *sourceStr, int sourceLen, char *sea
 }
 
 int ex_function_position::findPositionInReverse(char *searchStr, int searchLen, char *sourceStr, int sourceLen,
-                                                  Int32 occurrence, CharInfo::CharSet cs) {
+                                                  int occurrence, CharInfo::CharSet cs) {
   // If searchLen is <= 0 or searchLen > sourceLen or
   // if searchStr is not present in sourceStr,
   // return a position of 0;
@@ -2401,13 +2401,13 @@ int ex_function_position::findPositionInReverse(char *searchStr, int searchLen, 
   if (searchLen < 0) return 0;
 
   // position is 0-based
-  Int32 position = sourceLen - searchLen;
+  int position = sourceLen - searchLen;
 
-  Int32 occ = 1;
+  int occ = 1;
   while (position >= 0) {
-    if (str_cmp(searchStr, &sourceStr[position], (Int32)searchLen) != 0) {
+    if (str_cmp(searchStr, &sourceStr[position], (int)searchLen) != 0) {
       // not found.
-      Int32 number_bytes = (cs == CharInfo::UCS2 ? unicode_char_set::bytesPerChar()
+      int number_bytes = (cs == CharInfo::UCS2 ? unicode_char_set::bytesPerChar()
                                                  : Attributes::getFirstCharLength(&sourceStr[position], searchLen, cs));
 
       if (number_bytes <= 0) return (int)-1;
@@ -2416,7 +2416,7 @@ int ex_function_position::findPositionInReverse(char *searchStr, int searchLen, 
     } else  // found matching string
     {
       if (occ == occurrence) {
-        Int32 numOfChars = Attributes::convertOffsetToChar(sourceStr, position, cs);
+        int numOfChars = Attributes::convertOffsetToChar(sourceStr, position, cs);
         return numOfChars + 1;
       }
 
@@ -2457,32 +2457,32 @@ ex_expr::exp_return_type ex_function_position::eval(char *op_data[], CollHeap *h
   // search for operand 1 (pattern to be searched)
   int len1 = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
   if (cs == CharInfo::UTF8) {
-    Int32 prec1 = ((SimpleType *)getOperand(1))->getPrecision();
+    int prec1 = ((SimpleType *)getOperand(1))->getPrecision();
     len1 = Attributes::trimFillerSpaces(op_data[1], prec1, len1, cs);
   }
 
   // in operand 2 (source string)
   int len2 = getOperand(2)->getLength(op_data[-MAX_OPERANDS + 2]);
   if (cs == CharInfo::UTF8) {
-    Int32 prec2 = ((SimpleType *)getOperand(2))->getPrecision();
+    int prec2 = ((SimpleType *)getOperand(2))->getPrecision();
     len2 = Attributes::trimFillerSpaces(op_data[2], prec2, len2, cs);
   }
 
   // Default value is 1, if startCharOffset and occurrence are not specified
-  Int32 startCharOffset = 1;
-  Int32 occurrence = 1;
+  int startCharOffset = 1;
+  int occurrence = 1;
 
   // If startCharOffset is not specified, startBytePos is 1.
   // Computed startBytePos is 1 based.
-  Int32 startBytePos = 1;
+  int startBytePos = 1;
 
   if (getNumOperands() >= 4)  // start position and optional occurrence specified
   {
     // operand #3
-    startCharOffset = *(Int32 *)op_data[3];
+    startCharOffset = *(int *)op_data[3];
     if (getNumOperands() == 5)
       // operand #4
-      occurrence = *(Int32 *)op_data[4];
+      occurrence = *(int *)op_data[4];
 
     if (errorChecks(startCharOffset, occurrence, isInstr, userTextStr.data(), getCollation(), cs, heap, diagsArea))
       return ex_expr::EXPR_ERROR;
@@ -2531,7 +2531,7 @@ ex_expr::exp_return_type ex_function_position::eval(char *op_data[], CollHeap *h
     if (startCharOffset == 0)  // return 0 for INSTR if specified startpos is 0
     {
       // Now copy the position into result which is a long.
-      *(Int32 *)op_data[0] = 0;
+      *(int *)op_data[0] = 0;
 
       return ex_expr::EXPR_OK;
     }
@@ -2571,7 +2571,7 @@ ex_expr::exp_return_type ex_function_position::eval(char *op_data[], CollHeap *h
     len2 -= (startBytePos - 1);
 
     short nPasses = CollationInfo::getCollationNPasses(getCollation());
-    for (Int32 occ = 1; occ <= occurrence; occ++) {
+    for (int occ = 1; occ <= occurrence; occ++) {
       tNumChars = 0;
       position = findPosition(srcStr, len2, op_data[1], len1, 1, nPasses, getCollation(), &tNumChars, cs);
       if (position > 0) numChars += tNumChars;
@@ -2609,7 +2609,7 @@ ex_expr::exp_return_type ex_function_position::eval(char *op_data[], CollHeap *h
   }
 
   // Now copy the position into result which is a long.
-  *(Int32 *)op_data[0] = numChars;
+  *(int *)op_data[0] = numChars;
 
   return ex_expr::EXPR_OK;
 };
@@ -2636,7 +2636,7 @@ static int findTokenPosition(char *sourceStr, int sourceLen, char *searchStr, in
     NABoolean found = FALSE;
     position = 1;
     while (position + searchLen - 1 <= sourceLen && !found) {
-      if (str_cmp(searchStr, &sourceStr[position - 1], (Int32)searchLen) != 0)
+      if (str_cmp(searchStr, &sourceStr[position - 1], (int)searchLen) != 0)
         position += bytesPerChar;
       else
         found = 1;
@@ -2652,14 +2652,14 @@ ex_expr::exp_return_type ExFunctionTokenStr::eval(char *op_data[], CollHeap *hea
   // search for operand 1
   int len1 = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
   if (cs == CharInfo::UTF8) {
-    Int32 prec1 = ((SimpleType *)getOperand(1))->getPrecision();
+    int prec1 = ((SimpleType *)getOperand(1))->getPrecision();
     len1 = Attributes::trimFillerSpaces(op_data[1], prec1, len1, cs);
   }
 
   // in operand 2
   int len2 = getOperand(2)->getLength(op_data[-MAX_OPERANDS + 2]);
   if (cs == CharInfo::UTF8) {
-    Int32 prec2 = ((SimpleType *)getOperand(2))->getPrecision();
+    int prec2 = ((SimpleType *)getOperand(2))->getPrecision();
     len2 = Attributes::trimFillerSpaces(op_data[2], prec2, len2, cs);
   }
 
@@ -2679,7 +2679,7 @@ ex_expr::exp_return_type ExFunctionTokenStr::eval(char *op_data[], CollHeap *hea
   if (getNumOperands() == 4) {
     int len3 = getOperand(3)->getLength(op_data[-MAX_OPERANDS + 3]);
     if (cs == CharInfo::UTF8) {
-      Int32 prec3 = ((SimpleType *)getOperand(3))->getPrecision();
+      int prec3 = ((SimpleType *)getOperand(3))->getPrecision();
       len3 = Attributes::trimFillerSpaces(op_data[3], prec3, len3, cs);
     }
 
@@ -2798,7 +2798,7 @@ ex_expr::exp_return_type ExFunctionReverseStr::eval(char *op_data[], CollHeap *h
 };
 
 ex_expr::exp_return_type ex_function_sleep::eval(char *op_data[], CollHeap *heap, ComDiagsArea **diagsArea) {
-  Int32 sec = 0;
+  int sec = 0;
   switch (getOperand(1)->getDatatype()) {
     case REC_BIN8_SIGNED:
       sec = *(Int8 *)op_data[1];
@@ -2823,7 +2823,7 @@ ex_expr::exp_return_type ex_function_sleep::eval(char *op_data[], CollHeap *heap
       break;
 
     case REC_BIN32_SIGNED:
-      sec = *(Int32 *)op_data[1];
+      sec = *(int *)op_data[1];
       if (sec < 0) {
         ExRaiseSqlError(heap, diagsArea, EXE_BAD_ARG_TO_MATH_FUNC);
         *(*diagsArea) << DgString0("SLEEP");
@@ -3275,7 +3275,7 @@ long ex_function_extract::getExtraTimeValue(rec_datetime_field eField, int eCode
   ExpDatetime *datetimeOpType = (ExpDatetime *)getOperand(1);
   if (!datetimeOpType) return 0;
 
-  Int32 field = REC_DATE_YEAR;
+  int field = REC_DATE_YEAR;
   if (REC_DTCODE_TIME == eCode) field = REC_DATE_HOUR;
   rec_datetime_field eEndFiled = REC_DATE_DAY;
   if (REC_DTCODE_TIMESTAMP == eCode || REC_DTCODE_TIME == eCode) eEndFiled = REC_DATE_SECOND;
@@ -3399,7 +3399,7 @@ ex_expr::exp_return_type ex_function_extract::eval(char *op_data[], CollHeap *he
 
       return ex_expr::EXPR_ERROR;
     }
-    for (Int32 field = opStartField; field <= extractEndField; field++) {
+    for (int field = opStartField; field <= extractEndField; field++) {
       switch (field) {
         case REC_DATE_YEAR: {
           short value;
@@ -3710,9 +3710,9 @@ short exp_function_get_user(OperatorTypeEnum userType,  // IN - CURRENT_USER or 
   if (actualLength) *actualLength = 0;
 
   short result = 0;
-  Int32 lActualLength = 0;
+  int lActualLength = 0;
 
-  Int32 userID;
+  int userID;
 
   if (userType == ITM_SESSION_USER)
     userID = ComUser::getSessionUser();
@@ -3720,7 +3720,7 @@ short exp_function_get_user(OperatorTypeEnum userType,  // IN - CURRENT_USER or 
     userID = ComUser::getCurrentUser();
 
   char userName[MAX_USERNAME_LEN + 1];
-  result = ComUser::getUserNameFromUserID((Int32)userID, (char *)&userName, (Int32)inputBufferLength, lActualLength,
+  result = ComUser::getUserNameFromUserID((int)userID, (char *)&userName, (int)inputBufferLength, lActualLength,
                                           NULL /*don't update diags*/);
   if (result == 0) {
     str_cpy_all(inputUserNameBuffer, userName, lActualLength);
@@ -3780,7 +3780,7 @@ short exp_function_get_tenant(OperatorTypeEnum userType,    // IN - CURRENT_TENA
   char *cachedTenantName = (char *)ComTenant::getCurrentTenantName();
   if (cachedTenantName == NULL) return -1;
 
-  Int32 lActualLength = strlen(cachedTenantName);
+  int lActualLength = strlen(cachedTenantName);
   if (strlen(cachedTenantName) >= inputBufferLength) return -1;
 
   actualLength = lActualLength;
@@ -3810,7 +3810,7 @@ ex_expr::exp_return_type ex_function_ansi_tenant::eval(char *op_data[], CollHeap
   return ex_expr::EXPR_OK;
 }
 ex_expr::exp_return_type ex_function_user::eval(char *op_data[], CollHeap *heap, ComDiagsArea **diagsArea) {
-  Int32 userIDLen = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
+  int userIDLen = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
 
   long id64;
 
@@ -3836,7 +3836,7 @@ ex_expr::exp_return_type ex_function_user::eval(char *op_data[], CollHeap *heap,
     return ex_expr::EXPR_ERROR;
   }
 
-  Int32 authID = (Int32)(id64);
+  int authID = (int)(id64);
   // *****************************************************************************
   // *                                                                           *
   // * Code to handle functions AUTHNAME and AUTHTYPE.  Piggybacked on USER      *
@@ -3857,7 +3857,7 @@ ex_expr::exp_return_type ex_function_user::eval(char *op_data[], CollHeap *heap,
   switch (getOperType()) {
     case ITM_AUTHNAME: {
       Int16 result;
-      Int32 authNameLen = 0;
+      int authNameLen = 0;
       char authName[MAX_AUTHNAME_LEN + 1];
 
       // clearDiags removes errors from the diags area that may have been
@@ -3903,7 +3903,7 @@ ex_expr::exp_return_type ex_function_user::eval(char *op_data[], CollHeap *heap,
     }
   }
 
-  Int32 userNameLen = 0;
+  int userNameLen = 0;
   char userName[MAX_USERNAME_LEN + 1];
 
   Int16 result = ComUser::getUserNameFromUserID(authID, (char *)&userName, MAX_USERNAME_LEN + 1, userNameLen,
@@ -3951,7 +3951,7 @@ ex_expr::exp_return_type ex_function_user::eval(char *op_data[], CollHeap *heap,
 ////////////////////////////////////////////////////////////////////
 void ex_function_encode::encodeKeyValue(Attributes *attr, const char *source, const char *varlenPtr, char *target,
                                         NABoolean isCaseInsensitive, Attributes *tgtAttr, char *tgt_varlen_ptr,
-                                        const Int32 tgtLength, CharInfo::Collation collation,
+                                        const int tgtLength, CharInfo::Collation collation,
                                         CollationInfo::CollationType collType) {
   int fsDatatype = attr->getDatatype();
   int length = attr->getLength();
@@ -4060,7 +4060,7 @@ void ex_function_encode::encodeKeyValue(Attributes *attr, const char *source, co
       // Reverse the YEAR and Fractional precision fields if present.
       //
       char *ptr = target;
-      for (Int32 field = startField; field <= endField; field++) {
+      for (int field = startField; field <= endField; field++) {
         switch (field) {
           case REC_DATE_YEAR:
             // convert YYYY from little endian to big endian
@@ -4237,7 +4237,7 @@ void ex_function_encode::encodeKeyValue(Attributes *attr, const char *source, co
           encodeCollationKey((const UInt8 *)source, length, (UInt8 *)target, tgtLength, nPasses, collation, TRUE);
         } else  // search
         {
-          Int32 effEncodedKeyLength = 0;
+          int effEncodedKeyLength = 0;
           encodeCollationSearchKey((const UInt8 *)source, length, (UInt8 *)target, tgtLength, effEncodedKeyLength,
                                    nPasses, collation, TRUE);
           assert(tgtAttr && tgt_varlen_ptr);
@@ -4249,7 +4249,7 @@ void ex_function_encode::encodeKeyValue(Attributes *attr, const char *source, co
 
         if (isCaseInsensitive) {
           // upcase target
-          for (Int32 i = 0; i < length; i++) {
+          for (int i = 0; i < length; i++) {
             target[i] = TOUPPER(source[i]);
           }
         }
@@ -4260,7 +4260,7 @@ void ex_function_encode::encodeKeyValue(Attributes *attr, const char *source, co
 
     case REC_BYTE_V_ASCII:
     case REC_BYTE_V_ASCII_LONG: {
-      Int32 vc_len = attr->getLength(varlenPtr);
+      int vc_len = attr->getLength(varlenPtr);
 
       if (CollationInfo::isSystemCollation(collation)) {
         Int16 nPasses = CollationInfo::getCollationNPasses(collation);
@@ -4269,7 +4269,7 @@ void ex_function_encode::encodeKeyValue(Attributes *attr, const char *source, co
         if (collType == CollationInfo::Sort || collType == CollationInfo::Compare) {
           encodeCollationKey((UInt8 *)source, (Int16)vc_len, (UInt8 *)target, tgtLength, nPasses, collation, rmTspaces);
         } else {
-          Int32 effEncodedKeyLength = 0;
+          int effEncodedKeyLength = 0;
           encodeCollationSearchKey((UInt8 *)source, (Int16)vc_len, (UInt8 *)target, tgtLength, effEncodedKeyLength,
                                    nPasses, collation, rmTspaces);
 
@@ -4284,7 +4284,7 @@ void ex_function_encode::encodeKeyValue(Attributes *attr, const char *source, co
           str_cpy_all(target, source, vc_len);
         else {
           // upcase target
-          for (Int32 i = 0; i < vc_len; i++) {
+          for (int i = 0; i < vc_len; i++) {
             target[i] = TOUPPER(source[i]);
           }
         }
@@ -4292,14 +4292,14 @@ void ex_function_encode::encodeKeyValue(Attributes *attr, const char *source, co
         //
         // Blankpad the target (if needed).
         //
-        if (vc_len < length) str_pad(&target[vc_len], (Int32)(length - vc_len), ' ');
+        if (vc_len < length) str_pad(&target[vc_len], (int)(length - vc_len), ' ');
       }
 
     } break;
 
     // added for Unicode data type.
     case REC_NCHAR_V_UNICODE: {
-      Int32 vc_len = attr->getLength(varlenPtr);
+      int vc_len = attr->getLength(varlenPtr);
 
       //
       // Copy the source to the target.
@@ -4310,7 +4310,7 @@ void ex_function_encode::encodeKeyValue(Attributes *attr, const char *source, co
       // Blankpad the target (if needed).
       //
       if (vc_len < length)
-        wc_str_pad((NAWchar *)&target[vc_len], (Int32)(length - vc_len) / sizeof(NAWchar),
+        wc_str_pad((NAWchar *)&target[vc_len], (int)(length - vc_len) / sizeof(NAWchar),
                    unicode_char_set::space_char());
 
 #if defined(NA_LITTLE_ENDIAN)
@@ -4342,7 +4342,7 @@ void ex_function_encode::encodeKeyValue(Attributes *attr, const char *source, co
       //
       // Blankpad the target (if needed).
       //
-      if (vc_len < length) str_pad(&target[vc_len], (Int32)(length - vc_len), ' ');
+      if (vc_len < length) str_pad(&target[vc_len], (int)(length - vc_len), ' ');
     } break;
 
     default:
@@ -4397,12 +4397,12 @@ ex_expr::exp_return_type ex_function_encode::processNulls(char *op_data[], CollH
 
       // For SQL/MP tables, DP2 expects missing value columns to be
       // 0 padded after the null-indicator.
-      str_pad(op_data[2 * MAX_OPERANDS], (Int32)getOperand(0)->getStorageLength(), '\0');
+      str_pad(op_data[2 * MAX_OPERANDS], (int)getOperand(0)->getStorageLength(), '\0');
       str_pad(op_data[2 * MAX_OPERANDS], ExpTupleDesc::KEY_NULL_INDICATOR_LENGTH, '\377');
     } else {
       // NULLs sort low for descending comparison.
       // Pad result with lowest value.
-      str_pad(op_data[2 * MAX_OPERANDS], (Int32)getOperand(0)->getStorageLength(), '\377');
+      str_pad(op_data[2 * MAX_OPERANDS], (int)getOperand(0)->getStorageLength(), '\377');
       str_pad(op_data[2 * MAX_OPERANDS], ExpTupleDesc::KEY_NULL_INDICATOR_LENGTH, '\0');
     }
     return ex_expr::EXPR_NULL;
@@ -4447,7 +4447,7 @@ ex_expr::exp_return_type ex_function_encode::eval(char *op_data[], CollHeap *hea
   if (srcOp->isComplexType())
     ((ComplexType *)srcOp)->encode(op_data[1], result, isDesc());
   else {
-    Int32 tgtLength = tgtOp->getLength() - prependedLength;
+    int tgtLength = tgtOp->getLength() - prependedLength;
     encodeKeyValue(srcOp, op_data[1], op_data[-MAX_OPERANDS + 1], result, caseInsensitive(), tgtOp,
                    op_data[-MAX_OPERANDS], tgtLength, (CharInfo::Collation)collation_, getCollEncodingType());
   }
@@ -4502,11 +4502,11 @@ Int16 ex_function_encode::getNumberOfDigraphs(const CharInfo::Collation collatio
   return collParams[CollationInfo::getCollationParamsIndex(collation)].numberOfDigraphs;
 }
 
-UInt8 *ex_function_encode::getDigraph(const CharInfo::Collation collation, const Int32 digraphNum) {
+UInt8 *ex_function_encode::getDigraph(const CharInfo::Collation collation, const int digraphNum) {
   return (UInt8 *)collParams[CollationInfo::getCollationParamsIndex(collation)].digraphs[digraphNum];
 }
 
-Int16 ex_function_encode::getDigraphIndex(const CharInfo::Collation collation, const Int32 digraphNum) {
+Int16 ex_function_encode::getDigraphIndex(const CharInfo::Collation collation, const int digraphNum) {
   return collParams[CollationInfo::getCollationParamsIndex(collation)].digraphIdx[digraphNum];
 }
 
@@ -4535,8 +4535,8 @@ NABoolean ex_function_encode::isOneToOneCollation(const CharInfo::Collation coll
   return TRUE;
 }
 
-void ex_function_encode::encodeCollationKey(const UInt8 *src, Int32 srcLength, UInt8 *encodeKey,
-                                            const Int32 encodedKeyLength, Int16 nPasses, CharInfo::Collation collation,
+void ex_function_encode::encodeCollationKey(const UInt8 *src, int srcLength, UInt8 *encodeKey,
+                                            const int encodedKeyLength, Int16 nPasses, CharInfo::Collation collation,
                                             NABoolean rmTSpaces) {
   assert(CollationInfo::isSystemCollation(collation));
 
@@ -4560,7 +4560,7 @@ void ex_function_encode::encodeCollationKey(const UInt8 *src, Int32 srcLength, U
 
   Int16 charNum = 0;
   NABoolean hasDigraphs = FALSE;
-  Int32 trailingSpaceLength = 0;
+  int trailingSpaceLength = 0;
   UInt8 digraph[2];
   digraph[0] = digraph[1] = 0;
 
@@ -4569,7 +4569,7 @@ void ex_function_encode::encodeCollationKey(const UInt8 *src, Int32 srcLength, U
 
   /////////////////////////////////////////////
 
-  for (Int32 i = srcLength - 1; rmTSpaces && i > 0 && src[i] == 0x20; i--) {
+  for (int i = srcLength - 1; rmTSpaces && i > 0 && src[i] == 0x20; i--) {
     trailingSpaceLength++;
   }
 
@@ -4580,11 +4580,11 @@ void ex_function_encode::encodeCollationKey(const UInt8 *src, Int32 srcLength, U
 
     if ((i == CollationInfo::FirstPass) || (i != CollationInfo::FirstPass && hasDigraphs)) {
       // loop through the chars in the string, find digraphs an assighn weights
-      for (Int32 srcIdx = 0; srcIdx < srcLength - trailingSpaceLength; srcIdx++) {
+      for (int srcIdx = 0; srcIdx < srcLength - trailingSpaceLength; srcIdx++) {
         digraph[0] = digraph[1];
         digraph[1] = src[srcIdx];
         NABoolean digraphFound = FALSE;
-        for (Int32 j = 0; j < getNumberOfDigraphs(collation); j++) {
+        for (int j = 0; j < getNumberOfDigraphs(collation); j++) {
           if (digraph[0] == getDigraph(collation, j)[0] && digraph[1] == getDigraph(collation, j)[1]) {
             digraphFound = hasDigraphs = TRUE;
             charNum = getDigraphIndex(collation, j);
@@ -4599,7 +4599,7 @@ void ex_function_encode::encodeCollationKey(const UInt8 *src, Int32 srcLength, U
         ptr = ptr + weightStrLength;
       }
     } else {
-      for (Int32 srcIdx = 0; srcIdx < srcLength - trailingSpaceLength; srcIdx++) {
+      for (int srcIdx = 0; srcIdx < srcLength - trailingSpaceLength; srcIdx++) {
         charNum = src[srcIdx];
         getCollationWeight(collation, i, charNum, ptr, weightStrLength);
         ptr = ptr + weightStrLength;
@@ -4611,8 +4611,8 @@ void ex_function_encode::encodeCollationKey(const UInt8 *src, Int32 srcLength, U
 
 }  // ex_function_encode::encodeCollationKey
 
-void ex_function_encode::encodeCollationSearchKey(const UInt8 *src, Int32 srcLength, UInt8 *encodeKey,
-                                                  const Int32 encodedKeyLength, Int32 &effEncodedKeyLength,
+void ex_function_encode::encodeCollationSearchKey(const UInt8 *src, int srcLength, UInt8 *encodeKey,
+                                                  const int encodedKeyLength, int &effEncodedKeyLength,
                                                   Int16 nPasses, CharInfo::Collation collation, NABoolean rmTSpaces) {
   assert(CollationInfo::isSystemCollation(collation));
 
@@ -4620,22 +4620,22 @@ void ex_function_encode::encodeCollationSearchKey(const UInt8 *src, Int32 srcLen
 
   Int16 charNum = 0;
   NABoolean hasDigraphs = FALSE;
-  Int32 trailingSpaceLength = 0;
+  int trailingSpaceLength = 0;
   UInt8 digraph[2];
   digraph[0] = digraph[1] = 0;
 
   ptr = encodeKey;
 
   /////////////////////////////////////////////
-  for (Int32 i = srcLength - 1; rmTSpaces && i > 0 && src[i] == 0x20; i--) {
+  for (int i = srcLength - 1; rmTSpaces && i > 0 && src[i] == 0x20; i--) {
     trailingSpaceLength++;
   }
 
-  for (Int32 srcIdx = 0; srcIdx < srcLength - trailingSpaceLength; srcIdx++) {
+  for (int srcIdx = 0; srcIdx < srcLength - trailingSpaceLength; srcIdx++) {
     digraph[0] = digraph[1];
     digraph[1] = src[srcIdx];
     NABoolean digraphFound = FALSE;
-    for (Int32 j = 0; j < getNumberOfDigraphs(collation); j++) {
+    for (int j = 0; j < getNumberOfDigraphs(collation); j++) {
       if (digraph[0] == getDigraph(collation, j)[0] && digraph[1] == getDigraph(collation, j)[1]) {
         digraphFound = hasDigraphs = TRUE;
         charNum = getDigraphIndex(collation, j);
@@ -5149,10 +5149,10 @@ ex_expr::exp_return_type ExHiveHashComb::eval(char *op_data[], CollHeap *heap, C
 // for Arrow reader.
 //--------------------------------------------------------------
 
-ULng32 ExHDPHash::hash(const char *data, UInt32 flags, Int32 length) {
+ULng32 ExHDPHash::hash(const char *data, UInt32 flags, int length) {
   ULng32 hashValue = 0;
   unsigned char *valp = (unsigned char *)data;
-  Int32 iter = 0;  // iterator over the key bytes, if needed
+  int iter = 0;  // iterator over the key bytes, if needed
 
   switch (flags) {
     case NO_FLAGS:
@@ -5242,7 +5242,7 @@ ex_expr::exp_return_type ExHDPHash::eval(char *op_data[], CollHeap *, ComDiagsAr
     //
     hashValue = ExHDPHash::nullHashValue;  // 666654765;
   } else {
-    Int32 length = (Int32)srcOp->getLength(op_data[-MAX_OPERANDS + 1]);
+    int length = (int)srcOp->getLength(op_data[-MAX_OPERANDS + 1]);
 
     // if VARCHAR, skip trailing blanks and adjust length.
     if (srcOp->getVCIndicatorLength() > 0) {
@@ -5251,7 +5251,7 @@ ex_expr::exp_return_type ExHDPHash::eval(char *op_data[], CollHeap *, ComDiagsAr
         case REC_NCHAR_V_UNICODE: {
           // skip trailing blanks
           NAWchar *wstr = (NAWchar *)(op_data[1]);
-          Int32 wstr_length = length / sizeof(NAWchar);
+          int wstr_length = length / sizeof(NAWchar);
 
           while ((wstr_length > 0) && (wstr[wstr_length - 1] == unicode_char_set::space_char())) wstr_length--;
 
@@ -5377,12 +5377,12 @@ ex_expr::exp_return_type ex_function_replace_null::eval(char *op_data[], CollHea
 // class ex_function_mod
 ////////////////////////////////////////////////////////////////////
 ex_expr::exp_return_type ex_function_mod::eval(char *op_data[], CollHeap *heap, ComDiagsArea **diagsArea) {
-  Int32 lenr = (Int32)getOperand(0)->getLength();
-  Int32 len1 = (Int32)getOperand(1)->getLength();
-  Int32 len2 = (Int32)getOperand(2)->getLength();
+  int lenr = (int)getOperand(0)->getLength();
+  int len1 = (int)getOperand(1)->getLength();
+  int len2 = (int)getOperand(2)->getLength();
 
   long op1, op2, result, commonScale;
-  Int32 scale1, scale2;
+  int scale1, scale2;
 
   switch (len1) {
     case 1:
@@ -5426,8 +5426,8 @@ ex_expr::exp_return_type ex_function_mod::eval(char *op_data[], CollHeap *heap, 
     return ex_expr::EXPR_ERROR;
   }
 
-  scale1 = (Int32)getOperand(1)->getScale();
-  scale2 = (Int32)getOperand(2)->getScale();
+  scale1 = (int)getOperand(1)->getScale();
+  scale2 = (int)getOperand(2)->getScale();
 
   // We calculate the remainder by first scaling the two numbers with the larger of the two scales, and then apply "%"
   // like this:
@@ -5812,7 +5812,7 @@ ex_expr::exp_return_type ExFunctionPack::eval(char *op_data[], CollHeap *heap, C
     int nullBitOffsetInBits = noOfRows & 0x7;
 
     // Extract the byte in which the null bit is in.
-    char *nullByte = op_data[0] + nullBitOffsetInBytes + sizeof(Int32);
+    char *nullByte = op_data[0] + nullBitOffsetInBytes + sizeof(int);
 
     // Used to set/unset the null bit.
     unsigned char nullByteMask = (1 << nullBitOffsetInBits);
@@ -5960,7 +5960,7 @@ ex_expr::exp_return_type ExUnPackCol::eval(char *op_data[], CollHeap *heap, ComD
 
     // The byte of the CHAR field containing the bit.
     //
-    int byteOffset = sizeof(Int32) + (bitOffset >> 3);
+    int byteOffset = sizeof(int) + (bitOffset >> 3);
 
     // The bit of the byte at byteOffset to be extracted.
     //
@@ -6133,7 +6133,7 @@ ex_expr::exp_return_type ExUnPackCol::eval(char *op_data[], CollHeap *heap, ComD
 
   // Copy all the bits to the destination.
   //
-  Int32 i = byteOffset;
+  int i = byteOffset;
   for (; i <= byteOffsetEnd; i++) {
     // Get a byte containing bits of the value.
     //
@@ -6178,18 +6178,18 @@ ex_expr::exp_return_type ExUnPackCol::eval(char *op_data[], CollHeap *heap, ComD
   return ex_expr::EXPR_OK;
 }
 ex_expr::exp_return_type ex_function_translate::eval(char *op_data[], CollHeap *heap, ComDiagsArea **diagsArea) {
-  Int32 copyLen = 0;
-  Int32 convertedLen = 0;
-  Int32 convType = get_conv_type();
+  int copyLen = 0;
+  int convertedLen = 0;
+  int convType = get_conv_type();
 
   Attributes *op0 = getOperand(0);
   Attributes *op1 = getOperand(1);
   ULng32 convFlags = (flags_ & TRANSLATE_FLAG_ALLOW_INVALID_CODEPOINT ? CONV_ALLOW_INVALID_CODE_VALUE : 0);
 
   return convDoIt(op_data[1], op1->getLength(op_data[-MAX_OPERANDS + 1]), op1->getDatatype(), op1->getPrecision(),
-                  (convType == CONV_UTF8_F_UCS2_V) ? (Int32)(CharInfo::UTF8) : op1->getScale(), op_data[0],
+                  (convType == CONV_UTF8_F_UCS2_V) ? (int)(CharInfo::UTF8) : op1->getScale(), op_data[0],
                   op0->getLength(), op0->getDatatype(), op0->getPrecision(),
-                  (convType == CONV_UCS2_F_UTF8_V) ? (Int32)(CharInfo::UTF8) : op0->getScale(), op_data[-MAX_OPERANDS],
+                  (convType == CONV_UCS2_F_UTF8_V) ? (int)(CharInfo::UTF8) : op0->getScale(), op_data[-MAX_OPERANDS],
                   op0->getVCIndicatorLength(), heap, diagsArea, (ConvInstruction)convType, NULL, convFlags);
 }
 
@@ -6204,7 +6204,7 @@ void ExFunctionRandomNum::initSeed(char *op_data[]) {
         // (same logic is in ex_expr::evalPCode())
         const char *fixSeed = getenv("FIXED_ROUND_ROBIN_SEED");
         if (!fixSeed)
-          seed_ = 1031 * (((Int32)GETTID()) % 1031);
+          seed_ = 1031 * (((int)GETTID()) % 1031);
         else {
           seed_ = getExeGlobals()->getMyInstanceNumber();  // 0-based
         }
@@ -6235,8 +6235,8 @@ void ExFunctionRandomNum::initSeed(char *op_data[]) {
 
     clock_gettime(CLOCK_REALTIME, &seedTime);
 
-    seed_ = (Int32)(seedTime.tv_sec % 2147483648);
-    seed_ ^= (Int32)(seedTime.tv_nsec % 2147483648L);
+    seed_ = (int)(seedTime.tv_sec % 2147483648);
+    seed_ ^= (int)(seedTime.tv_nsec % 2147483648L);
 
     // Go through one step of a linear congruential random generator.
     // (https://en.wikipedia.org/wiki/Linear_congruential_generator).
@@ -6668,7 +6668,7 @@ ex_expr::exp_return_type ex_function_nullifzero::eval(char *op_data[], CollHeap 
   char *src = op_data[1];
   int srcLen = getOperand(1)->getLength();
   NABoolean resultIsNull = TRUE;
-  for (Int32 i = 0; i < srcLen; i++) {
+  for (int i = 0; i < srcLen; i++) {
     tgt[i] = src[i];
     if (src[i] != 0) {
       resultIsNull = FALSE;
@@ -6697,7 +6697,7 @@ ex_expr::exp_return_type ex_function_nullifzero::eval(char *op_data[], CollHeap 
 //
 ex_expr::exp_return_type ex_function_nvl::eval(char *op_data[], CollHeap *heap, ComDiagsArea **diagsArea) {
   // Common index into op_data[] to access Null Indicators
-  Int32 opNullIdx = -2 * MAX_OPERANDS;
+  int opNullIdx = -2 * MAX_OPERANDS;
 
   Attributes *tgtOp = getOperand(0);
   Attributes *arg1 = getOperand(1);
@@ -6759,7 +6759,7 @@ ex_expr::exp_return_type ex_function_firstngram::eval(char *op_data[], CollHeap 
   int len1 = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
 #pragma warn(1506)  // warning elimination
   if (cs == CharInfo::UTF8) {
-    Int32 prec1 = ((SimpleType *)getOperand(1))->getPrecision();
+    int prec1 = ((SimpleType *)getOperand(1))->getPrecision();
     len1 = Attributes::trimFillerSpaces(op_data[1], prec1, len1, cs);
   }
 
@@ -6790,7 +6790,7 @@ ex_expr::exp_return_type ex_function_ngramcount::eval(char *op_data[], CollHeap 
   int len1 = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
 #pragma warn(1506)  // warning elimination
   if (cs == CharInfo::UTF8) {
-    Int32 prec1 = ((SimpleType *)getOperand(1))->getPrecision();
+    int prec1 = ((SimpleType *)getOperand(1))->getPrecision();
     len1 = Attributes::trimFillerSpaces(op_data[1], prec1, len1, cs);
   }
 
@@ -6815,7 +6815,7 @@ ex_expr::exp_return_type ExHeaderClause::eval(char *op_data[], CollHeap *heap, C
   Attributes *tgtOp = getOperand(0);
 
   // Clear the entire header (not the VOA area)
-  str_pad(tgtData, (Int32)adminSz_, '\0');
+  str_pad(tgtData, (int)adminSz_, '\0');
 
   if (bitmapOffset_ > 0) ((ExpAlignedFormat *)tgtData)->setBitmapOffset(bitmapOffset_);
 
@@ -7187,7 +7187,7 @@ ex_expr::exp_return_type ExFunctionHbaseColumnCreate::eval(char *op_data[], Coll
   result += sizeof(short);
 
   str_cpy_all(result, (char *)&colValMaxLen_, sizeof(colValMaxLen_));
-  result += sizeof(Int32);
+  result += sizeof(int);
 
   for (int i = 0; i < numEntries_; i++) {
     // validate that column name is of right format:   colfam:colname
@@ -7349,10 +7349,10 @@ ex_expr::exp_return_type ExFunctionHbaseRowid::eval(char *op_data[], CollHeap *h
 
   assert(len0 >= len1);
 
-  Int32 i;
+  int i;
   if (DFS2REC::isDoubleCharacter(getOperand(1)->getDatatype())) {
     NAWchar *w_p = (NAWchar *)op_data[1];
-    Int32 w_len = len1 / sizeof(NAWchar);
+    int w_len = len1 / sizeof(NAWchar);
     for (i = 0; i < w_len; i++) {
       op_data[0][4 * i] = HexArray[0x0F & w_p[i] >> 12];
       op_data[0][4 * i + 1] = HexArray[0x0F & w_p[i] >> 8];
@@ -7362,7 +7362,7 @@ ex_expr::exp_return_type ExFunctionHbaseRowid::eval(char *op_data[], CollHeap *h
   } else {
     CharInfo::CharSet cs = ((SimpleType *)getOperand(1))->getCharSet();
     if (cs == CharInfo::UTF8) {
-      Int32 prec1 = ((SimpleType *)getOperand(1))->getPrecision();
+      int prec1 = ((SimpleType *)getOperand(1))->getPrecision();
       len1 = Attributes::trimFillerSpaces(op_data[1], prec1, len1, cs);
     }
 
@@ -7550,7 +7550,7 @@ short ex_function_encode::decodeKeyValue(Attributes *attr, NABoolean isDesc, cha
       // Reverse the YEAR and Fractional precision fields if present.
       //
       char *ptr = target;
-      for (Int32 field = startField; field <= endField; field++) {
+      for (int field = startField; field <= endField; field++) {
         switch (field) {
           case REC_DATE_YEAR:
             // convert YYYY from little endian to big endian
@@ -7722,7 +7722,7 @@ short ex_function_encode::decodeKeyValue(Attributes *attr, NABoolean isDesc, cha
       //
       // Blankpad the target (if needed).
       //
-      if (vc_len < length) str_pad(&target[vc_len], (Int32)(length - vc_len), ' ');
+      if (vc_len < length) str_pad(&target[vc_len], (int)(length - vc_len), ' ');
       //
       // Make the length bytes to be the maximum length for this field.  This
       // will make all encoded varchar keys to have the same length and so the
@@ -7749,7 +7749,7 @@ short ex_function_encode::decodeKeyValue(Attributes *attr, NABoolean isDesc, cha
       //
       if (vc_len < length)
         wc_str_pad((NAWchar *)&target[attr->getVCIndicatorLength() + vc_len],
-                   (Int32)(length - vc_len) / sizeof(NAWchar), unicode_char_set::space_char());
+                   (int)(length - vc_len) / sizeof(NAWchar), unicode_char_set::space_char());
 
 #if defined(NA_LITTLE_ENDIAN)
       wc_swap_bytes((NAWchar *)&target[attr->getVCIndicatorLength()], length / sizeof(NAWchar));
@@ -7786,7 +7786,7 @@ short ex_function_encode::decodeKeyValue(Attributes *attr, NABoolean isDesc, cha
 
 static int convAsciiLength(Attributes *attr) {
   int d_len = 0;
-  Int32 scale_len = 0;
+  int scale_len = 0;
 
   int datatype = attr->getDatatype();
   int length = attr->getLength();
@@ -8524,8 +8524,8 @@ ex_expr::exp_return_type ExFunctionAESEncrypt::eval(char *op_data[], CollHeap *h
 
   aes_create_key(key, key_len, rkey, aes_mode);
 
-  Int32 rc = 0;
-  Int32 tgtLen = 0;
+  int rc = 0;
+  int tgtLen = 0;
   rc = ComEncryption::encryptData(aes_mode, (unsigned char *)source, source_len, rkey, iv, result, tgtLen);
   if (rc) goto aes_encrypt_error;
 
@@ -8584,8 +8584,8 @@ ex_expr::exp_return_type ExFunctionAESDecrypt::eval(char *op_data[], CollHeap *h
 
   aes_create_key(key, key_len, rkey, aes_mode);
 
-  Int32 rc = 0;
-  Int32 tgtLen = 0;
+  int rc = 0;
+  int tgtLen = 0;
   rc = ComEncryption::decryptData(aes_mode, (unsigned char *)source, source_len, rkey, iv, result, tgtLen);
   if (rc) goto aes_decrypt_error;
 
@@ -8699,12 +8699,12 @@ short ExFunctionBase64EncDec::decodeValue(char *op_data[], CollHeap *heap, ComDi
   unsigned char *source = (unsigned char *)op_data[1];
   char *result = op_data[0];
 
-  Int32 retLen = -1;
+  int retLen = -1;
   if (maxBuflen_ == -1)  // explicit type not specified
   {
     retLen = str_decode_base64(source, source_len, result, tgt->getLength());
     if ((retLen > 0) && (DFS2REC::isCharacterString(tgt->getDatatype()))) {
-      Int32 rc = 0;
+      int rc = 0;
       unsigned int outputLen = 0;
       char *firstUntranslated = NULL;
 
@@ -8765,7 +8765,7 @@ ex_expr::exp_return_type ExFunctionBase64EncDec::eval(char *op_data[], CollHeap 
 
   unsigned char *source = (unsigned char *)op_data[1];
   char *result = op_data[0];
-  Int32 retLen = -1;
+  int retLen = -1;
 
   if (isEncode_) {
     retLen = str_encode_base64(source, source_len, result, tgt->getLength());

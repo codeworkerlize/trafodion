@@ -83,8 +83,8 @@ class NAProcessHandle {
 
   // Accessors to access various process handle components
   SB_Phandle_Type *getPhandle() { return &phandle_; }
-  Int32 getCpu() { return cpu_; }
-  Int32 getPin() { return pin_; }
+  int getCpu() { return cpu_; }
+  int getPin() { return pin_; }
   long getSeqNum() { return seqNum_; }
   void setPhandle(SB_Phandle_Type *phandle);
 
@@ -97,8 +97,8 @@ class NAProcessHandle {
 
  private:
   SB_Phandle_Type phandle_;  // 64 bytes phandle
-  Int32 cpu_;
-  Int32 pin_;
+  int cpu_;
+  int pin_;
   long seqNum_;
 
   int nodeNumber_;

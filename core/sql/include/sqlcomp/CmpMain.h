@@ -94,14 +94,14 @@ class QryStmtAttribute : public NABasicObject {
   NABoolean isEqual(const QryStmtAttribute &o) const { return attr == o.attr && value == o.value; }
 };
 
-const Int32 MAX_STMT_ATTR = 4;
+const int MAX_STMT_ATTR = 4;
 
 class QryStmtAttributeSet : public NABasicObject {
   friend class CmpMain;
   friend class CompilerEnv;
   // array of query statement attributes
   QryStmtAttribute attrs[MAX_STMT_ATTR];
-  Int32 nEntries;  // number of entries in attrs
+  int nEntries;  // number of entries in attrs
 
  public:
   // constructor for query statement attribute settings
@@ -120,7 +120,7 @@ class QryStmtAttributeSet : public NABasicObject {
   NABoolean has(const QryStmtAttribute &a) const;
 
   // return xth statement attribute
-  const QryStmtAttribute &at(Int32 x) const { return attrs[x]; }
+  const QryStmtAttribute &at(int x) const { return attrs[x]; }
 };
 
 // -----------------------------------------------------------------------
@@ -191,7 +191,7 @@ class CmpMain {
 #endif
 
   // sqlcomp will compile a string of sql text into code from generator
-  ReturnStatus sqlcomp(QueryText &input, Int32 /*unused*/, char **gen_code, ULng32 *gen_code_len, NAMemory *h = NULL,
+  ReturnStatus sqlcomp(QueryText &input, int /*unused*/, char **gen_code, ULng32 *gen_code_len, NAMemory *h = NULL,
                        CompilerPhase = END, FragmentDir **framentDir = NULL,
                        IpcMessageObjType op = CmpMessageObj::SQLTEXT_COMPILE,
                        QueryCachingOption useQueryCache = NORMAL);
@@ -206,7 +206,7 @@ class CmpMain {
   // sqlcomp will compile a string of sql text into code from generator.
   // This string is from a static program and is being recompiled
   // dynamically at runtime.
-  ReturnStatus sqlcompStatic(QueryText &input, Int32 /*unused*/, char **gen_code, ULng32 *gen_code_len,
+  ReturnStatus sqlcompStatic(QueryText &input, int /*unused*/, char **gen_code, ULng32 *gen_code_len,
                              NAMemory *h = NULL, CompilerPhase = END,
                              IpcMessageObjType op = CmpMessageObj::SQLTEXT_COMPILE);
 
@@ -280,21 +280,21 @@ class CmpMain {
 
   void getAndProcessAnySiKeys(TimeVal begTime);
 
-  Int32 getAnySiKeys(TimeVal begTime,             // (IN) start time for compilation
+  int getAnySiKeys(TimeVal begTime,             // (IN) start time for compilation
                      TimeVal prev_QI_inval_time,  // (IN) previous Query Invalidation time
-                     Int32 *retNumSiKeys,         // (OUT) Rtn'd size of results array
+                     int *retNumSiKeys,         // (OUT) Rtn'd size of results array
                      TimeVal *pMaxTimestamp,      // (OUT) Rtn'd max Time Stamp
                      SQL_QIKEY *qiKeyArray,       // (OUT) Rtn'd keys stored here
-                     Int32 qiKeyArraySize);       // (IN) Size of of results array
+                     int qiKeyArraySize);       // (IN) Size of of results array
 
-  void InvalidateNATableCacheEntries(Int32 returnedNumSiKeys, SQL_QIKEY *qiKeyArray);
+  void InvalidateNATableCacheEntries(int returnedNumSiKeys, SQL_QIKEY *qiKeyArray);
   void InvalidateNATableSchemaCacheEntries();
-  void InvalidateNATableSchemaCacheEntries(Int32 returnedNumQiKeys, SQL_QIKEY *qiKeyArray);
-  void InvalidateNARoutineCacheEntries(Int32 returnedNumSiKeys, SQL_QIKEY *qiKeyArray);
-  void InvalidateHistogramCacheEntries(Int32 returnedNumSiKeys, SQL_QIKEY *qiKeyArray);
+  void InvalidateNATableSchemaCacheEntries(int returnedNumQiKeys, SQL_QIKEY *qiKeyArray);
+  void InvalidateNARoutineCacheEntries(int returnedNumSiKeys, SQL_QIKEY *qiKeyArray);
+  void InvalidateHistogramCacheEntries(int returnedNumSiKeys, SQL_QIKEY *qiKeyArray);
   void RemoveMarkedNATableCacheEntries();
   void UnmarkMarkedNATableCacheEntries();
-  void UpdateNATableCacheEntryStoredStats(Int32 returnedNumQiKeys, SQL_QIKEY *qiKeyArray);
+  void UpdateNATableCacheEntryStoredStats(int returnedNumQiKeys, SQL_QIKEY *qiKeyArray);
 
   // NOTE: We don't currently put the NARoutine objects associated with SPJs
   //       into the NARoutine Cache.   The UDF Proof-Of-Concept projects have
@@ -303,15 +303,15 @@ class CmpMain {
   //       If we ever support UDFs or if we start caching the NARoutine objects
   //       associated with SPJs, we will probably need the folowing:
 
-  // void InvalidateNARoutineCacheEntries( Int32 NumSiKeys, SQL_QIKEY * pSiKeyArray );
+  // void InvalidateNARoutineCacheEntries( int NumSiKeys, SQL_QIKEY * pSiKeyArray );
   // void RemoveMarkedNARoutineCacheEntries();
   // void UnmarkMarkedNARoutineCacheEntries();
-  Int32 RestoreCqdsInHint();
+  int RestoreCqdsInHint();
 };
 
 RelRoot *CmpTransform(RelExpr *queryExpr);  // global func for convenience
 
-const Int32 CmpDescribeSpaceCountPrefix = sizeof(short);
+const int CmpDescribeSpaceCountPrefix = sizeof(short);
 
 short CmpDescribe(const char *describeStmt, const RelExpr *queryExpr, char *&outbuf, ULng32 &outbuflen, NAMemory *h);
 

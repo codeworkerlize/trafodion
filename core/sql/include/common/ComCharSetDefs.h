@@ -59,7 +59,7 @@
 // cnv_charset enumerated constant from a given SQLCHARSET_CODE and
 // CharInfo::CharSet enumerated constant.
 //
-// cnv_charset convertCharsetEnum (Int32 /* SQLCHARSET_CODE */ inCharSet);
+// cnv_charset convertCharsetEnum (int /* SQLCHARSET_CODE */ inCharSet);
 //
 enum SQLCHARSET_CODE {
   SQLCHARSETCODE_UNKNOWN = 0,

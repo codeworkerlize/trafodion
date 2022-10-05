@@ -48,7 +48,7 @@ static bool transferObjectPrivs(const char *systemCatalogName, const char *catal
 // *  <schemaClass>                   ComSchemaClass                  In       *
 // *    is the class (private or shared) of the schema to be added.            *
 // *                                                                           *
-// *  <ownerID>                       Int32                           In       *
+// *  <ownerID>                       int                           In       *
 // *    is the authorization ID that will own the schema.                      *
 // *                                                                           *
 // *  <ignoreIfExists>                NABoolean                       In       *
@@ -64,7 +64,7 @@ static bool transferObjectPrivs(const char *systemCatalogName, const char *catal
 // *                                                                           *
 // *****************************************************************************
 int CmpSeabaseDDL::addSchemaObject(ExeCliInterface &cliInterface, const ComSchemaName &schemaName,
-                                   ComSchemaClass schemaClass, Int32 ownerID, NABoolean ignoreIfExists,
+                                   ComSchemaClass schemaClass, int ownerID, NABoolean ignoreIfExists,
                                    NAString namespace1, NABoolean rowIdEncrypt, NABoolean dataEncrypt,
                                    NABoolean storedDesc, NABoolean incrBackupEnabled) {
   NAString catalogNamePart = schemaName.getCatalogNamePartAsAnsiString();
@@ -155,7 +155,7 @@ int CmpSeabaseDDL::addSchemaObject(ExeCliInterface &cliInterface, const ComSchem
               COM_NO_LIT,   // droppable
               ownerID, ownerID, flags);
 
-  Int32 cliRC = cliInterface.executeImmediate(buf);
+  int cliRC = cliInterface.executeImmediate(buf);
 
   if (cliRC < 0) {
     cliInterface.retrieveSQLDiagnostics(CmpCommon::diags());
@@ -249,8 +249,8 @@ void CmpSeabaseDDL::createSeabaseSchema(StmtDDLCreateSchema *createSchemaNode, N
 
   ExeCliInterface cliInterface(STMTHEAP, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
   ComSchemaClass schemaClass;
-  Int32 objectOwner = NA_UserIdDefault;
-  Int32 schemaOwner = NA_UserIdDefault;
+  int objectOwner = NA_UserIdDefault;
+  int schemaOwner = NA_UserIdDefault;
 
   // If creating the hive statistics schema, make owners
   // the HIVE_ROLE_ID and skip authorization check.
@@ -267,7 +267,7 @@ void CmpSeabaseDDL::createSeabaseSchema(StmtDDLCreateSchema *createSchemaNode, N
     }
   }
 
-  Int32 schemaOwnerID = NA_UserIdDefault;
+  int schemaOwnerID = NA_UserIdDefault;
 
   // If the AUTHORIZATION clause was not specified, the current user becomes
   // the schema owner.
@@ -547,8 +547,8 @@ void CmpSeabaseDDL::dropSeabaseSchema(StmtDDLDropSchema *dropSchemaNode)
   NABoolean isIncrBackupEnabled = false;
 
   ExeCliInterface cliInterface(STMTHEAP, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
-  Int32 objectOwnerID = 0;
-  Int32 schemaOwnerID = 0;
+  int objectOwnerID = 0;
+  int schemaOwnerID = 0;
   ComObjectType objectType;
 
   bool isVolatile = (memcmp(schName.data(), "VOLATILE_SCHEMA", strlen("VOLATILE_SCHEMA")) == 0);
@@ -1141,8 +1141,8 @@ void CmpSeabaseDDL::alterSeabaseSchema(StmtDDLAlterSchema *alterSchemaNode)
   ComObjectName objName(catName, schName, NAString("dummy"), COM_TABLE_NAME, TRUE);
 
   ExeCliInterface cliInterface(STMTHEAP, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
-  Int32 objectOwnerID = 0;
-  Int32 schemaOwnerID = 0;
+  int objectOwnerID = 0;
+  int schemaOwnerID = 0;
   ComObjectType objectType;
 
   bool isVolatile = (memcmp(schName.data(), "VOLATILE_SCHEMA", strlen("VOLATILE_SCHEMA")) == 0);
@@ -1154,7 +1154,7 @@ void CmpSeabaseDDL::alterSeabaseSchema(StmtDDLAlterSchema *alterSchemaNode)
   Queue *otherObjectsQueue = NULL;
 
   NABoolean dirtiedMetadata = FALSE;
-  Int32 checkErr = 0;
+  int checkErr = 0;
 
   StmtDDLAlterTableStoredDesc::AlterStoredDescType sdo = alterSchemaNode->getStoredDescOperation();
 
@@ -1492,7 +1492,7 @@ int CmpSeabaseDDL::alterSchemaTableDesc(ExeCliInterface *cliInterface,
   const NAString catName = objNameParts.getCatalogNamePartAsAnsiString(TRUE);
 
   ComObjectType objType;
-  Int32 schOwner = 0;
+  int schOwner = 0;
   long schUID =
       getObjectTypeandOwner(cliInterface, catName.data(), schName.data(), SEABASE_SCHEMA_OBJECTNAME, objType, schOwner);
 
@@ -1559,8 +1559,8 @@ void CmpSeabaseDDL::giveSeabaseSchema(StmtDDLGiveSchema *giveSchemaNode, NAStrin
   if (catalogName.isNull()) catalogName = currentCatalogName;
 
   ExeCliInterface cliInterface(STMTHEAP, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
-  Int32 objectOwnerID = 0;
-  Int32 schemaOwnerID = 0;
+  int objectOwnerID = 0;
+  int schemaOwnerID = 0;
   ComObjectType objectType;
 
   long schemaUID = getObjectTypeandOwner(&cliInterface, catalogName.data(), schemaName.data(),
@@ -1720,8 +1720,8 @@ void CmpSeabaseDDL::alterSeabaseSchemaHDFSCache(StmtDDLAlterSchemaHDFSCache *alt
   NAString schName = schNameAsComAnsi.getInternalName();
 
   ExeCliInterface cliInterface(STMTHEAP, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
-  Int32 objectOwnerID = 0;
-  Int32 schemaOwnerID = 0;
+  int objectOwnerID = 0;
+  int schemaOwnerID = 0;
   ComObjectType objectType;
 
   long schemaUID = getObjectTypeandOwner(&cliInterface, catName.data(), schName.data(), SEABASE_SCHEMA_OBJECTNAME,
@@ -1810,7 +1810,7 @@ void CmpSeabaseDDL::alterSeabaseSchemaHDFSCache(StmtDDLAlterSchemaHDFSCache *alt
 // *                                                                           *
 // *****************************************************************************
 // *                                                                           *
-// * Returns: Int32                                                            *
+// * Returns: int                                                            *
 // *                                                                           *
 // * -mainSQLCODE: Could not create histogram tables.                          *
 // *            0: Create was successful.                                      *
@@ -1818,7 +1818,7 @@ void CmpSeabaseDDL::alterSeabaseSchemaHDFSCache(StmtDDLAlterSchemaHDFSCache *alt
 // *****************************************************************************
 short CmpSeabaseDDL::createHistogramTables(ExeCliInterface *cliInterface, const NAString &schemaName,
                                            const NABoolean ignoreIfExists, NAString &tableNotCreated) {
-  Int32 cliRC = 0;
+  int cliRC = 0;
   tableNotCreated = "";
 
   // If the caller does not send in cliInterface, instantiate one now
@@ -1831,15 +1831,15 @@ short CmpSeabaseDDL::createHistogramTables(ExeCliInterface *cliInterface, const 
   // allMDHistInfo (CmpSeabaseDDLmd.h) is the list of all histogram tables,
   // MDTableInfo describes the table attributes,
   // create each table found in the list
-  Int32 numHistTables = sizeof(allMDHistInfo) / sizeof(MDTableInfo);
+  int numHistTables = sizeof(allMDHistInfo) / sizeof(MDTableInfo);
   NAString prefixText = ignoreIfExists ? "IF NOT EXISTS " : "";
-  for (Int32 i = 0; i < numHistTables; i++) {
+  for (int i = 0; i < numHistTables; i++) {
     const MDTableInfo &mdh = allMDHistInfo[i];
-    Int32 qryArraySize = mdh.sizeOfnewDDL / sizeof(QString);
+    int qryArraySize = mdh.sizeOfnewDDL / sizeof(QString);
 
     // Concatenate the create table text into a single string
     NAString concatenatedQuery;
-    for (Int32 j = 0; j < qryArraySize; j++) {
+    for (int j = 0; j < qryArraySize; j++) {
       NAString tempStr = mdh.newDDL[j].str;
       concatenatedQuery += tempStr.strip(NAString::leading, ' ');
     }
@@ -1891,7 +1891,7 @@ short CmpSeabaseDDL::createHistogramTables(ExeCliInterface *cliInterface, const 
 // *    is a reference to an Executor CLI interface handle.                    *
 // *****************************************************************************
 // *                                                                           *
-// * Returns: Int32                                                            *
+// * Returns: int                                                            *
 // *                                                                           *
 // *            0: Adjustment was successful                                   *
 // *           -1: Adjustment failed                                           *
@@ -1907,7 +1907,7 @@ short CmpSeabaseDDL::adjustHiveExternalSchemas(ExeCliInterface *cliInterface) {
           getSystemCatalog(), SEABASE_MD_SCHEMA, SEABASE_OBJECTS, '%');
 
   Queue *objectsQueue = NULL;
-  Int32 cliRC = cliInterface->fetchAllRows(objectsQueue, buf, 0, FALSE, FALSE, TRUE);
+  int cliRC = cliInterface->fetchAllRows(objectsQueue, buf, 0, FALSE, FALSE, TRUE);
   if (cliRC < 0) {
     cliInterface->retrieveSQLDiagnostics(CmpCommon::diags());
     return -1;
@@ -1922,7 +1922,7 @@ short CmpSeabaseDDL::adjustHiveExternalSchemas(ExeCliInterface *cliInterface) {
     NAString objName = vi->get(2);
     long objUID = *(long *)vi->get(3);
     NAString objectTypeLit = vi->get(4);
-    Int32 objOwner = *(Int32 *)vi->get(5);
+    int objOwner = *(int *)vi->get(5);
     ComObjectType objType = PrivMgr::ObjectLitToEnum(objectTypeLit.data());
 
     // If object owner is already the HIVE_ROLE_ID, then we are done.
@@ -2159,7 +2159,7 @@ static bool transferObjectPrivs(const char *systemCatalogName, const char *catal
 // ****************************************************************************
 void CmpSeabaseDDL::grantRevokeSchema(StmtDDLNode *stmtDDLNode, NABoolean isGrant, NAString &currCatName,
                                       NAString &currSchName) {
-  Int32 retcode = 0;
+  int retcode = 0;
 
   if (!isAuthorizationEnabled()) {
     *CmpCommon::diags() << DgSqlCode(-CAT_AUTHORIZATION_NOT_ENABLED);
@@ -2209,8 +2209,8 @@ void CmpSeabaseDDL::grantRevokeSchema(StmtDDLNode *stmtDDLNode, NABoolean isGran
   }
 
   // Get schema details
-  Int32 objectOwnerID;
-  Int32 schemaOwnerID;
+  int objectOwnerID;
+  int schemaOwnerID;
   long objectFlags;
   long objDataUID = 0;
   ComObjectType objectType = PrivMgr::ObjectLitToEnum(outObjType);
@@ -2239,7 +2239,7 @@ void CmpSeabaseDDL::grantRevokeSchema(StmtDDLNode *stmtDDLNode, NABoolean isGran
 
   // Determine effective grantor ID and grantor name based on GRANTED BY clause
   // current user, and object owner
-  Int32 effectiveGrantorID;
+  int effectiveGrantorID;
   std::string effectiveGrantorName;
   PrivStatus result = command.getGrantorDetailsForObject(isGrantedBySpecified, std::string(grantedByName.data()),
                                                          objectOwnerID, effectiveGrantorID, effectiveGrantorName);
@@ -2288,7 +2288,7 @@ void CmpSeabaseDDL::grantRevokeSchema(StmtDDLNode *stmtDDLNode, NABoolean isGran
 
   // convert grantee name to grantee ID
   NAString authName(pGranteeArray[0]->getAuthorizationIdentifier());
-  Int32 grantee;
+  int grantee;
   if (pGranteeArray[0]->isPublic()) {
     grantee = PUBLIC_USER;
     authName = PUBLIC_AUTH_NAME;

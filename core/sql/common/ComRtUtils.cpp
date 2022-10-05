@@ -108,7 +108,7 @@ static const ModName internalMxcsSchemaModNameList[] = {{"CATANSIMXGTI"}, {"CATA
 
 // returns TRUE, if modName is an internal module name
 NABoolean ComRtIsInternalModName(const char *modName) {
-  Int32 i = 0;
+  int i = 0;
   for (i = 0; i < sizeof(internalSystemSchemaModNameList) / sizeof(ModName); i++) {
     if (strcmp(internalSystemSchemaModNameList[i].name, modName) == 0) return TRUE;
   }
@@ -144,7 +144,7 @@ ModuleOSFile::ModuleOSFile() {}
 
 ModuleOSFile::~ModuleOSFile() {}
 
-Int32 ModuleOSFile::open(const char *fname) {
+int ModuleOSFile::open(const char *fname) {
   fs_.open(fname, ios::in | ios::binary);
   if (fs_.fail())
     return 1;
@@ -152,7 +152,7 @@ Int32 ModuleOSFile::open(const char *fname) {
     return 0;
 }
 
-Int32 ModuleOSFile::close() {
+int ModuleOSFile::close() {
   fs_.close();
   if (fs_.fail())
     return 1;
@@ -160,7 +160,7 @@ Int32 ModuleOSFile::close() {
     return 0;
 }
 
-Int32 ModuleOSFile::readpos(char *buf, int pos, int len, short &countRead) {
+int ModuleOSFile::readpos(char *buf, int pos, int len, short &countRead) {
   // no explicit error handling for these operations
   fs_.seekg(pos, ios::beg);
   fs_.read(buf, len);
@@ -256,12 +256,12 @@ int ComRtGetModuleFileName(const char *moduleName,
   strcat(userModuleDirNameBuf, "/sql/sqlmx/USERMODULES/");
   userModuleDir = userModuleDirNameBuf;
 
-  Int32 isSystemModule = 0;
+  int isSystemModule = 0;
   //  const char *systemModulePrefix = "NONSTOP_SQLMX_NSK.SYSTEM_SCHEMA.";
   //  const char *systemModulePrefixODBC = "NONSTOP_SQLMX_NSK.MXCS_SCHEMA.";
   //  int systemModulePrefixLen = str_len(systemModulePrefix);
   //  int systemModulePrefixLenODBC = str_len(systemModulePrefixODBC);
-  Int32 modNameLen = str_len(moduleName);
+  int modNameLen = str_len(moduleName);
   int lResultLen;
   int result = 0;
   return result;
@@ -307,8 +307,8 @@ int ComRtGetMPSysCatName(char *sysCatBuffer,       // in/out
     NSK_FILE_GETINFOBYNAME_ERROR
   };
 
-  const Int32 DISPLAYBUFSIZE = 8000;
-  const Int32 FILENAMELEN = 36;
+  const int DISPLAYBUFSIZE = 8000;
+  const int FILENAMELEN = 36;
 
   char mpSysCat[FILENAMELEN];
   int nameSize = 0;
@@ -323,7 +323,7 @@ int ComRtGetMPSysCatName(char *sysCatBuffer,       // in/out
 
   if (sysCatLoc) {
     if (inputBufferLength < str_len(sysCatLoc)) return -1;
-    Int32 locLen = str_len(sysCatLoc);
+    int locLen = str_len(sysCatLoc);
 
     // add local system name if not specified.
     //
@@ -424,10 +424,10 @@ const char *ComRtGetEnvValueFromEnvvars(const char **envvars, const char *envvar
   if (!envvars) return NULL;
 
   int envvarLen = str_len(envvar);
-  for (Int32 i = 0; envvars[i]; i++) {
+  for (int i = 0; envvars[i]; i++) {
     // Each envvar[i] is of the form:  envvar=value
     // search for '='
-    Int32 j = 0;
+    int j = 0;
     for (j = 0; ((envvars[i][j] != 0) && (envvars[i][j] != '=')); j++)
       ;
 
@@ -468,9 +468,9 @@ NABoolean ComRtGetEnvValue(const char *envvar, int *envvarValue) {
     // envvar not there or no value
     return FALSE;
 
-  Int32 max = strlen(ptr);
+  int max = strlen(ptr);
   int tempValue = 0;
-  for (Int32 i = 0; i < max; i++) {
+  for (int i = 0; i < max; i++) {
     if (ptr[i] < '0' || ptr[i] > '9')
       // value is not numeric
       return FALSE;
@@ -582,12 +582,12 @@ NABoolean ComRtGetValueFromFile(const char *envvar, char *valueBuffer, const UIn
 // -----------------------------------------------------------------------
 int ComRtGetProgramInfo(char *pathName,                           /* out */
                           int pathNameMaxLen, short &processType, /* out */
-                          Int32 &cpu,                               /* cpu */
+                          int &cpu,                               /* cpu */
                           pid_t &pin,                               /* pin */
                           int &nodeNumber,
                           char *nodeName,  // GuaNodeNameMaxLen+1
                           short &nodeNameLen, long &processCreateTime, char *processNameString,
-                          char *parentProcessNameString, SB_Verif_Type *verifier, Int32 *ancestorNid,
+                          char *parentProcessNameString, SB_Verif_Type *verifier, int *ancestorNid,
                           pid_t *ancestorPid) {
   int retcode = 0;
 
@@ -663,8 +663,8 @@ int ComRtGetProcessCreateTime(short *cpu, /* cpu */
   MS_Mon_Process_Info_Type processInfo;
   char processName[MS_MON_MAX_PROCESS_NAME];
 
-  Int32 lnxCpu = (Int32)(*cpu);
-  Int32 lnxPin = (Int32)(*pin);
+  int lnxCpu = (int)(*cpu);
+  int lnxPin = (int)(*pin);
   processCreateTime = 0;
   if ((retcode = msg_mon_get_process_name(lnxCpu, lnxPin, processName)) != XZFIL_ERR_OK) return retcode;
   if ((retcode = msg_mon_get_process_info_detail(processName, &processInfo)) != XZFIL_ERR_OK) return retcode;
@@ -686,11 +686,11 @@ char *ComRtGetIsoMappingName() {
   return (char *)CharInfo::getCharSetName((CharInfo::CharSet)ime);
 }
 
-Int32 ComRtPopulatePhysicalCPUArray(Int32 *&cpuArray, NAHeap *heap) {
-  Int32 nodeCount = 0;
-  Int32 configuredNodeCount = 0;
-  Int32 nodeMax = 0;
-  Int32 prevCPU = -1;
+int ComRtPopulatePhysicalCPUArray(int *&cpuArray, NAHeap *heap) {
+  int nodeCount = 0;
+  int configuredNodeCount = 0;
+  int nodeMax = 0;
+  int prevCPU = -1;
   MS_Mon_Node_Info_Entry_Type *nodeInfo = NULL;
   NABoolean match = FALSE;
 
@@ -698,13 +698,13 @@ Int32 ComRtPopulatePhysicalCPUArray(Int32 *&cpuArray, NAHeap *heap) {
 
   while (!match) {
     // Get the number of nodes to know how much info space to allocate
-    Int32 error = msg_mon_get_node_info(&nodeCount, 0, NULL);
+    int error = msg_mon_get_node_info(&nodeCount, 0, NULL);
     if (error != 0) return 0;
     if (nodeCount <= 0) return 0;
 
     // Allocate the space for node info entries
     nodeInfo = new (heap) MS_Mon_Node_Info_Entry_Type[nodeCount];
-    cpuArray = new (heap) Int32[nodeCount];
+    cpuArray = new (heap) int[nodeCount];
 
     if (!nodeInfo || !cpuArray) return 0;
 
@@ -728,9 +728,9 @@ Int32 ComRtPopulatePhysicalCPUArray(Int32 *&cpuArray, NAHeap *heap) {
       break;
     }
 
-    for (Int32 i = 0; i < nodeCount; i++) {
+    for (int i = 0; i < nodeCount; i++) {
       if (!nodeInfo[i].spare_node) {
-        Int32 currCPU = nodeInfo[i].nid;
+        int currCPU = nodeInfo[i].nid;
 
         cpuArray[configuredNodeCount] = currCPU;
         // make sure we have a list of ascending node ids
@@ -749,7 +749,7 @@ NABoolean ComRtGetCpuStatus(char *nodeName, short cpuNum) {
   NABoolean retval = FALSE;  // assume cpu is down
   MS_Mon_Node_Info_Type nodeInfo;
   memset(&nodeInfo, 0, sizeof(nodeInfo));
-  Int32 error = msg_mon_get_node_info_detail(cpuNum, &nodeInfo);
+  int error = msg_mon_get_node_info_detail(cpuNum, &nodeInfo);
   if (XZFIL_ERR_OK == error) {
     if (MS_Mon_State_Up == nodeInfo.node[0].state) retval = TRUE;
   }
@@ -806,7 +806,7 @@ bool delTrafStack(LIST(TrafAddrStack *) * la, void *addr) {
 }
 
 // helper function to de-mangle c++ names
-void stackDemangle(char *stackString, char *callName, Int32 callNameLen) {
+void stackDemangle(char *stackString, char *callName, int callNameLen) {
   char *nameStart = NULL, *nameOffset = NULL, *nameEnd = NULL;
 
   for (char *loc = stackString; *loc; loc++) {
@@ -820,7 +820,7 @@ void stackDemangle(char *stackString, char *callName, Int32 callNameLen) {
     }
   }
   if (nameStart && nameOffset && nameEnd && nameStart < nameOffset) {
-    Int32 stat;
+    int stat;
     size_t realSize = callNameLen;
     char retedName[800];
     *nameStart = 0;
@@ -839,7 +839,7 @@ void stackDemangle(char *stackString, char *callName, Int32 callNameLen) {
 }
 
 void dumpTrafStack(LIST(TrafAddrStack *) * la, const char *header, bool toFile) {
-  static THREAD_P Int32 fnValid = 0;
+  static THREAD_P int fnValid = 0;
   static THREAD_P char fn[120];
   char funcName[800];
   size_t size;
@@ -850,8 +850,8 @@ void dumpTrafStack(LIST(TrafAddrStack *) * la, const char *header, bool toFile) 
 
   if (toFile) {
     if (fnValid == 0) {
-      Int32 nid = 0;
-      Int32 pid = 0;
+      int nid = 0;
+      int pid = 0;
       long tid = 0;
       char *progFileName = (char *)"noname";
       char pName[MS_MON_MAX_PROCESS_NAME];
@@ -910,9 +910,9 @@ void dumpTrafStack(LIST(TrafAddrStack *) * la, const char *header, bool toFile) 
   }
 }
 
-void displayCurrentStack(Int32 depth) { displayCurrentStack(cout, depth); }
+void displayCurrentStack(int depth) { displayCurrentStack(cout, depth); }
 
-void displayCurrentStack(ostream &out, Int32 depth) {
+void displayCurrentStack(ostream &out, int depth) {
   void *btArr[12];
   size_t size;
   char **strings;
@@ -925,7 +925,7 @@ void displayCurrentStack(ostream &out, Int32 depth) {
   strings = backtrace_symbols(btArr, size);
 
   char funcName[800];
-  for (Int32 k = 1; k < size; k++) {
+  for (int k = 1; k < size; k++) {
     stackDemangle(strings[k], funcName, sizeof(funcName));
 
     // try to skip the name of the containing library
@@ -965,9 +965,9 @@ Int16 getBDRClusterName(char *bdrClusterName) {
 }
 
 int get_phandle_with_retry(char *pname, SB_Phandle_Type *phandle) {
-  Int32 retrys = 0;
+  int retrys = 0;
   int lv_fserr = FEOK;
-  const Int32 NumRetries = 10;
+  const int NumRetries = 10;
   timespec retryintervals[NumRetries] = {
       {0, 10 * 1000 * 1000}  // 10 ms
       ,
@@ -1042,7 +1042,7 @@ NABoolean getLinuxGroups(const char *userName, std::set<std::string> &userGroups
 // string can be overwritten by another call to the function from the
 // same thread.
 static __thread char ComRtGetUnknownString_Buf[32];
-const char *ComRtGetUnknownString(Int32 val) {
+const char *ComRtGetUnknownString(int val) {
   sprintf(ComRtGetUnknownString_Buf, "UNKNOWN (%d)", (int)val);
   return &(ComRtGetUnknownString_Buf[0]);
 }
@@ -1063,7 +1063,7 @@ fstream &getPrintHandle() {
   return fout;
 }
 
-void genFullMessage(char *buf, Int32 len, const char *className, Int32 queryNodeId) {
+void genFullMessage(char *buf, int len, const char *className, int queryNodeId) {
   char hostname[100];
   gethostname(hostname, sizeof(hostname));
 
@@ -1072,16 +1072,16 @@ void genFullMessage(char *buf, Int32 len, const char *className, Int32 queryNode
 
 EncodedHiveType::EncodedHiveType(const std::string &x) {
   const char *data = x.data();
-  type_ = *(Int32 *)data;
-  data += sizeof(Int32);
+  type_ = *(int *)data;
+  data += sizeof(int);
 
-  length_ = *(Int32 *)(data);
-  data += sizeof(Int32);
+  length_ = *(int *)(data);
+  data += sizeof(int);
 
-  precision_ = *(Int32 *)(data);
-  data += sizeof(Int32);
+  precision_ = *(int *)(data);
+  data += sizeof(int);
 
-  scale_ = *(Int32 *)(data);
+  scale_ = *(int *)(data);
 }
 
 void checkSpan(const char *x, int len) {
@@ -1259,7 +1259,7 @@ void ScanFilterStats::merge(const ScanFilterStats &other, ScanFilterStats::Merge
 //   0: disabled, regardlesss of selected or not
 //   2: enabled and selected
 //   1: enabled  and de-selected
-Int32 ScanFilterStats::getStateCode() const {
+int ScanFilterStats::getStateCode() const {
   if (!getIsEnabled()) return 0;
 
   if (getIsSelected()) return 2;
@@ -1267,7 +1267,7 @@ Int32 ScanFilterStats::getStateCode() const {
   return 1;
 }
 
-void ScanFilterStats::getVariableStatsInfo(char *buf, Int32 len) const {
+void ScanFilterStats::getVariableStatsInfo(char *buf, int len) const {
   snprintf(buf, len, "RV%d(%1d,%ld)", packedBits_.filterId_, getStateCode(), totalRowsAffected_);
 }
 
@@ -1291,14 +1291,14 @@ ScanFilterStatsList::ScanFilterStatsList(ScanFilterStatsList &other) {
   // Use entries() in case entries_ is corrupted.
   entries_ = other.entries();
 
-  for (Int32 i = 0; i < entries(); i++) scanFilterStats_[i] = other.scanFilterStats_[i];
+  for (int i = 0; i < entries(); i++) scanFilterStats_[i] = other.scanFilterStats_[i];
 }
 
 ScanFilterStatsList &ScanFilterStatsList::operator=(ScanFilterStatsList &other) {
   // Use entries() in case entries_ is corrupted.
   entries_ = other.entries();
 
-  for (Int32 i = 0; i < entries(); i++) scanFilterStats_[i] = other.scanFilterStats_[i];
+  for (int i = 0; i < entries(); i++) scanFilterStats_[i] = other.scanFilterStats_[i];
 
   return *this;
 }
@@ -1307,7 +1307,7 @@ UInt32 ScanFilterStatsList::packedLength() {
   UInt32 size = sizeof(entries_);
 
   // Use entries() in case entries_ is corrupted.
-  for (Int32 i = 0; i < entries(); i++) size += scanFilterStats_[i].packedLength();
+  for (int i = 0; i < entries(); i++) size += scanFilterStats_[i].packedLength();
 
   /*
   cout << "ScanFilterStatsList::packedLength()=" << size
@@ -1322,7 +1322,7 @@ UInt32 ScanFilterStatsList::pack(char *&buffer) {
   UInt32 size = packIntoBuffer(buffer, entries());
 
   // Use entries() in case entries_ is corrupted.
-  for (Int32 i = 0; i < entries(); i++) size += scanFilterStats_[i].pack(buffer);
+  for (int i = 0; i < entries(); i++) size += scanFilterStats_[i].pack(buffer);
 
   return size;
 }
@@ -1331,13 +1331,13 @@ void ScanFilterStatsList::unpack(const char *&buffer) {
   unpackBuffer(buffer, entries_);
 
   // Use entries() in case entries_ is corrupted.
-  for (Int32 i = 0; i < entries(); i++) scanFilterStats_[i].unpack(buffer);
+  for (int i = 0; i < entries(); i++) scanFilterStats_[i].unpack(buffer);
 }
 
 void ScanFilterStatsList::addEntry(const ScanFilterStats &x, ScanFilterStats::MergeSemantics semantics) {
   // Merge in the stats if an entry already exists for
   // entry x.
-  for (Int32 j = 0; j < entries(); j++) {
+  for (int j = 0; j < entries(); j++) {
     if (x.getFilterId() == scanFilterStats_[j].getFilterId()) {
       scanFilterStats_[j].merge(x, semantics);
       return;
@@ -1348,9 +1348,9 @@ void ScanFilterStatsList::addEntry(const ScanFilterStats &x, ScanFilterStats::Me
 
   // maintain the ascending order on filterId for all entries
   // including the new entry
-  for (Int32 j = 0; j < entries(); j++) {
+  for (int j = 0; j < entries(); j++) {
     if (scanFilterStats_[j].getFilterId() > x.getFilterId()) {
-      for (Int32 k = entries() - 1; k >= j; k--) {
+      for (int k = entries() - 1; k >= j; k--) {
         scanFilterStats_[k + 1] = scanFilterStats_[k];
       }
 
@@ -1366,7 +1366,7 @@ void ScanFilterStatsList::addEntry(const ScanFilterStats &x, ScanFilterStats::Me
 
 void ScanFilterStatsList::merge(ScanFilterStats &source, ScanFilterStats::MergeSemantics semantics) {
   // Use entries() in case entries_ is corrupted.
-  for (Int32 j = 0; j < entries(); j++) {
+  for (int j = 0; j < entries(); j++) {
     if (source.getFilterId() == scanFilterStats_[j].getFilterId()) {
       scanFilterStats_[j].merge(source, semantics);
       return;
@@ -1379,7 +1379,7 @@ void ScanFilterStatsList::merge(ScanFilterStats &source, ScanFilterStats::MergeS
 
 void ScanFilterStatsList::merge(ScanFilterStatsList &other, ScanFilterStats::MergeSemantics semantics) {
   // Use entries() in case entries_ is corrupted.
-  for (Int32 j = 0; j < other.entries(); j++) {
+  for (int j = 0; j < other.entries(); j++) {
     merge(other.scanFilterStats_[j], semantics);
   }
 }
@@ -1387,7 +1387,7 @@ void ScanFilterStatsList::merge(ScanFilterStatsList &other, ScanFilterStats::Mer
 int ScanFilterStatsList::getVariableStatsInfoLen(const char *msg) const {
   int len = 0;
   // Use entries() in case entries_ is corrupted.
-  for (Int32 i = 0; i < entries(); i++) {
+  for (int i = 0; i < entries(); i++) {
     len += scanFilterStats_[i].getVariableStatsInfoLen();
   }
 
@@ -1399,8 +1399,8 @@ int ScanFilterStatsList::getVariableStatsInfoLen(const char *msg) const {
   return len;
 }
 
-void ScanFilterStatsList::getVariableStatsInfo(char *buf, Int32 maxlen, const char *msg) const {
-  Int32 varStatsInfoLen = getVariableStatsInfoLen(msg);
+void ScanFilterStatsList::getVariableStatsInfo(char *buf, int maxlen, const char *msg) const {
+  int varStatsInfoLen = getVariableStatsInfoLen(msg);
 
   if (maxlen == 0) return;
 
@@ -1415,7 +1415,7 @@ void ScanFilterStatsList::getVariableStatsInfo(char *buf, Int32 maxlen, const ch
   maxlen -= strlen(p);
   p += strlen(p);
 
-  for (Int32 i = 0; i < entries(); i++) {
+  for (int i = 0; i < entries(); i++) {
     if (scanFilterStats_[i].getVariableStatsInfoLen() >= maxlen) return;
 
     scanFilterStats_[i].getVariableStatsInfo(p, maxlen);
@@ -1445,7 +1445,7 @@ void ScanFilterStatsList::dump(ostream &out, const char *msg) {
   delete buf;
 }
 
-Int32 convertJulianTimestamp(long julianTimestamp, char *target) {
+int convertJulianTimestamp(long julianTimestamp, char *target) {
   short timestamp[8];
   INTERPRETTIMESTAMP(julianTimestamp, timestamp);
   short year = timestamp[0];

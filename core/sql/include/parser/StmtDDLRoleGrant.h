@@ -73,7 +73,7 @@ class StmtDDLRoleGrant : public StmtDDLNode {
   inline const ComBoolean isGrantRole() { return isGrantRole_; };
   inline ComDropBehavior getDropBehavior() const;
   inline const ComBoolean isWithAdminOptionSpecified() const { return withAdmin_; };
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
   virtual ExprNode *getChild(int index);
 
   // for tracing

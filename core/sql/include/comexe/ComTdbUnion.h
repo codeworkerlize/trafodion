@@ -57,8 +57,8 @@ class ComTdbUnion : public ComTdb {
               ex_expr *cond_expr, ex_expr *trig_expr, int union_reclen, const unsigned short tupp_index,
               ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
               Cardinality estimatedRowCount, int num_buffers, ULng32 buffer_size, NABoolean ordered_union,
-              Int32 blocked_union,  // ++ Triggers -, add blocked_union
-              Int32 hasNoOutputs,   // ++ Triggers -, add noOutputs
+              int blocked_union,  // ++ Triggers -, add blocked_union
+              int hasNoOutputs,   // ++ Triggers -, add noOutputs
               NABoolean rowsFromLeft, NABoolean rowsFromRight, NABoolean AfterUpdate, NABoolean inNotAtomicStmt);
 
   virtual ~ComTdbUnion();
@@ -86,14 +86,14 @@ class ComTdbUnion : public ComTdb {
   inline void setRightTdb(ComTdb *right) { tdbRight_ = right; }
 
   // exclude from code coverage since this code is obsolete
-  Int32 orderedQueueProtocol() const { return -1; }
+  int orderedQueueProtocol() const { return -1; }
 
-  virtual const ComTdb *getChild(Int32 pos) const;
-  virtual Int32 numChildren() const;
+  virtual const ComTdb *getChild(int pos) const;
+  virtual int numChildren() const;
   virtual const char *getNodeName() const { return "EX_UNION"; };
-  virtual Int32 numExpressions() const { return 5; }
-  virtual ex_expr *getExpressionNode(Int32 pos);
-  virtual const char *getExpressionName(Int32 pos) const;
+  virtual int numExpressions() const { return 5; }
+  virtual ex_expr *getExpressionNode(int pos);
+  virtual const char *getExpressionName(int pos) const;
 
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
@@ -135,7 +135,7 @@ class ComTdbUnion : public ComTdb {
   ExExprPtr mergeExpr_;  // 32-39
   ExExprPtr condExpr_;   // 40-47
 
-  Int32 unionReclen_;  //  48-51
+  int unionReclen_;  //  48-51
 
   Int16 flags_;  // 52-53
 
@@ -153,15 +153,15 @@ class ComTdbUnion : public ComTdb {
 
   char fillersComTdbUnion_[24];  // 72-95
 
-  inline Int32 isOrderedUnion() const { return (flags_ & ORDERED_UNION); }
-  inline Int32 isBlockedUnion() const { return (flags_ & BLOCKED_UNION); }  // ++ Triggers -
-  inline Int32 isMergeUnion() const { return (flags_ & MERGE_UNION); }
-  inline Int32 isConditionalUnion() const { return (flags_ & CONDITIONAL_UNION); }
-  inline Int32 hasNoOutputs() const { return (flags_ & NO_OUTPUTS); }
+  inline int isOrderedUnion() const { return (flags_ & ORDERED_UNION); }
+  inline int isBlockedUnion() const { return (flags_ & BLOCKED_UNION); }  // ++ Triggers -
+  inline int isMergeUnion() const { return (flags_ & MERGE_UNION); }
+  inline int isConditionalUnion() const { return (flags_ & CONDITIONAL_UNION); }
+  inline int hasNoOutputs() const { return (flags_ & NO_OUTPUTS); }
 };
 
 // exclude from code coverage analysis since this is used only by GUI
-inline const ComTdb *ComTdbUnion::getChild(Int32 pos) const {
+inline const ComTdb *ComTdbUnion::getChild(int pos) const {
   if (pos == 0)
     return tdbLeft_;
   else if (pos == 1)

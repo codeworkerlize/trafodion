@@ -124,7 +124,7 @@ class CmpStatement : public NABasicObject {
   QueryAnalysis *initQueryAnalysis();
 
   void prepareForCompilationRetry();
-  Int32 getNumOfCompilationRetries() const { return numOfCompilationRetries_; }
+  int getNumOfCompilationRetries() const { return numOfCompilationRetries_; }
 
   // statement shape rewrite
   CqsWA *getCqsWA() { return cqsWA_; }
@@ -138,8 +138,8 @@ class CmpStatement : public NABasicObject {
 
   void setItemExprOrigOpTypeBeingBound(OperatorTypeEnum x) { ItemExprOrigOpTypeBeingBound_ = x; };
 
-  Int32 &getItemExprOrigOpTypeCounter() { return ItemExprOrigOpTypeCounter_; };
-  // void setItemExprOrigOpTypeCounter(Int32 x) { ItemExprOrigOpTypeCounter_ = x; };
+  int &getItemExprOrigOpTypeCounter() { return ItemExprOrigOpTypeCounter_; };
+  // void setItemExprOrigOpTypeCounter(int x) { ItemExprOrigOpTypeCounter_ = x; };
 
   char *getLocalizedTextBuf() { return localizedTextBuf_; }
   void setLocalizedTextBuf(char *newBuf) { localizedTextBuf_ = newBuf; }
@@ -177,8 +177,8 @@ class CmpStatement : public NABasicObject {
 
   CSEInfo *getCSEInfo(const char *cseName) const;
   CSEInfo *getCSEInfoForMainQuery() const;
-  static Int32 getCSEIdForMainQuery() { return 0; }
-  CSEInfo *getCSEInfoById(Int32 cseId) const;
+  static int getCSEIdForMainQuery() { return 0; }
+  CSEInfo *getCSEInfoById(int cseId) const;
   const LIST(CSEInfo *) * getCSEInfoList() const { return cses_; }
   void addCSEInfo(CSEInfo *info);
 
@@ -263,7 +263,7 @@ class CmpStatement : public NABasicObject {
   CostMethod *CostMethodHead_;
 
   OperatorTypeEnum ItemExprOrigOpTypeBeingBound_;
-  Int32 ItemExprOrigOpTypeCounter_;
+  int ItemExprOrigOpTypeCounter_;
 
   NAStringList parserStmtLiteralList_;
 
@@ -287,7 +287,7 @@ class CmpStatement : public NABasicObject {
 
   // indicates whether we are retrying the compile in
   // CmpMain::sqlcomp(QueryText, ...
-  Int32 numOfCompilationRetries_;
+  int numOfCompilationRetries_;
 
   // Set to TRUE if we are recompiling a statement due to expiration of an
   // Apache Sentry privilege check timestamp

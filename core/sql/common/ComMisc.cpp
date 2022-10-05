@@ -104,7 +104,7 @@ NABoolean ComIsTrafodionReservedSchemaName(const NAString &schName) {
 // schema names of pattern "_HV_ ... _" and "_HB_ ... _" are reserved to store
 // external hive and hbase tables
 NABoolean ComIsTrafodionExternalSchemaName(const NAString &schName, NABoolean *isHive) {
-  Int32 len(schName.length());
+  int len(schName.length());
 
   // skip double quotes around schName
   NABoolean quoted = FALSE;
@@ -370,7 +370,7 @@ NAString ComGetReservedNamespace(NAString schName) {
     return TRAF_RESERVED_NAMESPACE6;
 }
 
-Int32 ComGenerateUdrCachedLibName(NAString libname, long redeftime, NAString schemaName, NAString userid,
+int ComGenerateUdrCachedLibName(NAString libname, long redeftime, NAString schemaName, NAString userid,
                                   NAString &cachedLibName, NAString &cachedLibPath) {
   NAString libPrefix, libSuffix;
   struct stat statbuf;

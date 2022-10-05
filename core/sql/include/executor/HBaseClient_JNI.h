@@ -212,7 +212,7 @@ class HTableClient_JNI : public JavaObjectInterface {
 
   HTC_RetCode init();
 
-  HTC_RetCode startScan(long transID, long savepointID, long pSavepointId, Int32 isolation, const Text &startRowID,
+  HTC_RetCode startScan(long transID, long savepointID, long pSavepointId, int isolation, const Text &startRowID,
                         const Text &stopRowID, const LIST(HbaseStr) & cols, long timestamp, bool cacheBlocks,
                         bool smallScanner, int numCacheRows, NABoolean preFetch, int lockMode,
                         NABoolean skipReadConflict, NABoolean skipTransaction,
@@ -265,7 +265,7 @@ class HTableClient_JNI : public JavaObjectInterface {
   static char *getErrorText(HTC_RetCode errEnum);
 
   void setTableName(const char *tableName) {
-    Int32 len = strlen(tableName);
+    int len = strlen(tableName);
 
     if (tableName_ != NULL) {
       NADELETEBASIC(tableName_, heap_);
@@ -546,14 +546,14 @@ class HBaseClient_JNI : public JavaObjectInterface {
   HBC_RetCode exists(const char *fileName, long transID);
   HBC_RetCode grant(const Text &user, const Text &tableName, const TextVec &actionCodes);
   HBC_RetCode revoke(const Text &user, const Text &tableName, const TextVec &actionCodes);
-  HBC_RetCode estimateRowCount(const char *tblName, Int32 partialRowSize, Int32 numCols, Int32 retryLimitMilliSeconds,
-                               NABoolean useCoprocessor, long &rowCount, Int32 &breadCrumb);
+  HBC_RetCode estimateRowCount(const char *tblName, int partialRowSize, int numCols, int retryLimitMilliSeconds,
+                               NABoolean useCoprocessor, long &rowCount, int &breadCrumb);
   static HBC_RetCode getLatestSnapshot(const char *tabname, char *&snapshotName, NAHeap *heap);
   HBC_RetCode cleanSnpTmpLocation(const char *path);
   HBC_RetCode setArchivePermissions(const char *path);
   HBC_RetCode getBlockCacheFraction(float &frac);
-  HBC_RetCode getHbaseTableInfo(const char *tblName, Int32 &indexLevels, Int32 &blockSize);
-  HBC_RetCode getRegionsNodeName(const char *tblName, Int32 partns, ARRAY(const char *) & nodeNames);
+  HBC_RetCode getHbaseTableInfo(const char *tblName, int &indexLevels, int &blockSize);
+  HBC_RetCode getRegionsNodeName(const char *tblName, int partns, ARRAY(const char *) & nodeNames);
 
   // req processing in worker threads
   HBC_RetCode enqueueRequest(HBaseClientRequest *request);
@@ -579,16 +579,16 @@ class HBaseClient_JNI : public JavaObjectInterface {
                            unsigned char *base64rowIDVal = NULL, int base64RowLen = 0, short rowIDLen = 0,
                            const char *curExecSql = NULL, NABoolean isStatement = false);
 
-  HBC_RetCode startGet(NAHeap *heap, const char *tableName, bool useTRex, NABoolean replSync, Int32 lockMode,
+  HBC_RetCode startGet(NAHeap *heap, const char *tableName, bool useTRex, NABoolean replSync, int lockMode,
                        NABoolean skipReadConflict, ExHbaseAccessStats *hbs, long transID, long savepointID,
-                       long pSavepointId, Int32 isolationLevel, const HbaseStr &rowID, const LIST(HbaseStr) & cols,
+                       long pSavepointId, int isolationLevel, const HbaseStr &rowID, const LIST(HbaseStr) & cols,
                        long timestamp, int replicaId, HTableClient_JNI *htc, const char *hbaseAuths = NULL,
                        const char *encryptionInfo = NULL, NABoolean waitOnSelectForUpdate = FALSE,
                        NABoolean firstReadBypassTm = FALSE);
 
-  HBC_RetCode startGets(NAHeap *heap, const char *tableName, bool useTRex, NABoolean replSync, Int32 lockMode,
+  HBC_RetCode startGets(NAHeap *heap, const char *tableName, bool useTRex, NABoolean replSync, int lockMode,
                         NABoolean skipReadConflict, NABoolean skipTransactionForBatchGet, ExHbaseAccessStats *hbs,
-                        long transID, long savepointID, long pSavepointId, Int32 isolationLevel,
+                        long transID, long savepointID, long pSavepointId, int isolationLevel,
                         const LIST(HbaseStr) * rowIDs, short rowIDLen, const HbaseStr *rowIDsInDB,
                         const LIST(HbaseStr) & cols, long timestamp, int replicaId, HTableClient_JNI *htc,
                         const char *hbaseAuths = NULL, const char *encryptionInfo = NULL);
@@ -601,28 +601,28 @@ class HBaseClient_JNI : public JavaObjectInterface {
                         short colIndexToCheck, HTableClient_JNI **outHtc, ExDDLValidator *ddlValidator);
   HBC_RetCode insertRows(NAHeap *heap, const char *tableName, ExHbaseAccessStats *hbs, long transID, long savepointID,
                          long pSavepointId, short rowIDLen, HbaseStr rowIDs, HbaseStr rows, long timestamp,
-                         Int32 flags, const char *encryptionInfo, const char *triggers, const char *curExecSql,
+                         int flags, const char *encryptionInfo, const char *triggers, const char *curExecSql,
                          HTableClient_JNI **outHtc, ExDDLValidator *ddlValidator);
   HBC_RetCode updateVisibility(NAHeap *heap, const char *tableName, ExHbaseAccessStats *hbs, bool useTRex,
                                long transID, HbaseStr rowID, HbaseStr row, HTableClient_JNI **outHtc);
   HBC_RetCode checkAndUpdateRow(NAHeap *heap, const char *tableName, ExHbaseAccessStats *hbs, long transID,
                                 long savepointID, long pSavepointId, HbaseStr rowID, HbaseStr row,
-                                HbaseStr columnToCheck, HbaseStr columnValToCheck, long timestamp, Int32 flags,
+                                HbaseStr columnToCheck, HbaseStr columnValToCheck, long timestamp, int flags,
                                 const char *encryptionInfo, const char *triggers, const char *curExecSql,
                                 HTableClient_JNI **outHtc);
   HBC_RetCode deleteRow(NAHeap *heap, const char *tableName, ExHbaseAccessStats *hbs, long transID, long savepointID,
                         long pSavepointId, HbaseStr rowID, const LIST(HbaseStr) * cols, long timestamp,
-                        const char *hbaseAuths, Int32 flags, const char *encryptionInfo, const char *triggers,
+                        const char *hbaseAuths, int flags, const char *encryptionInfo, const char *triggers,
                         const char *curExecSql, HTableClient_JNI **outHtc, ExDDLValidator *ddlValidator);
   HBC_RetCode deleteRows(NAHeap *heap, const char *tableName, ExHbaseAccessStats *hbs, long transID, long savepointID,
                          long pSavepointId, short rowIDLen, HbaseStr rowIDs, const LIST(HbaseStr) * cols,
-                         long timestamp, const char *hbaseAuths, Int32 flags, const char *encryptionInfo,
+                         long timestamp, const char *hbaseAuths, int flags, const char *encryptionInfo,
                          const char *triggers, const char *curExecSql, HTableClient_JNI **outHtc,
                          ExDDLValidator *ddlValidator);
   HBC_RetCode checkAndDeleteRow(NAHeap *heap, const char *tableName, ExHbaseAccessStats *hbs, long transID,
                                 long savepointID, long pSavepointId, HbaseStr rowID, const LIST(HbaseStr) * cols,
                                 HbaseStr columnToCheck, HbaseStr columnValToCheck, long timestamp,
-                                const char *hbaseAuths, Int32 flags, const char *encryptionInfo, const char *triggers,
+                                const char *hbaseAuths, int flags, const char *encryptionInfo, const char *triggers,
                                 const char *curExecSql, HTableClient_JNI **outHtc, ExDDLValidator *ddlValidator);
 
   HBC_RetCode getNextValue(NAString &tabName, NAString &rowId, NAString &famName, NAString &qualName, long incrBy,
@@ -647,7 +647,7 @@ class HBaseClient_JNI : public JavaObjectInterface {
   HBC_RetCode deleteSnapshot(const NAString &snapshotName);
   HBC_RetCode verifySnapshot(const NAString &tableName, const NAString &snapshotName, NABoolean &exist);
   HBC_RetCode lockRequired(NAHeap *heap, const char *tableName, ExHbaseAccessStats *hbs, long transactionId,
-                           long savepointId, long pSavepointId, Int32 lockMode, NABoolean registerRegion,
+                           long savepointId, long pSavepointId, int lockMode, NABoolean registerRegion,
                            HTableClient_JNI **outHtc);
   HBC_RetCode cancelOperation(long transId);
 
@@ -665,7 +665,7 @@ class HBaseClient_JNI : public JavaObjectInterface {
  private:
   // private default constructor
   HBaseClient_JNI(NAHeap *heap, NABoolean bigTable);
-  NAArray<HbaseStr> *getKeys(Int32 funcIndex, NAHeap *heap, const char *tableName, bool useTRex);
+  NAArray<HbaseStr> *getKeys(int funcIndex, NAHeap *heap, const char *tableName, bool useTRex);
 
  private:
   enum JAVA_METHODS {

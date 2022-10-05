@@ -57,10 +57,10 @@ class ExeTraceInfo;
 //   2. add "void *traceRef_;" to keep the reference to the trace
 //      registration in the repository
 //   3. define a static wrapper function, e.g.
-//        static Int32 getALine(void * mine, Int32 lineno, char * buf)
+//        static int getALine(void * mine, int lineno, char * buf)
 //                { return ((ExScheduler *) mine)->printALiner(lineno, buf); }
 //   4. define the print method named in the wrapper function, e.g.
-//        Int32 printALiner(Int32 lineno, char *buf) {...};
+//        int printALiner(int lineno, char *buf) {...};
 //      which prints all fields of one trace entry referenced by the lineno
 //      to buf and returns number of bytes added to the buffer.
 //   5. use the following 3 methods in the ExeTraceInfo class to register
@@ -71,11 +71,11 @@ class ExeTraceInfo;
 // More about ExeTraceInfo methods used by trace host classes:
 //
 // Use this method to register trace to global trace info repository
-// Int32
+// int
 // ExeTraceInfo::addTrace(const char * traceName, void * traceId,
-//                       Int32 numEntries, Int32 numFields, void *target,
+//                       int numEntries, int numFields, void *target,
 //                       GetALineProcPtr getALineProc, void * indexLoc,
-//                       Int32 lineWidth, const char *desc,
+//                       int lineWidth, const char *desc,
 //                       void **exeTrace)
 //
 //   parameters:
@@ -129,19 +129,19 @@ class ExeTraceInfo;
 //----------------------------------------------------------------------
 
 // types for pointers to methods
-typedef Int32 (*GetALineProcPtr)(void *target, Int32 lineno, char *buf);
+typedef int (*GetALineProcPtr)(void *target, int lineno, char *buf);
 
 // The following is not used now because we assume that all trace array
-// indexes are of type Int32:
+// indexes are of type int:
 //
-// typedef Int32 (*GetIndexProcPtr) (void);
+// typedef int (*GetIndexProcPtr) (void);
 
 class ExeTrace {
   friend class ExeTraceInfo;
 
  public:
-  // typedef Int32 (ExeTrace::*GetALiner)(Int32 lineno, char *buf) const;
-  // typedef Int32 (ExeTrace::*GetIndex) (void) const;
+  // typedef int (ExeTrace::*GetALiner)(int lineno, char *buf) const;
+  // typedef int (ExeTrace::*GetIndex) (void) const;
 
   enum FieldType {
     TR_CHAR = 1,
@@ -161,19 +161,19 @@ class ExeTrace {
     FieldType fieldType_;
   };
 
-  ExeTrace(char *name, void *id, void *target, GetALineProcPtr getALineProc, void *indexLoc, Int32 numEntries,
-           Int32 lineLen, const char *desc);
+  ExeTrace(char *name, void *id, void *target, GetALineProcPtr getALineProc, void *indexLoc, int numEntries,
+           int lineLen, const char *desc);
   ~ExeTrace(){};
 
   inline char *getTraceName() { return name_; };
   inline void *getTraceId() { return traceId_; };
-  inline Int32 getNumEntries() { return numEntries_; };
-  inline Int32 getNumFields() { return numFields_; };
-  inline Int32 getLineWidth() { return lineWidth_; };
-  inline Int32 getIndex() { return (indexLoc_ == NULL) ? -1 : *((Int32 *)indexLoc_); };
+  inline int getNumEntries() { return numEntries_; };
+  inline int getNumFields() { return numFields_; };
+  inline int getLineWidth() { return lineWidth_; };
+  inline int getIndex() { return (indexLoc_ == NULL) ? -1 : *((int *)indexLoc_); };
   inline GetALineProcPtr getLineProc() { return getALineProc_; };
   inline void *getTarget() { return target_; };
-  Int32 getTitleLineWidth();
+  int getTitleLineWidth();
 
  private:
   char name_[MAX_TRACE_NAME_LEN];  // name of the trace
@@ -182,9 +182,9 @@ class ExeTrace {
   GetALineProcPtr getALineProc_;   // pointer to function sending one trace
                                    // entry to given buffer
   void *indexLoc_;                 // pointer to the trace index area
-  Int32 numEntries_;               // size of the trace
-  Int32 numFields_;                // size of the trace
-  Int32 lineWidth_;                // number of bytes to sprint one trace entry
+  int numEntries_;               // size of the trace
+  int numFields_;                // size of the trace
+  int lineWidth_;                // number of bytes to sprint one trace entry
   char *describes_;
   TraceField fields_[1];
 };
@@ -199,8 +199,8 @@ class ExeTraceInfo : public NABasicObject {
 
   // used by general public
   // create and add the trace info
-  Int32 addTrace(const char *traceName, void *traceId, Int32 numEntries, Int32 numFields, void *target,
-                 GetALineProcPtr getALineProc, void *indexLoc, Int32 lineWidth, const char *desc, void **exeTrace);
+  int addTrace(const char *traceName, void *traceId, int numEntries, int numFields, void *target,
+                 GetALineProcPtr getALineProc, void *indexLoc, int lineWidth, const char *desc, void **exeTrace);
   // add trace field info
   void addTraceField(void *exeTrace, const char *fieldName, UInt32 fieldIdx, ExeTrace::FieldType fType);
   // unregister the given trace
@@ -210,12 +210,12 @@ class ExeTraceInfo : public NABasicObject {
   bool isRegistered(ExeTrace *trace) { return exeTraces_.contains(trace) == TRUE; };
   bool isValidTraceId(void *traceId) { return true; };  // tbd
 
-  Int32 getExeTraceInfoAll(char *outBuf, Int32 maxBufLen, Int32 *bufLen, Int32 startTid = 0);
-  Int32 getExeTraceAll(char *outBuf, Int32 maxBufLen, Int32 *bufLen, Int32 startTid = 0);
-  void *getExeTraceId(char *name, Int32 nameLen) const;
-  Int32 getExeTraceInfoById(void *traceId, char *buf, Int32 maxBufLen, Int32 *bufLen);
+  int getExeTraceInfoAll(char *outBuf, int maxBufLen, int *bufLen, int startTid = 0);
+  int getExeTraceAll(char *outBuf, int maxBufLen, int *bufLen, int startTid = 0);
+  void *getExeTraceId(char *name, int nameLen) const;
+  int getExeTraceInfoById(void *traceId, char *buf, int maxBufLen, int *bufLen);
 
-  Int32 getExeTraceById(void *traceId, char *buf, Int32 maxBufLen, Int32 *bufLen);
+  int getExeTraceById(void *traceId, char *buf, int maxBufLen, int *bufLen);
 
  private:
   LIST(ExeTrace *) exeTraces_;

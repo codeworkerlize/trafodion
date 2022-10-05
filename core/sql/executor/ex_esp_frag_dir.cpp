@@ -160,11 +160,11 @@ ExEspFragInstanceDir::ExEspFragInstanceDir(CliGlobals *cliGlobals, NAHeap *heap,
   traceRef_ = NULL;
   ExeTraceInfo *ti = cliGlobals_->getExeTraceInfo();
   if (ti) {
-    Int32 lineWidth = 42;  // temp
+    int lineWidth = 42;  // temp
     void *regdTrace;
     char traceDesc[80];
     sprintf(traceDesc, "Trace plan fragment instance state changes");
-    Int32 ret = ti->addTrace("FragmentInstance", this, NumFiTraceElements, 3, this, getALine, &fiTidx_, lineWidth,
+    int ret = ti->addTrace("FragmentInstance", this, NumFiTraceElements, 3, this, getALine, &fiTidx_, lineWidth,
                              traceDesc, &regdTrace);
     if (ret == 0) {
       // trace info added successfully, now add entry fields
@@ -834,7 +834,7 @@ void ExEspFragInstanceDir::traceIdleMemoryUsage() {
   ULng32 memPeak, memSize;  // VMSize in KB
   time_t timeInSecs;
   tm *localTime;
-  Int32 success;
+  int success;
   size_t bytesRead;
   if (first_time) {
     char *env_var = getenv("ESP_IDLE_MEMORY_TRACE");
@@ -898,7 +898,7 @@ NAHeap *ExEspFragInstanceDir::getLocalStatsHeap() {
   return localStatsHeap_;
 }
 
-void ExEspFragInstanceDir::setDatabaseUserID(Int32 userID, const char *userName) {
+void ExEspFragInstanceDir::setDatabaseUserID(int userID, const char *userName) {
   ex_assert(cliGlobals_, "CliGlobals pointer should not be NULL");
 
   ContextCli *context = cliGlobals_->currContext();
@@ -922,7 +922,7 @@ void ExEspFragInstanceDir::initFiStateTrace() {
 }
 
 enum ExEspFragInstanceDir::FragmentInstanceState ExEspFragInstanceDir::setFiState(
-    int fragId, enum ExEspFragInstanceDir::FragmentInstanceState newState, Int32 linenum) {
+    int fragId, enum ExEspFragInstanceDir::FragmentInstanceState newState, int linenum) {
   if (newState != instances_[fragId]->fiState_) {
     if (++fiTidx_ >= NumFiTraceElements) fiTidx_ = 0;
     instances_[fragId]->fiState_ = newState;
@@ -937,8 +937,8 @@ enum ExEspFragInstanceDir::FragmentInstanceState ExEspFragInstanceDir::setFiStat
   return newState;
 }
 
-Int32 ExEspFragInstanceDir::printALiner(Int32 lineno, char *buf) {
-  Int32 rv = 0;
+int ExEspFragInstanceDir::printALiner(int lineno, char *buf) {
+  int rv = 0;
   const char *stateName = "UNKNOWN";
   if (lineno >= NumFiTraceElements) return rv;
 
@@ -1211,7 +1211,7 @@ void ExEspControlMessage::actOnLoadFragmentReq(IpcConnection *connection, ComDia
 
     // On Linux if this is the first fragment seen by this ESP, set
     // the database user identity for this process
-    Int32 userID = msgFragment->getDatabaseUserID();
+    int userID = msgFragment->getDatabaseUserID();
     const char *userName = msgFragment->getDatabaseUserName();
     if (!fragInstanceDir_->getUserIDEstablished()) {
     }

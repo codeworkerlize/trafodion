@@ -40,7 +40,7 @@ class Timer {
  public:
   void timerOn();
   void timerOff();
-  void timerLog(const char *msg, const char *file, Int32 line);
+  void timerLog(const char *msg, const char *file, int line);
 
   static void openLog();
   static void closeLog();

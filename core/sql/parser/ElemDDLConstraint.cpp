@@ -54,7 +54,7 @@
 // virtual destructor
 ElemDDLConstraint::~ElemDDLConstraint() {
   // delete all children
-  for (Int32 index = 0; index < getArity(); index++) {
+  for (int index = 0; index < getArity(); index++) {
     delete getChild(index);
   }
 }
@@ -66,7 +66,7 @@ ElemDDLConstraint *ElemDDLConstraint::castToElemDDLConstraint() { return this; }
 // accessors
 //
 
-Int32 ElemDDLConstraint::getArity() const { return MAX_ELEM_DDL_CONSTRAINT_ARITY; }
+int ElemDDLConstraint::getArity() const { return MAX_ELEM_DDL_CONSTRAINT_ARITY; }
 
 ExprNode *ElemDDLConstraint::getChild(int index) {
   ComASSERT(index EQU INDEX_CONSTRAINT_ATTRIBUTES);
@@ -291,7 +291,7 @@ NABoolean ElemDDLConstraintCheck::getColumnsNotNull(ItemExprList &il) {
 // accessors
 //
 
-Int32 ElemDDLConstraintCheck::getArity() const { return MAX_ELEM_DDL_CONSTRAINT_CHECK_ARITY; }
+int ElemDDLConstraintCheck::getArity() const { return MAX_ELEM_DDL_CONSTRAINT_CHECK_ARITY; }
 
 ExprNode *ElemDDLConstraintCheck::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
@@ -467,7 +467,7 @@ ElemDDLConstraintRI::~ElemDDLConstraintRI() {
   // ~ElemDDLConstraintRI() only needs to delete the additional child
   // parse nodes that only belong to class ElemDDLConstraintRI.
   //
-  for (Int32 index = ElemDDLConstraint::getArity(); index < getArity(); index++) {
+  for (int index = ElemDDLConstraint::getArity(); index < getArity(); index++) {
     delete getChild(index);
   }
 }
@@ -479,7 +479,7 @@ ElemDDLConstraintRI *ElemDDLConstraintRI::castToElemDDLConstraintRI() { return t
 // accessors
 //
 
-Int32 ElemDDLConstraintRI::getArity() const { return MAX_ELEM_DDL_CONSTRAINT_RI_ARITY; }
+int ElemDDLConstraintRI::getArity() const { return MAX_ELEM_DDL_CONSTRAINT_RI_ARITY; }
 
 ExprNode *ElemDDLConstraintRI::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
@@ -732,7 +732,7 @@ ElemDDLConstraintUnique::~ElemDDLConstraintUnique() {
   // ~ElemDDLConstraintUnique() only needs to delete the additional
   // child parse nodes that only belong to class ElemDDLConstraintUnique.
   //
-  for (Int32 index = ElemDDLConstraint::getArity(); index < getArity(); index++) {
+  for (int index = ElemDDLConstraint::getArity(); index < getArity(); index++) {
     delete getChild(index);
   }
 }
@@ -744,7 +744,7 @@ ElemDDLConstraintUnique *ElemDDLConstraintUnique::castToElemDDLConstraintUnique(
 // accessors
 //
 
-Int32 ElemDDLConstraintUnique::getArity() const { return MAX_ELEM_DDL_CONSTRAINT_UNIQUE_ARITY; }
+int ElemDDLConstraintUnique::getArity() const { return MAX_ELEM_DDL_CONSTRAINT_UNIQUE_ARITY; }
 
 ExprNode *ElemDDLConstraintUnique::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());

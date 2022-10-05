@@ -58,7 +58,7 @@ void QRGroupLattice::reportStats(NAString &text) {
   lattice_->dumpLattice(text, "stats");
 }
 
-void QRGroupLattice::collectMVGroups(WorkloadAnalysisPtr workload, Int32 minQueriesPerMV, CollHeap *heap) {
+void QRGroupLattice::collectMVGroups(WorkloadAnalysisPtr workload, int minQueriesPerMV, CollHeap *heap) {
   lattice_->collectMVGroups(workload, minQueriesPerMV, heap);
 }
 
@@ -254,7 +254,7 @@ LatticeIndexablePtr QRGroupLattice::elementToKey(const QRElementPtr element, QRJ
   if (col != NULL) {
     col = col->getReferencedElement()->downCastToQRColumn();
     const NAString &tableID = col->getTableID();
-    Int32 Inx = map->getIndexForTable(tableID);
+    int Inx = map->getIndexForTable(tableID);
     if (Inx == -1) {
       assertLogAndThrow(CAT_GRP_LATTCE_INDX, LL_ERROR, !insertMode, QRLogicException,
                         "Table index not found in Insert mode (Inserting a multi-JBB MV?).");

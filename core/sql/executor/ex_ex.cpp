@@ -56,7 +56,7 @@
 #include "cli/Context.h"
 #include "executor/ex_globals.h"
 
-extern Int32 gettimeofday(struct timeval *, struct timezone *);
+extern int gettimeofday(struct timeval *, struct timezone *);
 
 // -----------------------------------------------------------------------
 // NT Port - GSH 03/18/97
@@ -67,7 +67,7 @@ extern Int32 gettimeofday(struct timeval *, struct timezone *);
 // -----------------------------------------------------------------------
 
 #ifdef NA_DEBUG_GUI
-Int32 ex_tcb::objectCount = 0;
+int ex_tcb::objectCount = 0;
 #endif
 
 /////////////////////////////////////////////////////////////
@@ -120,8 +120,8 @@ void ex_tcb::registerSubtasks() {
   // BertBert ^^
 
   // register events for child queues
-  Int32 nc = numChildren();
-  for (Int32 i = 0; i < nc; i++) {
+  int nc = numChildren();
+  for (int i = 0; i < nc; i++) {
     const ex_tcb *childTcb = getChild(i);
 
     if (childTcb) {
@@ -147,7 +147,7 @@ ExWorkProcRetcode ex_tcb::workResize() {
 
   // go twice through this loop, once for the up queue and once
   // for the down queue
-  for (Int32 i = 0; i < 2; i++) {
+  for (int i = 0; i < 2; i++) {
     // set some data that depends on the up/down queue
     if (i == 0) {
       // point to the up queue
@@ -189,11 +189,11 @@ ExWorkProcRetcode ex_tcb::workResize() {
   return WORK_OK;
 }
 
-Int32 ex_tcb::fixup() {
+int ex_tcb::fixup() {
   short error = 0;
 
-  Int32 nc = numChildren();
-  for (Int32 i = 0; i < nc; i++) {
+  int nc = numChildren();
+  for (int i = 0; i < nc; i++) {
     error = ((ex_tcb *)getChild(i))->fixup();
     if (error) break;
   }
@@ -202,11 +202,11 @@ Int32 ex_tcb::fixup() {
 }
 
 // this method is called to rollback to a previously set savepoint.
-Int32 ex_tcb::rollbackSavepoint() {
+int ex_tcb::rollbackSavepoint() {
   short error = 0;
 
-  Int32 nc = numChildren();
-  for (Int32 i = 0; i < nc; i++) {
+  int nc = numChildren();
+  for (int i = 0; i < nc; i++) {
     error = ((ex_tcb *)getChild(i))->rollbackSavepoint();
     if (error) break;
   }
@@ -218,7 +218,7 @@ Int32 ex_tcb::rollbackSavepoint() {
 void ex_tcb::propagateHoldable(NABoolean h) {
   setHoldable(h);
 
-  for (Int32 i = 0; i < numChildren(); i++) {
+  for (int i = 0; i < numChildren(); i++) {
     ((ex_tcb *)getChild(i))->propagateHoldable(h);
   }
 }
@@ -300,10 +300,10 @@ ex_tcb_private_state *ex_tcb::allocatePstates(int &numElems,      // inout, desi
 // that have a valid stats area and sets their parent id to the
 // input tdb id.
 void ex_tcb::propagateTdbIdForStats(int tdbId) {
-  Int32 nc = numChildren();
+  int nc = numChildren();
   ExOperStats *stat, *currentStat;
   currentStat = getStatsEntry();
-  for (Int32 i = 0; i < nc; i++) {
+  for (int i = 0; i < nc; i++) {
     if (getChild(i)) {
       stat = ((ex_tcb *)getChild(i))->getStatsEntry();
       if (stat != NULL) {
@@ -361,8 +361,8 @@ void ex_tcb::allocateStatsEntry(CollHeap *heap) {
     }
 
     // now allocate the stats entries of my children
-    Int32 nc = numChildren();
-    for (Int32 i = 0; i < nc; i++) {
+    int nc = numChildren();
+    for (int i = 0; i < nc; i++) {
       if (getChild(i) != NULL) {
         ex_tcb *childTcb = (ex_tcb *)getChild(i);
         childTcb->allocateStatsEntry(getGlobals()->getStatsArea()->getHeap());
@@ -394,7 +394,7 @@ ExOperStats *ex_tcb::doAllocateStatsEntry(CollHeap *heap, ComTdb *tdb) {
   }
 }
 
-void ex_tcb::computeNeededPoolInfo(Int32 &numBuffs, UInt32 &staticPoolSpaceSize, UInt32 &dynPoolSpaceSize) {
+void ex_tcb::computeNeededPoolInfo(int &numBuffs, UInt32 &staticPoolSpaceSize, UInt32 &dynPoolSpaceSize) {
   numBuffs = getTdb()->numBuffers_;
   staticPoolSpaceSize = 0;
   dynPoolSpaceSize = 0;
@@ -421,8 +421,8 @@ void ex_tcb::mergeStats(ExStatisticsArea *otherStats) {
 void ex_tcb::cpuLimitExceeded() { ex_assert(0, "ex_tcb::cpuLimitExceeded not defined for this class."); }
 
 void ex_tcb::cleanup() {
-  Int32 nc = numChildren();
-  for (Int32 i = 0; i < nc; i++) {
+  int nc = numChildren();
+  for (int i = 0; i < nc; i++) {
     ex_tcb *childTcb = (ex_tcb *)getChild(i);
 
     if (childTcb) {

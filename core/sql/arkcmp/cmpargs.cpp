@@ -58,13 +58,13 @@ static ostream &operator<<(ostream &dest, ComDiagsArea &diags) {
   return dest;
 }
 
-static void printCmdline(Int32 argc, char **argv) {
+static void printCmdline(int argc, char **argv) {
   static char TDM_ARKCMP[] = "tdm_arkcmp";
   if (argc == 0 || argv[0] == NULL || argv[0][0] == '\0') {
     if (argc == 0) argc = 1;
     argv[0] = TDM_ARKCMP;
   }
-  for (Int32 i = 0; i < argc; i++) {
+  for (int i = 0; i < argc; i++) {
     if (i) cout << ' ';
     cout << argv[i];
   }
@@ -72,8 +72,8 @@ static void printCmdline(Int32 argc, char **argv) {
 }
 
 // process -g {moduleGlobal|moduleLocal}
-Int32 Cmdline_Args::doModuleGlobalLocal(char *arg, Int32 argc, char **argv, ComDiagsArea &diags) {
-  Int32 result = 0;
+int Cmdline_Args::doModuleGlobalLocal(char *arg, int argc, char **argv, ComDiagsArea &diags) {
+  int result = 0;
   if (!strcmp(arg, "moduleGlobal")) {
     modulePlacement_ = MOD_GLOBAL;
   } else if (!strcmp(arg, "moduleLocal")) {
@@ -93,8 +93,8 @@ Int32 Cmdline_Args::doModuleGlobalLocal(char *arg, Int32 argc, char **argv, ComD
 }
 
 // process -g {moduleGlobal|moduleLocal[=OSSdirectory]}
-Int32 Cmdline_Args::doModuleGlobalLocalDir(char *arg, Int32 argc, char **argv, Int32 &gCount, ComDiagsArea &diags) {
-  Int32 result = 0;
+int Cmdline_Args::doModuleGlobalLocalDir(char *arg, int argc, char **argv, int &gCount, ComDiagsArea &diags) {
+  int result = 0;
   // at most one -g moduleBlah option is allowed
   if (gCount > 0) {
     diags << DgSqlCode(mxcmpUmAtMostOneoptionGisAllowed);
@@ -116,7 +116,7 @@ Int32 Cmdline_Args::doModuleGlobalLocalDir(char *arg, Int32 argc, char **argv, I
     result = -1;
   } else {  // OSSdirectory < 1024
     // verify we have -g moduleLocal=OSSdirectory
-    Int32 kwdLen = (Int32)strlen("moduleLocal");
+    int kwdLen = (int)strlen("moduleLocal");
     if (eq - arg == kwdLen && strncmp(arg, "moduleLocal", kwdLen) == 0) {
       modulePlacement_ = MOD_LOCAL;
       // reject any Expand or Guardian path
@@ -160,7 +160,7 @@ char *Cmdline_Args::getModuleDir() const {
 bool Cmdline_Args::moduleLocal() const { return FALSE; }
 
 static void DisplayDebugBox() {
-  Int32 pid = getpid();
+  int pid = getpid();
   char stmp[256];
   snprintf(stmp, sizeof(stmp), "Process Launched %d", pid);
   MessageBox(NULL, stmp, "MXCMP", MB_OK | MB_ICONINFORMATION);
@@ -184,7 +184,7 @@ Cmdline_Args::Cmdline_Args()
       testMode_(NONE),
       testData_(NULL) {}
 
-void Cmdline_Args::processArgs(Int32 argc, char **argv) {
+void Cmdline_Args::processArgs(int argc, char **argv) {
   Space localHeap;
   ComDiagsArea diags(&localHeap);
 
@@ -200,8 +200,8 @@ void Cmdline_Args::processArgs(Int32 argc, char **argv) {
   }
 #endif
 
-  Int32 extraArgs = 0;
-  for (Int32 i = 1; i < argc; i++)  // start at 1 (args) not 0 (progname)
+  int extraArgs = 0;
+  for (int i = 1; i < argc; i++)  // start at 1 (args) not 0 (progname)
   {
     if (!argv[i]) continue;
 
@@ -310,7 +310,7 @@ void Cmdline_Args::processArgs(Int32 argc, char **argv) {
 
   if (argc <= 1) usage(argc, argv);  // no "?" errmsg, just this helpful info
 
-  Int32 ch, gCount = 0;
+  int ch, gCount = 0;
   while ((ch = getopt(argc, argv, "a:d:eg:h?l:v")) != -1) {
     switch (ch) {
       case 'a':  // application
@@ -321,7 +321,7 @@ void Cmdline_Args::processArgs(Int32 argc, char **argv) {
       {
         NAString nam(optarg);
         // find the = if it exists
-        Int32 loopx = 0, len = nam.length();
+        int loopx = 0, len = nam.length();
         while ((loopx < len) && ((nam)(loopx) != '=')) loopx++;
         if (len == loopx) {
           diags << DgSqlCode(mxcmpUmIllformatedOptionD) << DgString0(optarg);
@@ -366,7 +366,7 @@ void Cmdline_Args::processArgs(Int32 argc, char **argv) {
         char buf[2];
         buf[0] = (char)ch;
         buf[1] = 0;
-        diags << DgSqlCode(mxcmpUmNoCaseForOption) << DgString0(buf) << DgInt1((Int32)ch);
+        diags << DgSqlCode(mxcmpUmNoCaseForOption) << DgString0(buf) << DgInt1((int)ch);
         cout << diags;
         usage(argc, argv);
       }
@@ -374,7 +374,7 @@ void Cmdline_Args::processArgs(Int32 argc, char **argv) {
     }  // switch
   }    // while
 
-  Int32 sane = TRUE;
+  int sane = TRUE;
 
   if (optind < argc) {
     if (optind < argc - 1) {
@@ -406,7 +406,7 @@ void Cmdline_Args::overwriteSettings() const {
   }
 }
 
-void Cmdline_Args::usage(Int32 argc, char **argv) {
+void Cmdline_Args::usage(int argc, char **argv) {
   // If user typed only "arkcmp" w/no options or args, print only usage msg;
   // if any opts or args, print only the bad cmdline.
   if (argc > 1) {

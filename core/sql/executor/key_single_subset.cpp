@@ -211,7 +211,7 @@ keyRangeEx::getNextKeyRangeReturnType keySingleSubsetEx::getNextKeyRange(atp_str
         //    flags was set.
         //
         // str_cmp returns -1, 0, 1 for <, =, >
-        Int32 cmpCode = str_cmp(bktarget, ektarget, tdbBeginEndKey().getKeyLength());
+        int cmpCode = str_cmp(bktarget, ektarget, tdbBeginEndKey().getKeyLength());
         if (((detectNullRange) && (cmpCode > 0)) ||  // begin key > end key
             ((cmpCode == 0) && ((bkExcludeFlag_ == 1) || (ekExcludeFlag_ == 1)))) {
           // this is a null range.

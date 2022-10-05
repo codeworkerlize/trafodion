@@ -103,7 +103,7 @@ void PCodeCfg::reorderPredicatesHelper() {
       NABitVector ones(heap_);
       NABitVector* bv;
 
-      Int32 opcode = lastInst->getOpcode();
+      int opcode = lastInst->getOpcode();
       PCodeOperand* read = lastInst->getROps()[0];
       PCodeOperand* write = lastInst->getWOps()[0];
 
@@ -192,14 +192,14 @@ void PCodeCfg::reorderPredicatesHelper() {
 //
 PCodeInst *PCodeCfg::shortCircuitConstantProp(PCodeBlock *block, NABitVector *zeroes, NABitVector *ones,
                                               NABoolean *isBranchTaken) {
-  Int32 constant;
+  int constant;
   NABitVector *bv1, *bv2;
 
   FOREACH_INST_IN_BLOCK(block, inst) {
     OPLIST reads = inst->getROps();
     OPLIST writes = inst->getWOps();
 
-    Int32 opc = inst->getOpcode();
+    int opc = inst->getOpcode();
     switch (opc) {
       // For logical operators, propogate constants 0 and 1.
       case PCIT::AND_MBIN32S_MBIN32S_MBIN32S:
@@ -280,7 +280,7 @@ PCodeInst *PCodeCfg::shortCircuitConstantProp(PCodeBlock *block, NABitVector *ze
 //
 // Create immediate moves of operands identified in the provided bit vector.
 //
-void PCodeCfg::shortCircuitOptHelper(PCodeBlock *block, NABitVector *bv, Int32 constant) {
+void PCodeCfg::shortCircuitOptHelper(PCodeBlock *block, NABitVector *bv, int constant) {
   CollIndex i = bv->getLastStaleBit();
   for (; (i = bv->prevUsed(i)) != NULL_COLL_INDEX; i--) {
     PCodeOperand *operand = indexToOperandMap_->getFirstValue(&i);
@@ -509,7 +509,7 @@ NABoolean PCodeBlock::doesBlockQualifyForShortCircuit() {
   return FALSE;
 }
 
-NABoolean PCodeCfg::shortCircuitOpt(Int32 flags) {
+NABoolean PCodeCfg::shortCircuitOpt(int flags) {
   NABoolean restart = FALSE;
   PCodeBlock *tBlk = NULL;
   NABoolean overlapFound = flags;  // Only 1 bit flag passed in for now
@@ -552,7 +552,7 @@ void PCodeCfg::localCopyPropForPeeling(BLOCKLIST &blockList) {
   CollIndex i;
 
   // Only process one block (i.e. "block") for now.
-  Int32 maxLevel = COPY_PROP_MAX_RECURSION - 1;
+  int maxLevel = COPY_PROP_MAX_RECURSION - 1;
 
   for (i = 0; i < blockList.entries(); i++) {
     PCodeBlock *block = blockList[i];
@@ -607,7 +607,7 @@ PCodeBlock *PCodeCfg::shortCircuitOptForBlock(PCodeBlock *block, NABoolean assum
 
   PCodeInst *lastInst = block->getLastInst();
 
-  Int32 numOfBranchesResolved = 0;
+  int numOfBranchesResolved = 0;
 
   PCodeBlock *stopTgtBlock = NULL;
   CollIndex stopCopyBlockIndex = -1;
@@ -893,10 +893,10 @@ PCodeBlock *PCodeCfg::shortCircuitOptForBlock(PCodeBlock *block, NABoolean assum
 PCodeInst *PCodeBlock::reduceBranch(PCodeBlock *to, NABitVector &zeroes, NABitVector &ones, NABitVector &neg1) {
   PCodeInst *newInst = NULL;
   PCodeOperand *write, *read;
-  Int32 constant = 0;
+  int constant = 0;
 
   PCodeInst *inst = getLastInst();
-  Int32 opc = inst->getOpcode();
+  int opc = inst->getOpcode();
 
   switch (opc) {
     case PCIT::NNB_MATTR3_IBIN32S:
@@ -911,8 +911,8 @@ PCodeInst *PCodeBlock::reduceBranch(PCodeBlock *to, NABitVector &zeroes, NABitVe
       CollIndex bvIndex1 = inst->getROps()[0]->getBvIndex();
       CollIndex bvIndex2 = inst->getROps()[1]->getBvIndex();
 
-      Int32 c1 = PCodeConstants::getConstantValue(bvIndex1, zeroes, ones, neg1);
-      Int32 c2 = PCodeConstants::getConstantValue(bvIndex2, zeroes, ones, neg1);
+      int c1 = PCodeConstants::getConstantValue(bvIndex1, zeroes, ones, neg1);
+      int c2 = PCodeConstants::getConstantValue(bvIndex2, zeroes, ones, neg1);
 
       if (constant == 1) {
         write = inst->getWOps()[0];
@@ -1045,13 +1045,13 @@ PCodeBlock *PCodeBlock::determineTargetBlock(NABitVector &zeroes, NABitVector &o
   CollIndex bvIndex1, bvIndex2;
 
   PCodeInst *inst = getLastInst();
-  Int32 const1, const2;
+  int const1, const2;
 
   // If the block doesn't have a branch, or the block is empty, then the
   // default target is the fall-through block
   if (!inst || (!inst->isBranch() && getSuccs().entries())) return getFallThroughBlock();
 
-  Int32 opc = inst->getOpcode();
+  int opc = inst->getOpcode();
 
   switch (opc) {
     case PCIT::BRANCH:
@@ -1188,7 +1188,7 @@ PCodeBlock *PCodeBlock::determineTargetBlock(NABitVector &zeroes, NABitVector &o
 //
 static void setNeg1ConstantsForNullBranch(PCodeInst *inst, NABitVector &zeroes, NABitVector &ones, NABitVector &neg1) {
   CollIndex bvIndex1, bvIndex2;
-  Int32 opc = inst->getOpcode();
+  int opc = inst->getOpcode();
 
   switch (opc) {
     case PCIT::NOT_NULL_BRANCH_MBIN32S_MBIN32S_IATTR3_IBIN32S:

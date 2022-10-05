@@ -64,23 +64,23 @@ const SockPortNumber NoSockPortNumber = 0;
 class SockErrNo {
  public:
   // initialize to a specific error number (values from errno.h)
-  SockErrNo(Int32 e = 0) : errno_(e) {}
+  SockErrNo(int e = 0) : errno_(e) {}
 
   // check whether an error is set
   inline NABoolean hasError() const { return errno_ != 0; }
 
   // get the error number
-  inline Int32 geterrno() const { return errno_; }
+  inline int geterrno() const { return errno_; }
 
   // set the error number from the global variable "errno" or its
   // replacement in GUARDIAN
-  Int32 setFromerrno();
+  int setFromerrno();
 
   // clear the error
   inline void clear() { errno_ = 0; }
 
  private:
-  Int32 errno_;
+  int errno_;
 };
 
 // -----------------------------------------------------------------------
@@ -127,12 +127,12 @@ class SockService {
 // -----------------------------------------------------------------------
 // The TCP protocol as defined in /etc/protocols (always 6)
 // -----------------------------------------------------------------------
-const Int32 SockTCPProtocol = 6;
+const int SockTCPProtocol = 6;
 
 // -----------------------------------------------------------------------
 // A socket datatype (UNIX uses int for a socket)
 // -----------------------------------------------------------------------
-typedef Int32 SockFdesc;
+typedef int SockFdesc;
 const SockFdesc InvalidFdesc = -1;
 
 const SockFdesc SockStdin = 0;

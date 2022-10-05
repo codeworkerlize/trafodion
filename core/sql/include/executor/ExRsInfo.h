@@ -185,7 +185,7 @@ class ExRsInfo : public NABasicObject {
       case EXIT:
         return "EXIT";
       default:
-        return ComRtGetUnknownString((Int32)t);
+        return ComRtGetUnknownString((int)t);
     }
   }
 
@@ -198,7 +198,7 @@ class ExRsInfo : public NABasicObject {
       case SUSPENDED:
         return "SUSPENDED";
       default:
-        return ComRtGetUnknownString((Int32)s);
+        return ComRtGetUnknownString((int)s);
     }
   }
 

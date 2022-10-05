@@ -138,9 +138,9 @@ class ExVPJoinTcb : public ex_tcb {
   ExWorkProcRetcode work();
   void registerSubtasks();
 
-  const ex_tcb *getChild(Int32 pos) const;
+  const ex_tcb *getChild(int pos) const;
   ex_queue_pair getParentQueue() const;
-  virtual Int32 numChildren() const;
+  virtual int numChildren() const;
 
  private:
   // Work methods.
@@ -180,7 +180,7 @@ class ExVPJoinTcb : public ex_tcb {
   queue_index nextReqIx_;  // index of next request, in parent down queue,
                            // to send to child nodes
 
-  Int32 numChildren_;  // number of children
+  int numChildren_;  // number of children
 
   inline ex_expr *filterPred();
 };
@@ -199,7 +199,7 @@ class ExVPJoinPrivateState : public ex_tcb_private_state {
   long matchCount_;  // number of rows returned for
                       // associated request
 
-  Int32 started_;  // has associated request been "started"
+  int started_;  // has associated request been "started"
                    // (i.e., passed down to children)
 };
 

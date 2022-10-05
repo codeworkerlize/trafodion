@@ -42,17 +42,17 @@ class ex_tcb : public ExGod {
   inline short getVersion() const { return version_; }
 
   // access child TCBs via virtual methods
-  virtual const ex_tcb *getChild(Int32 pos) const = 0;
-  virtual Int32 numChildren() const = 0;
+  virtual const ex_tcb *getChild(int pos) const = 0;
+  virtual int numChildren() const = 0;
 
-  virtual Int32 fixup();
+  virtual int fixup();
 
   // return of TRUE means error, FALSE means all Ok.
   virtual NABoolean reOpenTables();
   virtual NABoolean closeTables();
 
   // this method is called to rollback to a previously set savepoint.
-  virtual Int32 rollbackSavepoint();
+  virtual int rollbackSavepoint();
 
   // Three officially supported work methods: work, cancel, and resize.
   // The default implementations make use of these work methods. Individual
@@ -106,7 +106,7 @@ class ex_tcb : public ExGod {
 
   virtual NABoolean resizePoolInfo() { return FALSE; }
 
-  virtual void computeNeededPoolInfo(Int32 &numBuffs, UInt32 &bufferSize, UInt32 &poolSize);
+  virtual void computeNeededPoolInfo(int &numBuffs, UInt32 &bufferSize, UInt32 &poolSize);
 
   int getTotalPoolSize() { return pool_->getTotalMemorySize(); };
 
@@ -115,15 +115,15 @@ class ex_tcb : public ExGod {
   virtual void cleanup();
   // ****  information for GUI  *** -------------
 
-  Int32 objectId;
+  int objectId;
 
 #ifdef NA_DEBUG_GUI
-  static Int32 objectCount;
+  static int objectCount;
 
   void increaseObjectcount() { objectCount++; }
-  Int32 getObjectcount() const { return objectCount; }
+  int getObjectcount() const { return objectCount; }
   void setObjectId() { objectId = objectCount; }
-  Int32 getObjectId() const { return objectId; }
+  int getObjectId() const { return objectId; }
 #endif
 
   ComTdb::ex_node_type getNodeType() const { return nodeType_; }

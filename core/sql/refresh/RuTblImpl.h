@@ -95,7 +95,7 @@ class REFRESH_LIB_CLASS CRURegularTbl : public CRUTbl {
   virtual CDDLockList *GetDDLLockList() { return pddTable_->GetDDLLockList(); }
 
   virtual CDDLock *AddDDLLock(CDSString lockName, CDDObject::EOperationType op, const CDDDetailTextList &details,
-                              CDSLocationList *locationList, Int32 status) {
+                              CDSLocationList *locationList, int status) {
     return pddTable_->AddDDLLock(lockName, op, details, locationList, status);
   }
 
@@ -163,7 +163,7 @@ class REFRESH_LIB_CLASS CRUMVTbl : public CRUTbl {
   virtual CDDLockList *GetDDLLockList() { return pddMV_->GetDDLLockList(); }
 
   virtual CDDLock *AddDDLLock(CDSString lockName, CDDObject::EOperationType op, const CDDDetailTextList &details,
-                              CDSLocationList *locationList, Int32 status) {
+                              CDSLocationList *locationList, int status) {
     return pddMV_->AddDDLLock(lockName, op, details, locationList, status);
   }
 

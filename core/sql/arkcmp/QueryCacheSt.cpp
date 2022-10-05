@@ -234,7 +234,7 @@ SP_STATUS QueryCacheEntriesStoredProcedure::sp_OutputFormat(SP_FIELDDESC_STRUCT 
   return SP_SUCCESS;
 }
 
-void setIsolationLevelAsString(TransMode::IsolationLevel il, char *buffer, Int32 bufLen) {
+void setIsolationLevelAsString(TransMode::IsolationLevel il, char *buffer, int bufLen) {
   memset(buffer, ' ', bufLen);
   strcpy(buffer, getStrOfIsolationLevel(il, FALSE));
 }
@@ -265,7 +265,7 @@ SP_STATUS QueryCacheEntriesStoredProcedure::sp_Process(SP_PROCESS_ACTION action,
       QueryCacheDetails details;
       if (!it->getNext(details)) return SP_SUCCESS;
 
-      fFunc(0, outputData, sizeof(Int32), &(it->counter()), 0);
+      fFunc(0, outputData, sizeof(int), &(it->counter()), 0);
       fFunc(1, outputData, sizeof(details.planId), &(details.planId), 0);
       if (details.ignoreCqdOrCqs) {
         char temp[4096];
@@ -656,7 +656,7 @@ SP_STATUS HybridQueryCacheEntriesStoredProcedure::sp_Process(SP_PROCESS_ACTION a
 NABoolean ISPIterator::initializeISPCaches(SP_ROW_DATA inputData, SP_EXTRACT_FUNCPTR eFunc, SP_ERROR_STRUCT *error,
                                            const NAArray<CmpContextInfo *> &ctxs,  // input
                                            NAString &contextName,
-                                           Int32 &index  // output, set initial index in arrary of CmpContextInfos
+                                           int &index  // output, set initial index in arrary of CmpContextInfos
 ) {
   // extract ISP input, find QueryCache belonging to specified context
   // and use it for fetch later
@@ -686,7 +686,7 @@ NABoolean ISPIterator::initializeISPCaches(SP_ROW_DATA inputData, SP_EXTRACT_FUN
   qCntxt.toLower();
   // the receivingField is of pattern xxx$trafodion.yyy,
   // where xxx is the desired input string.
-  Int32 dollarIdx = qCntxt.index("$");
+  int dollarIdx = qCntxt.index("$");
   CMPASSERT(dollarIdx > 0);
   // find the specified context
   if (ctxs.entries() == 0) {

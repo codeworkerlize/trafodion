@@ -122,7 +122,7 @@ short ExpInterval::getIntervalEndField(int fsDatatype, rec_datetime_field &endFi
   return 0;
 }  // getIntervalEndField
 
-static const Int32 IntervalFieldStringSize = 3;  // punc plus two digits
+static const int IntervalFieldStringSize = 3;  // punc plus two digits
 
 int ExpInterval::getDisplaySize(int fsDatatype, short leadingPrecision, short fractionPrecision) {
   size_t result;

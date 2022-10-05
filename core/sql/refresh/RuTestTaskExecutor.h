@@ -73,11 +73,11 @@ class REFRESH_LIB_CLASS CRUTestTaskExecutor : public CRUTaskExecutor {
 
   virtual void Work();
 
-  void SetNumberOfStatements(Int32 numberOfStatements) { numberOfStatements_ = numberOfStatements; }
+  void SetNumberOfStatements(int numberOfStatements) { numberOfStatements_ = numberOfStatements; }
 
-  void SetGroupId(Int32 groupId) { groupId_ = groupId; }
+  void SetGroupId(int groupId) { groupId_ = groupId; }
 
-  Int32 GetGroupId() { return groupId_; }
+  int GetGroupId() { return groupId_; }
 
   virtual int GetIpcBufferSize() const { return 2000; }
 
@@ -119,8 +119,8 @@ class REFRESH_LIB_CLASS CRUTestTaskExecutor : public CRUTaskExecutor {
  private:
   void ReadSqlStatement();
   void ExecuteAllStatements();
-  void ExecuteStatement(Int32 i);
-  void HandleError(Int32 groupId, Int32 processId, Int32 ordinal, CDMException &e);
+  void ExecuteStatement(int i);
+  void HandleError(int groupId, int processId, int ordinal, CDMException &e);
 
   void StoreData(CUOFsIpcMessageTranslator &translator);
   void LoadData(CUOFsIpcMessageTranslator &translator);
@@ -131,15 +131,15 @@ class REFRESH_LIB_CLASS CRUTestTaskExecutor : public CRUTaskExecutor {
   CRUTestTaskExecutor &operator=(const CRUTestTaskExecutor &other);
 
  private:
-  Int32 numberOfStatements_;
-  Int32 groupId_;
+  int numberOfStatements_;
+  int groupId_;
 
  private:
   CRUSQLDynamicStatementContainer *pDynamicSQLContainer_;
-  Int32 *pNumberOfExecutions_;
-  Int32 *pNumberOfRetries_;
-  Int32 *pNumberOfFailures_;
-  Int32 *pAutoCommit_;
+  int *pNumberOfExecutions_;
+  int *pNumberOfRetries_;
+  int *pNumberOfFailures_;
+  int *pAutoCommit_;
   CRUSQLDynamicStatementContainer errorDynamicSQLContainer_;
 };
 

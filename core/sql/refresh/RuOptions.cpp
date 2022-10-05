@@ -86,7 +86,7 @@ CRUOptions::CRUOptions(const CRUOptions &other)
 //
 //--------------------------------------------------------------------------//
 
-CRUOptions::DebugOption *CRUOptions::FindDebugOption(Int32 testpoint, const CDSString &objName) {
+CRUOptions::DebugOption *CRUOptions::FindDebugOption(int testpoint, const CDSString &objName) {
   DSListPosition pos = debugOptionList_.GetHeadPosition();
   while (NULL != pos) {
     DebugOption &opt = debugOptionList_.GetNext(pos);
@@ -107,7 +107,7 @@ CRUOptions::DebugOption *CRUOptions::FindDebugOption(Int32 testpoint, const CDSS
 //	CRUOptions::AddDebugOption()
 //--------------------------------------------------------------------------//
 
-void CRUOptions::AddDebugOption(Int32 testpoint, const CDSString &objName) {
+void CRUOptions::AddDebugOption(int testpoint, const CDSString &objName) {
   CRUOptions::DebugOption opt;
 
   opt.testpoint_ = testpoint;
@@ -208,30 +208,30 @@ CRUOptions::DebugOption &CRUOptions::DebugOption::operator=(const CRUOptions::De
 //	file's name and the debug options between the processes.
 //--------------------------------------------------------------------------//
 void CRUOptions::StoreData(CUOFsIpcMessageTranslator &translator) {
-  Int32 stringSize;
+  int stringSize;
 
   // Output filename
   stringSize = outFilename_.GetLength() + 1;
-  translator.WriteBlock(&stringSize, sizeof(Int32));
+  translator.WriteBlock(&stringSize, sizeof(int));
   translator.WriteBlock(outFilename_.c_string(), stringSize);
 
   // Force filename
   stringSize = forceFilename_.GetLength() + 1;
-  translator.WriteBlock(&stringSize, sizeof(Int32));
+  translator.WriteBlock(&stringSize, sizeof(int));
   translator.WriteBlock(forceFilename_.c_string(), stringSize);
 
   // Debug options
-  Int32 size = debugOptionList_.GetCount();
-  translator.WriteBlock(&size, sizeof(Int32));
+  int size = debugOptionList_.GetCount();
+  translator.WriteBlock(&size, sizeof(int));
 
   DSListPosition pos = debugOptionList_.GetHeadPosition();
   while (NULL != pos) {
     DebugOption &opt = debugOptionList_.GetNext(pos);
 
-    translator.WriteBlock(&(opt.testpoint_), sizeof(Int32));
+    translator.WriteBlock(&(opt.testpoint_), sizeof(int));
 
     stringSize = opt.objName_.GetLength() + 1;
-    translator.WriteBlock(&stringSize, sizeof(Int32));
+    translator.WriteBlock(&stringSize, sizeof(int));
     translator.WriteBlock(opt.objName_.c_string(), stringSize);
   }
 }
@@ -241,32 +241,32 @@ void CRUOptions::StoreData(CUOFsIpcMessageTranslator &translator) {
 //--------------------------------------------------------------------------//
 void CRUOptions::LoadData(CUOFsIpcMessageTranslator &translator) {
   char buf[PACK_BUFFER_SIZE];
-  Int32 stringSize;
+  int stringSize;
 
   // Output filename
-  translator.ReadBlock(&stringSize, sizeof(Int32));
+  translator.ReadBlock(&stringSize, sizeof(int));
   translator.ReadBlock(buf, stringSize);
 
   CDSString outFileName(buf);
   SetOutputFilename(outFileName);
 
   // Force filename
-  translator.ReadBlock(&stringSize, sizeof(Int32));
+  translator.ReadBlock(&stringSize, sizeof(int));
   translator.ReadBlock(buf, stringSize);
 
   CDSString forceFileName(buf);
   SetForceFilename(forceFileName);
 
   // Debug options
-  Int32 size;
-  translator.ReadBlock(&size, sizeof(Int32));
+  int size;
+  translator.ReadBlock(&size, sizeof(int));
 
-  for (Int32 i = 0; i < size; i++) {
-    Int32 testpoint;
+  for (int i = 0; i < size; i++) {
+    int testpoint;
 
-    translator.ReadBlock(&testpoint, sizeof(Int32));
+    translator.ReadBlock(&testpoint, sizeof(int));
 
-    translator.ReadBlock(&stringSize, sizeof(Int32));
+    translator.ReadBlock(&stringSize, sizeof(int));
 
     RUASSERT(PACK_BUFFER_SIZE > stringSize);
 

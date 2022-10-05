@@ -140,7 +140,7 @@ bool DistributedLockObserver::listNodes() {
 }
 
 // watch the lock state for lockName
-void DistributedLockObserver::watchDLocks(const char *lockName, Int32 interval) {
+void DistributedLockObserver::watchDLocks(const char *lockName, int interval) {
   // Set the usecount to 0 to observe the lock in every
   // lockHeld() call.
   DistributedLockObserver observer(lockName, 0);
@@ -153,7 +153,7 @@ void DistributedLockObserver::watchDLocks(const char *lockName, Int32 interval) 
 }
 
 // list the zk nodes for lockName.
-void DistributedLockObserver::listDLocks(const char *lockName, Int32 interval) {
+void DistributedLockObserver::listDLocks(const char *lockName, int interval) {
   DistributedLockObserver observer(lockName, 0 /*not used*/);
   while (1) {
     observer.listNodes();

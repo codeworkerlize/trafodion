@@ -54,9 +54,9 @@
 // by LmSQLMXDriver class to decide whether to allow SPJ to get a datbase
 // connection or not. This is only used for Type 4 connections.
 // Type 2 connections work as they used to.
-Int32 sqlAccessMode = 0;
+int sqlAccessMode = 0;
 
-void lmUtilitySetSqlAccessMode(Int32 mode) { sqlAccessMode = mode; }
+void lmUtilitySetSqlAccessMode(int mode) { sqlAccessMode = mode; }
 // sqlAccessMode stores the SQL Access mode the SPJ was registered with.
 // This value is populated before SPJ method is called and is used
 // by LmSQLMXDriver class to decide whether to allow SPJ to get a datbase
@@ -67,9 +67,9 @@ void lmUtilitySetSqlAccessMode(Int32 mode) { sqlAccessMode = mode; }
 // This value is populated before SPJ method is called and is used
 // by LmSQLMXDriver class to decide whether to allow SPJ to join a datbase
 // transaction or not.
-Int32 transactionAttrs = 0;
+int transactionAttrs = 0;
 
-void lmUtilitySetTransactionAttrs(Int32 transAttrs) { transactionAttrs = transAttrs; }
+void lmUtilitySetTransactionAttrs(int transAttrs) { transactionAttrs = transAttrs; }
 
 // 'lmUtilityConnList' below contains a list of java.sql.Connection
 // object references of default connections i.e.
@@ -490,7 +490,7 @@ JNIEXPORT void JNICALL Java_org_trafodion_sql_udr_LmUtility_nativeUtils(JNIEnv *
   }  // GetTxName
 
   else if (action.compareTo("BeginTx", NAString::ignoreCase) == 0) {
-    Int32 tag;
+    int tag;
     error = BEGINTRANSACTION(&tag);
     if (error) {
       result = "BEGINTRANSACTION returned ";
@@ -546,7 +546,7 @@ JNIEXPORT void JNICALL Java_org_trafodion_sql_udr_LmUtility_nativeUtils(JNIEnv *
     NAString nameAndValue = action;
     nameAndValue.remove(0, str_len("PutEnv "));
     TrimNAStringSpace(nameAndValue);
-    Int32 retcode = putenv((char *)nameAndValue.data());
+    int retcode = putenv((char *)nameAndValue.data());
     if (retcode != 0) {
       result = "putenv returned ";
       result += LongToNAString((int)retcode);
@@ -740,7 +740,7 @@ JNIEXPORT void JNICALL Java_org_trafodion_sql_udr_LmUtility_nativeUtils(JNIEnv *
     NAString data = action.remove(0, str_len("FetchUsingString "));
     const char *status = "OK";
     int retcode = 0;
-    Int32 i = 0;
+    int i = 0;
 
     if (!retcode) {
       retcode = staticStmt.executeUsingString(data.data(), (int)data.length());
@@ -826,11 +826,11 @@ JNIEXPORT void JNICALL Java_org_trafodion_sql_udr_LmUtility_nativeUtils(JNIEnv *
 // <0 : An exception was throw by the JVM. The caller
 // is responsible to report any exceptions.
 //
-Int32 registerLmUtilityMethods(JNIEnv *env, jclass lmCls) {
+int registerLmUtilityMethods(JNIEnv *env, jclass lmCls) {
   // To add new native methods to the 'jnm' array just
   // increment the array size and set the new entry's fields
   // as needed.
-  const Int32 numMethods = 2;
+  const int numMethods = 2;
   JNINativeMethod jnm[numMethods];
 
   jnm[0].name = (char *)"nativeUtils";
@@ -846,11 +846,11 @@ Int32 registerLmUtilityMethods(JNIEnv *env, jclass lmCls) {
   return env->RegisterNatives(lmCls, &jnm[0], numMethods);
 }
 
-Int32 registerLmT2DriverMethods(JNIEnv *env, jclass lmCls) {
+int registerLmT2DriverMethods(JNIEnv *env, jclass lmCls) {
   // To add new native methods to the 'jnm' array just
   // increment the array size and set the new entry's fields
   // as needed.
-  const Int32 numMethods = 4;
+  const int numMethods = 4;
   JNINativeMethod jnm[numMethods];
 
   jnm[0].name = (char *)"addConnection";

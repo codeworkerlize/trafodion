@@ -170,7 +170,7 @@ class OptPCodeCache : public NABasicObject {  // Anchor for PCode Expr Cache
 #endif /* OPT_PCC_DEBUG==1 */
 
   NABoolean getPCECLoggingEnabled() { return (PCECLoggingEnabled_ > 0); };
-  void setPCECLoggingEnabled(Int32 enabVal) { PCECLoggingEnabled_ = enabVal; };
+  void setPCECLoggingEnabled(int enabVal) { PCECLoggingEnabled_ = enabVal; };
 
   void addPCodeExpr(PCECacheEntry *newPCEntry
 #if OPT_PCC_DEBUG == 1
@@ -188,7 +188,7 @@ class OptPCodeCache : public NABasicObject {  // Anchor for PCode Expr Cache
   );
 
   void clearStats();
-  void resizeCache(Int32 newsiz);
+  void resizeCache(int newsiz);
   void printPCodeExprCacheStats();
 
 #if OPT_PCC_DEBUG == 1
@@ -269,7 +269,7 @@ class OptPCodeCache : public NABasicObject {  // Anchor for PCode Expr Cache
     if (envPCCsize) maxSize_ = atoi(envPCCsize);
   };
 
-  void logPCCEvent(Int32 eventType, PCECacheEntry *PCEptr, char *sqlStmt);
+  void logPCCEvent(int eventType, PCECacheEntry *PCEptr, char *sqlStmt);
 
 #endif /* OPT_PCC_DEBUG==1 */
 
@@ -292,8 +292,8 @@ class OptPCodeCache : public NABasicObject {  // Anchor for PCode Expr Cache
   UInt32 currSize_;         // Current total size of cached byte streams
   UInt32 maxSize_;          // Maximum total size allowed (see CQD)
   UInt32 maxOptPCodeSize_;  // Maximum optimized PCode byte stream length
-  Int32 PCECLoggingEnabled_;
-  Int32 PCECHeaderWritten_;
+  int PCECLoggingEnabled_;
+  int PCECHeaderWritten_;
 #if OPT_PCC_DEBUG == 1
   long totalSavedTime_;
   long totalSearchTime_;

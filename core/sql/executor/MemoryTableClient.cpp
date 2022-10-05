@@ -68,7 +68,7 @@ MemoryTableClient::MemoryTableClient(NAMemory *heap, char *tableName) : heap_(he
 void MemoryTableClient::setTableName(const char *tableName) {
   if (tableName == NULL) return;
 
-  Int32 len = strlen(tableName);
+  int len = strlen(tableName);
   if (tableName_ != NULL) {
     NADELETEBASIC(tableName_, heap_);
     tableName_ = NULL;
@@ -211,8 +211,8 @@ HTC_RetCode MemoryTableClient::getColVal(BYTE *colVal, int &colValLen) {
   HTableRow *row = kvArray_[currentRowNum_];
   if (row == NULL) return HTC_DONE_DATA;
 
-  Int32 dataLen = row->value.len;
-  Int32 copyLen = MINOF(colValLen, dataLen);
+  int dataLen = row->value.len;
+  int copyLen = MINOF(colValLen, dataLen);
   str_cpy_all((char *)colVal, row->value.val, copyLen);
 
   if (dataLen > colValLen)

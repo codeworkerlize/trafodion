@@ -68,12 +68,12 @@ int PCodeSegment::unpack(void *base, void *reallocator) {
   return NAVersionedObject::unpack(base, reallocator);
 }
 
-Int32 PCodeSegment::getPCodeSegmentSize() { return pCodeSegmentSize_; }
+int PCodeSegment::getPCodeSegmentSize() { return pCodeSegmentSize_; }
 
-void PCodeSegment::setPCodeSegmentSize(Int32 size) { pCodeSegmentSize_ = size; }
+void PCodeSegment::setPCodeSegmentSize(int size) { pCodeSegmentSize_ = size; }
 
 short PCodeSegment::getClassSize() {
-  Int32 trueSize = sizeof(*this) + getPCodeSegmentSize();
+  int trueSize = sizeof(*this) + getPCodeSegmentSize();
   return ((short)(trueSize + (trueSize % 8)));
 }
 
@@ -85,18 +85,18 @@ short PCodeSegment::getClassSize() {
 // segment with the new pointer
 //
 void PCodeSegment::replaceAttributesPtr(ex_clause *clauses, Space *space) {
-  Int32 addrBuf[6];
+  int addrBuf[6];
 
   PCodeBinary *pcode = getPCodeBinary();
   if (!pcode) return;
 
-  Int32 length = *(pcode++);
+  int length = *(pcode++);
   pcode += (2 * length);
 
   // Loop through all the PCODE instructions
   while (pcode[0] != PCIT::END) {
     // Determine if we're dealing with a PCODE instruction with an embedded addr
-    Int32 *addrs = PCode::getEmbeddedAddresses(pcode[0], addrBuf);
+    int *addrs = PCode::getEmbeddedAddresses(pcode[0], addrBuf);
 
     // Only do more work if an embedded address was found *and* it's not a
     // clause pointer (since that's handled elsewhere).
@@ -117,8 +117,8 @@ void PCodeSegment::replaceAttributesPtr(ex_clause *clauses, Space *space) {
 
         // Search the operands of all clauses to find any matching pairs.
         for (ex_clause *clause = clauses; clause; clause = clause->getNextClause()) {
-          Int32 numOperands = clause->getNumOperands();
-          for (Int32 i = 0; i < numOperands; i++) {
+          int numOperands = clause->getNumOperands();
+          for (int i = 0; i < numOperands; i++) {
             Attributes *attrOld = clause->getOperand(i);
 
             // If the attribute in the pcode segment matches an attributes
@@ -138,7 +138,7 @@ void PCodeSegment::replaceAttributesPtr(ex_clause *clauses, Space *space) {
         // operands list for all the clauses, that means the attributes pointer
         // needs to be copied and reset in the pcode segment
         if (!found) {
-          Int32 size = attr->getClassSize();
+          int size = attr->getClassSize();
 
           Attributes *attrNew = (Attributes *)new (space) char[size];
           memcpy((char *)attrNew, (char *)attr, size);
@@ -162,7 +162,7 @@ void PCodeSegment::replaceClauseEvalPtr(ex_clause *oldClause, ex_clause *newClau
   PCodeBinary *pcode = getPCodeBinary();
   if (!pcode) return;
 
-  Int32 length = *(pcode++);
+  int length = *(pcode++);
   pcode += (2 * length);
 
   while (pcode[0] != PCIT::END) {
@@ -196,13 +196,13 @@ void PCodeSegment::convAddrToOffsetInPCode(void *space) {
   PCodeBinary *pcode = getPCodeBinary();
   if (!pcode) return;
 
-  Int32 length = *(pcode++);
+  int length = *(pcode++);
   pcode += (2 * length);
 
   while (pcode[0] != PCIT::END) {
-    Int32 addrBuf[6];
-    Int32 *addrs = PCode::getEmbeddedAddresses(pcode[0], addrBuf);
-    for (Int32 i = 0; addrs[i] > 0; i++) {
+    int addrBuf[6];
+    int *addrs = PCode::getEmbeddedAddresses(pcode[0], addrBuf);
+    for (int i = 0; addrs[i] > 0; i++) {
       if ((char *)((long)pcode[addrs[i]]) != NULL)
         *(Long *)&(pcode[addrs[i]]) = ((Space *)space)->convertToOffset((char *)*(Long *)&(pcode[addrs[i]]));
     }
@@ -215,13 +215,13 @@ void PCodeSegment::convOffsetToAddrInPCode(void *base) {
   if (!pcode) return;
 
   // skip over the ATP's
-  Int32 length = *(pcode++);
+  int length = *(pcode++);
   pcode += (2 * length);
 
   while (pcode[0] != PCIT::END) {
-    Int32 addrBuf[6];
-    Int32 *addrs = PCode::getEmbeddedAddresses(pcode[0], addrBuf);
-    for (Int32 i = 0; addrs[i] > 0; i++) {
+    int addrBuf[6];
+    int *addrs = PCode::getEmbeddedAddresses(pcode[0], addrBuf);
+    for (int i = 0; addrs[i] > 0; i++) {
       // Zero offset is a null pointer ...
       if (pcode[addrs[i]] != 0) setPtrAsPCodeBinary(pcode, addrs[i], (Long)(base)-GetPCodeBinaryAsPtr(pcode, addrs[i]));
     }
@@ -231,7 +231,7 @@ void PCodeSegment::convOffsetToAddrInPCode(void *base) {
 
 // Determine if the PCODE operation is a branch or target
 //
-Int32 PCode::IsBranchInstruction(PCI *pci) {
+int PCode::IsBranchInstruction(PCI *pci) {
   switch (pci->getOperation()) {
     case PCIT::Op_BRANCH:
     case PCIT::Op_CLAUSE_BRANCH:
@@ -247,7 +247,7 @@ Int32 PCode::IsBranchInstruction(PCI *pci) {
 
 // Determine if the PCODE operation is a target.
 //
-Int32 PCode::IsTargetInstruction(PCI *pci) {
+int PCode::IsTargetInstruction(PCI *pci) {
   switch (pci->getOperation()) {
     case PCIT::Op_TARGET:
       return 1;
@@ -257,7 +257,7 @@ Int32 PCode::IsTargetInstruction(PCI *pci) {
 
 // Determine if the PCODE operation is a CLAUSE_EVAL.
 //
-Int32 PCode::IsClauseEvalInstruction(PCI *pci) {
+int PCode::IsClauseEvalInstruction(PCI *pci) {
   switch (pci->getOperation()) {
     case PCIT::Op_CLAUSE_EVAL:
     case PCIT::Op_CLAUSE_BRANCH:
@@ -266,7 +266,7 @@ Int32 PCode::IsClauseEvalInstruction(PCI *pci) {
   return 0;
 }
 
-Int32 PCode::IsBranchOrTarget(PCI *pci) {
+int PCode::IsBranchOrTarget(PCI *pci) {
   switch (pci->getOperation()) {
     case PCIT::Op_BRANCH:
     case PCIT::Op_CLAUSE_BRANCH:
@@ -284,7 +284,7 @@ Int32 PCode::IsBranchOrTarget(PCI *pci) {
 // Determine if PCODE operation is a MOVE to a temporary location
 // assumes Atp = 0 and Atp Index = 1  is the temporary space.
 
-Int32 PCode::IsTemporaryStore(PCI *pci) {
+int PCode::IsTemporaryStore(PCI *pci) {
   if (((pci->getOperand(0) == 0) && (pci->getOperand(1) == 1) && (pci->getOperation() == PCIT::Op_MOVE) &&
        PCode::getInstruction(pci) == PCIT::MOVE_MBIN8_MBIN8_IBIN32S))
     return 1;
@@ -292,7 +292,7 @@ Int32 PCode::IsTemporaryStore(PCI *pci) {
   return 0;
 }
 
-Int32 PCode::IsTemporaryLoad(PCI *pci) {
+int PCode::IsTemporaryLoad(PCI *pci) {
   if ((pci->getOperand(3) == 0) && (pci->getOperand(4) == 1) && (pci->getOperation() == PCIT::Op_MOVE) &&
       (PCode::getInstruction(pci) == PCIT::MOVE_MBIN8_MBIN8_IBIN32S))
     return 1;
@@ -302,9 +302,9 @@ Int32 PCode::IsTemporaryLoad(PCI *pci) {
 
 // Determine if the PCODE operation results in a access to/from temporary space
 //
-Int32 PCode::IsTemporaryAccess(PCI *pci) {
+int PCode::IsTemporaryAccess(PCI *pci) {
   PCIT::AddressingMode am;
-  for (Int32 i = 0, op = 0; i < pci->getNumberAddressingModes();
+  for (int i = 0, op = 0; i < pci->getNumberAddressingModes();
        i++, op += PCIT::getNumberOperandsForAddressingMode(am)) {
     am = pci->getAddressingMode(i);
     if (!PCIT::isMemoryAddressingMode(am)) continue;
@@ -314,7 +314,7 @@ Int32 PCode::IsTemporaryAccess(PCI *pci) {
   return 0;
 }
 
-Int32 PCI::temporaryStoreLoadMatch(PCI *store, PCI *load) {
+int PCI::temporaryStoreLoadMatch(PCI *store, PCI *load) {
   if (!PCode::IsTemporaryStore(store)) return 0;
   if (!PCode::IsTemporaryLoad(load)) return 0;
 
@@ -323,14 +323,14 @@ Int32 PCI::temporaryStoreLoadMatch(PCI *store, PCI *load) {
   return 0;
 }
 
-Int32 PCI::temporaryStoreLoadOverlap(PCI *store, PCI *load) {
+int PCI::temporaryStoreLoadOverlap(PCI *store, PCI *load) {
   if (PCode::IsTemporaryAccess(load) == 0) return 0;
-  Int32 storeStart, storeLength, storeEnd, loadStart, loadLength, loadEnd;
+  int storeStart, storeLength, storeEnd, loadStart, loadLength, loadEnd;
   storeStart = store->getOperand(2);
   storeLength = store->getOperand(6);
   storeEnd = storeStart + storeLength;
   PCIT::AddressingMode am;
-  for (Int32 i = 0, op = 0; i < load->getNumberAddressingModes();
+  for (int i = 0, op = 0; i < load->getNumberAddressingModes();
        i++, op += PCIT::getNumberOperandsForAddressingMode(am)) {
     am = load->getAddressingMode(i);
     if (!PCIT::isMemoryAddressingMode(am)) continue;
@@ -345,31 +345,31 @@ Int32 PCI::temporaryStoreLoadOverlap(PCI *store, PCI *load) {
   return 0;
 }
 
-Int32 PCI::replaceUsesOfTarget(PCI *store, PCI *use, Int32 check) {
+int PCI::replaceUsesOfTarget(PCI *store, PCI *use, int check) {
   // Get store PCI target info
-  Int32 storTgtAtp = store->getOperand(0);
-  Int32 storTgtAtpIndex = store->getOperand(1);
-  Int32 storTgtStart = store->getOperand(2);
-  Int32 storTgtLength = store->getOperand(6);
-  Int32 storTgtEnd = storTgtStart + storTgtLength;
+  int storTgtAtp = store->getOperand(0);
+  int storTgtAtpIndex = store->getOperand(1);
+  int storTgtStart = store->getOperand(2);
+  int storTgtLength = store->getOperand(6);
+  int storTgtEnd = storTgtStart + storTgtLength;
 
   // Get store PCI source info
-  Int32 storSrcAtp = store->getOperand(3);
-  Int32 storSrcAtpIndex = store->getOperand(4);
-  Int32 storSrcStart = store->getOperand(5);
+  int storSrcAtp = store->getOperand(3);
+  int storSrcAtpIndex = store->getOperand(4);
+  int storSrcStart = store->getOperand(5);
 
   PCIT::AddressingMode am;
 
-  Int32 retVal = 0;  // Assume everything OK.
+  int retVal = 0;  // Assume everything OK.
 
-  for (Int32 i = 0, op = 0; i < use->getNumberAddressingModes(); i++) {
+  for (int i = 0, op = 0; i < use->getNumberAddressingModes(); i++) {
     am = use->getAddressingMode(i);
     if (PCIT::isMemoryAddressingMode(am)) {
-      Int32 useAtp = use->getOperand(op);
-      Int32 useAtpIndex = use->getOperand(op + 1);
-      Int32 useStart = use->getOperand(op + 2);
-      Int32 useLength = use->getMemoryOperandLength(am, op);
-      Int32 useEnd = useStart + useLength;
+      int useAtp = use->getOperand(op);
+      int useAtpIndex = use->getOperand(op + 1);
+      int useStart = use->getOperand(op + 2);
+      int useLength = use->getMemoryOperandLength(am, op);
+      int useEnd = useStart + useLength;
 
       if (storTgtAtp == useAtp && storTgtAtpIndex == useAtpIndex) {
         if (useLength == 0 && use->getOperation() == PCIT::Op_OPDATA && storTgtStart >= useStart) {
@@ -439,9 +439,9 @@ PCode::PCode(CollHeap *heap, Space *space)
 
 PCode::~PCode() { profilePrint(); };
 
-Int32 PCode::size() {
+int PCode::size() {
   PCIListIter iter(pciList_);
-  Int32 size = 0;
+  int size = 0;
 
   for (PCI *pci = iter.first(); pci; pci = iter.next()) size += pci->getGeneratedCodeSize();
 
@@ -1063,7 +1063,7 @@ static const PCIMap opcodeMap[] = {
 #undef IopCodeNotInUse
 
 // Set the position within pCode where an embedded address resides.
-Int32 *PCode::getEmbeddedAddresses(Int32 opcode, Int32 addr[]) {
+int *PCode::getEmbeddedAddresses(int opcode, int addr[]) {
   // static int addr[6];
   switch (opcode) {
     case PCIT::CLAUSE_EVAL:
@@ -1095,7 +1095,7 @@ Int32 *PCode::getEmbeddedAddresses(Int32 opcode, Int32 addr[]) {
   return addr;
 }
 
-Int32 PCode::getInstructionLength(PCodeBinary *pcode) {
+int PCode::getInstructionLength(PCodeBinary *pcode) {
   PCodeBinary opcode = pcode[0];
 
   if (opcode < 0 || opcode >= PCIT::LAST_PCODE_INSTR) {
@@ -1108,11 +1108,11 @@ Int32 PCode::getInstructionLength(PCodeBinary *pcode) {
       (opcode == PCIT::MOVE_BULK) || (opcode == PCIT::NULL_BITMAP_BULK))
     return pcode[1];
 
-  Int32 len = opcodeMap[opcode].length;
+  int len = opcodeMap[opcode].length;
   return len;
 }
 
-const char *PCode::getOpcodeString(Int32 opcode) {
+const char *PCode::getOpcodeString(int opcode) {
   if (opcode < 0 || opcode >= PCIT::LAST_PCODE_INSTR) {
     char tmpbuf[100];
     str_sprintf(tmpbuf, "Invalid opcode: %d\n", opcode);
@@ -1126,10 +1126,10 @@ PCIT::Instruction PCode::getInstruction(PCI *pci) {
   if (pci->getOperation() == PCIT::Op_TARGET)  // Target instructions are just placeholders.
     return (PCIT::NOP);
 
-  Int32 shift = 36;
+  int shift = 36;
   long code = pci->getOperation();
   code = code << shift;
-  Int32 i = 0;
+  int i = 0;
   for (i = 0; i < pci->getNumberAddressingModes(); i++) {
     shift -= 6;
     code |= ((long)pci->getAddressingMode(i)) << shift;
@@ -1152,7 +1152,7 @@ PCIT::Instruction PCode::getInstruction(PCI *pci) {
   return (PCIT::NOP);
 };
 
-const PCIMap &PCode::getMapEntry(Int32 i) {
+const PCIMap &PCode::getMapEntry(int i) {
   if (((char *)(&opcodeMap[i])) < (((char *)opcodeMap) + sizeof(opcodeMap))) {
     return opcodeMap[i];
   } else {
@@ -1160,12 +1160,12 @@ const PCIMap &PCode::getMapEntry(Int32 i) {
   }
 }
 
-Int32 PCode::getOpCodeMapElements(Int32 opcode, PCIT::Operation &operation, PCIT::AddressingMode am[],
-                                  Int32 &numAModes) {
+int PCode::getOpCodeMapElements(int opcode, PCIT::Operation &operation, PCIT::AddressingMode am[],
+                                  int &numAModes) {
   if ((opcode == PCIT::END) || (opcode < 0) || (opcode >= PCIT::LAST_PCODE_INSTR)) return 1;
 
   long instruction = opcodeMap[opcode].instruction >> (36 - (opcodeMap[opcode].numAmodes * 6));
-  for (Int32 count = opcodeMap[opcode].numAmodes; count > 0; count--) {
+  for (int count = opcodeMap[opcode].numAmodes; count > 0; count--) {
     am[count - 1] = (PCIT::AddressingMode)(instruction & OPCODE_MAP_FIRSTSIX_BITS);
     instruction >>= 6;
   }
@@ -1174,7 +1174,7 @@ Int32 PCode::getOpCodeMapElements(Int32 opcode, PCIT::Operation &operation, PCIT
   return 0;
 }
 
-Int32 PCode::isInstructionRangeType(PCIT::Instruction instruction) {
+int PCode::isInstructionRangeType(PCIT::Instruction instruction) {
   switch (instruction) {
     case PCIT::RANGE_LOW_S8S64:
     case PCIT::RANGE_HIGH_S8S64:
@@ -1196,24 +1196,24 @@ Int32 PCode::isInstructionRangeType(PCIT::Instruction instruction) {
   };
 }
 
-Int32 PCode::profileInit() {
+int PCode::profileInit() {
   if (profileCounts_) delete[] profileCounts_;
   if (profileTimes_) delete[] profileTimes_;
-  profileCounts_ = new Int32[size() + 1];
-  profileTimes_ = new Int32[size() + 1];
+  profileCounts_ = new int[size() + 1];
+  profileTimes_ = new int[size() + 1];
 
-  for (Int32 i = 0; i < size() + 1; i++) {
+  for (int i = 0; i < size() + 1; i++) {
     profileCounts_[i] = 0;
     profileTimes_[i] = 0;
   }
 
   return 0;
 }
-Int32 PCode::profilePrint() {
+int PCode::profilePrint() {
   PCIListIter iter(pciList_);
 
   if (!profileCounts_) return 0;
-  Int32 pciNum = 0;
+  int pciNum = 0;
   for (PCI *pci = iter.first(); pci; pci = iter.next()) {
     if (pci->getOperation() == PCIT::Op_PROFILE) {
       pci = iter.next();
@@ -1224,7 +1224,7 @@ Int32 PCode::profilePrint() {
   return 0;
 }
 // buffer should be 32 bytes
-void PCIT::operandString(Int32 operand, char *buffer) {
+void PCIT::operandString(int operand, char *buffer) {
   // str_sprintf(buffer, "%8.8X", operand);
   str_sprintf(buffer, "%09d", operand);
 }
@@ -1244,7 +1244,7 @@ void PCI::print() {
   PCIT::operandString(operation_, buffer);
   fprintf(stderr, "%p,%3d,%d %s(", this, getCodePosition(), getGeneratedCodeSize(), buffer);
   if (getNumberAddressingModes() > 0) fprintf(stderr, "%s", PCIT::addressingModeString(getAddressingMode(0)));
-  Int32 i = 1;
+  int i = 1;
   for (; i < getNumberAddressingModes(); i++) fprintf(stderr, ",%s", PCIT::addressingModeString(getAddressingMode(i)));
   fprintf(stderr, ") ");
   for (i = 0; i < getNumberOperands(); i++) {
@@ -1273,7 +1273,7 @@ void PCode::displayContents(PCIList code, Space *space) {
       str_cat(buf, tbuf, buf);
     }
 
-    Int32 i = 1;
+    int i = 1;
     for (; i < pci->getNumberAddressingModes(); i++) {
       str_sprintf(tbuf, ",%s", PCIT::addressingModeString(pci->getAddressingMode(i)));
       str_cat(buf, tbuf, buf);
@@ -1297,11 +1297,11 @@ void PCode::displayContents(PCodeBinary *pCode, Space *space) {
   char buf[256];
 
   // skip over the ATP's
-  Int32 length = *(pCode++);
+  int length = *(pCode++);
 
   str_sprintf(buf, "Num ATP/ATPIndex pairs: %d", length);
   space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-  for (Int32 i = 0; i < length; i++) {
+  for (int i = 0; i < length; i++) {
     str_sprintf(buf, "Pair #%d: atp = %d, atpindex = %d", i + 1, pCode[0], pCode[1]);
     space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
 
@@ -1309,7 +1309,7 @@ void PCode::displayContents(PCodeBinary *pCode, Space *space) {
   }
 
   while (pCode[0] != PCIT::END) {
-    Int32 opcode = *(pCode++);
+    int opcode = *(pCode++);
 
     str_sprintf(buf, "    %s ", PCIT::instructionString(PCIT::Instruction(opcode)));
 
@@ -1317,7 +1317,7 @@ void PCode::displayContents(PCodeBinary *pCode, Space *space) {
 
     char tbuf[256];
     char operandBuf[32];
-    for (Int32 i = 0; i < pcodeLength; i++) {
+    for (int i = 0; i < pcodeLength; i++) {
       PCIT::operandString(pCode[i], operandBuf);
       str_sprintf(tbuf, "%s ", operandBuf);
       str_cat(buf, tbuf, buf);
@@ -1331,9 +1331,9 @@ void PCode::displayContents(PCodeBinary *pCode, Space *space) {
   space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
 }
 
-Int32 PCode::dumpContents(PCIList code, char *buf, Int32 bufLen) {
+int PCode::dumpContents(PCIList code, char *buf, int bufLen) {
   char operandBuf[32];
-  Int32 len = 0;
+  int len = 0;
 
   PCIListIter iter(code);
   PCI *pci = iter.first();
@@ -1355,7 +1355,7 @@ Int32 PCode::dumpContents(PCIList code, char *buf, Int32 bufLen) {
       str_cat(buf, tbuf, buf);
     }
 
-    Int32 i = 1;
+    int i = 1;
     for (; i < pci->getNumberAddressingModes(); i++) {
       str_sprintf(tbuf, ",%s", PCIT::addressingModeString(pci->getAddressingMode(i)));
       len += str_len(tbuf);
@@ -1378,19 +1378,19 @@ Int32 PCode::dumpContents(PCIList code, char *buf, Int32 bufLen) {
   return len;
 };
 
-void PCode::dumpContents(PCodeBinary *pCode, char *buf, Int32 bufLen) {
+void PCode::dumpContents(PCodeBinary *pCode, char *buf, int bufLen) {
   char tbuf[256];
-  Int32 len = 0;
+  int len = 0;
 
   // skip over the ATP's
-  Int32 length = *(pCode++);
+  int length = *(pCode++);
 
   buf[0] = 0;
   str_sprintf(tbuf, "Num ATP/ATPIndex pairs: %d", length);
   len += str_len(tbuf);
   if (len >= bufLen - 2) return;
   str_cat(buf, tbuf, buf);
-  for (Int32 i = 0; i < length; i++) {
+  for (int i = 0; i < length; i++) {
     str_sprintf(tbuf, "Pair #%d: atp = %d, atpindex = %d", i + 1, pCode[0], pCode[1]);
     len += str_len(tbuf);
     if (len >= bufLen - 2) return;
@@ -1399,7 +1399,7 @@ void PCode::dumpContents(PCodeBinary *pCode, char *buf, Int32 bufLen) {
   }
 
   while (pCode[0] != PCIT::END) {
-    Int32 opcode = *(pCode++);
+    int opcode = *(pCode++);
 
     str_sprintf(tbuf, "    %s ", PCIT::instructionString(PCIT::Instruction(opcode)));
     len += str_len(tbuf);
@@ -1409,7 +1409,7 @@ void PCode::dumpContents(PCodeBinary *pCode, char *buf, Int32 bufLen) {
     int pcodeLength = PCode::getInstructionLength(pCode - 1) - 1;
 
     char operandBuf[32];
-    for (Int32 i = 0; i < pcodeLength; i++) {
+    for (int i = 0; i < pcodeLength; i++) {
       PCIT::operandString(pCode[i], operandBuf);
       str_sprintf(tbuf, "%s ", operandBuf);
       len += str_len(tbuf);
@@ -1423,16 +1423,16 @@ void PCode::dumpContents(PCodeBinary *pCode, char *buf, Int32 bufLen) {
   buf[len + 1] = 0;
 }
 
-PCodeBinary *PCode::generateCodeSegment(Int32 length, Int32 *atpCode, Int32 *atpIndexCode, Int32 *codeSize) {
+PCodeBinary *PCode::generateCodeSegment(int length, int *atpCode, int *atpIndexCode, int *codeSize) {
   // Generate the code
   //
-  Int32 pc = 0;
+  int pc = 0;
 
   PCodeBinary *code = new (space_) PCodeBinary[size() + 1 + (1 + 2 * length)];
   *codeSize = sizeof(PCodeBinary) * (size() + 1 + (1 + 2 * length));
 
-  code[pc++] = (Int32)length;
-  for (Int32 i = 0; i < length; i++) {
+  code[pc++] = (int)length;
+  for (int i = 0; i < length; i++) {
     code[pc++] = atpCode[i];
     code[pc++] = atpIndexCode[i];
   }
@@ -1440,14 +1440,14 @@ PCodeBinary *PCode::generateCodeSegment(Int32 length, Int32 *atpCode, Int32 *atp
   for (PCI *pci = iter.first(); pci; pci = iter.next()) {
     if (pci->getOperation() == PCIT::Op_TARGET) continue;
     code[pc++] = getInstruction(pci);
-    for (Int32 i = 0; i < pci->getNumberOperands(); i++) code[pc++] = pci->getOperand(i);
+    for (int i = 0; i < pci->getNumberOperands(); i++) code[pc++] = pci->getOperand(i);
   }
   code[pc++] = PCIT::END;
 
   return code;
 }
 
-PCIT::AddressingMode PCIT::getMemoryAddressingMode(Int32 datatype) {
+PCIT::AddressingMode PCIT::getMemoryAddressingMode(int datatype) {
   switch (datatype) {
     case REC_BIN8_UNSIGNED:
       return PCIT::MBIN8U;
@@ -1579,7 +1579,7 @@ Int16 PCIT::getDataTypeForMemoryAddressingMode(PCIT::AddressingMode am) {
   return -1;
 }
 
-Int32 PCIT::getNumberOperandsForAddressingMode(PCIT::AddressingMode am) {
+int PCIT::getNumberOperandsForAddressingMode(PCIT::AddressingMode am) {
   switch (am) {
     case PCIT::MATTR6:
       return 7;
@@ -1631,7 +1631,7 @@ Int32 PCIT::getNumberOperandsForAddressingMode(PCIT::AddressingMode am) {
   return 0;
 }
 
-Int32 PCIT::getOperandLengthForAddressingMode(PCIT::AddressingMode am) {
+int PCIT::getOperandLengthForAddressingMode(PCIT::AddressingMode am) {
   switch (am) {
     case PCIT::MBIGS:
     case PCIT::MBIGU:
@@ -1674,7 +1674,7 @@ Int32 PCIT::getOperandLengthForAddressingMode(PCIT::AddressingMode am) {
   };
 }
 
-Int32 PCIT::isMemoryAddressingMode(PCIT::AddressingMode am) {
+int PCIT::isMemoryAddressingMode(PCIT::AddressingMode am) {
   switch (am) {
     case PCIT::MBIN8:
     case PCIT::MBIN8U:
@@ -1923,7 +1923,7 @@ const char *PCIT::addressingModeString(PCIT::AddressingMode am) {
 };
 
 char *PCIT::instructionString(PCIT::Instruction instr) { return (char *)PCode::getOpcodeString(instr); }
-Int32 PCI::getGeneratedCodeSize() {
+int PCI::getGeneratedCodeSize() {
   switch (getOperation()) {
     case PCIT::Op_TARGET:
       return 0;
@@ -1933,7 +1933,7 @@ Int32 PCI::getGeneratedCodeSize() {
   return 1 + getNumberOperands();
 }
 
-Int32 PCI::getMemoryOperandLength(PCIT::AddressingMode am, Int32 op) {
+int PCI::getMemoryOperandLength(PCIT::AddressingMode am, int op) {
   switch (PCode::getInstruction(this)) {
     case PCIT::OPDATA_MPTR32_IBIN32S:
       return 0;
@@ -1982,15 +1982,15 @@ Int32 PCI::getMemoryOperandLength(PCIT::AddressingMode am, Int32 op) {
 }
 
 // Load the target null bitmap address so it can be set if needed.
-PCIList PCode::loadOpDataNullBitmapAddress(Attributes *attr, Int32 loc, CollHeap *heap) {
+PCIList PCode::loadOpDataNullBitmapAddress(Attributes *attr, int loc, CollHeap *heap) {
   return loadOpDataAddress(attr, attr->getNullIndOffset(), loc, heap);
 }
 
-PCIList PCode::loadOpDataNullAddress(Attributes *attr, Int32 loc, CollHeap *heap) {
+PCIList PCode::loadOpDataNullAddress(Attributes *attr, int loc, CollHeap *heap) {
   return loadOpDataAddress(attr, attr->getNullIndOffset(), loc, heap);
 }
 
-PCIList PCode::loadOpDataVCAddress(Attributes *attr, Int32 loc, CollHeap *heap) {
+PCIList PCode::loadOpDataVCAddress(Attributes *attr, int loc, CollHeap *heap) {
   if (attr->isIndirectVC()) {
     // For indirect varchars, use the OPDATA_MATTR5_IBIN32 instruction.
     // This will set both the vclen pointer and the data pointer in the
@@ -2014,11 +2014,11 @@ PCIList PCode::loadOpDataVCAddress(Attributes *attr, Int32 loc, CollHeap *heap) 
   }
 }
 
-PCIList PCode::loadOpDataDataAddress(Attributes *attr, Int32 loc, CollHeap *heap) {
-  return loadOpDataAddress(attr, (Int32)attr->getOffset(), 2 * ex_clause::MAX_OPERANDS + loc, heap);
+PCIList PCode::loadOpDataDataAddress(Attributes *attr, int loc, CollHeap *heap) {
+  return loadOpDataAddress(attr, (int)attr->getOffset(), 2 * ex_clause::MAX_OPERANDS + loc, heap);
 }
 
-PCIList PCode::loadOpDataAddress(Attributes *attr, Int32 offset, Int32 loc, CollHeap *heap) {
+PCIList PCode::loadOpDataAddress(Attributes *attr, int offset, int loc, CollHeap *heap) {
   PCIList pciList(heap);
   AML aml(PCIT::MPTR32, PCIT::IBIN32S);
   OL ol(attr->getAtp(), attr->getAtpIndex(), offset, loc);
@@ -2027,7 +2027,7 @@ PCIList PCode::loadOpDataAddress(Attributes *attr, Int32 offset, Int32 loc, Coll
   return pciList;
 }
 
-PCIList PCode::loadOpDataNullBitmap(Attributes *attr, Int32 loc, CollHeap *heap) {
+PCIList PCode::loadOpDataNullBitmap(Attributes *attr, int loc, CollHeap *heap) {
   PCIList pciList(heap);
   AML aml(PCIT::MPTR32, PCIT::IBIN32S, PCIT::IBIN32S);
   OL ol(attr->getAtp(), attr->getAtpIndex(), attr->getNullIndOffset(), attr->getNullBitIndex(), loc);
@@ -2036,7 +2036,7 @@ PCIList PCode::loadOpDataNullBitmap(Attributes *attr, Int32 loc, CollHeap *heap)
   return pciList;
 }
 
-PCIList PCode::loadOpDataNull(Attributes *attr, Int32 loc, CollHeap *heap) {
+PCIList PCode::loadOpDataNull(Attributes *attr, int loc, CollHeap *heap) {
   PCIList pciList(heap);
   AML aml(PCIT::MBIN16U, PCIT::IBIN32S);
   OL ol(attr->getAtp(), attr->getAtpIndex(), attr->getNullIndOffset(), loc);
@@ -2045,17 +2045,17 @@ PCIList PCode::loadOpDataNull(Attributes *attr, Int32 loc, CollHeap *heap) {
   return pciList;
 }
 
-PCIList PCode::storeValue(Int32 value, Attributes *attr, CollHeap *heap) {
+PCIList PCode::storeValue(int value, Attributes *attr, CollHeap *heap) {
   return storeValue(value, attr, attr->getOffset(), heap);
 }
 
-PCIList PCode::storeValue(Int32 value, Attributes *attr, UInt32 offset, CollHeap *heap) {
-  if (attr->isSQLMXAlignedFormat()) return (storeShortValue((Int32)value, attr, offset, heap));
+PCIList PCode::storeValue(int value, Attributes *attr, UInt32 offset, CollHeap *heap) {
+  if (attr->isSQLMXAlignedFormat()) return (storeShortValue((int)value, attr, offset, heap));
 
   PCIList pciList(heap);
 
   AML aml(PCIT::MBIN32S, PCIT::IBIN32S);
-  OL ol(attr->getAtp(), attr->getAtpIndex(), (Int32)offset, value);
+  OL ol(attr->getAtp(), attr->getAtpIndex(), (int)offset, value);
   PCI pci(PCIT::Op_MOVE, aml, ol);
   pciList.append(pci);
   return pciList;
@@ -2065,7 +2065,7 @@ PCIList PCode::storeShortValue(UInt32 value, Attributes *attr, UInt32 offset, Co
   PCIList pciList(heap);
 
   AML aml(PCIT::MBIN16U, PCIT::IBIN16U);
-  OL ol(attr->getAtp(), attr->getAtpIndex(), (Int32)offset, (Int16)value);
+  OL ol(attr->getAtp(), attr->getAtpIndex(), (int)offset, (Int16)value);
   PCI pci(PCIT::Op_MOVE, aml, ol);
   pciList.append(pci);
   return pciList;
@@ -2106,7 +2106,7 @@ PCIList PCode::storeVoaValue(Attributes *attr, UInt32 offset, UInt32 value, Coll
   PCIList pciList(heap);
 
   if (attr->isSQLMXDiskFormat() && (!varOnly || (varOnly && (attr->getVCIndicatorLength() > 0)))) {
-    pciList.append(PCode::storeValue(value, attr, (Int32)offset, heap));
+    pciList.append(PCode::storeValue(value, attr, (int)offset, heap));
   }
   return pciList;
 }
@@ -2128,7 +2128,7 @@ PCIList PCode::updateRowLen(Attributes *attr, CollHeap *heap, UInt32 flags) {
     // If this happens then we might end up computing the rowlen for some
     // other tuple that might not even be a row in Aligned Format.
     AML aml(PCIT::MATTR5, PCIT::IBIN32S);
-    OL ol(attr->getAtp(), attr->getAtpIndex(), (Int32)attr->getOffset(), (Int32)attr->getVoaOffset(), -1, comboLen1,
+    OL ol(attr->getAtp(), attr->getAtpIndex(), (int)attr->getOffset(), (int)attr->getVoaOffset(), -1, comboLen1,
           alignment);
 
     PCI pci(PCIT::Op_UPDATE_ROWLEN3, aml, ol);
@@ -2144,8 +2144,8 @@ PCIList PCode::moveValue(Attributes *dst, Attributes *src, CollHeap *heap) {
     PCIList code(heap);
 
     AML aml(PCIT::MBIN8, PCIT::MBIN8, PCIT::IBIN32S);
-    OL ol(dst->getAtp(), dst->getAtpIndex(), (Int32)dst->getOffset(), src->getAtp(), src->getAtpIndex(),
-          (Int32)src->getOffset(), (Int32)dst->getLength());
+    OL ol(dst->getAtp(), dst->getAtpIndex(), (int)dst->getOffset(), src->getAtp(), src->getAtpIndex(),
+          (int)src->getOffset(), (int)dst->getLength());
     PCI pci(PCIT::Op_MOVE, aml, ol);
     code.append(pci);
 
@@ -2155,8 +2155,8 @@ PCIList PCode::moveValue(Attributes *dst, Attributes *src, CollHeap *heap) {
 
     AML aml(PCIT::getMemoryAddressingMode(dst->getDatatype()), PCIT::getMemoryAddressingMode(src->getDatatype()),
             PCIT::IBIN32S, PCIT::IBIN32S);
-    OL ol(dst->getAtp(), dst->getAtpIndex(), (Int32)dst->getOffset(), src->getAtp(), src->getAtpIndex(),
-          (Int32)src->getOffset(), (Int32)dst->getLength(), (Int32)src->getLength());
+    OL ol(dst->getAtp(), dst->getAtpIndex(), (int)dst->getOffset(), src->getAtp(), src->getAtpIndex(),
+          (int)src->getOffset(), (int)dst->getLength(), (int)src->getLength());
     PCI pci(PCIT::Op_MOVE, aml, ol);
     code.append(pci);
 
@@ -2173,9 +2173,9 @@ PCIList PCode::copyVarRow(Attributes *dst, Attributes *src, UInt32 lastVOAoffset
     comboPtr1[0] = (char)lastNullIndicatorLength, comboPtr1[1] = (char)lastVcIndicatorLength;
 
     AML aml(PCIT::MBIN8, PCIT::MBIN8, PCIT::IBIN32S, PCIT::IBIN32S, PCIT::IBIN32S, PCIT::IBIN32S);
-    OL ol(dst->getAtp(), dst->getAtpIndex(), (Int32)dst->getOffset(), src->getAtp(), src->getAtpIndex(),
-          (Int32)src->getOffset(), (Int32)lastVOAoffset, (Int32)comboLen1, (Int32)alignment,
-          (Int32)((SimpleType *)src)->getLength());
+    OL ol(dst->getAtp(), dst->getAtpIndex(), (int)dst->getOffset(), src->getAtp(), src->getAtpIndex(),
+          (int)src->getOffset(), (int)lastVOAoffset, (int)comboLen1, (int)alignment,
+          (int)((SimpleType *)src)->getLength());
 
     PCI pci(PCIT::Op_COPYVARROW, aml, ol);
     pciList.append(pci);
@@ -2223,8 +2223,8 @@ PCIList PCode::moveVarcharFixedValue(Attributes *dst, Attributes *src, CollHeap 
   comboPtr1[0] = (char)src->getNullIndicatorLength(), comboPtr1[1] = (char)src->getVCIndicatorLength();
 
   AML aml(PCIT::MASCII, PCIT::MATTR5, PCIT::IBIN32S);
-  OL ol(dst->getAtp(), dst->getAtpIndex(), (Int32)dst->getOffset(), src->getAtp(), src->getAtpIndex(),
-        (Int32)src->getOffset(), (Int32)src->getVoaOffset(), src->getLength(), comboLen1, (Int32)dst->getLength());
+  OL ol(dst->getAtp(), dst->getAtpIndex(), (int)dst->getOffset(), src->getAtp(), src->getAtpIndex(),
+        (int)src->getOffset(), (int)src->getVoaOffset(), src->getLength(), comboLen1, (int)dst->getLength());
   PCI pci(PCIT::Op_MOVE, aml, ol);
   code.append(pci);
 
@@ -2245,8 +2245,8 @@ PCIList PCode::moveFixedVarcharValue(Attributes *dst, Attributes *src, CollHeap 
   comboPtr1[1] = (char)dst->getVCIndicatorLength();
 
   AML aml(PCIT::MATTR5, PCIT::MASCII, PCIT::IBIN32S);
-  OL ol(dst->getAtp(), dst->getAtpIndex(), (Int32)dst->getOffset(), (Int32)dst->getVoaOffset(), (Int32)dst->getLength(),
-        comboLen1, src->getAtp(), src->getAtpIndex(), (Int32)src->getOffset(), (Int32)src->getLength());
+  OL ol(dst->getAtp(), dst->getAtpIndex(), (int)dst->getOffset(), (int)dst->getVoaOffset(), (int)dst->getLength(),
+        comboLen1, src->getAtp(), src->getAtpIndex(), (int)src->getOffset(), (int)src->getLength());
   PCI pci(PCIT::Op_MOVE, aml, ol);
   code.append(pci);
 
@@ -2272,20 +2272,20 @@ PCIList PCode::convertVarcharPtrToTarget(Attributes *dst, Attributes *src, CollH
 
   if (dst->getDatatype() == REC_FLOAT32) {
     AML aml(PCIT::MFLT32, PCIT::MATTR5, PCIT::IBIN32S);
-    OL ol(dst->getAtp(), dst->getAtpIndex(), (Int32)dst->getOffset(), src->getAtp(), src->getAtpIndex(),
-          (Int32)src->getOffset(), (Int32)src->getVoaOffset(), src->getLength(), comboLen1, (Int32)dst->getLength());
+    OL ol(dst->getAtp(), dst->getAtpIndex(), (int)dst->getOffset(), src->getAtp(), src->getAtpIndex(),
+          (int)src->getOffset(), (int)src->getVoaOffset(), src->getLength(), comboLen1, (int)dst->getLength());
     PCI pci(PCIT::Op_CONV_VC_PTR, aml, ol);
     code.append(pci);
   } else if (dst->getDatatype() == REC_BIN32_SIGNED) {
     AML aml(PCIT::MBIN32S, PCIT::MATTR5, PCIT::IBIN32S);
-    OL ol(dst->getAtp(), dst->getAtpIndex(), (Int32)dst->getOffset(), src->getAtp(), src->getAtpIndex(),
-          (Int32)src->getOffset(), (Int32)src->getVoaOffset(), src->getLength(), comboLen1, (Int32)dst->getLength());
+    OL ol(dst->getAtp(), dst->getAtpIndex(), (int)dst->getOffset(), src->getAtp(), src->getAtpIndex(),
+          (int)src->getOffset(), (int)src->getVoaOffset(), src->getLength(), comboLen1, (int)dst->getLength());
     PCI pci(PCIT::Op_CONV_VC_PTR, aml, ol);
     code.append(pci);
   } else if (dst->getDatatype() == REC_BIN64_SIGNED) {
     AML aml(PCIT::MBIN64S, PCIT::MATTR5, PCIT::IBIN32S);
-    OL ol(dst->getAtp(), dst->getAtpIndex(), (Int32)dst->getOffset(), src->getAtp(), src->getAtpIndex(),
-          (Int32)src->getOffset(), (Int32)src->getVoaOffset(), src->getLength(), comboLen1, (Int32)dst->getLength());
+    OL ol(dst->getAtp(), dst->getAtpIndex(), (int)dst->getOffset(), src->getAtp(), src->getAtpIndex(),
+          (int)src->getOffset(), (int)src->getVoaOffset(), src->getLength(), comboLen1, (int)dst->getLength());
     PCI pci(PCIT::Op_CONV_VC_PTR, aml, ol);
     code.append(pci);
   } else if (dst->getDatatype() == REC_BYTE_V_ASCII) {
@@ -2304,7 +2304,7 @@ PCIList PCode::convertVarcharPtrToTarget(Attributes *dst, Attributes *src, CollH
 // the value is not NULL). nulBranch is the code location of the final
 // branch that gets generated here to take after the zero fill is done.
 //
-PCIID PCode::generateJumpAndBranch(Attributes *dst, PCIList &code, PCIID notNullBranch, Int32 genUncondJump) {
+PCIID PCode::generateJumpAndBranch(Attributes *dst, PCIList &code, PCIID notNullBranch, int genUncondJump) {
   PCIID nulBranch = 0;
 
   // generate an unconditional jump over the code that handles the
@@ -2334,7 +2334,7 @@ PCIID PCode::generateJumpAndBranch(Attributes *dst, PCIList &code, PCIID notNull
 // the value is not NULL). nulBranch is the code location of the final
 // branch that gets generated here to take after the zero fill is done.
 //
-PCIID PCode::zeroFillNullValue(Attributes *dst, PCIList &code, PCIID notNullBranch, Int32 genUncondJump) {
+PCIID PCode::zeroFillNullValue(Attributes *dst, PCIList &code, PCIID notNullBranch, int genUncondJump) {
   PCIID nulBranch = 0;
 
   // Zero fill the destination.
@@ -2355,7 +2355,7 @@ PCIID PCode::zeroFillNullValue(Attributes *dst, PCIList &code, PCIID notNullBran
       len = dst->getLength();
 
     AML aml(PCIT::MATTR5, PCIT::IBIN32S, PCIT::IBIN32S);
-    OL ol(dst->getAtp(), dst->getAtpIndex(), (Int32)dst->getOffset(), (Int32)dst->getVoaOffset(), dst->getLength(),
+    OL ol(dst->getAtp(), dst->getAtpIndex(), (int)dst->getOffset(), (int)dst->getVoaOffset(), dst->getLength(),
           comboLen1, len, 0);
 
     PCI pci(PCIT::Op_FILL_MEM_BYTES, aml, ol);
@@ -2383,11 +2383,11 @@ PCIList PCode::isNull(Attributes *attrDst, Attributes *attrSrc, CollHeap *heap) 
   // For exploded format or packed format the voa offset must be retrieved
   // to get to the start of the field and then the 2 bytes of nullness can
   // be checked there.
-  Int32 flag = ((attrSrc->isIndirectVC() && !attrSrc->isSQLMXAlignedFormat()) ? 1 : 0);
+  int flag = ((attrSrc->isIndirectVC() && !attrSrc->isSQLMXAlignedFormat()) ? 1 : 0);
 
   AML aml(PCIT::MBIN32S, PCIT::MATTR5, PCIT::IBIN32S, PCIT::IBIN32S);
-  OL ol(attrDst->getAtp(), attrDst->getAtpIndex(), (Int32)attrDst->getOffset(), attrSrc->getAtp(),
-        attrSrc->getAtpIndex(), (Int32)attrSrc->getNullIndOffset(), attrSrc->getVoaOffset(), attrSrc->getTupleFormat(),
+  OL ol(attrDst->getAtp(), attrDst->getAtpIndex(), (int)attrDst->getOffset(), attrSrc->getAtp(),
+        attrSrc->getAtpIndex(), (int)attrSrc->getNullIndOffset(), attrSrc->getVoaOffset(), attrSrc->getTupleFormat(),
         attrSrc->getNullBitIndex(), flag, -1);
   PCI pci(PCIT::Op_NULL, aml, ol);
   pciList.append(pci);
@@ -2403,11 +2403,11 @@ PCIList PCode::isNotNull(Attributes *attrDst, Attributes *attrSrc, CollHeap *hea
   // For exploded format or packed format the voa offset must be retrieved
   // to get to the start of the field and then the 2 bytes of nullness can
   // be checked there.
-  Int32 flag = ((attrSrc->isIndirectVC() && !attrSrc->isSQLMXAlignedFormat()) ? 1 : 0);
+  int flag = ((attrSrc->isIndirectVC() && !attrSrc->isSQLMXAlignedFormat()) ? 1 : 0);
 
   AML aml(PCIT::MBIN32S, PCIT::MATTR5, PCIT::IBIN32S, PCIT::IBIN32S);
-  OL ol(attrDst->getAtp(), attrDst->getAtpIndex(), (Int32)attrDst->getOffset(), attrSrc->getAtp(),
-        attrSrc->getAtpIndex(), (Int32)attrSrc->getNullIndOffset(), attrSrc->getVoaOffset(), attrSrc->getTupleFormat(),
+  OL ol(attrDst->getAtp(), attrDst->getAtpIndex(), (int)attrDst->getOffset(), attrSrc->getAtp(),
+        attrSrc->getAtpIndex(), (int)attrSrc->getNullIndOffset(), attrSrc->getVoaOffset(), attrSrc->getTupleFormat(),
         attrSrc->getNullBitIndex(), flag, 0);
   PCI pci(PCIT::Op_NULL, aml, ol);
   pciList.append(pci);
@@ -2427,7 +2427,7 @@ void PCode::preClausePCI(ex_clause *clause, PCIList &code) {
   // pairs which have the same operand.
   //
   if (clause->isBranchTarget()) {
-    for (Int32 i = 0; i < clause->getNumberBranchTargets(); i++) {
+    for (int i = 0; i < clause->getNumberBranchTargets(); i++) {
       AML aml;
       OL ol((long)clause);
       PCI pci(PCIT::Op_TARGET, aml, ol);
@@ -2453,9 +2453,9 @@ PCIID PCode::nullBranchHelper(AttributesPtr *attrs, Attributes *attrA, Attribute
     if (tgt->getNullFlag()) {
       PCodeTupleFormats tpf(tgt->getTupleFormat(), attrA->getTupleFormat(), attrB->getTupleFormat());
 
-      Int32 tgtNullIndOff = tgt->getNullIndOffset();
-      Int32 attrANullIndOff = attrA->getNullIndOffset();
-      Int32 attrBNullIndOff = attrB->getNullIndOffset();
+      int tgtNullIndOff = tgt->getNullIndOffset();
+      int attrANullIndOff = attrA->getNullIndOffset();
+      int attrBNullIndOff = attrB->getNullIndOffset();
 
       // For source operands:
       // For indirect varchars in packed format use the negated voa offset.
@@ -2466,8 +2466,8 @@ PCIID PCode::nullBranchHelper(AttributesPtr *attrs, Attributes *attrA, Attribute
       // null bitmap is statically known.
       // For exploded format the varchar field offset is known at compile
       // time and the attribute is not marked as 'indirect'.
-      if (attrA->isIndirectVC() && !attrA->isSQLMXAlignedFormat()) attrANullIndOff = -((Int32)attrA->getVoaOffset());
-      if (attrB->isIndirectVC() && !attrB->isSQLMXAlignedFormat()) attrBNullIndOff = -((Int32)attrB->getVoaOffset());
+      if (attrA->isIndirectVC() && !attrA->isSQLMXAlignedFormat()) attrANullIndOff = -((int)attrA->getVoaOffset());
+      if (attrB->isIndirectVC() && !attrB->isSQLMXAlignedFormat()) attrBNullIndOff = -((int)attrB->getVoaOffset());
 
       // For target operand, a negative NullIndOffset indicates that
       // it is an indirect varchar in packed format. In this case, the runtime
@@ -2513,8 +2513,8 @@ PCIID PCode::nullBranchHelper(AttributesPtr *attrs, Attributes *attrA, Attribute
     if (tgt->getNullFlag()) {
       PCodeTupleFormats tpf(tgt->getTupleFormat(), attrA->getTupleFormat());
 
-      Int32 tgtNullIndOff = tgt->getNullIndOffset();
-      Int32 attrANullIndOff = attrA->getNullIndOffset();
+      int tgtNullIndOff = tgt->getNullIndOffset();
+      int attrANullIndOff = attrA->getNullIndOffset();
 
       // For indirect varchars in packed format use the negated voa offset.
       // Then at runtime the code knows to get the offset value out of the
@@ -2524,7 +2524,7 @@ PCIID PCode::nullBranchHelper(AttributesPtr *attrs, Attributes *attrA, Attribute
       // null bitmap is statically known.
       // For exploded format the varchar field offset is known at compile
       // time and the attribute is not marked as 'indirect'.
-      if (attrA->isIndirectVC() && !attrA->isSQLMXAlignedFormat()) attrANullIndOff = -((Int32)attrA->getVoaOffset());
+      if (attrA->isIndirectVC() && !attrA->isSQLMXAlignedFormat()) attrANullIndOff = -((int)attrA->getVoaOffset());
 
       // If the input arg is null, then output is null.
       AML aml(PCIT::MBIN32S, PCIT::MBIN32S, PCIT::IATTR3, PCIT::IBIN32S);
@@ -2589,10 +2589,10 @@ PCIID PCode::nullBranchHelperForComp(AttributesPtr *attrs, Attributes *attrA, At
       Attributes *src = (attrs[1]->getNullFlag() ? attrs[1] : attrs[2]);
 
       PCodeTupleFormats tpf(tgt->getTupleFormat(), src->getTupleFormat());
-      Int32 srcNullIndOff = src->getNullIndOffset();
+      int srcNullIndOff = src->getNullIndOffset();
 
       // for indirect varchars, use the negated voaOffset.
-      if (src->isIndirectVC() && !src->isSQLMXAlignedFormat()) srcNullIndOff = -((Int32)src->getVoaOffset());
+      if (src->isIndirectVC() && !src->isSQLMXAlignedFormat()) srcNullIndOff = -((int)src->getVoaOffset());
 
       // If the input arg is null, then output is null.
       AML aml(PCIT::MBIN32S, PCIT::MBIN32S, PCIT::IATTR3, PCIT::IBIN32S);
@@ -2614,7 +2614,7 @@ PCIID PCode::nullBranchHelperForComp(AttributesPtr *attrs, Attributes *attrA, At
       // and this is an equi predicate.
       // This check was done when pcode was generated.
       AML aml(PCIT::MBIN32S, PCIT::MATTR3, PCIT::MATTR3, PCIT::IBIN32S, PCIT::IBIN32S);
-      OL ol(tgt->getAtp(), tgt->getAtpIndex(), (Int32)tgt->getOffset(), attrA->getAtp(), attrA->getAtpIndex(),
+      OL ol(tgt->getAtp(), tgt->getAtpIndex(), (int)tgt->getOffset(), attrA->getAtp(), attrA->getAtpIndex(),
             attrA->getNullIndOffset(), attrA->getNullBitIndex(), attrB->getAtp(), attrB->getAtpIndex(),
             attrB->getNullIndOffset(), attrB->getNullBitIndex(), ITM_EQUAL, 0);
       PCI pci(PCIT::Op_NOT_NULL_BRANCH, aml, ol);
@@ -2633,8 +2633,8 @@ PCIID PCode::nullBranchHelperForComp(AttributesPtr *attrs, Attributes *attrA, At
 
     PCodeTupleFormats tpf(tgt->getTupleFormat(), attrA->getTupleFormat(), attrB->getTupleFormat());
 
-    Int32 attrANullIndOff = attrA->getNullIndOffset();
-    Int32 attrBNullIndOff = attrB->getNullIndOffset();
+    int attrANullIndOff = attrA->getNullIndOffset();
+    int attrBNullIndOff = attrB->getNullIndOffset();
 
     // For indirect varchars in packed format use the negated voa offset.
     // Then at runtime the code knows to get the offset value out of the
@@ -2644,8 +2644,8 @@ PCIID PCode::nullBranchHelperForComp(AttributesPtr *attrs, Attributes *attrA, At
     // null bitmap is statically known.
     // For exploded format the varchar field offset is known at compile
     // time and the attribute is not marked as 'indirect'.
-    if (attrA->isIndirectVC() && !attrA->isSQLMXAlignedFormat()) attrANullIndOff = -((Int32)attrA->getVoaOffset());
-    if (attrB->isIndirectVC() && !attrB->isSQLMXAlignedFormat()) attrBNullIndOff = -((Int32)attrB->getVoaOffset());
+    if (attrA->isIndirectVC() && !attrA->isSQLMXAlignedFormat()) attrANullIndOff = -((int)attrA->getVoaOffset());
+    if (attrB->isIndirectVC() && !attrB->isSQLMXAlignedFormat()) attrBNullIndOff = -((int)attrB->getVoaOffset());
 
     // If either of the input args are null, then output is null.
     AML aml(PCIT::MBIN32S, PCIT::MBIN32S, PCIT::MBIN32S, PCIT::IATTR4, PCIT::IBIN32S);
@@ -2663,7 +2663,7 @@ PCIID PCode::nullBranchHelperForComp(AttributesPtr *attrs, Attributes *attrA, At
   else if (attrA) {
     PCodeTupleFormats tpf(tgt->getTupleFormat(), attrA->getTupleFormat());
 
-    Int32 attrANullIndOff = attrA->getNullIndOffset();
+    int attrANullIndOff = attrA->getNullIndOffset();
 
     // For indirect varchars in packed format use the negated voa offset.
     // Then at runtime the code knows to get the offset value out of the
@@ -2673,7 +2673,7 @@ PCIID PCode::nullBranchHelperForComp(AttributesPtr *attrs, Attributes *attrA, At
     // null bitmap is statically known.
     // For exploded format the varchar field offset is known at compile
     // time and the attribute is not marked as 'indirect'.
-    if (attrA->isIndirectVC() && !attrA->isSQLMXAlignedFormat()) attrANullIndOff = -((Int32)attrA->getVoaOffset());
+    if (attrA->isIndirectVC() && !attrA->isSQLMXAlignedFormat()) attrANullIndOff = -((int)attrA->getVoaOffset());
 
     // If the input is null, then output is null.
     AML aml(PCIT::MBIN32S, PCIT::MBIN32S, PCIT::IATTR3, PCIT::IBIN32S);
@@ -2737,7 +2737,7 @@ PCIID PCode::nullBranch(ex_clause *clause, PCIList &code, AttributesPtr *attrs) 
   PCIID nulBranch = 0;
   Attributes *attrA = NULL, *attrB = NULL;
   if (clause->isAnyInputNullable()) {
-    for (Int32 i = 1; i < clause->getNumOperands(); i++) {
+    for (int i = 1; i < clause->getNumOperands(); i++) {
       if (attrs[i]->getNullFlag()) {
         if (!attrA) {
           attrA = attrs[i];

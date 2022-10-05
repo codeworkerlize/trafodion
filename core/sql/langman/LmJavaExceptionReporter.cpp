@@ -384,9 +384,9 @@ LmHandle LmJavaExceptionReporter::getNextChainedException(LmHandle throwable) {
 //
 // Returns: LM_ERR unconditionally
 //
-LmResult LmJavaExceptionReporter::insertDiags(ComDiagsArea *diags, Int32 errCode, const char *arg1, const char *arg2,
+LmResult LmJavaExceptionReporter::insertDiags(ComDiagsArea *diags, int errCode, const char *arg1, const char *arg2,
                                               LmHandle jt) {
-  Int32 numArgs;
+  int numArgs;
 
   numArgs = (arg2 == NULL) ? ((arg1 == NULL) ? 0 : 1) : 2;
 
@@ -489,7 +489,7 @@ LmResult LmJavaExceptionReporter::processUserException(LmRoutineJava *routine_ha
     // Record exception error text.
     const char *msg = jni->GetStringUTFChars(jstr, NULL);
 
-    Int32 len = min(str_len(msg), (LMJ_ERR_SIZE_512 - 1));
+    int len = min(str_len(msg), (LMJ_ERR_SIZE_512 - 1));
     str_cpy_all(errText, msg, len);
     errText[len] = '\0';
 
@@ -528,7 +528,7 @@ void LmJavaExceptionReporter::reportUserSQLException(LmHandle jt, char *errText,
   char sqlState[6];
 
   // Get the error code, SQLState
-  Int32 errcode = (Int32)jni->CallIntMethod((jobject)jex, (jmethodID)exErrorCodeId_);
+  int errcode = (int)jni->CallIntMethod((jobject)jex, (jmethodID)exErrorCodeId_);
   jstring jsstate = (jstring)jni->CallObjectMethod(jex, (jmethodID)exSQLStateId_);
   if (jsstate != NULL) {
     const char *sstate = jni->GetStringUTFChars(jsstate, NULL);
@@ -544,7 +544,7 @@ void LmJavaExceptionReporter::reportUserSQLException(LmHandle jt, char *errText,
       // Invalid sqlstate. Report this value wrapped in the message
       // of LME_JAVA_SQL_EXCEPTION_INVALID. The sqlstate of the reported
       // message is 39001.
-      Int32 min_len = min(str_len(sstate), 5);  // interested only upto 5 chars
+      int min_len = min(str_len(sstate), 5);  // interested only upto 5 chars
       str_cpy_all(sqlState, sstate, min_len);
       sqlState[min_len] = '\0';
       *da << DgSqlCode(-LME_JAVA_SQL_EXCEPTION_INVALID) << DgInt0(errcode) << DgString0(sqlState) << DgString1(errText);

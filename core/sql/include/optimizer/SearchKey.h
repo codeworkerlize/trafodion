@@ -243,8 +243,8 @@ class SearchKey : public ScanKey {
   const ValueIdList &getRowidValues() const { return rowidValues_; }
   NABoolean hasRowidPredicate() const { return rowidPredicate_.entries() > 0; }
 
-  void setBeginKeyValue(Int32 index, ValueId x);
-  void setEndKeyValue(Int32 index, ValueId x);
+  void setBeginKeyValue(int index, ValueId x);
+  void setEndKeyValue(int index, ValueId x);
 
   // -----------------------------------------------------------------------
   // Method for checking whether two key values are the same and both point
@@ -342,7 +342,7 @@ class SearchKey : public ScanKey {
   UInt32 _countTimesBoundaryValReq;  // initially 0, counts the number of times we attempted
   // to retrieve a boundary value
 
-  Int32 getCoveredLeadingKeys() const { return coveredLeadingKeys_; }
+  int getCoveredLeadingKeys() const { return coveredLeadingKeys_; }
 
   void reportKeyAssignment(NAString &tableName);
 
@@ -428,10 +428,10 @@ class SearchKey : public ScanKey {
   // predicates.
   NABoolean allChosenPredsAreEqualPreds_;
 
-  Int32 coveredLeadingKeys_;
+  int coveredLeadingKeys_;
   //  NABoolean searchOnKeyColumnsOnly_;
 
-  Int32 numLeadingKeyColsWithEqualPreds_;
+  int numLeadingKeyColsWithEqualPreds_;
 
 };  // class SearchKey
 
@@ -808,7 +808,7 @@ class SearchKeyWorkSpace : public NABasicObject {
                                       NABoolean &endKeyIsExclusive, ValueId &beginKeyExclusionExpr,
                                       ValueId &endKeyExclusionExpr, NABoolean &allBeginKeysMissing,
                                       NABoolean &allEndKeysMissing, NABoolean &allChosenPredsAreEqualPreds,
-                                      Int32 &numLeadingKeyColsWithEqualPreds);
+                                      int &numLeadingKeyColsWithEqualPreds);
 
   const ValueIdSet &getNonKeyColumnSet() const { return searchKey_.getNonKeyColumnSet(); }
 

@@ -61,7 +61,7 @@ using namespace std;
 typedef unsigned short ComUInt16;
 typedef short ComSInt16;
 typedef UInt32 ComUInt32;
-typedef Int32 ComSInt32;
+typedef int ComSInt32;
 
 // ++ MV
 #define MAX_COMSINT32     2147483647
@@ -83,7 +83,7 @@ typedef NAString ComString;
 
 typedef ComSInt64 ComTimestamp;
 
-typedef Int32 ComUserID;
+typedef int ComUserID;
 
 typedef NABoolean ComBoolean;
 

@@ -88,14 +88,14 @@ class ComTdbTimeout : public ComTdb {
   Long pack(void *);
   int unpack(void *, void *reallocator);
 
-  Int32 orderedQueueProtocol() const { return -1; };
+  int orderedQueueProtocol() const { return -1; };
 
-  virtual const ComTdb *getChild(Int32 /*child*/) const { return NULL; };
-  virtual Int32 numChildren() const { return 0; };
+  virtual const ComTdb *getChild(int /*child*/) const { return NULL; };
+  virtual int numChildren() const { return 0; };
   virtual const char *getNodeName() const { return "EX_SET_TIMEOUT"; };
-  virtual Int32 numExpressions() const { return 1; };
-  virtual const char *getExpressionName(Int32 pos) const { return pos == 0 ? "timeoutValueExpr_" : NULL; };
-  virtual ex_expr *getExpressionNode(Int32 pos) { return pos == 0 ? timeoutValueExpr_ : (ExExprPtr)NULL; };
+  virtual int numExpressions() const { return 1; };
+  virtual const char *getExpressionName(int pos) const { return pos == 0 ? "timeoutValueExpr_" : NULL; };
+  virtual ex_expr *getExpressionNode(int pos) { return pos == 0 ? timeoutValueExpr_ : (ExExprPtr)NULL; };
 
  protected:
   // expression used to compute the timeout value

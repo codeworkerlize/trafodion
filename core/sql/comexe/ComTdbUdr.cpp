@@ -41,11 +41,11 @@
 // ---------------------------------------------------------------------
 ComTdbUdr::ComTdbUdr(char *sqlName, char *routineName, char *routineSignature, char *containerName, char *externalPath,
                      char *librarySqlName, long libraryRedefTime, char *libraryBlobHandle, char *librarySchName,
-                     Int32 libraryVersion, char *runtimeOptions, char *runtimeOptionDelimiters,
+                     int libraryVersion, char *runtimeOptions, char *runtimeOptionDelimiters,
 
                      ULng32 flags, ULng32 numInputValues, ULng32 numOutputValues, ULng32 numParams,
                      ULng32 maxResultSets, ULng32 stateAreaSize, short udrType, short languageType, short paramStyle,
-                     short sqlAccessMode, short transactionAttrs, UInt16 externalSecurity, Int32 routineOwnerId,
+                     short sqlAccessMode, short transactionAttrs, UInt16 externalSecurity, int routineOwnerId,
                      Cardinality estimatedRowCount, ex_cri_desc *criDescParent, ex_cri_desc *criDescReturned,
                      ex_cri_desc *workCriDesc, queue_index downQueueMaxSize, queue_index upQueueMaxSize,
 
@@ -60,10 +60,10 @@ ComTdbUdr::ComTdbUdr(char *sqlName, char *routineName, char *routineSignature, c
 
                      Queue *optionalData,
 
-                     Int32 udrSerInvocationInfoLen, char *udrSerInvocationInfo, Int32 udrSerPlanInfoLen,
+                     int udrSerInvocationInfoLen, char *udrSerInvocationInfo, int udrSerPlanInfoLen,
                      char *udrSerPlanInfo,
 
-                     Int32 javaDebugPort, Int32 javaDebugTimeout,
+                     int javaDebugPort, int javaDebugTimeout,
 
                      Space *space)
     : ComTdb(ex_UDR, eye_UDR, estimatedRowCount, criDescParent, criDescReturned, downQueueMaxSize, upQueueMaxSize,
@@ -316,43 +316,43 @@ void ComTdbUdr::displayContents(Space *space, ULng32 flag) {
     str_sprintf(buf, "outputRowLen = %d, stateAreaSize = %d", outputRowLen_, stateAreaSize_);
     space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sz);
 
-    str_sprintf(buf, "requestTuppIndex = %d, replyTuppIndex = %d", (Int32)requestTuppIndex_, (Int32)replyTuppIndex_);
+    str_sprintf(buf, "requestTuppIndex = %d, replyTuppIndex = %d", (int)requestTuppIndex_, (int)replyTuppIndex_);
     space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sz);
 
-    str_sprintf(buf, "udrType = %d, languageType = %d", (Int32)udrType_, (Int32)languageType_);
+    str_sprintf(buf, "udrType = %d, languageType = %d", (int)udrType_, (int)languageType_);
     space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sz);
 
-    str_sprintf(buf, "parameterStyle = %d, sqlAccessMode = %d", (Int32)paramStyle_, (Int32)sqlAccessMode_);
+    str_sprintf(buf, "parameterStyle = %d, sqlAccessMode = %d", (int)paramStyle_, (int)sqlAccessMode_);
     space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sz);
 
-    str_sprintf(buf, "transactionAttributes = %d", (Int32)transactionAttrs_);
+    str_sprintf(buf, "transactionAttributes = %d", (int)transactionAttrs_);
     space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sz);
 
-    str_sprintf(buf, "externalSecurity = %d, routineOwnerId = %d", (Int32)externalSecurity_, (Int32)routineOwnerId_);
+    str_sprintf(buf, "externalSecurity = %d, routineOwnerId = %d", (int)externalSecurity_, (int)routineOwnerId_);
     space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sz);
 
     UInt32 i;
     for (i = 0; i < numParams_; i++) {
       const UdrFormalParamInfo *p = paramInfo_[i];
 
-      str_sprintf(buf, "\nParameter %d", (Int32)i);
+      str_sprintf(buf, "\nParameter %d", (int)i);
       space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sz);
 
       str_sprintf(buf, "  name [%s]", p->getParamName());
       space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sz);
 
-      str_sprintf(buf, "  flags %x, type %d", p->getFlags(), (Int32)p->getType());
+      str_sprintf(buf, "  flags %x, type %d", p->getFlags(), (int)p->getType());
       space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sz);
 
-      str_sprintf(buf, "  precision %d, scale %d, charset %d, collation %d", (Int32)p->getPrecision(),
-                  (Int32)p->getScale(), (Int32)p->getEncodingCharSet(), (Int32)p->getCollation());
+      str_sprintf(buf, "  precision %d, scale %d, charset %d, collation %d", (int)p->getPrecision(),
+                  (int)p->getScale(), (int)p->getEncodingCharSet(), (int)p->getCollation());
       space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sz);
     }
 
     Queue *optData = getOptionalData();
     if (optData) {
       UInt32 dataElems = optData->numEntries();
-      str_sprintf(buf, "\nNumber of optional data elements: %d", (Int32)dataElems);
+      str_sprintf(buf, "\nNumber of optional data elements: %d", (int)dataElems);
       space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sz);
 
       const char *s = NULL;
@@ -364,7 +364,7 @@ void ComTdbUdr::displayContents(Space *space, ULng32 flag) {
         UInt32 len = 0;
         str_cpy_all((char *)&len, s, 4);
 
-        str_sprintf(buf, "\nOptional data %d (length %d):", (Int32)i++, (Int32)len);
+        str_sprintf(buf, "\nOptional data %d (length %d):", (int)i++, (int)len);
         space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sz);
 
         if (len > 0) {

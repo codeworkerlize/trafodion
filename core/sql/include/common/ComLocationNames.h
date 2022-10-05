@@ -60,7 +60,7 @@ class ComLocationName;
 // Definitions relating to location names
 // -----------------------------------------------------------------------
 
-const Int32 ComGUARDIAN_NAME_PART_WITHOUT_PREFIX = 0,
+const int ComGUARDIAN_NAME_PART_WITHOUT_PREFIX = 0,
             COM_GUARDIAN_NAME_PART_WITHOUT_PREFIX = ComGUARDIAN_NAME_PART_WITHOUT_PREFIX;
 
 // Various sizes - eventually, those that redefine sizes from ComSizeDefs

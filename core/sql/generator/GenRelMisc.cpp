@@ -225,7 +225,7 @@ class NodeNameHelper {
 ULng32 nodeNameHashFunc(const NodeNameHelper &n) {
   ULng32 retval = 0;
   const char *const c = n.nodeName_;
-  Int32 i = 0;
+  int i = 0;
   do {
     retval += c[i++];
   } while (c[i]);
@@ -255,7 +255,7 @@ class NodeDiskNameHelper {
 ULng32 nodeDiskNameHashFunc(const NodeDiskNameHelper &n) {
   ULng32 retval = 0;
   const char *const c = n.nodeDiskName_;
-  Int32 i = 0;
+  int i = 0;
   do {
     retval += c[i++];
   } while (c[i]);
@@ -291,7 +291,7 @@ static void replaceBaseValue(ItemExpr *incomingExpr, ItemExpr *resultExpr, CollH
   static THREAD_P NABoolean found = FALSE;
 
   found = setFound;
-  Int32 nc = incomingExpr->getArity();
+  int nc = incomingExpr->getArity();
 
   // ITM_ASSIGN operator will not be a leaf node.
   if ((nc != 0) && (found == FALSE))  // have not found yet.
@@ -354,7 +354,7 @@ short DDLExpr::codeGen(Generator *generator) {
   // remove trailing blanks and append a semicolon, if one is not present.
   char *ddlStmt = NULL;
 
-  Int32 i = strlen(getDDLStmtText());
+  int i = strlen(getDDLStmtText());
   while ((i > 0) && (getDDLStmtText()[i - 1] == ' ')) i--;
 
   if (getDDLStmtText()[i - 1] == ';') i--;
@@ -370,8 +370,8 @@ short DDLExpr::codeGen(Generator *generator) {
   ex_cri_desc *givenDesc = generator->getCriDesc(Generator::DOWN);
   ex_cri_desc *returnedDesc = givenDesc;
   ex_cri_desc *workCriDesc = NULL;
-  const Int32 work_atp = 1;
-  const Int32 ddl_row_atp_index = 2;
+  const int work_atp = 1;
+  const int ddl_row_atp_index = 2;
   if (producesOutput()) {
     // allocate a map table for the retrieved columns
     generator->appendAtEnd();
@@ -486,8 +486,8 @@ short ExeUtilMetadataUpgrade::codeGen(Generator *generator) {
   ex_cri_desc *returnedDesc = new (space) ex_cri_desc(givenDesc->noTuples() + 1, space);
 
   ex_cri_desc *workCriDesc = new (space) ex_cri_desc(4, space);
-  const Int32 work_atp = 1;
-  const Int32 exe_util_row_atp_index = 2;
+  const int work_atp = 1;
+  const int exe_util_row_atp_index = 2;
 
   short rc = processOutputRow(generator, work_atp, exe_util_row_atp_index, returnedDesc);
   if (rc) {
@@ -560,8 +560,8 @@ short FirstN::codeGen(Generator *generator) {
   ex_cri_desc *work_cri_desc = NULL;
   ex_expr *firstNRowsExpr = NULL;
   if (firstNRowsParam_) {
-    Int32 work_atp = 1;        // temps
-    Int32 work_atp_index = 2;  // where the result row will be
+    int work_atp = 1;        // temps
+    int work_atp_index = 2;  // where the result row will be
     work_cri_desc = new (space) ex_cri_desc(3, space);
 
     // input param is typed as nullable. Make it non-nullable and unsigned.
@@ -804,7 +804,7 @@ short RelRoot::codeGen(Generator *generator) {
     // to be processed by Cli since it gets its value inside the statement
     NABoolean blankHV = FALSE;
     if (item_expr->previousHostVar()) {
-      Int32 j = 0;
+      int j = 0;
       for (j = 0; j < i; j++) {
         ItemExpr *ie = inputVars()[j].getItemExpr();
         if (ie->getOperatorType() == ITM_HOSTVAR) {
@@ -893,7 +893,7 @@ short RelRoot::codeGen(Generator *generator) {
     }
   }  // for
 
-  Int32 num_tupps = 2; /* atp_index 0 for constants, 1 for temps */
+  int num_tupps = 2; /* atp_index 0 for constants, 1 for temps */
 
   // create a row(tuple) with input param/hostvar values and pass
   // it to the child.
@@ -1070,7 +1070,7 @@ short RelRoot::codeGen(Generator *generator) {
 
     // For each column of the Virtual Explain Table, extract the
     // relevant info. from the table desc and put it into the ExplainDesc
-    for (Int32 c = 0; c < numCols; c++ /* no pun intended */) {
+    for (int c = 0; c < numCols; c++ /* no pun intended */) {
       TrafColumnsDesc *colsDesc = (cols->columnsDesc());
 
       explainDesc->setColDescr(c, colsDesc->datatype, colsDesc->length, colsDesc->offset, colsDesc->isNullable());
@@ -1511,7 +1511,7 @@ short RelRoot::codeGen(Generator *generator) {
 
   // create the latename info List to be passed on to root_tdb.
   LateNameInfoList *lnil = NULL;
-  Int32 numEntries = 0;
+  int numEntries = 0;
   if (generator->getLateNameInfoList().entries() > 0) numEntries = generator->getLateNameInfoList().entries();
   lnil = (LateNameInfoList *)space->allocateMemory(sizeof(LateNameInfoList) + (numEntries * sizeof(LateNameInfo)));
 
@@ -1677,7 +1677,7 @@ short RelRoot::codeGen(Generator *generator) {
     // This name will be used at runtime to compare to the tablename
     // specified in an 'upd/del where current of' stmt. The two tablenames
     // must be the same.
-    for (Int32 n = 0; n < noOfTables; n++) {
+    for (int n = 0; n < noOfTables; n++) {
       SqlTableOpenInfo *stoi = stoiList[n];
 
       if (NOT stoi->isIndex()) {
@@ -1698,7 +1698,7 @@ short RelRoot::codeGen(Generator *generator) {
     // for index maintanence and they will either be indices or
     // specialTables with the special type being an INDEX_TABLE.
     // Look only for the true base tables.
-    for (Int32 n = 0; n < noOfTables; n++) {
+    for (int n = 0; n < noOfTables; n++) {
       SqlTableOpenInfo *stoi = stoiList[n];
 
       if ((NOT stoi->isIndex()) && (NOT stoi->specialTable()) && (stoi->getUpdateAccess() || stoi->getDeleteAccess())) {
@@ -1810,7 +1810,7 @@ short RelRoot::codeGen(Generator *generator) {
   CompilationStats *stats = CURRENTSTMT->getCompilationStats();
   char *compilerId = new (space) char[COMPILER_ID_LEN];
   str_cpy_all(compilerId, generator->currentCmpContext()->getCompilerId(), COMPILER_ID_LEN);
-  Int32 cLen = stats->getCompileInfoLen();
+  int cLen = stats->getCompileInfoLen();
   //
   // make it 1 at minimum
   cLen = (cLen < 1) ? 1 : cLen;
@@ -2032,7 +2032,7 @@ short RelRoot::codeGen(Generator *generator) {
     root_tdb->setUncProcess(TRUE);
   }
 
-  Int32 foundUpdStat = 0;  // If this is a ustat statement, set the type
+  int foundUpdStat = 0;  // If this is a ustat statement, set the type
   if (currChildOper == REL_DDL) {
     DDLExpr *ddlExpr = (DDLExpr *)child(0)->castToRelExpr();
     char *stmt = ddlExpr->getDDLStmtText();
@@ -2387,11 +2387,11 @@ short RelRoot::codeGen(Generator *generator) {
   root_tdb->setBmoMemoryLimitPerNode(ActiveSchemaDB()->getDefaults().getAsDouble(BMO_MEMORY_LIMIT_PER_NODE_IN_MB));
   root_tdb->setEstBmoMemoryPerNode(generator->getTotalBMOsMemoryPerNode().value());
 
-  Int32 numSikEntries = securityKeySet_.entries();
+  int numSikEntries = securityKeySet_.entries();
   if (numSikEntries > 0) {
     ComSecurityKey *sikValues = new (space) ComSecurityKey[numSikEntries];
 
-    for (Int32 sv = 0; sv < numSikEntries; sv++) sikValues[sv] = securityKeySet_[sv];
+    for (int sv = 0; sv < numSikEntries; sv++) sikValues[sv] = securityKeySet_[sv];
 
     SecurityInvKeyInfo *sikInfo = new (space) SecurityInvKeyInfo(numSikEntries, sikValues);
     root_tdb->setSikInfo(sikInfo);
@@ -2597,7 +2597,7 @@ short Sort::generateTdb(Generator *generator, ComTdb *child_tdb, ex_expr *sortKe
 
   // 512kb default size initiliazed in sort_options.
   if (sortRecLen >= sort_options->scratchIOBlockSize()) {
-    // Int32 maxScratchIOBlockSize = (Int32)getDefault(SCRATCH_IO_BLOCKSIZE_SORT_MAX);
+    // int maxScratchIOBlockSize = (int)getDefault(SCRATCH_IO_BLOCKSIZE_SORT_MAX);
     // allocate space for atleast 10 rows. 10 rows is arbitrary number.
     sort_options->scratchIOBlockSize() = sortRecLen * 10;
 
@@ -2787,8 +2787,8 @@ short Sort::codeGen(Generator *generator) {
 
   ex_cri_desc *returned_desc = new (space) ex_cri_desc(given_desc->noTuples() + 1, space);
 
-  Int32 work_atp = 1;        // temps
-  Int32 work_atp_index = 2;  // where the result row will be
+  int work_atp = 1;        // temps
+  int work_atp_index = 2;  // where the result row will be
   ex_cri_desc *work_cri_desc = new (space) ex_cri_desc(3, space);
 
   // All the records in the table will not be processed by a single sort
@@ -2835,7 +2835,7 @@ short Sort::codeGen(Generator *generator) {
   // generate the key encode value id list used for sorting
   UInt32 sortKeyLen = 0;
   UInt32 sortPrefixKeyLen = 0;
-  Int32 prefixKeyCnt = getPrefixSortKey().entries();
+  int prefixKeyCnt = getPrefixSortKey().entries();
   ValueIdList sortKeyValIdList;
   CollIndex sortKeyListIndex;
   CollIndex sortRecListIndex;
@@ -3058,8 +3058,8 @@ short SortFromTop::codeGen(Generator *generator) {
   // child gets one sorted row created in this operator.
   ex_cri_desc *child_desc = new (space) ex_cri_desc(given_desc->noTuples() + 1, space);
 
-  Int32 work_atp = 1;        // temps
-  Int32 work_atp_index = 2;  // where the result row will be
+  int work_atp = 1;        // temps
+  int work_atp_index = 2;  // where the result row will be
   ex_cri_desc *work_cri_desc = new (space) ex_cri_desc(3, space);
 
   // All the records in the table will not be processed by a single sort
@@ -3335,7 +3335,7 @@ short TupleList::codeGen(Generator *generator) {
   ExpGenerator *expGen = generator->getExpGenerator();
   ex_cri_desc *givenDesc = generator->getCriDesc(Generator::DOWN);
   ex_cri_desc *returnedDesc = new (space) ex_cri_desc(givenDesc->noTuples() + 1, space);
-  Int32 tuppIndex = returnedDesc->noTuples() - 1;
+  int tuppIndex = returnedDesc->noTuples() - 1;
 
   // disable common subexpression elimination for now.
   // There is a problem which shows up due to common subexpression
@@ -3446,7 +3446,7 @@ short TupleList::codeGen(Generator *generator) {
   // Try to get enough buffer space to hold twice as many records
   // as the up queue.
   ULng32 buffersize = getDefault(GEN_TUPL_BUFFER_SIZE);
-  Int32 numBuffers = getDefault(GEN_TUPL_NUM_BUFFERS);
+  int numBuffers = getDefault(GEN_TUPL_NUM_BUFFERS);
   queue_index upqueuelength = (queue_index)getDefault(GEN_TUPL_SIZE_UP);
   ULng32 cbuffersize =
       ((tupleLen + sizeof(tupp_descriptor)) * (upqueuelength * 2 / numBuffers)) + SqlBufferNeededSize(0, 0);
@@ -3548,7 +3548,7 @@ short ExplainFunc::codeGen(Generator *generator) {
   // allocate buffer space to contain atleast 2 rows.
   ULng32 bufferSize = (explTupleLength + 100 /*padding*/) * 2 /*rows*/;
   bufferSize = MAXOF(bufferSize, 30000);  // min buf size 30000
-  Int32 numBuffers = 3;                   // allocate 3 buffers
+  int numBuffers = 3;                   // allocate 3 buffers
 
   ComTdbExplain *explainTdb = new (space) ComTdbExplain(givenDesc,                     // given_cri_desc
                                                         returnedDesc,                  // returned cri desc
@@ -3671,8 +3671,8 @@ short PhysTranspose::codeGen(Generator *generator) {
 
   // transposeCols is the last Tp in Atp 0.
   //
-  const Int32 transColsAtpIndex = returnedCriDesc->noTuples() - 1;
-  const Int32 transColsAtp = 0;
+  const int transColsAtpIndex = returnedCriDesc->noTuples() - 1;
+  const int transColsAtp = 0;
 
   // The length of the new tuple which will contain the columns
   // generated by transpose.
@@ -4090,8 +4090,8 @@ short PhyPack::codeGen(Generator *generator) {
   for (CollIndex i = 0; i < noOfPackedCols; i++) attrs[i] = (generator->addMapInfo(packingExpr().at(i), 0))->getAttr();
 
   // PhyPack adds one tupp to the tail of its parent's ATP (stored as ATP0)
-  const Int32 atpIndex = returnedNoOfTuples - 1;
-  const Int32 atp = 0;
+  const int atpIndex = returnedNoOfTuples - 1;
+  const int atp = 0;
 
   // To store length of the last tupp introduced by PhyPack.
   ULng32 tupleLen = 0;
@@ -4234,9 +4234,9 @@ short StatisticsFunc::codeGen(Generator *generator) {
   // Entry 2(index #3) is where the input row will be built.
 
   ex_cri_desc *workCriDesc = new (space) ex_cri_desc(4, space);
-  const Int32 work_atp = 1;
-  const Int32 stats_row_atp_index = 2;
-  const Int32 input_row_atp_index = 3;
+  const int work_atp = 1;
+  const int stats_row_atp_index = 2;
+  const int input_row_atp_index = 3;
 
   // Assumption (for now): retrievedCols contains ALL columns from
   // the table/index. This is because this operator does
@@ -4384,7 +4384,7 @@ TrafDesc *ProxyFunc::createVirtualTableDesc() {
   TrafDesc *cols_descs = NULL;
   TrafDesc *keys_descs = NULL;
 
-  table_desc->tableDesc()->colcount = (Int32)getNumColumns();
+  table_desc->tableDesc()->colcount = (int)getNumColumns();
 
   table_desc->tableDesc()->record_length =
       createDescStructsForProxy(*this, table_desc->tableDesc()->tablename, cols_descs, keys_descs);
@@ -4488,7 +4488,7 @@ short ConnectBy::codeGen(Generator *generator) {
   ExpGenerator *expGen = generator->getExpGenerator();
   Space *space = generator->getSpace();
 
-  const Int32 work_atp = 1;
+  const int work_atp = 1;
   short leftRowAtpIndex = 2;
   short rightRowAtpIndex = 3;
   short priorPredAtpIndex = 4;
@@ -4547,7 +4547,7 @@ short ConnectBy::codeGen(Generator *generator) {
     rightDownDesc->setTupleDescriptor(priorValsValsDownAtpIndex, priorValueExprDesc);
 
     const ValueIdList &hostvars = priorValues();
-    for (Int32 i = 0; i < hostvars.entries(); i++) {
+    for (int i = 0; i < hostvars.entries(); i++) {
       generator->getMapInfo(hostvars[i])->codeGenerated();
     }
     generator->unlinkNext(myMapTableMM1);
@@ -4772,7 +4772,7 @@ short ConnectByTempTable::codeGen(Generator *generator) {
   ex_cri_desc *given_desc = generator->getCriDesc(Generator::DOWN);
   ex_cri_desc *returned_desc = new (space) ex_cri_desc(given_desc->noTuples() + 1, space);
 
-  Int32 work_atp = 1;
+  int work_atp = 1;
   unsigned short hashValIdx = 2;
   unsigned short encodedProbeDataIdx = 3;
   unsigned short innerRowDataIdx = 4;
@@ -5003,9 +5003,9 @@ short QueryInvalidationFunc::codeGen(Generator *generator) {
   // Entry 2(index #3) is where the input row will be built.
 
   ex_cri_desc *workCriDesc = new (space) ex_cri_desc(4, space);
-  const Int32 work_atp = 1;
-  const Int32 qi_row_atp_index = 2;
-  const Int32 input_row_atp_index = 3;
+  const int work_atp = 1;
+  const int qi_row_atp_index = 2;
+  const int input_row_atp_index = 3;
 
   Attributes **attrs = new (generator->wHeap()) Attributes *[getTableDesc()->getColumnList().entries()];
 

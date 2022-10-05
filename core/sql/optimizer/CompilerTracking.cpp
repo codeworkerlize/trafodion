@@ -90,7 +90,7 @@ Dump the fields of this class out to a file (or to repository) if
 the tracking compiler interval has expired
 
 ************************************************************************/
-void CompilerTrackingInfo::logCompilerStatusOnInterval(Int32 intervalLengthMins) {
+void CompilerTrackingInfo::logCompilerStatusOnInterval(int intervalLengthMins) {
   if (intervalExpired(intervalLengthMins)) {
     //
     // this interval is now done/expired
@@ -128,7 +128,7 @@ Check whether the defined interval for logging has expired and it's
 OK to log CompilerTrackingInfo again.
 
 ************************************************************************/
-inline NABoolean CompilerTrackingInfo::intervalExpired(Int32 intervalLengthMins) {
+inline NABoolean CompilerTrackingInfo::intervalExpired(int intervalLengthMins) {
   return (currentIntervalDuration(getCurrentTimestamp()) >= intervalLengthMins);
 }
 /************************************************************************
@@ -171,9 +171,9 @@ the current duration of this interval is the distance between
  the begin time and current time
 
 ************************************************************************/
-inline Int32 CompilerTrackingInfo::currentIntervalDuration(long endTime) {
+inline int CompilerTrackingInfo::currentIntervalDuration(long endTime) {
   // return in minutes
-  return (Int32)(((endTime - beginIntervalTime_) / 1000000) / 60);
+  return (int)(((endTime - beginIntervalTime_) / 1000000) / 60);
 }
 /************************************************************************
 method CompilerTrackingInfo::cpuPathLength

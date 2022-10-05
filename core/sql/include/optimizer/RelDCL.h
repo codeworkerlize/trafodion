@@ -110,7 +110,7 @@ class RelLock : public RelExpr {
 
   // various PC methods
   // get the degree of this node (it is a leaf op).
-  virtual Int32 getArity() const { return 0; };
+  virtual int getArity() const { return 0; };
   virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *outHeap = NULL);
   virtual const NAString getText() const;
 
@@ -186,7 +186,7 @@ class RelTransaction : public RelExpr {
 
   // various PC methods
   // get the degree of this node (it is a leaf op).
-  virtual Int32 getArity() const { return 0; };
+  virtual int getArity() const { return 0; };
   virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *outHeap = NULL);
   virtual const NAString getText() const;
 
@@ -256,7 +256,7 @@ class RelSetTimeout : public RelExpr {
 
   // various PC methods
   // get the degree of this node (it is a leaf op).
-  virtual Int32 getArity() const { return 0; };
+  virtual int getArity() const { return 0; };
   virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *outHeap = NULL);
   virtual const NAString getText() const;
 

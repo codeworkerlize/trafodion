@@ -404,10 +404,10 @@ const ex_arith_clause::ArithInstrStruct ex_arith_clause::arithInstrInfo[] = {
 
 const ex_arith_clause::ArithInstrStruct *ex_arith_clause::getMatchingRow(OperatorTypeEnum op, short datatype1,
                                                                          short datatype2, short resulttype) {
-  Int32 max_array_size = sizeof(arithInstrInfo) / sizeof(ArithInstrStruct);
+  int max_array_size = sizeof(arithInstrInfo) / sizeof(ArithInstrStruct);
 
-  Int32 i = 0;
-  Int32 found = 0;
+  int i = 0;
+  int found = 0;
   while ((i < max_array_size) && (!found))
     if ((arithInstrInfo[i].op == op) && (arithInstrInfo[i].type_op1 == datatype1) &&
         (arithInstrInfo[i].type_op2 == datatype2) && (arithInstrInfo[i].type_op0 == resulttype))
@@ -423,9 +423,9 @@ const ex_arith_clause::ArithInstrStruct *ex_arith_clause::getMatchingRow(Operato
 }
 
 int ex_arith_clause::findIndexIntoInstrArray(ArithInstruction ci) {
-  Int32 max_array_size = sizeof(arithInstrInfo) / sizeof(ArithInstrStruct);
+  int max_array_size = sizeof(arithInstrInfo) / sizeof(ArithInstrStruct);
 
-  Int32 i = 0;
+  int i = 0;
   while ((i < max_array_size) && (arithInstrInfo[i].instruction != ci)) {
     i++;
   }
@@ -949,11 +949,11 @@ const ex_comp_clause::CompInstrStruct ex_comp_clause::compInstrInfo[] = {
 
 const ex_comp_clause::CompInstrStruct *ex_comp_clause::getMatchingRow(OperatorTypeEnum op, short datatype1,
                                                                       short datatype2) {
-  Int32 max_array_size = sizeof(compInstrInfo) / sizeof(CompInstrStruct);
+  int max_array_size = sizeof(compInstrInfo) / sizeof(CompInstrStruct);
 
-  Int32 i = 0;
+  int i = 0;
 
-  Int32 found = 0;
+  int found = 0;
   while ((i < max_array_size) && (!found))
     if ((compInstrInfo[i].op == op) && (compInstrInfo[i].type_op1 == datatype1) &&
         (compInstrInfo[i].type_op2 == datatype2))
@@ -969,9 +969,9 @@ const ex_comp_clause::CompInstrStruct *ex_comp_clause::getMatchingRow(OperatorTy
 }
 
 int ex_comp_clause::findIndexIntoInstrArray(CompInstruction ci) {
-  Int32 max_array_size = sizeof(compInstrInfo) / sizeof(CompInstrStruct);
+  int max_array_size = sizeof(compInstrInfo) / sizeof(CompInstrStruct);
 
-  Int32 i = 0;
+  int i = 0;
   while ((i < max_array_size) && (compInstrInfo[i].instruction != ci)) {
     i++;
   }
@@ -1575,9 +1575,9 @@ const ex_conv_clause::ConvInstrStruct ex_conv_clause::convInstrInfo[] = {
 };
 
 int ex_conv_clause::findIndexIntoInstrArray(ConvInstruction ci) {
-  Int32 max_array_size = sizeof(convInstrInfo) / sizeof(ConvInstrStruct);
+  int max_array_size = sizeof(convInstrInfo) / sizeof(ConvInstrStruct);
 
-  Int32 i = 0;
+  int i = 0;
   while ((i < max_array_size) && (convInstrInfo[i].instruction != ci)) {
     i++;
   }
@@ -1616,9 +1616,9 @@ void ex_conv_clause::populateInstrOffsetIndex() {
   const int lv_MaxIndexCapacity = 100;
   convInstrIndexDef lv_convIndex[lv_MaxIndexCapacity];
 
-  Int32 i = 0;
-  Int32 lv_source_type = -1;
-  Int32 lv_max_array_size = sizeof(ex_conv_clause::convInstrInfo) / sizeof(ex_conv_clause::ConvInstrStruct);
+  int i = 0;
+  int lv_source_type = -1;
+  int lv_max_array_size = sizeof(ex_conv_clause::convInstrInfo) / sizeof(ex_conv_clause::ConvInstrStruct);
 
   // collect distinct type_op1 values and their 1st offset in convInstrInfo[]
   while (i < lv_max_array_size) {
@@ -1683,9 +1683,9 @@ ConvInstruction ex_conv_clause::findInstruction(short sourceType, int sourceLen,
 
   getConvCaseDatatypes(sourceType, sourceLen, sourceType, targetType, targetLen, targetType, scaleDifference);
 
-  Int32 max_array_size = sizeof(convInstrInfo) / sizeof(ConvInstrStruct);
+  int max_array_size = sizeof(convInstrInfo) / sizeof(ConvInstrStruct);
 
-  Int32 i = 0;
+  int i = 0;
   i = getInstrOffset(sourceType);
   if (i < 0) {
     i = 0;

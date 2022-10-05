@@ -27,7 +27,7 @@
 // QRLatticeIndexNode
 //
 
-QRLatticeIndexNode::QRLatticeIndexNode(const LatticeKeyList &keys, QRLatticeIndexPtr lattice, Int32 referenceNumber,
+QRLatticeIndexNode::QRLatticeIndexNode(const LatticeKeyList &keys, QRLatticeIndexPtr lattice, int referenceNumber,
                                        NABoolean noNewEntry, ADD_MEMCHECK_ARGS_DEF(CollHeap *heap))
     : NAIntrusiveSharedPtrObject(ADD_MEMCHECK_ARGS_PASS(heap)),
       lattice_(lattice),
@@ -115,7 +115,7 @@ void QRLatticeIndexNode::addKeyToSearchNode(LatticeIndexable& key,
 }
 ***/
 
-void QRLatticeIndexNode::adopt(QRLatticeIndexNodePtr newChild, Int32 newChildPos) {
+void QRLatticeIndexNode::adopt(QRLatticeIndexNodePtr newChild, int newChildPos) {
   QRTRACER("QRLatticeIndexNode::adopt()");
 #ifdef DEBUG_LATTICE
   QRLogger::log(CAT_GRP_LATTCE_INDX, LL_DEBUG, "%s adopting %s", nodeName_, newChild->nodeName_);
@@ -229,7 +229,7 @@ void QRLatticeIndexNode::dumpLattice(NAString &graphText, NAString &graphLabel) 
   }
 }
 
-void QRLatticeIndexNode::collectMVGroups(WorkloadAnalysisPtr workload, Int32 minQueriesPerMV, CollHeap *heap) {
+void QRLatticeIndexNode::collectMVGroups(WorkloadAnalysisPtr workload, int minQueriesPerMV, CollHeap *heap) {
   QRTRACER("QRLatticeIndexNode::collectMVGroups()");
   if (visited()) return;  // node already visited in this traversal
   markVisited();
@@ -259,7 +259,7 @@ void QRLatticeIndexNode::collectMVGroups(WorkloadAnalysisPtr workload, Int32 min
 // QRLatticeIndex
 //
 
-const Int32 QRLatticeIndex::SEQNUM_UNASSIGNED = -1;
+const int QRLatticeIndex::SEQNUM_UNASSIGNED = -1;
 const char *const QRLatticeIndex::TOP_NODE_NAME = "Top";
 const char *const QRLatticeIndex::BOTTOM_NODE_NAME = "Bottom";
 
@@ -695,7 +695,7 @@ void QRLatticeIndex::dumpLattice(NAString &graphText, const char *tag) {
   graphText += '\n';
 }
 
-void QRLatticeIndex::collectMVGroups(WorkloadAnalysisPtr workload, Int32 minQueriesPerMV, CollHeap *heap) {
+void QRLatticeIndex::collectMVGroups(WorkloadAnalysisPtr workload, int minQueriesPerMV, CollHeap *heap) {
   QRTRACER("QRLatticeIndex::collectMVGroups()");
   QRLatticeIndexLock lock(this);  // ctor/dtor handles lock for traversal
 

@@ -161,8 +161,8 @@ int32_t ExSM_Send(ExSMGlobals *smGlobals,     // IN
 
   exsm_assert(smGlobals, "Invalid SM globals pointer");
 
-  Int32 errorRetrys = 0;
-  const Int32 NumErrorRetries = 10;
+  int errorRetrys = 0;
+  const int NumErrorRetries = 10;
   timespec retryintervals[NumErrorRetries] = {
       {0, 10 * 1000 * 1000}  // 10 ms
       ,
@@ -435,7 +435,7 @@ const char *ExSM_GetMessageBufferType(void *data, size_t dataBytes) {
     IpcMessageObj *msgObj = (IpcMessageObj *)data;
     IpcMessageObj *next = msgObj->getNextFromOffset();
     if (next && ((void *)next > data) && (((char *)data + dataBytes) >= ((char *)next + sizeof(IpcMessageObj)))) {
-      Int32 type = next->getType();
+      int type = next->getType();
       return getESPMessageObjTypeString((ESPMessageObjTypeEnum)type);
     }
   }

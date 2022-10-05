@@ -450,7 +450,7 @@ NABoolean Refresh::doesBaseTableHaveSupportingIndex(BindWA *bindWA, MVInfoForDML
   NAColumnArray tableGroupByArray;
   const NAColumnArray &columnArray = pNaTable->getNAColumnArray();
   for (i = 0; i < mvGroupByColumns.entries(); i++) {
-    Int32 tableColNum = (mvGroupByColumns)[i]->getOrigColNumber();
+    int tableColNum = (mvGroupByColumns)[i]->getOrigColNumber();
     NAColumn *pColumn = columnArray.getColumn(tableColNum);
     tableGroupByArray.insert(pColumn);
   }

@@ -92,7 +92,7 @@ class BiLogic : public ItemExpr {
   // member(s) contribute to its cache key via our own generateCacheKey here
 
   // get the degree of this node (it is a binary op).
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   // An indicator whether this item expression is a predicate.
   virtual NABoolean isAPredicate() const;
@@ -172,8 +172,8 @@ class BiLogic : public ItemExpr {
   // Performs the MDAM tree walk.  See ItemExpr.h for a detailed description.
   DisjunctArray *mdamTreeWalk();
 
-  inline Int32 getNumLeaves() const { return numLeaves_; }
-  void setNumLeaves(Int32 num) { numLeaves_ = num; }
+  inline int getNumLeaves() const { return numLeaves_; }
+  void setNumLeaves(int num) { numLeaves_ = num; }
 
   virtual QR::ExprElement getQRExprElem() const;
   virtual NABoolean hasEquivalentProperties(ItemExpr *other) { return TRUE; }
@@ -185,7 +185,7 @@ class BiLogic : public ItemExpr {
   NABoolean convertToInListFeasible(ValueId &colId, ValueIdList &result);
 
  private:
-  Int32 numLeaves_;
+  int numLeaves_;
 
   NABoolean createdFromINlist_;
 };  // class BiLogic
@@ -203,7 +203,7 @@ class UnLogic : public ItemExpr {
   virtual ~UnLogic() {}
 
   // get the degree of this node (it is a unary op).
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   // a virtual function for performing name binding within the query tree
   virtual ItemExpr *bindNode(BindWA *bindWA);
@@ -338,7 +338,7 @@ class BiRelat : public ItemExpr {
   virtual void generateCacheKey(CacheWA &cachewa) const;
 
   // get the degree of this node (it is a binary op).
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   // a virtual function for performing name binding within the query tree
   virtual ItemExpr *bindNode(BindWA *bindWA);
@@ -848,7 +848,7 @@ class RangeCompare : public ItemExpr {
   void generatePushdownListForExtStorage(ExtPushdownPredInfoList &result);
   ItemExpr *removeNonPushablePredicatesForORC();
 
-  virtual Int32 getArity() const { return 2; };
+  virtual int getArity() const { return 2; };
 
   // get a printable string that identifies the operator
   virtual const NAString getText() const;

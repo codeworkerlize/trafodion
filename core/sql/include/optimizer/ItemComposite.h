@@ -52,7 +52,7 @@ class CompositeArrayLength : public BuiltinFunction {
   virtual NABoolean isCacheableExpr(CacheWA &cwa);
 
   // get the degree of this node
-  virtual Int32 getArity() const { return 1; }
+  virtual int getArity() const { return 1; }
 
   virtual ItemExpr *bindNode(BindWA *bindWA);
 
@@ -87,7 +87,7 @@ class CompositeCreate : public ItemExpr {
   virtual NABoolean isCacheableExpr(CacheWA &cwa) { return FALSE; };
 
   // get the degree of this node
-  virtual Int32 getArity() const { return 1; }
+  virtual int getArity() const { return 1; }
 
   // method to do precode generation
   virtual ItemExpr *bindNode(BindWA *bindWA);
@@ -137,7 +137,7 @@ class CompositeDisplay : public ItemExpr {
   virtual ~CompositeDisplay(){};
 
   // get the degree of this node
-  virtual Int32 getArity() const { return 1; }
+  virtual int getArity() const { return 1; }
 
   // method to do precode generation
   virtual ItemExpr *bindNode(BindWA *bindWA);
@@ -173,7 +173,7 @@ class CompositeCast : public ItemExpr {
   virtual ~CompositeCast(){};
 
   // get the degree of this node
-  virtual Int32 getArity() const { return 1; }
+  virtual int getArity() const { return 1; }
 
   ItemExpr *arrayExtendOrTruncate(BindWA *bindWA);
 
@@ -333,8 +333,8 @@ class CompositeExtract : public BuiltinFunction {
   // attribute list. Used to find out the value to be extracted.
   // For ex: {b1}[3].b10  where b1 is row and b10 is char, will have 2 entries.
   //         First entry will be 3,221(REC_ROW) and second will be 0,0(ASCII_F)
-  NAList<Int32> attrIndexList_;
-  NAList<Int32> attrTypeList_;
+  NAList<int> attrIndexList_;
+  NAList<int> attrTypeList_;
 };  // class CompositeExtract
 
 #endif

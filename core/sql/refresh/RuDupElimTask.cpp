@@ -119,9 +119,9 @@ void CRUDupElimTask::PullDataFromExecutor() {
 int CRUDupElimTask::GetDeltaStatisticsBufSize() const {
   CRUTbl &tbl = GetTable();
 
-  Int32 nStatEntries = tbl.GetIncrementalInvolvedMVsUsingMe().GetCount();
+  int nStatEntries = tbl.GetIncrementalInvolvedMVsUsingMe().GetCount();
 
-  Int32 singleStatSize = CRUDeltaStatistics::GetPackedBufferSize(tbl.GetUpdateBitmapSize());
+  int singleStatSize = CRUDeltaStatistics::GetPackedBufferSize(tbl.GetUpdateBitmapSize());
 
   return nStatEntries * singleStatSize;
 }

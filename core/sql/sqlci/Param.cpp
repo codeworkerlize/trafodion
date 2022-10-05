@@ -312,7 +312,7 @@ short Param::convertValue(SqlciEnv *sqlci_env, short targetType, int &targetLen,
         // convert the format to a varchar format with 4 bytes of length
         origTargetType = REC_BLOB;
         targetType = REC_BYTE_V_ASCII;
-        vcIndLen = sizeof(Int32);
+        vcIndLen = sizeof(int);
       }
 
       // 5/27/98: added VARCHAR cases
@@ -338,7 +338,7 @@ short Param::convertValue(SqlciEnv *sqlci_env, short targetType, int &targetLen,
       {
         charBuf cbuf((unsigned char *)pParamValue, sourceLen);
         NAWcharBuf *wcbuf = 0;
-        Int32 errorcode = 0;
+        int errorcode = 0;
         wcbuf = csetToUnicode(cbuf, 0, wcbuf, cs /*sourceCharSet*/
                               ,
                               errorcode);
@@ -476,43 +476,7 @@ char *Param::getDisplayValue(CharInfo::CharSet display_cs) {
 
 //////////////////////////////////////////////////////////////
 short SetParam::process(SqlciEnv *sqlci_env) {
-  if (get_arglen() == -1) {
-    // set param to null value
-    Param *param = sqlci_env->get_paramlist()->get(param_name);
-    if (param)
-      param->makeNull();
-    else {
-      param = new Param(param_name, (char *)0);
 
-      sqlci_env->get_paramlist()->append(param);
-      param->makeNull();
-    }
-  } else if (!get_argument()) {
-    /* RESET PARAM command */
-    if (!param_name) {
-      /* RESET all params */
-      Param *param = sqlci_env->get_paramlist()->getFirst();
-      while (param) {
-        sqlci_env->get_paramlist()->remove(param->getName());
-        delete param;
-        param = sqlci_env->get_paramlist()->getNext();
-      }
-    } else {
-      Param *param = sqlci_env->get_paramlist()->get(param_name);
-      sqlci_env->get_paramlist()->remove(param_name);
-      delete param;
-    }
-  } else {
-    /* SET PARAM command */
-    Param *param = sqlci_env->get_paramlist()->get(param_name);
-    if (param) {
-      param->setValue(this);
-    } else {
-      param = new Param(param_name, this);
-
-      sqlci_env->get_paramlist()->append(param);
-    }
-  }
 
   return 0;
 }
@@ -534,32 +498,6 @@ void SetParam::setUTF16ParamStrLit(const NAWchar *utf16Str, size_t ucs2StrLen) {
 
 //////////////////////////////////////////////////////////////
 short SetPattern::process(SqlciEnv *sqlci_env) {
-  if (!get_argument()) {
-    /* RESET PATTERN command */
-    if (!pattern_name) {
-      /* RESET all patterns */
-      Param *pattern = sqlci_env->get_patternlist()->getFirst();
-      while (pattern) {
-        sqlci_env->get_patternlist()->remove(pattern->getName());
-        delete pattern;
-        pattern = sqlci_env->get_patternlist()->getNext();
-      }
-    } else {
-      Param *pattern = sqlci_env->get_patternlist()->get(pattern_name);
-      sqlci_env->get_patternlist()->remove(pattern_name);
-      delete pattern;
-    }
-  } else {
-    /* SET PATTERN command */
-    Param *pattern = sqlci_env->get_patternlist()->get(pattern_name);
-    if (pattern) {
-      pattern->setValue(get_argument(), sqlci_env->getTerminalCharset());
-    } else {
-      pattern = new Param(pattern_name, get_argument());
-
-      sqlci_env->get_patternlist()->append(pattern);
-    }
-  }
 
   return 0;
 }

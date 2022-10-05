@@ -53,8 +53,8 @@
 extern ComDiagsArea sqlci_DA;
 extern int sqlcidebug;
 
-static Int32 sqlci_parser_subproc(char *instr, char *origstr, SqlciNode **node, SqlciEnv *sqlci_env) {
-  Int32 retval = 0;
+static int sqlci_parser_subproc(char *instr, char *origstr, SqlciNode **node, SqlciEnv *sqlci_env) {
+  int retval = 0;
   *node = NULL;
 
   // Set (reset) globals
@@ -98,14 +98,14 @@ static Int32 sqlci_parser_subproc(char *instr, char *origstr, SqlciNode **node, 
   return retval;
 }
 
-Int32 sqlci_parser(char *instr, char *origstr, SqlciNode **node, SqlciEnv *sqlci_env) {
+int sqlci_parser(char *instr, char *origstr, SqlciNode **node, SqlciEnv *sqlci_env) {
   int prevDiags = sqlci_DA.getNumber();  // capture this before parsing
 
   // replace any user defined pattern in the query
   char *newstr = origstr;
   newstr = SqlCmd::replacePattern(sqlci_env, origstr);
 
-  Int32 retval = sqlci_parser_subproc(instr, newstr, node, sqlci_env);
+  int retval = sqlci_parser_subproc(instr, newstr, node, sqlci_env);
 
   // There's still some weird error in the Sqlci Lexer
   // ("OBEY F(S);FC 1;" and "OBEY F;!O;" fail -- bug in the <FNAME> state?).
@@ -130,7 +130,7 @@ Int32 sqlci_parser(char *instr, char *origstr, SqlciNode **node, SqlciEnv *sqlci
   return retval;
 }
 
-Int32 sqlci_parser_syntax_error_cleanup(char *instr, SqlciEnv *sqlci_env) {
+int sqlci_parser_syntax_error_cleanup(char *instr, SqlciEnv *sqlci_env) {
   SqlciNode *sqlci_node;
 
   // Parser will emit syntax error message

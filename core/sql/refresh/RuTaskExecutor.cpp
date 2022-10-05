@@ -233,10 +233,10 @@ void CRUTaskExecutor::AllocateBuffer() {
 //
 //--------------------------------------------------------------------------//
 
-void CRUTaskExecutor::ReAllocateBuffer(Int32 factor) {
+void CRUTaskExecutor::ReAllocateBuffer(int factor) {
   RUASSERT(NULL != pIpcBuffer_ && NULL != pIpcTranslator_);
 
-  Int32 bufsize = pIpcTranslator_->GetBufferSize();
+  int bufsize = pIpcTranslator_->GetBufferSize();
 
   bufsize *= factor;
   if (CUOFsIpcMessageTranslator::MaxMsgSize < bufsize) {
@@ -269,7 +269,7 @@ void CRUTaskExecutor::ExecuteStatement(CDMPreparedStatement &stmt, int errorCode
   //++ MV - Eran
   // Adding retry mechanism
   short retry_delay = 1000;  // milliseconds.
-  for (Int32 retry = 0; retry < 2; retry++) {
+  for (int retry = 0; retry < 2; retry++) {
     retry_delay = retry_delay * (retry + 1);
 
     try {
@@ -333,7 +333,7 @@ void CRUTaskExecutor::HandleSqlError(CDSException &ex, int errorCode, const char
 //	CRUTaskExecutor::CreateBufferAndTranslator()
 //--------------------------------------------------------------------------//
 
-void CRUTaskExecutor::CreateBufferAndTranslator(Int32 bufsize) {
+void CRUTaskExecutor::CreateBufferAndTranslator(int bufsize) {
   pIpcBuffer_ = new char[bufsize];
 
   pIpcTranslator_ = new CUOFsIpcMessageTranslator(pIpcBuffer_, bufsize);

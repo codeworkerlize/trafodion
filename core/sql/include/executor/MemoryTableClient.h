@@ -67,10 +67,10 @@ class MemoryTableClient : public NABasicObject {
   HTableCache *htableCache_;
   bool isDisabled_;
   NAList<HTableRow *> kvArray_;
-  Int32 numReqRows_;
-  Int32 currentRowNum_;
-  Int32 numRowsReturned_;
-  Int32 fetchStartPos_;
+  int numReqRows_;
+  int currentRowNum_;
+  int numRowsReturned_;
+  int fetchStartPos_;
   Text stopRow_;
   FETCH_MODE fetchMode_;
   bool memDBinitFailed_;

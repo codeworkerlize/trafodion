@@ -45,7 +45,7 @@ template <class T>
 class LookupTable : public NABasicObject {
  public:
   LookupTable();
-  LookupTable(Int32 numRows, Int32 numCols,
+  LookupTable(int numRows, int numCols,
               CollHeap *heap = 0);                            // constructor
   LookupTable(const LookupTable &other, CollHeap *heap = 0);  // copy constructor
 
@@ -53,13 +53,13 @@ class LookupTable : public NABasicObject {
 
   LookupTable &operator=(const LookupTable &other);
 
-  const T &getValue(Int32 rowNum, Int32 colNum) const;
-  T &operator[](Int32 elem);
-  void setValue(Int32 rowNum, Int32 colNum, const T &value);
+  const T &getValue(int rowNum, int colNum) const;
+  T &operator[](int elem);
+  void setValue(int rowNum, int colNum, const T &value);
 
  private:
-  Int32 numRows_;
-  Int32 numCols_;
+  int numRows_;
+  int numCols_;
   CollHeap *heap_;
   T *arr_;
 
@@ -70,7 +70,7 @@ LookupTable<T>::LookupTable() : numRows_(0), numCols_(0), heap_(NULL), arr_(NULL
 
 // constructor
 template <class T>
-LookupTable<T>::LookupTable(Int32 numRows, Int32 numCols, CollHeap *heap)
+LookupTable<T>::LookupTable(int numRows, int numCols, CollHeap *heap)
     : numRows_(numRows), numCols_(numCols), heap_(heap) {
   DCMPASSERT(numRows > 0);
   DCMPASSERT(numCols > 0);
@@ -79,7 +79,7 @@ LookupTable<T>::LookupTable(Int32 numRows, Int32 numCols, CollHeap *heap)
 
 // accessor
 template <class T>
-const T &LookupTable<T>::getValue(Int32 rowNum, Int32 colNum) const {
+const T &LookupTable<T>::getValue(int rowNum, int colNum) const {
   DCMPASSERT((rowNum >= 0) AND(rowNum < numRows_) AND(colNum >= 0) AND(colNum < numCols_));
 
   int index = (rowNum * numCols_) + colNum;
@@ -91,7 +91,7 @@ const T &LookupTable<T>::getValue(Int32 rowNum, Int32 colNum) const {
 
 // mutator
 template <class T>
-void LookupTable<T>::setValue(Int32 rowNum, Int32 colNum, const T &value) {
+void LookupTable<T>::setValue(int rowNum, int colNum, const T &value) {
   CMPASSERT((rowNum >= 0) AND(rowNum < numRows_) AND(colNum >= 0) AND(colNum < numCols_));
 
   int index = (rowNum * numCols_) + colNum;
@@ -106,7 +106,7 @@ template <class T>
 LookupTable<T>::LookupTable(const LookupTable &other, CollHeap *heap)
     : numRows_(other.numRows_), numCols_(other.numCols_), heap_((heap == NULL) ? other.heap_ : heap) {
   arr_ = new (heap_) T[numRows_ * numCols_];
-  Int32 x, y;
+  int x, y;
   int index;
   for (x = 0; x < numRows_; x++) {
     for (y = 0; y < numCols_; y++) {
@@ -128,7 +128,7 @@ LookupTable<T> &LookupTable<T>::operator=(const LookupTable &other) {
   numCols_ = other.numCols_;
 
   arr_ = new (heap_) T[numRows_ * numCols_];
-  Int32 x, y;
+  int x, y;
   int index;
   for (x = 0; x < numRows_; x++) {
     for (y = 0; y < numCols_; y++) {

@@ -67,7 +67,7 @@ const char *getLmResultSetMode(const LmResultSetMode &);
 extern FILE *UdrTraceFile;
 void ServerDebug(const char *, ...);
 
-void doMessageBox(UdrGlobals *UdrGlob, Int32 trLevel, NABoolean moduleType, const char *moduleName);
+void doMessageBox(UdrGlobals *UdrGlob, int trLevel, NABoolean moduleType, const char *moduleName);
 
 #ifdef _DEBUG
 void sleepIfPropertySet(LmLanguageManager &lm, const char *property, ComDiagsArea *d);

@@ -42,7 +42,7 @@ List<T>::List() : head(NULL), tail(NULL), numItems(0) {}
 template <class T>
 List<T>::~List() {
   ListNode<T> *temp;
-  for (Int32 i = 0; i < numItems; i++) {
+  for (int i = 0; i < numItems; i++) {
     temp = head;
     head = temp->next;
     delete temp;

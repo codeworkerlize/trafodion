@@ -119,7 +119,7 @@ short Envvar::contains(const char *value) const {
     return 0;
 }
 
-Int32 Envvar::set() {
+int Envvar::set() {
   // Envvars are added by creating a string "envvar_name=envvar_value"
   // and then adding it ("putting" it) to environment.
 
@@ -131,7 +131,7 @@ Int32 Envvar::set() {
   strcat(env_str, "=");
   strcat(env_str, value);
 
-  Int32 i = PUTENV(env_str);
+  int i = PUTENV(env_str);
 
   if (i) cerr << "*** ERROR " << i << " from putenv." << endl;
 
@@ -139,7 +139,7 @@ Int32 Envvar::set() {
   return i;
 }
 
-Int32 Envvar::reset() {
+int Envvar::reset() {
   if ((!getenv(name)) || (!env_str))  // this should be true,
     return -1;                        // otherwise its an internal error.
 
@@ -148,7 +148,7 @@ Int32 Envvar::reset() {
   // will still display it with its original value.
   char *ptr = strchr(env_str, '=');
   ptr[1] = 0;
-  Int32 i = PUTENV(env_str);
+  int i = PUTENV(env_str);
 
   if (i) cerr << "*** ERROR " << i << " from putenv." << endl;
 

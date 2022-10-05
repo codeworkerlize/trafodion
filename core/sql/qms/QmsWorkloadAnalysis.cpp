@@ -168,7 +168,7 @@ void ProposedMV::addMVs(const SubGraphMapList &maps) {
 // ***********************************************************************
 // * Set the name of the proposed MV, based on its number.
 // ***********************************************************************
-void ProposedMV::setName(Int32 num) {
+void ProposedMV::setName(int num) {
   QRTRACER("ProposedMV::setName()");
   char buffer[16];
   sprintf(buffer, "ProposedMV%d", num);
@@ -319,7 +319,7 @@ void ProposedMV::handleRangePredicates() {
   CollIndex howmanyPairs = mvPairList_.entries();
 
   // This loop goes backwards, so we can delete entries as we go.
-  for (Int32 predNo = rangePredList_.entries() - 1; predNo >= 0; predNo--) {
+  for (int predNo = rangePredList_.entries() - 1; predNo >= 0; predNo--) {
     NABoolean foundInAll = TRUE;
     QRRangePredPtr querySidePred = rangePredList_[predNo];
 
@@ -437,7 +437,7 @@ void ProposedMV::handleResidualPredicates() {
   CollIndex howmanyPairs = mvPairList_.entries();
 
   // This loop goes backwards, so we can delete entries as we go.
-  for (Int32 predNo = residualPredList_.entries() - 1; predNo >= 0; predNo--) {
+  for (int predNo = residualPredList_.entries() - 1; predNo >= 0; predNo--) {
     NABoolean foundInAll = TRUE;
     QRExprPtr querySidePred = residualPredList_[predNo];
 
@@ -559,7 +559,7 @@ void ProposedMV::addElementToSelectList(const QRElementPtr elem) {
   if (selectList_.getFirstValue(colName) == NULL) {
     const QROutputPtr newOutput = new (heap_) QROutput(ADD_MEMCHECK_ARGS(heap_));
     newOutput->setOutputItem(elem);
-    Int32 ordinal = selectList_.entries() + 1;
+    int ordinal = selectList_.entries() + 1;
     newOutput->setColPos(ordinal);
     selectList_.insert(colName, newOutput);
     addedOutputs_.insert(newOutput);
@@ -592,7 +592,7 @@ void ProposedMV::reportResults(NAString &text, NABoolean addComments) {
     }
   }
 
-  Int32 joinSize = getJoinSize();
+  int joinSize = getJoinSize();
   sprintf(buffer, "-- Join size is: %d.\n", joinSize);
   text += buffer;
 
@@ -938,7 +938,7 @@ void ProposedMV::addPredicateText(NAString &text, const NAString &pred) {
 
 // ***********************************************************************
 // ***********************************************************************
-Int32 ProposedMV::getJoinSize() {
+int ProposedMV::getJoinSize() {
   QRJoinGraphPtr joinGraph = mapList_[0]->getSubGraph()->getParentGraph();
   return joinGraph->entries();
 }
@@ -969,7 +969,7 @@ NABoolean WorkloadAnalysis::addProposedMV(ProposedMVPtr pmv) {
   NAString skippedList;
   // The loop goes backwards because duplicate MVs are removed from the list
   // as we go.
-  for (Int32 i = mapList.entries() - 1; i >= 0; i--) {
+  for (int i = mapList.entries() - 1; i >= 0; i--) {
     QRJoinSubGraphMapPtr map = mapList[i];
     const NAString *queryName = &(map->getMVDetails()->getMVName());
     // Did we already insert this query?
@@ -1003,7 +1003,7 @@ NABoolean WorkloadAnalysis::addProposedMV(ProposedMVPtr pmv) {
 
 // ***********************************************************************
 // ***********************************************************************
-void WorkloadAnalysis::reportResults(ofstream &ofs, Int32 minQueriesPerMV) {
+void WorkloadAnalysis::reportResults(ofstream &ofs, int minQueriesPerMV) {
   QRTRACER("WorkloadAnalysis::reportResults()");
   QRLogger::instance().log(CAT_QMS_MAIN, LL_INFO, "Initiating workload analysis.");
 
@@ -1018,7 +1018,7 @@ void WorkloadAnalysis::reportResults(ofstream &ofs, Int32 minQueriesPerMV) {
   ofs << "SET SCHEMA  TRAFODION.MVQR_WA;\n";
   ofs << "CONTROL QUERY DEFAULT MVQR_REWRITE_LEVEL '4';\n\n";
 
-  Int32 maxJoinSize = getMaxJoinSize();
+  int maxJoinSize = getMaxJoinSize();
   if (maxJoinSize > 10) {
     char buffer[64];
     sprintf(buffer, "CONTROL QUERY DEFAULT MVQR_MAX_MV_JOIN_SIZE '%d';\n\n", maxJoinSize);
@@ -1045,7 +1045,7 @@ void WorkloadAnalysis::findReducedPredicateSet() {
   QRTRACER("WorkloadAnalysis::findReducedPredicateSet()");
   // This loop goes backwards so we can remove any problematic
   // proposed MVs on the way.
-  for (Int32 i = proposedMVsList_.entries() - 1; i >= 0; i--) {
+  for (int i = proposedMVsList_.entries() - 1; i >= 0; i--) {
     ProposedMVPtr pmv = proposedMVsList_[i];
     try {
       pmv->findReducedPredicateSet();
@@ -1068,14 +1068,14 @@ void WorkloadAnalysis::findReducedPredicateSet() {
 
 // ***********************************************************************
 // ***********************************************************************
-Int32 WorkloadAnalysis::getMaxJoinSize() {
+int WorkloadAnalysis::getMaxJoinSize() {
   QRTRACER("WorkloadAnalysis::getMaxJoinSize()");
-  Int32 maxJoinSize = 0;
+  int maxJoinSize = 0;
 
-  Int32 maxEntries = proposedMVsList_.entries();
-  for (Int32 i = 0; i < maxEntries; i++) {
+  int maxEntries = proposedMVsList_.entries();
+  for (int i = 0; i < maxEntries; i++) {
     ProposedMVPtr pmv = proposedMVsList_[i];
-    Int32 joinSize = pmv->getJoinSize();
+    int joinSize = pmv->getJoinSize();
     if (joinSize > maxJoinSize) maxJoinSize = joinSize;
   }
 

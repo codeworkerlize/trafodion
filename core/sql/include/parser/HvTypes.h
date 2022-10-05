@@ -43,8 +43,8 @@ class HVArgType : public NABasicObject {
   const NAString *getName() const { return name_; }
   const NAType *getType() const { return type_; }
   NAType *getType() { return type_; }
-  Int32 &useCount() { return useCount_; }
-  Int32 &intoCount() { return intoCount_; }
+  int &useCount() { return useCount_; }
+  int &intoCount() { return intoCount_; }
 
   // Methods needed for NAKeyLookup collections template
 
@@ -57,8 +57,8 @@ class HVArgType : public NABasicObject {
  private:
   NAString *name_;
   NAType *type_;
-  Int32 useCount_;
-  Int32 intoCount_;
+  int useCount_;
+  int intoCount_;
 };
 
 class HVArgTypeLookup : public NAKeyLookup<NAString, HVArgType> {

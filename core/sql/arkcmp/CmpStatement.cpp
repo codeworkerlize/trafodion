@@ -285,7 +285,7 @@ static NABoolean getCharsetsToUse(int msgCharSet, int &inputCS, int &defaultCS) 
 // Make the cat & schema names current, if passed in.
 static NABoolean processRecvdCmpCompileInfo(CmpStatement *cmpStmt, const CmpMessageRequest &msg,
                                             CmpCompileInfo *cmpInfo, CmpContext *context, char *&sqlStr,
-                                            Int32 &sqlStrLen, int &inputCS, NABoolean &catSchNameRecvd,
+                                            int &sqlStrLen, int &inputCS, NABoolean &catSchNameRecvd,
                                             NAString &currCatName, NAString &currSchName, NABoolean &nametypeNsk,
                                             NABoolean &odbcProcess, NABoolean &noTextCache, NABoolean &aqrPrepare,
                                             NABoolean &standaloneQuery, NABoolean &sentryPrivRecheck,
@@ -401,7 +401,7 @@ CmpStatement::ReturnStatus CmpStatement::process(const CmpMessageSQLText &sqltex
   CMPASSERT(sqltext.getCmpCompileInfo());
 
   char *sqlStr = NULL;
-  Int32 sqlStrLen = 0;
+  int sqlStrLen = 0;
   int inputCS = 0;
   NAString currCatName;
   NAString currSchName;
@@ -432,7 +432,7 @@ CmpStatement::ReturnStatus CmpStatement::process(const CmpMessageSQLText &sqltex
       CmpCommon::context()->getCIClass() != CmpContextInfo::CMPCONTEXT_TYPE_META && isUserDMLQuery(sqlStr, sqlStrLen)) {
     fstream &out = getPrintHandle();
 
-    for (Int32 i = 0; i < sqlStrLen; i++) out << sqlStr[i];
+    for (int i = 0; i < sqlStrLen; i++) out << sqlStr[i];
 
     out << endl << endl;
     out.close();
@@ -516,7 +516,7 @@ CmpStatement::ReturnStatus CmpStatement::process(const CmpMessageCompileStmt &co
   CMPASSERT(compilestmt.getCmpCompileInfo());
 
   char *sqlStr = NULL;
-  Int32 sqlStrLen = 0;
+  int sqlStrLen = 0;
   int inputCS = 0;
   NAString currCatName;
   NAString currSchName;
@@ -613,7 +613,7 @@ CmpStatement::ReturnStatus CmpStatement::process(const CmpMessageDDL &statement)
   CMPASSERT(statement.getCmpCompileInfo());
 
   char *sqlStr = NULL;
-  Int32 sqlStrLen = 0;
+  int sqlStrLen = 0;
   int inputCS = 0;
   NAString currCatName;
   NAString currSchName;
@@ -643,7 +643,7 @@ CmpStatement::ReturnStatus CmpStatement::process(const CmpMessageDDL &statement)
   // C control character embedded in sqlStr is not handled.  Now replace
   // control characters tabs, line feeds, spaces with spaces. (no longer
   // substitute for \n so we can recognized embedded comments)
-  for (Int32 i = 0; sqlStr[i]; i++)
+  for (int i = 0; sqlStr[i]; i++)
     if (sqlStr[i] != '\n' && isSpace8859_1((unsigned char)sqlStr[i])) sqlStr[i] = ' ';
 
   // skip leading blanks
@@ -652,7 +652,7 @@ CmpStatement::ReturnStatus CmpStatement::process(const CmpMessageDDL &statement)
 
   // if this is an "update statistics..." request,
   // then do not send it catalog manager.
-  Int32 foundUpdStat = 0;
+  int foundUpdStat = 0;
 
   // check if the first token is UPDATE
   size_t position = ns.index("UPDATE", 0, NAString::ignoreCase);
@@ -667,7 +667,7 @@ CmpStatement::ReturnStatus CmpStatement::process(const CmpMessageDDL &statement)
 
   if (foundUpdStat) {
     char *userStr = new (heap()) char[2000];
-    Int32 len = strlen(sqlStr);
+    int len = strlen(sqlStr);
 
     if (len > 1999) len = 1999;
 
@@ -695,7 +695,7 @@ CmpStatement::ReturnStatus CmpStatement::process(const CmpMessageDDL &statement)
     BindWA bindWA(ActiveSchemaDB(), CmpCommon::context(), TRUE);
 
     // save parser flags
-    Int32 savedParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
+    int savedParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
     ExprNode *exprNode = NULL;
     if (parser.parseDML(qText, &exprNode, NULL)) {
       error(arkcmpErrorNoDiags, statement.data());
@@ -764,7 +764,7 @@ short CmpStatement::getDDLExprAndNode(char *sqlStr, int inputCS, DDLExpr *&ddlEx
   // C control character embedded in sqlStr is not handled.  Now replace
   // control characters tabs, line feeds, spaces with spaces. (no longer
   // substitute for \n so we can recognized embedded comments)
-  for (Int32 i = 0; sqlStr[i]; i++)
+  for (int i = 0; sqlStr[i]; i++)
     if (sqlStr[i] != '\n' && isSpace8859_1((unsigned char)sqlStr[i])) sqlStr[i] = ' ';
 
   // skip leading blanks
@@ -784,7 +784,7 @@ short CmpStatement::getDDLExprAndNode(char *sqlStr, int inputCS, DDLExpr *&ddlEx
   RelExpr *rRoot = NULL;
 
   // save parser flags
-  Int32 savedParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
+  int savedParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
   ExprNode *exprNode = NULL;
   if (parser.parseDML(qText, &exprNode, NULL)) {
     error(arkcmpErrorNoDiags, sqlStr);
@@ -836,7 +836,7 @@ CmpStatement::ReturnStatus CmpStatement::process(const CmpMessageDDLwithStatus &
   CMPASSERT(statement.getCmpCompileInfo());
 
   char *sqlStr = NULL;
-  Int32 sqlStrLen = 0;
+  int sqlStrLen = 0;
   int inputCS = 0;
   NAString currCatName;
   NAString currSchName;
@@ -938,7 +938,7 @@ CmpStatement::ReturnStatus CmpStatement::process(const CmpMessageDescribe &state
   // the sqlcomp() method.
 
   char *userStr = (char *)(heap())->allocateMemory(sizeof(char) * (2000));
-  Int32 len = strlen(statement.data());
+  int len = strlen(statement.data());
 
   if (len > 1999) len = 1999;
 
@@ -974,7 +974,7 @@ CmpStatement::ReturnStatus CmpStatement::process(const CmpMessageDescribe &state
 
 CmpStatement::ReturnStatus CmpStatement::process(const CmpMessageUpdateHist &statement) {
   char *userStr = new (heap()) char[2000];
-  Int32 len = strlen(statement.data());
+  int len = strlen(statement.data());
 
   if (len > 1999) len = 1999;
 
@@ -1024,7 +1024,7 @@ CmpStatement::ReturnStatus CmpStatement::process(const CmpMessageDDLNATableInval
   TransStmtType tst = (TransStmtType)(data->type);
   long svptId = data->svptId;
 
-  Int32 processSP = 0;
+  int processSP = 0;
   /*
     there are two steps
           1. clear ddlObjsInSPList or ddlObjsList
@@ -1134,14 +1134,14 @@ CmpStatement::ReturnStatus CmpStatement::process(const CmpMessageDatabaseUser &s
   NABoolean authState = (authStateStr.data()[0] == '0') ? FALSE : TRUE;
 
   NAString &userIDStr = elements[1];
-  Int32 userID = atoi(userIDStr.data());
+  int userID = atoi(userIDStr.data());
 
   NAString &userNameStr = elements[2];
   CMPASSERT(userNameStr.length() <= MAX_AUTHID_AS_STRING_LEN);
   const char *userName = userNameStr.data();
 
   NAString &tenantIDStr = elements[3];
-  Int32 tenantID = atoi(tenantIDStr.data());
+  int tenantID = atoi(tenantIDStr.data());
 
   NAString &tenantNameStr = elements[4];
   CMPASSERT(tenantNameStr.length() <= MAX_AUTHID_AS_STRING_LEN);
@@ -1155,7 +1155,7 @@ CmpStatement::ReturnStatus CmpStatement::process(const CmpMessageDatabaseUser &s
   const char *tenantDefaultSchema = tenantDefaultSchemaStr.data();
 
   if (doDebug) {
-    printf("[DBUSER:%d]   Received auth state %d\n", (int)getpid(), (Int32)authState);
+    printf("[DBUSER:%d]   Received auth state %d\n", (int)getpid(), (int)authState);
     printf("[DBUSER:%d]   Received user ID %d\n", (int)getpid(), (int)userID);
     printf("[DBUSER:%d]   Received user name %s\n", (int)getpid(), userName);
     printf("[DBUSER:%d]   Received tenant ID %d\n", (int)getpid(), (int)tenantID);
@@ -1537,7 +1537,7 @@ CSEInfo *CmpStatement::getCSEInfoForMainQuery() const {
   return getCSEInfoById(getCSEIdForMainQuery());
 }
 
-CSEInfo *CmpStatement::getCSEInfoById(Int32 cseId) const {
+CSEInfo *CmpStatement::getCSEInfoById(int cseId) const {
   DCMPASSERT(cses_);
   CSEInfo *result = (*cses_)[cseId];
 

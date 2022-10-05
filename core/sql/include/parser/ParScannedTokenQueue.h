@@ -93,11 +93,11 @@ class ParScannedTokenQueue : public NABasicObject {
   // accessors
   //
 
-  inline Int32 getQueueSize() const;
+  inline int getQueueSize() const;
 
-  const scannedTokenInfo &getScannedTokenInfo(const Int32 tokenInfoIndex = 0) const;
-  inline const scannedTokenInfo *getScannedTokenInfoPtr(const Int32 tokenInfoIndex = 0) const;
-  scannedTokenInfo *getScannedTokenInfoPtr(const Int32 tokenInfoIndex = 0);
+  const scannedTokenInfo &getScannedTokenInfo(const int tokenInfoIndex = 0) const;
+  inline const scannedTokenInfo *getScannedTokenInfoPtr(const int tokenInfoIndex = 0) const;
+  scannedTokenInfo *getScannedTokenInfoPtr(const int tokenInfoIndex = 0);
 
   //  0 : index of token most recently scanned
   // -1 : index of token scanned before the most-recently-scanned token
@@ -105,12 +105,12 @@ class ParScannedTokenQueue : public NABasicObject {
   //
   // index should never be a positive value
 
-  inline NABoolean isQueueIndexOutOfRange(Int32 i) const {
+  inline NABoolean isQueueIndexOutOfRange(int i) const {
     // Valid indexes are: -(getQueueSize()-1), ... , -2, -1, 0
     return (i > 0 OR i <= (-getQueueSize()));
   }
 
-  inline NABoolean isQueueIndexWithinRange(Int32 i) const {
+  inline NABoolean isQueueIndexWithinRange(int i) const {
     // Valid indexes are: -(getQueueSize()-1), ... , -2, -1, 0
     return ((-i) < getQueueSize());
   }
@@ -146,7 +146,7 @@ class ParScannedTokenQueue : public NABasicObject {
   // ---------------------------------------------------------------------
 
   scannedTokenInfo scannedTokens_[QUEUE_SIZE];
-  Int32 currentPos_;
+  int currentPos_;
 
 };  // class ParScannedTokenQueue
 
@@ -158,10 +158,10 @@ class ParScannedTokenQueue : public NABasicObject {
 // accessors
 //
 
-inline Int32 ParScannedTokenQueue::getQueueSize() const { return QUEUE_SIZE; }
+inline int ParScannedTokenQueue::getQueueSize() const { return QUEUE_SIZE; }
 
 inline const ParScannedTokenQueue::scannedTokenInfo *ParScannedTokenQueue::getScannedTokenInfoPtr(
-    const Int32 tokenInfoIndex) const {
+    const int tokenInfoIndex) const {
   ComASSERT(tokenInfoIndex <= 0 AND getQueueSize() > -tokenInfoIndex);
   return &scannedTokens_[(currentPos_ + getQueueSize() + tokenInfoIndex) % getQueueSize()];
 }

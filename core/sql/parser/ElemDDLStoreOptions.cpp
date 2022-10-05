@@ -149,7 +149,7 @@ ElemDDLStoreOptKeyColumnList *ElemDDLStoreOptKeyColumnList::castToElemDDLStoreOp
 //
 
 // get the degree of this node
-Int32 ElemDDLStoreOptKeyColumnList::getArity() const { return MAX_ELEM_DDL_STORE_OPT_KEY_COLUMN_LIST_ARITY; }
+int ElemDDLStoreOptKeyColumnList::getArity() const { return MAX_ELEM_DDL_STORE_OPT_KEY_COLUMN_LIST_ARITY; }
 
 ExprNode *ElemDDLStoreOptKeyColumnList::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());

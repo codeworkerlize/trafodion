@@ -21,7 +21,7 @@
 #include <iostream>
 #include "ModifiedFieldMap.h"
 
-Int32 main() {
+int main() {
   ModifiedFieldMap mfm();
 
   cerr << sizeof(ModifiedFieldMap) << "\n";

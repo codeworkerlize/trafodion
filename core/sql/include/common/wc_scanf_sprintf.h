@@ -36,18 +36,18 @@ typedef struct _scanfbuf SCANBUF;
 #define _r _cnt
 #define _p _ptr
 
-Int32 na_swscanf(const NAWchar *str, NAWchar const *fmt, ...);
+int na_swscanf(const NAWchar *str, NAWchar const *fmt, ...);
 
 struct _sprintf_buf {
   NAWchar *_ptr;
-  Int32 _cnt;
+  int _cnt;
 };
 
 typedef struct _sprintf_buf SPRINTF_BUF;
 
 #define _w _cnt
 
-Int32 na_wsprintf(NAWchar *str, NAWchar const *fmt, ...);
+int na_wsprintf(NAWchar *str, NAWchar const *fmt, ...);
 
 #if (defined(NA_C89) || defined(NA_WINNT))
 typedef UInt64 u_quad_t;

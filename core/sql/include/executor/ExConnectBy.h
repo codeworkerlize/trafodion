@@ -149,7 +149,7 @@ class ExConnectByTcb : public ex_tcb {
   char *pathdata_;
   char *priorHostVarData_;
 
-  Int32 currentLevel_;
+  int currentLevel_;
   char *currentPath_;
 
   tupp pcoldata_;
@@ -184,14 +184,14 @@ class ExConnectByTcb : public ex_tcb {
 
   ex_queue_pair getParentQueue() const { return qparent_; }
 
-  virtual Int32 numChildren() const { return 2; }
-  virtual const ex_tcb *getChild(Int32 p) const {
+  virtual int numChildren() const { return 2; }
+  virtual const ex_tcb *getChild(int p) const {
     if (p == 0) return childStartWithTcb_;
     if (p == 1) return childConnectByTcb_;
     return NULL;
   }
 
-  short setPseudoValue(Int32 level, Int32 isleaf, Int32 iscycle, char *path);
+  short setPseudoValue(int level, int isleaf, int iscycle, char *path);
 
   ExConnectByTree *currentRoot_;
 
@@ -241,21 +241,21 @@ class ExConnectByTreeNode : public NABasicObject {
   void cleanup();
   CollHeap *getMySpace() { return space_; }
   CollHeap *getMyHeap() { return heap_; }
-  void setPathItem(char *p, Int32 len) {
+  void setPathItem(char *p, int len) {
     pathItem_ = p;
     pathLen_ = len;
   }
-  char *getPathItem(Int32 *len) {
+  char *getPathItem(int *len) {
     return pathItem_;
     *len = pathLen_;
   }
-  Int32 getPathLen() { return pathLen_; }
+  int getPathLen() { return pathLen_; }
 
   char *getPriorItem() { return val_; }
-  Int32 getPriorLen() { return valLen_; }
-  void setPriorLen(Int32 l) { valLen_ = l; }
+  int getPriorLen() { return valLen_; }
+  void setPriorLen(int l) { valLen_ = l; }
 
-  void setPriorItem(char *p, Int32 len) {
+  void setPriorItem(char *p, int len) {
     val_ = p;
     valLen_ = len;
   }
@@ -270,11 +270,11 @@ class ExConnectByTreeNode : public NABasicObject {
 
  private:
   char *val_;
-  Int32 valLen_;
+  int valLen_;
   char *pathItem_;
-  Int32 pathLen_;
-  Int32 level_;
-  Int32 type_;
+  int pathLen_;
+  int level_;
+  int type_;
   ExConnectByTreeNode *sybling_;
   ExConnectByTreeNode *parent_;
   Queue *children_;
@@ -311,7 +311,7 @@ class ExConnectByTree : public NABasicObject {
 
   // insert a node into the tree
   // if duplicated, it is a cycle
-  Int32 insert(ExConnectByTreeNode *n);
+  int insert(ExConnectByTreeNode *n);
   void setRoot(ExConnectByTreeNode *r) { root_ = r; }
   ExConnectByTreeNode *getRoot() { return root_; }
 
@@ -321,7 +321,7 @@ class ExConnectByTree : public NABasicObject {
   NABoolean hasLoop(int level);
   NABoolean tuppIsSame(tupp a, tupp b);
 
-  // ExConnectByTreeNode * getNextSybling(ExConnectByTreeNode *n, Int32 level) { return NULL; }
+  // ExConnectByTreeNode * getNextSybling(ExConnectByTreeNode *n, int level) { return NULL; }
   ExConnectByTreeNode *getPrevNode(short level);
   ExConnectByTreeNode *getNextOutputNode(short level);
   ExConnectByTreeNode *getCurrentOutputNode(short level);
@@ -339,7 +339,7 @@ class ExConnectByTree : public NABasicObject {
   void cleanup(short level);
 
   char *rootPathBuffer_;
-  Int32 priorTuppDataLen_;
+  int priorTuppDataLen_;
   tupp currTupp_[CONNECT_BY_MAX_LEVEL_NUM];
 
  private:
@@ -347,9 +347,9 @@ class ExConnectByTree : public NABasicObject {
 
   // ugly implementation for now
   Queue *currArray[CONNECT_BY_MAX_LEVEL_NUM];
-  Int32 last_[CONNECT_BY_MAX_LEVEL_NUM];
-  Int32 lastOutput_[CONNECT_BY_MAX_LEVEL_NUM];
-  Int32 curPos_[CONNECT_BY_MAX_LEVEL_NUM];
+  int last_[CONNECT_BY_MAX_LEVEL_NUM];
+  int lastOutput_[CONNECT_BY_MAX_LEVEL_NUM];
+  int curPos_[CONNECT_BY_MAX_LEVEL_NUM];
 };
 
 #endif
@@ -373,13 +373,13 @@ class ExConnectByCache : public NABasicObject {
   short insert(atp_struct *r);
   short insertRoot(char *n);
   short insertRootNode(ExConnectByTreeNode *n);
-  void setRootLen(Int32 l) { rootLen_ = l; }
+  void setRootLen(int l) { rootLen_ = l; }
   void cleanRoot() {
     for (int i = 0; i < theRoots_->entries(); i++) theRoots_->remove();
   }
 
   atp_struct *getNext() {
-    Int32 prevPos = currPos_;
+    int prevPos = currPos_;
     currPos_++;
     if (currPos_ >= theRows_->entries()) {
       currPos_ = 0;
@@ -389,7 +389,7 @@ class ExConnectByCache : public NABasicObject {
   }
 
   ExConnectByTreeNode *getNextRoot() {
-    Int32 prevPos = currRootPos_;
+    int prevPos = currRootPos_;
     currRootPos_++;
     if (currRootPos_ >= theRootNodes_->entries()) {
       currRootPos_ = 0;
@@ -408,8 +408,8 @@ class ExConnectByCache : public NABasicObject {
   Queue *theRows_;
   Queue *theRoots_;
   Queue *theRootNodes_;
-  Int32 currPos_;
-  Int32 currRootPos_;
-  Int32 rootLen_;
+  int currPos_;
+  int currRootPos_;
+  int rootLen_;
 };
 #endif

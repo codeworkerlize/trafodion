@@ -265,7 +265,7 @@ class HistogramCache : public NABasicObject {
   void traceTablesFinalize() const;
   void monitor() const;
 
-  void freeInvalidEntries(Int32 returnedNumQiKeys, SQL_QIKEY *qiKeyArray);
+  void freeInvalidEntries(int returnedNumQiKeys, SQL_QIKEY *qiKeyArray);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(HistogramCache);
@@ -280,7 +280,7 @@ class HistogramCache : public NABasicObject {
   // returns the number of columns whose statistics were
   // found in the cache. The columns whose statistics are required
   // are passed in through localArray.
-  Int32 getStatsListFromCache(StatsList &list,                                                // Out
+  int getStatsListFromCache(StatsList &list,                                                // Out
                               NAColumnArray &localArray,                                      // In
                               NAHashDictionary<NAString, NABoolean> &interestingExpressions,  // In
                               HistogramsCacheEntry *cachedHistograms,                         // In
@@ -468,7 +468,7 @@ class NATable : public NABasicObject {
   const QualifiedName &getFileSetName() const { return fileSetName_; }
   ExtendedQualName::SpecialTableType getSpecialType() const { return qualifiedName_.getSpecialType(); }
 
-  Int32 getReferenceCount() const { return referenceCount_; }
+  int getReferenceCount() const { return referenceCount_; }
   void incrReferenceCount() { ++referenceCount_; }
   void decrReferenceCount();
   void resetReferenceCount();
@@ -486,9 +486,9 @@ class NATable : public NABasicObject {
 
   const NAPartitionArray &getNAPartitionArray() const { return partArray_; }
 
-  Int32 getRecordLength() const { return recordLength_; }
+  int getRecordLength() const { return recordLength_; }
   Cardinality getEstRowCount() const { return clusteringIndex_->getEstimatedNumberOfRecords(); }
-  Int32 getKeyCount() const { return clusteringIndex_->getIndexKeyColumns().entries(); }
+  int getKeyCount() const { return clusteringIndex_->getIndexKeyColumns().entries(); }
 
   const NAFileSet *getClusteringIndex() const { return clusteringIndex_; }
   NAFileSet *getClusteringIndex() { return clusteringIndex_; }
@@ -565,8 +565,8 @@ class NATable : public NABasicObject {
   const COM_VERSION &getObjectSchemaVersion() const { return osv_; }
   const COM_VERSION &getObjectFeatureVersion() const { return ofv_; }
 
-  const Int32 &getOwner() const { return owner_; }
-  const Int32 &getSchemaOwner() const { return schemaOwner_; }
+  const int &getOwner() const { return owner_; }
+  const int &getSchemaOwner() const { return schemaOwner_; }
 
   const void *getRCB() const { return rcb_; }
   ULng32 getRCBLength() const { return rcbLen_; }
@@ -589,8 +589,8 @@ class NATable : public NABasicObject {
 
   // getViewLen is needed to compute buffer len for a parseDML call
   // locale-to-unicode conversion in parseDML requires buffer len (tcr)
-  Int32 getViewLen() const { return viewText_ ? strlen(viewText_) : 0; }
-  Int32 getViewTextLenInNAWchars() const { return viewTextInNAWchars_.length(); }
+  int getViewLen() const { return viewText_ ? strlen(viewText_) : 0; }
+  int getViewTextLenInNAWchars() const { return viewTextInNAWchars_.length(); }
 
   const char *getViewCheck() const { return viewCheck_; }
   const NAList<ComViewColUsage *> *getViewColUsages() const { return viewColUsages_; }
@@ -962,8 +962,8 @@ class NATable : public NABasicObject {
   void setIsUserUpdatableSeabaseMDTable(NABoolean v) { isUserUpdatableSeabaseMD_ = v; }
 
   // returns default string length in bytes
-  Int32 getHiveDefaultStringLen() const { return hiveDefaultStringLen_; }
-  Int32 getHiveTableId() const { return hiveTableId_; }
+  int getHiveDefaultStringLen() const { return hiveDefaultStringLen_; }
+  int getHiveTableId() const { return hiveTableId_; }
 
   void setClearHDFSStatsAfterStmt(NABoolean x) { resetHDFSStatsAfterStmt_ = x; };
 
@@ -983,10 +983,10 @@ class NATable : public NABasicObject {
   // Get the part of the row size that is computable with info we have available
   // without accessing HBase. The result is passed to estimateHBaseRowCount(),
   // which completes the row size calculation with HBase info.
-  Int32 computeHBaseRowSizeFromMetaData() const;
-  long estimateHBaseRowCount(Int32 retryLimitMilliSeconds, Int32 &errorCode, Int32 &breadCrumb) const;
-  NABoolean getHbaseTableInfo(Int32 &hbtIndexLevels, Int32 &hbtBlockSize) const;
-  NABoolean getRegionsNodeName(Int32 partns, ARRAY(const char *) & nodeNames) const;
+  int computeHBaseRowSizeFromMetaData() const;
+  long estimateHBaseRowCount(int retryLimitMilliSeconds, int &errorCode, int &breadCrumb) const;
+  NABoolean getHbaseTableInfo(int &hbtIndexLevels, int &hbtBlockSize) const;
+  NABoolean getRegionsNodeName(int partns, ARRAY(const char *) & nodeNames) const;
 
   static NAArray<HbaseStr> *getRegionsBeginKey(const char *extHBaseName);
 
@@ -1016,16 +1016,16 @@ class NATable : public NABasicObject {
   const char *getLobStorageLocation() const { return lobStorageLocation_; }
   void setLobStorageLocation(char *loc) { lobStorageLocation_ = loc; }
 
-  Int32 getNumLOBdatafiles() { return numLOBdatafiles_; }
-  const Int32 getNumLOBdatafiles() const { return numLOBdatafiles_; }
-  void setNumLOBdatafiles(Int32 n) { numLOBdatafiles_ = n; }
+  int getNumLOBdatafiles() { return numLOBdatafiles_; }
+  const int getNumLOBdatafiles() const { return numLOBdatafiles_; }
+  void setNumLOBdatafiles(int n) { numLOBdatafiles_ = n; }
 
-  Int32 getLobChunksTableDataInHbaseColLen() { return lobChunksTableDataInHbaseColLen_; }
-  const Int32 getLobChunksTableDataInHbaseColLen() const { return lobChunksTableDataInHbaseColLen_; }
-  void setLobChunksTableDataInHbaseColLen(Int32 n) { lobChunksTableDataInHbaseColLen_ = n; }
+  int getLobChunksTableDataInHbaseColLen() { return lobChunksTableDataInHbaseColLen_; }
+  const int getLobChunksTableDataInHbaseColLen() const { return lobChunksTableDataInHbaseColLen_; }
+  void setLobChunksTableDataInHbaseColLen(int n) { lobChunksTableDataInHbaseColLen_ = n; }
 
   long &lobHbaseDataMaxLen() { return lobHbaseDataMaxLen_; }
-  Int32 &lobInlinedDataMaxLen() { return lobInlinedDataMaxLen_; }
+  int &lobInlinedDataMaxLen() { return lobInlinedDataMaxLen_; }
 
   // Methods to support run-time DDL validation
   NABoolean DDLValidationRequired() const { return ddlValidationRequired_; }
@@ -1047,14 +1047,14 @@ class NATable : public NABasicObject {
 
   void getParitionColNameAsString(NAString &target, NABoolean getSubParType) const;
 
-  const Int32 &getPartitionColCount() const { return partitionColCount_; }
-  const Int32 *getPartitionColIdxArray() const { return partitionColIdxAry_; }
+  const int &getPartitionColCount() const { return partitionColCount_; }
+  const int *getPartitionColIdxArray() const { return partitionColIdxAry_; }
   const NAPartitionArray &getPartitionArray() const { return partArray_; }
 
-  Int32 partitionType() { return partitionType_; }
-  Int32 subPartitionType() { return subpartitionType_; }
+  int partitionType() { return partitionType_; }
+  int subPartitionType() { return subpartitionType_; }
 
-  Int32 FisrtLevelPartitionCount() { return stlPartitionCnt_; }
+  int FisrtLevelPartitionCount() { return stlPartitionCnt_; }
 
  protected:
   void setupForStatementAfterCopyCstr();
@@ -1065,7 +1065,7 @@ class NATable : public NABasicObject {
   // copy ctor
   NATable(const NATable &orig, NAMemory *h = 0);  // not written
 
-  void setRecordLength(Int32 recordLength) { recordLength_ = recordLength; }
+  void setRecordLength(int recordLength) { recordLength_ = recordLength; }
 
   void getPrivileges(TrafDesc *priv_desc, BindWA *bindWA);
   void readPrivileges();
@@ -1101,7 +1101,7 @@ class NATable : public NABasicObject {
   // (so includes view with-check-option check constraints),
   // but excludes references in table check constraints or RI constraints.
   // ---------------------------------------------------------------------
-  Int32 referenceCount_;
+  int referenceCount_;
 
   // ---------------------------------------------------------------------
   // A reference may use access options that are not compatible with the
@@ -1245,7 +1245,7 @@ class NATable : public NABasicObject {
   // ---------------------------------------------------------------------
   // Record length.
   // ---------------------------------------------------------------------
-  Int32 recordLength_;
+  int recordLength_;
 
   // ---------------------------------------------------------------------
   // The clustering key of the base table
@@ -1291,7 +1291,7 @@ class NATable : public NABasicObject {
   // ---------------------------------------------------------------------
   // Object owner
   // ---------------------------------------------------------------------
-  Int32 owner_;
+  int owner_;
 
   // ---------------------------------------------------------------------
   // ObjectType
@@ -1301,7 +1301,7 @@ class NATable : public NABasicObject {
   // ---------------------------------------------------------------------
   // Schema of this object owner
   // ---------------------------------------------------------------------
-  Int32 schemaOwner_;
+  int schemaOwner_;
 
   // ---------------------------------------------------------------------
   // Partitioning Scheme - needed for parallel DDL operations.
@@ -1401,7 +1401,7 @@ class NATable : public NABasicObject {
   // warning for the same column can appears twice, since the ValueId
   // for the column will be different in the two places. We don't want
   // that
-  NAHashDictionary<CollIndexSet, Int32> *colsWithMissingStats_;
+  NAHashDictionary<CollIndexSet, int> *colsWithMissingStats_;
 
   // cached table Id list
   LIST(CollIndex) tableIdList_;
@@ -1422,8 +1422,8 @@ class NATable : public NABasicObject {
   NABoolean isUserUpdatableSeabaseMD_;
 
   NABoolean resetHDFSStatsAfterStmt_;
-  Int32 hiveDefaultStringLen_;  // in bytes
-  Int32 hiveTableId_;
+  int hiveDefaultStringLen_;  // in bytes
+  int hiveTableId_;
 
   // Privilege information for the object
   //   privDescs_ is the list of all grants on the object
@@ -1454,17 +1454,17 @@ class NATable : public NABasicObject {
 
   // number of hdfs files created for each lob.
   // Helps with concurrent lob access.
-  Int32 numLOBdatafiles_;
+  int numLOBdatafiles_;
 
   // lob data that can be inlined. Based on cqd traf_lob_inlined_data_maxlen
-  Int32 lobInlinedDataMaxLen_;
+  int lobInlinedDataMaxLen_;
 
   // lob data stored in hbase chunks table.
   // Based on cqd traf_lob_hbase_data_maxlen
   long lobHbaseDataMaxLen_;
 
   // length of DATA_IN_HBASE column in LOBCHUNKS table. For V2 lobs.
-  Int32 lobChunksTableDataInHbaseColLen_;
+  int lobChunksTableDataInHbaseColLen_;
 
   // Indicate whether some data member is possiblly
   // shallow copied. Set to TRUE when this is copy
@@ -1479,21 +1479,21 @@ class NATable : public NABasicObject {
   NABoolean userBaseTable_;  // set to TRUE for non-system tables
 
   /**************************partitionV2*********************/
-  Int32 partitionType_;
-  Int32 subpartitionType_;
-  Int32 partitionColCount_;
-  Int32 subpartitionColCount_;
-  Int32 *partitionColIdxAry_;
-  Int32 *subpartitionColIdxAry_;
+  int partitionType_;
+  int subpartitionType_;
+  int partitionColCount_;
+  int subpartitionColCount_;
+  int *partitionColIdxAry_;
+  int *subpartitionColIdxAry_;
   // first level partition count
-  Int32 stlPartitionCnt_;
+  int stlPartitionCnt_;
   NAPartitionArray partArray_;
 
   // reserved
   char *partitionInterval_;
   char *subpartitionInterval_;
-  Int32 partitionAutolist_;
-  Int32 subpartitionAutolist_;
+  int partitionAutolist_;
+  int subpartitionAutolist_;
   long partitionV2Flags_;
 
   /**************************partitionV2 end*****************/
@@ -1556,12 +1556,12 @@ class NATableDB : public NAKeyLookup<ExtendedQualName, NATable> {
   void remove_entries_marked_for_removal();
   static void unmark_entries_marked_for_removal();
 
-  void free_entries_with_QI_key(Int32 numSiKeys, SQL_QIKEY *qiKeyArray);
-  void free_entries_with_schemaUID(Int32 numKeys, SQL_QIKEY *qiKeyArray);
+  void free_entries_with_QI_key(int numSiKeys, SQL_QIKEY *qiKeyArray);
+  void free_entries_with_schemaUID(int numKeys, SQL_QIKEY *qiKeyArray);
   void free_schema_entries();
   void reset_priv_entries();
   void free_hive_tables();
-  void update_entry_stored_stats_with_QI_key(Int32 numSiKeys, SQL_QIKEY *qiKeyArray);
+  void update_entry_stored_stats_with_QI_key(int numSiKeys, SQL_QIKEY *qiKeyArray);
 
   void setCachingOFF() {
     cacheMetaData_ = FALSE;
@@ -1603,12 +1603,12 @@ class NATableDB : public NAKeyLookup<ExtendedQualName, NATable> {
   void resetIntervalWaterMark() { intervalWaterMark_ = currentCacheSize_; }
 
   // get details of this query cache entry
-  void getEntryDetails(Int32 i,                        // (IN) : NATable cache iterator entry
+  void getEntryDetails(int i,                        // (IN) : NATable cache iterator entry
                        NATableEntryDetails &details);  // (OUT): cache entry's details
 
   NABoolean empty() { return end() == 0; }
-  Int32 begin() { return 0; }
-  Int32 end();
+  int begin() { return 0; }
+  int end();
 
   static NABoolean isHiveTable(CorrName &corrName);
   NABoolean initHiveStructForHiveTable(CorrName &corrName);
@@ -1702,7 +1702,7 @@ class NATableDB : public NAKeyLookup<ExtendedQualName, NATable> {
 
   // pointer to current location in the cachedTableList_
   // used for cache entry replacement purposes
-  Int32 replacementCursor_;
+  int replacementCursor_;
 
   // indicates if NATableDB is in the preloading phase.
   NABoolean inPreloading_;

@@ -220,7 +220,7 @@ void CmpErrLog::writeHeader(const char *failureTxt, CollHeap *failedHeap, size_t
 void CmpErrLog::writeMemoryStats() {
   fprintf(fp, "System Memory Statistics:\n");
 
-  Int32 meminfoFD;
+  int meminfoFD;
   ssize_t numBytes;
   char buf[256];
 
@@ -240,7 +240,7 @@ void CmpErrLog::writeMemoryStats() {
   char procStatusFile[40];
   snprintf(procStatusFile, sizeof(procStatusFile), "/proc/%d/status", getpid());
 
-  Int32 procStatusFD;
+  int procStatusFD;
   if ((procStatusFD = open(procStatusFile, O_RDONLY)) == -1) {
     fprintf(fp, "Unable to open %s: %s\n\n", procStatusFile, strerror(errno));
   } else {
@@ -392,13 +392,13 @@ void CmpErrLog::writeStackTrace() {
 
   // Write each level of the stack except for the top frame and the
   // bottom two frames, which aren't important here.
-  Int32 i = 1;
+  int i = 1;
   while (i < size - 2) {
     char buffer[128];  // Used for command-line + addr2line output.
 
     sprintf(buffer, "/usr/bin/addr2line -e /proc/%d/exe -f -C ", myPID);
 
-    Int32 j;
+    int j;
 
     // Run addr2line on 5 addresses at a time.
     for (j = i; j < i + 5 && j < size - 2; j++) {

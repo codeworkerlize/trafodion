@@ -183,7 +183,7 @@ class ExExeStmtGlobals : public ex_globals {
   // Virtual methods to retrieve SeaMonster settings. These methods
   // will be implemented in the master and ESP subclasses.
   virtual long getSMQueryID() const = 0;
-  virtual Int32 getSMTraceLevel() const = 0;
+  virtual int getSMTraceLevel() const = 0;
   virtual const char *getSMTraceFilePrefix() const = 0;
 
   inline IpcPriority getMyProcessPriority() { return cliGlobals_->myPriority(); }
@@ -459,7 +459,7 @@ class ExMasterStmtGlobals : public ExExeStmtGlobals {
   //  Trace level: from session defaults
   //  Trace file prefix: from session defaults
   virtual long getSMQueryID() const { return smQueryID_; }
-  virtual Int32 getSMTraceLevel() const;
+  virtual int getSMTraceLevel() const;
   virtual const char *getSMTraceFilePrefix() const;
 
   // In the master we allow root_tdb::build() to assign a SeaMonster
@@ -625,7 +625,7 @@ class ExEspStmtGlobals : public ExExeStmtGlobals {
   // that was sent with the fragment download message and is pointed
   // to by statement globals
   virtual long getSMQueryID() const;
-  virtual Int32 getSMTraceLevel() const;
+  virtual int getSMTraceLevel() const;
   virtual const char *getSMTraceFilePrefix() const;
 
   // This method will store a pointer to an object containing

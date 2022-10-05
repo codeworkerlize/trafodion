@@ -93,21 +93,21 @@ class LmJavaSignature {
                      const char *optionalSig, ComBoolean isUdrForJavaMain, char *sigBuf, ComUInt32 sigLen,
                      ComDiagsArea *da);
 
-  Int32 unpackSignature(char *unpackedSignature);
+  int unpackSignature(char *unpackedSignature);
 
-  Int32 getUnpackedSignatureSize();
+  int getUnpackedSignatureSize();
 
   // Returns the total number (SQL + Result set) of parameters
   // present in the method signature
-  Int32 getParamCount() const { return numParams_; }
+  int getParamCount() const { return numParams_; }
 
  private:
   NAMemory *heap_;
   char *encodedSignature_;
-  Int32 unpackedSignatureSize_;
-  Int32 numParams_;
+  int unpackedSignatureSize_;
+  int numParams_;
 
-  void setUnpackedSignatureSize(Int32 size) { unpackedSignatureSize_ = size; }
+  void setUnpackedSignatureSize(int size) { unpackedSignatureSize_ = size; }
 };
 
 #endif

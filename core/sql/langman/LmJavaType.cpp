@@ -172,7 +172,7 @@ LmJavaType::LmJavaType(LmParameter *lmParam) : lmParam_(lmParam), type_(JT_NONE)
     }
   }
 
-  for (Int32 index = 0; index < JAVATYPETABLE_SIZE; ++index) {
+  for (int index = 0; index < JAVATYPETABLE_SIZE; ++index) {
     if (type_ == javaTypeTable[index].javaIdx) {
       index_ = index;
       return;
@@ -248,7 +248,7 @@ LmJavaType::TypeElement *LmJavaType::getTypeElement() const {
 // This is a static method, not an instance method.
 //
 LmJavaType::TypeElement *LmJavaType::getTypeElement(char *javaTypeName) {
-  for (Int32 i = 0; i < JAVATYPETABLE_SIZE; i++) {
+  for (int i = 0; i < JAVATYPETABLE_SIZE; i++) {
     TypeElement *e = &javaTypeTable[i];
 
     if (str_cmp_ne(javaTypeName, e->javaTypeName) == 0) return e;

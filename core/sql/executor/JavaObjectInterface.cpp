@@ -139,7 +139,7 @@ void JavaObjectInterface::setJavaObject(jobject jobj) {
 char *JavaObjectInterface::buildClassPath() {
   char *classPath = getenv("CLASSPATH");
   char *confPath = getenv("TRAF_CONF");
-  Int32 size = 128;
+  int size = 128;
   if (classPath != NULL) {
     size += strlen(classPath);
   }
@@ -197,7 +197,7 @@ int JavaObjectInterface::createJVM(LmJavaOptions *options) {
   }
   if (!isDefinedInOptions(options, "-Dlog4j.configuration=")) {
     const char *logDir = getenv("TRAF_LOG");
-    Int32 size;
+    int size;
     if (logDir != NULL) {
       size = strlen(logDir) + 32;
       char *logDirBuffer = (char *)malloc(size);
@@ -548,7 +548,7 @@ JOI_RetCode JavaObjectInterface::initJVM(LmJavaOptions *options) {
 //
 //////////////////////////////////////////////////////////////////////////////
 JOI_RetCode JavaObjectInterface::init(const char *className, jclass &javaClass, JavaMethodInit *JavaMethods,
-                                      Int32 howManyMethods, bool methodsInitialized) {
+                                      int howManyMethods, bool methodsInitialized) {
   if (isInitialized_) return JOI_OK;
 
   JOI_RetCode retCode = JOI_OK;

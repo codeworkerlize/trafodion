@@ -87,10 +87,10 @@ void CRUTestTaskExecutor::Work() {
 void CRUTestTaskExecutor::ReadSqlStatement() {
   pDynamicSQLContainer_ = new CRUSQLDynamicStatementContainer(numberOfStatements_);
 
-  pNumberOfExecutions_ = new Int32[numberOfStatements_];
-  pNumberOfRetries_ = new Int32[numberOfStatements_];
-  pAutoCommit_ = new Int32[numberOfStatements_];
-  pNumberOfFailures_ = new Int32[numberOfStatements_];
+  pNumberOfExecutions_ = new int[numberOfStatements_];
+  pNumberOfRetries_ = new int[numberOfStatements_];
+  pAutoCommit_ = new int[numberOfStatements_];
+  pNumberOfFailures_ = new int[numberOfStatements_];
 
   CRUSQLDynamicStatementContainer controlDynamicContainer(1);
 
@@ -104,11 +104,11 @@ void CRUTestTaskExecutor::ReadSqlStatement() {
   sqlText += CRUSQLComposer::ComposeCastExpr("INT UNSIGNED");
   sqlText += "	ORDER BY ordinal;";
 
-  const Int32 kNumber_of_executions = 1;
-  const Int32 kSql_text = 2;
-  const Int32 kSort_num = 3;
-  const Int32 kRetries = 4;
-  const Int32 kAutoCommit = 5;
+  const int kNumber_of_executions = 1;
+  const int kSql_text = 2;
+  const int kSort_num = 3;
+  const int kRetries = 4;
+  const int kAutoCommit = 5;
 
   controlDynamicContainer.SetStatementText(0, sqlText);
 
@@ -121,7 +121,7 @@ void CRUTestTaskExecutor::ReadSqlStatement() {
 
   CDMResultSet *pResult = pStmt->ExecuteQuery();
 
-  Int32 i = 0;
+  int i = 0;
   while (pResult->Next()) {
     RUASSERT(i < numberOfStatements_);
 
@@ -160,8 +160,8 @@ void CRUTestTaskExecutor::ReadSqlStatement() {
 //	CRUTestTaskExecutor::ExecuteAllStatements()
 //--------------------------------------------------------------------------//
 void CRUTestTaskExecutor::ExecuteAllStatements() {
-  Int32 i = 0;
-  for (Int32 j = 0; j < pNumberOfRetries_[0]; j++) {
+  int i = 0;
+  for (int j = 0; j < pNumberOfRetries_[0]; j++) {
     try {
       BeginTransaction();
 
@@ -201,7 +201,7 @@ void CRUTestTaskExecutor::ExecuteAllStatements() {
 //--------------------------------------------------------------------------//
 //	CRUTestTaskExecutor::ExecuteStatement()
 //--------------------------------------------------------------------------//
-void CRUTestTaskExecutor::ExecuteStatement(Int32 i) {
+void CRUTestTaskExecutor::ExecuteStatement(int i) {
   CDMPreparedStatement *pStmt = pDynamicSQLContainer_->GetPreparedStatement(i);
 
   if (pDynamicSQLContainer_->GetLastSQL(i)[0] == 'S' || pDynamicSQLContainer_->GetLastSQL(i)[0] == 's') {
@@ -240,7 +240,7 @@ void CRUTestTaskExecutor::ExecuteStatement(Int32 i) {
 //	CRUTestTaskExecutor::HandleError()
 //----------------------------------------------------------//
 
-void CRUTestTaskExecutor::HandleError(Int32 groupId, Int32 processId, Int32 ordinal, CDMException &e) {
+void CRUTestTaskExecutor::HandleError(int groupId, int processId, int ordinal, CDMException &e) {
   pNumberOfFailures_[ordinal]++;
 
   try {
@@ -256,7 +256,7 @@ void CRUTestTaskExecutor::HandleError(Int32 groupId, Int32 processId, Int32 ordi
 
   int numErrors = e.GetNumErrors();
 
-  for (Int32 index = 0; index < numErrors; index++) {
+  for (int index = 0; index < numErrors; index++) {
     char errorMsg[1024];
 
     pStmt->SetInt(1, groupId);
@@ -283,8 +283,8 @@ void CRUTestTaskExecutor::HandleError(Int32 groupId, Int32 processId, Int32 ordi
 void CRUTestTaskExecutor::StoreData(CUOFsIpcMessageTranslator &translator) {
   inherited::StoreData(translator);
 
-  translator.WriteBlock(&numberOfStatements_, sizeof(Int32));
-  translator.WriteBlock(&groupId_, sizeof(Int32));
+  translator.WriteBlock(&numberOfStatements_, sizeof(int));
+  translator.WriteBlock(&groupId_, sizeof(int));
   translator.SetMessageType(CUOFsIpcMessageTranslator::RU_TEST_EXECUTOR);
 }
 
@@ -295,6 +295,6 @@ void CRUTestTaskExecutor::StoreData(CUOFsIpcMessageTranslator &translator) {
 void CRUTestTaskExecutor::LoadData(CUOFsIpcMessageTranslator &translator) {
   inherited::LoadData(translator);
 
-  translator.ReadBlock(&numberOfStatements_, sizeof(Int32));
-  translator.ReadBlock(&groupId_, sizeof(Int32));
+  translator.ReadBlock(&numberOfStatements_, sizeof(int));
+  translator.ReadBlock(&groupId_, sizeof(int));
 }

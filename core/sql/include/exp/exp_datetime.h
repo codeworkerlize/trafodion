@@ -256,17 +256,17 @@ class ExpDatetime : public SimpleType {
   short convAsciiToDatetime(char *source, int sourceLen, char *target, int targetLen, int format, CollHeap *heap,
                             ComDiagsArea **diagsArea, ULng32 flags);
 
-  short convAsciiToDate(char *target, int targetLen, char *source, int sourceLen, Int32 format, CollHeap *heap,
+  short convAsciiToDate(char *target, int targetLen, char *source, int sourceLen, int format, CollHeap *heap,
                         ComDiagsArea **diagsArea, ULng32 flags);
 
-  int convDatetimeToASCII(char *srcData, char *dstData, int dstLen, Int32 format, char *formatStr, CollHeap *heap,
+  int convDatetimeToASCII(char *srcData, char *dstData, int dstLen, int format, char *formatStr, CollHeap *heap,
                             ComDiagsArea **diagsArea, int caseSensitive = 0, ULng32 nsrcLen = -1);
 
-  static int convNumericTimeToASCII(char *srcData, char *dstData, int dstLen, Int32 format, char *formatStr,
+  static int convNumericTimeToASCII(char *srcData, char *dstData, int dstLen, int format, char *formatStr,
                                       CollHeap *heap, ComDiagsArea **diagsArea);
 
   static short convAsciiDatetimeToASCII(char *srcData, int srcPrecision, int srcScale, int srcLen, char *dstData,
-                                        int dstLen, Int32 format, CollHeap *heap, ComDiagsArea **diagsArea);
+                                        int dstLen, int format, CollHeap *heap, ComDiagsArea **diagsArea);
 
   static short convAsciiDatetimeToUtcOrLocal(char *srcData, int srcLen, char *dstData, int dstLen, long gmtDiff,
                                              NABoolean toUTC, CollHeap *heap, ComDiagsArea **diagsArea);

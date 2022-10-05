@@ -57,7 +57,7 @@ ElemDDLList::ElemDDLList(const enum OperatorTypeEnum operType, ElemDDLNode *comm
 // virtual destructor
 ElemDDLList::~ElemDDLList() {
   // delete all children
-  for (Int32 i = 0; i < MAX_ELEM_DDL_LIST_ARITY; i++) {
+  for (int i = 0; i < MAX_ELEM_DDL_LIST_ARITY; i++) {
     delete children_[i];
   }
 }
@@ -70,7 +70,7 @@ ElemDDLList *ElemDDLList::castToElemDDLList() { return this; }
 //
 
 // get the degree of this node
-Int32 ElemDDLList::getArity() const { return MAX_ELEM_DDL_LIST_ARITY; }
+int ElemDDLList::getArity() const { return MAX_ELEM_DDL_LIST_ARITY; }
 
 ExprNode *ElemDDLList::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());

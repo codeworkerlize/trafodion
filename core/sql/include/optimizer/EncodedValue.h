@@ -271,7 +271,7 @@ class EncodedValue : public NABasicObject {
 
   // dump the content to a data buffer for computing run-time hash
   // used by skew buster
-  void outputToBufferToComputeRTHash(const NAType *naType, char *data, Int32 &len, UInt32 &flags) const;
+  void outputToBufferToComputeRTHash(const NAType *naType, char *data, int &len, UInt32 &flags) const;
 
  private:
   // ---------------------------------------------------------------------

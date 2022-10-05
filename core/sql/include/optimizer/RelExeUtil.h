@@ -97,7 +97,7 @@ class GenericUtilExpr : public RelExpr {
   // no return from this method, the atp and atpindex is changed to
   // returned atp (= 0) and returned atp index (last entry of returnedDesc).
   // If noAtpOrIndexChange flag is set, then they are not changed.
-  short processOutputRow(Generator *generator, const Int32 work_atp, const Int32 output_row_atp_index,
+  short processOutputRow(Generator *generator, const int work_atp, const int output_row_atp_index,
                          ex_cri_desc *returnedDesc, NABoolean noAtpOrIndexChange = FALSE);
 
   // The set of values that I can potentially produce as output.
@@ -120,7 +120,7 @@ class GenericUtilExpr : public RelExpr {
   // various PC methods
 
   // get the degree of this node
-  virtual Int32 getArity() const { return 0; };
+  virtual int getArity() const { return 0; };
   virtual NABoolean duplicateMatch(const RelExpr &other) const;
   virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
@@ -1037,7 +1037,7 @@ class ExeUtilDisplayExplain : public ExeUtilExpr {
   };
 
   short setOptionsX();
-  short setOptionX(char c, Int32 &numOptions);
+  short setOptionX(char c, int &numOptions);
 
   char *moduleName_;
   char *stmtName_;
@@ -1101,7 +1101,7 @@ class ExeUtilWnrInsert : public ExeUtilExpr {
 
   virtual RelExpr *bindNode(BindWA *bindWAPtr);
 
-  virtual Int32 getArity() const { return 1; };
+  virtual int getArity() const { return 1; };
 
   virtual RelExpr *preCodeGen(Generator *generator, const ValueIdSet &externalInputs, ValueIdSet &pulledNewInputs);
 
@@ -1352,7 +1352,7 @@ class ExeUtilConnectby : public ExeUtilExpr {
 
   virtual RelExpr *bindNode(BindWA *bindWAPtr);
   virtual RelExpr *normalizeNode(NormWA &normWARef);
-  virtual Int32 getArity() const { return (child(0) ? 1 : 0); }
+  virtual int getArity() const { return (child(0) ? 1 : 0); }
   virtual NABoolean producesOutput() { return TRUE; }
 
   virtual short codeGen(Generator *);
@@ -1384,12 +1384,12 @@ class ExeUtilConnectby : public ExeUtilExpr {
   NABoolean hasDynParamInStart() const { return (flags_ & HAS_DYN_PARAM_IN_START) != 0; }
 
   static ItemExpr *containsPath(ItemExpr *lst) {
-    Int32 arity = lst->getArity();
+    int arity = lst->getArity();
     if (lst->getOperatorType() == ITM_SYS_CONNECT_BY_PATH) {
       return lst;
     }
 
-    for (Int32 i = 0; i < arity; i++)
+    for (int i = 0; i < arity; i++)
       if (lst->getChild(i)) {
         ItemExpr *ie = containsPath((ItemExpr *)lst->getChild(i));
         if (ie != NULL) return ie;
@@ -1399,12 +1399,12 @@ class ExeUtilConnectby : public ExeUtilExpr {
 
   static NABoolean containsIsLeaf(ItemExpr *lst) {
     if (lst == NULL) return FALSE;
-    Int32 arity = lst->getArity();
+    int arity = lst->getArity();
 
     if (lst->getOperatorType() == ITM_REFERENCE) {
       if ((((ColReference *)lst)->getColRefNameObj()).getColName() == "CONNECT_BY_ISLEAF") return TRUE;
     }
-    for (Int32 i = 0; i < arity; i++)
+    for (int i = 0; i < arity; i++)
       if (lst->getChild(i)) {
         NABoolean rc = containsIsLeaf((ItemExpr *)lst->getChild(i));
         if (rc == TRUE) return rc;
@@ -1436,7 +1436,7 @@ class ExeUtilConnectby : public ExeUtilExpr {
 
   ValueIdSet startWithPredicates_;
 
-  Int32 batchSize_;
+  int batchSize_;
 
   ValueIdSet dynParmas_;
 
@@ -2083,7 +2083,7 @@ class ExeUtilLongRunning : public ExeUtilExpr {
   virtual short codeGen(Generator *);
 
   // get the degree of this node (it is a leaf node).
-  virtual Int32 getArity() const { return 0; }
+  virtual int getArity() const { return 0; }
 
   // Predicate string
   const char *getPredicate() { return predicate_; };

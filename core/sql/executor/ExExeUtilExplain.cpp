@@ -244,7 +244,7 @@ short ExExeUtilDisplayExplainTcb::work() {
         else
           optFlag_ = N_;
 
-        Int32 explain_qry_array_size = 0;
+        int explain_qry_array_size = 0;
         const QueryString *explainQuery = NULL;
 
         if (optFlag_ == M_) {
@@ -529,7 +529,7 @@ short ExExeUtilDisplayExplainTcb::work() {
 // given a null-terminated string, truncates whitespace from the
 // end and moves the string termination character
 void ExExeUtilDisplayExplainTcb::truncate_whitespace(char *str) const {
-  Int32 total = str_len(str);
+  int total = str_len(str);
   char *end = str + total;
   --end;
   while (total > 0 && *end == ' ')  // do not go past the beginning
@@ -580,7 +580,7 @@ short ExExeUtilDisplayExplainTcb::GetColumns() {
   char *ptr;
   int opDone = 0;  // =1 after doing operator, used to reorder
 
-  for (Int32 i = 5; i < 14; ++i)  // start with operator to check for root
+  for (int i = 5; i < 14; ++i)  // start with operator to check for root
   {
     if (opDone && (i == 5))  // if 5 already done
     {
@@ -803,7 +803,7 @@ void ExExeUtilDisplayExplainTcb::FormatForF() {
 
   // append the operator name, first 20 chars only
   bool pad_with_blanks = false;
-  for (Int32 i = 0; i < 20; ++i) {
+  for (int i = 0; i < 20; ++i) {
     if (operName_[i] == '\0') pad_with_blanks = true;
 
     if (pad_with_blanks)
@@ -816,7 +816,7 @@ void ExExeUtilDisplayExplainTcb::FormatForF() {
   current += 2;
 
   // add information to the optimizations column
-  Int32 remaining_width = 8;
+  int remaining_width = 8;
   if (str_str(description_, "olt_opt_lean: used") != 0) {
     str_cpy(current, "ol ", 3);
     current += 3;
@@ -1062,7 +1062,7 @@ void ExExeUtilDisplayExplainTcb::FormatForF() {
                           // by now the par_func has been readjusted, proceed to extract
                           *current++ = '(';
                           --remaining_width;
-                          for (Int32 i = 0; i < 5; ++i) {
+                          for (int i = 0; i < 5; ++i) {
                             *current++ = *par_func++;
                             --remaining_width;
                           }
@@ -1176,7 +1176,7 @@ void ExExeUtilDisplayExplainTcb::FormatForF() {
                         } else {
                           *current++ = '(';
                           --remaining_width;
-                          for (Int32 i = 0; i < 5; ++i) {
+                          for (int i = 0; i < 5; ++i) {
                             *current++ = *child_func++;
                             --remaining_width;
                           }
@@ -1287,7 +1287,7 @@ void ExExeUtilDisplayExplainTcb::FormatForF() {
                         ++par_func;
                         *current++ = '(';
                         --remaining_width;
-                        for (Int32 i = 0; i < 5; ++i) {
+                        for (int i = 0; i < 5; ++i) {
                           *current++ = *par_func++;
                           --remaining_width;
                         }
@@ -1393,7 +1393,7 @@ void ExExeUtilDisplayExplainTcb::FormatForF() {
                         ++child_func;
                         *current++ = '(';
                         --remaining_width;
-                        for (Int32 i = 0; i < 5; ++i) {
+                        for (int i = 0; i < 5; ++i) {
                           *current++ = *child_func++;
                           --remaining_width;
                         }
@@ -1453,10 +1453,10 @@ void ExExeUtilDisplayExplainTcb::FormatForF() {
     } else {
       while (tname_loc != NULL && (*tname_loc) != '\0') {
         UInt32 UCS4value;
-        Int32 firstCharLen = LocaleCharToUCS4(tname_loc, 8, &UCS4value, cnv_UTF8);
+        int firstCharLen = LocaleCharToUCS4(tname_loc, 8, &UCS4value, cnv_UTF8);
         if (firstCharLen <= remaining_width)  // Copy in only *whole* characters!
         {
-          for (Int32 ii = 0; ii < firstCharLen; ii++) {
+          for (int ii = 0; ii < firstCharLen; ii++) {
             *current++ = *tname_loc++;
             --remaining_width;
           }
@@ -1909,9 +1909,9 @@ NABoolean ExExeUtilDisplayExplainTcb::filterKey(const char *key, int keySize, ch
                                                 int &decLoc) {
   if ((!key) || (keySize == 0)) return FALSE;
 
-  Int32 maxSize = sizeof(filterKeyValue) / sizeof(FilterKeyValueStruct);
+  int maxSize = sizeof(filterKeyValue) / sizeof(FilterKeyValueStruct);
 
-  for (Int32 i = 0; i < maxSize; i++) {
+  for (int i = 0; i < maxSize; i++) {
     if (strcmp(key, filterKeyValue[i].key) == 0) {
       strcpy(retVal, filterKeyValue[i].value);
       decLoc = strlen(filterKeyValue[i].value);
@@ -1928,7 +1928,7 @@ NABoolean ExExeUtilDisplayExplainTcb::filterKey(const char *key, int keySize, ch
     // value for parent func has the form similar to: broadcast N times...
     // value for child func has form similar to: hash2 partitioned N ways...
     // Replace numbers in 'value' with '#'
-    Int32 i = 0;
+    int i = 0;
 
     // if child partitioning starts with hash1 or hash2, skip that token.
     // We dont want the numbers in 'hash1'/'hash2' to be replaced.
@@ -2047,7 +2047,7 @@ void ExExeUtilDisplayExplainTcb::FormatLine(const char *key, const char *inval, 
   //    cnt = 79 - (int)(temp - line);             // see what we have left
   if (valSize > cnt) {         // if input too large
     str_ncpy(temp, val, cnt);  // do it the hard way
-    Int32 indexOfLastByteOfUtf8Char = IndexOfLastByteOfUTF8CharAtOrBeforePos(
+    int indexOfLastByteOfUtf8Char = IndexOfLastByteOfUTF8CharAtOrBeforePos(
         (const unsigned char *)line, (MLEN - 2) /*strLen*/, (MLEN - 3) /*bytePos*/);
     if (indexOfLastByteOfUtf8Char < 0 || indexOfLastByteOfUtf8Char >= 77) {
       *(line + (MLEN - 2)) = '*';  // show it was cut
@@ -2177,13 +2177,13 @@ void ExExeUtilDisplayExplainTcb::FormatLongLine(const char *key, char *val, int 
     } else if (sp) {               // else use first space
       tmp = inptr + cnt - sp + 1;  // find sp char
     } else {                       // else just cut at end
-      Int32 lenInBytes = cnt;
-      Int32 indexOfLastByteOfUtf8Char =
+      int lenInBytes = cnt;
+      int indexOfLastByteOfUtf8Char =
           IndexOfLastByteOfUTF8CharAtOrBeforePos((const unsigned char *)inptr  // utf8Str
                                                  ,
-                                                 (const Int32)lenInBytes  // utf8StrLenInBytes
+                                                 (const int)lenInBytes  // utf8StrLenInBytes
                                                  ,
-                                                 (const Int32)(lenInBytes - 1)  // bytePos
+                                                 (const int)(lenInBytes - 1)  // bytePos
           );
       if (indexOfLastByteOfUtf8Char >= 0) lenInBytes = indexOfLastByteOfUtf8Char + 1;
       tmp = inptr + lenInBytes;
@@ -3458,8 +3458,8 @@ and output will be 1,234,567.89.  This routine will not work properly on negativ
 numbers, so don't call it.
 *****/
 void ExExeUtilTcb::AddCommas(char *outStr, int &intSize) const {
-  Int32 loc;      // character position to cut before, 0 base
-  Int32 iter;     // iterations needed
+  int loc;      // character position to cut before, 0 base
+  int iter;     // iterations needed
   char temp[40];  // save cut data here
 
   // Begin processing

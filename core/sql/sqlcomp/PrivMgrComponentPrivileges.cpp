@@ -1212,7 +1212,7 @@ bool PrivMgrComponentPrivileges::hasSQLPriv(const int32_t authID, const SQLOpera
   }
 
   char buf[MAX_DBUSERNAME_LEN + 10 + 100];
-  Int32 stmtSize = snprintf(buf, sizeof(buf),
+  int stmtSize = snprintf(buf, sizeof(buf),
                             "') AND (GRANTEE_ID = -1 OR "
                             "(GRANTEE_ID = %d AND GRANTEE_NAME = '%s')",
                             authID, authName);
@@ -1362,7 +1362,7 @@ short PrivMgrComponentPrivileges::hasSQLPriv(const int32_t authID, const NAList<
   if (authID == ComUser::getCurrentUser()) {
     // Most of the time, this method is called for the current user, in this
     // case get role list from cache to avoid extra I/Os
-    NAList<Int32> roleIDs(STMTHEAP);
+    NAList<int> roleIDs(STMTHEAP);
     if (ComUser::getCurrentUserRoles(roleIDs, pDiags_) != 0) {
       std::string msg("Unable to retrieve roles for: ");
       msg += ComUser::getCurrentUsername();
@@ -1519,7 +1519,7 @@ bool PrivMgrComponentPrivileges::isAuthIDGrantedPrivs(const int32_t authID, cons
 {
   std::string whereClause;
   char queryBuf[MAX_DBUSERNAME_LEN + 100];
-  Int32 stmtSize = snprintf(queryBuf, sizeof(queryBuf), " WHERE GRANTEE_ID = %d ", authID);
+  int stmtSize = snprintf(queryBuf, sizeof(queryBuf), " WHERE GRANTEE_ID = %d ", authID);
   whereClause += queryBuf;
   if (checkName) {
     int32_t length;

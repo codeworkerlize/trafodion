@@ -129,7 +129,7 @@ class ExprNode : public NABasicObject {
   virtual void setChild(int index, ExprNode *);
 
   // arity of the operator (required number of children)
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   // get and set the type of the operator (usually the type
   // is set by the constructor)

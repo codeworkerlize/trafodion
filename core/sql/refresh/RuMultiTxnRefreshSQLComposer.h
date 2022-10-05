@@ -57,7 +57,7 @@ class REFRESH_LIB_CLASS CRUMultiTxnRefreshSQLComposer : public CRURefreshSQLComp
   virtual ~CRUMultiTxnRefreshSQLComposer() {}
 
  public:
-  void ComposeRefresh(Int32 phase, BOOL catchup);
+  void ComposeRefresh(int phase, BOOL catchup);
   void ComposeCreateContextLogTable();
   void ComposeReadContextLog();
   void ComposeCQSForIRPhase1();
@@ -68,7 +68,7 @@ class REFRESH_LIB_CLASS CRUMultiTxnRefreshSQLComposer : public CRURefreshSQLComp
   CRUMultiTxnRefreshSQLComposer &operator=(const CRUMultiTxnRefreshSQLComposer &other);
 
  private:
-  void AddNRowsClause(Int32 phase, BOOL catchup);
+  void AddNRowsClause(int phase, BOOL catchup);
 };
 
 #endif

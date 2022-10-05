@@ -835,7 +835,7 @@ StmtNode *ExprNode::castToStatementExpr() { return NULL; }
 
 const StmtNode *ExprNode::castToStatementExpr() const { return NULL; }
 
-Int32 ExprNode::getArity() const {
+int ExprNode::getArity() const {
   ABORT("virtual function ExprNode::getArity() must be redefined");
   return 0;
 }  // ExprNode::getArity()

@@ -285,7 +285,7 @@ const BaseTableDetailsPtr MVCandidate::getMvTableForQueryID(const NAString &id, 
     }
     return NULL;
   }
-  Int32 hashKeyIndex = queryMap->getIndexForTable(id);
+  int hashKeyIndex = queryMap->getIndexForTable(id);
   if (hashKeyIndex == -1) {
     assertLogAndThrow(CAT_MVCAND, LL_MVQR_FAIL, assertOnFailure, QRLogicException,
                       "Matching MV table not found in JoinGraphMap.");
@@ -315,7 +315,7 @@ const BaseTableDetailsPtr MVCandidate::getQueryTableForMvID(const NAString &id, 
     }
     return NULL;
   }
-  Int32 hashKeyIndex = mvMap->getIndexForTable(id);
+  int hashKeyIndex = mvMap->getIndexForTable(id);
   if (hashKeyIndex == -1) {
     assertLogAndThrow(CAT_MVCAND, LL_MVQR_FAIL, assertOnFailure, QRLogicException,
                       "Matching Query table not found in JoinGraphMap.");
@@ -360,7 +360,7 @@ NABoolean MVCandidate::CheckExtraHubTables() {
   do {
     NABoolean extraHubTableWasAdded = FALSE;
     // Do the loop backwards because we remove checked extra-hub tables from the list.
-    for (Int32 i = (CollIndex)extraHubTables_.entries() - 1; i >= 0; i--) {
+    for (int i = (CollIndex)extraHubTables_.entries() - 1; i >= 0; i--) {
       if (CheckAnExtraHubTable(extraHubTables_[i],
                                mvSubGraphMap,     // IN/OUT
                                querySubGraphMap,  // IN/OUT
@@ -670,8 +670,8 @@ QRJoinSubGraphPtr MVCandidatesForJBBSubset::getSubGraph() const { return querySu
 /* Parse the MV_AGE cqd and translate it to seconds.
 /* A 32 bit number should be enough for calculating seconds.
 /****************************************************************************/
-Int32 parseMVAge(const NAString &mvAge) {
-  Int32 result = 0;
+int parseMVAge(const NAString &mvAge) {
+  int result = 0;
   float number = 0;
   char textChars[20];
 
@@ -679,13 +679,13 @@ Int32 parseMVAge(const NAString &mvAge) {
     if (sscanf(mvAge.data(), "%f %s", &number, textChars) == 2) {
       const NAString text(textChars);
       if (!text.compareTo("Seconds", NAString::ignoreCase)) {
-        result = (Int32)floor(number);
+        result = (int)floor(number);
       } else if (!text.compareTo("Minutes", NAString::ignoreCase)) {
-        result = (Int32)floor(number * 60);
+        result = (int)floor(number * 60);
       } else if (!text.compareTo("Hours", NAString::ignoreCase)) {
-        result = (Int32)floor(number * 60 * 60);
+        result = (int)floor(number * 60 * 60);
       } else if (!text.compareTo("Days", NAString::ignoreCase)) {
-        result = (Int32)floor(number * 60 * 60 * 24);
+        result = (int)floor(number * 60 * 60 * 24);
       }
     }
   }
@@ -737,10 +737,10 @@ void MVCandidatesForJBBSubset::insert(MVDetailsPtr mv, QRJBBPtr queryJbb, NABool
 
         // Allow all MVs that were refreshed at least MV_AGE  ago
         if (mvAge != "") {
-          const Int32 mvAgeSeconds = parseMVAge(mvAge);
+          const int mvAgeSeconds = parseMVAge(mvAge);
           const long mvRefreshTS = mv->getRefreshTimestamp() / 1000000;
           const long nowTS = NA_JulianTimestamp() / 1000000;
-          Int32 refreshAge = (Int32)(nowTS - mvRefreshTS);
+          int refreshAge = (int)(nowTS - mvRefreshTS);
           QRLogger::log(CAT_MVCAND, LL_DEBUG, "MV_AGE is: %d seconds, RefreshAge is: %d seconds.", mvAgeSeconds,
                         refreshAge);
           if (mvAgeSeconds < refreshAge) {
@@ -765,7 +765,7 @@ void MVCandidatesForJBBSubset::insert(MVDetailsPtr mv, QRJBBPtr queryJbb, NABool
         // MVQR is OFF. Not supposed to get a descriptor in this case.
       default:
         assertLogAndThrow1(CAT_MVCAND, LL_ERROR, FALSE, QRLogicException, "Invalid value for MVQR_REWRITE_LEVEL: %d",
-                           (Int32)misc->getRewriteLevel());
+                           (int)misc->getRewriteLevel());
     }
   }
 
@@ -978,7 +978,7 @@ QRJbbResultPtr MVCandidatesForJBB::generateDescriptor(CollHeap *heap) {
 
   CollIndex maxEntries = jbbSubsets_.entries();
   //  for (CollIndex i=0; i<maxEntries; i++)
-  for (Int32 i = maxEntries - 1; i >= 0; i--) {
+  for (int i = maxEntries - 1; i >= 0; i--) {
     MVCandidatesForJBBSubsetPtr jbbSubset = jbbSubsets_[i];
     QRJbbSubsetPtr jbbSubsetResult = jbbSubset->generateDescriptor(heap);
     if (jbbSubsetResult != NULL) resultDesc->addJbbSubset(jbbSubsetResult);
@@ -1063,7 +1063,7 @@ void MVCandidateCollection::registerCandidate(MVCandidatePtr candidate) { allCan
 // Matching failed - remove the MV candidate from all the lists, and
 // rerlease its memory.
 /*****************************************************************************/
-void MVCandidateCollection::disqualifyCandidate(MVCandidatePtr candidate, Int32 index) {
+void MVCandidateCollection::disqualifyCandidate(MVCandidatePtr candidate, int index) {
   candidate->disqualify();         // Remove from the JBBSubset
   allCandidates_.removeAt(index);  // Remove from the master list
   deletePtr(candidate);            // Delete it.
@@ -1082,7 +1082,7 @@ void MVCandidateCollection::doMatching() {
 
   // Start with running Pass 1 tests on all candidates.
   NABoolean matched = FALSE;
-  for (Int32 i = allCandidates_.entries() - 1; i >= 0; i--) {
+  for (int i = allCandidates_.entries() - 1; i >= 0; i--) {
     MVCandidatePtr candidate = allCandidates_[i];
     if (!candidate->wasDisqualified()) {
       // Run the output list matching, Pass 1.
@@ -1105,7 +1105,7 @@ void MVCandidateCollection::doMatching() {
   }
 
   // Now do Pass 2 tests on the remaining candidates.
-  for (Int32 i = allCandidates_.entries() - 1; i >= 0; i--) {
+  for (int i = allCandidates_.entries() - 1; i >= 0; i--) {
     MVCandidatePtr candidate = allCandidates_[i];
 
     // Run the output list matching, Pass 2.

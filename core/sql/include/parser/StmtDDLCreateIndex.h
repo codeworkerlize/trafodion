@@ -80,7 +80,7 @@ class StmtDDLCreateIndex : public StmtDDLNode {
   //
 
   // methods relating to parse tree
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
   virtual ExprNode *getChild(int index);
 
   inline const ElemDDLColRefArray &getColRefArray() const;
@@ -439,8 +439,8 @@ class StmtDDLCreateIndex : public StmtDDLNode {
   NABoolean isParallelExec_;  // TRUE (ON); FALSE (OFF)
   NABoolean isPopulated_;     // True if populate option is specified, false if no populate is specified.
   NABoolean isNoPopulated_;   // True if no populate option is specified, false otherwise.
-  Int32 populateCount_;       // to prevent user to enter the populate clause multiple times.
-  Int32 noPopulateCount_;     // to prevent user to enter the no populate clause multiple times.
+  int populateCount_;       // to prevent user to enter the populate clause multiple times.
+  int noPopulateCount_;     // to prevent user to enter the no populate clause multiple times.
   NAString configFileName_;
 
   NABoolean isPartLocalIndex_;

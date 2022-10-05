@@ -345,7 +345,7 @@ short CmpSeabaseDDL::isOldMetadataInitialized(ExpHbaseInterface *ehi) {
   NABoolean isRes = FALSE;
   isRes = CmpCommon::context()->useReservedNamespace();
   retcode = 0;
-  for (Int32 i = 0; (((retcode == 0) || (retcode == -1)) && (i < sizeof(allMDtablesInfo) / sizeof(MDTableInfo))); i++) {
+  for (int i = 0; (((retcode == 0) || (retcode == -1)) && (i < sizeof(allMDtablesInfo) / sizeof(MDTableInfo))); i++) {
     const MDUpgradeInfo &mdi = allMDupgradeInfo[i];
 
     if (!mdi.oldName) continue;
@@ -406,7 +406,7 @@ short CmpSeabaseMDupgrade::executeSeabaseMDupgrade(CmpDDLwithStatusInfo *mdui, N
 
   // mdui stores the pin of this process.
   // If pin is not yet initialized (set to 0), initialize it
-  Int32 myPin = GetCliGlobals()->myPin();
+  int myPin = GetCliGlobals()->myPin();
   if (mdui->myPin() == 0) mdui->setMyPin(myPin);
 
   // If the pin changes, then a previous call to upgrade failed and killed the
@@ -1304,7 +1304,7 @@ short CmpSeabaseMDupgrade::executeSeabaseMDupgrade(CmpDDLwithStatusInfo *mdui, N
             if (mdui->step() != OLD_TABLES_MD_DELETE) break;
 
             // drop info about old metadata views from the new metadata.
-            for (Int32 i = 0; i < sizeof(allMDviewsInfo) / sizeof(MDViewInfo); i++) {
+            for (int i = 0; i < sizeof(allMDviewsInfo) / sizeof(MDViewInfo); i++) {
               const MDViewInfo &mdi = allMDviewsInfo[i];
 
               if (!mdi.viewName) continue;

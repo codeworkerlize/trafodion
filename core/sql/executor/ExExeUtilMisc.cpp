@@ -92,7 +92,7 @@ ExExeUtilLongRunningTcb::ExExeUtilLongRunningTcb(const ComTdbExeUtilLongRunning 
 
 ExExeUtilLongRunningTcb::~ExExeUtilLongRunningTcb() {}
 
-Int32 ExExeUtilLongRunningTcb::fixup() { return ex_tcb::fixup(); }
+int ExExeUtilLongRunningTcb::fixup() { return ex_tcb::fixup(); }
 
 short ExExeUtilLongRunningTcb::doLongRunning() {
   int cliRC = 0;
@@ -188,16 +188,16 @@ short ExExeUtilLongRunningTcb::work() {
   ExExeStmtGlobals *exeGlob = getGlobals()->castToExExeStmtGlobals();
   ExEspStmtGlobals *espGlob = exeGlob->castToExEspStmtGlobals();
 
-  Int32 espNum = 1;
+  int espNum = 1;
 
   // this is an ESP?
   if (espGlob != NULL) {
-    espNum = (Int32)espGlob->getMyInstanceNumber();
+    espNum = (int)espGlob->getMyInstanceNumber();
   }
 
   // set schema
   if (lrTdb().getDefaultCatalogName() && lrTdb().getDefaultSchemaName()) {
-    Int32 bufSize = 100 + strlen(lrTdb().getDefaultCatalogName()) + strlen(lrTdb().getDefaultSchemaName());
+    int bufSize = 100 + strlen(lrTdb().getDefaultCatalogName()) + strlen(lrTdb().getDefaultSchemaName());
     char *cqd = new (getHeap()) char[bufSize];
     snprintf(cqd, bufSize, "control query default SCHEMA '%s.%s'", lrTdb().getDefaultCatalogName(),
              lrTdb().getDefaultSchemaName());
@@ -366,7 +366,7 @@ short ExExeUtilLongRunningTcb::executeLongRunningQuery() {
 
 #ifdef _DEBUG
     if (lrTdb().longRunningQueryPlan()) {
-      Int32 bufSize = 100 + strlen(lruStmtAndPartInfo_) /*+ strlen(lruStmtWithCKAndPartInfo_)*/;
+      int bufSize = 100 + strlen(lruStmtAndPartInfo_) /*+ strlen(lruStmtWithCKAndPartInfo_)*/;
       char *lruQPInfo = new (getHeap()) char[bufSize];
 
       // str_printf() does not support %ld. Use %d instead.
@@ -448,12 +448,12 @@ short ExExeUtilLongRunningTcb::processInitial(int &rc) {
     currContext = exeGlob->castToExMasterStmtGlobals()->getStatement()->getContext();
   }
 
-  Int32 espNum = 0;
+  int espNum = 0;
 
   // we are executing inside an ESP go ahead and set the partition number to the
   // ESP instance number.
   if (espGlob) {
-    espNum = (Int32)espGlob->getMyInstanceNumber();
+    espNum = (int)espGlob->getMyInstanceNumber();
   }
 
   if (lrTdb().getPredicate() != NULL)
@@ -479,7 +479,7 @@ short ExExeUtilLongRunningTcb::processInitial(int &rc) {
   // For LongRunning we need to send the actual ISO_MAPPING.
   // Save it and restore after the prepare
 
-  Int32 savedIsoMapping = cliInterface()->getIsoMapping();
+  int savedIsoMapping = cliInterface()->getIsoMapping();
 
   cliInterface()->setIsoMapping(currContext->getSessionDefaults()->getIsoMappingEnum());
 
@@ -812,7 +812,7 @@ short ExExeUtilPopulateInMemStatsTcb::work() {
       } break;
 
       case DELETE_STATS_: {
-        Int32 qry_array_size = sizeof(deleteStatsQuery) / sizeof(QueryString);
+        int qry_array_size = sizeof(deleteStatsQuery) / sizeof(QueryString);
 
         const QueryString *queryString = deleteStatsQuery;
         ;
@@ -851,7 +851,7 @@ short ExExeUtilPopulateInMemStatsTcb::work() {
       } break;
 
       case POPULATE_HISTOGRAMS_STATS_: {
-        Int32 qry_array_size = sizeof(populateHistogramsStatsQuery) / sizeof(QueryString);
+        int qry_array_size = sizeof(populateHistogramsStatsQuery) / sizeof(QueryString);
 
         const QueryString *queryString = populateHistogramsStatsQuery;
         ;
@@ -895,7 +895,7 @@ short ExExeUtilPopulateInMemStatsTcb::work() {
       } break;
 
       case POPULATE_HISTINTS_STATS_: {
-        Int32 qry_array_size = sizeof(populateHistintsStatsQuery) / sizeof(QueryString);
+        int qry_array_size = sizeof(populateHistintsStatsQuery) / sizeof(QueryString);
 
         const QueryString *queryString = populateHistintsStatsQuery;
         ;
@@ -1178,13 +1178,13 @@ short ExExeUtilCompositeUnnestTcb::work() {
           step_ = GET_NEXT_ROW_;
           break;
         } else
-          numElems_ = *(Int32 *)(extractColRow_ + attr->getOffset());
+          numElems_ = *(int *)(extractColRow_ + attr->getOffset());
 
         step_ = SET_ARRAY_ELEM_NUM_;
       } break;
 
       case SET_ARRAY_ELEM_NUM_: {
-        *(Int32 *)elemNumRow_ = currElem_;
+        *(int *)elemNumRow_ = currElem_;
 
         step_ = CREATE_ROW_TO_RETURN_;
       } break;

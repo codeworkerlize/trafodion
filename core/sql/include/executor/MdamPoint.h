@@ -115,7 +115,7 @@ inline MdamPoint::MdamPoint(const tupp &tupp, const MdamEnums::MdamInclusion inc
 
 // The comparision two MdamPoints.
 inline MdamEnums::MdamOrder MdamPoint::compare(const MdamPoint *other, const ULng32 keyLen) const {
-  short retVal = str_cmp(tupp_.getDataPointer(), other->tupp_.getDataPointer(), Int32(keyLen));
+  short retVal = str_cmp(tupp_.getDataPointer(), other->tupp_.getDataPointer(), int(keyLen));
   if (retVal < 0)
     return MdamEnums::MDAM_LESS;
   else if (retVal > 0)

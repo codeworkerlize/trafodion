@@ -69,7 +69,7 @@ static void addOptionalData(Queue *optData, NAString &description) {
   if (optData == NULL) return;
 
   char buf[128];
-  Int32 i = 0;
+  int i = 0;
   const char *s = NULL;
 
   optData->position();
@@ -262,7 +262,7 @@ ExplainTuple *IsolatedNonTableUDR::addSpecificExplainInfo(ExplainTupleMaster *ex
 #endif
 
   ComSInt32 maxRS = getEffectiveNARoutine()->getMaxResults();
-  sprintf(buf, "%d", (Int32)maxRS);
+  sprintf(buf, "%d", (int)maxRS);
   description += " max_result_sets: ";
   description += buf;
 
@@ -386,8 +386,8 @@ static short udr_codegen(Generator *generator, RelExpr &relExpr, ComTdbUdr *&new
   newTdb = NULL;
   const NARoutine *metadata = NULL;
   const NARoutine *effectiveMetadata = NULL;
-  Int32 javaDebugPort = 0;
-  Int32 javaDebugTimeout = 0;
+  int javaDebugPort = 0;
+  int javaDebugTimeout = 0;
 
   OperatorTypeEnum relExprType = relExpr.getOperatorType();
   NABoolean isResultSet = (relExprType == REL_SP_PROXY ? TRUE : FALSE);
@@ -484,7 +484,7 @@ static short udr_codegen(Generator *generator, RelExpr &relExpr, ComTdbUdr *&new
     }
   }
 
-  const Int32 workAtpNumber = 1;
+  const int workAtpNumber = 1;
   ex_cri_desc *given_desc = generator->getCriDesc(Generator::DOWN);
   ex_cri_desc *returned_desc = NULL;
   ex_cri_desc *work_cri_desc = NULL;
@@ -776,7 +776,7 @@ static short udr_codegen(Generator *generator, RelExpr &relExpr, ComTdbUdr *&new
   long libraryRedefTime = NULL;
   char *libraryBlobHandle;
   char *librarySchName = NULL;
-  Int32 libraryVersion = 0;
+  int libraryVersion = 0;
   long libraryObjUID = 0;
   char *runtimeOptions = NULL;
   char *runtimeOptionDelimiters = NULL;
@@ -784,7 +784,7 @@ static short udr_codegen(Generator *generator, RelExpr &relExpr, ComTdbUdr *&new
   ComRoutineSQLAccess sqlmode = COM_UNKNOWN_ROUTINE_SQL_ACCESS;
   ComRoutineParamStyle pstyle = COM_UNKNOWN_ROUTINE_PARAM_STYLE;
   ComRoutineExternalSecurity extSecurity = COM_ROUTINE_EXTERNAL_SECURITY_INVOKER;
-  Int32 ownerId = NA_UserIdDefault;
+  int ownerId = NA_UserIdDefault;
   ComSInt32 maxrs = 0;
   ComSInt32 statesize = 0;
   UInt32 udrFlags = 0;
@@ -884,9 +884,9 @@ static short udr_codegen(Generator *generator, RelExpr &relExpr, ComTdbUdr *&new
     runtimeOptionDelimiters = AllocStringInSpace(*space, runtimeOptDelimsFromCaller);
   }
 
-  Int32 udrSerInvocationInfoLen = 0;
+  int udrSerInvocationInfoLen = 0;
   char *udrSerInvocationInfo = NULL;
-  Int32 udrSerPlanInfoLen = 0;
+  int udrSerPlanInfoLen = 0;
   char *udrSerPlanInfo = NULL;
 
   try {
@@ -1217,9 +1217,9 @@ short IsolatedScalarUDF::codeGen(Generator *generator) {
 
   // Create the collection of optional strings
 
-  Int32 dataEntries = (Int32)effectiveMetadata.getDataNumEntries();
+  int dataEntries = (int)effectiveMetadata.getDataNumEntries();
 
-  Int32 passThruIndex = 0;  // SMD metadata tables
+  int passThruIndex = 0;  // SMD metadata tables
 
   if (CmpCommon::getDefault(COMP_BOOL_191) == DF_ON) passThruIndex = 1;  // user metadata tables
 
@@ -1266,7 +1266,7 @@ short IsolatedScalarUDF::codeGen(Generator *generator) {
       else
         passThruIndex = 2;  // user metadata tables
 
-      Int32 index = passThruIndex - 1;
+      int index = passThruIndex - 1;
 
       if (dataEntries >= index + 1 && (effectiveMetadata.getDataSize(index) != 0)) {
         optionalBuf =
@@ -1330,7 +1330,7 @@ short IsolatedScalarUDF::codeGen(Generator *generator) {
   // compiler, perhaps in catman or in the binder but that hasn't been
   // done.
 
-  for (Int32 i = passThruIndex; i < dataEntries; i++) {
+  for (int i = passThruIndex; i < dataEntries; i++) {
     long dataSize = effectiveMetadata.getDataSize(i);
     if (dataSize < 0) dataSize = 0;
 
@@ -1578,8 +1578,8 @@ short PhysicalTableMappingUDF::codeGen(Generator *generator) {
 
   // Create the collection of optional strings
 
-  Int32 dataEntries = (Int32)metadata.getDataNumEntries();
-  Int32 passThruIndex = 1;  // Sub_ID 0 is never sent to the Routine
+  int dataEntries = (int)metadata.getDataNumEntries();
+  int passThruIndex = 1;  // Sub_ID 0 is never sent to the Routine
   Queue *optionalDataQ = new (space) Queue(space);
   const char *optionalBuf = NULL;
   ComUInt32 tmpLen = 0;
@@ -1587,7 +1587,7 @@ short PhysicalTableMappingUDF::codeGen(Generator *generator) {
   // Provide pass-through input
   // Get the text element from the effective
   if (dataEntries >= passThruIndex) {
-    for (Int32 i = passThruIndex; i < dataEntries; i++) {
+    for (int i = passThruIndex; i < dataEntries; i++) {
       if (metadata.getDataSize(i) != 0) {
         optionalBuf = AllocDataInSpace(*space, metadata.getData(i), (UInt32)metadata.getDataSize(i));
       } else
@@ -1597,7 +1597,7 @@ short PhysicalTableMappingUDF::codeGen(Generator *generator) {
     }
   }
 
-  Int32 numChildren = getArity();
+  int numChildren = getArity();
   ex_cri_desc *givenDesc = generator->getCriDesc(Generator::DOWN);
   ComTdb **childTdbs = (ComTdb **)new (space) ComTdb *[numChildren];
   ex_cri_desc **childDescs = new (generator->wHeap()) ex_cri_desc *[numChildren];
@@ -1607,7 +1607,7 @@ short PhysicalTableMappingUDF::codeGen(Generator *generator) {
   short shiftIdx = 0;
   short numInputTupps = (short)givenDesc->noTuples();
 
-  for (Int32 i = 0; i < numChildren; i++) {
+  for (int i = 0; i < numChildren; i++) {
     // Allocate a new map table for this child.
     //
     MapTable *localMapTable = generator->appendAtEnd();
@@ -1670,7 +1670,7 @@ short PhysicalTableMappingUDF::codeGen(Generator *generator) {
 }
 
 TrafDesc *TableMappingUDF::createVirtualTableDesc() {
-  Int32 numOutputCols = getNARoutine()->getOutParamCount();
+  int numOutputCols = getNARoutine()->getOutParamCount();
   ComTdbVirtTableColumnInfo *outColsInfo = new (HEAP) ComTdbVirtTableColumnInfo[numOutputCols];
 
   for (CollIndex i = 0; i < (CollIndex)numOutputCols; i++) {

@@ -86,7 +86,7 @@ class StmtDDLCreateTrigger : public StmtDDLNode {
   //
 
   // methods relating to parse tree
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
   virtual ExprNode *getChild(int index);
 
   inline const ElemDDLColRefArray &getColRefArray() const;
@@ -223,8 +223,8 @@ class StmtDDLCreateTrigger : public StmtDDLNode {
   NABoolean actionHasCompoundStatement() const;
   // does the trigger action has a compound statement
 
-  inline void setBodyType(Int32 bodyType) { bodyType_ = bodyType; }
-  inline const Int32 getBodyType() const { return bodyType_; }
+  inline void setBodyType(int bodyType) { bodyType_ = bodyType; }
+  inline const int getBodyType() const { return bodyType_; }
 
   inline void setBody(NAString *body) { body_ = body; }
   inline const NAString *getBody() const { return body_; }
@@ -309,7 +309,7 @@ class StmtDDLCreateTrigger : public StmtDDLNode {
   // if triggers body is procedure or sql
   // 0:default 1:procedure 2:sql
   //
-  Int32 bodyType_;
+  int bodyType_;
   NAString *body_;
 
   NABoolean isReplace_;

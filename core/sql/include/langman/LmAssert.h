@@ -48,6 +48,6 @@
     lmAssert(__FILE__, __LINE__, (m)); \
   }
 
-void lmAssert(const char *file, Int32 linenum, const char *msg = "");
+void lmAssert(const char *file, int linenum, const char *msg = "");
 
 #endif

@@ -98,4 +98,4 @@ void ComTdbProbeCache::displayContents(Space *space, ULng32 flag) {
   }
 }
 
-Int32 ComTdbProbeCache::orderedQueueProtocol() const { return 1; }
+int ComTdbProbeCache::orderedQueueProtocol() const { return 1; }

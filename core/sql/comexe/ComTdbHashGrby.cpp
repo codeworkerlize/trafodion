@@ -89,7 +89,7 @@ ComTdbHashGrby::~ComTdbHashGrby(){};
 
 void ComTdbHashGrby::display() const {};
 
-Int32 ComTdbHashGrby::orderedQueueProtocol() const { return -1; }
+int ComTdbHashGrby::orderedQueueProtocol() const { return -1; }
 
 Long ComTdbHashGrby::pack(void *space) {
   workCriDesc_.pack(space);

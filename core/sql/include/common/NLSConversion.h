@@ -61,13 +61,13 @@ NAWcharBuf *ISO88591ToUnicode(const charBuf &iso88591String, CollHeap *heap, NAW
 charBuf *unicodeToISO88591(const NAWcharBuf &unicodeString, CollHeap *heap, charBuf *&iso88591String,
                            NABoolean addNullAtEnd = TRUE, NABoolean allowInvalidCodePoint = TRUE);
 
-NAWcharBuf *csetToUnicode(const charBuf &csetString, CollHeap *heap, NAWcharBuf *&unicodeString, Int32 cset,
-                          Int32 &errorcode, NABoolean addNullAtEnd = TRUE, Int32 *charCount = NULL,
-                          Int32 *errorByteOff = NULL);
+NAWcharBuf *csetToUnicode(const charBuf &csetString, CollHeap *heap, NAWcharBuf *&unicodeString, int cset,
+                          int &errorcode, NABoolean addNullAtEnd = TRUE, int *charCount = NULL,
+                          int *errorByteOff = NULL);
 
-charBuf *unicodeTocset(const NAWcharBuf &unicodeString, CollHeap *heap, charBuf *&csetString, Int32 cset,
-                       Int32 &errorcode, NABoolean addNullAtEnd = TRUE, NABoolean allowInvalidCodePoint = TRUE,
-                       Int32 *charCount = NULL, Int32 *errorByteOff = NULL);
+charBuf *unicodeTocset(const NAWcharBuf &unicodeString, CollHeap *heap, charBuf *&csetString, int cset,
+                       int &errorcode, NABoolean addNullAtEnd = TRUE, NABoolean allowInvalidCodePoint = TRUE,
+                       int *charCount = NULL, int *errorByteOff = NULL);
 
 NAWcharBuf *sjisToUnicode(const charBuf &sjisString, CollHeap *heap, NAWcharBuf *&unicodeString,
                           NABoolean addNullAtEnd = TRUE);
@@ -84,11 +84,11 @@ NAWcharBuf *ksc5601ToUnicode(const charBuf &ksc5601String, CollHeap *heap, NAWch
 charBuf *unicodeToKsc5601(const NAWcharBuf &unicodeString, CollHeap *heap, charBuf *&ksc5601String,
                           NABoolean addNullAtEnd = TRUE, NABoolean allowInvalidCodePoint = TRUE);
 
-Int32 unicodeToSjisChar(char *sjis, NAWchar wc);
+int unicodeToSjisChar(char *sjis, NAWchar wc);
 
-cnv_charset convertCharsetEnum(Int32 /*i.e. enum CharInfo::CharSet*/ inset);
+cnv_charset convertCharsetEnum(int /*i.e. enum CharInfo::CharSet*/ inset);
 
-const char *getCharsetAsString(Int32 /*i.e. enum CharInfo::CharSet*/ charset);
+const char *getCharsetAsString(int /*i.e. enum CharInfo::CharSet*/ charset);
 
 int UnicodeStringToLocale(int /*i.e. enum CharInfo::CharSet*/ charset, const NAWchar *wstr, int wstrLen,
                             char *buf, int bufLen, NABoolean addNullAtEnd = TRUE,
@@ -97,11 +97,11 @@ int UnicodeStringToLocale(int /*i.e. enum CharInfo::CharSet*/ charset, const NAW
 int LocaleStringToUnicode(int /*i.e. enum CharInfo::CharSet*/ charset, const char *str, int strLen,
                             NAWchar *wstrBuf, int wstrBufLen, NABoolean addNullAtEnd = TRUE);
 
-Int32 localeConvertToUTF8(char *source, int sourceLen, char *target, int targetLen,
+int localeConvertToUTF8(char *source, int sourceLen, char *target, int targetLen,
                           int charset,  // enum cnv_charset type
                           CollHeap *heap = 0, int *charCount = NULL, int *errorByteOff = NULL);
 
-Int32 UTF8ConvertToLocale(char *source, int sourceLen, char *target, int targetLen,
+int UTF8ConvertToLocale(char *source, int sourceLen, char *target, int targetLen,
                           int charset,  // enum cnv_charset type
                           CollHeap *heap = 0, int *charCount = NULL, int *errorByteOff = NULL);
 
@@ -131,17 +131,17 @@ Int32 UTF8ConvertToLocale(char *source, int sourceLen, char *target, int targetL
 // Note that classes NAMemory and CollHeap are the same except for
 // the names.
 // -----------------------------------------------------------------------
-Int32 ComputeWidthInBytesOfMbsForDisplay(const char *pp_cpMbs  // in
+int ComputeWidthInBytesOfMbsForDisplay(const char *pp_cpMbs  // in
                                          ,
-                                         const Int32 pv_iMbsLenInBytes  // in
+                                         const int pv_iMbsLenInBytes  // in
                                          ,
-                                         const Int32 pv_iMaxDisplayLenInBytes  // in
+                                         const int pv_iMaxDisplayLenInBytes  // in
                                          ,
                                          const CharInfo::CharSet pv_eCharSet  // in
                                          ,
-                                         Int32 &pr_iNumOfTranslatedChars  // out - number of chars translated
+                                         int &pr_iNumOfTranslatedChars  // out - number of chars translated
                                          ,
-                                         Int32 &pr_iNumOfNAWchars  // out - width in NAWchar(acters)
+                                         int &pr_iNumOfNAWchars  // out - width in NAWchar(acters)
                                          ,
                                          NAMemory *heap = NULL  // in  - default is process heap
 );
@@ -156,7 +156,7 @@ Int32 ComputeWidthInBytesOfMbsForDisplay(const char *pp_cpMbs  // in
 // Return an error code (a negative number) if encounters an error.  The
 // error code values are defined in w:/common/csconvert.h.
 // -----------------------------------------------------------------------
-Int32 ComputeStrLenInNAWchars(const char *pStr, const Int32 strLenInBytes, const CharInfo::CharSet cs,
+int ComputeStrLenInNAWchars(const char *pStr, const int strLenInBytes, const CharInfo::CharSet cs,
                               NAMemory *workspaceHeap);
 
 // -----------------------------------------------------------------------
@@ -167,20 +167,20 @@ Int32 ComputeStrLenInNAWchars(const char *pStr, const Int32 strLenInBytes, const
 // Return an error code (a negative number) if encounters an error.  The
 // error code values are defined in w:/common/csconvert.h.
 // -----------------------------------------------------------------------
-Int32 ComputeStrLenInUCS4chars(const char *pStr, const Int32 strLenInBytes, const CharInfo::CharSet cs);
+int ComputeStrLenInUCS4chars(const char *pStr, const int strLenInBytes, const CharInfo::CharSet cs);
 
 // convert a Unicode string back to char
 class NAMemory;
-NAString *unicodeToChar(const NAWchar *s, Int32 len, int charset, NAMemory *h = NULL,
+NAString *unicodeToChar(const NAWchar *s, int len, int charset, NAMemory *h = NULL,
                         NABoolean allowInvalidChar = FALSE);
 
 // convert a char string to Unicode
-NAWString *charToUnicode(int charset, const char *s, Int32 len, NAMemory *h = NULL);
+NAWString *charToUnicode(int charset, const char *s, int len, NAMemory *h = NULL);
 NAWString *charToUnicode(int charset, const char *s, NAMemory *h = NULL);
 
 // convert a char string to another char string (in a different character set);
 // if both target and source char sets are the same, do a deep copy.
-NAString *charToChar(int targetCS, const char *s, Int32 sLenInBytes, int sourceCS, NAMemory *h = NULL,
+NAString *charToChar(int targetCS, const char *s, int sLenInBytes, int sourceCS, NAMemory *h = NULL,
                      NABoolean allowInvalidChar = FALSE);
 
 #else
@@ -190,7 +190,7 @@ NAString *charToChar(int targetCS, const char *s, Int32 sLenInBytes, int sourceC
 typedef unsigned short NAWchar;
 typedef NAWchar NAWchar;
 typedef char CollHeap;
-#define NABoolean Int32
+#define NABoolean int
 #define TRUE      1
 #define FALSE     0
 #define NADELETEBASIC(buf_, heap_)

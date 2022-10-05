@@ -90,8 +90,8 @@ NABoolean isParentQueryCanceled() {
   return isCanceled;
 }
 
-Int32 checkAndWaitSnapshotInProgress(NAHeap *heap) {
-  Int32 retcode = 0;
+int checkAndWaitSnapshotInProgress(NAHeap *heap) {
+  int retcode = 0;
   CliGlobals *cliGlobals = GetCliGlobals();
   StatsGlobals *statsGlobals = cliGlobals->getStatsGlobals();
 
@@ -129,8 +129,8 @@ Int32 checkAndWaitSnapshotInProgress(NAHeap *heap) {
   return retcode;
 }
 
-Int32 ExpHbaseInterface_JNI::deleteColumns(HbaseStr &tblName, HbaseStr &column) {
-  Int32 retcode = 0;
+int ExpHbaseInterface_JNI::deleteColumns(HbaseStr &tblName, HbaseStr &column) {
+  int retcode = 0;
 
   LIST(HbaseStr) columns(heap_);
   columns.insert(column);
@@ -142,7 +142,7 @@ Int32 ExpHbaseInterface_JNI::deleteColumns(HbaseStr &tblName, HbaseStr &column) 
   long transID = getTransactionIDFromContext();
   long savepointID;
   long pSavepointId;
-  Int32 isolationLevel = getTransactionIsolationLevelFromContext();
+  int isolationLevel = getTransactionIsolationLevelFromContext();
   savepointID = getSavepointIDFromContext(pSavepointId);
 
   int numReqRows = 100;
@@ -193,7 +193,7 @@ int ExpHbaseInterface::fetchAllRows(HbaseStr &tblName, int numInCols, HbaseStr &
   retcode = init(hbs_);
   if (retcode != HBASE_ACCESS_SUCCESS) return retcode;
 
-  Int32 colValLen;
+  int colValLen;
   char *colName;
   short colNameLen;
   long timestamp;
@@ -324,7 +324,7 @@ int ExpHbaseInterface::coProcAggr(HbaseStr &tblName,
                                     const Text &colName, const NABoolean cacheBlocks, const int numCacheRows,
                                     const NABoolean replSync,
                                     Text &aggrVal,  // returned value
-                                    Int32 isolationLevel, Int32 lockMode) {
+                                    int isolationLevel, int lockMode) {
   return -HBASE_OPEN_ERROR;
 }
 
@@ -921,8 +921,8 @@ int ExpHbaseInterface_JNI::getTable(HbaseStr &tblName) { return -HBASE_ACCESS_ER
 //----------------------------------------------------------------------------
 int ExpHbaseInterface_JNI::scanOpen(
     HbaseStr &tblName, const Text &startRow, const Text &stopRow, const LIST(HbaseStr) & columns,
-    const int64_t timestamp, const NABoolean useHbaseXn, const NABoolean useMemoryScan, const Int32 lockMode,
-    Int32 isolationLevel, const NABoolean skipReadConflict, const NABoolean skipTransaction, const NABoolean replSync,
+    const int64_t timestamp, const NABoolean useHbaseXn, const NABoolean useMemoryScan, const int lockMode,
+    int isolationLevel, const NABoolean skipReadConflict, const NABoolean skipTransaction, const NABoolean replSync,
     const NABoolean cacheBlocks, const NABoolean smallScanner, const int numCacheRows, const NABoolean preFetch,
     const LIST(NAString) * inColNamesToFilter, const LIST(NAString) * inCompareOpList,
     const LIST(NAString) * inColValuesToCompare, int numReplications, Float32 dopParallelScanner, Float32 samplePercent,
@@ -1017,8 +1017,8 @@ int ExpHbaseInterface_JNI::scanClose() {
 
 //----------------------------------------------------------------------------
 int ExpHbaseInterface_JNI::getRowOpen(HbaseStr &tblName, const HbaseStr &row, const LIST(HbaseStr) & columns,
-                                        const int64_t timestamp, int numReplications, const Int32 lockMode,
-                                        Int32 isolationLevel, const NABoolean useMemoryScan,
+                                        const int64_t timestamp, int numReplications, const int lockMode,
+                                        int isolationLevel, const NABoolean useMemoryScan,
                                         const NABoolean skipReadConflict, HbaseAccessOptions *hao,
                                         const char *hbaseAuths, const char *encryptionInfo) {
   long transID = getTransactionIDFromContext();
@@ -1078,8 +1078,8 @@ int ExpHbaseInterface_JNI::getRowOpen(HbaseStr &tblName, const HbaseStr &row, co
 
 //----------------------------------------------------------------------------
 int ExpHbaseInterface_JNI::getRowsOpen(HbaseStr &tblName, const LIST(HbaseStr) * rows, const LIST(HbaseStr) & columns,
-                                         const int64_t timestamp, int numReplications, const Int32 lockMode,
-                                         Int32 isolationLevel, const NABoolean useMemoryScan,
+                                         const int64_t timestamp, int numReplications, const int lockMode,
+                                         int isolationLevel, const NABoolean useMemoryScan,
                                          const NABoolean skipReadConflict, const NABoolean skipTransactionForBatchGet,
                                          HbaseAccessOptions *hao, const char *hbaseAuths, const char *encryptionInfo) {
   long transID = getTransactionIDFromContext();
@@ -1530,8 +1530,8 @@ int ExpHbaseInterface_JNI::updateVisibility(HbaseStr tblName, HbaseStr rowID, Hb
 
 //----------------------------------------------------------------------------
 int ExpHbaseInterface_JNI::getRowsOpen(HbaseStr tblName, short rowIDLen, HbaseStr rowIDs,
-                                         const LIST(HbaseStr) & columns, int numReplications, const Int32 lockMode,
-                                         Int32 isolationLevel, const NABoolean useMemoryScan,
+                                         const LIST(HbaseStr) & columns, int numReplications, const int lockMode,
+                                         int isolationLevel, const NABoolean useMemoryScan,
                                          const NABoolean skipReadConflict, const NABoolean skipTransactionForBatchGet,
                                          const char *encryptionInfo) {
   long transID;
@@ -1980,7 +1980,7 @@ int ExpHbaseInterface_JNI::coProcAggr(HbaseStr &tblName,
                                         const Text &colName, const NABoolean cacheBlocks, const int numCacheRows,
                                         const NABoolean replSync,
                                         Text &aggrVal,  // returned value
-                                        Int32 isolationLevel, Int32 lockMode) {
+                                        int isolationLevel, int lockMode) {
   switch (storageType_) {
     case COM_STORAGE_MONARCH:
 
@@ -2296,7 +2296,7 @@ int ExpHbaseInterface_JNI::nextCell(HbaseStr &rowId, HbaseStr &colFamName, Hbase
   return -HBASE_ACCESS_ERROR;
 }
 
-int ExpHbaseInterface_JNI::completeAsyncOperation(Int32 timeout, NABoolean *resultArray, Int16 resultArrayLen) {
+int ExpHbaseInterface_JNI::completeAsyncOperation(int timeout, NABoolean *resultArray, Int16 resultArrayLen) {
   switch (storageType_) {
     case COM_STORAGE_MONARCH:
 
@@ -2323,9 +2323,9 @@ int ExpHbaseInterface_JNI::completeAsyncOperation(Int32 timeout, NABoolean *resu
 // Get an estimate of the number of rows in table tblName. Pass in the
 // fully qualified table name and the number of columns in the table.
 // The row count estimate is returned in estRC.
-int ExpHbaseInterface_JNI::estimateRowCount(HbaseStr &tblName, Int32 partialRowSize, Int32 numCols,
-                                              Int32 retryLimitMilliSeconds, NABoolean useCoprocessor, long &estRC,
-                                              Int32 &breadCrumb) {
+int ExpHbaseInterface_JNI::estimateRowCount(HbaseStr &tblName, int partialRowSize, int numCols,
+                                              int retryLimitMilliSeconds, NABoolean useCoprocessor, long &estRC,
+                                              int &breadCrumb) {
   breadCrumb = 11;
   switch (storageType_) {
     case COM_STORAGE_MONARCH:
@@ -2346,7 +2346,7 @@ int ExpHbaseInterface_JNI::estimateRowCount(HbaseStr &tblName, Int32 partialRowS
 }
 
 // get nodeNames of regions. this information will be used to co-locate ESPs
-int ExpHbaseInterface_JNI::getRegionsNodeName(const HbaseStr &tblName, Int32 partns,
+int ExpHbaseInterface_JNI::getRegionsNodeName(const HbaseStr &tblName, int partns,
                                                 ARRAY(const char *) & nodeNames) {
   switch (storageType_) {
     case COM_STORAGE_MONARCH:
@@ -2365,7 +2365,7 @@ int ExpHbaseInterface_JNI::getRegionsNodeName(const HbaseStr &tblName, Int32 par
 // Get Hbase Table information. This will be generic function to get needed information
 // from Hbase layer. Currently index level and blocksize is being requested for use in
 // costing code, but can be extended in the future so that we only make one JNI call.
-int ExpHbaseInterface_JNI::getHbaseTableInfo(const HbaseStr &tblName, Int32 &indexLevels, Int32 &blockSize) {
+int ExpHbaseInterface_JNI::getHbaseTableInfo(const HbaseStr &tblName, int &indexLevels, int &blockSize) {
   switch (storageType_) {
     case COM_STORAGE_MONARCH:
       retCode_ = HBASE_ACCESS_SUCCESS;
@@ -2444,7 +2444,7 @@ NAArray<HbaseStr> *ExpHbaseInterface_JNI::getRegionStats(const HbaseStr &tblName
   return regionStats;
 }
 
-NAArray<HbaseStr> *ExpHbaseInterface_JNI::getClusterStats(Int32 &numEntries) {
+NAArray<HbaseStr> *ExpHbaseInterface_JNI::getClusterStats(int &numEntries) {
   if (client_ == NULL) {
     if (init(hbs_) != HBASE_ACCESS_SUCCESS) return NULL;
   }
@@ -2575,7 +2575,7 @@ int ExpHbaseInterface_JNI::deleteSeqRow(NAString &tabName, NAString &rowId) {
     return -HBC_ERROR_DELETE_SEQ_ROW_EXCEPTION;
 }
 
-int ExpHbaseInterface_JNI::getLockErrorNum(Int32 retCode) {
+int ExpHbaseInterface_JNI::getLockErrorNum(int retCode) {
   if (retCode == HTC_ERROR_LOCK_ROLLBACK_EXCEPTION || retCode == HBC_ERROR_LOCK_ROLLBACK_EXCEPTION)
     return -HBASE_LOCK_ROLLBACK_ERROR;
   else if (retCode == HTC_ERROR_LOCK_TIME_OUT_EXCEPTION || retCode == HBC_ERROR_LOCK_TIME_OUT_EXCEPTION)

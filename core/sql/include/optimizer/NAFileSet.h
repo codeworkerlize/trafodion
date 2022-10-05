@@ -81,7 +81,7 @@ class NAFileSet : public NABasicObject {
   // ---------------------------------------------------------------------
   NAFileSet(const QualifiedName &fileSetName, const QualifiedName &extFileSetObj, const NAString &extFileSetName,
             enum FileOrganizationEnum org, NABoolean isSystemTable, int countOfFiles,
-            Cardinality estimatedNumberOfRecords, int recordLength, int blockSize, Int32 indexLevels,
+            Cardinality estimatedNumberOfRecords, int recordLength, int blockSize, int indexLevels,
             const NAColumnArray &allColumns, const NAColumnArray &indexKeyColumns,
             const NAColumnArray &horizontalPartKeyColumns, const NAColumnArray &hiveSortKeyColumns,
             PartitioningFunction *forHorizontalPartitioning, short keytag, long redefTime, NABoolean audited,
@@ -116,7 +116,7 @@ class NAFileSet : public NABasicObject {
   //   user (salt,replica included unless exludeSystemColumns is also set).
   //   Returns 0 when called on the clusteringindex.
   // - Other options should be self-explanatory.
-  Int32 getCountOfColumns(NABoolean excludeNonKeyColumns = FALSE,
+  int getCountOfColumns(NABoolean excludeNonKeyColumns = FALSE,
                           NABoolean excludeNonUserSpecifiedAlternateIndexColumns = FALSE,
                           NABoolean excludeSystemColumns = TRUE,
                           NABoolean excludeAlwaysComputedSystemColumns = FALSE) const;
@@ -135,7 +135,7 @@ class NAFileSet : public NABasicObject {
   int getEncodedKeyLength();
   int getBlockSize() const { return blockSize_; }
 
-  Int32 getIndexLevels() const { return indexLevels_; }
+  int getIndexLevels() const { return indexLevels_; }
 
   int getPackingScheme() const { return packingScheme_; }
   int getPackingFactor() const { return packingFactor_; }
@@ -149,7 +149,7 @@ class NAFileSet : public NABasicObject {
   int numInitialSaltRegions() const { return numInitialSaltRegions_; }
   Int16 numTrafReplicas() const { return numTrafReplicas_; }
   NAList<HbaseCreateOption *> *hbaseCreateOptions() const { return hbaseCreateOptions_; }
-  Int32 numHivePartCols() const;
+  int numHivePartCols() const;
 
   int numMaxVersions() const { return numMaxVersions_; }
 
@@ -158,7 +158,7 @@ class NAFileSet : public NABasicObject {
   // ---------------------------------------------------------------------
 
   void setCountOfFiles(int count) { countOfFiles_ = count; }
-  void setIndexLevels(Int32 numLevels) { indexLevels_ = numLevels; }
+  void setIndexLevels(int numLevels) { indexLevels_ = numLevels; }
   void setHasRemotePartitions(NABoolean flag) { hasRemotePartition_ = flag; }
   void setPartitioningFunction(PartitioningFunction *pFunc) { partFunc_ = pFunc; }
   void setFileSetName(QualifiedName &rhs) { fileSetName_ = rhs; }
@@ -171,7 +171,7 @@ class NAFileSet : public NABasicObject {
   NABoolean isKeySequenced() const { return (fileOrganization_ == KEY_SEQUENCED_FILE); }
   NABoolean isHashed() const { return (fileOrganization_ == HASH_FILE); }
   NABoolean isSyskeyLeading() const;
-  Int32 getSysKeyPosition() const;
+  int getSysKeyPosition() const;
   NABoolean hasSyskey() const;
   NABoolean hasOnlySyskey() const;
   NABoolean hasSingleColVarcharKey() const;
@@ -352,7 +352,7 @@ class NAFileSet : public NABasicObject {
   // per file. But, for now, we save the maximum of the index levels
   // of the files that belong to this fileset.
   // ---------------------------------------------------------------------
-  Int32 indexLevels_;
+  int indexLevels_;
 
   // ---------------------------------------------------------------------
   // Array of all the columns that appear in each record in every file

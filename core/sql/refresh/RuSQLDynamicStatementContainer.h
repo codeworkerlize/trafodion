@@ -175,8 +175,8 @@ class CRUSQLDynamicStatementContainer::DynamicStmt : public CRUSQLDynamicStateme
   // Is the statment already prepared ?
   BOOL prepared_;
   CDSString params_[MAX_COMPILED_PARAMS];
-  Int32 paramsPos_[MAX_COMPILED_PARAMS];
-  Int32 paramSumStringSize_;
+  int paramsPos_[MAX_COMPILED_PARAMS];
+  int paramSumStringSize_;
 };
 
 //--------------------------------------------------------------------------//

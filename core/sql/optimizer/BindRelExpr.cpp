@@ -225,7 +225,7 @@ static RETDesc *bindRowValues(BindWA *bindWA, ItemExpr *exprTree, ValueIdList &v
             (colRef->getCompArrIndexes()[colRef->getCompArrIndexes().entries() - 1] > 0)) {
           NAString newName(colRef->getColRefNameObj().getColName());
           char tmpStr[100];
-          Int32 indexVal = colRef->getCompArrIndexes()[colRef->getCompArrIndexes().entries() - 1];
+          int indexVal = colRef->getCompArrIndexes()[colRef->getCompArrIndexes().entries() - 1];
 
           if (CmpCommon::getDefault(HIVE_ARRAY_INDEX_MODE) == DF_ON) indexVal--;
 
@@ -1191,7 +1191,7 @@ NARoutine *BindWA::getNARoutine(const QualifiedName &name) {
     } else
       routineHeap = CmpCommon::statementHeap();
 
-    Int32 errors = 0;
+    int errors = 0;
     naRoutine = new (routineHeap) NARoutine(name, udfMetadata, this, errors, routineHeap);
     if (NULL == naRoutine || errors != 0) {
       setErrStatus();
@@ -1447,7 +1447,7 @@ NATable *BindWA::getNATable(CorrName &corrName,
         table->getTableName().getUnqualifiedObjectNameAsAnsiString());
 
     // Get a description of the associated Trafodion table
-    Int32 numNameParts = 3;
+    int numNameParts = 3;
     QualifiedName adjustedQualName(adjustedName, numNameParts, STMTHEAP, bindWA);
     CorrName externalCorrName(adjustedQualName, STMTHEAP);
     NATable *nativeNATable =
@@ -1641,11 +1641,11 @@ TableDesc *BindWA::createTableDesc(const NATable *naTable, CorrName &corrName, N
       return NULL;
     }
 
-    Int32 partColCount = naTable->getPartitionColCount();
+    int partColCount = naTable->getPartitionColCount();
     ValueIdList &partColList = tdesc->getPartColList();
-    const Int32 *colIdxArray = naTable->getPartitionColIdxArray();
+    const int *colIdxArray = naTable->getPartitionColIdxArray();
     const ValueIdList colList = tdesc->getColumnList();
-    for (Int32 i = 0; i < partColCount; i++) {
+    for (int i = 0; i < partColCount; i++) {
       ItemExpr *colExpr = colList[colIdxArray[i]].getItemExpr();
       partColList.addMember(colExpr);
     }
@@ -1662,11 +1662,11 @@ TableDesc *BindWA::createTableDesc(const NATable *naTable, CorrName &corrName, N
     }
     */
     if (partList.entries() > 0) {
-      Int32 partColCount = naTable->getPartitionColCount();
+      int partColCount = naTable->getPartitionColCount();
       ValueIdList &partColList = tdesc->getPartColList();
-      const Int32 *colIdxArray = naTable->getPartitionColIdxArray();
+      const int *colIdxArray = naTable->getPartitionColIdxArray();
       const ValueIdList colList = tdesc->getColumnList();
-      for (Int32 i = 0; i < partColCount; i++) {
+      for (int i = 0; i < partColCount; i++) {
         ItemExpr *colExpr = colList[colIdxArray[i]].getItemExpr();
         partColList.addMember(colExpr);
       }
@@ -1800,8 +1800,8 @@ static void propagateDeleteAndStream(RelExpr *re, GroupAttributes *ga) {
 
   if (ga->isSkipInitialScan()) re->getGroupAttr()->setSkipInitialScan(TRUE);
 
-  Int32 arity = re->getArity();
-  for (Int32 i = 0; i < arity; i++) {
+  int arity = re->getArity();
+  for (int i = 0; i < arity; i++) {
     if (re->child(i)) propagateDeleteAndStream(re->child(i), ga);
   }
 }
@@ -2266,8 +2266,8 @@ void RelExpr::bindChildren(BindWA *bindWA) {
 
   // TSJ's flow their data from left child to right child;
   // some can also share binding scope column info from left to right.
-  Int32 arity = getArity();
-  for (Int32 i = 0; i < arity; i++) {
+  int arity = getArity();
+  for (int i = 0; i < arity; i++) {
     if (child(i)) {
       // If doing a non-first child and the operator is
       // NOT one in which values/names can flow from one scope
@@ -2299,7 +2299,7 @@ void RelExpr::synthPropForBindChecks()  // QSTUFF
   // specified both must be specified for the same
   // result-set/base table.
 
-  for (Int32 j = 0; j < getArity(); j++) {
+  for (int j = 0; j < getArity(); j++) {
     if (child(j)) {
       if (child(j)->getGroupAttr()->isStream()) {
         getGroupAttr()->setStream(TRUE);
@@ -2611,7 +2611,7 @@ RelExpr *Join::bindNode(BindWA *bindWA) {
     ExeUtilCompositeUnnest *comp = (ExeUtilCompositeUnnest *)rightRelExpr;
     ValueIdList &vidList = comp->getAddnlColsVIDList();
     ItemExpr *predTree = NULL;
-    for (Int32 i = 0; i < vidList.entries(); i++) {
+    for (int i = 0; i < vidList.entries(); i++) {
       ValueId &vid = vidList[i];
 
       ItemExpr *ie = vid.getItemExpr();
@@ -2725,7 +2725,7 @@ RelExpr *Join::bindNode(BindWA *bindWA) {
   }
   RETDesc *resultTable = new (bindWA->wHeap()) RETDesc(bindWA);
 
-  Int32 rowSet = (child(0)->getOperatorType() == REL_RENAME_TABLE) &&
+  int rowSet = (child(0)->getOperatorType() == REL_RENAME_TABLE) &&
                  (child(0)->child(0)->getOperatorType() == REL_UNPACKROWS) && (child(1)->getOperatorType() == REL_ROOT);
 
   if (NOT isNaturalJoin()) {
@@ -2941,7 +2941,7 @@ void Join::BuildLeftChildMapForRightJoin() {
 }
 
 ItemExpr *Join::buildDefaultOrderByForRownum(BindWA *bindWA) {
-  Int32 childIdx = 0;
+  int childIdx = 0;
   ItemExpr *result1 = NULL;
   ItemExpr *result2 = NULL;
 
@@ -3558,7 +3558,7 @@ void Union::dumpChildrensRETDescs(const RETDesc &leftTable, const RETDesc &right
 
 static NABoolean containsGenericUpdate(const RelExpr *re) {
   if (re->getOperator().match(REL_ANY_GEN_UPDATE)) return TRUE;
-  for (Int32 i = 0; i < re->getArity(); ++i) {
+  for (int i = 0; i < re->getArity(); ++i) {
     if (re->child(i) && containsGenericUpdate(re->child(i))) return TRUE;
   }
   return FALSE;
@@ -3566,7 +3566,7 @@ static NABoolean containsGenericUpdate(const RelExpr *re) {
 
 static NABoolean containsUpdateOrDelete(const RelExpr *re) {
   if (re->getOperator().match(REL_ANY_UPDATE_DELETE)) return TRUE;
-  for (Int32 i = 0; i < re->getArity(); ++i) {
+  for (int i = 0; i < re->getArity(); ++i) {
     if (re->child(i) && containsUpdateOrDelete(re->child(i))) return TRUE;
   }
   return FALSE;
@@ -3579,7 +3579,7 @@ static GenericUpdate *getGenericUpdate(RelExpr *re) {
     if (re->getOperatorType() == REL_UNARY_UPDATE || re->getOperatorType() == REL_UNARY_DELETE)
       return (GenericUpdate *)re;
 
-    for (Int32 i = 0; i < re->getArity(); ++i) {  // check all children (both sides)
+    for (int i = 0; i < re->getArity(); ++i) {  // check all children (both sides)
       GenericUpdate *gu = getGenericUpdate(re->child(i));
       if (gu) return gu;
     }
@@ -3671,7 +3671,7 @@ static short replaceRenamedColInHavingWithSelIndex(BindWA *bindWA, ItemExpr *exp
     return 0;
   }
 
-  for (Int32 i = 0; i < expr->getArity(); i++) {
+  for (int i = 0; i < expr->getArity(); i++) {
     CollIndex j = 0;
     if (isRenamedColInSelList(bindWA, expr->child(i), origSelectList, j, childRETDesc)) {
       SelIndex *selIndex = new (bindWA->wHeap()) SelIndex(j + 1);
@@ -3693,7 +3693,7 @@ static short setValueIdForRenamedColsInHaving(BindWA *bindWA, ItemExpr *expr, Va
     return 0;
   }
 
-  for (Int32 i = 0; i < expr->getArity(); i++) {
+  for (int i = 0; i < expr->getArity(); i++) {
     if (expr->child(i)->getOperatorType() == ITM_SEL_INDEX) {
       SelIndex *si = (SelIndex *)expr->child(i)->castToItemExpr();
       si->setValueId(compExpr[si->getSelIndex() - 1]);
@@ -3711,7 +3711,7 @@ static short setValueIdForRenamedColsInHaving(BindWA *bindWA, ItemExpr *expr, Va
 static void fixUpSelectIndecies(ItemExpr *expr, ValueIdSet &updatedIndecies, CollIndex idx, CollIndex offset) {
   if (expr == NULL) return;
 
-  for (Int32 i = 0; i < expr->getArity(); i++) {
+  for (int i = 0; i < expr->getArity(); i++) {
     // Only update ones that we haven't already done.
     if ((expr->child(i)->getOperatorType() == ITM_SEL_INDEX) &&
         !updatedIndecies.contains(expr->child(i)->getValueId())) {
@@ -4035,7 +4035,7 @@ RelRoot *RelRoot::transformGroupByWithOrdinalPhase1(BindWA *bindWA) {
     NABoolean found = FALSE;
     if ((currGroupByItemExpr->getOperatorType() != ITM_REFERENCE) &&
         (currGroupByItemExpr->getOperatorType() != ITM_SEL_INDEX) && (lookForExprInGroupByClause)) {
-      Int32 selListIndex = -1, lastMatch = -1;
+      int selListIndex = -1, lastMatch = -1;
       CollIndex j = 0;
       while ((NOT found) && (j < origSelectListCount)) {
         ItemExpr *selectListEntry = origSelectList[j];
@@ -4827,7 +4827,7 @@ ItemExpr *RelRoot::buildDefaultOrderByForRownum(BindWA *bindWA, const CorrName *
         NABoolean rownumFoundInSubRoot = FALSE;
 
         NAList<ItemExpr *> parentItmList(bindWA->wHeap());
-        NAList<Int32> parentArityList(bindWA->wHeap());
+        NAList<int> parentArityList(bindWA->wHeap());
 
         if (NULL != subroot->getCompExprTree()) {
           rownumFoundInSubRoot =
@@ -4931,7 +4931,7 @@ ItemExpr *RelRoot::buildDefaultOrderByForRownum(BindWA *bindWA, const CorrName *
 }
 
 NABoolean RelRoot::detectRownumReference(ItemExpr *itm, NAList<ItemExpr *> &parentItmList,
-                                         NAList<Int32> &parentArityList, ItemExpr *parent, Int32 arity) {
+                                         NAList<int> &parentArityList, ItemExpr *parent, int arity) {
   if (NULL == itm) return FALSE;
 
   if (itm->getOperator() == ITM_ROWNUM) {
@@ -4985,7 +4985,7 @@ void RelRoot::processRownum(BindWA *bindWA) {
       CorrName newCorrName(tmpCorr);
 
       NAList<ItemExpr *> parentItmList(bindWA->wHeap());
-      NAList<Int32> parentArityList(bindWA->wHeap());
+      NAList<int> parentArityList(bindWA->wHeap());
 
       // check if rownum exists in select list
       if (NULL != getCompExprTree()) {
@@ -5008,7 +5008,7 @@ void RelRoot::processRownum(BindWA *bindWA) {
 
             // replace rownum reference with row_number() over() function
             if (parentItmList.entries() > 0) {
-              for (Int32 idx = 0; idx < parentItmList.entries(); idx++) {
+              for (int idx = 0; idx < parentItmList.entries(); idx++) {
                 parentItmList[idx]->setChild(parentArityList[idx], rownumAgg);
               }
             } else {
@@ -5067,7 +5067,7 @@ void RelRoot::processRownum(BindWA *bindWA) {
           rownumInLeft = detectRownumReference(child0, parentItmList, parentArityList, ie, 0);
           rownumInRight = detectRownumReference(child1, parentItmList, parentArityList, ie, 1);
 
-          Int32 posFlag = 0;  // tell whether this predicate is equivalent to (ROWNUM = / < / <= 10)
+          int posFlag = 0;  // tell whether this predicate is equivalent to (ROWNUM = / < / <= 10)
 
           if (FALSE == rownumInLeft && FALSE == rownumInRight) {
             // no ROWNUM found
@@ -5086,7 +5086,7 @@ void RelRoot::processRownum(BindWA *bindWA) {
             NABoolean tmp;
             ConstValue *cv = rowLimitExpr->castToConstValue(tmp);
             if (NULL != cv && cv->canGetExactNumericValue()) {
-              Int32 predFlag = 0;
+              int predFlag = 0;
               if (ITM_EQUAL == ie->getOperatorType())
                 predFlag = 1;
               else if (ie->getOperatorType() == ITM_GREATER || ie->getOperatorType() == ITM_GREATER_EQ)
@@ -5767,7 +5767,7 @@ RelExpr *RelRoot::bindNode(BindWA *bindWA) {
     if (isOlapMultiWindowTopRoot()) {
       // empty name
       ColRefName crn(bindWA->wHeap());
-      for (Int32 i = 0; i < getRETDesc()->getColumnList()->entries(); i++) {
+      for (int i = 0; i < getRETDesc()->getColumnList()->entries(); i++) {
         if (getRETDesc()->getColRefNameObj(i).isOLAPInternal()) ((ColRefName &)getRETDesc()->getColRefNameObj(i)) = crn;
       }
     }
@@ -5805,9 +5805,9 @@ RelExpr *RelRoot::bindNode(BindWA *bindWA) {
   if (isTrueRoot() && (child(0)) &&
       (child(0)->getOperatorType() != REL_CALLSP &&
        (child(0)->getOperatorType() != REL_COMPOUND_STMT &&
-        (child(0)->getOperatorType() != REL_TUPLE && (Int32)getRETDesc()->getDegree() != 0))) &&
+        (child(0)->getOperatorType() != REL_TUPLE && (int)getRETDesc()->getDegree() != 0))) &&
       (child(0)->getOperatorType() != REL_UNION || (!((Union *)(RelExpr *)child(0))->getUnionForIF())) &&
-      outputVarCntValid() && outputVarCnt() != (Int32)getRETDesc()->getDegree() &&
+      outputVarCntValid() && outputVarCnt() != (int)getRETDesc()->getDegree() &&
       (outputVarCnt() || CmpCommon::context()->GetMode() != STMT_DYNAMIC)) {
     // 4093 The number of output parameters ($0) must equal the number of cols
     // 4094 The number of output host vars  ($0) must equal the number of cols
@@ -6037,7 +6037,7 @@ RelExpr *RelRoot::bindNode(BindWA *bindWA) {
 
     ItemExpr *sPtr = orderByTree, *ePtr = orderByTree;
 
-    Int32 childIdx = 0;
+    int childIdx = 0;
     NABoolean onlyOneEntry(TRUE);
 
     CollIndex selListCount = compExpr().entries();
@@ -6311,7 +6311,7 @@ RelExpr *RelRoot::bindNode(BindWA *bindWA) {
       pkeyList().insert(child(0)->castToRelExpr()->getLeftmostScanNode()->pkeyHvarList());
     }
 
-    for (Int32 st = 0; st < (Int32)bindWA->getStoiList().entries(); st++) {
+    for (int st = 0; st < (int)bindWA->getStoiList().entries(); st++) {
       if (bindWA->getStoiList()[st]->getStoi()->isView()) viewStoiList_.insert(bindWA->getStoiList()[st]);
     }
 
@@ -6762,7 +6762,7 @@ NABoolean RelRoot::checkPrivileges(BindWA *bindWA) {
   // Note: The following code doesn't care about the object's hash value or the resulting
   // ComSecurityKey's ActionType....we just need the hash value for the User's ID.
   int64_t objectUID = 12345;
-  Int32 thisUserID = ComUser::getCurrentUser();
+  int thisUserID = ComUser::getCurrentUser();
   ComSecurityKey userKey(thisUserID, objectUID, SELECT_PRIV, ComSecurityKey::OBJECT_IS_OBJECT);
   uint32_t userHashValue = userKey.getSubjectHashValue();
 
@@ -6779,7 +6779,7 @@ NABoolean RelRoot::checkPrivileges(BindWA *bindWA) {
   int result = gettimeofday(&now, NULL);
   CMPASSERT(result == 0);
 
-  for (Int32 i = 0; i < (Int32)bindWA->getStoiList().entries(); i++) {
+  for (int i = 0; i < (int)bindWA->getStoiList().entries(); i++) {
     RemoveNATableEntryFromCache = FALSE;  // Initialize each time through loop
     optStoi = (bindWA->getStoiList())[i];
     stoi = optStoi->getStoi();
@@ -6844,7 +6844,7 @@ NABoolean RelRoot::checkPrivileges(BindWA *bindWA) {
   // ==> Check privileges for functions and procedures used in the query.
   NABoolean RemoveNARoutineEntryFromCache = FALSE;
   if (bindWA->getUdrStoiList().entries()) {
-    for (Int32 i = 0; i < (Int32)bindWA->getUdrStoiList().entries(); i++) {
+    for (int i = 0; i < (int)bindWA->getUdrStoiList().entries(); i++) {
       // Privilege info for the user/routine combination is stored in the
       // NARoutine object.
       OptUdrOpenInfo *udrStoi = (bindWA->getUdrStoiList())[i];
@@ -6886,7 +6886,7 @@ NABoolean RelRoot::checkPrivileges(BindWA *bindWA) {
   }    // end if any UDRs.
 
   // ==> Check privs on any sequence generators used in the query.
-  for (Int32 i = 0; i < (Int32)bindWA->getSeqValList().entries(); i++) {
+  for (int i = 0; i < (int)bindWA->getSeqValList().entries(); i++) {
     RemoveNATableEntryFromCache = FALSE;  // Initialize each time through loop
     SequenceValue *seqVal = (bindWA->getSeqValList())[i];
     NATable *tab = const_cast<NATable *>(seqVal->getNATable());
@@ -7014,7 +7014,7 @@ void RelRoot::findKeyAndInsertInOutputList(ComSecurityKeySet KeysForTab, const u
   uint32_t hashValueOfPublic = ComSecurityKey::SPECIAL_OBJECT_HASH;
 
   // Traverse List looking for ANY appropriate ComSecurityKey
-  for (Int32 ii = 0; ii < (Int32)(KeysForTab.entries()); ii++) {
+  for (int ii = 0; ii < (int)(KeysForTab.entries()); ii++) {
     thisKey = &(KeysForTab[ii]);
 
     // See if the key is column related
@@ -7970,8 +7970,8 @@ RelExpr *Scan::bindNode(BindWA *bindWA) {
         saltColFound = TRUE;
         // create a predicate "_SALT_" = <num> or
         // "_SALT_" between <num> and <num>
-        Int32 beginPartNum = partFunc->getRestrictedBeginPartNumber() - 1;
-        Int32 endPartNum = partFunc->getRestrictedEndPartNumber() - 1;
+        int beginPartNum = partFunc->getRestrictedBeginPartNumber() - 1;
+        int endPartNum = partFunc->getRestrictedEndPartNumber() - 1;
 
         // fill in defaults, indicated by -1 (-2 after subtraction above)
         if (beginPartNum < 0) beginPartNum = 0;
@@ -8651,8 +8651,8 @@ RelExpr *TupleList::pushDownCharType(BindWA *bindWA, enum CharInfo::CharSet cs,
   // mimic CharType::findPushDownCharType() logic
   const CharType *dctp = CharType::desiredCharType(cs);
   NAList<const CharType *> sampleCharType(CmpCommon::statementHeap(), arity);
-  NAList<Int32> total(CmpCommon::statementHeap(), arity);
-  NAList<Int32> ct(CmpCommon::statementHeap(), arity);
+  NAList<int> total(CmpCommon::statementHeap(), arity);
+  NAList<int> ct(CmpCommon::statementHeap(), arity);
   CollIndex t, x;
   for (x = 0; x < arity; x++) {  // initialize
     total.insert(0);
@@ -8754,7 +8754,7 @@ RelExpr *RenameTable::bindNode(BindWA *bindWA) {
       indexExpr = ((Rowset *)getChild(0))->getIndexName();
       if ((indexExpr != "") && newColNamesTree_) {
         for (tempPtr = newColNamesTree_; tempPtr; tempPtr = tempPtr->child(1)) {
-          Int32 arity = tempPtr->getArity();
+          int arity = tempPtr->getArity();
           if (arity == 1) {
             lastString = ((RenameCol *)tempPtr)->getNewColRefName()->getColName();
           }
@@ -9653,7 +9653,7 @@ RelExpr *Insert::bindNode(BindWA *bindWA) {
       ItemExprList selColList(bindWA->wHeap());
       child(0)->selectList()->convertToValueIdList(selList, bindWA, ITM_ITEM_LIST);
       auto list = bindWA->extendedSelList();
-      for (Int32 n = 0; n < origSelectList.entries(); n++) {
+      for (int n = 0; n < origSelectList.entries(); n++) {
         NAString result;
         if (origSelectList[n]->getOperatorType() == ITM_REFERENCE &&
             ((ColReference *)origSelectList[n])->getColRefNameObj().isStar()) {
@@ -9679,18 +9679,18 @@ RelExpr *Insert::bindNode(BindWA *bindWA) {
       CMPASSERT(tgtColList.entries() == selColList.entries());
       LIST(Partition *) partitionList = tableDesc->getPartitionList();
       CMPASSERT(partitionList.entries() == 1);
-      Int32 partColCount = naTable->getPartitionColCount();
+      int partColCount = naTable->getPartitionColCount();
       ValueIdList partColList = tableDesc->getPartColList();
       ItemExpr *lowColExpr = NULL;
       ItemExpr *highColExpr = NULL;
-      Int32 maxvalIdx = partitionList[0]->getFirstMaxvalIdx();
-      for (Int32 i = 0; i < partColCount; i++) {
+      int maxvalIdx = partitionList[0]->getFirstMaxvalIdx();
+      for (int i = 0; i < partColCount; i++) {
         ItemExpr *colExpr = partColList[i].getItemExpr();
-        Int32 partColPos = partColList[i].getNAColumn(0)->getPosition();
-        Int32 tgtColCount = tgtColList.entries();
-        for (Int32 j = 0; j < tgtColCount; j++) {
+        int partColPos = partColList[i].getNAColumn(0)->getPosition();
+        int tgtColCount = tgtColList.entries();
+        for (int j = 0; j < tgtColCount; j++) {
           ItemExpr *tmpExpr = tgtColList[j].getItemExpr();
-          Int32 tgtColPos = tgtColList[j].getNAColumn(0)->getPosition();
+          int tgtColPos = tgtColList[j].getNAColumn(0)->getPosition();
           if (partColPos == tgtColPos) {
             if (partitionList[0]->getlowBoundary()) {
               if (!lowColExpr)
@@ -9739,9 +9739,9 @@ RelExpr *Insert::bindNode(BindWA *bindWA) {
       CmpCommon::context()->setNeedsRetryWithCachingOff(TRUE);
     /*
         // check if all the partition columns are included in the update list
-        const Int32 *colIdxArray = naTable->getPartitionColIdxArray();
-        const Int32 &colCount = naTable->getPartitionColCount();
-        Int32 found = 0;
+        const int *colIdxArray = naTable->getPartitionColIdxArray();
+        const int &colCount = naTable->getPartitionColCount();
+        int found = 0;
         for ( int i = 0; i < colCount; i++ )
         {
           for ( int j = 0; j < colnoList.entries(); j++ )
@@ -11111,7 +11111,7 @@ const char *Insert::getColDefaultValue(BindWA *bindWA, CollIndex i) const {
     charBuf *pCharBuf = NULL;  // must set this variable to NULL so the
                                // following function call will allocate
                                // space for the output literal string
-    Int32 errorcode = 0;
+    int errorcode = 0;
     pCharBuf = unicodeTocset(*pWcharBuf, bindWA->wHeap(), pCharBuf, mapCS, errorcode);
     // Earlier releases  treated the converted multibyte character
     // string, in ISO_MAPPING character set, as if it is a string of
@@ -12034,7 +12034,7 @@ static BoundaryValue *getPartBoundaryValue(const NAColumn *nacol) {
   const NAPartitionArray &partList = naTable->getPartitionArray();
   CMPASSERT(partList.entries() == 1);
   LIST(BoundaryValue *) &boundList = partList[0]->getBoundaryValueList();
-  Int32 partColCount = naTable->getPartitionColCount();
+  int partColCount = naTable->getPartitionColCount();
   CMPASSERT(boundList.entries() == partColCount);
   const NAColumnArray &colArray = naTable->getNAColumnArray();
   const int *colIdxArray = naTable->getPartitionColIdxArray();
@@ -12468,7 +12468,7 @@ void getScanPreds(RelExpr *start, ValueIdSet &preds) {
 //  'avoidHalloweenR2' flag in the subquery and this generic Update so
 //  that the optimizer will pick a plan that is Halloween safe.
 //
-NABoolean GenericUpdate::checkForHalloweenR2(Int32 numScansToFind) {
+NABoolean GenericUpdate::checkForHalloweenR2(int numScansToFind) {
   // If there are no scans, no problem, return okay (FALSE)
   //
   if (numScansToFind == 0) {
@@ -12482,7 +12482,7 @@ NABoolean GenericUpdate::checkForHalloweenR2(Int32 numScansToFind) {
 
   // Number of scans of the target table found so far.
   //
-  Int32 numHalloweenScans = 0;
+  int numHalloweenScans = 0;
 
   // Get the primary source of the generic update.  We are looking for
   // the halloween scans in the predicates of this scan node
@@ -12537,7 +12537,7 @@ NABoolean GenericUpdate::checkForHalloweenR2(Int32 numScansToFind) {
 
           // Follow all the children as well.
           //
-          for (Int32 i = 0; i < term->getArity(); i++) {
+          for (int i = 0; i < term->getArity(); i++) {
             children += term->child(i)->getValueId();
           }
         }
@@ -12776,7 +12776,7 @@ RelExpr *GenericUpdate::bindNode(BindWA *bindWA) {
     return NULL;
   }
 
-  Int32 beforeRefcount = naTable->getReferenceCount();
+  int beforeRefcount = naTable->getReferenceCount();
 
   OptSqlTableOpenInfo *listedStoi = setupStoi(stoi_, bindWA, this, naTable, getTableName());
 
@@ -13396,11 +13396,11 @@ RelExpr *GenericUpdate::bindNode(BindWA *bindWA) {
     }
 
     const QualifiedName &tableBaseName = naTableBase->getTableName();
-    Int32 afterRefcount = naTableBase->getReferenceCount();
+    int afterRefcount = naTableBase->getReferenceCount();
     NABoolean isSGTableType = getTableName().getSpecialType() == ExtendedQualName::SG_TABLE;
 
     NAString viewFmtdList(bindWA->wHeap());
-    Int32 baseSeenInSrc = 0;
+    int baseSeenInSrc = 0;
 
     // The views on the table do not need to be obtained
     // if the table type is a SEQUENCE GENERATOR
@@ -14167,7 +14167,7 @@ RelExpr *ControlQueryDefault::bindNode(BindWA *bindWA) {
   defs.setState(NADefaults::SET_BY_CQD);
 
   if (defs.isReadonlyAttribute(token_) == TRUE) {
-    Int32 attrNum = defs.lookupAttrName(token_);
+    int attrNum = defs.lookupAttrName(token_);
 
     if (stricmp(value_, defs.getValue(attrNum)) != 0) {
       if (CmpCommon::getDefault(DISABLE_READ_ONLY) == DF_OFF) {
@@ -14563,7 +14563,7 @@ RelExpr *RelLock::bindNode(BindWA *bindWA) {
     baseTableNameList_.insert((CorrName *)getPtrToTableName());
   }
 
-  Int32 locSpec = 0;
+  int locSpec = 0;
   NAString tabNames(bindWA->wHeap());
 
   for (CollIndex i = 0; i < baseTableNameList_.entries(); i++) {
@@ -15154,7 +15154,7 @@ RelExpr *Pack::bindNode(BindWA *bindWA) {
       // Add all columns to result table.
       NAString packedColName("PACKEDCOL_", bindWA->wHeap());
       packedColName += bindWA->fabricateUniqueName();
-      Int32 length = packedColName.length();
+      int length = packedColName.length();
       char *colName = new (bindWA->wHeap()) char[length + 1];
       colName[length] = 0;
       str_cpy_all(colName, packedColName, packedColName.length());
@@ -15228,7 +15228,7 @@ RelExpr *Pack::bindNode(BindWA *bindWA) {
       const NAType *colType = &(packedCols[i].getItemExpr()->child(0)->getValueId().getType());
 
       int width = colType->getNominalSize();
-      int base = (colType->supportsSQLnullPhysical() ? (pf - 1) / CHAR_BIT + 1 : 0) + sizeof(Int32);
+      int base = (colType->supportsSQLnullPhysical() ? (pf - 1) / CHAR_BIT + 1 : 0) + sizeof(int);
 
       // $$$ Some duplicate code to be moved to PackColDesc later.
       ColRefName colRefName;
@@ -15318,7 +15318,7 @@ RelExpr *Rowset::bindNode(BindWA *bindWA) {
     if (hostVarType->getNumElements() <= 0) {
       // 30004 The dimesion of the arrays composing the RowSet must be greater
       //       than zero. A value of $0~Int0 was given
-      *CmpCommon::diags() << DgSqlCode(-30004) << DgInt0((Int32)hostVarType->getNumElements());
+      *CmpCommon::diags() << DgSqlCode(-30004) << DgInt0((int)hostVarType->getNumElements());
       bindWA->setErrStatus();
       return NULL;
     }
@@ -15400,7 +15400,7 @@ RelExpr *Rowset::bindNode(BindWA *bindWA) {
       if (((ConstValue *)sizeExpr_)->getExactNumericValue() <= 0) {
         // 30004 The dimesion of the arrays composing the RowSet must be
         //       greater than zero. A value of $0~Int0 was given
-        *CmpCommon::diags() << DgSqlCode(-30004) << DgInt0((Int32)(((ConstValue *)sizeExpr_)->getExactNumericValue()));
+        *CmpCommon::diags() << DgSqlCode(-30004) << DgInt0((int)(((ConstValue *)sizeExpr_)->getExactNumericValue()));
         bindWA->setErrStatus();
         return NULL;
       }
@@ -15409,7 +15409,7 @@ RelExpr *Rowset::bindNode(BindWA *bindWA) {
         // 30002 The given RowSet size ($0~Int0) must be smaller or
         //       equal to the smallest dimension ($1Int1) of the
         //       arrays composing the rowset
-        *CmpCommon::diags() << DgSqlCode(-30002) << DgInt0((Int32)((ConstValue *)sizeExpr_)->getExactNumericValue())
+        *CmpCommon::diags() << DgSqlCode(-30002) << DgInt0((int)((ConstValue *)sizeExpr_)->getExactNumericValue())
                             << DgInt1(maxRowsetSize);
         bindWA->setErrStatus();
         return NULL;
@@ -15688,7 +15688,7 @@ RelExpr *RowsetInto::bindNode(BindWA *bindWA) {
     if (hostVarType->getNumElements() <= 0) {
       // 30004 The dimesion of the arrays composing the RowSet must be greater
       //       than zero. A value of $0~Int0 was given
-      *CmpCommon::diags() << DgSqlCode(-30004) << DgInt0((Int32)hostVarType->getNumElements());
+      *CmpCommon::diags() << DgSqlCode(-30004) << DgInt0((int)hostVarType->getNumElements());
       bindWA->setErrStatus();
       return NULL;
     }
@@ -15740,7 +15740,7 @@ RelExpr *RowsetInto::bindNode(BindWA *bindWA) {
         // 30002 The given RowSet size ($0~Int0) must be smaller or
         //       equal to the smallest dimension ($1Int1) of the
         //       arrays composing the rowset
-        *CmpCommon::diags() << DgSqlCode(-30002) << DgInt0((Int32)((ConstValue *)sizeExpr_)->getExactNumericValue())
+        *CmpCommon::diags() << DgSqlCode(-30002) << DgInt0((int)((ConstValue *)sizeExpr_)->getExactNumericValue())
                             << DgInt1(maxRowsetSize);
         bindWA->setErrStatus();
         return NULL;
@@ -15830,8 +15830,8 @@ RelExpr *RowsetInto::bindNode(BindWA *bindWA) {
     // Preserve the length that is coming from the node below this one
     if (hostVarElemType->getTypeQualifier() == NA_CHARACTER_TYPE &&
         sourceType.getTypeQualifier() == NA_CHARACTER_TYPE) {
-      Int32 sourceSize = ((CharType *)&sourceType)->getDataStorageSize();
-      Int32 targetSize = ((CharType *)hostVarElemType)->getDataStorageSize();
+      int sourceSize = ((CharType *)&sourceType)->getDataStorageSize();
+      int targetSize = ((CharType *)hostVarElemType)->getDataStorageSize();
       if (sourceSize > targetSize) {
         // Adjust the layout size instead of changing the element size?
         ((CharType *)hostVarElemType)->setDataStorageSize(sourceSize);
@@ -16074,7 +16074,7 @@ RelExpr *CallSP::bindNode(BindWA *bindWA) {
     } else
       routineHeap = CmpCommon::statementHeap();
 
-    Int32 error = FALSE;
+    int error = FALSE;
     routine = new (routineHeap) NARoutine(getRoutineName(), catRoutine, bindWA, error, routineHeap);
 
     if (bindWA->errStatus()) {
@@ -16194,7 +16194,7 @@ RelExpr *CallSP::bindNode(BindWA *bindWA) {
   // 1. When a DP or HV is repeated, all of them get the same
   // index value which is equal to the index of the first occurrence
   // 2. Two DPs or HVs are same if their names and the modes are same.
-  Int32 currParamIndex = 1;
+  int currParamIndex = 1;
   for (idx1 = 0; idx1 < numHVorDPs; idx1++) {
     ItemExpr *src = local_HVorDPs[idx1];
     const NAString &name1 =
@@ -16515,7 +16515,7 @@ void CallSP::setInOrOutParam(ItemExpr *expr, ComColumnDirection paramMode, BindW
       // First create a Translate node if the character sets are not identical
 
       if (throwInTranslateNode) {
-        Int32 tran_type = find_translate_type(inputCS, paramCS);
+        int tran_type = find_translate_type(inputCS, paramCS);
 
         ItemExpr *newTranslateChild = new (bindWA->wHeap()) Translate(boundExpr, tran_type);
         boundExpr = newTranslateChild->bindNode(bindWA);
@@ -16773,7 +16773,7 @@ RelExpr *TableMappingUDF::bindNode(BindWA *bindWA) {
 
   // Use information from child to populate childInfo_
   NAHeap *heap = CmpCommon::statementHeap();
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     NAString childName(heap);
     NAColumnArray childColumns(heap);
     RETDesc *childRetDesc = child(i)->getRETDesc();
@@ -17026,7 +17026,7 @@ RelExpr *ControlRunningQuery::bindNode(BindWA *bindWA) {
 
 bool ControlRunningQuery::isUserAuthorized(BindWA *bindWA) {
   bool userHasPriv = false;
-  Int32 sessionID = ComUser::getSessionUser();
+  int sessionID = ComUser::getSessionUser();
 
   // Check to see if the current user owns the query id.
   // This only has to be done for the Cancel query request.
@@ -17035,7 +17035,7 @@ bool ControlRunningQuery::isUserAuthorized(BindWA *bindWA) {
   if ((action_ == Cancel) && (qs_ == ControlQid)) {
     // The user ID associated with the query is stored in the QID.
     // To be safe, copy the QID to a character string.
-    Int32 qidLen = queryId_.length();
+    int qidLen = queryId_.length();
     char *pQid = new (bindWA->wHeap()) char[qidLen + 1];
     str_cpy_all(pQid, queryId_.data(), qidLen);
     pQid[qidLen] = '\0';
@@ -17046,7 +17046,7 @@ bool ControlRunningQuery::isUserAuthorized(BindWA *bindWA) {
     long usernameLen = sizeof(username) - 1;
 
     // Call function to extract the username from the QID
-    Int32 retcode = ComSqlId::getSqlQueryIdAttr(ComSqlId::SQLQUERYID_USERNAME, pQid, qidLen, usernameLen, &username[0]);
+    int retcode = ComSqlId::getSqlQueryIdAttr(ComSqlId::SQLQUERYID_USERNAME, pQid, qidLen, usernameLen, &username[0]);
     if (retcode == 0) {
       // The username stored in the QID is actually the userID preceeded with
       // a "U".  Check for a U and convert the succeeding characters

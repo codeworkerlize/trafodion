@@ -47,7 +47,7 @@ class Cmdline_Args {
   Cmdline_Args();
   virtual ~Cmdline_Args();
 
-  void processArgs(Int32 argc, char **argv);
+  void processArgs(int argc, char **argv);
   static void usage();
 
   std::string &application() { return application_; }
@@ -61,7 +61,7 @@ class Cmdline_Args {
 
  private:
   // process -g {moduleGlobal|moduleLocal}
-  void doModuleLocalGlobal(const char *arg, Int32 &gCount, NAHeap *heap);
+  void doModuleLocalGlobal(const char *arg, int &gCount, NAHeap *heap);
 
   bool gleanModuleCatSchSpecStr(const char *namEQval, NAHeap *heap);
 

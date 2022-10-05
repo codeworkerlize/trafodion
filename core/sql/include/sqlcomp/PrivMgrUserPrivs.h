@@ -364,7 +364,7 @@ class PrivMgrUserPrivs {
   void setHasPublicPriv(bool hasPublicPriv) { hasPublicPriv_ = hasPublicPriv; }
   void initUserPrivs(PrivMgrDesc &privsOfTheGrantor);
 
-  bool initUserPrivs(const NAList<Int32> &roleIDs, PrivMgrDescList *privDescs, const int32_t userID,
+  bool initUserPrivs(const NAList<int> &roleIDs, PrivMgrDescList *privDescs, const int32_t userID,
                      const int64_t objectUID, NASet<ComSecurityKey> *secKeySet = NULL);
 
   void setGetPrivilegesTime();

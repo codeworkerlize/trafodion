@@ -76,7 +76,7 @@ class CNALogfile : public CNAStdioFile {
   // These are helper methods used to scan the environment variable
   //  SQLMX_UTIL_LOGNAME to get the requested values.
   void ScanEnvVar(char *pEnvVarInfo);
-  char *GetNextToken(char *pStrToScan, Int32 &length);
+  char *GetNextToken(char *pStrToScan, int &length);
 
   // This is the helper method to convert any dash in
   // log filename to underscore.
@@ -86,14 +86,14 @@ class CNALogfile : public CNAStdioFile {
   CNALogfile();
   virtual ~CNALogfile();
 
-  Int32 Open(void);
-  Int32 Open(NAString logName, CNAStdioFile::EOpenMode mode);
-  Int32 Open(char *pLogName, CNAStdioFile::EOpenMode mode);
+  int Open(void);
+  int Open(NAString logName, CNAStdioFile::EOpenMode mode);
+  int Open(char *pLogName, CNAStdioFile::EOpenMode mode);
 
   void Close();
 
-  Int32 Log(const char *pBuffer, ELoggingLevel level = CNALogfile::eLEVEL1);
-  Int32 Log(const NAString &str, ELoggingLevel level = CNALogfile::eLEVEL1) { return Log(str.data(), level); }
+  int Log(const char *pBuffer, ELoggingLevel level = CNALogfile::eLEVEL1);
+  int Log(const NAString &str, ELoggingLevel level = CNALogfile::eLEVEL1) { return Log(str.data(), level); }
 
   NABoolean Write(const char *pBuffer, int buflen);
   NABoolean Write(const NAString &str, int buflen) { return Write(str.data(), buflen); }

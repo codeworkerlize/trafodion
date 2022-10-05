@@ -175,11 +175,11 @@ class SecurityInvKeyInfo : public NAVersionedObject {
  public:
   SecurityInvKeyInfo() : NAVersionedObject(-1), numSiks_(0), sikValues_(NULL) {}
 
-  SecurityInvKeyInfo(Int32 numSiks, ComSecurityKey *sikValues) : numSiks_(numSiks), sikValues_(sikValues) {}
+  SecurityInvKeyInfo(int numSiks, ComSecurityKey *sikValues) : numSiks_(numSiks), sikValues_(sikValues) {}
 
   const ComSecurityKey *getSikValues(void) { return sikValues_; }
 
-  const Int32 getNumSiks(void) { return numSiks_; }
+  const int getNumSiks(void) { return numSiks_; }
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -194,7 +194,7 @@ class SecurityInvKeyInfo : public NAVersionedObject {
   int unpack(void *base, void *reallocator);
 
  private:
-  Int32 numSiks_;                // 00 - 03
+  int numSiks_;                // 00 - 03
   char sikFiller_[4];            // 04 - 07
   ComSecurityKeyPtr sikValues_;  // 08 - 15
 };
@@ -320,7 +320,7 @@ class ComTdbRoot : public ComTdb {
   InputOutputExprPtr inputExpr_;   // 16-23
   InputOutputExprPtr outputExpr_;  // 24-31
   ExFragDirPtr fragDir_;           // 32-39
-  Int32 inputVarsSize_;            // 40-43
+  int inputVarsSize_;            // 40-43
   UInt32 rtFlags1_;                // 44-47
 
   // the transaction related information that was used at
@@ -344,7 +344,7 @@ class ComTdbRoot : public ComTdb {
   // Number of update columns contained in the updateColList_ (array)
   // which is used to contain the updateable columns for cursor declarations
   // and UPDATE CURRENT OF statements.
-  Int32 numUpdateCol_;      // 68-71
+  int numUpdateCol_;      // 68-71
   Int32Ptr updateColList_;  // 72-79
 
   ExCriDescPtr workCriDesc_;  // 80-87
@@ -390,7 +390,7 @@ class ComTdbRoot : public ComTdb {
   Int16 tableCount_;  // 146-147
 
   // offset of UniqueExecuteId value in host var tupp
-  Int32 uniqueExecuteIdOffset_;  // 148-151
+  int uniqueExecuteIdOffset_;  // 148-151
 
   // the number of temporary tables used in this statement
   Int16 tempTableCount_;  // 152-153
@@ -405,7 +405,7 @@ class ComTdbRoot : public ComTdb {
   // Timeout (.01 seconds) for waiting on a streaming cursor.
   // If streamTimeout_ == 0 then don't wait.
   // If streamTimeout_ < 0 then never timeout
-  Int32 streamTimeout_;  // 156-159
+  int streamTimeout_;  // 156-159
   // BertBert ^^
 
   // Contains information on compound statements. At this point, if
@@ -422,12 +422,12 @@ class ComTdbRoot : public ComTdb {
 
   // the next 3 fields are reserved for triggers project in release 2
   Int16 triggersCount_;         // 162-163
-  Int32 triggersStatusOffset_;  // 164-167
+  int triggersStatusOffset_;  // 164-167
   Int64Ptr triggersList_;       // 168-175
 
   // the next 2 fields are reserved for query caching project
   NABasicPtr qCacheInfo_;  // 176-183
-  Int32 cacheVarsSize_;    // 184-187
+  int cacheVarsSize_;    // 184-187
 
   UInt32 rtFlags2_;  // 188-191
 
@@ -445,9 +445,9 @@ class ComTdbRoot : public ComTdb {
   UInt32 planVersion_;  // 212-215
 
   // size of diagnostic area for non-atomic statements
-  Int32 notAtomicFailureLimit_;  // 216-219
+  int notAtomicFailureLimit_;  // 216-219
 
-  Int32 abendType_;  // 220-223
+  int abendType_;  // 220-223
 
   // contains pointer to QueryCostInfo class.
   NABasicPtr queryCostInfo_;  // 224-231
@@ -486,9 +486,9 @@ class ComTdbRoot : public ComTdb {
 
   SecurityInvKeyInfoPtr sikPtr_;     // 304-311
   Int64Ptr objectUidList_;           // 312-319
-  Int32 numObjectUids_;              // 320-323
+  int numObjectUids_;              // 320-323
   long queryHash_;                  // 324-327
-  Int32 clientMaxStatementPooling_;  // 328-331
+  int clientMaxStatementPooling_;  // 328-331
   char fillersComTdbRoot2_[20];      // 332-351
 
   // if non zero, gives the expiration time stamp for
@@ -574,16 +574,16 @@ class ComTdbRoot : public ComTdb {
             int uniqueExecuteIdOffset,  //++Triggers -
             int triggersStatusOffset, short triggersCount, long *triggersList, short tempTableCount,
             short baseTablenamePosition, NABoolean updDelInsert, NABoolean retryableStmt, NABoolean streamScan,
-            NABoolean embeddedUpdateOrDelete, Int32 streamTimeout, long explainPlanId, NABasicPtr qCacheInfo,
-            Int32 cacheVarsSize, SqlTableOpenInfo **udrStoiList, short udrCount, short maxResultSets,
+            NABoolean embeddedUpdateOrDelete, int streamTimeout, long explainPlanId, NABasicPtr qCacheInfo,
+            int cacheVarsSize, SqlTableOpenInfo **udrStoiList, short udrCount, short maxResultSets,
             NABasicPtr queryCostInfo, UninitializedMvName *uninitializedMvList, short uninitializedMvCount,
-            NABasicPtr compilerStatsInfo, NABasicPtr rwrsInfo, Int32 numObjectUIDs, long *objectUIDs,
+            NABasicPtr compilerStatsInfo, NABasicPtr rwrsInfo, int numObjectUIDs, long *objectUIDs,
             CompilationStatsData *compilationStatsData, long sentryAuthExpirationTimeStamp, char *snapTmpLocation,
             Queue *listOfSnapshotscanTables, long queryHash);
 
   ~ComTdbRoot();
 
-  Int32 orderedQueueProtocol() const;
+  int orderedQueueProtocol() const;
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -602,7 +602,7 @@ class ComTdbRoot : public ComTdb {
   Long pack(void *space);
   int unpack(void *, void *reallocator);
 
-  Int32 describe(Descriptor *desc, short output_desc_flag);
+  int describe(Descriptor *desc, short output_desc_flag);
 
   NABoolean isUpdateCol(const ComTdbRoot *);
 
@@ -618,8 +618,8 @@ class ComTdbRoot : public ComTdb {
   // parameter set to 2 if MS Windows based gui is to be used.
   // The accessor method is called by the executor.
   //-------------------------------------------------------------------------
-  void setDisplayExecution(Int32 flag);
-  Int32 displayExecution() const;  // accessor method
+  void setDisplayExecution(int flag);
+  int displayExecution() const;  // accessor method
 
   inline ExFragDir *getFragDir() { return fragDir_; };
 
@@ -629,13 +629,13 @@ class ComTdbRoot : public ComTdb {
   inline InputOutputExpr *inputExpr() const { return inputExpr_; }
   inline InputOutputExpr *outputExpr() const { return outputExpr_; }
 
-  Int32 inputVarsSize() { return inputVarsSize_; };
+  int inputVarsSize() { return inputVarsSize_; };
 
   // indicates if a transaction is required at run time to execute this query.
   // Set up at code generation time.
   inline void setTransactionReqd() { rtFlags1_ |= TRANSACTION_REQD; };
   inline void setTransactionNotReqd() { rtFlags1_ &= ~TRANSACTION_REQD; };
-  inline Int32 transactionReqd() const { return rtFlags1_ & TRANSACTION_REQD; };
+  inline int transactionReqd() const { return rtFlags1_ & TRANSACTION_REQD; };
 
   inline NABoolean isEMSEventExperienceLevelBeginner() { return (rtFlags1_ & USER_EXPERIENCE_LEVEL_BEGINNER) != 0; }
   inline void setEMSEventExperienceLevelBeginner(NABoolean v) {
@@ -646,7 +646,7 @@ class ComTdbRoot : public ComTdb {
   // without need to recompile.
   // Set up at bind + code generation time.
   inline void setReadonlyTransactionOK() { rtFlags1_ |= READONLY_TRANS_OK; }
-  inline Int32 readonlyTransactionOK() const { return rtFlags1_ & READONLY_TRANS_OK; }
+  inline int readonlyTransactionOK() const { return rtFlags1_ & READONLY_TRANS_OK; }
 
   // Inserts into non-audited indexes do not need to run in a transaction,
   // if one does not exist. If one exists (which is the case during a create
@@ -655,14 +655,14 @@ class ComTdbRoot : public ComTdb {
   // the index. This information is stored in the root tdb, so that the
   // transid can be passed to the ESPs, as needed.
   inline void setPassTransactionIfOneExists() { rtFlags1_ |= PASS_TRANSACTION_IF_EXISTS; }
-  inline Int32 passTransactionIfOneExists() { return rtFlags1_ & PASS_TRANSACTION_IF_EXISTS; }
+  inline int passTransactionIfOneExists() { return rtFlags1_ & PASS_TRANSACTION_IF_EXISTS; }
 
   // From NADefaults attr RECOMPILATION_WARNINGS, set by codegen
   // to enable late-bind warnings (off by default, as Ansi + Nist do not
   // specify or expect them).
   inline void setRecompWarn() { rtFlags1_ |= RECOMP_WARN; }
 
-  inline Int32 recompWarn() const { return rtFlags1_ & RECOMP_WARN; }
+  inline int recompWarn() const { return rtFlags1_ & RECOMP_WARN; }
 
   // REVISIT
   inline NABoolean updatableSelect() { return !!pkeyExpr_; };
@@ -942,15 +942,15 @@ class ComTdbRoot : public ComTdb {
   SecurityInvKeyInfo *getSikInfo() const { return (SecurityInvKeyInfo *)sikPtr_.getPointer(); }
   void setSikInfo(SecurityInvKeyInfo *sikInfo) { sikPtr_ = sikInfo; }
 
-  Int32 getNumberOfUnpackedSecKeys(char *base);
+  int getNumberOfUnpackedSecKeys(char *base);
   const ComSecurityKey *getPtrToUnpackedSecurityInvKeys(char *base);
 
   // ****  information for GUI  *** -------------
-  virtual const ComTdb *getChild(Int32 pos) const;
-  virtual Int32 numChildren() const { return 1; }
+  virtual const ComTdb *getChild(int pos) const;
+  virtual int numChildren() const { return 1; }
   virtual const char *getNodeName() const { return "EX_ROOT"; };
-  virtual Int32 numExpressions() const { return 4; }
-  virtual ex_expr *getExpressionNode(Int32 pos) {
+  virtual int numExpressions() const { return 4; }
+  virtual ex_expr *getExpressionNode(int pos) {
     if (pos == 0)
       return inputExpr_;
     else if (pos == 1)
@@ -962,7 +962,7 @@ class ComTdbRoot : public ComTdb {
     return NULL;
   }
 
-  virtual const char *getExpressionName(Int32 pos) const {
+  virtual const char *getExpressionName(int pos) const {
     if (pos == 0)
       return "inputExpr_";
     else if (pos == 1)
@@ -1002,7 +1002,7 @@ class ComTdbRoot : public ComTdb {
       return qCacheInfo_;
   }
 
-  inline Int32 getCacheVarsSize() const { return cacheVarsSize_; }
+  inline int getCacheVarsSize() const { return cacheVarsSize_; }
 
   inline NABoolean thereIsACompoundStatement() const {
     return ((compoundStmtsInfo_ & COMPOUND_STATEMENT_IN_QUERY) != 0);
@@ -1082,9 +1082,9 @@ class ComTdbRoot : public ComTdb {
 
   enum { NO_ABEND = 0, SIGNED_OVERFLOW, ASSERT, INVALID_MEMORY };
 
-  Int32 getAbendType(void) const { return abendType_; }
+  int getAbendType(void) const { return abendType_; }
 
-  void setAbendType(Int32 a) { abendType_ = a; }
+  void setAbendType(int a) { abendType_ = a; }
 
   void setCpuLimit(long cpuLimit) { cpuLimit_ = cpuLimit; }
 
@@ -1100,7 +1100,7 @@ class ComTdbRoot : public ComTdb {
 
   void setQueryLimitDebug() { rtFlags4_ |= QUERY_LIMIT_DEBUG; }
 
-  void setCpuLimitCheckFreq(Int32 f) { cpuLimitCheckFreq_ = f; }
+  void setCpuLimitCheckFreq(int f) { cpuLimitCheckFreq_ = f; }
 
   Int16 getCursorType() { return cursorType_; }
   void setCursorType(Int16 cursorType) { cursorType_ = cursorType; }
@@ -1132,7 +1132,7 @@ class ComTdbRoot : public ComTdb {
 
   const long *getObjectUIDs() const { return objectUidList_.getPointer(); }
 
-  Int32 getNumObjectUIDs() const { return numObjectUids_; }
+  int getNumObjectUIDs() const { return numObjectUids_; }
 
   NABoolean explainInRms() const { return (rtFlags4_ & EXPLAIN_IN_RMS_IN_TDB) ? TRUE : FALSE; }
   void setExplainInRms() { rtFlags4_ |= EXPLAIN_IN_RMS_IN_TDB; }
@@ -1144,7 +1144,7 @@ class ComTdbRoot : public ComTdb {
 
   void setClientMaxStatementPooling(int n) { clientMaxStatementPooling_ = n; }
 
-  Int32 getClientMaxStatementPooling() { return clientMaxStatementPooling_; }
+  int getClientMaxStatementPooling() { return clientMaxStatementPooling_; }
 
   void setTriggerTdb(ComTdb *tdb) { triggerTdb_ = tdb; }
   ComTdb *getTriggerTdb() { return triggerTdb_; }
@@ -1166,7 +1166,7 @@ class ComTdbRoot : public ComTdb {
   History     : Yeogirl Yun                                      8/22/95
                  Initial Revision.
 *****************************************************************************/
-inline const ComTdb *ComTdbRoot::getChild(Int32 pos) const {
+inline const ComTdb *ComTdbRoot::getChild(int pos) const {
   if (pos == 0)
     return childTdb;
   else

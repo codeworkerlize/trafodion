@@ -106,7 +106,7 @@ class ComMPLoc {
   ComString getMPName(size_t *lenArray /* array[5] */) const;
   ComString getOSSName() const;
 
-  Int32 applyDefaults(const ComMPLoc &defaults, ComBoolean emptySystemNameMatchCountsAsAMatch = FALSE);
+  int applyDefaults(const ComMPLoc &defaults, ComBoolean emptySystemNameMatchCountsAsAMatch = FALSE);
 
   void initializeSystemName(ComBoolean ignoreNADefaults = FALSE);
 

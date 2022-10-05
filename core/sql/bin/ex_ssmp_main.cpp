@@ -56,11 +56,11 @@ extern void my_mpi_fclose();
 #include "common/SCMVersHelp.h"
 DEFINE_DOVERS(mxssmp)
 
-void runServer(Int32 argc, char **argv);
+void runServer(int argc, char **argv);
 
 void processAccumulatedStatsReq(SsmpNewIncomingConnectionStream *ssmpMsgStream, SsmpGlobals *ssmpGlobals);
 
-Int32 main(Int32 argc, char **argv) {
+int main(int argc, char **argv) {
   dovers(argc, argv);
   msg_debug_hook("mxssmp", "mxssmp.hook");
 
@@ -87,8 +87,8 @@ Int32 main(Int32 argc, char **argv) {
   // variables
   const char *stdOutFile = getenv("SQ_SSCP_STDOUT");
   const char *stdErrFile = getenv("SQ_SSCP_STDERR");
-  Int32 fdOut = -1;
-  Int32 fdErr = -1;
+  int fdOut = -1;
+  int fdErr = -1;
 
   if (stdOutFile && stdOutFile[0]) {
     fdOut = open(stdOutFile, O_WRONLY | O_APPEND | O_CREAT | O_SYNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
@@ -126,10 +126,10 @@ Int32 main(Int32 argc, char **argv) {
   return 0;
 }
 
-void runServer(Int32 argc, char **argv) {
-  Int32 shmId;
+void runServer(int argc, char **argv) {
+  int shmId;
   StatsGlobals *statsGlobals = (StatsGlobals *)shareStatsSegment(shmId);
-  Int32 r = 0;
+  int r = 0;
   while (statsGlobals == NULL && ++r < 10) {  // try 9 more times if the shared segement is not available
     DELAY(100);                               // delay for 1 sec.
     statsGlobals = (StatsGlobals *)shareStatsSegment(shmId);

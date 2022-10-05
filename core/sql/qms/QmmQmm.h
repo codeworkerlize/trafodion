@@ -139,7 +139,7 @@ class Qmm : public NABasicObject {
 
   void setQmpStartOpt(StartOpt startOpt) { qmpStartOpt_ = startOpt; }
 
-  QmsStub *getQmsStub(Int32 segNum, short cpuNum) { return qmsPool_[(segNum - 1) * CPUS_PER_SEGMENT + cpuNum]; }
+  QmsStub *getQmsStub(int segNum, short cpuNum) { return qmsPool_[(segNum - 1) * CPUS_PER_SEGMENT + cpuNum]; }
 
   void relayPendingPubsToQms();
 
@@ -180,7 +180,7 @@ class QRProcessStub : public NABasicObject {
 
   virtual ~QRProcessStub() {}
 
-  Int32 operator==(SB_Phandle_Type ph) const {
+  int operator==(SB_Phandle_Type ph) const {
     return !memcmp((char *)&processHandle_, (char *)&ph, sizeof(SB_Phandle_Type));
   }
 
@@ -242,7 +242,7 @@ class QmsStub : public QRProcessStub {
 
  private:
   QmsStub(const QmsStub &);
-  Int32 operator=(const QmsStub &);
+  int operator=(const QmsStub &);
 
   static IpcServerClass *qmsServerClass_;
 
@@ -276,7 +276,7 @@ class QmpStub : public QRProcessStub {
 
  private:
   QmpStub(const QmpStub &);
-  Int32 operator=(const QmpStub &);
+  int operator=(const QmpStub &);
 
   static IpcServerClass *qmpServerClass_;
 

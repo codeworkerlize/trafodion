@@ -65,10 +65,10 @@ NABoolean NAColumn::isNumeric() const {
 NABoolean NAColumn::isPartV2Column() const {
   NABoolean rc = FALSE;
 
-  const Int32 *partColIdx = table_->getPartitionColIdxArray();
+  const int *partColIdx = table_->getPartitionColIdxArray();
   if (partColIdx != NULL) {
-    for (Int32 i = 0; i < table_->getPartitionColCount(); i++) {
-      if ((Int32)position_ == partColIdx[i]) {
+    for (int i = 0; i < table_->getPartitionColCount(); i++) {
+      if ((int)position_ == partColIdx[i]) {
         rc = TRUE;
         break;
       }
@@ -119,7 +119,7 @@ NAColumn *NAColumn::deepCopy(const NAColumn &nac, NAMemory *heap) {
   }
 
   if (nac.heading_) {
-    Int32 length = str_len(nac.heading_) + 1;
+    int length = str_len(nac.heading_) + 1;
     column->heading_ = new (heap) char[length];
     memcpy(column->heading_, nac.heading_, length);
   }
@@ -127,7 +127,7 @@ NAColumn *NAColumn::deepCopy(const NAColumn &nac, NAMemory *heap) {
   if (nac.isNotNullNondroppable_)
     column->isNotNullNondroppable_ = (CheckConstraint *)nac.isNotNullNondroppable_->copyTopNode(NULL, heap);
   if (nac.computedColumnExpression_) {
-    Int32 length = str_len(nac.computedColumnExpression_) + 1;
+    int length = str_len(nac.computedColumnExpression_) + 1;
     column->computedColumnExpression_ = new (heap) char[length];
     memcpy(column->computedColumnExpression_, nac.computedColumnExpression_, length);
   }
@@ -430,7 +430,7 @@ NABoolean NAColumn::createNAType(TrafColumnsDesc *column_desc /*IN*/, const NATa
 
     // a "mini-cache" to avoid proc call, for perf
     static THREAD_P CharInfo::Collation cachedCO = CharInfo::UNKNOWN_COLLATION;
-    static THREAD_P Int32 cachedFlags = CollationInfo::ALL_NEGATIVE_SYNTAX_FLAGS;
+    static THREAD_P int cachedFlags = CollationInfo::ALL_NEGATIVE_SYNTAX_FLAGS;
 
     if (cachedCO != co) {
       cachedCO = co;
@@ -482,7 +482,7 @@ NABoolean NAColumn::createNAType(TrafColumnsDesc *column_desc /*IN*/, const NATa
 // Print function for debugging
 // -----------------------------------------------------------------------
 void NAColumn::print(FILE *ofd, const char *indent, const char *title, CollHeap *c, char *buf) const {
-  const Int32 A = 0x18, D = 0x19;  // up-arrow, down-arrow; just to be cute
+  const int A = 0x18, D = 0x19;  // up-arrow, down-arrow; just to be cute
   char ckstr[3 + 1];
   SortOrdering cko = getClusteringKeyOrdering();
   if (cko == ASCENDING)
@@ -558,7 +558,7 @@ void NAColumnArray::insertAt(CollIndex index, NAColumn *newColumn) {
   }
 }
 
-void NAColumnArray::insertArray(const NAColumnArray &src, Int32 tgtPosition, Int32 srcStartPosition, Int32 numEntries) {
+void NAColumnArray::insertArray(const NAColumnArray &src, int tgtPosition, int srcStartPosition, int numEntries) {
   if (tgtPosition == -1) tgtPosition = entries();
   if (numEntries == -1) numEntries = src.entries();
 
@@ -574,7 +574,7 @@ void NAColumnArray::insertArray(const NAColumnArray &src, Int32 tgtPosition, Int
       // new rows were not inserted at the end, shift the
       // ascending_ values of the existing elements that now
       // come after the newly inserted elements
-      for (Int32 s = oldEntries - 1; s >= tgtPosition; s--) ascending_[s + numEntries] = ascending_[s];
+      for (int s = oldEntries - 1; s >= tgtPosition; s--) ascending_[s + numEntries] = ascending_[s];
     }
 
     // copy the ascending_ values of the newly inserted values
@@ -588,7 +588,7 @@ void NAColumnArray::removeAt(CollIndex start, CollIndex numEntries) {
   if (entries() > start)
     for (CollIndex j = start; j < entries(); j++) ascending_[j] = ascending_[j + numEntries];
 
-  for (Int32 k = entries() + numEntries - 1; k >= (Int32)entries(); k--) ascending_.remove(k);
+  for (int k = entries() + numEntries - 1; k >= (int)entries(); k--) ascending_.remove(k);
 }
 
 NAColumnArray &NAColumnArray::operator=(const NAColumnArray &other) {
@@ -710,8 +710,8 @@ NABoolean NAColumnArray::compare(const NAColumnArray &other, NABoolean compareSy
   return TRUE;
 }
 
-Int32 NAColumnArray::getTotalStorageSize() const {
-  Int32 total = 0;
+int NAColumnArray::getTotalStorageSize() const {
+  int total = 0;
   for (CollIndex i = 0; i < entries(); i++) {
     if (!at(i)->isHiveVirtualColumn()) total += at(i)->getType()->getNominalSize();
   }
@@ -719,8 +719,8 @@ Int32 NAColumnArray::getTotalStorageSize() const {
   return total;
 }
 
-Int32 NAColumnArray::getTotalStorageSizeForNonChars() const {
-  Int32 total = 0;
+int NAColumnArray::getTotalStorageSizeForNonChars() const {
+  int total = 0;
   for (CollIndex i = 0; i < entries(); i++) {
     if (!at(i)->isHiveVirtualColumn()) {
       const NAType *type = at(i)->getType();
@@ -731,7 +731,7 @@ Int32 NAColumnArray::getTotalStorageSizeForNonChars() const {
   return total;
 }
 
-Int32 NAColumnArray::getColumnPosition(NAColumn &nc) const {
+int NAColumnArray::getColumnPosition(NAColumn &nc) const {
   for (CollIndex j = 0; j < entries(); j++) {
     if (nc == (*at(j)))  // compare via NAColumn::operator==()
       return j;
@@ -739,7 +739,7 @@ Int32 NAColumnArray::getColumnPosition(NAColumn &nc) const {
   return -1;
 }
 
-Int32 NAColumnArray::getColumnPosition(const NAString &nc) const {
+int NAColumnArray::getColumnPosition(const NAString &nc) const {
   for (CollIndex j = 0; j < entries(); j++) {
     if ((*at(j)) == nc)  // compare via NAColumn::operator==()
       return j;
@@ -747,7 +747,7 @@ Int32 NAColumnArray::getColumnPosition(const NAString &nc) const {
   return -1;
 }
 
-Int32 NAColumnArray::getIdentityColumnPosition() const {
+int NAColumnArray::getIdentityColumnPosition() const {
   for (CollIndex j = 0; j < entries(); j++) {
     if (at(j)->isIdentityColumn()) return j;
   }

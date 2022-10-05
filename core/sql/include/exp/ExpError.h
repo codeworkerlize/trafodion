@@ -85,16 +85,16 @@ ComDiagsArea *ExRaiseSqlWarning(NAMemory *heap, ComDiagsArea **diagsArea, ExeErr
 ComDiagsArea *ExRaiseFunctionSqlError(NAMemory *heap, ComDiagsArea **diagsArea, ExeErrorCode err,
                                       NABoolean derivedFunction = FALSE,
                                       OperatorTypeEnum origOperType = ITM_FIRST_ITEM_OP, ComCondition **cond = NULL);
-ComDiagsArea *ExRaiseDetailSqlError(CollHeap *heap, ComDiagsArea **diagsArea, ExeErrorCode err, Int32 pciInst,
+ComDiagsArea *ExRaiseDetailSqlError(CollHeap *heap, ComDiagsArea **diagsArea, ExeErrorCode err, int pciInst,
                                     char *op1, char *op2 = NULL, char *op3 = NULL);
 
 ComDiagsArea *ExRaiseDetailSqlError(CollHeap *heap, ComDiagsArea **diagsArea, ExeErrorCode err, ex_clause *clause,
                                     char *op_data[]);
 
 ComDiagsArea *ExRaiseDetailSqlError(CollHeap *heap, ComDiagsArea **diagsArea, ExeErrorCode err, char *src,
-                                    Int32 srcLength, Int16 srcType, Int32 srcScale, Int16 tgtType, UInt32 flags,
-                                    Int32 tgtLength = -1, Int32 tgtScale = -1, Int32 tgtPrecision = 0,
-                                    Int32 srcPrecision = -1, char *sourceValue = NULL);
-char *stringToHex(char *out, Int32 outLen, char *in, Int32 inLen);
+                                    int srcLength, Int16 srcType, int srcScale, Int16 tgtType, UInt32 flags,
+                                    int tgtLength = -1, int tgtScale = -1, int tgtPrecision = 0,
+                                    int srcPrecision = -1, char *sourceValue = NULL);
+char *stringToHex(char *out, int outLen, char *in, int inLen);
 
 #endif /* EXP_ERROR_H */

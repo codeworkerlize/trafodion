@@ -133,8 +133,8 @@ class ex_hashj_tcb : public ex_tcb {
 
   inline ex_hashj_tdb &hashJoinTdb() const;
 
-  virtual const ex_tcb *getChild(Int32 pos) const;
-  virtual Int32 numChildren() const { return 2; }
+  virtual const ex_tcb *getChild(int pos) const;
+  virtual int numChildren() const { return 2; }
 
   // the state of the hash join algorithm
   enum HashJoinState {
@@ -332,11 +332,11 @@ class ex_hashj_tcb : public ex_tcb {
   static ExWorkProcRetcode sWorkUp(ex_tcb *tcb) { return ((ex_hashj_tcb *)tcb)->workUp(); }
   static ExWorkProcRetcode sCancel(ex_tcb *tcb) { return ((ex_hashj_tcb *)tcb)->workCancel(); }
 
-  inline Int32 isSemiJoin() const;      // True if we are doing a semi-join
-  inline Int32 isLeftJoin() const;      // True if we are doing a left-join
-  inline Int32 isRightJoin() const;     // True if we are doing a right-join
-  inline Int32 isAntiSemiJoin() const;  // True if its an anti-semi-join
-  inline Int32 isReuse() const;         // True if reuse applies
+  inline int isSemiJoin() const;      // True if we are doing a semi-join
+  inline int isLeftJoin() const;      // True if we are doing a left-join
+  inline int isRightJoin() const;     // True if we are doing a right-join
+  inline int isAntiSemiJoin() const;  // True if its an anti-semi-join
+  inline int isReuse() const;         // True if reuse applies
   inline NABoolean leftSideIUD() const;
 
   AggrExpr *minMaxExpr() const { return hashJoinTdb().minMaxExpr(); }
@@ -382,7 +382,7 @@ class ex_hashj_tcb : public ex_tcb {
   History     : Yeogirl Yun                                      8/14/95
                  Initial Revision.
 *****************************************************************************/
-inline const ex_tcb *ex_hashj_tcb::getChild(Int32 pos) const {
+inline const ex_tcb *ex_hashj_tcb::getChild(int pos) const {
   ex_assert((pos >= 0), "");
   if (pos == 0)
     return leftChildTcb_;
@@ -400,15 +400,15 @@ inline const ex_tcb *ex_hashj_tcb::getChild(Int32 pos) const {
 inline ex_hashj_tdb &ex_hashj_tcb::hashJoinTdb() const { return (ex_hashj_tdb &)tdb; };
 
 // check the tdb to see if the join is semi and/or outer
-inline Int32 ex_hashj_tcb::isSemiJoin() const { return ((ex_hashj_tdb &)tdb).isSemiJoin(); };
+inline int ex_hashj_tcb::isSemiJoin() const { return ((ex_hashj_tdb &)tdb).isSemiJoin(); };
 
-inline Int32 ex_hashj_tcb::isLeftJoin() const { return ((ex_hashj_tdb &)tdb).isLeftJoin(); };
+inline int ex_hashj_tcb::isLeftJoin() const { return ((ex_hashj_tdb &)tdb).isLeftJoin(); };
 
-inline Int32 ex_hashj_tcb::isRightJoin() const { return ((ex_hashj_tdb &)tdb).isRightJoin(); };
+inline int ex_hashj_tcb::isRightJoin() const { return ((ex_hashj_tdb &)tdb).isRightJoin(); };
 
-inline Int32 ex_hashj_tcb::isAntiSemiJoin() const { return ((ex_hashj_tdb &)tdb).isAntiSemiJoin(); };
+inline int ex_hashj_tcb::isAntiSemiJoin() const { return ((ex_hashj_tdb &)tdb).isAntiSemiJoin(); };
 
-inline Int32 ex_hashj_tcb::isReuse() const { return ((ex_hashj_tdb &)tdb).isReuse(); };
+inline int ex_hashj_tcb::isReuse() const { return ((ex_hashj_tdb &)tdb).isReuse(); };
 
 inline NABoolean ex_hashj_tcb::leftSideIUD() const { return ((ex_hashj_tdb &)tdb).leftSideIUD(); };
 

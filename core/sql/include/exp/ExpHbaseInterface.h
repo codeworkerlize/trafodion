@@ -67,8 +67,8 @@ class CliGlobals;
 
 long getTransactionIDFromContext();
 long getSavepointIDFromContext(long &pSvptId);
-Int32 getTransactionIsolationLevelFromContext();
-Int32 checkAndWaitSnapshotInProgress(NAHeap *heap);
+int getTransactionIsolationLevelFromContext();
+int checkAndWaitSnapshotInProgress(NAHeap *heap);
 
 class ExpHbaseInterface : public NABasicObject {
  public:
@@ -188,7 +188,7 @@ class ExpHbaseInterface : public NABasicObject {
 
   virtual int scanOpen(HbaseStr &tblName, const Text &startRow, const Text &stopRow, const LIST(HbaseStr) & columns,
                          const int64_t timestamp, const NABoolean useHbaseXn, const NABoolean useMemoryScan,
-                         const Int32 lockMode, Int32 isolationLevel, const NABoolean skipReadConflict,
+                         const int lockMode, int isolationLevel, const NABoolean skipReadConflict,
                          const NABoolean skipTransaction, const NABoolean replSync, const NABoolean cacheBlocks,
                          const NABoolean smallScanner, const int numCacheRows, const NABoolean preFetch,
                          const LIST(NAString) * inColNamesToFilter, const LIST(NAString) * inCompareOpList,
@@ -210,19 +210,19 @@ class ExpHbaseInterface : public NABasicObject {
   virtual int isEmpty(HbaseStr &tblName) = 0;
 
   virtual int getRowOpen(HbaseStr &tblName, const HbaseStr &row, const LIST(HbaseStr) & columns,
-                           const int64_t timestamp, int numReplications, const Int32 lockMode, Int32 isolationLevel,
+                           const int64_t timestamp, int numReplications, const int lockMode, int isolationLevel,
                            const NABoolean useMemoryScan, const NABoolean skipReadConflict = FALSE,
                            HbaseAccessOptions *hao = NULL, const char *hbaseAuths = NULL,
                            const char *encryptionInfo = NULL) = 0;
 
   virtual int getRowsOpen(HbaseStr &tblName, const LIST(HbaseStr) * rows, const LIST(HbaseStr) & columns,
-                            const int64_t timestamp, int numReplications, const Int32 lockMode, Int32 isolationLevel,
+                            const int64_t timestamp, int numReplications, const int lockMode, int isolationLevel,
                             const NABoolean useMemoryScan, const NABoolean skipReadConflict,
                             const NABoolean skipTransactionForBatchGet, HbaseAccessOptions *hao = NULL,
                             const char *hbaseAuths = NULL, const char *encryptionInfo = NULL) = 0;
 
   virtual int getRowsOpen(HbaseStr tblName, short rowIDLen, HbaseStr rowIDs, const LIST(HbaseStr) & columns,
-                            int numReplications, const Int32 lockMode, Int32 isolationLevel,
+                            int numReplications, const int lockMode, int isolationLevel,
                             const NABoolean useMemoryScan, const NABoolean skipReadConflict,
                             const NABoolean skipTransactionForBatchGet, const char *encryptionInfo = NULL) = 0;
 
@@ -231,7 +231,7 @@ class ExpHbaseInterface : public NABasicObject {
   virtual int nextCell(HbaseStr &rowId, HbaseStr &colFamName, HbaseStr &colName, HbaseStr &colVal,
                          long &timestamp) = 0;
 
-  virtual int completeAsyncOperation(Int32 timeout, NABoolean *resultArray, Int16 resultArrayLen) = 0;
+  virtual int completeAsyncOperation(int timeout, NABoolean *resultArray, Int16 resultArrayLen) = 0;
 
   virtual int getColVal(int colNo, BYTE *colVal, int &colValLen, NABoolean nullable, BYTE &nullVal, BYTE *tag,
                           int &tagLen, const char *encryptionInfo = NULL) = 0;
@@ -341,7 +341,7 @@ class ExpHbaseInterface : public NABasicObject {
                            const Text &startRow, const Text &stopRow, const Text &colFamily, const Text &colName,
                            const NABoolean cacheBlocks, const int numCacheRows, const NABoolean replSync,
                            Text &aggrVal,  // returned value
-                           Int32 isolationLevel, Int32 lockMode);
+                           int isolationLevel, int lockMode);
 
   virtual int grant(const Text &user, const Text &tblName, const std::vector<Text> &actionCodes) = 0;
 
@@ -350,15 +350,15 @@ class ExpHbaseInterface : public NABasicObject {
   virtual NAArray<HbaseStr> *getRegionBeginKeys(const char *) = 0;
   virtual NAArray<HbaseStr> *getRegionEndKeys(const char *) = 0;
 
-  virtual int estimateRowCount(HbaseStr &tblName, Int32 partialRowSize, Int32 numCols, Int32 retryLimitMilliSeconds,
-                                 NABoolean useCoprocessor, long &estRC, Int32 &breadCrumb) = 0;
+  virtual int estimateRowCount(HbaseStr &tblName, int partialRowSize, int numCols, int retryLimitMilliSeconds,
+                                 NABoolean useCoprocessor, long &estRC, int &breadCrumb) = 0;
   virtual int cleanSnpTmpLocation(const char *path) = 0;
   virtual int setArchivePermissions(const char *tbl) = 0;
 
   virtual int getBlockCacheFraction(float &frac) = 0;
-  virtual int getHbaseTableInfo(const HbaseStr &tblName, Int32 &indexLevels, Int32 &blockSize) = 0;
+  virtual int getHbaseTableInfo(const HbaseStr &tblName, int &indexLevels, int &blockSize) = 0;
 
-  virtual int getRegionsNodeName(const HbaseStr &tblName, Int32 partns, ARRAY(const char *) & nodeNames) = 0;
+  virtual int getRegionsNodeName(const HbaseStr &tblName, int partns, ARRAY(const char *) & nodeNames) = 0;
 
   virtual NAArray<HbaseStr> *showTablesHDFSCache(const std::vector<Text> &tables) = 0;
 
@@ -367,7 +367,7 @@ class ExpHbaseInterface : public NABasicObject {
   // get regions and size
   virtual NAArray<HbaseStr> *getRegionStats(const HbaseStr &tblName) = 0;
 
-  virtual NAArray<HbaseStr> *getClusterStats(Int32 &numEntries) = 0;
+  virtual NAArray<HbaseStr> *getClusterStats(int &numEntries) = 0;
 
   void settrigger_operation(int v) { trigger_operation_ = v; }
   int gettrigger_operation() { return trigger_operation_; }
@@ -562,7 +562,7 @@ class ExpHbaseInterface_JNI : public ExpHbaseInterface {
 
   virtual int scanOpen(HbaseStr &tblName, const Text &startRow, const Text &stopRow, const LIST(HbaseStr) & columns,
                          const int64_t timestamp, const NABoolean useHbaseXn, const NABoolean useMemoryScan,
-                         const Int32 lockMode, Int32 isolationLevel, const NABoolean skipReadConflict,
+                         const int lockMode, int isolationLevel, const NABoolean skipReadConflict,
                          const NABoolean skipTransaction, const NABoolean replSync, const NABoolean cacheBlocks,
                          const NABoolean smallScanner, const int numCacheRows, const NABoolean preFetch,
                          const LIST(NAString) * inColNamesToFilter, const LIST(NAString) * inCompareOpList,
@@ -578,19 +578,19 @@ class ExpHbaseInterface_JNI : public ExpHbaseInterface {
   virtual int isEmpty(HbaseStr &tblName);
 
   virtual int getRowOpen(HbaseStr &tblName, const HbaseStr &row, const LIST(HbaseStr) & columns,
-                           const int64_t timestamp, int numReplications, const Int32 lockMode, Int32 isolationLevel,
+                           const int64_t timestamp, int numReplications, const int lockMode, int isolationLevel,
                            const NABoolean useMemoryScan, const NABoolean skipReadConflict = FALSE,
                            HbaseAccessOptions *hao = NULL, const char *hbaseAuths = NULL,
                            const char *encryptionInfo = NULL);
 
   virtual int getRowsOpen(HbaseStr &tblName, const LIST(HbaseStr) * rows, const LIST(HbaseStr) & columns,
-                            const int64_t timestamp, int numReplications, const Int32 lockMode, Int32 isolationLevel,
+                            const int64_t timestamp, int numReplications, const int lockMode, int isolationLevel,
                             const NABoolean useMemoryScan, const NABoolean skipReadConflict,
                             const NABoolean skipTransactionForBatchGet, HbaseAccessOptions *hao = NULL,
                             const char *hbaseAuths = NULL, const char *encryptionInfo = NULL);
 
   virtual int getRowsOpen(HbaseStr tblName, short rowIDLen, HbaseStr rowIDs, const LIST(HbaseStr) & columns,
-                            int numReplications, const Int32 lockMode, Int32 isolationLevel,
+                            int numReplications, const int lockMode, int isolationLevel,
                             const NABoolean useMemoryScan, const NABoolean skipReadConflict,
                             const NABoolean skipTransactionForBatchGet, const char *encryptionInfo = NULL);
 
@@ -598,7 +598,7 @@ class ExpHbaseInterface_JNI : public ExpHbaseInterface {
 
   virtual int nextCell(HbaseStr &rowId, HbaseStr &colFamName, HbaseStr &colName, HbaseStr &colVal, long &timestamp);
 
-  virtual int completeAsyncOperation(Int32 timeout, NABoolean *resultArray, Int16 resultArrayLen);
+  virtual int completeAsyncOperation(int timeout, NABoolean *resultArray, Int16 resultArrayLen);
 
   virtual int getColVal(int colNo, BYTE *colVal, int &colValLen, NABoolean nullable, BYTE &nullVal, BYTE *tag,
                           int &tagLen, const char *encryptionInfo = NULL);
@@ -701,7 +701,7 @@ class ExpHbaseInterface_JNI : public ExpHbaseInterface {
                            const Text &startRow, const Text &stopRow, const Text &colFamily, const Text &colName,
                            const NABoolean cacheBlocks, const int numCacheRows, const NABoolean replSync,
                            Text &aggrVal,  // returned value
-                           Int32 isolationLevel, Int32 lockMode);
+                           int isolationLevel, int lockMode);
 
   virtual int getClose();
 
@@ -712,22 +712,22 @@ class ExpHbaseInterface_JNI : public ExpHbaseInterface {
   virtual NAArray<HbaseStr> *getRegionBeginKeys(const char *);
   virtual NAArray<HbaseStr> *getRegionEndKeys(const char *);
 
-  virtual int estimateRowCount(HbaseStr &tblName, Int32 partialRowSize, Int32 numCols, Int32 retryLimitMilliSeconds,
-                                 NABoolean useCoprocessor, long &estRC, Int32 &breadCrumb);
+  virtual int estimateRowCount(HbaseStr &tblName, int partialRowSize, int numCols, int retryLimitMilliSeconds,
+                                 NABoolean useCoprocessor, long &estRC, int &breadCrumb);
 
   virtual int cleanSnpTmpLocation(const char *path);
   virtual int setArchivePermissions(const char *tabName);
 
   virtual int getBlockCacheFraction(float &frac);
-  virtual int getHbaseTableInfo(const HbaseStr &tblName, Int32 &indexLevels, Int32 &blockSize);
-  virtual int getRegionsNodeName(const HbaseStr &tblName, Int32 partns, ARRAY(const char *) & nodeNames);
+  virtual int getHbaseTableInfo(const HbaseStr &tblName, int &indexLevels, int &blockSize);
+  virtual int getRegionsNodeName(const HbaseStr &tblName, int partns, ARRAY(const char *) & nodeNames);
 
   virtual NAArray<HbaseStr> *showTablesHDFSCache(const std::vector<Text> &tables);
 
   virtual int addTablesToHDFSCache(const std::vector<Text> &tables, const char *poolName);
   virtual int removeTablesFromHDFSCache(const std::vector<Text> &tables, const char *poolName);
   virtual NAArray<HbaseStr> *getRegionStats(const HbaseStr &tblName);
-  virtual NAArray<HbaseStr> *getClusterStats(Int32 &numEntries);
+  virtual NAArray<HbaseStr> *getClusterStats(int &numEntries);
 
   virtual int createSnapshot(const NAString &tableName, const NAString &snapshotName);
   virtual int restoreSnapshot(const NAString &snapshotName, const NAString &tableName);
@@ -745,7 +745,7 @@ class ExpHbaseInterface_JNI : public ExpHbaseInterface {
 
   virtual int deleteSeqRow(NAString &tabName, NAString &rowId);
 
-  virtual int getLockErrorNum(Int32 retCode);
+  virtual int getLockErrorNum(int retCode);
   virtual int updateTableDefForBinlog(NAString &tabName, NAString &cols, NAString &keyCols, long ts);
   virtual int getTableDefForBinlog(NAString &tabName, NAArray<HbaseStr> **retNames);
 
@@ -768,7 +768,7 @@ class ExpHbaseInterface_JNI : public ExpHbaseInterface {
   HBulkLoadClient_JNI *hblc_;
   BackupRestoreClient_JNI *brc_;
   HTableClient_JNI *asyncHtc_;
-  Int32 retCode_;
+  int retCode_;
   ComStorageType storageType_;
   MTableClient_JNI *mtc_;
   MTableClient_JNI *asyncMtc_;

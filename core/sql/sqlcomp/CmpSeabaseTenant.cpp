@@ -106,16 +106,16 @@ short CmpSeabaseDDL::createSeabaseTenant(ExeCliInterface *cliInterface, NABoolea
     return -1;
   }
 
-  Int32 numTenantTables = sizeof(allMDtenantsInfo) / sizeof(MDTableInfo);
+  int numTenantTables = sizeof(allMDtenantsInfo) / sizeof(MDTableInfo);
   NAString prefixText(" IF NOT EXISTS \"");
   prefixText += NAString(SEABASE_TENANT_SCHEMA) + "\".";
-  for (Int32 i = 0; i < numTenantTables; i++) {
+  for (int i = 0; i < numTenantTables; i++) {
     const MDTableInfo &mdt = allMDtenantsInfo[i];
-    Int32 qryArraySize = mdt.sizeOfnewDDL / sizeof(QString);
+    int qryArraySize = mdt.sizeOfnewDDL / sizeof(QString);
 
     // Concatenate the create table text into a single string
     NAString concatenatedQuery;
-    for (Int32 j = 0; j < qryArraySize; j++) {
+    for (int j = 0; j < qryArraySize; j++) {
       NAString tempStr = mdt.newDDL[j].str;
       concatenatedQuery += tempStr.strip(NAString::leading, ' ');
     }
@@ -197,7 +197,7 @@ short CmpSeabaseDDL::dropSeabaseTenant(ExeCliInterface *cliInterface) {
 
   bool tenantMDexists = isTenantMetadataInitialized(cliInterface);
 
-  Int32 cliRC = 0;
+  int cliRC = 0;
   NABoolean xnWasStartedHere = FALSE;
 
   // remove tenant details if tenantMD exists)
@@ -210,7 +210,7 @@ short CmpSeabaseDDL::dropSeabaseTenant(ExeCliInterface *cliInterface) {
     }
 
     // Drop each returned schema
-    for (Int32 i = 0; i < tenantSchemaList->entries(); i++) {
+    for (int i = 0; i < tenantSchemaList->entries(); i++) {
       TenantSchemaInfo *tenantSchemaInfo = (*tenantSchemaList)[i];
       NAString schemaName = CmpSeabaseDDLtenant::getSchemaName(tenantSchemaInfo->getSchemaUID());
 
@@ -241,7 +241,7 @@ short CmpSeabaseDDL::dropSeabaseTenant(ExeCliInterface *cliInterface) {
   }
 
   // Remove admin roles
-  std::vector<Int32> adminRoles;
+  std::vector<int> adminRoles;
   char adminRoleName[MAX_DBUSERNAME_LEN + 1];
   int32_t length;
   CmpSeabaseDDLauth authInfo;
@@ -250,8 +250,8 @@ short CmpSeabaseDDL::dropSeabaseTenant(ExeCliInterface *cliInterface) {
   cliRC = beginXnIfNotInProgress(cliInterface, xnWasStartedHere);
   if (cliRC < 0) return -1;
 
-  for (Int32 i = 0; i < adminRoles.size(); i++) {
-    Int32 roleID = adminRoles[i];
+  for (int i = 0; i < adminRoles.size(); i++) {
+    int roleID = adminRoles[i];
 
     // Only drop role if found in metadata
     // Ignore otherwise.
@@ -344,7 +344,7 @@ short CmpSeabaseDDL::getTenantNSList(ExeCliInterface *cliInterface, NAList<NAStr
   // Get the list of tenants and their schemas
   char getStmt[100];
   char percent('%');
-  Int32 stmtSize =
+  int stmtSize =
       snprintf(getStmt, sizeof(getStmt), "get trafodion namespaces, match '%s1%c'", TRAF_NAMESPACE_PREFIX, percent);
 
   if (stmtSize >= 100) {
@@ -352,7 +352,7 @@ short CmpSeabaseDDL::getTenantNSList(ExeCliInterface *cliInterface, NAList<NAStr
     return -1;
   }
   Queue *tableQueue = NULL;
-  Int32 cliRC = cliInterface->fetchAllRows(tableQueue, getStmt, 0, false, false, true);
+  int cliRC = cliInterface->fetchAllRows(tableQueue, getStmt, 0, false, false, true);
   if (cliRC < 0) {
     cliInterface->retrieveSQLDiagnostics(CmpCommon::diags());
     return -1;
@@ -363,7 +363,7 @@ short CmpSeabaseDDL::getTenantNSList(ExeCliInterface *cliInterface, NAList<NAStr
     return 0;
 
   tableQueue->position();
-  for (Int32 i = 0; i < tableQueue->numEntries(); i++) {
+  for (int i = 0; i < tableQueue->numEntries(); i++) {
     OutputInfo *pCliRow = (OutputInfo *)tableQueue->getNext();
 
     // column 1:  namespace name
@@ -392,12 +392,12 @@ short CmpSeabaseDDL::getTenantSchemaList(ExeCliInterface *cliInterface, TenantSc
   // Caller manages memory for the list, must have allocated an empty list
   assert(tenantSchemaList && tenantSchemaList->entries() == 0);
 
-  Int32 cliRC = isTenantMetadataInitialized(cliInterface);
+  int cliRC = isTenantMetadataInitialized(cliInterface);
   if (cliRC != 1) return cliRC;
 
   // Get the list of tenants and their schemas
   char selectStmt[500];
-  Int32 stmtSize = snprintf(selectStmt, sizeof(selectStmt),
+  int stmtSize = snprintf(selectStmt, sizeof(selectStmt),
                             "select t.tenant_id, u.usage_uid, case "
                             "when default_schema_uid = u.usage_uid then 1 "
                             "else 0 end from %s.\"%s\".%s t, %s.\"%s\".%s u "
@@ -411,7 +411,7 @@ short CmpSeabaseDDL::getTenantSchemaList(ExeCliInterface *cliInterface, TenantSc
     return -1;
   }
 
-  Int32 diagsMark = CmpCommon::diags()->mark();
+  int diagsMark = CmpCommon::diags()->mark();
   Queue *tableQueue = NULL;
   cliRC = cliInterface->fetchAllRows(tableQueue, selectStmt, 0, false, false, true);
 
@@ -428,13 +428,13 @@ short CmpSeabaseDDL::getTenantSchemaList(ExeCliInterface *cliInterface, TenantSc
   }
 
   tableQueue->position();
-  for (Int32 i = 0; i < tableQueue->numEntries(); i++) {
+  for (int i = 0; i < tableQueue->numEntries(); i++) {
     OutputInfo *pCliRow = (OutputInfo *)tableQueue->getNext();
 
     // column 1:  tenant_id; column 2:  usage_id; column 3: default_schema
-    Int32 tenantID(*(Int32 *)pCliRow->get(0));
+    int tenantID(*(int *)pCliRow->get(0));
     long schemaUID(*(long *)pCliRow->get(1));
-    Int32 defSch(*(Int32 *)pCliRow->get(2));
+    int defSch(*(int *)pCliRow->get(2));
     TenantSchemaInfo *tenantSchemaInfo = new (STMTHEAP) TenantSchemaInfo(tenantID, schemaUID, defSch);
     tenantSchemaList->insert(tenantSchemaInfo);
   }
@@ -452,11 +452,11 @@ short CmpSeabaseDDL::getTenantSchemaList(ExeCliInterface *cliInterface, TenantSc
 //    1 - Metadata exists
 // -----------------------------------------------------------------------------
 short CmpSeabaseDDL::isTenantMetadataInitialized(ExeCliInterface *cliInterface) {
-  Int32 cliRC;
+  int cliRC;
 
   // If tenant ID exists in cache and it is not one of the default values,
   // assume tenants are initialized
-  Int32 tenantID = ComTenant::getCurrentTenantID();
+  int tenantID = ComTenant::getCurrentTenantID();
   if (tenantID != SYSTEM_TENANT_ID && tenantID != NA_UserIdDefault) return 1;
 
   // read metadata to see if tenant schema exists
@@ -475,7 +475,7 @@ short CmpSeabaseDDL::isTenantMetadataInitialized(ExeCliInterface *cliInterface) 
 short CmpSeabaseDDL::isTenantSchema(ExeCliInterface *cliInterface, const long &schemaUID) {
   // read tenant_usage to to see if the current schemaUID exists
   char selectStmt[500];
-  Int32 stmtSize = snprintf(selectStmt, sizeof(selectStmt),
+  int stmtSize = snprintf(selectStmt, sizeof(selectStmt),
                             "select count(*) from %s.\"%s\".%s u "
                             "where usage_uid = %ld and usage_type = 'S' ",
                             getSystemCatalog(), SEABASE_TENANT_SCHEMA, SEABASE_TENANT_USAGE, schemaUID);
@@ -508,7 +508,7 @@ short CmpSeabaseDDL::isTenantSchema(ExeCliInterface *cliInterface, const long &s
 // ----------------------------------------------------------------------------
 void CmpSeabaseDDL::registerSeabaseTenant(ExeCliInterface *cliInterface, StmtDDLTenant *pNode) {
   CmpSeabaseDDLtenant reg_tenant(getSystemCatalog(), getMDSchema());
-  Int32 adminRoleID = 0;
+  int adminRoleID = 0;
   if (reg_tenant.registerTenantPrepare(pNode, adminRoleID) == -1) return;
 
   char intStr[20];
@@ -522,7 +522,7 @@ void CmpSeabaseDDL::registerSeabaseTenant(ExeCliInterface *cliInterface, StmtDDL
 
   NABoolean xnWasStartedHere = FALSE;
   short abortXn = 0;
-  Int32 cliRC = beginXnIfNotInProgress(cliInterface, xnWasStartedHere);
+  int cliRC = beginXnIfNotInProgress(cliInterface, xnWasStartedHere);
   if (cliRC < 0)
     abortXn = -1;
   else {
@@ -552,14 +552,14 @@ void CmpSeabaseDDL::unregisterSeabaseTenant(ExeCliInterface *cliInterface, StmtD
   TenantInfo tenantInfo(STMTHEAP);
   if (reg_tenant.getTenantDetails(pNode->getTenantName(), tenantInfo) == CmpSeabaseDDLauth::STATUS_ERROR) return;
 
-  Int32 cliRC;
+  int cliRC;
   NABoolean xnWasStartedHere = FALSE;
 
   // get list of schemas to drop
   if (pNode->dropDependencies()) {
     NAList<NAString> *schemaList = new (STMTHEAP) NAList<NAString>(STMTHEAP);
     if (tenantInfo.getUsageList()) {
-      for (Int32 i = 0; i < tenantInfo.getUsageList()->entries(); i++) {
+      for (int i = 0; i < tenantInfo.getUsageList()->entries(); i++) {
         TenantUsage usage = (*tenantInfo.getUsageList())[i];
         if (usage.isSchemaUsage()) {
           // See if schema exists, if not skip it and continue
@@ -571,7 +571,7 @@ void CmpSeabaseDDL::unregisterSeabaseTenant(ExeCliInterface *cliInterface, StmtD
     }
 
     // drop (cleanup) schemas, each in its own schema
-    for (Int32 i = 0; i < schemaList->entries(); i++) {
+    for (int i = 0; i < schemaList->entries(); i++) {
       NAString dropStmt("DROP SCHEMA ");
       dropStmt += (*schemaList)[i];
       dropStmt += " CASCADE";
@@ -654,16 +654,16 @@ short CmpSeabaseDDL::upgradeSeabaseTenant(ExeCliInterface *cliInterface) {
 
   // Additional tables may have been added since tenants was installed.
   // create any new tables
-  Int32 numTenantTables = sizeof(allMDtenantsInfo) / sizeof(MDTableInfo);
+  int numTenantTables = sizeof(allMDtenantsInfo) / sizeof(MDTableInfo);
   NAString prefixText(" IF NOT EXISTS \"");
   prefixText += NAString(SEABASE_TENANT_SCHEMA) + "\".";
-  for (Int32 i = 0; i < numTenantTables; i++) {
+  for (int i = 0; i < numTenantTables; i++) {
     const MDTableInfo &mdt = allMDtenantsInfo[i];
-    Int32 qryArraySize = mdt.sizeOfnewDDL / sizeof(QString);
+    int qryArraySize = mdt.sizeOfnewDDL / sizeof(QString);
 
     // Concatenate the create table text into a single string
     NAString concatenatedQuery;
-    for (Int32 j = 0; j < qryArraySize; j++) {
+    for (int j = 0; j < qryArraySize; j++) {
       NAString tempStr = mdt.newDDL[j].str;
       concatenatedQuery += tempStr.strip(NAString::leading, ' ');
     }
@@ -702,7 +702,7 @@ short CmpSeabaseDDL::upgradeSeabaseTenant(ExeCliInterface *cliInterface) {
     // This code can be removed once all system tenants are updated
     // this way.
     TenantInfo systemTenantInfo(STMTHEAP);
-    Int32 retcode = TenantInfo::getTenantInfo(authDefinition.authID, systemTenantInfo);
+    int retcode = TenantInfo::getTenantInfo(authDefinition.authID, systemTenantInfo);
 
     systemTenantInfo.setTenantName(authDefinition.authName);
     if (retcode < 0)
@@ -745,7 +745,7 @@ short CmpSeabaseDDL::upgradeSeabaseTenant(ExeCliInterface *cliInterface) {
 void CmpSeabaseDDL::createSeabaseRGroup(ExeCliInterface *cliInterface, StmtDDLResourceGroup *pNode) {
   //  Verify authority
   //  DB__ROOT or user with CREATE component privilege can perform operation
-  Int32 currentUser = ComUser::getCurrentUser();
+  int currentUser = ComUser::getCurrentUser();
   if (CmpCommon::context()->isAuthorizationEnabled()) {
     if (currentUser != ComUser::getRootUserID()) {
       NAString systemCatalog = CmpSeabaseDDL::getSystemCatalogStatic();
@@ -792,7 +792,7 @@ void CmpSeabaseDDL::createSeabaseRGroup(ExeCliInterface *cliInterface, StmtDDLRe
   }
 
   // Determine owner of resource group
-  Int32 grantee = currentUser;
+  int grantee = currentUser;
   if (pNode->getOwner()) {
     // authorization clause specified, verify it exists and is a user or non admin role
     NAString authName(*pNode->getOwner());
@@ -888,7 +888,7 @@ void CmpSeabaseDDL::alterSeabaseRGroup(ExeCliInterface *cliInterface, StmtDDLRes
   // Verify authority
   // DB__ROOT, group owner, or user with MANAGE_TENANT or MANAGE_RESOURCE_GROUPS
   // component privileges can perform operation
-  Int32 currentUser = ComUser::getCurrentUser();
+  int currentUser = ComUser::getCurrentUser();
   if (CmpCommon::context()->isAuthorizationEnabled()) {
     if (currentUser != ComUser::getRootUserID() && currentUser != group.getCreator()) {
       PrivMgrComponentPrivileges componentPrivileges;
@@ -915,7 +915,7 @@ void CmpSeabaseDDL::alterSeabaseRGroup(ExeCliInterface *cliInterface, StmtDDLRes
       // generate additional resource usages
       TenantResourceUsageList *existingUsageList = group.getUsageList();
       TenantResourceUsageList addUsageList(group.getCli(), (NAHeap *)group.getHeap());
-      Int32 numUsages = 0;
+      int numUsages = 0;
 
       for (CollIndex i = 0; i < pNode->getNodeList()->entries(); i++) {
         // If node already assigned, ignore and continue
@@ -960,8 +960,8 @@ void CmpSeabaseDDL::alterSeabaseRGroup(ExeCliInterface *cliInterface, StmtDDLRes
       assert(pNode->getNodeList());
 
       char buf[100];
-      Int32 stmtSize = 0;
-      Int32 numUsages = 0;
+      int stmtSize = 0;
+      int numUsages = 0;
       TenantResourceUsageList *existingUsageList = group.getUsageList();
 
       // Clause defining rgroup - node usage to be deleted from resource usage
@@ -1053,7 +1053,7 @@ void CmpSeabaseDDL::alterSeabaseRGroup(ExeCliInterface *cliInterface, StmtDDLRes
 
       // Remove "node" resource from resources if "node" is no longer
       // referenced by any other resource group
-      Int32 bufSize = 500 + nodeObsoleteClause.length();
+      int bufSize = 500 + nodeObsoleteClause.length();
       char deleteStmt[bufSize];
 
       NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
@@ -1066,7 +1066,7 @@ void CmpSeabaseDDL::alterSeabaseRGroup(ExeCliInterface *cliInterface, StmtDDLRes
                           sysCat.data(), SEABASE_TENANT_SCHEMA, SEABASE_RESOURCE_USAGE, group.getResourceUID());
       assert(stmtSize < bufSize);
 
-      Int32 cliRC = cliInterface->executeImmediate(deleteStmt);
+      int cliRC = cliInterface->executeImmediate(deleteStmt);
       if (cliRC < 0) {
         cliInterface->retrieveSQLDiagnostics(CmpCommon::diags());
         return;
@@ -1125,7 +1125,7 @@ void CmpSeabaseDDL::dropSeabaseRGroup(ExeCliInterface *cliInterface, const StmtD
   // Verify authority
   // DB__ROOT, group owner, or user with MANAGE_TENANT or MANAGE_RESOURCE_GROUPS
   // component privileges can perform operation
-  Int32 currentUser = ComUser::getCurrentUser();
+  int currentUser = ComUser::getCurrentUser();
   if (CmpCommon::context()->isAuthorizationEnabled()) {
     if (currentUser != ComUser::getRootUserID() && currentUser != group.getCreator()) {
       PrivMgrComponentPrivileges componentPrivileges;
@@ -1169,26 +1169,26 @@ void CmpSeabaseDDL::dropSeabaseRGroup(ExeCliInterface *cliInterface, const StmtD
 //    -1 - unexpected error
 //   >=0 - number of resources authID owns
 // -----------------------------------------------------------------------------
-long CmpSeabaseDDL::authIDOwnsResources(Int32 authID, NAString &resourceNames) {
+long CmpSeabaseDDL::authIDOwnsResources(int authID, NAString &resourceNames) {
   ExeCliInterface cliInterface(STMTHEAP);
   NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
 
   // Does user own any resources
-  Int32 bufSize = 500;
+  int bufSize = 500;
   char buf[bufSize];
   snprintf(buf, bufSize,
            "SELECT [FIRST 5] resource_name FROM %s.\"%s\".%s"
            " WHERE RESOURCE_CREATOR = %d ",
            sysCat.data(), SEABASE_TENANT_SCHEMA, SEABASE_RESOURCES, authID);
 
-  Int32 len = 0;
+  int len = 0;
 
   Queue *tableQueue = NULL;
-  Int32 cliRC = cliInterface.fetchAllRows(tableQueue, buf, 0, false, false, true);
+  int cliRC = cliInterface.fetchAllRows(tableQueue, buf, 0, false, false, true);
 
   tableQueue->position();
   long rowCount = 0;
-  for (Int32 i = 0; i < tableQueue->numEntries(); i++) {
+  for (int i = 0; i < tableQueue->numEntries(); i++) {
     OutputInfo *pCliRow = (OutputInfo *)tableQueue->getNext();
 
     // column 0:  resource_name
@@ -1263,21 +1263,21 @@ NAString TenantUsage::getUsageTypeAsString(TenantUsageType usageType) {
 //
 // Deletes rows based on the passed in whereClause
 // ----------------------------------------------------------------------------
-Int32 TenantUsageList::deleteUsages(const char *whereClause) {
+int TenantUsageList::deleteUsages(const char *whereClause) {
   NAString mdLocation;
   CONCAT_CATSCH(mdLocation, CmpSeabaseDDL::getSystemCatalogStatic(), SEABASE_TENANT_SCHEMA);
   mdLocation += NAString('.') + SEABASE_TENANT_USAGE;
 
   int deleteStmtLen = strlen(whereClause) + 200;
   char deleteStmt[deleteStmtLen];
-  Int32 stmtSize = snprintf(deleteStmt, sizeof(deleteStmt), "delete from %s %s", mdLocation.data(), whereClause);
+  int stmtSize = snprintf(deleteStmt, sizeof(deleteStmt), "delete from %s %s", mdLocation.data(), whereClause);
   if (stmtSize >= deleteStmtLen) {
     SEABASEDDL_INTERNAL_ERROR("TenantUsageList::deleteUsages failed, internal buffer size too small");
     return -1;
   }
 
   ExeCliInterface cliInterface(heap_, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
-  Int32 cliRC = cliInterface.executeImmediate(deleteStmt);
+  int cliRC = cliInterface.executeImmediate(deleteStmt);
   if (cliRC < 0) {
     cliInterface.retrieveSQLDiagnostics(CmpCommon::diags());
     return -1;
@@ -1295,7 +1295,7 @@ Int32 TenantUsageList::deleteUsages(const char *whereClause) {
 //    FALSE - did not find usage
 // ----------------------------------------------------------------------------
 NABoolean TenantUsageList::findTenantUsage(const long tenantUsageID, TenantUsage &tenantUsage) const {
-  for (Int32 i = 0; i < entries(); i++) {
+  for (int i = 0; i < entries(); i++) {
     TenantUsage usage = operator[](i);
     if (usage.getUsageID() == tenantUsageID) {
       tenantUsage = usage;
@@ -1319,7 +1319,7 @@ long TenantUsageList::possibleDefSchUID() const {
   if (entries() == 0) return 0;
 
   long schemaUID = 0;
-  for (Int32 i = 0; i < entries(); i++) {
+  for (int i = 0; i < entries(); i++) {
     TenantUsage usage = operator[](i);
     if (usage.getUsageType() == TenantUsage::TENANT_USAGE_SCHEMA) {
       // If schemaUID already found, then can't determine default
@@ -1337,9 +1337,9 @@ long TenantUsageList::possibleDefSchUID() const {
 //
 // Returns the number of schema usages that have have changed.
 // -----------------------------------------------------------------------------
-Int32 TenantUsageList::getNewSchemaUsages() {
-  Int32 numUsages = 0;
-  for (Int32 i = 0; i < entries(); i++) {
+int TenantUsageList::getNewSchemaUsages() {
+  int numUsages = 0;
+  for (int i = 0; i < entries(); i++) {
     TenantUsage usage = operator[](i);
     if (usage.getUsageType() == TenantUsage::TENANT_USAGE_SCHEMA) {
       if (usage.isUnchanged()) continue;
@@ -1356,9 +1356,9 @@ Int32 TenantUsageList::getNewSchemaUsages() {
 //
 // returns the number of usages for a tenant based on usageType
 // ----------------------------------------------------------------------------
-Int32 TenantUsageList::getNumberUsages(const TenantUsage::TenantUsageType &usageType, bool skipObsolete) const {
-  Int32 numUsages = 0;
-  for (Int32 i = 0; i < entries(); i++) {
+int TenantUsageList::getNumberUsages(const TenantUsage::TenantUsageType &usageType, bool skipObsolete) const {
+  int numUsages = 0;
+  for (int i = 0; i < entries(); i++) {
     TenantUsage usage = operator[](i);
     if (usage.getUsageType() == usageType) {
       if (skipObsolete && usage.isObsolete()) continue;
@@ -1381,14 +1381,14 @@ Int32 TenantUsageList::getNumberUsages(const TenantUsage::TenantUsageType &usage
 // This method allocates space for the usages list.  The caller is responsible
 // for deleting the memory.
 // ----------------------------------------------------------------------------
-Int32 TenantUsageList::selectUsages(const Int32 tenantID, NAHeap *heap) {
+int TenantUsageList::selectUsages(const int tenantID, NAHeap *heap) {
   NAString mdLocation;
   CONCAT_CATSCH(mdLocation, CmpSeabaseDDL::getSystemCatalogStatic(), SEABASE_TENANT_SCHEMA);
   mdLocation += NAString('.') + SEABASE_TENANT_USAGE;
 
   // Find usages for tenant identified by tenantID
   char selectStmt[500];
-  Int32 stmtSize = snprintf(selectStmt, sizeof(selectStmt),
+  int stmtSize = snprintf(selectStmt, sizeof(selectStmt),
                             "select usage_uid, usage_type, flags "
                             "from %s where tenant_id = %d",
                             mdLocation.data(), tenantID);
@@ -1397,10 +1397,10 @@ Int32 TenantUsageList::selectUsages(const Int32 tenantID, NAHeap *heap) {
     return -1;
   }
 
-  Int32 diagsMark = CmpCommon::diags()->mark();
+  int diagsMark = CmpCommon::diags()->mark();
   ExeCliInterface cliInterface(heap, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
   Queue *tableQueue = NULL;
-  Int32 cliRC = cliInterface.fetchAllRows(tableQueue, selectStmt, 0, false, false, true);
+  int cliRC = cliInterface.fetchAllRows(tableQueue, selectStmt, 0, false, false, true);
 
   if (cliRC < 0) {
     cliInterface.retrieveSQLDiagnostics(CmpCommon::diags());
@@ -1419,7 +1419,7 @@ Int32 TenantUsageList::selectUsages(const Int32 tenantID, NAHeap *heap) {
   }
 
   tableQueue->position();
-  for (Int32 i = 0; i < tableQueue->numEntries(); i++) {
+  for (int i = 0; i < tableQueue->numEntries(); i++) {
     OutputInfo *pCliRow = (OutputInfo *)tableQueue->getNext();
     TenantUsage tenantUsage;
 
@@ -1443,7 +1443,7 @@ Int32 TenantUsageList::selectUsages(const Int32 tenantID, NAHeap *heap) {
 // Set all resource group usages to obsolete.
 // -----------------------------------------------------------------------------
 void TenantUsageList::obsoleteTenantRGroupUsages() {
-  for (Int32 i = 0; i < entries(); i++) {
+  for (int i = 0; i < entries(); i++) {
     if (operator[](i).getUsageType() == TenantUsage::TENANT_USAGE_RESOURCE) operator[](i).setIsObsolete(true);
   }
 }
@@ -1454,7 +1454,7 @@ void TenantUsageList::obsoleteTenantRGroupUsages() {
 // Set the specified tenant usage obsolete.
 // -----------------------------------------------------------------------------
 void TenantUsageList::setTenantUsageObsolete(const long tenantUsageID, const bool obsolete) {
-  for (Int32 i = 0; i < entries(); i++) {
+  for (int i = 0; i < entries(); i++) {
     if (operator[](i).getUsageID() == tenantUsageID) {
       operator[](i).setIsObsolete(obsolete);
       return;
@@ -1471,15 +1471,15 @@ void TenantUsageList::setTenantUsageObsolete(const long tenantUsageID, const boo
 //    0 - successful
 //   -1 - fails
 // ----------------------------------------------------------------------------
-Int32 TenantUsageList::insertUsages() {
-  Int32 stmtSize = (entries() * 30) + 500;
+int TenantUsageList::insertUsages() {
+  int stmtSize = (entries() * 30) + 500;
   char stmt[stmtSize];
-  Int32 maxSize = 0;
+  int maxSize = 0;
 
   // Create the values clause
   std::string valuesClause;
   bool addComma = false;
-  for (Int32 i = 0; i < entries(); i++) {
+  for (int i = 0; i < entries(); i++) {
     TenantUsage usage = operator[](i);
     if (usage.isUnchanged()) continue;
 
@@ -1510,7 +1510,7 @@ Int32 TenantUsageList::insertUsages() {
   }
 
   ExeCliInterface cliInterface(heap_, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
-  Int32 cliRC = cliInterface.executeImmediate(stmt);
+  int cliRC = cliInterface.executeImmediate(stmt);
 
   if (cliRC < 0) {
     cliInterface.retrieveSQLDiagnostics(CmpCommon::diags());
@@ -1525,7 +1525,7 @@ Int32 TenantUsageList::insertUsages() {
 //
 // ****************************************************************************
 
-TenantInfo::TenantInfo(const Int32 tenantID, const Int32 adminRoleID, const long defaultSchemaUID,
+TenantInfo::TenantInfo(const int tenantID, const int adminRoleID, const long defaultSchemaUID,
                        TenantUsageList *usageList, NAWNodeSet *tenantNodeSet, NAString tenantName, NAHeap *heap)
     : tenantID_(tenantID),
       adminRoleID_(adminRoleID),
@@ -1544,7 +1544,7 @@ TenantInfo::TenantInfo(const Int32 tenantID, const Int32 adminRoleID, const long
 // If AS sizing, return value stored in the NAASNode class
 // otherwise return -1, RG tenants do not have the concept of affinity.
 // -----------------------------------------------------------------------------
-const Int32 TenantInfo::getAffinity() {
+const int TenantInfo::getAffinity() {
   if (assignedNodes_ && assignedNodes_->castToNAASNodes()) return assignedNodes_->castToNAASNodes()->getAffinity();
 
   return -1;
@@ -1555,7 +1555,7 @@ const Int32 TenantInfo::getAffinity() {
 // If AS sizing, return value stored in the NAASNode class
 // otherwise return -1, RG tenants do not have the concept of affinity
 // -----------------------------------------------------------------------------
-const Int32 TenantInfo::getClusterSize() {
+const int TenantInfo::getClusterSize() {
   if (assignedNodes_ && assignedNodes_->castToNAASNodes()) return assignedNodes_->castToNAASNodes()->getClusterSize();
 
   return -1;
@@ -1571,7 +1571,7 @@ const Int32 TenantInfo::getClusterSize() {
 // If assignedNodes has been allocated, return value stored in NAWNodeSet
 // otherwise return -1, both AS and RG store
 // -----------------------------------------------------------------------------
-const Int32 TenantInfo::getTenantSize() {
+const int TenantInfo::getTenantSize() {
   if (assignedNodes_ == NULL) return -1;
 
   return assignedNodes_->getTenantSize();
@@ -1623,7 +1623,7 @@ bool TenantInfo::validateTenantSize() {
 //
 // throws an exception if any errors occur
 // ----------------------------------------------------------------------------
-void TenantInfo::balanceTenantNodeAlloc(const NAString &tenantDefaultSchema, const Int32 sessionLimit, bool isBackout,
+void TenantInfo::balanceTenantNodeAlloc(const NAString &tenantDefaultSchema, const int sessionLimit, bool isBackout,
                                         NAWNodeSet *origTenantNodeSet, NAWNodeSet *&tenantNodeSet,
                                         TenantResourceUsageList *&tenantRUsageList, bool &registrationComplete) {
   // session limit
@@ -1722,8 +1722,8 @@ void TenantInfo::balanceTenantNodeAlloc(const NAString &tenantDefaultSchema, con
 //
 // Throws an exception if any error occur
 //-----------------------------------------------------------------------------
-void TenantInfo::allocTenantNode(const NABoolean AStenant, const Int32 affinity, const Int32 clusterSize,
-                                 const Int32 units, TenantNodeInfoList *nodeList, NAWNodeSet *&tenantNodeSet,
+void TenantInfo::allocTenantNode(const NABoolean AStenant, const int affinity, const int clusterSize,
+                                 const int units, TenantNodeInfoList *nodeList, NAWNodeSet *&tenantNodeSet,
                                  bool skipInvalidWeights) {
   if (getTenantID() == SYSTEM_TENANT_ID)
     tenantNodeSet = new (STMTHEAP) NAASNodes(-1, -1, -1);
@@ -1736,7 +1736,7 @@ void TenantInfo::allocTenantNode(const NABoolean AStenant, const Int32 affinity,
       // add list of nodes for tenant unit allocation
       for (CollIndex i = 0; i < nodeList->entries(); i++) {
         TenantNodeInfo nodeInfo = (*nodeList)[i];
-        Int32 nodeWeight = (nodeInfo.getNodeWeight() > 0) ? nodeInfo.getNodeWeight() : -1;
+        int nodeWeight = (nodeInfo.getNodeWeight() > 0) ? nodeInfo.getNodeWeight() : -1;
         if (skipInvalidWeights && nodeWeight == -1) continue;
         tn->addNode(nodeInfo.getLogicalNodeID(), nodeWeight);
       }
@@ -1762,7 +1762,7 @@ void TenantInfo::allocTenantNode(const NABoolean AStenant, const Int32 affinity,
 //    0 = succeeded
 //   -1 = failed (diags area is set up with error)
 // ----------------------------------------------------------------------------
-Int32 TenantInfo::addTenantInfo(const Int32 tenantSize) {
+int TenantInfo::addTenantInfo(const int tenantSize) {
   // Insert a row into TENANTS table
   if (insertRow(tenantSize) != 0) return -1;
 
@@ -1781,7 +1781,7 @@ Int32 TenantInfo::addTenantInfo(const Int32 tenantSize) {
 //    0 = succeeded
 //   -1 = failed (diags area is set up with error)
 // ----------------------------------------------------------------------------
-Int32 TenantInfo::dropTenantInfo() {
+int TenantInfo::dropTenantInfo() {
   // Drop any rows in TENANT_USAGE that have been granted to the current tenant
   std::string whereClause("where tenant_id = ");
   whereClause += PrivMgr::authIDToString(tenantID_);
@@ -1805,13 +1805,13 @@ Int32 TenantInfo::dropTenantInfo() {
 //    0 = succeeded
 //   -1 = failed (diags area is set up with error)
 // ----------------------------------------------------------------------------
-Int32 TenantInfo::dropTenantInfo(bool updateTenants, const TenantUsageList *usageList) {
+int TenantInfo::dropTenantInfo(bool updateTenants, const TenantUsageList *usageList) {
   // Drop all rows in TENANT_USAGE that match the usageList
   if (usageList->entries() > 0) {
     std::string whereClause("where tenant_id =  ");
     whereClause += PrivMgr::authIDToString(tenantID_);
     whereClause += " and usage_uid in (";
-    for (Int32 i = 0; i < usageList->entries(); i++) {
+    for (int i = 0; i < usageList->entries(); i++) {
       TenantUsage usage = (*usageList)[i];
       if (i > 0) whereClause += ", ";
       whereClause += PrivMgr::UIDToString(usage.getUsageID());
@@ -1827,7 +1827,7 @@ Int32 TenantInfo::dropTenantInfo(bool updateTenants, const TenantUsageList *usag
   return 0;
 }
 
-Int32 TenantInfo::modifyTenantInfo(const bool updateInfo, const TenantUsageList *usageList) {
+int TenantInfo::modifyTenantInfo(const bool updateInfo, const TenantUsageList *usageList) {
   short retcode = 0;
 
   if (usageList) {
@@ -1875,7 +1875,7 @@ Int32 TenantInfo::modifyTenantInfo(const bool updateInfo, const TenantUsageList 
 //    0 = succeeded
 //   -1 = failed (diags area is set up with error)
 // ----------------------------------------------------------------------------
-Int32 TenantInfo::updateTenantInfo(const bool updateInfo, TenantUsageList *usageList, const Int32 tenantSize) {
+int TenantInfo::updateTenantInfo(const bool updateInfo, TenantUsageList *usageList, const int tenantSize) {
   // add usage, insert row into TENANT_USAGE table
   if (usageList && usageList->entries() > 0)
     if (usageList->insertUsages() != 0) return -1;
@@ -1892,13 +1892,13 @@ Int32 TenantInfo::updateTenantInfo(const bool updateInfo, TenantUsageList *usage
 //
 // Deletes a row from the TENANTS table
 // ----------------------------------------------------------------------------
-Int32 TenantInfo::deleteRow() {
+int TenantInfo::deleteRow() {
   NAString mdLocation;
   CONCAT_CATSCH(mdLocation, CmpSeabaseDDL::getSystemCatalogStatic(), SEABASE_TENANT_SCHEMA);
   mdLocation += NAString('.') + SEABASE_TENANTS;
 
   char deleteStmt[500];
-  Int32 stmtSize =
+  int stmtSize =
       snprintf(deleteStmt, sizeof(deleteStmt), "delete from %s where tenant_id = %d", mdLocation.data(), tenantID_);
 
   if (stmtSize >= 500) {
@@ -1907,7 +1907,7 @@ Int32 TenantInfo::deleteRow() {
   }
 
   ExeCliInterface cliInterface(heap_, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
-  Int32 cliRC = cliInterface.executeImmediate(deleteStmt);
+  int cliRC = cliInterface.executeImmediate(deleteStmt);
   if (cliRC < 0) {
     cliInterface.retrieveSQLDiagnostics(CmpCommon::diags());
     return -1;
@@ -1926,7 +1926,7 @@ Int32 TenantInfo::deleteRow() {
 //   -1 = failed (diags area contains error details)
 //    0 = succeeded
 // ----------------------------------------------------------------------------
-Int32 TenantInfo::insertRow(const Int32 tenantSize) {
+int TenantInfo::insertRow(const int tenantSize) {
   NAString mdLocation;
   CONCAT_CATSCH(mdLocation, CmpSeabaseDDL::getSystemCatalogStatic(), SEABASE_TENANT_SCHEMA);
   mdLocation += NAString('.') + SEABASE_TENANTS;
@@ -1935,7 +1935,7 @@ Int32 TenantInfo::insertRow(const Int32 tenantSize) {
   // insertStmt length has to be increased when tenantDetails is supported (+3000)
   NAString details = tenantDetails_ ? tenantDetails_->data() : " ";
   char insertStmt[500];
-  Int32 stmtSize =
+  int stmtSize =
       snprintf(insertStmt, sizeof(insertStmt), "insert into %s values (%d, %d, %ld, %d, %d, %d, '%s', %ld)",
                mdLocation.data(), tenantID_, adminRoleID_, defaultSchemaUID_, getAffinity(), getClusterSize(),
                ((tenantSize == -1) ? getTenantSize() : tenantSize), details.data(), flags_);
@@ -1945,7 +1945,7 @@ Int32 TenantInfo::insertRow(const Int32 tenantSize) {
   }
 
   ExeCliInterface cliInterface(heap_, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
-  Int32 cliRC = cliInterface.executeImmediate(insertStmt);
+  int cliRC = cliInterface.executeImmediate(insertStmt);
   if (cliRC < 0) {
     cliInterface.retrieveSQLDiagnostics(CmpCommon::diags());
     return -1;
@@ -1963,14 +1963,14 @@ Int32 TenantInfo::insertRow(const Int32 tenantSize) {
 //    0 = succeeded
 //
 //-----------------------------------------------------------------------------
-Int32 TenantInfo::selectRow(const std::string &whereClause) {
+int TenantInfo::selectRow(const std::string &whereClause) {
   NAString mdLocation;
   CONCAT_CATSCH(mdLocation, CmpSeabaseDDL::getSystemCatalogStatic(), SEABASE_TENANT_SCHEMA);
   mdLocation += NAString('.') + SEABASE_TENANTS;
 
-  Int32 selectStmtSize = whereClause.length() + 500;
+  int selectStmtSize = whereClause.length() + 500;
   char selectStmt[selectStmtSize];
-  Int32 stmtSize = snprintf(selectStmt, sizeof(selectStmt),
+  int stmtSize = snprintf(selectStmt, sizeof(selectStmt),
                             "select tenant_id, admin_role_id, default_schema_uid, "
                             " affinity, cluster_size, tenant_size, flags "
                             "from %s %s",
@@ -1981,10 +1981,10 @@ Int32 TenantInfo::selectRow(const std::string &whereClause) {
     return -1;
   }
 
-  Int32 diagsMark = CmpCommon::diags()->mark();
+  int diagsMark = CmpCommon::diags()->mark();
   ExeCliInterface cliInterface(heap_, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
   Queue *tableQueue = NULL;
-  Int32 cliRC = cliInterface.fetchAllRows(tableQueue, selectStmt, 0, false, false, true);
+  int cliRC = cliInterface.fetchAllRows(tableQueue, selectStmt, 0, false, false, true);
 
   if (cliRC < 0) {
     cliInterface.retrieveSQLDiagnostics(CmpCommon::diags());
@@ -2009,11 +2009,11 @@ Int32 TenantInfo::selectRow(const std::string &whereClause) {
   // column 2: default_schema_uid   column 3: affinity
   // column 4: cluster_size         column 5: tenant_size
   // column 6: flags
-  setTenantID(*(Int32 *)pCliRow->get(0));
-  setAdminRoleID(*(Int32 *)pCliRow->get(1));
+  setTenantID(*(int *)pCliRow->get(0));
+  setAdminRoleID(*(int *)pCliRow->get(1));
   setDefaultSchemaUID(*(long *)pCliRow->get(2));
-  Int32 affinity = (*(Int32 *)pCliRow->get(3));
-  Int32 tenantSize = (*(Int32 *)pCliRow->get(5));
+  int affinity = (*(int *)pCliRow->get(3));
+  int tenantSize = (*(int *)pCliRow->get(5));
 
   // Older code stores system tenant info as 0,0,0.  During upgrade,
   // we change these values to -1,-1,-1 but this is done after we read the
@@ -2023,7 +2023,7 @@ Int32 TenantInfo::selectRow(const std::string &whereClause) {
     setTenantNodes(new (heap_) NAASNodes(-1, -1, 0));
   else if (affinity >= 0) {
     // This sets up the assignedNodes as an NAASNode, this may
-    setTenantNodes(new (heap_) NAASNodes(tenantSize, *(Int32 *)pCliRow->get(4), affinity));
+    setTenantNodes(new (heap_) NAASNodes(tenantSize, *(int *)pCliRow->get(4), affinity));
   } else {
     setTenantNodes(new (heap_) NAWSetOfNodeIds(STMTHEAP, tenantSize));
   }
@@ -2044,13 +2044,13 @@ Int32 TenantInfo::selectRow(const std::string &whereClause) {
     }
 
     // add node ID's and node weights
-    std::map<Int32, Int32> nodeMap;
+    std::map<int, int> nodeMap;
     if (CURRCONTEXT_CLUSTERINFO->hasVirtualNodes() && CURRCONTEXT_CLUSTERINFO->getTotalNumberOfCPUs() == 1) {
       assignedNodes_->castToNAWSetOfNodeIds()->addNode(0, assignedNodes_->getTotalWeight());
     } else {
       for (CollIndex i = 0; i < resourceUsageList->entries(); i++) {
         TenantResourceUsage *nodeInfo = (*resourceUsageList)[i];
-        Int32 nodeID = -1;
+        int nodeID = -1;
         nodeID = CURRCONTEXT_CLUSTERINFO->mapNodeNameToNodeNum(nodeInfo->getResourceName());
         if (nodeID == IPC_CPU_DONT_CARE) {
           *CmpCommon::diags() << DgSqlCode(-CAT_NODE_NAME_INVALID) << DgString0(nodeInfo->getResourceName().data());
@@ -2059,7 +2059,7 @@ Int32 TenantInfo::selectRow(const std::string &whereClause) {
         if (nodeInfo->getUsageValue() > 0) nodeMap[nodeID] = nodeInfo->getUsageValue();
       }
 
-      for (std::map<Int32, Int32>::const_iterator it = nodeMap.begin(); it != nodeMap.end(); ++it) {
+      for (std::map<int, int>::const_iterator it = nodeMap.begin(); it != nodeMap.end(); ++it) {
         assignedNodes_->castToNAWSetOfNodeIds()->addNode(it->first, it->second);
       }
     }
@@ -2079,20 +2079,20 @@ Int32 TenantInfo::selectRow(const std::string &whereClause) {
 //
 // May want to take in a set clause to make this more efficient
 // ----------------------------------------------------------------------------
-Int32 TenantInfo::updateRow(const Int32 tenantSize) {
+int TenantInfo::updateRow(const int tenantSize) {
   NAString mdLocation;
   CONCAT_CATSCH(mdLocation, CmpSeabaseDDL::getSystemCatalogStatic(), SEABASE_TENANT_SCHEMA);
   mdLocation += NAString('.') + SEABASE_TENANTS;
 
-  Int32 affinity = -1;
-  Int32 clusterSize = -1;
+  int affinity = -1;
+  int clusterSize = -1;
   if (assignedNodes_->castToNAASNodes()) {
     affinity = getAffinity();
     clusterSize = getClusterSize();
   }
 
   char updateStmt[500];
-  Int32 stmtSize = snprintf(updateStmt, sizeof(updateStmt),
+  int stmtSize = snprintf(updateStmt, sizeof(updateStmt),
                             "update %s set admin_role_id =  %d, "
                             "default_schema_uid = %ld, affinity = %d, "
                             "cluster_size = %d, tenant_size = %d, "
@@ -2106,7 +2106,7 @@ Int32 TenantInfo::updateRow(const Int32 tenantSize) {
   }
 
   ExeCliInterface cliInterface(heap_, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
-  Int32 cliRC = cliInterface.executeImmediate(updateStmt);
+  int cliRC = cliInterface.executeImmediate(updateStmt);
   if (cliRC < 0) {
     cliInterface.retrieveSQLDiagnostics(CmpCommon::diags());
     return -1;
@@ -2156,7 +2156,7 @@ const void TenantInfo::setOrigTenantNodes(NAWNodeSet *assignedNodes) {
 //
 // Reads RESOURCE_USAGE to get the nodes assigned to the tenant
 // -----------------------------------------------------------------------------
-Int32 TenantInfo::getNodeList(TenantResourceUsageList *&nodeList) {
+int TenantInfo::getNodeList(TenantResourceUsageList *&nodeList) {
   assert(nodeList);
   char buf[200];
 
@@ -2180,12 +2180,12 @@ Int32 TenantInfo::getNodeList(TenantResourceUsageList *&nodeList) {
 //      0 = succeeded
 //    100 = tenant information not found
 // ----------------------------------------------------------------------------
-Int32 TenantInfo::getTenantInfo(const Int32 authID, TenantInfo &tenantInfo) {
+int TenantInfo::getTenantInfo(const int authID, TenantInfo &tenantInfo) {
   // Select from tenants table based on where clause
   std::string whereClause("where ");
   whereClause += CmpSeabaseDDLauth::isRoleID(authID) ? "admin_role_id = " : "tenant_id = ";
   whereClause += PrivMgr::authIDToString(authID);
-  Int32 retcode = tenantInfo.selectRow(whereClause);
+  int retcode = tenantInfo.selectRow(whereClause);
   return retcode;
 }
 
@@ -2210,8 +2210,8 @@ TenantSchemaInfo *TenantSchemaInfoList::find(long schemaUID) {
   return returnedInfo;
 }
 
-Int32 TenantSchemaInfoList::getTenantID(long schemaUID) {
-  Int32 tenantID = 0;
+int TenantSchemaInfoList::getTenantID(long schemaUID) {
+  int tenantID = 0;
   for (CollIndex i = 0; i < entries(); i++) {
     TenantSchemaInfo *tenantSchemaInfo = operator[](i);
     if (tenantSchemaInfo->getSchemaUID() == schemaUID) {
@@ -2222,7 +2222,7 @@ Int32 TenantSchemaInfoList::getTenantID(long schemaUID) {
   return tenantID;
 }
 
-void TenantSchemaInfoList::getSchemaList(Int32 tenantID, NAList<long> &schemaList) {
+void TenantSchemaInfoList::getSchemaList(int tenantID, NAList<long> &schemaList) {
   for (CollIndex i = 0; i < entries(); i++) {
     TenantSchemaInfo *tenantSchemaInfo = operator[](i);
     if (tenantSchemaInfo->getTenantID() == tenantID) schemaList.insert(tenantSchemaInfo->getSchemaUID());
@@ -2240,7 +2240,7 @@ void TenantSchemaInfoList::getSchemaList(Int32 tenantID, NAList<long> &schemaLis
 //   -1 - failed (ComDiags contains error)
 //    0 - succeeded
 // -----------------------------------------------------------------------------
-Int32 TenantSchemaInfo::removeSchemaUsage() {
+int TenantSchemaInfo::removeSchemaUsage() {
   TenantInfo tenantInfo(STMTHEAP);
   CmpSeabaseDDLtenant tenantDefinition;
   if (tenantDefinition.getTenantDetails(getTenantID(), tenantInfo) == CmpSeabaseDDLauth::STATUS_ERROR) return -1;
@@ -2331,13 +2331,13 @@ bool TenantResource::validNodeNames(ConstStringList *usageNameList, NAString &in
 
   // get the list of valid node names from ?
   // see if names in the usageNameList exist in valid names list
-  Int32 numInvalidNodes = 0;
+  int numInvalidNodes = 0;
   for (CollIndex i = 0; i < usageNameList->entries(); i++) {
     NAString nodeName = *(*usageNameList)[i];
     size_t pos = nodeName.first('.');
     if (pos != NA_NPOS) nodeName.remove(pos);
 
-    Int32 nodeID = CURRCONTEXT_CLUSTERINFO->mapNodeNameToNodeNum(nodeName);
+    int nodeID = CURRCONTEXT_CLUSTERINFO->mapNodeNameToNodeNum(nodeName);
     if (nodeID == IPC_CPU_DONT_CARE) {
       if (numInvalidNodes > 0)
         invalidNodeNames += ", '";
@@ -2385,7 +2385,7 @@ short TenantResource::alterNodesForRGroupTenants(ExeCliInterface *cliInterface,
     if (nodesNotFound.entries() == 0) continue;
 
     bool registrationComplete = false;
-    Int32 tenantSize = tenantInfo->getTenantNodes()->getTotalWeight();
+    int tenantSize = tenantInfo->getTenantNodes()->getTotalWeight();
 
     tenantInfo->setOrigTenantNodes(NULL);
     tenantInfo->setTenantNodes(NULL);
@@ -2419,7 +2419,7 @@ short TenantResource::alterNodesForRGroupTenants(ExeCliInterface *cliInterface,
           rUsage->setIsObsolete(true);
           balanceRequired = true;
         } else {
-          Int32 nodeID = origNodeList->getNodeID(rUsage->getResourceName());
+          int nodeID = origNodeList->getNodeID(rUsage->getResourceName());
           assert(!(nodeID == IPC_CPU_DONT_CARE));
           TenantNodeInfo *newNodeInfo =
               new (STMTHEAP) TenantNodeInfo(rUsage->getResourceName(), nodeID, -1, rUsage->getUsageUID(), -1, STMTHEAP);
@@ -2447,7 +2447,7 @@ short TenantResource::alterNodesForRGroupTenants(ExeCliInterface *cliInterface,
           // node allocations is a list of space separated node details
           NAString nodeAllocationList = CmpCommon::getDefaultString(NODE_ALLOCATIONS).data();
           if (nodeAllocationList.length() > 0) {
-            Int32 unitsToAllocate = tenantSize;
+            int unitsToAllocate = tenantSize;
             tenantSize = CmpSeabaseDDLtenant::predefinedNodeAllocations(unitsToAllocate, resourceUsageList);
           }
         }
@@ -2601,13 +2601,13 @@ short TenantResource::createStandardResources() {
   // is, don't insert a new row if it already exists.
   char deleteStmt[500];
   NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
-  Int32 stmtSize = snprintf(deleteStmt, sizeof(deleteStmt), "delete from %s.\"%s\".%s where resource_name = '%s'",
+  int stmtSize = snprintf(deleteStmt, sizeof(deleteStmt), "delete from %s.\"%s\".%s where resource_name = '%s'",
                             sysCat.data(), SEABASE_TENANT_SCHEMA, SEABASE_RESOURCES, RGROUP_DEFAULT);
   assert(stmtSize < 500);
 
   ExeCliInterface *cliInterface = getCli();
   assert(cliInterface);
-  Int32 cliRC = cliInterface->executeImmediate(deleteStmt);
+  int cliRC = cliInterface->executeImmediate(deleteStmt);
   if (cliRC < 0) {
     cliInterface->retrieveSQLDiagnostics(CmpCommon::diags());
     return -1;
@@ -2677,7 +2677,7 @@ bool TenantResource::describe(const NAString &groupName, NAString &groupText) {
 
   if (usageList_) {
     groupText += " NODES('";
-    for (Int32 i = 0; i < usageList_->entries(); i++) {
+    for (int i = 0; i < usageList_->entries(); i++) {
       if (i > 0) groupText += "', '";
       TenantResourceUsage *usage = (*usageList_)[i];
       if (usage->isNodeUsage()) groupText += usage->getUsageName();
@@ -2711,7 +2711,7 @@ bool TenantResource::describe(const NAString &groupName, NAString &groupText) {
 //   -1 - unexpected error (ComDiags is set up)
 //    0 - successful
 // -----------------------------------------------------------------------------
-short TenantResource::generateNodeResource(NAString *nodeName, const Int32 grantee) {
+short TenantResource::generateNodeResource(NAString *nodeName, const int grantee) {
   // see if node already exists
   NAString whereClause("WHERE resource_name = '");
   whereClause += nodeName->data() + NAString("'");
@@ -2811,10 +2811,10 @@ short TenantResource::getTenantsForNodes(const NAList<NAString> &nodeList, NAStr
   }
   resourceNameList += "')";
 
-  Int32 bufSize = 500 + resourceNameList.length();
+  int bufSize = 500 + resourceNameList.length();
   char selectStmt[bufSize];
   NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
-  Int32 stmtSize = snprintf(selectStmt, sizeof(selectStmt),
+  int stmtSize = snprintf(selectStmt, sizeof(selectStmt),
                             "select auth_db_name from %s.\"%s\".%s "
                             "where auth_id in (select distinct usage_uid from %s.\"%s\".%s "
                             "where resource_name in %s) ",
@@ -2822,11 +2822,11 @@ short TenantResource::getTenantsForNodes(const NAList<NAString> &nodeList, NAStr
                             SEABASE_RESOURCE_USAGE, resourceNameList.data());
   assert(stmtSize < bufSize);
 
-  Int32 diagsMark = CmpCommon::diags()->mark();
+  int diagsMark = CmpCommon::diags()->mark();
   ExeCliInterface *cliInterface = getCli();
   assert(cliInterface);
   Queue *tableQueue = NULL;
-  Int32 cliRC = cliInterface->fetchAllRows(tableQueue, selectStmt, 0, false, false, true);
+  int cliRC = cliInterface->fetchAllRows(tableQueue, selectStmt, 0, false, false, true);
   if (cliRC < 0) {
     cliInterface->retrieveSQLDiagnostics(CmpCommon::diags());
     return -1;
@@ -2845,7 +2845,7 @@ short TenantResource::getTenantsForNodes(const NAList<NAString> &nodeList, NAStr
   }
 
   tableQueue->position();
-  for (Int32 i = 0; i < tableQueue->numEntries(); i++) {
+  for (int i = 0; i < tableQueue->numEntries(); i++) {
     OutputInfo *pCliRow = (OutputInfo *)tableQueue->getNext();
 
     // column 0:  tenant name
@@ -2868,10 +2868,10 @@ short TenantResource::getTenantsForNodes(const NAList<NAString> &nodeList, NAStr
 short TenantResource::getTenantsForResource(NAString &tenantNames) {
   assert(tenantNames.isNull());
 
-  Int32 bufSize = 500;
+  int bufSize = 500;
   char selectStmt[bufSize];
   NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
-  Int32 stmtSize = snprintf(selectStmt, sizeof(selectStmt),
+  int stmtSize = snprintf(selectStmt, sizeof(selectStmt),
                             "select auth_db_name from %s.\"%s\".%s where auth_id in "
                             "(select distinct tenant_id from %s.\"%s\".%s "
                             "where usage_type = 'RG' and usage_uid = %ld) ",
@@ -2879,11 +2879,11 @@ short TenantResource::getTenantsForResource(NAString &tenantNames) {
                             SEABASE_TENANT_USAGE, getResourceUID());
   assert(stmtSize < bufSize);
 
-  Int32 diagsMark = CmpCommon::diags()->mark();
+  int diagsMark = CmpCommon::diags()->mark();
   ExeCliInterface *cliInterface = getCli();
   assert(cliInterface);
   Queue *tableQueue = NULL;
-  Int32 cliRC = cliInterface->fetchAllRows(tableQueue, selectStmt, 0, false, false, true);
+  int cliRC = cliInterface->fetchAllRows(tableQueue, selectStmt, 0, false, false, true);
   if (cliRC < 0) {
     cliInterface->retrieveSQLDiagnostics(CmpCommon::diags());
     return -1;
@@ -2902,7 +2902,7 @@ short TenantResource::getTenantsForResource(NAString &tenantNames) {
   }
 
   tableQueue->position();
-  for (Int32 i = 0; i < tableQueue->numEntries(); i++) {
+  for (int i = 0; i < tableQueue->numEntries(); i++) {
     OutputInfo *pCliRow = (OutputInfo *)tableQueue->getNext();
 
     // column 0:  tenant name
@@ -3003,11 +3003,11 @@ short TenantResource::removeObsoleteNodes(const TenantResourceUsageList *usageLi
   }
   valuesClause += ")";
 
-  Int32 bufSize = 500 + valuesClause.length();
+  int bufSize = 500 + valuesClause.length();
   char deleteStmt[bufSize];
 
   NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
-  Int32 stmtSize = snprintf(deleteStmt, sizeof(deleteStmt),
+  int stmtSize = snprintf(deleteStmt, sizeof(deleteStmt),
                             "delete from %s.\"%s\".%s where resource_uid in "
                             "(select uid from (values %s) u(uid) where "
                             "u.uid not in (select usage_uid from %s.\"%s\".%s "
@@ -3018,7 +3018,7 @@ short TenantResource::removeObsoleteNodes(const TenantResourceUsageList *usageLi
 
   ExeCliInterface *cliInterface = getCli();
   assert(cliInterface);
-  Int32 cliRC = cliInterface->executeImmediate(deleteStmt);
+  int cliRC = cliInterface->executeImmediate(deleteStmt);
   if (cliRC < 0) {
     cliInterface->retrieveSQLDiagnostics(CmpCommon::diags());
     return -1;
@@ -3039,13 +3039,13 @@ short TenantResource::removeObsoleteNodes(const TenantResourceUsageList *usageLi
 short TenantResource::deleteRow() {
   char deleteStmt[500];
   NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
-  Int32 stmtSize = snprintf(deleteStmt, sizeof(deleteStmt), "delete from %s.\"%s\".%s where resource_uid = %ld",
+  int stmtSize = snprintf(deleteStmt, sizeof(deleteStmt), "delete from %s.\"%s\".%s where resource_uid = %ld",
                             sysCat.data(), SEABASE_TENANT_SCHEMA, SEABASE_RESOURCES, getResourceUID());
   assert(stmtSize < 500);
 
   ExeCliInterface *cliInterface = getCli();
   assert(cliInterface);
-  Int32 cliRC = cliInterface->executeImmediate(deleteStmt);
+  int cliRC = cliInterface->executeImmediate(deleteStmt);
   if (cliRC < 0) {
     cliInterface->retrieveSQLDiagnostics(CmpCommon::diags());
     return -1;
@@ -3101,7 +3101,7 @@ short TenantResource::insertRow() {
   NAString type = getResourceTypeAsString(type_);
   char insertStmt[500];
   NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
-  Int32 stmtSize =
+  int stmtSize =
       snprintf(insertStmt, sizeof(insertStmt),
                "insert into %s.\"%s\".%s values (%ld, '%s', '%s', %d,"
                " '%s', %ld, %ld, '%s', '%s', %ld)",
@@ -3114,7 +3114,7 @@ short TenantResource::insertRow() {
 
   ExeCliInterface *cliInterface = getCli();
   assert(cliInterface);
-  Int32 cliRC = cliInterface->executeImmediate(insertStmt);
+  int cliRC = cliInterface->executeImmediate(insertStmt);
   if (cliRC < 0) {
     cliInterface->retrieveSQLDiagnostics(CmpCommon::diags());
     return -1;
@@ -3138,7 +3138,7 @@ short TenantResource::insertRow() {
 short TenantResource::selectRow(const NAString &whereClause) {
   char selectStmt[500];
   NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
-  Int32 stmtSize = snprintf(selectStmt, sizeof(selectStmt),
+  int stmtSize = snprintf(selectStmt, sizeof(selectStmt),
                             "select resource_uid, resource_name, resource_creator, resource_is_valid,"
                             "resource_create_time, resource_redef_time, "
                             "resource_details1, resource_details2, resource_type, flags  from %s.\"%s\".%s %s",
@@ -3149,11 +3149,11 @@ short TenantResource::selectRow(const NAString &whereClause) {
     return -1;
   }
 
-  Int32 diagsMark = CmpCommon::diags()->mark();
+  int diagsMark = CmpCommon::diags()->mark();
   ExeCliInterface *cliInterface = getCli();
   assert(cliInterface);
   Queue *tableQueue = NULL;
-  Int32 cliRC = cliInterface->fetchAllRows(tableQueue, selectStmt, 0, false, false, true);
+  int cliRC = cliInterface->fetchAllRows(tableQueue, selectStmt, 0, false, false, true);
 
   if (cliRC < 0) {
     cliInterface->retrieveSQLDiagnostics(CmpCommon::diags());
@@ -3182,7 +3182,7 @@ short TenantResource::selectRow(const NAString &whereClause) {
   setResourceUID(*(long *)pCliRow->get(0));
   NAString resourceName = (char *)pCliRow->get(1);
   setResourceName(resourceName);
-  setCreator(*(Int32 *)pCliRow->get(2));
+  setCreator(*(int *)pCliRow->get(2));
   NAString isValid = (char *)pCliRow->get(3);
   setIsValid((isValid == "Y ") ? true : false);
   setCreateTime(*(long *)pCliRow->get(4));
@@ -3211,13 +3211,13 @@ short TenantResource::selectRow(const NAString &whereClause) {
 short TenantResource::updateRows(const char *setClause, const char *whereClause) {
   char updateStmt[1000];
   NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
-  Int32 stmtSize = snprintf(updateStmt, sizeof(updateStmt), "update %s.\"%s\".%s %s %s", sysCat.data(),
+  int stmtSize = snprintf(updateStmt, sizeof(updateStmt), "update %s.\"%s\".%s %s %s", sysCat.data(),
                             SEABASE_TENANT_SCHEMA, SEABASE_RESOURCES, setClause, whereClause);
   assert(stmtSize < 500);
 
   ExeCliInterface *cliInterface = getCli();
   assert(cliInterface);
-  Int32 cliRC = cliInterface->executeImmediate(updateStmt);
+  int cliRC = cliInterface->executeImmediate(updateStmt);
   if (cliRC < 0) {
     cliInterface->retrieveSQLDiagnostics(CmpCommon::diags());
     return -1;
@@ -3239,14 +3239,14 @@ short TenantResource::updateRedefTime() {
   char updateStmt[128];
   NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
   long time = NA_JulianTimestamp();
-  Int32 stmtSize = snprintf(updateStmt, sizeof(updateStmt),
+  int stmtSize = snprintf(updateStmt, sizeof(updateStmt),
                             "update %s.\"%s\".%s SET resource_redef_time = %ld where resource_uid = %ld", sysCat.data(),
                             SEABASE_TENANT_SCHEMA, SEABASE_RESOURCES, time, UID_);
   assert(stmtSize < 128);
 
   ExeCliInterface *cliInterface = getCli();
   assert(cliInterface);
-  Int32 cliRC = cliInterface->executeImmediate(updateStmt);
+  int cliRC = cliInterface->executeImmediate(updateStmt);
   if (cliRC < 0) {
     cliInterface->retrieveSQLDiagnostics(CmpCommon::diags());
     return -1;
@@ -3321,16 +3321,16 @@ TenantResourceUsageList::~TenantResourceUsageList() {
 // -----------------------------------------------------------------------------
 long TenantResourceUsageList::deleteUsages(const NAString &whereClause) {
   NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
-  Int32 deleteStmtLen = whereClause.length() + 200;
+  int deleteStmtLen = whereClause.length() + 200;
   char deleteStmt[deleteStmtLen];
-  Int32 stmtSize = snprintf(deleteStmt, deleteStmtLen, " delete from %s.\"%s\".%s %s ", sysCat.data(),
+  int stmtSize = snprintf(deleteStmt, deleteStmtLen, " delete from %s.\"%s\".%s %s ", sysCat.data(),
                             SEABASE_TENANT_SCHEMA, SEABASE_RESOURCE_USAGE, whereClause.data());
   assert(stmtSize < deleteStmtLen);
 
   ExeCliInterface *cliInterface = getCli();
   assert(cliInterface);
   long rowsAffected = 0;
-  Int32 cliRC = cliInterface->executeImmediate(deleteStmt, NULL, NULL, TRUE, &rowsAffected);
+  int cliRC = cliInterface->executeImmediate(deleteStmt, NULL, NULL, TRUE, &rowsAffected);
   if (cliRC < 0) {
     cliInterface->retrieveSQLDiagnostics(CmpCommon::diags());
     return -1;
@@ -3356,7 +3356,7 @@ short TenantResourceUsageList::fetchUsages(const NAString &whereClause, const NA
 
   // Find usages for tenant identified by tenantID
   char selectStmt[500];
-  Int32 stmtSize =
+  int stmtSize =
       snprintf(selectStmt, sizeof(selectStmt),
                "select resource_uid, resource_name, usage_uid, "
                " usage_name, usage_type, usage_value, flags "
@@ -3364,11 +3364,11 @@ short TenantResourceUsageList::fetchUsages(const NAString &whereClause, const NA
                sysCat.data(), SEABASE_TENANT_SCHEMA, SEABASE_RESOURCE_USAGE, whereClause.data(), orderByClause.data());
   assert(stmtSize < 500);
 
-  Int32 diagsMark = CmpCommon::diags()->mark();
+  int diagsMark = CmpCommon::diags()->mark();
   ExeCliInterface *cliInterface = getCli();
   assert(cliInterface);
   Queue *tableQueue = NULL;
-  Int32 cliRC = cliInterface->fetchAllRows(tableQueue, selectStmt, 0, false, false, true);
+  int cliRC = cliInterface->fetchAllRows(tableQueue, selectStmt, 0, false, false, true);
 
   if (cliRC < 0) {
     cliInterface->retrieveSQLDiagnostics(CmpCommon::diags());
@@ -3383,7 +3383,7 @@ short TenantResourceUsageList::fetchUsages(const NAString &whereClause, const NA
   }
 
   tableQueue->position();
-  for (Int32 i = 0; i < tableQueue->numEntries(); i++) {
+  for (int i = 0; i < tableQueue->numEntries(); i++) {
     OutputInfo *pCliRow = (OutputInfo *)tableQueue->getNext();
     TenantResourceUsage *usage = new (getHeap()) TenantResourceUsage;
 
@@ -3453,8 +3453,8 @@ TenantResourceUsage *TenantResourceUsageList::findUsage(const NAString *usageNam
 //
 // returns the number of node usages in the usage list
 // -----------------------------------------------------------------------------
-Int32 TenantResourceUsageList::getNumNodeUsages() {
-  Int32 numUsages = 0;
+int TenantResourceUsageList::getNumNodeUsages() {
+  int numUsages = 0;
   for (CollIndex i = 0; i < entries(); i++) {
     if (operator[](i)->isNodeUsage()) numUsages++;
   }
@@ -3466,8 +3466,8 @@ Int32 TenantResourceUsageList::getNumNodeUsages() {
 //
 // returns the number of node usages in the usage list
 // -----------------------------------------------------------------------------
-Int32 TenantResourceUsageList::getNumTenantUsages() {
-  Int32 numUsages = 0;
+int TenantResourceUsageList::getNumTenantUsages() {
+  int numUsages = 0;
   for (CollIndex i = 0; i < entries(); i++) {
     if (operator[](i)->isTenantUsage()) numUsages++;
   }
@@ -3482,7 +3482,7 @@ Int32 TenantResourceUsageList::getNumTenantUsages() {
 // -----------------------------------------------------------------------------
 short TenantResourceUsageList::modifyUsages() {
   short retcode = 0;
-  for (Int32 i = 0; i < entries(); i++) {
+  for (int i = 0; i < entries(); i++) {
     TenantResourceUsage *usage = operator[](i);
     if (usage->isNew()) {
       retcode = usage->insertRow(getCli());
@@ -3497,10 +3497,10 @@ short TenantResourceUsageList::modifyUsages() {
   return 0;
 }
 
-Int32 TenantResourceUsage::deleteRow(ExeCliInterface *cliInterface) {
+int TenantResourceUsage::deleteRow(ExeCliInterface *cliInterface) {
   NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
   char deleteStmt[500];
-  Int32 stmtSize = snprintf(deleteStmt, sizeof(deleteStmt),
+  int stmtSize = snprintf(deleteStmt, sizeof(deleteStmt),
                             "delete from %s.\"%s\".%s where resource_uid = %ld "
                             "and usage_uid = %ld",
                             sysCat.data(), SEABASE_TENANT_SCHEMA, SEABASE_RESOURCE_USAGE, resourceUID_, usageUID_);
@@ -3517,10 +3517,10 @@ Int32 TenantResourceUsage::deleteRow(ExeCliInterface *cliInterface) {
   return 0;
 }
 
-Int32 TenantResourceUsage::insertRow(ExeCliInterface *cliInterface) {
+int TenantResourceUsage::insertRow(ExeCliInterface *cliInterface) {
   NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
   char insertStmt[500];
-  Int32 stmtSize =
+  int stmtSize =
       snprintf(insertStmt, sizeof(insertStmt),
                "insert into %s.\"%s\".%s values"
                "(%ld, '%s', %ld, '%s', '%s', %ld, %ld)",
@@ -3539,10 +3539,10 @@ Int32 TenantResourceUsage::insertRow(ExeCliInterface *cliInterface) {
   return 0;
 }
 
-Int32 TenantResourceUsage::updateRow(ExeCliInterface *cliInterface) {
+int TenantResourceUsage::updateRow(ExeCliInterface *cliInterface) {
   NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
   char updateStmt[500];
-  Int32 stmtSize = snprintf(updateStmt, sizeof(updateStmt),
+  int stmtSize = snprintf(updateStmt, sizeof(updateStmt),
                             "update %s.\"%s\".%s set usage_value =  %ld, flags "
                             "= %ld where resource_uid = %ld and usage_uid = %ld",
                             sysCat.data(), SEABASE_TENANT_SCHEMA, SEABASE_RESOURCE_USAGE, usageValue_, flags_,
@@ -3573,19 +3573,19 @@ Int32 TenantResourceUsage::updateRow(ExeCliInterface *cliInterface) {
 //    0 - successful
 // -----------------------------------------------------------------------------
 short TenantResourceUsageList::insertUsages() {
-  Int32 valuesClauseSize = 1000;
-  Int32 maxStmtSize = 1500;
+  int valuesClauseSize = 1000;
+  int maxStmtSize = 1500;
   char stmt[maxStmtSize];
-  Int32 stmtSize = 0;
+  int stmtSize = 0;
 
   ExeCliInterface *cliInterface = getCli();
   assert(cliInterface);
-  Int32 cliRC = 0;
+  int cliRC = 0;
 
   std::string valuesClause;
   bool addComma = false;
   NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
-  for (Int32 i = 0; i < entries(); i++) {
+  for (int i = 0; i < entries(); i++) {
     TenantResourceUsage *usage = operator[](i);
 
     NAString nodeName = usage->getUsageName();

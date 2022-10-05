@@ -777,7 +777,7 @@ short ExExeUtilGetStatisticsTcb::work() {
             sprintf(statsQuery_, "select variable_info from table(statistics(null, 'STMT=%s,MERGE=%d'));", s,
                     getStatsTdb().statsMergeType_);
         } else {
-          Int32 stats_qry_array_size = sizeof(getStatsAllDefaultViewQuery) / sizeof(QueryString);
+          int stats_qry_array_size = sizeof(getStatsAllDefaultViewQuery) / sizeof(QueryString);
           const QueryString *getStatsQueryString = getStatsAllDefaultViewQuery;
 
           char *gluedQuery;
@@ -860,7 +860,7 @@ short ExExeUtilGetStatisticsTcb::work() {
           strcat(statsBuf_, ")");
           moveRowToUpQueue(statsBuf_);
 
-          str_pad(statsBuf_, (Int32)strlen(statsBuf_), '=');
+          str_pad(statsBuf_, (int)strlen(statsBuf_), '=');
           moveRowToUpQueue(statsBuf_);
           moveRowToUpQueue(" ");
         }
@@ -2682,7 +2682,7 @@ short ExExeUtilGetRTSStatisticsTcb::work() {
       } break;
       case FORMAT_AND_RETURN_BMO_STATS_: {
         const char *ofMode;
-        Int32 dop = 1;
+        int dop = 1;
         for (; currStatsItemEntry_ < maxBMOStatsItems_; currStatsItemEntry_++) {
           i = (short)currStatsItemEntry_;
           if (bmoStatsItems_[i].error_code != 0) continue;
@@ -2705,7 +2705,7 @@ short ExExeUtilGetRTSStatisticsTcb::work() {
                 sprintf(&statsBuf_[strlen(statsBuf_)], "%20s", ofMode);
               break;
             case SQLSTATS_DOP:
-              dop = (Int32)bmoStatsItems_[i].int64_value;
+              dop = (int)bmoStatsItems_[i].int64_value;
               sprintf(&statsBuf_[strlen(statsBuf_)], "%10ld", bmoStatsItems_[i].int64_value);
               break;
             case SQLSTATS_TOPN:

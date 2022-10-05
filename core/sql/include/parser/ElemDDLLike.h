@@ -81,7 +81,7 @@ class ElemDDLLike : public ElemDDLNode {
   virtual ElemDDLLike *castToElemDDLLike();
 
   // accessors
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
   virtual ExprNode *getChild(int index);
   inline const NAString &getSourceTableName() const;
   inline const CorrName &getDDLLikeNameAsCorrName() const;

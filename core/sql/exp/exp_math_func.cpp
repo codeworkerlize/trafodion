@@ -191,9 +191,9 @@ ex_expr::exp_return_type ExFunctionMath::eval(char *op_data[], CollHeap *heap, C
       } else {
         double op, res;
         short err1 = 0, err2 = 0, err3 = 0;
-        Int32 roundTo;
+        int roundTo;
 
-        roundTo = (getNumOperands() > 2) ? (Int32)(*((double *)op_data[2])) : 0;
+        roundTo = (getNumOperands() > 2) ? (int)(*((double *)op_data[2])) : 0;
 
         switch (getOperand(1)->getDatatype()) {
           case REC_IEEE_FLOAT32:
@@ -347,7 +347,7 @@ ex_expr::exp_return_type ExFunctionMath::eval(char *op_data[], CollHeap *heap, C
           break;
 
         case REC_BIN32_SIGNED:
-          *(Int32 *)op_data[0] = (Int32)MathCeil(*(double *)op_data[1], err);
+          *(int *)op_data[0] = (int)MathCeil(*(double *)op_data[1], err);
           break;
 
         case REC_BIN32_UNSIGNED:
@@ -453,7 +453,7 @@ ex_expr::exp_return_type ExFunctionMath::eval(char *op_data[], CollHeap *heap, C
           break;
 
         case REC_BIN32_SIGNED:
-          *(Int32 *)op_data[0] = (Int32)MathFloor(*(double *)op_data[1], err);
+          *(int *)op_data[0] = (int)MathFloor(*(double *)op_data[1], err);
           break;
 
         case REC_BIN32_UNSIGNED:
@@ -613,7 +613,7 @@ ex_expr::exp_return_type ExFunctionBitOper::eval(char *op_data[], CollHeap *heap
       if (getOperand(0)->getDatatype() == REC_BIN32_UNSIGNED)
         *(UInt32 *)op_data[0] = *(UInt32 *)op_data[1] & *(UInt32 *)op_data[2];
       else if (getOperand(0)->getDatatype() == REC_BIN32_SIGNED)
-        *(Int32 *)op_data[0] = *(Int32 *)op_data[1] & *(Int32 *)op_data[2];
+        *(int *)op_data[0] = *(int *)op_data[1] & *(int *)op_data[2];
       else
         *(long *)op_data[0] = *(long *)op_data[1] & *(long *)op_data[2];
     } break;
@@ -622,7 +622,7 @@ ex_expr::exp_return_type ExFunctionBitOper::eval(char *op_data[], CollHeap *heap
       if (getOperand(0)->getDatatype() == REC_BIN32_UNSIGNED)
         *(UInt32 *)op_data[0] = *(UInt32 *)op_data[1] | *(UInt32 *)op_data[2];
       else if (getOperand(0)->getDatatype() == REC_BIN32_SIGNED)
-        *(Int32 *)op_data[0] = *(Int32 *)op_data[1] | *(Int32 *)op_data[2];
+        *(int *)op_data[0] = *(int *)op_data[1] | *(int *)op_data[2];
       else
         *(long *)op_data[0] = *(long *)op_data[1] | *(long *)op_data[2];
     } break;
@@ -631,7 +631,7 @@ ex_expr::exp_return_type ExFunctionBitOper::eval(char *op_data[], CollHeap *heap
       if (getOperand(0)->getDatatype() == REC_BIN32_UNSIGNED)
         *(UInt32 *)op_data[0] = *(UInt32 *)op_data[1] ^ *(UInt32 *)op_data[2];
       else if (getOperand(0)->getDatatype() == REC_BIN32_SIGNED)
-        *(Int32 *)op_data[0] = *(Int32 *)op_data[1] ^ *(Int32 *)op_data[2];
+        *(int *)op_data[0] = *(int *)op_data[1] ^ *(int *)op_data[2];
       else
         *(long *)op_data[0] = *(long *)op_data[1] ^ *(long *)op_data[2];
     } break;
@@ -640,11 +640,11 @@ ex_expr::exp_return_type ExFunctionBitOper::eval(char *op_data[], CollHeap *heap
       if (getOperand(0)->getDatatype() == REC_BIN32_UNSIGNED)
         *(UInt32 *)op_data[0] = ~*(UInt32 *)op_data[1];
       else if (getOperand(0)->getDatatype() == REC_BIN32_SIGNED)
-        *(Int32 *)op_data[0] = ~*(Int32 *)op_data[1];
+        *(int *)op_data[0] = ~*(int *)op_data[1];
       else if (getOperand(0)->getDatatype() == REC_BIN64_SIGNED)
         *(long *)op_data[0] = ~*(long *)op_data[1];
       else {
-        for (Int32 i = 0; i < getOperand(0)->getLength(); i++) {
+        for (int i = 0; i < getOperand(0)->getLength(); i++) {
           ((char *)(op_data[0]))[i] = ~((char *)(op_data[1]))[i];
         }
       }
@@ -707,14 +707,14 @@ ex_expr::exp_return_type ExFunctionBitOper::eval(char *op_data[], CollHeap *heap
       }  // switch
 
       if (getOperand(0)->getDatatype() == REC_BIN32_SIGNED)
-        *(Int32 *)op_data[0] = (Int32)result;
+        *(int *)op_data[0] = (int)result;
       else
         *(long *)op_data[0] = result;
     } break;
 
     case ITM_CONVERTTOBITS: {
       int len1 = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
-      Int32 i;
+      int i;
       if (DFS2REC::isDoubleCharacter(getOperand(1)->getDatatype())) {
         ExRaiseSqlError(heap, diagsArea, EXE_BAD_ARG_TO_MATH_FUNC);
         **diagsArea << DgString0("CONVERTTOBITS");

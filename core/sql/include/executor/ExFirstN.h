@@ -147,8 +147,8 @@ class ExFirstNTcb : public ex_tcb {
 
   ex_queue_pair getParentQueue() const { return qparent_; }
 
-  virtual Int32 numChildren() const { return 1; }
-  virtual const ex_tcb *getChild(Int32 /*pos*/) const { return childTcb_; }
+  virtual int numChildren() const { return 1; }
+  virtual const ex_tcb *getChild(int /*pos*/) const { return childTcb_; }
 };
 
 ///////////////////////////////////////////////////////////////////

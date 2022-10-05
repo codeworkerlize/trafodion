@@ -293,10 +293,10 @@ FOREACH_INST_IN_BLOCK_BACKWARDS_AT(block, prev, inst->prev) {
   // same-size moves, then we attempt to order them relative to each
   // other in a way which would expose adjacent/bulk moves.
   if (inst->isCopyMove() && prev->isCopyMove()) {
-    Int32 pWOff = prev->getWOps()[0]->getOffset();
-    Int32 pROff = prev->getROps()[0]->getOffset();
-    Int32 iWOff = inst->getWOps()[0]->getOffset();
-    Int32 iROff = inst->getROps()[0]->getOffset();
+    int pWOff = prev->getWOps()[0]->getOffset();
+    int pROff = prev->getROps()[0]->getOffset();
+    int iWOff = inst->getWOps()[0]->getOffset();
+    int iROff = inst->getROps()[0]->getOffset();
 
     // First group by writes
     if ((inst->getWOps()[0]->getStackIndex() == prev->getWOps()[0]->getStackIndex()) &&
@@ -310,7 +310,7 @@ FOREACH_INST_IN_BLOCK_BACKWARDS_AT(block, prev, inst->prev) {
         // ranges.  Since that's unlikely, just check for same tuple.
         if ((prev->getWOps()[0]->getStackIndex() != prev->getROps()[0]->getStackIndex()) &&
             ((pWOff + prev->getWOps()[0]->getLen()) == iWOff) && ((pROff + prev->getROps()[0]->getLen()) == iROff)) {
-          Int32 len = prev->getROps()[0]->getLen() + inst->getROps()[0]->getLen();
+          int len = prev->getROps()[0]->getLen() + inst->getROps()[0]->getLen();
 
           PCIType::Instruction opc;
 
@@ -412,7 +412,7 @@ ENDFE_INST_IN_BLOCK
 }
 
 NABoolean PCodeCfg::removeBulkNullBranch() {
-  Int32 numOfNB = 0;
+  int numOfNB = 0;
 
   if (!entryBlock_->getLastInst()->isBulkNullBranch()) return FALSE;
 
@@ -443,7 +443,7 @@ NABoolean PCodeCfg::bulkNullBranch() {
   PCodeBlock *newBlock;
   PCodeBlock *copyBlocks;
   PCodeInst *newInst;
-  Int32 length;
+  int length;
   OPLIST list(heap_);
   PCodeBlock **map;
   NABitVector defs(heap_);
@@ -451,12 +451,12 @@ NABoolean PCodeCfg::bulkNullBranch() {
   NABoolean alignedFormat = FALSE;
   NABoolean packedFormat = FALSE;
   NABoolean differentRowsFound = FALSE;
-  Int32 bitmapIdx = 0;
-  Int32 bitmapOff = 0;
-  Int32 bitmapMaxNullBitIndex = -1;
+  int bitmapIdx = 0;
+  int bitmapOff = 0;
+  int bitmapMaxNullBitIndex = -1;
 
-  Int32 numOfNB = 0;           // Number of null branch insts in cfg
-  Int32 numOfProcessedNB = 0;  // Num of nb insts we can eval early
+  int numOfNB = 0;           // Number of null branch insts in cfg
+  int numOfProcessedNB = 0;  // Num of nb insts we can eval early
   PCodeBlock *startBlock = entryBlock_;
 
   FOREACH_BLOCK_REV_DFO(block, firstInst, lastInst, index) {
@@ -551,7 +551,7 @@ NABoolean PCodeCfg::bulkNullBranch() {
 
   // Analyze the not-nulls collected to see if and how we should process
   for (i = 0; i < list.entries(); i++) {
-    Int32 nullBitIndex = list[i]->getNullBitIndex();
+    int nullBitIndex = list[i]->getNullBitIndex();
     if (nullBitIndex == -1)
       packedFormat = TRUE;
     else
@@ -625,7 +625,7 @@ NABoolean PCodeCfg::bulkNullBranch() {
     for (i = 0; i < (CollIndex)((bitmapMaxNullBitIndex >> 5) + 1); i++) newInst->code[6 + i] = 0;
 
     for (i = 0; i < list.entries(); i++) {
-      Int32 bitIdx = list[i]->getNullBitIndex();
+      int bitIdx = list[i]->getNullBitIndex();
 
       ((char *)(&newInst->code[6]))[bitIdx >> 3] |= ((UInt32)0x1 << (7 - (bitIdx & 7)));
     }
@@ -672,7 +672,7 @@ void PCodeCfg::bulkMove(NABoolean sameSizeMoves) {
     // Since we're finding groups of candidate instructions for the bulk move,
     // we need to restart at the end of each group.  Begin at first inst
     for (PCodeInst *start = firstInst; start;) {
-      Int32 length = 0;
+      int length = 0;
 
       // Clear the bulk move group list;
       list.clear();
@@ -782,10 +782,10 @@ void PCodeCfg::bulkMove(NABoolean sameSizeMoves) {
         for (i = 0, j = 4; i < list.entries(); i++, j += 3) {
           // Source offset will either be a *real* source offset, or it is the
           // constant for a constant move
-          Int32 srcOffset = ((list[i]->getROps().entries()) ? list[i]->getROps()[0]->getOffset() : list[i]->code[3]);
+          int srcOffset = ((list[i]->getROps().entries()) ? list[i]->getROps()[0]->getOffset() : list[i]->code[3]);
 
           // Target offset
-          Int32 tgtOffset = list[i]->getWOps()[0]->getOffset();
+          int tgtOffset = list[i]->getWOps()[0]->getOffset();
 
           newInst->code[j] = list[i]->getOpcode();
           newInst->code[j + 1] = list[i]->getWOps()[0]->getOffset();

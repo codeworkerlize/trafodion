@@ -75,7 +75,7 @@ ostream &operator<<(ostream &out, const ComObjectName &name) {
       << name.schemaNamePart_.getExternalName() << endl;
   out << "         objectNamePart_ = [" << name.objectNamePart_.getExternalName().length() << "] "
       << name.objectNamePart_.getExternalName() << endl;
-  out << "              nameSpace_ = " << (Int32)name.nameSpace_ << endl;
+  out << "              nameSpace_ = " << (int)name.nameSpace_ << endl;
 
 #endif  // NDEBUG
   return out;
@@ -368,7 +368,7 @@ const NAString &ComObjectName::getObjectNamePartAsAnsiString(NABoolean v) const 
 //
 /* virtual */ NAString ComObjectName::getExternalName(NABoolean formatForDisplay, NABoolean displayedExternally) const {
 #ifndef NDEBUG
-  Int32 ok = 0;
+  int ok = 0;
 #endif
   NAString extObjName(getObjectNamePartAsAnsiString());
 
@@ -665,7 +665,7 @@ NABoolean ComObjectName::scan(const NAString &externalObjectName, size_t &bytesS
   // Scan the next ANSI SQL name part
   // ---------------------------------------------------------------------
 
-  Int32 remainingLen = externalObjectNameLen - bytesScanned;
+  int remainingLen = externalObjectNameLen - bytesScanned;
   NAString remainingName = externalObjectName(bytesScanned, remainingLen);
   count = trailingJunkIsOk;
   ComAnsiNamePart part2(remainingName, count, 0, createDropAlias, FALSE  // NABoolean acceptCircumflex
@@ -737,7 +737,7 @@ NABoolean ComObjectName::scan(const NAString &externalObjectName, size_t &bytesS
 #endif
 
 #ifndef NDEBUG
- Int32 test = 0;
+ int test = 0;
 	if (test) {
 	  ComObjTest("a.b.c");		//ok
 	  ComObjTest(" A . B . C ");	//ok
@@ -895,7 +895,7 @@ const NAString &ComRoutineActionName::getRoutineActionNamePartAsAnsiString(NABoo
                                                              NABoolean displayedExternally) const {
   ComASSERT(NOT isVolatile());
 #ifdef _DEBUG
-  Int32 ok = 0;
+  int ok = 0;
 #endif
 
   NAString extActName(getRoutineActionNamePartAsAnsiString());

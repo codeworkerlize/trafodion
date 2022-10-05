@@ -237,7 +237,7 @@ int CollationDB::nextUserCo_(CharInfo::FIRST_USER_DEFINED_COLLATION);
 
 CharInfo::Collation CollationDB::insert(QualifiedName &qn, const SchemaName *defaultSchema,
                                         CollationInfo::CollationFlags flags) {
-  Int32 defaultMatchCount = 0;
+  int defaultMatchCount = 0;
   if (defaultSchema) defaultMatchCount = qn.applyDefaults(*defaultSchema);
 
   CMPASSERT(!qn.getCatalogName().isNull());  // fully qualified w/ all defaults
@@ -251,7 +251,7 @@ CharInfo::Collation CollationDB::insert(QualifiedName &qn, const SchemaName *def
 
 CharInfo::Collation CollationDB::insert(ComMPLoc &loc, const ComMPLoc *defaultMPLoc,
                                         CollationInfo::CollationFlags flags) {
-  Int32 defaultMatchCount = 0;
+  int defaultMatchCount = 0;
   if (defaultMPLoc) defaultMatchCount = loc.applyDefaults(*defaultMPLoc);
 
   CMPASSERT(loc.isValid(ComMPLoc::FILE));
@@ -264,7 +264,7 @@ CharInfo::Collation CollationDB::insert(ComMPLoc &loc, const ComMPLoc *defaultMP
 }
 
 CharInfo::Collation CollationDB::insert(const char *nam, size_t *siz, CollationInfo::CollationFlags flags,
-                                        Int32 defaultMatchCount) {
+                                        int defaultMatchCount) {
   CMPASSERT(defaultMatchCount >= 0);
   size_t mat = (size_t)defaultMatchCount;
   CMPASSERT(siz[0] > mat);  // up to n-1 name parts can match

@@ -75,8 +75,8 @@
 // params paramter.  It was tested by removing the the param parameter
 // from the cosntructor and compiling.
 void ComTdbParams::getValues(Cardinality &estimatedRowCount, ExCriDescPtr &criDown, ExCriDescPtr &criUp,
-                             queue_index &sizeDown, queue_index &sizeUp, Int32 &numBuffers, UInt32 &bufferSize,
-                             Int32 &firstNRows) {
+                             queue_index &sizeDown, queue_index &sizeUp, int &numBuffers, UInt32 &bufferSize,
+                             int &firstNRows) {
   estimatedRowCount = estimatedRowCount_;
   criDown = criDown_;
   criUp = criUp_;
@@ -90,7 +90,7 @@ void ComTdbParams::getValues(Cardinality &estimatedRowCount, ExCriDescPtr &criDo
 // TDB constructor & Destructor
 // -----------------------------------------------------------------------
 ComTdb::ComTdb(ex_node_type type, const char *eye, Cardinality estRowsUsed, ex_cri_desc *criDown, ex_cri_desc *criUp,
-               queue_index sizeDown, queue_index sizeUp, Int32 numBuffers, UInt32 bufferSize, int uniqueId,
+               queue_index sizeDown, queue_index sizeUp, int numBuffers, UInt32 bufferSize, int uniqueId,
                ULng32 initialQueueSizeDown, ULng32 initialQueueSizeUp, short queueResizeLimit, short queueResizeFactor,
                ComTdbParams *params)
     : criDescDown_(criDown),
@@ -160,9 +160,9 @@ int ComTdb::unpack(void *base, void *reallocator) {
 void ComTdb::displayContents(Space *space, ULng32 flag) {
   char buf[100];
   str_sprintf(buf, "Contents of %s [%d]:", getNodeName(), getExplainNodeId());
-  Int32 j = str_len(buf);
+  int j = str_len(buf);
   space->allocateAndCopyToAlignedSpace(buf, j, sizeof(short));
-  for (Int32 k = 0; k < j; k++) buf[k] = '-';
+  for (int k = 0; k < j; k++) buf[k] = '-';
   buf[j] = '\n';
   buf[j + 1] = 0;
   space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
@@ -217,7 +217,7 @@ void ComTdb::displayExpression(Space *space, ULng32 flag) {
   space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
 
   if (flag & 0x00000006) {
-    for (Int32 i = 0; i < numExpressions(); i++) {
+    for (int i = 0; i < numExpressions(); i++) {
       if (getExpressionNode(i))
         getExpressionNode(i)->displayContents(space, expressionMode_, (char *)getExpressionName(i), flag);
       else {
@@ -226,7 +226,7 @@ void ComTdb::displayExpression(Space *space, ULng32 flag) {
       }
     }
   } else {
-    for (Int32 i = 0; i < numExpressions(); i++) {
+    for (int i = 0; i < numExpressions(); i++) {
       if (getExpressionNode(i)) {
         str_sprintf(buf, "Expression: %s is not NULL", (char *)getExpressionName(i));
         space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
@@ -239,7 +239,7 @@ void ComTdb::displayExpression(Space *space, ULng32 flag) {
 }
 
 void ComTdb::displayChildren(Space *space, ULng32 flag) {
-  for (Int32 i = 0; i < numChildren(); i++) {
+  for (int i = 0; i < numChildren(); i++) {
     // currTdb->getChildForGUI(i)->displayContents(space);
     if (getChild(i)) ((ComTdb *)getChild(i))->displayContents(space, flag);
   }

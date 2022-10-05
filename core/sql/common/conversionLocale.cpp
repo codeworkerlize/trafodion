@@ -45,7 +45,7 @@
 #include "common/NLSConversion.h"
 #include "common/charinfo.h"
 #include "common/csconvert.h"
-cnv_charset convertCharsetEnum(Int32 inset) {
+cnv_charset convertCharsetEnum(int inset) {
   switch (inset) {
     case CharInfo::ISO88591:
       return cnv_ISO88591;
@@ -97,14 +97,14 @@ charBuf *unicodeToUtf8(const NAWcharBuf &unicodeString, CollHeap *heap, charBuf 
                        NABoolean allowInvalidCodePoint) {
   charBuf *cbufPtr = NULL;  // tell unicodeTocset() to allocate a new buffer
   charBuf *res = NULL;
-  Int32 errorcode = 0;
+  int errorcode = 0;
   res = unicodeTocset(unicodeString  // in - const NAWcharBuf &
                       ,
                       heap  // in - CollHeap *
                       ,
                       cbufPtr, (int)SQLCHARSETCODE_UTF8  // in - int targetCharSet
                       ,
-                      errorcode  // out - Int32 &
+                      errorcode  // out - int &
                       ,
                       addNullAtEnd, allowInvalidCodePoint);
   if (res == NULL || errorcode != 0)  // translation failed
@@ -117,7 +117,7 @@ charBuf *unicodeToUtf8(const NAWcharBuf &unicodeString, CollHeap *heap, charBuf 
     return 0;
   }
 
-  Int32 finalLengthInBytes = res->getStrLen();
+  int finalLengthInBytes = res->getStrLen();
   memmove(output->data(), res->data(), finalLengthInBytes);
   output->setStrLen(res->getStrLen());
 
@@ -132,7 +132,7 @@ int UnicodeStringToLocale(int charset, const NAWchar *wstr, int wstrLen, char *b
   charBuf cbuf((unsigned char *)buf, bufLen);
   charBuf *cbufPtr = &cbuf;
   charBuf *res = 0;
-  Int32 errorcode = 0;
+  int errorcode = 0;
 
   switch (charset) {
 #ifdef IS_MP /* :cnu -- As of 8/30/2011, not used in SQ SQL */
@@ -192,16 +192,16 @@ int LocaleStringToUnicode(int charset, const char *str, int strLen, NAWchar *wst
   char *pFirstUntranslatedChar = NULL;
   UInt32 outputDataLenInBytes = 0;
   UInt32 translatedtCharCount = 0;
-  Int32 convStatus = LocaleToUTF16(cnv_version1,           // const enum cnv_version version
+  int convStatus = LocaleToUTF16(cnv_version1,           // const enum cnv_version version
                                    str,                    // const char *in_bufr
                                    strLen,                 // const int in_len in # of bytes
                                    (const char *)wstrBuf,  // const char *out_bufr
-                                   (const Int32)outBufSizeInBytes,
+                                   (const int)outBufSizeInBytes,
                                    convCS,                  // enum cnv_charset charset -- output charset
                                    pFirstUntranslatedChar,  // char * & first_untranslated_char
                                    &outputDataLenInBytes,   // unsigned int *output_data_len_p
                                    0,                       // const int cnv_flags (default is 0)
-                                   (const Int32)addNullAtEnd,
+                                   (const int)addNullAtEnd,
                                    &translatedtCharCount);  // unsigned int *translated_char_cnt_p
 
   UInt32 outLenInW = outputDataLenInBytes / sizeof(NAWchar);
@@ -225,19 +225,19 @@ int LocaleStringToUnicode(int charset, const char *str, int strLen, NAWchar *wst
 // * Convert the string to UTF8
 // ***************************************************************
 #if 0  /* As of 8/30/2011, there are no callers in SQ SQL */
-  Int32 localeConvertToUTF8(char* source,
+  int localeConvertToUTF8(char* source,
                     int sourceLen,
                     char* target,
                     int targetLen,
                     int charset,
                     CollHeap * heap,
-                    Int32  *rtnCharCount,
-                    Int32  *errorByteOff)
+                    int  *rtnCharCount,
+                    int  *errorByteOff)
   {
  
      char * buffer = NULL;
      int bufferLen = 0;
-     Int32 retCode = 1;
+     int retCode = 1;
      char *OrigSource = source;
  
      // If the input string is invalid, simply return
@@ -254,7 +254,7 @@ int LocaleStringToUnicode(int charset, const char *str, int strLen, NAWchar *wst
      }
 
      // The resulting string will be bigger by a given factor.
-     Int32 multiplier = 8;  // Includes future charset multiplier sizes
+     int multiplier = 8;  // Includes future charset multiplier sizes
      bufferLen = sourceLen + ((int)strlen(source) * multiplier) + 1;
 
      // Check that the target buffer was provided and its length
@@ -292,10 +292,10 @@ int LocaleStringToUnicode(int charset, const char *str, int strLen, NAWchar *wst
 			(cnv_charset)charset,
 			(char* &)p1stUnstranslatedChar, 
 			&utf8StrLenInBytes,  // 64-bit
-			(const Int32)1, // addNullAtEnd_flag == TRUE
+			(const int)1, // addNullAtEnd_flag == TRUE
 			&charCount  // 64-bit
 			);
-        if (rtnCharCount) *rtnCharCount = (Int32)charCount;
+        if (rtnCharCount) *rtnCharCount = (int)charCount;
         if (errorByteOff) *errorByteOff = p1stUnstranslatedChar - OrigSource;
 
 	switch(retCode)
@@ -397,16 +397,16 @@ int LocaleStringToUnicode(int charset, const char *str, int strLen, NAWchar *wst
 // ***************************************************************
 
 #if 0  /* As of 8/30/2011, there are no callers in SQ SQL */
-  Int32 UTF8ConvertToLocale(char* source,
+  int UTF8ConvertToLocale(char* source,
                           int sourceLen,
                           char* target,
                           int targetLen,
                           int charset,
                           CollHeap *heap,
-                          Int32  *charCount,
-                          Int32  *errorByteOff)
+                          int  *charCount,
+                          int  *errorByteOff)
   {
-    Int32 retCode = 1;
+    int retCode = 1;
     char * OrigSource = source;
  
     // If the input string is invalid, simply return
@@ -466,7 +466,7 @@ int LocaleStringToUnicode(int charset, const char *str, int strLen, NAWchar *wst
 			      0, // allow_invalids == FALSE   
  			      &numTran,  // 64-bit
 			      0);
-        if (charCount) *charCount = (Int32)numTran;
+        if (charCount) *charCount = (int)numTran;
         if (errorByteOff) *errorByteOff = punstr - OrigSource;
 
         switch(retCode)
@@ -584,22 +584,22 @@ int LocaleStringToUnicode(int charset, const char *str, int strLen, NAWchar *wst
 // Return an error code (a negative number) if encounters an error.  The
 // error code values are defined in w:/common/csconvert.h.
 // -----------------------------------------------------------------------
-Int32 ComputeStrLenInNAWchars(const char *pStr, const Int32 strLenInBytes, const CharInfo::CharSet strCS,
+int ComputeStrLenInNAWchars(const char *pStr, const int strLenInBytes, const CharInfo::CharSet strCS,
                               NAMemory *workspaceHeap)  // in - default is NULL (the C++ runtime heap)
 {
   if (pStr == NULL || strLenInBytes == 0) return 0;
 
   if (strCS == CharInfo::UCS2) return strLenInBytes / BYTES_PER_NAWCHAR;
 
-  Int32 lenInNAWchars = 0;
+  int lenInNAWchars = 0;
   char *pFirstByteOfUntranslatedChar = NULL;
   UInt32 outputDataLen = 0;
-  Int32 rtnCode = 0;
+  int rtnCode = 0;
 
   cnv_charset cnvCharSet = convertCharsetEnum(strCS);
 
   // Compute the size of the to-be-allocated output buffer, include a UCS-2 NULL terminator, for the worst case.
-  const Int32 bufSizeInBytes = (BYTES_PER_NAWCHAR + 1) * strLenInBytes + BYTES_PER_NAWCHAR;
+  const int bufSizeInBytes = (BYTES_PER_NAWCHAR + 1) * strLenInBytes + BYTES_PER_NAWCHAR;
   char *charBuf = new (workspaceHeap) char[bufSizeInBytes];
 
   if (charBuf EQU NULL) return CNV_ERR_INVALID_HEAP;
@@ -621,7 +621,7 @@ Int32 ComputeStrLenInNAWchars(const char *pStr, const Int32 strLenInBytes, const
                     ,
                     &outputDataLen  // out - unsigned int * output_data_len_p     = NULL
                     // , 0                               // in  - const int      cnv_flags             = 0
-                    // , (Int32)FALSE                    // in  - const int      addNullAtEnd_flag     = FALSE
+                    // , (int)FALSE                    // in  - const int      addNullAtEnd_flag     = FALSE
                     // , & translatedCharCount           // out - unsigned int * translated_char_cnt_p = NULL
                     // ,                                 // in  - unsigned int   max_chars_to_convert  = 0xffffffff
       );
@@ -645,16 +645,16 @@ Int32 ComputeStrLenInNAWchars(const char *pStr, const Int32 strLenInBytes, const
 // error code values are defined in w:/common/csconvert.h.  Note that
 // this function does not need to use a workspace heap.
 // -----------------------------------------------------------------------
-Int32 ComputeStrLenInUCS4chars(const char *pStr, const Int32 strLenInBytes, const CharInfo::CharSet cs) {
+int ComputeStrLenInUCS4chars(const char *pStr, const int strLenInBytes, const CharInfo::CharSet cs) {
   if (cs == CharInfo::ISO88591 || strLenInBytes == 0) return strLenInBytes;
 
-  Int32 numberOfUCS4chars = 0;
-  Int32 firstCharLenInBuf = 0;
+  int numberOfUCS4chars = 0;
+  int firstCharLenInBuf = 0;
   UInt32 /*ucs4_t*/ UCS4value;
   cnv_charset cnvCharSet = convertCharsetEnum(cs);
   const char *s = pStr;
-  Int32 num_trailing_zeros = 0;
-  Int32 len = (Int32)strLenInBytes;
+  int num_trailing_zeros = 0;
+  int len = (int)strLenInBytes;
 
   while (len > 0) {
     firstCharLenInBuf = LocaleCharToUCS4(s, len, &UCS4value, cnvCharSet);

@@ -48,7 +48,7 @@ NABoolean qiSubjectMatchesRole(uint32_t subjectKey) {
   // (Mantis-12301)
   if (!ComUser::roleIDsCached()) return TRUE;
 
-  NAList<Int32> roleIDs(NULL);
+  NAList<int> roleIDs(NULL);
   if (ComUser::getCurrentUserRoles(roleIDs, NULL) != 0) return TRUE;  // force recompilation if can't get current roles
 
   for (int i = 0; i < roleIDs.entries(); i++) {
@@ -69,8 +69,8 @@ NABoolean qiSubjectMatchesGroup(uint32_t subjectKey) {
   // (Mantis-12301)
   if (!ComUser::roleIDsCached()) return TRUE;
 
-  NAList<Int32> roleIDs(NULL);
-  NAList<Int32> grantees(NULL);
+  NAList<int> roleIDs(NULL);
+  NAList<int> grantees(NULL);
   if (ComUser::getCurrentUserRoles(roleIDs, grantees, NULL) != 0)
     return TRUE;  // force recompliation if can't get current roles
 
@@ -90,16 +90,16 @@ NABoolean qiSubjectMatchesGroup(uint32_t subjectKey) {
 // return TRUE.  TRUE indicates that the object should be reloaded to pick up
 // DDL or privilege changes.
 // ****************************************************************************
-NABoolean qiCheckForInvalidObject(const Int32 numInvalidationKeys, const SQL_QIKEY *invalidationKeys,
+NABoolean qiCheckForInvalidObject(const int numInvalidationKeys, const SQL_QIKEY *invalidationKeys,
                                   const long objectUID, const ComSecurityKeySet &objectKeys) {
   NABoolean found = FALSE;
   ComQIActionType invalidationKeyType = COM_QI_INVALID_ACTIONTYPE;
 
   // check each invalidation key against objects in NATableDB or NARoutineDB
   // cache
-  for (Int32 i = 0; i < numInvalidationKeys && !found; i++) {
+  for (int i = 0; i < numInvalidationKeys && !found; i++) {
     invalidationKeyType = ComQIActionTypeLiteralToEnum(invalidationKeys[i].operation);
-    Int32 numObjectKeys = objectKeys.entries();
+    int numObjectKeys = objectKeys.entries();
 
     switch (invalidationKeyType) {
       // Indicates that the DDL of the object has changed.
@@ -129,7 +129,7 @@ NABoolean qiCheckForInvalidObject(const Int32 numInvalidationKeys, const SQL_QIK
       case COM_QI_OBJECT_EXECUTE:
       case COM_QI_OBJECT_ALTER:
       case COM_QI_OBJECT_DROP:
-        for (Int32 j = 0; j < numObjectKeys && !found; j++) {
+        for (int j = 0; j < numObjectKeys && !found; j++) {
           ComSecurityKey keyValue = objectKeys[j];
           if ((invalidationKeys[i].revokeKey.object == keyValue.getObjectHashValue()) &&
               (invalidationKeyType == keyValue.getSecurityKeyType())) {
@@ -141,7 +141,7 @@ NABoolean qiCheckForInvalidObject(const Int32 numInvalidationKeys, const SQL_QIK
         break;
 
       case COM_QI_USER_GRANT_SPECIAL_ROLE: {
-        for (Int32 j = 0; j < numObjectKeys && !found; j++) {
+        for (int j = 0; j < numObjectKeys && !found; j++) {
           ComSecurityKey keyValue = objectKeys[j];
           if ((invalidationKeys[i].revokeKey.subject == keyValue.getSubjectHashValue()) &&
               (invalidationKeys[i].revokeKey.object == keyValue.getObjectHashValue()) &&
@@ -152,7 +152,7 @@ NABoolean qiCheckForInvalidObject(const Int32 numInvalidationKeys, const SQL_QIK
       }
       case COM_QI_USER_GRANT_ROLE:
       case COM_QI_GROUP_GRANT_ROLE: {
-        for (Int32 j = 0; j < numObjectKeys && !found; j++) {
+        for (int j = 0; j < numObjectKeys && !found; j++) {
           ComSecurityKey keyValue = objectKeys[j];
           if (invalidationKeys[i].revokeKey.subject == keyValue.getSubjectHashValue()) {
             // If the object has any invalidation keys based on the schema
@@ -185,7 +185,7 @@ NABoolean qiCheckForInvalidObject(const Int32 numInvalidationKeys, const SQL_QIK
       case COM_QI_SCHEMA_DROP: {
         ComSecurityKey publicKey(PUBLIC_USER, objectUID, SELECT_PRIV, ComSecurityKey::OBJECT_IS_OBJECT);
         uint32_t publicHashValue = publicKey.getSubjectHashValue();
-        for (Int32 j = 0; j < numObjectKeys && !found; j++) {
+        for (int j = 0; j < numObjectKeys && !found; j++) {
           ComSecurityKey keyValue = objectKeys[j];
           if ((invalidationKeys[i].revokeKey.object == keyValue.getObjectHashValue()) &&
               (invalidationKeyType == keyValue.getSecurityKeyType())) {
@@ -215,13 +215,13 @@ NABoolean qiCheckForInvalidObject(const Int32 numInvalidationKeys, const SQL_QIK
 // return TRUE.  TRUE indicates that the object should be reloaded to pick up
 // the invalidation change.
 // ****************************************************************************
-NABoolean qiCheckForSchemaUID(const Int32 numInvalidationKeys, const SQL_QIKEY *invalidationKeys,
+NABoolean qiCheckForSchemaUID(const int numInvalidationKeys, const SQL_QIKEY *invalidationKeys,
                               const long schemaUID) {
   NABoolean found = FALSE;
   uint32_t schemaHash = ComSecurityKey::generateHash(schemaUID);
   ComQIActionType invalidationKeyType = COM_QI_INVALID_ACTIONTYPE;
 
-  for (Int32 i = 0; i < numInvalidationKeys && !found; i++) {
+  for (int i = 0; i < numInvalidationKeys && !found; i++) {
     invalidationKeyType = ComQIActionTypeLiteralToEnum(invalidationKeys[i].operation);
 
     switch (invalidationKeyType) {
@@ -396,7 +396,7 @@ bool buildSecurityKeys(const NAList<int32_t> &roleGrantees, const int32_t grante
 //    updateCaches -- need to update cache entries related for the keys
 //    resetSchemaCaches -- need to reset schema objects
 // ****************************************************************************
-void qiInvalidationType(const Int32 numInvalidationKeys, const SQL_QIKEY *invalidationKeys, const Int32 userID,
+void qiInvalidationType(const int numInvalidationKeys, const SQL_QIKEY *invalidationKeys, const int userID,
                         bool &resetRoleList, bool &updateCaches, bool &resetSchemaCaches) {
   NABoolean doDebug = (getenv("DBUSER_DEBUG") ? TRUE : FALSE);
   char buf[100];
@@ -421,7 +421,7 @@ void qiInvalidationType(const Int32 numInvalidationKeys, const SQL_QIKEY *invali
     sprintf(buf, "Not applicable");
   }
 
-  for (Int32 i = 0; i < numInvalidationKeys; i++) {
+  for (int i = 0; i < numInvalidationKeys; i++) {
     invalidationKeyType = ComQIActionTypeLiteralToEnum(invalidationKeys[i].operation);
     switch (invalidationKeyType) {
       // Object changed, need to update caches
@@ -821,7 +821,7 @@ void ComSecurityKey::getSecurityKeyTypeAsLit(std::string &actionString) const {
   }
 }
 
-NAString ComSecurityKey::print(Int32 subjectID, long objectID) {
+NAString ComSecurityKey::print(int subjectID, long objectID) {
   NAString typeString;
   switch (actionType_) {
     case COM_QI_GRANT_ROLE:

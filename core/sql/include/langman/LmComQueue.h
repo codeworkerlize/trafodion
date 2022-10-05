@@ -128,7 +128,7 @@ class Queue {
 
   CollHeap *heap_;
 
-  Int32 numEntries_;  // 40-43
+  int numEntries_;  // 40-43
 
   // length of queue in 'packed' (contiguous) form.
   // This field is updated whenever a new queue entry is added (removed).
@@ -193,7 +193,7 @@ class Queue {
   int unpack(void *base);
 
   // returns -1, if queue is empty. Otherwise, returns 0.
-  Int32 isEmpty() { return ((numEntries() == 0) ? -1 : 0); }
+  int isEmpty() { return ((numEntries() == 0) ? -1 : 0); }
 
   int numEntries() { return numEntries_; }
 

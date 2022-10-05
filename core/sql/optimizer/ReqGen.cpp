@@ -235,7 +235,7 @@ void RequirementGenerator::addSortKey(const ValueIdList &additionalSortKey, Sort
   // check c) (see comment above)
   // check for a conflict with an existing arrangement requirement
   if (addedArrangement_ != NULL AND addedArrangement_->entries() > 0) {
-    Int32 count = simpleSortCols_.prefixCoveredInSet(simpleArrangedCols_);
+    int count = simpleSortCols_.prefixCoveredInSet(simpleArrangedCols_);
     // The entire simplified required arrangement must be a leading
     // prefix of the simplified required sort order, or all the
     // required sort order columns must be covered by the
@@ -273,8 +273,8 @@ void RequirementGenerator::makeSortKeyFeasible(ValueIdList &proposedSortKey) {
     // counterpart in the existing sort key, we must remove it and
     // all subsequent proposed sort key columns.
     if (NOT match) {
-      Int32 lastEntry = (Int32)proposedSortKey.entries() - 1;
-      while (lastEntry >= (Int32)i) {
+      int lastEntry = (int)proposedSortKey.entries() - 1;
+      while (lastEntry >= (int)i) {
         proposedSortKey.removeAt(lastEntry--);
       }
     }
@@ -292,8 +292,8 @@ void RequirementGenerator::makeSortKeyFeasible(ValueIdList &proposedSortKey) {
     // required arrangement, we must remove it and all subsequent
     // proposed sort key columns.
     if (NOT match) {
-      Int32 lastEntry = (Int32)proposedSortKey.entries() - 1;
-      while (lastEntry >= (Int32)i) {
+      int lastEntry = (int)proposedSortKey.entries() - 1;
+      while (lastEntry >= (int)i) {
         proposedSortKey.removeAt(lastEntry--);
       }
     }
@@ -323,7 +323,7 @@ void RequirementGenerator::makeArrangementFeasible(ValueIdSet &proposedArrangeme
 
   // is there a required sort order?
   if (addedSortKey_ != NULL) {
-    Int32 count = simpleSortCols_.prefixCoveredInSet(simpleProposedArrangement);
+    int count = simpleSortCols_.prefixCoveredInSet(simpleProposedArrangement);
     // The entire simplified proposed arrangement must be a leading
     // prefix of the simplified required sort order, or all the
     // simplified required sort order columns must be covered by the
@@ -426,7 +426,7 @@ void RequirementGenerator::addArrangement(const ValueIdSet &additionalArrangemen
       // that is the same as the one we want to add, since it must have
       // already passed the checks.
       ((addedArrangement_ == NULL) OR(simpleArrangedCols_ != simpleAddtnlArrangement))) {
-    Int32 count = simpleSortCols_.prefixCoveredInSet(simpleAddtnlArrangement);
+    int count = simpleSortCols_.prefixCoveredInSet(simpleAddtnlArrangement);
     // The entire arrangement must be a leading prefix of the
     // required sort order, or all the required sort order columns must
     // be covered by the arrangement columns. i.e. if the required
@@ -1195,7 +1195,7 @@ SortOrderTypeEnum RequirementGenerator::determineCompatibleSortOrderTypeReq(
     SortOrderTypeEnum otherSortOrderTypeReq) const {
   if (sortOrderTypeReqCompTab_ == NULL) initSortOrderTypeReqCompTab();
 
-  return sortOrderTypeReqCompTab_->getValue((Int32)otherSortOrderTypeReq, (Int32)addedSortOrderTypeReq_);
+  return sortOrderTypeReqCompTab_->getValue((int)otherSortOrderTypeReq, (int)addedSortOrderTypeReq_);
 }
 
 void RequirementGenerator::addSortOrderTypeReq(SortOrderTypeEnum sortOrderTypeReq,

@@ -43,8 +43,8 @@ static const char *TraceFieldTypeName[] = {
 };
 
 // not really used
-ExeTrace::ExeTrace(char *name, void *id, void *target, GetALineProcPtr getALineProc, void *indexLoc, Int32 numEntries,
-                   Int32 lineLen, const char *desc)
+ExeTrace::ExeTrace(char *name, void *id, void *target, GetALineProcPtr getALineProc, void *indexLoc, int numEntries,
+                   int lineLen, const char *desc)
     : traceId_(id),
       target_(target),
       getALineProc_(getALineProc),
@@ -59,8 +59,8 @@ ExeTrace::ExeTrace(char *name, void *id, void *target, GetALineProcPtr getALineP
 //
 // getTitleLineWidth - returned formatted line width based on the field name
 //
-Int32 ExeTrace::getTitleLineWidth() {
-  Int32 len = 0;
+int ExeTrace::getTitleLineWidth() {
+  int len = 0;
   for (CollIndex i = 0; i < (UInt32)numFields_; i++) {
     len += (strlen(fields_[i].name_) + 1);  // add 1 as field separator
   }
@@ -99,10 +99,10 @@ ExeTraceInfo::~ExeTraceInfo(){};
 //     ...
 //
 //----------------------------------------------------------------
-Int32 ExeTraceInfo::getExeTraceInfoAll(char *outBuf, Int32 maxBufLen, Int32 *bufLen, Int32 startTid) {
+int ExeTraceInfo::getExeTraceInfoAll(char *outBuf, int maxBufLen, int *bufLen, int startTid) {
   CollIndex curr = startTid;
 
-  Int32 len = 0;
+  int len = 0;
   *bufLen = 0;
   if (exeTraces_.entries() <= curr) return 0;  // no more traces
 
@@ -110,10 +110,10 @@ Int32 ExeTraceInfo::getExeTraceInfoAll(char *outBuf, Int32 maxBufLen, Int32 *buf
     ExeTrace *t = exeTraces_.at(curr);
 
     // get the size of one exeTrace info first
-    Int32 totalSize = MAX_TRACE_NAME_LEN + 13 + sizeof(t->describes_) + 2;
+    int totalSize = MAX_TRACE_NAME_LEN + 13 + sizeof(t->describes_) + 2;
 
     totalSize += 2 + sizeof("Number of entries: ") + 4;
-    for (Int32 i = 0; i < t->numFields_; i++) {
+    for (int i = 0; i < t->numFields_; i++) {
       // 2 tabs + field name length + field type
       totalSize += 4 + t->fields_[i].nameLen_ + 8;
     }
@@ -124,7 +124,7 @@ Int32 ExeTraceInfo::getExeTraceInfoAll(char *outBuf, Int32 maxBufLen, Int32 *buf
     // now start dump this trace info to the buffer
     len += sprintf((outBuf + len), "%s (id=%p):\n\t%s\n\tNumber of entries: %4d\n\tFields:\n", t->name_, t->traceId_,
                    t->describes_, t->numEntries_);
-    for (Int32 i = 0; i < t->numFields_; i++) {
+    for (int i = 0; i < t->numFields_; i++) {
       len += sprintf((outBuf + len), "\t\t%s %s\n", TraceFieldTypeName[t->fields_[i].fieldType_], t->fields_[i].name_);
     }
 
@@ -132,7 +132,7 @@ Int32 ExeTraceInfo::getExeTraceInfoAll(char *outBuf, Int32 maxBufLen, Int32 *buf
     *bufLen = len;
   }
 
-  return (Int32)curr;
+  return (int)curr;
 };
 
 //----------------------------------------------------------------
@@ -161,7 +161,7 @@ Int32 ExeTraceInfo::getExeTraceInfoAll(char *outBuf, Int32 maxBufLen, Int32 *buf
 //   Note, given buffer outBuf should be big enough to hold data for
 //   at least one trace
 //----------------------------------------------------------------
-Int32 ExeTraceInfo::getExeTraceAll(char *outBuf, Int32 maxBufLen, Int32 *bufLen, Int32 startTid) {
+int ExeTraceInfo::getExeTraceAll(char *outBuf, int maxBufLen, int *bufLen, int startTid) {
   *bufLen = 0;
   return startTid;
 };
@@ -173,7 +173,7 @@ Int32 ExeTraceInfo::getExeTraceAll(char *outBuf, Int32 maxBufLen, Int32 *bufLen,
 //   parameters: name - trace name
 //               nameLen - length of the name
 //----------------------------------------------------------------
-void *ExeTraceInfo::getExeTraceId(char *name, Int32 nameLen) const {
+void *ExeTraceInfo::getExeTraceId(char *name, int nameLen) const {
   UInt32 noTraces = exeTraces_.entries();
 
   if (noTraces) {
@@ -202,7 +202,7 @@ void *ExeTraceInfo::getExeTraceId(char *name, Int32 nameLen) const {
 //   Note, the buffer contents have the same format as in getExeTraceInfoAll
 //
 //----------------------------------------------------------------
-Int32 ExeTraceInfo::getExeTraceInfoById(void *traceId, char *buf, Int32 maxBufLen, Int32 *bufLen) { return 0; };
+int ExeTraceInfo::getExeTraceInfoById(void *traceId, char *buf, int maxBufLen, int *bufLen) { return 0; };
 
 //----------------------------------------------------------------
 // getExeTraceById -- retreive trace data for given trace id
@@ -229,10 +229,10 @@ Int32 ExeTraceInfo::getExeTraceInfoById(void *traceId, char *buf, Int32 maxBufLe
 //     End
 //
 //----------------------------------------------------------------
-Int32 ExeTraceInfo::getExeTraceById(void *traceId, char *buf, Int32 maxBufLen, Int32 *bufLen) {
+int ExeTraceInfo::getExeTraceById(void *traceId, char *buf, int maxBufLen, int *bufLen) {
   CollIndex curr = FIRST_COLL_INDEX;
 
-  Int32 len = 0;
+  int len = 0;
   *bufLen = len;  // initializing
 
   if (exeTraces_.entries() == 0) {
@@ -249,12 +249,12 @@ Int32 ExeTraceInfo::getExeTraceById(void *traceId, char *buf, Int32 maxBufLen, I
 
   // get the size of one exeTrace info first
   // length of first and second lines, see above
-  Int32 totalSize = 21 + sizeof(t->describes_) + MAX_TRACE_NAME_LEN + 51;
+  int totalSize = 21 + sizeof(t->describes_) + MAX_TRACE_NAME_LEN + 51;
   // get the number of entries
-  Int32 nEntries = t->getNumEntries();
+  int nEntries = t->getNumEntries();
 
   // the field name line
-  for (Int32 i = 0; i < t->numFields_; i++) {
+  for (int i = 0; i < t->numFields_; i++) {
     // field name length + space
     totalSize += t->fields_[i].nameLen_ + 1;
   }
@@ -276,19 +276,19 @@ Int32 ExeTraceInfo::getExeTraceById(void *traceId, char *buf, Int32 maxBufLen, I
 
   // field name line
   len += sprintf((buf + len), "Indx  ");
-  for (Int32 i = 0; i < t->numFields_; i++) {
+  for (int i = 0; i < t->numFields_; i++) {
     len += sprintf((buf + len), "%s ", t->fields_[i].name_);
   }
   len += sprintf((buf + len), "\n");
 
   // print trace entries
-  Int32 j = 0, plen = 0;
+  int j = 0, plen = 0;
   do {
     plen = (t->getLineProc())(t->getTarget(), j++, (buf + len));
     len += plen;
   } while (plen);  // keep printing until exhausted
 
-  Int32 idx = t->getIndex();
+  int idx = t->getIndex();
   if (idx >= 0)  // idx < 0 means that the trace has no cyclic buffer
     len += sprintf((buf + len), "Current Index: %8d\n", idx);
   len += sprintf((buf + len), "End\n");
@@ -300,8 +300,8 @@ Int32 ExeTraceInfo::getExeTraceById(void *traceId, char *buf, Int32 maxBufLen, I
 //----------------------------------------------------------------
 // addTrace - add trace to the trace info list
 //----------------------------------------------------------------
-Int32 ExeTraceInfo::addTrace(const char *traceName, void *traceId, Int32 numEntries, Int32 numFields, void *target,
-                             GetALineProcPtr getALineProc, void *indexLoc, Int32 lineWidth, const char *desc,
+int ExeTraceInfo::addTrace(const char *traceName, void *traceId, int numEntries, int numFields, void *target,
+                             GetALineProcPtr getALineProc, void *indexLoc, int lineWidth, const char *desc,
                              void **exeTrace) {
   // to do: use globalheap?
   ExeTrace *t = (ExeTrace *)malloc(sizeof(ExeTrace) + numFields * sizeof(ExeTrace::TraceField));

@@ -248,7 +248,7 @@ CRUSimpleRefreshTaskExecutor::StmtList *CRUSimpleRefreshTaskExecutor::PrepareMul
   CRUSimpleRefreshTaskExecutor::StmtList *stmts = new StmtList();
 
 #ifdef NA_LINUX
-  Int32 nid = 0;
+  int nid = 0;
   // get the node id of this process
   if (XZFIL_ERR_OK != msg_mon_get_my_info(&nid, NULL, NULL, 0, NULL, NULL, NULL, NULL)) {
     CRUException ex;
@@ -269,8 +269,8 @@ CRUSimpleRefreshTaskExecutor::StmtList *CRUSimpleRefreshTaskExecutor::PrepareMul
 #ifdef NA_LINUX
     // check the RMS shared memory after every CHECK_RMS_EACH_N_STMT statements
     if (numOfPhases_ % CHECK_RMS_EACH_N_STMT == 0) {
-      Int32 heapUsed = 0;
-      Int32 heapTotal = 0;
+      int heapUsed = 0;
+      int heapTotal = 0;
 
       pStat->getRmsHeapStats(nid, heapUsed, heapTotal);
 
@@ -280,7 +280,7 @@ CRUSimpleRefreshTaskExecutor::StmtList *CRUSimpleRefreshTaskExecutor::PrepareMul
       if (percentOfRMSHeapUsed > PERCENT_OF_RMS_SMEM_USED) {
         CRUException ex;
         ex.SetError(IDS_RU_EXHAUSTED_RMS_SHARED_MEM);
-        ex.AddArgument((Int32)(percentOfRMSHeapUsed));
+        ex.AddArgument((int)(percentOfRMSHeapUsed));
         ex.AddArgument(numOfPhases_);
         throw ex;
       }
@@ -362,7 +362,7 @@ BOOL CRUSimpleRefreshTaskExecutor::CompileMultiDeltasIRefresh(CDMPreparedStateme
 //--------------------------------------------------------------------------//
 
 BOOL CRUSimpleRefreshTaskExecutor::HasWarningCode(CDSException ex, int errorCode) const {
-  for (Int32 i = 0; i < ex.GetNumErrors(); i++) {
+  for (int i = 0; i < ex.GetNumErrors(); i++) {
     if (ex.GetErrorCode(i) == errorCode) {
       return TRUE;
     }

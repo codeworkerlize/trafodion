@@ -81,7 +81,7 @@ class REFRESH_LIB_CLASS CRUJournal {
   CDSLogfile logfile_;
 
   // Print numbering counter
-  Int32 rowNum_;
+  int rowNum_;
 
   // log to ems only unless the user specifies an OUTFILE option
   // in which case the specified file will also be used to log

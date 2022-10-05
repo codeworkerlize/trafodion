@@ -75,7 +75,7 @@ class StmtDDLCreateSequence : public StmtDDLNode {
   // ---------------------------------------------------------------------
 
   // methods relating to parse tree
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
   virtual ExprNode *getChild(int index);
 
   inline const QualifiedName &getSeqNameAsQualifiedName() const;
@@ -172,7 +172,7 @@ class StmtDDLDropSequence : public StmtDDLNode {
   // ---------------------------------------------------------------------
 
   // methods relating to parse tree
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
   virtual ExprNode *getChild(int index);
 
   inline const QualifiedName &getSeqNameAsQualifiedName() const;

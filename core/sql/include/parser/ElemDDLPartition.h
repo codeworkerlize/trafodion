@@ -101,7 +101,7 @@ class ElemDDLPartitionV2 : public ElemDDLNode {
  public:
   ElemDDLPartitionV2(NAString &pname, ItemExpr *partValue = NULL, ElemDDLNode *subPart = NULL);
 
-  ElemDDLPartitionV2(Int32 numPart, ElemDDLNode *subPart = NULL);
+  ElemDDLPartitionV2(int numPart, ElemDDLNode *subPart = NULL);
 
   virtual ~ElemDDLPartitionV2();
   // cast
@@ -138,7 +138,7 @@ class ElemDDLPartitionV2 : public ElemDDLNode {
 
  private:
   NAString partitionName_;
-  Int32 numPartitions_;
+  int numPartitions_;
   NABoolean hasSubparition_;
   ItemExpr *partitionValue_;
   // parser node

@@ -76,7 +76,7 @@ class ElemDDLPartitionClause : public ElemDDLNode {
   virtual ElemDDLPartitionClause *castToElemDDLPartitionClause();
 
   // accessors
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
   virtual ExprNode *getChild(int index);
   inline ElemDDLNode *getPartitionDefBody() const;
   inline ElemDDLNode *getPartitionByOption() const;
@@ -142,7 +142,7 @@ class ElemDDLPartitionClauseV2 : public ElemDDLNode {
   virtual ElemDDLPartitionClauseV2 *castToElemDDLPartitionClauseV2();
 
   // accessors
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
   virtual ExprNode *getChild(int index);
   inline ElemDDLNode *getPartitionDefBody() const;
   inline ElemDDLNode *getPartitionColList() const;

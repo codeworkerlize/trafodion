@@ -44,7 +44,7 @@
 // *****************************************************************************
 
 // Position the beforePtr to prepare for an insertion.
-MdamRefListEntry *MdamRefListEntry::positionBeforePtr(const Int32 disjunctNum) {
+MdamRefListEntry *MdamRefListEntry::positionBeforePtr(const int disjunctNum) {
   // Assume the new node will go between the head and the tail.
   MdamRefListEntry *beforePtr = this;
   // Check if the above assumption is incorrect.

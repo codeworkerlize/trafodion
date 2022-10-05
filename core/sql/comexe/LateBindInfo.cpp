@@ -118,9 +118,9 @@ NABoolean LateNameInfo::extractParts(const char *inName,  // IN: inName separate
                                      char *parts[],       // IN/OUT: array entries initialized to parts on return
                                      NABoolean dQuote)    // IN: if TRUE, parts are double quoted.
 {
-  Int32 len = str_len(inName);
+  int len = str_len(inName);
   numParts = 0;
-  Int32 outPos = 0;
+  int outPos = 0;
   parts[numParts++] = &outBuffer[outPos];
 
   if (strstr(inName, "TRAFODION__")) {
@@ -129,7 +129,7 @@ NABoolean LateNameInfo::extractParts(const char *inName,  // IN: inName separate
     parts[numParts++] = &outBuffer[nptr];
   } else {
     if (dQuote) outBuffer[outPos++] = '"';
-    for (Int32 inPos = 0; inPos < len; inPos++) {
+    for (int inPos = 0; inPos < len; inPos++) {
       if (inName[inPos] == '.') {
         if (dQuote) outBuffer[outPos++] = '"';
         outBuffer[outPos++] = 0;
@@ -149,9 +149,9 @@ NABoolean LateNameInfo::extractParts(const char *inName,  // IN: inName separate
 static void extractPartsLocal(char *invalue, char *inVal[], short inValLen[]) {
   // apply defaults to invalue
   UInt32 invalueLen = str_len(invalue);
-  Int32 i = invalueLen - 1;
-  Int32 j = 2;
-  Int32 k = 0;
+  int i = invalueLen - 1;
+  int j = 2;
+  int k = 0;
   for (; i >= 0; i--) {
     if (invalue[i] == '.') {
       inVal[j] = &invalue[i + 1];
@@ -176,7 +176,7 @@ int LateNameInfoList::unpack(void *base, void *reallocator) {
 }
 
 AnsiName::AnsiName(char *inName) {
-  Int32 len;
+  int len;
 
   extName_[0] = '\0';
   intName_[0] = '\0';
@@ -561,7 +561,7 @@ Int16 AnsiName::fillInMissingParts(char *schemaName) {
 // This function is used only at the  compile time
 void LateNameInfo::setLastUsedName(char *name, NAMemory *heap) {
   NABasicPtr ansiName;
-  Int32 len;
+  int len;
   char *ptr;
 
   len = str_len(name);
@@ -592,7 +592,7 @@ void LateNameInfo::setLastUsedName(AnsiName *name) {
 
 void LateNameInfo::setCompileTimeName(char *name, NAMemory *heap) {
   NABasicPtr ansiName;
-  Int32 len;
+  int len;
   char *ptr;
 
   len = str_len(name);
@@ -713,8 +713,8 @@ void LateNameInfo::resetRuntimeFlags() {
 // class TrafSimilarityTableInfo
 ///////////////////////////////////////////////////////////////////
 TrafSimilarityTableInfo::TrafSimilarityTableInfo(char *tableName, NABoolean isHive, char *hdfsRootDir, long modTS,
-                                                 Int32 numPartnLevels, Queue *hdfsDirsToCheck, char *hdfsHostName,
-                                                 Int32 hdfsPort)
+                                                 int numPartnLevels, Queue *hdfsDirsToCheck, char *hdfsHostName,
+                                                 int hdfsPort)
     : NAVersionedObject(-1),
       tableName_(tableName),
       hdfsRootDir_(hdfsRootDir),

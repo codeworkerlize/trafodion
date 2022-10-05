@@ -65,7 +65,7 @@
 // other than ex_assert in the UDR Server build.
 //
 #ifdef UDRSERV_BUILD
-extern void udrAssert(const char *, Int32, const char *);
+extern void udrAssert(const char *, int, const char *);
 #define UdrExeAssert(p, msg)            \
   if (!(p)) {                           \
     udrAssert(__FILE__, __LINE__, msg); \
@@ -286,7 +286,7 @@ void SqlBuffer::printInfo(ostream &out) {
   int refcount = 0;
   int firstref = -1;
 
-  for (Int32 i = 0; (i < maxTuppDesc_); i++) {
+  for (int i = 0; (i < maxTuppDesc_); i++) {
     if (tupleDesc(i)->getReferenceCount()) {
       if (firstref == -1) firstref = i;
       refcount++;
@@ -1021,7 +1021,7 @@ NABoolean SqlBuffer::moveOutSendOrReplyData(NABoolean isSend, void *currQState, 
   return FALSE;
 }
 
-Int32 SqlBuffer::setupSrControlInfo(NABoolean isSend, tupp_descriptor *tuppDesc) {
+int SqlBuffer::setupSrControlInfo(NABoolean isSend, tupp_descriptor *tuppDesc) {
   // remember that flags_ were overloaded with relocatedAddress
   // in the tupp_descriptor (just trying to save some space).
   // Now that the buffer has reached its destination, the
@@ -1106,7 +1106,7 @@ static long debugCnt = 0;
 
 void SqlBuffer::setSignature() { signature_ = ++debugCnt; }
 
-NABoolean SqlBuffer::checkSignature(const Int32 nid, const Int32 pid, long *signature, const Int32 action) {
+NABoolean SqlBuffer::checkSignature(const int nid, const int pid, long *signature, const int action) {
   if (signature_ <= *signature) {
     if (action > 0) {
       char coreFile[512];
@@ -1210,7 +1210,7 @@ void SqlBufferDense::resize_tupp_desc(UInt32 tup_data_size, char *dataPointer) {
   tupp_descriptor *td = lastTupleDesc()->tupleDesc();
   UInt32 rounded_new_size = ROUND8(tup_data_size);
   UInt32 rounded_old_size = ROUND8(td->getAllocatedSize());
-  Int32 diff = rounded_old_size - rounded_new_size;
+  int diff = rounded_old_size - rounded_new_size;
 
 #ifndef UDRSERV_BUILD
   ex_assert((diff >= 0), "trying to increase tupp size");
@@ -1226,7 +1226,7 @@ void SqlBufferNormal::resize_tupp_desc(UInt32 tup_data_size, char *dataPointer) 
   tupp_descriptor *td = tupleDesc(maxTuppDesc_ - 1);
   UInt32 rounded_new_size = ROUND8(tup_data_size);
   UInt32 rounded_old_size = ROUND8(td->getAllocatedSize());
-  Int32 diff = rounded_old_size - rounded_new_size;
+  int diff = rounded_old_size - rounded_new_size;
 #ifndef UDRSERV_BUILD
   ex_assert((diff >= 0), "trying to increase tupp size");
   ex_assert(dataPointer == td->getTupleAddress(), "Bad resize");
@@ -1249,7 +1249,7 @@ short SqlBufferNormal::isFree() {
   // if all tuple descriptors in this SqlBuffer are not being referenced,
   // then set the buffer status to EMPTY.
   // Backward search for efficiency.  (eric)
-  for (Int32 i = (maxTuppDesc_ - 1); i >= 0; i--) {
+  for (int i = (maxTuppDesc_ - 1); i >= 0; i--) {
     if (tupleDesc(i)->getReferenceCount() != 0)
       // this tuple descriptor is still in use
       return 0;
@@ -1270,7 +1270,7 @@ void SqlBufferNormal::printInfo(ostream &out) {
       << " numInvalidTuplesUptoCurrentPosition:  " << numInvalidTuplesUptoCurrentPosition_;
   int refcount = 0;
   int firstref = -1;
-  for (Int32 i = 0; (i < maxTuppDesc_); i++)
+  for (int i = 0; (i < maxTuppDesc_); i++)
     if (tupleDesc(i)->getReferenceCount()) {
       if (firstref == -1) firstref = i;
       refcount++;
@@ -1347,7 +1347,7 @@ NABoolean SqlBufferNormal::verify(ULng32 maxBytes) const {
   ULng32 bytesSeen = sizeof(*this);
   tupp_descriptor *tdBase = (tupp_descriptor *)((char *)this + tupleDescOffset_);
 
-  for (Int32 i = 0; i < (Int32)maxTuppDesc_; i++) {
+  for (int i = 0; i < (int)maxTuppDesc_; i++) {
     ULng32 offset = tdBase[-(i + 1)].getTupleOffset();
     if (offset > dataOffset_) return FALSE;
     ULng32 endOfData = offset + tdBase[-(i + 1)].getAllocatedSize();
@@ -1589,7 +1589,7 @@ void SqlBufferDense::printInfo(ostream &out) {
   SqlBuffer::printInfo(out);
 
   if (maxTuppDesc_ > 0) {
-    Int32 i = 0;
+    int i = 0;
     TupleDescInfo *temp = firstTupleDesc();
     while (temp) {
       out << "tupp[" << i++ << "]: allocatedSize=" << temp->tupleDesc()->getAllocatedSize() << endl;
@@ -1982,7 +1982,7 @@ void sql_buffer_pool::printAllBufferInfo() {
   while (buf = (SqlBuffer *)dynBufferList_->getNext()) buf->printInfo();
 };
 
-SqlBufferBase *sql_buffer_pool::findBuffer(int freeSpace, Int32 mustBeEmpty) {
+SqlBufferBase *sql_buffer_pool::findBuffer(int freeSpace, int mustBeEmpty) {
   SqlBuffer *currBuffer;
 
   // walk the list until we find a buffer that we like.
@@ -2003,7 +2003,7 @@ SqlBufferBase *sql_buffer_pool::findBuffer(int freeSpace, Int32 mustBeEmpty) {
   return NULL;
 }
 
-SqlBuffer *sql_buffer_pool::getCurrentBuffer(int freeSpace, Int32 mustBeEmpty) {
+SqlBuffer *sql_buffer_pool::getCurrentBuffer(int freeSpace, int mustBeEmpty) {
   SqlBuffer *currBuffer;
   if ((currBuffer = (SqlBuffer *)(activeBufferList()->getCurr())) && (currBuffer->bufferStatus_ != SqlBuffer::IN_USE) &&
       (!mustBeEmpty || (currBuffer->bufferStatus_ == SqlBuffer::EMPTY)) && (freeSpace <= currBuffer->getFreeSpace())) {
@@ -2012,7 +2012,7 @@ SqlBuffer *sql_buffer_pool::getCurrentBuffer(int freeSpace, Int32 mustBeEmpty) {
     return NULL;
 }
 
-SqlBufferBase *sql_buffer_pool::getBuffer(int freeSpace, Int32 mustBeEmpty) {
+SqlBufferBase *sql_buffer_pool::getBuffer(int freeSpace, int mustBeEmpty) {
   SqlBufferBase *result = findBuffer(freeSpace, mustBeEmpty);
   if (result) return result;
 
@@ -2218,7 +2218,7 @@ void SqlBufferOlt::init() {
 void SqlBufferOlt::pack() {
   if (containsOltSmall()) return;
 
-  Int32 numTupps = 0;
+  int numTupps = 0;
   switch (getContents()) {
     case ERROR_:
     case DATA_:
@@ -2238,7 +2238,7 @@ void SqlBufferOlt::pack() {
 
   tupp_descriptor *nextTdesc = NULL;
   tupp_descriptor *tdesc = getNextTuppDesc(NULL);
-  Int32 i = 0;
+  int i = 0;
   while (i++ < numTupps) {
     if (i < numTupps) nextTdesc = getNextTuppDesc(tdesc);
     tdesc->setTupleOffset((char *)tdesc->getTupleAddress() - (char *)this);
@@ -2249,7 +2249,7 @@ void SqlBufferOlt::pack() {
 }
 
 void SqlBufferOlt::unpack() {
-  Int32 numTupps = 0;
+  int numTupps = 0;
   switch (getContents()) {
     case ERROR_:
     case DATA_:
@@ -2268,7 +2268,7 @@ void SqlBufferOlt::unpack() {
   if (isStats()) numTupps++;
 
   tupp_descriptor *tdesc = NULL;
-  for (Int32 i = 0; i < numTupps; i++) {
+  for (int i = 0; i < numTupps; i++) {
     tdesc = getNextTuppDesc(tdesc);
     tdesc->setTupleAddress((char *)this + tdesc->getTupleOffset());
   }

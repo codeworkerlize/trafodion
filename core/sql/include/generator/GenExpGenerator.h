@@ -432,7 +432,7 @@ class ExpGenerator : public NABasicObject {
 
   // Generate a bulk move for Aligned Format
   short generateBulkMoveAligned(const ValueIdList &inValIdList, ValueIdList &outValIdList, UInt32 tupleLength,
-                                Int32 *bulkMoveSrcStartOffset = NULL  // IN(O)
+                                int *bulkMoveSrcStartOffset = NULL  // IN(O)
   );
 
   // Generate a bulk move for Exploded Format
@@ -452,7 +452,7 @@ class ExpGenerator : public NABasicObject {
 
   // get the key value. Currently used during hbase checkAndDelete/Update
   // calls. Used to validate that this value exists in the database.
-  short generateKeyColValueExpr(const ValueId vid, Int32 atp, Int32 atp_index, ULng32 &len, ex_expr **colValExpr);
+  short generateKeyColValueExpr(const ValueId vid, int atp, int atp_index, ULng32 &len, ex_expr **colValExpr);
 
   // input is the index descriptor. Generate an expression to
   // extract and encode the key of the table and create a
@@ -460,29 +460,29 @@ class ExpGenerator : public NABasicObject {
   // If optimizeKeyEncoding is TRUE, then check to see if encoding could
   // be avoided. If so, return the offset to the first key column in
   // the data row.
-  short generateKeyEncodeExpr(const IndexDesc *indexDesc, Int32 atp, Int32 atp_index, ExpTupleDesc::TupleDataFormat tf,
+  short generateKeyEncodeExpr(const IndexDesc *indexDesc, int atp, int atp_index, ExpTupleDesc::TupleDataFormat tf,
                               ULng32 &keyLen, ex_expr **key_expr, NABoolean optimizeKeyEncoding,
                               ULng32 &firstKeyColumnOffset, const ValueIdList *keyList = NULL,
                               NABoolean handleSerialization = FALSE);
 
   short generateExtractKeyColsExpr(const ValueIdList &colVidList,  // const IndexDesc * indexDesc,
-                                   Int32 atp, Int32 atp_index, ULng32 &keyLen, ex_expr **key_expr);
+                                   int atp, int atp_index, ULng32 &keyLen, ex_expr **key_expr);
 
   // input is a value id list of key predicates
-  short generateKeyExpr(const NAColumnArray &indexKeyColumns, const ValueIdList &val_id_list, Int32 atp,
-                        Int32 atp_index, ItemExpr *dataConversionErrorFlag, ExpTupleDesc::TupleDataFormat tf,
+  short generateKeyExpr(const NAColumnArray &indexKeyColumns, const ValueIdList &val_id_list, int atp,
+                        int atp_index, ItemExpr *dataConversionErrorFlag, ExpTupleDesc::TupleDataFormat tf,
                         ULng32 &keyLen, ex_expr **key_expr, NABoolean allChosenPredsAreEqualPreds);
 
-  short generateDeserializedMoveExpr(const ValueIdList &valIdList, Int32 atp, Int32 atpIndex,
+  short generateDeserializedMoveExpr(const ValueIdList &valIdList, int atp, int atpIndex,
                                      ExpTupleDesc::TupleDataFormat tdataF, ULng32 &tupleLength, ex_expr **moveExpr,
                                      ExpTupleDesc **tupleDesc, ExpTupleDesc::TupleDescFormat tdescF,
                                      ValueIdList &deserColVIDlist, ValueIdSet &alreadyDeserialized);
 
   // generate expression for an exclude flag for a key value
-  short generateExclusionExpr(ItemExpr *expr, Int32 atp, Int32 atpindex, ex_expr **excl_expr);
+  short generateExclusionExpr(ItemExpr *expr, int atp, int atpindex, ex_expr **excl_expr);
 
   // generate sampling expression
-  short generateSamplingExpr(const ValueId &valId, ex_expr **balanceExpr, Int32 &returnFactorOffset);
+  short generateSamplingExpr(const ValueId &valId, ex_expr **balanceExpr, int &returnFactorOffset);
 
   // input is a ValueIdSet
   short generateSetExpr(const ValueIdSet &val_id_set, ex_expr::exp_node_type node_type, ex_expr **expr,
@@ -492,7 +492,7 @@ class ExpGenerator : public NABasicObject {
 
   // input is a ValueIdList
   short generateListExpr(const ValueIdList &val_id_list, ex_expr::exp_node_type node_type, ex_expr **expr,
-                         Int32 atp = -1, Int32 atpIndex = -1, ExpHdrInfo *hdrInfo = NULL);
+                         int atp = -1, int atpIndex = -1, ExpHdrInfo *hdrInfo = NULL);
 
   short genGuardedListExpr(const ValueIdSet guard, const ValueIdList &val_id_list, ex_expr::exp_node_type node_type,
                            ex_expr **expr);
@@ -529,8 +529,8 @@ class ExpGenerator : public NABasicObject {
   ///////////////////////////////////////////////////////////////////////
   short generateContiguousMoveExpr(const ValueIdList &val_id_list,                                     // IN
                                    short addConvNodes,                                                 // IN
-                                   Int32 atp,                                                          // IN
-                                   Int32 atpIndex,                                                     // IN
+                                   int atp,                                                          // IN
+                                   int atpIndex,                                                     // IN
                                    ExpTupleDesc::TupleDataFormat tf,                                   // IN
                                    ULng32 &tupleLength,                                                // OUT
                                    ex_expr **moveExpr,                                                 // OUT
@@ -548,8 +548,8 @@ class ExpGenerator : public NABasicObject {
   short genGuardedContigMoveExpr(const ValueIdSet guard,
                                  const ValueIdList &val_id_list,                                     // IN
                                  short addConvNodes,                                                 // IN
-                                 Int32 atp,                                                          // IN
-                                 Int32 atpIndex,                                                     // IN
+                                 int atp,                                                          // IN
+                                 int atpIndex,                                                     // IN
                                  ExpTupleDesc::TupleDataFormat tf,                                   // IN
                                  ULng32 &tupleLength,                                                // OUT
                                  ex_expr **moveExpr,                                                 // OUT
@@ -568,7 +568,7 @@ class ExpGenerator : public NABasicObject {
   // Don't generate expression, don't update any map tables.
   ///////////////////////////////////////////////////////////////////////
   short processAttributes(ULng32 numAttrs, Attributes **attrs, ExpTupleDesc::TupleDataFormat tdataF,
-                          ULng32 &tupleLength, Int32 atp, Int32 atpIndex, ExpTupleDesc **tupleDesc = NULL,
+                          ULng32 &tupleLength, int atp, int atpIndex, ExpTupleDesc **tupleDesc = NULL,
                           ExpTupleDesc::TupleDescFormat tdescF = ExpTupleDesc::SHORT_FORMAT, ULng32 startOffset = 0,
                           ExpHdrInfo *hdrInfo = NULL, Attributes **offsets = NULL);
 
@@ -576,8 +576,8 @@ class ExpGenerator : public NABasicObject {
   // similar to processAttributes, but this time we create new Attributes
   // and add them as a new map table to the current stack of map tables
   ///////////////////////////////////////////////////////////////////////
-  short processValIdList(ValueIdList valIdList, ExpTupleDesc::TupleDataFormat tdataF, ULng32 &tupleLength, Int32 atp,
-                         Int32 atpIndex, ExpTupleDesc **tupleDesc = NULL,
+  short processValIdList(ValueIdList valIdList, ExpTupleDesc::TupleDataFormat tdataF, ULng32 &tupleLength, int atp,
+                         int atpIndex, ExpTupleDesc **tupleDesc = NULL,
                          ExpTupleDesc::TupleDescFormat tdescF = ExpTupleDesc::SHORT_FORMAT, int startOffset = 0,
                          Attributes ***returnedAttrs = NULL,  // sorry about the *** :-(
                          NAColumnArray *colArray = NULL, NABoolean isIndex = FALSE,
@@ -586,7 +586,7 @@ class ExpGenerator : public NABasicObject {
   short computeTupleSize(const ValueIdList &valIdList, ExpTupleDesc::TupleDataFormat tdataF, ULng32 &tupleLength,
                          int startOffset = 0, UInt32 *varCharSize = NULL, UInt32 *headerSizePtr = NULL);
 
-  short assignAtpAndAtpIndex(ValueIdList valIdList, Int32 atp, Int32 atpIndex);
+  short assignAtpAndAtpIndex(ValueIdList valIdList, int atp, int atpIndex);
 
   // RETURN: -1, if an error. 0, if all ok.
   int foldConstants(ItemExpr *inExpr, ItemExpr **outExpr);
@@ -596,8 +596,8 @@ class ExpGenerator : public NABasicObject {
   // Every other parameter is similar to generateContiguousMoveExpr.
   ///////////////////////////////////////////////////////////////////////
   short generateExplodeExpr(const ValueIdList &val_id_list,                                     // IN
-                            Int32 atp,                                                          // IN
-                            Int32 atpIndex,                                                     // IN
+                            int atp,                                                          // IN
+                            int atpIndex,                                                     // IN
                             ExpTupleDesc::TupleDataFormat tf,                                   // IN
                             ULng32 &tupleLength,                                                // OUT
                             ex_expr **moveExpr,                                                 // OUT
@@ -607,7 +607,7 @@ class ExpGenerator : public NABasicObject {
                             ValueIdList *tgtValues = NULL,                                      // OUT(O)
                             ULng32 start_offset = 0);                                           // IN(O)
 
-  short generateHeaderClause(Int32 atp, Int32 atpIndex, ExpHdrInfo *hdrInfo);
+  short generateHeaderClause(int atp, int atpIndex, ExpHdrInfo *hdrInfo);
 
   // init expr generation with space allocation
   void initExprGen();
@@ -641,7 +641,7 @@ class ExpGenerator : public NABasicObject {
   void initConstantList();
   AListNode *getConstantList();
   void linkConstant(void *expr_tree);
-  char *placeConstants(AListNode *list, Int32 length);
+  char *placeConstants(AListNode *list, int length);
 
   // generate a null constant and type it to input type
   ConstValue *generateNullConst(const NAType &type);
@@ -674,14 +674,14 @@ class ExpGenerator : public NABasicObject {
 
   ItemExpr *createExprTree(const char *str, UInt32 strlength = 0,
                            /* CharInfo::CharSet strCharSet = CharInfo::UnknownCharSet, */
-                           Int32 num_params = 0, ItemExpr *p1 = 0, ItemExpr *p2 = 0, ItemExpr *p3 = 0, ItemExpr *p4 = 0,
+                           int num_params = 0, ItemExpr *p1 = 0, ItemExpr *p2 = 0, ItemExpr *p3 = 0, ItemExpr *p4 = 0,
                            ItemExpr *p5 = 0, ItemExpr *p6 = 0) {
     Parser parser(generator->currentCmpContext());
     return parser.getItemExprTree(str, strlength, /* for now */ CharInfo::ISO88591, num_params, p1, p2, p3, p4, p5, p6);
   }
 
   ItemExpr *createExprTree(const char *str, CharInfo::CharSet charSet = CharInfo::ISO88591, UInt32 strlength = 0,
-                           Int32 num_params = 0, ItemExpr *p1 = 0, ItemExpr *p2 = 0, ItemExpr *p3 = 0, ItemExpr *p4 = 0,
+                           int num_params = 0, ItemExpr *p1 = 0, ItemExpr *p2 = 0, ItemExpr *p3 = 0, ItemExpr *p4 = 0,
                            ItemExpr *p5 = 0, ItemExpr *p6 = 0)
 
   {
@@ -872,8 +872,8 @@ class MdamCodeGenHelper {
   NABoolean isDescending_;
 
   // the atp number and index used for the result of the key expression
-  Int32 atp_;
-  Int32 atpIndex_;
+  int atp_;
+  int atpIndex_;
 
   // the format of the key buffer
   ExpTupleDesc::TupleDataFormat tdataF_;
@@ -888,7 +888,7 @@ class MdamCodeGenHelper {
   ValueId keyColumn_;
 
  public:
-  MdamCodeGenHelper(CollIndex disjunctNumber, NAType *targetType, NABoolean isDescending, Int32 atp, Int32 atpIndex,
+  MdamCodeGenHelper(CollIndex disjunctNumber, NAType *targetType, NABoolean isDescending, int atp, int atpIndex,
                     ExpTupleDesc::TupleDataFormat tdataF, ItemExpr *dataConversionErrorFlag, ValueId keyColumn)
       : disjunctNumber_(disjunctNumber),
         targetType_(targetType),
@@ -909,9 +909,9 @@ class MdamCodeGenHelper {
 
   NABoolean isDescending() { return isDescending_; };
 
-  Int32 getAtp() { return atp_; };
+  int getAtp() { return atp_; };
 
-  Int32 getAtpIndex() { return atpIndex_; };
+  int getAtpIndex() { return atpIndex_; };
 
   ExpTupleDesc::TupleDataFormat getTupleDataFormat() { return tdataF_; };
 
@@ -921,7 +921,7 @@ class MdamCodeGenHelper {
 
   // mutator method for atpIndex_, needed for processing 2ndary key value in
   // case of MDAM_BETWEEN predtype.
-  void setAtpIndex(Int32 atpInx) { atpIndex_ = atpInx; }
+  void setAtpIndex(int atpInx) { atpIndex_ = atpInx; }
 };
 
 #endif

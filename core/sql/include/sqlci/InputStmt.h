@@ -8,7 +8,7 @@
 // The enum values must be negative,
 // i.e. invalid for a char value gotten from stdin,
 // and also != -1, i.e. != EOF value from stdio.h.
-extern volatile Int32 breakReceived;
+extern volatile int breakReceived;
 extern volatile char Sqlci_PutbackChar;
 enum { LOOK_FOR_BREAK = -15, FOUND_A_BREAK = -16 };
 
@@ -20,13 +20,13 @@ class InputStmt {
   };
   StringFragment *first_fragment;
   char *packed_string;
-  Int32 isIgnoreStmt_;
+  int isIgnoreStmt_;
   NABoolean ignoreJustThis_;
   NABoolean veryFirstLine_;
 
-  Int32 isInHistoryList_;
-  Int32 blockStmt_;
-  Int32 shellCmd_;
+  int isInHistoryList_;
+  int blockStmt_;
+  int shellCmd_;
   NABoolean allowCSinsqlci_;
 
   SqlciEnv *sqlci_env;
@@ -49,20 +49,20 @@ class InputStmt {
   void display(UInt16 Distinguish_arg, NABoolean noPrompt = FALSE) const;
 
   void display(int stmt_num_, NABoolean noPrompt = FALSE) const;
-  Int32 fix(Int32 append_only = 0);
-  Int32 isEmpty(const char *str = NULL);
-  Int32 isIgnoreStmt(const char *str = NULL, NABoolean *ignoreJustThis = NULL);
+  int fix(int append_only = 0);
+  int isEmpty(const char *str = NULL);
+  int isIgnoreStmt(const char *str = NULL, NABoolean *ignoreJustThis = NULL);
   NABoolean ignoreJustThis() const { return ignoreJustThis_; }
-  Int32 isInHistoryList() const { return isInHistoryList_; }
-  void setInHistoryList(Int32 boolean) { isInHistoryList_ = boolean; }
+  int isInHistoryList() const { return isInHistoryList_; }
+  void setInHistoryList(int boolean) { isInHistoryList_ = boolean; }
   void setVeryFirstLine() { veryFirstLine_ = TRUE; }
-  Int32 sectionMatches(const char *section = NULL);
+  int sectionMatches(const char *section = NULL);
   void syntaxErrorOnMissingQuote(char *str = NULL);
   void syntaxErrorOnEof(const char *str = NULL);
   char *findEnd(char *s, size_t &quote_seen_pos);
   void logStmt(NABoolean noPrompt = FALSE) const;
-  Int32 readStmt(FILE *non_stdin_file = NULL, Int32 suppress_blank_line_output = 0);
-  Int32 consumeLine(FILE *non_stdin_file = NULL);
+  int readStmt(FILE *non_stdin_file = NULL, int suppress_blank_line_output = 0);
+  int consumeLine(FILE *non_stdin_file = NULL);
 
   inline char *getPackedString() {
     if (!packed_string) pack();
@@ -90,9 +90,9 @@ class InputStmt {
   enum { MAX_FRAGMENT_LEN = 256 * 4096 };
   Option fix_string(const char *in_data, char *fixed_data, size_t max_datalen);
   size_t getCommandLen() const;
-  Int32 getLine(char *input_str, FILE *non_stdin_file, Int32 first_line);
+  int getLine(char *input_str, FILE *non_stdin_file, int first_line);
   Option nextOption();
-  Int32 pack();
+  int pack();
   void processInsert();
   void processReplace();
   void processDelete();

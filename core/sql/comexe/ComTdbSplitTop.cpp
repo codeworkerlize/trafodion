@@ -49,7 +49,7 @@ ComTdbSplitTop::ComTdbSplitTop(ComTdb *child, ex_expr *childInputPartFunction, i
                                int paPartNoAtpIndex, ex_cri_desc *criDescDown, ex_cri_desc *criDescUp,
                                ex_cri_desc *downCriDesc, ex_cri_desc *workCriDesc, NABoolean bufferedInserts,
                                queue_index fromParent, queue_index toParent, Cardinality estimatedRowCount,
-                               int bottomNumParts, Int32 streamTimeout, int sidNumBuffers, ULng32 sidBufferSize)
+                               int bottomNumParts, int streamTimeout, int sidNumBuffers, ULng32 sidBufferSize)
     : ComTdb(ex_SPLIT_TOP, eye_SPLIT_TOP, estimatedRowCount, criDescDown, criDescUp, fromParent, toParent,
              sidNumBuffers, sidBufferSize)
 
@@ -74,19 +74,19 @@ ComTdbSplitTop::ComTdbSplitTop(ComTdb *child, ex_expr *childInputPartFunction, i
   streamTimeout_ = streamTimeout;
 }
 
-Int32 ComTdbSplitTop::orderedQueueProtocol() const {
+int ComTdbSplitTop::orderedQueueProtocol() const {
   return TRUE;
 }  // these 3 lines won't be covered, obsolete but not in the list yet
 
 void ComTdbSplitTop::display() const {}  // these 3 lines won't be covered, used by Windows GUI only
 
-const ComTdb *ComTdbSplitTop::getChild(Int32 pos) const { return child_; }
+const ComTdb *ComTdbSplitTop::getChild(int pos) const { return child_; }
 
-Int32 ComTdbSplitTop::numChildren() const { return 1; }
+int ComTdbSplitTop::numChildren() const { return 1; }
 
-Int32 ComTdbSplitTop::numExpressions() const { return 2; }
+int ComTdbSplitTop::numExpressions() const { return 2; }
 
-ex_expr *ComTdbSplitTop::getExpressionNode(Int32 pos) {
+ex_expr *ComTdbSplitTop::getExpressionNode(int pos) {
   if (pos == 0)
     return childInputPartFunction_;
   else if (pos == 1)
@@ -95,7 +95,7 @@ ex_expr *ComTdbSplitTop::getExpressionNode(Int32 pos) {
     return NULL;
 }
 
-const char *ComTdbSplitTop::getExpressionName(Int32 pos) const {
+const char *ComTdbSplitTop::getExpressionName(int pos) const {
   if (pos == 0)
     return "childInputPartFunction_";
   else if (pos == 1)
@@ -138,7 +138,7 @@ void ComTdbSplitTop::displayContents(Space *space, ULng32 flag) {
     str_sprintf(buf, "splitTopFlags_ = %x", (int)splitTopFlags_);
     space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
 
-    str_sprintf(buf, "bottomNumParts_ = %d", (Int32)bottomNumParts_);
+    str_sprintf(buf, "bottomNumParts_ = %d", (int)bottomNumParts_);
     space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
 
     if (splitTopFlags_ & EXTRACT_PRODUCER) {

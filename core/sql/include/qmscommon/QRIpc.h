@@ -65,11 +65,11 @@ class QRMessageObj : public IpcMessageObj {
    */
   QRMessageTypeEnum getRequestType() const { return requestType_; }
 
-  static THREAD_P Int32 allocCount_;
+  static THREAD_P int allocCount_;
 
   static const char *getRequestTypeName(QRMessageTypeEnum type) {
     static char invalid[] = "Invalid message type";
-    if (type < (Int32)IPC_MSG_QR_FIRST || type > (Int32)IPC_MSG_QR_LAST)
+    if (type < (int)IPC_MSG_QR_FIRST || type > (int)IPC_MSG_QR_LAST)
       return invalid;
     else
       return MessageTypeNames[type - IPC_MSG_QR_FIRST];
@@ -291,7 +291,7 @@ class QRMessageStream : public IpcMessageStream {
     QRLogger::log(CAT_SQL_COMP_QR_IPC, LL_DEBUG, "---QRMessageStream dealloc: allocCount_ = %d", --allocCount_);
   }
 
-  static THREAD_P Int32 allocCount_;
+  static THREAD_P int allocCount_;
 
   /**
    * Sets the name designating the other endpoint in the communication, for

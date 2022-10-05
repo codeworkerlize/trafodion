@@ -202,7 +202,7 @@ ElemDDLColDef::~ElemDDLColDef() {
   if (isNewAdjustedDefaultConstValueNode_) delete pDefault_;
 
   // delete all children
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     delete getChild(i);
   }
 }
@@ -215,7 +215,7 @@ ElemDDLColDef *ElemDDLColDef::castToElemDDLColDef() { return this; }
 //
 
 // get the degree of this node
-Int32 ElemDDLColDef::getArity() const { return MAX_ELEM_DDL_COL_DEF_ARITY; }
+int ElemDDLColDef::getArity() const { return MAX_ELEM_DDL_COL_DEF_ARITY; }
 
 ExprNode *ElemDDLColDef::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
@@ -360,13 +360,13 @@ void ElemDDLColDef::setDefaultAttribute(ElemDDLNode *pColDefaultNode) {
               buf[0] = '\0';
               enum cnv_charset eCnvCS = convertCharsetEnum(cdCharSet);
               const char *pInStr = cvDef->getRawText()->data();
-              Int32 inStrLen = cvDef->getRawText()->length();
+              int inStrLen = cvDef->getRawText()->length();
               char *p1stUnstranslatedChar = NULL;
               UInt32 outStrLenInBytes = 0;
               unsigned charCount = 0;  // number of characters translated/converted
-              Int32 cnvErrStatus = 0;
+              int cnvErrStatus = 0;
               char *pSubstitutionChar = NULL;
-              Int32 convFlags = 0;
+              int convFlags = 0;
 
               if (cvCharSet == CharInfo::UNICODE) {
                 cnvErrStatus = UTF16ToLocale(cnv_version1  // in  - const enum cnv_version version
@@ -387,9 +387,9 @@ void ElemDDLColDef::setDefaultAttribute(ElemDDLNode *pColDefaultNode) {
                                              ,
                                              convFlags  // in  - const int cnv_flags
                                              ,
-                                             (Int32)TRUE  // in  - const int addNullAtEnd_flag
+                                             (int)TRUE  // in  - const int addNullAtEnd_flag
                                              ,
-                                             (Int32)FALSE  // in  - const int allow_invalids
+                                             (int)FALSE  // in  - const int allow_invalids
                                              ,
                                              &charCount  // out - unsigned int * translated_char_cnt_p
                                              ,
@@ -413,9 +413,9 @@ void ElemDDLColDef::setDefaultAttribute(ElemDDLNode *pColDefaultNode) {
                                             ,
                                             &outStrLenInBytes  // out - unsigned int *output_data_len_p
                                             ,
-                                            (Int32)TRUE  // in  - const int addNullAtEnd_flag
+                                            (int)TRUE  // in  - const int addNullAtEnd_flag
                                             ,
-                                            (Int32)FALSE  // in  - const int allow_invalids
+                                            (int)FALSE  // in  - const int allow_invalids
                                             ,
                                             &charCount  // out - unsigned int * translated_char_cnt_p
                                             ,
@@ -852,10 +852,10 @@ ElemDDLColDefArray::~ElemDDLColDefArray() {}
 
 // See if this columnName is in a ElemDDLColDefArray.  Returns the index,
 // -1 if not found.
-Int32 ElemDDLColDefArray::getColumnIndex(const NAString &internalColumnName) {
-  Int32 thisEntryCount = this->entries();
+int ElemDDLColDefArray::getColumnIndex(const NAString &internalColumnName) {
+  int thisEntryCount = this->entries();
 
-  for (Int32 i = 0; i < thisEntryCount; i++) {
+  for (int i = 0; i < thisEntryCount; i++) {
     if ((*this)[i]->getColumnName() == internalColumnName) return i;
   }
   return -1;
@@ -868,7 +868,7 @@ Int32 ElemDDLColDefArray::getColumnIndex(const NAString &internalColumnName) {
 // virtual destructor
 ElemDDLColDefault::~ElemDDLColDefault() {
   // delete all children
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     delete getChild(i);
   }
 }
@@ -880,7 +880,7 @@ ElemDDLColDefault *ElemDDLColDefault::castToElemDDLColDefault() { return this; }
 // accessors
 //
 
-Int32 ElemDDLColDefault::getArity() const { return MAX_ELEM_DDL_COL_DEFAULT_ARITY; }
+int ElemDDLColDefault::getArity() const { return MAX_ELEM_DDL_COL_DEFAULT_ARITY; }
 
 ExprNode *ElemDDLColDefault::getChild(int index) {
   ComASSERT(index EQU INDEX_DEFAULT_VALUE_EXPR);
@@ -1037,14 +1037,14 @@ ElemDDLColRefArray::~ElemDDLColRefArray() {}
 // see if this ElemDDLColRefArray has other ElemDDLColRefArray
 // as a prefix.
 ComBoolean ElemDDLColRefArray::hasPrefix(ElemDDLColRefArray &other) {
-  Int32 otherEntryCount = other.entries();
-  Int32 thisEntryCount = this->entries();
+  int otherEntryCount = other.entries();
+  int thisEntryCount = this->entries();
 
   // See if this array has atleast as many entries as the
   // other.
   if (thisEntryCount < otherEntryCount) return FALSE;
 
-  Int32 i = 0;
+  int i = 0;
   for (; i < otherEntryCount; i++) {
     if ((*this)[i]->getColumnName() != other[i]->getColumnName()) break;
     if ((*this)[i]->getColumnOrdering() != other[i]->getColumnOrdering()) break;
@@ -1057,10 +1057,10 @@ ComBoolean ElemDDLColRefArray::hasPrefix(ElemDDLColRefArray &other) {
 
 // See if this columnName is in a ElemDDLColRefArray.  Returns the index,
 // -1 if not found.
-Int32 ElemDDLColRefArray::getColumnIndex(const NAString &columnName) {
-  Int32 thisEntryCount = this->entries();
+int ElemDDLColRefArray::getColumnIndex(const NAString &columnName) {
+  int thisEntryCount = this->entries();
 
-  for (Int32 i = 0; i < thisEntryCount; i++) {
+  for (int i = 0; i < thisEntryCount; i++) {
     if ((*this)[i]->getColumnName() == columnName) return i;
   }
   return -1;
@@ -1068,10 +1068,10 @@ Int32 ElemDDLColRefArray::getColumnIndex(const NAString &columnName) {
 
 // see if this ElemDDLColRefArray contains other ElemDDLColRefArray.
 // The columns need not be in the same order.
-ComBoolean ElemDDLColRefArray::contains(ElemDDLColRefArray &other, Int32 &firstUnmatchedEntry) {
-  Int32 i, j;
-  Int32 otherEntryCount = other.entries();
-  Int32 thisEntryCount = this->entries();
+ComBoolean ElemDDLColRefArray::contains(ElemDDLColRefArray &other, int &firstUnmatchedEntry) {
+  int i, j;
+  int otherEntryCount = other.entries();
+  int thisEntryCount = this->entries();
 
   firstUnmatchedEntry = -1;
 
@@ -1097,9 +1097,9 @@ ComBoolean ElemDDLColRefArray::contains(ElemDDLColRefArray &other, Int32 &firstU
 // see if the ElemDDLColRefArray matches the other ElemDDLColRefArray.
 // The columns need not be in the same order.
 ComBoolean ElemDDLColRefArray::matches(ElemDDLColRefArray &other) {
-  Int32 junk;
-  Int32 otherEntryCount = other.entries();
-  Int32 thisEntryCount = this->entries();
+  int junk;
+  int otherEntryCount = other.entries();
+  int thisEntryCount = this->entries();
 
   if (otherEntryCount != thisEntryCount) {
     return FALSE;
@@ -1118,8 +1118,8 @@ ComBoolean ElemDDLColRefArray::matches(ElemDDLColRefArray &other) {
 
 // see if this ElemDDLColRefArray has the ElemDDLColRef as an entry.
 ComBoolean ElemDDLColRefArray::hasEntry(ElemDDLColRef &colRef) {
-  Int32 j;
-  Int32 thisEntryCount;
+  int j;
+  int thisEntryCount;
 
   thisEntryCount = this->entries();
 
@@ -1172,7 +1172,7 @@ ElemDDLColViewDef::ElemDDLColViewDef(const NAString &columnName, ElemDDLNode *pC
 // virtual destructor
 ElemDDLColViewDef::~ElemDDLColViewDef() {
   // delete all children
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     delete getChild(i);
   }
 }
@@ -1185,7 +1185,7 @@ ElemDDLColViewDef *ElemDDLColViewDef::castToElemDDLColViewDef() { return this; }
 //
 
 // get the degree of this node
-Int32 ElemDDLColViewDef::getArity() const { return MAX_ELEM_DDL_COL_VIEW_DEF_ARITY; }
+int ElemDDLColViewDef::getArity() const { return MAX_ELEM_DDL_COL_VIEW_DEF_ARITY; }
 
 ExprNode *ElemDDLColViewDef::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());

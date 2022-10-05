@@ -128,13 +128,13 @@ class ComTdbExeUtil : public ComTdbGenericUtil {
 
   void setChildTdb(ComTdb *child) { child_ = child; };
 
-  static Int32 getVirtTableNumCols() { return sizeof(exeUtilVirtTableColumnInfo) / sizeof(ComTdbVirtTableColumnInfo); }
+  static int getVirtTableNumCols() { return sizeof(exeUtilVirtTableColumnInfo) / sizeof(ComTdbVirtTableColumnInfo); }
 
   static ComTdbVirtTableColumnInfo *getVirtTableColumnInfo() {
     return (ComTdbVirtTableColumnInfo *)exeUtilVirtTableColumnInfo;
   }
 
-  static Int32 getVirtTableNumKeys() { return 0; }
+  static int getVirtTableNumKeys() { return 0; }
 
   static ComTdbVirtTableKeyInfo *getVirtTableKeyInfo() { return NULL; }
 
@@ -146,8 +146,8 @@ class ComTdbExeUtil : public ComTdbGenericUtil {
   //----------------------------------------------------------------------
   virtual short getClassSize() { return (short)sizeof(ComTdbExeUtil); }
 
-  virtual const ComTdb *getChild(Int32 pos) const;
-  virtual Int32 numChildren() const { return (child_ ? 1 : 0); }
+  virtual const ComTdb *getChild(int pos) const;
+  virtual int numChildren() const { return (child_ ? 1 : 0); }
   virtual const char *getNodeName() const {
     if (type_ == CREATE_TABLE_AS_)
       return "CREATE_TABLE_AS";
@@ -155,9 +155,9 @@ class ComTdbExeUtil : public ComTdbGenericUtil {
       return "EX_EXE_UTIL";
   };
 
-  virtual Int32 numExpressions() const { return (ComTdbGenericUtil::numExpressions() + 1); }
+  virtual int numExpressions() const { return (ComTdbGenericUtil::numExpressions() + 1); }
 
-  virtual ex_expr *getExpressionNode(Int32 pos) {
+  virtual ex_expr *getExpressionNode(int pos) {
     if (pos >= numExpressions())
       return NULL;
     else if (pos < ComTdbGenericUtil::numExpressions())
@@ -166,7 +166,7 @@ class ComTdbExeUtil : public ComTdbGenericUtil {
       return scanExpr_;
   }
 
-  virtual const char *getExpressionName(Int32 pos) const {
+  virtual const char *getExpressionName(int pos) const {
     if (pos >= numExpressions())
       return NULL;
     else if (pos < ComTdbGenericUtil::numExpressions())
@@ -293,7 +293,7 @@ class ComTdbExeUtilDisplayExplain : public ComTdbExeUtil {
 
   virtual const char *getNodeName() const { return "DISPLAY_EXPLAIN"; };
 
-  static Int32 getVirtTableNumCols() {
+  static int getVirtTableNumCols() {
     return sizeof(exeUtilDisplayExplainVirtTableColumnInfo) / sizeof(ComTdbVirtTableColumnInfo);
   }
 
@@ -1365,7 +1365,7 @@ class ComTdbExeUtilGetStatistics : public ComTdbExeUtil {
   ComTdbExeUtilGetStatistics(char *stmtName, short statsReqType, short statsMergeType, short activeQueryNum,
                              ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
                              ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
-                             queue_index up, int num_buffers, ULng32 buffer_size, char *host = NULL, Int32 port = 0,
+                             queue_index up, int num_buffers, ULng32 buffer_size, char *host = NULL, int port = 0,
                              char *path = NULL, UInt64 queryHash = 0L);
 
   Long pack(void *);
@@ -1416,7 +1416,7 @@ class ComTdbExeUtilGetStatistics : public ComTdbExeUtil {
   UInt64 getQueryHash() { return queryHash_; }
 
   const char *host() { return host_.getPointer(); }
-  Int32 port() { return port_; }
+  int port() { return port_; }
   const char *path() { return path_.getPointer(); }
 
  protected:
@@ -1447,7 +1447,7 @@ class ComTdbExeUtilGetStatistics : public ComTdbExeUtil {
 
   // hdfs to store run-time stats
   NABasicPtr host_;  // 30-37
-  Int32 port_;       // 38-41
+  int port_;       // 38-41
   NABasicPtr path_;  // 42-49
 
   char fillersComTdbExeUtilGetStatistics_[78];  // 50-127
@@ -1528,7 +1528,7 @@ class ComTdbExeUtilGetUID : public ComTdbExeUtil {
 
   virtual const char *getNodeName() const { return "GET_UID"; };
 
-  static Int32 getVirtTableNumCols() {
+  static int getVirtTableNumCols() {
     return sizeof(exeUtilGetUIDVirtTableColumnInfo) / sizeof(ComTdbVirtTableColumnInfo);
   }
 
@@ -1536,7 +1536,7 @@ class ComTdbExeUtilGetUID : public ComTdbExeUtil {
     return (ComTdbVirtTableColumnInfo *)exeUtilGetUIDVirtTableColumnInfo;
   }
 
-  static Int32 getVirtTableNumKeys() { return 0; }
+  static int getVirtTableNumKeys() { return 0; }
 
   static ComTdbVirtTableKeyInfo *getVirtTableKeyInfo() { return NULL; }
 
@@ -1598,7 +1598,7 @@ class ComTdbExeUtilGetQID : public ComTdbExeUtil {
 
   virtual const char *getNodeName() const { return "GET_QID"; };
 
-  static Int32 getVirtTableNumCols() {
+  static int getVirtTableNumCols() {
     return sizeof(exeUtilGetQIDVirtTableColumnInfo) / sizeof(ComTdbVirtTableColumnInfo);
   }
 
@@ -1606,7 +1606,7 @@ class ComTdbExeUtilGetQID : public ComTdbExeUtil {
     return (ComTdbVirtTableColumnInfo *)exeUtilGetQIDVirtTableColumnInfo;
   }
 
-  static Int32 getVirtTableNumKeys() { return 0; }
+  static int getVirtTableNumKeys() { return 0; }
 
   static ComTdbVirtTableKeyInfo *getVirtTableKeyInfo() { return NULL; }
 
@@ -2272,9 +2272,9 @@ class ComTdbExeUtilHBaseBulkLoad : public ComTdbExeUtil {
   void setSampleTableName(const char *cName) { sampleTableName_ = cName; }
   const char *getSampleTableName() { return sampleTableName_; }
 
-  void setMaxErrorRows(Int32 v) { maxErrorRows_ = v; }
+  void setMaxErrorRows(int v) { maxErrorRows_ = v; }
 
-  Int32 getMaxErrorRows() const { return maxErrorRows_; }
+  int getMaxErrorRows() const { return maxErrorRows_; }
 
   void setHasUniqueIndexes(NABoolean v) { (v ? flags_ |= HAS_UNIQUE_INDEXES : flags_ &= ~HAS_UNIQUE_INDEXES); };
   NABoolean getHasUniqueIndexes() { return (flags_ & HAS_UNIQUE_INDEXES) != 0; };
@@ -2309,7 +2309,7 @@ class ComTdbExeUtilHBaseBulkLoad : public ComTdbExeUtil {
   NABasicPtr ldQuery_;  // 00-07
 
   UInt32 flags_;                     // 08-11
-  Int32 maxErrorRows_;               // 12-15
+  int maxErrorRows_;               // 12-15
   NABasicPtr errCountTable_;         // 16-23
   NABasicPtr loggingLocation_;       // 24-31
   char fillersExeUtilHbaseLoad_[8];  // 32-39
@@ -3693,22 +3693,22 @@ class ComTdbExeUtilConnectby : public ComTdbExeUtil {
   NABoolean hasDynParamsInStartWith_;
   NABoolean noCycle_;
   NABoolean nodup_;
-  Int32 maxDeep_;
-  Int32 maxSize_;
+  int maxDeep_;
+  int maxSize_;
   NABoolean hasPath_;
   NABoolean hasIsLeaf_;
   NAString pathColName_;
   NAString delimiter_;
   NAString orderSiblingsByCol_;
   ExExprBasePtr startwith_expr_;
-  Int32 dynParamTuppIndex;
+  int dynParamTuppIndex;
 
  private:
   ExCriDescPtr myWorkCriDesc_;
-  Int32 flags_;
-  Int32 tupleLen_;
+  int flags_;
+  int tupleLen_;
   NABoolean isDual_;
-  Int32 dtupleLen_;
+  int dtupleLen_;
 };
 
 class ExExeUtilConnectbyTdb : public ComTdbExeUtilConnectby {
@@ -3750,13 +3750,13 @@ class ComTdbExeUtilCompositeUnnest : public ComTdbExeUtil {
   ex_expr *getExtractColExpr() { return extractColExpr_; }
   ex_expr *getReturnColsExpr() { return returnColsExpr_; }
 
-  virtual Int32 numExpressions() const;
+  virtual int numExpressions() const;
 
   // The names of the expressions
-  virtual const char *getExpressionName(Int32) const;
+  virtual const char *getExpressionName(int) const;
 
   // The expressions themselves
-  virtual ex_expr *getExpressionNode(Int32);
+  virtual ex_expr *getExpressionNode(int);
 
  private:
   ExExprBasePtr extractColExpr_;  // 00-07

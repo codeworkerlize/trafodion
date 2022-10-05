@@ -237,7 +237,7 @@ void CRUDupElimTaskExecutor::StoreReply(CUOFsIpcMessageTranslator &translator) {
 
   BOOL flag;
 
-  translator.WriteBlock(&phase_, sizeof(Int32));
+  translator.WriteBlock(&phase_, sizeof(int));
 
   pLogScanner_->StoreReply(translator);
 
@@ -270,7 +270,7 @@ void CRUDupElimTaskExecutor::LoadReply(CUOFsIpcMessageTranslator &translator) {
 
   BOOL flag;
 
-  translator.ReadBlock(&phase_, sizeof(Int32));
+  translator.ReadBlock(&phase_, sizeof(int));
   pLogScanner_->LoadReply(translator);
 
   translator.ReadBlock(&flag, sizeof(BOOL));
@@ -396,7 +396,7 @@ void CRUDupElimTaskExecutor::InitUnits(CRUDupElimTask *pParentTask) {
 //--------------------------------------------------------------------------//
 
 void CRUDupElimTaskExecutor::InitSQL(CRUDupElimTask *pParentTask) {
-  Int32 i;
+  int i;
   CRUDupElimSQLComposer comp(pParentTask, globals_);
 
   for (i = 0; i < CRUDupElimConst::NUM_CONTROL_STMTS; i++) {

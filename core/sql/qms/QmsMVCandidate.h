@@ -453,7 +453,7 @@ class MVCandidatesForJBBSubset : public NAIntrusiveSharedPtrObject {
    * @param i index into the MVCandidate list.
    * @return MVCandidate object number i from the list.
    */
-  MVCandidatePtr operator[](Int32 i) { return candidateList_[i]; }
+  MVCandidatePtr operator[](int i) { return candidateList_[i]; }
 
   /**
    * Remove the MVCandidate from the list, because it has been disqualified.
@@ -600,7 +600,7 @@ class MVCandidateCollection : public NAIntrusiveSharedPtrObject {
    */
   void registerCandidate(MVCandidatePtr candidate);
 
-  void disqualifyCandidate(MVCandidatePtr candidate, Int32 index);
+  void disqualifyCandidate(MVCandidatePtr candidate, int index);
 
   /**
    * Run the matching algorithms on all the MVCandidate objects.

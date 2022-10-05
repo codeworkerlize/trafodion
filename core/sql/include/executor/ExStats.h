@@ -726,9 +726,9 @@ class ExOperStats : public ExStatsBaseNew {
 
   // return 3 characteristics counters for this operator and a short text
   // identification what the counter means
-  virtual const char *getNumValTxt(Int32 i) const;
+  virtual const char *getNumValTxt(int i) const;
 
-  virtual long getNumVal(Int32 i) const;
+  virtual long getNumVal(int i) const;
 
   virtual const char *getTextVal();
 
@@ -853,29 +853,29 @@ class ExBMOStats : public ExOperStats {
   void deleteMe() {}
   ExOperStats *copyOper(NAMemory *heap);
   void copyContents(ExBMOStats *other);
-  virtual const char *getNumValTxt(Int32 i) const;
-  virtual long getNumVal(Int32 i) const;
+  virtual const char *getNumValTxt(int i) const;
+  virtual long getNumVal(int i) const;
   void getVariableStatsInfo(char *dataBuffer, char *dataLen, int maxLen);
   ExBMOStats *castToExBMOStats();
   void merge(ExBMOStats *other);
   int getStatsItem(SQLSTATS_ITEM *sqlStats_item);
-  inline void setScratchBufferBlockSize(Int32 size) { scratchBufferBlockSize_ = size >> 10; }
+  inline void setScratchBufferBlockSize(int size) { scratchBufferBlockSize_ = size >> 10; }
   inline void incSratchFileCount() { scratchFileCount_++; }
-  inline void incScratchBufferBlockRead(Int32 count = 1) { scratchBufferBlockRead_ += count; }
-  inline void incScratchBufferBlockWritten(Int32 count = 1) { scratchBufferBlockWritten_ += count; }
-  inline void incScratchReadCount(Int32 count = 1) { scratchReadCount_ += count; }
-  inline void incScratchWriteCount(Int32 count = 1) { scratchWriteCount_ += count; }
+  inline void incScratchBufferBlockRead(int count = 1) { scratchBufferBlockRead_ += count; }
+  inline void incScratchBufferBlockWritten(int count = 1) { scratchBufferBlockWritten_ += count; }
+  inline void incScratchReadCount(int count = 1) { scratchReadCount_ += count; }
+  inline void incScratchWriteCount(int count = 1) { scratchWriteCount_ += count; }
   inline void incScratchIOMaxTime(long v) { scratchIOMaxTime_ += v; }
-  inline void setSpaceBufferSize(Int32 size) { spaceBufferSize_ = size >> 10; }
-  inline void setSpaceBufferCount(Int32 count) { spaceBufferCount_ = count; }
+  inline void setSpaceBufferSize(int size) { spaceBufferSize_ = size >> 10; }
+  inline void setSpaceBufferCount(int count) { spaceBufferCount_ = count; }
   inline void updateBMOHeapUsage(NAHeap *heap) {
-    bmoHeapAlloc_ = (Int32)(heap->getTotalSize() >> 10);
-    bmoHeapUsage_ = (Int32)(heap->getAllocSize() >> 10);
-    bmoHeapWM_ = (Int32)(heap->getHighWaterMark() >> 10);
+    bmoHeapAlloc_ = (int)(heap->getTotalSize() >> 10);
+    bmoHeapUsage_ = (int)(heap->getAllocSize() >> 10);
+    bmoHeapWM_ = (int)(heap->getHighWaterMark() >> 10);
     if (bmoHeapAlloc_ > bmoHeapWM_) bmoHeapWM_ = bmoHeapAlloc_;
   }
   inline void setScratchOverflowMode(Int16 overflowMode) { scratchOverflowMode_ = overflowMode; }
-  inline void setTopN(Int32 size) { topN_ = size; }
+  inline void setTopN(int size) { topN_ = size; }
   inline long getScratchReadCount(void) { return scratchReadCount_; }
   static const char *getScratchOverflowMode(Int16 overflowMode);
   ExTimeStats &getScratchIOTimer() { return timer_; }
@@ -890,21 +890,21 @@ class ExBMOStats : public ExOperStats {
 
  private:
   ExTimeStats timer_;
-  Int32 bmoHeapAlloc_;
-  Int32 bmoHeapUsage_;
-  Int32 bmoHeapWM_;
-  Int32 spaceBufferSize_;
-  Int32 spaceBufferCount_;
-  Int32 scratchFileCount_;
-  Int32 scratchBufferBlockSize_;
-  Int32 scratchBufferBlockRead_;
-  Int32 scratchBufferBlockWritten_;
-  Int32 scratchIOSize_;
+  int bmoHeapAlloc_;
+  int bmoHeapUsage_;
+  int bmoHeapWM_;
+  int spaceBufferSize_;
+  int spaceBufferCount_;
+  int scratchFileCount_;
+  int scratchBufferBlockSize_;
+  int scratchBufferBlockRead_;
+  int scratchBufferBlockWritten_;
+  int scratchIOSize_;
   long scratchReadCount_;
   long scratchWriteCount_;
   long scratchIOMaxTime_;
   Int16 scratchOverflowMode_;  // 0 - disk 1 - SSD
-  Int32 topN_;                 // TOPN value
+  int topN_;                 // TOPN value
   Float32 estMemoryUsage_;
   long interimRowCount_;
   Int16 phase_;
@@ -982,29 +982,29 @@ class ExFragRootOperStats : public ExOperStats {
   inline void setTimestamp(long t) { timestamp_ = t; }
 
   inline void updateSpaceUsage(Space *space, CollHeap *heap) {
-    spaceUsage_ = (Int32)(space->getAllocSize() >> 10);
-    spaceAlloc_ = (Int32)(space->getTotalSize() >> 10);
-    heapUsage_ = (Int32)(heap->getAllocSize() >> 10);
-    heapAlloc_ = (Int32)(heap->getTotalSize() >> 10);
-    heapWM_ = (Int32)(heap->getHighWaterMark() >> 10);
+    spaceUsage_ = (int)(space->getAllocSize() >> 10);
+    spaceAlloc_ = (int)(space->getTotalSize() >> 10);
+    heapUsage_ = (int)(heap->getAllocSize() >> 10);
+    heapAlloc_ = (int)(heap->getTotalSize() >> 10);
+    heapWM_ = (int)(heap->getHighWaterMark() >> 10);
   }
 
   ExFragRootOperStats *castToExFragRootOperStats();
 
-  virtual const char *getNumValTxt(Int32 i) const;
+  virtual const char *getNumValTxt(int i) const;
 
-  virtual long getNumVal(Int32 i) const;
+  virtual long getNumVal(int i) const;
 
   virtual const char *getTextVal();
 
   virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, int maxLen);
   void initHistory();
 
-  Int32 getExecutionCount() const { return executionCount_; }
+  int getExecutionCount() const { return executionCount_; }
 
-  inline Int32 getNewprocess() { return newprocess_; }
-  inline void setNewprocess(Int32 n) { newprocess_ = n; }
-  inline void incNewprocess(Int32 n = 1) { newprocess_ = newprocess_ + n; }
+  inline int getNewprocess() { return newprocess_; }
+  inline void setNewprocess(int n) { newprocess_ = n; }
+  inline void incNewprocess(int n = 1) { newprocess_ = newprocess_ + n; }
 
   inline long getNewprocessTime() { return newprocessTime_; }
   inline void setNewprocessTime(long t) { newprocessTime_ = t; }
@@ -1054,20 +1054,20 @@ class ExFragRootOperStats : public ExOperStats {
   enum Flags { HDFS_ACCESS = 0x0001 };
 
   // some heap statistics for the entire fragment instance
-  Int32 spaceUsage_;
-  Int32 spaceAlloc_;
-  Int32 heapUsage_;
-  Int32 heapAlloc_;
-  Int32 heapWM_;
+  int spaceUsage_;
+  int spaceAlloc_;
+  int heapUsage_;
+  int heapAlloc_;
+  int heapWM_;
   long cpuTime_;
   Int16 scratchOverflowMode_;
-  Int32 newprocess_;
+  int newprocess_;
   long newprocessTime_;
-  Int32 espSpaceUsage_;
-  Int32 espSpaceAlloc_;
-  Int32 espHeapUsage_;
-  Int32 espHeapAlloc_;
-  Int32 espHeapWM_;
+  int espSpaceUsage_;
+  int espSpaceAlloc_;
+  int espHeapUsage_;
+  int espHeapAlloc_;
+  int espHeapWM_;
   long espCpuTime_;
   long histCpuTime_;
   long reqMsgCnt_;
@@ -1076,22 +1076,22 @@ class ExFragRootOperStats : public ExOperStats {
   long replyMsgBytes_;
   long pagesInUse_;
   // Helps with cancel escalation.  Local only.  Do not merge.
-  Int32 executionCount_;
+  int executionCount_;
   int stmtIndex_;  // Statement index used by Measure
   long timestamp_;  // timestamp indicating when the statement executed
                      // (master executor only)
   char *queryId_;
   int queryIdLen_;
-  Int32 scratchFileCount_;
-  Int32 spaceBufferSize_;
+  int scratchFileCount_;
+  int spaceBufferSize_;
   long spaceBufferCount_;
-  Int32 scratchIOSize_;
+  int scratchIOSize_;
   long scratchReadCount_;
   long scratchWriteCount_;
   long interimRowCount_;
   long scratchIOMaxTime_;
   long udrCpuTime_;
-  Int32 topN_;
+  int topN_;
   // process id of this fragment instance (to correlate it with MEASURE data)
   // Also used by logic on runtimestats/CancelBroker.cpp
   SB_Phandle_Type phandle_;
@@ -1107,7 +1107,7 @@ class ExFragRootOperStats : public ExOperStats {
   long waitTime_;
   long diffCpuTime_;
 
-  Int32 flags_;
+  int flags_;
 
   ScanFilterStatsList scanFilterStats_;
 };
@@ -1151,18 +1151,18 @@ class ExPartitionAccessStats : public ExOperStats {
 
   ExPartitionAccessStats *castToExPartitionAccessStats();
 
-  virtual const char *getNumValTxt(Int32 i) const;
+  virtual const char *getNumValTxt(int i) const;
 
   virtual const char *getTextVal();
 
-  virtual long getNumVal(Int32 i) const;
+  virtual long getNumVal(int i) const;
   ExeSEStats *castToExeSEStats() { return exeSEStats(); }
 
   ExeSEStats *exeSEStats() { return &seStats_; }
 
-  inline Int32 getOpens() { return opens_; }
-  inline void setOpens(Int32 o) { opens_ = o; }
-  inline void incOpens(Int32 o = 1) { opens_ += o; }
+  inline int getOpens() { return opens_; }
+  inline void setOpens(int o) { opens_ = o; }
+  inline void incOpens(int o = 1) { opens_ += o; }
 
   inline long getOpenTime() { return openTime_; }
   inline void setOpenTime(long t) { openTime_ = t; }
@@ -1178,7 +1178,7 @@ class ExPartitionAccessStats : public ExOperStats {
 
   char *ansiName_;
   char *fileName_;
-  Int32 opens_;
+  int opens_;
   long openTime_;
 };
 
@@ -1243,9 +1243,9 @@ class ExProbeCacheStats : public ExOperStats {
 
   ExProbeCacheStats *castToExProbeCacheStats();
 
-  virtual const char *getNumValTxt(Int32 i) const;
+  virtual const char *getNumValTxt(int i) const;
 
-  virtual long getNumVal(Int32 i) const;
+  virtual long getNumVal(int i) const;
 
   virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, int maxLen);
 
@@ -1297,9 +1297,9 @@ class ExHashGroupByStats : public ExBMOStats {
 
   void incPartialGroupsReturned() { partialGroups_++; };
 
-  virtual const char *getNumValTxt(Int32 i) const;
+  virtual const char *getNumValTxt(int i) const;
 
-  virtual long getNumVal(Int32 i) const;
+  virtual long getNumVal(int i) const;
 
   virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, int maxLen);
 
@@ -1359,9 +1359,9 @@ class ExHashJoinStats : public ExBMOStats {
 
   ExBMOStats *castToExBMOStats();
 
-  virtual const char *getNumValTxt(Int32 i) const;
+  virtual const char *getNumValTxt(int i) const;
 
-  virtual long getNumVal(Int32 i) const;
+  virtual long getNumVal(int i) const;
 
   virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, int maxLen);
 
@@ -1441,9 +1441,9 @@ class ExESPStats : public ExOperStats {
 
   ExESPStats *castToExESPStats();
 
-  virtual const char *getNumValTxt(Int32 i) const;
+  virtual const char *getNumValTxt(int i) const;
 
-  virtual long getNumVal(Int32 i) const;
+  virtual long getNumVal(int i) const;
 
   virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, int maxLen);
 
@@ -1489,9 +1489,9 @@ class ExSplitTopStats : public ExOperStats {
 
   ExSplitTopStats *castToExSplitTopStats();
 
-  virtual const char *getNumValTxt(Int32 i) const;
+  virtual const char *getNumValTxt(int i) const;
 
-  virtual long getNumVal(Int32 i) const;
+  virtual long getNumVal(int i) const;
 
   virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, int maxLen);
 
@@ -1546,9 +1546,9 @@ class ExSortStats : public ExBMOStats {
 
   ExBMOStats *castToExBMOStats();
 
-  virtual const char *getNumValTxt(Int32 i) const;
+  virtual const char *getNumValTxt(int i) const;
 
-  virtual long getNumVal(Int32 i) const;
+  virtual long getNumVal(int i) const;
 
   virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, int maxLen);
 
@@ -1581,8 +1581,8 @@ class ExSortStats : public ExBMOStats {
 //// class ExStorageEngineStats
 ///////////////////////////////////////////////////////////////////
 
-const Int32 FILTERINFO_LENGTH_TERSE = 300;
-const Int32 FILTERINFO_LENGTH_DETAIL = (FILTERINFO_LENGTH_TERSE + 300);
+const int FILTERINFO_LENGTH_TERSE = 300;
+const int FILTERINFO_LENGTH_DETAIL = (FILTERINFO_LENGTH_TERSE + 300);
 
 class ExStorageEngineStats : public ExOperStats {
  public:
@@ -1646,9 +1646,9 @@ class ExStorageEngineStats : public ExOperStats {
 
   ExHbaseAccessStats *castToExHbaseAccessStats();
 
-  virtual const char *getNumValTxt(Int32 i) const;
+  virtual const char *getNumValTxt(int i) const;
 
-  virtual long getNumVal(Int32 i) const;
+  virtual long getNumVal(int i) const;
 
   virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, int maxLen);
 
@@ -1720,15 +1720,15 @@ class ExMeasBaseStats : public ExOperStats {
 
   virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, int maxLen);
 
-  virtual const char *getNumValTxt(Int32 i) const;
+  virtual const char *getNumValTxt(int i) const;
 
-  virtual long getNumVal(Int32 i) const;
+  virtual long getNumVal(int i) const;
 
   void setVersion(int version);
   /*
-  inline Int32 getOpens()          { return opens_; }
-  inline void setOpens(Int32 o)    { opens_ = o; }
-  inline void incOpens(Int32 o = 1)    { opens_ = opens_ + o; }
+  inline int getOpens()          { return opens_; }
+  inline void setOpens(int o)    { opens_ = o; }
+  inline void incOpens(int o = 1)    { opens_ = opens_ + o; }
 
   inline long getOpenTime()          { return openTime_; }
   inline void setOpenTime(long t)    { openTime_ = t; }
@@ -1742,7 +1742,7 @@ class ExMeasBaseStats : public ExOperStats {
     ExeDp2Stats exeDp2Stats_;
 
     UInt16 filler1_;
-    Int32 opens_;
+    int opens_;
     long openTime_;
   */
   ExeSEStats seStats_;
@@ -1786,26 +1786,26 @@ class ExMeasStats : public ExMeasBaseStats {
   virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, int maxLen);
   void updateSpaceUsage(Space *space, CollHeap *heap);
 
-  inline Int32 getNewprocess() { return newprocess_; }
-  inline void setNewprocess(Int32 n) { newprocess_ = n; }
-  inline void incNewprocess(Int32 n = 1) { newprocess_ = newprocess_ + n; }
+  inline int getNewprocess() { return newprocess_; }
+  inline void setNewprocess(int n) { newprocess_ = n; }
+  inline void incNewprocess(int n = 1) { newprocess_ = newprocess_ + n; }
 
   inline long getNewprocessTime() { return newprocessTime_; }
   inline void setNewprocessTime(long t) { newprocessTime_ = t; }
   inline void incNewprocessTime(long t) { newprocessTime_ = newprocessTime_ + t; }
-  inline Int32 getTimeouts() { return timeouts_; }
-  inline void setTimeouts(Int32 t) { timeouts_ = t; }
-  virtual const char *getNumValTxt(Int32 i) const;
+  inline int getTimeouts() { return timeouts_; }
+  inline void setTimeouts(int t) { timeouts_ = t; }
+  virtual const char *getNumValTxt(int i) const;
 
-  inline Int32 getNumSorts() { return numSorts_; }
-  inline void setNumSorts(Int32 n) { numSorts_ = n; }
-  inline void incNumSorts(Int32 n = 1) { numSorts_ = numSorts_ + n; }
+  inline int getNumSorts() { return numSorts_; }
+  inline void setNumSorts(int n) { numSorts_ = n; }
+  inline void incNumSorts(int n = 1) { numSorts_ = numSorts_ + n; }
 
   inline long getSortElapsedTime() { return sortElapsedTime_; }
   inline void setSortElapsedTime(long t) { sortElapsedTime_ = t; }
   inline void incSortElapsedTime(long t) { sortElapsedTime_ = sortElapsedTime_ + t; }
 
-  virtual long getNumVal(Int32 i) const;
+  virtual long getNumVal(int i) const;
 
   void initHistory();
 
@@ -1841,28 +1841,28 @@ class ExMeasStats : public ExMeasBaseStats {
     replyMsgCnt_++;
     replyMsgBytes_ += msgBytes;
   }
-  Int32 getExecutionCount() const { return executionCount_; }
+  int getExecutionCount() const { return executionCount_; }
 
   inline const SB_Phandle_Type *getPhandle() const { return (const SB_Phandle_Type *)&phandle_; }
 
  private:
-  Int32 newprocess_;
+  int newprocess_;
   long newprocessTime_;
-  Int32 timeouts_;
-  Int32 numSorts_;
+  int timeouts_;
+  int numSorts_;
   long sortElapsedTime_;
   // some heap statistics for the entire fragment instance
-  Int32 spaceUsage_;
-  Int32 spaceAlloc_;
-  Int32 heapUsage_;
-  Int32 heapAlloc_;
-  Int32 heapWM_;
+  int spaceUsage_;
+  int spaceAlloc_;
+  int heapUsage_;
+  int heapAlloc_;
+  int heapWM_;
   long cpuTime_;
-  Int32 espSpaceUsage_;
-  Int32 espSpaceAlloc_;
-  Int32 espHeapUsage_;
-  Int32 espHeapAlloc_;
-  Int32 espHeapWM_;
+  int espSpaceUsage_;
+  int espSpaceAlloc_;
+  int espHeapUsage_;
+  int espHeapAlloc_;
+  int espHeapWM_;
   long espCpuTime_;
   long histCpuTime_;
   char *queryId_;
@@ -1872,7 +1872,7 @@ class ExMeasStats : public ExMeasBaseStats {
   long replyMsgCnt_;
   long replyMsgBytes_;
   // Helps with cancel escalation.  Local only.  Do not merge.
-  Int32 executionCount_;
+  int executionCount_;
   // Used by logic on runtimestats/CancelBroker.cpp (cancel escalation).
   // Local copy, do not merge.
   SB_Phandle_Type phandle_;
@@ -1883,14 +1883,14 @@ class ExMeasStats : public ExMeasBaseStats {
 
   long localCpuTime_;
   Int16 scratchOverflowMode_;
-  Int32 scratchFileCount_;
-  Int32 spaceBufferSize_;
+  int scratchFileCount_;
+  int spaceBufferSize_;
   long spaceBufferCount_;
   long scratchReadCount_;
   long scratchWriteCount_;
   long udrCpuTime_;
-  Int32 topN_;
-  Int32 scratchIOSize_;
+  int topN_;
+  int scratchIOSize_;
   long interimRowCount_;
   long scratchIOMaxTime_;
 };
@@ -1989,9 +1989,9 @@ class ExUDRStats : public ExUDRBaseStats {
 
   ExUDRStats *castToExUDRStats();
 
-  virtual const char *getNumValTxt(Int32 i) const;
+  virtual const char *getNumValTxt(int i) const;
 
-  virtual long getNumVal(Int32 i) const;
+  virtual long getNumVal(int i) const;
 
   virtual const char *getTextVal();
 
@@ -2115,18 +2115,18 @@ class ExStatisticsArea : public IpcMessageObj {
   // scan all ExOperStats entries and update stmtCntrs.
   //////////////////////////////////////////////////////////////////
 
-  Int32 updateStmtCntrs(ExMeasStmtCntrs *stmtCntrs, Int32 statementCount, char *moduleName, Int32 moduleNameLen);
+  int updateStmtCntrs(ExMeasStmtCntrs *stmtCntrs, int statementCount, char *moduleName, int moduleNameLen);
 
   //////////////////////////////////////////////////////////////////
   // get Opens counter from  ExMeasStats entry.
   //////////////////////////////////////////////////////////////////
-  Int32 getMeasOpensCntr();
+  int getMeasOpensCntr();
   long getMeasOpenTimeCntr();
 
   //////////////////////////////////////////////////////////////////
   // get Newprocess counter from  ExMeasStats entry.
   //////////////////////////////////////////////////////////////////
-  Int32 getMeasNewprocessCntr();
+  int getMeasNewprocessCntr();
   long getMeasNewprocessTimeCntr();
 
   NABoolean statsInDp2() { return (detailedFlags_.smallFlags_ & STATS_IN_DP2) != 0; }
@@ -2346,8 +2346,8 @@ class ExStatsTcb : public ex_tcb {
 
   // A virtual function used by the GUI.  Will always return 0 for
   // ExStatsTcb
-  virtual Int32 numChildren() const { return 0; };
-  virtual const ex_tcb *getChild(Int32 pos) const { return NULL; };
+  virtual int numChildren() const { return 0; };
+  virtual const ex_tcb *getChild(int pos) const { return NULL; };
   ExStatisticsArea *sendToSsmp();
   int parse_stmt_name(char *string, int len);
   ComDiagsArea *getDiagsArea() { return diagsArea_; }
@@ -2540,9 +2540,9 @@ class ExMasterStats : public ExOperStats {
 
   long getRowsAffected() { return rowsAffected_; }
 
-  Int32 &numOfTotalEspsUsed() { return numOfTotalEspsUsed_; }
-  Int32 &numOfNewEspsStarted() { return numOfNewEspsStarted_; }
-  Int32 &numOfRootEsps() { return numOfRootEsps_; }
+  int &numOfTotalEspsUsed() { return numOfTotalEspsUsed_; }
+  int &numOfNewEspsStarted() { return numOfNewEspsStarted_; }
+  int &numOfRootEsps() { return numOfRootEsps_; }
   short &exePriority() { return exePriority_; }
   short &espPriority() { return espPriority_; }
   short &cmpPriority() { return cmpPriority_; }
@@ -2648,21 +2648,21 @@ class ExMasterStats : public ExOperStats {
 
   void setIsBlocking();
   void setNotBlocking();
-  Int32 timeSinceBlocking(Int32 seconds);
-  Int32 timeSinceUnblocking(Int32 seconds);
+  int timeSinceBlocking(int seconds);
+  int timeSinceUnblocking(int seconds);
 
   void setValidPrivs(bool v) { validPrivs_ = v; }
   bool getValidPrivs() { return validPrivs_; }
   // Security Invalidation Keys -- no need to pack or unpack.
-  Int32 getNumSIKeys() const { return numSIKeys_; }
+  int getNumSIKeys() const { return numSIKeys_; }
   SQL_QIKEY *getSIKeys() const { return sIKeys_; }
-  void setInvalidationKeys(CliGlobals *cliGlobals, SecurityInvKeyInfo *sikInfo, Int32 numObjUIDs,
+  void setInvalidationKeys(CliGlobals *cliGlobals, SecurityInvKeyInfo *sikInfo, int numObjUIDs,
                            const long *objectUIDs);
   void setValidDDL(bool v) { validDDL_ = v; }
   bool getValidDDL() { return validDDL_; }
   void setValidHistogram(bool v) { validHistogram_ = v; }
   bool getValidHistogram() { return validHistogram_; }
-  Int32 getNumObjUIDs() const { return numObjUIDs_; }
+  int getNumObjUIDs() const { return numObjUIDs_; }
   long *getObjUIDs() const { return objUIDs_; }
 
   char *getSourceString() { return sourceStr_; }
@@ -2721,9 +2721,9 @@ class ExMasterStats : public ExOperStats {
 
   QueryCostInfo queryCostInfo_;
 
-  Int32 numOfTotalEspsUsed_;
-  Int32 numOfNewEspsStarted_;
-  Int32 numOfRootEsps_;
+  int numOfTotalEspsUsed_;
+  int numOfNewEspsStarted_;
+  int numOfRootEsps_;
 
   short exePriority_;
   short espPriority_;
@@ -2747,7 +2747,7 @@ class ExMasterStats : public ExOperStats {
   int reclaimSpaceCount_;
   bool isQuerySuspended_;
   long querySuspendedTime_;
-  Int32 cancelCommentLen_;
+  int cancelCommentLen_;
   char *cancelComment_;
   // These helpers for suspend/resume are written in the master of the
   // subject query and they are read by ssmpipc.cpp.
@@ -2756,7 +2756,7 @@ class ExMasterStats : public ExOperStats {
   enum { READY = 1, NOT_READY = 2 } readyToSuspend_;
   struct timeval blockOrUnblockSince_;
   bool isBlocking_;
-  Int32 lastActivity_;
+  int lastActivity_;
   // query priv invalidation
   bool validPrivs_;
   // preallocate sIKeys_ while we have the semaphore.  Can add more later.
@@ -2775,12 +2775,12 @@ class ExMasterStats : public ExOperStats {
         20
 #endif
   };
-  Int32 numSIKeys_;
+  int numSIKeys_;
   SQL_QIKEY *sIKeys_;
   SQL_QIKEY preallocdSiKeys_[PreAllocatedSikKeys];
   bool validDDL_;
   bool validHistogram_;
-  Int32 numObjUIDs_;
+  int numObjUIDs_;
   long *objUIDs_;
   long preallocdObjUIDs_[PreAllocatedObjUIDs];
   long queryHash_;
@@ -2850,7 +2850,7 @@ class ExRMSStats : public ExOperStats {
     sscpReplyMsgCnt_++;
     sscpReplyMsgBytes_ += msgBytes;
   }
-  inline void setNumQueryInvKeys(Int32 n) { numQueryInvKeys_ = n; }
+  inline void setNumQueryInvKeys(int n) { numQueryInvKeys_ = n; }
   inline void setNodesInCluster(short n) { nodesInCluster_ = n; }
   inline void setConfiguredPidMax(pid_t pid) { configuredPidMax_ = pid; }
   int getStatsItem(SQLSTATS_ITEM *sqlStats_item);
@@ -2893,7 +2893,7 @@ class ExRMSStats : public ExOperStats {
   long sscpReplyMsgCnt_;
   long sscpReplyMsgBytes_;
   long rmsStatsResetTimestamp_;
-  Int32 numQueryInvKeys_;
+  int numQueryInvKeys_;
   short nodesInCluster_;
   pid_t configuredPidMax_;
   long epochHeapAlloc_;
@@ -2932,9 +2932,9 @@ class ExFastExtractStats : public ExOperStats {
 
   ExFastExtractStats *castToExFastExtractStats();
 
-  virtual const char *getNumValTxt(Int32 i) const;
+  virtual const char *getNumValTxt(int i) const;
 
-  virtual long getNumVal(Int32 i) const;
+  virtual long getNumVal(int i) const;
 
   virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, int maxLen);
   UInt32 &buffersCount() { return buffersCount_; }
@@ -3000,9 +3000,9 @@ class ExProcessStats : public ExOperStats {
 
   ExProcessStats *castToExProcessStats();
 
-  virtual const char *getNumValTxt(Int32 i) const;
+  virtual const char *getNumValTxt(int i) const;
 
-  virtual long getNumVal(Int32 i) const;
+  virtual long getNumVal(int i) const;
 
   virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, int maxLen);
   virtual const char *getTextVal();
@@ -3014,10 +3014,10 @@ class ExProcessStats : public ExOperStats {
   inline size_t getIpcMemUsed() { return ipcMemUsed_; }
   inline short getNid() { return nid_; }
   inline pid_t getPid() { return pid_; }
-  inline Int32 getStaticStmtCount() { return staticStmtCount_; }
+  inline int getStaticStmtCount() { return staticStmtCount_; }
   inline void incStaticStmtCount() { staticStmtCount_++; }
   inline void decStaticStmtCount() { staticStmtCount_--; }
-  inline Int32 getDynamicStmtCount() { return dynamicStmtCount_; }
+  inline int getDynamicStmtCount() { return dynamicStmtCount_; }
   inline void incDynamicStmtCount() { dynamicStmtCount_++; }
   inline void decDynamicStmtCount() { dynamicStmtCount_--; }
   inline void incStmtCount(Statement::StatementType stmtType) {
@@ -3045,12 +3045,12 @@ class ExProcessStats : public ExOperStats {
   inline void decReclaimStmtCount() { reclaimStmtCount_--; }
   inline long getStartTime() { return startTime_; }
   void setStartTime(long startTime) { startTime_ = startTime; }
-  inline Int32 getPfsSize() { return pfsSize_; }
-  void setPfsSize(Int32 pfsSize) { pfsSize_ = pfsSize; }
-  inline Int32 getPfsCurUse() { return pfsCurUse_; }
-  void setPfsCurUse(Int32 pfsCurUse) { pfsCurUse_ = pfsCurUse; }
-  inline Int32 getPfsMaxUse() { return pfsMaxUse_; }
-  void setPfsMaxUse(Int32 pfsMaxUse) { pfsMaxUse_ = pfsMaxUse; }
+  inline int getPfsSize() { return pfsSize_; }
+  void setPfsSize(int pfsSize) { pfsSize_ = pfsSize; }
+  inline int getPfsCurUse() { return pfsCurUse_; }
+  void setPfsCurUse(int pfsCurUse) { pfsCurUse_ = pfsCurUse; }
+  inline int getPfsMaxUse() { return pfsMaxUse_; }
+  void setPfsMaxUse(int pfsMaxUse) { pfsMaxUse_ = pfsMaxUse; }
   inline short getNumArkFsSessions() { return arkfsSessionCount_; }
   inline void incArkFsSessionCount() { arkfsSessionCount_++; }
   void decArkFsSessionCount() {
@@ -3078,14 +3078,14 @@ class ExProcessStats : public ExOperStats {
   }
   inline char *getRecentQid() { return recentQid_; }
   inline void incStartedEsps() { numESPsStarted_++; }
-  inline Int32 getNumESPsStarted() { return numESPsStarted_; }
+  inline int getNumESPsStarted() { return numESPsStarted_; }
   inline void incStartupCompletedEsps() { numESPsStartupCompleted_++; }
-  inline Int32 getNumESPsStartupCompleted() { return numESPsStartupCompleted_; }
+  inline int getNumESPsStartupCompleted() { return numESPsStartupCompleted_; }
   inline void incBadEsps() { numESPsBad_++; }
 
   inline int getQidLen() { return qidLen_; }
 
-  void setSourceStr(char *sourcestr, Int32 sqlLen) {
+  void setSourceStr(char *sourcestr, int sqlLen) {
     if (sourcestr == NULL || sqlLen == 0) {
       sourcestr = NULL;
       delStr_ = FALSE;
@@ -3102,11 +3102,11 @@ class ExProcessStats : public ExOperStats {
     delStr_ = TRUE;
   }
 
-  inline Int32 getNumESPsBad() { return numESPsBad_; }
+  inline int getNumESPsBad() { return numESPsBad_; }
   inline void incDeletedEsps() { numESPsDeleted_++; }
-  inline Int32 getNumESPsDeleted() { return numESPsDeleted_; }
-  inline Int32 getNumESPsInUse() { return numESPsInUse_; }
-  inline Int32 getNumESPsFree() { return numESPsFree_; }
+  inline int getNumESPsDeleted() { return numESPsDeleted_; }
+  inline int getNumESPsInUse() { return numESPsInUse_; }
+  inline int getNumESPsFree() { return numESPsFree_; }
   inline void incNumESPsInUse(NABoolean gotFromCache) {
     numESPsInUse_++;
     if (gotFromCache) decNumESPsFree();
@@ -3142,14 +3142,14 @@ class ExProcessStats : public ExOperStats {
   size_t ipcMemAlloc_;
   size_t ipcMemUsed_;
   long startTime_;
-  Int32 staticStmtCount_;
-  Int32 dynamicStmtCount_;
+  int staticStmtCount_;
+  int dynamicStmtCount_;
   short openStmtCount_;
   short closeStmtCount_;
   short reclaimStmtCount_;
-  Int32 pfsSize_;
-  Int32 pfsCurUse_;
-  Int32 pfsMaxUse_;
+  int pfsSize_;
+  int pfsCurUse_;
+  int pfsMaxUse_;
   short sqlOpenCount_;
   short arkfsSessionCount_;
   char *recentQid_;
@@ -3158,12 +3158,12 @@ class ExProcessStats : public ExOperStats {
   char *recentSourceStr_;
   NABoolean delStr_;
   int strLen_;
-  Int32 numESPsStarted_;
-  Int32 numESPsStartupCompleted_;
-  Int32 numESPsDeleted_;
-  Int32 numESPsBad_;
-  Int32 numESPsInUse_;
-  Int32 numESPsFree_;
+  int numESPsStarted_;
+  int numESPsStartupCompleted_;
+  int numESPsDeleted_;
+  int numESPsBad_;
+  int numESPsInUse_;
+  int numESPsFree_;
 };
 
 class ExObjectEpochStats : public ExOperStats {
@@ -3270,7 +3270,7 @@ class ExObjectLockStats : public ExOperStats {
  public:
   ExObjectLockStats(NAMemory *heap) : ExOperStats(heap, OBJECT_LOCK_STATS) {}
   ExObjectLockStats(NAMemory *heap, short cpu, const NAString &objectName, ComObjectType objectType, pid_t pid,
-                    Int32 holderNid, Int32 holderPid, bool dmlLocked, bool ddlLocked)
+                    int holderNid, int holderPid, bool dmlLocked, bool ddlLocked)
       : ExOperStats(heap, OBJECT_LOCK_STATS),
         cpu_(cpu),
         objectType_(objectType),
@@ -3349,10 +3349,10 @@ class ExObjectLockStats : public ExOperStats {
   void setDMLLocked(bool dmlLocked) { dmlLocked_ = dmlLocked; }
   bool getDDLLocked() const { return ddlLocked_; }
   void setDDLLocked(bool ddlLocked) { ddlLocked_ = ddlLocked; }
-  Int32 getHolderNid() const { return holderNid_; }
-  void setHolderNid(Int32 holderNid) { holderNid_ = holderNid; }
-  Int32 getHolderPid() const { return holderPid_; }
-  void setHolderPid(Int32 holderPid) { holderPid_ = holderPid; }
+  int getHolderNid() const { return holderNid_; }
+  void setHolderNid(int holderNid) { holderNid_ = holderNid; }
+  int getHolderPid() const { return holderPid_; }
+  void setHolderPid(int holderPid) { holderPid_ = holderPid; }
 
   const char *getLockString() const {
     if (dmlLocked_ && ddlLocked_) {
@@ -3380,8 +3380,8 @@ class ExObjectLockStats : public ExOperStats {
   char objectName_[1024];  // Hope this is enough
   ComObjectType objectType_;
   pid_t pid_;
-  Int32 holderNid_;
-  Int32 holderPid_;
+  int holderNid_;
+  int holderPid_;
   bool dmlLocked_;
   bool ddlLocked_;
 };
@@ -3390,7 +3390,7 @@ class ExQryInvalidStats : public ExOperStats {
  public:
   ExQryInvalidStats(NAMemory *heap) : ExOperStats(heap, QUERY_INVALIDATION_STATS) { init(); }
 
-  ExQryInvalidStats(NAMemory *heap, short cpu, char *op, long objUid, Int32 subHash, Int32 objHash, long revokeTime)
+  ExQryInvalidStats(NAMemory *heap, short cpu, char *op, long objUid, int subHash, int objHash, long revokeTime)
       : ExOperStats(heap, QUERY_INVALIDATION_STATS),
         cpu_(cpu),
         objectUid_(objUid),
@@ -3505,8 +3505,8 @@ class ExQryInvalidStatsTcb : public ex_tcb {
 
   ex_queue_pair getParentQueue() const { return qparent_; };
 
-  virtual Int32 numChildren() const { return 0; };
-  virtual const ex_tcb *getChild(Int32 pos) const { return NULL; };
+  virtual int numChildren() const { return 0; };
+  virtual const ex_tcb *getChild(int pos) const { return NULL; };
   ExStatisticsArea *sendToSsmp();
   void parse_stmt_name(char *string, int len);
   ComDiagsArea *getDiagsArea() { return diagsArea_; }

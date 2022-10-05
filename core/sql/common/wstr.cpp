@@ -66,9 +66,9 @@ int iswspace (NAWchar wc)
 // Compares two Wchar strings using SQL blank-padding semantics.
 // Returns +ve if the first string is greater, 0 if equal, -ve if
 // the second string is greater.
-Int32 compareWcharWithBlankPadding(const NAWchar *wstr1, UInt32 len1, const NAWchar *wstr2, UInt32 len2) {
+int compareWcharWithBlankPadding(const NAWchar *wstr1, UInt32 len1, const NAWchar *wstr2, UInt32 len2) {
   UInt32 shorterLen = (len1 < len2 ? len1 : len2);
-  Int32 rc = memcmp(wstr1, wstr2, shorterLen * sizeof(NAWchar));
+  int rc = memcmp(wstr1, wstr2, shorterLen * sizeof(NAWchar));
   if (rc == 0) {
     if (len1 < len2) {
       // compare the rest of wstr2 with blanks
@@ -103,7 +103,7 @@ Int32 compareWcharWithBlankPadding(const NAWchar *wstr1, UInt32 len1, const NAWc
 // character of the remainder of the longer string because it may be a null,
 // which would result in 0 being returned and interpreted as if the strings
 // were equal.
-Int32 na_wcsnncmp(const NAWchar *wstr1, UInt32 len1, const NAWchar *wstr2, UInt32 len2) {
+int na_wcsnncmp(const NAWchar *wstr1, UInt32 len1, const NAWchar *wstr2, UInt32 len2) {
   UInt32 shorterLen = (len1 < len2 ? len1 : len2);
   UInt32 currCharPos = 0;
 
@@ -123,10 +123,10 @@ Int32 na_wcsnncmp(const NAWchar *wstr1, UInt32 len1, const NAWchar *wstr2, UInt3
   //    return (*(const UInt16*)--wstr1 - *(const UInt16*)--wstr2);
 }
 
-Int32 na_wcsncmp(const NAWchar *wstr1, const NAWchar *wstr2, UInt32 len) {
+int na_wcsncmp(const NAWchar *wstr1, const NAWchar *wstr2, UInt32 len) {
   if (len == 0) return 0;
 
-  for (Int32 i = 0; i < len; i++) {
+  for (int i = 0; i < len; i++) {
     if (*wstr1 != *wstr2) return (*wstr1 - *wstr2);
 
     if (*wstr1 == 0) break;
@@ -139,14 +139,14 @@ Int32 na_wcsncmp(const NAWchar *wstr1, const NAWchar *wstr2, UInt32 len) {
   return 0;
 }
 
-Int32 na_wcscmp(const NAWchar *wstr1, const NAWchar *wstr2) {
+int na_wcscmp(const NAWchar *wstr1, const NAWchar *wstr2) {
   while (*wstr1 == *wstr2++)
     if (*wstr1++ == 0) return (0);
   return (*wstr1 - *--wstr2);
 }
 
 #if 0  /* As of 8/30/2011, there are no callers in SQ SQL. */
-Int32 na_wcsicmp (const NAWchar * wstr1, const NAWchar * wstr2)
+int na_wcsicmp (const NAWchar * wstr1, const NAWchar * wstr2)
 {
    while (na_towlower(*wstr1) == na_towlower(*wstr2++))
 		if (*wstr1++ == 0)
@@ -155,13 +155,13 @@ Int32 na_wcsicmp (const NAWchar * wstr1, const NAWchar * wstr2)
 }
 #endif /* As of 8/30/2011, there are no callers in SQ SQL. */
 
-Int32 na_wcsincmp(const NAWchar *wstr1, const NAWchar *wstr2, UInt32 len) {
+int na_wcsincmp(const NAWchar *wstr1, const NAWchar *wstr2, UInt32 len) {
   if (len == 0) return 0;
 
-  for (Int32 i = 0; static_cast<UInt32>(i) < len; i++, wstr1++, wstr2++) {
+  for (int i = 0; static_cast<UInt32>(i) < len; i++, wstr1++, wstr2++) {
     // na_towlower() only lowers letters specified in 7-bit US ASCII
     if (na_towlower(*wstr1) != na_towlower(*wstr2))
-      return (static_cast<Int32>(static_cast<UInt32>(*wstr1)) - static_cast<Int32>(static_cast<UInt32>(*wstr2)));
+      return (static_cast<int>(static_cast<UInt32>(*wstr1)) - static_cast<int>(static_cast<UInt32>(*wstr2)));
 
     if (*wstr1 == 0) break;
   }
@@ -177,7 +177,7 @@ NAWchar *na_wcscat(NAWchar *wstr1, const NAWchar *wstr2) {
 
 // copies src to tgt for length bytes and upshifts, if upshift <> 0,
 // else downshifts. Src and Tgt may point to the same location.
-Int32 na_wstr_cpy_convert(NAWchar *tgt, NAWchar *src, int length, Int32 upshift) {
+int na_wstr_cpy_convert(NAWchar *tgt, NAWchar *src, int length, int upshift) {
   assert((tgt && src) || !length);
 
   for (int i = 0; i < length; i++) {
@@ -343,7 +343,7 @@ double na_wcstod(const NAWchar *, NAWchar **) {
   return (double)0;
 }
 
-NAWchar *na_wmemchr(const NAWchar *ws, NAWchar wc, Int32 n) {
+NAWchar *na_wmemchr(const NAWchar *ws, NAWchar wc, int n) {
   if (n != 0) {
     const NAWchar *p = ws;
     do {
@@ -378,11 +378,11 @@ size_t na_mbstowcs(NAWchar *wp, const char *p, size_t mx_wp) {
 NAWchar *na_wcswcs(const NAWchar *wp1, const NAWchar *wp2) {
   if (wp2 == NULL || *wp2 == (NAWchar)0) return (NAWchar *)wp1;
 
-  Int32 len2 = na_wcslen(wp2);
-  Int32 len1 = na_wcslen(wp1) - len2 + 1;
+  int len2 = na_wcslen(wp2);
+  int len1 = na_wcslen(wp1) - len2 + 1;
 
   // brute force search of wp2 in wp1
-  for (Int32 i = 0; i < len1; i++) {
+  for (int i = 0; i < len1; i++) {
     if (na_wcsncmp(wp1 + i, wp2, len2) == 0) return (NAWchar *)(wp1 + i);
   }
 

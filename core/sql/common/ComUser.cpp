@@ -60,11 +60,11 @@ ComUser::ComUser() {}
 //
 // Returns currentUser from the Cli context
 // ----------------------------------------------------------------------------
-Int32 ComUser::getCurrentUser(void) {
+int ComUser::getCurrentUser(void) {
   // If not initalized yet, call InitGlobals, asserts if not successful
   if (GetCliGlobals() == NULL) SQL_EXEC_InitGlobals();
 
-  Int32 *pUserID = GetCliGlobals()->currContext()->getDatabaseUserID();
+  int *pUserID = GetCliGlobals()->currContext()->getDatabaseUserID();
   return *pUserID;
 }
 
@@ -97,7 +97,7 @@ const char *ComUser::getCurrentExternalUsername() {
 //
 // Returns is an admin user?
 // ----------------------------------------------------------------------------
-bool ComUser::isManagerUserID(Int32 uid) {
+bool ComUser::isManagerUserID(int uid) {
   if ((ADMIN_USER_ID == uid) || (ROOT_USER_ID == uid)) return true;
   // TODO: Supports checking root role
   // return currentUserHasRole(ROOT_ROLE_ID);
@@ -109,11 +109,11 @@ bool ComUser::isManagerUserID(Int32 uid) {
 //
 // Returns sessionUser from the Cli context
 // ----------------------------------------------------------------------------
-Int32 ComUser::getSessionUser(void) {
+int ComUser::getSessionUser(void) {
   // If not initalized yet, call InitGlobals, asserts if not successful
   if (GetCliGlobals() == NULL) SQL_EXEC_InitGlobals();
 
-  Int32 *pSessionID = GetCliGlobals()->currContext()->getSessionUserID();
+  int *pSessionID = GetCliGlobals()->currContext()->getSessionUserID();
   return *pSessionID;
 }
 
@@ -143,14 +143,14 @@ bool ComUser::isRootUserID() { return isRootUserID(getCurrentUser()); }
 //
 // Returns true if passed in userID is the root user
 // ----------------------------------------------------------------------------
-bool ComUser::isRootUserID(Int32 userID) { return (userID == SUPER_USER) ? true : false; }
+bool ComUser::isRootUserID(int userID) { return (userID == SUPER_USER) ? true : false; }
 
 // ----------------------------------------------------------------------------
 // method: getAuthType
 //
 // returns the type of authorization ID given the passed in authID
 // ----------------------------------------------------------------------------
-char ComUser::getAuthType(Int32 authID) {
+char ComUser::getAuthType(int authID) {
   if (authID == PUBLIC_USER) return AUTH_PUBLIC;
 
   if (authID == SYSTEM_USER) return AUTH_SYSTEM;
@@ -170,17 +170,17 @@ char ComUser::getAuthType(Int32 authID) {
 // Reads the USERS table to get the user name associated with the passed
 // in userID
 //
-//   <userID>                        Int32                           In
+//   <userID>                        int                           In
 //      is the numeric ID to be mapped to a name.
 //
 //   <userName>                      char *                          In
 //      passes back the name that the numeric ID mapped to.  If the ID does
 //      not map to a name, the ASCII equivalent of the ID is passed back.
 //
-//   <maxLen>                        Int32                           In
+//   <maxLen>                        int                           In
 //      is the size of <authName>.
 //
-//   <actualLen>                     Int32 &                         Out
+//   <actualLen>                     int &                         Out
 //      is the size of the auth name in the table.  If larger than <maxLen>,
 //      caller needs to supply a larger buffer.
 //
@@ -192,7 +192,7 @@ char ComUser::getAuthType(Int32 authID) {
 //                    returned in actualLen.
 //  -1             -- Unexpected error
 // -----------------------------------------------------------------------
-Int16 ComUser::getUserNameFromUserID(Int32 userID, char *userName, Int32 maxLen, Int32 &actualLen,
+Int16 ComUser::getUserNameFromUserID(int userID, char *userName, int maxLen, int &actualLen,
                                      ComDiagsArea *diags) {
   // If not initalized yet, call InitGlobals, asserts if not successful
   if (GetCliGlobals() == NULL) SQL_EXEC_InitGlobals();
@@ -226,7 +226,7 @@ Int16 ComUser::getUserNameFromUserID(Int32 userID, char *userName, Int32 maxLen,
 //   -1 -- unexpected error occurred, if diags is not NULL, returns
 //         errors from the context's diags area
 // ----------------------------------------------------------------------------
-Int16 ComUser::getUserIDFromUserName(const char *userName, Int32 &userID, ComDiagsArea *diags) {
+Int16 ComUser::getUserIDFromUserName(const char *userName, int &userID, ComDiagsArea *diags) {
   // If not initalized yet, call InitGlobals, asserts if not successful
   if (GetCliGlobals() == NULL) SQL_EXEC_InitGlobals();
 
@@ -256,7 +256,7 @@ Int16 ComUser::getUserIDFromUserName(const char *userName, Int32 &userID, ComDia
 //
 // The passed in diags area is populated with an error if -1 is returned
 // ----------------------------------------------------------------------------
-Int16 ComUser::getAuthIDFromAuthName(const char *authName, Int32 &authID, ComDiagsArea *diags) {
+Int16 ComUser::getAuthIDFromAuthName(const char *authName, int &authID, ComDiagsArea *diags) {
   // If not initalized yet, call InitGlobals, asserts if not successful
   if (GetCliGlobals() == NULL) SQL_EXEC_InitGlobals();
 
@@ -277,17 +277,17 @@ Int16 ComUser::getAuthIDFromAuthName(const char *authName, Int32 &authID, ComDia
 //  Maps an integer authentication ID to a name.  If the number cannot be
 //  mapped to a name, the numeric ID is converted to a string.
 //
-//   <authID>                        Int32                           In
+//   <authID>                        int                           In
 //      is the numeric ID to be mapped to a name.
 //
 //   <authName>                      char *                          In
 //      passes back the name that the numeric ID mapped to.  If the ID does
 //      not map to a name, the ASCII equivalent of the ID is passed back.
 //
-//   <maxLen>                        Int32                           In
+//   <maxLen>                        int                           In
 //      is the size of <authName>.
 //
-//   <actualLen>                     Int32 &                         Out
+//   <actualLen>                     int &                         Out
 //      is the size of the auth name in the table.  If larger than <maxLen>,
 //      caller needs to supply a larger buffer.
 //
@@ -305,7 +305,7 @@ Int16 ComUser::getAuthIDFromAuthName(const char *authName, Int32 &authID, ComDia
 //    -1             -- Unexpected error or not found
 //                      (returns the authID in string format)
 // ----------------------------------------------------------------------------
-Int16 ComUser::getAuthNameFromAuthID(Int32 authID, char *authName, Int32 maxLen, Int32 &actualLen, NABoolean clearDiags,
+Int16 ComUser::getAuthNameFromAuthID(int authID, char *authName, int maxLen, int &actualLen, NABoolean clearDiags,
                                      ComDiagsArea *diags)
 
 {
@@ -340,14 +340,14 @@ Int16 ComUser::getAuthNameFromAuthID(Int32 authID, char *authName, Int32 maxLen,
 //
 //    if diags is not NULL, returns errors from the context's diags area
 // ----------------------------------------------------------------------------
-bool ComUser::currentUserHasRole(Int32 roleID, ComDiagsArea *diags, bool resetRoleList) {
+bool ComUser::currentUserHasRole(int roleID, ComDiagsArea *diags, bool resetRoleList) {
   // If not initalized yet, call InitGlobals, asserts if not successful
   if (GetCliGlobals() == NULL) SQL_EXEC_InitGlobals();
 
   // Get list of active roles from CLI cache
-  Int32 numRoles = 0;
-  Int32 *cachedRoleIDs = 0;
-  Int32 *cachedGranteeIDs = 0;
+  int numRoles = 0;
+  int *cachedRoleIDs = 0;
+  int *cachedGranteeIDs = 0;
   RETCODE retcode = GetCliGlobals()->currContext()->getRoleList(numRoles, cachedRoleIDs, cachedGranteeIDs);
 
   if (retcode != SUCCESS) {
@@ -355,8 +355,8 @@ bool ComUser::currentUserHasRole(Int32 roleID, ComDiagsArea *diags, bool resetRo
     return false;
   }
 
-  for (Int32 i = 0; i < numRoles; i++) {
-    Int32 userRole = cachedRoleIDs[i];
+  for (int i = 0; i < numRoles; i++) {
+    int userRole = cachedRoleIDs[i];
     if (userRole == roleID) return true;
   }
 
@@ -365,8 +365,8 @@ bool ComUser::currentUserHasRole(Int32 roleID, ComDiagsArea *diags, bool resetRo
     SQL_EXEC_ResetRoleList_Internal();
     if (SQL_EXEC_GetRoleList(numRoles, cachedRoleIDs, cachedGranteeIDs) < 0) return false;
 
-    for (Int32 i = 0; i < numRoles; i++) {
-      Int32 userRole = cachedRoleIDs[i];
+    for (int i = 0; i < numRoles; i++) {
+      int userRole = cachedRoleIDs[i];
       if (userRole == roleID) return true;
     }
   }
@@ -377,7 +377,7 @@ bool ComUser::currentUserHasRole(Int32 roleID, ComDiagsArea *diags, bool resetRo
 // ----------------------------------------------------------------------------
 // method: getCurrentUserRoles
 //
-// Gets the active roles for the current user as a list of Int32's
+// Gets the active roles for the current user as a list of int's
 // There should be at least one role in this list (PUBLIC)
 //
 //  Returns:
@@ -386,13 +386,13 @@ bool ComUser::currentUserHasRole(Int32 roleID, ComDiagsArea *diags, bool resetRo
 //         errors from the context's diags area
 //    0 -- successful
 // ----------------------------------------------------------------------------
-Int16 ComUser::getCurrentUserRoles(NAList<Int32> &roleIDs, ComDiagsArea *diags) {
+Int16 ComUser::getCurrentUserRoles(NAList<int> &roleIDs, ComDiagsArea *diags) {
   // If not initalized yet, call InitGlobals, asserts if not successful
   if (GetCliGlobals() == NULL) SQL_EXEC_InitGlobals();
 
-  Int32 numRoles = 0;
-  Int32 *cachedRoleIDs = NULL;
-  Int32 *cachedGranteeIDs = NULL;
+  int numRoles = 0;
+  int *cachedRoleIDs = NULL;
+  int *cachedGranteeIDs = NULL;
   RETCODE retcode = GetCliGlobals()->currContext()->getRoleList(numRoles, cachedRoleIDs, cachedGranteeIDs);
 
   if (retcode != SUCCESS) {
@@ -407,7 +407,7 @@ Int16 ComUser::getCurrentUserRoles(NAList<Int32> &roleIDs, ComDiagsArea *diags) 
     return 0;
   }
 
-  for (Int32 i = 0; i < numRoles; i++) {
+  for (int i = 0; i < numRoles; i++) {
     // could be duplicates if role comes from user and user's groups
     if (!roleIDs.contains(cachedRoleIDs[i])) roleIDs.insert(cachedRoleIDs[i]);
   }
@@ -417,7 +417,7 @@ Int16 ComUser::getCurrentUserRoles(NAList<Int32> &roleIDs, ComDiagsArea *diags) 
 // ----------------------------------------------------------------------------
 // method: getCurrentUserRoles
 //
-// Gets the active roles and grantees for the current user as a list of Int32's
+// Gets the active roles and grantees for the current user as a list of int's
 // There should be at least one role in this list (PUBLIC)
 //
 // Returns:
@@ -425,13 +425,13 @@ Int16 ComUser::getCurrentUserRoles(NAList<Int32> &roleIDs, ComDiagsArea *diags) 
 //         errors from the context's diags area
 //    0 -- successful
 // ----------------------------------------------------------------------------
-Int16 ComUser::getCurrentUserRoles(NAList<Int32> &roleIDs, NAList<Int32> &granteeIDs, ComDiagsArea *diags) {
+Int16 ComUser::getCurrentUserRoles(NAList<int> &roleIDs, NAList<int> &granteeIDs, ComDiagsArea *diags) {
   // If not initalized yet, call InitGlobals, asserts if not successful
   if (GetCliGlobals() == NULL) SQL_EXEC_InitGlobals();
 
-  Int32 numRoles = 0;
-  Int32 *cachedRoleIDs = NULL;
-  Int32 *cachedGranteeIDs = NULL;
+  int numRoles = 0;
+  int *cachedRoleIDs = NULL;
+  int *cachedGranteeIDs = NULL;
   RETCODE retcode = GetCliGlobals()->currContext()->getRoleList(numRoles, cachedRoleIDs, cachedGranteeIDs);
 
   if (retcode != SUCCESS) {
@@ -446,7 +446,7 @@ Int16 ComUser::getCurrentUserRoles(NAList<Int32> &roleIDs, NAList<Int32> &grante
     return 0;
   }
 
-  for (Int32 i = 0; i < numRoles; i++) {
+  for (int i = 0; i < numRoles; i++) {
     roleIDs.insert(cachedRoleIDs[i]);
     granteeIDs.insert(cachedGranteeIDs[i]);
   }
@@ -462,7 +462,7 @@ Int16 ComUser::getCurrentUserRoles(NAList<Int32> &roleIDs, NAList<Int32> &grante
 // if unexpected issue occurred trying to get groups,
 //   -1 is returned and ComDiags is setup with error.
 // ----------------------------------------------------------------------------
-Int16 ComUser::getUserGroups(const char *authName, bool allowMDAccess, NAList<Int32> &groupIDs, ComDiagsArea *diags) {
+Int16 ComUser::getUserGroups(const char *authName, bool allowMDAccess, NAList<int> &groupIDs, ComDiagsArea *diags) {
   ULng32 flagBits = GetCliGlobals()->currContext()->getSqlParserFlags();
 
   if (allowMDAccess) GetCliGlobals()->currContext()->setSqlParserFlags(0x20000);
@@ -497,14 +497,14 @@ Int16 ComUser::getUserGroups(const char *authName, bool allowMDAccess, NAList<In
 //  Returns:  0    -- found
 //           -1    -- space allocated for role list is too small
 // ----------------------------------------------------------------------------
-Int16 ComUser::getSystemRoleList(char *roleList, Int32 &actualLen, const Int32 maxLen, const char delimiter,
+Int16 ComUser::getSystemRoleList(char *roleList, int &actualLen, const int maxLen, const char delimiter,
                                  const char separator, const bool includeSpecialAuths) {
   assert(roleList);
-  Int32 numberRoles = sizeof(systemRoles) / sizeof(SystemAuthsStruct);
+  int numberRoles = sizeof(systemRoles) / sizeof(SystemAuthsStruct);
   NAString generatedRoleList;
   char roleName[MAX_AUTHNAME_LEN + 4];
   char currentSeparator = ' ';
-  for (Int32 i = 0; i < numberRoles; i++) {
+  for (int i = 0; i < numberRoles; i++) {
     const SystemAuthsStruct &roleDefinition = systemRoles[i];
     if (!includeSpecialAuths && roleDefinition.isSpecialAuth) continue;
 
@@ -532,10 +532,10 @@ Int16 ComUser::getSystemRoleList(char *roleList, Int32 &actualLen, const Int32 m
 //   (for unexpected errors return errors from the context's diags area)
 // ----------------------------------------------------------------------------
 bool ComUser::currentUserHasElevatedPrivs(ComDiagsArea *diags) {
-  Int32 userID = getCurrentUser();
+  int userID = getCurrentUser();
   if (userID == ROOT_USER_ID || userID == ADMIN_USER_ID || currentUserHasRole(ROOT_ROLE_ID, diags)) return true;
 
-  Int32 adminRoleID = NA_UserIdDefault;
+  int adminRoleID = NA_UserIdDefault;
   Int16 retcode = ComUser::getAuthIDFromAuthName(DB__ADMINROLE, adminRoleID, diags);
 
   // DB__ADMINROLE should always exist
@@ -562,7 +562,7 @@ bool ComUser::currentUserHasElevatedPrivs(ComDiagsArea *diags) {
 //   -1 -- unexpected error occurred, if diags is not NULL, returns
 //         errors from the context's diags area
 // ----------------------------------------------------------------------------
-Int16 ComUser::userHasElevatedPrivs(const Int32 userID, const std::vector<int32_t> &roleIDs, bool &hasElevatedPrivs,
+Int16 ComUser::userHasElevatedPrivs(const int userID, const std::vector<int32_t> &roleIDs, bool &hasElevatedPrivs,
                                     ComDiagsArea *diags) {
   hasElevatedPrivs = false;
 
@@ -572,7 +572,7 @@ Int16 ComUser::userHasElevatedPrivs(const Int32 userID, const std::vector<int32_
     return 0;
   }
 
-  Int32 adminRoleID = NA_UserIdDefault;
+  int adminRoleID = NA_UserIdDefault;
   Int16 retcode = ComUser::getAuthIDFromAuthName(DB__ADMINROLE, adminRoleID, diags);
   if (retcode != 0) return -1;
 
@@ -601,7 +601,7 @@ bool ComUser::roleIDsCached() {
 //
 // Returns current tenant from the Cli context
 // ----------------------------------------------------------------------------
-Int32 ComTenant::getCurrentTenantID(void) {
+int ComTenant::getCurrentTenantID(void) {
   // If not initalized yet, call InitGlobals, asserts if not successful
   if (GetCliGlobals() == NULL) SQL_EXEC_InitGlobals();
 
@@ -614,7 +614,7 @@ Int32 ComTenant::getCurrentTenantID(void) {
 // Returns current tenant from the Cli context
 // ----------------------------------------------------------------------------
 NAString ComTenant::getCurrentTenantIDAsString() {
-  Int32 tenantID = getCurrentTenantID();
+  int tenantID = getCurrentTenantID();
   assert((tenantID >= MIN_TENANTID) && (tenantID <= MAX_TENANTID));
 
   char intStr[20];
@@ -655,7 +655,7 @@ const bool ComTenant::isTenantNamespace(const char *ns) {
   // convert text after TRAF_RESERVED_NAMESPACE_PREFIX to numeric
   // str_atoi returns -1 if contains non numeric characters
   nsStr = nsStr.remove(0, TRAF_NAMESPACE_PREFIX_LEN);
-  Int32 nsValue = str_atoi(nsStr.data(), nsStr.length());
+  int nsValue = str_atoi(nsStr.data(), nsStr.length());
   if (nsValue < MIN_TENANTID || nsValue > MAX_TENANTID) return false;
   return true;
 }

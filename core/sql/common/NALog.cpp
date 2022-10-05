@@ -94,7 +94,7 @@ CNALogfile::~CNALogfile() {
 // and sets up the requested information in the CNALog class
 // -------------------------------------------------------------------------
 void CNALogfile::ScanEnvVar(char *pEnvVarInfo) {
-  Int32 length = 0;
+  int length = 0;
   char *pStartOfToken = pEnvVarInfo;
   char *pNextToken = GetNextToken(pStartOfToken, length);
   while (pNextToken) {
@@ -126,7 +126,7 @@ void CNALogfile::ScanEnvVar(char *pEnvVarInfo) {
 //
 // It returns a pointer to the start of the token and its length
 // ------------------------------------------------------------------------
-char *CNALogfile::GetNextToken(char *pStrToScan, Int32 &length) {
+char *CNALogfile::GetNextToken(char *pStrToScan, int &length) {
   char *pStartOfToken = pStrToScan;
 
   // If we are at the end of the string, return NULL.
@@ -146,7 +146,7 @@ char *CNALogfile::GetNextToken(char *pStrToScan, Int32 &length) {
   if (pNextComma)
     length = pNextComma - pStartOfToken;
   else
-    length = (Int32)strlen(pStartOfToken);
+    length = (int)strlen(pStartOfToken);
 
   return pStartOfToken;
 }
@@ -158,7 +158,7 @@ char *CNALogfile::GetNextToken(char *pStrToScan, Int32 &length) {
 // to write to the log
 // ----------------------------------------------------------------------
 NAString CNALogfile::GetTimeToLog(void) {
-  Int32 length = CTIME_LENGTH + TIME_KWORD_LENGTH + 2;
+  int length = CTIME_LENGTH + TIME_KWORD_LENGTH + 2;
   char timeBuf[CTIME_LENGTH + TIME_KWORD_LENGTH + 2];
   char *pTimeBuf = (char *)&timeBuf;
   strcpy(pTimeBuf, TIME_KWORD);
@@ -178,7 +178,7 @@ NAString CNALogfile::GetTimeToLog(void) {
 NAString CNALogfile::GetProcessToLog() {
   char processIdStrBuf[101];
   size_t processIdStrLen = 0;
-  Int32 rtnCode = -1;
+  int rtnCode = -1;
   processIdStrBuf[0] = '\0';
   rtnCode = SqlShareLnxGetMyProcessIdString(processIdStrBuf,    // char   * outBuf
                                             100,                // size_t   outBufMaxLen
@@ -196,7 +196,7 @@ NAString CNALogfile::GetProcessToLog() {
 // This helper method convert any dash in log filename into underscore
 // ----------------------------------------------------------------------
 void CNALogfile::ConvertDashToUnderscore(char *pLogName) {
-  Int32 pos = 0;
+  int pos = 0;
   while (pLogName[pos] != '\0') {
     if (pLogName[pos] == '-') pLogName[pos] = '_';
     pos++;
@@ -209,7 +209,7 @@ void CNALogfile::ConvertDashToUnderscore(char *pLogName) {
 // If the open fails, logging is turned off
 // In debug mode, an exception is thrown
 // ----------------------------------------------------------------------
-Int32 CNALogfile::Open(void) {
+int CNALogfile::Open(void) {
   // If file already opened, return
   if (IsOpen()) return 0;
 
@@ -288,12 +288,12 @@ Int32 CNALogfile::Open(void) {
     if (pLogSizeLimit) {
       NAString str("asdfghjkl;qwertyuiopzxcvbnm,./asdfghjkl;qwertyuiopzxcvbnm,./");
       NAString newstr;
-      Int32 upperlimit = atoi(pLogSizeLimit);
+      int upperlimit = atoi(pLogSizeLimit);
       if (upperlimit > 0) {
-        for (Int32 i = 0; i < upperlimit; i++) newstr += str;
+        for (int i = 0; i < upperlimit; i++) newstr += str;
         if (newstr.length() > 0) {
           newstr += "\n";
-          Int32 retcode = inherited::WriteString(newstr);
+          int retcode = inherited::WriteString(newstr);
           NAString numWritten;
           numWritten = LongToNAString((int)retcode);
           numWritten += ": Number of bytes written \n";
@@ -324,7 +324,7 @@ Int32 CNALogfile::Open(void) {
 // This method set the log name and open mode in the class structures
 // and calls the generic Open method.
 // ----------------------------------------------------------------------
-Int32 CNALogfile::Open(char *pLogName, CNAStdioFile::EOpenMode mode) {
+int CNALogfile::Open(char *pLogName, CNAStdioFile::EOpenMode mode) {
   // If log name has already been specified, delete it
   // Caller may want to open a different file
   if (m_pLogName) {
@@ -343,7 +343,7 @@ Int32 CNALogfile::Open(char *pLogName, CNAStdioFile::EOpenMode mode) {
   return Open();
 }
 
-Int32 CNALogfile::Open(NAString logName, CNAStdioFile::EOpenMode mode) { return Open((char *)logName.data(), mode); }
+int CNALogfile::Open(NAString logName, CNAStdioFile::EOpenMode mode) { return Open((char *)logName.data(), mode); }
 
 // ----------------------------------------------------------------------
 // Method: Close
@@ -404,7 +404,7 @@ NABoolean CNALogfile::Write(const char *pBuffer, int buflen) {
   row += pBuffer;
   row += "\n";
   if (row.length() > 0) {
-    Int32 retcode = inherited::WriteString(row);
+    int retcode = inherited::WriteString(row);
     if (!retcode) {
       TURNOFFLOGGING;
 #ifdef _DEBUG
@@ -421,7 +421,7 @@ NABoolean CNALogfile::Write(const char *pBuffer, int buflen) {
 //
 // Log a message to the current log file
 // ----------------------------------------------------------------------
-Int32 CNALogfile::Log(const char *pBuffer, ELoggingLevel level) {
+int CNALogfile::Log(const char *pBuffer, ELoggingLevel level) {
   if (IsLoggingEnabled() && m_eLoggingLevel >= level) {
 #ifndef _DEBUG
     // Only log LEVEL3 in debug mode

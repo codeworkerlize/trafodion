@@ -1827,7 +1827,7 @@ PrivStatus SchemaPrivsMDTable::selectWhere(const std::string &whereClause, const
 // Row read successfully.  Extract the columns.
 void SchemaPrivsMDTable::setRow(OutputInfo *pCliRow, SchemaPrivsMDRow &row) {
   char *ptr = NULL;
-  Int32 len = 0;
+  int len = 0;
   char value[500];
 
   // column 1:  schema uid

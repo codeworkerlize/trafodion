@@ -471,7 +471,7 @@ char *ComTdb::findVTblPtrExe(short classID) {
 }
 
 void fixupExeVtblPtr(ComTdb *tdb) {
-  for (Int32 i = 0; i < tdb->numChildren(); i++) {
+  for (int i = 0; i < tdb->numChildren(); i++) {
     fixupExeVtblPtr((ComTdb *)(tdb->getChild(i)));
   }
 
@@ -481,7 +481,7 @@ void fixupExeVtblPtr(ComTdb *tdb) {
 }
 
 void fixupComVtblPtr(ComTdb *tdb) {
-  for (Int32 i = 0; i < tdb->numChildren(); i++) {
+  for (int i = 0; i < tdb->numChildren(); i++) {
     fixupComVtblPtr((ComTdb *)(tdb->getChild(i)));
   }
 
@@ -491,12 +491,12 @@ void fixupComVtblPtr(ComTdb *tdb) {
 }
 
 void resetBufSize(ex_tcb *tcb, int &tcbSpaceNeeded, int &poolSpaceNeeded) {
-  for (Int32 i = 0; i < tcb->numChildren(); i++) {
+  for (int i = 0; i < tcb->numChildren(); i++) {
     resetBufSize((ex_tcb *)(tcb->getChild(i)), tcbSpaceNeeded, poolSpaceNeeded);
   }
 
   if (tcb->getPool()) {
-    Int32 numBuffs = -1;
+    int numBuffs = -1;
     UInt32 staticPoolSpaceSize = 0;
     UInt32 dynPoolSpaceSize = 0;
 

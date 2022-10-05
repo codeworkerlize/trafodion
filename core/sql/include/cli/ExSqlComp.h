@@ -234,7 +234,7 @@ class ExSqlComp : public ExGod {
     long requestId_;   // after the actOnReceive, message_ is deleted, the id
     NABoolean waited_;  // waited_ flag for this request.
     OperationStatus ioStatus_;
-    Int32 resendCount_;
+    int resendCount_;
   };
 
   void initRequests(Requests &);

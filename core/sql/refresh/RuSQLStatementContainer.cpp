@@ -50,7 +50,7 @@ void CRUSQLStatementContainer::StoreData(CUOFsIpcMessageTranslator &translator) 
 
   translator.WriteBlock(&size, sizeof(short));
 
-  for (Int32 i = 0; i < GetNumOfStmt(); i++) {
+  for (int i = 0; i < GetNumOfStmt(); i++) {
     GetStmt(i).StoreData(translator);
   }
 }
@@ -65,7 +65,7 @@ void CRUSQLStatementContainer::LoadData(CUOFsIpcMessageTranslator &translator) {
 
   RUASSERT(size <= GetNumOfStmt());
 
-  for (Int32 i = 0; i < GetNumOfStmt(); i++) {
+  for (int i = 0; i < GetNumOfStmt(); i++) {
     GetStmt(i).LoadData(translator);
   }
 }

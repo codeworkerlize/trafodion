@@ -317,7 +317,7 @@ void PCodeCfg::computeDomTree() {
 //       to know about the new PCODE instructions.
 //
 #if NExprDbgLvl > VV_NO
-const char *NatExprName(Int32 opc) {
+const char *NatExprName(int opc) {
   switch (opc) {
     case PCIT::OPDATA_MPTR32_IBIN32S: {
       return "OPDATA_MPTR32_IBIN32S";
@@ -749,8 +749,8 @@ const char *NatExprName(Int32 opc) {
 // inTempsList() - Routine used to determine if the specified Temp operand
 // is already in the Temps List.
 //
-NABoolean PCodeCfg::inTempsList(Int32 Offset, PCIT::AddressingMode OprTyp) {
-  for (Int32 tli = 0; tli < NExTempsList_->entries(); tli++) {
+NABoolean PCodeCfg::inTempsList(int Offset, PCIT::AddressingMode OprTyp) {
+  for (int tli = 0; tli < NExTempsList_->entries(); tli++) {
     NExTempListEntry *tliEntry = (*NExTempsList_)[tli];
 
     if ((Offset == tliEntry->getOffset()) && (OprTyp == tliEntry->getOprTyp())) return TRUE;
@@ -762,11 +762,11 @@ NABoolean PCodeCfg::inTempsList(Int32 Offset, PCIT::AddressingMode OprTyp) {
 // addToTempsList() - Routine used to add the specified Temp operand
 // to the Temps List.
 //
-void PCodeCfg::addToTempsList(PCodeOperand *PCOp, PCIT::AddressingMode OprTyp, Int32 Offset, Int32 Num) {
+void PCodeCfg::addToTempsList(PCodeOperand *PCOp, PCIT::AddressingMode OprTyp, int Offset, int Num) {
 #if NExprDbgLvl > VV_NO
   char NExBuf[500];
 #endif
-  DPT4("VVA2T0: ", VV_XD, "In addToTempsList( %p, OprTyp = %d, Offset=%d, Num=%d)\n", PCOp, (Int32)OprTyp, Offset, Num);
+  DPT4("VVA2T0: ", VV_XD, "In addToTempsList( %p, OprTyp = %d, Offset=%d, Num=%d)\n", PCOp, (int)OprTyp, Offset, Num);
   CollIndex i = PCOp->getBvIndex();
   PCodeOperand *operand = this->getMap()->getFirstValue(&i);
 
@@ -808,14 +808,14 @@ NABoolean PCodeCfg::canGenerateNativeExpr() {
 
 #if NExprDbgLvl >= VV_I2
   NABoolean RTNV = TRUE;  // Return TRUE for now.
-  Int32 NumBad = 0;
-  Int32 BadOpc = 0;
+  int NumBad = 0;
+  int BadOpc = 0;
 #endif
 
   FOREACH_BLOCK_REV_DFO(PCBlk, firstPCInst, lastPCInst, indx){FOREACH_INST_IN_BLOCK(PCBlk, PCInst){
 
       // DPT1( "VVYN00: ", VV_I3, "In canGEN loop: Found opcd = %d \n", (int) PCInst->getOpcode() );
-      Int32 opc = PCInst->getOpcode();
+      int opc = PCInst->getOpcode();
   switch (opc) {
       // PCode Instructions with 0 Read Operands AND 0 Write Operands
 
@@ -859,7 +859,7 @@ NABoolean PCodeCfg::canGenerateNativeExpr() {
       if (PCInst->getWOps().entries()) {
         NABoolean canHandle = TRUE;
         OPLIST opList = PCInst->getWOps();
-        for (Int32 iii = 0; iii < opList.entries(); iii++) {
+        for (int iii = 0; iii < opList.entries(); iii++) {
           PCodeOperand *PCOp = opList[iii];
           if (PCOp->getStackIndex() == 2)  // DON'T YET KNOW HOW TO HANDLE THIS with LLVM!
           {
@@ -891,7 +891,7 @@ NABoolean PCodeCfg::canGenerateNativeExpr() {
       } else  // May have Read Operands
       {
         OPLIST opList = PCInst->getROps();
-        for (Int32 iii = 0; iii < opList.entries(); iii++) {
+        for (int iii = 0; iii < opList.entries(); iii++) {
           PCodeOperand *PCOp = opList[iii];
           if (PCOp->isTemp() && !inTempsList(PCOp->getOffset(), PCOp->getType())) {
 #if NExprDbgLvl >= VV_I2
@@ -2027,11 +2027,11 @@ NABoolean PCodeCfg::canGenerateNativeExpr() {
   }
 
   case PCIT::CONCAT_MATTR5_MATTR5_MATTR5: {
-    Int32 src1Len = inst->getROps()[0]->getVcMaxLen();
-    Int32 src2Len = inst->getROps()[1]->getVcMaxLen();
-    Int32 resLen = inst->getWOps()[0]->getVcMaxLen();
+    int src1Len = inst->getROps()[0]->getVcMaxLen();
+    int src2Len = inst->getROps()[1]->getVcMaxLen();
+    int resLen = inst->getWOps()[0]->getVcMaxLen();
 
-    Int32 maxSize = src1Len + src2Len;
+    int maxSize = src1Len + src2Len;
 
     // If the max length of the target operand is less than the sum of
     // the lengths of the source operands, do not support.  Note, this is
@@ -2243,12 +2243,12 @@ NABoolean PCodeCfg::isSupportedClauseOperandType(exp_Attributes *attr) {
   return FALSE;
 }
 
-void PCodeCfg::setupClauseOperand(PCodeCfg *cfg, OPLIST &opList, PCodeOperand **opData, Int32 index,
+void PCodeCfg::setupClauseOperand(PCodeCfg *cfg, OPLIST &opList, PCodeOperand **opData, int index,
                                   ex_clause *clause) {
 #if NExprDbgLvl > VV_NO
   char NExBuf[500];
 #endif
-  Int32 len;
+  int len;
   PCIT::AddressingMode am;
   DPT5("VV0a00: ", VV_XD,
        "In setupClauseOperand(), cfg=%p, opList at %p, opData at %p, "
@@ -2266,13 +2266,13 @@ void PCodeCfg::setupClauseOperand(PCodeCfg *cfg, OPLIST &opList, PCodeOperand **
   }
 
   // Get the attribute pointer corresponding to this clause operand
-  Int32 opIndex = index % ex_clause::MAX_OPERANDS;
+  int opIndex = index % ex_clause::MAX_OPERANDS;
   exp_Attributes *attr = clause->getOperand(opIndex);
 
   // Get the old (pcode opts) operand from the opList and clear the list now.
 
 #if NExprDbgLvl >= VV_XD
-  for (Int32 iii = 0; iii < opList.entries(); iii++)
+  for (int iii = 0; iii < opList.entries(); iii++)
     DPT2("VV0a10: ", VV_XD,
          "At start of setupClauseOperand(), opList[%d] = "
          "%p\n",
@@ -2287,7 +2287,7 @@ void PCodeCfg::setupClauseOperand(PCodeCfg *cfg, OPLIST &opList, PCodeOperand **
        operand);
 
 #if NExprDbgLvl >= VV_XD
-  for (Int32 jjj = 0; jjj < opList.entries(); jjj++)
+  for (int jjj = 0; jjj < opList.entries(); jjj++)
     DPT2("VV0a30: ", VV_XD, "AFTER clearing opList, opList[%d] = %p\n", jjj, opList[jjj]);
 #endif
 
@@ -2687,9 +2687,9 @@ jit_value_t PCodeOperand::getJitValue(PCodeCfg *cfg, IRBldr_t *Bldr, jit_type_t 
     assert(jitValueBlock_ != NULL);
 
     CDPT1("VV0376A: ", VV_BD, "In getJitValue(): jitValueBlock_ = %p\n", jitValueBlock_);
-    CDPT1("VV0376A: ", VV_BD, "In getJitValue(): isTemp() = %x\n", (Int32)isTemp());
+    CDPT1("VV0376A: ", VV_BD, "In getJitValue(): isTemp() = %x\n", (int)isTemp());
     CDPT2("VV0376A: ", VV_BD, "In getJitValue(): blk = %p, jitValueBlock Dominates blk = %x\n", blk,
-          (Int32)blk->onesVector.testBit(jitValueBlock_->getBlockNum()));
+          (int)blk->onesVector.testBit(jitValueBlock_->getBlockNum()));
 
     // If the PCBlock given in jitValueBlock_ dominates PCBlock blk,
     // then we are assured that jitValue_ is valid.
@@ -2709,7 +2709,7 @@ jit_value_t PCodeOperand::getJitValue(PCodeCfg *cfg, IRBldr_t *Bldr, jit_type_t 
 
       assert(IRtype->getTypeID() == Type::IntegerTyID);
 
-      Int32 valBitWdth;
+      int valBitWdth;
       jit_value_t actualVal = jitValue_;
 
       if (valType->isPointerTy()) {
@@ -2779,7 +2779,7 @@ jit_value_t PCodeOperand::getJitValue(PCodeCfg *cfg, IRBldr_t *Bldr, jit_type_t 
       // after (e.g. PCIT::MBIN8_MBIN8_IBIN32S --> PCIT::MBIN8_MBIN8).  Use the
       // original operand to get the constant value.
 
-      Int32 val = (Int32)cfg->getIntConstValue(((orig) ? orig : this));
+      int val = (int)cfg->getIntConstValue(((orig) ? orig : this));
       //    jitValue_ = jit_value_create_nint_constant(f, type, val);
 
       CDPT1("VV0390: ", VV_BD, "In getJitValue(): setting jitValue_ to be a constant Int of %d\n", val);
@@ -2808,7 +2808,7 @@ jit_value_t PCodeOperand::getJitValue(PCodeCfg *cfg, IRBldr_t *Bldr, jit_type_t 
       }
 #endif  // 0
     } else {
-      Int32 val = (Int32)cfg->getIntConstValue(((orig) ? orig : this));
+      int val = (int)cfg->getIntConstValue(((orig) ? orig : this));
       //    jitValue_ = jit_value_create_nint_constant(f, type, val);
       jitValue_ = ConstantInt::get(IRtype, val);
 
@@ -3149,7 +3149,7 @@ void PCodeCfg::genMemCopyLoop(IRBldr_t *Bldr, jit_value_t srcPtr, jit_value_t tg
 
   DPT2("VV0602: ", VV_VD, "fastLoopLabel = %p, endLabel = %p\n", fastLoopLabel, endLabel);
 
-  Int32 bytesAtOnce = 8;
+  int bytesAtOnce = 8;
 
   BytesPer = ConstantInt::get(int64Ty_, bytesAtOnce);
   DPT0("VV0605: ", VV_VD, "MaxLen64          = Bldr->CreateZExt( maxLen, int64Ty_, 'ExtMaxLen')\n");
@@ -3305,7 +3305,7 @@ jit_value_t PCodeCfg::genMemCmpLoop(IRBldr_t *Bldr, enum cmpKind KindOfCmp, jit_
   DPT2("VVa602: ", VV_VD, "fastCmpLpLabel = %p, fastCmpNxtLabel = %p\n", fastCmpLpLabel, fastCmpNxtLabel);
   DPT2("VVa602: ", VV_VD, "slowCmpLpLabel = %p, slowContLabel  = %p\n", slowCmpLpLabel, slowContLabel);
   DPT1("VVa602: ", VV_VD, "slowCmpEndLabel = %p\n", slowCmpEndLabel);
-  Int32 bytesAtOnce = 8;
+  int bytesAtOnce = 8;
 
   BytesPer = ConstantInt::get(int64Ty_, bytesAtOnce);
   DPT0("VVa605: ", VV_VD, "MaxLen64          = Bldr->CreateZExt( maxLen, int64Ty_, 'ExtMaxLen')\n");
@@ -3492,7 +3492,7 @@ jit_value_t PCodeCfg::genMemCmpLoop(IRBldr_t *Bldr, enum cmpKind KindOfCmp, jit_
 // instructions will use the same allocation location for the
 // specified operand.
 //
-void PCodeOperand::allocJitValue(PCodeCfg *cfg, IRBldr_t *Bldr, PCIT::AddressingMode OprTyp, Int32 Len, Int32 Num) {
+void PCodeOperand::allocJitValue(PCodeCfg *cfg, IRBldr_t *Bldr, PCIT::AddressingMode OprTyp, int Len, int Num) {
 #if NExprDbgLvl >= VV_NO
   char NExBuf[500];
 #endif
@@ -3689,7 +3689,7 @@ jit_value_t PCodeOperand::getJitValue(PCodeCfg *cfg, jit_function_t f, jit_type_
       // after (e.g. PCIT::MBIN8_MBIN8_IBIN32S --> PCIT::MBIN8_MBIN8).  Use the
       // original operand to get the constant value.
 
-      Int32 val = (Int32)cfg->getIntConstValue(((orig) ? orig : this));
+      int val = (int)cfg->getIntConstValue(((orig) ? orig : this));
       jitValue_ = jit_value_create_nint_constant(f, type, val);
     } else if (type == jit_type_float64) {
       // Unless the value is "1.0", libjit will store a double constant in
@@ -3703,7 +3703,7 @@ jit_value_t PCodeOperand::getJitValue(PCodeCfg *cfg, jit_function_t f, jit_type_
         jitValue_ = jit_insn_load_relative(f, param, offset_, type);
       }
     } else {
-      Int32 val = (Int32)cfg->getIntConstValue(((orig) ? orig : this));
+      int val = (int)cfg->getIntConstValue(((orig) ? orig : this));
       jitValue_ = jit_value_create_nint_constant(f, type, val);
     }
   } else if (isVar()) {
@@ -3748,7 +3748,7 @@ jit_value_t PCodeCfg::genStringSetup(jit_function_t f, jit_value_t *tStr, PCodeO
                                      NABoolean padExists = FALSE, NABoolean lenNeeded = TRUE) {
   jit_value_t lenJitVal = NULL;
 
-  Int32 vcIndLen = src->getVcIndicatorLen();
+  int vcIndLen = src->getVcIndicatorLen();
 
   // If pad exists, then the length must surely be retrieved.
   if (padExists) lenNeeded = TRUE;
@@ -3802,12 +3802,12 @@ jit_value_t PCodeCfg::genStringSetup(jit_function_t f, jit_value_t *tStr, PCodeO
 }
 
 jit_value_t PCodeCfg::genHash(jit_function_t f, jit_value_t tStr, jit_value_t tStrLen, jit_value_t loopIndex,
-                              Int32 constantLen = 0) {
+                              int constantLen = 0) {
   // If constantLen is provided (i.e. tStrLen is NULL) then that implies that we
   // are hashing a standard-sized column.  Otherwise we are hashing some kind've
   // string.
 
-  Int32 j;
+  int j;
 
   jit_value_t t1, t2, t3, t4, t5, t6, resJitVal;
   jit_label_t startLoop = jit_label_undefined;
@@ -3898,7 +3898,7 @@ jit_value_t PCodeCfg::genHash(jit_function_t f, jit_value_t tStr, jit_value_t tS
 // genMemSetLoop() - generate code to set every element in an long array
 // to the same value.
 //
-void PCodeCfg::genMemSetLoop(IRBldr_t *Bldr, Int32 val, jit_value_t tgtPtr, jit_value_t maxLen) {
+void PCodeCfg::genMemSetLoop(IRBldr_t *Bldr, int val, jit_value_t tgtPtr, jit_value_t maxLen) {
 #if NExprDbgLvl > VV_NO
   char NExBuf[500];
 #endif
@@ -3927,7 +3927,7 @@ void PCodeCfg::genMemSetLoop(IRBldr_t *Bldr, Int32 val, jit_value_t tgtPtr, jit_
 
   DPT2("VV0702: ", VV_VD, "fastLoopLabel = %p, endLabel = %p\n", fastLoopLabel, endLabel);
 
-  Int32 bytesAtOnce = 8;
+  int bytesAtOnce = 8;
 
   BytesPer = ConstantInt::get(int64Ty_, bytesAtOnce);
   DPT0("VV0705: ", VV_VD, "MaxLen64  = Bldr->CreateZExt( maxLen, int64Ty_ , 'ExtMaxLen' )\n");
@@ -4046,11 +4046,11 @@ void PCodeCfg::genMemSetLoop(IRBldr_t *Bldr, Int32 val, jit_value_t tgtPtr, jit_
   Bldr->SetInsertPoint(end2Label);
 }
 
-void PCodeCfg::genUnalignedMemset(IRBldr_t *Bldr, jit_value_t tgtPtr, Int32 val, Int32 length) {
+void PCodeCfg::genUnalignedMemset(IRBldr_t *Bldr, jit_value_t tgtPtr, int val, int length) {
 #if NExprDbgLvl > VV_NO
   char NExBuf[500];
 #endif
-  Int32 i;
+  int i;
   UInt8 val1 = (UInt8)val;
   UInt16 val2 = (val1 << 8) | val1;
   UInt32 val4 = (val2 << 16) | val2;
@@ -4117,8 +4117,8 @@ void PCodeCfg::genUnalignedMemset(IRBldr_t *Bldr, jit_value_t tgtPtr, Int32 val,
 
 #ifdef NA_LINUX_LIBJIT
 
-void PCodeCfg::genUnalignedMemset(jit_function_t f, jit_value_t tgt, Int32 val, Int32 length) {
-  Int32 i;
+void PCodeCfg::genUnalignedMemset(jit_function_t f, jit_value_t tgt, int val, int length) {
+  int i;
 
 #if 0
   // For lengths <= 32, jit_insn_memset can be called to generate the code.
@@ -4164,7 +4164,7 @@ void PCodeCfg::genUnalignedMemset(jit_function_t f, jit_value_t tgt, Int32 val, 
 
 #if 1 /* NA_LINUX_LLVMJIT */
 void PCodeCfg::genUnalignedMemcpy(IRBldr_t *Bldr, jit_value_t tgt, jit_value_t src, jit_value_t len,
-                                  Int32 constantLen = 0) {
+                                  int constantLen = 0) {
 #if NExprDbgLvl > VV_NO
   char NExBuf[500];
 #endif
@@ -4174,7 +4174,7 @@ void PCodeCfg::genUnalignedMemcpy(IRBldr_t *Bldr, jit_value_t tgt, jit_value_t s
   // Note: The 32 in the next line is arbitrary.  We just don't want
   // to generate dozens or even hundreds or thousands of load/store instructions.
   if ((len == NULL) && (constantLen < 32)) {
-    Int32 i, length = constantLen;
+    int i, length = constantLen;
 
     DPT0("VV0810: ", VV_BD, " GOT into genUnalignedMemcpy() with short fixed-length string\n");
 
@@ -4244,7 +4244,7 @@ void PCodeCfg::genUnalignedMemcpy(IRBldr_t *Bldr, jit_value_t tgt, jit_value_t s
 #ifdef NA_LINUX_LIBJIT
 
 void PCodeCfg::genUnalignedMemcpy(jit_function_t f, jit_value_t tgt, jit_value_t src, jit_value_t len,
-                                  Int32 constantLen = 0) {
+                                  int constantLen = 0) {
   //
   // Upon entering this routine, tgt, src, and len should all be temp operands
   // that were already initialized by caller.  len may be NULL, however,
@@ -4262,7 +4262,7 @@ void PCodeCfg::genUnalignedMemcpy(jit_function_t f, jit_value_t tgt, jit_value_t
   jit_value_t max = jit_value_create_nint_constant(f, jit_type_int, 4);
 
   if (len == NULL) {
-    Int32 i, length = constantLen;
+    int i, length = constantLen;
 
     // First try multiples of 4
     for (i = 0; length >= 4; i += 4, length -= 4) {
@@ -4344,7 +4344,7 @@ void PCodeCfg::genUnalignedMemcpy(jit_function_t f, jit_value_t tgt, jit_value_t
 void PCodeCfg::genUnalignedPadCheck(jit_function_t f,
                                     jit_value_t src,
                                     jit_value_t len,
-                                    Int32 constantLen = 0)
+                                    int constantLen = 0)
 {
   // Upon entering this routine, src, and len should all be temp operands
   // that were already initialized by caller.  len may be NULL, however,
@@ -4362,7 +4362,7 @@ void PCodeCfg::genUnalignedMemcmp(jit_function_t f,
                                   jit_value_t tgt,
                                   jit_value_t src,
                                   jit_value_t len,
-                                  Int32 constantLen = 0)
+                                  int constantLen = 0)
 {
   //
   // Upon entering this routine, tgt, src, and len should all be temp operands
@@ -4381,7 +4381,7 @@ void PCodeCfg::genUnalignedMemcmp(jit_function_t f,
   jit_value_t max = jit_value_create_nint_constant(f, jit_type_int, 4);
 
   if (len == NULL) {
-    Int32 i, length = constantLen;
+    int i, length = constantLen;
 
     // First try multiples of 4
     for (i=0; length >= 4; i+=4, length-=4) {
@@ -4464,7 +4464,7 @@ void PCodeCfg::genUnalignedMemcmp(jit_function_t f,
 void PCodeCfg::genBignumSub(PCodeCfg *cfg, jit_function_t f, PCodeOperand *res, jit_value_t src1, jit_value_t src2,
                             jit_value_t sign1, jit_value_t sign2, jit_value_t tSrc1, jit_value_t tSrc2,
                             PCodeBlock *block) {
-  Int32 i;
+  int i;
 
   jit_value_t t1, t2, t3, t4, t5, t6 = NULL, carry = NULL;
   jit_label_t keepStringsLabel = jit_label_undefined;
@@ -4476,10 +4476,10 @@ void PCodeCfg::genBignumSub(PCodeCfg *cfg, jit_function_t f, PCodeOperand *res, 
 
   jit_value_t jitValUpper32 = jit_value_create_nint_constant(f, jit_type_int, 0x10000);
 
-  Int32 len = res->getLen();
-  Int32 len16 = len >> 1;
+  int len = res->getLen();
+  int len16 = len >> 1;
 
-  Int32 bignumSize = len16;
+  int bignumSize = len16;
   jit_type_t bignumType = jit_type_ushort;
   jit_value_t bignumNotMask = jitValNotMask16;
 
@@ -4541,7 +4541,7 @@ void PCodeCfg::genBignumSub(PCodeCfg *cfg, jit_function_t f, PCodeOperand *res, 
   // doesn't support various 64-bit ops yet.
   for (i = 0; i < len16; i++) {
     //
-    // Perform: t6 = ((Int32)src1[i] - (Int32)src2[i]) - (carry)
+    // Perform: t6 = ((int)src1[i] - (int)src2[i]) - (carry)
     //   No need to subtract carry if this is the first time through.
     //
     t1 = jit_insn_load_relative(f, tSrc1, i, jit_type_ushort);
@@ -5477,7 +5477,7 @@ void PCodeCfg::layoutNativeCode() {
 #if NExprDbgLvl > VV_NO
   char NExBuf[500];
 #endif
-  Int32 PCI_count = 0;  // Count of number of PCODE instructions translated.
+  int PCI_count = 0;  // Count of number of PCODE instructions translated.
 
   expr_->setPCodeNative(FALSE);  // For now, assume no native code generated.
 
@@ -5503,7 +5503,7 @@ void PCodeCfg::layoutNativeCode() {
     (void)getrusage(RUSAGE_THREAD, &begTime);
 
     char *StTime = ctime((const time_t *)&begTime.ru_utime.tv_sec);
-    Int32 StTimeLn = strlen(StTime);
+    int StTimeLn = strlen(StTime);
     StTime[StTimeLn - 1] = ' ';
 
     DPT2("VV90000: ", VV_I3, "STARTING layoutNativeCode() at %s : Microseconds: %d\n", StTime,
@@ -5522,10 +5522,10 @@ void PCodeCfg::layoutNativeCode() {
   }
 #endif  // NExprDbgLvl >= VV_I0
 
-  Int32 opc = PCIT::Op_END;
+  int opc = PCIT::Op_END;
   CollIndex i, j, PCBlkIndex;
 
-  Int32 skipInst = 0;
+  int skipInst = 0;
 
   // First compute the dominator tree
   computeDomTree();
@@ -5555,8 +5555,8 @@ void PCodeCfg::layoutNativeCode() {
   // for which LLVM has handlers.  Also, if we have previously saved LLVM's
   // sigaction handlers, restore them before we go back into LLVM code.
   //
-  for (Int32 ii = 0; ii < NumSaveSigs; ii++) {
-    Int32 ret =
+  for (int ii = 0; ii < NumSaveSigs; ii++) {
+    int ret =
         sigaction(SaveSigs[ii], (LLVMhandlersSaved) ? &(SavedLLVMhandlers[ii].SigAct) : (const struct sigaction *)NULL,
                   &(SavedSigInfo[ii].SigAct));
     assert(ret == 0);
@@ -5630,8 +5630,8 @@ void PCodeCfg::layoutNativeCode() {
     // NOTE: We do NOT try to save the LLVM handlers when going through this
     // code the first time because LLVM has *not* set them up yet.
     //
-    for (Int32 ii = 0; ii < NumSaveSigs; ii++) {
-      Int32 ret = sigaction(SaveSigs[ii], &(SavedSigInfo[ii].SigAct), (struct sigaction *)NULL);
+    for (int ii = 0; ii < NumSaveSigs; ii++) {
+      int ret = sigaction(SaveSigs[ii], &(SavedSigInfo[ii].SigAct), (struct sigaction *)NULL);
       assert(ret == 0);
     }
     pthread_mutex_unlock(&Our_LLVM_mutex);  // Other threads could use LLVM now
@@ -5701,7 +5701,7 @@ void PCodeCfg::layoutNativeCode() {
 
   // Build the function signature.
   // Create an "expression" function with 4 parameters
-  // and which returns an Int32 [Actually it returns an enum exp_return_type ]
+  // and which returns an int [Actually it returns an enum exp_return_type ]
   //
   // NOTE: The 4 parameters (eventually) passed to the function
   // at runtime will be:
@@ -5864,14 +5864,14 @@ void PCodeCfg::layoutNativeCode() {
   // other predecessor paths to the block don't allocate it.
 
   DPT1("VV90034: ", VV_XD, "After CanGEN, NExTempsList_->entries()=%d\n", NExTempsList_->entries());
-  for (Int32 tli = 0; tli < NExTempsList_->entries(); tli++) {
+  for (int tli = 0; tli < NExTempsList_->entries(); tli++) {
     NExTempListEntry *tliEntry = (*NExTempsList_)[tli];
 
     PCIT::AddressingMode OprTyp = tliEntry->getOprTyp();
     PCodeOperand *Oper = tliEntry->getPCOp();
-    Int32 Num = tliEntry->getNum();
+    int Num = tliEntry->getNum();
 
-    DPT3("VV90035: ", VV_XD, "Oper->allocJitValue( this, Bldr, OprTyp = %d, Len = %d, Num = %d )\n", (Int32)OprTyp,
+    DPT3("VV90035: ", VV_XD, "Oper->allocJitValue( this, Bldr, OprTyp = %d, Len = %d, Num = %d )\n", (int)OprTyp,
          Oper->getLen(), Num);
     Oper->allocJitValue(this, Bldr, OprTyp, Oper->getLen(), Num);
   }
@@ -6245,8 +6245,8 @@ void PCodeCfg::layoutNativeCode() {
 
             ////      orRes = jit_insn_or(f, src1JitVal, src2JitVal);
 
-            Int32 src1Width = src1IRtype->getIntegerBitWidth();
-            Int32 src2Width = src2IRtype->getIntegerBitWidth();
+            int src1Width = src1IRtype->getIntegerBitWidth();
+            int src2Width = src2IRtype->getIntegerBitWidth();
             if (src1Width < src2Width) {
               DPT2("VV94102: ", VV_VD, "src1Width=%d < src2Width=%d\n", src1Width, src2Width);
 
@@ -6339,7 +6339,7 @@ void PCodeCfg::layoutNativeCode() {
 #ifdef NO_FILL_MEM_BYTES
             break;
 #endif
-            Int32 fillVal, fillLen;
+            int fillVal, fillLen;
 
             res = PCInst->getWOps()[0];
 
@@ -6366,7 +6366,7 @@ void PCodeCfg::layoutNativeCode() {
             if (opc == PCIT::FILL_MEM_BYTES_VARIABLE) {
               jit_value_t lenJitVal;
 
-              Int32 vcLen = res->getVcIndicatorLen();
+              int vcLen = res->getVcIndicatorLen();
               ////        jit_type_t vcType = (vcLen == 2) ? jit_type_ushort : jit_type_uint;
               jit_type_t vcType = (vcLen == 2) ? int16Ty_ : int32Ty_;
 
@@ -6433,7 +6433,7 @@ void PCodeCfg::layoutNativeCode() {
 
             DPT0("VV95150: ", VV_XD, "In Cmp??_MBIN32S_MASCII_MASCII \n");
 
-            Int32 MaxlenInt32 = src1->getLen();
+            int MaxlenInt32 = src1->getLen();
             jit_value_t Maxlen = ConstantInt::get(int32Ty_, MaxlenInt32);
 
             enum cmpKind KindOfCmp = ByteCompare_EQ;
@@ -6912,9 +6912,9 @@ void PCodeCfg::layoutNativeCode() {
             // In this particular case, src3JitVal could have two different
             // definitions (different bit widths) when we got to "sumLabel".
             //
-            Int32 src1Width = src1IRtype->getIntegerBitWidth();
-            Int32 src3Width = src3IRtype->getIntegerBitWidth();
-            Int32 resWidth = resIRtype->getIntegerBitWidth();
+            int src1Width = src1IRtype->getIntegerBitWidth();
+            int src3Width = src3IRtype->getIntegerBitWidth();
+            int resWidth = resIRtype->getIntegerBitWidth();
 
             DPT3("VV96910: ", VV_XD, "resWidth=%d, src1Width=%d, src3Width=%d\n", resWidth, src1Width, src3Width);
             if (src3Width != resWidth) {
@@ -7085,7 +7085,7 @@ void PCodeCfg::layoutNativeCode() {
             //        type = (opc == PCIT::MOVE_MBIN32S_IBIN32S) ? jit_type_int : jit_type_ushort;
             resIRtype = (opc == PCIT::MOVE_MBIN32S_IBIN32S) ? int32Ty_ : int16Ty_;
 
-            Int32 val = PCInst->code[3];
+            int val = PCInst->code[3];
 
             //        src1JitVal = jit_value_create_nint_constant(f, type, val);
             //        res->storeJitValue(this, f, type, src1JitVal, PCBlk);
@@ -7363,7 +7363,7 @@ void PCodeCfg::layoutNativeCode() {
                  PCInst->getWOps().entries() ? "WRITE" : "READ");
 
 #if NExprDbgLvl >= VV_BD
-            for (Int32 iii = 0; iii < opList.entries(); iii++) {
+            for (int iii = 0; iii < opList.entries(); iii++) {
               DPT2("VV9B002: ", VV_XD, "In OPDATA_*, opList[%d] = %p\n", iii, opList[iii]);
 
               DPT1("VV9B002a: ", VV_XD, "Details of opList[%d] *BEFORE setupClauseOperand*  are:\n", iii);
@@ -7377,14 +7377,14 @@ void PCodeCfg::layoutNativeCode() {
             }
 #endif
 
-            Int32 index = (opc == PCIT::OPDATA_MPTR32_IBIN32S_IBIN32S)
+            int index = (opc == PCIT::OPDATA_MPTR32_IBIN32S_IBIN32S)
                               ? PCInst->code[4]
                               : ((opc == PCIT::OPDATA_MATTR5_IBIN32S) ? PCInst->code[6] : PCInst->code[3]);
 
             DPT1("VV9B003: ", VV_XD, "OPDATA_* - index = %d\n", index);
 
 #if NExprDbgLvl >= VV_BD
-            for (Int32 jjj = 0; (jjj <= index) && (jjj < opList.entries()); jjj++) {
+            for (int jjj = 0; (jjj <= index) && (jjj < opList.entries()); jjj++) {
               DPT2("VV9B004: ", VV_XD, "OPDATA_* BEFORE opData[%d] = %p\n", jjj, opData[jjj]);
               if (opData[jjj]) {
                 DPT1("VV9B005: ", VV_XD, "Details of opData[%d] *BEFORE setupClauseOperand* are:\n", jjj);
@@ -7408,7 +7408,7 @@ void PCodeCfg::layoutNativeCode() {
             // NOTE: It is possible that a case will be found in the future when
             //       we need to have allocJitValue() called *before* the main loop.
             if (PCInst->getWOps().entries()) {
-              for (Int32 nnn = 0; (nnn <= index) && (nnn < opList.entries()); nnn++) {
+              for (int nnn = 0; (nnn <= index) && (nnn < opList.entries()); nnn++) {
                 PCodeOperand *Oper = opData[nnn];
                 if (!Oper) continue;
 
@@ -7418,7 +7418,7 @@ void PCodeCfg::layoutNativeCode() {
             }
 
 #if NExprDbgLvl >= VV_BD
-            for (Int32 iii = 0; iii < opList.entries(); iii++) {
+            for (int iii = 0; iii < opList.entries(); iii++) {
               DPT2("VV9B006b: ", VV_XD, "In OPDATA_*, opList[%d] = %p\n", iii, opList[iii]);
               DPT1("VV9B006c: ", VV_XD, "Details of opList[%d] *BEFORE setupClauseOperand*  are:\n", iii);
               PCodeOperand *PCOp = opList[iii];
@@ -7430,7 +7430,7 @@ void PCodeCfg::layoutNativeCode() {
                    PCOp->getCurrJitVal());
             }
 
-            for (Int32 mmm = 0; (mmm <= index) && (mmm < opList.entries()); mmm++) {
+            for (int mmm = 0; (mmm <= index) && (mmm < opList.entries()); mmm++) {
               DPT2("VV9B007: ", VV_XD, "OPDATA_* AFTER opData[%d] = %p\n", mmm, opData[mmm]);
               if (opData[mmm]) {
                 DPT1("VV9B008: ", VV_XD, "Details of opData[%d] *AFTER setupClauseOperand() are:\n", mmm);
@@ -7468,7 +7468,7 @@ void PCodeCfg::layoutNativeCode() {
             NABoolean processNulls = PCInst->code[1 + PCODEBINARIES_PER_PTR];
 
 #if NExprDbgLvl >= VV_BD
-            for (Int32 iii = 0; iii < 3; iii++) {
+            for (int iii = 0; iii < 3; iii++) {
               DPT2("VV9B103: ", VV_XD, "In CLAUSE_EVAL opDataNulls[%d] = %p\n", iii, opDataNulls[iii]);
               if (opDataNulls[iii]) {
                 DPT1("VV9B104: ", VV_XD, "Details of opDataNulls[%d] *AT Start OF CLAUSE_EVAL*  are:\n", iii);
@@ -7482,7 +7482,7 @@ void PCodeCfg::layoutNativeCode() {
               }
             }
 
-            for (Int32 jjj = 0; jjj < 3; jjj++) {
+            for (int jjj = 0; jjj < 3; jjj++) {
               DPT2("VV9B110: ", VV_XD, "In CLAUSE_EVAL opDataVals[%d] = %p\n", jjj, opDataVals[jjj]);
               if (opDataVals[jjj]) {
                 DPT1("VV9B114: ", VV_XD, "Details of opDataVals[%d] *AT Start OF CLAUSE_EVAL*  are:\n", jjj);
@@ -7710,10 +7710,10 @@ void PCodeCfg::layoutNativeCode() {
                         // true block or not.  Assume "not" by default.
                         NABoolean dumpTrueBlockFirst = TRUE;  // May change later
 
-                        Int32 size = (clause->getOperand(1))->getLength();
+                        int size = (clause->getOperand(1))->getLength();
 
                         // Cycle through each field in the date-related struct.
-                        Int32 typeSize = 0;
+                        int typeSize = 0;
                         for (i = 0; i < size; i += typeSize) {
                           jit_type_t type;
 
@@ -8053,9 +8053,9 @@ void PCodeCfg::layoutNativeCode() {
 
             resIRtype = res->getJitType(this);
 
-            Int32 src1Width = src1IRtype->getIntegerBitWidth();
-            Int32 src2Width = src2IRtype->getIntegerBitWidth();
-            Int32 resWidth = resIRtype->getIntegerBitWidth();
+            int src1Width = src1IRtype->getIntegerBitWidth();
+            int src2Width = src2IRtype->getIntegerBitWidth();
+            int resWidth = resIRtype->getIntegerBitWidth();
 
             if (src1Width < resWidth) {
               DPT0("VV9C100: ", VV_VD,
@@ -8112,9 +8112,9 @@ void PCodeCfg::layoutNativeCode() {
 
             resIRtype = res->getJitType(this);
 
-            Int32 src1Width = src1IRtype->getIntegerBitWidth();
-            Int32 src2Width = src2IRtype->getIntegerBitWidth();
-            Int32 resWidth = resIRtype->getIntegerBitWidth();
+            int src1Width = src1IRtype->getIntegerBitWidth();
+            int src2Width = src2IRtype->getIntegerBitWidth();
+            int resWidth = resIRtype->getIntegerBitWidth();
 
             if (src1Width < resWidth) {
               DPT0("VV9C200: ", VV_VD,
@@ -8173,9 +8173,9 @@ void PCodeCfg::layoutNativeCode() {
 
             resIRtype = res->getJitType(this);
 
-            Int32 src1Width = src1IRtype->getIntegerBitWidth();
-            Int32 src2Width = src2IRtype->getIntegerBitWidth();
-            Int32 resWidth = resIRtype->getIntegerBitWidth();
+            int src1Width = src1IRtype->getIntegerBitWidth();
+            int src2Width = src2IRtype->getIntegerBitWidth();
+            int resWidth = resIRtype->getIntegerBitWidth();
 
             if (src1Width < resWidth) {
               DPT0("VV9C300: ", VV_VD,
@@ -8486,9 +8486,9 @@ void PCodeCfg::layoutNativeCode() {
      // Restore signal handlers to what they were on entry.  ALSO, if this is
      // the first time LLVM was called, save the LLVM handlers!
      //
-     for (Int32 ii = 0; ii < NumSaveSigs ; ii++ )
+     for (int ii = 0; ii < NumSaveSigs ; ii++ )
      {
-       Int32 ret = sigaction( SaveSigs[ii], &(SavedSigInfo[ii].SigAct),
+       int ret = sigaction( SaveSigs[ii], &(SavedSigInfo[ii].SigAct),
                     (LLVMhandlersSaved == FALSE) ?
                    &(SavedLLVMhandlers[ii].SigAct) : (struct sigaction *)NULL);
        assert( ret == 0 );
@@ -8535,8 +8535,8 @@ void PCodeCfg::layoutNativeCode() {
       // Restore signal handlers to what they were on entry.  ALSO, if this is
       // the first time LLVM was called, save the LLVM handlers!
       //
-      for (Int32 ii = 0; ii < NumSaveSigs; ii++) {
-        Int32 ret =
+      for (int ii = 0; ii < NumSaveSigs; ii++) {
+        int ret =
             sigaction(SaveSigs[ii], &(SavedSigInfo[ii].SigAct),
                       (LLVMhandlersSaved == FALSE) ? &(SavedLLVMhandlers[ii].SigAct) : (struct sigaction *)NULL);
         assert(ret == 0);
@@ -8560,7 +8560,7 @@ void PCodeCfg::layoutNativeCode() {
 
       // Find length of next assembler language instruction
       sprintf(insnLine, "%s", ud_insn_asm(&ud_obj));
-      Int32 insnLen = str_len(insnLine);
+      int insnLen = str_len(insnLine);
 
       if (insnLen >= 26) {
         str_pad(&insnLine[insnLen], 1, ' ');
@@ -8571,8 +8571,8 @@ void PCodeCfg::layoutNativeCode() {
       }
       insnLen = str_len(insnLine);  // Increase insnLen for added spaces
 
-      Int32 ooo = 0;
-      for (Int32 jjj = 0; jjj < insnLen; jjj++, ooo++) {
+      int ooo = 0;
+      for (int jjj = 0; jjj < insnLen; jjj++, ooo++) {
         // If output will be going to stdout (via printf)
         // then we must double any '%' chars in the Assembler Language
         //
@@ -8628,8 +8628,8 @@ void PCodeCfg::layoutNativeCode() {
   // Restore signal handlers to what they were on entry.  ALSO, if this is
   // the first time LLVM was called, save the LLVM handlers!
   //
-  for (Int32 ii = 0; ii < NumSaveSigs; ii++) {
-    Int32 ret = sigaction(SaveSigs[ii], &(SavedSigInfo[ii].SigAct),
+  for (int ii = 0; ii < NumSaveSigs; ii++) {
+    int ret = sigaction(SaveSigs[ii], &(SavedSigInfo[ii].SigAct),
                           (LLVMhandlersSaved == FALSE) ? &(SavedLLVMhandlers[ii].SigAct) : (struct sigaction *)NULL);
     assert(ret == 0);
   }
@@ -8643,7 +8643,7 @@ void PCodeCfg::layoutNativeCode(Space *showplanSpace) {
     NABoolean firstTimeSeen = TRUE;
     char line[256];
     char insnLine[256];
-    Int32 i;
+    int i;
     void *FPtr = expr_->getConstantsArea() + expr_->getEvalPtrOffset();
     Long nativeCodeLen = expr_->getConstsLength() - expr_->getEvalPtrOffset();
 
@@ -8663,7 +8663,7 @@ void PCodeCfg::layoutNativeCode(Space *showplanSpace) {
 
       // Find length of next assembler language instruction
       sprintf(insnLine, "%s", ud_insn_asm(&ud_obj));
-      Int32 insnLen = str_len(insnLine);
+      int insnLen = str_len(insnLine);
 
       if (insnLen >= 26) {
         str_pad(&insnLine[insnLen], 1, ' ');
@@ -8704,10 +8704,10 @@ void PCodeCfg::layoutNativeCode(Space *showplanSpace = NULL) {
 
   jit_value_t padJitVal;
 
-  Int32 opc;
+  int opc;
   CollIndex i, j, blockIndex;
 
-  Int32 skipInst = 0;
+  int skipInst = 0;
 
   PCodeBinary *pCode = expr_->getPCodeBinary();
 
@@ -8746,10 +8746,10 @@ void PCodeCfg::layoutNativeCode(Space *showplanSpace = NULL) {
 
   // Build the function signature.
   jit_type_t params[4];
-  params[0] = jit_type_void_ptr;  // Int32*      pCode32
+  params[0] = jit_type_void_ptr;  // int*      pCode32
   params[1] = jit_type_void_ptr;  // atp_struct* atp2
   params[2] = jit_type_void_ptr;  // atp_struct* atp2
-  params[3] = jit_type_void_ptr;  // Int32*      constants
+  params[3] = jit_type_void_ptr;  // int*      constants
 
   jit_type_t signature = jit_type_create_signature(jit_abi_cdecl, jit_type_int, params, 4, 1);
 
@@ -8817,7 +8817,7 @@ void PCodeCfg::layoutNativeCode(Space *showplanSpace = NULL) {
   // Allocate incoming parameters
   jitParams_ = (jit_value_t *)new (heap_) jit_value_t[4 + pCode[0]];
   for (i = 0, j = 1; i < (CollIndex)pCode[0]; i++, j += 2) {
-    Int32 off1, off2;
+    int off1, off2;
 
     // First get the atp we care about
     jit_value_t t1 = jit_value_get_param(f, 1 + pCode[j]);
@@ -9093,7 +9093,7 @@ void PCodeCfg::layoutNativeCode(Space *showplanSpace = NULL) {
 #ifdef NO_FILL_MEM_BYTES
           break;
 #endif
-          Int32 fillVal, fillLen;
+          int fillVal, fillLen;
 
           res = inst->getWOps()[0];
 
@@ -9106,7 +9106,7 @@ void PCodeCfg::layoutNativeCode(Space *showplanSpace = NULL) {
           if (opc == PCIT::FILL_MEM_BYTES_VARIABLE) {
             jit_value_t lenJitVal;
 
-            Int32 vcLen = res->getVcIndicatorLen();
+            int vcLen = res->getVcIndicatorLen();
             jit_type_t vcType = (vcLen == 2) ? jit_type_ushort : jit_type_uint;
 
             lenJitVal = jit_value_create_nint_constant(f, vcType, inst->code[6]);
@@ -9161,7 +9161,7 @@ void PCodeCfg::layoutNativeCode(Space *showplanSpace = NULL) {
           jit_value_t args[5] = {src1JitVal, len1, src2JitVal, len2, padJitVal};
           resJitVal = jit_insn_call_indirect(f, compareWithPadJitVal, compareSig, args, 5, 0);
 
-          Int32 subOpc = (opc == PCIT::COMP_MBIN32S_MATTR5_MATTR5_IBIN32S) ? inst->code[13] : inst->code[9];
+          int subOpc = (opc == PCIT::COMP_MBIN32S_MATTR5_MATTR5_IBIN32S) ? inst->code[13] : inst->code[9];
 
           // Generate code for the appropriate compare operation.
           switch (subOpc) {
@@ -9311,7 +9311,7 @@ void PCodeCfg::layoutNativeCode(Space *showplanSpace = NULL) {
           // are done together, since libjit otherwise spills and restores the
           // arguments before each compare and branch!
 
-          Int32 subOpc = inst->code[8];
+          int subOpc = inst->code[8];
           switch (subOpc) {
             case ITM_EQUAL:
               cmpRes = jit_insn_ne(f, t1, t2);
@@ -10017,13 +10017,13 @@ void PCodeCfg::layoutNativeCode(Space *showplanSpace = NULL) {
         // length is used.  Perhaps that should be fixed from the get-go.
         case PCIT::MOVE_BULK: {
           CollIndex j, rOps = 0, wOps = 0;
-          Int32 length = inst->code[1];
+          int length = inst->code[1];
 
           // Reload operands to get rid of potential overlapping ones.
           inst->reloadOperands(this);
 
           for (j = 3; j != (length - 1); j += 3) {
-            Int32 opc = inst->code[j + 1];
+            int opc = inst->code[j + 1];
 
             res = inst->getWOps()[wOps++];
 
@@ -10049,7 +10049,7 @@ void PCodeCfg::layoutNativeCode(Space *showplanSpace = NULL) {
               case PCIT::MOVE_MBIN32S_IBIN32S: {
                 type = (opc == PCIT::MOVE_MBIN32S_IBIN32S) ? jit_type_int : jit_type_ushort;
 
-                Int32 val = inst->code[j + 3];
+                int val = inst->code[j + 3];
 
                 src1JitVal = jit_value_create_nint_constant(f, type, val);
                 res->storeJitValue(this, f, type, src1JitVal, block);
@@ -10097,7 +10097,7 @@ void PCodeCfg::layoutNativeCode(Space *showplanSpace = NULL) {
           res = inst->getWOps()[0];
           type = (opc == PCIT::MOVE_MBIN32S_IBIN32S) ? jit_type_int : jit_type_ushort;
 
-          Int32 val = inst->code[3];
+          int val = inst->code[3];
 
           src1JitVal = jit_value_create_nint_constant(f, type, val);
           res->storeJitValue(this, f, type, src1JitVal, block);
@@ -10571,7 +10571,7 @@ void PCodeCfg::layoutNativeCode(Space *showplanSpace = NULL) {
 
           OPLIST origList;  // List of operands in order.
 
-          Int32 min = 0;                     // first position to start off is 0.
+          int min = 0;                     // first position to start off is 0.
           CollIndex length = inst->code[1];  // Total length of instruction.
 
           // Walk through instruction (skipping header stuff) and identify the
@@ -10597,7 +10597,7 @@ void PCodeCfg::layoutNativeCode(Space *showplanSpace = NULL) {
 
           for (j = 0; j < origList.entries(); j++) {
             src1 = origList[j];
-            Int32 len = src1->getLen();
+            int len = src1->getLen();
 
             // If the source length is 0, then the source represents the result
             // of a previously computed hash instruction.  Otherwise, get the
@@ -10673,7 +10673,7 @@ void PCodeCfg::layoutNativeCode(Space *showplanSpace = NULL) {
           src1 = inst->getROps()[0]; 
           res = inst->getWOps()[0];
 
-          Int32 j, len = src1->getLen();
+          int j, len = src1->getLen();
 
           // Need to get pointers to operands
           src1JitVal = src1->getJitValue(this, f, jit_type_void_ptr, block);
@@ -10741,7 +10741,7 @@ void PCodeCfg::layoutNativeCode(Space *showplanSpace = NULL) {
           src1 = inst->getROps()[0];
           src2 = inst->getROps()[1];
 
-          Int32 len = src1->getLen();
+          int len = src1->getLen();
 
           // Need to get pointers to operands
           src1JitVal = src1->getJitValue(this, f, src1->getJitType(), block);
@@ -10810,7 +10810,7 @@ void PCodeCfg::layoutNativeCode(Space *showplanSpace = NULL) {
         case PCIT::OPDATA_MATTR5_IBIN32S: {
           OPLIST opList = (inst->getWOps().entries() ? inst->getWOps() : inst->getROps());
 
-          Int32 index = (opc == PCIT::OPDATA_MPTR32_IBIN32S_IBIN32S)
+          int index = (opc == PCIT::OPDATA_MPTR32_IBIN32S_IBIN32S)
                             ? inst->code[4]
                             : ((opc == PCIT::OPDATA_MATTR5_IBIN32S) ? inst->code[6] : inst->code[3]);
 
@@ -10957,10 +10957,10 @@ void PCodeCfg::layoutNativeCode(Space *showplanSpace = NULL) {
                       // true block or not.  Assume "not" by default.
                       NABoolean dumpTrueBlockFirst = TRUE;  // May change later
 
-                      Int32 size = (clause->getOperand(1))->getLength();
+                      int size = (clause->getOperand(1))->getLength();
 
                       // Cycle through each field in the date-related struct.
-                      Int32 typeSize = 0;
+                      int typeSize = 0;
                       for (i = 0; i < size; i += typeSize) {
                         jit_type_t type;
 
@@ -11091,7 +11091,7 @@ void PCodeCfg::layoutNativeCode(Space *showplanSpace = NULL) {
           jit_label_t legitStartLabel = jit_label_undefined;
           jit_label_t startCopyLabel = jit_label_undefined;
           jit_label_t doneLabel = jit_label_undefined;
-          Int32 startPos, totalLen=0, forLen=0;
+          int startPos, totalLen=0, forLen=0;
 
           // Get operands
           src1 = inst->getROps()[0];
@@ -11171,7 +11171,7 @@ void PCodeCfg::layoutNativeCode(Space *showplanSpace = NULL) {
           }
           else {
             // Do compile-time checks here, and then generate copy to completion
-            Int32 maxLen = src1->getLen();
+            int maxLen = src1->getLen();
             if (startPos > maxLen)
               totalLen = 0;
             else {
@@ -11291,7 +11291,7 @@ void PCodeCfg::layoutNativeCode(Space *showplanSpace = NULL) {
           jit_label_t loopLabel = jit_label_undefined;
           jit_label_t endLabel = jit_label_undefined;
           jit_label_t noChangeLabel = jit_label_undefined;
-          Int32 subOpc = inst->code[11];
+          int subOpc = inst->code[11];
 
           src1 = inst->getROps()[0];
           res = inst->getWOps()[0];
@@ -11400,7 +11400,7 @@ void PCodeCfg::layoutNativeCode(Space *showplanSpace = NULL) {
   if (debug) jit_dump_function(stdout, f, "IL:");
 
   // Compile the function
-  Int32 size = jit_function_compile(f);
+  int size = jit_function_compile(f);
 
   // Get entry point into function and add code into constants array
   ex_expr::evalPtrType entry = (ex_expr::evalPtrType)jit_function_to_closure(f);
@@ -11421,7 +11421,7 @@ void PCodeCfg::layoutNativeCode(Space *showplanSpace = NULL) {
     char line[256];
     char *linePtr;
     char fileName[50];
-    Int32 i;
+    int i;
 
     // Indicates how much to indent each line.
     const int INDENT_START = 4;
@@ -11458,7 +11458,7 @@ void PCodeCfg::layoutNativeCode(Space *showplanSpace = NULL) {
 
       // Remove newline char (if exists) since call to insert into space object
       // automatically puts in a newline character.
-      Int32 len = str_len(line);
+      int len = str_len(line);
       if ((len >= 1) && (line[len - 1] = '\n')) {
         len--;
         line[len] = 0;

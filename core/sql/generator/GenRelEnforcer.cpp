@@ -216,35 +216,35 @@ short Exchange::codeGenForESP(Generator *generator) {
   ////////////////////////////////////////////////////////////////////////////
 
   // work atp of split top node
-  const Int32 mergeTuppAtp = 1;       // work atp
-  const Int32 mergeTuppAtpIndex = 2;  // after consts and temps
-  const Int32 inputPartNoAtp = 1;     // work ATP
-  const Int32 inputPartNoAtpIndex = mergeTuppAtpIndex + 1;
-  const Int32 splitTopWorkTupps = inputPartNoAtpIndex + 1;
+  const int mergeTuppAtp = 1;       // work atp
+  const int mergeTuppAtpIndex = 2;  // after consts and temps
+  const int inputPartNoAtp = 1;     // work ATP
+  const int inputPartNoAtpIndex = mergeTuppAtpIndex + 1;
+  const int splitTopWorkTupps = inputPartNoAtpIndex + 1;
 
   // work atp of send top node
-  const Int32 downTuppAtp = 1;       // work atp
-  const Int32 downTuppAtpIndex = 2;  // after consts and temps
-  const Int32 sendTopWorkTupps = downTuppAtpIndex + 1;
+  const int downTuppAtp = 1;       // work atp
+  const int downTuppAtpIndex = 2;  // after consts and temps
+  const int sendTopWorkTupps = downTuppAtpIndex + 1;
 
   // work atp of send bottom node
-  const Int32 returnTuppAtp = 1;       // work atp
-  const Int32 returnTuppAtpIndex = 2;  // after consts and temps
-  const Int32 sendBottomWorkTupps = returnTuppAtpIndex + 1;
+  const int returnTuppAtp = 1;       // work atp
+  const int returnTuppAtpIndex = 2;  // after consts and temps
+  const int sendBottomWorkTupps = returnTuppAtpIndex + 1;
 
   // work atp of split bottom node
-  const Int32 partInputTuppAtpIndex = 2;  // after consts and temps
-  const Int32 outputPartNoAtp = 1;        // work ATP
-  const Int32 outputPartNoAtpIndex = partInputTuppAtpIndex + 1;
-  const Int32 conversionErrorAtp = 1;  // work ATP
-  const Int32 conversionErrorAtpIndex = outputPartNoAtpIndex + 1;
-  const Int32 splitBottomWorkTupps = conversionErrorAtpIndex + 1;
+  const int partInputTuppAtpIndex = 2;  // after consts and temps
+  const int outputPartNoAtp = 1;        // work ATP
+  const int outputPartNoAtpIndex = partInputTuppAtpIndex + 1;
+  const int conversionErrorAtp = 1;  // work ATP
+  const int conversionErrorAtpIndex = outputPartNoAtpIndex + 1;
+  const int splitBottomWorkTupps = conversionErrorAtpIndex + 1;
 
   // child of split bottom node
-  const Int32 espChildAtp = 0;            // main ATP
-  const Int32 espChildInputAtpIndex = 2;  // after const and temp
-  const Int32 espChildPartInpAtpIndex = espChildInputAtpIndex + 1;
-  const Int32 espChildWorkTupps = espChildPartInpAtpIndex + 1;
+  const int espChildAtp = 0;            // main ATP
+  const int espChildInputAtpIndex = 2;  // after const and temp
+  const int espChildPartInpAtpIndex = espChildInputAtpIndex + 1;
+  const int espChildWorkTupps = espChildPartInpAtpIndex + 1;
 
   ex_cri_desc *given_cri_desc = generator->getCriDesc(Generator::DOWN);
 
@@ -320,8 +320,8 @@ short Exchange::codeGenForESP(Generator *generator) {
   int numSkewHashValues = 0;
   long *skewHashValues = NULL;
   SplitBottomSkewInfo *skewInfo = NULL;
-  Int32 initialRoundRobin = 0;
-  Int32 finalRoundRobin = numTopEsps - 1;
+  int initialRoundRobin = 0;
+  int finalRoundRobin = numTopEsps - 1;
 
   generator->incrEspLevel();
 
@@ -853,7 +853,7 @@ short Exchange::codeGenForESP(Generator *generator) {
 
                   numSkewHashValues = 10000;     
                   skewHashValues = new (space) long[numSkewHashValues];
-                  for (Int32 sv = 0; sv < numSkewHashValues; sv++)
+                  for (int sv = 0; sv < numSkewHashValues; sv++)
                     skewHashValues[sv] = (long) sv;
                   skewInfo = new (space) 
                       SplitBottomSkewInfo(numSkewHashValues, skewHashValues);
@@ -872,7 +872,7 @@ short Exchange::codeGenForESP(Generator *generator) {
 
             skewHashValues = new (space) long[numSkewHashValues];
 
-            for (Int32 sv = 0; sv < numSkewHashValues; sv++) skewHashValues[sv] = (*partFuncSkewedValues)[sv];
+            for (int sv = 0; sv < numSkewHashValues; sv++) skewHashValues[sv] = (*partFuncSkewedValues)[sv];
 
             skewInfo = new (space) SplitBottomSkewInfo(numSkewHashValues, skewHashValues);
           }
@@ -889,7 +889,7 @@ short Exchange::codeGenForESP(Generator *generator) {
             broadcastSkew = FALSE;
           srand((UInt32)JULIANTIMESTAMP(3));
           initialRoundRobin = rand() % numTopEsps;
-          Int32 antiSkewESPs = skpf->getSkewProperty().getAntiSkewESPs();
+          int antiSkewESPs = skpf->getSkewProperty().getAntiSkewESPs();
           if (antiSkewESPs <= 0) {
             // For hash join, make sure all consumer ESPs get the
             // the skewed value rows.
@@ -1018,7 +1018,7 @@ short Exchange::codeGenForESP(Generator *generator) {
     splitBottom->setAbendType((int)CmpCommon::getDefaultNumeric(COMP_INT_39));
     double cpuLimitCheckFreq = CmpCommon::getDefaultNumeric(COMP_INT_48);
     if (cpuLimitCheckFreq > SHRT_MAX) cpuLimitCheckFreq = SHRT_MAX;
-    splitBottom->setCpuLimitCheckFreq((Int32)cpuLimitCheckFreq);
+    splitBottom->setCpuLimitCheckFreq((int)cpuLimitCheckFreq);
 
     // tell the tdb whether we collect statistics or not
     if (generator->computeStats()) {
@@ -1277,7 +1277,7 @@ short Exchange::codeGenForESP(Generator *generator) {
   // use the same tag. When EXPLAIN is enabled the tag can be the
   // EXPLAIN ID. Otherwise we use an integer unique within this plan.
   if (thisExchangeUsesSM) {
-    Int32 smTag = generator->getExplainNodeId();
+    int smTag = generator->getExplainNodeId();
     if (generator->explainDisabled()) smTag = generator->getNextSMTag();
     sendTop->setSMTag(smTag);
     sendBottom->setSMTag(smTag);

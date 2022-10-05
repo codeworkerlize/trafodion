@@ -68,8 +68,8 @@ ComTdbUnion::ComTdbUnion(ComTdb *left_tdb, ComTdb *right_tdb, ex_expr *left_expr
                          const unsigned short tupp_index, ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc,
                          queue_index down, queue_index up, Cardinality estimatedRowCount, int num_buffers,
                          ULng32 buffer_size, NABoolean ordered_union,
-                         Int32 blocked_union,  //++ Triggers -
-                         Int32 hasNoOutput,    //++ Triggers -
+                         int blocked_union,  //++ Triggers -
+                         int hasNoOutput,    //++ Triggers -
                          NABoolean rowsFromLeft, NABoolean rowsFromRight, NABoolean afterUpdate,
                          NABoolean inNotAtomicStmt)
     : ComTdb(ComTdb::ex_UNION, eye_UNION, estimatedRowCount, given_cri_desc, returned_cri_desc, down, up, num_buffers,
@@ -115,7 +115,7 @@ ComTdbUnion::ComTdbUnion(ComTdb *left_tdb, ComTdb *right_tdb, ex_expr *left_expr
 
 ComTdbUnion::~ComTdbUnion() {}
 
-Int32 ComTdbUnion::numChildren() const { return ((tdbRight_ == (ComTdbPtr)NULL) ? 1 : 2); }
+int ComTdbUnion::numChildren() const { return ((tdbRight_ == (ComTdbPtr)NULL) ? 1 : 2); }
 
 // exclude from code coverage since this is used only GUI
 void ComTdbUnion::display() const {};
@@ -142,7 +142,7 @@ int ComTdbUnion::unpack(void *base, void *reallocator) {
   return ComTdb::unpack(base, reallocator);
 }
 
-ex_expr *ComTdbUnion::getExpressionNode(Int32 pos) {
+ex_expr *ComTdbUnion::getExpressionNode(int pos) {
   if (pos == 0)
     return leftExpr_;
   else if (pos == 1)
@@ -157,7 +157,7 @@ ex_expr *ComTdbUnion::getExpressionNode(Int32 pos) {
     return NULL;
 }
 
-const char *ComTdbUnion::getExpressionName(Int32 pos) const {
+const char *ComTdbUnion::getExpressionName(int pos) const {
   if (pos == 0)
     return "leftExpr_";
   else if (pos == 1)

@@ -299,7 +299,7 @@ short ExSampleTcb::work() {
             // the sampling factor.
             //
             ex_expr::exp_return_type retCode = ex_expr::EXPR_TRUE;
-            Int32 samplingFactor = 1;
+            int samplingFactor = 1;
             if (balanceExpr()) {
               retCode = balanceExpr()->eval(centry->getAtp(), centry->getAtp());
 

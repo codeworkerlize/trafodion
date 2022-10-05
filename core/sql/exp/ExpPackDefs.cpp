@@ -92,13 +92,13 @@ void ex_expr_lean::convAddrToOffsetInPCode(void *space) {
   PCodeBinary *pcode = getPCodeBinary();
   if (!pcode) return;
 
-  Int32 length = *(pcode++);
+  int length = *(pcode++);
   pcode += (2 * length);
 
   while (pcode[0] != PCIT::END) {
-    Int32 addrBuf[6];
-    Int32 *addrs = PCode::getEmbeddedAddresses(pcode[0], addrBuf);
-    for (Int32 i = 0; addrs[i] > 0; i++) {
+    int addrBuf[6];
+    int *addrs = PCode::getEmbeddedAddresses(pcode[0], addrBuf);
+    for (int i = 0; addrs[i] > 0; i++) {
       pcode[addrs[i]] = ((Space *)space)->convertToOffset((char *)*(Long *)&(pcode[addrs[i]]));
 #ifndef NA_LITTLE_ENDIAN
       // swapInt64((char*)(&(pcode[addrs[i]])));
@@ -437,15 +437,15 @@ void ex_expr_lean::convOffsetToAddrInPCode(void *base) {
   if (!pcode) return;
 
   // skip over the ATP's
-  Int32 length = *(pcode++);
+  int length = *(pcode++);
   pcode += (2 * length);
 
   while (pcode[0] != PCIT::END) {
-    Int32 addrBuf[6];
-    Int32 *addrs = PCode::getEmbeddedAddresses(pcode[0], addrBuf);
-    for (Int32 i = 0; addrs[i] > 0; i++) {
+    int addrBuf[6];
+    int *addrs = PCode::getEmbeddedAddresses(pcode[0], addrBuf);
+    for (int i = 0; addrs[i] > 0; i++) {
 #ifndef NA_LITTLE_ENDIAN
-      // swapInt32((Int32*)(&(pcode[addrs[i]])));
+      // swapInt32((int*)(&(pcode[addrs[i]])));
 #endif
       setPtrAsPCodeBinary(pcode, addrs[i], (Long)base - GetPCodeBinaryAsPtr(pcode, addrs[i]));
     }

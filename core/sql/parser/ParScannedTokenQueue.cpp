@@ -47,7 +47,7 @@
 //
 
 ParScannedTokenQueue::ParScannedTokenQueue() : currentPos_(-1) {
-  for (Int32 i = 0; i < getQueueSize(); i++) {
+  for (int i = 0; i < getQueueSize(); i++) {
     scannedTokens_[i].tokenStrPos = 0;
     scannedTokens_[i].tokenStrLen = 0;
     scannedTokens_[i].tokenStrInputLen = 0;
@@ -85,12 +85,12 @@ void ParScannedTokenQueue::updateInputLen(const size_t tokenStrInputLen) {
 // accessor
 
 const ParScannedTokenQueue::scannedTokenInfo &ParScannedTokenQueue::getScannedTokenInfo(
-    const Int32 tokenInfoIndex) const {
+    const int tokenInfoIndex) const {
   ComASSERT(tokenInfoIndex <= 0 AND getQueueSize() > -tokenInfoIndex);
   return scannedTokens_[(currentPos_ + getQueueSize() + tokenInfoIndex) % getQueueSize()];
 }
 
-ParScannedTokenQueue::scannedTokenInfo *ParScannedTokenQueue::getScannedTokenInfoPtr(const Int32 tokenInfoIndex) {
+ParScannedTokenQueue::scannedTokenInfo *ParScannedTokenQueue::getScannedTokenInfoPtr(const int tokenInfoIndex) {
   ComASSERT(tokenInfoIndex <= 0 AND getQueueSize() > -tokenInfoIndex);
   return &scannedTokens_[(currentPos_ + getQueueSize() + tokenInfoIndex) % getQueueSize()];
 }

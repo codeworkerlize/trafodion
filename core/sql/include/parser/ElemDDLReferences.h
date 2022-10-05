@@ -71,7 +71,7 @@ class ElemDDLReferences : public ElemDDLNode {
   virtual ElemDDLReferences *castToElemDDLReferences();
 
   // accessors
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
   virtual ExprNode *getChild(int index);
   inline ElemDDLNode *getReferencedColumns() const;
 

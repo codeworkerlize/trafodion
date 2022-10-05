@@ -40,7 +40,7 @@ class CmpProcess {
   // getters
   inline short getNodeNum() { return nodeNum_; }
   inline short getPin() { return pin_; }
-  inline Int32 getSegmentNum() { return segmentNum_; }
+  inline int getSegmentNum() { return segmentNum_; }
   inline long getProcessStartTime() { return processStartTime_; }
 
   long getProcessDuration();
@@ -52,7 +52,7 @@ class CmpProcess {
  private:
   short nodeNum_;  // cpu num
   short pin_;
-  Int32 segmentNum_;
+  int segmentNum_;
   //
   // timestamp for when this CmpProcess was created
   long processStartTime_;

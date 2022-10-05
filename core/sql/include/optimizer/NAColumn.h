@@ -383,9 +383,9 @@ class NAColumn : public NABasicObject {
   short &lobNum() { return lobNum_; }
   ComLobsStorageType &lobStorageType() { return lobStorageType_; }
   char *&lobStorageLocation() { return lobStorageLocation_; }
-  Int32 &lobInlinedDataMaxLen() { return lobInlinedDataMaxLen_; }
+  int &lobInlinedDataMaxLen() { return lobInlinedDataMaxLen_; }
   long &lobHbaseDataMaxLen() { return lobHbaseDataMaxLen_; }
-  Int32 &lobChunkMaxLen() { return lobChunkMaxLen_; }
+  int &lobChunkMaxLen() { return lobChunkMaxLen_; }
 
   void setIndexColName(const char *idxName) { indexColName_ = idxName; }
   const NAString &getIndexColName() const { return (indexColName_.isNull() ? getColName() : indexColName_); }
@@ -466,7 +466,7 @@ class NAColumn : public NABasicObject {
   // or a primary key
   // (a PK column is also a CLUSTERING KEY col only for NONDROPPABLE PK's).
   // ---------------------------------------------------------------------
-  Int32 keyKind_;
+  int keyKind_;
 
   // ---------------------------------------------------------------------
   // Indicates whether this is a CLUSTERING KEY column
@@ -561,9 +561,9 @@ class NAColumn : public NABasicObject {
   short lobNum_;
   ComLobsStorageType lobStorageType_;
   char *lobStorageLocation_;
-  Int32 lobInlinedDataMaxLen_;
+  int lobInlinedDataMaxLen_;
   long lobHbaseDataMaxLen_;
-  Int32 lobChunkMaxLen_;
+  int lobChunkMaxLen_;
 
   NAString indexColName_;
 
@@ -613,7 +613,7 @@ class NAColumnArray : public LIST(NAColumn *) {
   // ---------------------------------------------------------------------
   void insertAt(CollIndex index, NAColumn *newColumn);
   void insert(NAColumn *newColumn) { insertAt(entries(), newColumn); }
-  void insertArray(const NAColumnArray &src, Int32 tgtPosition = -1, Int32 srcStartPosition = 0, Int32 numEntries = -1);
+  void insertArray(const NAColumnArray &src, int tgtPosition = -1, int srcStartPosition = 0, int numEntries = -1);
   void removeAt(CollIndex start, CollIndex numEntries = 1);
 
   // ---------------------------------------------------------------------
@@ -649,18 +649,18 @@ class NAColumnArray : public LIST(NAColumn *) {
   // return
   //    i (i>=0) if the column is found in the array via NAColumn::operator==
   //    -1 if the column is not found in the array
-  Int32 getColumnPosition(NAColumn &) const;
+  int getColumnPosition(NAColumn &) const;
 
-  Int32 getColumnPosition(const NAString &) const;
+  int getColumnPosition(const NAString &) const;
 
-  Int32 getIdentityColumnPosition() const;
+  int getIdentityColumnPosition() const;
 
   // get total storage size (aggregated over each element)
-  Int32 getTotalStorageSize() const;
+  int getTotalStorageSize() const;
 
   // get total storage size (aggregated over each element), but exclude
   // character type columns
-  Int32 getTotalStorageSizeForNonChars() const;
+  int getTotalStorageSizeForNonChars() const;
 
   // For Trafodion tables column qualifier is an unsigned
   // numeric > 0. This method is used during alter table add

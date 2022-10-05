@@ -312,7 +312,7 @@ void RETDesc::addColumnDesc(BindWA *bindWA, const ColRefName &colRefName, const 
   // efficient in runtime for this most common codepath.
 
   NAString cat, sch, tbl;
-  Int32 defaultMatch = corrName.extractAndDefaultNameParts(bindWA, bindWA->getDefaultSchema(), cat, sch, tbl);
+  int defaultMatch = corrName.extractAndDefaultNameParts(bindWA, bindWA->getDefaultSchema(), cat, sch, tbl);
 
   ColRefName *cstColRefName = NULL, *stColRefName = NULL, *tColRefName = NULL;
   const ColRefName *canonicalColRefName;
@@ -422,7 +422,7 @@ void RETDesc::delColumnDesc(BindWA *bindWA, const ColRefName &colRefName, Column
   if (corrName == "") return;
 
   NAString cat, sch, tbl;
-  Int32 defaultMatch = corrName.extractAndDefaultNameParts(bindWA, bindWA->getDefaultSchema(), cat, sch, tbl);
+  int defaultMatch = corrName.extractAndDefaultNameParts(bindWA, bindWA->getDefaultSchema(), cat, sch, tbl);
 
   ColRefName cstColRefName(simpleColNameStr, CorrName(tbl, bindWA->wHeap(), sch, cat));
   ColRefName stColRefName(simpleColNameStr, CorrName(tbl, bindWA->wHeap(), sch));

@@ -163,7 +163,7 @@ class Join : public RelExpr {
   virtual ~Join() {}
 
   // get the degree of this node (it is a binary op).
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   // append an ascii-version of RelExpr into cachewa.qryText_
   virtual void generateCacheKey(CacheWA &cwa) const;
@@ -595,7 +595,7 @@ class Join : public RelExpr {
 
   // use only after phys props have been synthesized
   // and expression is no longer in MEMO
-  Int32 getParallelJoinType(ParallelJoinTypeDetail *optionalDetail = NULL) const;
+  int getParallelJoinType(ParallelJoinTypeDetail *optionalDetail = NULL) const;
 
   // special handling for the case values are to be instantiated.
   short instantiateValuesForLeftJoin(Generator *generator, short atp, short atp_index, ex_expr **lj_expr,
@@ -796,7 +796,7 @@ class Join : public RelExpr {
   NABoolean singleColumnjoinPredOKforSB(ValueIdSet &joinPreds);
   NABoolean multiColumnjoinPredOKforSB(ValueIdSet &joinPreds);
 
-  NABoolean assignRTStats(NAArray<long> &rtStats, Int32 &order);
+  NABoolean assignRTStats(NAArray<long> &rtStats, int &order);
 
  private:
   // ---------------------------------------------------------------------
@@ -1437,7 +1437,7 @@ class HashJoin : public Join {
 
   inline NABoolean isReuse() { return reuse_; }
   inline void setReuse(NABoolean reuse) { reuse_ = reuse; }
-  inline Int32 &multipleCalls() { return multipleCalls_; }
+  inline int &multipleCalls() { return multipleCalls_; }
   inline NABoolean isOrderedCrossProduct() { return isOrderedCrossProduct_; }
   inline void setIsOrderedCrossProduct(NABoolean flag) { isOrderedCrossProduct_ = flag; }
   inline NABoolean returnRightOrdered() { return returnRightOrdered_; }
@@ -1547,7 +1547,7 @@ class HashJoin : public Join {
   // the inner table is called only once and this indicates a FULL REUSE.
   // If multipleCalls is TRUE (which is default), there could be only partial
   // and conditional REUSE (if the incoming oprobes are sorted).
-  Int32 multipleCalls_;
+  int multipleCalls_;
 
   // This HashJoin is used to implement an order-preserving cross-product.
   // It has the property of being ordered as (left child order, right child order).

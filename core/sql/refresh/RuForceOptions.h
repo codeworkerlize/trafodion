@@ -151,7 +151,7 @@ class REFRESH_LIB_CLASS CRUMVForceOptions {
 
   const CRUTableForceOptionsList &GetTableForceList() { return *pTablesList_; }
 
-  const Int32 GetNumOfTables() const { return pTablesList_->GetCount(); }
+  const int GetNumOfTables() const { return pTablesList_->GetCount(); }
 
   BOOL IsTableStarUsed() const { return usedTableStarOption_ != CRUForceOptions::MDAM_NO_FORCE; }
 

@@ -237,12 +237,12 @@ class CliGlobals : public NAAssertGlobals {
   inline void setLogReclaimEventDone(NABoolean x) { logReclaimEventDone_ = x; };
 
   char *myNodeName() { return myNodeName_; }
-  Int32 myCpu() { return myCpu_; };
-  Int32 myPin() { return myPin_; };
+  int myCpu() { return myCpu_; };
+  int myPin() { return myPin_; };
   SB_Verif_Type myVerifier() const { return myVerifier_; }
 
-  Int32 myAncestorNid() { return myAncestorNid_; };
-  Int32 myAncestorPid() { return myAncestorPid_; };
+  int myAncestorNid() { return myAncestorNid_; };
+  int myAncestorPid() { return myAncestorPid_; };
 
   int myNodeNumber() { return myNodeNumber_; };
   long myStartTime() { return myStartTime_; };
@@ -281,8 +281,8 @@ class CliGlobals : public NAAssertGlobals {
 
   char *myProcessNameString() { return myProcessNameString_; }
   char *myParentProcessNameString() { return parentProcessNameString_; }
-  Int32 getSharedMemId() { return shmId_; }
-  void setSharedMemId(Int32 shmId) { shmId_ = shmId; }
+  int getSharedMemId() { return shmId_; }
+  void setSharedMemId(int shmId) { shmId_ = shmId; }
 
   void initMyProgName();
   char *myProgName() { return myProgName_; }
@@ -393,7 +393,7 @@ class CliGlobals : public NAAssertGlobals {
   short savedCompilerVersion_;  // saved version from previous CLI call
   // node, cpu and pin this process is running at.
   char myNodeName_[8];
-  Int32 myCpu_;
+  int myCpu_;
   SB_Verif_Type myVerifier_;
   pid_t myPin_;
   int myNodeNumber_;
@@ -431,7 +431,7 @@ class CliGlobals : public NAAssertGlobals {
                              // constructed. CliGlobals is constructed outside of CLI
                              // calls and no. of cliCalls is not yet incremented
   short savedPriority_;
-  Int32 shmId_;
+  int shmId_;
   NABoolean isUncProcess_;
   char myProcessNameString_[PROCESSNAME_STRING_LEN];  // PROCESSNAME_STRING_LEN in ComRtUtils.h =40 in ms.h the equiv
                                                       // seabed limit is 32

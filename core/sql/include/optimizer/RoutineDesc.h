@@ -110,7 +110,7 @@ class RoutineDesc : public NABasicObject {
   // Accessor functions
   // ---------------------------------------------------------------------
   //! getInvocationNum accessor function
-  inline const Int32 &getInvocationNum() const { return invocationNum_; }
+  inline const int &getInvocationNum() const { return invocationNum_; }
 
   //! getActionQualifiedNameObj accessor function
   inline const NAString &getActionNameAsGiven() const { return actionNameAsGiven_; }
@@ -119,10 +119,10 @@ class RoutineDesc : public NABasicObject {
   inline NAString &getActionNameAsGiven() { return actionNameAsGiven_; }
 
   //! getInvocationNum accessor function
-  inline const Int32 getDigits() const { return digits_; }
+  inline const int getDigits() const { return digits_; }
 
   //! getLocale accessor function
-  inline const Int32 &getLocale() const { return locale_; }
+  inline const int &getLocale() const { return locale_; }
 
   //! getNARoutine accessor function
   inline NARoutine *getNARoutine() const { return routine_; }
@@ -228,7 +228,7 @@ class RoutineDesc : public NABasicObject {
   inline SimpleCostVector &getUdfNormalRowCostVector() { return udfNormalRowCost_; }
 
   //! getUDFFanOut accessor function
-  inline Int32 &getUdfFanOut() { return udfFanOut_; }
+  inline int &getUdfFanOut() { return udfFanOut_; }
 
   //! getActionOutParamColStatDescList accessor function
   //  returns a pointer to a StatsList holding UEC values for each
@@ -242,7 +242,7 @@ class RoutineDesc : public NABasicObject {
   inline SimpleCostVector &getActionNormalRowCostVector() { return actionNormalRowCost_; }
 
   //! getActionFanOut accessor function
-  inline Int32 &getActionFanOut() { return actionFanOut_; }
+  inline int &getActionFanOut() { return actionFanOut_; }
 
   //! getEffOutParamColStatDescList accessor function
   //  returns a pointer to a StatsList holding UEC values for each
@@ -262,7 +262,7 @@ class RoutineDesc : public NABasicObject {
   }
 
   //! getEffFanOut accessor function
-  inline Int32 &getEffFanOut() { return isUUDF_ == FALSE ? udfFanOut_ : actionFanOut_; }
+  inline int &getEffFanOut() { return isUUDF_ == FALSE ? udfFanOut_ : actionFanOut_; }
 
   // ---------------------------------------------------------------------
   // Mutator functions
@@ -274,15 +274,15 @@ class RoutineDesc : public NABasicObject {
 
   //! setDigits mutator function
   //  sets the digits for a SAS_PUT Action
-  inline void setDigits(const Int32 digits) { digits_ = digits; }
+  inline void setDigits(const int digits) { digits_ = digits; }
 
   //! setLocale mutator function
   //  sets the locale string for a SAS_PUT Action
-  inline void setLocale(const Int32 locale) { locale_ = locale; }
+  inline void setLocale(const int locale) { locale_ = locale; }
 
   //! setInvocationNum mutator function
   //  sets the invocation number of the Routine
-  inline void setInvocationNum(const Int32 invocationNum) { invocationNum_ = invocationNum; }
+  inline void setInvocationNum(const int invocationNum) { invocationNum_ = invocationNum; }
 
   //! setNARoutine mutator function
   //  sets the pointer to the Routine's NARoutine
@@ -344,14 +344,14 @@ class RoutineDesc : public NABasicObject {
   //! processRoutineCosting mutator function
   // copies the cost data from the NARoutine to the routineDesc and
   // applies DEFAULTS if necessary.
-  void processRoutineCosting(SimpleCostVector *initial, SimpleCostVector *normal, Int32 *fanOut, NARoutine *routine);
+  void processRoutineCosting(SimpleCostVector *initial, SimpleCostVector *normal, int *fanOut, NARoutine *routine);
 
   // ---------------------------------------------------------------------
   //! The routine invocation number
   //    This number is meant to be used to differentiate multiple
   //    instances of the same routine in the query.
   // ---------------------------------------------------------------------
-  Int32 invocationNum_;
+  int invocationNum_;
 
   // ---------------------------------------------------------------------
   //! The action name
@@ -364,12 +364,12 @@ class RoutineDesc : public NABasicObject {
   //    This number is meant to be used to drive different format outputs
   //    for SAS_PUT
   // ---------------------------------------------------------------------
-  Int32 digits_;
+  int digits_;
 
   // ---------------------------------------------------------------------
   //! The optional locale information for an action
   // ---------------------------------------------------------------------
-  Int32 locale_;
+  int locale_;
 
   // ---------------------------------------------------------------------
   //! NARoutine object representing the Routine
@@ -441,11 +441,11 @@ class RoutineDesc : public NABasicObject {
   RoutineAnalysis *analysis_;
 
   // ---------------------------------------------------------------------
-  //! A Int32 to hold the fanout per routine instance. Needed
+  //! A int to hold the fanout per routine instance. Needed
   //  a per instance one since CQD defaults needed to be checked at bind time
   //  for each query, not just when the NARoutine was instantiated.
   // ---------------------------------------------------------------------
-  Int32 udfFanOut_;
+  int udfFanOut_;
 
   // ---------------------------------------------------------------------
   //! A ColStatsDesc actionOutColStatDescList_. Used to hold the UECs for
@@ -468,11 +468,11 @@ class RoutineDesc : public NABasicObject {
   SimpleCostVector actionNormalRowCost_;
 
   // ---------------------------------------------------------------------
-  //! A Int32 to hold the fanout per Action instance. Needed
+  //! A int to hold the fanout per Action instance. Needed
   //  a per instance one since CQD defaults needed to be checked at bind time
   //  for each query, not just when the NARoutine was instantiated.
   // ---------------------------------------------------------------------
-  Int32 actionFanOut_;
+  int actionFanOut_;
 };  // class RoutineDesc
 
 #endif /* ROUTINEDESC_H */

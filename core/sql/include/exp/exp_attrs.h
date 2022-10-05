@@ -82,7 +82,7 @@ class ExpDatetime;
 // static const UInt32 ExpOffsetMax = UINT_MAX;
 
 // Size of each VOA array entry for SQLMX_FORMAT and SQLMX_ALIGNED_FORMAT
-// static const UInt32 ExpVoaSize = sizeof(Int32);
+// static const UInt32 ExpVoaSize = sizeof(int);
 
 class Attributes : public NAVersionedObject {
  public:
@@ -208,13 +208,13 @@ class Attributes : public NAVersionedObject {
   UInt32 getOffset() { return offset_; }
 
   void setNullIndOffset(UInt32 o) { nullIndOffset_ = o; };
-  Int32 getNullIndOffset() { return nullIndOffset_; }
+  int getNullIndOffset() { return nullIndOffset_; }
 
   void setNullBitIndex(UInt32 bit) { nullBitIdx_ = (Int16)bit; };
   Int16 getNullBitIndex() { return nullBitIdx_; }
 
   void setVCLenIndOffset(UInt32 o) { vcLenIndOffset_ = o; };
-  Int32 getVCLenIndOffset() { return vcLenIndOffset_; }
+  int getVCLenIndOffset() { return vcLenIndOffset_; }
 
   void setVoaOffset(UInt32 i) { voaOffset_ = i; }
   UInt32 getVoaOffset() { return voaOffset_; }
@@ -222,8 +222,8 @@ class Attributes : public NAVersionedObject {
   void setRelOffset(UInt32 i) { relOffset_ = i; }
   UInt32 getRelOffset() { return relOffset_; }
 
-  Int32 getRowsetSize() { return rowsetSize_; };
-  void setRowsetSize(Int32 rowset_size) { rowsetSize_ = rowset_size; };
+  int getRowsetSize() { return rowsetSize_; };
+  void setRowsetSize(int rowset_size) { rowsetSize_ = rowset_size; };
 
   UInt32 getValId() { return valId_; }
   void setValId(UInt32 valId) { valId_ = valId; }
@@ -232,7 +232,7 @@ class Attributes : public NAVersionedObject {
   void setColName(const char *colName) {
     if (colName) {
       // if column name more than 100 then cut off at 100
-      Int32 len = MINOF(str_len(colName), MAX_COLNAME_LEN_DISPLAY);
+      int len = MINOF(str_len(colName), MAX_COLNAME_LEN_DISPLAY);
       str_cpy(colName_, colName, len, '\0');
       colName_[len] = 0;
     } else
@@ -298,12 +298,12 @@ class Attributes : public NAVersionedObject {
   void dontNeedDataAlignment();
 
   // is this data item always aligned correctly?
-  Int32 isNotAlwaysAligned();
+  int isNotAlwaysAligned();
   // what is the alignment of this item (1, 2, 4, 8 byte alignment)
-  Int32 getDataAlignmentSize() { return alignment_; }
-  void setDataAlignmentSize(Int32 a) { alignment_ = (Int16)a; }
+  int getDataAlignmentSize() { return alignment_; }
+  void setDataAlignmentSize(int a) { alignment_ = (Int16)a; }
 
-  Int32 isComplexType() { return flags_ & COMPLEX_TYPE; }
+  int isComplexType() { return flags_ & COMPLEX_TYPE; }
   Int16 isSimpleType() { return !(flags_ & COMPLEX_TYPE); }
 
   NABoolean isAddedCol() { return (flags_ & ADDED_COL) != 0; }
@@ -439,29 +439,29 @@ class Attributes : public NAVersionedObject {
   };
 
   // VIRTUAL functions
-  virtual Int32 getStorageLength();
-  virtual Int32 getDefaultValueStorageLength();
-  virtual Int32 getLength();
+  virtual int getStorageLength();
+  virtual int getDefaultValueStorageLength();
+  virtual int getLength();
   virtual Attributes *newCopy();
   virtual Attributes *newCopy(CollHeap *);
   virtual void copyAttrs(Attributes *source_);
 
   virtual Int16 getScale() { return -1; }
   virtual UInt16 getScaleAsUI() { return 0; }
-  virtual Int32 getPrecision() { return -1; }
+  virtual int getPrecision() { return -1; }
   virtual CharInfo::Collation getCollation() { return CharInfo::UNKNOWN_COLLATION; }
 
   virtual CharInfo::CharSet getCharSet() { return CharInfo::UnknownCharSet; }
 
   virtual Long pack(void *);
-  virtual Int32 unpack(void *, void *reallocator);
+  virtual int unpack(void *, void *reallocator);
 
   virtual void fixup(Space *space, char *constants_area, char *temps_area, char *persistent_area,
                      Int16 fixupConstsAndTemps = 0, NABoolean spaceCompOnly = FALSE);
 
   virtual void displayContents(ostream &out, Attributes *spAttrs = NULL);
 
-  virtual void displayContents(Space *space, Int32 operandNum, char *constsArea, Attributes *spAttrs);
+  virtual void displayContents(Space *space, int operandNum, char *constsArea, Attributes *spAttrs);
 
   // ---------------------------------------------------------------------
   // Perform type-safe pointer casts.
@@ -484,15 +484,15 @@ class Attributes : public NAVersionedObject {
   virtual char *findVTblPtr(Int16 classID);
   // ---------------------------------------------------------------------
 
-  static Int32 getFirstCharLength(const char *buf, Int32 buflen, CharInfo::CharSet cs);
+  static int getFirstCharLength(const char *buf, int buflen, CharInfo::CharSet cs);
 
-  static Int32 convertOffsetToChar(const char *buf, Int32 offset, CharInfo::CharSet cs);
+  static int convertOffsetToChar(const char *buf, int offset, CharInfo::CharSet cs);
 
-  static Int32 convertCharToOffset(const char *buf, Int32 numOfChar, Int32 maxBufLen, CharInfo::CharSet cs);
+  static int convertCharToOffset(const char *buf, int numOfChar, int maxBufLen, CharInfo::CharSet cs);
 
-  static Int32 getCharLengthInBuf(const char *buf, const char *endOfBuf, char *charLengthInBuf, CharInfo::CharSet cs);
+  static int getCharLengthInBuf(const char *buf, const char *endOfBuf, char *charLengthInBuf, CharInfo::CharSet cs);
 
-  static Int32 trimFillerSpaces(const char *buf, Int32 precision, Int32 maxBufLen, CharInfo::CharSet cs);
+  static int trimFillerSpaces(const char *buf, int precision, int maxBufLen, CharInfo::CharSet cs);
 
  private:
   enum flags_type {
@@ -541,9 +541,9 @@ class Attributes : public NAVersionedObject {
 
   UInt32 flags_;          // 12-15
   UInt32 flags2_;         // 16-19
-  Int32 offset_;          // 20-23
-  Int32 nullIndOffset_;   // 24-27
-  Int32 vcLenIndOffset_;  // 28-31
+  int offset_;          // 20-23
+  int nullIndOffset_;   // 24-27
+  int vcLenIndOffset_;  // 28-31
 
   // offset into VOA[]
   UInt32 voaOffset_;  // 32-35
@@ -554,7 +554,7 @@ class Attributes : public NAVersionedObject {
   // this is the next attribute index in disk order (only for SQLMX_FORMAT)
   UInt32 nextAttrIdx_;  // 40-43
 
-  Int32 rowsetSize_;  // 44-47
+  int rowsetSize_;  // 44-47
 
   Int16 atp_;       // 48-49
   Int16 atpindex_;  // 50-51
@@ -605,7 +605,7 @@ inline void Attributes::needDataAlignment() { flags_ |= DATA_ALIGNMENT_FLAG; }
 
 inline void Attributes::dontNeedDataAlignment() { flags_ &= ~DATA_ALIGNMENT_FLAG; }
 
-inline Int32 Attributes::isNotAlwaysAligned() { return (flags_ & DATA_ALIGNMENT_FLAG); }
+inline int Attributes::isNotAlwaysAligned() { return (flags_ & DATA_ALIGNMENT_FLAG); }
 
 ///////////////////////////////////////////////////////////////
 // class SimpleType
@@ -615,20 +615,20 @@ inline Int32 Attributes::isNotAlwaysAligned() { return (flags_ & DATA_ALIGNMENT_
 ///////////////////////////////////////////////////////////////
 class SimpleType : public Attributes {
  public:
-  SimpleType(int length, short scale, Int32 precision) : length_(length), scale_(scale), precision_(precision) {
+  SimpleType(int length, short scale, int precision) : length_(length), scale_(scale), precision_(precision) {
     setCollation(CharInfo::DefaultCollation);
     setClassID(SimpleTypeID);
     memset(fillers_, 0, sizeof(fillers_));
   }
 
-  SimpleType(int length, short scale, Int32 precision, short collation)
+  SimpleType(int length, short scale, int precision, short collation)
       : length_(length), scale_(scale), precision_(precision), collation_(collation) {
     setClassID(SimpleTypeID);
     memset(fillers_, 0, sizeof(fillers_));
   }
 
-  SimpleType(Int16 datatype, Int32 length, Int16 scale, Int32 precision, ExpTupleDesc::TupleDataFormat tdf,
-             Int32 alignment, Int16 nullFlag, Int16 nullIndicatorLen, Int16 vcIndicatorLen, DefaultClass defClass,
+  SimpleType(Int16 datatype, int length, Int16 scale, int precision, ExpTupleDesc::TupleDataFormat tdf,
+             int alignment, Int16 nullFlag, Int16 nullIndicatorLen, Int16 vcIndicatorLen, DefaultClass defClass,
              Int16 upshift) {
     setClassID(SimpleTypeID);
     setLength(length);
@@ -656,15 +656,15 @@ class SimpleType : public Attributes {
 
   ~SimpleType() {}
 
-  inline void setLength(Int32 length) { length_ = length; }
-  Int32 getLength() { return length_; }
+  inline void setLength(int length) { length_ = length; }
+  int getLength() { return length_; }
 
   inline void setScale(Int16 scale) { scale_ = scale; }
   Int16 getScale() { return scale_; }
   UInt16 getScaleAsUI() { return (UInt16)scale_; }
 
-  Int32 getPrecision() { return precision_; }
-  inline void setPrecision(Int32 precision) { precision_ = precision; }
+  int getPrecision() { return precision_; }
+  inline void setPrecision(int precision) { precision_ = precision; }
 
   // overload member scale_ to store the charset.
   void setCharSet(CharInfo::CharSet charSet) { scale_ = charSet; }
@@ -686,8 +686,8 @@ class SimpleType : public Attributes {
 
   void copyAttrs(Attributes *source_);  // copy source attrs to this.
 
-  Int32 getStorageLength() {
-    Int32 ret_length = length_;
+  int getStorageLength() {
+    int ret_length = length_;
 
     if (getNullFlag()) ret_length += getNullIndicatorLength();
 
@@ -701,8 +701,8 @@ class SimpleType : public Attributes {
   // (if applicable) followed by actual value.
   // Null bytes are always a fixed size independent of the actual data format.
   // Variable length may be 2 or 4 bytes depending on the actual data format.
-  Int32 getDefaultValueStorageLength() {
-    Int32 retLen = length_;
+  int getDefaultValueStorageLength() {
+    int retLen = length_;
 
     if (getNullFlag()) retLen += ExpTupleDesc::NULL_INDICATOR_LENGTH;
 
@@ -733,7 +733,7 @@ class SimpleType : public Attributes {
   // ---------------------------------------------------------------------
 
  private:
-  Int32 length_;  // 00-03
+  int length_;  // 00-03
   //----------------------------------------------------------------------
   // The orginal type of precision_ is UINT16.
   // but when using SimpleType to describe a VARCHAR type, precision_
@@ -755,7 +755,7 @@ class SimpleType : public Attributes {
   // This should not happen, because of the max size in bytes of
   // a char or varchar column is 16M.
   //----------------------------------------------------------------------
-  Int32 precision_;   // 04-07
+  int precision_;   // 04-07
   Int16 scale_;       // 08-09
   Int16 isoMapping_;  // 10-11
   Int16 collation_;   // 12-13
@@ -812,15 +812,15 @@ class ComplexType : public Attributes {
   // cast from a SimpleType
   virtual Int16 castFrom(Attributes *, char * /*op_data*/[], CollHeap *heap, ComDiagsArea **diagsArea) { return -1; }
 
-  virtual Int32 getStorageLength() { return -1; }
+  virtual int getStorageLength() { return -1; }
 
-  virtual Int32 getDefaultValueStorageLength() { return -1; }
+  virtual int getDefaultValueStorageLength() { return -1; }
 
-  virtual Int32 getLength() { return -1; }
+  virtual int getLength() { return -1; }
 
   virtual Int16 getScale() { return -1; }
 
-  virtual Int32 getPrecision() { return -1; }
+  virtual int getPrecision() { return -1; }
 
   virtual Attributes *newCopy() { return 0; }
 
@@ -839,7 +839,7 @@ class ComplexType : public Attributes {
   // return value.
   // Note that in some places the offset is overloaded as length when the
   // 3rd parameter is absent, see generator/GenItemExpr.cpp
-  virtual Int32 setTempSpaceInfo(OperatorTypeEnum, ULong /*offset*/, Int32 /*length*/ = 0) { return 0; }
+  virtual int setTempSpaceInfo(OperatorTypeEnum, ULong /*offset*/, int /*length*/ = 0) { return 0; }
 
   // ---------------------------------------------------------------------
   // Method for comparing if two Attributes are equal.
@@ -872,10 +872,10 @@ class ComplexType : public Attributes {
 
 class ShowplanAttributes : public Attributes {
  public:
-  ShowplanAttributes(Int32 valueId, char *text);
+  ShowplanAttributes(int valueId, char *text);
   ShowplanAttributes() {}
   ~ShowplanAttributes();
-  Int32 &valueId() { return valueId_; };
+  int &valueId() { return valueId_; };
   char *text() { return text_; };
 
   Attributes *newCopy();
@@ -895,7 +895,7 @@ class ShowplanAttributes : public Attributes {
   // ---------------------------------------------------------------------
 
  private:
-  Int32 valueId_;  // 00-03
+  int valueId_;  // 00-03
   char text_[56];  // 04-59
   // ---------------------------------------------------------------------
   // Fillers for potential future extensions without changing class size.

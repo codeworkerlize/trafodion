@@ -146,13 +146,13 @@ class REFRESH_LIB_CLASS CRUObject {
   void ReleaseDDLLock();
 
   void CreateDDLLock();
-  void CreateDDLLock(const CDDDetailTextList &details, CDSLocationList *locationList = NULL, Int32 status = 0);
+  void CreateDDLLock(const CDDDetailTextList &details, CDSLocationList *locationList = NULL, int status = 0);
 
  protected:
   virtual CDDLockList *GetDDLLockList() = 0;
 
   virtual CDDLock *AddDDLLock(CDSString lockName, CDDObject::EOperationType op, const CDDDetailTextList &details,
-                              CDSLocationList *locationList, Int32 status) = 0;
+                              CDSLocationList *locationList, int status) = 0;
 
   virtual void DropDDLLock(const CDSString &name) = 0;
 

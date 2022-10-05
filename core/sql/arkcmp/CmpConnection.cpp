@@ -65,7 +65,7 @@ void ArkcmpDelayExit() {
 }
 
 // myNAExit(status) does mxcmp finalization before calling NAExit(status)
-static void myNAExit(Int32 status) {
+static void myNAExit(int status) {
   CURRENTQCACHE->finalize("Dynamic ");
   NAExit(status);
 }
@@ -79,7 +79,7 @@ void ArkcmpErrorMessageBox(const char *msg, ArkcmpErrorSeverity sev, NABoolean d
   //	if (##running in our own window, not from a cmd shell##)
   //	{
 
-  static Int32 recursing = 0;
+  static int recursing = 0;
   // We will popup a msgbox if not out of memory
   NABoolean doMsgbox = (sev != NOMEM_SEV && !recursing);
   recursing++;
@@ -170,7 +170,7 @@ inline static void clearAndReset(ExCmpMessage *from) {
   if (SqlParser_NADefaults_Glob) SetSqlParser_DEFAULT_CHARSET(SqlParser_ORIG_DEFAULT_CHARSET);
 }
 
-static void sendErrorOnLongJump(CmpStatement *cmpStatement, ExCmpMessage *msg, Int32 errcode, CollHeap *heap) {
+static void sendErrorOnLongJump(CmpStatement *cmpStatement, ExCmpMessage *msg, int errcode, CollHeap *heap) {
   if (cmpStatement) {
     cmpStatement->exceptionRaised();
     if (errcode == MEMALLOC_FAILURE) {
@@ -208,7 +208,7 @@ void ExCmpMessage::actOnReceive(IpcConnection *) {
   jmp_buf oldBuf;
   memcpy(&oldBuf, ExportJmpBufPtr, sizeof(jmp_buf));
 
-  Int32 jRc = setjmp(ExportJmpBuf);
+  int jRc = setjmp(ExportJmpBuf);
   if (jRc) {
     // The jmp_buf has to be set back to the old one here,
     // so if there is an NAAssert in the IPC routines, it will
@@ -225,7 +225,7 @@ void ExCmpMessage::actOnReceive(IpcConnection *) {
 
   jmp_buf oldBuf2;
   memcpy(&oldBuf2, &CmpInternalErrorJmpBuf, sizeof(jmp_buf));
-  Int32 jRc2 = setjmp(CmpInternalErrorJmpBuf);
+  int jRc2 = setjmp(CmpInternalErrorJmpBuf);
   if (jRc2) {
     clearAndReset(this);
     if (stmtNewHandler_CharSave) {
@@ -475,7 +475,7 @@ CmpStatementISP *ExCmpMessage::getISPStatement(long id) {
 // Methods for CmpIpcEnvironment
 // -----------------------------------------------------------------------
 
-void CmpIpcEnvironment::initControl(IpcServerAllocationMethod allocMethod, Int32 sockArg, Int32 portArg) {
+void CmpIpcEnvironment::initControl(IpcServerAllocationMethod allocMethod, int sockArg, int portArg) {
   switch (allocMethod) {
     case IPC_LAUNCH_GUARDIAN_PROCESS:
     case IPC_SPAWN_OSS_PROCESS: {

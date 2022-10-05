@@ -48,7 +48,7 @@ struct ThreePartModuleName {
 class ExtQualModuleNames {
  public:
   // constructor
-  ExtQualModuleNames(char *argv[], Int32 startIndex, Int32 argc, const char *cat, const char *sch, const char *grp,
+  ExtQualModuleNames(char *argv[], int startIndex, int argc, const char *cat, const char *sch, const char *grp,
                      const char *tgt, const char *ver);
 
   // destructor
@@ -61,10 +61,10 @@ class ExtQualModuleNames {
   bool contains(std::string &moduleName);
 
   // return number of module names
-  Int32 count() { return modules_.size(); }
+  int count() { return modules_.size(); }
 
   // return ith externally qualified module name
-  const ThreePartModuleName &at(Int32 x) { return modules_.at(x); }
+  const ThreePartModuleName &at(int x) { return modules_.at(x); }
 
   static void usage();
 

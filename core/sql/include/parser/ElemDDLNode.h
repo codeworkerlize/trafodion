@@ -789,7 +789,7 @@ class ElemDDLNode : public ExprNode {
   // treats this node as an array (of one element).
   // Returns 1, the number of element in this array.
 
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   // gets the degree of this node (the number of
   // child parse node linking to this node).  If

@@ -73,15 +73,15 @@ class ComTdbGenericUtil : public ComTdb {
   virtual Long pack(void *);
   virtual int unpack(void *, void *reallocator);
 
-  Int32 orderedQueueProtocol() const;
+  int orderedQueueProtocol() const;
 
   ex_expr *inputExpr() { return inputExpr_; }
   ex_expr *outputExpr() { return outputExpr_; }
 
-  virtual Int32 numChildren() const { return 0; };
-  virtual Int32 numExpressions() const { return 2; };
-  virtual const ComTdb *getChild(Int32 child) const { return NULL; };
-  virtual ex_expr *getExpressionNode(Int32 pos) {
+  virtual int numChildren() const { return 0; };
+  virtual int numExpressions() const { return 2; };
+  virtual const ComTdb *getChild(int child) const { return NULL; };
+  virtual ex_expr *getExpressionNode(int pos) {
     switch (pos) {
       case 0:
         return (ex_expr *)inputExpr_.getPointer();
@@ -92,7 +92,7 @@ class ComTdbGenericUtil : public ComTdb {
     }
   }
 
-  virtual const char *getExpressionName(Int32 pos) const {
+  virtual const char *getExpressionName(int pos) const {
     switch (pos) {
       case 0:
         return "inputExpr_";
@@ -175,13 +175,13 @@ class ComTdbDDL : public ComTdbGenericUtil {
 
   virtual const char *getNodeName() const { return "EX_DDL"; };
 
-  static Int32 getVirtTableNumCols() { return sizeof(ddlVirtTableColumnInfo) / sizeof(ComTdbVirtTableColumnInfo); }
+  static int getVirtTableNumCols() { return sizeof(ddlVirtTableColumnInfo) / sizeof(ComTdbVirtTableColumnInfo); }
 
   static ComTdbVirtTableColumnInfo *getVirtTableColumnInfo() {
     return (ComTdbVirtTableColumnInfo *)ddlVirtTableColumnInfo;
   }
 
-  static Int32 getVirtTableNumKeys() { return 0; }
+  static int getVirtTableNumKeys() { return 0; }
 
   static ComTdbVirtTableKeyInfo *getVirtTableKeyInfo() { return NULL; }
 

@@ -266,7 +266,7 @@ NABoolean RoutineDesc::createRoutineParam(BindWA *bindWA, CollIndex i, NARoutine
   if (bindWA->errStatus()) return FALSE;
 
   const char *colName = routineParam->getName();
-  const Int32 nameLen = routineParam->getName().length();
+  const int nameLen = routineParam->getName().length();
 
   UInt32 numUecs = routine->getUecValues().entries();
   HistogramSharedPtr emptyHist(new (HISTHEAP) Histogram(HISTHEAP));
@@ -348,7 +348,7 @@ NABoolean RoutineDesc::populateRoutineDesc(BindWA *bindWA, NABoolean createRETDe
 // copied over from the NARoutine and we apply DEFAULTs to them if they
 // are out of range.
 // -----------------------------------------------------------------------
-void RoutineDesc::processRoutineCosting(SimpleCostVector *initial, SimpleCostVector *normal, Int32 *fanOut,
+void RoutineDesc::processRoutineCosting(SimpleCostVector *initial, SimpleCostVector *normal, int *fanOut,
                                         NARoutine *routine) {
   if (routine == NULL) return;
 

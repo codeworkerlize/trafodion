@@ -216,8 +216,8 @@ class ExCatpoundStmtTcb : public ex_tcb {
   void freeResources() {}
   void registerSubtasks();
 
-  virtual const ex_tcb *getChild(Int32 pos) const;
-  virtual Int32 numChildren() const { return 2; }
+  virtual const ex_tcb *getChild(int pos) const;
+  virtual int numChildren() const { return 2; }
 
   ExWorkProcRetcode work();
 

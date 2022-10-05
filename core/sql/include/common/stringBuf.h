@@ -55,13 +55,13 @@
 template <class T>
 class stringBuf {
  public:
-  stringBuf(T *buf, Int32 len, CollHeap *heap = 0)
+  stringBuf(T *buf, int len, CollHeap *heap = 0)
       : buf_(buf), bufSize_(len), count_(len), alloc_(FALSE), heap_(heap){};
 
-  stringBuf(T *buf, Int32 iBufSize, Int32 iStrLen, CollHeap *heap = 0)
+  stringBuf(T *buf, int iBufSize, int iStrLen, CollHeap *heap = 0)
       : buf_(buf), bufSize_(iBufSize), count_(iStrLen <= iBufSize ? iStrLen : iBufSize), alloc_(FALSE), heap_(heap){};
 
-  stringBuf(Int32 len, CollHeap *heap = 0)
+  stringBuf(int len, CollHeap *heap = 0)
       : bufSize_(len),
         count_(len),  // should be set to 0, but keep the existing behavior for now
         alloc_(FALSE),
@@ -86,19 +86,19 @@ class stringBuf {
     }
   };
 
-  inline Int32 getBufSize() const { return bufSize_; }
+  inline int getBufSize() const { return bufSize_; }
 
-  inline Int32 getStrLen() const { return count_; }  // same as length()
+  inline int getStrLen() const { return count_; }  // same as length()
 
-  inline Int32 length() const { return count_; }
+  inline int length() const { return count_; }
 
-  inline void setStrLen(Int32 x) { count_ = (x <= bufSize_) ? x : bufSize_; }  // avoid buffer overrun
+  inline void setStrLen(int x) { count_ = (x <= bufSize_) ? x : bufSize_; }  // avoid buffer overrun
 
-  inline void setLength(Int32 x) { count_ = x; }
+  inline void setLength(int x) { count_ = x; }
 
   inline T *data() const { return buf_; }
 
-  T operator()(Int32 i) const { return buf_[i]; };
+  T operator()(int i) const { return buf_[i]; };
 
   T last() const { return buf_[getStrLen() - 1]; };
 
@@ -106,7 +106,7 @@ class stringBuf {
     buf_[--count_] = 0;
   }
 
-  void zeroOutBuf(Int32 startPos = 0) {
+  void zeroOutBuf(int startPos = 0) {
     if (startPos >= 0 && buf_ && bufSize_ > 0 && bufSize_ - startPos > 0) {
       memset((void *)&buf_[startPos], 0, (size_t)((bufSize_ - startPos) * sizeof(T)));
       count_ = startPos;
@@ -115,11 +115,11 @@ class stringBuf {
 
 #ifdef _DEBUG
   ostream &print(ostream &out) {
-    Int32 i = 0;
-    for (; i < count_; i++) out << Int32(buf_[i]) << " ";
+    int i = 0;
+    for (; i < count_; i++) out << int(buf_[i]) << " ";
 
     out << endl;
-    for (i = 0; i < count_; i++) out << hex << Int32(buf_[i]) << " ";
+    for (i = 0; i < count_; i++) out << hex << int(buf_[i]) << " ";
 
     out << endl;
     return out;
@@ -128,8 +128,8 @@ class stringBuf {
 
  private:
   T *buf_;
-  Int32 bufSize_;
-  Int32 count_;
+  int bufSize_;
+  int count_;
   NABoolean alloc_;
   CollHeap *heap_;
 };
@@ -155,8 +155,8 @@ typedef stringBuf<unsigned char> charBuf;
 //  If addNullAtEnd is TRUE, a NULL will be inserted at the beginning of 'target'
 //  if it is not NULL.
 //
-NAWcharBuf *checkSpace(CollHeap *heap, Int32 olen, NAWcharBuf *&target, NABoolean addNullAtEnd);
+NAWcharBuf *checkSpace(CollHeap *heap, int olen, NAWcharBuf *&target, NABoolean addNullAtEnd);
 
-charBuf *checkSpace(CollHeap *heap, Int32 olen, charBuf *&target, NABoolean addNullAtEnd);
+charBuf *checkSpace(CollHeap *heap, int olen, charBuf *&target, NABoolean addNullAtEnd);
 
 #endif

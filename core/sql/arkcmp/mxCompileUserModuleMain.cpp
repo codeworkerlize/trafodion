@@ -48,9 +48,9 @@ mxCompileUserModule *mxCUMptr = NULL;
 // Save 1K bytes of memory for the error handling when running out of VM.
 static char *mainNewHandler_CharSave = new char[1024];
 
-static Int32 mainNewHandler(size_t)
+static int mainNewHandler(size_t)
 
-    Int32 main(Int32 argc, char **argv) {
+    int main(int argc, char **argv) {
   _set_new_handler(mainNewHandler);
 
   // for NA_YOS newHandler_NSK needs to be added, once it is ready -- Sri gadde

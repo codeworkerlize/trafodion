@@ -41,7 +41,7 @@ class ComTdbSendBottom : public ComTdb {
 
   virtual short getClassSize() { return (short)sizeof(ComTdbSendBottom); }
 
-  Int32 orderedQueueProtocol() const;
+  int orderedQueueProtocol() const;
 
   Long pack(void *);
   int unpack(void *, void *reallocator);
@@ -57,12 +57,12 @@ class ComTdbSendBottom : public ComTdb {
   int getNumReplyBuffers() const { return numReplyBuffers_; }
 
   // for GUI
-  virtual const ComTdb *getChild(Int32 pos) const;
-  virtual Int32 numChildren() const;
+  virtual const ComTdb *getChild(int pos) const;
+  virtual int numChildren() const;
   virtual const char *getNodeName() const { return "EX_SEND_BOTTOM"; };
-  virtual Int32 numExpressions() const;
-  virtual ex_expr *getExpressionNode(Int32 pos);
-  virtual const char *getExpressionName(Int32 pos) const;
+  virtual int numExpressions() const;
+  virtual ex_expr *getExpressionNode(int pos);
+  virtual const char *getExpressionName(int pos) const;
 
   virtual ex_send_bottom_tcb *buildInstance(ExExeStmtGlobals *glob, ExEspFragInstanceDir *espInstanceDir,
                                             const ExFragKey &myKey, const ExFragKey &parentKey, int myHandle,
@@ -82,8 +82,8 @@ class ComTdbSendBottom : public ComTdb {
   NABoolean getExchangeUsesSM() const { return (sendBottomFlags_ & SNDB_EXCH_USES_SM) ? TRUE : FALSE; }
   void setExchangeUsesSM() { sendBottomFlags_ |= SNDB_EXCH_USES_SM; }
 
-  Int32 getSMTag() const { return smTag_; }
-  void setSMTag(Int32 tag) { smTag_ = tag; }
+  int getSMTag() const { return smTag_; }
+  void setSMTag(int tag) { smTag_ = tag; }
 
   NABoolean considerBufferDefrag() const { return (sendBottomFlags_ & CONSIDER_BUFFER_DEFRAG) ? TRUE : FALSE; }
   void setConsiderBufferDefrag(NABoolean v) {
@@ -106,24 +106,24 @@ class ComTdbSendBottom : public ComTdb {
   UInt32 sendBottomFlags_;  // 16-19
 
   // copied input row's pos. in workAtp
-  Int32 moveExprTuppIndex_;  // 20-23
+  int moveExprTuppIndex_;  // 20-23
 
   // guidelines for the executor's runtime parameters
 
   // length of input or output row
-  Int32 downRecordLength_;  // 24-27
-  Int32 upRecordLength_;    // 28-31
+  int downRecordLength_;  // 24-27
+  int upRecordLength_;    // 28-31
 
   // recommended size of each buffer
-  Int32 requestBufferSize_;  // 32-35
+  int requestBufferSize_;  // 32-35
 
   // total no of buffers to allocate
-  Int32 numRequestBuffers_;  // 36-39
+  int numRequestBuffers_;  // 36-39
 
   // same for receive buffers
-  Int32 replyBufferSize_;  // 40-43
+  int replyBufferSize_;  // 40-43
 
-  Int32 numReplyBuffers_;  // 44-47
+  int numReplyBuffers_;  // 44-47
 
  private:
   // compiler estimate for # input rows
@@ -133,7 +133,7 @@ class ComTdbSendBottom : public ComTdb {
   Float32 p_estNumRowsReplied_;  // 52-55
 
  protected:
-  Int32 smTag_;                       // 56-59
+  int smTag_;                       // 56-59
   char fillersComTdbSendBottom_[36];  // 60-95
 };
 

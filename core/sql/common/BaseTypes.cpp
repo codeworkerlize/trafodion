@@ -67,8 +67,8 @@ void NADebug() {
   if (getenv("SQL_DEBUGLOOP") == NULL)
     DebugBreak();
   else {
-    Int32 dbgv = 1;
-    Int32 woody;  // as in Woody Allen aka Sleeper.
+    int dbgv = 1;
+    int woody;  // as in Woody Allen aka Sleeper.
 
     while (dbgv == 1) {
       woody = SleepEx(100, FALSE);  // delay 0.1 seconds
@@ -88,7 +88,7 @@ void NAArkcmpExceptionEpilogue() {
 }
 
 // wrapper for exit(), calling NAError_stub_for_breakpoints() first
-void NAExit(Int32 status) {
+void NAExit(int status) {
   NAAssertMutexLock();  // Serialize termination
   releaseRTSSemaphore();
   if (status) NAError_stub_for_breakpoints();

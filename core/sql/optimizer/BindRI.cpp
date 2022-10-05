@@ -201,7 +201,7 @@ UniqueConstraint::~UniqueConstraint() {
   refConstraintsReferencingMe_.clear();
 }
 
-Int32 UniqueConstraint::getRefConstraints(BindWA *bindWA, const ColSignature &updateCols,
+int UniqueConstraint::getRefConstraints(BindWA *bindWA, const ColSignature &updateCols,
                                           RefConstraintList &resultList) {
   if (!constraintOverlapsUpdateCols(bindWA, updateCols)) return 0;
 
@@ -239,7 +239,7 @@ Int32 UniqueConstraint::getRefConstraints(BindWA *bindWA, const ColSignature &up
     resultList.insert(rc);
   }
 
-  return (Int32)constraintCnt;
+  return (int)constraintCnt;
 
 }  // UniqueConstraint::getRefConstraints
 
@@ -273,7 +273,7 @@ void ComplementaryRIConstraint::resetAfterStatement() { keyColumns_ = NULL; }
 
 RefConstraint::~RefConstraint() {}
 
-Int32 RefConstraint::getRefConstraints(BindWA *bindWA, const ColSignature &updateCols, RefConstraintList &resultList) {
+int RefConstraint::getRefConstraints(BindWA *bindWA, const ColSignature &updateCols, RefConstraintList &resultList) {
   if (!constraintOverlapsUpdateCols(bindWA, updateCols)) return 0;
 
   // Here we are starting at an FK in the table being ins/upd/del.
@@ -306,7 +306,7 @@ Int32 RefConstraint::getRefConstraints(BindWA *bindWA, const ColSignature &updat
 
 }  // RefConstraint::getRefConstraints
 
-Int32 AbstractRIConstraintList::getRefConstraints(BindWA *bindWA, const ValueIdSet &assigns,
+int AbstractRIConstraintList::getRefConstraints(BindWA *bindWA, const ValueIdSet &assigns,
                                                   RefConstraintList &resultList) const {
   Constraint::ColSignature updateCols(HEAP);
   if (entries() && bindWA->getCurrentScope()->context()->inUpdate()) Constraint::makeColSignature(assigns, updateCols);
@@ -315,7 +315,7 @@ Int32 AbstractRIConstraintList::getRefConstraints(BindWA *bindWA, const ValueIdS
   // Just add to the list
   // resultList.clear();
 
-  Int32 constraintCnt = 0;
+  int constraintCnt = 0;
   for (CollIndex i = 0; i < entries(); i++) constraintCnt += at(i)->getRefConstraints(bindWA, updateCols, resultList);
   return constraintCnt;
 }  // AbstractRIConstraintList::getRefConstraints

@@ -605,7 +605,7 @@ IpcMessageObjSize CmpMessageEnvs::mypackedLength() {
   IpcMessageObjSize size = CmpMessageObj::mypackedLength();
   size += sizeof(operator_);
   size += sizeof(nEnvs_);
-  for (Int32 i = 0; i < nEnvs_; i++) advanceSize(size, envs_[i]);
+  for (int i = 0; i < nEnvs_; i++) advanceSize(size, envs_[i]);
   advanceSize(size, cwd_);
   size += sizeof(activeTrans_);
   advanceSize(size, transId_);
@@ -616,7 +616,7 @@ IpcMessageObjSize CmpMessageEnvs::packMyself(IpcMessageBufferPtr &buffer) {
   IpcMessageObjSize size = CmpMessageObj::packMyself(buffer);
   size += ::packIntoBuffer(buffer, operator_);
   size += ::packIntoBuffer(buffer, nEnvs_);
-  for (Int32 i = 0; i < nEnvs_; i++) size += packIntoBuffer(buffer, envs_[i]);
+  for (int i = 0; i < nEnvs_; i++) size += packIntoBuffer(buffer, envs_[i]);
   size += packIntoBuffer(buffer, cwd_);
   size += ::packIntoBuffer(buffer, activeTrans_);
   size += packIntoBuffer(buffer, transId_);
@@ -630,7 +630,7 @@ void CmpMessageEnvs::unpackMyself(IpcMessageObjType objType, IpcMessageObjVersio
   ::unpackBuffer(buffer, nEnvs_);
   if (nEnvs_) {
     envs_ = new (getHeap()) char *[nEnvs_];
-    for (Int32 i = 0; i < nEnvs_; i++) {
+    for (int i = 0; i < nEnvs_; i++) {
       envs_[i] = 0;
       unpackBuffer(buffer, envs_[i], getHeap());
     }

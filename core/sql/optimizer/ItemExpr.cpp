@@ -71,7 +71,7 @@ static NABoolean isQuantifiedComp(const ItemExpr *ie);
 
 // Initialize static members.
 // THREAD_P OperatorTypeEnum ItemExpr::origOpTypeBeingBound_ = NO_OPERATOR_TYPE;
-// THREAD_P Int32 ItemExpr::origOpTypeCounter_ = 0;
+// THREAD_P int ItemExpr::origOpTypeCounter_ = 0;
 
 void ItemExpr::cleanupPerStatement() {
   if (CURRENTSTMT) CURRENTSTMT->setItemExprOrigOpTypeBeingBound(NO_OPERATOR_TYPE);
@@ -261,7 +261,7 @@ NABoolean ItemExpr::operator==(const ItemExpr &other) const  // virtual meth
   return (getValueId() == other.getValueId());
 }
 void ItemExpr::deleteInstance() {
-  Int32 nc = getArity();
+  int nc = getArity();
   for (int i = 0; i < (int)nc; i++) inputs_[i] = NULL;
   delete this;
 }  // ItemExpr::deleteInstance()
@@ -602,7 +602,7 @@ ItemExpr *ItemExpr::constFold() {
   ValueIdList dummy;
   ValueId dummyId;
   ItemExpr *outExpr = NULL;
-  Int32 error = dummy.evaluateExpr(dummyId, expr->getValueId(), -1,
+  int error = dummy.evaluateExpr(dummyId, expr->getValueId(), -1,
                                    FALSE,  // don't simplify expr
                                    TRUE,   // eval all consts
                                    &outExpr);
@@ -620,7 +620,7 @@ ItemExpr *ItemExpr::simplifyBeforeConstFolding() {
     return getConstantInVEG();
   }
 
-  for (Int32 i = 0; i < nc; i++) {
+  for (int i = 0; i < nc; i++) {
     ValueId id = child(i)->getValueId();
 
     ItemExpr *cExpr = id.getItemExpr()->simplifyBeforeConstFolding();
@@ -963,7 +963,7 @@ NABoolean ItemExpr::useStatsForPred() {
 }
 
 void ItemExpr::getLeafValueIds(ValueIdSet &lv) const {
-  Int32 nc = getArity();
+  int nc = getArity();
 
   // if this is a leaf node, add its value id
   // UDFunction uses the getArity() function to return the number
@@ -979,7 +979,7 @@ void ItemExpr::getLeafValueIds(ValueIdSet &lv) const {
 }
 
 void ItemExpr::getLeafValueIds(ValueIdList &lv) const {
-  Int32 nc = getArity();
+  int nc = getArity();
 
   // if this is a leaf node, add its value id
   // UDFunction uses the getArity() function to return the number
@@ -995,7 +995,7 @@ void ItemExpr::getLeafValueIds(ValueIdList &lv) const {
 }
 
 void ItemExpr::getLeafValueIdsForCaseExpr(ValueIdSet &lv) {
-  Int32 nc = getArity();
+  int nc = getArity();
 
   // if this is a leaf node, add its value id
   if (nc == 0) {
@@ -1077,7 +1077,7 @@ HashValue ItemExpr::topHash() {
 // top node and its inputs should be independent of the actual node
 HashValue ItemExpr::treeHash() {
   HashValue result = topHash();
-  Int32 maxc = getArity();
+  int maxc = getArity();
 
   for (int i = 0; i < (int)maxc; i++) {
     // call this method recursively for the inputs
@@ -1104,7 +1104,7 @@ NABoolean ItemExpr::genericDuplicateMatch(const ItemExpr &other) const {
 
   if ((getValueId() == other.getValueId()) && (getValueId() != NULL_VALUE_ID)) return TRUE;
   if (getOperatorType() != other.getOperatorType()) return FALSE;
-  Int32 arity = getArity();
+  int arity = getArity();
   if (arity != other.getArity()) return FALSE;
 
   for (int i = 0; i < (int)arity; i++) {
@@ -1154,9 +1154,9 @@ ItemExpr *ItemExpr::copyTreeNonLeaves(CollHeap *outHeap) {
 
 ItemExpr *ItemExpr::copyTreeImp(ItemExpr::copyNodeFuncPtrT funcPtr, CollHeap *outHeap) {
   ItemExpr *result = ((*this).*funcPtr)(NULL, outHeap);
-  Int32 arity = getArity();
+  int arity = getArity();
 
-  for (Int32 i = 0; i < arity; i++) {
+  for (int i = 0; i < arity; i++) {
     if (child(i)) {
       result->child(i) = child(i)->copyTreeImp(funcPtr, outHeap);
     }
@@ -1166,9 +1166,9 @@ ItemExpr *ItemExpr::copyTreeImp(ItemExpr::copyNodeFuncPtrT funcPtr, CollHeap *ou
 
 NABoolean ItemExpr::containsSubquery()  // virtual method
 {
-  Int32 arity = getArity();
+  int arity = getArity();
 
-  for (Int32 i = 0; i < arity; i++)
+  for (int i = 0; i < arity; i++)
     if (child(i) && child(i)->containsSubquery()) return TRUE;
 
   return FALSE;
@@ -1176,18 +1176,18 @@ NABoolean ItemExpr::containsSubquery()  // virtual method
 
 ItemExpr *ItemExpr::containsUDF()  // virtual method
 {
-  Int32 arity = getArity();
+  int arity = getArity();
 
-  for (Int32 i = 0; i < arity; i++)
+  for (int i = 0; i < arity; i++)
     if (child(i) && child(i)->containsUDF()) return child(i)->containsUDF();
 
   return 0;
 }
 NABoolean ItemExpr::containsIsolatedUDFunction()  // virtual method
 {
-  Int32 arity = getArity();
+  int arity = getArity();
 
-  for (Int32 i = 0; i < arity; i++)
+  for (int i = 0; i < arity; i++)
     if (child(i) && child(i)->containsIsolatedUDFunction()) return TRUE;
 
   return FALSE;
@@ -1196,9 +1196,9 @@ NABoolean ItemExpr::containsIsolatedUDFunction()  // virtual method
 NABoolean ItemExpr::containsValueIdProxySibling(const ValueIdSet &siblings)
 // virtual method
 {
-  Int32 arity = getArity();
+  int arity = getArity();
 
-  for (Int32 i = 0; i < arity; i++)
+  for (int i = 0; i < arity; i++)
     if (child(i) && child(i)->containsValueIdProxySibling(siblings)) return TRUE;
 
   return FALSE;
@@ -1222,7 +1222,7 @@ ItemExpr *ItemExpr::transformMultiValuePredicate(  // virtual method
 }
 
 NABoolean ItemExpr::containsAnAggregate() const {
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     if (child(i)->containsAnAggregate()) return TRUE;
   }
   return FALSE;
@@ -1308,7 +1308,7 @@ void ItemExpr::findAllT(OperatorTypeEnum wantedType, Result &result, NABoolean v
   }
 
   // recurse
-  Int32 nc = getArity();
+  int nc = getArity();
 
   for (int i = 0; i < (int)nc; i++) child(i)->findAllT(wantedType, result, visitVEGMembers, visitIndexColDefs);
 
@@ -1360,7 +1360,7 @@ void ItemExpr::findAll(OperatorTypeEnum wantedType, ItemExprList &result, NABool
 
 int ItemExpr::getTreeSize(int &maxDepth, NABoolean giveUpThreshold) {
   int currentSize = 1;
-  Int32 nc = getArity();
+  int nc = getArity();
 
   for (int i = 0; i < (int)nc; i++) {
     int thisDepth = 0;
@@ -1408,7 +1408,7 @@ void ItemExpr::findEqualityCols(ValueIdSet &result) {
 ItemExpr *ItemExpr::treeWalk(ItemTreeWalkFunc f, CollHeap *outHeap, enum ItemTreeWalkSeq sequence, void *context) {
   ItemExpr *transformedChildrenArr[4];
   ItemExpr **transformedChildren = transformedChildrenArr;
-  Int32 arity = -1;
+  int arity = -1;
   NABoolean needToCopy = FALSE;
   ItemExpr *result = this;
 
@@ -1741,9 +1741,9 @@ ItemExpr *ItemExpr::applyInverseDistributivityLawByColumn(OperatorTypeEnum backb
   // which prevents the old ValueId being in a descendent node of itself,
   // creating a loop).
 
-  Int32 arity = result->getArity();
+  int arity = result->getArity();
   ItemExpr *result2 = result->copyTopNode(NULL, CmpCommon::statementHeap());
-  for (Int32 i = 0; i < arity; i++) result2->setChild(i, result->child(i));
+  for (int i = 0; i < arity; i++) result2->setChild(i, result->child(i));
 
   result = result2;  // replaced top node, with a new ValueId
 
@@ -1767,7 +1767,7 @@ void ItemExpr::synthTypeAndValueId(NABoolean redriveTypeSynthesisFlag, NABoolean
 
   if (nodeIsBound() AND NOT redriveTypeSynthesisFlag) return;
 
-  Int32 nc = getArity();
+  int nc = getArity();
 
   // do it recursively on the children
   for (int i = 0; i < (int)nc; i++) {
@@ -1793,7 +1793,7 @@ void ItemExpr::synthTypeAndValueId(NABoolean redriveTypeSynthesisFlag, NABoolean
 //       ItemExpr::synthTypeAndValueId() that used significantly less stack space.
 //
 void ItemExpr::synthTypeAndValueId2(NABoolean redriveTypeSynthesisFlag, NABoolean redriveChildTypeSynthesis) {
-  Int32 nc = getArity();
+  int nc = getArity();
   ValueDesc *vdesc;
   DomainDesc *ddesc;
 
@@ -1885,7 +1885,7 @@ OrderComparison ItemExpr::sameOrder(ItemExpr *other, NABoolean askOther) {
   OrderComparison order1;
   OrderComparison order2;
   OrderComparison result;
-  Int32 inversions = 0;
+  int inversions = 0;
 
   ItemExpr *simpThis = simplifyOrderExpr(&order1);
   ItemExpr *simpOther = other->simplifyOrderExpr(&order2);
@@ -2048,7 +2048,7 @@ void ItemExpr::print(FILE *f, const char *prefix, const char *suffix) const {
 #endif
 
   // print children
-  Int32 nc = getArity();
+  int nc = getArity();
   for (int i = 0; i < (int)nc; i++) {
     fprintf(f, "%sExpression input %d:\n", prefix, i);
     if (child(i).getPtr())
@@ -2343,7 +2343,7 @@ void ItemExpr::unparse(NAString &result, PhaseEnum phase, UnparseFormatEnum form
 
   OperatorTypeEnum operatorType = getOperatorType();
 
-  Int32 arity = getArity();
+  int arity = getArity();
 
   if (operatorType != origOpType() && form == QUERY_FORMAT || form == CONNECT_BY_FORMAT ||
       form == COMPUTED_COLUMN_FORMAT) {
@@ -2549,7 +2549,7 @@ NABoolean ItemExpr::containsColumn() {
   if (op >= ITM_CONSTANT && op <= ITM_VEG_REFERENCE) return FALSE;
 
   // Iterate through this item's inputs looking for a base column.
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     ItemExpr *expr = child(i);
 
     if (!expr) return FALSE;
@@ -2576,7 +2576,7 @@ ItemExpr *ItemExpr::containsRightmost(const ItemExpr *ie) {
   if (this == ie) return this;
   if (!ie || this->getArity() == 0) return NULL;
 
-  for (Int32 arity = getArity() - 1; arity >= 0; arity--) {
+  for (int arity = getArity() - 1; arity >= 0; arity--) {
     if (child(arity)) return (child(arity) == ie) ? this : child(arity)->containsRightmost(ie);
   }
   return NULL;
@@ -2603,7 +2603,7 @@ NABoolean ItemExpr::hasBaseEquivalence(ItemExpr *other) {
   else if (getArity() == 0)
     return FALSE;
 
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     ItemExpr *chld = child(i);
     if (!chld->hasBaseEquivalence(other->child(i)) || !chld->hasEquivalentProperties(other->child(i))) return FALSE;
   }
@@ -2612,7 +2612,7 @@ NABoolean ItemExpr::hasBaseEquivalence(ItemExpr *other) {
 
 ItemExpr *ItemExpr::changeDefaultOrderToDesc() {
   if (getOperatorType() == ITM_ITEM_LIST) {
-    for (Int32 i = 0; i < getArity(); i++) {
+    for (int i = 0; i < getArity(); i++) {
       child(i) = child(i)->changeDefaultOrderToDesc();
     }
     return this;
@@ -2627,7 +2627,7 @@ ItemExpr *ItemExpr::changeDefaultOrderToDesc() {
 
 ValueId ItemExpr::removeInverseFromExprTree(NABoolean &invExists) {
   if (getOperatorType() == ITM_ITEM_LIST) {
-    for (Int32 i = 0; i < getArity(); i++) child(i) = child(i)->removeInverseFromExprTree(invExists);
+    for (int i = 0; i < getArity(); i++) child(i) = child(i)->removeInverseFromExprTree(invExists);
     return getValueId();
   } else if (getOperatorType() == ITM_INVERSE)
     invExists = TRUE;
@@ -2638,7 +2638,7 @@ ValueId ItemExpr::removeInverseFromExprTree(NABoolean &invExists) {
 ///
 
 void ItemExpr::transformOlapFunctions(CollHeap *wHeap) {
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     ItemExpr *mychild = child(i);
     if (mychild->isOlapFunction()) {
       ItmSeqOlapFunction *olap = (ItmSeqOlapFunction *)mychild;
@@ -2664,7 +2664,7 @@ void ItemExpr::transformOlapFunctions(CollHeap *wHeap) {
 // -----------------------------------------------------------------------
 ItemExpr *ItemExpr::removeInverseFromExprTree(NABoolean &invExists, const NABoolean onlyDouble) {
   if (getOperatorType() == ITM_ITEM_LIST) {
-    for (Int32 i = 0; i < getArity(); i++) child(i) = child(i)->removeInverseFromExprTree(invExists, onlyDouble);
+    for (int i = 0; i < getArity(); i++) child(i) = child(i)->removeInverseFromExprTree(invExists, onlyDouble);
     return this;
   } else {
     if (getOperatorType() == ITM_INVERSE) invExists = TRUE;
@@ -2694,7 +2694,7 @@ void ItemExpr::removeNotCoveredFromExprTree(ItemExpr *&ie, const ValueIdSet &seq
   // if the caller wants to assign new valueID, then we detect the
   // existence of NotCovered node here.
   if (assignValueId) {
-    for (Int32 i = 0; i < ie->getArity(); i++)
+    for (int i = 0; i < ie->getArity(); i++)
       if (ie->child(i)->getOperatorType() == ITM_NOTCOVERED && seqColumns.contains(ie->child(i)->getValueId())) {
         copyNode = TRUE;
         break;
@@ -2706,7 +2706,7 @@ void ItemExpr::removeNotCoveredFromExprTree(ItemExpr *&ie, const ValueIdSet &seq
   if (copyNode) {
     ItemExpr *copiedExpr = ie->copyTopNode(NULL, STMTHEAP);
 
-    for (Int32 i = 0; i < ie->getArity(); i++) copiedExpr->child(i) = ie->child(i);
+    for (int i = 0; i < ie->getArity(); i++) copiedExpr->child(i) = ie->child(i);
 
     copiedExpr->synthTypeAndValueId(TRUE);
 
@@ -2715,7 +2715,7 @@ void ItemExpr::removeNotCoveredFromExprTree(ItemExpr *&ie, const ValueIdSet &seq
 
   // do the NodeCovered removal work here, against the original
   // or newly copied node.
-  for (Int32 i = 0; i < ie->getArity(); i++) {
+  for (int i = 0; i < ie->getArity(); i++) {
     while (ie->child(i)->getOperatorType() == ITM_NOTCOVERED && seqColumns.contains(ie->child(i)->getValueId())) {
       ie->child(i) = ie->child(i)->child(0);
     }
@@ -2764,7 +2764,7 @@ ItemExpr *ZZZBinderFunction::copyTopNode(ItemExpr *derivedNode, CollHeap *outHea
 // -----------------------------------------------------------------------
 // member functions for class BiArith
 // -----------------------------------------------------------------------
-Int32 BiArith::getArity() const { return 2; }
+int BiArith::getArity() const { return 2; }
 
 const NAString BiArith::getText() const {
   switch (getOperatorType()) {
@@ -3024,7 +3024,7 @@ ItemExpr *BiArith::foldConstants(ComDiagsArea *diagsArea, NABoolean newTypeSynth
     ops[0] = 0;
     ops[1] = 0;
 
-    for (Int32 i = 0; i < 2 AND canDoIt; i++) {
+    for (int i = 0; i < 2 AND canDoIt; i++) {
       NABoolean negate;
       ConstValue *cv = child(i)->castToConstValue(negate);
       if (cv AND cv->canGetExactNumericValue()) {
@@ -3210,7 +3210,7 @@ ItemExpr *UnArith::copyTopNode(ItemExpr *derivedNode, CollHeap *outHeap) {
 // -----------------------------------------------------------------------
 // member functions for class ColReference
 // -----------------------------------------------------------------------
-Int32 ColReference::getArity() const { return 0; }
+int ColReference::getArity() const { return 0; }
 
 const NAString ColReference::getText() const {
   NAColumn *nacol = getValueId() != NULL_VALUE_ID ? getValueId().getNAColumn(true /* ok if not a column */) : NULL;
@@ -3291,7 +3291,7 @@ HostVar::HostVar(const HostVar &hv, NAMemory *h)
     varType_ = hv.varType_->newCopy(h);
 }
 
-Int32 HostVar::getArity() const { return 0; }
+int HostVar::getArity() const { return 0; }
 
 NABoolean HostVar::isAUserSuppliedInput() const { return TRUE; }
 
@@ -3603,7 +3603,7 @@ const NAString &BaseColumn::getColName() const { return getNAColumn()->getColNam
 
 const NAType &BaseColumn::getType() const { return *getNAColumn()->getType(); }
 
-Int32 BaseColumn::getArity() const { return 0; }
+int BaseColumn::getArity() const { return 0; }
 
 const NAString BaseColumn::getText() const {
   // getenv() calls are costly. avoid especially in release code.
@@ -3767,7 +3767,7 @@ NAColumn *IndexColumn::getNAColumn() const { return index_->getAllColumns()[inde
 
 const NAType &IndexColumn::getType() const { return *getNAColumn()->getType(); }
 
-Int32 IndexColumn::getArity() const { return 0; }
+int IndexColumn::getArity() const { return 0; }
 
 const NAString IndexColumn::getText() const {
   // As an indexcol is not an Ansi construct, we need not make an effort to
@@ -3881,7 +3881,7 @@ ItemExpr *SelIndex::copyTopNode(ItemExpr *derivedNode, CollHeap *outHeap) {
   return ItemExpr::copyTopNode(result, outHeap);
 }
 
-Int32 SelIndex::getArity() const { return 0; }
+int SelIndex::getArity() const { return 0; }
 
 const NAString SelIndex::getText() const {
   char cp[TEXT_DISPLAY_LENGTH];
@@ -3892,7 +3892,7 @@ const NAString SelIndex::getText() const {
 // -----------------------------------------------------------------------
 // member functions for class ValueIdRef
 // -----------------------------------------------------------------------
-Int32 ValueIdRef::getArity() const { return 0; }
+int ValueIdRef::getArity() const { return 0; }
 
 NABoolean ValueIdRef::isCovered(const ValueIdSet &newExternalInputs, const GroupAttributes &coveringGA,
                                 ValueIdSet &referencedInputs, ValueIdSet &coveredSubExpr,
@@ -4078,7 +4078,7 @@ void ValueIdUnion::setSource(int index, ValueId v) {
   }
 }
 
-Int32 ValueIdUnion::getArity() const { return 0; }
+int ValueIdUnion::getArity() const { return 0; }
 
 NABoolean ValueIdUnion::isCovered(const ValueIdSet &newExternalInputs, const GroupAttributes &coveringGA,
                                   ValueIdSet &referencedInputs, ValueIdSet &coveredSubExpr,
@@ -4307,7 +4307,7 @@ void VEG::merge(const VEG &other) {
   if (specialNulls_ && !other.getSpecialNulls()) specialNulls_ = FALSE;
 }  // VEG::merge()
 
-Int32 VEG::getArity() const { return 0; }
+int VEG::getArity() const { return 0; }
 
 const NAString VEG::getText() const {
   if (seenBefore()) {
@@ -4482,7 +4482,7 @@ void VEGPredicate::replaceVEG(const ValueId &vegId) {
   veg_ = vegId;
 }  // VEGPredicate::replaceVEG()
 
-Int32 VEGPredicate::getArity() const { return 0; }
+int VEGPredicate::getArity() const { return 0; }
 
 NABoolean VEGPredicate::isAPredicate() const { return TRUE; }
 
@@ -4811,7 +4811,7 @@ VEGReference::VEGReference(const ValueId &ofVEG) : ItemExpr(ITM_VEG_REFERENCE), 
 
 VEGReference::~VEGReference() {}
 
-Int32 VEGReference::getArity() const { return 0; }
+int VEGReference::getArity() const { return 0; }
 
 void VEGReference::replaceVEG(const ValueId &vegId) {
   CMPASSERT(vegId.getItemExpr()->getOperatorType() == ITM_VEG);
@@ -5039,7 +5039,7 @@ QR::ExprElement VEGReference::getQRExprElem() const { return QR::QRColumnElem; }
 // -----------------------------------------------------------------------
 // member functions for class CheckConstraint
 // -----------------------------------------------------------------------
-Int32 CheckConstraint::getArity() const { return 0; }
+int CheckConstraint::getArity() const { return 0; }
 
 ItemExpr *CheckConstraint::copyTopNode(ItemExpr *derivedNode, CollHeap *outHeap) {
   ItemExpr *result;
@@ -5072,7 +5072,7 @@ ItemExpr *OptConstraint::copyTopNode(ItemExpr *derivedNode, CollHeap *outHeap) {
 // -----------------------------------------------------------------------
 // member functions for class CardConstraint
 // -----------------------------------------------------------------------
-Int32 CardConstraint::getArity() const { return 0; }
+int CardConstraint::getArity() const { return 0; }
 
 ItemExpr *CardConstraint::copyTopNode(ItemExpr *derivedNode, CollHeap *outHeap) {
   ItemExpr *result;
@@ -5098,7 +5098,7 @@ void CardConstraint::unparse(NAString &result, PhaseEnum /* phase */, UnparseFor
 // -----------------------------------------------------------------------
 // member functions for class UniqueOptConstraint
 // -----------------------------------------------------------------------
-Int32 UniqueOptConstraint::getArity() const { return 0; }
+int UniqueOptConstraint::getArity() const { return 0; }
 
 ItemExpr *UniqueOptConstraint::copyTopNode(ItemExpr *derivedNode, CollHeap *outHeap) {
   ItemExpr *result;
@@ -5121,7 +5121,7 @@ void UniqueOptConstraint::unparse(NAString &result, PhaseEnum phase, UnparseForm
 // -----------------------------------------------------------------------
 // member functions for class FuncDependencyConstraint
 // -----------------------------------------------------------------------
-Int32 FuncDependencyConstraint::getArity() const { return 0; }
+int FuncDependencyConstraint::getArity() const { return 0; }
 
 ItemExpr *FuncDependencyConstraint::copyTopNode(ItemExpr *derivedNode, CollHeap *outHeap) {
   ItemExpr *result;
@@ -5259,7 +5259,7 @@ void FuncDependencyConstraint::unparse(NAString &result, PhaseEnum phase, Unpars
 // -----------------------------------------------------------------------
 CheckOptConstraint::~CheckOptConstraint() {}
 
-Int32 CheckOptConstraint::getArity() const { return 0; }
+int CheckOptConstraint::getArity() const { return 0; }
 
 ItemExpr *CheckOptConstraint::copyTopNode(ItemExpr *derivedNode, CollHeap *outHeap) {
   ItemExpr *result;
@@ -5282,7 +5282,7 @@ void CheckOptConstraint::unparse(NAString &result, PhaseEnum phase, UnparseForma
 // -----------------------------------------------------------------------
 // member functions for class RefOptConstraint
 // -----------------------------------------------------------------------
-Int32 RefOptConstraint::getArity() const { return 0; }
+int RefOptConstraint::getArity() const { return 0; }
 
 ItemExpr *RefOptConstraint::copyTopNode(ItemExpr *derivedNode, CollHeap *outHeap) {
   ItemExpr *result;
@@ -5309,7 +5309,7 @@ void RefOptConstraint::unparse(NAString &result, PhaseEnum phase, UnparseFormatE
 // -----------------------------------------------------------------------
 // member functions for class ComplementaryRefOptConstraint
 // -----------------------------------------------------------------------
-Int32 ComplementaryRefOptConstraint::getArity() const { return 0; }
+int ComplementaryRefOptConstraint::getArity() const { return 0; }
 
 ItemExpr *ComplementaryRefOptConstraint::copyTopNode(ItemExpr *derivedNode, CollHeap *outHeap) {
   ItemExpr *result;
@@ -5343,7 +5343,7 @@ NABoolean Aggregate::isAnAggregate() const { return TRUE; }
 
 NABoolean Aggregate::containsAnAggregate() const { return TRUE; }
 
-Int32 Aggregate::getArity() const {
+int Aggregate::getArity() const {
   // ##Should be same as Function::getNumChildren(), except added CMPASSERT here
   // (aggregates must have at least one child; stddev/variance can have more).
 
@@ -6729,7 +6729,7 @@ NABoolean BuiltinFunction::isBuiltinFunctionOrderable() {
   return isOrderable;
 }
 
-Int32 BuiltinFunction::getArity() const { return getNumChildren(); }
+int BuiltinFunction::getArity() const { return getNumChildren(); }
 
 // -----------------------------------------------------------------------
 // BuiltinFunction::isCovered()
@@ -6759,7 +6759,7 @@ NABoolean BuiltinFunction::isCovered(const ValueIdSet &newExternalInputs, const 
   // children.
   // ---------------------------------------------------------------------
   ValueIdSet childValues;
-  for (Int32 i = 0; i < nc; i++) childValues += child(i).getValueId();
+  for (int i = 0; i < nc; i++) childValues += child(i).getValueId();
   return childValues.isCovered(newExternalInputs, coveringGA, referencedInputs, coveredSubExpr, unCoveredExpr);
 }  // BuiltinFunction::isCovered()
 
@@ -7402,8 +7402,8 @@ double PatternMatchingFunction::defaultSel() {
 }
 
 void PatternMatchingFunction::setNumberOfNonWildcardChars(const LikePatternString &pattern) {
-  Int32 count = 0;
-  Int32 byteCnt = 0;
+  int count = 0;
+  int byteCnt = 0;
   CharInfo::CharSet cs = pattern.getPatternCharSet();
 
   LikePatternStringIterator i(pattern);
@@ -7429,7 +7429,7 @@ double PatternMatchingFunction::computeSelForNonWildcardChars() {
   double defaultSelectivity = CURRSTMT_OPTDEFAULTS->defSelForWildCard();
 
   // get the number of non_wildcard characters after the first wildcard char
-  Int32 cnt = getNoOfNonWildcardChars();
+  int cnt = getNoOfNonWildcardChars();
 
   // Retuen default selectivity for the following cases:
   // 1. For some special cases, example when there is a dynamic parameter in the
@@ -7453,7 +7453,7 @@ double PatternMatchingFunction::computeSelForNonWildcardChars() {
   // 3 or more, it is 1/1000. Multiplication factor each non-wildcard character is
   // defined by the CQD HIST_DEFAULT_SEL_FOR_LIKE_NO_WILDCARD
 
-  Int32 nonWildCardChar = ((cnt > 4) ? 4 : cnt);
+  int nonWildCardChar = ((cnt > 4) ? 4 : cnt);
 
   defaultSelectivity = defaultSelectivity * pow(defaultSelectivity / reductionFactor, nonWildCardChar - 1);
 
@@ -8314,7 +8314,7 @@ void PackFunc::deriveFormatInfoFromUnpackType(const NAType *unpackType) {
   CMPASSERT(NOT DFS2REC::isAnyVarChar(unpackType->getFSDatatype()));
 
   // Save four byte for the packing factor to be stored.
-  int pfSizeInBytes = sizeof(Int32);
+  int pfSizeInBytes = sizeof(int);
 
   // The packing factor must be stored as a constant.
   NABoolean negateIt;
@@ -8397,7 +8397,7 @@ ItemExpr *PackFunc::copyTopNode(ItemExpr *derivedNode, CollHeap *outHeap) {
 
 UDFunction::~UDFunction() { delete udfDesc_; }
 
-Int32 UDFunction::getArity() const {
+int UDFunction::getArity() const {
   return getNumChildren();  // Function class member function.
 }
 
@@ -8593,7 +8593,7 @@ void NotIn::cacheIsOneInnerBroadcastRequired() {
 // -----------------------------------------------------------------------
 // member functions for class BiLogic
 // -----------------------------------------------------------------------
-Int32 BiLogic::getArity() const { return 2; }
+int BiLogic::getArity() const { return 2; }
 
 NABoolean BiLogic::isAPredicate() const { return TRUE; }
 
@@ -8602,8 +8602,8 @@ NABoolean BiLogic::isLike() const {
   switch (getOperatorType()) {
     case ITM_AND:
     case ITM_OR: {
-      Int32 arity = getArity();
-      for (Int32 x = 0; x < arity; x++) {
+      int arity = getArity();
+      for (int x = 0; x < arity; x++) {
         switch (child(x)->getOperatorType()) {
           case ITM_GREATER_EQ:
           case ITM_LESS:
@@ -8691,7 +8691,7 @@ ItemExpr *BiLogic::rewriteNotEquals(BindWA *bindWA) {
 // -----------------------------------------------------------------------
 // member functions for class UnLogic
 // -----------------------------------------------------------------------
-Int32 UnLogic::getArity() const { return 1; }
+int UnLogic::getArity() const { return 1; }
 
 NABoolean UnLogic::isAPredicate() const { return TRUE; }
 
@@ -8786,7 +8786,7 @@ void BiRelat::adjustRowcountAndUecForLike(const ColStatDescSharedPtr &colStatDes
   colStats->setFakeHistogram();
 }
 
-Int32 BiRelat::getArity() const { return 2; }
+int BiRelat::getArity() const { return 2; }
 
 NABoolean BiRelat::isAPredicate() const { return TRUE; }
 
@@ -9025,14 +9025,14 @@ ConstValue::ConstValue(int intval, NAMemory *outHeap)
   long lintval = intval;
   char buf[TEXT_DISPLAY_LENGTH];
   char *S = buf;
-  Int32 len = 0;
+  int len = 0;
   sprintf(S, "%d %n", intval, &len);
   S[len++] = '\0';
   text_ = new (outHeap) NAString(S, outHeap);
   storageSize_ = sizeof(int);
   value_ = (void *)(new (outHeap) char[storageSize_]);
   // copy the bit pattern as is
-  memcpy(value_, (void *)(&intval), (Int32)storageSize_);
+  memcpy(value_, (void *)(&intval), (int)storageSize_);
 }
 
 ConstValue::ConstValue(const NAString &strval, enum CharInfo::CharSet charSet, enum CharInfo::Collation collation,
@@ -9057,22 +9057,22 @@ void ConstValue::initCharConstValue(const NAString &strval, enum CharInfo::CharS
     type_ = new (outHeap) SQLVarChar(outHeap, 0, FALSE, FALSE, FALSE, charSet, collation, coercibility);
     storageSize_ = type_->getVarLenHdrSize();
     value_ = (void *)(new (outHeap) char[storageSize_]);
-    str_pad((char *)value_, (Int32)storageSize_, '\0');
+    str_pad((char *)value_, (int)storageSize_, '\0');
   } else {
     // A "mini-cache" to avoid proc call, for performance,
     // local to the SINGLE-byte-charset NAString ctor
     // (distinct from the double-byte-charset ctor to prevent cache churn).
     static THREAD_P CharInfo::CharSet cachedCS = CharInfo::UnknownCharSet;
-    static THREAD_P Int32 cachedBPC = 1;
+    static THREAD_P int cachedBPC = 1;
     if (cachedCS != charSet) {
       cachedCS = charSet;
       cachedBPC = CharInfo::maxBytesPerChar(charSet);
     }
-    Int32 num_of_chars = (Int32)strval.length() / cachedBPC;
+    int num_of_chars = (int)strval.length() / cachedBPC;
     if (CharInfo::isVariableWidthMultiByteCharSet(charSet)) {
-      Int32 actualCharsCount = ComputeStrLenInUCS4chars(strval.data()  // const char * pStr
+      int actualCharsCount = ComputeStrLenInUCS4chars(strval.data()  // const char * pStr
                                                         ,
-                                                        (Int32)strval.length()  // const Int32  strLenInBytes
+                                                        (int)strval.length()  // const int  strLenInBytes
                                                         ,
                                                         charSet  // const CharInfo::CharSet cs
       );
@@ -9099,7 +9099,7 @@ void ConstValue::initCharConstValue(const NAString &strval, enum CharInfo::CharS
 
     storageSize_ = strval.length();
     value_ = (void *)(new (outHeap) char[storageSize_]);
-    memcpy(value_, (void *)(strval.data()), (Int32)storageSize_);
+    memcpy(value_, (void *)(strval.data()), (int)storageSize_);
   }
 
   ((CharType *)type_)->setCaseinsensitive(isCaseInSensitive);
@@ -9136,13 +9136,13 @@ void ConstValue::initCharConstValue(const NAWString &strval, enum CharInfo::Char
     type_ = new (outHeap) SQLVarChar(outHeap, 0, FALSE, FALSE, FALSE, charSet, collation, coercibility);
     storageSize_ = type_->getVarLenHdrSize();
     value_ = (void *)(new (outHeap) NAWchar[storageSize_]);
-    wc_str_pad((NAWchar *)value_, (Int32)storageSize_, '\0');
+    wc_str_pad((NAWchar *)value_, (int)storageSize_, '\0');
   } else {
     // A "mini-cache" to avoid proc call, for performance,
     // local to the DOUBLE-byte-charset NAString ctor
     // (distinct from the single-byte-charset ctor to prevent cache churn).
     static CharInfo::CharSet cachedCS = CharInfo::UNICODE;
-    static Int32 cachedBPC = sizeof(NAWchar);
+    static int cachedBPC = sizeof(NAWchar);
 
     if (cachedCS != charSet) {
       cachedCS = charSet;
@@ -9154,17 +9154,17 @@ void ConstValue::initCharConstValue(const NAWString &strval, enum CharInfo::Char
         cachedBPC = CharInfo::maxBytesPerChar(cachedCS);
 
         // make sure the incoming charset is double-byte
-        CMPASSERT(cachedBPC == (Int32)sizeof(NAWchar));
+        CMPASSERT(cachedBPC == (int)sizeof(NAWchar));
       }
     }
 
-    Int32 num_of_chars = (Int32)strval.length();
+    int num_of_chars = (int)strval.length();
 
     type_ = new (outHeap) SQLChar(outHeap, num_of_chars, FALSE, FALSE, FALSE, FALSE, charSet, collation, coercibility);
 
     storageSize_ = cachedBPC * strval.length();
     value_ = (void *)(new (outHeap) NAWchar[storageSize_]);
-    memcpy(value_, (void *)(strval.data()), (Int32)storageSize_);
+    memcpy(value_, (void *)(strval.data()), (int)storageSize_);
   }
 
   ((CharType *)type_)->setCaseinsensitive(isCaseInSensitive);
@@ -9268,7 +9268,7 @@ ConstValue::ConstValue(const NAType *type, void *value, int value_len, NAString 
   CMPASSERT(type_);
   storageSize_ = value_len;
   value_ = (void *)(new (outHeap) char[storageSize_]);
-  memcpy(value_, (void *)value, (Int32)storageSize_);
+  memcpy(value_, (void *)value, (int)storageSize_);
 
   if (type) type_ = type->newCopy(outHeap);
 
@@ -9313,7 +9313,7 @@ ConstValue::ConstValue(const NAType *type, void *value, int value_len, NAString 
   CMPASSERT(type_);
   storageSize_ = value_len;
   value_ = (void *)(new (outHeap) char[storageSize_]);
-  memcpy(value_, (void *)value, (Int32)storageSize_);
+  memcpy(value_, (void *)value, (int)storageSize_);
 
   if (type) type_ = type->newCopy(outHeap);
 
@@ -9410,7 +9410,7 @@ ConstValue::ConstValue(OperatorTypeEnum otype, ConstValue *other, NAMemory *outH
       rebindNeeded_(other->rebindNeeded_),
       heap_(outHeap) {
   value_ = (void *)(new (outHeap) char[storageSize_]);
-  memcpy(value_, (void *)other->getConstValue(), (Int32)storageSize_);
+  memcpy(value_, (void *)other->getConstValue(), (int)storageSize_);
   text_ = new (outHeap) NAString(other->getText(), outHeap);
 
   NAString *otherLocaleString = other->getLocaleString();
@@ -9432,7 +9432,7 @@ ConstValue::ConstValue(const ConstValue &s, NAHeap *h)
       heap_(h) {
   if (s.value_) {
     value_ = (void *)(new (h) char[storageSize_]);
-    memcpy(value_, (void *)s.value_, (Int32)storageSize_);
+    memcpy(value_, (void *)s.value_, (int)storageSize_);
   }
   if (s.text_) {
     text_ = new (h) NAString(*s.text_, h);
@@ -9486,11 +9486,11 @@ void ConstValue::changeStringConstant(const NAString *strval) {
     // create a varchar constant of length 0, in this case.
     storageSize_ = type_->getVarLenHdrSize();
     value_ = (void *)(new (CmpCommon::statementHeap()) char[storageSize_]);
-    str_pad((char *)value_, (Int32)storageSize_, '\0');
+    str_pad((char *)value_, (int)storageSize_, '\0');
   } else {
     storageSize_ = strval->length();
     value_ = (void *)(new (CmpCommon::statementHeap()) char[storageSize_]);
-    memcpy(value_, (void *)(strval->data()), (Int32)storageSize_);
+    memcpy(value_, (void *)(strval->data()), (int)storageSize_);
   }
 
   *text_ = *strval;
@@ -9500,8 +9500,8 @@ NABoolean ConstValue::isAFalseConstant() const {
   NABoolean result = FALSE;
 
   if (type_->getTypeQualifier() == NA_BOOLEAN_TYPE && !isNull()) {
-    CMPASSERT(storageSize_ == sizeof(Int32));
-    if (*(reinterpret_cast<Int32 *>(value_)) == 0) result = TRUE;  // that means the constant is FALSE!!
+    CMPASSERT(storageSize_ == sizeof(int));
+    if (*(reinterpret_cast<int *>(value_)) == 0) result = TRUE;  // that means the constant is FALSE!!
   }
 
   return result;
@@ -9595,7 +9595,7 @@ double ConstValue::getApproximateNumericValue() const {
       return *((double *)value_);
 
     default: {
-      Int32 scale;
+      int scale;
       double tempResult = (double)getExactNumericValue(scale);
       return tempResult * pow(10, -scale);
     }
@@ -9653,7 +9653,7 @@ ConstValue *ConstValue::castToConstValue(NABoolean &negate_it) {
   return this;
 }
 
-Int32 ConstValue::getArity() const { return 0; }
+int ConstValue::getArity() const { return 0; }
 
 NAString ConstValue::getConstStr(NABoolean transformNeeded) const {
   if (!textIsValidatedSQLLiteralInUTF8_ && (*text_ == "<min>" || *text_ == "<max>")) {
@@ -9890,8 +9890,8 @@ void ConstValue::unparse(NAString &result, PhaseEnum /*phase*/, UnparseFormatEnu
     // is more than 30 characters
 
     NAString fullText(getText(), CmpCommon::statementHeap());
-    const Int32 tooLong = 30;      // keep strings shorter than this
-    const Int32 shortEnough = 10;  // leave strings of this length alone
+    const int tooLong = 30;      // keep strings shorter than this
+    const int shortEnough = 10;  // leave strings of this length alone
 
     // get the full text in query text format first
     fullText = getTextForQuery(QUERY_FORMAT);
@@ -9995,8 +9995,8 @@ HashValue ConstValue::topHash() {
   if (NOT isNull()) {
     // hash binary representation of value, but no more than 10
     // bytes (diminishing return for hashing very long strings)
-    Int32 maxc = MINOF(storageSize_, 10);
-    for (Int32 i = 0; i < maxc; i++) result ^= ((char *)value_)[i];
+    int maxc = MINOF(storageSize_, 10);
+    for (int i = 0; i < maxc; i++) result ^= ((char *)value_)[i];
   }
 
   return result;
@@ -10170,14 +10170,14 @@ NABoolean ConstValue::valueHasTrailingBlanks() {
     const CharType *typ = (const CharType *)getType();
     if (typ->getCharSet() == CharInfo::UNICODE) {
       NAWchar *nawCharVal = (NAWchar *)value_;
-      Int32 bytesPerChar = (CharInfo::maxBytesPerChar)(typ->getCharSet());
-      Int32 lastPos = (storageSize_ / bytesPerChar) - 1;
+      int bytesPerChar = (CharInfo::maxBytesPerChar)(typ->getCharSet());
+      int lastPos = (storageSize_ / bytesPerChar) - 1;
       if ((lastPos >= 0) && (nawCharVal[lastPos] == L' ')) {
         hasATrailingBlanks = TRUE;
       }
     } else {
       char *charVal = (char *)value_;
-      Int32 lastPos = storageSize_ - 1;
+      int lastPos = storageSize_ - 1;
       if ((lastPos >= 0) && (charVal[lastPos] == ' ')) {
         hasATrailingBlanks = TRUE;
       }
@@ -10195,7 +10195,7 @@ QR::ExprElement ConstValue::getQRExprElem() const { return QR::QRScalarValueElem
 // -----------------------------------------------------------------------
 // member functions for class RenameCol
 // -----------------------------------------------------------------------
-Int32 RenameCol::getArity() const { return (child(0) ? 1 : 0); }
+int RenameCol::getArity() const { return (child(0) ? 1 : 0); }
 
 const NAString RenameCol::getText() const { return ("rename as " + newColRefName_->getColName()); }
 
@@ -10237,7 +10237,7 @@ ItemExpr *RenameCol::copyTopNode(ItemExpr *derivedNode, CollHeap *outHeap) {
 // -----------------------------------------------------------------------
 // member functions for class Convert
 // -----------------------------------------------------------------------
-Int32 Convert::getArity() const { return 1; }
+int Convert::getArity() const { return 1; }
 
 HashValue Convert::topHash() {
   HashValue result = ItemExpr::topHash();
@@ -10261,7 +10261,7 @@ ItemExpr *Convert::copyTopNode(ItemExpr *derivedNode, CollHeap *outHeap) {
 // -----------------------------------------------------------------------
 // member functions for class Assign
 // -----------------------------------------------------------------------
-Int32 Assign::getArity() const { return 2; }
+int Assign::getArity() const { return 2; }
 
 NABoolean Assign::isCovered(const ValueIdSet &newExternalInputs, const GroupAttributes &coveringGA,
                             ValueIdSet &referencedInputs, ValueIdSet &coveredSubExpr, ValueIdSet &unCoveredExpr) const {
@@ -10302,7 +10302,7 @@ HashValue Assign::topHash() {
 // -----------------------------------------------------------------------
 // member functions for class ItemList
 // -----------------------------------------------------------------------
-Int32 ItemList::getArity() const { return 2; }
+int ItemList::getArity() const { return 2; }
 
 NABoolean ItemList::isCovered(const ValueIdSet &newExternalInputs, const GroupAttributes &coveringGA,
                               ValueIdSet &referencedInputs, ValueIdSet &coveredSubExpr,
@@ -10457,7 +10457,7 @@ NAString ItemList::getConstantTextNullReplace(NAString replacement, NABoolean re
 // -----------------------------------------------------------------------
 // member functions for Subquery operators
 // -----------------------------------------------------------------------
-Int32 Subquery::getArity() const {
+int Subquery::getArity() const {
   switch (getOperatorType()) {
     case ITM_ROW_SUBQUERY:
     case ITM_EXISTS:
@@ -10525,7 +10525,7 @@ ItemExpr *Subquery::copyTopNode(ItemExpr *derivedNode, CollHeap *outHeap) {
 
 // output degree functions to handle multi-output subqueries.
 // Returns the number of outputs and the ItemExpr for each.
-Int32 Subquery::getOutputDegree() {
+int Subquery::getOutputDegree() {
   if (!getRETDesc())
     return -1;  // Routine desc not set.  Error.
   else
@@ -11343,7 +11343,7 @@ NABoolean InstantiateNull::isEquivalentForCodeGeneration(const ItemExpr *other) 
 // --------------------------------------------------------------
 // member functions for BitOperFunc operator
 // --------------------------------------------------------------
-Int32 BitOperFunc::getArity() const {
+int BitOperFunc::getArity() const {
   if (child(0) == NULL)
     return 0;
   else if (child(1) == NULL)
@@ -11406,7 +11406,7 @@ int CompEncode::getEncodedLength(const CharInfo::Collation collation, const Coll
                                    const int srcLength, const NABoolean nullable) {
   CMPASSERT(CollationInfo::isSystemCollation(collation));
 
-  Int32 nPasses = CollationInfo::getCollationNPasses(collation);
+  int nPasses = CollationInfo::getCollationNPasses(collation);
 
   switch (ct) {
     case CollationInfo::Sort: {
@@ -11580,7 +11580,7 @@ ItemExpr *HiveHashComb::copyTopNode(ItemExpr *derivedNode, CollHeap *outHeap) {
 // --------------------------------------------------------------
 // member functions for MathFunc operator
 // --------------------------------------------------------------
-Int32 MathFunc::getArity() const {
+int MathFunc::getArity() const {
   if (child(0) == NULL)
     return 0;
   else if (child(1) == NULL)
@@ -11902,7 +11902,7 @@ ItemExpr *In::copyTopNode(ItemExpr *derivedNode, CollHeap *outHeap) {
 // --------------------------------------------------------------
 // member functions for NATypeToItem operator
 // --------------------------------------------------------------
-Int32 NATypeToItem::getArity() const { return 0; }
+int NATypeToItem::getArity() const { return 0; }
 const NAString NATypeToItem::getText() const { return natype_pointer->getTypeSQLname(TRUE); }
 
 ItemExpr *NATypeToItem::copyTopNode(ItemExpr *derivedNode, CollHeap *outHeap) {
@@ -12245,7 +12245,7 @@ Translate::Translate(ItemExpr *valPtr, NAString *map_table_name) : CacheableBuil
   allowsSQLnullArg() = CheckModeCompatible1();
 }
 
-Translate::Translate(ItemExpr *valPtr, Int32 map_table_id) : CacheableBuiltinFunction(ITM_TRANSLATE, 1, valPtr) {
+Translate::Translate(ItemExpr *valPtr, int map_table_id) : CacheableBuiltinFunction(ITM_TRANSLATE, 1, valPtr) {
   map_table_id_ = map_table_id;
   allowsSQLnullArg() = CheckModeCompatible1();
 }
@@ -12840,7 +12840,7 @@ NABoolean ItmSequenceFunction::isEquivalentForBinding(const ItemExpr *other) {
 ItmSeqOffset::~ItmSeqOffset() {}
 
 // -----------------------------------------------------------------------
-Int32 ItmSeqOffset::getArity() const {
+int ItmSeqOffset::getArity() const {
   if (child(1)) {
     if (child(2))
       return 3;
@@ -13063,7 +13063,7 @@ ItemExpr *ItmScalarMinMax::copyTopNode(ItemExpr *derivedNode, CollHeap *outHeap)
 NABoolean ItemExpr::containsOneRowAggregate() {
   if (getOperatorType() == ITM_ONE_ROW) return TRUE;
 
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     if (child(i)->castToItemExpr()->containsOneRowAggregate()) return TRUE;
   }
   return FALSE;
@@ -13072,7 +13072,7 @@ NABoolean ItemExpr::containsOneRowAggregate() {
 NABoolean ItemExpr::containsOpType(OperatorTypeEnum opType) const {
   if (getOperator().match(opType)) return TRUE;
 
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     if (child(i)->castToItemExpr()->containsOpType(opType)) return TRUE;
   }
   return FALSE;
@@ -13087,7 +13087,7 @@ NABoolean ItemExpr::markPathToUnTransformedNode() {
 
   if (!nodeIsTransformed()) retval = TRUE;
 
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     if (child(i)->castToItemExpr()->markPathToUnTransformedNode()) {
       markAsUnTransformed();
       retval = TRUE;
@@ -13182,7 +13182,7 @@ ItemExpr *ItemExpr::removeRangeSpecItems(NormWA *normWA) {
 // Support for OUT parameters in Stored Procedures for Java
 // Set Parameter Mode, Ordinal Position and Variable Index for a
 // host variable or dynamic parameter
-void HostVar::setPMOrdPosAndIndex(ComColumnDirection paramMode, Int32 ordinalPosition, Int32 index) {
+void HostVar::setPMOrdPosAndIndex(ComColumnDirection paramMode, int ordinalPosition, int index) {
   paramMode_ = paramMode;
   ordinalPosition_ = ordinalPosition;
   hvIndex_ = index;
@@ -13212,7 +13212,7 @@ Int16 HostVar::extractFilterId() {
   return -1;
 }
 
-void DynamicParam::setPMOrdPosAndIndex(ComColumnDirection paramMode, Int32 ordinalPosition, Int32 index) {
+void DynamicParam::setPMOrdPosAndIndex(ComColumnDirection paramMode, int ordinalPosition, int index) {
   paramMode_ = paramMode;
   ordinalPosition_ = ordinalPosition;
   dpIndex_ = index;
@@ -13223,12 +13223,12 @@ ComColumnDirection ItemExpr::getParamMode() const {
   return COM_UNKNOWN_DIRECTION;
 };
 
-Int32 ItemExpr::getOrdinalPosition() const {
+int ItemExpr::getOrdinalPosition() const {
   CMPASSERT(0);
   return -1;
 }
 
-Int32 ItemExpr::getHVorDPIndex() const {
+int ItemExpr::getHVorDPIndex() const {
   CMPASSERT(0);
   return -1;
 }
@@ -13347,7 +13347,7 @@ short RangeSpecRef::mdamPredGen(Generator *generator, MdamPred **head, MdamPred 
   return 0;
 }
 
-Int32 RangeSpecRef::getArity() const { return 2; }
+int RangeSpecRef::getArity() const { return 2; }
 
 // delete this and the range_ object associated with this, if present */
 RangeSpecRef::~RangeSpecRef() {
@@ -13407,7 +13407,7 @@ void RangeSpecRef::transformTowardNotEquals(ValueIdSet &inOutVs) {
 
   // flatten the OR tree, placing the children of the ORs into
   // the source list, then copy that to an array for convenience
-  Int32 result = theOneTree->convertToValueIdList(sourceList /* out */, NULL, ITM_OR);
+  int result = theOneTree->convertToValueIdList(sourceList /* out */, NULL, ITM_OR);
   ValueIdArray source(sourceList, sourceList.entries());  // for efficient operator[]
 
   // RangeSpecRef::getValueIdSetForReconsItemExpr has the property
@@ -13702,7 +13702,7 @@ ItemExpr *ItmOlapPivotGroup::copyTopNode(ItemExpr *derivedNode, CollHeap *outHea
 }
 
 ItemExpr *ItemExpr::doBinaryRemoveNonPushablePredicatesForORC(NABoolean allowBranchTrimOff) {
-  Int32 nc = getArity();
+  int nc = getArity();
 
   CMPASSERT(nc == 2);
 
@@ -13778,7 +13778,7 @@ ItemExpr *Function::removeNonPushablePredicatesForORC() {
       return NULL;
   }
 
-  Int32 nc = getArity();
+  int nc = getArity();
 
   for (int i = 0; i < (int)nc; i++) {
     ItemExpr *ie = child(i)->removeNonPushablePredicatesForORC();
@@ -13795,7 +13795,7 @@ void ItemExpr::bindPriorItem(BindWA *bindWA) {
     }
   }
   // recursviely go
-  Int32 nc = getArity();
+  int nc = getArity();
 
   for (int i = 0; i < (int)nc; i++) {
     child(i)->bindPriorItem(bindWA);
@@ -14111,9 +14111,9 @@ ItemExpr *RangeCompare::removeNonPushablePredicatesForORC() { return this; }
 NABoolean ItemExpr::allValueIdsAreInvalid() {
   if (getValueId() != NULL_VALUE_ID) return FALSE;
 
-  Int32 arity = getArity();
+  int arity = getArity();
 
-  for (Int32 i = 0; i < arity; i++) {
+  for (int i = 0; i < arity; i++) {
     if (child(i)) {
       if (child(i)->allValueIdsAreInvalid() == FALSE) return FALSE;
     }
@@ -14168,7 +14168,7 @@ ExprHistDummy::~ExprHistDummy() {
   // nothing to do
 }
 
-Int32 ExprHistDummy::getArity() const { return 0; }
+int ExprHistDummy::getArity() const { return 0; }
 
 void ExprHistDummy::unparse(NAString &result, PhaseEnum phase, UnparseFormatEnum form, TableDesc *tabId) const {
   result += "ExprHistDummy";

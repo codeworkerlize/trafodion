@@ -126,7 +126,7 @@ class MVCandidates {
    * @param node Find the number of nodes in the subtree rooted here.
    * @return Number of nodes in the tree rooted by \c node.
    */
-  static Int32 nodeCount(ExprNode *node);
+  static int nodeCount(ExprNode *node);
 
   /**
    * Analyze a result descriptor, creating MVMatch objects that are attached

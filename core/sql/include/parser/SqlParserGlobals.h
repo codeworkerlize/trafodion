@@ -33,8 +33,8 @@ inline CollHeap *PARSERHEAP() { return SqlParser_CurrentParser->wHeap(); }
 #ifdef SQLPARSERGLOBALS_LEX_AND_PARSE
 void ResetLexer();
 void yyerror(const char *errtext);
-Int32 yylex(YYSTYPE *lvalp);
-Int32 yyparse();
+int yylex(YYSTYPE *lvalp);
+int yyparse();
 
 class ExprNode;  // Forward refs to keep #include dependencies minimal
 class ItemExpr;
@@ -48,9 +48,9 @@ class ItemExprList;
 // It extends tokval by returning not just the token value/code/enum,
 // but also the original, case-preserved text.
 struct TokvalPlusYYText {
-  Int32 tokval;           // overlays "int tokval" in %union of .y file
+  int tokval;           // overlays "int tokval" in %union of .y file
   const NAWchar *yytext;  // beginning of token in the input string
-  Int32 yyleng;           // length of the token
+  int yyleng;           // length of the token
 };
 inline TokvalPlusYYText *ToTokvalPlusYYText(void *p) { return (TokvalPlusYYText *)p; }
 
@@ -66,7 +66,7 @@ struct StringvalWithCharSet {
     NAWString *wstringval;  // overlays "wstringval" in %union of .y file
   };
   CharInfo::CharSet charSet_;
-  Int32 bytesPerChar_;
+  int bytesPerChar_;
   UInt16 flags_;
   enum EStringValBitMaskType {
     eUSE_wstringval_FIELD_BIT_MASK = 0x0001  // 0 : use stringval - 1 : use wstringval
@@ -120,8 +120,8 @@ inline StringvalWithCharSet *ToStringvalWithCharSet(void *p) { return (Stringval
 // (See note 1 above for an approach to achieve reentrancy with globals.
 
 GLOB_ ItemExprList *SqlParser_ParamItemList INIT_(NULL);
-GLOB_ Int32 SqlParser_ParenDepth INIT_(0);
-GLOB_ Int32 SqlParser_WheneverClause INIT_(FALSE);
+GLOB_ int SqlParser_ParenDepth INIT_(0);
+GLOB_ int SqlParser_WheneverClause INIT_(FALSE);
 
 // this global variable returns the final parse tree
 GLOB_ ExprNode *TheParseTree INIT_(NULL);
@@ -152,47 +152,47 @@ GLOB_ ParNameLocList *ParNameLocListPtr INIT_(NULL);
 GLOB_ ParNameLocList *ParNameSavedLocListPtr INIT_(NULL);
 GLOB_ ParNameLocList *ParNameCTLocListPtr INIT_(NULL);
 GLOB_ ParNameLocList *ParNameDivByLocListPtr INIT_(NULL);
-GLOB_ Int32 ParScannedTokenPos INIT_(0);
-GLOB_ Int32 ParScannedTokenOffset INIT_(0);
+GLOB_ int ParScannedTokenPos INIT_(0);
+GLOB_ int ParScannedTokenOffset INIT_(0);
 GLOB_ int ParScannedInputCharset INIT_(CharInfo::UTF8);
 GLOB_ ParScannedTokenQueue *ParScannedTokens INIT_(NULL);
 
-GLOB_ Int32 WeAreInACreateMVStatement INIT_(FALSE);
-GLOB_ Int32 ThisIsTheFirstMVQuerySelect INIT_(TRUE);
+GLOB_ int WeAreInACreateMVStatement INIT_(FALSE);
+GLOB_ int ThisIsTheFirstMVQuerySelect INIT_(TRUE);
 
 //   Keep position of the end-of optional view column list
-GLOB_ Int32 ParEndOfOptionalColumnListPos INIT_(0);
+GLOB_ int ParEndOfOptionalColumnListPos INIT_(0);
 //   Keep position of the begining-of optional file options list
-GLOB_ Int32 ParBeginingOfFileOptionsListPos INIT_(0);
+GLOB_ int ParBeginingOfFileOptionsListPos INIT_(0);
 //   Keep position of the end-of optional file options list
-GLOB_ Int32 ParEndOfFileOptionsListPos INIT_(0);
+GLOB_ int ParEndOfFileOptionsListPos INIT_(0);
 //   Keep position of the begining-of the MV query
-GLOB_ Int32 ParBeginingOfMVQueryPos INIT_(0);
+GLOB_ int ParBeginingOfMVQueryPos INIT_(0);
 //   Keep position of the end-of the select column list
-GLOB_ Int32 ParEndOfSelectColumnListPos INIT_(0);
+GLOB_ int ParEndOfSelectColumnListPos INIT_(0);
 
 //   Keep position of the begining-of the query in a 'create table as'
-GLOB_ Int32 ParBeginingOfCreateTableQueryPos INIT_(0);
+GLOB_ int ParBeginingOfCreateTableQueryPos INIT_(0);
 
 // Keep position of beginning of table attributes in a 'create table as'
-GLOB_ Int32 ParBeginingOfCreateTableAsAttrList INIT_(0);
+GLOB_ int ParBeginingOfCreateTableAsAttrList INIT_(0);
 
 // Keep position of end of table attributes in a 'create table as'
-GLOB_ Int32 ParEndOfCreateTableAsAttrList INIT_(0);
+GLOB_ int ParEndOfCreateTableAsAttrList INIT_(0);
 
 // Keep position of end of WITH clause in a 'create table as'
-GLOB_ Int32 ParEndOfCreateTableAsWithClausePos INIT_(0);
+GLOB_ int ParEndOfCreateTableAsWithClausePos INIT_(0);
 
 GLOB_ NABoolean inCallStmt INIT_(FALSE);
-GLOB_ Int32 currVarIndex INIT_(1);
+GLOB_ int currVarIndex INIT_(1);
 GLOB_ NABoolean inRSProxyStmt INIT_(FALSE);
 
 // For Embedded Insert testing of a Cursor
-GLOB_ Int32 WeAreInAnEmbeddedInsert INIT_(FALSE);
+GLOB_ int WeAreInAnEmbeddedInsert INIT_(FALSE);
 
 // For LRU and Embedded Operation (for now DELETE)
-GLOB_ Int32 WeAreInALRUOperation INIT_(FALSE);
-GLOB_ Int32 WeAreInCreateTable INIT_(FALSE);
+GLOB_ int WeAreInALRUOperation INIT_(FALSE);
+GLOB_ int WeAreInCreateTable INIT_(FALSE);
 
 #endif
 

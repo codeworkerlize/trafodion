@@ -107,7 +107,7 @@ short ProbeCache::codeGen(Generator *generator) {
   // entry #2 for hash value of probe input data in Probe Cache Manager
   // entry #3 for encoded probe input data in Probe Cache Manager
   // enrry #4 for inner table row data in this operator's cache buffer
-  Int32 work_atp = 1;
+  int work_atp = 1;
   ex_cri_desc *work_cri_desc = new (space) ex_cri_desc(5, space);
   unsigned short hashValIdx = 2;
   unsigned short encodedProbeDataIdx = 3;
@@ -384,7 +384,7 @@ short ProbeCache::codeGen(Generator *generator) {
 CostScalar ProbeCache::getEstimatedRunTimeMemoryUsage(Generator *generator, NABoolean perNode, int *numStreams) {
   const int probeSize = getGroupAttr()->getCharacteristicInputs().getRowLength();
   const int numCacheEntries = ActiveSchemaDB()->getDefaults().getAsLong(GEN_PROBE_CACHE_NUM_ENTRIES);
-  const Int32 perProbeOverhead = 32;                                          // bytes
+  const int perProbeOverhead = 32;                                          // bytes
   const double cacheSize = (probeSize + perProbeOverhead) * numCacheEntries;  // in bytes
 
   const int resultSize = getGroupAttr()->getCharacteristicOutputs().getRowLength();

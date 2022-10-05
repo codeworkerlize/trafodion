@@ -288,11 +288,11 @@ class ISPIterator {
   NABoolean initializeISPCaches(SP_ROW_DATA inputData, SP_EXTRACT_FUNCPTR eFunc, SP_ERROR_STRUCT *error,
                                 const NAArray<CmpContextInfo *> &ctxs,  // input
                                 NAString &contextName,
-                                Int32 &index  // out, set initial index in arrary of CmpContextInfos
+                                int &index  // out, set initial index in arrary of CmpContextInfos
   );
 
  protected:
-  Int32 currCacheIndex_;
+  int currCacheIndex_;
   NAString contextName_;
   const NAArray<CmpContextInfo *> &ctxInfos_;
   CollHeap *heap_;

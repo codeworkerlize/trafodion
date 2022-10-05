@@ -82,7 +82,7 @@ THREAD_P NABoolean MdamTrace::initialized_ = FALSE;
 THREAD_P const char *MdamTrace::msgHeader_ = NULL;
 THREAD_P const char *MdamTrace::overrideHeader_ = NULL;
 THREAD_P const char *MdamTrace::indent_ = "\t";
-THREAD_P Int32 MdamTrace::hStdOut_ = -1;
+THREAD_P int MdamTrace::hStdOut_ = -1;
 THREAD_P NABoolean MdamTrace::okToRedirectStdOut_ = FALSE;
 THREAD_P FILE *MdamTrace::console_ = NULL;
 THREAD_P enum MdamTraceLevel MdamTrace::level_ = MDAM_TRACE_LEVEL_NONE;
@@ -791,7 +791,7 @@ class MDAMOptimalDisjunctPrefixWA {
 
 #ifndef NDEBUG
 
-static Int32 ScanOptimizerTest1(const FileScan &associatedFileScan, const CostScalar &resultSetCardinality,
+static int ScanOptimizerTest1(const FileScan &associatedFileScan, const CostScalar &resultSetCardinality,
                                 const Context &myContext, const ValueIdSet &externalInputs, CollHeap *heap) {
   // Test shared basic cost objects;
 
@@ -830,14 +830,14 @@ static Int32 ScanOptimizerTest1(const FileScan &associatedFileScan, const CostSc
   return 0;
 }
 
-static Int32 ScanOptimizerTest2(const FileScan &associatedFileScan, const CostScalar &resultSetCardinality,
+static int ScanOptimizerTest2(const FileScan &associatedFileScan, const CostScalar &resultSetCardinality,
                                 const Context &myContext, const ValueIdSet &externalInputs, CollHeap *heap) {
   // Test that the simple scan optimizer produces the same cost as the
   // original.
 
-  static Int32 test2Cnt = 0;
-  static Int32 totalCnt = 0;
-  static Int32 failCnt = 0;
+  static int test2Cnt = 0;
+  static int totalCnt = 0;
+  static int failCnt = 0;
 
   totalCnt++;
   if (ScanOptimizer::useSimpleFileScanOptimizer(associatedFileScan, myContext, externalInputs)) {
@@ -894,7 +894,7 @@ static Int32 ScanOptimizerTest2(const FileScan &associatedFileScan, const CostSc
       if (perDiff > 2.0) {
         fprintf(stdout, "Test 2 Failed %6.4f %6.4f %6.3f ", et1.value(), et2.value(), perDiff.value());
 
-        Int32 i = (Int32)(perDiff.getCeiling().getValue());
+        int i = (int)(perDiff.getCeiling().getValue());
         i = ((i > 70) ? 70 : i);
         for (; i > 0; i--) {
           fprintf(stdout, "=");
@@ -908,15 +908,15 @@ static Int32 ScanOptimizerTest2(const FileScan &associatedFileScan, const CostSc
         //        cost2->print();
 
         fprintf(stdout, "Test2 Stats (%d:%d:%d)(%d) ====\n", totalCnt, test2Cnt, failCnt,
-                (Int32)(100 * ((float)test2Cnt / (float)totalCnt)));
+                (int)(100 * ((float)test2Cnt / (float)totalCnt)));
 
       } else {
         fprintf(stdout, "Test2 Passed (%d:%d:%d)(%d) %6.3f\n", totalCnt, test2Cnt, failCnt,
-                (Int32)(100 * ((float)test2Cnt / (float)totalCnt)), perDiff.value());
+                (int)(100 * ((float)test2Cnt / (float)totalCnt)), perDiff.value());
       }
     } else {
       fprintf(stdout, "Test2 Passed (%d:%d:%d)(%d) ====\n", totalCnt, test2Cnt, failCnt,
-              (Int32)(100 * ((float)test2Cnt / (float)totalCnt)));
+              (int)(100 * ((float)test2Cnt / (float)totalCnt)));
     }
     delete cost1;
     delete cost2;
@@ -928,7 +928,7 @@ static Int32 ScanOptimizerTest2(const FileScan &associatedFileScan, const CostSc
 // THREAD_P TaskMonitor* simpleFSOMonPtr = NULL;
 // THREAD_P TaskMonitor* complexFSOMonPtr = NULL;
 
-static Int32 ScanOptimizerTest3(const FileScan &associatedFileScan, const CostScalar &resultSetCardinality,
+static int ScanOptimizerTest3(const FileScan &associatedFileScan, const CostScalar &resultSetCardinality,
                                 const Context &myContext, const ValueIdSet &externalInputs, CollHeap *heap) {
   // Test the performance of the simple scan optimizer compared to the
   // original.
@@ -945,7 +945,7 @@ static Int32 ScanOptimizerTest3(const FileScan &associatedFileScan, const CostSc
 
     CURRENTSTMT->getSimpleFSOMonPtr()->enter();
 
-    Int32 i;
+    int i;
     for (i = 0; i < 20; i++) {
       SearchKey *searchKey1 = NULL;
       MdamKey *mdamKey1 = NULL;
@@ -971,14 +971,14 @@ static Int32 ScanOptimizerTest3(const FileScan &associatedFileScan, const CostSc
   return 0;
 }
 
-static Int32 ScanOptimizerTest4(const FileScan &associatedFileScan, const CostScalar &resultSetCardinality,
+static int ScanOptimizerTest4(const FileScan &associatedFileScan, const CostScalar &resultSetCardinality,
                                 const Context &myContext, const ValueIdSet &externalInputs, CollHeap *heap) {
   // Test that the simple scan optimizer produces the same cost as the
   // original.
 
-  static Int32 test4Cnt = 0;
-  static Int32 totalCnt = 0;
-  static Int32 failCnt = 0;
+  static int test4Cnt = 0;
+  static int totalCnt = 0;
+  static int failCnt = 0;
 
   if (!ScanOptimizer::useSimpleFileScanOptimizer(associatedFileScan, myContext, externalInputs)) {
     totalCnt++;
@@ -1033,7 +1033,7 @@ static Int32 ScanOptimizerTest4(const FileScan &associatedFileScan, const CostSc
         if (perDiff > 2.0) {
           fprintf(stdout, "Test 4 Failed %6.4f %6.4f %6.3f ", et1.value(), et2.value(), perDiff.value());
 
-          Int32 i = (Int32)(perDiff.getCeiling().getValue());
+          int i = (int)(perDiff.getCeiling().getValue());
           i = ((i > 70) ? 70 : i);
           for (; i > 0; i--) {
             fprintf(stdout, "=");
@@ -1053,14 +1053,14 @@ static Int32 ScanOptimizerTest4(const FileScan &associatedFileScan, const CostSc
   return 0;
 }
 
-static Int32 ScanOptimizerTest5(const FileScan &associatedFileScan, const CostScalar &resultSetCardinality,
+static int ScanOptimizerTest5(const FileScan &associatedFileScan, const CostScalar &resultSetCardinality,
                                 const Context &myContext, const ValueIdSet &externalInputs, CollHeap *heap) {
   // Test that the simple scan optimizer produces the same cost as the
   // original for cases of Multiprobe.
 
-  static Int32 test5Cnt = 0;
-  static Int32 totalCnt = 0;
-  static Int32 failCnt = 0;
+  static int test5Cnt = 0;
+  static int totalCnt = 0;
+  static int failCnt = 0;
 
   totalCnt++;
   if (ScanOptimizer::useSimpleFileScanOptimizer(associatedFileScan, myContext, externalInputs)) {
@@ -1121,7 +1121,7 @@ static Int32 ScanOptimizerTest5(const FileScan &associatedFileScan, const CostSc
         if (perDiff > 2.0) {
           fprintf(stdout, "Test 5 Failed %6.4f %6.4f %6.3f ", et1.value(), et2.value(), perDiff.value());
 
-          Int32 i = (Int32)(perDiff.getCeiling().getValue());
+          int i = (int)(perDiff.getCeiling().getValue());
           i = ((i > 70) ? 70 : i);
           for (; i > 0; i--) {
             fprintf(stdout, "=");
@@ -1135,15 +1135,15 @@ static Int32 ScanOptimizerTest5(const FileScan &associatedFileScan, const CostSc
           //        cost2->print();
 
           fprintf(stdout, "Test5 Stats (%d:%d:%d)(%d) ====\n", totalCnt, test5Cnt, failCnt,
-                  (Int32)(100 * ((float)test5Cnt / (float)totalCnt)));
+                  (int)(100 * ((float)test5Cnt / (float)totalCnt)));
 
         } else {
           fprintf(stdout, "Test5 Passed (%d:%d:%d)(%d) %6.3f\n", totalCnt, test5Cnt, failCnt,
-                  (Int32)(100 * ((float)test5Cnt / (float)totalCnt)), perDiff.value());
+                  (int)(100 * ((float)test5Cnt / (float)totalCnt)), perDiff.value());
         }
       } else {
         fprintf(stdout, "Test5 Passed (%d:%d:%d)(%d) ====\n", totalCnt, test5Cnt, failCnt,
-                (Int32)(100 * ((float)test5Cnt / (float)totalCnt)));
+                (int)(100 * ((float)test5Cnt / (float)totalCnt)));
       }
       delete cost1;
       delete cost2;
@@ -1153,7 +1153,7 @@ static Int32 ScanOptimizerTest5(const FileScan &associatedFileScan, const CostSc
   return 0;
 }
 
-static Int32 ScanOptimizerAllTests(const FileScan &associatedFileScan, const CostScalar &resultSetCardinality,
+static int ScanOptimizerAllTests(const FileScan &associatedFileScan, const CostScalar &resultSetCardinality,
                                    const Context &myContext, const ValueIdSet &externalInputs, CollHeap *heap)
 
 {
@@ -4535,11 +4535,11 @@ void FileScanOptimizer::runMdamTests(const MdamKey *mdamKeyPtr, const Cost *cost
 // TRAFODION-2645 intends to ultimately replace this code.) Good luck! Here's
 // the (probably not exhaustive) list:
 //
-// 1. Int32 totalUec should be an long, because that's what
+// 1. int totalUec should be an long, because that's what
 // RangeSpec::getTotalDistinctValues returns. (The implied cast of long down
-// to Int32 essentially does a mod 2^32 operation, resulting in a garbage value.)
+// to int essentially does a mod 2^32 operation, resulting in a garbage value.)
 //
-// 2. Similarly, ARRAY(Int32) uecsByKeyColumns should be ARRAY(long).
+// 2. Similarly, ARRAY(int) uecsByKeyColumns should be ARRAY(long).
 //
 // 3. In the Subrange object (qmscommon/Range.h), the "end" member is uninitialized
 // for predicates of the form A < 10. So you get a random value back from
@@ -4590,11 +4590,11 @@ void FileScanOptimizer::runMdamTests(const MdamKey *mdamKeyPtr, const Cost *cost
 // TRAFODION-2645 intends to ultimately replace this code.) Good luck! Here's
 // the (probably not exhaustive) list:
 //
-// 1. Int32 totalUec should be an long, because that's what
+// 1. int totalUec should be an long, because that's what
 // RangeSpec::getTotalDistinctValues returns. (The implied cast of long down
-// to Int32 essentially does a mod 2^32 operation, resulting in a garbage value.)
+// to int essentially does a mod 2^32 operation, resulting in a garbage value.)
 //
-// 2. Similarly, ARRAY(Int32) uecsByKeyColumns should be ARRAY(long).
+// 2. Similarly, ARRAY(int) uecsByKeyColumns should be ARRAY(long).
 //
 // 3. In the Subrange object (qmscommon/Range.h), the "end" member is uninitialized
 // for predicates of the form A < 10. So you get a random value back from
@@ -4641,8 +4641,8 @@ NABoolean FileScanOptimizer::isMDAMFeasibleForHBase(const IndexDesc *idesc, Valu
     if (colStat && colStat->isFakeHistogram() == FALSE) return FALSE;
   }
 
-  ARRAY(Int32) uecsByKeyColumns(HEAP);
-  ARRAY(Int32) rangesByKeyColumns(HEAP);
+  ARRAY(int) uecsByKeyColumns(HEAP);
+  ARRAY(int) rangesByKeyColumns(HEAP);
 
   NABoolean possiblyUseMdam = FALSE;
 
@@ -4656,7 +4656,7 @@ NABoolean FileScanOptimizer::isMDAMFeasibleForHBase(const IndexDesc *idesc, Valu
       for (CollIndex k = 0; k < idesc->getIndexKey().entries(); k++)
         if (rangeCol->containsTheGivenValue(idesc->getIndexKey()[k])) {
           possiblyUseMdam = TRUE;
-          Int32 totalUec = destObj->getTotalDistinctValues(HEAP);
+          int totalUec = destObj->getTotalDistinctValues(HEAP);
 
           if (totalUec == -1) {
             return FALSE;  // can not determine #distinct values covered
@@ -4666,7 +4666,7 @@ NABoolean FileScanOptimizer::isMDAMFeasibleForHBase(const IndexDesc *idesc, Valu
           if (!uecsByKeyColumns.used(k) || totalUec > uecsByKeyColumns[k]) uecsByKeyColumns.insert(k, totalUec);
 
           // compute and store #ranges
-          Int32 ranges = destObj->getTotalRanges();
+          int ranges = destObj->getTotalRanges();
 
           if (!rangesByKeyColumns.used(k) || ranges > rangesByKeyColumns[k]) rangesByKeyColumns.insert(k, ranges);
 
@@ -4682,7 +4682,7 @@ NABoolean FileScanOptimizer::isMDAMFeasibleForHBase(const IndexDesc *idesc, Valu
       if (rangesByKeyColumns.used(last)) break;
     }
 
-    Int32 numMDAMColumns = 1;
+    int numMDAMColumns = 1;
     for (CollIndex j = 0; j < last; j++) {
       if (uecsByKeyColumns.used(j))
         numMDAMColumns *= uecsByKeyColumns[j];

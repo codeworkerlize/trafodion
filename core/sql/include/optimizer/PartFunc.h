@@ -74,7 +74,7 @@ class NAColumnArray;
 class SearchKey;
 class SkewedValueList;
 typedef LIST(long) Int64List;
-typedef NABoolean (*compFuncPtrT)(const char *low, const char *key, const char *high, Int32 keyLen,
+typedef NABoolean (*compFuncPtrT)(const char *low, const char *key, const char *high, int keyLen,
                                   NABoolean checkLast);
 
 // ----------------------------------------------------------------------
@@ -105,7 +105,7 @@ class skewProperty : public NABasicObject {
     BROADCAST            // skewed values are broadcasted
   };
 
-  skewProperty(enum skewDataHandlingEnum x = ANY, SkewedValueList *v = NULL, Int32 numEsps = -1,
+  skewProperty(enum skewDataHandlingEnum x = ANY, SkewedValueList *v = NULL, int numEsps = -1,
                NAMemory *heap = CmpCommon::statementHeap())
       : indicator_(x), skewValues_(v), heap_(heap), numESPs_(numEsps), broadcastOneRow_(FALSE){};
 
@@ -148,7 +148,7 @@ class skewProperty : public NABasicObject {
 
   NABoolean hasSkewValues() const { return skewValues_ AND skewValues_->entries() > 0; };
 
-  Int32 getAntiSkewESPs() const { return numESPs_; };
+  int getAntiSkewESPs() const { return numESPs_; };
 
   NABoolean skewedListHasOnlyNonSkewedNull() const { return skewValues_->hasOnlyNonSkewedNull(); }
 
@@ -162,7 +162,7 @@ class skewProperty : public NABasicObject {
   NABoolean broadcastOneRow_;
 
   // the number of ESPs that will deal with skew. -1 means "use all"
-  Int32 numESPs_;
+  int numESPs_;
 };
 
 // Define one useful object: the any-skew object
@@ -681,7 +681,7 @@ class PartitioningFunction : public NABasicObject {
 
   virtual NABoolean canHandleSkew() const { return FALSE; };
 
-  virtual UInt32 computeHashValue(char *data, UInt32 flags, Int32 len) { return 0; };
+  virtual UInt32 computeHashValue(char *data, UInt32 flags, int len) { return 0; };
 
   virtual ItemExpr *getHashingExpression() const { return NULL; };
 
@@ -1143,7 +1143,7 @@ class HashPartitioningFunction : public PartitioningFunction {
 
   ItemExpr *buildHashingExpressionForExpr(ItemExpr *expr);
   ItemExpr *getHashingExpression() const;
-  UInt32 computeHashValue(char *data, UInt32 flags, Int32 len);
+  UInt32 computeHashValue(char *data, UInt32 flags, int len);
 
  protected:
   virtual const NAString getTextImp(const char *) const;
@@ -1290,7 +1290,7 @@ class TableHashPartitioningFunction : public PartitioningFunction {
 
   ItemExpr *buildHashingExpressionForExpr(ItemExpr *);
   ItemExpr *getHashingExpression() const;
-  UInt32 computeHashValue(char *data, UInt32 flags, Int32 len);
+  UInt32 computeHashValue(char *data, UInt32 flags, int len);
 
  protected:
   // ---------------------------------------------------------------------
@@ -1542,7 +1542,7 @@ class SkewedDataPartitioningFunction : public PartitioningFunction {
   ItemExpr *getHashingExpression() const { return partialPartFunc_->getHashingExpression(); };
 
   // A method returns the hash for a skew value
-  UInt32 computeHashValue(char *data, UInt32 flags, Int32 len) {
+  UInt32 computeHashValue(char *data, UInt32 flags, int len) {
     return partialPartFunc_->computeHashValue(data, flags, len);
   };
 
@@ -1613,7 +1613,7 @@ class HivePartitioningFunction : public HashPartitioningFunction {
 
   ItemExpr *buildHashingExpressionForExpr(ItemExpr *expr);
   ItemExpr *getHashingExpression() const;
-  UInt32 computeHashValue(char *data, UInt32 flags, Int32 len);
+  UInt32 computeHashValue(char *data, UInt32 flags, int len);
 
   PartitioningFunction *createPartitioningFunctionForIndexDesc(IndexDesc *idesc) const;
 
@@ -1753,11 +1753,11 @@ class RangePartitionBoundaries : public NABasicObject {
 
   // find a boundary pair [low, high) with smallest low value in which keys fall, and return the
   // // index of the boundary low. Return -1 otherwise, or the key lengths are different.
-  Int32 findBeginBoundary(char *encodedKey, Int32 keyLen, compFuncPtrT compFunc) const;
+  int findBeginBoundary(char *encodedKey, int keyLen, compFuncPtrT compFunc) const;
 
   // find a boundary pair [low, high) with the largest low value in which keys fall, and return the
   // // index of the boundary low. Return -1 otherwise, or the key lengths are different.
-  Int32 findEndBoundary(char *encodedKey, Int32 keyLen, compFuncPtrT compFunc) const;
+  int findEndBoundary(char *encodedKey, int keyLen, compFuncPtrT compFunc) const;
 
   void setupForStatement(NABoolean useStringVersion);
   void resetAfterStatement();
@@ -1941,7 +1941,7 @@ class RangePartitioningFunction : public PartitioningFunction {
   // Compute the number of active partitions. Active partitions are those
   // that will be accessed applying the search key skey.
   // ---------------------------------------------------------------------
-  Int32 computeNumOfActivePartitions(SearchKey *skey, const TableDesc *tDesc) const;
+  int computeNumOfActivePartitions(SearchKey *skey, const TableDesc *tDesc) const;
 
   virtual const NAString getText() const;
   virtual void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT,

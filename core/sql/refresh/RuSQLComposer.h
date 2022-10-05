@@ -116,7 +116,7 @@ inline CDSString CRUSQLComposer::TInt32ToStr(TInt32 num) {
 //--------------------------------------------------------------------------//
 
 inline CDSString CRUSQLComposer::TInt64ToStr(TInt64 src) {
-  const Int32 maxBufferSize = 50;
+  const int maxBufferSize = 50;
 
   TInt64 temp = src;  // (src >= 0) ? src : - src;
   char buffer[maxBufferSize];
@@ -124,7 +124,7 @@ inline CDSString CRUSQLComposer::TInt64ToStr(TInt64 src) {
   *--s = '\0';
   do {
 #ifdef NA_NSK
-    Int32 c = (Int32)(temp % 10);
+    int c = (int)(temp % 10);
 #else
     char c = (char)(temp % 10);
 #endif  // NA_NSK
@@ -143,7 +143,7 @@ inline CDSString CRUSQLComposer::TInt64ToStr(TInt64 src) {
 //--------------------------------------------------------------------------//
 
 inline CDSString CRUSQLComposer::TInt64ToTwoStrs(TInt64 num) {
-  const Int32 maxBufferSize = 50;
+  const int maxBufferSize = 50;
   char buf[maxBufferSize];
 
   // Break a quad-word into two double-words

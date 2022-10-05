@@ -250,7 +250,7 @@ ClusterDB::ClusterDB(HashOperator hashOperator, ULng32 bufferSize, atp_struct *w
                      ExSubtask *ioEventHandler, ex_tcb *callingTcb, UInt16 scratchThresholdPct, NABoolean doLog,
                      NABoolean bufferedWrites, NABoolean disableCmpHintsOverflow, ULng32 memoryQuotaMB,
                      ULng32 minMemoryQuotaMB, ULng32 minMemBeforePressureCheck, Float32 bmoCitizenshipFactor,
-                     Int32 pMemoryContingencyMB, Float32 estimateErrorPenalty, Float32 hashMemEstInKBPerNode,
+                     int pMemoryContingencyMB, Float32 estimateErrorPenalty, Float32 hashMemEstInKBPerNode,
                      ULng32 initialHashTableSize, ExOperStats *hashOperStats)
     : hashOperator_(hashOperator),
       bufferSize_(bufferSize),
@@ -867,7 +867,7 @@ NABoolean ClusterDB::setOuterClusterToRead(Cluster *oCluster, ExeErrorCode *rc) 
   // when called first time for this ClusterDB, allocate the buffer list
   if (NULL == outerReadBuffers_) {
     // Allocate a list of hash buffers to be kept at the ClusterDB
-    for (Int32 bnum = 0; bnum < numReadOuterBatch_; bnum++) {
+    for (int bnum = 0; bnum < numReadOuterBatch_; bnum++) {
       HashBuffer *newBuffer = NULL;
       newBuffer = new (collHeap(), FALSE)
           HashBuffer(bufferSize_, oCluster->rowLength_, oCluster->useVariableLength_, collHeap(), this, rc);
@@ -1819,7 +1819,7 @@ NABoolean Cluster::squeezeOutRowsOfOtherClusters(ExeErrorCode *rc) {
     // current position of that slot/row.
     char *toSlot = NULL, *fromRow = NULL;
     UInt32 numConfirmedRowsInBuff = lastSqueezedBuffer_->getRowCount();
-    Int32 toRowPos = (Int32)toBuff->getRowCount(), fromRowPos = (Int32)fromBuff->getRowCount() - 1;
+    int toRowPos = (int)toBuff->getRowCount(), fromRowPos = (int)fromBuff->getRowCount() - 1;
     const UInt32 rowLength = lastSqueezedBuffer_->getMaxRowLength();
     const UInt32 maxRowsInBuffer = lastSqueezedBuffer_->castToSerial()->getMaxNumFullRows();
 
@@ -1833,7 +1833,7 @@ NABoolean Cluster::squeezeOutRowsOfOtherClusters(ExeErrorCode *rc) {
 
       while (!toSlot) {
         // update toBuff to next buffer, if needed
-        if (toRowPos >= (Int32)maxRowsInBuffer) {  // is this "to" buffer full?
+        if (toRowPos >= (int)maxRowsInBuffer) {  // is this "to" buffer full?
           lastSqueezedBuffer_ = toBuff;            // toBuff is all squeezed
           lastSqueezedBuffer_->castToSerial()->setRowCount(maxRowsInBuffer);
 
@@ -1873,7 +1873,7 @@ NABoolean Cluster::squeezeOutRowsOfOtherClusters(ExeErrorCode *rc) {
 
         } else {  // find an available slot
 
-          if (toRowPos >= (Int32)toBuff->getRowCount()
+          if (toRowPos >= (int)toBuff->getRowCount()
               // this buffer was not full, and we reached over the top row
               ||  // or
               clusterDb_->buckets_[bucketId].getInnerCluster() != this
@@ -1895,7 +1895,7 @@ NABoolean Cluster::squeezeOutRowsOfOtherClusters(ExeErrorCode *rc) {
           ex_assert(bufferPool_ != lastSqueezedBuffer_, "Empty bufferPool is the last squeezed buffer");
           delete bufferPool_;  // the dtor removes the first buffer in list
           fromBuff = bufferPool_;
-          fromRowPos = (Int32)fromBuff->getRowCount() - 1;
+          fromRowPos = (int)fromBuff->getRowCount() - 1;
           // just in case ...
           if (fromBuff == lastSqueezedBuffer_) return FALSE;
         }

@@ -114,7 +114,7 @@ class UnPackRows : public RelExpr {
 
   // UnPackRows has one child.
   //
-  virtual Int32 getArity() const { return 1; };
+  virtual int getArity() const { return 1; };
 
   // The potential packing factor of each row.
   //

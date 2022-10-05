@@ -306,21 +306,21 @@ class ex_clause : public NAVersionedObject {
   // isSpecialNulls - Return TRUE if NULL should compare bigger than maximum
   // value
   //
-  virtual Int32 isNullInNullOut() const { return 1; };  // must be redefined in derived classes
-  virtual Int32 isNullRelevant() const { return 1; };   // must be redefined in derived classes
-  inline Int32 isAnyInputNullable() { return flags_ & ANY_INPUT_NULLABLE; };
+  virtual int isNullInNullOut() const { return 1; };  // must be redefined in derived classes
+  virtual int isNullRelevant() const { return 1; };   // must be redefined in derived classes
+  inline int isAnyInputNullable() { return flags_ & ANY_INPUT_NULLABLE; };
 
-  inline Int32 isAnyOutputNullable() { return flags_ & ANY_OUTPUT_NULLABLE; };
+  inline int isAnyOutputNullable() { return flags_ & ANY_OUTPUT_NULLABLE; };
 
-  inline Int32 isAnyOperandNullable() { return flags_ & (ANY_INPUT_NULLABLE | ANY_OUTPUT_NULLABLE); };
+  inline int isAnyOperandNullable() { return flags_ & (ANY_INPUT_NULLABLE | ANY_OUTPUT_NULLABLE); };
 
-  inline Int32 useProcessNulls() { return flags_ & USE_PROCESS_NULLS; };
+  inline int useProcessNulls() { return flags_ & USE_PROCESS_NULLS; };
 
   void setProcessNulls() {
     if (isNullRelevant() && (flags_ & (ANY_INPUT_NULLABLE | ANY_OUTPUT_NULLABLE))) flags_ |= USE_PROCESS_NULLS;
   };
   void setSpecialNulls() { flags_ |= SPECIAL_NULLS; };
-  Int32 isSpecialNulls() { return (flags_ & SPECIAL_NULLS) != 0; };
+  int isSpecialNulls() { return (flags_ & SPECIAL_NULLS) != 0; };
 
   NABoolean noPCodeAvailable() { return (flags_ & NO_PCODE_AVAILABLE) != 0; };
   void setNoPCodeAvailable(NABoolean v) { (v ? flags_ |= NO_PCODE_AVAILABLE : flags_ &= ~NO_PCODE_AVAILABLE); };
@@ -331,7 +331,7 @@ class ex_clause : public NAVersionedObject {
   NABoolean forInsertUpdate() { return (flags_ & FOR_INSERT_UPDATE) != 0; };
   void setForInsertUpdate(NABoolean v) { (v ? flags_ |= FOR_INSERT_UPDATE : flags_ &= ~FOR_INSERT_UPDATE); };
 
-  inline Int32 getAllFlags() { return flags_; };
+  inline int getAllFlags() { return flags_; };
 
   //
   // SPECIAL TRUNCATION FLAG
@@ -342,10 +342,10 @@ class ex_clause : public NAVersionedObject {
   // The following two methods are used only in ex_conv_clause objects
 
   void setCheckTruncationFlag() { flags_ |= CHECK_STRING_TRUNCATION; };
-  Int32 getCheckTruncationFlag() { return (flags_ & CHECK_STRING_TRUNCATION); }
+  int getCheckTruncationFlag() { return (flags_ & CHECK_STRING_TRUNCATION); }
 
   void setNoTruncationWarningsFlag() { flags_ |= NO_STRING_TRUNCATION_WARNINGS; };
-  Int32 getNoTruncationWarningsFlag() { return (flags_ & NO_STRING_TRUNCATION_WARNINGS); }
+  int getNoTruncationWarningsFlag() { return (flags_ & NO_STRING_TRUNCATION_WARNINGS); }
 
   // Branch handling
   //
@@ -361,10 +361,10 @@ class ex_clause : public NAVersionedObject {
   // addBranchTarget - Increments the number of branch clauses
   // which target this clause.
   //
-  virtual Int32 isBranchingClause() const { return 0; };
-  Int32 isBranchTarget() const { return numberBranchTargets_ != 0; };
-  Int32 getNumberBranchTargets() { return numberBranchTargets_; };
-  void setNumberBranchTargets(Int32 num) { numberBranchTargets_ = num; };
+  virtual int isBranchingClause() const { return 0; };
+  int isBranchTarget() const { return numberBranchTargets_ != 0; };
+  int getNumberBranchTargets() { return numberBranchTargets_; };
+  void setNumberBranchTargets(int num) { numberBranchTargets_ = num; };
   void addBranchTarget() { numberBranchTargets_++; };
 
   unsigned short &clauseNum() { return clauseNum_; }
@@ -436,7 +436,7 @@ class ex_clause : public NAVersionedObject {
   // op_data[-2*MAX_OPERANDS], etc.
   //
   //
-  virtual Int32 isEvalRelevant() const { return 1; };  // must be redefined in derived classes
+  virtual int isEvalRelevant() const { return 1; };  // must be redefined in derived classes
   virtual ex_expr::exp_return_type processNulls(char *op_data[], CollHeap * = 0, ComDiagsArea ** = 0);
   virtual ex_expr::exp_return_type eval(char *op_data[], CollHeap * = 0, ComDiagsArea ** = 0);
   virtual ex_expr::exp_return_type eval(char *op_data[], atp_struct *atp1, atp_struct *atp2, atp_struct *atp3,
@@ -444,11 +444,11 @@ class ex_clause : public NAVersionedObject {
 
   // Display
   //
-  virtual void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea);
+  virtual void displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea);
 
-  virtual void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea, ULng32 flag);
+  virtual void displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea, ULng32 flag);
 
-  void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea, UInt32 clauseFlags,
+  void displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea, UInt32 clauseFlags,
                        Int16 instruction, const char *instrText);
   //                       Int16 instruction = -1,
   //                       const char * instrText = NULL);
@@ -457,7 +457,7 @@ class ex_clause : public NAVersionedObject {
     CollIndex atpIdx = attr->getAtpIndex();
 
     if (attr->isSQLMXDiskFormat() && (attr->getVCIndicatorLength() > 0))
-      str_pad((atp->getTupp(atpIdx)).getDataPointer(), sizeof(Int32), 0);
+      str_pad((atp->getTupp(atpIdx)).getDataPointer(), sizeof(int), 0);
   }
 
   static void setRowLength(Attributes *attr, atp_struct *atp, UInt32 *rowLen, UInt32 newLength) {
@@ -576,8 +576,8 @@ inline ex_clause *ex_clause::getNextClause() { return nextClause_; };
 inline void ex_clause::setNextPackedClause(long offset) { nextClause_ = offset; };
 
 // functions to compare two strings
-Int32 charStringCompareWithPad(char *in_s1, Int32 length1, char *in_s2, Int32 length2, char space,
+int charStringCompareWithPad(char *in_s1, int length1, char *in_s2, int length2, char space,
                                NABoolean ignoreSpace = false);
 
-Int32 wcharStringCompareWithPad(NAWchar *s1, Int32 length1, NAWchar *s2, Int32 length2, NAWchar space);
+int wcharStringCompareWithPad(NAWchar *s1, int length1, NAWchar *s2, int length2, NAWchar space);
 #endif

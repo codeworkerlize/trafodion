@@ -69,7 +69,7 @@ UserException::UserException(const char *fileName, UInt32 lineNum) : BaseExcepti
 
 void UserException::throwException() { throw *this; }
 
-DDLException::DDLException(Int32 sqlcode, const char *fileName, UInt32 lineNum)
+DDLException::DDLException(int sqlcode, const char *fileName, UInt32 lineNum)
     : BaseException(fileName, lineNum), sqlcode_(sqlcode) {}
 void DDLException::throwException() { throw *this; }
 // FatalException Implementation

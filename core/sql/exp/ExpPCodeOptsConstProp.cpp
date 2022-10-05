@@ -187,8 +187,8 @@ NABoolean PCodeCfg::localConstantPropagation(PCodeBlock *block, NABitVector &zer
   PCodeOperand *operand1, *operand2;
   CollIndex bvIndex1, bvIndex2;
   PCodeInst *returnInst = NULL;
-  Int32 returnValue = PCodeConstants::UNKNOWN_CONSTANT;
-  Int32 constant, constant2;
+  int returnValue = PCodeConstants::UNKNOWN_CONSTANT;
+  int constant, constant2;
 
   NABoolean isZero, isOne, isNeg1;
   NABoolean graphChanged = FALSE;
@@ -872,7 +872,7 @@ NABoolean PCodeCfg::localConstantPropagation(PCodeBlock *block, NABitVector &zer
         constant = PCodeConstants::getConstantValue(bvIndex2, zeroes, ones, neg1);
 
         if (constant != PCodeConstants::UNKNOWN_CONSTANT) {
-          Int32 val = 0;
+          int val = 0;
 
           switch (opc) {
             case PCIT::NULL_TEST_MBIN32S_MBIN16U_IBIN32S:
@@ -1480,7 +1480,7 @@ NABoolean PCodeCfg::localConstantPropagation(PCodeBlock *block, NABitVector &zer
         PCodeBlock *tgtBlock = block->getTargetBlock();
         if (tgtBlock->getLastInst() && (tgtBlock->getLastInst() == tgtBlock->getFirstInst())) {
           PCodeInst *logicInst = tgtBlock->getLastInst();
-          Int32 subOpc = logicInst->getOpcode();
+          int subOpc = logicInst->getOpcode();
 
           // ((BRANCH_OR -> OR) or (BRANCH_AND -> AND)) and both insts have
           // the same write operand.
@@ -1574,7 +1574,7 @@ ENDFE_BLOCK
 // Given an operand known to be a constant, lookup it's value as a string and
 // return it (and its length via an incoming parameter).
 //
-char *PCodeCfg::getStringConstValue(PCodeOperand *op, Int32 *len) {
+char *PCodeCfg::getStringConstValue(PCodeOperand *op, int *len) {
   CollIndex off = op->getOffset();
 
   if (op->isVarchar()) {
@@ -1593,8 +1593,8 @@ char *PCodeCfg::getStringConstValue(PCodeOperand *op, Int32 *len) {
     case PCIT::MATTR5:
       if (op->isVarchar()) {
         *len = ((op->getVcIndicatorLen() == 2)
-                    ? (Int32)(*((Int16 *)((char *)constPtr->getData() + op->getVcNullIndicatorLen())))
-                    : (Int32)(*((Int32 *)((char *)constPtr->getData() + op->getVcNullIndicatorLen()))));
+                    ? (int)(*((Int16 *)((char *)constPtr->getData() + op->getVcNullIndicatorLen())))
+                    : (int)(*((int *)((char *)constPtr->getData() + op->getVcNullIndicatorLen()))));
 
         return ((char *)constPtr->getData() + op->getVcIndicatorLen() + op->getVcNullIndicatorLen());
       }
@@ -1621,7 +1621,7 @@ void *PCodeCfg::getPtrConstValue(PCodeOperand *op) {
   // As such, the offset must come directly from the constants area of the expr.
   if (offsetToConstMap_ == NULL) {
     char *stk = expr_->getConstantsArea();
-    Int32 len = expr_->getConstsLength();
+    int len = expr_->getConstsLength();
 
     assert(off < (CollIndex)len);
 
@@ -1682,7 +1682,7 @@ long PCodeCfg::getIntConstValue(PCodeOperand *op) {
       value = (long) * ((UInt16 *)(constPtr->getData()));
       break;
     case PCIT::MBIN32S:
-      value = (long) * ((Int32 *)(constPtr->getData()));
+      value = (long) * ((int *)(constPtr->getData()));
       break;
     case PCIT::MBIN32U:
       value = (long) * ((UInt32 *)(constPtr->getData()));
@@ -1699,7 +1699,7 @@ long PCodeCfg::getIntConstValue(PCodeOperand *op) {
           value = (long) * ((Int16 *)(constPtr->getData()));
           break;
         case 4:
-          value = (long) * ((Int32 *)(constPtr->getData()));
+          value = (long) * ((int *)(constPtr->getData()));
           break;
         case 8:
           value = (long) * ((long *)(constPtr->getData()));
@@ -1756,7 +1756,7 @@ double PCodeCfg::getFloatConstValue(PCodeOperand *op) {
 // Add a new integer constant.  The alignment param is used to indicate the
 // size of the datum as well as it's alignment.
 //
-Int32 PCodeCfg::addNewIntConstant(long value, Int32 alignment) {
+int PCodeCfg::addNewIntConstant(long value, int alignment) {
   // Quickly return the zero offset if it exists and we're looking to add 0.
   if ((value == 0) && (zeroOffset_ != -1)) return zeroOffset_;
 
@@ -1791,7 +1791,7 @@ Int32 PCodeCfg::addNewIntConstant(long value, Int32 alignment) {
 // Add a new float constant.  The alignment param is used to indicate the
 // size of the datum as well as it's alignment.
 //
-Int32 PCodeCfg::addNewFloatConstant(double value, Int32 alignment) {
+int PCodeCfg::addNewFloatConstant(double value, int alignment) {
   switch (alignment) {
     case 4: {
       float val = (float)value;
@@ -1819,7 +1819,7 @@ PCodeInst *PCodeCfg::constantFold(PCodeInst *inst, NABoolean rDefsAvailable) {
   PCodeOperand *op1, *op2;
   Int16 ov;  // overflow indicator
 
-  Int32 opc = inst->getOpcode();
+  int opc = inst->getOpcode();
 
   switch (opc) {
 #if 0
@@ -1846,7 +1846,7 @@ PCodeInst *PCodeCfg::constantFold(PCodeInst *inst, NABoolean rDefsAvailable) {
 
     case PCIT::MOVE_MASCII_MASCII_IBIN32S_IBIN32S:
     case PCIT::MOVE_MASCII_MATTR5_IBIN32S: {
-      Int32 len, tgtLen;
+      int len, tgtLen;
       CollIndex *off;
 
       // Folding inst into same-sized moves is useful for copy propagation, and
@@ -1861,7 +1861,7 @@ PCodeInst *PCodeCfg::constantFold(PCodeInst *inst, NABoolean rDefsAvailable) {
         tgtLen = op1->getLen();
 
         char *str = getStringConstValue(op2, &len);
-        Int32 padLen = tgtLen - len;
+        int padLen = tgtLen - len;
 
         char *newStr = (char *)new (heap_) char[tgtLen];
         if (padLen > 0) {
@@ -1886,7 +1886,7 @@ PCodeInst *PCodeCfg::constantFold(PCodeInst *inst, NABoolean rDefsAvailable) {
     }
 
     case PCIT::MOVE_MATTR5_MASCII_IBIN32S: {
-      Int32 len, tgtLen;
+      int len, tgtLen;
       CollIndex *off;
 
       op1 = inst->getWOps()[0];
@@ -1915,7 +1915,7 @@ PCodeInst *PCodeCfg::constantFold(PCodeInst *inst, NABoolean rDefsAvailable) {
 
         off = addConstant((void *)newStr, tgtLen + 2, 2);
 
-        Int32 comboLen = 0;
+        int comboLen = 0;
         char *comboPtr = (char *)(&comboLen);
         comboPtr[0] = 0;  // no null
         comboPtr[1] = 2;  // vc length is 2 bytes
@@ -1964,7 +1964,7 @@ PCodeInst *PCodeCfg::constantFold(PCodeInst *inst, NABoolean rDefsAvailable) {
       if (op2->isConst()) {
         CollIndex *off;
         long value = getIntConstValue(op2);
-        Int32 tgtLen = inst->getWOps()[0]->getLen();
+        int tgtLen = inst->getWOps()[0]->getLen();
         char *result = (char *)new (heap_) char[tgtLen];
         BigNumHelper::ConvInt64ToBigNumWithSignHelper(tgtLen, value, result, FALSE);
 
@@ -2148,7 +2148,7 @@ PCodeInst *PCodeCfg::constantFold(PCodeInst *inst, NABoolean rDefsAvailable) {
 
         if (ov) return inst;
 
-        Int32 offset = addNewIntConstant(value, inst->getWOps()[0]->getLen());
+        int offset = addNewIntConstant(value, inst->getWOps()[0]->getLen());
         inst->code[0] = inst->generateCopyMoveOpc(inst->getWOps()[0]->getType());
         inst->code[3] = 1;
         inst->code[4] = offset;
@@ -2167,7 +2167,7 @@ PCodeInst *PCodeCfg::constantFold(PCodeInst *inst, NABoolean rDefsAvailable) {
       op2 = inst->getROps()[1];
 
       if (op1->isConst() && op2->isConst()) {
-        Int32 z, len;
+        int z, len;
 
         char *x = getStringConstValue(op1, &len);
         char *y = getStringConstValue(op2, &len);
@@ -2196,7 +2196,7 @@ PCodeInst *PCodeCfg::constantFold(PCodeInst *inst, NABoolean rDefsAvailable) {
             break;
         }
 
-        Int32 offset = addNewIntConstant(z, 4);
+        int offset = addNewIntConstant(z, 4);
         inst->code[0] = inst->generateCopyMoveOpc(PCIT::MBIN32S);
         inst->code[3] = 1;
         inst->code[4] = offset;
@@ -2263,7 +2263,7 @@ PCodeInst *PCodeCfg::constantFold(PCodeInst *inst, NABoolean rDefsAvailable) {
       op2 = inst->getROps()[1];
 
       if (op1->isConst() && op2->isConst()) {
-        Int32 z = 0;
+        int z = 0;
 
         long x = getIntConstValue(op1);
         long y = getIntConstValue(op2);
@@ -2335,7 +2335,7 @@ PCodeInst *PCodeCfg::constantFold(PCodeInst *inst, NABoolean rDefsAvailable) {
             break;
         }
 
-        Int32 offset = addNewIntConstant(z, 4);
+        int offset = addNewIntConstant(z, 4);
         inst->code[0] = inst->generateCopyMoveOpc(PCIT::MBIN32S);
         inst->code[3] = 1;
         inst->code[4] = offset;
@@ -2363,7 +2363,7 @@ PCodeInst *PCodeCfg::constantFold(PCodeInst *inst, NABoolean rDefsAvailable) {
 
         if (ov) return inst;
 
-        Int32 offset = addNewIntConstant(value, inst->getWOps()[0]->getLen());
+        int offset = addNewIntConstant(value, inst->getWOps()[0]->getLen());
         inst->code[0] = inst->generateCopyMoveOpc(inst->getWOps()[0]->getType());
         inst->code[3] = 1;
         inst->code[4] = offset;
@@ -2391,7 +2391,7 @@ PCodeInst *PCodeCfg::constantFold(PCodeInst *inst, NABoolean rDefsAvailable) {
 
         if (ov) return inst;
 
-        Int32 offset = addNewIntConstant(value, inst->getWOps()[0]->getLen());
+        int offset = addNewIntConstant(value, inst->getWOps()[0]->getLen());
         inst->code[0] = inst->generateCopyMoveOpc(inst->getWOps()[0]->getType());
         inst->code[3] = 1;
         inst->code[4] = offset;
@@ -2436,7 +2436,7 @@ PCodeInst *PCodeCfg::constantFold(PCodeInst *inst, NABoolean rDefsAvailable) {
         // FIXME: I think we need to appropriately support a MOVE_MFLT64_MFLT64
         // instruction so that Native Expressions doesn't get confused.
 
-        Int32 offset = addNewFloatConstant(res, 8);
+        int offset = addNewFloatConstant(res, 8);
         inst->code[0] = PCIT::MOVE_MBIN64S_MBIN64S;
         inst->code[3] = 1;
         inst->code[4] = offset;
@@ -2455,7 +2455,7 @@ PCodeInst *PCodeCfg::constantFold(PCodeInst *inst, NABoolean rDefsAvailable) {
       op1 = inst->getROps()[0];
 
       if (op1->isConst()) {
-        Int32 len;
+        int len;
         char *x;
         UInt32 flags = ExHDPHash::NO_FLAGS;
 
@@ -2472,7 +2472,7 @@ PCodeInst *PCodeCfg::constantFold(PCodeInst *inst, NABoolean rDefsAvailable) {
 
         UInt32 res = ExHDPHash::hash(x, flags, len);
 
-        Int32 offset = addNewIntConstant(res, 4);
+        int offset = addNewIntConstant(res, 4);
         inst->code[0] = inst->generateCopyMoveOpc(PCIT::MBIN32S);
         inst->code[3] = 1;
         inst->code[4] = offset;
@@ -2538,12 +2538,12 @@ PCodeInst *PCodeCfg::constantFold(PCodeInst *inst, NABoolean rDefsAvailable) {
       op2 = inst->getROps()[1];
       if (!op1->isConst() || !op2->isConst()) break;
 
-      Int32 len1, len2;
+      int len1, len2;
 
       char *str1 = getStringConstValue(op1, &len1);
       char *str2 = getStringConstValue(op2, &len2);
 
-      Int32 compTable[6][3] = {/* ITM_EQUAL */ {0, 1, 0},
+      int compTable[6][3] = {/* ITM_EQUAL */ {0, 1, 0},
                                /* ITM_NOT_EQUAL */ {1, 0, 1},
                                /* ITM_LESS */ {1, 0, 0},
                                /* ITM_LESS_EQ */ {1, 1, 0},
@@ -2551,12 +2551,12 @@ PCodeInst *PCodeCfg::constantFold(PCodeInst *inst, NABoolean rDefsAvailable) {
                                /* ITM_GREATER_EQ */ {0, 1, 1}};
 
       // Set table pointer to appropriate position based on operation
-      Int32 *table = &(compTable[inst->code[13] - ITM_EQUAL][1]);
+      int *table = &(compTable[inst->code[13] - ITM_EQUAL][1]);
 
-      Int32 compCode = charStringCompareWithPad(str1, len1, str2, len2, ' ');
-      Int32 res = table[compCode];
+      int compCode = charStringCompareWithPad(str1, len1, str2, len2, ' ');
+      int res = table[compCode];
 
-      Int32 offset = addNewIntConstant(res, 4);
+      int offset = addNewIntConstant(res, 4);
       inst->code[0] = inst->generateCopyMoveOpc(PCIT::MBIN32S);
       inst->code[3] = 1;
       inst->code[4] = offset;
@@ -2567,8 +2567,8 @@ PCodeInst *PCodeCfg::constantFold(PCodeInst *inst, NABoolean rDefsAvailable) {
     }
 
     case PCIT::GENFUNC_MATTR5_MATTR5_IBIN32S: {
-      Int32 len;
-      Int32 subOpc = inst->code[11];
+      int len;
+      int subOpc = inst->code[11];
 
       // Get source operand and check if constant.
       op2 = inst->getROps()[0];
@@ -2583,7 +2583,7 @@ PCodeInst *PCodeCfg::constantFold(PCodeInst *inst, NABoolean rDefsAvailable) {
         case ITM_RTRIM:
         case ITM_UPPER:
         case ITM_LOWER: {
-          Int32 startIdx = 0;
+          int startIdx = 0;
           char *fromStr = NULL;
           NABoolean fromStrAllocated = FALSE;
           PCodeInst *newInst;
@@ -2628,7 +2628,7 @@ PCodeInst *PCodeCfg::constantFold(PCodeInst *inst, NABoolean rDefsAvailable) {
 
             CollIndex *off = addConstant((void *)newStr, tgtLen + 2, 2);
 
-            Int32 comboLen = 0;
+            int comboLen = 0;
             char *comboPtr = (char *)(&comboLen);
             comboPtr[0] = 0;  // no null
             comboPtr[1] = 2;  // vc length is 2 bytes

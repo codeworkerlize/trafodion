@@ -219,8 +219,8 @@ MdamColumn::getNextValueReturnType MdamColumn::getNextValue(ULng32 productiveFet
           sparseProbeSucceeded_ = FALSE;
 
           found_value = TRUE;
-          str_cpy_all(beginValue, cv, (Int32)len);
-          str_cpy_all(endValue, cv, (Int32)len);
+          str_cpy_all(beginValue, cv, (int)len);
+          str_cpy_all(endValue, cv, (int)len);
           rc = TRAVERSE_DOWN;
 
           ex_assert(sparseProbeFailed_ == FALSE, "MdamColumn::getNextValue probe flags bad.");
@@ -231,11 +231,11 @@ MdamColumn::getNextValueReturnType MdamColumn::getNextValue(ULng32 productiveFet
         } else  // need to do a sparse probe now
         {
           found_value = TRUE;
-          str_cpy_all(beginValue, cv, (Int32)len);
+          str_cpy_all(beginValue, cv, (int)len);
 
           MdamPoint *endpt = current_interval_->getPointPtr(MdamEnums::MDAM_END);
 
-          str_cpy_all(endValue, endpt->getDataPointer(), (Int32)len);
+          str_cpy_all(endValue, endpt->getDataPointer(), (int)len);
 
           // set exclusion flags
           beginExclFlag = 1;  // exclude the current value
@@ -251,8 +251,8 @@ MdamColumn::getNextValueReturnType MdamColumn::getNextValue(ULng32 productiveFet
           // we found the next value in this interval
           lastProductiveFetchRangeCounter_ = productiveFetchRangeCounter;
           found_value = TRUE;
-          str_cpy_all(beginValue, cv, (Int32)len);
-          str_cpy_all(endValue, cv, (Int32)len);
+          str_cpy_all(beginValue, cv, (int)len);
+          str_cpy_all(endValue, cv, (int)len);
           rc = TRAVERSE_DOWN;
         }
       }
@@ -313,8 +313,8 @@ MdamColumn::getNextValueReturnType MdamColumn::getNextValue(ULng32 productiveFet
         MdamPoint *endpt = current_interval_->getPointPtr(MdamEnums::MDAM_END);
         ULng32 len = columnGenInfo_->getLength();
 
-        str_cpy_all(beginValue, beginpt->getDataPointer(), (Int32)len);
-        str_cpy_all(endValue, endpt->getDataPointer(), (Int32)len);
+        str_cpy_all(beginValue, beginpt->getDataPointer(), (int)len);
+        str_cpy_all(endValue, endpt->getDataPointer(), (int)len);
 
         beginExclFlag = 0;
         if (beginpt->getInclusion() == MdamEnums::MDAM_EXCLUDED) beginExclFlag = 1;
@@ -335,7 +335,7 @@ MdamColumn::getNextValueReturnType MdamColumn::getNextValue(ULng32 productiveFet
         if (current_interval_->getFirstValue(len, cv)) {
           // the interval has a first value -- return it
           found_value = TRUE;
-          str_cpy_all(beginValue, cv, (Int32)len);
+          str_cpy_all(beginValue, cv, (int)len);
 
           // set context so we traverse only to appropriate
           // intervals in the next column to the right
@@ -354,7 +354,7 @@ MdamColumn::getNextValueReturnType MdamColumn::getNextValue(ULng32 productiveFet
             // do a sparse probe to find first value in interval
             MdamPoint *endpt = current_interval_->getPointPtr(MdamEnums::MDAM_END);
 
-            str_cpy_all(endValue, endpt->getDataPointer(), (Int32)len);
+            str_cpy_all(endValue, endpt->getDataPointer(), (int)len);
 
             // set exclusion flags
             beginExclFlag = 0;  // include the current value
@@ -366,7 +366,7 @@ MdamColumn::getNextValueReturnType MdamColumn::getNextValue(ULng32 productiveFet
           } else  // dense probes
           {
             // use this value and traverse down now
-            str_cpy_all(endValue, cv, (Int32)len);
+            str_cpy_all(endValue, cv, (int)len);
             rc = TRAVERSE_DOWN;
           }
         }
@@ -382,7 +382,7 @@ void MdamColumn::reportProbeResult(char *keyData) {
   sparseProbeNeeded_ = FALSE;
   if (keyData) {
     // the sparse probe was successful -- save the key value
-    Int32 len = Int32(columnGenInfo_->getLength());
+    int len = int(columnGenInfo_->getLength());
     int offset = columnGenInfo_->getOffset();
     char *cv = currentValue_.getDataPointer();
 
@@ -396,7 +396,7 @@ void MdamColumn::reportProbeResult(char *keyData) {
 }
 
 void MdamColumn::completeKey(char *bktarget, char *ektarget, short bkexcl, short ekexcl) {
-  Int32 len = Int32(columnGenInfo_->getLength());
+  int len = int(columnGenInfo_->getLength());
   char *extremalValue;
 
   bktarget = bktarget + columnGenInfo_->getOffset();
@@ -470,8 +470,8 @@ NABoolean MdamColumn::buildDisjunct(MdamPredIterator &predIterator, sql_buffer_p
       // case of MDAM_BETWEEN, copying the values to other local variables.
       ex_expr::exp_return_type errorCode = predPtr->getValue(atp0, workAtp);
 
-      Int32 dcErrFlag1 = dataConvErrorFlag;
-      Int32 dcErrFlag2 = 0;
+      int dcErrFlag1 = dataConvErrorFlag;
+      int dcErrFlag2 = 0;
       if (errorCode == ex_expr::EXPR_OK && predPtr->getPredType() == MdamPred::MDAM_BETWEEN) {
         dataConvErrorFlag = 0;
         errorCode = predPtr->getValue2(atp0, workAtp);
@@ -594,7 +594,7 @@ NABoolean MdamColumn::buildDisjunct(MdamPredIterator &predIterator, sql_buffer_p
     // a predicate for this column (in which case one wonders
     // why MDAM was picked!) -- add the disjunct number to the
     // stop list for this key column
-    stop_list_.insert((Int32)disjunct_number, mdamRefListEntrysForStopListsHeap);
+    stop_list_.insert((int)disjunct_number, mdamRefListEntrysForStopListsHeap);
     rc = TRUE;
   }
 
@@ -609,7 +609,7 @@ void MdamColumn::tossDisjunct(FixedSizeHeapManager &mdamIntervalHeap, FixedSizeH
 
 void MdamColumn::mergeDisjunct(int disjunct_number, FixedSizeHeapManager &mdamIntervalHeap,
                                FixedSizeHeapManager &mdamRefListEntryHeap) {
-  intervals_.unionSeparateDisjuncts(tentative_intervals_, (Int32)disjunct_number, columnGenInfo_->getLength(),
+  intervals_.unionSeparateDisjuncts(tentative_intervals_, (int)disjunct_number, columnGenInfo_->getLength(),
                                     mdamIntervalHeap, mdamRefListEntryHeap);
   tentative_intervals_.deleteAllIntervals(mdamIntervalHeap, mdamRefListEntryHeap);
 }

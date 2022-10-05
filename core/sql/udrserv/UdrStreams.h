@@ -51,9 +51,9 @@ class UdrServerDataStream;
 class UdrGuaControlConnection;
 class UdrServerReplyStream;
 
-const Int32 UdrServerControlStreamVersionNumber = 1;
-const Int32 UdrServerDataStreamVersionNumber = 1;
-const Int32 UdrServerReplyStreamVersionNumber = 100;
+const int UdrServerControlStreamVersionNumber = 1;
+const int UdrServerDataStreamVersionNumber = 1;
+const int UdrServerReplyStreamVersionNumber = 100;
 
 //
 // A non-buffered server-side stream for UDR control messages

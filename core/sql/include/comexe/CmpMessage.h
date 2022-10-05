@@ -131,7 +131,7 @@ class CmpMessageObj : public IpcMessageObj {
   void unpackBuffer(const char *&buffer, char *strPtr, ULng32 maxSize, ULng32 &sizeMoved);
 
   void advanceSize(IpcMessageObjSize &size, const void *const buffPtr, int sz = 0) {
-    const Int32 lenSize = sizeof(CmpMsgBufLenType);
+    const int lenSize = sizeof(CmpMsgBufLenType);
     size += lenSize;
     if (buffPtr != NULL) size += ((sz) ? sz : (str_len((char *)buffPtr) + 1));
   }
@@ -766,8 +766,8 @@ class CmpDDLwithStatusInfo : public CmpCompileInfo {
   void setStep(int step) { step_ = step; }
   void setSubstep(int substep) { substep_ = substep; }
 
-  Int32 myPin() { return myPin_; }
-  void setMyPin(Int32 myPin) { myPin_ = myPin; }
+  int myPin() { return myPin_; }
+  void setMyPin(int myPin) { myPin_ = myPin; }
 
   int blackBoxLen() { return blackBoxLen_; }
   char *blackBox() { return blackBox_; }
@@ -780,7 +780,7 @@ class CmpDDLwithStatusInfo : public CmpCompileInfo {
   UInt32 statusFlags_;
   int msgLen_;
   char msg_[512];
-  Int32 myPin_;
+  int myPin_;
 
   // black box data that can be sent and received. Contents are interpreted
   // based on the query that is being processed.

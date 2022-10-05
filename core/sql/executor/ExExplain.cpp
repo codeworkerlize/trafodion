@@ -170,9 +170,9 @@ void ExExplainTcb::freeResources() {
 }
 
 // Explain has no children
-Int32 ExExplainTcb::numChildren() const { return (0); }
+int ExExplainTcb::numChildren() const { return (0); }
 
-const ex_tcb *ExExplainTcb::getChild(Int32 /*pos*/) const {
+const ex_tcb *ExExplainTcb::getChild(int /*pos*/) const {
   ex_assert(0, "Explain TCB has 0 children");
   return NULL;
 }
@@ -185,8 +185,8 @@ ex_queue_pair ExExplainTcb::getParentQueue() const { return (qParent_); };
 // initialize the statement list (stmtList_) to point to the statement
 // list of the current context.  The context is only available from the
 // master executor.
-Int32 ExExplainTcb::loadModule() {
-  Int32 rc = 0;
+int ExExplainTcb::loadModule() {
+  int rc = 0;
 
   // Get the globals stucture of the master executor.
   ExExeStmtGlobals *exeGlob = getGlobals()->castToExExeStmtGlobals();
@@ -230,7 +230,7 @@ Int32 ExExplainTcb::loadModule() {
 //  populated with explain Info.  If it has, it will then apply the
 //  scan predicate (if it exists) to the node and if true will insert
 //  the explain Tuple into the parent up queue.
-Int32 ExExplainTcb::visitNode() {
+int ExExplainTcb::visitNode() {
   ex_queue_entry *pEntryDown = qParent_.down->getHeadEntry();
 
   ex_assert(!qParent_.up->isFull(), "Explain: Visiting a node when parant queue is full\n");
@@ -368,7 +368,7 @@ ExExplainTcb::traverseReturnCode ExExplainTcb::traverseTree() {
     // child we visited, cameFrom_ will be equal to child(i).
     // Note that the loop index is altered from within the body
     // of the loop.
-    for (Int32 i = 0; i < currentExplain_->numChildren();) {
+    for (int i = 0; i < currentExplain_->numChildren();) {
       if (cameFrom_ == 0)
       // We have not visited this child.  If there is a valid
       // child pointer, follow it.
@@ -563,7 +563,7 @@ short ExExplainTcb::processExplainPlan() {
 //     queue, then go to state EXPL_IDLE to get the next request.
 
 short ExExplainTcb::work() {
-  Int32 rc = 0;
+  int rc = 0;
   char *explainFrag;
   int topNodeOffset;
   char *fragStart;
@@ -953,7 +953,7 @@ ExplainDesc *ExExplainTcb::getNextExplainTree() {
       // statement name of statement being considered
       const char *ident = stmt->getIdentifier();
 
-      Int32 length = str_len(modName_);
+      int length = str_len(modName_);
 
       // Calculate max length of modName_ (explain function parameter)
       // and moduleName (module name of statement being considered)
@@ -962,7 +962,7 @@ ExplainDesc *ExExplainTcb::getNextExplainTree() {
       // Module Name matches if both are NULL or if both compare equal.
       // It should be that if the module name parameter is NULL then
       // the module name matches if this is the current module.
-      Int32 modNameMatches = ((isNullModName() && !moduleName) ||
+      int modNameMatches = ((isNullModName() && !moduleName) ||
                               (!isNullModName() && moduleName && (str_cmp(modName_, moduleName, length) == 0)));
 
       if (modNameMatches && (pattern.matches(ident, (ident ? str_len(ident) : 0), CharInfo::UTF8) == TRUE) &&
@@ -1109,7 +1109,7 @@ void ExExplainTcb::copyParameters() {
     // If it does, then use the oss pathname to search for the module.
     modDir_[0] = 0;
     if (modName_[0] == '/') {
-      int len = (Int32)strlen(modName_);
+      int len = (int)strlen(modName_);
 
       // find the directory name.
       int i = len - 1;
@@ -1131,7 +1131,7 @@ void ExExplainTcb::copyParameters() {
       strncpy(modDir_, modName_, i);
       modDir_[i] = 0;
 
-      Int32 j = 0;
+      int j = 0;
       while (i < len) modName_[j++] = modName_[i++];
       modName_[j] = 0;
 
@@ -1361,8 +1361,8 @@ RtsExplainFrag *ExExplainTcb::sendToSsmp() {
   return explainFrag;
 }
 
-short ExExplainTcb::getExplainData(ex_root_tdb *rootTdb, char *explain_ptr, Int32 explain_buf_len,
-                                   Int32 *ret_explain_len, ComDiagsArea *diagsArea, CollHeap *heap) {
+short ExExplainTcb::getExplainData(ex_root_tdb *rootTdb, char *explain_ptr, int explain_buf_len,
+                                   int *ret_explain_len, ComDiagsArea *diagsArea, CollHeap *heap) {
   int cliRC = 0;
 
   *ret_explain_len = 0;
@@ -1381,7 +1381,7 @@ short ExExplainTcb::getExplainData(ex_root_tdb *rootTdb, char *explain_ptr, Int3
   }
 
   // data stored is explain repos header followed by actual explain tdb data.
-  Int32 storedExplLen = sizeof(ExplainReposInfo) + fragLen;
+  int storedExplLen = sizeof(ExplainReposInfo) + fragLen;
   int encodedFragLen = str_encoded_len(storedExplLen);
   *ret_explain_len = encodedFragLen;
 

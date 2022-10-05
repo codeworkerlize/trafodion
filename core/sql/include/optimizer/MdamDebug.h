@@ -58,7 +58,7 @@ class MdamTrace {
   static THREAD_P const char *msgHeader_;
   static THREAD_P const char *overrideHeader_;
   static THREAD_P const char *indent_;
-  static THREAD_P Int32 hStdOut_;
+  static THREAD_P int hStdOut_;
   static THREAD_P NABoolean okToRedirectStdOut_;
   static THREAD_P FILE *console_;
   static THREAD_P enum MdamTraceLevel level_;

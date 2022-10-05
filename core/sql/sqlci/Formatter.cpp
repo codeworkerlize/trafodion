@@ -42,7 +42,7 @@ int Formatter::display_length(int datatype, int length, int precision, int scale
   int d_len;
   int d_buflen;
 
-  Int32 scale_len = 0;
+  int scale_len = 0;
   if (scale > 0) scale_len = 1;
 
   switch (datatype) {
@@ -180,12 +180,12 @@ int Formatter::display_length(int datatype, int length, int precision, int scale
   return d_len;
 }
 
-Int32 Formatter::buffer_it(SqlciEnv *sqlci_env, char *data, Int32 datatype, int length, int precision, int scale,
-                           char *ind_data, Int32 display_length, Int32 display_buf_length, Int32 null_flag,
-                           Int32 vcIndLen, char *buf, int *curpos, NABoolean separatorNeeded,
+int Formatter::buffer_it(SqlciEnv *sqlci_env, char *data, int datatype, int length, int precision, int scale,
+                           char *ind_data, int display_length, int display_buf_length, int null_flag,
+                           int vcIndLen, char *buf, int *curpos, NABoolean separatorNeeded,
                            NABoolean checkShowNonPrinting) {
   CharInfo::CharSet tcs = sqlci_env->getTerminalCharset();
-  Int32 tcsDataType = CharInfo::getFSTypeFixedChar(tcs);
+  int tcsDataType = CharInfo::getFSTypeFixedChar(tcs);
 
   // don't support UCS2 as terminal charset, or change code below
   assert(tcsDataType == REC_BYTE_F_ASCII);
@@ -209,10 +209,10 @@ Int32 Formatter::buffer_it(SqlciEnv *sqlci_env, char *data, Int32 datatype, int 
       varchar = TRUE;
 
       if (vcIndLen == sizeof(int)) {
-        Int32 VCLen;
-        str_cpy_all((char *)&VCLen, data, sizeof(Int32));
+        int VCLen;
+        str_cpy_all((char *)&VCLen, data, sizeof(int));
         length = (int)VCLen;
-        data = &data[sizeof(Int32)];
+        data = &data[sizeof(int)];
       } else {
         short VCLen;
         str_cpy_all((char *)&VCLen, data, sizeof(short));
@@ -315,7 +315,7 @@ Int32 Formatter::buffer_it(SqlciEnv *sqlci_env, char *data, Int32 datatype, int 
       case REC_NCHAR_F_UNICODE:  // 12/9/97: added for Unicode case
       case REC_NCHAR_V_UNICODE:
       case REC_NCHAR_V_ANSI_UNICODE: {
-        Int32 localeInfo = CharInfo::getTargetCharTypeFromLocale();
+        int localeInfo = CharInfo::getTargetCharTypeFromLocale();
         ascii = (localeInfo == REC_SBYTE_LOCALE_F);
         short retcode;
         CharInfo::CharSet TCS = sqlci_env->getTerminalCharset();
@@ -323,7 +323,7 @@ Int32 Formatter::buffer_it(SqlciEnv *sqlci_env, char *data, Int32 datatype, int 
         if (TCS != CharInfo::UNICODE) {
           charBuf cbuf((unsigned char *)data, length);
           NAWcharBuf *wcbuf = 0;
-          Int32 errorcode = 0;
+          int errorcode = 0;
           wcbuf = csetToUnicode(cbuf, 0, wcbuf, CharInfo::UNICODE, errorcode);
           NAString *tempstr;
           if (errorcode != 0) {
@@ -462,11 +462,11 @@ char Formatter::getShowNonprintingReplacementChar(NABoolean reeval) {
 
 }  // getShowNonprintingReplacementChar()
 
-static inline NABoolean is8bit(Int32 c) { return c < 0 || c > SCHAR_MAX; }
+static inline NABoolean is8bit(int c) { return c < 0 || c > SCHAR_MAX; }
 
-static inline NABoolean isprint8bit(Int32 c) { return is8bit(c) && !Formatter::replace8bit_; }
+static inline NABoolean isprint8bit(int c) { return is8bit(c) && !Formatter::replace8bit_; }
 
-static inline NABoolean replace(Int32 c) {
+static inline NABoolean replace(int c) {
   return !(isprint(c) || isspace((unsigned char)c) || isprint8bit(c));
 }  //  For VS2003
 
@@ -480,7 +480,7 @@ size_t Formatter::showNonprinting(char *s, size_t z, NABoolean varchar) {
 #endif
     if (z == 0) return 0;
   }
-  if ((Int32)z < 0)  // SQL NULL indicator passed in as negative size...
+  if ((int)z < 0)  // SQL NULL indicator passed in as negative size...
     return 0;
 
   z--;            // convert from SIZE to OFFSET

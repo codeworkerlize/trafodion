@@ -73,7 +73,7 @@ StmtDDLGiveCatalog::StmtDDLGiveCatalog(const NAString &aCatalogName, const NAStr
 //
 StmtDDLGiveCatalog::~StmtDDLGiveCatalog() {
   // delete all children
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     delete getChild(i);
   }
 }
@@ -87,7 +87,7 @@ StmtDDLGiveCatalog *StmtDDLGiveCatalog::castToStmtDDLGiveCatalog() { return this
 // accessors
 //
 
-Int32 StmtDDLGiveCatalog::getArity() const { return MAX_STMT_DDL_GIVE_CATALOG_ARITY; }
+int StmtDDLGiveCatalog::getArity() const { return MAX_STMT_DDL_GIVE_CATALOG_ARITY; }
 
 ExprNode *StmtDDLGiveCatalog::getChild(int index) {
   ComASSERT(index EQU INDEX_GIVE_CATALOG_ATTRIBUTE_LIST);

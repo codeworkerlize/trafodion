@@ -118,7 +118,7 @@ class NExDbgInfo {
   char *NExLogPath_;          // Ptr to Native Expr. Log Pathname
   char *NExStmtSrc_;          // Ptr to orig. SQL statement source
   NABoolean NExStmtPrinted_;  // Whether SQL statement has been printed
-  Int32 NExDbgLvl_;           // Native Expr. Debug Level
+  int NExDbgLvl_;           // Native Expr. Debug Level
 
  public:
   NExDbgInfo() : NExLogPath_(NULL), NExStmtSrc_(NULL), NExStmtPrinted_(FALSE), NExDbgLvl_(0) {}
@@ -134,8 +134,8 @@ class NExDbgInfo {
   NABoolean getNExStmtPrinted() { return NExStmtPrinted_; }
   void setNExStmtPrinted(NABoolean prntd) { NExStmtPrinted_ = prntd; }
 
-  Int32 getNExDbgLvl() { return NExDbgLvl_; }
-  void setNExDbgLvl(Int32 Lvl) { NExDbgLvl_ = Lvl; }
+  int getNExDbgLvl() { return NExDbgLvl_; }
+  void setNExDbgLvl(int Lvl) { NExDbgLvl_ = Lvl; }
 };
 
 class ex_expr : public NAVersionedObject {
@@ -298,7 +298,7 @@ class ex_expr : public NAVersionedObject {
                               ULng32 *rowLen, short *lastFldIndex, char *fetchedDataPtr
 #ifdef TRACE_EXPR_EVAL
                               ,
-                              Int32 clause2display = -1, Int32 operand2display = -1
+                              int clause2display = -1, int operand2display = -1
 #endif
   ) {
     // If there is no PCODE, evaluate the clauses using the standard
@@ -395,7 +395,7 @@ class ex_expr : public NAVersionedObject {
                               short *lastFldIndex, char *fetchedDataPtr
 #ifdef TRACE_EXPR_EVAL
                               ,
-                              Int32 clause2display = -1, Int32 operand2display = -1
+                              int clause2display = -1, int operand2display = -1
 #endif
   );
 
@@ -426,7 +426,7 @@ class ex_expr : public NAVersionedObject {
 
   PCodeSegment *getPCodeSegment() { return pCode_.getPointer(); }
 
-  Int32 getPCodeSize() { return pCode_.getPointer()->getPCodeSegmentSize(); }
+  int getPCodeSize() { return pCode_.getPointer()->getPCodeSegmentSize(); }
 
   virtual void setPCodeBinary(PCodeBinary *pCode) { pCode_.getPointer()->setPCodeBinary(pCode); }
   void setPCodeObject(PCode *pCodeObject) { pCodeObject_ = pCodeObject; }
@@ -452,13 +452,13 @@ class ex_expr : public NAVersionedObject {
   void pCodePrint();
 
   // Takes pointer out of PCodeBinary sequences
-  // Long getPCodeBinaryAsPtr(PCodeBinary *pcode, Int32 idx)
+  // Long getPCodeBinaryAsPtr(PCodeBinary *pcode, int idx)
   //   {
   //     return *(Long*)&pcode[idx];
   //   }
 
   // Adds pointer to PCodeBinary sequences and returns # of PCodeBinary occupied
-  Int32 setPtrAsPCodeBinary(PCodeBinary *pcode, Int32 idx, Long ptr) {
+  int setPtrAsPCodeBinary(PCodeBinary *pcode, int idx, Long ptr) {
     *(Long *)&pcode[idx] = ptr;
     return (sizeof(ptr) / sizeof(PCodeBinary));
   }
@@ -469,10 +469,10 @@ class ex_expr : public NAVersionedObject {
 
   char *getMyPersistentArea() { return persistentArea_; }
 
-  char *getPersistentData(Int32 offset = 0);
+  char *getPersistentData(int offset = 0);
   char *&persistentArea() { return persistentArea_.pointer(); }
   char *&persistentInitializationArea() { return persistentInitializationArea_.pointer(); }
-  Int32 &persistentLength() { return persistentLength_; }
+  int &persistentLength() { return persistentLength_; }
   void initializePersistentData() { str_cpy_all(persistentArea_, persistentInitializationArea_, persistentLength_); }
 
   void addPCodeMode(Int16 mode) { pCodeMode_ |= mode; }
@@ -660,8 +660,8 @@ class ex_expr : public NAVersionedObject {
   // For error injection testing.
   const ex_tcb *myTcb_;
 
-  Int32 errorInjection_;    // 48-51
-  Int32 warningInjection_;  // 52-55
+  int errorInjection_;    // 48-51
+  int warningInjection_;  // 52-55
 
   // Pointer and length of the constants area
   NABasicPtr /* char* */ constantsArea_;  // 56-63
@@ -669,13 +669,13 @@ class ex_expr : public NAVersionedObject {
   // Pointer and length of the temps area
   NABasicPtr /* char* */ tempsArea_;  // 64-71
 
-  Int32 constantsAreaLength_;  // 72-75
-  Int32 tempsAreaLength_;      // 76-79
+  int constantsAreaLength_;  // 72-75
+  int tempsAreaLength_;      // 76-79
 
-  Int32 length_;  // 80-83
+  int length_;  // 80-83
 
   // Persistent Area
-  Int32 persistentLength_;                               // 84-87
+  int persistentLength_;                               // 84-87
   NABasicPtr /* char* */ persistentArea_;                // 88-95
   NABasicPtr /* char* */ persistentInitializationArea_;  // 96-103
 
@@ -828,7 +828,7 @@ class InputOutputExpr : public ex_expr {
   };
 
   // number of input or output entries
-  Int32 numEntries_;  // 00-03
+  int numEntries_;  // 00-03
 
   UInt32 flags_;  // 04-07
 
@@ -999,7 +999,7 @@ class InputOutputExpr : public ex_expr {
 
 class ex_expr_lean : public ex_expr {
   friend class ex_expr;
-  //  Int32                   pCodeSize_;
+  //  int                   pCodeSize_;
 
  public:
   ex_expr_lean() : ex_expr(exp_LEAN_EXPR){};
@@ -1020,23 +1020,23 @@ class ex_expr_lean : public ex_expr {
 
   virtual void displayContents(ComSpace *space, short mode, const char *displayStr, ULng32 flag = 0x00000006);
 
-  //  Int32 *getMyPCode()
+  //  int *getMyPCode()
   //  {
   //    return &pCodeLean_[1];
   //  }
 
-  Int32 getPCodeSize() {
+  int getPCodeSize() {
     return pCodeLean_[0];
     //    return pCodeSize_;
   }
 
-  //  void setPCodeSize(Int32 s)
+  //  void setPCodeSize(int s)
   //  {
   //    pCodeLean_[0] = s;
   //    pCodeSize_ = s;
   //  }
 
-  //  void setPCode(Int32 *pCode)
+  //  void setPCode(int *pCode)
   //  {
   //    setPCodeLean(pCode);
   //  }

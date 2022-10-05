@@ -103,7 +103,7 @@ class ExEspNodeMapEntry : public NAVersionedObject {
 
  private:
   NABasicPtr clusterName_;        // EXPAND node name        // 00-07
-  Int32 nodeNumber_;              // NSK CPU number          // 08-11
+  int nodeNumber_;              // NSK CPU number          // 08-11
   NABoolean needToWork_;          // When TRUE, the esp needs to work // 12-15
   char fillersExEspNodeMap_[16];  // 16-31
 };
@@ -144,7 +144,7 @@ class ExEspNodeMap {
   // An array of node map entries.
   // The number of entries is equal to numESPs.
   ExEspNodeMapEntryPtr map_;      // 00-07
-  Int32 entries_;                 // 08-11
+  int entries_;                 // 08-11
   char fillersExEspNodeMap_[20];  // 12-31
 };
 
@@ -189,7 +189,7 @@ class ExFragDirEntry : public NAVersionedObject {
 
   // type of the entry (from this we can derive the type of the top level
   // node in the fragment)
-  Int32 type_;  // 00-03
+  int type_;  // 00-03
 
   // fragment id of the parent fragment.
   UInt32 parentId_;  // 04-07
@@ -208,17 +208,17 @@ class ExFragDirEntry : public NAVersionedObject {
   ExPartInputDataDescPtr partDescriptor_;  // 32-39
 
   // flags
-  Int32 flags_;  // 40-43
+  int flags_;  // 40-43
 
   // fields used only for ESP entries
   // # ESPs assumed by optimizer
-  Int32 numESPs_;  // 44-47
+  int numESPs_;  // 44-47
 
   // node map info
   ExEspNodeMap espNodeMap_;  // 48-63
 
   // level of esp layer relative to root node. First esp layer is 1.
-  Int32 espLevel_;  // 64-67
+  int espLevel_;  // 64-67
 
   UInt16 fragmentMemoryQuota_;  // 68-69
 
@@ -267,8 +267,8 @@ class ExFragDir : public NAVersionedObject {
   inline ULng32 getNodeMask() const { return nodeMask_; }
   inline const ComASNodes *getTenantASNodes() const { return tenantASNodes_; }
   inline void setNodeMask(ULng32 nm) { nodeMask_ = nm; }
-  inline Int32 getMaxESPsPerNode() { return maxESPsPerNode_; }
-  inline void setMaxESPsPerNode(Int32 v) { maxESPsPerNode_ = v; }
+  inline int getMaxESPsPerNode() { return maxESPsPerNode_; }
+  inline void setMaxESPsPerNode(int v) { maxESPsPerNode_ = v; }
 
   // access fragment directory entries
   inline void set(ExFragId index, ExFragEntryType type, ExFragId parentId, int globalOffset, int fragmentLength,
@@ -326,10 +326,10 @@ class ExFragDir : public NAVersionedObject {
  private:
   // ptr to an array of <numEntries_> entries
   ExFragDirEntryPtrArray fragments_;  // 00-07
-  Int32 numEntries_;                  // 08-11
+  int numEntries_;                  // 08-11
 
   // get up to a multiple of 8 bytes
-  Int32 nFiller_;  // 12-15
+  int nFiller_;  // 12-15
 
   // resource information for all fragments
   ExScratchFileOptionsPtr scratchFileOptions_;  // 16-23
@@ -338,7 +338,7 @@ class ExFragDir : public NAVersionedObject {
   UInt16 multiFragmentVm_;                      // 32-33
   UInt8 flags_;                                 // 34
   UInt8 numMultiFragments_;                     // 35
-  Int32 maxESPsPerNode_;                        // 36-39
+  int maxESPsPerNode_;                        // 36-39
 
   // In multi-tenant configurations, info on where the
   // tenant is located, to make sure we start ESPs only

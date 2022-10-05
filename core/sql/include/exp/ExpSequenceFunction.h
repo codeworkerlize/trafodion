@@ -61,7 +61,7 @@ class ExpSequenceFunction : public ex_function_clause {
 
   // Construction - this is the "real" constructor
   //
-  ExpSequenceFunction(OperatorTypeEnum oper_type, Int32 arity, Int32 index, Attributes **attr, Space *space);
+  ExpSequenceFunction(OperatorTypeEnum oper_type, int arity, int index, Attributes **attr, Space *space);
 
   // This constructor is used only to get at the virtual function table.
   //
@@ -70,12 +70,12 @@ class ExpSequenceFunction : public ex_function_clause {
   // isNullInNullOut - Must redefine this virtual function to return 0
   // since a NULL input does not simply produce a NULL output.
   //
-  Int32 isNullInNullOut() const { return 0; };
+  int isNullInNullOut() const { return 0; };
 
   // isNullRelevant - Must redefine this virtual function to return 0
   // since all the work is done in eval and none in processNulls.
   //
-  Int32 isNullRelevant() const { return 0; };
+  int isNullRelevant() const { return 0; };
 
   ex_expr::exp_return_type pCodeGenerate(Space *space, UInt32 f);
 
@@ -101,9 +101,9 @@ class ExpSequenceFunction : public ex_function_clause {
     (v) ? flags_ |= SF_ALLOW_NEGATIVE_OFFSET : flags_ &= ~SF_ALLOW_NEGATIVE_OFFSET;
   };
 
-  inline Int32 winSize(void) { return winSize_; };
+  inline int winSize(void) { return winSize_; };
 
-  inline void setWinSize(Int32 winSize) { winSize_ = winSize; };
+  inline void setWinSize(int winSize) { winSize_ = winSize; };
 
   // pack - Must redefine pack.
   Long pack(void *);
@@ -129,13 +129,13 @@ class ExpSequenceFunction : public ex_function_clause {
   };
 
   void *GetRowData_;
-  char *(*GetRow_)(void *, Int32, NABoolean, int, Int32 &);
+  char *(*GetRow_)(void *, int, NABoolean, int, int &);
 
-  char *(*PutRow_)(void *, Int32, NABoolean, int, Int32 &);
+  char *(*PutRow_)(void *, int, NABoolean, int, int &);
 
-  Int32 offsetIndex_;  // 00-03
-  Int32 flags_;        // 04-07
-  Int32 winSize_;      // 08-11
+  int offsetIndex_;  // 00-03
+  int flags_;        // 04-07
+  int winSize_;      // 08-11
   char filler_[4];     // 12-15
 };
 
@@ -143,8 +143,8 @@ class ExpSequenceFunction : public ex_function_clause {
 //
 class ExpSequenceExpression : public ex_expr {
  public:
-  inline void seqFixup(void *data, char *(*getRow)(void *, Int32, NABoolean, int, Int32 &),
-                       char *(*getRowOLAP)(void *, Int32, NABoolean, int, Int32 &)) {
+  inline void seqFixup(void *data, char *(*getRow)(void *, int, NABoolean, int, int &),
+                       char *(*getRowOLAP)(void *, int, NABoolean, int, int &)) {
     ex_clause *clause = getClauses();
     while (clause) {
       if (clause->getOperType() == ITM_OFFSET)
@@ -160,13 +160,13 @@ class ExpSequenceExpression : public ex_expr {
     PCodeBinary *pCode = getPCodeBinary();
     if (!pCode) return;
 
-    Int32 length = *(pCode++);
+    int length = *(pCode++);
     pCode += (2 * length);
 
     while (pCode[0] != PCIT::END) {
       if (pCode[0] == PCIT::OFFSET_IPTR_IPTR_IBIN32S_MBIN64S_MBIN64S ||
           pCode[0] == PCIT::OFFSET_IPTR_IPTR_MBIN32S_MBIN64S_MBIN64S) {
-        Int32 idx = 1;
+        int idx = 1;
         if (GetPCodeBinaryAsPtr(pCode, idx)) {  // if (pCode[1])
           idx += setPtrAsPCodeBinary(pCode, idx, (Long)getRowOLAP);
           // pCode[1] = (PCodeBinary) getRowOLAP;

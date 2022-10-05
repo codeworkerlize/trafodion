@@ -53,7 +53,7 @@
 NABoolean allocateReplyRow(UdrGlobals *UdrGlob,
                            SqlBuffer &replyBuffer,        // [IN]  A reply buffer
                            queue_index parentIndex,       // [IN]  Identifies the request queue entry
-                           Int32 replyRowLen,             // [IN]  Length of reply row
+                           int replyRowLen,             // [IN]  Length of reply row
                            char *&newReplyRow,            // [OUT] The allocated reply row
                            ControlInfo *&newControlInfo,  // [OUT] The allocated ControlInfo entry
                            ex_queue::up_status upStatus   // [IN]  Q_OK_MMORE, Q_NO_DATA, Q_SQLERROR
@@ -152,7 +152,7 @@ NABoolean allocateEODRow(UdrGlobals *UdrGlob, SqlBuffer &replyBuffer, queue_inde
 }
 
 NABoolean allocateReplyRowAndEOD(UdrGlobals *UdrGlob, SqlBuffer &replyBuffer, queue_index parentIndex, char *&replyData,
-                                 Int32 rowLen, ControlInfo *&newControlInfo) {
+                                 int rowLen, ControlInfo *&newControlInfo) {
   const char *moduleName = "allocateReplyRowAndEOD";
 
   doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS, UdrGlob->showInvoke_, moduleName);

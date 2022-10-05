@@ -166,7 +166,7 @@ void JBB::debugQueryGraph() {
   // reduction path by doing a join with the second JBBC.
   if (reductionPathString > 0) {
     // get the first JBBC
-    Int32 firstJBBCNodeId = reductionPathString % 100;
+    int firstJBBCNodeId = reductionPathString % 100;
     // update reductionPathString now that we have extracted the last two digits
     reductionPathString = reductionPathString / 100;
     // get the first JBBC and insert into the empty reduction path
@@ -182,7 +182,7 @@ void JBB::debugQueryGraph() {
     // reductionPathString
 
     // first get the CANodeId of the JBBC to join to the currentReductionPath
-    Int32 jBBCToJoinId = reductionPathString % 100;
+    int jBBCToJoinId = reductionPathString % 100;
     // update reductionPathString now that we have extracted the last two digits
     reductionPathString = reductionPathString / 100;
     CANodeId jBBCToJoin(jBBCToJoinId);
@@ -212,7 +212,7 @@ const NAString JBBC::getQueryGraphNodeText() const {
     // print the reduction path
     result += (*reductionPaths_)[i]->getText();
 
-    Int32 cardinality = ((*cardinalityOfReductionPaths_)[i]).getValue();
+    int cardinality = ((*cardinalityOfReductionPaths_)[i]).getValue();
     result += ("cardinality: " + istring(cardinality) + "\n");
   }
 
@@ -238,7 +238,7 @@ void JBBC::initializeQueryGraphNode() {
   CANodeIdSet connectedJBBCs = getJoinedJBBCs();
 
   // Allocate the list that will store all incoming connections
-  Int32 numIncomingConnections = connectedJBBCs.entries();
+  int numIncomingConnections = connectedJBBCs.entries();
   incomingConnections_ = new (heap_) NAList<QueryGraphConnection *>(heap_, numIncomingConnections);
 
   // create a QueryGraphConnection object representing a connection from

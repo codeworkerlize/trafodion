@@ -153,13 +153,13 @@ ex_send_bottom_tcb::ex_send_bottom_tcb(const ex_send_bottom_tdb &sendBottomTdb, 
   smTarget_.id = 0;
 
   if (sendBottomTdb.getExchangeUsesSM()) {
-    Int32 parentFrag = (Int32)parentKey.getFragId();
-    Int32 parentInst = (Int32)parentInstanceNum_;
+    int parentFrag = (int)parentKey.getFragId();
+    int parentInst = (int)parentInstanceNum_;
 
     const IpcProcessId &otherEnd = glob->getInstanceProcessId((ExFragId)parentFrag, (int)parentInst);
 
     const GuaProcessHandle &phandle = otherEnd.getPhandle();
-    Int32 otherCPU, otherPID, otherNode;
+    int otherCPU, otherPID, otherNode;
     SB_Int64_Type seqNum = 0;
     phandle.decompose2(otherCPU, otherPID, otherNode, seqNum);
 
@@ -630,7 +630,7 @@ short ex_send_bottom_tcb::checkReply() {
       // to send a diags area with this row, do force the method
       // to add a specific ControlInfo for this row. Ignore stats
       // completely, since they are not tied to a particular row.
-      Int32 moveRetcode = sqlBuf->moveInSendOrReplyData(FALSE,  // we are replying with an up state
+      int moveRetcode = sqlBuf->moveInSendOrReplyData(FALSE,  // we are replying with an up state
                                                         FALSE,  // do not force ControlInfo.
                                                         isRowToBeSent, &(sentry->upState), controlInfoLen,
                                                         &msgControlInfo, sendBottomTdb().getUpRecordLength(), NULL,
@@ -1005,13 +1005,13 @@ ex_queue_pair ex_send_bottom_tcb::getParentQueue() const {
 }
 
 /////////////////////////////////////////////////////////////////////////////
-const ex_tcb *ex_send_bottom_tcb::getChild(Int32 pos) const {
+const ex_tcb *ex_send_bottom_tcb::getChild(int pos) const {
   ex_assert((pos >= 0), "");
   return NULL;
 }
 
 /////////////////////////////////////////////////////////////////////////////
-Int32 ex_send_bottom_tcb::numChildren() const { return 0; }
+int ex_send_bottom_tcb::numChildren() const { return 0; }
 
 /////////////////////////////////////////////////////////////////////////////
 void ex_send_bottom_tcb::routeMsg(IpcMessageStream &msgStream) { msgStream.giveReceiveMsgTo(*routeMsgStream_); }

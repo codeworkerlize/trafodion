@@ -238,7 +238,7 @@ class ex_hash_grby_tcb : public ex_tcb {
 
   IOTimer ioTimer_;
 
-  Int32 numIOChecks_;
+  int numIOChecks_;
 
   NABoolean haveSpilled_;
   ExBMOStats *bmoStats_;
@@ -251,7 +251,7 @@ class ex_hash_grby_tcb : public ex_tcb {
 
   void workReadChild();
 
-  Int32 workReadChildBitMux();
+  int workReadChildBitMux();
 
   void workReadOverFlowRow();
 
@@ -299,9 +299,9 @@ class ex_hash_grby_tcb : public ex_tcb {
 
   ex_queue_pair getParentQueue() const { return parentQueue_; }
 
-  virtual const ex_tcb *getChild(Int32 pos) const;
+  virtual const ex_tcb *getChild(int pos) const;
 
-  virtual Int32 numChildren() const { return 1; }
+  virtual int numChildren() const { return 1; }
   virtual NABoolean needStatsEntry();
   virtual ExOperStats *doAllocateStatsEntry(CollHeap *heap, ComTdb *tdb);
 };
@@ -313,7 +313,7 @@ class ex_hash_grby_tcb : public ex_tcb {
   History     : Yeogirl Yun                                      8/14/95
                  Initial Revision.
 *****************************************************************************/
-inline const ex_tcb *ex_hash_grby_tcb::getChild(Int32 pos) const {
+inline const ex_tcb *ex_hash_grby_tcb::getChild(int pos) const {
   ex_assert((pos >= 0), "");
   if (pos == 0)
     return childTcb_;

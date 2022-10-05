@@ -178,7 +178,7 @@ IpcStartupMsg::IpcStartupMsg() {
 // Methods for class GuaProcessHandle
 // -----------------------------------------------------------------------
 
-int GuaProcessHandle::decompose(Int32 &cpu, Int32 &pin, Int32 &nodeNumber, SB_Int64_Type &seqNum) const {
+int GuaProcessHandle::decompose(int &cpu, int &pin, int &nodeNumber, SB_Int64_Type &seqNum) const {
   // Phandle wrapper in porting layer
   NAProcessHandle phandle((SB_Phandle_Type *)&phandle_);
 
@@ -194,12 +194,12 @@ int GuaProcessHandle::decompose(Int32 &cpu, Int32 &pin, Int32 &nodeNumber, SB_In
   return result;
 }
 
-Int32 GuaProcessHandle::decompose2(Int32 &cpu, Int32 &pin, Int32 &node, SB_Int64_Type &seqNum) const {
+int GuaProcessHandle::decompose2(int &cpu, int &pin, int &node, SB_Int64_Type &seqNum) const {
   return decompose(cpu, pin, node, seqNum);
 }
 
 NABoolean GuaProcessHandle::compare(const GuaProcessHandle &other) const {
-  Int32 guaRetcode = XPROCESSHANDLE_COMPARE_((SB_Phandle_Type *)&phandle_, (SB_Phandle_Type *)&(other.phandle_));
+  int guaRetcode = XPROCESSHANDLE_COMPARE_((SB_Phandle_Type *)&phandle_, (SB_Phandle_Type *)&(other.phandle_));
 
   // 0 means different, 1 means two procs of a process pair (different)
   // 2 means the process handles are the same
@@ -212,9 +212,9 @@ NABoolean GuaProcessHandle::fromAscii(const char *ascii) {
   return TRUE;
 }
 
-Int32 GuaProcessHandle::toAscii(char *ascii, Int32 asciiLen) const {
+int GuaProcessHandle::toAscii(char *ascii, int asciiLen) const {
   short result;
-  Int32 guaRetcode = 0;
+  int guaRetcode = 0;
 
   // Phandle wrapper in porting layer
   NAProcessHandle phandle((SB_Phandle_Type *)&phandle_);
@@ -251,7 +251,7 @@ IpcNodeName::IpcNodeName(const GuaProcessHandle &phandle) {
   // Phandle wrapper in porting layer
   NAProcessHandle procHandle((SB_Phandle_Type *)&phandle.phandle_);
 
-  Int32 err = procHandle.decompose();
+  int err = procHandle.decompose();
   assert(err == 0);
   nodeNumber = procHandle.getNodeNumber();
   nodeNameLen = procHandle.getNodeNameLen();
@@ -272,7 +272,7 @@ IpcCpuNum IpcProcessId::getCpuNumFromPhandle() const {
   // Phandle wrapper in porting layer
   NAProcessHandle phandle((SB_Phandle_Type *)&phandle_.phandle_);
 
-  Int32 err = phandle.decompose();
+  int err = phandle.decompose();
   assert(err == 0);
 
   return phandle.getCpu();
@@ -287,7 +287,7 @@ MyGuaProcessHandle::MyGuaProcessHandle() {
   // Phandle wrapper in porting layer
   NAProcessHandle phandle;
 
-  Int32 err = phandle.getmine((SB_Phandle_Type *)&phandle_);
+  int err = phandle.getmine((SB_Phandle_Type *)&phandle_);
   assert(err == 0);  // only error is bounds error (3)
 }
 
@@ -297,7 +297,7 @@ MyGuaProcessHandle::MyGuaProcessHandle() {
 
 GuaConnectionToServer::GuaConnectionToServer(IpcEnvironment *env, const IpcProcessId &procId,
                                              NABoolean usesTransactions, unsigned short nowaitDepth, const char *eye,
-                                             NABoolean parallelOpen, Int32 *openCompletionScheduled,
+                                             NABoolean parallelOpen, int *openCompletionScheduled,
                                              NABoolean dataConnectionToEsp)
     : IpcConnection(env, procId, eye) {
   openFile_ = InvalidGuaFileNumber;
@@ -393,7 +393,7 @@ NABoolean GuaConnectionToServer::moreWaitsAllowed() { return !stopWait_; }
 //   - entry.buffer_=entry.readBuffer_=reply buffer
 //
 WaitReturnStatus GuaConnectionToServer::wait(IpcTimeout timeout, UInt32 *eventConsumed, IpcAwaitiox *ipcAwaitiox) {
-  Int32 cpu, pin, nodeNumber;
+  int cpu, pin, nodeNumber;
   SB_Int64_Type seqNum = -1;
 
   GuaProcessHandle *otherEnd;
@@ -455,7 +455,7 @@ WaitReturnStatus GuaConnectionToServer::wait(IpcTimeout timeout, UInt32 *eventCo
 
     IpcMessageBufferPtr bufferAddr = NULL;
     _bcc_status stat;
-    Int32 countRead;
+    int countRead;
     SB_Tag_Type ioTag = -1;
     GuaErrorNumber guardianErrNum = GuaOK;
 
@@ -479,7 +479,7 @@ WaitReturnStatus GuaConnectionToServer::wait(IpcTimeout timeout, UInt32 *eventCo
       retry = FALSE;
       if (_status_ne(stat)) {
         // get a Guardian error code
-        Int32 retcode = BFILE_GETINFO_(openFile_, &guardianErrNum);
+        int retcode = BFILE_GETINFO_(openFile_, &guardianErrNum);
 
         if (retcode != 0) guardianErrNum = retcode;  // not even FILE_GETINFO_ worked
 
@@ -735,7 +735,7 @@ WaitReturnStatus GuaConnectionToServer::wait(IpcTimeout timeout, UInt32 *eventCo
 
     // getState() == OPENING
     IpcMessageBufferPtr bufferAddr;
-    Int32 countRead;
+    int countRead;
     SB_Tag_Type ioTag = -1;
     NABoolean ipcAwaitioxCompleted = ipcAwaitiox != NULL;
 
@@ -795,7 +795,7 @@ WaitReturnStatus GuaConnectionToServer::wait(IpcTimeout timeout, UInt32 *eventCo
     stat = BSETMODE(openFile_, 74, -1);
     if (_status_ne(stat)) {
       // get a Guardian error code
-      Int32 errcode2 = BFILE_GETINFO_(openFile_, &guaErrorInfo_);
+      int errcode2 = BFILE_GETINFO_(openFile_, &guaErrorInfo_);
 
       if (errcode2 != 0) guaErrorInfo_ = errcode2;  // not even FILE_GETINFO_ worked
       setErrorInfo(-1);
@@ -807,7 +807,7 @@ WaitReturnStatus GuaConnectionToServer::wait(IpcTimeout timeout, UInt32 *eventCo
     stat = BSETMODE(openFile_, 30, 3);
     if (_status_ne(stat)) {
       // get a Guardian error code
-      Int32 errcode2 = BFILE_GETINFO_(openFile_, &guaErrorInfo_);
+      int errcode2 = BFILE_GETINFO_(openFile_, &guaErrorInfo_);
 
       if (errcode2 != 0) guaErrorInfo_ = errcode2;  // not even FILE_GETINFO_ worked
       setErrorInfo(-1);
@@ -820,7 +820,7 @@ WaitReturnStatus GuaConnectionToServer::wait(IpcTimeout timeout, UInt32 *eventCo
       _cc_status stat = BSETMODE(openFile_, 117, 1);
       if (_status_ne(stat)) {
         // get a Guardian error code
-        Int32 errcode2 = BFILE_GETINFO_(openFile_, &guaErrorInfo_);
+        int errcode2 = BFILE_GETINFO_(openFile_, &guaErrorInfo_);
 
         if (errcode2 != 0) guaErrorInfo_ = errcode2;  // not even FILE_GETINFO_ worked
         setErrorInfo(-1);
@@ -839,7 +839,7 @@ WaitReturnStatus GuaConnectionToServer::wait(IpcTimeout timeout, UInt32 *eventCo
 
 void GuaConnectionToServer::openRetryCleanup() {
   char msgBuf[100];
-  Int32 cpu, pin, nodeNumber;
+  int cpu, pin, nodeNumber;
   SB_Int64_Type seqNum = -1;
   if (getOpenRetries()) {
     ((GuaProcessHandle *)&getOtherEnd().getPhandle().phandle_)->decompose(cpu, pin, nodeNumber, seqNum);
@@ -854,13 +854,13 @@ void GuaConnectionToServer::openRetryCleanup() {
 
 GuaConnectionToServer *GuaConnectionToServer::castToGuaConnectionToServer() { return this; }
 
-Int32 GuaConnectionToServer::numQueuedSendMessages() {
+int GuaConnectionToServer::numQueuedSendMessages() {
   NAMutexScope ms(mutex_);
 
   return sendQueueEntries();
 }
 
-Int32 GuaConnectionToServer::numQueuedReceiveMessages() {
+int GuaConnectionToServer::numQueuedReceiveMessages() {
   NAMutexScope ms(mutex_);
 
   return receiveQueueEntries();
@@ -1157,7 +1157,7 @@ NABoolean GuaConnectionToServer::tryToStartNewIO() {
   NABoolean needToRetry;  // reset on each iteration of do loop.
   short fsError = 0;
   do {
-    Int32 dummyCountRead;  // (gps 6/3/09 changed from unsigned short to int on Linux)
+    int dummyCountRead;  // (gps 6/3/09 changed from unsigned short to int on Linux)
     _bcc_status stat = BWRITEREADX(openFile_, (char *)writeReadBuffer->data(entry.offset_), entry.bytesSent_,
                                    entry.receiveBufferSizeLeft_, &dummyCountRead, lastAllocatedEntry_);
 
@@ -1258,7 +1258,7 @@ void GuaConnectionToServer::openPhandle(char *processName, NABoolean parallelOpe
     short procFileNameLen;
 
     short i, lastError;
-    Int32 countRead;
+    int countRead;
     // If there are any and it's a data connection, use them even if
     // ssd turned persistent opens off
     if (env->getPersistentOpenAssigned() > 0 && dataConnectionToEsp_) {
@@ -1374,7 +1374,7 @@ void GuaConnectionToServer::openPhandle(char *processName, NABoolean parallelOpe
 
         if (openFailed) {
           short fsError = BFILE_CLOSE_(openFile_);
-          Int32 cpu, pin, nodeNumber;
+          int cpu, pin, nodeNumber;
           SB_Int64_Type seqNum = -1;
           GuaProcessHandle *otherEnd = (GuaProcessHandle *)&getOtherEnd().getPhandle().phandle_;
           otherEnd->decompose(cpu, pin, nodeNumber, seqNum);
@@ -1397,7 +1397,7 @@ void GuaConnectionToServer::openPhandle(char *processName, NABoolean parallelOpe
   _bcc_status stat = BSETMODE(openFile_, 74, -1);
   if (_status_ne(stat)) {
     // get a Guardian error code
-    Int32 errcode2 = BFILE_GETINFO_(openFile_, &guaErrorInfo_);
+    int errcode2 = BFILE_GETINFO_(openFile_, &guaErrorInfo_);
 
     if (errcode2 != 0) guaErrorInfo_ = errcode2;  // not even FILE_GETINFO_ worked
     setErrorInfo(-1);
@@ -1409,7 +1409,7 @@ void GuaConnectionToServer::openPhandle(char *processName, NABoolean parallelOpe
   stat = BSETMODE(openFile_, 30, 3);
   if (_status_ne(stat)) {
     // get a Guardian error code
-    Int32 errcode2 = BFILE_GETINFO_(openFile_, &guaErrorInfo_);
+    int errcode2 = BFILE_GETINFO_(openFile_, &guaErrorInfo_);
 
     if (errcode2 != 0) guaErrorInfo_ = errcode2;  // not even FILE_GETINFO_ worked
     setErrorInfo(-1);
@@ -1422,7 +1422,7 @@ void GuaConnectionToServer::openPhandle(char *processName, NABoolean parallelOpe
     _bcc_status stat = BSETMODE(openFile_, 117, 1);
     if (_status_ne(stat)) {
       // get a Guardian error code
-      Int32 errcode2 = BFILE_GETINFO_(openFile_, &guaErrorInfo_);
+      int errcode2 = BFILE_GETINFO_(openFile_, &guaErrorInfo_);
 
       if (errcode2 != 0) guaErrorInfo_ = errcode2;  // not even FILE_GETINFO_ worked
       setErrorInfo(-1);
@@ -1506,7 +1506,7 @@ void GuaConnectionToServer::closePhandle() {
       if (persistentIndex > -1) {
         GuaProcessHandle *otherEnd = (GuaProcessHandle *)&getOtherEnd().getPhandle().phandle_;
         env->setPersistentOpenInfo(persistentIndex, otherEnd, openFile_);
-        Int32 cpu, pin, nodeNumber;
+        int cpu, pin, nodeNumber;
         SB_Int64_Type seqNum = -1;
         otherEnd = (GuaProcessHandle *)&getOtherEnd().getPhandle().phandle_;
         otherEnd->decompose(cpu, pin, nodeNumber, seqNum);
@@ -1518,12 +1518,12 @@ void GuaConnectionToServer::closePhandle() {
     if (closeFile) {
       _bcc_status status;
       short lastError;
-      for (Int32 numOut = 0; numOut < numOutstandingIOs_; numOut++) {
+      for (int numOut = 0; numOut < numOutstandingIOs_; numOut++) {
         status = BCANCELREQ(openFile_);
         if (_status_ne(status)) short retCode = BFILE_GETINFO_(openFile_, &lastError);
       }
       BFILE_CLOSE_(openFile_);
-      Int32 cpu, pin, nodeNumber;
+      int cpu, pin, nodeNumber;
       SB_Int64_Type seqNum = -1;
       GuaProcessHandle *otherEnd = (GuaProcessHandle *)&getOtherEnd().getPhandle().phandle_;
       otherEnd->decompose(cpu, pin, nodeNumber, seqNum);
@@ -1688,7 +1688,7 @@ void GuaConnectionToServer::dumpAndStopOtherEnd(bool dump, bool stop) const {
   getOtherEnd().getPhandle().dumpAndStop(dump, stop);
 }
 
-void GuaConnectionToServer::partiallyRecvSet(IpcMessageBuffer *msg, Int32 requested, Int32 received) {
+void GuaConnectionToServer::partiallyRecvSet(IpcMessageBuffer *msg, int requested, int received) {
   partiallyReceivedBuffer_ = msg;
   numChunksRequested_ = requested;
   numChunksReceived_ = received;
@@ -1702,7 +1702,7 @@ NABoolean GuaConnectionToServer::partiallyRecvProcessed() { return FALSE; }
 GuaConnectionToServerTimeout::GuaConnectionToServerTimeout(IpcEnvironment *env, const IpcProcessId &procId,
                                                            NABoolean usesTransactions, unsigned short nowaitDepth,
                                                            const char *eye, NABoolean parallelOpen,
-                                                           Int32 *openCompletionScheduled,
+                                                           int *openCompletionScheduled,
                                                            NABoolean dataConnectionToEsp)
     : GuaConnectionToServer(env, procId, usesTransactions, nowaitDepth, eye, parallelOpen, openCompletionScheduled,
                             dataConnectionToEsp) {
@@ -1716,7 +1716,7 @@ GuaConnectionToServerTimeout::GuaConnectionToServerTimeout(IpcEnvironment *env, 
   }
 }
 
-void GuaConnectionToServerTimeout::partiallyRecvSet(IpcMessageBuffer *msg, Int32 requested, Int32 received) {
+void GuaConnectionToServerTimeout::partiallyRecvSet(IpcMessageBuffer *msg, int requested, int received) {
   GuaConnectionToServer::partiallyRecvSet(msg, requested, received);
 
   partiallyReceiveTime_ = {0, 0};
@@ -1832,13 +1832,13 @@ WaitReturnStatus GuaConnectionToClient::wait(IpcTimeout timeout, UInt32 *eventCo
 
 GuaConnectionToClient *GuaConnectionToClient::castToGuaConnectionToClient() { return this; }
 
-Int32 GuaConnectionToClient::numQueuedSendMessages() {
+int GuaConnectionToClient::numQueuedSendMessages() {
   NAMutexScope ms(mutex_);
 
   return sendQueueEntries();
 }
 
-Int32 GuaConnectionToClient::numQueuedReceiveMessages() {  //
+int GuaConnectionToClient::numQueuedReceiveMessages() {  //
   NAMutexScope ms(mutex_);
 
   return receiveQueueEntries();
@@ -2088,8 +2088,8 @@ void GuaConnectionToClient::acceptBuffer(IpcMessageBuffer *buffer, IpcMessageObj
       totalMessageLength = partiallyReceivedBuffer_->getMessageLength();
       numChunksReceived_++;
 
-      Int32 numChunksExpected = DIVIDE_AND_ROUND_UP(totalMessageLength, chunkSize_);
-      Int32 chunkNum = buffer->getChunkNumFromHeader(buffer->data(0));
+      int numChunksExpected = DIVIDE_AND_ROUND_UP(totalMessageLength, chunkSize_);
+      int chunkNum = buffer->getChunkNumFromHeader(buffer->data(0));
       bool lastChunk = (numChunksReceived_ == numChunksExpected);
 
       if (  // received more chunks than expected
@@ -2234,7 +2234,7 @@ WaitReturnStatus GuaReceiveControlConnection::wait(IpcTimeout timeout, UInt32 *e
   IpcMessageBufferPtr bufferAddr = NULL;
   short msgType = 0;
   NABoolean controlReceived = FALSE;
-  Int32 countTransferred;
+  int countTransferred;
   SB_Tag_Type ioTag = -1;
   NABoolean systemMessageReceived;
 
@@ -2347,7 +2347,7 @@ WaitReturnStatus GuaReceiveControlConnection::wait(IpcTimeout timeout, UInt32 *e
   } else
     guaErrorInfo_ = BFILE_GETRECEIVEINFO_((FS_Receiveinfo_Type *)&receiveInfo);
   if (systemMessageReceived && (msgType == ZSYS_VAL_SMSG_CLOSE)) {
-    Int32 cpu, pin, nodeNumber;
+    int cpu, pin, nodeNumber;
     SB_Int64_Type seqNum = -1;
     receiveInfo.phandle_.decompose(cpu, pin, nodeNumber, seqNum);
 
@@ -2441,7 +2441,7 @@ WaitReturnStatus GuaReceiveControlConnection::wait(IpcTimeout timeout, UInt32 *e
       //     without documenting this anywhere
       conn->newClientConnection(receivedBuffer) == TRUE) {
     if (conn) {
-      Int32 cpu, pin, nodeNumber;
+      int cpu, pin, nodeNumber;
       SB_Int64_Type seqNum = -1;
 
       receiveInfo.phandle_.decompose(cpu, pin, nodeNumber, seqNum);
@@ -2785,7 +2785,7 @@ void GuaReceiveControlConnection::sendReplyData(IpcMessageBufferPtr data, IpcMes
   assert(size <= maxIOSize_ AND replyTag != GuaInvalidReplyTag);
 
   // call REPLYX
-  Int32 countWritten;
+  int countWritten;
 
   _cc_status stat;
   if (guaReceiveFastStart_ != NULL && guaReceiveFastStart_->replyx_) {
@@ -2806,7 +2806,7 @@ void GuaReceiveControlConnection::sendReplyData(IpcMessageBufferPtr data, IpcMes
     // sorry, if something goes wrong here we have no way to let
     // the client or master know about it, all we can do is to die
     char buf[100];
-    str_sprintf(buf, "REPLYX returned error %d", (Int32)guaErrorInfo_);
+    str_sprintf(buf, "REPLYX returned error %d", (int)guaErrorInfo_);
     ABORT(buf);
     // don't die in cases where the client caused the fault (if any)
   }
@@ -2836,7 +2836,7 @@ void GuaReceiveControlConnection::initiateReceive(NABoolean newReceive) {
   NAMutexScope ms(mutex_);
 
   MXTRC_FUNC("GRCC::initiateReceive");
-  Int32 count_read = 0;
+  int count_read = 0;
 
   if (newReceive) {
     // A connection specifies TRUE when it initially calls this;
@@ -3058,14 +3058,14 @@ void IpcGuardianServer::stop() {
     }
     char procName[200];
     short procNameLen = 200;
-    Int32 nid = 0;
-    Int32 pid = 0;
+    int nid = 0;
+    int pid = 0;
     short result = 0;
 
     // Phandle wrapper in porting layer
     NAProcessHandle phandle((SB_Phandle_Type *)&(getServerId().getPhandle().phandle_));
 
-    Int32 guaRetcode = phandle.decompose();
+    int guaRetcode = phandle.decompose();
 
     if (!guaRetcode) {
       msg_mon_stop_process_name(phandle.getPhandleString());
@@ -3075,14 +3075,14 @@ void IpcGuardianServer::stop() {
 
 short IpcGuardianServer::workOnStartup(IpcTimeout timeout, NAWNodeSetWrapper *availableNodes, ComDiagsArea **diags,
                                        CollHeap *diagsHeap, NABoolean useTimeout) {
-  Int32 retcode = 0;
+  int retcode = 0;
   MXTRC_FUNC("IpcGuardianServer::workonStartup");
   if (serverState_ == INITIAL) {
     // Check if the class name contains a slash. If this is the
     // case then change the allocation mode to SPAWN, since the
     // class name must be an OSS file name. In all other cases
     // leave the allocation method as is.
-    for (Int32 i = 0; className_[i] != 0; i++)
+    for (int i = 0; className_[i] != 0; i++)
       if (className_[i] == '/') allocMethod_ = IPC_SPAWN_OSS_PROCESS;
 
     if (allocMethod_ == IPC_LAUNCH_GUARDIAN_PROCESS) {
@@ -3208,7 +3208,7 @@ void IpcGuardianServer::acceptSystemMessage(const char *sysMsg, int sysMsgLength
 void NewProcessCallback(SB_Phandle_Type *newPhandle, MS_Mon_NewProcess_Notice_def *newProcNotice) {
   NowaitedEspStartup *nowaitedEspStartup = (NowaitedEspStartup *)newProcNotice->tag;
   NowaitedEspServer *nowaitedEspServer = nowaitedEspStartup->nowaitedEspServer_;
-  Int32 *procCreateError = nowaitedEspStartup->procCreateError_;
+  int *procCreateError = nowaitedEspStartup->procCreateError_;
   NABoolean *nowaitedStartupCompleted = nowaitedEspStartup->nowaitedStartupCompleted_;
   memcpy(*nowaitedEspStartup->newPhandle_, (void *)newPhandle, sizeof(SB_Phandle_Type));
   ESP_TRACE2("CB: ToAcq_m, tag: %p\n", nowaitedEspStartup);
@@ -3294,7 +3294,7 @@ void IpcGuardianServer::launchNSKLiteProcess(NAWNodeSetWrapper *availableNodes, 
 
   if ((serverState_ == INITIAL) || (serverState_ == RETRYING)) {
     // a character string with the program file name
-    const Int32 maxLengthOfCommandLineArgs = 32;
+    const int maxLengthOfCommandLineArgs = 32;
     char progFileName[(IpcMaxGuardianPathNameLength + maxLengthOfCommandLineArgs)];
     char *environmentName = NULL;
 
@@ -3306,7 +3306,7 @@ void IpcGuardianServer::launchNSKLiteProcess(NAWNodeSetWrapper *availableNodes, 
     // parameters to NSKProcessCreate
 
     short p_pe;
-    Int32 p_nowaitTag;
+    int p_nowaitTag;
 
 #define MAX_PROC_ARGS 10
 #define SET_ARGV(argv, argc, argval)                    \
@@ -3315,7 +3315,7 @@ void IpcGuardianServer::launchNSKLiteProcess(NAWNodeSetWrapper *availableNodes, 
     strcpy(argv[argc++], argval);                       \
   }
 
-    Int32 largc = 0;
+    int largc = 0;
     char *largv[MAX_PROC_ARGS];
     MS_Mon_PROCESSTYPE processType = MS_ProcessType_Generic;
 
@@ -3441,9 +3441,9 @@ void IpcGuardianServer::launchNSKLiteProcess(NAWNodeSetWrapper *availableNodes, 
 
     void *envp = getServerClass()->getEnv()->getEnvVars();
     int envpLen = getServerClass()->getEnv()->getEnvVarsLen();
-    Int32 server_nid = p_pe; /* multi fragment esp concurrent change */
-    Int32 server_pid = 0;
-    Int32 server_oid = 0;
+    int server_nid = p_pe; /* multi fragment esp concurrent change */
+    int server_pid = 0;
+    int server_oid = 0;
     char process_name[100];
     char prog[MS_MON_MAX_PROCESS_PATH];
 
@@ -3464,8 +3464,8 @@ void IpcGuardianServer::launchNSKLiteProcess(NAWNodeSetWrapper *availableNodes, 
       sv_cmp_node_id_checked = true;
     }
     if (sv_cmp_node_id_mine && ((strcmp(className_, "arkcmp") == 0) || (strcmp(className_, "arkcmpdbg") == 0))) {
-      Int32 nid;
-      Int32 err = msg_mon_get_my_info(&nid, NULL, NULL, 0, NULL, NULL, NULL, NULL);
+      int nid;
+      int err = msg_mon_get_my_info(&nid, NULL, NULL, 0, NULL, NULL, NULL, NULL);
       if (!err) server_nid = nid;
     }
     if (sv_retry_limit == -1) {
@@ -3498,7 +3498,7 @@ void IpcGuardianServer::launchNSKLiteProcess(NAWNodeSetWrapper *availableNodes, 
           server_nid = -1;  // just try any available node
       }
 
-      Int32 returnValue;
+      int returnValue;
       if (waitedStartup_ == FALSE) {
         nowaitedStartupCompleted_ = FALSE;
 
@@ -3683,7 +3683,7 @@ void IpcGuardianServer::useProcess(ComDiagsArea **diags, CollHeap *diagsHeap, NA
   if (processName_ == NULL) {
     tmpProcessName = getServerClass()->getProcessName((short)cpuNum_, processName);
     // use diagsHeap for the time being
-    Int32 len = str_len(processName);
+    int len = str_len(processName);
 
     processName_ = new (getServerClass()->getEnv()->getHeap()) char[len + 1];
     str_cpy_all((char *)processName_, (const char *)processName, len + 1);
@@ -3754,7 +3754,7 @@ short IpcGuardianServer::changePriority(IpcPriority priority, NABoolean isDelta)
 NABoolean IpcGuardianServer::serverDied() {
   const GuaProcessHandle &ph = getServerId().getPhandle();
   char pname[PhandleStringLen];
-  Int32 pnameLen = ph.toAscii(pname, PhandleStringLen);
+  int pnameLen = ph.toAscii(pname, PhandleStringLen);
   pname[pnameLen] = '\0';
   int nid, pid;
   SB_Verif_Type verifier;
@@ -3826,7 +3826,7 @@ void IpcGuardianServer::getCpuLocationString(char *location) {
   if ((nodeName_ == NULL) && (actualCpuNum_ != IPC_CPU_DONT_CARE)) {
     // populate nodeName_ from the Trafodion node number that we actually attempted to use
     MS_Mon_Node_Info_Type nodeInfo;
-    Int32 rc = msg_mon_get_node_info_detail(actualCpuNum_, &nodeInfo);
+    int rc = msg_mon_get_node_info_detail(actualCpuNum_, &nodeInfo);
     if (rc == 0) {
       nodeName_ = new (getServerClass()->getEnv()->getHeap()) char[TC_PROCESSOR_NAME_MAX];
       strcpy(nodeName_, nodeInfo.node[0].node_name);

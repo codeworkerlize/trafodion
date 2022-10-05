@@ -134,7 +134,7 @@ class StmtDDLCreateTable : public StmtDDLNode {
   // ---------------------------------------------------------------------
 
   // methods relating to parse tree
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
   virtual ExprNode *getChild(int index);
 
   inline const QualifiedName &getTableNameAsQualifiedName() const;
@@ -500,10 +500,10 @@ class StmtDDLCreateTable : public StmtDDLNode {
   inline void setEndOfCreateTableAsAttrListPosition(const StringPos endPos);
   const StringPos getEndOfCreateTableAsWithClausePosition() const;
   inline void setEndOfCreateTableAsWithClausePosition(const StringPos endPos);
-  const Int32 getCreateTableAsIsoMapping() const;
-  inline void setCreateTableAsIsoMapping(const Int32 charset);
-  const Int32 getCreateTableAsScannedInputCharset() const;
-  inline void setCreateTableAsScannedInputCharset(const Int32 charset);
+  const int getCreateTableAsIsoMapping() const;
+  inline void setCreateTableAsIsoMapping(const int charset);
+  const int getCreateTableAsScannedInputCharset() const;
+  inline void setCreateTableAsScannedInputCharset(const int charset);
 
   // void setTableTraits(StmtDDLTableTraits tableTraits );
 
@@ -846,8 +846,8 @@ class StmtDDLCreateTable : public StmtDDLNode {
   StringPos startOfCreateTableAsAttrList_;
   StringPos endOfCreateTableAsAttrList_;
   StringPos endOfCreateTableAsWithClause_;
-  Int32 createTableAsIsoMapping_;
-  Int32 createTableAsScannedInputCharset_;
+  int createTableAsIsoMapping_;
+  int createTableAsScannedInputCharset_;
 
   // CTAs query columns were renamed by the Create Table DDL.
   // Ex: create table(a) as select b from t;
@@ -1191,15 +1191,15 @@ inline void StmtDDLCreateTable::setEndOfCreateTableAsWithClausePosition(const St
   endOfCreateTableAsWithClause_ = endPos;
 }
 
-inline const Int32 StmtDDLCreateTable::getCreateTableAsIsoMapping() const { return createTableAsIsoMapping_; }
+inline const int StmtDDLCreateTable::getCreateTableAsIsoMapping() const { return createTableAsIsoMapping_; }
 
-inline void StmtDDLCreateTable::setCreateTableAsIsoMapping(const Int32 charset) { createTableAsIsoMapping_ = charset; }
+inline void StmtDDLCreateTable::setCreateTableAsIsoMapping(const int charset) { createTableAsIsoMapping_ = charset; }
 
-inline const Int32 StmtDDLCreateTable::getCreateTableAsScannedInputCharset() const {
+inline const int StmtDDLCreateTable::getCreateTableAsScannedInputCharset() const {
   return createTableAsScannedInputCharset_;
 }
 
-inline void StmtDDLCreateTable::setCreateTableAsScannedInputCharset(const Int32 charset) {
+inline void StmtDDLCreateTable::setCreateTableAsScannedInputCharset(const int charset) {
   createTableAsScannedInputCharset_ = charset;
 }
 
@@ -1328,7 +1328,7 @@ class StmtDDLCreateHbaseTable : public StmtDDLNode {
   // ---------------------------------------------------------------------
 
   // methods relating to parse tree
-  virtual Int32 getArity() const { return 0; };
+  virtual int getArity() const { return 0; };
   virtual ExprNode *getChild(int index) { return NULL; }
 
   inline const QualifiedName &getTableNameAsQualifiedName() const;

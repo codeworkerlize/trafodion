@@ -956,7 +956,7 @@ class MatchJoinPreds : public MatchTest {
 
   NABoolean analyzeJoinPredicate(const QRJoinPredPtr joinPred, NABoolean isPass1);
 
-  void analyzeEQMember(QRElementPtr elem, Int32 &mvTables, Int32 &ehTables, Int32 &outTables,
+  void analyzeEQMember(QRElementPtr elem, int &mvTables, int &ehTables, int &outTables,
                        ColumnNodesList &mvColumns, NAPtrList<QRExprPtr> &mvExprs, NABoolean isPass1);
 
   NABoolean analyzeProvidedExpression(const QRExprPtr expr);

@@ -75,7 +75,7 @@ PrivMgrObjectInfo::PrivMgrObjectInfo(const NATable *naTable)
 //
 // Creates a PrivMgrUserPrivs object from a PrivMgrDescs list
 // ----------------------------------------------------------------------------
-bool PrivMgrUserPrivs::initUserPrivs(const NAList<Int32> &roleIDs, PrivMgrDescList *privDescs, const int32_t userID,
+bool PrivMgrUserPrivs::initUserPrivs(const NAList<int> &roleIDs, PrivMgrDescList *privDescs, const int32_t userID,
                                      const int64_t objectUID, ComSecurityKeySet *secKeySet) {
   hasPublicPriv_ = false;
 
@@ -83,7 +83,7 @@ bool PrivMgrUserPrivs::initUserPrivs(const NAList<Int32> &roleIDs, PrivMgrDescLi
   PrivMgrDescList userDescList(privDescs->getHeap());
   for (CollIndex i = 0; i < privDescs->entries(); i++) {
     const PrivMgrDesc *privs = privDescs->operator[](i);
-    Int32 grantee = privs->getGrantee();
+    int grantee = privs->getGrantee();
     bool addDesc = false;
     if (ComUser::isPublicUserID(grantee)) {
       hasPublicPriv_ = true;
@@ -92,7 +92,7 @@ bool PrivMgrUserPrivs::initUserPrivs(const NAList<Int32> &roleIDs, PrivMgrDescLi
       addDesc = true;
 
     else if (PrivMgr::isRoleID(grantee)) {
-      Int32 entry;
+      int entry;
       if (roleIDs.find(grantee, entry)) addDesc = true;
     }
     if (addDesc) {
@@ -155,7 +155,7 @@ bool PrivMgrUserPrivs::setPrivInfoAndKeys(PrivMgrDescList &descList, const int32
       std::map<size_t, PrivColumnBitmap>::iterator it;
       for (int j = 0; j < columnPrivs.entries(); j++) {
         PrivMgrCoreDesc colDesc = columnPrivs[j];
-        Int32 columnOrdinal = colDesc.getColumnOrdinal();
+        int columnOrdinal = colDesc.getColumnOrdinal();
         it = colPrivsList_.find(columnOrdinal);
         if (it == colPrivsList_.end()) {
           colPrivsList_[columnOrdinal] = colDesc.getPrivBitmap();
@@ -168,13 +168,13 @@ bool PrivMgrUserPrivs::setPrivInfoAndKeys(PrivMgrDescList &descList, const int32
     }
 
     // set up security invalidation keys
-    Int32 grantee = privs->getGrantee();
-    NAList<Int32> roleGrantees(descList.getHeap());
+    int grantee = privs->getGrantee();
+    NAList<int> roleGrantees(descList.getHeap());
 
     // If the grantee is a role, then get all users and user's groups that
     // have been granted the role.  Create a security key for each.
     if (PrivMgr::isRoleID(grantee)) {
-      for (Int32 j = 0; j < grantees.entries(); j++) {
+      for (int j = 0; j < grantees.entries(); j++) {
         if (grantee == roleIDs[j]) roleGrantees.insert(grantees[j]);
       }
     }
@@ -199,7 +199,7 @@ bool PrivMgrUserPrivs::setPrivInfoAndKeys(PrivMgrDescList &descList, const int32
       // add column security keys
       NAList<PrivMgrCoreDesc> colPrivs = privs->getColumnPrivs();
       for (int k = 0; k < colPrivs.entries(); k++) {
-        Int32 columnOrdinal = colPrivs[k].getColumnOrdinal();
+        int columnOrdinal = colPrivs[k].getColumnOrdinal();
         PrivMgrCoreDesc colDesc(colPrivsList_[columnOrdinal], colGrantableList_[columnOrdinal]);
         if (!buildSecurityKeys(roleGrantees, grantee, objectUID, privs->isSchemaObject(), true, colDesc, *secKeySet))
           return false;
@@ -279,7 +279,7 @@ std::string PrivMgrUserPrivs::print() {
   privList += objectBitmap_.to_string<char, std::string::traits_type, std::string::allocator_type>();
 
   privList += ", Col: ";
-  Int32 bufSize = 100;
+  int bufSize = 100;
   char buf[bufSize];
   for (size_t i = 0; i < colPrivsList_.size(); i++) {
     std::string bits = colPrivsList_[i].to_string<char, std::string::traits_type, std::string::allocator_type>();

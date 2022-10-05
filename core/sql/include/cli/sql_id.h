@@ -89,9 +89,9 @@ void init_SQLCLI_OBJ_ID(SQLCLI_OBJ_ID *x, int version = SQLCLI_CURRENT_VERSION,
 #define init_SQLSTMT_ID init_SQLCLI_OBJ_ID
 #define init_SQLDESC_ID init_SQLCLI_OBJ_ID
 
-Int32 isEqualByName(SQLCLI_OBJ_ID *x, SQLCLI_OBJ_ID *y);
+int isEqualByName(SQLCLI_OBJ_ID *x, SQLCLI_OBJ_ID *y);
 
-Int32 isEqualByName(const SQLMODULE_ID *x, const SQLMODULE_ID *y);
+int isEqualByName(const SQLMODULE_ID *x, const SQLMODULE_ID *y);
 
 void setNameForId(SQLCLI_OBJ_ID *x, const char *name, int len, const char *charset = SQLCHARSETSTRING_ISO88591);
 

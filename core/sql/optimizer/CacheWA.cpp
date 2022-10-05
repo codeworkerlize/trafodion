@@ -156,7 +156,7 @@ CacheWA::~CacheWA() {
     tabDescPtr_ = 0;
 
     // Release the memory used by the ValueIdSets.
-    for (Int32 i = 0; i < numberOfScans_; i++) delete usedKyPtr_[i];
+    for (int i = 0; i < numberOfScans_; i++) delete usedKyPtr_[i];
     heap_->deallocateMemory(usedKyPtr_);
     usedKyPtr_ = 0;
   }
@@ -220,7 +220,7 @@ void CacheWA::operator+=(const char *s) {
 
 // add referenced column's valueid to usedKeys
 void CacheWA::addToUsedKeys(BaseColumn *base) {
-  for (Int32 x = 0; x < numberOfScans_; x++) {
+  for (int x = 0; x < numberOfScans_; x++) {
     if (tabDescPtr_[x] == base->getTableDesc()) {
       usedKyPtr_[x]->addElement(base->getValueId());
       return;
@@ -230,7 +230,7 @@ void CacheWA::addToUsedKeys(BaseColumn *base) {
 
 // is this column parameterizable?
 NABoolean CacheWA::isParameterizable(BaseColumn *base) {
-  for (Int32 x = 0; x < numberOfScans_; x++) {
+  for (int x = 0; x < numberOfScans_; x++) {
     if (tabDescPtr_[x] == base->getTableDesc()) {
       // column is parameterizable if it's part of a predicate that
       // specifies at least the requiredPrefixKeys_

@@ -195,7 +195,7 @@ class REFRESH_LIB_CLASS CRUForceOptionsParser {
   char currentToken_[MAX_BUFFER_SIZE];  // holds the current parsed word
   char *pCurrentChar_;                  // The next character in the buffer to parse
   BOOL bufferIsEmpty_;                  // Is the buffer empty?
-  Int32 lineNumber_;
+  int lineNumber_;
 };
 
 #endif

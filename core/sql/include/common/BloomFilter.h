@@ -71,7 +71,7 @@ class BloomFilter : public NABasicObject {
 
   // set the key length info for all keys, useful when dealing
   // keys of fixed length (e.g. the info is SWAP_FOUR for SQL INTEGER).
-  void setKenLengthInfo(Int32 x) { keyLenInfo_ = x; };
+  void setKenLengthInfo(int x) { keyLenInfo_ = x; };
 
   virtual ULng32 packIntoBuffer(char *&buffer);
   virtual ULng32 unpackBuffer(char *&buffer);
@@ -87,7 +87,7 @@ class BloomFilter : public NABasicObject {
  protected:
   UInt32 m_;  // hash table size in bits
   UInt16 k_;  // the number of hash functions
-  Int32 keyLenInfo_;
+  int keyLenInfo_;
 
   NAHeap *heap_;
 };
@@ -169,11 +169,11 @@ class freqStruct : public NABasicObject {
   UInt64 getFreq() { return freq_; };
   UInt32 getBucket() { return bucket_; };
 
-  Int32 operator==(freqStruct &);
+  int operator==(freqStruct &);
 
  protected:
   UInt64 freq_;
-  Int32 bucket_;
+  int bucket_;
 };
 
 class CountingBloomFilter : public BloomFilter {
@@ -265,7 +265,7 @@ class CountingBloomFilter : public BloomFilter {
 
   virtual NABoolean canHandleArbitrarySkewedValue() = 0;
 
-  void computeSumOfFrequencySquared(double *sumSq, Int32 sz);
+  void computeSumOfFrequencySquared(double *sumSq, int sz);
 
   // Save the current Fi values. Only one copy is saved.
   void saveFi();
@@ -455,7 +455,7 @@ class FastStatsCountingBloomFilter : public BloomFilter {
                         UInt32 n,                // # of distinct elements
                         float p,                 // probability of false positives
                         UInt32 nonOverflowFreq,  // non-overflow freq
-                        NABoolean isChar, Int32 actualFixAmount);
+                        NABoolean isChar, int actualFixAmount);
 
  protected:
   virtual void insertIntoOverflowTable(const simple_cbf_key &, UInt32 freq = 1);
@@ -500,7 +500,7 @@ class RegularBloomFilter : public BloomFilter {
 
   // determine if the filter's falase probability is under a
   // threshold and therefore still useful.
-  NABoolean isUseful(Int32 maxNumEntries = -1, float falseProbThreshold = 0.2);
+  NABoolean isUseful(int maxNumEntries = -1, float falseProbThreshold = 0.2);
 
   // return # of distinct keys in the table.
   ULng32 entries(NABoolean estimate = FALSE /* ignored */);

@@ -135,7 +135,7 @@ void SQLMXLoggingArea::resetSqlText()
 }
 #endif
 
-Int32 SQLMXLoggingArea::logSQLMXEventForError(
+int SQLMXLoggingArea::logSQLMXEventForError(
     ULng32 sqlcode, const char *experienceLevel, const char *severityLevel, const char *eventTarget, const char *msgTxt,
     const char *sqlId, const int Int0, const int Int1, const int Int2, const int Int3, const int Int4,
     const char *String0, const char *String1, const char *String2, const char *String3, const char *String4,
@@ -143,14 +143,14 @@ Int32 SQLMXLoggingArea::logSQLMXEventForError(
     const char *constraintName, const char *triggerCatalog, const char *triggerSchema, const char *triggerName,
     const char *catalogName, const char *schemaName, const char *tableName, const char *columnName,
     const long currTransid, const int rowNumber, const int platformCode, NABoolean isWarning) {
-  Int32 rc = 0;
+  int rc = 0;
   // sealog logging of sql error events
   // declare a event stack variable and populate
 #ifndef SP_DIS
   bool lockedMutex = lockMutex();
 
   sql::error_event sql_error_event;
-  Int32 qpidNodePort = atoi(getenv("QPID_NODE_PORT"));
+  int qpidNodePort = atoi(getenv("QPID_NODE_PORT"));
 
   common::event_header *eventHeader = sql_error_event.mutable_header();
   common::info_header *infoHeader = eventHeader->mutable_header();
@@ -181,7 +181,7 @@ Int32 SQLMXLoggingArea::logSQLMXEventForError(
     XPROCESSHANDLE_GETMINE_(&myphandle);
     char charProcHandle[200];
     char myprocname[30];
-    Int32 mycpu, mypin, mynodenumber = 0;
+    int mycpu, mypin, mynodenumber = 0;
     short myproclength = 0;
     XPROCESSHANDLE_DECOMPOSE_(&myphandle, &mycpu, &mypin, &mynodenumber, NULL, 100, NULL, myprocname, 100,
                               &myproclength);
@@ -264,8 +264,8 @@ int sqlToSLSeverity(const char *severity, NABoolean isWarning) {
 }
 void SQLMXLoggingArea::logCompNQCretryEvent(char *stmt) {
   const char m[] = "Statement was compiled as if query plan caching were off: ";
-  Int32 mLen = sizeof(m);
-  Int32 sLen = str_len(stmt);
+  int mLen = sizeof(m);
+  int sLen = str_len(stmt);
   char msg[8192];
   str_cpy_all(msg, m, mLen);
   str_cpy_all(msg + mLen, stmt, MINOF(sLen, 8192 - mLen));
@@ -305,14 +305,14 @@ static void writeStackTrace(char *s, int bufLen) {
 
   // Write each level of the stack except for the top frame and the
   // bottom two frames, which aren't important here.
-  Int32 i = 1;
+  int i = 1;
   while (i < size - 2) {
     char buffer[128];  // Used for command-line + addr2line output.
     char addrBuf[sizeof(void *) * 2 + 4];
 
     sprintf(buffer, "/usr/bin/addr2line -e /proc/%d/exe -f -C ", myPID);
 
-    Int32 j;
+    int j;
 
     // Run addr2line on 5 addresses at a time.
     for (j = i; j < i + 5 && j < size - 2; j++) {
@@ -385,7 +385,7 @@ void SQLMXLoggingArea::logSQLMXDebugEvent(const char *msg, short errorcode, bool
 }
 
 // log an ABORT event
-void SQLMXLoggingArea::logSQLMXAbortEvent(const char *file, Int32 line, const char *msg) {
+void SQLMXLoggingArea::logSQLMXAbortEvent(const char *file, int line, const char *msg) {
   bool lockedMutex = lockMutex();
   SqlSealogEvent sevent;
   // Open a  new connection
@@ -403,7 +403,7 @@ void SQLMXLoggingArea::logSQLMXAbortEvent(const char *file, Int32 line, const ch
 }
 
 // log an ASSERTION FAILURE event
-void SQLMXLoggingArea::logSQLMXAssertionFailureEvent(const char *file, Int32 line, const char *msg,
+void SQLMXLoggingArea::logSQLMXAssertionFailureEvent(const char *file, int line, const char *msg,
                                                      const char *condition, const int *tid) {
   bool lockedMutex = lockMutex();
   SqlSealogEvent sevent;
@@ -565,12 +565,12 @@ Int16 SqlSealogEvent::openConnection() {
   return 0;
 #else
   if (SQLMXLoggingArea::establishedAMQPConnection()) return 0;
-  Int32 qpidNodePort = atoi(getenv("QPID_NODE_PORT"));
+  int qpidNodePort = atoi(getenv("QPID_NODE_PORT"));
 
   common::event_header *eventHeader = sqlInfoEvent_.mutable_header();
   common::info_header *infoHeader = eventHeader->mutable_header();
 
-  Int32 rc = createAMQPConnection("127.0.0.1", qpidNodePort);
+  int rc = createAMQPConnection("127.0.0.1", qpidNodePort);
   if (rc)
     // add trace log
     return rc;
@@ -709,7 +709,7 @@ void SqlSealogEvent::setInt64_2(long i64_2) {
 // to sealog
 
 Int16 SqlSealogEvent::sendEvent(Int16 eventId, int slSeverity) {
-  Int32 rc = 0;
+  int rc = 0;
 #ifndef SP_DIS
   char eventidStr[10] = "        ";
   int eventidLen = 0;
@@ -742,7 +742,7 @@ Int16 SqlSealogEvent::closeConnection() {
 #ifdef SP_DIS
   return 0;
 #else
-  Int32 rc = closeAMQPConnection();
+  int rc = closeAMQPConnection();
   SQLMXLoggingArea::establishedAMQPConnection_ = FALSE;
   if (rc)
     // add trace log
@@ -759,7 +759,7 @@ void SQLMXLoggingArea::logSortDiskInfo(char *diskname, short percentfree, short 
 
 static void check_assert_bug_catcher() {}
 
-void SQLMXLoggingArea::logUtilErrorsEvent(const char *utilName, const Int32 numOfErrors, const int errorCode,
+void SQLMXLoggingArea::logUtilErrorsEvent(const char *utilName, const int numOfErrors, const int errorCode,
                                           const char *msg1, const char *msg2, const char *msg3, const char *msg4,
                                           const char *msg5) {
   /* TBD
@@ -954,7 +954,7 @@ void SQLMXLoggingArea::logPMEventWithInterval(ULng32 eventId,
 
 
 void SQLMXLoggingArea::logPMErrorsEvent (const char *operation,
-					 const Int32 numOfErrors,
+					 const int numOfErrors,
 					 const int  errorCode,
 					 const char *msg1,
 					 const char *msg2,

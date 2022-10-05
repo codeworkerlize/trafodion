@@ -889,7 +889,7 @@ ParKeyWord::ParKeyWord(const ParKeyWord &other, NAMemory *h)
 
 // Basic constructor for a ParKeyWord.
 //
-ParKeyWord::ParKeyWord(const char *kwd, Int32 code, UInt32 flags, NAMemory *h)
+ParKeyWord::ParKeyWord(const char *kwd, int code, UInt32 flags, NAMemory *h)
     : keyword_(kwd), tokenCode_(code), flags_(flags) {}
 
 // Constructor for ParKeyWords.
@@ -977,7 +977,7 @@ void ParKeyWords::initKeyWordTable() {
 //          positive if keyval > datum
 // =====================================================================
 //
-Int32 ParKeyWords::keyCompare(const void *keyval, const void *datum) {
+int ParKeyWords::keyCompare(const void *keyval, const void *datum) {
   // Cast the (void *) pointers to the (ParKeyWord *) which they must
   // be.
   //
@@ -991,10 +991,10 @@ Int32 ParKeyWords::keyCompare(const void *keyval, const void *datum) {
   // case-sensitive comparison
   // (all words are uppercase)
   //
-  Int32 len1 = str_len(kval->getKeyWord());
-  Int32 len2 = str_len(entry->getKeyWord());
+  int len1 = str_len(kval->getKeyWord());
+  int len2 = str_len(entry->getKeyWord());
 
-  Int32 ok = 0;
+  int ok = 0;
 
   if (len1 == len2)
     return str_cmp(kval->getKeyWord(), entry->getKeyWord(), len1);

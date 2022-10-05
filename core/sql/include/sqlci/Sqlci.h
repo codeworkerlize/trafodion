@@ -37,7 +37,7 @@
 #include "sqlci/SqlciStmts.h"
 #include "sqlci/InputStmt.h"
 #include "sqlci/SqlciStats.h"
-#include "sqlci/SqlciList_templ.h"
+
 #include "sqlci/SqlciError.h"
 #include "sqlci/sqlclicmd.h"
 

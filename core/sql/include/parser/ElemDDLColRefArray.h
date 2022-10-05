@@ -73,11 +73,11 @@ class ElemDDLColRefArray : public LIST(ElemDDLColRef *) {
 
   // See if this columnName is in a ElemDDLColRefArray.  Returns the index,
   // -1 if not found.
-  Int32 getColumnIndex(const NAString &columnName);
+  int getColumnIndex(const NAString &columnName);
 
   // see if the this ElemDDLColRefArray contains other ElemDDLColRefArray.
   // The columns need not be in the same order.
-  ComBoolean contains(ElemDDLColRefArray &other, Int32 &firstUnmatchedEntry);
+  ComBoolean contains(ElemDDLColRefArray &other, int &firstUnmatchedEntry);
 
   // see if the ElemDDLColRefArray matches the other ElemDDLColRefArray.
   // The columns need not be in the same order.

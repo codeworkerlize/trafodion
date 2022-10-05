@@ -286,7 +286,7 @@ Context *RelExpr::createPlan(Context *myContext, PlanWorkSpace *pws, Rule *rule,
       // because it causes the cost for this operation to reach
       // or exceed the cost limit.
       // -----------------------------------------------------------------
-      Int32 numChildContextsPruned = getArity() - (Int32)pws->getPlanChildCount();
+      int numChildContextsPruned = getArity() - (int)pws->getPlanChildCount();
       if (numChildContextsPruned > 0) CURRSTMT_OPTGLOBALS->pruned_tasks_count += numChildContextsPruned;
       pws->markLatestContextAsViolatesCostLimit();
       DBGLOGMSG("  *** Cost limit exceeded by plan partial cost ");
@@ -433,7 +433,7 @@ Context *RelExpr::createPlan(Context *myContext, PlanWorkSpace *pws, Rule *rule,
       // be created.
       // -------------------------------------------------------------
       if (myContext->getCostLimit()->compareWithPlanCost(myContext->getPlan(), rppForMe) == LESS) {
-        CURRSTMT_OPTGLOBALS->pruned_tasks_count += (Int32)pws->getCountOfChildContexts();
+        CURRSTMT_OPTGLOBALS->pruned_tasks_count += (int)pws->getCountOfChildContexts();
         DBGLOGMSGCNTXT(" *** CLExceeded in createPlan() ", myContext);
         return NULL;
       }
@@ -2933,11 +2933,11 @@ ValueIdList NestedJoin::genWriteOpLeftChildSortReq() {
       // not be sorted. Note that the order of the sortkey of the inner table
       // and the order of the mapped required sort order on the outer source
       // are the same.
-      Int32 sysKeyPosition = updateTableDesc()->getClusteringIndex()->getNAFileSet()->getSysKeyPosition();
+      int sysKeyPosition = updateTableDesc()->getClusteringIndex()->getNAFileSet()->getSysKeyPosition();
 
       if (sysKeyPosition >= 0) {
         // truncation anything starting from the sysKey.
-        for (Int32 i = reqdOrder.entries() - 1; i >= sysKeyPosition; i--) {
+        for (int i = reqdOrder.entries() - 1; i >= sysKeyPosition; i--) {
           reqdOrder.removeAt(i);
         }
       }
@@ -3387,7 +3387,7 @@ const IndexDesc *NestedJoin::getClusteringIndexIndexDescForRightChild() const {
   GroupAttributes *ga = child(1).getGroupAttr();
   const SET(IndexDesc *) &availIndexes = ga->getAvailableBtreeIndexes();
 
-  Int32 x = availIndexes.entries();
+  int x = availIndexes.entries();
 
   for (CollIndex i = 0; i < availIndexes.entries(); i++) {
     IndexDesc *iDesc = availIndexes[i];
@@ -4179,7 +4179,7 @@ Context *NestedJoin::createContextForAChild(Context *myContext, PlanWorkSpace *p
               if (rightPartFunc->scaleNumberOfPartitions(childNumPartsRequirement) == FALSE)
                 rightPartFunc = innerTablePartFunc;
 
-              Int32 antiskewSkewEsps = (Int32)CmpCommon::getDefaultNumeric(NESTED_JOINS_ANTISKEW_ESPS);
+              int antiskewSkewEsps = (int)CmpCommon::getDefaultNumeric(NESTED_JOINS_ANTISKEW_ESPS);
 
               if (antiskewSkewEsps > 0) {
                 ValueIdSet joinPreds = getOriginalEquiJoinExpressions().getTopValues();
@@ -6969,7 +6969,7 @@ NABoolean HashJoin::isBigMemoryOperatorSetRatio(const Context *context, const in
     bigMemoryProperty->setCurrentFileSize(fileSizePerCpu);
     bigMemoryProperty->setOperatorType(getOperatorType());
 
-    for (Int32 i = 0; i <= getArity(); i++) {
+    for (int i = 0; i <= getArity(); i++) {
       const PhysicalProperty *childSpp = context->getPhysicalPropertyOfSolutionForChild(i);
 
       if (childSpp != NULL) {
@@ -10387,7 +10387,7 @@ Context *RelRoot::createContextForAChild(Context *myContext, PlanWorkSpace *pws,
       WildCardOp *wildCardOp = dynamic_cast<WildCardOp *>(reqdShape_);
 
       if (wildCardOp) {
-        Int32 maxDoP = wildCardOp->maxForcedDoP();
+        int maxDoP = wildCardOp->maxForcedDoP();
 
         if (maxDoP > 0) {
           countOfCPUs = MAXOF(maxDoP, countOfCPUs);
@@ -11402,7 +11402,7 @@ PhysicalProperty *RelExpr::synthDP2PhysicalProperty(const Context *myContext, co
   // MAX_ACCESS_NODES_PER_ESP. This is an absolute value
   // that should be based on file system and executor buffer size
   // restrictions, message system restrictions, etc.
-  Int32 maxPAsPerProcess = (Int32)getDefaultAsLong(MAX_ACCESS_NODES_PER_ESP);
+  int maxPAsPerProcess = (int)getDefaultAsLong(MAX_ACCESS_NODES_PER_ESP);
 
   LogPhysPartitioningFunction::logPartType logPartType;
   PartitioningFunction *physicalPartFunc = indexDesc->getPartitioningFunction();
@@ -12012,7 +12012,7 @@ RangePartitionBoundaries *createRangePartitionBoundariesFromStats(const IndexDes
                                                                   int numberOfPartitions,
                                                                   const NAColumnArray &partColArray,
                                                                   const ValueIdList &partitioningKeyColumnsOrder,
-                                                                  const Int32 statsColsCount, NAMemory *heap);
+                                                                  const int statsColsCount, NAMemory *heap);
 
 //
 // Parameter partns:
@@ -12021,9 +12021,9 @@ RangePartitionBoundaries *createRangePartitionBoundariesFromStats(const IndexDes
 //   On output:  the final scaled-to # of partitions
 //
 RangePartitioningFunction *FileScan::createRangePartFuncForHbaseTableUsingStats(
-    Int32 &partns, const ValueIdSet &partitioningKeyColumns, const ValueIdList &partitioningKeyColumnsList,
+    int &partns, const ValueIdSet &partitioningKeyColumns, const ValueIdList &partitioningKeyColumnsList,
     const ValueIdList &partitioningKeyColumnsOrder) {
-  Int32 bytesPerESP = getDefaultAsLong(HBASE_MIN_BYTES_PER_ESP_PARTITION);
+  int bytesPerESP = getDefaultAsLong(HBASE_MIN_BYTES_PER_ESP_PARTITION);
 
   NABoolean useMCSplit = (CmpCommon::getDefault(HBASE_RANGE_PARTITIONING_MC_SPLIT) == DF_ON);
 
@@ -12188,7 +12188,7 @@ PhysicalProperty *FileScan::synthHbaseScanPhysicalProperty(const Context *contex
 
     // check for ATTEMPT_ESP_PARALLELISM CQD
     if (!(CURRSTMT_OPTDEFAULTS->attemptESPParallelism() == DF_OFF)) {
-      Int32 numOfPartitions = 1;  // assume single partitioned table
+      int numOfPartitions = 1;  // assume single partitioned table
 
       if (ixDescPartFunc) numOfPartitions = ixDescPartFunc->getCountOfPartitions();
 
@@ -12231,7 +12231,7 @@ PhysicalProperty *FileScan::synthHbaseScanPhysicalProperty(const Context *contex
             }
 
             if (getDefaultAsLong(AS_AFFINITY_VALUE) != -2 && ixDescPartFunc) {
-              Int32 numOfUniqueNodes = ixDescPartFunc->getNodeMap()->getNumberOfUniqueNodes();
+              int numOfUniqueNodes = ixDescPartFunc->getNodeMap()->getNumberOfUniqueNodes();
 
               // #ESPs performing reading from HBase tables is capped at by
               // the # of unique nodes or region servers.
@@ -12330,8 +12330,8 @@ PhysicalProperty *FileScan::synthHbaseScanPhysicalProperty(const Context *contex
     NodeMap *myNodeMap = (NodeMap *)myPartFunc->getNodeMap();
     const NodeMap *regNodeMap = ixDescPartFunc->getNodeMap();
 
-    Int32 m = myNodeMap->getNumEntries();
-    Int32 n = regNodeMap->getNumEntries();
+    int m = myNodeMap->getNumEntries();
+    int n = regNodeMap->getNumEntries();
 
     // m : n allocation strategy where m < n using most popular node num
     if (m < n) {
@@ -12585,7 +12585,7 @@ NABoolean FileScan::okToAttemptESPParallelism(const Context *myContext, /*IN*/
     // Currently, forcing of the number of ESPs for a leaf
     // is not supported. So, numOfESPsForced should always be FALSE.
     if (NOT numOfESPsForced) {
-      const Int32 optimalNumPAsPerEsp = (Int32)getDefaultAsLong(PARTITION_ACCESS_NODES_PER_ESP);
+      const int optimalNumPAsPerEsp = (int)getDefaultAsLong(PARTITION_ACCESS_NODES_PER_ESP);
 
       // divide number of PAs by number of PAs per ESP and round up to
       // the next highest number of ESPs if there is a remainder
@@ -13463,7 +13463,7 @@ NABoolean GenericUpdate::okToAttemptESPParallelism(const Context *myContext, /*I
     // Currently, forcing of the number of ESPs for a leaf
     // is not supported. So, numOfESPsForced should always be FALSE.
     if (NOT numOfESPsForced) {
-      const Int32 optimalNumPAsPerEsp = (Int32)getDefaultAsLong(PARTITION_ACCESS_NODES_PER_ESP);
+      const int optimalNumPAsPerEsp = (int)getDefaultAsLong(PARTITION_ACCESS_NODES_PER_ESP);
 
       // divide number of PAs by number of PAs per ESP and round up to
       // the next highest number of ESPs if there is a remainder
@@ -14624,7 +14624,7 @@ Context *PhysicalTableMappingUDF::createContextForAChild(Context *myContext, Pla
   // add ORDER BY as a required order
   if (NOT childInfo->getOrderBy().isEmpty()) {
     ValueIdList sortKey(getChildInfo(0)->getPartitionBy());
-    for (Int32 i = 0; i < (Int32)getChildInfo(0)->getOrderBy().entries(); i++)
+    for (int i = 0; i < (int)getChildInfo(0)->getOrderBy().entries(); i++)
       sortKey.insert(getChildInfo(0)->getOrderBy()[i]);
     rg.addSortKey(sortKey, ESP_SOT);
   }
@@ -14679,7 +14679,7 @@ Context *PhysicalTableMappingUDF::createContextForAChild(Context *myContext, Pla
 PhysicalProperty *PhysicalTableMappingUDF::synthPhysicalProperty(const Context *myContext, const int planNumber,
                                                                  PlanWorkSpace *pws) {
   PartitioningFunction *myPartFunc = NULL;
-  Int32 arity = getArity();
+  int arity = getArity();
   int numOfESPs = 0;
   NABoolean createSinglePartFunc = FALSE;
   NABoolean createRandomPartFunc = FALSE;
@@ -14703,7 +14703,7 @@ PhysicalProperty *PhysicalTableMappingUDF::synthPhysicalProperty(const Context *
   } else {
     const PhysicalProperty *sppOfChild;
     const PartitioningFunction *childPartFunc;
-    Int32 childToUse = 0;
+    int childToUse = 0;
     NABoolean foundChildToUse = FALSE;
 
     // find a child that is not replicated, the first such
@@ -14804,7 +14804,7 @@ NABoolean RelExpr::isBigMemoryOperator(const PlanWorkSpace *pws, const int) {
     bigMemoryProperty->incrementCumulativeMemSize(0);
   } else {
     // get cumulative file size of the fragment; get the child spp??
-    for (Int32 i = 0; i < getArity(); i++) {
+    for (int i = 0; i < getArity(); i++) {
       const PhysicalProperty *childSpp = context->getPhysicalPropertyOfSolutionForChild(i);
 
       if (childSpp != NULL) {

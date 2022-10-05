@@ -46,7 +46,7 @@
 #endif
 
 void SqlciLexReinit();
-Int32 sqlciparse();
+int sqlciparse();
 
 class SqlciNode;  // Forward refs to keep #include dependencies minimal
 class SqlciEnv;   // "
@@ -54,9 +54,9 @@ class SqlciEnv;   // "
 GLOB_ UInt32 SqlciParse_InputPos INIT_(0);
 GLOB_ char *SqlciParse_InputStr INIT_(NULL);
 GLOB_ char *SqlciParse_OriginalStr INIT_(NULL);
-GLOB_ Int32 SqlciParse_HelpCmd INIT_(0);
-GLOB_ Int32 SqlciParse_IdentifierExpected INIT_(0);
-GLOB_ Int32 SqlciParse_SyntaxErrorCleanup INIT_(0);
+GLOB_ int SqlciParse_HelpCmd INIT_(0);
+GLOB_ int SqlciParse_IdentifierExpected INIT_(0);
+GLOB_ int SqlciParse_SyntaxErrorCleanup INIT_(0);
 
 // this global variable returns the final parse tree
 GLOB_ SqlciNode *SqlciParseTree INIT_(NULL);

@@ -461,9 +461,9 @@ IpcMessageObjSize IpcMessageObj::packDependentObjIntoMessage32(IpcMessageBufferP
   IpcMessageObjSize result = packObjIntoMessage32(alignedBuffer, swapBytes);
   IpcMessageObjSize sResult = result;  // swapped result if does
 
-  Int32 refCount = 1;
+  int refCount = 1;
 
-  Int32 firstField = 0;  // assume Linux where vPtrPad_ is at the end
+  int firstField = 0;  // assume Linux where vPtrPad_ is at the end
   if (swapBytes) {
     // send to NSK where vPtrPad_ is at the beginning of the structure.
     firstField = 4;
@@ -502,9 +502,9 @@ void IpcMessageObj::unpackDependentObjFromBuffer32(IpcConstMessageBufferPtr &buf
   //   The problem here is that IpcMessageObjStruct does not contain
   //   the 4 bytes allocated for the virtual function table pointer and
   //   on NT the vftptr is BEFORE the structure and on unix/NSK it is after.
-  IpcMessageObjType objType = *(Int32 *)((char *)buffer + 4);        // objType_
-  IpcMessageObjVersion objVersion = *(Int32 *)((char *)buffer + 8);  // objVersion_
-  IpcMessageObjSize objLength = *(Int32 *)((char *)buffer + 16);     // objLength_
+  IpcMessageObjType objType = *(int *)((char *)buffer + 4);        // objType_
+  IpcMessageObjVersion objVersion = *(int *)((char *)buffer + 8);  // objVersion_
+  IpcMessageObjSize objLength = *(int *)((char *)buffer + 16);     // objLength_
 
   unpackObj32(objType, objVersion, sameEndianness, objLength, buffer);
   buffer += objLength;
@@ -666,7 +666,7 @@ NABoolean checkCharStarInBuffer(
     /* IN    */ NABoolean sameEndianness,
     /* IN    */ IpcConstMessageBufferPtr lastByte) {
   NABoolean result = TRUE;
-  Int32 dataLength = 0;
+  int dataLength = 0;
   if (!checkAndUnpackBuffer(buffer, sizeof(dataLength), (char *)&dataLength, lastByte)) {
     result = FALSE;
     ipcIntegrityCheckEpilogue(result);

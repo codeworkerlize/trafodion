@@ -68,7 +68,7 @@ short Obey::process(SqlciEnv *sqlci_env) {
   FILE *file_stream = fopen(name, "r");
   if (!file_stream) {
 #ifndef NA_CASE_INSENSITIVE_FILENAMES
-    static Int32 desensitize = -1;
+    static int desensitize = -1;
     if (desensitize < 0) {
       const char *env = getenv("SQL_MXCI_CASE_INSENSITIVE_OBEY");
       if (!env || !*env || *env == '0')
@@ -82,7 +82,7 @@ short Obey::process(SqlciEnv *sqlci_env) {
     }
     if (desensitize) {
       NABoolean U = (desensitize == 'U');
-      for (Int32 i = 0; i < 2 && !file_stream; i++, U = !U) {
+      for (int i = 0; i < 2 && !file_stream; i++, U = !U) {
         if (U) {
           for (char *n = name; *n; n++) *n = toupper(*n);
         } else {
@@ -121,9 +121,9 @@ short Obey::process(SqlciEnv *sqlci_env) {
   short prevEnvObey = sqlci_env->inObeyFile();
   sqlci_env->setObey(-1);
 
-  Int32 done = 0;
-  Int32 ignore_toggle = 0;
-  Int32 veryFirst = 1;
+  int done = 0;
+  int ignore_toggle = 0;
+  int veryFirst = 1;
   ObeyState state;
   long costTh = -1;
   pid_t pid = getpid();
@@ -139,14 +139,14 @@ short Obey::process(SqlciEnv *sqlci_env) {
   else
     state = SKIP_STMT;
 
-  Int32 section_was_seen = (state == PROCESS_STMT);
+  int section_was_seen = (state == PROCESS_STMT);
 
   InputStmt *input_stmt;
   SqlciNode *sqlci_node = 0;
 
   while (!done) {
     input_stmt = new InputStmt(sqlci_env);
-    Int32 read_error = 0;
+    int read_error = 0;
     if (veryFirst == 1) {
       veryFirst = 0;
       input_stmt->setVeryFirstLine();
@@ -209,7 +209,7 @@ short Obey::process(SqlciEnv *sqlci_env) {
           input_stmt->logStmt();
           if (sqlci_env->logCommands()) sqlci_env->get_logfile()->setNoLog(TRUE);
 
-          Int32 ignore_stmt = input_stmt->isIgnoreStmt();
+          int ignore_stmt = input_stmt->isIgnoreStmt();
           if (ignore_stmt) ignore_toggle = ~ignore_toggle;
 
           if (ignore_stmt || ignore_toggle || input_stmt->ignoreJustThis()) {

@@ -60,8 +60,8 @@ class NAString;
 //    redefine the operator[] method for that new operator and allocate
 //    space for the additional children in that particular class
 // -----------------------------------------------------------------------
-const Int32 MAX_REL_ARITY = 2;  // join, union
-const Int32 MAX_ITM_ARITY = 3;  // like, between predicates have arity 3
+const int MAX_REL_ARITY = 2;  // join, union
+const int MAX_ITM_ARITY = 3;  // like, between predicates have arity 3
 
 // -----------------------------------------------------------------------
 //   Group index
@@ -102,7 +102,7 @@ class HashValue : public NABasicObject {
     val_ ^= (ULng32)other;
     return *this;
   }
-  inline HashValue &operator^=(Int32 other) {
+  inline HashValue &operator^=(int other) {
     val_ ^= (ULng32)other;
     return *this;
   }
@@ -218,12 +218,12 @@ class ReferenceCounter : public NABasicObject {
   // ---------------------------------------------------------------------
   //  Manipulation of reference counter
   // ---------------------------------------------------------------------
-  void incrementReferenceCount(Int32 delta = 1);
-  void decrementReferenceCount(Int32 delta = 1);
-  Int32 getReferenceCount() const;
+  void incrementReferenceCount(int delta = 1);
+  void decrementReferenceCount(int delta = 1);
+  int getReferenceCount() const;
 
  private:
-  Int32 referenceCount_;
+  int referenceCount_;
 
 };  // ReferenceCounter
 

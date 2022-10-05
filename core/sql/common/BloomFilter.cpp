@@ -351,9 +351,9 @@ CountingBloomFilter::~CountingBloomFilter() {
   NADELETEBASIC(freq2sH_, heap_);
 }
 
-Int32 compareTwoFreqStructs(const void *x, const void *y) { return ((freqStruct *)x)->operator==(*((freqStruct *)y)); }
+int compareTwoFreqStructs(const void *x, const void *y) { return ((freqStruct *)x)->operator==(*((freqStruct *)y)); }
 
-Int32 freqStruct::operator==(freqStruct &y) {
+int freqStruct::operator==(freqStruct &y) {
   if (getBucket() == y.getBucket()) {
     if (getFreq() == y.getFreq())
       return 0;
@@ -495,10 +495,10 @@ cbf_key &cbf_key::operator=(const cbf_key &other) {
 //
 // For each bucket, compute the sum of all frequencies squared.
 //
-void CountingBloomFilter::computeSumOfFrequencySquared(double *sumSq, Int32 sz) {
-  sz = MINOF(sz, (Int32)numBuckets_);
+void CountingBloomFilter::computeSumOfFrequencySquared(double *sumSq, int sz) {
+  sz = MINOF(sz, (int)numBuckets_);
 
-  for (Int32 i = 0; i < sz; i++) sumSq[i] = 0.0;
+  for (int i = 0; i < sz; i++) sumSq[i] = 0.0;
 
   //
   // Use freqsL_ which records the frequencies for all low freq keys
@@ -506,7 +506,7 @@ void CountingBloomFilter::computeSumOfFrequencySquared(double *sumSq, Int32 sz) 
   //
   // Accumulate low frequencies per bucket
   //
-  for (Int32 b = 1; b < sz; b++) {
+  for (int b = 1; b < sz; b++) {
     VarUIntArray &lowf2s = lowF2s(b);
     for (UInt32 j = 1; j < lowf2s.entries(); j++) {
       // fj is the total # of keys each appearing j times.
@@ -1028,7 +1028,7 @@ UInt64 FastStatsCountingBloomFilter::getSizeInBytes(UInt32 maxHashFuncs,
                                                     UInt32 n,  // # of distinct elements
                                                     float p,   // probability of false positives
                                                                // non-overflow freq of n elements
-                                                    UInt32 nonOverflowFreq, NABoolean isChar, Int32 actualFixAmount) {
+                                                    UInt32 nonOverflowFreq, NABoolean isChar, int actualFixAmount) {
   UInt32 m;
   UInt16 k;
 
@@ -1236,7 +1236,7 @@ void FastStatsCountingBloomFilter::printfreq(const char *colNames) {
     NABoolean ok = contain(ckey.getKey(), ckey.getKeyLen(), &freq);
 
     if (ok) {
-      printf("key=%d, freq=" PF64 "\n", *((Int32 *)ckey.getKey()), freq);
+      printf("key=%d, freq=" PF64 "\n", *((int *)ckey.getKey()), freq);
     }
   }
 }
@@ -1395,8 +1395,8 @@ NABoolean RegularBloomFilter::merge(RegularBloomFilter &source) {
 }
 
 void RegularBloomFilter::insert(const char *dataFile) {
-  Int32 x;
-  Int32 ct = 0;
+  int x;
+  int ct = 0;
 
   fstream input(dataFile, ios::in);
   while (!input.eof()) {
@@ -1430,8 +1430,8 @@ void RegularBloomFilter::insert(const char *dataFile) {
 void RegularBloomFilter::lookup(const char *dataFile) {
   fstream input(dataFile, ios::in);
 
-  Int32 x;
-  Int32 ct = 0;
+  int x;
+  int ct = 0;
 
   while (!input.eof()) {
     input >> x;
@@ -1475,7 +1475,7 @@ float RegularBloomFilter::currentFalseProbability() {
 
 // check if the current false probability is too high for
 // the filter to be useful.
-NABoolean RegularBloomFilter::isUseful(Int32 maxNumEntries, float threshold) {
+NABoolean RegularBloomFilter::isUseful(int maxNumEntries, float threshold) {
   if (maxNumEntries > -1 && entries_ > maxNumEntries) return FALSE;
 
   return (currentFalseProbability() <= threshold);
@@ -1486,7 +1486,7 @@ UInt32 RegularBloomFilter::entries(NABoolean estimate) { return entries_; }
 void RegularBloomFilter::testHDPHash(const char *dataFile) {
   fstream input(dataFile, ios::in);
 
-  Int32 x;
+  int x;
 
   while (!input.eof()) {
     input >> x;
@@ -1507,7 +1507,7 @@ void RegularBloomFilter::testHDPHash(const char *dataFile) {
 void RegularBloomFilter::testMultiHashInt(const char *dataFile, UInt32 maxFuncs, UInt32 bytes) {
   fstream input(dataFile, ios::in);
 
-  Int32 x;
+  int x;
 
   TaskMonitor tm;
   tm.enter();

@@ -270,7 +270,7 @@ ex_hashj_tcb::ex_hashj_tcb(const ex_hashj_tdb &hashJoinTdb,
 
   // Allocate the buffer pool for result rows
   // this pool contains only one buffer
-  Int32 numBuffers = hashJoinTdb.numBuffers_;
+  int numBuffers = hashJoinTdb.numBuffers_;
 
   // The default number of buffers is 1.
   // Regular Hash Join (not unique) adds more buffers on demand (it

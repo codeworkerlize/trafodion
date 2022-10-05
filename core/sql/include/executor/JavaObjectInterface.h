@@ -118,7 +118,7 @@ class JavaObjectInterface
 
   // Initialize JVM and all the JNI configuration.
   // Must be called.
-  JOI_RetCode init(const char *className, jclass &javaclass, JavaMethodInit *JavaMethods, Int32 howManyMethods,
+  JOI_RetCode init(const char *className, jclass &javaclass, JavaMethodInit *JavaMethods, int howManyMethods,
                    bool methodsInitialized);
 
   // Get the error description.

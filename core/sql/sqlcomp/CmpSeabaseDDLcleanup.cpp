@@ -81,7 +81,7 @@ CmpSeabaseMDcleanup::CmpSeabaseMDcleanup(NAHeap *heap)
 
 long CmpSeabaseMDcleanup::getCleanupObjectUID(ExeCliInterface *cliInterface, const char *catName, const char *schName,
                                                const char *objName, const char *inObjType, char *outObjType,
-                                               Int32 &objectOwner, long *objectFlags, long *objDataUID) {
+                                               int &objectOwner, long *objectFlags, long *objDataUID) {
   int cliRC = 0;
   long objUID = -1;
   objectOwner = -1;
@@ -133,7 +133,7 @@ long CmpSeabaseMDcleanup::getCleanupObjectUID(ExeCliInterface *cliInterface, con
 
 short CmpSeabaseMDcleanup::getCleanupObjectName(ExeCliInterface *cliInterface, long objUID, NAString &catName,
                                                 NAString &schName, NAString &objName, NAString &objType,
-                                                Int32 &objectOwner, long *objectFlags, long *objDataUID) {
+                                                int &objectOwner, long *objectFlags, long *objDataUID) {
   int cliRC = 0;
   char objTypeBuf[10];
 
@@ -353,8 +353,8 @@ short CmpSeabaseMDcleanup::validateInputValues(StmtDDLCleanupObjects *stmtCleanu
     NAString btCatName;
     NAString btSchName;
     long btUID;
-    Int32 btObjOwner = 0;
-    Int32 btSchemaOwner = 0;
+    int btObjOwner = 0;
+    int btSchemaOwner = 0;
 
     // If parent table is not found, just continue
     if (getBaseTable(cliInterface, catName_, schName_, objName_, btCatName, btSchName, btObjName_, btUID, btObjOwner,
@@ -1191,7 +1191,7 @@ short CmpSeabaseMDcleanup::addReturnDetailsEntry(ExeCliInterface *cliInterface, 
 }
 
 short CmpSeabaseMDcleanup::addReturnDetailsEntryForText(ExeCliInterface *cliInterface, Queue *&list, long objUID,
-                                                        Int32 objType, NABoolean init) {
+                                                        int objType, NABoolean init) {
   if (NOT returnDetails_) return 0;
 
   if (init) {
@@ -1316,7 +1316,7 @@ short CmpSeabaseMDcleanup::addReturnDetailsEntryFromList(ExeCliInterface *cliInt
 
     if (processTextInfo) {
       long objUID = *(long *)oi->get(0);
-      Int32 objType = *(Int32 *)oi->get(1);
+      int objType = *(int *)oi->get(1);
       if (addReturnDetailsEntryForText(cliInterface, toList, objUID, objType, FALSE)) return -1;
     } else {
       if (addReturnDetailsEntry(cliInterface, toList, val, FALSE, isUID)) return -1;
@@ -1430,7 +1430,7 @@ short CmpSeabaseMDcleanup::cleanupOrphanHbaseEntries(ExeCliInterface *cliInterfa
   addReturnDetailsEntry(cliInterface, returnDetailsList_, NULL, TRUE);
 
   numOrphanHbaseEntries_ = 0;
-  for (Int32 i = 0; i < listArray->entries(); i++) {
+  for (int i = 0; i < listArray->entries(); i++) {
     char cBuf[1000];
 
     HbaseStr *hbaseStr = &listArray->at(i);
@@ -1832,7 +1832,7 @@ short CmpSeabaseMDcleanup::cleanupInconsistentPrivEntries(ExeCliInterface *cliIn
   orphanPrivObjs->position();
   for (size_t i = 0; i < orphanPrivObjs->numEntries(); i++) {
     OutputInfo *oi = (OutputInfo *)orphanPrivObjs->getCurr();
-    Int32 authID = *(Int32 *)oi->get(0);
+    int authID = *(int *)oi->get(0);
     char intStr[20];
     str_itoa(authID, intStr);
     NAString msg(intStr);
@@ -1913,7 +1913,7 @@ short CmpSeabaseMDcleanup::cleanupInconsistentGroupEntries(ExeCliInterface *cliI
   orphanGroups->position();
   for (size_t i = 0; i < orphanGroups->numEntries(); i++) {
     OutputInfo *oi = (OutputInfo *)orphanGroups->getCurr();
-    Int32 tenantID = *(Int32 *)oi->get(0);
+    int tenantID = *(int *)oi->get(0);
     long usageUID = *(long *)oi->get(1);
     char intStr[100];
     str_ltoa(usageUID, intStr);
@@ -2067,7 +2067,7 @@ void CmpSeabaseMDcleanup::cleanupMetadataEntries(ExeCliInterface *cliInterface, 
                         (numOrphanMetadataEntries_ == 1 ? "entry" : "entries"), (checkOnly_ ? "found" : "cleaned up"));
             dws->setMsg(buf);
 
-            Int32 blackBoxLen = 0;
+            int blackBoxLen = 0;
             char *blackBox = NULL;
             populateBlackBox(cliInterface, returnDetailsList_, blackBoxLen, blackBox);
 
@@ -2100,7 +2100,7 @@ void CmpSeabaseMDcleanup::cleanupMetadataEntries(ExeCliInterface *cliInterface, 
             str_sprintf(buf, "  End:   Cleanup Orphan Hbase Entries (%d %s %s)", numOrphanHbaseEntries_,
                         (numOrphanHbaseEntries_ == 1 ? "entry" : "entries"), (checkOnly_ ? "found" : "cleaned up"));
 
-            Int32 blackBoxLen = 0;
+            int blackBoxLen = 0;
             char *blackBox = NULL;
             populateBlackBox(cliInterface, returnDetailsList_, blackBoxLen, blackBox);
 
@@ -2134,7 +2134,7 @@ void CmpSeabaseMDcleanup::cleanupMetadataEntries(ExeCliInterface *cliInterface, 
             str_sprintf(buf, "  End:   Cleanup Inconsistent Objects Entries (%d %s %s)", numOrphanObjectsEntries_,
                         (numOrphanObjectsEntries_ == 1 ? "entry" : "entries"), (checkOnly_ ? "found" : "cleaned up"));
 
-            Int32 blackBoxLen = 0;
+            int blackBoxLen = 0;
             char *blackBox = NULL;
             populateBlackBox(cliInterface, returnDetailsList_, blackBoxLen, blackBox);
 
@@ -2169,7 +2169,7 @@ void CmpSeabaseMDcleanup::cleanupMetadataEntries(ExeCliInterface *cliInterface, 
                         numInconsistentPartitionEntries_, (numInconsistentPartitionEntries_ == 1 ? "entry" : "entries"),
                         (checkOnly_ ? "found" : "cleaned up"));
 
-            Int32 blackBoxLen = 0;
+            int blackBoxLen = 0;
             char *blackBox = NULL;
             populateBlackBox(cliInterface, returnDetailsList_, blackBoxLen, blackBox);
 
@@ -2202,7 +2202,7 @@ void CmpSeabaseMDcleanup::cleanupMetadataEntries(ExeCliInterface *cliInterface, 
             str_sprintf(buf, "  End:   Cleanup Inconsistent Views Entries (%d %s %s)", numOrphanViewsEntries_,
                         (numOrphanViewsEntries_ == 1 ? "entry" : "entries"), (checkOnly_ ? "found" : "cleaned up"));
 
-            Int32 blackBoxLen = 0;
+            int blackBoxLen = 0;
             char *blackBox = NULL;
             populateBlackBox(cliInterface, returnDetailsList_, blackBoxLen, blackBox);
 
@@ -2248,7 +2248,7 @@ void CmpSeabaseMDcleanup::cleanupMetadataEntries(ExeCliInterface *cliInterface, 
                         (numInconsistentPrivEntries_ == 1 ? "entry" : "entries"),
                         (checkOnly_ ? "found" : "cleaned up"));
 
-            Int32 blackBoxLen = 0;
+            int blackBoxLen = 0;
             char *blackBox = NULL;
             populateBlackBox(cliInterface, returnDetailsList_, blackBoxLen, blackBox);
 
@@ -2282,7 +2282,7 @@ void CmpSeabaseMDcleanup::cleanupMetadataEntries(ExeCliInterface *cliInterface, 
                         numInconsistentGroupEntries_, (numInconsistentGroupEntries_ == 1 ? "entry" : "entries"),
                         (checkOnly_ ? "found" : "cleaned up"));
 
-            Int32 blackBoxLen = 0;
+            int blackBoxLen = 0;
             char *blackBox = NULL;
             populateBlackBox(cliInterface, returnDetailsList_, blackBoxLen, blackBox);
 
@@ -2316,7 +2316,7 @@ void CmpSeabaseMDcleanup::cleanupMetadataEntries(ExeCliInterface *cliInterface, 
                         (numInconsistentTextEntries_ == 1 ? "entry" : "entries"),
                         (checkOnly_ ? "found" : "cleaned up"));
 
-            Int32 blackBoxLen = 0;
+            int blackBoxLen = 0;
             char *blackBox = NULL;
             populateBlackBox(cliInterface, returnDetailsList_, blackBoxLen, blackBox);
 

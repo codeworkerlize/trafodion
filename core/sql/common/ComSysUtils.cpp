@@ -77,7 +77,7 @@
 // ****************************************************************************
 
 extern "C" {
-Int32 NA_gettimeofday(struct NA_timeval *tp, struct NA_timezone *tzp) {
+int NA_gettimeofday(struct NA_timeval *tp, struct NA_timezone *tzp) {
   return gettimeofday(tp, 0);
 
   return (0);
@@ -87,7 +87,7 @@ Int32 NA_gettimeofday(struct NA_timeval *tp, struct NA_timezone *tzp) {
 
 //----------------------------------------------------------------
 
-void copyInteger(void *destination, Int32 targetLength, void *sourceAddress, Int32 sourceLength) {
+void copyInteger(void *destination, int targetLength, void *sourceAddress, int sourceLength) {
   switch (targetLength) {
     case SQL_TINY_SIZE: {
       Int8 *target = (Int8 *)destination;
@@ -116,7 +116,7 @@ void copyInteger(void *destination, Int32 targetLength, void *sourceAddress, Int
   }
 }
 
-void copyToInteger1(Int8 *destination, void *sourceAddress, Int32 sourceSize) {
+void copyToInteger1(Int8 *destination, void *sourceAddress, int sourceSize) {
   switch (sourceSize) {
     case SQL_TINY_SIZE: {
       Int8 *source = (Int8 *)sourceAddress;
@@ -147,7 +147,7 @@ void copyToInteger1(Int8 *destination, void *sourceAddress, Int32 sourceSize) {
   }
 }
 
-void copyToInteger2(short *destination, void *sourceAddress, Int32 sourceSize) {
+void copyToInteger2(short *destination, void *sourceAddress, int sourceSize) {
   switch (sourceSize) {
     case SQL_SMALL_SIZE: {
       short *source = (short *)sourceAddress;
@@ -172,7 +172,7 @@ void copyToInteger2(short *destination, void *sourceAddress, Int32 sourceSize) {
   }
 }
 
-void copyToInteger4(int *destination, void *sourceAddress, Int32 sourceSize) {
+void copyToInteger4(int *destination, void *sourceAddress, int sourceSize) {
   switch (sourceSize) {
     case SQL_SMALL_SIZE: {
       short *source = (short *)sourceAddress;
@@ -197,7 +197,7 @@ void copyToInteger4(int *destination, void *sourceAddress, Int32 sourceSize) {
   }
 }
 
-void copyToInteger8(long *destination, void *sourceAddress, Int32 sourceSize) {
+void copyToInteger8(long *destination, void *sourceAddress, int sourceSize) {
   switch (sourceSize) {
     case SQL_SMALL_SIZE: {
       short *source = (short *)sourceAddress;

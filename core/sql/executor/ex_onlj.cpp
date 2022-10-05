@@ -889,7 +889,7 @@ ExWorkProcRetcode ExOnljTcb::work_phase3() {
     ExOperStats *statsEntry = getStatsEntry();
 
 #ifdef NEED_INSTRUMENT_ONLJ
-    Int32 rows2upq = 0;
+    int rows2upq = 0;
     phase3Timer_.start();
 #endif
 

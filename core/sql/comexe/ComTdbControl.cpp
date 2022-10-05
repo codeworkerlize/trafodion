@@ -42,7 +42,7 @@
 /////////////////////////////////////////////////////
 // class ExControlTdb
 /////////////////////////////////////////////////////
-ComTdbControl::ComTdbControl(ControlQueryType cqt, Int32 reset, char *sqlText, Int16 sqlTextCharSet, char *value1,
+ComTdbControl::ComTdbControl(ControlQueryType cqt, int reset, char *sqlText, Int16 sqlTextCharSet, char *value1,
                              char *value2, char *value3, ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc,
                              queue_index down, queue_index up, int num_buffers, ULng32 buffer_size)
     : ComTdb(ComTdb::ex_CONTROL_QUERY, eye_CONTROL_QUERY, (Cardinality)0.0, given_cri_desc, returned_cri_desc, down, up,

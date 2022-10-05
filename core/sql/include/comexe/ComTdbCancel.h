@@ -39,11 +39,11 @@ class ComTdbCancel : public ComTdb {
   NABasicPtr qid_;                 // 00-07
   Int16 action_;                   // 08-09
   Int16 forced_;                   // 10-11
-  Int32 cancelPidBlockThreshold_;  // 12-15
+  int cancelPidBlockThreshold_;  // 12-15
   NABasicPtr comment_;             // 16-23
   NABasicPtr cancelPname_;         // 24-31
-  Int32 cancelNid_;                // 32-35
-  Int32 cancelPid_;                // 36-39
+  int cancelNid_;                // 32-35
+  int cancelPid_;                // 36-39
   char fillersComTdbCancel2_[24];  // 40-63
 
  public:
@@ -54,7 +54,7 @@ class ComTdbCancel : public ComTdb {
   // Constructor
   ComTdbCancel();  // dummy constructor. Used by 'unpack' routines.
 
-  ComTdbCancel(char *qid, char *pname, Int32 nid, Int32 pid, Int32 minAge, Int16 action, Int16 forced, char *comment,
+  ComTdbCancel(char *qid, char *pname, int nid, int pid, int minAge, Int16 action, Int16 forced, char *comment,
                ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down, queue_index up);
 
   // ---------------------------------------------------------------------
@@ -81,13 +81,13 @@ class ComTdbCancel : public ComTdb {
   // ---------------------------------------------------------------------
   virtual void displayContents(Space *space, ULng32 flag);
 
-  virtual const ComTdb *getChild(Int32 pos) const;
+  virtual const ComTdb *getChild(int pos) const;
 
-  virtual Int32 numChildren() const { return 0; }
+  virtual int numChildren() const { return 0; }
 
   virtual const char *getNodeName() const { return "EX_CANCEL"; };
 
-  virtual Int32 numExpressions() const { return 0; }
+  virtual int numExpressions() const { return 0; }
 
   inline const char *getQidText() const { return qid_; }
 
@@ -103,11 +103,11 @@ class ComTdbCancel : public ComTdb {
 
   inline char *getCancelPname() const { return cancelPname_; }
 
-  inline Int32 getCancelNid() const { return cancelNid_; }
+  inline int getCancelNid() const { return cancelNid_; }
 
-  inline Int32 getCancelPid() const { return cancelPid_; }
+  inline int getCancelPid() const { return cancelPid_; }
 
-  inline Int32 getCancelPidBlockThreshold() const { return cancelPidBlockThreshold_; }
+  inline int getCancelPidBlockThreshold() const { return cancelPidBlockThreshold_; }
 };
 
 inline ComTdb *ComTdbCancel::getChildTdb() { return NULL; };
@@ -119,6 +119,6 @@ inline ComTdb *ComTdbCancel::getChildTdb() { return NULL; };
   History     : Yeogirl Yun                                      8/22/95
                  Initial Revision.
 *****************************************************************************/
-inline const ComTdb *ComTdbCancel::getChild(Int32 pos) const { return NULL; }
+inline const ComTdb *ComTdbCancel::getChild(int pos) const { return NULL; }
 
 #endif

@@ -128,7 +128,7 @@ class ex_split_top_tdb : public ComTdbSplitTop {
 // -----------------------------------------------------------------------
 
 // value for a child that is not associated to any partition number
-static const Int32 SPLIT_TOP_UNASSOCIATED = -1;
+static const int SPLIT_TOP_UNASSOCIATED = -1;
 
 struct SplitTopChildState {
   // Information on whether the child is currently active on behalf
@@ -206,8 +206,8 @@ class ex_split_top_tcb : public ex_tcb {
   void registerSubtasks();
 
   // 2 methods to add child TCB trees dynamically
-  void registerChildQueueSubtask(Int32 c);
-  void addChild(Int32 c, NABoolean atWorktime, ExOperStats *statsEntry);
+  void registerChildQueueSubtask(int c);
+  void addChild(int c, NABoolean atWorktime, ExOperStats *statsEntry);
 
   short work();  // when scheduled to do work
 
@@ -223,8 +223,8 @@ class ex_split_top_tcb : public ex_tcb {
   inline int mergeKeyLength() const { return splitTopTdb().mergeKeyLength_; }
   inline NABoolean isPapaNode() const { return (splitTopTdb().paPartNoAtpIndex_ >= 0); }
 
-  virtual Int32 numChildren() const;
-  virtual const ex_tcb *getChild(Int32 pos) const;
+  virtual int numChildren() const;
+  virtual const ex_tcb *getChild(int pos) const;
 
   virtual ExOperStats *doAllocateStatsEntry(CollHeap *heap, ComTdb *tdb);
 
@@ -326,7 +326,7 @@ class ex_split_top_tcb : public ex_tcb {
   inline void clearPartNumsReqSent() { partNumsReqSent_.clearFast(); }
   inline CollIndex getFirstPartNumReqSent() const { return getNextPartNumReqSent(0); }
   CollIndex getNextPartNumReqSent(CollIndex prev) const;
-  void allocateStatsEntry(Int32 c, ex_tcb *childTcb);
+  void allocateStatsEntry(int c, ex_tcb *childTcb);
 
   void clearAccumPartNumsReqSent() { accumPartNumsReqSent_.clearFast(); }
   void accumulatePartNumsReqSent();

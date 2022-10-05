@@ -82,7 +82,7 @@ char *ToAnsiIdentifier2(const char *nsData, size_t nsLen, CollHeap *heap) {
 
 // -----------------------------------------------------------------------
 char *ToAnsiIdentifier2(const char *nsData, size_t nsLen, CollHeap *heap, int isoMapCS) {
-  const Int32 SMAX = 2048;  // See ToAnsiIdentifier for explanation of this const.
+  const int SMAX = 2048;  // See ToAnsiIdentifier for explanation of this const.
 
   if ((nsData == NULL) || (nsLen == 0) || (nsLen > SMAX)) return NULL;
 
@@ -115,7 +115,7 @@ void ToAnsiIdentifier3(const char *inputData, size_t inputLen, char *outputData,
 // -----------------------------------------------------------------------
 void ToAnsiIdentifier3(const char *inputData, size_t inputLen, char *outputData, size_t outputMaxLen, size_t *outputLen,
                        int isoMapCS) {
-  const Int32 SMAX = 2048;  // See ToAnsiIdentifier for explanation of this const.
+  const int SMAX = 2048;  // See ToAnsiIdentifier for explanation of this const.
 
   if ((inputData == NULL) || (inputLen == 0) || (inputLen > SMAX) || (outputMaxLen < inputLen)) {
     *outputLen = 0;
@@ -128,7 +128,7 @@ void ToAnsiIdentifier3(const char *inputData, size_t inputLen, char *outputData,
   // CatMapAnsiNameToGuardianName() routine call which indirectly calls this routine.
   // Exclude the unwanted trailing spaces in inputData from the count.
   //
-  Int32 j = (Int32)inputLen - 1;
+  int j = (int)inputLen - 1;
   if (j >= 0 && isSpace8859_1((unsigned char)inputData[j]))  // found a trailing space
   {
     for (j--; j >= 0 && isSpace8859_1((unsigned char)inputData[j]); j--)

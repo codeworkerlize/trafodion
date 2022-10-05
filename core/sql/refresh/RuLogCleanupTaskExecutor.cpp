@@ -78,7 +78,7 @@ void CRULogCleanupTaskExecutor::StoreRequest(CUOFsIpcMessageTranslator &translat
 
   logCleanupTEDynamicContainer_.StoreData(translator);
   translator.WriteBlock(&hasRangeLog_, sizeof(BOOL));
-  translator.WriteBlock(&noOfPartitions_, sizeof(Int32));
+  translator.WriteBlock(&noOfPartitions_, sizeof(int));
 
   translator.SetMessageType(CUOFsIpcMessageTranslator::RU_LOG_CLEANUP_EXECUTOR);
 }
@@ -91,7 +91,7 @@ void CRULogCleanupTaskExecutor::LoadRequest(CUOFsIpcMessageTranslator &translato
 
   logCleanupTEDynamicContainer_.LoadData(translator);
   translator.ReadBlock(&hasRangeLog_, sizeof(BOOL));
-  translator.ReadBlock(&noOfPartitions_, sizeof(Int32));
+  translator.ReadBlock(&noOfPartitions_, sizeof(int));
 }
 
 //--------------------------------------------------------------------------//

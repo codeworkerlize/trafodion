@@ -108,7 +108,7 @@ typedef quad_t (*ccfnT)(const NAWchar *);
 
 #include <string.h>
 
-Int32 __srefill(SCANBUF *fp)
+int __srefill(SCANBUF *fp)
 
 {
   return 1;
@@ -126,7 +126,7 @@ void ungetc(NAWchar c, SCANBUF *fp) {
  * considered part of the scanset.
  */
 static NAWchar *__sccl(NAWchar *tab, NAWchar *fmt) {
-  register Int32 c, n, v;
+  register int c, n, v;
 
   /* first `clear' the whole table */
   c = *fmt++; /* first char hat => negated scanset */
@@ -211,17 +211,17 @@ static NAWchar *__sccl(NAWchar *tab, NAWchar *fmt) {
 /*
  * vfscanf
  */
-Int32 __svfscanf(SCANBUF *fp, NAWchar const *fmt0, va_list ap) {
+int __svfscanf(SCANBUF *fp, NAWchar const *fmt0, va_list ap) {
   register NAWchar *fmt = (NAWchar *)fmt0;
-  register Int32 c;      /* character from format, or conversion */
+  register int c;      /* character from format, or conversion */
   register UInt32 width; /* field width, or 0 */
   register NAWchar *p;   /* points into all kinds of strings */
   register UInt32 n;     /* handy integer */
-  register Int32 flags;  /* flags as defined above */
+  register int flags;  /* flags as defined above */
   register NAWchar *p0;  /* saves original value of p when necessary */
-  Int32 nassigned;       /* number of fields assigned */
-  Int32 nread;           /* number of characters consumed from fp */
-  Int32 base;            /* base argument to strtoq/strtouq */
+  int nassigned;       /* number of fields assigned */
+  int nread;           /* number of characters consumed from fp */
+  int base;            /* base argument to strtoq/strtouq */
   ccfnT ccfn;            /* conversion function (strtoq/strtouq) */
 
   NAWchar ccltab[256]; /* character class table for %[...] */
@@ -387,7 +387,7 @@ Int32 __svfscanf(SCANBUF *fp, NAWchar const *fmt0, va_list ap) {
         else if (flags & LONG)
           *va_arg(ap, int *) = nread;
         else
-          *va_arg(ap, Int32 *) = nread;
+          *va_arg(ap, int *) = nread;
         continue;
 
       /*
@@ -673,7 +673,7 @@ Int32 __svfscanf(SCANBUF *fp, NAWchar const *fmt0, va_list ap) {
           else if (flags & SHORT)
             *va_arg(ap, Int16 *) = (Int16)res;
           else
-            *va_arg(ap, Int32 *) = (Int32)res;
+            *va_arg(ap, int *) = (int)res;
           nassigned++;
         }
         nread += p - buf;
@@ -788,8 +788,8 @@ match_failure:
   return (nassigned);
 }
 
-Int32 na_swscanf(const NAWchar *str, NAWchar const *fmt, ...) {
-  Int32 ret;
+int na_swscanf(const NAWchar *str, NAWchar const *fmt, ...) {
+  int ret;
   va_list ap;
   SCANBUF f;
 

@@ -86,9 +86,9 @@ struct CRUDisjointSetAlgVertex {
   // pointer to the next node in the same set
   CRUDisjointSetAlgVertex *pParent_;
   // maximal depth of nodes that this node is their ancestor
-  Int32 rank_;
+  int rank_;
   // A unique Identifier that represent the set to which this node belongs
-  Int32 setId_;
+  int setId_;
 };
 
 //--------------------------------------------------------------------------//
@@ -124,9 +124,9 @@ class REFRESH_LIB_CLASS CRUDisjointSetAlg {
 
  public:
   void Run();
-  Int32 GetNumOfSets() { return sets_.GetCount(); }
+  int GetNumOfSets() { return sets_.GetCount(); }
 
-  inline Int32 GetNodeSetId(TInt64 id);
+  inline int GetNodeSetId(TInt64 id);
 
  public:
 #ifdef _DEBUG
@@ -156,7 +156,7 @@ class REFRESH_LIB_CLASS CRUDisjointSetAlg {
   VertexMap V_;
   CDSList<CRUDisjointSetAlgEdge> E_;
 
-  Int32 numNodes_;
+  int numNodes_;
 
   CDSPtrList<CRUDisjointSetAlgVertex> sets_;
 };
@@ -169,6 +169,6 @@ class REFRESH_LIB_CLASS CRUDisjointSetAlg {
 //	CRUDisjointSetAlg::GetNodeSetId()
 //--------------------------------------------------------------------------//
 
-Int32 CRUDisjointSetAlg::GetNodeSetId(TInt64 id) { return FindSet(id).setId_; }
+int CRUDisjointSetAlg::GetNodeSetId(TInt64 id) { return FindSet(id).setId_; }
 
 #endif

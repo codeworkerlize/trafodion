@@ -61,9 +61,9 @@
 extern void my_mpi_fclose();
 #include "common/SCMVersHelp.h"
 DEFINE_DOVERS(mxsscp)
-void runServer(Int32 argc, char **argv);
+void runServer(int argc, char **argv);
 
-Int32 main(Int32 argc, char **argv) {
+int main(int argc, char **argv) {
   dovers(argc, argv);
   msg_debug_hook("mxsscp", "mxsscp.hook");
   try {
@@ -96,8 +96,8 @@ Int32 main(Int32 argc, char **argv) {
   // variables
   const char *stdOutFile = getenv("SQ_SSCP_STDOUT");
   const char *stdErrFile = getenv("SQ_SSCP_STDERR");
-  Int32 fdOut = -1;
-  Int32 fdErr = -1;
+  int fdOut = -1;
+  int fdErr = -1;
 
   if (stdOutFile && stdOutFile[0]) {
     fdOut = open(stdOutFile, O_WRONLY | O_APPEND | O_CREAT | O_SYNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
@@ -134,8 +134,8 @@ Int32 main(Int32 argc, char **argv) {
   return 0;
 }
 
-void runServer(Int32 argc, char **argv) {
-  Int32 shmid;
+void runServer(int argc, char **argv) {
+  int shmid;
   StatsGlobals *statsGlobals = NULL;
   void *statsGlobalsAddr;
   NABoolean createStatsGlobals = FALSE;
@@ -231,7 +231,7 @@ void runServer(Int32 argc, char **argv) {
     cliGlobals->setStatsGlobals(statsGlobals);
   }
   // call getenv once per process
-  Int32 rmsDeadLockSecs;
+  int rmsDeadLockSecs;
   char *envRmsDeadLockSecs = getenv("RMS_DEADLOCK_TOLERATE_SECS");
   if (envRmsDeadLockSecs) {
     rmsDeadLockSecs = atoi(envRmsDeadLockSecs);

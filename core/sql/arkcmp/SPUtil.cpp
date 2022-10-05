@@ -81,7 +81,7 @@ SP_STATUS SP_FILEINFO_Process(SP_PROCESS_ACTION action, SP_ROW_DATA inputData, S
     *spProcHandle = 0;
     FILE *fd = 0;
     char fileName[256];
-    Int32 counter;
+    int counter;
     char desc[66];
     char tempStr[64];
     char dt1[64];
@@ -244,8 +244,8 @@ SP_STATUS SP_CASTING_Process(SP_PROCESS_ACTION action, SP_ROW_DATA inputData, SP
                              SP_PROCESS_HANDLE *spProcHandle, SP_HANDLE /* spHandle */, SP_ERROR_STRUCT *error) {
   struct CounterStruct {
     FILE *fd;
-    Int32 max;
-    Int32 current;
+    int max;
+    int current;
     char desc[256];
     char tag[40];
   };
@@ -259,7 +259,7 @@ SP_STATUS SP_CASTING_Process(SP_PROCESS_ACTION action, SP_ROW_DATA inputData, SP
     if (eFunc(0, inputData, 16, counter, 1) == SP_NO_ERROR) {
       char *cp;
       varchar2String(counter, 16, cp, len);
-      Int32 iCounter = atoi(cp);
+      int iCounter = atoi(cp);
       CounterStruct *counterStruct = new CounterStruct();
       counterStruct->max = iCounter;
       counterStruct->current = 0;
@@ -400,11 +400,11 @@ SP_STATUS SP_NOINPUT_Process(SP_PROCESS_ACTION action, SP_ROW_DATA inputData, SP
 SP_STATUS SP_PARSING_Compile(SP_COMPILE_ACTION action, SP_COMPILE_HANDLE *cmpHandle, SP_HANDLE /* spHandle */,
                              SP_ERROR_STRUCT * /* error */) {
   if (action == SP_COMP_INIT) {
-    *cmpHandle = (SP_COMPILE_HANDLE) new Int32(0);
+    *cmpHandle = (SP_COMPILE_HANDLE) new int(0);
     cout << "in SP_PARSING_Compile SP_COMP_INIT" << endl;
   }
   if (action == SP_COMP_EXIT) {
-    delete ((Int32 *)(*cmpHandle));
+    delete ((int *)(*cmpHandle));
     cout << "in SP_PARSING_COMPILE SP_COMP_EXIT" << endl;
   }
   return SP_SUCCESS;
@@ -430,9 +430,9 @@ SP_STATUS SP_PARSING_PARSER(char *param,                 /* input, null terminat
                             SP_ERROR_STRUCT *error       /* output */
 ) {
   if (strcmp(param, "1") == 0)
-    *((Int32 *)cmpHandle) = 1;
+    *((int *)cmpHandle) = 1;
   else if (strcmp(param, "2") == 0)
-    *((Int32 *)cmpHandle) = 2;
+    *((int *)cmpHandle) = 2;
   else {
     error->error = -19021;
     strcpy(error->optionalString[0], "SP_PARSING_PARSER ");
@@ -445,7 +445,7 @@ SP_STATUS SP_PARSING_PARSER(char *param,                 /* input, null terminat
 
 SP_STATUS SP_PARSING_NumOutputs(int *num, SP_COMPILE_HANDLE cmpHandle, SP_HANDLE /* spHandle */,
                                 SP_ERROR_STRUCT * /* error */) {
-  Int32 param = *((Int32 *)cmpHandle);
+  int param = *((int *)cmpHandle);
   if (param == 1 || param == 2)
     *num = param;
   else
@@ -456,7 +456,7 @@ SP_STATUS SP_PARSING_NumOutputs(int *num, SP_COMPILE_HANDLE cmpHandle, SP_HANDLE
 SP_STATUS SP_PARSING_OutputFormat(SP_FIELDDESC_STRUCT *format, SP_KEYDESC_STRUCT * /*keyFields */,
                                   int * /*numKeyFields */, SP_COMPILE_HANDLE cmpHandle, SP_HANDLE /* spHandle */,
                                   SP_ERROR_STRUCT * /* error */) {
-  Int32 param = *((Int32 *)cmpHandle);
+  int param = *((int *)cmpHandle);
   if (param == 1) {
     strcpy(&((format++)->COLUMN_DEF[0]), "i1 int");
     return SP_SUCCESS;
@@ -474,9 +474,9 @@ SP_STATUS SP_PARSING_Process(SP_PROCESS_ACTION action, SP_ROW_DATA inputData, SP
                              SP_ROW_DATA outputData, SP_FORMAT_FUNCPTR fFunc, SP_KEY_VALUE, SP_KEYVALUE_FUNCPTR,
                              SP_PROCESS_HANDLE *spProcHandle, SP_HANDLE /* spHandle */, SP_ERROR_STRUCT *error) {
   struct InfoStruct {
-    Int32 param;  // 1 or 2
-    Int32 max;
-    Int32 counter;
+    int param;  // 1 or 2
+    int max;
+    int counter;
     char string[5];
   };
 
@@ -487,12 +487,12 @@ SP_STATUS SP_PARSING_Process(SP_PROCESS_ACTION action, SP_ROW_DATA inputData, SP
       char *ptr;
       short len;
       varchar2String(p, 64, ptr, len);
-      Int32 param = atoi(ptr);
+      int param = atoi(ptr);
       if (param != 1 && param != 2) return SP_FAIL;
       InfoStruct *is = new InfoStruct;
       is->param = param;
       is->counter = 0;
-      eFunc(1, inputData, sizeof(Int32), &(is->max), 0);
+      eFunc(1, inputData, sizeof(int), &(is->max), 0);
       memcpy(is->string, "12345", 5);
       *spProcHandle = is;
       return spStatus;
@@ -502,7 +502,7 @@ SP_STATUS SP_PARSING_Process(SP_PROCESS_ACTION action, SP_ROW_DATA inputData, SP
     InfoStruct *is = (InfoStruct *)(*spProcHandle);
     if (is) {
       if (is->counter > is->max) return SP_SUCCESS;
-      fFunc(0, outputData, sizeof(Int32), &(is->counter), 0);
+      fFunc(0, outputData, sizeof(int), &(is->counter), 0);
       is->counter++;
 
       if (is->param == 2) {
@@ -556,17 +556,17 @@ SP_STATUS SP_DELAY_Process(SP_PROCESS_ACTION action, SP_ROW_DATA inputData, SP_E
                            SP_ROW_DATA outputData, SP_FORMAT_FUNCPTR fFunc, SP_KEY_VALUE, SP_KEYVALUE_FUNCPTR,
                            SP_PROCESS_HANDLE *spProcHandle, SP_HANDLE /* spHandle */, SP_ERROR_STRUCT *error) {
   struct InfoStruct {
-    Int32 delay;
-    Int32 max;
-    Int32 counter;
+    int delay;
+    int max;
+    int counter;
   };
 
   if (action == SP_PROC_OPEN) {
     SP_STATUS spStatus = SP_SUCCESS;
-    Int32 tempi;
-    if (eFunc(0, inputData, sizeof(Int32), &tempi, 0) == SP_NO_ERROR) {
-      Int32 tempi2;
-      if (eFunc(1, inputData, sizeof(Int32), &tempi2, 0) == SP_NO_ERROR) {
+    int tempi;
+    if (eFunc(0, inputData, sizeof(int), &tempi, 0) == SP_NO_ERROR) {
+      int tempi2;
+      if (eFunc(1, inputData, sizeof(int), &tempi2, 0) == SP_NO_ERROR) {
         InfoStruct *is = new InfoStruct;
         is->delay = tempi;
         is->max = tempi2;
@@ -582,8 +582,8 @@ SP_STATUS SP_DELAY_Process(SP_PROCESS_ACTION action, SP_ROW_DATA inputData, SP_E
     if (is) {
       if (is->counter > is->max) return SP_SUCCESS;
       // Sleep(is->delay);
-      for (Int32 i = 0; i < is->delay; i++) i = (i * 10) / 10;
-      fFunc(0, outputData, sizeof(Int32), &(is->counter), 0);
+      for (int i = 0; i < is->delay; i++) i = (i * 10) / 10;
+      fFunc(0, outputData, sizeof(int), &(is->counter), 0);
       is->counter++;
 
       return SP_MOREDATA;
@@ -617,7 +617,7 @@ SP_STATUS SP_DELAY_Process(SP_PROCESS_ACTION action, SP_ROW_DATA inputData, SP_E
 //    should trigger the CMPASSERT in execution time.
 SP_STATUS SP_ERROR_Compile(SP_COMPILE_ACTION action, SP_COMPILE_HANDLE *cmpHandle, SP_HANDLE /* spHandle */,
                            SP_ERROR_STRUCT *error) {
-  static Int32 parserCalled = 0;
+  static int parserCalled = 0;
   if (action == SP_COMP_EXIT) {
     if (parserCalled) return SP_SUCCESS;
     error->error = -19021;
@@ -649,8 +649,8 @@ SP_STATUS SP_ERROR_PARSER(char *param,                 /* input, null terminated
                           SP_HANDLE spHandle,          /* input */
                           SP_ERROR_STRUCT *error       /* output */
 ) {
-  Int32 *parserFlag;
-  parserFlag = ((Int32 *)cmpHandle);
+  int *parserFlag;
+  parserFlag = ((int *)cmpHandle);
   *parserFlag = 1;
   return SP_SUCCESS;
 }
@@ -672,21 +672,21 @@ SP_STATUS SP_ERROR_Process(SP_PROCESS_ACTION action, SP_ROW_DATA inputData, SP_E
                            SP_ROW_DATA outputData, SP_FORMAT_FUNCPTR fFunc, SP_KEY_VALUE, SP_KEYVALUE_FUNCPTR,
                            SP_PROCESS_HANDLE *spProcHandle, SP_HANDLE /* spHandle */, SP_ERROR_STRUCT *error) {
   if (action == SP_PROC_OPEN) {
-    static Int32 withData = 0;
+    static int withData = 0;
     *spProcHandle = &withData;
     return SP_SUCCESS;
   }
   if (action == SP_PROC_FETCH) {
     char temp[16];
     if (eFunc(0, inputData, 16, temp, 0) == SP_NO_ERROR) {
-      *((Int32 *)(*spProcHandle)) = 1;
+      *((int *)(*spProcHandle)) = 1;
       fFunc(0, outputData, 16, temp, 0);
       return SP_SUCCESS;
     }
     return SP_FAIL;
   }
   if (action == SP_PROC_CLOSE) {
-    if (*((Int32 *)(*spProcHandle)) != 1) {
+    if (*((int *)(*spProcHandle)) != 1) {
       error->error = -19021;
       strcpy(error->optionalString[0], "SP_ERROR_PROCESS ");
       sprintf(error->optionalString[1], " SP_PROC_CLOSE called ");
@@ -759,15 +759,15 @@ SP_STATUS SP_COL16_Process(SP_PROCESS_ACTION action, SP_ROW_DATA inputData, SP_E
                            SP_ROW_DATA outputData, SP_FORMAT_FUNCPTR fFunc, SP_KEY_VALUE, SP_KEYVALUE_FUNCPTR,
                            SP_PROCESS_HANDLE *spProcHandle, SP_HANDLE /* spHandle */, SP_ERROR_STRUCT *error) {
   struct InfoStruct {
-    Int32 max;
-    Int32 counter;
+    int max;
+    int counter;
     FILE *fd;
   };
 
   if (action == SP_PROC_OPEN) {
     SP_STATUS spStatus = SP_SUCCESS;
-    Int32 tempi;
-    if (eFunc(0, inputData, sizeof(Int32), &tempi, 0) == SP_NO_ERROR) {
+    int tempi;
+    if (eFunc(0, inputData, sizeof(int), &tempi, 0) == SP_NO_ERROR) {
       char p[65];
       if (eFunc(1, inputData, 64, p, 0) == SP_NO_ERROR) {
         char *ptr;
@@ -787,7 +787,7 @@ SP_STATUS SP_COL16_Process(SP_PROCESS_ACTION action, SP_ROW_DATA inputData, SP_E
     InfoStruct *is = (InfoStruct *)(*spProcHandle);
     if (is) {
       if (is->counter > is->max) return SP_SUCCESS;
-      for (Int32 i = 0; i < 13; i++) fFunc(i, outputData, sizeof(Int32), &(is->counter), 0);
+      for (int i = 0; i < 13; i++) fFunc(i, outputData, sizeof(int), &(is->counter), 0);
       char temp[64];
       const char tempConst[] = "Constant String                                            ";
       char *pch = &temp[0];
@@ -852,14 +852,14 @@ SP_STATUS SP_ROW998_Process(SP_PROCESS_ACTION action, SP_ROW_DATA inputData, SP_
                             SP_ROW_DATA outputData, SP_FORMAT_FUNCPTR fFunc, SP_KEY_VALUE, SP_KEYVALUE_FUNCPTR,
                             SP_PROCESS_HANDLE *spProcHandle, SP_HANDLE /* spHandle */, SP_ERROR_STRUCT *error) {
   struct InfoStruct {
-    Int32 max;
-    Int32 counter;
+    int max;
+    int counter;
   };
 
   if (action == SP_PROC_OPEN) {
     SP_STATUS spStatus = SP_SUCCESS;
-    Int32 tempi;
-    if (eFunc(0, inputData, sizeof(Int32), &tempi, 0) == SP_NO_ERROR) {
+    int tempi;
+    if (eFunc(0, inputData, sizeof(int), &tempi, 0) == SP_NO_ERROR) {
       InfoStruct *is = new InfoStruct;
       is->max = tempi;
       is->counter = 0;
@@ -891,7 +891,7 @@ SP_STATUS SP_ROW998_Process(SP_PROCESS_ACTION action, SP_ROW_DATA inputData, SP_
   return SP_SUCCESS;
 }
 
-Int32 SQLISP_INIT(SP_REGISTER_FUNCPTR rFunc, SP_DLL_HANDLE *h) {
+int SQLISP_INIT(SP_REGISTER_FUNCPTR rFunc, SP_DLL_HANDLE *h) {
   if (!rFunc) {
     return 0;
   }
@@ -925,7 +925,7 @@ Int32 SQLISP_INIT(SP_REGISTER_FUNCPTR rFunc, SP_DLL_HANDLE *h) {
   return 1;
 }
 
-Int32 SQLISP_EXIT(SP_DLL_HANDLE) {
+int SQLISP_EXIT(SP_DLL_HANDLE) {
   // cout << "in SQLISP_EXIT" << endl;
   return 1;
 }

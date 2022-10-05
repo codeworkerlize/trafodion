@@ -48,8 +48,8 @@ class ExEspInstanceThread;
 class UdrClientControlStream;
 class UdrClientDataStream;
 
-const Int32 UdrClientControlStreamVersionNumber = 1;
-const Int32 UdrClientDataStreamVersionNumber = 1;
+const int UdrClientControlStreamVersionNumber = 1;
+const int UdrClientDataStreamVersionNumber = 1;
 
 //
 // A non-buffered client-side message stream for UDR control messages.

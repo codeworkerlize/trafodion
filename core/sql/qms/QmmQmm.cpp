@@ -57,7 +57,7 @@ void QmmGuaReceiveControlConnection::actOnSystemMessage(short messageNum, IpcMes
   short result;
   short cpu;
   short pin;
-  Int32 segmentNumber;
+  int segmentNumber;
 #endif
   switch (messageNum) {
     case ZSYS_VAL_SMSG_OPEN: {
@@ -141,13 +141,13 @@ Qmm::Qmm(CollHeap *heap) : qmsPool_(NULL), qmsCount_(0), qmp_(NULL), heap_(heap)
 
 void Qmm::handleClientExit(const short *phandle, short messageNum) {
   short cpu, pin;
-  Int32 segmentNumber;
+  int segmentNumber;
   short result = 0;
   NABoolean qmpDied = FALSE;
 
-  Int32 lc_pin;
-  Int32 lc_cpu;
-  Int32 lc_seg;
+  int lc_pin;
+  int lc_cpu;
+  int lc_seg;
 
   result = XPROCESSHANDLE_DECOMPOSE_((SB_Phandle_Type *)phandle, &lc_cpu, &lc_pin, &segmentNumber);
   cpu = lc_cpu;
@@ -167,7 +167,7 @@ void Qmm::handleClientExit(const short *phandle, short messageNum) {
     // be restarted in response to a subsequent message.
     NABoolean found = FALSE;
     QmsStub *qmsStub;
-    for (Int32 i = 0; i < qmsCount_ && !found; i++) {
+    for (int i = 0; i < qmsCount_ && !found; i++) {
       qmsStub = qmsPool_[i];
       NABoolean processDoesNotExist = FALSE;
 
@@ -176,7 +176,7 @@ void Qmm::handleClientExit(const short *phandle, short messageNum) {
 
       SB_Phandle_Type procHandle = qmsStub->getProcessHandle();
       NAProcessHandle processHandle(&procHandle);
-      Int32 guaRetcode = processHandle.decompose();
+      int guaRetcode = processHandle.decompose();
       if (!guaRetcode) {
         memset(procName, 0, sizeof(procName));
         memcpy(procName, processHandle.getPhandleString(), processHandle.getPhandleStringLen());
@@ -250,10 +250,10 @@ void Qmm::allocateQms() {
 
 void Qmm::allocateQmsPool() {
   short qmsInx = 0;
-  Int32 maxCpuNum = 0;
-  Int32 lv_ret = 0;
-  Int32 nodeCount = 0;
-  Int32 nodeMax = 0;
+  int maxCpuNum = 0;
+  int lv_ret = 0;
+  int nodeCount = 0;
+  int nodeMax = 0;
   MS_Mon_Node_Info_Entry_Type *nodeInfo = NULL;
 
   // Get the number of nodes to know how much info space to allocate
@@ -270,7 +270,7 @@ void Qmm::allocateQmsPool() {
         // Find number of storage nodes by checking the storage bit.
         // The computed value is used as node Id where QMSs will be created.
         // QMSs should be running on the storage nodes only.
-        for (Int32 i = 0; i < nodeCount; i++) {
+        for (int i = 0; i < nodeCount; i++) {
           if ((nodeInfo[i].type & MS_Mon_ZoneType_Storage) && (!nodeInfo[i].spare_node)) maxCpuNum++;
         }
       }
@@ -330,7 +330,7 @@ NABoolean QmpStub::start() {
     return TRUE;
   }
 
-  switch ((Int32)qmpStartOpt_) {
+  switch ((int)qmpStartOpt_) {
     case SPAWN:
       spawnProcess(ipcEnv_, cpu_);
       break;
@@ -385,12 +385,12 @@ void QmpStub::spawnProcess(IpcEnvironment &ipcEnv, short cpu)  //, ComDiagsArea 
     strcpy(argv[argc++], argval);                   \
   }
 
-  Int32 largc = 0;
+  int largc = 0;
   char *largv[MAX_PROC_ARGS];
 
-  Int32 server_nid = cpu;
-  Int32 server_pid = 0;
-  Int32 server_oid = 0;
+  int server_nid = cpu;
+  int server_pid = 0;
+  int server_oid = 0;
   // char process_name[100];
   char prog[MS_MON_MAX_PROCESS_PATH];
 
@@ -428,7 +428,7 @@ void Qmm::relayPendingPubsToQms() {
   for (CollIndex i = 0; i < pendingPubs_.entries(); i++) {
     xmlMsgObj = pendingPubs_[i];
     QRLogger::log(CAT_QR_IPC, LL_DEBUG, "XML of publish message is:\n%s", xmlMsgObj->getData());
-    for (Int32 qmsInx = 0; qmsInx < qmsCount_; qmsInx++) {
+    for (int qmsInx = 0; qmsInx < qmsCount_; qmsInx++) {
       qmsPool_[qmsInx]->publish(xmlMsgObj);
     }
   }
@@ -596,8 +596,8 @@ QRProcessStub::QRProcessStub(CollHeap *heap) : lockoutEndTS_(0), retryNumber_(0)
 }
 
 void QRProcessStub::setLockout() {
-  static Int32 seconds[] = {0, 10, 20, 30, 60, 120};
-  Int32 lockoutSeconds = (retryNumber_ >= (sizeof seconds / sizeof seconds[0])) ? 180 : seconds[retryNumber_];
+  static int seconds[] = {0, 10, 20, 30, 60, 120};
+  int lockoutSeconds = (retryNumber_ >= (sizeof seconds / sizeof seconds[0])) ? 180 : seconds[retryNumber_];
   QRLogger::log(CAT_QR_IPC, LL_DEBUG, "Will not attempt another restart of this process for %d seconds.",
                 lockoutSeconds);
   lockoutEndTS_ = NA_JulianTimestamp() + (lockoutSeconds * 1000000);

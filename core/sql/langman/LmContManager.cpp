@@ -43,7 +43,7 @@ NABoolean isDirectory(const char *filename) {
   NABoolean result = FALSE;
 
   struct stat statBuf;
-  Int32 retcode = stat(filename, &statBuf);
+  int retcode = stat(filename, &statBuf);
 
   if (retcode == 0 && S_ISDIR(statBuf.st_mode)) result = TRUE;
 
@@ -93,7 +93,7 @@ static time_t getFileModifiedTime(const char *filename) {
   time_t mod_time = -1;
   struct stat statBuf;
 
-  Int32 retcode = stat(filename, &statBuf);
+  int retcode = stat(filename, &statBuf);
 
   if (retcode == 0) {
     mod_time = statBuf.st_mtime;
@@ -192,8 +192,8 @@ LmContainerManagerCache::LmContainerManagerCache(LmLanguageManager *lm, ComUInt3
 
 LmContainerManagerCache::~LmContainerManagerCache() {
   LM_DEBUG0("LmContainerManagerCache destructor");
-  LM_DEBUG5("  s=%d, h=%d, m=%d, c=%d, p=%d", (Int32)curSize_, (Int32)hits_, (Int32)misses_, (Int32)cleans_,
-            (Int32)purges_);
+  LM_DEBUG5("  s=%d, h=%d, m=%d, c=%d, p=%d", (int)curSize_, (int)hits_, (int)misses_, (int)cleans_,
+            (int)purges_);
 
   // De-allocate all MCs.
   LmMetaContainerCache *mc;
@@ -345,7 +345,7 @@ NABoolean LmContainerManagerCache::deleteMetaContainer(LmMetaContainer *metaCont
 // getMetaContainer: Look-up a MC in the cache.
 //////////////////////////////////////////////////////////////////////
 LmMetaContainer *LmContainerManagerCache::getMetaContainer(const char *path) {
-  Int32 len = str_len(path);
+  int len = str_len(path);
   LmMetaContainerCache *mc;
   metaContainers_->position((char *)path, len);
 
@@ -383,7 +383,7 @@ void LmContainerManagerCache::checkCache() {
 //////////////////////////////////////////////////////////////////////
 void LmContainerManagerCache::cleanCache(ComBoolean purge) {
   // Try a finite number of times.
-  Int32 attempts = metaContainers_->entries() / 4 + 1;
+  int attempts = metaContainers_->entries() / 4 + 1;
 
   // Update stats.
   if (purge)
@@ -392,7 +392,7 @@ void LmContainerManagerCache::cleanCache(ComBoolean purge) {
     ++cleans_;
 
   // Reduce the cache size.
-  for (Int32 i = 0; i < attempts && curSize_ > midWater_; i++) {
+  for (int i = 0; i < attempts && curSize_ > midWater_; i++) {
     LmMetaContainerCache *mc;
     LmMetaContainerCache *mr = NULL;
 
@@ -464,8 +464,8 @@ LmMetaContainerCache::LmMetaContainerCache(const char *path, LmContainerManager 
 
 LmMetaContainerCache::~LmMetaContainerCache() {
   LM_DEBUG0("LmMetaContainerCache destructor");
-  LM_DEBUG5("  %s, c=%d, s=%d, h=%d, m=%d\n", getPath(), (Int32)containers_->entries(), (Int32)capacity_, (Int32)hits_,
-            (Int32)misses_);
+  LM_DEBUG5("  %s, c=%d, s=%d, h=%d, m=%d\n", getPath(), (int)containers_->entries(), (int)capacity_, (int)hits_,
+            (int)misses_);
 
   // De-allocate all containers.
   LmContainer *c;
@@ -486,7 +486,7 @@ LmMetaContainerCache::~LmMetaContainerCache() {
 LmContainer *LmMetaContainerCache::getContainer(const char *containerName, ComDiagsArea *diagsArea) {
   LmContainer *c;
   LmHandle h;
-  Int32 containerNameLen = str_len(containerName);
+  int containerNameLen = str_len(containerName);
   ComUInt32 size;
 
   // First, look for it in the cache.
@@ -621,7 +621,7 @@ LmResult LmContainerManagerSimple::getContainer(const char *containerName, const
 
   containers_->position((char *)fsName, len);
   while ((lmc = (LmContainerSimple *)containers_->getNext()) != NULL) {
-    if (str_cmp(fsName, lmc->getFileSystemName(), (Int32)len) == 0) break;
+    if (str_cmp(fsName, lmc->getFileSystemName(), (int)len) == 0) break;
   }
 
   if (lmc == NULL) {

@@ -65,13 +65,13 @@ CRUDupElimLogScanner::CRUDupElimLogScanner(const CRUDupElimGlobals &globals,
       // Statistics
       statMap_(),
       empCheckVector_() {
-  for (Int32 i = 0; i < IB_SIZE; i++) {
+  for (int i = 0; i < IB_SIZE; i++) {
     inputBuf_[i] = NULL;
   }
 }
 
 CRUDupElimLogScanner::~CRUDupElimLogScanner() {
-  for (Int32 i = 0; i < IB_SIZE; i++) {
+  for (int i = 0; i < IB_SIZE; i++) {
     if (NULL != inputBuf_[i]) {
       delete inputBuf_[i];
     }
@@ -129,7 +129,7 @@ void CRUDupElimLogScanner::Reset() {
 //
 //--------------------------------------------------------------------------//
 
-void CRUDupElimLogScanner::StartScan(Int32 phase) {
+void CRUDupElimLogScanner::StartScan(int phase) {
   RUASSERT(NULL == pCurrentStmt_ && NULL == pResultSet_);
 
   if (0 == phase) {
@@ -223,7 +223,7 @@ void CRUDupElimLogScanner::EndScan() {
 
 void CRUDupElimLogScanner::SetupScan() {
   const CRUDupElimGlobals &globals = GetDupElimGlobals();
-  Int32 i;
+  int i;
 
   // Which index do the CK columns start from in the tuple?
   // Count from 1 + control columns + syskey
@@ -232,12 +232,12 @@ void CRUDupElimLogScanner::SetupScan() {
   // Retrieve the tuple's descriptors ...
   int len = tupleDesc_.GetLength();
   for (i = 0; i < len; i++) {
-    Int32 colIndex = i + ckStartColumn_;
+    int colIndex = i + ckStartColumn_;
     tupleDesc_.GetItemDesc(i).Build(*pResultSet_, colIndex);
   }
 
   // Allocate space for input buffer
-  Int32 updateBmpSize = globals.GetUpdateBmpSize();
+  int updateBmpSize = globals.GetUpdateBmpSize();
   for (i = 0; i < IB_SIZE; i++) {
     inputBuf_[i] = new CRUIUDLogRecord(tupleDesc_, updateBmpSize);
   }
@@ -355,7 +355,7 @@ void CRUDupElimLogScanner::UpdateSingleRowStatistics(CRUDeltaStatistics &stat) {
 void CRUDupElimLogScanner::CopyLowerBoundParams() {
   RUASSERT(NULL != pLowerBoundRec_);
 
-  Int32 tupleDescLen = tupleDesc_.GetLength();
+  int tupleDescLen = tupleDesc_.GetLength();
 
   // Compute the number of the query's parameters
   int nParams = pCurrentStmt_->GetParamCount();
@@ -363,9 +363,9 @@ void CRUDupElimLogScanner::CopyLowerBoundParams() {
   // There is an integral number of blocks
   RUASSERT(nParams > 0 && 0 == nParams % tupleDescLen);
 
-  Int32 nBlocks = nParams / tupleDescLen;
+  int nBlocks = nParams / tupleDescLen;
 
-  for (Int32 i = 0; i < nBlocks; i++) {
+  for (int i = 0; i < nBlocks; i++) {
     pLowerBoundRec_->CopyCKTupleValuesToParams(*pCurrentStmt_, 1 + i * tupleDescLen);
   }
 }

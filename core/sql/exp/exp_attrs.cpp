@@ -47,9 +47,9 @@
 #include "common/NLSConversion.h"
 #include "ex_ex.h"
 
-Int32 Attributes::getStorageLength() { return -1; };
-Int32 Attributes::getDefaultValueStorageLength() { return -1; };
-Int32 Attributes::getLength() { return -1; };
+int Attributes::getStorageLength() { return -1; };
+int Attributes::getDefaultValueStorageLength() { return -1; };
+int Attributes::getLength() { return -1; };
 Attributes *Attributes::newCopy() { return 0; };
 Attributes *Attributes::newCopy(CollHeap *) { return 0; };
 void Attributes::copyAttrs(Attributes * /*source_*/){};
@@ -181,7 +181,7 @@ void Attributes::fixup(Space * /*space*/, char *constantsArea, char *tempsArea, 
 #endif
 }
 
-char *getDatatypeAsString(Int32 datatype, NABoolean extFormat = false) {
+char *getDatatypeAsString(int datatype, NABoolean extFormat = false) {
   switch (datatype) {
       // When you add new datatype in /common/dfs2rec.h, don't
       // forget add new case here. Otherwise, showplan won't display it.
@@ -333,7 +333,7 @@ Attributes *ShowplanAttributes::newCopy(CollHeap *heap) {
   return new_copy;
 }
 
-void Attributes::displayContents(Space *space, Int32 operandNum, char *constsArea, Attributes *spAttr) {
+void Attributes::displayContents(Space *space, int operandNum, char *constsArea, Attributes *spAttr) {
   char buf[250];
   char r[15];
 
@@ -659,7 +659,7 @@ NABoolean isAddedColumn(Attributes *srcAttr, NABoolean tableHasAddedColumns, NAB
 // Return number of bytes of the first character in buf. SJIS should be 1 or
 // 2. UTF8 should be 1 to 4 (byte). UCS2 is 1 (we use wchar for UCS2 data. So
 // it is 1, not 2).
-Int32 Attributes::getFirstCharLength(const char *buf, Int32 buflen, CharInfo::CharSet cs) {
+int Attributes::getFirstCharLength(const char *buf, int buflen, CharInfo::CharSet cs) {
   UInt32 UCS4value;
   UInt32 firstCharLenInBuf;
 
@@ -674,16 +674,16 @@ Int32 Attributes::getFirstCharLength(const char *buf, Int32 buflen, CharInfo::Ch
 }
 
 // Find the number of character at the offset in buf.
-Int32 Attributes::convertOffsetToChar(const char *buf, Int32 offset, CharInfo::CharSet cs) {
+int Attributes::convertOffsetToChar(const char *buf, int offset, CharInfo::CharSet cs) {
   if (cs == CharInfo::ISO88591 || cs == CharInfo::UCS2 || cs == CharInfo::BINARY) return (offset);
 
-  Int32 firstCharLenInBuf;
+  int firstCharLenInBuf;
   UInt32 UCS4value;
 
   cnv_charset charset = convertCharsetEnum(cs);
 
-  Int32 numberOfChar = 0;
-  Int32 i = 0;
+  int numberOfChar = 0;
+  int i = 0;
 
   while (i < offset) {
     firstCharLenInBuf = LocaleCharToUCS4(&buf[i], offset - i, &UCS4value, charset);
@@ -698,11 +698,11 @@ Int32 Attributes::convertOffsetToChar(const char *buf, Int32 offset, CharInfo::C
 // Return number of bytes used by the characters in buf preceding the Nth char.
 // Return an error if we encounter a character that is not valid in the cs
 // character set.
-Int32 Attributes::convertCharToOffset(const char *buf, Int32 numOfChar, Int32 maxBufLen, CharInfo::CharSet cs) {
+int Attributes::convertCharToOffset(const char *buf, int numOfChar, int maxBufLen, CharInfo::CharSet cs) {
   if (cs == CharInfo::ISO88591 || cs == CharInfo::UCS2 || cs == CharInfo::BINARY)
     return ((numOfChar <= maxBufLen) ? numOfChar - 1 : maxBufLen);
 
-  Int32 firstCharLenInBuf;
+  int firstCharLenInBuf;
   UInt32 UCS4value;
 
   cnv_charset charset = convertCharsetEnum(cs);
@@ -710,8 +710,8 @@ Int32 Attributes::convertCharToOffset(const char *buf, Int32 numOfChar, Int32 ma
   // Number of character in string functions start from 1, not 0. 1 means
   // the first character in the string. Offset start from 0. The offset of
   // the first character in a string is 0.
-  Int32 count = 1;
-  Int32 offset = 0;
+  int count = 1;
+  int offset = 0;
 
   while (count < numOfChar && offset < maxBufLen) {
     firstCharLenInBuf = LocaleCharToUCS4(&buf[offset], maxBufLen - offset, &UCS4value, charset);
@@ -724,19 +724,19 @@ Int32 Attributes::convertCharToOffset(const char *buf, Int32 numOfChar, Int32 ma
   return offset;
 }
 
-Int32 Attributes::getCharLengthInBuf(const char *buf, const char *endOfBuf, char *charLengthInBuf,
+int Attributes::getCharLengthInBuf(const char *buf, const char *endOfBuf, char *charLengthInBuf,
                                      CharInfo::CharSet cs) {
-  Int32 numberOfCharacterInBuf;
+  int numberOfCharacterInBuf;
 
   if (cs == CharInfo::ISO88591 || cs == CharInfo::BINARY || cs == CharInfo::UCS2) {
     numberOfCharacterInBuf = endOfBuf - buf;
     if (charLengthInBuf != NULL) {
-      for (Int32 i = 0; i < numberOfCharacterInBuf; i++) charLengthInBuf[i] = 1;
+      for (int i = 0; i < numberOfCharacterInBuf; i++) charLengthInBuf[i] = 1;
     }
     return numberOfCharacterInBuf;
   }
 
-  Int32 firstCharLenInBuf;
+  int firstCharLenInBuf;
   UInt32 UCS4value;
   cnv_charset charset = convertCharsetEnum(cs);
 
@@ -768,13 +768,13 @@ Int32 Attributes::getCharLengthInBuf(const char *buf, const char *endOfBuf, char
   return numberOfCharacterInBuf;
 }
 
-Int32 Attributes::trimFillerSpaces(const char *buf, Int32 precision, Int32 maxBufLen, CharInfo::CharSet cs) {
+int Attributes::trimFillerSpaces(const char *buf, int precision, int maxBufLen, CharInfo::CharSet cs) {
 #if 0 /* All callers have already checked this for speed reasons. May need this if SJIS supported later. */
   if (cs == CharInfo::UTF8)
 #endif
   {
     if (precision > 0) {
-      Int32 endOff = lightValidateUTF8Str(buf, maxBufLen, precision, FALSE);
+      int endOff = lightValidateUTF8Str(buf, maxBufLen, precision, FALSE);
       if (endOff >= 0)  // If no error
         return (endOff);
       // else bad UTF8 chars will get detected later by caller

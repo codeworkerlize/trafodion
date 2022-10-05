@@ -146,7 +146,7 @@ short RelExpr::generateShape(CollHeap *c, char *buf, NAString *shapeStr) {
 
   if (mybuf) outputBuffer(space, buf, mybuf, shapeStr);
 
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     if (i > 0) {
       sprintf(mybuf, ",");
       outputBuffer(space, buf, mybuf, shapeStr);

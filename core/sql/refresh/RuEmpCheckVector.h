@@ -136,7 +136,7 @@ class REFRESH_LIB_CLASS CRUEmpCheckVector {
 
  private:
   typedef CDSLongMap<int> EpochMap;
-  static Int32 CompareElem(const void *pEl1, const void *pEl2);
+  static int CompareElem(const void *pEl1, const void *pEl2);
 
  private:
   Elem *pVec_;
@@ -169,7 +169,7 @@ class REFRESH_LIB_CLASS CRUEmpCheckVecIterator {
 
  private:
   const CRUEmpCheckVector &vec_;
-  Int32 i_;
+  int i_;
 };
 
 #endif

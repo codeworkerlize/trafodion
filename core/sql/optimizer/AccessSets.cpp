@@ -40,8 +40,8 @@
 #include "GroupAttr.h"
 #include "AccessSets.h"
 
-static const Int32 INITIAL_SIZE_OF_READ_SET = 10;
-static const Int32 INITIAL_SIZE_OF_WRITE_SET = 5;
+static const int INITIAL_SIZE_OF_READ_SET = 10;
+static const int INITIAL_SIZE_OF_WRITE_SET = 5;
 
 //////////////////////////////////////////////////////////////////////////////
 // Methods of class TableAccess
@@ -292,7 +292,7 @@ SubTreeAccessSet *RelExpr::calcAccessSets(CollHeap *heap) {
     // (the first one returned).
     SubTreeAccessSet *stas = NULL;
 
-    for (Int32 i = 0; i < getArity(); i++)
+    for (int i = 0; i < getArity(); i++)
       if (child(i))
         if (stas == NULL)
           stas = child(i)->calcAccessSets(heap);

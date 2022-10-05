@@ -84,7 +84,7 @@ class LmJavaExceptionReporter : public NABasicObject {
 
   LmResult processUserException(LmRoutineJava *handle, ComDiagsArea *diagsArea);
 
-  LmResult insertDiags(ComDiagsArea *da, Int32 eCode, const char *a1 = NULL, const char *a2 = NULL, LmHandle jt = NULL);
+  LmResult insertDiags(ComDiagsArea *da, int eCode, const char *a1 = NULL, const char *a2 = NULL, LmHandle jt = NULL);
 
   LmResult checkJVMException(ComDiagsArea *da, LmHandle jt = NULL);
 

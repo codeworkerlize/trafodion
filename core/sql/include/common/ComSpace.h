@@ -26,7 +26,7 @@ typedef class ComSpace : public CollHeap {
     SINGLE_BLOCK_SPACE
   };
 
-  Int32 operator==(const ComSpace &other) const { return this == &other; };
+  int operator==(const ComSpace &other) const { return this == &other; };
 
  private:
   // recommended/default size for block. Caller can allocate

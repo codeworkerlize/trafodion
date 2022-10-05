@@ -73,8 +73,8 @@ extern int yydebug;
 // sufficient.  We might even make them global in the future since it
 // would seem that the counts don't necessarily have to be accurate.
 //
-THREAD_P Int32 CostScalar::ovflwCount_ = 0;
-THREAD_P Int32 CostScalar::udflwCount_ = 0;
+THREAD_P int CostScalar::ovflwCount_ = 0;
+THREAD_P int CostScalar::udflwCount_ = 0;
 
 #if !defined(NDEBUG)
 NABoolean TraceCatManMemAlloc = FALSE;
@@ -103,7 +103,7 @@ int CmpMain::prev_QI_Priv_Value = 0;
 // This is to force mxcmp abend to test certain queries, like recovery
 // after mxcmp failure.
 // +7 below is to get past "insert " in input_str, e.g. "insert INTOINSPECT;"
-static Int32 sqlcompTestExit(QueryText &input) {
+static int sqlcompTestExit(QueryText &input) {
   if (!Get_SqlParser_Flags(INTERNAL_QUERY_FROM_EXEUTIL)) return 0;
 
   char *input_str;
@@ -121,7 +121,7 @@ static Int32 sqlcompTestExit(QueryText &input) {
 #ifdef _DEBUG
 // for debugging only
 // +7 below is to get past "insert " in input_str, e.g. "insert INTOINSPECT;"
-static Int32 sqlcompTest(QueryText &input) {
+static int sqlcompTest(QueryText &input) {
   char *input_str;
   if (!input.canBeUsedBySqlcompTest(&input_str)) {
     // all the test hooks below work only for ISO88591 (ie, ascii)
@@ -428,9 +428,9 @@ static char *localizedText(QueryText &qt, CharInfo::CharSet &localizedTextCharSe
   if (qt.charSet() == SQLCHARSETCODE_UCS2) {
     // convert UCS2 to locale-based text
     size_t ucs2Len = qt.length();
-    NAWcharBuf tmpNAWcharBuf((NAWchar *)qt.wText(), (Int32)ucs2Len, heap);
-    Int32 iErrorCode = 0;
-    Int32 targetCS = (Int32)CharInfo::UTF8;
+    NAWcharBuf tmpNAWcharBuf((NAWchar *)qt.wText(), (int)ucs2Len, heap);
+    int iErrorCode = 0;
+    int targetCS = (int)CharInfo::UTF8;
     charBuf *pCharBuf = NULL;                      // must be set to NULL to allocate new space
     pCharBuf = parserUTF16ToCharSet(tmpNAWcharBuf  // in  - const NAWcharBuf&
                                     ,
@@ -438,9 +438,9 @@ static char *localizedText(QueryText &qt, CharInfo::CharSet &localizedTextCharSe
                                     ,
                                     pCharBuf  // in/out - charBuf* &
                                     ,
-                                    targetCS  // out - Int32 &   pr_iTargetCharSet
+                                    targetCS  // out - int &   pr_iTargetCharSet
                                     ,
-                                    iErrorCode  // out - Int32 &   pr_iErrrorCode
+                                    iErrorCode  // out - int &   pr_iErrrorCode
                                     ,
                                     TRUE  // in  - NABoolean pv_bAddNullAtEnd
                                     ,
@@ -449,7 +449,7 @@ static char *localizedText(QueryText &qt, CharInfo::CharSet &localizedTextCharSe
 
     char *localizedTextBufp = CURRENTSTMT->getLocalizedTextBuf();
     if (iErrorCode == 0 && pCharBuf != NULL && pCharBuf->getStrLen() > 0) {
-      Int32 spaceNeeded = pCharBuf->getStrLen() + 1;  // includes the null terminator
+      int spaceNeeded = pCharBuf->getStrLen() + 1;  // includes the null terminator
       if (spaceNeeded > CURRENTSTMT->getLocalizedTextBufSize()) {
         if (localizedTextBufp) {
           NADELETEBASIC(localizedTextBufp, heap);
@@ -507,7 +507,7 @@ void CmpMain::FlushQueryCachesIfLongTime(int begTimeInSec) {
 // -----------------------------------------------------------------------
 
 CmpMain::ReturnStatus CmpMain::sqlcomp(QueryText &input,                  // IN
-                                       Int32 /*input_strlen*/,            // UNUSED
+                                       int /*input_strlen*/,            // UNUSED
                                        char **gen_code,                   // OUT
                                        ULng32 *gen_code_len,              // OUT
                                        CollHeap *heap,                    // IN
@@ -584,7 +584,7 @@ CmpMain::ReturnStatus CmpMain::sqlcomp(QueryText &input,                  // IN
   NABoolean Retried_for_priv_failure = FALSE;
   NABoolean Retried_without_QC = FALSE;
 
-  for (Int32 x = 0; x < 3; x++) {
+  for (int x = 0; x < 3; x++) {
     //
     // Do any Query Invalidation that must be done due to recent REVOKE
     // commands being done.
@@ -762,7 +762,7 @@ CmpMain::ReturnStatus CmpMain::sqlcomp(QueryText &input,                  // IN
 }
 
 CmpMain::ReturnStatus CmpMain::sqlcompStatic(QueryText &input,        // IN
-                                             Int32 /*input_strlen*/,  // UNUSED
+                                             int /*input_strlen*/,  // UNUSED
                                              char **gen_code,         // OUT
                                              ULng32 *gen_code_len,    // OUT
                                              CollHeap *heap,          // IN
@@ -823,7 +823,7 @@ CmpMain::ReturnStatus CmpMain::sqlcompStatic(QueryText &input,        // IN
   int here = CmpCommon::diags()->mark();
   CmpMain::ReturnStatus rc = PARSERERROR;
   ULng32 originalParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
-  for (Int32 x = 0; x < 2; x++) {
+  for (int x = 0; x < 2; x++) {
     //
     // Do any Query Invalidation that must be done due to recent REVOKE
     // commands being done.
@@ -871,7 +871,7 @@ CmpMain::ReturnStatus CmpMain::sqlcompStatic(QueryText &input,        // IN
     ENTERMAIN_TASK_MONITOR(queryAnalysis->parserMonitor());
     CompilationStats *stats = CURRENTSTMT->getCompilationStats();
     stats->enterCmpPhase(CompilationStats::CMP_PHASE_PARSER);
-    Int32 error = parser.parseDML(input, &parseTree, 0, NULL);
+    int error = parser.parseDML(input, &parseTree, 0, NULL);
     EXITMAIN_TASK_MONITOR(queryAnalysis->parserMonitor());
     stats->exitCmpPhase(CompilationStats::CMP_PHASE_PARSER);
     MonitorMemoryUsage_Exit("Parser");
@@ -958,7 +958,7 @@ void CmpMain::setInputArrayMaxsize(const ULng32 maxsize) {
 }
 
 ULng32 CmpMain::getInputArrayMaxsize() const {
-  for (Int32 x = 0; x < attrs.nEntries; x++) {
+  for (int x = 0; x < attrs.nEntries; x++) {
     if (attrs.attrs[x].attr == SQL_ATTR_INPUT_ARRAY_MAXSIZE) {
       return attrs.attrs[x].value;
     }
@@ -971,10 +971,10 @@ void CmpMain::setRowsetAtomicity(const short atomicity) {
 }
 
 void CmpMain::getAndProcessAnySiKeys(TimeVal begTime) {
-  Int32 returnedNumSiKeys = 0;
+  int returnedNumSiKeys = 0;
   TimeVal maxTimestamp = begTime;
 
-  Int32 arraySize =
+  int arraySize =
 #ifdef _DEBUG
       1  // we want to execute & test the resize code in DEBUG
 #else
@@ -982,7 +982,7 @@ void CmpMain::getAndProcessAnySiKeys(TimeVal begTime) {
 #endif
       ;
 
-  Int32 sqlcode = -1;
+  int sqlcode = -1;
   while (sqlcode < 0) {
     SQL_QIKEY sikKeyArray[arraySize];
 
@@ -1006,7 +1006,7 @@ void CmpMain::getAndProcessAnySiKeys(TimeVal begTime) {
 
       if (updateCaches) {
         NABoolean bOnlyContainUpdatestats = TRUE;
-        for (Int32 i = 0; i < returnedNumSiKeys; i++) {
+        for (int i = 0; i < returnedNumSiKeys; i++) {
           if (ComQIActionTypeLiteralToEnum(sikKeyArray[i].operation) != COM_QI_STATS_UPDATED) {
             bOnlyContainUpdatestats = FALSE;
             break;
@@ -1034,9 +1034,9 @@ void CmpMain::getAndProcessAnySiKeys(TimeVal begTime) {
   cmpCurrentContext->setPrev_QI_time(maxTimestamp);
 }
 
-Int32 CmpMain::getAnySiKeys(TimeVal begTime, TimeVal prev_QI_inval_time, Int32 *retNumSiKeys, TimeVal *pMaxTimestamp,
-                            SQL_QIKEY *qiKeyArray, Int32 qiKeyArraySize) {
-  Int32 sqlcode = 0;
+int CmpMain::getAnySiKeys(TimeVal begTime, TimeVal prev_QI_inval_time, int *retNumSiKeys, TimeVal *pMaxTimestamp,
+                            SQL_QIKEY *qiKeyArray, int qiKeyArraySize) {
+  int sqlcode = 0;
   long prev_QI_Time = prev_QI_inval_time.tv_usec;  // Start with number of microseconds
   long prev_QI_Sec = prev_QI_inval_time.tv_sec;    // put seconds into an long
   prev_QI_Time += prev_QI_Sec * (long)1000000;     // Multiply by 100000 & add to tv_usec
@@ -1095,12 +1095,12 @@ Int32 CmpMain::getAnySiKeys(TimeVal begTime, TimeVal prev_QI_inval_time, Int32 *
           //
           prev_QI_Priv_Value = new_QI_Priv_Value;
           // ComUserID thisUserID = ((NAUserInfo)CatProcess.getSessionUserId());
-          Int32 thisUserID = ComUser::getCurrentUser();
+          int thisUserID = ComUser::getCurrentUser();
 
           QualifiedName thisQN(qiPath, 3);
           ExtendedQualName thisEQN(thisQN);
           NATable *tab = ActiveSchemaDB()->getNATableDB()->get(&thisEQN, NULL, TRUE);
-          Int32 realObjHashVal = 0;
+          int realObjHashVal = 0;
           // ComUID objectUID = -1;
           int64_t objectUID = -1;
           if (tab != NULL) objectUID = tab->objectUid().get_value();
@@ -1109,7 +1109,7 @@ Int32 CmpMain::getAnySiKeys(TimeVal begTime, TimeVal prev_QI_inval_time, Int32 *
             if (tab->getSecKeySet().entries() > 0) realObjHashVal = tab->getSecKeySet()[0].getObjectHashValue();
           }
 
-          Int32 SiKeyDebugEntries = 1;
+          int SiKeyDebugEntries = 1;
           if (new_QI_Priv_Value == 255) SiKeyDebugEntries = NBR_DML_PRIVS;
           SQL_QIKEY debugQiKeys[SiKeyDebugEntries];
 
@@ -1120,8 +1120,8 @@ Int32 CmpMain::getAnySiKeys(TimeVal begTime, TimeVal prev_QI_inval_time, Int32 *
             ComSecurityKey secKey(thisUserID, objectUID,
                                   SELECT_PRIV,  // Just a dummy value
                                   ComSecurityKey::OBJECT_IS_OBJECT);
-            debugQiKeys[0].revokeKey.subject = (Int32)secKey.getSubjectHashValue();
-            debugQiKeys[0].revokeKey.object = (Int32)secKey.getObjectHashValue();
+            debugQiKeys[0].revokeKey.subject = (int)secKey.getSubjectHashValue();
+            debugQiKeys[0].revokeKey.object = (int)secKey.getObjectHashValue();
 
             ComQIActionTypeEnumToLiteral((ComQIActionType)new_QI_Priv_Value, sikOpLit);
             debugQiKeys[0].operation[0] = sikOpLit[0];
@@ -1131,8 +1131,8 @@ Int32 CmpMain::getAnySiKeys(TimeVal begTime, TimeVal prev_QI_inval_time, Int32 *
           } else {
             for (int i = FIRST_DML_PRIV; i <= LAST_DML_PRIV; i++) {
               ComSecurityKey secKey0(thisUserID, objectUID, (PrivType)i, ComSecurityKey::OBJECT_IS_OBJECT);
-              debugQiKeys[i].revokeKey.subject = (Int32)secKey0.getSubjectHashValue();
-              debugQiKeys[i].revokeKey.object = (Int32)secKey0.getObjectHashValue();
+              debugQiKeys[i].revokeKey.subject = (int)secKey0.getSubjectHashValue();
+              debugQiKeys[i].revokeKey.object = (int)secKey0.getObjectHashValue();
 
               ComQIActionTypeEnumToLiteral(secKey0.getSecurityKeyType(), sikOpLit);
               debugQiKeys[i].operation[0] = sikOpLit[0];
@@ -1154,12 +1154,12 @@ Int32 CmpMain::getAnySiKeys(TimeVal begTime, TimeVal prev_QI_inval_time, Int32 *
   return sqlcode;
 }
 
-void CmpMain::InvalidateNATableCacheEntries(Int32 returnedNumQiKeys, SQL_QIKEY *qiKeyArray) {
+void CmpMain::InvalidateNATableCacheEntries(int returnedNumQiKeys, SQL_QIKEY *qiKeyArray) {
   ActiveSchemaDB()->getNATableDB()->free_entries_with_QI_key(returnedNumQiKeys, qiKeyArray);
   return;
 }
 
-void CmpMain::UpdateNATableCacheEntryStoredStats(Int32 returnedNumQiKeys, SQL_QIKEY *qiKeyArray) {
+void CmpMain::UpdateNATableCacheEntryStoredStats(int returnedNumQiKeys, SQL_QIKEY *qiKeyArray) {
   ActiveSchemaDB()->getNATableDB()->update_entry_stored_stats_with_QI_key(returnedNumQiKeys, qiKeyArray);
   return;
 }
@@ -1169,17 +1169,17 @@ void CmpMain::InvalidateNATableSchemaCacheEntries() {
   return;
 }
 
-void CmpMain::InvalidateNATableSchemaCacheEntries(Int32 returnedNumQiKeys, SQL_QIKEY *qiKeyArray) {
+void CmpMain::InvalidateNATableSchemaCacheEntries(int returnedNumQiKeys, SQL_QIKEY *qiKeyArray) {
   ActiveSchemaDB()->getNATableDB()->free_entries_with_schemaUID(returnedNumQiKeys, qiKeyArray);
   return;
 }
 
-void CmpMain::InvalidateNARoutineCacheEntries(Int32 returnedNumQiKeys, SQL_QIKEY *qiKeyArray) {
+void CmpMain::InvalidateNARoutineCacheEntries(int returnedNumQiKeys, SQL_QIKEY *qiKeyArray) {
   ActiveSchemaDB()->getNARoutineDB()->free_entries_with_QI_key(returnedNumQiKeys, qiKeyArray);
   return;
 }
 
-void CmpMain::InvalidateHistogramCacheEntries(Int32 returnedNumQiKeys, SQL_QIKEY *qiKeyArray) {
+void CmpMain::InvalidateHistogramCacheEntries(int returnedNumQiKeys, SQL_QIKEY *qiKeyArray) {
   if (CURRCONTEXT_HISTCACHE) CURRCONTEXT_HISTCACHE->freeInvalidEntries(returnedNumQiKeys, qiKeyArray);
   return;
 }
@@ -1194,7 +1194,7 @@ void CmpMain::UnmarkMarkedNATableCacheEntries() {
   return;
 }
 
-Int32 CmpMain::RestoreCqdsInHint() {
+int CmpMain::RestoreCqdsInHint() {
   Hint *pHint = SqlParser_CurrentParser->getHint();
   if (pHint) {
     NAHashDictionary<NAString, NAString> *cqdsInHint = pHint->cqdsInHint();
@@ -1221,7 +1221,7 @@ Int32 CmpMain::RestoreCqdsInHint() {
 }
 
 RelExpr::AtomicityType CmpMain::getRowsetAtomicity() const {
-  for (Int32 x = 0; x < attrs.nEntries; x++) {
+  for (int x = 0; x < attrs.nEntries; x++) {
     if (attrs.attrs[x].attr == SQL_ATTR_ROWSET_ATOMICITY) {
       return (RelExpr::AtomicityType)attrs.attrs[x].value;
     }
@@ -1232,7 +1232,7 @@ RelExpr::AtomicityType CmpMain::getRowsetAtomicity() const {
 void CmpMain::setHoldableAttr(const short holdable) { attrs.addStmtAttribute(SQL_ATTR_CURSOR_HOLDABLE, holdable); }
 
 SQLATTRHOLDABLE_INTERNAL_TYPE CmpMain::getHoldableAttr() {
-  for (Int32 x = 0; x < attrs.nEntries; x++) {
+  for (int x = 0; x < attrs.nEntries; x++) {
     if (attrs.attrs[x].attr == SQL_ATTR_CURSOR_HOLDABLE) {
       return (SQLATTRHOLDABLE_INTERNAL_TYPE)attrs.attrs[x].value;
     }
@@ -2542,7 +2542,7 @@ QryStmtAttributeSet::QryStmtAttributeSet() : nEntries(0) {}
 // copy constructor for query stmt attribute settings
 QryStmtAttributeSet::QryStmtAttributeSet(const QryStmtAttributeSet &s) : nEntries(s.nEntries) {
   if (nEntries > 0) {
-    for (Int32 x = 0; x < nEntries; x++) {
+    for (int x = 0; x < nEntries; x++) {
       attrs[x] = s.attrs[x];
     }
   }
@@ -2550,7 +2550,7 @@ QryStmtAttributeSet::QryStmtAttributeSet(const QryStmtAttributeSet &s) : nEntrie
 
 // add a query stmt attribute to attrs
 void QryStmtAttributeSet::addStmtAttribute(SQLATTR_TYPE a, ULng32 v) {
-  Int32 x;
+  int x;
   NABoolean found = FALSE;
   for (x = 0; x < nEntries; x++) {
     if (attrs[x].attr == a) {
@@ -2569,7 +2569,7 @@ void QryStmtAttributeSet::addStmtAttribute(SQLATTR_TYPE a, ULng32 v) {
 // return true if set has given statement attribute
 NABoolean QryStmtAttributeSet::has(const QryStmtAttribute &a) const {
   NABoolean found = FALSE;
-  for (Int32 x = 0; x < nEntries && !found; x++) {
+  for (int x = 0; x < nEntries && !found; x++) {
     found = attrs[x].isEqual(a);
   }
   return found;

@@ -66,7 +66,7 @@ class NATypeToItem : public ItemExpr {
   virtual ItemExpr *copyTopNode(ItemExpr * = NULL, CollHeap *oheap = 0);
 
   // get the degree of this node (it is a unary op).
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   const NAType *pushDownType(NAType &newType, enum NABuiltInTypeEnum defaultQualifier);
 

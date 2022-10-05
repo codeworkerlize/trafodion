@@ -81,11 +81,11 @@ namespace RangeStringComparison {
  *                comparison.
  */
 template <class STRTYPE, class CHARTYPE>
-Int32 cmp(const STRTYPE &rngStr1, const STRTYPE &rngStr2, size_t len1, size_t len2, const CHARTYPE padChar);
+int cmp(const STRTYPE &rngStr1, const STRTYPE &rngStr2, size_t len1, size_t len2, const CHARTYPE padChar);
 
-Int32 cmp(const RangeWString &rngStr1, const RangeWString &rngStr2, size_t len1, size_t len2, const wchar_t padChar);
+int cmp(const RangeWString &rngStr1, const RangeWString &rngStr2, size_t len1, size_t len2, const wchar_t padChar);
 
-Int32 cmp(const RangeString &rngStr1, const RangeString &rngStr2, size_t len1, size_t len2, const char padChar);
+int cmp(const RangeString &rngStr1, const RangeString &rngStr2, size_t len1, size_t len2, const char padChar);
 
 // The following two overloads of rngStrncmp allow a single function name to
 // be used in the template function above, even though different functions
@@ -98,7 +98,7 @@ Int32 cmp(const RangeString &rngStr1, const RangeString &rngStr2, size_t len1, s
  * @param len Max number of characters to compare.
  * @return <0 if s1<s2, >0 if s1>s2, 0 if s1=s2.
  */
-Int32 rngStrncmp(const char *s1, const char *s2, size_t len);
+int rngStrncmp(const char *s1, const char *s2, size_t len);
 
 /**
  * Compares two double-byte character strings.
@@ -107,7 +107,7 @@ Int32 rngStrncmp(const char *s1, const char *s2, size_t len);
  * @param len Max number of characters to compare.
  * @return <0 if s1<s2, >0 if s1>s2, 0 if s1=s2.
  */
-Int32 rngStrncmp(const NAWchar *s1, const NAWchar *s2, size_t len);
+int rngStrncmp(const NAWchar *s1, const NAWchar *s2, size_t len);
 };  // namespace RangeStringComparison
 
 // date- data in internal format:
@@ -115,7 +115,7 @@ Int32 rngStrncmp(const NAWchar *s1, const NAWchar *s2, size_t len);
 //  Month : 1 byte
 //  Day   : 1 byte
 // as seen in method ExpDate::compDatetimes().
-const Int32 DATE_LENGTH = 4;
+const int DATE_LENGTH = 4;
 
 // Time data in internal format:
 //  hour: 1 byte
@@ -123,7 +123,7 @@ const Int32 DATE_LENGTH = 4;
 //  sec : 1 byte
 //  fraction : 4 bytes
 // as seen in method ExpDateTime::compDatetimes().
-const Int32 TIME_LENGTH = 7;
+const int TIME_LENGTH = 7;
 
 //  YYYY  : 2 bytes
 //  Month : 1 byte
@@ -133,7 +133,7 @@ const Int32 TIME_LENGTH = 7;
 //  sec : 1 byte
 //  fraction : 4 bytes
 // as seen in method ExpDate::compDatetimes().
-const Int32 TIMESTAMP_LENGTH = DATE_LENGTH + TIME_LENGTH;
+const int TIMESTAMP_LENGTH = DATE_LENGTH + TIME_LENGTH;
 
 /**
  * Subclass of \c NAString that redefines comparison operators to use
@@ -144,7 +144,7 @@ class RangeString : public NAString {
  public:
   RangeString(NAMemory *heap = NULL) : NAString(heap) {}
 
-  static Int32 cmp(const RangeString &rngStr1, const RangeString &rngStr2) {
+  static int cmp(const RangeString &rngStr1, const RangeString &rngStr2) {
     return RangeStringComparison::cmp(rngStr1, rngStr2, rngStr1.length(), rngStr2.length(), ' ');
   }
 
@@ -197,7 +197,7 @@ class RangeWString : public NAWString {
     return *this;
   }
 
-  static Int32 cmp(const RangeWString &rngStr1, const RangeWString &rngStr2) {
+  static int cmp(const RangeWString &rngStr1, const RangeWString &rngStr2) {
     return RangeStringComparison::cmp(rngStr1, rngStr2, rngStr1.length(), rngStr2.length(), L' ');
   }
 
@@ -232,9 +232,9 @@ class RangeDate : public RangeString {
 
   RangeDate &operator=(const RangeDate &other);
 
-  static Int32 cmp(const RangeDate &, const RangeDate &);
+  static int cmp(const RangeDate &, const RangeDate &);
 
-  static Int32 date_len() { return DATE_LENGTH; };
+  static int date_len() { return DATE_LENGTH; };
 
   const char *date() const { return date_; };
   void set_date(const char *x) { memcpy(date_, x, date_len()); };
@@ -264,21 +264,21 @@ class RangeTime : public RangeString {
  public:
   RangeTime() { memset(time_, 0, sizeof(time_)); };
   RangeTime(const char *time, int len);
-  RangeTime(short hour, short minute, short second, Int32 fraction = 0);
+  RangeTime(short hour, short minute, short second, int fraction = 0);
   ~RangeTime();
 
   RangeTime &operator=(const RangeTime &other);
 
-  static Int32 cmp(const RangeTime &, const RangeTime &);
+  static int cmp(const RangeTime &, const RangeTime &);
 
-  static Int32 time_len() { return TIME_LENGTH; };
+  static int time_len() { return TIME_LENGTH; };
 
   const char *time() const { return time_; };
   void set_time(const char *x) { memcpy(time_, x, time_len()); };
 
   ElementType getElementType() { return ET_TimeVal; };
 
-  static void init(char *, short hour, short minute, short second, Int32 fraction);
+  static void init(char *, short hour, short minute, short second, int fraction);
 
  protected:
   char time_[TIME_LENGTH];
@@ -303,14 +303,14 @@ class RangeTimestamp : public RangeString {
  public:
   RangeTimestamp() { memset(timestamp_, 0, sizeof(timestamp_)); };
   RangeTimestamp(const char *x, int len) { set_timestamp(x, len); };
-  RangeTimestamp(short year, short month, short day, short hour, short minute, short second, Int32 fraction = 0);
+  RangeTimestamp(short year, short month, short day, short hour, short minute, short second, int fraction = 0);
   ~RangeTimestamp();
 
   RangeTimestamp &operator=(const RangeTimestamp &other);
 
-  static Int32 cmp(const RangeTimestamp &, const RangeTimestamp &);
+  static int cmp(const RangeTimestamp &, const RangeTimestamp &);
 
-  static Int32 timestamp_len() { return TIMESTAMP_LENGTH; };
+  static int timestamp_len() { return TIMESTAMP_LENGTH; };
 
   const char *timestamp() const { return timestamp_; };
   void set_timestamp(const char *x, int len) { memcpy(timestamp_, x, MINOF(len, sizeof(timestamp_))); };
@@ -1183,7 +1183,7 @@ class RangeSpec : public NABasicObject {
 
   void addPoint(CollHeap *, const char *val, int len);
   void addPoint(CollHeap *, const wchar_t *val, int len /*in double bytes*/);
-  void addPoint(CollHeap *, Int32);
+  void addPoint(CollHeap *, int);
   void addPoint(CollHeap *, UInt32);
   void addPoint(CollHeap *, long);
   void addDate(RangeDate &d);
@@ -1193,7 +1193,7 @@ class RangeSpec : public NABasicObject {
   NABoolean lookup(long x);
 
   /*
-      NABoolean lookup(Int32 x) { return  lookupNumeric(x); }
+      NABoolean lookup(int x) { return  lookupNumeric(x); }
       NABoolean lookup(UInt32 x) { return lookupNumeric(x); }
       NABoolean lookup(long x) { return  lookupNumeric(x); }
   */
@@ -1285,7 +1285,7 @@ class RangeSpec : public NABasicObject {
   // Return the total # of distinct values for all subranges.
   long getTotalDistinctValues(CollHeap *heap);
 
-  Int32 getTotalRanges() { return subranges_.entries(); };
+  int getTotalRanges() { return subranges_.entries(); };
 
   // Serialize this to a string of bytes.
   // Return the number of bytes of the serialized object.
@@ -1416,7 +1416,7 @@ class RangeSpec : public NABasicObject {
    * @param len  Length of the interval field name.
    * @return The \c rec_datetime_field for the passed interval field name.
    */
-  rec_datetime_field getIntervalFieldFromName(const char *name, Int32 len) const;
+  rec_datetime_field getIntervalFieldFromName(const char *name, int len) const;
 
   void setDumpMvMode() { isDumpMvMode_ = TRUE; }
 

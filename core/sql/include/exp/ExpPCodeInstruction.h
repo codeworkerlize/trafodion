@@ -62,7 +62,7 @@ typedef long PCIID;
 // address fixup, and execution, extra pointer adjustment would be needed
 // for PCode instructions involving address/pointer operands.
 
-typedef Int32 PCodeBinary;
+typedef int PCodeBinary;
 
 // Pointers in PCodeBinary stream can take 1 or 2 entries
 // Currently 1 on 32-bit platform and 2 on 64-bit platform
@@ -798,12 +798,12 @@ class PCIType {
   typedef enum Instruction enum_PCI;
 
   // 64-bit - see notes above at PCodeBinary define.
-  typedef Int32 Operand;
+  typedef int Operand;
 
-  static PCIType::AddressingMode getMemoryAddressingMode(Int32 datatype);
-  static Int32 isMemoryAddressingMode(PCIType::AddressingMode am);
-  static Int32 getNumberOperandsForAddressingMode(PCIType::AddressingMode am);
-  static Int32 getOperandLengthForAddressingMode(PCIType::AddressingMode am);
+  static PCIType::AddressingMode getMemoryAddressingMode(int datatype);
+  static int isMemoryAddressingMode(PCIType::AddressingMode am);
+  static int getNumberOperandsForAddressingMode(PCIType::AddressingMode am);
+  static int getOperandLengthForAddressingMode(PCIType::AddressingMode am);
   static Int16 getDataTypeForMemoryAddressingMode(PCIType::AddressingMode am);
 
   // Helper functions for displaying the enumerations
@@ -812,7 +812,7 @@ class PCIType {
   static const char *addressingModeString(PCIType::AddressingMode am);
 
   // buf should be 32 bytes
-  static void operandString(Int32 operand, char *buf);
+  static void operandString(int operand, char *buf);
 
   static char *instructionString(PCIType::Instruction instr);
 };
@@ -860,8 +860,8 @@ class PCIAddressingModeList {
 
   // Accessors
   //
-  Int32 getNumberAddressingModes() const { return numberAddressingModes_; };
-  PCIType::AddressingMode getAddressingMode(Int32 mode) const { return addressingMode_[mode]; };
+  int getNumberAddressingModes() const { return numberAddressingModes_; };
+  PCIType::AddressingMode getAddressingMode(int mode) const { return addressingMode_[mode]; };
 
  private:
   // numberAddressingMode_ - Indicates the number of addressing modes that
@@ -869,7 +869,7 @@ class PCIAddressingModeList {
   // read-only otherwise. Can be queried with the getNumberAddressingModes()
   // method.
   //
-  Int32 numberAddressingModes_;
+  int numberAddressingModes_;
 
   // addressingMode_ - A vector of the addressing modes. Is set automatically
   // by the constructor and is read-only otherwise. Can be queried with the
@@ -914,7 +914,7 @@ class PCIOperandList {
   PCIOperandList(PCIType::Operand arg1, PCIType::Operand arg2, PCIType::Operand arg3) {
     initList(3, arg1, arg2, arg3);
   };
-  PCIOperandList(PCIType::Operand arg1, PCIType::Operand arg2, PCIType::Operand arg3, Int32 arg4) {
+  PCIOperandList(PCIType::Operand arg1, PCIType::Operand arg2, PCIType::Operand arg3, int arg4) {
     initList(4, arg1, arg2, arg3, arg4);
   };
   PCIOperandList(PCIType::Operand arg1, PCIType::Operand arg2, PCIType::Operand arg3, long arg4) {
@@ -1084,14 +1084,14 @@ class PCIOperandList {
 
   // Accessors
   //
-  Int32 getNumberOperands() { return numberOperands_; };
-  PCIType::Operand getOperand(Int32 op) { return operand_[op]; };
+  int getNumberOperands() { return numberOperands_; };
+  PCIType::Operand getOperand(int op) { return operand_[op]; };
 
  private:
   // Helper for constuctors
   //
 
-  void initList(Int32 numberOperands, PCIType::Operand op1 = 0, PCIType::Operand op2 = 0, PCIType::Operand op3 = 0,
+  void initList(int numberOperands, PCIType::Operand op1 = 0, PCIType::Operand op2 = 0, PCIType::Operand op3 = 0,
                 PCIType::Operand op4 = 0, PCIType::Operand op5 = 0, PCIType::Operand op6 = 0, PCIType::Operand op7 = 0,
                 PCIType::Operand op8 = 0, PCIType::Operand op9 = 0, PCIType::Operand op10 = 0,
                 PCIType::Operand op11 = 0, PCIType::Operand op12 = 0, PCIType::Operand op13 = 0,
@@ -1125,7 +1125,7 @@ class PCIOperandList {
   // Is set automatically by the constructor and is read-only otherwise.
   // Can be queried with the getNumberOperands() method.
   //
-  Int32 numberOperands_;
+  int numberOperands_;
 
   // operand_ - A vector of operands. Is set automatically by the
   // constructor and is read-only otherwise. Can be queried with the
@@ -1165,13 +1165,13 @@ class PCodeInstruction {
 
   // Accessors
   //
-  Int32 getNumberAddressingModes() { return numberAddressingModes_; };
-  Int32 getNumberOperands() { return numberOperands_; };
-  void setNumberOperands(Int32 numOperands) { numberOperands_ = numOperands; };
+  int getNumberAddressingModes() { return numberAddressingModes_; };
+  int getNumberOperands() { return numberOperands_; };
+  void setNumberOperands(int numOperands) { numberOperands_ = numOperands; };
 
   void replaceAddressingModesAndOperands(AML &aml, OL &ol) {
     numberAddressingModes_ = aml.getNumberAddressingModes();
-    Int32 i = 0;
+    int i = 0;
 
     for (; i < numberAddressingModes_; i++) addressingMode_[i] = aml.getAddressingMode(i);
 
@@ -1181,24 +1181,24 @@ class PCodeInstruction {
   };
 
   PCIType::Operation getOperation() { return operation_; };
-  PCIType::AddressingMode getAddressingMode(Int32 am) { return addressingMode_[am]; };
-  Long getLongOperand(Int32 op) { return *(Long *)&operand_[op]; };
-  PCIType::Operand getOperand(Int32 op) { return operand_[op]; };
-  void setLongOperand(Int32 op, Long val) { *(Long *)&operand_[op] = val; };
-  void setOperand(Int32 op, PCIType::Operand val) { operand_[op] = val; };
+  PCIType::AddressingMode getAddressingMode(int am) { return addressingMode_[am]; };
+  Long getLongOperand(int op) { return *(Long *)&operand_[op]; };
+  PCIType::Operand getOperand(int op) { return operand_[op]; };
+  void setLongOperand(int op, Long val) { *(Long *)&operand_[op] = val; };
+  void setOperand(int op, PCIType::Operand val) { operand_[op] = val; };
 
-  Int32 getCodePosition() const { return codePosition_; };
-  void setCodePosition(Int32 codePosition) { codePosition_ = codePosition; };
+  int getCodePosition() const { return codePosition_; };
+  void setCodePosition(int codePosition) { codePosition_ = codePosition; };
 
-  Int32 getStackChange();
-  Int32 getGeneratedCodeSize();
+  int getStackChange();
+  int getGeneratedCodeSize();
 
   // Helpers
   //
-  static Int32 temporaryStoreLoadMatch(PCodeInstruction *store, PCodeInstruction *load);
-  static Int32 temporaryStoreLoadOverlap(PCodeInstruction *store, PCodeInstruction *load);
-  static Int32 replaceUsesOfTarget(PCodeInstruction *store, PCodeInstruction *use, Int32 check);
-  Int32 getMemoryOperandLength(PCIType::AddressingMode, Int32 operand);
+  static int temporaryStoreLoadMatch(PCodeInstruction *store, PCodeInstruction *load);
+  static int temporaryStoreLoadOverlap(PCodeInstruction *store, PCodeInstruction *load);
+  static int replaceUsesOfTarget(PCodeInstruction *store, PCodeInstruction *use, int check);
+  int getMemoryOperandLength(PCIType::AddressingMode, int operand);
 
   // Display
   //
@@ -1211,7 +1211,7 @@ class PCodeInstruction {
   void init(PCIType::Operation operation, AML &aml, OL &ol) {
     operation_ = operation;
     numberAddressingModes_ = aml.getNumberAddressingModes();
-    Int32 i = 0;
+    int i = 0;
 
     for (; i < numberAddressingModes_; i++) addressingMode_[i] = aml.getAddressingMode(i);
 
@@ -1228,7 +1228,7 @@ class PCodeInstruction {
     numberAddressingModes_ = pci->numberAddressingModes_;
     numberOperands_ = pci->numberOperands_;
 
-    Int32 i = 0;
+    int i = 0;
     for (; i < numberAddressingModes_; i++) addressingMode_[i] = pci->addressingMode_[i];
 
     for (i = 0; i < numberOperands_; i++) operand_[i] = pci->operand_[i];
@@ -1256,19 +1256,19 @@ class PCodeInstruction {
   // Is set automatically by the constructor and is read-only otherwise.
   // Can be queried with the getNumberAddressingModes() accessor.
   //
-  Int32 numberAddressingModes_;
+  int numberAddressingModes_;
 
   // numberOperands_ - Indicates the number of valid operands.
   // Is set automatically by the constructor and is read-only otherwise.
   // Can be queried with the getNumberOperands() accessor.
   //
-  Int32 numberOperands_;
+  int numberOperands_;
 
   // codePosition_ - Indicates integer offset of the beggining of this
   // PCI in the generated byte code stream. Can be queried using the
   // getCodePosition() accesor and set using the setCodePosition() method.
   //
-  Int32 codePosition_;
+  int codePosition_;
 };
 
 // A general method to take pointers out of PCode binary stream

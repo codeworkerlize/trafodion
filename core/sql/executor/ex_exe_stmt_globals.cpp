@@ -67,7 +67,7 @@ class ComTdbRoot;
 
 ESPTraceEntry::ESPTraceEntry(ex_globals *globals, int espNum, int pid, long currentTS, char *t1)
     : espNum_(espNum), pid_(pid), timestamp_(currentTS), globals_(globals) {
-  Int32 len = str_len(t1);
+  int len = str_len(t1);
   msgtext1_ = new (globals_->getDefaultHeap()) char[len + 1];
   str_cpy_all(msgtext1_, t1, len + 1);
 }
@@ -83,7 +83,7 @@ ESPTraceEntry::ESPTraceEntry(ex_globals *glob, char *t1) : globals_(glob) {
   ULng32 pid = -1;
   pid_ = exeGlob->getPid();
 
-  Int32 len = str_len(t1);
+  int len = str_len(t1);
   msgtext1_ = new (globals_->getDefaultHeap()) char[len + 1];
   str_cpy_all(msgtext1_, t1, len + 1);
 }
@@ -162,7 +162,7 @@ void ESPTraceList::logESPTraceToFile(char *fn, char *signature, ESPTraceList &tr
 
   short fnum;
   sgTraceFileName = (fn ? fn : "SYSTEM.SYSTEM.SGLOG");
-  Int32 ferr = FILE_OPEN_(sgTraceFileName, strlen(sgTraceFileName), &fnum,
+  int ferr = FILE_OPEN_(sgTraceFileName, strlen(sgTraceFileName), &fnum,
                           (UInt16)2,  // Write Access
                           (UInt16)1,  // Exclusive
                           0           // OMIT // waited
@@ -513,10 +513,10 @@ ExMasterStmtGlobals::ExMasterStmtGlobals(short num_temps, CliGlobals *cliGlobals
 #ifdef _DEBUG
   char *testCancelFreq = getenv("TEST_ERROR_AT_EXPR");
   if (testCancelFreq) {
-    Int32 freq = atoi(testCancelFreq);
+    int freq = atoi(testCancelFreq);
     if (freq < 0) freq = 0;
     if (freq != 0) {
-      Int32 i = 1;
+      int i = 1;
       while (i <= freq) i = i << 1;
       freq = i >> 1;
     }
@@ -825,13 +825,13 @@ void ExMasterStmtGlobals::insertExtractEsp(const IpcProcessId &pid) {
   int len = str_len(pidBuf);
 
   const GuaProcessHandle &phandle = pid.getPhandle();
-  Int32 cpu = -1, pin = -1;
-  Int32 nodeNumber = -1;
+  int cpu = -1, pin = -1;
+  int nodeNumber = -1;
   SB_Int64_Type seqNum = 0;
   int guaError = phandle.decompose(cpu, pin, nodeNumber, seqNum);
   if (guaError != 0) {
     char msg[100];
-    str_sprintf(msg, "Unexpected error %d from DECOMPOSE", (Int32)guaError);
+    str_sprintf(msg, "Unexpected error %d from DECOMPOSE", (int)guaError);
     ex_assert(guaError == 0, msg);
   }
 
@@ -903,8 +903,8 @@ const char *ExMasterStmtGlobals::getExtractSecurityKey() const {
   return result;
 }
 
-Int32 ExMasterStmtGlobals::getSMTraceLevel() const {
-  Int32 result = 0;
+int ExMasterStmtGlobals::getSMTraceLevel() const {
+  int result = 0;
   if (smQueryID_ > 0) result = getContext()->getSessionDefaults()->getExSMTraceLevel();
   return result;
 }
@@ -1019,7 +1019,7 @@ int ExEspStmtGlobals::getMyInstanceNumber() const {
   // of being able to broadcast the same load/fixup message to all
   // ESPs.
 
-  for (Int32 i = 0;
+  for (int i = 0;
        // i < numInstances AND myInstanceNum == -1;
        i < numInstances AND cachedMyInstanceNum_ < 0; i++) {
     if (myProcId == getInstanceProcessId(myFragId, i))
@@ -1060,7 +1060,7 @@ void ExEspStmtGlobals::getMyNodeLocalInstanceNumber(int &myNodeLocalInstanceNumb
   // of being able to broadcast the same load/fixup message to all
   // ESPs.
 
-  for (Int32 i = 0; i < numInstances; i++) {
+  for (int i = 0; i < numInstances; i++) {
     const IpcProcessId &pid = getInstanceProcessId(myFragId, i);
 
     if (myProcId == pid) {
@@ -1088,8 +1088,8 @@ long ExEspStmtGlobals::getSMQueryID() const {
   return smQueryID;
 }
 
-Int32 ExEspStmtGlobals::getSMTraceLevel() const {
-  Int32 result = 0;
+int ExEspStmtGlobals::getSMTraceLevel() const {
+  int result = 0;
   if (smDownloadInfo_) result = smDownloadInfo_->getTraceLevel();
   return result;
 }

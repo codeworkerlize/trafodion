@@ -290,7 +290,7 @@ void ex_send_top_tcb::registerSubtasks() {
 
 /////////////////////////////////////////////////////////////////////////////
 // TCB fixup
-Int32 ex_send_top_tcb::fixup() {
+int ex_send_top_tcb::fixup() {
   if (sendTopTdb().getExchangeUsesSM()) {
     // The purpose of this block is to populate the SeaMonster target
     // structure. In the master executor the process ID is not known
@@ -311,7 +311,7 @@ Int32 ex_send_top_tcb::fixup() {
 
     // Find the send bottom's node and pid
     const GuaProcessHandle &phandle = bottomProcId_.getPhandle();
-    Int32 otherCPU, otherPID, otherNode;
+    int otherCPU, otherPID, otherNode;
     SB_Int64_Type seqNum = 0;
     phandle.decompose2(otherCPU, otherPID, otherNode, seqNum);
 
@@ -910,7 +910,7 @@ TupMsgBuffer *ex_send_top_tcb::getSendBuffer() {
       ExMsgSecurityInfo *secInfo = new (ipcHeap) ExMsgSecurityInfo(ipcHeap);
 
       const char *key = sendTopTdb().getExtractSecurityKey();
-      Int32 len = str_len(key);
+      int len = str_len(key);
       char *copyOfKey = (char *)ipcHeap->allocateMemory(len + 1);
       str_cpy_all(copyOfKey, key, len + 1);
       secInfo->setSecurityKey(copyOfKey);
@@ -931,8 +931,8 @@ TupMsgBuffer *ex_send_top_tcb::getSendBuffer() {
 
       const char *idToSend = NULL;
 
-      Int32 *userID = context->getDatabaseUserID();
-      Int32 userAsInt = *((Int32 *)userID);
+      int *userID = context->getDatabaseUserID();
+      int userAsInt = *((int *)userID);
       char userIDBuf[32];
       sprintf(userIDBuf, "%d", (int)userAsInt);
       idToSend = &(userIDBuf[0]);
@@ -1298,7 +1298,7 @@ short ex_send_top_tcb::createIpcGuardianConnection(NABoolean nowaitedCompleted) 
 
     if (sv_multiple_fragments) {
       if ((env->getNumOpensInProgress() >= sv_max_parallel_opens) && nowaitedCompleted == false) {
-        Int32 lv_err;
+        int lv_err;
         struct timespec lv_tv;
 
         lv_tv.tv_sec = 0;
@@ -1397,14 +1397,14 @@ ex_queue_pair ex_send_top_tcb::getParentQueue() const { return qParent_; }
 
 /////////////////////////////////////////////////////////////////////////////
 //
-const ex_tcb *ex_send_top_tcb::getChild(Int32 pos) const {
+const ex_tcb *ex_send_top_tcb::getChild(int pos) const {
   ex_assert((pos >= 0), "");
   return NULL;
 }
 
 /////////////////////////////////////////////////////////////////////////////
 //
-Int32 ex_send_top_tcb::numChildren() const { return 0; }
+int ex_send_top_tcb::numChildren() const { return 0; }
 
 ExOperStats *ex_send_top_tcb::doAllocateStatsEntry(CollHeap *heap, ComTdb *tdb) {
   ExOperStats *stat = NULL;
@@ -1592,7 +1592,7 @@ const char *ex_send_top_tcb::getExSendTopStateString(ExSendTopState s) {
     case SERVER_SATURATED:
       return "SERVER_SATURATED";
     default:
-      return ComRtGetUnknownString((Int32)s);
+      return ComRtGetUnknownString((int)s);
   }
 }
 

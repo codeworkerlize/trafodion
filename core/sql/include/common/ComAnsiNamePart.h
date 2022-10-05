@@ -83,13 +83,13 @@ class ComRoutineActionNamePart;
 // file w:/comexe/LateBindInfo.cpp which cannot use the process heap.
 // -----------------------------------------------------------------------
 // returned error code described in w:/common/csconvert.h
-Int32 ComAnsiNameToUTF8(const NAWString &inAnsiNameInUCS2  // in  - valid ANSI SQL name in UCS2/UTF16
+int ComAnsiNameToUTF8(const NAWString &inAnsiNameInUCS2  // in  - valid ANSI SQL name in UCS2/UTF16
                         ,
                         NAString &outBuf4AnsiNameInUTF8  // out - out buffer in UTF8
 );
 
 // returned error code described in w:/common/csconvert.h
-Int32 ComAnsiNameToUCS2(const NAString &inAnsiNameInUTF8  // in  - input C string in UTF8
+int ComAnsiNameToUCS2(const NAString &inAnsiNameInUTF8  // in  - input C string in UTF8
                         ,
                         NAWString &outAnsiNameInUCS2  // out - out buffer containing UCS2/UTF16 chars
 );
@@ -229,7 +229,7 @@ class ComAnsiNamePart : public NABasicObject {
   //
   NABoolean operator==(const ComAnsiNamePart &rhs) const;
 
-  inline Int32 compareTo(const ComAnsiNamePart &rhs) const;
+  inline int compareTo(const ComAnsiNamePart &rhs) const;
 
   //
   // accessors
@@ -354,7 +354,7 @@ class ComAnsiNamePart : public NABasicObject {
 // definitions of inline methods
 // -----------------------------------------------------------------------
 
-Int32 ComAnsiNamePart::compareTo(const ComAnsiNamePart &rhs) const {
+int ComAnsiNamePart::compareTo(const ComAnsiNamePart &rhs) const {
   if (this EQU & rhs)
     return 0;
   else

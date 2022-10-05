@@ -53,10 +53,10 @@ LmResult LmParameter::setOutSmallInt(void *dataPtr, short a) {
   return LM_OK;
 }
 
-LmResult LmParameter::setOutInteger(void *dataPtr, Int32 a) {
+LmResult LmParameter::setOutInteger(void *dataPtr, int a) {
   if (sizeof(a) > outSize_) return LM_PARAM_OVERFLOW;
 
-  *(Int32 *)((char *)dataPtr + outDataOffset_) = a;
+  *(int *)((char *)dataPtr + outDataOffset_) = a;
   return LM_OK;
 }
 
@@ -139,7 +139,7 @@ LmResult LmParameter::setOutChar(void *dataPtr, const char *src, ComUInt32 lengt
       break;
     }
     case 4:
-      memcpy((char *)dataPtr + outVCLenIndOffset(), &lengthInBytes, sizeof(Int32));
+      memcpy((char *)dataPtr + outVCLenIndOffset(), &lengthInBytes, sizeof(int));
       break;
 
     default:
@@ -320,7 +320,7 @@ ComUInt32 LmParameter::vcDataSize(char *data, ComSInt32 lenIndOffset, ComSInt16 
       break;
 
     case 4:
-      memcpy(&len, data + lenIndOffset, sizeof(Int32));
+      memcpy(&len, data + lenIndOffset, sizeof(int));
       break;
 
     default:

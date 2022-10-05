@@ -110,7 +110,7 @@ ex_mj_tcb::ex_mj_tcb(const ex_mj_tdb &mj_tdb, const ex_tcb &left_tcb, const ex_t
   // perform special null handling or save duplicate right rows.
   if (!mj_tdb.isLeftUnique() && !mj_tdb.isRightUnique()) {
     pool_ = NULL;
-    Int32 nBuffers = mj_tdb.numBuffers_;
+    int nBuffers = mj_tdb.numBuffers_;
     int bufSize = static_cast<int>(mj_tdb.bufferSize_);
 
     if (isLeftJoin() && ljExpr()) {
@@ -168,7 +168,7 @@ ex_mj_tcb::ex_mj_tcb(const ex_mj_tdb &mj_tdb, const ex_tcb &left_tcb, const ex_t
     UInt32 quotaMB = mj_tdb.getQuotaMB();
     if (quotaMB) {
       Float32 estRows = mj_tdb.getEstRowsUsed();
-      Int32 recLen = mj_tdb.rightDupRecLen_;
+      int recLen = mj_tdb.rightDupRecLen_;
       UInt32 assumedMaxMB = static_cast<UInt32>((recLen * estRows) / (4 * ExOverflow::ONE_MEGABYTE));
       UInt32 pctBasedQuotaMB = static_cast<UInt32>(quotaMB * (mj_tdb.getQuotaPct() / 100.0));
       if (pctBasedQuotaMB && (pctBasedQuotaMB < assumedMaxMB)) {
@@ -579,7 +579,7 @@ ex_mj_tcb::Comparison ex_mj_tcb::compareTuples(ex_queue_entry *lentry, ex_queue_
       retCode = rightEncodedKeyExpr()->eval(workAtp_, rentry->getAtp());
     }
     if (retCode != ex_expr::EXPR_ERROR) {
-      Int32 compareCode = memcmp(leftEncodedKeyPtr_, rightEncodedKeyPtr_, mjTdb().encodedKeyLen_);
+      int compareCode = memcmp(leftEncodedKeyPtr_, rightEncodedKeyPtr_, mjTdb().encodedKeyLen_);
       if (compareCode == 0)
         cmpResult = CMP_EQUAL;
       else if (compareCode < 0)
@@ -1650,7 +1650,7 @@ ex_mj_private_state::~ex_mj_private_state(){};
 const char *ex_mj_private_state::currentState(void) const { return stateName(step_); }
 
 const char *ex_mj_private_state::stateName(ex_mj_tcb::mj_step mjStep) {
-  Int32 i = static_cast<Int32>(mjStep);
+  int i = static_cast<int>(mjStep);
 
   return stateNames[i];
 }

@@ -61,7 +61,7 @@ Visitor::VisitResult RefFinderVisitor::visit(QRElementPtr caller) {
 // ***************************************************************************
 // ***************************************************************************
 void BaseTableDetails::addRangePredicateOnColumn(const QRRangePredPtr rangePred, const QRColumnPtr rangeCol) {
-  Int32 index = rangeCol->getColIndex();
+  int index = rangeCol->getColIndex();
 
   assertLogAndThrow(CAT_MATCHTST_MVDETAILS, LL_MVQR_FAIL, isHub_ == (NABoolean)TRUE, QRLogicException,
                     "No range preds expected on extra-hub tables.");

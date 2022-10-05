@@ -134,7 +134,7 @@ class REFRESH_LIB_CLASS CRULogCleanupTaskExecutor : public CRUTaskExecutor {
 
   CRUSQLDynamicStatementContainer logCleanupTEDynamicContainer_;
   BOOL hasRangeLog_;
-  Int32 noOfPartitions_;
+  int noOfPartitions_;
 };
 
 #endif

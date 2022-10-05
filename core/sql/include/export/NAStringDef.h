@@ -159,7 +159,7 @@ class NASubString {
 
   // For detecting null substrings:
   NABoolean isNull() const { return begin_ == NA_NPOS; }
-  Int32 operator!() const { return begin_ == NA_NPOS; }
+  int operator!() const { return begin_ == NA_NPOS; }
 
  protected:
   void subStringError(size_t, size_t, size_t) const;
@@ -304,13 +304,13 @@ class NAString : public NABasicObject {
   size_t capacity(size_t N);
   void clear();
 #ifndef RW_NO_LOCALE
-  Int32 collate(const char *cs) const { return ::strcoll(data(), cs); }
+  int collate(const char *cs) const { return ::strcoll(data(), cs); }
 
-  Int32 collate(const NAString &st) const;
+  int collate(const NAString &st) const;
 
 #endif
-  Int32 compareTo(const char *cs, caseCompare cmp = exact) const;
-  Int32 compareTo(const NAString &st, caseCompare cmp = exact) const;
+  int compareTo(const char *cs, caseCompare cmp = exact) const;
+  int compareTo(const NAString &st, caseCompare cmp = exact) const;
 
   NABoolean contains(const char *pat, caseCompare cmp = exact) const;
 
@@ -373,9 +373,9 @@ class NAString : public NABasicObject {
 
   NAString &prepend(const NAString &s, size_t N);
   NAString &prepend(char c, size_t rep = 1);         // Prepend c rep times
-  Int32 readFile(ifstream &);                        // Read to EOF or null character.
-  Int32 readLine(ifstream &);                        // Read to EOF or newline.
-  Int32 readToDelim(ifstream &, char delim = '\n');  // Read to EOF or delimitor.
+  int readFile(ifstream &);                        // Read to EOF or null character.
+  int readLine(ifstream &);                        // Read to EOF or newline.
+  int readToDelim(ifstream &, char delim = '\n');  // Read to EOF or delimitor.
 
   NAString &remove(size_t pos);  // Remove pos to end of string
 
@@ -506,7 +506,7 @@ inline NAString &NAString::operator+=(const char c) {
 }
 
 #ifndef RW_NO_LOCALE
-inline Int32 NAString::collate(const NAString &st) const { return ::strcoll(data(), st.data()); }
+inline int NAString::collate(const NAString &st) const { return ::strcoll(data(), st.data()); }
 #endif
 
 inline NABoolean NAString::contains(const NAString &pat, caseCompare cmp) const {

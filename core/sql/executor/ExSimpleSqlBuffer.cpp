@@ -74,7 +74,7 @@
 //    | ExSimpleSQLBufferEntry ...   TupleData   |         |
 //    +-------------------------+----------------+---------+
 //
-ExSimpleSQLBuffer::ExSimpleSQLBuffer(Int32 numberTuples, Int32 tupleSize, CollHeap *heap)
+ExSimpleSQLBuffer::ExSimpleSQLBuffer(int numberTuples, int tupleSize, CollHeap *heap)
     : numberTuples_(numberTuples), tupleSize_(tupleSize), allocationSize_(0), freeList_(0), usedList_(0), data_(0) {
   init(heap);
 };
@@ -93,7 +93,7 @@ ExSimpleSQLBuffer::ExSimpleSQLBuffer(Int32 numberTuples, Int32 tupleSize, CollHe
 // RETURN :
 // EFFECTS: calls main ExSimpleSQLBuffer constructor
 //
-ExSimpleSQLBuffer::ExSimpleSQLBuffer(Int32 numBuffers, Int32 bufferSize, Int32 tupleSize, CollHeap *heap)
+ExSimpleSQLBuffer::ExSimpleSQLBuffer(int numBuffers, int bufferSize, int tupleSize, CollHeap *heap)
     : numberTuples_(0), tupleSize_(tupleSize), allocationSize_(0), freeList_(0), usedList_(0), data_(0) {
   // Compute the number of tuples that would fit in an eqivalent
   // sql buffer pool.
@@ -105,7 +105,7 @@ ExSimpleSQLBuffer::ExSimpleSQLBuffer(Int32 numBuffers, Int32 bufferSize, Int32 t
   if ((numBuffers > 0) && (bufferSize > 0) && (numTuples == 0)) {
     numTuples = 1;
   }
-  numberTuples_ = (Int32)numTuples;
+  numberTuples_ = (int)numTuples;
 
   init(heap);
 }
@@ -131,8 +131,8 @@ ExSimpleSQLBuffer::~ExSimpleSQLBuffer(){};
 // EFFECTS: A free tuple is moved from the free list to the used list
 //          and <tupp> is set to reference the new tuple.
 //
-Int32 ExSimpleSQLBuffer::getFreeTuple(tupp &tupp) {
-  Int32 rc = 1;
+int ExSimpleSQLBuffer::getFreeTuple(tupp &tupp) {
+  int rc = 1;
 
   ExSimpleSQLBufferEntry *entry = getFreeEntry();
   if (entry != 0) {
@@ -175,15 +175,15 @@ void ExSimpleSQLBuffer::init(CollHeap *heap) {
   // so subtract one from tupleSize_ when calculating the allocation size.
   // We need to round this size up to nearest 8 bytes to ensure alignment.
   //
-  allocationSize_ = (Int32)sizeof(ExSimpleSQLBufferEntry) + tupleSize_ - 1;
+  allocationSize_ = (int)sizeof(ExSimpleSQLBufferEntry) + tupleSize_ - 1;
   allocationSize_ += 7;
   allocationSize_ &= ~0x07;
 
   // Sometimes we might not be able to get all the memory requested. Try
   // to get at least enough memory for one tupp.
   //
-  Int32 tuplesRequested = numberTuples_;
-  Int32 nBytes = 0;
+  int tuplesRequested = numberTuples_;
+  int nBytes = 0;
   numberTuples_ *= 2;
   while (!data_ && numberTuples_ > 0) {
     numberTuples_ /= 2;
@@ -210,7 +210,7 @@ void ExSimpleSQLBuffer::init(CollHeap *heap) {
   freeList_ = (ExSimpleSQLBufferEntry *)data_;
   freeList_->init(tupleSize_);
 
-  for (Int32 i = 1; i < numberTuples_; i++) {
+  for (int i = 1; i < numberTuples_; i++) {
     ExSimpleSQLBufferEntry *entry = (ExSimpleSQLBufferEntry *)(data_ + i * allocationSize_);
     entry->init(tupleSize_);
     entry->setNext(freeList_);
@@ -249,7 +249,7 @@ void ExSimpleSQLBuffer::reinitializeTuples(void) {
   freeList_ = (ExSimpleSQLBufferEntry *)data_;
   freeList_->init(tupleSize_);
 
-  for (Int32 i = 1; i < numberTuples_; i++) {
+  for (int i = 1; i < numberTuples_; i++) {
     ExSimpleSQLBufferEntry *entry = (ExSimpleSQLBufferEntry *)(data_ + i * allocationSize_);
     entry->init(tupleSize_);
     entry->setNext(freeList_);

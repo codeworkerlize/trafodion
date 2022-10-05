@@ -145,7 +145,7 @@ size_t NAString::capacity(size_t nc) {
 void NAString::clear(void) { fbstring_.clear(); }
 
 // String comparisons
-Int32 NAString::compareTo(const char *cs2, caseCompare cmp) const {
+int NAString::compareTo(const char *cs2, caseCompare cmp) const {
   assert(cs2 != nanil);
   const char *cs1 = data();
   size_t len = length();
@@ -166,7 +166,7 @@ Int32 NAString::compareTo(const char *cs2, caseCompare cmp) const {
   return (i < len) ? 1 : 0;
 }
 
-Int32 NAString::compareTo(const NAString &str, caseCompare cmp) const {
+int NAString::compareTo(const NAString &str, caseCompare cmp) const {
   const char *s1 = data();
   const char *s2 = str.data();
   size_t len = str.length();
@@ -237,7 +237,7 @@ UInt32 NAString::hash() const {
 
 UInt32 NAString::hash(caseCompare cmp) const { return (cmp == exact) ? hash() : hashFoldCase(); }
 
-static Int32 rwMemiEqual(const char *p, const char *q, size_t N) {
+static int rwMemiEqual(const char *p, const char *q, size_t N) {
   while (N--) {
     if (tolower((unsigned char)*p) != tolower((unsigned char)*q)) return FALSE;
     p++;
@@ -325,10 +325,10 @@ NAList<NAString> &NAString::split(char delim, NAList<NAString> &elems) {
   return elems;
 }
 
-Int32 NAString::readFile(ifstream &in)  // Read to EOF or null character.
+int NAString::readFile(ifstream &in)  // Read to EOF or null character.
 {
   char c;
-  Int32 char_count = 0;
+  int char_count = 0;
   fbstring_ = "";
   c = in.get();
   while (c != '\0' && c != EOF) {
@@ -339,15 +339,15 @@ Int32 NAString::readFile(ifstream &in)  // Read to EOF or null character.
   return char_count;
 }
 
-Int32 NAString::readLine(ifstream &in)  // Read to EOF or newline.
+int NAString::readLine(ifstream &in)  // Read to EOF or newline.
 {
   return readToDelim(in, '\n');
 }
 
-Int32 NAString::readToDelim(ifstream &in, char delim)  // Read to EOF or delimitor.
+int NAString::readToDelim(ifstream &in, char delim)  // Read to EOF or delimitor.
 {
   char c;
-  Int32 char_count = 0;
+  int char_count = 0;
   fbstring_ = "";
   c = in.get();
   while (c != '\0' && c != delim && c != EOF) {
@@ -424,7 +424,7 @@ NASubString NAString::strip(NAString::stripType st, char c) {
   size_t end = length();        // One beyond last character
   const char *direct = data();  // Avoid a dereference w dumb compiler
 
-  assert((Int32)st != 0);
+  assert((int)st != 0);
   if (st & leading)
     while (start < end && direct[start] == c) ++start;
   if (st & trailing)
@@ -765,7 +765,7 @@ size_t NAString::mbLength() const {
   size_t len = 0;
   mblen((const char *)0, MB_CUR_MAX);  // clear static state (bleah!)
   while (i < length() && cp[i]) {
-    Int32 l = mblen(cp + i, MB_CUR_MAX);
+    int l = mblen(cp + i, MB_CUR_MAX);
     if (l <= 0) return NA_NPOS;
     i += l;
     ++len;

@@ -75,7 +75,7 @@ class UDRPlanInfo;
 class UDR;
 }  // namespace tmudr
 
-typedef Int32 CliRoutineHandle;
+typedef int CliRoutineHandle;
 
 // -----------------------------------------------------------------------
 /*!
@@ -202,9 +202,9 @@ class RelRoutine : public RelExpr {
   //! getArity acessor method
   // for the most part routines don't have children. If they do,
   // they will implement their own getArity() method.
-  virtual Int32 getArity() const { return arity_; }
+  virtual int getArity() const { return arity_; }
 
-  virtual void setArity(Int32 val) { arity_ = val; }
+  virtual void setArity(int val) { arity_ = val; }
 
   //! hasSubquery method
   //  Does this Routine have parameters containing subqueries?
@@ -327,7 +327,7 @@ class RelRoutine : public RelExpr {
   //  flag to indicate if the node refers to any subqueries
   NABoolean hasSubquery_;
 
-  Int32 arity_;
+  int arity_;
 
   //! procAllparamsTree_ member
   //  an expression with the Routine's actual parameters
@@ -775,8 +775,8 @@ class TableMappingUDF : public TableValuedFunction {
 
   void createOutputVids(BindWA *bindWA);
 
-  TableMappingUDFChildInfo *getChildInfo(Int32 index) {
-    CMPASSERT(index >= 0 && index < (Int32)childInfo_.entries());
+  TableMappingUDFChildInfo *getChildInfo(int index) {
+    CMPASSERT(index >= 0 && index < (int)childInfo_.entries());
     return childInfo_[index];
   }
 
@@ -788,7 +788,7 @@ class TableMappingUDF : public TableValuedFunction {
 
   char *getConstParamBuffer() const { return constParamBuffer_; }
 
-  Int32 getConstParamBufferLen() const { return constParamBufferLen_; }
+  int getConstParamBufferLen() const { return constParamBufferLen_; }
 
   CliRoutineHandle getRoutineHandle() const { return routineHandle_; }
 
@@ -848,7 +848,7 @@ class TableMappingUDF : public TableValuedFunction {
   tmudr::UDRInvocationInfo *invocationInfo_;
   int numPlanInfos_;
   char *constParamBuffer_;
-  Int32 constParamBufferLen_;
+  int constParamBufferLen_;
   NABoolean isNormalized_;
 
 };  // class TableMappingUDF
@@ -1029,7 +1029,7 @@ class ExplainFunc : public BuiltinTableValuedFunction {
 
   //! getArity method
   // get the degree of this node (it is a leaf op).
-  virtual Int32 getArity() const { return 0; }
+  virtual int getArity() const { return 0; }
 
   // mutators
 
@@ -1128,7 +1128,7 @@ class StatisticsFunc : public BuiltinTableValuedFunction {
 
   //! getArity method
   //  get the degree of this node (it is a leaf op).
-  virtual Int32 getArity() const { return 0; };
+  virtual int getArity() const { return 0; };
 
   //! isLogical method
   // this is both logical and physical node
@@ -1323,7 +1323,7 @@ class SPProxyFunc : public ProxyFunc {
 
   //! getArity method
   //  return the degree of the node
-  virtual Int32 getArity() const { return 0; }
+  virtual int getArity() const { return 0; }
 
   //! isLogical method
   //  indicates if the node is a logical node
@@ -1449,7 +1449,7 @@ class ExtractSource : public ProxyFunc {
 
   //! getArity method
   //  returns degree of the node
-  virtual Int32 getArity() const { return 0; }
+  virtual int getArity() const { return 0; }
 
   //! isLogical method
   //  method indicates if the node is a logical one
@@ -1674,7 +1674,7 @@ class CallSP : public IsolatedNonTableUDR {
   // we create a tuple for that subquery and assign it as our child.
   // This holds true until we get to the optimizer. As soon as we set the
   // isPhysical_ flag to true, we no longer have a child.
-  virtual Int32 getArity() const { return isPhysical_ ? 0 : ((hasSubquery() || hasUDF()) ? 1 : 0); }
+  virtual int getArity() const { return isPhysical_ ? 0 : ((hasSubquery() || hasUDF()) ? 1 : 0); }
 
   //! getSPName method
   //  returns a reference to a constant name for the Routine
@@ -1762,7 +1762,7 @@ class CallSP : public IsolatedNonTableUDR {
 
   //! setArity method
   //  method to set how many children the node has
-  void setArity(Int32 numChildren) {
+  void setArity(int numChildren) {
     CMPASSERT((0 == numChildren || 1 == numChildren))
     RelRoutine::setArity(numChildren);
   }
@@ -1974,7 +1974,7 @@ class SPDupVarList : public NABasicObject {
   // constructors
 
   //! SPDupVarList Constructor
-  SPDupVarList(const NAString &name, ComColumnDirection direction, Int32 varIndex)
+  SPDupVarList(const NAString &name, ComColumnDirection direction, int varIndex)
       : name_(name), direction_(direction), varIndex_(varIndex) {}
 
 #if 0
@@ -2000,7 +2000,7 @@ class SPDupVarList : public NABasicObject {
   ComColumnDirection direction_;
 
   //! varIndex_ member
-  Int32 varIndex_;
+  int varIndex_;
 };
 
 // -----------------------------------------------------------------------
@@ -2023,7 +2023,7 @@ class QueryInvalidationFunc : public BuiltinTableValuedFunction {
   static const char *getVirtualTableNameStr() { return "QUERYINVALIDATION__"; }
 
   //  get the degree of this node (it is a leaf op).
-  virtual Int32 getArity() const { return 0; };
+  virtual int getArity() const { return 0; };
 
   virtual NABoolean isLogical() const { return TRUE; };
 

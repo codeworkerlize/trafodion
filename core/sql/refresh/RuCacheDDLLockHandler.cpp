@@ -136,7 +136,7 @@ void CRUCacheDDLLockHandler::HandleDDLLocks(BOOL isCancelOnly) {
 
   SortObjectsByUid();
 
-  for (Int32 i = 0; i < objMap_.GetCount(); i++) {
+  for (int i = 0; i < objMap_.GetCount(); i++) {
     CRUObject *pObj = pObjSortedArray_[i]->pObj_;
 
     // Perform the CatApi request(s) ...
@@ -178,7 +178,7 @@ void CRUCacheDDLLockHandler::SortObjectsByUid() {
 
   objMap_.GetStartPosition(pos);
 
-  for (Int32 i = 0; TRUE == pos.IsValid(); i++) {
+  for (int i = 0; TRUE == pos.IsValid(); i++) {
     objMap_.GetNextAssoc(pos, uid, pLink);
 
     pObjSortedArray_[i] = pLink;
@@ -194,7 +194,7 @@ void CRUCacheDDLLockHandler::SortObjectsByUid() {
 //	The function serves for the quicksort criteria.
 //--------------------------------------------------------------------------//
 
-Int32 CRUCacheDDLLockHandler::CompareElem(const void *pEl1, const void *pEl2) {
+int CRUCacheDDLLockHandler::CompareElem(const void *pEl1, const void *pEl2) {
   CRUCacheDDLLockHandler::ObjectLink *pLink1 = *((CRUCacheDDLLockHandler::PObjectLink *)pEl1);
 
   CRUCacheDDLLockHandler::ObjectLink *pLink2 = *((CRUCacheDDLLockHandler::PObjectLink *)pEl2);

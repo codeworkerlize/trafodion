@@ -52,7 +52,7 @@ class SQLLM_LIB_FUNC LmRoutineCSqlRow : public LmRoutineC {
  protected:
   LmRoutineCSqlRow(const char *sqlName, const char *externalName, const char *librarySqlName, ComUInt32 numSqlParam,
                    char *routineSig, ComUInt32 maxResultSets, ComRoutineTransactionAttributes transactionAttrs,
-                   ComRoutineSQLAccess sqlAccessMode, ComRoutineExternalSecurity externalSecurity, Int32 routineOwnerId,
+                   ComRoutineSQLAccess sqlAccessMode, ComRoutineExternalSecurity externalSecurity, int routineOwnerId,
                    const char *parentQid, ComUInt32 inputRowLen, ComUInt32 outputRowLen, const char *currentUserName,
                    const char *sessionUserName, LmParameter *parameters, LmLanguageManagerC *lm, LmHandle routine,
                    LmContainer *container, ComDiagsArea *diagsArea);

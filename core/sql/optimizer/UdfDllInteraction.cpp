@@ -126,7 +126,7 @@ NABoolean TMUDFDllInteraction::describeParamsAndMaxOutputs(TableMappingUDF *tmud
       libOrJarName = routine->getExternalPath();
     else
       libOrJarName = routine->getContainerName();
-    Int32 err = 0;
+    int err = 0;
     if (err = ComGenerateUdrCachedLibName(libOrJarName.data(), routine->getLibRedefTime(), routine->getLibSchName(),
                                           dummyUser, cachedLibName, cachedLibPath)) {
       if (err != EEXIST) {
@@ -165,7 +165,7 @@ NABoolean TMUDFDllInteraction::describeParamsAndMaxOutputs(TableMappingUDF *tmud
     container = routine->getContainerName();
   }
 
-  Int32 cliRC = cliInterface_.getRoutine(serializedUDRInvocationInfo, iiLen,
+  int cliRC = cliInterface_.getRoutine(serializedUDRInvocationInfo, iiLen,
                                          NULL,  // no plan info at this stage
                                          0, routine->getLanguage(), routine->getParamStyle(), routine->getMethodName(),
                                          // for C/C++ the container that gets loaded is the library file
@@ -576,7 +576,7 @@ NABoolean TMUDFDllInteraction::invokeRoutine(tmudr::UDRInvocationInfo::CallPhase
                                              tmudr::UDRPlanInfo *planInfo, ComDiagsArea *diags) {
   tmudr::UDRInvocationInfo *invocationInfo = tmudfNode->getInvocationInfo();
   CliRoutineHandle routineHandle = tmudfNode->getRoutineHandle();
-  Int32 cliRC;
+  int cliRC;
 
   if (diags == NULL) diags = CmpCommon::diags();
 
@@ -585,7 +585,7 @@ NABoolean TMUDFDllInteraction::invokeRoutine(tmudr::UDRInvocationInfo::CallPhase
   char *serializedUDRInvocationInfo = iiBuf;
   int iiLen = 0;
   int iiAllocatedLen = sizeof(iiBuf);
-  Int32 iiReturnedLen = -1;
+  int iiReturnedLen = -1;
   int iiCheckLen = -1;
 
   // set up variables to serialize/deserialize UDRPlanInfo
@@ -593,7 +593,7 @@ NABoolean TMUDFDllInteraction::invokeRoutine(tmudr::UDRInvocationInfo::CallPhase
   char *serializedUDRPlanInfo = piBuf;
   int piLen = 0;
   int piAllocatedLen = sizeof(piBuf);
-  Int32 piReturnedLen = -1;
+  int piReturnedLen = -1;
   int piCheckLen = -1;
   int planNum = -1;
 
@@ -638,7 +638,7 @@ NABoolean TMUDFDllInteraction::invokeRoutine(tmudr::UDRInvocationInfo::CallPhase
     return FALSE;
   }
 
-  cliRC = cliInterface_.invokeRoutine(routineHandle, static_cast<Int32>(cp), serializedUDRInvocationInfo, iiLen,
+  cliRC = cliInterface_.invokeRoutine(routineHandle, static_cast<int>(cp), serializedUDRInvocationInfo, iiLen,
                                       &iiReturnedLen, serializedUDRPlanInfo, piLen, planNum, &piReturnedLen,
                                       tmudfNode->getConstParamBuffer(), tmudfNode->getConstParamBufferLen(),
                                       NULL,  // no output row
@@ -758,7 +758,7 @@ tmudr::UDRInvocationInfo *TMUDFInternalSetup::createInvocationInfoFromRelExpr(Ta
   else {
     // session user is different, look it up
     char sessionUsername[MAX_USERNAME_LEN + 1];
-    Int32 sessionUserLen;
+    int sessionUserLen;
 
     if (ComUser::getUserNameFromUserID(ComUser::getSessionUser(), sessionUsername, sizeof(sessionUsername),
                                        sessionUserLen, NULL /*don't update diags*/) == 0)

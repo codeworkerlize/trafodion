@@ -68,26 +68,26 @@ class ComTdbOnlj : public ComTdb {
   ExExprPtr postJoinPred_;          // 32-39
   ExExprPtr ljExpr_;                // 40-47
   ExExprPtr niExpr_;                // 48-55
-  Int32 ljRecLen_;                  // 56-59
+  int ljRecLen_;                  // 56-59
   UInt16 instantiatedRowAtpIndex_;  // 60-61
   UInt16 flags_;                    // 62-63
-  Int32 rowsetRowCountArraySize_;   // 64-67
+  int rowsetRowCountArraySize_;   // 64-67
   char fillersComTdbOnlj_[36];      // 68-103
 
-  inline Int32 isSemiJoin() const;        // True if we are doing a semi-join
-  inline Int32 isAntiJoin() const;        // True if we are doing a anti-join
-  inline Int32 isLeftJoin() const;        // True if we are doing a left-join
-  inline Int32 isUndoJoin() const;        // True if we are using this to drive an undo
+  inline int isSemiJoin() const;        // True if we are doing a semi-join
+  inline int isAntiJoin() const;        // True if we are doing a anti-join
+  inline int isLeftJoin() const;        // True if we are doing a left-join
+  inline int isUndoJoin() const;        // True if we are using this to drive an undo
                                           // tree
-  inline Int32 isSetNFErrorJoin() const;  // True if we are using this to set the NF row indexes
+  inline int isSetNFErrorJoin() const;  // True if we are using this to set the NF row indexes
                                           // tree
-  inline Int32 isRowsetIterator() const;  // True if we are using this onlj to flow entries in a rowset
-  inline Int32 isIndexJoin() const;       // True if this onlj is an index join
+  inline int isRowsetIterator() const;  // True if we are using this onlj to flow entries in a rowset
+  inline int isIndexJoin() const;       // True if this onlj is an index join
   inline NABoolean vsbbInsertOn() const;
   inline NABoolean isDrivingMVLogging() const;  // True if this onlj is used to drive mv logging
   // returns positive value only if this onlj is being used for rowset update and deletes
   // and rowset_row_count feature is enabled.
-  inline Int32 getRowsetRowCountArraySize() const;
+  inline int getRowsetRowCountArraySize() const;
 
  public:
   // Constructor
@@ -96,14 +96,14 @@ class ComTdbOnlj : public ComTdb {
   ComTdbOnlj(ComTdb *left_tdb, ComTdb *right_tdb, ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc,
              queue_index down, queue_index up, Cardinality estimatedRowCount, int num_buffers, ULng32 buffer_size,
              ex_expr *before_pred, ex_expr *after_pred, ex_expr *lj_expr, ex_expr *ni_expr, ex_cri_desc *work_cri_desc,
-             const unsigned short instantiated_row_atp_index, int reclen, Int32 semi_join, Int32 anti_semi_join,
-             Int32 left_join, Int32 undo_join, Int32 setNFError, Int32 rowset_iterator, Int32 index_join,
-             NABoolean vsbbInsert, Int32 rowsetRowCountArraySize, NABoolean tolerateNonFatalError,
+             const unsigned short instantiated_row_atp_index, int reclen, int semi_join, int anti_semi_join,
+             int left_join, int undo_join, int setNFError, int rowset_iterator, int index_join,
+             NABoolean vsbbInsert, int rowsetRowCountArraySize, NABoolean tolerateNonFatalError,
              NABoolean drivingMVLogging);
 
   virtual ~ComTdbOnlj();
 
-  Int32 orderedQueueProtocol() const;
+  int orderedQueueProtocol() const;
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -127,12 +127,12 @@ class ComTdbOnlj : public ComTdb {
   inline void setLeftTdb(ComTdb *);
   inline void setRightTdb(ComTdb *);
 
-  virtual const ComTdb *getChild(Int32 pos) const;
-  virtual Int32 numChildren() const { return 2; }
+  virtual const ComTdb *getChild(int pos) const;
+  virtual int numChildren() const { return 2; }
   virtual const char *getNodeName() const;
-  virtual Int32 numExpressions() const { return 4; }
-  virtual ex_expr *getExpressionNode(Int32 pos);
-  virtual const char *getExpressionName(Int32 pos) const;
+  virtual int numExpressions() const { return 4; }
+  virtual ex_expr *getExpressionNode(int pos);
+  virtual const char *getExpressionName(int pos) const;
 
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
@@ -145,29 +145,29 @@ inline ComTdb *ComTdbOnlj::getRightTdb() { return tdbRight_; };
 inline void ComTdbOnlj::setLeftTdb(ComTdb *left) { tdbLeft_ = left; };
 inline void ComTdbOnlj::setRightTdb(ComTdb *right) { tdbRight_ = right; };
 
-inline Int32 ComTdbOnlj::orderedQueueProtocol() const {
+inline int ComTdbOnlj::orderedQueueProtocol() const {
   return -1;  // return true
 };
 
 // tdb inline procedures
 // to determine if it is a semi_join or a left join check the flags_
 
-inline Int32 ComTdbOnlj::isSemiJoin() const { return (flags_ & SEMI_JOIN); };
+inline int ComTdbOnlj::isSemiJoin() const { return (flags_ & SEMI_JOIN); };
 
-inline Int32 ComTdbOnlj::isAntiJoin() const { return (flags_ & ANTI_JOIN); };
+inline int ComTdbOnlj::isAntiJoin() const { return (flags_ & ANTI_JOIN); };
 
-inline Int32 ComTdbOnlj::isLeftJoin() const { return (flags_ & LEFT_JOIN); };
+inline int ComTdbOnlj::isLeftJoin() const { return (flags_ & LEFT_JOIN); };
 
-inline Int32 ComTdbOnlj::isUndoJoin() const { return (flags_ & UNDO_JOIN); };
-inline Int32 ComTdbOnlj::isSetNFErrorJoin() const { return (flags_ & SET_NONFATAL_ERROR); };
-inline Int32 ComTdbOnlj::isRowsetIterator() const { return (flags_ & ROWSET_ITERATOR); };
+inline int ComTdbOnlj::isUndoJoin() const { return (flags_ & UNDO_JOIN); };
+inline int ComTdbOnlj::isSetNFErrorJoin() const { return (flags_ & SET_NONFATAL_ERROR); };
+inline int ComTdbOnlj::isRowsetIterator() const { return (flags_ & ROWSET_ITERATOR); };
 
-inline Int32 ComTdbOnlj::isIndexJoin() const { return (flags_ & INDEX_JOIN); };
+inline int ComTdbOnlj::isIndexJoin() const { return (flags_ & INDEX_JOIN); };
 
 inline NABoolean ComTdbOnlj::vsbbInsertOn() const { return (flags_ & VSBB_INSERT); }
 inline NABoolean ComTdbOnlj::isDrivingMVLogging() const { return (flags_ & DRIVING_MV_LOGGING); }
 
-inline Int32 ComTdbOnlj::getRowsetRowCountArraySize() const { return rowsetRowCountArraySize_; }
+inline int ComTdbOnlj::getRowsetRowCountArraySize() const { return rowsetRowCountArraySize_; }
 
 // end of inline procedures
 

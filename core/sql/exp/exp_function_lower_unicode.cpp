@@ -59,9 +59,9 @@ ex_expr::exp_return_type ex_function_lower_unicode::eval(char *op_data[], CollHe
 
   NAWchar *target = (NAWchar *)op_data[0];
   NAWchar *source = (NAWchar *)op_data[1];
-  Int32 wc_len = len1 / sizeof(NAWchar);
+  int wc_len = len1 / sizeof(NAWchar);
 
-  for (Int32 i = 0; i < wc_len; i++) {
+  for (int i = 0; i < wc_len; i++) {
     // op_data[0][i] =  TOLOWER(op_data[1][i]);
     // op_data[0][i] = '1';
 

@@ -109,7 +109,7 @@ class ProposedMV : public NAIntrusiveSharedPtrObject {
    * Set the name of the proposed MV, based on its number.
    * @param num The proposed MV number.
    */
-  void setName(Int32 num);
+  void setName(int num);
 
   /**
    * Get the name of the proposed MV.
@@ -146,7 +146,7 @@ class ProposedMV : public NAIntrusiveSharedPtrObject {
    */
   void reportResults(NAString &text, NABoolean addComments = TRUE);
 
-  Int32 getJoinSize();
+  int getJoinSize();
 
  protected:
   // Methods for analyzing common predicates.
@@ -242,15 +242,15 @@ class WorkloadAnalysis : public NAIntrusiveSharedPtrObject {
    * Generate the output text with the SQL text of the proposed MVs.
    * @param ofs The output stream
    */
-  void reportResults(ofstream &ofs, Int32 minQueriesPerMV);
+  void reportResults(ofstream &ofs, int minQueriesPerMV);
 
-  Int32 getMaxJoinSize();
+  int getMaxJoinSize();
 
  private:
   CollHeap *heap_;
   ProposedMVPtrList proposedMVsList_;
   QueryNameHash inventoryHash_;
-  Int32 nextMV_;
+  int nextMV_;
 };  // class WorkloadAnalysis
 
 #endif  // _WORKLOADANALYSIS_H_

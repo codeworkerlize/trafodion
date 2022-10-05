@@ -123,18 +123,18 @@ class SortUtilConfig : public NABasicObject {
 
   UInt32 getMinimalSortRecs(void) { return minimalSortRecs_; }
 
-  void setScratchMgmtOption(Int32 scratchMgmtOption) { scratchMgmtOption_ = scratchMgmtOption; }
-  void setScratchMaxOpens(Int32 scratchMaxOpens) { scratchMaxOpens_ = scratchMaxOpens; }
+  void setScratchMgmtOption(int scratchMgmtOption) { scratchMgmtOption_ = scratchMgmtOption; }
+  void setScratchMaxOpens(int scratchMaxOpens) { scratchMaxOpens_ = scratchMaxOpens; }
   void setPreallocateExtents(NABoolean v) { preAllocateExtents_ = v; }
-  void setSortMergeBlocksPerBuffer(Int32 smbb) { sortMergeBlocksPerBuffer_ = smbb; }
+  void setSortMergeBlocksPerBuffer(int smbb) { sortMergeBlocksPerBuffer_ = smbb; }
   void setScratchDiskLogging(NABoolean v) { scratchDiskLogging_ = v; }
   NABoolean scratchDiskLogging(void) { return scratchDiskLogging_; }
 
-  void setScratchIOBlockSize(Int32 blockSize) { scratchIOBlockSize_ = blockSize; }
-  Int32 getScratchIOBlockSize() { return scratchIOBlockSize_; }
+  void setScratchIOBlockSize(int blockSize) { scratchIOBlockSize_ = blockSize; }
+  int getScratchIOBlockSize() { return scratchIOBlockSize_; }
 
   void setScratchIOVectorSize(Int16 vectorSize) { scratchIOVectorSize_ = vectorSize; }
-  Int32 getScratchIOVectorSize() { return scratchIOVectorSize_; }
+  int getScratchIOVectorSize() { return scratchIOVectorSize_; }
 
   void setScratchOverflowMode(ScratchOverflowMode ovMode) { ovMode_ = ovMode; }
 
@@ -156,8 +156,8 @@ class SortUtilConfig : public NABasicObject {
   void setBmoCitizenshipFactor(Float32 bmoCf) { bmoCitizenshipFactor_ = bmoCf; }
   Float32 getBmoCitizenshipFactor(void) { return bmoCitizenshipFactor_; }
 
-  void setMemoryContingencyMB(Int32 mCMB) { pMemoryContingencyMB_ = mCMB; }
-  Int32 getMemoryContingencyMB(void) { return pMemoryContingencyMB_; }
+  void setMemoryContingencyMB(int mCMB) { pMemoryContingencyMB_ = mCMB; }
+  int getMemoryContingencyMB(void) { return pMemoryContingencyMB_; }
 
   void setSortMemEstInKBPerNode(Float32 s) { sortMemEstInKBPerNode_ = s; }
   Float32 getSortMemEstInKBPerNode() { return sortMemEstInKBPerNode_; }
@@ -248,21 +248,21 @@ class SortUtilConfig : public NABasicObject {
   // 0 non buffered writes
   // 5 Early reply + striping on primary and mirror
   // 9 Early reply.
-  Int32 scratchMgmtOption_;
+  int scratchMgmtOption_;
 
   // Number of scratch opens per scratch file.
-  Int32 scratchMaxOpens_;
+  int scratchMaxOpens_;
 
   NABoolean preAllocateExtents_;
 
   // Units of 56kb blocks that logically considered as Io block.
   // This is used for merge reads to reduce disk seek time.
-  Int32 sortMergeBlocksPerBuffer_;
+  int sortMergeBlocksPerBuffer_;
 
   NABoolean scratchDiskLogging_;
 
-  Int32 scratchIOBlockSize_;
-  Int32 scratchIOVectorSize_;
+  int scratchIOBlockSize_;
+  int scratchIOVectorSize_;
 
   ScratchOverflowMode ovMode_;
 
@@ -271,7 +271,7 @@ class SortUtilConfig : public NABasicObject {
 
   Float32 bmoCitizenshipFactor_;
 
-  Int32 pMemoryContingencyMB_;
+  int pMemoryContingencyMB_;
 
   Float32 estimateErrorPenalty_;
 

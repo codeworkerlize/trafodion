@@ -69,7 +69,7 @@ class MavRelRootBuilder : public NABasicObject {
   ItemExpr *buildSelfCancelingDeltaPredicate();
 
   // Utility methods.
-  ItemExpr *buildDepColExpr(const CorrName &corrName, Int32 depIndex) const;
+  ItemExpr *buildDepColExpr(const CorrName &corrName, int depIndex) const;
   void addStarToSelectList(ItemExprList &selectList);
   void addColsToSelectList(LIST(MVColumnInfo *) listOfCols, ItemExprList &selectList, const CorrName &corrName,
                            const CorrName *renameTo = NULL);

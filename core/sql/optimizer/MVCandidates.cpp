@@ -52,10 +52,10 @@ MVCandidates::MVCandidates(RelRoot *root, QRQueryDescriptorPtr queryDesc, QRDesc
       forbiddenMVs_(NULL),
       bjScanHash_(bjScanHashFn, 17, TRUE, QueryAnalysis::Instance()->outHeap()) {}
 
-Int32 MVCandidates::nodeCount(ExprNode *node) {
+int MVCandidates::nodeCount(ExprNode *node) {
   // Recurse for each child, and add one for the current node.
-  Int32 nodes = 0;
-  for (Int32 i = 0; i < node->getArity(); i++) {
+  int nodes = 0;
+  for (int i = 0; i < node->getArity(); i++) {
     nodes += nodeCount(node->getChild(i));
   }
 
@@ -192,7 +192,7 @@ ItemExpr *MVCandidates::rewriteItemExpr(const ElementPtrList &mvColumns, ItemExp
   QRMVColumnPtr mvCol;
   QRColumnPtr col;
   QRElementPtr colRefedElem;
-  Int32 numChildren = itemExpr->getArity();
+  int numChildren = itemExpr->getArity();
   if (numChildren == 0) {
     // This happens when there is an equality predicate on a column that is
     // used in an equijoin, e.g., t1.a=t12.a and t1.a=6.
@@ -305,7 +305,7 @@ ItemExpr *MVCandidates::rewriteItemExpr(const ElementPtrList &mvColumns, ItemExp
     if (!replacement) {
       replacement = itemExpr->copyTopNode();
       ItemExpr *newChild;
-      for (Int32 i = 0; i < numChildren; i++) {
+      for (int i = 0; i < numChildren; i++) {
         newChild = rewriteItemExpr(mvColumns, itemExpr->child(i), candidate, heap, tblId);
         if (newChild) replacement->setChild(i, newChild);
       }
@@ -801,7 +801,7 @@ ValueId MVCandidates::getVegrefValueId(QRElementPtr referencingElem) {
 void MVCandidates::populateOneVidMap(RelExpr *root, ValueIdSet &vegRewriteVids, QRElementPtr elem,
                                      QRCandidatePtr candidate, ValueIdMap &vidMap, CollHeap *heap) {
   BaseColumn *baseCol;
-  Int32 colIndex;
+  int colIndex;
   TableDesc *tableDesc;
   ItemExpr *ie;
   ItemExpr *rewriteIE;
@@ -1213,7 +1213,7 @@ void MVCandidates::analyzeCandidate(QRCandidatePtr candidate, JBBSubset &jbbSubs
   if (bindWA_->errStatus()) {
     QRLogger::log(CAT_SQL_COMP_MVCAND, LL_DEBUG, "Skipping candidate MV %s since it does not exist",
                   candidate->getMVName()->getMVName().data());
-    for (Int32 i = 1; i <= CmpCommon::diags()->getNumber(); i++) {
+    for (int i = 1; i <= CmpCommon::diags()->getNumber(); i++) {
       const NAWchar *errorMsg = (*CmpCommon::diags())[i].getMessageText();
       NAString *errorStr = unicodeToChar(errorMsg, NAWstrlen(errorMsg), CharInfo::ISO88591, NULL, TRUE);
       QRLogger::log(CAT_SQL_COMP_MVCAND, LL_WARN, "  condition %d: %s", i, errorStr->data());
@@ -1287,7 +1287,7 @@ void MVCandidates::analyzeCandidate(QRCandidatePtr candidate, JBBSubset &jbbSubs
   if (bindWA_->errStatus()) {
     QRLogger::log(CAT_SQL_COMP_MVCAND, LL_MVQR_FAIL, "Skipping candidate MV %s -- failed to bind root",
                   candidate->getMVName()->getMVName().data());
-    for (Int32 i = 1; i <= CmpCommon::diags()->getNumber(); i++) {
+    for (int i = 1; i <= CmpCommon::diags()->getNumber(); i++) {
       const NAWchar *errorMsg = (*CmpCommon::diags())[i].getMessageText();
       NAString *errorStr = unicodeToChar(errorMsg, NAWstrlen(errorMsg), CharInfo::ISO88591, NULL, TRUE);
       QRLogger::log(CAT_SQL_COMP_MVCAND, LL_WARN, "  condition %d: %s", i, errorStr->data());
@@ -1416,7 +1416,7 @@ void MVCandidates::collectMVs(RelExpr *topNode, CollHeap *heap) {
     }
   } else  // No need to look below GU nodes for more GU nodes.
   {
-    for (Int32 i = 0; i < topNode->getArity(); i++) collectMVs(topNode->child(i), heap);
+    for (int i = 0; i < topNode->getArity(); i++) collectMVs(topNode->child(i), heap);
   }
 }
 

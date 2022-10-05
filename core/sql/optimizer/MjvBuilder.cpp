@@ -232,8 +232,8 @@ void MjvBuilder::addCorrNameToExpr(ItemExpr *expr, const CorrName &inputCorrName
     ((ColReference *)expr)->getCorrNameObj() = inputCorrName;
   }
 
-  Int32 arity = expr->getArity();
-  for (Int32 i = 0; i < arity; i++) {
+  int arity = expr->getArity();
+  for (int i = 0; i < arity; i++) {
     addCorrNameToExpr(expr->child(i), inputCorrName);  // apply change to childs
   }
 }
@@ -266,7 +266,7 @@ MjvBuilder::collectAllAffectedColumns(const IntegerList *updatedCols, const Qual
   const MVUsedObjectInfo *usedObjectInfo = getMvInfo()->findUsedInfoForTable(qualTableName);
 
   for (CollIndex i = 0; i < updatedCols->entries(); i++) {
-    Int32 updatedColumn = updatedCols->at(i);
+    int updatedColumn = updatedCols->at(i);
 
     // Finding the affected column(s) in the MJV.
     const MVColumnInfoList *affectedMvCols = mvCols.getAllMvColsAffectedBy(qualTableName, updatedColumn);
@@ -1220,9 +1220,9 @@ RelExpr *MjvOnRequestMultiDeltaBuilder::buildDeltaCalculationTree(const MultiDel
   const NAString leftName("@LEFT");
   const CorrName leftCorrName(leftName);
 
-  Int32 numOfRowsForThisPhase = productMatrix.getNumOfRowsForThisPhase();
-  Int32 firstRowForThisPhase = productMatrix.getFirstRowForThisPhase();
-  for (Int32 rowNumber = firstRowForThisPhase; rowNumber < firstRowForThisPhase + numOfRowsForThisPhase; rowNumber++) {
+  int numOfRowsForThisPhase = productMatrix.getNumOfRowsForThisPhase();
+  int firstRowForThisPhase = productMatrix.getFirstRowForThisPhase();
+  for (int rowNumber = firstRowForThisPhase; rowNumber < firstRowForThisPhase + numOfRowsForThisPhase; rowNumber++) {
     // 2.1, Prepare the join product according to the matrix row.
     NABoolean isLastRow = rowNumber == firstRowForThisPhase + numOfRowsForThisPhase - 1;
 

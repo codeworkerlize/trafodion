@@ -71,7 +71,7 @@ class ElemDDLSGOptions : public ElemDDLNode {
 
   ElemDDLSGOptions(OperatorTypeEnum operType);
 
-  ElemDDLSGOptions(Int32 operType, ElemDDLNode *pSGOptList);
+  ElemDDLSGOptions(int operType, ElemDDLNode *pSGOptList);
 
   // virtual destructor
   virtual ~ElemDDLSGOptions();
@@ -87,7 +87,7 @@ class ElemDDLSGOptions : public ElemDDLNode {
 
   // Accessors
 
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
   virtual ExprNode *getChild(int index);
 
   inline long getStartValue() const { return startValue_; }
@@ -146,7 +146,7 @@ class ElemDDLSGOptions : public ElemDDLNode {
 
   inline void setSGType(SG_TYPE sgType) { sgType_ = sgType; }
   inline void setCDType(CD_TYPE cdType) { cdType_ = cdType; }
-  void setCDType(Int32 cdType);
+  void setCDType(int cdType);
   inline void setNextVal(long val) { nextVal_ = val; }
 
   inline void setStartValueSpec(NABoolean startValue) { isStartValueSpec_ = startValue; }

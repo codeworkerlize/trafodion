@@ -98,14 +98,14 @@ void CmpEHCallBack::dumpDiags() {
 // Control is not returned to the compiler process.
 //*********************************************************************
 
-static Int32 sigTypes[] = {SIGABRT, SIGFPE, SIGILL, SIGINT, SIGSEGV, SIGTERM};
+static int sigTypes[] = {SIGABRT, SIGFPE, SIGILL, SIGINT, SIGSEGV, SIGTERM};
 
 static const char *sigNames[] = {"SIGABRT", "SIGFPE", "SIGILL", "SIGINT", "SIGSEGV", "SIGTERM"};
 
 void printSignalHandlers() {
-  void (*oldHdlr)(Int32);
-  void (*newHdlr)(Int32);
-  for (Int32 i = 0; i < sizeof(sigTypes) / sizeof(Int32); i++) {
+  void (*oldHdlr)(int);
+  void (*newHdlr)(int);
+  for (int i = 0; i < sizeof(sigTypes) / sizeof(int); i++) {
     newHdlr = SIG_DFL;
     oldHdlr = signal(sigTypes[i], newHdlr);
     if (oldHdlr == SIG_ERR) {

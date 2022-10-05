@@ -62,7 +62,7 @@ ElemDDLSGOptions::ElemDDLSGOptions() : ElemDDLNode(ELM_SG_OPTS_DEFAULT_ELEM), sg
   initializeDataMembers();
 }
 
-ElemDDLSGOptions::ElemDDLSGOptions(Int32 sgType, ElemDDLNode *pSGOptList) : ElemDDLNode(ELM_SG_OPTS_DEFAULT_ELEM) {
+ElemDDLSGOptions::ElemDDLSGOptions(int sgType, ElemDDLNode *pSGOptList) : ElemDDLNode(ELM_SG_OPTS_DEFAULT_ELEM) {
   setChild(INDEX_SG_OPT_LIST, pSGOptList);
 
   if (sgType == 1)
@@ -82,7 +82,7 @@ ElemDDLSGOptions::ElemDDLSGOptions(Int32 sgType, ElemDDLNode *pSGOptList) : Elem
 // Virtual destructor
 ElemDDLSGOptions::~ElemDDLSGOptions() {
   // delete all children
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     delete getChild(i);
   }
 }
@@ -95,7 +95,7 @@ ElemDDLSGOptions *ElemDDLSGOptions::castToElemDDLSGOptions() { return this; }
 //
 
 // get the degree of this node
-Int32 ElemDDLSGOptions::getArity() const { return MAX_ELEM_DDL_SG_OPTS_ARITY; }
+int ElemDDLSGOptions::getArity() const { return MAX_ELEM_DDL_SG_OPTS_ARITY; }
 
 ExprNode *ElemDDLSGOptions::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
@@ -335,7 +335,7 @@ void ElemDDLSGOptions::setSGOpt(ElemDDLNode *pSGOpt) {
   }
 }  // ElemDDLSGOptions::setSGOpt()
 
-void ElemDDLSGOptions::setCDType(Int32 cdType) {
+void ElemDDLSGOptions::setCDType(int cdType) {
   if (cdType == 1)
     cdType_ = CD_GENERATED_BY_DEFAULT;
   else if (cdType == 2)

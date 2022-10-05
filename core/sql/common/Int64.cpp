@@ -41,12 +41,12 @@
 
 long uint32ToInt64(UInt32 value) { return (long)value; }
 
-Int32 int64ToInt32(long value) {
+int int64ToInt32(long value) {
   UInt32 val32u;
-  Int32 val32;
+  int val32;
 
   val32u = (UInt32)value;
-  val32 = (Int32)val32u;
+  val32 = (int)val32u;
 
   return val32;
 }
@@ -66,14 +66,14 @@ long uint32ArrayToInt64(const UInt32 array[2]) {
   return result;
 }
 
-Int32 aToInt32(const char *src) {
+int aToInt32(const char *src) {
   NABoolean isNeg = FALSE;
   if (*src == '-') {
     isNeg = TRUE;
     src++;
   }
 
-  Int32 tgt = 0;
+  int tgt = 0;
   while ((*src >= '0') && (*src <= '9')) {
     tgt = tgt * 10 + (*src - '0');
     src++;

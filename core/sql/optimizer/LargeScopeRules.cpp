@@ -94,7 +94,7 @@ RelExpr *MJExpandRule::nextSubstitute(RelExpr *before, Context *, RuleSubstitute
   return result;
 }
 
-Int32 MJExpandRule::promiseForOptimization(RelExpr *expr, Guidance *, Context *) {
+int MJExpandRule::promiseForOptimization(RelExpr *expr, Guidance *, Context *) {
   // should be higher than the promise for MJEnumRule
   return DefaultTransRulePromise + 1;
 }
@@ -289,7 +289,7 @@ NABoolean MJEnumRule::topMatch(RelExpr *expr, Context *context) {
   // give MJPrimeTableRule plans better chance to finish. We will take a complexity
   // of a n-way join here where n is set by CURRSTMT_OPTDEFAULTS->getMJEnumLimit()
   // We only do this for optimization level Medium.
-  Int32 base = CURRSTMT_OPTDEFAULTS->getMJEnumLimit();
+  int base = CURRSTMT_OPTDEFAULTS->getMJEnumLimit();
   if ((CURRSTMT_OPTDEFAULTS->optLevel() == OptDefaults::MEDIUM)
           AND(CURRSTMT_OPTDEFAULTS->getQueryComplexity() > base * pow(2, base - 1))
               AND(CmpCommon::getDefault(COMP_BOOL_2) == DF_OFF))  // make sure PTrule is ON
@@ -304,7 +304,7 @@ NABoolean MJEnumRule::topMatch(RelExpr *expr, Context *context) {
     return FALSE;
 
   // get the StarBDRuleConfidence
-  Int32 starBDConfidence = mjoin->getLSRConfidence()->getStarBDRuleConfidence();
+  int starBDConfidence = mjoin->getLSRConfidence()->getStarBDRuleConfidence();
 
   if ((starBDConfidence != -1) && (starBDConfidence > ((ActiveSchemaDB()->getDefaults()).getAsLong(COMP_INT_15))) &&
       (mjoin->getJBBSubset().getJBBCs().entries() > 4))
@@ -329,7 +329,7 @@ RelExpr *MJEnumRule::nextSubstitute(RelExpr *before, Context *, RuleSubstituteMe
 
     int mySubgraphs = mjoin->getJBBSubset().numConnectedSubgraphs();
 
-    Int32 numSubstitutes = 0;  // number of substitutes enumerated
+    int numSubstitutes = 0;  // number of substitutes enumerated
 
     // cardinality of the joins produced by this rule
     CostScalar joinCardinality = before->getGroupAttr()->getResultCardinalityForEmptyInput();
@@ -541,7 +541,7 @@ RelExpr *MJEnumRule::nextSubstitute(RelExpr *before, Context *, RuleSubstituteMe
     CostScalar DATA_FLOW_FACTOR_1((ActiveSchemaDB()->getDefaults()).getAsDouble(COMP_FLOAT_7));
     const CostScalar DATA_FLOW_FACTOR_2(1000);
 
-    Int32 numPrunedSubstitutes = 0;
+    int numPrunedSubstitutes = 0;
 
     // Variables used to enumerate only one substitute for multipliers.
     // Only one substitute with an multiplier is enumerated. The substitute
@@ -712,11 +712,11 @@ RelExpr *MJEnumRule::nextSubstitute(RelExpr *before, Context *, RuleSubstituteMe
 
     for (childIter = 0; childIter < numSubstitutes; childIter++) {
       RelExpr *largestChild = NULL;
-      Int32 largestChildLoc = -1;
+      int largestChildLoc = -1;
       CostScalar largestChildMetric = -1;
       CANodeId largestChildId = NULL_CA_ID;
 
-      for (Int32 childIter2 = 0; childIter2 < numSubstitutes; childIter2++) {
+      for (int childIter2 = 0; childIter2 < numSubstitutes; childIter2++) {
         RelExpr *substitute = potentialSubstitutes[childIter2];
         CANodeId childId = substituteRightChild[childIter2];
         if (!substitute) {
@@ -757,25 +757,25 @@ RelExpr *MJEnumRule::nextSubstitute(RelExpr *before, Context *, RuleSubstituteMe
     numSubstitutes -= numPrunedSubstitutes;
 
     // Now we insert the winning potential Substitutes
-    Int32 numGeneratedSubstitutes = 0;
+    int numGeneratedSubstitutes = 0;
 
-    Int32 maxSubstitutes = numSubstitutes;
+    int maxSubstitutes = numSubstitutes;
 
     maxSubstitutes = (ActiveSchemaDB()->getDefaults()).getAsLong(COMP_INT_51);
 
     if ((maxSubstitutes <= 0) || (maxSubstitutes > numSubstitutes) || (numChildren == 2))
       maxSubstitutes = numSubstitutes;
 
-    Int32 potential = maxSubstitutes - 1;
+    int potential = maxSubstitutes - 1;
 
     // If this is the top multijoin
     if (before->getGroupAttr()->getPotential() < 0) {
       before->getGroupAttr()->updatePotential(0);
     }
 
-    Int32 groupPotential = before->getGroupAttr()->getPotential();
+    int groupPotential = before->getGroupAttr()->getPotential();
 
-    Int32 combinedPotentialThreshold = CURRSTMT_OPTDEFAULTS->getEnumPotentialThreshold();
+    int combinedPotentialThreshold = CURRSTMT_OPTDEFAULTS->getEnumPotentialThreshold();
 
     for (childIter = (numSubstitutes - maxSubstitutes); childIter < numSubstitutes; childIter++) {
       RelExpr *substitute = resultPotentialSubstitutes[childIter];
@@ -787,7 +787,7 @@ RelExpr *MJEnumRule::nextSubstitute(RelExpr *before, Context *, RuleSubstituteMe
                                        << minSubstituteMetric.value() << endl;
       }
 #endif
-      Int32 combinedPotential = groupPotential + potential;
+      int combinedPotential = groupPotential + potential;
 
       substitute->updatePotential(potential);
       if (substitute->child(0)->getOperatorType() == REL_MULTI_JOIN) {
@@ -1436,7 +1436,7 @@ NABoolean MJStarJoinIRule::isAStarPattern(MultiJoin *mjoin, CANodeId factTable,
 
   ValueIdSet factTablePartKey;
 
-  Int32 factTableNumPartitions = 1;
+  int factTableNumPartitions = 1;
 
   NABoolean factIsHashPartitioned = FALSE;
 
@@ -1955,7 +1955,7 @@ NABoolean MJStarJoinIRule::isAStarPattern(MultiJoin *mjoin, CANodeId factTable,
         // set the optimal location of the fact table in the
         // list of edges, this will be used by the nextSubstitute()
         // method
-        mjStarJoinIRuleWA->optimalFTLocation_ = (Int32)i + 1;
+        mjStarJoinIRuleWA->optimalFTLocation_ = (int)i + 1;
       }
     }
 #if 0
@@ -1976,7 +1976,7 @@ NABoolean MJStarJoinIRule::isAStarPattern(MultiJoin *mjoin, CANodeId factTable,
         // set the optimal location of the fact table in the
         // list of edges, this will be used by the nextSubstitute()
         // method
-        mjStarJoinIRuleWA->optimalFTLocation_ = (Int32) i+1;
+        mjStarJoinIRuleWA->optimalFTLocation_ = (int) i+1;
       }
     }
 #endif
@@ -2040,7 +2040,7 @@ NABoolean MJStarJoinIRule::isAStarPattern(MultiJoin *mjoin, CANodeId factTable,
     // this will be used during nextSubstitute for this rule.
     mjStarJoinIRuleWA->nodesJoinedBeforeFactTable_ = optimalEdgeSet;
 
-    mjStarJoinIRuleWA->optimalFTLocation_ = (Int32)(*listOfEdges).entries();
+    mjStarJoinIRuleWA->optimalFTLocation_ = (int)(*listOfEdges).entries();
   }
 
   // from the set of tables in all the edges that join to the key prefix
@@ -2102,7 +2102,7 @@ void MJStarJoinIRule::sortMJJBBCsByCardAfterLocalKeyPrefixPred(NAList<CANodeId> 
 
   // The following loop performs the sorting of the JBBCs in
   // this multi-join and places the sorted list in sortedJBBCs
-  for (Int32 i = 0; i < mjoin->getArity(); i++) {
+  for (int i = 0; i < mjoin->getArity(); i++) {
     // To start with, pick an arbitrary child as largest
     CANodeId largestChild = childSet.init();
     // cast to void to prevent Coverity CHECKED_RETURN error
@@ -2312,7 +2312,7 @@ void MJStarJoinIRule::sortMJJBBCs(NAList<CANodeId> &sortedJBBCs, const MultiJoin
 
   // The following loop performs the sorting of the JBBCs in
   // this multi-join and places the sorted list in sortedJBBCs
-  for (Int32 i = 0; i < mjoin->getArity(); i++) {
+  for (int i = 0; i < mjoin->getArity(); i++) {
     // To start with, pick an arbitrary child as largest
     CANodeId largestChild = childSet.init();
     // cast to void to prevent Coverity CHECKED_RETURN error

@@ -204,7 +204,7 @@ struct SP_ERROR_STRUCT {
   char *optionalString[SP_ERROR_MAX_OPTIONAL_STRINGS];
   /* $string0, $string1, .. $string4 to be formatted
      into the error message text. */
-  Int32 optionalInteger[SP_ERROR_MAX_OPTIONAL_INTS];
+  int optionalInteger[SP_ERROR_MAX_OPTIONAL_INTS];
 };
 
 /* The interface routines between arkcmp and the user defined internal
@@ -299,7 +299,7 @@ typedef SP_STATUS (*SP_PROCESS_FUNCPTR)(SP_PROCESS_ACTION action,               
 /* The callback routine that will be used for SQLISP_INIT routine to
    register the built-in stored procedure implementation. */
 /* return 1 as SUCCESS, 0 as FAIL */
-typedef Int32 (*SP_REGISTER_FUNCPTR)(const char *procName, /* null terminated */
+typedef int (*SP_REGISTER_FUNCPTR)(const char *procName, /* null terminated */
                                      SP_COMPILE_FUNCPTR compileFunc, SP_INPUTFORMAT_FUNCPTR inFormatFunc,
                                      SP_PARSE_FUNCPTR parseFunc, SP_NUM_OUTPUTFIELDS_FUNCPTR outNumFormatFunc,
                                      SP_OUTPUTFORMAT_FUNCPTR outFormatFunc, SP_PROCESS_FUNCPTR procFunc,
@@ -310,8 +310,8 @@ typedef Int32 (*SP_REGISTER_FUNCPTR)(const char *procName, /* null terminated */
 /* The only entry points from arkcmp(the server) to ISP implementation */
 
 /* return 1 as SUCCESS, 0 as FAIL */
-Int32 SQLISP_INIT(SP_REGISTER_FUNCPTR, SP_DLL_HANDLE *h = 0);
-Int32 SQLISP_EXIT(SP_DLL_HANDLE = 0);
+int SQLISP_INIT(SP_REGISTER_FUNCPTR, SP_DLL_HANDLE *h = 0);
+int SQLISP_EXIT(SP_DLL_HANDLE = 0);
 
 #ifdef __cplusplus
 }

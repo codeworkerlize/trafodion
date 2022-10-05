@@ -53,7 +53,7 @@ class CompositeAttributes : public Attributes {
     memset(fillers_, 0, sizeof(fillers_));
   }
 
-  CompositeAttributes(Int16 datatype, Int32 length, ExpTupleDesc::TupleDataFormat tdf, Int32 alignment, Int16 nullFlag,
+  CompositeAttributes(Int16 datatype, int length, ExpTupleDesc::TupleDataFormat tdf, int alignment, Int16 nullFlag,
                       Int16 nullIndicatorLen, Int16 vcIndicatorLen, DefaultClass defClass)
       : elements_(NULL) {
     setClassID(CompositeAttributesID);
@@ -77,13 +77,13 @@ class CompositeAttributes : public Attributes {
 
   ~CompositeAttributes() {}
 
-  void setLength(Int32 length) { length_ = length; }
-  Int32 getLength() { return length_; }
+  void setLength(int length) { length_ = length; }
+  int getLength() { return length_; }
 
   void copyAttrs(Attributes *source_) { *this = *(CompositeAttributes *)source_; }
 
-  Int32 getStorageLength() {
-    Int32 ret_length = length_;
+  int getStorageLength() {
+    int ret_length = length_;
 
     if (getNullFlag()) ret_length += getNullIndicatorLength();
 
@@ -92,8 +92,8 @@ class CompositeAttributes : public Attributes {
     return ret_length;
   }
 
-  virtual Int32 getDefaultValueStorageLength() {
-    Int32 retLen = length_;
+  virtual int getDefaultValueStorageLength() {
+    int retLen = length_;
 
     if (getNullFlag()) retLen += ExpTupleDesc::NULL_INDICATOR_LENGTH;
 
@@ -109,15 +109,15 @@ class CompositeAttributes : public Attributes {
   }
 
   virtual Long pack(void *);
-  virtual Int32 unpack(void *, void *reallocator);
+  virtual int unpack(void *, void *reallocator);
 
   void setElements(AttributesPtrPtr attrs) { elements_ = attrs; }
   AttributesPtrPtr getElements() { return elements_; }
   void setNumElements(UInt32 v) { numElements_ = v; }
   UInt32 getNumElements() { return numElements_; }
 
-  Int32 getCompFormat() { return compFormat_; }
-  void setCompFormat(Int32 v) { compFormat_ = v; }
+  int getCompFormat() { return compFormat_; }
+  void setCompFormat(int v) { compFormat_ = v; }
 
   // ---------------------------------------------------------------------
   // Redefinition of methods inherited from NAVersionedObject.
@@ -133,12 +133,12 @@ class CompositeAttributes : public Attributes {
   // ---------------------------------------------------------------------
 
  private:
-  Int32 length_;  // 00-03
+  int length_;  // 00-03
 
   UInt32 numElements_;         // 04-07
   AttributesPtrPtr elements_;  // 08-15
 
-  Int32 compFormat_;  // 16-19
+  int compFormat_;  // 16-19
 
   // ---------------------------------------------------------------------
   // Fillers for potential future extensions without changing class size.
@@ -163,11 +163,11 @@ class ExpCompositeBase : public ex_function_clause {
   virtual Long pack(void *);
   virtual int unpack(void *base, void *reallocator);
 
-  virtual Int32 isNullRelevant() const { return 1; };
+  virtual int isNullRelevant() const { return 1; };
 
   virtual ex_expr::exp_return_type pCodeGenerate(Space *space, UInt32 flags);
 
-  virtual void displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum, char *constsArea,
+  virtual void displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea,
                                ULng32 flag);
 
   ULng32 numElements() { return numElements_; }
@@ -206,7 +206,7 @@ class ExpCompositeArrayLength : public ExpCompositeBase {
 
   virtual ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea ** = 0);
 
-  virtual void displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum, char *constsArea,
+  virtual void displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea,
                                ULng32 flag);
 
   virtual short getClassSize() { return (short)sizeof(*this); }
@@ -228,7 +228,7 @@ class ExpCompositeArrayCast : public ExpCompositeBase {
   virtual Long pack(void *);
   virtual int unpack(void *base, void *reallocator);
 
-  virtual void displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum, char *constsArea);
+  virtual void displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea);
 
   virtual short getClassSize() { return (short)sizeof(*this); }
 
@@ -255,7 +255,7 @@ class ExpCompositeHiveCast : public ExpCompositeBase {
   virtual Long pack(void *);
   virtual int unpack(void *base, void *reallocator);
 
-  virtual void displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum, char *constsArea);
+  virtual void displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea);
 
   virtual short getClassSize() { return (short)sizeof(*this); }
 
@@ -285,7 +285,7 @@ class ExpCompositeConcat : public ExpCompositeBase {
   virtual Long pack(void *);
   virtual int unpack(void *base, void *reallocator);
 
-  virtual void displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum, char *constsArea,
+  virtual void displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea,
                                ULng32 flag);
 
   virtual short getClassSize() { return (short)sizeof(*this); }
@@ -312,9 +312,9 @@ class ExpCompositeCreate : public ExpCompositeBase {
                                         CollHeap *, ComDiagsArea ** = 0);
 
   // This clause handles all NULL processing in the eval() method.
-  virtual Int32 isNullRelevant() const { return 0; };
+  virtual int isNullRelevant() const { return 0; };
 
-  virtual void displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum, char *constsArea,
+  virtual void displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea,
                                ULng32 flag);
 
   virtual short getClassSize() { return (short)sizeof(*this); }
@@ -335,7 +335,7 @@ class ExpCompositeDisplay : public ExpCompositeBase {
 
   virtual ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea ** = 0);
 
-  virtual void displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum, char *constsArea);
+  virtual void displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea);
 
   virtual short getClassSize() { return (short)sizeof(*this); }
 
@@ -355,38 +355,38 @@ class ExpCompositeExtract : public ExpCompositeBase {
   virtual Long pack(void *);
   virtual int unpack(void *base, void *reallocator);
 
-  virtual Int32 isNullRelevant() const { return 0; };
+  virtual int isNullRelevant() const { return 0; };
 
   virtual ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea ** = 0);
 
-  virtual void displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum, char *constsArea);
+  virtual void displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea);
 
   virtual short getClassSize() { return (short)sizeof(*this); }
 
   static ex_expr::exp_return_type extractValue(Attributes *compAttrs, int elemNum, char *tgtPtr, char *srcPtr,
-                                               Int32 maxNumElems, NABoolean &isNullVal, ULng32 &attrLen,
-                                               Int32 &numElems, CollHeap *heap, ComDiagsArea **diagsArea);
+                                               int maxNumElems, NABoolean &isNullVal, ULng32 &attrLen,
+                                               int &numElems, CollHeap *heap, ComDiagsArea **diagsArea);
 
  private:
   ex_expr::exp_return_type searchAndExtractValue(Attributes *inAttrs, char *tgtPtr, char *srcPtr, NABoolean &isNullVal,
                                                  ULng32 &attrLen, CollHeap *heap, ComDiagsArea **diagsArea);
 
   int numSearchAttrs() { return numSearchAttrs_; }
-  Int32 getSearchAttrType(int i) {
+  int getSearchAttrType(int i) {
     char *searchType = searchAttrTypeList_;
-    Int32 *searchTypeInt32 = (Int32 *)searchType;
+    int *searchTypeInt32 = (int *)searchType;
     return searchTypeInt32[i];
   }
-  Int32 getSearchAttrIndex(int i) {
+  int getSearchAttrIndex(int i) {
     char *searchIndex = searchAttrIndexList_;
-    Int32 *searchIndexInt32 = (Int32 *)searchIndex;
+    int *searchIndexInt32 = (int *)searchIndex;
     return searchIndexInt32[i];
   }
 
   int elemNum_;
   UInt32 flags_;
 
-  Int32 numSearchAttrs_;
+  int numSearchAttrs_;
   char filler1_[4];
   NABasicPtr searchAttrTypeList_;
   NABasicPtr searchAttrIndexList_;

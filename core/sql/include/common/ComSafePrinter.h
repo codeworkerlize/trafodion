@@ -46,8 +46,8 @@ class ComSafePrinter {
  public:
   ComSafePrinter();
   ~ComSafePrinter();
-  Int32 snPrintf(char *, size_t, const char *, ...);
-  Int32 vsnPrintf(char *, size_t, const char *, va_list);
+  int snPrintf(char *, size_t, const char *, ...);
+  int vsnPrintf(char *, size_t, const char *, va_list);
 
  protected:
   // We maintain a global temporary FILE for the purpose of buffering

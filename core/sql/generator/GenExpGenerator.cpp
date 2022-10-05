@@ -155,8 +155,8 @@ ExpGenerator::ExpGenerator(Generator *generator_) {
       pCodeMode_ = ex_expr::PCODE_ON | ex_expr::PCODE_OPTIMIZE | ex_expr::PCODE_LLO;
       break;
   }
-  static Int32 pcodeEnvSet = 0;
-  static Int32 pcodeEnv = 1;  // if non-zero, pcode is enabled as before.
+  static int pcodeEnvSet = 0;
+  static int pcodeEnv = 1;  // if non-zero, pcode is enabled as before.
   if (pcodeEnvSet == 0) {
     char *pcodeEnvStr = getenv("64BIT_PCODE");
     if (pcodeEnvStr != NULL) pcodeEnv = atoi(pcodeEnvStr);
@@ -223,7 +223,7 @@ Attributes *ExpGenerator::convertNATypeToAttributes(const NAType &naType_x, Coll
   Attributes *result = NULL;
   const NAType *naType = &naType_x;
 
-  Int32 rsSize = 0;
+  int rsSize = 0;
   if (naType->getTypeQualifier() == NA_ROWSET_TYPE) {
     rsSize = ((SQLRowset *)naType)->getNumElements();
     naType = ((const SQLRowset *)naType)->getElementType();
@@ -565,7 +565,7 @@ short ExpGenerator::addDefaultValue(NAColumn *col, Attributes *attr, ComDiagsAre
 
   ValueIdList defaultValueIdList;
   defaultValueIdList.insert(defaultValueExpr->getValueId());
-  Int32 defaultValueLen = 0;
+  int defaultValueLen = 0;
 
   // adjust default length to actual length
   if ((dc == Attributes::DEFAULT_USER) && (col->getType()->getSimpleTypeName() == "VARCHAR")) {
@@ -590,7 +590,7 @@ short ExpGenerator::addDefaultValue(NAColumn *col, Attributes *attr, ComDiagsAre
     // invalid default value
     NAString *cTemp;
     cTemp = unicodeToChar((const NAWchar *)(col->getDefaultValue()),
-                          (Int32)NAWstrlen((const NAWchar *)(col->getDefaultValue())), ComGetErrMsgInterfaceCharSet(),
+                          (int)NAWstrlen((const NAWchar *)(col->getDefaultValue())), ComGetErrMsgInterfaceCharSet(),
                           CmpCommon::statementHeap());
 
     if (cTemp == NULL) /* Prevent null ptr reference */
@@ -1465,7 +1465,7 @@ short ExpGenerator::generateAggrExpr(const ValueIdSet &val_id_set, ex_expr::exp_
 
   UInt32 tupleLength = 0;
 
-  Int32 i = 0;
+  int i = 0;
 
   for (val_id = val_id_set.init(); val_id_set.next(val_id); val_id_set.advance(val_id)) {
     NABoolean nullSwitcharoo = FALSE;
@@ -1803,7 +1803,7 @@ short ExpGenerator::generateArithExpr(const ValueId &val_id, ex_expr::exp_node_t
 // If so, then generate the new src / tgt bulk move attribute
 short ExpGenerator::generateBulkMoveAligned(const ValueIdList &inValIdList, ValueIdList &outValIdList,
                                             UInt32 tupleLength,
-                                            Int32 *bulkMoveSrcStartOffset  // IN(O)
+                                            int *bulkMoveSrcStartOffset  // IN(O)
 ) {
   // turn bulk move off for aligned format for now until more testing is done
   if (CmpCommon::getDefault(COMPRESSED_INTERNAL_FORMAT_BULK_MOVE) == DF_OFF) return 0;
@@ -1834,8 +1834,8 @@ short ExpGenerator::generateBulkMoveAligned(const ValueIdList &inValIdList, Valu
   // move, we will always move the maximum row size, which can be inefficient
   // if we have large VARCHAR columns in the row that contain values a lot
   // shorter than the max. length.
-  Int32 maxVarcharBytes = (Int32)CmpCommon::getDefaultLong(COMPRESSED_INTERNAL_FORMAT_BULK_VARCHAR_MAX);
-  Int32 varcharBytes = 0;
+  int maxVarcharBytes = (int)CmpCommon::getDefaultLong(COMPRESSED_INTERNAL_FORMAT_BULK_VARCHAR_MAX);
+  int varcharBytes = 0;
 
   UInt32 voaOffset = 0;
   Int16 vcIndicatorLength = 0;
@@ -1902,7 +1902,7 @@ short ExpGenerator::generateBulkMoveAligned(const ValueIdList &inValIdList, Valu
     // 5/21/98: Since the tuple is to be moved as a byte array,
     // the current SQLChar constructor should be sufficient.
 
-    NAType *type = new (generator->wHeap()) SQLChar(generator->wHeap(), (Int32)tupleLength, FALSE);
+    NAType *type = new (generator->wHeap()) SQLChar(generator->wHeap(), (int)tupleLength, FALSE);
     ItemExpr *bulkMoveSrc = new (generator->wHeap()) NATypeToItem(type);
     // ItemExpr * bulkMoveTgt = new(generator->wHeap()) Convert (bulkMoveSrc);
     ItemExpr *bulkMoveTgt =
@@ -2006,12 +2006,12 @@ short ExpGenerator::generateBulkMove(const ValueIdList &inValIdList, ValueIdList
   UInt32 firstSrcAtp = srcAttr->getAtp();
   UInt32 firstTgtAtpIx = tgtAttr->getAtpIndex();
   UInt32 firstSrcAtpIx = srcAttr->getAtpIndex();
-  Int32 firstTgtOffset = tgtAttr->getOffset();
-  Int32 firstSrcOffset = srcAttr->getOffset();
-  Int32 firstTgtNullOffset = ExpOffsetMax;
-  Int32 firstSrcNullOffset = ExpOffsetMax;
-  Int32 firstTgtVCLenIndOffset = ExpOffsetMax;
-  Int32 firstSrcVCLenIndOffset = ExpOffsetMax;
+  int firstTgtOffset = tgtAttr->getOffset();
+  int firstSrcOffset = srcAttr->getOffset();
+  int firstTgtNullOffset = ExpOffsetMax;
+  int firstSrcNullOffset = ExpOffsetMax;
+  int firstTgtVCLenIndOffset = ExpOffsetMax;
+  int firstSrcVCLenIndOffset = ExpOffsetMax;
 
   // Determine if bulk move should be considered for nullable and/or variable
   // length column values.
@@ -2121,13 +2121,13 @@ short ExpGenerator::generateBulkMove(const ValueIdList &inValIdList, ValueIdList
 
     if (bulkMoveSrcStartOffset)  // param passed in.
     {
-      *bulkMoveSrcStartOffset = (Int32)bulkMoveSrcAttr->getOffset();
+      *bulkMoveSrcStartOffset = (int)bulkMoveSrcAttr->getOffset();
       // If the field is nullable, then its null indicator offset
       // Else if the field is a varchar, then its var len indicator offset
       if (bulkMoveSrcAttr->getNullIndicatorLength() > 0)
-        *bulkMoveSrcStartOffset = (Int32)bulkMoveSrcAttr->getNullIndOffset();
+        *bulkMoveSrcStartOffset = (int)bulkMoveSrcAttr->getNullIndOffset();
       else if (bulkMoveSrcAttr->isVariableLength())
-        *bulkMoveSrcStartOffset = (Int32)bulkMoveSrcAttr->getVCLenIndOffset();
+        *bulkMoveSrcStartOffset = (int)bulkMoveSrcAttr->getVCLenIndOffset();
     }
   }
 
@@ -2137,8 +2137,8 @@ short ExpGenerator::generateBulkMove(const ValueIdList &inValIdList, ValueIdList
 //////////////////////////////////////////////////////////////////////
 // See GenExpGenerator.h for comments.
 ///////////////////////////////////////////////////////////////////////
-short ExpGenerator::generateContiguousMoveExpr(const ValueIdList &valIdList, short addConvNodes, Int32 atp,
-                                               Int32 atpIndex, ExpTupleDesc::TupleDataFormat tdataF,
+short ExpGenerator::generateContiguousMoveExpr(const ValueIdList &valIdList, short addConvNodes, int atp,
+                                               int atpIndex, ExpTupleDesc::TupleDataFormat tdataF,
                                                ULng32 &tupleLength, ex_expr **moveExpr, ExpTupleDesc **tupleDesc,
                                                ExpTupleDesc::TupleDescFormat tdescF, MapTable **newMapTable,
                                                ValueIdList *tgtValues, ULng32 startOffset,
@@ -2209,7 +2209,7 @@ short ExpGenerator::generateContiguousMoveExpr(const ValueIdList &valIdList, sho
   // record format since added columns are arranged differently.
   //  if ( (colArray != NULL) && alignedFormat )
   if ((colArray != NULL)) {
-    for (Int32 i = 0; i < (Int32)colArray->entries(); i++) {
+    for (int i = 0; i < (int)colArray->entries(); i++) {
       col = (*colArray)[i];
       addDefaultValue(col, attrs[i], CmpCommon::diags());
     }
@@ -2308,7 +2308,7 @@ short ExpGenerator::generateContiguousMoveExpr(const ValueIdList &valIdList, sho
 }
 
 short ExpGenerator::genGuardedContigMoveExpr(const ValueIdSet guard, const ValueIdList &valIdList, short addConvNodes,
-                                             Int32 atp, Int32 atpIndex, ExpTupleDesc::TupleDataFormat tdataF,
+                                             int atp, int atpIndex, ExpTupleDesc::TupleDataFormat tdataF,
                                              ULng32 &tupleLength, ex_expr **moveExpr, ExpTupleDesc **tupleDesc,
                                              ExpTupleDesc::TupleDescFormat tdescF, MapTable **newMapTable,
                                              ValueIdList *tgtValues, ULng32 start_offset) {
@@ -2408,8 +2408,8 @@ short ExpGenerator::genGuardedContigMoveExpr(const ValueIdSet guard, const Value
 // Every other parameter is similar to generateContiguousMoveExpr.
 ///////////////////////////////////////////////////////////////////////
 short ExpGenerator::generateExplodeExpr(const ValueIdList &val_id_list,        // IN
-                                        Int32 atp,                             // IN
-                                        Int32 atpIndex,                        // IN
+                                        int atp,                             // IN
+                                        int atpIndex,                        // IN
                                         ExpTupleDesc::TupleDataFormat tf,      // IN
                                         ULng32 &tupleLength,                   // OUT
                                         ex_expr **explodeExpr,                 // OUT
@@ -2450,7 +2450,7 @@ short ExpGenerator::generateExplodeExpr(const ValueIdList &val_id_list,        /
 // for the aligned format, everything up to the first fixed field will
 // be cleared (header + entire VOA + bitmap + any padding).
 // For the aligned format, the bitmap offset will be set too.
-short ExpGenerator::generateHeaderClause(Int32 atp, Int32 atpIndex, ExpHdrInfo *hdrInfo) {
+short ExpGenerator::generateHeaderClause(int atp, int atpIndex, ExpHdrInfo *hdrInfo) {
   ExHeaderClause *hdrClause = NULL;
   Int16 numOperands = 1;  // target row that must have its header cleared
   Attributes **attr;
@@ -2622,7 +2622,7 @@ NABoolean ExpGenerator::isKeyEncodingNeeded(const IndexDesc *indexDesc, ULng32 &
 // If optimizeKeyEncoding is TRUE, then check to see if encoding could
 // be avoided. If so, return the offset to the first key column in
 // the data row.
-short ExpGenerator::generateKeyEncodeExpr(const IndexDesc *indexDesc, Int32 atp, Int32 atp_index,
+short ExpGenerator::generateKeyEncodeExpr(const IndexDesc *indexDesc, int atp, int atp_index,
                                           ExpTupleDesc::TupleDataFormat tf, ULng32 &keyLen, ex_expr **encode_expr,
                                           NABoolean optimizeKeyEncoding, ULng32 &firstKeyColumnOffset,
                                           const ValueIdList *inKeyList, NABoolean handleSerialization) {
@@ -2704,7 +2704,7 @@ short ExpGenerator::generateKeyEncodeExpr(const IndexDesc *indexDesc, Int32 atp,
   return 0;
 }
 
-short ExpGenerator::generateDeserializedMoveExpr(const ValueIdList &valIdList, Int32 atp, Int32 atpIndex,
+short ExpGenerator::generateDeserializedMoveExpr(const ValueIdList &valIdList, int atp, int atpIndex,
                                                  ExpTupleDesc::TupleDataFormat tdataF, ULng32 &tupleLength,
                                                  ex_expr **moveExpr, ExpTupleDesc **tupleDesc,
                                                  ExpTupleDesc::TupleDescFormat tdescF, ValueIdList &deserVIDlist,
@@ -2730,7 +2730,7 @@ short ExpGenerator::generateDeserializedMoveExpr(const ValueIdList &valIdList, I
 }
 
 short ExpGenerator::generateExtractKeyColsExpr(const ValueIdList &colVidList,  // const IndexDesc * indexDesc,
-                                               Int32 atp, Int32 atp_index, ULng32 &keyLen, ex_expr **key_cols_expr) {
+                                               int atp, int atp_index, ULng32 &keyLen, ex_expr **key_cols_expr) {
   ValueIdList val_id_list;
   CollIndex i = 0;
   for (i = 0; i < colVidList.entries(); i++)
@@ -2748,7 +2748,7 @@ short ExpGenerator::generateExtractKeyColsExpr(const ValueIdList &colVidList,  /
   return 0;
 }
 
-short ExpGenerator::generateKeyColValueExpr(const ValueId vid, Int32 atp, Int32 atp_index, ULng32 &len,
+short ExpGenerator::generateKeyColValueExpr(const ValueId vid, int atp, int atp_index, ULng32 &len,
                                             ex_expr **colValExpr) {
   ItemExpr *eq_node = (vid.getValueDesc())->getItemExpr();
 
@@ -2952,8 +2952,8 @@ ItemExpr *ExpGenerator::generateKeyCast(const ValueId vid, ItemExpr *dataConvers
   return knode;
 }
 
-short ExpGenerator::generateKeyExpr(const NAColumnArray &indexKeyColumns, const ValueIdList &val_id_list, Int32 atp,
-                                    Int32 atp_index, ItemExpr *dataConversionErrorFlag,
+short ExpGenerator::generateKeyExpr(const NAColumnArray &indexKeyColumns, const ValueIdList &val_id_list, int atp,
+                                    int atp_index, ItemExpr *dataConversionErrorFlag,
                                     ExpTupleDesc::TupleDataFormat tf, ULng32 &keyLen, ex_expr **key_expr,
                                     NABoolean allChosenPredsAreEqualPreds) {
   // generate key expression.
@@ -3011,7 +3011,7 @@ short ExpGenerator::generateKeyExpr(const NAColumnArray &indexKeyColumns, const 
   return 0;
 }
 
-short ExpGenerator::generateExclusionExpr(ItemExpr *expr, Int32 atp, Int32 atpindex, ex_expr **excl_expr) {
+short ExpGenerator::generateExclusionExpr(ItemExpr *expr, int atp, int atpindex, ex_expr **excl_expr) {
   // if the begin/end key exclusion flag is dynamically calculated, generate
   // a move expression to get the value into a predetermined place
   if (expr) {
@@ -3110,7 +3110,7 @@ short ExpGenerator::generateInputExpr(const ValueIdList &val_id_list, ex_expr::e
         }
       }
 
-      Int32 bpc = 1;
+      int bpc = 1;
       /*if (attr[0]->getDatatype() == REC_CLOB)
         {
           bpc = CharInfo::bytesPerChar(attr[0]->getCharSet());
@@ -3244,7 +3244,7 @@ short ExpGenerator::generateInputExpr(const ValueIdList &val_id_list, ex_expr::e
 
 // input is a ValueIdList
 short ExpGenerator::generateListExpr(const ValueIdList &val_id_list, ex_expr::exp_node_type node_type, ex_expr **expr,
-                                     Int32 atp, Int32 atpIndex, ExpHdrInfo *hdrInfo) {
+                                     int atp, int atpIndex, ExpHdrInfo *hdrInfo) {
   if (val_id_list.entries() == 0) {
     return 0;
   }
@@ -3763,7 +3763,7 @@ short ExpGenerator::generateUnionExpr(const ValueIdList &val_id_list, ex_expr::e
 }
 
 short ExpGenerator::processAttributes(ULng32 numAttrs, Attributes **attrs, ExpTupleDesc::TupleDataFormat tdataF,
-                                      ULng32 &tupleLength, Int32 atp, Int32 atpIndex, ExpTupleDesc **tupleDesc,
+                                      ULng32 &tupleLength, int atp, int atpIndex, ExpTupleDesc **tupleDesc,
                                       ExpTupleDesc::TupleDescFormat tdescF, ULng32 startOffset, ExpHdrInfo *hdrInfo,
                                       Attributes **offsets) {
   ULng32 tuppDescFlags = 0x0;
@@ -3773,7 +3773,7 @@ short ExpGenerator::processAttributes(ULng32 numAttrs, Attributes **attrs, ExpTu
                                NULL,  // varSizePtr
                                offsets);
 
-  for (Int32 i = 0; i < (Int32)numAttrs; i++) {
+  for (int i = 0; i < (int)numAttrs; i++) {
     attrs[i]->setAtp(atp);
     attrs[i]->setAtpIndex(atpIndex);
     attrs[i]->setDefaultFieldNum(i);  // this is needed for handling
@@ -3790,7 +3790,7 @@ short ExpGenerator::processAttributes(ULng32 numAttrs, Attributes **attrs, ExpTu
 }
 
 short ExpGenerator::processValIdList(ValueIdList valIdList, ExpTupleDesc::TupleDataFormat tdataF, ULng32 &tupleLength,
-                                     Int32 atp, Int32 atpIndex, ExpTupleDesc **tupleDesc,
+                                     int atp, int atpIndex, ExpTupleDesc **tupleDesc,
                                      ExpTupleDesc::TupleDescFormat tdescF, int startOffset,
                                      Attributes ***returnedAttrs, NAColumnArray *colArray, NABoolean isIndex,
                                      NABoolean placeGuOutputFunctionsAtEnd, ExpHdrInfo *hdrInfo) {
@@ -3825,7 +3825,7 @@ short ExpGenerator::processValIdList(ValueIdList valIdList, ExpTupleDesc::TupleD
   // Ensure added columns are tagged before computing offset for the aligned
   // record format since added columns are arranged differently.
   if ((colArray != NULL)) {
-    for (Int32 i = 0; i < (Int32)colArray->entries(); i++) {
+    for (int i = 0; i < (int)colArray->entries(); i++) {
       col = (*colArray)[i];
       if ((col->isAddedColumn()) && (!isIndex)) attrs[i]->setAddedCol();
     }
@@ -3893,7 +3893,7 @@ short ExpGenerator::computeTupleSize(const ValueIdList &valIdList, ExpTupleDesc:
   return 0;
 }
 
-short ExpGenerator::assignAtpAndAtpIndex(ValueIdList valIdList, Int32 atp, Int32 atpIndex) {
+short ExpGenerator::assignAtpAndAtpIndex(ValueIdList valIdList, int atp, int atpIndex) {
   for (CollIndex i = 0; i < valIdList.entries(); i++) {
     Attributes *attr = generator->getMapInfo(valIdList[i])->getAttr();
     if (atp >= 0) attr->setAtp(atp);
@@ -3903,7 +3903,7 @@ short ExpGenerator::assignAtpAndAtpIndex(ValueIdList valIdList, Int32 atp, Int32
   return 0;
 }
 
-Int32 shafoo() { return 10; }
+int shafoo() { return 10; }
 
 // Called just before the start of expr generation to determine what space
 // object to store the expression in.
@@ -4381,7 +4381,7 @@ void ExpGenerator::linkConstant(void *expr_tree) { constant_list->linkElement(ex
 
 void ExpGenerator::linkPersistent(void *expTree) { persistentList_->linkElement(expTree); };
 
-char *ExpGenerator::placeConstants(AListNode *list, Int32 length) {
+char *ExpGenerator::placeConstants(AListNode *list, int length) {
   // If there are no constants/persistents, bug out...
   //
   if (length == 0) return 0;
@@ -4484,7 +4484,7 @@ ex_expr::exp_return_type ExpGenerator::genEvalPredicate(ItemExpr *rootPtr, ComDi
   return dp2Expr->getExpr()->eval(workAtp, 0);
 }
 
-short ExpGenerator::generateSamplingExpr(const ValueId &valId, ex_expr **expr, Int32 &returnFactorOffset) {
+short ExpGenerator::generateSamplingExpr(const ValueId &valId, ex_expr **expr, int &returnFactorOffset) {
   // Prime the expression generator.
   //
   initExprGen();
@@ -4618,7 +4618,7 @@ short ExpGenerator::genItemExpr(ItemExpr *item_expr, Attributes ***out_attr, int
   if (getShowplan()) numAttrs *= 2;
 
   Attributes **attr = new (wHeap()) Attributes *[numAttrs];
-  for (Int32 i = 0; i < numAttrs; i++) {
+  for (int i = 0; i < numAttrs; i++) {
     attr[i] = NULL;
   }
 

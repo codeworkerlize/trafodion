@@ -46,7 +46,7 @@ class ScratchFile;
 
 class ScratchFileConnection : public IpcConnection {
  public:
-  ScratchFileConnection(Int32 index, ScratchFile *sf, ExSubtask *eventHandler, IpcEnvironment *env, ex_tcb *tcb,
+  ScratchFileConnection(int index, ScratchFile *sf, ExSubtask *eventHandler, IpcEnvironment *env, ex_tcb *tcb,
                         char *eye = (char *)eye_SCRATCH_FILE_CONNECTION);
   ~ScratchFileConnection();
   void ioStarted();
@@ -61,8 +61,8 @@ class ScratchFileConnection : public IpcConnection {
   // if called, though. Use only the methods above this comment.
   void send(IpcMessageBuffer *);
   void receive(IpcMessageStreamBase *);
-  Int32 numQueuedSendMessages();
-  Int32 numQueuedReceiveMessages();
+  int numQueuedSendMessages();
+  int numQueuedReceiveMessages();
   void populateDiagsArea(ComDiagsArea *&, CollHeap *);
 
  private:
@@ -72,6 +72,6 @@ class ScratchFileConnection : public IpcConnection {
   ex_tcb *callingTcb_;
   short ioOutstanding_;
   NABoolean isWriteIO_;  // Indicates if read or write IO
-  Int32 fileIndex_;      // Corresponds to a perticular open on the scratch file among multiple opens.
+  int fileIndex_;      // Corresponds to a perticular open on the scratch file among multiple opens.
 };
 #endif

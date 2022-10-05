@@ -72,7 +72,7 @@ int ex_cri_desc::unpack(void *base, void *reallocator) {
   return NAVersionedObject::unpack(base, reallocator);
 }
 
-void ex_cri_desc::display(Int32 pid, Int32 exNodeId, const char *title) {
+void ex_cri_desc::display(int pid, int exNodeId, const char *title) {
   char buf[100];
   snprintf(buf, sizeof(buf), "pid=%d, exNodeId=%d", pid, exNodeId);
 

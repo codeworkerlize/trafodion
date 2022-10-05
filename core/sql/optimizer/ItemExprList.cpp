@@ -47,7 +47,7 @@
 void ItemExprList::insertTree(ItemExpr *tree, OperatorTypeEnum backBoneType, NABoolean flattenSBQ,
                               NABoolean flattenUDF) {
   if (tree->getOperatorType() == backBoneType) {
-    for (Int32 i = 0; i < tree->getArity(); i++) {
+    for (int i = 0; i < tree->getArity(); i++) {
       // Check for NULL list for right linear trees. That is, arity may be
       // two, but second child is NULL.
       ItemExpr *child = tree->child(i);
@@ -57,7 +57,7 @@ void ItemExprList::insertTree(ItemExpr *tree, OperatorTypeEnum backBoneType, NAB
     Aggregate *agr = (Aggregate *)tree;
 
     if (agr->isOneRowTransformed_) {
-      for (Int32 i = 0; i < tree->getArity(); i++) insertTree(tree->child(i), backBoneType, flattenSBQ, flattenUDF);
+      for (int i = 0; i < tree->getArity(); i++) insertTree(tree->child(i), backBoneType, flattenSBQ, flattenUDF);
     } else {
       // do nothing, postpone this processing until OneRow transformation
       // is done
@@ -402,7 +402,7 @@ ItemExpr *ItemExprTreeAsList::operator[](CollIndex i) {
   //
 
   ItemExpr *aNodePtr = *treePtr_;
-  Int32 j = (Int32)i;  // j may become negative, i may be unsigned
+  int j = (int)i;  // j may become negative, i may be unsigned
 
   if (j < 0) return NULL;  // case a
 

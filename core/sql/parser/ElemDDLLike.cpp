@@ -50,7 +50,7 @@
 // virtual destructor
 ElemDDLLike::~ElemDDLLike() {
   // delete all children
-  for (Int32 i = 0; i < MAX_ELEM_DDL_LIKE_ARITY; i++) {
+  for (int i = 0; i < MAX_ELEM_DDL_LIKE_ARITY; i++) {
     delete getChild(i);
   }
 }
@@ -61,7 +61,7 @@ ElemDDLLike *ElemDDLLike::castToElemDDLLike() { return this; }
 // accessors
 
 // get the degree of this node
-Int32 ElemDDLLike::getArity() const { return MAX_ELEM_DDL_LIKE_ARITY; }
+int ElemDDLLike::getArity() const { return MAX_ELEM_DDL_LIKE_ARITY; }
 
 ExprNode *ElemDDLLike::getChild(int index) {
   ComASSERT(index >= 0 AND index < MAX_ELEM_DDL_LIKE_ARITY);

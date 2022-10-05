@@ -321,7 +321,7 @@ void CRUDependenceGraphBuilder::BuildEquivSetBasedTableTasks() {
   tblEquivSetBuilder_.Run();
 
   // And create the tasks, equivalence set-based
-  for (Int32 i = 0; i < tblEquivSetBuilder_.GetNumOfSets(); i++) {
+  for (int i = 0; i < tblEquivSetBuilder_.GetNumOfSets(); i++) {
     CRUTblList &tblList = tblEquivSetBuilder_.GetSet(i);
 
     // The LockEquivSet task handles a number of tables

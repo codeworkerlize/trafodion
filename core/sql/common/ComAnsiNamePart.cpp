@@ -45,7 +45,7 @@
 #include "CatSQLShare.h"
 #include "common/nawstring.h"
 
-extern cnv_charset convertCharsetEnum(Int32 /* SQLCHARSET_CODE */ charSet);
+extern cnv_charset convertCharsetEnum(int /* SQLCHARSET_CODE */ charSet);
 
 // -----------------------------------------------------------------------
 // Functions to convert ANSI SQL names from the common for-internal-
@@ -60,7 +60,7 @@ extern cnv_charset convertCharsetEnum(Int32 /* SQLCHARSET_CODE */ charSet);
 // -----------------------------------------------------------------------
 
 // returned error code described in w:/common/csconvert.h
-Int32 ComAnsiNameToUTF8(const NAWString &inAnsiNameInUCS2  // in  - valid ANSI SQL name in UCS2
+int ComAnsiNameToUTF8(const NAWString &inAnsiNameInUCS2  // in  - valid ANSI SQL name in UCS2
                         ,
                         NAString &outAnsiNameInMBCS  // out - out buffer
 ) {
@@ -68,14 +68,14 @@ Int32 ComAnsiNameToUTF8(const NAWString &inAnsiNameInUCS2  // in  - valid ANSI S
     outAnsiNameInMBCS.remove(0);  // set to an empty string
     return 0;                     // success
   }
-  const Int32 outBufSizeInBytes = ComMAX_3_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES + 1 + 8;
+  const int outBufSizeInBytes = ComMAX_3_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES + 1 + 8;
   char outBufInChars[outBufSizeInBytes + 8];  // prepare for the worst case + allocate a few more bytes
-  Int32 iErrorCode = 0;
+  int iErrorCode = 0;
   iErrorCode = ComAnsiNameToUTF8(inAnsiNameInUCS2.data()  // in  - const NAWchar *
                                  ,
                                  outBufInChars  // out - char *
                                  ,
-                                 outBufSizeInBytes  // in  - const Int32
+                                 outBufSizeInBytes  // in  - const int
   );
   if (iErrorCode == 0)
     outAnsiNameInMBCS = outBufInChars;  // a replace operation - i.e., NOT append
@@ -85,7 +85,7 @@ Int32 ComAnsiNameToUTF8(const NAWString &inAnsiNameInUCS2  // in  - valid ANSI S
 }
 
 // returned error code described in w:/common/csconvert.h
-Int32 ComAnsiNameToUCS2(const NAString &inAnsiNameInMBCS  // in  - valid name in default ANSI name char set
+int ComAnsiNameToUCS2(const NAString &inAnsiNameInMBCS  // in  - valid name in default ANSI name char set
                         ,
                         NAWString &outAnsiNameInUCS2  // out - out buffer
 ) {
@@ -93,14 +93,14 @@ Int32 ComAnsiNameToUCS2(const NAString &inAnsiNameInMBCS  // in  - valid name in
     outAnsiNameInUCS2.remove(0);  // set to an empty string
     return 0;                     // success
   }
-  const Int32 outBufSizeInNAWchars = ComMAX_3_PART_EXTERNAL_UCS2_NAME_LEN_IN_NAWCHARS + 1 + 4;
+  const int outBufSizeInNAWchars = ComMAX_3_PART_EXTERNAL_UCS2_NAME_LEN_IN_NAWCHARS + 1 + 4;
   NAWchar outBufInNAWchars[outBufSizeInNAWchars + 4];  // allocate a few more NAWchar elements
-  Int32 iErrorCode = 0;
+  int iErrorCode = 0;
   iErrorCode = ComAnsiNameToUCS2(inAnsiNameInMBCS.data()  // in  - const char *
                                  ,
                                  outBufInNAWchars  // out - NAWchar *
                                  ,
-                                 outBufSizeInNAWchars  // in  - const Int32
+                                 outBufSizeInNAWchars  // in  - const int
   );
   if (iErrorCode == 0)
     outAnsiNameInUCS2 = outBufInNAWchars;  // a replace operation - i.e., NOT append
@@ -295,7 +295,7 @@ NABoolean ComAnsiNamePart::scanAnsiNamePart(const NAString &externalNameParts, s
   ComASSERT(scanTillBadChar <= 1);
 #endif
 
-  Int32 state = 1;  // initial state nonzero: not within dquotes
+  int state = 1;  // initial state nonzero: not within dquotes
 
   for (count = 0; count < name.length(); count++) {
     if (state == 1 && name[count] == '.') {
@@ -382,22 +382,22 @@ ComBoolean ComDeriveRandomInternalName(int nameCharSet, const ComString &inputNa
     return TRUE;
   }
 
-  enum cnv_charset eCnvCS = convertCharsetEnum((Int32)nameCharSet);
+  enum cnv_charset eCnvCS = convertCharsetEnum((int)nameCharSet);
 
-  Int32 inputNameLen = (Int32)inputNameInInternalFormat.length();
+  int inputNameLen = (int)inputNameInInternalFormat.length();
   char *tmp_in_bufr = new (h) char[inputNameLen + 50];  // allocate extra space for NULL
                                                         // terminator and _nnnnnnnnn_nnnn
                                                         // suffix to be added later
   strcpy(tmp_in_bufr, inputNameInInternalFormat.data());
   const char *str_to_test = tmp_in_bufr;
-  const Int32 max_bytes2cnv = (const Int32)inputNameInInternalFormat.length();
+  const int max_bytes2cnv = (const int)inputNameInInternalFormat.length();
   const char *tmp_out_bufr = new (h) char[max_bytes2cnv * 4 + 10 /* Ensure big enough! */];
   char *p1stUnstranslatedChar = NULL;
-  Int32 nameLenInBytes = 0;
-  Int32 maxCharsToConvert = 20;
+  int nameLenInBytes = 0;
+  int maxCharsToConvert = 20;
 
   for (; maxCharsToConvert > 0; maxCharsToConvert--) {
-    Int32 cnvErrStatus = LocaleToUTF16(cnv_version1  // in  - const enum cnv_version version
+    int cnvErrStatus = LocaleToUTF16(cnv_version1  // in  - const enum cnv_version version
                                        ,
                                        str_to_test  // in  - const char *in_bufr
                                        ,
@@ -415,7 +415,7 @@ ComBoolean ComDeriveRandomInternalName(int nameCharSet, const ComString &inputNa
                                        ,
                                        0  // in  - const int cnv_flags
                                        ,
-                                       (Int32)FALSE  // in  - const int addNullAtEnd_flag
+                                       (int)FALSE  // in  - const int addNullAtEnd_flag
                                        ,
                                        NULL  // out - unsigned int * translated_char_cnt_p
                                        ,

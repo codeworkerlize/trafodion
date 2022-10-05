@@ -362,18 +362,18 @@ void Int16ObjectContainer::length(Lengther *lengther, LengtherInput *input, Leng
 }
 
 // IntegerObjectContainer definitions
-IntegerObjectContainer::IntegerObjectContainer(Int32 *value) : value_(value) {
+IntegerObjectContainer::IntegerObjectContainer(int *value) : value_(value) {
   BriefAssertion(value, "a pointer to int should not be NULL");
 }
 
 IntegerObjectContainer::~IntegerObjectContainer() {}
 
-Int32 *IntegerObjectContainer::getValue() { return value_; }
+int *IntegerObjectContainer::getValue() { return value_; }
 
-void IntegerObjectContainer::setValue(Int32 *value) { value_ = value; }
+void IntegerObjectContainer::setValue(int *value) { value_ = value; }
 
 void IntegerObjectContainer::pack(Packer *packer, PackerInput *input, PackerOutput *output) {
-  Int32 data = *value_;
+  int data = *value_;
   char *bufferPtr = input->getBufferPtr();
   IpcMessageObjSize accMsgSize = input->getAccMsgSize();
   accMsgSize += packIntoBuffer(bufferPtr, data);
@@ -382,7 +382,7 @@ void IntegerObjectContainer::pack(Packer *packer, PackerInput *input, PackerOutp
 }
 
 void IntegerObjectContainer::unPack(UnPacker *unPacker, UnPackerInput *input, UnPackerOutput *output) {
-  Int32 data;
+  int data;
   const char *bufferPtr = input->getBufferPtr();
   ::unpackBuffer(bufferPtr, data);
   output->setBufferPtr((char *)bufferPtr);

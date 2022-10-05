@@ -42,10 +42,10 @@
 // -----------------------------------------------------------------------
 
 // find the smallest factor for x that is greater than 1.
-Int32 smallestFactor(Int32 x);
+int smallestFactor(int x);
 
 // find the largest factor for x
-Int32 largestFactor(Int32 x);
+int largestFactor(int x);
 
 // find the closet factor of y that is closet to x and
 // a multiple of z. One use is to adjust the maxDoP of
@@ -60,10 +60,10 @@ Int32 largestFactor(Int32 x);
 //    usable cores in a node.
 //
 //
-Int32 closestFactor(Int32 x, Int32 y, Int32 z);
+int closestFactor(int x, int y, int z);
 
 // return a value that is a multple of y and closest to x
 // The returned value can be either smaller or larger than x
-Int32 adjustToMultiple(Int32 x, Int32 y);
+int adjustToMultiple(int x, int y);
 
 #endif  // UTILITY_H

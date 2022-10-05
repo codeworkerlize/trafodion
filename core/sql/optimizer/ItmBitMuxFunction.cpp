@@ -36,8 +36,8 @@ ItmBitMuxFunction::~ItmBitMuxFunction() { ; };
 // synthesizeType
 //
 const NAType *ItmBitMuxFunction::synthesizeType() {
-  Int32 size = 0;
-  for (Int32 i = 0; i < getArity(); i++) {
+  int size = 0;
+  for (int i = 0; i < getArity(); i++) {
     const NAType &type = child(i)->getValueId().getType();
     size += type.getTotalSize();
   }

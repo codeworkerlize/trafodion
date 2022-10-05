@@ -79,7 +79,7 @@ int ComTdbTupleFlow::unpack(void *base, void *reallocator) {
   return ComTdb::unpack(base, reallocator);
 }
 
-const ComTdb *ComTdbTupleFlow::getChild(Int32 pos) const {
+const ComTdb *ComTdbTupleFlow::getChild(int pos) const {
   if (pos == 0)
     return tdbSrc_;
   else if (pos == 1)
@@ -88,14 +88,14 @@ const ComTdb *ComTdbTupleFlow::getChild(Int32 pos) const {
     return NULL;
 }
 
-ex_expr *ComTdbTupleFlow::getExpressionNode(Int32 pos) {
+ex_expr *ComTdbTupleFlow::getExpressionNode(int pos) {
   if (pos == 0)
     return tgtExpr_;
   else
     return NULL;
 }
 
-const char *ComTdbTupleFlow::getExpressionName(Int32 pos) const {
+const char *ComTdbTupleFlow::getExpressionName(int pos) const {
   if (pos == 0)
     return "tgtExpr_";
   else

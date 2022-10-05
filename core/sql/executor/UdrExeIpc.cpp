@@ -128,7 +128,7 @@ const char *GetUdrIpcTypeString(UdrIpcObjectType t) {
     case UDR_IPC_INVALID:
       return "UDR_IPC_INVALID";
     default:
-      return ComRtGetUnknownString((Int32)t);
+      return ComRtGetUnknownString((int)t);
   }
 }
 
@@ -722,10 +722,10 @@ UdrLoadMsg::UdrLoadMsg(NAMemory *heap, const char *sqlName, const char *routineN
                        ComRoutineLanguage language, ComRoutineParamStyle paramStyle,
                        ComRoutineExternalSecurity externalSecurity, ComUInt32 maxNumResultSets, ComUInt32 numParameters,
                        ComUInt32 numInValues, ComUInt32 numOutValues, ComUInt32 inBufferSize, ComUInt32 outBufferSize,
-                       ComUInt32 inputRowSize, ComUInt32 outputRowSize, ComUInt32 udrFlags, Int32 routineOwnerId,
+                       ComUInt32 inputRowSize, ComUInt32 outputRowSize, ComUInt32 udrFlags, int routineOwnerId,
                        const char *parentQid, const char *clientInfo, const char *tenantName,
                        ComUInt32 udrSerInvocationInfoLen, const char *udrSerInvocationInfo, ComUInt32 udrSerPlanInfoLen,
-                       const char *udrSerPlanInfo, Int32 javaDebugPort, Int32 javaDebugTimeout, ComUInt32 instanceNum,
+                       const char *udrSerPlanInfo, int javaDebugPort, int javaDebugTimeout, ComUInt32 instanceNum,
                        ComUInt32 numInstances)
     : UdrControlMsg(UDR_MSG_LOAD, UdrLoadMsgVersionNumber, heap),
       sqlName_(NULL),
@@ -1162,7 +1162,7 @@ void UdrSessionMsg::addString(const char *option) {
   if (option == NULL || option[0] == '\0') {
     return;
   }
-  Int32 len = str_len(option);
+  int len = str_len(option);
   char *copy = new (getHeap()) char[len + 1];
   str_cpy_all(copy, option, len + 1);
   strings_.insert(copy);

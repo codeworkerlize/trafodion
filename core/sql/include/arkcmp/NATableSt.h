@@ -196,12 +196,12 @@ class NATableCacheEntriesISPIterator : public ISPIterator {
                                  const NAArray<CmpContextInfo *> &ctxs, CollHeap *h);
 
   NABoolean getNext(NATableEntryDetails &details);
-  Int32 &counter() { return counter_; }
-  Int32 &rowid() { return rowid_; }
+  int &counter() { return counter_; }
+  int &rowid() { return rowid_; }
 
  private:
-  Int32 counter_;
-  Int32 rowid_;
+  int counter_;
+  int rowid_;
 };
 
 struct NARoutineCacheStats {

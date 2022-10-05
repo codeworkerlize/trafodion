@@ -172,8 +172,8 @@ class CmpCommon {
   static int getDefaultLong(DefaultConstants id);
   static double getDefaultNumeric(DefaultConstants id);
   static NAString getDefaultString(DefaultConstants id);
-  static DefaultToken getDefault(DefaultConstants id, NAString &result, Int32 errOrWarn = -1);
-  static DefaultToken getDefault(DefaultConstants id, Int32 errOrWarn = -1);
+  static DefaultToken getDefault(DefaultConstants id, NAString &result, int errOrWarn = -1);
+  static DefaultToken getDefault(DefaultConstants id, int errOrWarn = -1);
   static NABoolean wantCharSetInference();
 
   static void applyDefaults(ComObjectName &name);
@@ -250,8 +250,8 @@ class CmpCommon {
 #define CMPABORT        CmpAbortInternal("", __FILE__, __LINE__);
 #define CMPABORT_MSG(b) CmpAbortInternal(b, __FILE__, __LINE__);
 
-extern ARKCMP_PRIVATE void CmpAssertInternal(const char *, const char *, Int32);
-extern ARKCMP_PRIVATE void CmpAbortInternal(const char *, const char *, Int32);
+extern ARKCMP_PRIVATE void CmpAssertInternal(const char *, const char *, int);
+extern ARKCMP_PRIVATE void CmpAbortInternal(const char *, const char *, int);
 extern THREAD_P ARKCMP_PRIVATE CmpContext *cmpCurrentContext;
 
 extern THREAD_P ARKCMP_PRIVATE jmp_buf *ExportJmpBufPtr;

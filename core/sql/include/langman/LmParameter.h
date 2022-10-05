@@ -262,7 +262,7 @@ class SQLLM_LIB_FUNC LmParameter {
   // Methods to set the contents of an output buffer to a normalized
   // SQL type
   LmResult setOutSmallInt(void *, short);
-  LmResult setOutInteger(void *, Int32);
+  LmResult setOutInteger(void *, int);
   LmResult setOutLargeInt(void *, long);
   LmResult setOutReal(void *, float);
   LmResult setOutFloat(void *, double);

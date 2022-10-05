@@ -330,7 +330,7 @@ ExWorkProcRetcode ExPackRowsTcb::workUp() {
         // begin with) is stored in the packed row itself, even initially.
         //
         char *packTuppPtr = pState.packTupp_.getDataPointer();
-        for (Int32 i = 0; i < packTdb().packTuppLen_; i++) packTuppPtr[i] = 0;
+        for (int i = 0; i < packTdb().packTuppLen_; i++) packTuppPtr[i] = 0;
 
         // $$$ could potentially make it faster by initializing only the
         // $$$ first four bytes (which stores the no of rows) to 0.

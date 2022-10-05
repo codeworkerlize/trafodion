@@ -112,9 +112,9 @@ class ContextCli : public ExGod {
   const char *getDatabaseUserName() { return databaseUserName_; }
   const char *getTenantName() { return tenantName_; }
   ComCGroup &getTenantCGroup() { return tenantCGroup_; }
-  Int32 *getDatabaseUserID() { return &databaseUserID_; }
-  Int32 *getSessionUserID() { return &sessionUserID_; }
-  Int32 getTenantID() { return tenantID_; }  // TODO: why do the other getters return a pointer?
+  int *getDatabaseUserID() { return &databaseUserID_; }
+  int *getSessionUserID() { return &sessionUserID_; }
+  int getTenantID() { return tenantID_; }  // TODO: why do the other getters return a pointer?
   NAWNodeSet *getAvailableNodes() { return availableNodes_; }
   const char *getTenantDefaultSchema() { return tenantDefaultSchema_; }
   const char *getClientHostName() { return hostName_; }
@@ -125,25 +125,25 @@ class ContextCli : public ExGod {
   // code is returned and error conditions will be written to the
   // context's diagnostics area. These functions are only supported on
   // Linux.
-  RETCODE setDatabaseUserByID(Int32 userID);
+  RETCODE setDatabaseUserByID(int userID);
   RETCODE setDatabaseUserByName(const char *userName);
 
-  void setDatabaseUser(const Int32 &uid,    // IN
+  void setDatabaseUser(const int &uid,    // IN
                        const char *uname);  // IN
 
-  Int32 getUserAttrs(const char *username, const char *tenant_name, USERS_INFO *users_info,
+  int getUserAttrs(const char *username, const char *tenant_name, USERS_INFO *users_info,
                      struct SQLSEC_AuthDetails *auth_details);
 
-  Int32 registerUser(const char *username, const char *config, USERS_INFO *users_info,
+  int registerUser(const char *username, const char *config, USERS_INFO *users_info,
                      struct SQLSEC_AuthDetails *auth_details);
 
-  Int32 getAuthErrPwdCnt(Int32 userid, Int16 &errcnt);
+  int getAuthErrPwdCnt(int userid, Int16 &errcnt);
 
-  Int32 updateAuthErrPwdCnt(Int32 userid, Int16 errcnt, bool reset);
+  int updateAuthErrPwdCnt(int userid, Int16 errcnt, bool reset);
 
-  Int32 getGracePwdCnt(Int32, Int16 &);
+  int getGracePwdCnt(int, Int16 &);
 
-  Int32 updateGracePwdCnt(Int32 userid, Int16 errcnt = 0);
+  int updateGracePwdCnt(int userid, Int16 errcnt = 0);
 
   // Functions to switch tenant identity. The specified tenant must exist
   // as a valid name in the USERS metadata table. Otherwise an error
@@ -151,34 +151,34 @@ class ContextCli : public ExGod {
   // context's diagnostics area. These functions are only supported on
   // Linux.
   RETCODE retrieveAndSetTenantInfo(
-      Int32 tenantID);  // retrieve tenantInfo from the tenants table and set values in the context
+      int tenantID);  // retrieve tenantInfo from the tenants table and set values in the context
   RETCODE setTenantByName(const char *tenantName);
   void setTenantNodes(const char *serializedNodes);
   void setTenantDefaultSchema(const char *tenantDefSchName);
   // Set Tenant related info in the context
   // deprecated method, will go away eventually
-  void setTenantInfoInContext(Int32 tenantId, const char *tenantName, Int32 affinity, Int32 tenantSize,
-                              Int32 clusterSize, const char *tenantDefaultSchema);
+  void setTenantInfoInContext(int tenantId, const char *tenantName, int affinity, int tenantSize,
+                              int clusterSize, const char *tenantDefaultSchema);
 
   // new method, to be phased in
-  void setTenantInfoInContext(Int32 tenantId, const char *tenantName, const char *serializedAvailableNodes,
+  void setTenantInfoInContext(int tenantId, const char *tenantName, const char *serializedAvailableNodes,
                               const char *tenantDefaultSchema);
   // Set tenant name and id alone in context
-  void setTenantID(Int32 tenantID);
+  void setTenantID(int tenantID);
   void setTenantName(const char *tenantName);
 
   // Functions to map between Trafodion authentication IDs and names.
-  RETCODE getAuthIDFromName(const char *authName, Int32 &authID);
+  RETCODE getAuthIDFromName(const char *authName, int &authID);
 
-  RETCODE getAuthNameFromID(Int32 authID,          // IN
+  RETCODE getAuthNameFromID(int authID,          // IN
                             char *authNameBuffer,  // OUT
-                            Int32 maxBufLen,       // IN
-                            Int32 &requiredLen);   // OUT optional
+                            int maxBufLen,       // IN
+                            int &requiredLen);   // OUT optional
 
   // Function to be used only in ESPs to establish user identity. This
   // call will update data members and will NOT verify the input
   // arguments by querying the USERS table.
-  void setDatabaseUserInESP(const Int32 &uid, const char *uname, bool closeAllOpens = false);
+  void setDatabaseUserInESP(const int &uid, const char *uname, bool closeAllOpens = false);
 
   const char *getExternalUserName();
 
@@ -187,11 +187,11 @@ class ContextCli : public ExGod {
 
   void setAuthStateInCmpContexts(NABoolean authEnabled, NABoolean authReady);
 
-  void getAuthState(Int32 &authenticationType, bool &authorizationEnabled, bool &authorizationReady,
+  void getAuthState(int &authenticationType, bool &authorizationEnabled, bool &authorizationReady,
                     bool &auditingEnabled);
 
   // functions to get and set roles for the current user
-  RETCODE getRoleList(Int32 &numEntries, Int32 *&roleIDs, Int32 *&granteeIDs);
+  RETCODE getRoleList(int &numEntries, int *&roleIDs, int *&granteeIDs);
 
   RETCODE resetRoleList();
   NABoolean roleIDsCached() { return roleIDs_ != NULL; }
@@ -251,9 +251,9 @@ class ContextCli : public ExGod {
   LmRoutine *findTrustedRoutine(CollIndex ix);
   void putTrustedRoutine(CollIndex ix);
 
-  Int32 loadTrafMetadataInCache();
-  Int32 loadTrafMetadataIntoSharedCache();
-  Int32 loadTrafDataIntoSharedCache();
+  int loadTrafMetadataInCache();
+  int loadTrafMetadataIntoSharedCache();
+  int loadTrafDataIntoSharedCache();
 
   void initGlobalNADefaultsEntries();
 
@@ -328,10 +328,10 @@ class ContextCli : public ExGod {
   ComCGroup tenantCGroup_;
 
   // List of active roles and their grantees for the databaseUser
-  Int32 numRoles_;
-  Int32 *roleIDs_;
-  Int32 *granteeIDs_;
-  Int32 roleLoopLevel_;
+  int numRoles_;
+  int *roleIDs_;
+  int *granteeIDs_;
+  int roleLoopLevel_;
   NABoolean rewindRoleLevels_;
 
   NABoolean userNameChanged_;
@@ -360,16 +360,16 @@ class ContextCli : public ExGod {
   ULong lastDescriptorHandle_;
   ULong lastStatementHandle_;
 
-  Int32 databaseUserID_;
+  int databaseUserID_;
   // With SPJ Definer Rights, we need to support different values for
   // SESSION_USER and CURRENT_USER/USER. SESSION_USER is the user that is
   // logged on to the current SQL session. CURRENT_USER is the one with
   // whose privileges a SQL statement is executed, With Definer Rights SPJ,
   // the CURRENT_USER is the owner of the SPJ while SESSION_USER is the
   // user who invoked the SPJ.
-  Int32 sessionUserID_;
+  int sessionUserID_;
 
-  Int32 tenantID_;
+  int tenantID_;
   NAWNodeSet *availableNodes_;
   char *slaName_;
   char *profileName_;
@@ -520,7 +520,7 @@ class ContextCli : public ExGod {
   void addToCloseStatementList(Statement *statement);
 
   // SPJ add on
-  void issueCtrlStmts(IpcConstMessageBufferPtr ctrlStmtBuffer, Int32 length);
+  void issueCtrlStmts(IpcConstMessageBufferPtr ctrlStmtBuffer, int length);
   void internalPrepareExecuteFetchStmt(char *sqlText);
   UdrContextMsg *manufactureUdrContextMsg();
 
@@ -665,18 +665,18 @@ class ContextCli : public ExGod {
   // provided.
   // For query types TENANT_BY_* , there is aan output param containing
   // tenant related info
-  RETCODE authQuery(AuthQueryType queryType, const char *authName, Int32 authID, char *authNameFromTable,
-                    Int32 authNameMaxLen, Int32 &authIDFromTable,
+  RETCODE authQuery(AuthQueryType queryType, const char *authName, int authID, char *authNameFromTable,
+                    int authNameMaxLen, int &authIDFromTable,
                     TenantInfo *tenantInfo = NULL);  // tenantInfo needs to be allocated by the caller
 
   RETCODE storeName(const char *src, char *dest, int maxLength);
 
   RETCODE storeName(const char *src, char *dest, int maxLength, int &actualLength);
 
-  Int32 addUserInfo(const char *username, USERS_INFO *usersInfo, struct SQLSEC_AuthDetails *authDetails,
+  int addUserInfo(const char *username, USERS_INFO *usersInfo, struct SQLSEC_AuthDetails *authDetails,
                     CmpSeabaseDDLauth &authInfo);
 
-  Int32 addTenantInfo(const char *tenant_name, USERS_INFO *users_info, struct SQLSEC_AuthDetails *authDetails,
+  int addTenantInfo(const char *tenant_name, USERS_INFO *users_info, struct SQLSEC_AuthDetails *authDetails,
                       CmpSeabaseDDLauth &authInfo);
 
  public:
@@ -857,9 +857,9 @@ class ContextCli : public ExGod {
   };
 
   // Methods to switch to different CmpContext
-  Int32 switchToCmpContext(Int32 cmpCntxtType);
-  Int32 switchToCmpContext(void *cmpCntxt);
-  Int32 switchBackCmpContext(void);
+  int switchToCmpContext(int cmpCntxtType);
+  int switchToCmpContext(void *cmpCntxt);
+  int switchBackCmpContext(void);
   void copyDiagsAreaToPrevCmpContext();
   NABoolean isDropInProgress() { return dropInProgress_; }
   void setDropInProgress() { dropInProgress_ = TRUE; };
@@ -889,12 +889,12 @@ class ContextCli : public ExGod {
   NABoolean &ddlStmtsInSPExecuted() { return ddlStmtsInSPExecuted_; }
   NABoolean &execDDLOptions() { return execDDLOptions_; }
 
-  int setAuthID(const USERS_INFO &usersInfo, const char *authToken, Int32 authTokenLen, const char *slaName,
-                  const char *profileName, Int32 resetAttributes);
+  int setAuthID(const USERS_INFO &usersInfo, const char *authToken, int authTokenLen, const char *slaName,
+                  const char *profileName, int resetAttributes);
 
-  Int32 completeSetAuthID(const USERS_INFO &usersInfo, const char *authToken, Int32 authTokenLen, const char *slaName,
+  int completeSetAuthID(const USERS_INFO &usersInfo, const char *authToken, int authTokenLen, const char *slaName,
                           const char *profileName, bool eraseCQDs, bool releaseUDRServers, bool dropVolatileSchema,
-                          bool resetCQDs, Int32 resetAttributes);
+                          bool resetCQDs, int resetAttributes);
 
   char *getAuthID() {
     if (authIDType_ == SQLAUTHID_TYPE_ASCII_USERROLE || authIDType_ == SQLAUTHID_TYPE_ASCII_USERNAME)
@@ -967,7 +967,7 @@ class ContextCli : public ExGod {
   void removeFromStatementWithEspsList(Statement *);
   bool unassignEsps(bool force = false);
 
-  void addToValidDDLCheckList(SqlTableOpenInfoPtr *stoiList, Int32 tableCount);
+  void addToValidDDLCheckList(SqlTableOpenInfoPtr *stoiList, int tableCount);
   bool doValidDDLChecks(NABoolean inRollback);
   short ddlResetObjectEpochs(ComDiagsArea *diags);
 
@@ -980,7 +980,7 @@ class ContextCli : public ExGod {
   void resetAttributes();
 
   void createMxcmpSession();
-  Int32 updateMxcmpSession();
+  int updateMxcmpSession();
 
   void resetVolatileSchemaState();
 
@@ -1008,25 +1008,25 @@ class ContextCli : public ExGod {
 
   ExStatisticsArea *getObjectLockStats(const char *objectName, int objectNameLen, short cpu, short &retryAttempts);
 
-  Int32 performObjectLockRequest(const char *objectName, ComObjectType objectType, ObjectLockRequest::OpType opType,
-                                 Int32 nid, Int32 pid, Int32 maxRetries, Int32 delay);
+  int performObjectLockRequest(const char *objectName, ComObjectType objectType, ObjectLockRequest::OpType opType,
+                                 int nid, int pid, int maxRetries, int delay);
 
-  Int32 performObjectLockRequest(const char *objectName, ComObjectType objectType, ObjectLockRequest::OpType opType,
-                                 Int32 nid, Int32 pid, bool &conflictLock, Int32 &conflictNid, Int32 &conflictPid,
+  int performObjectLockRequest(const char *objectName, ComObjectType objectType, ObjectLockRequest::OpType opType,
+                                 int nid, int pid, bool &conflictLock, int &conflictNid, int &conflictPid,
                                  ComDiagsArea *tempDiagsArea);
 
-  Int32 lockObjectDDL(const char *objectName, ComObjectType objectType);
+  int lockObjectDDL(const char *objectName, ComObjectType objectType);
 
-  Int32 unlockObjectDDL(const char *objectName, ComObjectType objectType);
+  int unlockObjectDDL(const char *objectName, ComObjectType objectType);
 
-  Int32 unlockObjectDDL(const char *objectName, ComObjectType objectType, Int32 nid, Int32 pid, bool all = false);
+  int unlockObjectDDL(const char *objectName, ComObjectType objectType, int nid, int pid, bool all = false);
 
   bool cleanupStaleLockHolder(const LockHolder &ddlHolder);
 
-  Int32 lockObjectDML(const char *objectName, ComObjectType objectType);
+  int lockObjectDML(const char *objectName, ComObjectType objectType);
 
-  Int32 releaseAllDDLObjectLocks();
-  Int32 releaseAllDMLObjectLocks();
+  int releaseAllDDLObjectLocks();
+  int releaseAllDMLObjectLocks();
 
 #ifdef _DEBUG
  public:
@@ -1058,12 +1058,12 @@ class ContextCli : public ExGod {
   void setPrevStmtStats(StmtStats *ss) { prevStmtStats_ = ss; }
 
   int setSecInvalidKeys(
-      /* IN */ Int32 numSiKeys,
+      /* IN */ int numSiKeys,
       /* IN */ SQL_QIKEY siKeys[]);
 
-  Int32 setObjectEpochEntry(
-      /* IN */ Int32 operation,
-      /* IN */ Int32 objectNameLength,
+  int setObjectEpochEntry(
+      /* IN */ int operation,
+      /* IN */ int objectNameLength,
       /* IN */ const char *objectName,
       /* IN */ long redefTime,
       /* IN */ long key,
@@ -1074,7 +1074,7 @@ class ContextCli : public ExGod {
       /* OUT */ UInt32 *maxExpectedEpochFound,
       /* OUT */ UInt32 *maxExpectedFlagsFound);
 
-  Int32 checkLobLock(char *inLobLockId, NABoolean *found);
+  int checkLobLock(char *inLobLockId, NABoolean *found);
 
   int holdAndSetCQD(const char *defaultName, const char *defaultValue);
   int restoreCQD(const char *defaultName);
@@ -1088,7 +1088,7 @@ class ContextCli : public ExGod {
   // begins. This step requires a fully initialized CliGlobals so
   // should not be called before CliGlobals initialization completes.
   void initializeUserInfoFromOS();
-  hdfsFS getHdfsServerConnection(char *hdfsServer, Int32 port, hdfsConnectStruct **entryPtr = NULL);
+  hdfsFS getHdfsServerConnection(char *hdfsServer, int port, hdfsConnectStruct **entryPtr = NULL);
   void disconnectHdfsConnections();
 
   void setSkipCheckValidPrivs(bool v) { skipCheckValidPrivs_ = v; }
@@ -1122,7 +1122,7 @@ inline HashQueue *ContextCli::getOpenStatementList() const { return openStatemen
 
 struct hdfsConnectStruct {
   hdfsFS hdfsHandle_;
-  Int32 hdfsPort_;
+  int hdfsPort_;
   char hdfsServer_[256];  // max length determined by dfs.namenode.fs-limits.max-component-length(255)
 };
 

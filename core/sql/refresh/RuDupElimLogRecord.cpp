@@ -49,7 +49,7 @@
 //	Constructors and destructor
 //--------------------------------------------------------------------------//
 
-CRUIUDLogRecord::CRUIUDLogRecord(CDMSqlTupleDesc &ckDesc, Int32 updateBmpSize)
+CRUIUDLogRecord::CRUIUDLogRecord(CDMSqlTupleDesc &ckDesc, int updateBmpSize)
     :  // Persistent data members
       ckTuple_(ckDesc),
       syskey_(0),
@@ -94,9 +94,9 @@ CRUIUDLogRecord::~CRUIUDLogRecord() { delete pUpdateBitmap_; }
 //
 //--------------------------------------------------------------------------//
 
-void CRUIUDLogRecord::CopyCKTupleValuesToParams(CDMPreparedStatement &stmt, Int32 firstParam) const {
+void CRUIUDLogRecord::CopyCKTupleValuesToParams(CDMPreparedStatement &stmt, int firstParam) const {
   int len = GetCKLength();
-  for (Int32 i = 0; i < len; i++) {
+  for (int i = 0; i < len; i++) {
     ckTuple_.GetItem(i).SetStatementParam(stmt, firstParam + i);
   }
 }
@@ -110,7 +110,7 @@ void CRUIUDLogRecord::CopyCKTupleValuesToParams(CDMPreparedStatement &stmt, Int3
 //
 //--------------------------------------------------------------------------//
 
-void CRUIUDLogRecord::Build(CDMResultSet &rs, Int32 startCKColumn) {
+void CRUIUDLogRecord::Build(CDMResultSet &rs, int startCKColumn) {
   ReadControlColumns(rs, startCKColumn);
   ReadCKColumns(rs, startCKColumn);
 }
@@ -128,7 +128,7 @@ void CRUIUDLogRecord::Build(CDMResultSet &rs, Int32 startCKColumn) {
 //
 //--------------------------------------------------------------------------//
 
-void CRUIUDLogRecord::ReadControlColumns(CDMResultSet &rs, Int32 startCKColumn) {
+void CRUIUDLogRecord::ReadControlColumns(CDMResultSet &rs, int startCKColumn) {
   // Performance optimization - switch the IsNull check off!
   rs.PresetNotNullable(TRUE);
 
@@ -149,7 +149,7 @@ void CRUIUDLogRecord::ReadControlColumns(CDMResultSet &rs, Int32 startCKColumn) 
     rangeSize_ = 0;
   }
 
-  Int32 numCKCols = startCKColumn - 2;  // Count from 1 + syskey
+  int numCKCols = startCKColumn - 2;  // Count from 1 + syskey
   if (CRUDupElimConst::NUM_IUD_LOG_CONTROL_COLS_EXTEND == numCKCols) {
     // This is DE level 3, read the optional columns
     ignore_ = rs.GetInt(CRUDupElimConst::OFS_IGNORE + 1);
@@ -174,14 +174,14 @@ void CRUIUDLogRecord::ReadControlColumns(CDMResultSet &rs, Int32 startCKColumn) 
 //
 //--------------------------------------------------------------------------//
 
-void CRUIUDLogRecord::ReadCKColumns(CDMResultSet &rs, Int32 startCKColumn) {
+void CRUIUDLogRecord::ReadCKColumns(CDMResultSet &rs, int startCKColumn) {
   // Performance optimization - switch the IsNull check off!
   rs.PresetNotNullable(TRUE);
 
   int len = GetCKLength();
 
-  for (Int32 i = 0; i < len; i++) {
-    Int32 colIndex = i + startCKColumn;
+  for (int i = 0; i < len; i++) {
+    int colIndex = i + startCKColumn;
 
     ckTuple_.GetItem(i).Build(rs, colIndex);
   }

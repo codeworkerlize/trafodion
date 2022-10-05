@@ -170,11 +170,11 @@ void CRUJournal::LogMessage(const CDSString &msg, BOOL printRowNum,
 void CRUJournal::LogError(CDSException &ex) {
   enum { BUFSIZE = 4096 };
 
-  Int32 nerr = ex.GetNumErrors();
+  int nerr = ex.GetNumErrors();
   char buffer[BUFSIZE];
   CDSString msg;
 
-  for (Int32 i = 0; i < nerr; i++) {
+  for (int i = 0; i < nerr; i++) {
     ex.GetErrorMsg(i, buffer, BUFSIZE);
 
     if (buffer[0] != 0) {

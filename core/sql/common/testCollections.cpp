@@ -33,9 +33,9 @@
 #include "common/Collections.h"
 
 // return # of failed. 0 means pass.
-Int32 getAll(NAHashDictionaryIteratorNoCopy<Int32, Int32> &itor) {
-  Int32 *key = NULL;
-  Int32 *value = NULL;
+int getAll(NAHashDictionaryIteratorNoCopy<int, int> &itor) {
+  int *key = NULL;
+  int *value = NULL;
   int ct = 0;
   int matched = 0;
   while (itor.getNext(key, value)) {
@@ -56,32 +56,32 @@ Int32 getAll(NAHashDictionaryIteratorNoCopy<Int32, Int32> &itor) {
 }
 
 // return # of failed. 0 means pass.
-Int32 testHashDictionaryItorNoCopyFull(NAHashDictionary<Int32, Int32> &table) {
-  NAHashDictionaryIteratorNoCopy<Int32, Int32> itor(table, iteratorEntryType::EVERYTHING, NULL, NULL, NULL, hashFunc);
+int testHashDictionaryItorNoCopyFull(NAHashDictionary<int, int> &table) {
+  NAHashDictionaryIteratorNoCopy<int, int> itor(table, iteratorEntryType::EVERYTHING, NULL, NULL, NULL, hashFunc);
 
   return getAll(itor);
 }
 
-Int32 testHashDictionaryItorNoCopyFullSubset(NAHashDictionary<Int32, Int32> &table) {
-  Int32 *key = new Int32(1);
-  NAHashDictionaryIteratorNoCopy<Int32, Int32> itorSubset(table, iteratorEntryType::EVERYTHING, key, NULL, NULL,
+int testHashDictionaryItorNoCopyFullSubset(NAHashDictionary<int, int> &table) {
+  int *key = new int(1);
+  NAHashDictionaryIteratorNoCopy<int, int> itorSubset(table, iteratorEntryType::EVERYTHING, key, NULL, NULL,
                                                           hashFunc);
 
   return getAll(itorSubset);
 }
 
 void testHashDirectionaryIteratorNoCopy() {
-  NAHashDictionary<Int32, Int32> table(hashFunc);
+  NAHashDictionary<int, int> table(hashFunc);
 
-  Int32 *key = NULL;
-  Int32 *value = NULL;
+  int *key = NULL;
+  int *value = NULL;
   for (int i = 0; i < 100; i++) {
-    key = new Int32(i);
-    value = new Int32(i);
+    key = new int(i);
+    value = new int(i);
     table.insert(key, value, hashFunc);
   }
 
-  Int32 pass = testHashDictionaryItorNoCopyFull(table);
+  int pass = testHashDictionaryItorNoCopyFull(table);
   pass += testHashDictionaryItorNoCopyFullSubset(table);
 
   if (pass == 0)

@@ -267,7 +267,7 @@ short Verbose::process(SqlciEnv *sqlci_env) {
 }
 
 short FCRepeat::process(SqlciEnv *sqlci_env) {
-  Int32 retval = 0;
+  int retval = 0;
 
   if (sqlci_env->isOleServer()) {
     SqlciError(SQLCI_CMD_NOT_SUPPORTED, (ErrorParam *)0);
@@ -326,7 +326,7 @@ short FCRepeat::process(SqlciEnv *sqlci_env) {
 }
 
 short FixCommand::process(SqlciEnv *sqlci_env) {
-  Int32 retval = 0;
+  int retval = 0;
 
   if (sqlci_env->isOleServer()) {
     SqlciError(SQLCI_CMD_NOT_SUPPORTED, (ErrorParam *)0);
@@ -357,7 +357,7 @@ short FixCommand::process(SqlciEnv *sqlci_env) {
 
   if (input_stmt) {
     enum { DUNNO, YES, NO };
-    Int32 is_single_stmt = DUNNO;
+    int is_single_stmt = DUNNO;
     InputStmt *fc_input_stmt = new InputStmt(sqlci_env);
     *fc_input_stmt = input_stmt;
 
@@ -397,7 +397,7 @@ short FixCommand::process(SqlciEnv *sqlci_env) {
               else
                 stmt = new InputStmt(fc_input_stmt, packedStr);
 
-              Int32 read_error = 0;
+              int read_error = 0;
 
               // Unterminated stmt (no ";" seen),
               // so prompt for the rest of it.

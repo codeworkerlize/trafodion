@@ -207,7 +207,7 @@ void processALoadMessage(UdrGlobals *UdrGlob, UdrServerReplyStream &msgStream, U
           if (lmRoutine == NULL) {
             *diags << DgSqlCode(-UDR_ERR_MISSING_LMROUTINE);
             *diags << DgString0("error: returned a null LM handle");
-            *diags << DgInt1((Int32)0);
+            *diags << DgInt1((int)0);
           } else {
             sp->setLMHandle(lmRoutine);
 
@@ -515,13 +515,13 @@ void displayLoadParameters(UdrLoadMsg &request) {
       break;
   }
   ServerDebug("  externalSecurity    : %s", externalSecurity);
-  ServerDebug("  routine Owner Id    : %d", (Int32)request.getRoutineOwnerId());
+  ServerDebug("  routine Owner Id    : %d", (int)request.getRoutineOwnerId());
 
-  ServerDebug("  max result sets     : %d", (Int32)request.getMaxResultSets());
-  ServerDebug("  num params          : %d", (Int32)request.getNumParameters());
-  ServerDebug("  num in values       : %d", (Int32)request.getNumInValues());
-  ServerDebug("  num out values      : %d", (Int32)request.getNumOutValues());
-  ServerDebug("  udr flags           : %d", (Int32)request.getUdrFlags());
+  ServerDebug("  max result sets     : %d", (int)request.getMaxResultSets());
+  ServerDebug("  num params          : %d", (int)request.getNumParameters());
+  ServerDebug("  num in values       : %d", (int)request.getNumInValues());
+  ServerDebug("  num out values      : %d", (int)request.getNumOutValues());
+  ServerDebug("  udr flags           : %d", (int)request.getUdrFlags());
 
   if (request.isIsolate())
     ServerDebug("    isolate           : TRUE");
@@ -556,7 +556,7 @@ void reportLoadResults(UdrGlobals *UdrGlob, SPInfo *sp, LmRoutine *lmr_) {
     ServerDebug("");
     ServerDebug("[UdrServ (%s)] LOAD message results:", moduleName);
     ServerDebug("  LOAD Udr Handle     : " INT64_SPEC, (long)sp->getUdrHandle());
-    ServerDebug("  LM result parameter : %d", (Int32)sp->getNumParameters());
+    ServerDebug("  LM result parameter : %d", (int)sp->getNumParameters());
     if (sp->getReturnValue() != NULL) {
       dumpLmParameter(*sp->getReturnValue(), 0, "    ");
     }

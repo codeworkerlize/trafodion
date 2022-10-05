@@ -247,7 +247,7 @@ NABoolean QRDescGenerator::getTableId(ValueId vid,
                                       ValueId &vegrefVid,     // OUT
                                       NAString &baseColName,  // OUT
                                       NABoolean &isExtraHub,  // OUT
-                                      Int32 &colIndex)        // OUT
+                                      int &colIndex)        // OUT
 {
   QRTRACER("QRDescGenerator::getTableId()");
   ItemExpr *pExpr = vid.getItemExpr();
@@ -312,7 +312,7 @@ CANodeId QRDescGenerator::getNodeId(ValueId vid) {
   ValueId dummyVid2;
   NAString dummyString;
   NABoolean dummyBool;
-  Int32 colIndex;
+  int colIndex;
 
   getTableId(vid, nodeId, dummyVid, dummyVid2, dummyString, dummyBool, colIndex);
   return nodeId;
@@ -327,7 +327,7 @@ QRColumnPtr QRDescGenerator::genQRColumn(ValueId vid, UInt32 joinPredId /*= 0*/,
   ValueId col_vid;
   ValueId vegref_vid;
   NAString baseColName;
-  Int32 colIndex;
+  int colIndex;
   NABoolean gotNodeID = getTableId(vid, nodeID, col_vid, vegref_vid, baseColName, isExtraHub, colIndex);
 
   if (!gotNodeID) {
@@ -358,7 +358,7 @@ QRColumnPtr QRDescGenerator::genQRColumn(ValueId vid, UInt32 joinPredId /*= 0*/,
   }
   columnElement->setFullyQualifiedColumnName(baseColName);
   columnElement->setAndRegisterID(col_vid, colTblIdHash_);
-  columnElement->setTableID((Int32)nodeID);
+  columnElement->setTableID((int)nodeID);
   columnElement->setExtraHub(isExtraHub);
   columnElement->setVegrefId(vegref_vid);
   columnElement->setColIndex(colIndex);
@@ -438,27 +438,27 @@ static void addFunctionParameters(ItemExpr *ie, NAMemory *heap, QRFunctionPtr fu
     case ITM_EXTRACT_ODBC: {
       Extract *extractFn = static_cast<Extract *>(ie);
       param->setName("extractField");
-      param->setValue((Int32)extractFn->getExtractField());
+      param->setValue((int)extractFn->getExtractField());
       function->addHiddenParam(param);
     } break;
 
     case ITM_TRIM: {
       Trim *trimFn = static_cast<Trim *>(ie);
       param->setName("mode");
-      param->setValue((Int32)trimFn->getTrimMode());
+      param->setValue((int)trimFn->getTrimMode());
       function->addHiddenParam(param);
     } break;
 
     case ITM_TRANSLATE: {
       Translate *translateFn = static_cast<Translate *>(ie);
       param->setName("mapTableId");
-      param->setValue((Int32)translateFn->getTranslateMapTableId());
+      param->setValue((int)translateFn->getTranslateMapTableId());
       function->addHiddenParam(param);
     } break;
 
     case ITM_DATEFORMAT: {
       DateFormat *dateFormatFn = static_cast<DateFormat *>(ie);
-      Int32 dateFormat = dateFormatFn->getExpDatetimeFormat();
+      int dateFormat = dateFormatFn->getExpDatetimeFormat();
       param->setName("dateFormat");
       param->setValue(dateFormat);
       function->addHiddenParam(param);
@@ -536,7 +536,7 @@ QRExplicitExprPtr QRDescGenerator::getExprTree(ItemExpr *itemExpr) {
         Aggregate *aggrFunc = static_cast<Aggregate *>(itemExpr);
         function->setAggregateFunc(itemExpr->getOperatorType(), aggrFunc->isDistinct());
       }
-      for (Int32 argInx = 0; argInx < itemExpr->getArity(); argInx++)
+      for (int argInx = 0; argInx < itemExpr->getArity(); argInx++)
         function->addArgument(getExprTree(itemExpr->child(argInx)));
 
       // Extra work for functions like ExtractOdbc that take non-ItemExpr
@@ -889,7 +889,7 @@ void QRDescGenerator::processOutputList(const ValueIdSet &normOutputs, QRJBBPtr 
 
       // If we did not find the ordinal number of the column, throw an
       // exception now, so that an MV descriptor will not be created.
-      Int32 cvid_i = cvid;
+      int cvid_i = cvid;
       assertLogAndThrow1(CAT_SQL_COMP_QR_DESC_GEN, LL_MVQR_FAIL, found, QRDescriptorException,
                          "No matching MV column found for output item with "
                          "ValueId %d",
@@ -897,7 +897,7 @@ void QRDescGenerator::processOutputList(const ValueIdSet &normOutputs, QRJBBPtr 
       // Set the ordinal position of the output item within the MV's select
       // list, so we can match it to the right column name once the column
       // names are known for sure.
-      qro_p->setColPos((Int32)cdInx - 1);
+      qro_p->setColPos((int)cdInx - 1);
     }
     if (isInstNull(cvExpr)) {
       QRColumnPtr col = skipInstNull(cvExpr);
@@ -956,13 +956,13 @@ static void logJBBCPredecessorGraph(CANodeIdSet &jbbcs) {
 
 // Nonmember helper function for processJBBCList; returns array of join order
 // group numbers indexed by node number.
-static Int32 *getJoinOrderInfo(const CANodeIdSet *const const_jbbcs, size_t &arrSize) {
+static int *getJoinOrderInfo(const CANodeIdSet *const const_jbbcs, size_t &arrSize) {
   CANodeIdSet jbbcs(*const_jbbcs);  // Need a copy we can change
   CANodeIdSet reached;
   CANodeId nodeId, predNodeId;
-  Int32 currGroupOrderNum = 1;
+  int currGroupOrderNum = 1;
   NABoolean foundOne = FALSE;
-  Int32 numSkipped;
+  int numSkipped;
 
   // Find needed size for array.
   CollIndex maxNodeId = NULL_CA_ID;
@@ -972,7 +972,7 @@ static Int32 *getJoinOrderInfo(const CANodeIdSet *const const_jbbcs, size_t &arr
 
   // Allocate array of join order group numbers we will return.
   arrSize = maxNodeId + 1;  // assign output param
-  Int32 *joinOrderGroupNumbers = new (STMTHEAP) Int32[arrSize];
+  int *joinOrderGroupNumbers = new (STMTHEAP) int[arrSize];
 
   if (QRLogger::isCategoryInDebug(CAT_SQL_COMP_QR_DESC_GEN)) logJBBCPredecessorGraph(jbbcs);
 
@@ -1033,7 +1033,7 @@ void QRDescGenerator::processJBBCList(CANodeIdSet *jbbcNodeIds, QRJBBPtr jbbElem
   // Get array of join order groups, indexed by node number. This array is
   // allocated in the function called, and we have to delete it.
   size_t joinOrderArrSize;
-  Int32 *joinOrders = getJoinOrderInfo(jbbcNodeIds, joinOrderArrSize);
+  int *joinOrders = getJoinOrderInfo(jbbcNodeIds, joinOrderArrSize);
 
   groupJbbcNodeId = NULL_CA_ID;  // Unless we find one
 
@@ -1084,7 +1084,7 @@ void QRDescGenerator::processJBBCList(CANodeIdSet *jbbcNodeIds, QRJBBPtr jbbElem
         groupJbbcNodeId = nodeId;
       } else {
         deletePtr(groupJbb);
-        Int32 nodeIdVal = nodeId;
+        int nodeIdVal = nodeId;
         assertLogAndThrow1(CAT_SQL_COMP_QR_DESC_GEN, LL_MVQR_FAIL, FALSE, QRDescriptorException,
                            "Unsupported operator: %s", nodeAnalysis->getOriginalExpr()->getText().data());
       }
@@ -1092,7 +1092,7 @@ void QRDescGenerator::processJBBCList(CANodeIdSet *jbbcNodeIds, QRJBBPtr jbbElem
   }
 
   // Finished with join order array.
-  NADELETEARRAY(joinOrders, joinOrderArrSize, Int32, STMTHEAP);
+  NADELETEARRAY(joinOrders, joinOrderArrSize, int, STMTHEAP);
 
   // Sort the array by table name.
   if (numTables > 0) {
@@ -1154,8 +1154,8 @@ void QRDescGenerator::getSingleTableJBBs(QRDescriptorPtr desc, RelExpr *expr) {
   // Traverse query tree, looking for table scans that are not part of a JBB.
   // We will treat these as single-JBBC JBBs for the purpose of query rewrite.
   char sRedeftime[30];
-  Int32 arity = expr->getArity();
-  for (Int32 i = 0; i < arity; i++) {
+  int arity = expr->getArity();
+  for (int i = 0; i < arity; i++) {
     subtree = expr->child(i).getPtr();
     OperatorType op = subtree->getOperator();
 
@@ -1388,7 +1388,7 @@ NABoolean QRDescGenerator::processJBBs(QRDescriptorPtr descPtr, QueryAnalysis *q
   CollIndex remainingJBBs = jbbArray.entries();
 
   if (isDumpMvMode()) {
-    Int32 totalJBBs = remainingJBBs + descPtr->getJbbList().entries();
+    int totalJBBs = remainingJBBs + descPtr->getJbbList().entries();
     assertLogAndThrow1(CAT_SQL_COMP_QR_DESC_GEN, LL_MVQR_FAIL, totalJBBs == 1, QRDescriptorException,
                        "This query has %d JBBs.", totalJBBs);
   }
@@ -1538,7 +1538,7 @@ QRQueryDescriptorPtr QRDescGenerator::createQueryDescriptor(QueryAnalysis *qa, R
   CmpCommon::getDefault(MV_AGE, mvAgeValue, 0);
   queryDesc->getMisc()->setMVAge(mvAgeValue);
 
-  Int32 level = CmpCommon::getDefaultLong(MVQR_REWRITE_LEVEL);
+  int level = CmpCommon::getDefaultLong(MVQR_REWRITE_LEVEL);
   queryDesc->getMisc()->setRewriteLevel((MvqrRewriteLevel)level);
 
   return queryDesc;
@@ -1588,7 +1588,7 @@ XMLString *QRDescGenerator::createXmlText(QRElementPtr desc) {
 
 // Sort the join columns, distinguish between hub vs. extra-hub, and add to
 // result.
-void QRDescGenerator::addJoinPred(QRJBBPtr jbbElem, QRElementPtr *qrElemArray, Int32 *idArray, Int32 eqCount,
+void QRDescGenerator::addJoinPred(QRJBBPtr jbbElem, QRElementPtr *qrElemArray, int *idArray, int eqCount,
                                   UInt32 &hubJoinPredId) {
   QRTRACER("QRDescGenerator::addJoinPred()");
   QRJoinPredPtr hubJoinPred = NULL;
@@ -1600,7 +1600,7 @@ void QRDescGenerator::addJoinPred(QRJBBPtr jbbElem, QRElementPtr *qrElemArray, I
   // Assign each element in the sorted array to either a hub or extrahub join
   // pred. The id of the join pred is derived from that of the first element
   // added to it.
-  for (Int32 i = 0; i < eqCount; i++) {
+  for (int i = 0; i < eqCount; i++) {
     if (qrElemArray[i]->isExtraHub()) {
       if (!extraHubJoinPred) {
         extraHubJoinPred = new (mvqrHeap_) QRJoinPred(ADD_MEMCHECK_ARGS(mvqrHeap_));
@@ -1682,7 +1682,7 @@ void QRDescGenerator::addJoinPred(QRJBBPtr jbbElem, QRElementPtr *qrElemArray, I
 // is the subject of a range predicate.
 static void getLeafValueIds(ItemExpr *itemExpr, ValueIdList &lv) {
   QRTRACER("getLeafValueIds()");
-  Int32 nc = itemExpr->getArity();
+  int nc = itemExpr->getArity();
 
   // if this is a leaf node, add its value id
   if (nc == 0) {
@@ -1718,7 +1718,7 @@ CANodeId QRDescGenerator::getExprNode(ItemExpr *itemExpr) {
   CANodeId itemNodeId;
   ItemExpr *leafItemExpr;
   ValueId vid;
-  Int32 inputCount = 0;
+  int inputCount = 0;
 
   getLeafValueIds(itemExpr, vids);
 
@@ -1893,7 +1893,7 @@ void QRDescGenerator::processEqualitySet(QRJBBPtr jbbElem, EqualitySet &eqSet) {
   // Array to put elements in so they can be sorted, and array of corresponding
   // ids that can be used for the created join preds (for hub and extrahub).
   QRElementPtr *qrElemArray = new (mvqrHeap_) QRElementPtr[eqCount];
-  Int32 *idArray = new (mvqrHeap_) Int32[eqCount];
+  int *idArray = new (mvqrHeap_) int[eqCount];
 
   for (i = 0; i < eqCount; i++) {
     itemExpr = eqSet[i];
@@ -2356,7 +2356,7 @@ void QRDescGenerator::addEqPredToEqualitySets(ItemExpr *pred, NAList<EqualitySet
   assertLogAndThrow(CAT_SQL_COMP_QR_DESC_GEN, LL_MVQR_FAIL, pred->getOperatorType() == ITM_EQUAL, QRDescriptorException,
                     "addEqPredToEqualitySets() called for non-equality predicate");
 
-  for (Int32 i = 0; i < 2; i++) {
+  for (int i = 0; i < 2; i++) {
     eqOperand = pred->child(i);
     op = eqOperand->getOperatorType();
     if (op == ITM_VEG_REFERENCE) {
@@ -2382,7 +2382,7 @@ void QRDescGenerator::addEqPredToEqualitySets(ItemExpr *pred, NAList<EqualitySet
 
   // Put the equality operands in a list (either new or created) and hash
   // tables, unless they were already members of a separate-but-equal list.
-  for (Int32 i = 0; i < 2; i++) {
+  for (int i = 0; i < 2; i++) {
     if (!moveToTarget[i]) continue;  // already in target list
 
     eqOperand = pred->child(i);
@@ -2460,7 +2460,7 @@ void QRDescGenerator::setPredBitmap(QRValueId colVid, ElementType elemType) {
       }
       return;
     } else {
-      Int32 vidInt = vid;
+      int vidInt = vid;
       assertLogAndThrow2(CAT_SQL_COMP_QR_DESC_GEN, LL_MVQR_FAIL, FALSE, QRDescriptorException,
                          "ValueId %d is not a base col or veg ref -- op type = %d", vidInt, opType);
     }
@@ -2520,7 +2520,7 @@ void QRDescGenerator::storeRangeInfo(OptRangeSpec *range, QRJBBPtr jbbElem) {
 }
 
 NABoolean QRDescGenerator::isRangeSupported(QRRangePredPtr rangePred) {
-  Int32 rangeExprSize = rangePred->getSize();
+  int rangeExprSize = rangePred->getSize();
   if (rangeExprSize > maxExprSize_) return FALSE;
 
   return TRUE;

@@ -81,8 +81,8 @@ class ex_split_bottom_tcb : public ex_tcb {
 
   ExWorkProcRetcode work();
 
-  virtual Int32 numChildren() const;
-  virtual const ex_tcb *getChild(Int32 pos) const;
+  virtual int numChildren() const;
+  virtual const ex_tcb *getChild(int pos) const;
 
   void testAllQueues();
 
@@ -226,10 +226,10 @@ class ex_split_bottom_tcb : public ex_tcb {
 
   // Hash table header. The values stored are array indexes into
   // skewInfo_.skewHashValues_ and the skewLinks_.
-  Int32 skewHdrs_[numSkewHdrs_];
+  int skewHdrs_[numSkewHdrs_];
 
   // Collisions for the hash table of skewed keys.
-  Int32 *skewLinks_;
+  int *skewLinks_;
 
   // For table N-M way repartition validation
   int firstParentNum_;  // index of the first ESP
@@ -239,13 +239,13 @@ class ex_split_bottom_tcb : public ex_tcb {
   NABoolean *minMaxInputsReceived_;  // A Boolean array to record which parents
                                      // have sent us the min/max inputs already.
 
-  Int32 numOfMinMaxInputsReceived_;  // number of minmax inputs receivered so far,
+  int numOfMinMaxInputsReceived_;  // number of minmax inputs receivered so far,
                                      // which is the number of TRUE elements in
                                      // which is the number of TRUE elements in
                                      // which is the number of TRUE elements in
                                      // minMaxInputsReceived_[].
 
-  Int32 currentMinMaxCheckIndex_;  // The current ith parent SEND_BOTTOM that
+  int currentMinMaxCheckIndex_;  // The current ith parent SEND_BOTTOM that
                                    // we want to check.
 
   tupp_descriptor minMaxDataTupp_;  // to accumulate the computed min/max

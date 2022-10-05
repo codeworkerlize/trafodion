@@ -60,7 +60,7 @@ class StmtDDLTenant : public StmtDDLNode {
   StmtDDLTenant(const NAString &tenantName, ElemDDLNode *optionList, ElemDDLNode *schemaList, CollHeap *heap);
 
   // alter tenant
-  StmtDDLTenant(const Int32 alterType, const NAString &tenantName, ElemDDLNode *optionList, SchemaName *tenantSchema,
+  StmtDDLTenant(const int alterType, const NAString &tenantName, ElemDDLNode *optionList, SchemaName *tenantSchema,
                 ElemDDLNode *schemaList, CollHeap *heap);
 
   // unregister tenant
@@ -92,10 +92,10 @@ class StmtDDLTenant : public StmtDDLNode {
   inline const NABoolean addNodeList() const { return addNodeList_; }
   inline const NABoolean addSchemaList() const { return addSchemaList_; }
   inline const NABoolean asSizing();
-  inline const Int32 getAffinity() const { return affinity_; }
-  inline const Int32 getSessionLimit() const { return sessionLimit_; }
-  inline const Int32 getClusterSize() const { return clusterSize_; }
-  inline const Int32 getTenantSize() const { return tenantSize_; }
+  inline const int getAffinity() const { return affinity_; }
+  inline const int getSessionLimit() const { return sessionLimit_; }
+  inline const int getClusterSize() const { return clusterSize_; }
+  inline const int getTenantSize() const { return tenantSize_; }
   inline const NAString *getRoleName() const { return roleName_; }
   inline const SchemaName *getDefaultSchema() const { return defaultSchema_; }
 
@@ -121,13 +121,13 @@ class StmtDDLTenant : public StmtDDLNode {
   TenantAlterType tenantAlterType_;
   NABoolean dropDependencies_;
   NAString *roleName_;
-  Int32 affinity_;
+  int affinity_;
   NABoolean balance_;
-  Int32 clusterSize_;
-  Int32 sessionLimit_;
+  int clusterSize_;
+  int sessionLimit_;
   NABoolean sessionLimitSpecified_;
   NABoolean tenantAffinitySizing_;
-  Int32 tenantSize_;
+  int tenantSize_;
   NABoolean tenantSizeSpecified_;
   SchemaName *defaultSchema_;
 

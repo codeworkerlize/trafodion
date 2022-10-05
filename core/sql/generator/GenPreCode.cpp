@@ -253,7 +253,7 @@ ItemExpr *ItemExpr::replaceVEGExpressions1(VEGRewritePairs *lookup) {
 //       code that needs signficantly less stack space for the
 //       recursive ItemExpr::replaceVEGExpressions() routine.
 //
-void ItemExpr::replaceVEGExpressions2(Int32 index, const ValueIdSet &availableValues, const ValueIdSet &inputValues,
+void ItemExpr::replaceVEGExpressions2(int index, const ValueIdSet &availableValues, const ValueIdSet &inputValues,
                                       ValueIdSet &currAvailableValues, const GroupAttributes *left_ga,
                                       const GroupAttributes *right_ga) {
   // If we have asked that the EquiPredicate resolve
@@ -489,7 +489,7 @@ ItemExpr *ItemExpr::replaceVEGExpressions(const ValueIdSet &availableValues, con
           // copy instead and also copy the unchanged children
           // so far
           iePtr = iePtr->copyTopNode(NULL, CmpCommon::statementHeap());
-          for (Int32 j = 0; j < index; j++) iePtr->child(j) = this->child(j);
+          for (int j = 0; j < index; j++) iePtr->child(j) = this->child(j);
         }
         iePtr->child(index) = newChild;
       }
@@ -1225,8 +1225,8 @@ RelExpr *RelExpr::preCodeGen(Generator *generator, const ValueIdSet &externalInp
   getGroupAttr()->resolveCharacteristicInputs(externalInputs);
 
   // My Characteristic Inputs become the external inputs for my children.
-  Int32 nc = getArity();
-  for (Int32 index = 0; index < nc; index++) {
+  int nc = getArity();
+  for (int index = 0; index < nc; index++) {
     ValueIdSet childPulledInputs;
 
     child(index) = child(index)->preCodeGen(generator, externalInputs, childPulledInputs);
@@ -1618,7 +1618,7 @@ RelExpr *RelRoot::preCodeGen(Generator *generator, const ValueIdSet & /* externa
           NAArray<long> rtStats(CmpCommon::statementHeap());
 
           NAString host;
-          Int32 port = 0;
+          int port = 0;
 
           generator->setAutoCollectRTStats(TRUE);
         }
@@ -3159,7 +3159,7 @@ NABoolean FileScan::processMinMaxKeys(Generator *generator, ValueIdSet &pulledNe
 
     // Scalar min/max functions cause an exponential growth when
     // combined with each other, see ItmScalarMinMax::codeGen()
-    Int32 limitItems = 3;  // use at most 3
+    int limitItems = 3;  // use at most 3
 
     CollHeap *gheap = generator->wHeap();
     const NABitVector &mmKeyVec = generator->getEnabledMinMaxKeys();
@@ -5186,7 +5186,7 @@ RelExpr *GroupByAgg::transformForAggrPushdown(Generator *generator, const ValueI
         ValueIdSet exePreds(scan->getExecutorPredicates());
         // exePreds.display();
         for (ValueId x = exePreds.init(); exePreds.next(x); exePreds.advance(x)) {
-          Int32 i = (Int32)((CollIndex)x);
+          int i = (int)((CollIndex)x);
           if (NOT x.getItemExpr())
             aggrPushdown = FALSE;
           else if (x.getItemExpr()->getOperatorType() == ITM_NOT_EQUAL ||
@@ -5494,8 +5494,8 @@ RelExpr *MergeUnion::preCodeGen(Generator *generator, const ValueIdSet &external
       // be evaluatated at the parent.
       // -------------------------------------------------------------------
       if (outputId.isEmpty()) {
-        Int32 leftIndex = getLeftMap().getTopValues().index(v);
-        Int32 rightIndex = getRightMap().getTopValues().index(v);
+        int leftIndex = getLeftMap().getTopValues().index(v);
+        int rightIndex = getRightMap().getTopValues().index(v);
 
         CMPASSERT((leftIndex != NULL_COLL_INDEX) && (rightIndex != NULL_COLL_INDEX));
 
@@ -6703,7 +6703,7 @@ ItemExpr *AggrMinMax::preCodeGen(Generator *generator) {
 ItemExpr *Overlaps::preCodeGen(Generator *generator) {
   if (nodeIsPreCodeGenned()) return getReplacementExpr();
 
-  for (Int32 i = 0; i < getArity(); ++i) {
+  for (int i = 0; i < getArity(); ++i) {
     if (child(i)) {
       const NAType &type = child(i)->getValueId().getType();
       const DatetimeType *operand = (DatetimeType *)&type;
@@ -6955,7 +6955,7 @@ ItemExpr *BiArith::preCodeGen(Generator *generator) {
 
   // see if conversion needed before arithmetic operation could be done.
 
-  Int32 matchScale = 0;
+  int matchScale = 0;
   if (result_type->getTypeQualifier() == NA_NUMERIC_TYPE) {
     // match scales
     if ((getOperatorType() == ITM_PLUS) || (getOperatorType() == ITM_MINUS)) {
@@ -7368,13 +7368,13 @@ ItemExpr *BiRelat::preCodeGen(Generator *generator) {
 
     if ((cType1A_CS != cType2A_CS) && (cType1A_CS != CharInfo::UnknownCharSet) &&
         (cType2A_CS != CharInfo::UnknownCharSet)) {
-      Int32 chld_to_trans = 0;
+      int chld_to_trans = 0;
       if (cType1A_CS != CharInfo::ISO88591) {
         if ((cType1A_CS == CharInfo::UNICODE)) chld_to_trans = 1;
         if ((cType1A_CS == CharInfo::UTF8) && (cType2A_CS != CharInfo::UNICODE)) chld_to_trans = 1;
         if ((cType1A_CS == CharInfo::SJIS) && (cType2A_CS == CharInfo::ISO88591)) chld_to_trans = 1;
       }
-      Int32 tran_type = Translate::UNKNOWN_TRANSLATION;
+      int tran_type = Translate::UNKNOWN_TRANSLATION;
       if (chld_to_trans == 0)
         tran_type = find_translate_type(cType1A_CS, cType2A_CS);
       else
@@ -7765,8 +7765,8 @@ ItemExpr *BitOperFunc::preCodeGen(Generator *generator) {
   if (nodeIsPreCodeGenned()) return this;
 
   if (getOperatorType() == ITM_BITEXTRACT) {
-    // convert 2nd and 3rd operands to Int32 signed.
-    for (Int32 i = 1; i < getArity(); i++) {
+    // convert 2nd and 3rd operands to int signed.
+    for (int i = 1; i < getArity(); i++) {
       const NAType &typ = child(i)->getValueId().getType();
 
       if (typ.getFSDatatype() != REC_BIN32_UNSIGNED) {
@@ -7781,7 +7781,7 @@ ItemExpr *BitOperFunc::preCodeGen(Generator *generator) {
       }  // if
     }    // for
   } else {
-    for (Int32 i = 0; i < getArity(); i++) {
+    for (int i = 0; i < getArity(); i++) {
       const NAType &typ = child(i)->getValueId().getType();
 
       if (NOT(getValueId().getType() == typ)) {
@@ -7936,7 +7936,7 @@ ItemExpr *Cast::preCodeGen(Generator *generator) {
       //
       // - Add 1, since the substring function is 1 based.
       //
-      Int32 leadFieldsOffset = ((targetType.getStartField() - 1) * 3) + 1;
+      int leadFieldsOffset = ((targetType.getStartField() - 1) * 3) + 1;
 
       // - Add 2 extra for the year field if it is being skiped over
       //   since it has 4 bytes of value.
@@ -7956,12 +7956,12 @@ ItemExpr *Cast::preCodeGen(Generator *generator) {
       //
       // - Subtract the leadFieldsOffset ( - 1 to make it zero based).
       //
-      Int32 leadFieldsSize = ((((sourceType.getStartField() - 1) * 3) + 2) - (leadFieldsOffset - 1));
+      int leadFieldsSize = ((((sourceType.getStartField() - 1) * 3) + 2) - (leadFieldsOffset - 1));
 
       // Size (in bytes) of the source value represented as a
       // character string.
       //
-      Int32 sourceFieldsSize = sourceType.getDisplayLength();
+      int sourceFieldsSize = sourceType.getDisplayLength();
 
       // Construct an expression (string) to concatinate the given
       // value with the required fields from the current timestamp as
@@ -8662,7 +8662,7 @@ ItemExpr *MathFunc::preCodeGen(Generator *generator) {
     }
   }
 
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     if (castIt) {
       const NAType &typ = child(i)->getValueId().getType();
 
@@ -8684,7 +8684,7 @@ ItemExpr *MathFunc::preCodeGen(Generator *generator) {
 ItemExpr *Modulus::preCodeGen(Generator *generator) {
   if (nodeIsPreCodeGenned()) return this;
 
-  for (Int32 i = 0; i < 2; i++) {
+  for (int i = 0; i < 2; i++) {
     const NumericType &typ = (NumericType &)child(i)->getValueId().getType();
 
     if (typ.isDecimal()) {
@@ -8740,7 +8740,7 @@ ItemExpr *PivotGroup::preCodeGen(Generator *generator) {
 
   const NAType &pivotType = this->getValueId().getType();
 
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     const NAType &childType = child(i)->castToItemExpr()->getValueId().getType();
 
     // if child is not Character type, or child's CharSet does not match
@@ -8803,7 +8803,7 @@ ItemExpr *Repeat::preCodeGen(Generator *generator) {
 
   child(1)->bindNode(generator->getBindWA());
 
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     if (child(i)) {
       child(i) = child(i)->preCodeGen(generator);
       if (!child(i).getPtr()) return NULL;
@@ -8887,7 +8887,7 @@ ItemExpr *ProgDistribKey::preCodeGen(Generator *generator) {
 
   // Assert that all operands are of type unsigned int.
   //
-  for (Int32 i = 0; i < 3; i++) {
+  for (int i = 0; i < 3; i++) {
     NumericType *numeric = (NumericType *)(&(child(i)->getValueId().getType()));
 
     GenAssert(numeric->getFSDatatype() == REC_BIN32_UNSIGNED && numeric->getScale() == 0,
@@ -8953,7 +8953,7 @@ ItemExpr *Substring::preCodeGen(Generator *generator) {
   child(0) = child(0)->preCodeGen(generator);
   if (!child(0).getPtr()) return NULL;
 
-  for (Int32 i = 1; i < getArity(); i++) {
+  for (int i = 1; i < getArity(); i++) {
     if (child(i)) {
       const NAType &typ1 = child(i)->getValueId().getType();
 
@@ -8981,7 +8981,7 @@ ItemExpr *RegexpSubstr::preCodeGen(Generator *generator) {
   child(1) = child(1)->preCodeGen(generator);
   if (!child(1).getPtr()) return NULL;
 
-  for (Int32 i = 2; i < getArity(); i++) {
+  for (int i = 2; i < getArity(); i++) {
     if (child(i)) {
       const NAType &typ1 = child(i)->getValueId().getType();
 
@@ -9137,8 +9137,8 @@ RelExpr *PhysTranspose::preCodeGen(Generator *generator, const ValueIdSet &exter
 
   // My Characteristic Inputs become the external inputs for my children.
   //
-  Int32 nc = getArity();
-  for (Int32 index = 0; index < nc; index++) {
+  int nc = getArity();
+  for (int index = 0; index < nc; index++) {
     ValueIdSet childPulledInputs;
 
     child(index) = child(index)->preCodeGen(generator, externalInputs, pulledNewInputs);
@@ -9206,8 +9206,8 @@ RelExpr *PhyPack::preCodeGen(Generator *generator, const ValueIdSet &externalInp
 
   // My Characteristic Inputs become the external inputs for my children.
   //
-  Int32 nc = getArity();
-  for (Int32 index = 0; index < nc; index++) {
+  int nc = getArity();
+  for (int index = 0; index < nc; index++) {
     ValueIdSet childPulledInputs;
 
     child(index) = child(index)->preCodeGen(generator, externalInputs, pulledNewInputs);
@@ -9478,7 +9478,7 @@ RelExpr *PhysicalTableMappingUDF::preCodeGen(Generator *generator, const ValueId
   ValueIdSet availableValues;
   getInputValuesFromParentAndChildren(availableValues);
 
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     ValueIdList &childOutputs(getChildInfo(i)->getOutputIds());
     ValueIdList origChildOutputs(childOutputs);
 
@@ -9705,7 +9705,7 @@ ItemExpr *NotIn::preCodeGen(Generator *generator) {
 
 short HbaseAccess::processSQHbaseKeyPreds(Generator *generator, NAList<HbaseSearchKey *> &searchKeys,
                                           ListOfUniqueRows &listOfUniqueRows, ListOfRangeRows &listOfRangeRows) {
-  Int32 ct = 0;
+  int ct = 0;
   HbaseUniqueRows getSpec;
   getSpec.rowTS_ = -1;
 
@@ -10706,7 +10706,7 @@ ItemExpr *SplitPart::preCodeGen(Generator *generator) {
   child(1) = child(1)->preCodeGen(generator);
   if (!child(1).getPtr()) return NULL;
 
-  for (Int32 i = 2; i < getArity(); i++) {
+  for (int i = 2; i < getArity(); i++) {
     if (child(i)) {
       const NAType &typ1 = child(i)->getValueId().getType();
 
@@ -10750,8 +10750,8 @@ RelExpr *ConnectBy::preCodeGen(Generator *generator, const ValueIdSet &externalI
 
       if (outputId.isEmpty())
       {
-        Int32 leftIndex = getLeftMap().getTopValues().index(v);
-        Int32 rightIndex = getRightMap().getTopValues().index(v);
+        int leftIndex = getLeftMap().getTopValues().index(v);
+        int rightIndex = getRightMap().getTopValues().index(v);
 
         CMPASSERT((leftIndex != NULL_COLL_INDEX) &&
                   (rightIndex != NULL_COLL_INDEX));

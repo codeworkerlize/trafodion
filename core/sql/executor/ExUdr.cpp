@@ -83,7 +83,7 @@ static const char *GetExpStatusString(ex_expr::exp_return_type s) {
     case ex_expr::EXPR_NULL:
       return "EXPR_NULL";
     default:
-      return ComRtGetUnknownString((Int32)s);
+      return ComRtGetUnknownString((int)s);
   }
 }
 static const char *GetWorkRetcodeString(ExWorkProcRetcode r) {
@@ -99,7 +99,7 @@ static const char *GetWorkRetcodeString(ExWorkProcRetcode r) {
     case WORK_BAD_ERROR:
       return "WORK_BAD_ERROR";
     default:
-      return ComRtGetUnknownString((Int32)r);
+      return ComRtGetUnknownString((int)r);
   }
 }
 static const char *GetUpStatusString(ex_queue::up_status s) {
@@ -115,11 +115,11 @@ static const char *GetUpStatusString(ex_queue::up_status s) {
     case ex_queue::Q_GET_DONE:
       return "Q_GET_DONE";
     default:
-      return ComRtGetUnknownString((Int32)s);
+      return ComRtGetUnknownString((int)s);
   }
 }
 
-static void TransIdToText(long transId, char *buf, Int32 len) {
+static void TransIdToText(long transId, char *buf, int len) {
   ex_assert(len > 100, "Buffer passed to TransIdToText is too small");
 
   if (transId == -1) {
@@ -131,7 +131,7 @@ static void TransIdToText(long transId, char *buf, Int32 len) {
   short error;
   error = TRANSIDTOTEXT(transId, buf, (short)(len - 1), &actualLen);
   if (error)
-    str_sprintf(buf, "(error %d)", (Int32)error);
+    str_sprintf(buf, "(error %d)", (int)error);
   else
     buf[actualLen] = 0;
 }
@@ -363,7 +363,7 @@ ExUdrTcb::ExUdrTcb(const ExUdrTdb &udrTdb, const ex_tcb **childTcbs, ex_globals 
   if (numChildren()) {
     childInputBuffers_ = (UdrDataBuffer **)new (globSpace) UdrDataBuffer *[numChildren()];
     // Initialize them all to NULL
-    for (Int32 i = 0; i < numChildren(); i++) childInputBuffers_[i] = NULL;
+    for (int i = 0; i < numChildren(); i++) childInputBuffers_[i] = NULL;
   }
 
   // Allocate queues to communicate with parent
@@ -378,7 +378,7 @@ ExUdrTcb::ExUdrTcb(const ExUdrTdb &udrTdb, const ex_tcb **childTcbs, ex_globals 
 
     // Initialize array.
     //
-    Int32 i;
+    int i;
     for (i = 0; i < numChildren(); i++) {
       qChild_[i] = childTcbs_[i]->getParentQueue();
       tmudfStates_[i] = INITIAL;
@@ -406,7 +406,7 @@ ExUdrTcb::ExUdrTcb(const ExUdrTdb &udrTdb, const ex_tcb **childTcbs, ex_globals 
   if (udrTdb.getOutputExpression())
     udrTdb.getOutputExpression()->fixup(0, getExpressionMode(), this, globSpace, globHeap, FALSE, glob);
 
-  Int32 i;
+  int i;
   for (i = 0; i < numChildren(); i++) {
     if (udrTdb.getChildInputExpr(i))
       udrTdb.getChildInputExpr(i)->fixup(0, getExpressionMode(), this, globSpace, globHeap, FALSE, glob);
@@ -500,7 +500,7 @@ void ExUdrTcb::registerSubtasks() {
 
     // I/O events are seen by tmudfWork()
     ioSubtask_ = sched->registerNonQueueSubtask(sTmudfWork, this, "I/O Events");
-    Int32 i;
+    int i;
     for (i = 0; i < numChildren(); i++) {
       sched->registerUnblockSubtask(sTmudfWork, this, qChild_[i].down, "Down");
       sched->registerInsertSubtask(sTmudfWork, this, qChild_[i].up, " Up");
@@ -547,7 +547,7 @@ ComDiagsArea *ExUdrTcb::getOrCreateStmtDiags() const {
 // TCB fixup
 // Non-zero return value indicates errors
 //----------------------------------------------------------------------
-Int32 ExUdrTcb::fixup() {
+int ExUdrTcb::fixup() {
 #ifdef UDR_DEBUG
   initializeDebugVariables();
 #endif  // UDR_DEBUG
@@ -561,14 +561,14 @@ Int32 ExUdrTcb::fixup() {
   //
   // Non-zero return value indicates an error
   //
-  const Int32 FIXUP_SUCCESS = 0;
-  const Int32 FIXUP_ERROR = 1;
+  const int FIXUP_SUCCESS = 0;
+  const int FIXUP_ERROR = 1;
 
   // The result variable will have the value FIXUP_ERROR until we are
   // sure the following are true
   // - this TCB has a running server
   // - a nowait LOAD request has been sent to the server
-  Int32 result = FIXUP_ERROR;
+  int result = FIXUP_ERROR;
 
   NABoolean isResultSet = myTdb().isResultSetProxy();
 
@@ -707,7 +707,7 @@ Int32 ExUdrTcb::fixup() {
           libOrJarName = myTdb().getPathName();
         else
           libOrJarName = myTdb().getContainerName();
-        Int32 err = 0;
+        int err = 0;
         if (err = ComGenerateUdrCachedLibName(libOrJarName.data(), myTdb().getLibraryRedefTime(),
                                               myTdb().getLibrarySchName(), dummyUser, cachedLibName, cachedLibPath)) {
           if (err != EEXIST) {
@@ -844,7 +844,7 @@ ExWorkProcRetcode ExUdrTcb::work() {
     if (dataStream_ && dataStream_->getNextReceiveMsg(msgType)) {
       char buf[256];
       dataStream_->getNextObjType(msgType);
-      str_sprintf(buf, "An unexpected message of type %d arrived", (Int32)msgType);
+      str_sprintf(buf, "An unexpected message of type %d arrived", (int)msgType);
       ex_assert(FALSE, buf);
     }
     dataStream_->releaseBuffers();
@@ -2042,7 +2042,7 @@ void ExUdrTcb::releaseRequestBuffer() {
   UdrDebug1("  [END ExUdrTcb::releaseRequestBuffer() %p]", this);
 }
 
-void ExUdrTcb::releaseChildInputBuffer(Int32 i) {
+void ExUdrTcb::releaseChildInputBuffer(int i) {
   UdrDebug1("  [BEGIN ExUdrTcb::releaseChildInputBuffer() 0x%08x]", this);
 
   //
@@ -2625,7 +2625,7 @@ ExWorkProcRetcode ExUdrTcb::workCancel() {
               sendStep = CANCEL_AFTER_SEND;
               anyEntriesCancelled = TRUE;
               needToSendCancelToServer = TRUE;
-              for (Int32 j = 0; j < numChildren(); j++) {
+              for (int j = 0; j < numChildren(); j++) {
                 qChild_[j].down->cancelRequestWithParentIndex(i);
               }
               break;
@@ -2939,7 +2939,7 @@ const char *ExUdrTcb::getUdrTcbStateString(UdrTcbState s) {
     case CHILD_INPUT_READY_TO_SEND:
       return "CHILD_INPUT_READY_TO_SEND";
     default:
-      return ComRtGetUnknownString((Int32)s);
+      return ComRtGetUnknownString((int)s);
   }
 }
 
@@ -3135,7 +3135,7 @@ ExWorkProcRetcode ExUdrTcb::tmudfWork() {
     if (dataStream_ && dataStream_->getNextReceiveMsg(msgType)) {
       char buf[256];
       dataStream_->getNextObjType(msgType);
-      str_sprintf(buf, "An unexpected message of type %d arrived", (Int32)msgType);
+      str_sprintf(buf, "An unexpected message of type %d arrived", (int)msgType);
       ex_assert(FALSE, buf);
     }
     dataStream_->releaseBuffers();
@@ -3188,7 +3188,7 @@ ExWorkProcRetcode ExUdrTcb::tmudfCheckReceive() {
         case PRODUCE_EOD_AFTER_ERROR: {
           // consume any remaining rows from the children, before
           // producing the EOD
-          for (Int32 i = 0; i < numChildren(); i++)
+          for (int i = 0; i < numChildren(); i++)
             if (tmudfStates_[i] == READING_FROM_CHILD) {
               // remove child up queue entries until we see an EOD
               while (!qChild_[i].up->isEmpty() && tmudfStates_[i] == READING_FROM_CHILD) {
@@ -3587,7 +3587,7 @@ ExWorkProcRetcode ExUdrTcb::buildAndSendTmudfInput() {
       case READ_TABLE_INPUT_FROM_CHILD: {
         // read rows from child specified in the reply from server
         // if nothing returned from any child. Get outta here.
-        Int32 currChild = pstate.currentChildTcbIndex_;
+        int currChild = pstate.currentChildTcbIndex_;
         UdrDebug1("TMUDF READING FROM CHILD  %lu", currChild);
 
         // If this table's buffer is empty, allocate it on the stream
@@ -3652,7 +3652,7 @@ ExWorkProcRetcode ExUdrTcb::buildAndSendTmudfInput() {
         // OR if we reach EOD on one particular table input, just send
         // whatever we have in that buffer. This is because each tables
         // input should reach in it's own buffer
-        Int32 currChild = pstate.currentChildTcbIndex_;
+        int currChild = pstate.currentChildTcbIndex_;
         SqlBuffer *childSqlBuf = childInputBuffers_[currChild]->getSqlBuffer();
         ex_assert(childSqlBuf, "UDR childinput buffer is missing");
 
@@ -3785,7 +3785,7 @@ ExWorkProcRetcode ExUdrTcb::buildAndSendTmudfInput() {
       } break;
 
       case CHILD_INPUT_READY_TO_SEND: {
-        Int32 currChild = pstate.currentChildTcbIndex_;
+        int currChild = pstate.currentChildTcbIndex_;
         // send request in buffer
         SqlBuffer *sqlBuf = childInputBuffers_[currChild]->getSqlBuffer();
         if (sqlBuf->getTotalTuppDescs() > 0) {
@@ -3913,9 +3913,9 @@ void ExUdrTcb::printDataStreamState() {
     UdrDebug6(
         "    Data stream: "
         "inUse %d, in %d, out %d, send %d, replyTag %d, pending %d",
-        (Int32)dataStream_->numOfInUseBuffers(), (Int32)dataStream_->numOfInputBuffers(),
-        (Int32)dataStream_->numOfOutputBuffers(), (Int32)dataStream_->numOfSendBuffers(),
-        (Int32)dataStream_->numOfReplyTagBuffers(), (Int32)dataStream_->numOfResponsesPending());
+        (int)dataStream_->numOfInUseBuffers(), (int)dataStream_->numOfInputBuffers(),
+        (int)dataStream_->numOfOutputBuffers(), (int)dataStream_->numOfSendBuffers(),
+        (int)dataStream_->numOfReplyTagBuffers(), (int)dataStream_->numOfResponsesPending());
   }
 }
 
@@ -3995,7 +3995,7 @@ NABoolean ExUdrTcb::validateDataRow(const tupp &replyTupp, ComDiagsArea *&diags)
           if (diags == NULL) diags = ComDiagsArea::allocate(getHeap());
 
           char msg[100];
-          str_sprintf(msg, "VARCHAR length should not exceed %d", (Int32)actual.getLength());
+          str_sprintf(msg, "VARCHAR length should not exceed %d", (int)actual.getLength());
 
           int pos = (int)(isProcedure ? (i + 1) : (outPosition + 1));
 
@@ -4013,7 +4013,7 @@ NABoolean ExUdrTcb::validateDataRow(const tupp &replyTupp, ComDiagsArea *&diags)
         if (DFS2REC::isAnyVarChar(fsType)) sourceLen = actual.getLength(dataPtr + actual.getVCLenIndOffset());
 
         ComUInt32 sourceChars = sourceLen / 2;
-        if (CharInfo::checkCodePoint((wchar_t *)source, (Int32)sourceChars, CharInfo::UNICODE) == FALSE) {
+        if (CharInfo::checkCodePoint((wchar_t *)source, (int)sourceChars, CharInfo::UNICODE) == FALSE) {
           if (diags == NULL) diags = ComDiagsArea::allocate(getHeap());
 
           int pos = (int)(isProcedure ? (i + 1) : (outPosition + 1));

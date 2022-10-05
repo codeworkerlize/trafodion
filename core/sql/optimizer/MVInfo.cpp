@@ -208,7 +208,7 @@ static NABoolean isANonRepeatableExpression(const ItemExpr *expr, BindWA *bindWA
 void RelExpr::collectMVInformation(MVInfoForDDL *mvInfo, NABoolean isNormalized) {
   if (!isIncrementalMV()) mvInfo->setNotIncremental();  // use default reason
 
-  Int32 arity = getArity();
+  int arity = getArity();
   for (int i = 0; i < arity; i++) child(i)->collectMVInformation(mvInfo, isNormalized);
 }
 
@@ -1336,7 +1336,7 @@ MVColumnInfo::MVColumnInfo(MVInfoForDDL &mvInfoObj, CollHeap *heap)
 //////////////////////////////////////////////////////////////////////////////
 // Ctor for link only columns (duplicate, redundant or complex).
 //////////////////////////////////////////////////////////////////////////////
-MVColumnInfo::MVColumnInfo(Int32 colNum, const QualifiedName &origTableName, Int32 origColNumber, ComMVColType colType,
+MVColumnInfo::MVColumnInfo(int colNum, const QualifiedName &origTableName, int origColNumber, ComMVColType colType,
                            CollHeap *heap)
     : colNumber_(colNum),
       colName_("", heap),
@@ -1367,10 +1367,10 @@ MVColumnInfo::MVColumnInfo(Int32 colNum, const QualifiedName &origTableName, Int
 //////////////////////////////////////////////////////////////////////////////
 // Explicit Ctor for DML
 //////////////////////////////////////////////////////////////////////////////
-MVColumnInfo::MVColumnInfo(CollHeap *heap, Int32 colNumber, const NAString &colName, ComMVColType colType,
+MVColumnInfo::MVColumnInfo(CollHeap *heap, int colNumber, const NAString &colName, ComMVColType colType,
                            OperatorTypeEnum operatorType, NABoolean isSystem, const NAString &normalizedColText,
-                           Int32 dep1, Int32 dep2, Int32 dep3, ComMVSUsageType usageType,
-                           const QualifiedName *origTableName, Int32 origColNumber, NABoolean isComplex)
+                           int dep1, int dep2, int dep3, ComMVSUsageType usageType,
+                           const QualifiedName *origTableName, int origColNumber, NABoolean isComplex)
     : colNumber_(colNumber),
       colName_(colName, heap),
       colDataType_(NULL),
@@ -1677,7 +1677,7 @@ void MVColumnInfo::insertIntoExpHash(ExpressionHash &expHash, CollHeap *heap) {
     aggArray = new (heap) AggregateArray(heap, AGG_OTHER);
     // Initialize all ARRAY elements to NULL.
     // Uninitialized elements may cause problems.
-    for (Int32 i = AGG_OTHER - 1; i >= 0; i--) aggArray->insertAt(i, NULL);
+    for (int i = AGG_OTHER - 1; i >= 0; i--) aggArray->insertAt(i, NULL);
     expHash.insert(&exprTextForHash_, aggArray);
   }
   // Insert this column into the array at index aggIndex_.
@@ -1701,7 +1701,7 @@ void MVColumnInfo::setAsRedundant(int firstMvCol) {
 // its index. Otherwise construct a new MVColumnInfo object for this column,
 // insert it into the expression hash, and then return its index.
 //////////////////////////////////////////////////////////////////////////////
-Int32 MVColumnInfo::newMavDependentColumn(ExpressionHash &expHash, const NAString &exprTextForHash,
+int MVColumnInfo::newMavDependentColumn(ExpressionHash &expHash, const NAString &exprTextForHash,
                                           MVInfoForDDL &mvInfoObj, MVAggFunc depIndex, ItemExpr *depExpr,
                                           CollHeap *heap) {
   // Is it already in the hash?
@@ -1784,7 +1784,7 @@ void MVColumnInfo::createDependentColumns(ExpressionHash &expHash, MVInfoForDDL 
 
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
-Int32 MVColumnInfo::newStddevwDepColumn(Int32 childNo, ExpressionHash &expHash, const NAString &exprTextForHash,
+int MVColumnInfo::newStddevwDepColumn(int childNo, ExpressionHash &expHash, const NAString &exprTextForHash,
                                         MVInfoForDDL &mvInfoObj, CollHeap *heap) {
   // Use the parameters of the original STDDEV / VARIANCE expression.
   // Skip all CAST operators in the expression before using unparse().
@@ -2064,7 +2064,7 @@ MVColumnInfo *MVColumns::getMvColInfoByBaseColumn(const QualifiedName &tableName
       MVBaseColInfo = colInfoList->at(i);
       if (MVBaseColInfo && (MVBaseColInfo->getColType() == COM_MVCOL_REDUNDANT))
         MVBaseColInfo = getMvColInfoByIndex(MVBaseColInfo->getDepCol1());
-      if (MVBaseColInfo && (MVBaseColInfo->getColNumber() == (Int32)mvColPosition)) colInfo = MVBaseColInfo;
+      if (MVBaseColInfo && (MVBaseColInfo->getColNumber() == (int)mvColPosition)) colInfo = MVBaseColInfo;
     }
   }
 
@@ -2401,7 +2401,7 @@ NABoolean MVInfo::isEqPredicateBetween(const QualifiedName &table1, int col1, co
 //////////////////////////////////////////////////////////////////////////////
 // Construct a new join graph with initial size.
 //////////////////////////////////////////////////////////////////////////////
-void MVInfo::newJoinGraph(Int32 initialSize) { joinGraph_ = new (heap_) MVJoinGraph(initialSize, heap_); }
+void MVInfo::newJoinGraph(int initialSize) { joinGraph_ = new (heap_) MVJoinGraph(initialSize, heap_); }
 
 //////////////////////////////////////////////////////////////////////////////
 // Return the MVUsedObjectInfo object of the table tableName used by this MV.
@@ -3788,7 +3788,7 @@ void MVInfoForDDL::markMVCIasIndirectUpdate() {
 
   // Iterate over all the MV columns
   for (CollIndex i = 0; i < columnList.entries(); i++) {
-    MVColumnInfo *colInfo = columnList[(Int32)i];
+    MVColumnInfo *colInfo = columnList[(int)i];
     // Find those that are part of the MV CI
     if (colInfo->isInMVCI()) {
       colInfo->setIndirectUpdate();

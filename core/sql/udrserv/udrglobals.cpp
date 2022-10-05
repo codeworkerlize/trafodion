@@ -130,8 +130,8 @@ UdrGlobals::UdrGlobals(NAHeap *udrheap, NAHeap *ipcheap)
       numCurrRSets_(0),
       currSP_(NULL),
       currCGroup_(udrheap) {
-  Int32 i;
-  Int32 j;
+  int i;
+  int j;
   for (i = 0; i < UDRMAXOPENERS_V100; i++) XPROCESSHANDLE_NULLIT_(&(gOpenerPhandle_[i].phandle_));
 
   str_cpy_all(serverName_, "tdm_udrserv", str_len("tdm_udrserv"));
@@ -165,7 +165,7 @@ UdrGlobals::UdrGlobals(NAHeap *udrheap, NAHeap *ipcheap)
   // Retrieve the CURRENT_USER name
   status = exp_function_get_user(ITM_CURRENT_USER, currentUserName_, MAX_USER_NAME_LENGTH + 1, &username_len);
   if (status != 0) {
-    UDR_DEBUG1("*** WARNING: exp_function_get_user for CURRENT_USER returned error %d", (Int32)status);
+    UDR_DEBUG1("*** WARNING: exp_function_get_user for CURRENT_USER returned error %d", (int)status);
     sprintf(currentUserName_, "UNKNOWN");
   }
   strcpy(currentRoleName_, currentUserName_);
@@ -174,7 +174,7 @@ UdrGlobals::UdrGlobals(NAHeap *udrheap, NAHeap *ipcheap)
   username_len = 0;
   status = exp_function_get_user(ITM_SESSION_USER, sessionUserName_, MAX_USER_NAME_LENGTH + 1, &username_len);
   if (status != 0) {
-    UDR_DEBUG1("*** WARNING: exp_function_get_user for SESSION_USER returned error %d", (Int32)status);
+    UDR_DEBUG1("*** WARNING: exp_function_get_user for SESSION_USER returned error %d", (int)status);
     sprintf(sessionUserName_, "UNKNOWN");
   }
 

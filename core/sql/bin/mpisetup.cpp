@@ -44,8 +44,8 @@ void my_mpi_close() {
 }
 
 void my_mpi_fclose() {
-  static Int32 sv_called_count = 0;
-  static Int32 sv_retcode = -999;
+  static int sv_called_count = 0;
+  static int sv_retcode = -999;
 #ifdef MPI_
   if (++sv_called_count > 2000000000)  // Don't allow it to overflow to zero, but
     sv_called_count = 2000000000;      // keep the fact that it is very large.
@@ -53,7 +53,7 @@ void my_mpi_fclose() {
 #endif
 }
 
-short my_mpi_setup(Int32 *argc, char **argv[]) {
+short my_mpi_setup(int *argc, char **argv[]) {
   static short bMpiSetupCalled = 0;
   short retcode = 0;
 

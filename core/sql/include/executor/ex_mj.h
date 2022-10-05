@@ -161,8 +161,8 @@ class ex_mj_tcb : public ex_tcb {
   short stop(ex_mj_private_state &pstate);
   short cancel(ex_mj_private_state &pstate);
 
-  virtual const ex_tcb *getChild(Int32 pos) const;
-  virtual Int32 numChildren() const { return 2; }
+  virtual const ex_tcb *getChild(int pos) const;
+  virtual int numChildren() const { return 2; }
 
  protected:
   // Opportunistic look ahead states for next left child row.
@@ -227,17 +227,17 @@ class ex_mj_tcb : public ex_tcb {
 
   inline ex_mj_tdb &mjTdb() const { return (ex_mj_tdb &)tdb; }
 
-  inline Int32 isSemiJoin() const  // True if we are doing a semi-join
+  inline int isSemiJoin() const  // True if we are doing a semi-join
   {
     return mjTdb().isSemiJoin();
   }
 
-  inline Int32 isLeftJoin() const  // True if we are doing a left-join
+  inline int isLeftJoin() const  // True if we are doing a left-join
   {
     return mjTdb().isLeftJoin();
   }
 
-  inline Int32 isAntiJoin() const  // True if we are doing a Anti-join
+  inline int isAntiJoin() const  // True if we are doing a Anti-join
   {
     return mjTdb().isAntiJoin();
   }
@@ -283,7 +283,7 @@ class ex_mj_tcb : public ex_tcb {
   bool noSavedDups(void);
 };
 
-inline const ex_tcb *ex_mj_tcb::getChild(Int32 pos) const {
+inline const ex_tcb *ex_mj_tcb::getChild(int pos) const {
   ex_assert((pos >= 0), "");
   if (pos == 0)
     return tcbLeft_;

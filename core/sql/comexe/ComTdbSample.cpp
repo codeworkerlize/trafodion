@@ -48,7 +48,7 @@
 // Constructor
 ComTdbSample::ComTdbSample() : ComTdb(ComTdb::ex_SAMPLE, eye_SAMPLE) {}
 
-ComTdbSample::ComTdbSample(ex_expr *initExpr, ex_expr *balanceExpr, Int32 returnFactorOffset, ex_expr *postPred,
+ComTdbSample::ComTdbSample(ex_expr *initExpr, ex_expr *balanceExpr, int returnFactorOffset, ex_expr *postPred,
                            ComTdb *child_tdb, ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc,
                            queue_index down, queue_index up)
 
@@ -63,7 +63,7 @@ ComTdbSample::~ComTdbSample() {}
 
 void ComTdbSample::display() const {};
 
-Int32 ComTdbSample::orderedQueueProtocol() const { return -1; }
+int ComTdbSample::orderedQueueProtocol() const { return -1; }
 
 Long ComTdbSample::pack(void *space) {
   tdbChild_.pack(space);

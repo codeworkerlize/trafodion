@@ -59,7 +59,7 @@ extern UdrGlobals *UDR_GLOBALS;  // UDR globals area
 
 struct SignalAttr {
  public:
-  Int32 sigType;
+  int sigType;
   const char *sigName;
   struct sigaction udrSigAction;
   struct sigaction javaSigAction;
@@ -200,7 +200,7 @@ void makeTFDSCall(const char *msg, const char *file, UInt32 line, NABoolean dial
 // Also the handler uses some library functions such as sprintf which are not known to be
 // "async signal safe", so if there are any issues found, it may need changes.
 
-void UdrSignalHandler(Int32 signo) {
+void UdrSignalHandler(int signo) {
   // Block any more signals inside signal handler
   sigset_t sigMask;
   sigfillset(&sigMask);
@@ -303,7 +303,7 @@ void setUdrSignalHandlers() {
   sigemptyset(&(sigAct.sa_mask));
   sigAct.sa_flags = 0;
   sigAct.sa_handler = UdrSignalHandler;
-  for (Int32 i = 0; i < sizeof(signalAttrTable) / sizeof(SignalAttr); i++) {
+  for (int i = 0; i < sizeof(signalAttrTable) / sizeof(SignalAttr); i++) {
     if (sigaction(signalAttrTable[i].sigType, &sigAct, &oldAction)) {
       cerr << "[MXUDR DEBUG SIGNAL HANDLER] "
            << "sigaction() failed, cannot set signal handler for " << signalAttrTable[i].sigName << endl;
@@ -313,8 +313,8 @@ void setUdrSignalHandlers() {
 
 void printSignalHandlers() {
   struct sigaction oldAction;
-  void (*oldHdlr)(Int32);
-  for (Int32 i = 0; i < sizeof(signalAttrTable) / sizeof(SignalAttr); i++) {
+  void (*oldHdlr)(int);
+  for (int i = 0; i < sizeof(signalAttrTable) / sizeof(SignalAttr); i++) {
     if (sigaction(signalAttrTable[i].sigType, (struct sigaction *)NULL, &oldAction)) {
       cerr << "[MXUDR DEBUG SIGNAL HANDLER] "
            << "sigaction() failed, cannot obtain old signal handler for " << signalAttrTable[i].sigName << endl;
@@ -335,7 +335,7 @@ NABoolean saveUdrTrapSignalHandlers() {
   UDR_DEBUG0("[SIGNAL] Save  UDR Trap signal handlers");
   struct sigaction oldAction;
 
-  for (Int32 i = 0; i < sizeof(signalAttrTable) / sizeof(SignalAttr); i++) {
+  for (int i = 0; i < sizeof(signalAttrTable) / sizeof(SignalAttr); i++) {
     if (sigaction(signalAttrTable[i].sigType, (struct sigaction *)NULL, &oldAction)) {
       cerr << "[MXUDR DEBUG SIGNAL HANDLER] "
            << "sigaction() failed, cannot obtain old signal handler for " << signalAttrTable[i].sigName << endl;
@@ -358,7 +358,7 @@ NABoolean setSignalHandlersToDefault() {
   sigAct.sa_handler = SIG_DFL;
 
   UDR_DEBUG0("[SIGNAL] Set signal handlers to default before Java LM initialization");
-  for (Int32 i = 0; i < sizeof(signalAttrTable) / sizeof(SignalAttr); i++) {
+  for (int i = 0; i < sizeof(signalAttrTable) / sizeof(SignalAttr); i++) {
     if (sigaction(signalAttrTable[i].sigType, &sigAct, &oldAction)) {
       char msg[256];
       sprintf(msg, "[UDR WARNING] sigaction() failed, cannot change %s to the default handler\n",
@@ -379,7 +379,7 @@ NABoolean restoreJavaSignalHandlers() {
   sigemptyset(&(sigAct.sa_mask));
   sigAct.sa_flags = 0;
 
-  for (Int32 i = 0; i < sizeof(signalAttrTable) / sizeof(SignalAttr); i++) {
+  for (int i = 0; i < sizeof(signalAttrTable) / sizeof(SignalAttr); i++) {
     if (sigaction(signalAttrTable[i].sigType, (struct sigaction *)NULL, &oldAction)) {
       cerr << "[MXUDR DEBUG SIGNAL HANDLER] "
            << "sigaction() failed, cannot obtain old signal handler for " << signalAttrTable[i].sigName << endl;
@@ -412,7 +412,7 @@ NABoolean restoreUdrTrapSignalHandlers(NABoolean saveJavaSignalHandlers) {
   sigemptyset(&(sigAct.sa_mask));
   sigAct.sa_flags = 0;
 
-  for (Int32 i = 0; i < sizeof(signalAttrTable) / sizeof(SignalAttr); i++) {
+  for (int i = 0; i < sizeof(signalAttrTable) / sizeof(SignalAttr); i++) {
     if (sigaction(signalAttrTable[i].sigType, (struct sigaction *)NULL, &oldAction)) {
       cerr << "[MXUDR DEBUG SIGNAL HANDLER] "
            << "sigaction() failed, cannot obtain old signal handler for " << signalAttrTable[i].sigName << endl;
@@ -474,7 +474,7 @@ void setExitHandler() {
 
   UDR_DEBUG0("[EXIT HANDLER] Setting up the MXUDR Exit handler");
 
-  Int32 rc = atexit(UdrExitHandler);
+  int rc = atexit(UdrExitHandler);
 
   UDR_DEBUG0("[EXIT HANDLER] Completed setting up the MXUDR Exit handler");
 }

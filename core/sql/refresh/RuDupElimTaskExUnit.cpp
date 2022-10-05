@@ -45,7 +45,7 @@
 //--------------------------------------------------------------------------//
 
 CRUDupElimTaskExUnit::CRUDupElimTaskExUnit(const CRUDupElimGlobals &dupElimGlobals,
-                                           CRUSQLDynamicStatementContainer &ctrlStmtContainer, Int32 nStmts)
+                                           CRUSQLDynamicStatementContainer &ctrlStmtContainer, int nStmts)
     : dupElimGlobals_(dupElimGlobals), ctrlStmtContainer_(ctrlStmtContainer), stmtContainer_(nStmts) {}
 
 //--------------------------------------------------------------------------//

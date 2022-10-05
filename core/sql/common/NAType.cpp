@@ -292,7 +292,7 @@ NABoolean NAType::createSQLLiteral(const char *buf, NAString *&stringLiteral, NA
   // generate a NULL value, otherwise let the derived class
   // generate a literal
   if (supportsSQLnull()) {
-    Int32 nullValue = 0;
+    int nullValue = 0;
 
     switch (getSQLnullHdrSize()) {
       case 2: {
@@ -379,7 +379,7 @@ int NAType::getDisplayLength() const {
 int NAType::getDisplayLengthStatic(int datatype, int length, int precision, int scale, int heading_len) {
   int d_len = 0;
 
-  Int32 scale_len = 0;
+  int scale_len = 0;
   if (scale > 0) scale_len = 1;
 
   switch (datatype) {
@@ -571,7 +571,7 @@ short NAType::genHiveTypeStrFromMyType(NAString *outputStr /*out*/) const {
   int fs_datatype = getFSDatatype();
   int precision = getPrecision();
   int scale = getScale();
-  Int32 hiveType = HIVE_UNKNOWN_TYPE;
+  int hiveType = HIVE_UNKNOWN_TYPE;
 
   if (((DFS2REC::isBinaryNumeric(fs_datatype) && (((NumericType *)this)->decimalPrecision())) ||
        (DFS2REC::isDecimal(fs_datatype)) || (DFS2REC::isBigNum(fs_datatype))) &&
@@ -789,9 +789,9 @@ static const char *findClosingAngleBracket(const char *inputStr) {
   // must start with '<'
   if (inputStr[0] != '<') return NULL;
 
-  Int32 len = strlen(inputStr);
-  Int32 numAngles = 1;
-  Int32 i = 1;
+  int len = strlen(inputStr);
+  int numAngles = 1;
+  int i = 1;
   NABoolean found = FALSE;
   while (i < len) {
     if (inputStr[i] == '<')
@@ -813,8 +813,8 @@ static const char *findClosingAngleBracket(const char *inputStr) {
 static const char *findToken(const char *str, char token) {
   if (!str) return NULL;
 
-  Int32 len = strlen(str);
-  Int32 i = 0;
+  int len = strlen(str);
+  int i = 0;
   NABoolean found = FALSE;
   while (i < len) {
     if (str[i] == token) {
@@ -869,7 +869,7 @@ NAType *NAType::getStructNATypeForHive(const char *compTypeStr, NABoolean isORC,
   NAArray<NAType *> *fieldTypes = new (heap) NAArray<NAType *>(heap);
 
   const char *currStr = beginStr + 1;  // skip '<'
-  Int32 i = 0;
+  int i = 0;
   while (currStr < endStr) {
     // find name of the subfield
     const char *endName = findToken(currStr, ':');
@@ -951,14 +951,14 @@ NAType *NAType::getNATypeForHive(const char *hiveType, NABoolean isORC, NABoolea
     nat = new (heap) SQLBooleanNative(heap, TRUE);
     nat->setHiveType(HIVE_BOOLEAN_TYPE);
   } else if (!strcmp(hiveType, "string")) {
-    Int32 lenInBytes = (compositeElement ? CmpCommon::getDefaultLong(HIVE_MAX_COMPOSITE_STRING_LENGTH_IN_BYTES)
+    int lenInBytes = (compositeElement ? CmpCommon::getDefaultLong(HIVE_MAX_COMPOSITE_STRING_LENGTH_IN_BYTES)
                                          : CmpCommon::getDefaultLong(HIVE_MAX_STRING_LENGTH_IN_BYTES));
 
     NAString hiveCharset = CmpCommon::getDefaultString(HIVE_DEFAULT_CHARSET);
     hiveCharset.toUpper();
     CharInfo::CharSet hiveCharsetEnum = CharInfo::getCharSetEnum(hiveCharset);
-    Int32 maxNumChars = 0;
-    Int32 storageLen = lenInBytes;
+    int maxNumChars = 0;
+    int storageLen = lenInBytes;
     nat = new (heap) SQLVarChar(heap, CharLenInfo(maxNumChars, storageLen),
                                 TRUE,   // allow NULL
                                 FALSE,  // not upshifted
@@ -981,7 +981,7 @@ NAType *NAType::getNATypeForHive(const char *hiveType, NABoolean isORC, NABoolea
     nat = new (heap) SQLDate(heap, TRUE /* allow NULL */);
     nat->setHiveType(HIVE_DATE_TYPE);
   } else if (!strcmp(hiveType, "binary")) {
-    Int32 len = CmpCommon::getDefaultLong(HIVE_MAX_BINARY_LENGTH);
+    int len = CmpCommon::getDefaultLong(HIVE_MAX_BINARY_LENGTH);
     if (CmpCommon::getDefault(TRAF_BINARY_SUPPORT) == DF_OFF)
       nat = new (heap) SQLVarChar(heap, len);
     else
@@ -1006,15 +1006,15 @@ NAType *NAType::getNATypeForHive(const char *hiveType, NABoolean isORC, NABoolea
         j++;
       }
     }
-    Int32 len = atoi(maxLen);
+    int len = atoi(maxLen);
 
     if (len == 0) return NULL;  // cannot parse correctly
 
     NAString hiveCharset = CmpCommon::getDefaultString(HIVE_DEFAULT_CHARSET);
     hiveCharset.toUpper();
     CharInfo::CharSet hiveCharsetEnum = CharInfo::getCharSetEnum(hiveCharset);
-    Int32 maxNumChars = 0;
-    Int32 storageLen = len;
+    int maxNumChars = 0;
+    int storageLen = len;
     if (CharInfo::isVariableWidthMultiByteCharSet(hiveCharsetEnum)) {
       // For Hive VARCHARs, the number specified is the max. number of characters,
       // while we count in bytes when using HIVE_MAX_STRING_LENGTH_IN_BYTES for Hive STRING
@@ -1044,8 +1044,8 @@ NAType *NAType::getNATypeForHive(const char *hiveType, NABoolean isORC, NABoolea
   } else if (!strncmp(hiveType, "decimal", 7)) {
     const Int16 DisAmbiguate = 0;
 
-    Int32 i = 0, pstart = -1, pend = -1, sstart = -1, send = -1, p = -1, s = -1;
-    Int32 hiveTypeLen = strlen(hiveType);
+    int i = 0, pstart = -1, pend = -1, sstart = -1, send = -1, p = -1, s = -1;
+    int hiveTypeLen = strlen(hiveType);
     char pstr[MAX_NUM_LEN], sstr[MAX_NUM_LEN];
     memset(pstr, 0, sizeof(pstr));
     memset(sstr, 0, sizeof(sstr));

@@ -69,7 +69,7 @@ class CompilationStats {
   ULng32 metadataCacheLookups();
   //
   // See QCacheState enum
-  Int32 getQueryCacheState();
+  int getQueryCacheState();
   //
   // histogram counters
   ULng32 histogramCacheHits();
@@ -96,7 +96,7 @@ class CompilationStats {
 
   // pass in a buffer of size CompilationStats::MAX_COMPILER_INFO_LEN
   void getCompileInfo(char *cmpInfo);
-  Int32 getCompileInfoLen();
+  int getCompileInfoLen();
 
   void enterCmpPhase(CompilationPhase phase);
   void exitCmpPhase(CompilationPhase phase);

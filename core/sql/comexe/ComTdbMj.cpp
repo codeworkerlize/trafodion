@@ -53,7 +53,7 @@ ComTdbMj::ComTdbMj(ComTdb *left_tdb, ComTdb *right_tdb, ex_cri_desc *given_cri_d
                    int lj_reclen, ex_cri_desc *work_cri_desc, short instantiated_row_atp_index,
                    ULng32 encoded_key_len, short encoded_key_work_atp_index, ex_expr *pre_join_expr,
                    ex_expr *post_join_expr, queue_index down, queue_index up, Cardinality estimatedRowCount,
-                   int num_buffers, ULng32 buffer_size, Int32 semi_join, Int32 left_join, Int32 anti_semi_join,
+                   int num_buffers, ULng32 buffer_size, int semi_join, int left_join, int anti_semi_join,
                    NABoolean left_is_unique, NABoolean right_is_unique, bool isOverflowEnabled,
                    UInt16 scratchThresholdPct, UInt16 quotaMB, UInt16 quotaPct, bool yieldQuota)
     : ComTdb(ComTdb::ex_MJ, eye_MJ, estimatedRowCount, given_cri_desc, returned_cri_desc, down, up, num_buffers,
@@ -150,6 +150,6 @@ void ComTdbMj::displayContents(Space *space, ULng32 flag) {
   }
 }
 
-Int32 ComTdbMj::orderedQueueProtocol() const {
+int ComTdbMj::orderedQueueProtocol() const {
   return -1;  // TRUE
 }  // there 4 lines will not be covered, obsolete but not in the list yet

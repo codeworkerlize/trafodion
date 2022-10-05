@@ -83,8 +83,8 @@ class DiskPool : public NABasicObject {
 
   DiskDetails **getDiskTablePtr() const { return diskTablePtr_; };
   DiskDetails **getLocalDisksPtr() const { return localDisksPtr_; };
-  Int32 getNumberOfDisks() { return numberOfDisks_; };
-  Int32 getNumberOfLocalDisks() { return numberOfLocalDisks_; };
+  int getNumberOfDisks() { return numberOfDisks_; };
+  int getNumberOfLocalDisks() { return numberOfLocalDisks_; };
   void setScratchSpace(ScratchSpace *scratchSpace) { scratchSpace_ = scratchSpace; }
 
 #ifdef FORDEBUG
@@ -97,8 +97,8 @@ class DiskPool : public NABasicObject {
   virtual NABoolean refreshDisk(DiskDetails *diskPtr) = 0;
   virtual NABoolean computeNumScratchFiles(DiskDetails *diskPtr) = 0;
   // index into the diskdetails pointer
-  Int32 numberOfDisks_;
-  Int32 numberOfLocalDisks_;
+  int numberOfDisks_;
+  int numberOfLocalDisks_;
 
   DiskDetails **diskTablePtr_;   // This is a pointer to an array
                                  // of <n> pointers to structures

@@ -180,7 +180,7 @@ ItemExpr *BinderUtils::getNamesListAsItemExpr(const ConstStringList &nameList, C
 }  // BinderUtils::getNamesListAsItemExpr
 
 //----------------------------------------------------------------------------
-ItemExpr *BinderUtils::buildPredOnCol(OperatorTypeEnum opType, const NAString &colName, Int32 constVal,
+ItemExpr *BinderUtils::buildPredOnCol(OperatorTypeEnum opType, const NAString &colName, int constVal,
                                       CollHeap *heap) {
   return new (heap)
       BiRelat(opType, new (heap) ColReference(new (heap) ColRefName(colName, heap)), new (heap) ConstValue(constVal));
@@ -323,7 +323,7 @@ ItemExpr *BinderUtils::buildSyskeyOrPKExpr(const NATable *naTable, const CorrNam
   }
 
   ColReference *colRef = NULL;
-  for (Int32 i = indexColumns.entries() - 1; i >= 0; i--) {
+  for (int i = indexColumns.entries() - 1; i >= 0; i--) {
     NAColumn *col = indexColumns[i];
 
     if (TRUE == col->isSaltColumn() || TRUE == col->isDivisioningColumn()) {

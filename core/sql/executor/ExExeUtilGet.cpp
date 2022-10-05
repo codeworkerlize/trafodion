@@ -145,7 +145,7 @@ ExExeUtilGetMetadataInfoTcb::ExExeUtilGetMetadataInfoTcb(const ComTdbExeUtilGetM
 
   headingBuf_ = new (glob->getDefaultHeap()) char[1000];
 
-  for (Int32 i = 0; i < NUM_MAX_PARAMS_; i++) {
+  for (int i = 0; i < NUM_MAX_PARAMS_; i++) {
     param_[i] = NULL;
   }
 
@@ -162,14 +162,14 @@ ExExeUtilGetMetadataInfoTcb::~ExExeUtilGetMetadataInfoTcb() {
   NADELETEBASIC(patternStr_, getGlobals()->getDefaultHeap());
 }
 
-static NABoolean userPartOfGroup(const char *groupList, Int32 groupToCheck) {
+static NABoolean userPartOfGroup(const char *groupList, int groupToCheck) {
   char cpyList[strlen(groupList) + 1];
   strcpy(cpyList, groupList);
   char *str = (char *)cpyList;
   str++;  // skip (
   char *tok = strtok(str, ",)");
   while (tok != NULL) {
-    Int32 groupInList = atoi(tok);
+    int groupInList = atoi(tok);
     if (groupInList == groupToCheck) return TRUE;
     tok = strtok(NULL, ",)");
   }
@@ -1526,7 +1526,7 @@ short ExExeUtilGetMetadataInfoTcb::displayHeading() {
 //       error are returned when trying to read AUTHS table.  Need to set
 //       parserflag 131072.
 // ----------------------------------------------------------------------------
-Int32 ExExeUtilGetMetadataInfoTcb::getAuthID(const char *authName, const char *catName, const char *schName,
+int ExExeUtilGetMetadataInfoTcb::getAuthID(const char *authName, const char *catName, const char *schName,
                                              const char *objName) {
   if (strcmp(authName, PUBLIC_AUTH_NAME) == 0) return PUBLIC_USER;
 
@@ -1557,26 +1557,26 @@ Int32 ExExeUtilGetMetadataInfoTcb::getAuthID(const char *authName, const char *c
 // Creates a list of current user roles, and current user role's grantees
 // It is returned in a format that can be used in an SQL IN clause.
 // ----------------------------------------------------------------------------
-Int32 ExExeUtilGetMetadataInfoTcb::getCurrentUserRoles(ContextCli *currContext, NAString &authList,
+int ExExeUtilGetMetadataInfoTcb::getCurrentUserRoles(ContextCli *currContext, NAString &authList,
                                                        NAString &granteeList) {
   if (!CmpCommon::context()->isAuthorizationEnabled()) return 0;
 
   // always include the current user in the list of auth IDs
-  char authIDAsChar[sizeof(Int32) + 10];
+  char authIDAsChar[sizeof(int) + 10];
   str_sprintf(authIDAsChar, "(%d", *currContext->getDatabaseUserID());
   authList += authIDAsChar;
 
   // get roles from cache
-  Int32 numRoles = 0;
-  Int32 *cachedRoleIDs = NULL;
-  Int32 *cachedGranteeIDs = NULL;
+  int numRoles = 0;
+  int *cachedRoleIDs = NULL;
+  int *cachedGranteeIDs = NULL;
   currContext->getRoleList(numRoles, cachedRoleIDs, cachedGranteeIDs);
   if (numRoles == 0) return numRoles;
 
   granteeList = ("(");
 
   // the number of entries in roleList is the same as granteeList
-  for (Int32 i = 0; i < numRoles; i++) {
+  for (int i = 0; i < numRoles; i++) {
     authList += ", ";
     str_sprintf(authIDAsChar, "%d", cachedRoleIDs[i]);
     authList += authIDAsChar;
@@ -1740,14 +1740,14 @@ NAString ExExeUtilGetMetadataInfoTcb::getGrantedPrivCmd(const NAString &authList
 //   (800101, 800108)
 // ----------------------------------------------------------------------------
 void ExExeUtilGetMetadataInfoTcb::getGroupList(const char *userName, NAString &groupIDString) {
-  NAList<Int32> groupIDs(getHeap());
-  Int32 retcode = ComUser::getUserGroups(userName, true, groupIDs, NULL);
+  NAList<int> groupIDs(getHeap());
+  int retcode = ComUser::getUserGroups(userName, true, groupIDs, NULL);
   if (retcode != 0 || groupIDs.entries() == 0) return;
 
-  char authIDAsChar[sizeof(Int32) + 10];
+  char authIDAsChar[sizeof(int) + 10];
 
   groupIDString += "(";
-  for (Int32 i = 0; i < groupIDs.entries(); i++) {
+  for (int i = 0; i < groupIDs.entries(); i++) {
     if (i > 0) groupIDString += ", ";
     str_sprintf(authIDAsChar, "%d", groupIDs[i]);
     groupIDString += authIDAsChar;
@@ -1775,7 +1775,7 @@ void ExExeUtilGetMetadataInfoTcb::getGroupList(const char *userName, NAString &g
 // For example:
 //   (-1, 33334, 1000004, 1000056, 800101)
 // ----------------------------------------------------------------------------
-char *ExExeUtilGetMetadataInfoTcb::getRoleList(bool &containsRootRole, const Int32 userID, const char *catName,
+char *ExExeUtilGetMetadataInfoTcb::getRoleList(bool &containsRootRole, const int userID, const char *catName,
                                                const char *schName, const char *objName) {
   // Always include PUBLIC
   NAString roleList("(-1");
@@ -1885,13 +1885,13 @@ NABoolean ExExeUtilGetMetadataInfoTcb::checkUserPrivs(ContextCli *currContext,
   // Root user sees everything
   if (ComUser::isRootUserID()) return FALSE;
 
-  Int32 numRoles;
-  Int32 *roleList;
-  Int32 *granteeList;
+  int numRoles;
+  int *roleList;
+  int *granteeList;
   if (currContext->getRoleList(numRoles, roleList, granteeList) == SUCCESS) {
-    char authIDAsChar[sizeof(Int32) + 10];
+    char authIDAsChar[sizeof(int) + 10];
     NAString auths;
-    for (Int32 i = 0; i < numRoles; i++) {
+    for (int i = 0; i < numRoles; i++) {
       if (roleList[i] == ROOT_ROLE_ID) return FALSE;
     }
   }
@@ -1997,7 +1997,7 @@ NABoolean ExExeUtilGetMetadataInfoTcb::checkUserPrivs(ContextCli *currContext,
 //     0 - successful
 //    -1 - unexpected error occurred
 // ----------------------------------------------------------------------------
-Int32 ExExeUtilGetMetadataInfoTcb::colPrivsFrag(const char *authName, const char *cat, const NAString &privWhereClause,
+int ExExeUtilGetMetadataInfoTcb::colPrivsFrag(const char *authName, const char *cat, const NAString &privWhereClause,
                                                 NAString &colPrivsStmt) {
   // if no authorization, skip
   if (!CmpCommon::context()->isAuthorizationEnabled()) return 0;
@@ -2033,7 +2033,7 @@ Int32 ExExeUtilGetMetadataInfoTcb::colPrivsFrag(const char *authName, const char
     if (*(long *)vi->get(1) > 0) hasGrants = true;
   }
 
-  Int32 len = privWhereClause.length() + 500;
+  int len = privWhereClause.length() + 500;
   char msg[len];
   snprintf(msg, len,
            "ExExeUtilGetMetadataUtilTcb::colPrivsFrag, user: %s, "
@@ -2044,10 +2044,10 @@ Int32 ExExeUtilGetMetadataInfoTcb::colPrivsFrag(const char *authName, const char
   // Attach union with column privileges clause
   if (hasGrants) {
     const QueryString *grants = getPrivsForColsQuery;
-    Int32 sizeOfGrants = sizeof(getPrivsForColsQuery);
-    Int32 qryArraySize = sizeOfGrants / sizeof(QueryString);
+    int sizeOfGrants = sizeof(getPrivsForColsQuery);
+    int qryArraySize = sizeOfGrants / sizeof(QueryString);
     char *gluedQuery;
-    Int32 gluedQuerySize;
+    int gluedQuerySize;
 
     glueQueryFragments(qryArraySize, grants, gluedQuery, gluedQuerySize);
     char buf[strlen(gluedQuery) + privWhereClause.length() + MAX_SQL_IDENTIFIER_NAME_LEN * 6 + 200];
@@ -2058,7 +2058,7 @@ Int32 ExExeUtilGetMetadataInfoTcb::colPrivsFrag(const char *authName, const char
     if (hasHive) {
       // attach union with hivemd columns clause
       const QueryString *hive = getPrivsForHiveColsQuery;
-      Int32 sizeOfHive = sizeof(getPrivsForHiveColsQuery);
+      int sizeOfHive = sizeof(getPrivsForHiveColsQuery);
       qryArraySize = sizeOfHive / sizeof(QueryString);
       glueQueryFragments(qryArraySize, hive, gluedQuery, gluedQuerySize);
       snprintf(buf, sizeof(buf), gluedQuery, cat, SEABASE_PRIVMGR_SCHEMA, PRIVMGR_COLUMN_PRIVILEGES, cat,
@@ -2245,7 +2245,7 @@ short ExExeUtilGetMetadataInfoTcb::work() {
 
       case SETUP_HBASE_QUERY_: {
         const QueryString *qs = NULL;
-        Int32 sizeOfqs = 0;
+        int sizeOfqs = 0;
         NAString userQuery;
 
         char ausStr[1000];
@@ -2330,7 +2330,7 @@ short ExExeUtilGetMetadataInfoTcb::work() {
         NAString authList;
         NAString granteeList;
         if (CmpCommon::context()->isAuthorizationEnabled()) {
-          Int32 numRoles = getCurrentUserRoles(currContext, authList, granteeList);
+          int numRoles = getCurrentUserRoles(currContext, authList, granteeList);
           if (numRoles == 0) {
             ExRaiseSqlWarning(getHeap(), &diagsArea_, (ExeErrorCode)1057);
           }
@@ -2601,7 +2601,7 @@ short ExExeUtilGetMetadataInfoTcb::work() {
             }
             ComAuthenticationType authType;
             {
-              Int32 authenticationType;
+              int authenticationType;
               bool authorizationEnabled, authorizationReady, auditingEnabled;
               GetCliGlobals()->currContext()->getAuthState(authenticationType, authorizationEnabled, authorizationReady,
                                                            auditingEnabled);
@@ -2903,7 +2903,7 @@ short ExExeUtilGetMetadataInfoTcb::work() {
             qs = getTrafSchemasForAuthIDQuery;
             sizeOfqs = sizeof(getTrafSchemasForAuthIDQuery);
 
-            Int32 authID = *currContext->getDatabaseUserID();
+            int authID = *currContext->getDatabaseUserID();
             if (!(strcmp(getMItdb().getParam1(), currContext->getDatabaseUserName()) == 0))
               authID = getAuthID(getMItdb().getParam1(), cat, sch, auths);
 
@@ -2965,7 +2965,7 @@ short ExExeUtilGetMetadataInfoTcb::work() {
             qs = getTrafSchemasForAuthIDQuery;
             sizeOfqs = sizeof(getTrafSchemasForAuthIDQuery);
 
-            Int32 authID = *currContext->getDatabaseUserID();
+            int authID = *currContext->getDatabaseUserID();
             if (!(strcmp(getMItdb().getParam1(), currContext->getDatabaseUserName()) == 0))
               authID = getAuthID(getMItdb().getParam1(), cat, sch, auths);
 
@@ -3093,7 +3093,7 @@ short ExExeUtilGetMetadataInfoTcb::work() {
               // Only return libraries where the current user has been
               // granted privilege on library of routine in the library
               // See LIBRARIES_FOR_USER for more details on query
-              Int32 stmtSize =
+              int stmtSize =
                   ((authList.length() * 4) + (strlen(cat) * 5) + (strlen(pmsch) * 4) + (strlen(objPrivs) * 2) +
                    (strlen(schPrivs) * 2) + strlen(sch) + strlen(library_usage) + 1000);
               char buf[stmtSize];
@@ -3173,7 +3173,7 @@ short ExExeUtilGetMetadataInfoTcb::work() {
             sizeOfqs = sizeof(getTrafRoutinesForAuthQuery);
 
             // Get the authID associated with the specified user
-            Int32 authID = *currContext->getDatabaseUserID();
+            int authID = *currContext->getDatabaseUserID();
             if (!(strcmp(getMItdb().getParam1(), currContext->getDatabaseUserName()) == 0))
               authID = getAuthID(getMItdb().getParam1(), cat, sch, auths);
 
@@ -3243,7 +3243,7 @@ short ExExeUtilGetMetadataInfoTcb::work() {
             sizeOfqs = sizeof(getTrafRoutinesForAuthQuery);
 
             // Get the authID associated with the specified role
-            Int32 authID = *currContext->getDatabaseUserID();
+            int authID = *currContext->getDatabaseUserID();
             if (!(strcmp(getMItdb().getParam1(), currContext->getDatabaseUserName()) == 0))
               authID = getAuthID(getMItdb().getParam1(), cat, sch, auths);
 
@@ -3352,16 +3352,16 @@ short ExExeUtilGetMetadataInfoTcb::work() {
 
             privWhereClause = "(-1, -2)";
             char buf[100];
-            Int32 numRoles;
-            Int32 *roleList;
-            Int32 *granteeList;
+            int numRoles;
+            int *roleList;
+            int *granteeList;
             if (currContext->getRoleList(numRoles, roleList, granteeList) == SUCCESS) {
               // should be at least one role (PUBLIC)
               if (numRoles == 0) {
                 ExRaiseSqlWarning(getHeap(), &diagsArea_, (ExeErrorCode)1057);
               } else {
-                char authIDAsChar[sizeof(Int32) + 10];
-                for (Int32 i = 0; i < numRoles; i++) {
+                char authIDAsChar[sizeof(int) + 10];
+                for (int i = 0; i < numRoles; i++) {
                   sprintf(buf, ", (%d, %d)", roleList[i], granteeList[i]);
                   privWhereClause += buf;
                 }
@@ -3545,7 +3545,7 @@ short ExExeUtilGetMetadataInfoTcb::work() {
             qs = getTrafGroups;
             sizeOfqs = sizeof(getTrafGroups);
 
-            Int32 authID = *currContext->getDatabaseUserID();
+            int authID = *currContext->getDatabaseUserID();
             if (!(strcmp(getMItdb().getParam1(), currContext->getDatabaseUserName()) == 0))
               authID = getAuthID(getMItdb().getParam1(), cat, sch, auths);
             if (!CmpSeabaseDDLauth::isUserID(authID)) {
@@ -3616,7 +3616,7 @@ short ExExeUtilGetMetadataInfoTcb::work() {
             qs = getUsersForRoleQuery;
             sizeOfqs = sizeof(getUsersForRoleQuery);
 
-            Int32 authID = *currContext->getDatabaseUserID();
+            int authID = *currContext->getDatabaseUserID();
             if (!(strcmp(getMItdb().getParam1(), currContext->getDatabaseUserName()) == 0))
               authID = getAuthID(getMItdb().getParam1(), cat, sch, auths);
 
@@ -3652,7 +3652,7 @@ short ExExeUtilGetMetadataInfoTcb::work() {
 
             const char *currUser = currContext->getDatabaseUserName();
             NABoolean rqstForCurrUser = (strcmp(getMItdb().getParam1(), currUser) == 0);
-            Int32 authID = (rqstForCurrUser) ? *currContext->getDatabaseUserID()
+            int authID = (rqstForCurrUser) ? *currContext->getDatabaseUserID()
                                              : getAuthID(getMItdb().getParam1(), cat, sch, auths);
 
             if (CmpSeabaseDDLauth::isUserID(authID)) {
@@ -3719,7 +3719,7 @@ short ExExeUtilGetMetadataInfoTcb::work() {
             sizeOfqs = sizeof(getPrivsForAuthsQuery);
 
             // Get the authID for the request
-            Int32 authID = *currContext->getDatabaseUserID();
+            int authID = *currContext->getDatabaseUserID();
             if (!(strcmp(getMItdb().getParam1(), currContext->getDatabaseUserName()) == 0))
               authID = getAuthID(getMItdb().getParam1(), cat, sch, auths);
 
@@ -3782,7 +3782,7 @@ short ExExeUtilGetMetadataInfoTcb::work() {
             sizeOfqs = sizeof(getPrivsForAuthsQuery);
 
             // Get the authID for the request
-            Int32 authID = *currContext->getDatabaseUserID();
+            int authID = *currContext->getDatabaseUserID();
             if (!(strcmp(getMItdb().getParam1(), currContext->getDatabaseUserName()) == 0))
               authID = getAuthID(getMItdb().getParam1(), cat, sch, auths);
 
@@ -3883,7 +3883,7 @@ short ExExeUtilGetMetadataInfoTcb::work() {
             getBitExtractsForObjectType(var, var1);
             char buf[authList.length() + 100];
 
-            Int32 authID = *currContext->getDatabaseUserID();
+            int authID = *currContext->getDatabaseUserID();
             if (getMItdb().getParam1()) {
               if (!(strcmp(getMItdb().getParam1(), currContext->getDatabaseUserName()) == 0))
                 authID = getAuthID(getMItdb().getParam1(), cat, sch, auths);
@@ -3978,7 +3978,7 @@ short ExExeUtilGetMetadataInfoTcb::work() {
             sizeOfqs = sizeof(getTrafIndexesForAuth);
 
             // Get the authID associated with the specified user
-            Int32 authID = *currContext->getDatabaseUserID();
+            int authID = *currContext->getDatabaseUserID();
             if (!(strcmp(getMItdb().getParam1(), currContext->getDatabaseUserName()) == 0))
               authID = getAuthID(getMItdb().getParam1(), cat, sch, auths);
 
@@ -4040,7 +4040,7 @@ short ExExeUtilGetMetadataInfoTcb::work() {
             sizeOfqs = sizeof(getTrafIndexesForAuth);
 
             // Get the authID associated with the specified role
-            Int32 authID = *currContext->getDatabaseUserID();
+            int authID = *currContext->getDatabaseUserID();
             if (!(strcmp(getMItdb().getParam1(), currContext->getDatabaseUserName()) == 0))
               authID = getAuthID(getMItdb().getParam1(), cat, sch, auths);
 
@@ -4086,7 +4086,7 @@ short ExExeUtilGetMetadataInfoTcb::work() {
             sizeOfqs = sizeof(getTrafObjectsForUser);
 
             // Get the authID associated with the specified user
-            Int32 authID = *currContext->getDatabaseUserID();
+            int authID = *currContext->getDatabaseUserID();
             if (!(strcmp(getMItdb().getParam1(), currContext->getDatabaseUserName()) == 0))
               authID = getAuthID(getMItdb().getParam1(), cat, sch, auths);
 
@@ -4166,7 +4166,7 @@ short ExExeUtilGetMetadataInfoTcb::work() {
             sizeOfqs = sizeof(getTrafObjectsForUser);
 
             // Get the authID associated with the specified user
-            Int32 authID = *currContext->getDatabaseUserID();
+            int authID = *currContext->getDatabaseUserID();
             if (!(strcmp(getMItdb().getParam1(), currContext->getDatabaseUserName()) == 0))
               authID = getAuthID(getMItdb().getParam1(), cat, sch, auths);
 
@@ -4226,7 +4226,7 @@ short ExExeUtilGetMetadataInfoTcb::work() {
             qs = getTrafLibrariesForAuthQuery;
             sizeOfqs = sizeof(getTrafLibrariesForAuthQuery);
 
-            Int32 authID = *currContext->getDatabaseUserID();
+            int authID = *currContext->getDatabaseUserID();
             if (!(strcmp(getMItdb().getParam1(), currContext->getDatabaseUserName()) == 0))
               authID = getAuthID(getMItdb().getParam1(), cat, sch, auths);
 
@@ -4292,7 +4292,7 @@ short ExExeUtilGetMetadataInfoTcb::work() {
             //    )) order by 1;
 
             if (!ComUser::isRootUserID(authID) && !hasRootRole) {
-              Int32 stmtSize =
+              int stmtSize =
                   ((strlen(userRoleList) * 4) + (strlen(cat) * 5) + (strlen(pmsch) * 4) + (strlen(objPrivs) * 2) +
                    (strlen(schPrivs) * 2) + strlen(sch) + strlen(library_usage) + 1000);
               char buf[stmtSize];
@@ -4329,7 +4329,7 @@ short ExExeUtilGetMetadataInfoTcb::work() {
             sizeOfqs = sizeof(getTrafLibrariesForAuthQuery);
 
             // Get the authID associated with the specified role
-            Int32 authID = *currContext->getDatabaseUserID();
+            int authID = *currContext->getDatabaseUserID();
             if (!(strcmp(getMItdb().getParam1(), currContext->getDatabaseUserName()) == 0))
               authID = getAuthID(getMItdb().getParam1(), cat, sch, auths);
 
@@ -4351,7 +4351,7 @@ short ExExeUtilGetMetadataInfoTcb::work() {
               // Only return libraries where the current user has been
               // granted privilege on library or routine in the library
               // See LIBRARIES_FOR_USER for more details on query
-              Int32 stmtSize =
+              int stmtSize =
                   ((sizeof(authID) * 5) + (strlen(cat) * 5) + (strlen(pmsch) * 4) + (strlen(objPrivs) * 2) +
                    (strlen(schPrivs) * 2) + strlen(sch) + strlen(library_usage) + 1000);
               char buf[stmtSize];
@@ -4385,7 +4385,7 @@ short ExExeUtilGetMetadataInfoTcb::work() {
             qs = getTrafObjectsPlusTypeForUser;
             sizeOfqs = sizeof(getTrafObjectsPlusTypeForUser);
 
-            Int32 authID = *currContext->getDatabaseUserID();
+            int authID = *currContext->getDatabaseUserID();
             if (!(strcmp(getMItdb().getParam1(), currContext->getDatabaseUserName()) == 0))
               authID = getAuthID(getMItdb().getParam1(), cat, sch, auths);
 
@@ -4477,7 +4477,7 @@ short ExExeUtilGetMetadataInfoTcb::work() {
             // Get privileges for auth name
             if (getMItdb().getParam1()) {
               // Get the authID associated with the request's auth name
-              Int32 authID = *currContext->getDatabaseUserID();
+              int authID = *currContext->getDatabaseUserID();
               if (!(strcmp(getMItdb().getParam1(), currContext->getDatabaseUserName()) == 0))
                 authID = getAuthID(getMItdb().getParam1(), cat, sch, auths);
 
@@ -4609,7 +4609,7 @@ short ExExeUtilGetMetadataInfoTcb::work() {
 
         if (step_ == DONE_) break;
 
-        Int32 qryArraySize = sizeOfqs / sizeof(QueryString);
+        int qryArraySize = sizeOfqs / sizeof(QueryString);
         char *gluedQuery;
         int gluedQuerySize;
         glueQueryFragments(qryArraySize, qs, gluedQuery, gluedQuerySize);
@@ -6573,7 +6573,7 @@ short ExExeUtilRegionStatsTcb::collectStats(char *inTableName, char *INtableName
   return 0;
 }
 
-short ExExeUtilRegionStatsTcb::populateStats(Int32 currIndex) {
+short ExExeUtilRegionStatsTcb::populateStats(int currIndex) {
   str_pad(stats_->catalogName, sizeof(stats_->catalogName), ' ');
   str_cpy_all(stats_->catalogName, catName_, strlen(catName_));
 
@@ -6589,7 +6589,7 @@ short ExExeUtilRegionStatsTcb::populateStats(Int32 currIndex) {
   stats_->regionNum = currIndex_ + 1;
 
   char regionInfoBuf[5000];
-  Int32 len = 0;
+  int len = 0;
   char *regionInfo = regionInfoBuf;
   char *val = regionInfoList_->at(currIndex).val;
   len = regionInfoList_->at(currIndex).len;
@@ -6822,7 +6822,7 @@ short ExExeUtilRegionStatsFormatTcb::computeTotals() {
 
   str_pad(statsTotals_->regionName, sizeof(statsTotals_->regionName), ' ');
 
-  for (Int32 currIndex = 0; currIndex < regionInfoList_->entries(); currIndex++) {
+  for (int currIndex = 0; currIndex < regionInfoList_->entries(); currIndex++) {
     if (populateStats(currIndex)) return -1;
 
     statsTotals_->numStores += stats_->numStores;
@@ -7163,7 +7163,7 @@ short ExExeUtilClusterStatsTcb::collectStats() {
 
 // RETURN: 1, not a TRAFODION region. 0, is a TRAFODION region.
 //        -1, error.
-short ExExeUtilClusterStatsTcb::populateStats(Int32 currIndex, NABoolean nullTerminate) {
+short ExExeUtilClusterStatsTcb::populateStats(int currIndex, NABoolean nullTerminate) {
   str_pad(stats_->catalogName, sizeof(stats_->catalogName), ' ');
   str_pad(stats_->schemaName, sizeof(stats_->schemaName), ' ');
   str_pad(stats_->objectName, sizeof(stats_->objectName), ' ');
@@ -7173,7 +7173,7 @@ short ExExeUtilClusterStatsTcb::populateStats(Int32 currIndex, NABoolean nullTer
   str_pad(stats_->regionName, sizeof(stats_->regionName), ' ');
 
   char regionInfoBuf[5000];
-  Int32 len = 0;
+  int len = 0;
   char *regionInfo = regionInfoBuf;
   char *val = regionInfoList_->at(currIndex).val;
   len = regionInfoList_->at(currIndex).len;

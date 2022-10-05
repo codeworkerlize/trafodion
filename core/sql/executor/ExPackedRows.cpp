@@ -497,7 +497,7 @@ ExWorkProcRetcode ExUnPackRowsTcb::workUp() {
         // been allocated, but not inserted into the up queue
         // because the predicate did not pass, reuse the tuple.
         //
-        Int32 needTuple = (unPackColsExpr() ? TRUE : FALSE);
+        int needTuple = (unPackColsExpr() ? TRUE : FALSE);
 
         // While we still have expressions to apply to the current
         // child entry and the parent can accept rows.

@@ -58,7 +58,7 @@ StmtDDLCleanupObjects::~StmtDDLCleanupObjects() {}
 
 StmtDDLCleanupObjects *StmtDDLCleanupObjects::castToStmtDDLCleanupObjects() { return this; }
 
-Int32 StmtDDLCleanupObjects::getArity() const { return 0; }
+int StmtDDLCleanupObjects::getArity() const { return 0; }
 
 ExprNode *StmtDDLCleanupObjects::getChild(int index) { return NULL; }
 

@@ -61,7 +61,7 @@ typedef NAHashDictionary<LatticeKeySubArray, QRLatticeIndexNode> ExactSetsHash;
 
 typedef NAList<LatticeIndexablePtr> LatticeKeyList;
 
-const Int32 SEQNUM_UNASSIGNED = -1;
+const int SEQNUM_UNASSIGNED = -1;
 
 #include "QmsMVDetails.h"
 #include "QmsWorkloadAnalysis.h"
@@ -96,7 +96,7 @@ class QRLatticeIndexNode : public NAIntrusiveSharedPtrObject {
    * @param other The node to compare to this one.
    * @return 1 if the two nodes are equal, otherwise 0.
    */
-  Int32 operator==(const QRLatticeIndexNode &other) { return keyBitmap_ == other.keyBitmap_; }
+  int operator==(const QRLatticeIndexNode &other) { return keyBitmap_ == other.keyBitmap_; }
 
   /**
    * Determines if this node is unequal to another one.
@@ -104,7 +104,7 @@ class QRLatticeIndexNode : public NAIntrusiveSharedPtrObject {
    * @param other The node to compare to this one.
    * @return 1 if the two nodes are not equal, otherwise 0.
    */
-  Int32 operator!=(const QRLatticeIndexNode &other) { return !(keyBitmap_ == other.keyBitmap_); }
+  int operator!=(const QRLatticeIndexNode &other) { return !(keyBitmap_ == other.keyBitmap_); }
 
   /**
    * Computes the bitwise difference between this node and the other node.
@@ -259,7 +259,7 @@ class QRLatticeIndexNode : public NAIntrusiveSharedPtrObject {
   /**
    * Collect data on query (MV) groups with shared join+GroupBy.
    */
-  void collectMVGroups(WorkloadAnalysisPtr workload, Int32 minQueriesPerMV, CollHeap *heap);
+  void collectMVGroups(WorkloadAnalysisPtr workload, int minQueriesPerMV, CollHeap *heap);
 
  protected:
   /**
@@ -277,7 +277,7 @@ class QRLatticeIndexNode : public NAIntrusiveSharedPtrObject {
    *                  the lattice, and mark the node invalid if it has such a key.
    * @param heap Heap to use for any memory allocations.
    */
-  QRLatticeIndexNode(const LatticeKeyList &keys, QRLatticeIndexPtr lattice, Int32 referenceNumber = SEQNUM_UNASSIGNED,
+  QRLatticeIndexNode(const LatticeKeyList &keys, QRLatticeIndexPtr lattice, int referenceNumber = SEQNUM_UNASSIGNED,
                      NABoolean noNewEntry = FALSE, ADD_MEMCHECK_ARGS_DECL(CollHeap *heap = NULL));
 
   /**
@@ -339,7 +339,7 @@ class QRLatticeIndexNode : public NAIntrusiveSharedPtrObject {
    * @param newChildPos Position of new child in the list (0-based). If -1,
    *                    just place the new child at the end of the list.
    */
-  void adopt(QRLatticeIndexNodePtr newChild, Int32 newChildPos = -1);
+  void adopt(QRLatticeIndexNodePtr newChild, int newChildPos = -1);
 
   /**
    * Removes \c disownedChild from the list of this node's children, and
@@ -521,7 +521,7 @@ class QRLatticeIndex : public NAIntrusiveSharedPtrObject {
   friend class QRLatticeIndexNode;
 
  public:
-  static const Int32 SEQNUM_UNASSIGNED;
+  static const int SEQNUM_UNASSIGNED;
   static const char *const TOP_NODE_NAME;
   static const char *const BOTTOM_NODE_NAME;
 
@@ -686,7 +686,7 @@ class QRLatticeIndex : public NAIntrusiveSharedPtrObject {
   /**
    * Collect data on query (MV) groups with shared join+GroupBy.
    */
-  void collectMVGroups(WorkloadAnalysisPtr workload, Int32 minQueriesPerMV, CollHeap *heap);
+  void collectMVGroups(WorkloadAnalysisPtr workload, int minQueriesPerMV, CollHeap *heap);
 
   NABoolean contains(LatticeIndexablePtr key);
 

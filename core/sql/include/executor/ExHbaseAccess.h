@@ -133,8 +133,8 @@ class ExHbaseAccessTcb : public ex_tcb {
   virtual ExWorkProcRetcode work();
 
   ex_queue_pair getParentQueue() const { return qparent_; }
-  virtual Int32 numChildren() const { return 0; }
-  virtual const ex_tcb *getChild(Int32 /*pos*/) const { return NULL; }
+  virtual int numChildren() const { return 0; }
+  virtual const ex_tcb *getChild(int /*pos*/) const { return NULL; }
   virtual NABoolean needStatsEntry();
   virtual ExOperStats *doAllocateStatsEntry(CollHeap *heap, ComTdb *tdb);
   virtual ex_tcb_private_state *allocatePstates(int &numElems, int &pstateLength);
@@ -298,7 +298,7 @@ class ExHbaseAccessTcb : public ex_tcb {
   short patchDirectRowIDBuffers();
   void allocateDirectRowIDBufferForJNI(short maxRows = 1);
   int copyColToDirectBuffer(BYTE *rowCurPtr, char *colName, short colNameLen, NABoolean prependNullVal, char nullVal,
-                              char *colVal, Int32 colValLen);
+                              char *colVal, int colValLen);
   short copyRowIDToDirectBuffer(HbaseStr &rowID);
 
   void fixObjName4PartTbl(char *objName, char *objNameUID, NABoolean replaceNameByUID);
@@ -442,7 +442,7 @@ class ExHbaseAccessTcb : public ex_tcb {
   Int16 asyncCompleteRetryCount_;
   NABoolean *resultArray_;
   NABoolean asyncOperation_;
-  Int32 asyncOperationTimeout_;
+  int asyncOperationTimeout_;
   ComDiagsArea *loggingErrorDiags_;
   char *loggingFileName_;
   NABoolean loggingFileCreated_;
@@ -943,7 +943,7 @@ class ExHbaseUMDtrafUniqueTaskTcb : public ExHbaseTaskTcb {
   Int16 asyncCompleteRetryCount_;
   NABoolean *resultArray_;
   NABoolean asyncOperationLocal_;
-  Int32 asyncOperationTimeout_;
+  int asyncOperationTimeout_;
 };
 
 // UMD: unique UpdMergeDel on native Hbase table

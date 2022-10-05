@@ -150,7 +150,7 @@ class Qms : public NABasicObject {
   /**
    * Perform workload analysis.
    */
-  void workloadAnalysis(ofstream &ofs, Int32 minQueriesPerMV, NAMemory *requestHeap);
+  void workloadAnalysis(ofstream &ofs, int minQueriesPerMV, NAMemory *requestHeap);
 
   /**
    * Used to collect memory usage by QMS.

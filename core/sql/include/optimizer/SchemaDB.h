@@ -245,8 +245,8 @@ void InitSchemaDB();
 inline SchemaDB *ActiveSchemaDB() { return CmpCommon::context()->schemaDB_; }
 inline SchemaDB *ActiveSchemaDB_Safe() { return CmpCommon::context() ? CmpCommon::context()->schemaDB_ : NULL; }
 
-inline double getDefaultAsDouble(const Int32 &key) { return ActiveSchemaDB()->getDefaults().getAsDouble(key); }
+inline double getDefaultAsDouble(const int &key) { return ActiveSchemaDB()->getDefaults().getAsDouble(key); }
 
-inline int getDefaultAsLong(const Int32 &key) { return ActiveSchemaDB()->getDefaults().getAsLong(key); }
+inline int getDefaultAsLong(const int &key) { return ActiveSchemaDB()->getDefaults().getAsLong(key); }
 
 #endif /* SCHEMADB_H */

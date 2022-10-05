@@ -28,18 +28,18 @@ class Parser {
   NAHeap *wHeap() { return wHeap_; }
 
   // locale-to-unicode conversion in parseDML requires buffer len (tcr)
-  Int32 parseDML(const char *str, Int32 len, CharInfo::CharSet charset, ExprNode **node, Int32 token = 0,
+  int parseDML(const char *str, int len, CharInfo::CharSet charset, ExprNode **node, int token = 0,
                  ItemExprList *enl = NULL);
   // widens str to UNICODE for parsing, uses localized str for error handling
 
   // locale-to-unicode conversion in parseDML (for odbc/mx unicode support)
-  Int32 parseDML(QueryText &txt, ExprNode **node, Int32 token = 0, ItemExprList *enl = NULL);
+  int parseDML(QueryText &txt, ExprNode **node, int token = 0, ItemExprList *enl = NULL);
   // widens str to UNICODE for parsing, uses localized str for error handling
 
-  Int32 parse_w_DML(const NAWchar *str, Int32 len, ExprNode **node, Int32 token = 0, ItemExprList *enl = NULL);
+  int parse_w_DML(const NAWchar *str, int len, ExprNode **node, int token = 0, ItemExprList *enl = NULL);
   // narrows str to locale for error handling, uses wide str for parsing
 
-  ExprNode *parseDML(const char *str, Int32 len, CharInfo::CharSet charset);
+  ExprNode *parseDML(const char *str, int len, CharInfo::CharSet charset);
 
   /////////////////////////////////////////////////////////////////////
   //
@@ -75,15 +75,15 @@ class Parser {
   /////////////////////////////////////////////////////////////////////
 
   ExprNode *getExprTree(const char *str, UInt32 strlength = 0, CharInfo::CharSet strCharSet = CharInfo::UTF8,
-                        Int32 num_params = 0, ItemExpr *p1 = NULL, ItemExpr *p2 = NULL, ItemExpr *p3 = NULL,
+                        int num_params = 0, ItemExpr *p1 = NULL, ItemExpr *p2 = NULL, ItemExpr *p3 = NULL,
                         ItemExpr *p4 = NULL, ItemExpr *p5 = NULL, ItemExpr *p6 = NULL,
                         ItemExprList *paramItemList = NULL,
-                        Int32 internal_expr = FALSE);  // pass this as TRUE if
+                        int internal_expr = FALSE);  // pass this as TRUE if
                                                        // you know it is going
                                                        // to be an ItemExpr
 
   ItemExpr *getItemExprTree(const char *str, UInt32 strlength = 0, CharInfo::CharSet strCharSet = CharInfo::UTF8,
-                            Int32 num_params = 0, ItemExpr *p1 = NULL, ItemExpr *p2 = NULL, ItemExpr *p3 = NULL,
+                            int num_params = 0, ItemExpr *p1 = NULL, ItemExpr *p2 = NULL, ItemExpr *p3 = NULL,
                             ItemExpr *p4 = NULL, ItemExpr *p5 = NULL, ItemExpr *p6 = NULL,
                             ItemExprList *paramItemList = NULL);
 
@@ -91,14 +91,14 @@ class Parser {
 
   // wide versions of the above functions; used by catman to
   // process unicode-encoded column default value strings.
-  ExprNode *get_w_ExprTree(const NAWchar *str, UInt32 strlength = 0, Int32 num_params = 0, ItemExpr *p1 = NULL,
+  ExprNode *get_w_ExprTree(const NAWchar *str, UInt32 strlength = 0, int num_params = 0, ItemExpr *p1 = NULL,
                            ItemExpr *p2 = NULL, ItemExpr *p3 = NULL, ItemExpr *p4 = NULL, ItemExpr *p5 = NULL,
                            ItemExpr *p6 = NULL, ItemExprList *paramItemList = NULL,
-                           Int32 internal_expr = FALSE);  // pass this as TRUE if
+                           int internal_expr = FALSE);  // pass this as TRUE if
                                                           // you know it is going
                                                           // to be an ItemExpr
 
-  ItemExpr *get_w_ItemExprTree(const NAWchar *str, UInt32 strlength = 0, Int32 num_params = 0, ItemExpr *p1 = NULL,
+  ItemExpr *get_w_ItemExprTree(const NAWchar *str, UInt32 strlength = 0, int num_params = 0, ItemExpr *p1 = NULL,
                                ItemExpr *p2 = NULL, ItemExpr *p3 = NULL, ItemExpr *p4 = NULL, ItemExpr *p5 = NULL,
                                ItemExpr *p6 = NULL, ItemExprList *paramItemList = NULL);
 
@@ -112,13 +112,13 @@ class Parser {
 
   // part of interface to Unicode lexer
   yyULexer *getLexer() { return lexer; }
-  Int32 yylex(YYSTYPE *lvalp) {
-    Int32 retCode = lexer ? lexer->yylex(lvalp) : 0;
+  int yylex(YYSTYPE *lvalp) {
+    int retCode = lexer ? lexer->yylex(lvalp) : 0;
     addTokenToNormalizedString(retCode);
     return retCode;
   }
   const NAWchar *YYText() { return lexer ? lexer->YYText() : WIDE_(""); }
-  Int32 YYLeng() { return lexer ? lexer->YYLeng() : 0; }
+  int YYLeng() { return lexer ? lexer->YYLeng() : 0; }
 
   char *inputStr() { return inputBuf_ ? (char *)(inputBuf_->data()) : NULL; }
   charBuf *getInputcharBuf() { return inputBuf_; }
@@ -152,7 +152,7 @@ class Parser {
   //                SPLITDEF_TOKEN=3, COMPOSITEDEF_TOKEN=4;
   // used by the catalog manager for scanning/parsing odd stuff like:
   // "CAST('<minvalue>' AS CHAR(n))" (tcr)
-  Int32 internalExpr_;
+  int internalExpr_;
 
   // the original client locale's character set; used by ulexer to convert
   // unicode string literals back to their original multibyte char form.
@@ -175,7 +175,7 @@ class Parser {
   void setTopHasOlapFunctions(NABoolean v) { hasOlapFunctions_[hasOlapFunctions_.entries() - 1] = v; }
   NABoolean popHasOlapFunctions() { return hasOlapFunctions_.removeAt(hasOlapFunctions_.entries() - 1); }
   void clearHasOlapFunctions() { hasOlapFunctions_.clear(); }
-  Int32 hasOlapFunctionsEntries() { return hasOlapFunctions_.entries(); }
+  int hasOlapFunctionsEntries() { return hasOlapFunctions_.entries(); }
   void pushHasTDFunctions(NABoolean v) { hasTDFunctions_.insert(v); }
   NABoolean topHasTDFunctions() { return hasTDFunctions_[hasTDFunctions_.entries() - 1]; }
   void setTopHasTDFunctions(NABoolean v) { hasTDFunctions_[hasTDFunctions_.entries() - 1] = v; }
@@ -183,7 +183,7 @@ class Parser {
   NABoolean topHasConnectBy() { return hasConnectBy_; }
   NABoolean popHasTDFunctions() { return hasTDFunctions_.removeAt(hasTDFunctions_.entries() - 1); }
   void clearHasTDFunctions() { hasTDFunctions_.clear(); }
-  Int32 hasTDFunctionsEntries() { return hasTDFunctions_.entries(); }
+  int hasTDFunctionsEntries() { return hasTDFunctions_.entries(); }
 
   NAList<ItemExpr *> &topPotentialOlapFunctions() { return *(potentialOlapFunctions_[hasOlapFunctionsEntries() - 1]); }
   void pushPotentialOlapFunctions() { potentialOlapFunctions_.insert(new (wHeap()) NAList<ItemExpr *>(wHeap())); }
@@ -193,7 +193,7 @@ class Parser {
 
   void setHQCKey(HQCParseKey *k) { HQCKey_ = k; }
 
-  void addTokenToNormalizedString(Int32 &tokCod) {
+  void addTokenToNormalizedString(int &tokCod) {
     if (HQCKey_) HQCKey_->addTokenToNormalizedString(tokCod);
   }
 
@@ -226,7 +226,7 @@ class Parser {
 
   void setHint(Hint *h) { pHint_ = h; }
   NAHashDictionary<NAString, NAString> *getOrNewCqdHashDictionaryInHint();
-  Int32 SetAndHoldCqdsInHint();
+  int SetAndHoldCqdsInHint();
   NABoolean hasCqdsInHint() { return hasCqdsInHint_; }
   void setCqdsInHint(NABoolean b) { hasCqdsInHint_ = b; }
 
@@ -259,7 +259,7 @@ class Parser {
   NABoolean processSpecialDDL(const char *commandText, size_t commandTextLen, ExprNode *childNode,
                               CharInfo::CharSet commandTextCharSet, ExprNode **node);
 
-  Int32 parseSQL(ExprNode **node, Int32 token = 0, ItemExprList *enl = NULL);
+  int parseSQL(ExprNode **node, int token = 0, ItemExprList *enl = NULL);
 
   void ResetLexer(void);
   yyULexer *lexer;
@@ -295,15 +295,15 @@ class Parser {
     ParserAbortInternal(" " #b " ", __FILE__, __LINE__); \
   }
 
-void ParserAssertInternal(const char *, const char *, Int32);
-void ParserAbortInternal(const char *, const char *, Int32);
+void ParserAssertInternal(const char *, const char *, int);
+void ParserAbortInternal(const char *, const char *, int);
 
 // The parsing routine which the preprocessor must call.
-Int32 sql_parse(const char *str, Int32 len, CharInfo::CharSet charset, StmtNode **stmt_node_ptr_ptr);
+int sql_parse(const char *str, int len, CharInfo::CharSet charset, StmtNode **stmt_node_ptr_ptr);
 
 charBuf *parserUTF16ToCharSet(const NAWcharBuf &pr_UTF16StrBuf, CollHeap *pp_Heap, charBuf *&pr_pOutCharSetStrBuf,
-                              Int32 pv_iCharSet, Int32 &pr_iErrorcode, NABoolean pv_bAddNullAtEnd = TRUE,
-                              NABoolean pv_bAllowInvalidCodePoint = TRUE, Int32 *pp_iCharCount = NULL,
-                              Int32 *pp_iErrorByteOff = NULL);
+                              int pv_iCharSet, int &pr_iErrorcode, NABoolean pv_bAddNullAtEnd = TRUE,
+                              NABoolean pv_bAllowInvalidCodePoint = TRUE, int *pp_iCharCount = NULL,
+                              int *pp_iErrorByteOff = NULL);
 
 #endif  // PARSER_H

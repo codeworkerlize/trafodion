@@ -50,7 +50,7 @@ LmRoutineCppObj::LmRoutineCppObj(tmudr::UDRInvocationInfo *invocationInfo, tmudr
                                  tmudr::UDR *interfaceObj, const char *sqlName, const char *externalName,
                                  const char *librarySqlName, ComUInt32 maxResultSets,
                                  ComRoutineTransactionAttributes transactionAttrs, ComRoutineSQLAccess sqlAccessMode,
-                                 ComRoutineExternalSecurity externalSecurity, Int32 routineOwnerId,
+                                 ComRoutineExternalSecurity externalSecurity, int routineOwnerId,
                                  LmLanguageManagerC *lm, LmContainer *container, ComDiagsArea *diags)
     : LmRoutine(container, (LmHandle)interfaceObj, sqlName, externalName, librarySqlName, 0, maxResultSets,
                 COM_LANGUAGE_CPP, COM_STYLE_CPP_OBJ, transactionAttrs, sqlAccessMode, externalSecurity, routineOwnerId,
@@ -178,16 +178,16 @@ LmResult LmRoutineCppObj::invokeRoutine(void *inputRow, void *outputRow, ComDiag
 LmResult LmRoutineCppObj::invokeRoutineMethod(
     /* IN */ tmudr::UDRInvocationInfo::CallPhase phase,
     /* IN */ const char *serializedInvocationInfo,
-    /* IN */ Int32 invocationInfoLen,
-    /* OUT */ Int32 *invocationInfoLenOut,
+    /* IN */ int invocationInfoLen,
+    /* OUT */ int *invocationInfoLenOut,
     /* IN */ const char *serializedPlanInfo,
-    /* IN */ Int32 planInfoLen,
-    /* IN */ Int32 planNum,
-    /* OUT */ Int32 *planInfoLenOut,
+    /* IN */ int planInfoLen,
+    /* IN */ int planNum,
+    /* OUT */ int *planInfoLenOut,
     /* IN */ char *inputParamRow,
-    /* IN */ Int32 inputParamRowLen,
+    /* IN */ int inputParamRowLen,
     /* OUT */ char *outputRow,
-    /* IN */ Int32 outputRowLen,
+    /* IN */ int outputRowLen,
     /* IN/OUT */ ComDiagsArea *da) {
   LmResult result = LM_OK;
 
@@ -345,12 +345,12 @@ LmResult LmRoutineCppObj::invokeRoutineMethod(
 
 LmResult LmRoutineCppObj::getRoutineInvocationInfo(
     /* IN/OUT */ char *serializedInvocationInfo,
-    /* IN */ Int32 invocationInfoMaxLen,
-    /* OUT */ Int32 *invocationInfoLenOut,
+    /* IN */ int invocationInfoMaxLen,
+    /* OUT */ int *invocationInfoLenOut,
     /* IN/OUT */ char *serializedPlanInfo,
-    /* IN */ Int32 planInfoMaxLen,
-    /* IN */ Int32 planNum,
-    /* OUT */ Int32 *planInfoLenOut,
+    /* IN */ int planInfoMaxLen,
+    /* IN */ int planNum,
+    /* OUT */ int *planInfoLenOut,
     /* IN/OUT */ ComDiagsArea *da) {
   LmResult result = LM_OK;
 

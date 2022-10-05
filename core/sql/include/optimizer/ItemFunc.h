@@ -174,7 +174,7 @@ class Aggregate : public ItemExpr {
   virtual void generateCacheKey(CacheWA &cwa) const;
 
   // get the degree of this node (it is a unary op).
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   virtual NABoolean isAnAggregate() const;
   virtual NABoolean containsAnAggregate() const;
@@ -648,7 +648,7 @@ class BuiltinFunction : public Function {
   virtual ~BuiltinFunction();
 
   // get the degree of this node (it depends on the type of the operator)
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   // a virtual function for performing name binding within the query tree
   virtual ItemExpr *bindNode(BindWA *bindWA);
@@ -1208,8 +1208,8 @@ class PatternMatchingFunction : public CacheableBuiltinFunction {
     setCollation(CharInfo::DefaultCollation);
   }
 
-  PatternMatchingFunction(OperatorTypeEnum optype, ItemExpr *matchValue, ItemExpr *pattern, Int32 numNonWild,
-                          Int32 bytesInNonWild, NABoolean stringPattern, NABoolean oldDefaultUsed,
+  PatternMatchingFunction(OperatorTypeEnum optype, ItemExpr *matchValue, ItemExpr *pattern, int numNonWild,
+                          int bytesInNonWild, NABoolean stringPattern, NABoolean oldDefaultUsed,
                           NABoolean beginEndKeysApplied)
       : CacheableBuiltinFunction(optype, 2, matchValue, pattern),
         numberOfNonWildcardChars_(numNonWild),
@@ -1222,7 +1222,7 @@ class PatternMatchingFunction : public CacheableBuiltinFunction {
   }
 
   PatternMatchingFunction(OperatorTypeEnum optype, ItemExpr *matchValue, ItemExpr *pattern, ItemExpr *escapeChar,
-                          Int32 numNonWild, Int32 bytesInNonWild, NABoolean stringPattern, NABoolean oldDefaultUsed,
+                          int numNonWild, int bytesInNonWild, NABoolean stringPattern, NABoolean oldDefaultUsed,
                           NABoolean beginEndKeysApplied)
       : CacheableBuiltinFunction(optype, 3, matchValue, pattern, escapeChar),
         numberOfNonWildcardChars_(numNonWild),
@@ -1269,8 +1269,8 @@ class PatternMatchingFunction : public CacheableBuiltinFunction {
   virtual double defaultSel();
 
   NABoolean beginEndKeysApplied(CollHeap *outHeap);
-  Int32 getNoOfNonWildcardChars() { return numberOfNonWildcardChars_; };
-  Int32 getBytesInNonWildcardChars() { return bytesInNonWildcardChars_; };
+  int getNoOfNonWildcardChars() { return numberOfNonWildcardChars_; };
+  int getBytesInNonWildcardChars() { return bytesInNonWildcardChars_; };
 
   virtual NABoolean protectFromVEGs() { return TRUE; };
 
@@ -1292,8 +1292,8 @@ class PatternMatchingFunction : public CacheableBuiltinFunction {
  protected:
   void setNumberOfNonWildcardChars(const LikePatternString &pattern);
 
-  Int32 numberOfNonWildcardChars_;
-  Int32 bytesInNonWildcardChars_;
+  int numberOfNonWildcardChars_;
+  int bytesInNonWildcardChars_;
 
   NABoolean patternAStringLiteral_;
 
@@ -1318,7 +1318,7 @@ class Like : public PatternMatchingFunction {
     setCollation(CharInfo::DefaultCollation);
   }
 
-  Like(ItemExpr *matchValue, ItemExpr *pattern, Int32 numNonWild, Int32 bytesInNonWild, NABoolean stringPattern,
+  Like(ItemExpr *matchValue, ItemExpr *pattern, int numNonWild, int bytesInNonWild, NABoolean stringPattern,
        NABoolean oldDefaultUsed, NABoolean beginEndKeysApplied)
       : PatternMatchingFunction(ITM_LIKE, matchValue, pattern, numNonWild, bytesInNonWild, stringPattern,
                                 oldDefaultUsed, beginEndKeysApplied) {
@@ -1326,7 +1326,7 @@ class Like : public PatternMatchingFunction {
     setCollation(CharInfo::DefaultCollation);
   }
 
-  Like(ItemExpr *matchValue, ItemExpr *pattern, ItemExpr *escapeChar, Int32 numNonWild, Int32 bytesInNonWild,
+  Like(ItemExpr *matchValue, ItemExpr *pattern, ItemExpr *escapeChar, int numNonWild, int bytesInNonWild,
        NABoolean stringPattern, NABoolean oldDefaultUsed, NABoolean beginEndKeysApplied)
       : PatternMatchingFunction(ITM_LIKE, matchValue, pattern, escapeChar, numNonWild, bytesInNonWild, stringPattern,
                                 oldDefaultUsed, beginEndKeysApplied) {
@@ -1347,7 +1347,7 @@ class Regexp : public PatternMatchingFunction {
     setCollation(CharInfo::DefaultCollation);
   }
 
-  Regexp(ItemExpr *matchValue, ItemExpr *pattern, Int32 numNonWild, Int32 bytesInNonWild, NABoolean stringPattern,
+  Regexp(ItemExpr *matchValue, ItemExpr *pattern, int numNonWild, int bytesInNonWild, NABoolean stringPattern,
          NABoolean oldDefaultUsed, NABoolean beginEndKeysApplied)
       : PatternMatchingFunction(ITM_REGEXP, matchValue, pattern, numNonWild, bytesInNonWild, stringPattern,
                                 oldDefaultUsed, beginEndKeysApplied) {
@@ -1745,9 +1745,9 @@ class DateFormat : public CacheableBuiltinFunction {
   virtual ~DateFormat();
 
   // accessor functions
-  Int32 getDateFormat() const { return dateFormat_; }
+  int getDateFormat() const { return dateFormat_; }
 
-  Int32 getExpDatetimeFormat() const { return frmt_; }
+  int getExpDatetimeFormat() const { return frmt_; }
   int getCaseSensitivity() const { return caseSensitivity_; }
   // do not change format literals of DateFormat into constant parameters
   virtual ItemExpr *normalizeForCache(CacheWA &cwa, BindWA &bindWA) { return this; }
@@ -1788,7 +1788,7 @@ class DateFormat : public CacheableBuiltinFunction {
   int formatType_;
 
   // DATE, TIME or TIMESTAMP
-  Int32 dateFormat_;
+  int dateFormat_;
 
   // original function was DATEFORMAT
   NABoolean wasDateformat_;
@@ -2067,7 +2067,7 @@ class Trim : public CacheableBuiltinFunction {
  public:
   enum { TRAILING, LEADING, BOTH };
 
-  Trim(Int32 mode, ItemExpr *val1Ptr, ItemExpr *val2Ptr, NABoolean trimCharNotSpecified = FALSE)
+  Trim(int mode, ItemExpr *val1Ptr, ItemExpr *val2Ptr, NABoolean trimCharNotSpecified = FALSE)
       : CacheableBuiltinFunction(ITM_TRIM, 2, val1Ptr, val2Ptr),
         mode_(mode),
         trimCharNotSpecified_(trimCharNotSpecified) {
@@ -2083,7 +2083,7 @@ class Trim : public CacheableBuiltinFunction {
   // append an ascii-version of ItemExpr into cachewa.qryText_
   virtual void generateCacheKey(CacheWA &cwa) const;
 
-  inline Int32 getTrimMode() const { return mode_; }
+  inline int getTrimMode() const { return mode_; }
 
   // a virtual function for performing name binding within the query tree
   virtual ItemExpr *bindNode(BindWA *bindWA);
@@ -2115,7 +2115,7 @@ class Trim : public CacheableBuiltinFunction {
   virtual QR::ExprElement getQRExprElem() const { return QR::QRFunctionWithParameters; }
 
  private:
-  Int32 mode_;  // holds a value from one of the enum members shown above.
+  int mode_;  // holds a value from one of the enum members shown above.
   CharInfo::Collation collation_;
 
   // this is set if trim character is not specified during parsing.
@@ -2145,7 +2145,7 @@ class Translate : public CacheableBuiltinFunction {
          UNKNOWN_TRANSLATION };
 
   Translate(ItemExpr *valPtr, NAString *map_table_name);
-  Translate(ItemExpr *valPtr, Int32 map_table_id);
+  Translate(ItemExpr *valPtr, int map_table_id);
 
   // virtual destructor
   virtual ~Translate(){};
@@ -2156,7 +2156,7 @@ class Translate : public CacheableBuiltinFunction {
   // append an ascii-version of ItemExpr into cachewa.qryText_
   virtual void generateCacheKey(CacheWA &cwa) const;
 
-  inline Int32 getTranslateMapTableId() const { return map_table_id_; }
+  inline int getTranslateMapTableId() const { return map_table_id_; }
 
   // a virtual function for type propagating the node
   virtual const NAType *synthesizeType();
@@ -2180,14 +2180,14 @@ class Translate : public CacheableBuiltinFunction {
   void setAssignColName(NAString colName) { assignColName_ = colName; }
 
  private:
-  Int32 map_table_id_;  // holds a value from one of the enum members shown above.
+  int map_table_id_;  // holds a value from one of the enum members shown above.
 
   // column name that assigned by stmt. used at executor stage.
   NAString assignColName_;
 
 };  // class Translate
 
-Int32 find_translate_type(CharInfo::CharSet src_cs,    // Source charset
+int find_translate_type(CharInfo::CharSet src_cs,    // Source charset
                           CharInfo::CharSet dest_cs);  // Destination charset
 
 // The CASE statement has an operand which is not one of its children,
@@ -2330,7 +2330,7 @@ class RaiseError : public BuiltinFunction {
 
   const NAString &getConstraintName() const { return constraintName_; }
   const NAString &getTableName() const { return tableName_; }
-  Int32 getSQLCODE() const { return theSQLCODE_; }
+  int getSQLCODE() const { return theSQLCODE_; }
   void setSQLCODE(int sqlcode) { theSQLCODE_ = sqlcode; }
 
  private:
@@ -2724,7 +2724,7 @@ class CompEncode : public BuiltinFunction {
 
   NABoolean getCaseInsensitiveEncode() const { return caseinsensitiveEncode_; }
 
-  Int32 getEncodedCollation() const { return encodedCollation_; }
+  int getEncodedCollation() const { return encodedCollation_; }
 
   NABoolean getCollationType() const { return collationType_; }
 
@@ -2982,7 +2982,7 @@ class MathFunc : public CacheableBuiltinFunction {
   }
 
   // get the degree of this node (it depends on the type of the operator)
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   // a virtual function for type propagating the node
   virtual const NAType *synthesizeType();
@@ -3045,7 +3045,7 @@ class BitOperFunc : public CacheableBuiltinFunction {
   }
 
   // get the degree of this node (it depends on the type of the operator)
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   // a virtual function for type propagating the node
   virtual const NAType *synthesizeType();
@@ -3101,7 +3101,7 @@ class Modulus : public CacheableBuiltinFunction {
 /////////////////////////////////////////////////////////////////////
 class Repeat : public BuiltinFunction {
  public:
-  Repeat(ItemExpr *val1Ptr, ItemExpr *val2Ptr, Int32 maxLength = -1)
+  Repeat(ItemExpr *val1Ptr, ItemExpr *val2Ptr, int maxLength = -1)
       : BuiltinFunction(ITM_REPEAT, CmpCommon::statementHeap(), 2, val1Ptr, val2Ptr),
         maxLength_(maxLength),
         maxLengthWasExplicitlySet_(FALSE) {
@@ -3123,8 +3123,8 @@ class Repeat : public BuiltinFunction {
 
   virtual NABoolean protectFromVEGs() { return TRUE; };
 
-  const Int32 getMaxLength() { return maxLength_; };
-  void setMaxLength(Int32 val) { maxLength_ = val; };
+  const int getMaxLength() { return maxLength_; };
+  void setMaxLength(int val) { maxLength_ = val; };
 
  private:
   // max length of Repeat expression.
@@ -3132,7 +3132,7 @@ class Repeat : public BuiltinFunction {
   // is used certain expansions of LPAD and RPAD.
   // It is initialized to the value -1, which indicates that maxLength
   // has not been computed or passed in.
-  Int32 maxLength_;
+  int maxLength_;
 
   // if max length was specified in REPEAT function
   // and passed in during constructor.
@@ -3792,7 +3792,7 @@ class RandomNum : public BuiltinFunction {
 
   virtual ~RandomNum();
 
-  virtual Int32 getArity() const { return (child(0) ? 1 : 0); };
+  virtual int getArity() const { return (child(0) ? 1 : 0); };
 
   virtual const NAType *synthesizeType();
 
@@ -4011,8 +4011,8 @@ class ZZZBinderFunction : public BuiltinFunction {
   virtual void transformNode(NormWA &normWARef, ExprValueId &locationOfPointerToMe, ExprGroupId &introduceSemiJoinHere,
                              const ValueIdSet &externalInputs);
 
-  Int32 getPadLength(ItemExpr *padLengthExpr, BindWA *bindWA);
-  Int32 getPadStringLength(ItemExpr *padLengthExpr, BindWA *bindWA);
+  int getPadLength(ItemExpr *padLengthExpr, BindWA *bindWA);
+  int getPadStringLength(ItemExpr *padLengthExpr, BindWA *bindWA);
   NABoolean isPadWithSpace(ExprValueId &padExpr, CharInfo::CharSet cs);
 
   static ItemExpr *tryToUndoBindTransformation(ItemExpr *expr);
@@ -4306,7 +4306,7 @@ class ItmLeadOlapFunction : public ItmSeqOlapFunction {
   ItmLeadOlapFunction(ItemExpr *valPtr, ItemExpr *offsetExpr = NULL, ItemExpr *defaultValue = NULL)
       : ItmSeqOlapFunction(ITM_OLAP_LEAD, valPtr, offsetExpr, defaultValue), offset_(-1) {}
 
-  ItmLeadOlapFunction(ItemExpr *valPtr, Int32 offset) : ItmSeqOlapFunction(ITM_OLAP_LEAD, valPtr), offset_(offset) {}
+  ItmLeadOlapFunction(ItemExpr *valPtr, int offset) : ItmSeqOlapFunction(ITM_OLAP_LEAD, valPtr), offset_(offset) {}
 
   // virtual destructor
   virtual ~ItmLeadOlapFunction();
@@ -4324,8 +4324,8 @@ class ItmLeadOlapFunction : public ItmSeqOlapFunction {
 
   virtual NABoolean isOlapFunction() const { return TRUE; };  // virtual method
 
-  Int32 getOffset() { return offset_; };
-  void setOffset(Int32 x) { offset_ = x; };
+  int getOffset() { return offset_; };
+  void setOffset(int x) { offset_ = x; };
 
   ItemExpr *transformOlapFunction(CollHeap *wHeap);
 
@@ -4339,7 +4339,7 @@ class ItmLeadOlapFunction : public ItmSeqOlapFunction {
   void generateCacheKey(CacheWA &cwa) const;
 
  private:
-  Int32 offset_;
+  int offset_;
 };  // ItmLeadOlapFunction
 
 // ------------------------------------------------------------------------
@@ -4365,7 +4365,7 @@ class ItmSeqOffset : public ItmSequenceFunction {
     allowsSQLnullArg() = CheckModeCompatible1();
   }
 
-  ItmSeqOffset(ItemExpr *valPtr, Int32 offsetConstantValue, NABoolean nullRowIsZero = FALSE, NABoolean leading = TRUE,
+  ItmSeqOffset(ItemExpr *valPtr, int offsetConstantValue, NABoolean nullRowIsZero = FALSE, NABoolean leading = TRUE,
                int winSize = 0)
       : ItmSequenceFunction(ITM_OFFSET, valPtr),
         nullRowIsZero_(nullRowIsZero),
@@ -4393,14 +4393,14 @@ class ItmSeqOffset : public ItmSequenceFunction {
   // get the degree of this node. Although it is a binary op, this will return 1 if offset value was
   // set via constant below.
 
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   NABoolean nullRowIsZero() const { return nullRowIsZero_; }
 
   void setNullRowIsZero(NABoolean b) { nullRowIsZero_ = b; }
 
   //
-  Int32 getOffsetConstantValue() const { return offsetConstantValue_; }
+  int getOffsetConstantValue() const { return offsetConstantValue_; }
 
   NABoolean isLeading() const { return leading_; }
   int winSize() const { return winSize_; }
@@ -4411,7 +4411,7 @@ class ItmSeqOffset : public ItmSequenceFunction {
 
  private:
   NABoolean nullRowIsZero_;
-  Int32 offsetConstantValue_;
+  int offsetConstantValue_;
   NABoolean leading_;
   int winSize_;
 
@@ -4446,7 +4446,7 @@ class ItmLagOlapFunction : public ItmSeqOlapFunction {
   void generateCacheKey(CacheWA &cwa) const;
 
  private:
-  Int32 offset_;
+  int offset_;
 };  // ItmLagOlapFunction
 
 // --------------------------------------------------------------------------
@@ -4884,7 +4884,7 @@ class HbaseColumnCreate : public BuiltinFunction {
   const NAType *resultType_;
 
   short colNameMaxLen_;
-  Int32 colValMaxLen_;
+  int colValMaxLen_;
 
   NAList<HbaseColumnCreateOptions *> *hccol_;
 };  // class HbaseColumnCreate
@@ -4900,7 +4900,7 @@ class HbaseAttribute : public BuiltinFunction {
                               ValueIdSet &referencedInputs, ValueIdSet &coveredSubExpr,
                               ValueIdSet &unCoveredExpr) const;
 
-  virtual Int32 getArity() const { return (child(0) ? 1 : 0); }
+  virtual int getArity() const { return (child(0) ? 1 : 0); }
 
   virtual NABoolean isCacheableExpr(CacheWA &cwa) { return TRUE; }
 

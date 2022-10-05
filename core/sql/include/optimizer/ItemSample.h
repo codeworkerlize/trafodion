@@ -57,7 +57,7 @@ class ItmBalance : public BuiltinFunction {
 
   void rearrangeChildren();
 
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   virtual HashValue topHash();
 
@@ -95,7 +95,7 @@ class ItmBalance : public BuiltinFunction {
 
   CostScalar computeResultSize(CostScalar initialRowCount);
 
-  Int32 checkErrors();
+  int checkErrors();
 
   double getSampleConstValue() const;
   double getSkipConstValue() const;

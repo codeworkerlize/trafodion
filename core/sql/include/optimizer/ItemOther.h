@@ -80,7 +80,7 @@ class Assign : public ItemExpr {
   virtual ~Assign() {}
 
   // get the degree of this node
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   NABoolean isUserSpecified() const { return userSpecified_; }
   void setUserSpecified(NABoolean userSpecified) { userSpecified_ = userSpecified; }
@@ -180,7 +180,7 @@ class Convert : public ItemExpr {
   virtual ~Convert() {}
 
   // get the degree of this node (it is a unary op).
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   // get a printable string that identifies the operator
   const NAString getText() const { return "convert"; }
@@ -227,7 +227,7 @@ class ItemList : public ItemExpr {
                               ValueIdSet &referencedInputs, ValueIdSet &coveredSubExpr,
                               ValueIdSet &unCoveredExpr) const;
 
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   // get a printable string that identifies the operator
   const NAString getText() const { return ","; }
@@ -304,7 +304,7 @@ class RenameCol : public ItemExpr {
   inline ColumnClass getTargetColumnClass() const { return targetColumnClass_; }
 
   // get the degree of this node (it is a binary op).
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   // get a printable string that identifies the operator
   const NAString getText() const;
@@ -338,7 +338,7 @@ class ValueIdRef : public ItemExpr {
   virtual ~ValueIdRef() {}
 
   // get the degree of this node (it is a leaf node)
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   ValueId isDerivedFrom() const { return derivedFrom_; }
 
@@ -383,7 +383,7 @@ class ValueIdRef : public ItemExpr {
 class ValueIdProxy : public ItemExpr {
  public:
   //! ValueIdProxy::ValueIdProxy() constructor
-  ValueIdProxy(ValueId valId, ValueId outputId, Int32 outputNum, NABoolean transformChild = FALSE)
+  ValueIdProxy(ValueId valId, ValueId outputId, int outputNum, NABoolean transformChild = FALSE)
       : ItemExpr(ITM_VALUEID_PROXY),
         derivedFrom_(valId),
         outputValueId_(outputId),
@@ -395,7 +395,7 @@ class ValueIdProxy : public ItemExpr {
 
   //! getArity() method
   // get the degree of this node (it is a leaf node)
-  virtual Int32 getArity() const { return 0; }
+  virtual int getArity() const { return 0; }
 
   //! needToTransformChild() method
   // This method is unique to this class. It is used to mark the "parent"
@@ -430,7 +430,7 @@ class ValueIdProxy : public ItemExpr {
   // This method is unique to this class. It returns the ordinal number
   // of the ValueIdProxy. This number corresponds to the position in the
   // select list of a subquery or the output parameter number of a MVF.
-  inline Int32 getOutputNum() const { return outputOrdinalNumber_; }
+  inline int getOutputNum() const { return outputOrdinalNumber_; }
 
   //! generateCacheKey() method
   // append an ascii-version of the derivedFrom_ node into cachewa.qryText_
@@ -531,7 +531,7 @@ class ValueIdProxy : public ItemExpr {
   ValueId outputValueId_;
 
   //! the ordinal number of the output, ie. first, second ..
-  Int32 outputOrdinalNumber_;
+  int outputOrdinalNumber_;
 
 };  // class ValueIdProxy
 
@@ -545,19 +545,19 @@ class ValueIdProxy : public ItemExpr {
 // -----------------------------------------------------------------------
 class ValueIdUnion : public ItemExpr {
  public:
-  ValueIdUnion(ValueId lvid, ValueId rvid, ValueId resid, Int32 flags = Union::UNION_NONE)
+  ValueIdUnion(ValueId lvid, ValueId rvid, ValueId resid, int flags = Union::UNION_NONE)
       : ItemExpr(ITM_VALUEIDUNION), result_(resid), flags_(flags), otherFlags_(0), labelValues_(NULL) {
     sources_.insert(lvid);
     sources_.insert(rvid);
   }
 
-  ValueIdUnion(ValueIdList vids, ValueId resid, Int32 flags = Union::UNION_NONE)
+  ValueIdUnion(ValueIdList vids, ValueId resid, int flags = Union::UNION_NONE)
       : ItemExpr(ITM_VALUEIDUNION), result_(resid), flags_(flags), otherFlags_(0), sources_(vids), labelValues_(NULL) {}
 
   virtual ~ValueIdUnion() {}
 
   // get the degree of this node (it is a leaf node)
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   // get and set the ValueIds of the underlying sources that are
   // in corresponding positions
@@ -656,8 +656,8 @@ class ValueIdUnion : public ItemExpr {
 
   // Only the parent Union expr (if the parent IS a Union, that is)
   // should call setUnionFlags!
-  void setUnionFlags(Int32 f) { flags_ = f; }
-  Int32 getUnionFlags() { return flags_; }
+  void setUnionFlags(int f) { flags_ = f; }
+  int getUnionFlags() { return flags_; }
 
   NABoolean isTrueUnion() { return (otherFlags_ & IS_TRUE_UNION) != 0; }
   void setIsTrueUnion(NABoolean v) { (v ? otherFlags_ |= IS_TRUE_UNION : otherFlags_ &= ~IS_TRUE_UNION); };
@@ -677,9 +677,9 @@ class ValueIdUnion : public ItemExpr {
 
   ValueId result_;
 
-  Int32 flags_;  // enum Union::UnionFlags value copied from parent Union
+  int flags_;  // enum Union::UnionFlags value copied from parent Union
 
-  Int32 otherFlags_;
+  int otherFlags_;
 
   // An optional ValueIdSet of ConstValues that represents all the
   // values this ItemExpr can take on. The values coming from the left
@@ -710,7 +710,7 @@ class VEG : public ItemExpr {
   virtual ~VEG();
 
   // get the degree of this node (it is a leaf node)
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   void insert(const ValueId &newValue);
   void insert(const ValueIdSet &newValues);
@@ -839,7 +839,7 @@ class VEGPredicate : public ItemExpr {
   virtual ~VEGPredicate();
 
   // get the degree of this node (it is a leaf node)
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   // An indicator whether this item expression is a predicate.
   virtual NABoolean isAPredicate() const;
@@ -971,7 +971,7 @@ class VEGReference : public ItemExpr {
   virtual ~VEGReference();
 
   // get the degree of this node (it is a leaf).
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   NABoolean referencesVegRefValue(ValueId &ofVegRef);
   void replaceVEG(const ValueId &ofVEG);  // used when VEGs are merged
@@ -1038,7 +1038,7 @@ class ExprHistDummy : public ItemExpr {
   ExprHistDummy();
   virtual ~ExprHistDummy();
 
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   virtual void unparse(NAString &result, PhaseEnum phase = OPTIMIZER_PHASE, UnparseFormatEnum form = USER_FORMAT,
                        TableDesc *tabId = NULL) const;
@@ -1077,7 +1077,7 @@ class BiConnectBy : public ItemExpr {
   ItemExpr *where_clause;
   ItemExpr *order_siblings_by_clause;
 
-  virtual Int32 getArity() const { return 2; }
+  virtual int getArity() const { return 2; }
 
  private:
   NABoolean noCycle_;
@@ -1101,7 +1101,7 @@ class RangeSpecRef : public ItemExpr {
   virtual ~RangeSpecRef();
   /* Kind of BiRelational: column <in> { Value Id Set } */
   /* That's why it is 2 */
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
   virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
   virtual void unparse(NAString &result, PhaseEnum phase = OPTIMIZER_PHASE, UnparseFormatEnum form = USER_FORMAT,

@@ -56,14 +56,14 @@ ex_expr::exp_return_type ex_function_upper_unicode::eval(char *op_data[], CollHe
 
   NAWchar *target = (NAWchar *)op_data[0];
   NAWchar *source = (NAWchar *)op_data[1];
-  Int32 wc_len = len1 / sizeof(NAWchar);
-  Int32 actual_len = 0;
+  int wc_len = len1 / sizeof(NAWchar);
+  int actual_len = 0;
   NAWchar *tmpWCP = NULL;
-  Int32 maxWideChars = getOperand(0)->getLength() / sizeof(NAWchar);
+  int maxWideChars = getOperand(0)->getLength() / sizeof(NAWchar);
 
   // JQ
   // A given character will be searched against two mapping tables
-  for (Int32 i = 0; i < wc_len; i++) {
+  for (int i = 0; i < wc_len; i++) {
     // search against unicode_lower2upper_mapping_table_full
     tmpWCP = unicode_char_set::to_upper_full(source[i]);
     if (tmpWCP) {

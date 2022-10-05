@@ -25,8 +25,8 @@
 
 // Explicit function template argument lists are not supported yet
 // in expression contexts. Use non-template argument instead.
-NAWcharBuf *checkSpace(CollHeap *heap, Int32 sourceLen, NAWcharBuf *&target, NABoolean addNullAtEnd) {
-  Int32 olen = sourceLen;
+NAWcharBuf *checkSpace(CollHeap *heap, int sourceLen, NAWcharBuf *&target, NABoolean addNullAtEnd) {
+  int olen = sourceLen;
   if (addNullAtEnd) olen++;
 
   NAWcharBuf *finalTarget = target;
@@ -61,8 +61,8 @@ NAWcharBuf *checkSpace(CollHeap *heap, Int32 sourceLen, NAWcharBuf *&target, NAB
   return finalTarget;
 }
 
-charBuf *checkSpace(CollHeap *heap, Int32 sourceLen, charBuf *&target, NABoolean addNullAtEnd) {
-  Int32 olen = sourceLen;
+charBuf *checkSpace(CollHeap *heap, int sourceLen, charBuf *&target, NABoolean addNullAtEnd) {
+  int olen = sourceLen;
   if (addNullAtEnd) olen++;
 
   charBuf *finalTarget = target;

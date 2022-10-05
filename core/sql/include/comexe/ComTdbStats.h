@@ -141,9 +141,9 @@ class CompilationStatsData : public NAVersionedObject {
   CompilationStatsData(long compileStartTime, long compileEndTime, char *compilerId, int cmpCpuTotal,
                        int cmpCpuBinder, int cmpCpuNormalizer, int cmpCpuAnalyzer, int cmpCpuOptimizer,
                        int cmpCpuGenerator, ULng32 metadataCacheHits, ULng32 metadataCacheLookups,
-                       Int32 queryCacheState, ULng32 histogramCacheHits, ULng32 histogramCacheLookups,
+                       int queryCacheState, ULng32 histogramCacheHits, ULng32 histogramCacheLookups,
                        int stmtHeapSize, int cxtHeapSize, int optTasks, int optContexts, short isRecompile,
-                       char *compileInfo, Int32 compileInfoLen)
+                       char *compileInfo, int compileInfoLen)
       : NAVersionedObject(-1),
         compileStartTime_(compileStartTime),
         compileEndTime_(compileEndTime),
@@ -192,7 +192,7 @@ class CompilationStatsData : public NAVersionedObject {
   int cmpCpuGenerator() { return cmpCpuGenerator_; }
   ULng32 metadataCacheHits() { return metadataCacheHits_; }
   ULng32 metadataCacheLookups() { return metadataCacheLookups_; }
-  Int32 queryCacheState() { return queryCacheState_; }
+  int queryCacheState() { return queryCacheState_; }
   ULng32 histogramCacheHits() { return histogramCacheHits_; }
   ULng32 histogramCacheLookups() { return histogramCacheLookups_; }
   int stmtHeapSize() { return stmtHeapSize_; }
@@ -201,7 +201,7 @@ class CompilationStatsData : public NAVersionedObject {
   int optContexts() { return optContexts_; }
   short isRecompile() { return isRecompile_; }
   char *compileInfo() { return (char *)compileInfo_.getPointer(); }
-  Int32 compileInfoLen() { return compileInfoLen_; }
+  int compileInfoLen() { return compileInfoLen_; }
   //
   // these values are found after the object is created and added back in
   void setCmpCpuGenerator(int cmpCpuGenerator) { cmpCpuGenerator_ = cmpCpuGenerator; }
@@ -213,27 +213,27 @@ class CompilationStatsData : public NAVersionedObject {
   long compileStartTime_;       //  0 -  7
   long compileEndTime_;         //  8 - 15
   NABasicPtr compilerId_;        // 16 - 23
-  Int32 cmpCpuTotal_;            // 24 - 27
-  Int32 cmpCpuBinder_;           // 28 - 31
-  Int32 cmpCpuNormalizer_;       // 32 - 35
-  Int32 cmpCpuAnalyzer_;         // 36 - 39
-  Int32 cmpCpuOptimizer_;        // 40 - 43
-  Int32 cmpCpuGenerator_;        // 44 - 47
-  Int32 metadataCacheHits_;      // 48 - 51
-  Int32 metadataCacheLookups_;   // 52 - 55
-  Int32 queryCacheState_;        // 56 - 59
-  Int32 histogramCacheHits_;     // 60 - 63
-  Int32 histogramCacheLookups_;  // 64 - 67
-  Int32 stmtHeapSize_;           // 68 - 71
-  Int32 cxtHeapSize_;            // 72 - 75
-  Int32 optTasks_;               // 76 - 79
-  Int32 optContexts_;            // 80 - 83
+  int cmpCpuTotal_;            // 24 - 27
+  int cmpCpuBinder_;           // 28 - 31
+  int cmpCpuNormalizer_;       // 32 - 35
+  int cmpCpuAnalyzer_;         // 36 - 39
+  int cmpCpuOptimizer_;        // 40 - 43
+  int cmpCpuGenerator_;        // 44 - 47
+  int metadataCacheHits_;      // 48 - 51
+  int metadataCacheLookups_;   // 52 - 55
+  int queryCacheState_;        // 56 - 59
+  int histogramCacheHits_;     // 60 - 63
+  int histogramCacheLookups_;  // 64 - 67
+  int stmtHeapSize_;           // 68 - 71
+  int cxtHeapSize_;            // 72 - 75
+  int optTasks_;               // 76 - 79
+  int optContexts_;            // 80 - 83
   Int16 isRecompile_;            // 84 - 85
 
   Int16 fillBoundary_;  // 86 - 87
 
   NABasicPtr compileInfo_;  // 88 - 95
-  Int32 compileInfoLen_;    // 96 - 99
+  int compileInfoLen_;    // 96 - 99
   char filler_[42];         // 100 - 141
 };
 
@@ -260,10 +260,10 @@ class CompilerStatsInfo {
   UInt16 &espLevels() { return espLevels_; }
   UInt16 &dop() { return dop_; }
   UInt32 &affinityNumber() { return affinityNumber_; }
-  Int32 &totalFragmentSize() { return totalFragmentSize_; }
-  Int32 &masterFragmentSize() { return masterFragmentSize_; }
-  Int32 &espFragmentSize() { return espFragmentSize_; }
-  Int32 &dp2FragmentSize() { return dp2FragmentSize_; }
+  int &totalFragmentSize() { return totalFragmentSize_; }
+  int &masterFragmentSize() { return masterFragmentSize_; }
+  int &espFragmentSize() { return espFragmentSize_; }
+  int &dp2FragmentSize() { return dp2FragmentSize_; }
   double &dp2RowsAccessed() { return dp2RowsAccessed_; }
   double &dp2RowsUsed() { return dp2RowsUsed_; }
   double &dp2RowsAccessedForFullScan() { return dp2RowsAccessedForFullScan_; }
@@ -315,10 +315,10 @@ class CompilerStatsInfo {
 
   UInt32 affinityNumber_;
 
-  Int32 totalFragmentSize_;
-  Int32 masterFragmentSize_;
-  Int32 espFragmentSize_;
-  Int32 dp2FragmentSize_;
+  int totalFragmentSize_;
+  int masterFragmentSize_;
+  int espFragmentSize_;
+  int dp2FragmentSize_;
 
   double dp2RowsAccessed_;
   double dp2RowsUsed_;
@@ -1023,7 +1023,7 @@ class ComTdbStats : public ComTdb {
               UInt16 stats_row_atp_index, UInt16 input_row_atp_index);
 
   // This always returns TRUE for now
-  Int32 orderedQueueProtocol() const { return -1; };
+  int orderedQueueProtocol() const { return -1; };
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -1059,29 +1059,29 @@ class ComTdbStats : public ComTdb {
 
   // Virtual routines to provide a consistent interface to TDB's
 
-  virtual const ComTdb *getChild(Int32 /*child*/) const { return NULL; };
+  virtual const ComTdb *getChild(int /*child*/) const { return NULL; };
 
   // numChildren always returns 0 for ComTdbStats
-  virtual Int32 numChildren() const { return 0; };
+  virtual int numChildren() const { return 0; };
 
   virtual const char *getNodeName() const { return "EX_STATS"; };
 
   // numExpressions always returns 2 for ComTdbStats
-  virtual Int32 numExpressions() const { return 2; };
+  virtual int numExpressions() const { return 2; };
 
   // The names of the expressions
-  virtual const char *getExpressionName(Int32) const;
+  virtual const char *getExpressionName(int) const;
 
   // The expressions themselves
-  virtual ex_expr *getExpressionNode(Int32);
+  virtual ex_expr *getExpressionNode(int);
 
-  static Int32 getVirtTableNumCols() { return sizeof(statsVirtTableColumnInfo) / sizeof(ComTdbVirtTableColumnInfo); }
+  static int getVirtTableNumCols() { return sizeof(statsVirtTableColumnInfo) / sizeof(ComTdbVirtTableColumnInfo); }
 
   static ComTdbVirtTableColumnInfo *getVirtTableColumnInfo() {
     return (ComTdbVirtTableColumnInfo *)statsVirtTableColumnInfo;
   }
 
-  static Int32 getVirtTableNumKeys() { return sizeof(statsVirtTableKeyInfo) / sizeof(ComTdbVirtTableKeyInfo); }
+  static int getVirtTableNumKeys() { return sizeof(statsVirtTableKeyInfo) / sizeof(ComTdbVirtTableKeyInfo); }
 
   static ComTdbVirtTableKeyInfo *getVirtTableKeyInfo() { return (ComTdbVirtTableKeyInfo *)statsVirtTableKeyInfo; }
 
@@ -1095,13 +1095,13 @@ class ComTdbStats : public ComTdb {
   ExExprPtr inputExpr_;  // 16-23
 
   // Length of stats tuple to be allocated
-  Int32 tupleLen_;  // 24-27
+  int tupleLen_;  // 24-27
 
-  Int32 returnedTupleLen_;  // 28-31
+  int returnedTupleLen_;  // 28-31
 
-  Int32 inputTupleLen_;  // 32-35
+  int inputTupleLen_;  // 32-35
 
-  Int32 filler0ComTdbStats_;  // 36-39 unused
+  int filler0ComTdbStats_;  // 36-39 unused
 
   ExCriDescPtr workCriDesc_;  // 40-47
 

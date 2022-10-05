@@ -41,11 +41,11 @@ class CmpSeabaseMDcleanup : public CmpSeabaseDDL {
   short processCleanupErrors(ExeCliInterface *cliInterface, NABoolean &errorSeen);
 
   long getCleanupObjectUID(ExeCliInterface *cliInterface, const char *catName, const char *schName,
-                            const char *objName, const char *inObjType, char *outObjType, Int32 &objectOwner,
+                            const char *objName, const char *inObjType, char *outObjType, int &objectOwner,
                             long *objectFlags = NULL, long *objDataUID = NULL);
 
   short getCleanupObjectName(ExeCliInterface *cliInterface, long objUID, NAString &catName, NAString &schName,
-                             NAString &objName, NAString &objType, Int32 &objectOwner, long *objectFlags = NULL,
+                             NAString &objName, NAString &objType, int &objectOwner, long *objectFlags = NULL,
                              long *objDataUID = NULL);
 
   /* is there inferior partitions */
@@ -80,7 +80,7 @@ class CmpSeabaseMDcleanup : public CmpSeabaseDDL {
   short addReturnDetailsEntry(ExeCliInterface *cliInterface, Queue *&list, const char *value, NABoolean init,
                               NABoolean isUID = FALSE);
 
-  short addReturnDetailsEntryForText(ExeCliInterface *cliInterface, Queue *&list, long objUID, Int32 objType,
+  short addReturnDetailsEntryForText(ExeCliInterface *cliInterface, Queue *&list, long objUID, int objType,
                                      NABoolean init);
 
   short addReturnDetailsEntryFromList(ExeCliInterface *cliInterface, Queue *fromList, int fromIndex, Queue *toList,
@@ -143,7 +143,7 @@ class CmpSeabaseMDcleanup : public CmpSeabaseDDL {
   long objUID_;
   long objectFlags_;
   long objDataUID_;
-  Int32 objectOwner_;
+  int objectOwner_;
   NAString btObjName_;
 
   NABoolean cleanupMetadataEntries_;
@@ -171,7 +171,7 @@ class CmpSeabaseMDcleanup : public CmpSeabaseDDL {
   char **lobLocList_;
   char *lobMDName_;
   char *lobMDNameBuf_;
-  Int32 numLOBdatafiles_;
+  int numLOBdatafiles_;
 
   int numOrphanMetadataEntries_;
   int numOrphanHbaseEntries_;

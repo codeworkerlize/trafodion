@@ -93,7 +93,7 @@ class MdamIntervalList {
 
   // This function inserts a single disjunct number into the reference list
   // associated with each MdamInterval on the MdamIntervalList.
-  void insertDisjunctNum(const Int32 disjunctNum, FixedSizeHeapManager &mdamRefListEntryHeap);
+  void insertDisjunctNum(const int disjunctNum, FixedSizeHeapManager &mdamRefListEntryHeap);
 
   // Performs an intersect operation on two interval lists to produce a
   // result list.  The this list and the otherList are inputs to the
@@ -132,7 +132,7 @@ class MdamIntervalList {
   // instead.  The this list and the otherList are inputs to the
   // intersect operation.  The result replaces the this list.  The
   // original interval list entries for the this list are deleted.
-  MdamIntervalList &unionSeparateDisjuncts(const MdamIntervalList &otherList, const Int32 disjunctNum,
+  MdamIntervalList &unionSeparateDisjuncts(const MdamIntervalList &otherList, const int disjunctNum,
                                            const ULng32 keyLen, FixedSizeHeapManager &mdamIntervalHeap,
                                            FixedSizeHeapManager &mdamRefListEntryHeap);
 

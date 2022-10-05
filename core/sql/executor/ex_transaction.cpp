@@ -505,7 +505,7 @@ short ExTransaction::rollbackStatement() {
     return -1;
   }
 
-  Int32 rc = ABORTTRANSACTION();
+  int rc = ABORTTRANSACTION();
   if (rc != 0) {
     createDiagsArea(EXE_ROLLBACK_ERROR_FROM_TRANS_SUBSYS, rc, "TMF");
     return -1;
@@ -537,7 +537,7 @@ short ExTransaction::rollbackTransaction(NABoolean isWaited) {
     return -1;
   }
 
-  Int32 rc = ABORTTRANSACTION();
+  int rc = ABORTTRANSACTION();
   if (rc != 0 && rc != FENOTRANSID) {
     createDiagsArea(EXE_ROLLBACK_ERROR_FROM_TRANS_SUBSYS, rc, "TMF");
     return -1;
@@ -557,7 +557,7 @@ short ExTransaction::rollbackTransaction(NABoolean isWaited) {
 short ExTransaction::rollbackTransactionWaited() { return rollbackTransaction(TRUE); }
 
 short ExTransaction::doomTransaction() {
-  Int32 rc = 0;
+  int rc = 0;
 
   if (!xnInProgress()) {
     if (transDiagsArea_) {
@@ -599,7 +599,7 @@ short ExTransaction::doomTransaction() {
 
   // switch back to the saved TxHandle.
   if (switchTrans) {
-    Int32 rc2 = TMF_SETTXHANDLE_((short *)&currentTxHandle);
+    int rc2 = TMF_SETTXHANDLE_((short *)&currentTxHandle);
 
     // calls assert since unable to restore the previous handle.
     ex_assert(!rc2, "TMF_SETTXHANDLE ERROR");  // call assert if error
@@ -625,7 +625,7 @@ void ExTransaction::cleanupTransaction() {
   // This is called if a transaction is 'doomed' and
   // cleanup is being done.
 
-  Int32 rc = 0;
+  int rc = 0;
 
   if (cliGlob_->currContext()->getClientInfo())
     rc = ENDTRANSACTION_QUERY(cliGlob_->currContext()->getClientInfo());
@@ -682,9 +682,9 @@ short ExTransaction::commitTransaction() {
     lob_ddl_thread_id = 0;
   }
 
-  Int32 rc = 0;
+  int rc = 0;
   char *errStr = NULL;
-  Int32 errlen = 0;
+  int errlen = 0;
   if (cliGlob_->currContext()->getClientInfo())
     rc = ENDTRANSACTION_ERR_QUERY(errStr, errlen, cliGlob_->currContext()->getClientInfo());
   else
@@ -972,7 +972,7 @@ void ExTransaction::enableAutoCommit() {
   }
 }
 
-void ExTransaction::createDiagsArea(Int32 error1, Int32 retCode, const char *string) {
+void ExTransaction::createDiagsArea(int error1, int retCode, const char *string) {
   if (transDiagsArea_) {
     transDiagsArea_->decrRefCount();
     transDiagsArea_ = NULL;
@@ -1017,7 +1017,7 @@ short ExTransaction::commitSavepoint(long savepointId, long parentSvptId) {
   if (getSavepointState() != SP_TO_COMMIT) return 0;
 
   char *errStr = NULL;
-  Int32 errlen = 0;
+  int errlen = 0;
 
   // never do real commit savepoint to transaction
   // since we now have multi named savepoints like oracle
@@ -1047,7 +1047,7 @@ short ExTransaction::commitImplicitSavepoint(long implicitSvptId, long parentSvp
   }
 
   char *errStr = NULL;
-  Int32 errlen = 0;
+  int errlen = 0;
 
   if (doRealCommit) {
     // rc = COMMITSAVEPOINT(errStr, errlen, implicitSvptId, parentSvptId);

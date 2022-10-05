@@ -145,7 +145,7 @@ class ElemDDLStoreOptKeyColumnList : public ElemDDLStoreOpt {
   // accessors
   //
 
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   virtual ExprNode *getChild(int index);
 

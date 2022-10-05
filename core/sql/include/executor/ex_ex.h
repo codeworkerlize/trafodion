@@ -41,7 +41,7 @@
 #include "common/Platform.h"
 
 // typedef	int		(*funcptr) (void *);
-typedef Int32 funcptr;  // for now
+typedef int funcptr;  // for now
 
 #define logInternalError(r) ((short)r)
 

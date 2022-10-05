@@ -146,7 +146,7 @@ class ex_union_tcb : public ex_tcb {
   //
   ex_queue_pair getParentQueue() const { return (qparent); }
 
-  virtual const ex_tcb *getChild(Int32 pos) const {
+  virtual const ex_tcb *getChild(int pos) const {
     ex_assert((pos >= 0), "");
     if (pos == 0)
       return tcbLeft_;
@@ -156,7 +156,7 @@ class ex_union_tcb : public ex_tcb {
       return NULL;
   }
 
-  inline ex_expr *moveExpr(Int32 i) { return (i == 0 ? union_tdb().leftExpr_ : union_tdb().rightExpr_); }
+  inline ex_expr *moveExpr(int i) { return (i == 0 ? union_tdb().leftExpr_ : union_tdb().rightExpr_); }
 
   inline ex_expr *mergeExpr() const { return union_tdb().mergeExpr_; }
 
@@ -164,9 +164,9 @@ class ex_union_tcb : public ex_tcb {
 
   inline ex_expr *trigExceptExpr() const { return union_tdb().trigExceptExpr_; }
 
-  virtual Int32 numChildren() const { return union_tdb().numChildren(); }
+  virtual int numChildren() const { return union_tdb().numChildren(); }
   //  virtual const ex_tcb* getChild(int pos) const;
-  virtual Int32 hasNoOutputs() const { return FALSE; };
+  virtual int hasNoOutputs() const { return FALSE; };
   virtual ex_tcb_private_state *allocatePstates(int &numElems,       // inout, desired/actual elements
                                                 int &pstateLength);  // out, length of one element
  protected:
@@ -181,7 +181,7 @@ class ex_union_tcb : public ex_tcb {
   virtual void start();                       // send next request down to children
   virtual void stop();                        // send EOD to parent
   virtual ExWorkProcRetcode processCancel();  // check for cancelled request
-  virtual void processError(ex_union_private_state &pstate, Int32 &endOfData, atp_struct *atp);
+  virtual void processError(ex_union_private_state &pstate, int &endOfData, atp_struct *atp);
 
   // A virtual procedure that returns whether a new row can be copied
   // from a child to the parent queue. If the answer is yes, then
@@ -189,7 +189,7 @@ class ex_union_tcb : public ex_tcb {
   // no the method returns whether the current request is at end of
   // data (EOD entries in both child queues) or not. The procedure
   // also needs to set pstate.childStates_[i] to DONE_, if appropriate.
-  virtual Int32 whichSide(ex_union_private_state &pstate, Int32 &side, Int32 &endOfData);
+  virtual int whichSide(ex_union_private_state &pstate, int &side, int &endOfData);
 };
 
 // -----------------------------------------------------------------------
@@ -204,7 +204,7 @@ class ex_m_union_tcb : public ex_union_tcb {
                  const ex_tcb *right_tcb,        // right queue pair
                  ex_globals *glob);
 
-  virtual Int32 whichSide(ex_union_private_state &pstate, Int32 &side, Int32 &endOfData);
+  virtual int whichSide(ex_union_private_state &pstate, int &side, int &endOfData);
 };
 
 // -----------------------------------------------------------------------
@@ -217,9 +217,9 @@ class ex_o_union_tcb : public ex_union_tcb {
   ex_o_union_tcb(const ex_union_tdb &union_tdb,  //
                  const ex_tcb *left_tcb,         // left queue pair
                  const ex_tcb *right_tcb,        // right queue pair
-                 ex_globals *glob, NABoolean blocked_union, Int32 hasNoOutputs);
+                 ex_globals *glob, NABoolean blocked_union, int hasNoOutputs);
 
-  virtual Int32 whichSide(ex_union_private_state &pstate, Int32 &side, Int32 &endOfData);
+  virtual int whichSide(ex_union_private_state &pstate, int &side, int &endOfData);
 
   ExWorkProcRetcode workDownLeft();  // pass requests down to child
 
@@ -239,7 +239,7 @@ class ex_o_union_tcb : public ex_union_tcb {
 
   virtual void registerSubtasks();
 
-  virtual Int32 hasNoOutputs() const { return hasNoOutputs_; };
+  virtual int hasNoOutputs() const { return hasNoOutputs_; };
 
  private:
   void startLeftchild();
@@ -265,7 +265,7 @@ class ex_o_union_tcb : public ex_union_tcb {
   ExSubtask *phase3Event_;
 
   NABoolean blockedUnion_;
-  Int32 hasNoOutputs_;
+  int hasNoOutputs_;
 
   // -- Triggers -
 
@@ -297,10 +297,10 @@ class ex_c_union_tcb : public ex_union_tcb {
   virtual void start();
   virtual void stop();
 
-  virtual Int32 whichSide(ex_union_private_state &pstate, Int32 &side, Int32 &endOfData);
+  virtual int whichSide(ex_union_private_state &pstate, int &side, int &endOfData);
 
   virtual ExWorkProcRetcode processCancel();
-  virtual void processError(ex_union_private_state &pstate, Int32 &endOfData, atp_struct *atp);
+  virtual void processError(ex_union_private_state &pstate, int &endOfData, atp_struct *atp);
 
   ExSubtask *workUpEvent_;  // to schedule workUp method when error has
                             // prevented sending request to any child.
@@ -320,10 +320,10 @@ class ex_union_private_state : public ex_tcb_private_state {
 
   ex_union_tcb::union_child_state childStates_[2];
 
-  Int32 whichSide_;  // 0 or 1, used by whichSide() method ONLY, init to 0, set
+  int whichSide_;  // 0 or 1, used by whichSide() method ONLY, init to 0, set
                      // in routine startRightchild() to 1
 
-  Int32 whichChild_;  // which side of conditional union to execute.
+  int whichChild_;  // which side of conditional union to execute.
 
   void init();  // initialize state
 
@@ -332,7 +332,7 @@ class ex_union_private_state : public ex_tcb_private_state {
   ex_tcb_private_state *allocate_new(const ex_tcb *tcb);
   ~ex_union_private_state();  // destructor
 
-  Int32 validChild() const { return whichChild_ >= 0 && whichChild_ <= 1; }
+  int validChild() const { return whichChild_ >= 0 && whichChild_ <= 1; }
 };
 
 #endif

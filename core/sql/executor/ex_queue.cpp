@@ -226,7 +226,7 @@ void ex_queue::deleteHeadEntry() {
 }  // ex_queue::deleteHeadEntry()
 // soln 10-040111-2308 end
 
-void ex_queue_entry::display(Int32 pid, Int32 exNodeId, char *title, int tupps) {
+void ex_queue_entry::display(int pid, int exNodeId, char *title, int tupps) {
   ex_cri_desc *x = getAtp()->getCriDesc();
   x->display(pid, exNodeId, title);
 
@@ -239,8 +239,8 @@ void ex_queue_entry::display(Int32 pid, Int32 exNodeId, char *title, int tupps) 
       int offset = 4;
       int length = 8;
       int datalen = length - offset;
-      cout << "min=" << *(Int32 *)(ptr + offset);
-      cout << ", max=" << *(Int32 *)(ptr + length + offset) << endl;
+      cout << "min=" << *(int *)(ptr + offset);
+      cout << ", max=" << *(int *)(ptr + length + offset) << endl;
     }
   }
 }
@@ -255,7 +255,7 @@ void ex_queue_entry::passAtp(atp_struct *from) {
   atp_ = from;
 }
 
-NABoolean ex_queue::allocateAtps(CollHeap *space, atp_struct *atps, queue_index numNewAtps, Int32 atpSize,
+NABoolean ex_queue::allocateAtps(CollHeap *space, atp_struct *atps, queue_index numNewAtps, int atpSize,
                                  NABoolean failureIsFatal) {
   queue_index i;
 
@@ -382,9 +382,9 @@ queue_index ex_queue::resize(ex_tcb *tcb, queue_index newSize) {
   Space *space = tcb->getSpace();
   ex_queue_entry *newQueue;
   queue_index newMask;
-  Int32 queueWasFull = isFull();
+  int queueWasFull = isFull();
   NABoolean needAtps = needsAtps();
-  Int32 atpSize = 0;
+  int atpSize = 0;
   atp_struct *atps = NULL;
   queue_index numAllocatedAtps = 0;
   ex_tcb_private_state *pstates = NULL;

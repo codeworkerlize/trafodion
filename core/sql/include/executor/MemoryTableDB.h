@@ -96,13 +96,13 @@ class HTableCache : public NABasicObject {
   ~HTableCache();
   NAMemory *getHeap() { return heap_; }
   bool insert(HbaseStr &rowID, HbaseStr &colValue);
-  Int32 startGet(const HbaseStr &rowID, NAList<HTableRow *> &kvArray);
-  Int32 startGets(const NAList<HbaseStr> *rowIDs, NAList<HTableRow *> &kvArray);
-  Int32 startGets(const HbaseStr &rowIDs, const UInt32 keyLen, NAList<HTableRow *> &kvArray);
-  Int32 getStartPos(const Text &startRow);
+  int startGet(const HbaseStr &rowID, NAList<HTableRow *> &kvArray);
+  int startGets(const NAList<HbaseStr> *rowIDs, NAList<HTableRow *> &kvArray);
+  int startGets(const HbaseStr &rowIDs, const UInt32 keyLen, NAList<HTableRow *> &kvArray);
+  int getStartPos(const Text &startRow);
   // NABoolean isLargerOrEqual(const HbaseStr &key1, const Text &key2);
   NABoolean isLargerOrEqual(const NAString *key1, const Text &key2);
-  Int32 fetchRows(Int32 numReqRows, Int32 &fetchStartPos, NAList<HTableRow *> &kvArray, const Text &stopRow);
+  int fetchRows(int numReqRows, int &fetchStartPos, NAList<HTableRow *> &kvArray, const Text &stopRow);
 
   // recode the date size stored in cache
   template <iteratorEntryType Type>

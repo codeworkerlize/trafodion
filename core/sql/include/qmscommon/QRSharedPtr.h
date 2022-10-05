@@ -166,8 +166,8 @@ class QRIntrusiveSharedRefCountDel;
 #define MEMCHECK_ARGS               __FILE__, __LINE__
 #define ADD_MEMCHECK_ARGS(arg)      arg, __FILE__, __LINE__
 #define CHILD_ELEM_ARGS(arg)        this, atts, arg, __FILE__, __LINE__
-#define ADD_MEMCHECK_ARGS_DECL(arg) arg, char *fileName = __FILE__, Int32 lineNumber = __LINE__
-#define ADD_MEMCHECK_ARGS_DEF(arg)  arg, char *fileName, Int32 lineNumber
+#define ADD_MEMCHECK_ARGS_DECL(arg) arg, char *fileName = __FILE__, int lineNumber = __LINE__
+#define ADD_MEMCHECK_ARGS_DEF(arg)  arg, char *fileName, int lineNumber
 #define ADD_MEMCHECK_ARGS_PASS(arg) arg, fileName, lineNumber
 #else
 #define MEMCHECK_ARGS
@@ -206,7 +206,7 @@ class QRMemCheckMarker : public NABasicObject {
    * @param[in] allocFileName   Name of the file in which the instance was allocated.
    * @param[in] allocLineNumber Line number at which the instance was allocated.
    */
-  QRMemCheckMarker(NAMemory *heap, char *allocFileName, Int32 allocLineNumber)
+  QRMemCheckMarker(NAMemory *heap, char *allocFileName, int allocLineNumber)
       : allocFileName_((allocFileName ? allocFileName : ""), heap), allocLineNumber_(allocLineNumber), marked_(FALSE) {}
 
   /**
@@ -227,7 +227,7 @@ class QRMemCheckMarker : public NABasicObject {
    * @param[in] delFileName   Name of file from which the call came.
    * @param[in] delLineNumber Line number at which the call was issued.
    */
-  void mark(char *delFileName, Int32 delLineNumber) {
+  void mark(char *delFileName, int delLineNumber) {
     if (marked_) {
       QRLogger::log(CAT_SQL_MEMORY, LL_WARN, ">>> !!! %s instance deleted more than once: line %d in %s", className(),
                     delLineNumber, delFileName);
@@ -257,7 +257,7 @@ class QRMemCheckMarker : public NABasicObject {
    *
    * @return Line number at which this instance was allocated.
    */
-  Int32 getAllocLineNumber() { return allocLineNumber_; }
+  int getAllocLineNumber() { return allocLineNumber_; }
 
   /**
    * Returns the class name of the allocated instance.
@@ -278,7 +278,7 @@ class QRMemCheckMarker : public NABasicObject {
 
  private:
   NAString allocFileName_;
-  Int32 allocLineNumber_;
+  int allocLineNumber_;
   NABoolean marked_;
 };
 
@@ -374,7 +374,7 @@ class QRIntrusiveSharedPtr : public IntrusiveSharedPtr<T> {
    *
    * @param[in] i This will generally be 0 (NULL).
    */
-  QRIntrusiveSharedPtr(const Int32 i) : IntrusiveSharedPtr<T>(i) {}
+  QRIntrusiveSharedPtr(const int i) : IntrusiveSharedPtr<T>(i) {}
 
   //@ZX
   virtual ~QRIntrusiveSharedPtr() {}
@@ -444,7 +444,7 @@ class QRIntrusiveSharedPtr : public IntrusiveSharedPtr<T> {
    * @param[in] i Should be 0 (NULL) in almost all cases.
    * @return A reference to the assigned-to shared pointer.
    */
-  QRIntrusiveSharedPtr<T> &operator=(const Int32 i) {
+  QRIntrusiveSharedPtr<T> &operator=(const int i) {
     (void)SharedPtr<T>::operator=(i);
     return *this;
   }
@@ -493,7 +493,7 @@ class QRIntrusiveSharedRefCountDel : public SharedRefCountBase<T> {
    * @param[in] use_count Initial number of references to the object.
    * @return
    */
-  QRIntrusiveSharedRefCountDel(T *t, Int32 use_count) : SharedRefCountBase<T>(t, use_count) {}
+  QRIntrusiveSharedRefCountDel(T *t, int use_count) : SharedRefCountBase<T>(t, use_count) {}
 
   /**
    * Uses the operator() of QRMemCheckDeleter to delete the object referenced
@@ -530,7 +530,7 @@ class NAIntrusiveSharedPtrObject
    * @param[in] lineNumber Line number at which this constructor was called.
    */
 #if defined(_MEMSHAREDPTR) && defined(_MEMCHECK)
-  NAIntrusiveSharedPtrObject(NAMemory *heap, char *fileName = NULL, Int32 lineNumber = 0)
+  NAIntrusiveSharedPtrObject(NAMemory *heap, char *fileName = NULL, int lineNumber = 0)
       : QRMemCheckMarker(heap, fileName, lineNumber) {}
 #else
   NAIntrusiveSharedPtrObject(NAMemory *heap) {}

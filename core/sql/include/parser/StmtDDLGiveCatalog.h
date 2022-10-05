@@ -68,7 +68,7 @@ class StmtDDLGiveCatalog : public StmtDDLNode {
   // accessors
   //
 
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   inline const NAString &getCatalogName() const;
 

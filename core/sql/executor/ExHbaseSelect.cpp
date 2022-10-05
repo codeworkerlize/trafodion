@@ -41,9 +41,9 @@
 
 static char *costThreshold = getenv("RECORD_TIME_COST_JNI");
 static char *costJniAll = getenv("RECORD_TIME_COST_JNI_ALL");
-static Int32 recordJniAll = costJniAll ? atoi(costJniAll) : -1;
+static int recordJniAll = costJniAll ? atoi(costJniAll) : -1;
 static pid_t pid = getpid();
-static Int32 callCount[30] = {0};
+static int callCount[30] = {0};
 static double sumCost[30] = {0};
 static long curTransId = 0;
 
@@ -61,7 +61,7 @@ ExWorkProcRetcode ExHbaseScanTaskTcb::work(short &rc) {
     if (curTransId >= 0) {
       long count = 0;
       double cost = 0;
-      for (Int32 idx = 0; idx < 30; idx++) {
+      for (int idx = 0; idx < 30; idx++) {
         count += callCount[idx];
         cost += sumCost[idx];
       }
@@ -278,7 +278,7 @@ ExWorkProcRetcode ExHbaseScanRowwiseTaskTcb::work(short &rc) {
     if (curTransId >= 0) {
       long count = 0;
       double cost = 0;
-      for (Int32 idx = 0; idx < 30; idx++) {
+      for (int idx = 0; idx < 30; idx++) {
         count += callCount[idx];
         cost += sumCost[idx];
       }
@@ -523,7 +523,7 @@ ExWorkProcRetcode ExHbaseScanSQTaskTcb::work(short &rc) {
     if (curTransId >= 0) {
       long count = 0;
       double cost = 0;
-      for (Int32 idx = 0; idx < 30; idx++) {
+      for (int idx = 0; idx < 30; idx++) {
         count += callCount[idx];
         cost += sumCost[idx];
       }
@@ -792,7 +792,7 @@ int ExHbaseScanSQTaskTcb::getProbeResult(char *&keyData) {
     if (curTransId >= 0) {
       long count = 0;
       double cost = 0;
-      for (Int32 idx = 0; idx < 30; idx++) {
+      for (int idx = 0; idx < 30; idx++) {
         count += callCount[idx];
         cost += sumCost[idx];
       }
@@ -917,7 +917,7 @@ ExWorkProcRetcode ExHbaseGetTaskTcb::work(short &rc) {
     if (curTransId >= 0) {
       long count = 0;
       double cost = 0;
-      for (Int32 idx = 0; idx < 30; idx++) {
+      for (int idx = 0; idx < 30; idx++) {
         count += callCount[idx];
         cost += sumCost[idx];
       }
@@ -1140,7 +1140,7 @@ ExWorkProcRetcode ExHbaseGetRowwiseTaskTcb::work(short &rc) {
     if (curTransId >= 0) {
       long count = 0;
       double cost = 0;
-      for (Int32 idx = 0; idx < 30; idx++) {
+      for (int idx = 0; idx < 30; idx++) {
         count += callCount[idx];
         cost += sumCost[idx];
       }
@@ -1360,7 +1360,7 @@ ExWorkProcRetcode ExHbaseGetSQTaskTcb::work(short &rc) {
     if (curTransId >= 0) {
       long count = 0;
       double cost = 0;
-      for (Int32 idx = 0; idx < 30; idx++) {
+      for (int idx = 0; idx < 30; idx++) {
         count += callCount[idx];
         cost += sumCost[idx];
       }
@@ -2066,7 +2066,7 @@ ExWorkProcRetcode ExHbaseCoProcAggrTcb::work() {
     if (curTransId >= 0) {
       long count = 0;
       double cost = 0;
-      for (Int32 idx = 0; idx < 30; idx++) {
+      for (int idx = 0; idx < 30; idx++) {
         count += callCount[idx];
         cost += sumCost[idx];
       }

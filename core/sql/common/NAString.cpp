@@ -275,9 +275,9 @@ ULng32 hashKey(const NAString &str) { return str.hash(); }
 // (that might be useful for an OSS process on NSK as well)
 // ---------------------------------------------------------------------
 NAString LookupDefineName(const NAString &ns, NABoolean iterate) {
-  const Int32 itermax = 100;  // detect self-referencing env vars
-  Int32 iterlimit = iterate ? itermax : 1;
-  Int32 iterations = 0;
+  const int itermax = 100;  // detect self-referencing env vars
+  int iterlimit = iterate ? itermax : 1;
+  int iterations = 0;
 
   NAString delimIdent;
   const char *defineName = NULL;
@@ -352,14 +352,14 @@ NAString ToAnsiIdentifier(const NAString &ns, NABoolean assertShort) {
 
   // Assert various checks were previously done when converting the original
   // external identifier (in some previous call to ToInternalIdentifier).
-  const Int32 SMAX = 2048;
+  const int SMAX = 2048;
   NAWString internalFormatNameInUCS2;
   ComAnsiNameToUCS2(ns  // in  - const ComString & internalFormatName
                     ,
                     internalFormatNameInUCS2  // out - NAWString &
   );
-  if ((Int32)internalFormatNameInUCS2.length() >
-      (Int32)(assertShort ? ComMAX_1_PART_INTERNAL_UCS2_NAME_LEN_IN_NAWCHARS : SMAX)) {
+  if ((int)internalFormatNameInUCS2.length() >
+      (int)(assertShort ? ComMAX_1_PART_INTERNAL_UCS2_NAME_LEN_IN_NAWCHARS : SMAX)) {
     ComASSERT(0);
     return NAString();
   }
@@ -460,7 +460,7 @@ static int illegalCharInIdentifier(NAString &ansiIdent, size_t i, size_t countOf
 // other character sets that is the supersets of the 7-bit ASCII
 // character set (e.g., UTF-8).
 // ---------------------------------------------------------------------
-int ToInternalIdentifier(NAString &ansiIdent, Int32 upCase,
+int ToInternalIdentifier(NAString &ansiIdent, int upCase,
                            NABoolean acceptCircumflex  // VO: Fix genesis solution 10-040204-2957
                            ,
                            UInt16 pv_flags  // call-by-value parameter (pv_)flags
@@ -535,7 +535,7 @@ int ToInternalIdentifier(NAString &ansiIdent, Int32 upCase,
     // ComASSERT(ComGetNameInterfaceCharSet() == SQLCHARSETCODE_UTF8);
     NABoolean has7BitAsciiCharsOnly = NAStringHasOnly7BitAsciiChars(ansiIdent);
     NABoolean isLatin1 = FALSE;
-    const Int32 SMAX = 2048;
+    const int SMAX = 2048;
     char latin1Buf[SMAX + 1];
     char *pFirstUntranslatedChar = NULL;
     if (NOT IsNAStringSpaceOrEmpty(ansiIdent) AND NOT has7BitAsciiCharsOnly) {
@@ -544,14 +544,14 @@ int ToInternalIdentifier(NAString &ansiIdent, Int32 upCase,
       // UTF-8 encoding values.
       UInt32 outLen = 0;
       UInt32 translatedCharCount = 0;
-      Int32 retCode =
-          UTF8ToLocale(cnv_version1, (const char *)ansiIdent.data(), (const Int32)ansiIdent.length(),
-                       (const char *)latin1Buf, (const Int32)SMAX + 1, (cnv_charset)cnv_ISO88591,
+      int retCode =
+          UTF8ToLocale(cnv_version1, (const char *)ansiIdent.data(), (const int)ansiIdent.length(),
+                       (const char *)latin1Buf, (const int)SMAX + 1, (cnv_charset)cnv_ISO88591,
                        (char *&)pFirstUntranslatedChar, (UInt32 *)&outLen  // unsigned int *output_data_len_p
                        ,
-                       (const Int32)TRUE  // const int addNullAtEnd_flag
+                       (const int)TRUE  // const int addNullAtEnd_flag
                        ,
-                       (const Int32)FALSE  // const int allow_invalids
+                       (const int)FALSE  // const int allow_invalids
                        ,
                        (UInt32 *)&translatedCharCount  // unsigned int * translated_char_cnt_p
                        ,
@@ -681,13 +681,13 @@ int ToInternalIdentifier(NAString &ansiIdent, Int32 upCase,
       char *p1stUnstranslatedChar = NULL;
       UInt32 utf8StrLenInBytes = 0;
       UInt32 charCount = 0;
-      Int32 returnCode =
-          LocaleToUTF8(cnv_version1, (const char *)latin1Buf, (const Int32)len, (const char *)utf8Buf,
-                       (const Int32)SMAX + 1, cnv_ISO88591, p1stUnstranslatedChar  // char * & first_untranslated_char
+      int returnCode =
+          LocaleToUTF8(cnv_version1, (const char *)latin1Buf, (const int)len, (const char *)utf8Buf,
+                       (const int)SMAX + 1, cnv_ISO88591, p1stUnstranslatedChar  // char * & first_untranslated_char
                        ,
                        &utf8StrLenInBytes  // unsigned int * output_data_len_p
                        ,
-                       (const Int32)TRUE  // const int      addNullAtEnd_flag
+                       (const int)TRUE  // const int      addNullAtEnd_flag
                        ,
                        &charCount  // unsigned int * translated_char_cnt_p
           );
@@ -920,12 +920,12 @@ int ToInternalIdentifier(NAString &ansiIdent, Int32 upCase,
     // allocate plenty of room to avoid buffer overrun
     NAWchar internalNameInUCS2[ComMAX_1_PART_INTERNAL_UTF8_NAME_LEN_IN_BYTES + 1 + 16];
     internalNameInUCS2[0] = NAWCHR('\0');
-    Int32 iErrorCode =
+    int iErrorCode =
         ComAnsiNameToUCS2((const char *)ansiIdent.data()  // in  - const char *
                           ,
                           (NAWchar *)internalNameInUCS2  // out - NAWchar * outBuf
                           ,
-                          (Int32)(ComMAX_1_PART_INTERNAL_UTF8_NAME_LEN_IN_BYTES + 1 + 8)  // in - outBufSizeInNAWchars
+                          (int)(ComMAX_1_PART_INTERNAL_UTF8_NAME_LEN_IN_BYTES + 1 + 8)  // in - outBufSizeInNAWchars
                           ,
                           FALSE  // do not fill the remainder of the output buffer with spaces
         );
@@ -989,7 +989,7 @@ void ToQuotedString(NAString &quotedStr, const NAString &internalStr, NABoolean 
 // ---------------------------------------------------------------------
 // bsearchStrcmp() is used by bsearch() within tokIsFuncOrParenKeyword()
 // to compare two strings.
-static Int32 bsearchStrcmp(const void *s1, const void *s2) { return (strcmp((char *)s1, *((char **)s2))); }
+static int bsearchStrcmp(const void *s1, const void *s2) { return (strcmp((char *)s1, *((char **)s2))); }
 
 // Used by PrettifySqlText() -- depends on its having upcased unquoted tokens.
 static NABoolean tokIsFuncOrParenKeyword(const NAString &sqlText, size_t pos, size_t prevpos) {
@@ -1151,7 +1151,7 @@ static NABoolean tokIsFuncOrParenKeyword(const NAString &sqlText, size_t pos, si
   // Only check the order of the above keywords in debug mode.
   static NABoolean checked_order = FALSE;
   if (!checked_order) {
-    for (Int32 i = 1; i < (sizeof(keywords) / sizeof(keywords[0])); i++) {
+    for (int i = 1; i < (sizeof(keywords) / sizeof(keywords[0])); i++) {
       if (::strcmp(keywords[i], keywords[i - 1]) <= 0) {
         char err_buf[128];
         sprintf(err_buf, "keywords %s and %s are out of order", keywords[i], keywords[i - 1]);
@@ -1281,7 +1281,7 @@ int PrettifySqlText(NAString &sqlText, const char *nationalCharSetName) {
         char *p1stUnstranslatedChar = NULL;
         UInt32 iOutLenInBytesIncludingNull = 0;
         UInt32 iTranslatedCharCount = 0;
-        Int32 cnvErrStatus = LocaleToUTF16(cnv_version1  // in  - const enum cnv_version version
+        int cnvErrStatus = LocaleToUTF16(cnv_version1  // in  - const enum cnv_version version
                                            ,
                                            s  // in  - const char *in_bufr
                                            ,
@@ -1299,7 +1299,7 @@ int PrettifySqlText(NAString &sqlText, const char *nationalCharSetName) {
                                            ,
                                            0  // in  - const int cnv_flags
                                            ,
-                                           (Int32)TRUE  // in  - const int addNullAtEnd_flag
+                                           (int)TRUE  // in  - const int addNullAtEnd_flag
                                            ,
                                            &iTranslatedCharCount  // out - unsigned int * translated_char_cnt_p
                                            ,
@@ -1439,14 +1439,14 @@ int PrettifySqlText(NAString &sqlText, const char *nationalCharSetName) {
         char *p1stUnstranslatedChar = NULL;
         UInt32 utf8OutLenInBytesIncludingNull = 0;
         UInt32 charCount = 0;
-        Int32 returnCode = LocaleToUTF8(
+        int returnCode = LocaleToUTF8(
             cnv_version1, (const char *)ns.data()  // source
             ,
-            (const Int32)ns.length()  // source len in bytes - should be 1
+            (const int)ns.length()  // source len in bytes - should be 1
             ,
             (const char *)utf8Buf  // output buffer for target
             ,
-            (const Int32)20  // output buffer size in bytes
+            (const int)20  // output buffer size in bytes
             ,
             cnv_ISO88591  // source char set
             ,
@@ -1454,7 +1454,7 @@ int PrettifySqlText(NAString &sqlText, const char *nationalCharSetName) {
             ,
             &utf8OutLenInBytesIncludingNull  // unsigned int * output_data_len_p in bytes including '\0' terminator
             ,
-            (const Int32)TRUE  // const int      addNullAtEnd_flag
+            (const int)TRUE  // const int      addNullAtEnd_flag
             ,
             &charCount  // unsigned int * translated_char_cnt_p - should be 1
         );
@@ -1463,7 +1463,7 @@ int PrettifySqlText(NAString &sqlText, const char *nationalCharSetName) {
         // Exclude the NULL terminator added at the end (addNullAtEnd_flag was set to TRUE in the above call)
         // from the count.
         UInt32 utf8StrLenInBytes = 0;
-        if ((Int32)utf8OutLenInBytesIncludingNull >= CharInfo::minBytesPerChar(CharInfo::UTF8))
+        if ((int)utf8OutLenInBytesIncludingNull >= CharInfo::minBytesPerChar(CharInfo::UTF8))
           utf8StrLenInBytes = utf8OutLenInBytesIncludingNull - CharInfo::minBytesPerChar(CharInfo::UTF8);
 
         ComASSERT(utf8StrLenInBytes > 0);
@@ -1621,7 +1621,7 @@ size_t LineBreakSqlText(NAString &sqlText, NABoolean showddlView, size_t maxlen,
             result.replace(space - 1, 1, pfx);
             cnt = result.length() - space - pfxlen;
             space = result.length();
-            Int32 i = 0;
+            int i = 0;
             for (; i < 3; i++)
               if (!dot[i])
                 break;
@@ -1634,7 +1634,7 @@ size_t LineBreakSqlText(NAString &sqlText, NABoolean showddlView, size_t maxlen,
           while (cnt > maxcurrlen + 1) {
             NABoolean dotfound = FALSE;
             size_t dotdiff;
-            Int32 i = 0;
+            int i = 0;
             for (i = 0; i < 3; i++)
               if (!dot[i])
                 break;
@@ -1744,13 +1744,13 @@ NAString Latin1StrToUTF8(const NAString &latin1Str, NAMemory *heap) {
   char *p1stUnstranslatedChar = NULL;
   UInt32 utf8StrLenInBytes = 0;
   UInt32 charCount = 0;                                          // number of characters translated/converted
-  Int32 errorCode = LocaleToUTF8(cnv_version1, latin1Str.data()  // in  - const char *   srcStr
+  int errorCode = LocaleToUTF8(cnv_version1, latin1Str.data()  // in  - const char *   srcStr
                                  ,
-                                 (Int32)latin1Str.length()  // in  - const int      srcStrLen
+                                 (int)latin1Str.length()  // in  - const int      srcStrLen
                                  ,
                                  (const char *)target  // out - const char *   bufferForTargetStr
                                  ,
-                                 (Int32)targetBufferLen  // in  - const in       targetBufferSizeInBytes
+                                 (int)targetBufferLen  // in  - const in       targetBufferSizeInBytes
                                  ,
                                  cnv_ISO88591  // in  - cnv_charset    srcCharset
                                  ,
@@ -1758,13 +1758,13 @@ NAString Latin1StrToUTF8(const NAString &latin1Str, NAMemory *heap) {
                                  ,
                                  &utf8StrLenInBytes  // out - unsigned int * output_data_len_p
                                  ,
-                                 (const Int32)TRUE  // in  - const int      addNullAtEnd_flag
+                                 (const int)TRUE  // in  - const int      addNullAtEnd_flag
                                  ,
                                  &charCount  // out - unsigned int * translated_char_cnt_p
   );
   // Exclude the NULL terminator added to the end (addNullAtEnd_flag was set to TRUE in the above call)
   // from the count.
-  if ((Int32)utf8StrLenInBytes >= CharInfo::minBytesPerChar(CharInfo::UTF8))
+  if ((int)utf8StrLenInBytes >= CharInfo::minBytesPerChar(CharInfo::UTF8))
     utf8StrLenInBytes -= (UInt32)CharInfo::minBytesPerChar(CharInfo::UTF8);
   else
     utf8StrLenInBytes = 0;
@@ -1795,7 +1795,7 @@ base64Decoder::base64Decoder() {
 
 NABoolean base64Decoder::decode(const char *str, const size_t len, NAString &decoded) {
   int val = 0, valb = -8;
-  for (Int32 i = 0; i < len; i++) {
+  for (int i = 0; i < len; i++) {
     unsigned char c = str[i];
 
     if ('=' == c) break;

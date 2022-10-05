@@ -289,12 +289,12 @@ ex_expr::exp_return_type ex_pivot_group_clause::eval(char *op_data[], CollHeap *
 
   CharInfo::CharSet cs = ((SimpleType *)getOperand(1))->getCharSet();
   if (cs == CharInfo::UTF8) {
-    Int32 prec1 = ((SimpleType *)getOperand(1))->getPrecision();
+    int prec1 = ((SimpleType *)getOperand(1))->getPrecision();
     src_length = Attributes::trimFillerSpaces(op_data[1], prec1, src_length, cs);
   }
   cs = ((SimpleType *)getOperand(2))->getCharSet();
   if (cs == CharInfo::UTF8) {
-    Int32 prec1 = ((SimpleType *)getOperand(2))->getPrecision();
+    int prec1 = ((SimpleType *)getOperand(2))->getPrecision();
     delim_length = Attributes::trimFillerSpaces(op_data[2], prec1, delim_length, cs);
   }
 

@@ -202,7 +202,7 @@ class ExRtFragTable : public NABasicObject {
   // SeaMonster: Print routing information
   void dumpSMRouteTable();
 
-  void reportESPLimitViolation(Int32 totalESPLimit, Int32 numOfNodes, Int32 numESPsNeeded,
+  void reportESPLimitViolation(int totalESPLimit, int numOfNodes, int numESPsNeeded,
                                NABoolean singleStmtExceededLimit);
 
   // for debugging
@@ -376,7 +376,7 @@ class ExRtFragInstance {
   CollHeap *whereIComeFrom_;
 
   // set to the number of outstanding control messages (work + data)
-  Int32 numControlMessages_;
+  int numControlMessages_;
 
   // set if the fragment instance got partition input values and has
   // not yet replied to the PIV message or if PIVs are assigned statically
@@ -485,7 +485,7 @@ class ExEspManager {
   ExEspDbEntry *shareEsp(ComDiagsArea **diags, LIST(ExEspDbEntry *) & alreadyAssignedEsps, CollHeap *statementHeap,
                          Statement *statement, const char *clusterName,
                          NABoolean &startedANewEsp,  // returns TRUE, if a new esp was started
-                         IpcCpuNum cpuNum, short memoryQuota, Int32 userID, Int32 tenantId,
+                         IpcCpuNum cpuNum, short memoryQuota, int userID, int tenantId,
                          const NAWNodeSet *availableNodes,
                          NABoolean verifyESP,   // need to verify that prior ESP is alive ?
                          NABoolean *verifyCPU,  // input: need to verify each CPU
@@ -508,21 +508,21 @@ class ExEspManager {
 
   IpcCpuNum getMaxCpuNum() { return maxCpuNum_; }
 
-  Int32 getNumOfEsps() { return numOfESPs_; }
-  Int32 printTrace(Int32 lineno, char *buf);
-  static Int32 getALine(void *mine, Int32 lineno, char *buf) {
+  int getNumOfEsps() { return numOfESPs_; }
+  int printTrace(int lineno, char *buf);
+  static int getALine(void *mine, int lineno, char *buf) {
     return ((ExEspManager *)mine)->printTrace(lineno, buf);
   };
 
   // estimate the ESP count, to avoid allocating a large number of
   // ESPs just to find out that we exceeded the limit
-  NABoolean checkESPLimitPerNodeEst(ExFragDir *fragDir, Int32 totalESPLimit, Int32 &numESPsNeeded);
+  NABoolean checkESPLimitPerNodeEst(ExFragDir *fragDir, int totalESPLimit, int &numESPsNeeded);
 
  private:
   ExEspDbEntry *getEspFromCache(LIST(ExEspDbEntry *) & alreadyAssignedEsps,  // multi fragment esp
                                 CollHeap *statementHeap, Statement *statement, const char *clusterName,
-                                IpcCpuNum cpuNum, short memoryQuota, Int32 user_id, Int32 tenantId, NABoolean verifyESP,
-                                int espLevel, int idleTimeout, int assignTimeWindow, Int32 nowaitDepth,
+                                IpcCpuNum cpuNum, short memoryQuota, int user_id, int tenantId, NABoolean verifyESP,
+                                int espLevel, int idleTimeout, int assignTimeWindow, int nowaitDepth,
                                 NABoolean &espServerError, NABoolean soloFragment, Int16 esp_multi_fragment,
                                 Int16 esp_num_fragments, bool esp_multi_threaded);
 
@@ -541,7 +541,7 @@ class ExEspManager {
   };
   struct EspDbEntryTrace {
     ExEspDbEntry *espEntry_;
-    Int32 espState_;  // value of enum EspStateEnum
+    int espState_;  // value of enum EspStateEnum
   };
 #ifdef _DEBUG
 #define NUM_ESP_STATE_TRACE_ENTRIES 32
@@ -549,7 +549,7 @@ class ExEspManager {
 #define NUM_ESP_STATE_TRACE_ENTRIES 512
 #endif
 #define MAX_NUM_ESP_STATE_TRACE_ENTRIES 2049
-  void addToTrace(ExEspDbEntry *e, Int32 espState) {
+  void addToTrace(ExEspDbEntry *e, int espState) {
     if (++lastEspTraceIndex_ >= maxEspTraceIndex_) lastEspTraceIndex_ = 0;
     espTraceArea_[lastEspTraceIndex_].espEntry_ = e;
     espTraceArea_[lastEspTraceIndex_].espState_ = espState;
@@ -561,7 +561,7 @@ class ExEspManager {
   IpcServerClass *espServerClass_;
   // esp cache: a hash dictionary
   NAHashDictionary<ExEspCacheKey, NAList<ExEspDbEntry *> > *espCache_;
-  Int32 numOfESPs_;  // number of ESPs in espCache_
+  int numOfESPs_;  // number of ESPs in espCache_
 
   // round-robin CPU assignment for those ESPs that don't specify one
   IpcCpuNum roundRobinPosition_;
@@ -591,7 +591,7 @@ class ExEspDbEntry : public NABasicObject {
   // private methods
 
   ExEspDbEntry(CollHeap *heap, IpcServer *server, const char *clusterName, IpcCpuNum cpuNum, int espLevel,
-               Int32 userId, Int32 tenantId, bool multiThreaded);
+               int userId, int tenantId, bool multiThreaded);
   ~ExEspDbEntry();
 
   void deleteMe();
@@ -606,7 +606,7 @@ class ExEspDbEntry : public NABasicObject {
   int usageCount_;      // how many fragment instances use this process - multi-fragment
   Statement *statement_;  // Allow multiple fragments for just this statement
   bool soloFragment_;
-  Int32 tenantId_;
+  int tenantId_;
   bool multiThreaded_;
 };
 
@@ -617,7 +617,7 @@ class ExEspCacheKey : public NABasicObject {
   friend class ExEspManager;
 
  public:
-  ExEspCacheKey(const char *segment, IpcCpuNum cpu, Int32 userId, CollHeap *heap = NULL);
+  ExEspCacheKey(const char *segment, IpcCpuNum cpu, int userId, CollHeap *heap = NULL);
   ~ExEspCacheKey();
 
   inline NABoolean operator==(const ExEspCacheKey &key) {
@@ -633,7 +633,7 @@ class ExEspCacheKey : public NABasicObject {
   CollHeap *heap_;
   char *segment_;
   IpcCpuNum cpu_;
-  Int32 userId_;
+  int userId_;
 };
 
 #endif /* ex_frag_rt_h */

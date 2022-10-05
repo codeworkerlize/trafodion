@@ -64,17 +64,17 @@
 static NABoolean generateLockName(const char *objInternal1PartName,        // in UTF-8 format
                                   const char *lockSuffix,                  // contains 7-bit ASCII chars only
                                   char *lockInternal1PartNameOutBuf,       // in UTF-8 format
-                                  Int32 lockInInternal1PartNameOutBufLen)  // in bytes
+                                  int lockInInternal1PartNameOutBufLen)  // in bytes
 {
-  Int32 objInt1PartNameLen = str_len(objInternal1PartName);
+  int objInt1PartNameLen = str_len(objInternal1PartName);
   char *tempPtr;
   char buf[20];
-  Int32 hashValue = 0;
-  Int32 suffixLen = str_len(lockSuffix) + 8;  // 8 characters for hashvalue of truncated
+  int hashValue = 0;
+  int suffixLen = str_len(lockSuffix) + 8;  // 8 characters for hashvalue of truncated
                                               // object name
   // More than 60 characters won't be truncated and hence 8 characters should be
   // good enough
-  Int32 allowedLen = lightValidateUTF8Str(objInternal1PartName, objInt1PartNameLen,
+  int allowedLen = lightValidateUTF8Str(objInternal1PartName, objInt1PartNameLen,
                                           // max allowed chars in UTF-8 (same as allowed bytes in ISO)
                                           ComMAX_1_PART_INTERNAL_ISO88591_NAME_LEN - suffixLen);
 
@@ -219,16 +219,16 @@ ExExeUtilTcb::~ExExeUtilTcb() {
 
 ex_queue_pair ExExeUtilTcb::getParentQueue() const { return qparent_; }
 
-Int32 ExExeUtilTcb::orderedQueueProtocol() const { return ((const ExExeUtilTdb &)tdb).orderedQueueProtocol(); }
+int ExExeUtilTcb::orderedQueueProtocol() const { return ((const ExExeUtilTdb &)tdb).orderedQueueProtocol(); }
 
-Int32 ExExeUtilTcb::numChildren() const {
+int ExExeUtilTcb::numChildren() const {
   if (childTcb_)
     return 1;
   else
     return 0;
 }
 
-const ex_tcb *ExExeUtilTcb::getChild(Int32 pos) const {
+const ex_tcb *ExExeUtilTcb::getChild(int pos) const {
   if (pos == 0)
     return childTcb_;
   else
@@ -307,7 +307,7 @@ char *ExExeUtilTcb::getTimestampAsString(long juliantimestamp, char *timeBuf) {
 // ----------------------------------------------------------------------------
 void ExExeUtilTcb::glueQueryFragments(int queryArraySize, const QueryString *queryArray, char *&gluedQuery,
                                       int &gluedQuerySize) {
-  Int32 i = 0;
+  int i = 0;
   gluedQuerySize = 0;
   gluedQuery = NULL;
   NAString concatenatedQuery;
@@ -811,13 +811,13 @@ short ExExeUtilTcb::getObjectUid(char *catName, char *schName, char *objName, NA
   ExMasterStmtGlobals *masterGlob = exeGlob->castToExMasterStmtGlobals();
 
   const QueryString *qs;
-  Int32 sizeOfqs = 0;
+  int sizeOfqs = 0;
   versionStrLen_ = 0;
 
   qs = getObjectUidQuery;
   sizeOfqs = sizeof(getObjectUidQuery);
 
-  Int32 qryArraySize = sizeOfqs / sizeof(QueryString);
+  int qryArraySize = sizeOfqs / sizeof(QueryString);
   char *gluedQuery;
   int gluedQuerySize;
   glueQueryFragments(qryArraySize, qs, gluedQuery, gluedQuerySize);
@@ -978,7 +978,7 @@ short ExExeUtilTcb::doubleQuoteStr(char *str, char *newStr, NABoolean singleQuot
 
 // lockType: COM_UTIL_PURGEDATA (= 9), COM_UTIL_REPLICATE (= 19).
 //          (definition in common/ComSmallDefs.h).
-short ExExeUtilTcb::alterDDLLock(NABoolean add, char *tableName, char *failReason, NABoolean isMV, Int32 lockType,
+short ExExeUtilTcb::alterDDLLock(NABoolean add, char *tableName, char *failReason, NABoolean isMV, int lockType,
                                  const char *lockSuffix, NABoolean skipDDLLockCheck) {
   char buf[4000];
   int cliRC = 0;
@@ -1317,7 +1317,7 @@ int ExExeUtilTcb::extractParts(char *objectName, char **paramParts0, char **para
     totalLen = parts0Len + foundParts0 + 1;
     parts0 = new (getHeap()) char[totalLen];
 
-    for (Int32 i = 0; i < totalLen; i++) parts0[i] = ' ';
+    for (int i = 0; i < totalLen; i++) parts0[i] = ' ';
 
     parts0[totalLen - 1] = '\0';
 
@@ -1352,7 +1352,7 @@ int ExExeUtilTcb::extractParts(char *objectName, char **paramParts0, char **para
     totalLen = parts1Len + foundParts1 + 1;
     parts1 = new (getHeap()) char[totalLen];
 
-    for (Int32 i = 0; i < totalLen; i++) parts1[i] = ' ';
+    for (int i = 0; i < totalLen; i++) parts1[i] = ' ';
 
     parts1[totalLen - 1] = '\0';
 
@@ -1387,7 +1387,7 @@ int ExExeUtilTcb::extractParts(char *objectName, char **paramParts0, char **para
     totalLen = parts2Len + foundParts2 + 1;
     parts2 = new (getHeap()) char[totalLen];
 
-    for (Int32 i = 0; i < totalLen; i++) parts2[i] = ' ';
+    for (int i = 0; i < totalLen; i++) parts2[i] = ' ';
 
     parts2[totalLen - 1] = '\0';
 

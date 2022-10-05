@@ -130,7 +130,7 @@ class IntegerList;
 #include "sqlparser.h"  // Angled brackets are intentional here
 #define SQLPARSER_H
 
-extern Int32 tokval;  // defined by yacc, for lex only
+extern int tokval;  // defined by yacc, for lex only
 extern THREAD_P NABoolean HexStringLiteralNotAllowed;
 extern THREAD_P NABoolean turnUnknownCharSetToISO88591;
 
@@ -162,8 +162,8 @@ struct yy_buffer_state {
   /* Number of characters read into yy_ch_buf, not including EOB
    * characters.
    */
-  Int32 yy_n_chars;
-  Int32 yy_ch_count;
+  int yy_n_chars;
+  int yy_ch_count;
 };
 
 // Report a fatal error.
@@ -178,7 +178,7 @@ struct yy_buffer_state {
 
 THREAD_P LimitedStack *inJoinSpec = NULL;  // can handle <STACK_LIMIT> nested Joins
 
-void yyULexer::yyULexer_ctor(const NAWchar *str, Int32 charCount) {
+void yyULexer::yyULexer_ctor(const NAWchar *str, int charCount) {
   input_pos_ = 0;
   yy_init_ = 0;
   yy_U_debug_ = 0;
@@ -193,7 +193,7 @@ void yyULexer::yyULexer_ctor(const NAWchar *str, Int32 charCount) {
   /* yy_ch_buf has to be 2 characters longer than the size given because
    * we need to put in 2 end-of-buffer characters.
    */
-  Int32 buf_size = charCount * BYTES_PER_NAWCHAR;
+  int buf_size = charCount * BYTES_PER_NAWCHAR;
   b->yy_ch_buf = b->yy_buf_pos = yy_c_buf_p_ = new (PARSERHEAP()) NAWchar[charCount + 2];
   if (!b->yy_ch_buf)
     // UR2-CNTNSK
@@ -222,11 +222,11 @@ void yyULexer::yyULexer_ctor(const NAWchar *str, Int32 charCount) {
   }
 }
 
-yyULexer::yyULexer(const NAWchar *str, Int32 charCount) { yyULexer_ctor(str, charCount); }
+yyULexer::yyULexer(const NAWchar *str, int charCount) { yyULexer_ctor(str, charCount); }
 
 yyULexer::yyULexer(const NAWchar *str, size_t charCount) {
   CMPASSERT(charCount <= INT_MAX);
-  yyULexer_ctor(str, (Int32)charCount);
+  yyULexer_ctor(str, (int)charCount);
 }
 
 yyULexer::~yyULexer() {
@@ -249,31 +249,31 @@ void yyULexer::yy_load_buffer_state() {
 // We may need an NSK version of these functions.
 
 // For now, we only support ISO 8859-1 for token char set
-inline static Int32 U_isdigit(NAWchar c) {
+inline static int U_isdigit(NAWchar c) {
   // UR2-CNTNSK
   return (L'0' <= c && c <= L'9');
 }
 
-inline static Int32 U_isalphaund(NAWchar c) { return isAlpha8859_1(c) || c == L'_'; }
+inline static int U_isalphaund(NAWchar c) { return isAlpha8859_1(c) || c == L'_'; }
 
-inline static Int32 U_isalnumund(NAWchar c) { return isAlNum8859_1(c) || c == L'_'; }
+inline static int U_isalnumund(NAWchar c) { return isAlNum8859_1(c) || c == L'_'; }
 
-inline static Int32 U_isspace(NAWchar c) { return isSpace8859_1(c); }
+inline static int U_isspace(NAWchar c) { return isSpace8859_1(c); }
 
-inline static Int32 U_isAsciiAlpha(NAWchar c) { return (c >= L'A' && c <= L'Z') || (c >= L'a' && c <= L'z'); }
+inline static int U_isAsciiAlpha(NAWchar c) { return (c >= L'A' && c <= L'Z') || (c >= L'a' && c <= L'z'); }
 
-inline static Int32 U_isAsciiAlNum(NAWchar c) {
+inline static int U_isAsciiAlNum(NAWchar c) {
   return (c >= L'A' && c <= L'Z') || (c >= L'a' && c <= L'z') || (c >= L'0' && c <= L'9');
 }
 
-inline static Int32 U_isAsciiAlNumUnd(NAWchar c) { return U_isAsciiAlNum(c) || c == L'_'; }
+inline static int U_isAsciiAlNumUnd(NAWchar c) { return U_isAsciiAlNum(c) || c == L'_'; }
 
-inline static Int32 U_isAsciiAlNumUndHyphen(NAWchar c) {
+inline static int U_isAsciiAlNumUndHyphen(NAWchar c) {
   // The hyphen should be allowed only in the COBOL preprocessing mode! ##
   return U_isAsciiAlNumUnd(c) || c == L'-';
 }
 
-inline static Int32 U_isASqlIdentiferChar(NAWchar c) { return U_isalnumund(c) || isChineseCharacter(c); }
+inline static int U_isASqlIdentiferChar(NAWchar c) { return U_isalnumund(c) || isChineseCharacter(c); }
 
 // The old (flex-based) lexer was required to recognize the following
 // compound tokens:
@@ -311,7 +311,7 @@ inline static Int32 U_isASqlIdentiferChar(NAWchar c) { return U_isalnumund(c) ||
 // See this file for instructions on how to add new key words.
 /////////////////////////////////////////////////////////////////////
 
-inline Int32 yyULexer::endOfBuffer() {
+inline int yyULexer::endOfBuffer() {
   return currChar_ >= &yy_current_buffer_->yy_ch_buf[yy_n_chars_] || yy_n_chars_ <= 0;
 }
 
@@ -322,7 +322,7 @@ inline NAWchar yyULexer::peekChar() {
     return *currChar_;
 }
 
-static NAWString *removeConsecutiveWQuotes(const NAWchar *s, Int32 len, NAWchar quote, YYSTYPE *lvalp) {
+static NAWString *removeConsecutiveWQuotes(const NAWchar *s, int len, NAWchar quote, YYSTYPE *lvalp) {
   lvalp->stringval_with_charset.charSet_ = CharInfo::UCS2;
   lvalp->stringval_with_charset.bytesPerChar_ = BYTES_PER_NAWCHAR;
   lvalp->stringval_with_charset.setflags_Bit(StringvalWithCharSet::eUSE_wstringval_FIELD_BIT_MASK);
@@ -330,7 +330,7 @@ static NAWString *removeConsecutiveWQuotes(const NAWchar *s, Int32 len, NAWchar 
   NAWString *r = new (PARSERHEAP()) NAWString(PARSERHEAP());
   if (!s || len <= 0) return r;  // lvalp->wstringval = lvalp->stringval_with_charset.wstringval = r;
 
-  for (Int32 x = 0; x < len; x++) {
+  for (int x = 0; x < len; x++) {
     if (s[x] == quote) {
       if (s[x + 1] != quote) break;
       x++;
@@ -341,7 +341,7 @@ static NAWString *removeConsecutiveWQuotes(const NAWchar *s, Int32 len, NAWchar 
 }
 
 // convert a unicode wide char to a multibyte char
-static Int32 my_wctomb(char *s, Int32 s_len, NAWchar wc, CharInfo::CharSet cs) {
+static int my_wctomb(char *s, int s_len, NAWchar wc, CharInfo::CharSet cs) {
   /* UR2-CNTNSK */
   return UnicodeStringToLocale(cs, &wc, 1, s, s_len, FALSE /* no null terminator*/, FALSE /* in substitute */);
 }
@@ -349,7 +349,7 @@ static Int32 my_wctomb(char *s, Int32 s_len, NAWchar wc, CharInfo::CharSet cs) {
 // The argument literalPrefixCS is useful when the parser's character set is Unicode.
 // In this case, we really need to know how to translate a non-UCS2 literal back to its
 // single-/multi-byte form.
-static NAString *removeConsecutiveQuotes(const NAWchar *s, Int32 len, NAWchar quote, YYSTYPE *lvalp,
+static NAString *removeConsecutiveQuotes(const NAWchar *s, int len, NAWchar quote, YYSTYPE *lvalp,
                                          CharInfo::CharSet literalPrefixCS) {
   NAString *r = new (PARSERHEAP()) NAString((NASize_T)len, PARSERHEAP());
 
@@ -421,10 +421,10 @@ static NAString *removeConsecutiveQuotes(const NAWchar *s, Int32 len, NAWchar qu
   {
     // --- Remove consecutive quotes ---
 
-    Int32 iConvStrLitLen = pTempStr->length();
+    int iConvStrLitLen = pTempStr->length();
     unsigned char quoteChar = (unsigned char)quote;  // ok to cast - quote is 0x0022 or 0x0027
     unsigned char *pConvStrLit = (unsigned char *)pTempStr->data();
-    for (Int32 i = 0; i < iConvStrLitLen; i++) {
+    for (int i = 0; i < iConvStrLitLen; i++) {
       if (pConvStrLit[i] == quoteChar) {
         if (pConvStrLit[i + 1] != quoteChar) break;  // pConvStrLit[i] contains the terminating delimiting quote
         i++;
@@ -448,7 +448,7 @@ static NAString *removeConsecutiveQuotes(const NAWchar *s, Int32 len, NAWchar qu
   return NULL;  // lvalp->stringval = lvalp->stringval_with_charset.stringval = NULL;
 }
 
-static NAString *removeHostVarQuotes(const NAWchar *s, Int32 len) {
+static NAString *removeHostVarQuotes(const NAWchar *s, int len) {
   // :"aB" becomes :aB
   // :"a""B" becomes :a""B
   // not :a"B which is what it SHOULD become according to Ansi syntax 12.3 + 5.4
@@ -466,7 +466,7 @@ static NAString *removeHostVarQuotes(const NAWchar *s, Int32 len) {
 
   // copy ':'
   char ch[8];
-  Int32 x, y, count = my_wctomb(ch, 8, s[0], targetCS);
+  int x, y, count = my_wctomb(ch, 8, s[0], targetCS);
   if (count > 8) count = 8;
   for (y = 0; y < count; y++) r->append(ch[y]);
 
@@ -498,7 +498,7 @@ static NAString *removeHostVarQuotes(const NAWchar *s, Int32 len) {
 //  - setting the yylval token value
 //  - echoing the token string if debugging is on
 //
-Int32 yyULexer::setStringval(Int32 tokCod, const char *dbgstr, YYSTYPE *lvalp) {
+int yyULexer::setStringval(int tokCod, const char *dbgstr, YYSTYPE *lvalp) {
   addTokenToGlobalQueue();
   dbgprintf(dbgstr);
 
@@ -511,8 +511,8 @@ Int32 yyULexer::setStringval(Int32 tokCod, const char *dbgstr, YYSTYPE *lvalp) {
     NAString *tempstr = lvalp->stringval;  // targetMBCS == ParScannedInputCharset
     if (tempstr == NULL) return invalidStrLitNonTranslatableChars(lvalp);
 
-    Int32 TSLen = (Int32)tempstr->length();
-    Int32 YYLen = (Int32)YYLeng();
+    int TSLen = (int)tempstr->length();
+    int YYLen = (int)YYLeng();
     if (TSLen != YYLen) {  // need offset of ORIGINAL string
       ParScannedTokens->updateInputLen(TSLen);
       ParScannedTokenOffset = ParScannedTokenOffset + TSLen - YYLen;
@@ -521,7 +521,7 @@ Int32 yyULexer::setStringval(Int32 tokCod, const char *dbgstr, YYSTYPE *lvalp) {
   return tokCod;
 }
 
-Int32 yyULexer::setTokval(Int32 tokCod, const char *dbgstr, YYSTYPE *lvalp) {
+int yyULexer::setTokval(int tokCod, const char *dbgstr, YYSTYPE *lvalp) {
   addTokenToGlobalQueue();
   dbgprintf(dbgstr);
   lvalp->tokval_plus_yytext.yytext = YYText();
@@ -530,7 +530,7 @@ Int32 yyULexer::setTokval(Int32 tokCod, const char *dbgstr, YYSTYPE *lvalp) {
   return tokCod;
 }
 
-Int32 yyULexer::aQuotedBlock(YYSTYPE *lvalp) {
+int yyULexer::aQuotedBlock(YYSTYPE *lvalp) {
   addTokenToGlobalQueue();
   dbgprintf("Quoted block %s\n");
 
@@ -541,7 +541,7 @@ Int32 yyULexer::aQuotedBlock(YYSTYPE *lvalp) {
   return QUOTED_BLOCK;
 }
 
-Int32 yyULexer::aStringLiteralWithCharSet(CharInfo::CharSet cs, const NAWchar *str, Int32 len, NAWchar quote,
+int yyULexer::aStringLiteralWithCharSet(CharInfo::CharSet cs, const NAWchar *str, int len, NAWchar quote,
                                           YYSTYPE *lvalp) {
   addTokenToGlobalQueue();
   dbgprintf(DBGMSG("String literal %s\n"));
@@ -549,13 +549,13 @@ Int32 yyULexer::aStringLiteralWithCharSet(CharInfo::CharSet cs, const NAWchar *s
       str[0] != 255) {  // do not check if processing the mask
     NAString *tempstr = unicodeToChar(str, len, ParScannedInputCharset, PARSERHEAP());
     if (tempstr == NULL) return invalidStrLitNonTranslatableChars(lvalp);
-    ParScannedTokenOffset += ((Int32)tempstr->length() - len);
-    ParScannedTokens->updateInputLen((Int32)tempstr->length());
+    ParScannedTokenOffset += ((int)tempstr->length() - len);
+    ParScannedTokens->updateInputLen((int)tempstr->length());
   }
 
   // a "mini-cache" to avoid proc call, for perf
   static THREAD_P CharInfo::CharSet cachedCS = CharInfo::UnknownCharSet;
-  static THREAD_P Int32 cachedBPC = 1;
+  static THREAD_P int cachedBPC = 1;
   if (cachedCS != cs) {
     cachedCS = cs;
     cachedBPC = CharInfo::maxBytesPerChar(cs);
@@ -580,7 +580,7 @@ Int32 yyULexer::aStringLiteralWithCharSet(CharInfo::CharSet cs, const NAWchar *s
   }
 }
 
-Int32 yyULexer::aHexStringLiteralWithCharSet(CharInfo::CharSet cs, const NAWchar *str, Int32 len, NAWchar quote,
+int yyULexer::aHexStringLiteralWithCharSet(CharInfo::CharSet cs, const NAWchar *str, int len, NAWchar quote,
                                              YYSTYPE *lvalp) {
   addTokenToGlobalQueue();
   dbgprintf(DBGMSG("String literal %s\n"));
@@ -589,7 +589,7 @@ Int32 yyULexer::aHexStringLiteralWithCharSet(CharInfo::CharSet cs, const NAWchar
 
   // a "mini-cache" to avoid proc call, for perf
   static THREAD_P CharInfo::CharSet cachedCS = CharInfo::UnknownCharSet;
-  static THREAD_P Int32 cachedBPC = 1;
+  static THREAD_P int cachedBPC = 1;
   if (cachedCS != cs) {
     cachedCS = cs;
     cachedBPC = CharInfo::maxBytesPerChar(cs);
@@ -722,13 +722,13 @@ Int32 yyULexer::aHexStringLiteralWithCharSet(CharInfo::CharSet cs, const NAWchar
 // or the hexdecimal format ( x'').  ANSI or hexdecimal format can be optionally
 // prefixed with a character set name
 //
-inline Int32 yyULexer::constructStringLiteralWithCharSet(NABoolean isHex, CharInfo::CharSet cs, YYSTYPE *lvalp,
+inline int yyULexer::constructStringLiteralWithCharSet(NABoolean isHex, CharInfo::CharSet cs, YYSTYPE *lvalp,
                                                          NAWchar quote) {
   NAWchar cc;
 
   undoBeforeAction();
   advance();  // past the first '
-  Int32 introducerLen = YYLengNow();
+  int introducerLen = YYLengNow();
   while ((cc = peekAdvance()) != WEOF) {
     if (cc == quote)
       if (isHex == FALSE AND(cc = peekChar()) == quote)
@@ -757,63 +757,63 @@ inline Int32 yyULexer::constructStringLiteralWithCharSet(NABoolean isHex, CharIn
 // Use this method when a Trafodion Reserved word which is reserved for
 // future use is encountered as an identifier.
 //
-inline Int32 yyULexer::anSQLMXReservedWord(YYSTYPE *lvalp) {
+inline int yyULexer::anSQLMXReservedWord(YYSTYPE *lvalp) {
   // Could return an error here, but instead go ahead and return
   // the identifier.  Will be caught later in transformIdentifier()
   //
   return setStringval(IDENTIFIER, DBGMSG("Identifier %s\n"), lvalp);
 }
 
-inline Int32 yyULexer::anIdentifier(YYSTYPE *lvalp) {
+inline int yyULexer::anIdentifier(YYSTYPE *lvalp) {
   return setStringval(IDENTIFIER, DBGMSG("Identifier %s\n"), lvalp);
 }
 
-inline Int32 yyULexer::anSQLMXKeyword(Int32 tokCod, YYSTYPE *lvalp) {
+inline int yyULexer::anSQLMXKeyword(int tokCod, YYSTYPE *lvalp) {
   return setTokval(tokCod, DBGMSG("Trafodion keyword %s\n"), lvalp);
 }
 
-inline Int32 yyULexer::aCompoundKeyword(Int32 tokCod, YYSTYPE *lvalp) {
+inline int yyULexer::aCompoundKeyword(int tokCod, YYSTYPE *lvalp) {
   return setTokval(tokCod, DBGMSG("Compound keyword %s\n"), lvalp);
 }
 
-inline Int32 yyULexer::aCobolToken(Int32 tokCod, YYSTYPE *lvalp) {
+inline int yyULexer::aCobolToken(int tokCod, YYSTYPE *lvalp) {
   return setStringval(tokCod, DBGMSG("Compound Cobol token %s\n"), lvalp);
 }
 
-inline Int32 yyULexer::anApproxNumber(YYSTYPE *lvalp) {
+inline int yyULexer::anApproxNumber(YYSTYPE *lvalp) {
   return setStringval(NUMERIC_LITERAL_APPROX, DBGMSG("Approx numeric literal %s\n"), lvalp);
 }
 
-inline Int32 yyULexer::exactWithScale(YYSTYPE *lvalp) {
+inline int yyULexer::exactWithScale(YYSTYPE *lvalp) {
   return setStringval(NUMERIC_LITERAL_EXACT_WITH_SCALE, DBGMSG("Numeric literal with scale %s\n"), lvalp);
 }
 
-inline Int32 yyULexer::exactNoScale(YYSTYPE *lvalp) {
+inline int yyULexer::exactNoScale(YYSTYPE *lvalp) {
   return setStringval(NUMERIC_LITERAL_EXACT_NO_SCALE, DBGMSG("Numeric literal with no scale %s\n"), lvalp);
 }
 
-inline Int32 yyULexer::prematureEOF(YYSTYPE *lvalp) {
+inline int yyULexer::prematureEOF(YYSTYPE *lvalp) {
   doBeforeAction();
   return setTokval(0, DBGMSG("Premature EOF in <%s>\n"), lvalp);
 }
 
-inline Int32 yyULexer::invalidHexStrLit(YYSTYPE *lvalp) {
+inline int yyULexer::invalidHexStrLit(YYSTYPE *lvalp) {
   doBeforeAction();
   return setTokval(0, DBGMSG("Invalid hexadecimal representation of a string literal.\n"), lvalp);
 }
 
-inline Int32 yyULexer::invalidStrLitNonTranslatableChars(YYSTYPE *lvalp) {
+inline int yyULexer::invalidStrLitNonTranslatableChars(YYSTYPE *lvalp) {
   doBeforeAction();
   return setTokval(0, DBGMSG("Invalid use of non-translatable characters in a string literal.\n"), lvalp);
 }
 
-inline Int32 yyULexer::invalidHostVarNonTranslatableChars(YYSTYPE *lvalp) {
+inline int yyULexer::invalidHostVarNonTranslatableChars(YYSTYPE *lvalp) {
   doBeforeAction();
   return setTokval(0, DBGMSG("Invalid use of non-translatable characters in a host variable.\n"), lvalp);
 }
 
 // This is here just because it's such a common idiom
-Int32 yyULexer::eitherCompoundOrSimpleKeyword(NABoolean isCompound, Int32 tokcodCompound, Int32 tokcodSimple,
+int yyULexer::eitherCompoundOrSimpleKeyword(NABoolean isCompound, int tokcodCompound, int tokcodSimple,
                                               NAWchar *end1, NAWchar holdChar1, YYSTYPE *lvalp) {
   if (isCompound) {
     // un-null-terminate 1st kwd of the compound
@@ -827,7 +827,7 @@ Int32 yyULexer::eitherCompoundOrSimpleKeyword(NABoolean isCompound, Int32 tokcod
   }
 }
 
-Int32 yyULexer::notCompoundKeyword(const ParKeyWord *key, NAWchar &holdChar, YYSTYPE *lvalp) {
+int yyULexer::notCompoundKeyword(const ParKeyWord *key, NAWchar &holdChar, YYSTYPE *lvalp) {
   // Check to see if this token is an identifier
   //
   if (key->isIdentifier()) {
@@ -855,7 +855,7 @@ Int32 yyULexer::notCompoundKeyword(const ParKeyWord *key, NAWchar &holdChar, YYS
   return 0;  // it IS a compound keyword
 }
 
-Int32 yyULexer::aCompoundStmtBlock(Int32 tokCode, YYSTYPE *lvalp) {
+int yyULexer::aCompoundStmtBlock(int tokCode, YYSTYPE *lvalp) {
   NAWchar *end = mark();
   // FIXME: this takes all the rest as the block
   while (peekChar() != WEOF) {
@@ -867,8 +867,8 @@ Int32 yyULexer::aCompoundStmtBlock(Int32 tokCode, YYSTYPE *lvalp) {
   return setStringval(tokCode, DBGMSG("Compound statement block %s\n"), lvalp);
 }
 
-Int32 yyULexer::yylex(YYSTYPE *lvalp) {
-  Int32 tokIfNotCompound;
+int yyULexer::yylex(YYSTYPE *lvalp) {
+  int tokIfNotCompound;
   NAWchar cc, holdChar1, holdChar2, holdChar3;
   NAWchar *end1, *end2, *endp = NULL, *beginRun2, *beginRun3;
   CharInfo::CharSet cs;
@@ -882,9 +882,9 @@ Int32 yyULexer::yylex(YYSTYPE *lvalp) {
   if (SqlParser_CurrentParser->internalExpr_) {
     // Note: these start symbols are defined in sqlparser.y, they don't need to
     // be defined anywhere else, since bison will assign then a number in sqlparser.h
-    static const Int32 SqlParser_starting_token[] = {0, TOK_INTERNAL_EXPR, TOK_INTERNAL_COLUMN_DEFINITION,
+    static const int SqlParser_starting_token[] = {0, TOK_INTERNAL_EXPR, TOK_INTERNAL_COLUMN_DEFINITION,
                                                      TOK_INTERNAL_SPLIT_DEFINITION, TOK_INTERNAL_COMPOSITE_DEFINITION};
-    Int32 temp = SqlParser_starting_token[SqlParser_CurrentParser->internalExpr_];
+    int temp = SqlParser_starting_token[SqlParser_CurrentParser->internalExpr_];
     SqlParser_CurrentParser->internalExpr_ = NORMAL_TOKEN;  // reset it
     return temp;                                            // parse from anything-goes start state
   }
@@ -1016,7 +1016,7 @@ Int32 yyULexer::yylex(YYSTYPE *lvalp) {
           }
           return tokIfNotCompound;
         } else {
-          Int32 BadCompoundKeywordPrefix = 0;
+          int BadCompoundKeywordPrefix = 0;
           assert(BadCompoundKeywordPrefix);
         }
       } break;
@@ -1035,8 +1035,8 @@ Int32 yyULexer::yylex(YYSTYPE *lvalp) {
               if (ParScannedInputCharset != CharInfo::ISO88591) {
                 NAString *tempstr = unicodeToChar(YYText(), YYLeng(), ParScannedInputCharset, PARSERHEAP());
                 if (tempstr == NULL) return invalidStrLitNonTranslatableChars(lvalp);
-                ParScannedTokenOffset += ((Int32)tempstr->length() - (Int32)YYLeng());
-                ParScannedTokens->updateInputLen((Int32)tempstr->length());
+                ParScannedTokenOffset += ((int)tempstr->length() - (int)YYLeng());
+                ParScannedTokens->updateInputLen((int)tempstr->length());
               }
               lvalp->stringval =
                   removeConsecutiveQuotes(YYText() + 1, YYLeng() - 1, WIDE_('\''), lvalp,
@@ -1460,7 +1460,7 @@ Int32 yyULexer::yylex(YYSTYPE *lvalp) {
                       keyWordEntry1->getTokenCode(), end1, holdChar1, lvalp);
                   break;
                 default:
-                  Int32 BadCompoundKeywordPrefix = 0;
+                  int BadCompoundKeywordPrefix = 0;
                   assert(BadCompoundKeywordPrefix);
               }
             }
@@ -2147,7 +2147,7 @@ Int32 yyULexer::yylex(YYSTYPE *lvalp) {
           if (cc != L'.') {
             doBeforeAction();
             // NSK system name only; e.g., \FIGARO
-            Int32 c = setStringval(BACKSLASH_SYSTEM_NAME, DBGMSG("BACKSLASH_SYSTEM_NAME name %s\n"), lvalp);
+            int c = setStringval(BACKSLASH_SYSTEM_NAME, DBGMSG("BACKSLASH_SYSTEM_NAME name %s\n"), lvalp);
             lvalp->stringval->toUpper();
             return c;
           } else if (peekAdvance() == L'.') {
@@ -2162,7 +2162,7 @@ Int32 yyULexer::yylex(YYSTYPE *lvalp) {
                 }
 
                 doBeforeAction();
-                Int32 c = setStringval(SYSTEM_VOLUME_NAME, DBGMSG("NSK sys-vol name %s\n"), lvalp);
+                int c = setStringval(SYSTEM_VOLUME_NAME, DBGMSG("NSK sys-vol name %s\n"), lvalp);
                 lvalp->stringval->toUpper();
                 return c;
               } else {
@@ -2176,7 +2176,7 @@ Int32 yyULexer::yylex(YYSTYPE *lvalp) {
               }
 
               doBeforeAction();
-              Int32 c = setStringval(SYSTEM_CPU_IDENTIFIER, DBGMSG("SYSTEM CPU Idenitfier %s\n"), lvalp);
+              int c = setStringval(SYSTEM_CPU_IDENTIFIER, DBGMSG("SYSTEM CPU Idenitfier %s\n"), lvalp);
               lvalp->stringval->toUpper();
               return c;
             } else {
@@ -2212,7 +2212,7 @@ Int32 yyULexer::yylex(YYSTYPE *lvalp) {
           doBeforeAction();
           // note, returned 'identifier' includes leading dollar sign
           // parser code for ENV variables strips it off.
-          Int32 c = setStringval(DOLLAR_IDENTIFIER, DBGMSG("DOLLAR IDENTIFIER name %s\n"), lvalp);
+          int c = setStringval(DOLLAR_IDENTIFIER, DBGMSG("DOLLAR IDENTIFIER name %s\n"), lvalp);
           lvalp->stringval->toUpper();
           return c;
         } else {
@@ -2961,7 +2961,7 @@ Int32 yyULexer::yylex(YYSTYPE *lvalp) {
                                                      keyWordEntry1->getTokenCode(), end1, holdChar1, lvalp);
                 break;
               default:
-                Int32 BadCompoundKeywordPrefix = 0;
+                int BadCompoundKeywordPrefix = 0;
                 assert(BadCompoundKeywordPrefix);
             }
           }
@@ -3023,9 +3023,9 @@ void yyULexer::reset() {
   }
 }
 
-Int32 yyULexer::getInputPos() { return currChar_ - yy_current_buffer_->yy_ch_buf - input_pos_ - 1; }
+int yyULexer::getInputPos() { return currChar_ - yy_current_buffer_->yy_ch_buf - input_pos_ - 1; }
 
-void yyULexer::setInputPos(Int32 i) { input_pos_ = i; }
+void yyULexer::setInputPos(int i) { input_pos_ = i; }
 
 // The syntax error handler relies on this code to get at the last 2 tokens
 // preceding the error point.
@@ -3034,9 +3034,9 @@ void yyULexer::addTokenToGlobalQueue(NABoolean isComment) {
   ParScannedTokenPos += YYLeng();
 }
 
-NABoolean yyULexer::isDynamicParameter(Int32 tokCod) { return (tokCod == PARAMETER); }
+NABoolean yyULexer::isDynamicParameter(int tokCod) { return (tokCod == PARAMETER); }
 
-NABoolean yyULexer::isLiteral4HQC(Int32 tokCod) {
+NABoolean yyULexer::isLiteral4HQC(int tokCod) {
   if (tokCod == NUMERIC_LITERAL_EXACT_NO_SCALE || tokCod == NUMERIC_LITERAL_EXACT_WITH_SCALE ||
       tokCod == NUMERIC_LITERAL_APPROX || tokCod == TOK_MBYTE_LITERAL || tokCod == TOK_SBYTE_LITERAL ||
       tokCod == QUOTED_STRING || tokCod == TOK_NULL)

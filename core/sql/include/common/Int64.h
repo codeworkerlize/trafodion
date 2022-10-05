@@ -57,7 +57,7 @@ long uint32ToInt64(UInt32 value);
 // -----------------------------------------------------------------------
 // Convert an long to long.
 // -----------------------------------------------------------------------
-Int32 int64ToInt32(long value);
+int int64ToInt32(long value);
 
 // -----------------------------------------------------------------------
 // Convert the integer from array of two longs, most significant first
@@ -76,7 +76,7 @@ void convertInt64ToUInt32Array(const long &src, UInt32 *tgt);
 // -----------------------------------------------------------------------
 // Convert the integer from ascii.
 // -----------------------------------------------------------------------
-Int32 aToInt32(const char *src);
+int aToInt32(const char *src);
 
 // -----------------------------------------------------------------------
 // Convert the integer from ascii.

@@ -114,9 +114,9 @@ void ProcessEnv::setEnv(char **newenvs, int nEnvs) {
 #endif
 }
 
-Int32 ProcessEnv::unsetEnv(char *env) {
+int ProcessEnv::unsetEnv(char *env) {
   if (!env) return 0;
-  Int32 i = 0;
+  int i = 0;
   while (strcmp(ENVIRON[i], env) != 0) i++;
   while (ENVIRON[i]) ENVIRON[i] = ENVIRON[++i];
   return 0;
@@ -125,10 +125,10 @@ Int32 ProcessEnv::unsetEnv(char *env) {
 void ProcessEnv::resetEnv(const char *envName) {
   if (!envName) return;
 
-  Int32 i;
+  int i;
   size_t nameLen = strlen(envName);
   CollHeap *stmtHeap = CmpCommon::statementHeap();
-  NAList<Int32> deleteArray(stmtHeap, 16);  // 16 should be more than enough
+  NAList<int> deleteArray(stmtHeap, 16);  // 16 should be more than enough
 
   // find the env in existing env array
   for (i = 0; i < envs_.getSize(); i++) {
@@ -136,7 +136,7 @@ void ProcessEnv::resetEnv(const char *envName) {
       char *pTemp = strchr(envs_[i], '=');
       if (pTemp)  // found '='
       {
-        Int32 envLen = (Int32)(pTemp - envs_[i]);
+        int envLen = (int)(pTemp - envs_[i]);
         if (envLen == nameLen && strncmp(envName, envs_[i], nameLen) == 0) {  // found matching env var name
           *(pTemp) = '\0';
           PUTENV(envs_[i]);
@@ -148,12 +148,12 @@ void ProcessEnv::resetEnv(const char *envName) {
   }
 
   // remove from the env array
-  for (Int32 j = 0; j < deleteArray.entries(); j++) {
+  for (int j = 0; j < deleteArray.entries(); j++) {
     envs_.remove(deleteArray[j]);
   }
 }
 
-Int32 ProcessEnv::chdir(char *dir) {
+int ProcessEnv::chdir(char *dir) {
   if (!dir) return 0;
   return ::chdir(dir);
 }
@@ -164,7 +164,7 @@ void ProcessEnv::dumpEnvs() {
   const char *aString = "DUMPENV=ddd";
   PUTENV((char *)aString);
   ofstream outStream("DUMPENVS");
-  Int32 i = 0;
+  int i = 0;
   outStream << "ProcessEnv::dumpEnvs() " << endl << flush;
   while (ENVIRON[i]) {
     char tempstr[2048];
@@ -189,7 +189,7 @@ void ProcessEnv::addOrChangeEnv(char **newenvs, int nEnvs) {
     char *pTemp = strchr(newenvs[i], '=');
     if (pTemp) {
       NABoolean sameValue = FALSE;
-      Int32 envNameLen = pTemp - (newenvs[i]) + 1;  // including '='
+      int envNameLen = pTemp - (newenvs[i]) + 1;  // including '='
       char *envName = new char[envNameLen + 1];
       strncpy(envName, newenvs[i], envNameLen);
       envName[envNameLen] = '\0';

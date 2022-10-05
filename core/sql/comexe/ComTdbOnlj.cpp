@@ -51,9 +51,9 @@ ComTdbOnlj::ComTdbOnlj(ComTdb *leftTdb, ComTdb *rightTdb, ex_cri_desc *given_cri
                        queue_index down, queue_index up, Cardinality estimatedRowCount, int num_buffers,
                        ULng32 buffer_size, ex_expr *before_pred, ex_expr *after_pred, ex_expr *lj_expr,
                        ex_expr * /*ni_expr*/, ex_cri_desc *work_cri_desc,
-                       const unsigned short instantiated_row_atp_index, int lj_reclen, Int32 semi_join,
-                       Int32 anti_semi_join, Int32 left_join, Int32 undo_join, Int32 setNFError_join,
-                       Int32 rowset_iterator, Int32 index_join, NABoolean vsbbInsert, Int32 rowsetRowCountArraySize,
+                       const unsigned short instantiated_row_atp_index, int lj_reclen, int semi_join,
+                       int anti_semi_join, int left_join, int undo_join, int setNFError_join,
+                       int rowset_iterator, int index_join, NABoolean vsbbInsert, int rowsetRowCountArraySize,
                        NABoolean tolerateNonFatalError, NABoolean drivingMVLogging)
     : ComTdb(ComTdb::ex_ONLJ, eye_ONLJ, estimatedRowCount, given_cri_desc, returned_cri_desc, down, up, num_buffers,
              buffer_size),
@@ -127,7 +127,7 @@ const char *ComTdbOnlj::getNodeName() const {
     return "EX_ONLJ";
 }
 
-ex_expr *ComTdbOnlj::getExpressionNode(Int32 pos) {
+ex_expr *ComTdbOnlj::getExpressionNode(int pos) {
   if (pos == 0)
     return postJoinPred_;
   else if (pos == 1)
@@ -140,7 +140,7 @@ ex_expr *ComTdbOnlj::getExpressionNode(Int32 pos) {
     return NULL;
 }
 
-const char *ComTdbOnlj::getExpressionName(Int32 pos) const {
+const char *ComTdbOnlj::getExpressionName(int pos) const {
   if (pos == 0)
     return "postJoinPred_";
   else if (pos == 1)
@@ -153,7 +153,7 @@ const char *ComTdbOnlj::getExpressionName(Int32 pos) const {
     return NULL;
 }
 
-const ComTdb *ComTdbOnlj::getChild(Int32 pos) const {
+const ComTdb *ComTdbOnlj::getChild(int pos) const {
   if (pos == 0)
     return tdbLeft_;
   else if (pos == 1)

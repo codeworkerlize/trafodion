@@ -59,7 +59,7 @@ class ProbeCache : public RelExpr {
   virtual NABoolean isLogical() const;
   virtual NABoolean isPhysical() const;
 
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
   virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
   virtual RelExpr *preCodeGen(Generator *generator, const ValueIdSet &externalInputs, ValueIdSet &pulledNewInputs);

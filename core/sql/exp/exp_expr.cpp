@@ -49,7 +49,7 @@
 void setVCLength(char *VCLen, int VCLenSize, ULng32 value);
 
 // used during displayContents of expr that involve composite types
-extern Int32 compExprNum;
+extern int compExprNum;
 
 // -----------------------------------------------------------------------
 // This method returns the virtual function table pointer for an object
@@ -116,11 +116,11 @@ void ex_expr_lean::displayContents(Space *space, short mode, const char *display
       PCodeBinary *pCode = getPCodeBinary();
 
       // skip over the ATP's
-      Int32 length = *(pCode++);
+      int length = *(pCode++);
       pCode += (2 * length);
 
       while (pCode[0] != PCIT::END) {
-        Int32 opcode = *(pCode++);
+        int opcode = *(pCode++);
 
         str_sprintf(buf, "    %s ", PCIT::instructionString(PCIT::Instruction(opcode)));
 
@@ -128,7 +128,7 @@ void ex_expr_lean::displayContents(Space *space, short mode, const char *display
 
         char tbuf[256];
         char operandBuf[32];
-        for (Int32 i = 0; i < pcodeLength; i++) {
+        for (int i = 0; i < pcodeLength; i++) {
           PCIT::operandString(pCode[i], operandBuf);
           str_sprintf(tbuf, "%s ", operandBuf);
           str_cat(buf, tbuf, buf);
@@ -148,7 +148,7 @@ void ex_expr_lean::displayContents(Space *space, short mode, const char *display
 // for proper deallocation of memory.
 void ex_expr::makeLeanCopyAll(Space *space) {
   if (getPCodeSegment() != NULL) {
-    Int32 pCodeSize = getPCodeSize();
+    int pCodeSize = getPCodeSize();
     NABoolean evalFlag = pCode_->containsClauseEval();
     PCodeBinary *pCode = getPCodeBinary();
     PCodeBinary *code;
@@ -237,10 +237,10 @@ void ex_expr::displayContents(Space *space, short mode, const char *displayStr, 
   }
 
   if (flag & 0x00000004) {
-    Int32 i = 1;
+    int i = 1;
     ex_clause *clause = getClauses();
     while (clause) {
-      Int32 ii = i;  //(flag & 0x00000020) ? -i : i;
+      int ii = i;  //(flag & 0x00000020) ? -i : i;
       if (clause->getClassID() == ex_clause::FUNC_COMPOSITE_CREATE)
         clause->displayContents(space, 0, ii, constantsArea_, flag);
       else
@@ -296,7 +296,7 @@ void ex_expr::displayContents(Space *space, short mode, const char *displayStr, 
   }
 }
 
-char *ex_expr::getPersistentData(Int32 offset) { return persistentArea_ + offset; }
+char *ex_expr::getPersistentData(int offset) { return persistentArea_ + offset; }
 
 // error denoted by negative return code
 int ex_expr::formatARow2(const char **srcFldsPtr, const int *srcFldsLength, const int *srcFieldsConvIndex,
@@ -321,7 +321,7 @@ int ex_expr::formatARow2(const char **srcFldsPtr, const int *srcFldsLength, cons
   UInt32 vcActualLen = 0;
   UInt32 voaOffset = 0;
   UInt32 vOffset = 0;
-  Int32 vcLenIndOffset = 0;
+  int vcLenIndOffset = 0;
   bool firstvc = true;
   char paddedTimestampVal[27] = "2000-01-01 00:00:00.000000";
 

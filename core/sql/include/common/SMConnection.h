@@ -60,8 +60,8 @@ class SMConnection : public IpcConnection {
   // Pure virtual functions from the IpcConnection parent class
   // * numQueuedSendMessages -- length of the send queue
   // * numQueuedReceiveMessages -- length of the task output queue
-  virtual Int32 numQueuedSendMessages();
-  virtual Int32 numQueuedReceiveMessages();
+  virtual int numQueuedSendMessages();
+  virtual int numQueuedReceiveMessages();
 
   // A wrapper around the parent class setState() method that also
   // writes to the ExSM trace file
@@ -107,7 +107,7 @@ class SMConnection : public IpcConnection {
 
   // The scheduled_ field is set to 1 by the SM reader thread every
   // time an arrival is seen
-  Int32 scheduled_;
+  int scheduled_;
 
   // This flag is not provided by the base class because for regular
   // IPC the client and server use different classes and client versus
@@ -150,7 +150,7 @@ class SMConnection : public IpcConnection {
   //    or b) an ExSM API that calls an SM API.
   // 2) The error function is either: a) an SM API, or b) an ExSM
   //    ExSM API that calls am SM API.
-  Int32 smErrorNumber_;
+  int smErrorNumber_;
   char smErrorFunction_[32];
 
   // Each SM connection keeps a pointer to master executor statement
@@ -183,7 +183,7 @@ class SMConnection : public IpcConnection {
   // control connection error has been reported. A non-zero value is
   // the Guardian error number that was reported on the control
   // connection.
-  Int32 ccErrorNumber_;
+  int ccErrorNumber_;
 
   // Process arrivals. First try to send buffers if an ack recently
   // arrived.

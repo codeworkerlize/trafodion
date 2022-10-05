@@ -40,7 +40,7 @@
 #include "common/NAString.h"
 
 // constructor
-ExtQualModuleNames::ExtQualModuleNames(char *argv[], Int32 startIndex, Int32 argc, const char *cat, const char *sch,
+ExtQualModuleNames::ExtQualModuleNames(char *argv[], int startIndex, int argc, const char *cat, const char *sch,
                                        const char *grp, const char *tgt, const char *ver)
     : modules_(),
       buffer_(),
@@ -56,7 +56,7 @@ ExtQualModuleNames::ExtQualModuleNames(char *argv[], Int32 startIndex, Int32 arg
     bp_ = buffer_.end();
     return;
   }
-  for (Int32 x = startIndex; x < argc; x++) {
+  for (int x = startIndex; x < argc; x++) {
     buffer_ += argv[x];  // collect arguments into buffer_
     buffer_ += ' ';
   }
@@ -333,7 +333,7 @@ void ExtQualModuleNames::usage() {
 
 // return true iff module is in this list
 bool ExtQualModuleNames::contains(std::string &moduleName) {
-  for (Int32 x = 0; x < count(); x++) {
+  for (int x = 0; x < count(); x++) {
     std::string name;
     modules_[x].setFullyQualifiedName(name);
     if (name == moduleName) {

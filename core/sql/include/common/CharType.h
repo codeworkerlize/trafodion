@@ -65,20 +65,20 @@ class CharLenInfo {
  public:
   CharLenInfo() : maxLenInChars_(0), maxLenInBytes_(0) {}
   CharLenInfo(const CharLenInfo &rhs) : maxLenInChars_(rhs.maxLenInChars_), maxLenInBytes_(rhs.maxLenInBytes_) {}
-  CharLenInfo(const Int32 maxLenInChars, const Int32 maxLenInBytes)
+  CharLenInfo(const int maxLenInChars, const int maxLenInBytes)
       : maxLenInChars_(maxLenInChars), maxLenInBytes_(maxLenInBytes) {}
 
   ~CharLenInfo() {}
 
-  Int32 getMaxLenInChars() const { return maxLenInChars_; }
-  Int32 getMaxLenInBytes() const { return maxLenInBytes_; }
+  int getMaxLenInChars() const { return maxLenInChars_; }
+  int getMaxLenInBytes() const { return maxLenInBytes_; }
 
-  void setMaxLenInChars(Int32 maxLenInChars) { maxLenInChars_ = maxLenInChars; }
-  void setMaxLenInBytes(Int32 maxLenInBytes) { maxLenInBytes_ = maxLenInBytes; }
+  void setMaxLenInChars(int maxLenInChars) { maxLenInChars_ = maxLenInChars; }
+  void setMaxLenInBytes(int maxLenInBytes) { maxLenInBytes_ = maxLenInBytes; }
 
  private:
-  Int32 maxLenInChars_;  // for UCS2, # of UCS2 elements - for other, # of real (e.g., UCS4) characters
-  Int32 maxLenInBytes_;  // count in bytes - important when cs is a variable-length mbcs like UTF-8
+  int maxLenInChars_;  // for UCS2, # of UCS2 elements - for other, # of real (e.g., UCS4) characters
+  int maxLenInBytes_;  // count in bytes - important when cs is a variable-length mbcs like UTF-8
 };
 
 // ***********************************************************************
@@ -229,7 +229,7 @@ class CharType : public NAType {
   virtual NABoolean equalIgnoreCoercibility(const NAType &other) const;
 
 #ifndef CLI_SRL
-  virtual NABoolean isComparable(const NAType &other, ItemExpr *parentOp, Int32 emitErr = EmitErrAlways,
+  virtual NABoolean isComparable(const NAType &other, ItemExpr *parentOp, int emitErr = EmitErrAlways,
                                  UInt32 *flags = NULL) const;
 #endif
 
@@ -301,7 +301,7 @@ class CharType : public NAType {
 
   virtual NABoolean createSQLLiteral(const char *buf, NAString *&sqlLiteral, NABoolean &isNull, CollHeap *h) const;
 
-  static Int32 determineVCHdrSize(Int32 len);
+  static int determineVCHdrSize(int len);
 
   NABoolean isVarchar2() const { return isVarchar2_; }
   void setVarchar2(NABoolean b) { isVarchar2_ = b; }
@@ -610,10 +610,10 @@ class SQLlob : public NAType {
 
   long getLobLength() { return lobLength_; }
   int extFormatLen() { return lobHandleLen_; }
-  void adjustLobHandleLen(Int32 v) { lobHandleLen_ += v; }
+  void adjustLobHandleLen(int v) { lobHandleLen_ += v; }
 
   virtual int getPrecision() const { return lobLength_ >> 32; }
-  virtual int getScale() const { return (Int32)lobLength_ & 0xFFFFFFFF; }
+  virtual int getScale() const { return (int)lobLength_ & 0xFFFFFFFF; }
   virtual CharInfo::CharSet getCharSet() const { return charSet_; }
   void setCharSet(CharInfo::CharSet cs) { charSet_ = cs; }
   ComLobsStorageType getLobStorage() { return lobStorage_; }
@@ -716,7 +716,7 @@ class SQLBinaryString : public CharType {
 
   virtual NABoolean isCompatible(const NAType &other, UInt32 *flags) const;
 
-  virtual NABoolean isComparable(const NAType &otherNA, ItemExpr *parentOp, Int32 emitErr, UInt32 *flags) const;
+  virtual NABoolean isComparable(const NAType &otherNA, ItemExpr *parentOp, int emitErr, UInt32 *flags) const;
 
   const NAType *synthesizeType(NATypeSynthRuleEnum synthRule, const NAType &operand1, const NAType &operand2,
                                CollHeap *h, UInt32 *flags) const;

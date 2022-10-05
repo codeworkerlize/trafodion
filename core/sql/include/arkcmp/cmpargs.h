@@ -53,7 +53,7 @@ typedef NAArray<ControlSetting> SettingsArray;
 class Cmdline_Args {
  public:
   Cmdline_Args();
-  void processArgs(Int32 argc, char **argv);
+  void processArgs(int argc, char **argv);
 
   NAString getAppName() const;
   NAString getMDFname() const;
@@ -61,10 +61,10 @@ class Cmdline_Args {
   bool isStatComp() const;
   NABoolean hasStmtName() const;
   void printArgs();
-  void usage(Int32 argc, char **argv);
+  void usage(int argc, char **argv);
   IpcServerAllocationMethod allocMethod() const;
-  Int32 socketArg() const;
-  Int32 portArg() const;
+  int socketArg() const;
+  int portArg() const;
   bool isVerbose() const;
   bool ignoreErrors() const;
   bool replaceModule() const;
@@ -113,8 +113,8 @@ class Cmdline_Args {
                           // the recompile fails.
 
   IpcServerAllocationMethod allocMethod_;
-  Int32 socketArg_;
-  Int32 portArg_;
+  int socketArg_;
+  int portArg_;
   SettingsArray settings_;       // control query default settings from cmd line
   LocalStatus modulePlacement_;  // where user wants local module
   NAString moduleDir_;           // directory for module file
@@ -125,10 +125,10 @@ class Cmdline_Args {
   char *testData_;
 
   // process -g {moduleGlobal|moduleLocal[=OSSdirectory]}
-  Int32 doModuleGlobalLocalDir(char *arg, Int32 argc, char **argv, Int32 &gCount, ComDiagsArea &diags);
+  int doModuleGlobalLocalDir(char *arg, int argc, char **argv, int &gCount, ComDiagsArea &diags);
 
   // process -g {moduleGlobal|moduleLocal}
-  Int32 doModuleGlobalLocal(char *arg, Int32 argc, char **argv, ComDiagsArea &diags);
+  int doModuleGlobalLocal(char *arg, int argc, char **argv, ComDiagsArea &diags);
 };
 
 inline void Cmdline_Args::addSetting(ControlSetting s) { settings_.insertAt(settings_.entries(), s); }
@@ -143,9 +143,9 @@ inline bool Cmdline_Args::isStatComp() const { return isStat_; }  // end isStatC
 
 inline IpcServerAllocationMethod Cmdline_Args::allocMethod() const { return allocMethod_; }
 
-inline Int32 Cmdline_Args::socketArg() const { return socketArg_; }
+inline int Cmdline_Args::socketArg() const { return socketArg_; }
 
-inline Int32 Cmdline_Args::portArg() const { return portArg_; }
+inline int Cmdline_Args::portArg() const { return portArg_; }
 
 inline bool Cmdline_Args::isVerbose() const { return isVerbose_; }
 

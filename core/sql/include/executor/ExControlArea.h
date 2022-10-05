@@ -63,24 +63,24 @@ class ExControlEntry : public NABasicObject {
   enum ResendType { UPON_ALL /*default */, UPON_CMP_CRASH, UPON_CTX_SWITCH };
 
  public:
-  ExControlEntry(CollHeap *heap, ControlQueryType cqt, Int32 reset = 0, char *sqlText = NULL, Int32 lenX = 0,
-                 Int16 sqlTextCharSet = (Int16)0 /*SQLCHARSETCODE_UNKNOWN*/, char *value1 = NULL, Int32 len1 = 0,
-                 char *value2 = NULL, Int32 len2 = 0, char *value3 = NULL, Int32 len3 = 0,
+  ExControlEntry(CollHeap *heap, ControlQueryType cqt, int reset = 0, char *sqlText = NULL, int lenX = 0,
+                 Int16 sqlTextCharSet = (Int16)0 /*SQLCHARSETCODE_UNKNOWN*/, char *value1 = NULL, int len1 = 0,
+                 char *value2 = NULL, int len2 = 0, char *value3 = NULL, int len3 = 0,
                  Int16 actionType = ComTdbControl::NONE_, ResendType resendType = ExControlEntry::UPON_ALL,
                  NABoolean isNonResettable = FALSE);
 
   ~ExControlEntry();
 
   ControlQueryType type() const { return cqt_; }
-  Int32 getNumValues() const { return numValues_; }
-  Int32 getReset() const { return reset_; }
-  void setReset(Int32 r) { reset_ = r; }
+  int getNumValues() const { return numValues_; }
+  int getReset() const { return reset_; }
+  void setReset(int r) { reset_ = r; }
   char *getSqlText() { return sqlText_; }
-  Int32 getSqlTextLen() { return lenX_; }
+  int getSqlTextLen() { return lenX_; }
   Int16 getSqlTextCharSet() { return sqlTextCharSet_; }
-  char *getValue(Int32 i);
-  Int32 getLen(Int32 i);
-  Int32 match(ControlQueryType cqt, const char *value1, const char *value2, Int32 reset = 0);
+  char *getValue(int i);
+  int getLen(int i);
+  int match(ControlQueryType cqt, const char *value1, const char *value2, int reset = 0);
 
   ResendType getResendType();
   Int16 getActionType() { return actionType_; }
@@ -90,9 +90,9 @@ class ExControlEntry : public NABasicObject {
   ResendType resendType_;
   CollHeap *heap_;
   ControlQueryType cqt_;
-  Int32 reset_;
+  int reset_;
 
-  Int32 numValues_;
+  int numValues_;
 
   char *sqlText_;
   Int16 sqlTextCharSet_;
@@ -100,10 +100,10 @@ class ExControlEntry : public NABasicObject {
   char *value1_;
   char *value2_;
   char *value3_;
-  Int32 lenX_;
-  Int32 len1_;
-  Int32 len2_;
-  Int32 len3_;
+  int lenX_;
+  int len1_;
+  int len2_;
+  int len3_;
   NABoolean nonResettable_;
 };
 
@@ -116,9 +116,9 @@ class ExControlArea : public NABasicObject {
 
   ~ExControlArea();
 
-  void addControl(ControlQueryType type, Int32 reset = 0, const char *sqlText = NULL, Int32 lenX = 0,
-                  const char *value1 = NULL, Int32 len1 = 0, const char *value2 = NULL, Int32 len2 = 0,
-                  const char *value3 = NULL, Int32 len3 = 0, Int16 actionType = ComTdbControl::NONE_,
+  void addControl(ControlQueryType type, int reset = 0, const char *sqlText = NULL, int lenX = 0,
+                  const char *value1 = NULL, int len1 = 0, const char *value2 = NULL, int len2 = 0,
+                  const char *value3 = NULL, int len3 = 0, Int16 actionType = ComTdbControl::NONE_,
                   ExControlEntry::ResendType resendType = ExControlEntry::UPON_ALL, NABoolean isNonResettable = FALSE);
   Queue *getControlList() { return controlList_; }
 

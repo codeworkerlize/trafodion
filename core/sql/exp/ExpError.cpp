@@ -58,7 +58,7 @@
 
 class PCIType;
 extern char *exClauseGetText(OperatorTypeEnum ote);
-extern char *getDatatypeAsString(Int32 Datatype, NABoolean extFormat);
+extern char *getDatatypeAsString(int Datatype, NABoolean extFormat);
 extern short convertTypeToText_basic(char *text, int fs_datatype, int length, int precision, int scale,
                                      rec_datetime_field datetimestart, rec_datetime_field datetimeend,
                                      short datetimefractprec, short intervalleadingprec, short upshift,
@@ -157,7 +157,7 @@ ComDiagsArea *ExRaiseFunctionSqlError(CollHeap *heap, ComDiagsArea **diagsArea, 
   return *diagsArea;
 }
 
-Int32 convertToHexAscii(char *src, Int32 srcLength, char *result, Int32 maxResultSize) {
+int convertToHexAscii(char *src, int srcLength, char *result, int maxResultSize) {
   const char HexArray[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
   if (src == NULL || result == NULL || srcLength <= 0 || maxResultSize <= 0) return 1;
@@ -165,7 +165,7 @@ Int32 convertToHexAscii(char *src, Int32 srcLength, char *result, Int32 maxResul
   if (((srcLength * 2) + 3) > maxResultSize) return 1;
 
   char *srcTemp = src;
-  Int32 upper4bits, lower4bits;
+  int upper4bits, lower4bits;
   result[0] = '0';
   result[1] = 'x';
   char *resultTemp = &result[2];
@@ -173,7 +173,7 @@ Int32 convertToHexAscii(char *src, Int32 srcLength, char *result, Int32 maxResul
   // Since source length may be a odd value, it is not possible to
   // convert between little or big endian. We just convert the
   // memory into hex and put it in the string.
-  for (Int32 i = 0; i < srcLength; i++) {
+  for (int i = 0; i < srcLength; i++) {
     lower4bits = (*srcTemp) & 0x0F;
     upper4bits = (*srcTemp) & 0xF0;
     upper4bits >>= 4;
@@ -185,16 +185,16 @@ Int32 convertToHexAscii(char *src, Int32 srcLength, char *result, Int32 maxResul
   return 0;
 }
 
-void ExConvertErrorToString(CollHeap *heap, ComDiagsArea **diagsArea, char *src, Int32 srcLength, Int16 srcType,
-                            Int32 srcScale, char *result, Int32 maxResultSize) {
+void ExConvertErrorToString(CollHeap *heap, ComDiagsArea **diagsArea, char *src, int srcLength, Int16 srcType,
+                            int srcScale, char *result, int maxResultSize) {
   ex_expr::exp_return_type retCode = ex_expr::EXPR_OK;
 
-  Int32 vcharLen = 0;
-  Int32 counter;
-  Int32 errorMark = ComDiagsArea::INVALID_MARK_VALUE;
-  Int32 warningMark = ComDiagsArea::INVALID_MARK_VALUE;
-  Int32 errorMark1;
-  Int32 warningMark1;
+  int vcharLen = 0;
+  int counter;
+  int errorMark = ComDiagsArea::INVALID_MARK_VALUE;
+  int warningMark = ComDiagsArea::INVALID_MARK_VALUE;
+  int errorMark1;
+  int warningMark1;
 
   if (DFS2REC::isBinaryString(srcType)) {
     if (convertToHexAscii(src, srcLength, result, maxResultSize) == 0) {
@@ -269,7 +269,7 @@ void ExConvertErrorToString(CollHeap *heap, ComDiagsArea **diagsArea, char *src,
 }
 
 // Detailed error support for pcode expression evaluation.
-ComDiagsArea *ExRaiseDetailSqlError(CollHeap *heap, ComDiagsArea **diagsArea, ExeErrorCode err, Int32 pciInst,
+ComDiagsArea *ExRaiseDetailSqlError(CollHeap *heap, ComDiagsArea **diagsArea, ExeErrorCode err, int pciInst,
                                     char *op1, char *op2, char *op3) {
   if (diagsArea == NULL) return NULL;
 
@@ -280,8 +280,8 @@ ComDiagsArea *ExRaiseDetailSqlError(CollHeap *heap, ComDiagsArea **diagsArea, Ex
 
   PCIT::Operation operation;
   PCIT::AddressingMode am[6];
-  Int32 numAModes;
-  Int32 rangeInst = PCode::isInstructionRangeType((PCIT::Instruction)pciInst) ? 1 : 0;
+  int numAModes;
+  int rangeInst = PCode::isInstructionRangeType((PCIT::Instruction)pciInst) ? 1 : 0;
 
   if (PCode::getOpCodeMapElements(pciInst, operation, am, numAModes)) {
     ExRaiseSqlError(heap, diagsArea, err);
@@ -427,8 +427,8 @@ ComDiagsArea *ExRaiseDetailSqlError(CollHeap *heap, ComDiagsArea **diagsArea, Ex
 
 // Detailed error support for conversions, especially for use in convdoit.
 ComDiagsArea *ExRaiseDetailSqlError(CollHeap *heap, ComDiagsArea **diagsArea, ExeErrorCode err, char *src,
-                                    Int32 srcLength, Int16 srcType, Int32 srcScale, Int16 tgtType, UInt32 flags,
-                                    Int32 tgtLength, Int32 tgtScale, Int32 tgtPrecision, Int32 srcPrecision,
+                                    int srcLength, Int16 srcType, int srcScale, Int16 tgtType, UInt32 flags,
+                                    int tgtLength, int tgtScale, int tgtPrecision, int srcPrecision,
                                     char *sourceValue /*=NULL*/) {
   // if looping situation, no need to proceed further, return back.
   if (flags & CONV_CONTROL_LOOPING) return NULL;
@@ -512,8 +512,8 @@ ComDiagsArea *ExRaiseDetailSqlError(CollHeap *heap, ComDiagsArea **diagsArea, Ex
 ////
 //// ///////////////////////////////////////////////////////////////
 
-char *stringToHex(char *out, Int32 outLen, char *in, Int32 inLen) {
-  Int32 hexLen = (outLen / 2) - 1;
+char *stringToHex(char *out, int outLen, char *in, int inLen) {
+  int hexLen = (outLen / 2) - 1;
   if (inLen < hexLen) hexLen = inLen;
   if (hexLen < 0) hexLen = 0;
   if (outLen > 0) out[0] = '\0';

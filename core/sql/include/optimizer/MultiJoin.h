@@ -122,14 +122,14 @@ class LSRConfidence : public NABasicObject {
   LSRConfidence(CollHeap *outHeap = CmpCommon::statementHeap())
       : starBDRuleConfidence_(-1), starJoinRuleConfidence_(-1), primeTableRuleConfidence_(-1), heap_(outHeap){};
 
-  void setStarBDRuleConfidence(Int32 confidence) {
+  void setStarBDRuleConfidence(int confidence) {
     if (confidence < 0) confidence = 0;
 
     if (confidence > 10) confidence = 10;
 
     starBDRuleConfidence_ = confidence;
   }
-  void setStarJoinRuleConfidence(Int32 confidence) {
+  void setStarJoinRuleConfidence(int confidence) {
     if (confidence < 0) confidence = 0;
 
     if (confidence > 10) confidence = 10;
@@ -137,20 +137,20 @@ class LSRConfidence : public NABasicObject {
     starJoinRuleConfidence_ = confidence;
   }
 
-  void setPrimeTableRuleConfidence(Int32 confidence) {
+  void setPrimeTableRuleConfidence(int confidence) {
     if (confidence < 0) confidence = 0;
     if (confidence > 10) confidence = 10;
     primeTableRuleConfidence_ = confidence;
   }
 
-  Int32 getStarBDRuleConfidence() { return starBDRuleConfidence_; }
-  Int32 getStarJoinRuleConfidence() { return starJoinRuleConfidence_; }
-  Int32 getPrimeTableRuleConfidence() { return primeTableRuleConfidence_; }
+  int getStarBDRuleConfidence() { return starBDRuleConfidence_; }
+  int getStarJoinRuleConfidence() { return starJoinRuleConfidence_; }
+  int getPrimeTableRuleConfidence() { return primeTableRuleConfidence_; }
 
  private:
-  Int32 starBDRuleConfidence_;
-  Int32 starJoinRuleConfidence_;
-  Int32 primeTableRuleConfidence_;
+  int starBDRuleConfidence_;
+  int starJoinRuleConfidence_;
+  int primeTableRuleConfidence_;
   CollHeap *heap_;
 };
 
@@ -171,7 +171,7 @@ class MultiJoin : public RelExpr {
   virtual ~MultiJoin(){};
 
   // the number of MultiJoin children
-  virtual Int32 getArity() const {
+  virtual int getArity() const {
     return childrenMap_.entries();
     // xxx jbbSubset_.entries();
   }

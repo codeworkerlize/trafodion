@@ -712,7 +712,7 @@ FeatureVersionInfoStoredProcedure::sp_Process(SP_PROCESS_ACTION action, SP_ROW_D
       // catalog manager.
       char inputType[32 + 1];
       char inputValue[1030 + 2 /*ComMAX_2_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES+3*/];
-      Int32 inputVersion = -1;
+      int inputVersion = -1;
       NABoolean doCascade = FALSE;
 
       // obtain and validate type parameter. It will have the format
@@ -726,7 +726,7 @@ FeatureVersionInfoStoredProcedure::sp_Process(SP_PROCESS_ACTION action, SP_ROW_D
       if (!getVarcharInputParameter(1, eFunc, inputData, sizeof(inputValue), inputValue, error)) return SP_FAIL;
 
       // obtain and validate version parameter.
-      inputVersion = getIntInputParameter(2, eFunc, inputData, sizeof(Int32), inputVersion, error);
+      inputVersion = getIntInputParameter(2, eFunc, inputData, sizeof(int), inputVersion, error);
       if (inputVersion == -1) return SP_FAIL;
 
       // Allocate context and validate input type
@@ -1021,8 +1021,8 @@ NABoolean getVarcharInputParameter(int fieldNo, SP_EXTRACT_FUNCPTR eFunc, SP_ROW
   return TRUE;
 }
 
-Int32 getIntInputParameter(int fieldNo, SP_EXTRACT_FUNCPTR eFunc, SP_ROW_DATA inputData, size_t maxSize,
-                           Int32 receivingField, SP_ERROR_STRUCT *error) {
+int getIntInputParameter(int fieldNo, SP_EXTRACT_FUNCPTR eFunc, SP_ROW_DATA inputData, size_t maxSize,
+                           int receivingField, SP_ERROR_STRUCT *error) {
   if (eFunc(fieldNo, inputData, (int)maxSize, &receivingField, FALSE) == SP_ERROR_EXTRACT_DATA) {
     error->error = arkcmpErrorISPFieldDef;
     return -1;
@@ -1040,7 +1040,7 @@ void reportInputError(VersioningSPContextBase *context, SP_ERROR_STRUCT *error) 
   context->deleteMe();
 }
 
-void reportInputVersionError(VersioningSPContextBase *context, SP_ERROR_STRUCT *error, const Int32 inVersion) {
+void reportInputVersionError(VersioningSPContextBase *context, SP_ERROR_STRUCT *error, const int inVersion) {
   // Report error -19022
   error->error = arkcmpErrorISPWrongFeatureVersion;
   error->optionalInteger[0] = inVersion;
@@ -1087,7 +1087,7 @@ NABoolean validateInputValue(const ComNodeName &node, VersioningSPContextBase *c
   return FALSE;
 }
 
-NABoolean validateInputVersion(Int32 inVersion, VersioningSPContextBase *context, SP_ERROR_STRUCT *error) {
+NABoolean validateInputVersion(int inVersion, VersioningSPContextBase *context, SP_ERROR_STRUCT *error) {
   // Validate that the input feature version is a valid COM_VERSION
   short oldestSupportedMXV;
   short oldestSupportedSchemaVersion;

@@ -170,10 +170,10 @@ class ExTupleTcb : public ex_tcb {
   virtual ex_tcb_private_state *allocatePstates(int &numElems,       // inout, desired/actual elements
                                                 int &pstateLength);  // out, length of one element
 
-  Int32 orderedQueueProtocol() const { return ((const ComTdbTuple &)tdb).orderedQueueProtocol(); };
+  int orderedQueueProtocol() const { return ((const ComTdbTuple &)tdb).orderedQueueProtocol(); };
 
-  virtual Int32 numChildren() const { return 0; };
-  virtual const ex_tcb *getChild(Int32 pos) const { return NULL; };
+  virtual int numChildren() const { return 0; };
+  virtual const ex_tcb *getChild(int pos) const { return NULL; };
 
  protected:
   ex_queue_pair qparent;
@@ -207,8 +207,8 @@ class ExTupleNonLeafTcb : public ExTupleTcb {
 
   ExWorkProcRetcode work();
 
-  virtual Int32 numChildren() const { return 1; };
-  virtual const ex_tcb *getChild(Int32 pos) const {
+  virtual int numChildren() const { return 1; };
+  virtual const ex_tcb *getChild(int pos) const {
     ex_assert((pos >= 0), "");
     if (pos == 0)
       return tcbChild_;

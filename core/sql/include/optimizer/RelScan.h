@@ -316,7 +316,7 @@ class Scan : public RelExpr {
   virtual RelExpr *normalizeForCache(CacheWA &cwa, BindWA &bindWA);
 
   // get the degree of this node (it is a leaf).
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   virtual NABoolean isHbaseScan() { return FALSE; }
 
@@ -610,7 +610,7 @@ class Scan : public RelExpr {
   CommonSubExprRef *getCommonSubExpr() const { return commonSubExpr_; }
   void setCommonSubExpr(CommonSubExprRef *cse) { commonSubExpr_ = cse; }
 
-  Int32 findHiveTables(NABoolean InEspFragment);
+  int findHiveTables(NABoolean InEspFragment);
 
   void collectTableNames(NAString &queryData);
 
@@ -994,7 +994,7 @@ class FileScan : public Scan {
                                                                         const ValueIdList &partitioningKeyColumnsList,
                                                                         const ValueIdList &partitioningKeyColumnsOrder);
 
-  Int32 getComputedNumOfActivePartiions() const { return computedNumOfActivePartitions_; }
+  int getComputedNumOfActivePartiions() const { return computedNumOfActivePartitions_; }
 
   ExtPushdownPredInfoList &extListOfPPI() { return extListOfPPI_; }
 
@@ -1110,7 +1110,7 @@ class FileScan : public Scan {
 
   // number of active partitions computed only from the Range Part Func
   // and the search key (partKey_)
-  Int32 computedNumOfActivePartitions_;
+  int computedNumOfActivePartitions_;
 
   ExtPushdownPredInfoList extListOfPPI_;
 
@@ -1223,7 +1223,7 @@ class HbaseAccess : public FileScan {
 
   //! getArity method
   // get the degree of this node (it is a leaf op).
-  virtual Int32 getArity() const { return 0; }
+  virtual int getArity() const { return 0; }
 
   // mutators
 
@@ -1305,13 +1305,13 @@ class HbaseAccess : public FileScan {
                                         ItemExpr *&castValue);
 
   static short genRowIdExpr(Generator *generator, const NAColumnArray &keyColumns, NAList<HbaseSearchKey *> &searchKeys,
-                            ex_cri_desc *work_cri_desc, const Int32 work_atp, const Int32 rowIdAsciiTuppIndex,
-                            const Int32 rowIdTuppIndex, ULng32 &rowIdAsciiRowLen, ExpTupleDesc *&rowIdAsciiTupleDesc,
+                            ex_cri_desc *work_cri_desc, const int work_atp, const int rowIdAsciiTuppIndex,
+                            const int rowIdTuppIndex, ULng32 &rowIdAsciiRowLen, ExpTupleDesc *&rowIdAsciiTupleDesc,
                             UInt32 &rowIdLength, ex_expr *&rowIdExpr, NABoolean encodeKeys);
 
   static short genRowIdExprForNonSQ(Generator *generator, const NAColumnArray &keyColumns,
                                     NAList<HbaseSearchKey *> &searchKeys, ex_cri_desc *work_cri_desc,
-                                    const Int32 work_atp, const Int32 rowIdAsciiTuppIndex, const Int32 rowIdTuppIndex,
+                                    const int work_atp, const int rowIdAsciiTuppIndex, const int rowIdTuppIndex,
                                     ULng32 &rowIdAsciiRowLen, ExpTupleDesc *&rowIdAsciiTupleDesc, UInt32 &rowIdLength,
                                     ex_expr *&rowIdExpr);
 
@@ -1608,7 +1608,7 @@ class Describe : public Scan {
   // various PC methods
 
   // get the degree of this node (it is a leaf op).
-  virtual Int32 getArity() const { return 0; }
+  virtual int getArity() const { return 0; }
   virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *outHeap = 0);
   virtual const NAString getText() const;
 

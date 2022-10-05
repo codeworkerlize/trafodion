@@ -5,7 +5,7 @@
 
 SqlciEnv *global_sqlci_env = nullptr;
 
-int main(Int32 argc, char *argv[]) {
+int main(int argc, char *argv[]) {
   ios::sync_with_stdio();
 
   SqlciEnv *sqlci = new SqlciEnv();

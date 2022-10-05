@@ -106,10 +106,10 @@ class SharedCacheDB {
   //   the base address (returned),
   //   the total heap size (output via totalHeapSize)
   //   the shared segment Id (input, in shmId)
-  static char *collectSharedHeapInfo(Int32 &shmId, size_t &totalHeapSize, CacheID cacheId = DESCRIPTOR_CACHE);
+  static char *collectSharedHeapInfo(int &shmId, size_t &totalHeapSize, CacheID cacheId = DESCRIPTOR_CACHE);
 
   // helper routine to return the address of the SharedCacheDB object
-  static char *locateBaseAddr(Int32 &shmId, CacheID cacheId = DESCRIPTOR_CACHE);
+  static char *locateBaseAddr(int &shmId, CacheID cacheId = DESCRIPTOR_CACHE);
 
   // Answer the question whether SharedCacheDB is valid
   NABoolean isMe() {
@@ -151,7 +151,7 @@ class SharedCache {
   // Create a semaphore name for use with shared cache in buf with
   // length len. Must check return status to make sure the name
   // is properly created on buffer buf with enough length.
-  static char *createSemaphoreName(char *buf, Int32 len);
+  static char *createSemaphoreName(char *buf, int len);
 
   // Destroy a particular shared cache and deallocate occupied spaces
   // from the shared heap.
@@ -197,7 +197,7 @@ class SharedDescriptorCache : public SharedCache {
 
   // count all entries in the cache with type 'type', without making
   // any copies of the key-value pairs.
-  Int32 countAll(enum iteratorEntryType type);
+  int countAll(enum iteratorEntryType type);
 
   // find a particular cached descriptor by name.
   NAString *find(const QualifiedName &name, NABoolean includeDisabled = FALSE);
@@ -270,7 +270,7 @@ class SharedTableDataCache : public SharedCache {
   SharedTableDataCache(NAMemory *sharedHeap, SharedCacheDB *sharedCacheDB);
   ~SharedTableDataCache() {}
 
-  char *collectSummaryDataForAll(bool showDetails, Int32 &blackBoxLen);
+  char *collectSummaryDataForAll(bool showDetails, int &blackBoxLen);
   char *collectSummaryDataForSchema(const QualifiedName &schemaName);
   char *collectSummaryDataForTable(const QualifiedName &tableName);
 
@@ -472,7 +472,7 @@ class SharedTableDataCache : public SharedCache {
 
 // Test methods invoked from tdm_arkcmp (as a test program) when
 // proper test options are suppiled to tdm_arkcmp.
-void testSharedMemorySequentialScan(Int32 argc, char **argv);
+void testSharedMemorySequentialScan(int argc, char **argv);
 void testSharedMemoryHashDictionaryPopulate();
 void testSharedMemoryHashDictionaryLookup();
 void testSharedMemoryHashDictionaryFindAll();

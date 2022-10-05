@@ -82,8 +82,8 @@ class ApplicationFile {
   // print summary statistics
   void printSummary();
 
-  virtual Int32 modulesFound() = 0;
-  virtual Int32 modulesExtracted() = 0;
+  virtual int modulesFound() = 0;
+  virtual int modulesExtracted() = 0;
 
  protected:
   // create a temporary file and open it for write
@@ -98,8 +98,8 @@ class ApplicationFile {
   bool mxcmpModule(char *mdf);
 
   std::string fileName_;  // application file name
-  Int32 nCompiles_;       // number of mxcmp invocations
-  Int32 nFailures_;       // number of unsuccessful mxcmp invocations
+  int nCompiles_;       // number of mxcmp invocations
+  int nFailures_;       // number of unsuccessful mxcmp invocations
 
   Cmdline_Args *args_;  // for determining if all named modules were found
   FILE *appFile_;       // handle to application file or

@@ -75,7 +75,7 @@ class StmtDDLAlterCatalog : public StmtDDLNode {
   // accessors
   //
 
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
   inline const NAString &getCatalogName() const;
   inline const NAString &getSchemaName() const;
   inline const NABoolean isAllSchemaPrivileges() const;

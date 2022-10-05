@@ -236,7 +236,7 @@ short ExExeUtilCreateTableAsTcb::work() {
         // the default_charset.
         // So we send the isoMapping charset instead of the
         // enum ISO_MAPPING.
-        Int32 savedIsoMapping = currContext->getSessionDefaults()->getIsoMappingEnum();
+        int savedIsoMapping = currContext->getSessionDefaults()->getIsoMappingEnum();
         cliInterface()->setIsoMapping(currContext->getSessionDefaults()->getIsoMappingEnum());
         redriveCTAS = currContext->getSessionDefaults()->getRedriveCTAS();
         if (redriveCTAS) {
@@ -295,7 +295,7 @@ short ExExeUtilCreateTableAsTcb::work() {
 
         // issue the insert command
         long rowsAffected = 0;
-        Int32 savedIsoMapping = currContext->getSessionDefaults()->getIsoMappingEnum();
+        int savedIsoMapping = currContext->getSessionDefaults()->getIsoMappingEnum();
         cliInterface()->setIsoMapping(currContext->getSessionDefaults()->getIsoMappingEnum());
         NABoolean redriveCTAS = currContext->getSessionDefaults()->getRedriveCTAS();
         if (redriveCTAS) {
@@ -479,7 +479,7 @@ ExExeUtilAqrWnrInsertTcb::~ExExeUtilAqrWnrInsertTcb() {
   // is base class dtor called?
 }
 
-Int32 ExExeUtilAqrWnrInsertTcb::fixup() { return ex_tcb::fixup(); }
+int ExExeUtilAqrWnrInsertTcb::fixup() { return ex_tcb::fixup(); }
 
 void ExExeUtilAqrWnrInsertTcb::setStep(Step newStep, int lineNum) {
   static bool sv_checked_yet = false;
@@ -899,7 +899,7 @@ short ExExeUtilHBaseBulkLoadTcb::loadWithParams(ComDiagsArea *&diagsArea) {
     Attributes *srcAttr = inputExprTD->getAttr(i);
 
     char *srcVal = NULL;
-    Int32 srcLen = 0;
+    int srcLen = 0;
     NABoolean srcIsNull = FALSE;
     if (srcAttr->getNullFlag()) {
       char *srcNullVal = &inputParamsBuf[srcAttr->getNullIndOffset()];
@@ -912,9 +912,9 @@ short ExExeUtilHBaseBulkLoadTcb::loadWithParams(ComDiagsArea *&diagsArea) {
     }
 
     int dummy;
-    Int32 tgtParamVcIndLen = 0;
-    Int32 tgtParamOffset = 0;
-    Int32 tgtParamNullIndOffset = 0;
+    int tgtParamVcIndLen = 0;
+    int tgtParamOffset = 0;
+    int tgtParamNullIndOffset = 0;
     cliInterface()->getAttributes((i + 1), TRUE, dummy, dummy, tgtParamVcIndLen, &tgtParamNullIndOffset,
                                   &tgtParamOffset);
 
@@ -927,7 +927,7 @@ short ExExeUtilHBaseBulkLoadTcb::loadWithParams(ComDiagsArea *&diagsArea) {
           Int16 len = srcLen;
           memcpy(&cliInterface()->inputBuf()[tgtParamOffset], (char *)&len, sizeof(len));
         } else {
-          Int32 len = srcLen;
+          int len = srcLen;
           memcpy(&cliInterface()->inputBuf()[tgtParamOffset], (char *)&len, sizeof(len));
         }
       }  // is VC
@@ -1671,7 +1671,7 @@ ExExeUtilHbaseUnLoadPrivateState::~ExExeUtilHbaseUnLoadPrivateState(){};
 short ExExeUtilLobExtractLibrary(ExeCliInterface *cliInterface, char *libHandle, char *cachedLibName,
                                  ComDiagsArea *toDiags) {
   char buf[strlen(cachedLibName) + strlen(libHandle) + 200];
-  Int32 cliRC = 0;
+  int cliRC = 0;
   str_sprintf(buf, "extract lobtofile(LOB '%s','%s');", libHandle, cachedLibName);
 
   cliRC = cliInterface->executeImmediate(buf);
@@ -1681,7 +1681,7 @@ short ExExeUtilLobExtractLibrary(ExeCliInterface *cliInterface, char *libHandle,
     // file already got created by another process at the same time. So we can ignore
     // the error and use the already cached file.
     ComCondition *cond = NULL;
-    Int32 entryNumber;
+    int entryNumber;
     cond = toDiags->findCondition(-EXE_ERROR_FROM_LOB_INTERFACE, &entryNumber);
     if (cond) {
       if (cond->getOptionalInteger(0) == LOB_TARGET_FILE_EXISTS_ERROR) {

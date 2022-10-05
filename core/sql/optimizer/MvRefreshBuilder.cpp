@@ -792,7 +792,7 @@ NABoolean MvRefreshBuilder::useUnionBakeboneToMergeEpochs() const { return FALSE
 //----------------------------------------------------------------------------
 // This function returns the number of scan operators that are used to read
 // the IUD/Range log table
-Int32 MvRefreshBuilder::getNumOfScansInUnionBackbone() const {
+int MvRefreshBuilder::getNumOfScansInUnionBackbone() const {
   DeltaDefinition &deltaDef = getLogsInfo().getDeltaDefinition();
 
   return deltaDef.getEndEpoch() - deltaDef.getBeginEpoch() + 1;
@@ -819,7 +819,7 @@ MultiDeltaRefreshMatrix *MvRefreshBuilder::prepareProductMatrix(NABoolean suppor
   joinGraph->findBestOrder();
 
   // The max number of rows is 2^m, where m is the number of non-empty deltas.
-  Int32 maxNumOfRows = (Int32)pow(2, getDeltaDefList()->entries());
+  int maxNumOfRows = (int)pow(2, getDeltaDefList()->entries());
 
   // 3. Build the Product Matrix according to the graph solution.
   // The matrix is constructed with the first row, that serves as the
@@ -889,7 +889,7 @@ MultiDeltaRefreshMatrix *MvRefreshBuilder::prepareProductMatrix(NABoolean suppor
 // Prepare a single join product according to the product matrix row.
 // Used for multi-delta refresh (both MAV and MJV)
 RelRoot *MvRefreshBuilder::prepareProductFromMatrix(const MultiDeltaRefreshMatrix &productMatrix,
-                                                    RelRoot *rawJoinProduct, Int32 rowNumber, NABoolean isLast) {
+                                                    RelRoot *rawJoinProduct, int rowNumber, NABoolean isLast) {
   const MultiDeltaRefreshMatrixRow *currentRow = productMatrix.getRow(rowNumber);
 
   RelRoot *product = NULL;
@@ -906,7 +906,7 @@ RelRoot *MvRefreshBuilder::prepareProductFromMatrix(const MultiDeltaRefreshMatri
   mvBinderContext->setRefreshBuilder(this);
 
   // For each table in the join product
-  for (Int32 i = 0; i < productMatrix.getRowLength(); i++) {
+  for (int i = 0; i < productMatrix.getRowLength(); i++) {
     // If for this matrix row, we should read the table's log
     if (currentRow->isScanOnDelta(i)) {
       // Get the table's index into the MVInfo used object list.
@@ -1518,7 +1518,7 @@ NABoolean MavBuilder::useUnionBakeboneToMergeEpochs() const {
 // Check if the Group by columns are a prefix of the base table clustering
 // index. The order of the group by columns is not important.
 //----------------------------------------------------------------------------
-Int32 MavBuilder::isGroupByAprefixOfTableCKeyColumns() const {
+int MavBuilder::isGroupByAprefixOfTableCKeyColumns() const {
   if (isGroupByAprefixOfTableCKeyColumns_ != -1) return isGroupByAprefixOfTableCKeyColumns_;
 
   const NATable &baseTable = *getLogsInfo().getBaseNaTable();
@@ -1527,8 +1527,8 @@ Int32 MavBuilder::isGroupByAprefixOfTableCKeyColumns() const {
   LIST(int) gbColPositionList(heap_);
   getMvInfo()->getMavGroupByColumns(gbColPositionList);
 
-  Int32 numOfGroupByCols = gbColPositionList.entries();
-  Int32 counter = 0;
+  int numOfGroupByCols = gbColPositionList.entries();
+  int counter = 0;
 
   for (CollIndex i = 0; i < indexColumns.entries(); i++, counter++) {
     MVColumnInfo *currentCol = getMvInfo()->getMVColumns().getMvColInfoByBaseColumn(*indexColumns[i]->getTableName(),
@@ -1651,7 +1651,7 @@ void MinMaxOptimizedMavBuilder::removeGroupingColsFromSelectList(RelRoot *pRoot)
 
   // For each column in the select list.
   // Start from the end backwards, to avoid messing with the indexing.
-  for (Int32 i = selectList.entries() - 1; i >= 0; i--) {
+  for (int i = selectList.entries() - 1; i >= 0; i--) {
     ItemExpr *slCol = selectList[i];
 
     // Skip RenameCols to get to the actual column.
@@ -1745,9 +1745,9 @@ RelExpr *MultiDeltaMavBuilder::buildRawDeltaCalculationTree(const MultiDeltaRefr
 
   // 3. For each relevant product matrix row
   RelExpr *topNode = NULL;
-  Int32 numOfRowsForThisPhase = productMatrix.getNumOfRowsForThisPhase();
-  Int32 firstRowForThisPhase = productMatrix.getFirstRowForThisPhase();
-  for (Int32 rowNumber = firstRowForThisPhase; rowNumber < firstRowForThisPhase + numOfRowsForThisPhase; rowNumber++) {
+  int numOfRowsForThisPhase = productMatrix.getNumOfRowsForThisPhase();
+  int firstRowForThisPhase = productMatrix.getFirstRowForThisPhase();
+  for (int rowNumber = firstRowForThisPhase; rowNumber < firstRowForThisPhase + numOfRowsForThisPhase; rowNumber++) {
     // 3.1, 3.2 Prepare the join product according to the matrix row.
     NABoolean isLastRow = rowNumber == firstRowForThisPhase + numOfRowsForThisPhase - 1;
 
@@ -1837,7 +1837,7 @@ void MultiDeltaMavBuilder::prepareRetdescForUnion(RETDesc *retDesc, NABoolean is
   // We are beginning this loop from the last element, because we don't want
   // deletions from the RETDesc to affect the location of colums we have not
   // yet checked. This is why 'i' should be a signed integer (not CollIndex).
-  for (Int32 i = userColumns->entries() - 1; i >= 0; i--) {
+  for (int i = userColumns->entries() - 1; i >= 0; i--) {
     ColumnDesc *colDesc = userColumns->at(i);
     const ColRefName &colRefName = colDesc->getColRefNameObj();
     const NAString &colName = colRefName.getColName();
@@ -1891,7 +1891,7 @@ void MultiDeltaMavBuilder::prepareRetdescForUnion(RETDesc *retDesc, NABoolean is
     // We did not find any Op columns in the user column list, look
     // for them in the system column list.
     const ColumnDescList *systemColumns = retDesc->getSystemColumnList();
-    for (Int32 j = systemColumns->entries() - 1; j >= 0; j--) {
+    for (int j = systemColumns->entries() - 1; j >= 0; j--) {
       ColumnDesc *colDesc = systemColumns->at(j);
       const ColRefName &colRefName = colDesc->getColRefNameObj();
       const NAString &colName = colRefName.getColName();
@@ -2218,11 +2218,11 @@ RelRoot *PipelinedMavBuilder::buildRenameToLog(RelExpr *topNode) {
 // except the last table that is initialized to SCAN_DELTA. This Ctor is used
 // for the first row of the matrix, and for the last row of every matrix
 // doubling.
-MultiDeltaRefreshMatrixRow::MultiDeltaRefreshMatrixRow(Int32 length, Int32 maxLength, CollHeap *heap)
+MultiDeltaRefreshMatrixRow::MultiDeltaRefreshMatrixRow(int length, int maxLength, CollHeap *heap)
     : sign_(SIGN_PLUS), currentLength_(length), maxLength_(maxLength), tableScanTypes_(heap, maxLength), heap_(heap) {
   CMPASSERT(length <= maxLength);
   initArray();
-  for (Int32 i = 0; i < length - 1; i++) tableScanTypes_[i] = SCAN_TABLE;
+  for (int i = 0; i < length - 1; i++) tableScanTypes_[i] = SCAN_TABLE;
   tableScanTypes_[length - 1] = SCAN_DELTA;
 }
 
@@ -2239,7 +2239,7 @@ MultiDeltaRefreshMatrixRow::MultiDeltaRefreshMatrixRow(const MultiDeltaRefreshMa
 void MultiDeltaRefreshMatrixRow::initArray() {
   // The array will assert on accessing an un-initialized element, so we
   // initialize maxLength elements to SCAN_TABLE.
-  for (Int32 i = 0; i < maxLength_; i++) tableScanTypes_.insert(i, SCAN_TABLE);
+  for (int i = 0; i < maxLength_; i++) tableScanTypes_.insert(i, SCAN_TABLE);
 }
 
 //----------------------------------------------------------------------------
@@ -2271,7 +2271,7 @@ void MultiDeltaRefreshMatrixRow::addColumn(scanType type) {
 void MultiDeltaRefreshMatrixRow::print(FILE *ofd, const char *indent, const char *title) const {
   char sign = (isSignPlus() ? '+' : '-');
   fprintf(ofd, "%c ", sign);
-  for (Int32 i = 0; i < currentLength_; i++)
+  for (int i = 0; i < currentLength_; i++)
     if (isScanOnDelta(i))
       fprintf(ofd, "d  ");
     else
@@ -2291,7 +2291,7 @@ void MultiDeltaRefreshMatrixRow::display() const { print(); }
 
 //----------------------------------------------------------------------------
 // Construct the matrix from the join graph solution, and add the first row.
-MultiDeltaRefreshMatrix::MultiDeltaRefreshMatrix(Int32 maxNumOfRows, MVJoinGraph *joinGraph, CollHeap *heap)
+MultiDeltaRefreshMatrix::MultiDeltaRefreshMatrix(int maxNumOfRows, MVJoinGraph *joinGraph, CollHeap *heap)
     : numOfRows_(1),
       currentRowLength_(0),
       maxRowLength_(0),
@@ -2322,13 +2322,13 @@ MultiDeltaRefreshMatrix::MultiDeltaRefreshMatrix(Int32 maxNumOfRows, MVJoinGraph
 
   maxRowLength_ = theRoute.entries();
 
-  Int32 firstNonEmptyDelta = 0;
+  int firstNonEmptyDelta = 0;
   while (joinGraph->getTableObjectAt(firstNonEmptyDelta)->isEmptyDelta()) firstNonEmptyDelta++;
   currentRowLength_ = firstNonEmptyDelta + 1;
 
   // Initialize the matrix to NULL pointers to avoid assert on accessing
   // an un-initialized element.
-  for (Int32 i = 0; i < maxNumOfRows; i++) theMatrix_.insert(i, NULL);
+  for (int i = 0; i < maxNumOfRows; i++) theMatrix_.insert(i, NULL);
 
   // Create the first matrix row.
   MultiDeltaRefreshMatrixRow *firstRow = new (heap) MultiDeltaRefreshMatrixRow(currentRowLength_, maxRowLength_, heap);
@@ -2348,7 +2348,7 @@ MultiDeltaRefreshMatrix::~MultiDeltaRefreshMatrix() {
 // table has an empty delta, or if the delta was optimized away.
 void MultiDeltaRefreshMatrix::addTable(NABoolean readDelta) {
   // Add a column to the matrix (initialized to SCAN_TABLE).
-  for (Int32 i = 0; i < numOfRows_; i++) theMatrix_[i]->addColumn();
+  for (int i = 0; i < numOfRows_; i++) theMatrix_[i]->addColumn();
   currentRowLength_++;
 
   // If no delta, no need to double the matrix.
@@ -2356,7 +2356,7 @@ void MultiDeltaRefreshMatrix::addTable(NABoolean readDelta) {
 
   if (isDuplicatesOptimized_ == FALSE) {
     // Double the matrix: For all rows currently in the matrix:
-    for (Int32 j = 0; j < numOfRows_; j++) {
+    for (int j = 0; j < numOfRows_; j++) {
       // Copy the row to a new row.
       MultiDeltaRefreshMatrixRow *matrixRow = new (heap_) MultiDeltaRefreshMatrixRow(*theMatrix_[j]);
       // Flip its sign and the type of the last table from SCAN_TABLE
@@ -2379,7 +2379,7 @@ void MultiDeltaRefreshMatrix::addTable(NABoolean readDelta) {
 //----------------------------------------------------------------------------
 // Set the phase given by the Refresh utility.
 // This determined which of the matrix's rows will be used in this activation.
-void MultiDeltaRefreshMatrix::setThisPhase(Int32 phase) {
+void MultiDeltaRefreshMatrix::setThisPhase(int phase) {
   thisPhase_ = phase;
 
   calculatePhases();
@@ -2418,7 +2418,7 @@ void MultiDeltaRefreshMatrix::calculatePhases() {
 
   // Mid-range joins are done a batch at a time.
   firstRowForThisPhase_ = thisPhase_ * phaseSizeForMidRange_;
-  Int32 numberOfRowsLeft = numOfRows_ - firstRowForThisPhase_;
+  int numberOfRowsLeft = numOfRows_ - firstRowForThisPhase_;
   // The size of this phase is min(numberOfRowsLeft, phaseSizeForMidRange)
   if (numberOfRowsLeft > phaseSizeForMidRange_)
     numOfRowsForThisPhase_ = phaseSizeForMidRange_;
@@ -2427,7 +2427,7 @@ void MultiDeltaRefreshMatrix::calculatePhases() {
 }
 
 //----------------------------------------------------------------------------
-const MultiDeltaRefreshMatrixRow *MultiDeltaRefreshMatrix::getRow(Int32 i) const {
+const MultiDeltaRefreshMatrixRow *MultiDeltaRefreshMatrix::getRow(int i) const {
   CMPASSERT(i < numOfRows_);
   return theMatrix_[i];
 }
@@ -2436,10 +2436,10 @@ const MultiDeltaRefreshMatrixRow *MultiDeltaRefreshMatrix::getRow(Int32 i) const
 // Exclude from coverage testing - Debugging code
 void MultiDeltaRefreshMatrix::print(FILE *ofd, const char *indent, const char *title) const {
   fprintf(ofd, "  Product Matrix:\n   Sign ");
-  for (Int32 i = 0; i < currentRowLength_; i++) fprintf(ofd, "%3d", getTableIndexFor(i));
+  for (int i = 0; i < currentRowLength_; i++) fprintf(ofd, "%3d", getTableIndexFor(i));
   fprintf(ofd, "\n");
 
-  for (Int32 j = 0; j < numOfRows_; j++) {
+  for (int j = 0; j < numOfRows_; j++) {
     fprintf(ofd, "  %3d ) ", j);
     getRow(j)->print(ofd, "    ");
   }

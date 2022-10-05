@@ -121,7 +121,7 @@ void ToAnsiIdentifier3(const char *inputData, size_t inputLen, char *outputData,
 #define NASTRING_ALLOW_NSK_GUARDIAN_NAME_FORMAT   0x0001
 #define NASTRING_REGULAR_IDENT_WITH_DOLLAR_PREFIX 0x0002
 #define NASTRING_DELIM_IDENT_WITH_DOLLAR_PREFIX   0x0004
-int ToInternalIdentifier(NAString &ansiIdent, Int32 upCase = TRUE, NABoolean acceptCircumflex = FALSE,
+int ToInternalIdentifier(NAString &ansiIdent, int upCase = TRUE, NABoolean acceptCircumflex = FALSE,
                            UInt16 pv_flags = NASTRING_ALLOW_NSK_GUARDIAN_NAME_FORMAT);
 
 // -----------------------------------------------------------------------
@@ -155,7 +155,7 @@ class base64Decoder {
   NABoolean decode(const char *str, const size_t len, NAString &decoded);
 
  protected:
-  Int32 T_[256];
+  int T_[256];
 };
 
 // See notes at NAString.cpp specialSQL_TEXT[].

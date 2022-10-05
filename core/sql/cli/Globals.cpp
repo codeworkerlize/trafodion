@@ -608,7 +608,7 @@ int CliGlobals::sendEnvironToMxcmp() {
 int CliGlobals::setEnvVars(char **envvars) {
   if ((!envvars) || (isESPProcess_)) return 0;
 
-  Int32 nEnvs = 0;
+  int nEnvs = 0;
   if (envvars_) {
     // deallocate the current set of envvars
     ipcHeap_->deallocateMemory(envvars_);
@@ -621,7 +621,7 @@ int CliGlobals::setEnvVars(char **envvars) {
   // one extra to null terminate envvar list
   int envvarsLen = (nEnvs + 1) * sizeof(char *);
 
-  Int32 count;
+  int count;
   for (count = 0; count < nEnvs; count++) {
     envvarsLen += str_len(envvars[count]) + 1;
   }
@@ -660,7 +660,7 @@ int CliGlobals::setEnvVar(const char *name, const char *value, NABoolean reset) 
 
   if ((NOT found) && (reset)) return 0;
 
-  Int32 nEnvs = 0;
+  int nEnvs = 0;
   if (envvars_) {
     for (nEnvs = 0; envvars_[nEnvs]; nEnvs++)
       ;
@@ -678,7 +678,7 @@ int CliGlobals::setEnvVar(const char *name, const char *value, NABoolean reset) 
   //  long envvarsLen = (nEnvs + (NOT found ? 1 : 0) + 1) * sizeof(char*);
   int newEnvvarsLen = (nEnvs + 1) * sizeof(char *);
 
-  Int32 count;
+  int count;
   for (count = 0; count < nEnvs; count++) {
     if (count == envvarPos)
     //      if ((found) && (count == envvarPos))
@@ -701,7 +701,7 @@ int CliGlobals::setEnvVar(const char *name, const char *value, NABoolean reset) 
   char *newEnvvarsValue = (char *)(newEnvvars + ((reset ? (nEnvs - 1) : nEnvs) + 1));
 
   // and copy envvars_ to newEnvvars
-  Int32 tgtCount = 0;
+  int tgtCount = 0;
   for (count = 0; count < nEnvs; count++) {
     newEnvvars[tgtCount] = newEnvvarsValue;
     int l = 0;

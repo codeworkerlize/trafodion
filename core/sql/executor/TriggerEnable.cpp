@@ -140,12 +140,12 @@ void TriggerStatusWA::print(ostream &os, const NAString &tableName)
 // 0,1,2,...,7
 //
 
-void bitDisplay(char *b, Int32 l) {
+void bitDisplay(char *b, int l) {
   UInt32 c = 0, displayMask = 1 << 7;
 
-  for (Int32 i = 0; i < l; i++) {
+  for (int i = 0; i < l; i++) {
     memcpy(&c, b + i, 1);
-    for (Int32 j = 0; j < 8; j++) {
+    for (int j = 0; j < 8; j++) {
       cout << ((c & displayMask) ? '1' : '0');
       c <<= 1;
     }
@@ -163,7 +163,7 @@ void bitDisplay(char *b, Int32 l) {
 //
 
 void TriggerStatusWA::updateTriggerStatusPerTable() {
-  Int32 triggersPerStatement = getRootTdb()->getTriggersCount();
+  int triggersPerStatement = getRootTdb()->getTriggersCount();
 
   // robustness: triggers may be dropped and disappear from rfork
   // and still this method can be called from fixup phase, which
@@ -187,7 +187,7 @@ void TriggerStatusWA::updateTriggerStatusPerTable() {
   char *tcbBuffer = rootTcb_->getTriggerStatusVector();
 
   // for all triggers in the statement
-  for (Int32 i = 0; i < triggersPerStatement; i++) {
+  for (int i = 0; i < triggersPerStatement; i++) {
     status = getStatus(getRootTdb()->getTriggersList()[i]);
     UInt32 byteOffset = i / 8;
     UInt32 withinByte = i % 8;

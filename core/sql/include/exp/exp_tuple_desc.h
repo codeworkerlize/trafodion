@@ -66,7 +66,7 @@ typedef NAVersionedObjectPtrArrayTempl<AttributesPtr> AttributesPtrPtr;
 
 // Size of each VOA array entry for SQLMX_FORMAT.
 // The SQLMX_ALIGNED_FORMAT has its own constant in ExpAlignedFormat.h
-static const UInt32 ExpVoaSize = sizeof(Int32);
+static const UInt32 ExpVoaSize = sizeof(int);
 static const UInt32 ExpOffsetMax = UINT_MAX;
 
 ////////////////////////////////////////////////////////////////////
@@ -96,7 +96,7 @@ class ExpTupleDesc : public NAVersionedObject {
   //
   // SQLARK_EXPLODED_FORMAT:
   //                   All fields aligned on their appropriate byte boundary.
-  //                   Int16 aligned on 2 byte, Int32 on 4 byte and long
+  //                   Int16 aligned on 2 byte, int on 4 byte and long
   //                   on 8-byte boundary.
   //                   If nullable field, null indicator bytes are
   //                   stored just before the actual data.
@@ -220,7 +220,7 @@ class ExpTupleDesc : public NAVersionedObject {
 
   virtual Long pack(void *);
 
-  virtual Int32 unpack(void *, void *reallocator);
+  virtual int unpack(void *, void *reallocator);
 
   ////////////////////////////////////////////////////////
   // Computes offsets of all attributes in the attrs array.
@@ -308,7 +308,7 @@ class ExpTupleDesc : public NAVersionedObject {
   //   For SQLMX_FORMAT set it to the minimum that it can be - right
   //   after VOA[0].
   //   For SQLMX_ALIGNED_FORMAT see notes in ExpAlignedFormat.h
-  static UInt32 computeFirstFixedOffset(Int32 ffAlignSize, UInt32 startOffset, UInt32 voaIdxOffset, TupleDataFormat tdf,
+  static UInt32 computeFirstFixedOffset(int ffAlignSize, UInt32 startOffset, UInt32 voaIdxOffset, TupleDataFormat tdf,
                                         UInt32 nullableFieldCount, ExpHdrInfo *hdrInfo, UInt32 &headerSize,
                                         UInt32 &bitmapOffset)
 
@@ -541,7 +541,7 @@ class ExpTupleDesc : public NAVersionedObject {
     if (voaEntryOffset != ExpOffsetMax) {
       if (vcIndLen == sizeof(Int16)) {
         ((ExpAlignedFormat *)dataPtr)->setVoaOffset(voaEntryOffset, voaEntryValue);
-      } else if (vcIndLen == sizeof(Int32)) {
+      } else if (vcIndLen == sizeof(int)) {
         str_cpy_all(dataPtr + voaEntryOffset, (char *)&voaEntryValue, ExpVoaSize);
       } else {
         // should never be here
@@ -567,7 +567,7 @@ class ExpTupleDesc : public NAVersionedObject {
     return offset;
   }
 
-  static UInt32 getVoaOffset(char *dataPtr, UInt32 voaEntryOffset, Int32 voaSize) {
+  static UInt32 getVoaOffset(char *dataPtr, UInt32 voaEntryOffset, int voaSize) {
     UInt32 offset = 0;
 
     if (voaSize == ExpVoaSize)  // non-aligned format
@@ -604,10 +604,10 @@ class ExpTupleDesc : public NAVersionedObject {
   // Compute the target varchar offset.
   // For tgt in disk format, compute offset based on loop variable.
   // Update the VOA entry.
-  static Int32 getTgtVarOffset(char *dataPtr, Int32 offset, Int32 voaEntryOffset, UInt32 vcIndLen, UInt32 nullIndLen,
-                               Int32 &varOffset, UInt32 len) {
+  static int getTgtVarOffset(char *dataPtr, int offset, int voaEntryOffset, UInt32 vcIndLen, UInt32 nullIndLen,
+                               int &varOffset, UInt32 len) {
     char *tgt = dataPtr;
-    Int32 tgtOffset = offset;
+    int tgtOffset = offset;
 
     if (voaEntryOffset > 0)  // disk format
     {
@@ -629,7 +629,7 @@ class ExpTupleDesc : public NAVersionedObject {
     return tgtOffset;
   }
 
-  static UInt32 getVarLength(char *dataPtr, Int32 vcIndLen) {
+  static UInt32 getVarLength(char *dataPtr, int vcIndLen) {
     UInt32 varLen = 0;
 
     if (vcIndLen == sizeof(Int16))
@@ -640,7 +640,7 @@ class ExpTupleDesc : public NAVersionedObject {
     return varLen;
   }
 
-  static void setVarLength(char *dataPtr, UInt32 varLength, Int32 vcIndLen) {
+  static void setVarLength(char *dataPtr, UInt32 varLength, int vcIndLen) {
     if (vcIndLen == sizeof(Int16))
       write2(dataPtr, (UInt16)varLength);
     else
@@ -648,24 +648,24 @@ class ExpTupleDesc : public NAVersionedObject {
   }
 
   // Return the number of bytes used to store the length for variable fields
-  static Int32 getVarLenBytes(TupleDataFormat tdf) {
+  static int getVarLenBytes(TupleDataFormat tdf) {
     return (tdf == SQLMX_FORMAT ? ExpTupleDesc::SQLMX_VC_ACTUAL_LENGTH
-                                : (tdf == SQLMX_ALIGNED_FORMAT ? (Int32)ExpAlignedFormat::VARIABLE_LEN_SIZE
-                                                               : (Int32)ExpTupleDesc::VC_ACTUAL_LENGTH));
+                                : (tdf == SQLMX_ALIGNED_FORMAT ? (int)ExpAlignedFormat::VARIABLE_LEN_SIZE
+                                                               : (int)ExpTupleDesc::VC_ACTUAL_LENGTH));
   }
 
   // Return the number of bytes used to store the null indicator based on
   // the tuple data format.
-  static Int32 getNullIndBytes(TupleDataFormat tdf) {
-    return (tdf == SQLMX_ALIGNED_FORMAT ? (Int32)ExpAlignedFormat::NULL_IND_SIZE
-                                        : (Int32)ExpTupleDesc::NULL_INDICATOR_LENGTH);
+  static int getNullIndBytes(TupleDataFormat tdf) {
+    return (tdf == SQLMX_ALIGNED_FORMAT ? (int)ExpAlignedFormat::NULL_IND_SIZE
+                                        : (int)ExpTupleDesc::NULL_INDICATOR_LENGTH);
   }
 
   static UInt32 getVarLength(char *dataPtr, TupleDataFormat tdf) {
     if (tdf == ExpTupleDesc::SQLMX_ALIGNED_FORMAT || tdf == ExpTupleDesc::SQLARK_EXPLODED_FORMAT)
       return getVarLength(dataPtr, sizeof(Int16));
     else
-      return getVarLength(dataPtr, sizeof(Int32));
+      return getVarLength(dataPtr, sizeof(int));
   }
 
   TupleDataFormat getTupleDataFormat() { return (TupleDataFormat)tupleDataFormat_; }

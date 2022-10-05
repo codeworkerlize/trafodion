@@ -1031,7 +1031,7 @@ class CurrentFragmentBigMemoryProperty : public NABasicObject {
  private:
   double currentFileSize_;
   double cumulativeFileSizeofFragment_;
-  Int32 noBigMemOpsSoFar_;
+  int noBigMemOpsSoFar_;
   OperatorTypeEnum Op_;
 };
 

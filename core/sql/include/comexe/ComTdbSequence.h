@@ -21,7 +21,7 @@ class ComTdbSequence : public ComTdb {
                  int OLAP_buffer_size,  // for OLAP buffer
                  // olap_number_of_buffers is for testing purposes, can be removed later
                  int max_number_of_OLAP_buffers,  // number of olap buffers
-                 Int32 maxHistoryRows, NABoolean unboundedFollowing, NABoolean logDiagnostics,
+                 int maxHistoryRows, NABoolean unboundedFollowing, NABoolean logDiagnostics,
                  NABoolean possibleMultipleCalls, short scratchThresholdPct, unsigned short memUsagePercent,
                  short pressureThreshold, int maxRowsInOLAPBuffer, int minNumberOfOLAPBuffers,
                  int numberOfWinOLAPBuffers, NABoolean noOverflow, ex_expr *partExpr);
@@ -52,13 +52,13 @@ class ComTdbSequence : public ComTdb {
 
   inline ComTdb *getChildTdb();
 
-  Int32 orderedQueueProtocol() const;
+  int orderedQueueProtocol() const;
 
-  virtual const ComTdb *getChild(Int32 pos) const;
-  virtual Int32 numChildren() const { return 1; }
+  virtual const ComTdb *getChild(int pos) const;
+  virtual int numChildren() const { return 1; }
   virtual const char *getNodeName() const { return "EX_SEQUENCE_FUNCTION"; };
-  virtual Int32 numExpressions() const { return 5; }
-  virtual ex_expr *getExpressionNode(Int32 pos) {
+  virtual int numExpressions() const { return 5; }
+  virtual ex_expr *getExpressionNode(int pos) {
     if (pos == 0)
       return sequenceExpr_;
     else if (pos == 1)
@@ -73,7 +73,7 @@ class ComTdbSequence : public ComTdb {
       return NULL;
   }
 
-  virtual const char *getExpressionName(Int32 pos) const {
+  virtual const char *getExpressionName(int pos) const {
     if (pos == 0)
       return "SequenceExpr_";
     else if (pos == 1)
@@ -88,7 +88,7 @@ class ComTdbSequence : public ComTdb {
       return NULL;
   }
 
-  Int32 getRecLength() const { return recLen_; };
+  int getRecLength() const { return recLen_; };
 
   NABoolean isUnboundedFollowing() const { return (OLAPFlags_ & UNBOUNDED_FOLLOWING) != 0; }
 
@@ -104,17 +104,17 @@ class ComTdbSequence : public ComTdb {
   ULng32 memoryQuotaMB() const { return (ULng32)memoryQuotaMB_; }
   void setMemoryQuotaMB(UInt16 v) { memoryQuotaMB_ = v; }
 
-  Int32 getOLAPBufferSize() const { return OLAPBufferSize_; }
+  int getOLAPBufferSize() const { return OLAPBufferSize_; }
 
-  Int32 getMaxRowsInOLAPBuffer() const { return maxRowsInOLAPBuffer_; }
-  Int32 getMinNumberOfOLAPBuffers() const { return minNumberOfOLAPBuffers_; }
-  Int32 getMaxNumberOfOLAPBuffers() const { return maxNumberOfOLAPBuffers_; }
+  int getMaxRowsInOLAPBuffer() const { return maxRowsInOLAPBuffer_; }
+  int getMinNumberOfOLAPBuffers() const { return minNumberOfOLAPBuffers_; }
+  int getMaxNumberOfOLAPBuffers() const { return maxNumberOfOLAPBuffers_; }
 
-  Int32 getNumberOfWinOLAPBuffers() const { return numberOfWinOLAPBuffers_; }
+  int getNumberOfWinOLAPBuffers() const { return numberOfWinOLAPBuffers_; }
 
-  Int32 getMinFollowing() const { return minFollowing_; }
+  int getMinFollowing() const { return minFollowing_; }
 
-  Int32 scratchIOVectorSize() { return (Int32)scratchIOVectorSize_; }
+  int scratchIOVectorSize() { return (int)scratchIOVectorSize_; }
   void setScratchIOVectorSize(Int16 v) { scratchIOVectorSize_ = v; }
 
   void setBmoMinMemBeforePressureCheck(UInt16 m) { bmoMinMemBeforePressureCheck_ = m; }
@@ -135,18 +135,18 @@ class ComTdbSequence : public ComTdb {
   ExExprPtr postPred_;                   //  08-15
   ExExprPtr cancelExpr_;                 //  16-23
   ComTdbPtr tdbChild_;                   //  24-31
-  Int32 recLen_;                         //  32-35
-  Int32 maxHistoryRows_;                 //  36-39  //may need to rename to minFixedHistoryRows_???
+  int recLen_;                         //  32-35
+  int maxHistoryRows_;                 //  36-39  //may need to rename to minFixedHistoryRows_???
   const UInt16 tuppIndex_;               //  40-41
   char filler_[2];                       //  42-43
-  Int32 minFollowing_;                   //  44-47
+  int minFollowing_;                   //  44-47
   ExExprPtr returnExpr_;                 //  48-55
   ExExprPtr checkPartitionChangeExpr_;   //  56-63
-  Int32 OLAPBufferSize_;                 //  64-67
-  Int32 maxNumberOfOLAPBuffers_;         //  68-71
-  Int32 maxRowsInOLAPBuffer_;            //  72-75
-  Int32 minNumberOfOLAPBuffers_;         //  76-79
-  Int32 numberOfWinOLAPBuffers_;         //  80-83
+  int OLAPBufferSize_;                 //  64-67
+  int maxNumberOfOLAPBuffers_;         //  68-71
+  int maxRowsInOLAPBuffer_;            //  72-75
+  int minNumberOfOLAPBuffers_;         //  76-79
+  int numberOfWinOLAPBuffers_;         //  80-83
   UInt16 OLAPFlags_;                     //  84-85
   UInt16 memoryQuotaMB_;                 //  86-87
   UInt16 scratchThresholdPct_;           //  88-89
@@ -174,7 +174,7 @@ inline ComTdb *ComTdbSequence::getChildTdb() { return tdbChild_; };
   History     : Yeogirl Yun                                      8/22/95
                  Initial Revision.
 *****************************************************************************/
-inline const ComTdb *ComTdbSequence::getChild(Int32 pos) const {
+inline const ComTdb *ComTdbSequence::getChild(int pos) const {
   if (pos == 0)
     return tdbChild_;
   else

@@ -121,8 +121,8 @@ class IpcMessageObj {
   // ---------------------------------------------------------------------
   // accessor methods
   // ---------------------------------------------------------------------
-  Int32 getType() const { return (Int32)s_.objType_; }
-  Int32 getObjLength() const { return (Int32)s_.objLength_; }
+  int getType() const { return (int)s_.objType_; }
+  int getObjLength() const { return (int)s_.objLength_; }
   IpcMessageObjVersion getVersion() const { return s_.objVersion_; }
   void setType(IpcMessageObjType t) { s_.objType_ = t; }
   void setVersion(IpcMessageObjVersion v) { s_.objVersion_ = v; }
@@ -508,7 +508,7 @@ inline void swapFourBytes(UInt32 &b4) {
   c4[2] = x;
 }
 
-inline void swapFourBytes(Int32 &b4) {
+inline void swapFourBytes(int &b4) {
   char *c4 = (char *)(&b4);
   char x;
 

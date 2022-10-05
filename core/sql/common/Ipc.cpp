@@ -175,7 +175,7 @@ IpcProcessId::IpcProcessId(const char *asciiRepresentation) : IpcMessageObj(IPC_
 
   if (domain_ == IPC_DOM_INVALID) {
     // try to decode an internet address, followed by a port number,
-    Int32 colonPos = 0;
+    int colonPos = 0;
     while (asciiRepresentation[colonPos] != 0 AND asciiRepresentation[colonPos] != ':') colonPos++;
 
     if (asciiRepresentation[colonPos] == ':') {
@@ -300,10 +300,10 @@ std::string IpcProcessId::toString() const {
   return outb;
 }
 
-Int32 IpcProcessId::toAscii(char *outBuf, Int32 outBufLen) const {
+int IpcProcessId::toAscii(char *outBuf, int outBufLen) const {
   // process names shouldn't be longer than 300 bytes
   char outb[300] = "";  // Initialize in case this is called
-  Int32 outLen = 0;
+  int outLen = 0;
 
   if (domain_ == IPC_DOM_GUA_PHANDLE) {
     outLen = phandle_.toAscii(outb, 300);
@@ -323,7 +323,7 @@ Int32 IpcProcessId::toAscii(char *outBuf, Int32 outBufLen) const {
   return outLen;
 }
 
-void IpcProcessId::addProcIdToDiagsArea(ComDiagsArea &diags, Int32 stringno) const {
+void IpcProcessId::addProcIdToDiagsArea(ComDiagsArea &diags, int stringno) const {
   char asciiProcId[300];
 
   toAscii(asciiProcId, 300);
@@ -350,7 +350,7 @@ void IpcProcessId::addProcIdToDiagsArea(ComDiagsArea &diags, Int32 stringno) con
 
 IpcConnection *IpcProcessId::createConnectionToServer(IpcEnvironment *env, NABoolean usesTransactions,
                                                       int maxNowaitRequests, NABoolean parallelOpen,
-                                                      Int32 *openCompletionScheduled,
+                                                      int *openCompletionScheduled,
                                                       NABoolean dataConnectionToEsp) const {
   NABoolean useGuaIpc = TRUE;
 
@@ -491,7 +491,7 @@ void IpcServer::logEspRelease(const char *filename, int lineNum, const char *msg
 
     // get the other end's name.
     char espName[32];
-    Int32 pnameLen = cc->getOtherEnd().getPhandle().toAscii(espName, sizeof(espName));
+    int pnameLen = cc->getOtherEnd().getPhandle().toAscii(espName, sizeof(espName));
     espName[pnameLen] = '\0';
 
     // get the error #, if available.  Else, use -99.
@@ -627,7 +627,7 @@ const char *IpcConnection::getConnectionStateString(IpcConnectionState s) {
     case CLOSED:
       return "CLOSED";
     default:
-      return ComRtGetUnknownString((Int32)s);
+      return ComRtGetUnknownString((int)s);
   }
 }
 
@@ -1110,7 +1110,7 @@ CollIndex IpcAllConnections::fillInListOfPendingPins(char *buff, ULng32 buffSize
   CollIndex firstConnInd = 0;
   CollIndex numOfPendings = MINOF(numOfPins, pendingIOs_->entriesMutex());
   char tempB[300];
-  Int32 len;
+  int len;
 
   buff[0] = '\0';  // null terminate
   for (i = 0; i < numOfPendings; i++) {
@@ -1152,7 +1152,7 @@ void IpcAllConnections::fillInListOfPendingPhandles(GuaProcessHandle *phandles, 
 // Methods for connection tracing
 void IpcAllConnections::print() {
   char buf[10000];
-  Int32 lineno = 0;
+  int lineno = 0;
 
   while (printConnTrace(lineno, buf)) {
     printf("%s", buf);
@@ -1165,9 +1165,9 @@ const char *ConnTraceDesc = "All IpcConnections and their states";
 void IpcAllConnections::registTraceInfo(IpcEnvironment *env, ExeTraceInfo *ti) {
   if (env) {
     if (ti) {
-      Int32 lineWidth = 50;  // temp
+      int lineWidth = 50;  // temp
       void *regdTrace;
-      Int32 ret =
+      int ret =
           ti->addTrace("IpcConnectionState", this, -1, 4, this, getAnEntry, NULL, lineWidth, ConnTraceDesc, &regdTrace);
       if (ret == 0) {
         // trace info added successfully, now add entry fields
@@ -1181,7 +1181,7 @@ void IpcAllConnections::registTraceInfo(IpcEnvironment *env, ExeTraceInfo *ti) {
   }
 }
 
-Int32 IpcAllConnections::printConnTrace(Int32 lineno, char *buf) {
+int IpcAllConnections::printConnTrace(int lineno, char *buf) {
   if (lineno == 0) printEntry_ = 0;  // first time to print all entries
 
   // find first IpcConnection * (if any)
@@ -1190,11 +1190,11 @@ Int32 IpcAllConnections::printConnTrace(Int32 lineno, char *buf) {
   if (printEntry_ >= entries()) return 0;  // no more connections
 
   IpcConnection *c = usedEntry(printEntry_++);  // then advance to next
-  Int32 rv = 0;
+  int rv = 0;
   if (c) {
     const char *stateName = "UNKNOWN";
     const char *eyeCatcher = "UNKN";
-    Int32 cpu = 0, node, pin = 0;
+    int cpu = 0, node, pin = 0;
     SB_Int64_Type seqNum = -1;
 
     if ((IpcConnection::INITIAL <= c->getState()) && (c->getState() <= IpcConnection::CLOSED))
@@ -1432,7 +1432,7 @@ WaitReturnStatus IpcWaitableSetOfConnections::waitOnSet(IpcTimeout timeout, NABo
   callCount_ += 1;
   if (timeout == -2) timeout = -1;
   NABoolean isWaited;
-  Int32 isWaitedFactor = 20;
+  int isWaitedFactor = 20;
   IpcTimeout totalOfTimeouts = 0;
   NABoolean freeUnusedMemory = TRUE;
   CliGlobals *cliGlobals = NULL;
@@ -1499,7 +1499,7 @@ WaitReturnStatus IpcWaitableSetOfConnections::waitOnSet(IpcTimeout timeout, NABo
 
       // On Linux if SeaMonster is enabled, set the LRABBIT bit in
       // waitFlag
-      Int32 numSMConnections = env->getAllConnections()->getNumSMConnections();
+      int numSMConnections = env->getAllConnections()->getNumSMConnections();
       if (numSMConnections > 0) waitFlag |= LRABBIT;
 
       // if this is the first time, remember the sequence number of
@@ -1696,7 +1696,7 @@ WaitReturnStatus IpcWaitableSetOfConnections::waitOnSet(IpcTimeout timeout, NABo
               timespec nanoDelayTime;
               nanoDelayTime.tv_sec = delayTime / 100;
               nanoDelayTime.tv_nsec = (delayTime % 100) * 10000000;
-              Int32 retVal = nanosleep(&nanoDelayTime, NULL);
+              int retVal = nanosleep(&nanoDelayTime, NULL);
             }
           }
         }
@@ -1752,7 +1752,7 @@ WaitReturnStatus IpcWaitableSetOfConnections::waitOnSet(IpcTimeout timeout, NABo
 
         if (ipcAwaitiox_.getCompleted()) {
           void *bufAddr;
-          Int32 count;
+          int count;
           SB_Tag_Type tag;
           CollIndex usedLength = allc->getUsedLength();
           for (CollIndex i = 0; i < usedLength; i++) {
@@ -2211,7 +2211,7 @@ IpcMessageBuffer *IpcMessageBuffer::addChunkHeadersAndTrailer(IpcMessageObjSize 
   IpcMessageObjSize newSize = getLengthWithChunkHeaders(chunkSize, msgLength_);
 
   DCMPASSERT(chunkSize > 0 && newSize >= msgLength_);
-  Int32 numChunks = DIVIDE_AND_ROUND_UP(newSize, chunkSize);
+  int numChunks = DIVIDE_AND_ROUND_UP(newSize, chunkSize);
 
   // resize message to a multiple of the chunk size, if needed
   if (newSize > maxLength_) result = resize(env, numChunks * chunkSize, chunkSize);
@@ -2273,9 +2273,9 @@ void IpcMessageBuffer::removeChunkHeadersAndTrailer(IpcMessageObjSize chunkSize,
   reorderChunks(chunkSize, env);
 
   // See also comment before struct InternalChunkHdrStruct in file Ipc.h
-  Int32 numChunks = DIVIDE_AND_ROUND_UP(msgLength_, chunkSize);
-  Int32 chunkHdrBytes = sizeof(InternalChunkHdrStruct);
-  Int32 dataInLastChunk = msgLength_ - (numChunks - 1) * chunkSize - chunkHdrBytes;
+  int numChunks = DIVIDE_AND_ROUND_UP(msgLength_, chunkSize);
+  int chunkHdrBytes = sizeof(InternalChunkHdrStruct);
+  int dataInLastChunk = msgLength_ - (numChunks - 1) * chunkSize - chunkHdrBytes;
 
   // We must have at least one byte of data in a chunk, otherwise we
   // should not have created the chunk. Note that we always displace
@@ -2320,18 +2320,18 @@ void IpcMessageBuffer::removeChunkHeadersAndTrailer(IpcMessageObjSize chunkSize,
 }
 
 void IpcMessageBuffer::reorderChunks(IpcMessageObjSize chunkSize, IpcEnvironment *env) {
-  Int32 numChunks = DIVIDE_AND_ROUND_UP(msgLength_, chunkSize);
-  Int32 seqArray[numChunks];
-  Int32 outOfOrderIx = -1;
+  int numChunks = DIVIDE_AND_ROUND_UP(msgLength_, chunkSize);
+  int seqArray[numChunks];
+  int outOfOrderIx = -1;
 
   // start with the second chunk (#1), since the first
   // chunk is not allowed to arrive out of order
   // (if it does, then we will detect that below, because
   //  one of the subsequent chunks will have a bad header)
-  for (Int32 c = 1; c < numChunks; c++) {
+  for (int c = 1; c < numChunks; c++) {
     // Determine the chunk number from the header stored
     // in the first few bytes
-    Int32 chunkNum = getChunkNumFromHeader(data(c * chunkSize));
+    int chunkNum = getChunkNumFromHeader(data(c * chunkSize));
 
     seqArray[c] = chunkNum;
     if (chunkNum != c) outOfOrderIx = c;
@@ -2363,7 +2363,7 @@ void IpcMessageBuffer::reorderChunks(IpcMessageObjSize chunkSize, IpcEnvironment
     // loop over cliques
     while (outOfOrderIx >= 0) {
       char *bufChunk = data(outOfOrderIx * chunkSize);
-      Int32 lastChunk = getChunkNumFromHeader(bufChunk);
+      int lastChunk = getChunkNumFromHeader(bufChunk);
 
       // make room by vacating position outOfOrderIx
       memcpy(buf, bufChunk, chunkSize);
@@ -2376,7 +2376,7 @@ void IpcMessageBuffer::reorderChunks(IpcMessageObjSize chunkSize, IpcEnvironment
         // a) find the place where this chunk is stored
         // b) copy it to its correct place in position "outOfOrderIx"
         // c) set "outOfOrderIx" to the position we vacated (if any)
-        Int32 srcPos = 0;
+        int srcPos = 0;
         char *srcBuf;
 
         // a)
@@ -2441,7 +2441,7 @@ void IpcMessageBuffer::validateChunkHeader(IpcMessageObjSize chunkStart, IpcMess
   }
 }
 
-Int32 IpcMessageBuffer::getChunkNumFromHeader(IpcMessageBufferPtr buf) {
+int IpcMessageBuffer::getChunkNumFromHeader(IpcMessageBufferPtr buf) {
   InternalChunkHdrStruct *hdr = reinterpret_cast<InternalChunkHdrStruct *>(buf);
 
   assert(hdr->eyeCatcher_ == IPC_CHUNK_HEADER_EYE_CATCHER);
@@ -2465,10 +2465,10 @@ IpcMessageObjSize IpcMessageBuffer::getLengthWithChunkHeaders(IpcMessageObjSize 
   // chunks required for just the fixed part, without the displaced
   // data, but including the trailer struct, of which we always have
   // at most one
-  Int32 numChunks = DIVIDE_AND_ROUND_UP(result, chunkSize);
+  int numChunks = DIVIDE_AND_ROUND_UP(result, chunkSize);
 
   // the number of chunk headers added by this first iteration
-  Int32 deltaHdrs = numChunks - 1;
+  int deltaHdrs = numChunks - 1;
 
   // iterate adding chunks for the displaced data (even the displaced
   // data can be displaced again if it crosses a chunk boundary), until
@@ -4308,7 +4308,7 @@ void IpcServerMsgStream::tickleOutputIo() {
 }
 
 void IpcBufferedMsgStream::setSMLastInBatch() {
-  Int32 entries = (Int32)numOfSendBuffers();
+  int entries = (int)numOfSendBuffers();
   assert(entries > 0);
 
   IpcMessageBuffer *msgBuf = sendBufList_[entries - 1];
@@ -4349,7 +4349,7 @@ IpcServerClass::IpcServerClass(IpcEnvironment *env, IpcServerType serverType,
     parallelOpens_ = FALSE;
   else
     parallelOpens_ = TRUE;
-  Int32 retVal;
+  int retVal;
   retVal = pthread_mutex_init(&nowaitedEspServer_.cond_mutex_, NULL);
   assert(retVal == 0);
   retVal = pthread_cond_init(&nowaitedEspServer_.cond_cond_, NULL);
@@ -4734,7 +4734,7 @@ IpcEnvironment::IpcEnvironment(CollHeap *heap, UInt32 *eventConsumed, NABoolean 
 
   persistentOpenAssigned_ = 0;
   char *perOpensEnvvar = getenv("ESP_PERSISTENT_OPENS");
-  Int32 perOpensEnvvarVal;
+  int perOpensEnvvarVal;
   if (perOpensEnvvar != NULL)
     perOpensEnvvarVal = atoi(perOpensEnvvar);
   else
@@ -4753,7 +4753,7 @@ IpcEnvironment::IpcEnvironment(CollHeap *heap, UInt32 *eventConsumed, NABoolean 
   }
   persistentOpenArray_ =
       (PersistentOpenEntry(*)[1])heap_->allocateMemory(sizeof(PersistentOpenEntry) * persistentOpenEntries_);
-  for (Int32 i = 0; i < persistentOpenEntries_; i++) {
+  for (int i = 0; i < persistentOpenEntries_; i++) {
     (*persistentOpenArray_)[i].persistentOpenExists_ = FALSE;
   }
 
@@ -4800,7 +4800,7 @@ IpcEnvironment::IpcEnvironment(CollHeap *heap, UInt32 *eventConsumed, NABoolean 
 
   closeTraceArray_ =
       (CloseTraceEntry(*)[closeTraceEntries])heap_->allocateMemory(sizeof(CloseTraceEntry) * closeTraceEntries);
-  for (Int32 i = 0; i < closeTraceEntries; i++) {
+  for (int i = 0; i < closeTraceEntries; i++) {
     (*closeTraceArray_)[i].count_ = 0;
     (*closeTraceArray_)[i].line_ = 0;
     (*closeTraceArray_)[i].clientFileNumber_ = 0;
@@ -4811,7 +4811,7 @@ IpcEnvironment::IpcEnvironment(CollHeap *heap, UInt32 *eventConsumed, NABoolean 
   closeTraceIndex_ = closeTraceEntries - 1;
   bawaitioxTraceArray_ = (BawaitioxTraceEntry(*)[bawaitioxTraceEntries])heap_->allocateMemory(
       sizeof(BawaitioxTraceEntry) * bawaitioxTraceEntries);
-  for (Int32 i = 0; i < bawaitioxTraceEntries; i++) {
+  for (int i = 0; i < bawaitioxTraceEntries; i++) {
     (*bawaitioxTraceArray_)[i].count_ = 0;
     (*bawaitioxTraceArray_)[i].recursionCount_ = 0;
     (*bawaitioxTraceArray_)[i].firstConnectionIndex_ = 0;
@@ -4825,7 +4825,7 @@ IpcEnvironment::IpcEnvironment(CollHeap *heap, UInt32 *eventConsumed, NABoolean 
   maxIpcMsgTraceIndex_ = NUM_IPC_MSG_TRACE_ENTRIES;
   const char *ipcMsgEnv = getenv("NUM_EXE_IPC_MSG_TRACE_ENTRIES");
   if (ipcMsgEnv != NULL) {
-    Int32 nums = atoi(ipcMsgEnv);
+    int nums = atoi(ipcMsgEnv);
     if (nums >= 0 && nums < MAX_IPC_MSG_TRACE_ENTRIES) maxIpcMsgTraceIndex_ = nums;  // ignore any other value
   }
   ipcMsgTraceArea_ = new (heap_) IpcMsgTrace[maxIpcMsgTraceIndex_];
@@ -4834,7 +4834,7 @@ IpcEnvironment::IpcEnvironment(CollHeap *heap, UInt32 *eventConsumed, NABoolean 
   ipcMsgTraceRef_ = NULL;
 }
 
-void IpcEnvironment::closeTrace(unsigned short line, short clientFileNumber, Int32 cpu, Int32 pin,
+void IpcEnvironment::closeTrace(unsigned short line, short clientFileNumber, int cpu, int pin,
                                 SB_Int64_Type seqNum) {
   unsigned short i = closeTraceIndex_ == closeTraceEntries - 1 ? 0 : closeTraceIndex_ + 1;
   (*closeTraceArray_)[i].count_ = (*closeTraceArray_)[closeTraceIndex_].count_ + 1;
@@ -5076,7 +5076,7 @@ void IpcEnvironment::setPersistentOpenInfo(short index, GuaProcessHandle *otherE
 }
 
 short IpcEnvironment::getPersistentOpenInfo(GuaProcessHandle *otherEnd, short *index) {
-  Int32 guaRetCode;
+  int guaRetCode;
   for (short i = 0; i < persistentOpenEntries_; i++) {
     if ((*persistentOpenArray_)[i].persistentOpenExists_) {
       guaRetCode = XPROCESSHANDLE_COMPARE_((SB_Phandle_Type *)otherEnd,
@@ -5106,9 +5106,9 @@ void IpcEnvironment::registTraceInfo(ExeTraceInfo *ti) {
   if (cliGlobals_ && !ipcMsgTraceRef_) {
     // register IPC message trace and IPC connection trace
     if (ti) {
-      Int32 lineWidth = 66;
+      int lineWidth = 66;
       void *regdTrace;
-      Int32 ret = ti->addTrace("IpcMessages", this, maxIpcMsgTraceIndex_, 6, this, getALine, &lastIpcMsgTraceIndex_,
+      int ret = ti->addTrace("IpcMessages", this, maxIpcMsgTraceIndex_, 6, this, getALine, &lastIpcMsgTraceIndex_,
                                lineWidth, IpcMsgTraceDesc, &regdTrace);
       if (ret == 0) {
         // trace info added successfully, now add entry fields
@@ -5127,9 +5127,9 @@ void IpcEnvironment::registTraceInfo(ExeTraceInfo *ti) {
   }
 }
 
-Int32 IpcEnvironment::printAnIpcEntry(Int32 lineno, char *buf) {
+int IpcEnvironment::printAnIpcEntry(int lineno, char *buf) {
   if (lineno >= maxIpcMsgTraceIndex_) return 0;
-  Int32 rv;
+  int rv;
   rv = sprintf(buf, "%.4d  %8p  %8p  %8d  %.4s  %3d %10d\n", lineno, ipcMsgTraceArea_[lineno].conn_,
                ipcMsgTraceArea_[lineno].bufAddr_, ipcMsgTraceArea_[lineno].length_,
                IpcMsgOperName[ipcMsgTraceArea_[lineno].sendOrReceive_], ipcMsgTraceArea_[lineno].isLast_,
@@ -5284,7 +5284,7 @@ void IpcAwaitiox::DoAwaitiox(NABoolean ignoreLrec) {
   }
 }
 
-Int32 IpcAwaitiox::ActOnAwaitiox(void **bufAddr, Int32 *count, SB_Tag_Type *tag) {
+int IpcAwaitiox::ActOnAwaitiox(void **bufAddr, int *count, SB_Tag_Type *tag) {
   *bufAddr = bufAddr_;
   *count = count_;
   *tag = tag_;
@@ -5299,8 +5299,8 @@ void IpcMessageBuffer::operator delete(void *p, IpcMessageObjSize bufferLength, 
 }
 
 void IpcAllConnections::printConnTraceLine(char *buffer, int *rsp_len, IpcConnection *conn) {
-  Int32 lineLen;
-  Int32 cpu, node, pin;
+  int lineLen;
+  int cpu, node, pin;
   SB_Int64_Type seqNum = -1;
   IpcNetworkDomain domain;
   cpu = pin;
@@ -5316,7 +5316,7 @@ void IpcAllConnections::printConnTraceLine(char *buffer, int *rsp_len, IpcConnec
     cpu = ((SMConnection *)conn)->getSMTarget().node;
     pin = ((SMConnection *)conn)->getSMTarget().pid;
     sm_id_t smQueryId = ((SMConnection *)conn)->getSMTarget().id;
-    Int32 smTag = ((SMConnection *)conn)->getSMTarget().tag;
+    int smTag = ((SMConnection *)conn)->getSMTarget().tag;
     *rsp_len = sprintf(buffer + *rsp_len, "%.4s %s %.3d,%.8d,%.8" PRId64 ",%.8" PRId64 ",%.8d\n", conn->getEyeCatcher(),
                        IpcConnStateName[conn->getState()], cpu, pin, seqNum, smQueryId, smTag);
   } else {

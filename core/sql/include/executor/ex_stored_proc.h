@@ -132,8 +132,8 @@ class ExStoredProcTcb : public ex_tcb {
   void freeResources();
   void registerSubtasks();  // add extra event for IPC I/O completion
 
-  Int32 numChildren() const { return 0; };
-  const ex_tcb *getChild(Int32 /*pos*/) const { return 0; };
+  int numChildren() const { return 0; };
+  const ex_tcb *getChild(int /*pos*/) const { return 0; };
 
   void tickleScheduler() { ioSubtask_->schedule(); }
 

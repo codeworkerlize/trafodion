@@ -186,7 +186,7 @@ char *LmCBuffer::init(ComUInt32 len) {
   return buf_;
 }
 
-void LmCBuffer::set(Int32 c) {
+void LmCBuffer::set(int c) {
   if (buf_) memset(buf_, c, len_);
 }
 
@@ -197,8 +197,8 @@ void LmCBuffer::release() {
 }
 
 void addDllErrors(ComDiagsArea &diags, const char *operation, NABoolean isWarningOnly) {
-  Int32 errorCode = 0;
-  Int32 errorDetail = 0;
+  int errorCode = 0;
+  int errorDetail = 0;
   char *errorString = (char *)"";
 
 #ifndef LMCOMMON_CANNOT_CALL_DLOPEN
@@ -266,7 +266,7 @@ void unloadDll(LmHandle containerHandle, ComDiagsArea *da) {
   if (containerHandle == NULL) return;
 
 #ifndef LMCOMMON_CANNOT_CALL_DLOPEN
-  Int32 retcode = 0;
+  int retcode = 0;
   const char *operation = "dlclose";
   retcode = dlclose(containerHandle);
 

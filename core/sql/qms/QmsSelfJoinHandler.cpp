@@ -42,14 +42,14 @@
 //*****************************************************************************
 // Array2D constructor: handle memory allocation.
 //*****************************************************************************
-Array2D::Array2D(UInt32 rows, UInt32 cols, Int32 initValue, ADD_MEMCHECK_ARGS_DECL(CollHeap *heap))
+Array2D::Array2D(UInt32 rows, UInt32 cols, int initValue, ADD_MEMCHECK_ARGS_DECL(CollHeap *heap))
     : NAIntrusiveSharedPtrObject(ADD_MEMCHECK_ARGS_PASS(heap)), rows_(rows), cols_(cols), heap_(heap) {
   // Allocate the array of rows
-  array_ = new (heap) Int32 *[rows];
+  array_ = new (heap) int *[rows];
 
   // Now allocate each row
   for (CollIndex i = 0; i < rows; i++) {
-    Int32 *row = new (heap) Int32[cols];
+    int *row = new (heap) int[cols];
     for (CollIndex j = 0; j < cols; j++) row[j] = initValue;
 
     array_[i] = row;
@@ -59,14 +59,14 @@ Array2D::Array2D(UInt32 rows, UInt32 cols, Int32 initValue, ADD_MEMCHECK_ARGS_DE
 //*****************************************************************************
 //*****************************************************************************
 Array2D::~Array2D() {
-  for (CollIndex i = 0; i < rows_; i++) NADELETEARRAY(array_[i], cols_, Int32, heap_);
+  for (CollIndex i = 0; i < rows_; i++) NADELETEARRAY(array_[i], cols_, int, heap_);
 
   NADELETEARRAY(array_, rows_, Row, heap_);
 }
 
 //*****************************************************************************
 //*****************************************************************************
-Int32 Array2D::getElement(UInt32 row, UInt32 col) {
+int Array2D::getElement(UInt32 row, UInt32 col) {
   assertLogAndThrow(CAT_MVMEMO_JOINGRAPH, LL_MVQR_FAIL, (row < rows_ && col < cols_), QRLogicException,
                     "Out of bounds access to Array2D.");
   return array_[row][col];
@@ -74,7 +74,7 @@ Int32 Array2D::getElement(UInt32 row, UInt32 col) {
 
 //*****************************************************************************
 //*****************************************************************************
-void Array2D::setElement(UInt32 row, UInt32 col, Int32 value) {
+void Array2D::setElement(UInt32 row, UInt32 col, int value) {
   assertLogAndThrow(CAT_MVMEMO_JOINGRAPH, LL_MVQR_FAIL, (row < rows_ && col < cols_), QRLogicException,
                     "Out of bounds access to Array2D.");
   array_[row][col] = value;
@@ -104,7 +104,7 @@ void Array2D::dump(NAString &text) {
 //*****************************************************************************
 // Create and initialize a ShiftMatrix of size size.
 //*****************************************************************************
-ShiftMatrix::ShiftMatrix(Int32 size, ADD_MEMCHECK_ARGS_DECL(CollHeap *heap))
+ShiftMatrix::ShiftMatrix(int size, ADD_MEMCHECK_ARGS_DECL(CollHeap *heap))
     : NAIntrusiveSharedPtrObject(ADD_MEMCHECK_ARGS_PASS(heap)),
       theMatrix_(NULL),
       elements_(size),
@@ -127,16 +127,16 @@ ShiftMatrix::~ShiftMatrix() {
 //*****************************************************************************
 // Get an element of the array.
 //*****************************************************************************
-Int32 ShiftMatrix::getElement(UInt32 combination, UInt32 element) {
+int ShiftMatrix::getElement(UInt32 combination, UInt32 element) {
   return theMatrix_->getElement(combination, element);
 }
 
 //*****************************************************************************
 // Calculate the factorial of the input parameter.
 //*****************************************************************************
-Int32 ShiftMatrix::factorial(Int32 num) {
-  Int32 result = 1;
-  for (Int32 i = 2; i <= num; i++) result *= i;
+int ShiftMatrix::factorial(int num) {
+  int result = 1;
+  for (int i = 2; i <= num; i++) result *= i;
 
   return result;
 }
@@ -193,7 +193,7 @@ void ShiftMatrix::initNext(NABitVector &usedValuesV,  // Which values were alrea
     for (UInt32 comb = segStart; comb < segStart + segSize; comb++) {
       // Translate the matrix value (nextValue) from the range: [0..elements_]
       // to the shift value in the range: [-(elements_-1)..(elements_-1)]
-      Int32 shiftValue = nextValue - elements_ + depth;
+      int shiftValue = nextValue - elements_ + depth;
       // Update the matrix value, starting with element 0.
       theMatrix_->setElement(comb, elements_ - depth, shiftValue);
     }
@@ -252,7 +252,7 @@ ShiftMatrixFactoryPtr ShiftMatrixFactory::getInstance(NAMemory *heap) {
 //*****************************************************************************
 // Get a ShiftMatrix for a specific size.
 //*****************************************************************************
-const ShiftMatrixPtr ShiftMatrixFactory::getMatrixForSize(Int32 size) {
+const ShiftMatrixPtr ShiftMatrixFactory::getMatrixForSize(int size) {
   // Did we already build a ShiftMatrix for this size?
   if (matrixSizeArray_.used(size)) {
     // Yes - return it.
@@ -441,7 +441,7 @@ void SelfJoinHandler::initPermutationMatrix(UInt32 *permVector) {
   // of permutations of each row.
   UInt32 dups = 1;
   // Starting with the last row and going backwards.
-  for (Int32 row = permMatrix_->getRows() - 1; row >= 0; row--) {
+  for (int row = permMatrix_->getRows() - 1; row >= 0; row--) {
     // Each row is divided into sets, where each set is made of the numbers
     // 0...perms-1, and each number is duplicated dups times.
     // There are setReps identical sets per row.
@@ -466,7 +466,7 @@ void SelfJoinHandler::initPermutationMatrix(UInt32 *permVector) {
 //*****************************************************************************
 // Generate and fetch the next ShiftVector.
 //*****************************************************************************
-void SelfJoinHandler::getNextShiftVector(Int32 *shiftVector) {
+void SelfJoinHandler::getNextShiftVector(int *shiftVector) {
   // Increment to the next row of the permutationMatrix.
   // We are skipping row 0 because its all zeroes which means its our base hash key.
   currentPermutation_++;
@@ -496,8 +496,8 @@ void SelfJoinHandler::getNextShiftVector(Int32 *shiftVector) {
 // Its the multipication product of the size of all the segment's number
 // of permutations.
 //*****************************************************************************
-Int32 SelfJoinHandler::howmanyPermutations() {
-  Int32 perms = 1;
+int SelfJoinHandler::howmanyPermutations() {
+  int perms = 1;
   CollIndex maxEntries = segmentArray_.entries();
   for (CollIndex i = 0; i < maxEntries; i++) {
     SelfJoinSegmentPtr seg = segmentArray_[i];

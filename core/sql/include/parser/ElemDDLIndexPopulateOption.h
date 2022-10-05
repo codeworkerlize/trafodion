@@ -62,10 +62,10 @@ class ElemDDLIndexPopulateOption : public ElemDDLNode {
   ComBoolean getNoPopulateOption() { return noPopulateOption_; };
 
   // chekck to see if the populate clause was specified more than 1.
-  Int32 getPopulateOptionCount() { return populateCount_; };
+  int getPopulateOptionCount() { return populateCount_; };
 
   // check to see if the no populate clause was specified more than 1.
-  Int32 getNoPopulateOptionCount() { return noPopulateCount_; };
+  int getNoPopulateOptionCount() { return noPopulateCount_; };
 
   // set populate option counter, should not be more than 1.
   void setPopulateOptionCount() { populateCount_++; };
@@ -85,8 +85,8 @@ class ElemDDLIndexPopulateOption : public ElemDDLNode {
  private:
   ComBoolean populateOption_;
   ComBoolean noPopulateOption_;
-  Int32 populateCount_;
-  Int32 noPopulateCount_;
+  int populateCount_;
+  int noPopulateCount_;
 };
 
 #endif  // ELEMDDLINDEXPOPULATEOPTION_H

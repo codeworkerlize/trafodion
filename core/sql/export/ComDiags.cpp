@@ -63,14 +63,14 @@ extern void releaseRTSSemaphore();  // Functions implemented in SqlStats.cpp
 // from the packedLength() routines.
 
 static inline void advanceSize(IpcMessageObjSize &size, const char *const buffPtr) {
-  const Int32 lenSize = sizeof(int);
+  const int lenSize = sizeof(int);
   size += lenSize;
   if (buffPtr != NULL) size += str_len(buffPtr) + 1;  // 1 is for the buffer's null-terminator
 }
 
 // UR2
 static inline void advanceSize(IpcMessageObjSize &size, const NAWchar *const buffPtr) {
-  const Int32 lenSize = sizeof(int);
+  const int lenSize = sizeof(int);
   size += lenSize;
   if (buffPtr != NULL) size += (na_wcslen(buffPtr) + 1) * sizeof(NAWchar);  // 1 is for null-terminator
 }
@@ -93,7 +93,7 @@ static NABoolean isSingleByteCharSet(CharInfo::CharSet cs) {
 
   // a "mini-cache" to avoid proc call, for performance.
   static THREAD_P CharInfo::CharSet cachedCS = CharInfo::UnknownCharSet;
-  static THREAD_P Int32 cachedSByte = TRUE;
+  static THREAD_P int cachedSByte = TRUE;
 
   if (cachedCS != cs) {
     cachedCS = cs;
@@ -139,7 +139,7 @@ ComCondition::ComCondition(CollHeap *heapPtr)
       isLocked_(FALSE) {
   // Set optional string parameters to NULL
   // and optional integers to a theoretically recognizably bad value.
-  for (Int32 i = NumOptionalParms; i--;) {
+  for (int i = NumOptionalParms; i--;) {
     optionalString_[i] = NULL;
     optionalStringCharSet_[i] = CharInfo::UTF8;
     optionalInteger_[i] = ComDiags_UnInitialized_Int;
@@ -148,7 +148,7 @@ ComCondition::ComCondition(CollHeap *heapPtr)
   memset(fillers_, 0, sizeof(fillers_));
   // Make sure the size of ComCondition remains constant
   // If you hit this after change or add new member, adjust the fillers_ size
-  Int32 classSize = sizeof(ComCondition);
+  int classSize = sizeof(ComCondition);
   assert(classSize == 376);
 }
 
@@ -184,7 +184,7 @@ ComCondition::ComCondition()
       isLocked_(FALSE) {
   // Set optional string parameters to NULL
   // and optional integers to a theoretically recognizably bad value.
-  for (Int32 i = NumOptionalParms; i--;) {
+  for (int i = NumOptionalParms; i--;) {
     optionalString_[i] = NULL;
     optionalStringCharSet_[i] = CharInfo::UTF8;
     optionalInteger_[i] = ComDiags_UnInitialized_Int;
@@ -193,7 +193,7 @@ ComCondition::ComCondition()
   memset(fillers_, 0, sizeof(fillers_));
   // Make sure the size of ComCondition remains constant
   // If you hit this after change or add new member, adjust the fillers_ size
-  Int32 classSize = sizeof(ComCondition);
+  int classSize = sizeof(ComCondition);
   assert(classSize == 376);
 }
 
@@ -227,7 +227,7 @@ ComCondition &ComCondition::operator=(const ComCondition &c) {
   assignStringMember(sqlID_, c.sqlID_);
   assignStringMember(messageText_, c.messageText_);
 
-  for (Int32 i = NumOptionalParms; i--;) {
+  for (int i = NumOptionalParms; i--;) {
     if (isSingleByteCharSet(c.optionalStringCharSet_[i]))
       assignStringMember((char *&)optionalString_[i], (char *)c.optionalString_[i]);
     else
@@ -277,7 +277,7 @@ void ComCondition::clear() {
     delete[] sqlID_;
     delete[] messageText_;
 
-    for (Int32 i = NumOptionalParms; i--;) {
+    for (int i = NumOptionalParms; i--;) {
       if (optionalString_[i])
         if (isSingleByteCharSet(optionalStringCharSet_[i]))
           delete (char *)optionalString_[i];
@@ -307,7 +307,7 @@ void ComCondition::clear() {
     // Deallocate space for optional string parameters: no
     // destructor need be called.
 
-    for (Int32 i = NumOptionalParms; i--;) {
+    for (int i = NumOptionalParms; i--;) {
       if (optionalString_[i])
         if (isSingleByteCharSet(optionalStringCharSet_[i]))
           collHeapPtr_->deallocateMemory(optionalString_[i]);
@@ -338,7 +338,7 @@ void ComCondition::clear() {
   // set optional string parameters to NULL
   // and optional integers to a theoretically recognizably bad value.
 
-  for (Int32 i = NumOptionalParms; i--;) {
+  for (int i = NumOptionalParms; i--;) {
     optionalString_[i] = NULL;
     optionalStringCharSet_[i] = CharInfo::UTF8;
     optionalInteger_[i] = ComDiags_UnInitialized_Int;
@@ -420,7 +420,7 @@ void ComCondition::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion obj
 
     unpackBuffer(buffer, numStringParamsUsed_);
 
-    for (Int32 i = 0; i < numStringParamsUsed_; i++) {
+    for (int i = 0; i < numStringParamsUsed_; i++) {
       if (i < NumOptionalParms) {
         unpackBuffer(buffer, (char *&)optionalString_[i], collHeapPtr_);
 
@@ -442,7 +442,7 @@ void ComCondition::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion obj
 
     unpackBuffer(buffer, numIntParamsUsed_);
 
-    for (Int32 i = 0; i < numIntParamsUsed_; i++) {
+    for (int i = 0; i < numIntParamsUsed_; i++) {
       if (i < NumOptionalParms) {
         unpackBuffer(buffer, optionalInteger_[i]);
       } else {
@@ -512,7 +512,7 @@ void ComCondition::unpackObj32(IpcMessageObjType objType, IpcMessageObjVersion o
 
     unpackBuffer(buffer, numStringParamsUsed_);
 
-    for (Int32 i = 0; i < numStringParamsUsed_; i++) {
+    for (int i = 0; i < numStringParamsUsed_; i++) {
       if (i < NumOptionalParms) {
         unpackBuffer(buffer, (char *&)optionalString_[i], collHeapPtr_);
 
@@ -534,7 +534,7 @@ void ComCondition::unpackObj32(IpcMessageObjType objType, IpcMessageObjVersion o
 
     unpackBuffer(buffer, numIntParamsUsed_);
 
-    for (Int32 i = 0; i < numIntParamsUsed_; i++) {
+    for (int i = 0; i < numIntParamsUsed_; i++) {
       if (i < NumOptionalParms) {
         unpackBuffer(buffer, optionalInteger_[i]);
       } else {
@@ -668,7 +668,7 @@ IpcMessageObjSize ComCondition::packedLength(void) {
   // set these two variables for later use in packObjIntoMessage()
   numStringParamsUsed_ = 0;
   numIntParamsUsed_ = 0;
-  for (Int32 i = NumOptionalParms; i--;) {
+  for (int i = NumOptionalParms; i--;) {
     if (optionalString_[i] && numStringParamsUsed_ == 0) {
       // found the last string parameter used
       numStringParamsUsed_ = i + 1;
@@ -755,7 +755,7 @@ IpcMessageObjSize ComCondition::packObjIntoMessage(char *buffer, NABoolean swapB
   if (usageMap_ & USED_NUM_STRING_PARAMS) {
     size += packIntoBuffer(buffer, numStringParamsUsed_, swapBytes);
 
-    for (Int32 i = 0; i < numStringParamsUsed_; i++) {
+    for (int i = 0; i < numStringParamsUsed_; i++) {
       if (isSingleByteCharSet(optionalStringCharSet_[i]))
         size += packCharStarIntoBuffer(buffer, (char *)optionalString_[i], swapBytes);
       else
@@ -768,7 +768,7 @@ IpcMessageObjSize ComCondition::packObjIntoMessage(char *buffer, NABoolean swapB
   // pack integer parameters up to the last used one
   if (usageMap_ & USED_NUM_INT_PARAMS) {
     size += packIntoBuffer(buffer, numIntParamsUsed_, swapBytes);
-    for (Int32 i = 0; i < numIntParamsUsed_; i++) {
+    for (int i = 0; i < numIntParamsUsed_; i++) {
       size += packIntoBuffer(buffer, optionalInteger_[i], swapBytes);
     }
   }
@@ -826,7 +826,7 @@ IpcMessageObjSize ComCondition::packObjIntoMessage32(char *buffer, NABoolean swa
   if (usageMap_ & USED_NUM_STRING_PARAMS) {
     size += packIntoBuffer(buffer, numStringParamsUsed_, swapBytes);
 
-    for (Int32 i = 0; i < numStringParamsUsed_; i++) {
+    for (int i = 0; i < numStringParamsUsed_; i++) {
       if (isSingleByteCharSet(optionalStringCharSet_[i]))
         size += packCharStarIntoBuffer(buffer, (char *)optionalString_[i], swapBytes);
       else
@@ -839,7 +839,7 @@ IpcMessageObjSize ComCondition::packObjIntoMessage32(char *buffer, NABoolean swa
   // pack integer parameters up to the last used one
   if (usageMap_ & USED_NUM_INT_PARAMS) {
     size += packIntoBuffer(buffer, numIntParamsUsed_, swapBytes);
-    for (Int32 i = 0; i < numIntParamsUsed_; i++) {
+    for (int i = 0; i < numIntParamsUsed_; i++) {
       size += packIntoBuffer(buffer, optionalInteger_[i], swapBytes);
     }
   }
@@ -863,7 +863,7 @@ NABoolean ComCondition::checkObj(IpcMessageObjType objType, IpcMessageObjVersion
   // Some fields are packed unconditionally
   if (!checkBuffer(buffer, sizeof(conditionNumber_), lastByte)) return FALSE;
 
-  Int32 map = 0;
+  int map = 0;
   if (!checkAndUnpackBuffer(buffer, sizeof(map), (char *)&map, lastByte)) return FALSE;
   if (!sameEndianness) swapFourBytes(map);
 
@@ -917,7 +917,7 @@ NABoolean ComCondition::checkObj(IpcMessageObjType objType, IpcMessageObjVersion
 
   // Optional string parameters
   if (map & USED_NUM_STRING_PARAMS) {
-    Int32 numParams = 0;
+    int numParams = 0;
     if (!checkAndUnpackBuffer(buffer, sizeof(numParams), (char *)&numParams, lastByte)) return FALSE;
     if (!sameEndianness) swapFourBytes(numParams);
 
@@ -930,7 +930,7 @@ NABoolean ComCondition::checkObj(IpcMessageObjType objType, IpcMessageObjVersion
 
   // Optional integer parameters
   if (map & USED_NUM_INT_PARAMS) {
-    Int32 numParams = 0;
+    int numParams = 0;
     if (!checkAndUnpackBuffer(buffer, sizeof(numParams), (char *)&numParams, lastByte)) return FALSE;
     if (!sameEndianness) swapFourBytes(numParams);
 
@@ -1360,7 +1360,7 @@ ComDiagsArea::ComDiagsArea(CollHeap *ptr)
   memset(fillers_, 0, sizeof(fillers_));
   // Make sure the size of ComDiagsArea remains constant
   // If you hit this after change or add new member, adjust the fillers_ size
-  Int32 classSize = sizeof(ComDiagsArea);
+  int classSize = sizeof(ComDiagsArea);
   assert(classSize == 440);
 }
 
@@ -1383,7 +1383,7 @@ ComDiagsArea::ComDiagsArea()
   memset(fillers_, 0, sizeof(fillers_));
   // Make sure the size of ComDiagsArea remains constant
   // If you hit this after change or add new member, adjust the fillers_ size
-  Int32 classSize = sizeof(ComDiagsArea);
+  int classSize = sizeof(ComDiagsArea);
 
   // if (classSize != 320) printf("classSize=%d @ %d\n", classSize, __LINE__);
   assert(classSize == 440);
@@ -1458,7 +1458,7 @@ void ComDiagsArea::enforceLengthLimit() {
   }
 }
 
-void ComDiagsArea::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, Int32 sameEndianness,
+void ComDiagsArea::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, int sameEndianness,
                              IpcMessageObjSize objSize, const char *buffer) {
   // NOTE: changes to any of the following methods also require
   // corresponding changes in the others:
@@ -1516,7 +1516,7 @@ void ComDiagsArea::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion obj
 }
 
 // unpack ComDiagsArea sent from 32-bit (BDR) server
-void ComDiagsArea::unpackObj32(IpcMessageObjType objType, IpcMessageObjVersion objVersion, Int32 sameEndianness,
+void ComDiagsArea::unpackObj32(IpcMessageObjType objType, IpcMessageObjVersion objVersion, int sameEndianness,
                                IpcMessageObjSize objSize, const char *buffer) {
   // NOTE: changes to any of the following methods also require
   // corresponding changes in the others:
@@ -1880,7 +1880,7 @@ NABoolean ComDiagsArea::checkObj(IpcMessageObjType objType, IpcMessageObjVersion
 
   if (!checkBuffer(buffer, sizeof(areMore_), lastByte)) return FALSE;
 
-  Int32 lengthLimit = 0;
+  int lengthLimit = 0;
   if (!checkAndUnpackBuffer(buffer, sizeof(lengthLimit), (char *)&lengthLimit, lastByte)) return FALSE;
   if (!sameEndianness) swapFourBytes(lengthLimit);
 
@@ -1978,7 +1978,7 @@ void ComDiagsArea::setAllSqlID(char *sqlID) {
   if (!sqlID) return;
 
   int errorCount = getNumber(DgSqlCode::ERROR_);
-  Int32 i = 0;
+  int i = 0;
   for (i = 0; i < errorCount; i++) {
     ComCondition *errCond = getErrorEntry(errorCount - i);
     if (errCond->getSqlID() == NULL)
@@ -1999,7 +1999,7 @@ void ComDiagsArea::setAllSqlID(char *sqlID) {
 void ComDiagsArea::setAllRowNumber(int rowNum, DgSqlCode::ErrorOrWarning errOrWarn) {
   if (errOrWarn != DgSqlCode::WARNING_) {
     int errorCount = getNumber(DgSqlCode::ERROR_);
-    for (Int32 i = 0; i < errorCount; i++) {
+    for (int i = 0; i < errorCount; i++) {
       ComCondition *errCond = getErrorEntry(errorCount - i);
       if (errCond->getRowNumber() < 0)
         errCond->setRowNumber(rowNum);
@@ -2008,7 +2008,7 @@ void ComDiagsArea::setAllRowNumber(int rowNum, DgSqlCode::ErrorOrWarning errOrWa
     }
   } else {
     int warnCount = getNumber(DgSqlCode::WARNING_);
-    for (Int32 i = 0; i < warnCount; i++) {
+    for (int i = 0; i < warnCount; i++) {
       ComCondition *warnCond = getWarningEntry(warnCount - i);
       if (warnCond->getRowNumber() < 0)
         warnCond->setRowNumber(rowNum);
@@ -2022,7 +2022,7 @@ int ComDiagsArea::getNextRowNumber(int indexValue) const {
   int errorCount = getNumber(DgSqlCode::ERROR_);
   int nextRowNumber = ComCondition::INVALID_ROWNUMBER;
 
-  for (Int32 i = 0; i < errorCount; i++) {
+  for (int i = 0; i < errorCount; i++) {
     ComCondition *errCond = ((ComDiagsArea *)this)->getErrorEntry(i + 1);
     if ((errCond->getRowNumber() != ComCondition::INVALID_ROWNUMBER) && (errCond->getRowNumber() >= indexValue)) {
       if ((nextRowNumber == ComCondition::INVALID_ROWNUMBER) || (errCond->getRowNumber() < nextRowNumber)) {
@@ -2649,7 +2649,7 @@ void ComDiagsArea::mergeAfter(const ComDiagsArea &source) {
 
   //    changed to preserve insertion order of the conditions
 
-  for (Int32 index = (((nfMark != -1) ? (nfMark + 1) : 1)); index <= source.getNumber(); index++) {
+  for (int index = (((nfMark != -1) ? (nfMark + 1) : 1)); index <= source.getNumber(); index++) {
     ComCondition *newCondition = this->makeNewCondition();
 
     *newCondition = source[index];
@@ -3007,7 +3007,7 @@ int ComDiagsArea::markDupNFConditions() {
 // -----------------------------------------------------------------------
 
 void ComDiagsTranslator::translateDiagsArea(ComDiagsArea &diags, const NABoolean twoPass) {
-  Int32 index;
+  int index;
 
   if (twoPass) {
     // First, run through the individual conditions and call the virtual

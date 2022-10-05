@@ -96,25 +96,25 @@ NAString DefaultValidator::getTypeText(DefaultValidatorType vt) {
   }
 }
 
-Int32 DefaultValidator::validate(const char *, const NADefaults *, Int32, Int32, float *) const {
+int DefaultValidator::validate(const char *, const NADefaults *, int, int, float *) const {
   return TRUE;  // anything is valid; no error
 }
 
-Int32 ValidateKeyword::validate(const char *value, const NADefaults *nad, Int32 attrEnum, Int32 errOrWarn,
+int ValidateKeyword::validate(const char *value, const NADefaults *nad, int attrEnum, int errOrWarn,
                                 float *) const {
   NAString tmp(value);
   DefaultToken tok = nad->token(attrEnum, tmp, TRUE, errOrWarn);
   return (tok != DF_noSuchToken);
 }
 
-Int32 ValidateTraceStr::validate(const char *value, const NADefaults *nad, Int32 attrEnum, Int32 errOrWarn,
+int ValidateTraceStr::validate(const char *value, const NADefaults *nad, int attrEnum, int errOrWarn,
                                  float *alreadyHaveFloat) const {
   //  const char *curr = value;
 
   return TRUE;
 }
 
-Int32 ValidateAnsiList::validate(const char *value, const NADefaults *nad, Int32 attrEnum, Int32 errOrWarn,
+int ValidateAnsiList::validate(const char *value, const NADefaults *nad, int attrEnum, int errOrWarn,
                                  float *) const {
   // Validate using a copy of "*value"
   char tempStr[1000];                       // max length of ATTR_VALUE
@@ -130,10 +130,10 @@ Int32 ValidateAnsiList::validate(const char *value, const NADefaults *nad, Int32
   // (Also an appropriate error/warning would be issued.)
   while (token != NULL) {
     NAString tokenObj(token);
-    Int32 countPeriods = 0, inBetween = 0;
+    int countPeriods = 0, inBetween = 0;
     NABoolean anyError = tokenObj.isNull();
     // check three part ANSI name
-    for (Int32 i = 0; !anyError && i < (Int32)tokenObj.length(); i++) {
+    for (int i = 0; !anyError && i < (int)tokenObj.length(); i++) {
       if (ComSqlText.isDigit(token[i]) || ComSqlText.isSimpleLatinLetter(token[i]))
         inBetween++;
       else {
@@ -160,7 +160,7 @@ Int32 ValidateAnsiList::validate(const char *value, const NADefaults *nad, Int32
   return TRUE;
 }
 
-Int32 ValidateRoleNameList::validate(const char *value, const NADefaults *nad, Int32 attrEnum, Int32 errOrWarn,
+int ValidateRoleNameList::validate(const char *value, const NADefaults *nad, int attrEnum, int errOrWarn,
                                      float *) const {
   // Validate a list of role names.  Based on ValidateAnsiList
   // List format:  comma separated list of role names which use either . or _
@@ -198,7 +198,7 @@ Int32 ValidateRoleNameList::validate(const char *value, const NADefaults *nad, I
   return TRUE;
 }
 
-Int32 ValidatePOSTableSizes::validate(const char *value, const NADefaults *nad, Int32 attrEnum, Int32 errOrWarn,
+int ValidatePOSTableSizes::validate(const char *value, const NADefaults *nad, int attrEnum, int errOrWarn,
                                       float *) const {
   char tempStr[1000];  // max length of ATTR_VALUE
 
@@ -258,9 +258,9 @@ Int32 ValidatePOSTableSizes::validate(const char *value, const NADefaults *nad, 
   return TRUE;
 }
 
-Int32 ValidateNumericRange::validate(const char *value, const NADefaults *nad, Int32 attrEnum, Int32 errOrWarn,
+int ValidateNumericRange::validate(const char *value, const NADefaults *nad, int attrEnum, int errOrWarn,
                                      float *alreadyHaveFloat) const {
-  Int32 isValid = FALSE, rangeOK = FALSE, multipleOK = FALSE;
+  int isValid = FALSE, rangeOK = FALSE, multipleOK = FALSE;
   float flt;
 
   if (alreadyHaveFloat)
@@ -343,7 +343,7 @@ Int32 ValidateNumericRange::validate(const char *value, const NADefaults *nad, I
 //	c) CPRULES.CHARACTERSET value.
 //-----------------------------------------------------------------------------
 
-Int32 ValidateCollationList::validate(const char *value, const NADefaults *nad, Int32 attrEnum, Int32 errOrWarn,
+int ValidateCollationList::validate(const char *value, const NADefaults *nad, int attrEnum, int errOrWarn,
                                       float *) const {
   if (errOrWarn) {
     CMPASSERT(nad && attrEnum);
@@ -506,10 +506,10 @@ UInt32 ValidateCollationList::insertIntoCDB(SchemaDB *sdb, CollationDB *cdb, con
 
 // validate OVERRIDE_SCHEMA FROM_SCHEMA:TO_SCHEMA setting
 // format validation for xxx:yyy
-Int32 ValidateOverrideSchema::validate(const char *value, const NADefaults *nad, Int32 attrEnum, Int32 errOrWarn,
+int ValidateOverrideSchema::validate(const char *value, const NADefaults *nad, int attrEnum, int errOrWarn,
                                        float *flt) const {
   NABoolean ok = TRUE;
-  Int32 len = strlen(value);
+  int len = strlen(value);
 
   if (len == 0)  // empty is ok
     return ok;
@@ -540,10 +540,10 @@ Int32 ValidateOverrideSchema::validate(const char *value, const NADefaults *nad,
 
 // validate PUBLIC_SCHEMA_NAME setting
 // setting may be schema or catalog.schema
-Int32 ValidatePublicSchema::validate(const char *value, const NADefaults *nad, Int32 attrEnum, Int32 errOrWarn,
+int ValidatePublicSchema::validate(const char *value, const NADefaults *nad, int attrEnum, int errOrWarn,
                                      float *flt) const {
   NABoolean ok = TRUE;
-  Int32 len = strlen(value);
+  int len = strlen(value);
 
   if (len == 0)  // empty is ok
     return ok;
@@ -560,11 +560,11 @@ Int32 ValidatePublicSchema::validate(const char *value, const NADefaults *nad, I
 
 // validate REPLICATE_IO_VERSION setting
 // setting may be schema or catalog.schema
-Int32 ValidateReplIoVersion::validate(const char *value, const NADefaults *nad, Int32 attrEnum, Int32 errOrWarn,
+int ValidateReplIoVersion::validate(const char *value, const NADefaults *nad, int attrEnum, int errOrWarn,
                                       float *alreadyHaveFloat) const {
-  Int32 isValid = FALSE;
+  int isValid = FALSE;
   float flt;
-  Int32 min;
+  int min;
 
   if (alreadyHaveFloat)
     flt = *alreadyHaveFloat;
@@ -591,9 +591,9 @@ Int32 ValidateReplIoVersion::validate(const char *value, const NADefaults *nad, 
 }
 
 // validate parameter for MV_AGE
-Int32 ValidateMVAge::validate(const char *value, const NADefaults *nad, Int32 attrEnum, Int32 errOrWarn,
+int ValidateMVAge::validate(const char *value, const NADefaults *nad, int attrEnum, int errOrWarn,
                               float *alreadyHaveFloat) const {
-  Int32 isOK = FALSE;
+  int isOK = FALSE;
   float number = 0;
   char textChars[20];
 

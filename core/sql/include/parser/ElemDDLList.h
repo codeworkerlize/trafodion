@@ -92,7 +92,7 @@ class ElemDDLList : public ElemDDLNode {
   // accessors
   //
 
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   // gets the degree of this node (the number of child
   // parse node).

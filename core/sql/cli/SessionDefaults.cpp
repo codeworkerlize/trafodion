@@ -190,12 +190,12 @@ SessionDefaults::SessionDefaults(CollHeap *heap)
   ex_assert(len == LAST_SESSION_DEFAULT_ATTRIBUTE, "Mismatch between sessionDefaultMap and SessionDefaultAttribute");
 
   defaultsValueString_ = new (heap) char *[len];
-  for (Int32 i = 0; i < len; i++) {
+  for (int i = 0; i < len; i++) {
     defaultsValueString_[i] = NULL;
   }
 
   savedDefaultsValueString_ = new (heap) char *[len];
-  for (Int32 i = 0; i < len; i++) {
+  for (int i = 0; i < len; i++) {
     savedDefaultsValueString_[i] = NULL;
   }
 
@@ -296,7 +296,7 @@ SessionDefaults::~SessionDefaults() { delete sessionEnvvars_; }
 
 SessionDefaults::SessionDefaultMap SessionDefaults::getSessionDefaultMap(char *attribute, int attrLen) {
   int len = sizeof(sessionDefaultMap) / sizeof(SessionDefaultMap);
-  for (Int32 i = 0; i < len; i++) {
+  for (int i = 0; i < len; i++) {
     if ((sessionDefaultMap[i].fromDefaultsTable) && (strcmp(sessionDefaultMap[i].attributeString, attribute) == 0)) {
       return sessionDefaultMap[i];
     }
@@ -574,7 +574,7 @@ int SessionDefaults::setIsoMappingDefine() { return 0; }
 void SessionDefaults::saveSessionDefaults() {
   int len = sizeof(sessionDefaultMap) / sizeof(SessionDefaultMap);
 
-  for (Int32 i = 0; i < len; i++) {
+  for (int i = 0; i < len; i++) {
     NADELETEBASIC(savedDefaultsValueString_[i], heap_);
 
     if (defaultsValueString_[i]) {
@@ -589,7 +589,7 @@ void SessionDefaults::saveSessionDefaults() {
 void SessionDefaults::restoreSessionDefaults() {
   int len = sizeof(sessionDefaultMap) / sizeof(SessionDefaultMap);
 
-  for (Int32 i = 0; i < len; i++) {
+  for (int i = 0; i < len; i++) {
     if (savedDefaultsValueString_[i]) {
       setSessionDefaultAttributeValue(sessionDefaultMap[i], savedDefaultsValueString_[i],
                                       strlen(savedDefaultsValueString_[i]));
@@ -836,7 +836,7 @@ AQRInfo::AQRInfo(CollHeap *heap) : heap_(heap), currErr_(0), aqrStmtInfo_(NULL),
   int numEntries = sizeof(aqrErrorMap) / sizeof(AQRErrorMap);
 
   aqrErrorList_ = new (heap) LIST(AQRErrorMap)(heap);
-  for (Int32 i = 0; i < numEntries; i++) {
+  for (int i = 0; i < numEntries; i++) {
     AQRErrorMap tgt;
     AQRErrorMap src = aqrErrorMap[i];
     tgt.sqlcode = src.sqlcode;
@@ -862,8 +862,8 @@ AQRInfo::AQRInfo(CollHeap *heap) : heap_(heap), currErr_(0), aqrStmtInfo_(NULL),
 
 AQRInfo::~AQRInfo() {}
 
-short AQRInfo::setAQREntry(int task, int sqlcode, int nskcode, Int32 retries, Int32 delay, Int32 type,
-                           Int32 numCQDs, char *cqdStr, int cmpInfo, int intAQR) {
+short AQRInfo::setAQREntry(int task, int sqlcode, int nskcode, int retries, int delay, int type,
+                           int numCQDs, char *cqdStr, int cmpInfo, int intAQR) {
   if ((sqlcode < 0) || (nskcode < 0) || (retries < 0) || (delay < 0) || (type < 0) || (numCQDs < 0) || (cmpInfo < 0) ||
       (cmpInfo > 1))
     return -1;
@@ -969,7 +969,7 @@ short AQRInfo::setAQREntriesFromInputStr(char *inStr, int inStrLen) {
   newStr[inStrLen] = 0;
   int n = 0;
 
-  Int32 i = 0;
+  int i = 0;
   while (i < inStrLen) {
     if ((inStr[i] != '+') && (inStr[i] != '-') && (inStr[i] != '.') && (inStr[i] != ' ') && (inStr[i] != ',') &&
         (inStr[i] != '|') && (NOT((inStr[i] >= '0') && (inStr[i] <= '9'))))
@@ -990,8 +990,8 @@ short AQRInfo::setAQREntriesFromInputStr(char *inStr, int inStrLen) {
   newStr[n] = 0;
 
   i = 0;
-  Int32 j = 0;
-  Int32 k = 1;
+  int j = 0;
+  int k = 1;
   int sqlcode = -1;
   int nskcode = 0;
   int retries = 1;
@@ -1110,7 +1110,7 @@ short AQRInfo::setAQREntriesFromInputStr(char *inStr, int inStrLen) {
   return 0;
 }
 
-short AQRInfo::getAQREntry(int sqlcode, int nskcode, int &retries, int &delay, int &type, Int32 &numCQDs,
+short AQRInfo::getAQREntry(int sqlcode, int nskcode, int &retries, int &delay, int &type, int &numCQDs,
                            char *&cqdStr, int &cmpInfo, int &intAQR) {
   NABoolean sqlcodeZeroFound = FALSE;
   UInt32 sqlcodeZeroEntryNum = 0;
@@ -1130,13 +1130,13 @@ short AQRInfo::getAQREntry(int sqlcode, int nskcode, int &retries, int &delay, i
       found = TRUE;
 
     if (found) {
-      retries = (Int32)(*aqrErrorList_)[i].retries;
-      delay = (Int32)(*aqrErrorList_)[i].delay;
-      type = (Int32)(*aqrErrorList_)[i].type;
-      numCQDs = (Int32)(*aqrErrorList_)[i].numCQDs;
+      retries = (int)(*aqrErrorList_)[i].retries;
+      delay = (int)(*aqrErrorList_)[i].delay;
+      type = (int)(*aqrErrorList_)[i].type;
+      numCQDs = (int)(*aqrErrorList_)[i].numCQDs;
       cqdStr = (char *)(*aqrErrorList_)[i].cqdStr;
-      cmpInfo = (Int32)(*aqrErrorList_)[i].cmpInfo;
-      intAQR = (Int32)(*aqrErrorList_)[i].intAQR;
+      cmpInfo = (int)(*aqrErrorList_)[i].cmpInfo;
+      intAQR = (int)(*aqrErrorList_)[i].intAQR;
 
       return 0;
     }
@@ -1145,13 +1145,13 @@ short AQRInfo::getAQREntry(int sqlcode, int nskcode, int &retries, int &delay, i
   if ((nskcodeZeroFound) || (sqlcodeZeroFound)) {
     UInt32 i = (nskcodeZeroFound ? nskcodeZeroEntryNum : sqlcodeZeroEntryNum);
 
-    retries = (Int32)(*aqrErrorList_)[i].retries;
-    delay = (Int32)(*aqrErrorList_)[i].delay;
-    type = (Int32)(*aqrErrorList_)[i].type;
-    numCQDs = (Int32)(*aqrErrorList_)[i].numCQDs;
+    retries = (int)(*aqrErrorList_)[i].retries;
+    delay = (int)(*aqrErrorList_)[i].delay;
+    type = (int)(*aqrErrorList_)[i].type;
+    numCQDs = (int)(*aqrErrorList_)[i].numCQDs;
     cqdStr = (char *)(*aqrErrorList_)[i].cqdStr;
-    cmpInfo = (Int32)(*aqrErrorList_)[i].cmpInfo;
-    intAQR = (Int32)(*aqrErrorList_)[i].intAQR;
+    cmpInfo = (int)(*aqrErrorList_)[i].cmpInfo;
+    intAQR = (int)(*aqrErrorList_)[i].intAQR;
 
     return 0;
   }
@@ -1461,7 +1461,7 @@ void SessionDefaults::beginSession() {
   setExSMTraceFilePrefix(NULL, 0);
 }
 
-void SessionDefaults::setExSMTraceFilePrefix(const char *attrValue, Int32 attrValueLen) {
+void SessionDefaults::setExSMTraceFilePrefix(const char *attrValue, int attrValueLen) {
   if (exsmTraceFilePrefix_) {
     NADELETEBASICARRAY(exsmTraceFilePrefix_, heap_);
     exsmTraceFilePrefix_ = NULL;

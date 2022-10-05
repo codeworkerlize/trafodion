@@ -105,7 +105,7 @@ void *ExSM_ReaderFunction(void *arg) {
     if (loopCount == 1) {
       const char *envvar = getenv("EXSM_WAIT_DELAY");
       if (envvar && *envvar) {
-        Int32 seconds = atoi(envvar);
+        int seconds = atoi(envvar);
         if (seconds > 0) {
           EXSM_TRACE(EXSM_TRACE_RDR_THR | EXSM_TRACE_WAIT, "EXSM_WAIT_DELAY %d\n", (int)seconds);
           sleep(seconds);

@@ -47,20 +47,20 @@
 #include "org_trafodion_sql_udr_UDR.h"
 
 extern UdrGlobals *UDR_GLOBALS;
-extern Int32 PerformWaitedReplyToClient(UdrGlobals *UdrGlob, UdrServerDataStream &msgStream);
-extern void doMessageBox(UdrGlobals *UdrGlob, Int32 trLevel, NABoolean moduleType, const char *moduleName);
+extern int PerformWaitedReplyToClient(UdrGlobals *UdrGlob, UdrServerDataStream &msgStream);
+extern void doMessageBox(UdrGlobals *UdrGlob, int trLevel, NABoolean moduleType, const char *moduleName);
 
 extern NABoolean allocateReplyRow(UdrGlobals *UdrGlob,
                                   SqlBuffer &replyBuffer,        // [IN]  A reply buffer
                                   queue_index parentIndex,       // [IN]  Identifies the request queue entry
-                                  Int32 replyRowLen,             // [IN]  Length of reply row
+                                  int replyRowLen,             // [IN]  Length of reply row
                                   char *&newReplyRow,            // [OUT] The allocated reply row
                                   ControlInfo *&newControlInfo,  // [OUT] The allocated ControlInfo entry
                                   ex_queue::up_status upStatus   // [IN]  Q_OK_MMORE, Q_NO_DATA, Q_SQLERROR
 );
 extern NABoolean allocateEODRow(UdrGlobals *UdrGlob, SqlBuffer &replyBuffer, queue_index parentIndex);
 
-Int32 sendReqBufferWaitedReply(UdrGlobals *udrGlobals, SPInfo *sp, Int32 tableIndex) {
+int sendReqBufferWaitedReply(UdrGlobals *udrGlobals, SPInfo *sp, int tableIndex) {
   // get datastream
   UdrServerDataStream *dataStream = sp->getDataStream();
 
@@ -89,7 +89,7 @@ Int32 sendReqBufferWaitedReply(UdrGlobals *udrGlobals, SPInfo *sp, Int32 tableIn
 
   // now wait for IO completion. Once IO completes
   // necessary updates to spInfo are already performed.
-  Int32 result = PerformWaitedReplyToClient(udrGlobals, *dataStream);
+  int result = PerformWaitedReplyToClient(udrGlobals, *dataStream);
 
   // reset SpInfo state back to INVOKED state.
   if (sp->getSPInfoState() != SPInfo::INVOKED_GETROWS) {
@@ -100,7 +100,7 @@ Int32 sendReqBufferWaitedReply(UdrGlobals *udrGlobals, SPInfo *sp, Int32 tableIn
   return result;
 }
 
-void SpInfoGetNextRow(char *rowData, Int32 tableIndex, SQLUDR_Q_STATE *queue_state) {
+void SpInfoGetNextRow(char *rowData, int tableIndex, SQLUDR_Q_STATE *queue_state) {
   UdrGlobals *udrGlobals = UDR_GLOBALS;
 
   const char *moduleName = "SPInfo::SpInfoGetNextRow";
@@ -119,7 +119,7 @@ void SpInfoGetNextRow(char *rowData, Int32 tableIndex, SQLUDR_Q_STATE *queue_sta
   SqlBuffer *getSqlBuf = sp->getReqSqlBuffer(tableIndex);
   if (getSqlBuf == NULL) {
     // Perform a waited reply to client requesting for more data,
-    Int32 status = sendReqBufferWaitedReply(udrGlobals, sp, tableIndex);
+    int status = sendReqBufferWaitedReply(udrGlobals, sp, tableIndex);
     if (status == SQLUDR_ERROR) {
       *queue_state = SQLUDR_Q_CANCEL;
       return;
@@ -158,7 +158,7 @@ void SpInfoGetNextRow(char *rowData, Int32 tableIndex, SQLUDR_Q_STATE *queue_sta
     memset(getSqlBuf, '\0', sp->getRequestBufferSize());
 
     // Perform a waited reply to client requesting for more data,
-    Int32 status = sendReqBufferWaitedReply(udrGlobals, sp, tableIndex);
+    int status = sendReqBufferWaitedReply(udrGlobals, sp, tableIndex);
     if (status == SQLUDR_ERROR) {
       *queue_state = SQLUDR_Q_CANCEL;
       return;
@@ -202,8 +202,8 @@ void SpInfoGetNextRow(char *rowData, Int32 tableIndex, SQLUDR_Q_STATE *queue_sta
   return;
 }
 
-Int32 sendEmitWaitedReply(UdrGlobals *udrGlobals, SPInfo *sp, SqlBuffer *emitSqlBuffer, NABoolean includesEOD) {
-  Int32 result = 0;
+int sendEmitWaitedReply(UdrGlobals *udrGlobals, SPInfo *sp, SqlBuffer *emitSqlBuffer, NABoolean includesEOD) {
+  int result = 0;
   const char *moduleName = "sendEmitWaitedReply";
 
   NABoolean traceInvokeDataAreas = false;
@@ -272,7 +272,7 @@ Int32 sendEmitWaitedReply(UdrGlobals *udrGlobals, SPInfo *sp, SqlBuffer *emitSql
 // the UDF without an EOD and ask for a continue message. The caller
 // of the language manger "invokeRoutine()" method then sends the
 // EOD in a separate reply.
-Int32 SpInfoEmitRow(char *rowData, Int32 tableIndex, SQLUDR_Q_STATE *queue_state) {
+int SpInfoEmitRow(char *rowData, int tableIndex, SQLUDR_Q_STATE *queue_state) {
   UdrGlobals *udrGlobals = UDR_GLOBALS;
 
   const char *moduleName = "SPInfo::SpInfoEmitRow";
@@ -299,7 +299,7 @@ Int32 SpInfoEmitRow(char *rowData, Int32 tableIndex, SQLUDR_Q_STATE *queue_state
   // there is no need to insert a Q_NO_DATA tupple in the buffer.
   // Q_NO_DATA tupple is set in the final reply from workTM().
   if ((emitSqlBuffer != NULL) && (*queue_state == SQLUDR_Q_EOD) && (emitSqlBuffer->getTotalTuppDescs() > 0)) {
-    Int32 status = sendEmitWaitedReply(udrGlobals, sp, emitSqlBuffer, FALSE);
+    int status = sendEmitWaitedReply(udrGlobals, sp, emitSqlBuffer, FALSE);
 
     if (status == SQLUDR_ERROR) {
       *queue_state = SQLUDR_Q_CANCEL;
@@ -343,7 +343,7 @@ Int32 SpInfoEmitRow(char *rowData, Int32 tableIndex, SQLUDR_Q_STATE *queue_state
 
   if (!replyRowAllocated) {
     // Since buffer is full send this buffer off to client and then continue.
-    Int32 status = sendEmitWaitedReply(udrGlobals, sp, emitSqlBuffer, FALSE);
+    int status = sendEmitWaitedReply(udrGlobals, sp, emitSqlBuffer, FALSE);
 
     if (status == SQLUDR_ERROR) {
       *queue_state = SQLUDR_Q_CANCEL;
@@ -392,7 +392,7 @@ Int32 SpInfoEmitRow(char *rowData, Int32 tableIndex, SQLUDR_Q_STATE *queue_state
 // used to send an EOD row, which is included in the last reply buffer of
 // regular results. The EOD call is done by the caller of the UDF code,
 // not the UDF code itself.
-void SpInfoEmitRowCpp(char *rowData, Int32 tableIndex, SQLUDR_Q_STATE *queue_state) {
+void SpInfoEmitRowCpp(char *rowData, int tableIndex, SQLUDR_Q_STATE *queue_state) {
   UdrGlobals *udrGlobals = UDR_GLOBALS;
 
   const char *moduleName = "SPInfo::SpInfoEmitRowCpp";
@@ -442,7 +442,7 @@ void SpInfoEmitRowCpp(char *rowData, Int32 tableIndex, SQLUDR_Q_STATE *queue_sta
     if (!replyRowAllocated)
       if (numRetries++ < 1) {
         // Since buffer is full send this buffer off to client and then continue.
-        Int32 status = sendEmitWaitedReply(udrGlobals, sp, emitSqlBuffer, FALSE);
+        int status = sendEmitWaitedReply(udrGlobals, sp, emitSqlBuffer, FALSE);
 
         if (status == SQLUDR_ERROR) throw tmudr::UDRException(38900, "Error in sending result buffer from TMUDF");
 
@@ -465,7 +465,7 @@ void SpInfoEmitRowCpp(char *rowData, Int32 tableIndex, SQLUDR_Q_STATE *queue_sta
     memcpy(replyData, rowData, sp->getReplyRowSize());
   else if (*queue_state == SQLUDR_Q_EOD) {
     // if the UDR signals EOD then send the partially filled buffer up
-    Int32 status = sendEmitWaitedReply(udrGlobals, sp, emitSqlBuffer, TRUE);
+    int status = sendEmitWaitedReply(udrGlobals, sp, emitSqlBuffer, TRUE);
 
     if (status == SQLUDR_ERROR) throw tmudr::UDRException(38900, "Error in sending buffer with EOD from TMUDF");
   }
@@ -480,7 +480,7 @@ JNIEXPORT void JNICALL Java_org_trafodion_sql_udr_UDR_SpInfoGetNextRowJava(JNIEn
   SQLUDR_Q_STATE queueStateLocal = SQLUDR_Q_MORE;
   jbyte *rowElems = jni->GetByteArrayElements(rowData, NULL);
 
-  SpInfoGetNextRow(reinterpret_cast<char *>(rowElems), (Int32)tableIndex, &queueStateLocal);
+  SpInfoGetNextRow(reinterpret_cast<char *>(rowElems), (int)tableIndex, &queueStateLocal);
   // free the JNI row buffer and copy back the data read
   jni->ReleaseByteArrayElements(rowData, rowElems, 0);
 
@@ -494,7 +494,7 @@ JNIEXPORT void JNICALL Java_org_trafodion_sql_udr_UDR_SpInfoEmitRowJava(JNIEnv *
   SQLUDR_Q_STATE queueStateLocal = SQLUDR_Q_MORE;
   jbyte *rowElems = jni->GetByteArrayElements(rowData, NULL);
 
-  SpInfoEmitRowCpp(reinterpret_cast<char *>(rowElems), (Int32)tableIndex, &queueStateLocal);
+  SpInfoEmitRowCpp(reinterpret_cast<char *>(rowElems), (int)tableIndex, &queueStateLocal);
   // free the JNI row buffer without copying back any data
   jni->ReleaseByteArrayElements(rowData, rowElems, JNI_ABORT);
 }

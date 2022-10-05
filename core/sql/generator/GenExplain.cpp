@@ -1085,7 +1085,7 @@ ExplainTuple *Union::addSpecificExplainInfo(ExplainTupleMaster *explainTuple, Co
 ExplainTuple *Join::addSpecificExplainInfo(ExplainTupleMaster *explainTuple, ComTdb *tdb, Generator *generator) {
   // getOperatorType() is located in common/ExprNode.h
   OperatorTypeEnum type = getOperatorType();
-  Int32 parJoinType;
+  int parJoinType;
   Join::ParallelJoinTypeDetail parJoinDetail;
 
   NAString buffer = "join_type: ";
@@ -1492,8 +1492,8 @@ ExplainTuple *RelRoot::addSpecificExplainInfo(ExplainTupleMaster *explainTuple, 
   if (sik) {
     const ComSecurityKey *sikValue = sik->getSikValues();
     statement += "Query_Invalidation_Keys: ";
-    Int32 numSiks = sik->getNumSiks();
-    for (Int32 i = 0; i < numSiks; i++) {
+    int numSiks = sik->getNumSiks();
+    for (int i = 0; i < numSiks; i++) {
       char buf[64];
       char sikOperationLit[8];
       ComQIActionTypeEnumToLiteral(sikValue[i].getSecurityKeyType(), sikOperationLit);
@@ -1510,8 +1510,8 @@ ExplainTuple *RelRoot::addSpecificExplainInfo(ExplainTupleMaster *explainTuple, 
     char buf[64];
     str_sprintf(buf, "ObjectUIDs: %ld", objectUIDs[0]);
     statement += buf;
-    Int32 numO = rootTdb->getNumObjectUIDs();
-    for (Int32 i = 1; i < numO; i++) {
+    int numO = rootTdb->getNumObjectUIDs();
+    for (int i = 1; i < numO; i++) {
       str_sprintf(buf, ", %ld", objectUIDs[i]);
       statement += buf;
     }
@@ -1905,7 +1905,7 @@ TrafDesc *ExplainFunc::createVirtualTableDesc() {
 
   TrafDesc *columnDesc;
   UInt32 offset = 0;
-  Int32 colnumber = ComTdbExplain::getVirtTableNumCols();
+  int colnumber = ComTdbExplain::getVirtTableNumCols();
   ComTdbVirtTableColumnInfo *vtci = ComTdbExplain::getVirtTableColumnInfo();
 
   int descLen = (int)CmpCommon::getDefaultNumeric(EXPLAIN_DESCRIPTION_COLUMN_SIZE);

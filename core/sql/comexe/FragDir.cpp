@@ -55,7 +55,7 @@ ExFragDir::ExFragDir(int entries, Space *space, NABoolean multiFragments, NABool
   // allocate an array of entries from "space"
   fragments_ = (ExFragDirEntryPtr *)space->allocateAlignedSpace((size_t)(sizeof(ExFragDirEntryPtr) * numEntries_));
 
-  for (Int32 i = 0; i < numEntries_; i++) fragments_[i] = new (space) ExFragDirEntry();
+  for (int i = 0; i < numEntries_; i++) fragments_[i] = new (space) ExFragDirEntry();
   flags_ = 0;
   if (multiFragments) flags_ |= MULTI_FRAGMENTS;
   if (fragmentQuotas) flags_ |= FRAGMENT_QUOTAS;

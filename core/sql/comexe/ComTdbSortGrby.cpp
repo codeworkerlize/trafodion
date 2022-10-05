@@ -71,7 +71,7 @@ ComTdbSortGrby::~ComTdbSortGrby() {}
 
 void ComTdbSortGrby::display() const {};
 
-Int32 ComTdbSortGrby::orderedQueueProtocol() const { return -1; }
+int ComTdbSortGrby::orderedQueueProtocol() const { return -1; }
 
 Long ComTdbSortGrby::pack(void *space) {
   tdbChild_.pack(space);

@@ -175,7 +175,7 @@ class ex_queue : public ExGod {
 
   // allocate ATPs for entries that don't have one already,
   // use pre-allocated ATPs if they are passed in
-  NABoolean allocateAtps(CollHeap *space, atp_struct *atps = NULL, queue_index numNewAtps = 0, Int32 atpSize = 0,
+  NABoolean allocateAtps(CollHeap *space, atp_struct *atps = NULL, queue_index numNewAtps = 0, int atpSize = 0,
                          NABoolean failureIsFatal = TRUE);
 
   // allocate PSTATE objects for all queue entries, pass in a single
@@ -192,7 +192,7 @@ class ex_queue : public ExGod {
   void deallocatePstate();
 
   // does this queue need its own ATPs?
-  Int32 needsAtps() const { return needsAtps_; }
+  int needsAtps() const { return needsAtps_; }
 
   // resize a queue (including the ATPs and the pstates), return new size
   NABoolean needsResize() const { return needsResize_; }
@@ -263,7 +263,7 @@ class ex_queue : public ExGod {
   queue_index getHeadIndex() const;
 
   // check whether a certain entry exists (used to loop through entries)
-  inline Int32 entryExists(queue_index ix) const;
+  inline int entryExists(queue_index ix) const;
 
   void handleFullQueue();
   void handleEmptyQueue();
@@ -291,8 +291,8 @@ class ex_queue : public ExGod {
   // queue the size of the queue and the number of entries in it.
   queue_index getSize() const;           // allocated size
   queue_index inline getLength() const;  // occupied entries between 0 and size-1
-  Int32 inline isFull() const;           // returns true if queue is full
-  Int32 inline isEmpty() const;          // returns true if queue is full
+  int inline isFull() const;           // returns true if queue is full
+  int inline isEmpty() const;          // returns true if queue is full
 
   inline void setInsertSubtask(ExSubtask *insertSubtask) { insertSubtask_ = insertSubtask; }
   inline void setUnblockSubtask(ExSubtask *unblockSubtask) { unblockSubtask_ = unblockSubtask; }
@@ -355,7 +355,7 @@ class ex_queue : public ExGod {
   //?johannes??
 
   // is queue entry i vacant?
-  inline Int32 isVacant(const queue_index i) const;
+  inline int isVacant(const queue_index i) const;
 
   void injectErrorOrCancel();
 
@@ -543,13 +543,13 @@ class ex_queue_entry {
 
   inline void setDiagsArea(ComDiagsArea *diagsArea);
 
-  void display(Int32 pid, Int32 exNodeId, char *title, Int32 tuppIndex = -1);
+  void display(int pid, int exNodeId, char *title, int tuppIndex = -1);
 
  private:
   void initializeState(const ex_queue::queue_type type);
 
   // Used to check that an entry being inserted is intialized properly
-  inline Int32 checkState(const ex_queue::queue_type type) {
+  inline int checkState(const ex_queue::queue_type type) {
     return (type == ex_queue::UP_QUEUE ? (upState.status != ex_queue::Q_INVALID)
                                        : (downState.request != ex_queue::GET_EMPTY));
   }
@@ -632,15 +632,15 @@ inline queue_index ex_queue::getLength() const {
   // unlikely case that tail_ < head_
 }
 
-inline Int32 ex_queue::isFull() const {
+inline int ex_queue::isFull() const {
   return (getLength() == mask_);
 
   //  return (head_ + size_) == (tail_ + (queue_index)1);
 }
 
-inline Int32 ex_queue::isEmpty() const { return head_ == tail_; }
+inline int ex_queue::isEmpty() const { return head_ == tail_; }
 
-inline Int32 ex_queue::isVacant(const queue_index i) const {
+inline int ex_queue::isVacant(const queue_index i) const {
   // index has to be between head_ (inclusive) and tail_ (exclusive)
   // to be not vacant if tail_ is less than head_ it means the queue
   // indices are wrapping around the values an unsigned int can hold
@@ -869,7 +869,7 @@ inline ex_queue_entry *ex_queue::getHeadEntry() const {
 
 inline queue_index ex_queue::getHeadIndex() const { return head_; }
 
-Int32 ex_queue::entryExists(queue_index ix) const { return !isVacant(ix); }
+int ex_queue::entryExists(queue_index ix) const { return !isVacant(ix); }
 
 inline void ex_queue::insert() {
   // Check if the queue is full and no insert is possible

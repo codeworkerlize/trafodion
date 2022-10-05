@@ -135,11 +135,11 @@ class ex_root_tcb : public ex_tcb {
 
   short work();  // when scheduled to do work
 
-  virtual Int32 fixup();
+  virtual int fixup();
 
   // if afterRecomp is TRUE, indicates that re-execute is being done
   // after a lost open or automatic recompilation of this query.
-  Int32 execute(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descriptor *input_desc, ComDiagsArea *&diagsArea,
+  int execute(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descriptor *input_desc, ComDiagsArea *&diagsArea,
                 NABoolean reExecute = FALSE);
 
   // closeCursorOnError: if an error is returned for a cursor statement
@@ -150,24 +150,24 @@ class ex_root_tcb : public ex_tcb {
   //     or a missing null indicator. The cursor remains open and the next
   //     fetch would get the next row. This is ANSI compliant behavior.
   //     In all other cases, this param is returned as TRUE.
-  Int32 fetch(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descriptor *output_desc, ComDiagsArea *&diagsArea,
+  int fetch(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descriptor *output_desc, ComDiagsArea *&diagsArea,
               int timeLimit, NABoolean newOperation, NABoolean &closeCursorOnError);
 
-  Int32 fetchMultiple(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descriptor *output_desc, ComDiagsArea *&diagsArea,
+  int fetchMultiple(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descriptor *output_desc, ComDiagsArea *&diagsArea,
                       int timeLimit, NABoolean newOperation, NABoolean &closeCursorOnError, NABoolean &eodSeen);
 
-  Int32 oltExecute(ExExeStmtGlobals *glob, Descriptor *input_desc, Descriptor *output_desc, ComDiagsArea *&diagsArea);
+  int oltExecute(ExExeStmtGlobals *glob, Descriptor *input_desc, Descriptor *output_desc, ComDiagsArea *&diagsArea);
 
-  Int32 requestCancel();
-  Int32 passiveCancel();
+  int requestCancel();
+  int passiveCancel();
 
   void snapshotScanCleanup(ComDiagsArea *&diagsArea);
   void setupWarning(int retcode, const char *str, const char *str2, ComDiagsArea *&diagsArea);
   // Called by the main thread for internal cancel.
-  Int32 cancel(ExExeStmtGlobals *glob, ComDiagsArea *&diagsArea, NABoolean getQueueDiags = FALSE);
-  Int32 deallocAndDelete(ExExeStmtGlobals *glob, ExRtFragTable *fragTable);
-  Int32 closeTables(ExExeStmtGlobals *glob, ExRtFragTable *fragTable);
-  Int32 reOpenTables(ExExeStmtGlobals *glob, ExRtFragTable *fragTable);
+  int cancel(ExExeStmtGlobals *glob, ComDiagsArea *&diagsArea, NABoolean getQueueDiags = FALSE);
+  int deallocAndDelete(ExExeStmtGlobals *glob, ExRtFragTable *fragTable);
+  int closeTables(ExExeStmtGlobals *glob, ExRtFragTable *fragTable);
+  int reOpenTables(ExExeStmtGlobals *glob, ExRtFragTable *fragTable);
 
   char *getPkeyRow();
 
@@ -198,13 +198,13 @@ class ex_root_tcb : public ex_tcb {
   // thru the getPkeyRow() method.
   void inputPkeyRow(char *pkey_row);
 
-  virtual Int32 numChildren() const { return 1; }
-  virtual const ex_tcb *getChild(Int32 pos) const;
+  virtual int numChildren() const { return 1; }
+  virtual const ex_tcb *getChild(int pos) const;
 
   NABoolean externalEventCompleted(void);
 
   // ****  information for GUI  *** -------------
-  inline Int32 displayExecution() { return root_tdb().displayExecution(); }
+  inline int displayExecution() { return root_tdb().displayExecution(); }
   //---------------------------------------------
 
   inline short getTableCount() { return root_tdb().tableCount_; }
@@ -314,7 +314,7 @@ class ex_root_tcb : public ex_tcb {
   // that a given query has finished.
   QueryFinishedMsgStream *queryFinishedStream_;
 
-  Int32 cbCommStatus_;
+  int cbCommStatus_;
   // Support for safe suspend:
   bool mayPinAudit_;
   bool mayLock_;
@@ -330,11 +330,11 @@ class ex_root_tcb : public ex_tcb {
   void completeOutstandingCancelMsgs();
 
   // after scheduler returns bad error.
-  Int32 fatal_error(ExExeStmtGlobals *glob, ComDiagsArea *&diagsArea, NABoolean noFatalDiags = FALSE);
+  int fatal_error(ExExeStmtGlobals *glob, ComDiagsArea *&diagsArea, NABoolean noFatalDiags = FALSE);
 
   // Make sure trans mode is compatible with Halloween/DP2 locks solution
   // and SUSPEND.  Returns -1 and populates diags area if error.
-  Int32 checkTransBeforeExecute(ExTransaction *myTrans, ExMasterStmtGlobals *masterGlob, ExMasterStats *rootStats,
+  int checkTransBeforeExecute(ExTransaction *myTrans, ExMasterStmtGlobals *masterGlob, ExMasterStats *rootStats,
                                 ComDiagsArea *&diags);
 
   // Let the cancel broker know this query is executing.
@@ -343,7 +343,7 @@ class ex_root_tcb : public ex_tcb {
   void populateCancelDiags(ComDiagsArea &diags);
 };
 
-inline const ex_tcb *ex_root_tcb::getChild(Int32 pos) const {
+inline const ex_tcb *ex_root_tcb::getChild(int pos) const {
   ex_assert((pos >= 0), "");
   if (pos == 0)
     return tcbChild_;

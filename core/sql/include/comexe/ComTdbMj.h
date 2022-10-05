@@ -74,8 +74,8 @@ class ComTdbMj : public ComTdb {
   ExExprPtr ljExpr_;               // 72-79
   ExExprPtr niExpr_;               // 80-87
   ExExprPtr rightCopyDupExpr_;     // 88-95
-  Int32 rightDupRecLen_;           // 96-99
-  Int32 ljRecLen_;                 // 100-103
+  int rightDupRecLen_;           // 96-99
+  int ljRecLen_;                 // 100-103
   Int16 instantiatedRowAtpIndex_;  // 104-105
   UInt16 flags_;                   // 106-107
   UInt32 encodedKeyLen_;           // 108-111
@@ -85,17 +85,17 @@ class ComTdbMj : public ComTdb {
   UInt16 quotaPct_;                // 118-119
   char fillersComTdbMj_[32];       // 120-151
 
-  inline Int32 isSemiJoin() const  // True if doing a semi/anti-semi-join
+  inline int isSemiJoin() const  // True if doing a semi/anti-semi-join
   {
     return (flags_ & SEMI_JOIN);
   };
 
-  inline Int32 isLeftJoin() const  // True if we are doing a left-join
+  inline int isLeftJoin() const  // True if we are doing a left-join
   {
     return (flags_ & LEFT_JOIN);
   };
 
-  inline Int32 isAntiJoin() const  // True if we are doing an anti-join
+  inline int isAntiJoin() const  // True if we are doing an anti-join
   {
     return (flags_ & ANTI_JOIN);
   };
@@ -118,8 +118,8 @@ class ComTdbMj : public ComTdb {
            ex_expr *lj_expr, ex_expr *ni_expr, ex_expr *right_copy_dup_expr, int right_dup_reclen, int reclen,
            ex_cri_desc *work_cri_desc, short instantiated_row_atp_index, ULng32 encoded_key_len,
            short encoded_key_work_atp_index, ex_expr *pre_join_expr, ex_expr *post_join_expr, queue_index down,
-           queue_index up, Cardinality estimatedRowCount, int num_buffers, ULng32 buffer_size, Int32 semi_join,
-           Int32 left_join, Int32 anti_join, NABoolean left_is_unique = FALSE, NABoolean right_is_unique = FALSE,
+           queue_index up, Cardinality estimatedRowCount, int num_buffers, ULng32 buffer_size, int semi_join,
+           int left_join, int anti_join, NABoolean left_is_unique = FALSE, NABoolean right_is_unique = FALSE,
            bool isOverflowEnabled = false, UInt16 scratchThresholdPct = 10, UInt16 quotaMB = 0, UInt16 quotaPct = 0,
            bool yieldQuota = true);
 
@@ -140,7 +140,7 @@ class ComTdbMj : public ComTdb {
 
   void display() const;
 
-  Int32 orderedQueueProtocol() const;
+  int orderedQueueProtocol() const;
 
   // True if we are doing a merge join where the left child returns
   // unique rows (no duplicates)
@@ -165,7 +165,7 @@ class ComTdbMj : public ComTdb {
   virtual void displayContents(Space *space, ULng32 flag);
 
   // GUI functions
-  virtual const ComTdb *getChild(Int32 pos) const {
+  virtual const ComTdb *getChild(int pos) const {
     if (pos == 0)
       return tdbLeft_;
     else if (pos == 1)
@@ -174,10 +174,10 @@ class ComTdbMj : public ComTdb {
       return NULL;
   }
 
-  virtual Int32 numChildren() const { return 2; }
+  virtual int numChildren() const { return 2; }
   virtual const char *getNodeName() const { return "EX_MJ"; };
-  virtual Int32 numExpressions() const { return 9; }
-  virtual ex_expr *getExpressionNode(Int32 pos) {
+  virtual int numExpressions() const { return 9; }
+  virtual ex_expr *getExpressionNode(int pos) {
     switch (pos) {
       case 0:
         return mergeExpr_;
@@ -202,7 +202,7 @@ class ComTdbMj : public ComTdb {
     }
   }
 
-  virtual const char *getExpressionName(Int32 pos) const {
+  virtual const char *getExpressionName(int pos) const {
     switch (pos) {
       case 0:
         return (encodedKeyCompOpt() ? "leftEncodedKeyExpr_" : "mergeExpr_");

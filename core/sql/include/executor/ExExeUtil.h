@@ -167,12 +167,12 @@ class ExExeUtilTcb : public ex_tcb {
   virtual short work();
 
   ex_queue_pair getParentQueue() const;
-  Int32 orderedQueueProtocol() const;
+  int orderedQueueProtocol() const;
 
   virtual void freeResources();
 
-  virtual Int32 numChildren() const;
-  virtual const ex_tcb *getChild(Int32 pos) const;
+  virtual int numChildren() const;
+  virtual const ex_tcb *getChild(int pos) const;
 
   void glueQueryFragments(int queryArraySize, const QueryString *queryArray, char *&gluedQuery,
                           int &gluedQuerySize);
@@ -248,7 +248,7 @@ class ExExeUtilTcb : public ex_tcb {
   short lockUnlockObject(char *tableName, NABoolean lock, NABoolean parallel, char *failReason);
 
   short alterObjectState(NABoolean online, char *tableName, char *failReason, NABoolean forPurgedata);
-  short alterDDLLock(NABoolean add, char *tableName, char *failReason, NABoolean isMV, Int32 lockType,
+  short alterDDLLock(NABoolean add, char *tableName, char *failReason, NABoolean isMV, int lockType,
                      const char *lockPrefix = NULL, NABoolean skipDDLLockCheck = FALSE);
   short alterCorruptBit(short val, char *tableName, char *failReason, Queue *indexList);
 
@@ -1768,7 +1768,7 @@ class ExExeUtilAqrWnrInsertTcb : public ExExeUtilTcb {
 
   ~ExExeUtilAqrWnrInsertTcb();
 
-  virtual Int32 fixup();
+  virtual int fixup();
 
   virtual short work();
 
@@ -1855,7 +1855,7 @@ class ExExeUtilLongRunningTcb : public ExExeUtilTcb {
 
   ~ExExeUtilLongRunningTcb();
 
-  virtual Int32 fixup();
+  virtual int fixup();
 
   virtual short work();
 
@@ -2042,7 +2042,7 @@ class ExExeUtilGetRTSStatisticsTcb : public ExExeUtilTcb {
   long queryHash_;
   NAString filePath_;
 
-  static const Int32 numOperStats = 14;
+  static const int numOperStats = 14;
   void formatOperStatItems(SQLSTATS_ITEM operStatsItems[]);
   void formatOperStats(SQLSTATS_ITEM operStatsItems[]);
   void formatOperStatsDataUsed(SQLSTATS_ITEM operStatsItems[]);
@@ -2212,11 +2212,11 @@ class ExExeUtilGetMetadataInfoTcb : public ExExeUtilTcb {
  private:
   NABoolean checkUserPrivs(ContextCli *currConnext, const ComTdbExeUtilGetMetadataInfo::QueryType queryType);
 
-  Int32 getAuthID(const char *authName, const char *catName, const char *schName, const char *objName);
+  int getAuthID(const char *authName, const char *catName, const char *schName, const char *objName);
 
-  Int32 getCurrentUserRoles(ContextCli *currContext, NAString &authList, NAString &granteeList);
+  int getCurrentUserRoles(ContextCli *currContext, NAString &authList, NAString &granteeList);
 
-  Int32 colPrivsFrag(const char *authName, const char *catName, const NAString &privWhereClause,
+  int colPrivsFrag(const char *authName, const char *catName, const NAString &privWhereClause,
                      NAString &colPrivsStmt);
 
   NAString getGrantedPrivCmd(const NAString &roleList, const char *cat, const bool &getObjectsInSchema,
@@ -2225,13 +2225,13 @@ class ExExeUtilGetMetadataInfoTcb : public ExExeUtilTcb {
 
   void getGroupList(const char *userName, NAString &groupList);
 
-  char *getRoleList(bool &containsRootRole, const Int32 userID, const char *catName, const char *schName,
+  char *getRoleList(bool &containsRootRole, const int userID, const char *catName, const char *schName,
                     const char *objName);
 
   long getObjectUID(const char *catName, const char *schName, const char *objName, const char *targetName,
                      const char *type);
 
-  Int32 colPrivsFrag(const char *authName, const NAString &privsWhereClause, NAString &colPrivsStmt);
+  int colPrivsFrag(const char *authName, const NAString &privsWhereClause, NAString &colPrivsStmt);
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -2291,7 +2291,7 @@ class ExExeUtilGetHbaseObjectsTcb : public ExExeUtilGetMetadataInfoTcb {
  private:
   ExpHbaseInterface *ehi_;
   NAArray<HbaseStr> *hbaseTables_;
-  Int32 currIndex_;
+  int currIndex_;
 
   NAString extTableName_;
 
@@ -2335,7 +2335,7 @@ class ExExeUtilGetNamespaceObjectsTcb : public ExExeUtilGetMetadataInfoTcb {
   ExpHbaseInterface *ehi_;
   NAArray<HbaseStr> *namespaceObjects_;
 
-  Int32 currIndex_;
+  int currIndex_;
 
   NAString extTableName_;
 
@@ -2752,7 +2752,7 @@ class ExExeUtilRegionStatsTcb : public ExExeUtilTcb {
   long getEmbeddedNumValue(char *&sep, char endChar, NABoolean adjustLen = TRUE);
 
   short collectStats(char *tableName, char *tableNameForUID, NABoolean replaceUID);
-  short populateStats(Int32 currIndex);
+  short populateStats(int currIndex);
 
   char *hbaseRootdir_;
 
@@ -2769,9 +2769,9 @@ class ExExeUtilRegionStatsTcb : public ExExeUtilTcb {
   ExpHbaseInterface *ehi_;
   NAArray<HbaseStr> *regionInfoList_;
 
-  Int32 currIndex_;
+  int currIndex_;
 
-  Int32 numRegionStatsEntries_;
+  int numRegionStatsEntries_;
 
   char *catName_;
   char *schName_;
@@ -2858,12 +2858,12 @@ class ExExeUtilClusterStatsTcb : public ExExeUtilRegionStatsTcb {
   Step step_;
 
   short collectStats();
-  short populateStats(Int32 currIndex, NABoolean nullTerminate = FALSE);
+  short populateStats(int currIndex, NABoolean nullTerminate = FALSE);
 
  protected:
   ComTdbClusterStatsVirtTableColumnStruct *stats_;
 
-  Int32 currObjectRegionNum_;
+  int currObjectRegionNum_;
   NAString currObjectName_;
 };
 
@@ -2974,11 +2974,11 @@ class ExExeUtilConnectbyTcb : public ExExeUtilTcb {
   Queue *thisQueue_;
   Queue *prevQueue_;
   Queue *tmpPrevQueue_;
-  Int32 currRootId_;
-  Int32 connBatchSize_;
-  Int32 upQueueIsFull_;
-  Int32 currSeedNum_;
-  Int32 nq21cnt_;
+  int currRootId_;
+  int connBatchSize_;
+  int upQueueIsFull_;
+  int currSeedNum_;
+  int nq21cnt_;
   connectByStackItem *resendIt_;
   Queue *resultCache_;
   short cachework_;
@@ -3094,8 +3094,8 @@ class ExExeUtilCompositeUnnestTcb : public ExExeUtilTcb {
   char *extractColRow_;
   char *returnColsRow_;
   char *elemNumRow_;
-  Int32 numElems_;
-  Int32 currElem_;
+  int numElems_;
+  int currElem_;
 };
 
 class ExExeUtilUpdataDeletePrivateState : public ex_tcb_private_state {

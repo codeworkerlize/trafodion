@@ -2,20 +2,11 @@
 #ifndef SQLCLI_HDR
 #define SQLCLI_HDR
 
-/* -*-C-*-
-******************************************************************************
-*
-* File:         SQLCLI.h
-* Description:  Declarations for the NonStop SQL CLI
-* Language:     C and C++.  The comment style herein must be C, not C++.
-*
-******************************************************************************
-*/
+
 
 #include <string>
 #include "dbsecurity/auth.h"
 
-/* Size specific types used here */
 typedef int Int32;
 typedef unsigned int UInt32;
 typedef short Int16;
@@ -29,7 +20,7 @@ typedef short Int16;
 extern "C" {
 #endif
 
-typedef Int32 SQLCTX_HANDLE;
+typedef int SQLCTX_HANDLE;
 
 // #if !defined(_MSC_VER) && !defined(long long )
 // /* long long  is an MSVC builtin definition, but may be used elsewhere */
@@ -50,12 +41,12 @@ typedef Int32 SQLCTX_HANDLE;
 
 /* structure to identify a module */
 struct SQLMODULE_ID_t {
-  Int32 version;
+  int version;
   const char *module_name;
   long long creation_timestamp;
   const char *charset; /* charset (encoded in ASCII, and null terminated) */
   /* of the module name. */
-  Int32 module_name_len; /* length of the module name (in bytes) */
+  int module_name_len; /* length of the module name (in bytes) */
 };
 
 /* typedef the structure so that C compilers can use it without the 'struct' */
@@ -79,15 +70,15 @@ enum SQLOBJ_ID_NAME_MODE {
 
 /* generic structure to pass names to the SQLCLI */
 struct SQLCLI_OBJ_ID {
-  Int32 version;              /* set to SQLCLI_CURRENT_VERSION if no tag  */
-  Int32 name_mode;            /* see enum SQLOBJ_ID_NAME_MODE below       */
+  int version;              /* set to SQLCLI_CURRENT_VERSION if no tag  */
+  int name_mode;            /* see enum SQLOBJ_ID_NAME_MODE below       */
   const SQLMODULE_ID *module; /* module name (leading part of name)       */
   const char *identifier;     /* actual identifier (one part name)        */
   void *handle;               /* handle, in addition or instead of a name */
   const char *charset;        /* charset (encoded in ASCII, and null terminated) */
                               /* of the identifier. */
-  Int32 identifier_len;       /* length of the identifier (in bytes) */
-  Int32 tag;                  /* added in R1.8, used when version==SQLCLI_STATEMENT_VERSION_2 */
+  int identifier_len;       /* length of the identifier (in bytes) */
+  int tag;                  /* added in R1.8, used when version==SQLCLI_STATEMENT_VERSION_2 */
                               /* tag must be non-zero for nowaited operation      */
                               /* and zero for waited. */
 };
@@ -284,9 +275,9 @@ enum SQLCONVCHARSET_CODE {
 
 /* struct to hold one item of a descriptor entry */
 typedef struct {
-  Int32 item_id;              /* which item (see SQLDESC_ITEM_ID)         */
-  Int32 value_num_desc_entry; /* value num's input descriptor entry num   */
-  Int32 entry;                /* number of the entry                      */
+  int item_id;              /* which item (see SQLDESC_ITEM_ID)         */
+  int value_num_desc_entry; /* value num's input descriptor entry num   */
+  int entry;                /* number of the entry                      */
   long num_val_or_len;        /* numeric value or length of string        */
   char *string_val;           /* string value (if not a numeric value)    */
 } SQLDESC_ITEM;
@@ -569,8 +560,8 @@ enum SQLDIAG_COND_INFO_ITEM_ID {
 
 /* struct to specify one condition information item of a diagnostics entry */
 typedef struct {
-  Int32 item_id;                /* item id (SQLDIAG_COND_INFO_ITEM_ID) */
-  Int32 cond_number_desc_entry; /* cond. num's input descriptor entry num   */
+  int item_id;                /* item id (SQLDIAG_COND_INFO_ITEM_ID) */
+  int cond_number_desc_entry; /* cond. num's input descriptor entry num   */
 } SQLDIAG_COND_INFO_ITEM;
 
 /* struct to hold one item value of a diagnostic condition */
@@ -578,7 +569,7 @@ typedef struct {
   /* which condition and which item in that condition */
   SQLDIAG_COND_INFO_ITEM item_id_and_cond_number;
   /* numeric value or length of string        */
-  Int32 *num_val_or_len;
+  int *num_val_or_len;
   /* string value (if not a numeric value)    */
   char *string_val;
 } SQLDIAG_COND_INFO_ITEM_VALUE;
@@ -612,16 +603,16 @@ typedef struct {
   long long cmpCpuGenerator;
   UInt32 metadataCacheHits;
   UInt32 metadataCacheLookups;
-  Int32 queryCacheState;
+  int queryCacheState;
   UInt32 histogramCacheHits;
   UInt32 histogramCacheLookups;
   long long stmtHeapSize;
   long long cxtHeapSize;
-  Int32 optTasks;
-  Int32 optContexts;
+  int optTasks;
+  int optContexts;
   short isRecompile;
   char compileInfo[COMPILE_INFO_LEN];
-  Int32 compileInfoLen;
+  int compileInfoLen;
 } SQL_COMPILATION_STATS_DATA;
 
 /* struct to return details about a query after prepare.
@@ -629,7 +620,7 @@ typedef struct {
    query */
 typedef struct {
   UInt32 affinityNumber;
-  Int32 dop; /* degree of parallel execution */
+  int dop; /* degree of parallel execution */
   short xnNeeded;
   short mandatoryCrossProduct;
   short missingStats;
@@ -706,9 +697,9 @@ struct SQLCLI_PTR_PAIRS {
 
 /* struct to specify an array of quad fields without using a va list. */
 struct SQLCLI_QUAD_FIELDS {
-  Int32 var_layout; /* data variable layout size */
+  int var_layout; /* data variable layout size */
   void *var_ptr;    /* pointer to the data variable */
-  Int32 ind_layout; /* indicator variable layout size */
+  int ind_layout; /* indicator variable layout size */
   void *ind_ptr;    /* pointer to indicator variable; -1 is NULL */
 };
 
@@ -740,20 +731,20 @@ enum SQLATTR_TYPE {
    the SQL_EXEC_GetStmtAttrs function that returns multiple
    attributes in one call. */
 typedef struct {
-  Int32 attr_type;      /* IN:    which attr, from the         */
+  int attr_type;      /* IN:    which attr, from the         */
                         /*        SQLATTR_TYPE enum            */
-  Int32 index;          /* IN:    optional index if attr       */
+  int index;          /* IN:    optional index if attr       */
                         /*        is a collection              */
-  Int32 *numeric_value; /* INOUT: if attr is numeric, address  */
+  int *numeric_value; /* INOUT: if attr is numeric, address  */
                         /*        of target buffer for the     */
                         /*        attr value                   */
   char *string_value;   /* INOUT: if attr is string, address   */
                         /*        of target buffer for the     */
                         /*        attr value                   */
-  Int32 max_string_len; /* IN:    if attr is string, max len   */
+  int max_string_len; /* IN:    if attr is string, max len   */
                         /*        of buffer pointed to by      */
                         /*        string_val                   */
-  Int32 *len_of_item;   /* INOUT OPTIONAL: if attr is string,  */
+  int *len_of_item;   /* INOUT OPTIONAL: if attr is string,  */
                         /*        address of target buffer to  */
                         /*        hold actual len of item      */
                         /*        returned. If error returned  */
@@ -918,7 +909,7 @@ enum UNIQUEQUERYID_ATTR_TYPE {
 };
 
 typedef struct {
-  Int32 attr_type;          /* IN: which attr (UNIQUEQUERYID_ATTR_TYPE)      */
+  int attr_type;          /* IN: which attr (UNIQUEQUERYID_ATTR_TYPE)      */
   long long num_val_or_len; /* IN: if string value, max length of string
                                to return in string_val
                          Note: string_val buffer size should be one more than
@@ -1248,9 +1239,9 @@ typedef struct {
   long long int64_value;
   double double_value;
   char *str_value;
-  Int32 str_max_len;
-  Int32 str_ret_len;
-  Int32 error_code;
+  int str_max_len;
+  int str_ret_len;
+  int error_code;
 } SQLSTATS_ITEM;
 
 /* used in call to SQLCLI_Prepare2 */
@@ -1315,8 +1306,8 @@ typedef struct {
 /*   group_config_num - num associated with LDAP section where group defined  */
 struct SQLSEC_GroupInfo {
   char *group_name;
-  Int32 group_id;
-  Int32 group_config_num;
+  int group_id;
+  int group_config_num;
 
   SQLSEC_GroupInfo() : group_name(NULL), group_id(0), group_config_num(0){};
 
@@ -1337,14 +1328,14 @@ struct SQLSEC_GroupInfo {
 /*   num_tenants: returns the number of tenants defined in the metadata       */
 /*      set up if the tenant is system tenant DB__SYSTEMTENANT                */
 struct SQLSEC_AuthDetails {
-  Int32 auth_id;
+  int auth_id;
   bool auth_is_valid;
-  Int32 tenant_id;
+  int tenant_id;
   bool tenant_is_valid;
   bool tenant_group_check;
-  Int32 num_groups;
+  int num_groups;
   SQLSEC_GroupInfo *group_list;
-  Int32 num_tenants;
+  int num_tenants;
 
   SQLSEC_AuthDetails()
       : auth_id(0),
@@ -1370,714 +1361,714 @@ struct SQLSEC_AuthDetails {
   }
 };
 
-Int32 SQL_EXEC_AllocDesc(
+int SQL_EXEC_AllocDesc(
     /*INOUT*/ SQLDESC_ID *desc_id,
     /*IN OPTIONAL*/ SQLDESC_ID *input_descriptor);
 
-Int32 SQL_EXEC_ALLOCDESC(
+int SQL_EXEC_ALLOCDESC(
     /*INOUT*/ SQLDESC_ID *desc_id,
     /*IN OPTIONAL*/ SQLDESC_ID *input_descriptor);
 
-Int32 SQL_EXEC_AllocDescBasic(
+int SQL_EXEC_AllocDescBasic(
     /*INOUT*/ SQLDESC_ID *desc_id,
-    /*IN OPTIONAL*/ Int32 max_entries);
+    /*IN OPTIONAL*/ int max_entries);
 
-Int32 SQL_EXEC_AssocFileNumber(
+int SQL_EXEC_AssocFileNumber(
     /*IN*/ SQLSTMT_ID *statement_id,
     /*IN*/ short file_number);
 
-Int32 SQL_EXEC_ASSOCFILENUMBER(
+int SQL_EXEC_ASSOCFILENUMBER(
     /*IN*/ SQLSTMT_ID *statement_id,
     /*IN*/ short file_number);
-Int32 SQL_EXEC_GetDiskMaxSize(
+int SQL_EXEC_GetDiskMaxSize(
     /*IN*/ char *volname,
     /*OUT*/ long *totalCapacity,
     /*OUT*/ long *totalFreespace);
-Int32 SQL_EXEC_GetListOfDisks(
+int SQL_EXEC_GetListOfDisks(
     /*IN/OUT*/ char *diskBuf,
-    /* OUT */ Int32 *numTSEs,
-    /* OUT */ Int32 *maxTSELength,
-    /* IN/OUT */ Int32 *diskBufLength);
+    /* OUT */ int *numTSEs,
+    /* OUT */ int *maxTSELength,
+    /* IN/OUT */ int *diskBufLength);
 
-Int32 SQL_EXEC_AllocStmt(
+int SQL_EXEC_AllocStmt(
     /*INOUT*/ SQLSTMT_ID *new_statement_id,
     /*IN OPTIONAL*/ SQLSTMT_ID *cloned_statement);
 
-Int32 SQL_EXEC_ALLOCSTMT(
+int SQL_EXEC_ALLOCSTMT(
     /*INOUT*/ SQLSTMT_ID *new_statement_id,
     /*IN OPTIONAL*/ SQLSTMT_ID *cloned_statement);
 
-Int32 SQL_EXEC_AllocStmtForRS(
+int SQL_EXEC_AllocStmtForRS(
     /*IN*/ SQLSTMT_ID *callStmtId,
-    /*IN*/ Int32 resultSetIndex,
+    /*IN*/ int resultSetIndex,
     /*INOUT*/ SQLSTMT_ID *resultSetStmtId);
 
-Int32 SQL_EXEC_ALLOCSTMTFORRS(
+int SQL_EXEC_ALLOCSTMTFORRS(
     /*IN*/ SQLSTMT_ID *callStmtId,
-    /*IN*/ Int32 resultSetIndex,
+    /*IN*/ int resultSetIndex,
     /*INOUT*/ SQLSTMT_ID *resultSetStmtId);
 
-Int32 SQL_EXEC_ClearDiagnostics(/*IN*/ SQLSTMT_ID *statement_id);
+int SQL_EXEC_ClearDiagnostics(/*IN*/ SQLSTMT_ID *statement_id);
 
-Int32 SQL_EXEC_CLEARDIAGNOSTICS(/*IN*/ SQLSTMT_ID *statement_id);
+int SQL_EXEC_CLEARDIAGNOSTICS(/*IN*/ SQLSTMT_ID *statement_id);
 
-Int32 SQL_EXEC_CLI_VERSION();
+int SQL_EXEC_CLI_VERSION();
 
-Int32 SQL_EXEC_CloseStmt(
+int SQL_EXEC_CloseStmt(
     /*IN*/ SQLSTMT_ID *statement_id);
 
-Int32 SQL_EXEC_CLOSESTMT(
+int SQL_EXEC_CLOSESTMT(
     /*IN*/ SQLSTMT_ID *statement_id);
 
-Int32 SQL_EXEC_CreateContext(/*OUT*/ SQLCTX_HANDLE *context_handle,
+int SQL_EXEC_CreateContext(/*OUT*/ SQLCTX_HANDLE *context_handle,
                              /*IN OPTIONAL*/ char *sqlAuthId,
-                             /*IN OPTIONAL*/ Int32 suppressAutoXactStart);
+                             /*IN OPTIONAL*/ int suppressAutoXactStart);
 
-Int32 SQL_EXEC_CREATECONTEXT(/*OUT*/ SQLCTX_HANDLE *context_handle,
+int SQL_EXEC_CREATECONTEXT(/*OUT*/ SQLCTX_HANDLE *context_handle,
                              /*IN OPTIONAL*/ char *sqlAuthId,
-                             /*IN OPTIONAL*/ Int32 suppressAutoXactStart);
+                             /*IN OPTIONAL*/ int suppressAutoXactStart);
 
-Int32 SQL_EXEC_CurrentContext(/*OUT*/ SQLCTX_HANDLE *contextHandle);
+int SQL_EXEC_CurrentContext(/*OUT*/ SQLCTX_HANDLE *contextHandle);
 
-Int32 SQL_EXEC_CURRENTCONTEXT(/*OUT*/ SQLCTX_HANDLE *contextHandle);
+int SQL_EXEC_CURRENTCONTEXT(/*OUT*/ SQLCTX_HANDLE *contextHandle);
 
-Int32 SQL_EXEC_DeleteContext(/*IN*/ SQLCTX_HANDLE contextHandle);
+int SQL_EXEC_DeleteContext(/*IN*/ SQLCTX_HANDLE contextHandle);
 
-Int32 SQL_EXEC_DELETECONTEXT(/*IN*/ SQLCTX_HANDLE contextHandle);
+int SQL_EXEC_DELETECONTEXT(/*IN*/ SQLCTX_HANDLE contextHandle);
 
-Int32 SQL_EXEC_ResetContext(/*IN*/ SQLCTX_HANDLE contextHandle, /*IN*/ void *contextMsg);
+int SQL_EXEC_ResetContext(/*IN*/ SQLCTX_HANDLE contextHandle, /*IN*/ void *contextMsg);
 
-Int32 SQL_EXEC_RESETCONTEXT(/*IN*/ SQLCTX_HANDLE contextHandle, /*IN*/ void *contextMsg);
+int SQL_EXEC_RESETCONTEXT(/*IN*/ SQLCTX_HANDLE contextHandle, /*IN*/ void *contextMsg);
 
-Int32 SQL_EXEC_DeallocDesc(
+int SQL_EXEC_DeallocDesc(
     /*IN*/ SQLDESC_ID *desc_id);
 
-Int32 SQL_EXEC_DEALLOCDESC(
+int SQL_EXEC_DEALLOCDESC(
     /*IN*/ SQLDESC_ID *desc_id);
 
-Int32 SQL_EXEC_DeallocStmt(
+int SQL_EXEC_DeallocStmt(
     /*IN*/ SQLSTMT_ID *statement_id);
 
-Int32 SQL_EXEC_DEALLOCSTMT(
+int SQL_EXEC_DEALLOCSTMT(
     /*IN*/ SQLSTMT_ID *statement_id);
 
-Int32 SQL_EXEC_DefineDesc(
+int SQL_EXEC_DefineDesc(
     /*IN*/ SQLSTMT_ID *statement_id,
-    /*IN* (SQLWHAT_DESC) */ Int32 what_descriptor,
+    /*IN* (SQLWHAT_DESC) */ int what_descriptor,
     /*IN*/ SQLDESC_ID *sql_descriptor);
 
-Int32 SQL_EXEC_DEFINEDESC(
+int SQL_EXEC_DEFINEDESC(
     /*IN*/ SQLSTMT_ID *statement_id,
-    /*IN* (SQLWHAT_DESC) */ Int32 what_descriptor,
+    /*IN* (SQLWHAT_DESC) */ int what_descriptor,
     /*IN*/ SQLDESC_ID *sql_descriptor);
 
-Int32 SQL_EXEC_DescribeStmt(
+int SQL_EXEC_DescribeStmt(
     /*IN*/ SQLSTMT_ID *statement_id,
     /*IN OPTIONAL*/ SQLDESC_ID *input_descriptor,
     /*IN OPTIONAL*/ SQLDESC_ID *output_descriptor);
 
-Int32 SQL_EXEC_DESCRIBESTMT(
+int SQL_EXEC_DESCRIBESTMT(
     /*IN*/ SQLSTMT_ID *statement_id,
     /*IN OPTIONAL*/ SQLDESC_ID *input_descriptor,
     /*IN OPTIONAL*/ SQLDESC_ID *output_descriptor);
 
-Int32 SQL_EXEC_DisassocFileNumber(/*IN*/ SQLSTMT_ID *statement_id);
+int SQL_EXEC_DisassocFileNumber(/*IN*/ SQLSTMT_ID *statement_id);
 
-Int32 SQL_EXEC_DISASSOCFILENUMBER(/*IN*/ SQLSTMT_ID *statement_id);
+int SQL_EXEC_DISASSOCFILENUMBER(/*IN*/ SQLSTMT_ID *statement_id);
 
-Int32 SQL_EXEC_DropContext(
+int SQL_EXEC_DropContext(
     /*IN*/ SQLCTX_HANDLE context_handle);
 
-Int32 SQL_EXEC_DROPCONTEXT(
+int SQL_EXEC_DROPCONTEXT(
     /*IN*/ SQLCTX_HANDLE context_handle);
 
-Int32 SQL_EXEC_Exec(
+int SQL_EXEC_Exec(
     /*IN*/ SQLSTMT_ID *statement_id,
     /*IN OPTIONAL*/ SQLDESC_ID *input_descriptor,
-    /*IN*/ Int32 num_ptr_pairs,
-    /*IN*/ Int32 num_ap, ...);
+    /*IN*/ int num_ptr_pairs,
+    /*IN*/ int num_ap, ...);
 
-Int32 SQL_EXEC_EXEC(
+int SQL_EXEC_EXEC(
     /*IN*/ SQLSTMT_ID *statement_id,
     /*IN OPTIONAL*/ SQLDESC_ID *input_descriptor,
-    /*IN*/ Int32 num_ptr_pairs,
+    /*IN*/ int num_ptr_pairs,
     /*IN*/ struct SQLCLI_PTR_PAIRS ptr_pairs[]);
 
-Int32 SQL_EXEC_ExecClose(
+int SQL_EXEC_ExecClose(
     /*IN*/ SQLSTMT_ID *statement_id,
     /*IN OPTIONAL*/ SQLDESC_ID *input_descriptor,
-    /*IN*/ Int32 num_ptr_pairs,
-    /*IN*/ Int32 num_ap, ...);
+    /*IN*/ int num_ptr_pairs,
+    /*IN*/ int num_ap, ...);
 
-Int32 SQL_EXEC_EXECCLOSE(
+int SQL_EXEC_EXECCLOSE(
     /*IN*/ SQLSTMT_ID *statement_id,
     /*IN OPTIONAL*/ SQLDESC_ID *input_descriptor,
-    /*IN*/ Int32 num_ptr_pairs,
+    /*IN*/ int num_ptr_pairs,
     /*IN*/ struct SQLCLI_PTR_PAIRS ptr_pairs[]);
 
-Int32 SQL_EXEC_ExecDirect(
+int SQL_EXEC_ExecDirect(
     /*IN*/ SQLSTMT_ID *statement_id,
     /*IN*/ SQLDESC_ID *sql_source,
     /*IN OPTIONAL*/ SQLDESC_ID *input_descriptor,
-    /*IN*/ Int32 num_ptr_pairs,
-    /*IN*/ Int32 num_ap, ...);
-Int32 SQL_EXEC_ExecDirect2(
+    /*IN*/ int num_ptr_pairs,
+    /*IN*/ int num_ap, ...);
+int SQL_EXEC_ExecDirect2(
     /*IN*/ SQLSTMT_ID *statement_id,
     /*IN*/ SQLDESC_ID *sql_source,
-    /*IN*/ Int32 prepFlags,
+    /*IN*/ int prepFlags,
     /*IN  OPTIONAL*/ SQLDESC_ID *input_descriptor,
-    /*IN*/ Int32 num_ptr_pairs,
-    /*IN*/ Int32 num_ap, ...);
-Int32 SQL_EXEC_EXECDIRECT(
+    /*IN*/ int num_ptr_pairs,
+    /*IN*/ int num_ap, ...);
+int SQL_EXEC_EXECDIRECT(
     /*IN*/ SQLSTMT_ID *statement_id,
     /*IN*/ SQLDESC_ID *sql_source,
     /*IN OPTIONAL*/ SQLDESC_ID *input_descriptor,
-    /*IN*/ Int32 num_ptr_pairs,
+    /*IN*/ int num_ptr_pairs,
     /*IN*/ struct SQLCLI_PTR_PAIRS ptr_pairs[]);
 
-Int32 SQL_EXEC_ExecDirectDealloc(
+int SQL_EXEC_ExecDirectDealloc(
     /*IN*/ SQLSTMT_ID *statement_id,
     /*IN*/ SQLDESC_ID *sql_source,
     /*IN OPTIONAL*/ SQLDESC_ID *input_descriptor,
-    /*IN*/ Int32 num_ptr_pairs,
-    /*IN*/ Int32 num_ap, ...);
+    /*IN*/ int num_ptr_pairs,
+    /*IN*/ int num_ap, ...);
 
-Int32 SQL_EXEC_EXECDIRECTDEALLOC(
+int SQL_EXEC_EXECDIRECTDEALLOC(
     /*IN*/ SQLSTMT_ID *statement_id,
     /*IN*/ SQLDESC_ID *sql_source,
     /*IN OPTIONAL*/ SQLDESC_ID *input_descriptor,
-    /*IN*/ Int32 num_ptr_pairs,
+    /*IN*/ int num_ptr_pairs,
     /*IN*/ struct SQLCLI_PTR_PAIRS ptr_pairs[]);
 
-Int32 SQL_EXEC_ExecFetch(
+int SQL_EXEC_ExecFetch(
     /*IN*/ SQLSTMT_ID *statement_id,
     /*IN OPTIONAL*/ SQLDESC_ID *input_descriptor,
-    /*IN*/ Int32 num_ptr_pairs,
-    /*IN*/ Int32 num_ap, ...);
+    /*IN*/ int num_ptr_pairs,
+    /*IN*/ int num_ap, ...);
 
-Int32 SQL_EXEC_EXECFETCH(
+int SQL_EXEC_EXECFETCH(
     /*IN*/ SQLSTMT_ID *statement_id,
     /*IN OPTIONAL*/ SQLDESC_ID *input_descriptor,
-    /*IN*/ Int32 num_ptr_pairs,
+    /*IN*/ int num_ptr_pairs,
     /*IN*/ struct SQLCLI_PTR_PAIRS ptr_pairs[]);
 
-Int32 SQL_EXEC_ClearExecFetchClose(
+int SQL_EXEC_ClearExecFetchClose(
     /*IN*/ SQLSTMT_ID *statement_id,
     /*IN OPTIONAL*/ SQLDESC_ID *input_descriptor,
     /*IN OPTIONAL*/ SQLDESC_ID *output_descriptor,
-    /*IN*/ Int32 num_input_ptr_pairs,
-    /*IN*/ Int32 num_output_ptr_pairs,
-    /*IN*/ Int32 num_total_ptr_pairs,
-    /*IN*/ Int32 num_ap, ...);
+    /*IN*/ int num_input_ptr_pairs,
+    /*IN*/ int num_output_ptr_pairs,
+    /*IN*/ int num_total_ptr_pairs,
+    /*IN*/ int num_ap, ...);
 
-Int32 SQL_EXEC_CLEAREXECFETCHCLOSE(
+int SQL_EXEC_CLEAREXECFETCHCLOSE(
     /*IN*/ SQLSTMT_ID *statement_id,
     /*IN OPTIONAL*/ SQLDESC_ID *input_descriptor,
     /*IN OPTIONAL*/ SQLDESC_ID *output_descriptor,
-    /*IN*/ Int32 num_input_ptr_pairs,
-    /*IN*/ Int32 num_output_ptr_pairs,
-    /*IN*/ Int32 num_total_ptr_pairs,
+    /*IN*/ int num_input_ptr_pairs,
+    /*IN*/ int num_output_ptr_pairs,
+    /*IN*/ int num_total_ptr_pairs,
     /*IN*/ struct SQLCLI_PTR_PAIRS input_ptr_pairs[],
     /*IN*/ struct SQLCLI_PTR_PAIRS output_ptr_pairs[]);
 
-Int32 SQL_EXEC_Fetch(
+int SQL_EXEC_Fetch(
     /*IN*/ SQLSTMT_ID *statement_id,
     /*IN OPTIONAL*/ SQLDESC_ID *output_descriptor,
-    /*IN*/ Int32 num_ptr_pairs,
-    /*IN*/ Int32 num_ap, ...);
+    /*IN*/ int num_ptr_pairs,
+    /*IN*/ int num_ap, ...);
 
-Int32 SQL_EXEC_FETCH(
+int SQL_EXEC_FETCH(
     /*IN*/ SQLSTMT_ID *statement_id,
     /*IN OPTIONAL*/ SQLDESC_ID *output_descriptor,
-    /*IN*/ Int32 num_ptr_pairs,
+    /*IN*/ int num_ptr_pairs,
     /*IN*/ struct SQLCLI_PTR_PAIRS ptr_pairs[]);
 
-Int32 SQL_EXEC_FetchClose(
+int SQL_EXEC_FetchClose(
     /*IN*/ SQLSTMT_ID *statement_id,
     /*IN OPTIONAL*/ SQLDESC_ID *output_descriptor,
-    /*IN*/ Int32 num_ptr_pairs,
-    /*IN*/ Int32 num_ap, ...);
+    /*IN*/ int num_ptr_pairs,
+    /*IN*/ int num_ap, ...);
 
-Int32 SQL_EXEC_FETCHCLOSE(
+int SQL_EXEC_FETCHCLOSE(
     /*IN*/ SQLSTMT_ID *statement_id,
     /*IN OPTIONAL*/ SQLDESC_ID *output_descriptor,
-    /*IN*/ Int32 num_ptr_pairs,
+    /*IN*/ int num_ptr_pairs,
     /*IN*/ struct SQLCLI_PTR_PAIRS ptr_pairs[]);
 
-Int32 SQL_EXEC_FetchMultiple(/*IN*/ SQLSTMT_ID *statement_id,
+int SQL_EXEC_FetchMultiple(/*IN*/ SQLSTMT_ID *statement_id,
                              /*IN  OPTIONAL*/ SQLDESC_ID *output_descriptor,
-                             /*IN*/ Int32 rowset_size,
-                             /*IN*/ Int32 *rowset_status_ptr,
-                             /*OUT*/ Int32 *rowset_nfetched,
-                             /*IN*/ Int32 num_quadruple_fields,
-                             /*IN*/ Int32 num_ap, ...);
-Int32 SQL_EXEC_FETCHMULTIPLE(/*IN*/ SQLSTMT_ID *statement_id,
+                             /*IN*/ int rowset_size,
+                             /*IN*/ int *rowset_status_ptr,
+                             /*OUT*/ int *rowset_nfetched,
+                             /*IN*/ int num_quadruple_fields,
+                             /*IN*/ int num_ap, ...);
+int SQL_EXEC_FETCHMULTIPLE(/*IN*/ SQLSTMT_ID *statement_id,
                              /*IN  OPTIONAL*/ SQLDESC_ID *output_descriptor,
-                             /*IN*/ Int32 rowset_size,
-                             /*IN*/ Int32 *rowset_status_ptr,
-                             /*OUT*/ Int32 *rowset_nfetched,
-                             /*IN*/ Int32 num_quadruple_fields,
+                             /*IN*/ int rowset_size,
+                             /*IN*/ int *rowset_status_ptr,
+                             /*OUT*/ int *rowset_nfetched,
+                             /*IN*/ int num_quadruple_fields,
                              /*IN*/ struct SQLCLI_QUAD_FIELDS quad_fields[]);
-Int32 SQL_EXEC_Cancel(
+int SQL_EXEC_Cancel(
     /*IN OPTIONAL*/ SQLSTMT_ID *statement_id);
 
-Int32 SQL_EXEC_CancelOperation(long transid);
+int SQL_EXEC_CancelOperation(long transid);
 
-Int32 SQL_EXEC_CANCEL(
+int SQL_EXEC_CANCEL(
     /*IN OPTIONAL*/ SQLSTMT_ID *statement_id);
 
-Int32 SQL_EXEC_GetDescEntryCount(
+int SQL_EXEC_GetDescEntryCount(
     /*IN*/ SQLDESC_ID *sql_descriptor,
     /*IN*/ SQLDESC_ID *output_descriptor);
 
-Int32 SQL_EXEC_GETDESCENTRYCOUNT(
+int SQL_EXEC_GETDESCENTRYCOUNT(
     /*IN*/ SQLDESC_ID *sql_descriptor,
     /*IN*/ SQLDESC_ID *output_descriptor);
 
-Int32 SQL_EXEC_GetDescEntryCountBasic(
+int SQL_EXEC_GetDescEntryCountBasic(
     /*IN*/ SQLDESC_ID *sql_descriptor,
-    /*OUT*/ Int32 *num_entries);
-Int32 SQL_EXEC_GetDescItem(
+    /*OUT*/ int *num_entries);
+int SQL_EXEC_GetDescItem(
     /*IN*/ SQLDESC_ID *sql_descriptor,
-    /*IN*/ Int32 entry,
-    /*IN* (SQLDESC_ITEM_ID) */ Int32 what_to_get,
+    /*IN*/ int entry,
+    /*IN* (SQLDESC_ITEM_ID) */ int what_to_get,
     /*OUT OPTIONAL*/ void *numeric_value,
     /*OUT OPTIONAL*/ char *string_value,
-    /*IN OPTIONAL*/ Int32 max_string_len,
-    /*OUT OPTIONAL*/ Int32 *len_of_item,
-    /*IN OPTIONAL*/ Int32 start_from_offset);
+    /*IN OPTIONAL*/ int max_string_len,
+    /*OUT OPTIONAL*/ int *len_of_item,
+    /*IN OPTIONAL*/ int start_from_offset);
 
-Int32 SQL_EXEC_GETDESCITEM(
+int SQL_EXEC_GETDESCITEM(
     /*IN*/ SQLDESC_ID *sql_descriptor,
-    /*IN*/ Int32 entry,
-    /*IN* (SQLDESC_ITEM_ID) */ Int32 what_to_get,
+    /*IN*/ int entry,
+    /*IN* (SQLDESC_ITEM_ID) */ int what_to_get,
     /*OUT OPTIONAL*/ void *numeric_value,
     /*OUT OPTIONAL*/ char *string_value,
-    /*IN OPTIONAL*/ Int32 max_string_len,
-    /*OUT OPTIONAL*/ Int32 *len_of_item,
-    /*IN OPTIONAL*/ Int32 start_from_offset);
+    /*IN OPTIONAL*/ int max_string_len,
+    /*OUT OPTIONAL*/ int *len_of_item,
+    /*IN OPTIONAL*/ int start_from_offset);
 
-Int32 SQL_EXEC_GetDescItems(
+int SQL_EXEC_GetDescItems(
     /*IN*/ SQLDESC_ID *sql_descriptor,
     /*IN*/ SQLDESC_ITEM desc_items[],
     /*IN*/ SQLDESC_ID *value_num_descriptor,
     /*IN*/ SQLDESC_ID *output_descriptor);
 
-Int32 SQL_EXEC_GETDESCITEMS(
+int SQL_EXEC_GETDESCITEMS(
     /*IN*/ SQLDESC_ID *sql_descriptor,
     /*IN*/ SQLDESC_ITEM desc_items[],
     /*IN*/ SQLDESC_ID *value_num_descriptor,
     /*IN*/ SQLDESC_ID *output_descriptor);
 
-Int32 SQL_EXEC_GetDescItems2(
+int SQL_EXEC_GetDescItems2(
     /*IN*/ SQLDESC_ID *sql_descriptor,
-    /*IN*/ Int32 no_of_desc_items,
+    /*IN*/ int no_of_desc_items,
     /*IN*/ SQLDESC_ITEM desc_items[]);
 
-Int32 SQL_EXEC_GETDESCITEMS2(
+int SQL_EXEC_GETDESCITEMS2(
     /*IN*/ SQLDESC_ID *sql_descriptor,
-    /*IN*/ Int32 no_of_desc_items,
+    /*IN*/ int no_of_desc_items,
     /*IN*/ SQLDESC_ITEM desc_items[]);
 
-Int32 SQL_EXEC_GetDiagnosticsStmtInfo(
-    /*IN*/ Int32 *stmt_info_items,
+int SQL_EXEC_GetDiagnosticsStmtInfo(
+    /*IN*/ int *stmt_info_items,
     /*IN*/ SQLDESC_ID *output_descriptor);
 
-Int32 SQL_EXEC_GETDIAGNOSTICSSTMTINFO(
-    /*IN*/ Int32 *stmt_info_items,
+int SQL_EXEC_GETDIAGNOSTICSSTMTINFO(
+    /*IN*/ int *stmt_info_items,
     /*IN*/ SQLDESC_ID *output_descriptor);
 
-Int32 SQL_EXEC_GetDiagnosticsStmtInfo2(
+int SQL_EXEC_GetDiagnosticsStmtInfo2(
     /*IN OPTIONAL*/ SQLSTMT_ID *statement_id,
-    /*IN* (SQLDIAG_STMT_INFO_ITEM_ID) */ Int32 what_to_get,
+    /*IN* (SQLDIAG_STMT_INFO_ITEM_ID) */ int what_to_get,
     /*OUT OPTIONAL*/ void *numeric_value,
     /*OUT OPTIONAL*/ char *string_value,
-    /*IN OPTIONAL*/ Int32 max_string_len,
-    /*OUT OPTIONAL*/ Int32 *len_of_item);
+    /*IN OPTIONAL*/ int max_string_len,
+    /*OUT OPTIONAL*/ int *len_of_item);
 
-Int32 SQL_EXEC_GETDIAGNOSTICSSTMTINFO2(
+int SQL_EXEC_GETDIAGNOSTICSSTMTINFO2(
     /*IN OPTIONAL*/ SQLSTMT_ID *statement_id,
-    /*IN* (SQLDIAG_STMT_INFO_ITEM_ID) */ Int32 what_to_get,
+    /*IN* (SQLDIAG_STMT_INFO_ITEM_ID) */ int what_to_get,
     /*OUT OPTIONAL*/ void *numeric_value,
     /*OUT OPTIONAL*/ char *string_value,
-    /*IN OPTIONAL*/ Int32 max_string_len,
-    /*OUT OPTIONAL*/ Int32 *len_of_item);
+    /*IN OPTIONAL*/ int max_string_len,
+    /*OUT OPTIONAL*/ int *len_of_item);
 
-Int32 SQL_EXEC_GetDiagnosticsCondInfo(
+int SQL_EXEC_GetDiagnosticsCondInfo(
     /*IN*/ SQLDIAG_COND_INFO_ITEM *cond_info_items,
     /*IN*/ SQLDESC_ID *cond_num_descriptor,
     /*IN*/ SQLDESC_ID *output_descriptor);
 
-Int32 SQL_EXEC_GETDIAGNOSTICSCONDINFO(
+int SQL_EXEC_GETDIAGNOSTICSCONDINFO(
     /*IN*/ SQLDIAG_COND_INFO_ITEM *cond_info_items,
     /*IN*/ SQLDESC_ID *cond_num_descriptor,
     /*IN*/ SQLDESC_ID *output_descriptor);
 
-Int32 SQL_EXEC_GetDiagnosticsCondInfo2(
-    /*IN* (SQLDIAG_COND_INFO_ITEM_ID) */ Int32 what_to_get,
-    /*IN*/ Int32 conditionNum,
-    /*OUT OPTIONAL*/ Int32 *numeric_value,
+int SQL_EXEC_GetDiagnosticsCondInfo2(
+    /*IN* (SQLDIAG_COND_INFO_ITEM_ID) */ int what_to_get,
+    /*IN*/ int conditionNum,
+    /*OUT OPTIONAL*/ int *numeric_value,
     /*OUT OPTIONAL*/ char *string_value,
-    /*IN OPTIONAL */ Int32 max_string_len,
-    /*OUT OPTIONAL*/ Int32 *len_of_item);
+    /*IN OPTIONAL */ int max_string_len,
+    /*OUT OPTIONAL*/ int *len_of_item);
 
-Int32 SQL_EXEC_GETDIAGNOSTICSCONDINFO2(
-    /*IN* (SQLDIAG_COND_INFO_ITEM_ID) */ Int32 what_to_get,
-    /*IN*/ Int32 conditionNum,
-    /*OUT OPTIONAL*/ Int32 *numeric_value,
+int SQL_EXEC_GETDIAGNOSTICSCONDINFO2(
+    /*IN* (SQLDIAG_COND_INFO_ITEM_ID) */ int what_to_get,
+    /*IN*/ int conditionNum,
+    /*OUT OPTIONAL*/ int *numeric_value,
     /*OUT OPTIONAL*/ char *string_value,
-    /*IN OPTIONAL */ Int32 max_string_len,
-    /*OUT OPTIONAL*/ Int32 *len_of_item);
+    /*IN OPTIONAL */ int max_string_len,
+    /*OUT OPTIONAL*/ int *len_of_item);
 
-Int32 SQL_EXEC_GetDiagnosticsCondInfo3(
-    /*IN*/ Int32 no_of_condition_items,
+int SQL_EXEC_GetDiagnosticsCondInfo3(
+    /*IN*/ int no_of_condition_items,
     /*IN*/ SQLDIAG_COND_INFO_ITEM_VALUE diag_cond_info_item_values[]);
 
-Int32 SQL_EXEC_GETDIAGNOSTICSCONDINFO3(
-    /*IN*/ Int32 no_of_condition_items,
+int SQL_EXEC_GETDIAGNOSTICSCONDINFO3(
+    /*IN*/ int no_of_condition_items,
     /*IN*/ SQLDIAG_COND_INFO_ITEM_VALUE diag_cond_info_item_values[]);
 
 /* This function retrieves the SQLSTATE from the statement diagnostics area
    if possible */
-Int32 SQL_EXEC_GetMainSQLSTATE(
+int SQL_EXEC_GetMainSQLSTATE(
     /*IN*/ SQLSTMT_ID *statement_id,
-    /*IN*/ Int32 sqlcode,
+    /*IN*/ int sqlcode,
     /*OUT*/ char *sqlstate /* assumed to be char[6] */);
 
-Int32 SQL_EXEC_GETMAINSQLSTATE(
+int SQL_EXEC_GETMAINSQLSTATE(
     /*IN*/ SQLSTMT_ID *statement_id,
-    /*IN*/ Int32 sqlcode,
+    /*IN*/ int sqlcode,
     /*OUT*/ char *sqlstate /* assumed to be char[6] */);
 
-Int32 SQL_EXEC_GetCSQLSTATE(
+int SQL_EXEC_GetCSQLSTATE(
     /*OUT*/ char *sqlstate /* assumed to be char[6] */,
-    /*IN*/ Int32 sqlcode);
+    /*IN*/ int sqlcode);
 
-Int32 SQL_EXEC_GETCSQLSTATE(
+int SQL_EXEC_GETCSQLSTATE(
     /*OUT*/ char *sqlstate /* assumed to be char[6] */,
-    /*IN*/ Int32 sqlcode);
+    /*IN*/ int sqlcode);
 
-Int32 SQL_EXEC_GetCobolSQLSTATE(
+int SQL_EXEC_GetCobolSQLSTATE(
     /*OUT*/ char *sqlstate /* assumed to be char[5] */,
-    /*IN*/ Int32 sqlcode);
+    /*IN*/ int sqlcode);
 
-Int32 SQL_EXEC_GETCOBOLSQLSTATE(
+int SQL_EXEC_GETCOBOLSQLSTATE(
     /*OUT*/ char *sqlstate /* assumed to be char[5] */,
-    /*IN*/ Int32 sqlcode);
+    /*IN*/ int sqlcode);
 
-Int32 SQL_EXEC_GetSQLSTATE(
+int SQL_EXEC_GetSQLSTATE(
     /*OUT*/ char *sqlstate /* assumed to be char[6] */);
 
-Int32 SQL_EXEC_GETSQLSTATE(
+int SQL_EXEC_GETSQLSTATE(
     /*OUT*/ char *sqlstate /* assumed to be char[6] */);
 
-Int32 SQL_EXEC_GetSessionAttr(
-    /*IN* (SESSIONATTR_TYPE) */ Int32 attrName,
-    /*OUT OPTIONAL*/ Int32 *numeric_value,
+int SQL_EXEC_GetSessionAttr(
+    /*IN* (SESSIONATTR_TYPE) */ int attrName,
+    /*OUT OPTIONAL*/ int *numeric_value,
     /*OUT OPTIONAL*/ char *string_value,
-    /*IN OPTIONAL*/ Int32 max_string_len,
-    /*OUT OPTIONAL*/ Int32 *len_of_item);
+    /*IN OPTIONAL*/ int max_string_len,
+    /*OUT OPTIONAL*/ int *len_of_item);
 
-Int32 SQL_EXEC_GetUniqueQueryIdAttrs(
+int SQL_EXEC_GetUniqueQueryIdAttrs(
     /*IN*/ char *uniqueQueryId,
-    /*IN*/ Int32 uniqueQueryIdLen,
-    /*IN*/ Int32 no_of_attrs,
+    /*IN*/ int uniqueQueryIdLen,
+    /*IN*/ int no_of_attrs,
     /*INOUT*/ UNIQUEQUERYID_ATTR unique_queryid_attrs[]);
 
-Int32 SQL_EXEC_GetStmtAttr(
+int SQL_EXEC_GetStmtAttr(
     /*IN*/ SQLSTMT_ID *statement_id,
-    /*IN* (SQLATTR_TYPE) */ Int32 attrName,
-    /*OUT OPTIONAL*/ Int32 *numeric_value,
+    /*IN* (SQLATTR_TYPE) */ int attrName,
+    /*OUT OPTIONAL*/ int *numeric_value,
     /*OUT OPTIONAL*/ char *string_value,
-    /*IN OPTIONAL*/ Int32 max_string_len,
-    /*OUT OPTIONAL*/ Int32 *len_of_item);
+    /*IN OPTIONAL*/ int max_string_len,
+    /*OUT OPTIONAL*/ int *len_of_item);
 
-Int32 SQL_EXEC_GETSTMTATTR(
+int SQL_EXEC_GETSTMTATTR(
     /*IN*/ SQLSTMT_ID *statement_id,
-    /*IN* (SQLATTR_TYPE) */ Int32 attrName,
-    /*OUT OPTIONAL*/ Int32 *numeric_value,
+    /*IN* (SQLATTR_TYPE) */ int attrName,
+    /*OUT OPTIONAL*/ int *numeric_value,
     /*OUT OPTIONAL*/ char *string_value,
-    /*IN OPTIONAL*/ Int32 max_string_len,
-    /*OUT OPTIONAL*/ Int32 *len_of_item);
+    /*IN OPTIONAL*/ int max_string_len,
+    /*OUT OPTIONAL*/ int *len_of_item);
 
-Int32 SQL_EXEC_GetStmtAttrs(
+int SQL_EXEC_GetStmtAttrs(
     /*IN*/ SQLSTMT_ID *statement_id,
-    /*IN*/ Int32 number_of_attrs,
+    /*IN*/ int number_of_attrs,
     /*INOUT*/ SQLSTMT_ATTR attrs[],
-    /*OUT OPTIONAL*/ Int32 *num_returned);
+    /*OUT OPTIONAL*/ int *num_returned);
 
-Int32 SQL_EXEC_GETSTMTATTRS(
+int SQL_EXEC_GETSTMTATTRS(
     /*IN*/ SQLSTMT_ID *statement_id,
-    /*IN*/ Int32 number_of_attrs,
+    /*IN*/ int number_of_attrs,
     /*INOUT*/ SQLSTMT_ATTR attrs[],
-    /*OUT OPTIONAL*/ Int32 *num_returned);
+    /*OUT OPTIONAL*/ int *num_returned);
 
-Int32 SQL_EXEC_GetCurrentCatalog(
+int SQL_EXEC_GetCurrentCatalog(
     /*OUT */ char *CatalogName,
-    /*IN  */ Int32 CatalogNameMaxLen,
-    /*OUT */ Int32 &CatalogNameLen,
+    /*IN  */ int CatalogNameMaxLen,
+    /*OUT */ int &CatalogNameLen,
     /*OUT */ char *SchemaName,
-    /*In  */ Int32 SchemaNameMaxLen,
-    /*OUT */ Int32 &SchemaNameLen);
+    /*In  */ int SchemaNameMaxLen,
+    /*OUT */ int &SchemaNameLen);
 
-Int32 SQL_EXEC_GetExplainData(
+int SQL_EXEC_GetExplainData(
     /*IN*/ SQLSTMT_ID *statement_id,
     /*INOUT*/ char *explain_ptr,
-    /*IN*/ Int32 explain_len,
-    /*INOUT*/ Int32 *ret_explain_len);
+    /*IN*/ int explain_len,
+    /*INOUT*/ int *ret_explain_len);
 
-Int32 SQL_EXEC_StoreExplainData(
+int SQL_EXEC_StoreExplainData(
     /*IN*/ long *exec_start_utc_ts,
     /*IN*/ char *query_id,
     /*INOUT*/ char *explain_ptr,
-    /*IN*/ Int32 explain_len);
+    /*IN*/ int explain_len);
 
-Int32 SQL_EXEC_Prepare(
+int SQL_EXEC_Prepare(
     /*IN*/ SQLSTMT_ID *statement_id,
     /*IN*/ SQLDESC_ID *sql_source);
 
-Int32 SQL_EXEC_PREPARE(
+int SQL_EXEC_PREPARE(
     /*IN*/ SQLSTMT_ID *statement_id,
     /*IN*/ SQLDESC_ID *sql_source);
 
-Int32 SQL_EXEC_Prepare2(
+int SQL_EXEC_Prepare2(
     /*IN*/ SQLSTMT_ID *statement_id,
     /*IN*/ SQLDESC_ID *sql_source,
     /*INOUT*/ char *gencode_ptr,
-    /*IN*/ Int32 gencode_len,
-    /*INOUT*/ Int32 *ret_gencode_len,
+    /*IN*/ int gencode_len,
+    /*INOUT*/ int *ret_gencode_len,
     /*INOUT*/ SQL_QUERY_COST_INFO *query_cost_info,
     /*INOUT*/ SQL_QUERY_COMPILER_STATS_INFO *comp_stats_info,
     /*INOUT*/ char *uniqueQueryId,
-    /*INOUT*/ Int32 *uniqueQueryIdLen,
+    /*INOUT*/ int *uniqueQueryIdLen,
     /*IN*/ UInt32 flags);
 
-Int32 SQL_EXEC_ResDescName(
+int SQL_EXEC_ResDescName(
     /*INOUT*/ SQLDESC_ID *statement_id,
     /*IN OPTIONAL*/ SQLSTMT_ID *from_statement,
-    /*IN OPTIONAL (SQLWHAT_DESC) */ Int32 what_desc);
+    /*IN OPTIONAL (SQLWHAT_DESC) */ int what_desc);
 
-Int32 SQL_EXEC_RESDESCNAME(
+int SQL_EXEC_RESDESCNAME(
     /*INOUT*/ SQLDESC_ID *statement_id,
     /*IN OPTIONAL*/ SQLSTMT_ID *from_statement,
-    /*IN OPTIONAL (SQLWHAT_DESC) */ Int32 what_desc);
+    /*IN OPTIONAL (SQLWHAT_DESC) */ int what_desc);
 
-Int32 SQL_EXEC_ResStmtName(
+int SQL_EXEC_ResStmtName(
     /*INOUT*/ SQLSTMT_ID *statement_id);
 
-Int32 SQL_EXEC_RESSTMTNAME(
+int SQL_EXEC_RESSTMTNAME(
     /*INOUT*/ SQLSTMT_ID *statement_id);
 
-Int32 SQL_EXEC_SetCursorName(
+int SQL_EXEC_SetCursorName(
     /*IN*/ SQLSTMT_ID *statement_id,
     /*IN*/ SQLSTMT_ID *cursor_name);
 
-Int32 SQL_EXEC_SETCURSORNAME(
+int SQL_EXEC_SETCURSORNAME(
     /*IN*/ SQLSTMT_ID *statement_id,
     /*IN*/ SQLSTMT_ID *cursor_name);
 
-Int32 SQL_EXEC_SetDescEntryCount(
+int SQL_EXEC_SetDescEntryCount(
     /*IN*/ SQLDESC_ID *sql_descriptor,
     /*IN*/ SQLDESC_ID *input_descriptor);
 
-Int32 SQL_EXEC_SETDESCENTRYCOUNT(
+int SQL_EXEC_SETDESCENTRYCOUNT(
     /*IN*/ SQLDESC_ID *sql_descriptor,
     /*IN*/ SQLDESC_ID *input_descriptor);
 
-Int32 SQL_EXEC_SetDescEntryCountBasic(
+int SQL_EXEC_SetDescEntryCountBasic(
     /*IN*/ SQLDESC_ID *sql_descriptor,
-    /*IN*/ Int32 num_entries);
+    /*IN*/ int num_entries);
 
-Int32 SQL_EXEC_SetDescItem(
+int SQL_EXEC_SetDescItem(
     /*IN*/ SQLDESC_ID *sql_descriptor,
-    /*IN*/ Int32 entry,
-    /*IN* (SQLDESC_ITEM_ID) */ Int32 what_to_set,
+    /*IN*/ int entry,
+    /*IN* (SQLDESC_ITEM_ID) */ int what_to_set,
     /*IN OPTIONAL*/ long numeric_value,
     /*IN OPTIONAL*/ char *string_value);
 
-Int32 SQL_EXEC_SETDESCITEM(
+int SQL_EXEC_SETDESCITEM(
     /*IN*/ SQLDESC_ID *sql_descriptor,
-    /*IN*/ Int32 entry,
-    /*IN* (SQLDESC_ITEM_ID) */ Int32 what_to_set,
+    /*IN*/ int entry,
+    /*IN* (SQLDESC_ITEM_ID) */ int what_to_set,
     /*IN OPTIONAL*/ long numeric_value,
     /*IN OPTIONAL*/ char *string_value);
 
-Int32 SQL_EXEC_SetDescItems(
+int SQL_EXEC_SetDescItems(
     /*IN*/ SQLDESC_ID *sql_descriptor,
     /*IN*/ SQLDESC_ITEM desc_items[],
     /*IN*/ SQLDESC_ID *value_num_descriptor,
     /*IN*/ SQLDESC_ID *input_descriptor);
 
-Int32 SQL_EXEC_SETDESCITEMS(
+int SQL_EXEC_SETDESCITEMS(
     /*IN*/ SQLDESC_ID *sql_descriptor,
     /*IN*/ SQLDESC_ITEM desc_items[],
     /*IN*/ SQLDESC_ID *value_num_descriptor,
     /*IN*/ SQLDESC_ID *input_descriptor);
 
-Int32 SQL_EXEC_SetDescItems2(
+int SQL_EXEC_SetDescItems2(
     /*IN*/ SQLDESC_ID *sql_descriptor,
-    /*IN*/ Int32 no_of_desc_items,
+    /*IN*/ int no_of_desc_items,
     /*IN*/ SQLDESC_ITEM desc_items[]);
 
-Int32 SQL_EXEC_SETDESCITEMS2(
+int SQL_EXEC_SETDESCITEMS2(
     /*IN*/ SQLDESC_ID *sql_descriptor,
-    /*IN*/ Int32 no_of_desc_items,
+    /*IN*/ int no_of_desc_items,
     /*IN*/ SQLDESC_ITEM desc_items[]);
 
-Int32 SQL_EXEC_SetDescPointers(
+int SQL_EXEC_SetDescPointers(
     /*IN*/ SQLDESC_ID *sql_descriptor,
-    /*IN*/ Int32 starting_entry,
-    /*IN*/ Int32 num_ptr_pairs,
-    /*IN*/ Int32 num_ap, ...);
+    /*IN*/ int starting_entry,
+    /*IN*/ int num_ptr_pairs,
+    /*IN*/ int num_ap, ...);
 
-Int32 SQL_EXEC_SETDESCPOINTERS(
+int SQL_EXEC_SETDESCPOINTERS(
     /*IN*/ SQLDESC_ID *sql_descriptor,
-    /*IN*/ Int32 starting_entry,
-    /*IN*/ Int32 num_ptr_pairs,
+    /*IN*/ int starting_entry,
+    /*IN*/ int num_ptr_pairs,
     /*IN*/ struct SQLCLI_PTR_PAIRS ptr_pairs[]);
 
-Int32 SQL_EXEC_SetRowsetDescPointers(SQLDESC_ID *desc_id, Int32 rowset_size, Int32 *rowset_status_ptr,
-                                     Int32 starting_entry, Int32 num_quadruple_fields, Int32 num_ap, ...);
+int SQL_EXEC_SetRowsetDescPointers(SQLDESC_ID *desc_id, int rowset_size, int *rowset_status_ptr,
+                                     int starting_entry, int num_quadruple_fields, int num_ap, ...);
 
-Int32 SQL_EXEC_SETROWSETDESCPOINTERS(SQLDESC_ID *desc_id, Int32 rowset_size, Int32 *rowset_status_ptr,
-                                     Int32 starting_entry, Int32 num_quadruple_fields,
+int SQL_EXEC_SETROWSETDESCPOINTERS(SQLDESC_ID *desc_id, int rowset_size, int *rowset_status_ptr,
+                                     int starting_entry, int num_quadruple_fields,
                                      struct SQLCLI_QUAD_FIELDS quad_fields[]);
 
-Int32 SQL_EXEC_SetStmtAttr(
+int SQL_EXEC_SetStmtAttr(
     /*IN*/ SQLSTMT_ID *statement_id,
-    /*IN* (SQLATTR_TYPE) */ Int32 attrName,
-    /*IN OPTIONAL*/ Int32 numeric_value,
+    /*IN* (SQLATTR_TYPE) */ int attrName,
+    /*IN OPTIONAL*/ int numeric_value,
     /*IN OPTIONAL*/ char *string_value);
 
-Int32 SQL_EXEC_SETSTMTATTR(
+int SQL_EXEC_SETSTMTATTR(
     /*IN*/ SQLSTMT_ID *statement_id,
-    /*IN* (SQLATTR_TYPE) */ Int32 attrName,
-    /*IN OPTIONAL*/ Int32 numeric_value,
+    /*IN* (SQLATTR_TYPE) */ int attrName,
+    /*IN OPTIONAL*/ int numeric_value,
     /*IN OPTIONAL*/ char *string_value);
 
-Int32 SQL_EXEC_SwitchContext(
+int SQL_EXEC_SwitchContext(
     /*IN*/ SQLCTX_HANDLE context_handle,
     /*OUT OPTIONAL*/ SQLCTX_HANDLE *prev_context_handle);
 
-Int32 SQL_EXEC_SWITCHCONTEXT(
+int SQL_EXEC_SWITCHCONTEXT(
     /*IN*/ SQLCTX_HANDLE context_handle,
     /*OUT OPTIONAL*/ SQLCTX_HANDLE *prev_context_handle);
 
-Int32 SQL_EXEC_Xact(
-    /*IN* (SQLTRANS_COMMAND) */ Int32 command,
+int SQL_EXEC_Xact(
+    /*IN* (SQLTRANS_COMMAND) */ int command,
     /*OUT OPTIONAL*/ SQLDESC_ID *transid_descriptor);
 
-Int32 SQL_EXEC_XACT(
-    /*IN* (SQLTRANS_COMMAND) */ Int32 command,
+int SQL_EXEC_XACT(
+    /*IN* (SQLTRANS_COMMAND) */ int command,
     /*OUT OPTIONAL*/ SQLDESC_ID *transid_descriptor);
 
 /* USERS_INFO is part of dbsecurity project (auth.h) */
-Int32 SQL_EXEC_SetAuthID2(const USERS_INFO &userInfo, /*IN*/
+int SQL_EXEC_SetAuthID2(const USERS_INFO &userInfo, /*IN*/
                           const char *authToken,      /*IN*/
-                          Int32 authTokenLen,         /*IN*/
+                          int authTokenLen,         /*IN*/
                           const char *slaName,        /*IN*/
                           const char *profileName,    /*IN*/
-                          Int32 resetAttributes);     /*IN*/
+                          int resetAttributes);     /*IN*/
 
-Int32 SQL_EXEC_GetAuthState(
-    /*OUT*/ Int32 &authenticationType,
+int SQL_EXEC_GetAuthState(
+    /*OUT*/ int &authenticationType,
     /*OUT*/ bool &authorizationEnabled,
     /*OUT*/ bool &authorizationReady,
     /*OUT*/ bool &auditingEnabled);
 
-Int32 SQL_EXEC_GetUserAttrs(
+int SQL_EXEC_GetUserAttrs(
     /*IN*/ const char *username,
     /*IN*/ const char *tenant_name,
     /*OUT*/ USERS_INFO *users_info,
     /*OUT*/ struct SQLSEC_AuthDetails *auth_details);
 
-Int32 SQL_EXEC_RegisterUser(
+int SQL_EXEC_RegisterUser(
     /*IN*/ const char *username,
     /*IN*/ const char *config,
     /*OUT*/ USERS_INFO *users_info,
     /*OUT*/ struct SQLSEC_AuthDetails *auth_details);
 
-Int32 SQL_EXEC_GetAuthErrPwdCnt(
-    /*IN*/ Int32 userid,
+int SQL_EXEC_GetAuthErrPwdCnt(
+    /*IN*/ int userid,
     /*OUT*/ Int16 &errcnt);
 
-Int32 SQL_EXEC_UpdateAuthErrPwdCnt(
-    /*IN*/ Int32 userid,
+int SQL_EXEC_UpdateAuthErrPwdCnt(
+    /*IN*/ int userid,
     /*IN*/ Int16 errcnt,
     /*IN*/ bool reset);
 
-Int32 SQL_EXEC_GetAuthGracePwdCnt(
-    /*IN*/ Int32,
+int SQL_EXEC_GetAuthGracePwdCnt(
+    /*IN*/ int,
     /*OUT*/ Int16 &);
 
-Int32 SQL_EXEC_UpdateAuthGracePwdCnt(
-    /*IN*/ Int32 userid,
+int SQL_EXEC_UpdateAuthGracePwdCnt(
+    /*IN*/ int userid,
     /*IN*/ Int16 graceCnt = 0);
 
-Int32 SQL_EXEC_LocaleToUTF8(
-    /*IN*/ Int32 conv_charset,
+int SQL_EXEC_LocaleToUTF8(
+    /*IN*/ int conv_charset,
     /*IN*/ void *Input_Buffer_Addr,
-    /*IN*/ Int32 Input_Buffer_Length,
+    /*IN*/ int Input_Buffer_Length,
     /*IN/OUT*/ void *Output_Buffer_Addr,
-    /*IN*/ Int32 Output_Buffer_Length,
+    /*IN*/ int Output_Buffer_Length,
     /*OUT*/ void **First_Untranslated_Char_Addr,
-    /*OUT*/ Int32 *Output_Data_Length,
-    /*IN*/ Int32 add_null_at_end_Flag,
-    /*OUT*/ Int32 *num_translated_char);
+    /*OUT*/ int *Output_Data_Length,
+    /*IN*/ int add_null_at_end_Flag,
+    /*OUT*/ int *num_translated_char);
 
-Int32 SQL_EXEC_UTF8ToLocale(
-    /*IN*/ Int32 conv_charset,
+int SQL_EXEC_UTF8ToLocale(
+    /*IN*/ int conv_charset,
     /*IN*/ void *Input_Buffer_Addr,
-    /*IN*/ Int32 Input_Buffer_Length,
+    /*IN*/ int Input_Buffer_Length,
     /*IN/OUT*/ void *Output_Buffer_Addr,
-    /*IN*/ Int32 Output_Buffer_Length,
+    /*IN*/ int Output_Buffer_Length,
     /*OUT*/ void **First_Untranslated_Char_Addr,
-    /*OUT*/ Int32 *Output_Data_Length,
-    /*IN*/ Int32 add_null_at_end_Flag,
-    /*IN*/ Int32 allow_invalids,
-    /*OUT*/ Int32 *num_translated_char,
+    /*OUT*/ int *Output_Data_Length,
+    /*IN*/ int add_null_at_end_Flag,
+    /*IN*/ int allow_invalids,
+    /*OUT*/ int *num_translated_char,
     /*IN*/ void *substitution_char_addr);
 
-Int32 SQL_EXEC_LocaleToUTF16(
-    /*IN*/ Int32 conv_charset,
+int SQL_EXEC_LocaleToUTF16(
+    /*IN*/ int conv_charset,
     /*IN*/ void *Input_Buffer_Addr,
-    /*IN*/ Int32 Input_Buffer_Length,
+    /*IN*/ int Input_Buffer_Length,
     /*IN/OUT*/ void *Output_Buffer_Addr,
-    /*IN*/ Int32 Output_Buffer_Length,
+    /*IN*/ int Output_Buffer_Length,
     /*OUT*/ void **First_Untranslated_Char_Addr,
-    /*OUT*/ Int32 *Output_Data_Length,
-    /*IN*/ Int32 conv_flags,
-    /*IN*/ Int32 add_null_at_end_Flag,
-    /*OUT*/ Int32 *num_translated_char);
+    /*OUT*/ int *Output_Data_Length,
+    /*IN*/ int conv_flags,
+    /*IN*/ int add_null_at_end_Flag,
+    /*OUT*/ int *num_translated_char);
 
-Int32 SQL_EXEC_UTF16ToLocale(
-    /*IN*/ Int32 conv_charset,
+int SQL_EXEC_UTF16ToLocale(
+    /*IN*/ int conv_charset,
     /*IN*/ void *Input_Buffer_Addr,
-    /*IN*/ Int32 Input_Buffer_Length,
+    /*IN*/ int Input_Buffer_Length,
     /*IN/OUT*/ void *Output_Buffer_Addr,
-    /*IN*/ Int32 Output_Buffer_Length,
+    /*IN*/ int Output_Buffer_Length,
     /*OUT*/ void **First_Untranslated_Char_Addr,
-    /*OUT*/ Int32 *Output_Data_Length,
-    /*IN*/ Int32 conv_flags,
-    /*IN*/ Int32 add_null_at_end_Flag,
-    /*IN*/ Int32 allow_invalids,
-    /*OUT*/ Int32 *num_translated_char,
+    /*OUT*/ int *Output_Data_Length,
+    /*IN*/ int conv_flags,
+    /*IN*/ int add_null_at_end_Flag,
+    /*IN*/ int allow_invalids,
+    /*OUT*/ int *num_translated_char,
     /*IN*/ void *substitution_char_addr);
 
-Int32 SQL_EXEC_SetSecInvalidKeys(
-    /* IN */ Int32 numSiKeys,
+int SQL_EXEC_SetSecInvalidKeys(
+    /* IN */ int numSiKeys,
     /* IN */ SQL_QIKEY siKeys[]);
 
-Int32 SQL_EXEC_GetSecInvalidKeys(
+int SQL_EXEC_GetSecInvalidKeys(
     /* IN */ long prevTimestamp,
     /* IN/OUT */ SQL_QIKEY siKeys[],
-    /* IN */ Int32 maxNumSiKeys,
-    /* IN/OUT */ Int32 *returnedNumSiKeys,
+    /* IN */ int maxNumSiKeys,
+    /* IN/OUT */ int *returnedNumSiKeys,
     /* IN/OUT */ long *maxTimestamp);
 
-Int32 SQL_EXEC_SetObjectEpochEntry(
-    /* IN */ Int32 operation,
-    /* IN */ Int32 objectNameLength,
+int SQL_EXEC_SetObjectEpochEntry(
+    /* IN */ int operation,
+    /* IN */ int objectNameLength,
     /* IN */ const char *objectName,
     /* IN */ long redefTime,
     /* IN */ long key,
@@ -2088,52 +2079,52 @@ Int32 SQL_EXEC_SetObjectEpochEntry(
     /* OUT */ UInt32 *maxExpectedEpochFound,
     /* OUT */ UInt32 *maxExpectedFlagsFound);
 
-Int32 SQL_EXEC_LockObjectDDL(
+int SQL_EXEC_LockObjectDDL(
     /* IN */ const char *objectName,
     /* IN */ short objectType);
 
-Int32 SQL_EXEC_UnLockObjectDDL(
+int SQL_EXEC_UnLockObjectDDL(
     /* IN */ const char *objectName,
     /* IN */ short objectType);
 
-Int32 SQL_EXEC_LockObjectDML(
+int SQL_EXEC_LockObjectDML(
     /* IN */ const char *objectName,
     /* IN */ short objectType);
 
-Int32 SQL_EXEC_UnLockObjectDML(
+int SQL_EXEC_UnLockObjectDML(
     /* IN */ const char *objectName,
     /* IN */ short objectType);
 
-Int32 SQL_EXEC_ReleaseAllDDLObjectLocks();
-Int32 SQL_EXEC_ReleaseAllDMLObjectLocks();
+int SQL_EXEC_ReleaseAllDDLObjectLocks();
+int SQL_EXEC_ReleaseAllDMLObjectLocks();
 
-Int32 SQL_EXEC_GetStatistics2(
+int SQL_EXEC_GetStatistics2(
     /* IN */ short statsReqType,
     /* IN */ char *statsReqStr,
-    /* IN */ Int32 statsReqStrLen,
+    /* IN */ int statsReqStrLen,
     /* IN */ short activeQueryNum,
     /* IN */ short statsMergeType,
     /* OUT */ short *statsCollectType,
     /* IN/OUT */ SQLSTATS_DESC sqlstats_desc[],
-    /* IN */ Int32 max_stats_desc,
-    /* OUT */ Int32 *no_returned_stats_desc);
+    /* IN */ int max_stats_desc,
+    /* OUT */ int *no_returned_stats_desc);
 
-Int32 SQL_EXEC_GetStatisticsItems(
+int SQL_EXEC_GetStatisticsItems(
     /* IN */ short statsReqType,
     /* IN */ char *queryId,
-    /* IN */ Int32 queryIdLen,
-    /* IN */ Int32 no_of_stats_items,
+    /* IN */ int queryIdLen,
+    /* IN */ int no_of_stats_items,
     /* IN/OUT */ SQLSTATS_ITEM sqlstats_items[]);
 
-Int32 SQL_EXEC_GetChildQueryInfo(
+int SQL_EXEC_GetChildQueryInfo(
     /*IN*/ SQLSTMT_ID *statement_id,
     /*INOUT*/ char *uniqueQueryId,
-    /*IN */ Int32 uniqueQueryIdMaxLen,
-    /*INOUT*/ Int32 *uniqueQueryIdLen,
+    /*IN */ int uniqueQueryIdMaxLen,
+    /*INOUT*/ int *uniqueQueryIdLen,
     /*INOUT*/ SQL_QUERY_COST_INFO *query_cost_info,
     /*INOUT*/ SQL_QUERY_COMPILER_STATS_INFO *comp_stats_info);
 
-Int32 SQL_EXEC_LoadTrafMetadataInCache();
+int SQL_EXEC_LoadTrafMetadataInCache();
 
 /*
   handleStr:        lob handle string returned by sql to caller
@@ -2144,16 +2135,16 @@ Int32 SQL_EXEC_LoadTrafMetadataInCache();
   inlineDataOffset: offset of inline data relative to start of handle Str
 */
 
-Int32 SQL_EXEC_SetClientInfo(
+int SQL_EXEC_SetClientInfo(
     /*IN*/ const char *clientInfo,
     /*IN*/ int length,
     /*IN OPTIONAL*/ const char *characterset);
 
 char *SQL_EXEC_GetClientInfo();
 
-Int32 SQL_EXEC_GetTransactionId(/*OUT*/ long *trans_id);
+int SQL_EXEC_GetTransactionId(/*OUT*/ long *trans_id);
 
-Int32 SQL_EXEC_GetStatementHeapSize(
+int SQL_EXEC_GetStatementHeapSize(
     /*IN*/ SQLSTMT_ID *statement_id,
     /*OUT*/ long *heapSize);
 
@@ -2161,17 +2152,17 @@ Int32 SQL_EXEC_GetStatementHeapSize(
 }
 
 /* internal functions */
-Int32 SQL_EXEC_AllocDesc(
+int SQL_EXEC_AllocDesc(
     /*INOUT*/ SQLDESC_ID *desc_id,
-    /*IN OPTIONAL*/ Int32 max_entries);
+    /*IN OPTIONAL*/ int max_entries);
 
-Int32 SQL_EXEC_GetDescEntryCount(
+int SQL_EXEC_GetDescEntryCount(
     /*IN*/ SQLDESC_ID *sql_descriptor,
-    /*OUT*/ Int32 *num_entries);
+    /*OUT*/ int *num_entries);
 
-Int32 SQL_EXEC_SetDescEntryCount(
+int SQL_EXEC_SetDescEntryCount(
     /*IN*/ SQLDESC_ID *sql_descriptor,
-    /*IN*/ Int32 num_entries);
+    /*IN*/ int num_entries);
 
 short sqInit();
 

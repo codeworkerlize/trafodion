@@ -32,7 +32,7 @@ class Sqlcmpdbg {
 struct SqlcmpdbgExpFuncs {
   void (*fpDisplayQueryTree)(Sqlcmpdbg::CompilationPhase, void *, void *);
   void (*fpSqldbgSetCmpPointers)(void *, void *, void *, void *, void *);
-  void (*fpDoMemoStep)(Int32, Int32, Int32, void *, void *, void *);
+  void (*fpDoMemoStep)(int, int, int, void *, void *, void *);
   void (*fpDisplayTDBTree)(Sqlcmpdbg::CompilationPhase, void *, void *);
   int (*fpExecutionDisplayIsEnabled)(void);
   void (*fpSqldbgSetExePointers)(void *, void *, void *);

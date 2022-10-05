@@ -44,9 +44,9 @@
 #include <sys/time.h>
 
 #ifdef NA_LITTLE_ENDIAN
-#define EXTRACT_SIGN_INT64(sign, ptr) sign = *((Int32 *)ptr + 1) & 0x80000000;
+#define EXTRACT_SIGN_INT64(sign, ptr) sign = *((int *)ptr + 1) & 0x80000000;
 #else
-#define EXTRACT_SIGN_INT64(sign, ptr) sign = *((Int32 *)ptr) & 0x80000000;
+#define EXTRACT_SIGN_INT64(sign, ptr) sign = *((int *)ptr) & 0x80000000;
 #endif
 
 // **************************************************************************
@@ -64,7 +64,7 @@ struct NA_timezone /* Only here for the compiler. */
 
 typedef struct NA_timeval TimeVal;
 typedef struct NA_timezone TimeZone;
-Int32 NA_gettimeofday(struct NA_timeval *, struct NA_timezone *);
+int NA_gettimeofday(struct NA_timeval *, struct NA_timezone *);
 
 #define GETTIMEOFDAY(tv, tz) NA_gettimeofday(tv, tz)
 }
@@ -110,7 +110,7 @@ inline long reversebytes(long xx) {
 
   source.xx = xx;
 
-  for (Int32 i = 0; i < 8; i++) sink.c[i] = source.c[7 - i];
+  for (int i = 0; i < 8; i++) sink.c[i] = source.c[7 - i];
 
   return sink.xx;
 }
@@ -128,7 +128,7 @@ inline UInt64 reversebytes(UInt64 xx) {
 
   source.xx = xx;
 
-  for (Int32 i = 0; i < 8; i++) sink.c[i] = source.c[7 - i];
+  for (int i = 0; i < 8; i++) sink.c[i] = source.c[7 - i];
 
   return sink.xx;
 }
@@ -138,12 +138,12 @@ inline UInt64 reversebytes(UInt64 xx) {
 
 #endif
 
-void copyInteger(void *destination, Int32 targetLength, void *sourceAddress, Int32 sourceLength);
+void copyInteger(void *destination, int targetLength, void *sourceAddress, int sourceLength);
 
-void copyToInteger1(Int8 *destination, void *sourceAddress, Int32 sourceSize);
+void copyToInteger1(Int8 *destination, void *sourceAddress, int sourceSize);
 
-void copyToInteger2(short *destination, void *sourceAddress, Int32 sourceSize);
+void copyToInteger2(short *destination, void *sourceAddress, int sourceSize);
 
-void copyToInteger4(int *destination, void *sourceAddress, Int32 sourceSize);
+void copyToInteger4(int *destination, void *sourceAddress, int sourceSize);
 
-void copyToInteger8(long *destination, void *sourceAddress, Int32 sourceSize);
+void copyToInteger8(long *destination, void *sourceAddress, int sourceSize);

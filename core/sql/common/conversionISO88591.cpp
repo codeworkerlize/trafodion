@@ -69,7 +69,7 @@ NAWcharBuf *ISO88591ToUnicode(const charBuf &input, CollHeap *heap, NAWcharBuf *
 
   NAWchar *target = output->data();
 
-  Int32 i;
+  int i;
   for (i = 0; i < input.getStrLen(); i++) {
     target[i] = (NAWchar)(input.data()[i]);
   }
@@ -88,7 +88,7 @@ charBuf *unicodeToISO88591(const NAWcharBuf &input, CollHeap *heap, charBuf *&is
 
   unsigned char *target = output->data();
 
-  Int32 i;
+  int i;
   for (i = 0; i < input.getStrLen(); i++) {
     if (input.data()[i] > 0xFF) {
       if (allowInvalidCodePoint)
@@ -115,9 +115,9 @@ charBuf *unicodeToISO88591(const NAWcharBuf &input, CollHeap *heap, charBuf *&is
 //
 // Conversions between cset and Unicode.   (wrapper for new calls)
 //
-extern cnv_charset convertCharsetEnum(Int32 inset);
-NAWcharBuf *csetToUnicode(const charBuf &input, CollHeap *heap, NAWcharBuf *&unicodeString, Int32 cset,
-                          Int32 &errorcode, NABoolean addNullAtEnd, Int32 *charCount, Int32 *errorByteOff) {
+extern cnv_charset convertCharsetEnum(int inset);
+NAWcharBuf *csetToUnicode(const charBuf &input, CollHeap *heap, NAWcharBuf *&unicodeString, int cset,
+                          int &errorcode, NABoolean addNullAtEnd, int *charCount, int *errorByteOff) {
   char *err_ptr = NULL;
   UInt32 byteCount = 0, lv_charCount = 0, computedMaxBufSizeInNAWchars = 0;
   NABoolean outputBufferAllocatedByThisRoutine = (unicodeString == NULL) ? TRUE : FALSE;
@@ -139,7 +139,7 @@ NAWcharBuf *csetToUnicode(const charBuf &input, CollHeap *heap, NAWcharBuf *&uni
                             addNullAtEnd, &lv_charCount);
   if (errorcode == CNV_ERR_NOINPUT) errorcode = 0;  // empty string is OK
   if (errorByteOff) *errorByteOff = err_ptr - (char *)input.data();
-  if (charCount) *charCount = (Int32)lv_charCount;
+  if (charCount) *charCount = (int)lv_charCount;
   // If errorcode != 0, LocaleToUTF16 will not add the NULL terminator
   if (errorcode == 0 && addNullAtEnd && byteCount > 0) {
     // Exclude the size (in bytes) of the NULL terminator from the byte count.
@@ -154,15 +154,15 @@ NAWcharBuf *csetToUnicode(const charBuf &input, CollHeap *heap, NAWcharBuf *&uni
   return output;
 }
 
-charBuf *unicodeTocset(const NAWcharBuf &input, CollHeap *heap, charBuf *&csetString, Int32 cset, Int32 &errorcode,
-                       NABoolean addNullAtEnd, NABoolean allowInvalidCodePoint, Int32 *charCount, Int32 *errorByteOff) {
+charBuf *unicodeTocset(const NAWcharBuf &input, CollHeap *heap, charBuf *&csetString, int cset, int &errorcode,
+                       NABoolean addNullAtEnd, NABoolean allowInvalidCodePoint, int *charCount, int *errorByteOff) {
   char *err_ptr;
   UInt32 byteCount, lvCharCount;
   enum cnv_charset cnvSet = convertCharsetEnum(cset);
-  Int32 cwidth = CharInfo::maxBytesPerChar((CharInfo::CharSet)cset);
+  int cwidth = CharInfo::maxBytesPerChar((CharInfo::CharSet)cset);
   charBuf *output = NULL;
   if (input.data() != NULL && input.getStrLen() > 0) {
-    Int32 cSetTargetBufferSizeInBytes = input.getStrLen /*in_NAWchars*/ () * cwidth + 16;  // memory is cheap
+    int cSetTargetBufferSizeInBytes = input.getStrLen /*in_NAWchars*/ () * cwidth + 16;  // memory is cheap
     UInt32 cSetTargetStrLenInBytes = 0;
     char *pTempTargetBuf = new (heap) char[cSetTargetBufferSizeInBytes];
     errorcode = UTF16ToLocale(cnv_version1, (const char *)input.data()  // source string
@@ -199,7 +199,7 @@ charBuf *unicodeTocset(const NAWcharBuf &input, CollHeap *heap, charBuf *&csetSt
                             allowInvalidCodePoint, &lvCharCount);
   if (errorcode == CNV_ERR_NOINPUT) errorcode = 0;  // empty string is OK
   if (errorByteOff) *errorByteOff = err_ptr - (char *)input.data();
-  if (charCount) *charCount = (Int32)lvCharCount;
+  if (charCount) *charCount = (int)lvCharCount;
 
   // If errorcode != 0, LocaleToUTF16 will not add the NULL terminator
   if (errorcode == 0 && addNullAtEnd && byteCount > 0) {
@@ -217,7 +217,7 @@ charBuf *unicodeTocset(const NAWcharBuf &input, CollHeap *heap, charBuf *&csetSt
 }
 
 #ifdef MODULE_DEBUG
-Int32 main(Int32 argc, char **argv) {
+int main(int argc, char **argv) {
   charBuf *latin1 = 0;
 
   NAWchar wbuf[1];

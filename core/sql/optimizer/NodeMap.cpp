@@ -109,9 +109,9 @@ static NABoolean volumeFound(const DP2VolumeNamesContainer &container, const cha
 //  none
 //
 //==============================================================================
-NodeMapEntry::NodeMapEntry(char *fullName, char *givenName, CollHeap *heap, Int32 tableIdent, NABoolean noService)
+NodeMapEntry::NodeMapEntry(char *fullName, char *givenName, CollHeap *heap, int tableIdent, NABoolean noService)
     : heap_(heap), partitionState_(ACTIVE) {
-  Int32 error;
+  int error;
 
   CMPASSERT(fullName);
   short nameBufferSize = strlen(fullName) + 1;
@@ -652,7 +652,7 @@ NodeMap *NodeMap::synthesizeLogicalMap(const CollIndex logicalNumEntries, NABool
 
   // get a list of the nodes in the cluster
   const NAArray<CollIndex> &cpuArray(CURRCONTEXT_CLUSTERINFO->getCPUArray());
-  Int32 cpuCount = cpuArray.entries();
+  int cpuCount = cpuArray.entries();
   int affinityDef = ActiveSchemaDB()->getDefaults().getAsLong(AS_AFFINITY_VALUE);
 
   // "float" single ESP
@@ -1325,7 +1325,7 @@ CollIndex NodeMap::getNumOfDP2Volumes() {
 NABoolean NodeMap::isCoLocated(const NodeMap *rMap) const {
   const NodeMapEntry *n_entry = NULL;
   const NodeMapEntry *r_entry = NULL;
-  Int32 numEntries;
+  int numEntries;
 
   if ((numEntries = getNumEntries()) != rMap->getNumEntries()) return FALSE;
 
@@ -1442,8 +1442,8 @@ CollIndex NodeMap::getNumActiveDP2Volumes() {
 //
 //==============================================================================
 NABoolean NodeMap::isMultiCluster(CollIndex start, CollIndex end, NABoolean activeOnly) const {
-  const Int32 ClusterNotSet = -2;
-  Int32 clusterOfGroup = ClusterNotSet;
+  const int ClusterNotSet = -2;
+  int clusterOfGroup = ClusterNotSet;
   for (CollIndex ix = start; ix < end; ix++) {
     if (activeOnly) {
       NodeMapEntry::PartitionState partState = getNodeMapEntry(ix)->getPartitionState();
@@ -1612,7 +1612,7 @@ void NodeMap::setClusterNumber(const CollIndex position, const int clusterNumber
 //
 //==============================================================================
 short NodeMap::codeGen(const PartitioningFunction *partFunc, const int numESPs, Generator *generator) {
-  Int32 rc = 0;
+  int rc = 0;
   if (partFunc == NULL) {
     generator->setGenObj(NULL, NULL);
     return 0;
@@ -1765,10 +1765,10 @@ void NodeMap::print(FILE *ofd, const char *indent, const char *title) const {
 // Used by the explain function.
 //=======================================================
 const NAString NodeMap::getText() const {
-  Int32 lastNodeNumber = -1;
-  Int32 stride = -1;
-  Int32 numNodesInRange = 0;
-  Int32 numRanges = 0;
+  int lastNodeNumber = -1;
+  int stride = -1;
+  int numNodesInRange = 0;
+  int numRanges = 0;
   char buffer[100];
 
   NAString result = "(";
@@ -1779,10 +1779,10 @@ const NAString NodeMap::getText() const {
   for (ULng32 nodeIdx = 0; nodeIdx < map_.entries(); nodeIdx++) {
     const NodeMapEntry *entry = map_[nodeIdx];
 
-    Int32 nn = entry->getNodeNumber();
+    int nn = entry->getNodeNumber();
     NABoolean isLast = (nodeIdx == map_.entries() - 1);
-    Int32 lastIxInRange = -1;
-    Int32 lastInRange = -1;
+    int lastIxInRange = -1;
+    int lastInRange = -1;
 
     // the second number in a range determines the "stride",
     // the (positive) distance between node numbers
@@ -1894,27 +1894,27 @@ void NodeMap::resetCachedValues() {
   numOfActiveDP2Volumes_ = -1;
 }
 
-Int32 NodeMap::getNumberOfUniqueNodes() const {
+int NodeMap::getNumberOfUniqueNodes() const {
   int maxNodeNum = 0;
-  for (Int32 i = 0; i < getNumEntries(); i++) {
-    Int32 nodeNum = getNodeMapEntry(i)->getNodeNumber();
+  for (int i = 0; i < getNumEntries(); i++) {
+    int nodeNum = getNodeMapEntry(i)->getNodeNumber();
     if (nodeNum != IPC_CPU_DONT_CARE) {
       if (maxNodeNum < nodeNum) maxNodeNum = nodeNum;
     }
   }
 
-  NAArray<Int32> na(HEAP, maxNodeNum + 1);  // 0-based
+  NAArray<int> na(HEAP, maxNodeNum + 1);  // 0-based
 
-  for (Int32 i = 0; i < maxNodeNum + 1; i++) na.insertAt(i, 0);
+  for (int i = 0; i < maxNodeNum + 1; i++) na.insertAt(i, 0);
 
-  for (Int32 i = 0; i < getNumEntries(); i++) {
-    Int32 nodeNum = getNodeMapEntry(i)->getNodeNumber();
+  for (int i = 0; i < getNumEntries(); i++) {
+    int nodeNum = getNodeMapEntry(i)->getNodeNumber();
 
     if (nodeNum != IPC_CPU_DONT_CARE) na.insertAt(nodeNum, 1);
   }
 
-  Int32 count = 0;
-  for (Int32 i = 0; i < maxNodeNum + 1; i++) count += na.at(i);
+  int count = 0;
+  for (int i = 0; i < maxNodeNum + 1; i++) count += na.at(i);
 
   return count;
 }

@@ -70,7 +70,7 @@
 #endif
 
 // This "ignore" is for symmetry in the using code; it just looks nicer.
-#define DBGDECLDBG(ignore)        DBGDECL(static THREAD_P Int32 DBG__ = 0;)
+#define DBGDECLDBG(ignore)        DBGDECL(static THREAD_P int DBG__ = 0;)
 #define DBGSETDBG(envvar)         DBG(DBG__ = !!getenv(envvar);)
 #define DBGIFB(b, statement_list) DBG(if (b){statement_list})
 #define DBGIF(statement_list)     DBGIFB(DBG__, statement_list)

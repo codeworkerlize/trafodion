@@ -57,12 +57,12 @@
 #include "dtm/tm.h"
 
 extern void ServerDebug(const char *, ...);
-extern void doMessageBox(UdrGlobals *UdrGlob, Int32 trLevel, NABoolean moduleType, const char *moduleName);
+extern void doMessageBox(UdrGlobals *UdrGlob, int trLevel, NABoolean moduleType, const char *moduleName);
 
 extern void backoutTupps(SqlBuffer &b, int numTuppsBefore);
 
 extern NABoolean allocateReplyRowAndEOD(UdrGlobals *UdrGlob, SqlBuffer &replyBuffer, queue_index parentIndex,
-                                        char *&replyData, Int32 rowLen, ControlInfo *&newControlInfo);
+                                        char *&replyData, int rowLen, ControlInfo *&newControlInfo);
 extern NABoolean allocateEODRow(UdrGlobals *UdrGlob, SqlBuffer &replyBuffer, queue_index parentIndex);
 
 extern NABoolean convertReplyRowToErrorRow(SqlBuffer *sqlBuf, int numTuppsBefore, queue_index requestQueueIndex,
@@ -79,7 +79,7 @@ SPInfo::SPInfo(UdrGlobals *udrGlobals, NAHeap *heapPtr, const UdrHandle &udrHand
                ComRoutineTransactionAttributes ptransactionAttrs, ComRoutineSQLAccess psqlAccessMode,
                ComRoutineLanguage pLanguage, ComRoutineParamStyle pParamStyle, NABoolean pIsolate,
                NABoolean pCallOnNull, NABoolean pExtraCall, NABoolean pDeterministic,
-               ComRoutineExternalSecurity pExternalSecurity, Int32 pRoutineOwnerId, ComUInt32 requestBufferSize,
+               ComRoutineExternalSecurity pExternalSecurity, int pRoutineOwnerId, ComUInt32 requestBufferSize,
                ComUInt32 replyBufferSize, ComUInt32 requestRowSize, ComUInt32 replyRowSize, ComDiagsArea &d,
                char *parentQid, char *clientInfo)
     : udrGlobals_(udrGlobals),
@@ -502,9 +502,9 @@ void SPInfo::displaySPInfo(int indent) {
 #ifdef UDR_MULTIPLE_CONTEXTS
   ServerDebug("%sCLI Context Handle  : %d", ind, (int)cliContextHandle_);
 #endif  // UDR_MULTIPLE_CONTEXTS
-  ServerDebug("%sSPInfoState         : %i", ind, (Int32)spInfoState_);
-  ServerDebug("%sTransaction Required     : %i", ind, (Int32)transactionAttrs_);
-  ServerDebug("%sSQL Access Mode     : %i", ind, (Int32)sqlAccessMode_);
+  ServerDebug("%sSPInfoState         : %i", ind, (int)spInfoState_);
+  ServerDebug("%sTransaction Required     : %i", ind, (int)transactionAttrs_);
+  ServerDebug("%sSQL Access Mode     : %i", ind, (int)sqlAccessMode_);
   ServerDebug("%sNumber of Params    : %u", ind, numParameters_);
   ServerDebug("%sNumber of In Params : %u", ind, numInParams_);
   ServerDebug("%sNumber of Out Params: %u", ind, numOutParams_);
@@ -585,10 +585,10 @@ void SPInfo::displaySPInfo(int indent) {
   }
   ServerDebug("%sParameter Style      : %s", ind, paramStyle);
 
-  ServerDebug("%sIsolate?            : %i", ind, (Int32)isolate_);
-  ServerDebug("%sCallOnNull?         : %i", ind, (Int32)callOnNull_);
-  ServerDebug("%sExtraCall?          : %i", ind, (Int32)extraCall_);
-  ServerDebug("%sDeterministic?      : %i", ind, (Int32)deterministic_);
+  ServerDebug("%sIsolate?            : %i", ind, (int)isolate_);
+  ServerDebug("%sCallOnNull?         : %i", ind, (int)callOnNull_);
+  ServerDebug("%sExtraCall?          : %i", ind, (int)extraCall_);
+  ServerDebug("%sDeterministic?      : %i", ind, (int)deterministic_);
 
   const char *externalSecurity = "UNKNOWN";
   switch (externalSecurity_) {
@@ -716,7 +716,7 @@ const char *SPInfo::getSPInfoStateString() const {
     case UNLOADING:
       return "UNLOADING";
     default:
-      return ComRtGetUnknownString((Int32)spInfoState_);
+      return ComRtGetUnknownString((int)spInfoState_);
   }
 }
 
@@ -1073,7 +1073,7 @@ void SPInfo::quiesceExecutor() {
       int sqlcode = SQL_EXEC_Xact(SQLTRANS_QUIESCE, NULL);
       if (sqlcode < 0) {
         char msg[MAXERRTEXT];
-        str_sprintf(msg, "SQL_EXEC_Xact returned error %d", (Int32)sqlcode);
+        str_sprintf(msg, "SQL_EXEC_Xact returned error %d", (int)sqlcode);
         UDR_ASSERT(FALSE, msg);
       }
 

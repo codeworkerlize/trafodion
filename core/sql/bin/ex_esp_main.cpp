@@ -131,10 +131,10 @@ class EspNewIncomingConnectionStream : public IpcMessageStream {
 };
 
 // forward declaration
-void DoEspStartup(Int32 argc, char **argv, IpcEnvironment &env, ExEspFragInstanceDir &fragInstanceDir,
+void DoEspStartup(int argc, char **argv, IpcEnvironment &env, ExEspFragInstanceDir &fragInstanceDir,
                   IpcThreadInfo *threadInfo, GuaReceiveFastStart *guaReceiveFastStart);
 
-Int32 runESP(Int32 argc, char **argv, GuaReceiveFastStart *guaReceiveFastStart = NULL);
+int runESP(int argc, char **argv, GuaReceiveFastStart *guaReceiveFastStart = NULL);
 
 typedef void *stopCatchHandle;
 typedef void *stopCatchContext;
@@ -147,7 +147,7 @@ _priv _resident void stopCatcher(stopCatchContext scContext);
 // -----------  ESP main program for NT or NSK with C runtime ------------
 // -----------------------------------------------------------------------
 
-Int32 main(Int32 argc, char **argv) {
+int main(int argc, char **argv) {
   dovers(argc, argv);
 
   try {
@@ -180,7 +180,7 @@ Int32 main(Int32 argc, char **argv) {
   };
 
   NABoolean fastStart = TRUE;
-  Int32 currArg = 1;
+  int currArg = 1;
   while (currArg < argc && fastStart == TRUE) {
     if (strcmp("-noespfaststart", argv[currArg]) == 0) fastStart = FALSE;
     currArg++;
@@ -292,7 +292,7 @@ static void *waiterThreadStart(void *arg) {
 // Startup handling of ESP
 // -----------------------------------------------------------------------
 
-Int32 runESP(Int32 argc, char **argv, GuaReceiveFastStart *guaReceiveFastStart) {
+int runESP(int argc, char **argv, GuaReceiveFastStart *guaReceiveFastStart) {
   // initialize ESP global data
   StatsGlobals *statsGlobals;
 
@@ -301,7 +301,7 @@ Int32 runESP(Int32 argc, char **argv, GuaReceiveFastStart *guaReceiveFastStart) 
   cliGlobals = CliGlobals::createCliGlobals(TRUE);  // TRUE indicates a non-master process (WAIT on LREC)
   if (cliGlobals == NULL)                           // Sanity check
     NAExit(1);                                      // Abend
-  Int32 shmid;
+  int shmid;
   statsGlobals = shareStatsSegmentWithRetry(shmid);
   if (statsGlobals == NULL) {
     exit(0);
@@ -315,7 +315,7 @@ Int32 runESP(Int32 argc, char **argv, GuaReceiveFastStart *guaReceiveFastStart) 
   cliGlobals->initiateDefaultContext();
   NAHeap *espIpcHeap = cliGlobals->getIpcHeap();
   // Check if it is multiThreaded ESP server
-  Int32 currArg = 1;
+  int currArg = 1;
   NABoolean multiThreaded = FALSE;
   while (currArg < argc) {
     if (strcmp("-multiThread", argv[currArg]) == 0) {
@@ -426,7 +426,7 @@ Int32 runESP(Int32 argc, char **argv, GuaReceiveFastStart *guaReceiveFastStart) 
   return 0;
 }
 
-void DoEspStartup(Int32 argc, char **argv, IpcEnvironment &env, ExEspFragInstanceDir &fragInstanceDir,
+void DoEspStartup(int argc, char **argv, IpcEnvironment &env, ExEspFragInstanceDir &fragInstanceDir,
                   IpcThreadInfo *threadInfo, GuaReceiveFastStart *guaReceiveFastStart) {
   // make the compiler happy by using fragInstanceDir for something
   if (fragInstanceDir.getNumEntries() < 0) {
@@ -435,10 +435,10 @@ void DoEspStartup(Int32 argc, char **argv, IpcEnvironment &env, ExEspFragInstanc
   // interpret command line arguments
   IpcServerAllocationMethod allocMethod = IPC_ALLOC_DONT_CARE;
 
-  Int32 currArg = 1;
+  int currArg = 1;
 
-  Int32 socketArg = 0;
-  Int32 portArg = 0;
+  int socketArg = 0;
+  int portArg = 0;
 
   while (currArg < argc) {
     if (strcmp("-fork", argv[currArg]) == 0) {
@@ -742,7 +742,7 @@ void EspNewIncomingConnectionStream::actOnReceive(IpcConnection *connection) {
         // step in the debug build if an environment variable is
         // set.
         NABoolean doAuthIdCheck = TRUE;
-        Int32 status = 0;
+        int status = 0;
 #ifdef _DEBUG
         const char *envvar = getenv("NO_EXTRACT_AUTHID_CHECK");
         if (envvar && envvar[0]) doAuthIdCheck = FALSE;
@@ -752,10 +752,10 @@ void EspNewIncomingConnectionStream::actOnReceive(IpcConnection *connection) {
           // the user ID is the integer value made into a string
           // Convert it back into its integer value
           short userIDLen = (short)str_len(secInfo.getAuthID());
-          Int32 secUserID = str_atoi(secInfo.getAuthID(), userIDLen);
+          int secUserID = str_atoi(secInfo.getAuthID(), userIDLen);
 
           // Get the current user ID
-          Int32 curUserID = ComUser::getSessionUser();
+          int curUserID = ComUser::getSessionUser();
 
           // Report an error if the user ID is not valid
           if (curUserID == NA_UserIdDefault || secUserID == NA_UserIdDefault) {

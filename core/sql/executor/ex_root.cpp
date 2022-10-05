@@ -301,7 +301,7 @@ ex_root_tcb::ex_root_tcb(const ex_root_tdb &root_tdb, const ex_tcb &child_tcb, E
 
   workAtp_ = allocateAtp(root_tdb.criDesc_, glob->getSpace());
 
-  Int32 numTuples = 2;  // temps and consts
+  int numTuples = 2;  // temps and consts
 
   if (root_tdb.inputVarsSize_ > 0) {
     // allocate space to hold input params/hostvars
@@ -497,14 +497,14 @@ void ex_root_tcb::setInputData(char *inputData) {
 ///////////////////////////////////
 // fixup.
 //////////////////////////////////
-Int32 ex_root_tcb::fixup() { return ex_tcb::fixup(); }
+int ex_root_tcb::fixup() { return ex_tcb::fixup(); }
 
 ///////////////////////////
 // execute.
 ///////////////////////////
-Int32 ex_root_tcb::execute(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descriptor *input_desc,
+int ex_root_tcb::execute(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descriptor *input_desc,
                            ComDiagsArea *&diagsArea, NABoolean reExecute) {
-  Int32 jmpRc = 0;
+  int jmpRc = 0;
   NABoolean syncQuery = FALSE;
 
   ExMasterStmtGlobals *master_glob = glob->castToExMasterStmtGlobals();
@@ -520,10 +520,10 @@ Int32 ex_root_tcb::execute(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descr
   // Do not need to cover debug code since customers and QA do no receive it.
   char *testCancelFreq = getenv("TEST_ERROR_AT_QUEUE");
   if (testCancelFreq) {
-    Int32 freq = atoi(testCancelFreq);
+    int freq = atoi(testCancelFreq);
     if (freq < 0) freq = 0;
     if (freq != 0) {
-      Int32 i = 1;
+      int i = 1;
       while (i <= freq) i = i << 1;
       freq = i >> 1;
     }
@@ -807,7 +807,7 @@ Int32 ex_root_tcb::execute(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descr
       }
     case ComTdbRoot::INVALID_MEMORY:
       {
-        return *(Int32 *) WORK_OK;
+        return *(int *) WORK_OK;
       }
     default:
       {
@@ -816,7 +816,7 @@ Int32 ex_root_tcb::execute(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descr
       }
   }
 #endif
-  Int32 retcode = 0;
+  int retcode = 0;
   // The lines below were added to return proper value
   // for retcode at the time of execute. But it seems to
   // open up more issues. So commented out for now
@@ -876,7 +876,7 @@ void ex_root_tcb::snapshotScanCleanup(ComDiagsArea *&diagsArea) {
   ExpHbaseInterface *ehi = ExpHbaseInterface::newInstance(STMTHEAP, "", "", COM_STORAGE_HBASE, FALSE);
 
   ex_assert(ehi != NULL, "cannot connect to HBase");
-  Int32 retcode = ehi->init(NULL);
+  int retcode = ehi->init(NULL);
   if (retcode != 0) {
     setupWarning(retcode, "ExpHbaseInterface::init", "", diagsArea);
   } else {
@@ -898,7 +898,7 @@ void ex_root_tcb::snapshotScanCleanup(ComDiagsArea *&diagsArea) {
 ////////////////////////////////////////////////////////
 // RETURNS: 0, success. 100, EOF. -1, error. 1, warning
 ////////////////////////////////////////////////////////
-Int32 ex_root_tcb::fetch(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descriptor *output_desc,
+int ex_root_tcb::fetch(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descriptor *output_desc,
                          ComDiagsArea *&diagsArea, int timeLimit, NABoolean newOperation,
                          NABoolean &closeCursorOnError) {
   // see details of this param in ex_root.h::fetch() declaration.
@@ -919,7 +919,7 @@ Int32 ex_root_tcb::fetch(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descrip
   // For the non-streaming destructive cursor (which also uses the GET_NEXT_N
   //  protocol).  A Q_NO_DATA is returned instead of a Q_GET_DONE is there
   //  were less than 'N' rows to be returned.
-  Int32 rowsReturned = 0;
+  int rowsReturned = 0;
   NABoolean nextIsQNoData = FALSE;
   if (newOperation) time_of_fetch_call_usec_ = NA_JulianTimestamp();
 
@@ -1163,7 +1163,7 @@ Int32 ex_root_tcb::fetch(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descrip
                 // Set row number in row's diags if any
                 ComDiagsArea *rowDiags = centry->getAtp()->getDiagsArea();
                 if (rowDiags != NULL) {
-                  Int32 index;
+                  int index;
                   for (index = 1; index <= rowDiags->getNumber(DgSqlCode::WARNING_); index++) {
                     rowDiags->getWarningEntry(index)->setRowNumber(numProcessed);
                   }
@@ -1524,10 +1524,10 @@ Int32 ex_root_tcb::fetch(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descrip
 ////////////////////////////////////////////////////////
 // RETURNS: 0, success. 100, EOF. -1, error. 1, warning
 ////////////////////////////////////////////////////////
-Int32 ex_root_tcb::fetchMultiple(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descriptor *output_desc,
+int ex_root_tcb::fetchMultiple(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descriptor *output_desc,
                                  ComDiagsArea *&diagsArea, int timeLimit, NABoolean newOperation,
                                  NABoolean &closeCursorOnError, NABoolean &eodSeen) {
-  Int32 retcode = 0;
+  int retcode = 0;
   NABoolean keepFetching = TRUE;
 
   int numTotalRows = 0;
@@ -1593,7 +1593,7 @@ Int32 ex_root_tcb::fetchMultiple(CliGlobals *cliGlobals, ExExeStmtGlobals *glob,
 // OLT execute. Does execute/fetch in one shot. Used
 // for OLT queries that do OLT optimization.
 //////////////////////////////////////////////////////
-Int32 ex_root_tcb::oltExecute(ExExeStmtGlobals *glob, Descriptor *input_desc, Descriptor *output_desc,
+int ex_root_tcb::oltExecute(ExExeStmtGlobals *glob, Descriptor *input_desc, Descriptor *output_desc,
                               ComDiagsArea *&diagsArea) {
   ExMasterStmtGlobals *master_glob = getGlobals()->castToExExeStmtGlobals()->castToExMasterStmtGlobals();
 
@@ -1780,7 +1780,7 @@ Int32 ex_root_tcb::oltExecute(ExExeStmtGlobals *glob, Descriptor *input_desc, De
         else if (diagsArea->mainSQLCODE() < 0) {
           // its an error. So send in a negative values.
           // The diagsArea->mainSQLCODE() better be negative!!
-          retcode = (Int32)diagsArea->mainSQLCODE();
+          retcode = (int)diagsArea->mainSQLCODE();
         }
       }
       if (retcode > 0 && syncQuery) {
@@ -1842,7 +1842,7 @@ SCOPE_GUARD_FN(ServerContext, {
 #define SCOPE_GUARD(type) __attribute__((__cleanup__(guard_##type)))
 #define CANCEL_COMMENT    "passive cancel"
 
-Int32 ex_root_tcb::passiveCancel() {
+int ex_root_tcb::passiveCancel() {
   if (qchild.down->isEmpty() && qchild.up->isEmpty()) return 1;  // Query is already finished.
 
   ExMasterStmtGlobals *glob = getGlobals()->castToExExeStmtGlobals()->castToExMasterStmtGlobals();
@@ -1885,7 +1885,7 @@ Int32 ex_root_tcb::passiveCancel() {
 // ex_root_tcb::cpuLimitExceeded.  Also, on windows, old prototype
 // code called this method from a special cancel thread.
 /////////////////////////////////////////////////////////////////////
-Int32 ex_root_tcb::requestCancel() {
+int ex_root_tcb::requestCancel() {
   if (qchild.down->isEmpty() && qchild.up->isEmpty())
     ;  // Query is already finished.
   else {
@@ -1907,7 +1907,7 @@ static IpcTimeout CancelTimeout = -1;
 ///////////////////////////////////////////
 // RETURNS: 0, success. 1, EOF. -1, error.
 ///////////////////////////////////////////
-Int32 ex_root_tcb::cancel(ExExeStmtGlobals *glob, ComDiagsArea *&diagsArea, NABoolean getQueueDiags) {
+int ex_root_tcb::cancel(ExExeStmtGlobals *glob, ComDiagsArea *&diagsArea, NABoolean getQueueDiags) {
   if (fatalError_) {
     // After fatal error, just ignore cancel, because
     // queues may be unstable and a hang can occur.
@@ -2025,7 +2025,7 @@ Int32 ex_root_tcb::cancel(ExExeStmtGlobals *glob, ComDiagsArea *&diagsArea, NABo
   return 0;
 }
 
-Int32 ex_root_tcb::deallocAndDelete(ExExeStmtGlobals *glob, ExRtFragTable *fragTable) {
+int ex_root_tcb::deallocAndDelete(ExExeStmtGlobals *glob, ExRtFragTable *fragTable) {
   // Reset cancelState to ensure no more references of
   // ex_root_tcb by the cancel thread.
   glob->castToExMasterStmtGlobals()->resetCancelState();
@@ -2035,13 +2035,13 @@ Int32 ex_root_tcb::deallocAndDelete(ExExeStmtGlobals *glob, ExRtFragTable *fragT
   return 0;
 }
 
-Int32 ex_root_tcb::closeTables(ExExeStmtGlobals *glob, ExRtFragTable *fragTable) {
+int ex_root_tcb::closeTables(ExExeStmtGlobals *glob, ExRtFragTable *fragTable) {
   glob->closeTables();
 
   return 0;
 }
 
-Int32 ex_root_tcb::reOpenTables(ExExeStmtGlobals *glob, ExRtFragTable *fragTable) {
+int ex_root_tcb::reOpenTables(ExExeStmtGlobals *glob, ExRtFragTable *fragTable) {
   glob->reOpenTables();
 
   return 0;
@@ -2095,12 +2095,12 @@ short ex_root_tcb::work() {
       if (cpuLimitExceeded_) {
         *diagsArea << DgSqlCode(-EXE_QUERY_LIMITS_CPU);
         *diagsArea << DgInt0((int)root_tdb().cpuLimit_);
-        *diagsArea << DgInt1((Int32)master_glob->getMyFragId());
+        *diagsArea << DgInt1((int)master_glob->getMyFragId());
 
         if (root_tdb().getQueryLimitDebug()) {
           *diagsArea << DgSqlCode(EXE_QUERY_LIMITS_CPU_DEBUG);
           *diagsArea << DgInt0((int)root_tdb().cpuLimit_);
-          *diagsArea << DgInt1((Int32)master_glob->getMyFragId());
+          *diagsArea << DgInt1((int)master_glob->getMyFragId());
 
           long localCpuTime = 0;
           ExFragRootOperStats *fragRootStats;
@@ -2136,7 +2136,7 @@ ExWorkProcRetcode ex_root_tcb::workOnFragDir() {
   return getGlobals()->castToExExeStmtGlobals()->castToExMasterStmtGlobals()->getRtFragTable()->workOnRequests();
 }
 
-Int32 ex_root_tcb::fatal_error(ExExeStmtGlobals *glob, ComDiagsArea *&diagsArea, NABoolean noFatalDiags) {
+int ex_root_tcb::fatal_error(ExExeStmtGlobals *glob, ComDiagsArea *&diagsArea, NABoolean noFatalDiags) {
   if (diagsArea)
     glob->takeGlobalDiagsArea(*diagsArea);
   else if ((diagsArea = glob->getDiagsArea()) != NULL) {
@@ -2154,7 +2154,7 @@ Int32 ex_root_tcb::fatal_error(ExExeStmtGlobals *glob, ComDiagsArea *&diagsArea,
   else if (glob->castToExMasterStmtGlobals()->getCancelState() == CLI_CANCEL_REQUESTED)
     populateCancelDiags(*diagsArea);
 
-  Int32 retCode = 0;
+  int retCode = 0;
   if (diagsArea) retCode = diagsArea->mainSQLCODE();
   return retCode;
 }
@@ -2189,7 +2189,7 @@ void ex_root_tcb::completeOutstandingCancelMsgs() {
 
 NABoolean ex_root_tcb::externalEventCompleted(void) { return getGlobals()->getScheduler()->externalEventCompleted(); }
 
-Int32 ex_root_tcb::checkTransBeforeExecute(ExTransaction *myTrans, ExMasterStmtGlobals *masterGlob,
+int ex_root_tcb::checkTransBeforeExecute(ExTransaction *myTrans, ExMasterStmtGlobals *masterGlob,
                                            ExMasterStats *masterStats, ComDiagsArea *&diagsArea) {
   if (myTrans && myTrans->xnInProgress()) {
     // If the statement uses DP2 locks to track already-inserted
@@ -2270,7 +2270,7 @@ void ex_root_tcb::registerCB(ComDiagsArea *&diagsArea) {
 
   // For executionCount, will need either an ExFragRootOperStats
   // or else an ExMeasStats, otherwise no cancel or suspend.
-  Int32 executionCount;
+  int executionCount;
   ExFragRootOperStats *rootOperStats = getStatsEntry()->castToExFragRootOperStats();
   ExMeasStats *measStats = getStatsEntry()->castToExMeasStats();
   if (rootOperStats)

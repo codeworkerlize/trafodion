@@ -290,7 +290,7 @@ BOOL CRUPreRuntimeCheck::CheckConsistency() {
     return TRUE;  // Check irrelevant for group refresh
   }
 
-  Int32 nNonFullySyncTablesUsedByMe = mv_.GetTablesUsedByMe().GetCount() - mv_.GetFullySyncTablesUsedByMe().GetCount();
+  int nNonFullySyncTablesUsedByMe = mv_.GetTablesUsedByMe().GetCount() - mv_.GetFullySyncTablesUsedByMe().GetCount();
 
   switch (nNonFullySyncTablesUsedByMe) {
     case 0: {

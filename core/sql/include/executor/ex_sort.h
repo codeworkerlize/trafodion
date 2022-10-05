@@ -253,8 +253,8 @@ class ExSortTcb : public ex_tcb {
   inline ex_expr *sortRecExpr() const { return sortTdb().sortRecExpr_; }
   inline ULng32 sortBufferSize() const { return sortTdb().bufferSize_; }
 
-  virtual Int32 numChildren() const { return 1; }
-  virtual const ex_tcb *getChild(Int32 /*pos*/) const { return childTcb_; }
+  virtual int numChildren() const { return 1; }
+  virtual const ex_tcb *getChild(int /*pos*/) const { return childTcb_; }
 
   virtual NABoolean needStatsEntry();
 

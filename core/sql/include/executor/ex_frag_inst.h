@@ -96,8 +96,8 @@ class ExFragKey : public IpcMessageObj {
   IpcProcessId pid_;
   ExEspStatementHandle statementHandle_;
   ExFragId fragId_;
-  Int32 spare1_;
-  Int32 spare2_;
+  int spare1_;
+  int spare2_;
 };
 
 #endif /* EX_FRAG_INST_H */

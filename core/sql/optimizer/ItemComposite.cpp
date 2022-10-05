@@ -316,8 +316,8 @@ ItemExpr *CompositeCast::arrayExtendOrTruncate(BindWA *bindWA) {
   ItemExprList *ieNE = new (bindWA->wHeap()) ItemExprList(myCompType.getNumElements(), bindWA->wHeap());
 
   int i = 0;
-  Int32 childElems = MINOF(myCompType.getNumElements(), childCompType.getNumElements());
-  Int32 nullElems = (myCompType.getNumElements() > childCompType.getNumElements()
+  int childElems = MINOF(myCompType.getNumElements(), childCompType.getNumElements());
+  int nullElems = (myCompType.getNumElements() > childCompType.getNumElements()
                          ? (myCompType.getNumElements() - childCompType.getNumElements())
                          : 0);
   ItemExpr *ie = NULL;
@@ -718,7 +718,7 @@ ItemExpr *CompositeExtract::bindNode(BindWA *bindWA) {
     const NumericType &child1Type = (NumericType &)child1->getValueId().getType();
     if (NOT((child1Type.getTypeQualifier() == NA_NUMERIC_TYPE) && (child1Type.isExact()) &&
             (child1Type.getScale() == 0) && (child1Type.getFSDatatype() == REC_BIN32_UNSIGNED))) {
-      *CmpCommon::diags() << DgSqlCode(-3242) << DgString0("ElemNum expression must be Int32 with scale of zero.");
+      *CmpCommon::diags() << DgSqlCode(-3242) << DgString0("ElemNum expression must be int with scale of zero.");
       bindWA->setErrStatus();
       return NULL;
     }
@@ -770,7 +770,7 @@ ItemExpr *CompositeExtract::bindNode(BindWA *bindWA) {
     attrTypeList_.insert(resultType_->getFSDatatype());
 
     NAString currName = names_[0];
-    for (Int32 i = 1; i < names_.entries(); i++) {
+    for (int i = 1; i < names_.entries(); i++) {
       if (resultType_->getFSDatatype() != REC_ROW) {
         *CmpCommon::diags() << DgSqlCode(-3242) << DgString0("Specified field " + currName + " must be of ROW type.");
         bindWA->setErrStatus();
@@ -781,7 +781,7 @@ ItemExpr *CompositeExtract::bindNode(BindWA *bindWA) {
 
       SQLRow *sr = (SQLRow *)resultType_;
       const NAType *elemType = NULL;
-      Int32 elemNum = 0;
+      int elemNum = 0;
       NABoolean found = sr->getElementInfo(currName, elemType, elemNum);
       if (NOT found) {
         *CmpCommon::diags() << DgSqlCode(-3242)

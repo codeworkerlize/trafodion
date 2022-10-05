@@ -56,12 +56,12 @@ void JNICALL LmJavaHooks::abortHookJVM() {
 }
 
 void JNICALL LmJavaHooks::exitHookJVM(jint code) {
-  LM_DEBUG1("[HOOK] Invoking JVM exit hook. Exit code is %d", (Int32)code);
-  fprintf(stdout, "The JVM is about to exit with code %d\n", (Int32)code);
+  LM_DEBUG1("[HOOK] Invoking JVM exit hook. Exit code is %d", (int)code);
+  fprintf(stdout, "The JVM is about to exit with code %d\n", (int)code);
   fflush(stderr);
 
   char buf[200];
-  sprintf(buf, "The Java virtual machine exited with code %d", (Int32)code);
+  sprintf(buf, "The Java virtual machine exited with code %d", (int)code);
   lmMakeTFDSCall(buf, "", 0);
   // should not reach here
 
@@ -104,10 +104,10 @@ jint JNICALL LmJavaHooks::vfprintfHookJVM(FILE *stream, const char *fmt, va_list
   fprintf(stderr, "%s", tmpBuf);
 
   // Write as much as possible into our textBuf_ area
-  Int32 currentLength = str_len(textBuf_);
-  Int32 tmpLen = str_len(tmpBuf);
+  int currentLength = str_len(textBuf_);
+  int tmpLen = str_len(tmpBuf);
   if ((currentLength + 1) < LMJ_HOOK_TEXT_BUF_SIZE) {
-    Int32 bytesToCopy = MINOF(tmpLen + 1, LMJ_HOOK_TEXT_BUF_SIZE - currentLength);
+    int bytesToCopy = MINOF(tmpLen + 1, LMJ_HOOK_TEXT_BUF_SIZE - currentLength);
     str_cpy_all(&textBuf_[currentLength], tmpBuf, bytesToCopy);
     textBuf_[LMJ_HOOK_TEXT_BUF_SIZE - 1] = 0;
   } else {

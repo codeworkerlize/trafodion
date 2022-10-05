@@ -191,7 +191,7 @@ const char *ExSMGlobals::createSessionID(ExExeStmtGlobals *stmtGlob) {
     return NULL;
   }
 
-  str_sprintf(smIDStr, "%d_%d_%ld", (Int32)sqNodeNumber, (Int32)masterPID, (long)masterStart);
+  str_sprintf(smIDStr, "%d_%d_%ld", (int)sqNodeNumber, (int)masterPID, (long)masterStart);
 
   return smIDStr;
 }
@@ -447,7 +447,7 @@ const char *ExSMGlobals::getThreadStateString(ThreadState ts) const {
       return "TERMINATED_DUE_TO_ERROR";
     }
     default:
-      return ComRtGetUnknownString((Int32)ts);
+      return ComRtGetUnknownString((int)ts);
   }
 }
 

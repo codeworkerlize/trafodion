@@ -126,7 +126,7 @@ void ExCatpoundStmtTcb::registerSubtasks() {
   sched->registerCancelSubtask(sWorkCancel, this, qparent_.down, "CN");
 }  // ExCatpoundStmtTcb::registerSubtasks
 
-inline const ex_tcb *ExCatpoundStmtTcb::getChild(Int32 pos) const {
+inline const ex_tcb *ExCatpoundStmtTcb::getChild(int pos) const {
   ex_assert((pos >= 0), "ExCatpoundStmtTcb::getChild");
   if (pos == 0)
     return tcbLeft_;
@@ -367,7 +367,7 @@ ExWorkProcRetcode ExCatpoundStmtTcb::workUp() {
     // get head entry and pstate
     ex_queue_entry *pdentry = qparent_.down->getHeadEntry();
     ExCatpoundStmtPrivateState &pstate = *((ExCatpoundStmtPrivateState *)pdentry->pstate);
-    Int32 eod = 0;
+    int eod = 0;
 
     // while we have (up or cancel or error) work to do, ie,
     // while right child's up-queue is non-empty do

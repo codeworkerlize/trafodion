@@ -46,10 +46,10 @@ class REFRESH_LIB_CLASS CRUSQLMultiTxnRefreshComposer : public CRUSQLRefreshComp
   virtual ~CRUSQLMultiTxnRefreshComposer() {}
 
  public:
-  void ComposeRefresh(Int32 phase, BOOL catchup);
+  void ComposeRefresh(int phase, BOOL catchup);
 
  private:
-  void AddNRowsClause(Int32 phase, BOOL catchup);
+  void AddNRowsClause(int phase, BOOL catchup);
 };
 
 #endif

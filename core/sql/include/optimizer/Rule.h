@@ -232,11 +232,11 @@ class Rule : public NABasicObject {
 
   // only for transformation rules, ie. if top op-arg is logical
   // default value is 10000, resulting in exhaustive search
-  virtual Int32 promiseForExploration(RelExpr *relExpr, RelExpr *pattern, Guidance *guidance);
+  virtual int promiseForExploration(RelExpr *relExpr, RelExpr *pattern, Guidance *guidance);
 
   // for all rules; determine promise for applying this rule on relExpr
   // default value is 10000, resulting in exhaustive search
-  virtual Int32 promiseForOptimization(RelExpr *relExpr, Guidance *guidance, Context *context);
+  virtual int promiseForOptimization(RelExpr *relExpr, Guidance *guidance, Context *context);
 
   // A quick check to determine whether the firing of this rule can
   // potentially generate an expression which matches the specified mustMatch
@@ -289,7 +289,7 @@ class RuleSet : public NABasicObject {
 
  public:
   // constructor
-  RuleSet(Int32 approxNumRules, CollHeap *h);
+  RuleSet(int approxNumRules, CollHeap *h);
 
   // copy ctor
   RuleSet(const RuleSet &);  // not written
@@ -379,7 +379,7 @@ class RuleSet : public NABasicObject {
   // accessor functions
   inline int getCountOfRules() const { return allRules_.entries(); }
   // method is used in debugging and therefore not exercised in mainline code
-  inline Int32 getRuleApplCount() const { return ruleApplCount_; }
+  inline int getRuleApplCount() const { return ruleApplCount_; }
   inline void bumpRuleApplCount() { ruleApplCount_++; }
 
   inline const RuleSubset &oldRules() { return oldRules_; }
@@ -399,7 +399,7 @@ class RuleSet : public NABasicObject {
   int currentPass_;    // current pass of optimization
   int totalPasses_;    // total number of optimization passes
                          // for this statement
-  Int32 ruleApplCount_;  // statistics on rule applications
+  int ruleApplCount_;  // statistics on rule applications
 
   RuleSubset transRules_;             // all transformation rules
   RuleSubset implRules_;              // all implementation rules
@@ -438,8 +438,8 @@ class RuleSubstituteMemory : public LIST(RelExpr *) {
 // an applicable rule that has a certain promise value
 // -----------------------------------------------------------------------
 struct RuleWithPromise {
-  Int32 promise;
-  Int32 tieBreaker;  // used to break ties if promise is equal
+  int promise;
+  int tieBreaker;  // used to break ties if promise is equal
   Rule *rule;
 };
 
@@ -566,10 +566,10 @@ class Guidance : public ReferenceCounter {
 
 // To get rid of annoying warnings, MSVC requires the following (int) casts:
 //
-const Int32 AlwaysBetterPromise = (Int32)99000;
-const Int32 DefaultImplRulePromise = (Int32)20000;
-const Int32 DefaultTransRulePromise = (Int32)10000;
-const Int32 DefaultEnforcerRulePromise = (Int32)5000;
-const Int32 NoPromise = (Int32)0;
+const int AlwaysBetterPromise = (int)99000;
+const int DefaultImplRulePromise = (int)20000;
+const int DefaultTransRulePromise = (int)10000;
+const int DefaultEnforcerRulePromise = (int)5000;
+const int NoPromise = (int)0;
 
 #endif  // RULE_H

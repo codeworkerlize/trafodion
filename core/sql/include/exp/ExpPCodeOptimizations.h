@@ -364,7 +364,7 @@ ULng32 collIndexHashFunc2(const CollIndex &o);
     PCodeInst *firstPCInst;                                                \
     PCodeInst *lastPCInst;                                                 \
     CollIndex indx;                                                        \
-    for (indx = allBlocks_->entries() - 1; (Int32)indx >= 0; indx--) {     \
+    for (indx = allBlocks_->entries() - 1; (int)indx >= 0; indx--) {     \
       PCBlk = allBlocks_->at(indx);                                        \
       firstPCInst = PCBlk->getFirstInst();                                 \
       lastPCInst = PCBlk->getLastInst();                                   \
@@ -568,8 +568,8 @@ class PCodeConstants {
   /////////////////////////////////////////////////
 
   void *data_;   // Pointer to data
-  Int32 len_;    // Length of data
-  Int32 align_;  // Alignment of data
+  int len_;    // Length of data
+  int align_;  // Alignment of data
 
   friend ULng32 constHashFunc(const PCodeConstants &c);
 
@@ -585,10 +585,10 @@ class PCodeConstants {
   }
 
   void *getData() { return data_; }
-  Int32 getLen() { return len_; }
-  Int32 getAlign() { return align_; }
+  int getLen() { return len_; }
+  int getAlign() { return align_; }
 
-  PCodeConstants(void *data, Int32 len, Int32 align) {
+  PCodeConstants(void *data, int len, int align) {
     data_ = data;
     len_ = len;
     align_ = align;
@@ -598,7 +598,7 @@ class PCodeConstants {
   // Constant tracking routines for 0, 1, or -1
   /////////////////////////////////////////////////
 
-  static const Int32 UNKNOWN_CONSTANT = 2;
+  static const int UNKNOWN_CONSTANT = 2;
 
   // Is the passed in constant a 0, 1, or -1
   static NABoolean isQualifiedConstant(long constant);
@@ -612,10 +612,10 @@ class PCodeConstants {
   static void clearConstantVectors(CollIndex operandIndex, NABitVector &zeroes, NABitVector &ones, NABitVector &neg1);
 
   // Return 0, 1, or -1, if the passed in constant is known.  Return 2 otherwise
-  static Int32 getConstantValue(CollIndex bvIndex, NABitVector &zeroes, NABitVector &ones, NABitVector &neg1);
+  static int getConstantValue(CollIndex bvIndex, NABitVector &zeroes, NABitVector &ones, NABitVector &neg1);
 
   // Copy the constant information known for bvIndexFrom into bvIndexTo.
-  static Int32 copyConstantVectors(CollIndex bvIndexFrom, CollIndex bvIndexTo, NABitVector &zeroes, NABitVector &ones,
+  static int copyConstantVectors(CollIndex bvIndexFrom, CollIndex bvIndexTo, NABitVector &zeroes, NABitVector &ones,
                                    NABitVector &neg1);
 
   // Merge the constant vectors together and fold results back into newZeroes,
@@ -625,7 +625,7 @@ class PCodeConstants {
 
   // Modify the constant vectors so that the passed in operand index is
   // associated with the passed in constant.
-  static void setConstantInVectors(Int32 constant, CollIndex bvIndex, NABitVector &zeroes, NABitVector &ones,
+  static void setConstantInVectors(int constant, CollIndex bvIndex, NABitVector &zeroes, NABitVector &ones,
                                    NABitVector &neg1);
 
   // Can this operand have the value 1?
@@ -648,9 +648,9 @@ class PCodeConstants {
 //
 class NullTriple {
  public:
-  Int32 atp_;  // Atp of null indicator
-  Int32 idx_;  // Tupp index of null indicator
-  Int32 off_;  // Column offset of null indicator
+  int atp_;  // Atp of null indicator
+  int idx_;  // Tupp index of null indicator
+  int off_;  // Column offset of null indicator
 
   friend ULng32 nullTripleHashFunc(const NullTriple &o);
 
@@ -658,7 +658,7 @@ class NullTriple {
     return ((other.off_ == off_) && (other.idx_ == idx_) && (other.atp_ == atp_));
   }
 
-  NullTriple(Int32 atp, Int32 idx, Int32 off) {
+  NullTriple(int atp, int idx, int off) {
     atp_ = atp;
     idx_ = idx;
     off_ = off;
@@ -708,10 +708,10 @@ class ReachDefsTable {
   ~ReachDefsTable() { destroy(); }
 
   // Copy incoming hash table into in/out table
-  Int32 copy(ReachDefsElem **tabToCopy, NABoolean isInTab);
+  int copy(ReachDefsElem **tabToCopy, NABoolean isInTab);
 
   // Merge incoming hash table into in/out table
-  Int32 merge(ReachDefsElem **tabToMerge, NABoolean isInTab);
+  int merge(ReachDefsElem **tabToMerge, NABoolean isInTab);
 
   // Find reaching operand in in/out table
   PCodeInst *find(CollIndex bv, NABoolean isInTab);
@@ -756,28 +756,28 @@ class ReachDefsTable {
 class PCodeOperand {
  private:
   // Position of stack index in pcode
-  Int32 stackIndexPos_;
+  int stackIndexPos_;
 
   // Position of offset in pcode
-  Int32 offsetPos_;
+  int offsetPos_;
 
   // Stack index of operand
-  Int32 stackIndex_;
+  int stackIndex_;
 
   // Offset of operand
-  Int32 offset_;
+  int offset_;
 
   // Potential null bit index of operand
-  Int32 nullBitIndex_;
+  int nullBitIndex_;
 
   // Operand type
   PCIT::AddressingMode operandType_;
 
   // Bit vector index for this operand
-  Int32 bvIndex_;
+  int bvIndex_;
 
   // Length of operand
-  Int32 len_;
+  int len_;
 
   // Position of varchar voaOffset
   signed char voaOffsetPos_;
@@ -792,13 +792,13 @@ class PCodeOperand {
   signed char vcNullIndicatorLen_;
 
   // Varchar voaOffset
-  Int32 voaOffset_;
+  int voaOffset_;
 
   // Varchar vc indicator offset
-  Int32 vcLenIndicatorOff_;
+  int vcLenIndicatorOff_;
 
   // Varchar maxLen;
-  Int32 vcMaxLen_;
+  int vcMaxLen_;
 
   /**********************************************
    * Native Expr Related
@@ -823,7 +823,7 @@ class PCodeOperand {
   }
 
   // Constructor I
-  PCodeOperand(Int32 stackIndex, Int32 offset, Int32 nullBitIndex, Int32 voaOffset)
+  PCodeOperand(int stackIndex, int offset, int nullBitIndex, int voaOffset)
       : stackIndex_(stackIndex), offset_(offset), nullBitIndex_(nullBitIndex), bvIndex_(0), voaOffset_(voaOffset) {
     /**********************************************
      * Native Expr Related
@@ -835,8 +835,8 @@ class PCodeOperand {
   }
 
   // Constructor II
-  PCodeOperand(Int32 stackIndex, Int32 offset, Int32 nullBitIndex, Int32 stackIndexPos, Int32 offsetPos, Int32 bvIndex,
-               PCIT::AddressingMode opType, Int32 len, Int32 voaOffset)
+  PCodeOperand(int stackIndex, int offset, int nullBitIndex, int stackIndexPos, int offsetPos, int bvIndex,
+               PCIT::AddressingMode opType, int len, int voaOffset)
       : stackIndex_(stackIndex),
         offset_(offset),
         nullBitIndex_(nullBitIndex),
@@ -862,21 +862,21 @@ class PCodeOperand {
   }
 
   // Get stack index
-  Int32 getStackIndex() { return stackIndex_; }
+  int getStackIndex() { return stackIndex_; }
 
   // Get offset
-  Int32 getOffset() { return offset_; }
+  int getOffset() { return offset_; }
 
   // Get null bit index
-  Int32 getNullBitIndex() { return nullBitIndex_; }
+  int getNullBitIndex() { return nullBitIndex_; }
 
   NABoolean forAlignedFormat() { return (nullBitIndex_ != -1); }
 
   // Get pcode position of stack index
-  Int32 getStackIndexPos() { return stackIndexPos_; }
+  int getStackIndexPos() { return stackIndexPos_; }
 
   // Get pcode position of offset
-  Int32 getOffsetPos() { return offsetPos_; }
+  int getOffsetPos() { return offsetPos_; }
 
   // Get the type of the operand
   PCIT::AddressingMode getType() { return operandType_; }
@@ -885,34 +885,34 @@ class PCodeOperand {
   void setType(PCIT::AddressingMode type) { operandType_ = type; }
 
   // Get the len of the operand
-  Int32 getLen() { return len_; }
+  int getLen() { return len_; }
 
   // Set the len of the operand
-  void setLen(Int32 len) { len_ = len; }
+  void setLen(int len) { len_ = len; }
 
   // Get the alignment of the operand
-  Int32 getAlign();
+  int getAlign();
 
   // Varchar related functionality
 
   signed char getVoaOffsetPos() { return voaOffsetPos_; }
   signed char getVcLenIndicatorOffPos() { return vcLenIndicatorOffPos_; }
-  Int32 getVoaOffset() { return voaOffset_; }
-  Int32 getVcLenIndicatorOff() { return vcLenIndicatorOff_; }
-  Int32 getVcMaxLen() { return vcMaxLen_; }
+  int getVoaOffset() { return voaOffset_; }
+  int getVcLenIndicatorOff() { return vcLenIndicatorOff_; }
+  int getVcMaxLen() { return vcMaxLen_; }
   signed char getVcIndicatorLen() { return vcIndicatorLen_; }
   signed char getVcNullIndicatorLen() { return vcNullIndicatorLen_; }
 
   void setVoaOffsetPos(signed char pos) { voaOffsetPos_ = pos; }
   void setVcLenIndicatorOffPos(signed char pos) { vcLenIndicatorOffPos_ = pos; }
-  void setVoaOffset(Int32 off) { voaOffset_ = off; }
-  void setVcLenIndicatorOff(Int32 off) { vcLenIndicatorOff_ = off; }
-  void setVcMaxLen(Int32 len) { vcMaxLen_ = len; }
+  void setVoaOffset(int off) { voaOffset_ = off; }
+  void setVcLenIndicatorOff(int off) { vcLenIndicatorOff_ = off; }
+  void setVcMaxLen(int len) { vcMaxLen_ = len; }
   void setVcIndicatorLen(signed char len) { vcIndicatorLen_ = len; }
   void setVcNullIndicatorLen(signed char len) { vcNullIndicatorLen_ = len; }
 
-  void setVarcharFields(signed char voaOffsetPos, signed char vcLenIndicatorOffPos, Int32 voaOffset,
-                        Int32 vcLenIndicatorOff, Int32 vcMaxLen, signed char vcNullIndicatorLen,
+  void setVarcharFields(signed char voaOffsetPos, signed char vcLenIndicatorOffPos, int voaOffset,
+                        int vcLenIndicatorOff, int vcMaxLen, signed char vcNullIndicatorLen,
                         signed char vcIndicatorLen) {
     voaOffsetPos_ = voaOffsetPos;
     vcLenIndicatorOffPos_ = vcLenIndicatorOffPos;
@@ -940,7 +940,7 @@ class PCodeOperand {
   NABoolean canOverlap(PCodeOperand *oper);
 
   // Get the bit vector index for this operand
-  Int32 getBvIndex() { return bvIndex_; }
+  int getBvIndex() { return bvIndex_; }
 
   // Public accessor to return jitValue_ for this operand
   jit_value_t getCurrJitVal() { return jitValue_; }
@@ -1012,7 +1012,7 @@ printf("ZZZ In COPY Constructor(): allocated new PCodeOperand at %p, AM=%d\n", o
   void storeNullJitValueAndBranch(PCodeCfg *cfg, IRBldr_t *Builder, jit_value_t value, p_IR_block_t targetLabel,
                                   NABoolean forComp, PCodeBlock *b);
 
-  void allocJitValue(PCodeCfg *cfg, IRBldr_t *Bldr, PCIT::AddressingMode OprTyp, Int32 Len, Int32 Num);
+  void allocJitValue(PCodeCfg *cfg, IRBldr_t *Bldr, PCIT::AddressingMode OprTyp, int Len, int Num);
 
 #endif /* COMING_FROM_NATIVE_EXPR_SOURCE_FILE */
 #endif /* NA_LINUX_LLVMJIT */
@@ -1052,7 +1052,7 @@ class PCodeInst {
   Space *space_;    // Passed in from cfg (create pcode insts with)
   OPLIST readOps;   // List of read operands
   OPLIST writeOps;  // List of write operands
-  Int32 cost_;      // Cost of instruction
+  int cost_;      // Cost of instruction
 
  public:
   PCodeBinary *code;   // Pointer to pcode inst data
@@ -1060,7 +1060,7 @@ class PCodeInst {
   PCodeInst *next;     // Pointer to next PCodeInst
   PCodeBlock *block;   // Pointer to block containing this instruction
   ex_clause *clause_;  // Clause pointer associated with this instruction
-  Int32 opdataLen_;    // If inst is opdata, this is operand length
+  int opdataLen_;    // If inst is opdata, this is operand length
 
   NABitVector liveVector_;  // Live vector
 
@@ -1092,7 +1092,7 @@ class PCodeInst {
         opdataLen_(-1),
         cost_(1) {
     PCodeBinary c = inst;
-    Int32 length = PCode::getInstructionLength(&c);
+    int length = PCode::getInstructionLength(&c);
     code = (space_) ? new (space_) PCodeBinary[length] : new (heap_) PCodeBinary[length];
     code[0] = inst;
   }
@@ -1150,22 +1150,22 @@ class PCodeInst {
 
   PCIT::Instruction generateInt64MoveOpc(PCIT::AddressingMode am);
   PCIT::Instruction generateFloat64MoveOpc(PCIT::AddressingMode am);
-  Int32 generateCopyMoveOpc(PCIT::AddressingMode);
+  int generateCopyMoveOpc(PCIT::AddressingMode);
 
   NABoolean containsIndirectVarcharOperand();
 
   void getBranchTargetOffsetPointers(NAList<PCodeBinary *> *, PCodeCfg *cfg);
   void getBranchTargetPointers(NAList<Long *> *, PCodeCfg *cfg);
-  void getBranchTargets(NAList<Int32> *, PCodeCfg *cfg);
+  void getBranchTargets(NAList<int> *, PCodeCfg *cfg);
 
   void modifyOperandsForVarchar(PCodeCfg *cfg);
 
-  Int32 getCost() { return cost_; }
-  void setCost(Int32 cost) { cost_ = cost; }
+  int getCost() { return cost_; }
+  void setCost(int cost) { cost_ = cost; }
 
   void print(PCodeCfg *, NABoolean debugFlag);
 
-  Int32 getOpcode() { return code[0]; }
+  int getOpcode() { return code[0]; }
 
   OPLIST &getROps() { return readOps; }
 
@@ -1188,13 +1188,13 @@ class PCodeBlock {
   PCodeInst *first_;         // First instruction in block
   PCodeInst *last_;          // Last instruction in block
   NABoolean visitedFlag_;    // Flag used to indicate if block has been visited
-  Int32 blockNum_;           // Block number for identification
-  Int32 blockTopOffset_;     // Physical offset of block upon entry
-  Int32 blockBottomOffset_;  // Physical offset of block upon exit
+  int blockNum_;           // Block number for identification
+  int blockTopOffset_;     // Physical offset of block upon entry
+  int blockBottomOffset_;  // Physical offset of block upon exit
   BLOCKLIST succsList_;      // List of successor blocks
   BLOCKLIST predsList_;      // List of predecessor blocks
   PCodeCfg *cfg_;            // Pointer to containing cfg
-  Int32 cost_;               // Cost of block
+  int cost_;               // Cost of block
 
   NABitVector liveVector;  // Live vector
 
@@ -1219,7 +1219,7 @@ class PCodeBlock {
   NAHashDictionary<CollIndex, PCodeInst> *reachingDefsTableOut_;
 
   // Constructor
-  PCodeBlock(Int32 blockNum, PCodeInst *first, CollHeap *heap, PCodeCfg *cfg)
+  PCodeBlock(int blockNum, PCodeInst *first, CollHeap *heap, PCodeCfg *cfg)
       : blockNum_(blockNum),
         first_(first),
         last_(first),
@@ -1256,21 +1256,21 @@ class PCodeBlock {
     return (last_ && ((last_->getOpcode() == PCIT::RETURN) || (last_->getOpcode() == PCIT::RETURN_IBIN32S)));
   }
 
-  Int32 getCost() { return cost_; }
-  void setCost(Int32 cost) { cost_ = cost; }
+  int getCost() { return cost_; }
+  void setCost(int cost) { cost_ = cost; }
 
   void setFirstInst(PCodeInst *first) { first_ = first; }
   void setLastInst(PCodeInst *last) { last_ = last; }
   void setVisitedFlag(NABoolean flag) { visitedFlag_ = flag; }
-  void setBlockTopOffset(Int32 offset) { blockTopOffset_ = offset; }
-  void setBlockBottomOffset(Int32 offset) { blockBottomOffset_ = offset; }
+  void setBlockTopOffset(int offset) { blockTopOffset_ = offset; }
+  void setBlockBottomOffset(int offset) { blockBottomOffset_ = offset; }
 
   PCodeInst *getFirstInst() { return first_; }
   PCodeInst *getLastInst() { return last_; }
   NABoolean getVisitedFlag() { return visitedFlag_; }
-  Int32 getBlockTopOffset() { return blockTopOffset_; }
-  Int32 getBlockBottomOffset() { return blockBottomOffset_; }
-  Int32 getBlockNum() { return blockNum_; }
+  int getBlockTopOffset() { return blockTopOffset_; }
+  int getBlockBottomOffset() { return blockBottomOffset_; }
+  int getBlockNum() { return blockNum_; }
 
   PCodeOperand *isIndirectBranchCandidate(PCodeBlock *headBlock, PCodeOperand *var, NABoolean forInList);
 
@@ -1399,8 +1399,8 @@ class PCodeCfg {
   Space *space_;
 
   // Atp and AtpIndex maps
-  Int32 *atpMap_;
-  Int32 *atpIndexMap_;
+  int *atpMap_;
+  int *atpIndexMap_;
 
   // Entry block for pcode sequence
   PCodeBlock *entryBlock_;
@@ -1415,18 +1415,18 @@ class PCodeCfg {
   UInt32 flags_;
 
   // What is the offset for the zero constant operand
-  Int32 zeroOffset_;
+  int zeroOffset_;
 
   CollIndex maxBVIndex_;
-  Int32 maxBlockNum_;
+  int maxBlockNum_;
 
   struct {
-    Int32 hashCombCnt_;
-    Int32 nullBranchCnt_;
-    Int32 logicalBranchCnt_;
+    int hashCombCnt_;
+    int nullBranchCnt_;
+    int logicalBranchCnt_;
   } counters_;
 
-  NAHashDictionary<NullTriple, Int32> *nullToPadMap_;
+  NAHashDictionary<NullTriple, int> *nullToPadMap_;
   NAHashDictionary<PCodeOperand, CollIndex> *operandToIndexMap_;
   NAHashDictionary<CollIndex, PCodeOperand> *indexToOperandMap_;
   NAHashDictionary<ULong, PCodeBinary> *targets_;
@@ -1437,12 +1437,12 @@ class PCodeCfg {
 
   NAHashDictionary<PCodeConstants, CollIndex> *constToOffsetMap_;
   NAHashDictionary<CollIndex, PCodeConstants> *offsetToConstMap_;
-  Int32 newConstsAreaLen_;
+  int newConstsAreaLen_;
 
   // Optimization flags
   UInt32 optFlags_;
 
-  static const Int32 COPY_PROP_MAX_RECURSION = 25;
+  static const int COPY_PROP_MAX_RECURSION = 25;
 
 #ifdef NA_LINUX_LLVMJIT
 
@@ -1493,7 +1493,7 @@ class PCodeCfg {
   NExTEMPSLIST *NExTempsList_;
 
   NExDbgInfo *NExDbgInfoPtr_;  // Native Expr Dbg Info Pointer
-  Int32 NExprDbgLvl_;          // Native Expr Debug Level
+  int NExprDbgLvl_;          // Native Expr Debug Level
 
 #endif /* NA_LINUX_LLVMJIT */
 
@@ -1549,20 +1549,20 @@ class PCodeCfg {
   // Static const variables used in indirect branch optimization to signify a
   // an invalid value for equality comparisons.  It's used to identify a missing
   // value in the constants lookup table for this optimization.
-  static const Int32 INVALID_INT32 = 0xFEFEFEFE;
+  static const int INVALID_INT32 = 0xFEFEFEFE;
   static const long INVALID_INT64 = 0xFEFEFEFEFEFEFEFELL;
 
 #define INVALID_LONG INVALID_INT64
 
   // Static const variables used.
-  static const Int32 MAX_NUM_PCODE_INSTS = 500;
-  static const Int32 MAX_HASHCOMB_BULK_OPERANDS = 100;
+  static const int MAX_NUM_PCODE_INSTS = 500;
+  static const int MAX_HASHCOMB_BULK_OPERANDS = 100;
 
   // Friend classes
-  // friend ULng32 targetHashFunc(const Int32 & o);
+  // friend ULng32 targetHashFunc(const int & o);
 
   // Constructor Routines
-  PCodeCfg(ex_expr *expr, Int32 *atpMap, Int32 *atpIndexMap, CollHeap *heap, Space *space)
+  PCodeCfg(ex_expr *expr, int *atpMap, int *atpIndexMap, CollHeap *heap, Space *space)
       : expr_(expr),
         space_(space),
         origHeap_(heap),
@@ -1649,11 +1649,11 @@ class PCodeCfg {
   PCodeBlock *getEntryBlock() { return entryBlock_; }
   void setEntryBlock(PCodeBlock *block) { entryBlock_ = block; }
 
-  Int32 getNExprDbgLvl() { return NExprDbgLvl_; }
+  int getNExprDbgLvl() { return NExprDbgLvl_; }
 
   // Utility Routines
   PCodeInst *createInst(PCIT::Instruction);
-  PCodeInst *createInst(PCIT::Instruction, Int32 length);
+  PCodeInst *createInst(PCIT::Instruction, int length);
   PCodeInst *copyInst(PCodeInst *inst);
   PCodeBlock *createBlock();
   void deleteBlock(PCodeBlock *block);
@@ -1666,7 +1666,7 @@ class PCodeCfg {
   void createCfg();
   NABoolean createInsts(PCodeBinary *pcode);
   NABoolean addOverlappingOperands(NABoolean detectOnly);
-  void addOperand(PCodeBinary *, OPLIST &, Int32, Int32, Int32, PCIT::AddressingMode, Int32, Int32);
+  void addOperand(PCodeBinary *, OPLIST &, int, int, int, PCIT::AddressingMode, int, int);
   void loadOperandsOfInst(PCodeInst *newInst);
   ex_clause *findClausePtr(PCodeInst *inst);
 
@@ -1679,7 +1679,7 @@ class PCodeCfg {
   // Optimization Analysis Routines
   void computeDomTree();
   void computeLiveness(NABoolean performDCE);
-  void computeReachingDefs(Int32 flags);
+  void computeReachingDefs(int flags);
   void removeReachingDefs();
   void updateReachingDefs(PCodeBlock *, CollIndex, PCodeInst *, PCodeInst *);
 
@@ -1699,13 +1699,13 @@ class PCodeCfg {
   void runtimeOptimize();
   void optimize();
   void peepholeConstants();
-  void copyPropagation(Int32 phase, NABoolean reachDefsAvailable);
+  void copyPropagation(int phase, NABoolean reachDefsAvailable);
   NABoolean constantPropagation(NABoolean doPeeling);
   void constantFolding();
   PCodeInst *constantFold(PCodeInst *inst, NABoolean rDefsAvailable);
-  void cfgRewiring(Int32 flags);
+  void cfgRewiring(int flags);
   NABoolean deadCodeElimination();
-  NABoolean shortCircuitOpt(Int32 flags);
+  NABoolean shortCircuitOpt(int flags);
   void codeMotion();
   void flattenNullBranches();
   void inlining();
@@ -1741,11 +1741,11 @@ class PCodeCfg {
   NABoolean cfgHasLoop();
   PCodeInst *findHashInst(PCodeOperand *def, PCodeInst *start);
   NABoolean copyPropBackwardsHelper(INSTLIST &list, PCodeBlock *block, PCodeInst *start, PCodeOperand *moveTgt,
-                                    PCodeOperand *moveSrc, Int32 level);
+                                    PCodeOperand *moveSrc, int level);
   void copyPropForwardsHelper(PCodeBlock *block, PCodeInst *start, PCodeOperand *moveTgt, PCodeOperand *moveSrc,
-                              Int32 level);
+                              int level);
   NABoolean copyPropForwardsHelper2(PCodeInst *start, PCodeOperand *useSrc, PCodeOperand *moveSrc);
-  void shortCircuitOptHelper(PCodeBlock *block, NABitVector *bv, Int32 constant);
+  void shortCircuitOptHelper(PCodeBlock *block, NABitVector *bv, int constant);
   PCodeInst *shortCircuitConstantProp(PCodeBlock *block, NABitVector *zeroes, NABitVector *ones,
                                       NABoolean *isBranchTaken);
   NABoolean localConstantPropagation(PCodeBlock *block, NABitVector &zeroes, NABitVector &ones, NABitVector &neg1);
@@ -1762,16 +1762,16 @@ class PCodeCfg {
   void destroyForCSE(INSTLIST **cseList);
 
   // Temps Related
-  Int32 addTemp(Int32 size, Int32 alignment);
+  int addTemp(int size, int alignment);
 
   // Constants related
-  CollIndex *addConstant(void *data, Int32 len, Int32 alignment);
+  CollIndex *addConstant(void *data, int len, int alignment);
   CollIndex *addConstant(PCodeOperand *op);
-  Int32 addNewIntConstant(long value, Int32 alignment);
-  Int32 addNewFloatConstant(double value, Int32 alignment);
+  int addNewIntConstant(long value, int alignment);
+  int addNewFloatConstant(double value, int alignment);
   void *getPtrConstValue(PCodeOperand *);
   long getIntConstValue(PCodeOperand *);
-  char *getStringConstValue(PCodeOperand *, Int32 *len);
+  char *getStringConstValue(PCodeOperand *, int *len);
   double getFloatConstValue(PCodeOperand *);
   void layoutConstants();
 
@@ -1820,19 +1820,19 @@ class PCodeCfg {
   NABoolean jitProcessPredicate(PCodeInst *comp, jit_function_t f, jit_label_t *falseLabel, jit_label_t *trueLabel,
                                 NABoolean dumpTrueBlockFirst);
 
-  void genUnalignedMemset(jit_function_t f, jit_value_t tgt, Int32 val, Int32 length);
+  void genUnalignedMemset(jit_function_t f, jit_value_t tgt, int val, int length);
 #endif  // NA_LINUX_LIBJIT
 
 #ifdef NA_LINUX_LLVMJIT
 #ifdef COMING_FROM_NATIVE_EXPR_SOURCE_FILE
-  void genUnalignedMemset(IRBldr_t *Builder, jit_value_t tgt, Int32 val, Int32 length);
+  void genUnalignedMemset(IRBldr_t *Builder, jit_value_t tgt, int val, int length);
 
-  void genUnalignedMemcpy(IRBldr_t *Builder, jit_value_t tgt, jit_value_t src, jit_value_t len, Int32 constantLen);
+  void genUnalignedMemcpy(IRBldr_t *Builder, jit_value_t tgt, jit_value_t src, jit_value_t len, int constantLen);
 #endif  // COMING_FROM_NATIVE_EXPR_SOURCE_FILE
 #endif  /* NA_LINUX_LLVMJIT */
 
 #ifdef NA_LINUX_LIBJIT
-  void genUnalignedMemcpy(jit_function_t f, jit_value_t tgt, jit_value_t src, jit_value_t len, Int32 constantLen);
+  void genUnalignedMemcpy(jit_function_t f, jit_value_t tgt, jit_value_t src, jit_value_t len, int constantLen);
 
   void genBignumSub(PCodeCfg *cfg, jit_function_t f, PCodeOperand *res, jit_value_t src1, jit_value_t src2,
                     jit_value_t sign1, jit_value_t sign2, jit_value_t tSrc1, jit_value_t tSrc2, PCodeBlock *block);
@@ -1841,10 +1841,10 @@ class PCodeCfg {
                              NABoolean lenNeeded);
 
   jit_value_t genHash(jit_function_t f, jit_value_t tStr, jit_value_t tStrLen, jit_value_t loopIndex,
-                      Int32 constantLen);
+                      int constantLen);
 #endif /* NA_LINUX_LIBJIT */
 
-  void setupClauseOperand(PCodeCfg *cfg, OPLIST &opList, PCodeOperand **opData, Int32 index, ex_clause *clause);
+  void setupClauseOperand(PCodeCfg *cfg, OPLIST &opList, PCodeOperand **opData, int index, ex_clause *clause);
 
 #ifdef NA_LINUX_LIBJIT
   jit_value_t getZeroJitVal() { return zeroJitVal_; }
@@ -1894,7 +1894,7 @@ class PCodeCfg {
   jit_value_t genMemCmpLoop(IRBldr_t *Bldr, enum cmpKind kindOfCompare, jit_value_t srcPtr, jit_value_t tgtPtr,
                             jit_value_t MaxLen);
 
-  void genMemSetLoop(IRBldr_t *Bldr, Int32 val, jit_value_t tgtPtr, jit_value_t maxLen);
+  void genMemSetLoop(IRBldr_t *Bldr, int val, jit_value_t tgtPtr, jit_value_t maxLen);
 
   void IR_insn_branch_if_zero(IRBldr_t *Bldr, jit_value_t value, p_IR_block_t *tgt_IR_block);
 
@@ -1902,9 +1902,9 @@ class PCodeCfg {
 
 #endif /* COMING_FROM_NATIVE_EXPR_SOURCE_FILE */
 
-  NABoolean inTempsList(Int32 Offset, PCIT::AddressingMode OprTyp);
+  NABoolean inTempsList(int Offset, PCIT::AddressingMode OprTyp);
 
-  void addToTempsList(PCodeOperand *PCOp, PCIT::AddressingMode oprTyp, Int32 offset, Int32 num = 1);
+  void addToTempsList(PCodeOperand *PCOp, PCIT::AddressingMode oprTyp, int offset, int num = 1);
 
   void NExLog(const char *data);
 
@@ -1914,9 +1914,9 @@ class PCodeCfg {
 class NExTempListEntry {
  private:
   PCodeOperand *PCOp_;           // Ptr to PCodeOperand entry for Temp variable
-  Int32 num_;                    // Number to allocate
+  int num_;                    // Number to allocate
   PCIT::AddressingMode oprTyp_;  // Operand Type to use in allocJitValue()
-  Int32 offset_;                 // Offset (that goes with stackIndex == 2)
+  int offset_;                 // Offset (that goes with stackIndex == 2)
 
  public:
   PCodeOperand *getPCOp() { return PCOp_; }
@@ -1925,11 +1925,11 @@ class NExTempListEntry {
   PCIT::AddressingMode getOprTyp() { return oprTyp_; }
   void setOprTyp(PCIT::AddressingMode opTyp) { oprTyp_ = opTyp; }
 
-  Int32 getNum() { return num_; }
-  void setNum(Int32 num) { num_ = num; }
+  int getNum() { return num_; }
+  void setNum(int num) { num_ = num; }
 
-  Int32 getOffset() { return offset_; }
-  void setOffset(Int32 offset) { offset_ = offset; }
+  int getOffset() { return offset_; }
+  void setOffset(int offset) { offset_ = offset; }
 
   // Default constuctor
   NExTempListEntry(){};

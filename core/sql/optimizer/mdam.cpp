@@ -298,7 +298,7 @@ void DisjunctArray::print(FILE *ofd, const char *indent, const char *title) cons
     ValueIdSet &disjunct = *(*this)[i];
 
     // Print it:
-    disStr = NAString("disjunct[") + NAString((unsigned char)('0' + Int32(i))) + NAString("]: ");
+    disStr = NAString("disjunct[") + NAString((unsigned char)('0' + int(i))) + NAString("]: ");
     disjunct.print(ofd, indent, disStr);
 
   }  // for every disjunct
@@ -1683,7 +1683,7 @@ void Disjuncts::print(FILE *ofd, const char *indent, const char *title) const {
     Disjunct disjunct;
     fprintf(ofd, "\n\nDisjuncts_ (one by one):\n");
     for (CollIndex i = 0; get(disjunct, i); i++) {
-      disStr = NAString("Disjunct[") + NAString((unsigned char)('0' + Int32(i))) + NAString("]: ");
+      disStr = NAString("Disjunct[") + NAString((unsigned char)('0' + int(i))) + NAString("]: ");
       disjunct.print(ofd, indent, disStr);
       disjunct.clear();
     }
@@ -2334,7 +2334,7 @@ void KeyColumns::print(FILE *ofd, const char *indent, const char *title) const {
   for (CollIndex i = 0; i < keyColumnPtrCache_.entries(); i++) {
     // print the column
     fprintf(ofd, "Predicates for column: ");
-    Int32 c = (Int32)((CollIndex)(keyColumnPtrCache_[i]->getColumnId()));
+    int c = (int)((CollIndex)(keyColumnPtrCache_[i]->getColumnId()));
     NAString unparsed(CmpCommon::statementHeap());
     keyColumnPtrCache_[i]->getColumnId().getItemExpr()->unparse(unparsed);
     fprintf(ofd, "%4d: %s\n", c, (const char *)unparsed);
@@ -2384,7 +2384,7 @@ void ColumnOrderList::print(FILE *ofd, const char *indent, const char * /*title*
     // print the column
     if (orderKeyColumnPtrList_[order]) {
       fprintf(ofd, "Predicates for column: ");
-      Int32 c = (Int32)((CollIndex)(orderKeyColumnPtrList_[order]->getColumnId()));
+      int c = (int)((CollIndex)(orderKeyColumnPtrList_[order]->getColumnId()));
       NAString unparsed(CmpCommon::statementHeap());
       orderKeyColumnPtrList_[order]->getColumnId().getItemExpr()->unparse(unparsed);
       fprintf(ofd, "%4d: %s\n", c, (const char *)unparsed);

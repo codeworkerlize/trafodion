@@ -73,7 +73,7 @@ class MvLog : public BinderOnlyNode {
   // All the work is done here.
   RelExpr *bindNode(BindWA *bindWAPtr);
 
-  virtual Int32 getArity() const { return 0; }
+  virtual int getArity() const { return 0; }
 
   // add all the expressions that are local to this
   // node to an existing list of expressions (used by GUI tool)

@@ -41,7 +41,7 @@ NABoolean CNAStdioFile::Open(const char *fileName, EOpenMode mode) {
     // we already have the file open so just reset file pointer back
     // to the beginning
     // fseek returns 0 if successful, -1 if not
-    Int32 retcode = fseek(m_fileHandle, 0, SEEK_SET);
+    int retcode = fseek(m_fileHandle, 0, SEEK_SET);
     if (retcode != ENOERR) {
       m_lastError = errno;
       return FALSE;
@@ -112,7 +112,7 @@ void CNAStdioFile::Close() {
 // is zero (0) before calling the CNAStdioFile::IsEOF method
 // to find out whether an EOF condition has been encountered.
 // -------------------------------------------------------------------
-Int32 CNAStdioFile::ReadString(char *buffer, int bufferSize, NABoolean flipByteOrderNeeded) {
+int CNAStdioFile::ReadString(char *buffer, int bufferSize, NABoolean flipByteOrderNeeded) {
   if (Initialize() == FALSE) return -1;
   ULng32 numRead = 0L;
 
@@ -128,7 +128,7 @@ Int32 CNAStdioFile::ReadString(char *buffer, int bufferSize, NABoolean flipByteO
 
   if (flipByteOrderNeeded == TRUE) FlipByteOrder(buffer, bufferSize);
 
-  return (Int32)numRead;
+  return (int)numRead;
 }
 
 // -------------------------------------------------------------------
@@ -168,7 +168,7 @@ Int32 CNAStdioFile::ReadString(char *buffer, int bufferSize, NABoolean flipByteO
 //    call was successful, the method CNAStdioFile::GetLastError
 //    returns the ENOERR (i.e. 0) value.
 // -------------------------------------------------------------------
-Int32 CNAStdioFile::ReadBlock(char *buffer, int numBytes, NABoolean flipByteOrderNeeded) {
+int CNAStdioFile::ReadBlock(char *buffer, int numBytes, NABoolean flipByteOrderNeeded) {
   if (Initialize() == FALSE) return (-1);  // an error has occurred
   ULng32 numRead = 0L;
 
@@ -184,7 +184,7 @@ Int32 CNAStdioFile::ReadBlock(char *buffer, int numBytes, NABoolean flipByteOrde
 
   if (flipByteOrderNeeded == TRUE) FlipByteOrder(buffer, numBytes);
 
-  return (Int32)numRead;
+  return (int)numRead;
 }
 
 // -------------------------------------------------------------------
@@ -250,11 +250,11 @@ ULng32 CNAStdioFile::CheckIOCompletion() {
 // the user's request.  The user then needs to call the method
 // CNAStdioFile::GetLastError to get the errno.h error number.
 // -------------------------------------------------------------------
-Int32 CNAStdioFile::Read(void *buffer, int bufferSize) {
+int CNAStdioFile::Read(void *buffer, int bufferSize) {
   if (Initialize() == FALSE) return -1;
-  Int32 numRead = 0;
+  int numRead = 0;
 
-  numRead = (Int32)fread(buffer, sizeof(char), bufferSize, m_fileHandle);
+  numRead = (int)fread(buffer, sizeof(char), bufferSize, m_fileHandle);
   if (ferror(m_fileHandle)) {
     m_lastError = errno;
     return -1;
@@ -291,7 +291,7 @@ NABoolean CNAStdioFile::IsEOF() {
 // -------------------------------------------------------------------
 NABoolean CNAStdioFile::ReadLine(char *buffer, int bufferSize) {
   if (Initialize() == FALSE) return FALSE;
-  Int32 numRead = 0;
+  int numRead = 0;
   char *str = NULL;
 
   str = fgets(buffer, bufferSize, m_fileHandle);
@@ -304,7 +304,7 @@ NABoolean CNAStdioFile::ReadLine(char *buffer, int bufferSize) {
   }
 
   // remove one trailing '\n' (newline) character if it exists
-  numRead = (Int32)strlen(buffer);
+  numRead = (int)strlen(buffer);
   if (buffer[numRead - 1] == '\n') buffer[numRead - 1] = '\0';
 
   return TRUE;
@@ -320,13 +320,13 @@ NABoolean CNAStdioFile::ReadLine(char *buffer, int bufferSize) {
 // the user's request.  The user then needs to call the method
 // CNAStdioFile::GetLastError to get the error number.
 // -------------------------------------------------------------------
-Int32 CNAStdioFile::WriteString(const char *strLine) {
+int CNAStdioFile::WriteString(const char *strLine) {
   if (Initialize() == FALSE) return -1;
-  Int32 strLength = (Int32)strlen(strLine);
-  Int32 charSize = sizeof(char);
-  Int32 numWrite = 0;
+  int strLength = (int)strlen(strLine);
+  int charSize = sizeof(char);
+  int numWrite = 0;
 
-  numWrite = (Int32)fwrite(strLine, charSize, strLength, m_fileHandle);
+  numWrite = (int)fwrite(strLine, charSize, strLength, m_fileHandle);
   if (ferror(m_fileHandle)) {
     m_lastError = errno;
     return -1;
@@ -345,11 +345,11 @@ Int32 CNAStdioFile::WriteString(const char *strLine) {
 // the user's request.  The user then needs to call the method
 // CNAStdioFile::GetLastError to get the error number.
 // -------------------------------------------------------------------
-Int32 CNAStdioFile::Write(const char *buffer, int bufferSize) {
+int CNAStdioFile::Write(const char *buffer, int bufferSize) {
   if (Initialize() == FALSE) return -1;
-  Int32 numWrite = 0;
+  int numWrite = 0;
 
-  numWrite = (Int32)fwrite(buffer, sizeof(char), bufferSize, m_fileHandle);
+  numWrite = (int)fwrite(buffer, sizeof(char), bufferSize, m_fileHandle);
   if (ferror(m_fileHandle)) {
     m_lastError = errno;
     return -1;
@@ -372,7 +372,7 @@ Int32 CNAStdioFile::Write(const char *buffer, int bufferSize) {
 // (in parameter buffer) to be written.
 // -------------------------------------------------------------------
 
-Int32 CNAStdioFile::Write(const NAWchar *buffer, int bufferSize, NABoolean flipByteOrderNeeded) {
+int CNAStdioFile::Write(const NAWchar *buffer, int bufferSize, NABoolean flipByteOrderNeeded) {
   if (Initialize() == FALSE) return -1;
   NAWchar *buffer_write = NULL;
 
@@ -389,7 +389,7 @@ Int32 CNAStdioFile::Write(const NAWchar *buffer, int bufferSize, NABoolean flipB
   } else
     buffer_write = (NAWchar *)buffer;
 
-  Int32 numWrite = (Int32)fwrite(buffer_write, sizeof(NAWchar), bufferSize, m_fileHandle);
+  int numWrite = (int)fwrite(buffer_write, sizeof(NAWchar), bufferSize, m_fileHandle);
   if (ferror(m_fileHandle)) {
     m_lastError = errno;
     if (buffer_write) delete[] buffer_write;
@@ -408,11 +408,11 @@ Int32 CNAStdioFile::Write(const NAWchar *buffer, int bufferSize, NABoolean flipB
 // The user can then call the method CNAStdioFile::GetLastError to
 // get the error number.
 // -------------------------------------------------------------------
-Int32 CNAStdioFile::Flush() {
+int CNAStdioFile::Flush() {
   if (Initialize() == FALSE) return EOF;
 
   // fflush returns ENOERR if successful
-  Int32 status = fflush(m_fileHandle);
+  int status = fflush(m_fileHandle);
 
   if (status != ENOERR) m_lastError = errno;
 
@@ -457,7 +457,7 @@ void CNADataSource::GetTimeString(char *pTime, NABoolean convertSpaceColonToDash
 
   // Replace the spaces with dashes.
   if (convertSpaceColonToDash) {
-    Int32 pos = 0;
+    int pos = 0;
     while (pTime[pos] != '\0') {
       if (pTime[pos] == ' ' || pTime[pos] == ':') pTime[pos] = '-';
       pos++;

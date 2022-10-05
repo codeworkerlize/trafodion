@@ -60,11 +60,11 @@ class ComTdbUdr : public ComTdb {
 
   ComTdbUdr(char *sqlName, char *routineName, char *routineSignature, char *containerName, char *externalPath,
             char *librarySqlName, long libraryRedefTime, char *libraryBlobHandle, char *librarySchName,
-            Int32 libraryVersion, char *javaOptions, char *javaOptionDelimiters,
+            int libraryVersion, char *javaOptions, char *javaOptionDelimiters,
 
             ULng32 flags, ULng32 numInputValues, ULng32 numOutputValues, ULng32 numParams, ULng32 maxResultSets,
             ULng32 stateAreaSize, short udrType, short languageType, short paramStyle, short sqlAccessMode,
-            short transactionAttrs, UInt16 externalSecurity, Int32 routineOwnerId, Cardinality estimatedRowCount,
+            short transactionAttrs, UInt16 externalSecurity, int routineOwnerId, Cardinality estimatedRowCount,
             ex_cri_desc *criDescParent, ex_cri_desc *criDescReturned, ex_cri_desc *workCriDesc,
             queue_index downQueueMaxSize, queue_index upQueueMaxSize,
 
@@ -77,9 +77,9 @@ class ComTdbUdr : public ComTdb {
 
             ULng32 numChildInputs, ex_expr **childInputExprs, ComTdb **childTdbs, Queue *optionalData,
 
-            Int32 udrSerInvocationInfoLen, char *udrSerInvocationInfo, Int32 udrSerPlanInfoLen, char *udrSerPlanInfo,
+            int udrSerInvocationInfoLen, char *udrSerInvocationInfo, int udrSerPlanInfoLen, char *udrSerPlanInfo,
 
-            Int32 javaDebugPort, Int32 javaDebugTimeout,
+            int javaDebugPort, int javaDebugTimeout,
 
             Space *space
 
@@ -113,20 +113,20 @@ class ComTdbUdr : public ComTdb {
   //----------------------------------------------------------------------
   // Other required TDB support functions
   //----------------------------------------------------------------------
-  Int32 orderedQueueProtocol() const { return -1; }
+  int orderedQueueProtocol() const { return -1; }
   void display() const {
     // All TDBs have an no-op display() function. Not sure why.
   }
-  virtual Int32 numChildren() const { return numChildTableInputs_; }
+  virtual int numChildren() const { return numChildTableInputs_; }
   virtual const char *getNodeName() const { return "EX_UDR"; }
-  virtual const ComTdb *getChild(Int32 pos) const {
+  virtual const ComTdb *getChild(int pos) const {
     if ((numChildTableInputs_ > 0) && (pos < numChildTableInputs_) && (pos >= 0))
       return childTdbs_[pos];
     else
       return NULL;
   }
-  virtual Int32 numExpressions() const { return (4 + numChildTableInputs_); }
-  virtual const char *getExpressionName(Int32 pos) const {
+  virtual int numExpressions() const { return (4 + numChildTableInputs_); }
+  virtual const char *getExpressionName(int pos) const {
     if (pos == 0)
       return "inputExpr_";
     else if (pos == 1)
@@ -140,7 +140,7 @@ class ComTdbUdr : public ComTdb {
     else
       return NULL;
   }
-  virtual ex_expr *getExpressionNode(Int32 pos) {
+  virtual ex_expr *getExpressionNode(int pos) {
     if (pos == 0)
       return inputExpr_;
     else if (pos == 1)
@@ -231,19 +231,19 @@ class ComTdbUdr : public ComTdb {
   ComTdbPtrPtr childTdbs_;        // 200-207
 
   // Definer Rights related
-  Int32 routineOwnerId_;  // 208-211
+  int routineOwnerId_;  // 208-211
   // serialized UDRInvocationInfo and UDRPlanInfo
-  Int32 udrSerInvocationInfoLen_;    // 212-215
+  int udrSerInvocationInfoLen_;    // 212-215
   NABasicPtr udrSerInvocationInfo_;  // 216-223
-  Int32 udrSerPlanInfoLen_;          // 224-227
+  int udrSerPlanInfoLen_;          // 224-227
   NABasicPtr udrSerPlanInfo_;        // 228-235
 
-  Int32 javaDebugPort_;           // 236-239
-  Int32 javaDebugTimeout_;        // 240-243
+  int javaDebugPort_;           // 236-239
+  int javaDebugTimeout_;        // 240-243
   long libraryRedefTime_;        // 244-251
   NABasicPtr libraryBlobHandle_;  // 252-259
   NABasicPtr librarySchName_;     // 260-267
-  Int32 libraryVersion_;          // 268-271
+  int libraryVersion_;          // 268-271
   // Make sure class size is a multiple of 8
   char fillerComTdbUdr2_[24];  // 272-295
 };

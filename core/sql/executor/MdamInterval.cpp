@@ -66,7 +66,7 @@ MdamInterval::MdamInterval(MdamEndPoint &beginEndPointRef, MdamEndPoint &endEndP
 //  + reverse the inclusion of endEndPoint if it is of type BEGIN, and
 //  + build a reference list.
 MdamInterval::MdamInterval(MdamEndPoint &beginEndPoint, MdamEndPoint &endEndPoint, MdamInterval *intervalPtr0,
-                           MdamInterval *intervalPtr1, const Int32 disjunctNum,
+                           MdamInterval *intervalPtr1, const int disjunctNum,
                            FixedSizeHeapManager &mdamRefListEntryHeap)
     : beginPoint_(beginEndPoint), endPoint_(endEndPoint), mdamRefList_(), nextMdamIntervalPtr_(0) {
   // Reverse the inclusion of endEndPoint if it is of type BEGIN.
@@ -116,7 +116,7 @@ NABoolean MdamInterval::getFirstValue(const ULng32 keyLen, char *s) const {
   // The begin endpoint is excluded so calculate the next higher
   // value.
   {
-    Int32 returnCode = str_inc(keyLen, s);
+    int returnCode = str_inc(keyLen, s);
     // Check if the string was successfully incremented.
     if (returnCode == 0) {
       // Check that the incremented value is within the interval.
@@ -143,7 +143,7 @@ NABoolean MdamInterval::getFirstValue(const ULng32 keyLen, char *s) const {
 // error or a value that is outside the interval.
 NABoolean MdamInterval::getNextValue(const ULng32 keyLen, char *s) const {
   // Increment the string.
-  Int32 returnCode = str_inc(keyLen, s);
+  int returnCode = str_inc(keyLen, s);
   // Check if the string was successfully incremented.
   if (returnCode == 0) {
     // Check that the incremented value is within the interval.
@@ -178,7 +178,7 @@ void MdamInterval::setNextMdamIntervalPtr(MdamInterval *nextMdamIntervalPtr) {
 // is inserted into the new list if the interval pointed to by interval2Ptr
 // is active.
 void MdamInterval::createRefList(const MdamInterval *interval1Ptr, const MdamInterval *interval2Ptr,
-                                 const Int32 disjunctNum, FixedSizeHeapManager &mdamRefListEntryHeap) {
+                                 const int disjunctNum, FixedSizeHeapManager &mdamRefListEntryHeap) {
   if (interval1Ptr != 0) {
     mdamRefList_.copyEntries(interval1Ptr->mdamRefList_, mdamRefListEntryHeap);
   };

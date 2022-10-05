@@ -75,8 +75,8 @@ ex_expr::exp_return_type ex_expr::pCodeGenerate(Space *space, CollHeap *heap, UI
 #ifdef _DEBUG
   // for debug
   char *buf;
-  Int32 bufLen = 0;   // to store PCode in ascii for to buf, set it to 16384
-  Int32 dumpPci = 0;  // set this to 1 as well
+  int bufLen = 0;   // to store PCode in ascii for to buf, set it to 16384
+  int dumpPci = 0;  // set this to 1 as well
   if (bufLen > 0) {
     buf = (char *)space->allocateSpaceMemory(bufLen);
     if (buf == NULL)  // failed to get memory
@@ -288,10 +288,10 @@ ex_expr::exp_return_type ex_expr::pCodeGenerate(Space *space, CollHeap *heap, UI
   // allocated in eval (which is currently fixed), then abort PCODE
   // generation.
   //
-  Int32 maximumStackDepth = 0;
-  Int32 minAtp = INT_MAX, maxAtp = INT_MIN;
-  Int32 minAtpIndex = INT_MAX, maxAtpIndex = INT_MIN;
-  Int32 atpOperation = 0;
+  int maximumStackDepth = 0;
+  int minAtp = INT_MAX, maxAtp = INT_MIN;
+  int minAtpIndex = INT_MAX, maxAtpIndex = INT_MIN;
+  int atpOperation = 0;
   for (pci = iter.first(); pci; pci = iter.next()) {
     // Fixup constant, temp, and persistent pointers, if necessary.
     //
@@ -301,7 +301,7 @@ ex_expr::exp_return_type ex_expr::pCodeGenerate(Space *space, CollHeap *heap, UI
       Long persistentArea = (Long)(persistentArea_.getPointer());
 
       PCIT::AddressingMode am;
-      for (Int32 i = 0, op = 0; i < pci->getNumberAddressingModes();
+      for (int i = 0, op = 0; i < pci->getNumberAddressingModes();
            i++, op += PCIT::getNumberOperandsForAddressingMode(am)) {
         am = pci->getAddressingMode(i);
         if (!PCIT::isMemoryAddressingMode(am)) continue;
@@ -321,7 +321,7 @@ ex_expr::exp_return_type ex_expr::pCodeGenerate(Space *space, CollHeap *heap, UI
     //
     atpOperation = 1;
     PCIT::AddressingMode am;
-    for (Int32 i = 0, op = 0; i < pci->getNumberAddressingModes();
+    for (int i = 0, op = 0; i < pci->getNumberAddressingModes();
          i++, op += PCIT::getNumberOperandsForAddressingMode(am)) {
       am = pci->getAddressingMode(i);
       if (!PCIT::isMemoryAddressingMode(am)) continue;
@@ -372,15 +372,15 @@ ex_expr::exp_return_type ex_expr::pCodeGenerate(Space *space, CollHeap *heap, UI
     // Any MOVE PCI inside a branch will not be removed either,
     // as the PCI might be conditionally executed.
     {
-      Int32 inBranch = 0;
-      Int32 branchCnt = 0;
-      const Int32 maxBranches = 256;
+      int inBranch = 0;
+      int branchCnt = 0;
+      const int maxBranches = 256;
       PCI *branches[maxBranches];
 
       while (storePci) {
         if (PCode::IsBranchInstruction(storePci)) {
-          Int32 found = 0;
-          for (Int32 i = 0; i < branchCnt; i++) {
+          int found = 0;
+          for (int i = 0; i < branchCnt; i++) {
             if (storePci == branches[i]) {
               inBranch--;
               GenAssert(inBranch >= 0, "Expression contains unmatched branch and target instruction")
@@ -405,8 +405,8 @@ ex_expr::exp_return_type ex_expr::pCodeGenerate(Space *space, CollHeap *heap, UI
           PCIID branchId = storePci->getLongOperand(0);
           PCI *branch = PCode::getPCI(branchId);
 
-          Int32 found = 0;
-          for (Int32 i = 0; i < branchCnt; i++) {
+          int found = 0;
+          for (int i = 0; i < branchCnt; i++) {
             if (branch == branches[i]) {
               inBranch--;
               GenAssert(inBranch >= 0, "Expression contains unmatched branch and target instruction") found = 1;
@@ -433,7 +433,7 @@ ex_expr::exp_return_type ex_expr::pCodeGenerate(Space *space, CollHeap *heap, UI
         // it is not in branch
         //
         else if (!inBranch && PCode::IsTemporaryStore(storePci)) {
-          Int32 replaceUses = 1;
+          int replaceUses = 1;
           PCIListIter iterInner(iter);
           PCI *usePci = iterInner.next();
           for (; usePci; usePci = iterInner.next()) {
@@ -448,7 +448,7 @@ ex_expr::exp_return_type ex_expr::pCodeGenerate(Space *space, CollHeap *heap, UI
             // now we know we can at least replace the use of
             // temp space. Replace it and see if we can remove it,
             // i.e. no place the temp space is ever referenced
-            Int32 removeMove = 1;
+            int removeMove = 1;
             PCIListIter iterInner(iter);
             PCI *usePci = iterInner.next();
             for (; usePci; usePci = iterInner.next()) {
@@ -493,7 +493,7 @@ ex_expr::exp_return_type ex_expr::pCodeGenerate(Space *space, CollHeap *heap, UI
         continue;
       }
 
-      Int32 match = 0;
+      int match = 0;
       PCIListIter iterInner(iter);
       PCI *loadPci = iterInner.next();
       for (; loadPci; loadPci = iterInner.next()) {
@@ -508,7 +508,7 @@ ex_expr::exp_return_type ex_expr::pCodeGenerate(Space *space, CollHeap *heap, UI
           // to/from the same location, see if the pair can be removed.
           //
           if (PCI::temporaryStoreLoadMatch(storePci, loadPci)) {
-            Int32 anotherLD = 0;
+            int anotherLD = 0;
             PCIListIter iterInnerInner(iterInner);
             for (PCI *lastPci = iterInnerInner.next(); lastPci; lastPci = iterInnerInner.next()) {
               if (PCI::temporaryStoreLoadOverlap(storePci, lastPci)) {
@@ -684,17 +684,17 @@ ex_expr::exp_return_type ex_expr::pCodeGenerate(Space *space, CollHeap *heap, UI
   // maps the resuling shifted ATP and ATP index into a 2-D array. This
   // compacts the map somewhat.
   //
-  Int32 opNum = 0;
-  Int32 *atpMap = 0;
-  Int32 *atpIndexMap = 0;
+  int opNum = 0;
+  int *atpMap = 0;
+  int *atpIndexMap = 0;
   if (atpOperation) {
-    Int32 numAtps = (maxAtp - minAtp) + 1;
-    Int32 numAtpIndexs = (maxAtpIndex - minAtpIndex) + 1;
-    Int32 numOps = numAtps * numAtpIndexs;
+    int numAtps = (maxAtp - minAtp) + 1;
+    int numAtpIndexs = (maxAtpIndex - minAtpIndex) + 1;
+    int numOps = numAtps * numAtpIndexs;
     char *tuppMap = new (space) char[numOps];
-    atpMap = new (space) Int32[numOps];
-    atpIndexMap = new (space) Int32[numOps];
-    Int32 i = 0;
+    atpMap = new (space) int[numOps];
+    atpIndexMap = new (space) int[numOps];
+    int i = 0;
     for (; i < numOps; i++) {
       atpMap[i] = -1;
       atpIndexMap[i] = -1;
@@ -706,9 +706,9 @@ ex_expr::exp_return_type ex_expr::pCodeGenerate(Space *space, CollHeap *heap, UI
     // to be the computed index.
     //
     for (pci = iter.first(); pci; pci = iter.next()) {
-      Int32 atp, atpIndex, index;
+      int atp, atpIndex, index;
       PCIT::AddressingMode am;
-      for (Int32 i = 0, op = 0; i < pci->getNumberAddressingModes();
+      for (int i = 0, op = 0; i < pci->getNumberAddressingModes();
            i++, op += PCIT::getNumberOperandsForAddressingMode(am)) {
         am = pci->getAddressingMode(i);
         if (!PCIT::isMemoryAddressingMode(am)) continue;
@@ -742,9 +742,9 @@ ex_expr::exp_return_type ex_expr::pCodeGenerate(Space *space, CollHeap *heap, UI
     // Iterate over all of the LD/ST_ATP* operations.
     //
     for (pci = iter.first(); pci; pci = iter.next()) {
-      Int32 atp, atpIndex, index, compressedIndex;
+      int atp, atpIndex, index, compressedIndex;
       PCIT::AddressingMode am;
-      for (Int32 i = 0, op = 0; i < pci->getNumberAddressingModes();
+      for (int i = 0, op = 0; i < pci->getNumberAddressingModes();
            i++, op += PCIT::getNumberOperandsForAddressingMode(am)) {
         am = pci->getAddressingMode(i);
         if (!PCIT::isMemoryAddressingMode(am)) continue;
@@ -760,7 +760,7 @@ ex_expr::exp_return_type ex_expr::pCodeGenerate(Space *space, CollHeap *heap, UI
         // offset from the (i+2)th to the (i+1)th operand, etc.
         //
         pci->setOperand(op, compressedIndex);
-        for (Int32 j = op + 1; j < pci->getNumberOperands() - 1; j++) pci->setOperand(j, pci->getOperand(j + 1));
+        for (int j = op + 1; j < pci->getNumberOperands() - 1; j++) pci->setOperand(j, pci->getOperand(j + 1));
         pci->setNumberOperands(pci->getNumberOperands() - 1);
         op--;
       }
@@ -785,7 +785,7 @@ ex_expr::exp_return_type ex_expr::pCodeGenerate(Space *space, CollHeap *heap, UI
   // Compute the offset in the generated code vector of the first element
   // for each PCI.
   //
-  Int32 position = 0;
+  int position = 0;
   for (pci = iter.first(); pci; pci = iter.next()) {
     pci->setCodePosition(position);
     position += pci->getGeneratedCodeSize();
@@ -797,7 +797,7 @@ ex_expr::exp_return_type ex_expr::pCodeGenerate(Space *space, CollHeap *heap, UI
     if (PCode::IsTargetInstruction(pci)) {
       PCIID branchId = pci->getLongOperand(0);
       PCI *branchPci = PCode::getPCI(branchId);
-      Int32 distance = pci->getCodePosition() - branchPci->getCodePosition() - 1;
+      int distance = pci->getCodePosition() - branchPci->getCodePosition() - 1;
       if ((branchPci->getOperation() == PCIT::Op_CLAUSE_BRANCH) || (branchPci->getOperation() == PCIT::Op_BRANCH_AND) ||
           (branchPci->getOperation() == PCIT::Op_BRANCH_OR))
         branchPci->setLongOperand(0, distance);
@@ -823,7 +823,7 @@ ex_expr::exp_return_type ex_expr::pCodeGenerate(Space *space, CollHeap *heap, UI
   setPCodeObject(codeObject);
   if (!pCode_.getPointer()) pCode_ = new (space) PCodeSegment();
 
-  Int32 codeSize;
+  int codeSize;
   setPCodeBinary(codeObject->generateCodeSegment(opNum, atpMap, atpIndexMap, &codeSize));
   pCode_.getPointer()->setPCodeSegmentSize(codeSize);
   pCode_.getPointer()->setContainsClauseEval(containsClauseEval);

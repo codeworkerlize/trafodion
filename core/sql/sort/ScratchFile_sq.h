@@ -49,7 +49,7 @@ typedef enum { PEND_NONE, PEND_READ, PEND_WRITE } EPendingIOType;
 class SQScratchFile : public ScratchFile {
  public:
   SQScratchFile(ScratchSpace *scratchSpace, SortError *sorterror, CollHeap *heap = 0, NABoolean breakEnabled = FALSE,
-                Int32 scratchMaxOpens = 1, NABoolean asynchReadQueue = TRUE);
+                int scratchMaxOpens = 1, NABoolean asynchReadQueue = TRUE);
 
   //-----------------------------------------------
   // The destructor.
@@ -63,10 +63,10 @@ class SQScratchFile : public ScratchFile {
   // this function is the next public function of
   // this class called.
   //-----------------------------------------------
-  virtual RESULT checkScratchIO(Int32 index, DWORD timeout = 0, NABoolean initiateIO = FALSE);
+  virtual RESULT checkScratchIO(int index, DWORD timeout = 0, NABoolean initiateIO = FALSE);
   virtual void setEventHandler(ExSubtask *eh, IpcEnvironment *ipc, ex_tcb *tcb){};
 
-  virtual RESULT getError(Int32 index);
+  virtual RESULT getError(int index);
   //-----------------------------------------------
   // This function will return wether the current
   // position is at the end of the file or not.
@@ -74,21 +74,21 @@ class SQScratchFile : public ScratchFile {
   // the EOF, then this function returns SCRATCH_SUCCESS,
   // else it returns SCRATCH_FAILURE.
   //-----------------------------------------------
-  virtual RESULT isEOF(Int32 index, long &iowaittime, int *transfered = NULL) { return SCRATCH_FAILURE; }
+  virtual RESULT isEOF(int index, long &iowaittime, int *transfered = NULL) { return SCRATCH_FAILURE; }
 
   //-----------------------------------------------
   // This function reads length bytes and put it
   // in the char array, starting at the file
   // pointer.
   //-----------------------------------------------
-  virtual RESULT readBlock(Int32 index, char *data, int length, long &iowaittime, int *transfered = NULL,
-                           Int32 synchronous = 1);
+  virtual RESULT readBlock(int index, char *data, int length, long &iowaittime, int *transfered = NULL,
+                           int synchronous = 1);
 
   //-----------------------------------------------
   // This function moves the file pointer to the
   // end of the file.
   //-----------------------------------------------
-  virtual RESULT seekEnd(Int32 index, DWORD &eofAddr, long &iowaittime, int *transfered = NULL) {
+  virtual RESULT seekEnd(int index, DWORD &eofAddr, long &iowaittime, int *transfered = NULL) {
     return SCRATCH_SUCCESS;
   }
 
@@ -98,7 +98,7 @@ class SQScratchFile : public ScratchFile {
   // For write operation, this essentially moves the file pointer automatically
   // to the end offset. Ofcourse we need seekoffset for read operations.
   //-----------------------------------------------
-  virtual RESULT seekOffset(Int32 index, int offset, long &iowaittime, int *transfered = NULL,
+  virtual RESULT seekOffset(int index, int offset, long &iowaittime, int *transfered = NULL,
                             DWORD seekDirection = 0);
 
   //-----------------------------------------------
@@ -106,14 +106,14 @@ class SQScratchFile : public ScratchFile {
   // char array into the file, starting from
   // the file pointer.
   //-----------------------------------------------
-  virtual RESULT writeBlock(Int32 index, char *data, int length, long &iowaittime, Int32 blockNum = 0,
+  virtual RESULT writeBlock(int index, char *data, int length, long &iowaittime, int blockNum = 0,
                             int *transfered = NULL, NABoolean waited = FALSE_L);
 
-  virtual void setPreviousError(Int32 index, RESULT error) { fileHandle_[index].previousError = error; }
-  virtual RESULT getPreviousError(Int32 index) { return fileHandle_[index].previousError; }
+  virtual void setPreviousError(int index, RESULT error) { fileHandle_[index].previousError = error; }
+  virtual RESULT getPreviousError(int index) { return fileHandle_[index].previousError; }
   // Truncate file and cancel any pending I/O operation
   virtual void truncate(void);
-  virtual Int32 getFreeFileHandle(void) {
+  virtual int getFreeFileHandle(void) {
     if (!fileHandle_[0].IOPending)
       return 0;  // means, a file handle is available for IO
     else
@@ -122,18 +122,18 @@ class SQScratchFile : public ScratchFile {
 
   NABoolean checkDirectory(char *path);
 
-  Int32 getFileNum(Int32 index) { return fileHandle_[index].fileNum; }
+  int getFileNum(int index) { return fileHandle_[index].fileNum; }
 
   virtual RESULT executeVectorIO();
-  virtual NABoolean isVectorPartiallyFilledAndPending(Int32 index) {
+  virtual NABoolean isVectorPartiallyFilledAndPending(int index) {
     return ((vectorIndex_ > 0) && (fileHandle_[index].IOPending == FALSE));
   }
-  virtual NABoolean isNewVecElemPossible(long byteOffset, Int32 blockSize);
+  virtual NABoolean isNewVecElemPossible(long byteOffset, int blockSize);
 
   virtual void copyVectorElements(ScratchFile *newFile);
-  virtual Int32 getBlockNumFirstVectorElement() { return blockNumFirstVectorElement_; }
+  virtual int getBlockNumFirstVectorElement() { return blockNumFirstVectorElement_; }
 
-  virtual Int32 lastError() { return lastError_; }
+  virtual int lastError() { return lastError_; }
 
   virtual void reset() {
     vectorIndex_ = 0;
@@ -150,10 +150,10 @@ class SQScratchFile : public ScratchFile {
 
  private:
   // redriveIO will return if complete all bytes request or timeout occurred.
-  Int32 redriveIO(Int32 index, int &count, int timeout = -1);  // AWAITIOX emulation.
+  int redriveIO(int index, int &count, int timeout = -1);  // AWAITIOX emulation.
 
-  RESULT doSelect(Int32 index, DWORD timeout, EPendingIOType type, Int32 &err);
-  Int32 redriveVectorIO(Int32 index);
+  RESULT doSelect(int index, DWORD timeout, EPendingIOType type, int &err);
+  int redriveVectorIO(int index);
 
   //-----------------------------------------------
   // This function is used internally to get the
@@ -168,12 +168,12 @@ class SQScratchFile : public ScratchFile {
 
   // For vector IO
   struct iovec *vector_;  // vector elements
-  Int32 vectorSize_;      // max number of vector elements
-  Int32 vectorIndex_;     // number of vector elements setup
+  int vectorSize_;      // max number of vector elements
+  int vectorIndex_;     // number of vector elements setup
   ssize_t bytesRequested_;
   ssize_t bytesCompleted_;
   void *remainingAddr_;        // adjusting pointers for redrive IO
-  Int32 remainingVectorSize_;  // adjusting pointers for redrive IO
+  int remainingVectorSize_;  // adjusting pointers for redrive IO
   long vectorSeekOffset_;     // beginning seek offset for vector IO
   long writemmapCursor_;      // Only used in mmap as append cursor.
   long readmmapCursor_;       // Only used in mmap as read cursor.
@@ -183,7 +183,7 @@ class SQScratchFile : public ScratchFile {
   // to recover from a ENOSPC. The entire vector is copied
   // to another instance of scratchFile and block num from this
   // member is updated in the map file.
-  Int32 blockNumFirstVectorElement_;
+  int blockNumFirstVectorElement_;
 
   // type_ can be any of enum types defined by enum. The following state changes
   // take place.  PEND_NONE-->PEND_READ or PEND_WRITE -->PEND_NONE
@@ -196,13 +196,13 @@ class SQScratchFile : public ScratchFile {
   //              indicate if an actual IO is in flight. To check if IO is in
   //              flight, check the fileHandle_[index].IOPending flag.
   EPendingIOType type_;   // indicates type of IO vector being builtup.
-  Int32 vectorWriteMax_;  // For diagnostics only
-  Int32 vectorReadMax_;   // For diagnostics only
-  Int32 lastError_;
+  int vectorWriteMax_;  // For diagnostics only
+  int vectorReadMax_;   // For diagnostics only
+  int lastError_;
   NABoolean doDiskCheck_;
 #ifdef _DEBUG
   char *envIOPending_;     // for simulating IO pending state.
-  Int32 envIOBlockCount_;  // for simulating IO pending state.
+  int envIOBlockCount_;  // for simulating IO pending state.
 #endif
 };
 

@@ -145,7 +145,7 @@ void MdamIntervalList::giveAllIntervals(MdamIntervalList &otherList) {
 
 // This function inserts a single disjunct number into the reference list
 // associated with each MdamInterval on the MdamIntervalList.
-void MdamIntervalList::insertDisjunctNum(const Int32 disjunctNum, FixedSizeHeapManager &mdamRefListEntryHeap) {
+void MdamIntervalList::insertDisjunctNum(const int disjunctNum, FixedSizeHeapManager &mdamRefListEntryHeap) {
   MdamIntervalListIterator iterator(*this);
   MdamInterval *intervalPtr = 0;
   while ((intervalPtr = iterator()) != 0) {
@@ -233,7 +233,7 @@ void MdamIntervalList::printBrief() const {
 // instead.  The this list and the otherList are inputs to the
 // intersect operation.  The result replaces the this list.  The
 // original interval list entries for the this list are deleted.
-MdamIntervalList &MdamIntervalList::unionSeparateDisjuncts(const MdamIntervalList &otherList, const Int32 disjunctNum,
+MdamIntervalList &MdamIntervalList::unionSeparateDisjuncts(const MdamIntervalList &otherList, const int disjunctNum,
                                                            const ULng32 keyLen, FixedSizeHeapManager &mdamIntervalHeap,
                                                            FixedSizeHeapManager &mdamRefListEntryHeap) {
 // Move entries from this into tempIntervalList.

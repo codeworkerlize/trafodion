@@ -26,7 +26,6 @@ YINC := tdm_sqlmxmsg_intl
 
 DEFS += -DSQLCLI_LIB -DCLI_DLL -D_UNICODE -DCOPYRIGHT_VERSION_H=\"$(TRAFODION_VER)\" -DCOPYRIGHT_HEADER_H='"$(PRODUCT_COPYRIGHT_HEADER)"' -DPRODVER='"$(TRAFODION_VER_PROD)"'
 
-CPPSRC += vers_libsqlcilib.cpp
 
 YSRC := sqlci_yacc.y
 LSRC := sqlci_lex.ll

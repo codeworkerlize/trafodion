@@ -83,8 +83,8 @@ enum UdrErrorEnum {
 
 #include "common/Platform.h"
 
-extern void udrAssert(const char *, Int32, const char *);
-extern void udrAbort(const char *, Int32, const char *);
+extern void udrAssert(const char *, int, const char *);
+extern void udrAbort(const char *, int, const char *);
 #define UDR_ASSERT(p, msg)              \
   if (!(p)) {                           \
     udrAssert(__FILE__, __LINE__, msg); \

@@ -138,33 +138,33 @@ class UdrRSUnloadReply;
 class UdrRSInfoMsg;
 
 // Version numbers
-const Int32 UdrControlMsgStreamVersionNumber = 100;
-const Int32 UdrLoadMsgVersionNumber = 103;
-const Int32 UdrLoadReplyVersionNumber = 100;
-const Int32 UdrUnloadMsgVersionNumber = 100;
-const Int32 UdrUnloadReplyVersionNumber = 100;
-const Int32 UdrSessionMsgVersionNumber = 200;
-const Int32 UdrSessionReplyVersionNumber = 200;
-const Int32 UdrDataHeaderVersionNumber = 100;
-const Int32 UdrDataBufferVersionNumber = 101;
-const Int32 UdrContinueMsgVersionNumber = 100;
-const Int32 UdrErrorReplyVersionNumber = 100;
-const Int32 UdrEnterTxMsgVersionNumber = 100;
-const Int32 UdrEnterTxReplyVersionNumber = 100;
-const Int32 UdrSuspendTxMsgVersionNumber = 100;
-const Int32 UdrSuspendTxReplyVersionNumber = 100;
-const Int32 UdrExitTxMsgVersionNumber = 100;
-const Int32 UdrExitTxReplyVersionNumber = 100;
-const Int32 UdrRSLoadMsgVersionNumber = 100;
-const Int32 UdrRSLoadReplyVersionNumber = 100;
-const Int32 UdrRSDataHeaderVersionNumber = 100;
-const Int32 UdrRSContinueMsgVersionNumber = 100;
-const Int32 UdrRSCloseMsgVersionNumber = 100;
-const Int32 UdrRSCloseReplyVersionNumber = 100;
-const Int32 UdrRSUnloadMsgVersionNumber = 100;
-const Int32 UdrRSUnloadReplyVersionNumber = 100;
-const Int32 UdrRSInfoMsgVersionNumber = 100;
-const Int32 UdrTmudfDataHeaderVersionNumber = 100;
+const int UdrControlMsgStreamVersionNumber = 100;
+const int UdrLoadMsgVersionNumber = 103;
+const int UdrLoadReplyVersionNumber = 100;
+const int UdrUnloadMsgVersionNumber = 100;
+const int UdrUnloadReplyVersionNumber = 100;
+const int UdrSessionMsgVersionNumber = 200;
+const int UdrSessionReplyVersionNumber = 200;
+const int UdrDataHeaderVersionNumber = 100;
+const int UdrDataBufferVersionNumber = 101;
+const int UdrContinueMsgVersionNumber = 100;
+const int UdrErrorReplyVersionNumber = 100;
+const int UdrEnterTxMsgVersionNumber = 100;
+const int UdrEnterTxReplyVersionNumber = 100;
+const int UdrSuspendTxMsgVersionNumber = 100;
+const int UdrSuspendTxReplyVersionNumber = 100;
+const int UdrExitTxMsgVersionNumber = 100;
+const int UdrExitTxReplyVersionNumber = 100;
+const int UdrRSLoadMsgVersionNumber = 100;
+const int UdrRSLoadReplyVersionNumber = 100;
+const int UdrRSDataHeaderVersionNumber = 100;
+const int UdrRSContinueMsgVersionNumber = 100;
+const int UdrRSCloseMsgVersionNumber = 100;
+const int UdrRSCloseReplyVersionNumber = 100;
+const int UdrRSUnloadMsgVersionNumber = 100;
+const int UdrRSUnloadReplyVersionNumber = 100;
+const int UdrRSInfoMsgVersionNumber = 100;
+const int UdrTmudfDataHeaderVersionNumber = 100;
 
 // An enumeration of all IPC objects for UDRs. Includes both message
 // objects and stream objects.
@@ -261,12 +261,12 @@ typedef long RSHandle;
 // Define a printf format specifier for 64-bit integers
 #define INT64_PRINTF_SPEC "%ld"
 
-const Int32 UDRMAXOPENERS_V100 = 1;
-const Int32 UDRMAXSTRINGSIZE = 255;
-const Int32 UDRMAXNUMPARAMETERS = 255;
-const Int32 UDRMAXBUFFERSIZE = 4000;
-const Int32 UDRNUMBERSTATISTICS_V100 = 32;
-const Int32 UDRSIZESTATDESC_V100 = 30;
+const int UDRMAXOPENERS_V100 = 1;
+const int UDRMAXSTRINGSIZE = 255;
+const int UDRMAXNUMPARAMETERS = 255;
+const int UDRMAXBUFFERSIZE = 4000;
+const int UDRNUMBERSTATISTICS_V100 = 32;
+const int UDRSIZESTATDESC_V100 = 30;
 
 //----------------------------------------------------------------------
 // UDR parameter info
@@ -685,11 +685,11 @@ class UdrLoadMsg : public UdrControlMsg {
              ComUInt32 outBufferSize,  // Size of output SqlBuffer
              ComUInt32 inputRowSize,   // Size of input row
              ComUInt32 outputRowSize,  // Size of output row
-             ComUInt32 udrFlags, Int32 routineOwnerId, const char *parentQid, const char *clientInfo,
+             ComUInt32 udrFlags, int routineOwnerId, const char *parentQid, const char *clientInfo,
              const char *tenantName,
              ComUInt32 udrSerInvocationInfoLen,  // objects for new C++ interface
              const char *udrSerInvocationInfo, ComUInt32 udrSerPlanInfoLen, const char *udrSerPlanInfo,
-             Int32 javaDebugPort, Int32 javaDebugTimeout, ComUInt32 instanceNum, ComUInt32 numInstances);
+             int javaDebugPort, int javaDebugTimeout, ComUInt32 instanceNum, ComUInt32 numInstances);
 
   virtual ~UdrLoadMsg();
 
@@ -720,7 +720,7 @@ class UdrLoadMsg : public UdrControlMsg {
   inline ComRoutineExternalSecurity getExternalSecurity() const {
     return (ComRoutineExternalSecurity)externalSecurity_;
   }
-  inline Int32 getRoutineOwnerId() const { return routineOwnerId_; }
+  inline int getRoutineOwnerId() const { return routineOwnerId_; }
   inline const char *getParentQid() const { return parentQid_; }
   inline const char *getClientInfo() const { return clientInfo_; }
   inline const char *getTenantName() const { return tenantName_; }
@@ -741,7 +741,7 @@ class UdrLoadMsg : public UdrControlMsg {
   inline UdrTableInputInfo *getInputTables() { return inTables_; }
   inline void setParamStyle(ComRoutineParamStyle ps) { paramStyle_ = (ComUInt16)ps; }
   inline void setExternalSecurity(ComRoutineExternalSecurity ps) { externalSecurity_ = (ComUInt16)ps; }
-  inline void setRoutineOwnerId(Int32 o) { routineOwnerId_ = o; }
+  inline void setRoutineOwnerId(int o) { routineOwnerId_ = o; }
 
   inline ComUInt32 getNumInstances() { return numInstances_; }
   inline void setNumInstances(ComUInt32 n) { numInstances_ = n; }
@@ -763,8 +763,8 @@ class UdrLoadMsg : public UdrControlMsg {
   inline const char *getUDRSerPlanInfo() { return udrSerPlanInfo_; }
 
   // debugging Java UDRs (works for Trafodion user or debug build only)
-  inline Int32 getUdrJavaDebugPort() const { return udrJavaDebugPort_; }
-  inline Int32 getUdrJavaDebugTimeout() const { return udrJavaDebugTimeout_; }
+  inline int getUdrJavaDebugPort() const { return udrJavaDebugPort_; }
+  inline int getUdrJavaDebugTimeout() const { return udrJavaDebugTimeout_; }
   // Redefine pack/unpack methods from IpcMessageObj
   IpcMessageObjSize packedLength();
   IpcMessageObjSize packObjIntoMessage(IpcMessageBufferPtr buffer);
@@ -803,7 +803,7 @@ class UdrLoadMsg : public UdrControlMsg {
   ComUInt32 inputRowSize_;             // Size of input row
   ComUInt32 outputRowSize_;            // Size of output row
   ComUInt32 udrFlags_;                 // ComUdrFlags in ComSmallDefs.h
-  Int32 routineOwnerId_;               // Owner of routine for Definer Rights
+  int routineOwnerId_;               // Owner of routine for Definer Rights
   char *parentQid_;                    // Query id of the CALL statement
   char *tenantName_;                   // Tenant name (optional) of the caller
   UdrParameterInfo *inParamInfo_;      // Info for IN/INOUT params
@@ -819,8 +819,8 @@ class UdrLoadMsg : public UdrControlMsg {
   const char *udrSerInvocationInfo_;
   ComUInt32 udrSerPlanInfoLen_;
   const char *udrSerPlanInfo_;
-  Int32 udrJavaDebugPort_;     // port for Java debugger
-  Int32 udrJavaDebugTimeout_;  // timeout to wait for Java debugger
+  int udrJavaDebugPort_;     // port for Java debugger
+  int udrJavaDebugTimeout_;  // timeout to wait for Java debugger
   char *clientInfo_;           // Query id of the CALL statement
 
  private:

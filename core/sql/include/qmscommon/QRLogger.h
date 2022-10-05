@@ -221,7 +221,7 @@ class QRLogger : public CommonLogger {
    * @param[in] ... Variable argument list supplying values to insert in the
    *                message template.
    */
-  static void logError(const char *file, Int32 line, std::string &cat, logLevel level, const char *logMsgTemplate...);
+  static void logError(const char *file, int line, std::string &cat, logLevel level, const char *logMsgTemplate...);
 
   void introduceSelf();
 
@@ -314,7 +314,7 @@ class CommonTracer {
    * @param line Line number at which this object was declared.
    */
   CommonTracer(const char *fnName, CommonLogger &logger, std::string &logCategory, TraceLevel level = TL_exceptionOnly,
-               const char *file = "", Int32 line = 0);
+               const char *file = "", int line = 0);
 
   /**
    * Writes the exit message to the log.
@@ -332,7 +332,7 @@ class CommonTracer {
   NAString file_;
 
   //* Line at which the trace object was declared. */
-  Int32 line_;
+  int line_;
 
   // The logger to use.
   CommonLogger &logger_;

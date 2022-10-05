@@ -317,13 +317,13 @@ HBC_RetCode HBaseClient_JNI::init() {
   if (isInitialized()) return HBC_OK;
 
   if (javaMethodsInitialized_)
-    return (HBC_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (Int32)JM_LAST,
+    return (HBC_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (int)JM_LAST,
                                                   javaMethodsInitialized_);
   else {
     pthread_mutex_lock(&javaMethodsInitMutex_);
     if (javaMethodsInitialized_) {
       pthread_mutex_unlock(&javaMethodsInitMutex_);
-      return (HBC_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (Int32)JM_LAST,
+      return (HBC_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (int)JM_LAST,
                                                     javaMethodsInitialized_);
     }
     JavaMethods_ = new JavaMethodInit[JM_LAST];
@@ -462,7 +462,7 @@ HBC_RetCode HBaseClient_JNI::init() {
     JavaMethods_[JM_PUT_SQL_TO_HBASE].jm_name = "putData";
     JavaMethods_[JM_PUT_SQL_TO_HBASE].jm_signature = "(JLjava/lang/String;ILjava/lang/String;[B)Z";
 
-    rc = (HBC_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (Int32)JM_LAST,
+    rc = (HBC_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (int)JM_LAST,
                                                 javaMethodsInitialized_);
     if (rc == HBC_OK) javaMethodsInitialized_ = TRUE;
     pthread_mutex_unlock(&javaMethodsInitMutex_);
@@ -1521,9 +1521,9 @@ HBC_RetCode HBaseClient_JNI::grant(const Text &user, const Text &tblName, const 
 // Estimate row count for tblName by adding the entry counts from the trailer
 // block of each HFile for the table, and dividing by the number of columns.
 //////////////////////////////////////////////////////////////////////////////
-HBC_RetCode HBaseClient_JNI::estimateRowCount(const char *tblName, Int32 partialRowSize, Int32 numCols,
-                                              Int32 retryLimitMilliSeconds, NABoolean useCoprocessor, long &rowCount,
-                                              Int32 &breadCrumb) {
+HBC_RetCode HBaseClient_JNI::estimateRowCount(const char *tblName, int partialRowSize, int numCols,
+                                              int retryLimitMilliSeconds, NABoolean useCoprocessor, long &rowCount,
+                                              int &breadCrumb) {
   // Note: Please use HBC_ERROR_ROWCOUNT_EST_EXCEPTION only for
   // those error returns that call getExceptionDetails(). This
   // tells the caller that Java exception information is available.
@@ -1696,13 +1696,13 @@ HBLC_RetCode HBulkLoadClient_JNI::init() {
   if (isInitialized()) return HBLC_OK;
 
   if (javaMethodsInitialized_)
-    return (HBLC_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (Int32)JM_LAST,
+    return (HBLC_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (int)JM_LAST,
                                                    javaMethodsInitialized_);
   else {
     pthread_mutex_lock(&javaMethodsInitMutex_);
     if (javaMethodsInitialized_) {
       pthread_mutex_unlock(&javaMethodsInitMutex_);
-      return (HBLC_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (Int32)JM_LAST,
+      return (HBLC_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (int)JM_LAST,
                                                      javaMethodsInitialized_);
     }
     JavaMethods_ = new JavaMethodInit[JM_LAST];
@@ -1721,7 +1721,7 @@ HBLC_RetCode HBulkLoadClient_JNI::init() {
     JavaMethods_[JM_ADD_TO_HFILE_DB].jm_name = "addToHFile";
     JavaMethods_[JM_ADD_TO_HFILE_DB].jm_signature = "(SLjava/lang/Object;Ljava/lang/Object;)Z";
 
-    rc = (HBLC_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (Int32)JM_LAST,
+    rc = (HBLC_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (int)JM_LAST,
                                                  javaMethodsInitialized_);
     if (rc == HBLC_OK) javaMethodsInitialized_ = TRUE;
     pthread_mutex_unlock(&javaMethodsInitMutex_);
@@ -1730,13 +1730,13 @@ HBLC_RetCode HBulkLoadClient_JNI::init() {
 }
 
 #define ENC_STATIC_BUFFER_LEN 4096
-static short encryptRowId(const char *encryptionInfo, NAHeap *heap, Int32 numRows, const char *rowId, Int32 rowIdLen,
+static short encryptRowId(const char *encryptionInfo, NAHeap *heap, int numRows, const char *rowId, int rowIdLen,
                           Text &encRowId) {
   short rc = 0;
 
   if (!encryptionInfo) return 0;
 
-  Int32 header, rowIdKeyLen, dataKeyLen, rowidInitVecLen, dataInitVecLen, encDataLen;
+  int header, rowIdKeyLen, dataKeyLen, rowidInitVecLen, dataInitVecLen, encDataLen;
   unsigned char *rowIdKey;
   unsigned char *dataKey;
   unsigned char *rowidInitVec;
@@ -1750,10 +1750,10 @@ static short encryptRowId(const char *encryptionInfo, NAHeap *heap, Int32 numRow
                                             rowidInitVecLen, dataInitVec, dataInitVecLen);
   if (rc) return -1;
 
-  Int32 encRowIdMaxLen = rowIdLen + numRows * 16;
+  int encRowIdMaxLen = rowIdLen + numRows * 16;
   char encRowIdBuffer[encRowIdMaxLen];
 
-  Int32 encRowIdLen = 0;
+  int encRowIdLen = 0;
   rc = ComEncryption::encryptRowId((unsigned char *)rowId, rowIdLen, rowIdKey, rowidInitVec,
                                    (unsigned char *)encRowIdBuffer, encRowIdLen);
   if (rc) {
@@ -1765,8 +1765,8 @@ static short encryptRowId(const char *encryptionInfo, NAHeap *heap, Int32 numRow
   return 0;
 }
 
-static short encryptRowsData(const char *encryptionInfo, NAHeap *heap, Int32 numRows, char *rowsData, Int32 rowsLen,
-                             unsigned char *&encRows, Int32 &encRowsLen) {
+static short encryptRowsData(const char *encryptionInfo, NAHeap *heap, int numRows, char *rowsData, int rowsLen,
+                             unsigned char *&encRows, int &encRowsLen) {
   short rc = 0;
   encRowsLen = 0;
 
@@ -1776,7 +1776,7 @@ static short encryptRowsData(const char *encryptionInfo, NAHeap *heap, Int32 num
   unsigned char *dataKey;
   unsigned char *rowidInitVec;
   unsigned char *dataInitVec;
-  Int32 header, rowIdKeyLen, dataKeyLen, rowidInitVecLen, dataInitVecLen, encDataLen;
+  int header, rowIdKeyLen, dataKeyLen, rowidInitVecLen, dataInitVecLen, encDataLen;
   Int16 rowidCipherType, dataCipherType;
   Text encryptedRow;
   unsigned char *encRowsPtr = NULL;
@@ -1786,7 +1786,7 @@ static short encryptRowsData(const char *encryptionInfo, NAHeap *heap, Int32 num
                                             rowidInitVecLen, dataInitVec, dataInitVecLen);
   if (rc) return -1;
 
-  Int32 encRowsMaxLen = rowsLen + numRows * (dataInitVecLen + 16);
+  int encRowsMaxLen = rowsLen + numRows * (dataInitVecLen + 16);
   if (encRowsMaxLen > ENC_STATIC_BUFFER_LEN) {
     encRows = new (heap) unsigned char[encRowsMaxLen];
   }
@@ -1915,7 +1915,7 @@ HBLC_RetCode HBulkLoadClient_JNI::addToHFile(short rowIDLen, HbaseStr &rowIDs, H
   HBLC_RetCode retValue = HBLC_OK;
   jboolean jresult = 0;
   jobject jRows = NULL;
-  Int32 encRowsLen = 0;
+  int encRowsLen = 0;
   jshort j_rowIDLen = rowIDLen;
   unsigned char *encRowsData = NULL;
   unsigned char encDataBuffer[ENC_STATIC_BUFFER_LEN];
@@ -2099,13 +2099,13 @@ BRC_RetCode BackupRestoreClient_JNI::init() {
   if (isInitialized()) return BRC_OK;
 
   if (javaMethodsInitialized_)
-    return (BRC_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (Int32)JM_LAST,
+    return (BRC_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (int)JM_LAST,
                                                   javaMethodsInitialized_);
   else {
     pthread_mutex_lock(&javaMethodsInitMutex_);
     if (javaMethodsInitialized_) {
       pthread_mutex_unlock(&javaMethodsInitMutex_);
-      return (BRC_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (Int32)JM_LAST,
+      return (BRC_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (int)JM_LAST,
                                                     javaMethodsInitialized_);
     }
     JavaMethods_ = new JavaMethodInit[JM_LAST];
@@ -2157,7 +2157,7 @@ BRC_RetCode BackupRestoreClient_JNI::init() {
     JavaMethods_[JM_GET_LINKED_BACKUPS].jm_name = "getBackupNameLink";
     JavaMethods_[JM_GET_LINKED_BACKUPS].jm_signature = "(Ljava/lang/String;)[[B";
 
-    rc = (BRC_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (Int32)JM_LAST,
+    rc = (BRC_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (int)JM_LAST,
                                                 javaMethodsInitialized_);
     if (rc == BRC_OK) javaMethodsInitialized_ = TRUE;
     pthread_mutex_unlock(&javaMethodsInitMutex_);
@@ -2938,7 +2938,7 @@ void HBaseClient_JNI::logIt(const char *str) { QRLogger::log(CAT_SQL_HBASE, LL_D
 
 HBC_RetCode HBaseClient_JNI::startGet(NAHeap *heap, const char *tableName, bool useTRex, NABoolean replSync,
                                       int lockMode, NABoolean skipReadConflict, ExHbaseAccessStats *hbs, long transID,
-                                      long savepointID, long pSavepointId, Int32 isolationLevel,
+                                      long savepointID, long pSavepointId, int isolationLevel,
                                       const HbaseStr &rowID, const LIST(HbaseStr) & cols, long timestamp,
                                       int numReplications, HTableClient_JNI *htc, const char *hbaseAuths,
                                       const char *encryptionInfo, NABoolean waitOnSelectForUpdate,
@@ -3065,9 +3065,9 @@ HBC_RetCode HBaseClient_JNI::startGet(NAHeap *heap, const char *tableName, bool 
 }
 
 HBC_RetCode HBaseClient_JNI::startGets(NAHeap *heap, const char *tableName, bool useTRex, NABoolean replSync,
-                                       Int32 lockMode, NABoolean skipReadConflict, NABoolean skipTransactionForBatchGet,
+                                       int lockMode, NABoolean skipReadConflict, NABoolean skipTransactionForBatchGet,
                                        ExHbaseAccessStats *hbs, long transID, long savepointID, long pSavepointId,
-                                       Int32 isolationLevel, const LIST(HbaseStr) * rowIDs, short rowIDLen,
+                                       int isolationLevel, const LIST(HbaseStr) * rowIDs, short rowIDLen,
                                        const HbaseStr *rowIDsInDB, const LIST(HbaseStr) & cols, long timestamp,
                                        int numReplications, HTableClient_JNI *htc, const char *hbaseAuths,
                                        const char *encryptionInfo) {
@@ -3208,7 +3208,7 @@ HBC_RetCode HBaseClient_JNI::startGets(NAHeap *heap, const char *tableName, bool
   return HBC_OK;
 }
 
-HBC_RetCode HBaseClient_JNI::getRegionsNodeName(const char *tblName, Int32 partns, ARRAY(const char *) & nodeNames) {
+HBC_RetCode HBaseClient_JNI::getRegionsNodeName(const char *tblName, int partns, ARRAY(const char *) & nodeNames) {
   QRLogger::log(CAT_SQL_HBASE, LL_DEBUG, "HBaseClient_JNI::getRegionsNodeName(%s) called.", tblName);
   if (initJNIEnv() != JOI_OK) return HBC_ERROR_INIT_PARAM;
 
@@ -3259,7 +3259,7 @@ HBC_RetCode HBaseClient_JNI::getRegionsNodeName(const char *tblName, Int32 partn
 // 1. index levels : This info is obtained from trailer block of Hfiles of randomly chosen region
 // 2. block size : This info is obtained for HColumnDescriptor
 ////////////////////////////////////////////////////////////////////////////////
-HBC_RetCode HBaseClient_JNI::getHbaseTableInfo(const char *tblName, Int32 &indexLevels, Int32 &blockSize) {
+HBC_RetCode HBaseClient_JNI::getHbaseTableInfo(const char *tblName, int &indexLevels, int &blockSize) {
   QRLogger::log(CAT_SQL_HBASE, LL_DEBUG, "HBaseClient_JNI::getHbaseTableInfo(%s) called.", tblName);
   if (initJNIEnv() != JOI_OK) return HBC_ERROR_INIT_PARAM;
 
@@ -3405,7 +3405,7 @@ HBC_RetCode HBaseClient_JNI::execTriggers(NAHeap *heap, const char *tableName, C
     }
   }
 
-  Int32 cliRC = GetCliGlobals()->currContext()->prepareCallTrigger();
+  int cliRC = GetCliGlobals()->currContext()->prepareCallTrigger();
   if (cliRC < 0) {
     return HBC_ERROR_TRIGGER_EXECUTE_EXCEPTION;
   }
@@ -3507,7 +3507,7 @@ HBC_RetCode HBaseClient_JNI::insertRow(NAHeap *heap, const char *tableName, ExHb
   jobject jRow = NULL;
   unsigned char encDataBuffer[ENC_STATIC_BUFFER_LEN];
   unsigned char *encRowData = NULL;
-  Int32 encRowLen = 0;
+  int encRowLen = 0;
   if (encryptionInfo) {
     encRowData = encDataBuffer;
     if (ComEncryption::isFlagSet(*(ComEncryption::EncryptionInfo *)encryptionInfo, ComEncryption::ROWID_ENCRYPT)) {
@@ -3651,7 +3651,7 @@ HBC_RetCode HBaseClient_JNI::insertRow(NAHeap *heap, const char *tableName, ExHb
 //////////////////////////////////////////////////////////////////////////////
 HBC_RetCode HBaseClient_JNI::insertRows(NAHeap *heap, const char *tableName, ExHbaseAccessStats *hbs, long transID,
                                         long savepointID, long pSavepointId, short rowIDLen, HbaseStr rowIDs,
-                                        HbaseStr rows, long timestamp, Int32 flags, const char *encryptionInfo,
+                                        HbaseStr rows, long timestamp, int flags, const char *encryptionInfo,
                                         const char *triggers, const char *curExecSql, HTableClient_JNI **outHtc,
                                         ExDDLValidator *ddlValidator) {
   HTableClient_JNI *htc = NULL;
@@ -3747,7 +3747,7 @@ HBC_RetCode HBaseClient_JNI::insertRows(NAHeap *heap, const char *tableName, ExH
   jobject jRows = NULL;
   unsigned char encDataBuffer[ENC_STATIC_BUFFER_LEN];
   unsigned char *encRowsData = NULL;
-  Int32 encRowsLen = 0;
+  int encRowsLen = 0;
   if (encryptionInfo) {
     encRowsData = encDataBuffer;
     short numRows = bswap_16(*(short *)rowIDs.val);
@@ -3938,7 +3938,7 @@ HBC_RetCode HBaseClient_JNI::updateVisibility(NAHeap *heap, const char *tableNam
 HBC_RetCode HBaseClient_JNI::checkAndUpdateRow(NAHeap *heap, const char *tableName, ExHbaseAccessStats *hbs,
                                                long transID, long savepointID, long pSavepointId, HbaseStr rowID,
                                                HbaseStr row, HbaseStr columnToCheck, HbaseStr columnValToCheck,
-                                               long timestamp, Int32 flags, const char *encryptionInfo,
+                                               long timestamp, int flags, const char *encryptionInfo,
                                                const char *triggers, const char *curExecSql,
                                                HTableClient_JNI **outHtc) {
   HTableClient_JNI *htc = NULL;
@@ -3992,7 +3992,7 @@ HBC_RetCode HBaseClient_JNI::checkAndUpdateRow(NAHeap *heap, const char *tableNa
 
     unsigned char encDataBuffer[ENC_STATIC_BUFFER_LEN];
     unsigned char *encRowData = NULL;
-    Int32 encRowLen = 0;
+    int encRowLen = 0;
     encRowData = encDataBuffer;
     short rc = encryptRowsData(encryptionInfo, heap, 1, row.val, row.len, encRowData, encRowLen);
     if (rc) {
@@ -4092,7 +4092,7 @@ HBC_RetCode HBaseClient_JNI::checkAndUpdateRow(NAHeap *heap, const char *tableNa
 HBC_RetCode HBaseClient_JNI::deleteRow(NAHeap *heap, const char *tableName, ExHbaseAccessStats *hbs, long transID,
                                        long savepointID, long pSavepointId, HbaseStr rowID,
                                        const LIST(HbaseStr) * cols, long timestamp, const char *hbaseAuths,
-                                       Int32 flags, const char *encryptionInfo, const char *triggers,
+                                       int flags, const char *encryptionInfo, const char *triggers,
                                        const char *curExecSql, HTableClient_JNI **outHtc,
                                        ExDDLValidator *ddlValidator) {
   QRLogger::log(CAT_SQL_HBASE, LL_DEBUG, "HBaseClient_JNI::deleteRow(%ld, %s) called.", transID, rowID.val);
@@ -4252,7 +4252,7 @@ HBC_RetCode HBaseClient_JNI::deleteRow(NAHeap *heap, const char *tableName, ExHb
 HBC_RetCode HBaseClient_JNI::deleteRows(NAHeap *heap, const char *tableName, ExHbaseAccessStats *hbs, long transID,
                                         long savepointID, long pSavepointId, short rowIDLen, HbaseStr rowIDs,
                                         const LIST(HbaseStr) * cols, long timestamp, const char *hbaseAuths,
-                                        Int32 flags, const char *encryptionInfo, const char *triggers,
+                                        int flags, const char *encryptionInfo, const char *triggers,
                                         const char *curExecSql, HTableClient_JNI **outHtc,
                                         ExDDLValidator *ddlValidator) {
   QRLogger::log(CAT_SQL_HBASE, LL_DEBUG, "HBaseClient_JNI::deleteRows(%ld, %s) called.", transID, rowIDs.val);
@@ -4404,7 +4404,7 @@ HBC_RetCode HBaseClient_JNI::checkAndDeleteRow(NAHeap *heap, const char *tableNa
                                                long transID, long savepointID, long pSavepointId, HbaseStr rowID,
                                                const LIST(HbaseStr) * cols, HbaseStr columnToCheck,
                                                HbaseStr columnValToCheck, long timestamp, const char *hbaseAuths,
-                                               Int32 flags, const char *encryptionInfo, const char *triggers,
+                                               int flags, const char *encryptionInfo, const char *triggers,
                                                const char *curExecSql, HTableClient_JNI **outHtc,
                                                ExDDLValidator *ddlValidator) {
   QRLogger::log(CAT_SQL_HBASE, LL_DEBUG, "HBaseClient_JNI::checkAndDeleteRow(%ld, %s) called.", transID, rowID.val);
@@ -4666,7 +4666,7 @@ NAArray<HbaseStr> *HBaseClient_JNI::getEndKeys(NAHeap *heap, const char *tableNa
   return HBaseClient_JNI::getKeys(JM_HBC_GETENDKEYS, heap, tableName, useTRex);
 }
 
-NAArray<HbaseStr> *HBaseClient_JNI::getKeys(Int32 funcIndex, NAHeap *heap, const char *tableName, bool useTRex) {
+NAArray<HbaseStr> *HBaseClient_JNI::getKeys(int funcIndex, NAHeap *heap, const char *tableName, bool useTRex) {
   if (initJNIEnv() != JOI_OK) return NULL;
 
   jstring js_tblName = jenv_->NewStringUTF(tableName);
@@ -4696,7 +4696,7 @@ NAArray<HbaseStr> *HBaseClient_JNI::getKeys(Int32 funcIndex, NAHeap *heap, const
 
 int HBaseClient_JNI::getReplicaId(int numReplications) {
   int replicaId = -1;
-  Int32 myNodeId;
+  int myNodeId;
   if (numReplications > 1) {
     myNodeId = GetCliGlobals()->myCpu();
     replicaId = (myNodeId % numReplications);
@@ -4973,7 +4973,7 @@ HBC_RetCode HBaseClient_JNI::deleteSeqRow(NAString &tabName, NAString &rowId) {
 }
 
 HBC_RetCode HBaseClient_JNI::lockRequired(NAHeap *heap, const char *tableName, ExHbaseAccessStats *hbs,
-                                          long transactionId, long savepointId, long pSavepointId, Int32 lockMode,
+                                          long transactionId, long savepointId, long pSavepointId, int lockMode,
                                           NABoolean registerRegion, HTableClient_JNI **outHtc) {
   QRLogger::log(CAT_SQL_HBASE, LL_DEBUG, "HBaseClient_JNI::lockRequired(%s) called.", tableName);
   if (initJNIEnv() != JOI_OK) return HBC_ERROR_INIT_PARAM;
@@ -5140,13 +5140,13 @@ HTC_RetCode HTableClient_JNI::init() {
   if (isInitialized()) return HTC_OK;
 
   if (javaMethodsInitialized_)
-    return (HTC_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (Int32)JM_LAST,
+    return (HTC_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (int)JM_LAST,
                                                   javaMethodsInitialized_);
   else {
     pthread_mutex_lock(&javaMethodsInitMutex_);
     if (javaMethodsInitialized_) {
       pthread_mutex_unlock(&javaMethodsInitMutex_);
-      return (HTC_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (Int32)JM_LAST,
+      return (HTC_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (int)JM_LAST,
                                                     javaMethodsInitialized_);
     }
     JavaMethods_ = new JavaMethodInit[JM_LAST];
@@ -5167,7 +5167,7 @@ HTC_RetCode HTableClient_JNI::init() {
     JavaMethods_[JM_COMPLETE_PUT].jm_name = "completeAsyncOperation";
     JavaMethods_[JM_COMPLETE_PUT].jm_signature = "(I[Z)Z";
 
-    rc = (HTC_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (Int32)JM_LAST,
+    rc = (HTC_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (int)JM_LAST,
                                                 javaMethodsInitialized_);
     if (rc == HTC_OK) javaMethodsInitialized_ = TRUE;
     pthread_mutex_unlock(&javaMethodsInitMutex_);
@@ -5178,10 +5178,10 @@ HTC_RetCode HTableClient_JNI::init() {
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
-HTC_RetCode HTableClient_JNI::startScan(long transID, long savepointID, long pSavepointId, Int32 isolationLevel,
+HTC_RetCode HTableClient_JNI::startScan(long transID, long savepointID, long pSavepointId, int isolationLevel,
                                         const Text &startRowID, const Text &stopRowID, const LIST(HbaseStr) & cols,
                                         long timestamp, bool cacheBlocks, bool smallScanner, int numCacheRows,
-                                        NABoolean preFetch, Int32 lockMode, NABoolean skipReadConflict,
+                                        NABoolean preFetch, int lockMode, NABoolean skipReadConflict,
                                         NABoolean skipTransaction, const LIST(NAString) * inColNamesToFilter,
                                         const LIST(NAString) * inCompareOpList,
                                         const LIST(NAString) * inColValuesToCompare, int numReplications,
@@ -6373,7 +6373,7 @@ HTC_RetCode HTableClient_JNI::nextCell(HbaseStr &rowId, HbaseStr &colFamName, Hb
   return HTC_OK;
 }
 
-HTC_RetCode HTableClient_JNI::completeAsyncOperation(Int32 timeout, NABoolean *resultArray, Int16 resultArrayLen) {
+HTC_RetCode HTableClient_JNI::completeAsyncOperation(int timeout, NABoolean *resultArray, Int16 resultArrayLen) {
   ENTRY_FUNCTION();
 
   if (initJNIEnv() != JOI_OK) {

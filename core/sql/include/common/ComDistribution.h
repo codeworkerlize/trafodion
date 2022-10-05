@@ -65,19 +65,19 @@
 // -----------------------------------------------------------------------
 
 // returned error code described in w:/common/csconvert.h
-Int32 ComAnsiNameToUTF8(const NAWchar *inAnsiNameInUCS2  // in  - valid ANSI SQL name in UCS2/UTF16
+int ComAnsiNameToUTF8(const NAWchar *inAnsiNameInUCS2  // in  - valid ANSI SQL name in UCS2/UTF16
                         ,
                         char *outBuf4AnsiNameInUTF8  // out - out buffer
                         ,
-                        const Int32 outBufSizeInBytes  // in  - out buffer max len in bytes
+                        const int outBufSizeInBytes  // in  - out buffer max len in bytes
 );
 
 // returned error code described in w:/common/csconvert.h
-Int32 ComAnsiNameToUCS2(const char *inAnsiNameInUTF8  // in  - valid name in default ANSI name char set
+int ComAnsiNameToUCS2(const char *inAnsiNameInUTF8  // in  - valid name in default ANSI name char set
                         ,
                         NAWchar *outAnsiNameInNAWchars  // out - out buffer
                         ,
-                        const Int32 outBufSizeInNAWchars  // in  - out buffer max len in NAWchars
+                        const int outBufSizeInNAWchars  // in  - out buffer max len in NAWchars
                         ,
                         const NABoolean padWithSpaces = FALSE  // in  - fill remainder with spaces if TRUE;
 );                                                             //       otherwise, just add a NULL terminator.
@@ -129,7 +129,7 @@ enum AvailabilityErrorCode {
 void ComBuildSchemaName(const char *catalogName,          // in, catalog name (internal format)
                         const char *schemaName,           // in, schema name (internal format)
                         char *ansiSchemaName,             // out, ANSI name (external format)
-                        const Int32 ansiNameOutBufSize);  // in, ANSI name output buffer size in bytes
+                        const int ansiNameOutBufSize);  // in, ANSI name output buffer size in bytes
 
 //----------------------------------------------------------------------
 //
@@ -139,7 +139,7 @@ void ComBuildANSIName(const char *catalogName,                             // in
                       const char *schemaName,                              // in, schema name (internal format)
                       const char *objectName,                              // in, object name (internal format)
                       char *ansiName,                                      // out, ANSI name (external format)
-                      const Int32 ansiNameOutBufSize                       // in, ANSI name output buffer size in bytes
+                      const int ansiNameOutBufSize                       // in, ANSI name output buffer size in bytes
                       = ComMAX_3_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES + 1  //  for the worst case
 );
 
@@ -150,16 +150,16 @@ void ComBuildANSIName(const char *catalogName,                             // in
 //
 typedef struct  // initialize const members
 {
-  Int32 enum_;
+  int enum_;
   const char *literal_;
 } literalAndEnumStruct;
 
 // General enum to literal translation
-void enumToLiteral(const literalAndEnumStruct *conversionTable, const Int32 noOfElements, const Int32 enumValue,
+void enumToLiteral(const literalAndEnumStruct *conversionTable, const int noOfElements, const int enumValue,
                    char *literal, NABoolean &found);
 
 // General literal to enum translation
-Int32 literalToEnum(const literalAndEnumStruct *conversionTable, const Int32 noOfElements, const char *literal,
+int literalToEnum(const literalAndEnumStruct *conversionTable, const int noOfElements, const char *literal,
                     NABoolean &found);
 
 //----------------------------------------------------------------------
@@ -387,7 +387,7 @@ class MetaDataErrorTranslator : public ComDiagsTranslator {
 // strip trailing blanks from a string, for which the compiler knows the length
 #define StripTrailingBlanks(x)         \
   {                                    \
-    Int32 more = 1, i = sizeof(x) - 2; \
+    int more = 1, i = sizeof(x) - 2; \
     while (more) {                     \
       if (x[i] == ' ')                 \
         x[i] = 0;                      \
@@ -399,7 +399,7 @@ class MetaDataErrorTranslator : public ComDiagsTranslator {
 // strip trailing blanks from a string, for which the compiler does not know the length
 #define StripTrailingBlanksExplicit(x, l) \
   {                                       \
-    Int32 more = 1, i = l - 2;            \
+    int more = 1, i = l - 2;            \
     while (more) {                        \
       if (x[i] == ' ')                    \
         x[i] = 0;                         \
@@ -434,10 +434,10 @@ class MetaDataErrorTranslator : public ComDiagsTranslator {
 // strip trailing blanks from a string stored in a buffer with known buffer size in NAWchar elements
 // The passed-in buffer (pointed by x) must have the extra room for a NULL terminator.
 // -----------------------------------------------------------------------
-void ComStripTrailingBlanks(NAWchar *x, const Int32 bufSizeInNAWchars);
+void ComStripTrailingBlanks(NAWchar *x, const int bufSizeInNAWchars);
 // copy and space fill a string into a buffer (an array of NAWchar elements)
 void StringToArrayOfNAWcharsSpacesPaddedNullTerminated(const NAWchar *inStrNullTerminated,
-                                                       const Int32 inStrLenInNAWchars, NAWchar *outBuf,
-                                                       const Int32 outBufSizeInNAWchars);
+                                                       const int inStrLenInNAWchars, NAWchar *outBuf,
+                                                       const int outBufSizeInNAWchars);
 
 #endif  // COMDISTRIBUTION_H

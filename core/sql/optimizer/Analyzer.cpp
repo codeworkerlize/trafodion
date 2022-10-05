@@ -1429,7 +1429,7 @@ void QueryAnalysis::clearAnalysis(RelExpr *expr) {
   // do self
   expr->getGroupAttr()->clearGroupAnalysis();
   // do children
-  Int32 arity = expr->getArity();
+  int arity = expr->getArity();
   for (int i = 0; i < arity; i++) {
     clearAnalysis(expr->child(i).getPtr());
   }
@@ -1439,7 +1439,7 @@ void QueryAnalysis::clearAnalysis(RelExpr *expr) {
 
 void QueryAnalysis::primeGroupAnalysisForSubtree(RelExpr *expr) {
   // do children first
-  Int32 arity = expr->getArity();
+  int arity = expr->getArity();
   for (int i = 0; i < arity; i++) {
     primeGroupAnalysisForSubtree(expr->child(i).getPtr());
   }
@@ -1611,7 +1611,7 @@ NABoolean RelExpr::pilotAnalysis(QueryAnalysis *qa) {
   }
 
   // now pass it to children
-  Int32 arity = getArity();
+  int arity = getArity();
 
   for (int i = 0; i < arity; i++) status = status AND child(i)->pilotAnalysis(qa);
 
@@ -1723,7 +1723,7 @@ NABoolean Insert::pilotAnalysis(QueryAnalysis *qa) {
   }
 
   // now pass it to children
-  Int32 arity = getArity();
+  int arity = getArity();
 
   for (int i = 0; i < arity; i++) status = status AND child(i)->pilotAnalysis(qa);
 
@@ -1757,7 +1757,7 @@ NABoolean GenericUpdate::pilotAnalysis(QueryAnalysis *qa) {
     return FALSE;
 
   // now pass it to children
-  Int32 arity = getArity();
+  int arity = getArity();
 
   for (int i = 0; i < arity; i++) status = status AND child(i)->pilotAnalysis(qa);
 
@@ -1766,7 +1766,7 @@ NABoolean GenericUpdate::pilotAnalysis(QueryAnalysis *qa) {
 
 void RelExpr::jbbAnalysis(QueryAnalysis *qa) {
   // recursively call the children
-  Int32 arity = getArity();
+  int arity = getArity();
   for (int i = 0; i < arity; i++) {
     child(i)->jbbAnalysis(qa);
   }
@@ -1834,7 +1834,7 @@ void Join::jbbAnalysis(QueryAnalysis *qa) {
 
 void RelExpr::jbbJoinDependencyAnalysis(ValueIdSet &predsWithDependencies) {
   // call dependency analysis on children
-  Int32 arity = getArity();
+  int arity = getArity();
 
   for (int i = 0; i < arity; i++) child(i)->jbbJoinDependencyAnalysis(predsWithDependencies);
 }
@@ -1877,7 +1877,7 @@ void RelExpr::predAnalysis(QueryAnalysis *qa) {
   exprSet.columnAnalysis(qa);
 
   // now pass it to children
-  Int32 arity = getArity();
+  int arity = getArity();
 
   for (int i = 0; i < arity; i++) child(i)->predAnalysis(qa);
 
@@ -1894,7 +1894,7 @@ void Join::predAnalysis(QueryAnalysis *qa) {
   exprSet.columnAnalysis(qa, predsOnSemiOrLeftJoin);
 
   // now pass it to children
-  Int32 arity = getArity();
+  int arity = getArity();
 
   for (int i = 0; i < arity; i++) child(i)->predAnalysis(qa);
 
@@ -1934,7 +1934,7 @@ NABoolean Join::canBePartOfJBB() {
 
 RelExpr *RelExpr::convertToMultiJoinSubtree(QueryAnalysis *qa) {
   // pass it to children
-  Int32 arity = getArity();
+  int arity = getArity();
 
   for (int i = 0; i < arity; i++) child(i) = child(i)->convertToMultiJoinSubtree(qa);
 
@@ -1971,7 +1971,7 @@ RelExpr *Join::convertToMultiJoinSubtree(QueryAnalysis *qa) {
 
 EstLogPropSharedPtr RelExpr::setJBBInput(EstLogPropSharedPtr &inLP) {
   // pass it to children
-  Int32 arity = getArity();
+  int arity = getArity();
 
   for (int i = 0; i < arity; i++) child(i)->setJBBInput(inLP);
 
@@ -2019,7 +2019,7 @@ EstLogPropSharedPtr MultiJoin::setJBBInput(EstLogPropSharedPtr &inLP) {
   jbbSubset_.getJBB()->setInputEstLP(inLP);
 
   // pass it to children
-  Int32 arity = getArity();
+  int arity = getArity();
 
   for (int i = 0; i < arity; i++) child(i)->setJBBInput(inLP);
 
@@ -2036,7 +2036,7 @@ EstLogPropSharedPtr MultiJoin::setJBBInput(EstLogPropSharedPtr &inLP) {
 
 RelExpr *RelExpr::expandMultiJoinSubtree() {
   // pass it to children
-  Int32 arity = getArity();
+  int arity = getArity();
 
   for (int i = 0; i < arity; i++) child(i) = child(i)->expandMultiJoinSubtree();
 
@@ -2060,7 +2060,7 @@ void RelExpr::primeGroupAnalysis() {
 
   // recursively call the children appending their subtreeTables
   CANodeIdSet allSubtreeTables;
-  Int32 arity = getArity();
+  int arity = getArity();
   for (int i = 0; i < arity; i++) {
     allSubtreeTables += child(i).getPtr()->getGroupAnalysis()->getAllSubtreeTables();
   }
@@ -2085,7 +2085,7 @@ void Join::primeGroupAnalysis() {
   JBBSubset *localView = NULL;
   if (canBePartOfJBB()) localView = new (groupAnalysis->outHeap()) JBBSubset(groupAnalysis->outHeap());
   CANodeIdSet allSubtreeTables;
-  Int32 arity = getArity();
+  int arity = getArity();
   for (int i = 0; i < arity; i++) {
     GroupAnalysis *childAnalysis = child(i).getPtr()->getGroupAnalysis();
 
@@ -2546,7 +2546,7 @@ const NAString GroupAnalysis::getText() const {
     result += "JBBInput         : " + localJBBView_->getJBB()->getInputEstLP()->getNodeSet()->getText() + "\n";
   }
 
-  Int32 potential = groupAttr_->getPotential();
+  int potential = groupAttr_->getPotential();
 
   if (potential < 0)
     result += "GroupPotential   : -" + istring(-1 * groupAttr_->getPotential()) + "\n";
@@ -3437,10 +3437,10 @@ NABoolean TableAnalysis::hasMatchingHashPartitioning(TableAnalysis *other) {
   if ((!myPartFunc->isATableHashPartitioningFunction())) return FALSE;
 
   // get my number of partitions
-  Int32 myPartNum = myIndxDesc->getNAFileSet()->getCountOfPartitions();
+  int myPartNum = myIndxDesc->getNAFileSet()->getCountOfPartitions();
 
   // get other number of partitions
-  Int32 otherPartNum = otherIndxDesc->getNAFileSet()->getCountOfPartitions();
+  int otherPartNum = otherIndxDesc->getNAFileSet()->getCountOfPartitions();
 
   // return false if number of partitions don't match
   if (myPartNum != otherPartNum) return FALSE;
@@ -3591,7 +3591,7 @@ NABoolean AccessPathAnalysis::isIndexOnly() {
   return accessPathColSet_.contains(usedCols);
 }
 
-Int32 AccessPathAnalysis::numIndexPrefixCovered(const ValueIdSet &vidSet, NABoolean exactMatch, NABoolean useKeyCols) {
+int AccessPathAnalysis::numIndexPrefixCovered(const ValueIdSet &vidSet, NABoolean exactMatch, NABoolean useKeyCols) {
   // find all the equality columns
   ValueIdSet equalityCols;
   vidSet.findAllEqualityCols(equalityCols);
@@ -3605,7 +3605,7 @@ Int32 AccessPathAnalysis::numIndexPrefixCovered(const ValueIdSet &vidSet, NABool
 
   // Get the list of index columns and check if a prefix is
   // covered in the provided set.
-  Int32 numCoveredCols = useKeyCols ? accessPathKeyCols_.prefixCoveredInSet(equalityCols)
+  int numCoveredCols = useKeyCols ? accessPathKeyCols_.prefixCoveredInSet(equalityCols)
                                     : accessPathColList_.prefixCoveredInSet(equalityCols);
 
   if (numCoveredCols && ((!exactMatch) || numCoveredCols == vidSet.entries()))
@@ -3631,7 +3631,7 @@ NABoolean AccessPathAnalysis::isPartKeyCovered(const ValueIdSet &vidSet, NABoole
 }
 
 NABoolean AccessPathAnalysis::keyCoveredByEqualityPreds(const ValueIdSet &vidSet, NABoolean *hasPrefix) {
-  Int32 keyPrefixCovered = numIndexPrefixCovered(vidSet, FALSE, hasPrefix ? TRUE : FALSE);
+  int keyPrefixCovered = numIndexPrefixCovered(vidSet, FALSE, hasPrefix ? TRUE : FALSE);
   if (hasPrefix) *hasPrefix = (keyPrefixCovered > 0);
   if (keyPrefixCovered == accessPathKeyCount_) return TRUE;
   return FALSE;
@@ -4647,7 +4647,7 @@ CANodeId MJRulesWA::computeCenterTable() {
   // returning just one row
   for (currentTable = childSet.init(); childSet.next(currentTable); childSet.advance(currentTable)) {
     // get number of tables in this JBBC
-    Int32 numSubtreeTables = currentTable.getNodeAnalysis()->getJBBC()->getSubtreeTables().entries();
+    int numSubtreeTables = currentTable.getNodeAnalysis()->getJBBC()->getSubtreeTables().entries();
     CostScalar jbbcCardinality = appStatMan->getStatsForCANodeId(currentTable)->getResultCardinality();
     // currentTable.getNodeAnalysis()->getCardinality();
 
@@ -4720,7 +4720,7 @@ CANodeId MJRulesWA::computeCenterTable() {
   // variable that tells us that the
   // table we want to be the fact table
   // is found in the multijoin
-  Int32 centerTableForced = 0;
+  int centerTableForced = 0;
 
   // The loop below tries to match the connectivity pattern
   // iterate over all the jbbcs (i.e. tables)
@@ -5109,7 +5109,7 @@ void JBBSubsetAnalysis::computeRequiredResources(MultiJoin *mjoin, RequiredResou
     // 0: use max
     // 1: use min
     // 2: use geometric mean
-    Int32 computeCpuRes = (ActiveSchemaDB()->getDefaults()).getAsLong(MJ_COMPUTE_CPU_RESOURCE);
+    int computeCpuRes = (ActiveSchemaDB()->getDefaults()).getAsLong(MJ_COMPUTE_CPU_RESOURCE);
     useMax = computeCpuRes == 0;
     useMin = computeCpuRes == 1;
     useGeoMetric = computeCpuRes == 2;
@@ -5278,7 +5278,7 @@ CANodeId JBBSubsetAnalysis::findFactTable(CANodeIdSet childSet, CostScalar &fact
       if (tableJBBC->getPredecessorJBBCs().entries()) continue;
 
       // compare to currentTable's name
-      Int32 comparison_result = currentTable.getNodeAnalysis()
+      int comparison_result = currentTable.getNodeAnalysis()
                                     ->getTableAnalysis()
                                     ->getTableDesc()
                                     ->getCorrNameObj()
@@ -5645,7 +5645,7 @@ CANodeId JBBSubsetAnalysis::computeCenterTable() {
   // returning just one row
   for (currentTable = childSet.init(); childSet.next(currentTable); childSet.advance(currentTable)) {
     // get number of tables in this JBBC
-    Int32 numSubtreeTables = currentTable.getNodeAnalysis()->getJBBC()->getSubtreeTables().entries();
+    int numSubtreeTables = currentTable.getNodeAnalysis()->getJBBC()->getSubtreeTables().entries();
     CostScalar jbbcCardinality = appStatMan->getStatsForCANodeId(currentTable)->getResultCardinality();
     // currentTable.getNodeAnalysis()->getCardinality();
 
@@ -5718,7 +5718,7 @@ CANodeId JBBSubsetAnalysis::computeCenterTable() {
   // variable that tells us that the
   // table we want to be the fact table
   // is found in the multijoin
-  Int32 centerTableForced = 0;
+  int centerTableForced = 0;
 
   // The loop below tries to match the connectivity pattern
   // iterate over all the jbbcs (i.e. tables)
@@ -5920,7 +5920,7 @@ NABoolean JBBSubsetAnalysis::isAStarPattern(CANodeId factTable, CostScalar factT
 
   ValueIdSet factTablePartKey;
 
-  Int32 factTableNumPartitions = 1;
+  int factTableNumPartitions = 1;
 
   NABoolean factIsHashPartitioned = FALSE;
 
@@ -6554,7 +6554,7 @@ NABoolean JBBSubsetAnalysis::isAStarPattern(CANodeId factTable, CostScalar factT
         // set the optimal location of the fact table in the
         // list of edges, this will be used by the nextSubstitute()
         // method
-        optimalFTLocation_ = (Int32)i + 1;
+        optimalFTLocation_ = (int)i + 1;
         lowestFactNJCost_ = lowestCombinedCost;
       }
     }
@@ -6576,7 +6576,7 @@ NABoolean JBBSubsetAnalysis::isAStarPattern(CANodeId factTable, CostScalar factT
         // set the optimal location of the fact table in the
         // list of edges, this will be used by the nextSubstitute()
         // method
-        optimalFTLocation_ = (Int32) i+1;
+        optimalFTLocation_ = (int) i+1;
         lowestFactNJCost_ = lowestFactTableCost;
       }
     }
@@ -6646,7 +6646,7 @@ NABoolean JBBSubsetAnalysis::isAStarPattern(CANodeId factTable, CostScalar factT
     // this will be used during nextSubstitute for this rule.
     nodesJoinedBeforeFactTable_ = optimalEdgeSet;
 
-    optimalFTLocation_ = (Int32)(*listOfEdges).entries();
+    optimalFTLocation_ = (int)(*listOfEdges).entries();
   }
 
   // from the set of tables in all the edges that join to the key prefix
@@ -7891,9 +7891,9 @@ const NAString JBB::graphDisplay(const QueryAnalysis *qa) const {
 
     CostScalar cardx2 = x.getNodeAnalysis()->getCardinality();
 
-    ULng32 intx0 = (Int32)cardx0.value();
-    ULng32 intx1 = (Int32)cardx1.value();
-    ULng32 intx2 = (Int32)cardx2.value();
+    ULng32 intx0 = (int)cardx0.value();
+    ULng32 intx1 = (int)cardx1.value();
+    ULng32 intx2 = (int)cardx2.value();
 
     result += istring(x) + " [label =\"" + name + ":\\n" + istring(intx0) + "\\n" + istring(intx1) + "\\n" +
               istring(intx2) + "\"];\n";
@@ -7911,9 +7911,9 @@ const NAString JBB::graphDisplay(const QueryAnalysis *qa) const {
 
       CostScalar ycardx = appStatMan->getStatsForJoinPredsOnCKOfJBBC(ySet, x)->getResultCardinality();
 
-      ULng32 ixy = (Int32)cardxy.value();
-      ULng32 ixjy = (Int32)xcardy.value();
-      ULng32 iyjx = (Int32)ycardx.value();
+      ULng32 ixy = (int)cardxy.value();
+      ULng32 ixjy = (int)xcardy.value();
+      ULng32 iyjx = (int)ycardx.value();
 
       result += istring(x) + " -- " + istring(y) + " [label =\"" + istring(ixjy) + " , " + istring(ixy) + " , " +
                 istring(iyjx) + "\"];\n";
@@ -7966,7 +7966,7 @@ const NAString ColAnalysis::getText() const {
   NAString result("ColAnalysis # ");
   result += istring(column_) + ":\n";
 
-  Int32 i = (Int32)((CollIndex)column_);  // valueid as an integer
+  int i = (int)((CollIndex)column_);  // valueid as an integer
   NAString unparsed(CmpCommon::statementHeap());
   column_.getItemExpr()->unparse(unparsed);  // expression as ascii string
   result += unparsed + "\n";
@@ -8106,7 +8106,7 @@ ValueIdSet ColAnalysis::getAllConnectingPreds(JBBC *jbbc) {
 NAString valueIdSetGetText(const ValueIdSet &set) {
   NAString result("ValueIdSet {");
   for (ValueId x = set.init(); set.next(x); set.advance(x)) {
-    Int32 i = (Int32)((CollIndex)x);  // valueid as an integer
+    int i = (int)((CollIndex)x);  // valueid as an integer
     NAString unparsed(CmpCommon::statementHeap());
     if (x.getItemExpr()) {
       x.getItemExpr()->unparse(unparsed);  // expression as ascii string

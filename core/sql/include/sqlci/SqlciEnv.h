@@ -5,7 +5,7 @@
 #include <limits.h>
 #include <iostream>
 #include <stdio.h>
-#include "sqlci/SqlciList_templ.h"
+
 #include "sqlci/SqlciStmts.h"
 #include "common/ComASSERT.h"
 #include "export/ComDiags.h"
@@ -37,7 +37,7 @@ class Logfile {
   void Close_();  // close withouth delete file name
   short Write(const char *, int);
   short WriteAll(const char *, int);
-  short WriteAll(const char *, int, Int32);
+  short WriteAll(const char *, int, int);
   short WriteAll(const char *);
   short WriteAll(const WCHAR *, int);
   short WriteAllWithoutEOL(const char *);
@@ -66,11 +66,6 @@ class SqlciEnv {
   short obey_file;             // -1 if in an obey file
   Logfile *logfile;
   SqlciStmts *sqlci_stmts;
-  SqlciList<PrepStmt> *prepared_stmts;
-  SqlciList<Param> *param_list;
-  SqlciList<Param> *pattern_list;
-  SqlciList<Envvar> *envvar_list;
-  SqlciList<CursorStmt> *cursorList_;
   SqlciStats *sqlci_stats;
   ULng32 list_count;
 
@@ -158,11 +153,6 @@ class SqlciEnv {
   NABoolean retrieveInferCharsetViaShowControlDefault();
   Logfile *get_logfile() { return logfile; }
   SqlciStmts *getSqlciStmts() { return sqlci_stmts; }
-  SqlciList<PrepStmt> *get_prep_stmts() { return prepared_stmts; }
-  SqlciList<Param> *get_paramlist() { return param_list; }
-  SqlciList<Param> *get_patternlist() { return pattern_list; }
-  SqlciList<Envvar> *get_envvarlist() { return envvar_list; }
-  SqlciList<CursorStmt> *getCursorList() { return cursorList_; }
   SqlciStats *getStats() { return sqlci_stats; }
   void setMode(ModeType mode_) { mode = mode_; }
   void showMode(ModeType mode_);
@@ -203,9 +193,8 @@ class SqlciEnv {
 
   void displayDiagnostics();
 
-  Int32 executeCommands(InputStmt *&input_stmt);
+  int executeCommands(InputStmt *&input_stmt);
 
-  short statusTransaction(long *transid = 0);
 
 
   NABoolean &logCommands() { return logCommands_; };
@@ -226,19 +215,19 @@ class SqlciEnv {
 
 
   // Retrieve database user information from CLI
-  Int32 getExternalUserName(NAString &username);
-  Int32 getDatabaseUserID(Int32 &uid);
-  Int32 getDatabaseUserName(NAString &username);
+  int getExternalUserName(NAString &username);
+  int getDatabaseUserID(int &uid);
+  int getDatabaseUserName(NAString &username);
 
-  Int32 getAuthState(bool &authenticationEnabled, bool &authorizationEnabled, bool &authorizationReady,
+  int getAuthState(bool &authenticationEnabled, bool &authorizationEnabled, bool &authorizationReady,
                      bool &auditingEnabled);
 
-  Int32 getAuthState2(Int32 &authenticationType, bool &authorizationEnabled, bool &authorizationReady,
+  int getAuthState2(int &authenticationType, bool &authorizationEnabled, bool &authorizationReady,
                       bool &auditingEnabled);
 
   // Retrieve tenant information from CLI
-  Int32 getTenantID(Int32 &uid);
-  Int32 getTenantName(NAString &tenantName);
+  int getTenantID(int &uid);
+  int getTenantName(NAString &tenantName);
 
 
 };

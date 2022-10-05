@@ -129,9 +129,9 @@ void LmJavaOptions::addSystemProperty(const char *name, const char *value) {
   removeSystemProperty(name, NULL, NULL);
 
   const char *format = "-D%s=%s";
-  const Int32 len1 = 3;               // the "-D" and "=" characters
-  const Int32 len2 = str_len(name);   // the name string
-  const Int32 len3 = str_len(value);  // the value string
+  const int len1 = 3;               // the "-D" and "=" characters
+  const int len2 = str_len(name);   // the name string
+  const int len3 = str_len(value);  // the value string
 
   char *option = new (collHeap()) char[len1 + len2 + len3 + 1];
   str_sprintf(option, format, name, value);
@@ -199,7 +199,7 @@ NABoolean LmJavaOptions::getSystemProperty(const char *name, char **callersOutpu
     // value back to our caller, but only if this is the rightmost
     // occurence of "-D<name>".
 
-    if (str_cmp(option, prefix, (Int32)prefixLen) == 0) {
+    if (str_cmp(option, prefix, (int)prefixLen) == 0) {
       const UInt32 optionLen = str_len(option);
 
       if (optionLen == prefixLen) {
@@ -212,7 +212,7 @@ NABoolean LmJavaOptions::getSystemProperty(const char *name, char **callersOutpu
         if (remove) removeOption(i);
       }
 
-      if (str_cmp(option, prefix, (Int32)prefixWithEqualsLen) == 0) {
+      if (str_cmp(option, prefix, (int)prefixWithEqualsLen) == 0) {
         // This option begins with "-D<name>="
         if (optionLen <= prefixWithEqualsLen) {
           // Nothing appears after the equals sign

@@ -31,7 +31,7 @@
 #include "LmLangManagerC.h"
 
 // SQLROWTM function declaration
-typedef Int32 (*sqlrow_func)(SQLUDR_CHAR *in_data, SQLUDR_CHAR *rowDataSpace1, SQLUDR_CHAR *rowDataSpace2,
+typedef int (*sqlrow_func)(SQLUDR_CHAR *in_data, SQLUDR_CHAR *rowDataSpace1, SQLUDR_CHAR *rowDataSpace2,
                              SQLUDR_EmitRow getRow, SQLUDR_EmitRow emitRow, SQLUDR_CHAR sqlstate[6],
                              SQLUDR_CHAR msgtext[256], SQLUDR_INT32 calltype, SQLUDR_STATEAREA *statearea,
                              SQLUDR_UDRINFO *udrinfo);
@@ -56,7 +56,7 @@ LmRoutineCSqlRowTM::LmRoutineCSqlRowTM(const char *sqlName, const char *external
                                        char *routineSig, ComUInt32 maxResultSets,
                                        ComRoutineTransactionAttributes transactionAttrs,
                                        ComRoutineSQLAccess sqlAccessMode, ComRoutineExternalSecurity externalSecurity,
-                                       Int32 routineOwnerId, const char *parentQid, ComUInt32 inputRowLen,
+                                       int routineOwnerId, const char *parentQid, ComUInt32 inputRowLen,
                                        ComUInt32 outputRowLen, const char *currentUserName, const char *sessionUserName,
                                        LmParameter *parameters, LmLanguageManagerC *lm, LmHandle routine,
                                        LmHandle getNextRowPtr, LmHandle emitRowPtr, LmContainer *container,
@@ -199,7 +199,7 @@ LmResult LmRoutineCSqlRowTM::invokeRoutine(void *inputRow, void *outputRow, ComD
   str_pad(msgText_, SQLUDR_MSGTEXT_SIZE, '\0');
 
   // Call the function
-  Int32 retValue = SQLUDR_INVOKE_SQLROWTM((sqlrow_func)routine_, (SQLUDR_CHAR *)param_in_data,
+  int retValue = SQLUDR_INVOKE_SQLROWTM((sqlrow_func)routine_, (SQLUDR_CHAR *)param_in_data,
                                           (SQLUDR_CHAR *)rowDataSpace1_, (SQLUDR_CHAR *)rowDataSpace2_, getNextRowPtr_,
                                           emitRowptr_, sqlState_, msgText_, callType_, stateArea_, udrInfo_);
 

@@ -133,7 +133,7 @@ short ExControlTcb::work() {
   // ## will need to do something similar to this....
 
   char *buf = controlTdb().getSqlText();
-  Int32 usedlen = buf ? str_len(buf) + 1 : 0;
+  int usedlen = buf ? str_len(buf) + 1 : 0;
   int sqlTextCharSet = (int)(buf ? controlTdb().getSqlTextCharSet() : SQLCHARSETCODE_UNKNOWN);
 
 // array[1+max] because value() is 1-based not 0-based.
@@ -141,9 +141,9 @@ short ExControlTcb::work() {
 //
 #define MAXVALS 3  // value(1 to 3)
   char *value[1 + MAXVALS] = {NULL};
-  Int32 len[1 + MAXVALS] = {0};
+  int len[1 + MAXVALS] = {0};
 
-  Int32 i = 1;
+  int i = 1;
   for (; i <= MAXVALS; i++)
     if (value[i] = controlTdb().getValue(i))  // assignment, not == ...!
     {
@@ -163,7 +163,7 @@ short ExControlTcb::work() {
   ContextCli *currCtxt =
       getGlobals()->castToExExeStmtGlobals()->castToExMasterStmtGlobals()->getStatement()->getContext();
   ExSqlComp *cmp = NULL;
-  Int32 cmpStatus = 0;
+  int cmpStatus = 0;
   {
     // If use embedded compiler, send the settings to it
     if (currCtxt->getSessionDefaults()->callEmbeddedArkcmp() && currCtxt->isEmbeddedArkcmpInitialized() &&
@@ -475,7 +475,7 @@ short ExSetSessionDefaultTcb::work() {
   } else if (strcmp(defaultName, "ESP_ASSIGN_TIME_WINDOW") == 0) {
     // The minimum default time window should be 30 seconds
     // to avoid EPS dying during fixup time
-    Int32 val = MAXOF(defaultValueAsLong, 30);
+    int val = MAXOF(defaultValueAsLong, 30);
 
     currContext->getSessionDefaults()->setEspAssignTimeWindow(val);
   } else if (strcmp(defaultName, "ESP_STOP_IDLE_TIMEOUT") == 0) {

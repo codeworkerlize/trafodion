@@ -59,7 +59,7 @@
 //        : The space object is valid.
 // PSTCOND: ExpBitMuxFunction is constructed.
 //
-ExpBitMuxFunction::ExpBitMuxFunction(OperatorTypeEnum oper_type, Int32 arity, Attributes **attr, Space *space)
+ExpBitMuxFunction::ExpBitMuxFunction(OperatorTypeEnum oper_type, int arity, Attributes **attr, Space *space)
     : ex_function_clause(oper_type, arity, attr, space) {
   // Test preconditions. It may already be too late ...
   //
@@ -117,7 +117,7 @@ Long ExpBitMuxFunction::pack(void *space) {
 ex_expr::exp_return_type ExpBitMuxFunction::pCodeGenerate(Space *space, UInt32 f) {
   // What is the arity?
   //
-  Int32 numOperands = getNumOperands();
+  int numOperands = getNumOperands();
 
   // Get a handle on the operands.
   //
@@ -129,7 +129,7 @@ ex_expr::exp_return_type ExpBitMuxFunction::pCodeGenerate(Space *space, UInt32 f
   //
   if (attrs[0]->getAtpIndex() < 2) return ex_clause::pCodeGenerate(space, f);
 
-  Int32 i = 1;
+  int i = 1;
   for (; i < numOperands; i++) {
     // Src must be ATP
     //
@@ -171,7 +171,7 @@ ex_expr::exp_return_type ExpBitMuxFunction::pCodeGenerate(Space *space, UInt32 f
 
   // Load and store each input value.
   //
-  Int32 offset = attrs[0]->getOffset();
+  int offset = attrs[0]->getOffset();
   AML aml(PCIT::MBIN8, PCIT::MBIN8, PCIT::IBIN32S);
   for (i = 1; i < numOperands; i++) {
     if (attrs[i]->getNullFlag()) {
@@ -224,17 +224,17 @@ ex_expr::exp_return_type ExpBitMuxFunction::eval(char *op_data[], CollHeap *, Co
   // Loop over each input attribute and convert the attribute data into
   // BitMux form.
   //
-  for (Int32 i = 1; i < getNumOperands(); i++) {
+  for (int i = 1; i < getNumOperands(); i++) {
     // Query the attribute to the size of the data. This size does not
     // include NULL or VARCHAR information.
     //
-    Int32 length = attrs[i]->getLength();
+    int length = attrs[i]->getLength();
 
     // Start by assumming that the attribute is not NULL and uses the
     // entire allocate space. Change below if necessary.
     //
-    Int32 isNull = 0;
-    Int32 dataLength = length;
+    int isNull = 0;
+    int dataLength = length;
 
     // Remember the pointer to the attribute data.
     //
@@ -276,13 +276,13 @@ ex_expr::exp_return_type ExpBitMuxFunction::eval(char *op_data[], CollHeap *, Co
     // If the attribute is NULL, then NULL out the data space.
     //
     if (isNull) {
-      for (Int32 j = 0; j < length; j++) dstData[j] = 0;
+      for (int j = 0; j < length; j++) dstData[j] = 0;
     }
     // Otherwise, copy the data to the data space and pad with
     // zeros if necessary.
     //
     else {
-      Int32 j = 0;
+      int j = 0;
       for (; j < dataLength; j++) dstData[j] = srcData[j];
       while (j < length) dstData[j++] = 0;
     }

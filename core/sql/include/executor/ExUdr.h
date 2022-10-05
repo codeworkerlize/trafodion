@@ -121,7 +121,7 @@ class ExUdrTdb : public ComTdbUdr {
   inline ComRoutineExternalSecurity getExternalSecurity() const {
     return (ComRoutineExternalSecurity)externalSecurity_;
   }
-  inline Int32 getRoutineOwnerId() const { return routineOwnerId_; }
+  inline int getRoutineOwnerId() const { return routineOwnerId_; }
   inline ComRoutineSQLAccess getSqlAccessMode() const { return (ComRoutineSQLAccess)sqlAccessMode_; }
   inline ComRoutineTransactionAttributes getTransactionAttrs() const {
     return (ComRoutineTransactionAttributes)transactionAttrs_;
@@ -131,7 +131,7 @@ class ExUdrTdb : public ComTdbUdr {
   inline ex_expr *getInputExpression() const { return inputExpr_; }
   inline ex_expr *getOutputExpression() const { return outputExpr_; }
   // expression for copying child table input into a sqlbuffer
-  inline ex_expr *getChildInputExpr(Int32 pos) const { return childInputExprs_[pos]; }
+  inline ex_expr *getChildInputExpr(int pos) const { return childInputExprs_[pos]; }
 
   // Predicate expression
   ex_expr *getPredicate() const { return scanExpr_; }
@@ -194,9 +194,9 @@ class ExUdrTdb : public ComTdbUdr {
 
   inline const UdrTableDescInfo *getTableDescInfo(UInt32 i) const { return udrChildTableDescInfo_[i]; }
 
-  inline Int32 getJavaDebugPort() const { return javaDebugPort_; }
+  inline int getJavaDebugPort() const { return javaDebugPort_; }
 
-  inline Int32 getJavaDebugTimeout() const { return javaDebugTimeout_; }
+  inline int getJavaDebugTimeout() const { return javaDebugTimeout_; }
 
  private:
   // ---------------------------------------------------------------------
@@ -260,7 +260,7 @@ class ExUdrTcb : public ex_tcb {
   // Standard TCB methods
   // ---------------------------------------------------------------------
 
-  virtual Int32 fixup();
+  virtual int fixup();
   virtual ExWorkProcRetcode work();
   ExWorkProcRetcode tmudfWork();
   ExWorkProcRetcode buildAndSendTmudfInput();
@@ -270,9 +270,9 @@ class ExUdrTcb : public ex_tcb {
 
   ex_queue_pair getParentQueue() const { return qParent_; }
 
-  Int32 numChildren() const { return myTdb().numChildTableInputs_; }
+  int numChildren() const { return myTdb().numChildTableInputs_; }
 
-  const ex_tcb *getChild(Int32 pos) const {
+  const ex_tcb *getChild(int pos) const {
     ex_assert((pos >= 0) && (pos < numChildren()), "");
     return childTcbs_[pos];
   }
@@ -361,7 +361,7 @@ class ExUdrTcb : public ex_tcb {
   NABoolean replyBufferIsEmpty();
   void releaseReplyBuffer();
   void releaseRequestBuffer();
-  void releaseChildInputBuffer(Int32 i);
+  void releaseChildInputBuffer(int i);
   ExWorkProcRetcode returnSingleRow();
   NABoolean anyOutstandingQueueRequests();
   NABoolean verifyUdrServerProcessId();

@@ -1342,11 +1342,11 @@ PrivStatus PrivMgrCommands::unregisterComponent(const std::string &componentName
 }
 //*************** End of PrivMgrCommands::unregisterComponent ******************
 
-Int32 PrivMgrCommands::recreateRoleRelationship(ExeCliInterface *cliInterface) {
+int PrivMgrCommands::recreateRoleRelationship(ExeCliInterface *cliInterface) {
   Queue *cntQueue = NULL;
   char buf[1024 * 5] = {0};
   std::stringstream sb;
-  Int32 cliRC = 0;
+  int cliRC = 0;
   NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
   // number roleId in _MD_.auths >= number roleId in _PRIVMGR_MD_.ROLE_USAGE
   str_sprintf(buf,
@@ -1365,7 +1365,7 @@ Int32 PrivMgrCommands::recreateRoleRelationship(ExeCliInterface *cliInterface) {
   int count = 0;
   for (; count < cntQueue->numEntries(); count++) {
     OutputInfo *pCliRow = (OutputInfo *)cntQueue->getNext();
-    sb << '(' << *((Int32 *)pCliRow->get(0))              // ROLE_ID
+    sb << '(' << *((int *)pCliRow->get(0))              // ROLE_ID
        << ',' << '\'' << (char *)pCliRow->get(1) << '\''  // ROLE_NAME
        << ',' << SUPER_USER_LIT                           // GRANTEE_ID
        << ',' << '\'' << DB__ROOT << '\''                 // GRANTEE_NAME

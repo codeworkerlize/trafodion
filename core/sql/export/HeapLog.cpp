@@ -297,7 +297,7 @@ int HeapLogRoot::getPackSize() {
   int heapCount = 0;
   int objCount = 0;
   if (log == NULL) return 8;
-  for (Int32 i = 0; i <= maxHeapNum; i++) {
+  for (int i = 0; i <= maxHeapNum; i++) {
     if (log->header_[i].usageCount_ > 0) {
       heapCount++;
       objCount += log->header_[i].usageCount_;
@@ -516,7 +516,7 @@ int HeapLog::addEntry(void *addr, int size, int heapNum, const char *heapName) {
     HEAPLOG_OFF();
     HeapLogEntry *pNewLog = seg.object_;
     seg.object_ = new HeapLogEntry[seg.slotCount_ * 2];
-    for (Int32 i = 0; i < seg.slotCount_; i++) seg.object_[i] = pNewLog[i];
+    for (int i = 0; i < seg.slotCount_; i++) seg.object_[i] = pNewLog[i];
     delete[] pNewLog;
     HEAPLOG_ON();
     seg.slotCount_ *= 2;
@@ -585,7 +585,7 @@ int HeapLog::fetchLine(char *buf, int sqlci) {
 
   ostringstream oss;
   if (objCount_ == 0 && status_ != PHASE_EOF) {  // No data to report.
-    for (Int32 i = 0; i <= HeapLogRoot::maxHeapNum; i++) objCount_ += header_[i].usageCount_;
+    for (int i = 0; i <= HeapLogRoot::maxHeapNum; i++) objCount_ += header_[i].usageCount_;
     if (objCount_ == 0)
       if (overflow_) {
         oss.str().clear();

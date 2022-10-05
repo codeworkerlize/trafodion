@@ -371,7 +371,7 @@ short HashJoin::codeGen(Generator *generator) {
     // Mark these as codegen'ed so the scans that use these will not
     // attempt to generate code for them.
     const ValueIdList &hostvars = getMinMaxHostvars();
-    for (Int32 i = 0; i < hostvars.entries(); i++) {
+    for (int i = 0; i < hostvars.entries(); i++) {
       generator->getMapInfo(hostvars[i])->codeGenerated();
     }
 
@@ -643,7 +643,7 @@ short HashJoin::codeGen(Generator *generator) {
     // A List to contain the Min and Max aggregates
     ValueIdList mmPairs;
 
-    Int32 step = (generator->isMinmaxOptWithRangeOfValues()) ? 3 : 2;
+    int step = (generator->isMinmaxOptWithRangeOfValues()) ? 3 : 2;
 
     for (CollIndex mmCol = 0; mmCol < getMinMaxCols().entries(); mmCol++) {
       // Cast the value coming from the right child to the common type
@@ -1171,7 +1171,7 @@ short HashJoin::codeGen(Generator *generator) {
   // generate the rightMoveOutExpr
   rightRowLength = 0;
   MapTable *rightValMapTable = NULL;
-  Int32 bulkMoveOffset = -2;  // try to generate a bulk move
+  int bulkMoveOffset = -2;  // try to generate a bulk move
 
   if (rightOutputValIds.entries() > 0 && rightOutputNeeded) {
     ValueIdList *rmo;
@@ -2021,7 +2021,7 @@ void HashJoin::addCheckNullExpressions(CollHeap *wHeap) {
 
   ValueId valId;
 
-  Int32 notinCount = 0;
+  int notinCount = 0;
 
   for (valId = getEquiJoinPredicates().init(); getEquiJoinPredicates().next(valId);
        getEquiJoinPredicates().advance(valId)) {
@@ -2074,7 +2074,7 @@ void gatherValuesFromExpr(ValueIdList &vs, ItemExpr *ie, Generator *generator) {
   } else {
     // Check for a special case like a CAST(<x>) where <x> is
     // available in the MapTable.
-    for (Int32 i = 0; i < ie->getArity(); i++) {
+    for (int i = 0; i < ie->getArity(); i++) {
       gatherValuesFromExpr(vs, ie->child(i), generator);
     }
   }
@@ -2576,7 +2576,7 @@ short MergeJoin::codeGen(Generator *generator) {
       ValueId rightChildOutputValId = rightChildOutput[i];
       Attributes *resultAttr = generator->getMapInfo(resultValId)->getAttr();
       Attributes *rightChildAttr = generator->getMapInfo(rightChildOutputValId)->getAttr();
-      Int32 rightChildAtpIndex = rightChildAttr->getAtpIndex();
+      int rightChildAtpIndex = rightChildAttr->getAtpIndex();
       rightChildAttr->copyLocationAttrs(resultAttr);
     }
 

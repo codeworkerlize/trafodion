@@ -63,7 +63,7 @@ void LevelStats::resetLevelStats() {
 class ExMemStats {
  public:
   // Constructor and destructor
-  ExMemStats(ExMemStats *parent, NAMemory *memory, Int32 level);
+  ExMemStats(ExMemStats *parent, NAMemory *memory, int level);
   virtual ~ExMemStats();
 
   // Function for gathering statistics
@@ -75,7 +75,7 @@ class ExMemStats {
   virtual void DisplayLongMemStats(ostream &os, char *ind, size_t minSize) = 0;
   void DisplayShortMemStats(ostream &os);
 
-  Int32 level_;           // Number of levels of derived memory
+  int level_;           // Number of levels of derived memory
   size_t blockCnt_;       // Number of blocks in this memory
   size_t blockSum_;       // Sum of the sizes of all blocks
   size_t allocCnt_;       // Number of in use allocations
@@ -91,13 +91,13 @@ class ExMemStats {
 
   NAMemory *thisMemory_;  // Pointer ot NAMemory
 
-  void DisplayLevelStats(ostream &os, char *type, Int32 level, LevelStats &stats);
+  void DisplayLevelStats(ostream &os, char *type, int level, LevelStats &stats);
 };
 
 // Heap-specific statistics class
 class ExHeapStats : public ExMemStats {
  public:
-  ExHeapStats(ExMemStats *parent, NAMemory *heap, Int32 level);
+  ExHeapStats(ExMemStats *parent, NAMemory *heap, int level);
 
   virtual void GetStatistics();
 
@@ -111,7 +111,7 @@ class ExHeapStats : public ExMemStats {
 // Space-specific statistics class
 class ExSpaceStats : public ExMemStats {
  public:
-  ExSpaceStats(ExMemStats *parent, NAMemory *space, Int32 level);
+  ExSpaceStats(ExMemStats *parent, NAMemory *space, int level);
 
   virtual void GetStatistics();
 
@@ -119,7 +119,7 @@ class ExSpaceStats : public ExMemStats {
   virtual void DisplayLongMemStats(ostream &os, char *ind, size_t minSize);
 };
 
-ExMemStats::ExMemStats(ExMemStats *parent, NAMemory *memory, Int32 level)
+ExMemStats::ExMemStats(ExMemStats *parent, NAMemory *memory, int level)
     : level_(level),
       blockCnt_(0),
       blockSum_(0),
@@ -144,14 +144,14 @@ ExMemStats::~ExMemStats() {
   }
 }
 
-ExHeapStats::ExHeapStats(ExMemStats *parent, NAMemory *heap, Int32 level) : ExMemStats(parent, heap, level) {
+ExHeapStats::ExHeapStats(ExMemStats *parent, NAMemory *heap, int level) : ExMemStats(parent, heap, level) {
   for (size_t i = 0; i < numTotalBins; i++) {
     sizeBinCnt_[i] = 0;
     sizeBinSum_[i] = 0;
   }
 }
 
-ExSpaceStats::ExSpaceStats(ExMemStats *parent, NAMemory *space, Int32 level) : ExMemStats(parent, space, level) {}
+ExSpaceStats::ExSpaceStats(ExMemStats *parent, NAMemory *space, int level) : ExMemStats(parent, space, level) {}
 
 void ExHeapStats::GetStatistics() {
   // Increment NAHeap level stats
@@ -373,7 +373,7 @@ void ExSpaceStats::DisplayLongMemStats(ostream &os, char *ind, size_t minSize) {
   os << ind << "Unused space memory: " << freeSum_ << endl;
 }
 
-void ExMemStats::DisplayLevelStats(ostream &os, char *type, Int32 level, LevelStats &stats) {
+void ExMemStats::DisplayLevelStats(ostream &os, char *type, int level, LevelStats &stats) {
   os << setw(5) << level << "  " << setw(5) << type << " " << setw(6) << stats.blockCnt_ << "  " << setw(10)
      << stats.blockSum_ << " " << setw(10) << stats.maxAllocSize_ << " " << setw(10) << stats.allocSize_ << "   "
      << setw(10) << stats.derivedSize_ << " " << setw(10) << stats.freeSize_ << endl;
@@ -386,7 +386,7 @@ void ExMemStats::DisplayShortMemStats(ostream &os) {
      << endl;
 
   // Display the statistics for each level
-  for (Int32 i = 0; i < MAX_HEAP_LEVELS; i++) {
+  for (int i = 0; i < MAX_HEAP_LEVELS; i++) {
     if (heapLevel[i].encountered_) DisplayLevelStats(os, (char *)"Heap", i, heapLevel[i]);
     if (spaceLevel[i].encountered_) DisplayLevelStats(os, (char *)"Space", i, spaceLevel[i]);
   }
@@ -424,7 +424,7 @@ void ExMemStats::Display(ostream &os, State *state, size_t minSize) {
   }
 }
 
-Int32 muse(NAHeap *heap, size_t minTotalSize, char *rspBuffer, size_t rspMaxSize, size_t *rspSize, bool *bufferFull) {
+int muse(NAHeap *heap, size_t minTotalSize, char *rspBuffer, size_t rspMaxSize, size_t *rspSize, bool *bufferFull) {
   stringstream *ss = new stringstream(stringstream::in | stringstream::out);
   streamsize ssSize;
   char testBuf[1];

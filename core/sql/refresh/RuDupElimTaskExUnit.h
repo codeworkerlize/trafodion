@@ -71,7 +71,7 @@ class CRUDupElimGlobals;
 class REFRESH_LIB_CLASS CRUDupElimTaskExUnit {
  public:
   CRUDupElimTaskExUnit(const CRUDupElimGlobals &dupElimGlobals, CRUSQLDynamicStatementContainer &ctrlStmtContainer,
-                       Int32 nStmts);
+                       int nStmts);
 
   virtual ~CRUDupElimTaskExUnit() {}
 
@@ -143,7 +143,7 @@ class REFRESH_LIB_CLASS CRUDupElimResolver : public CRUDupElimTaskExUnit {
 
  public:
   CRUDupElimResolver(const CRUDupElimGlobals &dupElimGlobals, CRUSQLDynamicStatementContainer &ctrlStmtContainer,
-                     Int32 nStmts)
+                     int nStmts)
       : inherited(dupElimGlobals, ctrlStmtContainer, nStmts), canCompletePhase_(FALSE) {}
 
   virtual ~CRUDupElimResolver() {}

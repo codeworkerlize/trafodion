@@ -169,13 +169,13 @@ class NABasicObject {
 
   static CollHeap *invalidHeapPtr() { return (CollHeap *)0x1; }
   static CollHeap *systemHeapPtr() { return (CollHeap *)0x0; }
-  Int32 maybeInvalidObject() { return h_ == invalidHeapPtr(); }
+  int maybeInvalidObject() { return h_ == invalidHeapPtr(); }
 
   // For smart-pointer callers, some defensive programming for Debug build.
 #if !defined(NDEBUG)
-  Int32 checkInvalidObject(const void *const referencingObject = NULL);
+  int checkInvalidObject(const void *const referencingObject = NULL);
 #else
-  Int32 checkInvalidObject(const void *const = NULL) { return 0 /*not invalid*/; }
+  int checkInvalidObject(const void *const = NULL) { return 0 /*not invalid*/; }
 #endif
 
  private:

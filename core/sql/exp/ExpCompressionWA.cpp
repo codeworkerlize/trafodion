@@ -43,7 +43,7 @@
 // collisions in the definition for ULng32 between zconf.h and Platform.h
 #include "ExpCompressionWA.h"
 
-static Int32 read8(char *buf) {
+static int read8(char *buf) {
   unsigned char bb = '\0';
   unsigned char *b = (unsigned char *)buf;
   if (b) bb = *b;
@@ -268,7 +268,7 @@ ExpCompressionWA::CompressionReturnCode ExpLzopCompressionWA::processHeader(char
     offset += 2;
   }
 
-  Int32 temp8, len;
+  int temp8, len;
   temp8 = read8(src + offset);
   offset++;
   if (version >= 0x0940) {

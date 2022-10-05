@@ -42,14 +42,14 @@
 
 #include "ExRLE.h"
 
-Int32 ExEncode(unsigned char *dbuf, Int32 dlen, unsigned char *ebuf, Int32 *elen, Int32 flags) {
-  Int32 c = EOFCHAR, p = EOFCHAR;
-  Int32 i = 0;
+int ExEncode(unsigned char *dbuf, int dlen, unsigned char *ebuf, int *elen, int flags) {
+  int c = EOFCHAR, p = EOFCHAR;
+  int i = 0;
   UInt32 j = 0;
-  Int32 cnt = 0;
+  int cnt = 0;
   UInt32 cs_lo = 1, cs_hi = 0;
-  Int32 compare_size = 1;
-  Int32 ret = 0;
+  int compare_size = 1;
+  int ret = 0;
   comp_buf *b = (comp_buf *)ebuf;
 
   if (flags & COMP_COMPARE_BYTE) {
@@ -87,13 +87,13 @@ Int32 ExEncode(unsigned char *dbuf, Int32 dlen, unsigned char *ebuf, Int32 *elen
       return ret;
   }
 
-  b->u.hdr.compressed_len = *elen + HDR_SIZE - sizeof(Int32);
+  b->u.hdr.compressed_len = *elen + HDR_SIZE - sizeof(int);
 
   *elen += HDR_SIZE;
 
   /* Compute checksum assuming the checksum field is currently 0 */
   if (flags & COMP_CHECKSUM_VALID) {
-    for (j = 0; j < (b->u.hdr.compressed_len + sizeof(Int32)); ++j) {
+    for (j = 0; j < (b->u.hdr.compressed_len + sizeof(int)); ++j) {
       cs_lo += ebuf[j];
       cs_lo %= ADLER32_MODULUS;
       cs_hi += cs_lo;
@@ -116,10 +116,10 @@ Int32 ExEncode(unsigned char *dbuf, Int32 dlen, unsigned char *ebuf, Int32 *elen
  *     ebuf - encoded buffer
  *     elen - pointer to store encoded buffer len
  */
-Int32 encode_byte(unsigned char *dbuf, Int32 dlen, unsigned char *ebuf, Int32 *elen) {
-  Int32 c = EOFCHAR, p = EOFCHAR;
-  Int32 i = 0, j = 0;
-  Int32 cnt = 0;
+int encode_byte(unsigned char *dbuf, int dlen, unsigned char *ebuf, int *elen) {
+  int c = EOFCHAR, p = EOFCHAR;
+  int i = 0, j = 0;
+  int cnt = 0;
 
   while (i < dlen) {
     /* Get the next byte */
@@ -194,12 +194,12 @@ Int32 encode_byte(unsigned char *dbuf, Int32 dlen, unsigned char *ebuf, Int32 *e
  *     elen - pointer to store encoded buffer len
  *
  */
-Int32 pb_encode_byte(unsigned char *dbuf, Int32 dlen, unsigned char *ebuf, Int32 *elen) {
-  Int32 c = EOFCHAR, n = EOFCHAR;
-  Int32 i = 0, j = 0;
-  Int32 cnt = 0;
-  Int32 k = 0;
-  Int32 t = 0;
+int pb_encode_byte(unsigned char *dbuf, int dlen, unsigned char *ebuf, int *elen) {
+  int c = EOFCHAR, n = EOFCHAR;
+  int i = 0, j = 0;
+  int cnt = 0;
+  int k = 0;
+  int t = 0;
   unsigned char match_buf[RLE_PACKBITS_MAXBUF_BYTE];
 
   cnt = 0;
@@ -306,11 +306,11 @@ Int32 pb_encode_byte(unsigned char *dbuf, Int32 dlen, unsigned char *ebuf, Int32
  *     ebuf - encoded buffer
  *     elen - pointer to store encoded buffer len
  */
-Int32 encode_short(unsigned short *dbuf, Int32 dlen_bytes, unsigned short *ebuf, Int32 *elen_bytes) {
-  Int32 c = EOFCHAR, p = EOFCHAR;
-  Int32 i = 0, j = 0;
-  Int32 cnt = 0;
-  Int32 dlen = dlen_bytes / 2;
+int encode_short(unsigned short *dbuf, int dlen_bytes, unsigned short *ebuf, int *elen_bytes) {
+  int c = EOFCHAR, p = EOFCHAR;
+  int i = 0, j = 0;
+  int cnt = 0;
+  int dlen = dlen_bytes / 2;
 
   while (i < dlen) {
     /* Get the next short */
@@ -375,13 +375,13 @@ Int32 encode_short(unsigned short *dbuf, Int32 dlen_bytes, unsigned short *ebuf,
   return 0;
 }
 
-Int32 pb_encode_short(unsigned short *dbuf, Int32 dlen_bytes, unsigned short *ebuf, Int32 *elen_bytes) {
-  Int32 c = EOFCHAR, n = EOFCHAR;
-  Int32 i = 0, j = 0;
-  Int32 cnt = 0;
-  Int32 k = 0;
-  Int32 t = 0;
-  Int32 dlen = dlen_bytes / sizeof(short);
+int pb_encode_short(unsigned short *dbuf, int dlen_bytes, unsigned short *ebuf, int *elen_bytes) {
+  int c = EOFCHAR, n = EOFCHAR;
+  int i = 0, j = 0;
+  int cnt = 0;
+  int k = 0;
+  int t = 0;
+  int dlen = dlen_bytes / sizeof(short);
 
   unsigned short match_buf[RLE_PACKBITS_MAXBUF_SHORT];
 
@@ -483,15 +483,15 @@ Int32 pb_encode_short(unsigned short *dbuf, Int32 dlen_bytes, unsigned short *eb
   return 0;
 }
 
-Int32 ExDecode(unsigned char *ebuf, Int32 elen, unsigned char *dbuf, Int32 *dlen, int &param1, int &param2) {
+int ExDecode(unsigned char *ebuf, int elen, unsigned char *dbuf, int *dlen, int &param1, int &param2) {
   comp_buf *b = (comp_buf *)ebuf;
-  Int32 saved_checksum = b->u.hdr.checksum;
-  Int32 checksum = 0;
-  Int32 flags = b->u.hdr.flags;
+  int saved_checksum = b->u.hdr.checksum;
+  int checksum = 0;
+  int flags = b->u.hdr.flags;
   UInt32 j = 0;
   UInt32 cs_lo = 1, cs_hi = 0;
-  Int32 compare_size = 1;
-  Int32 ret = 0;
+  int compare_size = 1;
+  int ret = 0;
 
   param1 = 0;
   param2 = 0;
@@ -519,7 +519,7 @@ Int32 ExDecode(unsigned char *ebuf, Int32 elen, unsigned char *dbuf, Int32 *dlen
     /* check the checksum */
     b->u.hdr.checksum = 0;
 
-    for (j = 0; j < (b->u.hdr.compressed_len + sizeof(Int32)); ++j) {
+    for (j = 0; j < (b->u.hdr.compressed_len + sizeof(int)); ++j) {
       cs_lo += ebuf[j];
       cs_lo %= ADLER32_MODULUS;
       cs_hi += cs_lo;
@@ -576,10 +576,10 @@ Int32 ExDecode(unsigned char *ebuf, Int32 elen, unsigned char *dbuf, Int32 *dlen
  *     dlen - buffer length to encode
  *
  */
-Int32 decode_byte(unsigned char *ebuf, Int32 elen, unsigned char *dbuf, Int32 *dlen) {
-  Int32 c = EOFCHAR, p = EOFCHAR;
-  Int32 i = 0, j = 0, k = 0;
-  Int32 cnt = 0;
+int decode_byte(unsigned char *ebuf, int elen, unsigned char *dbuf, int *dlen) {
+  int c = EOFCHAR, p = EOFCHAR;
+  int i = 0, j = 0, k = 0;
+  int cnt = 0;
 
   /*
    * We need to get the checksum and validate the buffer.  If valid, we will
@@ -616,10 +616,10 @@ Int32 decode_byte(unsigned char *ebuf, Int32 elen, unsigned char *dbuf, Int32 *d
   return 0;
 }
 
-Int32 pb_decode_byte(unsigned char *ebuf, Int32 elen, unsigned char *dbuf, Int32 *dlen) {
-  Int32 c = EOFCHAR, p = EOFCHAR;
-  Int32 i = 0, j = 0, k = 0;
-  Int32 cnt = 0;
+int pb_decode_byte(unsigned char *ebuf, int elen, unsigned char *dbuf, int *dlen) {
+  int c = EOFCHAR, p = EOFCHAR;
+  int i = 0, j = 0, k = 0;
+  int cnt = 0;
 
   /*
    * We need to get the checksum and validate the buffer.  If valid, we will
@@ -666,11 +666,11 @@ Int32 pb_decode_byte(unsigned char *ebuf, Int32 elen, unsigned char *dbuf, Int32
  *     dlen - buffer length to encode
  *
  */
-Int32 decode_short(unsigned short *ebuf, Int32 elen_bytes, unsigned short *dbuf, Int32 *dlen_bytes) {
-  Int32 c = EOFCHAR, p = EOFCHAR;
-  Int32 i = 0, j = 0, k = 0;
-  Int32 cnt = 0;
-  Int32 elen = elen_bytes / sizeof(short);
+int decode_short(unsigned short *ebuf, int elen_bytes, unsigned short *dbuf, int *dlen_bytes) {
+  int c = EOFCHAR, p = EOFCHAR;
+  int i = 0, j = 0, k = 0;
+  int cnt = 0;
+  int elen = elen_bytes / sizeof(short);
 
   while (i < elen) {
     c = ebuf[i++];
@@ -702,11 +702,11 @@ Int32 decode_short(unsigned short *ebuf, Int32 elen_bytes, unsigned short *dbuf,
   return 0;
 }
 
-Int32 pb_decode_short(unsigned short *ebuf, Int32 elen_bytes, unsigned short *dbuf, Int32 *dlen_bytes) {
-  Int32 c = EOFCHAR, p = EOFCHAR;
-  Int32 i = 0, j = 0, k = 0;
-  Int32 cnt = 0;
-  Int32 elen = elen_bytes / sizeof(short);
+int pb_decode_short(unsigned short *ebuf, int elen_bytes, unsigned short *dbuf, int *dlen_bytes) {
+  int c = EOFCHAR, p = EOFCHAR;
+  int i = 0, j = 0, k = 0;
+  int cnt = 0;
+  int elen = elen_bytes / sizeof(short);
   /*
    * We need to get the checksum and validate the buffer.  If valid, we will
    * call the corresponding decode function

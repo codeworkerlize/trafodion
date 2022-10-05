@@ -55,7 +55,7 @@
 // IN     : heap     - The memory allocator.
 // EFFECTS: Constructs an ExBitMapTable object.
 //
-ExBitMapTable::ExBitMapTable(Int32 keySize, Int32 dataSize, Int32 countOffset, Int32 memSize, CollHeap *heap)
+ExBitMapTable::ExBitMapTable(int keySize, int dataSize, int countOffset, int memSize, CollHeap *heap)
     : keySize_(keySize),
       dataSize_(dataSize),
       countOffset_(countOffset),
@@ -93,7 +93,7 @@ ExBitMapTable::ExBitMapTable(Int32 keySize, Int32 dataSize, Int32 countOffset, I
   //   [rowSize] - data, key, and next for group 1
   //   [rowSize] - data, key, and next for group NumberGroups-1
   //
-  const Int32 minimumMemorySize = 32 * (sizeof(char *) + rowSize_);
+  const int minimumMemorySize = 32 * (sizeof(char *) + rowSize_);
   memSize_ *= 2;
   while (!memory_ && (memSize_ >= 2 * minimumMemorySize)) {
     memSize_ /= 2;
@@ -119,7 +119,7 @@ ExBitMapTable::ExBitMapTable(Int32 keySize, Int32 dataSize, Int32 countOffset, I
 
   // Initialize the hash buckets.
   //
-  for (Int32 i = 0; i < numberHashBuckets_; i++) buckets_[i] = 0;
+  for (int i = 0; i < numberHashBuckets_; i++) buckets_[i] = 0;
 }
 
 // ExBitMapTable::~ExBitMapTable
@@ -144,7 +144,7 @@ ExBitMapTable::~ExBitMapTable() {
 void ExBitMapTable::reset() {
   // Initialize the hash buckets_.
   //
-  for (Int32 i = 0; i < numberHashBuckets_; i++) buckets_[i] = 0;
+  for (int i = 0; i < numberHashBuckets_; i++) buckets_[i] = 0;
 
   // Reset the number of groups.
   //
@@ -166,13 +166,13 @@ void ExBitMapTable::reset() {
 // EFFECTS: A group may be added to the table. The member data_ points
 //          to the matching group.
 //
-Int32 ExBitMapTable::findOrAdd(char *key) {
+int ExBitMapTable::findOrAdd(char *key) {
   unsigned char *ukey = (unsigned char *)key;
 
   // Compute the hash
   //
   UInt32 hash = 0;
-  Int32 i = 0;
+  int i = 0;
   for (; i < keySize_; i++) {
     hash ^= ukey[i];
     hash <<= 3;
@@ -218,7 +218,7 @@ Int32 ExBitMapTable::findOrAdd(char *key) {
 
     // Test for matching keys.
     //
-    Int32 match = 1;
+    int match = 1;
     row = getKey(lastRow);
     for (i = 0; match && i < keySize_; i++)
       if (row[i] != key[i]) match = 0;

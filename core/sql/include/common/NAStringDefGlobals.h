@@ -76,7 +76,7 @@ class NAReference {
  public:
   enum NAReferenceFlag { STATIC_INIT };
 
-  NAReference(Int32 initRef = 0) : refs_((UInt32)initRef - 1) {}
+  NAReference(int initRef = 0) : refs_((UInt32)initRef - 1) {}
   NAReference(NAReferenceFlag) {}  // leave refs_ alone
   UInt32 references() const { return refs_ + 1; }
   void setRefCount(UInt32 r) { refs_ = r - 1; }
@@ -159,7 +159,7 @@ class NAStringRef : public NAReference {
   size_t last(char, size_t) const;
 
 #ifndef RW_NO_LOCALE
-  Int32 collate(const char *) const;
+  int collate(const char *) const;
 #endif
 
   NAMemory *heap_;

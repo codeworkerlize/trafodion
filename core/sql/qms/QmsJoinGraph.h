@@ -127,7 +127,7 @@ class JoinGraphTable : public NAIntrusiveSharedPtrObject {
   /** Get the ordinal number - the index into the QRJoinGraph table array. */
   CollIndex getOrdinalNumber() const { return ordinalNumber_; }
   /** Get the temp number - used when building the MVMemo hash key.  */
-  Int32 getTempNumber() const { return tempNumber_; }
+  int getTempNumber() const { return tempNumber_; }
   /** Get the table name. */
   const NAString &getName() const { return tableElement_->getTableName(); }
   /** Get the table element ID from the MV/query descriptor. */
@@ -145,7 +145,7 @@ class JoinGraphTable : public NAIntrusiveSharedPtrObject {
   /** Set the table's ordinal number. Used after the QRJoinGraph table array is re-ordered. */
   void setOrdinalNumber(CollIndex ix) { ordinalNumber_ = ix; }
   /** Set the table's temp number. Used when marking the table during generation of a sub-graph.*/
-  void setTempNumber(Int32 ix) { tempNumber_ = ix; }
+  void setTempNumber(int ix) { tempNumber_ = ix; }
 
   /** Add an equality set. */
   void addEqualitySet(JoinGraphEqualitySetPtr pred) { predList_.insert(pred); }
@@ -179,7 +179,7 @@ class JoinGraphTable : public NAIntrusiveSharedPtrObject {
 
   void getAndReducePredicateColumnsPointingToMe(ElementPtrList &pointingCols);
 
-  Int32 getDegree();
+  int getDegree();
 
  private:
   // Copy construction/assignment not defined.
@@ -190,7 +190,7 @@ class JoinGraphTable : public NAIntrusiveSharedPtrObject {
   /** Index into the QRJoinGraph table array. */
   CollIndex ordinalNumber_;
   /** Used when building the MVMemo hash key. */
-  Int32 tempNumber_;
+  int tempNumber_;
   /** Used for indirect GroupBy detection */
   CollIndex keyColumns_;
   CollIndex reducedConnections_;
@@ -392,9 +392,9 @@ class JoinGraphEqualitySet : public NAIntrusiveSharedPtrObject {
    * the degree is equal to the number of halfPreds minus one.
    * @return
    */
-  Int32 getDegree() { return halfPreds_.entries() - 1; }
+  int getDegree() { return halfPreds_.entries() - 1; }
 
-  Int32 getKeySource() {
+  int getKeySource() {
     if (keyDirection_ == 0)
       return 1;
     else
@@ -419,7 +419,7 @@ class JoinGraphEqualitySet : public NAIntrusiveSharedPtrObject {
   UInt32 maxExprSize_;
   //  int		      tempNumber_;
   NABoolean isOnKey_;
-  Int32 keyDirection_;
+  int keyDirection_;
 };  // class JoinGraphEqualitySet
 
 /**
@@ -478,7 +478,7 @@ class QRJoinGraph : public NAIntrusiveSharedPtrObject {
   /** Does this join graph include a GROUP BY node at the top? */
   NABoolean hasGroupBy() { return hasGroupBy_; }
   /** How many tables are in the hub? */
-  Int32 getHubSize() const { return hubSize_; }
+  int getHubSize() const { return hubSize_; }
 
   /**
    * Find the JoinGraphTable object from the table ID.
@@ -574,14 +574,14 @@ class QRJoinGraph : public NAIntrusiveSharedPtrObject {
 
  private:
   CollHeap *heap_;
-  Int32 nextTable_;
+  int nextTable_;
   NABoolean isSelfJoin_;
   JoinGraphTableHash tableHashByID_;
   EqualitySetList equalitySets_;
   JoinGraphTableArray tableArray_;
   NAString name_;  // For debugging
   NABoolean hasGroupBy_;
-  Int32 hubSize_;
+  int hubSize_;
   JoinGraphTableList tablesToReduce_;
   QRJoinSubGraphPtr minimizedSubGraph_;
   JoinGraphTableList *sortedTables_;  // Used for WA SQL generation
@@ -791,7 +791,7 @@ class QRJoinSubGraphMap : public NAIntrusiveSharedPtrObject {
    * @param id The query descriptor ID of the table.
    * @return The query hash key index, -1 if not found.
    */
-  Int32 getIndexForTable(const NAString &id) const;
+  int getIndexForTable(const NAString &id) const;
 
   /**
    * The MV side translation: find the table information for its index.

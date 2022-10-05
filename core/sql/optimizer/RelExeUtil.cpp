@@ -1352,7 +1352,7 @@ RelExpr *ExeUtilDisplayExplain::copyTopNode(RelExpr *derivedNode, CollHeap *outH
   return ExeUtilExpr::copyTopNode(result, outHeap);
 }
 
-short ExeUtilDisplayExplain::setOptionX(char c, Int32 &numOptions) {
+short ExeUtilDisplayExplain::setOptionX(char c, int &numOptions) {
   switch (c) {
     case 'e':
       if (isOptionE()) return -1;  // already specified
@@ -1391,11 +1391,11 @@ short ExeUtilDisplayExplain::setOptionX(char c, Int32 &numOptions) {
 }
 
 short ExeUtilDisplayExplain::setOptionsX() {
-  Int32 numOptions = 0;
+  int numOptions = 0;
   if (optionsStr_) {
     if (strlen(optionsStr_) == 0) return -1;  // error, cannot be empty string
 
-    for (Int32 i = 0; i < strlen(optionsStr_); i++) {
+    for (int i = 0; i < strlen(optionsStr_); i++) {
       if (setOptionX(optionsStr_[i], numOptions)) return -1;
     }
   }
@@ -4315,7 +4315,7 @@ RelExpr *ExeUtilLoadVolatileTable::bindNode(BindWA *bindWA) {
 
   // get the insert query
   NAWchar *inputStr = SQLTEXTW();
-  Int32 start_pos = 0;
+  int start_pos = 0;
 
   CharInfo::CharSet targetCharSet = SqlParser_CurrentParser->charset_;
   if (targetCharSet == CharInfo::UCS2) {
@@ -4370,7 +4370,7 @@ RelExpr *ExeUtilCreateTableAs::bindNode(BindWA *bindWA) {
   NAString attrListEndPosStmt = " ";
   StmtDDLCreateTable *createTableNode = NULL;
   NABoolean upsertUsingLoadAllowed = TRUE;
-  Int32 errorcode = 0;
+  int errorcode = 0;
   NAWcharBuf *wcbuf = 0;
 
   if ((getExprNode()) && (getExprNode()->castToStmtDDLNode()) &&
@@ -4426,8 +4426,8 @@ RelExpr *ExeUtilCreateTableAs::bindNode(BindWA *bindWA) {
     getTableName() = savedTableName;
   }
 
-  Int32 scannedInputCharset = createTableNode->getCreateTableAsScannedInputCharset();
-  Int32 isoMapping = createTableNode->getCreateTableAsIsoMapping();
+  int scannedInputCharset = createTableNode->getCreateTableAsScannedInputCharset();
+  int isoMapping = createTableNode->getCreateTableAsIsoMapping();
 
   size_t asQueryPos = 0;
   size_t withEndQueryPos = 0;
@@ -4442,7 +4442,7 @@ RelExpr *ExeUtilCreateTableAs::bindNode(BindWA *bindWA) {
   size_t attrListEndPos = createTableNode->getEndOfCreateTableAsAttrListPosition();
   withEndQueryPos = createTableNode->getEndOfCreateTableAsWithClausePosition();
 
-  CMPASSERT(scannedInputCharset == (Int32)SQLCHARSETCODE_UTF8 && ComGetNameInterfaceCharSet() == SQLCHARSETCODE_UTF8);
+  CMPASSERT(scannedInputCharset == (int)SQLCHARSETCODE_UTF8 && ComGetNameInterfaceCharSet() == SQLCHARSETCODE_UTF8);
 
   // If column definitions were not explicitely specified, then create
   // column definitions of CREATE TABLE stmt from the AS SELECT query.
@@ -4537,7 +4537,7 @@ RelExpr *ExeUtilCreateTableAs::bindNode(BindWA *bindWA) {
     else {
       CollIndex numColDefEntries = 0;
       CollIndex numUntypedColDefEntries = 0;
-      Int32 j = 0;
+      int j = 0;
       NABoolean firstEntry = TRUE;
       CollIndex entries = pTableDefBody->entries();
       for (CollIndex i = 0; i < entries; i++) {
@@ -4997,7 +4997,7 @@ RelExpr *ExeUtilLongRunning::bindNode(BindWA *bindWA) {
   NATable *naTable = bindWA->getNATable(getTableName());
   if (bindWA->errStatus()) return this;
 
-  Int32 beforeRefcount = naTable->getReferenceCount();
+  int beforeRefcount = naTable->getReferenceCount();
 
   if (NOT naTable->hasSaltedColumn()) {
     // salt table only
@@ -5060,7 +5060,7 @@ RelExpr *ExeUtilLongRunning::bindNode(BindWA *bindWA) {
     }
 
     if (selPred.containsSubquery()) {
-      Int32 afterRefcount = naTable->getReferenceCount();
+      int afterRefcount = naTable->getReferenceCount();
       if (afterRefcount != beforeRefcount) {
         // Use of self-referencing in a subquery in the WHERE clause of a DELETE WITH MULTI COMMIT statement is not
         // supported.
@@ -5756,7 +5756,7 @@ void ExeUtilCompositeUnnest::rewriteNode(NormWA &normWARef) {
   addnlColsVIDList_.normalizeNode(normWARef);
 }
 
-static void populateColInfoArray(ComTdbVirtTableColumnInfo *colInfoArray, Int32 index, const NAString &elemName,
+static void populateColInfoArray(ComTdbVirtTableColumnInfo *colInfoArray, int index, const NAString &elemName,
                                  const NAType *elemType, NABoolean isSysCol) {
   char *colname = new (CmpCommon::statementHeap()) char[elemName.length() + 1];
   strcpy(colname, elemName.data());
@@ -5793,7 +5793,7 @@ static void populateColInfoArray(ComTdbVirtTableColumnInfo *colInfoArray, Int32 
 }
 
 TrafDesc *ExeUtilCompositeUnnest::createVirtualTableDesc() {
-  Int32 numCols = (showPos_ ? 1 : 0);
+  int numCols = (showPos_ ? 1 : 0);
 
   const CompositeType &colType = (CompositeType &)colNameExpr_->getValueId().getType();
   const NAType *operandType = colType.getElementType(1);
@@ -5822,11 +5822,11 @@ TrafDesc *ExeUtilCompositeUnnest::createVirtualTableDesc() {
   ComTdbVirtTableColumnInfo *colInfoArray = colInfoArray = new (STMTHEAP) ComTdbVirtTableColumnInfo[numCols];
 
   NAColumn *nac = NULL;
-  Int32 index = 0;
+  int index = 0;
   NAString elemName;
 
   if (showPos_) {
-    // add an Int32 col as the first column where unnested element position
+    // add an int col as the first column where unnested element position
     // will be returned.
     SQLInt elemType(STMTHEAP, FALSE, FALSE);
 
@@ -5836,7 +5836,7 @@ TrafDesc *ExeUtilCompositeUnnest::createVirtualTableDesc() {
   }
 
   if (operandType->isComposite()) {
-    for (Int32 elem = 0; elem < structOperand->getNumElements(); elem++) {
+    for (int elem = 0; elem < structOperand->getNumElements(); elem++) {
       const NAType *elemType = structOperand->fieldTypes()[elem];
 
       if (newColNamesTree_) {
@@ -5859,7 +5859,7 @@ TrafDesc *ExeUtilCompositeUnnest::createVirtualTableDesc() {
     index++;
   }
 
-  for (Int32 elem = 0; elem < addnlColsVIDList_.entries(); elem++) {
+  for (int elem = 0; elem < addnlColsVIDList_.entries(); elem++) {
     ValueId &vid = addnlColsVIDList_[elem];
     const ItemExpr *ie = vid.getItemExpr();
 
@@ -5966,7 +5966,7 @@ RelExpr *ExeUtilCompositeUnnest::bindNode(BindWA *bindWA) {
   if (addnlCols_ != NONE) {
     const NAColumnArray &colArr = scanNATable->getNAColumnArray();
 
-    for (Int32 elem = 0; elem < colArr.entries(); elem++) {
+    for (int elem = 0; elem < colArr.entries(); elem++) {
       const NAColumn *naCol = colArr[elem];
       if ((addnlCols_ == ALL_COLUMNS) ||
           ((addnlCols_ == KEY_COLUMNS) && (scanNATable->isHiveTable()) && (naCol->isHiveVirtualColumn()) &&

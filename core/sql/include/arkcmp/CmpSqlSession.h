@@ -74,9 +74,9 @@ class CmpSqlSession : public NABasicObject {
   void setSessionUsername(NAString &userName);
 
   NAString &getDatabaseUserName() { return databaseUserName_; }
-  Int32 &getDatabaseUserID() { return databaseUserID_; }
+  int &getDatabaseUserID() { return databaseUserID_; }
 
-  int setDatabaseUserAndTenant(Int32 userID, const char *userName, Int32 tenantID, const char *tenantName,
+  int setDatabaseUserAndTenant(int userID, const char *userName, int tenantID, const char *tenantName,
                                  const char *tenantNodes, const char *tenantDefaultSchema);
 
   NAString &volatileSchemaName() { return volatileSchemaName_; }
@@ -99,16 +99,16 @@ class CmpSqlSession : public NABasicObject {
 
   inline int getNumSessions() { return numSessions_; }
 
-  Int32 getTenantID() { return tenantID_; }
+  int getTenantID() { return tenantID_; }
 
  private:
   NAHeap *heap_;
 
   NAString sessionID_;
   int numSessions_;
-  Int32 databaseUserID_;
+  int databaseUserID_;
   NAString databaseUserName_;
-  Int32 tenantID_;
+  int tenantID_;
   NAString tenantName_;
 
   // On NSK we store a Guardian user name and the external LDAP

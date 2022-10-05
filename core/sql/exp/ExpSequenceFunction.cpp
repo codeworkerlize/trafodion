@@ -61,7 +61,7 @@
 //        : The space object is valid.
 // PSTCOND: ExpSequenceFunction is constructed.
 //
-ExpSequenceFunction::ExpSequenceFunction(OperatorTypeEnum oper_type, Int32 arity, Int32 index, Attributes **attr,
+ExpSequenceFunction::ExpSequenceFunction(OperatorTypeEnum oper_type, int arity, int index, Attributes **attr,
                                          Space *space)
     : ex_function_clause(oper_type, arity, attr, space), offsetIndex_(index), flags_(0) {
   setAllowNegativeOffset(TRUE);
@@ -123,7 +123,7 @@ ex_expr::exp_return_type ExpSequenceFunction::pCodeGenerate(Space *space, UInt32
   PCode::preClausePCI(this, code);
 
   if (getNumOperands() == 2) {
-    Int32 index = offsetIndex_;
+    int index = offsetIndex_;
 
     // The 1st operand is a pointer to the function.
     // The 2nd operand is a pointer the Tcb to get to the history buffer.
@@ -190,12 +190,12 @@ ex_expr::exp_return_type ExpSequenceFunction::eval(char *op_data[], CollHeap *he
   // then the index is given by the last operand. Otherwise, the index
   // is a constant set in the clause.
   //
-  Int32 index;
+  int index;
   if (getNumOperands() >= 3) {
     if (attrs[2]->getNullFlag() && !op_data[-2 * MAX_OPERANDS + 2])
       index = -1;
     else
-      index = *((Int32 *)op_data[2]);
+      index = *((int *)op_data[2]);
   } else
     index = offsetIndex_;
 
@@ -211,7 +211,7 @@ ex_expr::exp_return_type ExpSequenceFunction::eval(char *op_data[], CollHeap *he
   UInt32 srcLen = 0;
   char *srcNull = NULL;
   char *srcVC = NULL;
-  Int32 rc = 0;
+  int rc = 0;
 
   {
     char *row = (*GetRow_)(GetRowData_, index, isLeading(), winSize(), rc);
@@ -239,7 +239,7 @@ ex_expr::exp_return_type ExpSequenceFunction::eval(char *op_data[], CollHeap *he
   // 1. The row does not exist in the history buffer (srcData == NULL)
   // 2. The data exist but is itself NULL (srcNull == 0xFFFF)
   //
-  Int32 srcIsNull = (srcData ? 0 : 1);
+  int srcIsNull = (srcData ? 0 : 1);
   if (srcData && srcNull) srcIsNull = *((unsigned short *)(srcNull)) == 0xFFFFU;
 
   // Get the pointer to the start of the result data.
@@ -305,7 +305,7 @@ ex_expr::exp_return_type ExpSequenceFunction::eval(char *op_data[], CollHeap *he
       *((unsigned short *)dstNull) = 0xFFFFU;
     }
   } else {
-    Int32 len = attrs[0]->getLength();
+    int len = attrs[0]->getLength();
     str_cpy_all(dstData, srcData, attrs[0]->getLength());
     if (attrs[1]->getVCIndicatorLength() > 0) getOperand(0)->setVarLength(srcLen, dstVC);
     // getOperand(0)->setVarLength(getOperand(1)->getLength(srcVC), dstVC);

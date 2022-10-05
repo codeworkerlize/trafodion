@@ -48,7 +48,7 @@ void action::setActionLabel(MBD_ACTION newAction, const NAString &newLabel) {
 // methods for class StmtNode
 // -----------------------------------------------------------------------
 
-Int32 StmtNode::getArity() const { return 0; }
+int StmtNode::getArity() const { return 0; }
 
 StmtNode *StmtNode::castToStatementExpr() { return this; }
 
@@ -67,7 +67,7 @@ void StmtNode::setChild(int /* index */, ExprNode * /* newChild */) { assert(0 =
 // methods for class StmtQuery
 // -----------------------------------------------------------------------
 
-Int32 StmtQuery::getArity() const { return 1; }
+int StmtQuery::getArity() const { return 1; }
 
 RelExpr *StmtQuery::getQueryExpression() const { return queryExpr_; }
 

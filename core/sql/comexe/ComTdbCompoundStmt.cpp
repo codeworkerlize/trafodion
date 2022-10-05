@@ -75,7 +75,7 @@ int ComTdbCompoundStmt::unpack(void *base, void *reallocator) {
 }  // ComTdbCompoundStmt::unpack
 
 // exclude from code coverage analysis sind it is used only by GUI
-inline const ComTdb *ComTdbCompoundStmt::getChild(Int32 pos) const {
+inline const ComTdb *ComTdbCompoundStmt::getChild(int pos) const {
   if (pos == 0)
     return tdbLeft_;
   else if (pos == 1)

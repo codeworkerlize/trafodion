@@ -655,7 +655,7 @@ StmtDDLCreateCatalog::StmtDDLCreateCatalog(const NAString &aCatalogName, ElemDDL
 //
 StmtDDLCreateCatalog::~StmtDDLCreateCatalog() {
   // delete all children
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     delete getChild(i);
   }
 }
@@ -669,7 +669,7 @@ StmtDDLCreateCatalog *StmtDDLCreateCatalog::castToStmtDDLCreateCatalog() { retur
 // accessors
 //
 
-Int32 StmtDDLCreateCatalog::getArity() const { return MAX_STMT_DDL_CREATE_CATALOG_ARITY; }
+int StmtDDLCreateCatalog::getArity() const { return MAX_STMT_DDL_CREATE_CATALOG_ARITY; }
 
 ExprNode *StmtDDLCreateCatalog::getChild(int index) {
   ComASSERT(index EQU INDEX_CREATE_CATALOG_ATTRIBUTE_LIST);
@@ -895,7 +895,7 @@ void StmtDDLCreateTrigger::setAction(RelExpr *actionExpression) {
 //
 StmtDDLCreateTrigger::~StmtDDLCreateTrigger() {
   // delete all children
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     delete getChild(i);
   }
   // delete the name loc list
@@ -914,7 +914,7 @@ StmtDDLCreateTrigger *StmtDDLCreateTrigger::castToStmtDDLCreateTrigger() { retur
 // accessors
 //
 
-Int32 StmtDDLCreateTrigger::getArity() const { return MAX_STMT_DDL_CREATE_TRIGGER_ARITY; }
+int StmtDDLCreateTrigger::getArity() const { return MAX_STMT_DDL_CREATE_TRIGGER_ARITY; }
 
 ExprNode *StmtDDLCreateTrigger::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
@@ -1138,7 +1138,7 @@ StmtDDLCreateIndex::~StmtDDLCreateIndex() {
   delete pPrimaryPartition_;
 
   // delete all children
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     delete getChild(i);
   }
 }
@@ -1152,7 +1152,7 @@ StmtDDLCreateIndex *StmtDDLCreateIndex::castToStmtDDLCreateIndex() { return this
 // accessors
 //
 
-Int32 StmtDDLCreateIndex::getArity() const { return MAX_STMT_DDL_CREATE_INDEX_ARITY; }
+int StmtDDLCreateIndex::getArity() const { return MAX_STMT_DDL_CREATE_INDEX_ARITY; }
 
 ExprNode *StmtDDLCreateIndex::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
@@ -1844,7 +1844,7 @@ StmtDDLPopulateIndex *StmtDDLPopulateIndex::castToStmtDDLPopulateIndex() { retur
 // accessors
 //
 
-Int32 StmtDDLPopulateIndex::getArity() const { return 0; }
+int StmtDDLPopulateIndex::getArity() const { return 0; }
 
 ExprNode *StmtDDLPopulateIndex::getChild(int index) { return NULL; }
 
@@ -2064,7 +2064,7 @@ StmtDDLCreateRoutine::StmtDDLCreateRoutine(const QualifiedName &aRoutineName, co
 //
 StmtDDLCreateRoutine::~StmtDDLCreateRoutine() {
   // delete all children
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     delete getChild(i);
   }
 
@@ -2080,7 +2080,7 @@ StmtDDLCreateRoutine *StmtDDLCreateRoutine::castToStmtDDLCreateRoutine() { retur
 // accessors
 //
 
-Int32 StmtDDLCreateRoutine::getArity() const { return MAX_STMT_DDL_CREATE_ROUTINE_ARITY; }
+int StmtDDLCreateRoutine::getArity() const { return MAX_STMT_DDL_CREATE_ROUTINE_ARITY; }
 
 ExprNode *StmtDDLCreateRoutine::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
@@ -3000,7 +3000,7 @@ StmtDDLCreateSequence *StmtDDLCreateSequence::castToStmtDDLCreateSequence() { re
 // accessors
 //
 
-Int32 StmtDDLCreateSequence::getArity() const { return 0; }
+int StmtDDLCreateSequence::getArity() const { return 0; }
 
 ExprNode *StmtDDLCreateSequence::getChild(int index) { return NULL; }
 
@@ -3149,7 +3149,7 @@ StmtDDLCreateTable::~StmtDDLCreateTable() {
 
   // Delete all children
 
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     delete getChild(i);
   }
 }
@@ -3163,7 +3163,7 @@ StmtDDLCreateTable *StmtDDLCreateTable::castToStmtDDLCreateTable() { return this
 // accessors
 //
 
-Int32 StmtDDLCreateTable::getArity() const { return MAX_STMT_DDL_CREATE_TABLE_ARITY; }
+int StmtDDLCreateTable::getArity() const { return MAX_STMT_DDL_CREATE_TABLE_ARITY; }
 
 ExprNode *StmtDDLCreateTable::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
@@ -5108,7 +5108,7 @@ StmtDDLCreateMV::StmtDDLCreateMV(const QualifiedName &MVQualName, const ParNameL
 //
 StmtDDLCreateMV::~StmtDDLCreateMV() {
   // delete all children
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     delete getChild(i);
   }
 }
@@ -5122,7 +5122,7 @@ StmtDDLCreateMV *StmtDDLCreateMV::castToStmtDDLCreateMV() { return this; }
 // accessors
 //
 
-Int32 StmtDDLCreateMV::getArity() const { return MAX_STMT_DDL_CREATE_MV_ARITY; }
+int StmtDDLCreateMV::getArity() const { return MAX_STMT_DDL_CREATE_MV_ARITY; }
 
 ExprNode *StmtDDLCreateMV::getChild(int index) {
   switch (index) {
@@ -5190,7 +5190,7 @@ void StmtDDLCreateMV::synthesize() {
   //
 
   if (pMVColumnList_ NEQ NULL) {
-    for (Int32 i = 0; i < (Int32)pMVColumnList_->entries(); i++) {
+    for (int i = 0; i < (int)pMVColumnList_->entries(); i++) {
       ComASSERT((*pMVColumnList_)[i] NEQ NULL);
       columnDefArray_.insert((*pMVColumnList_)[i]->castToElemDDLColViewDef());
     }
@@ -5647,7 +5647,7 @@ StmtDDLCreateView::StmtDDLCreateView(const QualifiedName &viewQualName, const Pa
 //
 StmtDDLCreateView::~StmtDDLCreateView() {
   // delete all children
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     delete getChild(i);
   }
 }
@@ -5661,7 +5661,7 @@ StmtDDLCreateView *StmtDDLCreateView::castToStmtDDLCreateView() { return this; }
 // accessors
 //
 
-Int32 StmtDDLCreateView::getArity() const { return MAX_STMT_DDL_CREATE_VIEW_ARITY; }
+int StmtDDLCreateView::getArity() const { return MAX_STMT_DDL_CREATE_VIEW_ARITY; }
 
 ExprNode *StmtDDLCreateView::getChild(int index) {
   switch (index) {
@@ -5753,7 +5753,7 @@ void StmtDDLCreateView::synthesize() {
   //
 
   if (pViewColumnList_ NEQ NULL) {
-    for (Int32 i = 0; i < (Int32)pViewColumnList_->entries(); i++) {
+    for (int i = 0; i < (int)pViewColumnList_->entries(); i++) {
       ComASSERT((*pViewColumnList_)[i] NEQ NULL);
       columnDefArray_.insert((*pViewColumnList_)[i]->castToElemDDLColViewDef());
     }

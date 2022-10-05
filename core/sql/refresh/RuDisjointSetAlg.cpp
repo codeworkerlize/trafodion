@@ -132,7 +132,7 @@ void CRUDisjointSetAlg::BuildDisjointSetGraph() {
 void CRUDisjointSetAlg::NameSets() {
   DSListPosition pos = sets_.GetHeadPosition();
 
-  Int32 i = 0;
+  int i = 0;
   while (NULL != pos) {
     CRUDisjointSetAlgVertex *v = sets_.GetNext(pos);
     v->setId_ = i++;
@@ -208,7 +208,7 @@ void CRUDisjointSetAlg::RemoveFromRootList(TInt64 id) {
 
 void CRUDisjointSetAlg::Test() {
   // BUILD TEST GRAPH
-  Int32 i;
+  int i;
   for (i = 1; i <= 14; i++) {
     AddVertex(i);
   }

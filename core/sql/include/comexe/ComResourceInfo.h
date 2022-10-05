@@ -56,7 +56,7 @@ class ExScratchFileOptions;
 // Constants for invalid cluster number
 // -----------------------------------------------------------------------
 
-const Int32 RES_LOCAL_CLUSTER = -1;
+const int RES_LOCAL_CLUSTER = -1;
 
 // -----------------------------------------------------------------------
 // An entry for a specific disk drive. This is not an NAVersionedObject
@@ -68,9 +68,9 @@ class ExScratchDiskDrive {
   ExScratchDiskDrive(char *dirName = NULL, int dirNameLen = 0) : dirName_(dirName), dirNameLength_(dirNameLen) {}
 
   inline const char *getDirName() const { return dirName_; }
-  inline Int32 getDirNameLength() const { return dirNameLength_; }
+  inline int getDirNameLength() const { return dirNameLength_; }
   inline void setDirName(char *s) { dirName_ = s; }
-  inline void setDirNameLength(Int32 s) { dirNameLength_ = s; }
+  inline void setDirNameLength(int s) { dirNameLength_ = s; }
 
   // Although this class is not derived from NAVersionedObject, it still
   // gets compiled as a dependent object of ExScratchFileOptions and it
@@ -82,7 +82,7 @@ class ExScratchDiskDrive {
   // name of the directory
   NABasicPtr dirName_;
   // length of disk name
-  Int32 dirNameLength_;
+  int dirNameLength_;
   char fillersExScratchDiskDrive_[16];
 };
 
@@ -139,7 +139,7 @@ class ExScratchFileOptions : public NAVersionedObject {
     };
   }
 
-  Int32 getScratchMgmtOption(void) const {
+  int getScratchMgmtOption(void) const {
     if ((scratchFlags_ & SCRATCH_MGMT_OPTION_5) != 0)
       return 5;
     else if ((scratchFlags_ & SCRATCH_MGMT_OPTION_9) != 0)
@@ -166,7 +166,7 @@ class ExScratchFileOptions : public NAVersionedObject {
     };
   }
 
-  Int32 getScratchMaxOpensHash(void) const {
+  int getScratchMaxOpensHash(void) const {
     if ((scratchFlags_ & SCRATCH_MAX_OPENS_HASH_2) != 0)
       return 2;
     else if ((scratchFlags_ & SCRATCH_MAX_OPENS_HASH_3) != 0)
@@ -193,7 +193,7 @@ class ExScratchFileOptions : public NAVersionedObject {
     };
   }
 
-  Int32 getScratchMaxOpensSort(void) const {
+  int getScratchMaxOpensSort(void) const {
     if ((scratchFlags_ & SCRATCH_MAX_OPENS_SORT_2) != 0)
       return 2;
     else if ((scratchFlags_ & SCRATCH_MAX_OPENS_SORT_3) != 0)
@@ -218,7 +218,7 @@ class ExScratchFileOptions : public NAVersionedObject {
 
   inline const ExScratchDiskDrive *getSpecifiedScratchDirs() const { return specifiedScratchDirs_; }
 
-  inline Int32 getNumSpecifiedDirs() const { return numSpecifiedDirs_; }
+  inline int getNumSpecifiedDirs() const { return numSpecifiedDirs_; }
 
   // to make the IPC methods happy, this object also supplies some
   // methods to help packing it into an IpcMessageObj
@@ -247,7 +247,7 @@ class ExScratchFileOptions : public NAVersionedObject {
   // be used (or an empty string if the system can decide)
   ExScratchDiskDrivePtr specifiedScratchDirs_;
 
-  Int32 numSpecifiedDirs_;
+  int numSpecifiedDirs_;
   UInt32 scratchFlags_;
   char fillersExScratchFileOptions[24];
 };

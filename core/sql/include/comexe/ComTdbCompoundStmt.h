@@ -59,25 +59,25 @@ class ComTdbCompoundStmt : public ComTdb {
                      NABoolean rowsFromRight, NABoolean AfterUpdate);
 
   // exclude from code coverage analsysis since this method is not used
-  Int32 orderedQueueProtocol() const { return -1; }
+  int orderedQueueProtocol() const { return -1; }
 
   Long pack(void *);
   int unpack(void *, void *reallocator);
 
   void display() const {};
 
-  virtual const ComTdb *getChild(Int32 pos) const;
+  virtual const ComTdb *getChild(int pos) const;
 
-  virtual Int32 numChildren() const { return 2; }
-  virtual Int32 numExpressions() const { return 0; }
+  virtual int numChildren() const { return 2; }
+  virtual int numExpressions() const { return 0; }
 
   virtual const char *getNodeName() const { return "EX_COMPOUND_STMT"; };
 
   // exclude from code coverage analysys since there are no expressions for
   // this operator
-  virtual ex_expr *getExpressionNode(Int32 pos) { return NULL; }
+  virtual ex_expr *getExpressionNode(int pos) { return NULL; }
 
-  virtual const char *getExpressionName(Int32 pos) const { return NULL; }
+  virtual const char *getExpressionName(int pos) const { return NULL; }
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.

@@ -42,9 +42,9 @@
 #include "nsk/nskcommon.h"
 #include "nsk/nskcommonhi.h"
 
-const Int32 MAX_BUFFER = 512;
+const int MAX_BUFFER = 512;
 
-void logErrorMessageInEventLog(Int32 msgId, const char *msg) {
+void logErrorMessageInEventLog(int msgId, const char *msg) {
   HANDLE h = (HANDLE)1;
 
   if (h != NULL) {
@@ -56,11 +56,11 @@ void logErrorMessageInEventLog(Int32 msgId, const char *msg) {
 // -----------------------------------------------------------------------
 // Validate SMD Location format.
 // -----------------------------------------------------------------------
-static Int32 ComRegAPI_validate_SMDLocation(char *SMDLocation,    // in
+static int ComRegAPI_validate_SMDLocation(char *SMDLocation,    // in
                                             char *sysVolNameBuf)  // out - bufsize >= 9
 {
   char *vol = SMDLocation;
-  Int32 volSize = 0;
+  int volSize = 0;
 
   if (vol == NULL || vol[0] != '$')  // badly formatted volume name
     return -1;
@@ -69,7 +69,7 @@ static Int32 ComRegAPI_validate_SMDLocation(char *SMDLocation,    // in
     return -1;
   if (!isalpha(vol[1]))  // badly formatted volume name
     return -1;
-  for (Int32 i = 2; i < volSize; i++) {
+  for (int i = 2; i < volSize; i++) {
     if (!isalnum(vol[i]))  // badly formatted volume name
       return -1;
   }
@@ -86,13 +86,13 @@ ComString getTandemSysVol() {
   char *smdLoc = getenv("SQLMX_SMD_LOCATION");
   if (smdLoc) {
     char smdLocBuf[128];
-    Int32 len = (Int32)strlen(smdLoc);
+    int len = (int)strlen(smdLoc);
     if (len > 120)  // badly formatted volume name
       return "$SYSTEM";
     strcpy(smdLocBuf, smdLoc);
     // remove trailing white space(s)
     char c;
-    Int32 i = len - 1;
+    int i = len - 1;
     for (; i >= 0; i--) {
       c = smdLocBuf[i];
       if (c == '\n' || c == '\r' || c == '\t' || c == ' ')
@@ -100,7 +100,7 @@ ComString getTandemSysVol() {
       else
         break;
     }
-    len = (Int32)strlen(smdLocBuf);
+    len = (int)strlen(smdLocBuf);
     for (i = 0; i < len; i++) smdLocBuf[i] = toupper(smdLocBuf[i]);
     // tracing BEGIN
     // FILE *fp = fopen("/tmp/zzComReqAPI.log", "a+");

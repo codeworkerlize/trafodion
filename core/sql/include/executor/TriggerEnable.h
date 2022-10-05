@@ -58,9 +58,9 @@ class ex_root_tcb;
 //-----------------------------------------------------------------------------
 
 // each trigger is represented by a bit in the vector
-const Int32 TRIGGERS_STATUS_VECTOR_SIZE = 32;
+const int TRIGGERS_STATUS_VECTOR_SIZE = 32;
 // limitation, enforced by binder
-const Int32 MAX_TRIGGERS_PER_STATEMENT = TRIGGERS_STATUS_VECTOR_SIZE * 8;
+const int MAX_TRIGGERS_PER_STATEMENT = TRIGGERS_STATUS_VECTOR_SIZE * 8;
 
 //-----------------------------------------------------------------------------
 //
@@ -131,10 +131,10 @@ class TriggerStatusWA : public NABasicObject {
   TrgStatus getStatus(ComTimestamp const triggerId) const;
 
   // number of triggers on current table, as read from rfork.
-  inline Int32 getCurrentNumEntries() const { return currentNumEntries_; }
+  inline int getCurrentNumEntries() const { return currentNumEntries_; }
 
   // total number of triggers in the statement
-  inline Int32 getTotalTriggersCount() const { return totalTriggersCount_; }
+  inline int getTotalTriggersCount() const { return totalTriggersCount_; }
 
   ComTdbRoot *getRootTdb() const;
 

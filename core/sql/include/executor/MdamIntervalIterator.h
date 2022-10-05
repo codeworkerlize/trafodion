@@ -59,7 +59,7 @@
 class MdamIntervalIterator {
  public:
   // Constructor.
-  MdamIntervalIterator(const MdamIntervalList *intervalListPtr, const Int32 logicalIntervalListNumber);
+  MdamIntervalIterator(const MdamIntervalList *intervalListPtr, const int logicalIntervalListNumber);
 
   // Destructor.
   ~MdamIntervalIterator();
@@ -69,7 +69,7 @@ class MdamIntervalIterator {
 
  private:
   // Logical interval list number.
-  const Int32 logicalIntervalListNumber_;
+  const int logicalIntervalListNumber_;
 
   // Pointer to the current interval.
   MdamInterval *intervalPtr_;

@@ -184,7 +184,7 @@ PrivStatus PrivMgr::getEffectiveGrantor(const bool isGrantedBySpecified, const s
     }
     // User is DB__ROOT.  Get the effective grantor name.
     char authName[MAX_USERNAME_LEN + 1];
-    Int32 actualLen = 0;
+    int actualLen = 0;
 
     // If owner not found in metadata, ComDiags is populated with
     // error 8732: <owner> is not a registered user or role

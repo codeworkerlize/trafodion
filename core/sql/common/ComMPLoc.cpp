@@ -58,7 +58,7 @@ ComMPLoc::ComMPLoc(const ComString &fileName) : PREALLOCATE_STRING_MEMBERS {
   ComString nam(fileName);
   TrimNAStringSpace(nam);
   const char *s = nam.data();
-  Int32 namepartnum = (*s == '\\') ? 1 : (*s == '$') ? 2 : 3;
+  int namepartnum = (*s == '\\') ? 1 : (*s == '$') ? 2 : 3;
 
   while (*s)
     if (*s++ == '.') namepartnum++;
@@ -133,13 +133,13 @@ void ComMPLoc::parse(const ComString &fileName, Format fmt, ComBoolean shortAnsi
   sentinelBuf[0] = delim;    // overwrite w/ delim
   nam.prepend(sentinelBuf);  // sentinel delim
 
-  Int32 namepartnum = ABS(fmt);
+  int namepartnum = ABS(fmt);
   // Parser treats quoted string as it is.  To use reserved word as one part
   // of the name separated by dots,  the reserved word must be enclosed in
   // double quotes.  It's ok to remove all double quotes from the name here,
   // because unpaired double quote in the name is flagged as error.
   if (nam.index('"') != NA_NPOS) {  // found a double quote
-    Int32 quoted = -1;
+    int quoted = -1;
     size_t i = nam.length();
     while (i--)
       if (nam[i] == '"') {
@@ -244,7 +244,7 @@ void ComMPLoc::initializeSystemName(ComBoolean ignoreNADefaults) {
     system_ = SqlParser_MPLOC.system_;
 }
 
-Int32 ComMPLoc::applyDefaults(const ComMPLoc &defaults, ComBoolean emptySystemNameMatchCountsAsAMatch) {
+int ComMPLoc::applyDefaults(const ComMPLoc &defaults, ComBoolean emptySystemNameMatchCountsAsAMatch) {
   if (!isValid(FILE)) return 0;
 
   if (system_.isNull()) system_ = defaults.system_;
@@ -253,7 +253,7 @@ Int32 ComMPLoc::applyDefaults(const ComMPLoc &defaults, ComBoolean emptySystemNa
 
   if (subvol_.isNull()) subvol_ = defaults.subvol_;
 
-  Int32 defaultMatchCount = 0;
+  int defaultMatchCount = 0;
   if (system_ == defaults.system_) {
     if (!system_.isNull() || emptySystemNameMatchCountsAsAMatch) defaultMatchCount++;
     if (volume_ == defaults.volume_) {

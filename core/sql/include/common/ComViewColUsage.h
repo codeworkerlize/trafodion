@@ -40,16 +40,16 @@
 
 class ComViewColUsage {
   long viewUID_;
-  Int32 viewColNumber_;
+  int viewColNumber_;
   long refdUID_;
-  Int32 refdColNumber_;
+  int refdColNumber_;
   ComObjectType refdObjectType_;
 
  public:
   ComViewColUsage()
       : viewUID_(0), viewColNumber_(-1), refdUID_(0), refdColNumber_(-1), refdObjectType_(COM_UNKNOWN_OBJECT) {}
 
-  ComViewColUsage(long viewUID, Int32 viewColNumber, long refdUID, Int32 refdColNumber, ComObjectType refdObjectType)
+  ComViewColUsage(long viewUID, int viewColNumber, long refdUID, int refdColNumber, ComObjectType refdObjectType)
       : viewUID_(viewUID),
         viewColNumber_(viewColNumber),
         refdUID_(refdUID),
@@ -61,16 +61,16 @@ class ComViewColUsage {
   long getViewUID() { return viewUID_; }
   void setViewUID(long viewUID) { viewUID_ = viewUID; }
 
-  Int32 getViewColNumber() { return viewColNumber_; }
-  void setViewColNumber(Int32 viewColNumber) { viewColNumber_ = viewColNumber; }
+  int getViewColNumber() { return viewColNumber_; }
+  void setViewColNumber(int viewColNumber) { viewColNumber_ = viewColNumber; }
 
   long getRefdUID() { return refdUID_; }
   void setRefdUID(long refdUID) { refdUID_ = refdUID; }
 
-  Int32 getRefdColNumber() { return refdColNumber_; }
-  void setRefdColNumber(Int32 refdColNumber) { refdColNumber_ = refdColNumber; }
+  int getRefdColNumber() { return refdColNumber_; }
+  void setRefdColNumber(int refdColNumber) { refdColNumber_ = refdColNumber; }
 
-  Int32 getRefdObjectType() { return refdObjectType_; }
+  int getRefdObjectType() { return refdObjectType_; }
   void setRefdObjectType(ComObjectType refdObjectType) { refdObjectType_ = refdObjectType; }
 
   void packUsage(NAString &viewColUsageStr) {
@@ -83,8 +83,8 @@ class ComViewColUsage {
   }
 
   void unpackUsage(const char *viewColUsageStr) {
-    Int32 theRefdObjectType;
-    Int32 retcode = sscanf(viewColUsageStr, "viewUID: %Ld viewCol: %d refUID: %Ld refCol: %d refType: %d%*s",
+    int theRefdObjectType;
+    int retcode = sscanf(viewColUsageStr, "viewUID: %Ld viewCol: %d refUID: %Ld refCol: %d refType: %d%*s",
                            (long long int *)&viewUID_, &viewColNumber_, (long long int *)&refdUID_, &refdColNumber_,
                            &theRefdObjectType);
     assert(retcode == 5);

@@ -69,7 +69,7 @@ class NodeMapEntry : public NABasicObject {
   //----------------------------
   // Constructors and destructor
   //----------------------------
-  NodeMapEntry(char *fullName, char *givenName, CollHeap *heap = 0, Int32 tableIdent = 0, NABoolean noService = FALSE);
+  NodeMapEntry(char *fullName, char *givenName, CollHeap *heap = 0, int tableIdent = 0, NABoolean noService = FALSE);
 
   NodeMapEntry(PartitionState state = ACTIVE)
       : dp2Name_(0),
@@ -99,8 +99,8 @@ class NodeMapEntry : public NABasicObject {
   virtual const char *getDP2Name() const { return dp2Name_; }
   virtual const char *getPartitionName() const { return partitionName_; }
   virtual const char *getGivenName() const { return givenName_; }
-  virtual Int32 getNodeNumber() const { return nodeNumber_; }
-  virtual Int32 getClusterNumber() const { return clusterNumber_; }
+  virtual int getNodeNumber() const { return nodeNumber_; }
+  virtual int getClusterNumber() const { return clusterNumber_; }
   virtual NABoolean isPartitionActive() const { return (partitionState_ == ACTIVE); }
   virtual PartitionState getPartitionState() const { return partitionState_; }
 
@@ -108,8 +108,8 @@ class NodeMapEntry : public NABasicObject {
   // Mutator functions
   //------------------
   virtual void setDp2Name(char *dp2Name);
-  virtual void setNodeNumber(Int32 nodeNumber) { nodeNumber_ = nodeNumber; }
-  virtual void setClusterNumber(Int32 clusterNumber) { clusterNumber_ = clusterNumber; }
+  virtual void setNodeNumber(int nodeNumber) { nodeNumber_ = nodeNumber; }
+  virtual void setClusterNumber(int clusterNumber) { clusterNumber_ = clusterNumber; }
   virtual void setPartitionState(const PartitionState &partState) { partitionState_ = partState; }
 
   //------------------
@@ -143,10 +143,10 @@ class NodeMapEntry : public NABasicObject {
   char *partitionName_;
 
   // Integer value identifying SMP node associated with this entry.
-  Int32 nodeNumber_;
+  int nodeNumber_;
 
   // Integer value identifying cluster associated with this entry.
-  Int32 clusterNumber_;
+  int clusterNumber_;
 
   // Enum that indicates the state of the partitions:
   // (See AP doc for more details)
@@ -252,7 +252,7 @@ class NodeMap : public NABasicObject {
   int getPopularNodeNumber(const CollIndex beginPos, const CollIndex endPos) const;
   int mapNodeNameToNodeNum(const NAString node) const;
   int getClusterNumber(const CollIndex position) const;
-  Int32 getTableIdent(void) const { return tableIdent_; }
+  int getTableIdent(void) const { return tableIdent_; }
   NABoolean isMultiCluster(CollIndex start, CollIndex end, NABoolean activeOnly) const;
 
   NABoolean smooth(int numNodes);
@@ -267,7 +267,7 @@ class NodeMap : public NABasicObject {
 
   CollIndex getNumActiveDP2Volumes();
 
-  Int32 getNumberOfUniqueNodes() const;
+  int getNumberOfUniqueNodes() const;
   NABoolean usesLocality() const { return usesLocality_; }
 
   NABoolean isCoLocated(const NodeMap *) const;
@@ -288,7 +288,7 @@ class NodeMap : public NABasicObject {
     numEstActivePartitionsAtRuntime_ = (int)numActPart;
   }
 
-  void setTableIdent(Int32 tableIdent) { tableIdent_ = tableIdent; }
+  void setTableIdent(int tableIdent) { tableIdent_ = tableIdent; }
 
   // Does this node map have any remote partitions
   NABoolean hasRemotePartitions() const;
@@ -342,7 +342,7 @@ class NodeMap : public NABasicObject {
   int numOfActiveDP2Volumes_;
 
   // Identifier for the table.
-  Int32 tableIdent_;
+  int tableIdent_;
 
   // Is this NodeMap aligned with the location of
   // another resource like HDFS or HBase?

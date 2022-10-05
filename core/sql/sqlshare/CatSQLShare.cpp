@@ -89,14 +89,14 @@ SQLShareInt64 CATSQLSHARE_LIB_FUNC generateUniqueValue(void) {
   // per thread
 
   if (highOrderBits == -1) {
-    Int32 rtnCode = -1;
+    int rtnCode = -1;
     char monProcessName[MS_MON_MAX_PROCESS_NAME + 1];
 
-    Int32 monNodeId = -1;
-    Int32 monProcessId = -1;
-    Int32 monProcessType = -1;
-    Int32 monZoneId = -1;
-    Int32 lnxOsPid = -1;
+    int monNodeId = -1;
+    int monProcessId = -1;
+    int monProcessType = -1;
+    int monZoneId = -1;
+    int lnxOsPid = -1;
     ThreadId lnxOsTid = -1;
 
     rtnCode = msg_mon_get_my_info(&monNodeId,               // int * mon node-id
@@ -171,14 +171,14 @@ long generateUniqueValueFast() {
   // the life of the thread, so we only need to calculate them once
 
   if (highOrderBits == -1) {
-    Int32 rtnCode = -1;
+    int rtnCode = -1;
     char monProcessName[MS_MON_MAX_PROCESS_NAME + 1];
 
-    Int32 monNodeId = -1;
-    Int32 monProcessId = -1;
-    Int32 monProcessType = -1;
-    Int32 monZoneId = -1;
-    Int32 lnxOsPid = -1;
+    int monNodeId = -1;
+    int monProcessId = -1;
+    int monProcessType = -1;
+    int monZoneId = -1;
+    int lnxOsPid = -1;
     ThreadId lnxOsTid = -1;
 
     rtnCode = msg_mon_get_my_info(&monNodeId,               // int * mon node-id
@@ -287,7 +287,7 @@ void CATSQLSHARE_LIB_FUNC generateFunnyName(const FunnyNameFormat nameFormat, ch
   const char *nextTemplateChar = nameFormatTemplate;
 
   while (*nextTemplateChar) {
-    Int32 divisor;
+    int divisor;
     const char *base;
 
     switch (*nextTemplateChar) {
@@ -365,7 +365,7 @@ void CATSQLSHARE_LIB_FUNC CatDeriveRandomName(const char *inputName, char *gener
   generateFunnyName(UID_GENERATED_ANSI_NAME, &generatedName[len]);
 }
 
-Int32 CATSQLSHARE_LIB_FUNC SqlShareLnxGetMyProcessIdString(char *processIdStrOutBuf,         // out
+int CATSQLSHARE_LIB_FUNC SqlShareLnxGetMyProcessIdString(char *processIdStrOutBuf,         // out
                                                            size_t processIdStrOutBufMaxLen,  // in
                                                            size_t *pProcessIdStrLen)         // out
 //
@@ -387,13 +387,13 @@ Int32 CATSQLSHARE_LIB_FUNC SqlShareLnxGetMyProcessIdString(char *processIdStrOut
 //                             that this function is unable to compute the
 //                             process id string
 {
-  Int32 rtnCode = -1;
-  Int32 monNodeId = -1;
-  Int32 monProcessId = -1;
+  int rtnCode = -1;
+  int monNodeId = -1;
+  int monProcessId = -1;
   char monProcessName[MS_MON_MAX_PROCESS_NAME + 1];
-  Int32 monProcessType = -1;
-  Int32 monZoneId = -1;
-  Int32 lnxOsPid = -1;
+  int monProcessType = -1;
+  int monZoneId = -1;
+  int lnxOsPid = -1;
   ThreadId lnxOsTid = -1;
   char buf[2016];  // plenty of room to avoide overflow condition
   char *p = NULL;

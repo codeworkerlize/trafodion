@@ -127,8 +127,8 @@ class ExTupleFlowTcb : public ex_tcb {
   ex_queue_pair getParentQueue() const { return qParent_; };
 
   // for GUI
-  Int32 numChildren() const { return 2; }
-  const ex_tcb *getChild(Int32 pos) const {
+  int numChildren() const { return 2; }
+  const ex_tcb *getChild(int pos) const {
     ex_assert((pos >= 0), "");
     if (pos == 0)
       return tcbSrc_;

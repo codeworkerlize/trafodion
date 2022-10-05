@@ -93,7 +93,7 @@ static void CmpSPERROR2Diags(const SP_ERROR_STRUCT *spError, ComDiagsArea *diags
     return;
   }
 
-  for (Int32 i = 0; i < SP_MAX_ERROR_STRUCTS; i++) {
+  for (int i = 0; i < SP_MAX_ERROR_STRUCTS; i++) {
     const SP_ERROR_STRUCT *pSET = &(spError[i]);
     if (pSET->error) {
       *diags << DgSqlCode(pSET->error);
@@ -111,9 +111,9 @@ static void CmpSPERROR2Diags(const SP_ERROR_STRUCT *spError, ComDiagsArea *diags
         // information is saved in diags.
 
         StoreSyntaxError(pSET->optionalString[1],   // const char *      input_str
-                         pSET->optionalInteger[0],  // Int32             input_pos
+                         pSET->optionalInteger[0],  // int             input_pos
                          *diags,                    // ComDiagsArea &    diagsArea
-                         0,                         // Int32             dgStrNum
+                         0,                         // int             dgStrNum
                          CharInfo::UTF8,            // CharInfo::CharSet input_str_cs
                          CharInfo::UTF8);           // CharInfo::CharSet terminal_cs
       } else {
@@ -177,7 +177,7 @@ NABoolean CmpSPInputFormat::SetFormat(int ncols, SP_FIELDDESC_STRUCT *fields) {
   SP_FIELDDESC_STRUCT *fd = fields;
   ElemDDLColDef *elem = 0;
 
-  for (Int32 i = 0; i < ncols; i++, fd++) {
+  for (int i = 0; i < ncols; i++, fd++) {
     if (!(elem = SPFieldDesc2ElemDDLColDef(fd, context_))) return FALSE;
     ItemExpr *item = new ((CollHeap *)context_->statementHeap()) NATypeToItem((NAType *)elem->getColumnDataType());
     if (inputType_)
@@ -241,7 +241,7 @@ NABoolean CmpSPOutputFormat::SetFormat(int nCols, const char *tableName, SP_FIEL
   table_desc->tableDesc()->tablename = objName;
 
   table_desc->tableDesc()->record_length = 0;  // to be set later in generator.
-  table_desc->tableDesc()->colcount = (Int32)nCols;
+  table_desc->tableDesc()->colcount = (int)nCols;
 
   TrafDesc *files_desc = TrafAllocateDDLdesc(DESC_FILES_TYPE, NULL);
   table_desc->tableDesc()->files_desc = files_desc;
@@ -249,7 +249,7 @@ NABoolean CmpSPOutputFormat::SetFormat(int nCols, const char *tableName, SP_FIEL
   // populate the TrafColumnsDesc
   TrafDesc *prev_col_desc = 0;
   TrafDesc *first_col_desc = 0;
-  for (Int32 i = 0; i < nCols; i++) {
+  for (int i = 0; i < nCols; i++) {
     TrafDesc *column_desc = TrafAllocateDDLdesc(DESC_COLUMNS_TYPE, NULL);
     if (prev_col_desc)
       prev_col_desc->next = column_desc;
@@ -311,7 +311,7 @@ NABoolean CmpSPOutputFormat::getKeysDesc(int nKeys, SP_KEYDESC_STRUCT *keys, Tra
   // key is not supported yet in FCS ( Sep. 97 release ) needs to rework on this.
   TrafDesc *prev_key_desc = 0;
   TrafDesc *first_key_desc = 0;
-  for (Int32 i = 0; i < nKeys; i++) {
+  for (int i = 0; i < nKeys; i++) {
     TrafDesc *key_desc = TrafAllocateDDLdesc(DESC_KEYS_TYPE, NULL);
     if (prev_key_desc)
       prev_key_desc->next = key_desc;
@@ -592,7 +592,7 @@ NABoolean CmpISPFuncs::ValidPFuncs(const ProcFuncsStruct &pFuncs) const {
           pFuncs.outFormatFunc_ && pFuncs.procFunc_);
 }
 
-Int32 CmpISPFuncs::RegFuncs(const char *procName,  // null terminated
+int CmpISPFuncs::RegFuncs(const char *procName,  // null terminated
                             SP_COMPILE_FUNCPTR compileFunc, SP_INPUTFORMAT_FUNCPTR inFormatFunc,
                             SP_PARSE_FUNCPTR parseFunc, SP_NUM_OUTPUTFIELDS_FUNCPTR outNumFormatFunc,
                             SP_OUTPUTFORMAT_FUNCPTR outFormatFunc, SP_PROCESS_FUNCPTR procFunc, SP_HANDLE spHandle,
@@ -612,8 +612,8 @@ Int32 CmpISPFuncs::RegFuncs(const char *procName,  // null terminated
 
 CmpInternalSP::CmpInternalSP(const NAString &name, CmpContext *context)
     : CmpStoredProc(name, context), compHandle_(0), procHandle_(0), state_(NONE), ispData_(0) {
-  for (Int32 j = 0; j < SP_MAX_ERROR_STRUCTS; j++) {
-    for (Int32 i = 0; i < SP_ERROR_MAX_OPTIONAL_STRINGS; i++)
+  for (int j = 0; j < SP_MAX_ERROR_STRUCTS; j++) {
+    for (int i = 0; i < SP_ERROR_MAX_OPTIONAL_STRINGS; i++)
       spError_[j].optionalString[i] = new ((CollHeap *)cmpContext()->heap()) char[SP_STRING_MAX_LENGTH];
   }
   initSP_ERROR_STRUCT();
@@ -639,8 +639,8 @@ CmpInternalSP::~CmpInternalSP() {
 
   delete ispData_;
 
-  for (Int32 j = 0; j < SP_MAX_ERROR_STRUCTS; j++) {
-    for (Int32 i = 0; i < SP_ERROR_MAX_OPTIONAL_STRINGS; i++)
+  for (int j = 0; j < SP_MAX_ERROR_STRUCTS; j++) {
+    for (int i = 0; i < SP_ERROR_MAX_OPTIONAL_STRINGS; i++)
       NADELETEBASIC(spError_[j].optionalString[i], cmpContext()->heap());
   }
 }
@@ -691,7 +691,7 @@ SP_FIELDDESC_STRUCT *CmpInternalSP::allocSP_FIELDDESC_STRUCT(int num) {
   SP_FIELDDESC_STRUCT *fd = 0;
   if (num) {
     fd = new SP_FIELDDESC_STRUCT[num];
-    memset(fd, 0, sizeof(SP_FIELDDESC_STRUCT) * (Int32)num);
+    memset(fd, 0, sizeof(SP_FIELDDESC_STRUCT) * (int)num);
   }
   return fd;
 }
@@ -707,7 +707,7 @@ SP_KEYDESC_STRUCT *CmpInternalSP::allocSP_KEYDESC_STRUCT(int num) {
   SP_KEYDESC_STRUCT *kd = 0;
   if (num) {
     kd = new SP_KEYDESC_STRUCT[num];
-    memset(kd, 0, sizeof(SP_KEYDESC_STRUCT) * (Int32)num);
+    memset(kd, 0, sizeof(SP_KEYDESC_STRUCT) * (int)num);
   }
   return kd;
 }
@@ -715,10 +715,10 @@ SP_KEYDESC_STRUCT *CmpInternalSP::allocSP_KEYDESC_STRUCT(int num) {
 void CmpInternalSP::deleteSP_KEYDESC_STRUCT(SP_KEYDESC_STRUCT *kd) { delete[] kd; }
 
 void CmpInternalSP::initSP_ERROR_STRUCT() {
-  for (Int32 j = 0; j < SP_MAX_ERROR_STRUCTS; j++) {
+  for (int j = 0; j < SP_MAX_ERROR_STRUCTS; j++) {
     spError_[j].error = 0;
-    for (Int32 i = 0; i < SP_ERROR_MAX_OPTIONAL_STRINGS; i++) *(spError_[j].optionalString[i]) = '\0';
-    for (Int32 k = 0; k < SP_ERROR_MAX_OPTIONAL_INTS; k++) spError_[j].optionalInteger[k] = ComDiags_UnInitialized_Int;
+    for (int i = 0; i < SP_ERROR_MAX_OPTIONAL_STRINGS; i++) *(spError_[j].optionalString[i]) = '\0';
+    for (int k = 0; k < SP_ERROR_MAX_OPTIONAL_INTS; k++) spError_[j].optionalInteger[k] = ComDiags_UnInitialized_Int;
   }
 }
 

@@ -132,7 +132,7 @@ class keyRangeGen : public NAVersionedObject {
   virtual Long pack(void *);
   virtual int unpack(void *, void *reallocator);
 
-  virtual ex_expr *getExpressionNode(Int32 pos) { return NULL; }
+  virtual ex_expr *getExpressionNode(int pos) { return NULL; }
 };
 
 // ---------------------------------------------------------------------

@@ -84,7 +84,7 @@
 #include "seabed/ms.h"
 
 inline void advanceSize2(UInt32 &size, const char *const buffPtr) {
-  const Int32 lenSize = sizeof(int);
+  const int lenSize = sizeof(int);
   size += lenSize;
   if (buffPtr != NULL) size += str_len(buffPtr) + 1;  // 1 is for the buffer's null-terminator
 }
@@ -777,7 +777,7 @@ void ExOperStats::subTaskReturn(ExWorkProcRetcode rc) {
 }
 
 UInt32 ExOperStats::packedLength() {
-  Int32 size;
+  int size;
 
   if (collectStatsType_ == ComTdb::ALL_STATS)
     size = sizeof(ExOperStats) - sizeof(ExStatsBaseNew);
@@ -945,7 +945,7 @@ ExMasterStats *ExOperStats::castToExMasterStats() { return NULL; }
 ExBMOStats *ExOperStats::castToExBMOStats() { return NULL; }
 ExUDRBaseStats *ExOperStats::castToExUDRBaseStats() { return NULL; }
 
-const char *ExOperStats::getNumValTxt(Int32 i) const {
+const char *ExOperStats::getNumValTxt(int i) const {
   switch (i) {
     case 1:
       return "OperCpuTime";
@@ -953,7 +953,7 @@ const char *ExOperStats::getNumValTxt(Int32 i) const {
   return NULL;
 }
 
-long ExOperStats::getNumVal(Int32 i) const {
+long ExOperStats::getNumVal(int i) const {
   switch (i) {
     case 1:
       return operTimer_.getTime();
@@ -1207,7 +1207,7 @@ ExFragRootOperStats::ExFragRootOperStats(NAMemory *heap, ComTdb::CollectStatsTyp
 ExFragRootOperStats::~ExFragRootOperStats() {
   ExProcessStats *processStats;
 
-  if ((Int32)getCollectStatsType() == SQLCLI_CPU_OFFENDER_STATS && queryId_ != NULL) {
+  if ((int)getCollectStatsType() == SQLCLI_CPU_OFFENDER_STATS && queryId_ != NULL) {
     NADELETEBASIC(queryId_, getHeap());
     queryId_ = NULL;
   } else if (queryId_ != NULL) {
@@ -1278,8 +1278,8 @@ UInt32 ExFragRootOperStats::packedLength() {
   } else {
     alignSizeForNextObj(size);
     size += sizeof(ExFragRootOperStats) - sizeof(ExOperStats);
-    if ((Int32)getCollectStatsType() == SQLCLI_CPU_OFFENDER_STATS ||
-        (Int32)getCollectStatsType() == SQLCLI_SE_OFFENDER_STATS)
+    if ((int)getCollectStatsType() == SQLCLI_CPU_OFFENDER_STATS ||
+        (int)getCollectStatsType() == SQLCLI_SE_OFFENDER_STATS)
       size += queryIdLen_;
   }
 
@@ -1309,8 +1309,8 @@ UInt32 ExFragRootOperStats::pack(char *buffer) {
 
     buffer += srcLen;
 
-    if ((Int32)getCollectStatsType() == SQLCLI_CPU_OFFENDER_STATS ||
-        (Int32)getCollectStatsType() == SQLCLI_SE_OFFENDER_STATS) {
+    if ((int)getCollectStatsType() == SQLCLI_CPU_OFFENDER_STATS ||
+        (int)getCollectStatsType() == SQLCLI_SE_OFFENDER_STATS) {
       if (queryIdLen_ != 0 && queryId_ != NULL) packedLen += packStrIntoBuffer(buffer, queryId_, queryIdLen_);
     }
   }
@@ -1347,7 +1347,7 @@ void ExFragRootOperStats::unpack(const char *&buffer) {
     char *srcPtr = (char *)this + sizeof(ExOperStats);
     memcpy((void *)srcPtr, buffer, srcLen);
     buffer += srcLen;
-    if ((Int32)getCollectStatsType() == SQLCLI_CPU_OFFENDER_STATS) {
+    if ((int)getCollectStatsType() == SQLCLI_CPU_OFFENDER_STATS) {
       if (queryIdLen_ != 0) {
         queryId_ = new ((NAHeap *)(getHeap())) char[queryIdLen_ + 1];
         unpackStrFromBuffer(buffer, queryId_, queryIdLen_);
@@ -1409,13 +1409,13 @@ void ExFragRootOperStats::merge(ExFragRootOperStats *other) {
   if (spaceBufferSize_ == 0 && other->spaceBufferSize_ > 0) spaceBufferSize_ = other->spaceBufferSize_;
   mFactor = 1;
   if (spaceBufferSize_ > 0) mFactor = (Float32)other->spaceBufferSize_ / spaceBufferSize_;
-  spaceBufferCount_ += Int32(other->spaceBufferCount_ * mFactor);
+  spaceBufferCount_ += int(other->spaceBufferCount_ * mFactor);
   if (scratchIOSize_ == 0 && other->scratchIOSize_ > 0) scratchIOSize_ = other->scratchIOSize_;
   mFactor = 1;
   if (scratchIOSize_ > 0) mFactor = (Float32)other->scratchIOSize_ / scratchIOSize_;
 
-  scratchReadCount_ += Int32(other->scratchReadCount_ * mFactor);
-  scratchWriteCount_ += Int32(other->scratchWriteCount_ * mFactor);
+  scratchReadCount_ += int(other->scratchReadCount_ * mFactor);
+  scratchWriteCount_ += int(other->scratchWriteCount_ * mFactor);
   if (other->scratchIOMaxTime_ > scratchIOMaxTime_) scratchIOMaxTime_ = other->scratchIOMaxTime_;
   interimRowCount_ += other->interimRowCount_;
   udrCpuTime_ += other->udrCpuTime_;
@@ -1443,12 +1443,12 @@ void ExFragRootOperStats::merge(ExBMOStats *other) {
   if (spaceBufferSize_ == 0 && other->spaceBufferSize_ > 0) spaceBufferSize_ = other->spaceBufferSize_;
   mFactor = 1;
   if (spaceBufferSize_ > 0) mFactor = (Float32)other->spaceBufferSize_ / spaceBufferSize_;
-  spaceBufferCount_ += Int32(other->spaceBufferCount_ * mFactor);
+  spaceBufferCount_ += int(other->spaceBufferCount_ * mFactor);
   if (scratchIOSize_ == 0 && other->scratchIOSize_ > 0) scratchIOSize_ = other->scratchIOSize_;
   mFactor = 1;
   if (scratchIOSize_ > 0) mFactor = (Float32)other->scratchIOSize_ / scratchIOSize_;
-  scratchReadCount_ += Int32(other->scratchReadCount_ * mFactor);
-  scratchWriteCount_ += Int32(other->scratchWriteCount_ * mFactor);
+  scratchReadCount_ += int(other->scratchReadCount_ * mFactor);
+  scratchWriteCount_ += int(other->scratchWriteCount_ * mFactor);
   scratchIOMaxTime_ += other->scratchIOMaxTime_;
   interimRowCount_ += other->interimRowCount_;
   if (topN_ == -1 && other->topN_ > 0) topN_ = other->topN_;
@@ -1483,8 +1483,8 @@ void ExFragRootOperStats::copyContents(ExFragRootOperStats *stat) {
   UInt32 srcLen = sizeof(ExFragRootOperStats) - sizeof(ExOperStats);
   memcpy((void *)destPtr, (void *)srcPtr, srcLen);
 
-  if ((Int32)getCollectStatsType() == SQLCLI_CPU_OFFENDER_STATS ||
-      (Int32)getCollectStatsType() == SQLCLI_SE_OFFENDER_STATS) {
+  if ((int)getCollectStatsType() == SQLCLI_CPU_OFFENDER_STATS ||
+      (int)getCollectStatsType() == SQLCLI_SE_OFFENDER_STATS) {
     if (queryIdLen_ != 0) {
       queryId_ = new ((NAHeap *)(getHeap())) char[queryIdLen_ + 1];
       str_cpy_all(queryId_, stat->queryId_, queryIdLen_);
@@ -1506,7 +1506,7 @@ ExOperStats *ExFragRootOperStats::copyOper(NAMemory *heap) {
 
 ExFragRootOperStats *ExFragRootOperStats::castToExFragRootOperStats() { return this; }
 
-const char *ExFragRootOperStats::getNumValTxt(Int32 i) const {
+const char *ExFragRootOperStats::getNumValTxt(int i) const {
   switch (i) {
     case 1:
       return "OperCpuTime";
@@ -1520,7 +1520,7 @@ const char *ExFragRootOperStats::getNumValTxt(Int32 i) const {
   return NULL;
 }
 
-long ExFragRootOperStats::getNumVal(Int32 i) const {
+long ExFragRootOperStats::getNumVal(int i) const {
   switch (i) {
     case 1:
       return ExOperStats::getNumVal(i);
@@ -1539,7 +1539,7 @@ const char *ExFragRootOperStats::getTextVal() { return ExOperStats::getTextVal()
 void ExFragRootOperStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, int maxLen) {
   char *buf = dataBuffer;
   const char *txtVal;
-  if ((Int32)getCollectStatsType() == SQLCLI_CPU_OFFENDER_STATS) {
+  if ((int)getCollectStatsType() == SQLCLI_CPU_OFFENDER_STATS) {
     sprintf(buf,
             "statsRowType: %d ProcessId: %s Qid: %s CpuTime: %ld SpaceUsed: %u "
             "SpaceTotal: %u HeapUsed: %u HeapTotal: %u PMemUsed: %ld diffCpuTime: %ld ",
@@ -1577,7 +1577,7 @@ void ExFragRootOperStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, 
 
 int ExFragRootOperStats::getStatsItem(SQLSTATS_ITEM *sqlStats_item) {
   char *tmpBuf;
-  Int32 len;
+  int len;
   int retcode = 0;
   sqlStats_item->error_code = 0;
   switch (sqlStats_item->statsItem_id) {
@@ -1748,7 +1748,7 @@ ExStorageEngineStats::~ExStorageEngineStats() {
     NADELETEBASIC(tableName_, getHeap());
     tableName_ = NULL;
   }
-  if ((Int32)getCollectStatsType() == SQLCLI_SE_OFFENDER_STATS && queryId_ != NULL) {
+  if ((int)getCollectStatsType() == SQLCLI_SE_OFFENDER_STATS && queryId_ != NULL) {
     NADELETEBASIC(queryId_, getHeap());
     queryId_ = NULL;
   }
@@ -1769,7 +1769,7 @@ UInt32 ExStorageEngineStats::packedLength() {
 
   size += scanFilterStats_.packedLength();
 
-  if ((Int32)getCollectStatsType() == SQLCLI_SE_OFFENDER_STATS) {
+  if ((int)getCollectStatsType() == SQLCLI_SE_OFFENDER_STATS) {
     size += sizeof(blockTime_);
     size += sizeof(queryIdLen_);
     size += queryIdLen_;
@@ -1794,7 +1794,7 @@ UInt32 ExStorageEngineStats::pack(char *buffer) {
 
   size += scanFilterStats_.pack(buffer);
 
-  if ((Int32)getCollectStatsType() == SQLCLI_SE_OFFENDER_STATS) {
+  if ((int)getCollectStatsType() == SQLCLI_SE_OFFENDER_STATS) {
     size += packIntoBuffer(buffer, blockTime_);
     size += packIntoBuffer(buffer, queryIdLen_);
     if (queryIdLen_ != 0 && queryId_ != NULL) size += packStrIntoBuffer(buffer, queryId_, queryIdLen_);
@@ -1819,7 +1819,7 @@ void ExStorageEngineStats::unpack(const char *&buffer) {
 
   scanFilterStats_.unpack(buffer);
 
-  if ((Int32)getCollectStatsType() == SQLCLI_SE_OFFENDER_STATS) {
+  if ((int)getCollectStatsType() == SQLCLI_SE_OFFENDER_STATS) {
     unpackBuffer(buffer, blockTime_);
     unpackBuffer(buffer, queryIdLen_);
     if (queryIdLen_ != 0) {
@@ -1862,7 +1862,7 @@ void ExStorageEngineStats::copyContents(ExStorageEngineStats *other) {
 
   scanFilterStats_ = other->scanFilterStats_;
 
-  if ((Int32)getCollectStatsType() == SQLCLI_SE_OFFENDER_STATS) {
+  if ((int)getCollectStatsType() == SQLCLI_SE_OFFENDER_STATS) {
     blockTime_ = other->blockTime_;
     queryIdLen_ = other->queryIdLen_;
     if (queryIdLen_ != 0) {
@@ -1887,7 +1887,7 @@ ExHdfsScanStats *ExHdfsScanStats::castToExHdfsScanStats() { return this; }
 
 ExHbaseAccessStats *ExHdfsScanStats::castToExHbaseAccessStats() { return this; }
 
-const char *ExStorageEngineStats::getNumValTxt(Int32 i) const {
+const char *ExStorageEngineStats::getNumValTxt(int i) const {
   switch (i) {
     case 1:
       return "OperCpuTime";
@@ -1901,7 +1901,7 @@ const char *ExStorageEngineStats::getNumValTxt(Int32 i) const {
   return NULL;
 }
 
-long ExStorageEngineStats::getNumVal(Int32 i) const {
+long ExStorageEngineStats::getNumVal(int i) const {
   switch (i) {
     case 1:
       return ExOperStats::getNumVal(i);
@@ -1932,7 +1932,7 @@ NABoolean ExStorageEngineStats::filterForSEstats(struct timespec currTimespec, i
 void ExStorageEngineStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, int maxLen) {
   int len = 0;
   char *buf = dataBuffer;
-  if ((Int32)getCollectStatsType() == SQLCLI_SE_OFFENDER_STATS) {
+  if ((int)getCollectStatsType() == SQLCLI_SE_OFFENDER_STATS) {
     sprintf(buf, "statsRowType: %d Qid: %s blockedFor: %d ", statType(), ((queryId_ != NULL) ? queryId_ : "NULL"),
             blockTime_);
 
@@ -1962,8 +1962,8 @@ void ExStorageEngineStats::getVariableStatsInfo(char *dataBuffer, char *dataLen,
 
 int ExStorageEngineStats::getStatsItem(SQLSTATS_ITEM *sqlStats_item) {
   sqlStats_item->error_code = 0;
-  Int32 len;
-  Int32 len1;
+  int len;
+  int len1;
   const char *tableName;
   char *tmpBuf;
 
@@ -2213,7 +2213,7 @@ ExOperStats *ExProbeCacheStats::copyOper(NAMemory *heap) {
 
 ExProbeCacheStats *ExProbeCacheStats::castToExProbeCacheStats() { return this; }
 
-const char *ExProbeCacheStats::getNumValTxt(Int32 i) const {
+const char *ExProbeCacheStats::getNumValTxt(int i) const {
   switch (i) {
     case 1:
       return "OperCpuTime";
@@ -2229,7 +2229,7 @@ const char *ExProbeCacheStats::getNumValTxt(Int32 i) const {
   return NULL;
 }
 
-long ExProbeCacheStats::getNumVal(Int32 i) const {
+long ExProbeCacheStats::getNumVal(int i) const {
   switch (i) {
     case 1:
       return ExOperStats::getNumVal(i);
@@ -2384,7 +2384,7 @@ ExOperStats *ExPartitionAccessStats::copyOper(NAMemory *heap) {
 
 ExPartitionAccessStats *ExPartitionAccessStats::castToExPartitionAccessStats() { return this; }
 
-const char *ExPartitionAccessStats::getNumValTxt(Int32 i) const {
+const char *ExPartitionAccessStats::getNumValTxt(int i) const {
   switch (i) {
     case 1:
       return "OperCpuTime";
@@ -2400,7 +2400,7 @@ const char *ExPartitionAccessStats::getNumValTxt(Int32 i) const {
   return NULL;
 }
 
-long ExPartitionAccessStats::getNumVal(Int32 i) const {
+long ExPartitionAccessStats::getNumVal(int i) const {
   switch (i) {
     case 1:
       return ExOperStats::getNumVal(i);
@@ -2604,7 +2604,7 @@ ExHashGroupByStats *ExHashGroupByStats::castToExHashGroupByStats() { return this
 
 ExBMOStats *ExHashGroupByStats::castToExBMOStats() { return (ExBMOStats *)this; }
 
-const char *ExHashGroupByStats::getNumValTxt(Int32 i) const {
+const char *ExHashGroupByStats::getNumValTxt(int i) const {
   switch (i) {
     case 1:
       return "OperCpuTime";
@@ -2620,7 +2620,7 @@ const char *ExHashGroupByStats::getNumValTxt(Int32 i) const {
   return NULL;
 }
 
-long ExHashGroupByStats::getNumVal(Int32 i) const {
+long ExHashGroupByStats::getNumVal(int i) const {
   switch (i) {
     case 1:
       return ExOperStats::getNumVal(i);
@@ -2752,7 +2752,7 @@ UInt32 ExHashJoinStats::packedLength() {
     }
   }
 
-  for (Int32 i = 0; i < 3; i++) {
+  for (int i = 0; i < 3; i++) {
     alignSizeForNextObj(size);
     size += phaseTimes_[i].packedLength();
   }
@@ -2856,7 +2856,7 @@ ExHashJoinStats *ExHashJoinStats::castToExHashJoinStats() { return this; }
 
 ExBMOStats *ExHashJoinStats::castToExBMOStats() { return (ExBMOStats *)this; }
 
-const char *ExHashJoinStats::getNumValTxt(Int32 i) const {
+const char *ExHashJoinStats::getNumValTxt(int i) const {
   switch (i) {
     case 1:
       return "OperCpuTime";
@@ -2870,7 +2870,7 @@ const char *ExHashJoinStats::getNumValTxt(Int32 i) const {
   return NULL;
 }
 
-long ExHashJoinStats::getNumVal(Int32 i) const {
+long ExHashJoinStats::getNumVal(int i) const {
   switch (i) {
     case 1:
       return ExOperStats::getNumVal(i);
@@ -3019,7 +3019,7 @@ ExOperStats *ExESPStats::copyOper(NAMemory *heap) {
 
 ExESPStats *ExESPStats::castToExESPStats() { return this; }
 
-const char *ExESPStats::getNumValTxt(Int32 i) const {
+const char *ExESPStats::getNumValTxt(int i) const {
   switch (i) {
     case 1:
       return "OperCpuTime";
@@ -3035,7 +3035,7 @@ const char *ExESPStats::getNumValTxt(Int32 i) const {
   return NULL;
 }
 
-long ExESPStats::getNumVal(Int32 i) const {
+long ExESPStats::getNumVal(int i) const {
   switch (i) {
     case 1:
       return ExOperStats::getNumVal(i);
@@ -3137,7 +3137,7 @@ void ExSplitTopStats::copyContents(ExSplitTopStats *other) {
 
 ExSplitTopStats *ExSplitTopStats::castToExSplitTopStats() { return this; }
 
-const char *ExSplitTopStats::getNumValTxt(Int32 i) const {
+const char *ExSplitTopStats::getNumValTxt(int i) const {
   switch (i) {
     case 1:
       return "OperCpuTime";
@@ -3149,7 +3149,7 @@ const char *ExSplitTopStats::getNumValTxt(Int32 i) const {
   return NULL;
 }
 
-long ExSplitTopStats::getNumVal(Int32 i) const {
+long ExSplitTopStats::getNumVal(int i) const {
   switch (i) {
     case 1:
       return ExOperStats::getNumVal(i);
@@ -3308,7 +3308,7 @@ ExSortStats *ExSortStats::castToExSortStats() { return this; }
 
 ExBMOStats *ExSortStats::castToExBMOStats() { return (ExBMOStats *)this; }
 
-const char *ExSortStats::getNumValTxt(Int32 i) const {
+const char *ExSortStats::getNumValTxt(int i) const {
   switch (i) {
     case 1:
       return "OperCpuTime";
@@ -3324,7 +3324,7 @@ const char *ExSortStats::getNumValTxt(Int32 i) const {
   return NULL;
 }
 
-long ExSortStats::getNumVal(Int32 i) const {
+long ExSortStats::getNumVal(int i) const {
   switch (i) {
     case 1:
       return ExOperStats::getNumVal(i);
@@ -3437,7 +3437,7 @@ void ExMeasBaseStats::copyContents(ExMeasBaseStats *other) {
   memcpy((void *)destPtr, (void *)srcPtr, srcLen);
 }
 
-const char *ExMeasBaseStats::getNumValTxt(Int32 i) const {
+const char *ExMeasBaseStats::getNumValTxt(int i) const {
   switch (i) {
     case 1:
       return "OperCpuTime";
@@ -3451,7 +3451,7 @@ const char *ExMeasBaseStats::getNumValTxt(Int32 i) const {
   return NULL;
 }
 
-long ExMeasBaseStats::getNumVal(Int32 i) const {
+long ExMeasBaseStats::getNumVal(int i) const {
   switch (i) {
     case 1:
       return ExOperStats::getNumVal(i);
@@ -3502,7 +3502,7 @@ ExMeasStats::ExMeasStats(NAMemory *heap) : ExMeasBaseStats(heap, MEAS_STATS) {
 }
 
 ExMeasStats::~ExMeasStats() {
-  if ((Int32)getCollectStatsType() == SQLCLI_CPU_OFFENDER_STATS && queryId_ != NULL) {
+  if ((int)getCollectStatsType() == SQLCLI_CPU_OFFENDER_STATS && queryId_ != NULL) {
     NADELETEBASIC(queryId_, getHeap());
     queryId_ = NULL;
   }
@@ -3512,7 +3512,7 @@ void ExMeasStats::initHistory() {}
 
 UInt32 ExMeasStats::packedLength() {
   UInt32 size;
-  if ((Int32)getCollectStatsType() == SQLCLI_CPU_OFFENDER_STATS) {
+  if ((int)getCollectStatsType() == SQLCLI_CPU_OFFENDER_STATS) {
     size = ExMeasBaseStats::packedLength();
     size += sizeof(queryIdLen_);
     size += queryIdLen_;
@@ -3524,7 +3524,7 @@ UInt32 ExMeasStats::packedLength() {
     size += sizeof(cpuTime_);
     size += sizeof(executionCount_);
     size += sizeof(phandle_);
-  } else if ((Int32)getCollectStatsType() == SQLCLI_QID_DETAIL_STATS) {
+  } else if ((int)getCollectStatsType() == SQLCLI_QID_DETAIL_STATS) {
     size = ExMeasBaseStats::packedLength();
     size += sizeof(spaceUsage_);
     size += sizeof(spaceAlloc_);
@@ -3550,7 +3550,7 @@ UInt32 ExMeasStats::pack(char *buffer) {
   UInt32 srcLen = 0;
 
   UInt32 size;
-  if ((Int32)getCollectStatsType() == SQLCLI_CPU_OFFENDER_STATS) {
+  if ((int)getCollectStatsType() == SQLCLI_CPU_OFFENDER_STATS) {
     size = ExMeasBaseStats::pack(buffer);
     buffer += size;
     size += packIntoBuffer(buffer, queryIdLen_);
@@ -3565,7 +3565,7 @@ UInt32 ExMeasStats::pack(char *buffer) {
     memcpy(buffer, (const void *)&phandle_, sizeof(phandle_));
     size += sizeof(phandle_);
     buffer += sizeof(phandle_);
-  } else if ((Int32)getCollectStatsType() == SQLCLI_QID_DETAIL_STATS) {
+  } else if ((int)getCollectStatsType() == SQLCLI_QID_DETAIL_STATS) {
     size = ExMeasBaseStats::pack(buffer);
     buffer += size;
     size += packIntoBuffer(buffer, spaceUsage_);
@@ -3596,7 +3596,7 @@ UInt32 ExMeasStats::pack(char *buffer) {
 
 void ExMeasStats::unpack(const char *&buffer) {
   ExMeasBaseStats::unpack(buffer);
-  if ((Int32)getCollectStatsType() == SQLCLI_CPU_OFFENDER_STATS) {
+  if ((int)getCollectStatsType() == SQLCLI_CPU_OFFENDER_STATS) {
     unpackBuffer(buffer, queryIdLen_);
     if (queryIdLen_ != 0) {
       queryId_ = new ((NAHeap *)(getHeap())) char[queryIdLen_ + 1];
@@ -3612,7 +3612,7 @@ void ExMeasStats::unpack(const char *&buffer) {
     unpackBuffer(buffer, executionCount_);
     memcpy((void *)&phandle_, buffer, sizeof(phandle_));
     buffer += sizeof(phandle_);
-  } else if ((Int32)getCollectStatsType() == SQLCLI_QID_DETAIL_STATS) {
+  } else if ((int)getCollectStatsType() == SQLCLI_QID_DETAIL_STATS) {
     unpackBuffer(buffer, spaceUsage_);
     unpackBuffer(buffer, spaceAlloc_);
     unpackBuffer(buffer, heapUsage_);
@@ -3727,7 +3727,7 @@ void ExMeasStats::merge(ExBMOStats *other) {
   if (spaceBufferSize_ == 0 && other->spaceBufferSize_ > 0) spaceBufferSize_ = other->spaceBufferSize_;
   Float32 mFactor = 1;
   if (spaceBufferSize_ > 0) mFactor = (Float32)other->spaceBufferSize_ / spaceBufferSize_;
-  spaceBufferCount_ += Int32(other->spaceBufferCount_ * mFactor);
+  spaceBufferCount_ += int(other->spaceBufferCount_ * mFactor);
   mFactor = 1;
   if (scratchIOSize_ > 0) mFactor = (Float32)other->scratchIOSize_ / scratchIOSize_;
   scratchReadCount_ += (other->scratchReadCount_ * mFactor);
@@ -3775,7 +3775,7 @@ void ExMeasStats::merge(ExMeasStats *other) {
   if (spaceBufferSize_ == 0 && other->spaceBufferSize_ > 0) spaceBufferSize_ = other->spaceBufferSize_;
   Float32 mFactor = 1;
   if (spaceBufferSize_ > 0) mFactor = (Float32)other->spaceBufferSize_ / spaceBufferSize_;
-  spaceBufferCount_ += Int32(other->spaceBufferCount_ * mFactor);
+  spaceBufferCount_ += int(other->spaceBufferCount_ * mFactor);
   mFactor = 1;
   if (scratchIOSize_ > 0) mFactor = (Float32)other->scratchIOSize_ / scratchIOSize_;
   scratchReadCount_ += (other->scratchReadCount_ * mFactor);
@@ -3817,7 +3817,7 @@ ExOperStats *ExMeasStats::copyOper(NAMemory *heap) {
 }
 
 void ExMeasStats::copyContents(ExMeasStats *other) {
-  if ((Int32)getCollectStatsType() == SQLCLI_CPU_OFFENDER_STATS) {
+  if ((int)getCollectStatsType() == SQLCLI_CPU_OFFENDER_STATS) {
     cpuTime_ = other->cpuTime_;
     spaceUsage_ = other->spaceUsage_;
     spaceAlloc_ = other->spaceAlloc_;
@@ -3831,7 +3831,7 @@ void ExMeasStats::copyContents(ExMeasStats *other) {
       queryId_[queryIdLen_] = '\0';
     } else
       queryId_ = NULL;
-  } else if ((Int32)getCollectStatsType() == SQLCLI_QID_DETAIL_STATS) {
+  } else if ((int)getCollectStatsType() == SQLCLI_QID_DETAIL_STATS) {
     cpuTime_ = other->cpuTime_;
     spaceUsage_ = other->spaceUsage_;
     spaceAlloc_ = other->spaceAlloc_;
@@ -3884,19 +3884,19 @@ void ExMeasStats::copyContents(ExMeasStats *other) {
 
 ExMeasStats *ExMeasStats::castToExMeasStats() { return this; }
 
-const char *ExMeasStats::getNumValTxt(Int32 i) const { return ExMeasBaseStats::getNumValTxt(i); }
+const char *ExMeasStats::getNumValTxt(int i) const { return ExMeasBaseStats::getNumValTxt(i); }
 
-long ExMeasStats::getNumVal(Int32 i) const { return ExMeasBaseStats::getNumVal(i); }
+long ExMeasStats::getNumVal(int i) const { return ExMeasBaseStats::getNumVal(i); }
 
 void ExMeasStats::getVariableStatsInfo(char *dataBuffer, char *datalen, int maxLen) {
   char *buf = dataBuffer;
-  if ((Int32)getCollectStatsType() == SQLCLI_CPU_OFFENDER_STATS) {
+  if ((int)getCollectStatsType() == SQLCLI_CPU_OFFENDER_STATS) {
     sprintf(
         buf,
         "statsRowType: %d ProcessId: %s Qid: %s CpuTime: %ld SpaceUsed: %u SpaceTotal: %u HeapUsed: %u HeapTotal: %u ",
         statType(), "NULL", ((queryId_ != NULL) ? queryId_ : "NULL"), cpuTime_, (UInt32)spaceUsage_,
         (UInt32)spaceAlloc_, (UInt32)heapUsage_, (UInt32)heapAlloc_);
-  } else if ((Int32)getCollectStatsType() == SQLCLI_QID_DETAIL_STATS) {
+  } else if ((int)getCollectStatsType() == SQLCLI_QID_DETAIL_STATS) {
     sprintf(buf,
             "statsRowType: %d ProcessId: %s CpuTime: %ld SpaceUsed: %u SpaceTotal: %u HeapUsed: %u HeapTotal: %u "
             "HeapWM: %u reqMsgCnt: %ld reqMsgBytes: %ld replyMsgCnt: %ld replyMsgBytes: %ld ",
@@ -3930,13 +3930,13 @@ void ExMeasStats::getVariableStatsInfo(char *dataBuffer, char *datalen, int maxL
 
 void ExMeasStats::updateSpaceUsage(Space *space, CollHeap *heap) {
   if (space) {
-    spaceUsage_ = (Int32)(((Space *)space)->getAllocSize() >> 10);
-    spaceAlloc_ = (Int32)(((Space *)space)->getTotalSize() >> 10);
+    spaceUsage_ = (int)(((Space *)space)->getAllocSize() >> 10);
+    spaceAlloc_ = (int)(((Space *)space)->getTotalSize() >> 10);
   }
   if (heap) {
-    heapUsage_ = (Int32)(((NAMemory *)heap)->getAllocSize() >> 10);
-    heapAlloc_ = (Int32)(((NAMemory *)heap)->getTotalSize() >> 10);
-    heapWM_ = (Int32)(((NAMemory *)heap)->getHighWaterMark() >> 10);
+    heapUsage_ = (int)(((NAMemory *)heap)->getAllocSize() >> 10);
+    heapAlloc_ = (int)(((NAMemory *)heap)->getTotalSize() >> 10);
+    heapWM_ = (int)(((NAMemory *)heap)->getHighWaterMark() >> 10);
   }
 }
 
@@ -4173,7 +4173,7 @@ void ExUDRStats::getVariableStatsInfo(char *dataBuffer, char *datalen, int maxLe
   *(short *)datalen = (short)(buf - dataBuffer);
 }
 
-const char *ExUDRStats::getNumValTxt(Int32 i) const {
+const char *ExUDRStats::getNumValTxt(int i) const {
   switch (i) {
     case 1:
       return "OperCpuTime";
@@ -4188,7 +4188,7 @@ const char *ExUDRStats::getNumValTxt(Int32 i) const {
   }
 }
 
-long ExUDRStats::getNumVal(Int32 i) const {
+long ExUDRStats::getNumVal(int i) const {
   switch (i) {
     case 1:
       return ExOperStats::getNumVal(i);
@@ -4504,7 +4504,7 @@ NABoolean ExStatisticsArea::merge(ExStatisticsArea *otherStatsArea, UInt16 stats
               break;
 
             case ExOperStats::BMO_STATS:
-              if ((Int32)tempStatsMergeType == SQLCLI_PROGRESS_STATS) {
+              if ((int)tempStatsMergeType == SQLCLI_PROGRESS_STATS) {
                 newStat = new (heap_) ExBMOStats(heap_);
                 ((ExBMOStats *)newStat)->copyContents((ExBMOStats *)stat);
                 newStat->setCollectStatsType(tempStatsMergeType);
@@ -4518,7 +4518,7 @@ NABoolean ExStatisticsArea::merge(ExStatisticsArea *otherStatsArea, UInt16 stats
               }
               break;
             case ExOperStats::UDR_BASE_STATS:
-              if ((Int32)tempStatsMergeType == SQLCLI_PROGRESS_STATS) {
+              if ((int)tempStatsMergeType == SQLCLI_PROGRESS_STATS) {
                 newStat = new (heap_) ExUDRBaseStats(heap_);
                 ((ExUDRBaseStats *)newStat)->copyContents((ExUDRBaseStats *)stat);
                 newStat->setCollectStatsType(tempStatsMergeType);
@@ -4586,8 +4586,8 @@ NABoolean ExStatisticsArea::merge(ExStatisticsArea *otherStatsArea, UInt16 stats
               insert(newStat);
               break;
             default:
-              if ((Int32)tempStatsMergeType == SQLCLI_OPERATOR_STATS ||
-                  (Int32)tempStatsMergeType == SQLCLI_PERTABLE_STATS)
+              if ((int)tempStatsMergeType == SQLCLI_OPERATOR_STATS ||
+                  (int)tempStatsMergeType == SQLCLI_PERTABLE_STATS)
                 // ignore merging the rest of the stats
                 break;
               switch (statType) {
@@ -4627,8 +4627,8 @@ NABoolean ExStatisticsArea::merge(ExStatisticsArea *otherStatsArea, UInt16 stats
                   break;
 
                 default:
-                  if ((Int32)tempStatsMergeType == SQLCLI_OPERATOR_STATS ||
-                      (Int32)tempStatsMergeType == SQLCLI_PERTABLE_STATS)
+                  if ((int)tempStatsMergeType == SQLCLI_OPERATOR_STATS ||
+                      (int)tempStatsMergeType == SQLCLI_PERTABLE_STATS)
                     // ignore merging the rest of the stats
                     break;
 
@@ -5186,7 +5186,7 @@ int ExStatisticsArea::getStatsItems(int no_of_stats_items, SQLSTATS_ITEM sqlStat
   ExBMOStats *bmoStats = NULL;
   ExUDRBaseStats *udrBaseStats = NULL;
 
-  for (Int32 i = 0; i < no_of_stats_items; i++) {
+  for (int i = 0; i < no_of_stats_items; i++) {
     switch (sqlStats_items[i].stats_type) {
       case ExOperStats::EX_OPER_STATS:
         if (operStats == NULL) operStats = (ExOperStats *)get(ExOperStats::EX_OPER_STATS, sqlStats_items[i].tdb_id);
@@ -5343,7 +5343,7 @@ int ExStatisticsArea::getStatsDesc(short *statsCollectType,
   ExOperStats *stat;
   int no_of_stats_desc = 0;
   int currTdbId = 0;
-  Int32 i = 0;
+  int i = 0;
   int tdbId;
 
   switch (getCollectStatsType()) {
@@ -5420,7 +5420,7 @@ int ExStatisticsArea::getStatsDesc(short *statsCollectType,
           i++;
         }
       }
-      if ((Int32)getCollectStatsType() == SQLCLI_PROGRESS_STATS) {
+      if ((int)getCollectStatsType() == SQLCLI_PROGRESS_STATS) {
         position();
         for (; ((stat = getNext()) != NULL && i < max_stats_desc);) {
           if (stat->statType() == ExOperStats::BMO_STATS) {
@@ -5607,7 +5607,7 @@ NABoolean ExStatisticsArea::appendCpuStats(ExStatisticsArea *other, NABoolean ap
   // be looking at those ROOT_OPER_STATS when CPU offender stats is requested
   // AppendAlways is set to TRUE when the CPU offender stats is shipped from
   // SSCP to SSMP or SSMP to Collector.
-  if (!appendAlways && (Int32)appendStatsType == SQLCLI_CPU_OFFENDER_STATS) {
+  if (!appendAlways && (int)appendStatsType == SQLCLI_CPU_OFFENDER_STATS) {
     stat = other->getRootStats();
     if (stat != NULL) {
       statType = stat->statType();
@@ -6122,12 +6122,12 @@ short ExStatsTcb::work() {
             pstate->step_ = DONE_;
         } else {
           setDeleteStats(TRUE);
-          if ((Int32)stats_->getCollectStatsType() == SQLCLI_CPU_OFFENDER_STATS ||
-              (Int32)stats_->getCollectStatsType() == SQLCLI_MEM_OFFENDER_STATS ||
-              (Int32)stats_->getCollectStatsType() == SQLCLI_SE_OFFENDER_STATS ||
-              (Int32)stats_->getCollectStatsType() == SQLCLI_QID_DETAIL_STATS ||
-              (Int32)stats_->getCollectStatsType() == SQLCLI_RMS_INFO_STATS ||
-              (Int32)stats_->getCollectStatsType() == SQLCLI_ET_OFFENDER_STATS ||
+          if ((int)stats_->getCollectStatsType() == SQLCLI_CPU_OFFENDER_STATS ||
+              (int)stats_->getCollectStatsType() == SQLCLI_MEM_OFFENDER_STATS ||
+              (int)stats_->getCollectStatsType() == SQLCLI_SE_OFFENDER_STATS ||
+              (int)stats_->getCollectStatsType() == SQLCLI_QID_DETAIL_STATS ||
+              (int)stats_->getCollectStatsType() == SQLCLI_RMS_INFO_STATS ||
+              (int)stats_->getCollectStatsType() == SQLCLI_ET_OFFENDER_STATS ||
               reqType_ == SQLCLI_STATS_REQ_PROCESS_INFO)
 
           {
@@ -6276,7 +6276,7 @@ void ExStatsTcb::getColumnValues(ExOperStats *stat) {
     char sName[42];
     long sNameLen = 40;
 
-    Int32 valNum = 1;
+    int valNum = 1;
     switch (i) {
       case STAT_MOD_NAME:
         src = inputModName_;
@@ -7047,7 +7047,7 @@ void ExMasterStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, int ma
   short stmtState = stmtState_;
 
   if (isQuerySuspended_) stmtState = Statement::SUSPENDED_;
-  if ((Int32)getCollectStatsType() == SQLCLI_ET_OFFENDER_STATS) {
+  if ((int)getCollectStatsType() == SQLCLI_ET_OFFENDER_STATS) {
     sprintf(buf,
             "statsRowType: %d Qid: %s CompStartTime: %ld "
             "CompEndTime: %ld "
@@ -7065,7 +7065,7 @@ void ExMasterStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, int ma
             statType(), ((queryId_ != NULL) ? queryId_ : "NULL"), compStartTime_, compEndTime_, exeStartTime_,
             exeEndTime_, canceledTime_, rowsAffected_, sqlErrorCode_, statsErrorCode_,
             Statement::stmtState((Statement::State)stmtState),
-            ExStatisticsArea::getStatsTypeText((Int32)compilerStatsInfo_.collectStatsType()),
+            ExStatisticsArea::getStatsTypeText((int)compilerStatsInfo_.collectStatsType()),
             ComTdbRoot::getQueryTypeText(queryType_), ComTdbRoot::getSubqueryTypeText(subqueryType_),
             compilerStatsInfo_.dp2RowsAccessed(), compilerStatsInfo_.dp2RowsUsed(), compElapsedTime, exeElapsedTime,
             ((parentQid_ != NULL) ? parentQid_ : "NONE"),
@@ -7469,8 +7469,8 @@ void ExMasterStats::setNotBlocking() {
   gettimeofday(&blockOrUnblockSince_, NULL);
 }
 
-Int32 ExMasterStats::timeSinceBlocking(Int32 s) {
-  Int32 r = 0;
+int ExMasterStats::timeSinceBlocking(int s) {
+  int r = 0;
   if (blockOrUnblockSince_.tv_sec == 0 && blockOrUnblockSince_.tv_usec == 0) return r;
   if (isBlocking_) {
     timeval timeNow;
@@ -7488,8 +7488,8 @@ Int32 ExMasterStats::timeSinceBlocking(Int32 s) {
   return r;
 }
 
-Int32 ExMasterStats::timeSinceUnblocking(Int32 s) {
-  Int32 r = 0;
+int ExMasterStats::timeSinceUnblocking(int s) {
+  int r = 0;
   if (blockOrUnblockSince_.tv_sec == 0 && blockOrUnblockSince_.tv_usec == 0) return r;
   if (!isBlocking_) {
     if (exeEndTime_ != -1)
@@ -7523,7 +7523,7 @@ NABoolean ExMasterStats::filterForCpuStats(short subReqType, long currTimestamp,
         tsToCompare = compEndTime_;
       else
         tsToCompare = exeEndTime_;
-      lastActivity_ = (Int32)((currTimestamp - tsToCompare) / (long)1000000);
+      lastActivity_ = (int)((currTimestamp - tsToCompare) / (long)1000000);
       if (lastActivity_ > etTimeInSecs) retcode = TRUE;
     }
   } else if (subReqType == SQLCLI_STATS_REQ_UNMONITORED_QUERIES) {
@@ -7543,7 +7543,7 @@ NABoolean ExMasterStats::filterForCpuStats(short subReqType, long currTimestamp,
       if (tsToCompare == -1)
         retcode = FALSE;
       else {
-        lastActivity_ = (Int32)((currTimestamp - tsToCompare) / (long)1000000);
+        lastActivity_ = (int)((currTimestamp - tsToCompare) / (long)1000000);
         if (lastActivity_ > etTimeInSecs)
           retcode = TRUE;
         else
@@ -7562,7 +7562,7 @@ NABoolean ExMasterStats::filterForCpuStats(short subReqType, long currTimestamp,
           tsToCompare = compEndTime_;
         else
           tsToCompare = exeEndTime_;
-        lastActivity_ = (Int32)((currTimestamp - tsToCompare) / (long)1000000);
+        lastActivity_ = (int)((currTimestamp - tsToCompare) / (long)1000000);
         if (lastActivity_ > etTimeInSecs) retcode = TRUE;
       }
     }
@@ -7573,7 +7573,7 @@ NABoolean ExMasterStats::filterForCpuStats(short subReqType, long currTimestamp,
           tsToCompare = exeEndTime_;
         else
           tsToCompare = exeStartTime_;
-        lastActivity_ = (Int32)((currTimestamp - tsToCompare) / (long)1000000);
+        lastActivity_ = (int)((currTimestamp - tsToCompare) / (long)1000000);
         if (exeEndTime_ == -1)
           return TRUE;
         else if (lastActivity_ <= etTimeInSecs) {
@@ -7590,7 +7590,7 @@ NABoolean ExMasterStats::filterForCpuStats(short subReqType, long currTimestamp,
     if (stmtState_ != Statement::PROCESS_ENDED_) {
       if (compStartTime_ != -1 && compEndTime_ == -1) {
         tsToCompare = compStartTime_;
-        lastActivity_ = (Int32)((currTimestamp - tsToCompare) / (long)1000000);
+        lastActivity_ = (int)((currTimestamp - tsToCompare) / (long)1000000);
         if (lastActivity_ >= etTimeInSecs) retcode = TRUE;
       }
     }
@@ -7598,10 +7598,10 @@ NABoolean ExMasterStats::filterForCpuStats(short subReqType, long currTimestamp,
   return retcode;
 }
 
-void ExMasterStats::setInvalidationKeys(CliGlobals *cliGlobals, SecurityInvKeyInfo *sikInfo, Int32 numObjUIDs,
+void ExMasterStats::setInvalidationKeys(CliGlobals *cliGlobals, SecurityInvKeyInfo *sikInfo, int numObjUIDs,
                                         const long *objectUIDs) {
   ex_assert((numObjUIDs_ == 0) && (numSIKeys_ == 0), "setKeys called twice.");
-  Int32 numSIKeys = sikInfo ? sikInfo->getNumSiks() : 0;
+  int numSIKeys = sikInfo ? sikInfo->getNumSiks() : 0;
   if ((numSIKeys > PreAllocatedSikKeys) || (numObjUIDs > PreAllocatedObjUIDs)) {
     Long semId = cliGlobals->getSemId();
     StatsGlobals *statsGlobals = cliGlobals->getStatsGlobals();
@@ -8412,7 +8412,7 @@ void ExBMOStats::copyContents(ExBMOStats *other) {
   UInt32 srcLen = sizeof(ExBMOStats) - sizeof(ExOperStats);
   memcpy((void *)destPtr, (void *)srcPtr, srcLen);
 }
-const char *ExBMOStats::getNumValTxt(Int32 i) const {
+const char *ExBMOStats::getNumValTxt(int i) const {
   switch (i) {
     case 1:
       return "OperCpuTime";
@@ -8426,7 +8426,7 @@ const char *ExBMOStats::getNumValTxt(Int32 i) const {
   return NULL;
 }
 
-long ExBMOStats::getNumVal(Int32 i) const {
+long ExBMOStats::getNumVal(int i) const {
   switch (i) {
     case 1:
       return ExOperStats::getNumVal(i);
@@ -8687,7 +8687,7 @@ void ExUDRBaseStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, int m
           "udrCpuTime: %ld recentReqTS: %ld recentReplyTS: %ld ",
           statType(), reqMsgCnt_, reqMsgBytes_, replyMsgCnt_, replyMsgBytes_, udrCpuTime_, recentReqTS_,
           recentReplyTS_);
-  if ((Int32)getCollectStatsType() == SQLCLI_QID_DETAIL_STATS) {
+  if ((int)getCollectStatsType() == SQLCLI_QID_DETAIL_STATS) {
     sprintf(tmpBuf, " UDRServerId: %s ", (UDRServerId_[0] == '\0' ? "None" : UDRServerId_));
     str_cat(buf, tmpBuf, buf);
   }
@@ -8878,7 +8878,7 @@ ExOperStats *ExFastExtractStats::copyOper(NAMemory *heap) {
 
 ExFastExtractStats *ExFastExtractStats::castToExFastExtractStats() { return this; }
 
-const char *ExFastExtractStats::getNumValTxt(Int32 i) const {
+const char *ExFastExtractStats::getNumValTxt(int i) const {
   switch (i) {
     case 1:
       return "OperCpuTime";
@@ -8892,7 +8892,7 @@ const char *ExFastExtractStats::getNumValTxt(Int32 i) const {
   return NULL;
 }
 
-long ExFastExtractStats::getNumVal(Int32 i) const {
+long ExFastExtractStats::getNumVal(int i) const {
   switch (i) {
     case 1:
       return ExOperStats::getNumVal(i);
@@ -9005,7 +9005,7 @@ ExOperStats *ExProcessStats::copyOper(NAMemory *heap) {
 
 ExProcessStats *ExProcessStats::castToExProcessStats() { return this; }
 
-const char *ExProcessStats::getNumValTxt(Int32 i) const {
+const char *ExProcessStats::getNumValTxt(int i) const {
   switch (i) {
     case 1:
       return "nodeId";
@@ -9019,7 +9019,7 @@ const char *ExProcessStats::getNumValTxt(Int32 i) const {
   return NULL;
 }
 
-long ExProcessStats::getNumVal(Int32 i) const {
+long ExProcessStats::getNumVal(int i) const {
   switch (i) {
     case 1:
       return nid_;
@@ -9406,7 +9406,7 @@ void ExQryInvalidStatsTcb::getColumnValues(ExOperStats *operStat) {
     Attributes *attr = tDesc->getAttr(i);
     long int64Val = 0;
     UInt32 uint32Val = 0;
-    Int32 int32Val = 0;
+    int int32Val = 0;
     char *src = (char *)&int64Val;
     short srcType;
     int srcLen;

@@ -88,37 +88,13 @@ Reset::~Reset() {}
 short Reset::reset_control(SqlciEnv *sqlci_env) { return 0; }
 
 short Reset::reset_param(SqlciEnv *sqlci_env) {
-  if (!get_argument()) {
-    /* RESET all params */
-    Param *param = sqlci_env->get_paramlist()->getFirst();
-    while (param) {
-      sqlci_env->get_paramlist()->remove(param->getName());
-      param = sqlci_env->get_paramlist()->getNext();
-    }
-  } else {
-    Param *param = sqlci_env->get_paramlist()->get(get_argument());
-    if (param) {
-      sqlci_env->get_paramlist()->remove(get_argument());
-    }
-  }
+
 
   return 0;
 }
 
 short Reset::reset_pattern(SqlciEnv *sqlci_env) {
-  if (!get_argument()) {
-    /* RESET all patterns */
-    Param *pattern = sqlci_env->get_patternlist()->getFirst();
-    while (pattern) {
-      sqlci_env->get_patternlist()->remove(pattern->getName());
-      pattern = sqlci_env->get_patternlist()->getNext();
-    }
-  } else {
-    Param *pattern = sqlci_env->get_patternlist()->get(get_argument());
-    if (pattern) {
-      sqlci_env->get_patternlist()->remove(get_argument());
-    }
-  }
+
 
   return 0;
 }

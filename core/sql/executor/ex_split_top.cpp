@@ -171,7 +171,7 @@ ex_split_top_tcb::ex_split_top_tcb(const ex_split_top_tdb &splitTopTdb, ExExeStm
     }
 
     // build the send top nodes, using the buildInstance() method
-    for (Int32 i = 0; i < maxNumChildren_; i++) {
+    for (int i = 0; i < maxNumChildren_; i++) {
       ex_tcb *childTcb = sendTopTdb->buildInstance(glob, myInstanceNum, firstPartNum_ + i);
 
       childTcbs_.insertAt(i, childTcb);
@@ -191,7 +191,7 @@ ex_split_top_tcb::ex_split_top_tcb(const ex_split_top_tdb &splitTopTdb, ExExeStm
   }  // child is not a send top node
   // initialize child states
   childStates_ = new (space) SplitTopChildState[maxNumChildren_];
-  for (Int32 i = 0; i < maxNumChildren_; i++) {
+  for (int i = 0; i < maxNumChildren_; i++) {
     childStates_[i].numActiveRequests_ = 0;
     childStates_[i].highWaterMark_ = 0;
     childStates_[i].associatedPartNum_ = SPLIT_TOP_UNASSOCIATED;
@@ -312,7 +312,7 @@ void ex_split_top_tcb::registerSubtasks() {
   if (getPool()) getPool()->setStaticMode(FALSE);
 }
 
-void ex_split_top_tcb::registerChildQueueSubtask(Int32 c) {
+void ex_split_top_tcb::registerChildQueueSubtask(int c) {
   ExScheduler *sched = getGlobals()->getScheduler();
   ex_queue_pair cq = GET_PARENT_QUEUE(c);
 
@@ -320,7 +320,7 @@ void ex_split_top_tcb::registerChildQueueSubtask(Int32 c) {
   sched->registerInsertSubtask(sWorkUp, this, cq.up, "UP");
 }
 
-void ex_split_top_tcb::allocateStatsEntry(Int32 c, ex_tcb *childTcb) {
+void ex_split_top_tcb::allocateStatsEntry(int c, ex_tcb *childTcb) {
   ex_globals *glob = getGlobals();
   StatsGlobals *statsGlobals = getGlobals()->getStatsGlobals();
   Long semId;
@@ -334,8 +334,8 @@ void ex_split_top_tcb::allocateStatsEntry(Int32 c, ex_tcb *childTcb) {
   if (statsGlobals != NULL) statsGlobals->releaseStatsSemaphore(semId, glob->getPid());
 }
 
-void ex_split_top_tcb::addChild(Int32 c, NABoolean atWorktime, ExOperStats *statsEntry) {
-  ex_assert(c == (Int32)childTcbs_.entries() && c < maxNumChildren_,
+void ex_split_top_tcb::addChild(int c, NABoolean atWorktime, ExOperStats *statsEntry) {
+  ex_assert(c == (int)childTcbs_.entries() && c < maxNumChildren_,
             "Allocating out of sequence child for split top TCB");
 
   ex_globals *glob = getGlobals();
@@ -696,7 +696,7 @@ ExWorkProcRetcode ex_split_top_tcb::workDown() {
               if (splitTopTdb().isSystemIdentity()) {
                 // Copy the sidTuple in tempChildAtp_  to
                 // centry sidTuple
-                Int32 sidAtpIndex = splitTopTdb().paPartNoAtpIndex_ + 1;
+                int sidAtpIndex = splitTopTdb().paPartNoAtpIndex_ + 1;
                 centry->getTupp(sidAtpIndex) = tempChildAtp_->getTupp(sidAtpIndex);
 
                 tempChildAtp_->release();
@@ -1648,7 +1648,7 @@ void ex_split_top_tcb::cancelChildRequests(queue_index parentIndex) {
 void ex_split_top_tcb::resetAssociatedChildIndex(int partNo) {
   // used for static PA-partition association only
   if (splitTopTdb().isStaticPaAffinity()) {
-    Int32 p = partNo % maxNumChildren_;
+    int p = partNo % maxNumChildren_;
     CollIndex c = childParts_[p].childTcbIndex_;
     ex_assert(partNo == childStates_[c].associatedPartNum_, "Reset wrong association!");
     if (childStates_[c].numActiveRequests_ == 0) childStates_[c].associatedPartNum_ = SPLIT_TOP_UNASSOCIATED;
@@ -1678,7 +1678,7 @@ CollIndex ex_split_top_tcb::getAssociatedChildIndex(int partNo) {
 
   // Static PA-partition association part:
   if (splitTopTdb().isStaticPaAffinity()) {
-    Int32 p = partNo % maxNumChildren_;
+    int p = partNo % maxNumChildren_;
     CollIndex c = childParts_[p].childTcbIndex_;
     if (c == NULL_COLL_INDEX) {  // have not accessed this partition before
       CollIndex nc = childTcbs_.entries();
@@ -1690,7 +1690,7 @@ CollIndex ex_split_top_tcb::getAssociatedChildIndex(int partNo) {
         return 0;
       } else {  // create new PA
         ex_assert(nc < (CollIndex)maxNumChildren_, "Creating too many PAs!");
-        addChild((Int32)nc, TRUE, statsArray_[partNo]);
+        addChild((int)nc, TRUE, statsArray_[partNo]);
         numChildren_++;  // one more PA is used
         childStates_[nc].associatedPartNum_ = partNo;
         childParts_[p].childTcbIndex_ = nc;
@@ -1739,7 +1739,7 @@ CollIndex ex_split_top_tcb::getAssociatedChildIndex(int partNo) {
   // Try to build a new child TCB tree if we haven't reached the max yet
   // ---------------------------------------------------------------------
   if (nc < (CollIndex)maxNumChildren_) {
-    addChild((Int32)nc, TRUE, statsArray_[partNo]);
+    addChild((int)nc, TRUE, statsArray_[partNo]);
     childStates_[nc].associatedPartNum_ = partNo;
     return nc;
   }
@@ -1886,7 +1886,7 @@ CollIndex ex_split_top_tcb::findNextReadyChild(ex_split_top_private_state *pstat
               // evaluate whether the new key to insert is less
               // or equal than the key in entry "textIndex"
               // and adjust the intervals
-              if (str_cmp(newKey, testKey, (Int32)mergeKeyLength()) <= 0) {
+              if (str_cmp(newKey, testKey, (int)mergeKeyLength()) <= 0) {
                 // centry <= tentry, centry must be inserted
                 // BEFORE tentry
                 highIndex = testIndex;
@@ -1971,11 +1971,11 @@ ex_tcb_private_state *ex_split_top_tcb::allocatePstates(int &numElems, int &psta
   return result;
 }
 
-Int32 ex_split_top_tcb::numChildren() const { return childTcbs_.entries(); }
+int ex_split_top_tcb::numChildren() const { return childTcbs_.entries(); }
 
-const ex_tcb *ex_split_top_tcb::getChild(Int32 pos) const {
+const ex_tcb *ex_split_top_tcb::getChild(int pos) const {
   ex_assert((pos >= 0), "");
-  if (pos <= (Int32)childTcbs_.entries())
+  if (pos <= (int)childTcbs_.entries())
     return childTcbs_[pos];
   else
     return NULL;

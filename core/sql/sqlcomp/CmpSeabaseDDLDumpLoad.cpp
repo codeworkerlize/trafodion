@@ -16,8 +16,8 @@ const RelDumpLoad::DumploadTypeInfo RelDumpLoad::dumploadType[] = {
     {RelDumpLoad::DL_OBJ_PACKAGE, "SHOWDDL PACKAGE "},     {RelDumpLoad::DL_OBJ_UNKNOWN, "SHOWDDL UNKNOWN  "}};
 
 static short createDumpDir(const NAString &localDir) {
-  Int32 rval = mkdir(localDir.data(), S_IRWXU | S_IRWXG);
-  Int32 error = errno;
+  int rval = mkdir(localDir.data(), S_IRWXU | S_IRWXG);
+  int error = errno;
 
   if ((rval) != 0 && (error != EEXIST))  // EEXIST is meaning 'File already exists'.
   {
@@ -59,16 +59,16 @@ static void checkAndRemoveUnnecessaryFields(RelDumpLoad *ddlExpr, char *original
                                      "\0"};
 
   const char *keyString = NULL;
-  Int32 keyStringLength = -1;
+  int keyStringLength = -1;
   char *pos = NULL;
-  for (Int32 i = 0;; i++) {
+  for (int i = 0;; i++) {
     keyString = unnecessaryFields[i];
     if (keyString[0] == '\0') break;
 
     keyStringLength = str_len(keyString);
     pos = strstr(originalStr, keyString);
     if (pos != NULL) {
-      Int32 originalLength = str_len(originalStr);
+      int originalLength = str_len(originalStr);
       str_cpy(pos, pos + keyStringLength, originalLength - (pos - originalStr) - keyStringLength);
       originalStr[originalLength - keyStringLength] = '\0';
     }
@@ -83,7 +83,7 @@ static void checkAndDumpDependentFile(RelDumpLoad *ddlExpr, char *line) {
    * file to dest directory through "FILE".
    **/
   const char *identifier = "FILE";
-  Int32 len = str_len(line);
+  int len = str_len(line);
   if (len < str_len(identifier)) return;
 
   char *pos = strstr(line, identifier);
@@ -152,7 +152,7 @@ static short dumpObjectsDDL(ExeCliInterface *cliInterface, RelDumpLoad *ddlExpr,
 
   if (outQueue) {
     outQueue->position();
-    for (Int32 i = 0; i < outQueue->numEntries(); i++) {
+    for (int i = 0; i < outQueue->numEntries(); i++) {
       OutputInfo *vi = (OutputInfo *)outQueue->getNext();
       char *line = vi->get(0);
       checkAndDumpDependentFile(ddlExpr, line);

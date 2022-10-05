@@ -90,7 +90,7 @@ struct REFRESH_LIB_CLASS CRUDeltaDef {
     RANGE_2_SINGLE = 2,
     SINGLE_2_SINGLE = 3
   };
-  Int32 deLevel_;
+  int deLevel_;
 
   // Statistics collected by the DE task
   CRUDeltaStatistics *pStat_;
@@ -153,7 +153,7 @@ struct REFRESH_LIB_CLASS CRUDeltaStatistics {
   TInt32 GetDeltaSize();  // Size estimate
 
   // Increment a counter (protect against overflow)
-  void IncrementCounter(TInt32 &counterRef, Int32 delta = 1) {
+  void IncrementCounter(TInt32 &counterRef, int delta = 1) {
     TInt32 val = counterRef + delta;
     if (val < MAX_STATISTIC) {
       counterRef = val;
@@ -165,7 +165,7 @@ struct REFRESH_LIB_CLASS CRUDeltaStatistics {
   void LoadData(CUOFsIpcMessageTranslator &translator);
   void StoreData(CUOFsIpcMessageTranslator &translator);
 
-  static TInt32 GetPackedBufferSize(Int32 updateBitmapSize);
+  static TInt32 GetPackedBufferSize(int updateBitmapSize);
 };
 
 //--------------------------------------------------------------------------//
@@ -198,7 +198,7 @@ class REFRESH_LIB_CLASS CRUDeltaStatisticsMap : public CDSLongMap<CRUDeltaStatis
 
 class REFRESH_LIB_CLASS CRUUpdateBitmap {
  public:
-  CRUUpdateBitmap(Int32 size, const char *buffer = NULL);
+  CRUUpdateBitmap(int size, const char *buffer = NULL);
   CRUUpdateBitmap(const CRUUpdateBitmap &other);
 
   virtual ~CRUUpdateBitmap();
@@ -206,7 +206,7 @@ class REFRESH_LIB_CLASS CRUUpdateBitmap {
  public:
   char *GetBuffer() const { return buffer_; }
 
-  Int32 GetSize() const { return size_; }
+  int GetSize() const { return size_; }
 
   // Is the whole bitmap zero-only?
   BOOL IsNull() const;
@@ -214,9 +214,9 @@ class REFRESH_LIB_CLASS CRUUpdateBitmap {
   // Did some |= operator applied to the bitmap change its content?
   BOOL WasChanged() const { return wasChanged_; }
 
-  BOOL IsColumnUpdated(Int32 i) const {
-    Int32 index = i / 8;
-    Int32 bitNum = i % 8;
+  BOOL IsColumnUpdated(int i) const {
+    int index = i / 8;
+    int bitNum = i % 8;
 
     return (0 != (buffer_[index] & (1L << bitNum)));
   }
@@ -235,7 +235,7 @@ class REFRESH_LIB_CLASS CRUUpdateBitmap {
   void StoreData(CUOFsIpcMessageTranslator &translator);
 
  private:
-  Int32 size_;
+  int size_;
   char *buffer_;
 
   BOOL wasChanged_;

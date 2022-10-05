@@ -234,11 +234,11 @@ class ExUnPackRowsTcb : public ex_tcb {
 
   // UnPackRows has one child.
   //
-  virtual Int32 numChildren() const { return 1; }
+  virtual int numChildren() const { return 1; }
 
   // Return the child of the UnPackRows node by position.
   //
-  virtual const ex_tcb *getChild(Int32 pos) const {
+  virtual const ex_tcb *getChild(int pos) const {
     if (pos == 0) return childTcb_;
     return NULL;
   }
@@ -274,7 +274,7 @@ class ExUnPackRowsTcb : public ex_tcb {
   atp_struct *numRowsAtp_;
   tupp numRowsTupp_;
   tupp_descriptor numRowsTuppDesc_;
-  Int32 numRows_;
+  int numRows_;
 
   // Atp used to hold the result of unpacking and hold the tuple used
   // to supply the index value. This value is supplied by the value
@@ -283,7 +283,7 @@ class ExUnPackRowsTcb : public ex_tcb {
   atp_struct *workAtp_;
   tupp indexValueTupp_;
   tupp_descriptor indexValueTuppDesc_;
-  Int32 indexValue_;
+  int indexValue_;
 
   // send next request down to children
   // Called by workDown()
@@ -323,13 +323,13 @@ class ExUnPackRowsPrivateState : public ex_tcb_private_state {
   friend class ExUnPackRowsTcb;
 
   long matchCount_;
-  Int32 unPackCount_;
+  int unPackCount_;
 
-  Int32 numRows_;
+  int numRows_;
 
   ExUnPackRowsTcb::UnPackChildState childState_;
 
-  Int32 nextCLIErrorRowNum_;
+  int nextCLIErrorRowNum_;
 
   void init();
 
@@ -373,9 +373,9 @@ class ExUnPackRowwiseRowsTcb : public ex_tcb {
 
   inline ExUnPackRowsTdb &uprTdb() const { return (ExUnPackRowsTdb &)tdb; }
 
-  virtual Int32 numChildren() const { return 0; }
+  virtual int numChildren() const { return 0; }
 
-  virtual const ex_tcb *getChild(Int32 pos) const { return NULL; }
+  virtual const ex_tcb *getChild(int pos) const { return NULL; }
 
  private:
   enum Step { INITIAL_, GET_INPUT_VALUES_, RETURN_ROW_, DONE_, ERROR_, CANCEL_ };

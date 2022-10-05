@@ -58,7 +58,7 @@ class ComFileName;
 // Return the node name corresponding to a node number as an long.
 // Node number -1 means the local node
 // Node number -2 means the Guardian default node
-long ComGetNodeNameAsInt64(const Int32 nodeNumber);
+long ComGetNodeNameAsInt64(const int nodeNumber);
 
 // Separate an (assumed) Guardian file name into its separate parts.
 // Returns the actual number of parts - or zero if name is invalid.
@@ -68,7 +68,7 @@ long ComGetNodeNameAsInt64(const Int32 nodeNumber);
 //    $<vol>.<svol>.<file>
 //    \<node>.$<vol>.<svol>.<file>
 
-Int32 ComInterpretGuardianFileName(const char *fileName, ComNodeName &nodeNamePart, ComVolumeName &volumeNamePart,
+int ComInterpretGuardianFileName(const char *fileName, ComNodeName &nodeNamePart, ComVolumeName &volumeNamePart,
                                    ComSubvolumeName &subvolNamePart, ComFileName &fileNamePart);
 
 //-------------------------------------------------------------------
@@ -187,7 +187,7 @@ class ComNodeName : public ComGuardianFileNamePart {
         {};
 
   // Assignment constructor: A node number
-  ComNodeName(const Int32 nodeNumber)
+  ComNodeName(const int nodeNumber)
       : ComGuardianFileNamePart(ComGetNodeNameAsInt64(nodeNumber))  // The numbered node
         {};
 
@@ -215,7 +215,7 @@ class ComNodeName : public ComGuardianFileNamePart {
   const char *getNodeNameWithoutBackslash(void) const { return &((char *)(&namePart_))[1]; };
   NABoolean isValid(const NABoolean emptyIsOK = FALSE) const { return isNamePartValid('\\', emptyIsOK, 2); };
   // Get the node number - return value is FE error
-  Int32 getNodeNumber(int &nodeNumber) const;
+  int getNodeNumber(int &nodeNumber) const;
 
   // Mutators
   void setLocal(void) { namePart_ = ComGetNodeNameAsInt64(-1); };

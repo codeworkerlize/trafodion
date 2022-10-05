@@ -53,7 +53,7 @@ void NAWString::initFromSingleByteString(int charset, const char *str, size_t N,
 }
 
 void NAWString::initFromVariableWidthMultiByteString(int charset, const char *str, size_t N, NAMemory *h) {
-  Int32 errorcode;
+  int errorcode;
   assert(str != nanil);
   // if h is uninitialized, then use the (derived) string class's
   // default h instead

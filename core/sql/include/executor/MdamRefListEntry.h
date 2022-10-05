@@ -51,12 +51,12 @@ class MdamRefListEntry {
   // Constructor for use on an empty list.
   // nextEntryPtr_ is set to point to the newly-created node to begin a
   // circularly-linked list.
-  MdamRefListEntry(const Int32 disjunctNum) : disjunctNum_(disjunctNum) { nextEntryPtr_ = this; }
+  MdamRefListEntry(const int disjunctNum) : disjunctNum_(disjunctNum) { nextEntryPtr_ = this; }
 
   // Constructor for use on a non-empty list.
   // The new node is inserted into the linked list following the node pointed
   // to by beforePtr.
-  MdamRefListEntry(const Int32 disjunctNum, MdamRefListEntry *beforePtr)
+  MdamRefListEntry(const int disjunctNum, MdamRefListEntry *beforePtr)
       : disjunctNum_(disjunctNum), nextEntryPtr_(beforePtr->nextEntryPtr_) {
     beforePtr->nextEntryPtr_ = this;
   }
@@ -77,7 +77,7 @@ class MdamRefListEntry {
   void operator delete(void *) { ex_assert(0, "MdamRefListEntry::operator delete(void *) called."); }
 
   // Get function for disjunctNum_.
-  inline Int32 getDisjunctNum() const;
+  inline int getDisjunctNum() const;
 
   // Get function for nextEntryPtr_.
   inline MdamRefListEntry *getNextEntryPtr();
@@ -85,11 +85,11 @@ class MdamRefListEntry {
   // This function returns beforePtr to prepare for an insertion.
   // The object for which the function is called must be the last
   // entry of a reference list.
-  MdamRefListEntry *positionBeforePtr(const Int32 disjunctNum);
+  MdamRefListEntry *positionBeforePtr(const int disjunctNum);
 
  private:
   // Disjunct number.
-  Int32 disjunctNum_;
+  int disjunctNum_;
 
   // Forward pointer to form a linked list.
   MdamRefListEntry *nextEntryPtr_;
@@ -109,7 +109,7 @@ inline void *MdamRefListEntry::operator new(size_t size, FixedSizeHeapManager &m
 }
 
 // Get function for disjunctNum_.
-inline Int32 MdamRefListEntry::getDisjunctNum() const { return disjunctNum_; }
+inline int MdamRefListEntry::getDisjunctNum() const { return disjunctNum_; }
 
 // Get function for nextEntryPtr_.
 inline MdamRefListEntry *MdamRefListEntry::getNextEntryPtr() { return nextEntryPtr_; }

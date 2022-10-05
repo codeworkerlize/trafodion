@@ -112,7 +112,7 @@ ex_union_tcb::ex_union_tcb(const ex_union_tdb &union_tdb,  //
 
   // the union TCB adds input tupps to its down queues, therefore we
   // need to allocate new ATPs for its children
-  for (Int32 i = 0; i < numChildren(); i++) childQueues_[i].down->allocateAtps(glob->getSpace());
+  for (int i = 0; i < numChildren(); i++) childQueues_[i].down->allocateAtps(glob->getSpace());
 
   // The cri of the rows we get from our parent
   // is the same as we give to our left and right children
@@ -298,7 +298,7 @@ ExWorkProcRetcode ex_union_tcb::processCancel() {
 
       // cancel child requests if not already done so and if they
       // aren't already finished
-      for (Int32 i = 0; i < 2; i++) {
+      for (int i = 0; i < 2; i++) {
         if (pstate.childStates_[i] == ex_union_tcb::STARTED_) {
           // cancel request to this child
           childQueues_[i].down->cancelRequestWithParentIndex(ix);
@@ -350,8 +350,8 @@ ExWorkProcRetcode ex_union_tcb::workUp() {
     ex_queue_entry *pentry_down = qparent.down->getHeadEntry();
     ex_union_private_state &pstate = *((ex_union_private_state *)pentry_down->pstate);
 
-    Int32 side = -1;
-    Int32 endOfData = 0;
+    int side = -1;
+    int endOfData = 0;
 
     // while we have room in the up queue and while we can make up our
     // mind from which side to take the next row, move a row up to the
@@ -498,7 +498,7 @@ ExWorkProcRetcode ex_union_tcb::workUp() {
   return WORK_OK;
 }
 
-void ex_union_tcb::processError(ex_union_private_state &pstate, Int32 &endOfData, atp_struct *atp) {
+void ex_union_tcb::processError(ex_union_private_state &pstate, int &endOfData, atp_struct *atp) {
   ex_queue_entry *pentry_down = qparent.down->getHeadEntry();
   ex_queue_entry *pentry = qparent.up->getTailEntry();
 
@@ -513,7 +513,7 @@ void ex_union_tcb::processError(ex_union_private_state &pstate, Int32 &endOfData
   qparent.down->cancelRequest(qparent.down->getHeadIndex());
   processCancel();
 
-  for (Int32 i = 0; i < 2; i++) {
+  for (int i = 0; i < 2; i++) {
     while (!(childQueues_[i].up->isEmpty()) && pstate.childStates_[i] != DONE_) {
       ex_queue_entry *centry = childQueues_[i].up->getHeadEntry();
       switch (centry->upState.status) {
@@ -542,13 +542,13 @@ void ex_union_tcb::processError(ex_union_private_state &pstate, Int32 &endOfData
 // queue gets a chance.
 // -----------------------------------------------------------------------
 
-Int32 ex_union_tcb::whichSide(ex_union_private_state &pstate, Int32 &side, Int32 &endOfData) {
+int ex_union_tcb::whichSide(ex_union_private_state &pstate, int &side, int &endOfData) {
   // switch sides, try treating both children the same
   pstate.whichSide_ = 1 - pstate.whichSide_;
-  Int32 numEod = 0;
+  int numEod = 0;
 
   // once for each child
-  for (Int32 i = 0; i < 2; i++) {
+  for (int i = 0; i < 2; i++) {
     if (!childQueues_[pstate.whichSide_].up->isEmpty()) {
       if (childQueues_[pstate.whichSide_].up->getHeadEntry()->upState.status == ex_queue::Q_NO_DATA) {
         // end of data, indicate that this child is done
@@ -592,7 +592,7 @@ ex_m_union_tcb::ex_m_union_tcb(const ex_union_tdb &union_tdb,  //
 // procedure does not use or maintain pstate.whichSide_.
 // -----------------------------------------------------------------------
 
-Int32 ex_m_union_tcb::whichSide(ex_union_private_state &pstate, Int32 &side, Int32 &endOfData) {
+int ex_m_union_tcb::whichSide(ex_union_private_state &pstate, int &side, int &endOfData) {
   if (childQueues_[0].up->isEmpty() || childQueues_[1].up->isEmpty()) {
     // need to wait until both children have a queue entry, this
     // is not the EOD case
@@ -625,9 +625,9 @@ Int32 ex_m_union_tcb::whichSide(ex_union_private_state &pstate, Int32 &side, Int
   // Check which ones are at end of data.
   // -----------------------------------------------------------------
 
-  Int32 numEod = 0;
+  int numEod = 0;
 
-  for (Int32 i = 0; i < 2; i++) {
+  for (int i = 0; i < 2; i++) {
     if (childQueues_[i].up->getHeadEntry()->upState.status == ex_queue::Q_NO_DATA) {
       // found an end of data up entry
       pstate.childStates_[i] = DONE_;
@@ -687,7 +687,7 @@ ex_o_union_tcb::ex_o_union_tcb(const ex_union_tdb &union_tdb,  //
                                const ex_tcb *right_tcb,        // right queue pair
                                ex_globals *glob,
                                NABoolean blocked_union,  // Triggers -, blocked union
-                               Int32 hasNoOutputs        // Triggers -
+                               int hasNoOutputs        // Triggers -
                                )
     : ex_union_tcb(union_tdb, left_tcb, right_tcb, glob),
       rprocessedInputs_(processedInputs_),
@@ -706,7 +706,7 @@ ex_o_union_tcb::ex_o_union_tcb(const ex_union_tdb &union_tdb,  //
 // whichSide() returns 1.
 //////////////////////////////////////////////////////////////////////
 
-Int32 ex_o_union_tcb::whichSide(ex_union_private_state &pstate, Int32 &side, Int32 &endOfData) {
+int ex_o_union_tcb::whichSide(ex_union_private_state &pstate, int &side, int &endOfData) {
   if (childQueues_[pstate.whichSide_].up->isEmpty()) {
     // sorry, we are fixed on that side, need to wait
     endOfData = 0;
@@ -1036,7 +1036,7 @@ void ex_c_union_tcb::registerSubtasks() {
   //
   sched->registerInsertSubtask(sCondWorkDown, this, qparent.down, "DN");
 
-  Int32 i = 0;
+  int i = 0;
   for (; i < numChildren(); i++) sched->registerUnblockSubtask(sCondWorkDown, this, childQueues_[i].down);
 
   //
@@ -1134,7 +1134,7 @@ void ex_c_union_tcb::start() {
 
   ex_union_private_state &pstate = *((ex_union_private_state *)pentry_down->pstate);
 
-  Int32 child = pstate.whichChild_;
+  int child = pstate.whichChild_;
 
   ex_assert(pstate.validChild(), "ex_c_union_tdb::start - invalid state");
 
@@ -1172,7 +1172,7 @@ void ex_c_union_tcb::stop() {
 
   ex_union_private_state &pstate = *((ex_union_private_state *)pentry_down->pstate);
 
-  Int32 child = pstate.whichChild_;
+  int child = pstate.whichChild_;
 
   ex_queue_entry *pentry = qparent.up->getTailEntry();
 
@@ -1199,13 +1199,13 @@ void ex_c_union_tcb::stop() {
 
 }  // ex_c_union_tcb::stop()
 
-Int32 ex_c_union_tcb::whichSide(ex_union_private_state &pstate, Int32 &side, Int32 &endOfData) {
+int ex_c_union_tcb::whichSide(ex_union_private_state &pstate, int &side, int &endOfData) {
   if (!pstate.validChild()) {
     endOfData = 1;
     return 0;
   }
 
-  Int32 child = pstate.whichChild_;
+  int child = pstate.whichChild_;
 
   //
   // Check if the child has any data.
@@ -1268,7 +1268,7 @@ ExWorkProcRetcode ex_c_union_tcb::processCancel() {
 
     ex_union_private_state &pstate = *((ex_union_private_state *)pentry_down->pstate);
 
-    Int32 child = pstate.whichChild_;
+    int child = pstate.whichChild_;
 
     if (pentry_down->downState.request == ex_queue::GET_NOMORE && pstate.validChild() &&
         pstate.childStates_[child] == ex_union_tcb::STARTED_) {
@@ -1283,14 +1283,14 @@ ExWorkProcRetcode ex_c_union_tcb::processCancel() {
 
 }  // ex_c_union_tcb::processCancel()
 
-void ex_c_union_tcb::processError(ex_union_private_state &pstate, Int32 &endOfData, atp_struct *atp) {
+void ex_c_union_tcb::processError(ex_union_private_state &pstate, int &endOfData, atp_struct *atp) {
   //
   // Similiar to base class processError but only concerned with 1 child.
   //
   ex_queue_entry *pentry_down = qparent.down->getHeadEntry();
   ex_queue_entry *pentry = qparent.up->getTailEntry();
 
-  Int32 child = pstate.whichChild_;
+  int child = pstate.whichChild_;
 
   pentry->copyAtp(atp);
   pentry->upState.status = ex_queue::Q_SQLERROR;

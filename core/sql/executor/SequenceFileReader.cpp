@@ -68,13 +68,13 @@ SFR_RetCode SequenceFileReader::init() {
   SFR_RetCode rc;
 
   if (javaMethodsInitialized_)
-    return (SFR_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (Int32)JM_LAST,
+    return (SFR_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (int)JM_LAST,
                                                   javaMethodsInitialized_);
   else {
     pthread_mutex_lock(&javaMethodsInitMutex_);
     if (javaMethodsInitialized_) {
       pthread_mutex_unlock(&javaMethodsInitMutex_);
-      return (SFR_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (Int32)JM_LAST,
+      return (SFR_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (int)JM_LAST,
                                                     javaMethodsInitialized_);
     }
     JavaMethods_ = new JavaMethodInit[JM_LAST];
@@ -105,7 +105,7 @@ SFR_RetCode SequenceFileReader::init() {
     JavaMethods_[JM_CLOSE].jm_name = "close";
     JavaMethods_[JM_CLOSE].jm_signature = "()Ljava/lang/String;";
 
-    rc = (SFR_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (Int32)JM_LAST,
+    rc = (SFR_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (int)JM_LAST,
                                                 javaMethodsInitialized_);
     if (rc == SFR_OK) javaMethodsInitialized_ = TRUE;
     pthread_mutex_unlock(&javaMethodsInitMutex_);
@@ -335,7 +335,7 @@ SFR_RetCode SequenceFileReader::fetchRowsIntoBuffer(long stopOffset, char *buffe
   QRLogger::log(CAT_SQL_HDFS_SEQ_FILE_READER, LL_DEBUG,
                 "SequenceFileReader::fetchRowsIntoBuffer(stopOffset: %ld, buffSize: %ld) called.", stopOffset,
                 buffSize);
-  Int32 maxRowLength = 0;
+  int maxRowLength = 0;
   char *pos = buffer;
   long limit = buffSize;
   SFR_RetCode retCode;
@@ -345,7 +345,7 @@ SFR_RetCode SequenceFileReader::fetchRowsIntoBuffer(long stopOffset, char *buffe
     retCode = fetchNextRow(stopOffset, pos);
     if (retCode == SFR_OK) {
       rowsRead++;
-      Int32 rowLength = strlen(pos);
+      int rowLength = strlen(pos);
       pos += rowLength;
       *pos = rowDelimiter;
       pos++;
@@ -398,13 +398,13 @@ SFW_RetCode SequenceFileWriter::init() {
   SFW_RetCode rc;
 
   if (javaMethodsInitialized_)
-    return (SFW_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (Int32)JM_LAST,
+    return (SFW_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (int)JM_LAST,
                                                   javaMethodsInitialized_);
   else {
     pthread_mutex_lock(&javaMethodsInitMutex_);
     if (javaMethodsInitialized_) {
       pthread_mutex_unlock(&javaMethodsInitMutex_);
-      return (SFW_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (Int32)JM_LAST,
+      return (SFW_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (int)JM_LAST,
                                                     javaMethodsInitialized_);
     }
     JavaMethods_ = new JavaMethodInit[JM_LAST];
@@ -418,7 +418,7 @@ SFW_RetCode SequenceFileWriter::init() {
     JavaMethods_[JM_CLOSE].jm_name = "close";
     JavaMethods_[JM_CLOSE].jm_signature = "()Ljava/lang/String;";
 
-    rc = (SFW_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (Int32)JM_LAST,
+    rc = (SFW_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (int)JM_LAST,
                                                 javaMethodsInitialized_);
     if (rc == SFW_OK) javaMethodsInitialized_ = TRUE;
     pthread_mutex_unlock(&javaMethodsInitMutex_);

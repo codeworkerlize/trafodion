@@ -61,7 +61,7 @@ short ItmBitMuxFunction::codeGen(Generator *generator) {
 #ifdef _DEBUG
   int totalLength = 0;
 
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     totalLength += function_clause->getOperand((short)(i + 1))->getStorageLength();
   }
 

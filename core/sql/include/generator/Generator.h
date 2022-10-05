@@ -54,8 +54,8 @@
 
 class ExprNode;
 class ExpGenerator;
-void GeneratorAssert(const char *f, Int32 l, const char *a, const char *m);
-void GeneratorExit(const char *file, Int32 line);
+void GeneratorAssert(const char *f, int l, const char *a, const char *m);
+void GeneratorExit(const char *file, int line);
 class ex_cri_desc;
 class ExplainTuple;
 class TransMode;
@@ -350,7 +350,7 @@ class Generator : public NABasicObject {
 
   CmpContext *currentCmpContext_;  // the current CmpContext
 
-  Int32 explainIsDisabled_;   // if greater than zero, calls to
+  int explainIsDisabled_;   // if greater than zero, calls to
                               // addExplainInfo are disabled
   ULng32 affinityValueUsed_;  // The Affinity value used for ESP remapping.
                               // This is the value after interpreting
@@ -458,7 +458,7 @@ class Generator : public NABasicObject {
   NABoolean queryUsesSM_;
 
   // Increasing counter for SeaMonster tags
-  Int32 genSMTag_;
+  int genSMTag_;
 
   // temporary value holder (during pre code gen) for #BMOs in this fragment
   unsigned short numBMOs_;
@@ -919,7 +919,7 @@ class Generator : public NABasicObject {
 
   void setMapTable(MapTable *map_table_);
 
-  void displayMapTables(Int32 depth = 5, const char *msg = NULL);
+  void displayMapTables(int depth = 5, const char *msg = NULL);
 
   void reportMappingInfo(ostream &out, const ValueIdList &list, const char *title);
 
@@ -1067,8 +1067,8 @@ class Generator : public NABasicObject {
   NABoolean getQueryUsesSM() const { return queryUsesSM_; }
 
   // Methods to retrieve and increment the current SeaMonster tag
-  Int32 getSMTag() const { return genSMTag_; }
-  Int32 getNextSMTag() { return ++genSMTag_; }
+  int getSMTag() const { return genSMTag_; }
+  int getNextSMTag() { return ++genSMTag_; }
 
   NABoolean doEidSpaceUsageOpt() { return (flags_ & DO_EID_SPACE_USAGE_OPT) != 0; };
   void setDoEidSpaceUsageOpt(NABoolean v) {
@@ -1262,7 +1262,7 @@ class Generator : public NABasicObject {
 
   inline void disableExplain() { explainIsDisabled_++; }
 
-  inline Int32 explainDisabled() const { return (explainIsDisabled_ > 0); }
+  inline int explainDisabled() const { return (explainIsDisabled_ > 0); }
 
   inline ULng32 getAffinityValueUsed() const { return affinityValueUsed_; };
   inline void setAffinityValueUsed(ULng32 affVal) { affinityValueUsed_ = affVal; };
@@ -1326,12 +1326,12 @@ class Generator : public NABasicObject {
   static TrafDesc *createColDescs(const char *tableName, ComTdbVirtTableColumnInfo *columnInfo, Int16 numCols,
                                   UInt32 &offset, NAMemory *space);
 
-  static TrafDesc *createKeyDescs(Int32 numKeys, const ComTdbVirtTableKeyInfo *keyInfo, NAMemory *space);
+  static TrafDesc *createKeyDescs(int numKeys, const ComTdbVirtTableKeyInfo *keyInfo, NAMemory *space);
 
-  static TrafDesc *createConstrKeyColsDescs(Int32 numKeys, ComTdbVirtTableKeyInfo *keyInfo,
+  static TrafDesc *createConstrKeyColsDescs(int numKeys, ComTdbVirtTableKeyInfo *keyInfo,
                                             ComTdbVirtTableColumnInfo *colInfo, NAMemory *space);
 
-  static TrafDesc *createRefConstrDescStructs(Int32 numConstrs, ComTdbVirtTableRefConstraints *refConstrs,
+  static TrafDesc *createRefConstrDescStructs(int numConstrs, ComTdbVirtTableRefConstraints *refConstrs,
                                               NAMemory *space);
 
   static TrafDesc *createPrivDescs(const ComTdbVirtTablePrivInfo *privs, NAMemory *space);
@@ -1339,19 +1339,19 @@ class Generator : public NABasicObject {
   static TrafDesc *createVirtualTableDesc(
       const char *tableName,
       NAMemory *heap,  // in case caller wants a particular heap; if NULL is passed, we decide
-      Int32 numCols, ComTdbVirtTableColumnInfo *columnInfo, Int32 numKeys, ComTdbVirtTableKeyInfo *keyInfo,
-      Int32 numConstrs = 0, ComTdbVirtTableConstraintInfo *constrInfo = NULL, Int32 numIndexes = 0,
-      ComTdbVirtTableIndexInfo *indexInfo = NULL, Int32 numViews = 0, ComTdbVirtTableViewInfo *viewInfo = NULL,
+      int numCols, ComTdbVirtTableColumnInfo *columnInfo, int numKeys, ComTdbVirtTableKeyInfo *keyInfo,
+      int numConstrs = 0, ComTdbVirtTableConstraintInfo *constrInfo = NULL, int numIndexes = 0,
+      ComTdbVirtTableIndexInfo *indexInfo = NULL, int numViews = 0, ComTdbVirtTableViewInfo *viewInfo = NULL,
       ComTdbVirtTableTableInfo *tableInfo = NULL, ComTdbVirtTableSequenceInfo *seqInfo = NULL,
       ComTdbVirtTableStatsInfo *statsInfo = NULL, NAArray<HbaseStr> *endKeyArray = NULL,
-      NABoolean genPackedDesc = FALSE, Int32 *packedDescLen = NULL, NABoolean isSharedSchema = FALSE,
+      NABoolean genPackedDesc = FALSE, int *packedDescLen = NULL, NABoolean isSharedSchema = FALSE,
       ComTdbVirtTablePrivInfo *privInfo = NULL, const char *nameSpace = NULL,
       ComTdbVirtTablePartitionV2Info *partitionV2Info = NULL);
 
   static TrafDesc *assembleDescs(NAArray<HbaseStr> *keyArray, NAMemory *space);
 
   static TrafDesc *createVirtualRoutineDesc(const char *routineName, ComTdbVirtTableRoutineInfo *routineInfo,
-                                            Int32 numParams, ComTdbVirtTableColumnInfo *paramsArray,
+                                            int numParams, ComTdbVirtTableColumnInfo *paramsArray,
                                             ComTdbVirtTablePrivInfo *privInfo, Space *space);
   static TrafDesc *createVirtualLibraryDesc(const char *libraryName, ComTdbVirtTableLibraryInfo *libraryInfo,
                                             Space *space);
@@ -1559,10 +1559,10 @@ class Generator : public NABasicObject {
 
   ItemExpr *addCompDecodeForDerialization(ItemExpr *ie, NABoolean isAlignedFormat);
 
-  void setHBaseNumCacheRows(double rowsAccessed, ComTdbHbaseAccess::HbasePerfAttributes *hbpa, Int32 hbaseRowSize,
+  void setHBaseNumCacheRows(double rowsAccessed, ComTdbHbaseAccess::HbasePerfAttributes *hbpa, int hbaseRowSize,
                             Float32 samplePercent = 0.0, NABoolean isNeedPushDownLimit = FALSE);
-  void setHBaseCacheBlocks(Int32 hbaseRowSize, double rowsAccessed, ComTdbHbaseAccess::HbasePerfAttributes *hbpa);
-  void setHBaseSmallScanner(Int32 hbaseRowSize, double rowsAccessed, Int32 hbaseBlockSize,
+  void setHBaseCacheBlocks(int hbaseRowSize, double rowsAccessed, ComTdbHbaseAccess::HbasePerfAttributes *hbpa);
+  void setHBaseSmallScanner(int hbaseRowSize, double rowsAccessed, int hbaseBlockSize,
                             ComTdbHbaseAccess::HbasePerfAttributes *hbpa);
   void setHBaseParallelScanner(ComTdbHbaseAccess::HbasePerfAttributes *hbpa);
 
@@ -1636,7 +1636,7 @@ class GenOperSimilarityInfo : public NABasicObject {
 
 class OperBMOQuota : public NABasicObject {
  public:
-  OperBMOQuota(NAString *operAddr, Int32 numStreams, CostScalar estMemPerNode, CostScalar estMemPerInst,
+  OperBMOQuota(NAString *operAddr, int numStreams, CostScalar estMemPerNode, CostScalar estMemPerInst,
                CostScalar estRowsUsed, CostScalar maxCard)
       : operAddr_(operAddr),
         numStreams_(numStreams),
@@ -1650,7 +1650,7 @@ class OperBMOQuota : public NABasicObject {
     weight_ = 0;
   }
   const NAString *getKey() const { return operAddr_; }
-  inline Int32 getNumStreams() { return numStreams_; }
+  inline int getNumStreams() { return numStreams_; }
   inline double getEstMemPerNode() { return estMemPerNode_.value(); }
   inline double getEstMemPerInst() { return estMemPerInst_.value(); }
   inline double getEstMemForTdb() { return estMemPerInst_.value() * numStreams_; }
@@ -1660,7 +1660,7 @@ class OperBMOQuota : public NABasicObject {
 
  private:
   const NAString *operAddr_;
-  Int32 numStreams_;
+  int numStreams_;
   CostScalar estMemPerNode_;
   CostScalar estMemPerInst_;
   CostScalar estRowsUsed_;

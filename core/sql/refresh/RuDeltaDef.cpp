@@ -47,7 +47,7 @@
 //	Constructors and destructor
 //--------------------------------------------------------------------------//
 
-CRUUpdateBitmap::CRUUpdateBitmap(Int32 size, const char *buffer)
+CRUUpdateBitmap::CRUUpdateBitmap(int size, const char *buffer)
     : size_(size + 1),  // One byte more for the null terminator
       buffer_(new char[size_]),
       wasChanged_(FALSE) {
@@ -87,7 +87,7 @@ CRUUpdateBitmap &CRUUpdateBitmap::operator=(const CRUUpdateBitmap &other) {
 //--------------------------------------------------------------------------//
 
 BOOL CRUUpdateBitmap::IsNull() const {
-  for (Int32 i = 0; i < size_; i++) {
+  for (int i = 0; i < size_; i++) {
     if (0 != buffer_[i]) {
       return FALSE;
     }
@@ -112,7 +112,7 @@ void CRUUpdateBitmap::Reset() {
 CRUUpdateBitmap &CRUUpdateBitmap::operator|=(const CRUUpdateBitmap &other) {
   RUASSERT(size_ == other.size_);
 
-  for (Int32 i = 0; i < size_; i++) {
+  for (int i = 0; i < size_; i++) {
     if (buffer_[i] != other.buffer_[i]) {
       wasChanged_ = TRUE;
       buffer_[i] |= other.buffer_[i];
@@ -133,9 +133,9 @@ CRUUpdateBitmap &CRUUpdateBitmap::operator|=(const CRUUpdateBitmap &other) {
 //--------------------------------------------------------------------------//
 
 CRUUpdateBitmap *CRUUpdateBitmap::CreateInstance(CUOFsIpcMessageTranslator &translator) {
-  Int32 size;
+  int size;
 
-  translator.ReadBlock(&size, sizeof(Int32));
+  translator.ReadBlock(&size, sizeof(int));
   RUASSERT(size > 0);
 
   char *buffer = new char[size];
@@ -156,7 +156,7 @@ CRUUpdateBitmap *CRUUpdateBitmap::CreateInstance(CUOFsIpcMessageTranslator &tran
 void CRUUpdateBitmap::StoreData(CUOFsIpcMessageTranslator &translator) {
   RUASSERT(size_ > 0);
 
-  translator.WriteBlock(&size_, sizeof(Int32));
+  translator.WriteBlock(&size_, sizeof(int));
   translator.WriteBlock(buffer_, size_);
 }
 
@@ -361,13 +361,13 @@ void CRUDeltaStatistics::StoreData(CUOFsIpcMessageTranslator &translator) {
 //	Room required for the serialized buffer
 //--------------------------------------------------------------------------//
 
-TInt32 CRUDeltaStatistics::GetPackedBufferSize(Int32 updateBitmapSize) {
+TInt32 CRUDeltaStatistics::GetPackedBufferSize(int updateBitmapSize) {
   return sizeof(TInt32)          // nRanges_
          + sizeof(TInt32)        // nRangeCoveredRows_
          + sizeof(TInt32)        // nInsertedRows_
          + sizeof(TInt32)        // nDeletedRows_
          + sizeof(TInt32)        // nUpdatedRows_
-         + sizeof(Int32)         // update bitmap buffer size
+         + sizeof(int)         // update bitmap buffer size
          + updateBitmapSize + 1  // update bitmap buffer
       ;
 }
@@ -407,7 +407,7 @@ void CRUDeltaStatisticsMap::LoadData(CUOFsIpcMessageTranslator &translator) {
   translator.ReadBlock(&count, sizeof(int));
   RUASSERT(0 == this->GetCount() && count > 0);
 
-  for (Int32 i = 0; i < count; i++) {
+  for (int i = 0; i < count; i++) {
     translator.ReadBlock(&epoch, sizeof(int));
     deStat.LoadData(translator);
     (*this)[epoch] = deStat;

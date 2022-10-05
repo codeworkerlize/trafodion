@@ -61,7 +61,7 @@ class MdamInterval {
   // Constructor.
   // $$$$ Possibly testing only.
   inline MdamInterval(const tupp &beginTupp, const MdamEnums::MdamInclusion beginInclusion, const tupp &endTupp,
-                      const MdamEnums::MdamInclusion endInclusion, const Int32 disjunctNum,
+                      const MdamEnums::MdamInclusion endInclusion, const int disjunctNum,
                       FixedSizeHeapManager &mdamRefListEntryHeap);
 
   // Constructor without a disjunctNum.  Building of MdamRefList is deferred.
@@ -76,7 +76,7 @@ class MdamInterval {
   //  + reverse the inclusion of endEndPoint if it is of type BEGIN, and
   //  + build a reference list.
   MdamInterval(MdamEndPoint &beginEndPoint, MdamEndPoint &endEndPoint, MdamInterval *intervalPtr0,
-               MdamInterval *intervalPtr1, const Int32 disjunctNum, FixedSizeHeapManager &mdamRefListEntryHeap);
+               MdamInterval *intervalPtr1, const int disjunctNum, FixedSizeHeapManager &mdamRefListEntryHeap);
 
   // Destructor.
   ~MdamInterval();
@@ -97,7 +97,7 @@ class MdamInterval {
   // a copy of the reference list associated with interval1Ptr.  disjunctNum
   // is inserted into the new list if the interval pointed to by interval2Ptr
   // is active.
-  void createRefList(const MdamInterval *interval1Ptr, const MdamInterval *interval2Ptr, const Int32 disjunctNum,
+  void createRefList(const MdamInterval *interval1Ptr, const MdamInterval *interval2Ptr, const int disjunctNum,
                      FixedSizeHeapManager &mdamRefListEntryHeap);
 
   // Get function that obtains the first value in an interval.
@@ -126,7 +126,7 @@ class MdamInterval {
 
   // This function inserts a single disjunct number into the reference list
   // associated with this MdamInterval.
-  inline void insertDisjunctNum(const Int32 disjunctNum, FixedSizeHeapManager &mdamRefListEntryHeap);
+  inline void insertDisjunctNum(const int disjunctNum, FixedSizeHeapManager &mdamRefListEntryHeap);
 
   // Release resources associated with this interval.
   // This is used prior to returning the interval to the free list.
@@ -169,7 +169,7 @@ class MdamInterval {
 // Constructor.
 inline MdamInterval::MdamInterval(const tupp &beginTupp, const MdamEnums::MdamInclusion beginInclusion,
                                   const tupp &endTupp, const MdamEnums::MdamInclusion endInclusion,
-                                  const Int32 disjunctNum, FixedSizeHeapManager &mdamRefListEntryHeap)
+                                  const int disjunctNum, FixedSizeHeapManager &mdamRefListEntryHeap)
     : beginPoint_(beginTupp, beginInclusion),
       endPoint_(endTupp, endInclusion),
       mdamRefList_(disjunctNum, mdamRefListEntryHeap),
@@ -185,7 +185,7 @@ inline MdamRefList *MdamInterval::getRefListPtr() { return &mdamRefList_; }
 
 // This function inserts a single disjunct number into the reference list
 // associated with this MdamInterval.
-inline void MdamInterval::insertDisjunctNum(const Int32 disjunctNum, FixedSizeHeapManager &mdamRefListEntryHeap) {
+inline void MdamInterval::insertDisjunctNum(const int disjunctNum, FixedSizeHeapManager &mdamRefListEntryHeap) {
   mdamRefList_.insert(disjunctNum, mdamRefListEntryHeap);
 }
 

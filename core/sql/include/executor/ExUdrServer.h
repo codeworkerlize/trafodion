@@ -71,7 +71,7 @@ class ExUdrServer : public NABasicObject {
 
   enum ExUdrServerState { EX_UDR_NOT_STARTED = 0, EX_UDR_READY, EX_UDR_BROKEN };
 
-  ExUdrServer(IpcEnvironment *env, const Int32 &userId, const char *options, const char *optionDelimiters,
+  ExUdrServer(IpcEnvironment *env, const int &userId, const char *options, const char *optionDelimiters,
               const char *userName, const char *userPassword, IpcThreadInfo *threadInfo, IpcServerClass *serverClass);
 
   ~ExUdrServer();
@@ -100,7 +100,7 @@ class ExUdrServer : public NABasicObject {
 
   // Matchmaking logic to determine if this server has the requested
   // attributes
-  NABoolean match(const Int32 &userId, const char *options, const char *optionDelimiters,
+  NABoolean match(const int &userId, const char *options, const char *optionDelimiters,
                   IpcThreadInfo *threadInfo) const;
 
   //
@@ -126,7 +126,7 @@ class ExUdrServer : public NABasicObject {
   void setRefCount(ComUInt32 refCount) { refCount_ = refCount; }
   ComUInt32 getRefCount() const { return refCount_; }
 
-  const Int32 &getUserId() const { return userId_; };
+  const int &getUserId() const { return userId_; };
 
 #ifdef UDR_DEBUG
   void setTraceFile(FILE *f) { traceFile_ = f; }
@@ -143,7 +143,7 @@ class ExUdrServer : public NABasicObject {
   ULng32 startAttempts_;
 
   // The user identity for this UDR server
-  Int32 userId_;
+  int userId_;
   char *userName_;
   char *userPassword_;
 
@@ -252,7 +252,7 @@ class ExUdrServerManager : public NABasicObject {
   // options parameter is for JVM startup options only, and simple
   // string comparision is our test to determine if two option sets
   // are equivalent.
-  ExUdrServer *acquireUdrServer(const Int32 &userId, const char *options, const char *optionDelimiters,
+  ExUdrServer *acquireUdrServer(const int &userId, const char *options, const char *optionDelimiters,
                                 const char *userName, const char *userPassword, IpcThreadInfo *threadInfo,
                                 NABoolean dedicated = FALSE);
 

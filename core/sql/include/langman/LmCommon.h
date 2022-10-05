@@ -117,7 +117,7 @@ class LmCBuffer {
   char *getBuffer() const { return buf_; }
 
   // Initialize all bytes of the buffer, similar to memset()
-  void set(Int32 c);
+  void set(int c);
 
   // Release the buffer
   void release();

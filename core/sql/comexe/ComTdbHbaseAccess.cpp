@@ -287,7 +287,7 @@ ComTdbHbaseAccess::~ComTdbHbaseAccess(){};
 
 // Return the number of expressions held by the explain TDB (2)
 // They are enumerated as: 0 - scanPred, 1 - paramsExpr
-Int32 ComTdbHbaseAccess::numExpressions() const { return (19); }
+int ComTdbHbaseAccess::numExpressions() const { return (19); }
 
 BeforeAndAfterTriggers *ComTdbHbaseAccess::getTriggers(const char *tableName) {
   if (!useTrigger()) {
@@ -314,7 +314,7 @@ BeforeAndAfterTriggers *ComTdbHbaseAccess::getTriggers(const char *tableName) {
 
 // Return the expression names of the explain TDB based on some
 // enumeration. 0 - scanPred, 1 - paramsExpr
-const char *ComTdbHbaseAccess::getExpressionName(Int32 expNum) const {
+const char *ComTdbHbaseAccess::getExpressionName(int expNum) const {
   switch (expNum) {
     case 0:
       return "Convert Expr";
@@ -361,7 +361,7 @@ const char *ComTdbHbaseAccess::getExpressionName(Int32 expNum) const {
 
 // Return the expressions of the explain TDB based on some
 // enumeration. 0 - scanPred, 1 - paramsExpr
-ex_expr *ComTdbHbaseAccess::getExpressionNode(Int32 expNum) {
+ex_expr *ComTdbHbaseAccess::getExpressionNode(int expNum) {
   switch (expNum) {
     case 0:
       return convertExpr_;
@@ -603,8 +603,8 @@ void ComTdbHbaseAccess::displayRowId(Space *space, char *inputRowIdBuf) {
         if (NOT nullVal) {
           const char *inputRowIdVal = &inputRowIdBuf[currPos];
           // print max 20 bytes from the key value
-          Int32 fieldWidth = (MINOF(keyValLen, 20) + 1) / 2;
-          for (Int32 idx = 0; idx < fieldWidth; idx++) {
+          int fieldWidth = (MINOF(keyValLen, 20) + 1) / 2;
+          for (int idx = 0; idx < fieldWidth; idx++) {
             // print each byte in 2-digit hex value
             sprintf(keyVal + 2 * idx, "%02x", *(inputRowIdVal + idx));
           }
@@ -1128,8 +1128,8 @@ ComTdbHbaseCoProcAccess::ComTdbHbaseCoProcAccess(
 
     ex_cri_desc *workCriDesc, ex_cri_desc *criDescParentDown, ex_cri_desc *criDescParentUp, queue_index queueSizeDown,
     queue_index queueSizeUp, Cardinality expectedRows, int numBuffers, ULng32 bufferSize, char *server, char *zkPort,
-    HbasePerfAttributes *hbasePerfAttributes, Queue *tdbListOfRangeRows, ex_expr *rowIdExpr, Int32 rowIdTuppIndex,
-    Int32 rowIdAsciiTuppIndex, ULng32 rowIdLength, ULng32 rowIdAsciiRowLen)
+    HbasePerfAttributes *hbasePerfAttributes, Queue *tdbListOfRangeRows, ex_expr *rowIdExpr, int rowIdTuppIndex,
+    int rowIdAsciiTuppIndex, ULng32 rowIdLength, ULng32 rowIdAsciiRowLen)
     : ComTdbHbaseAccess(COPROC_, tableName, baseTableName, projExpr, NULL, rowIdExpr, NULL, NULL, NULL, NULL, NULL,
                         NULL, NULL, NULL, NULL, NULL, NULL, 0, projRowLen, 0, 0, 0, 0, rowIdLength, 0, rowIdAsciiRowLen,
                         0, 0, 0, 0, 0, projTuppIndex, 0, 0, 0, 0, 0, 0, rowIdTuppIndex, returnedTuppIndex,
@@ -1155,8 +1155,8 @@ ComTdbHbaseCoProcAggr::ComTdbHbaseCoProcAggr(
 
     ex_cri_desc *workCriDesc, ex_cri_desc *criDescParentDown, ex_cri_desc *criDescParentUp, queue_index queueSizeDown,
     queue_index queueSizeUp, Cardinality expectedRows, int numBuffers, ULng32 bufferSize, char *server, char *zkPort,
-    HbasePerfAttributes *hbasePerfAttributes, Queue *tdbListOfRangeRows, ex_expr *rowIdExpr, Int32 rowIdTuppIndex,
-    Int32 rowIdAsciiTuppIndex, ULng32 rowIdLength, ULng32 rowIdAsciiRowLen, int filterForNull)
+    HbasePerfAttributes *hbasePerfAttributes, Queue *tdbListOfRangeRows, ex_expr *rowIdExpr, int rowIdTuppIndex,
+    int rowIdAsciiTuppIndex, ULng32 rowIdLength, ULng32 rowIdAsciiRowLen, int filterForNull)
     : ComTdbHbaseCoProcAccess(tableName, baseTableName, ComTdbHbaseCoProcAccess::AGGR_, projExpr, projRowLen,
                               projTuppIndex, returnedTuppIndex, listOfAggrColNames, workCriDesc, criDescParentDown,
                               criDescParentUp, queueSizeDown, queueSizeUp, expectedRows, numBuffers, bufferSize, server,

@@ -286,7 +286,7 @@ void PhysSequence::computeHistoryAttributes(Generator *generator, MapTable *loca
   // functions to force them to be moved into the history row.
   //
   if (NOT historyIds.isEmpty()) {
-    Int32 i = 0;
+    int i = 0;
     ValueId valId;
 
     for (valId = historyIds.init(); historyIds.next(valId); historyIds.advance(valId)) {
@@ -742,7 +742,7 @@ short PhysSequence::codeGen(Generator *generator) {
 
   // My returned composite row has an additional tupp.
   //
-  Int32 numberTuples = givenCriDesc->noTuples() + 1;
+  int numberTuples = givenCriDesc->noTuples() + 1;
   ex_cri_desc *returnCriDesc = new (space) ex_cri_desc(numberTuples, space);
 
   // For now, the history buffer row looks just the return row. Later,
@@ -750,8 +750,8 @@ short PhysSequence::codeGen(Generator *generator) {
   // itermediates that are not needed above this node -- thus, this
   // ATP is kept separate from the returned ATP.
   //
-  const Int32 historyAtp = 0;
-  const Int32 historyAtpIndex = numberTuples - 1;
+  const int historyAtp = 0;
+  const int historyAtpIndex = numberTuples - 1;
   ex_cri_desc *historyCriDesc = new (space) ex_cri_desc(numberTuples, space);
   ExpTupleDesc *historyDesc = 0;
 
@@ -1187,7 +1187,7 @@ ExplainTuple *PhysSequence::addSpecificExplainInfo(ExplainTupleMaster *explainTu
   sprintf(buf, "%d ", int16Val);
   buffer += buf;
 
-  Int32 int32Val;
+  int int32Val;
   int32Val = ((ComTdbSequence *)tdb)->getMaxRowsInOLAPBuffer();
   buffer += " max_rows_in_olap_buffer: ";
   sprintf(buf, "%d ", int32Val);
@@ -1339,7 +1339,7 @@ void PhysSequence::computeReadNReturnItems(ValueId topSeqVid, ValueId vid, const
     }
   }
 
-  for (Int32 i = 0; i < itmExpr->getArity(); i++) {
+  for (int i = 0; i < itmExpr->getArity(); i++) {
     ItemExpr *chld = itmExpr->child(i);
     computeReadNReturnItems(topSeqVid, chld->getValueId(), outputFromChild, wHeap);
   }

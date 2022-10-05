@@ -91,7 +91,7 @@ class SQLLM_LIB_FUNC LmLanguageManagerC : public LmLanguageManager {
                               ComUInt32 outputRowLen, const char *sqlName, const char *externalName,
                               const char *routineSig, const char *containerName, const char *externalPath,
                               const char *librarySqlName, const char *currentUserName, const char *sessionUserName,
-                              ComRoutineExternalSecurity externalSecurity, Int32 routineOwnerId, LmRoutine **handle,
+                              ComRoutineExternalSecurity externalSecurity, int routineOwnerId, LmRoutine **handle,
                               LmHandle getNextRowPtr, LmHandle emitRowPtr, ComUInt32 maxResultSets,
                               ComDiagsArea *diagsArea = NULL);
 

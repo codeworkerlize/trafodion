@@ -54,7 +54,7 @@ class NARoutineDB : public NAKeyLookup<NARoutineDBKey, NARoutine> {
   void put(NARoutine *routine);
   NABoolean cachingMetaData();
   void moveRoutineToDeleteList(NARoutine *cachedNARoutine, const NARoutineDBKey *key);
-  void free_entries_with_QI_key(Int32 numSiKeys, SQL_QIKEY *qiKeyArray);
+  void free_entries_with_QI_key(int numSiKeys, SQL_QIKEY *qiKeyArray);
   void reset_priv_entries();
   void removeNARoutine(QualifiedName &routineName, ComQiScope qiScope, long objUID, NABoolean ddlXns,
                        NABoolean atCommit);
@@ -87,9 +87,9 @@ class NARoutineDB : public NAKeyLookup<NARoutineDBKey, NARoutine> {
 
   // Reduce size of cache if it exceeds limit, by using LRU algorithm.
   NABoolean enforceMemorySpaceConstraints();
-  long getModifyTime(NARoutine &routine, Int32 &error);
-  long getRedefTime(BindWA *bindWA, NARoutine &routine, Int32 &error);
-  long getSchemaRedefTimeFromLabel(NARoutine &routine, Int32 &error);
+  long getModifyTime(NARoutine &routine, int &error);
+  long getRedefTime(BindWA *bindWA, NARoutine &routine, int &error);
+  long getSchemaRedefTimeFromLabel(NARoutine &routine, int &error);
 
   NAMemory *heap_;
 
@@ -118,7 +118,7 @@ class NARoutineDB : public NAKeyLookup<NARoutineDBKey, NARoutine> {
 
   // Pointer to current location in the cachedRoutineList_.
   // Used for cache entry replacement purposes
-  Int32 replacementCursor_;
+  int replacementCursor_;
 
   // Statistics counters.
   ULng32 highWatermarkCache_;  // High watermark of currentCacheSize_

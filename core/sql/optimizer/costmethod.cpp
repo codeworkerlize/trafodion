@@ -4262,7 +4262,7 @@ void CostMethodGroupByAgg::cacheParameters(RelExpr *op, const Context *myContext
   // We will now get the Estimated Logical Properties of the child of
   // Materialize; also multipleCalls will tell us whether or not such
   // child gets called only once.
-  Int32 multipleCalls;
+  int multipleCalls;
   EstLogPropSharedPtr modInputLP;
   if (inLogProp_->getResultCardinality().isGreaterThanOne() &&
       CmpCommon::getDefault(COSTING_SHORTCUT_GROUPBY_FIX) != DF_ON) {
@@ -6483,7 +6483,7 @@ void CostMethodJoin::cacheParameters(RelExpr *op, const Context *myContext) {
   if (jn_->isHashJoin() AND myContext->getInputLogProp()->getResultCardinality().isGreaterThanOne() /* > 1 */) {
     HashJoin *hj = (HashJoin *)jn_;
     if (hj->isNoOverflow() AND hj->isReuse()) {
-      Int32 multipleCalls;
+      int multipleCalls;
 
       // The right(inner) child's output log prop are set equal to materializeoutputLP
       // This essentially means that the number of parent probes for the right

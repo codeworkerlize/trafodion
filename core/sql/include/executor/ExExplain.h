@@ -126,8 +126,8 @@ class ReposTextChunksInfo {
     totalLen_ = 0;
   }
 
-  Int32 numChunks_;
-  Int32 totalLen_;  // total length of all chunks
+  int numChunks_;
+  int totalLen_;  // total length of all chunks
 };
 
 // this structure is stored in repository and preceeds the actual explain data.
@@ -182,8 +182,8 @@ class ExExplainTcb : public ex_tcb {
 
   // A virtual function used by the GUI.  Will always return 0 for
   // ExExplainTcb
-  virtual Int32 numChildren() const;
-  virtual const ex_tcb *getChild(Int32 pos) const;
+  virtual int numChildren() const;
+  virtual const ex_tcb *getChild(int pos) const;
 
   // Method used to allocate and initialize the the paramsTuple.
   // Also two buffers are allocated to hold the values of the
@@ -191,7 +191,7 @@ class ExExplainTcb : public ex_tcb {
   // The paramsTuple will contain the values of the parameters
   // to the explain function (module name and statement pattern)
   // The paramsTuple will be populated by evaluating the paramsExpr
-  void initParamsTuple(Int32 tupleLength, ex_cri_desc *criDescParams, int lengthModName, int lengthStmtPattern);
+  void initParamsTuple(int tupleLength, ex_cri_desc *criDescParams, int lengthModName, int lengthStmtPattern);
 
   void setQid(char *qid, int len);
   void setReposQid(char *reposQid, int len);
@@ -203,7 +203,7 @@ class ExExplainTcb : public ex_tcb {
 
   RtsExplainFrag *sendToSsmp();
 
-  static short getExplainData(ex_root_tdb *rootTdb, char *explain_ptr, Int32 explain_buf_len, Int32 *ret_explain_len,
+  static short getExplainData(ex_root_tdb *rootTdb, char *explain_ptr, int explain_buf_len, int *ret_explain_len,
                               ComDiagsArea *diagsArea, CollHeap *heap);
 
   static short storeExplainInRepos(CliGlobals *cliGlobals, long *execStartUtcTs, char *qid, int qidLen,
@@ -263,7 +263,7 @@ class ExExplainTcb : public ex_tcb {
   // it will then apply the scan predicate (if it exists) to the node and
   // if true will insert the explain Tuple into the parent up queue.
 
-  Int32 visitNode();
+  int visitNode();
 
   // loadModule loads the named module if it has not already been loaded.
   // assumes that the buffer modName_ has been allocated and contains the
@@ -272,7 +272,7 @@ class ExExplainTcb : public ex_tcb {
   // list of the current context.  The context is only available from the
   // master executor.
 
-  Int32 loadModule();
+  int loadModule();
 
   short processExplainStmt();
   short processExplainPlan();

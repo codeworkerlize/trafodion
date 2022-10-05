@@ -186,7 +186,7 @@ NABoolean ItemExpr::isANestedJoinPredicate(const ValueIdSet &inputValues, const 
 
   // Assume it is not a nested join pred:
   NABoolean isANestedJoinPred = FALSE;
-  const Int32 arity = getArity();  // for debugging
+  const int arity = getArity();  // for debugging
   switch (arity) {
     case 2: {
       // a join predicate of the form col1 op col2 or similar
@@ -423,7 +423,7 @@ NABoolean ItemExpr::calculateUecs(ColStatDescList &histograms, CostScalar &minUe
 }
 
 void ItemExpr::resetRealBigNumFlag(ItemExpr *node) {
-  for (Int32 i = 0; i < node->getArity(); i++) {
+  for (int i = 0; i < node->getArity(); i++) {
     resetRealBigNumFlag(node->child(i));
   }
   if ((node->getOperatorType() == ITM_CAST) && (((Cast *)node)->getType()->getTypeQualifier() == NA_NUMERIC_TYPE)) {
@@ -687,13 +687,13 @@ NABoolean BiLogic::applyDefaultPred(ColStatDescList &histograms, OperatorTypeEnu
   return alreadyApplied;
 }
 ItemExpr *BiRelat::getAllParentColIE(ItemExprList &out) {
-  Int32 arity = getArity();
+  int arity = getArity();
   if (getOperatorType() == ITM_EQUAL && (((BiRelat *)this)->getMyParentColIE() != NULL)) {
     out.insert(((BiRelat *)this)->getMyParentColIE());
   }
 
   {
-    for (Int32 i = 0; i < arity; i++) {
+    for (int i = 0; i < arity; i++) {
       ((BiRelat *)getChild(i))->getAllParentColIE(out);
     }
   }
@@ -701,11 +701,11 @@ ItemExpr *BiRelat::getAllParentColIE(ItemExprList &out) {
 }
 
 ItemExpr *BiRelat::getAllChildColIE(ItemExprList &out) {
-  Int32 arity = getArity();
+  int arity = getArity();
   if (getOperatorType() == ITM_EQUAL && (((BiRelat *)this)->getMyChildColIE() != NULL))
     out.insert(((BiRelat *)this)->getMyChildColIE());
   else {
-    for (Int32 i = 0; i < arity; i++) {
+    for (int i = 0; i < arity; i++) {
       ((BiRelat *)getChild(i))->getAllChildColIE(out);
     }
   }
@@ -713,22 +713,22 @@ ItemExpr *BiRelat::getAllChildColIE(ItemExprList &out) {
 }
 
 ItemExpr *BiRelat::getParentColIE() {
-  Int32 arity = getArity();
+  int arity = getArity();
   if (getOperatorType() == ITM_EQUAL && (((BiRelat *)this)->getMyParentColIE() != NULL))
     return ((BiRelat *)this)->getMyParentColIE();
   else {
-    for (Int32 i = 0; i < arity; i++) {
+    for (int i = 0; i < arity; i++) {
       if (((BiRelat *)getChild(i))->getParentColIE() != NULL) return ((BiRelat *)getChild(i))->getParentColIE();
     }
   }
   return NULL;
 }
 ItemExpr *BiRelat::getChildColIE() {
-  Int32 arity = getArity();
+  int arity = getArity();
   if (getOperatorType() == ITM_EQUAL && (((BiRelat *)this)->getMyChildColIE() != NULL))
     return ((BiRelat *)this)->getMyChildColIE();
   else {
-    for (Int32 i = 0; i < arity; i++) {
+    for (int i = 0; i < arity; i++) {
       if (((BiRelat *)getChild(i))->getChildColIE() != NULL) return ((BiRelat *)getChild(i))->getChildColIE();
     }
   }

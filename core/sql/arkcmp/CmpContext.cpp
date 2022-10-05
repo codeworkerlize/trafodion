@@ -111,7 +111,7 @@ extern THREAD_P jmp_buf CmpInternalErrorJmpBuf;
 // -----------------------------------------------------------------------
 
 NABoolean CmpContext::useReservedNameSpace_ = FALSE;
-Int32 CmpContext::authorizationState_ = 0;
+int CmpContext::authorizationState_ = 0;
 
 CmpContext::CmpContext(UInt32 f, CollHeap *h)
     : heap_((NAHeap *)h),
@@ -401,10 +401,10 @@ void CmpContext::setSecondaryMxcmp() {
   int rc = SQL_EXEC_SetEnviron_Internal(0);
 }
 
-Int32 CmpContext::getNumOfSMPs() {
+int CmpContext::getNumOfSMPs() {
   const NAWNodeSet *asn = getAvailableNodes();
   bool multiTenancy = (asn && asn->canUseAllNodes(CURRCONTEXT_CLUSTERINFO));
-  Int32 smpCount = clusterInfo_->getTotalNumberOfCPUs();
+  int smpCount = clusterInfo_->getTotalNumberOfCPUs();
 
   if (multiTenancy) {
     smpCount = asn->getNumNodes();
@@ -421,7 +421,7 @@ Int32 CmpContext::getNumOfSMPs() {
     // A value for PARALLEL_NUM_ESPS exists.  Use it for the count of cpus
     //  but don't exceed the number of cpus available in the cluster.
     // -------------------------------------------------------------------
-    smpCount = (Int32)(ActiveSchemaDB()->getDefaults().getAsLong(PARALLEL_NUM_ESPS));
+    smpCount = (int)(ActiveSchemaDB()->getDefaults().getAsLong(PARALLEL_NUM_ESPS));
 
     if (multiTenancy) smpCount = asn->makeSizeFeasible(smpCount, -1, -1);
   }
@@ -575,7 +575,7 @@ void CmpContext::setAvailableNodesForOSIM(NAWNodeSet *osimNodes) {
 //   2: some metadata tables exist, privmgr metadata is not ready
 //  -nnnn: an unexpected error occurred
 // ----------------------------------------------------------------------------
-void CmpContext::setAuthorizationState(Int32 state) {
+void CmpContext::setAuthorizationState(int state) {
   switch (state) {
     // state = 0, not initialized
     case 0:
@@ -787,9 +787,9 @@ CmpStatementISP *CmpContext::getISPStatement(long id) {
 //     1 - WARNING: (not used)
 //     2 - ERROR: any compiler internal errors
 //     3 - MORE_DATA: only for REPLY_ISP_
-Int32 CmpContext::compileDirect(char *data, UInt32 data_len, CollHeap *outHeap, Int32 charset,
+int CmpContext::compileDirect(char *data, UInt32 data_len, CollHeap *outHeap, int charset,
                                 CmpMessageObj::MessageTypeEnum op, char *&gen_code, UInt32 &gen_code_len,
-                                UInt32 parserFlags, const char *parentQid, Int32 parentQidLen, ComDiagsArea *&diagsArea,
+                                UInt32 parserFlags, const char *parentQid, int parentQidLen, ComDiagsArea *&diagsArea,
                                 NABoolean needToDoWork) {
   CmpStatement::ReturnStatus rs = CmpStatement::CmpStatement_SUCCESS;
   CmpStatement *cmpStatement = NULL;
@@ -815,7 +815,7 @@ Int32 CmpContext::compileDirect(char *data, UInt32 data_len, CollHeap *outHeap, 
   memcmp(savedJB, ExportJmpBuf, sizeof(jmp_buf));
   memcmp(savedInternalErrJB, CmpInternalErrorJmpBuf, sizeof(jmp_buf));
 
-  Int32 jRc = setjmp(ExportJmpBuf);
+  int jRc = setjmp(ExportJmpBuf);
   if (jRc) {  // longjmp here
     if (cmpStatement) delete cmpStatement;
 
@@ -843,7 +843,7 @@ Int32 CmpContext::compileDirect(char *data, UInt32 data_len, CollHeap *outHeap, 
     return CmpStatement::CmpStatement_ERROR;  // temp use of this error;
   }
 
-  Int32 jRc2 = setjmp(CmpInternalErrorJmpBuf);
+  int jRc2 = setjmp(CmpInternalErrorJmpBuf);
   if (jRc2) {  // longjmp here
     if (cmpStatement) delete cmpStatement;
 
@@ -1059,7 +1059,7 @@ Int32 CmpContext::compileDirect(char *data, UInt32 data_len, CollHeap *outHeap, 
   //       ExSqlComp::ReturnStatus
   if (rs == CmpStatement::CmpStatement_SUCCESS && cmpStatement->reply()) {
     // get the plan
-    Int32 objType = cmpStatement->reply()->getType();
+    int objType = cmpStatement->reply()->getType();
     switch (objType) {
       case CmpMessageObj::REPLY_CODE: {
         CmpMessageReplyCode *rp = (CmpMessageReplyCode *)cmpStatement->reply();
@@ -1141,7 +1141,7 @@ void CmpContext::setArkcmpEnvDirect(const char *name, const char *value, NABoole
 
   // prepare the env string "name=value" first
   char *envStr;
-  Int32 strLen;
+  int strLen;
   strLen = str_len(name) + str_len(value) + 1;  // name=value
   if (strLen <= 0) return;                      // do nothing
   envStr = new (heap_) char[strLen + 1];
@@ -1250,8 +1250,8 @@ CNATestPointArray *CmpContext::getOrCreateTestPointArray() {
   return testPointArray_;
 }
 
-Int32 CmpContext::executeTestPoint(Int32 testPoint) {
-  Int32 retcode = 0;
+int CmpContext::executeTestPoint(int testPoint) {
+  int retcode = 0;
   if (testPointArray_) retcode = testPointArray_->executeTestPoint((ETestPointValue)testPoint);
 
   return retcode;

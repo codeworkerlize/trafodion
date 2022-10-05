@@ -68,7 +68,7 @@ class ex_function_clause;
 #define MIN_IPV6_STRING_LEN 2
 #define IPV6_PARTS_NUM      8
 
-UInt32 FastHash(char *data, Int32 length);
+UInt32 FastHash(char *data, int length);
 
 class ExFunctionAscii : public ex_function_clause {
  public:
@@ -192,7 +192,7 @@ class ExFunctionReplace : public ex_function_clause {
 
   // Null Semantics
   //
-  Int32 isNullInNullOut() const { return 0; };
+  int isNullInNullOut() const { return 0; };
 
   virtual ex_expr::exp_return_type processNulls(char *op_data[], CollHeap * = 0, ComDiagsArea ** = 0);
   // ---------------------------------------------------------------------
@@ -249,7 +249,7 @@ class ExRegexpReplace : public ex_function_clause {
   Long pack(void *);
 
   // Null Semantics
-  Int32 isNullInNullOut() const { return 0; };
+  int isNullInNullOut() const { return 0; };
 
   virtual ex_expr::exp_return_type processNulls(char *op_data[], CollHeap * = 0, ComDiagsArea ** = 0);
   // ---------------------------------------------------------------------
@@ -294,7 +294,7 @@ class ExRegexpSubstrOrCount : public ex_function_clause {
 
   // Null Semantics
   //
-  Int32 isNullInNullOut() const { return 0; };
+  int isNullInNullOut() const { return 0; };
 
   // ---------------------------------------------------------------------
   // Redefinition of methods inherited from NAVersionedObject.
@@ -407,7 +407,7 @@ class ex_function_position : public ex_function_clause {
   // checking the entire string).  This is used by LIKE
   // clauses.
   ////////////////////////////////////////////////////////
-  static Int32 findPosition(char *pat, Int32 patLen, char *src, Int32 srcLen, NABoolean patternInFront);
+  static int findPosition(char *pat, int patLen, char *src, int srcLen, NABoolean patternInFront);
 
   ////////////////////////////////////////////////////////
   // If searchLen is <= 0 or searchLen > sourceLen or
@@ -425,7 +425,7 @@ class ex_function_position : public ex_function_clause {
                             CharInfo::CharSet cs = CharInfo::ISO88591);
 
   static int findPositionInReverse(char *sourceStr, int sourceLen, char *searchStr, int searchLen,
-                                     Int32 occurrence, CharInfo::CharSet cs = CharInfo::ISO88591);
+                                     int occurrence, CharInfo::CharSet cs = CharInfo::ISO88591);
 
   static int errorChecks(int startPos, int occurrence,
                            NABoolean isInstr,  // INSTR function
@@ -434,7 +434,7 @@ class ex_function_position : public ex_function_clause {
 
   ex_expr::exp_return_type pCodeGenerate(Space *space, UInt32 f);
 
-  Int32 isNullRelevant() const { return getIsNullRelevant(); }
+  int isNullRelevant() const { return getIsNullRelevant(); }
 
   ex_expr::exp_return_type eval(char *op_data[], CollHeap *heap, ComDiagsArea ** = 0);
   Long pack(void *);
@@ -495,7 +495,7 @@ class ex_function_concat : public ex_function_clause {
 
   // Null Semantics
   //
-  Int32 isNullInNullOut() const { return 0; };
+  int isNullInNullOut() const { return 0; };
 
   virtual ex_expr::exp_return_type processNulls(char *op_data[], CollHeap * = 0, ComDiagsArea ** = 0);
 
@@ -617,7 +617,7 @@ class ex_function_substring : public ex_function_clause {
 
   // Null Semantics
   //
-  Int32 isNullInNullOut() const { return 0; };
+  int isNullInNullOut() const { return 0; };
 
   virtual ex_expr::exp_return_type processNulls(char *op_data[], CollHeap * = 0, ComDiagsArea ** = 0);
   // ---------------------------------------------------------------------
@@ -636,10 +636,10 @@ class ex_function_substring : public ex_function_clause {
 
 class ex_function_trim : public ex_function_clause {
  public:
-  ex_function_trim(OperatorTypeEnum oper_type, Attributes **attr, Space *space, Int32 mode);
+  ex_function_trim(OperatorTypeEnum oper_type, Attributes **attr, Space *space, int mode);
   ex_function_trim(){};
 
-  inline Int32 getTrimMode() const { return mode_; }
+  inline int getTrimMode() const { return mode_; }
   ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea ** = 0) = 0;
   Long pack(void *) = 0;
 
@@ -672,7 +672,7 @@ class ex_function_trim : public ex_function_clause {
   // ---------------------------------------------------------------------
 
  private:
-  Int32 mode_;                   // 00-03
+  int mode_;                   // 00-03
   Int16 collation_;              // 04-05
   Int16 srcStrEncodedLength_;    // 06-07
   Int16 trimCharEncodedLength_;  // 08-09
@@ -686,7 +686,7 @@ class ex_function_trim : public ex_function_clause {
 
 class ex_function_trim_char : public ex_function_trim {
  public:
-  ex_function_trim_char(OperatorTypeEnum oper_type, Attributes **attr, Space *space, Int32 mode);
+  ex_function_trim_char(OperatorTypeEnum oper_type, Attributes **attr, Space *space, int mode);
   ex_function_trim_char();
 
   ex_expr::exp_return_type pCodeGenerate(Space *space, UInt32 f);
@@ -694,7 +694,7 @@ class ex_function_trim_char : public ex_function_trim {
   Long pack(void *);
   // Null Semantics
   //
-  Int32 isNullInNullOut() const { return 0; };
+  int isNullInNullOut() const { return 0; };
 
   virtual ex_expr::exp_return_type processNulls(char *op_data[], CollHeap * = 0, ComDiagsArea ** = 0);
   // ---------------------------------------------------------------------
@@ -808,7 +808,7 @@ class ExFunctionMd5 : public ex_function_clause {
   ExFunctionMd5();
 
   ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea ** = 0);
-  Int32 isNullInNullOut() const { return 0; };
+  int isNullInNullOut() const { return 0; };
   Long pack(void *);
 
   // ---------------------------------------------------------------------
@@ -893,7 +893,7 @@ class ExFunctionInetNtoa : public ex_function_clause {
 
 class ExFunctionAESEncrypt : public ex_function_clause {
  public:
-  ExFunctionAESEncrypt(OperatorTypeEnum oper_type, Attributes **attr, Space *space, int args_num, Int32 aes_mode);
+  ExFunctionAESEncrypt(OperatorTypeEnum oper_type, Attributes **attr, Space *space, int args_num, int aes_mode);
   ExFunctionAESEncrypt();
 
   ex_expr::exp_return_type eval(char *op_datap[], CollHeap *, ComDiagsArea ** = 0);
@@ -913,13 +913,13 @@ class ExFunctionAESEncrypt : public ex_function_clause {
 
   // ---------------------------------------------------------------------
  private:
-  Int32 aes_mode;
-  Int32 args_num;
+  int aes_mode;
+  int args_num;
 };
 
 class ExFunctionAESDecrypt : public ex_function_clause {
  public:
-  ExFunctionAESDecrypt(OperatorTypeEnum oper_type, Attributes **attr, Space *space, int args_num, Int32 aes_mode);
+  ExFunctionAESDecrypt(OperatorTypeEnum oper_type, Attributes **attr, Space *space, int args_num, int aes_mode);
 
   ExFunctionAESDecrypt();
 
@@ -941,14 +941,14 @@ class ExFunctionAESDecrypt : public ex_function_clause {
 
   // ---------------------------------------------------------------------
  private:
-  Int32 aes_mode;
-  Int32 args_num;
+  int aes_mode;
+  int args_num;
 };
 
 class ExFunctionBase64EncDec : public ex_function_clause {
  public:
   ExFunctionBase64EncDec(OperatorTypeEnum oper_type, Attributes **attr, Space *space, NABoolean isEncode,
-                         Int32 maxBuflen);
+                         int maxBuflen);
   ExFunctionBase64EncDec();
 
   ex_expr::exp_return_type eval(char *op_datap[], CollHeap *, ComDiagsArea ** = 0);
@@ -971,7 +971,7 @@ class ExFunctionBase64EncDec : public ex_function_clause {
   short decodeValue(char *op_data[], CollHeap *heap, ComDiagsArea **diagsArea);
 
   NABoolean isEncode_;  // TRUE, encode. FALSE, decode
-  Int32 maxBuflen_;     // max buffer size for value to be decoded.
+  int maxBuflen_;     // max buffer size for value to be decoded.
 
   // this field is allocated at runtime
   char *decodedBuf_;
@@ -1023,7 +1023,7 @@ class ExFunctionReverseStr : public ex_function_clause {
 
 class ex_function_trim_doublebyte : public ex_function_trim {
  public:
-  ex_function_trim_doublebyte(OperatorTypeEnum oper_type, Attributes **attr, Space *space, Int32 mode);
+  ex_function_trim_doublebyte(OperatorTypeEnum oper_type, Attributes **attr, Space *space, int mode);
   ex_function_trim_doublebyte();
 
   ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea ** = 0);
@@ -1031,7 +1031,7 @@ class ex_function_trim_doublebyte : public ex_function_trim {
 
   // Null Semantics
   //
-  Int32 isNullInNullOut() const { return 0; };
+  int isNullInNullOut() const { return 0; };
 
   virtual ex_expr::exp_return_type processNulls(char *op_data[], CollHeap * = 0, ComDiagsArea ** = 0);
   // ---------------------------------------------------------------------
@@ -1179,13 +1179,13 @@ class ex_function_substring_doublebyte : public ex_function_clause {
 
 class ex_function_translate : public ex_function_clause {
  public:
-  ex_function_translate(OperatorTypeEnum oper_type, Attributes **attr, Space *space, Int32 conv_type, Int16 flags);
+  ex_function_translate(OperatorTypeEnum oper_type, Attributes **attr, Space *space, int conv_type, Int16 flags);
   ex_function_translate(){};
 
   ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea ** = 0);
   Long pack(void *);
 
-  Int32 get_conv_type() { return conv_type_; };
+  int get_conv_type() { return conv_type_; };
 
   // ---------------------------------------------------------------------
   // Redefinition of methods inherited from NAVersionedObject.
@@ -1208,7 +1208,7 @@ class ex_function_translate : public ex_function_clause {
   // ---------------------------------------------------------------------
 
  private:
-  Int32 conv_type_;  // 00-03
+  int conv_type_;  // 00-03
   // flags, see TranslateFlags enum above
   Int16 flags_;  // 04-05
   // ---------------------------------------------------------------------
@@ -1232,13 +1232,13 @@ class ex_function_encode : public ex_function_clause {
 
   // Null Semantics
   //
-  Int32 isNullInNullOut() const { return 0; };
-  Int32 isNullRelevant() const { return 1; };
+  int isNullInNullOut() const { return 0; };
+  int isNullRelevant() const { return 1; };
   ex_expr::exp_return_type processNulls(char *op_data[], CollHeap *, ComDiagsArea ** = 0);
 
   // Execution
   //
-  Int32 isEvalRelevant() const { return 1; };
+  int isEvalRelevant() const { return 1; };
   ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea ** = 0);
 
   // Fixup
@@ -1250,15 +1250,15 @@ class ex_function_encode : public ex_function_clause {
   //
   static void encodeKeyValue(Attributes *attr, const char *source, const char *varlen_ptr, char *target,
                              NABoolean isCaseInsensitive, Attributes *tgtAttr = NULL, char *tgt_varlen_ptr = NULL,
-                             const Int32 tgtLength = 0, CharInfo::Collation collation = CharInfo::DefaultCollation,
+                             const int tgtLength = 0, CharInfo::Collation collation = CharInfo::DefaultCollation,
                              CollationInfo::CollationType collType = CollationInfo::Sort);
 
-  static void encodeCollationKey(const UInt8 *src, Int32 srcLength, UInt8 *encodedKey, const Int32 encodedKeyLength,
+  static void encodeCollationKey(const UInt8 *src, int srcLength, UInt8 *encodedKey, const int encodedKeyLength,
                                  Int16 nPasses, CharInfo::Collation collation = CharInfo::DefaultCollation,
                                  NABoolean rmTSpaces = TRUE);
 
-  static void encodeCollationSearchKey(const UInt8 *src, Int32 srcLength, UInt8 *encodedKey,
-                                       const Int32 encodedKeyLength, Int32 &effEncodedKeyLength, Int16 nPasses,
+  static void encodeCollationSearchKey(const UInt8 *src, int srcLength, UInt8 *encodedKey,
+                                       const int encodedKeyLength, int &effEncodedKeyLength, Int16 nPasses,
                                        CharInfo::Collation collation = CharInfo::DefaultCollation,
                                        NABoolean rmTSpaces = TRUE);
 
@@ -1316,9 +1316,9 @@ class ex_function_encode : public ex_function_clause {
 
   static Int16 getNumberOfDigraphs(CharInfo::Collation collation);
 
-  static UInt8 *getDigraph(const CharInfo::Collation collation, const Int32 digraphNum);
+  static UInt8 *getDigraph(const CharInfo::Collation collation, const int digraphNum);
 
-  static Int16 getDigraphIndex(const CharInfo::Collation collation, const Int32 digraphNum);
+  static Int16 getDigraphIndex(const CharInfo::Collation collation, const int digraphNum);
 
   static NABoolean getRmTSpaces(const CharInfo::Collation collation);
 
@@ -1361,10 +1361,10 @@ class ex_function_encode : public ex_function_clause {
 // NOTE:    sortBuffer1 & sortBuffer2 MUST BE preallocated and big enough.
 // ---------------------------------------------------------------------
 // NOTE: No need to use ... maybe in the future?
-static Int32 Collated_cmp(char *string1, char *string2, Int32 length, CharInfo::Collation Collation, char *sortBuffer1,
+static int Collated_cmp(char *string1, char *string2, int length, CharInfo::Collation Collation, char *sortBuffer1,
                           char *sortBuffer2) {
   Int16 nPasses = CollationInfo::getCollationNPasses(Collation);
-  Int32 encodeKeyBufLen = length * nPasses + 2 + nPasses;
+  int encodeKeyBufLen = length * nPasses + 2 + nPasses;
 
   ex_function_encode::encodeCollationKey((const UInt8 *)string1, length, (UInt8 *)sortBuffer1, encodeKeyBufLen, nPasses,
                                          Collation, FALSE /*remove trailing spaces */
@@ -1524,12 +1524,12 @@ class ex_function_explode_varchar : public ex_function_clause {
 
   // Null Semantics
   //
-  Int32 isNullInNullOut() const { return 0; };
-  Int32 isNullRelevant() const { return 1; };
+  int isNullInNullOut() const { return 0; };
+  int isNullRelevant() const { return 1; };
 
   // Execution
   //
-  Int32 isEvalRelevant() const { return 1; };
+  int isEvalRelevant() const { return 1; };
 
   ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea ** = 0);
   Long pack(void *);
@@ -1550,7 +1550,7 @@ class ex_function_explode_varchar : public ex_function_clause {
   // ---------------------------------------------------------------------
 
  private:
-  Int32 forInsert_;  // 00-03
+  int forInsert_;  // 00-03
   // ---------------------------------------------------------------------
   // Fillers for potential future extensions without changing class size.
   // When a new member is added, size of this filler should be reduced so
@@ -1564,8 +1564,8 @@ class ex_function_hash : public ex_function_clause {
   ex_function_hash(OperatorTypeEnum oper_type, Attributes **attr, Space *space);
   ex_function_hash();
 
-  Int32 isNullInNullOut() const { return 0; };
-  Int32 isNullRelevant() const { return 0; };
+  int isNullInNullOut() const { return 0; };
+  int isNullRelevant() const { return 0; };
   ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea ** = 0);
   Long pack(void *);
   ex_expr::exp_return_type pCodeGenerate(Space *space, UInt32 f);
@@ -1728,16 +1728,16 @@ class ExHDPHash : public ex_function_clause {
     SWAP_LASTFOUR = 0x0010
   };
 
-  Int32 isNullInNullOut() const { return 0; };
-  Int32 isNullRelevant() const { return 0; };
+  int isNullInNullOut() const { return 0; };
+  int isNullRelevant() const { return 0; };
   ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea ** = 0);
   Long pack(void *);
   ex_expr::exp_return_type pCodeGenerate(Space *space, UInt32 f);
 
-  static ULng32 hash(const char *data, UInt32 flags, Int32 length);
+  static ULng32 hash(const char *data, UInt32 flags, int length);
 
-  static UInt64 hashP(const unsigned char *src1, const unsigned char *src2, Int32 len1, Int32 len2) {
-    Int32 i = 0;
+  static UInt64 hashP(const unsigned char *src1, const unsigned char *src2, int len1, int len2) {
+    int i = 0;
     ULng32 hash1 = 0;
     ULng32 hash2 = 0;
 
@@ -1924,8 +1924,8 @@ class ex_function_replace_null : public ex_function_clause {
   ex_function_replace_null(OperatorTypeEnum oper_type, Attributes **attr, Space *space);
   ex_function_replace_null();
 
-  Int32 isNullInNullOut() const { return 0; };
-  Int32 isNullRelevant() const { return 0; };
+  int isNullInNullOut() const { return 0; };
+  int isNullRelevant() const { return 0; };
   ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea ** = 0);
   ex_expr::exp_return_type processNulls(char *op_data[], CollHeap *, ComDiagsArea ** = 0);
   Long pack(void *);
@@ -2072,8 +2072,8 @@ class ex_function_converttimestamp : public ex_function_clause {
  private:
   enum { TO_LOCAL_TIME = 0x0001 };
 
-  Int32 flags_;
-  Int32 filler0_;
+  int flags_;
+  int filler0_;
 
   // difference in microseconds between gmt/utc time and local time.
   // It is +ve number for times west of gmt and -ve for times east.
@@ -2083,13 +2083,13 @@ class ex_function_converttimestamp : public ex_function_clause {
 
 class ex_function_dateformat : public ex_function_clause {
  public:
-  ex_function_dateformat(OperatorTypeEnum oper_type, Attributes **attr, Space *space, Int32 dateformat, int num_attrs,
+  ex_function_dateformat(OperatorTypeEnum oper_type, Attributes **attr, Space *space, int dateformat, int num_attrs,
                          int nCaseSensitive = 0);
   ex_function_dateformat();
 
-  void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea);
+  void displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea);
 
-  inline Int32 getDateFormat() const { return dateformat_; }
+  inline int getDateFormat() const { return dateformat_; }
   inline int getCaseSensitivity() const { return caseSensitivity_; }
   ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea ** = 0);
   Long pack(void *);
@@ -2109,7 +2109,7 @@ class ex_function_dateformat : public ex_function_clause {
 
  private:
   // formats defined in class ExpDatetime in exp/exp_datetime.h
-  Int32 dateformat_;       // 00-03
+  int dateformat_;       // 00-03
   int caseSensitivity_;  // 04-07
   // ---------------------------------------------------------------------
   // Fillers for potential future extensions without changing class size.
@@ -2438,8 +2438,8 @@ class ExpRaiseErrorFunction : public ex_function_clause {
 
   NABasicPtr /*const char* */ constraintName_;  // 00-07
   NABasicPtr /*const char* */ tableName_;       // 08-15
-  Int32 theSQLCODE_;                            // 16-19
-  Int32 flags_;                                 // 20-23
+  int theSQLCODE_;                            // 16-19
+  int flags_;                                 // 20-23
   // TRUE, raise error. FALSE, raise warning.
 
   // one byte for null terminator.
@@ -2530,12 +2530,12 @@ class ExUnPackCol : public ex_function_clause {
   // this clause does not have NULL in, but can have NULL out,
   // This method must return 0.
   //
-  Int32 isNullInNullOut() const { return 0; };
+  int isNullInNullOut() const { return 0; };
 
   // This clause handles all NULL processing in the eval()
   // method.
   //
-  Int32 isNullRelevant() const { return 0; };
+  int isNullRelevant() const { return 0; };
 
   // This is where all the work is done.
   //
@@ -2572,15 +2572,15 @@ class ExUnPackCol : public ex_function_clause {
 
   // The width of the data to be extracted. (in BITS).
   //
-  Int32 width_;  // 00-03
+  int width_;  // 00-03
 
   // The offset to the Data section of the packed row (in BYTES).
   //
-  Int32 base_;  // 04-07
+  int base_;  // 04-07
 
   // If TRUE, a NULL Bitmap is present in the packed row.
   //
-  Int32 flags_;  // 08-11
+  int flags_;  // 08-11
   // ---------------------------------------------------------------------
   // Fillers for potential future extensions without changing class size.
   // When a new member is added, size of this filler should be reduced so
@@ -2627,7 +2627,7 @@ class ExFunctionRandomNum : public ex_function_clause {
 
   NABoolean simpleRandom() { return (flags_ & SIMPLE_RANDOM) != 0; }
 
-  Int32 seed_;  // 00-03
+  int seed_;  // 00-03
 
   Int16 flags_;  // 04-05
   // ---------------------------------------------------------------------
@@ -2655,8 +2655,8 @@ class ExFunctionRandomSelection : public ExFunctionRandomNum {
   void initDiff();
 
   Float32 selProbability_;  // 00-03
-  Int32 difference_;        // 04-07
-  Int32 normProbability_;   // 08-11
+  int difference_;        // 04-07
+  int normProbability_;   // 08-11
 
   // ---------------------------------------------------------------------
   // Fillers for potential future extensions without changing class size.
@@ -2788,12 +2788,12 @@ class ExFunctionPack : public ex_function_clause {
 
   ExFunctionPack();
 
-  Int32 isNullInNullOut() const { return 0; }
+  int isNullInNullOut() const { return 0; }
 
   // Processing of null is in eval().
-  Int32 isNullRelevant() const { return 0; }
+  int isNullRelevant() const { return 0; }
 
-  Int32 isEvalRelevant() const { return 1; }
+  int isEvalRelevant() const { return 1; }
 
   // ex_expr::exp_return_type processNulls(char *op_data[],
   //						      CollHeap*,
@@ -2825,9 +2825,9 @@ class ExFunctionPack : public ex_function_clause {
     NULLS_PRESENT = 0x00000001  // Nulls present if set
   };
 
-  Int32 width_;  // 00-03
-  Int32 base_;   // 04-07
-  Int32 flags_;  // 08-11
+  int width_;  // 00-03
+  int base_;   // 04-07
+  int flags_;  // 08-11
   // ---------------------------------------------------------------------
   // Fillers for potential future extensions without changing class size.
   // When a new member is added, size of this filler should be reduced so
@@ -2860,8 +2860,8 @@ class ExFunctionRangeLookup : public ex_function_clause {
   // ---------------------------------------------------------------------
 
  private:
-  Int32 numParts_;    // 00-03
-  Int32 partKeyLen_;  // 04-07
+  int numParts_;    // 00-03
+  int partKeyLen_;  // 04-07
 
   // ---------------------------------------------------------------------
   // Fillers for potential future extensions without changing class size.
@@ -2895,7 +2895,7 @@ class ExRowsetArrayScan : public ex_function_clause {
   // This clause handles all NULL processing in the eval()
   // method.
   //
-  Int32 isNullRelevant() const { return 0; };
+  int isNullRelevant() const { return 0; };
   ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea **diagsArea = 0);
   Long pack(void *space);
 
@@ -2913,10 +2913,10 @@ class ExRowsetArrayScan : public ex_function_clause {
   // ---------------------------------------------------------------------
 
  private:
-  Int32 maxNumElem_;   // Maximum number of elements          // 00-03
-  Int32 elemSize_;     // Element storage length in bytes     // 04-07
-  Int32 elemNullInd_;  // Null Present ?                      // 08-11
-  Int32 optLargVar_;   // 12-15
+  int maxNumElem_;   // Maximum number of elements          // 00-03
+  int elemSize_;     // Element storage length in bytes     // 04-07
+  int elemNullInd_;  // Null Present ?                      // 08-11
+  int optLargVar_;   // 12-15
 };
 
 class ExRowsetArrayRowid : public ex_function_clause {
@@ -2928,7 +2928,7 @@ class ExRowsetArrayRowid : public ex_function_clause {
   // This clause handles all NULL processing in the eval()
   // method.
   //
-  Int32 isNullRelevant() const { return 0; };
+  int isNullRelevant() const { return 0; };
   ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea **diagsArea = 0);
 
   Long pack(void *space);
@@ -2947,7 +2947,7 @@ class ExRowsetArrayRowid : public ex_function_clause {
   // ---------------------------------------------------------------------
 
  private:
-  Int32 maxNumElem_;       // Maximum number of elements          // 00-03
+  int maxNumElem_;       // Maximum number of elements          // 00-03
   char fillersRowset_[4];  // 04-07
 };
 
@@ -2960,8 +2960,8 @@ class ExRowsetArrayInto : public ex_function_clause {
   // This clause handles all NULL processing in the eval()
   // method.
   //
-  Int32 isNullRelevant() const { return 0; };
-  Int32 isEvalRelevant() const { return 1; }
+  int isNullRelevant() const { return 0; };
+  int isEvalRelevant() const { return 1; }
   ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea **diagsArea = 0);
 
   // ex_expr::exp_return_type pCodeGenerate(Space *space, UInt32 f);
@@ -2980,17 +2980,17 @@ class ExRowsetArrayInto : public ex_function_clause {
 
   virtual short getClassSize() { return (short)sizeof(*this); }
 
-  virtual Int32 getElemSize() { return elemSize_; }
+  virtual int getElemSize() { return elemSize_; }
 
-  virtual Int32 getElemNullInd() { return elemNullInd_; }
+  virtual int getElemNullInd() { return elemNullInd_; }
 
   // ---------------------------------------------------------------------
 
  private:
-  Int32 maxNumElem_;   // Maximum number of elements          // 00-03
-  Int32 numElem_;      // Actual number of elements           // 04-07
-  Int32 elemSize_;     // Element storage length in bytes     // 08-11
-  Int32 elemNullInd_;  // Null Present ?                      // 12-15
+  int maxNumElem_;   // Maximum number of elements          // 00-03
+  int numElem_;      // Actual number of elements           // 04-07
+  int elemSize_;     // Element storage length in bytes     // 08-11
+  int elemNullInd_;  // Null Present ?                      // 12-15
 
   // ---------------------------------------------------------------------
   // Fillers for potential future extensions without changing class size.
@@ -3030,7 +3030,7 @@ class ex_function_nvl : public ex_function_clause {
   virtual short getClassSize() { return (short)sizeof(*this); }
 
   // This clause handles all NULL processing in the eval() method.
-  Int32 isNullRelevant() const { return 0; };
+  int isNullRelevant() const { return 0; };
 
  private:
   char fillers_[64];
@@ -3049,7 +3049,7 @@ class ex_function_firstngram : public ex_function_clause {
   virtual short getClassSize() { return (short)sizeof(*this); }
 
   // This clause handles all NULL processing in the eval() method.
-  Int32 isNullRelevant() const { return 0; };
+  int isNullRelevant() const { return 0; };
 
  private:
   char fillers_[64];
@@ -3067,7 +3067,7 @@ class ex_function_ngramcount : public ex_function_clause {
   virtual short getClassSize() { return (short)sizeof(*this); }
 
   // This clause handles all NULL processing in the eval() method.
-  Int32 isNullRelevant() const { return 0; };
+  int isNullRelevant() const { return 0; };
 
  private:
   char fillers_[64];
@@ -3130,7 +3130,7 @@ class ExFunctionHbaseColumnLookup : public ex_function_clause {
   virtual short getClassSize() { return (short)sizeof(*this); }
 
   // This clause handles all NULL processing in the eval() method.
-  Int32 isNullRelevant() const { return 0; };
+  int isNullRelevant() const { return 0; };
 
   static short extractColFamilyAndName(const char *input, short len, NABoolean isVarchar, std::string &colFam,
                                        std::string &colName);
@@ -3169,7 +3169,7 @@ class ExFunctionHbaseColumnsDisplay : public ex_function_clause {
 class ExFunctionHbaseColumnCreate : public ex_function_clause {
  public:
   ExFunctionHbaseColumnCreate(OperatorTypeEnum oper_type, Attributes **attr, short numEntries, short colNameMaxLen,
-                              Int32 colValMaxLen, short colValVCIndLen, Space *space);
+                              int colValMaxLen, short colValVCIndLen, Space *space);
   ExFunctionHbaseColumnCreate();
 
   ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea ** = 0);
@@ -3183,7 +3183,7 @@ class ExFunctionHbaseColumnCreate : public ex_function_clause {
 
   short numEntries_;
   short colNameMaxLen_;
-  Int32 colValMaxLen_;
+  int colValMaxLen_;
   short colValVCIndLen_;  // 2 or 4 bytes
   char filler1_[2];
 };
@@ -3213,7 +3213,7 @@ class ExFunctionSequenceValue : public ex_function_clause {
   virtual short getClassSize() { return (short)sizeof(*this); }
 
   // This clause handles all NULL processing in the eval() method.
-  Int32 isNullRelevant() const { return 0; };
+  int isNullRelevant() const { return 0; };
 
   void setIsCurr(NABoolean v) { (v) ? flags_ |= IS_CURR : flags_ &= ~IS_CURR; };
 
@@ -3258,7 +3258,7 @@ class ExFunctionHbaseVisibility : public ex_function_clause {
   ExFunctionHbaseVisibility(OperatorTypeEnum oper_type, Attributes **attr, int tagType, int colIndex, Space *space);
   ExFunctionHbaseVisibility();
 
-  void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea);
+  void displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea);
 
   ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea ** = 0);
 
@@ -3280,7 +3280,7 @@ class ExFunctionHbaseVisibilitySet : public ex_function_clause {
                                int visExprLen, const char *visExpr, Space *space);
   ExFunctionHbaseVisibilitySet();
 
-  void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea);
+  void displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea);
 
   ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea ** = 0);
 
@@ -3306,7 +3306,7 @@ class ExFunctionHbaseTimestamp : public ex_function_clause {
   ExFunctionHbaseTimestamp(OperatorTypeEnum oper_type, Attributes **attr, int colIndex, Space *space);
   ExFunctionHbaseTimestamp();
 
-  void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea);
+  void displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea);
 
   ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea ** = 0);
 
@@ -3323,7 +3323,7 @@ class ExFunctionHbaseVersion : public ex_function_clause {
   ExFunctionHbaseVersion(OperatorTypeEnum oper_type, Attributes **attr, int colIndex, Space *space);
   ExFunctionHbaseVersion();
 
-  void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea);
+  void displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea);
 
   ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea ** = 0);
 
@@ -3340,7 +3340,7 @@ class ExFunctionHbaseRowid : public ex_function_clause {
   ExFunctionHbaseRowid(OperatorTypeEnum oper_type, Attributes **attr, Space *space);
   ExFunctionHbaseRowid();
 
-  void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea);
+  void displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea);
 
   ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea ** = 0);
 
@@ -3364,7 +3364,7 @@ class ExHeaderClause : public ex_function_clause {
   virtual ~ExHeaderClause() {}
 
   // Null values aren't relevant for this clause.
-  Int32 isNullRelevant() const { return 0; };
+  int isNullRelevant() const { return 0; };
 
   // This is where all the work is done.
   //

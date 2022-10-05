@@ -791,15 +791,15 @@ int ValueIdList::getMdamSqlBufferSpace() const {
 // Is a prefix of this list covered in the provided set?  If so,
 // return the number of covered elements.  Otherwise, return 0.
 // -----------------------------------------------------------------------
-Int32 ValueIdList::prefixCoveredInSet(const ValueIdSet &vidSet) const {
-  Int32 i = 0;
+int ValueIdList::prefixCoveredInSet(const ValueIdSet &vidSet) const {
+  int i = 0;
   ValueId simpVid;
   ValueId noInverseVid;
 
   // if the set's empty, clearly it doesn't cover anything!
   if (vidSet.entries() == 0) return 0;
 
-  while (i < (Int32)entries()) {
+  while (i < (int)entries()) {
     // simplify the expression
     // e.g. remove any INVERSE nodes on top,
     // and simplify any bi-arith ops involving constants to their
@@ -861,8 +861,8 @@ NABoolean ValueIdList::allMembersCoveredInSet(const ValueIdSet &vidSet, NABoolea
 // For the remaining suffix, remove those items from this list.
 // ---------------------------------------------------------------------
 void ValueIdList::removeUncoveredSuffix(const ValueIdSet &vidSet) {
-  Int32 index = prefixCoveredInSet(vidSet);  // last covered id in this list
-  Int32 i = (Int32)entries() - 1;            // index of last key column
+  int index = prefixCoveredInSet(vidSet);  // last covered id in this list
+  int i = (int)entries() - 1;            // index of last key column
 
   // Remove all entries following the index
   while (i >= index) removeAt(i--);
@@ -938,11 +938,11 @@ ValueIdList ValueIdList::findNJEquiJoinCols(const ValueIdSet &child0Outputs, con
 // Otherwise, return the length of the prefix seen so far. If there
 // were no matches, then we will return 0.
 // -----------------------------------------------------------------------
-Int32 ValueIdList::complifyAndCheckPrefixCovered(const ValueIdSet &vidSet, const GroupAttributes *ga) {
+int ValueIdList::complifyAndCheckPrefixCovered(const ValueIdSet &vidSet, const GroupAttributes *ga) {
   // if the set's empty, clearly it doesn't cover anything!
   if (vidSet.entries() == 0) return 0;
 
-  Int32 i = 0;
+  int i = 0;
   ValueId thisVid;
 
   // Set up an empty GA so we can test for coverage by the provided set.
@@ -951,7 +951,7 @@ Int32 ValueIdList::complifyAndCheckPrefixCovered(const ValueIdSet &vidSet, const
   // The provided set will be the char. outputs that provide coverage
   emptyGA.setCharacteristicOutputs(vidSet);
 
-  while (i < (Int32)entries()) {
+  while (i < (int)entries()) {
     // Get the current expression
     thisVid = (*this)[i];
 
@@ -1037,8 +1037,8 @@ Int32 ValueIdList::complifyAndCheckPrefixCovered(const ValueIdSet &vidSet, const
 // ---------------------------------------------------------------------
 void ValueIdList::complifyAndRemoveUncoveredSuffix(const ValueIdSet &vidSet, const GroupAttributes *ga) {
   // last covered id in this list
-  Int32 index = complifyAndCheckPrefixCovered(vidSet, ga);
-  Int32 i = (Int32)entries() - 1;  // index of last key column
+  int index = complifyAndCheckPrefixCovered(vidSet, ga);
+  int i = (int)entries() - 1;  // index of last key column
 
   // Remove all entries following the index
   while (i >= index) removeAt(i--);
@@ -1545,7 +1545,7 @@ void ValueIdList::removeDuplicateValueIds() {
     // e.g. remove any INVERSE nodes on top (i.e. DESC)
     ValueId prev = (*this)[last].getItemExpr()->removeInverseOrder()->getValueId();
     // walk through the list comparing next vid with the prev vid.
-    for (Int32 start = 0; start < (Int32)last; start++) {
+    for (int start = 0; start < (int)last; start++) {
       // Get the next value id from the List.
       // simplify the expression
       // e.g. remove any INVERSE nodes on top (i.e. DESC)
@@ -1642,7 +1642,7 @@ void ValueIdList::print(FILE *ofd, const char *indent, const char *title, CollHe
   PRINTIT(ofd, c, space, buf, mybuf);
 
   for (CollIndex j = 0; j < entries(); j++) {
-    Int32 i = (Int32)((CollIndex)(at(j)));  // valueid as an integer
+    int i = (int)((CollIndex)(at(j)));  // valueid as an integer
     NAString unparsed(CmpCommon::statementHeap());
 
     if (at(j).getItemExpr()) at(j).getItemExpr()->unparse(unparsed, DEFAULT_PHASE,
@@ -1788,8 +1788,8 @@ CostScalar ValueIdSet::getMinOrigUecOfJoiningCols() {
   return minUec;
 }
 
-NABoolean ValueIdSet::coversFirstN(const ValueIdList &other, Int32 N) const {
-  Int32 i, limit = N <= (Int32)other.entries() ? N : (Int32)other.entries();
+NABoolean ValueIdSet::coversFirstN(const ValueIdList &other, int N) const {
+  int i, limit = N <= (int)other.entries() ? N : (int)other.entries();
   for (i = 0; i < limit; i++) {
     // if other is an indexcolumn, compare against its definition,
     // ie, compare against what column it indexes
@@ -1806,8 +1806,8 @@ NABoolean ValueIdSet::coversFirstN(const ValueIdList &other, Int32 N) const {
 }
 
 // how many prefix columns of other are found in this predicate?
-Int32 ValueIdSet::prefixMatchesOf(const ValueIdList &other) const {
-  Int32 result = 0;  // assume no prefix match until proven otherwise
+int ValueIdSet::prefixMatchesOf(const ValueIdList &other) const {
+  int result = 0;  // assume no prefix match until proven otherwise
   ValueId vId;
 
   for (CollIndex i = 0; i < other.entries(); i++) {
@@ -1994,12 +1994,12 @@ NABoolean ValueIdSet::hasRandom() const {
 // Check whether any of the members of this ValueIdSet are contained
 // in the provided ValueIdSet.  Return the number of members found.
 // -----------------------------------------------------------------------
-Int32 ValueIdSet::membersCoveredInSet(const ValueIdSet &vidSet, NABoolean lookBelowInstantiateNull) const {
+int ValueIdSet::membersCoveredInSet(const ValueIdSet &vidSet, NABoolean lookBelowInstantiateNull) const {
   NABoolean coverFlag = FALSE;
   ItemExpr *memberExpr = NULL;
   ValueId memberValId;
 
-  Int32 membersFound = 0;
+  int membersFound = 0;
 
   for (ValueId vid = init(); next(vid); advance(vid)) {
     // If any member of this set contains the INVERSE function (for
@@ -2562,8 +2562,8 @@ NABoolean ValueIdSet::isCovered(const ValueIdSet &newExternalInputs, const Group
 // covered by the available values
 // ------------------------------------------------------------------------
 
-Int32 ValueIdSet::removeCoveredExprs(const ValueIdSet &newExternalInputs, ValueIdSet *usedInputs) {
-  Int32 result = 0;
+int ValueIdSet::removeCoveredExprs(const ValueIdSet &newExternalInputs, ValueIdSet *usedInputs) {
+  int result = 0;
   NABoolean coverFlag;
   ValueIdSet referencedInputs;
   GroupAttributes emptyGA;
@@ -2617,8 +2617,8 @@ void ValueIdSet::removeIsNullIsNotNullExprs(const ValueIdSet &nullPredsCols, Val
 // NOT covered by the available values
 // ------------------------------------------------------------------------
 
-Int32 ValueIdSet::removeUnCoveredExprs(const ValueIdSet &newExternalInputs) {
-  Int32 result = 0;
+int ValueIdSet::removeUnCoveredExprs(const ValueIdSet &newExternalInputs) {
+  int result = 0;
   NABoolean coverFlag;
   ValueIdSet referencedInputs;
   GroupAttributes emptyGA;
@@ -3173,8 +3173,8 @@ NABoolean ValueIdSet::newConstantsAreDistinct(const ValueIdSet &newConstValues) 
 //  valueidset contains a "constant expression", i.e. a constant,
 //  host variable or a parameter.
 // -----------------------------------------------------------------------
-Int32 ValueIdSet::referencesConstExprCount() const {
-  Int32 count = 0;
+int ValueIdSet::referencesConstExprCount() const {
+  int count = 0;
   for (ValueId id = init(); next(id); advance(id)) {
     const ItemExpr *pred = id.getItemExpr();
 
@@ -3773,7 +3773,7 @@ NABoolean ValueId::anExpression() {
   ItemExpr *expr = getItemExpr();
   if (!expr) return FALSE;
 
-  for (Int32 i = 0; i < expr->getArity(); i++) {
+  for (int i = 0; i < expr->getArity(); i++) {
     // predicate is an expression
     if (expr->child(i)->getArity() >= 1) return TRUE;
   }
@@ -4153,7 +4153,7 @@ void ValueIdSet::print(FILE *ofd, const char *indent, const char *title, CollHea
   }
 
   for (ValueId x = init(); next(x); advance(x)) {
-    Int32 i = (Int32)((CollIndex)x);  // valueid as an integer
+    int i = (int)((CollIndex)x);  // valueid as an integer
     NAString unparsed(CmpCommon::statementHeap());
 
     if (x.getItemExpr())
@@ -4291,7 +4291,7 @@ short ValueIdList::evaluateTree(const ItemExpr *root, char *encodedKeyBuffer, UL
 // Parent is the parent of ch and childNumber is the number of ch. The function
 // computes the value represented by the subtree rooted at ch and puts
 // the new value in the position of ch.	Used by constant folding.
-int ValueIdList::evaluateConstantTree(const ValueId &parent, const ValueId &ch, Int32 childNumber,
+int ValueIdList::evaluateConstantTree(const ValueId &parent, const ValueId &ch, int childNumber,
                                         ItemExpr **outItemExpr, ComDiagsArea *diagsArea) {
   // eval requires CASE to be IF_THEN_ELSE's parent
   if ((ch.getItemExpr()->getOperatorType() == ITM_IF_THEN_ELSE) &&
@@ -4307,7 +4307,7 @@ int ValueIdList::evaluateConstantTree(const ValueId &parent, const ValueId &ch, 
   if (outItemExpr) *outItemExpr = NULL;
 
   // Compute the value represented by the subtree rooted at ch
-  Int32 error = 0;
+  int error = 0;
   error = evaluateTree(ch.getItemExpr(), value, RESULT_SIZE, &length, &offset, diagsArea);
   if (error) return error;
 
@@ -4317,7 +4317,7 @@ int ValueIdList::evaluateConstantTree(const ValueId &parent, const ValueId &ch, 
   ItemExpr *item;
 
   if (type.getTypeQualifier() != NA_CHARACTER_TYPE) {
-    Int32 index = 0;
+    int index = 0;
 
     value[length + offset] = 0;
 
@@ -4400,10 +4400,10 @@ int ValueIdList::evaluateConstantTree(const ValueId &parent, const ValueId &ch, 
 // 5.- Indicates which of the children of the node pointed by parameter 1
 //     will not occupy its place after the simplification is done
 ////////////////////////////////////////////////////////////////////////////
-NABoolean ValueIdList::canSimplify(ItemExpr *itemExpr, const ValueId &parent, Int32 i, Int32 childNumber,
-                                   Int32 &moved) {
+NABoolean ValueIdList::canSimplify(ItemExpr *itemExpr, const ValueId &parent, int i, int childNumber,
+                                   int &moved) {
   char value[4];
-  Int32 length;
+  int length;
   ItemExpr *item;
   NAString tempStr(CmpCommon::statementHeap());
 
@@ -4430,7 +4430,7 @@ NABoolean ValueIdList::canSimplify(ItemExpr *itemExpr, const ValueId &parent, In
   }
 
   NAString strValue(c->getText(), CmpCommon::statementHeap());
-  Int32 val;
+  int val;
   val = atoi(strValue);
 
   // We simplify the following cases:
@@ -4635,13 +4635,13 @@ NABoolean ValueIdList::canSimplify(ItemExpr *itemExpr, const ValueId &parent, In
 //    expr is evaluated. If outAllConstsItemExpr is passed in, then on return
 //    it contains a ConstValue(SystemLiteral) node representing the result of
 //    the const expression.
-Int32 ValueIdList::evaluateExpr(const ValueId &parent, const ValueId &ch, Int32 childNumber, NABoolean simplifyExpr,
+int ValueIdList::evaluateExpr(const ValueId &parent, const ValueId &ch, int childNumber, NABoolean simplifyExpr,
                                 NABoolean evalAllConsts, ItemExpr **outAllConstsItemExpr, ComDiagsArea *diagsArea) {
   ItemExpr *itemExpr;
 
   itemExpr = ch.getItemExpr();
-  Int32 nc = itemExpr->getArity();
-  Int32 op = itemExpr->getOperatorType();
+  int nc = itemExpr->getArity();
+  int op = itemExpr->getOperatorType();
 
   if (outAllConstsItemExpr) *outAllConstsItemExpr = itemExpr;
 
@@ -4660,8 +4660,8 @@ Int32 ValueIdList::evaluateExpr(const ValueId &parent, const ValueId &ch, Int32 
   if (itemExpr->constFoldingDisabled()) {
     ItemExpr *outExpr = NULL;
 
-    for (Int32 i = 0; i < nc; i++) {
-      Int32 rc =
+    for (int i = 0; i < nc; i++) {
+      int rc =
           evaluateExpr(ch, itemExpr->child(i)->getValueId(), i, simplifyExpr, evalAllConsts, &outExpr, diagsArea);
       if ((rc < 0) || (diagsArea && diagsArea->getNumber() > 0))
         return -1;
@@ -4687,17 +4687,17 @@ Int32 ValueIdList::evaluateExpr(const ValueId &parent, const ValueId &ch, Int32 
   }
 
   // Assume by now that the tree rooted at ch contains constants only
-  Int32 allConstants = TRUE;
+  int allConstants = TRUE;
 
-  const Int32 constantTreeArrayDim = 2;
-  Int32 constantTreeArray[constantTreeArrayDim];
+  const int constantTreeArrayDim = 2;
+  int constantTreeArray[constantTreeArrayDim];
   //  You probably don't like constants, but
   // no tree should have more than 2 children.
 
-  Int32 *constantTree = 0;
+  int *constantTree = 0;
 
   if (nc > constantTreeArrayDim) {
-    constantTree = new (CmpCommon::statementHeap()) Int32[nc];
+    constantTree = new (CmpCommon::statementHeap()) int[nc];
   } else
     constantTree = constantTreeArray;
 
@@ -4710,7 +4710,7 @@ Int32 ValueIdList::evaluateExpr(const ValueId &parent, const ValueId &ch, Int32 
     // contains constants only, or not
     constantTree[i] = evaluateExpr(ch, itemExpr->child(i)->getValueId(), i, simplifyExpr, FALSE, NULL, diagsArea);
     if (constantTree[i] < 0) {
-      Int32 x = constantTree[i];
+      int x = constantTree[i];
       if (nc > constantTreeArrayDim) NADELETEBASIC(constantTree, CmpCommon::statementHeap());
       return x;
     }
@@ -4742,7 +4742,7 @@ Int32 ValueIdList::evaluateExpr(const ValueId &parent, const ValueId &ch, Int32 
     if (constantTree[i]) {
       // Evaluate the tree since we know it only contains constants
       if (itemExpr->child(i)->getArity() != 0) {
-        Int32 error = 0;
+        int error = 0;
         error = evaluateConstantTree(ch, itemExpr->child(i)->getValueId(), i, NULL, diagsArea);
         if (error) {
           if (nc > constantTreeArrayDim) NADELETEBASIC(constantTree, CmpCommon::statementHeap());
@@ -4751,7 +4751,7 @@ Int32 ValueIdList::evaluateExpr(const ValueId &parent, const ValueId &ch, Int32 
       }
 
       if (simplifyExpr) {
-        Int32 moved;
+        int moved;
         // Find out if some sort of simplification can be done; if
         // so, we do it and let know the parent of this subtree
         // whether the result contains all constants or not.
@@ -4803,7 +4803,7 @@ static NABoolean isCompareWithNullConstant(const ItemExpr *pItemExpr) {
 NABoolean ValueIdList::constantFolding() {
   ItemExpr *tempItem1;
   ConstValue *c;
-  Int32 constValue;
+  int constValue;
 
   ValueIdList list = *this;
   clear();
@@ -4859,7 +4859,7 @@ NABoolean ValueIdList::constantFolding() {
         continue;
       }
     }
-    Int32 allConstants;
+    int allConstants;
 
     // We evaluate the tree rooted at item. If it consists of constants only,
     // evaluateExpr will let us know; otherwise all subtrees that contain only
@@ -4874,7 +4874,7 @@ NABoolean ValueIdList::constantFolding() {
     // If we only have constants, do the evaluation
     if (allConstants) {
       if (item->child(0)->getArity() > 0) {
-        Int32 error = 0;
+        int error = 0;
         const ValueId &tempVal1 = item->getValueId();
         error = evaluateConstantTree(tempVal1, vid, 0, NULL);
         if (error) {
@@ -5335,7 +5335,7 @@ void ValueDescArray::print(FILE *ofd, const char *indent, const char *title, NAB
   for (CollIndex i = 0; i < entries(); i++) {
     ValueDesc *vd = at(i);
     if (vd && used(i)) {
-      Int32 otyp = 0;
+      int otyp = 0;
       NAString unparsed(CmpCommon::statementHeap());
       ItemExpr *ie = vd->getItemExpr();
       if (ie) {
@@ -5745,8 +5745,8 @@ void ValueIdList::convertToTextKey(const ValueIdList &keyList, NAString &result)
   }  // for
 }
 
-Int32 ValueIdList::countConstantsAsPrefixes() {
-  Int32 ct = 0;
+int ValueIdList::countConstantsAsPrefixes() {
+  int ct = 0;
   for (CollIndex i = 0; i < entries(); i++) {
     ItemExpr *ie = at(i).getItemExpr();
 
@@ -5986,15 +5986,15 @@ void ValueId::replaceColReferenceWithExpr(const NAString &colName, const ValueId
 }
 
 char *ValueIdList::computeEncodedKey(const TableDesc *tDesc, NABoolean isMaxKey, char *&encodedKeyBuffer,
-                                     Int32 &keyBufLen) const {
+                                     int &keyBufLen) const {
   const NATable *naTable = tDesc->getNATable();
 
   CollIndex count = entries();
   NAString **inputStrings = new (STMTHEAP) NAStringPtr[count];
 
-  for (Int32 j = 0; j < count; j++) inputStrings[j] = NULL;
+  for (int j = 0; j < count; j++) inputStrings[j] = NULL;
 
-  for (Int32 j = 0; j < count; j++) {
+  for (int j = 0; j < count; j++) {
     ValueId vid = (*this)[j];
     ItemExpr *ie = vid.getItemExpr();
 
@@ -6192,7 +6192,7 @@ void ValueIdList::getBaseColumnList(ValueIdList &baseCols) {
 }
 
 NABoolean ValueIdList::clone(const ValueIdList &source, NAHeap *wheap) {
-  for (Int32 i = 0; i < source.entries(); i++) {
+  for (int i = 0; i < source.entries(); i++) {
     ItemExpr *ie = source[i].getItemExpr()->copyTree(wheap);
 
     if (ie->allValueIdsAreInvalid()) {

@@ -68,7 +68,7 @@ inline SQLCHARSET_CODE ComGetErrMsgInterfaceCharSet() { return SQLCHARSETCODE_UT
 // look "uninitialized" if users ever see it.  We use this value
 // to initialize a few of the values of a ComCondition object.
 
-const Int32 ComDiags_UnInitialized_Int = -99999;
+const int ComDiags_UnInitialized_Int = -99999;
 
 // The SIGNAL statement has an entry in the SqlciErrors.txt file, with the
 // following SQLCODE and SQLSTATE values. These are used in the code to
@@ -77,12 +77,12 @@ const Int32 ComDiags_UnInitialized_Int = -99999;
 // 1. ComSQLSTATE() in sqlmsg\ComDiagsMsg.cpp
 // 2. ComDiagsArea::getSignalSQLSTATE() in common\ComDiags.cpp
 
-const Int32 ComDiags_SignalSQLCODE = 3193;
+const int ComDiags_SignalSQLCODE = 3193;
 const char ComDiags_SignalSQLSTATE[] = "SIGNL";
 
 // SQLCODE corresponding to Triggered Action Exception
 
-const Int32 ComDiags_TrigActionExceptionSQLCODE = 11028;
+const int ComDiags_TrigActionExceptionSQLCODE = 11028;
 
 // We provide a typedef, for what ANSI refers to
 // as ``an exact numeric with scale of 0.'' This is from the ANSI spec
@@ -496,7 +496,7 @@ class ComCondition : public IpcMessageObj {
 
   // can't touch these:
 
-  Int32 operator==(const ComCondition &);
+  int operator==(const ComCondition &);
 
   ComCondition(const ComCondition &);
 };
@@ -1115,7 +1115,7 @@ class ComDiagsArea : public IpcMessageObj {
     };
 
     // can't touch these:
-    Int32 operator==(const DiagsCondition &);
+    int operator==(const DiagsCondition &);
 
     DiagsCondition(const DiagsCondition &);
   };
@@ -1147,7 +1147,7 @@ class ComDiagsArea : public IpcMessageObj {
 
   ComDiagsArea &operator=(const ComDiagsArea &);
 
-  Int32 operator==(const ComDiagsArea &);
+  int operator==(const ComDiagsArea &);
 
   ComDiagsArea(const ComDiagsArea &);
 
@@ -1186,13 +1186,13 @@ class ComDiagsArea : public IpcMessageObj {
   // can also be used to detect if the number of error conditions
   // exceeds the lengthLimit
 
-  Int32 areMore_;
+  int areMore_;
 
   // This data members indicates the count of the maximum number of
   // ComCondition objects that this ComDiagsArea may hold.  Zero is
   // the lowest value it may hold.
 
-  Int32 lengthLimit_;
+  int lengthLimit_;
 
   // Set from client code, this ``property'' of this class tells
   // how many rows are associated with its data.
@@ -1201,12 +1201,12 @@ class ComDiagsArea : public IpcMessageObj {
 
   // The associated SQL "function."
 
-  Int32 theSQLFunction_;
+  int theSQLFunction_;
 
   // maxDiagsId_ helps keep track of the chronological arrival
   // of ComCondition objects into this ComDiagsArea object.
 
-  Int32 maxDiagsId_;
+  int maxDiagsId_;
 
   // avgStreamWaitTime_ is a SQL/MX extension used for stream selects,
   // to help the client application balance load.  Its units are centiseconds.

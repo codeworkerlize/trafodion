@@ -88,7 +88,7 @@ class BiArith : public ItemExpr {
   void setIntervalQualifier(const NAType *intervalQualifier) { intervalQualifier_ = intervalQualifier; }
 
   // get the degree of this node (it is a binary op).
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   // get a printable string that identifies the operator
   const NAString getText() const;
@@ -231,7 +231,7 @@ class UnArith : public ItemExpr {
   UnArith(ItemExpr *child0 = NULL) : ItemExpr(ITM_NEGATE, child0, NULL) {}
 
   // get the degree of this node (it is a binary op).
-  virtual Int32 getArity() const { return 1; }
+  virtual int getArity() const { return 1; }
 
   // get a printable string that identifies the operator
   const NAString getText() const { return '!'; }

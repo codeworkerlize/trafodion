@@ -72,7 +72,7 @@ class StmtDDLAlterIndex : public StmtDDLNode {
   // accessors
   //
 
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
   virtual ExprNode *getChild(int index);
 
   inline ElemDDLNode *getAlterIndexAction() const;

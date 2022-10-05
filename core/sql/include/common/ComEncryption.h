@@ -48,18 +48,18 @@ class ComEncryption : public NABasicObject {
   ComEncryption();
 
   struct EncryptionInfo {
-    Int32 header;
+    int header;
     Int16 rowidCipherType;
     Int16 dataCipherType;
-    Int32 flags;
+    int flags;
     long encryptionKeyID;
-    Int32 rowIdKeyLen;
+    int rowIdKeyLen;
     unsigned char rowIdKey[EVP_MAX_KEY_LENGTH];
-    Int32 dataKeyLen;
+    int dataKeyLen;
     unsigned char dataKey[EVP_MAX_KEY_LENGTH];
-    Int32 rowidInitVecLen;
+    int rowidInitVecLen;
     unsigned char rowidInitVec[32];
-    Int32 dataInitVecLen;
+    int dataInitVecLen;
     unsigned char dataInitVec[32];
 
     NABoolean operator==(const EncryptionInfo &other) const {
@@ -101,11 +101,11 @@ class ComEncryption : public NABasicObject {
 
   static const EVP_CIPHER *encryptionAlgorithm[];
 
-  static NABoolean isFlagSet(EncryptionInfo &ei, Int32 bitFlags) { return (ei.flags & bitFlags) != 0; }
+  static NABoolean isFlagSet(EncryptionInfo &ei, int bitFlags) { return (ei.flags & bitFlags) != 0; }
 
-  static void setFlag(EncryptionInfo &ei, Int32 bitFlags) { ei.flags |= bitFlags; }
+  static void setFlag(EncryptionInfo &ei, int bitFlags) { ei.flags |= bitFlags; }
 
-  static void resetFlag(EncryptionInfo &ei, Int32 bitFlags) { ei.flags &= ~bitFlags; }
+  static void resetFlag(EncryptionInfo &ei, int bitFlags) { ei.flags &= ~bitFlags; }
 
   static short initEncryptionInfo(long encryptionKeyID, Int16 rowidCipherType, Int16 dataCipherType,
                                   EncryptionInfo &ei);
@@ -113,7 +113,7 @@ class ComEncryption : public NABasicObject {
   static short setRowidEncryptionKey(EncryptionInfo &ei);
   static short setDataEncryptionKey(EncryptionInfo &ei);
 
-  static short getKeyFromKeyStore(char *keyId, Int32 keyIdLen, unsigned char *keyVal, Int32 &keyValLen);
+  static short getKeyFromKeyStore(char *keyId, int keyIdLen, unsigned char *keyVal, int &keyValLen);
 
   static short setEncryptionKeys(EncryptionInfo &ei);
 
@@ -144,10 +144,10 @@ class ComEncryption : public NABasicObject {
   static int decryptRowId(unsigned char *ciphertext, int ciphertext_len, unsigned char *key, unsigned char *iv,
                           unsigned char *plaintext, int &decryptLen);
 
-  static short extractEncryptionInfo(const EncryptionInfo &encInfo, Int32 &header, Int16 &rowidCipherType,
-                                     Int16 &dataCipherType, unsigned char *&rowIdKey, Int32 &rowIdKeyLen,
-                                     unsigned char *&dataKey, Int32 &dataKeyLen, unsigned char *&rowidInitVec,
-                                     Int32 &rowidInitVecLen, unsigned char *&dataInitVec, Int32 &dataInitVecLen);
+  static short extractEncryptionInfo(const EncryptionInfo &encInfo, int &header, Int16 &rowidCipherType,
+                                     Int16 &dataCipherType, unsigned char *&rowIdKey, int &rowIdKeyLen,
+                                     unsigned char *&dataKey, int &dataKeyLen, unsigned char *&rowidInitVec,
+                                     int &rowidInitVecLen, unsigned char *&dataInitVec, int &dataInitVecLen);
 
   static int encrypt_ConvertBase64_Data(int dataCipherType, unsigned char *plaintext, int plaintext_len,
                                         unsigned char *key, unsigned char *iv, unsigned char *converttext,

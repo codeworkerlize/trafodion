@@ -70,7 +70,7 @@ struct DefaultDefault;
 //	SilentIfSYSTEM   = +2000 -- again, a special value signifying
 //				 -- a different "flavor" of ok/valid/no-error.
 //
-const Int32 SilentIfSYSTEM = +2000;
+const int SilentIfSYSTEM = +2000;
 
 enum NADefaultFlags {
   DEFAULT_FLAGS_OFF = 0,
@@ -172,7 +172,7 @@ class NADefaults : public NABasicObject {
   NABoolean isNonResetableAttribute(const char *attrName) const;
 
   // these defaults can be set only once by user.
-  NABoolean isSetOnceAttribute(Int32 attrEnum) const;
+  NABoolean isSetOnceAttribute(int attrEnum) const;
 
   // reset attributes which are set for the session based on
   // the caller. These do not persist across multiple session.
@@ -180,16 +180,16 @@ class NADefaults : public NABasicObject {
   // See also cli/SessionDefaults.h/resetSessionBasedDefaults.
   void resetSessionOnlyDefaults();
 
-  NABoolean getValue(Int32 attrEnum, NAString &result) const;
-  const char *getValue(Int32 attrEnum) const;
-  const char *getValueWhileInitializing(Int32 attrEnum);
+  NABoolean getValue(int attrEnum, NAString &result) const;
+  const char *getValue(int attrEnum) const;
+  const char *getValueWhileInitializing(int attrEnum);
 
-  NABoolean getFloat(Int32 attrEnum, float &result) const;
-  double getAsDouble(Int32 attrEnum) const;
-  int getAsLong(Int32 attrEnum) const;
-  ULng32 getAsULong(Int32 attrEnum) const;
+  NABoolean getFloat(int attrEnum, float &result) const;
+  double getAsDouble(int attrEnum) const;
+  int getAsLong(int attrEnum) const;
+  ULng32 getAsULong(int attrEnum) const;
 
-  NAString getString(Int32 attrEnum) const;
+  NAString getString(int attrEnum) const;
 
   // get the number of configured ESPs per cluster or segment.
   ULng32 getNumOfESPsPerNode() const;
@@ -199,28 +199,28 @@ class NADefaults : public NABasicObject {
 
   int figureOutMaxLength(UInt32 uec);
 
-  NABoolean domainMatch(Int32 attrEnum, Int32 expectedDefaultValidatorType, float *flt = NULL) const;
+  NABoolean domainMatch(int attrEnum, int expectedDefaultValidatorType, float *flt = NULL) const;
 
   static NAString keyword(DefaultToken tok);
-  DefaultToken token(Int32 attrEnum, NAString &value, NABoolean valueAlreadyGotten = FALSE, Int32 errOrWarn = -1) const;
+  DefaultToken token(int attrEnum, NAString &value, NABoolean valueAlreadyGotten = FALSE, int errOrWarn = -1) const;
 
-  DefaultToken getToken(const Int32 attrEnum, const Int32 errOrWarn = -1) const;
+  DefaultToken getToken(const int attrEnum, const int errOrWarn = -1) const;
 
-  static const char *lookupAttrName(Int32 attrEnum, Int32 errOrWarn = -1);
-  static DefaultConstants lookupAttrName(const char *attrName, Int32 errOrWarn = -1, Int32 *position = NULL);
+  static const char *lookupAttrName(int attrEnum, int errOrWarn = -1);
+  static DefaultConstants lookupAttrName(const char *attrName, int errOrWarn = -1, int *position = NULL);
 
   // By default, a (CQD) setting supersedes any previous (CQD or less) setting.
-  DefaultConstants validateAndInsert(const char *attrName, NAString &value, NABoolean reset, Int32 errOrWarn = -1,
+  DefaultConstants validateAndInsert(const char *attrName, NAString &value, NABoolean reset, int errOrWarn = -1,
                                      Provenance overwriteIfNotYet = IMMUTABLE);
 
   // This method does not insert, because provenance < UNINITIALIZED is imposs
-  DefaultConstants validate(const char *attrName, NAString &value, NABoolean reset, Int32 errOrWarn = -1) {
+  DefaultConstants validate(const char *attrName, NAString &value, NABoolean reset, int errOrWarn = -1) {
     return validateAndInsert(attrName, value, reset, errOrWarn, UNINITIALIZED);
   }
 
   DefaultConstants holdOrRestore(const char *attrName, int holdOrRestoreCQD);
 
-  Int32 validateFloat(const char *value, float &result, Int32 attrEnum, Int32 errOrWarn = -1) const;
+  int validateFloat(const char *value, float &result, int attrEnum, int errOrWarn = -1) const;
 
   NABoolean getIsolationLevel(TransMode::IsolationLevel &arg, DefaultToken tok = DF_noSuchToken) const;
   NABoolean getIsolationLevel(Int16 &arg, DefaultToken tok = DF_noSuchToken) const {
@@ -230,9 +230,9 @@ class NADefaults : public NABasicObject {
     return ret;
   }
 
-  NABoolean setCatalog(NAString &value, Int32 errOrWarn = -1, NABoolean overwrite = TRUE,
+  NABoolean setCatalog(NAString &value, int errOrWarn = -1, NABoolean overwrite = TRUE,
                        NABoolean alreadyCanonical = FALSE);
-  NABoolean setSchema(NAString &value, Int32 errOrWarn = -1, NABoolean overwrite = TRUE,
+  NABoolean setSchema(NAString &value, int errOrWarn = -1, NABoolean overwrite = TRUE,
                       NABoolean alreadyCanonical = FALSE);
   // code not used
   NABoolean setCatalogTrustedFast(NAString &value) { return setCatalog(value, -1, TRUE, TRUE); }
@@ -242,10 +242,10 @@ class NADefaults : public NABasicObject {
   void setState(Provenance s) { currentState_ = s; }
   Provenance getState() { return currentState_; }
 
-  Provenance getProvenance(Int32 attrEnum) const;
+  Provenance getProvenance(int attrEnum) const;
 
-  NABoolean userDefault(Int32 attrEnum) { return (flags_[attrEnum] & USER_DEFAULT) != 0; }
-  void setUserDefault(Int32 attrEnum, NABoolean v) {
+  NABoolean userDefault(int attrEnum) { return (flags_[attrEnum] & USER_DEFAULT) != 0; }
+  void setUserDefault(int attrEnum, NABoolean v) {
     (v ? flags_[attrEnum] |= USER_DEFAULT : flags_[attrEnum] &= ~USER_DEFAULT);
   }
 
@@ -258,7 +258,7 @@ class NADefaults : public NABasicObject {
   static void initGlobalEntries();
   const char *getCurrentDefaultsAttrNameAndValue(size_t ix, const char *&name, const char *&value,
                                                  NABoolean userDefaultsOnly);
-  void readFromDefaultsTable(Provenance overwriteIfNotYet = SET_BY_CQD, Int32 errOrWarn = +1 /*warning*/);
+  void readFromDefaultsTable(Provenance overwriteIfNotYet = SET_BY_CQD, int errOrWarn = +1 /*warning*/);
 
   NABoolean catSetToUserID() { return (catSchSetToUserID_ & DEFAULT_CATALOG_SET_TO_USERID) != 0; }
   NABoolean schSetToUserID() { return (catSchSetToUserID_ & DEFAULT_SCHEMA_SET_TO_USERID) != 0; }
@@ -281,7 +281,7 @@ class NADefaults : public NABasicObject {
 
   const SqlParser_NADefaults *getSqlParser_NADefaults();
   SqlParser_NADefaults *getSqlParser_NADefaults_Ptr() { return SqlParser_NADefaults_; }
-  static void getNodeAndClusterNumbers(short &nodeNum, Int32 &clusterNum);
+  static void getNodeAndClusterNumbers(short &nodeNum, int &clusterNum);
 
   int packedLengthDefaults();
   int packDefaultsToBuffer(char *buffer);
@@ -296,7 +296,7 @@ class NADefaults : public NABasicObject {
   static float computeNumESPsPerCoreForTenant();
   void updateNumESPsPerCoreForTenant();
 
-  bool moduleCheck(const Int32 attrEnum) const;
+  bool moduleCheck(const int attrEnum) const;
 
   //     NABoolean isAdaptiveSegForHadoop() const;
   //       ULng32 getTenantSize();
@@ -304,7 +304,7 @@ class NADefaults : public NABasicObject {
 
   static void setReadFromDefaultsTable(NABoolean v) { readFromDefaultsTable_ = v; }
 
-  void setMultiCQDSValue(DefaultConstants attrEnum, NAString &rqoValue, Int32 errOrWarn);
+  void setMultiCQDSValue(DefaultConstants attrEnum, NAString &rqoValue, int errOrWarn);
 
  private:
   UInt32 defFlags_;
@@ -315,12 +315,12 @@ class NADefaults : public NABasicObject {
   void initCurrentDefaultsFromSavedDefaults();
   void saveCurrentDefaults();
   static void updateSystemParameters(NABoolean initDefaultDefaults);
-  void updateCurrentDefaultsForOSIM(Int32 attrEnum, const char *defaultVal);
-  void resetAll(NAString &value, short reset, Int32 errOrWarn = -1);
+  void updateCurrentDefaultsForOSIM(int attrEnum, const char *defaultVal);
+  void resetAll(NAString &value, short reset, int errOrWarn = -1);
 
-  NABoolean insert(Int32 attrEnum, const NAString &value, Int32 errOrWarn = -1);
+  NABoolean insert(int attrEnum, const NAString &value, int errOrWarn = -1);
 
-  NABoolean setMPLoc(const NAString &value, Int32 errOrWarn, Provenance overwriteIfNotYet);
+  NABoolean setMPLoc(const NAString &value, int errOrWarn, Provenance overwriteIfNotYet);
   void deleteMe();
 
   static const char *keywords_[];  // attr_VALUE keywords (ON, OFF, ANSI...
@@ -338,7 +338,7 @@ class NADefaults : public NABasicObject {
   HeldDefaults **heldDefaults_;
 
   Provenance currentState_;
-  Int32 catSchSetToUserID_;
+  int catSchSetToUserID_;
 
   SqlParser_NADefaults *SqlParser_NADefaults_;
 
@@ -354,7 +354,7 @@ class NADefaults : public NABasicObject {
   NABoolean resetAll_;
 };
 
-inline int ToErrorOrWarning(int sqlCode, Int32 eow) {
+inline int ToErrorOrWarning(int sqlCode, int eow) {
   sqlCode = ABS(sqlCode);
   return (eow < 0) ? -sqlCode : (eow > 0) ? +sqlCode : 0;
 }

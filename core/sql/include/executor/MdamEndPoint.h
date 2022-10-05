@@ -68,13 +68,13 @@ class MdamEndPoint {
   // MdamPoint is taken.  Point type is also passed to specify which of the
   // two points to use.
   MdamEndPoint(MdamInterval *intervalPtr, MdamEnums::MdamEndPointType endPointType,
-               const Int32 logicalIntervalListNumber);
+               const int logicalIntervalListNumber);
 
   // Destructor.
   ~MdamEndPoint() {}
 
   // Adjust the interval pointer to track the active reference list.
-  void adjustIntervalPtr(MdamInterval *&intervalPtr, const Int32 logicalIntervalListNumber) const;
+  void adjustIntervalPtr(MdamInterval *&intervalPtr, const int logicalIntervalListNumber) const;
 
   // Assign intervalPtr[1] in this to the corresponding value in other.
   // When this function is used, the mutated MdamEndPoint object
@@ -120,7 +120,7 @@ class MdamEndPoint {
   void reverseInclusion();
 
   // Set member data items to reflect the specified endpoint.
-  void set(MdamInterval *intervalPtr, MdamEnums::MdamEndPointType endPointType, const Int32 logicalIntervalListNumber);
+  void set(MdamInterval *intervalPtr, MdamEnums::MdamEndPointType endPointType, const int logicalIntervalListNumber);
 
  private:
   // Pointer to the point for which this is a wrapper.

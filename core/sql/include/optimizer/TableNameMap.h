@@ -124,19 +124,19 @@ class XTNM : public NAKeyLookup<CorrName, TableNameMap> {
 class TableViewUsage : public NABasicObject {
  public:
   TableViewUsage(const QualifiedName &tableName, ExtendedQualName::SpecialTableType type, NABoolean isView,
-                 Int32 viewCount, CollHeap *h = CmpCommon::statementHeap())
+                 int viewCount, CollHeap *h = CmpCommon::statementHeap())
       : tableName_(tableName, h), type_(type), isView_(isView), viewCount_(viewCount) {}
 
   const QualifiedName &getTableName() const { return tableName_; }
   ExtendedQualName::SpecialTableType getSpecialType() const { return type_; }
   NABoolean isView() const { return isView_; }
-  Int32 viewCount() const { return viewCount_; }
+  int viewCount() const { return viewCount_; }
 
  private:
   const QualifiedName tableName_;
   ExtendedQualName::SpecialTableType type_;
   NABoolean isView_;
-  Int32 viewCount_;
+  int viewCount_;
 
 };  // class TableViewUsage
 
@@ -147,7 +147,7 @@ class TableViewUsageList : public LIST(TableViewUsage *) {
   void display(NABoolean newline, size_t indent) const;
   void display() const;  // useful in MSDEV
 
-  Int32 getViewsOnTable(CollIndex begIx, CollIndex endIx, Int32 viewCount, const QualifiedName &baseName,
+  int getViewsOnTable(CollIndex begIx, CollIndex endIx, int viewCount, const QualifiedName &baseName,
                         ExtendedQualName::SpecialTableType baseType, const QualifiedName *additionalNameToFormat,
                         NAString &formattedListOfViewsThatUseTheBaseTable) const;
 

@@ -469,7 +469,7 @@ class SessionDefaults : public NABasicObject {
   }
   int getParserflags() { return parserFlags_; }
 
-  Int32 *userId() { return &userId_; }
+  int *userId() { return &userId_; }
 
   void setAQRWarnings(int v) { aqrWarn_ = v; }
   int aqrWarnings() { return aqrWarn_; }
@@ -544,7 +544,7 @@ class SessionDefaults : public NABasicObject {
 
   // For SeaMonster
   char *getExSMTraceFilePrefix() { return exsmTraceFilePrefix_; }
-  void setExSMTraceFilePrefix(const char *pref, Int32 prefLen);
+  void setExSMTraceFilePrefix(const char *pref, int prefLen);
   UInt32 getExSMTraceLevel() { return exsmTraceLevel_; }
   void setExSMTraceLevel(UInt32 lvl) { exsmTraceLevel_ = lvl; }
 
@@ -584,7 +584,7 @@ class SessionDefaults : public NABasicObject {
   NABoolean mariaQuestProcess_;
 
   // current user id
-  Int32 userId_;
+  int userId_;
 
   // cat & sch
   char *catalog_;
@@ -791,11 +791,11 @@ class AQRInfo : public NABasicObject {
   void saveAQRErrors();
   NABoolean restoreAQRErrors();
 
-  short getAQREntry(int sqlcode, int nskcode, Int32 &retries, Int32 &delay, Int32 &type, Int32 &numCQDs,
-                    char *&cqdStr, Int32 &cmpInfo, Int32 &intAQR);
+  short getAQREntry(int sqlcode, int nskcode, int &retries, int &delay, int &type, int &numCQDs,
+                    char *&cqdStr, int &cmpInfo, int &intAQR);
 
-  short setAQREntry(int task, int sqlcode, int nskcode, Int32 retries, Int32 delay, Int32 type, Int32 numCQDs,
-                    char *cqdStr, Int32 cmpInfo, Int32 intAQR);
+  short setAQREntry(int task, int sqlcode, int nskcode, int retries, int delay, int type, int numCQDs,
+                    char *cqdStr, int cmpInfo, int intAQR);
 
   short setAQREntriesFromInputStr(char *inStr, int inStrLen);
 

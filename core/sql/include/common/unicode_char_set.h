@@ -96,14 +96,14 @@ class unicode_char_set {
 #define IS_NOT_1ST_BYTE_IN_UTF8_CHAR(x) ((((x)&0xC0) >> 6) == 2)
 #define IS_1ST_BYTE_IN_UTF8_CHAR(x)     ((((x)&0xC0) >> 6) != 2)
 
-Int32 UTF8CharLenInBytes(const unsigned char firstByteOfTheUtf8Char);  // returns 0 on errors
+int UTF8CharLenInBytes(const unsigned char firstByteOfTheUtf8Char);  // returns 0 on errors
 
-Int32 IndexOfLastByteOfUTF8CharAtOrBeforePos(const unsigned char *utf8Str, const Int32 utf8StrLenInBytes,
-                                             const Int32 bytePos);  // returns -1 on errors
+int IndexOfLastByteOfUTF8CharAtOrBeforePos(const unsigned char *utf8Str, const int utf8StrLenInBytes,
+                                             const int bytePos);  // returns -1 on errors
 
-Int32 IndexOfFirstByteOfUTF8CharAtOrBeforePos(const unsigned char *utf8Str, const Int32 utf8StrLenInBytes,
-                                              const Int32 bytePos);  // returns -1 on errors
+int IndexOfFirstByteOfUTF8CharAtOrBeforePos(const unsigned char *utf8Str, const int utf8StrLenInBytes,
+                                              const int bytePos);  // returns -1 on errors
 
-Int32 maxBytesInUTF8String(char *str, Int32 len);
+int maxBytesInUTF8String(char *str, int len);
 
 #endif

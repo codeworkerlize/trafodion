@@ -44,7 +44,7 @@
 #include "parser/StmtCompilationMode.h"
 #include "seabed/sys.h"
 
-extern Int32 writeStackTrace(char *s, int bufLen);
+extern int writeStackTrace(char *s, int bufLen);
 
 // Mutex to serialize termination via NAExit or an assertion failure
 // via abort_botch_abend in the main executor thread with an assertion
@@ -164,29 +164,29 @@ static void do_endprocessing(short exitAbend) {
   // (which results in arkcmp crashing).
   //
   const char *bbb = (char *)ExportJmpBufPtr;
-  Int32 i = (Int32)sizeof(jmp_buf) / 2 + 1;
+  int i = (int)sizeof(jmp_buf) / 2 + 1;
   for (; i--;)
     if (bbb[i]) break;
   if (i < 0) return;
   longjmp(*ExportJmpBufPtr, NAASSERT_FAILURE);
 }
 
-void NAAbort(const char *filename, Int32 lineno, const char *msg) {
+void NAAbort(const char *filename, int lineno, const char *msg) {
   ARKCMP_EXCEPTION_EPILOGUE("NAAbort");
   if (pAbortCallBack) pAbortCallBack->doCallBack(msg, filename, lineno);
   NAInternalError::throwFatalException(msg, filename, lineno);
   assert_botch_abend(filename, lineno, msg);
 }
 
-void NAAssert(const char *condition, const char *file_, Int32 line_) {
+void NAAssert(const char *condition, const char *file_, int line_) {
   ARKCMP_EXCEPTION_EPILOGUE("NAAssert");
   NAInternalError::throwAssertException(condition, file_, line_);
   assert_botch_abend(file_, line_, condition);
 }
 
-void assert_botch_no_abend(const char *f, Int32 l, const char *m) {}
+void assert_botch_no_abend(const char *f, int l, const char *m) {}
 
-void assert_botch_abend(const char *f, Int32 l, const char *m, const char *c) {
+void assert_botch_abend(const char *f, int l, const char *m, const char *c) {
   NAAssertMutexLock();  // Assure "termination synchronization"
   int pid = (int)getpid();
 

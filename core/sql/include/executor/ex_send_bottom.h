@@ -161,8 +161,8 @@ class ex_send_bottom_tcb : public ex_tcb {
   void tickleSchedulerCancel() { ioCancelSubtask_->schedule(); }
   void tickleScheduler() { ioSubtask_->schedule(); }
 
-  virtual Int32 numChildren() const;
-  virtual const ex_tcb *getChild(Int32 pos) const;
+  virtual int numChildren() const;
+  virtual const ex_tcb *getChild(int pos) const;
 
   void routeMsg(IpcMessageStream &msgStream);
 

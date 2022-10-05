@@ -58,7 +58,7 @@ MdamRefListIterator::MdamRefListIterator(const MdamRefList *RefListPtr)
 // was not a "next" entry and the corresponding disjunct number.
 // When the function returns, currentEntryPtr_ points to the next
 // unprocessed entry, if any.
-NABoolean MdamRefListIterator::operator()(Int32 &disjunctNum) {
+NABoolean MdamRefListIterator::operator()(int &disjunctNum) {
   if (currentEntryPtr_ == 0) {
     return FALSE;
   }

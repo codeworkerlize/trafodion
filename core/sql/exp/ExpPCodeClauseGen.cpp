@@ -72,8 +72,8 @@ ex_expr::exp_return_type ex_clause::pCodeGenerate(Space *space, UInt32 f) {
   PCIList code(space);
   AttributesPtr *attrs = getOperand();
 
-  Int32 nNullableInputs = 0;
-  Int32 i = 0;
+  int nNullableInputs = 0;
+  int i = 0;
   for (i = 0; i < getNumOperands(); i++) {
     if (!attrs[i]) continue;
 
@@ -93,7 +93,7 @@ ex_expr::exp_return_type ex_clause::pCodeGenerate(Space *space, UInt32 f) {
   //
   // int stackDepth = 0;
   // int stackPushesWaiting = 0;
-  Int32 useProcessNulls = 0;
+  int useProcessNulls = 0;
 
   // Branch target IDs
   //
@@ -101,7 +101,7 @@ ex_expr::exp_return_type ex_clause::pCodeGenerate(Space *space, UInt32 f) {
 
   // Are any of the attributes varchar?
   //
-  Int32 varchar = 0;
+  int varchar = 0;
   for (i = 0; i < getNumOperands(); i++) {
     if (!attrs[i]) continue;
 
@@ -663,8 +663,8 @@ ex_expr::exp_return_type ex_branch_clause::pCodeGenerate(Space *space, UInt32 f)
 
   ex_clause *targetClause = get_branch_clause();
   AML aml(PCIT::IPTR, PCIT::IPTR, PCIT::MBIN32S, PCIT::MBIN32S);
-  OL ol((long)targetClause, (long)0, attrs[0]->getAtp(), attrs[0]->getAtpIndex(), (Int32)attrs[0]->getOffset(),
-        attrs[1]->getAtp(), attrs[1]->getAtpIndex(), (Int32)attrs[1]->getOffset());
+  OL ol((long)targetClause, (long)0, attrs[0]->getAtp(), attrs[0]->getAtpIndex(), (int)attrs[0]->getOffset(),
+        attrs[1]->getAtp(), attrs[1]->getAtpIndex(), (int)attrs[1]->getOffset());
 
   // Generate the branch instruction
   //
@@ -1087,7 +1087,7 @@ ex_expr::exp_return_type ex_comp_clause::pCodeGenerate(Space *space, UInt32 f) {
 
     OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(), attrs[1]->getAtp(),
           attrs[1]->getAtpIndex(), attrs[1]->getOffset(), attrs[2]->getAtp(), attrs[2]->getAtpIndex(),
-          attrs[2]->getOffset(), attrs[2]->getLength(), (Int32)getOperType());
+          attrs[2]->getOffset(), attrs[2]->getLength(), (int)getOperType());
 
     // Add the comparison instruction.
     //
@@ -1111,8 +1111,8 @@ ex_expr::exp_return_type ex_comp_clause::pCodeGenerate(Space *space, UInt32 f) {
     }
 
     // Set "s" for attribute number with smaller string.
-    Int32 s = (attrs[1]->getLength() > attrs[2]->getLength()) ? 2 : 1;
-    Int32 l = (s == 1) ? 2 : 1;
+    int s = (attrs[1]->getLength() > attrs[2]->getLength()) ? 2 : 1;
+    int l = (s == 1) ? 2 : 1;
 
     OperatorTypeEnum operType = getOperType();
 
@@ -1137,8 +1137,8 @@ ex_expr::exp_return_type ex_comp_clause::pCodeGenerate(Space *space, UInt32 f) {
       }
     }
 
-    Int32 sLen = attrs[s]->getLength();
-    Int32 lLen = attrs[l]->getLength();
+    int sLen = attrs[s]->getLength();
+    int lLen = attrs[l]->getLength();
 
     // Lens of unicode strings for this inst should be in num of double-bytes
     if (attrs1Datatype == REC_NCHAR_F_UNICODE) {
@@ -1155,7 +1155,7 @@ ex_expr::exp_return_type ex_comp_clause::pCodeGenerate(Space *space, UInt32 f) {
       // Smaller string is always the first operand
       OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(), attrs[s]->getAtp(),
             attrs[s]->getAtpIndex(), attrs[s]->getOffset(), attrs[l]->getAtp(), attrs[l]->getAtpIndex(),
-            attrs[l]->getOffset(), sLen, lLen, (Int32)operType);
+            attrs[l]->getOffset(), sLen, lLen, (int)operType);
 
       // Add the comparison instruction.
       //
@@ -1204,7 +1204,7 @@ ex_expr::exp_return_type ex_comp_clause::pCodeGenerate(Space *space, UInt32 f) {
     OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(), attrs[1]->getAtp(),
           attrs[1]->getAtpIndex(), attrs[1]->getOffset(), attrs[1]->getVoaOffset(), len1, comboLen1, attrs[2]->getAtp(),
           attrs[2]->getAtpIndex(), attrs[2]->getOffset(), attrs[2]->getVoaOffset(), len2, comboLen2,
-          (Int32)getOperType());
+          (int)getOperType());
 
     // Add the comparison instruction.
     //
@@ -1363,7 +1363,7 @@ ex_expr::exp_return_type ex_function_bool::pCodeGenerate(Space *space, UInt32 f)
   //
   PCode::preClausePCI(this, code);
 
-  Int32 returnValue;
+  int returnValue;
   switch (getOperType()) {
     case ITM_RETURN_TRUE:
       returnValue = 1;
@@ -1826,14 +1826,14 @@ ex_expr::exp_return_type ex_function_replace_null::pCodeGenerate(Space *space, U
 
 // Helpers for working with attributes
 //
-Int32 isSameAttribute(Attributes *attrA, Attributes *attrB) {
+int isSameAttribute(Attributes *attrA, Attributes *attrB) {
   if (attrA->getAtpIndex() != attrB->getAtpIndex()) return 0;
   if (attrA->getOffset() != attrB->getOffset()) return 0;
   return 1;
 };
-Int32 isConstantAttribute(Attributes *attr) { return attr->getAtpIndex() == 0; };
-Int32 isTemporaryAttribute(Attributes *attr) { return attr->getAtpIndex() == 1; };
-Int32 isAtpAttribute(Attributes *attr) { return attr->getAtpIndex() > 1; };
+int isConstantAttribute(Attributes *attr) { return attr->getAtpIndex() == 0; };
+int isTemporaryAttribute(Attributes *attr) { return attr->getAtpIndex() == 1; };
+int isAtpAttribute(Attributes *attr) { return attr->getAtpIndex() > 1; };
 
 ex_expr::exp_return_type ex_arith_clause::unaryArithPCodeGenerate(Space *space, UInt32 f) {
   if (getNumOperands() != 2) return ex_expr::EXPR_ERROR;
@@ -2037,8 +2037,8 @@ ex_expr::exp_return_type ex_arith_clause::pCodeGenerate(Space *space, UInt32 f) 
   roundingInfo = (int)arithRoundingMode_;
   if (getDivToDownscale()) roundingInfo |= 0x100;
 
-  OL ol_rd(dst->getAtp(), dst->getAtpIndex(), (Int32)dst->getOffset(), op1->getAtp(), op1->getAtpIndex(),
-           (Int32)op1->getOffset(), op2->getAtp(), op2->getAtpIndex(), (Int32)op2->getOffset(), roundingInfo);
+  OL ol_rd(dst->getAtp(), dst->getAtpIndex(), (int)dst->getOffset(), op1->getAtp(), op1->getAtpIndex(),
+           (int)op1->getOffset(), op2->getAtp(), op2->getAtpIndex(), (int)op2->getOffset(), roundingInfo);
 
   // Construct the addressing modes.
   //
@@ -2248,8 +2248,8 @@ ex_expr::exp_return_type ex_arith_sum_clause::pCodeGenerate(Space *space, UInt32
 
   // The result should be the same as one of the operands.
   //
-  Int32 firstOperand = isSameAttribute(dst, op1);
-  Int32 secondOperand = isSameAttribute(dst, op2);
+  int firstOperand = isSameAttribute(dst, op1);
+  int secondOperand = isSameAttribute(dst, op2);
 
   if (!firstOperand && !secondOperand) return ex_clause::pCodeGenerate(space, f);
 
@@ -2265,7 +2265,7 @@ ex_expr::exp_return_type ex_arith_sum_clause::pCodeGenerate(Space *space, UInt32
   // If the sum expression is nullable, then the sum must also be
   // nullable for PCODE to work.
   //
-  Int32 nullable = attrOp->getNullFlag();
+  int nullable = attrOp->getNullFlag();
   if (nullable && !dst->getNullFlag()) return ex_clause::pCodeGenerate(space, f);
 
   // Both operands must be the same type as well.
@@ -2296,15 +2296,15 @@ ex_expr::exp_return_type ex_arith_sum_clause::pCodeGenerate(Space *space, UInt32
     code.append(pci);
   } else if (!nullable) {
     AML aml(amA, amB);
-    OL ol(dst->getAtp(), dst->getAtpIndex(), (Int32)dst->getOffset(), attrOp->getAtp(), attrOp->getAtpIndex(),
-          (Int32)attrOp->getOffset());
+    OL ol(dst->getAtp(), dst->getAtpIndex(), (int)dst->getOffset(), attrOp->getAtp(), attrOp->getAtpIndex(),
+          (int)attrOp->getOffset());
 
     PCI pci(PCIT::Op_SUM, aml, ol);
     code.append(pci);
   } else {
     AML aml(PCIT::MATTR3, PCIT::MATTR3, PCIT::IBIN32S, amA, amB);
-    OL ol(dst->getAtp(), dst->getAtpIndex(), (Int32)dst->getNullIndOffset(), (Int32)dst->getNullBitIndex(),
-          attrOp->getAtp(), attrOp->getAtpIndex(), attrOp->getNullIndOffset(), (Int32)attrOp->getNullBitIndex(),
+    OL ol(dst->getAtp(), dst->getAtpIndex(), (int)dst->getNullIndOffset(), (int)dst->getNullBitIndex(),
+          attrOp->getAtp(), attrOp->getAtpIndex(), attrOp->getNullIndOffset(), (int)attrOp->getNullBitIndex(),
           ((nullable) ? 1 : 0), dst->getAtp(), dst->getAtpIndex(), dst->getOffset(), attrOp->getAtp(),
           attrOp->getAtpIndex(), attrOp->getOffset());
     PCI pci(PCIT::Op_SUM, aml, ol);
@@ -2332,7 +2332,7 @@ ex_expr::exp_return_type ex_arith_count_clause::pCodeGenerate(Space *space, UInt
   return ex_clause::pCodeGenerate(space, f);
 };
 
-static void computeBounds(Attributes *attr, long &lowBounds, UInt64 &highBounds, Int32 &bigBounds, Int32 &isSigned) {
+static void computeBounds(Attributes *attr, long &lowBounds, UInt64 &highBounds, int &bigBounds, int &isSigned) {
   const UInt64 decimalPrecision[] = {0,
                                      9,
                                      99,
@@ -2355,7 +2355,7 @@ static void computeBounds(Attributes *attr, long &lowBounds, UInt64 &highBounds,
                                      4999999999999999999LL,
                                      9999999999999999999ULL};
 
-  const Int32 bpPrecision[] = {0,   1,    3,    7,    15,   31,    63,    127,   255,
+  const int bpPrecision[] = {0,   1,    3,    7,    15,   31,    63,    127,   255,
                                511, 1023, 2047, 4095, 8191, 16483, 32767, 65535, 65535};
 
   // By default, unsigned ints.
@@ -2779,7 +2779,7 @@ ex_expr::exp_return_type ex_conv_clause::pCodeGenerate(Space *space, UInt32 f) {
     // Compute the high and low bounds of the source and destination
     // operands.
     //
-    Int32 srcBig, dstBig, srcSigned, dstSigned;
+    int srcBig, dstBig, srcSigned, dstSigned;
     UInt64 srcHighBounds = 0;
     long srcLowBounds = 0;
     UInt64 dstHighBounds = 0;
@@ -2792,9 +2792,9 @@ ex_expr::exp_return_type ex_conv_clause::pCodeGenerate(Space *space, UInt32 f) {
     // tighter than the destination bound, then no check is necessary.
     //
     AML srcAml(PCIT::getMemoryAddressingMode(src->getDatatype()), PCIT::IBIN64S);
-    Int32 srcAtp = src->getAtp();
-    Int32 srcAtpIndex = src->getAtpIndex();
-    Int32 srcOffset = (Int32)src->getOffset();
+    int srcAtp = src->getAtp();
+    int srcAtpIndex = src->getAtpIndex();
+    int srcOffset = (int)src->getOffset();
 
     if (srcLowBounds < dstLowBounds) {
       if (getInstruction() == CONV_DECS_BIN64S) return ex_clause::pCodeGenerate(space, f);
@@ -2817,7 +2817,7 @@ ex_expr::exp_return_type ex_conv_clause::pCodeGenerate(Space *space, UInt32 f) {
 #endif
     if (getInstruction() == CONV_FLOAT64_FLOAT64 && !ex_expr::notValidateFloat64(f)) {
       AML aml(PCIT::MFLT64);
-      OL ol(src->getAtp(), src->getAtpIndex(), (Int32)src->getOffset());
+      OL ol(src->getAtp(), src->getAtpIndex(), (int)src->getOffset());
       PCI pci(PCIT::Op_RANGE_LOW, aml, ol);  // RANGE_MFLT64
       code.append(pci);
     }
@@ -2870,9 +2870,9 @@ ex_expr::exp_return_type ex_conv_clause::pCodeGenerate(Space *space, UInt32 f) {
     case CONV_BIN16U_BIN8S: {
       AML aml(PCIT::MBIN8, PCIT::MBIN8, PCIT::IBIN32S);
 #ifdef NA_LITTLE_ENDIAN
-      Int32 srcOffset = src->getOffset();
+      int srcOffset = src->getOffset();
 #else
-      Int32 srcOffset = src->getOffset() + src->getLength() - dst->getLength();
+      int srcOffset = src->getOffset() + src->getLength() - dst->getLength();
 #endif
       OL ol(dst->getAtp(), dst->getAtpIndex(), dst->getOffset(), src->getAtp(), src->getAtpIndex(), srcOffset,
             dst->getLength());
@@ -2958,8 +2958,8 @@ ex_expr::exp_return_type ex_conv_clause::pCodeGenerate(Space *space, UInt32 f) {
     case CONV_BIN8S_BIN16S:
     case CONV_BIN8U_BIN16U: {
       AML aml(PCIT::getMemoryAddressingMode(dst->getDatatype()), PCIT::getMemoryAddressingMode(src->getDatatype()));
-      OL ol(dst->getAtp(), dst->getAtpIndex(), (Int32)dst->getOffset(), src->getAtp(), src->getAtpIndex(),
-            (Int32)src->getOffset());
+      OL ol(dst->getAtp(), dst->getAtpIndex(), (int)dst->getOffset(), src->getAtp(), src->getAtpIndex(),
+            (int)src->getOffset());
       PCI pci(PCIT::Op_MOVE, aml, ol);
 
       code.append(pci);
@@ -2967,8 +2967,8 @@ ex_expr::exp_return_type ex_conv_clause::pCodeGenerate(Space *space, UInt32 f) {
 
     default: {
       AML aml(PCIT::getMemoryAddressingMode(dst->getDatatype()), PCIT::getMemoryAddressingMode(src->getDatatype()));
-      OL ol(dst->getAtp(), dst->getAtpIndex(), (Int32)dst->getOffset(), src->getAtp(), src->getAtpIndex(),
-            (Int32)src->getOffset());
+      OL ol(dst->getAtp(), dst->getAtpIndex(), (int)dst->getOffset(), src->getAtp(), src->getAtpIndex(),
+            (int)src->getOffset());
       PCI pci(PCIT::Op_MOVE, aml, ol);
 
       code.append(pci);
@@ -3280,8 +3280,8 @@ ex_expr::exp_return_type ex_function_nullifzero::pCodeGenerate(Space *space, UIn
           PCIT::MPTR32,    // source ptr
           PCIT::IBIN32S);  // source/target length
 
-  OL ol(dst->getAtp(), dst->getAtpIndex(), (Int32)dst->getOffset(), dst->getAtp(), dst->getAtpIndex(),
-        dst->getNullIndOffset(), dst->getNullBitIndex(), src->getAtp(), src->getAtpIndex(), (Int32)src->getOffset(),
+  OL ol(dst->getAtp(), dst->getAtpIndex(), (int)dst->getOffset(), dst->getAtp(), dst->getAtpIndex(),
+        dst->getNullIndOffset(), dst->getNullBitIndex(), src->getAtp(), src->getAtpIndex(), (int)src->getOffset(),
         src->getLength());
 
   PCI pci(PCIT::Op_NULLIFZERO, aml, ol);
@@ -3327,7 +3327,7 @@ ex_expr::exp_return_type ex_function_nvl::pCodeGenerate(Space *space, UInt32 f) 
   Int16 resAtp = res->getAtp();
   Int16 resAtpIdx = res->getAtpIndex();
   UInt32 resOffs = res->getOffset();
-  Int32 resNullOffs = res->getNullIndOffset();
+  int resNullOffs = res->getNullIndOffset();
 
   // As of today, NVL() on CHAR types becomes CASE. So make sure we are
   // not dealing with any CHAR types
@@ -3371,8 +3371,8 @@ ex_expr::exp_return_type ex_function_nvl::pCodeGenerate(Space *space, UInt32 f) 
       assert((UInt32)(res->getLength()) >= (UInt32)(arg2->getLength()));
 
       AML aml(PCIT::MBIN8, PCIT::MBIN8, PCIT::IBIN32S);
-      OL ol(resAtp, resAtpIdx, (Int32)resOffs, arg2->getAtp(), arg2->getAtpIndex(), (Int32)arg2->getOffset(),
-            (Int32)arg2->getLength());
+      OL ol(resAtp, resAtpIdx, (int)resOffs, arg2->getAtp(), arg2->getAtpIndex(), (int)arg2->getOffset(),
+            (int)arg2->getLength());
       PCI pci(PCIT::Op_MOVE, aml, ol);
       code.append(pci);
 
@@ -3403,8 +3403,8 @@ ex_expr::exp_return_type ex_function_nvl::pCodeGenerate(Space *space, UInt32 f) 
     assert((UInt32)(res->getLength()) >= (UInt32)(arg1->getLength()));
 
     AML aml(PCIT::MBIN8, PCIT::MBIN8, PCIT::IBIN32S);
-    OL ol(resAtp, resAtpIdx, (Int32)resOffs, arg1->getAtp(), arg1->getAtpIndex(), (Int32)arg1->getOffset(),
-          (Int32)arg1->getLength());
+    OL ol(resAtp, resAtpIdx, (int)resOffs, arg1->getAtp(), arg1->getAtpIndex(), (int)arg1->getOffset(),
+          (int)arg1->getLength());
     PCI pci(PCIT::Op_MOVE, aml, ol);
     code.append(pci);
 
@@ -3485,9 +3485,9 @@ ex_expr::exp_return_type ExHash2Distrib::pCodeGenerate(Space *space, UInt32 f) {
   // attr[0] = result
   // attr[1] = keyValue
   // attr[2] = numParts
-  OL ols(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), (Int32)attrs[0]->getOffset(), attrs[1]->getAtp(),
-         attrs[1]->getAtpIndex(), (Int32)attrs[1]->getOffset(), attrs[2]->getAtp(), attrs[2]->getAtpIndex(),
-         (Int32)attrs[2]->getOffset());
+  OL ols(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), (int)attrs[0]->getOffset(), attrs[1]->getAtp(),
+         attrs[1]->getAtpIndex(), (int)attrs[1]->getOffset(), attrs[2]->getAtp(), attrs[2]->getAtpIndex(),
+         (int)attrs[2]->getOffset());
 
   PCI pci(PCIT::Op_HASH2_DISTRIB, aml, ols);
   code.append(pci);
@@ -3506,9 +3506,9 @@ ex_expr::exp_return_type ex_function_concat::pCodeGenerate(Space *space, UInt32 
 
   AttributesPtr *attrs = getOperand();
 
-  Int32 len0 = attrs[0]->getLength();  // Length of output string space
-  Int32 len1 = attrs[1]->getLength();  // Length of input string 1
-  Int32 len2 = attrs[2]->getLength();  // Length of input string 2
+  int len0 = attrs[0]->getLength();  // Length of output string space
+  int len1 = attrs[1]->getLength();  // Length of input string 1
+  int len2 = attrs[2]->getLength();  // Length of input string 2
 
   if (len0 < (len1 + len2))  // If output space is too small
     return ex_clause::pCodeGenerate(space, f);
@@ -3517,8 +3517,8 @@ ex_expr::exp_return_type ex_function_concat::pCodeGenerate(Space *space, UInt32 
   CharInfo::CharSet cs2 = ((SimpleType *)getOperand(2))->getCharSet();
   // If a character set is SJIS or Unicode
   if ((cs1 == CharInfo::UTF8) /* || (cs2 == CharInfo::SJIS) */) {
-    Int32 prec1 = ((SimpleType *)getOperand(1))->getPrecision();
-    Int32 prec2 = ((SimpleType *)getOperand(2))->getPrecision();
+    int prec1 = ((SimpleType *)getOperand(1))->getPrecision();
+    int prec2 = ((SimpleType *)getOperand(2))->getPrecision();
     if ((prec1 && (prec1 != len1)) || (prec2 && (prec2 != len2)))
       // Strings may have filler spaces at the end which pcode concat function
       // cannot handle, so call ex_clause version instead.
@@ -3583,8 +3583,8 @@ ex_expr::exp_return_type ex_function_substring::pCodeGenerate(Space *space, UInt
   // How many nullable attrs are there?
   //
   AttributesPtr *attrs = getOperand();
-  Int32 numOfNullableFields = 0;
-  for (Int32 i = 0; i < getNumOperands(); i++) {
+  int numOfNullableFields = 0;
+  for (int i = 0; i < getNumOperands(); i++) {
     // Count nullable attributes (but not output)
     if (attrs[i]->getNullFlag() && (i != 0)) numOfNullableFields++;
   }
@@ -3637,7 +3637,7 @@ ex_expr::exp_return_type ex_function_substring::pCodeGenerate(Space *space, UInt
   comboPtr2[3] = getOperType();            // What is the operation type?
 
   // If no length field exists, just copy over "start" (attribute 2) instead
-  Int32 a3 = 3;
+  int a3 = 3;
   if (comboPtr2[2] == 0) a3 = 2;
 
   OL ol(dst->getAtp(), dst->getAtpIndex(), dst->getOffset(), dst->getVoaOffset(), dst->getLength(), comboLen1,
@@ -3727,10 +3727,10 @@ ex_expr::exp_return_type ExHeaderClause::pCodeGenerate(Space *space, UInt32 flag
 
   AML aml(PCIT::MPTR32, PCIT::IBIN32S, PCIT::IBIN32S, PCIT::IBIN32S, PCIT::IBIN32S, PCIT::IBIN32S);
 
-  OL ol(tgt->getAtp(), tgt->getAtpIndex(), (Int32)tgt->getOffset(),
-        (Int32)adminSz_,  // bytes to clear
-        (Int32)firstFixedOffset_, (Int32)(isSQLMXAlignedFormat() ? ExpAlignedFormat::OFFSET_SIZE : ExpVoaSize),
-        (Int32)bitmapOffset_, (Int32)entryOffset_);
+  OL ol(tgt->getAtp(), tgt->getAtpIndex(), (int)tgt->getOffset(),
+        (int)adminSz_,  // bytes to clear
+        (int)firstFixedOffset_, (int)(isSQLMXAlignedFormat() ? ExpAlignedFormat::OFFSET_SIZE : ExpVoaSize),
+        (int)bitmapOffset_, (int)entryOffset_);
 
   PCI pci(PCIT::Op_HDR, aml, ol);
   code.append(pci);
@@ -3971,7 +3971,7 @@ ex_expr::exp_return_type ex_function_char_length_doublebyte::pCodeGenerate(Space
   // Just return length/2 if the string is fixed
   if (attrs[1]->getDatatype() == REC_NCHAR_F_UNICODE) {
     AML aml(PCIT::MBIN32S, PCIT::IBIN32S);
-    OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(), (Int32)(attrs[1]->getLength() / 2));
+    OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(), (int)(attrs[1]->getLength() / 2));
     PCI pci(PCIT::Op_MOVE, aml, ol);
     code.append(pci);
   } else {
@@ -4028,7 +4028,7 @@ ex_expr::exp_return_type ex_function_char_length::pCodeGenerate(Space *space, UI
   // Just return length if the string is fixed
   if (DFS2REC::isSQLFixedChar(attrs[1]->getDatatype())) {
     AML aml(PCIT::MBIN32S, PCIT::IBIN32S);
-    OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(), (Int32)attrs[1]->getLength());
+    OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(), (int)attrs[1]->getLength());
     PCI pci(PCIT::Op_MOVE, aml, ol);
     code.append(pci);
   } else {
@@ -4238,7 +4238,7 @@ ex_expr::exp_return_type ex_like_clause_base::pCodeGenerate(Space *space, UInt32
   // (5) Allow only ISO and UTF8 charsets
   if (cs != CharInfo::ISO88591 && cs != CharInfo::UTF8) return ex_clause::pCodeGenerate(space, f);
 
-  Int32 precision = 0;
+  int precision = 0;
 
   if (cs == CharInfo::UTF8) {
     precision = attrs[1]->getPrecision();
@@ -4246,18 +4246,18 @@ ex_expr::exp_return_type ex_like_clause_base::pCodeGenerate(Space *space, UInt32
 
   // Get pattern string and length
   char *pat = getPatternStr();
-  Int32 patLen = attrs[2]->getLength();
+  int patLen = attrs[2]->getLength();
 
   // (6) Generator restrictions met, as well as pattern length restriction
   if (noPCodeAvailable() || (patLen > UCHAR_MAX) || (precision > UCHAR_MAX)) return ex_clause::pCodeGenerate(space, f);
 
   char numOfPatterns = 0;
-  Int32 patternOffsets = -1;
-  Int32 patternLengths = -1;
+  int patternOffsets = -1;
+  int patternLengths = -1;
   UInt8 *pOffPtr = (UInt8 *)&patternOffsets;
   UInt8 *pLenPtr = (UInt8 *)&patternLengths;
 
-  Int32 i;
+  int i;
   NABoolean open = FALSE, percentFound = FALSE;
 
   for (i = 0; i < patLen; i++) {
@@ -4357,9 +4357,9 @@ ex_expr::exp_return_type ex_function_extract::pCodeGenerate(Space *space, UInt32
   ExpDatetime *datetime = (ExpDatetime *)getOperand(1);
   if (datetime->getDatetimeFields(attrs[1]->getPrecision(), start, end) != 0) assert(FALSE);
 
-  Int32 offset = 0, lastFieldSize = 0;
+  int offset = 0, lastFieldSize = 0;
 
-  for (Int32 field = start; field <= getExtractField(); field++) {
+  for (int field = start; field <= getExtractField(); field++) {
     offset += lastFieldSize;
     switch (field) {
       case REC_DATE_YEAR:

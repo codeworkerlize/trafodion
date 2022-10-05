@@ -1482,7 +1482,7 @@ static void setScanLockForIM(const RelExpr *re) {
     Scan *rs = (Scan *)re;
     rs->accessOptions().setScanLockForIM(TRUE);
   }
-  for (Int32 i = 0; i < re->getArity(); ++i) {
+  for (int i = 0; i < re->getArity(); ++i) {
     if (re->child(i)) setScanLockForIM(re->child(i));
   }
 }
@@ -2204,7 +2204,7 @@ RelExpr *GenericUpdate::createRISubtree(BindWA *bindWA, const NATable *naTable, 
 // the root of the subtree to the caller.
 //////////////////////////////////////////////////////////////////////////////
 RelExpr *GenericUpdate::inlineRI(BindWA *bindWA, const RefConstraintList *refConstraints, CollHeap *heap) {
-  Int32 entries = 0;
+  int entries = 0;
   RelExpr *riSubtree = NULL;
   const NATable *naTable = getTableDesc()->getNATable();
 
@@ -2212,7 +2212,7 @@ RelExpr *GenericUpdate::inlineRI(BindWA *bindWA, const RefConstraintList *refCon
 
   if ((entries = refConstraints->entries())) {
     riSubtree = createRISubtree(bindWA, naTable, *(refConstraints->at(0)), heap);
-    for (Int32 i = 1; i < entries; i++) {
+    for (int i = 1; i < entries; i++) {
       riSubtree = new (heap) Union(createRISubtree(bindWA, naTable, *(refConstraints->at(i)), heap), riSubtree, NULL,
                                    NULL, REL_UNION, CmpCommon::statementHeap(), TRUE);
     }  // end of for
@@ -2905,7 +2905,7 @@ static void minimizeInputsForNode(RelExpr *node, ValueIdSet &realInputs) {
 static void minimizeInputsForSubtree(RelExpr *subtree, ValueIdSet &realInputs) {
   minimizeInputsForNode(subtree, realInputs);
 
-  for (Int32 i = 0; i < subtree->getArity(); i++) minimizeInputsForSubtree(subtree->child(i), realInputs);
+  for (int i = 0; i < subtree->getArity(); i++) minimizeInputsForSubtree(subtree->child(i), realInputs);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -3688,7 +3688,7 @@ RelExpr *GenericUpdate::handleInlining(BindWA *bindWA, RelExpr *boundExpr) {
   // Forbid the use of the Materialize node by the optimizer, for the entire
   // backbone, if we are now cascaded from a row after trigger.
   NABoolean forbidMaterializeNodeHere = shouldForbidMaterializeNodeHere(bindWA);
-  Int32 prevStateOfFlags = 0;
+  int prevStateOfFlags = 0;
   if (forbidMaterializeNodeHere) {
     // Set this InliningInfo flag in every node being bound (see RelExpr::bindSelf())
     // but save the previous state first.

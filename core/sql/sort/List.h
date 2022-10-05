@@ -49,7 +49,7 @@ class List : public NABasicObject {
  private:
   ListNode<T> *head;
   ListNode<T> *tail;
-  Int32 numItems;
+  int numItems;
 };
 
 #include "List.cpp"

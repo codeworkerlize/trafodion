@@ -72,7 +72,7 @@ class StmtDDLCreateLibrary : public StmtDDLNode
   inline const QualifiedName &getLibraryNameAsQualifiedName() const;
   inline QualifiedName &getLibraryNameAsQualifiedName();
 
-  inline Int32 getVersion() { return 1; }
+  inline int getVersion() { return 1; }
 
   // for tracing
 

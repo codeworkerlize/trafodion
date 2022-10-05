@@ -45,7 +45,7 @@
 #include <ctype.h>
 #include "common/ComRtUtils.h"
 
-extern char *getDatatypeAsString(Int32 datatype, NABoolean extFormat = FALSE);
+extern char *getDatatypeAsString(int datatype, NABoolean extFormat = FALSE);
 
 FILE *UdrTraceFile = stdout;
 
@@ -262,17 +262,17 @@ void dumpLmParameter(LmParameter &p, int i, const char *prefix) {
 
   ServerDebug("%s [%ld] Name [%s]", prefix, i, p.getParamName() ? p.getParamName() : "");
   ServerDebug("%s     FS type %s, prec %d, scale %d, charset %d", prefix, getDatatypeAsString(p.fsType()),
-              (Int32)p.prec(), (Int32)p.scale(), (Int32)p.encodingCharSet());
+              (int)p.prec(), (int)p.scale(), (int)p.encodingCharSet());
   ServerDebug("%s     direction %s, collation %d, objMap %ld, resultSet %s", prefix, getDirectionName(p.direction()),
-              (Int32)p.collation(), (Int32)p.objMapping(), TF_STRING(p.resultSet()));
-  ServerDebug("%s     IN  offset %d, len %d, null offset %d, null len %d", prefix, (Int32)p.inDataOffset(),
-              (Int32)p.inSize(), (Int32)p.inNullIndOffset(), (Int32)p.inNullIndSize());
-  ServerDebug("%s         vclen offset %d, vclen len %d", prefix, (Int32)p.inVCLenIndOffset(),
-              (Int32)p.inVCLenIndSize());
-  ServerDebug("%s     OUT offset %d, len %d, null offset %d, null len %d", prefix, (Int32)p.outDataOffset(),
-              (Int32)p.outSize(), (Int32)p.outNullIndOffset(), (Int32)p.outNullIndSize());
-  ServerDebug("%s         vclen offset %d, vclen len %d", prefix, (Int32)p.outVCLenIndOffset(),
-              (Int32)p.outVCLenIndSize());
+              (int)p.collation(), (int)p.objMapping(), TF_STRING(p.resultSet()));
+  ServerDebug("%s     IN  offset %d, len %d, null offset %d, null len %d", prefix, (int)p.inDataOffset(),
+              (int)p.inSize(), (int)p.inNullIndOffset(), (int)p.inNullIndSize());
+  ServerDebug("%s         vclen offset %d, vclen len %d", prefix, (int)p.inVCLenIndOffset(),
+              (int)p.inVCLenIndSize());
+  ServerDebug("%s     OUT offset %d, len %d, null offset %d, null len %d", prefix, (int)p.outDataOffset(),
+              (int)p.outSize(), (int)p.outNullIndOffset(), (int)p.outNullIndSize());
+  ServerDebug("%s         vclen offset %d, vclen len %d", prefix, (int)p.outVCLenIndOffset(),
+              (int)p.outVCLenIndSize());
 
 }  // dumpLmParameter
 
@@ -295,10 +295,10 @@ void dumpBuffer(unsigned char *buffer, size_t len) {
   // where each <hex pair> is a 4-character hex representation of
   // 2-bytes and each <ascii value> is 1 character.
   //
-  const Int32 CHARS_PER_LINE = 16;
-  const Int32 ASCII_BUF_LEN = CHARS_PER_LINE + 1;
+  const int CHARS_PER_LINE = 16;
+  const int ASCII_BUF_LEN = CHARS_PER_LINE + 1;
 
-  const Int32 HEX_BUF_LEN = (2 * CHARS_PER_LINE)    // 2 hex characters per byte of input
+  const int HEX_BUF_LEN = (2 * CHARS_PER_LINE)    // 2 hex characters per byte of input
                             + (CHARS_PER_LINE / 2)  // one space between each <hex pair>
                             + 1;                    // null terminator
 
@@ -311,7 +311,7 @@ void dumpBuffer(unsigned char *buffer, size_t len) {
   char asciiBuf[ASCII_BUF_LEN + 100];
   size_t i, j, hexOffset, asciiOffset;
   size_t startingOffset;
-  Int32 nCharsWritten;
+  int nCharsWritten;
 
   //
   // This message will be used for buffer overflow assertion failures
@@ -341,7 +341,7 @@ void dumpBuffer(unsigned char *buffer, size_t len) {
       // Write a 2-character hex value to the hex buffer. The %X
       // format expects an int value.
       //
-      nCharsWritten = sprintf(&hexBuf[hexOffset], "%02X", (Int32)buffer[i]);
+      nCharsWritten = sprintf(&hexBuf[hexOffset], "%02X", (int)buffer[i]);
       UDR_ASSERT(nCharsWritten == 2, msg);
       hexOffset += 2;
 
@@ -370,7 +370,7 @@ void dumpBuffer(unsigned char *buffer, size_t len) {
     UDR_ASSERT(hexBuf[HEX_BUF_LEN - 1] == '\0', msg);
     UDR_ASSERT(asciiBuf[ASCII_BUF_LEN - 1] == '\0', msg);
 
-    ServerDebug("%08X  %-*s |  %s", (Int32)startingOffset, (Int32)(HEX_BUF_LEN - 1), hexBuf, asciiBuf);
+    ServerDebug("%08X  %-*s |  %s", (int)startingOffset, (int)(HEX_BUF_LEN - 1), hexBuf, asciiBuf);
 
   }  // while (i < len)
 
@@ -399,7 +399,7 @@ void dumpComCondition(ComCondition *cc, char *ind) {
   ServerDebug("%s  Cursor Name         : ", ind, cc->getSqlID());
   ServerDebug("%s  Row Number          : %ld", ind, (int)cc->getRowNumber());
 
-  for (Int32 jj = 0; jj < ComCondition::NumOptionalParms; jj++) {
+  for (int jj = 0; jj < ComCondition::NumOptionalParms; jj++) {
     if (cc->getOptionalString(jj) != NULL) {
       ServerDebug("%s  OptionalString(%ld) : %s", ind, (int)jj, cc->getOptionalString(jj));
     }
@@ -479,7 +479,7 @@ const char *getDirectionName(ComColumnDirection d) {
     case COM_INOUT_COLUMN:
       return "INOUT";
   }
-  return ComRtGetUnknownString((Int32)d);
+  return ComRtGetUnknownString((int)d);
 }
 
 const char *getLmResultSetMode(const LmResultSetMode &rs) {
@@ -489,11 +489,11 @@ const char *getLmResultSetMode(const LmResultSetMode &rs) {
     case RS_SET:
       return "RS_SET";
   }
-  return ComRtGetUnknownString((Int32)rs);
+  return ComRtGetUnknownString((int)rs);
 }
 
 void ServerDebug(const char *formatString, ...) {
-  static Int32 pid = getpid();
+  static int pid = getpid();
   fprintf(UdrTraceFile, "[%04d] ", pid);
   va_list args;
   va_start(args, formatString);
@@ -502,7 +502,7 @@ void ServerDebug(const char *formatString, ...) {
   fflush(UdrTraceFile);
 }
 
-void doMessageBox(UdrGlobals *UdrGlob, Int32 trLevel, NABoolean moduleType, const char *moduleName) {
+void doMessageBox(UdrGlobals *UdrGlob, int trLevel, NABoolean moduleType, const char *moduleName) {
   if (UdrGlob && UdrGlob->traceLevel_ >= trLevel && moduleType) {
     MessageBox(NULL, moduleName, UdrGlob->serverName_, MB_OK | MB_ICONINFORMATION);
   }

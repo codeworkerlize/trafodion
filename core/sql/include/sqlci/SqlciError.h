@@ -168,7 +168,7 @@
 class ErrorParam {
  private:
   char *s_param_;
-  Int32 i_param_;
+  int i_param_;
   short type_;  // INT_TYPE or STRING_TYPE
 
  public:
@@ -182,18 +182,18 @@ class ErrorParam {
     type_ = STRING_TYPE;
   }
 
-  ErrorParam(Int32 i_p) {
+  ErrorParam(int i_p) {
     i_param_ = i_p;
     type_ = INT_TYPE;
   }
 
   short Param_type() { return type_; }
   char *Str_Param() { return s_param_; }
-  Int32 Int_Param() { return i_param_; }
+  int Int_Param() { return i_param_; }
 
 };  // ErrorParam
 
 void SqlciError(short errorCode, ...);
-void SqlciError2(Int32 errorCode, ...);
+void SqlciError2(int errorCode, ...);
 
 #endif  // SQLCI_ERROR_H

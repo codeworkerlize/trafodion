@@ -83,13 +83,13 @@ ComTdbSplitBottom::ComTdbSplitBottom(ComTdb *child, ComTdbSendBottom *sendTdb, e
   //  setPlanVersion(ComVersion_GetCurrentPlanVersion());
 }
 
-Int32 ComTdbSplitBottom::orderedQueueProtocol() const {
+int ComTdbSplitBottom::orderedQueueProtocol() const {
   return -1;
 }  // these lines won't be covered, obsolete but not in the list yet
 
 void ComTdbSplitBottom::display() const {}  // these lines won't be covered, used by Windows GUI only
 
-const ComTdb *ComTdbSplitBottom::getChild(Int32 pos) const {
+const ComTdb *ComTdbSplitBottom::getChild(int pos) const {
   if (pos == 0)
     return child_;
   else if (pos == 1)
@@ -98,13 +98,13 @@ const ComTdb *ComTdbSplitBottom::getChild(Int32 pos) const {
     return NULL;
 }
 
-Int32 ComTdbSplitBottom::numChildren() const { return 2; }
+int ComTdbSplitBottom::numChildren() const { return 2; }
 
-Int32 ComTdbSplitBottom::numExpressions() const {
+int ComTdbSplitBottom::numExpressions() const {
   return 3;  // partFunction_,  minMaxExpr_ and minMaxMoveOutExpr_
 }
 
-ex_expr *ComTdbSplitBottom::getExpressionNode(Int32 pos) {
+ex_expr *ComTdbSplitBottom::getExpressionNode(int pos) {
   if (pos == 0)
     return partFunction_;
   else if (pos == 1)
@@ -115,7 +115,7 @@ ex_expr *ComTdbSplitBottom::getExpressionNode(Int32 pos) {
     return NULL;
 }
 
-const char *ComTdbSplitBottom::getExpressionName(Int32 pos) const {
+const char *ComTdbSplitBottom::getExpressionName(int pos) const {
   if (pos == 0)
     return "partFunction_";
   else if (pos == 1)
@@ -198,9 +198,9 @@ void ComTdbSplitBottom::displayContents(Space *space, ULng32 flag) {
 
       // Do 3 int64s per line until the final 1 or 2.
 
-      Int32 numTriads = skewInfo_->getNumSkewHashValues() / 3;
-      Int32 numLeftovers = skewInfo_->getNumSkewHashValues() % 3;
-      Int32 i = 0;
+      int numTriads = skewInfo_->getNumSkewHashValues() / 3;
+      int numLeftovers = skewInfo_->getNumSkewHashValues() % 3;
+      int i = 0;
 
       while (numTriads > 0) {
         str_sprintf(buf, "%23ld %23ld %23ld", skewInfo_->getSkewHashValues()[i], skewInfo_->getSkewHashValues()[i + 1],

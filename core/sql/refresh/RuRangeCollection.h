@@ -121,7 +121,7 @@ class REFRESH_LIB_CLASS CRURangeCollection {
   void VerifyBalance();
 
   // Comparison function for qsort
-  static Int32 CompareElem(const void *pEl1, const void *pEl2);
+  static int CompareElem(const void *pEl1, const void *pEl2);
 
  private:
   CDDObject::ERangeLogType rlType_;
@@ -133,7 +133,7 @@ class REFRESH_LIB_CLASS CRURangeCollection {
   const CRUIUDLogRecord *pMaxCKRecord_;
 
   TInt32 minEpoch_;
-  Int32 balanceCounter_;
+  int balanceCounter_;
 };
 
 //--------------------------------------------------------------------------//
@@ -181,7 +181,7 @@ class REFRESH_LIB_CLASS CRURangeCollectionIterator {
   int size_;
 
   IterDirection dir_;
-  Int32 i_;
+  int i_;
 };
 
 #endif

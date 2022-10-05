@@ -49,7 +49,7 @@
 #include "common/Int64.h"
 #include "common/IntervalType.h"
 
-Int32 compExprNum = 0;
+int compExprNum = 0;
 
 //////////////////////////////////////////////////////
 // CompositeAttributes
@@ -133,12 +133,12 @@ ex_expr::exp_return_type ExpCompositeBase::fixup(Space *space, CollHeap *exHeap,
   return ex_clause::fixup(space, exHeap, constantsArea, tempsArea, persistentArea, fixupFlag, spaceCompOnly);
 }
 
-void ExpCompositeBase::displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea,
+void ExpCompositeBase::displayContents(Space *space, const char *displayStr, int clauseNum, char *constsArea,
                                        ULng32 flag) {
   char buf[200];
 
   compExprNum++;
-  Int32 exprNum = compExprNum;
+  int exprNum = compExprNum;
   str_sprintf(buf, "  %s #%d: %s:L%d, type: %s, numElements: %d", "Clause", clauseNum, displayStr, exprNum,
               (type_ == 1 ? "ARRAY" : "ROW"), numElements_);
   space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
@@ -206,7 +206,7 @@ ExpCompositeArrayLength::ExpCompositeArrayLength(OperatorTypeEnum oper_type, sho
                                                  Space *space)
     : ExpCompositeBase(oper_type, type, 0, 2, attr, 0, NULL, NULL, NULL, space) {}
 
-void ExpCompositeArrayLength::displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum,
+void ExpCompositeArrayLength::displayContents(Space *space, const char * /*displayStr*/, int clauseNum,
                                               char *constsArea, ULng32 flag) {
   ExpCompositeBase::displayContents(space, "ExpCompositeArrayLength", clauseNum, constsArea, flag);
 }
@@ -215,9 +215,9 @@ ex_expr::exp_return_type ExpCompositeArrayLength::eval(char *op_data[], CollHeap
   char *srcData = op_data[1];
   char *tgtData = op_data[0];
 
-  Int32 srcNumElems = *(Int32 *)srcData;
+  int srcNumElems = *(int *)srcData;
 
-  *(Int32 *)tgtData = srcNumElems;
+  *(int *)tgtData = srcNumElems;
 
   return ex_expr::EXPR_OK;
 }
@@ -242,7 +242,7 @@ int ExpCompositeArrayCast::unpack(void *base, void *reallocator) {
   return ExpCompositeBase::unpack(base, reallocator);
 }
 
-void ExpCompositeArrayCast::displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum,
+void ExpCompositeArrayCast::displayContents(Space *space, const char * /*displayStr*/, int clauseNum,
                                             char *constsArea) {
   char buf[200];
 
@@ -265,31 +265,31 @@ ex_expr::exp_return_type ExpCompositeArrayCast::eval(char *op_data[], CollHeap *
   CompositeAttributes *srcOp = (CompositeAttributes *)getOperand(1);
   CompositeAttributes *tgtOp = (CompositeAttributes *)getOperand(0);
 
-  Int32 srcNumElems = *(Int32 *)srcData;
-  Int32 tgtMaxElems = tgtOp->getNumElements();
+  int srcNumElems = *(int *)srcData;
+  int tgtMaxElems = tgtOp->getNumElements();
 
-  Int32 copyElems = MINOF(srcNumElems, tgtMaxElems);
+  int copyElems = MINOF(srcNumElems, tgtMaxElems);
 
   // if composite formats are the same, copy source to target.
   if (srcOp->getCompFormat() == tgtOp->getCompFormat()) {
     // copy source to tgt
     int srcLen = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
 
-    *(Int32 *)tgtData = copyElems;
-    srcData += sizeof(Int32);
-    tgtData += sizeof(Int32);
-    str_cpy_all(tgtData, srcData, (srcLen - sizeof(Int32)));
+    *(int *)tgtData = copyElems;
+    srcData += sizeof(int);
+    tgtData += sizeof(int);
+    str_cpy_all(tgtData, srcData, (srcLen - sizeof(int)));
 
     if (tgtOp->getVCIndicatorLength() > 0) tgtOp->setVarLength(srcLen, op_data[-MAX_OPERANDS]);
 
     return ex_expr::EXPR_OK;
   }
 
-  Int32 numCopyElems = MINOF(srcNumElems, tgtMaxElems);
-  *(Int32 *)tgtData = numCopyElems;
+  int numCopyElems = MINOF(srcNumElems, tgtMaxElems);
+  *(int *)tgtData = numCopyElems;
 
-  srcData += sizeof(Int32);
-  tgtData += sizeof(Int32);
+  srcData += sizeof(int);
+  tgtData += sizeof(int);
 
   ExpAlignedFormat *eaf = NULL;
   Attributes *tgtElemAttr = NULL;
@@ -327,8 +327,8 @@ ex_expr::exp_return_type ExpCompositeArrayCast::eval(char *op_data[], CollHeap *
   NABoolean isNullVal = FALSE;
   int varLen = -1;
   int attrLen = 0;
-  Int32 tgtLen = 0;
-  for (Int32 srcElem = 1; srcElem <= numCopyElems; srcElem++) {
+  int tgtLen = 0;
+  for (int srcElem = 1; srcElem <= numCopyElems; srcElem++) {
     srcElemAttr = (Attributes *)(srcCompAttrs->getElements())[srcElem - 1];
     getAttrDataPtr(srcElemAttr, srcData, attrData, varLen, isNullVal);
 
@@ -376,7 +376,7 @@ ex_expr::exp_return_type ExpCompositeArrayCast::eval(char *op_data[], CollHeap *
   return ex_expr::EXPR_OK;
 }
 
-ex_expr::exp_return_type displayAttr(Space *space, Attributes *attr, Int32 operandNum, char *constsArea) {
+ex_expr::exp_return_type displayAttr(Space *space, Attributes *attr, int operandNum, char *constsArea) {
   char buf[200];
 
   if (NOT((attr->getDatatype() == REC_ARRAY) || (attr->getDatatype() == REC_ROW))) {
@@ -398,8 +398,8 @@ ex_expr::exp_return_type displayAttr(Space *space, Attributes *attr, Int32 opera
   str_sprintf(buf, " ");
   space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
 
-  Int32 numElemsToDisplay = (attr->getDatatype() == REC_ARRAY ? 1 : compAttrs->getNumElements());
-  for (Int32 i = 0; i < numElemsToDisplay; i++) {
+  int numElemsToDisplay = (attr->getDatatype() == REC_ARRAY ? 1 : compAttrs->getNumElements());
+  for (int i = 0; i < numElemsToDisplay; i++) {
     AttributesPtrPtr app = compAttrs->getElements();
     AttributesPtr ap = app[i];
     Attributes *attr = (Attributes *)ap;
@@ -434,7 +434,7 @@ int ExpCompositeHiveCast::unpack(void *base, void *reallocator) {
   return ExpCompositeBase::unpack(base, reallocator);
 }
 
-void ExpCompositeHiveCast::displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum,
+void ExpCompositeHiveCast::displayContents(Space *space, const char * /*displayStr*/, int clauseNum,
                                            char *constsArea) {
   char buf[200];
 
@@ -474,7 +474,7 @@ ex_expr::exp_return_type ExpCompositeHiveCast::copyHiveSrcToTgt(Attributes *tgtA
 
     // source returned from hive has the format:
     //   4 bytes elem Len. elemLen bytes data.
-    Int32 elemLen = *(Int32 *)srcData;
+    int elemLen = *(int *)srcData;
     srcData += sizeof(elemLen);
 
     if (elemLen >= 0) {
@@ -507,7 +507,7 @@ ex_expr::exp_return_type ExpCompositeHiveCast::copyHiveSrcToTgt(Attributes *tgtA
   }  // not composite
 
   CompositeAttributes *tgtCompAttrs = (CompositeAttributes *)tgtAttr;
-  int numElems = *(Int32 *)srcData;
+  int numElems = *(int *)srcData;
   srcData += sizeof(numElems);
 
   if (tgtCompAttrs->getNumElements() < numElems) {
@@ -525,17 +525,17 @@ ex_expr::exp_return_type ExpCompositeHiveCast::copyHiveSrcToTgt(Attributes *tgtA
 
   // move number of array entries to the beginning of returned row
   if (tgtAttr->getDatatype() == REC_ARRAY) {
-    *(Int32 *)tgtCompData = numElems;
-    tgtCompData += sizeof(Int32);
+    *(int *)tgtCompData = numElems;
+    tgtCompData += sizeof(int);
   }
   if ((NOT isRoot) && (tgtAttr->getNullFlag())) {
     tgtCompNullData[0] = 0;
     tgtCompNullData[1] = 0;
   }
 
-  for (Int32 i = 0; i < numElems; i++) {
+  for (int i = 0; i < numElems; i++) {
     Attributes *tgtElemAttr = (Attributes *)(tgtCompAttrs->getElements())[i];
-    if (tgtElemAttr->isComposite()) srcData += sizeof(Int32);  // skip length
+    if (tgtElemAttr->isComposite()) srcData += sizeof(int);  // skip length
     rc = copyHiveSrcToTgt(tgtElemAttr, srcData, tgtCompData, heap, diagsArea, FALSE);
     if (rc != ex_expr::EXPR_OK) return rc;
   }  // for
@@ -569,7 +569,7 @@ ex_expr::exp_return_type ExpCompositeHiveCast::eval(char *op_data[], CollHeap *h
     return ex_expr::EXPR_ERROR;
   }
 
-  Int32 tgtOffset = tgtAttrs->getOffset();  // save current offset
+  int tgtOffset = tgtAttrs->getOffset();  // save current offset
   tgtAttrs->setOffset(0);                   // row will be formed starting at 'tgtData'
   rc = copyHiveSrcToTgt(tgtAttrs, srcData, tgtData, heap, diagsArea, TRUE);
   tgtAttrs->setOffset(tgtOffset);  // restore saved offset
@@ -610,15 +610,15 @@ ex_expr::exp_return_type ExpCompositeConcat::eval(char *op_data[], CollHeap *hea
   char *child2Data = op_data[2];
   char *resultData = op_data[0];
 
-  Int32 child1NumElems = *(Int32 *)child1Data;
-  Int32 child2NumElems = *(Int32 *)child2Data;
-  Int32 numElems = child1NumElems + child2NumElems;
+  int child1NumElems = *(int *)child1Data;
+  int child2NumElems = *(int *)child2Data;
+  int numElems = child1NumElems + child2NumElems;
 
-  child1Data += sizeof(Int32);
-  child2Data += sizeof(Int32);
+  child1Data += sizeof(int);
+  child2Data += sizeof(int);
 
-  *(Int32 *)resultData = numElems;
-  resultData += sizeof(Int32);
+  *(int *)resultData = numElems;
+  resultData += sizeof(int);
 
   ExpAlignedFormat *eaf = NULL;
   char *currResultData = NULL;
@@ -646,11 +646,11 @@ ex_expr::exp_return_type ExpCompositeConcat::eval(char *op_data[], CollHeap *hea
   int varLen = -1;
   int attrLen = 0;
 
-  Int32 resultElem = 0;
+  int resultElem = 0;
   Attributes *attr = NULL;
   Attributes *attrs = (Attributes *)compAttrsChild1_;
-  Int32 totalLen = 0;
-  for (Int32 elem = 1; elem <= child1NumElems; elem++) {
+  int totalLen = 0;
+  for (int elem = 1; elem <= child1NumElems; elem++) {
     resultElem++;
     resultAttr = (Attributes *)(((CompositeAttributes *)resultAttrs)->getElements())[resultElem - 1];
 
@@ -680,7 +680,7 @@ ex_expr::exp_return_type ExpCompositeConcat::eval(char *op_data[], CollHeap *hea
   }  // for
 
   attrs = (Attributes *)compAttrsChild2_;
-  for (Int32 elem = 1; elem <= child2NumElems; elem++) {
+  for (int elem = 1; elem <= child2NumElems; elem++) {
     resultElem++;
     resultAttr = (Attributes *)(((CompositeAttributes *)resultAttrs)->getElements())[resultElem - 1];
 
@@ -708,13 +708,13 @@ ex_expr::exp_return_type ExpCompositeConcat::eval(char *op_data[], CollHeap *hea
     totalLen += attrLen;
   }  // for
 
-  Int32 tgtLen = sizeof(Int32) + totalLen;
+  int tgtLen = sizeof(int) + totalLen;
   if (getOperand(0)->getVCIndicatorLength() > 0) getOperand(0)->setVarLength(tgtLen, op_data[-MAX_OPERANDS]);
 
   return ex_expr::EXPR_OK;
 }
 
-void ExpCompositeConcat::displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum, char *constsArea,
+void ExpCompositeConcat::displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea,
                                          ULng32 flag) {
   ExpCompositeBase::displayContents(space, "ExpCompositeConcat", clauseNum, constsArea, flag);
 }
@@ -737,7 +737,7 @@ ex_expr::exp_return_type ExpCompositeCreate::eval(char *op_data[], atp_struct *a
   ULng32 actualRowLen = 0;
   ex_expr::exp_return_type evalRetCode = getCompExpr()->eval(atp1, atp2, compAtp_, heap, -1, &actualRowLen, NULL, NULL);
   ComDiagsArea *tempDA = atp1->getDiagsArea();
-  Int32 actualElems = -1;
+  int actualElems = -1;
   if ((evalRetCode == ex_expr::EXPR_ERROR) && (getOperand(0)->getDatatype() == REC_ARRAY) &&
       (tempDA && (tempDA->contains(-8147)))) {
     ComCondition *cc = tempDA->findCondition(-8147);
@@ -782,12 +782,12 @@ ex_expr::exp_return_type ExpCompositeCreate::eval(char *op_data[], atp_struct *a
 
   // move number of array entries to the beginning of returned row
   if (getOperand(0)->getDatatype() == REC_ARRAY) {
-    Int32 numElems = numElements();
+    int numElems = numElements();
     if (actualElems >= 0) numElems = actualElems;
 
-    *(Int32 *)op_data[0] = numElems;
+    *(int *)op_data[0] = numElems;
 
-    str_cpy_all(&op_data[0][sizeof(Int32)], compRow_, actualRowLen);
+    str_cpy_all(&op_data[0][sizeof(int)], compRow_, actualRowLen);
   } else
     str_cpy_all(op_data[0], compRow_, actualRowLen);
 
@@ -797,7 +797,7 @@ ex_expr::exp_return_type ExpCompositeCreate::eval(char *op_data[], atp_struct *a
   return ex_expr::EXPR_OK;
 }
 
-void ExpCompositeCreate::displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum, char *constsArea,
+void ExpCompositeCreate::displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea,
                                          ULng32 flag) {
   ExpCompositeBase::displayContents(space, "ExpCompositeCreate", clauseNum, constsArea, flag);
 }
@@ -815,14 +815,14 @@ static int getDisplayLength(int datatype, int length, int precision, int scale) 
 }
 
 static short displayValue(Attributes *attr, char *tgtData, UInt32 &currTgtIndex, char *srcData, int varLen) {
-  Int32 tgtDataType = CharInfo::getFSTypeFixedChar(CharInfo::ISO88591);
+  int tgtDataType = CharInfo::getFSTypeFixedChar(CharInfo::ISO88591);
 
-  Int32 datatype = attr->getDatatype();
-  Int32 precision = attr->getPrecision();
-  Int32 scale = attr->getScale();
+  int datatype = attr->getDatatype();
+  int precision = attr->getPrecision();
+  int scale = attr->getScale();
 
   UInt32 length = (varLen >= 0 ? varLen : attr->getLength(srcData));
-  Int32 tgtLen = getDisplayLength(datatype, length, precision, scale);
+  int tgtLen = getDisplayLength(datatype, length, precision, scale);
 
   char dispBuf[tgtLen + 1];
   dispBuf[tgtLen] = 0;
@@ -857,13 +857,13 @@ short displayValues(Attributes *attr, char *tgtPtr, char *srcPtr, int varLen, UI
 
   currTgtIndex++;
 
-  Int32 numElements = compAttrs->getNumElements();
+  int numElements = compAttrs->getNumElements();
   if (attr->getDatatype() == REC_ARRAY) {
-    numElements = *(Int32 *)srcPtr;
-    srcPtr += sizeof(Int32);
+    numElements = *(int *)srcPtr;
+    srcPtr += sizeof(int);
   }
 
-  for (Int32 i = 0; i < numElements; i++) {
+  for (int i = 0; i < numElements; i++) {
     AttributesPtrPtr app = compAttrs->getElements();
     AttributesPtr ap = app[i];
     Attributes *attr = (Attributes *)ap;
@@ -897,7 +897,7 @@ short displayValues(Attributes *attr, char *tgtPtr, char *srcPtr, int varLen, UI
   return 0;
 }
 
-void ExpCompositeDisplay::displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum,
+void ExpCompositeDisplay::displayContents(Space *space, const char * /*displayStr*/, int clauseNum,
                                           char *constsArea) {
   char buf[200];
 
@@ -965,7 +965,7 @@ int ExpCompositeExtract::unpack(void *base, void *reallocator) {
   return ExpCompositeBase::unpack(base, reallocator);
 }
 
-void ExpCompositeExtract::displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum,
+void ExpCompositeExtract::displayContents(Space *space, const char * /*displayStr*/, int clauseNum,
                                           char *constsArea) {
   char buf[200];
 
@@ -981,7 +981,7 @@ void ExpCompositeExtract::displayContents(Space *space, const char * /*displaySt
 
     str_sprintf(buf, "  numSearchAttrs: %d", numSearchAttrs_);
     space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-    for (Int32 i = 0; i < numSearchAttrs_; i++) {
+    for (int i = 0; i < numSearchAttrs_; i++) {
       str_sprintf(buf, "  searchAttrType[%d]: %3d, searchAttrIndex[%d]: %2d", i, getSearchAttrType(i), i,
                   getSearchAttrIndex(i));
       space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
@@ -1006,8 +1006,8 @@ void ExpCompositeExtract::displayContents(Space *space, const char * /*displaySt
 }
 
 ex_expr::exp_return_type ExpCompositeExtract::extractValue(Attributes *inAttrs, int elemNum, char *tgtPtr,
-                                                           char *srcPtr, Int32 maxNumElems, NABoolean &isNullVal,
-                                                           ULng32 &attrLen, Int32 &numElems, CollHeap *heap,
+                                                           char *srcPtr, int maxNumElems, NABoolean &isNullVal,
+                                                           ULng32 &attrLen, int &numElems, CollHeap *heap,
                                                            ComDiagsArea **diagsArea) {
   CompositeAttributes *compAttrs = (CompositeAttributes *)inAttrs;
   AttributesPtrPtr app = compAttrs->getElements();
@@ -1029,12 +1029,12 @@ ex_expr::exp_return_type ExpCompositeExtract::extractValue(Attributes *inAttrs, 
       return ex_expr::EXPR_ERROR;
     }
 
-    numElems = *(Int32 *)srcPtr;
+    numElems = *(int *)srcPtr;
     if (elemNum > numElems) {
       isNullVal = TRUE;
       return ex_expr::EXPR_OK;
     }
-    srcPtr += sizeof(Int32);
+    srcPtr += sizeof(int);
   }
   getAttrDataPtr(attr, srcPtr, attrData, varLen, isNullVal);
   if (isNullVal) return ex_expr::EXPR_OK;
@@ -1059,8 +1059,8 @@ ex_expr::exp_return_type ExpCompositeExtract::searchAndExtractValue(Attributes *
   isNullVal = FALSE;
 
   currCompAttrsData = srcPtr;
-  for (Int32 i = 0; i < numSearchAttrs(); i++) {
-    Int32 elemNum = getSearchAttrIndex(i);
+  for (int i = 0; i < numSearchAttrs(); i++) {
+    int elemNum = getSearchAttrIndex(i);
     if (elemNum <= 0) continue;
 
     CompositeAttributes *compAttrs = (CompositeAttributes *)currCompAttrs;
@@ -1069,12 +1069,12 @@ ex_expr::exp_return_type ExpCompositeExtract::searchAndExtractValue(Attributes *
     currAttr = (Attributes *)ap;
 
     if (currCompAttrs->getDatatype() == REC_ARRAY) {
-      Int32 numElems = *(Int32 *)currCompAttrsData;
+      int numElems = *(int *)currCompAttrsData;
       if (elemNum > numElems) {
         isNullVal = TRUE;
         return ex_expr::EXPR_OK;
       }
-      currCompAttrsData += sizeof(Int32);
+      currCompAttrsData += sizeof(int);
     }
     getAttrDataPtr(currAttr, currCompAttrsData, currAttrData, varLen, isNullVal);
     if (isNullVal) return ex_expr::EXPR_OK;
@@ -1107,18 +1107,18 @@ ex_expr::exp_return_type ExpCompositeExtract::eval(char *op_data[], CollHeap *he
     return ex_expr::EXPR_ERROR;
   }
 
-  Int32 elemNum = elemNum_;
+  int elemNum = elemNum_;
 
   // get elemNum from child operand 2, if specified
   if ((elemNum < 0) && (numSearchAttrs() <= 0) && (getOperand(2)) && (op_data[2])) {
-    elemNum = *(Int32 *)op_data[2];
+    elemNum = *(int *)op_data[2];
   }
 
   NABoolean isNullVal = FALSE;
   if (numSearchAttrs() > 0) {
     rc = searchAndExtractValue(compAttrs_, op_data[0], op_data[1], isNullVal, tgtLen, heap, diagsArea);
   } else {
-    Int32 numElems = 0;
+    int numElems = 0;
     rc = extractValue(compAttrs_, elemNum, op_data[0], op_data[1], numElements(), isNullVal, tgtLen, numElems, heap,
                       diagsArea);
     if ((compAttrs_->getDatatype() == REC_ARRAY) && (numElems > 0) && (elemNum > numElems)) {

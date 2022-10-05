@@ -237,10 +237,10 @@ class GroupAttributes : public ReferenceCounter {
   inline RowSize getInputVarLength() const { return inputVarLength_; }
   inline void setInputVarLength(RowSize v) { inputVarLength_ = v; }
 
-  inline Int32 getNumBaseTables() const { return numBaseTables_; }
-  inline void setNumBaseTables(Int32 v) { numBaseTables_ = MAXOF(numBaseTables_, v); }
-  inline Int32 getNumTMUDFs() const { return numTMUDFs_; }
-  inline void setNumTMUDFs(Int32 v) { numTMUDFs_ = v; }
+  inline int getNumBaseTables() const { return numBaseTables_; }
+  inline void setNumBaseTables(int v) { numBaseTables_ = MAXOF(numBaseTables_, v); }
+  inline int getNumTMUDFs() const { return numTMUDFs_; }
+  inline void setNumTMUDFs(int v) { numTMUDFs_ = v; }
 
   inline CostScalar getMinChildEstRowCount() const { return minChildEstRowCount_; }
   void setMinChildEstRowCount(CostScalar v) {
@@ -255,8 +255,8 @@ class GroupAttributes : public ReferenceCounter {
     outputCardinalityForEmptyLogProp_ = v;
   }
 
-  inline void resetNumBaseTables(Int32 v) { numBaseTables_ = v; }
-  inline Int32 getNumJoinedTables() const {
+  inline void resetNumBaseTables(int v) { numBaseTables_ = v; }
+  inline int getNumJoinedTables() const {
     // QSTUFF
     // this prevent heuristics from
     // treating a generic update tree like
@@ -268,12 +268,12 @@ class GroupAttributes : public ReferenceCounter {
       return numJoinedTables_;
     // QSTUFF
   }
-  inline void setNumJoinedTables(Int32 v)  // can be set only once
+  inline void setNumJoinedTables(int v)  // can be set only once
   {
     if (numJoinedTables_ == 1) numJoinedTables_ = v;
   }
 
-  inline void resetNumJoinedTables(Int32 v) { numJoinedTables_ = v; }
+  inline void resetNumJoinedTables(int v) { numJoinedTables_ = v; }
 
   // QSTUFF
   // ---------------------------------------------------------------------
@@ -356,12 +356,12 @@ class GroupAttributes : public ReferenceCounter {
   // estLogProp for the child of a Materialize Operator.  NOTE: the
   // following two routines should Only be used in synthesizing the output
   // estLogProp for the child of a Materialize Operator.
-  EstLogPropSharedPtr materializeInputLogProp(const EstLogPropSharedPtr &inLP, Int32 *multipleReads);
-  EstLogPropSharedPtr materializeOutputLogProp(const EstLogPropSharedPtr &inLP, Int32 *numOfCalls);
+  EstLogPropSharedPtr materializeInputLogProp(const EstLogPropSharedPtr &inLP, int *multipleReads);
+  EstLogPropSharedPtr materializeOutputLogProp(const EstLogPropSharedPtr &inLP, int *numOfCalls);
 
   // See if the provided est. input logical property exists?  If so, return
   // the index in the list; otherwise, return -1.
-  Int32 existsInputLogProp(const EstLogPropSharedPtr &inputLP) const;
+  int existsInputLogProp(const EstLogPropSharedPtr &inputLP) const;
 
   // Checks whether the OLP for the provided ILP has been synthesized.
   NABoolean isPropSynthesized(const EstLogPropSharedPtr &inputLogProp) const;
@@ -667,9 +667,9 @@ class GroupAttributes : public ReferenceCounter {
   double getAverageVarcharSize(const ValueIdList &vidList, UInt32 &maxRowSize);
 
   // methods to set, get and update group potential
-  void setPotential(Int32 potential) { potential_ = potential; };
-  Int32 getPotential() const { return potential_; };
-  Int32 updatePotential(Int32 potential) {
+  void setPotential(int potential) { potential_ = potential; };
+  int getPotential() const { return potential_; };
+  int updatePotential(int potential) {
     if ((potential != -1) && (potential_ == -1)) {
       potential_ = potential;
     }
@@ -691,7 +691,7 @@ class GroupAttributes : public ReferenceCounter {
 
   NABoolean allHiveTables();
   NABoolean allHiveColumnarTables(HiveFileType type = ANY);
-  Int32 computeNumOfHiveColumnarTables(HiveFileType type);
+  int computeNumOfHiveColumnarTables(HiveFileType type);
   NABoolean allHiveORCTablesSorted();
 
   // get the name of the ith index (table)
@@ -742,9 +742,9 @@ class GroupAttributes : public ReferenceCounter {
   RowSize inputVarLength_;  // estimated size of input parameters
 
   // values used to avoid bushy join trees
-  Int32 numBaseTables_;    // # of base tables involved in this subtree
-  Int32 numJoinedTables_;  // # of tables in join backbone (see note below)
-  Int32 numTMUDFs_;        // # of table-mapping UDFs in this subtree
+  int numBaseTables_;    // # of base tables involved in this subtree
+  int numJoinedTables_;  // # of tables in join backbone (see note below)
+  int numTMUDFs_;        // # of table-mapping UDFs in this subtree
 
   // Note: For numJoinedTables_, we calculate this when we create the
   // GroupAttributes for an expression for the first time. For most nodes
@@ -851,7 +851,7 @@ class GroupAttributes : public ReferenceCounter {
   NAHashDictionary<ValueId, SkewedValueList> *cachedSkewValuesPtr_;
 
   // group's potential
-  Int32 potential_;
+  int potential_;
 
   // Does the group contain non-deterministic UDRs?
   NABoolean hasNonDeterministicUDRs_;

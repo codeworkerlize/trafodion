@@ -73,14 +73,14 @@ static const NAWchar MsgFile_Not_Found[] = WIDE_("*** ERROR[16000] Error message
 // UR2. Used by getErrorMessage, NSK version
 static const char Msg_Not_Found_NSK[] = "No message found for SQLCODE $0~sqlcode.";
 
-const Int32 SQLSTATE_LEN = 5;              // per Ansi
-const Int32 HELPID_LEN = 5;                // per SQL/MX
-const Int32 EMS_SEVERITY_LEN = 5;          // per SQL/MX
-const Int32 EMS_EVENT_TARGET_LEN = 7;      // per SQL/MX
-const Int32 EMS_EXPERIENCE_LEVEL_LEN = 8;  // per SQL/MX
+const int SQLSTATE_LEN = 5;              // per Ansi
+const int HELPID_LEN = 5;                // per SQL/MX
+const int EMS_SEVERITY_LEN = 5;          // per SQL/MX
+const int EMS_EVENT_TARGET_LEN = 7;      // per SQL/MX
+const int EMS_EXPERIENCE_LEVEL_LEN = 8;  // per SQL/MX
 
 static NABoolean isInfoSQLSTATE(const NAWchar *state) {
-  Int32 i = SQLSTATE_LEN;
+  int i = SQLSTATE_LEN;
   for (; i--;)
     if (*state++ != '0') break;
   if (i < 0) return TRUE;  // SQLSTATE was "00000"
@@ -291,7 +291,7 @@ NABoolean openMessageCatalog(ErrorType errType, nl_catd *msgCatalog) {
 
 NABoolean getErrorMessageFromCatalog(NAErrorCode error_code_abs, MsgTextType M_type, NAWchar *msgBuf, int msgBufLen,
                                      nl_catd *msgCatalog) {
-  Int32 set_num;
+  int set_num;
 
   set_num = ((error_code_abs / 10) * 10);
 
@@ -350,7 +350,7 @@ NABoolean getErrorMessageFromCatalog(NAErrorCode error_code_abs, MsgTextType M_t
 }
 
 short GetErrorMessage(ErrorType errType, int error_code, NAWchar *&return_text, MsgTextType M_type,
-                      NAWchar *alternate_return_text, Int32 recurse_level, NABoolean prefixNeeded) {
+                      NAWchar *alternate_return_text, int recurse_level, NABoolean prefixNeeded) {
   short msgNotFound = TRUE;  // assume error return
 
   NAErrorCode error_code_abs = error_code;
@@ -563,7 +563,7 @@ static short kludgeReadStraightFromMessageFile(int num, NAWchar *msgBuf, int buf
     const char *env = getenv("SQLMX_MESSAGEFILE");  // /bin/SqlciErrors.txt
     saveErrorMessageFileName(env, !!env);
     if (!env) return FALSE;
-    Int32 fd = open(env, O_RDONLY);
+    int fd = open(env, O_RDONLY);
     if (fd < 0) return FALSE;
 
     struct stat stbuf;

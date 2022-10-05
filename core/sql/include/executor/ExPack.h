@@ -183,10 +183,10 @@ class ExPackRowsTcb : public ex_tcb {
   inline ex_expr *packExpr() { return packTdb().packExpr_; }
 
   // Pack has one child.
-  virtual Int32 numChildren() const { return 1; }
+  virtual int numChildren() const { return 1; }
 
   // Return the child of the pack node by position.
-  virtual const ex_tcb *getChild(Int32 pos) const {
+  virtual const ex_tcb *getChild(int pos) const {
     if (pos == 0) return childTcb_;
     return NULL;
   }

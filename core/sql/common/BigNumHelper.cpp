@@ -116,7 +116,7 @@ short BigNumHelper::SubHelper(int dataLength, char *leftData, char *rightData, c
   unsigned short *left = leftDataInShorts;
   unsigned short *right = rightDataInShorts;
 
-  Int32 neg = 0;
+  int neg = 0;
   int j = 0;
   for (j = 0; j < dataLengthInShorts; j++) {
     if (rightDataInShorts[j] > leftDataInShorts[j])
@@ -173,7 +173,7 @@ short BigNumHelper::MulHelper(int resultLength, int leftLength, int rightLength,
   unsigned short *resultDataInShorts = (unsigned short *)resultData;
 
   // Set result to zero.
-  for (Int32 k = 0; k < resultLength / 2; k++) resultDataInShorts[k] = 0;
+  for (int k = 0; k < resultLength / 2; k++) resultDataInShorts[k] = 0;
 
   // Skip trailing zeros in the left and the right argument
   // to shorten the nested loop that appears later.
@@ -245,7 +245,7 @@ short BigNumHelper::SimpleDivHelper(int dividendLength, int divisorLength, char 
     unsigned short temp1[2];
   };
 
-  for (Int32 j = dividendLengthInShorts - 1; j >= 0; j--) {
+  for (int j = dividendLengthInShorts - 1; j >= 0; j--) {
 #ifdef NA_LITTLE_ENDIAN
     temp1[0] = dividendDataInShorts[j];
     temp1[1] = remainder;
@@ -304,7 +304,7 @@ short BigNumHelper::DivHelper(int dividendLength, int divisorLength, char *divid
     // Multiply divisorData by 0x100 (= UCHAR_MAX + 1) and store in tempDivisorData.
     // Note that the size of tempDivisorData is 2 bytes more than divisorData.
     tempDivisorData[0] = 0;
-    Int32 i;
+    int i;
     for (i = 0; i < divisorLength; i++) tempDivisorData[i + 1] = divisorData[i];
     tempDivisorData[divisorLength + 1] = 0;
 
@@ -315,7 +315,7 @@ short BigNumHelper::DivHelper(int dividendLength, int divisorLength, char *divid
     tempDividendData[dividendLength + 1] = 0;
 
   } else {
-    Int32 i;
+    int i;
     // Multiply divisorData by 1 and store in tempDivisorData.
     for (i = 0; i < divisorLength; i++) tempDivisorData[i] = divisorData[i];
     tempDivisorDataInShorts[divisorLengthInShorts] = 0;
@@ -328,7 +328,7 @@ short BigNumHelper::DivHelper(int dividendLength, int divisorLength, char *divid
 #else
 
   if (divisorDataInShorts[divisorLengthInShorts - 1] <= UCHAR_MAX) {
-    Int32 i = 0;
+    int i = 0;
 
     // Multiply divisorData by 0x100 and store in tempDivisorData.
     tempDivisorData[1] = 0;
@@ -349,7 +349,7 @@ short BigNumHelper::DivHelper(int dividendLength, int divisorLength, char *divid
   }
 
   else {
-    Int32 i = 0;
+    int i = 0;
 
     // Multiply divisorData by 1 and store in tempDivisorData.
     for (i = 0; i < divisorLength; i++) tempDivisorData[i] = divisorData[i];
@@ -364,7 +364,7 @@ short BigNumHelper::DivHelper(int dividendLength, int divisorLength, char *divid
   // End normalizing step.
 
   // Set the quotient to zero.
-  Int32 j = 0;
+  int j = 0;
   for (j = 0; j < dividendLengthInShorts; j++) quotientDataInShorts[j] = 0;
 
   unsigned short q;
@@ -379,7 +379,7 @@ short BigNumHelper::DivHelper(int dividendLength, int divisorLength, char *divid
     unsigned short temp4[4];
   };
 
-  Int32 m = dividendLengthInShorts - divisorLengthInShorts;
+  int m = dividendLengthInShorts - divisorLengthInShorts;
   int dividendPosInShorts = dividendLengthInShorts;
 
   // The main loop for division.
@@ -410,7 +410,7 @@ short BigNumHelper::DivHelper(int dividendLength, int divisorLength, char *divid
 
     BigNumHelper::MulHelper(divisorLength + 2, divisorLength, 2, tempDivisorData, (char *)&q, tempDivisorData1);
 
-    Int32 neg = BigNumHelper::SubHelper(
+    int neg = BigNumHelper::SubHelper(
         divisorLength + 2, (char *)&tempDividendDataInShorts[dividendPosInShorts - divisorLengthInShorts],
         tempDivisorData1, (char *)&tempDividendDataInShorts[dividendPosInShorts - divisorLengthInShorts]);
 
@@ -514,7 +514,7 @@ short BigNumHelper::ConvBigNumToBcdHelper(int sourceLength, int targetLength, ch
 
   if (heap) tempSourceDataInShorts = new (heap) unsigned short[sourceLength / 2];
 
-  Int32 i = 0;
+  int i = 0;
   for (i = 0; i < sourceLengthInShorts; i++) tempSourceDataInShorts[i] = sourceDataInShorts[i];
 
   // Initialize the BCD to zero.
@@ -550,7 +550,7 @@ short BigNumHelper::ConvBigNumToBcdHelper(int sourceLength, int targetLength, ch
   while ((actualSourceLengthInShorts != 1) || (tempSourceDataInShorts[actualSourceLengthInShorts - 1] >= 10000)) {
     // Divide the Big Num by 10^4. It is more efficient to insert
     // the division code than to call SimpleDivideHelper();
-    Int32 j = 0;
+    int j = 0;
     for (j = actualSourceLengthInShorts - 1; j >= 0; j--) {
 #ifdef NA_LITTLE_ENDIAN
       temp1[0] = tempSourceDataInShorts[j];
@@ -610,7 +610,7 @@ short BigNumHelper::ConvBcdToBigNumHelper(int sourceLength, int targetLength, ch
   unsigned short *targetDataInShorts = (unsigned short *)targetData;
 
   // Initialize the Big Num to zero.
-  Int32 i = 0;
+  int i = 0;
   for (i = 0; i < targetLengthInShorts; i++) targetDataInShorts[i] = 0;
   int finalTargetLengthInShorts = 1;
 
@@ -619,7 +619,7 @@ short BigNumHelper::ConvBcdToBigNumHelper(int sourceLength, int targetLength, ch
   while ((zeros < sourceLength) && !sourceData[zeros]) zeros++;
   if (zeros == sourceLength) return 1;  // indicate that it is all zeros
 
-  Int32 actualSourceLength = sourceLength - zeros;
+  int actualSourceLength = sourceLength - zeros;
   char *actualSourceData = sourceData + zeros;
 
 #ifdef NA_LITTLE_ENDIAN
@@ -648,7 +648,7 @@ short BigNumHelper::ConvBcdToBigNumHelper(int sourceLength, int targetLength, ch
   for (i = 0; i < actualSourceLength; i += 4) {
     // Compute the numeric value of the next 4-digit chunk.
     unsigned short temp1 = 0;
-    Int32 j = 0;
+    int j = 0;
     while ((j < 4) && (i + j < actualSourceLength)) {
       temp1 = temp1 * 10 + actualSourceData[i + j];
       j++;
@@ -723,7 +723,7 @@ short BigNumHelper::ConvBigNumToAsciiHelper(int sourceLength, int targetLength, 
   // Convert to BCD representation (without sign).
   short returnValue = BigNumHelper::ConvBigNumToBcdHelper(sourceLength, targetLength, sourceData, targetData, heap);
   // Convert from BCD to ASCII.
-  for (Int32 i = 0; i < targetLength; i++) targetData[i] += '0';
+  for (int i = 0; i < targetLength; i++) targetData[i] += '0';
 
   return returnValue;
 }
@@ -735,7 +735,7 @@ short BigNumHelper::ConvBigNumToAsciiHelper(int sourceLength, int targetLength, 
 short BigNumHelper::ConvAsciiToBigNumHelper(int sourceLength, int targetLength, char *sourceData,
                                             char *targetData) {
   // Temporarily convert source from ASCII to BCD.
-  Int32 i = 0;
+  int i = 0;
   for (i = 0; i < sourceLength; i++) sourceData[i] -= '0';
 
   short returnValue = BigNumHelper::ConvBcdToBigNumHelper(sourceLength, targetLength, sourceData, targetData);
@@ -817,7 +817,7 @@ short BigNumHelper::ConvPowersOfTenToBigNumHelper(int exponent, int targetLength
 {
   // If exponent is small enough, copy Big Num from precomputed table.
   if (exponent < sizeof(powersOfTenInBigNumForm) / 8) {
-    for (Int32 k = 0; k < 8; k++) targetData[k] = ((char *)(powersOfTenInBigNumForm + exponent * 4))[k];
+    for (int k = 0; k < 8; k++) targetData[k] = ((char *)(powersOfTenInBigNumForm + exponent * 4))[k];
     *finalTargetLength = 8;
     return 0;
   }
@@ -848,7 +848,7 @@ short BigNumHelper::ConvPowersOfTenToBigNumHelper(int exponent, int targetLength
 #endif
 
   // Initialize the Big Num to 10^(sizeof(powersOfTenInBigNumForm)/8 - 1)
-  Int32 k = 0;
+  int k = 0;
   for (k = 0; k < 8; k++)
     targetData[k] = ((char *)(powersOfTenInBigNumForm + sizeof(powersOfTenInBigNumForm) / 2 - 4))[k];
   int currentTargetLengthInShorts = 4;
@@ -858,7 +858,7 @@ short BigNumHelper::ConvPowersOfTenToBigNumHelper(int exponent, int targetLength
   // efficient to insert the multiplication code here than to
   // call the mulHelper() method.
 
-  for (Int32 i = 0; i < diffExponent; i += 4) {
+  for (int i = 0; i < diffExponent; i += 4) {
     unsigned short power;
     if (i + 4 <= diffExponent)
       power = 10000;
@@ -867,7 +867,7 @@ short BigNumHelper::ConvPowersOfTenToBigNumHelper(int exponent, int targetLength
 
     temp = ((ULng32)targetDataInShorts[0]) * power;
     targetDataInShorts[0] = tempParts.remainder;
-    Int32 j = 1;
+    int j = 1;
     for (j = 1; j < currentTargetLengthInShorts; j++) {
       temp = ((ULng32)targetDataInShorts[j]) * power + tempParts.carry;
       targetDataInShorts[j] = tempParts.remainder;
@@ -886,17 +886,17 @@ short BigNumHelper::ConvPowersOfTenToBigNumHelper(int exponent, int targetLength
 
 // The following converts an long to a Big Num (with sign).
 
-short BigNumHelper::ConvInt64ToBigNumWithSignHelper(Int32 targetLength, long sourceData, char *targetData,
+short BigNumHelper::ConvInt64ToBigNumWithSignHelper(int targetLength, long sourceData, char *targetData,
                                                     NABoolean isUnsigned)
 
 {
-  Int32 tgtLength16 = targetLength >> 1;
+  int tgtLength16 = targetLength >> 1;
   UInt16 *tgt = (UInt16 *)targetData;
   long *tgt64 = (long *)targetData;
   NABoolean isNeg = FALSE;
 
   // Initialize magnitude of target to zero.
-  for (Int32 k = 0; k < tgtLength16; k++) tgt[k] = 0;
+  for (int k = 0; k < tgtLength16; k++) tgt[k] = 0;
 
   if ((NOT isUnsigned) && (sourceData < 0)) {
     sourceData = -sourceData;
@@ -1055,7 +1055,7 @@ short BigNumHelper::ConvBigNumWithSignToInt64AndScaleHelper(int sourceLength, ch
     if (scaleFactorLengthInShorts > sourceLengthInShorts) {
       // I.e. the scaleFactor is longer than the magnitude of the source,
       // thus everything got truncated! Set source after scaling to zero.
-      for (Int32 k = 0; k < (crudeScaleFactorLength + sourceLength); k++) sourceDataAfterScaling[k] = 0;
+      for (int k = 0; k < (crudeScaleFactorLength + sourceLength); k++) sourceDataAfterScaling[k] = 0;
       sourceLengthAfterScalingInShorts = 4;
       anyTruncation = 1;
     } else if (scaleFactorLengthInShorts == 1) {
@@ -1178,7 +1178,7 @@ short BigNumHelper::ConvBigNumWithSignToBigNumWithSignHelper(int sourceLength, i
   }
 
   // Initialize magnitude of target to zeros.
-  Int32 k = 0;
+  int k = 0;
   for (k = 0; k < targetLength; k++) targetData[k] = 0;
 
   // Copy source to target.

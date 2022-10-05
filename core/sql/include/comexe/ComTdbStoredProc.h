@@ -101,14 +101,14 @@ class ComTdbStoredProc : public ComTdb {
   Long pack(void *);
   int unpack(void *, void *reallocator);
 
-  Int32 orderedQueueProtocol() const { return -1; };
+  int orderedQueueProtocol() const { return -1; };
   void display() const {};
 
-  Int32 numChildren() const { return 0; };
-  const ComTdb *getChild(Int32) const { return NULL; };
+  int numChildren() const { return 0; };
+  const ComTdb *getChild(int) const { return NULL; };
   const char *getNodeName() const { return "EX_STORED_PROC"; };
-  Int32 numExpressions() const { return 3; };
-  virtual ex_expr *getExpressionNode(Int32 pos) {
+  int numExpressions() const { return 3; };
+  virtual ex_expr *getExpressionNode(int pos) {
     if (pos == 0)
       return inputExpr_;
     else if (pos == 1)
@@ -119,7 +119,7 @@ class ComTdbStoredProc : public ComTdb {
       return NULL;
   }
 
-  virtual const char *getExpressionName(Int32 pos) const {
+  virtual const char *getExpressionName(int pos) const {
     if (pos == 0)
       return "inputExpr_";
     else if (pos == 1)

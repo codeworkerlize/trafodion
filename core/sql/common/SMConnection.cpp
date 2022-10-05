@@ -133,13 +133,13 @@ SMConnection::~SMConnection() {
   getEnvironment()->getAllConnections()->decrNumSMConnections();
 }
 
-Int32 SMConnection::numQueuedSendMessages() { return sendQueueEntries(); }
+int SMConnection::numQueuedSendMessages() { return sendQueueEntries(); }
 
-Int32 SMConnection::numQueuedReceiveMessages() {
-  Int32 result = 0;
+int SMConnection::numQueuedReceiveMessages() {
+  int result = 0;
   if (smTask_) {
     ExSMQueue *q = smTask_->getOutQueue();
-    if (q) result = (Int32)q->getLength();
+    if (q) result = (int)q->getLength();
   }
   return result;
 }

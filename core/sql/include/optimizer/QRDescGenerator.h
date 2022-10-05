@@ -443,7 +443,7 @@ class QRDescGenerator : public NABasicObject {
    * @param eqCount Number of elements in the JoinPred.
    * @param [out] hubJoinPredId The id of the JoinPred element for the hub.
    */
-  void addJoinPred(QRJBBPtr jbbElem, QRElementPtr *qrElemArray, Int32 *idArray, Int32 eqCount, UInt32 &hubJoinPredId);
+  void addJoinPred(QRJBBPtr jbbElem, QRElementPtr *qrElemArray, int *idArray, int eqCount, UInt32 &hubJoinPredId);
 
   /**
    * Returns the node id of the passed item expression, or \c NULL_CA_ID if no
@@ -639,7 +639,7 @@ class QRDescGenerator : public NABasicObject {
    * @return \c TRUE if a node id was determined, \c FALSE otherwise.
    */
   NABoolean getTableId(ValueId vid, CANodeId &nodeID, ValueId &cvid, ValueId &vegrefVid, NAString &baseColName,
-                       NABoolean &isExtraHub, Int32 &colIndex);
+                       NABoolean &isExtraHub, int &colIndex);
 
   /**
    * Returns the node id for the table that owns the referenced column.

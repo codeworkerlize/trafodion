@@ -53,7 +53,7 @@ class ExBitMapTable : public ExGod {
  public:
   // constructor
   //
-  ExBitMapTable(Int32 keySize, Int32 dataSize, Int32 countOffset, Int32 memSize, NAMemory *heap);
+  ExBitMapTable(int keySize, int dataSize, int countOffset, int memSize, NAMemory *heap);
 
   // destructor
   //
@@ -62,12 +62,12 @@ class ExBitMapTable : public ExGod {
   // Returns the maximum number of groups that can fit in the table. This
   // reflects the best case scenario.
   //
-  Int32 getMaximumNumberGroups() const { return maximumNumberGroups_; };
+  int getMaximumNumberGroups() const { return maximumNumberGroups_; };
 
   // Returns the minimum number of groups that can fit in the table. This
   // reflects the worst case scenario.
   //
-  Int32 getMinimumNumberGroups() const { return maximumNumberGroups_; };
+  int getMinimumNumberGroups() const { return maximumNumberGroups_; };
 
   // Returns a pointer to the current group's data.
   //
@@ -75,7 +75,7 @@ class ExBitMapTable : public ExGod {
 
   // Returns a pointer to the Nth group's data.
   //
-  char *getGroup(Int32 n) { return groups_ + n * rowSize_; }
+  char *getGroup(int n) { return groups_ + n * rowSize_; }
 
   // Returns a pointer to the group's key.
   //
@@ -87,7 +87,7 @@ class ExBitMapTable : public ExGod {
 
   // Return the number of groups in the table.
   //
-  Int32 getNumberGroups() const { return numberGroups_; };
+  int getNumberGroups() const { return numberGroups_; };
 
   // Advances the current return group.
   //
@@ -106,7 +106,7 @@ class ExBitMapTable : public ExGod {
 
   // Find or adds the group pointed to be key to the table.
   //
-  Int32 findOrAdd(char *key);
+  int findOrAdd(char *key);
 
   // Initialize any table aggregates.
   //
@@ -121,22 +121,22 @@ class ExBitMapTable : public ExGod {
   void reset();
 
  private:
-  Int32 keySize_;
-  Int32 dataSize_;
-  Int32 countOffset_;
-  Int32 memSize_;
-  Int32 rowSize_;
+  int keySize_;
+  int dataSize_;
+  int countOffset_;
+  int memSize_;
+  int rowSize_;
   NAMemory *heap_;
 
-  Int32 maximumNumberGroups_;
-  Int32 numberHashBuckets_;
+  int maximumNumberGroups_;
+  int numberHashBuckets_;
   char *memory_;
   char *data_;
   char *groups_;
   char **buckets_;
 
-  Int32 numberGroups_;
-  Int32 returnGroup_;
+  int numberGroups_;
+  int returnGroup_;
 };
 
 #endif

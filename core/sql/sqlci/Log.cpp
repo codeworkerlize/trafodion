@@ -68,7 +68,7 @@ void Logfile::Open(char *name_, open_mode mode) {
   strcpy(name, name_);
 
 #ifndef NA_CASE_INSENSITIVE_FILENAMES
-  static Int32 desensitize = -1;
+  static int desensitize = -1;
   if (desensitize < 0) {
     const char *env = getenv("SQL_MXCI_CASE_INSENSITIVE_LOG");
     if (!env || !*env || *env == '0')
@@ -124,7 +124,7 @@ void Logfile::Close() {
 }
 
 short Logfile::Write(const char *buffer, int buflen) {
-  Int32 retcode;
+  int retcode;
 
   if (noLog()) return 0;
 
@@ -173,7 +173,7 @@ short Logfile::WriteAll(const char *buffer, int buflen) {
   return 0;
 }
 
-short Logfile::WriteAll(const char *buffer, int buflen, Int32 useCout) {
+short Logfile::WriteAll(const char *buffer, int buflen, int useCout) {
   if (NOT noDisplay()) {
     if (useCout)
       cout << buffer;
@@ -196,8 +196,8 @@ short Logfile::WriteAll(const WCHAR *mbBuf, int buflen) { return 0; }
 short Logfile::WriteAll(const char *buffer) { return WriteAll(buffer, strlen(buffer)); }
 
 short Logfile::WriteAllWithoutEOL(const char *buffer) {
-  Int32 buflen = strlen(buffer);
-  Int32 retcode;
+  int buflen = strlen(buffer);
+  int retcode;
 
   if (NOT noDisplay()) {
     if (buflen > 0) cout << buffer;

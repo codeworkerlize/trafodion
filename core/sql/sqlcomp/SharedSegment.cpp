@@ -137,7 +137,7 @@ bool SharedSegment::detachVirtualAddress() {
 bool SharedSegment::remove() {
   char buf[50];
   snprintf(buf, sizeof(buf), "ipcrm -m %d", shmid_);
-  Int32 rc = system(buf);
+  int rc = system(buf);
 
   if (rc != 0) {
     errno_ = errno;

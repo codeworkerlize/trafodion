@@ -169,8 +169,8 @@ short RelInternalSP::codeGen(Generator *generator) {
   // -- the first two entries for consts and temps.
   // -- Entry 3(index #2) is where the input and output rows will be created.
   ex_cri_desc *work_cri_desc = new (space) ex_cri_desc(3, space);
-  const Int32 work_atp = 1;
-  const Int32 work_atp_index = 2;
+  const int work_atp = 1;
+  const int work_atp_index = 2;
 
   ExpTupleDesc *input_tuple_desc = NULL;
   ExpTupleDesc *output_tuple_desc = NULL;

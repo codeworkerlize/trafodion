@@ -92,7 +92,7 @@ double EncVal_encodeString(const char *str, int strLen, CharType *cType) {
   {
     // fill "stringValues" with 8 bit nullchars
     unsigned char nullchar = (char)0;
-    for (Int32 i = 0; i < 8; i++) stringValues[i] = nullchar;
+    for (int i = 0; i < 8; i++) stringValues[i] = nullchar;
 
   }  // bytes per char == 1
   else {
@@ -102,7 +102,7 @@ double EncVal_encodeString(const char *str, int strLen, CharType *cType) {
     // so that endian-ness will not be an issue.
 
     unsigned short nullchar = unicode_char_set::null_char();
-    for (Int32 i = 0; i < 4; i++) {
+    for (int i = 0; i < 4; i++) {
       str_cpy_all((char *)&stringValues[SQL_DBCHAR_SIZE * i], (char *)&nullchar, sizeof(nullchar));
     }
 
@@ -118,7 +118,7 @@ double EncVal_encodeString(const char *str, int strLen, CharType *cType) {
 #define ENCKEYBUFLEN (8 * (MAXPASSES + 1) + 2)  // Ensure Temp buffer big enough!
     UInt8 encodeKeyBuf1[ENCKEYBUFLEN];          // Temp buffer
     UInt8 *tmpstr = (UInt8 *)str;
-    Int32 tmpLen = strLen;
+    int tmpLen = strLen;
     CharInfo::Collation collation = cType->getCollation();
     if (collation != CharInfo::DefaultCollation) {
       memset(encodeKeyBuf1, 0, ENCKEYBUFLEN);
@@ -300,17 +300,17 @@ void NormValueList::round() {
 // to the partExpression.
 //
 struct pos_index {
-  void setPos(Int32 x) { pos_ = x; }
-  void setIdx(Int32 x) { idx_ = x; }
+  void setPos(int x) { pos_ = x; }
+  void setIdx(int x) { idx_ = x; }
 
-  Int32 getPos() { return pos_; }
-  Int32 getIdx() { return idx_; }
+  int getPos() { return pos_; }
+  int getIdx() { return idx_; }
 
-  Int32 pos_;
-  Int32 idx_;
+  int pos_;
+  int idx_;
 };
 
-Int32 comparePosIdx(const void *p1, const void *p2) {
+int comparePosIdx(const void *p1, const void *p2) {
   pos_index *pi1 = (pos_index *)p1;
   pos_index *pi2 = (pos_index *)p2;
 
@@ -373,7 +373,7 @@ UInt32 EncodedValue::computeRunTimeHashValue(const NAColumnArray &colArray, cons
 
     } else if (!useHashValue) {
       char data[10];
-      Int32 len = 0;
+      int len = 0;
       UInt32 flags = ExHDPHash::NO_FLAGS;
 
       EncodedValue ev(nV.getValue());
@@ -420,7 +420,7 @@ UInt32 EncodedValue::computeRunTimeHashValue(const NAColumnArray &colArray, cons
 
 void EncodedValue::outputToBufferToComputeRTHash(const NAType *naType,
                                                  char *data,    // output buffer to hold the data to be hashed
-                                                 Int32 &len,    // length of the data
+                                                 int &len,    // length of the data
                                                  UInt32 &flags  // flags to be used during hash
 ) const {
   double x = getDblValue();
@@ -469,7 +469,7 @@ void EncodedValue::outputToBufferToComputeRTHash(const NAType *naType,
       len = 4;
       flags = ExHDPHash::SWAP_FOUR;
       {
-        Int32 y = (Int32)x;
+        int y = (int)x;
         memcpy(data, &y, len);
       }
       break;
@@ -656,7 +656,7 @@ void EncodedValue::constructorFunction(const NAWchar *theValue, const NAColumnAr
   NAWchar *next;
   NABoolean boundaryValueTruncated = FALSE;
 
-  const Int32 BOUNDARY_LEN = 10;  // +10 just in case
+  const int BOUNDARY_LEN = 10;  // +10 just in case
   NAWchar buf[BOUNDARY_LEN];
 
   NormValue val;
@@ -783,13 +783,13 @@ void EncodedValue::constructorFunction(const NAWchar *theValue, const NAColumnAr
 
         // Leave space for both semi-colon and null
         // next points to the next char after the value
-        Int32 numChars = MINOF(BOUNDARY_LEN - 2, na_wcslen(item) - na_wcslen(next));
+        int numChars = MINOF(BOUNDARY_LEN - 2, na_wcslen(item) - na_wcslen(next));
 
         // Genesis solution 10-031101-0981
         // When fetching histogram for UNICODE column we need to prefix
         // the buffer to be analyzed by parser with _USC2
         const NAType *colType = columns[i]->getType();
-        Int32 prefixLen = 0;
+        int prefixLen = 0;
         if (colType->getTypeQualifier() == NA_CHARACTER_TYPE) {
           switch (((CharType *)colType)->getCharSet()) {
             case CharInfo::UNICODE:

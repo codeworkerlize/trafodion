@@ -54,7 +54,7 @@ inline void swapInt64(char *c) {
   c[4] = y;
 }
 
-inline void swapInt32(Int32 *x) {
+inline void swapInt32(int *x) {
   char *c = (char *)x;
   char y;
   y = c[0];
@@ -160,7 +160,7 @@ class NABasicPtrTempl {
     return *this;
   }
 
-  inline NABasicPtrTempl<Type> &operator=(const Int32 ptr) {
+  inline NABasicPtrTempl<Type> &operator=(const int ptr) {
     ptr_ = (Type *)((long)ptr);
     return *this;
   }
@@ -179,25 +179,25 @@ class NABasicPtrTempl {
   // Comparison operators - support comparisons with the "real" pointer.
   // -------------------------------------------------------------------
 
-  inline Int32 operator==(const Int32 ptr) const { return (ptr_ == (Type *)ptr); }
+  inline int operator==(const int ptr) const { return (ptr_ == (Type *)ptr); }
 
-  inline Int32 operator==(const NABasicPtrTempl<Type> &other) const { return (ptr_ == other.ptr_); }
+  inline int operator==(const NABasicPtrTempl<Type> &other) const { return (ptr_ == other.ptr_); }
 
-  inline Int32 operator==(const Type *const ptr) const { return (ptr_ == ptr); }
+  inline int operator==(const Type *const ptr) const { return (ptr_ == ptr); }
 
-  inline Int32 operator!=(const Int32 ptr) const { return (ptr_ != (Type *)((long)ptr)); }
+  inline int operator!=(const int ptr) const { return (ptr_ != (Type *)((long)ptr)); }
 
-  inline Int32 operator!=(const NABasicPtrTempl<Type> &other) const { return (ptr_ != other.ptr_); }
+  inline int operator!=(const NABasicPtrTempl<Type> &other) const { return (ptr_ != other.ptr_); }
 
-  inline Int32 operator!=(const Type *const ptr) const { return (ptr_ != ptr); }
+  inline int operator!=(const Type *const ptr) const { return (ptr_ != ptr); }
 
-  inline Int32 operator!() const { return (ptr_ == (Type *)NULL); }
+  inline int operator!() const { return (ptr_ == (Type *)NULL); }
 
   // -------------------------------------------------------------------
   // Arithmetic operators - support pointer arithmetic.
   // -------------------------------------------------------------------
 
-  inline NABasicPtrTempl<Type> operator+(const Int32 n) const { return NABasicPtrTempl<Type>(ptr_ + n); }
+  inline NABasicPtrTempl<Type> operator+(const int n) const { return NABasicPtrTempl<Type>(ptr_ + n); }
 
   inline NABasicPtrTempl<Type> operator+(const short n) const { return NABasicPtrTempl<Type>(ptr_ + n); }
   inline NABasicPtrTempl<Type> operator+(const Long n) const { return NABasicPtrTempl<Type>(ptr_ + n); }
@@ -208,7 +208,7 @@ class NABasicPtrTempl {
 
   inline NABasicPtrTempl<Type> operator+(const ULong n) const { return NABasicPtrTempl<Type>(ptr_ + n); }
 
-  inline NABasicPtrTempl<Type> operator-(const Int32 n) const { return NABasicPtrTempl<Type>(ptr_ - n); }
+  inline NABasicPtrTempl<Type> operator-(const int n) const { return NABasicPtrTempl<Type>(ptr_ - n); }
 
   inline NABasicPtrTempl<Type> operator-(const short n) const { return NABasicPtrTempl<Type>(ptr_ - n); }
 
@@ -220,7 +220,7 @@ class NABasicPtrTempl {
 
   inline NABasicPtrTempl<Type> operator-(const ULong n) const { return NABasicPtrTempl<Type>(ptr_ - n); }
 
-  inline NABasicPtrTempl<Type> &operator+=(const Int32 n) {
+  inline NABasicPtrTempl<Type> &operator+=(const int n) {
     ptr_ += n;
     return *this;
   }
@@ -250,7 +250,7 @@ class NABasicPtrTempl {
     return *this;
   }
 
-  inline NABasicPtrTempl<Type> &operator-=(const Int32 n) {
+  inline NABasicPtrTempl<Type> &operator-=(const int n) {
     ptr_ -= n;
     return *this;
   }
@@ -285,7 +285,7 @@ class NABasicPtrTempl {
     return *this;
   }
 
-  inline NABasicPtrTempl<Type> &operator++(const Int32 n) {
+  inline NABasicPtrTempl<Type> &operator++(const int n) {
     ptr_++;
     return *this;
   }
@@ -295,7 +295,7 @@ class NABasicPtrTempl {
     return *this;
   }
 
-  inline NABasicPtrTempl<Type> &operator--(const Int32 n) {
+  inline NABasicPtrTempl<Type> &operator--(const int n) {
     ptr_--;
     return *this;
   }
@@ -305,7 +305,7 @@ class NABasicPtrTempl {
   // represent an array of the base type. This operator is useful in
   // such cases.
   // -------------------------------------------------------------------
-  inline Type &operator[](const Int32 i) const { return ptr_[i]; }
+  inline Type &operator[](const int i) const { return ptr_[i]; }
   inline Type &operator[](const short i) const { return ptr_[i]; }
 
   inline Type &operator[](const Long i) const { return ptr_[i]; }
@@ -357,7 +357,7 @@ class NABasicPtrTempl {
 // Define pointers to basic types via use of NABasicPtrTempl.
 // ---------------------------------------------------------------------
 typedef NABasicPtrTempl<Int16> Int16Ptr;
-typedef NABasicPtrTempl<Int32> Int32Ptr;
+typedef NABasicPtrTempl<int> Int32Ptr;
 typedef NABasicPtrTempl<long> Int64Ptr;
 typedef NABasicPtrTempl<float> floatPtr;
 typedef NABasicPtrTempl<Long> LongPtr;
@@ -437,7 +437,7 @@ class NAOpenObjectPtrTempl {
     return *this;
   }
 
-  inline NAOpenObjectPtrTempl<Type> &operator=(const Int32 ptr) {
+  inline NAOpenObjectPtrTempl<Type> &operator=(const int ptr) {
     ptr_ = (Type *)((long)ptr);
     return *this;
   }
@@ -456,25 +456,25 @@ class NAOpenObjectPtrTempl {
   // Comparison operators - support comparisons with the "real" pointer.
   // -------------------------------------------------------------------
 
-  inline Int32 operator==(const Int32 ptr) const { return (ptr_ == (Type *)ptr); }
+  inline int operator==(const int ptr) const { return (ptr_ == (Type *)ptr); }
 
-  inline Int32 operator==(const NAOpenObjectPtrTempl<Type> &other) const { return (ptr_ == other.ptr_); }
+  inline int operator==(const NAOpenObjectPtrTempl<Type> &other) const { return (ptr_ == other.ptr_); }
 
-  inline Int32 operator==(const Type *const ptr) const { return (ptr_ == ptr); }
+  inline int operator==(const Type *const ptr) const { return (ptr_ == ptr); }
 
-  inline Int32 operator!=(const Int32 ptr) const { return (ptr_ != (Type *)ptr); }
+  inline int operator!=(const int ptr) const { return (ptr_ != (Type *)ptr); }
 
-  inline Int32 operator!=(const NAOpenObjectPtrTempl<Type> &other) const { return (ptr_ != other.ptr_); }
+  inline int operator!=(const NAOpenObjectPtrTempl<Type> &other) const { return (ptr_ != other.ptr_); }
 
-  inline Int32 operator!=(const Type *const ptr) const { return (ptr_ != ptr); }
+  inline int operator!=(const Type *const ptr) const { return (ptr_ != ptr); }
 
-  inline Int32 operator!() const { return (ptr_ == (Type *)NULL); }
+  inline int operator!() const { return (ptr_ == (Type *)NULL); }
 
   // -------------------------------------------------------------------
   // Arithmetic operators - support pointer arithmetic.
   // -------------------------------------------------------------------
 
-  inline NAOpenObjectPtrTempl<Type> operator+(const Int32 n) const { return NAOpenObjectPtrTempl<Type>(ptr_ + n); }
+  inline NAOpenObjectPtrTempl<Type> operator+(const int n) const { return NAOpenObjectPtrTempl<Type>(ptr_ + n); }
 
   inline NAOpenObjectPtrTempl<Type> operator+(const short n) const { return NAOpenObjectPtrTempl<Type>(ptr_ + n); }
 
@@ -488,7 +488,7 @@ class NAOpenObjectPtrTempl {
 
   inline NAOpenObjectPtrTempl<Type> operator+(const ULong n) const { return NAOpenObjectPtrTempl<Type>(ptr_ + n); }
 
-  inline NAOpenObjectPtrTempl<Type> operator-(const Int32 n) const { return NAOpenObjectPtrTempl<Type>(ptr_ - n); }
+  inline NAOpenObjectPtrTempl<Type> operator-(const int n) const { return NAOpenObjectPtrTempl<Type>(ptr_ - n); }
 
   inline NAOpenObjectPtrTempl<Type> operator-(const short n) const { return NAOpenObjectPtrTempl<Type>(ptr_ - n); }
 
@@ -502,7 +502,7 @@ class NAOpenObjectPtrTempl {
 
   inline NAOpenObjectPtrTempl<Type> operator-(const ULong n) const { return NAOpenObjectPtrTempl<Type>(ptr_ - n); }
 
-  inline NAOpenObjectPtrTempl<Type> &operator+=(const Int32 n) {
+  inline NAOpenObjectPtrTempl<Type> &operator+=(const int n) {
     ptr_ += n;
     return *this;
   }
@@ -532,7 +532,7 @@ class NAOpenObjectPtrTempl {
     return *this;
   }
 
-  inline NAOpenObjectPtrTempl<Type> &operator-=(const Int32 n) {
+  inline NAOpenObjectPtrTempl<Type> &operator-=(const int n) {
     ptr_ -= n;
     return *this;
   }
@@ -567,7 +567,7 @@ class NAOpenObjectPtrTempl {
     return *this;
   }
 
-  inline NAOpenObjectPtrTempl<Type> &operator++(const Int32 n) {
+  inline NAOpenObjectPtrTempl<Type> &operator++(const int n) {
     ptr_++;
     return *this;
   }
@@ -577,7 +577,7 @@ class NAOpenObjectPtrTempl {
     return *this;
   }
 
-  inline NAOpenObjectPtrTempl<Type> &operator--(const Int32 n) {
+  inline NAOpenObjectPtrTempl<Type> &operator--(const int n) {
     ptr_--;
     return *this;
   }
@@ -587,7 +587,7 @@ class NAOpenObjectPtrTempl {
   // represent an array of objects. This operator is useful in such
   // cases.
   // -------------------------------------------------------------------
-  inline Type &operator[](const Int32 i) const { return ptr_[i]; }
+  inline Type &operator[](const int i) const { return ptr_[i]; }
   inline Type &operator[](const short i) const { return ptr_[i]; }
   inline Type &operator[](const Long i) const { return ptr_[i]; }
 
@@ -729,7 +729,7 @@ class NAVersionedObjectPtrTempl {
     return *this;
   }
 
-  inline NAVersionedObjectPtrTempl<Type> &operator=(const Int32 ptr) {
+  inline NAVersionedObjectPtrTempl<Type> &operator=(const int ptr) {
     ptr_ = (Type *)((long)ptr);
     return *this;
   }
@@ -748,25 +748,25 @@ class NAVersionedObjectPtrTempl {
   // Comparison operators - support comparisons with the "real" pointer.
   // -------------------------------------------------------------------
 
-  inline Int32 operator==(const Int32 ptr) const { return (ptr_ == (Type *)ptr); }
+  inline int operator==(const int ptr) const { return (ptr_ == (Type *)ptr); }
 
-  inline Int32 operator==(const NAVersionedObjectPtrTempl<Type> &other) const { return (ptr_ == other.ptr_); }
+  inline int operator==(const NAVersionedObjectPtrTempl<Type> &other) const { return (ptr_ == other.ptr_); }
 
-  inline Int32 operator==(const Type *const ptr) const { return (ptr_ == ptr); }
+  inline int operator==(const Type *const ptr) const { return (ptr_ == ptr); }
 
-  inline Int32 operator!=(const Int32 ptr) const { return (ptr_ != (Type *)ptr); }
+  inline int operator!=(const int ptr) const { return (ptr_ != (Type *)ptr); }
 
-  inline Int32 operator!=(const NAVersionedObjectPtrTempl<Type> &other) const { return (ptr_ != other.ptr_); }
+  inline int operator!=(const NAVersionedObjectPtrTempl<Type> &other) const { return (ptr_ != other.ptr_); }
 
-  inline Int32 operator!=(const Type *const ptr) const { return (ptr_ != ptr); }
+  inline int operator!=(const Type *const ptr) const { return (ptr_ != ptr); }
 
-  inline Int32 operator!() const { return (ptr_ == (Type *)NULL); }
+  inline int operator!() const { return (ptr_ == (Type *)NULL); }
 
   // -------------------------------------------------------------------
   // Arithmetic operators - support pointer arithmetic.
   // -------------------------------------------------------------------
 
-  inline NAVersionedObjectPtrTempl<Type> operator+(const Int32 n) const {
+  inline NAVersionedObjectPtrTempl<Type> operator+(const int n) const {
     return NAVersionedObjectPtrTempl<Type>(ptr_ + n);
   }
 
@@ -790,7 +790,7 @@ class NAVersionedObjectPtrTempl {
     return NAVersionedObjectPtrTempl<Type>(ptr_ + n);
   }
 
-  inline NAVersionedObjectPtrTempl<Type> operator-(const Int32 n) const {
+  inline NAVersionedObjectPtrTempl<Type> operator-(const int n) const {
     return NAVersionedObjectPtrTempl<Type>(ptr_ - n);
   }
 
@@ -814,7 +814,7 @@ class NAVersionedObjectPtrTempl {
     return NAVersionedObjectPtrTempl<Type>(ptr_ - n);
   }
 
-  inline NAVersionedObjectPtrTempl<Type> &operator+=(const Int32 n) {
+  inline NAVersionedObjectPtrTempl<Type> &operator+=(const int n) {
     ptr_ += n;
     return *this;
   }
@@ -844,7 +844,7 @@ class NAVersionedObjectPtrTempl {
     return *this;
   }
 
-  inline NAVersionedObjectPtrTempl<Type> &operator-=(const Int32 n) {
+  inline NAVersionedObjectPtrTempl<Type> &operator-=(const int n) {
     ptr_ -= n;
     return *this;
   }
@@ -879,7 +879,7 @@ class NAVersionedObjectPtrTempl {
     return *this;
   }
 
-  inline NAVersionedObjectPtrTempl<Type> &operator++(const Int32 n) {
+  inline NAVersionedObjectPtrTempl<Type> &operator++(const int n) {
     ptr_++;
     return *this;
   }
@@ -889,7 +889,7 @@ class NAVersionedObjectPtrTempl {
     return *this;
   }
 
-  inline NAVersionedObjectPtrTempl<Type> &operator--(const Int32 n) {
+  inline NAVersionedObjectPtrTempl<Type> &operator--(const int n) {
     ptr_--;
     return *this;
   }
@@ -899,7 +899,7 @@ class NAVersionedObjectPtrTempl {
   // to represent an array of objects. This operator is useful in such
   // cases.
   // -------------------------------------------------------------------
-  inline Type &operator[](const Int32 i) const { return ptr_[i]; }
+  inline Type &operator[](const int i) const { return ptr_[i]; }
   inline Type &operator[](const short i) const { return ptr_[i]; }
   inline Type &operator[](const Long i) const { return ptr_[i]; }
 
@@ -1045,7 +1045,7 @@ class NAVersionedObjectPtrArrayTempl {
   // This constructor allocates the 64-bit pointer array and copies the
   // pointer array given (which may be a 32-bit pointer array).
   // -------------------------------------------------------------------
-  NAVersionedObjectPtrArrayTempl(Space *space, void **ptrArray, Int32 numEntries) {
+  NAVersionedObjectPtrArrayTempl(Space *space, void **ptrArray, int numEntries) {
     allocateAndCopyPtrArray(space, ptrArray, numEntries);
   }
 
@@ -1073,7 +1073,7 @@ class NAVersionedObjectPtrArrayTempl {
     return *this;
   }
 
-  inline NAVersionedObjectPtrArrayTempl<PtrType> &operator=(const Int32 ptr) {
+  inline NAVersionedObjectPtrArrayTempl<PtrType> &operator=(const int ptr) {
     ptr_ = (PtrType *)((long)ptr);
     return *this;
   }
@@ -1092,25 +1092,25 @@ class NAVersionedObjectPtrArrayTempl {
   // Comparison operators - support comparisons with the "real" pointer.
   // -------------------------------------------------------------------
 
-  inline Int32 operator==(const Int32 ptr) const { return (ptr_ == (PtrType *)ptr); }
+  inline int operator==(const int ptr) const { return (ptr_ == (PtrType *)ptr); }
 
-  inline Int32 operator==(const NAVersionedObjectPtrArrayTempl<PtrType> &other) const { return (ptr_ == other.ptr_); }
+  inline int operator==(const NAVersionedObjectPtrArrayTempl<PtrType> &other) const { return (ptr_ == other.ptr_); }
 
-  inline Int32 operator==(const PtrType *const ptr) const { return (ptr_ == ptr); }
+  inline int operator==(const PtrType *const ptr) const { return (ptr_ == ptr); }
 
-  inline Int32 operator!=(const Int32 ptr) const { return (ptr_ != (PtrType *)ptr); }
+  inline int operator!=(const int ptr) const { return (ptr_ != (PtrType *)ptr); }
 
-  inline Int32 operator!=(const NAVersionedObjectPtrArrayTempl<PtrType> &other) const { return (ptr_ != other.ptr_); }
+  inline int operator!=(const NAVersionedObjectPtrArrayTempl<PtrType> &other) const { return (ptr_ != other.ptr_); }
 
-  inline Int32 operator!=(const PtrType *const ptr) const { return (ptr_ != ptr); }
+  inline int operator!=(const PtrType *const ptr) const { return (ptr_ != ptr); }
 
-  inline Int32 operator!() const { return (ptr_ == (PtrType *)NULL); }
+  inline int operator!() const { return (ptr_ == (PtrType *)NULL); }
 
   // -------------------------------------------------------------------
   // Arithmetic operators - support pointer arithmetic.
   // -------------------------------------------------------------------
 
-  inline NAVersionedObjectPtrArrayTempl<PtrType> operator+(const Int32 n) const {
+  inline NAVersionedObjectPtrArrayTempl<PtrType> operator+(const int n) const {
     return NAVersionedObjectPtrArrayTempl<PtrType>(ptr_ + n);
   }
 
@@ -1134,7 +1134,7 @@ class NAVersionedObjectPtrArrayTempl {
     return NAVersionedObjectPtrArrayTempl<PtrType>(ptr_ + n);
   }
 
-  inline NAVersionedObjectPtrArrayTempl<PtrType> operator-(const Int32 n) const {
+  inline NAVersionedObjectPtrArrayTempl<PtrType> operator-(const int n) const {
     return NAVersionedObjectPtrArrayTempl<PtrType>(ptr_ - n);
   }
 
@@ -1158,7 +1158,7 @@ class NAVersionedObjectPtrArrayTempl {
     return NAVersionedObjectPtrArrayTempl<PtrType>(ptr_ - n);
   }
 
-  inline NAVersionedObjectPtrArrayTempl<PtrType> &operator+=(const Int32 n) {
+  inline NAVersionedObjectPtrArrayTempl<PtrType> &operator+=(const int n) {
     ptr_ += n;
     return *this;
   }
@@ -1188,7 +1188,7 @@ class NAVersionedObjectPtrArrayTempl {
     return *this;
   }
 
-  inline NAVersionedObjectPtrArrayTempl<PtrType> &operator-=(const Int32 n) {
+  inline NAVersionedObjectPtrArrayTempl<PtrType> &operator-=(const int n) {
     ptr_ -= n;
     return *this;
   }
@@ -1223,7 +1223,7 @@ class NAVersionedObjectPtrArrayTempl {
     return *this;
   }
 
-  inline NAVersionedObjectPtrArrayTempl<PtrType> &operator++(const Int32 n) {
+  inline NAVersionedObjectPtrArrayTempl<PtrType> &operator++(const int n) {
     ptr_++;
     return *this;
   }
@@ -1233,7 +1233,7 @@ class NAVersionedObjectPtrArrayTempl {
     return *this;
   }
 
-  inline NAVersionedObjectPtrArrayTempl<PtrType> &operator--(const Int32 n) {
+  inline NAVersionedObjectPtrArrayTempl<PtrType> &operator--(const int n) {
     ptr_--;
     return *this;
   }
@@ -1241,7 +1241,7 @@ class NAVersionedObjectPtrArrayTempl {
   // -------------------------------------------------------------------
   // Subscript operator.
   // -------------------------------------------------------------------
-  inline PtrType &operator[](const Int32 i) const { return ptr_[i]; }
+  inline PtrType &operator[](const int i) const { return ptr_[i]; }
   inline PtrType &operator[](const short i) const { return ptr_[i]; }
 
   inline PtrType &operator[](const Long i) const { return ptr_[i]; }

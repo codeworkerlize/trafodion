@@ -616,7 +616,7 @@ void VEGRegion::importVEGsForUnionChildVEGRegion() {
   VEGRegion *parentZone;
   VEGRegion *unionChildRegion = this;
   int parentZoneCount, parentZoneCountPlusOne;
-  Int32 iterations;
+  int iterations;
 
   // ---------------------------------------------------------------------
   // Loop over all parent VEGRegions

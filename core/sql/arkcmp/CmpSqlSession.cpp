@@ -64,7 +64,7 @@ CmpSqlSession::CmpSqlSession(NAHeap *heap)
   // chosen by the local CLI. Call getUserInfoFromCLI() to retrieve
   // the user and tenant info from CLI and store copies in this
   // instance.
-  Int32 sqlcode = getUserInfoFromCLI();
+  int sqlcode = getUserInfoFromCLI();
   CMPASSERT(sqlcode == 0);
 }
 
@@ -88,9 +88,9 @@ int CmpSqlSession::getUserInfoFromCLI() {
 #endif
 
   int sqlcode = 0;
-  Int32 localUserID = 0;
+  int localUserID = 0;
   char localUserName[MAX_DBUSERNAME_LEN + 1] = "";
-  Int32 localTenantID = 0;
+  int localTenantID = 0;
   char localTenantName[MAX_DBUSERNAME_LEN + 1] = "";
 
   sqlcode = SQL_EXEC_GetSessionAttr(SESSION_DATABASE_USER_ID, &localUserID, NULL, 0, NULL);
@@ -169,7 +169,7 @@ int CmpSqlSession::getUserInfoFromCLI() {
 // 3. Call a helper method that will retrieve the current user and tenant
 //    information from CLI and store copies of those values in data
 //    members.
-int CmpSqlSession::setDatabaseUserAndTenant(Int32 userID, const char *userName, Int32 tenantID,
+int CmpSqlSession::setDatabaseUserAndTenant(int userID, const char *userName, int tenantID,
                                               const char *tenantName, const char *tenantNodes,
                                               const char *tenantDefaultSchema) {
   NABoolean doDebug = FALSE;
@@ -565,7 +565,7 @@ NABoolean CmpSqlSession::volatileSchemaInUse() {
 
 void CmpSqlSession::setParentQid(const char *parentQid) {
   if (parentQid) {
-    Int32 len = str_len(parentQid);
+    int len = str_len(parentQid);
     if (len < ComSqlId::MIN_QUERY_ID_LEN) abort();
     if (len > ComSqlId::MAX_QUERY_ID_LEN) abort();
     if (0 != str_cmp(parentQid, COM_SESSION_ID_PREFIX, 4)) abort();

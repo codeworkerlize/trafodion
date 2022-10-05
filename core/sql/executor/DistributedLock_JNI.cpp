@@ -77,13 +77,13 @@ DL_RetCode DistributedLock_JNI::init() {
   if (isInitialized()) return DL_OK;
 
   if (javaMethodsInitialized_)
-    return (DL_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (Int32)JM_LAST,
+    return (DL_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (int)JM_LAST,
                                                  javaMethodsInitialized_);
   else {
     pthread_mutex_lock(&javaMethodsInitMutex_);
     if (javaMethodsInitialized_) {
       pthread_mutex_unlock(&javaMethodsInitMutex_);
-      return (DL_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (Int32)JM_LAST,
+      return (DL_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (int)JM_LAST,
                                                    javaMethodsInitialized_);
     }
     JavaMethods_ = new JavaMethodInit[JM_LAST];
@@ -102,7 +102,7 @@ DL_RetCode DistributedLock_JNI::init() {
     JavaMethods_[JM_LISTNODES].jm_name = "listNodes";
     JavaMethods_[JM_LISTNODES].jm_signature = "(Ljava/lang/String;)V";
 
-    rc = (DL_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (Int32)JM_LAST,
+    rc = (DL_RetCode)JavaObjectInterface::init(className, javaClass_, JavaMethods_, (int)JM_LAST,
                                                javaMethodsInitialized_);
     if (rc == DL_OK) javaMethodsInitialized_ = true;
     pthread_mutex_unlock(&javaMethodsInitMutex_);

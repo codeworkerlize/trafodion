@@ -75,8 +75,8 @@ MdamRefList::~MdamRefList() {
 // Otherwise, return false. Comparision stops at first non-match.
 NABoolean MdamRefList::operator==(const MdamRefList &otherList) const {
   // Obtain the first disjunct number from each list.
-  Int32 thisDisjunctNum = disjunctNumInitialValue;
-  Int32 otherDisjunctNum = disjunctNumInitialValue;
+  int thisDisjunctNum = disjunctNumInitialValue;
+  int otherDisjunctNum = disjunctNumInitialValue;
   MdamRefListIterator thisIterator(this);
   MdamRefListIterator otherIterator(&otherList);
   NABoolean thisMore = thisIterator(thisDisjunctNum);
@@ -106,7 +106,7 @@ NABoolean MdamRefList::operator==(const MdamRefList &otherList) const {
 // and duplicates are discarded without error.
 void MdamRefList::copyEntries(const MdamRefList &otherList, FixedSizeHeapManager &mdamRefListEntryHeap) {
   MdamRefListIterator iterator(&otherList);
-  Int32 disjunctNum = disjunctNumInitialValue;
+  int disjunctNum = disjunctNumInitialValue;
   while (iterator(disjunctNum)) {
     insert(disjunctNum, mdamRefListEntryHeap);
   }
@@ -128,7 +128,7 @@ void MdamRefList::deleteEntries(FixedSizeHeapManager &mdamRefListEntryHeap) {
 // This member function inserts a node into a circular linked list. Each node
 // contains a unique disjunct number.  The nodes are maintained in ascending
 // order by disjunct number.  A duplicate is discarded without error.
-MdamRefList &MdamRefList::insert(const Int32 disjunctNum, FixedSizeHeapManager &mdamRefListEntryHeap) {
+MdamRefList &MdamRefList::insert(const int disjunctNum, FixedSizeHeapManager &mdamRefListEntryHeap) {
   if (lastEntryPtr_ == 0)  // Empty list?
   {
     // Empty list.  Allocate the first node.
@@ -158,8 +158,8 @@ void MdamRefList::intersect(const MdamRefList &refList0Ref, const MdamRefList &r
   deleteEntries(mdamRefListEntryHeap);
 
   // Obtain the first disjunct number from each list.
-  Int32 disjunctNum0 = disjunctNumInitialValue;
-  Int32 disjunctNum1 = disjunctNumInitialValue;
+  int disjunctNum0 = disjunctNumInitialValue;
+  int disjunctNum1 = disjunctNumInitialValue;
   MdamRefListIterator iterator0(&refList0Ref);
   MdamRefListIterator iterator1(&refList1Ref);
   NABoolean more0 = iterator0(disjunctNum0);
@@ -189,8 +189,8 @@ void MdamRefList::intersect(const MdamRefList &refList0Ref, const MdamRefList &r
 // Determine if the intersection of two reference lists is empty.
 NABoolean MdamRefList::intersectEmpty(const MdamRefList &otherList) {
   // Obtain the first disjunct number from each list.
-  Int32 thisDisjunctNum = disjunctNumInitialValue;
-  Int32 otherDisjunctNum = disjunctNumInitialValue;
+  int thisDisjunctNum = disjunctNumInitialValue;
+  int otherDisjunctNum = disjunctNumInitialValue;
   MdamRefListIterator thisIterator(this);
   MdamRefListIterator otherIterator(&otherList);
   NABoolean thisMore = thisIterator(thisDisjunctNum);
@@ -223,9 +223,9 @@ NABoolean MdamRefList::intersectEmpty(const MdamRefList &refList1, const MdamRef
   MdamRefList *refList0 = this;
 
   // Obtain the first disjunct number from each list.
-  Int32 disjunctNum0 = disjunctNumInitialValue;
-  Int32 disjunctNum1 = disjunctNumInitialValue;
-  Int32 disjunctNum2 = disjunctNumInitialValue;
+  int disjunctNum0 = disjunctNumInitialValue;
+  int disjunctNum1 = disjunctNumInitialValue;
+  int disjunctNum2 = disjunctNumInitialValue;
 
   MdamRefListIterator iterator0(refList0);
   MdamRefListIterator iterator1(&refList1);
@@ -285,7 +285,7 @@ NABoolean MdamRefList::intersectEmpty(const MdamRefList &refList1, const MdamRef
 void MdamRefList::print(const char *header) const {
   cout << endl << "Header: " << header << endl;
   MdamRefListIterator iterator(this);
-  Int32 disjunctNum = disjunctNumInitialValue;
+  int disjunctNum = disjunctNumInitialValue;
   while (iterator(disjunctNum)) {
     cout << "  " << disjunctNum << endl;
   }
@@ -294,7 +294,7 @@ void MdamRefList::print(const char *header) const {
 void MdamRefList::printBrief() const {
   cout << "{";
   MdamRefListIterator iterator(this);
-  Int32 disjunctNum = disjunctNumInitialValue;
+  int disjunctNum = disjunctNumInitialValue;
   if (iterator(disjunctNum)) {
     cout << disjunctNum;
     while (iterator(disjunctNum)) {
@@ -312,8 +312,8 @@ void MdamRefList::unionx(const MdamRefList &refList0Ref, const MdamRefList &refL
   deleteEntries(mdamRefListEntryHeap);
 
   // Obtain the first disjunct number from each source list.
-  Int32 disjunctNum0 = disjunctNumInitialValue;
-  Int32 disjunctNum1 = disjunctNumInitialValue;
+  int disjunctNum0 = disjunctNumInitialValue;
+  int disjunctNum1 = disjunctNumInitialValue;
   MdamRefListIterator iterator0(&refList0Ref);
   MdamRefListIterator iterator1(&refList1Ref);
   NABoolean more0 = iterator0(disjunctNum0);

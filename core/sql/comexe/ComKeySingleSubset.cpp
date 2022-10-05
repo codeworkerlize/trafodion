@@ -72,7 +72,7 @@ int keySingleSubsetGen::unpack(void *base, void *reallocator) {
   return keyRangeGen::unpack(base, reallocator);
 };
 
-ex_expr *keySingleSubsetGen::getExpressionNode(Int32 pos) {
+ex_expr *keySingleSubsetGen::getExpressionNode(int pos) {
   if (pos == 0)
     return bkPred_;
   else if (pos == 1)

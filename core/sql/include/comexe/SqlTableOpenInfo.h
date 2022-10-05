@@ -236,12 +236,12 @@ class SqlTableOpenInfo : public NAVersionedObject {
   void setColumnList(short *colList) { updateColumnList_ = colList; }
 
   // short &updateColumnList(short ix)     { return updateColumnList_[ix]; }
-  short getUpdateColumn(short ix) { return updateColumnList_[(Int32)ix]; }
-  void setUpdateColumn(short ix, short col) { updateColumnList_[(Int32)ix] = col; }
+  short getUpdateColumn(short ix) { return updateColumnList_[(int)ix]; }
+  void setUpdateColumn(short ix, short col) { updateColumnList_[(int)ix] = col; }
 
   // short &updateColumnList(CollIndex ix) { return updateColumnList_[ix]; }
-  short getUpdateColumn(CollIndex ix) { return updateColumnList_[(Int32)ix]; }
-  void setUpdateColumn(CollIndex ix, short col) { updateColumnList_[(Int32)ix] = col; }
+  short getUpdateColumn(CollIndex ix) { return updateColumnList_[(int)ix]; }
+  void setUpdateColumn(CollIndex ix, short col) { updateColumnList_[(int)ix] = col; }
 
   // long &timeoutVal()                              { return timeoutVal_; }
   int getTimeoutVal() { return timeoutVal_; }
@@ -257,8 +257,8 @@ class SqlTableOpenInfo : public NAVersionedObject {
   void setRedefTime(const long &redefTime) { redefTime_ = redefTime; }
 
   // security vector to monitor changes
-  Int32 getSecurityVector() { return securityVector_; }
-  void setSecurityVector(const Int32 &secVec) { securityVector_ = secVec; }
+  int getSecurityVector() { return securityVector_; }
+  void setSecurityVector(const int &secVec) { securityVector_ = secVec; }
 
   // owner
   Int16 getOwner() { return owner_; }
@@ -425,12 +425,12 @@ class SqlTableOpenInfo : public NAVersionedObject {
   long redefTime_;  // 56-63
 
   // timeout value used while accessing this table.
-  Int32 timeoutVal_;  // 64-67
+  int timeoutVal_;  // 64-67
 
   // securityVector_ and owner_ for use with UDRs
 
   // guardian security vector
-  Int32 securityVector_;  // 68-71
+  int securityVector_;  // 68-71
 
   // owner
   Int16 owner_;                       // 72-73

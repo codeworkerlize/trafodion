@@ -93,13 +93,13 @@ NAProcessHandle::NAProcessHandle(const SB_Phandle_Type *phandle) {
 // If an error occurs, return the appropriate file system error
 // ------------------------------------------------------------------------------
 short NAProcessHandle::decompose() {
-  Int32 err = 0;
+  int err = 0;
   char processName[PhandleStringLen];
   processName[0] = '\0';
   short processNameLen = 0;
 
   err = XPROCESSHANDLE_DECOMPOSE_((SB_Phandle_Type *)&(this->phandle_), &this->cpu_, &this->pin_,
-                                  (Int32 *)&this->nodeNumber_, this->nodeName_, NodeNameLen, &this->nodeNameLen_,
+                                  (int *)&this->nodeNumber_, this->nodeName_, NodeNameLen, &this->nodeNameLen_,
                                   processName, PhandleStringLen, &processNameLen, (SB_Int64_Type *)&this->seqNum_);
   processName[processNameLen] = '\0';
 
@@ -117,7 +117,7 @@ short NAProcessHandle::decompose() {
 // If an error occurs, return the appropriate file system error
 // ---------------------------------------------------------------------------
 short NAProcessHandle::getmine(SB_Phandle_Type *phandle) {
-  Int32 err = 0;
+  int err = 0;
 
   err = XPROCESSHANDLE_GETMINE_((SB_Phandle_Type *)&this->phandle_);
 
@@ -142,7 +142,7 @@ short NAProcessHandle::getmine() {
 // If an error occurs, return the appropriate file system error
 // ---------------------------------------------------------------------------
 short NAProcessHandle::nullit(SB_Phandle_Type *phandle) {
-  Int32 err = 0;
+  int err = 0;
 
   err = XPROCESSHANDLE_NULLIT_((SB_Phandle_Type *)&this->phandle_);
 

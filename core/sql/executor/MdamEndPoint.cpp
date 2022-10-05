@@ -60,7 +60,7 @@ MdamEndPoint::MdamEndPoint()
 // MdamPoint is taken.  Point type is also passed to specify which of the
 // two points to use.
 MdamEndPoint::MdamEndPoint(MdamInterval *intervalPtr, MdamEnums::MdamEndPointType endPointType,
-                           const Int32 logicalIntervalListNumber)
+                           const int logicalIntervalListNumber)
     : pointPtr_(intervalPtr->getPointPtr(endPointType)),
       inclusion_(pointPtr_->getInclusion()),
       endPointType_(endPointType) {
@@ -70,7 +70,7 @@ MdamEndPoint::MdamEndPoint(MdamInterval *intervalPtr, MdamEnums::MdamEndPointTyp
 }
 
 // Adjust the interval pointer to track the active reference list.
-void MdamEndPoint::adjustIntervalPtr(MdamInterval *&intervalPtr, const Int32 logicalIntervalListNumber) const {
+void MdamEndPoint::adjustIntervalPtr(MdamInterval *&intervalPtr, const int logicalIntervalListNumber) const {
   // Check if the endpoint came from the interval list specified by
   // logicalIntervalListNumber.  If not, do nothing.
   if (intervalPtr_[logicalIntervalListNumber] != 0) {
@@ -91,9 +91,9 @@ MdamEnums::MdamOrder MdamEndPoint::compare(const MdamEndPoint *other, const ULng
   }
   // Values are equal so consider endpoint type and inclusion.
   // x), [x, x], (x map to rank 0, 1, 2, 3, respectively.
-  static const Int32 rankArray[2][2] = {3, 1, 0, 2};
-  Int32 rankThis = rankArray[endPointType_][inclusion_];
-  Int32 rankOther = rankArray[other->endPointType_][other->inclusion_];
+  static const int rankArray[2][2] = {3, 1, 0, 2};
+  int rankThis = rankArray[endPointType_][inclusion_];
+  int rankOther = rankArray[other->endPointType_][other->inclusion_];
   if (rankThis < rankOther) return MdamEnums::MDAM_LESS;
   if (rankThis > rankOther) return MdamEnums::MDAM_GREATER;
   return MdamEnums::MDAM_EQUAL;
@@ -157,7 +157,7 @@ void MdamEndPoint::reverseInclusion() {
 // State is the same as if the endpoint was newly-created by the constructor
 // that accepts the same arguements.
 void MdamEndPoint::set(MdamInterval *intervalPtr, MdamEnums::MdamEndPointType endPointType,
-                       const Int32 logicalIntervalListNumber) {
+                       const int logicalIntervalListNumber) {
   pointPtr_ = intervalPtr->getPointPtr(endPointType);
   inclusion_ = pointPtr_->getInclusion();
   endPointType_ = endPointType;

@@ -59,7 +59,7 @@ PublishTarget publishTarget = PUBLISH_TO_QMM;
 const char *targetFilename = NULL;
 
 // This is needed to avoid a link error.
-NABoolean NAType::isComparable(const NAType &other, ItemExpr *parentOp, Int32 emitErr) const { return FALSE; }
+NABoolean NAType::isComparable(const NAType &other, ItemExpr *parentOp, int emitErr) const { return FALSE; }
 
 void usage(char *progName) { cerr << "Usage: " << progName << " -target {QMM | QMS | FILE <filename>}" << endl; }
 
@@ -70,7 +70,7 @@ void usage(char *progName) { cerr << "Usage: " << progName << " -target {QMM | Q
  * @param argv None at this time.
  * @return TRUE if command line parsed correctly, FALSE if error.
  */
-static NABoolean processCommandLine(Int32 argc, char *argv[]) {
+static NABoolean processCommandLine(int argc, char *argv[]) {
   // If no command line arguments are provided, the default is to publish to QMM.
   // -oss is unconditionally added by IpcGuardianServer::spawnProcess() when qmm
   // uses it to create qmp.
@@ -100,10 +100,10 @@ static NABoolean processCommandLine(Int32 argc, char *argv[]) {
 }  // End of processCommandLine
 
 extern "C" {
-Int32 sq_fs_dllmain();
+int sq_fs_dllmain();
 }
 
-Int32 main(Int32 argc, char *argv[]) {
+int main(int argc, char *argv[]) {
   dovers(argc, argv);
 
   try {

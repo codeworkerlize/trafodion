@@ -64,7 +64,7 @@
 #include "common/ComCextdecs.h"
 
 static bool checkAccessPrivileges(const ParTableUsageList &vtul, const ParViewColTableColsUsageList &vctcul,
-                                  NABoolean viewCreator, Int32 userID, PrivMgrBitmap &privilegesBitmap,
+                                  NABoolean viewCreator, int userID, PrivMgrBitmap &privilegesBitmap,
                                   PrivMgrBitmap &grantableBitmap);
 
 short CmpSeabaseDDL::buildViewText(StmtDDLCreateView *createViewParseNode, NAString &viewText) {
@@ -91,11 +91,11 @@ short CmpSeabaseDDL::buildViewText(StmtDDLCreateView *createViewParseNode, NAStr
     enum cnv_charset eCnvCS = convertCharsetEnum(nameLocList.getInputStringCharSet());
 
     const char *str_to_test = (const char *)&pInputStr[nameLoc.getNamePosition()];
-    const Int32 max_bytes2cnv = createViewParseNode->getEndPosition() - nameLoc.getNamePosition() + 1;
+    const int max_bytes2cnv = createViewParseNode->getEndPosition() - nameLoc.getNamePosition() + 1;
     const char *tmp_out_bufr = new (STMTHEAP) char[max_bytes2cnv * 4 + 10 /* Ensure big enough! */];
     char *p1stUnstranslatedChar = NULL;
     UInt32 iTransCharCountInChars = 0;
-    Int32 cnvErrStatus = LocaleToUTF16(cnv_version1  // in  - const enum cnv_version version
+    int cnvErrStatus = LocaleToUTF16(cnv_version1  // in  - const enum cnv_version version
                                        ,
                                        str_to_test  // in  - const char *in_bufr
                                        ,
@@ -113,7 +113,7 @@ short CmpSeabaseDDL::buildViewText(StmtDDLCreateView *createViewParseNode, NAStr
                                        ,
                                        0  // in  - const int cnv_flags
                                        ,
-                                       (Int32)TRUE  // in  - const int addNullAtEnd_flag
+                                       (int)TRUE  // in  - const int addNullAtEnd_flag
                                        ,
                                        &iTransCharCountInChars  // out - unsigned int * translated_char_cnt_p
                                        ,
@@ -483,7 +483,7 @@ short CmpSeabaseDDL::updateViewUsage(StmtDDLCreateView *createViewParseNode, lon
 //   -1 - user does not have the privilege
 // ****************************************************************************
 short CmpSeabaseDDL::gatherViewPrivileges(const StmtDDLCreateView *createViewNode, ExeCliInterface *cliInterface,
-                                          NABoolean viewCreator, Int32 userID, PrivMgrBitmap &privilegesBitmap,
+                                          NABoolean viewCreator, int userID, PrivMgrBitmap &privilegesBitmap,
                                           PrivMgrBitmap &grantableBitmap) {
   if (!isAuthorizationEnabled()) return 0;
 
@@ -653,8 +653,8 @@ void CmpSeabaseDDL::createSeabaseView(StmtDDLCreateView *createViewNode, NAStrin
   const NAString extNameForHbase = catalogNamePart + "." + schemaNamePart + "." + objectNamePart;
 
   ExeCliInterface cliInterface(STMTHEAP, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
-  Int32 objectOwnerID = SUPER_USER;
-  Int32 schemaOwnerID = SUPER_USER;
+  int objectOwnerID = SUPER_USER;
+  int schemaOwnerID = SUPER_USER;
   long schemaUID = 0;
   ComSchemaClass schemaClass;
 
@@ -726,8 +726,8 @@ void CmpSeabaseDDL::createSeabaseView(StmtDDLCreateView *createViewNode, NAStrin
       ((createViewNode->isCreateOrReplaceViewCascade()) || (createViewNode->isCreateOrReplaceView()))) {
     // Replace view. Drop this view and recreate it.
 
-    Int32 objectOwnerID = 0;
-    Int32 schemaOwnerID = 0;
+    int objectOwnerID = 0;
+    int schemaOwnerID = 0;
     long objectFlags = 0;
     origObjUID = getObjectInfo(&cliInterface, catalogNamePart.data(), schemaNamePart.data(), objectNamePart.data(),
                                COM_VIEW_OBJECT, objectOwnerID, schemaOwnerID, objectFlags, objDataUID);
@@ -1051,8 +1051,8 @@ void CmpSeabaseDDL::dropSeabaseView(StmtDDLDropView *dropViewNode, NAString &cur
     return;
   }
 
-  Int32 objectOwnerID = 0;
-  Int32 schemaOwnerID = 0;
+  int objectOwnerID = 0;
+  int schemaOwnerID = 0;
   long objectFlags = 0;
   long objDataUID = 0;
   long objUID = getObjectInfo(&cliInterface, catalogNamePart.data(), schemaNamePart.data(), objectNamePart.data(),
@@ -1231,7 +1231,7 @@ void CmpSeabaseDDL::dropSeabaseView(StmtDDLDropView *dropViewNode, NAString &cur
 
 void CmpSeabaseDDL::glueQueryFragments(int queryArraySize, const QString *queryArray, char *&gluedQuery,
                                        int &gluedQuerySize) {
-  Int32 i = 0;
+  int i = 0;
   gluedQuerySize = 0;
   gluedQuery = NULL;
 
@@ -1259,22 +1259,22 @@ short CmpSeabaseDDL::createMetadataViews(ExeCliInterface *cliInterface) {
 
   char queryBuf[5000];
 
-  for (Int32 i = 0; i < sizeof(allMDviewsInfo) / sizeof(MDViewInfo); i++) {
+  for (int i = 0; i < sizeof(allMDviewsInfo) / sizeof(MDViewInfo); i++) {
     const MDViewInfo &mdi = allMDviewsInfo[i];
 
     if (!mdi.viewName) continue;
 
-    for (Int32 j = 0; j < NUM_MAX_PARAMS; j++) {
+    for (int j = 0; j < NUM_MAX_PARAMS; j++) {
       param_[j] = NULL;
     }
 
     const QString *qs = NULL;
-    Int32 sizeOfqs = 0;
+    int sizeOfqs = 0;
 
     qs = mdi.viewDefnQuery;
     sizeOfqs = mdi.sizeOfDefnArr;
 
-    Int32 qryArraySize = sizeOfqs / sizeof(QString);
+    int qryArraySize = sizeOfqs / sizeof(QString);
     char *gluedQuery;
     int gluedQuerySize;
     glueQueryFragments(qryArraySize, qs, gluedQuery, gluedQuerySize);
@@ -1437,7 +1437,7 @@ short CmpSeabaseDDL::dropMetadataViews(ExeCliInterface *cliInterface) {
 
   char queryBuf[5000];
 
-  for (Int32 i = 0; i < sizeof(allMDviewsInfo) / sizeof(MDViewInfo); i++) {
+  for (int i = 0; i < sizeof(allMDviewsInfo) / sizeof(MDViewInfo); i++) {
     const MDViewInfo &mdi = allMDviewsInfo[i];
 
     if (!mdi.viewName) continue;
@@ -1485,7 +1485,7 @@ short CmpSeabaseDDL::dropMetadataViews(ExeCliInterface *cliInterface) {
 // *    If TRUE, gather privileges for the view creator, if FALSE,             *
 // *    gather privileges for the view owner                                   *
 // *                                                                           *
-// *  <userID>               Int32                                  In         *
+// *  <userID>               int                                  In         *
 // *     userID to use when root is performing operations on behalf            *
 // *     of another user.                                                      *
 // *                                                                           *
@@ -1507,7 +1507,7 @@ short CmpSeabaseDDL::dropMetadataViews(ExeCliInterface *cliInterface) {
 // *                                                                           *
 // *****************************************************************************
 static bool checkAccessPrivileges(const ParTableUsageList &vtul, const ParViewColTableColsUsageList &vctcul,
-                                  NABoolean viewCreator, Int32 userID, PrivMgrBitmap &privilegesBitmap,
+                                  NABoolean viewCreator, int userID, PrivMgrBitmap &privilegesBitmap,
                                   PrivMgrBitmap &grantableBitmap)
 
 {

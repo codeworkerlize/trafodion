@@ -85,7 +85,7 @@ class ParKeyWord;
 extern "C++" {
 
 struct yy_buffer_state;
-typedef Int32 yy_state_type;
+typedef int yy_state_type;
 
 union YYSTYPE;
 
@@ -94,17 +94,17 @@ class ULexer {
   virtual ~ULexer() {}
 
   const NAWchar *YYText() { return yytext_; }
-  Int32 YYLeng() { return yyleng_; }
+  int YYLeng() { return yyleng_; }
 
-  virtual Int32 yylex(YYSTYPE *lvalp) = 0;
+  virtual int yylex(YYSTYPE *lvalp) = 0;
 
-  Int32 debug() const { return yy_U_debug_; }
-  void set_debug(Int32 flag) { yy_U_debug_ = flag; }
+  int debug() const { return yy_U_debug_; }
+  void set_debug(int flag) { yy_U_debug_ = flag; }
 
  protected:
   NAWchar *yytext_;
-  Int32 yyleng_;
-  Int32 yy_U_debug_;  // only has effect with -d or "%option debug"
+  int yyleng_;
+  int yy_U_debug_;  // only has effect with -d or "%option debug"
 
   void yyToUpper()
 
@@ -137,29 +137,29 @@ class ULexer {
 class yyULexer : public ULexer {
  public:
   // construct lexer to scan an in-memory string
-  yyULexer(const NAWchar *str, Int32 charCount);
+  yyULexer(const NAWchar *str, int charCount);
   yyULexer(const NAWchar *str, size_t charCount);
 
   virtual ~yyULexer();
 
-  virtual Int32 yylex(YYSTYPE *lvalp);
+  virtual int yylex(YYSTYPE *lvalp);
 
   void reset();
 
   // these 2 replace the old SqlParser_InputPos global variable
-  Int32 getInputPos();
-  void setInputPos(Int32 i);
+  int getInputPos();
+  void setInputPos(int i);
 
   void setReturnAllChars() { returnAllChars_ = TRUE; }
   void resetReturnAllChars() { returnAllChars_ = FALSE; }
 
-  NABoolean isDynamicParameter(Int32 tokCod);
+  NABoolean isDynamicParameter(int tokCod);
 
-  NABoolean isLiteral4HQC(Int32 tokCod);
+  NABoolean isLiteral4HQC(int tokCod);
 
  protected:
-  void yyULexer_ctor(const NAWchar *str, Int32 charCount);
-  Int32 input_pos_;  // used only by {set|get}InputPos()
+  void yyULexer_ctor(const NAWchar *str, int charCount);
+  int input_pos_;  // used only by {set|get}InputPos()
 
   void yy_load_buffer_state();
 
@@ -169,12 +169,12 @@ class yyULexer : public ULexer {
   NAWchar yy_hold_char_;
 
   // Number of characters read into yy_ch_buf.
-  Int32 yy_n_chars_;
+  int yy_n_chars_;
 
   // Points to current character in buffer.
   NAWchar *yy_c_buf_p_;
 
-  Int32 yy_init_;  // whether we need to initialize
+  int yy_init_;  // whether we need to initialize
 
   NAWchar *beginRun_;  // points to start of a run
   NAWchar *currChar_;  // points to current candidate end of run
@@ -192,7 +192,7 @@ class yyULexer : public ULexer {
   // corresponding action - sets up yytext_.
   void doBeforeAction() {
     yytext_ = beginRun_;
-    yyleng_ = (Int32)(currChar_ - beginRun_);
+    yyleng_ = (int)(currChar_ - beginRun_);
     input_pos_ = 0;
     yy_hold_char_ = *currChar_;
     *currChar_ = '\0';
@@ -203,7 +203,7 @@ class yyULexer : public ULexer {
   void undoBeforeAction() { *yy_c_buf_p_ = yy_hold_char_; }
 
   // useful after an advance()
-  Int32 YYLengNow() { return (Int32)(currChar_ - beginRun_); }
+  int YYLengNow() { return (int)(currChar_ - beginRun_); }
 
   // used to remember candidate end of a compound token.
   NAWchar *mark() { return currChar_; }
@@ -212,7 +212,7 @@ class yyULexer : public ULexer {
   void retractToMark(NAWchar *m) { currChar_ = m; }
 
   // have we reached the end of buffer?
-  Int32 endOfBuffer();
+  int endOfBuffer();
 
   // advance current character
   void advance() { currChar_++; }
@@ -247,36 +247,36 @@ class yyULexer : public ULexer {
   // {Reserved IDENTIFIER, IDENTIFIER, SQL/MX keyword, compound
   // keyword, compound Cobol token, approx numeric, exact numeric
   // with scale, exact numeric no scale}
-  Int32 anSQLMXReservedWord(YYSTYPE *lvalp);
-  Int32 anIdentifier(YYSTYPE *lvalp);
-  Int32 anSQLMXKeyword(Int32 tokCod, YYSTYPE *lvalp);
-  Int32 aCompoundKeyword(Int32 tokCod, YYSTYPE *lvalp);
-  Int32 aCobolToken(Int32 tokCod, YYSTYPE *lvalp);
-  Int32 anApproxNumber(YYSTYPE *lvalp);
-  Int32 exactWithScale(YYSTYPE *lvalp);
-  Int32 exactNoScale(YYSTYPE *lvalp);
-  Int32 eitherCompoundOrSimpleKeyword(NABoolean isCompound, Int32 tokcodCompound, Int32 tokcodSimple, NAWchar *end1,
+  int anSQLMXReservedWord(YYSTYPE *lvalp);
+  int anIdentifier(YYSTYPE *lvalp);
+  int anSQLMXKeyword(int tokCod, YYSTYPE *lvalp);
+  int aCompoundKeyword(int tokCod, YYSTYPE *lvalp);
+  int aCobolToken(int tokCod, YYSTYPE *lvalp);
+  int anApproxNumber(YYSTYPE *lvalp);
+  int exactWithScale(YYSTYPE *lvalp);
+  int exactNoScale(YYSTYPE *lvalp);
+  int eitherCompoundOrSimpleKeyword(NABoolean isCompound, int tokcodCompound, int tokcodSimple, NAWchar *end1,
                                       NAWchar holdChar1, YYSTYPE *lvalp);
-  Int32 notCompoundKeyword(const ParKeyWord *key, NAWchar &holdChar, YYSTYPE *lvalp);
+  int notCompoundKeyword(const ParKeyWord *key, NAWchar &holdChar, YYSTYPE *lvalp);
 
-  Int32 aCompoundStmtBlock(Int32 tokCode, YYSTYPE *lvalp);
-  Int32 aQuotedBlock(YYSTYPE *lvalp);
+  int aCompoundStmtBlock(int tokCode, YYSTYPE *lvalp);
+  int aQuotedBlock(YYSTYPE *lvalp);
 
-  Int32 aStringLiteralWithCharSet(CharInfo::CharSet, const NAWchar *s, Int32 len, NAWchar quote, YYSTYPE *lvalp);
+  int aStringLiteralWithCharSet(CharInfo::CharSet, const NAWchar *s, int len, NAWchar quote, YYSTYPE *lvalp);
 
   // qualified hexadecimal format string literals
-  Int32 aHexStringLiteralWithCharSet(CharInfo::CharSet, const NAWchar *s, Int32 len, NAWchar quote, YYSTYPE *lvalp);
-  Int32 constructStringLiteralWithCharSet(NABoolean hexFormat, CharInfo::CharSet cs, YYSTYPE *lvalp,
+  int aHexStringLiteralWithCharSet(CharInfo::CharSet, const NAWchar *s, int len, NAWchar quote, YYSTYPE *lvalp);
+  int constructStringLiteralWithCharSet(NABoolean hexFormat, CharInfo::CharSet cs, YYSTYPE *lvalp,
                                           NAWchar quote = L'\'');
 
   // helper functions to set yylval token value used by above functions
-  Int32 setStringval(Int32 tokCod, const char *dbgstr, YYSTYPE *lvalp);
-  Int32 setTokval(Int32 tokCod, const char *dbgstr, YYSTYPE *lvalp);
+  int setStringval(int tokCod, const char *dbgstr, YYSTYPE *lvalp);
+  int setTokval(int tokCod, const char *dbgstr, YYSTYPE *lvalp);
 
-  Int32 prematureEOF(YYSTYPE *lvalp);      // hit EOF inside a string or comment
-  Int32 invalidHexStrLit(YYSTYPE *lvalp);  // invalid format of hexadecimal representation of a string literal
-  Int32 invalidStrLitNonTranslatableChars(YYSTYPE *lvalp);   // invalid string literal/host var name
-  Int32 invalidHostVarNonTranslatableChars(YYSTYPE *lvalp);  // due to non-translatable characters.
+  int prematureEOF(YYSTYPE *lvalp);      // hit EOF inside a string or comment
+  int invalidHexStrLit(YYSTYPE *lvalp);  // invalid format of hexadecimal representation of a string literal
+  int invalidStrLitNonTranslatableChars(YYSTYPE *lvalp);   // invalid string literal/host var name
+  int invalidHostVarNonTranslatableChars(YYSTYPE *lvalp);  // due to non-translatable characters.
 
   void addTokenToGlobalQueue(NABoolean isComment = FALSE);
 

@@ -98,9 +98,9 @@ enum SQLCLIDevCollectStatsType {
 // This internal call allows a caller to switch back to the default context.
 // In general this is not allow. But it's currently used in one place in
 // UdrServer alone
-Int32 SQL_EXEC_SwitchContext_Internal(/*IN*/ Int32 context_handle,
-                                      /*OUT OPTIONAL*/ Int32 *prev_context_handle,
-                                      /*IN*/ Int32 allowSwitchBackToDefault);
+int SQL_EXEC_SwitchContext_Internal(/*IN*/ int context_handle,
+                                      /*OUT OPTIONAL*/ int *prev_context_handle,
+                                      /*IN*/ int allowSwitchBackToDefault);
 
 enum SQLATTRHOLDABLE_INTERNAL_TYPE {
   SQLCLIDEV_NONHOLDABLE = SQL_NONHOLDABLE,
@@ -281,7 +281,7 @@ int SQL_EXEC_SetErrorCodeInRTS(
     /*IN*/ SQLSTMT_ID *statement_id,
     /*IN*/ int sqlErrorCode);
 
-int SQL_EXEC_GetRoleList(Int32 &numEntries, Int32 *&roleIDs, Int32 *&granteeIDs);
+int SQL_EXEC_GetRoleList(int &numEntries, int *&roleIDs, int *&granteeIDs);
 
 int SQL_EXEC_ResetRoleList_Internal();
 
@@ -299,7 +299,7 @@ typedef struct SQL_REPLICATOR_OPERATOR_STATS {
   long long operCpuTime;
   char source_filename[52];
   char target_filename[52];
-  Int32 blocklen;
+  int blocklen;
   long long total_compress_time;
   long long total_compressed_bytes;
   long long total_uncompress_time;
@@ -307,7 +307,7 @@ typedef struct SQL_REPLICATOR_OPERATOR_STATS {
   long long rows_read;
   long long total_blocks;
   long long blocks_replicated;
-  Int32 percent_done;
+  int percent_done;
   long long blocks_read;
 } REPLICATOR_OPERATOR_STATS;
 
@@ -407,26 +407,26 @@ int SQL_EXEC_GetStatisticsArea_Internal(
     /* IN */ short statsMergeType,
     /*INOUT*/ const ExStatisticsArea *&exStatsArea);
 
-Int32 SQL_EXEC_GetObjectEpochStats_Internal(
+int SQL_EXEC_GetObjectEpochStats_Internal(
     /* IN */ const char *objectName,
     /* IN */ int objectNameLen,
     /* IN */ short cpu,
     /* IN */ bool active,
     /*INOUT*/ ExStatisticsArea *&exStatsArea);
 
-Int32 SQL_EXEC_GetObjectLockStats_Internal(
+int SQL_EXEC_GetObjectLockStats_Internal(
     /* IN */ const char *objectName,
     /* IN */ int objectNameLen,
     /* IN */ short cpu,
     /*INOUT*/ ExStatisticsArea *&exStatsArea);
 
-Int32 SQL_EXEC_SWITCH_TO_COMPILER_TYPE(
-    /*IN*/ Int32 cmpCntxtType);
+int SQL_EXEC_SWITCH_TO_COMPILER_TYPE(
+    /*IN*/ int cmpCntxtType);
 
-Int32 SQL_EXEC_SWITCH_TO_COMPILER(
+int SQL_EXEC_SWITCH_TO_COMPILER(
     /*IN*/ void *cmpCntxt);
 
-Int32 SQL_EXEC_SWITCH_BACK_COMPILER();
+int SQL_EXEC_SWITCH_BACK_COMPILER();
 
 int SQL_EXEC_SeqGenCliInterface(void **cliInterface, /* IN: if passed in and not null, use it.
                                                                 OUT: if returned, save it and pass it back in */
@@ -437,50 +437,50 @@ int SQL_EXEC_OrderSeqXDCCliInterface(void **cliInterface, /* IN: if passed in an
                                                                      OUT: if returned, save it and pass it back in */
                                        void *seqGenAttrs, long endValue);
 
-const Int32 NullCliRoutineHandle = -1;
+const int NullCliRoutineHandle = -1;
 
-Int32 SQL_EXEC_GetRoutine(
+int SQL_EXEC_GetRoutine(
     /* IN */ const char *serializedInvocationInfo,
-    /* IN */ Int32 invocationInfoLen,
+    /* IN */ int invocationInfoLen,
     /* IN */ const char *serializedPlanInfo,
-    /* IN */ Int32 planInfoLen,
-    /* IN */ Int32 language,
-    /* IN */ Int32 paramStyle,
+    /* IN */ int planInfoLen,
+    /* IN */ int language,
+    /* IN */ int paramStyle,
     /* IN */ const char *externalName,
     /* IN */ const char *containerName,
     /* IN */ const char *externalPath,
     /* IN */ const char *librarySqlName,
-    /* OUT */ Int32 *handle
+    /* OUT */ int *handle
 
 );
 
-Int32 SQL_EXEC_InvokeRoutine(
-    /* IN */ Int32 handle,
-    /* IN */ Int32 phaseEnumAsInt,
+int SQL_EXEC_InvokeRoutine(
+    /* IN */ int handle,
+    /* IN */ int phaseEnumAsInt,
     /* IN */ const char *serializedInvocationInfo,
-    /* IN */ Int32 invocationInfoLen,
-    /* OUT */ Int32 *invocationInfoLenOut,
+    /* IN */ int invocationInfoLen,
+    /* OUT */ int *invocationInfoLenOut,
     /* IN */ const char *serializedPlanInfo,
-    /* IN */ Int32 planInfoLen,
-    /* IN */ Int32 planNum,
-    /* OUT */ Int32 *planInfoLenOut,
+    /* IN */ int planInfoLen,
+    /* IN */ int planNum,
+    /* OUT */ int *planInfoLenOut,
     /* IN */ char *inputRow,
-    /* IN */ Int32 inputRowLen,
+    /* IN */ int inputRowLen,
     /* OUT */ char *outputRow,
-    /* IN */ Int32 outputRowLen);
+    /* IN */ int outputRowLen);
 
-Int32 SQL_EXEC_GetRoutineInvocationInfo(
-    /* IN */ Int32 handle,
+int SQL_EXEC_GetRoutineInvocationInfo(
+    /* IN */ int handle,
     /* IN/OUT */ char *serializedInvocationInfo,
-    /* IN */ Int32 invocationInfoMaxLen,
-    /* OUT */ Int32 *invocationInfoLenOut,
+    /* IN */ int invocationInfoMaxLen,
+    /* OUT */ int *invocationInfoLenOut,
     /* IN/OUT */ char *serializedPlanInfo,
-    /* IN */ Int32 planInfoMaxLen,
-    /* IN */ Int32 planNum,
-    /* OUT */ Int32 *planInfoLenOut);
+    /* IN */ int planInfoMaxLen,
+    /* IN */ int planNum,
+    /* OUT */ int *planInfoLenOut);
 
-Int32 SQL_EXEC_PutRoutine(
-    /* IN */ Int32 handle);
+int SQL_EXEC_PutRoutine(
+    /* IN */ int handle);
 
 #ifdef __cplusplus
 /* end of C linkage */

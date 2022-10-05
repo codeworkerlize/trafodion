@@ -30,15 +30,15 @@
 int NAAssertMutexCreate();  // Function to create mutex to serialize termination
 int NAAssertMutexLock();    // Function to lock mutext when a process terminates of a thread asserts
 
-extern void NAAssert(const char *ex, const char *fil, Int32 lin);
+extern void NAAssert(const char *ex, const char *fil, int lin);
 
 extern void NABreakPoint();
 
-extern void NAInlineBreakpointFunc(const char *fil, Int32 lin);
+extern void NAInlineBreakpointFunc(const char *fil, int lin);
 
-void assert_botch_no_abend(const char *f, Int32 l, const char *m);
+void assert_botch_no_abend(const char *f, int l, const char *m);
 // Add condition pointer (fourth argument) for certain SeaMonster asserts
-void assert_botch_abend(const char *f, Int32 l, const char *m, const char *c = NULL);
+void assert_botch_abend(const char *f, int l, const char *m, const char *c = NULL);
 #ifdef NDEBUG
 #define NAInlineBreakpoint
 #else

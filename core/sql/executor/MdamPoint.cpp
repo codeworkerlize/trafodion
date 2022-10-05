@@ -60,7 +60,7 @@ MdamPoint::MdamPoint(MdamEndPoint &endPointRef)
 // Determine if v could be within an interval for which this MdamPoint
 // is the begin endpoint.
 NABoolean MdamPoint::beginContains(const ULng32 keyLen, const char *v) const {
-  Int32 cmpCode = str_cmp(tupp_.getDataPointer(), v, Int32(keyLen));
+  int cmpCode = str_cmp(tupp_.getDataPointer(), v, int(keyLen));
   MdamEnums::MdamOrder tempOrder = MdamEnums::MdamOrder((cmpCode > 0) ? 1 : ((cmpCode == 0) ? 0 : -1));
   if (tempOrder == MdamEnums::MDAM_LESS) {
     return TRUE;
@@ -79,7 +79,7 @@ NABoolean MdamPoint::beginContains(const ULng32 keyLen, const char *v) const {
 // Determine if v could be within an interval for which this MdamPoint
 // is the end endpoint.
 NABoolean MdamPoint::endContains(const ULng32 keyLen, const char *v) const {
-  Int32 cmpCode = str_cmp(tupp_.getDataPointer(), v, Int32(keyLen));
+  int cmpCode = str_cmp(tupp_.getDataPointer(), v, int(keyLen));
   MdamEnums::MdamOrder tempOrder = MdamEnums::MdamOrder((cmpCode > 0) ? 1 : ((cmpCode == 0) ? 0 : -1));
   if (tempOrder == MdamEnums::MDAM_LESS) {
     return FALSE;

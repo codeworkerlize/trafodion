@@ -68,7 +68,7 @@ ExpDP2Expr::ExpDP2Expr(ex_expr_base *expr, ex_cri_desc *work_cri_desc, Space *sp
 
     // allocate tuple descriptors for all the tupps (except constant and temp)
     // in workAtp_.
-    for (Int32 i = 2; i < work_cri_desc->noTuples(); i++) {
+    for (int i = 2; i < work_cri_desc->noTuples(); i++) {
       workAtp_->getTupp(i) = (tupp_descriptor *)(new (space) tupp_descriptor);
     }
   }
@@ -104,8 +104,8 @@ void ExpDP2Expr::createWorkAtp(char *&inbuf, NABoolean createTempTupp) {
   // Otherwise, use the buffer in workAtp_.
   char *buf = (inbuf ? inbuf : (char *)(workAtp_.getPointer()));
   atp_struct *workAtp = createAtpInBuffer(criDesc_, buf);
-  Int32 start = (createTempTupp ? 1 : 2);
-  for (Int32 i = start; i < criDesc_->noTuples(); i++) {
+  int start = (createTempTupp ? 1 : 2);
+  for (int i = start; i < criDesc_->noTuples(); i++) {
     tupp_descriptor *td = (tupp_descriptor *)buf;
     td->init();
     workAtp->getTupp(i) = td;

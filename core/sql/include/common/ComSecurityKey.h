@@ -37,17 +37,17 @@ class ComSecurityKey;
 
 typedef NASet<ComSecurityKey> ComSecurityKeySet;
 
-bool buildSecurityKeys(const NAList<Int32> &roleGrantees, const int32_t roleID, const int64_t objectUID,
+bool buildSecurityKeys(const NAList<int> &roleGrantees, const int32_t roleID, const int64_t objectUID,
                        const bool isSchema, const bool isColumn, const PrivMgrCoreDesc &privs,
                        ComSecurityKeySet &secKeySet);
 
-NABoolean qiCheckForInvalidObject(const Int32 numInvalidationKeys, const SQL_QIKEY *invalidationKeys,
+NABoolean qiCheckForInvalidObject(const int numInvalidationKeys, const SQL_QIKEY *invalidationKeys,
                                   const long objectUID, const ComSecurityKeySet &objectKeys);
 
-NABoolean qiCheckForSchemaUID(const Int32 numInvalidationKeys, const SQL_QIKEY *invalidationKeys,
+NABoolean qiCheckForSchemaUID(const int numInvalidationKeys, const SQL_QIKEY *invalidationKeys,
                               const long schemaUID);
 
-void qiInvalidationType(const Int32 numInvalidationKeys, const SQL_QIKEY *invalidationKeys, const Int32 userID,
+void qiInvalidationType(const int numInvalidationKeys, const SQL_QIKEY *invalidationKeys, const int userID,
                         bool &resetRoleList, bool &updateCaches, bool &resetSchemaCaches);
 
 NABoolean qiSubjectMatchesRole(uint32_t subjectKey);
@@ -129,7 +129,7 @@ class ComSecurityKey {
   static uint32_t generateHash(int32_t hashID);
 
   // For debugging purposes
-  NAString print(Int32 subject, long object);
+  NAString print(int subject, long object);
 
  private:
   uint32_t subjectHash_;

@@ -80,10 +80,10 @@ class NAClusterInfo : public NABasicObject {
   NAClusterInfo(CollHeap *heap, NABoolean isOsim);
   ~NAClusterInfo();
 
-  virtual Int32 processorFrequency() const = 0;
+  virtual int processorFrequency() const = 0;
   virtual float ioTransferRate() const = 0;
   virtual float seekTime() const = 0;
-  virtual Int32 cpuArchitecture() const = 0;
+  virtual int cpuArchitecture() const = 0;
 
   virtual size_t numberOfCpusPerSMP() const = 0;
 
@@ -97,8 +97,8 @@ class NAClusterInfo : public NABasicObject {
   // platform must define this.
   virtual void captureOSInfo(ofstream &f) const = 0;
 
-  Int32 getNumActiveCluster() const { return 1; }
-  NABoolean smpActive(Int32 smp) const;
+  int getNumActiveCluster() const { return 1; }
+  NABoolean smpActive(int smp) const;
 
   // return total number of CPUs (includes all, that is, even down CPUs)
   int getTotalNumberOfCPUs();
@@ -110,19 +110,19 @@ class NAClusterInfo : public NABasicObject {
 
   const NAString *mapNodeNamesToNodeNums(ConstStringList *nodeNames, ARRAY(short) & resultNodeIds) const;
 
-  NABoolean mapNodeIdToNodeName(Int32 nodeId, NAString &nodeName) const;
+  NABoolean mapNodeIdToNodeName(int nodeId, NAString &nodeName) const;
   NAString &getActiveNodeNamesAsCommaSeparatedList() { return activeNodeNamesCommaSeparatedList_; }
 
   // return the physical node id (nid) for a logical id (always
   // numbered 0 ... n-1) the physical id is always >= the logical id
-  Int32 mapLogicalToPhysicalNodeId(Int32 ix);
+  int mapLogicalToPhysicalNodeId(int ix);
   // and the same way in reverse
-  Int32 mapPhysicalToLogicalNodeId(Int32 ix);
+  int mapPhysicalToLogicalNodeId(int ix);
   // are logical/physical node ids the same?
   NABoolean nodeIdsAreContiguous() { return cpuArray_[cpuArray_.entries() - 1] == cpuArray_.entries() - 1; }
 
   // TODO: Handle heterogeneous clusters
-  Int32 numberOfTenantUnitsInTheCluster() const;
+  int numberOfTenantUnitsInTheCluster() const;
 
   // The OSIM uses the following method to capture cluster information
   void captureNAClusterInfo(ofstream &naclfile);
@@ -132,7 +132,7 @@ class NAClusterInfo : public NABasicObject {
   short getLocalNodeId() { return localSMP_; }
   const char *getLocalNodeName() { return localNodeName_; }
 
-  Int32 getNumVirtualNodes() { return numVirtualNodes_; }
+  int getNumVirtualNodes() { return numVirtualNodes_; }
 
   MS_MON_PROC_STATE getNodeStatus(int nodeId);
 
@@ -161,10 +161,10 @@ class NAClusterInfo : public NABasicObject {
   // This structure is stored on the context heap
   // because we don't expect this mapping to change during a session..
   //------------------------------------------------------------------------
-  NAHashDictionary<Int32, NAString> *nodeIdToNodeNameMap_;
+  NAHashDictionary<int, NAString> *nodeIdToNodeNameMap_;
 
   // hashdictionary that maps nodeName to nodeId.
-  NAHashDictionary<NAString, Int32> *nodeNameToNodeIdMap_;
+  NAHashDictionary<NAString, int> *nodeNameToNodeIdMap_;
 
   NABoolean hasVirtualNodes_;
 
@@ -172,7 +172,7 @@ class NAClusterInfo : public NABasicObject {
 
   // The number of vritual nodes in a faked cluster environment.
   // This variable is set to 0 when not in faking mode.
-  Int32 numVirtualNodes_;
+  int numVirtualNodes_;
 
   // local node name
   char localNodeName_[MAX_SEGMENT_NAME_LEN + 1];
@@ -182,10 +182,10 @@ class NAClusterInfoLinux : public NAClusterInfo {
  public:
   NAClusterInfoLinux(CollHeap *heap, NABoolean isOsim);
   ~NAClusterInfoLinux();
-  Int32 processorFrequency() const;
+  int processorFrequency() const;
   float ioTransferRate() const;
   float seekTime() const;
-  Int32 cpuArchitecture() const;
+  int cpuArchitecture() const;
   size_t numberOfCpusPerSMP() const;
   size_t pageSize() const;
   long physicalMemoryAvailableInKB() const;
@@ -194,8 +194,8 @@ class NAClusterInfoLinux : public NAClusterInfo {
 
   void captureOSInfo(ofstream &) const;
 
-  Int32 get_pid() { return pid_; };
-  Int32 get_nid() { return nid_; };
+  int get_pid() { return pid_; };
+  int get_nid() { return nid_; };
 
   virtual NAClusterInfoLinux *castToNAClusterInfoLinux();
 
@@ -209,7 +209,7 @@ class NAClusterInfoLinux : public NAClusterInfo {
   //-------------------------------------------------------------------------
   // Stores the frequency of the SMP, in Megahertz
   //-------------------------------------------------------------------------
-  Int32 frequency_;
+  int frequency_;
 
   //-------------------------------------------------------------------------
   // Stores the IO transfer rate of the disk, in MB/sec

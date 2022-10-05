@@ -88,10 +88,10 @@ int SortAlgo::getRunSize() const { return runSize_; }
 //-----------------------------------------------------------------------
 
 short SortAlgo ::compare(char *key1, char *key2) {
-  Int32 result;
+  int result;
   // numCompares_ ++;
   if (key1 && key2) {
-    result = str_cmp(key1, key2, (Int32)keySize_);
+    result = str_cmp(key1, key2, (int)keySize_);
     // return (memcmp(key1,key2,(int)keySize_));
     return result;
   } else {

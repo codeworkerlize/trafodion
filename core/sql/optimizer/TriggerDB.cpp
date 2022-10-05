@@ -350,7 +350,7 @@ void TriggerDB::clearAndDestroy() {
   TableOp *key = NULL;
   BeforeAndAfterTriggers *value = NULL;
   // iterate over all entries and destroy them
-  for (Int32 i = 0; i < iter.entries(); i++) {
+  for (int i = 0; i < iter.entries(); i++) {
     iter.getNext(key, value);
     CMPASSERT(key != NULL);
     CMPASSERT(value != NULL);
@@ -411,7 +411,7 @@ NABoolean TriggerDB::cleanupPerStatement() {
     BeforeAndAfterTriggers *curr = NULL;
 
     // iterate over all entries
-    for (Int32 i = 0; i < iter.entries(); i++) {
+    for (int i = 0; i < iter.entries(); i++) {
       iter.getNext(key, curr);
       CMPASSERT(curr != NULL);
 

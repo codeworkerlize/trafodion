@@ -142,4 +142,4 @@ int ComTdbPackRows::unpack(void *base, void *reallocator) {
 }
 
 // We are observing order queue protocol.
-Int32 ComTdbPackRows::orderedQueueProtocol() const { return -1; }
+int ComTdbPackRows::orderedQueueProtocol() const { return -1; }

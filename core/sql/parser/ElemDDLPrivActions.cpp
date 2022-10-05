@@ -1083,7 +1083,7 @@ ElemDDLPrivActWithColumns *ElemDDLPrivActWithColumns::castToElemDDLPrivActWithCo
 //
 
 // get the degree of this node
-Int32 ElemDDLPrivActWithColumns::getArity() const { return MAX_ELEM_DDL_PRIV_ACT_WITH_COLUMNS_ARITY; }
+int ElemDDLPrivActWithColumns::getArity() const { return MAX_ELEM_DDL_PRIV_ACT_WITH_COLUMNS_ARITY; }
 
 ExprNode *ElemDDLPrivActWithColumns::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());

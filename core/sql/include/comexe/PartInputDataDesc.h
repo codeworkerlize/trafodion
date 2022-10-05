@@ -102,13 +102,13 @@ class ExPartInputDataDesc : public NAVersionedObject {
   ExCriDescPtr partInputCriDesc_;  // 00-07
 
   // hash, range, RR partitioning? (enums aren't portable!!)
-  Int32 partType_;  // 08-11
+  int partType_;  // 08-11
 
   // length of part. input data
-  Int32 partInputDataLength_;  // 12-15
+  int partInputDataLength_;  // 12-15
 
   // # of partitions
-  Int32 numPartitions_;  // 16-19
+  int numPartitions_;  // 16-19
 
   char fillersExPartInputDataDesc_[36];  // 20-55
 };
@@ -166,7 +166,7 @@ class ExRoundRobinPartInputData : public ExPartInputDataDesc {
   int unpack(void *, void *reallocator);
 
  private:
-  Int32 numOrigRRPartitions_;                  // 00-03
+  int numOrigRRPartitions_;                  // 00-03
   char fillersExRoundRobinPartInputData_[20];  // 04-23
 };
 
@@ -221,25 +221,25 @@ class ExRangePartInputData : public ExPartInputDataDesc {
   // the length of the partitioning key (note that the partition input data
   // consists of a begin key and an end key plus additional info on whether
   // the key range is inclusive and exclusive)
-  Int32 partKeyLength_;  // 00-03
+  int partKeyLength_;  // 00-03
 
   // the partition key length, rounded up to the next multiple
   // of the needed alignment (we have an array of partition input data rows)
-  Int32 alignedPartKeyLength_;  // 04-07
+  int alignedPartKeyLength_;  // 04-07
 
   // where does the exclusion indicator start and how long is it
-  Int32 exclusionIndicatorOffset_;  // 08-11
-  Int32 exclusionIndicatorLength_;  // 12-15
+  int exclusionIndicatorOffset_;  // 08-11
+  int exclusionIndicatorLength_;  // 12-15
 
   // An array of expressions to fill in values into the partRanges_
   // byte array and atp/atpindex info to evaluate these expressions.
   // The pointer to the array could also be NULL, in which case the
   // byte array partRanges_ has to be filled at compile time.
   ExExprPtrPtr partRangeExpressions_;    // 16-23
-  Int32 useExpressions_;                 // 24-27
-  Int32 partRangeExprAtp_;               // 28-31
-  Int32 partRangeExprAtpIndex_;          // 32-35
-  Int32 partRangeExprHasBeenEvaluated_;  // 36-39
+  int useExpressions_;                 // 24-27
+  int partRangeExprAtp_;               // 28-31
+  int partRangeExprAtpIndex_;          // 32-35
+  int partRangeExprHasBeenEvaluated_;  // 36-39
 
   // a byte string with <numPartitions_> records for partition input data,
   // the first record being the key for negative infinity, and the last being
@@ -278,7 +278,7 @@ class ExHashDistPartInputData : public ExPartInputDataDesc {
   int unpack(void *, void *reallocator);
 
  private:
-  Int32 numOrigHashPartitions_;              // 00-03
+  int numOrigHashPartitions_;              // 00-03
   char fillersExHashDistPartInputData_[20];  // 04-23
 };
 

@@ -156,7 +156,7 @@ class ExpAlignedFormat {
   // Compute the offset where the first fixed field resides based
   // on the number of nullable columns.
   // This method used at code generation time.
-  static UInt32 computeFirstFixedOffset(Int32 ffAlignSize, UInt32 startOffset, UInt32 voaIdxOffset,
+  static UInt32 computeFirstFixedOffset(int ffAlignSize, UInt32 startOffset, UInt32 voaIdxOffset,
                                         UInt32 nullableColCount, ExpHdrInfo *hdrInfo, UInt32 &hdrSize,
                                         UInt32 &bitmapOffset) {
     UInt32 bitmapSize = 0;
@@ -191,7 +191,7 @@ class ExpAlignedFormat {
       // The first fixed alignment size may be -1 when no fixed fields reside
       // in the table.
 
-      Int32 pad = (Int32)(firstFixedOffset % ffAlignSize);
+      int pad = (int)(firstFixedOffset % ffAlignSize);
 
       if (pad > 0) {
         pad = ffAlignSize - pad;
@@ -464,7 +464,7 @@ class ExpAlignedFormat {
   // The added bytes are stored on the hi 2 bits of the first fixed field
   // offset.
   // Return the new length.
-  static UInt32 adjustDataLength(char *dataPtr, UInt32 currLen, Int32 alignmentSize, NABoolean updateHeader = TRUE)
+  static UInt32 adjustDataLength(char *dataPtr, UInt32 currLen, int alignmentSize, NABoolean updateHeader = TRUE)
   /* for CIF update header should be FALSE since hash join and hash group by
    * use the header to store length info-- may be we need to change this in hash join and hash group
    * if turns out to be risky
@@ -488,12 +488,12 @@ class ExpAlignedFormat {
     return newLen;
   }
 
-  Int32 setupHeaderAndVOAs(UInt32 numFields, UInt32 numNullableFields, UInt32 numVarcharFields);
+  int setupHeaderAndVOAs(UInt32 numFields, UInt32 numNullableFields, UInt32 numVarcharFields);
 
   // copy data at dataPtr/dataLen into aligned format structure.
   // isVarchar indicates if the data is variable length.
   // return 0 if success, -1 if error.
-  Int32 copyData(UInt32 fieldNum, char *dataPtr, UInt32 dataLen, NABoolean isVarchar);
+  int copyData(UInt32 fieldNum, char *dataPtr, UInt32 dataLen, NABoolean isVarchar);
 
   //
   // CTOR
@@ -502,7 +502,7 @@ class ExpAlignedFormat {
 
   //
   // Given an offset and an alignment boundary adjust the offset correctly.
-  static UInt32 adjustOffset(UInt32 offset, Int32 alignmentSize) {
+  static UInt32 adjustOffset(UInt32 offset, int alignmentSize) {
     return ((offset > 0 ? (((offset - 1) / alignmentSize) + 1) * alignmentSize : offset));
   }
 
@@ -516,7 +516,7 @@ class ExpAlignedFormat {
   // Return the actual length minus any pad bytes added to round the row
   // size up to a 4-byte boundary.
   UInt32 getActualLength(UInt32 dataLen) {
-    Int32 padBytes = ((firstFixed_ & PAD_BYTE_MASK) >> PAD_SHIFT_BITS);
+    int padBytes = ((firstFixed_ & PAD_BYTE_MASK) >> PAD_SHIFT_BITS);
     return (dataLen - padBytes);
   }
 
@@ -525,7 +525,7 @@ class ExpAlignedFormat {
   void clearNullValue(UInt32 bitIdx) { clearNullBit(nullBitmap(), bitIdx); }
 
   NABoolean isNullValue(UInt32 bitIdx) {
-    Int32 mask = (1 << (7 - (bitIdx & 7)));
+    int mask = (1 << (7 - (bitIdx & 7)));
     char *bitmap = nullBitmap();
     NABoolean rtnValue = FALSE;
 

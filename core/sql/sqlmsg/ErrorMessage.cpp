@@ -44,14 +44,14 @@ void ErrorMessage::insertParams(NAError *errcb) {
     NAWchar paramName[MSG_BUF_SIZE];
 
     NAWchar paramVal[MSG_BUF_SIZE];  // regular char, not TCHAR
-    Int32 paramLen;
+    int paramLen;
     int paramPos;
-    Int32 tmpLen = 0;
-    Int32 truncation = FALSE;
+    int tmpLen = 0;
+    int truncation = FALSE;
 
-    Int32 msgBufOrigLen = NAWstrlen(msgBuf_);
+    int msgBufOrigLen = NAWstrlen(msgBuf_);
 
-    for (Int32 i = 0; i < msgBufOrigLen; i++) {
+    for (int i = 0; i < msgBufOrigLen; i++) {
       if (msgBuf_[i] == ERRORPARAM_BEGINMARK) {
         // Get the formal parameter name, excluding the leading '$' mark
         NAWchar *p = paramName;
@@ -143,7 +143,7 @@ void ErrorMessage::printErrorMessage(NAError *errcb) {
 
   if (forceParamSubst) {
     // remove trailing blanks and unsubstituted substitution marks
-    Int32 tmpLen = NAWstrlen(msgBuf_);
+    int tmpLen = NAWstrlen(msgBuf_);
     while (--tmpLen >= 0 && (msgBuf_[tmpLen] == NAWchar(' ') || msgBuf_[tmpLen] == NAWchar('\t') ||
                              msgBuf_[tmpLen] == ERRORPARAM_BEGINMARK))
       ;
@@ -265,22 +265,22 @@ void FixCarriageReturn(NAWchar *str) {
 }
 
 // Changes to this function should be emulated in HandleCLIError (SqlCmd.C)
-void NADumpDiags(ostream &outStream, ComDiagsArea *diags, NABoolean newline, Int32 commentIf, FILE *fp, short verbose,
+void NADumpDiags(ostream &outStream, ComDiagsArea *diags, NABoolean newline, int commentIf, FILE *fp, short verbose,
                  CharInfo::CharSet terminal_cs) {
   if (!diags) return;
 
-  Int32 numDiags = diags->getNumber();
+  int numDiags = diags->getNumber();
 
   if (!numDiags) return;
 
-  Int32 numWarns = diags->getNumber(DgSqlCode::WARNING_);
+  int numWarns = diags->getNumber(DgSqlCode::WARNING_);
 
   if (commentIf != NO_COMMENT) outStream << endl;  // blank line at beginning
 
   if (fp) fprintf(fp, "\n");
 
   NABoolean sqlcodePrefixAdded = (commentIf != NO_COMMENT);
-  for (Int32 i = 0; i++ < numDiags;) {
+  for (int i = 0; i++ < numDiags;) {
     NABoolean cmt = sqlcodePrefixAdded && commentIf && (commentIf < 0 || (*diags)[i].getSQLCODE() >= 0);
 
     if (verbose || (!verbose) && (*diags)[i].getSQLCODE() <= 0) {

@@ -150,8 +150,8 @@ static const char *scaleToString(short scale) {
 // a string of digits to double. jdu 6/10/02
 //
 //////////////////////////////////////////////////////////////////
-static Int32 safe_add_digit_to_double(double dvalue,  // Original value
-                                      Int32 digit,    // Single digit to be added
+static int safe_add_digit_to_double(double dvalue,  // Original value
+                                      int digit,    // Single digit to be added
                                       double *result) {
   short ov;
 
@@ -648,7 +648,7 @@ short convFloat64ToAscii(char *target, int targetLen,
     //	  expon++;
     //	  logTen -= 1;
     //	}
-    expon = (Int32)logTen;
+    expon = (int)logTen;
     logTen -= expon;
     if (logTen > 0.0) expon++;
 
@@ -856,10 +856,10 @@ ex_expr::exp_return_type convLargeDecToAscii(char *target, int targetLen,
     else
       source[0] = '+';
 
-    Int32 realLength = 1 + (sourceLen - 2) / 5;
-    for (Int32 srcPos = sourceLen - 1; srcPos; srcPos--) {
+    int realLength = 1 + (sourceLen - 2) / 5;
+    for (int srcPos = sourceLen - 1; srcPos; srcPos--) {
       ULng32 r = 0;
-      for (Int32 i = 1; i <= realLength; i++) {
+      for (int i = 1; i <= realLength; i++) {
         ULng32 q = (realSource[i] + r) / 10;
         r = (r + realSource[i]) - 10 * q;
         realSource[i] = (short)q;
@@ -945,12 +945,12 @@ ex_expr::exp_return_type convBigNumToAscii(char *target, int targetLen,
                                            char *source, int sourceLen, int sourcePrecision, int sourceScale,
                                            char *varCharLen, int varCharLenSize, NABoolean leftPad, NAMemory *heap,
                                            ComDiagsArea **diagsArea, ULng32 flags) {
-  const Int32 tempSpaceLen = 257;  // one extra byte for the sign.
+  const int tempSpaceLen = 257;  // one extra byte for the sign.
   char tempIntermediateLargeDec[tempSpaceLen];
   char *intermediateLargeDec = tempIntermediateLargeDec;
 
   // If heap exists, allocate temp through it.  Otherwise use static temp space.
-  Int32 targetLenToUse = tempSpaceLen;
+  int targetLenToUse = tempSpaceLen;
   if (heap) {
     targetLenToUse = MAXOF(targetLenToUse, sourcePrecision + 1);  // + 1 for sign
     intermediateLargeDec = new (heap) char[targetLenToUse];
@@ -1015,7 +1015,7 @@ ex_expr::exp_return_type convDatetimeToAscii(char *target, int targetLen,
   if ((!varCharLenSize) && (realTargetLen < targetLen)) {
     if (leftPad && realTargetLen < targetLenInChars) {
       // right shift result
-      Int32 i;
+      int i;
       for (i = 0; i < realTargetLen; i++) {
         target[targetLenInChars - (i + 1)] = target[realTargetLen - (i + 1)];
         //	    target[targetLen - realTargetLen + i] = target[i];
@@ -1029,7 +1029,7 @@ ex_expr::exp_return_type convDatetimeToAscii(char *target, int targetLen,
     }
     // blankpad on the right
     if (realTargetLen < targetLen) {
-      for (Int32 i = realTargetLen; i < targetLen; i++) target[i] = ' ';
+      for (int i = realTargetLen; i < targetLen; i++) target[i] = ' ';
     }
   }
 
@@ -1100,7 +1100,7 @@ ex_expr::exp_return_type convUnicodeToDatetime(char *target, int targetLen, REC_
   cBuf = unicodeToISO88591(wBuf, heap, cBuf);
 
   if (cBuf) {
-    Int32 convertedLen = cBuf->getStrLen();
+    int convertedLen = cBuf->getStrLen();
 
     if (convertedLen == sourceLen / BYTES_PER_NAWCHAR) {
       ex_expr::exp_return_type ok = convAsciiToDatetime(target, targetLen, code, fractionPrecision,
@@ -1239,12 +1239,12 @@ ex_expr::exp_return_type convAsciiToFloat64(char *target, char *source, int sour
 
   enum State { START, SKIP_BLANKS, MANT_BEFORE_SIGN, MANT_AFTER_SIGN, EXP_START, EXPONENT, ERROR };
 
-  Int32 cp = 0;
+  int cp = 0;
   double mantissa = 0;
   double exponent = 0;
   NABoolean negMantissa = FALSE;
   NABoolean negExponent = FALSE;
-  Int32 numScale = 0;
+  int numScale = 0;
   NABoolean validNum = FALSE;
 
   State state = START;
@@ -1426,7 +1426,7 @@ ex_expr::exp_return_type convAsciiToUInt64base(UInt64 &target, int targetScale, 
         // the source scale
         if (pointFound) sourceScale++;
 
-        Int32 thisDigit = source[currPos] - '0';
+        int thisDigit = source[currPos] - '0';
         if (digitCnt > 18) {
           // check overflow/underflow
           if (target > (ULLONG_MAX / 10)) {  // next power of 10 causes an overflow
@@ -1530,7 +1530,7 @@ ex_expr::exp_return_type convAsciiToUInt64base(UInt64 &target, int targetScale, 
 
   // up- or downscale
   if (sourceScale < targetScale) {
-    for (Int32 i = 0; i < (targetScale - sourceScale); i++) {
+    for (int i = 0; i < (targetScale - sourceScale); i++) {
       if (target > (ULLONG_MAX / 10)) {  // next power of 10 causes an overflow
         ExRaiseDetailSqlError(heap, diagsArea, EXE_NUMERIC_OVERFLOW, source, sourceLen, REC_BYTE_F_ASCII,
                               SQLCHARSETCODE_ISO88591, REC_BIN64_SIGNED, flags);
@@ -1539,7 +1539,7 @@ ex_expr::exp_return_type convAsciiToUInt64base(UInt64 &target, int targetScale, 
       target *= 10;
     }
   } else {
-    for (Int32 i = 0; i < sourceScale - targetScale; i++) target /= 10;
+    for (int i = 0; i < sourceScale - targetScale; i++) target /= 10;
   }
 
   return ex_expr::EXPR_OK;
@@ -1626,7 +1626,7 @@ ex_expr::exp_return_type convInt64ToDec(char *target, int targetLen, long source
     if (source == LLONG_MIN) {
       // before we can convert this to a positive number, we have to
       // work on the first digit. Otherwise, we would cause an overflow.
-      Int32 temp = (Int32)(source % 10);
+      int temp = (int)(source % 10);
       target[currPos--] = (char)('0' + (temp < 0 ? -temp : temp));
       source /= 10;
     };
@@ -2109,8 +2109,8 @@ ex_expr::exp_return_type convAsciiToInterval(char *target, int targetLen, int ta
   int strIndex = fieldLen;
   long fieldValue;
 
-  for (Int32 field = start + 1; field <= end; field++) {
-    Int32 index = field - REC_DATE_YEAR;
+  for (int field = start + 1; field <= end; field++) {
+    int index = field - REC_DATE_YEAR;
 
     // Make sure there is still some string left before we look
     // for the delimiter. The '+1' in the test also makes sure
@@ -2228,9 +2228,9 @@ ex_expr::exp_return_type convAsciiToInterval(char *target, int targetLen, int ta
         return ex_expr::EXPR_ERROR;
       };
       if (negInterval)
-        *(Target<Int32> *)target = -(Int32)intermediate;
+        *(Target<int> *)target = -(int)intermediate;
       else
-        *(Target<Int32> *)target = (Int32)intermediate;
+        *(Target<int> *)target = (int)intermediate;
       break;
 
     case SQL_LARGE_SIZE:
@@ -2318,7 +2318,7 @@ ex_expr::exp_return_type convIntervalToAscii(char *source, int sourceLen, int le
   char *target = inTarget;
   if ((leftPad) && (targetLen > realTargetLen)) {
     // left blankpad the target.
-    for (Int32 i = 0; i < (targetLen - realTargetLen); i++) {
+    for (int i = 0; i < (targetLen - realTargetLen); i++) {
       target[i] = ' ';
     }
 
@@ -2350,7 +2350,7 @@ ex_expr::exp_return_type convIntervalToAscii(char *source, int sourceLen, int le
 
   // if target is fixed length, fill target string flushed right
   if (!varCharLenSize) {
-    for (Int32 i = 0; i < (targetLen - realTargetLen); i++, target++) *target = ' ';
+    for (int i = 0; i < (targetLen - realTargetLen); i++, target++) *target = ' ';
     // If target is actually UTF8, we must put filler spaces in rest of target
     if (target < (inTarget + inTargetLen)) str_pad(target, inTarget + inTargetLen - target, ' ');
   };
@@ -2376,8 +2376,8 @@ ex_expr::exp_return_type convIntervalToAscii(char *source, int sourceLen, int le
   };
 
   // Now rest of the fields except leading field...
-  for (Int32 field = endField; field > startField; field--) {
-    Int32 index = field - REC_DATE_YEAR;  // zero-based array index!
+  for (int field = endField; field > startField; field--) {
+    int index = field - REC_DATE_YEAR;  // zero-based array index!
 
     factor = (short)maxFieldValue[index] + 1;
     fieldVal = value;
@@ -2748,7 +2748,7 @@ ex_expr::exp_return_type convDecToDec(char *target, int targetLen, char *source,
                                       ComDiagsArea **diagsArea) {
   if (targetLen >= sourceLen) {
     int targetIndex = targetLen - sourceLen;
-    str_pad(target, (Int32)targetIndex, '0');
+    str_pad(target, (int)targetIndex, '0');
     str_cpy_all(&target[targetIndex], source, sourceLen);
     // Clear the sign bit that was moved to target[targetIndex].
     target[targetIndex] &= 0177;
@@ -2802,7 +2802,7 @@ ex_expr::exp_return_type convDecLStoAscii(char *target, int targetLen,
 
   // move data from source to target, put in decimal point where
   // required
-  Int32 digitCnt = 0;
+  int digitCnt = 0;
   while ((curPos >= 0) && (source[curPos] >= '0') && (source[curPos] <= '9')) {
     // another digit. Make sure we have space in the target
     digitCnt++;
@@ -3039,7 +3039,7 @@ int getDigitCount(UInt64 value) {
                                     999999999999999999ULL,
                                     9999999999999999999ULL};
 
-  for (Int32 i = 4; i <= 16; i += 4)
+  for (int i = 4; i <= 16; i += 4)
     if (value <= decValue[i]) {
       if (value <= decValue[i - 3]) return (i - 3);
       if (value <= decValue[i - 2]) return (i - 2);
@@ -3253,7 +3253,7 @@ ex_expr::exp_return_type checkPrecision(long source, int sourceLen, short source
       }
 
       long scaleDownValue = 1;
-      for (Int32 i = 1; i <= sourceScale; i++) scaleDownValue *= 10;
+      for (int i = 1; i <= sourceScale; i++) scaleDownValue *= 10;
 
       if (((source / scaleDownValue) < getMinIntervalValue(targetPrecision, targetType)) ||
           ((source / scaleDownValue) > getMaxIntervalValue(targetPrecision, targetType))) {
@@ -3663,8 +3663,8 @@ ex_expr::exp_return_type convCharToChar(char *source, int sourceLen, short sourc
         input_to_scan = utf8Tgt;
         input_length = outputDataLen;
         outputDataLen =
-            lightValidateUTF8Str(utf8Tgt, (Int32)outputDataLen, (Int32)targetPrecision, ignoreTrailingBlanksInSource);
-        assert((Int32)outputDataLen >= 0);
+            lightValidateUTF8Str(utf8Tgt, (int)outputDataLen, (int)targetPrecision, ignoreTrailingBlanksInSource);
+        assert((int)outputDataLen >= 0);
         firstUntranslatedChar = &utf8Tgt[outputDataLen];
       } else {
         assert(rc == CNV_ERR_BUFFER_OVERRUN);
@@ -3770,13 +3770,13 @@ ex_expr::exp_return_type convCharToChar(char *source, int sourceLen, short sourc
     NABoolean needToIgnoreFillerBlanksInSource =
         (sourcePrecision && DFS2REC::isSQLFixedChar(sourceType) && DFS2REC::isAnyVarChar(targetType));
 
-    Int32 precisionToCheck = sourcePrecision ? sourcePrecision : targetPrecision;
+    int precisionToCheck = sourcePrecision ? sourcePrecision : targetPrecision;
     if (targetPrecision && targetPrecision < sourcePrecision) precisionToCheck = targetPrecision;
 
     if (needToIgnoreFillerBlanksInSource) {
       if (precisionToCheck > 0)
         outputDataLen = lightValidateUTF8Str(source, outputDataLen, precisionToCheck, ignoreTrailingBlanksInSource);
-      if ((Int32)outputDataLen < 0) {
+      if ((int)outputDataLen < 0) {
         // source string is not valid UTF-8
         ExRaiseSqlError(heap, diagsArea, EXE_INVALID_CHAR_IN_TRANSLATE_FUNC);
         char hexstr[MAX_OFFENDING_SOURCE_DATA_DISPLAY_LEN];
@@ -3798,7 +3798,7 @@ ex_expr::exp_return_type convCharToChar(char *source, int sourceLen, short sourc
         outputDataLen = lightValidateUTF8Str(target, outputDataLen, precisionToCheck, ignoreTrailingBlanksInSource);
 
       if ((int)outputDataLen < sourceLen) {
-        if ((Int32)outputDataLen < 0) {
+        if ((int)outputDataLen < 0) {
           // source string is not valid UTF-8
           ExRaiseSqlError(heap, diagsArea, EXE_INVALID_CHAR_IN_TRANSLATE_FUNC);
           char hexstr[MAX_OFFENDING_SOURCE_DATA_DISPLAY_LEN];
@@ -3865,7 +3865,7 @@ ex_expr::exp_return_type convHiveDecimalToNumeric(char *sourceData, int srcLen, 
   //  If string, then stringlen bytes of data
   //     (stringlen = total len - (2+2)
   //
-  Int32 copyLen = 0;
+  int copyLen = 0;
   char *numData = sourceData;
   Int16 extValPrecision = *(Int16 *)numData;
   numData += sizeof(Int16);
@@ -3873,7 +3873,7 @@ ex_expr::exp_return_type convHiveDecimalToNumeric(char *sourceData, int srcLen, 
   numData += sizeof(Int16);
 
   Float64 extDoubleVal = 0;
-  Int32 extInt32Val = 0;
+  int extInt32Val = 0;
   Int16 extInt16Val = 0;
   Int16 extInt8Val = 0;
   char *copyData = NULL;
@@ -3903,9 +3903,9 @@ ex_expr::exp_return_type convHiveDecimalToNumeric(char *sourceData, int srcLen, 
       } break;
 
       case REC_BIN32_SIGNED: {
-        extInt32Val = (Int32)extInt64Val;
+        extInt32Val = (int)extInt64Val;
         copyData = (char *)&extInt32Val;
-        copyLen = sizeof(Int32);
+        copyLen = sizeof(int);
       } break;
 
       case REC_BIN64_SIGNED: {
@@ -4131,7 +4131,7 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
     } break;
 
     case CONV_BIN8S_BIN32S: {
-      *(Int32 *)target = *(Int8 *)source;
+      *(int *)target = *(Int8 *)source;
     } break;
 
     case CONV_BIN8S_BIN64S: {
@@ -6215,7 +6215,7 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
         // change it to a warning.
         if (*diagsArea) {
           int errorMark2 = (*diagsArea)->getNumber(DgSqlCode::ERROR_);
-          Int32 counter = errorMark2 - errorMark;
+          int counter = errorMark2 - errorMark;
           while (counter) {
             if (((*diagsArea)->getErrorEntry(errorMark2 - counter + 1))->getSQLCODE() == -EXE_STRING_OVERFLOW) {
               (*diagsArea)->deleteError(errorMark2 - counter);
@@ -7306,7 +7306,7 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
     case CONV_UNICODE_F_ANSI_V:  // unicode F -> ansi_v
     case CONV_UNICODE_V_ANSI_V:  // unicode V -> ansi_v
     {
-      Int32 tempTargetLen = sourceLen;
+      int tempTargetLen = sourceLen;
       char *tempTarget = new (heap) char[tempTargetLen];
 
       ex_expr::exp_return_type ok =
@@ -7739,9 +7739,9 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
     case CONV_DATETIME_BIN64S: {
       // date to numeric conversion uses the formula:
       // numeric = (year - 1900) * 10000 + month * 100 + day
-      Int32 year = *(short *)source;
-      Int32 month = source[2];
-      Int32 day = source[3];
+      int year = *(short *)source;
+      int month = source[2];
+      int day = source[3];
 
       *(long *)target = (year - 1900) * 10000 + month * 100 + day;
     } break;
@@ -7963,7 +7963,7 @@ ex_expr::exp_return_type ex_conv_clause::eval(char *op_data[], CollHeap *heap, C
 
     UInt32 copyLength = 0;
 
-    if (*(Int32 *)srcData == -1)  // if aliggned format header is 0xFFFFFFFF
+    if (*(int *)srcData == -1)  // if aliggned format header is 0xFFFFFFFF
     {                             // case of null instantiated row
       assert(*(Int16 *)&srcData[lastVOAoffset_] == -1);
       copyLength = ((SimpleType *)src)->getLength();
@@ -8102,8 +8102,8 @@ ex_expr::exp_return_type ex_conv_clause::eval(char *op_data[], CollHeap *heap, C
   // This is according to ANSI SQL92
 
   if (getCheckTruncationFlag() && *diagsArea) {
-    Int32 warningMark2 = (*diagsArea)->getNumber(DgSqlCode::WARNING_);
-    Int32 counter = warningMark2 - warningMark;
+    int warningMark2 = (*diagsArea)->getNumber(DgSqlCode::WARNING_);
+    int counter = warningMark2 - warningMark;
     while (counter) {
       if (((*diagsArea)->getWarningEntry(warningMark2 - counter + 1))->getSQLCODE() == EXE_STRING_OVERFLOW) {
         (*diagsArea)->deleteWarning(warningMark2 - counter);
@@ -8125,8 +8125,8 @@ ex_expr::exp_return_type ex_conv_clause::eval(char *op_data[], CollHeap *heap, C
   }
 
   if (getNoTruncationWarningsFlag() && *diagsArea) {
-    Int32 warningMark2 = (*diagsArea)->getNumber(DgSqlCode::WARNING_);
-    Int32 counter = warningMark2 - warningMark;
+    int warningMark2 = (*diagsArea)->getNumber(DgSqlCode::WARNING_);
+    int counter = warningMark2 - warningMark;
     while (counter) {
       if (((*diagsArea)->getWarningEntry(warningMark2 - counter + 1))->getSQLCODE() == EXE_STRING_OVERFLOW) {
         (*diagsArea)->deleteWarning(warningMark2 - counter);
@@ -8261,7 +8261,7 @@ ex_expr::exp_return_type scaleDoIt(char *operand, int operandLen, int operandTyp
       limit = (long)(USHRT_MAX / 10);
     } break;
     case REC_BIN32_SIGNED: {
-      intermediate = (long) * (Int32 *)operand;
+      intermediate = (long) * (int *)operand;
       limit = (long)((intermediate > 0) ? (INT_MAX / 10) : (INT_MIN / 10));
     } break;
     case REC_BIN32_UNSIGNED: {
@@ -8422,7 +8422,7 @@ ex_expr::exp_return_type scaleDoIt(char *operand, int operandLen, int operandTyp
 
 ex_expr::exp_return_type swapBytes(Attributes *attr, void *ptr) {
   Int16 dataType = attr->getDatatype();
-  Int32 storageLength = attr->getStorageLength();
+  int storageLength = attr->getStorageLength();
   rec_datetime_field startField;
   rec_datetime_field endField;
   ExpDatetime *dtAttr;
@@ -8434,7 +8434,7 @@ ex_expr::exp_return_type swapBytes(Attributes *attr, void *ptr) {
   } else if (dataType >= REC_MIN_INTERVAL && dataType <= REC_MAX_INTERVAL) {
     swapBytes(ptr, storageLength);
   } else if (dataType == REC_NCHAR_F_UNICODE || dataType == REC_NUM_BIG_UNSIGNED || dataType == REC_NUM_BIG_SIGNED) {
-    for (Int32 i = 0; i < storageLength; i = i + 2) {
+    for (int i = 0; i < storageLength; i = i + 2) {
       swapBytes((void *)((char *)ptr + i), 2);
     }
   } else if (dataType == REC_DATETIME) {

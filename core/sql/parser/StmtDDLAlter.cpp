@@ -323,7 +323,7 @@ StmtDDLAlterCatalog *StmtDDLAlterCatalog::castToStmtDDLAlterCatalog() { return t
 // for tracing
 const NAString StmtDDLAlterCatalog::displayLabel1() const { return NAString("Catalog name: ") + getCatalogName(); }
 
-Int32 StmtDDLAlterCatalog::getArity() const { return MAX_STMT_DDL_ALTER_CATALOG_ARITY; }
+int StmtDDLAlterCatalog::getArity() const { return MAX_STMT_DDL_ALTER_CATALOG_ARITY; }
 
 const NAString StmtDDLAlterCatalog::getText() const { return "StmtDDLAlterCatalog"; }
 
@@ -463,7 +463,7 @@ StmtDDLAlterIndex::StmtDDLAlterIndex(OperatorTypeEnum operatorType, const Qualif
 StmtDDLAlterIndex::~StmtDDLAlterIndex() {
   // delete all child parse nodes
 
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     delete getChild(i);
   }
 }
@@ -475,7 +475,7 @@ StmtDDLAlterIndex *StmtDDLAlterIndex::castToStmtDDLAlterIndex() { return this; }
 // accessors
 //
 
-Int32 StmtDDLAlterIndex::getArity() const { return MAX_STMT_DDL_ALTER_INDEX_ARITY; }
+int StmtDDLAlterIndex::getArity() const { return MAX_STMT_DDL_ALTER_INDEX_ARITY; }
 
 ExprNode *StmtDDLAlterIndex::getChild(int index) {
   ComASSERT(index EQU INDEX_ALTER_INDEX_ACTION);
@@ -650,7 +650,7 @@ StmtDDLAlterTable::~StmtDDLAlterTable() {
   // the comments about this flag in the header file StmtDDLAlterTable.h.
   //
   if (isParseSubTreeDestroyedByDestructor_) {
-    for (Int32 i = 0; i < getArity(); i++) {
+    for (int i = 0; i < getArity(); i++) {
       delete getChild(i);
     }
   }
@@ -663,7 +663,7 @@ StmtDDLAlterTable *StmtDDLAlterTable::castToStmtDDLAlterTable() { return this; }
 // accessors
 //
 
-Int32 StmtDDLAlterTable::getArity() const { return MAX_STMT_DDL_ALTER_TABLE_ARITY; }
+int StmtDDLAlterTable::getArity() const { return MAX_STMT_DDL_ALTER_TABLE_ARITY; }
 
 ExprNode *StmtDDLAlterTable::getChild(int index) {
   ComASSERT(index EQU INDEX_ALTER_TABLE_ACTION);
@@ -1629,7 +1629,7 @@ StmtDDLAlterTableAddColumn::~StmtDDLAlterTableAddColumn() {
 
   // Delete all children
 
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     delete getChild(i);
   }
 }

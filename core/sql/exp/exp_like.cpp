@@ -70,15 +70,15 @@ LikePattern::LikePattern(const LikePatternString &pattern, CollHeap *exHeap, Cha
   NABoolean systemCollationFlag = CollationInfo::isSystemCollation(co);
 
   UInt16 nPasses;
-  Int32 effEncodedKeyLength;
+  int effEncodedKeyLength;
 
   if (systemCollationFlag)
     nPasses = CollationInfo::getCollationNPasses(co);
   else
     nPasses = 1;
 
-  Int32 number_bytes;
-  Int32 len = pattern.getLength();
+  int number_bytes;
+  int len = pattern.getLength();
 
   while (i != LikePatternStringIterator::END_OF_PATTERN) {
     currentChar = i.getCurrentChar();
@@ -196,12 +196,12 @@ NABoolean LikePattern::matches(const char *text, UInt16 textLen, CharInfo::CharS
   if (text == NULL) return FALSE;
 
   const char *endOfText = &text[textLen];
-  Int32 number_bytes = 0;
-  Int32 numChrInHeader = 0;
-  Int32 numChrInRecord = 0;
+  int number_bytes = 0;
+  int numChrInHeader = 0;
+  int numChrInRecord = 0;
   int numOfChar = 0;
-  Int32 charToOffset = 0;
-  Int32 headerMatchLen = 0;
+  int charToOffset = 0;
+  int headerMatchLen = 0;
   CollHeap *exHeap = getExHeap();
 
   unsigned char *headerPattern;
@@ -461,15 +461,15 @@ ex_expr::exp_return_type ex_like_clause_char::eval(char *op_data[], CollHeap *ex
   int len2 = getOperand(2)->getLength(op_data[-MAX_OPERANDS + 2]);
   int len3 = 0;
   if (cs == CharInfo::UTF8) {
-    Int32 prec1 = ((SimpleType *)getOperand(1))->getPrecision();
+    int prec1 = ((SimpleType *)getOperand(1))->getPrecision();
     len1 = Attributes::trimFillerSpaces(op_data[1], prec1, len1, cs);
 
-    Int32 prec2 = ((SimpleType *)getOperand(2))->getPrecision();
+    int prec2 = ((SimpleType *)getOperand(2))->getPrecision();
     len2 = Attributes::trimFillerSpaces(op_data[2], prec2, len2, cs);
   }
 
   const char *csname = CharInfo::getCharSetName(cs);
-  const Int32 smallBufSize = 128;
+  const int smallBufSize = 128;
   unsigned char smallBuf[smallBufSize];
 
   const char *escapeChar;
@@ -479,7 +479,7 @@ ex_expr::exp_return_type ex_like_clause_char::eval(char *op_data[], CollHeap *ex
     // get length of escape character
     len3 = getOperand(3)->getLength(op_data[-MAX_OPERANDS + 3]);
     if (cs == CharInfo::UTF8) {
-      Int32 prec3 = ((SimpleType *)getOperand(3))->getPrecision();
+      int prec3 = ((SimpleType *)getOperand(3))->getPrecision();
       len3 = Attributes::trimFillerSpaces(op_data[3], prec3, len3, cs);
     }
     escapeChar = op_data[3];
@@ -506,14 +506,14 @@ ex_expr::exp_return_type ex_like_clause_char::eval(char *op_data[], CollHeap *ex
 
   unsigned char *textStr = (unsigned char *)op_data[1];
   unsigned char *encodedText = NULL;
-  Int32 encodedPatternLength = 0;
+  int encodedPatternLength = 0;
   NABoolean systemCollationFlag = CollationInfo::isSystemCollation(co);
   NABoolean deallocateNeeded = FALSE;
 
   if (systemCollationFlag) {
     pattern.setCollation(co);
     short nPasses = CollationInfo::getCollationNPasses(co);
-    Int32 effEncodedKeyLength;
+    int effEncodedKeyLength;
 
     encodedPatternLength = len1 * nPasses;
 
@@ -533,9 +533,9 @@ ex_expr::exp_return_type ex_like_clause_char::eval(char *op_data[], CollHeap *ex
   }
 
   if (cs == CharInfo::UTF8) {
-    Int32 Prec = ((SimpleType *)getOperand(1))->getPrecision();
+    int Prec = ((SimpleType *)getOperand(1))->getPrecision();
     if (Prec > 0) {
-      Int32 endOff = Attributes::convertCharToOffset((const char *)textStr, Prec + 1, len1, cs);
+      int endOff = Attributes::convertCharToOffset((const char *)textStr, Prec + 1, len1, cs);
       if (endOff >= 0)  // If no error
         len1 = endOff;
       // else bad UTF8 chars will get detected later by existing code (below).
@@ -622,9 +622,9 @@ ex_expr::exp_return_type ex_like_clause_doublebyte::eval(char *op_data[], CollHe
   return ex_expr::EXPR_OK;
 }
 
-NABoolean LikePatternHeader::matches(const char *text, Int32 &headerMatchLen, CharInfo::CharSet cs) {
+NABoolean LikePatternHeader::matches(const char *text, int &headerMatchLen, CharInfo::CharSet cs) {
   headerMatchLen = 0;
-  Int32 clauseLen;
+  int clauseLen;
 
   LikePatternClause *clause = this;
 
@@ -652,13 +652,13 @@ NABoolean LikePatternHeader::matches(const char *text, Int32 &headerMatchLen, Ch
       // underscore match character, not byte
 
       if (systemCollationFlag) {
-        Int32 len = clause->getLength() * nPasses;
+        int len = clause->getLength() * nPasses;
         text += len;
         encodedPattern += len;
         headerMatchLen += len;
       } else {
-        Int32 number_bytes = 1;
-        for (Int32 k = 0; k < clause->getLength(); k++) {
+        int number_bytes = 1;
+        for (int k = 0; k < clause->getLength(); k++) {
           number_bytes = Attributes::getFirstCharLength(text, strlen(text), cs);
           if (number_bytes < 0) {
             setError(EXE_INVALID_CHARACTER);
@@ -670,7 +670,7 @@ NABoolean LikePatternHeader::matches(const char *text, Int32 &headerMatchLen, Ch
       }
     } else {
       if (systemCollationFlag) {
-        Int32 len = clauseLen * nPasses;
+        int len = clauseLen * nPasses;
         text += len;
         encodedPattern += len;
         headerMatchLen += len;
@@ -689,14 +689,14 @@ NABoolean LikePatternHeader::matchesR(const char *text, const char *&endText, Ch
   LikePatternClause *clause = this;
   LikePatternClause *clauseR = this;
   const char *p, *p1;
-  Int32 firstCharLen;
+  int firstCharLen;
   CollHeap *heap = getExHeap();
-  Int32 bufferLength = endText - text;
-  Int32 headerLength = this->getLength();
+  int bufferLength = endText - text;
+  int headerLength = this->getLength();
   char *charLengthInBuf = NULL;
-  Int32 numberOfCharInBuf;
+  int numberOfCharInBuf;
 
-  const Int32 smallBufSize = 128;
+  const int smallBufSize = 128;
   char smallBuf[smallBufSize];
 
   CharInfo::Collation co = getCollation();
@@ -730,7 +730,7 @@ NABoolean LikePatternHeader::matchesR(const char *text, const char *&endText, Ch
       // One underscore match character, not byte. One clause may have more
       // than one underscore.
 
-      Int32 numOfUnderscore = clauseR->getLength();
+      int numOfUnderscore = clauseR->getLength();
       if (systemCollationFlag) {
         endText -= (numOfUnderscore * nPasses);
         headerLength -= (clauseR->getLength() * nPasses);
@@ -748,7 +748,7 @@ NABoolean LikePatternHeader::matchesR(const char *text, const char *&endText, Ch
           return FALSE;
         }
 
-        for (Int32 k = 1; k <= numOfUnderscore; k++) endText -= charLengthInBuf[numberOfCharInBuf - k];
+        for (int k = 1; k <= numOfUnderscore; k++) endText -= charLengthInBuf[numberOfCharInBuf - k];
       }
     } else {
       p = endText - clauseR->getLength() * nPasses;

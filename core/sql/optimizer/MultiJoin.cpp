@@ -78,7 +78,7 @@ void MultiJoin::getPotentialOutputValues(ValueIdSet &outputValues) const {
 
   CANodeIdSet jbbcs = jbbSubset_.getJBBCs();
 
-  Int32 arity = getArity();
+  int arity = getArity();
 
   for (int i = 0; i < arity; i++) {
     JBBC *jbbci = child(i)->getGroupAnalysis()->getNodeAnalysis()->getJBBC();
@@ -449,11 +449,11 @@ void MultiJoin::recomputeOuterReferences() {
     // exprSet.weedOutUnreferenced(outerRefs);
 
     // Add back those expressiones needed by my children
-    Int32 arity = getArity();
+    int arity = getArity();
 
     // outputs produced by JBBCs in this MultiJoin
     ValueIdSet jbbcOutputs;
-    for (Int32 i = 0; i < arity; i++) {
+    for (int i = 0; i < arity; i++) {
       outerRefs += child(i)->getGroupAttr()->getCharacteristicInputs();
       jbbcOutputs += child(i)->getGroupAttr()->getCharacteristicOutputs();
       // these inputs are provided by jbbcs in this MultiJoin
@@ -666,8 +666,8 @@ void MJJoinDirective::setupJoin(Join *join) {
 
 // xxx make this private
 const ExprGroupId &JBBCExprGroupMap::getExprGroupIdOfJBBC(CANodeId jbbc) const {
-  Int32 entries = array_.entries();
-  for (Int32 i = 0; i < entries; i++) {
+  int entries = array_.entries();
+  for (int i = 0; i < entries; i++) {
     CMPASSERT(array_.used(i));
     if (array_[i]->getJBBCId() == jbbc) {
       return array_[i]->getExprGroupId();
@@ -697,7 +697,7 @@ void MultiJoin::primeGroupAnalysis() {
   // and parentJBBViews
   JBBSubset *localView = new (groupAnalysis->outHeap()) JBBSubset(groupAnalysis->outHeap());
   CANodeIdSet allSubtreeTables;
-  Int32 arity = getArity();
+  int arity = getArity();
   for (int i = 0; i < arity; i++) {
     GroupAnalysis *childAnalysis = child(i).getPtr()->getGroupAnalysis();
     // use children parentViews to build this join local view
@@ -718,8 +718,8 @@ CostScalar MultiJoin::getChildrenDataFlow() const {
   CostScalar childrenDataFlow(0);
 
   UInt32 minRecordLength = (ActiveSchemaDB()->getDefaults()).getAsLong(COMP_INT_50);
-  Int32 arity = getArity();
-  for (Int32 i = 0; i < arity; i++) {
+  int arity = getArity();
+  for (int i = 0; i < arity; i++) {
     childrenDataFlow += child(i)->getGroupAttr()->getResultCardinalityForEmptyInput() *
                         MAXOF(child(i)->getGroupAttr()->getRecordLength(), minRecordLength);
   }

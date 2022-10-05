@@ -73,7 +73,7 @@ class BackupAttr {
   BackupAttr() : attrKey_(BACKUP_ATTR_UNKNOWN), attrValue_(NULL), heap_(NULL) {}
 
   BackupAttr(const BACKUP_ATTR_KEY attrKey, const char *attrValue, NAHeap *heap) : attrKey_(attrKey), heap_(heap) {
-    Int32 length = strlen(attrValue) + 1;
+    int length = strlen(attrValue) + 1;
     attrValue_ = new (heap) char[length];
     strcpy(attrValue_, attrValue);
   }

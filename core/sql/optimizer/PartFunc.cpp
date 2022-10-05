@@ -1006,7 +1006,7 @@ ItemExpr *HashPartitioningFunction::buildHashingExpressionForExpr(ItemExpr *expr
   return new (CmpCommon::statementHeap()) Hash(expr);
 }
 
-UInt32 HashPartitioningFunction::computeHashValue(char *data, UInt32 flags, Int32 len) {
+UInt32 HashPartitioningFunction::computeHashValue(char *data, UInt32 flags, int len) {
   // Directly call the implementation function to compute the hash. NULL
   // values and VARCHAR data types are not handled.
   return FastHash(data, len);
@@ -1540,7 +1540,7 @@ ItemExpr *TableHashPartitioningFunction::buildHashingExpressionForExpr(ItemExpr 
   return new (heap) HashDistPartHash(expr);
 }
 
-UInt32 TableHashPartitioningFunction::computeHashValue(char *data, UInt32 flags, Int32 len) {
+UInt32 TableHashPartitioningFunction::computeHashValue(char *data, UInt32 flags, int len) {
   // Directly call the implementation function to compute the hash. NULL
   // values and VARCHAR data types are not handled.
   return ExHDPHash::hash(data, flags, len);
@@ -3189,7 +3189,7 @@ void RangePartitionBoundaries::print(FILE *ofd, const char *indent, const char *
   int keyLen = getEncodedBoundaryKeyLength();
   for (index = 0; index < partitionCount_; index++) {
     const char *bValues = getBinaryBoundaryValue(index);
-    for (Int32 j = 0; j < keyLen; j++) {
+    for (int j = 0; j < keyLen; j++) {
       fprintf(ofd, "%04x ", (int)bValues[j]);
     }
   }
@@ -3745,7 +3745,7 @@ NABoolean RangePartitioningFunction::shouldUseSynchronousAccess(const ReqdPhysic
     // forced, see if it is a good idea or not.
 
     // get the maximum number of PAs per process that can be allowed.
-    Int32 maxPAsPerProcess = (Int32)CmpCommon::getDefaultNumeric(MAX_ACCESS_NODES_PER_ESP);
+    int maxPAsPerProcess = (int)CmpCommon::getDefaultNumeric(MAX_ACCESS_NODES_PER_ESP);
 
     if (getCountOfPartitions() > maxPAsPerProcess) {
       // Get the logical part requirement, if one exists.
@@ -3919,10 +3919,10 @@ const NAString RangePartitioningFunction::getText() const {
   if (partitionBoundaries_) {
     result += " with boundaries(";
 
-    for (Int32 index = 0; index < partitionBoundaries_->getCountOfPartitions(); index++) {
+    for (int index = 0; index < partitionBoundaries_->getCountOfPartitions(); index++) {
       const ItemExprList *iel = partitionBoundaries_->getBoundaryValues(index);
 
-      for (Int32 j = 0; j < iel->entries(); j++) {
+      for (int j = 0; j < iel->entries(); j++) {
         ItemExpr *ie = (*iel)[j];
         if (ie->getOperatorType() == ITM_CONSTANT) {
           ConstValue *cv = (ConstValue *)ie;
@@ -3948,7 +3948,7 @@ const NAString RangePartitioningFunction::getText() const {
     int encodedBoundaryKeyLength = partitionBoundaries_->getEncodedBoundaryKeyLength();
     char hexDigits[4];
 
-    for (Int32 index2 = 0; index2 < partitionBoundaries_->getCountOfPartitions(); index2++)
+    for (int index2 = 0; index2 < partitionBoundaries_->getCountOfPartitions(); index2++)
     {
       const char * binaryVal = partitionBoundaries_->getBinaryBoundaryValue(index2);
 
@@ -3990,20 +3990,20 @@ void RangePartitioningFunction::print(FILE *ofd, const char *indent, const char 
 
 }  // RangePartitioningFunction::print()
 
-NABoolean compareEncodedKey(const char *low, const char *key, const char *high, Int32 keyLen, NABoolean checkLast) {
+NABoolean compareEncodedKey(const char *low, const char *key, const char *high, int keyLen, NABoolean checkLast) {
   if (low == NULL || key == NULL || high == NULL) return FALSE;
-  Int32 cmpLow = memcmp(low, key, keyLen);
-  Int32 cmpHigh = memcmp(key, high, keyLen);
+  int cmpLow = memcmp(low, key, keyLen);
+  int cmpHigh = memcmp(key, high, keyLen);
 
   if (cmpLow <= 0 && cmpHigh < 0) return TRUE;
 
   return (checkLast && cmpLow <= 0 && cmpHigh <= 0);
 }
 
-NABoolean compareAsciiKey(const char *low, const char *key, const char *high, Int32, NABoolean checkLast) {
+NABoolean compareAsciiKey(const char *low, const char *key, const char *high, int, NABoolean checkLast) {
   if (low == NULL || key == NULL || high == NULL) return FALSE;
-  Int32 cmpLow = strverscmp(low, key);
-  Int32 cmpHigh = strverscmp(key, high);
+  int cmpLow = strverscmp(low, key);
+  int cmpHigh = strverscmp(key, high);
 
   if (cmpLow <= 0 && cmpHigh < 0) return TRUE;
 
@@ -4012,7 +4012,7 @@ NABoolean compareAsciiKey(const char *low, const char *key, const char *high, In
 
 // find a boundary pair [low, high) with smallest low value in which keys fall, and return the
 // index of the boundary low. Return -1 otherwise, or the key lengths are different.
-Int32 RangePartitionBoundaries::findBeginBoundary(char *encodedKey, Int32 keyLen, compFuncPtrT compFunc) const {
+int RangePartitionBoundaries::findBeginBoundary(char *encodedKey, int keyLen, compFuncPtrT compFunc) const {
   // boundaries are stored in entries in the range [0, partitionCount_]
   for (int i = 0; i <= partitionCount_ - 1; i++) {
     const char *low = getBinaryBoundaryValue(i);
@@ -4027,7 +4027,7 @@ Int32 RangePartitionBoundaries::findBeginBoundary(char *encodedKey, Int32 keyLen
 
 // find a boundary pair [low, high) with the largest low value in which keys fall, and return the
 // index of the boundary low. Return -1 otherwise, or the key lengths are different.
-Int32 RangePartitionBoundaries::findEndBoundary(char *encodedKey, Int32 keyLen, compFuncPtrT compFunc) const {
+int RangePartitionBoundaries::findEndBoundary(char *encodedKey, int keyLen, compFuncPtrT compFunc) const {
   // boundaries are stored in entries in the range [0, partitionCount_]
   for (int i = partitionCount_ - 1; i >= 0; i--) {
     const char *low = getBinaryBoundaryValue(i);
@@ -4040,12 +4040,12 @@ Int32 RangePartitionBoundaries::findEndBoundary(char *encodedKey, Int32 keyLen, 
   return -1;
 }
 
-Int32 RangePartitioningFunction::computeNumOfActivePartitions(SearchKey *skey, const TableDesc *tDesc) const {
+int RangePartitioningFunction::computeNumOfActivePartitions(SearchKey *skey, const TableDesc *tDesc) const {
   const RangePartitionBoundaries *boundaries = getRangePartitionBoundaries();
 
-  Int32 origPartitions = getCountOfPartitions();
-  Int32 partitions = origPartitions;
-  Int32 bIndex = 0;
+  int origPartitions = getCountOfPartitions();
+  int partitions = origPartitions;
+  int bIndex = 0;
 
   const NATable *naTable = tDesc->getNATable();
 
@@ -4055,7 +4055,7 @@ Int32 RangePartitioningFunction::computeNumOfActivePartitions(SearchKey *skey, c
   compFuncPtrT compFuncPtr = (isNativeHbase) ? compareAsciiKey : compareEncodedKey;
 
   char *buf = NULL;
-  Int32 len = 0;
+  int len = 0;
 
   const ValueIdList &beginKey = skey->getBeginKeyValues();
 
@@ -4077,7 +4077,7 @@ Int32 RangePartitioningFunction::computeNumOfActivePartitions(SearchKey *skey, c
   const ValueIdList &endKey = skey->getEndKeyValues();
 
   if (endKey.computeEncodedKey(tDesc, TRUE, buf, len)) {
-    Int32 eIndex = boundaries->findEndBoundary(buf, len, compFuncPtr);
+    int eIndex = boundaries->findEndBoundary(buf, len, compFuncPtr);
 
     if (eIndex < 0)  // error in deciding the partition.
       return origPartitions;
@@ -5150,7 +5150,7 @@ Int64List *SkewedDataPartitioningFunction::buildHashListForSkewedValues() {
   skewHashList_ = new (STMTHEAP) Int64List(STMTHEAP, svlist->entries());
   CollHeap *heap = CmpCommon::statementHeap();
   char data[10];
-  Int32 len = 0;
+  int len = 0;
 
   ConstValue *cvExp = NULL;
   ItemExpr *expForSkewedValue = NULL;
@@ -5253,7 +5253,7 @@ ItemExpr *HivePartitioningFunction::buildHashingExpressionForExpr(ItemExpr *expr
   return new (heap) IfThenElse(cond, narrowedNegatedHiveHash, hivehash);
 }
 
-UInt32 HivePartitioningFunction::computeHashValue(char *data, UInt32 flags, Int32 len) {
+UInt32 HivePartitioningFunction::computeHashValue(char *data, UInt32 flags, int len) {
   // need a Hive()
   // Directly call the implementation function to compute the hash. NULL
   // values and VARCHAR data types are not handled.

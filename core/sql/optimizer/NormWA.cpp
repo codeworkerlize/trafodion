@@ -147,9 +147,9 @@ ValueId NormWA::getEquivalentItmSequenceFunction(ValueId newSeqId) {
   return equivId;
 }
 
-void NormWA::optimizeSeqFunctions(ItemExpr *ie, ItemExpr *pie, Int32 idx) {
+void NormWA::optimizeSeqFunctions(ItemExpr *ie, ItemExpr *pie, int idx) {
   if (ie) {
-    for (Int32 i = 0; i < ie->getArity(); i++) {
+    for (int i = 0; i < ie->getArity(); i++) {
       optimizeSeqFunctions(ie->child(i), ie, i);
     }
     if (ie->isASequenceFunction()) {

@@ -79,8 +79,8 @@ class UDFunction : public Function {
 
   // Function name position within command line.  This is used for rewriting the
   // UDF name to fully qualified for MVS.
-  const Int32 getNamePosOfUdfInQuery() const { return functionNamePos_; }
-  void setNamePosOfUdfInQuery(Int32 pos) { functionNamePos_ = pos; }
+  const int getNamePosOfUdfInQuery() const { return functionNamePos_; }
+  void setNamePosOfUdfInQuery(int pos) { functionNamePos_ = pos; }
 
   // Routine descriptor
   const RoutineDesc *getRoutineDesc() const { return udfDesc_; }
@@ -102,7 +102,7 @@ class UDFunction : public Function {
   virtual ExprValueId &operator[](int ix);
   virtual const ExprValueId &operator[](int ix) const;
   // get the degree of this node (it depends on the type of the operator)
-  virtual Int32 getArity() const;
+  virtual int getArity() const;
 
   virtual HashValue topHash();
   virtual NABoolean duplicateMatch(const ItemExpr &other) const;
@@ -135,7 +135,7 @@ class UDFunction : public Function {
 
   // output degree functions to handle multi-valued UDFs.
   // Returns the number of outputs and the ItemExpr for each.
-  virtual Int32 getOutputDegree();
+  virtual int getOutputDegree();
   virtual ItemExpr *getOutputItem(UInt32 i);
 
  private:
@@ -156,11 +156,11 @@ class UDFunction : public Function {
       return NULL;
   }
 
-  void setInOrOutParam(RoutineDesc *routine, ItemExpr *argument, Int32 position, ComColumnDirection paramMode,
+  void setInOrOutParam(RoutineDesc *routine, ItemExpr *argument, int position, ComColumnDirection paramMode,
                        ItemExprList *inParams, BindWA *bindWA);
 
   CollHeap *heap_;
-  Int32 functionNamePos_;
+  int functionNamePos_;
   ComObjectName functionName_;
   NAString actionName_;  // Must be a string: MX Object names can't have '$' as first char.
   RoutineDesc *udfDesc_;

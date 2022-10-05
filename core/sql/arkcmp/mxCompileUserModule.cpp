@@ -70,11 +70,11 @@ void mxCompileUserModule::dumpDiags() {
   }
 }
 
-Int32 mxCompileUserModule::diagsCount() {
+int mxCompileUserModule::diagsCount() {
   return !diags_ ? 0 : (diags_->getNumber(DgSqlCode::ERROR_) + diags_->getNumber(DgSqlCode::WARNING_));
 }
 
-void mxCompileUserModule::internalError(const char *file, Int32 line, const char *msg) {
+void mxCompileUserModule::internalError(const char *file, int line, const char *msg) {
   *this << DgSqlCode(-2214) << DgString0(file) << DgInt0(line) << DgString1(msg);
 }
 

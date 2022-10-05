@@ -127,25 +127,25 @@ typedef struct {
 struct encoding;
 typedef struct encoding ENCODING;
 
-typedef Int32(PTRCALL *SCANNER)(const ENCODING *, const char *, const char *, const char **);
+typedef int(PTRCALL *SCANNER)(const ENCODING *, const char *, const char *, const char **);
 
 struct encoding {
   SCANNER scanners[XML_N_STATES];
   SCANNER literalScanners[XML_N_LITERAL_TYPES];
-  Int32(PTRCALL *sameName)(const ENCODING *, const char *, const char *);
-  Int32(PTRCALL *nameMatchesAscii)(const ENCODING *, const char *, const char *, const char *);
-  Int32(PTRFASTCALL *nameLength)(const ENCODING *, const char *);
+  int(PTRCALL *sameName)(const ENCODING *, const char *, const char *);
+  int(PTRCALL *nameMatchesAscii)(const ENCODING *, const char *, const char *, const char *);
+  int(PTRFASTCALL *nameLength)(const ENCODING *, const char *);
   const char *(PTRFASTCALL *skipS)(const ENCODING *, const char *);
-  Int32(PTRCALL *getAtts)(const ENCODING *enc, const char *ptr, Int32 attsMax, ATTRIBUTE *atts);
-  Int32(PTRFASTCALL *charRefNumber)(const ENCODING *enc, const char *ptr);
-  Int32(PTRCALL *predefinedEntityName)(const ENCODING *, const char *, const char *);
+  int(PTRCALL *getAtts)(const ENCODING *enc, const char *ptr, int attsMax, ATTRIBUTE *atts);
+  int(PTRFASTCALL *charRefNumber)(const ENCODING *enc, const char *ptr);
+  int(PTRCALL *predefinedEntityName)(const ENCODING *, const char *, const char *);
   void(PTRCALL *updatePosition)(const ENCODING *, const char *ptr, const char *end, POSITION *);
-  Int32(PTRCALL *isPublicId)(const ENCODING *enc, const char *ptr, const char *end, const char **badPtr);
+  int(PTRCALL *isPublicId)(const ENCODING *enc, const char *ptr, const char *end, const char **badPtr);
   void(PTRCALL *utf8Convert)(const ENCODING *enc, const char **fromP, const char *fromLim, char **toP,
                              const char *toLim);
   void(PTRCALL *utf16Convert)(const ENCODING *enc, const char **fromP, const char *fromLim, unsigned short **toP,
                               const unsigned short *toLim);
-  Int32 minBytesPerChar;
+  int minBytesPerChar;
   char isUtf8;
   char isUtf16;
 };
@@ -223,29 +223,29 @@ typedef struct {
   const ENCODING **encPtr;
 } INIT_ENCODING;
 
-Int32 XmlParseXmlDecl(Int32 isGeneralTextEntity, const ENCODING *enc, const char *ptr, const char *end,
+int XmlParseXmlDecl(int isGeneralTextEntity, const ENCODING *enc, const char *ptr, const char *end,
                       const char **badPtr, const char **versionPtr, const char **versionEndPtr,
-                      const char **encodingNamePtr, const ENCODING **namedEncodingPtr, Int32 *standalonePtr);
+                      const char **encodingNamePtr, const ENCODING **namedEncodingPtr, int *standalonePtr);
 
-Int32 XmlInitEncoding(INIT_ENCODING *, const ENCODING **, const char *name);
+int XmlInitEncoding(INIT_ENCODING *, const ENCODING **, const char *name);
 const ENCODING *XmlGetUtf8InternalEncoding(void);
 const ENCODING *XmlGetUtf16InternalEncoding(void);
-Int32 FASTCALL XmlUtf8Encode(Int32 charNumber, char *buf);
-Int32 FASTCALL XmlUtf16Encode(Int32 charNumber, unsigned short *buf);
-Int32 XmlSizeOfUnknownEncoding(void);
+int FASTCALL XmlUtf8Encode(int charNumber, char *buf);
+int FASTCALL XmlUtf16Encode(int charNumber, unsigned short *buf);
+int XmlSizeOfUnknownEncoding(void);
 
-typedef Int32(XMLCALL *CONVERTER)(void *userData, const char *p);
+typedef int(XMLCALL *CONVERTER)(void *userData, const char *p);
 
-ENCODING *XmlInitUnknownEncoding(void *mem, Int32 *table, CONVERTER convert, void *userData);
+ENCODING *XmlInitUnknownEncoding(void *mem, int *table, CONVERTER convert, void *userData);
 
-Int32 XmlParseXmlDeclNS(Int32 isGeneralTextEntity, const ENCODING *enc, const char *ptr, const char *end,
+int XmlParseXmlDeclNS(int isGeneralTextEntity, const ENCODING *enc, const char *ptr, const char *end,
                         const char **badPtr, const char **versionPtr, const char **versionEndPtr,
-                        const char **encodingNamePtr, const ENCODING **namedEncodingPtr, Int32 *standalonePtr);
+                        const char **encodingNamePtr, const ENCODING **namedEncodingPtr, int *standalonePtr);
 
-Int32 XmlInitEncodingNS(INIT_ENCODING *, const ENCODING **, const char *name);
+int XmlInitEncodingNS(INIT_ENCODING *, const ENCODING **, const char *name);
 const ENCODING *XmlGetUtf8InternalEncodingNS(void);
 const ENCODING *XmlGetUtf16InternalEncodingNS(void);
-ENCODING *XmlInitUnknownEncodingNS(void *mem, Int32 *table, CONVERTER convert, void *userData);
+ENCODING *XmlInitUnknownEncodingNS(void *mem, int *table, CONVERTER convert, void *userData);
 #ifdef __cplusplus
 }
 #endif

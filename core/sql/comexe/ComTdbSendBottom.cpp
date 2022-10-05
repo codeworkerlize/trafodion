@@ -66,24 +66,24 @@ ComTdbSendBottom::ComTdbSendBottom(ex_expr *moveOutputValues, queue_index downSi
   smTag_ = 0;
 }
 
-Int32 ComTdbSendBottom::orderedQueueProtocol() const { return TRUE; }  // these 3 lines won't be covered, obsolete
+int ComTdbSendBottom::orderedQueueProtocol() const { return TRUE; }  // these 3 lines won't be covered, obsolete
 
 void ComTdbSendBottom::display() const {}  // ignore these lines, used by Windows GUI only
 
-const ComTdb *ComTdbSendBottom::getChild(Int32 pos) const {
+const ComTdb *ComTdbSendBottom::getChild(int pos) const {
   return NULL;
 }  // these lines won't be covered, it's never called as it has no child opr
 
-Int32 ComTdbSendBottom::numChildren() const { return 0; }
+int ComTdbSendBottom::numChildren() const { return 0; }
 
-Int32 ComTdbSendBottom::numExpressions() const { return 1; }
+int ComTdbSendBottom::numExpressions() const { return 1; }
 
-ex_expr *ComTdbSendBottom::getExpressionNode(Int32 pos) {
+ex_expr *ComTdbSendBottom::getExpressionNode(int pos) {
   if (pos == 0) return moveOutputValues_;
   return NULL;
 }
 
-const char *ComTdbSendBottom::getExpressionName(Int32 pos) const {
+const char *ComTdbSendBottom::getExpressionName(int pos) const {
   if (pos == 0) return "moveOutputValues_";
   return NULL;
 }

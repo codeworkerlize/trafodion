@@ -111,19 +111,19 @@ class ComTdbTupleFlow : public ComTdb {
 
   void display() const {};
 
-  Int32 orderedQueueProtocol() const {
+  int orderedQueueProtocol() const {
     return -1;  // return true
   };
 
   inline void setSrcTdb(ComTdb *src) { tdbSrc_ = src; };
   inline void setTgtTdb(ComTdb *tgt) { tdbTgt_ = tgt; };
 
-  virtual const ComTdb *getChild(Int32 pos) const;
-  virtual Int32 numChildren() const { return 2; }
+  virtual const ComTdb *getChild(int pos) const;
+  virtual int numChildren() const { return 2; }
   virtual const char *getNodeName() const { return "EX_TUPLE_FLOW"; };
-  virtual Int32 numExpressions() const { return 1; }
-  virtual ex_expr *getExpressionNode(Int32 pos);
-  virtual const char *getExpressionName(Int32 pos) const;
+  virtual int numExpressions() const { return 1; }
+  virtual ex_expr *getExpressionNode(int pos);
+  virtual const char *getExpressionName(int pos) const;
 
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.

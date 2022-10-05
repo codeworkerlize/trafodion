@@ -60,8 +60,8 @@ CRUTaskServerExecController *CRUTaskServerExecController::pInstance_ = NULL;
 
 #ifdef _DEBUG
 #if defined(NA_WINNT)
-static void DisplayDebugBox(Int32 num) {
-  Int32 pid = _getpid();
+static void DisplayDebugBox(int num) {
+  int pid = _getpid();
   char stmp[256];
   char title[10];
   _snprintf(title, sizeof(title), "MXUTP %d", num);
@@ -349,11 +349,11 @@ void CRUTaskServerExecController::createLogFile(int pid) {
 void CRUTaskServerExecController::logError(CDSException &ex) {
   enum { BUFSIZE = 4096 };
 
-  Int32 nerr = ex.GetNumErrors();
+  int nerr = ex.GetNumErrors();
   char buffer[BUFSIZE];
   CDSString msg;
 
-  for (Int32 i = 0; i < nerr; i++) {
+  for (int i = 0; i < nerr; i++) {
     ex.GetErrorMsg(i, buffer, BUFSIZE);
 
     if (buffer[0] != 0) {

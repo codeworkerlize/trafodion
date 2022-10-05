@@ -125,13 +125,13 @@ const NAString *CmpCommon::getControlSessionValue(const NAString &token) {
 // 4. Adding Error/Warning to ComDiagsArea is done in the outermost catch
 //    handler.
 // **********************************************************************
-void CmpAssertInternal(const char *condition, const char *file, Int32 num) {
+void CmpAssertInternal(const char *condition, const char *file, int num) {
   NAInternalError::throwAssertException(condition, file, num);
 
   CmpInternalException(condition, file, num).throwException();
 }
 
-void CmpAbortInternal(const char *msg, const char *file, Int32 num) {
+void CmpAbortInternal(const char *msg, const char *file, int num) {
   NAInternalError::throwFatalException(msg, file, num);
 
   throw EHBreakException(file, num);
@@ -156,11 +156,11 @@ double CmpCommon::getDefaultNumeric(DefaultConstants id) {
 
 NAString CmpCommon::getDefaultString(DefaultConstants id) { return ActiveSchemaDB()->getDefaults().getString(id); }
 
-DefaultToken CmpCommon::getDefault(DefaultConstants id, Int32 errOrWarn) {
+DefaultToken CmpCommon::getDefault(DefaultConstants id, int errOrWarn) {
   return ActiveSchemaDB()->getDefaults().getToken(id, errOrWarn);
 }
 
-DefaultToken CmpCommon::getDefault(DefaultConstants id, NAString &result, Int32 errOrWarn) {
+DefaultToken CmpCommon::getDefault(DefaultConstants id, NAString &result, int errOrWarn) {
   return ActiveSchemaDB()->getDefaults().token(id, result, FALSE, errOrWarn);
 }
 
@@ -207,7 +207,7 @@ ComAuthenticationType CmpCommon::loadAuthenticationType() {
 #define CONVERT_CHAR_TO_NUMBER(intval, str)                                     \
   {                                                                             \
     intval = 0;                                                                 \
-    char num[sizeof(Int32)] = {0};                                              \
+    char num[sizeof(int)] = {0};                                              \
     num[0] = str[i];                                                            \
     num[1] = str[i + 1];                                                        \
     if (isxdigit(num[0]) && isxdigit(num[1])) sscanf(num, "%x", &intval);       \

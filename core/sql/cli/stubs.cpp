@@ -33,7 +33,7 @@
  *****************************************************************************
  */
 
-void void CmpAssertInternal(const char *, const char *, Int32) {}
+void void CmpAssertInternal(const char *, const char *, int) {}
 
 extern "C" void __dt__8ItemExprFv(void){};
 
@@ -151,4 +151,4 @@ extern "C" void print__10ValueIdSetCFP4FILEPCcT2(void){};
 
 extern "C" void isComparable__8CharTypeCFRC6NATypeP8ItemExpri(void){};
 
-extern "C" Int32 mode___19StmtCompilationMode = 0;
+extern "C" int mode___19StmtCompilationMode = 0;

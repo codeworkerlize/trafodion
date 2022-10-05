@@ -27,10 +27,10 @@ ComTdbHashj::ComTdbHashj(
     short rightRowAtpIndex, short extRightRowAtpIndex1, short extRightRowAtpIndex2, short hashValueAtpIndex,
     short instRowForLeftJoinAtpIndex, short returnedLeftRowAtpIndex, short returnedRightRowAtpIndex,
     short returnedInstRowForLeftJoinAtpIndex, unsigned short memUsagePercent, short pressureThreshold,
-    short scratchThresholdPct, queue_index down, queue_index up, Int32 isSemiJoin, Int32 isLeftJoin,
-    Int32 isAntiSemiJoin, Int32 isUniqueHashJoin, Int32 isNoOverflow, Int32 isReuse, int numBuffers,
+    short scratchThresholdPct, queue_index down, queue_index up, int isSemiJoin, int isLeftJoin,
+    int isAntiSemiJoin, int isUniqueHashJoin, int isNoOverflow, int isReuse, int numBuffers,
     ULng32 bufferSize, ULng32 hashBufferSize, Cardinality estimatedRowCount, Cardinality innerExpectedRows,
-    Cardinality outerExpectedRows, Int32 isRightJoin, ex_expr *rightJoinExpr,
+    Cardinality outerExpectedRows, int isRightJoin, ex_expr *rightJoinExpr,
     // nullInstForRightJoinExpr(i.e)instantiates the
     // left row.
     ex_expr *nullInstForRightJoinExpr, short instRowForRightJoinAtpIndex, short returnedInstRowForRightJoinAtpIndex,

@@ -170,13 +170,13 @@ volatile char Sqlci_PutbackChar = '\0';  // global for Break handling
 //         -3, error
 //         -4, if an eof immediately follows a valid string
 ////////////////////////////////////////////////////////
-Int32 InputStmt::getLine(char *input_str, FILE *nonstdin, Int32 first_line) {
+int InputStmt::getLine(char *input_str, FILE *nonstdin, int first_line) {
   char a = ' ';
   size_t i = 0;
-  Int32 retcode = 1;
-  Int32 white = -1;
-  Int32 skipGetc = 0;
-  Int32 quick_eof = 0;  // flag for a tight eof
+  int retcode = 1;
+  int white = -1;
+  int skipGetc = 0;
+  int quick_eof = 0;  // flag for a tight eof
 
   size_t normalstart = 0;
 
@@ -456,7 +456,7 @@ Int32 InputStmt::getLine(char *input_str, FILE *nonstdin, Int32 first_line) {
       normal:
       case NORMAL:
       case NORMAL_OR_SHELL: {
-        Int32 searchForShCmd = (state == NORMAL_OR_SHELL);
+        int searchForShCmd = (state == NORMAL_OR_SHELL);
         switch (a) {
           case '/':
             state = PROBABLY_QUOTED_BLOCK;
@@ -536,10 +536,10 @@ Int32 InputStmt::getLine(char *input_str, FILE *nonstdin, Int32 first_line) {
 
 }  // getLine()
 
-Int32 InputStmt::consumeLine(FILE *nonstdin) {
+int InputStmt::consumeLine(FILE *nonstdin) {
   // char input_str[MAX_FRAGMENT_LEN+1];
   char *input_str = new char[MAX_FRAGMENT_LEN + 1];
-  Int32 rc = getLine(input_str, nonstdin, -1 /*first line*/);
+  int rc = getLine(input_str, nonstdin, -1 /*first line*/);
   delete[] input_str;
   return rc;
 }
@@ -553,14 +553,14 @@ Int32 InputStmt::consumeLine(FILE *nonstdin) {
 //		OR break (^C)
 //         -99, error
 ////////////////////////////////////////////////////////
-Int32 InputStmt::readStmt(FILE *nonstdin, Int32 suppress_blank_line_output) {
+int InputStmt::readStmt(FILE *nonstdin, int suppress_blank_line_output) {
   //  char input_str[MAX_FRAGMENT_LEN+1];
   char *input_str = new char[MAX_FRAGMENT_LEN + 1];
-  Int32 prompt = sqlci_env->isInteractiveNow();
-  Int32 skip_first_fragment = 0;
-  Int32 error = 0;
+  int prompt = sqlci_env->isInteractiveNow();
+  int skip_first_fragment = 0;
+  int error = 0;
   StringFragment *prev_fragment = NULL;
-  Int32 done = 0;
+  int done = 0;
   // char buffer[256];
   // SYSTEMTIME sysTime;
 
@@ -573,7 +573,7 @@ Int32 InputStmt::readStmt(FILE *nonstdin, Int32 suppress_blank_line_output) {
   } else {
     // Get the first line, looping until we get a nonblank line
     do {
-      Int32 eolSeenOrig = sqlci_env->eolSeenOnInput();
+      int eolSeenOrig = sqlci_env->eolSeenOnInput();
 
       if ((prompt && eolSeenOrig) || (sqlci_env->prevErrFlushInput() && !nonstdin)) {
         cout << ">>";
@@ -790,7 +790,7 @@ return_error:
 // Always sets packed_string to a non-NULL string
 // (it may be the empty string, however).
 ////////////////////////////////////////////////////////
-Int32 InputStmt::pack() {
+int InputStmt::pack() {
   StringFragment *curr_fragment = first_fragment;
   size_t packed_string_len = 0;
   size_t i = 0;
@@ -823,8 +823,8 @@ Int32 InputStmt::pack() {
     /* now pack it*/
 
     curr_fragment = first_fragment;
-    Int32 ignore = 0;
-    Int32 first = -1;
+    int ignore = 0;
+    int first = -1;
 
     // Save info in private data members isIgnoreStmt_ + ignoreJustThis_
     isIgnoreStmt_ = isIgnoreStmt(curr_fragment->fragment, &ignoreJustThis_);
@@ -837,11 +837,11 @@ Int32 InputStmt::pack() {
       }
     } else {
       while (curr_fragment) {
-        Int32 skip_it = 0;
+        int skip_it = 0;
 
         // For subsequent frags, use local vars for isIgnoreStmt stuff!
         NABoolean ignoreJustThis;
-        Int32 isIgnore = isIgnoreStmt(curr_fragment->fragment, &ignoreJustThis);
+        int isIgnore = isIgnoreStmt(curr_fragment->fragment, &ignoreJustThis);
         if (isIgnore) ignore = NOT ignore;
 
         if (!ignore && !isIgnore && !ignoreJustThis) {
@@ -963,8 +963,8 @@ Int32 InputStmt::pack() {
 // Returns -1 if stmt (or passed string) contains only zero or more whitespaces
 // and optionally a semicolon (" ", "	", ";", "  ;", " ;  ", etc).
 //////////////////////////////////////////
-Int32 InputStmt::isEmpty(const char *s) {
-  Int32 empty = -1;
+int InputStmt::isEmpty(const char *s) {
+  int empty = -1;
 
   if (!s) s = getPackedString();
 
@@ -1055,7 +1055,7 @@ void InputStmt::display(int stmt_num_, NABoolean noPrompt) const {
   if (!first_fragment) return;
 
   char pfxbuf[20] = "";
-  Int32 pfxlen;
+  int pfxlen;
 
   if (!noPrompt) {
     if (stmt_num_ <= 0)
@@ -1171,7 +1171,7 @@ InputStmt::Option InputStmt::nextOption() {
 }  // nextOption()
 
 size_t InputStmt::getCommandLen() const {
-  Int32 done = 0;
+  int done = 0;
   size_t i = 0;
 
   while (!done) {
@@ -1344,8 +1344,8 @@ InputStmt::Option InputStmt::fix_string(const char *in_data, char *fixed_data, s
 //               -20, abort it.
 //		other error codes from readStmt()
 //////////////////////////////////////////
-Int32 InputStmt::fix(Int32 append_only) {
-  Int32 retval = 0;
+int InputStmt::fix(int append_only) {
+  int retval = 0;
 
   if (!append_only) {
     Option option;
@@ -1388,7 +1388,7 @@ Int32 InputStmt::fix(Int32 append_only) {
 // but "obey file(sect)" is, and "sect" allows only identifier characters.
 #define IS_SECTION_NAME_CHAR(a) (isalnum(a) || a == '_')
 
-Int32 InputStmt::sectionMatches(const char *section_name) {
+int InputStmt::sectionMatches(const char *section_name) {
   const char *str = getPackedString();  // any tabs have become spaces!
                                         // (so no need to test below)
 
@@ -1427,7 +1427,7 @@ Int32 InputStmt::sectionMatches(const char *section_name) {
 static NABoolean isIfdefStmtTransition(NAString &nsUpTrim,  // toUpper+trimmed
                                        NABoolean *ignoreJustThis) {
   enum { IFDEF_, IFNDEF_, ELSE_, ENDIF_ };
-  Int32 which;
+  int which;
 
   char *str = (char *)nsUpTrim.data();
   char *s, c;
@@ -1514,7 +1514,7 @@ static NABoolean isIfdefStmtTransition(NAString &nsUpTrim,  // toUpper+trimmed
 // The caller is responsible for ignoring all input between stmts on which
 // this function returns -1.
 //////////////////////////////////////////
-Int32 InputStmt::isIgnoreStmt(const char *str, NABoolean *ignoreJustThis) {
+int InputStmt::isIgnoreStmt(const char *str, NABoolean *ignoreJustThis) {
   if (!str) {
     ComASSERT(packed_string);
     if (ignoreJustThis) *ignoreJustThis = ignoreJustThis_;

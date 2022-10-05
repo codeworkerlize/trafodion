@@ -168,15 +168,15 @@ class ExDDLTcb : public ex_tcb {
   virtual short work();
 
   ex_queue_pair getParentQueue() const;
-  Int32 orderedQueueProtocol() const;
+  int orderedQueueProtocol() const;
 
   void freeResources();
 
-  Int32 numChildren() const;
-  const ex_tcb *getChild(Int32 pos) const;
+  int numChildren() const;
+  const ex_tcb *getChild(int pos) const;
 
  protected:
-  void handleErrors(ex_queue_entry *pentry_down, ComDiagsArea *da, Int32 error);
+  void handleErrors(ex_queue_entry *pentry_down, ComDiagsArea *da, int error);
 
   ex_queue_pair qparent_;
 
@@ -270,8 +270,8 @@ class ExDDLwithStatusTcb : public ExDDLTcb {
 
   NABoolean callEmbeddedCmp_;
 
-  Int32 numEntries_;
-  Int32 currEntry_;
+  int numEntries_;
+  int currEntry_;
   char *currPtr_;
 
   ComDiagsArea *diagsArea_;

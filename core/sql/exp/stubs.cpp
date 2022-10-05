@@ -39,7 +39,7 @@ extern "C" void SQL_EXEC_IsVolumeUseful_Internal__FCPCc(void){};
 
 extern "C" void SQL_EXEC_GetListOfVolumes_Internal__Fv(void){};
 
-void CmpAssertInternal(const char *, const char *, Int32){};
+void CmpAssertInternal(const char *, const char *, int){};
 
 extern "C" void contextHeap__9CmpCommonSFv(void){};
 

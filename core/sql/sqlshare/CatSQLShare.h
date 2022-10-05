@@ -83,7 +83,7 @@ void CATSQLSHARE_LIB_FUNC CatDeriveRandomName(const char *inputName  // input si
 enum CatIsRunningResult { notRunning, isRunning, errorOcurred };
 //  Input value is null-terminated ASCII string form of process pHandle + proc Name.
 
-Int32 CATSQLSHARE_LIB_FUNC SqlShareLnxGetMyProcessIdString(char *processIdStrOutBuf,         // out
+int CATSQLSHARE_LIB_FUNC SqlShareLnxGetMyProcessIdString(char *processIdStrOutBuf,         // out
                                                            size_t processIdStrOutBufMaxLen,  // in
                                                            size_t *processIdStrLen);         // out
 

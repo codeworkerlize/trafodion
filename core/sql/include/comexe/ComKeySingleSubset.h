@@ -100,7 +100,7 @@ class keySingleSubsetGen : public keyRangeGen {
   virtual Long pack(void *space);
   virtual int unpack(void *base, void *reallocator);
 
-  virtual ex_expr *getExpressionNode(Int32 pos);
+  virtual ex_expr *getExpressionNode(int pos);
 
   virtual keySingleSubsetGen *castToKeySingleSubsetGen() { return this; }
 

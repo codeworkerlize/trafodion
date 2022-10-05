@@ -60,7 +60,7 @@ class REFRESH_LIB_CLASS CRUMultiTxnContext {
  public:
   BOOL IsEmpty() const { return const_cast<CRUMultiTxnContext *>(this)->stack_.IsEmpty(); }
 
-  Int32 GetNumOfRows() const { return const_cast<CRUMultiTxnContext *>(this)->stack_.GetCount(); }
+  int GetNumOfRows() const { return const_cast<CRUMultiTxnContext *>(this)->stack_.GetCount(); }
 
  public:
   enum { ROW_DOES_NOT_EXIST = -1 };

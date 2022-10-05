@@ -126,7 +126,7 @@ class BindContext : public NABasicObject {
   // --------------------------------------------------------------------
   // Accessor/mutator functions
   // --------------------------------------------------------------------
-  Int32 &inSelectList() { return inSelectList_; }
+  int &inSelectList() { return inSelectList_; }
   NABoolean &inOrderBy() { return inOrderBy_; }
   NABoolean &inDualConnectby() { return inDualConnectby_; }
   NABoolean &inStartWith() { return inStartWith_; }
@@ -213,7 +213,7 @@ class BindContext : public NABasicObject {
   // --------------------------------------------------------------------
   // True if binding a select list.
   // --------------------------------------------------------------------
-  Int32 inSelectList_;
+  int inSelectList_;
 
   // --------------------------------------------------------------------
   // True if binding an order-by list.
@@ -919,7 +919,7 @@ class HostArraysWA : public NABasicObject {
   RelExpr *modifyTree(RelExpr *queryExpr, RelExpr::AtomicityType atomicity);
 
   // Indicates if a Rowset node has been visited
-  Int32 &done() { return done_; }
+  int &done() { return done_; }
 
   // Stores all host arrays found in the parse tree
   void collectHostVarsInRelExprTree(RelExpr *root, RelExpr::AtomicityType atomicity);
@@ -961,11 +961,11 @@ class HostArraysWA : public NABasicObject {
   // We have found in the parse tree the variable that appears in the
   // ROWSET FOR KEY BY <var> command (i.e we found <var>). We store it and
   // replace it with a name that will be used in the rename node.
-  void processKeyVar(ItemExpr *parent, Int32 childNumber);
+  void processKeyVar(ItemExpr *parent, int childNumber);
 
   // We have found an array host variable in the parse tree. We store it and replace it
   // with a name that will be used in the rename node
-  void processArrayHostVar(ItemExpr *parent, Int32 childNumber);
+  void processArrayHostVar(ItemExpr *parent, int childNumber);
 
   // Finds inputVar in list
   NABoolean findHostVar(ItemExpr **inputVar, ItemExpr *list);
@@ -1046,7 +1046,7 @@ class HostArraysWA : public NABasicObject {
   ItemExpr *lastName_;
 
   // Indicates if we have visited a RowSet node or not
-  Int32 done_;
+  int done_;
 
   // name of table that is created by Rename node
   NAString newTable_;
@@ -1136,7 +1136,7 @@ class HostArraysWA : public NABasicObject {
 
   // Scans the node parent->childNumber) searching for host vars. Puts them
   // in list pointed by listOfHostArrays_
-  void collectHostVarsInPred(ItemExpr *parent, Int32 childNumber);
+  void collectHostVarsInPred(ItemExpr *parent, int childNumber);
 };
 
 // ***********************************************************************
@@ -1568,9 +1568,9 @@ class BindWA : public NABasicObject {
   inline NABoolean getDupWarning() const { return dupWarning_; }
   inline void setDupWarning(NABoolean val) { dupWarning_ = val; }
 
-  inline Int32 getRoutineInvocationNum() { return routineInvocationNum_++; }
-  void setInliningInfoFlagsToSetRecursivly(Int32 flags) { inliningInfoFlagsToSetRecursivly_ = flags; }
-  Int32 getInliningInfoFlagsToSetRecursivly() const { return inliningInfoFlagsToSetRecursivly_; }
+  inline int getRoutineInvocationNum() { return routineInvocationNum_++; }
+  void setInliningInfoFlagsToSetRecursivly(int flags) { inliningInfoFlagsToSetRecursivly_ = flags; }
+  int getInliningInfoFlagsToSetRecursivly() const { return inliningInfoFlagsToSetRecursivly_; }
 
   StmtLevelAccessOptions *findUserSpecifiedAccessOption();
 
@@ -1627,8 +1627,8 @@ class BindWA : public NABasicObject {
 
   const NAString &getISPExecLocation() const { return ISPExecLocation_; }
 
-  Int32 numTablesPerSelect() { return numTablesPerSelect_; }
-  Int32 numTablesPerQuery() { return numTablesPerQuery_; }
+  int numTablesPerSelect() { return numTablesPerSelect_; }
+  int numTablesPerQuery() { return numTablesPerQuery_; }
 
   void incrNumTablesPerSelect() { numTablesPerSelect_++; }
   void incrNumTablesPerQuery() { numTablesPerQuery_++; }
@@ -1917,7 +1917,7 @@ class BindWA : public NABasicObject {
   NABoolean dupWarning_;
 
   // Set these flags recursivly in every RelExpr node being bound.
-  Int32 inliningInfoFlagsToSetRecursivly_;
+  int inliningInfoFlagsToSetRecursivly_;
 
   // denotes that this is a SELECT ... INSERT/DELETE/UPDATE ...
   // type statement, but NOT the Pub/Sub embedded update/delete statement.
@@ -1942,7 +1942,7 @@ class BindWA : public NABasicObject {
 
   // a invocation number that uniquely identifies a routine invocation
   // in the SqlText.
-  Int32 routineInvocationNum_;
+  int routineInvocationNum_;
   // --------------------------------------------------------------------
   // Rowset flags
   // --------------------------------------------------------------------
@@ -1979,8 +1979,8 @@ class BindWA : public NABasicObject {
 
   NAString ISPExecLocation_;
 
-  Int32 numTablesPerSelect_;
-  Int32 numTablesPerQuery_;
+  int numTablesPerSelect_;
+  int numTablesPerQuery_;
 
   ValueIdSet connectByVids_;
   ValueIdSet startWithDynParamVids_;

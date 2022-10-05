@@ -227,8 +227,8 @@ void CmpSeabaseDDL::createSeabaseLibrary(StmtDDLCreateLibrary *createLibraryNode
 
   // Check to see if user has the authority to create the library
   ExeCliInterface cliInterface(STMTHEAP, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
-  Int32 objectOwnerID = SUPER_USER;
-  Int32 schemaOwnerID = SUPER_USER;
+  int objectOwnerID = SUPER_USER;
+  int schemaOwnerID = SUPER_USER;
   long schemaUID = 0;
   ComSchemaClass schemaClass;
 
@@ -331,7 +331,7 @@ void CmpSeabaseDDL::createSeabaseLibrary(StmtDDLCreateLibrary *createLibraryNode
   return;
 }
 short CmpSeabaseDDL::isLibBlobStoreValid(ExeCliInterface *cliInterface) {
-  Int32 cliRC = 0;
+  int cliRC = 0;
   char buf[4000];
   char *query = new (STMTHEAP) char[1000];
   str_sprintf(query, "select [first 1] library_storage from %s.\"%s\".%s ", getSystemCatalog(), SEABASE_MD_SCHEMA,
@@ -396,8 +396,8 @@ void CmpSeabaseDDL::createSeabaseLibrary2(StmtDDLCreateLibrary *createLibraryNod
 
   // Check to see if user has the authority to create the library
   ExeCliInterface cliInterface(STMTHEAP, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
-  Int32 objectOwnerID = SUPER_USER;
-  Int32 schemaOwnerID = SUPER_USER;
+  int objectOwnerID = SUPER_USER;
+  int schemaOwnerID = SUPER_USER;
   long schemaUID = 0;
   ComSchemaClass schemaClass;
 
@@ -556,8 +556,8 @@ void CmpSeabaseDDL::dropSeabaseLibrary(StmtDDLDropLibrary *dropLibraryNode, NASt
     return;
   }
 
-  Int32 objectOwnerID = 0;
-  Int32 schemaOwnerID = 0;
+  int objectOwnerID = 0;
+  int schemaOwnerID = 0;
   long objectFlags = 0;
   long objDataUID = 0;
   long objUID = getObjectInfo(&cliInterface, catalogNamePart.data(), schemaNamePart.data(), objectNamePart.data(),
@@ -673,8 +673,8 @@ void CmpSeabaseDDL::alterSeabaseLibrary2(StmtDDLAlterLibrary *alterLibraryNode, 
     return;
   }
 
-  Int32 objectOwnerID = 0;
-  Int32 schemaOwnerID = 0;
+  int objectOwnerID = 0;
+  int schemaOwnerID = 0;
   long objectFlags = 0;
   long objDataUID = 0;
   long libUID = getObjectInfo(&cliInterface, catalogNamePart.data(), schemaNamePart.data(), libNamePart.data(),
@@ -808,8 +808,8 @@ void CmpSeabaseDDL::alterSeabaseLibrary(StmtDDLAlterLibrary *alterLibraryNode, N
     return;
   }
 
-  Int32 objectOwnerID = 0;
-  Int32 schemaOwnerID = 0;
+  int objectOwnerID = 0;
+  int schemaOwnerID = 0;
   long objectFlags = 0;
   long objDataUID = 0;
   long libUID = getObjectInfo(&cliInterface, catalogNamePart.data(), schemaNamePart.data(), libNamePart.data(),
@@ -1007,8 +1007,8 @@ void CmpSeabaseDDL::createSeabasePackage(ExeCliInterface *cliInterface, StmtDDLC
   int subID = createPackageNode->isCreatePackageBody() ? 2 : 1;
 
   // Check to see if user has the authority to create the package
-  Int32 objectOwnerID = SUPER_USER;
-  Int32 schemaOwnerID = SUPER_USER;
+  int objectOwnerID = SUPER_USER;
+  int schemaOwnerID = SUPER_USER;
   ComSchemaClass schemaClass;
 
   retcode = verifyDDLCreateOperationAuthorized(cliInterface, SQLOperation::CREATE_ROUTINE, catalogNamePart,
@@ -1222,8 +1222,8 @@ void CmpSeabaseDDL::dropSeabasePackage(ExeCliInterface *cliInterface, StmtDDLDro
   }
 
   long objUID = 0;
-  Int32 objectOwnerID = 0;
-  Int32 schemaOwnerID = 0;
+  int objectOwnerID = 0;
+  int schemaOwnerID = 0;
   long objectFlags = 0;
   long objDataUID = 0;
   objUID = getObjectInfo(cliInterface, catalogNamePart.data(), schemaNamePart.data(), objectNamePart.data(),
@@ -1306,8 +1306,8 @@ void CmpSeabaseDDL::createSeabaseRoutine(StmtDDLCreateRoutine *createRoutineNode
 
   // Check to see if user has the authority to create the routine
   ExeCliInterface cliInterface(STMTHEAP, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
-  Int32 objectOwnerID = SUPER_USER;
-  Int32 schemaOwnerID = SUPER_USER;
+  int objectOwnerID = SUPER_USER;
+  int schemaOwnerID = SUPER_USER;
   long schemaUID = 0;
   ComSchemaClass schemaClass;
   NAString libSuffix, libPrefix;
@@ -1369,7 +1369,7 @@ void CmpSeabaseDDL::createSeabaseRoutine(StmtDDLCreateRoutine *createRoutineNode
   long libUID = 0;
   long objDataUID = 0;
 
-  Int32 dummy32;
+  int dummy32;
   long dummy64;
 
   libUID = getObjectInfo(&cliInterface, libCatNamePart, libSchNamePart, libObjNamePart, COM_LIBRARY_OBJECT, dummy32,
@@ -1574,7 +1574,7 @@ void CmpSeabaseDDL::createSeabaseRoutine(StmtDDLCreateRoutine *createRoutineNode
     // Gather the param attributes for LM from the paramDefArray previously
     // populated and from the routineparamList generated from paramDefArray.
 
-    for (CollIndex i = 0; (Int32)i < numParams; i++) {
+    for (CollIndex i = 0; (int)i < numParams; i++) {
       paramType[i] = (ComFSDataType)routineParamArray[i]->getParamDataType()->getFSDatatype();
       subType[i] = 0;  // default
       // Set subType for special cases detected by LM
@@ -1686,7 +1686,7 @@ void CmpSeabaseDDL::createSeabaseRoutine(StmtDDLCreateRoutine *createRoutineNode
 
   else if (style == COM_STYLE_JAVA_OBJ || style == COM_STYLE_CPP_OBJ) {
     // validate existence of the C++ or Java class in the library
-    Int32 routineHandle = NullCliRoutineHandle;
+    int routineHandle = NullCliRoutineHandle;
     NAString externalPrefix(externalPath);
     NAString externalNameForValidation(externalName);
     NAString containerName;
@@ -1769,7 +1769,7 @@ void CmpSeabaseDDL::createSeabaseRoutine(StmtDDLCreateRoutine *createRoutineNode
 
     // use a CLI call to validate that the library contains the routine
     if (cliInterface.getRoutine(NULL,  // No InvocationInfo specified in this step
-                                0, NULL, 0, (Int32)language, (Int32)style, externalNameForValidation.data(),
+                                0, NULL, 0, (int)language, (int)style, externalNameForValidation.data(),
                                 containerName.data(), externalPrefix.data(), extLibraryName.data(), &routineHandle,
                                 CmpCommon::diags()) != LME_ROUTINE_VALIDATED) {
       if (routineHandle != NullCliRoutineHandle) cliInterface.putRoutine(routineHandle, CmpCommon::diags());
@@ -2095,8 +2095,8 @@ void CmpSeabaseDDL::dropSeabaseRoutine(StmtDDLDropRoutine *dropRoutineNode, NASt
 
   // get objectOwner
   long objUID = 0;
-  Int32 objectOwnerID = 0;
-  Int32 schemaOwnerID = 0;
+  int objectOwnerID = 0;
+  int schemaOwnerID = 0;
   long objectFlags = 0;
   long objDataUID = 0;
 
@@ -2198,7 +2198,7 @@ void CmpSeabaseDDL::dropSeabaseRoutine(StmtDDLDropRoutine *dropRoutineNode, NASt
 }
 
 short CmpSeabaseDDL::validateRoutine(ExeCliInterface *cliInterface, const char *className, const char *methodName,
-                                     const char *externalPath, char *signature, Int32 numSqlParam, Int32 maxResultSets,
+                                     const char *externalPath, char *signature, int numSqlParam, int maxResultSets,
                                      const char *optionalSig) {
   if (str_cmp_ne(className, SEABASE_SPSQL_CONTAINER) == 0 && str_cmp_ne(methodName, SEABASE_SPSQL_CALL) == 0) {
     // This is a SPSQL in disguise, skip validation.
@@ -2234,13 +2234,13 @@ short CmpSeabaseDDL::validateRoutine(ExeCliInterface *cliInterface, const char *
 
   char *ptr = NULL;
   int len = 0;
-  Int32 errCode = 0;
+  int errCode = 0;
 
   cliInterface->getPtrAndLen(1, ptr, len);
   str_cpy_all(signature, ptr, len);
   signature[len] = '\0';
   cliInterface->getPtrAndLen(2, ptr, len);
-  errCode = *(Int32 *)ptr;
+  errCode = *(int *)ptr;
 
   // Check for errors returned from VALIDATEROUTINE
   switch (errCode) {
@@ -2348,18 +2348,18 @@ short CmpSeabaseDDL::createLibmgrProcs(ExeCliInterface *cliInterface) {
   }
 
   // Create the UDRs if they don't already exist
-  for (Int32 i = 0; i < sizeof(allLibmgrRoutineInfo) / sizeof(LibmgrRoutineInfo); i++) {
+  for (int i = 0; i < sizeof(allLibmgrRoutineInfo) / sizeof(LibmgrRoutineInfo); i++) {
     // Get the next routine details
     const LibmgrRoutineInfo &prd = allLibmgrRoutineInfo[i];
 
     const QString *qs = NULL;
-    Int32 sizeOfqs = 0;
+    int sizeOfqs = 0;
     const char *libName = NULL;
 
     qs = prd.newDDL;
     sizeOfqs = prd.sizeOfnewDDL;
 
-    Int32 qryArraySize = sizeOfqs / sizeof(QString);
+    int qryArraySize = sizeOfqs / sizeof(QString);
     char *gluedQuery;
     int gluedQuerySize;
     glueQueryFragments(qryArraySize, qs, gluedQuery, gluedQuerySize);
@@ -2411,7 +2411,7 @@ short CmpSeabaseDDL::grantLibmgrPrivs(ExeCliInterface *cliInterface) {
   int cliRC = 0;
   char queryBuf[strlen(getSystemCatalog()) + sizeof(SEABASE_LIBMGR_SCHEMA) + sizeof(SEABASE_LIBMGR_LIBRARY) +
                 MAXOF(sizeof(DB__LIBMGRROLE), sizeof(PUBLIC_AUTH_NAME)) + 200];
-  for (Int32 i = 0; i < sizeof(allLibmgrRoutineInfo) / sizeof(LibmgrRoutineInfo); i++) {
+  for (int i = 0; i < sizeof(allLibmgrRoutineInfo) / sizeof(LibmgrRoutineInfo); i++) {
     // Get the next procedure routine details
     const LibmgrRoutineInfo &prd = allLibmgrRoutineInfo[i];
     const char *grantee = NULL;
@@ -2474,7 +2474,7 @@ short CmpSeabaseDDL::upgradeSeabaseLibmgr(ExeCliInterface *cliInterface) {
   char queryBuf[1000];
 
   // trafodion-sql_currversion.jar
-  Int32 stmtSize = snprintf(queryBuf, sizeof(queryBuf),
+  int stmtSize = snprintf(queryBuf, sizeof(queryBuf),
                             "update %s.\"%s\".%s  "
                             "set library_filename = '%s/trafodion-sql-currversion.jar' "
                             "where library_uid = "
@@ -2591,7 +2591,7 @@ short CmpSeabaseDDL::upgradeSeabaseLibmgr2(ExeCliInterface *cliInterface) {
   char queryBuf[1000];
 
   // trafodion-sql_currversion.jar
-  Int32 stmtSize = snprintf(queryBuf, sizeof(queryBuf),
+  int stmtSize = snprintf(queryBuf, sizeof(queryBuf),
                             "update %s.\"%s\".%s  "
                             "set library_filename = 'trafodion-sql-currversion.jar', "
                             "library_storage =   NULL "
@@ -2712,7 +2712,7 @@ short CmpSeabaseDDL::dropSeabaseLibmgr(ExeCliInterface *cliInterface) {
 }
 
 short CmpSeabaseDDL::createSeabaseLibmgrCPPLib(ExeCliInterface *cliInterface) {
-  Int32 cliRC = 0;
+  int cliRC = 0;
   NAString dllLocation(getenv("TRAF_HOME"));
   dllLocation += "/export/lib64";
   if (strcmp(getenv("SQ_MBTYPE"), "64d") == 0) dllLocation += "d";
@@ -2747,8 +2747,8 @@ void CmpSeabaseDDL::createSeabaseTriggers(ExeCliInterface *cliInterface, StmtDDL
   const NAString triggerNamePart = triggername.getObjectNamePartAsAnsiString(TRUE);
   const NAString tableNamePart = tableName.getObjectNamePartAsAnsiString(TRUE);
 
-  Int32 objectOwnerID = SUPER_USER;
-  Int32 schemaOwnerID = SUPER_USER;
+  int objectOwnerID = SUPER_USER;
+  int schemaOwnerID = SUPER_USER;
   ComSchemaClass schemaClass;
   retcode = verifyDDLCreateOperationAuthorized(cliInterface, SQLOperation::CREATE_TRIGGER, catalogNamePart,
                                                schemaNamePart, schemaClass, objectOwnerID, schemaOwnerID);
@@ -3113,8 +3113,8 @@ void CmpSeabaseDDL::dropSeabaseTriggers(ExeCliInterface *cliInterface, StmtDDLDr
   }
 
   long triggerUID = 0;
-  Int32 objectOwnerID = 0;
-  Int32 schemaOwnerID = 0;
+  int objectOwnerID = 0;
+  int schemaOwnerID = 0;
   long objectFlags = 0;
   long objDataUID = 0;
 
@@ -3434,22 +3434,22 @@ short CmpSeabaseDDL::createLibraries(ExeCliInterface *cliInterface) {
 
   NABoolean xnWasStartedHere = FALSE;
 
-  for (Int32 i = 0; i < sizeof(allLibrariesUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
+  for (int i = 0; i < sizeof(allLibrariesUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
     const MDUpgradeInfo &lti = allLibrariesUpgradeInfo[i];
 
     if (!lti.newName) continue;
 
-    for (Int32 j = 0; j < NUM_MAX_PARAMS; j++) {
+    for (int j = 0; j < NUM_MAX_PARAMS; j++) {
       param_[j] = NULL;
     }
 
     const QString *qs = NULL;
-    Int32 sizeOfqs = 0;
+    int sizeOfqs = 0;
 
     qs = lti.newDDL;
     sizeOfqs = lti.sizeOfnewDDL;
 
-    Int32 qryArraySize = sizeOfqs / sizeof(QString);
+    int qryArraySize = sizeOfqs / sizeof(QString);
     char *gluedQuery;
     int gluedQuerySize;
     glueQueryFragments(qryArraySize, qs, gluedQuery, gluedQuerySize);
@@ -3484,7 +3484,7 @@ label_error:
 
 short CmpSeabaseDDL::checkForOldLibraries(ExeCliInterface *cliInterface) {
   int cliRC = 0;
-  Int32 bufSize = (strlen(TRAFODION_SYSCAT_LIT) * 2) + strlen(SEABASE_MD_SCHEMA) * 2 + strlen(SEABASE_OBJECTS) +
+  int bufSize = (strlen(TRAFODION_SYSCAT_LIT) * 2) + strlen(SEABASE_MD_SCHEMA) * 2 + strlen(SEABASE_OBJECTS) +
                   strlen(SEABASE_LIBRARIES_OLD) + (3 * 60);
   char queryBuf[bufSize];
 
@@ -3516,7 +3516,7 @@ short CmpSeabaseDDL::dropLibraries(ExeCliInterface *cliInterface, NABoolean oldL
   NABoolean xnWasStartedHere = FALSE;
   char queryBuf[1000];
 
-  for (Int32 i = 0; i < sizeof(allLibrariesUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
+  for (int i = 0; i < sizeof(allLibrariesUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
     const MDUpgradeInfo &lti = allLibrariesUpgradeInfo[i];
 
     // If we are dropping the new repository as part of a recovery action,
@@ -3561,7 +3561,7 @@ short CmpSeabaseMDupgrade::dropLibrariesTables(ExpHbaseInterface *ehi, NABoolean
   int retcode = 0;
   int errcode = 0;
 
-  for (Int32 i = 0; i < sizeof(allLibrariesUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
+  for (int i = 0; i < sizeof(allLibrariesUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
     const MDUpgradeInfo &lti = allLibrariesUpgradeInfo[i];
 
     if ((NOT oldLibraries) && (!lti.newName)) continue;
@@ -3606,7 +3606,7 @@ short CmpSeabaseDDL::alterRenameLibraries(ExeCliInterface *cliInterface, NABoole
     return -1;
   }
 
-  for (Int32 i = 0; i < sizeof(allLibrariesUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
+  for (int i = 0; i < sizeof(allLibrariesUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
     const MDUpgradeInfo &lti = allLibrariesUpgradeInfo[i];
 
     if ((!lti.newName) || (!lti.oldName) || (NOT lti.upgradeNeeded)) continue;
@@ -3635,7 +3635,7 @@ short CmpSeabaseDDL::copyOldLibrariesToNew(ExeCliInterface *cliInterface) {
   NAString failedLibraries;
 
   char queryBuf[10000];
-  for (Int32 i = 0; i < sizeof(allLibrariesUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
+  for (int i = 0; i < sizeof(allLibrariesUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
     const MDUpgradeInfo lti = allLibrariesUpgradeInfo[i];
 
     if ((!lti.newName) || (!lti.oldName) || (NOT lti.upgradeNeeded)) continue;

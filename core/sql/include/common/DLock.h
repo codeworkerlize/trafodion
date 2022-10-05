@@ -160,10 +160,10 @@ class DistributedLockObserver : public LockController {
   bool listNodes();
 
   // watch the lock at interval seconds
-  static void watchDLocks(const char *lockName, Int32 interval = 1);
+  static void watchDLocks(const char *lockName, int interval = 1);
 
   // list the zk nodes for the lock at interval seconds
-  static void listDLocks(const char *lockName, Int32 interval = 1);
+  static void listDLocks(const char *lockName, int interval = 1);
 
  protected:
   NAString lockKey_;

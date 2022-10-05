@@ -72,7 +72,7 @@ ComTdbSendTop::ComTdbSendTop(ExFragId childFragId, ex_expr *moveInputValues, ex_
   smTag_ = 0;
 }
 
-Int32 ComTdbSendTop::orderedQueueProtocol() const {
+int ComTdbSendTop::orderedQueueProtocol() const {
   return TRUE;
 }  // these lines won't be covered, obsolete but not in the list yet
 
@@ -96,28 +96,28 @@ int ComTdbSendTop::minReceiveBufferSize(int upRecLen, int numRecs) {
 
 void ComTdbSendTop::display() const {}  // these 3 lines won't be covered, used by Windows GUI only
 
-const ComTdb *ComTdbSendTop::getChild(Int32 /*pos*/) const {
+const ComTdb *ComTdbSendTop::getChild(int /*pos*/) const {
   return NULL;
 }  // these 4 lines won't be covered, used by Windows GUI only
 
-const ComTdb *ComTdbSendTop::getChildForGUI(Int32 /*pos*/, int base, void *frag_dir) const {
+const ComTdb *ComTdbSendTop::getChildForGUI(int /*pos*/, int base, void *frag_dir) const {
   ExFragDir *fragDir = (ExFragDir *)frag_dir;
 
   return (ComTdb *)((long)base + fragDir->getGlobalOffset(childFragId_) + fragDir->getTopNodeOffset(childFragId_));
 }
 
-Int32 ComTdbSendTop::numChildren() const { return 1; }
+int ComTdbSendTop::numChildren() const { return 1; }
 
-Int32 ComTdbSendTop::numExpressions() const { return 1; }
+int ComTdbSendTop::numExpressions() const { return 1; }
 
-ex_expr *ComTdbSendTop::getExpressionNode(Int32 pos) {
+ex_expr *ComTdbSendTop::getExpressionNode(int pos) {
   if (pos == 0)
     return moveInputValues_;
   else
     return NULL;
 }
 
-const char *ComTdbSendTop::getExpressionName(Int32 pos) const {
+const char *ComTdbSendTop::getExpressionName(int pos) const {
   if (pos == 0)
     return "moveInputValues_";
   else

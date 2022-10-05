@@ -137,7 +137,7 @@ CRUDupElimSQLComposer::CRUDupElimSQLComposer(CRUDupElimTask *pTask, CRUDupElimGl
 //
 //--------------------------------------------------------------------------//
 
-void CRUDupElimSQLComposer::ComposeQueryText(Int32 type) {
+void CRUDupElimSQLComposer::ComposeQueryText(int type) {
   BOOL isPhase0Query = (CRUDupElimConst::PHASE_0_QUERY == type) ? TRUE : FALSE;
 
   if (NULL == CRUGlobals::GetInstance()->GetOptions().FindDebugOption(CRUGlobals::DISPLAY_DE_SEL, "")) {
@@ -191,7 +191,7 @@ void CRUDupElimSQLComposer::ComposeQueryText(Int32 type) {
 //
 //--------------------------------------------------------------------------//
 
-void CRUDupElimSQLComposer::ComposeSingleRowResolvText(Int32 type) {
+void CRUDupElimSQLComposer::ComposeSingleRowResolvText(int type) {
   if (NULL == CRUGlobals::GetInstance()->GetOptions().FindDebugOption(CRUGlobals::DISPLAY_DE_SR, "")) {
     sql_ = "";
   } else {
@@ -227,7 +227,7 @@ void CRUDupElimSQLComposer::ComposeSingleRowResolvText(Int32 type) {
 //
 //--------------------------------------------------------------------------//
 
-void CRUDupElimSQLComposer::ComposeRangeResolvText(Int32 type) {
+void CRUDupElimSQLComposer::ComposeRangeResolvText(int type) {
   if (NULL == CRUGlobals::GetInstance()->GetOptions().FindDebugOption(CRUGlobals::DISPLAY_DE_RR, "")) {
     sql_ = "";
   } else {
@@ -267,7 +267,7 @@ void CRUDupElimSQLComposer::ComposeRangeResolvText(Int32 type) {
 //
 //--------------------------------------------------------------------------//
 
-void CRUDupElimSQLComposer::ComposeControlText(Int32 type) {
+void CRUDupElimSQLComposer::ComposeControlText(int type) {
   sql_ = "";
 
   switch (type) {
@@ -320,7 +320,7 @@ void CRUDupElimSQLComposer::ComposeControlText(Int32 type) {
 //--------------------------------------------------------------------------//
 
 void CRUDupElimSQLComposer::ComposeQControlColNames(CDSString &to) {
-  for (Int32 i = 0; i < nCtrlColumns_; i++) {
+  for (int i = 0; i < nCtrlColumns_; i++) {
     to += ComposeQuotedColName(iudLogCtlColDescVec[i].name_);
     to += ", ";
   }
@@ -791,7 +791,7 @@ void CRUDupElimSQLComposer::ComposeRngInsertText() {
 
 void CRUDupElimSQLComposer::ComposeRngInsertColNames() {
   sql_ += "\n(";
-  for (Int32 i = 0; i < CRUDupElimConst::NUM_RNG_LOG_CONTROL_COLS; i++) {
+  for (int i = 0; i < CRUDupElimConst::NUM_RNG_LOG_CONTROL_COLS; i++) {
     sql_ += ComposeQuotedColName(rngLogCtlColDescVec[i].name_);
     sql_ += ", ";
   }
@@ -851,7 +851,7 @@ void CRUDupElimSQLComposer::ComposeRngInsertParamStr() {
   CDSString rngBoundaryParamStr;
   ComposeRngBoundaryParamStr(rngBoundaryParamStr);
 
-  for (Int32 i = 0; i < CRUDupElimConst::NUM_RNG_LOG_CONTROL_COLS; i++) {
+  for (int i = 0; i < CRUDupElimConst::NUM_RNG_LOG_CONTROL_COLS; i++) {
     sql_ += ComposeCastExpr(rngLogCtlColDescVec[i].datatype_) + ", ";
   }
 
@@ -894,7 +894,7 @@ void CRUDupElimSQLComposer::ComposeRngDeleteText() {
   sql_ += "DELETE FROM " + rngLogName_ + "\nWHERE ";
 
   // @EPOCH = ? AND @RANGE_ID = ? AND
-  for (Int32 i = 0; i < 2; i++) {
+  for (int i = 0; i < 2; i++) {
     sql_ += ComposeQuotedColName(rngLogCtlColDescVec[i].name_) + "=";
     sql_ += ComposeCastExpr(rngLogCtlColDescVec[i].datatype_);
     sql_ += "\nAND ";

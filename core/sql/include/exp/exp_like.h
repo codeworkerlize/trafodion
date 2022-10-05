@@ -172,7 +172,7 @@ class LikePatternStringIterator {
   // Advance to the next character in the pattern.
   //
 
-  void operator+=(Int32 numBytesToAdd) { currentChar_ += numBytesToAdd; }
+  void operator+=(int numBytesToAdd) { currentChar_ += numBytesToAdd; }
 
  private:
   const LikePatternString &pattern_;
@@ -400,7 +400,7 @@ class LikePatternHeader : public LikePatternClause {
   //
   // Return TRUE if the header matches the beginning of the given text.
   //
-  NABoolean matches(const char *text, Int32 &headerMatchLen, CharInfo::CharSet cs = CharInfo::ISO88591);
+  NABoolean matches(const char *text, int &headerMatchLen, CharInfo::CharSet cs = CharInfo::ISO88591);
 
   NABoolean matchesR(const char *text, const char *&endText, CharInfo::CharSet cs = CharInfo::ISO88591);
 

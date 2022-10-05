@@ -46,7 +46,7 @@
 // Static data
 // ***********************************************************************
 
-static const Int32 IntervalFieldStringSize = 3;  // punc plus two digits
+static const int IntervalFieldStringSize = 3;  // punc plus two digits
 static const UInt32 maxITVal[] = {0, 11, 0, 23, 59, 59};
 static const char precedingITPunc[] = "^-^ ::";
 // ^ is placeholder, as no punc precedes YEAR
@@ -450,11 +450,11 @@ void IntervalType::getRepresentableValue(char sign, void *bufPtr, int *bufLen, N
     *v++ = sign;
     digit = '9';
   }
-  Int32 i = getLeadingPrecision();
+  int i = getLeadingPrecision();
   for (; i > 0; i--) *v++ = digit;
   if (getStartField() != REC_DATE_FRACTION_MP) {
-    for (Int32 field = getStartField() + 1; field <= getEndField(); field++) {
-      Int32 index = field - REC_DATE_YEAR;  // zero-based array index!
+    for (int field = getStartField() + 1; field <= getEndField(); field++) {
+      int index = field - REC_DATE_YEAR;  // zero-based array index!
       sprintf(v, "%c%02u", precedingITPunc[index], digit == '0' ? 0 : maxITVal[index]);
       v += IntervalFieldStringSize;
     }
@@ -649,8 +649,8 @@ IntervalValue::IntervalValue(const char *strValue, rec_datetime_field startField
   // Scan the remaining fields and the separators preceding them.
   //
   int fieldValue;
-  for (Int32 field = startField + 1; field <= endField; field++) {
-    Int32 index = field - REC_DATE_YEAR;  // zero-based array index!
+  for (int field = startField + 1; field <= endField; field++) {
+    int index = field - REC_DATE_YEAR;  // zero-based array index!
     //
     // Scan the punctuation preceding this field.
     // We allow colon as well as space to separate days and hours.
@@ -810,8 +810,8 @@ NAString IntervalValue::getValueAsString(const IntervalType &dt) const {
     for (i = dt.getFractionPrecision(); i; i--) factor *= 10;
     valueToField(value, result, buffer, dt.getFractionPrecision(), factor, '.');
   }
-  for (Int32 field = dt.getEndField(); field > dt.getStartField(); field--) {
-    Int32 index = field - REC_DATE_YEAR;  // zero-based array index!
+  for (int field = dt.getEndField(); field > dt.getStartField(); field--) {
+    int index = field - REC_DATE_YEAR;  // zero-based array index!
     valueToField(value, result, buffer, IntervalFieldStringSize - 1, maxITVal[index] + 1, precedingITPunc[index]);
   }
   char leadingField[SQLInterval::MAX_LEADING_PRECISION + 1];
@@ -850,9 +850,9 @@ double SQLInterval::encode(void *bufPtr) const {
       val = temp;
       break;
     }
-    case sizeof(Int32): {
-      Int32 temp;
-      memcpy((char *)&temp, valPtr, sizeof(Int32));
+    case sizeof(int): {
+      int temp;
+      memcpy((char *)&temp, valPtr, sizeof(int));
       val = temp;
       break;
     }

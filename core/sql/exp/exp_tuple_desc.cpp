@@ -108,7 +108,7 @@ ExpTupleDesc::ExpTupleDesc() : NAVersionedObject(-1) {}
 ExpTupleDesc::~ExpTupleDesc() {
   // if ((tupleDescFormat_ == LONG_FORMAT) && (attrs_))
   //   {
-  //     for (Int32 i=0; i < (Int32) numAttrs_; i++)
+  //     for (int i=0; i < (int) numAttrs_; i++)
   //       {
   //         delete attrs_[i];
   //       }
@@ -139,7 +139,7 @@ static Int16 orderFixedFieldsByAlignment(Attributes **attrs, NAList<UInt32> *fix
 
   UInt32 fieldIdx = 0;
   UInt32 numFixed = fixedFields->entries();
-  Int32 alignSz;
+  int alignSz;
   UInt32 i;
 
   for (i = 0; i < numFixed; i++) {
@@ -333,7 +333,7 @@ Int16 ExpTupleDesc::computeOffsets(UInt32 num_attrs,       /* IN  */
           }
 
           if (attrs[i]->getNullFlag()) {
-            attrs[i]->setNullIndOffset((Int32)offset);
+            attrs[i]->setNullIndOffset((int)offset);
             offset += attrs[i]->getNullIndicatorLength();
           }
 
@@ -352,7 +352,7 @@ Int16 ExpTupleDesc::computeOffsets(UInt32 num_attrs,       /* IN  */
               // the number of entries, plus the space used by each array
               // entry times the number of elements
               attrs[i]->setOffset(attrStartOffset);
-              offset = (attrStartOffset + ((offset - attrStartOffset) * attrs[i]->getRowsetSize()) + sizeof(Int32));
+              offset = (attrStartOffset + ((offset - attrStartOffset) * attrs[i]->getRowsetSize()) + sizeof(int));
             }
           }
 
@@ -393,7 +393,7 @@ Int16 ExpTupleDesc::computeOffsets(UInt32 num_attrs,       /* IN  */
             // number of entries, plus the space used by each array entry
             // times the number of elements
             attrs[i]->setOffset(attrStartOffset);
-            offset = (attrStartOffset + ((offset - attrStartOffset) * attrs[i]->getRowsetSize()) + sizeof(Int32));
+            offset = (attrStartOffset + ((offset - attrStartOffset) * attrs[i]->getRowsetSize()) + sizeof(int));
           }
         }
       }
@@ -436,7 +436,7 @@ Int16 ExpTupleDesc::computeOffsets(UInt32 num_attrs,       /* IN  */
             attrs[i]->getVCIndicatorLength() ? attrs[i]->getVCIndicatorLength() : ExpTupleDesc::VC_ACTUAL_LENGTH);
 
         if (attrs[i]->getNullFlag()) {
-          attrs[i]->setNullIndOffset((Int32)nullIndicatorOffset);
+          attrs[i]->setNullIndOffset((int)nullIndicatorOffset);
         }
 
         // All datatypes, if not aligned and if we don't move
@@ -491,20 +491,20 @@ Int16 ExpTupleDesc::computeOffsets(UInt32 num_attrs,       /* IN  */
             // Note vcIndicatorLength_ is set to sizeof(Int16) for rowset
             // SQLVarChars.
             if (attrs[i]->getNullFlag()) {
-              attrs[i]->setNullIndOffset(attrStartOffset + sizeof(Int32));
+              attrs[i]->setNullIndOffset(attrStartOffset + sizeof(int));
               elementDataLen += attrs[i]->getNullIndicatorLength();
               if (attrs[i]->getVCIndicatorLength() > 0) {
-                attrs[i]->setVCLenIndOffset(attrStartOffset + attrs[i]->getNullIndicatorLength() + sizeof(Int32));
+                attrs[i]->setVCLenIndOffset(attrStartOffset + attrs[i]->getNullIndicatorLength() + sizeof(int));
                 elementDataLen += attrs[i]->getVCIndicatorLength();
               }
             } else {
               if (attrs[i]->getVCIndicatorLength() > 0) {
-                attrs[i]->setVCLenIndOffset(attrStartOffset + sizeof(Int32));
+                attrs[i]->setVCLenIndOffset(attrStartOffset + sizeof(int));
                 elementDataLen += attrs[i]->getVCIndicatorLength();
               }
             }
             elementDataLen += attrs[i]->getLength();
-            offset = (attrStartOffset + (elementDataLen * attrs[i]->getRowsetSize()) + sizeof(Int32));
+            offset = (attrStartOffset + (elementDataLen * attrs[i]->getRowsetSize()) + sizeof(int));
           }
         }
       }
@@ -650,7 +650,7 @@ Int16 ExpTupleDesc::computeOffsets(UInt32 num_attrs,       /* IN  */
       UInt32 bitmapOffset = 0;  // bitmap offset value
       UInt32 hdrSz;             // size in bytes of header
       UInt32 fixedOffset;       // first fixed offset value
-      Int32 ffAlignSize = (fixedFields->entries() ? attrs[fixedFields->at(0)]->getDataAlignmentSize() : -1);
+      int ffAlignSize = (fixedFields->entries() ? attrs[fixedFields->at(0)]->getDataAlignmentSize() : -1);
 
       fixedOffset =
           computeFirstFixedOffset(ffAlignSize, startOffset, voaIdxOff, tf, nullableCnt, hdrInfo, hdrSz, bitmapOffset);
@@ -739,7 +739,7 @@ Int16 ExpTupleDesc::computeOffsets(UInt32 num_attrs,       /* IN  */
 
 #if defined(LOG_OFFSETS)
       fprintf(stderr, "RowLen: %d \n", offset);
-      for (Int32 k = 0; k < (Int32)num_attrs; k++) {
+      for (int k = 0; k < (int)num_attrs; k++) {
         Attributes *attr = attrs[k];
         fprintf(stderr,
                 "  Attr(%d): dataType: %d nullable: %d variable: %d "
@@ -788,7 +788,7 @@ Long ExpTupleDesc::pack(void *space) {
   return NAVersionedObject::pack(space);
 }
 
-Int32 ExpTupleDesc::unpack(void *base, void *reallocator) {
+int ExpTupleDesc::unpack(void *base, void *reallocator) {
   if (packed()) {
     if (attrs_)
       if (attrs_.unpack(base, numAttrs_, reallocator)) return -1;
@@ -830,7 +830,7 @@ void ExpTupleDesc::display(const char *title) {
   UInt32 attrs = numAttrs();
   cout << "this=" << this << ", num of attrs=" << attrs << endl;
 
-  for (Int32 j = 0; j < attrs; j++) {
+  for (int j = 0; j < attrs; j++) {
     Attributes *attr = getAttr(j);
     Int16 dt = attr->getDatatype();
     UInt32 len = attr->getLength();

@@ -140,7 +140,7 @@ class MvRefreshBuilder : public NABasicObject {
 
   // Prepare a single join product according to the product matrix row.
   RelRoot *prepareProductFromMatrix(const MultiDeltaRefreshMatrix &productMatrix, RelRoot *rawJoinProduct,
-                                    Int32 rowNumber, NABoolean isLast);
+                                    int rowNumber, NABoolean isLast);
 
   // Any reason not to implement multi-delta optimization?
   // (implemented differently by MAV and MJV)
@@ -151,7 +151,7 @@ class MvRefreshBuilder : public NABasicObject {
 
   virtual RelExpr *buildReadIudLogBlock();
 
-  virtual Int32 getNumOfScansInUnionBackbone() const;
+  virtual int getNumOfScansInUnionBackbone() const;
 
   void fixScanCardinality(RelExpr *node, double cardinalityFactor, Cardinality cardinality) const;
 
@@ -203,7 +203,7 @@ class MvRefreshBuilder : public NABasicObject {
 
   virtual RelExpr *buildUnionBakeboneToMergeEpochs(RelExpr *topNode) const;
 
-  virtual Int32 isGroupByAprefixOfTableCKeyColumns() const { return FALSE; }
+  virtual int isGroupByAprefixOfTableCKeyColumns() const { return FALSE; }
 
   virtual ItemExpr *buildAlternateCIorder(ItemExpr *ciColumns, const CorrName &tableNameCorr) const;
 
@@ -341,7 +341,7 @@ class MavBuilder : public MvRefreshBuilder {
 
   virtual NABoolean useUnionBakeboneToMergeEpochs() const;
 
-  virtual Int32 isGroupByAprefixOfTableCKeyColumns() const;
+  virtual int isGroupByAprefixOfTableCKeyColumns() const;
 
   // Accessors for static data members
   const char *getGopTableName() const { return gopTableName_; }
@@ -369,7 +369,7 @@ class MavBuilder : public MvRefreshBuilder {
 
   // This attribute has lazy evaluation, thus we use int instead of boolean.
   // -1 is unintialized, 0 is false,1 is true
-  Int32 isGroupByAprefixOfTableCKeyColumns_;
+  int isGroupByAprefixOfTableCKeyColumns_;
 
   // This is needed for accessing the NATable of the base tables for
   // MIN/MAX optimizations.
@@ -688,7 +688,7 @@ class MultiDeltaRefreshMatrixRow : public NABasicObject {
 
  public:
   // Ctor for creating an all-but-last SCAN_TABLE row.
-  MultiDeltaRefreshMatrixRow(Int32 length, Int32 maxLength, CollHeap *heap);
+  MultiDeltaRefreshMatrixRow(int length, int maxLength, CollHeap *heap);
 
   // Copy Ctor.
   MultiDeltaRefreshMatrixRow(const MultiDeltaRefreshMatrixRow &other);
@@ -714,8 +714,8 @@ class MultiDeltaRefreshMatrixRow : public NABasicObject {
 
  private:
   rowSign sign_;                    // The sign of this matrix row.
-  Int32 currentLength_;             // How many tables so far.
-  Int32 maxLength_;                 // The array size.
+  int currentLength_;             // How many tables so far.
+  int maxLength_;                 // The array size.
   ARRAY(scanType) tableScanTypes_;  // The matrix row itself.
   CollHeap *heap_;                  // Used by the copy Ctor.
 };                                  // class MultiDeltaRefreshMatrixRow
@@ -723,24 +723,24 @@ class MultiDeltaRefreshMatrixRow : public NABasicObject {
 //----------------------------------------------------------------------------
 class MultiDeltaRefreshMatrix : public NABasicObject {
  public:
-  MultiDeltaRefreshMatrix(Int32 maxNumOfRows, MVJoinGraph *joinGraph, CollHeap *heap);
+  MultiDeltaRefreshMatrix(int maxNumOfRows, MVJoinGraph *joinGraph, CollHeap *heap);
 
   virtual ~MultiDeltaRefreshMatrix();
 
   // Mutators
   void addTable(NABoolean readDelta);
-  void setThisPhase(Int32 phase);
+  void setThisPhase(int phase);
   void calculatePhases();
 
   // Accessors
-  const MultiDeltaRefreshMatrixRow *getRow(Int32 i) const;
+  const MultiDeltaRefreshMatrixRow *getRow(int i) const;
 
-  Int32 getNumOfRows() const { return numOfRows_; }
-  Int32 getRowLength() const { return currentRowLength_; }
+  int getNumOfRows() const { return numOfRows_; }
+  int getRowLength() const { return currentRowLength_; }
   NABoolean isLastPhase() const { return isLastPhase_; }
-  int getTableIndexFor(Int32 index) const { return tableIndexMapping_[index]; }
-  Int32 getFirstRowForThisPhase() const { return firstRowForThisPhase_; }
-  Int32 getNumOfRowsForThisPhase() const { return numOfRowsForThisPhase_; }
+  int getTableIndexFor(int index) const { return tableIndexMapping_[index]; }
+  int getFirstRowForThisPhase() const { return firstRowForThisPhase_; }
+  int getNumOfRowsForThisPhase() const { return numOfRowsForThisPhase_; }
   void setPhasesSupported(NABoolean supported) { isPhasesSupported_ = supported; }
   NABoolean isPhasesSupported() const { return isPhasesSupported_; }
   NABoolean isTooManyDeltasError() const { return TooManyDeltasError_; }
@@ -754,9 +754,9 @@ class MultiDeltaRefreshMatrix : public NABasicObject {
 #endif
 
  private:
-  Int32 numOfRows_;         // How many rows so far.
-  Int32 currentRowLength_;  // How many tables so far.
-  Int32 maxRowLength_;      // No. of tables in join product
+  int numOfRows_;         // How many rows so far.
+  int currentRowLength_;  // How many tables so far.
+  int maxRowLength_;      // No. of tables in join product
   CollHeap *heap_;          // The binder (statement) heap.
   // The actual matrix is an array of matrix rows.
   ARRAY(MultiDeltaRefreshMatrixRow *) theMatrix_;
@@ -766,24 +766,24 @@ class MultiDeltaRefreshMatrix : public NABasicObject {
 
   // data members for division to phases.
   NABoolean isPhasesSupported_;      // Do we need to support divition to phases?
-  Int32 thisPhase_;                  // PHASE parameter to refresh.
+  int thisPhase_;                  // PHASE parameter to refresh.
   NABoolean isLastPhase_;            // Are more phases needed?
-  Int32 firstRowForThisPhase_;       // Where does this phase start?
-  Int32 numOfRowsForThisPhase_;      // Ho many rows in this phase?
+  int firstRowForThisPhase_;       // Where does this phase start?
+  int numOfRowsForThisPhase_;      // Ho many rows in this phase?
   NABoolean TooManyDeltasError_;     // Abort rather than risk an optimizer crash.
   NABoolean isDuplicatesOptimized_;  // Do not build full matrix, since duplicates
                                      // are eliminated elsewhere.
 
   // Heuristic parameters taken from the Defaults table:
   // Maximum number of tables in a join for doing everything in one phase.
-  Int32 maxJoinSizeForSinglePhase_;  // Default is 3
+  int maxJoinSizeForSinglePhase_;  // Default is 3
   // Minimum join size for doing a single matrix row per phase.
-  Int32 minJoinSizeForSingleProductPerPhase_;  // Default is 8
+  int minJoinSizeForSingleProductPerPhase_;  // Default is 8
   // When the join size is between the two parameters above - how many
   // matrix rows to do per phase.
-  Int32 phaseSizeForMidRange_;  // Default is 6
+  int phaseSizeForMidRange_;  // Default is 6
   // If there are too many deltas, the optimizer may explode.
-  Int32 maxDeltasThreshold_;  // Default is 31 rows (Six deltas)
+  int maxDeltasThreshold_;  // Default is 31 rows (Six deltas)
 
 };  // class MultiDeltaRefreshMatrix
 

@@ -582,7 +582,7 @@ void CRUMultiTxnRefreshTaskExecutor::DoIRefreshUntilIDone(SQL_STATEMENT type) {
 // NO_MORE_TXN_CODE_ERROR otherwise it ReThrow the exception
 //--------------------------------------------------------------------------//
 void CRUMultiTxnRefreshTaskExecutor::VerifyMultiTxnError(CDSException &ex) {
-  for (Int32 i = 0; i < ex.GetNumErrors(); i++) {
+  for (int i = 0; i < ex.GetNumErrors(); i++) {
     if (ex.GetErrorCode(i) < 0 && ex.GetErrorCode(i) != NO_MORE_TXN_CODE_ERROR) {
       throw ex;
     }

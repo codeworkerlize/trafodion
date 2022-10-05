@@ -99,7 +99,7 @@ class REFRESH_LIB_CLASS CRUDupElimLogScanner : public CRUDupElimTaskExUnit {
   virtual void Reset();
 
   // Start executing the query and allocate the buffers
-  void StartScan(Int32 phase);
+  void StartScan(int phase);
   // Close the currently open statement
   void EndScan();
 
@@ -146,7 +146,7 @@ class REFRESH_LIB_CLASS CRUDupElimLogScanner : public CRUDupElimTaskExUnit {
   CDMResultSet *pResultSet_;
 
   // Which index do the CK columns start from in the tuple?
-  Int32 ckStartColumn_;
+  int ckStartColumn_;
 
   //-- The input buffer.
   //-- Implemented as an array of pointers to structs
@@ -155,7 +155,7 @@ class REFRESH_LIB_CLASS CRUDupElimLogScanner : public CRUDupElimTaskExUnit {
   enum { IB_SIZE = 2 };  // The buffer's size
 
   CRUIUDLogRecord *inputBuf_[IB_SIZE];
-  Int32 inputBufIndex_;
+  int inputBufIndex_;
 
   // ... and the pointers into it
   CRUIUDLogRecord *pCurrentRec_;

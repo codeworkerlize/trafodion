@@ -80,7 +80,7 @@ class StmtDDLCommentOn : public StmtDDLNode {
   // ---------------------------------------------------------------------
 
   // methods relating to parse tree
-  // virtual Int32 getArity() const;
+  // virtual int getArity() const;
   // virtual ExprNode * getChild(int index);
 
   // method for binding
@@ -99,7 +99,7 @@ class StmtDDLCommentOn : public StmtDDLNode {
   inline NABoolean getIsViewCol() { return isViewCol_; }
   inline int getColNum() { return colNum_; }
 
-  inline Int32 getVersion() { return 1; }
+  inline int getVersion() { return 1; }
 
   // for tracing
 

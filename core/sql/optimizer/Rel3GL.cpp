@@ -55,7 +55,7 @@ RelExpr *CompoundStmt::bindNode(BindWA *bindWA) {
   // Bind the children.
   // rowset's modifyTree and modifyTupleNode rely on finding HostArraysArea
   // in bindWA.
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     if (child(i)) {
       // If doing a non-first child and the operator is
       // NOT one in which values/names can flow from one scope
@@ -121,7 +121,7 @@ RelExpr *CompoundStmt::bindNode(BindWA *bindWA) {
   ColumnDescList rightColumnList = *(rightTable->getColumnList());
 
   while (ptrAssign) {
-    Int32 found = FALSE;
+    int found = FALSE;
     UInt32 j = 0;
     for (j = 0; j < leftColumnList.entries(); j++) {
       if (ptrAssign->currentValueId() == leftColumnList[j]->getValueId()) {
@@ -202,7 +202,7 @@ RelExpr *CompoundStmt::normalizeNode(NormWA &normWARef) {
                       selectionPred());
 
   // Normalize children
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     child(i) = child(i)->normalizeNode(normWARef);
   }
 
@@ -215,7 +215,7 @@ RelExpr *CompoundStmt::normalizeNode(NormWA &normWARef) {
 }  // CompoundStmt::normalizeNode
 
 void CompoundStmt::pullUpPreds() {
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     child(i)->pullUpPreds();
   }
 
@@ -223,7 +223,7 @@ void CompoundStmt::pullUpPreds() {
 
 void CompoundStmt::rewriteNode(NormWA &normWARef) {
   // Rewrite children
-  for (Int32 i = 0; i < getArity(); i++) {
+  for (int i = 0; i < getArity(); i++) {
     child(i)->rewriteNode(normWARef);
   }
 
@@ -249,8 +249,8 @@ void CompoundStmt::recomputeOuterReferences() {
   selectionPred().weedOutUnreferenced(outerRefs);
 
   // Add to outerRefs those that my children need.
-  Int32 arity = getArity();
-  for (Int32 i = 0; i < arity; i++) {
+  int arity = getArity();
+  for (int i = 0; i < arity; i++) {
     outerRefs += child(i).getPtr()->getGroupAttr()->getCharacteristicInputs();
   }
 
@@ -274,7 +274,7 @@ RelExpr *CompoundStmt::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
 
 }  // CompoundStmt::copyTopNode
 
-void CompoundStmt::enterVEGRegion(NormWA &normWARef, Int32 id, NABoolean create) {
+void CompoundStmt::enterVEGRegion(NormWA &normWARef, int id, NABoolean create) {
   if (child(id)->getOperatorType() != REL_COMPOUND_STMT) {
     if (create)
       normWARef.allocateAndSetVEGRegion(IMPORT_AND_EXPORT, this, id);
@@ -284,7 +284,7 @@ void CompoundStmt::enterVEGRegion(NormWA &normWARef, Int32 id, NABoolean create)
 
 }  // CompoundStmt::enterVEGRegion
 
-void CompoundStmt::leaveVEGRegion(NormWA &normWARef, Int32 id) {
+void CompoundStmt::leaveVEGRegion(NormWA &normWARef, int id) {
   if (child(id)->getOperatorType() != REL_COMPOUND_STMT) normWARef.restoreOriginalVEGRegion();
 
 }  // CompoundStmt::leaveVEGRegion
