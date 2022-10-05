@@ -11,6 +11,7 @@
 #include <string>
 
 #include "common/ComASSERT.h"
+#include "common/NAString.h"
 #include "common/Platform.h"
 #include "common/str.h"
 #include "export/ComDiags.h"
@@ -18,6 +19,7 @@
 #include "sqlci/SqlciError.h"
 #include "sqlci/SqlciParser.h"
 #include "sqlmsg/ParserMsg.h"
+
 extern ComDiagsArea sqlci_DA;
 
 InputStmt::InputStmt(SqlciEnv *the_sqlci_env) {

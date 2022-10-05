@@ -15,7 +15,7 @@
 ******************************************************************************
 */
 #include "common/ComOptIncludes.h"
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 #include "optimizer/RelGrby.h"
 #include "generator/Generator.h"
 #include "GenExpGenerator.h"

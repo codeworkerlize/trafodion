@@ -3,69 +3,66 @@
 #define SQLPARSERGLOBALS_FLAGS  // must precede all #include's
 #define SQLPARSERGLOBALS_NADEFAULTS
 
-#include "common/Platform.h"
-
 #include <ctype.h>
-#include <iostream>
 #include <string.h>
 #include <sys/types.h>
 #include <time.h>
 
+#include <iostream>
+
+#include "common/Platform.h"
+
 #ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
-#include "parser/SqlParserGlobals.h"  // must be the last #include.
-
-#include "common/CmpCommon.h"
 #include "arkcmp/CmpContext.h"
-#include "sqlcomp/CmpMain.h"
 #include "arkcmp/CmpErrors.h"
-#include "export/ComDiags.h"
+#include "cli/sql_id.h"
+#include "comexe/ComTdbRoot.h"
+#include "comexe/FragDir.h"
+#include "common/CmpCommon.h"
 #include "common/ComObjectName.h"
 #include "common/ComOperators.h"
-#include "common/ComSpace.h"
-#include "comexe/ComTdbRoot.h"
 #include "common/ComSmallDefs.h"
-#include "common/ComUser.h"
-#include "optimizer/ControlDB.h"
-#include "common/DatetimeType.h"
-#include "comexe/FragDir.h"
-#include "export/HeapLog.h"
-#include "sqlcomp/parser.h"
-#include "optimizer/RelControl.h"
-#include "optimizer/RelExpr.h"
-#include "optimizer/RelExeUtil.h"
-#include "optimizer/RelMisc.h"
-#include "optimizer/RelRoutine.h"
-#include "optimizer/RelScan.h"
-#include "cli/sql_id.h"
-#include "optimizer/Sqlcomp.h"
-#include "optimizer/ItemOther.h"
-#include "optimizer/NARoutine.h"
-#include "langman/LmJavaSignature.h"
-#include "common/QueryText.h"
-#include "common/wstr.h"
-#include "parser/SqlParserGlobals.h"
-#include "common/csconvert.h"
-#include "common/charinfo.h"
-#include "sqlcomp/CmpDescribe.h"
-#include "sqlcomp/CmpDDLCatErrorCodes.h"
-
-#include "sqlcomp/CmpSeabaseDDL.h"
-#include "sqlcomp/CmpSeabaseDDLauth.h"
-#include "sqlcomp/CmpSeabaseTenant.h"
-
-#include "sqlcomp/PrivMgrCommands.h"
-#include "sqlcomp/PrivMgrComponentPrivileges.h"
-
-#include "optimizer/Analyzer.h"
+#include "common/ComSpace.h"
 #include "common/ComSqlId.h"
+#include "common/ComUser.h"
+#include "common/DatetimeType.h"
+#include "common/QueryText.h"
+#include "common/charinfo.h"
+#include "common/csconvert.h"
+#include "common/wstr.h"
 #include "executor/ExExeUtilCli.h"
 #include "executor/HBaseClient_JNI.h"
 #include "exp/ExpHbaseInterface.h"
-#include "sqlcat/TrafDDLdesc.h"
-#include "seabed/ms.h"
 #include "exp/ExpSeqGen.h"
+#include "export/ComDiags.h"
+#include "export/HeapLog.h"
+#include "langman/LmJavaSignature.h"
+#include "optimizer/Analyzer.h"
+#include "optimizer/ControlDB.h"
+#include "optimizer/ItemOther.h"
+#include "optimizer/NARoutine.h"
+#include "optimizer/RelControl.h"
+#include "optimizer/RelExeUtil.h"
+#include "optimizer/RelExpr.h"
+#include "optimizer/RelMisc.h"
+#include "optimizer/RelRoutine.h"
+#include "optimizer/RelScan.h"
+#include "optimizer/Sqlcomp.h"
+#include "parser/SqlParserGlobals.h"  // must be the last #include.
+#include "parser/SqlParserGlobals.h"
+#include "seabed/ms.h"
+#include "sqlcat/TrafDDLdesc.h"
+#include "sqlcomp/CmpDDLCatErrorCodes.h"
+#include "sqlcomp/CmpDescribe.h"
+#include "sqlcomp/CmpMain.h"
+#include "sqlcomp/CmpSeabaseDDL.h"
+#include "sqlcomp/CmpSeabaseDDLauth.h"
+#include "sqlcomp/CmpSeabaseTenant.h"
+#include "sqlcomp/PrivMgrCommands.h"
+#include "sqlcomp/PrivMgrComponentPrivileges.h"
+#include "sqlcomp/parser.h"
 
 #define CM_SIM_NAME_LEN 32
 
@@ -87,16 +84,16 @@ enum Display_Schema_Object {
 
 extern "C" {
 int SQLCLI_GetRootTdb_Internal(/*IN*/ CliGlobals *cliGlobals,
-                                 /*INOUT*/ char *roottdb_ptr,
-                                 /*IN*/ int roottdb_len,
-                                 /*INOUT*/ char *srcstr_ptr,
-                                 /*IN*/ int srcstr_len,
-                                 /*IN*/ SQLSTMT_ID *statement_id);
+                               /*INOUT*/ char *roottdb_ptr,
+                               /*IN*/ int roottdb_len,
+                               /*INOUT*/ char *srcstr_ptr,
+                               /*IN*/ int srcstr_len,
+                               /*IN*/ SQLSTMT_ID *statement_id);
 
 int SQLCLI_GetRootTdbSize_Internal(/*IN*/ CliGlobals *cliGlobals,
-                                     /*INOUT*/ int *root_tdb_size,
-                                     /*INOUT*/ int *srcstr_size,
-                                     /*IN*/ SQLSTMT_ID *statement_id);
+                                   /*INOUT*/ int *root_tdb_size,
+                                   /*INOUT*/ int *srcstr_size,
+                                   /*IN*/ SQLSTMT_ID *statement_id);
 }
 
 extern CliGlobals *GetCliGlobals();
@@ -1216,7 +1213,7 @@ static short CmpGetPlan(SQLSTMT_ID &stmt_id, int flags, Space &space, CollHeap *
 //                     during display
 /////////////////////////////////////////////////////////////////
 static int CmpFormatPlan(int flags, char *rootTdbBuf, int rootTdbSize, char *srcStrBuf, int srcStrSize,
-                           NABoolean outputSrcInfo, Space &space, CollHeap *heap) {
+                         NABoolean outputSrcInfo, Space &space, CollHeap *heap) {
   char buf[200];
 
   ComTdbRoot *rootTdb = (ComTdbRoot *)rootTdbBuf;
@@ -1591,9 +1588,7 @@ short CmpDescribeControl(Describe *d, char *&outbuf, int &outbuflen, CollHeap *h
   return 0;
 }
 
-static short CmpDescribeShape(const char *query, char *&outbuf, int &outbuflen, NAMemory *heap)
-
-{
+static short CmpDescribeShape(const char *query, char *&outbuf, int &outbuflen, NAMemory *heap) {
   // prepare this query.
   char *qTree = NULL;
   int dummyLen;
@@ -3041,9 +3036,9 @@ short CmpDescribeSeabaseTable(const CorrName &dtName, short type, char *&outbuf,
         }
 
         int numIndexCols = ((type == 1) ? naf->getIndexKeyColumns().entries()
-                                          : naf->getCountOfColumns(TRUE,
-                                                                   TRUE,  // user-specified index cols only
-                                                                   FALSE, FALSE));
+                                        : naf->getCountOfColumns(TRUE,
+                                                                 TRUE,  // user-specified index cols only
+                                                                 FALSE, FALSE));
 
         cmpDisplayPrimaryKey(naf->getIndexKeyColumns(), numIndexCols, displaySystemCols, *space, buf, FALSE, TRUE,
                              TRUE);
@@ -3724,9 +3719,8 @@ short CmpDescribePackage(const CorrName &cn, char *&outbuf, int &outbuflen, Coll
   ToQuotedString(quotedObjName, cn.getQualifiedNameObj().getObjectName(), FALSE);
 
   CmpSeabaseDDL cmpSBD((NAHeap *)heap);
-  long objUID =
-      cmpSBD.getObjectUID(&cliInterface, CmpSeabaseDDL::getSystemCatalogStatic().data(), quotedSchName.data(),
-                          quotedObjName.data(), COM_PACKAGE_OBJECT_LIT, NULL, NULL, NULL, false, true);
+  long objUID = cmpSBD.getObjectUID(&cliInterface, CmpSeabaseDDL::getSystemCatalogStatic().data(), quotedSchName.data(),
+                                    quotedObjName.data(), COM_PACKAGE_OBJECT_LIT, NULL, NULL, NULL, false, true);
   if (objUID < 0) {
     return -1;
   }
@@ -4430,7 +4424,7 @@ static short CmpDescribeSchemaHDFSCache(const NAString &schemaText, char *&outbu
   ComObjectType objectType;
 
   long schemaUID = CmpSeabaseDDL::getObjectTypeandOwner(&cliInterface, catName.data(), schName.data(),
-                                                         SEABASE_SCHEMA_OBJECTNAME, objectType, schemaOwnerID);
+                                                        SEABASE_SCHEMA_OBJECTNAME, objectType, schemaOwnerID);
 
   // if schemaUID == -1, then either the schema does not exist or an unexpected error occurred
   if (schemaUID == -1) {
@@ -4658,8 +4652,8 @@ static short CmpDescribePartIndexDesc(BindWA *bindWA, short type, NATable *naTab
       outputLine(space, buf, 0);
 
       int numIndexCols = naf->getCountOfColumns(TRUE,
-                                                  TRUE,  // user-specified index cols only
-                                                  FALSE, FALSE);
+                                                TRUE,  // user-specified index cols only
+                                                FALSE, FALSE);
       cmpDisplayPrimaryKey(naf->getIndexKeyColumns(), numIndexCols, FALSE, space, buf, FALSE, TRUE, TRUE);
 
       // now is only process parttiion, subpartition will added if it support

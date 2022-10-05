@@ -1,18 +1,6 @@
 
-/* -*-C++-*-
- *****************************************************************************
- *
- * File:         Stubs.cpp
- * Description: contains stubs required for the cli SRL
- *
- * Created:      10/19/98
- * Language:     C++
- *
- *
- *****************************************************************************
- */
 
-void void CmpAssertInternal(const char *, const char *, int) {}
+void CmpAssertInternal(const char *, const char *, int) {}
 
 extern "C" void __dt__8ItemExprFv(void){};
 

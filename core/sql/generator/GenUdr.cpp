@@ -27,7 +27,7 @@
 #include "comexe/ExplainTupleMaster.h"
 #include "comexe/ComQueue.h"
 #include "optimizer/UdfDllInteraction.h"
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 
 // Helper function to allocate a string in the plan
 char *AllocStringInSpace(ComSpace &space, const char *s) {

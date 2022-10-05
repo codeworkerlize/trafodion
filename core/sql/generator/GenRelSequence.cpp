@@ -1,13 +1,13 @@
 
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 #include "optimizer/AllRelExpr.h"
-#include "RelSequence.h"
+#include "optimizer/RelSequence.h"
 #include "generator/Generator.h"
 #include "GenExpGenerator.h"
 #include "exp/ExpCriDesc.h"
 #include "comexe/ComTdbSequence.h"
 #include "common/NumericType.h"
-#include "ItmFlowControlFunction.h"
+#include "optimizer/ItmFlowControlFunction.h"
 #include "comexe/ExplainTupleMaster.h"
 #include "common/ComDefs.h"
 

@@ -1,19 +1,4 @@
 
-/* -*-C++-*-
- *****************************************************************************
- *
- * File:         CmpEHCallBack.cpp
- * Description:  Compiler Call back functions for exception handling
- *
- *
- * Created:      5/4/02
- * Language:     C++
- *
- *
- *
- *
- *****************************************************************************
- */
 #include "common/Platform.h"
 #include <stdio.h>
 #include <signal.h>

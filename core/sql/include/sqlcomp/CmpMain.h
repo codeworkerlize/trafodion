@@ -1,37 +1,10 @@
-
-/* -*-C++-*-
- *****************************************************************************
- *
- * File:         cmpmain.h
- * Description:  This file contains the declarations for the routines used
- *               by executor(in single process mode) or arkcmp to perform
- *               the statement compilation or DDL statement execution.
- *
- *
- * Created:      7/10/95
- * Language:     C++
- * Status:       $State: Exp $
- *
- *
- *
- *
- *****************************************************************************
- */
-
-#ifndef __CMPMAIN__H
-#define __CMPMAIN__H
-
-#include "common/dfs2rec.h"
-
-#ifdef NA_DEBUG_GUI
-#include "common/ComSqlcmpdbg.h"
-#endif
-
-#include "common/ComSmallDefs.h"
-#include "optimizer/RelScan.h"
+#pragma once
 #include "cli/sqlcli.h"
 #include "comexe/CmpMessage.h"
+#include "common/ComSmallDefs.h"
 #include "common/ComSysUtils.h"
+#include "common/dfs2rec.h"
+#include "optimizer/RelScan.h"
 
 class Key;
 class CacheKey;
@@ -54,7 +27,7 @@ class QryStmtAttribute : public NABasicObject {
   friend class CmpMain;
   friend class CompilerEnv;
   SQLATTR_TYPE attr;  // name of query statement attribute
-  int value;       // value of query statement attribute
+  int value;          // value of query statement attribute
 
  public:
   // default constructor
@@ -101,10 +74,6 @@ class QryStmtAttributeSet : public NABasicObject {
   // return xth statement attribute
   const QryStmtAttribute &at(int x) const { return attrs[x]; }
 };
-
-// -----------------------------------------------------------------------
-// CmpMain class contains the interface to main sql compiler functions.
-// -----------------------------------------------------------------------
 
 class CmpMain {
  public:
@@ -156,19 +125,6 @@ class CmpMain {
   CmpMain();
   virtual ~CmpMain() {}
 
-#ifdef NA_DEBUG_GUI
-
-  // Load the GUI display DLL.
-  void initGuiDisplay(RelExpr *queryExpr);
-
-  // Initialize Winsock code.
-  static void initWSA();
-
-  // conditionally display the query tree, or tdb's, or execution
-  static NABoolean guiDisplay(Sqlcmpdbg::CompilationPhase phase, RelExpr *q);
-  static void loadSqlCmpDbgDLL_msGui();
-#endif
-
   // sqlcomp will compile a string of sql text into code from generator
   ReturnStatus sqlcomp(QueryText &input, int /*unused*/, char **gen_code, int *gen_code_len, NAMemory *h = NULL,
                        CompilerPhase = END, FragmentDir **framentDir = NULL,
@@ -185,9 +141,8 @@ class CmpMain {
   // sqlcomp will compile a string of sql text into code from generator.
   // This string is from a static program and is being recompiled
   // dynamically at runtime.
-  ReturnStatus sqlcompStatic(QueryText &input, int /*unused*/, char **gen_code, int *gen_code_len,
-                             NAMemory *h = NULL, CompilerPhase = END,
-                             IpcMessageObjType op = CmpMessageObj::SQLTEXT_COMPILE);
+  ReturnStatus sqlcompStatic(QueryText &input, int /*unused*/, char **gen_code, int *gen_code_len, NAMemory *h = NULL,
+                             CompilerPhase = END, IpcMessageObjType op = CmpMessageObj::SQLTEXT_COMPILE);
 
   RelExpr *transform(NormWA &normWA, RelExpr *queryExpr);
 
@@ -224,13 +179,6 @@ class CmpMain {
 
   void FlushQueryCachesIfLongTime(int begTimeInSec);
 
-#ifdef NA_DEBUG_GUI
-  // GSH : The following variable is used by the tdm_sqlcmpdbg.
-
-  static CmpContext *msGui_;
-  static SqlcmpdbgExpFuncs *pExpFuncs_;
-#endif
-
 #ifndef NDEBUG
   static int prev_QI_Priv_Value;
 #endif
@@ -246,12 +194,12 @@ class CmpMain {
 
   // try to compile a query using the cache
   NABoolean compileFromCache(const char *sText,     // (IN) : sql statement text
-                             int charset,         // (IN) : character set of  sql statement text
+                             int charset,           // (IN) : character set of  sql statement text
                              RelExpr *queryExpr,    // (IN) : the query to be compiled
                              BindWA *bindWA,        // (IN) : work area (used by backpatchParams)
                              CacheWA &cachewa,      // (IN) : work area for normalizeForCache
                              char **plan,           // (OUT): compiled plan or NULL
-                             int *pLen,          // (OUT): length of compiled plan or 0
+                             int *pLen,             // (OUT): length of compiled plan or 0
                              NAHeap *heap,          // (IN) : heap to use for compiled plan
                              IpcMessageObjType op,  //(IN): SQLTEXT_COMPILE or SQLTEXT_RECOMPILE
                              NABoolean &bPatchOK,   //(OUT): true iff backpatch succeeded
@@ -260,11 +208,11 @@ class CmpMain {
   void getAndProcessAnySiKeys(TimeVal begTime);
 
   int getAnySiKeys(TimeVal begTime,             // (IN) start time for compilation
-                     TimeVal prev_QI_inval_time,  // (IN) previous Query Invalidation time
-                     int *retNumSiKeys,         // (OUT) Rtn'd size of results array
-                     TimeVal *pMaxTimestamp,      // (OUT) Rtn'd max Time Stamp
-                     SQL_QIKEY *qiKeyArray,       // (OUT) Rtn'd keys stored here
-                     int qiKeyArraySize);       // (IN) Size of of results array
+                   TimeVal prev_QI_inval_time,  // (IN) previous Query Invalidation time
+                   int *retNumSiKeys,           // (OUT) Rtn'd size of results array
+                   TimeVal *pMaxTimestamp,      // (OUT) Rtn'd max Time Stamp
+                   SQL_QIKEY *qiKeyArray,       // (OUT) Rtn'd keys stored here
+                   int qiKeyArraySize);         // (IN) Size of of results array
 
   void InvalidateNATableCacheEntries(int returnedNumSiKeys, SQL_QIKEY *qiKeyArray);
   void InvalidateNATableSchemaCacheEntries();
@@ -275,16 +223,7 @@ class CmpMain {
   void UnmarkMarkedNATableCacheEntries();
   void UpdateNATableCacheEntryStoredStats(int returnedNumQiKeys, SQL_QIKEY *qiKeyArray);
 
-  // NOTE: We don't currently put the NARoutine objects associated with SPJs
-  //       into the NARoutine Cache.   The UDF Proof-Of-Concept projects have
-  //       added code to put NARoutine objects associated with UDFs into the
-  //       NARoutine Cache, but we don't currently support UDFs.
-  //       If we ever support UDFs or if we start caching the NARoutine objects
-  //       associated with SPJs, we will probably need the folowing:
 
-  // void InvalidateNARoutineCacheEntries( int NumSiKeys, SQL_QIKEY * pSiKeyArray );
-  // void RemoveMarkedNARoutineCacheEntries();
-  // void UnmarkMarkedNARoutineCacheEntries();
   int RestoreCqdsInHint();
 };
 
@@ -295,5 +234,3 @@ const int CmpDescribeSpaceCountPrefix = sizeof(short);
 short CmpDescribe(const char *describeStmt, const RelExpr *queryExpr, char *&outbuf, int &outbuflen, NAMemory *h);
 
 short CmpDescribeControl(Describe *d, char *&outbuf, int &outbuflen, NAMemory *h);
-
-#endif

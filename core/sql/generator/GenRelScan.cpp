@@ -18,7 +18,7 @@
 #include <vector>
 
 #include "optimizer/Sqlcomp.h"
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 #include "optimizer/ControlDB.h"
 #include "GenExpGenerator.h"
 #include "comexe/ComTdbDDL.h"  // for describe
@@ -27,7 +27,7 @@
 #include "executor/sql_buffer.h"
 #include "executor/sql_buffer_size.h"
 #include "optimizer/OptimizerSimulator.h"
-#include "RelUpdate.h"
+#include "optimizer/RelUpdate.h"
 
 #include "sqlcomp/CmpSeabaseDDL.h"
 #include "sqlcat/TrafDDLdesc.h"

@@ -601,7 +601,6 @@ const ex_comp_clause::CompInstrStruct ex_comp_clause::compInstrInfo[] = {
     {ITM_EQUAL, REC_NCHAR_V_UNICODE, REC_NCHAR_F_UNICODE, instrAndText(UNICODE_COMP)},
     {ITM_EQUAL, REC_NCHAR_V_UNICODE, REC_NCHAR_V_UNICODE, instrAndText(UNICODE_COMP)},
 
-    {ITM_EQUAL, REC_BLOB, REC_BLOB, instrAndText(EQ_BLOB)},
 
     {ITM_EQUAL, REC_BOOLEAN, REC_BOOLEAN, instrAndText(EQ_BOOL_BOOL)},
 
@@ -1527,8 +1526,6 @@ const ex_conv_clause::ConvInstrStruct ex_conv_clause::convInstrInfo[] = {
     {REC_NCHAR_V_ANSI_UNICODE, REC_NCHAR_F_UNICODE, instrAndText(CONV_ANSI_V_UNICODE_TO_UNICODE_F)},
     {REC_NCHAR_V_ANSI_UNICODE, REC_NCHAR_V_UNICODE, instrAndText(CONV_ANSI_V_UNICODE_TO_UNICODE_V)},
 
-    {REC_BLOB, REC_BLOB, instrAndText(CONV_BLOB_BLOB)},
-    {REC_BLOB, REC_BYTE_F_ASCII, instrAndText(CONV_BLOB_ASCII_F)},
 
     {REC_CLOB, REC_CLOB, instrAndText(CONV_BLOB_BLOB)},
     {REC_CLOB, REC_BYTE_F_ASCII, instrAndText(CONV_BLOB_ASCII_F)},

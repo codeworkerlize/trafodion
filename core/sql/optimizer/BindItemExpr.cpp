@@ -24,13 +24,13 @@
 #include "optimizer/AllItemExpr.h"
 #include "optimizer/BindWA.h"
 #include "common/ComOperators.h"
-#include "GroupAttr.h"  // QSTUFF
+#include "optimizer/GroupAttr.h"  // QSTUFF
 #include "sqlcomp/parser.h"
 #include "ParNameLocList.h"
 #include "optimizer/Rel3GL.h"
 #include "optimizer/RelMisc.h"
 #include "optimizer/RelScan.h"
-#include "RelUpdate.h"
+#include "optimizer/RelUpdate.h"
 #include "optimizer/Sqlcomp.h"
 #include "StmtDDLAddConstraintCheck.h"
 #include "parser/StmtDDLCreateTrigger.h"
@@ -47,10 +47,10 @@
 #include "optimizer/Analyzer.h"
 #include "optimizer/ControlDB.h"
 #include "optimizer/OptimizerSimulator.h"
-#include "RelSequence.h"
+#include "optimizer/RelSequence.h"
 #include "ItemSample.h"
 #include "parser/SqlParserGlobals.h"
-#include "RelSequence.h"
+#include "optimizer/RelSequence.h"
 #include "common/ComSqlId.h"
 
 #include "ItemFuncUDF.h"

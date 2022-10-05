@@ -18,7 +18,7 @@
 #include "ItemLog.h"
 #include "qmscommon/QRLogger.h"
 #include "qmscommon/QRExprElement.h"
-#include "RelUpdate.h"
+#include "optimizer/RelUpdate.h"
 
 const UInt32 QRDescGenerator::GENERATED_JBBID_START = 10000;
 
@@ -1523,20 +1523,7 @@ QRQueryDescriptorPtr QRDescGenerator::createQueryDescriptor(QueryAnalysis *qa, R
   return queryDesc;
 }  // createQueryDescriptor()
 
-QRMVDescriptorPtr QRDescGenerator::createMvDescriptor(QueryAnalysis *qa, RelExpr *expr) {
-  QRTRACER("QRDescGenerator::createMvDescriptor()");
-  QRMVDescriptorPtr mvDesc = new (mvqrHeap_) QRMVDescriptor(ADD_MEMCHECK_ARGS(mvqrHeap_));
-  descriptorType_ = ET_MVDescriptor;
-  relExpr_ = expr;
 
-  if (processJBBs(mvDesc, qa)) {
-    mvDesc->setVersion(createVersionElement());
-    return mvDesc;
-  } else {
-    deletePtr(mvDesc);
-    return NULL;
-  }
-}  // createMvDescriptor()
 
 QRVersionPtr QRDescGenerator::createVersionElement() {
   QRTRACER("QRDescGenerator::createVersionElement()");

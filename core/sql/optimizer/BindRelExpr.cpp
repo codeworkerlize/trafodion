@@ -24,65 +24,61 @@
 #define SQLPARSERGLOBALS_FLAGS  // must precede all #include's
 #define SQLPARSERGLOBALS_NADEFAULTS
 
-#include "common/Platform.h"
-#include "common/NAWinNT.h"
+#include "optimizer/ChangesTable.h"
+#include "ElemDDLSaltOptions.h"
+#include "optimizer/GroupAttr.h"
+#include "ItemSample.h"
+#include "optimizer/ItmFlowControlFunction.h"
 
-#include "optimizer/Sqlcomp.h"
+
+#include "ParNameLocList.h"
+
+#include "RelDCL.h"
+#include "RelPackedRows.h"
+#include "optimizer/RelSequence.h"
+#include "SqlParserAux.h"
+#include "StmtDDLAddConstraintCheck.h"
+#include "UdrErrors.h"
+#include "arkcmp/CmpStatement.h"
+#include "arkcmp/CompException.h"
+#include "cli/Globals.h"
+#include "comexe/NAExecTrans.h"
+#include "common/ComLocationNames.h"
+#include "common/ComOperators.h"
+#include "common/ComSchemaName.h"  // for ComSchemaName
+#include "common/ComSqlId.h"
+#include "common/ComTransInfo.h"
+#include "common/ComUser.h"
+#include "common/Debug.h"
+#include "common/NAWinNT.h"
+#include "common/Platform.h"
+#include "common/SequenceGeneratorAttributes.h"
+#include "common/charinfo.h"
+#include "common/wstr.h"
+#include "executor/ex_error.h"
 #include "optimizer/AllItemExpr.h"
 #include "optimizer/AllRelExpr.h"
 #include "optimizer/BindWA.h"
-#include "common/ComOperators.h"
-#include "common/ComTransInfo.h"
-#include "common/ComLocationNames.h"
 #include "optimizer/ControlDB.h"
-#include "common/Debug.h"
-#include "executor/ex_error.h"
-#include "GroupAttr.h"
-#include "ParNameLocList.h"
-#include "sqlcomp/parser.h"
-#include "optimizer/Rel3GL.h"
-#include "RelDCL.h"
-#include "RelPackedRows.h"
-#include "RelSequence.h"
-#include "sqlcomp/ShowSchema.h"  // GetControlDefaults class
-#include "StmtDDLAddConstraintCheck.h"
-#include "parser/StmtDDLCreateView.h"
-#include "parser/ElemDDLColRefArray.h"
-#include "ElemDDLSaltOptions.h"
-#include "sqlcat/TrafDDLdesc.h"
-#include "UdrErrors.h"
-#include "common/SequenceGeneratorAttributes.h"
-
-#include "common/wstr.h"
 #include "optimizer/Inlining.h"
-#include "optimizer/Triggers.h"
-#include "optimizer/TriggerDB.h"
-#include "MVInfo.h"
-#include "Refresh.h"
-#include "ChangesTable.h"
-#include "MvRefreshBuilder.h"
 #include "optimizer/OptHints.h"
-#include "arkcmp/CmpStatement.h"
 #include "optimizer/OptimizerSimulator.h"
-#include "common/charinfo.h"
+#include "optimizer/Rel3GL.h"
+#include "optimizer/Sqlcomp.h"
+#include "optimizer/TriggerDB.h"
+#include "optimizer/Triggers.h"
 #include "optimizer/UdfDllInteraction.h"
+#include "parser/ElemDDLColRefArray.h"
 #include "parser/SqlParserGlobals.h"  // must be last #include
-#include "ItmFlowControlFunction.h"
-#include "common/ComSchemaName.h"  // for ComSchemaName
-#include "ItemSample.h"
-#include "comexe/NAExecTrans.h"
-
+#include "parser/StmtDDLCreateView.h"
+#include "sqlcat/TrafDDLdesc.h"
 #include "sqlcomp/CmpSeabaseDDL.h"
-#include "common/ComUser.h"
-#include "common/ComSqlId.h"
 #include "sqlcomp/PrivMgrCommands.h"
 #include "sqlcomp/PrivMgrComponentPrivileges.h"
 #include "sqlcomp/PrivMgrDefs.h"
 #include "sqlcomp/PrivMgrMD.h"
-#include "arkcmp/CompException.h"
-
-#include "SqlParserAux.h"
-#include "cli/Globals.h"
+#include "sqlcomp/ShowSchema.h"  // GetControlDefaults class
+#include "sqlcomp/parser.h"
 
 #define SLASH_C '/'
 
@@ -1070,8 +1066,8 @@ void castComputedColumnsToAnsiTypes(BindWA *bindWA, RETDesc *rd, ValueIdList &co
             newTyp = new (bindWA->wHeap()) SQLLargeInt(bindWA->wHeap(), TRUE,  // hardware only supports signed
                                                        nTyp->supportsSQLnull());
           else
-            newTyp = new (bindWA->wHeap()) SQLNumeric(bindWA->wHeap(), sizeof(long), newPrec, newScale,
-                                                      nTyp->isSigned(), nTyp->supportsSQLnull());
+            newTyp = new (bindWA->wHeap())
+                SQLNumeric(bindWA->wHeap(), sizeof(long), newPrec, newScale, nTyp->isSigned(), nTyp->supportsSQLnull());
 
         }  // overflow
 
@@ -2705,7 +2701,7 @@ RelExpr *Join::bindNode(BindWA *bindWA) {
   RETDesc *resultTable = new (bindWA->wHeap()) RETDesc(bindWA);
 
   int rowSet = (child(0)->getOperatorType() == REL_RENAME_TABLE) &&
-                 (child(0)->child(0)->getOperatorType() == REL_UNPACKROWS) && (child(1)->getOperatorType() == REL_ROOT);
+               (child(0)->child(0)->getOperatorType() == REL_UNPACKROWS) && (child(1)->getOperatorType() == REL_ROOT);
 
   if (NOT isNaturalJoin()) {
     if ((!rowSet) && (getOperatorType() != REL_TSJ_FLOW)) {
@@ -4909,8 +4905,8 @@ ItemExpr *RelRoot::buildDefaultOrderByForRownum(BindWA *bindWA, const CorrName *
   return result;
 }
 
-NABoolean RelRoot::detectRownumReference(ItemExpr *itm, NAList<ItemExpr *> &parentItmList,
-                                         NAList<int> &parentArityList, ItemExpr *parent, int arity) {
+NABoolean RelRoot::detectRownumReference(ItemExpr *itm, NAList<ItemExpr *> &parentItmList, NAList<int> &parentArityList,
+                                         ItemExpr *parent, int arity) {
   if (NULL == itm) return FALSE;
 
   if (itm->getOperator() == ITM_ROWNUM) {
@@ -5424,12 +5420,7 @@ RelExpr *RelRoot::bindNode(BindWA *bindWA) {
   {
     bindWA->initNewScope();
 
-    // MV --
-    if (TRUE == hasMvBindContext()) {
-      // Copy the MvBindContext object from the RelRoot node to the
-      // current BindContext.
-      bindWA->markScopeWithMvBindContext(getMvBindContext());
-    }
+
 
     if (getInliningInfo().isTriggerRoot()) {
       CMPASSERT(getInliningInfo().getTriggerObject() != NULL);
@@ -5551,8 +5542,7 @@ RelExpr *RelRoot::bindNode(BindWA *bindWA) {
   BindScope *currScope = bindWA->getCurrentScope();
 
   // -- MVs
-  // Check for the Refresh node before binding, because after binding it
-  // will be gone.
+
   if (child(0)->getOperatorType() == REL_REFRESH) setRootOfInternalRefresh();
 
   // set the currect host area in bindWA for non-root stmt.
@@ -6328,8 +6318,6 @@ RelExpr *RelRoot::bindNode(BindWA *bindWA) {
     DBG(if (getenv("TVUSG_DEBUG")) bindWA->tableViewUsageList().display();)
   }  // isTrueRoot
 
-  // Don't allow OLT optimization when ON STATEMENT MV refresh is involved.
-  if (bindWA->isBindingOnStatementMv()) oltOptInfo().setOltOpt(FALSE);
 
   // disable esp parallelism for merge statements.
   // See class RelRoot for details about this.
@@ -7338,11 +7326,11 @@ void Scan::bindUpdateCurrentOf(BindWA *bindWA, NABoolean updateQry) {
     }  // loop over all pkey columns
 
     if (updCheckPtr) {
-      updCheckPtr = new (bindWA->wHeap())
-          Case(NULL, new (bindWA->wHeap()) IfThenElse(
-                         updCheckPtr, new (bindWA->wHeap()) BoolVal(ITM_RETURN_TRUE),
-                         new (bindWA->wHeap()) BoolVal(
-                             ITM_RETURN_TRUE, new (bindWA->wHeap()) RaiseError(-(int)EXE_CURSOR_UPDATE_CONFLICT))));
+      updCheckPtr = new (bindWA->wHeap()) Case(
+          NULL, new (bindWA->wHeap()) IfThenElse(
+                    updCheckPtr, new (bindWA->wHeap()) BoolVal(ITM_RETURN_TRUE),
+                    new (bindWA->wHeap())
+                        BoolVal(ITM_RETURN_TRUE, new (bindWA->wHeap()) RaiseError(-(int)EXE_CURSOR_UPDATE_CONFLICT))));
 
       rootPtr = new (bindWA->wHeap()) BiLogic(ITM_AND, rootPtr, updCheckPtr);
     }
@@ -7551,23 +7539,7 @@ RelExpr *Scan::bindNode(BindWA *bindWA) {
   // If so - maybe we need to replace this Scan with some other RelExpr tree.
   // Ignore when inDDL() because the log may not exist yet.
   if (!bindWA->inDDL() && getTableName().getSpecialType() == ExtendedQualName::NORMAL_TABLE) {
-    const MvBindContext *pMvBindContext = bindWA->getClosestMvBindContext();
-    if (NULL != pMvBindContext) {
-      RelExpr *replacementTree = pMvBindContext->getReplacementFor(getTableName().getQualifiedNameObj());
 
-      if (replacementTree != NULL) {
-        // We need to replace the Scan on the base table by some other tree.
-        // Make sure this tree has the same name as the Scan.
-        const CorrName &baseCorrName = getTableName();
-        replacementTree = new (bindWA->wHeap()) RenameTable(TRUE, replacementTree, baseCorrName);
-
-        // Move any selection predicates on the Scan to the tree.
-        replacementTree->addSelPredTree(removeSelPredTree());
-
-        // Bind the tree and return instead of the tree.
-        return replacementTree->bindNode(bindWA);
-      }
-    }
   } else {
     setFirstReadBypassTM(FALSE);
   }
@@ -7713,20 +7685,8 @@ RelExpr *Scan::bindNode(BindWA *bindWA) {
     return boundView;
   }
 
-  // -- MV
-  // If this is the expanded tree pass during CREATE MV, expand the MV into
-  // its SELECT tree, just like a regular view.
-  // Do this only for incremental MVs, otherwise they may introduce unsupported
-  // operators such as Union.
-  if (naTable->isAnMV() && bindWA->isExpandMvTree() && naTable->getMVInfo(bindWA)->isIncremental()) {
-    CMPASSERT(bindWA->inDDL());
-    return bindExpandedMaterializedView(bindWA, naTable);
-  }
 
-  // Do not allow to select from an un initialized MV
-  if (naTable->isAnMV() && !bindWA->inDDL() && !bindWA->isBindingMvRefresh()) {
-    if (naTable->verifyMvIsInitializedAndAvailable(bindWA)) return NULL;
-  }
+
 
   // Allocate a TableDesc and attach it to the Scan node.
   // This call also allocates a RETDesc, attached to the BindScope,
@@ -8471,8 +8431,7 @@ RelExpr *TupleList::bindNode(BindWA *bindWA) {
 
   if (castTo && prevTupleNumEntries != castToList().entries()) {
     // 4023 degree of row value constructor must equal that of target table
-    *CmpCommon::diags() << DgSqlCode(-4023) << DgInt0((int)prevTupleNumEntries)
-                        << DgInt1((int)castToList().entries());
+    *CmpCommon::diags() << DgSqlCode(-4023) << DgInt0((int)prevTupleNumEntries) << DgInt1((int)castToList().entries());
     bindWA->setErrStatus();
     return NULL;
   }
@@ -8966,7 +8925,7 @@ RelExpr *RenameReference::bindNode(BindWA *bindWA) {
 // semantic checks.
 //////////////////////////////////////////////////////////////////////////////
 int BeforeTrigger::getTargetColumn(CollIndex i,  // Index of Assign expr.
-                                     ColRefName *targetColName, const NATable *naTable) {
+                                   ColRefName *targetColName, const NATable *naTable) {
   ItemExpr *currentAssign = setList_->at(i);
   CMPASSERT(currentAssign->getOperatorType() == ITM_ASSIGN);
 
@@ -14866,20 +14825,6 @@ RelExpr *Transpose::bindNode(BindWA *bindWA) {
 
   transUnionVectorSize_ = numTransSets + 1;
   transUnionVector() = new (bindWA->wHeap()) ValueIdList[transUnionVectorSize_];
-  // If there is a lob or composite column, return error.
-  // Transpose not allowed on lob or composite columns.
-
-  for (i = 0; i < resultTable->getDegree(); i++) {
-    if ((resultTable->getType(i)).getFSDatatype() == REC_BLOB ||
-        (resultTable->getType(i)).getFSDatatype() == REC_CLOB || (resultTable->getType(i)).isComposite()) {
-      if (resultTable->getType(i).isComposite())
-        *CmpCommon::diags() << DgSqlCode(-4324);
-      else
-        *CmpCommon::diags() << DgSqlCode(-4322);
-      bindWA->setErrStatus();
-      return this;
-    }
-  }
 
   // Get the key column reference
   // This is the last time we need this ItemExpr.

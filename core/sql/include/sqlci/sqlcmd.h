@@ -38,7 +38,6 @@ class SqlCmd : public SqlciNode {
     USAGE_TYPE,
     QUIESCE_TYPE,
     STORE_EXPLAIN_TYPE
-
   };
 
  private:
@@ -98,7 +97,6 @@ class DML : public SqlCmd {
   char *this_stmt_name;
   dml_type type;
 
-  // $$$$ SPJ RS THROWAWAY
   int rsIndex_;
 
  public:
@@ -106,7 +104,6 @@ class DML : public SqlCmd {
   ~DML();
   short process(SqlciEnv *sqlci_env);
 
-  // $$$$ SPJ RS THROWAWAY
   void setResultSetIndex(int i) { rsIndex_ = i; }
   int getResultSetIndex() const { return rsIndex_; }
 };

@@ -2,13 +2,12 @@
 #ifndef PARAM_H
 #define PARAM_H
 
-
 #include "common/Int64.h"
 #include "common/NAString.h"
 #include "common/charinfo.h"
 
 class SetParam;
-
+class ComDiagsArea;
 class Param {
   char *name;
   char *value;

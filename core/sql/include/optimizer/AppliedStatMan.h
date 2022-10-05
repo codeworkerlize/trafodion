@@ -24,7 +24,7 @@
 
 #include "EstLogProp.h"
 #include "optimizer/Analyzer.h"
-#include "RelJoin.h"
+#include "optimizer/RelJoin.h"
 
 // -----------------------------------------------------------------------
 //  The following classes are defined in this file.

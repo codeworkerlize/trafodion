@@ -1,24 +1,5 @@
 /***********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
+
 **********************************************************************/
 /* -*-C++-*-
 ******************************************************************************
@@ -39,7 +20,7 @@
 #include "optimizer/Sqlcomp.h"
 #include "optimizer/AllRelExpr.h"
 #include "optimizer/AllItemExpr.h"
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 #include "optimizer/opt.h"
 #include "optimizer/PhyProp.h"
 #include "optimizer/mdam.h"
@@ -51,7 +32,6 @@
 #include "exp/ExpError.h"
 #include "common/ComTransInfo.h"
 #include "optimizer/BindWA.h"
-#include "Refresh.h"
 #include "sqlcomp/CmpMain.h"
 #include "optimizer/ControlDB.h"
 #include "ElemDDLColDef.h"
@@ -9338,7 +9318,6 @@ RelRoot::RelRoot(RelExpr *input, OperatorTypeEnum otype, ItemExpr *compExpr, Ite
       assignList_(NULL),
       isRootOfInternalRefresh_(FALSE),
       isQueryNonCacheable_(FALSE),
-      pMvBindContextForScope_(NULL),
       parentForRowsetReqdOrder_(NULL),
       isEmptySelectList_(FALSE),
       isDontOpenNewScope_(FALSE),
@@ -9409,7 +9388,6 @@ RelRoot::RelRoot(RelExpr *input, TransMode::AccessType at, LockMode lm, Operator
       assignList_(NULL),
       isRootOfInternalRefresh_(FALSE),
       isQueryNonCacheable_(FALSE),
-      pMvBindContextForScope_(NULL),
       parentForRowsetReqdOrder_(NULL),
       isEmptySelectList_(FALSE),
       isDontOpenNewScope_(FALSE),
@@ -9477,7 +9455,6 @@ RelRoot::RelRoot(const RelRoot &other)
       needFirstSortedRows_(other.needFirstSortedRows_),
       isRootOfInternalRefresh_(other.isRootOfInternalRefresh_),
       isQueryNonCacheable_(other.isQueryNonCacheable_),
-      pMvBindContextForScope_(other.pMvBindContextForScope_),
       isEmptySelectList_(other.isEmptySelectList_),
       isDontOpenNewScope_(other.isDontOpenNewScope_),
       //    oltOptInfo_(other.oltOptInfo_),
@@ -9883,13 +9860,6 @@ void RelRoot::addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) con
   RelExpr::addLocalExpr(xlist, llist);
 }
 
-//----------------------------------------------------------------------------
-//++ MV OZ
-NABoolean RelRoot::hasMvBindContext() const { return (NULL != pMvBindContextForScope_) ? TRUE : FALSE; }
-
-MvBindContext *RelRoot::getMvBindContext() const { return pMvBindContextForScope_; }
-
-void RelRoot::setMvBindContext(MvBindContext *pMvBindContext) { pMvBindContextForScope_ = pMvBindContext; }
 
 NABoolean RelRoot::addOneRowAggregates(BindWA *bindWA, NABoolean forceGroupByAgg) {
   NABoolean groupByAggNodeAdded = FALSE;

@@ -13,7 +13,7 @@
 
 #include "MultiJoin.h"
 #include "AppliedStatMan.h"
-#include "RelJoin.h"
+#include "optimizer/RelJoin.h"
 
 //
 extern THREAD_P NAUnsigned MJEnumRuleNumber;

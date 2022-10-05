@@ -2,27 +2,8 @@
 #ifndef SQLCI_ERROR_H
 #define SQLCI_ERROR_H
 
-/* -*-C++-*-
- *****************************************************************************
- *
- * File:         SqlciError.h
- * RCS:          $Id: SqlciError.h,v 1.7 1998/09/07 21:50:05  Exp $
- * Description:
- *   This file contains the error generation routine used throughout sqlci to
- *   store errors and their parameters.
- *
- * Created:      2/23/96
- * Modified:     $ $Date: 1998/09/07 21:50:05 $ (GMT)
- * Language:     C++
- * Status:       $State: Exp $
- *
- *
- *
- *
- *****************************************************************************
- */
-
 #include <stdarg.h>
+
 #include "common/Platform.h"
 
 // SQLCI Error codes

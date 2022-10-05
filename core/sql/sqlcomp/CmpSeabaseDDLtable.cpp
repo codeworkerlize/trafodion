@@ -1031,21 +1031,7 @@ short CmpSeabaseDDL::constraintErrorChecks(ExeCliInterface *cliInterface, StmtDD
 
       // If column is a LOB column , error
       int datatype = nac->getType()->getFSDatatype();
-      if (nac->getType()->getFSDatatype() == REC_BLOB || nac->getType()->getFSDatatype() == REC_CLOB ||
-          nac->getType()->getFSDatatype() == REC_ROW || nac->getType()->getFSDatatype() == REC_ARRAY)
-      // Cannot allow LOB, ROW or ARRAY in primary or clustering key
-      {
-        NAString type;
-        if (nac->getType()->getFSDatatype() == REC_BLOB || nac->getType()->getFSDatatype() == REC_CLOB)
-          type = "BLOB/CLOB";
-        else if (nac->getType()->getFSDatatype() == REC_ROW)
-          type = "ROW";
-        else
-          type = "ARRAY";
-        *CmpCommon::diags() << DgSqlCode(-CAT_LOB_COL_CANNOT_BE_INDEX_OR_KEY)
-                            << DgColumnName(ToAnsiIdentifier(keyColList[i])) << DgString0(type);
-        return -1;
-      }
+
 
       int colNumber = nac->getPosition();
 
@@ -2748,25 +2734,7 @@ short CmpSeabaseDDL::createSeabaseTable2(ExeCliInterface &cliInterface, StmtDDLC
     }
 
     NAType *colType = colArray[colIx]->getColumnDataType();
-    if (colType->getFSDatatype() == REC_BLOB || colType->getFSDatatype() == REC_CLOB ||
-        colType->getFSDatatype() == REC_ROW || colType->getFSDatatype() == REC_ARRAY)
-    // Cannot allow LOB, ROW or ARRAY in primary or clustering key
-    {
-      NAString type;
-      if (colType->getFSDatatype() == REC_BLOB || colType->getFSDatatype() == REC_CLOB)
-        type = "BLOB/CLOB";
-      else if (colType->getFSDatatype() == REC_ROW)
-        type = "ROW";
-      else
-        type = "ARRAY";
-      *CmpCommon::diags() << DgSqlCode(-CAT_LOB_COL_CANNOT_BE_INDEX_OR_KEY) << DgColumnName(colName) << DgString0(type);
 
-      deallocEHI(ehi);
-
-      processReturn();
-
-      return -1;
-    }
     keyLength += colType->getEncodedKeyLength();
   }
 
@@ -2995,16 +2963,7 @@ short CmpSeabaseDDL::createSeabaseTable2(ExeCliInterface &cliInterface, StmtDDLC
 
     int datatype = column->getColumnDataType()->getFSDatatype();
 
-    if ((datatype == REC_BLOB) || (datatype == REC_CLOB)) {
-      if (isCreatingReadOnlyTable) {
-        *CmpCommon::diags() << DgSqlCode(-3242)
-                            << DgString0("Tables with LOB columns can not build as a read only table");
-        deallocEHI(ehi);
-        return -1;
-      }
 
-      break;
-    }
   }  // for
 
   tableInfo->numSaltPartns = numSaltPartns;
@@ -13435,12 +13394,6 @@ void CmpSeabaseDDL::alterSeabaseTableAlterColumnDatatype(StmtDDLAlterTableAlterC
     }
   }
 
-  // If column is a LOB column , error
-  if ((currType->getFSDatatype() == REC_BLOB) || (currType->getFSDatatype() == REC_CLOB)) {
-    *CmpCommon::diags() << DgSqlCode(-CAT_LOB_COLUMN_ALTER) << DgColumnName(colName);
-    processReturn();
-    return;
-  }
 
   if ((newType->getTypeQualifier() == NA_CHARACTER_TYPE) &&
       (newType->getNominalSize() > CmpCommon::getDefaultNumeric(TRAF_MAX_CHARACTER_COL_LENGTH))) {
@@ -13962,13 +13915,6 @@ void CmpSeabaseDDL::alterSeabaseTableAlterColumnRename(StmtDDLAlterTableAlterCol
   }
 
   const NAType *currType = nacol->getType();
-
-  // If column is a LOB column , error
-  if ((currType->getFSDatatype() == REC_BLOB) || (currType->getFSDatatype() == REC_CLOB)) {
-    *CmpCommon::diags() << DgSqlCode(-CAT_LOB_COLUMN_ALTER) << DgColumnName(colName);
-    processReturn();
-    return;
-  }
 
   // Remove entry from shared cache (if enabled)
   // This is needed so following CLI command won't get the wrong natable

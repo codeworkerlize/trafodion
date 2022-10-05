@@ -1,24 +1,5 @@
 /* -*-C++-*-
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
+
  *****************************************************************************
  *
  * File:         BindStmtDDL.C
@@ -58,7 +39,7 @@
 #include "optimizer/NATable.h"
 #include "optimizer/RelMisc.h"
 #include "optimizer/TableDesc.h"
-#include "RelJoin.h"
+#include "optimizer/RelJoin.h"
 #include "parser/SqlParserGlobals.h"  // must be last #include
 #include "optimizer/Triggers.h"
 #include "optimizer/NormWA.h"
@@ -441,14 +422,7 @@ ExprNode *StmtDDLCreateMvRGroup::bindNode(BindWA *pBindWA) {
   return this;
 }
 
-ExprNode *StmtDDLDropMvRGroup::bindNode(BindWA *pBindWA) {
-  ComASSERT(pBindWA NEQ NULL);
-  mvRGroupQualName_.applyDefaults(pBindWA->getDefaultSchema());
-  if (pBindWA->violateAccessDefaultSchemaOnly(mvRGroupQualName_)) return this;
 
-  markAsBound();
-  return this;
-}
 
 /***********************************************************/
 // -----------------------------------------------------------------------
@@ -761,159 +735,9 @@ void addSystemColumnsToRootSelectList(RelRoot *queryRoot, MVInfoForDDL *mvInfo, 
   queryRoot->addCompExprTree(systemAddedColsExpr);
 }
 
-// -----------------------------------------------------------------------
-// definition of method bindNode() for class StmtDDLCreateMV
-// -----------------------------------------------------------------------
 
-//
-// Virtual function for performing name binding within the Create MV tree
-//   This node has three children:
-//
-//       ElemDDLNode * pMVColumnList_;
-//       ElemDDLNode * pFileOptions_;
-//       RelExpr     * pQueryExpression_;
-//
-//
-ExprNode *StmtDDLCreateMV::bindNode(BindWA *pBindWA) {
-  ComASSERT(pBindWA NEQ NULL);
 
-  pBindWA->setNameLocListPtr(&nameLocList_);
-  pBindWA->setUsageParseNodePtr(this);
 
-  MVQualName_.applyDefaults(pBindWA->getDefaultSchema());
-  if (pBindWA->violateAccessDefaultSchemaOnly(MVQualName_)) return this;
-
-  ParNameLoc *pNameLoc = nameLocList_.getNameLocPtr(MVQualName_.getNamePosition());
-  ComASSERT(pNameLoc);
-  pNameLoc->setExpandedName(MVQualName_.getQualifiedNameAsAnsiString());
-  MVInfoForDDL *mvInfo = getMVInfo();
-
-  // Bind child nodes
-  if (getOptionalColumnNames() != NULL) getOptionalColumnNames()->bindNode(pBindWA);
-
-  if (getFileOptions() != NULL) getFileOptions()->bindNode(pBindWA);
-
-  // Now call the binder to process the MV's query
-  RelExpr *queryExpr = getQueryExpression();
-  ComASSERT(queryExpr != NULL);
-  ComASSERT(queryExpr->getOperatorType() == REL_ROOT);
-  RelRoot *queryRoot = (RelRoot *)queryExpr;
-
-  mvInfo->setRootNode(queryRoot, pBindWA);
-  pBindWA->setBindingMvRefresh();
-  // Bind the direct tree
-  queryExpr = queryRoot->bindNode(pBindWA);
-  if (!pBindWA->errStatus()) {
-    queryExpr->collectMVInformation(mvInfo, FALSE);
-    mvInfo->processBoundInformation(pBindWA);
-
-    // non-recompute mvs on views aren't supported.. remove this when
-    // mvs on views are supported
-    if (mvInfo->isOnView() &&
-        ((COM_RECOMPUTE != mvInfo->getRefreshType()) && (COM_BY_USER != mvInfo->getRefreshType()))) {
-      *CmpCommon::diags() << DgSqlCode(-4222) << DgString0("Non-recompute MVs on views");
-      pBindWA->setErrStatus();
-      return this;
-    }
-
-    // Transform the direct tree.
-    NormWA normWA(CmpCommon::context());
-    ExprGroupId eg(queryExpr);
-    queryExpr->transformNode(normWA, eg);
-
-    // Normalize the direct tree
-    QueryAnalysis *queryAnalysis = CmpCommon::statement()->initQueryAnalysis();
-    RelRoot *normRoot = (RelRoot *)eg.getPtr();
-    normRoot->normalizeNode(normWA);
-
-    // Set up any UDF references for use
-    // by processNormalizedInformation().
-
-    LIST(OptUDFInfo *) &udfMVList = mvInfo->getUDFListForUpdate();
-    udfMVList.insert(getUDFList());
-
-    queryExpr->collectMVInformation(mvInfo, TRUE);
-    getMVInfo()->processNormalizedInformation(pBindWA);
-
-    if (getMVInfo()->usesOtherMVs()) {
-      // Go over the tables used by the MVs used by this MV.
-      // None of them can be directly used by this MV.
-      if (!getMVInfo()->areTablesUsedOnlyOnce(pBindWA)) {
-        getMVInfo()->setNotIncremental();
-      }
-    }
-
-#ifndef NDEBUG
-    if (CmpCommon::getDefault(MV_DUMP_DEBUG_INFO) == DF_ON) mvInfo->display();
-#endif  // NA_DEBUG_GUI
-  }
-
-  //-----------------------------------
-  // bind list of tables in changes clause
-  if (statementHasAttributeTableLists()) {
-    if (NULL NEQ pIgnoreChangesList_) {
-      QualifiedName *pQualName = &(pIgnoreChangesList_->getFirstTableInList());
-      pQualName->applyDefaults(pBindWA->getDefaultSchema());
-      if (pBindWA->violateAccessDefaultSchemaOnly(*pQualName)) return this;
-      while (pIgnoreChangesList_->listHasMoreTables()) {
-        pQualName = &(pIgnoreChangesList_->getNextTableInList());
-        pQualName->applyDefaults(pBindWA->getDefaultSchema());
-        if (pBindWA->violateAccessDefaultSchemaOnly(*pQualName)) return this;
-      }
-    }
-  }
-
-  ////---------------------------------------------
-
-  markAsBound();
-
-  pBindWA->setNameLocListPtr(NULL);
-  pBindWA->setUsageParseNodePtr(NULL);
-
-  return this;
-}
-
-// -----------------------------------------------------------------------
-// definition of method bindNode() for class StmtDDLDropMV
-// -----------------------------------------------------------------------
-
-//
-// a virtual function for performing name
-// binding within the DropMV tree
-//
-ExprNode *StmtDDLDropMV::bindNode(BindWA *pBindWA) {
-  ComASSERT(pBindWA NEQ NULL);
-  MVQualName_.applyDefaults(pBindWA->getDefaultSchema());
-  if (pBindWA->violateAccessDefaultSchemaOnly(MVQualName_)) return this;
-
-  markAsBound();
-  return this;
-}
-
-// -----------------------------------------------------------------------
-// definition of method bindNode() for class StmtDDLAlterMV
-// -----------------------------------------------------------------------
-
-ExprNode *StmtDDLAlterMV::bindNode(BindWA *pBindWA) {
-  ComASSERT(pBindWA);
-  MVQualName_.applyDefaults(pBindWA->getDefaultSchema());
-  if (pBindWA->violateAccessDefaultSchemaOnly(MVQualName_)) return this;
-
-  // bind list of tables in the changes clause
-  if (NULL NEQ pIgnoreChangesList_) {
-    QualifiedName *pQualName = &(pIgnoreChangesList_->getFirstTableInList());
-    pQualName->applyDefaults(pBindWA->getDefaultSchema());
-    if (pBindWA->violateAccessDefaultSchemaOnly(*pQualName)) return this;
-    while (pIgnoreChangesList_->listHasMoreTables()) {
-      pQualName = &(pIgnoreChangesList_->getNextTableInList());
-      pQualName->applyDefaults(pBindWA->getDefaultSchema());
-      if (pBindWA->violateAccessDefaultSchemaOnly(*pQualName)) return this;
-    }
-  }
-
-  markAsBound();
-  return this;
-}
 
 // -----------------------------------------------------------------------
 // definition of method bindNode() for class StmtDDLAlterView

@@ -14,8 +14,7 @@
  **************************************************************************
  */
 
-#include "GroupAttr.h"
-#include "MVCandidates.h"
+#include "optimizer/GroupAttr.h"
 #include "optimizer/RelRoutine.h"
 #include "arkcmp/CmpStatement.h"
 
@@ -55,7 +54,6 @@ class MJStarJoinRuleWA;
 class MJStarJoinIRuleWA;
 class MJStarBDRuleWA;
 class MultiJoin;
-class MvQueryRewriteHandler;
 class QRMVDescriptor;
 class RoutineDesc;
 
@@ -427,8 +425,7 @@ class QueryAnalysis : public NABasicObject {
   JBB *getLargestJBB();
   int getSizeOfLargestJBB();
 
-  // Handle all the MV query rewrite stuff.
-  RelExpr *handleMvQueryRewrite(RelExpr *expr);
+
 
   /* Do not inspect monitor members and methods */
   // Compile Time Monitors
@@ -469,7 +466,6 @@ class QueryAnalysis : public NABasicObject {
   // the out heap
   inline CollHeap *outHeap() { return heap_; }
 
-  MvQueryRewriteHandler *getMvQueryRewriteHandler() { return mvQueryRewriteHandler_; }
 
   inline void setMvCreation(NABoolean state) { isMvCreation_ = state; }
 
@@ -567,11 +563,7 @@ class QueryAnalysis : public NABasicObject {
   TaskMonitor tempMon_;
   CompilerPhaseEnum compilerPhase_;
 
-  // MV Query Rewrite
-  // We declare a pointer instead of an object to avoid a dependency on
-  // QueryRewriteHandler.h in this file, which would cause a lot of
-  // recompilation when the rewrite code changes.
-  MvQueryRewriteHandler *mvQueryRewriteHandler_;
+
   NABoolean isMvCreation_;
   NABoolean skippedSomeJoins_;
 

@@ -1,22 +1,8 @@
 
-/* -*-C++-*-
- *****************************************************************************
- *
- * File:         BaseTypes.cpp
- * Description:  Implementation for common data types and utility functions
- *
- *
- * Created:      7/7/95
- * Language:     C++
- *
- *
- *
- *****************************************************************************
- */
-
-#include "common/Platform.h"
 
 #include "common/BaseTypes.h"
+
+#include "common/Platform.h"
 #include "sqlci/SqlciParseGlobals.h"
 #ifdef SQLPARSERGLOBALS_FLAGS
 #include "parser/SqlParserGlobals.h"
@@ -31,13 +17,13 @@
 #include "seabed/ms.h"
 extern void my_mpi_fclose();
 
-#include "common/str.h"
-#include "common/charinfo.h"
 #include "SQLTypeDefs.h"
-#include "common/dfs2rec.h"
+#include "arkcmp/CompException.h"
 #include "cli/sqlcli.h"
 #include "common/ComSmallDefs.h"
-#include "arkcmp/CompException.h"
+#include "common/charinfo.h"
+#include "common/dfs2rec.h"
+#include "common/str.h"
 #include "parser/StmtCompilationMode.h"
 
 extern void releaseRTSSemaphore();  // Functions implemented in SqlStats.cpp
@@ -256,7 +242,7 @@ short getIntervalTypeText(char *text,                        // OUTPUT
 // based on the datatype information input to this method.
 //
 // Returns -1 in case of error, 0 if all is ok.
-short convertTypeToText_basic(char *text,         // OUTPUT
+short convertTypeToText_basic(char *text,       // OUTPUT
                               int fs_datatype,  // all other vars: INPUT
                               int length, int precision, int scale, rec_datetime_field datetimestart,
                               rec_datetime_field datetimeend, short datetimefractprec, short intervalleadingprec,
@@ -494,23 +480,6 @@ short convertTypeToText_basic(char *text,         // OUTPUT
       return getIntervalTypeText(text, datetimestart, intervalleadingprec, datetimeend, datetimefractprec);
       break;
 
-    case REC_BLOB: {
-      long len = 0;
-      len = (((long)precision) << 32 | scale & 0xFFFFFFFFL);
-      str_sprintf(text, "BLOB( %ld bytes)", len);
-    }
-
-    break;
-
-    case REC_CLOB: {
-      addCharSet = 1;
-      long len = 0;
-      len = (((long)precision) << 32 | scale & 0xFFFFFFFFL);
-      str_sprintf(text, "CLOB( %ld bytes)", len);
-    }
-
-    break;
-
     case REC_BOOLEAN:
       str_sprintf(text, "BOOLEAN");
       break;
@@ -642,12 +611,6 @@ int getAnsiTypeFromFSType(int datatype) {
     case REC_DATETIME:
       numeric_value = SQLTYPECODE_DATETIME;
       break;
-    case REC_BLOB:
-      numeric_value = SQLTYPECODE_BLOB;
-      break;
-    case REC_CLOB:
-      numeric_value = SQLTYPECODE_CLOB;
-      break;
 
     case REC_BOOLEAN:
       numeric_value = SQLTYPECODE_BOOLEAN;
@@ -773,13 +736,6 @@ const char *getAnsiTypeStrFromFSType(int datatype) {
 
     case REC_DATETIME:
       return COM_DATETIME_SDT_LIT;
-      break;
-
-    case REC_BLOB:
-      return COM_BLOB_SDT_LIT;
-      break;
-    case REC_CLOB:
-      return COM_CLOB_SDT_LIT;
       break;
 
     case REC_BOOLEAN:
@@ -1036,12 +992,7 @@ int getFSTypeFromANSIType(int ansitype) {
     case SQLTYPECODE_DATETIME:
       datatype = REC_DATETIME;
       break;
-    case SQLTYPECODE_BLOB:
-      datatype = REC_BLOB;
-      break;
-    case SQLTYPECODE_CLOB:
-      datatype = REC_CLOB;
-      break;
+
     default:
       // error
       datatype = ansitype;

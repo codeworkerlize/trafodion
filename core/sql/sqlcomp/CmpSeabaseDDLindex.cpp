@@ -205,22 +205,7 @@ short CmpSeabaseDDL::createIndexColAndKeyInfoArrays(
     }
 
     const NAType *naType = tableCol->getType();
-    if (naType->getFSDatatype() == REC_BLOB || naType->getFSDatatype() == REC_CLOB ||
-        naType->getFSDatatype() == REC_ROW || naType->getFSDatatype() == REC_ARRAY)
-    // Cannot allow LOB, ROW or ARRAY in primary or clustering key
-    {
-      NAString type;
-      if (naType->getFSDatatype() == REC_BLOB || naType->getFSDatatype() == REC_CLOB)
-        type = "BLOB/CLOB";
-      else if (naType->getFSDatatype() == REC_ROW)
-        type = "ROW";
-      else
-        type = "ARRAY";
-      *CmpCommon::diags() << DgSqlCode(-CAT_LOB_COL_CANNOT_BE_INDEX_OR_KEY) << DgColumnName(nodeKeyCol->getColumnName())
-                          << DgString0(type);
-      processReturn();
-      return -1;
-    }
+
 
     NAString newColName(nodeKeyCol->getColumnName());
     NAString colNameSuffix("@");

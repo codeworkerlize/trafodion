@@ -285,8 +285,7 @@ class CmpStatement : public NABasicObject {
   // for error reporting for UDFs, keep a list of requirements the UDF refused
   LIST(const NAString *) * detailsOnRefusedRequirements_;
 
-  // indicates whether we are retrying the compile in
-  // CmpMain::sqlcomp(QueryText, ...
+
   int numOfCompilationRetries_;
 
   // Set to TRUE if we are recompiling a statement due to expiration of an

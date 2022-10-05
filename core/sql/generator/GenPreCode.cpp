@@ -8,7 +8,7 @@
 #include "common/OperTypeEnum.h"
 
 #include "optimizer/Sqlcomp.h"
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 #include "optimizer/AllRelExpr.h"
 #include "RelPackedRows.h"
 #include "generator/Generator.h"
@@ -22,7 +22,7 @@
 #include "optimizer/TriggerDB.h"
 #include "Cost.h"
 #include "optimizer/CostMethod.h"
-#include "ItmFlowControlFunction.h"
+#include "optimizer/ItmFlowControlFunction.h"
 #include "optimizer/UdfDllInteraction.h"
 #include "StmtDDLNode.h"
 
@@ -31,7 +31,7 @@
 
 #include "arkcmp/CmpStatement.h"
 #include "optimizer/OptimizerSimulator.h"
-#include "ItemFunc.h"
+#include "optimizer/ItemFunc.h"
 #include "optimizer/ControlDB.h"
 #include "sqlcomp/CmpSeabaseDDL.h"
 #include "comexe/NAExecTrans.h"

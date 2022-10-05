@@ -15,7 +15,7 @@
 #include "optimizer/AllRelExpr.h"
 #include "optimizer/AllItemExpr.h"
 #include "arkcmp/CmpContext.h"
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 #include "optimizer/NormWA.h"
 #include "optimizer/opt.h"
 #include "optimizer/PhyProp.h"

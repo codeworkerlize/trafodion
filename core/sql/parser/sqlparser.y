@@ -122,7 +122,7 @@ using namespace std;
 #include "common/ComTransInfo.h"
 #include "optimizer/ControlDB.h"
 #include "arkcmp/CmpStatement.h"
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 #include "export/HeapLog.h"
 #include "HvTypes.h"
 #include "optimizer/ItemExprList.h"
@@ -136,7 +136,7 @@ using namespace std;
 #include "RelDCL.h"
 #include "RelPackedRows.h"
 #include "RelSample.h"
-#include "RelSequence.h"
+#include "optimizer/RelSequence.h"
 #include "sqlci/SqlciError.h"
 #include "cli/sqlcli.h"
 #include "SqlParserAux.h"
@@ -148,10 +148,8 @@ using namespace std;
 #include "ItemNAType.h"
 
 // MV
-#include "Refresh.h"
+
 #include "ItemLog.h"
-#include "MvLog.h"
-#include "StmtDDLCreateMV.h"
 
 #include "parser/StmtNode.h"
 #include "common/wstr.h"
@@ -1887,7 +1885,6 @@ static void setPartionInfo(RelExpr *re)
   IncrementalRefreshOption	*pIncrementalRefreshOption;
   RecomputeRefreshOption	*pRecomputeRefreshOption;
 
-  DeltaOptions			*pDeltaOptions;
   DeltaDefLogs			*pDeltaDefLogs;  
   DeltaDefRangeLog		*pDeltaDefRangeLog; 
   DeltaDefIUDLog		*pDeltaDefIUDLog;
@@ -1986,7 +1983,6 @@ static void setPartionInfo(RelExpr *re)
 // MVGROUPS
 %type <pStmtDDL>  		  create_mvrgroup_statement  
 %type <pStmtDDL>  		  drop_mvrgroup_statement  
-%type <pStmtDDL>		  alter_mv_refresh_group_statement 
 %type <MVRGAlterActionType>	  mv_group_alter_action_type
 %type <partitionEntityType>	  partition_entity_type
 %type <pQualName>		  mv_group_name_to_alter
@@ -1996,17 +1992,6 @@ static void setPartionInfo(RelExpr *re)
 %type <relx>			  internal_refresh_command
 %type <relx>			  internal_refresh_options
 %type <pQualName>		  internal_refresh_mv_name
-%type <pRecomputeRefreshOption>	  recompute_refresh_options
-%type <pIncrementalRefreshOption> incremental_refresh_options
-%type <pDeltaDefinitionPtrList>	  delta_definition_list
-%type <pDeltaDefinition>	  delta_definition_node
-%type <uint>			  begin_epoch
-%type <uint>			  end_epoch
-%type <pDeltaOptions>		  delta_options 
-%type <pDeltaDefLogs>		  delta_def_logs
-%type <pDeltaDefRangeLog>	  delta_def_range_log
-%type <pDeltaDefIUDLog>		  delta_def_iud_log
-%type <pIUDStatistics>		  iud_statistics_rows 
 %type <uint>			  num_inserted 
 %type <uint>			  num_deleted 
 %type <uint>			  num_updated 
@@ -2022,11 +2007,6 @@ static void setPartionInfo(RelExpr *re)
 %type <pQualifiedNamePtrList>	  pipeline_mv_name_list
 %type <pQualName>	          pipeline_mv_name_node
 
-// MVLOG
-%type <relx>			  mvlog_command
-%type <tokval>			  mvlog_keywords 
-%type <pQualName>		  mvlog_table_name
-%type <item>                      mvlog_values_list
 
 // IUD
 %type <uint>                      no_check_log_rep_read
@@ -2629,7 +2609,6 @@ static void setPartionInfo(RelExpr *re)
 %type <longint>                 udf_cost
 %type <pStmtDDL>  		table_definition
 %type <pStmtDDL>  		view_definition
-%type <pStmtDDL>  		mv_definition 
 %type <boolean>                 create_mv_keywords
 %type <createViewBehaviorEnum>  create_view_keywords
 %type <pStmtDDL>  		trigger_definition
@@ -2767,15 +2746,6 @@ static void setPartionInfo(RelExpr *re)
 %type <pStmtDDL>  		alter_index_statement
 %type <pStmtDDL>  		alter_trigger_statement
 %type <pStmtDDL>  		alter_view_statement
-//++ MV
-%type <pStmtDDL>  		alter_mv_statement   
-%type <pStmtDDL>  		alter_mv_body
-%type <pStmtDDL>  		alter_mv_query_rewrite
-%type <pStmtDDL>  		alter_mv_file_attribs
-%type <pStmtDDL>  		alter_mv_mvfile_attribs
-%type <pStmtDDL>                alter_mv_rename
-%type <pStmtDDL>                alter_mv_attribute_table_lists
-//-- MV
 
 %type <pStmtDDL>		alter_audit_config_statement
 %type <pStmtDDL>		alter_catalog_statement
@@ -16506,9 +16476,7 @@ sql_schema_definition_statement :
 	      | trigger_definition
 				{
                                 }
-	      | mv_definition
-				{
-                                }
+
 	      | package_definition
                                 {
                                 }
@@ -16588,10 +16556,7 @@ sql_schema_manipulation_statement :
               | alter_table_statement
 				{
 				}
-	      | alter_mv_refresh_group_statement
-			        {
-                                  // MV - RG
-                                }
+
               | alter_synonym_statement
                                 {
                                 }
@@ -16599,9 +16564,6 @@ sql_schema_manipulation_statement :
 				{
 				}
 
-              | alter_mv_statement
-				{
-				}
 
               | alter_user_statement
 				{
@@ -16645,7 +16607,6 @@ sql_schema_manipulation_statement :
 				{
 				}
 
-	      |	drop_mvrgroup_statement
               | drop_trigger_statement
 				{
 				}
@@ -16930,10 +16891,7 @@ interactive_query_expression:
 		  {
 			$$ = finalize($1); 
 		  }
-	      | mvlog_command
-		  {
-			$$ = finalize($1);
-		  }
+
               | anonymous_block_statement
                   {
                         $$ = finalize($1);
@@ -34801,122 +34759,6 @@ as_token: TOK_AS
 	}
 
 
-//----------------------------------------------------------------------------
-// type pStmtDDL 
-mv_definition: create_mv_keywords ddl_qualified_name
-		optional_view_column_list
-		refresh_type
-		create_mv_attribute_table_lists // changes clause
-		mv_initialization_clause
-		optional_query_rewrite
-		optional_create_mv_file_options
-//                optional_by_auth_identifier		
-                optional_in_memory_clause
-                as_token query_expression
-    {
-      *SqlParser_Diags << DgSqlCode(-3131);
-      YYERROR;
-
-      RelRoot *top = finalize($11);
-      ForUpdateSpec spec(FALSE);
-      spec.finalizeUpdatability(top);
-
-      if (($9) &&
-	  (CmpCommon::getDefault(COMP_BOOL_219) == DF_OFF))
-	{
-	  // syntax not yet supported
-	  yyerror(""); 
-	  YYERROR; 
-	}
-
-      // ( The following was taken from CREATE VIEW )
-      // The following applies when the user specified BROWSE, STABLE or 
-      // REPEATABLE access type and/or the user specified SHARE or EXCLUSIVE 
-      // lock mode
-      if (top->accessOptions().userSpecified())
-	{
-	  // Genesis 10-980217-0467:
-	  // FOR xxx ACCESS not allowed in C.V.
-	  // At first blush allowing it seems a nifty shorthand -- but it 
-	  // does not fit at all well with Ansi/Tdm txn/stmt isolation-level 
-	  // defaulting model. Also see BindWA::bindView.
-	  *SqlParser_Diags << DgSqlCode(-3168);
-	  ComASSERT(top->accessOptions().lockMode() ==
-		    LOCK_MODE_NOT_SPECIFIED_);
-	  YYERROR;
-	}
-
-      //++MV
-      // FIRST/ANY is not allowed in query expresion of MVs.
-      if ($11->getFirstNRows() != -1)
-      {
-	*SqlParser_Diags << DgSqlCode(-12318);
-	YYERROR;
-      }
-      //--MV
-
-      // REFRESH BY USER Syntax
-      if ($4 == COM_BY_USER)
-	{
-	  if ($6 != MVINIT_BY_USER &&
-	      $6 != MVINIT_ON_CREATE)
-	    { // REFRESH BY USER must be followed by INITIALIZE BY USER or ON CREATE.
-	      *SqlParser_Diags << DgSqlCode(-12332);
-	      YYERROR;
-	    }
-	}
-      else
-        { // This is not REFRESH BY USER, do not allow INIT BY USER
-	  if ($6 == MVINIT_BY_USER)
-	    { // This materialized view cannot be of type INITIALIZE BY USER.
-	      *SqlParser_Diags << DgSqlCode(-12085);
-	      YYERROR;
-	    }
-        }
-      
-      StmtDDLCreateMV *pCreateMVParseNode
-	= new (PARSERHEAP())
-	     StmtDDLCreateMV( *$2,  // ddl_qualified_name 
-			      *ParNameLocListPtr,
-			      $3, // optional_view_column_list 
-			      $4, // refresh_type 
-			      $5, // changes clause 
-			      $6, // mv_initialization_clause 
-			      $7, // optional_query_rewrite 
-			      $8, // optional_create_mv_file_options 
-			      top,
-                              NULL // optional_by_auth_identifier
-			      );
-      delete $2; // ddl_qualified_name 
-
-      pCreateMVParseNode->setInMemoryObjectDefn($9);
-
-      pCreateMVParseNode->synthesize();
-
-      if (ParSetTextEndPos(pCreateMVParseNode)) // Set the end of text, and 
-	{					// copy all those global 
-	  yyerror("");				// position keepers into this 
-	  YYERROR;				// ParseNode
-	}
-
-      $$ = pCreateMVParseNode;
-
-      if ($1) /*create_mv_keywords*/
-        $$->setIsGhostObject(TRUE);
-
-      //
-      // ParNameLocListPtr is no longer needed. Cleanup globals.
-      //
-      delete ParNameLocListPtr;
-      ParNameLocListPtr = NULL;
-      ParNameLocListPtr = ParNameSavedLocListPtr;
-      ParEndOfOptionalColumnListPos = 0 ;
-      ParBeginingOfFileOptionsListPos = 0;
-      ParEndOfFileOptionsListPos = 0;
-      ParEndOfSelectColumnListPos = 0 ;
-      WeAreInACreateMVStatement = FALSE;
-      ThisIsTheFirstMVQuerySelect = TRUE;
-    }
 
 
 /* type boolean */
@@ -35958,16 +35800,6 @@ alter_index_action : file_attribute_clause
 //----------------------------------------------------------------------------
 // MV - RG
 
-/* type pStmtDDL */
-alter_mv_refresh_group_statement : TOK_ALTER TOK_MVGROUP mv_group_name_to_alter
-			mv_group_alter_action_type mv_name_list
-{
-  $$ = new (PARSERHEAP())StmtDDLAlterMvRGroup(*$3, // groupQaulName
-                                              $4, // action
-                                              $5 // ElemDDLList of MVs
-                                              );
-  delete $3;
-}
 
 
 /* type pQualName */
@@ -36008,325 +35840,10 @@ mv_name_list : mv_name_node
 				   }
 
 
-/* type pElemDDL */
-mv_name_node : ddl_qualified_name
-					   {
-						$$ = new (PARSERHEAP())ElemDDLQualName(*$1);
-						delete $1;
-					   }
-
-
-
-//----------------------------------------------------------------------------
-//++ INTERNAL REFRESH PARSING SECTION
-
-// OZ_REFRESH
-
-// relx
-internal_refresh_command : TOK_INTERNAL TOK_REFRESH internal_refresh_options
-			  {
-     	     		    if (Get_SqlParser_Flags(ALLOW_SPECIALTABLETYPE) &&
-			        Get_SqlParser_Flags(ALLOW_FUNNY_IDENTIFIER)	)
-			    {
-			      $$ = $3;
-		            }
-			    else
-			    { yyerror(""); YYERROR; /*internal syntax only!*/}
-			  }
-
-// relx				
-internal_refresh_options : internal_refresh_mv_name recompute_refresh_options
-			  {
-			    $$ = new (PARSERHEAP())Refresh(*$1,
-							    $2->getIsNoDelete());
-							    // NEW RECOMPUTE
-			    delete $1;
-			    delete (RecomputeRefreshOption*)$2;
-
-			  }
-			  | internal_refresh_mv_name incremental_refresh_options
-			  {
-			    $2->synthesize(); // without this nothing will work
-			    // $2->trace();
-
-			    if (IncrementalRefreshOption::SINGLEDELTA == $2->getType())
-			    {
-			      $$ = new (PARSERHEAP())Refresh( *$1, // mvName
-							$2->getDeltaDefPtrList(), 
-							$2->getNRowsClause(),
-							$2->getPipelineClause());
-			    } else if (IncrementalRefreshOption::MULTIDELTA == $2->getType())
-			      $$ = new (PARSERHEAP())Refresh( *$1, // mvName
-							      $2->getDeltaDefPtrList(),
-							      $2->getPhaseNum(),
-							      $2->getPipelineClause());
-			    delete $1;
-			    delete $2;
-
-			  }
-
-
-
-// pQualName			
-internal_refresh_mv_name : qualified_name
-			{
-			  $$ = qualifiedNameFromStrings($1);
-			  // delete $1 done in qualifiedNameFromStrings;
-			}
-
-
-
-// pRecomputeRefreshOption
-recompute_refresh_options: TOK_RECOMPUTE TOK_NODELETE
-			 {
-			  $$ = new (PARSERHEAP())RecomputeRefreshOption(TRUE);
-			 }
-			 | TOK_RECOMPUTE
-			 {
-			  $$ = new (PARSERHEAP())RecomputeRefreshOption(FALSE);
-			 }
-
-// pIncrementalRefreshOption	
-incremental_refresh_options : TOK_FROM TOK_SINGLEDELTA delta_definition_list optional_nrows_clause optional_pipeline_clause
-			    {
-			      $$ = new (PARSERHEAP())IncrementalRefreshOption
-				      (
-				      $3, //pDeltaDefinitionPtrList 
-				      $4, // pOptionalNRowsClause
-				      $5  // pOptionalPipelineClause
-				      );
-
-			    }
-			    | TOK_FROM TOK_MULTIDELTA delta_definition_list TOK_PHASE unsigned_integer optional_pipeline_clause
-			    {
-			      $$ = new (PARSERHEAP())IncrementalRefreshOption
-					  (
-					  $3, //pDeltaDefinitionPtrList 
-					  $5, // uint
-					  $6  // pOptionalPipelineClause
-					  );
-
-			    }
-
-						   
-//pDeltaDefinitionPtrList		
-delta_definition_list : delta_definition_node
-		      {
-			$$ = new (PARSERHEAP())DeltaDefinitionPtrList();
-			$$->insert($1);
-		      }
-		      |
-		      delta_definition_list ',' delta_definition_node
-		      {
-			$1->insert($3);
-			//delete $3;
-			$$ = $1;
-		      }
-//pDeltaDefinition		
-delta_definition_node: qualified_name TOK_BETWEEN begin_epoch TOK_AND end_epoch delta_options
-					   {
-					      $$ = new(PARSERHEAP())DeltaDefinition
-						  (
-							  qualifiedNameFromStrings($1),
-							  $3, // begin_epoch
-							  $5, // end_epoch
-							  $6 // pDeltaOptions
-						  );
-					      
-					      // delete $1 done in qualifiedNameFromStrings;
-
-
-					   }
-					   
-//uint						
-begin_epoch : unsigned_integer
-
-
-//uint						
-end_epoch : unsigned_integer
-
-
-//pDeltaOptions
-delta_options : TOK_DE TOK_LEVEL unsigned_integer delta_def_logs
-		{
-		  $$ = new (PARSERHEAP())DeltaOptions($3, $4);
-		}
-
-//pDeltaDefLogs
-delta_def_logs : delta_def_range_log delta_def_iud_log
-		{
-		  $$ = new (PARSERHEAP())DeltaDefLogs($1, $2);
-		}
-
-//pDeltaDefRangeLog
-delta_def_range_log : TOK_USE TOK_NO TOK_RANGELOG 
-		      {
-		        $$ = new (PARSERHEAP())DeltaDefRangeLog(DeltaDefRangeLog::NO_LOG);
-		      }
-	  	      | TOK_USE TOK_RANGELOG unsigned_integer TOK_NUM_OF_RANGES
-		      {
-		        $$ = new (PARSERHEAP())DeltaDefRangeLog(DeltaDefRangeLog::CARDINALITY_ONLY, $3);
-		      }
-		      | TOK_USE TOK_RANGELOG unsigned_integer TOK_NUM_OF_RANGES unsigned_integer TOK_ROWS_COVERED
-		      {
-		        $$ = new (PARSERHEAP())DeltaDefRangeLog(DeltaDefRangeLog::ALL, $3, $5);
-		      }
-
-//pDeltaDefIUDLog
-delta_def_iud_log :  TOK_USE TOK_IUDLOG iud_statistics_rows
-		    {
-		      $$ = new (PARSERHEAP())DeltaDefIUDLog(DeltaDefIUDLog::STAT, 
-							    $3 //pIUDStatistics 
-							    );
-		    }
-		    | TOK_USE TOK_NO TOK_IUDLOG 
-		    {
-		      $$ = new (PARSERHEAP())DeltaDefIUDLog(DeltaDefIUDLog::NO_LOG);
-		    }
-		    | TOK_USE TOK_IUDLOG TOK_INSERT TOK_ONLY
-		    {
-		      $$ = new (PARSERHEAP())DeltaDefIUDLog(DeltaDefIUDLog::INSERT_ONLY);
-		    }
-		    | TOK_USE TOK_IUDLOG
-		    {
-		      $$ = new (PARSERHEAP())DeltaDefIUDLog(DeltaDefIUDLog::NO_STAT);
-		    }
-		    
-
-//pIUDStatistics
-iud_statistics_rows : num_inserted num_deleted num_updated optional_update_collumns
-		    {
-		      $$ = new (PARSERHEAP())IUDStatistics($1,$2,$3,$4);
-		    }
-
-//uint						
-num_inserted : unsigned_integer TOK_ROWS_INSERTED
-	     {
-		$$ = $1;
-	     }
-
-//uint						
-num_deleted : unsigned_integer TOK_ROWS_DELETED
-	   {
-	      $$ = $1;
-	   }
-
-//uint						
-num_updated : unsigned_integer TOK_ROWS_UPDATED
-	   {
-	    $$ = $1;
-	   }
-
-			  
-// pIntegerList
-optional_update_collumns :  TOK_COLUMNS '(' columns_num_list ')'
-			{
-			  $$ = $3; 
-			}
-			|empty
-			 {
-			    $$ = NULL;				   
-			 }
-
-
-// pIntegerList
-columns_num_list : unsigned_integer 
-		 {
-		  $$ = new (PARSERHEAP())IntegerList();
-		  $$->insert($1);
-		 }
-		 | columns_num_list ',' unsigned_integer
-		 {
-		  $1->insert($3);
-		  $$ = $1;
-		 }
-			  
-// pOptionalNRowsClause
-optional_nrows_clause: empty
-		     {
-			$$ = NULL;
-		     }
-		     | TOK_COMMIT TOK_EACH unsigned_integer TOK_PHASE phase_num optional_catchup
-		     {
-		      
-		       $$ = new (PARSERHEAP())NRowsClause( $3, // commit each
-							  $5, // PHASE
-							  $6 // pOptionalCatchupClause
-							  );
-		     }
-
-
-
-//uint						
-phase_num : unsigned_integer
-
-// item
-optional_catchup : empty
-		  {
-		    $$ = NULL;
-		  }
-		  | TOK_CATCHUP unsigned_integer
-		  {
-		    $$ = new (PARSERHEAP())ConstValue($2);
-		  }
-		  | TOK_CATCHUP dynamic_parameter
-		  {
-		    $$ = $2;
-		  }
 
 
 
 
-//pPipelineClause
-optional_pipeline_clause : empty
-			 {
-			    $$ = NULL;
-			 }
-			 | pipeline_clause
-			 {
-			    $$ = $1;
-			 }
-
-//pPipelineClause				
-pipeline_clause :  TOK_PIPELINE '(' pipeline_mv_name_list ')' pipeline_def_list
-		 {
-		    $$ = new (PARSERHEAP())PipelineClause($3, $5);
-		 }
-		 | TOK_PIPELINE '(' pipeline_mv_name_list ')' 
-		 {
-		    $$ = new (PARSERHEAP())PipelineClause($3);
-		 }
-
-					
-
-// pPipelineDefPtrList
-pipeline_def_list: pipeline_def
-		  {
-
-		    PipelineDefPtrList * pOneNodeDefList = 
-						    new (PARSERHEAP())PipelineDefPtrList();
-
-		    pOneNodeDefList->insert($1);
-						    
-		    $$ = pOneNodeDefList;
-		  }
-		  
-		  | pipeline_def_list ',' pipeline_def
-		     {
-			$1->insert($3);
-			//delete $3;
-			$$ = $1;
-		     }
-
-
-// pPipelineDef
-pipeline_def: qualified_name TOK_PIPELINE '(' pipeline_mv_name_list ')'
-	    {
-	      QualifiedName * mvName = qualifiedNameFromStrings($1);
-	      // delete $1 done in qualifiedNameFromStrings;
-	      
-	      $$ = new (PARSERHEAP())PipelineDef( mvName, $4 );
-	    }
 
 //pQualName
 pipeline_mv_name_list: pipeline_mv_name_node
@@ -36355,28 +35872,9 @@ pipeline_mv_name_node: qualified_name
 //----------------------------------------------------------------------------
 //++ MVLOG
 
-mvlog_command : mvlog_keywords mvlog_table_name 
-				'(' column_list ')' TOK_BETWEEN mvlog_values_list TOK_AND mvlog_values_list
-				{
-					$$ = new (PARSERHEAP()) MvLog($2, $4, $7, $9);
-				}
 
-mvlog_values_list : '(' value_expression ')' 
-					{
-					  $$ = $2;
-					}
-					| '(' value_expression_list_comma ')' 
-					{
-					  $$ = $2;
-					}
 
-mvlog_keywords : TOK_MVLOG TOK_INTO TOK_RANGELOG TOK_OF
 
-mvlog_table_name : qualified_name
-				   {
-				     $$ = qualifiedNameFromStrings($1);
-				     // delete $1 done in qualifiedNameFromStrings;
-				   }
 
 
 //-- MVLOG
@@ -36507,108 +36005,7 @@ alter_view_statement : alter_view_start_tokens
                             delete $2;  // ddl_qualified_name
                           }
 
-//----------------------------------------------------------------------------
-//++ MV
 
-// type pStmtDDL
-alter_mv_statement : TOK_ALTER optional_ghost mv_token alter_mv_body
-					 {
-                                           *SqlParser_Diags << DgSqlCode(-3131);
-                                           YYERROR;
-                                           
-                                           $4->castToStmtDDLAlterMV()->synthesize();
-                                           $$ = $4 /*alter_mv_body*/;
-                                           if ($2) /*optional_ghost*/
-                                             $$->setIsGhostObject(TRUE);
-					 }
-
-
-// type pStmtDDL
-alter_mv_body : alter_mv_query_rewrite
-				   {
-					   $$ = $1;
-				   }
-				| alter_mv_file_attribs
-				{
-					$$ = $1;
-				}
-				| alter_mv_mvfile_attribs
-				{
-					$$ = $1;
-				}
-				| alter_mv_rename
-				{
-					$$ = $1;
-				}
-                                | alter_mv_attribute_table_lists
-                                {
-                                        $$ = $1;
-                                }
-
-
-
-// type pStmtDDL
-alter_mv_query_rewrite : ddl_qualified_name enable_status TOK_QUERY TOK_REWRITE 
-					 {
-						$$ = new (PARSERHEAP())StmtDDLAlterMV( *$1, //ddl_qualified_name
-																$2 // enable_status 
-																);
-						delete $1;
-					 }
-
-// type pStmtDDL
-alter_mv_file_attribs : ddl_qualified_name file_attribute_clause 
-					{
-						$$ = new (PARSERHEAP())StmtDDLAlterMV( *$1, //ddl_qualified_name
-																$2 // ElemDDLFileAttrClause 
-																);
-						delete $1;
-					}
-
-// type pStmtDDL
-alter_mv_mvfile_attribs : ddl_qualified_name mv_file_attribute_clause 
-					{
-						$$ = new (PARSERHEAP())StmtDDLAlterMV( *$1, //ddl_qualified_name
-																$2 // ElemDDLFileAttrClause 
-																);
-						delete $1;
-					}
-
-/* type pStmtDDL */
-alter_mv_rename : ddl_qualified_name TOK_RENAME TOK_TO identifier
-                                 optional_cascade
-                                {
-                                  $$ = new (PARSERHEAP())StmtDDLAlterMV
-                                           ( *$1 // ddl_qualified_name (old name)
-                                           , *$4 // identifier (new name)
-                                           ,  $5 // optional_cascade
-                                           );
-                                  delete $1;  // ddl_qualified_name
-                                  delete $4;  // identifier
-                                }
-
-/* type pStmtDDL */
-alter_mv_attribute_table_lists : ddl_qualified_name TOK_ADD ignore_changes_on_table_list
-                                 {
-                                   $$ = new (PARSERHEAP()) StmtDDLAlterMV
-                                         ( *$1
-                                         ,  $3
-                                         , StmtDDLAlterMV::ADD_IGNORE_CHANGES_LIST
-                                         );
-
-                                  delete $1;
-                                 }
-
-                               | ddl_qualified_name TOK_REMOVE ignore_changes_on_table_list
-                                 {
-                                   $$ = new (PARSERHEAP()) StmtDDLAlterMV
-                                         ( *$1
-                                         ,  $3
-                                         , StmtDDLAlterMV::REMOVE_IGNORE_CHANGES_LIST
-                                         );
-
-                                  delete $1;
-                                 }
 
 
 /* type boolean */
@@ -38280,16 +37677,7 @@ drop_table_start_tokens : TOK_DROP TOK_TABLE
                      $$ = 6;
 				   }
 
-/* type pStmtDDL */
-// MV - RG
-drop_mvrgroup_statement : TOK_DROP TOK_MVGROUP ddl_qualified_name
-{
-  *SqlParser_Diags << DgSqlCode(-3131);
-  YYERROR;
 
-  $$ = new (PARSERHEAP())StmtDDLDropMvRGroup(*$3);
-  delete $3;
-}
 
 /* type pStmtDDL */
 drop_trigger_statement : TOK_DROP TOK_TRIGGER ddl_qualified_name 

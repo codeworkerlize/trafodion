@@ -21,7 +21,7 @@
 #include "optimizer/ObjectNames.h"
 #include "optimizer/RelExpr.h"
 #include "SearchKey.h"
-#include "RelJoin.h"
+#include "optimizer/RelJoin.h"
 #include "optimizer/RelScan.h"
 #include "optimizer/CostMethod.h"
 // -----------------------------------------------------------------------
@@ -599,9 +599,7 @@ class GenericUpdate : public RelExpr {
   // Add to the RETDesc the virtual columns needed for MV logging.
   void prepareForMvLogging(BindWA *bindWA, CollHeap *heap);
 
-  // Create the subtree for inserting rows into the MV log table.
-  RelExpr *createMvLogInsert(BindWA *bindWA, CollHeap *heap, UpdateColumns *updatedColumns,
-                             NABoolean projectMidRangeRows);
+
 
   RelExpr *inlineOnlyRIandIMandMVLogging(BindWA *bindWA, RelExpr *topNode, NABoolean needIM,
                                          RefConstraintList *riConstraints, NABoolean isMVLoggingRequired,
@@ -610,18 +608,6 @@ class GenericUpdate : public RelExpr {
   // Finish the inlining procedure.
   void InliningFinale(BindWA *bindWA, RelExpr *topNode, RETDesc *origRETDesc);
 
-  // MV
-  // Add all the ON STATEMENT MVs that should be refreshed as a result of the
-  // current IUD action to the list of triggers
-  BeforeAndAfterTriggers *getTriggeredMvs(BindWA *bindWA, BeforeAndAfterTriggers *list, UpdateColumns *columns);
-
-  // MV
-  // The actual insertion of the ON STATEMENT MVs to the list of triggers.
-  // This method is NOT implemented for GenericUpdate, but do implemented
-  // for the derived classes (Insert Update and Delete).
-  virtual void insertMvToTriggerList(BeforeAndAfterTriggers *list, BindWA *bindWA, CollHeap *heap,
-                                     const QualifiedName &mvName, MVInfoForDML *mvInfo,
-                                     const QualifiedName &subjectTable, UpdateColumns *updateCols = NULL);
 
   // If we are reading from the same table we are updating, check to
   // see if we can support this potential halloween problem
@@ -1079,12 +1065,7 @@ class Insert : public GenericUpdate {
   virtual RelExpr *createEffectiveGU(BindWA *bindWA, CollHeap *heap, TriggersTempTable &tempTableObj,
                                      GenericUpdate **effectiveGUNode, UpdateColumns *colsToSet = NULL);
 
-  // MV
-  // The actual insertion of the ON STATEMENT Mv to the list of triggers
-  virtual void insertMvToTriggerList(BeforeAndAfterTriggers *list, BindWA *bindWA, CollHeap *heap,
-                                     const QualifiedName &mvName, MVInfoForDML *mvInfo,
-                                     const QualifiedName &subjectTable, UpdateColumns *updateCols = NULL);
-
+  
   //////////////////////////////////////////////////////
   virtual NABoolean pilotAnalysis(QueryAnalysis *qa);
   //////////////////////////////////////////////////////
@@ -1249,11 +1230,6 @@ class Update : public GenericUpdate {
   virtual RelExpr *createEffectiveGU(BindWA *bindWA, CollHeap *heap, TriggersTempTable &tempTableObj,
                                      GenericUpdate **effectiveGUNode, UpdateColumns *colsToSet = NULL);
 
-  // MV
-  // The actual insertion of the ON STATEMENT Mv to the list of triggers
-  virtual void insertMvToTriggerList(BeforeAndAfterTriggers *list, BindWA *bindWA, CollHeap *heap,
-                                     const QualifiedName &mvName, MVInfoForDML *mvInfo,
-                                     const QualifiedName &subjectTable, UpdateColumns *updatedCols = NULL);
 
   RelExpr *transformUpdateNoDtmXn(BindWA *bindWA, NABoolean updatePKey);
 
@@ -1273,10 +1249,7 @@ class Update : public GenericUpdate {
  private:
   typedef enum { IRELEVANT = 0, DIRECT, INDIRECT } MvUpdateType;
 
-  // MV
-  // checks the type of the update needed on the ON STATEMENT MV.
-  MvUpdateType checkUpdateType(MVInfoForDML *mvInfo, const QualifiedName &subjectTable,
-                               UpdateColumns *updatedCols) const;
+
 
   // checks if any of the columns being updated either
   // (a) are part of the clustering key of the base table or
@@ -1404,11 +1377,6 @@ class Delete : public GenericUpdate {
   virtual RelExpr *createEffectiveGU(BindWA *bindWA, CollHeap *heap, TriggersTempTable &tempTableObj,
                                      GenericUpdate **effectiveGUNode, UpdateColumns *colsToSet = NULL);
 
-  // MV
-  // The actual insertion of the ON STATEMENT Mv to the list of triggers
-  virtual void insertMvToTriggerList(BeforeAndAfterTriggers *list, BindWA *bindWA, CollHeap *heap,
-                                     const QualifiedName &mvName, MVInfoForDML *mvInfo,
-                                     const QualifiedName &subjectTable, UpdateColumns *updateCols = NULL);
   RelExpr *xformDeleteToEfficientTree(BindWA *bindWA, RelExpr *deleteExpr);
   virtual RelExpr *xformPartitionPruning(BindWA *bindWA, RelExpr *gu = NULL, OperatorTypeEnum op = NO_OPERATOR_TYPE);
   ConstStringList *&csl() { return csl_; }

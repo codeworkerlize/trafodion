@@ -1,24 +1,8 @@
 
-/* -*-C++-*-
- *****************************************************************************
- *
- * File:         parser.C
- * Description:
- *
- *
- * Created:      8/30/1996
- * Modified:     $ $Date: 2007/03/08 02:22:32 $ (GMT)
- * Language:     C++
- * Status:       $State: Exp $
- *
- *
- *
- *
- *****************************************************************************
- */
 
 #include <ctype.h>
 #include <wchar.h>
+
 #include "common/NAWinNT.h"
 #include "common/arkcmp_parser_defs.h"
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
@@ -26,31 +10,29 @@
 #define SQLPARSERGLOBALS_LEX_AND_PARSE
 #define SQLPARSERGLOBALS_NADEFAULTS
 #define SQLPARSERGLOBALS_NAMES_AND_TOKENS
-#include "parser/SqlParserGlobals.h"
-#include "common/NLSConversion.h"
-#include "common/csconvert.h"
-#include "parser/ulexer.h"
-
-#include "arkcmp/CmpContext.h"
-#include "arkcmp/CmpStatement.h"
-#include "arkcmp/CmpErrLog.h"
 #include "HvRoles.h"
+#include "arkcmp/CmpContext.h"
+#include "arkcmp/CmpErrLog.h"
+#include "arkcmp/CmpStatement.h"
+#include "arkcmp/CompException.h"  // for CmpInternalException
+#include "common/ComCextdecs.h"
 #include "common/NAExit.h"
 #include "common/NAMemory.h"
-#include "sqlmsg/ParserMsg.h"
-#include "sqlcomp/parser.h"
+#include "common/NLSConversion.h"
 #include "common/QueryText.h"
+#include "common/csconvert.h"
+#include "common/str.h"
 #include "optimizer/RelExeUtil.h"
 #include "optimizer/RelMisc.h"        // for RelRoot
 #include "optimizer/RelStoredProc.h"  // for RelInternalSP
 #include "optimizer/SchemaDB.h"
-#include "sqlci/SqlciError.h"
+#include "parser/SqlParserGlobals.h"
 #include "parser/StmtNode.h"  // for StmtQuery and for ItemColRef.h classes
-#include "common/str.h"
-#include "arkcmp/CompException.h"  // for CmpInternalException
-#include "common/ComCextdecs.h"
+#include "parser/ulexer.h"
+#include "sqlci/SqlciError.h"
 #include "sqlcomp/CmpSeabaseDDL.h"
-
+#include "sqlcomp/parser.h"
+#include "sqlmsg/ParserMsg.h"
 #include "sqlmxevents/logmxevent.h"
 
 ostream &operator<<(ostream &dest, const ComDiagsArea &da);
@@ -501,8 +483,8 @@ charBuf *parserUTF16ToCharSet(const NAWcharBuf &pr_UTF16StrBuf, CollHeap *heap, 
                               int inStrCharSet, int &outErrorCode,
                               NABoolean addNullAtEnd,           // default is TRUE
                               NABoolean allowInvalidCodePoint,  // default is TRUE
-                              int *outCharCount,              // default is NULL
-                              int *outErrorByteOff)           // default is NULL
+                              int *outCharCount,                // default is NULL
+                              int *outErrorByteOff)             // default is NULL
 {
   charBuf *result = NULL;
   int iCharCount = 0;
@@ -587,8 +569,8 @@ static NABoolean stringScanWillTerminateInParser(const NAWchar *str, int interna
 //               uses inputStr() for error reporting
 //             returns 0 if all OK, 1 otherwise
 int Parser::parseSQL(ExprNode **node,              // (OUT): parse tree if all OK
-                       int internalExpr,           // (IN) : NORMAL_TOKEN, INTERNALEXPR_TOKEN, etc
-                       ItemExprList *paramItemList)  // (IN) : assigned to SqlParser_ParamItemList
+                     int internalExpr,             // (IN) : NORMAL_TOKEN, INTERNALEXPR_TOKEN, etc
+                     ItemExprList *paramItemList)  // (IN) : assigned to SqlParser_ParamItemList
 {
   // set the SQL text to the event logging area if the buffer there
   // is empty
@@ -793,7 +775,7 @@ int Parser::parseSQL(ExprNode **node,              // (OUT): parse tree if all O
 
 // parseDML widens the locale-based str and scans & parses it
 int Parser::parseDML(const char *instr, int inlen, CharInfo::CharSet charset, ExprNode **node, int internalExpr,
-                       ItemExprList *paramItemList) {
+                     ItemExprList *paramItemList) {
   initialInputCharSet_ = charset;
 
   if (charset == CharInfo::UCS2 && wInputBuf_ != NULL) {
@@ -985,7 +967,7 @@ int Parser::parseDML(QueryText &txt, ExprNode **node, int internalExpr, ItemExpr
 // scan and parse str; narrow str to the given charset when doing
 // other text processing stuff, such as, error reporting, etc
 int Parser::parse_w_DML(const NAWchar *instr, int inlen, ExprNode **node, int internalExpr,
-                          ItemExprList *paramItemList) {
+                        ItemExprList *paramItemList) {
   initialInputCharSet_ = CharInfo::UCS2;
 
   if (wInputBuf_ != NULL) {
@@ -1279,20 +1261,7 @@ NABoolean Parser::parseUtilISPCommand(const char *command, size_t cmdLen, CharIn
   return utilISPFound;
 }
 
-// ------------------------------------------------------------------------
-// processSpecialDDL:
-//
-// If the request is a "special DDL request", go ahead a generate the
-// DDLExpr node
-//
-// Special DDL requests consist of:
-//   UPDATE STATISTICS
-//   HIVE DDL request
-//
-// return TRUE: if a special DDL request or error.
-//            : if error, node returned is NULL.
-// return FALSE: if need to call SQL/MX parser after return from here.
-// -------------------------------------------------------------------------
+
 NABoolean Parser::processSpecialDDL(const char *inputStr, size_t inputStrLen, ExprNode *childNode,
                                     CharInfo::CharSet inputStrCS, ExprNode **node) {
   if (cmpContext() && cmpContext()->internalCompile()) return FALSE;
@@ -1477,7 +1446,7 @@ void ParserAbortInternal(const char *condition, const char *file, int num) {
 // as well as arkcmp/cmpmod.cpp routines.
 // -----------------------------------------------------------------------
 int sql_parse(const char *str, int len, CharInfo::CharSet charset, StmtNode **stmt_node_ptr_ptr
-                /***, SqlParser_Flags_Enum flags ***/) {
+              /***, SqlParser_Flags_Enum flags ***/) {
   ExprNode *node;
   int result = 0;
 

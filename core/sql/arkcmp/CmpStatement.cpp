@@ -18,10 +18,11 @@
 
 #define SQLPARSERGLOBALS_NADEFAULTS  // should precede all other #include's
 
-#include <fstream>
-#include <iostream>
 #include <stdlib.h>
 #include <string.h>
+
+#include <fstream>
+#include <iostream>
 
 // declaration of the yacc parser and its result
 #ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
@@ -34,56 +35,41 @@
 #define SQLPARSERGLOBALS_FLAGS
 #define SQLPARSERGLOBALS_NADEFAULTS_SET
 //#include "parser/SqlParserGlobalsCmn.h"
-#include "parser/SqlParserGlobals.h"  // must be the last #include.
-
-#include "common/BaseTypes.h"
-#include "arkcmp/CmpStatement.h"
-
-#include "export/ComDiags.h"
-#include "common/ComMPLoc.h"
-#include "common/CmpCommon.h"
-#include "sqlcomp/CmpMain.h"
-#include "arkcmp/CmpStoredProc.h"
-#include "sqlcomp/CmpDescribe.h"
+#include "EstLogProp.h"  // Pick up definition of GLOBAL_EMPTY_INPUT_LOGPROP
 #include "ProcessEnv.h"
-#include "optimizer/SchemaDB.h"
-#include "optimizer/ControlDB.h"
-#include "cli/Context.h"
-
-#include "arkcmp/CmpErrors.h"
+#include "StmtDDLNode.h"
 #include "arkcmp/CmpErrLog.h"
-#include "sqlmsg/ErrorMessage.h"
-#include "exp/ExpError.h"
-
-#include "sqlcomp/QCache.h"
-
+#include "arkcmp/CmpErrors.h"
+#include "arkcmp/CmpStatement.h"
+#include "arkcmp/CmpStoredProc.h"
+#include "cli/Context.h"
+#include "cli/Globals.h"
+#include "common/BaseTypes.h"
+#include "common/CmpCommon.h"
+#include "common/ComMPLoc.h"
 #include "common/NAMemory.h"
-#include "EstLogProp.h"     // Pick up definition of GLOBAL_EMPTY_INPUT_LOGPROP
-#include "optimizer/opt.h"  // to initialize the memo and task_list variables
-
+#include "common/NAString.h"
+#include "common/NAUserId.h"
+#include "common/QueryText.h"
+#include "exp/ExpError.h"
+#include "export/ComDiags.h"
+#include "generator/Generator.h"
+#include "optimizer/Analyzer.h"
+#include "optimizer/CompilationStats.h"
+#include "optimizer/ControlDB.h"
 #include "optimizer/RelExeUtil.h"
 #include "optimizer/RelMisc.h"
+#include "optimizer/SchemaDB.h"
+#include "optimizer/UdfDllInteraction.h"
+#include "optimizer/opt.h"            // to initialize the memo and task_list variables
+#include "parser/SqlParserGlobals.h"  // must be the last #include.
+#include "sqlcomp/CmpDescribe.h"
+#include "sqlcomp/CmpMain.h"
 #include "sqlcomp/CmpSeabaseDDL.h"
 #include "sqlcomp/CmpSeabaseDDLupgrade.h"
-#include "common/NAUserId.h"
-
-#include "generator/Generator.h"
-
-#include "common/QueryText.h"
-
-#include "common/NAString.h"
-
-#include "StmtDDLNode.h"
-
-#include "cli/Globals.h"
-
-#include "optimizer/CompilationStats.h"
-
-#include "optimizer/Analyzer.h"
-
+#include "sqlcomp/QCache.h"
+#include "sqlmsg/ErrorMessage.h"
 #include "sqludr/sqludr.h"
-
-#include "optimizer/UdfDllInteraction.h"
 
 //#include "parser/SqlParserGlobals.h"  // must be the last #include.
 
@@ -263,12 +249,11 @@ static NABoolean getCharsetsToUse(int msgCharSet, int &inputCS, int &defaultCS) 
 // Assign the recompLateNameInfoList, if passed in, to context.
 // Make the cat & schema names current, if passed in.
 static NABoolean processRecvdCmpCompileInfo(CmpStatement *cmpStmt, const CmpMessageRequest &msg,
-                                            CmpCompileInfo *cmpInfo, CmpContext *context, char *&sqlStr,
-                                            int &sqlStrLen, int &inputCS, NABoolean &catSchNameRecvd,
-                                            NAString &currCatName, NAString &currSchName, NABoolean &nametypeNsk,
-                                            NABoolean &odbcProcess, NABoolean &noTextCache, NABoolean &aqrPrepare,
-                                            NABoolean &standaloneQuery, NABoolean &sentryPrivRecheck,
-                                            NABoolean &doNotCachePlan) {
+                                            CmpCompileInfo *cmpInfo, CmpContext *context, char *&sqlStr, int &sqlStrLen,
+                                            int &inputCS, NABoolean &catSchNameRecvd, NAString &currCatName,
+                                            NAString &currSchName, NABoolean &nametypeNsk, NABoolean &odbcProcess,
+                                            NABoolean &noTextCache, NABoolean &aqrPrepare, NABoolean &standaloneQuery,
+                                            NABoolean &sentryPrivRecheck, NABoolean &doNotCachePlan) {
   char *catSchStr = NULL;
   cmpInfo->getUnpackedFields(sqlStr, catSchStr);
   sqlStrLen = cmpInfo->getSqlTextLen();
@@ -436,9 +421,6 @@ CmpStatement::ReturnStatus CmpStatement::process(const CmpMessageSQLText &sqltex
     if (recompUseNATableCache) recompUseNATableCache_ = TRUE;
   }
 
-  // A pointer to user SQL query is stored in CmpStatement; if an exception is
-  // thrown the user query is copied from here. It is reset upon return from
-  // sqlcomp() method.
   sqlTextStr_ = sqlStr;
   sqlTextLen_ = sqlStrLen;
   sqlTextCharSet_ = inputCS;
@@ -911,10 +893,6 @@ CmpStatement::ReturnStatus CmpStatement::process(const CmpMessageDescribe &state
 
   bound_ = new (outHeap_) CmpMessageReplyCode(outHeap_, statement.id(), 0, 0, outHeap_);
   reply_ = new (outHeap_) CmpMessageReplyCode(outHeap_, statement.id(), 0, 0, outHeap_);
-
-  // A pointer to user SQL query is stored in CmpStatement; if an exception is
-  // thrown the user query is copied from here. It is reset upon return from
-  // the sqlcomp() method.
 
   char *userStr = (char *)(heap())->allocateMemory(sizeof(char) * (2000));
   int len = strlen(statement.data());

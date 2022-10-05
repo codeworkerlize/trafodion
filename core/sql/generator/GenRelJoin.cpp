@@ -17,8 +17,8 @@
 #include "common/ComDefs.h"  // to get common defines (ROUND8)
 #include "limits.h"
 #include "common/ComOptIncludes.h"
-#include "RelJoin.h"
-#include "GroupAttr.h"
+#include "optimizer/RelJoin.h"
+#include "optimizer/GroupAttr.h"
 #include "optimizer/Analyzer.h"
 #include "generator/Generator.h"
 #include "GenExpGenerator.h"
@@ -43,7 +43,7 @@
 #include "executor/sql_buffer_size.h"
 #include "arkcmp/CmpStatement.h"
 #include "common/ComUnits.h"
-#include "RelUpdate.h"
+#include "optimizer/RelUpdate.h"
 /////////////////////////////////////////////////////////////////////
 //
 // Contents:

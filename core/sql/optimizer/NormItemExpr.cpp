@@ -17,17 +17,17 @@
 
 #include "common/Debug.h"
 #include "optimizer/Sqlcomp.h"
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 #include "optimizer/NormWA.h"
 #include "optimizer/AllItemExpr.h"
 #include "optimizer/mdam.h"
 #include "optimizer/ValueDesc.h"
 #include "optimizer/RelGrby.h"
-#include "RelJoin.h"
-#include "RelUpdate.h"
-#include "Refresh.h"
+#include "optimizer/RelJoin.h"
+#include "optimizer/RelUpdate.h"
+
 #include "ItemSample.h"
-#include "ItmFlowControlFunction.h"
+#include "optimizer/ItmFlowControlFunction.h"
 #include "ItemFuncUDF.h"
 
 #ifndef TRANSFORM_DEBUG_DECL  // artifact of NSK's OptAll.cpp ...

@@ -18,10 +18,10 @@
 
 #include "optimizer/Sqlcomp.h"
 #include "EstLogProp.h"
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 #include "VEGTable.h"
 #include "optimizer/ItemOther.h"
-#include "RelUpdate.h"
+#include "optimizer/RelUpdate.h"
 #include "optimizer/opt.h"
 
 /////////////////////

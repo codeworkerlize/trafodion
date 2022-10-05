@@ -27,7 +27,7 @@
 #include "common/NumericType.h"
 
 #include "OptRange.h"
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 #include "sqlcomp/parser.h"
 #include "optimizer/Analyzer.h"
 #include "ScanOptimizer.h"

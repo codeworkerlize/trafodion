@@ -118,9 +118,7 @@ ExWorkProcRetcode ExScheduler::work(long prevWaitTime) {
   Space *space = glob_->getSpace();
   CollHeap *heap = glob_->getDefaultHeap();
   ExTimeStats *timer = NULL;
-#ifdef NA_DEBUG_GUI
-  ExSubtask *subtaskSetInGui = NULL;
-#endif
+
   long timeCost = JULIANTIMESTAMP();
   int taskCount = 0;
   int sTaskCount = 0;
@@ -186,22 +184,6 @@ ExWorkProcRetcode ExScheduler::work(long prevWaitTime) {
       // scheduled subtask, reset it and execute the work proc
       // -------------------------------------------------------------
 
-#ifdef NA_DEBUG_GUI
-
-      //------------------------------------------------------
-      // If using the GUI dll then use the
-      // appropriate dll function to display the TCB tree.
-      //------------------------------------------------------
-      if (msGui_) {
-        subtaskSetInGui = subtask;
-
-        pExpFuncs_->fpDisplayExecution(&subtaskSetInGui, this);
-
-        if (subtaskSetInGui == subtask)
-          // GUI did not alter the subtask
-          subtaskSetInGui = NULL;
-      }
-#endif
 
       // reset the trigger BEFORE calling the work procedure, so that
       // events don't get lost if they happen during execution of the
@@ -365,20 +347,7 @@ ExWorkProcRetcode ExScheduler::work(long prevWaitTime) {
 
     subtask = subtask->getNext();
 
-#ifdef NA_DEBUG_GUI
-    if (msGui_ && subtaskSetInGui && subtaskSetInGui->getNext() != subtask) {
-      // if the user clicked on a task in the GUI, then
-      // schedule and execute that task next
-      subtask = subtaskSetInGui;
-      subtask->schedule();
-      subtaskSetInGui = NULL;
-      // the GUI changed the subtask to be executed, set
-      // an indicator that we have done work, otherwise
-      // the scheduler might exit because it thinks that
-      // it has finished an entire round through all subtasks
-      listHadWork = 1;
-    }
-#endif
+
 
     // -----------------------------------------------------------------
     // Each time we reach the end of the list, check whether any of the

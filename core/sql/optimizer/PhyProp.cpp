@@ -17,7 +17,7 @@
 
 #include "optimizer/Sqlcomp.h"
 #include "arkcmp/CmpContext.h"
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 #include "optimizer/PhyProp.h"
 #include "Cost.h"
 #include "SearchKey.h"

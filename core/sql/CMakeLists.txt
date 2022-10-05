@@ -28,22 +28,23 @@ ADD_FLEX_BISON_DEPENDENCY(sql_lex sql_yacc)
 file(GLOB_RECURSE
         sqlcomp_SRCS               
         CONFIGURE_DEPENDS       
-        ${PROJECT_SOURCE_DIR}/exp/ExpConvMxcs.cpp 
-	${PROJECT_SOURCE_DIR}/sqlci/Formatter.cpp 
-	${PROJECT_SOURCE_DIR}/sqlci/InputStmt.cpp 
-	${PROJECT_SOURCE_DIR}/sqlci/Log.cpp 
-	${PROJECT_SOURCE_DIR}/sqlci/Param.cpp 
-	${PROJECT_SOURCE_DIR}/sqlci/Prepare.cpp 
-	${PROJECT_SOURCE_DIR}/sqlci/ShellCmd.cpp 
-	${PROJECT_SOURCE_DIR}/sqlci/SqlciCmd.cpp 
-	${PROJECT_SOURCE_DIR}/sqlci/SqlciEnv.cpp 
-	${PROJECT_SOURCE_DIR}/sqlci/SqlciError.cpp 
-	${PROJECT_SOURCE_DIR}/sqlci/SqlciNode.cpp 
-	${PROJECT_SOURCE_DIR}/sqlci/SqlciParser.cpp 
-	${PROJECT_SOURCE_DIR}/sqlci/SqlciReset.cpp 
-	${PROJECT_SOURCE_DIR}/sqlci/SqlciStats.cpp 
-	${PROJECT_SOURCE_DIR}/sqlci/SqlciStmts.cpp 
-	${PROJECT_SOURCE_DIR}/sqlci/SqlCmd.cpp 
+    #     ${PROJECT_SOURCE_DIR}/exp/ExpConvMxcs.cpp 
+	# ${PROJECT_SOURCE_DIR}/sqlci/Formatter.cpp 
+	# ${PROJECT_SOURCE_DIR}/sqlci/InputStmt.cpp 
+	# ${PROJECT_SOURCE_DIR}/sqlci/Log.cpp 
+	# ${PROJECT_SOURCE_DIR}/sqlci/Param.cpp 
+	# ${PROJECT_SOURCE_DIR}/sqlci/Prepare.cpp 
+	# ${PROJECT_SOURCE_DIR}/sqlci/ShellCmd.cpp 
+	# ${PROJECT_SOURCE_DIR}/sqlci/SqlciCmd.cpp 
+	# ${PROJECT_SOURCE_DIR}/sqlci/SqlciEnv.cpp 
+	# ${PROJECT_SOURCE_DIR}/sqlci/SqlciError.cpp 
+	# ${PROJECT_SOURCE_DIR}/sqlci/SqlciNode.cpp 
+	# ${PROJECT_SOURCE_DIR}/sqlci/SqlciParser.cpp 
+	# ${PROJECT_SOURCE_DIR}/sqlci/SqlciReset.cpp 
+	# ${PROJECT_SOURCE_DIR}/sqlci/SqlciStats.cpp 
+	# ${PROJECT_SOURCE_DIR}/sqlci/SqlciStmts.cpp 
+	# ${PROJECT_SOURCE_DIR}/sqlci/SqlCmd.cpp 
+	${PROJECT_SOURCE_DIR}/*.cpp
         ${PROJECT_SOURCE_DIR}/include/*.h
         )
 

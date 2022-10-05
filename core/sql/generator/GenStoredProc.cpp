@@ -14,7 +14,7 @@
 ******************************************************************************
 */
 #include "optimizer/Sqlcomp.h"
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 #include "optimizer/RelStoredProc.h"
 #include "optimizer/BindWA.h"
 #include "generator/Generator.h"

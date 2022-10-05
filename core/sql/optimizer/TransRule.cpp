@@ -15,7 +15,7 @@
 */
 
 #include "optimizer/Sqlcomp.h"
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 #include "AppliedStatMan.h"
 #include "optimizer/opt.h"
 #include "optimizer/PhyProp.h"

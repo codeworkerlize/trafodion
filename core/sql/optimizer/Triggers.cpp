@@ -11,7 +11,7 @@
 */
 
 #include "optimizer/AllRelExpr.h"
-#include "ItemFunc.h"
+#include "optimizer/ItemFunc.h"
 #include "optimizer/ItemOther.h"  // for Convert
 #include "optimizer/Triggers.h"
 #include "optimizer/TriggerDB.h"
@@ -20,8 +20,8 @@
 #include "export/ComDiags.h"
 #include "parser/StmtDDLCreateTrigger.h"
 #include "optimizer/BindWA.h"
-#include "ChangesTable.h"
-#include "MvRefreshBuilder.h"
+#include "optimizer/ChangesTable.h"
+
 
 const static short MAX_RECURSION_DEPTH = 16;  // limit for recursive triggers
 

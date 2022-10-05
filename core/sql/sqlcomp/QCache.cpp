@@ -21,7 +21,7 @@
 #include "sqlcomp/CmpMain.h"
 #include "common/IntervalType.h"
 #include "comexe/ComTdbRoot.h"
-#include "ItemFunc.h"
+#include "optimizer/ItemFunc.h"
 #include "optimizer/ValueDesc.h"
 #include "optimizer/SchemaDB.h"
 #include "optimizer/ControlDB.h"

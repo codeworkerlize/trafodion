@@ -117,14 +117,7 @@ class ex_tcb : public ExGod {
 
   int objectId;
 
-#ifdef NA_DEBUG_GUI
-  static int objectCount;
 
-  void increaseObjectcount() { objectCount++; }
-  int getObjectcount() const { return objectCount; }
-  void setObjectId() { objectId = objectCount; }
-  int getObjectId() const { return objectId; }
-#endif
 
   ComTdb::ex_node_type getNodeType() const { return nodeType_; }
 

@@ -1,26 +1,10 @@
 
-/* -*-C++-*-
-****************************************************************************
-*
-* File:         ComKeyRange.cpp
-* Description:  Implements methods for the base classes of key range objects
-*
-* Created:      5/6/98
-* Language:     C++
-*
-*
-*
-*
-****************************************************************************
-*/
-
-// -----------------------------------------------------------------------
-
-#include "exp/ExpCriDesc.h"
-#include "comexe/ComPackDefs.h"
 #include "comexe/ComKeyRange.h"
+
 #include "comexe/ComKeyMDAM.h"
 #include "comexe/ComKeySingleSubset.h"
+#include "comexe/ComPackDefs.h"
+#include "exp/ExpCriDesc.h"
 
 keyRangeGen::keyRangeGen(key_type keyType, int keyLen, ex_cri_desc *workCriDesc, unsigned short keyValuesAtpIndex,
                          unsigned short excludeFlagAtpIndex, unsigned short dataConvErrorFlagAtpIndex)

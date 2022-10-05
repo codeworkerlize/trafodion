@@ -15,7 +15,7 @@
 #include "optimizer/AllRelExpr.h"
 #include "RelPackedRows.h"
 #include "optimizer/SchemaDB.h"
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 #include "optimizer/BindWA.h"
 #include "optimizer/NormWA.h"
 #include "Cost.h"

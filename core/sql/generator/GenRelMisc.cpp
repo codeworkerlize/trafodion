@@ -17,14 +17,14 @@
 */
 #define SQLPARSERGLOBALS_FLAGS
 #include "common/ComOptIncludes.h"
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 #include "optimizer/ItemColRef.h"
 #include "RelEnforcer.h"
-#include "RelJoin.h"
+#include "optimizer/RelJoin.h"
 #include "optimizer/RelExeUtil.h"
 #include "optimizer/RelMisc.h"
 #include "optimizer/RelSet.h"
-#include "RelUpdate.h"
+#include "optimizer/RelUpdate.h"
 #include "optimizer/RelScan.h"
 #include "RelDCL.h"
 #include "PartFunc.h"
@@ -61,7 +61,7 @@
 #include "executor/sql_buffer.h"
 #include "comexe/ComQueue.h"
 #include "common/ComSqlId.h"
-#include "MVInfo.h"
+
 #include "common/SequenceGeneratorAttributes.h"
 #include "optimizer/CompilationStats.h"
 #include "optimizer/RelRoutine.h"

@@ -17,7 +17,7 @@
 
 #include "common/Debug.h"
 #include "optimizer/Sqlcomp.h"
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 #include "optimizer/opt.h"
 #include "optimizer/NormWA.h"
 #include "optimizer/AllRelExpr.h"
@@ -28,7 +28,7 @@
 #include "optimizer/CostMethod.h"
 #include "optimizer/opt.h"
 #include "optimizer/RelGrby.h"
-#include "ItemFunc.h"
+#include "optimizer/ItemFunc.h"
 #include "optimizer/ControlDB.h"
 #include "optimizer/Analyzer.h"
 #include "MultiJoin.h"

@@ -15,10 +15,10 @@
 */
 
 #include "common/BaseTypes.h"
-#include "export/ComDiags.h"
-#include "common/NAWinNT.h"
-#include "sqlci/SqlciParseGlobals.h"
 #include "common/NAError.h"
+#include "common/NAWinNT.h"
+#include "export/ComDiags.h"
+#include "sqlci/SqlciParseGlobals.h"
 
 #undef max
 #undef min

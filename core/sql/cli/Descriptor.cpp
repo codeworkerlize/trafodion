@@ -23,14 +23,15 @@
 
 // try to remove the following line later on
 #include <stdio.h>
-#include "common/str.h"
-#include "common/ComSizeDefs.h"
-#include "common/ComRtUtils.h"
-#include "common/charinfo.h"
-#include "cli_stdh.h"
+
 #include "Descriptor.h"
-#include "common/dfs2rec.h"
 #include "cli/sql_id.h"
+#include "cli_stdh.h"
+#include "common/ComRtUtils.h"
+#include "common/ComSizeDefs.h"
+#include "common/charinfo.h"
+#include "common/dfs2rec.h"
+#include "common/str.h"
 #include "exp/exp_clause_derived.h"
 
 // WARNING: assuming varchar length indicator of sizeof(long) == 4
@@ -253,8 +254,8 @@ NABoolean Descriptor::operator==(Descriptor &other) {
         (descItem.heading && (!otherDescItem.heading)) || ((!descItem.heading) && otherDescItem.heading) ||
         (descItem.heading && otherDescItem.heading &&
          ((*(int *)descItem.heading != *(int *)otherDescItem.heading) ||
-          (memcmp(&(descItem.heading[sizeof(int)]), &(otherDescItem.heading[sizeof(int)]),
-                  *(int *)descItem.heading) != 0))) ||
+          (memcmp(&(descItem.heading[sizeof(int)]), &(otherDescItem.heading[sizeof(int)]), *(int *)descItem.heading) !=
+           0))) ||
         (descItem.generated_output_name != otherDescItem.generated_output_name))
       return FALSE;
 
@@ -275,15 +276,7 @@ char *Descriptor::getVarItem(desc_struct &descItem, int idxrow) {
     // The size for rowset SQLVarChars is the sum of
     // (length of the val part) and (length of the len part)
     if (descItem.rowsetVarLayoutSize > 0) {
-      if (descItem.datatype == REC_BYTE_V_ASCII || descItem.datatype == REC_BLOB || descItem.datatype == REC_CLOB) {
-        // special case for COBOL VARCHARs, the length parts
-        // have to be aligned.
-        if ((descItem.rowsetVarLayoutSize % 2) == 0) {
-          ptr += idxrow * (descItem.rowsetVarLayoutSize + descItem.vc_ind_length);
-        } else {
-          ptr += idxrow * (descItem.rowsetVarLayoutSize + 1 + descItem.vc_ind_length);
-        }
-      } else if (DFS2REC::isSQLVarChar(descItem.datatype)) {
+      if (DFS2REC::isSQLVarChar(descItem.datatype)) {
         ptr += idxrow * (descItem.rowsetVarLayoutSize + descItem.vc_ind_length);
       } else {
         ptr += idxrow * descItem.rowsetVarLayoutSize;
@@ -644,9 +637,9 @@ static NABoolean unicodeDataType (long type)
 }
 */
 
-RETCODE Descriptor::getDescItem(int entry, int what_to_get, void *numeric_value, char *string_value,
-                                int max_string_len, int *returned_len, int /*start_from_offset*/,
-                                Descriptor *info_desc, int info_desc_index) {
+RETCODE Descriptor::getDescItem(int entry, int what_to_get, void *numeric_value, char *string_value, int max_string_len,
+                                int *returned_len, int /*start_from_offset*/, Descriptor *info_desc,
+                                int info_desc_index) {
   desc_struct &descItem = desc[entry - 1];  // Zero base
   int idxrow = rowsetHandle;
 
@@ -933,14 +926,6 @@ RETCODE Descriptor::getDescItem(int entry, int what_to_get, void *numeric_value,
         *returned_len = 0;
       }
 
-      break;
-
-    case SQLDESC_LOB_INLINE_DATA_MAXLEN:
-      *(int *)numeric_value = descItem.lobInlinedDataMaxLen;
-      break;
-
-    case SQLDESC_LOB_CHUNK_MAXLEN:
-      *(int *)numeric_value = descItem.lobChunkMaxLen;
       break;
 
 #ifdef _DEBUG
@@ -2279,14 +2264,6 @@ RETCODE Descriptor::setDescItem(int entry, int what_to_set, Long numeric_value, 
       break;
 // - end testing logic *****
 #endif
-
-    case SQLDESC_LOB_INLINE_DATA_MAXLEN:
-      descItem.lobInlinedDataMaxLen = numeric_value;
-      break;
-
-    case SQLDESC_LOB_CHUNK_MAXLEN:
-      descItem.lobChunkMaxLen = numeric_value;
-      break;
 
     default:
       diags << DgSqlCode(-CLI_INVALID_DESC_INFO_REQUEST);

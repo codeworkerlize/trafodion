@@ -18,10 +18,10 @@
 // -----------------------------------------------------------------------
 
 #include "common/ComOptIncludes.h"
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 #include "RelEnforcer.h"
 #include "optimizer/RelMisc.h"
-#include "RelUpdate.h"
+#include "optimizer/RelUpdate.h"
 #include "optimizer/RelRoutine.h"
 #include "generator/Generator.h"
 #include "GenExpGenerator.h"

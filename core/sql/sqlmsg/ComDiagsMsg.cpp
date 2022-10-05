@@ -17,42 +17,30 @@
  *
  * ****************************************************************************
  */
-#include "common/Platform.h"
+#include <ctype.h>
+#include <stdarg.h>
+
+#include <iostream>
 
 #include "common/BaseTypes.h"
 #include "common/NAWinNT.h"
-#include <ctype.h>
-
-#include <iostream>
-#include <stdarg.h>
+#include "common/Platform.h"
 
 #if !defined(__GNUC__) || __GNUC__ < 3
 #include <strstream>
 #endif
 
-#include "sqlmsg/GetErrorMessage.h"
+#include "common/NAString.h"
+#include "common/NLSConversion.h"
+#include "common/copyright.h"
+#include "common/csconvert.h"
+#include "common/nawstring.h"
 #include "common/str.h"
 #include "export/ComDiags.h"
-#include "common/copyright.h"
-#include "sqlmsg/ErrorMessage.h"
-#include "common/NAString.h"
-#include "common/nawstring.h"
-#include "common/NLSConversion.h"
 #include "sqlci/SqlciError.h"
-#include "common/csconvert.h"
+#include "sqlmsg/ErrorMessage.h"
+#include "sqlmsg/GetErrorMessage.h"
 
-// What comes next are two parallel declarations: some enum values
-// and an array of constant strings which we can use to refer to
-// message text tokens.
-//
-// Let's start first with the enumerations and then give the strings.
-//
-// Wouldn't it be better to make this type definition a private member
-// of ComCondition or is what we've done here satisfactory?
-//
-// ********WARNING!!!
-//   This enumeration definition must match the array of char* definition
-//   that comes below.
 enum TOKEN_ENUM {
   STRING0,
   STRING1,
@@ -86,19 +74,6 @@ enum TOKEN_ENUM {
   NSK_CODE,
   MAX_TOKEN
 };
-
-// These names will be of full length.  The comparison will
-// be made after converting a given string to all lower case,
-// so these names are given in lower case internally.
-//
-// Wouldn't it maybe be better to make "tokens" a private
-// member (albeit, static) of ComCondition, or is it
-// satisfactory to use the C-language-style information hiding, such
-// as we do here, using static?
-//
-// ******WARNING!!!
-//    This char* array definition must match the enumeration definition
-//    that came before.
 
 static const NAWchar *const tokens[MAX_TOKEN] = {WIDE_("string0"),
                                                  WIDE_("string1"),
@@ -501,16 +476,16 @@ void appendSafeStringInW(NAWchar *dest, CollHeap *heap, const char *s, CharInfo:
   UInt32 outputDataLenInBytes = 0;
   UInt32 translatedtCharCount = 0;
   int convStatus = LocaleToUTF16(cnv_version1,                      // const enum cnv_version version
-                                   src,                               // const char *in_bufr
-                                   len,                               // const int in_len -- src str len in num of bytes
-                                   (const char *)pOutputBuf->data(),  // const char *out_bufr
-                                   (const int)((len + 1) * sizeof(NAWchar)),  // output buffer size in # of bytes
-                                   convCS,                                      // enum cnv_charset charset -- output cs
-                                   pFirstUntranslatedChar,                      // char * & first_untranslated_char
-                                   &outputDataLenInBytes,                       // unsigned int *output_data_len_p
-                                   0,                                           // const int cnv_flags (default is 0)
-                                   (const int)TRUE,                           // const int addNullAtEnd_flag
-                                   &translatedtCharCount);                      // unsigned int *translated_char_cnt_p
+                                 src,                               // const char *in_bufr
+                                 len,                               // const int in_len -- src str len in num of bytes
+                                 (const char *)pOutputBuf->data(),  // const char *out_bufr
+                                 (const int)((len + 1) * sizeof(NAWchar)),  // output buffer size in # of bytes
+                                 convCS,                                    // enum cnv_charset charset -- output cs
+                                 pFirstUntranslatedChar,                    // char * & first_untranslated_char
+                                 &outputDataLenInBytes,                     // unsigned int *output_data_len_p
+                                 0,                                         // const int cnv_flags (default is 0)
+                                 (const int)TRUE,                           // const int addNullAtEnd_flag
+                                 &translatedtCharCount);                    // unsigned int *translated_char_cnt_p
   UInt32 outLenInW = outputDataLenInBytes / sizeof(NAWchar);
   pOutputBuf->data()[len] = WIDE_('\0');  // needed when conversion errors occured
   switch (convStatus) {

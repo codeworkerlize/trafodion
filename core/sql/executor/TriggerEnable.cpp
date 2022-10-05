@@ -14,7 +14,7 @@
  *****************************************************************************
  */
 
-#include "TriggerEnable.h"
+#include "executor/TriggerEnable.h"
 
 #include "executor/ex_stdh.h"
 #include "comexe/ComTdb.h"

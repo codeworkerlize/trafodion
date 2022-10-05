@@ -14,13 +14,13 @@
 */
 
 #include "optimizer/Sqlcomp.h"
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 #include "optimizer/opt.h"
 #include "optimizer/PhyProp.h"
 #include "ImplRule.h"
 #include "optimizer/AllRelExpr.h"
 #include "RelPackedRows.h"
-#include "RelSequence.h"
+#include "optimizer/RelSequence.h"
 #include "RelSample.h"
 #include "optimizer/AllItemExpr.h"
 #include "optimizer/ValueDesc.h"

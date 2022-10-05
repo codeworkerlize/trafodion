@@ -22,10 +22,11 @@
 using namespace std;
 
 #include <stdio.h>
+
+#include "common/Int64.h"
 #include "common/NAAssert.h"  // required after including a RogueWave file!
 #include "common/NABoolean.h"
 #include "common/NAString.h"
-#include "common/Int64.h"
 #include "common/dfs2rec.h"
 
 #ifndef NULL
@@ -156,8 +157,8 @@ typedef NABoolean ComBoolean;
 
 #define TRAF_LOAD_ERROR_COUNT_TABLE \
   TRAF_RESERVED_NAMESPACE6          \
-      ":"                           \
-      "ERRORCOUNTER"
+  ":"                               \
+  "ERRORCOUNTER"
 
 // reserved names for seabase metadata where SQL table information is kept
 // there are places in the code that assume metadata schema and table
@@ -942,16 +943,8 @@ enum ComFSDataType {
   COM_UNSIGNED_DECIMAL_FSDT = REC_DECIMAL_UNSIGNED,
   COM_SIGNED_DECIMAL_FSDT = REC_DECIMAL_LSE,
   COM_SIGNED_NUM_BIG_FSDT = REC_NUM_BIG_SIGNED,
-  COM_UNSIGNED_NUM_BIG_FSDT = REC_NUM_BIG_UNSIGNED
-
-  ,
-  COM_BLOB = REC_BLOB,
-  COM_CLOB = REC_CLOB
-
-  ,
-  COM_BOOLEAN = REC_BOOLEAN
-
-  ,
+  COM_UNSIGNED_NUM_BIG_FSDT = REC_NUM_BIG_UNSIGNED,
+  COM_BOOLEAN = REC_BOOLEAN,
   COM_DATETIME_FSDT = REC_DATETIME,
   COM_INTERVAL_MIN_FSDT = REC_MIN_INTERVAL,
   COM_INTERVAL_YEAR_YEAR_FSDT = REC_INT_YEAR,
@@ -1808,8 +1801,6 @@ enum ComSQLDataType {
 #define COM_DATE_SDT_LIT              "DATE              "
 #define COM_TIME_SDT_LIT              "TIME              "
 #define COM_INTERVAL_SDT_LIT          "INTERVAL          "
-#define COM_BLOB_SDT_LIT              "BLOB              "
-#define COM_CLOB_SDT_LIT              "CLOB              "
 #define COM_BOOLEAN_SDT_LIT           "BOOLEAN           "
 #define COM_ARRAY_SDT_LIT             "ARRAY             "
 #define COM_ROW_SDT_LIT               "ROW               "

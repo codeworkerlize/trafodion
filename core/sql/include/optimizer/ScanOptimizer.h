@@ -24,7 +24,7 @@
  */
 // -----------------------------------------------------------------------
 
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 #include "optimizer/RelExpr.h"
 #include "optimizer/RelScan.h"
 #include "disjuncts.h"

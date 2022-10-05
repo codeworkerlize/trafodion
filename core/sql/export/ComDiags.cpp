@@ -1,40 +1,27 @@
 
-/* -*-C++-*-
-****************************************************************************
-*
-* File:         ComDiags.cpp (previously under /common)
-* Description:
-*
-* Created:      5/6/98
-* Language:     C++
-*
-*
-****************************************************************************
-*/
-
-#include "common/Platform.h"
-
-#include "common/NAStdlib.h"
 
 #include "export/ComDiags.h"
-#include "export/IpcMessageObj.h"
-#include "common/str.h"
-#include "common/Int64.h"
-#include "exp/ExpError.h"
 
-#include "seabed/ms.h"
 #include <stdlib.h>
 #include <unistd.h>
-extern void releaseRTSSemaphore();  // Functions implemented in SqlStats.cpp
-#include "sqlmxevents/logmxevent.h"
 
+#include "common/Int64.h"
+#include "common/NAStdlib.h"
+#include "common/Platform.h"
+#include "common/str.h"
+#include "exp/ExpError.h"
+#include "export/IpcMessageObj.h"
+#include "seabed/ms.h"
+extern void releaseRTSSemaphore();  // Functions implemented in SqlStats.cpp
 #include <byteswap.h>
 
 #include "common/ComRtUtils.h"
+#include "sqlmxevents/logmxevent.h"
 
 #ifdef _DEBUG
-#include <time.h>
 #include <sys/time.h>
+#include <time.h>
+
 #include "porting/PortProcessCalls.h"
 #endif
 
@@ -53,16 +40,6 @@ static inline void advanceSize(IpcMessageObjSize &size, const NAWchar *const buf
   size += lenSize;
   if (buffPtr != NULL) size += (na_wcslen(buffPtr) + 1) * sizeof(NAWchar);  // 1 is for null-terminator
 }
-
-// static NABoolean isValidIsoMappingCharSet(CharInfo::CharSet cs)
-// {
-//   if (cs == CharInfo::ISO88591 ||
-//       cs == CharInfo::SJIS     ||
-//       cs == CharInfo::UTF8)
-//     return TRUE;
-//   else
-//     return FALSE;
-// }
 
 static NABoolean isSingleByteCharSet(CharInfo::CharSet cs) {
   if (cs == CharInfo::ISO88591) return TRUE;

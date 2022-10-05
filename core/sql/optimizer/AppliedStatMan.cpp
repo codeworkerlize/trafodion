@@ -14,7 +14,7 @@
 ******************************************************************************
 */
 
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 #include "optimizer/RelGrby.h"
 #include "AppliedStatMan.h"
 

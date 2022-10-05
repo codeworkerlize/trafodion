@@ -1,10 +1,12 @@
 
 
-#define SQLPARSERGLOBALS_FLAGS  // should precede all other #include's
+#define SQLPARSERGLOBALS_FLAGS
+
+#include <stdlib.h>
+
+#include <fstream>
 
 #include "common/Platform.h"
-#include <stdlib.h>
-#include <fstream>
 
 #ifdef _DEBUG
 #include <string.h>
@@ -12,49 +14,45 @@
 
 #include <dlfcn.h>
 
-#include "export/ComMemoryDiags.h"
-
 #include "arkcmp/CmpContext.h"
-#include "optimizer/Analyzer.h"
-#include "optimizer/AllRelExpr.h"
-#include "optimizer/BindWA.h"
-#include "optimizer/CacheWA.h"
-
-#include "export/ComDiags.h"
-#include "common/CmpCommon.h"
 #include "arkcmp/CmpErrors.h"
-#include "sqlcomp/CmpMain.h"
-#include "optimizer/CmpMemoryMonitor.h"
-#include "optimizer/CompilerTracking.h"
-#include "optimizer/CompilationStats.h"
-#include "common/ComSysUtils.h"
+#include "cli/SQLCLIdev.h"
 #include "comexe/ComTdbRoot.h"
 #include "comexe/FragDir.h"
-#include "generator/Generator.h"
-#include "common/NAExit.h"  // NAExit()
-#include "optimizer/NormWA.h"
-#include "optimizer/opt.h"
-#include "optimizer/OptimizerSimulator.h"
-#include "sqlcomp/parser.h"
-#include "optimizer/PhyProp.h"
-#include "cli/SQLCLIdev.h"
-#include "optimizer/Sqlcomp.h"
-#include "parser/StmtNode.h"
-#include "common/QueryText.h"
-#include "optimizer/ControlDB.h"  // ActiveControlDB()
-#include "sqlcomp/CmpISPInterface.h"
-#include "common/ComUser.h"
+#include "common/CmpCommon.h"
 #include "common/ComDistribution.h"
+#include "common/ComSysUtils.h"
+#include "common/ComUser.h"
+#include "common/NAExit.h"  // NAExit()
+#include "common/QueryText.h"
+#include "export/ComDiags.h"
+#include "export/ComMemoryDiags.h"
+#include "generator/Generator.h"
+#include "optimizer/AllRelExpr.h"
+#include "optimizer/Analyzer.h"
+#include "optimizer/BindWA.h"
+#include "optimizer/CacheWA.h"
+#include "optimizer/CmpMemoryMonitor.h"
+#include "optimizer/CompilationStats.h"
+#include "optimizer/CompilerTracking.h"
+#include "optimizer/ControlDB.h"  // ActiveControlDB()
+#include "optimizer/NormWA.h"
+#include "optimizer/OptimizerSimulator.h"
+#include "optimizer/PhyProp.h"
+#include "optimizer/Sqlcomp.h"
+#include "optimizer/opt.h"
+#include "parser/StmtNode.h"
+#include "sqlcomp/CmpISPInterface.h"
+#include "sqlcomp/CmpMain.h"
+#include "sqlcomp/parser.h"
 
 #define SQLPARSERGLOBALS_NADEFAULTS
 #include "parser/SqlParserGlobalsCmn.h"
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
-#include "parser/SqlParserGlobals.h"  // should be last #include
-
-#include "arkcmp/CompException.h"
-
-#include "sqlmxevents/logmxevent.h"
 #include "arkcmp/CmpStatement.h"
+#include "arkcmp/CompException.h"
+#include "parser/SqlParserGlobals.h"  // should be last #include
+#include "sqlmxevents/logmxevent.h"
 // #include "PCodeExprCache.h"
 #include "cli/Globals.h"
 #include "executor/MemoryTableDB.h"
@@ -78,20 +76,6 @@ THREAD_P int CostScalar::udflwCount_ = 0;
 
 #if !defined(NDEBUG)
 NABoolean TraceCatManMemAlloc = FALSE;
-#endif
-
-// -----------------------------------------------------------------------
-// GSH : Definition of the static member variables of CmpMain.
-// -----------------------------------------------------------------------
-#ifdef NA_DEBUG_GUI
-
-CmpContext *CmpMain::msGui_ = NULL;
-
-SqlcmpdbgExpFuncs *CmpMain::pExpFuncs_ = NULL;
-void initializeGUIData(SqlcmpdbgExpFuncs *expFuncs);
-
-static void *dlptr = NULL;
-#define DISPLAY_IN_ODBC_JDBC -2243
 #endif
 
 #ifndef NDEBUG
@@ -185,12 +169,6 @@ static int sqlcompTest(QueryText &input) {
 }
 #endif  // !defined(NDEBUG)
 
-// -----------------------------------------------------------------------
-// -----------------------------------------------------------------------
-#ifdef NA_DEBUG_GUI
-void CmpMain::initGuiDisplay(RelExpr *queryExpr) {}
-#endif  // NA_DEBUG_GUI
-
 // Static global convenient function to log query expression to output.
 static void logQueryExpr(DefaultConstants nadef, const char *txt, RelExpr *queryExpr) {
   // for NSK only
@@ -201,58 +179,8 @@ static void logQueryExpr(DefaultConstants nadef, const char *txt, RelExpr *query
   }
 }
 
-#ifdef NA_DEBUG_GUI
-NABoolean CmpMain::guiDisplay(Sqlcmpdbg::CompilationPhase phase, RelExpr *q) {
-  if (((RelRoot *)q)->getDisplayTree() && CmpMain::pExpFuncs_) {
-    initializeGUIData(CmpMain::pExpFuncs_);
-    CmpMain::pExpFuncs_->fpDisplayQueryTree(phase, q, NULL);
-  }
-  return FALSE;
-}
-#endif
-
-#ifdef NA_DEBUG_GUI
-
-#define GUI_or_LOG_DISPLAY(phase, nadef, txt)                                  \
-  {                                                                            \
-    if (CmpMain::msGui_ == CmpCommon::context()) guiDisplay(phase, queryExpr); \
-    logQueryExpr(nadef, txt, queryExpr);                                       \
-  }
-
-#else
 #define GUI_or_LOG_DISPLAY(phase, nadef, txt) \
   { logQueryExpr(nadef, txt, queryExpr); }
-#endif
-
-#ifdef NA_DEBUG_GUI
-//--------------------------------------------------------------------
-// GSH : If the user wishes to use tdm_sqlcmpdbg then load
-// the appropriate DLL and get the pointer to the structure which
-// contains all the exported functions in the DLL.
-//--------------------------------------------------------------------
-void CmpMain::loadSqlCmpDbgDLL_msGui() {
-  if (CmpMain::msGui_ == NULL)  // If no Compiler Instance is currently using debugger
-  {
-    CmpMain::msGui_ = CmpCommon::context();  // Claim ownership of debugger
-    fpGetSqlcmpdbgExpFuncs GetExportedFunctions;
-
-    dlptr = dlopen("libSqlCompilerDebugger.so", RTLD_NOW);  // TODO
-    if (dlptr != NULL) {
-      GetExportedFunctions = (fpGetSqlcmpdbgExpFuncs)dlsym(dlptr, "GetSqlcmpdbgExpFuncs");
-      if (GetExportedFunctions) CmpMain::pExpFuncs_ = GetExportedFunctions();
-      if (CmpMain::pExpFuncs_ == NULL) {
-        int ret = dlclose(dlptr);
-        dlptr = NULL;
-      }
-    } else  // dlopen() failed
-    {
-      char *msg = dlerror();
-    }
-    if (dlptr == NULL) CmpMain::msGui_ = NULL;  // This Compiler Instance cannot use debugger
-  }
-  // free the DLL module
-}
-#endif  // NA_DEBUG_GUI
 
 NABoolean compileTimeMonitorOn() {
   // During compiler instance switching, the compiler time
@@ -496,26 +424,9 @@ void CmpMain::FlushQueryCachesIfLongTime(int begTimeInSec) {
   }
 }
 
-// -----------------------------------------------------------------------
-// This sqlcomp procedure compiles a string of sql text into code from
-// generator. It will call parser to parse the input string into a RelExpr*
-// and call sqlcomp(char*, RelExpr*, ...) for code generation.
-//
-// ...Unless phase is passed in, in which case the tree for that compiler phase
-// is returned in the gen_code pointer (I know, wrong name), which the caller
-// needs to cast back to RelExpr*.
-// -----------------------------------------------------------------------
-
-CmpMain::ReturnStatus CmpMain::sqlcomp(QueryText &input,                  // IN
-                                       int /*input_strlen*/,            // UNUSED
-                                       char **gen_code,                   // OUT
-                                       int *gen_code_len,              // OUT
-                                       CollHeap *heap,                    // IN
-                                       CompilerPhase phase,               // IN
-                                       FragmentDir **fragmentDir,         // OUT
-                                       IpcMessageObjType op,              // IN
-                                       QueryCachingOption useQueryCache)  // IN
-{
+CmpMain::ReturnStatus CmpMain::sqlcomp(QueryText &input, int /*input_strlen*/, char **gen_code, int *gen_code_len,
+                                       CollHeap *heap, CompilerPhase phase, FragmentDir **fragmentDir,
+                                       IpcMessageObjType op, QueryCachingOption useQueryCache) {
   TimeVal begTime;
   GETTIMEOFDAY(&begTime, 0);
 
@@ -761,13 +672,13 @@ CmpMain::ReturnStatus CmpMain::sqlcomp(QueryText &input,                  // IN
   return rs;
 }
 
-CmpMain::ReturnStatus CmpMain::sqlcompStatic(QueryText &input,        // IN
+CmpMain::ReturnStatus CmpMain::sqlcompStatic(QueryText &input,      // IN
                                              int /*input_strlen*/,  // UNUSED
-                                             char **gen_code,         // OUT
-                                             int *gen_code_len,    // OUT
-                                             CollHeap *heap,          // IN
-                                             CompilerPhase phase,     // IN
-                                             IpcMessageObjType op)    // IN
+                                             char **gen_code,       // OUT
+                                             int *gen_code_len,     // OUT
+                                             CollHeap *heap,        // IN
+                                             CompilerPhase phase,   // IN
+                                             IpcMessageObjType op)  // IN
 {
   TimeVal begTime;
   GETTIMEOFDAY(&begTime, 0);
@@ -838,17 +749,7 @@ CmpMain::ReturnStatus CmpMain::sqlcompStatic(QueryText &input,        // IN
       CacheWA cachewa(CmpCommon::statementHeap());
       cachewa.setPhase(PREPARSE);
       BindWA bindWA(ActiveSchemaDB(), CmpCommon::context());
-      // coverity thinks compileFromCache will dereference the null queryExpr
-      // pointer. coverity drills down one level of calls but that's not good
-      // enough. queryExpr is passed down several levels of calls until it
-      // ends up in QCache::deCacheAll(CacheKey*,RelExpr*) where queryExpr
-      // is first tested for non-null-ness before it is dereferenced. Yes,
-      // compileFromCache has one code path which dereferences queryExpr
-      // without a non-null guard. But, that code path is guarded by an
-      // "if (phase == CmpMain::PREPARSE)" test. Too deep for coverity.
-      // To be safe, we also changed compileFromCache to first check
-      // queryExpr before dereferencing it. Redundant but safer.
-      // coverity[var_deref_model]
+
       if (compileFromCache(sqlText, input.charSet(), queryExpr, &bindWA, cachewa, gen_code, gen_code_len,
                            (NAHeap *)heap, op, bPatchOK, begTime)) {
         if (bPatchOK) {
@@ -953,9 +854,7 @@ CmpMain::ReturnStatus CmpMain::sqlcompStatic(QueryText &input,        // IN
 // default constructor
 CmpMain::CmpMain() : attrs() { cmpISPInterface.InitISPFuncs(); }
 
-void CmpMain::setInputArrayMaxsize(const int maxsize) {
-  attrs.addStmtAttribute(SQL_ATTR_INPUT_ARRAY_MAXSIZE, maxsize);
-}
+void CmpMain::setInputArrayMaxsize(const int maxsize) { attrs.addStmtAttribute(SQL_ATTR_INPUT_ARRAY_MAXSIZE, maxsize); }
 
 int CmpMain::getInputArrayMaxsize() const {
   for (int x = 0; x < attrs.nEntries; x++) {
@@ -1035,7 +934,7 @@ void CmpMain::getAndProcessAnySiKeys(TimeVal begTime) {
 }
 
 int CmpMain::getAnySiKeys(TimeVal begTime, TimeVal prev_QI_inval_time, int *retNumSiKeys, TimeVal *pMaxTimestamp,
-                            SQL_QIKEY *qiKeyArray, int qiKeyArraySize) {
+                          SQL_QIKEY *qiKeyArray, int qiKeyArraySize) {
   int sqlcode = 0;
   long prev_QI_Time = prev_QI_inval_time.tv_usec;  // Start with number of microseconds
   long prev_QI_Sec = prev_QI_inval_time.tv_sec;    // put seconds into an long
@@ -1242,12 +1141,12 @@ SQLATTRHOLDABLE_INTERNAL_TYPE CmpMain::getHoldableAttr() {
 
 // try to compile query via a cache hit
 NABoolean CmpMain::compileFromCache(const char *sText,     // (IN) : sql statement text
-                                    int charset,         // (IN) : character set of  sql statement text
+                                    int charset,           // (IN) : character set of  sql statement text
                                     RelExpr *queryExpr,    // (IN) : the query to be compiled
                                     BindWA *bindWA,        // (IN) : work area (used by backpatchParams)
                                     CacheWA &cachewa,      // (IN) : work area for normalizeForCache
                                     char **plan,           // (OUT): compiled plan or NULL
-                                    int *pLen,          // (OUT): length of compiled plan or 0
+                                    int *pLen,             // (OUT): length of compiled plan or 0
                                     NAHeap *heap,          // (IN) : heap to use for compiled plan
                                     IpcMessageObjType op,  //(IN): SQLTEXT_{STATIC_}COMPILE or
                                                            //      SQLTEXT_{STATIC_}RECOMPILE
@@ -1505,10 +1404,10 @@ class CmpExceptionEnvWatcher {
 };
 
 CmpMain::ReturnStatus CmpMain::sqlcomp(const char *input_str,             // IN
-                                       int charset,                     // IN
+                                       int charset,                       // IN
                                        RelExpr *&queryExpr,               // INOUT
                                        char **gen_code,                   // OUT
-                                       int *gen_code_len,              // OUT
+                                       int *gen_code_len,                 // OUT
                                        CollHeap *heap,                    // IN
                                        CompilerPhase phase,               // IN
                                        FragmentDir **fragmentDir,         // OUT
@@ -1522,10 +1421,6 @@ CmpMain::ReturnStatus CmpMain::sqlcomp(const char *input_str,             // IN
 
   ComDiagsArea &d = *CmpCommon::diags();
   try {
-#ifdef NA_DEBUG_GUI
-    CURRENTSTMT->setDisplayGraph(((RelRoot *)queryExpr)->getDisplayTree());
-#endif  // NA_DEBUG_GUI
-
     CmpMain::ReturnStatus ok = compile(input_str, charset, queryExpr, gen_code, gen_code_len, heap, phase, fragmentDir,
                                        op, useQueryCache, cacheable, begTime, shouldLog);
 
@@ -1569,15 +1464,7 @@ CmpMain::ReturnStatus CmpMain::sqlcomp(const char *input_str,             // IN
 
   return EXCEPTIONERROR;
 }
-// -----------------------------------------------------------------------
-// fixupCompilationStats
-//
-// Helper function used to put CompilationStats which could not be determined
-// prior to generator phase back into the root tdb.  This requires
-// converting the CompilationStatsDataPtr in the root tdb from an offset
-// back into a pointer.
-//
-// -----------------------------------------------------------------------
+
 static void fixupCompilationStats(ComTdbRoot *rootTdb, Space *rootSpace) {
   if (rootTdb && rootSpace) {
     CompilationStatsDataPtr cmpStatsPtr = rootTdb->getCompilationStatsDataPtr();
@@ -1617,20 +1504,11 @@ void CmpMain::setSqlParserFlags(int f) {
   }
 }
 
-CmpMain::ReturnStatus CmpMain::compile(const char *input_str,             // IN
-                                       int charset,                     // IN
-                                       RelExpr *&queryExpr,               // INOUT
-                                       char **gen_code,                   // OUT
-                                       int *gen_code_len,              // OUT
-                                       CollHeap *heap,                    // IN
-                                       CompilerPhase phase,               // IN
-                                       FragmentDir **fragmentDir,         // OUT
-                                       IpcMessageObjType op,              // IN
-                                       QueryCachingOption useQueryCache,  // IN
-                                       NABoolean *cacheable,              // OUT
-                                       TimeVal *begTime,                  // IN
-                                       NABoolean shouldLog)               // IN
-{
+CmpMain::ReturnStatus CmpMain::compile(const char *input_str, int charset, RelExpr *&queryExpr, char **gen_code,
+                                       int *gen_code_len, CollHeap *heap, CompilerPhase phase,
+                                       FragmentDir **fragmentDir, IpcMessageObjType op,
+                                       QueryCachingOption useQueryCache, NABoolean *cacheable, TimeVal *begTime,
+                                       NABoolean shouldLog) {
   // initialize the return values
   ReturnStatus retval = SUCCESS;
   *gen_code = 0;
@@ -1771,19 +1649,6 @@ CmpMain::ReturnStatus CmpMain::compile(const char *input_str,             // IN
   }
 #endif
 
-#ifdef NA_DEBUG_GUI
-
-  NABoolean ODBC = (CmpCommon::getDefault(ODBC_PROCESS) == DF_ON);  // is the request coming through odbc
-  NABoolean JDBC = (CmpCommon::getDefault(JDBC_PROCESS) == DF_ON);  // is the request coming through jdbc
-  NABoolean SQLCI = (CmpCommon::getDefault(IS_SQLCI) == DF_ON);     // is the request coming through sqlci
-  // hpdci and whiteboard should not load GUI Debugger, by checking DISPLAY
-  if (((RelRoot *)queryExpr)->getDisplayTree() && SQLCI)
-    loadSqlCmpDbgDLL_msGui();
-  else if (((RelRoot *)queryExpr)->getDisplayTree() && (ODBC || JDBC)) {  // request with display from ODBC or JDBC
-    *CmpCommon::diags() << DgSqlCode(DISPLAY_IN_ODBC_JDBC);
-  }
-#endif
-
   // for NSK only
   if (CmpCommon::getDefault(NSK_DBG) == DF_ON) {
     NABoolean queryOnly = (CmpCommon::getDefault(NSK_DBG_QUERY_LOGGING_ONLY) == DF_ON);
@@ -1811,13 +1676,6 @@ CmpMain::ReturnStatus CmpMain::compile(const char *input_str,             // IN
       CURRCONTEXT_OPTDEBUG->stream() << endl << endl;
     }
   }
-
-#ifdef NA_DEBUG
-#ifdef NA_DEBUG_GUI
-
-  initGuiDisplay(queryExpr);
-#endif  // NA_DEBUG_GUI
-#endif  // NA_DEBUG
 
   MonitorMemoryUsage_Enter("Binder");
   // bind
@@ -1890,11 +1748,6 @@ CmpMain::ReturnStatus CmpMain::compile(const char *input_str,             // IN
     *gen_code = (char *)queryExpr;
     return SUCCESS;
   }
-
-#ifdef NA_DEBUG_GUI
-  if (useQueryCache == NORMAL && ((RelRoot *)queryExpr)->getDisplayTree() && CmpMain::pExpFuncs_) {
-  }
-#endif
 
   if (useQueryCache != NOCACHE && CmpCommon::getDefault(NSK_DBG) == DF_ON) {
     useQueryCache = NOCACHE;
@@ -2259,9 +2112,6 @@ CmpMain::ReturnStatus CmpMain::compile(const char *input_str,             // IN
     char *cb = NULL;
     NABoolean allocFinalObj = FALSE;
     if (fragmentDir == NULL) allocFinalObj = TRUE;
-#ifdef NA_DEBUG_GUI
-    if (CmpMain::msGui_ == CmpCommon::context()) allocFinalObj = TRUE;
-#endif
 
     if (allocFinalObj) {
       cb = new (heap) char[objLength];
@@ -2282,82 +2132,11 @@ CmpMain::ReturnStatus CmpMain::compile(const char *input_str,             // IN
       if ((NOT rootTdb->aqrEnabled()) || (rootTdb->hiveWriteAccess())) CURRENTQCACHE->deCachePreParserEntry(tkey);
     }
 
-#ifdef NA_DEBUG_GUI
-    if (CmpMain::msGui_ == CmpCommon::context()) {
-      // make a new copy of the generated code so we can unpack it
-      char *newCopy = new char[*gen_code_len];
-      str_cpy_all(newCopy, *gen_code, *gen_code_len);
-
-      void *baseAddr = (void *)newCopy;
-
-      // unpack the baseAddr (the root) first.
-      // This fragment corresponds to the MASTER.
-      // This is done so we can get to the fragment directory.
-      ComTdb tdb;
-      ((ComTdb *)baseAddr)->driveUnpack(baseAddr, &tdb, NULL);
-
-      ExFragDir *fragDir = ((ComTdbRoot *)baseAddr)->getFragDir();
-
-      // a sanity check to see that it was the MASTER fragment.
-      CMPASSERT(fragDir->getType(0) == ExFragDir::MASTER);
-
-      // unpack each fragment independently;
-      // unpacking converts offsets to actual pointers.
-      for (CollIndex i = 0; i < (CollIndex)fragDir->getNumEntries(); i++) {
-        void *fragBase = (void *)((char *)baseAddr + fragDir->getGlobalOffset(i));
-        void *fragStart = (void *)((char *)fragBase + fragDir->getTopNodeOffset(i));
-
-        switch (fragDir->getType(i)) {
-          case ExFragDir::ESP:
-            ((ComTdb *)fragStart)->driveUnpack(fragBase, &tdb, NULL);
-            break;
-          case ExFragDir::DP2: {
-            CMPASSERT(fragDir->getType(i) != ExFragDir::DP2);
-          } break;
-          case ExFragDir::MASTER:
-            // already been unpacked. Nothing to be done.
-            break;
-          case ExFragDir::EXPLAIN:
-            // Not using explain frag here!
-            break;
-        }
-
-      }  // for each fragment
-      if (((RelRoot *)queryExpr)->getDisplayTree())
-        CmpMain::pExpFuncs_->fpDisplayTDBTree(Sqlcmpdbg::AFTER_TDBGEN, (ComTdb *)baseAddr, fragDir);
-
-      // delete the copied object
-      delete newCopy;
-
-    }  // display TDBs
-
-    if (((RelRoot *)queryExpr)->getDisplayTree() && CmpMain::msGui_ == CmpCommon::context()) {
-      if (CmpMain::pExpFuncs_->fpExecutionDisplayIsEnabled()) {
-        //------------------------------------------------------------
-        // GSH: User has set a breakpoint for display in execution
-        // so we need to set a flag bit in the generated TDB which
-        // will tell the executor to display.
-        //------------------------------------------------------------
-        ComTdbRoot *originalRootTdb = (ComTdbRoot *)generator.getFragmentDir()->getTopObj(0);
-        originalRootTdb->setDisplayExecution(1);
-      } else {
-        //------------------------------------------------------------
-        // GSH : User is using MS/LINUX gui but not interested in
-        // execution/TCB display.
-        //------------------------------------------------------------
-        NADELETEBASIC(cb, heap);
-        *gen_code = 0;
-        *gen_code_len = 0;
-        *CmpCommon::diags() << DgSqlCode(1032);
-        retval = DISPLAYDONE;
-      }
-    }   // display TCB tree
-#endif  // NA_DEBUG_GUI
-        // "cb" is eventually freed by heap's destructor.
-        // "cb" cannot be safely freed here because mxcmp-to-CLI IPC code
-        // references "cb" until the generated plan is sent to the CLI.
-        // coverity[leaked_storage]
-  }     // success, code generated
+    // "cb" is eventually freed by heap's destructor.
+    // "cb" cannot be safely freed here because mxcmp-to-CLI IPC code
+    // references "cb" until the generated plan is sent to the CLI.
+    // coverity[leaked_storage]
+  }  // success, code generated
 
   // Capture the query shape if running in capture mode
   if (OSIM_runningInCaptureMode()) {
@@ -2574,74 +2353,3 @@ NABoolean QryStmtAttributeSet::has(const QryStmtAttribute &a) const {
   }
   return found;
 }
-
-#if defined(NA_DEBUG_GUI)
-void ExprNode::displayTree() {
-  // if libSqlCompilerDebugger.so not loaded, then load it.
-  if (!CmpMain::pExpFuncs_) {
-    if (CmpMain::msGui_ == NULL)  // If no Compiler Instance is currently using debugger
-    {
-      CmpMain::msGui_ = CmpCommon::context();  // Claim ownership of debugger
-      fpGetSqlcmpdbgExpFuncs GetExportedFunctions;
-
-      dlptr = dlopen("libSqlCompilerDebugger.so", RTLD_NOW);  // TODO
-      if (dlptr != NULL) {
-        GetExportedFunctions = (fpGetSqlcmpdbgExpFuncs)dlsym(dlptr, "GetSqlcmpdbgExpFuncs");
-        if (GetExportedFunctions) CmpMain::pExpFuncs_ = GetExportedFunctions();
-        if (CmpMain::pExpFuncs_ == NULL) {
-          int ret = dlclose(dlptr);
-          dlptr = NULL;
-        }
-      } else  // dlopen() failed
-      {
-        char *msg = dlerror();
-        *CmpCommon::diags() << DgSqlCode(-2245) << DgString0(msg);
-      }
-      if (dlptr == NULL) CmpMain::msGui_ = NULL;  // This Compiler Instance cannot use debugger
-    }
-    if (CmpMain::pExpFuncs_ == NULL) return;
-  }
-  // open Gui Debugger
-  initializeGUIData(CmpMain::pExpFuncs_);
-  CmpMain::pExpFuncs_->fpDisplayQueryTree(Sqlcmpdbg::FROM_MSDEV, this, NULL);
-}  // displayTree()
-
-void CascadesPlan::displayTree() {
-  // if libSqlCompilerDebugger.so not loaded, then load it.
-  if (!CmpMain::pExpFuncs_) {
-    if (CmpMain::msGui_ == NULL)  // If no Compiler Instance is currently using debugger
-    {
-      CmpMain::msGui_ = CmpCommon::context();  // Claim ownership of debugger
-      fpGetSqlcmpdbgExpFuncs GetExportedFunctions;
-
-      dlptr = dlopen("libSqlCompilerDebugger.so", RTLD_NOW);  // TODO
-      if (dlptr != NULL) {
-        GetExportedFunctions = (fpGetSqlcmpdbgExpFuncs)dlsym(dlptr, "GetSqlcmpdbgExpFuncs");
-        if (GetExportedFunctions) CmpMain::pExpFuncs_ = GetExportedFunctions();
-        if (CmpMain::pExpFuncs_ == NULL) {
-          int ret = dlclose(dlptr);
-          dlptr = NULL;
-        }
-      } else  // dlopen() failed
-      {
-        char *msg = dlerror();
-        *CmpCommon::diags() << DgSqlCode(-2245) << DgString0(msg);
-      }
-      if (dlptr == NULL) CmpMain::msGui_ = NULL;  // This Compiler Instance cannot use debugger
-    }
-    if (CmpMain::pExpFuncs_ == NULL) return;
-  }
-  initializeGUIData(CmpMain::pExpFuncs_);
-  CmpMain::pExpFuncs_->fpDisplayQueryTree(Sqlcmpdbg::FROM_MSDEV, NULL, this);
-
-}  // displayTree()
-#endif
-
-#if defined(NA_DEBUG_GUI)
-void initializeGUIData(SqlcmpdbgExpFuncs *expFuncs) {
-  // Pass information about the plan to be displayed to the GUI:
-  expFuncs->fpSqldbgSetCmpPointers(CURRSTMT_OPTGLOBALS->memo, CURRSTMT_OPTGLOBALS->task_list, QueryAnalysis::Instance(),
-                                   cmpCurrentContext, CURRCONTEXT_CLUSTERINFO);
-}  // initializeGUIData(...)
-
-#endif

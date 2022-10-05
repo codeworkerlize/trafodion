@@ -18,7 +18,7 @@
 #include "optimizer/Sqlcomp.h"
 #include "optimizer/ItemColRef.h"
 #include "optimizer/ItemOther.h"
-#include "ItemFunc.h"
+#include "optimizer/ItemFunc.h"
 #include "Cost.h" /* for lookups in defaults table */
 #include "optimizer/Analyzer.h"
 #include "../exp/exp_ovfl_ptal.h"  //check for overflow & underflow

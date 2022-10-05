@@ -598,7 +598,6 @@ StmtDDLAlterMvRGroup *ElemDDLNode::castToStmtDDLAlterMvRGroup()  // OZ
 
 StmtDDLAlterTrigger *ElemDDLNode::castToStmtDDLAlterTrigger() { return NULL; }
 
-StmtDDLAlterMV *ElemDDLNode::castToStmtDDLAlterMV() { return NULL; }
 
 StmtDDLAlterUser *ElemDDLNode::castToStmtDDLAlterUser() { return NULL; }
 
@@ -646,7 +645,6 @@ StmtDDLCreateMvRGroup *ElemDDLNode::castToStmtDDLCreateMvRGroup() {
 
 StmtDDLCreateTrigger *ElemDDLNode::castToStmtDDLCreateTrigger() { return NULL; }
 
-StmtDDLCreateMV *ElemDDLNode::castToStmtDDLCreateMV() { return NULL; }
 
 StmtDDLCreateView *ElemDDLNode::castToStmtDDLCreateView() { return NULL; }
 
@@ -676,7 +674,6 @@ StmtDDLDropTable *ElemDDLNode::castToStmtDDLDropTable() { return NULL; }
 
 StmtDDLDropHbaseTable *ElemDDLNode::castToStmtDDLDropHbaseTable() { return NULL; }
 
-StmtDDLDropMvRGroup *ElemDDLNode::castToStmtDDLDropMvRGroup() { return NULL; }
 
 StmtDDLDropTrigger *ElemDDLNode::castToStmtDDLDropTrigger() { return NULL; }
 

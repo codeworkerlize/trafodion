@@ -14,7 +14,7 @@
 */
 
 #include "optimizer/ItemExpr.h"
-#include "ItemFunc.h"
+#include "optimizer/ItemFunc.h"
 
 ////////////////////////////////////////////////////////////////////
 // class CompositeArrayLength

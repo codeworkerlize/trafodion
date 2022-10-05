@@ -22,14 +22,14 @@
 #include <stdlib.h>
 #include <search.h>
 
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 #include "optimizer/AllItemExpr.h"
 #include "optimizer/AllRelExpr.h"
 #include "optimizer/Triggers.h"
 #include "OptTrigger.h"
 #include "optimizer/BindWA.h"
 #include "ItemSample.h"
-#include "ChangesTable.h"
+#include "optimizer/ChangesTable.h"
 #include "optimizer/NormWA.h"
 
 //-----------------------------------------------------------------------------------

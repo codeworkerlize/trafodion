@@ -7,7 +7,6 @@ CPPSRC :=  \
 	Log.cpp \
 	Param.cpp \
 	Prepare.cpp \
-	ShellCmd.cpp \
 	SqlciCmd.cpp \
 	SqlciEnv.cpp \
 	SqlciError.cpp \

@@ -104,25 +104,7 @@ const NAString StmtDDLDropComponentPrivilege::displayLabel2() const {
 
 const NAString StmtDDLDropComponentPrivilege::getText() const { return "StmtDDLDropComponentPrivilege"; }
 
-//----------------------------------------------------------------------------
-// MV - RG
 
-// methods for class StmtDDLDropMvRGroup  - refresh groups
-// ---------------------------------------------------------------------------
-
-// initialize constructor
-StmtDDLDropMvRGroup::StmtDDLDropMvRGroup(const QualifiedName &mvGroupName)
-    : StmtDDLNode(DDL_DROP_MV_REFRESH_GROUP), mvRGroupQualName_(mvGroupName, PARSERHEAP()) {
-  // XXXXXXXXXMVSXXXXXXXXXXXXXXX
-}
-
-StmtDDLDropMvRGroup::~StmtDDLDropMvRGroup() {}
-
-StmtDDLDropMvRGroup *StmtDDLDropMvRGroup::castToStmtDDLDropMvRGroup() { return this; }
-
-const NAString StmtDDLDropMvRGroup::displayLabel1() const { return NAString("MV name: ") + getMvRGroupName(); }
-
-const NAString StmtDDLDropMvRGroup::getText() const { return "StmtDDLDropMvRGroup"; }
 
 // -----------------------------------------------------------------------
 // methods for class StmtDDLDropTrigger

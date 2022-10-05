@@ -16,7 +16,7 @@
 
 //#include "optimizer/RelExpr.h"
 #include "optimizer/Analyzer.h"
-//#include "RelJoin.h"
+//#include "optimizer/RelJoin.h"
 
 // Classes Defined in this file
 class MultiJoin;

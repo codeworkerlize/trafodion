@@ -1,5 +1,5 @@
 
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 #include "optimizer/AllRelExpr.h"
 #include "RelPackedRows.h"
 #include "generator/Generator.h"

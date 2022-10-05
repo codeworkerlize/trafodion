@@ -17,7 +17,7 @@
 
 #include "common/Platform.h"
 #include "ReqGen.h"
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 #include "cli/Globals.h"
 
 RequirementGenerator::RequirementGenerator(const ExprGroupId &groupForRequirement,

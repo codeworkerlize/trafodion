@@ -15,7 +15,7 @@
 // -----------------------------------------------------------------------
 
 #include "optimizer/Sqlcomp.h"
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 #include "optimizer/AllItemExpr.h"
 #include "Cost.h" /* for lookups in the defaults table */
 

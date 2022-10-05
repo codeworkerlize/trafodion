@@ -30,7 +30,7 @@
 #include "optimizer/AllRelExpr.h"  // various operators for CQS
 #include "RelPackedRows.h"
 #include "RelSample.h"
-#include "RelSequence.h"
+#include "optimizer/RelSequence.h"
 #include "optimizer/ItemColRef.h"  // ConstValue for CQS
 #include "sqlcomp/CmpMain.h"
 #include "sqlcomp/QCache.h"

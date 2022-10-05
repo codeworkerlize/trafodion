@@ -1,20 +1,22 @@
 
+#include "sqlci/Param.h"
+
 #include <stdlib.h>
 #include <wchar.h>
 
-#include "sqlci/SqlciCmd.h"
-#include "common/str.h"
-#include "common/dfs2rec.h"
-#include "exp/exp_clause_derived.h"
 #include "common/IntervalType.h"
 #include "common/NLSConversion.h"
+#include "common/dfs2rec.h"
 #include "common/nawstring.h"
+#include "common/str.h"
+#include "exp/exp_clause_derived.h"
+#include "sqlci/SqlciCmd.h"
+#include "sqlci/SqlciDefs.h"
 
 extern NAHeap sqlci_Heap;
 
-short convDoItMxcs(char *source, int sourceLen, short sourceType, int sourcePrecision, int sourceScale,
-                   char *target, int targetLen, short targetType, int targetPrecision, int targetScale,
-                   int flags);
+short convDoItMxcs(char *source, int sourceLen, short sourceType, int sourcePrecision, int sourceScale, char *target,
+                   int targetLen, short targetType, int targetPrecision, int targetScale, int flags);
 
 Param::Param(char *name_, SetParam *sp_)
     : name(0),
@@ -168,8 +170,8 @@ void Param::makeNull() {
   *(short *)nullValue_ = -1;
 }
 
-short Param::convertValue(SqlciEnv *sqlci_env, short targetType, int &targetLen, int targetPrecision,
-                          int targetScale, int vcIndLen, ComDiagsArea *&diags) {
+short Param::convertValue(SqlciEnv *sqlci_env, short targetType, int &targetLen, int targetPrecision, int targetScale,
+                          int vcIndLen, ComDiagsArea *&diags) {
   // get rid of the old converted value
   if (converted_value) {
     delete[] converted_value;
@@ -261,19 +263,11 @@ short Param::convertValue(SqlciEnv *sqlci_env, short targetType, int &targetLen,
     case REC_BYTE_V_ASCII_LONG:
     case REC_NCHAR_F_UNICODE:
     case REC_NCHAR_V_UNICODE:
-    case REC_BLOB:
     case REC_BINARY_STRING:
-    case REC_VARBINARY_STRING:
-    case REC_CLOB: {
+    case REC_VARBINARY_STRING: {
       char *VCLen = NULL;
       short VCLenSize = 0;
       short origTargetType = 0;
-      if ((targetType == REC_BLOB) || (targetType == REC_CLOB)) {
-        // convert the format to a varchar format with 4 bytes of length
-        origTargetType = REC_BLOB;
-        targetType = REC_BYTE_V_ASCII;
-        vcIndLen = sizeof(int);
-      }
 
       // 5/27/98: added VARCHAR cases
       if ((targetType == REC_BYTE_V_ASCII) || (targetType == REC_BYTE_V_ASCII_LONG) ||
@@ -293,9 +287,7 @@ short Param::convertValue(SqlciEnv *sqlci_env, short targetType, int &targetLen,
            !(getUTF16StrLit() != NULL && sourceType == REC_NCHAR_F_UNICODE && targetScale == CharInfo::UCS2) &&
            /*source*/ cs != targetScale /*i.e., targetCharSet*/
            ) &&
-          (origTargetType != REC_BLOB))
-
-      {
+          (origTargetType != REC_BLOB)) {
         charBuf cbuf((unsigned char *)pParamValue, sourceLen);
         NAWcharBuf *wcbuf = 0;
         int errorcode = 0;
@@ -435,11 +427,7 @@ char *Param::getDisplayValue(CharInfo::CharSet display_cs) {
 }
 
 //////////////////////////////////////////////////////////////
-short SetParam::process(SqlciEnv *sqlci_env) {
-
-
-  return 0;
-}
+short SetParam::process(SqlciEnv *sqlci_env) { return 0; }
 
 SetParam::~SetParam() {
   if (param_name) delete[] param_name;
@@ -457,10 +445,7 @@ void SetParam::setUTF16ParamStrLit(const NAWchar *utf16Str, size_t ucs2StrLen) {
 }
 
 //////////////////////////////////////////////////////////////
-short SetPattern::process(SqlciEnv *sqlci_env) {
-
-  return 0;
-}
+short SetPattern::process(SqlciEnv *sqlci_env) { return 0; }
 
 SetPattern::~SetPattern() {
   if (pattern_name) delete[] pattern_name;

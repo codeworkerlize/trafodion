@@ -17,7 +17,7 @@
 // -----------------------------------------------------------------------
 
 #include "optimizer/Sqlcomp.h"
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 #include "Cost.h"
 #include "sqlcomp/DefaultConstants.h"
 #include "cli/SQLCLIdev.h"

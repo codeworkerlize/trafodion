@@ -15,33 +15,25 @@
 #define SQLPARSERGLOBALS_FLAGS        // must precede all #include's
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 
-#include "optimizer/Sqlcomp.h"
+#include "optimizer/Inlining.h"
+
+#include "executor/TriggerEnable.h"
+#include "executor/ex_error.h"
 #include "optimizer/AllItemExpr.h"
 #include "optimizer/AllRelExpr.h"
 #include "optimizer/BindWA.h"
-#include "GroupAttr.h"
-#include "sqlcomp/parser.h"
-#include "parser/StmtNode.h"
-#include "optimizer/Inlining.h"
-#include "executor/ex_error.h"
-#include "optimizer/Triggers.h"
+#include "optimizer/ChangesTable.h"
+#include "optimizer/GroupAttr.h"
+#include "optimizer/ItmFlowControlFunction.h"
+#include "optimizer/RelSequence.h"
+#include "optimizer/Sqlcomp.h"
 #include "optimizer/TriggerDB.h"
-#include "TriggerEnable.h"
-#include "parser/StmtDDLCreateTrigger.h"
-#include "MVInfo.h"
-#include "Refresh.h"
-#include "ChangesTable.h"
-#include "MvRefreshBuilder.h"
-#include "MjvBuilder.h"
-#include "ItmFlowControlFunction.h"
-#include <CmpMain.h>
-#include "RelSequence.h"
-
-#ifdef NA_DEBUG_GUI
-#include "common/ComSqlcmpdbg.h"
-#endif
-
+#include "optimizer/Triggers.h"
 #include "parser/SqlParserGlobals.h"  // must be last #include
+#include "parser/StmtDDLCreateTrigger.h"
+#include "parser/StmtNode.h"
+#include "sqlcomp/CmpMain.h"
+#include "sqlcomp/parser.h"
 
 #define DISABLE_TRIGGERS 0
 #define DISABLE_RI       0
@@ -50,71 +42,6 @@ extern THREAD_P NABoolean GU_DEBUG;
 
 static const char NEWTable[] = "NEW";  // QSTUFF:  corr for embedded d/u
 static const char OLDTable[] = "OLD";  // QSTUFF:  corr for embedded d/u
-
-/*******************************************************************************
-****  Independant Utility Functions
-******************************************************************************
-*****************************************************************************/
-
-//////////////////////////////////////////////////////////////////////////////
-// Create a CorrName to the temp table from the subject table name.
-//////////////////////////////////////////////////////////////////////////////
-/*static CorrName *calcTempTableName(const CorrName &theTable, CollHeap *heap)
-{
-  const QualifiedName &tableName = theTable.getQualifiedNameObj();
-
-  CorrName *result = new(heap)
-    CorrName(subjectNameToTrigTemp(tableName.getObjectName()),
-             heap,
-             tableName.getSchemaName(),
-             tableName.getCatalogName());
-
-  // Specify the trigger temporary table namespace.
-  result->setSpecialType(ExtendedQualName::TRIGTEMP_TABLE);
-  return result;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-// Does this column name start with NEW_COLUMN_PREFIX?
-//////////////////////////////////////////////////////////////////////////////
-static NABoolean isNewCol(const NAString& colName)
-{
-  if (colName.length() < sizeof(NEW_COLUMN_PREFIX))
-    return FALSE;
-
-  return (colName(0,sizeof(NEW_COLUMN_PREFIX)-1) == NEW_COLUMN_PREFIX);
-}
-
-//////////////////////////////////////////////////////////////////////////////
-// Does this column name start with OLD_COLUMN_PREFIX?
-//////////////////////////////////////////////////////////////////////////////
-static NABoolean isOldCol(const NAString& colName)
-{
-  if (colName.length() < sizeof(OLD_COLUMN_PREFIX))
-    return FALSE;
-
-  return (colName(0,sizeof(OLD_COLUMN_PREFIX)-1) == OLD_COLUMN_PREFIX);
-}
-
-//////////////////////////////////////////////////////////////////////////////
-// Remove the temp table column name prefix.
-//////////////////////////////////////////////////////////////////////////////
-static void FixTempColName(NAString *colName)
-{
-  CMPASSERT (sizeof(OLD_COLUMN_PREFIX) == sizeof(NEW_COLUMN_PREFIX));
-
-  colName->remove(0,sizeof(OLD_COLUMN_PREFIX)-1); // remove the prefix
-}
-
-//////////////////////////////////////////////////////////////////////////////
-// Does this column name from the temp table contain the @ sign?
-// If so  - it must be either a NEW@ or an OLD@ column.
-// If not - it must be part of either the primary or clustering keys.
-//////////////////////////////////////////////////////////////////////////////
-static NABoolean isSingleCopyColumn(const NAString& colName)
-{
-  return !colName.contains(NON_SQL_TEXT_CHAR);
-}*/
 
 //////////////////////////////////////////////////////////////////////////////
 // Utility function used by the fixTentativeRETDesc() method below.
@@ -236,209 +163,6 @@ RelExpr *Scan::buildTriggerTransitionTableView(BindWA *bindWA) {
 
     return transformedScan->bindNode(bindWA);  // Bind the result
   }
-}
-
-//////////////////////////////////////////////////////////////////////////////
-// This method does the insertion of a MVImmediate trigger in order to
-// refresh the specified ON STATEMENT MJV after an insert operation.
-//
-// The refresh action is by default implemented as a statement after trigger.
-// This implies that the trigger is always driven by a scan from the
-// temp-table. The overhead of inserting into the temp-table, scanning it, and
-// deleting from it afterwards is relatively high when the number of rows is
-// quite small. So, when the insert is driven by a Tuple or TupleList node
-// (with up to a certain number of tuples in it), we implement the refresh
-// action as a row after trigger, and thus avoid using the temp-table at whole.
-// When before triggers exist we don't consider the optimization, since the
-// values in the Tuple (TupleList) are not the actual values inserted into the
-// table (they are modified by the before trigger).
-//
-//////////////////////////////////////////////////////////////////////////////
-void Insert::insertMvToTriggerList(BeforeAndAfterTriggers *list, BindWA *bindWA, CollHeap *heap,
-                                   const QualifiedName &mvName, MVInfoForDML *mvInfo, const QualifiedName &subjectTable,
-                                   UpdateColumns *updatedCols) {
-  CMPASSERT(getOperatorType() == REL_UNARY_INSERT);
-
-  CorrName mvCorrName(mvName, heap);
-  // The namespace is set in order to allow special update directly on the MV
-  mvCorrName.setSpecialType(ExtendedQualName::MV_TABLE);
-
-  // Instansiate the apprpriate builder
-  MjvImmInsertBuilder *triggerBuilder = new (heap) MjvImmInsertBuilder(mvCorrName, mvInfo, this, bindWA);
-
-  // By default, the refresh is implemented as an after statement trigger
-  ComGranularity granularity = COM_STATEMENT;
-
-  // If MV_AS_ROW_TRIGGER default value is ON or if we deal with insert of only
-  // 1 row (i.e. the child is REL_TUPLE), generate the optimized refresh tree,
-  // in which case the refresh is implemented as a row after trigger.
-  if (child(0)->getOperatorType() == REL_TUPLE || CmpCommon::getDefault(MV_AS_ROW_TRIGGER) == DF_ON) {
-    // build the optimized version of the tree as requested
-    granularity = COM_ROW;
-    triggerBuilder->optimizeForFewRows();
-  }
-
-  // Instansiate the MVImmediate trigger
-  MVImmediate *mvTrigger =
-      new (heap) MVImmediate(bindWA, triggerBuilder, mvName, subjectTable, COM_INSERT, granularity, updatedCols);
-
-  // Register the trigger in the general list of triggers
-
-  if (granularity == COM_STATEMENT) {
-    list->addNewAfterStatementTrigger(mvTrigger);
-  } else {
-    list->addNewAfterRowTrigger(mvTrigger);
-  }
-}
-
-//////////////////////////////////////////////////////////////////////////////
-// This method does the insertion of a MVImmediate trigger in order to
-// refresh the specified ON STATEMENT MJV after an update operation.
-//
-// The update operation may be one of two types:
-//
-// 1. NONE of the updated columns participate in the clustering index of
-//    the table and/or join predicate of the MJV. This is called direct update.
-// 2. Some of the above columns are updated. This is called indirect update.
-//
-//    For direct update, a single row trigger that directly updates the
-//    appropriate columns is sufficient to refresh the MJV.
-//
-//    For indirect update, we should have two MVImmediate triggers defined:
-// 1) a row after trigger that deletes each row in the MJV that corresponds to
-//    the updated ones.
-// 2) a statement after trigger that inserts all the rows that result from
-//    applying the join expression of the MJV between the delta on the subject
-//    table (the updated rows sotred in the temp-table) and the other tables
-//    participating in the MJV (the ones that were not changed).
-//
-//////////////////////////////////////////////////////////////////////////////
-void Update::insertMvToTriggerList(BeforeAndAfterTriggers *list, BindWA *bindWA, CollHeap *heap,
-                                   const QualifiedName &mvName, MVInfoForDML *mvInfo, const QualifiedName &subjectTable,
-                                   UpdateColumns *updatedCols) {
-  CMPASSERT(getOperatorType() == REL_UNARY_UPDATE);
-
-  CorrName mvCorrName(mvName, heap);
-  // The namespace is set in order to allow special update directly on the MV
-  mvCorrName.setSpecialType(ExtendedQualName::MV_TABLE);
-
-  switch (checkUpdateType(mvInfo, subjectTable, updatedCols)) {
-    case DIRECT: {
-      /////////////////////////////////////////////////////////
-      // adding a row trigger to directly update rows in the MV
-      /////////////////////////////////////////////////////////
-
-      // Instansiate the apprpriate builder
-      MvRefreshBuilder *triggerBuilder = new (heap) MjvImmDirectUpdateBuilder(mvCorrName, mvInfo, this, bindWA);
-
-      // Instansiate the MVImmediate trigger
-      MVImmediate *mvTrigger =
-          new (heap) MVImmediate(bindWA, triggerBuilder, mvName, subjectTable, COM_UPDATE, COM_ROW, updatedCols);
-
-      // Register the trigger in the general list of triggers
-      list->addNewAfterRowTrigger(mvTrigger);
-      break;
-    }
-    case INDIRECT: {
-      ///////////////////////////////////////////////////////////////////
-      // PART I: adding a row trigger to delete updated rows from the MJV
-      ///////////////////////////////////////////////////////////////////
-
-      // Instansiate the apprpriate builder
-      MvRefreshBuilder *rowTriggerBuilder = new (heap) MjvImmDeleteBuilder(mvCorrName, mvInfo, this, bindWA);
-
-      // Instansiate the MVImmediate trigger
-      MVImmediate *mvRowTrigger =
-          new (heap) MVImmediate(bindWA, rowTriggerBuilder, mvName, subjectTable, COM_DELETE, COM_ROW, updatedCols);
-
-      // Register the trigger in the general list of triggers
-      list->addNewAfterRowTrigger(mvRowTrigger);
-
-      //////////////////////////////////////////////////////////////////////////
-      // PART II: adding a statement trigger to insert the new rows into the MJV
-      //////////////////////////////////////////////////////////////////////////
-
-      // Instansiate the apprpriate builder
-      MvRefreshBuilder *stmtTriggerBuilder = new (heap) MjvImmInsertBuilder(mvCorrName, mvInfo, this, bindWA);
-
-      // Instansiate the MVImmediate trigger
-      MVImmediate *mvStmtTrigger = new (heap)
-          MVImmediate(bindWA, stmtTriggerBuilder, mvName, subjectTable, COM_INSERT, COM_STATEMENT, updatedCols);
-
-      // Register the trigger in the general list of triggers
-      list->addNewAfterStatementTrigger(mvStmtTrigger);
-      break;
-    }
-    default:
-      break;  // update is IRELEVANT - nothing to do
-  }
-}
-
-//////////////////////////////////////////////////////////////////////////////
-// This method checks which type of update is it:
-// IRELEVANT, DIRECT or INDIRECT.
-//
-// An update is considered as IRELEVANT until proven otherwise. The list of
-// columns of the subject table that are in use by the MJV is scanned. For
-// each column we check if it is updated in the current update operation. If
-// so, the update is not IRELEVANT anymore, and is considered DIRECT until
-// proven otherwise. Once we find an indirect-update column that is updated
-// in the current operation, the update is considered INDIRECT and the loop
-// is stopped at once. MJV columns of type complex cause INDIRECT update also.
-//
-//////////////////////////////////////////////////////////////////////////////
-Update::MvUpdateType Update::checkUpdateType(MVInfoForDML *mvInfo, const QualifiedName &subjectTable,
-                                             UpdateColumns *updatedCols) const {
-  MvUpdateType updateType = IRELEVANT;
-  mvInfo->initUsedObjectsHash();  // initialization for the searching
-  const MVUsedObjectInfo *mvUseInfo = mvInfo->findUsedInfoForTable(subjectTable);
-  const LIST(int) &colsUsedByMv = mvUseInfo->getUsedColumnList();
-  for (CollIndex i = 0; i < colsUsedByMv.entries(); i++) {
-    // Check whether the column was updated in the current update operation.
-    // If so, this update is not IRELEVANT anymore. Otherwise, skip this column.
-    if (updatedCols->contains(colsUsedByMv[i])) {
-      updateType = DIRECT;
-    } else {
-      continue;
-    }
-
-    // Check whether the column is an indirect-update column in the MJV, which
-    // means that updating it may not only affect the corresponding row in the
-    // MJV, but also affect other rows in it.
-    if (mvUseInfo->isIndirectUpdateCol(colsUsedByMv[i])) {
-      updateType = INDIRECT;
-      break;  // no further search is needed
-    }
-  }
-
-  return updateType;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-// This method does the insertion of a MVImmediate trigger in order to
-// refresh the specified ON STATEMENT MJV after a delete operation.
-//
-// The refresh action is implemented as a row after trigger.
-//
-//////////////////////////////////////////////////////////////////////////////
-void Delete::insertMvToTriggerList(BeforeAndAfterTriggers *list, BindWA *bindWA, CollHeap *heap,
-                                   const QualifiedName &mvName, MVInfoForDML *mvInfo, const QualifiedName &subjectTable,
-                                   UpdateColumns *updatedCols) {
-  CMPASSERT(getOperatorType() == REL_UNARY_DELETE);
-
-  CorrName mvCorrName(mvName, heap);
-  // The namespace is set in order to allow special update directly on the MV
-  mvCorrName.setSpecialType(ExtendedQualName::MV_TABLE);
-
-  // Instansiate the apprpriate builder
-  MvRefreshBuilder *triggerBuilder = new (heap) MjvImmDeleteBuilder(mvCorrName, mvInfo, this, bindWA);
-
-  // Instansiate the MVImmediate trigger
-  MVImmediate *mvTrigger =
-      new (heap) MVImmediate(bindWA, triggerBuilder, mvName, subjectTable, COM_DELETE, COM_ROW, updatedCols);
-
-  // Register the trigger in the general list of triggers
-  list->addNewAfterRowTrigger(mvTrigger);
 }
 
 /*****************************************************************************
@@ -1966,17 +1690,6 @@ RelExpr *GenericUpdate::createUndoNodes(BindWA *bindWA, NABoolean useInternalSys
 
   return undoInsert;
 }  // GenericUpdate::createUndoNodes()
-/*****************************************************************************
-******************************************************************************
-****  Methods for handling undo from IUD log
-******************************************************************************
-*****************************************************************************/
-
-RelExpr *GenericUpdate::createUndoIUDLog(BindWA *bindWA) {
-  MvIudLog logTableObj(this, bindWA);
-  RelExpr *undoIUDNode = logTableObj.buildInsert(TRUE, ChangesTable::ALL_ROWS, TRUE, TRUE);
-  return undoIUDNode;
-}
 
 /*****************************************************************************
 ******************************************************************************
@@ -2161,10 +1874,9 @@ RelExpr *GenericUpdate::createRISubtree(BindWA *bindWA, const NATable *naTable, 
     newAggExpr = new (heap) UnLogic(ITM_NOT, new (heap) Aggregate(ITM_ONE_TRUE, aggSelPredicate));
   }
 
-  ItemExpr *grbySelectionPred = new (heap)
-      Case(NULL,
-           new (heap) IfThenElse(newAggExpr, new (heap) BoolVal(ITM_RETURN_FALSE),
-                                 new (heap) RaiseError((int)EXE_RI_CONSTRAINT_VIOLATION, constraintName, tableName)));
+  ItemExpr *grbySelectionPred = new (heap) Case(
+      NULL, new (heap) IfThenElse(newAggExpr, new (heap) BoolVal(ITM_RETURN_FALSE),
+                                  new (heap) RaiseError((int)EXE_RI_CONSTRAINT_VIOLATION, constraintName, tableName)));
 
   // Create a GroupBy on the newScan, and attach the new case as "having" predicate.
   RelExpr *newGrby = new (heap) GroupByAgg(newScan, REL_GROUPBY);
@@ -2324,55 +2036,6 @@ void GenericUpdate::prepareForMvLogging(BindWA *bindWA, CollHeap *heap) {
     getInliningInfo().setFlags(II_isUsedForMvLogging);
 }
 
-//////////////////////////////////////////////////////////////////////////////
-// Insert the OLD and NEW values into the MV IUD Log
-//////////////////////////////////////////////////////////////////////////////
-RelExpr *GenericUpdate::createMvLogInsert(BindWA *bindWA, CollHeap *heap, UpdateColumns *updatedColumns,
-                                          NABoolean projectMidRangeRows) {
-  MvIudLog logTableObj(this, bindWA);
-  logTableObj.setUpdatedColumns(updatedColumns);
-  RelExpr *insertNode = logTableObj.buildInsert(TRUE, ChangesTable::ALL_ROWS, FALSE, TRUE);
-
-  if (bindWA->errStatus()) return NULL;
-
-  prepareForMvLogging(bindWA, heap);
-
-  if (projectMidRangeRows) {
-    // Set the flag on this node.
-    // This flag should be set even when range logging is off.
-    getInliningInfo().setFlags(II_ProjectMidRangeRows);
-  }
-
-  RelExpr *topNode = insertNode;
-  if (logTableObj.needsRangeLogging() && projectMidRangeRows) {
-    // dead code, range logging is not supported
-    RelRoot *rootNode = new (heap) RelRoot(insertNode);
-    rootNode->setEmptySelectList();
-
-    ItemExpr *noIgnoreCondition =
-        new (heap) BiRelat(ITM_NOT_EQUAL, new (heap) ConstValue(ComMvRowType_MidRange),
-                           new (heap) ColReference(new (heap) ColRefName(InliningInfo::getRowTypeVirtualColName())));
-
-    //  for the "else" of the 'when clause'
-    ItemExpr *noOpArg = new (heap) ConstValue(0);
-    RelExpr *noOp = new (heap) Tuple(noOpArg);
-    RelRoot *noOpRoot = new (heap) RelRoot(noOp);
-    noOpRoot->setEmptySelectList();
-
-    Union *ifNode =
-        new (heap) Union(rootNode, noOpRoot, NULL, noIgnoreCondition, REL_UNION, CmpCommon::statementHeap(), TRUE);
-    ifNode->setCondUnary();
-
-    topNode = ifNode;
-  }
-
-  RelRoot *rootNode = new (heap) RelRoot(topNode);
-  rootNode->setEmptySelectList();
-  rootNode->getInliningInfo().setFlags(II_ActionOfRI);
-
-  return rootNode;
-}
-
 // This helper function is called only from GenericUpdate::handleInlining and GenericUpdate::getTriggeredMVs
 // It checks if we are compiling a NOT ATOMIC statement as raises the appropriate
 // error/warning. A warning is raised for ODBC and the statement will be compiled as an
@@ -2390,140 +2053,6 @@ NABoolean GenericUpdate::checkForNotAtomicStatement(BindWA *bindWA, int sqlcode,
     }
   }
   return FALSE;
-}
-
-/*****************************************************************************
-******************************************************************************
-****  Methods for handling ON STATEMENT MVs
-******************************************************************************
-*****************************************************************************/
-
-//////////////////////////////////////////////////////////////////////////////
-// This method inserts for each ON STATEMENT MV, that is affected by the
-// action at the IUD node, a MVImmediate trigger(s) to the list of triggers to
-// be fired on the subject table. These MVImmediate triggers are responsible for
-// refreshing the MVs.
-//
-// The algorithm is as follows:
-//
-// 1. get list of MVs defined on the subject table
-// 2. for each MV in the list do
-//    2.1 ensure refresh type is "ON STATEMENT" - if not, skip MV
-//    2.2 verify that the MV is initialized - if not, skip MV
-//    2.3 add MV to the list of triggers (call insertMvToTriggerList)
-//
-// For now, only ON STATEMENT MJVs are supported!!!
-//
-//////////////////////////////////////////////////////////////////////////////
-BeforeAndAfterTriggers *GenericUpdate::getTriggeredMvs(BindWA *bindWA, BeforeAndAfterTriggers *list,
-                                                       UpdateColumns *updatedColumns) {
-  CollHeap *heap = bindWA->wHeap();
-
-  const NATable *subjectNA = tabId_->getNATable();
-  CMPASSERT(subjectNA != NULL);
-
-  const UsingMvInfoList &mvList = subjectNA->getMvsUsingMe();
-  if (mvList.isEmpty()) {
-    // No MVs are to be refreshed - return the given list as is
-    return list;
-  } else {  // check for any non-atomic statements
-    const PartitioningFunction *partFunc = subjectNA->getClusteringIndex()->getPartitioningFunction();
-
-    for (CollIndex i = 0; i < mvList.entries(); i++) {
-      if ((CmpCommon::getDefault(NAR_DEPOBJ_ENABLE2) == DF_OFF) || ((partFunc->isARangePartitioningFunction())))
-
-      {
-        if (checkForNotAtomicStatement(bindWA, 30033, (mvList[i]->getMvName()).getQualifiedNameAsAnsiString(),
-                                       (subjectNA->getTableName()).getQualifiedNameAsAnsiString())) {
-          return list;
-        }
-      }
-
-      if (isNoRollback() || (CmpCommon::transMode()->getRollbackMode() == TransMode::NO_ROLLBACK_)) {
-        *CmpCommon::diags() << DgSqlCode(-3232) << DgString0((subjectNA->getTableName()).getQualifiedNameAsAnsiString())
-                            << DgString1("Materialized View :")
-                            << DgString2((mvList[i]->getMvName()).getQualifiedNameAsAnsiString());
-        bindWA->setErrStatus();
-
-        return list;
-      }
-    }
-  }
-
-  // If the given list of triggers is still empty, allocate a new one for the
-  // new MVImmediate trigger(s) that might be added
-  BeforeAndAfterTriggers *newList = list;
-  if (newList == NULL) {
-    newList = new (heap) BeforeAndAfterTriggers(NULL, NULL, NULL, subjectNA->getRedefTime());
-  }
-
-  // Search for MVs that should be refreshed
-  for (CollIndex i = 0; i < mvList.entries(); i++) {
-    // If MV is not ON STATEMENT - skip it
-    if (mvList[i]->getRefreshType() != COM_ON_STATEMENT) {
-      continue;
-    }
-
-    // If MV not intialized - skip it
-    if (!mvList[i]->isInitialized()) {
-      continue;
-    }
-
-    // Retreive NATable of the MV. Return on error.
-    CorrName mvCorr = CorrName(mvList[i]->getMvName(), heap);
-    NATable *naTableMv = bindWA->getNATable(mvCorr);
-    if (bindWA->errStatus()) {
-      return list;
-    }
-
-    // Retreive MVInfo for the MV. Return on error.
-    MVInfoForDML *mvInfo = naTableMv->getMVInfo(bindWA);
-    if (mvInfo == NULL) {
-      return list;
-    }
-
-    // For now, only ON STATMENET MJVs are supported!
-    if (mvInfo->getMVType() != COM_MJV) {
-      continue;
-    }
-
-    if (bindWA->getTopRoot() != NULL) bindWA->getTopRoot()->setContainsOnStatementMV(TRUE);
-
-    // The MV have passed all the general pre-conditions. Do some specific
-    // checks and if it passes, add it to the triggers list.
-    insertMvToTriggerList(newList, bindWA, heap, mvList[i]->getMvName(), mvInfo, getTableName().getQualifiedNameObj(),
-                          updatedColumns);
-  }
-
-  if (newList->entries() == 0) {
-    //"newList" will be freed by statementHeap
-    // add code annotation to prevent Coverity RESORUCE_LEAK checking error
-    // coverity[leaked_storage]
-    return NULL;  // the list doesn't contain any triggers
-  }
-
-  // If there are only immediate MVs but not triggers, and this is an
-  // embedded IUD statement, abort with an error.
-  if (list == NULL && (getGroupAttr()->isEmbeddedUpdateOrDelete() || getGroupAttr()->isEmbeddedInsert())) {
-    *CmpCommon::diags() << DgSqlCode(-12118);
-    bindWA->setErrStatus();
-    return NULL;
-  }
-
-  return newList;  // return the updated list (including added MVs, if any)
-}
-
-//////////////////////////////////////////////////////////////////////////////
-// This method does the actual insertion of the MVImmediate trigger to the
-// list of triggers to be fired. Implemented only for derived classes!
-//
-//////////////////////////////////////////////////////////////////////////////
-
-// we are not supposed to get here
-void GenericUpdate::insertMvToTriggerList(BeforeAndAfterTriggers *list, BindWA *bindWA, CollHeap *heap,
-                                          const QualifiedName &mvName, MVInfoForDML *mvInfo,
-                                          const QualifiedName &subjectTable, UpdateColumns *updateCols) {
-  CMPASSERT(false);  // not implemented in GenericUpdate
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2546,38 +2075,6 @@ RelExpr *GenericUpdate::inlineOnlyRIandIMandMVLogging(BindWA *bindWA, RelExpr *t
 
   // Create the tree that handles RI
   if (riConstraints != NULL) riTree = inlineRI(bindWA, riConstraints, heap);
-
-  // Create the tree for MV Logging.
-  if (isMVLoggingRequired) {
-    // When RI/IM/Triggers are not inlined, we can skip the projection of
-    // the rows that are not Single/BeginRange/EndRange.
-    NABoolean projectMidRangeRows = TRUE;
-    if (imTree == NULL && riTree == NULL) projectMidRangeRows = FALSE;
-
-    mvTree = createMvLogInsert(bindWA, heap, columns, projectMidRangeRows);
-    if (mvTree != NULL) {
-      // Use REL_SEMITSJ if it should not project any outputs
-      // to the IM or RI trees.
-      OperatorTypeEnum joinType = (imTree || riTree) ? REL_LEFT_TSJ : REL_TSJ;
-      NABoolean needsOutputs =
-          isMtsStatement() || (getUpdateCKorUniqueIndexKey() && (getOperatorType() == REL_UNARY_DELETE));
-      if (needsOutputs && joinType == REL_TSJ) joinType = REL_ANTI_SEMITSJ;
-      //	joinType = (imTree || riTree) ? REL_ANTI_SEMITSJ : REL_SEMITSJ;
-
-      Join *logTSJ = new (heap) Join(topNode, mvTree, joinType);
-      logTSJ->getInliningInfo().setFlags(II_DrivingMvLogInsert);
-      logTSJ->setTSJForWrite(TRUE);
-
-      if (((getOperatorType() == REL_UNARY_UPDATE) && CmpCommon::getDefault(MV_LOG_PUSH_DOWN_DP2_UPDATE) != DF_ON) ||
-          ((getOperatorType() == REL_UNARY_DELETE) && CmpCommon::getDefault(MV_LOG_PUSH_DOWN_DP2_DELETE) != DF_ON) ||
-          ((getOperatorType() == REL_UNARY_INSERT) && CmpCommon::getDefault(MV_LOG_PUSH_DOWN_DP2_INSERT) != DF_ON))
-        logTSJ->setAllowPushDown(FALSE);
-
-      if (bindWA->getHostArraysArea() && bindWA->getHostArraysArea()->getTolerateNonFatalError())
-        logTSJ->setTolerateNonFatalError(RelExpr::NOT_ATOMIC_);
-      topNode = logTSJ;
-    }
-  }
 
   result = imTree;
   if (riTree != NULL) {
@@ -2672,19 +2169,6 @@ RelExpr *GenericUpdate::inlineAfterOnlyBackbone(BindWA *bindWA, TriggersTempTabl
 
   NABoolean rowTriggersPresent = (rowTriggers != NULL);
 
-  // First inline MV logging, so it will be pushed to DP2 with the IUD.
-  if (isMVLoggingRequired) {
-    RelExpr *mvTree = createMvLogInsert(bindWA, heap, updatedColumns, TRUE);
-    if (mvTree != NULL) {
-      Join *logTSJ = new (heap) Join(topNode, mvTree, REL_LEFT_TSJ);
-      logTSJ->setTSJForWrite(TRUE);
-      logTSJ->getInliningInfo().setFlags(II_DrivingMvLogInsert);
-      if (bindWA->getHostArraysArea() && bindWA->getHostArraysArea()->getTolerateNonFatalError())
-        logTSJ->setTolerateNonFatalError(RelExpr::NOT_ATOMIC_);
-      topNode = logTSJ;
-    }
-  }
-
   // Next inline Index Maintainance
   if (needIM) {
     // here we don't use the internal syskey column name ("@SYSKEY") since the
@@ -2754,8 +2238,6 @@ RelExpr *GenericUpdate::inlineAfterOnlyBackboneForUndo(BindWA *bindWA, TriggersT
   RelRoot *tempInsRoot = new (heap) RelRoot(tempInsertNode);
   tempInsRoot->setRootFlag(FALSE);
   tempInsRoot->setEmptySelectList();
-
-  if (isMVLoggingRequired) mvTree = createMvLogInsert(bindWA, heap, updatedColumns, TRUE);
 
   if (mvTree != NULL) {
     RelRoot *mvRoot = new (heap) RelRoot(mvTree);
@@ -2941,24 +2423,6 @@ RelExpr *GenericUpdate::inlineBeforeAndAfterBackbone(BindWA *bindWA, RelExpr *te
   // the NEW and OLD values for Row triggers, RI or IM.
   if (getInliningInfo().hasPipelinedActions()) {
     effectiveGuNode->getInliningInfo().setFlags(II_hasPipelinedActions);
-  }
-
-  // First inline MV logging, so it will be pushed to DP2 with the IUD.
-  if (isMVLoggingRequired) {
-    RelExpr *mvTree = createMvLogInsert(bindWA, heap, updatedColumns, TRUE);
-    if (mvTree != NULL) {
-      OperatorTypeEnum joinType = REL_LEFT_TSJ;
-      if (!rowTriggers && !riConstraints && !needIM) joinType = REL_TSJ;
-      Join *logTSJ = new (heap) Join(topNode, mvTree, joinType);
-      logTSJ->setTSJForWrite(TRUE);
-
-      // disable parallele execution for TSJs that control row triggers
-      // execution. Parallel execution for triggers TSJ introduces the
-      // potential for non-deterministic execution
-      if (rowTriggers) logTSJ->getInliningInfo().setFlags(II_SingleExecutionForTriggersTSJ);
-
-      topNode = logTSJ;
-    }
   }
 
   if (needIM) {
@@ -3434,9 +2898,6 @@ RelExpr *GenericUpdate::handleInlining(BindWA *bindWA, RelExpr *boundExpr) {
 
   if (bindWA->errStatus()) return NULL;
 
-#if DISABLE_TRIGGERS
-    // Nothing to do.
-#else
   if ((allTriggers != NULL) && (allTriggers->getAfterStatementTriggers() != NULL)) {
     TriggerList *pureStmtTriggers = allTriggers->getAfterStatementTriggers()->getColumnMatchingTriggers(columns);
     // There are statement triggers which are not for statement MVs.
@@ -3448,11 +2909,8 @@ RelExpr *GenericUpdate::handleInlining(BindWA *bindWA, RelExpr *boundExpr) {
         return this;
       }
   }
-  // Now that we know the final set of columns updated in the query, we
-  // can determine whether the update of the MVs is direct or indirect.
-  allTriggers = getTriggeredMvs(bindWA, allTriggers, columns);
+
   if (bindWA->errStatus()) return this;
-#endif
 
   if ((allTriggers == NULL) && (riConstraints == NULL) && !isMVLoggingRequired &&
       !getTableDesc()->hasSecondaryIndexes()) {
@@ -3797,34 +3255,6 @@ NABoolean Update::updatesClusteringKeyOrUniqueIndexKey(BindWA *bindWA) {
     //     iv. There is an MV on this table that is defined on
     //         the clustering key(s).
     const NATable *naTable = bindWA->getNATable(getTableName());
-    if (naTable) {
-      // Check for MVs on table.
-      const UsingMvInfoList &mvList = naTable->getMvsUsingMe();
-      if (!mvList.isEmpty()) {
-        // MV(s) exist.  Check to see if any MV is ON STATEMENT and is
-        // significant.  (Update on a primary key with an MV on that
-        // key is not supported - return FALSE.)
-        for (CollIndex i = 0; i < mvList.entries(); i++)
-          if (mvList[i]->isInitialized() && mvList[i]->getRefreshType() == COM_ON_STATEMENT) {
-            CorrName mvCorr = CorrName(mvList[i]->getMvName(), bindWA->wHeap());
-            NATable *naTableMv = bindWA->getNATable(mvCorr);
-            if (bindWA->errStatus()) return FALSE;
-            MVInfoForDML *mvInfo = naTableMv->getMVInfo(bindWA);
-            // getMVInfo() reads from metadata, but saves the info found
-            // and will be called later anyway during binding.
-            UpdateColumns *columns = NULL;
-            columns = new (bindWA->wHeap()) UpdateColumns(getOptStoi()->getStoi());
-            if (checkUpdateType(mvInfo, naTable->getTableName(), columns) != IRELEVANT) {
-              if (isClusteringKeyCol)  // update CK not supported in this case.
-              {
-                *CmpCommon::diags() << DgSqlCode(-4033) << DgColumnName(ckColName);
-                bindWA->setErrStatus();
-              }
-              return FALSE;
-            }
-          }
-      }
-    }
 
     if (isIgnoreTriggers() == FALSE) {
       ComOperation op;

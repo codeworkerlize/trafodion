@@ -24,7 +24,7 @@
 #include "exp/exp_clause_derived.h"
 #include "common/NAAssert.h"
 #include "exp/exp_bignum.h"
-#include "ItemFunc.h"
+#include "optimizer/ItemFunc.h"
 
 #undef DllImport
 #define DllImport __declspec(dllimport)

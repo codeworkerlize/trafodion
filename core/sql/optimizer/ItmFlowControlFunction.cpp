@@ -3,7 +3,7 @@
 #include "common/CharType.h"
 #include "common/NumericType.h"
 #include "optimizer/ItemExpr.h"
-#include "ItmFlowControlFunction.h"
+#include "optimizer/ItmFlowControlFunction.h"
 
 //
 // ItmDoWhile

@@ -16,24 +16,22 @@
 ******************************************************************************
 */
 
-#include "common/Platform.h"
-
 #include <sys/time.h>
-#include "str.h"
-#include "ex_stdh.h"
+
 #include "ComTdb.h"
-#include "ex_tcb.h"
-#include "ExStats.h"
-#include "sqlci/SqlciParseGlobals.h"
-#include "exp_expr.h"
 #include "ExCextdecs.h"
-#include "sqlmxevents/logmxevent.h"
+#include "ExStats.h"
 #include "cli/Context.h"
-#include "executor/ex_globals.h"
+#include "common/Platform.h"
 #include "ex_exe_stmt_globals.h"
-#include "exp/exp_clause_derived.h"
-#include "cli/Context.h"
+#include "ex_stdh.h"
+#include "ex_tcb.h"
 #include "executor/ex_globals.h"
+#include "exp/exp_clause_derived.h"
+#include "exp_expr.h"
+#include "sqlci/SqlciParseGlobals.h"
+#include "sqlmxevents/logmxevent.h"
+#include "str.h"
 
 extern int gettimeofday(struct timeval *, struct timezone *);
 
@@ -45,10 +43,6 @@ extern int gettimeofday(struct timeval *, struct timezone *);
 // set. The code I added is : && defined(NA_DEBUG_GUI).
 // -----------------------------------------------------------------------
 
-#ifdef NA_DEBUG_GUI
-int ex_tcb::objectCount = 0;
-#endif
-
 /////////////////////////////////////////////////////////////
 // class ex_tcb
 /////////////////////////////////////////////////////////////
@@ -59,20 +53,10 @@ ex_tcb::ex_tcb(const ComTdb &tdb, const short in_version, ex_globals *g)
       version_(in_version),
       globals_(g),
       statsEntry_(NULL),
-      pool_(NULL)
-      // QSTUFF
-      ,
-      holdable_(FALSE)
-// QSTUFF
-{
+      pool_(NULL),
+      holdable_(FALSE) {
   str_cpy_all((char *)&eyeCatcher_, (char *)&(tdb.eyeCatcher_), 4);
 
-#ifdef NA_DEBUG_GUI
-  increaseObjectcount();
-  setObjectId();
-#endif
-
-  // Cleanup
   g->registerTcb(this);
 };
 

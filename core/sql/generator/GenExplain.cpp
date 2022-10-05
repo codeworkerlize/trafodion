@@ -16,7 +16,7 @@
 #include "optimizer/AllRelExpr.h"
 #include "Cost.h"
 #include "generator/Generator.h"
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 #include "optimizer/PhyProp.h"
 #include "common/ComSmallDefs.h"
 #include "comexe/ComTdb.h"

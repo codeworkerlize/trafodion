@@ -1,6 +1,6 @@
 
 
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 #include "optimizer/AllItemExpr.h"
 #include "ItemSample.h"
 #include "optimizer/Sqlcomp.h"

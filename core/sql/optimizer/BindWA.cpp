@@ -25,25 +25,21 @@
 
 #define SQLPARSERGLOBALS_FLAGS  // should precede all other #include's
 
-#include "optimizer/Sqlcomp.h"
 #include "optimizer/BindWA.h"
-#include "arkcmp/CmpContext.h"
-#include "parser/StmtDDLCreateView.h"
-#include "optimizer/RelMisc.h"
-#include "optimizer/ItemOther.h"
-#include "RelJoin.h"
-#include "ItemSubq.h"
-#include "ItemFunc.h"
 
-#include "optimizer/RelMisc.h"
+#include "optimizer/ItemFunc.h"
+#include "optimizer/ItemSubq.h"
+#include "optimizer/RelJoin.h"
+#include "optimizer/RelUpdate.h"
+#include "arkcmp/CmpContext.h"
 #include "optimizer/ItemOther.h"
-#include "RelJoin.h"
-#include "RelUpdate.h"
-#include "MvRefreshBuilder.h"
+#include "optimizer/RelMisc.h"
+#include "optimizer/Sqlcomp.h"
+#include "parser/StmtDDLCreateView.h"
 
 #define SQLPARSERGLOBALS_NADEFAULTS
-#include "parser/SqlParserGlobalsCmn.h"
 #include "parser/SqlParserGlobals.h"  // should be last #include
+#include "parser/SqlParserGlobalsCmn.h"
 
 // ***********************************************************************
 // BindScope()
@@ -249,28 +245,6 @@ BindScope *BindWA::findNextScopeWithTriggerInfo(BindScope *currentScope) {
   return currentScope;
 }
 
-// ***********************************************************************
-// MV --
-void BindWA::markScopeWithMvBindContext(MvBindContext *mvContext) {
-  getCurrentScope()->context()->getMvBindContext() = mvContext;
-}
-
-// ***********************************************************************
-const MvBindContext *BindWA::getClosestMvBindContext(BindScope *currentScope) const {
-  if (!isBindingMvRefresh() && !isBindingOnStatementMv()) return NULL;
-
-  if (currentScope == NULL) currentScope = getCurrentScope();
-
-  while ((NULL != currentScope) && (NULL == currentScope->context()->getMvBindContext())) {
-    currentScope = getPreviousScope(currentScope);
-  }
-
-  if (NULL != currentScope) {
-    return currentScope->context()->getMvBindContext();
-  }
-
-  return NULL;
-}  // getClosestMvBindContext
 /******************************************************************************
     Method: BindWA::addUninitializedMv
 
@@ -709,22 +683,6 @@ NABoolean BindWA::inMVDefinition() const {
 void BindWA::display() const { print(); }
 
 void BindWA::print(FILE *ofd, const char *indent, const char *title) const {}  // BindWA::print()
-
-//============================================================================
-//======================  class MvBindContext  ===============================
-//============================================================================
-
-MvBindContext::~MvBindContext() { delete builder_; }
-
-void MvBindContext::setReplacementFor(const QualifiedName *tableName, RelExpr *replacementTree) {
-  // replacementTreeHash_[tableName] = replacementTree;
-  replacementTreeHash_.remove(tableName);
-  replacementTreeHash_.insert(tableName, replacementTree);
-}
-
-RelExpr *MvBindContext::getReplacementFor(const QualifiedName &tableName) const {
-  return replacementTreeHash_.getFirstValue(&tableName);
-}
 
 //============================================================================
 //======================  class HostArraysWA   ===============================

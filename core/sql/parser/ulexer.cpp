@@ -63,7 +63,6 @@ class DeltaDefinitionPtrList;
 class DeltaDefinition;
 class IncrementalRefreshOption;
 class RecomputeRefreshOption;
-class DeltaOptions;
 class DeltaDefLogs;
 class DeltaDefRangeLog;
 class DeltaDefIUDLog;
@@ -84,17 +83,15 @@ class IntegerList;
 #include "parser/ElemDDLQualName.h"  // OZ
 #include "parser/ElemDDLColRefArray.h"
 #include "optimizer/RelScan.h"
-#include "RelUpdate.h"
+#include "optimizer/RelUpdate.h"
 #include "ItemLog.h"
 #include "StmtDMLSetTransaction.h"
-#include "StmtDDLAlterMV.h"                        // (using an enum defined in that file)
 #include "StmtDDLAlterMVRGroup.h"                  // Mv refresh groups  ( OZ ) - new enum
 #include "ElemDDLCreateMVOneAttributeTableList.h"  // MV OZ
 #include "ElemDDLFileAttrRangeLog.h"
 #include "ElemDDLFileAttrMvsAllowed.h"
 #include "ElemDDLFileAttrMvAudit.h"
 #include "SqlParserAux.h"
-#include "StmtDDLCreateMV.h"
 #include "parser/ElemDDLHbaseOptions.h"
 #include "parser/StmtDDLCommentOn.h"
 #include "parser/StmtDDLAlterSharedCache.h"

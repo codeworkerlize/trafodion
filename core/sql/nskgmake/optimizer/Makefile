@@ -83,15 +83,8 @@ CPPSRC := \
 	ItmBitMuxFunction.cpp \
 	ItmFlowControlFunction.cpp \
 	LargeScopeRules.cpp \
-	MjvBuilder.cpp \
 	MJVIndexBuilder.cpp \
 	MultiJoin.cpp \
-	MVCandidates.cpp \
-	MVInfo.cpp \
-	MVJoinGraph.cpp \
-	MavRelRootBuilder.cpp \
-	MvLog.cpp \
-	MvMultiTxnMavBuilder.cpp \
 	MvRefreshBuilder.cpp \
 	mdam.cpp \
 	memo.cpp \
@@ -120,8 +113,6 @@ CPPSRC := \
 	PhyProp.cpp \
 	QRDescGenerator.cpp \
 	QRDescriptorExtentions.cpp \
-	QueryRewriteHandler.cpp \
-	Refresh.cpp \
 	Rel3GL.cpp \
 	RelCache.cpp \
 	RelDCL.cpp \

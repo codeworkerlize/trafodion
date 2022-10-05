@@ -30,7 +30,7 @@ typedef IntrusiveSharedPtr<EstLogProp> EstLogPropSharedPtr;
 #include "common/BaseTypes.h"
 #include "ColStatDesc.h"
 #include "common/OperTypeEnum.h"
-#include "RelJoin.h"
+#include "optimizer/RelJoin.h"
 #include "arkcmp/CompException.h"
 
 // Forward class declaration

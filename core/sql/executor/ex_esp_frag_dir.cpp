@@ -1,52 +1,37 @@
 
-/* -*-C++-*-
- *****************************************************************************
- *
- * File:         ex_esp_frag_dir.cpp
- * Description:  Fragment instance directory in the ESP
- *
- * Created:      1/22/96
- * Language:     C++
- *
- *
- *
- *
- *****************************************************************************
- */
 
-// -----------------------------------------------------------------------
-
-#include "common/Platform.h"
-#include <stdlib.h>
-#include "executor/ex_stdh.h"
-#include "ex_exe_stmt_globals.h"
 #include "ex_esp_frag_dir.h"
-#include "comexe/ComTdb.h"
-#include "executor/ex_tcb.h"
-#include "ex_split_bottom.h"
-#include "ex_send_bottom.h"
-#include "common/ComSpace.h"
-#include "export/ComDiags.h"
-#include "comexe/LateBindInfo.h"
-#include "common/NAHeap.h"
-#include "common/NAMemory.h"
-#include "exp/ExpError.h"
-#include "cli/Globals.h"
-#include "runtimestats/SqlStats.h"
-#include "common/ComRtUtils.h"
-#include "porting/PortProcessCalls.h"
-#include "executor/ExStats.h"
-#include "ExSMTrace.h"
+
 #include <errno.h>
-#include "cli/Context.h"
 #include <semaphore.h>
+#include <stdlib.h>
+
 #include "ExSMCommon.h"
 #include "ExSMEvent.h"
 #include "ExSMGlobals.h"
 #include "ExSMShortMessage.h"
-#include "common/ComExeTrace.h"
+#include "ExSMTrace.h"
 #include "cli/Context.h"
+#include "cli/Globals.h"
+#include "comexe/ComTdb.h"
+#include "comexe/LateBindInfo.h"
+#include "common/ComExeTrace.h"
+#include "common/ComRtUtils.h"
+#include "common/ComSpace.h"
+#include "common/NAHeap.h"
+#include "common/NAMemory.h"
+#include "common/Platform.h"
+#include "ex_exe_stmt_globals.h"
+#include "ex_send_bottom.h"
+#include "ex_split_bottom.h"
+#include "executor/ExStats.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_tcb.h"
+#include "exp/ExpError.h"
+#include "export/ComDiags.h"
 #include "parser/StmtCompilationMode.h"
+#include "porting/PortProcessCalls.h"
+#include "runtimestats/SqlStats.h"
 #include "seabed/sys.h"
 
 // -----------------------------------------------------------------------
@@ -144,7 +129,7 @@ ExEspFragInstanceDir::ExEspFragInstanceDir(CliGlobals *cliGlobals, NAHeap *heap,
     char traceDesc[80];
     sprintf(traceDesc, "Trace plan fragment instance state changes");
     int ret = ti->addTrace("FragmentInstance", this, NumFiTraceElements, 3, this, getALine, &fiTidx_, lineWidth,
-                             traceDesc, &regdTrace);
+                           traceDesc, &regdTrace);
     if (ret == 0) {
       // trace info added successfully, now add entry fields
       ti->addTraceField(regdTrace, "FragInst#", 0, ExeTrace::TR_INT32);
@@ -308,10 +293,9 @@ void ExEspFragInstanceDir::fixupEntry(int handle, int numOfParentInstances, ComD
         // the diags area
         entryState = setFiState(handle, BUILT, __LINE__);
       else
-          // Statement is now definitely fixed up, it stays ready
-          // for work if it was ready before the fixup.
-          if (entryState == BUILT)
-        entryState = setFiState(handle, FIXED_UP, __LINE__);
+        // Statement is now definitely fixed up, it stays ready
+        // for work if it was ready before the fixup.
+        if (entryState == BUILT) entryState = setFiState(handle, FIXED_UP, __LINE__);
       break;  // leave the switch here, rest is error handling
 
     case ACTIVE:
@@ -628,9 +612,6 @@ void ExEspFragInstanceDir::work(long prevWaitTime) {
 
           case ACTIVE:
 
-#ifdef NA_DEBUG_GUI
-            if (instances_[currInst]->displayInGui_ == 1) instances_[currInst]->globals_->getScheduler()->startGui();
-#endif
             // To help debugging (dumps): Put current SB TCB in cli globals
             cliGlobals_->setRootTcb(instances_[currInst]->localRootTcb_);
 
@@ -679,10 +660,7 @@ void ExEspFragInstanceDir::work(long prevWaitTime) {
                 }
               }
             }
-#ifdef NA_DEBUG_GUI
-            if (instances_[currInst]->fiState_ != ACTIVE && instances_[currInst]->displayInGui_ == 1)
-              instances_[currInst]->globals_->getScheduler()->stopGui();
-#endif
+
             break;
 
           case WAIT_TO_RELEASE: {

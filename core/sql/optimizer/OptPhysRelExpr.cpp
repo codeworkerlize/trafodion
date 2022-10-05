@@ -19,7 +19,7 @@
 // ---------------------------------------------------------------------------
 
 #include "optimizer/Sqlcomp.h"
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 #include "optimizer/AllRelExpr.h"
 #include "optimizer/AllItemExpr.h"
 #include "optimizer/opt.h"

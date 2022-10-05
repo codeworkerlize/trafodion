@@ -18,7 +18,7 @@
 
 #include "common/Platform.h"
 #include "optimizer/Sqlcomp.h"
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 #include "optimizer/AllItemExpr.h"
 #include "PartFunc.h"
 #include "common/wstr.h"

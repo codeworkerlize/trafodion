@@ -19,7 +19,7 @@
 #include "common/ComOptIncludes.h"
 #include "comexe/ComQueue.h"
 #include "optimizer/ControlDB.h"
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 #include "optimizer/NATable.h"
 #include "RelDCL.h"
 #include "optimizer/RelControl.h"

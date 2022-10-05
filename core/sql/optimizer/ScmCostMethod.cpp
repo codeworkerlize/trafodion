@@ -15,10 +15,10 @@
 **************************************************************************
 */
 
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 #include "optimizer/AllRelExpr.h"
 #include "RelPackedRows.h"
-#include "RelSequence.h"
+#include "optimizer/RelSequence.h"
 #include "RelSample.h"
 #include "optimizer/AllItemExpr.h"
 #include "ItemSample.h"

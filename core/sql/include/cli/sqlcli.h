@@ -2,9 +2,8 @@
 #ifndef SQLCLI_HDR
 #define SQLCLI_HDR
 
-
-
 #include <string>
+
 #include "dbsecurity/auth.h"
 
 typedef int Int32;
@@ -70,15 +69,15 @@ enum SQLOBJ_ID_NAME_MODE {
 
 /* generic structure to pass names to the SQLCLI */
 struct SQLCLI_OBJ_ID {
-  int version;              /* set to SQLCLI_CURRENT_VERSION if no tag  */
-  int name_mode;            /* see enum SQLOBJ_ID_NAME_MODE below       */
+  int version;                /* set to SQLCLI_CURRENT_VERSION if no tag  */
+  int name_mode;              /* see enum SQLOBJ_ID_NAME_MODE below       */
   const SQLMODULE_ID *module; /* module name (leading part of name)       */
   const char *identifier;     /* actual identifier (one part name)        */
   void *handle;               /* handle, in addition or instead of a name */
   const char *charset;        /* charset (encoded in ASCII, and null terminated) */
                               /* of the identifier. */
-  int identifier_len;       /* length of the identifier (in bytes) */
-  int tag;                  /* added in R1.8, used when version==SQLCLI_STATEMENT_VERSION_2 */
+  int identifier_len;         /* length of the identifier (in bytes) */
+  int tag;                    /* added in R1.8, used when version==SQLCLI_STATEMENT_VERSION_2 */
                               /* tag must be non-zero for nowaited operation      */
                               /* and zero for waited. */
 };
@@ -176,8 +175,6 @@ enum SQLDESC_ITEM_ID {
   SQLDESC_ALIGNED_LENGTH = 55,           /* total aligned length: data + null + vclen + filler */
   SQLDESC_ROWWISE_ROWSET_PARTN_NUM = 56, /* partition num where rwrs buffer need to go to */
 
-  SQLDESC_LOB_INLINE_DATA_MAXLEN = 57, /*max length of data that can be stored inside lob handle */
-  SQLDESC_LOB_CHUNK_MAXLEN = 58,       /*length of each chunk of data to be inserted/selected*/
 };
 
 enum DESCRIPTOR_TYPE { DESCRIPTOR_TYPE_WIDE = 0, DESCRIPTOR_TYPE_NARROW = 1 };
@@ -278,8 +275,8 @@ typedef struct {
   int item_id;              /* which item (see SQLDESC_ITEM_ID)         */
   int value_num_desc_entry; /* value num's input descriptor entry num   */
   int entry;                /* number of the entry                      */
-  long num_val_or_len;        /* numeric value or length of string        */
-  char *string_val;           /* string value (if not a numeric value)    */
+  long num_val_or_len;      /* numeric value or length of string        */
+  char *string_val;         /* string value (if not a numeric value)    */
 } SQLDESC_ITEM;
 
 /*  ANSI datatype values for item descriptor areas
@@ -375,9 +372,7 @@ enum SQLTYPE_CODE {
   /* LONG VARCHAR/ODBC CHARACTER VARYING */
   SQLTYPECODE_VARCHAR_LONG = -1, /* ## NEGATIVE??? */
 
-  /* BLOB TYPE */
-  SQLTYPECODE_BLOB = -602,
-  SQLTYPECODE_CLOB = -603,
+
 
   /* BOOLEAN TYPE */
   SQLTYPECODE_BOOLEAN = -701,
@@ -698,9 +693,9 @@ struct SQLCLI_PTR_PAIRS {
 /* struct to specify an array of quad fields without using a va list. */
 struct SQLCLI_QUAD_FIELDS {
   int var_layout; /* data variable layout size */
-  void *var_ptr;    /* pointer to the data variable */
+  void *var_ptr;  /* pointer to the data variable */
   int ind_layout; /* indicator variable layout size */
-  void *ind_ptr;    /* pointer to indicator variable; -1 is NULL */
+  void *ind_ptr;  /* pointer to indicator variable; -1 is NULL */
 };
 
 /* For the GetStmtAttr and SetStmtAttr interfaces.  */
@@ -732,25 +727,25 @@ enum SQLATTR_TYPE {
    attributes in one call. */
 typedef struct {
   int attr_type;      /* IN:    which attr, from the         */
-                        /*        SQLATTR_TYPE enum            */
+                      /*        SQLATTR_TYPE enum            */
   int index;          /* IN:    optional index if attr       */
-                        /*        is a collection              */
+                      /*        is a collection              */
   int *numeric_value; /* INOUT: if attr is numeric, address  */
-                        /*        of target buffer for the     */
-                        /*        attr value                   */
-  char *string_value;   /* INOUT: if attr is string, address   */
-                        /*        of target buffer for the     */
-                        /*        attr value                   */
+                      /*        of target buffer for the     */
+                      /*        attr value                   */
+  char *string_value; /* INOUT: if attr is string, address   */
+                      /*        of target buffer for the     */
+                      /*        attr value                   */
   int max_string_len; /* IN:    if attr is string, max len   */
-                        /*        of buffer pointed to by      */
-                        /*        string_val                   */
+                      /*        of buffer pointed to by      */
+                      /*        string_val                   */
   int *len_of_item;   /* INOUT OPTIONAL: if attr is string,  */
-                        /*        address of target buffer to  */
-                        /*        hold actual len of item      */
-                        /*        returned. If error returned  */
-                        /*        because string_value buffer  */
-                        /*        too small then len_of_item   */
-                        /*        holds the required size      */
+                      /*        address of target buffer to  */
+                      /*        hold actual len of item      */
+                      /*        returned. If error returned  */
+                      /*        because string_value buffer  */
+                      /*        too small then len_of_item   */
+                      /*        holds the required size      */
 } SQLSTMT_ATTR;
 
 enum SQLATTRHOLDABLE_TYPE { SQL_NONHOLDABLE = 0, SQL_HOLDABLE = 1 };
@@ -909,7 +904,7 @@ enum UNIQUEQUERYID_ATTR_TYPE {
 };
 
 typedef struct {
-  int attr_type;          /* IN: which attr (UNIQUEQUERYID_ATTR_TYPE)      */
+  int attr_type;            /* IN: which attr (UNIQUEQUERYID_ATTR_TYPE)      */
   long long num_val_or_len; /* IN: if string value, max length of string
                                to return in string_val
                          Note: string_val buffer size should be one more than
@@ -1421,12 +1416,12 @@ int SQL_EXEC_CLOSESTMT(
     /*IN*/ SQLSTMT_ID *statement_id);
 
 int SQL_EXEC_CreateContext(/*OUT*/ SQLCTX_HANDLE *context_handle,
-                             /*IN OPTIONAL*/ char *sqlAuthId,
-                             /*IN OPTIONAL*/ int suppressAutoXactStart);
+                           /*IN OPTIONAL*/ char *sqlAuthId,
+                           /*IN OPTIONAL*/ int suppressAutoXactStart);
 
 int SQL_EXEC_CREATECONTEXT(/*OUT*/ SQLCTX_HANDLE *context_handle,
-                             /*IN OPTIONAL*/ char *sqlAuthId,
-                             /*IN OPTIONAL*/ int suppressAutoXactStart);
+                           /*IN OPTIONAL*/ char *sqlAuthId,
+                           /*IN OPTIONAL*/ int suppressAutoXactStart);
 
 int SQL_EXEC_CurrentContext(/*OUT*/ SQLCTX_HANDLE *contextHandle);
 
@@ -1596,19 +1591,19 @@ int SQL_EXEC_FETCHCLOSE(
     /*IN*/ struct SQLCLI_PTR_PAIRS ptr_pairs[]);
 
 int SQL_EXEC_FetchMultiple(/*IN*/ SQLSTMT_ID *statement_id,
-                             /*IN  OPTIONAL*/ SQLDESC_ID *output_descriptor,
-                             /*IN*/ int rowset_size,
-                             /*IN*/ int *rowset_status_ptr,
-                             /*OUT*/ int *rowset_nfetched,
-                             /*IN*/ int num_quadruple_fields,
-                             /*IN*/ int num_ap, ...);
+                           /*IN  OPTIONAL*/ SQLDESC_ID *output_descriptor,
+                           /*IN*/ int rowset_size,
+                           /*IN*/ int *rowset_status_ptr,
+                           /*OUT*/ int *rowset_nfetched,
+                           /*IN*/ int num_quadruple_fields,
+                           /*IN*/ int num_ap, ...);
 int SQL_EXEC_FETCHMULTIPLE(/*IN*/ SQLSTMT_ID *statement_id,
-                             /*IN  OPTIONAL*/ SQLDESC_ID *output_descriptor,
-                             /*IN*/ int rowset_size,
-                             /*IN*/ int *rowset_status_ptr,
-                             /*OUT*/ int *rowset_nfetched,
-                             /*IN*/ int num_quadruple_fields,
-                             /*IN*/ struct SQLCLI_QUAD_FIELDS quad_fields[]);
+                           /*IN  OPTIONAL*/ SQLDESC_ID *output_descriptor,
+                           /*IN*/ int rowset_size,
+                           /*IN*/ int *rowset_status_ptr,
+                           /*OUT*/ int *rowset_nfetched,
+                           /*IN*/ int num_quadruple_fields,
+                           /*IN*/ struct SQLCLI_QUAD_FIELDS quad_fields[]);
 int SQL_EXEC_Cancel(
     /*IN OPTIONAL*/ SQLSTMT_ID *statement_id);
 
@@ -1927,12 +1922,11 @@ int SQL_EXEC_SETDESCPOINTERS(
     /*IN*/ int num_ptr_pairs,
     /*IN*/ struct SQLCLI_PTR_PAIRS ptr_pairs[]);
 
-int SQL_EXEC_SetRowsetDescPointers(SQLDESC_ID *desc_id, int rowset_size, int *rowset_status_ptr,
-                                     int starting_entry, int num_quadruple_fields, int num_ap, ...);
+int SQL_EXEC_SetRowsetDescPointers(SQLDESC_ID *desc_id, int rowset_size, int *rowset_status_ptr, int starting_entry,
+                                   int num_quadruple_fields, int num_ap, ...);
 
-int SQL_EXEC_SETROWSETDESCPOINTERS(SQLDESC_ID *desc_id, int rowset_size, int *rowset_status_ptr,
-                                     int starting_entry, int num_quadruple_fields,
-                                     struct SQLCLI_QUAD_FIELDS quad_fields[]);
+int SQL_EXEC_SETROWSETDESCPOINTERS(SQLDESC_ID *desc_id, int rowset_size, int *rowset_status_ptr, int starting_entry,
+                                   int num_quadruple_fields, struct SQLCLI_QUAD_FIELDS quad_fields[]);
 
 int SQL_EXEC_SetStmtAttr(
     /*IN*/ SQLSTMT_ID *statement_id,
@@ -1964,11 +1958,11 @@ int SQL_EXEC_XACT(
 
 /* USERS_INFO is part of dbsecurity project (auth.h) */
 int SQL_EXEC_SetAuthID2(const USERS_INFO &userInfo, /*IN*/
-                          const char *authToken,      /*IN*/
-                          int authTokenLen,         /*IN*/
-                          const char *slaName,        /*IN*/
-                          const char *profileName,    /*IN*/
-                          int resetAttributes);     /*IN*/
+                        const char *authToken,      /*IN*/
+                        int authTokenLen,           /*IN*/
+                        const char *slaName,        /*IN*/
+                        const char *profileName,    /*IN*/
+                        int resetAttributes);       /*IN*/
 
 int SQL_EXEC_GetAuthState(
     /*OUT*/ int &authenticationType,

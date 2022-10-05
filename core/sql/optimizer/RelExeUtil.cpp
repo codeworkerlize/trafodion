@@ -19,7 +19,7 @@
 #include "optimizer/Sqlcomp.h"
 #include "optimizer/AllRelExpr.h"
 #include "optimizer/AllItemExpr.h"
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 #include "optimizer/opt.h"
 #include "optimizer/PhyProp.h"
 #include "ScanOptimizer.h"
@@ -27,7 +27,6 @@
 #include "exp/ExpError.h"
 #include "common/ComTransInfo.h"
 #include "optimizer/BindWA.h"
-#include "Refresh.h"
 #include "sqlcomp/CmpMain.h"
 #include "optimizer/ControlDB.h"
 #include "optimizer/Analyzer.h"
@@ -78,15 +77,14 @@
 #include "optimizer/Inlining.h"
 #include "optimizer/Triggers.h"
 #include "optimizer/TriggerDB.h"
-#include "MVInfo.h"
-#include "Refresh.h"
-#include "ChangesTable.h"
-#include "MvRefreshBuilder.h"
+
+#include "optimizer/ChangesTable.h"
+
 #include "optimizer/OptHints.h"
 #include "arkcmp/CmpStatement.h"
 #include "common/charinfo.h"
 #include "parser/SqlParserGlobals.h"  // must be last #include
-#include "ItmFlowControlFunction.h"
+#include "optimizer/ItmFlowControlFunction.h"
 
 #include "sqlcomp/PrivMgrComponentPrivileges.h"
 #include "common/ComUser.h"

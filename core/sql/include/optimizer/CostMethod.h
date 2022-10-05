@@ -17,7 +17,7 @@
 
 // -----------------------------------------------------------------------
 #include "common/BaseTypes.h"
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 #include "Cost.h"
 
 //<pb>

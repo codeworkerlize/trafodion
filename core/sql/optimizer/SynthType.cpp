@@ -27,7 +27,7 @@
 #include "ComSSL.h"
 // For TRIGGERS_STATUS_VECTOR_SIZE and SIZEOF_UNIQUE_EXECUTE_ID
 #include "optimizer/Triggers.h"
-#include "TriggerEnable.h"
+#include "executor/TriggerEnable.h"
 #ifndef NDEBUG
 static int NCHAR_DEBUG = -1;  // note that, for perf, we call getenv only once
 #endif

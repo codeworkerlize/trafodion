@@ -16,12 +16,12 @@
 */
 
 #include "optimizer/Sqlcomp.h"
-#include "GroupAttr.h"
-#include "RelJoin.h"
+#include "optimizer/GroupAttr.h"
+#include "optimizer/RelJoin.h"
 #include "ItemLog.h"
 #include "optimizer/ItemOther.h"
 #include "optimizer/ItemColRef.h"
-#include "ItemFunc.h"
+#include "optimizer/ItemFunc.h"
 #include "VEGTable.h"
 #include "GenExpGenerator.h"
 

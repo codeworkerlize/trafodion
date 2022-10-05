@@ -23,7 +23,6 @@
 #include "common/str.h"
 #include "export/ComDiags.h"
 #include "sqlci/InputStmt.h"
-#include "sqlci/ShellCmd.h"
 #include "sqlci/Sqlci.h"
 #include "sqlci/SqlciEnv.h"
 #include "sqlci/SqlciError.h"
@@ -541,22 +540,7 @@ short Shape::process(SqlciEnv *sqlci_env) {
 
   fclose(fStream);
 
-  if (outfile_) {
-    sqlci_env->get_logfile()->Close();
 
-    char buf[200];
-    if (tempFile) {
-      snprintf(buf, 200, "/bin/bash mv %s %s.bak", infile_, infile_);
-      ShellCmd *shCmd = new Shell(buf);
-      shCmd->process(sqlci_env);
-      delete shCmd;
-
-      snprintf(buf, 200, "/bin/bash mv %s %s", tempOutfile, infile_);
-      shCmd = new Shell(buf);
-      shCmd->process(sqlci_env);
-      delete shCmd;
-    }
-  }
 
   // reopen the original logfile
   if (logname) sqlci_env->get_logfile()->Open(logname, Logfile::APPEND_);

@@ -20,7 +20,7 @@
 #include "common/CharType.h"
 #include "common/NumericType.h"
 #include "ExpSequenceFunction.h"
-#include "ItmFlowControlFunction.h"
+#include "optimizer/ItmFlowControlFunction.h"
 
 // ItmSeqOffset::preCodeGen
 //

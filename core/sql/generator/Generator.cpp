@@ -19,7 +19,7 @@
 #include "sqlcat/TrafDDLdesc.h"
 
 #include "common/ComOptIncludes.h"
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 #include "generator/Generator.h"
 #include "GenExpGenerator.h"
 #include "common/ComSysUtils.h"

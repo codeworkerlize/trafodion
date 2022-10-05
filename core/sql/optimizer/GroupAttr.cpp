@@ -16,7 +16,7 @@
 // -----------------------------------------------------------------------
 
 #include "optimizer/Sqlcomp.h"
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 #include "EstLogProp.h"
 #include "optimizer/ItemConstr.h"
 #include "optimizer/ItemOther.h"

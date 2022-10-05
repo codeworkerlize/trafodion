@@ -31,7 +31,7 @@
 #include "sqlci/SqlciParseGlobals.h"
 #include "LateBindInfo.h"
 #include "ExecuteIdTrig.h"
-#include "TriggerEnable.h"
+#include "executor/TriggerEnable.h"
 #include "ComRtUtils.h"
 #include "PortProcessCalls.h"
 
@@ -320,13 +320,7 @@ ex_root_tcb::ex_root_tcb(const ex_root_tdb &root_tdb, const ex_tcb &child_tcb, E
 
   getGlobals()->getScheduler()->setRootTcb(this);
 
-#ifdef NA_DEBUG_GUI
-  //-------------------------------------------------------------
-  // if the user has requested use of the executor GUI
-  // display then load the dll and set it up
-  //-----------------------------------------------------------
-  if (root_tdb.displayExecution() == 1) getGlobals()->getScheduler()->startGui();
-#endif
+
 
   rwrsBuffer_ = NULL;
   if (root_tdb.getRWRSInfo()) {
@@ -1183,10 +1177,7 @@ int ex_root_tcb::fetch(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descripto
             ExStatisticsArea *stats = getGlobals()->getOrigStatsArea();
             if (stats) stats->setStatsEnabled(getGlobals()->statsEnabled());
 
-#ifdef NA_DEBUG_GUI
-            if (root_tdb().displayExecution() > 0) getGlobals()->getScheduler()->stopGui();
-            ex_tcb::objectCount = 0;
-#endif
+
             // Make the rowset handle available
             if (output_desc != NULL) output_desc->setDescItem(0, SQLDESC_ROWSET_HANDLE, 0, 0);
           } break;

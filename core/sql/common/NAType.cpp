@@ -476,10 +476,7 @@ int NAType::getDisplayLengthStatic(int datatype, int length, int precision, int 
       d_len = interval.getDisplayLength();
     } break;
 
-    case REC_BLOB:
-    case REC_CLOB:
-      d_len = length;
-      break;
+
 
     case REC_BOOLEAN:
       d_len = SQL_BOOLEAN_DISPLAY_SIZE;

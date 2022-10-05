@@ -15,12 +15,12 @@
 
 #include "BinderUtils.h"
 
-#include "optimizer/AllItemExpr.h"
-#include "optimizer/ItemOther.h"
-#include "optimizer/ItemColRef.h"
-#include "optimizer/NATable.h"
 #include "ComMvDefs.h"
+#include "optimizer/AllItemExpr.h"
 #include "optimizer/BindWA.h"
+#include "optimizer/ItemColRef.h"
+#include "optimizer/ItemOther.h"
+#include "optimizer/NATable.h"
 
 //----------------------------------------------------------------------------
 // extract the name from a reference or a rename
@@ -159,8 +159,7 @@ ItemExpr *BinderUtils::getNamesListAsItemExpr(const ConstStringList &nameList, C
 }  // BinderUtils::getNamesListAsItemExpr
 
 //----------------------------------------------------------------------------
-ItemExpr *BinderUtils::buildPredOnCol(OperatorTypeEnum opType, const NAString &colName, int constVal,
-                                      CollHeap *heap) {
+ItemExpr *BinderUtils::buildPredOnCol(OperatorTypeEnum opType, const NAString &colName, int constVal, CollHeap *heap) {
   return new (heap)
       BiRelat(opType, new (heap) ColReference(new (heap) ColRefName(colName, heap)), new (heap) ConstValue(constVal));
 }
@@ -218,8 +217,7 @@ ItemExpr *BinderUtils::buildClusteringIndexVector(const NATable *naTable, CollHe
     ItemExpr *colExpr = NULL;
 
     // If this is the SYSKEY or @SYSKEY column and appropriate flags are set
-    if ((colName == "SYSKEY" || (COMMV_SYSKEY_COL == colName && (specialFlags & SP_USE_AT_SYSKEY))) &&
-        !(specialFlags & SP_USE_NULL)) {
+    if ((colName == "SYSKEY" || ((specialFlags & SP_USE_AT_SYSKEY))) && !(specialFlags & SP_USE_NULL)) {
       ColReference *colRef = NULL;
       colExpr = colRef = buildExpressionForSyskey(tableNameCorr, heap, specialFlags, prefixColName);
 
@@ -230,16 +228,6 @@ ItemExpr *BinderUtils::buildClusteringIndexVector(const NATable *naTable, CollHe
         colNameRef = &(colRef->getColRefNameObj());
       }
     } else {
-      if ((specialFlags & SP_SKIP_EPOCH) && (COMMV_EPOCH_COL == colName)) {
-        continue;
-      }
-
-      if ((specialFlags & SP_SKIP_IUD_CONTROL_COLS) &&
-          (COMMV_EPOCH_COL == colName || COMMV_OPTYPE_COL == colName || COMMV_IGNORE_COL == colName ||
-           COMMV_BITMAP_COL == colName || COMMV_RANGE_SIZE_COL == colName || COMMV_TS_COL == colName)) {
-        continue;
-      }
-
       colNameRef = new (heap) ColRefName(colName, *tableNameCorr, heap);
 
       if (specialFlags & SP_USE_NULL) {

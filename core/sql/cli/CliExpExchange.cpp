@@ -21,18 +21,18 @@
 #include <assert.h>
 #endif
 
-#include "exp/exp_stdh.h"
-#include "exp/exp_clause_derived.h"
-#include "executor/ex_stdh.h"
-#include "cli_stdh.h"
-#include "exp/exp_datetime.h"
-#include "exp/exp_interval.h"
-#include "exp/exp_expr.h"
 #include "ExRLE.h"
+#include "cli_stdh.h"
+#include "executor/ex_stdh.h"
+#include "exp/exp_clause_derived.h"
+#include "exp/exp_datetime.h"
+#include "exp/exp_expr.h"
+#include "exp/exp_interval.h"
+#include "exp/exp_stdh.h"
 
 // defined in exp_eval.C
 void computeDataPtr(char *start_data_ptr,  // start of data row
-                    int field_num,       // field number whose address is to be
+                    int field_num,         // field number whose address is to be
                     // computed. Zero based.
                     ExpTupleDesc *td,  // describes this row
                     char **opdata, char **nulldata, char **varlendata);
@@ -152,30 +152,6 @@ ex_expr::exp_return_type InputOutputExpr::describeOutput(void *output_desc_, UIn
         output_desc->setDescItem(entry, SQLDESC_PRECISION, operand->getPrecision(), 0);
         output_desc->setDescItem(entry, SQLDESC_SCALE, operand->getScale(), 0);
         output_desc->setDescItem(entry, SQLDESC_INT_LEAD_PREC, 0, 0);
-      }
-
-      // Use SQLDESC_CHAR_SET_NAM (one-part name) for charset
-
-      if (DFS2REC::isAnyCharacter(operand->getDatatype()) || (operand->getDatatype() == REC_BLOB) ||
-          (operand->getDatatype() == REC_CLOB)) {
-        output_desc->setDescItem(entry, SQLDESC_CHAR_SET_NAM, 0,
-                                 (char *)CharInfo::getCharSetName(operand->getCharSet()));
-
-        // reset the length for Unicode
-        if (operand->getCharSet() == CharInfo::UNICODE || CharInfo::is_NCHAR_MP(operand->getCharSet())) {
-          length = operand->getLength() / SQL_DBCHAR_SIZE;
-        }
-
-        if (operand->isCaseinsensitive()) output_desc->setDescItem(entry, SQLDESC_CASEINSENSITIVE, 1, 0);
-
-        if (operand->getCollation() != CharInfo::DefaultCollation)
-          output_desc->setDescItem(entry, SQLDESC_COLLATION, operand->getCollation(), 0);
-
-        if ((operand->getDatatype() == REC_BLOB) || (operand->getDatatype() == REC_CLOB)) {
-          output_desc->setDescItem(entry, SQLDESC_LOB_INLINE_DATA_MAXLEN, inout_clause->lobInlinedDataMaxLen(), NULL);
-
-          output_desc->setDescItem(entry, SQLDESC_LOB_CHUNK_MAXLEN, inout_clause->lobChunkMaxLen(), NULL);
-        }
       }
 
       output_desc->setDescItem(entry, SQLDESC_NULLABLE, operand->getNullFlag(), 0);
@@ -852,7 +828,7 @@ ex_expr::exp_return_type InputOutputExpr::outputValues(atp_struct *atp, void *ou
   short targetType;
   int targetLen;
   int targetRowsetSize;  // Greater than zero if there is an output rowset in the descriptor,
-                           // this can happen in a SELECT .. INTO <rowset> and FETCH INTO <rowset>
+                         // this can happen in a SELECT .. INTO <rowset> and FETCH INTO <rowset>
   int targetScale;
   int targetPrecision;
   char *targetVarPtr = NULL;
@@ -1012,8 +988,8 @@ ex_expr::exp_return_type InputOutputExpr::outputValues(atp_struct *atp, void *ou
       // For rowsets, here we extract the number of elements in it. This
       // only happens for the SELECT .. INTO clause
       if (source && sourceCompiledWithRowsets) {
-        if (::convDoIt(source, sizeof(int), REC_BIN32_SIGNED, 0, 0, (char *)&tempSource, sizeof(int),
-                       REC_BIN32_SIGNED, 0, 0, 0, 0, heap, &diagsArea) != ex_expr::EXPR_OK) {
+        if (::convDoIt(source, sizeof(int), REC_BIN32_SIGNED, 0, 0, (char *)&tempSource, sizeof(int), REC_BIN32_SIGNED,
+                       0, 0, 0, 0, heap, &diagsArea) != ex_expr::EXPR_OK) {
           if (diagsArea != atp->getDiagsArea()) atp->setDiagsArea(diagsArea);
 
           return ex_expr::EXPR_ERROR;
@@ -1727,12 +1703,6 @@ ex_expr::exp_return_type InputOutputExpr::describeInput(void *input_desc_, void 
         // For Unicode/KSC5601/KANJI, set the length in number of characters
         if (CharInfo::maxBytesPerChar(operand->getCharSet()) == SQL_DBCHAR_SIZE)
           length = operand->getLength() / SQL_DBCHAR_SIZE;
-      }
-
-      if ((operand->getDatatype() == REC_BLOB) || (operand->getDatatype() == REC_CLOB)) {
-        input_desc->setDescItem(entry, SQLDESC_LOB_INLINE_DATA_MAXLEN, inout_clause->lobInlinedDataMaxLen(), NULL);
-
-        input_desc->setDescItem(entry, SQLDESC_LOB_CHUNK_MAXLEN, inout_clause->lobChunkMaxLen(), NULL);
       }
 
       input_desc->setDescItem(entry, SQLDESC_NULLABLE, operand->getNullFlag(), 0);
@@ -2512,7 +2482,7 @@ ex_expr::exp_return_type InputOutputExpr::inputRowwiseRowsetValues(atp_struct *a
     int param1 = 0;
     int param2 = 0;
     int rc = ExDecode(compressedBuf, compressedBuflen, (unsigned char *)rwrsInfo->getRWRSDcompressedBufferAddr(),
-                        &dcompressedBuflen, param1, param2);
+                      &dcompressedBuflen, param1, param2);
     if (rc) {
       // error.
       errorCode = (ExeErrorCode)30045;
@@ -2637,8 +2607,8 @@ ex_expr::exp_return_type InputOutputExpr::inputValues(atp_struct *atp, void *inp
   char *targetNullInd = 0;
   int targetRowsetSize;
   int dynamicRowsetSize = 0;  // Specified with ROWSET FOR INPUT SIZE <var>
-                                // or some other rowset syntax; <var> can
-                                // change at run time
+                              // or some other rowset syntax; <var> can
+                              // change at run time
   char *source = 0;
   int sourceLen;
   char *sourceIndPtr = 0;
@@ -3242,14 +3212,7 @@ ex_expr::exp_return_type InputOutputExpr::inputValues(atp_struct *atp, void *inp
           }
 
           if (noDatetimeValidation()) convFlags |= CONV_NO_DATETIME_VALIDATION;
-          if ((sourceType == REC_BLOB) || (sourceType == REC_CLOB)) {
-            // the first 4 bytes of data are actually the variable
-            // length indicator
-            int VCLen;
-            str_cpy_all((char *)&VCLen, source, sizeof(int));
-            sourceLen = (int)VCLen;
-            source = &source[sizeof(int)];
-          }
+
           retcode =
               ::convDoIt(source, sourceLen, sourceType, sourcePrecision, sourceScale, target, operand->getLength(),
                          operand->getDatatype(), operand->getPrecision(), operand->getScale(), targetVCLenInd,

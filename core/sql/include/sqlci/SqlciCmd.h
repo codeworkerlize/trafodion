@@ -1,22 +1,5 @@
+#pragma once
 
-
-#ifndef SQLCICMD_H
-#define SQLCICMD_H
-
-/* -*-C++-*-
- *****************************************************************************
- *
- * File:         SqlciCmd.h
- * Description:
- *
- * Created:      4/15/95
- * Language:     C++
- *
- *
- *
- *
- *****************************************************************************
- */
 
 #include "sqlci/SqlciEnv.h"
 #include "sqlci/SqlciNode.h"
@@ -306,4 +289,3 @@ class Wait : public SqlciCmd {
   short process(SqlciEnv *sqlci_env);
 };
 
-#endif

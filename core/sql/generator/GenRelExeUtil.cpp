@@ -19,14 +19,14 @@
 */
 #define SQLPARSERGLOBALS_FLAGS
 #include "common/ComOptIncludes.h"
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 #include "optimizer/ItemColRef.h"
 #include "RelEnforcer.h"
-#include "RelJoin.h"
+#include "optimizer/RelJoin.h"
 #include "optimizer/RelExeUtil.h"
 #include "optimizer/RelMisc.h"
 #include "optimizer/RelSet.h"
-#include "RelUpdate.h"
+#include "optimizer/RelUpdate.h"
 #include "optimizer/RelScan.h"
 #include "RelDCL.h"
 #include "PartFunc.h"
@@ -59,7 +59,7 @@
 #include "executor/sql_buffer.h"
 #include "comexe/ComQueue.h"
 #include "common/ComSqlId.h"
-#include "MVInfo.h"
+
 #include "parser/StmtDDLCreateTable.h"
 
 #include "sqlcomp/CmpDDLCatErrorCodes.h"
@@ -2384,48 +2384,7 @@ short ExeUtilMaintainObject::codeGen(Generator *generator) {
       updStatsMvgroupList->insert(mvName);
     }
   }
-  /*
 
-    if (updStatsMvgroup_)
-      {
-
-        // create a list of all MVs referencing, directly or indirectly,
-        // the given tablename.
-        updStatsMvgroupList = new(generator->wHeap()) Queue(generator->wHeap());
-        char * mvName =
-              space->AllocateAndCopyToAlignedSpace
-              (generator->genGetNameAsAnsiNAString(getTableName()), 0);
-        NATable *mavNaTable = generator->getBindWA()->getNATable(getTableName());
-
-        // Now get the MVInfo.
-        MVInfoForDML *mvInfo = mavNaTable->getMVInfo(generator->getBindWA());
-        LIST (MVUsedObjectInfo*)& UsedObjList =
-          mvInfo->getUsedObjectsList();
-
-    MVUsedObjectInfo* pUsedTable = UsedObjList[0];
-
-    // Get the NATable
-    QualifiedName underlyingTableName = pUsedTable->getObjectName();
-    CorrName corrTableName(underlyingTableName);
-    NATable * pNaTable = generator->getBindWA()->getNATable(corrTableName, FALSE);
-        const UsingMvInfoList &usingMvList =
-          getTableDesc()->getNATable()->getMvsUsingMe();
-        for (CollIndex i=0; i<UsedObjList.entries(); i++)
-          {
-            char * mvName =
-              space->AllocateAndCopyToAlignedSpace
-              (generator->genGetNameAsAnsiNAString(UsedObjList[i]->getObjectName()),
-               0);
-
-            updStatsMvgroupList->insert(mvName);
-
-            if (addReferencingMVs(
-                 generator, mvName,
-                 updStatsMvgroupList, NULL))
-              return -1;
-          }
-      }
-  */
   if (reorgMvsIndex_) {
     reorgMvsIndexList = new (space) Queue(space);
 

@@ -308,16 +308,6 @@ class QRDescGenerator : public NABasicObject {
    */
   QRQueryDescriptorPtr createQueryDescriptor(QueryAnalysis *qa, RelExpr *expr);
 
-  /**
-   * Creates a materialized view descriptor from a QueryAnalysis object.
-   *
-   * @param qa The QueryAnalysis for the query used in the MV.
-   * @param expr Root of the query tree. This is used to look for singleton
-   *             scan nodes that are not part of a join, and create JBBs
-   *             for them.
-   * @return The MV descriptor.
-   */
-  QRMVDescriptorPtr createMvDescriptor(QueryAnalysis *qa, RelExpr *expr);
 
   /**
    * Tells whether this is an MV descriptor or a query descriptor.

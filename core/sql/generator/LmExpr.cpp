@@ -31,7 +31,7 @@
 
 #include "LmExpr.h"
 #include "optimizer/ItemExpr.h"
-#include "ItemFunc.h"
+#include "optimizer/ItemFunc.h"
 #include "common/NAType.h"
 #include "ItemNAType.h"
 #include "common/CharType.h"

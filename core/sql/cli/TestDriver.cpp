@@ -20,15 +20,11 @@
 // #include "cli_stdh.h"
 // #include "Cli.h"
 
-#include "stdio.h"
-
-#include "stdlib.h"
-
-#include "time.h"
-
 #include "cli/sqlcli.h"
-
 #include "cli_stdh.h"
+#include "stdio.h"
+#include "stdlib.h"
+#include "time.h"
 
 static int contextTest();
 
@@ -47,11 +43,10 @@ int main() {
 }
 
 int contextTest() {
-#define NUM_OF_CTX 8
-  `
+#define NUM_OF_CTX  8
 #define NUM_OF_ITER 16
 
-      SQLCTX_HANDLE ctxVec[NUM_OF_CTX];
+  SQLCTX_HANDLE ctxVec[NUM_OF_CTX];
 
   char idVec[NUM_OF_CTX][32];
 

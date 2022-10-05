@@ -18,10 +18,10 @@
 #include "common/Platform.h"
 
 #include "optimizer/Sqlcomp.h"
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 #include "optimizer/RelMisc.h"
-#include "RelUpdate.h"
-#include "RelJoin.h"
+#include "optimizer/RelUpdate.h"
+#include "optimizer/RelJoin.h"
 #include "optimizer/ControlDB.h"
 #include "GenExpGenerator.h"
 #include "ComTdbDp2Oper.h"

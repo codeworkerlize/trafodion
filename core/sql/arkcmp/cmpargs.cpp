@@ -1,29 +1,18 @@
 
-/* -*-C++-*-
-******************************************************************************
-*
-* File:         cmpargs.C
-* Created:
-* Language:     C++
-*
-*
-*
-*
-******************************************************************************
-*/
-
-#include "common/Platform.h"
+#include "cmpargs.h"
 
 #include <ctype.h>
-#include <iostream>
-#include <fstream>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include "cmpargs.h"
-#include "common/NAExit.h"
-#include "optimizer/SchemaDB.h"
+
+#include <fstream>
+#include <iostream>
+
 #include "arkcmp/CmpErrors.h"
+#include "common/NAExit.h"
+#include "common/Platform.h"
+#include "optimizer/SchemaDB.h"
 #include "sqlmsg/ErrorMessage.h"
 
 // In order to support template instantiation for TANDEM builds (using

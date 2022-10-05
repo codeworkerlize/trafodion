@@ -32,4 +32,4 @@ GLOB_ SqlciEnv *SqlciEnvGlobal INIT_(NULL);
 #undef GLOB_
 #undef INIT_
 
-#endif /* SQLCIPARSEGLOBALS_H */
+#endif 

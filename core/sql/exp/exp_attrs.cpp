@@ -257,10 +257,7 @@ char *getDatatypeAsString(int datatype, NABoolean extFormat = false) {
       return extFormat ? (char *)"INTERVAL DAY TO SECOND" : (char *)"REC_INT_DAY_SECOND";
     case REC_INT_FRACTION:
       return extFormat ? (char *)"INTERVAL FRACTION" : (char *)"REC_INT_FRACTION";
-    case REC_BLOB:
-      return extFormat ? (char *)"BLOB" : (char *)"REC_BLOB";
-    case REC_CLOB:
-      return extFormat ? (char *)"CLOB" : (char *)"REC_CLOB";
+
     case REC_BOOLEAN:
       return extFormat ? (char *)"BOOLEAN" : (char *)"REC_BOOLEAN";
 
@@ -328,13 +325,7 @@ void Attributes::displayContents(Space *space, int operandNum, char *constsArea,
               getDatatype(), getLength(), getNullFlag());
   space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
 
-  if ((getDatatype() == REC_BLOB) || (getDatatype() == REC_CLOB)) {
-    long ll = getLength();
-    if (isLengthInKB()) ll = ll * 1024;
-    //      long ll = (long)getPrecision() * 1000 + (long)getScale();
-    str_sprintf(buf, "      LobLength = %ld bytes", ll);
-    space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
-  }
+
 
   str_sprintf(buf, "      Precision = %d, Scale = %d, Collation = %d, flags_ = %x", getPrecision(), getScale(),
               getCollation(), flags_);
@@ -446,18 +437,7 @@ void Attributes::displayContents(ostream &out, Attributes *spAttr) {
               getDatatype(), getLength(), getNullFlag());
   out << buf << endl;
 
-  if ((getDatatype() == REC_BLOB) || (getDatatype() == REC_CLOB)) {
-    Int16 precision = getPrecision();
-    UInt16 scale = getScaleAsUI();
 
-    int lobLen = (precision << 16);
-    lobLen += scale;
-
-    long ll = (long)lobLen;
-    //      long ll = (long)getPrecision() * 1000 + (long)getScale();
-    str_sprintf(buf, "      LobLength = %ld Mb", ll);
-    out << buf;
-  }
 
   str_sprintf(buf, "      Precision = %d, Scale = %d, Collation = %d, flags_ = %x", getPrecision(), getScale(),
               getCollation(), flags_);

@@ -52,9 +52,9 @@
 #include "common/ComSmallDefs.h"
 #include "cli/sqlcli.h"
 #include "optimizer/OptimizerSimulator.h"
-#include "ItmFlowControlFunction.h"
+#include "optimizer/ItmFlowControlFunction.h"
 // #include "ExpPCodeOptimizations.h"
-#include "ItemFunc.h"
+#include "optimizer/ItemFunc.h"
 
 #define NEW_LEAN_EXPR
 

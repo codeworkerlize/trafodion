@@ -25,14 +25,13 @@
 #include "TransRule.h"
 
 // tmp includes for join and other relexpr methods
-#include "RelJoin.h"
+#include "optimizer/RelJoin.h"
 #include "optimizer/RelScan.h"
 #include "optimizer/RelGrby.h"
-#include "RelUpdate.h"
+#include "optimizer/RelUpdate.h"
 #include "optimizer/RelRoutine.h"
 #include "optimizer/RelExeUtil.h"
 #include "QRDescGenerator.h"
-#include "QueryRewriteHandler.h"
 #include "cli/Globals.h"
 
 #include <cmath>
@@ -514,7 +513,6 @@ QueryAnalysis::QueryAnalysis(CollHeap *outHeap, NABoolean analysis)
       outputToJBBCsMap_(outHeap),
       predAnalysisArray_(outHeap),
       nodeMapArray_(outHeap),
-      mvQueryRewriteHandler_(new (outHeap) MvQueryRewriteHandler(outHeap)),
       isMvCreation_(FALSE),
       skippedSomeJoins_(FALSE),
       dontSurfTheWave_(FALSE),  // WaveFix
@@ -548,7 +546,6 @@ QueryAnalysis::QueryAnalysis(CollHeap *outHeap, NABoolean analysis)
 QueryAnalysis::~QueryAnalysis() {
   delete tCGraph_;
   delete appStatMan_;
-  delete mvQueryRewriteHandler_;
   // should loop over other collections and delete later
 }
 
@@ -1153,7 +1150,6 @@ RelExpr *QueryAnalysis::analyzeThis(RelExpr *expr, NABoolean noMVQR) {
 
 #define MVQR
 #ifdef MVQR
-  if (!noMVQR && CmpCommon::getDefaultLong(MVQR_REWRITE_LEVEL) > 0) analyzedExpr = handleMvQueryRewrite(analyzedExpr);
 
   // if dontSurfTheWave() is set previously and there are any MVQR matches
   // then unset dont suf the wave as we do not want the privority of the
@@ -1269,33 +1265,6 @@ void QueryAnalysis::showQueryStats(const char *qText, CollHeap *c, char *buf) {
   }
 }
 
-//----------------------------------------------------------------------------
-RelExpr *QueryAnalysis::handleMvQueryRewrite(RelExpr *expr) {
-  NAString warningMessage = "";
-
-  // We don't handle olap or sequence functions yet,
-  if (expr->containsNode(REL_SEQUENCE)) {
-    warningMessage = "SEQUENCE is not supported.";
-  } else if (isMvCreation()) {
-    // We are in a CREATE MV operation.
-    // Need to create an MV descriptor,
-    mvQueryRewriteHandler_->createMvDescriptor(this, expr, warningMessage);
-  } else {
-    // Don't attempt rewrite of DDL statements, and don't warn about it.
-    if (expr->getRETDesc()->getBindWA()->inDDL()) return expr;
-
-    // Do the work here.
-    expr = mvQueryRewriteHandler_->handleMvQueryRewrite(this, expr, warningMessage);
-  }
-
-  // Anything to warn about?
-  if (warningMessage != "") {
-    QRLogger::log(CAT_SQL_COMP_QR_HANDLER, LL_WARN, warningMessage);
-    mvQueryRewriteHandler_->getWarningMessage() = warningMessage;
-  }
-
-  return expr;
-}  // handleMvQueryRewrite()
 
 //----------------------------------------------------------------------------
 void QueryAnalysis::analyzeJBBCDependencies(RelExpr *expr) {

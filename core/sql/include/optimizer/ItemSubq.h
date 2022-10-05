@@ -19,7 +19,7 @@
 #include "optimizer/ItemExpr.h"
 #include "optimizer/RETDesc.h"
 #include "optimizer/RelExpr.h"
-#include "RelJoin.h"
+#include "optimizer/RelJoin.h"
 #include "optimizer/RelGrby.h"
 
 // -----------------------------------------------------------------------

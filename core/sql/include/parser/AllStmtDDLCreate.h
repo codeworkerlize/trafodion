@@ -27,7 +27,6 @@
 #include "StmtDDLCreateTableArray.h"
 #include "StmtDDLCreateMVRGroup.h"
 #include "parser/StmtDDLCreateTrigger.h"
-#include "StmtDDLCreateMV.h"
 #include "parser/StmtDDLCreateView.h"
 #include "StmtDDLCreateSynonym.h"
 #include "parser/StmtDDLNamespace.h"

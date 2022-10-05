@@ -11,7 +11,7 @@
 ******************************************************************************
 */
 
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 #include "generator/Generator.h"
 #include "GenExpGenerator.h"
 #include "comexe/ComTdbCompoundStmt.h"

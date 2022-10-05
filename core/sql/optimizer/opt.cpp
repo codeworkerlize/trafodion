@@ -25,11 +25,11 @@
 #include "sqlcomp/CmpMain.h"  // gui display
 #include "optimizer/CmpMemoryMonitor.h"
 #include "Cost.h"
-#include "GroupAttr.h"
+#include "optimizer/GroupAttr.h"
 #include "optimizer/opt.h"
 #include "optimizer/PhyProp.h"
 #include "optimizer/RelExpr.h"
-#include "RelJoin.h"
+#include "optimizer/RelJoin.h"
 #include "optimizer/RelMisc.h"
 #include "optimizer/CostMethod.h"
 #include "sqlmxevents/logmxevent.h"
@@ -40,9 +40,6 @@
 #include "optimizer/Analyzer.h"
 //////////////////////////////
 
-#ifdef NA_DEBUG_GUI
-#include "common/ComSqlcmpdbg.h"
-#endif
 
 #include "arkcmp/CmpStatement.h"
 #include "utility.h"
@@ -262,12 +259,7 @@ RelExpr *RelExpr::optimize(NABoolean exceptionMode, Guidance *guidance, ReqdPhys
   CURRSTMT_OPTGLOBALS->memo = new (CmpCommon::statementHeap()) CascadesMemo();
   CURRSTMT_OPTGLOBALS->task_list = new (CmpCommon::statementHeap()) CascadesTaskList();
 
-#ifdef NA_DEBUG_GUI
-  CMPASSERT(CURRCONTEXT_CLUSTERINFO != NULL);
-  if (CmpMain::msGui_ && CURRENTSTMT->displayGraph())
-    CmpMain::pExpFuncs_->fpSqldbgSetCmpPointers(CURRSTMT_OPTGLOBALS->memo, CURRSTMT_OPTGLOBALS->task_list,
-                                                QueryAnalysis::Instance(), cmpCurrentContext, CURRCONTEXT_CLUSTERINFO);
-#endif
+
 
   // ---------------------------------------------------------------------
   // Synthesize the logical properties for the input query.
@@ -418,13 +410,7 @@ RelExpr *RelExpr::optimize(NABoolean exceptionMode, Guidance *guidance, ReqdPhys
         CascadesTask *next_task = CURRSTMT_OPTGLOBALS->task_list->getFirst();  // get a sneak preview
         //                                                // for GUI display
 
-#ifdef NA_DEBUG_GUI
-        if (CmpMain::msGui_ && CURRENTSTMT->displayGraph()) {
-          CmpMain::pExpFuncs_->fpDoMemoStep((int)GlobalRuleSet->getCurrentPassNumber(),
-                                            (int)next_task->getGroupId(), task_count, next_task, next_task->getExpr(),
-                                            next_task->getPlan());
-        }
-#endif
+
 
 #ifdef _DEBUG
         // Show task.
@@ -505,29 +491,7 @@ RelExpr *RelExpr::optimize(NABoolean exceptionMode, Guidance *guidance, ReqdPhys
 #endif
       }
 
-#ifdef NA_DEBUG_GUI
-      // Display optimal plan at the end of each optimization pass
-      Sqlcmpdbg::CompilationPhase optPass = Sqlcmpdbg::AFTER_OPT1;
-      switch (GlobalRuleSet->getCurrentPassNumber()) {
-        case 1:
-          optPass = Sqlcmpdbg::AFTER_OPT1;
-          break;
-        case 2:
-          optPass = Sqlcmpdbg::AFTER_OPT2;
-          break;
-        default:
-          break;
-      }
-      if (CmpMain::msGui_ && CURRENTSTMT->displayGraph()) {
-        CMPASSERT(CURRCONTEXT_CLUSTERINFO != NULL);
-        CmpMain::pExpFuncs_->fpSqldbgSetCmpPointers(CURRSTMT_OPTGLOBALS->memo, CURRSTMT_OPTGLOBALS->task_list,
-                                                    QueryAnalysis::Instance(), cmpCurrentContext,
-                                                    CURRCONTEXT_CLUSTERINFO);
 
-        CmpMain::pExpFuncs_->fpDisplayQueryTree(optPass, NULL, (void *)context->getSolution());
-      }
-
-#endif
 
       if (context->getSolution() && (CmpCommon::getDefault(NSK_DBG) == DF_ON)) {
         int passNumber = GlobalRuleSet->getCurrentPassNumber();
@@ -6104,59 +6068,23 @@ void QueryOptimizerDriver::DEBUG_SHOW_TASK(CascadesTask *task) {
 }
 
 void QueryOptimizerDriver::DEBUG_GUI_DO_MEMO_STEP(CascadesTask *task) {
-#ifdef NA_DEBUG_GUI
-  if (CmpMain::msGui_ && CURRENTSTMT->displayGraph()) {
-    CmpMain::pExpFuncs_->fpDoMemoStep((int)GlobalRuleSet->getCurrentPassNumber(), (int)task->getGroupId(),
-                                      taskCount_, task, task->getExpr(), task->getPlan());
-  }
-#endif
+
 }
 
 void QueryOptimizerDriver::DEBUG_GUI_SET_POINTERS() {
-#ifdef NA_DEBUG_GUI
-  CMPASSERT(CURRCONTEXT_CLUSTERINFO != NULL);
-  if (CmpMain::msGui_ && CURRENTSTMT->displayGraph())
-    CmpMain::pExpFuncs_->fpSqldbgSetCmpPointers(CURRSTMT_OPTGLOBALS->memo, CURRSTMT_OPTGLOBALS->task_list,
-                                                QueryAnalysis::Instance(), cmpCurrentContext, CURRCONTEXT_CLUSTERINFO);
-#endif
+
 }
 
 void QueryOptimizerDriver::DEBUG_GUI_DISPLAY_TRIGGERS_AFTER_NORMALIZATION(RelExpr *relExpr) {
 #ifdef _DEBUG
-#ifdef NA_DEBUG_GUI
-  // debug for trigger transformation only if there are triggers
-  if (relExpr->getOperatorType() == REL_ROOT && ((RelRoot *)relExpr)->getTriggersList() != NULL)
-    CmpMain::guiDisplay(Sqlcmpdbg::AFTER_NORMALIZATION, relExpr);
-#endif
+
 #endif
 }
 
 void QueryOptimizerDriver::DEBUG_GUI_HIDE_QUERY_TREE() {}
 
 void QueryOptimizerDriver::DEBUG_GUI_DISPLAY_AFTER_OPTIMIZATION(Context *context) {
-#ifdef NA_DEBUG_GUI
-  // Display optimal plan at the end of each optimization pass
-  Sqlcmpdbg::CompilationPhase optPass = Sqlcmpdbg::AFTER_OPT1;
-  switch (GlobalRuleSet->getCurrentPassNumber()) {
-    case 1:
-      optPass = Sqlcmpdbg::AFTER_OPT1;
-      break;
-    case 2:
-      optPass = Sqlcmpdbg::AFTER_OPT2;
-      break;
-    default:
-      break;
-  }
 
-  if (CmpMain::msGui_ && CURRENTSTMT->displayGraph()) {
-    CMPASSERT(CURRCONTEXT_CLUSTERINFO != NULL);
-    CmpMain::pExpFuncs_->fpSqldbgSetCmpPointers(CURRSTMT_OPTGLOBALS->memo, CURRSTMT_OPTGLOBALS->task_list,
-                                                QueryAnalysis::Instance(), cmpCurrentContext, CURRCONTEXT_CLUSTERINFO);
-
-    CmpMain::pExpFuncs_->fpDisplayQueryTree(optPass, NULL, (void *)context->getSolution());
-  }
-
-#endif
 }
 
 void QueryOptimizerDriver::DEBUG_PRINT_COUNTERS() {

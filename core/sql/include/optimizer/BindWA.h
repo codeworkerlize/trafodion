@@ -22,7 +22,6 @@
 // contents of this file
 // ----------------------------------------------------------------------
 class BindContext;
-class MvBindContext;
 class XTNMStack;
 class BindScope;
 class BindScopeList;
@@ -108,7 +107,6 @@ class BindContext : public NABasicObject {
         inPredicate_(FALSE),
         firstN_(FALSE),
         triggerObj_(NULL),
-        pMvBindContext_(NULL),
         stmtLevelAccessOptions_(NULL),
         inQualifyClause_(FALSE),
         inTDFunction_(FALSE),
@@ -195,8 +193,6 @@ class BindContext : public NABasicObject {
   StmtDDLCreateTrigger *&triggerObj() { return triggerObj_; }
   NABoolean &inUpsertXform() { return inUpsertXform_; }
 
-  //++ MV
-  inline MvBindContext *&getMvBindContext() { return pMvBindContext_; }
 
   const StmtLevelAccessOptions *stmtLevelAccessOptions() const { return stmtLevelAccessOptions_; }
   void setStmtLevelAccessOptions(StmtLevelAccessOptions &ao) {
@@ -433,12 +429,6 @@ class BindContext : public NABasicObject {
   // --------------------------------------------------------------------
   StmtDDLCreateTrigger *triggerObj_;
 
-  // -------------------------------------------------------------------------
-  //++ MV
-  // general purpose mv context.
-  // NULL if no context exists.
-  // -------------------------------------------------------------------------
-  MvBindContext *pMvBindContext_;
 
   // --------------------------------------------------------------------
   // NonNULL if Tandem-extension "FOR xxx ACCESS [IN locking MODE]" was
@@ -465,52 +455,7 @@ class BindContext : public NABasicObject {
   ConnectBy *currentConnectByNode_;
 };  // class BindContext
 
-// ***********************************************************************
-// MV --
-// The MvBindContext class controls which Scans will be on base tables
-// and which will be replaced by some other RelExpr tree.
-// All the tables that their names are added to the replacementTreeHash_
-// will be switched to the corresponding tree, that was already constructed.
-// To bind a sub-tree with no switching at all, use an empty object.
-// A pointer to the MvBindContext object is first put in the RelRoot node
-// on top of the sub-tree. When being bound, the RelRoot will copy that
-// pointer to the context of the BindScope it just created. There it will
-// be found by Scan::bindNode().
-//
-class MvBindContext : public NABasicObject {
- public:
-  MvBindContext(CollHeap *heap)
-      : replacementTreeHash_(QualifiedName::hash,
-                             (int)10,  // initialHashSize
-                             TRUE,       // enforceUniqueness
-                             heap),
-        builder_(NULL),
-        heap_(heap) {}
 
-  virtual ~MvBindContext();
-
-  void setReplacementFor(const QualifiedName *tableName, RelExpr *replacementTree);
-  RelExpr *getReplacementFor(const QualifiedName &tableName) const;
-
-  // These are for passing the refresh builder to the Scan::bindNode() code
-  // in order to continue building the bottom side of the refresh tree.
-  void setRefreshBuilder(MvRefreshBuilder *builder) { builder_ = builder; }
-  MvRefreshBuilder *getRefreshBuilder() const { return builder_; }
-
- private:
-  typedef NAHashDictionary<const QualifiedName, RelExpr> ReplacementTreeEntry;
-
-  ReplacementTreeEntry replacementTreeHash_;
-  MvRefreshBuilder *builder_;
-  CollHeap *heap_;
-};  // MvBindContext
-
-// ***********************************************************************
-// XTNM Stack
-//
-// A stack of the table name scopes for the current select.
-//
-// ***********************************************************************
 class XTNMStack : public LIST(XTNM *) {
  public:
   XTNMStack(CollHeap *h = NULL) : LIST(XTNM *)(h) { wHeap_ = h; }
@@ -1203,23 +1148,11 @@ class BindWA : public NABasicObject {
 
   BindScope *findNextScopeWithTriggerInfo(BindScope *currentScope = NULL);
 
-  //--------------------------------------------------------------------------
-  //++MV --
-  // The isBindingMvRefresh flag is set during binding of INTERNAL REFRESH.
-  void setBindingMvRefresh() { isBindingMvRefresh_ = TRUE; }
+
   NABoolean isBindingMvRefresh() const { return isBindingMvRefresh_; }
   // Use a separate flag for propagating the OP and SYSKEY cols.
   void setPropagateOpAndSyskeyColumns() { isPropagateOpAndSyskeyColumns_ = TRUE; }
   NABoolean isPropagateOpAndSyskeyColumns() const { return isPropagateOpAndSyskeyColumns_; }
-  // This flag is used during CREATE MV, for inlining MVs just like views.
-  void setExpandMvTree() { isExpandMvTree_ = TRUE; }
-  NABoolean isExpandMvTree() const { return isExpandMvTree_; }
-  // The isBindingOnStatementMV flag is used for inlining ON STATMENT MVs.
-  void setBindingOnStatementMv() { isBindingOnStatementMv_ = TRUE; }
-  NABoolean isBindingOnStatementMv() const { return isBindingOnStatementMv_; }
-  // See MvBindContext above for more details.
-  void markScopeWithMvBindContext(MvBindContext *mvContext);
-  const MvBindContext *getClosestMvBindContext(BindScope *currentScope = NULL) const;
 
   // add uninitialized mv names to list
   void addUninitializedMv(const char *physicalName, const char *ansiName);

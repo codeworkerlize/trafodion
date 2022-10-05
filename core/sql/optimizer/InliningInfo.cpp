@@ -15,7 +15,7 @@
 #include "optimizer/Inlining.h"
 #include "optimizer/Triggers.h"
 #include "optimizer/TableDesc.h"
-#include "RelUpdate.h"
+#include "optimizer/RelUpdate.h"
 #include "optimizer/ItemColRef.h"
 #include "optimizer/RETDesc.h"
 #include "optimizer/ColumnDesc.h"

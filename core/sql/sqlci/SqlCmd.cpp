@@ -2256,9 +2256,7 @@ short SqlCmd::deallocate(SqlciEnv *sqlci_env, PrepStmt *prep_stmt) {
   return retcode;
 }
 
-/////////////////////////////////////////////////////////////////
-// ::process() methods
-/////////////////////////////////////////////////////////////////
+
 
 short DML::process(SqlciEnv *sqlci_env) {
   int retcode = 0, prepcode = 0, retcodeExe = 0;

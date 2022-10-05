@@ -18,7 +18,7 @@
 
 #include "common/ComSmallDefs.h"
 #include "optimizer/ValueDesc.h"
-#include "ItemFunc.h"
+#include "optimizer/ItemFunc.h"
 
 // forward reference
 #include "optimizer/CostScalar.h"

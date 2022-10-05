@@ -1,12 +1,14 @@
 
-#include <iostream>
 #include "ApplicationFile.h"
+
+#include <iostream>
+
 #include "Cmdline_Args.h"
-#include "export/ComDiags.h"
-#include "common/DgBaseType.h"
 #include "ELFFile.h"
-#include "common/NAAssert.h"
 #include "SQLJFile.h"
+#include "common/DgBaseType.h"
+#include "common/NAAssert.h"
+#include "export/ComDiags.h"
 #include "mxCompileUserModule.h"
 
 // factory method (or virtual constructor)
@@ -22,15 +24,6 @@ ApplicationFile::ApplicationFile(std::string &filename)
 // destructor
 ApplicationFile::~ApplicationFile() {}
 
-// open application file for reading. return true if all OK.
-// NB: It seems illogical to name this method "openFile" when it does not
-// open any file at all. However, the classes ApplicationFile, ELFFile,
-// SQLJFile and mxCompileUserModuleMain.cpp implement an instance of the
-// Factory design pattern. The makeApplicationFile() returns a pointer to
-// an ApplicationFile (either an ELFFile or a SQLJFile instance) appFile
-// and main() simply calls appFile->openFile(), appFile->closFile(),
-// appFile->processModule(), and so on, relying on these virtual functions
-// to invoke the appropriate instance of these methods to make it work.
 bool ApplicationFile::openFile(Cmdline_Args &args) {
   args_ = &args;
   return appFile_ != NULL;
@@ -73,20 +66,9 @@ bool ApplicationFile::mxcmpModule(char *mdf) {
   // make sure we have enough space for the mxcmp invocation string
   assert(args_ != NULL);
   int cmdLen = strlen(mxcmp) + args_->application().length() + args_->otherArgs().length() + strlen(mdf) + 7;
-  // for efficiency we try to use the stack-allocated cmd variable.
-  // but, no matter how big we declare it, eg: char cmd[12345],
-  // it is always possible for someone like QA try something like
-  //   mxCompileUserModule -d CQD1=v1 -d CQD2=v2 ... -d CQDn=vn my.exe
-  // whereby the mxcmp invocation string overflows cmd. We can always
-  // dynamically allocate and use cmdP but "new" is very inefficient
-  // compared to stack allocation. So, we try to get the best of both
-  // by using stack allocation for the 90% case and use "new" only for
-  // the pathological 10% (customer is using a program generator to
-  // invoke us or QA is simply trying to break our code) case.
+
   if (cmdLen > 1024) {
     cmdP = new char[cmdLen];
-    // mxCompileUserModuleMain.cpp already did set_new_handler(), so
-    // if this new fails, mainNewHandler() will handle that exception.
   }
   if (!cmdP) {
     // coverity flags a REVERSE_INULL cid on cmdP -- it's complaining

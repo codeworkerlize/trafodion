@@ -197,7 +197,7 @@ int Formatter::buffer_it(SqlciEnv *sqlci_env, char *data, int datatype, int leng
     if ((datatype == REC_BYTE_V_ASCII) || (datatype == REC_BYTE_V_ASCII_LONG) || (datatype == REC_BYTE_V_ANSI) ||
         (datatype == REC_NCHAR_V_UNICODE) ||       // 12/9/97
         (datatype == REC_NCHAR_V_ANSI_UNICODE) ||  // 6/26/98
-        (datatype == REC_VARBINARY_STRING) || (datatype == REC_BLOB) || (datatype == REC_CLOB)) {
+        (datatype == REC_VARBINARY_STRING)) {
       varchar = TRUE;
 
       if (vcIndLen == sizeof(int)) {
@@ -226,9 +226,7 @@ int Formatter::buffer_it(SqlciEnv *sqlci_env, char *data, int datatype, int leng
       case REC_BYTE_F_ASCII:
       case REC_BYTE_V_ASCII:
       case REC_BYTE_V_ASCII_LONG:
-      case REC_BYTE_V_ANSI:
-      case REC_BLOB:
-      case REC_CLOB: {
+      case REC_BYTE_V_ANSI: {
         ascii = TRUE;
         convFlags = CONV_ALLOW_INVALID_CODE_VALUE;
       }
