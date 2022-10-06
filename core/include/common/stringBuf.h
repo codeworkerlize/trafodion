@@ -22,9 +22,9 @@
 #define _STRING_BUF_H
 
 #if !defined(MODULE_DEBUG)
-#include "common/Platform.h"
 #include "common/BaseTypes.h"
 #include "common/NAWinNT.h"
+#include "common/Platform.h"
 #endif
 
 #ifdef _DEBUG
@@ -34,8 +34,7 @@
 template <class T>
 class stringBuf {
  public:
-  stringBuf(T *buf, int len, CollHeap *heap = 0)
-      : buf_(buf), bufSize_(len), count_(len), alloc_(FALSE), heap_(heap){};
+  stringBuf(T *buf, int len, CollHeap *heap = 0) : buf_(buf), bufSize_(len), count_(len), alloc_(FALSE), heap_(heap){};
 
   stringBuf(T *buf, int iBufSize, int iStrLen, CollHeap *heap = 0)
       : buf_(buf), bufSize_(iBufSize), count_(iStrLen <= iBufSize ? iStrLen : iBufSize), alloc_(FALSE), heap_(heap){};

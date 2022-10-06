@@ -17,6 +17,7 @@
 // -----------------------------------------------------------------------
 
 #include "comexe/ComTdbSplitBottom.h"
+
 #include "comexe/ComTdbCommon.h"
 #include "comexe/ComTdbSendBottom.h"
 //#include  "ex_esp_frag_dir.h"
@@ -25,12 +26,11 @@
 // Methods for class ComTdbSplitBottom
 // -----------------------------------------------------------------------
 ComTdbSplitBottom::ComTdbSplitBottom(ComTdb *child, ComTdbSendBottom *sendTdb, ex_expr *partFunction,
-                                     int partNoATPIndex, int partFunctionUsesNarrow,
-                                     int conversionErrorFlagATPIndex, int partInputATPIndex, int partInputDataLen,
-                                     Cardinality estimatedRowCount, ex_cri_desc *criDescDown, ex_cri_desc *criDescUp,
-                                     ex_cri_desc *workCriDesc, NABoolean combineRequests, int topNumESPs,
-                                     int topNumParts, int bottomNumESPs, int bottomNumParts,
-                                     SplitBottomSkewInfo *skewInfo, short minMaxValsWorkAtpIndex,
+                                     int partNoATPIndex, int partFunctionUsesNarrow, int conversionErrorFlagATPIndex,
+                                     int partInputATPIndex, int partInputDataLen, Cardinality estimatedRowCount,
+                                     ex_cri_desc *criDescDown, ex_cri_desc *criDescUp, ex_cri_desc *workCriDesc,
+                                     NABoolean combineRequests, int topNumESPs, int topNumParts, int bottomNumESPs,
+                                     int bottomNumParts, SplitBottomSkewInfo *skewInfo, short minMaxValsWorkAtpIndex,
                                      int minMaxRowLength, int minValStartOffset, ex_expr *minMaxExpr,
                                      ex_expr *minMaxMoveOutExpr)
     : ComTdb(ex_SPLIT_BOTTOM, eye_SPLIT_BOTTOM, estimatedRowCount, criDescDown, criDescUp) {

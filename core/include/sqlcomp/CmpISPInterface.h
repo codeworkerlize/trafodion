@@ -13,8 +13,8 @@
 *
 ******************************************************************************/
 
-#include "common/NABoolean.h"
 #include "arkcmp/CmpISPStd.h"
+#include "common/NABoolean.h"
 
 class CmpISPInterface {
  public:

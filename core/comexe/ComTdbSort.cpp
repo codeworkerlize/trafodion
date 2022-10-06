@@ -15,6 +15,7 @@
 */
 
 #include "comexe/ComTdbSort.h"
+
 #include "comexe/ComTdbCommon.h"
 
 // Constructor

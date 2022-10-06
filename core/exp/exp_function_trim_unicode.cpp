@@ -17,7 +17,6 @@
  */
 
 #include "common/Platform.h"
-
 #include "exp_function.h"
 
 ex_function_trim_doublebyte::ex_function_trim_doublebyte(){};

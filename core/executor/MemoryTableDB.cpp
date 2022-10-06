@@ -13,8 +13,10 @@
 // *********************************************************************
 
 #include "executor/MemoryTableDB.h"
-#include "cli/Globals.h"
+
 #include <sys/time.h>
+
+#include "cli/Globals.h"
 #include "sqlcomp/SharedCache.h"
 
 int NAStringHashFunc(const NAString &x) { return x.hash(); }
@@ -226,8 +228,7 @@ NABoolean HTableCache::isLargerOrEqual(const NAString *key1, const Text &key2) {
     return FALSE;
 }
 
-int HTableCache::fetchRows(int numReqRows, int &fetchStartPos, NAList<HTableRow *> &kvArray,
-                             const Text &stopRow) {
+int HTableCache::fetchRows(int numReqRows, int &fetchStartPos, NAList<HTableRow *> &kvArray, const Text &stopRow) {
   int rowNum = 0;
   bool toTheEnd = false;
   if (stopRow.size() == 0 || stopRow.data() == NULL) toTheEnd = true;

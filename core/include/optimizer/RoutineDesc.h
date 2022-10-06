@@ -12,13 +12,13 @@
 *************************************************************************
 */
 
-#include "common/BaseTypes.h"
-#include "common/ComSmallDefs.h"
-#include "optimizer/ObjectNames.h"
-#include "optimizer/ItemConstr.h"
-#include "optimizer/ValueDesc.h"
 #include "ColStatDesc.h"
 #include "CostVector.h"
+#include "common/BaseTypes.h"
+#include "common/ComSmallDefs.h"
+#include "optimizer/ItemConstr.h"
+#include "optimizer/ObjectNames.h"
+#include "optimizer/ValueDesc.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

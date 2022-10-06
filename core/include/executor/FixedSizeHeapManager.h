@@ -17,10 +17,10 @@
 
 // -----------------------------------------------------------------------------
 
-#include "common/NABoolean.h"
 #include "FixedSizeHeapElement.h"
-#include "common/NAHeap.h"  //
-#include "executor/ex_error.h"       // for ExeErrorCode
+#include "common/NABoolean.h"
+#include "common/NAHeap.h"      //
+#include "executor/ex_error.h"  // for ExeErrorCode
 #ifdef NA_MDAM_EXECUTOR_DEBUG
 #include <iostream>
 #endif /* NA_MDAM_EXECUTOR_DEBUG */

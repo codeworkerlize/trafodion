@@ -20,10 +20,10 @@
  *
  *****************************************************************************
  */
+#include "common/Int64.h"
 #include "common/Platform.h"
 #include "exp/ExpError.h"
 #include "exp/exp_attrs.h"
-#include "common/Int64.h"
 #include "exp/exp_clause.h"
 
 class ExpNumerFormat {
@@ -62,16 +62,16 @@ class ExpNumerFormat {
     NUM_LAST
   };
   static int convertBigNumToChar(char *dataValue, char *result, Attributes *arg0, Attributes *arg1, Attributes *arg2,
-                                   char *arg1Str, char *arg2Str, CollHeap *heap, ComDiagsArea **diagsArea);
+                                 char *arg1Str, char *arg2Str, CollHeap *heap, ComDiagsArea **diagsArea);
 
   static int convertFloatToChar(char *dataValue, char *result, Attributes *arg0, Attributes *arg1, Attributes *arg2,
-                                  char *arg1Str, char *arg2Str, CollHeap *heap, ComDiagsArea **diagsArea);
+                                char *arg1Str, char *arg2Str, CollHeap *heap, ComDiagsArea **diagsArea);
 
   static int convertInt32ToChar(char *dataValue, char *result, Attributes *arg0, Attributes *arg1, Attributes *arg2,
-                                  char *arg1Str, char *arg2Str, CollHeap *heap, ComDiagsArea **diagsArea);
+                                char *arg1Str, char *arg2Str, CollHeap *heap, ComDiagsArea **diagsArea);
 
   static int convertInt64ToChar(char *dataValue, char *result, Attributes *arg0, Attributes *arg1, Attributes *arg2,
-                                  char *arg1Str, char *arg2Str, CollHeap *heap, ComDiagsArea **diagsArea);
+                                char *arg1Str, char *arg2Str, CollHeap *heap, ComDiagsArea **diagsArea);
 };
 
 #endif

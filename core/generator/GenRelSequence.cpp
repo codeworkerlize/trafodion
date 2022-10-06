@@ -1,17 +1,16 @@
 
-#include "optimizer/GroupAttr.h"
-#include "optimizer/AllRelExpr.h"
-#include "optimizer/RelSequence.h"
-#include "generator/Generator.h"
 #include "GenExpGenerator.h"
-#include "exp/ExpCriDesc.h"
 #include "comexe/ComTdbSequence.h"
-#include "common/NumericType.h"
-#include "optimizer/ItmFlowControlFunction.h"
 #include "comexe/ExplainTupleMaster.h"
-#include "common/ComDefs.h"
-
 #include "comexe/HashBufferHeader.h"
+#include "common/ComDefs.h"
+#include "common/NumericType.h"
+#include "exp/ExpCriDesc.h"
+#include "generator/Generator.h"
+#include "optimizer/AllRelExpr.h"
+#include "optimizer/GroupAttr.h"
+#include "optimizer/ItmFlowControlFunction.h"
+#include "optimizer/RelSequence.h"
 
 ItemExpr *addConvNode(ItemExpr *childExpr, ValueIdMap *mapping, CollHeap *wHeap)
 
@@ -304,9 +303,8 @@ void PhysSequence::computeHistoryAttributes(Generator *generator, MapTable *loca
 // of the history buffer.
 //
 void PhysSequence::computeHistoryRows(const ValueIdSet &sequenceFunctions,  // historyIds
-                                      int &computedHistoryRows, int &unableToCalculate,
-                                      NABoolean &unboundedFollowing, int &minFollowingRows,
-                                      const ValueIdSet &outputFromChild) {
+                                      int &computedHistoryRows, int &unableToCalculate, NABoolean &unboundedFollowing,
+                                      int &minFollowingRows, const ValueIdSet &outputFromChild) {
   ValueIdSet children;
   ValueIdSet historyAttributes;
   int value = 0;
@@ -1046,8 +1044,7 @@ void PhysSequence::transformOlapFunctions(CollHeap *wHeap) {
 }
 
 void PhysSequence::computeHistoryParams(int histRecLength, int &maxRowsInOLAPBuffer, int &minNumberOfOLAPBuffers,
-                                        int &numberOfWinOLAPBuffers, int &maxNumberOfOLAPBuffers,
-                                        int &olapBufferSize) {
+                                        int &numberOfWinOLAPBuffers, int &maxNumberOfOLAPBuffers, int &olapBufferSize) {
   int maxFWAdditionalBuffers = getDefault(OLAP_MAX_FIXED_WINDOW_EXTRA_BUFFERS);
   maxNumberOfOLAPBuffers = getDefault(OLAP_MAX_NUMBER_OF_BUFFERS);
   // For testing we may force a smaller max # rows in a buffer

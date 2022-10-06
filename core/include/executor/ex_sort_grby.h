@@ -232,7 +232,7 @@ class ex_sort_grby_private_state : public ex_tcb_private_state {
   ex_sort_grby_tcb::sort_grby_step step_;
 
   queue_index index_;  // index into down queue
-  long matchCount_;   // number of rows returned for this parent row
+  long matchCount_;    // number of rows returned for this parent row
   NABoolean oneRowAggr_;
 };
 

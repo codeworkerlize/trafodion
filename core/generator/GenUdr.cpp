@@ -10,24 +10,23 @@
 ******************************************************************************
 */
 
-#include "optimizer/RelMisc.h"
-#include "optimizer/RelRoutine.h"
-#include "optimizer/NARoutine.h"
+#include "GenExpGenerator.h"
+#include "LmError.h"
 #include "LmExpr.h"
 #include "LmGenUtil.h"
-#include "LmError.h"
-#include "comexe/ComTdbUdr.h"
-#include "generator/Generator.h"
-#include "GenExpGenerator.h"
-#include "executor/sql_buffer.h"
-#include "common/NAUserId.h"
-#include "common/ComUser.h"
-#include "comexe/ExplainTuple.h"
-
-#include "comexe/ExplainTupleMaster.h"
 #include "comexe/ComQueue.h"
-#include "optimizer/UdfDllInteraction.h"
+#include "comexe/ComTdbUdr.h"
+#include "comexe/ExplainTuple.h"
+#include "comexe/ExplainTupleMaster.h"
+#include "common/ComUser.h"
+#include "common/NAUserId.h"
+#include "executor/sql_buffer.h"
+#include "generator/Generator.h"
 #include "optimizer/GroupAttr.h"
+#include "optimizer/NARoutine.h"
+#include "optimizer/RelMisc.h"
+#include "optimizer/RelRoutine.h"
+#include "optimizer/UdfDllInteraction.h"
 
 // Helper function to allocate a string in the plan
 char *AllocStringInSpace(ComSpace &space, const char *s) {
@@ -318,8 +317,8 @@ static int min_sql_buffer_overhead() {
   // bookkeeping bytes required. The bookkeeping consists of SqlBuffer
   // class members, two control rows, and one data row.
   const int bufferPad = sizeof(SqlBuffer) + (2 * (sizeof(ControlInfo) + sizeof(tupp_descriptor))) +
-                           sizeof(tupp_descriptor)  // for the data row
-                           + 100                    // just to be safe
+                        sizeof(tupp_descriptor)  // for the data row
+                        + 100                    // just to be safe
       ;
 
   return bufferPad;
@@ -337,11 +336,11 @@ static int min_sql_buffer_overhead() {
 static short udr_codegen(Generator *generator, RelExpr &relExpr, ComTdbUdr *&newTdb, const RoutineDesc *rdesc,
                          const ValueIdList *inVids, const ValueIdList *outVids, const NAColumnArray *inColumns,
                          const NAColumnArray *outColumns, const NAColumnArray *formalColumns,
-                         Cardinality estimatedRowCount, int downQueueMaxSize, int upQueueMaxSize,
-                         int outputBufferSize, int requestBufferSize, int replyBufferSize,
-                         int numOutputBuffers, const char *runtimeOptsFromCaller,
-                         const char *runtimeOptDelimsFromCaller, ComTdb **childTdbs, Queue *optionalData,
-                         tmudr::UDRInvocationInfo *udrInvocationInfo, tmudr::UDRPlanInfo *udrPlanInfo) {
+                         Cardinality estimatedRowCount, int downQueueMaxSize, int upQueueMaxSize, int outputBufferSize,
+                         int requestBufferSize, int replyBufferSize, int numOutputBuffers,
+                         const char *runtimeOptsFromCaller, const char *runtimeOptDelimsFromCaller, ComTdb **childTdbs,
+                         Queue *optionalData, tmudr::UDRInvocationInfo *udrInvocationInfo,
+                         tmudr::UDRPlanInfo *udrPlanInfo) {
   CmpContext *cmpContext = generator->currentCmpContext();
   Space *space = generator->getSpace();
   ExpGenerator *exp_gen = generator->getExpGenerator();
@@ -375,7 +374,7 @@ static short udr_codegen(Generator *generator, RelExpr &relExpr, ComTdbUdr *&new
   const int numOutValues = (outVids ? outVids->entries() : 0);
 
   int totalNumParams = (rdesc ? (rdesc->getInParamColumnList().entries() + rdesc->getOutputColumnList().entries())
-                                 : (numInValues + numOutValues));
+                              : (numInValues + numOutValues));
   if (relExpr.castToTableMappingUDF()) totalNumParams = (numInValues + numOutValues);
 
   // If we have a PhysicalSPProxyFunc, using the udr_codegen() method, the

@@ -15,10 +15,11 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
 #include "ReqGen.h"
-#include "optimizer/GroupAttr.h"
+
 #include "cli/Globals.h"
+#include "common/Platform.h"
+#include "optimizer/GroupAttr.h"
 
 RequirementGenerator::RequirementGenerator(const ExprGroupId &groupForRequirement,
                                            const ReqdPhysicalProperty *startRequirements)
@@ -825,8 +826,7 @@ void RequirementGenerator::replaceLocationRequirement(PlanExecutionEnum loc) {
   removeStartLocation_ = TRUE;
 }
 
-void RequirementGenerator::makeNumOfPartsFeasible(int &proposedNumOfParts,
-                                                  float *proposedNumOfPartsAllowedDeviation) {
+void RequirementGenerator::makeNumOfPartsFeasible(int &proposedNumOfParts, float *proposedNumOfPartsAllowedDeviation) {
   // rather than just producing a non-feasible requirement by adding some
   // incompatible requirement for the number of partitions, alter the
   // requirement such that it does not conflict with already existing

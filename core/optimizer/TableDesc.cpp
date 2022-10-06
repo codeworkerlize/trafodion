@@ -12,20 +12,19 @@
 **************************************************************************
 */
 
+#include "Cost.h" /* for lookups in the defaults table */
+#include "ParNameLocList.h"
+#include "QRDescGenerator.h"
+#include "common/ComCextdecs.h"
+#include "common/ComOperators.h"
+#include "executor/ExExeUtilCli.h"
+#include "executor/ex_error.h"
 #include "optimizer/AllItemExpr.h"
 #include "optimizer/AllRelExpr.h"
-#include "optimizer/BindWA.h"
-#include "common/ComOperators.h"
-#include "ParNameLocList.h"
-#include "optimizer/Sqlcomp.h"
-#include "executor/ex_error.h"
-#include "Cost.h" /* for lookups in the defaults table */
 #include "optimizer/Analyzer.h"
-
-#include "common/ComCextdecs.h"
+#include "optimizer/BindWA.h"
+#include "optimizer/Sqlcomp.h"
 #include "sqlcat/TrafDDLdesc.h"
-#include "executor/ExExeUtilCli.h"
-#include "QRDescGenerator.h"
 
 void PartRangePerCol::print(FILE *ofd, const char *indent, const char *title, CollHeap *c, char *buf) const {
   BUMP_INDENT(indent);

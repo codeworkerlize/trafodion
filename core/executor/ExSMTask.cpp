@@ -1,10 +1,11 @@
 
 
 #include "ExSMTask.h"
-#include "ExSMTaskList.h"
-#include "ExSMReadyList.h"
+
 #include "ExSMGlobals.h"
 #include "ExSMQueue.h"
+#include "ExSMReadyList.h"
+#include "ExSMTaskList.h"
 #include "common/Ipc.h"
 
 ExSMTask::ExSMTask(const sm_target_t &receiver, uint32_t queueSize, int32_t *scheduledAddr, NAMemory *heap, ex_tcb *tcb,

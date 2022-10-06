@@ -22,23 +22,20 @@
 #include <stdio.h>
 // End of TEMP
 
-#include "common/Platform.h"
-
-#include "cli_stdh.h"
-
-#include "ex_stdh.h"
+#include "CmpContext.h"
 #include "ComTdb.h"
-#include "ex_tcb.h"
-#include "ex_transaction.h"
-#include "ex_exe_stmt_globals.h"
-#include "exp_expr.h"
-#include "executor/ex_error.h"
+#include "ExCextdecs.h"
 #include "ExSqlComp.h"
 #include "ExpHbaseInterface.h"
-
-#include "CmpContext.h"
-#include "ExCextdecs.h"
+#include "cli_stdh.h"
+#include "common/Platform.h"
 #include "dtm/tm.h"
+#include "ex_exe_stmt_globals.h"
+#include "ex_stdh.h"
+#include "ex_tcb.h"
+#include "ex_transaction.h"
+#include "executor/ex_error.h"
+#include "exp_expr.h"
 #include "qmscommon/QRLogger.h"
 
 extern pthread_t lob_ddl_thread_id;
@@ -220,7 +217,7 @@ short ExTransaction::waitForRollbackCompletion(long transid) {
     // check for return status in a loop until the transaction
     // is aborted.
     int delayTime = 100;  // units of 1/100th of a seconds.
-                            // 100 = 1 sec.
+                          // 100 = 1 sec.
     NABoolean done = FALSE;
     while (!done) {
       DELAY(delayTime);

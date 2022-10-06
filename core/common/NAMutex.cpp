@@ -1,6 +1,7 @@
 // ***********************************************************************
 
 #include "NAMutex.h"
+
 #include "common/NAAssert.h"
 
 void NAMutex::init(bool recursive, bool enabled, bool shared) {

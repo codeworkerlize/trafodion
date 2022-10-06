@@ -17,6 +17,7 @@
 // -----------------------------------------------------------------------
 
 #include "comexe/ComTdbSendTop.h"
+
 #include "comexe/ComTdbCommon.h"
 #include "executor/sql_buffer.h"
 #include "executor/sql_buffer_size.h"  // for SqlBuffer::neededSize().
@@ -29,8 +30,8 @@ ComTdbSendTop::ComTdbSendTop(ExFragId childFragId, ex_expr *moveInputValues, ex_
                              ex_cri_desc *criDescUp, ex_cri_desc *downRecordCriDesc, ex_cri_desc *upRecordCriDesc,
                              ex_cri_desc *workCriDesc, int moveExprTuppIndex, queue_index fromParent,
                              queue_index toParent, int downRecordLength, int upRecordLength, int sendBufferSize,
-                             int numSendBuffers, int recvBufferSize, int numRecvBuffers,
-                             Cardinality estNumRowsSent, Cardinality estNumRowsRecvd, NABoolean logDiagnostics)
+                             int numSendBuffers, int recvBufferSize, int numRecvBuffers, Cardinality estNumRowsSent,
+                             Cardinality estNumRowsRecvd, NABoolean logDiagnostics)
     : ComTdb(ex_SEND_TOP, eye_SEND_TOP, estNumRowsRecvd, criDescDown, criDescUp, fromParent, toParent) {
   childFragId_ = childFragId;
   moveInputValues_ = moveInputValues;
@@ -63,7 +64,7 @@ int ComTdbSendTop::minSendBufferSize(int downRecLen, int numRecs) {
   // now add the needed space for the ExpControlInfo struct that goes
   // along with each record
   int delta = SqlBufferNeededSize(2, sizeof(ControlInfo), SqlBufferHeader::DENSE_) -
-                SqlBufferNeededSize(1, sizeof(ControlInfo), SqlBufferHeader::DENSE_);
+              SqlBufferNeededSize(1, sizeof(ControlInfo), SqlBufferHeader::DENSE_);
 
   return recSpace + numRecs * delta;
 }

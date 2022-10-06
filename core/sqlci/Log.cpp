@@ -1,12 +1,13 @@
 
 #include <ctype.h>
-#include <iostream>
 #include <errno.h>
-#include "common/Platform.h"
 
+#include <iostream>
+
+#include "common/Platform.h"
+#include "common/str.h"
 #include "sqlci/SqlciCmd.h"
 #include "sqlci/SqlciError.h"
-#include "common/str.h"
 
 Logfile::Logfile() {
   name = 0;

@@ -15,14 +15,16 @@
 //
 //*********************************************************************
 
+#include "common/ClusteredBitmap.h"
+
 #include <stdlib.h>
 #include <string.h>
-#include "common/Platform.h"
+
 #include "common/BaseTypes.h"
-#include "common/NAMemory.h"
-#include "common/ClusteredBitmap.h"
-#include "common/NAString.h"
 #include "common/ComSysUtils.h"
+#include "common/NAMemory.h"
+#include "common/NAString.h"
+#include "common/Platform.h"
 #include "common/wstr.h"
 
 // Isolate the first set bit in the integer value.

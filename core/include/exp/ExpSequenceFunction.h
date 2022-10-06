@@ -117,7 +117,7 @@ class ExpSequenceFunction : public ex_function_clause {
   int offsetIndex_;  // 00-03
   int flags_;        // 04-07
   int winSize_;      // 08-11
-  char filler_[4];     // 12-15
+  char filler_[4];   // 12-15
 };
 
 // ExpSequenceExpression

@@ -20,14 +20,13 @@
 #ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
-#include "parser/SqlParserGlobals.h"
-
-#include "ElemDDLNode.h"
-#include "parser/ElemDDLColRefArray.h"
 #include "ElemDDLConstraintArray.h"
 #include "ElemDDLConstraintNotNull.h"
-#include "parser/ElemDDLSGOptions.h"
+#include "ElemDDLNode.h"
 #include "exp/ExpLOBenums.h"
+#include "parser/ElemDDLColRefArray.h"
+#include "parser/ElemDDLSGOptions.h"
+#include "parser/SqlParserGlobals.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

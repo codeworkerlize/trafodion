@@ -16,10 +16,11 @@
  */
 
 #include "GenMapTable.h"
+
+#include "GenExpGenerator.h"
 #include "common/ComOptIncludes.h"
 #include "common/dfs2rec.h"
 #include "generator/Generator.h"
-#include "GenExpGenerator.h"
 
 //////////////////////////////////////////////////////////////////
 // class MapInfo
@@ -90,8 +91,7 @@ MapInfo *MapTable::addMapInfoToThis(const ValueId &value_id, Attributes *attr) {
   // --------------------------------------------------
   if (whichMap >= vidBitMapArraySize_) {
     // Double the size needed.
-    const int newBitMapArraySize =
-        ((vidBitMapArraySize_ == 0) ? (MAXOF(initMTBAsize, 2 * whichMap)) : (2 * whichMap));
+    const int newBitMapArraySize = ((vidBitMapArraySize_ == 0) ? (MAXOF(initMTBAsize, 2 * whichMap)) : (2 * whichMap));
 
     // How many bytes is needed for the bitmap array and the integer array.
     const int bytesToAllocate = newBitMapArraySize * (sizeof(MTBitmapUnit) + sizeof(short));

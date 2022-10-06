@@ -19,8 +19,8 @@
  *****************************************************************************
  */
 
-#include "common/ComSmallDefs.h"
 #include "ElemDDLRefActions.h"
+#include "common/ComSmallDefs.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

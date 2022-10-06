@@ -17,15 +17,15 @@
  */
 
 #include "ElemDDLColDef.h"
-#include "parser/ElemDDLColDefArray.h"
-#include "parser/ElemDDLColDefault.h"
 #include "ElemDDLColHeading.h"
-#include "parser/ElemDDLColName.h"
 #include "ElemDDLColNameArray.h"
-#include "parser/ElemDDLColRef.h"
-#include "parser/ElemDDLColRefArray.h"
 #include "ElemDDLColViewDef.h"
 #include "ElemDDLColViewDefArray.h"
+#include "parser/ElemDDLColDefArray.h"
+#include "parser/ElemDDLColDefault.h"
+#include "parser/ElemDDLColName.h"
+#include "parser/ElemDDLColRef.h"
+#include "parser/ElemDDLColRefArray.h"
 
 //
 // End of File

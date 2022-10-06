@@ -16,10 +16,10 @@
 #ifndef CMPSQLSESSION_H
 #define CMPSQLSESSION_H
 
+#include "common/ComSqlId.h"
 #include "common/NABoolean.h"
 #include "export/NAStringDef.h"
 #include "optimizer/ObjectNames.h"
-#include "common/ComSqlId.h"
 
 class CmpSqlSession : public NABasicObject {
  public:
@@ -56,7 +56,7 @@ class CmpSqlSession : public NABasicObject {
   int &getDatabaseUserID() { return databaseUserID_; }
 
   int setDatabaseUserAndTenant(int userID, const char *userName, int tenantID, const char *tenantName,
-                                 const char *tenantNodes, const char *tenantDefaultSchema);
+                               const char *tenantNodes, const char *tenantDefaultSchema);
 
   NAString &volatileSchemaName() { return volatileSchemaName_; }
   void setVolatileSchemaName(NAString &volatileSchemaName);

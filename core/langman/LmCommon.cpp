@@ -11,15 +11,16 @@
 ******************************************************************************
 */
 
-#include "common/Platform.h"
-#include "common/ComSmallDefs.h"
-#include "common/str.h"
-#include "common/NAMemory.h"
-#include "cli/sqlcli.h"
 #include "langman/LmCommon.h"
-#include "common/ComDefs.h"
-#include "LmError.h"
+
 #include "LmDebug.h"
+#include "LmError.h"
+#include "cli/sqlcli.h"
+#include "common/ComDefs.h"
+#include "common/ComSmallDefs.h"
+#include "common/NAMemory.h"
+#include "common/Platform.h"
+#include "common/str.h"
 
 #ifdef LANGMAN
 #include "LmAssert.h"

@@ -6,8 +6,8 @@
 
 #ifdef MEASURE
 
-#include <sys/times.h>
 #include <stdio.h>
+#include <sys/times.h>
 
 class LogAgent {
  public:

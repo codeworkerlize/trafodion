@@ -2,21 +2,21 @@
 #ifndef RELEXPR_H
 #define RELEXPR_H
 
-#include "optimizer/ObjectNames.h"
 #include "arkcmp/CmpContext.h"
 #include "arkcmp/CmpStatement.h"
-#include "optimizer/RETDesc.h"
-#include "optimizer/ValueDesc.h"
-#include "optimizer/Rule.h"
-#include "common/ExprNode.h"
+#include "comexe/ExplainTupleMaster.h"
 #include "common/ComTransInfo.h"
+#include "common/ExprNode.h"
+#include "optimizer/Inlining.h"
+#include "optimizer/ObjectNames.h"
+#include "optimizer/OptHints.h"
+#include "optimizer/OptUtilIncludes.h"
+#include "optimizer/RETDesc.h"
+#include "optimizer/Rule.h"
+#include "optimizer/ValueDesc.h"
 #include "optimizer/mdam.h"
 #include "sqlcomp/DefaultConstants.h"
-#include "optimizer/Inlining.h"
 #include "sqlcomp/NADefaults.h"
-#include "optimizer/OptUtilIncludes.h"
-#include "comexe/ExplainTupleMaster.h"
-#include "optimizer/OptHints.h"
 
 // -----------------------------------------------------------------------
 // contents of this file
@@ -933,11 +933,11 @@ class RelExpr : public ExprNode {
 
   // determine how many promising moves to pursue in exploration
   virtual int computeExploreExprCutoff(RuleWithPromise promisingMoves[], int numberOfMoves, RelExpr *pattern,
-                                         Guidance *myGuidance);
+                                       Guidance *myGuidance);
 
   // determine how many promising moves to pursue in optimization
   virtual int computeOptimizeExprCutoff(RuleWithPromise promisingMoves[], int numberOfMoves, Guidance *myGuidance,
-                                          Context *myContext);
+                                        Context *myContext);
 
   // ---------------------------------------------------------------------
   // Methods needed by Cascades iff an operator is physical
@@ -983,9 +983,8 @@ class RelExpr : public ExprNode {
   // of createContextForAChild() for operators that require the dataflow
   // produced by their child to be sorted.
   // ---------------------------------------------------------------------
-  Context *generateContext(Context *myContext, PlanWorkSpace *pws, int childIndex,
-                           const ValueIdSet *const arrangedCols, const ValueIdList *const sortKey,
-                           PartitioningRequirement *partReq);
+  Context *generateContext(Context *myContext, PlanWorkSpace *pws, int childIndex, const ValueIdSet *const arrangedCols,
+                           const ValueIdList *const sortKey, PartitioningRequirement *partReq);
 
   // ---------------------------------------------------------------------
   // A virtual function for computing the cost limit to be imposed
@@ -1039,7 +1038,7 @@ class RelExpr : public ExprNode {
   // ESPs is being forced.
   // ---------------------------------------------------------------------
   virtual DefaultToken getParallelControlSettings(const ReqdPhysicalProperty *const rppForMe, /*IN*/
-                                                  int &numOfESPs,                           /*OUT*/
+                                                  int &numOfESPs,                             /*OUT*/
                                                   float &allowedDeviation,                    /*OUT*/
                                                   NABoolean &numOfESPsForced /*OUT*/) const;
 
@@ -1049,7 +1048,7 @@ class RelExpr : public ExprNode {
   // ---------------------------------------------------------------------
   virtual NABoolean okToAttemptESPParallelism(const Context *myContext, /*IN*/
                                               PlanWorkSpace *pws,       /*IN*/
-                                              int &numOfESPs,         /*OUT*/
+                                              int &numOfESPs,           /*OUT*/
                                               float &allowedDeviation,  /*OUT*/
                                               NABoolean &numOfESPsForced /*OUT*/);
 
@@ -1500,10 +1499,10 @@ class RelExpr : public ExprNode {
   // so we can trace each relexpr to its creator and source
   // begin relexpr tracking info
   int parentTaskId_;  // {parentTaskId_,stride_} of the CascadesTask
-  short stride_;        // that created this RelExpr
+  short stride_;      // that created this RelExpr
 
   CascadesGroupId sourceGroupId_;  // GroupId of creator task of this relexpr
-  int birthId_;                  // TaskCount when this relexpr was created
+  int birthId_;                    // TaskCount when this relexpr was created
 
   int memoExprId_;        // MemoExprId of this relexpr
   int sourceMemoExprId_;  // MemoExprId of the source of this relexpr
@@ -1661,7 +1660,7 @@ class CutOp : public RelExpr {
   virtual const NAString getText() const;
 
  private:
-  int index_;    // in rules, used to distinguish multiple children
+  int index_;      // in rules, used to distinguish multiple children
   RelExpr *expr_;  // only for bindings fixed to a particular expression
 
 };  // CutOp
@@ -1849,7 +1848,7 @@ class JoinForceWildCard : public WildCardOp {
 
  private:
   forcedPlanEnum plan_;  // ANY_PLAN means don't force the plan type
-  int numOfEsps_;      // 0 means don't force number of ESPs
+  int numOfEsps_;        // 0 means don't force number of ESPs
 };
 
 // -----------------------------------------------------------------------
@@ -1980,7 +1979,7 @@ class RequiredResources : public NABasicObject {
 
   int numOfHBaseTables_;  // number of Hbase tables accumulated
   int numOfHiveTables_;   // number of Hive tables accumulated
-};                          // RequiredResources
+};                        // RequiredResources
 
 // *********************************************************************
 // The following five enumerated types are specific to plan generation.

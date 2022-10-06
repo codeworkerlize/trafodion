@@ -17,12 +17,13 @@
 
 // -----------------------------------------------------------------------
 
-#include "optimizer/Sqlcomp.h"
-#include "optimizer/BindWA.h"
-#include "optimizer/RelScan.h"
-#include "optimizer/PhyProp.h"
-#include "optimizer/opt.h"
 #include "RelDCL.h"
+
+#include "optimizer/BindWA.h"
+#include "optimizer/PhyProp.h"
+#include "optimizer/RelScan.h"
+#include "optimizer/Sqlcomp.h"
+#include "optimizer/opt.h"
 
 ///////////////////////////////////////////////////////////////////
 //

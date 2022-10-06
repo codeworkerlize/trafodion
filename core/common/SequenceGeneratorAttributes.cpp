@@ -10,6 +10,7 @@
 ****************************************************************************/
 
 #include "common/SequenceGeneratorAttributes.h"
+
 #include "common/ComSpace.h"
 
 void SequenceGeneratorAttributes::genSequenceName(const NAString &catName, const NAString &schName,

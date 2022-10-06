@@ -3,41 +3,35 @@
 #define SQLPARSERGLOBALS_FLAGS  // must precede all #include's
 #define SQLPARSERGLOBALS_NADEFAULTS
 
-#include "common/ComObjectName.h"
-#include "common/ComUser.h"
 #include "sqlcomp/CmpSeabaseDDLroutine.h"
 
-#include "parser/StmtDDLCreateRoutine.h"
-#include "parser/StmtDDLDropRoutine.h"
-#include "parser/StmtDDLCreateLibrary.h"
-#include "parser/StmtDDLDropLibrary.h"
-#include "parser/StmtDDLAlterLibrary.h"
-
-#include "parser/ElemDDLColDefArray.h"
-#include "parser/ElemDDLColRefArray.h"
-#include "parser/ElemDDLParamDefArray.h"
-#include "parser/ElemDDLParamDef.h"
-
-#include "optimizer/SchemaDB.h"
-#include "sqlcomp/CmpSeabaseDDL.h"
-
-#include "exp/ExpHbaseInterface.h"
-#include "executor/ExExeUtilCli.h"
-#include "generator/Generator.h"
-#include "common/ComSmallDefs.h"
-#include "sqlcomp/CmpDDLCatErrorCodes.h"
-
-#include "sqlcomp/PrivMgrComponentPrivileges.h"
-#include "sqlcomp/PrivMgrCommands.h"
-#include "common/ComUser.h"
-
-#include "common/NumericType.h"
-#include "common/DatetimeType.h"
-#include "langman/LmJavaSignature.h"
+#include <sys/stat.h>
 
 #include "common/ComCextdecs.h"
-#include <sys/stat.h>
+#include "common/ComObjectName.h"
+#include "common/ComSmallDefs.h"
+#include "common/ComUser.h"
+#include "common/DatetimeType.h"
+#include "common/NumericType.h"
+#include "executor/ExExeUtilCli.h"
+#include "exp/ExpHbaseInterface.h"
+#include "generator/Generator.h"
+#include "langman/LmJavaSignature.h"
+#include "optimizer/SchemaDB.h"
 #include "optimizer/TriggerDB.h"
+#include "parser/ElemDDLColDefArray.h"
+#include "parser/ElemDDLColRefArray.h"
+#include "parser/ElemDDLParamDef.h"
+#include "parser/ElemDDLParamDefArray.h"
+#include "parser/StmtDDLAlterLibrary.h"
+#include "parser/StmtDDLCreateLibrary.h"
+#include "parser/StmtDDLCreateRoutine.h"
+#include "parser/StmtDDLDropLibrary.h"
+#include "parser/StmtDDLDropRoutine.h"
+#include "sqlcomp/CmpDDLCatErrorCodes.h"
+#include "sqlcomp/CmpSeabaseDDL.h"
+#include "sqlcomp/PrivMgrCommands.h"
+#include "sqlcomp/PrivMgrComponentPrivileges.h"
 
 short ExExeUtilLobExtractLibrary(ExeCliInterface *cliInterface, char *libHandle, char *cachedLibName,
                                  ComDiagsArea *toDiags);
@@ -561,7 +555,7 @@ void CmpSeabaseDDL::dropSeabaseLibrary(StmtDDLDropLibrary *dropLibraryNode, NASt
   long objectFlags = 0;
   long objDataUID = 0;
   long objUID = getObjectInfo(&cliInterface, catalogNamePart.data(), schemaNamePart.data(), objectNamePart.data(),
-                               COM_LIBRARY_OBJECT, objectOwnerID, schemaOwnerID, objectFlags, objDataUID);
+                              COM_LIBRARY_OBJECT, objectOwnerID, schemaOwnerID, objectFlags, objDataUID);
   if (objUID < 0 || objectOwnerID == 0 || schemaOwnerID == 0) {
     deallocEHI(ehi);
     processReturn();
@@ -678,7 +672,7 @@ void CmpSeabaseDDL::alterSeabaseLibrary2(StmtDDLAlterLibrary *alterLibraryNode, 
   long objectFlags = 0;
   long objDataUID = 0;
   long libUID = getObjectInfo(&cliInterface, catalogNamePart.data(), schemaNamePart.data(), libNamePart.data(),
-                               COM_LIBRARY_OBJECT, objectOwnerID, schemaOwnerID, objectFlags, objDataUID);
+                              COM_LIBRARY_OBJECT, objectOwnerID, schemaOwnerID, objectFlags, objDataUID);
 
   // Check for error getting metadata information
   if (libUID == -1 || objectOwnerID == 0) {
@@ -813,7 +807,7 @@ void CmpSeabaseDDL::alterSeabaseLibrary(StmtDDLAlterLibrary *alterLibraryNode, N
   long objectFlags = 0;
   long objDataUID = 0;
   long libUID = getObjectInfo(&cliInterface, catalogNamePart.data(), schemaNamePart.data(), libNamePart.data(),
-                               COM_LIBRARY_OBJECT, objectOwnerID, schemaOwnerID, objectFlags, objDataUID);
+                              COM_LIBRARY_OBJECT, objectOwnerID, schemaOwnerID, objectFlags, objDataUID);
 
   // Check for error getting metadata information
   if (libUID == -1 || objectOwnerID == 0) {
@@ -1284,7 +1278,6 @@ short CmpSeabaseDDL::extractLibrary(ExeCliInterface *cliInterface, char *libHand
 
   return retcode;
 }
-
 
 int isSPSQLRoutine(ExeCliInterface *cliInterface, long objUID) {
   char query[1000];
@@ -1837,13 +1830,13 @@ short CmpSeabaseDDL::upgradeSeabaseLibmgr(ExeCliInterface *cliInterface) {
 
   // trafodion-sql_currversion.jar
   int stmtSize = snprintf(queryBuf, sizeof(queryBuf),
-                            "update %s.\"%s\".%s  "
-                            "set library_filename = '%s/trafodion-sql-currversion.jar' "
-                            "where library_uid = "
-                            "(select object_uid from %s.\"%s\".%s "
-                            " where object_name = '%s'  and object_type = 'LB')",
-                            getSystemCatalog(), SEABASE_MD_SCHEMA, SEABASE_LIBRARIES, jarLocation.data(),
-                            getSystemCatalog(), SEABASE_MD_SCHEMA, SEABASE_OBJECTS, SEABASE_VALIDATE_LIBRARY);
+                          "update %s.\"%s\".%s  "
+                          "set library_filename = '%s/trafodion-sql-currversion.jar' "
+                          "where library_uid = "
+                          "(select object_uid from %s.\"%s\".%s "
+                          " where object_name = '%s'  and object_type = 'LB')",
+                          getSystemCatalog(), SEABASE_MD_SCHEMA, SEABASE_LIBRARIES, jarLocation.data(),
+                          getSystemCatalog(), SEABASE_MD_SCHEMA, SEABASE_OBJECTS, SEABASE_VALIDATE_LIBRARY);
   CMPASSERT(stmtSize < sizeof(queryBuf));
 
   cliRC = cliInterface->executeImmediate(queryBuf);
@@ -1954,14 +1947,14 @@ short CmpSeabaseDDL::upgradeSeabaseLibmgr2(ExeCliInterface *cliInterface) {
 
   // trafodion-sql_currversion.jar
   int stmtSize = snprintf(queryBuf, sizeof(queryBuf),
-                            "update %s.\"%s\".%s  "
-                            "set library_filename = 'trafodion-sql-currversion.jar', "
-                            "library_storage =   NULL "
-                            "where library_uid = "
-                            "(select object_uid from %s.\"%s\".%s "
-                            " where object_name = '%s'  and object_type = 'LB')",
-                            getSystemCatalog(), SEABASE_MD_SCHEMA, SEABASE_LIBRARIES, getSystemCatalog(),
-                            SEABASE_MD_SCHEMA, SEABASE_OBJECTS, SEABASE_VALIDATE_LIBRARY);
+                          "update %s.\"%s\".%s  "
+                          "set library_filename = 'trafodion-sql-currversion.jar', "
+                          "library_storage =   NULL "
+                          "where library_uid = "
+                          "(select object_uid from %s.\"%s\".%s "
+                          " where object_name = '%s'  and object_type = 'LB')",
+                          getSystemCatalog(), SEABASE_MD_SCHEMA, SEABASE_LIBRARIES, getSystemCatalog(),
+                          SEABASE_MD_SCHEMA, SEABASE_OBJECTS, SEABASE_VALIDATE_LIBRARY);
   CMPASSERT(stmtSize < sizeof(queryBuf));
 
   cliRC = cliInterface->executeImmediate(queryBuf);
@@ -2344,7 +2337,7 @@ void CmpSeabaseDDL::createSeabaseTriggers(ExeCliInterface *cliInterface, StmtDDL
   // insert into "_XDC_MD_".xdc_ddl
   if (!ComIsTrafodionReservedSchemaName(schemaNamePart)) {
     int retcode = updateSeabaseXDCDDLTable(cliInterface, catalogNamePart.data(), schemaNamePart.data(),
-                                             triggerNamePart.data(), COM_TRIGGER_OBJECT_LIT);
+                                           triggerNamePart.data(), COM_TRIGGER_OBJECT_LIT);
     if (retcode < 0) goto bad;
   }
 
@@ -2847,7 +2840,7 @@ label_error:
 short CmpSeabaseDDL::checkForOldLibraries(ExeCliInterface *cliInterface) {
   int cliRC = 0;
   int bufSize = (strlen(TRAFODION_SYSCAT_LIT) * 2) + strlen(SEABASE_MD_SCHEMA) * 2 + strlen(SEABASE_OBJECTS) +
-                  strlen(SEABASE_LIBRARIES_OLD) + (3 * 60);
+                strlen(SEABASE_LIBRARIES_OLD) + (3 * 60);
   char queryBuf[bufSize];
 
   str_sprintf(queryBuf,

@@ -11,15 +11,17 @@
 **************************************************************************
 */
 
-#include <stdarg.h>
 #include "common/CharType.h"
+
+#include <stdarg.h>
+
+#include "EncodedValue.h"
+#include "common/CmpCommon.h"
 #include "common/ComASSERT.h"
+#include "common/NLSConversion.h"
+#include "common/csconvert.h"
 #include "common/unicode_char_set.h"
 #include "common/wstr.h"
-#include "common/CmpCommon.h"
-#include "common/csconvert.h"
-#include "common/NLSConversion.h"
-#include "EncodedValue.h"
 
 static const NAString LiteralCHAR("CHAR");
 static const NAString LiteralVARCHAR("VARCHAR");

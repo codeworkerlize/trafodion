@@ -15,32 +15,31 @@
 ******************************************************************************
 */
 
-#include "common/Debug.h"
-#include "optimizer/Sqlcomp.h"
-#include "optimizer/GroupAttr.h"
-#include "optimizer/opt.h"
-#include "optimizer/NormWA.h"
-#include "optimizer/AllRelExpr.h"
-#include "optimizer/AllItemExpr.h"
-#include "optimizer/ValueDesc.h"
-#include "optimizer/Triggers.h"
-#include "Cost.h"
-#include "optimizer/CostMethod.h"
-#include "optimizer/opt.h"
-#include "optimizer/RelGrby.h"
-#include "optimizer/ItemFunc.h"
-#include "optimizer/ControlDB.h"
-#include "optimizer/Analyzer.h"
-#include "MultiJoin.h"
-#include "arkcmp/CompException.h"
 #include <math.h>
 
-#include "OptRange.h"
-#include "optimizer/ItemOther.h"
-#include "optimizer/ItemExpr.h"
-#include "QRDescGenerator.h"
+#include "Cost.h"
 #include "ItemSample.h"
+#include "MultiJoin.h"
+#include "OptRange.h"
+#include "QRDescGenerator.h"
+#include "arkcmp/CompException.h"
+#include "common/Debug.h"
 #include "executor/HBaseClient_JNI.h"
+#include "optimizer/AllItemExpr.h"
+#include "optimizer/AllRelExpr.h"
+#include "optimizer/Analyzer.h"
+#include "optimizer/ControlDB.h"
+#include "optimizer/CostMethod.h"
+#include "optimizer/GroupAttr.h"
+#include "optimizer/ItemExpr.h"
+#include "optimizer/ItemFunc.h"
+#include "optimizer/ItemOther.h"
+#include "optimizer/NormWA.h"
+#include "optimizer/RelGrby.h"
+#include "optimizer/Sqlcomp.h"
+#include "optimizer/Triggers.h"
+#include "optimizer/ValueDesc.h"
+#include "optimizer/opt.h"
 
 #ifndef TRANSFORM_DEBUG_DECL  // artifact of NSK's OptAll.cpp ...
 #define TRANSFORM_DEBUG_DECL
@@ -6415,7 +6414,7 @@ RelExpr *GenericUpdate::normalizeNode(NormWA &normWARef) {
 
     // 2 headers: one for record header and the other for the message header
     int maxMessageSize = (ActiveSchemaDB()->getDefaults().getAsULong(LOCAL_MESSAGE_BUFFER_SIZE) * 1024) -
-                           (2 * (ActiveSchemaDB()->getDefaults().getAsULong(DP2_MESSAGE_HEADER_SIZE_BYTES)));
+                         (2 * (ActiveSchemaDB()->getDefaults().getAsULong(DP2_MESSAGE_HEADER_SIZE_BYTES)));
 
     // check row size against max executor message buffer size
     if (actualMessageSize >= maxMessageSize) {
@@ -6643,8 +6642,9 @@ NABoolean RelRoot::isUpdatableCursor()  // this is NOT const
 
   // Ansi 13.1 SR 5a -- no updatability clause specified, but ORDER BY was.
   if (!updatableSelect_)
-    if (reqdOrder().entries()) return FALSE;  // ORDER BY col-list
-                                              // ##When INSENSITIVE and SCROLL are supported, this rule also applies
+    if (reqdOrder().entries())
+      return FALSE;  // ORDER BY col-list
+                     // ##When INSENSITIVE and SCROLL are supported, this rule also applies
 
   // The following mods to the updatable-column list are only done if
   // we have to (for efficiency).
@@ -9558,8 +9558,8 @@ CQSRelExprCANodeIdMap::CQSRelExprCANodeIdMap(int init_size, CollHeap *outHeap)
     :
 
       HASHDICTIONARY(int, CQSRelExprCANodeIdPair)(&(CQSRelExprCANodeIdMap::HashFn), init_size,
-                                                     TRUE,  // uniqueness
-                                                     outHeap) {}
+                                                  TRUE,  // uniqueness
+                                                  outHeap) {}
 
 //*******************************************************************
 // A hash function required by Hashdictionary

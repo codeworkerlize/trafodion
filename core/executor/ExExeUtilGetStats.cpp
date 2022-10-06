@@ -15,24 +15,24 @@
  *****************************************************************************
  */
 
-#include "common/ComCextdecs.h"
-#include "cli_stdh.h"
-#include "ex_stdh.h"
-#include "sql_id.h"
-#include "ex_transaction.h"
-#include "ComTdb.h"
-#include "ex_tcb.h"
-#include "ComSqlId.h"
-#include "ExExeUtil.h"
-#include "ex_exe_stmt_globals.h"
-#include "exp_expr.h"
-#include "exp_clause_derived.h"
-#include "ComRtUtils.h"
-#include "ExStats.h"
-#include "ComSizeDefs.h"
 #include "CmpCommon.h"
 #include "CmpContext.h"
+#include "ComRtUtils.h"
+#include "ComSizeDefs.h"
+#include "ComSqlId.h"
+#include "ComTdb.h"
+#include "ExExeUtil.h"
+#include "ExStats.h"
 #include "QCache.h"
+#include "cli_stdh.h"
+#include "common/ComCextdecs.h"
+#include "ex_exe_stmt_globals.h"
+#include "ex_stdh.h"
+#include "ex_tcb.h"
+#include "ex_transaction.h"
+#include "exp_clause_derived.h"
+#include "exp_expr.h"
+#include "sql_id.h"
 
 ///////////////////////////////////////////////////////////////////
 ex_tcb *ExExeUtilGetStatisticsTdb::build(ex_globals *glob) {
@@ -600,8 +600,8 @@ short ExExeUtilGetStatisticsTcb::work() {
         if ((NOT getStatsTdb().oldFormat()) && (NOT getStatsTdb().shortFormat())) {
           // Display Fixup Time
           long fixupTime = ((masterStats->getFixupEndTime() != -1)
-                                 ? (masterStats->getFixupEndTime() - masterStats->getFixupStartTime())
-                                 : 0);
+                                ? (masterStats->getFixupEndTime() - masterStats->getFixupStartTime())
+                                : 0);
           if (fixupTime < 0) fixupTime = 0;
           sec = (int)(fixupTime / 1000000);
           usec = (int)(fixupTime % 1000000);
@@ -3736,9 +3736,8 @@ ex_tcb *ExExeUtilGetObjectEpochStatsTdb::build(ex_globals *glob) {
 // Redefine virtual method allocatePstates, to be used by dynamic queue
 // resizing, as well as the initial queue construction.
 ////////////////////////////////////////////////////////////////////////
-ex_tcb_private_state *ExExeUtilGetObjectEpochStatsTcb::allocatePstates(
-    int &numElems,      // inout, desired/actual elements
-    int &pstateLength)  // out, length of one element
+ex_tcb_private_state *ExExeUtilGetObjectEpochStatsTcb::allocatePstates(int &numElems,  // inout, desired/actual elements
+                                                                       int &pstateLength)  // out, length of one element
 {
   PstateAllocator<ExExeUtilGetObjectEpochStatsPrivateState> pa;
 
@@ -3883,9 +3882,8 @@ ex_tcb *ExExeUtilGetObjectLockStatsTdb::build(ex_globals *glob) {
 // Redefine virtual method allocatePstates, to be used by dynamic queue
 // resizing, as well as the initial queue construction.
 ////////////////////////////////////////////////////////////////////////
-ex_tcb_private_state *ExExeUtilGetObjectLockStatsTcb::allocatePstates(
-    int &numElems,      // inout, desired/actual elements
-    int &pstateLength)  // out, length of one element
+ex_tcb_private_state *ExExeUtilGetObjectLockStatsTcb::allocatePstates(int &numElems,  // inout, desired/actual elements
+                                                                      int &pstateLength)  // out, length of one element
 {
   PstateAllocator<ExExeUtilGetObjectLockStatsPrivateState> pa;
 

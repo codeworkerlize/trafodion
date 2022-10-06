@@ -19,9 +19,9 @@
 ******************************************************************************
 */
 
-#include <iostream>
-
 #include "SortUtilCfg.h"
+
+#include <iostream>
 
 //------------------------------------------------------------------------
 // This file contains the all member function definitions of SortUtilConfig

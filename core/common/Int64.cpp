@@ -14,9 +14,10 @@
 */
 
 #include "common/Int64.h"
+
 #include "common/NABoolean.h"
-#include "common/str.h"
 #include "common/NAStdlib.h"
+#include "common/str.h"
 
 long uint32ToInt64(UInt32 value) { return (long)value; }
 
@@ -38,7 +39,7 @@ long uint32ArrayToInt64(const UInt32 array[2]) {
   long result = uint32ToInt64(array[0]);
   long array1 = uint32ToInt64(array[1]);
   long shift = INT_MAX;  // 2^31 - 1
-  shift += 1;             // 2^31
+  shift += 1;            // 2^31
   result *= shift;
   result *= 2;       // 2*32, so result now has array[0] in high word
   result += array1;  // and array[1] in low word

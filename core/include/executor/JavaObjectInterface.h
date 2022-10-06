@@ -4,16 +4,17 @@
 #ifndef JNI_H
 #define JNI_H
 
+#include <jni.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <iostream>
-#include <sys/types.h>
 #include <sys/syscall.h>
+#include <sys/types.h>
 
-#include "common/Platform.h"
+#include <iostream>
+
 #include "common/NAString.h"
-#include <jni.h>
+#include "common/Platform.h"
 
 class LmJavaOptions;
 

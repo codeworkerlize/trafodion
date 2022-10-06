@@ -13,11 +13,12 @@
 ******************************************************************************
 */
 
-#include <stdio.h>
-#include "EHCommonDefs.h"
-
-#include "EHJmpBufNode.h"
 #include "EHJmpBufStack.h"
+
+#include <stdio.h>
+
+#include "EHCommonDefs.h"
+#include "EHJmpBufNode.h"
 
 // -----------------------------------------------------------------------
 // methods for class EHExceptionJmpBufStack

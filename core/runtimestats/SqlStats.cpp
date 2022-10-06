@@ -11,26 +11,27 @@
  *
  *****************************************************************************
  */
-#include "cli_stdh.h"
-#include "ex_stdh.h"
-#include "executor/ExStats.h"
-#include "cli/sql_id.h"
-#include "ExCextdecs.h"
-#include "common/Ipc.h"
-#include "common/ComSqlId.h"
-#include "porting/PortProcessCalls.h"
+#include <errno.h>
 #include <fcntl.h>
+#include <semaphore.h>
+#include <signal.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
-#include <semaphore.h>
-#include <errno.h>
-#include <time.h>
 #include <sys/types.h>
-#include <signal.h>
-#include "seabed/ms.h"
-#include "seabed/fserr.h"
-#include "common/ComDistribution.h"
+#include <time.h>
+
+#include "ExCextdecs.h"
 #include "SharedSegment.h"
+#include "cli/sql_id.h"
+#include "cli_stdh.h"
+#include "common/ComDistribution.h"
+#include "common/ComSqlId.h"
+#include "common/Ipc.h"
+#include "ex_stdh.h"
+#include "executor/ExStats.h"
+#include "porting/PortProcessCalls.h"
+#include "seabed/fserr.h"
+#include "seabed/ms.h"
 
 extern NABoolean checkIfRTSSemaphoreLocked();
 
@@ -419,8 +420,8 @@ ProcessStats *StatsGlobals::checkProcess(pid_t pid) {
     return NULL;
 }
 
-StmtStats *StatsGlobals::addQuery(pid_t pid, char *queryId, int queryIdLen, void *backRef, int fragId,
-                                  char *sourceStr, int sourceStrLen, NABoolean isMaster) {
+StmtStats *StatsGlobals::addQuery(pid_t pid, char *queryId, int queryIdLen, void *backRef, int fragId, char *sourceStr,
+                                  int sourceStrLen, NABoolean isMaster) {
   StmtStats *ss;
   char *sqlSrc = NULL;
   int storeSqlSrcLen = 0;
@@ -887,8 +888,8 @@ void StatsGlobals::cleanupOldSikeys(long sikGcInterval) {
 }
 
 int StatsGlobals::registerQuery(ComDiagsArea &diags, pid_t pid, SQLQUERY_ID *query_id, int fragId, int tdbId,
-                                  int explainTdbId, short statsCollectionType, int instNum,
-                                  ComTdb::ex_node_type tdbType, char *tdbName, int tdbNameLen) {
+                                int explainTdbId, short statsCollectionType, int instNum, ComTdb::ex_node_type tdbType,
+                                char *tdbName, int tdbNameLen) {
   ProcessStats *processStats;
   NAHeap *heap;
   ExStatisticsArea *statsArea = NULL;
@@ -984,8 +985,7 @@ int StatsGlobals::deregisterQuery(ComDiagsArea &diags, pid_t pid, SQLQUERY_ID *q
   return SUCCESS;
 }
 
-int StatsGlobals::updateStats(ComDiagsArea &diags, SQLQUERY_ID *query_id, void *operatorStats,
-                                int operatorStatsLen) {
+int StatsGlobals::updateStats(ComDiagsArea &diags, SQLQUERY_ID *query_id, void *operatorStats, int operatorStatsLen) {
   int retcode = 0;
   char *queryId;
   int queryIdLen;
@@ -1034,7 +1034,7 @@ int StatsGlobals::checkLobLock(CliGlobals *cliGlobals, char *&lobLockId) {
   return 0;
 }
 int StatsGlobals::getSecInvalidKeys(CliGlobals *cliGlobals, long lastCallTimestamp, SQL_QIKEY siKeys[],
-                                      int maxNumSiKeys, int *returnedNumSiKeys) {
+                                    int maxNumSiKeys, int *returnedNumSiKeys) {
   int retcode = 0;
   int error = getStatsSemaphore(cliGlobals->getSemId(), cliGlobals->myPin());
 
@@ -1128,8 +1128,8 @@ void ProcessStats::setStatsArea(ExStatisticsArea *stats) {
   stats_ = stats;
 }
 
-StmtStats *ProcessStats::addQuery(pid_t pid, char *queryId, int queryIdLen, void *backRef, int fragId,
-                                  char *sourceStr, int sourceLen, int sqlSourceLen, NABoolean isMaster) {
+StmtStats *ProcessStats::addQuery(pid_t pid, char *queryId, int queryIdLen, void *backRef, int fragId, char *sourceStr,
+                                  int sourceLen, int sqlSourceLen, NABoolean isMaster) {
   StmtStats *ss;
 
   ss = new (heap_)
@@ -1137,8 +1137,8 @@ StmtStats *ProcessStats::addQuery(pid_t pid, char *queryId, int queryIdLen, void
   return ss;
 }
 
-StmtStats::StmtStats(NAHeap *heap, pid_t pid, char *queryId, int queryIdLen, void *backRef, int fragId,
-                     char *sourceStr, int sourceStrLen, int sqlStrLen, NABoolean isMaster)
+StmtStats::StmtStats(NAHeap *heap, pid_t pid, char *queryId, int queryIdLen, void *backRef, int fragId, char *sourceStr,
+                     int sourceStrLen, int sqlStrLen, NABoolean isMaster)
     : heap_(heap), pid_(pid), stats_(NULL), refCount_(0), fragId_(fragId) {
   queryId_ = new (heap_) char[queryIdLen + 1];
   str_cpy_all(queryId_, queryId, queryIdLen);

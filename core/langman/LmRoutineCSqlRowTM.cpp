@@ -8,14 +8,15 @@
 ****************************************************************************
 */
 #include "LmRoutineCSqlRowTM.h"
-#include "LmParameter.h"
+
 #include "LmLangManagerC.h"
+#include "LmParameter.h"
 
 // SQLROWTM function declaration
 typedef int (*sqlrow_func)(SQLUDR_CHAR *in_data, SQLUDR_CHAR *rowDataSpace1, SQLUDR_CHAR *rowDataSpace2,
-                             SQLUDR_EmitRow getRow, SQLUDR_EmitRow emitRow, SQLUDR_CHAR sqlstate[6],
-                             SQLUDR_CHAR msgtext[256], SQLUDR_INT32 calltype, SQLUDR_STATEAREA *statearea,
-                             SQLUDR_UDRINFO *udrinfo);
+                           SQLUDR_EmitRow getRow, SQLUDR_EmitRow emitRow, SQLUDR_CHAR sqlstate[6],
+                           SQLUDR_CHAR msgtext[256], SQLUDR_INT32 calltype, SQLUDR_STATEAREA *statearea,
+                           SQLUDR_UDRINFO *udrinfo);
 
 SQLUDR_INT32 SQLUDR_INVOKE_SQLROWTM(sqlrow_func func_ptr, SQLUDR_CHAR *in_data, SQLUDR_CHAR *rowDataSpace1,
                                     SQLUDR_CHAR *rowDataSpace2, SQLUDR_GetNextRow getRow, SQLUDR_EmitRow emitRow,
@@ -181,8 +182,8 @@ LmResult LmRoutineCSqlRowTM::invokeRoutine(void *inputRow, void *outputRow, ComD
 
   // Call the function
   int retValue = SQLUDR_INVOKE_SQLROWTM((sqlrow_func)routine_, (SQLUDR_CHAR *)param_in_data,
-                                          (SQLUDR_CHAR *)rowDataSpace1_, (SQLUDR_CHAR *)rowDataSpace2_, getNextRowPtr_,
-                                          emitRowptr_, sqlState_, msgText_, callType_, stateArea_, udrInfo_);
+                                        (SQLUDR_CHAR *)rowDataSpace1_, (SQLUDR_CHAR *)rowDataSpace2_, getNextRowPtr_,
+                                        emitRowptr_, sqlState_, msgText_, callType_, stateArea_, udrInfo_);
 
   if (callType_ == SQLUDR_CALLTYPE_INITIAL) {
     // Set the call type for next invocation to NORMAL if this is an

@@ -14,10 +14,10 @@
 *************************************************************************
 */
 
-#include "langman/LmCommon.h"
-#include "sqludr/sqludr.h"
-#include "optimizer/BindWA.h"
 #include "executor/ExExeUtilCli.h"
+#include "langman/LmCommon.h"
+#include "optimizer/BindWA.h"
+#include "sqludr/sqludr.h"
 
 // -----------------------------------------------------------------------
 // Classes defined in this file

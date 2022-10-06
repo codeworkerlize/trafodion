@@ -6,11 +6,11 @@
 #ifndef NAWNODESET_H
 #define NAWNODESET_H
 
-#include "common/NAString.h"
 #include "common/Collections.h"
+#include "common/NABitVector.h"
+#include "common/NAString.h"
 #include "export/ComDiags.h"
 #include "export/NABasicObject.h"
-#include "common/NABitVector.h"
 
 // forward declarations
 class NAClusterInfo;

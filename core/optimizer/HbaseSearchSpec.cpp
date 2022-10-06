@@ -1,6 +1,7 @@
 
 
 #include "HbaseSearchSpec.h"
+
 #include "optimizer/ItemColRef.h"
 
 void HbaseSearchSpec::addColumnNames(const ValueIdSet &vs) {

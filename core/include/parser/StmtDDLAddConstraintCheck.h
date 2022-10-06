@@ -31,13 +31,13 @@
  *****************************************************************************
  */
 
-#include "common/ComASSERT.h"
-#include "parser/ElemDDLConstraintCheck.h"
-#include "common/NAString.h"
 #include "ParNameLocList.h"
 #include "ParTableUsageList.h"
-#include "StmtDDLAlterTable.h"
 #include "StmtDDLAddConstraint.h"
+#include "StmtDDLAlterTable.h"
+#include "common/ComASSERT.h"
+#include "common/NAString.h"
+#include "parser/ElemDDLConstraintCheck.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

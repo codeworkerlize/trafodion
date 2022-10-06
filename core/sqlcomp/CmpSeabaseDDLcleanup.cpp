@@ -14,11 +14,12 @@
  *****************************************************************************
  */
 
-#include "sqlcomp/CmpSeabaseDDLincludes.h"
-#include "sqlcomp/CmpDDLCatErrorCodes.h"
 #include "sqlcomp/CmpSeabaseDDLcleanup.h"
-#include "sqlcomp/PrivMgrMDDefs.h"
+
+#include "sqlcomp/CmpDDLCatErrorCodes.h"
+#include "sqlcomp/CmpSeabaseDDLincludes.h"
 #include "sqlcomp/PrivMgrComponentPrivileges.h"
+#include "sqlcomp/PrivMgrMDDefs.h"
 
 //////////////////////////////////////////////////////////////////////////
 // Methods related to cleanup of objects from metadata.
@@ -59,8 +60,8 @@ CmpSeabaseMDcleanup::CmpSeabaseMDcleanup(NAHeap *heap)
       isHive_(FALSE){};
 
 long CmpSeabaseMDcleanup::getCleanupObjectUID(ExeCliInterface *cliInterface, const char *catName, const char *schName,
-                                               const char *objName, const char *inObjType, char *outObjType,
-                                               int &objectOwner, long *objectFlags, long *objDataUID) {
+                                              const char *objName, const char *inObjType, char *outObjType,
+                                              int &objectOwner, long *objectFlags, long *objDataUID) {
   int cliRC = 0;
   long objUID = -1;
   objectOwner = -1;
@@ -441,7 +442,7 @@ short CmpSeabaseMDcleanup::gatherDependentObjects(ExeCliInterface *cliInterface,
     if (NOT extTableName.isNull()) {
       QualifiedName qn(extTableName, 3);
       long extObjUID = getObjectUID(cliInterface, qn.getCatalogName(), qn.getSchemaName(), qn.getObjectName(),
-                                     COM_BASE_TABLE_OBJECT_LIT, NULL, NULL, NULL, FALSE, FALSE);
+                                    COM_BASE_TABLE_OBJECT_LIT, NULL, NULL, NULL, FALSE, FALSE);
       if (extObjUID > 0) {
         char query[1000];
         str_sprintf(query, "cleanup uid %ld", extObjUID);
@@ -1279,9 +1280,8 @@ short CmpSeabaseMDcleanup::addReturnDetailsEntryForText(ExeCliInterface *cliInte
   return 0;
 }
 
-short CmpSeabaseMDcleanup::addReturnDetailsEntryFromList(ExeCliInterface *cliInterface, Queue *fromList,
-                                                         int fromIndex, Queue *toList, NABoolean isUID,
-                                                         NABoolean processTextInfo) {
+short CmpSeabaseMDcleanup::addReturnDetailsEntryFromList(ExeCliInterface *cliInterface, Queue *fromList, int fromIndex,
+                                                         Queue *toList, NABoolean isUID, NABoolean processTextInfo) {
   int cliRC = 0;
   char query[1000];
   NABoolean errorSeen = FALSE;

@@ -1,4 +1,5 @@
 #include "utility.h"
+
 #include <math.h>
 
 int smallestFactor(int x) {

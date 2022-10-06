@@ -20,9 +20,9 @@
 // -----------------------------------------------------------------------------
 
 #include "common/Platform.h"
+#include "common/str.h"
 #include "executor/MdamEnums.h"
 #include "exp/ExpSqlTupp.h"
-#include "common/str.h"
 
 // *****************************************************************************
 // MdamPoint represents one end of an interval.  An MdamPoint consists of a

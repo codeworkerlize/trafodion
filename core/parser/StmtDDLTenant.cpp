@@ -10,9 +10,10 @@
  *****************************************************************************
  */
 
-#include "parser/StmtDDLRegisterUser.h"
-#include "ElemDDLTenantSchema.h"
 #include "parser/StmtDDLTenant.h"
+
+#include "ElemDDLTenantSchema.h"
+#include "parser/StmtDDLRegisterUser.h"
 
 // -----------------------------------------------------------------------
 // methods for class StmtDDLTenant

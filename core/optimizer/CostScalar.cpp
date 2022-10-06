@@ -32,12 +32,12 @@
 //
 
 #include "optimizer/CostScalar.h"
-#include "common/NABoolean.h"
-#include "common/CmpCommon.h"
 
-#include "math.h"
-#include "float.h"
 #include "../exp/exp_ovfl_ptal.h"
+#include "common/CmpCommon.h"
+#include "common/NABoolean.h"
+#include "float.h"
+#include "math.h"
 // The union type IEEE_double is used to access raw exponent bits
 // of a real IEEE value. Since the layout is different we need 2
 // definitions of this union type, one - for Windows and one -

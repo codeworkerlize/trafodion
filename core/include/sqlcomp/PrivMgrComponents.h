@@ -23,9 +23,10 @@
 
 #ifndef PRIVMGR_COMPONENTS_H
 #define PRIVMGR_COMPONENTS_H
-#include "sqlcomp/PrivMgrMD.h"
-#include "sqlcomp/PrivMgrDefs.h"
 #include <string>
+
+#include "sqlcomp/PrivMgrDefs.h"
+#include "sqlcomp/PrivMgrMD.h"
 
 class ComDiagsArea;
 class PrivMgrMDTable;

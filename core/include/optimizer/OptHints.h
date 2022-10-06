@@ -4,8 +4,8 @@
 /* -*-C++-*- */
 
 #include "common/CmpCommon.h"
-#include "export/NAStringDef.h"
 #include "exp/ExpHbaseDefs.h"
+#include "export/NAStringDef.h"
 
 // -----------------------------------------------------------------------
 // forward declarations

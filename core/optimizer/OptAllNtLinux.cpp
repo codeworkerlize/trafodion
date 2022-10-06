@@ -10,5 +10,5 @@
 // one unit on Windows and Linux or that are required to be compiled as
 // one unit.
 
-#include "SimpleScanOptimizer.cpp"
 #include "ScmCostMethod.cpp"
+#include "SimpleScanOptimizer.cpp"

@@ -2,13 +2,15 @@
 
 // **********************************************************************
 
+#include "executor/TenantHelper_JNI.h"
+
+#include <signal.h>
+
 #include "cli/Context.h"
 #include "cli/Globals.h"
-#include <signal.h>
-#include "executor/TenantHelper_JNI.h"
 #include "common/NAWNodeSet.h"
-#include "qmscommon/QRLogger.h"
 #include "pthread.h"
+#include "qmscommon/QRLogger.h"
 
 //
 // ===========================================================================

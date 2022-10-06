@@ -10,26 +10,25 @@
  **
  *****************************************************************************
  */
-#include "cli/sqlcli.h"
 #include "UdrResultSet.h"
-#include "executor/sql_buffer.h"
-#include "spinfo.h"
-#include "UdrDebug.h"
-#include "common/ComSizeDefs.h"
+
 #include "LmRoutine.h"
-#include "exp/exp_expr.h"
+#include "UdrDebug.h"
+#include "UdrFFDC.h"
+#include "cli/SQLCLIdev.h"
+#include "cli/sqlcli.h"
+#include "common/ComRtUtils.h"
+#include "common/ComSizeDefs.h"
+#include "executor/sql_buffer.h"
 #include "exp/ExpError.h"
+#include "exp/exp_expr.h"
+#include "spinfo.h"
+#include "udrdecs.h"
 #include "udrglobals.h"
 #include "udrutil.h"
-#include "cli/SQLCLIdev.h"
-#include "exp/ExpError.h"
-#include "udrdecs.h"
-#include "UdrFFDC.h"
-#include "common/ComRtUtils.h"
 
-extern NABoolean allocateReplyRow(UdrGlobals *UdrGlob, SqlBuffer &replyBuffer, queue_index parentIndex,
-                                  int replyRowLen, char *&newReplyRow, ControlInfo *&newControlInfo,
-                                  ex_queue::up_status upStatus);
+extern NABoolean allocateReplyRow(UdrGlobals *UdrGlob, SqlBuffer &replyBuffer, queue_index parentIndex, int replyRowLen,
+                                  char *&newReplyRow, ControlInfo *&newControlInfo, ex_queue::up_status upStatus);
 
 extern NABoolean allocateErrorRow(UdrGlobals *UdrGlob, SqlBuffer &replyBuffer, queue_index parentIndex,
                                   NABoolean setDiagsFlag);
@@ -736,7 +735,7 @@ void UdrResultSet::deallocateColumnDesc() {
 //
 //
 int UdrResultSet::fetchRows(UdrGlobals *udrGlob, SqlBuffer *requestBuffer, SqlBuffer *replyBuffer,
-                              ComDiagsArea &mainDiags, NAList<ComDiagsArea *> *rowDiagsList) {
+                            ComDiagsArea &mainDiags, NAList<ComDiagsArea *> *rowDiagsList) {
   if (state_ != RS_LOADED && state_ != RS_FETCH && state_ != RS_REINITIATED && state_ != RS_EARLY_CLOSE) {
     mainDiags << DgSqlCode(-UDR_ERR_INVALID_RS_STATE) << DgString0("Fetch or Continue") << DgString1(stateString());
 
@@ -757,11 +756,11 @@ int UdrResultSet::fetchRows(UdrGlobals *udrGlob, SqlBuffer *requestBuffer, SqlBu
     down_state downState;
     tupp requestRow;
     int retcode = requestBuffer->moveOutSendOrReplyData(TRUE,        // [IN] sending? (vs. replying)
-                                                          &downState,  // [OUT] queue state
-                                                          requestRow,  // [OUT] new data tupp_descriptor
-                                                          NULL,        // [OUT] new ControlInfo area
-                                                          NULL,        // [OUT] new diags tupp_descriptor
-                                                          NULL         // [OUT] new stats area
+                                                        &downState,  // [OUT] queue state
+                                                        requestRow,  // [OUT] new data tupp_descriptor
+                                                        NULL,        // [OUT] new ControlInfo area
+                                                        NULL,        // [OUT] new diags tupp_descriptor
+                                                        NULL         // [OUT] new stats area
     );
 
     parentQueueIndex_ = downState.parentIndex;

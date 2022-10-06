@@ -16,9 +16,9 @@
 #define _QRQUERIES_H_
 
 #include "cli/sqlcli.h"
-#include "sqlci/SqlciDefs.h"
 #include "common/NAString.h"
 #include "qmscommon/QRLogger.h"
+#include "sqlci/SqlciDefs.h"
 
 /**
  * \file

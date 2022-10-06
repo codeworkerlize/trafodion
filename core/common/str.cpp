@@ -13,23 +13,22 @@
 
 // -----------------------------------------------------------------------
 
-#include "common/Platform.h"
-#include "common/NABoolean.h"
 #include "common/str.h"
-#include "common/NAStdlib.h"
-#include "common/NAAssert.h"
-#include "common/BaseTypes.h"
-#include "common/Int64.h"
-#include "common/NAString.h"
+
 #include <errno.h>
+#include <openssl/bio.h>
+#include <openssl/err.h>
+#include <openssl/evp.h>
 #include <stdarg.h>
 
-#include <openssl/evp.h>
-#include <openssl/err.h>
-#include <openssl/bio.h>
-#include <openssl/evp.h>
-
+#include "common/BaseTypes.h"
 #include "common/ComResWords.h"
+#include "common/Int64.h"
+#include "common/NAAssert.h"
+#include "common/NABoolean.h"
+#include "common/NAStdlib.h"
+#include "common/NAString.h"
+#include "common/Platform.h"
 
 /*
  ******************************************************************
@@ -99,7 +98,7 @@ int isDigit8859_1(NAWchar c)  // ISO 8859-1 char set safe isdigit routine
 }
 
 int isCaseInsensitive8859_1(NAWchar c)  // ISO 8859-1 char for which there is no
-                                          // upcase equivalent.  hex values 0xDF & 0xFF
+                                        // upcase equivalent.  hex values 0xDF & 0xFF
 {
   if ((c == 0xDF) || (c == 0xFF)) return TRUE;
 
@@ -296,8 +295,7 @@ void str_memmove(char *tgt, const char *src, int length) {
 
 // copies src to tgt for length bytes.
 // Removes trailing blanks and puts the end_char.
-int str_cpy_and_null(char *tgt, const char *src, int length, char end_char, char blank_char,
-                       NABoolean nullTerminate) {
+int str_cpy_and_null(char *tgt, const char *src, int length, char end_char, char blank_char, NABoolean nullTerminate) {
   assert((tgt && src) || !length);
 
   int i = 0;
@@ -1026,10 +1024,10 @@ size_t str_computeHexAsciiLen(size_t srcByteLen) { return 2 * srcByteLen; }
 // NULL character - i.e. '\0' - is appended to the output string.
 // -----------------------------------------------------------------------
 int str_convertToHexAscii(const char *src,             // in
-                            const size_t srcLength,      // in
-                            char *result,                // out
-                            const size_t maxResultSize,  // in
-                            NABoolean addNullAtEnd)      // in - default is TRUE
+                          const size_t srcLength,      // in
+                          char *result,                // out
+                          const size_t maxResultSize,  // in
+                          NABoolean addNullAtEnd)      // in - default is TRUE
 {
   const char hexArray[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 

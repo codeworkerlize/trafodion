@@ -2,20 +2,18 @@
 
 // **********************************************************************
 
-#include "common/Platform.h"
-
 #include <algorithm>
 
-#include "executor/ex_stdh.h"
-#include "comexe/ComTdb.h"
-#include "executor/ex_tcb.h"
 #include "ExHbaseAccess.h"
-#include "ex_exe_stmt_globals.h"
-#include "exp/ExpHbaseInterface.h"
-#include "common/NLSConversion.h"
 #include "cli/Context.h"
-
+#include "comexe/ComTdb.h"
+#include "common/NLSConversion.h"
+#include "common/Platform.h"
+#include "ex_exe_stmt_globals.h"
 #include "executor/ExStats.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_tcb.h"
+#include "exp/ExpHbaseInterface.h"
 
 static char *costThreshold = getenv("RECORD_TIME_COST_JNI");
 static char *costJniAll = getenv("RECORD_TIME_COST_JNI_ALL");

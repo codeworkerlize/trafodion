@@ -254,7 +254,7 @@ class SQLLM_LIB_FUNC LmLanguageManagerJava : public LmLanguageManager {
   char *datasourceName_;  // Datasource Name for Type 4 connections
 
   NABoolean jdbcSupportsRS_;  // If JDBC Type 2 supports RS?
-  long jdbcSPJRSVer_;        // JDBC Type2 RS version
+  long jdbcSPJRSVer_;         // JDBC Type2 RS version
 
   // The following data members are used to hold references to Java
   // classes that are used through out the life of the LMJ. Most

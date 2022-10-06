@@ -14,15 +14,16 @@
 ****************************************************************************
 */
 
-#include "comexe/ComPackDefs.h"
 #include "comexe/LateBindInfo.h"
+
+#include "comexe/ComPackDefs.h"
+#include "comexe/ComQueue.h"
+#include "common/ComDistribution.h"
+#include "common/ComResWords.h"
 #include "common/NAMemory.h"
 #include "common/str.h"
 #include "exp/exp_stdh.h"
 #include "exp/exp_tuple_desc.h"
-#include "comexe/ComQueue.h"
-#include "common/ComResWords.h"
-#include "common/ComDistribution.h"
 
 //////////////////////////////////////////////////////////////////
 //    Constructor: UninitializedMvName
@@ -93,7 +94,7 @@ NABoolean LateNameInfo::makeSQLIdentifier(char *invalue, char *outvalue) {
 NABoolean LateNameInfo::extractParts(const char *inName,  // IN: inName separated by "."s
                                      char *outBuffer,     // IN/OUT: space where parts will be moved.
                                                           // Must be allocated by caller
-                                     int &numParts,     // OUT: number of parts extracted
+                                     int &numParts,       // OUT: number of parts extracted
                                      char *parts[],       // IN/OUT: array entries initialized to parts on return
                                      NABoolean dQuote)    // IN: if TRUE, parts are double quoted.
 {

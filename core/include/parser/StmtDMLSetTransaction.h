@@ -15,9 +15,9 @@
  */
 
 #include "common/ComTransInfo.h"
-#include "parser/StmtNode.h"
 #include "optimizer/ItemExpr.h"
 #include "optimizer/ItemExprList.h"
+#include "parser/StmtNode.h"
 
 class StmtDMLSetTransaction : public StmtNode {
  public:

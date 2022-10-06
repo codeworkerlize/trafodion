@@ -73,8 +73,8 @@
 // Initial revision
 //
 // -----------------------------------------------------------------------
-#include "common/str.h"
 #include "CommonStructs.h"
+#include "common/str.h"
 #include "export/NABasicObject.h"
 
 class Key : public NABasicObject {

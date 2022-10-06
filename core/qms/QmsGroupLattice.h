@@ -5,11 +5,11 @@
 #ifndef _QRGROUPLATTICE_H_
 #define _QRGROUPLATTICE_H_
 
-#include "common/NAString.h"
 #include "QmsLatticeIndex.h"
 #include "QmsMVCandidate.h"
-#include "qmscommon/QRSharedPtr.h"
 #include "QmsWorkloadAnalysis.h"
+#include "common/NAString.h"
+#include "qmscommon/QRSharedPtr.h"
 
 /**
  * \file

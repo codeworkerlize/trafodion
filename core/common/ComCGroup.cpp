@@ -5,15 +5,17 @@
 // @@@ END COPYRIGHT @@@
 
 #include "common/ComCGroup.h"
-#include "common/Ipc.h"
-#include "export/ComDiags.h"
-#include "cli/Globals.h"
-#include "common/NAUserId.h"
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+
 #include <errno.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
+
+#include "cli/Globals.h"
+#include "common/Ipc.h"
+#include "common/NAUserId.h"
+#include "export/ComDiags.h"
 
 ComCGroup::ComCGroup(NAMemory *heap) : heap_(heap), cgroupName_(heap), assignWasDone_(FALSE) {}
 

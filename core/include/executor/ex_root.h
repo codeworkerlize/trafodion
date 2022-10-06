@@ -20,11 +20,10 @@
 
 // -----------------------------------------------------------------------
 #include "cli_stdh.h"
-
-#include "ex_exe_stmt_globals.h"
-#include "exp/exp_expr.h"
 #include "comexe/SqlTableOpenInfo.h"
 #include "common/Ipc.h"
+#include "ex_exe_stmt_globals.h"
+#include "exp/exp_expr.h"
 #include "runtimestats/rts_msg.h"
 
 class InputExpr;
@@ -119,7 +118,7 @@ class ex_root_tcb : public ex_tcb {
   // if afterRecomp is TRUE, indicates that re-execute is being done
   // after a lost open or automatic recompilation of this query.
   int execute(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descriptor *input_desc, ComDiagsArea *&diagsArea,
-                NABoolean reExecute = FALSE);
+              NABoolean reExecute = FALSE);
 
   // closeCursorOnError: if an error is returned for a cursor statement
   //     and this param is returned as TRUE, then the cursor is closed.
@@ -130,10 +129,10 @@ class ex_root_tcb : public ex_tcb {
   //     fetch would get the next row. This is ANSI compliant behavior.
   //     In all other cases, this param is returned as TRUE.
   int fetch(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descriptor *output_desc, ComDiagsArea *&diagsArea,
-              int timeLimit, NABoolean newOperation, NABoolean &closeCursorOnError);
+            int timeLimit, NABoolean newOperation, NABoolean &closeCursorOnError);
 
   int fetchMultiple(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descriptor *output_desc, ComDiagsArea *&diagsArea,
-                      int timeLimit, NABoolean newOperation, NABoolean &closeCursorOnError, NABoolean &eodSeen);
+                    int timeLimit, NABoolean newOperation, NABoolean &closeCursorOnError, NABoolean &eodSeen);
 
   int oltExecute(ExExeStmtGlobals *glob, Descriptor *input_desc, Descriptor *output_desc, ComDiagsArea *&diagsArea);
 
@@ -314,7 +313,7 @@ class ex_root_tcb : public ex_tcb {
   // Make sure trans mode is compatible with Halloween/DP2 locks solution
   // and SUSPEND.  Returns -1 and populates diags area if error.
   int checkTransBeforeExecute(ExTransaction *myTrans, ExMasterStmtGlobals *masterGlob, ExMasterStats *rootStats,
-                                ComDiagsArea *&diags);
+                              ComDiagsArea *&diags);
 
   // Let the cancel broker know this query is executing.
   void registerCB(ComDiagsArea *&diagsArea);

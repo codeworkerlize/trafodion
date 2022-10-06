@@ -6,9 +6,9 @@
 #define NULL ((void *)0)
 #endif
 #endif
+#include "common/feerrors.h"
 #include "common/platform.h"
 #include "nsk/nskport.h"
-#include "common/feerrors.h"
 _declspec(dllexport) PCHAR NSKGetRegKeyServerWarePath() { return NULL; }
 
 _declspec(dllexport) PCHAR NSKGetRegKeyConfigPath() { return NULL; }

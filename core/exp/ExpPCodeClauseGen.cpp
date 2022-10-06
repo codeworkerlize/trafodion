@@ -24,15 +24,15 @@
 
 // Includes
 //
+#include "ExpComposite.h"
+#include "ExpPCode.h"
 #include "common/Platform.h"
-#include "exp/exp_stdh.h"
 #include "common/str.h"
 #include "exp/exp_datetime.h"
 #include "exp/exp_expr.h"
+#include "exp/exp_stdh.h"
 #include "exp_function.h"
 #include "exp_math_func.h"
-#include "ExpPCode.h"
-#include "ExpComposite.h"
 
 // #include "common/DatetimeType.h"
 
@@ -2334,8 +2334,7 @@ static void computeBounds(Attributes *attr, long &lowBounds, UInt64 &highBounds,
                                      4999999999999999999LL,
                                      9999999999999999999ULL};
 
-  const int bpPrecision[] = {0,   1,    3,    7,    15,   31,    63,    127,   255,
-                               511, 1023, 2047, 4095, 8191, 16483, 32767, 65535, 65535};
+  const int bpPrecision[] = {0, 1, 3, 7, 15, 31, 63, 127, 255, 511, 1023, 2047, 4095, 8191, 16483, 32767, 65535, 65535};
 
   // By default, unsigned ints.
   //

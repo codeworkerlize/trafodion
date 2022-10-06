@@ -4,33 +4,33 @@
 
 #include "sqlcomp/PrivMgrPrivileges.h"
 
-#include "sqlcomp/PrivMgr.h"
-#include "sqlcomp/PrivMgrMD.h"
-#include "PrivMgrMDTable.h"
-#include "sqlcomp/PrivMgrDesc.h"
-#include "sqlcomp/PrivMgrDefs.h"
-#include "sqlcomp/PrivMgrRoles.h"
-#include "sqlcomp/PrivMgrComponentPrivileges.h"
-#include "sqlcomp/PrivMgrObjects.h"
-#include "sqlcomp/PrivMgrCommands.h"
-#include "seabed/ms.h"
-
-#include <numeric>
-#include <cstdio>
 #include <algorithm>
+#include <cstdio>
 #include <iterator>
+#include <numeric>
 #include <vector>
+
+#include "PrivMgrMDTable.h"
+#include "arkcmp/CmpContext.h"
 #include "cli/sqlcli.h"
-#include "common/ComSmallDefs.h"
-#include "executor/ExExeUtilCli.h"
-#include "export/ComDiags.h"
 #include "comexe/ComQueue.h"
 #include "common/CmpCommon.h"
-#include "arkcmp/CmpContext.h"
 #include "common/ComSecurityKey.h"
-#include "common/NAUserId.h"
+#include "common/ComSmallDefs.h"
 #include "common/ComUser.h"
+#include "common/NAUserId.h"
+#include "executor/ExExeUtilCli.h"
+#include "export/ComDiags.h"
+#include "seabed/ms.h"
 #include "sqlcomp/CmpSeabaseDDLutil.h"
+#include "sqlcomp/PrivMgr.h"
+#include "sqlcomp/PrivMgrCommands.h"
+#include "sqlcomp/PrivMgrComponentPrivileges.h"
+#include "sqlcomp/PrivMgrDefs.h"
+#include "sqlcomp/PrivMgrDesc.h"
+#include "sqlcomp/PrivMgrMD.h"
+#include "sqlcomp/PrivMgrObjects.h"
+#include "sqlcomp/PrivMgrRoles.h"
 #include "sqlmxevents/logmxevent_traf.h"
 class ColPrivGrant;
 class ColumnPrivsMDTable;

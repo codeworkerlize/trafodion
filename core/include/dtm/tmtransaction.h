@@ -2,8 +2,8 @@
 #ifndef TMTRANSACTION_H_
 #define TMTRANSACTION_H_
 
-#include "dtm/tmtransid.h"
 #include "dtm/tm_util.h"
+#include "dtm/tmtransid.h"
 
 #define TMLIB_MAX_THREADS          256
 #define TMLIB_MAX_TRANS_PER_THREAD 1024

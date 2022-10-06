@@ -15,17 +15,17 @@
 ******************************************************************************
 */
 
-#include "optimizer/ObjectNames.h"
-#include "optimizer/RelExpr.h"
-#include "cli/SQLCLIdev.h"
-#include "optimizer/OptUtilIncludes.h"
 #include "BinderUtils.h"
-#include "parser/StmtNode.h"
-#include "common/charinfo.h"
 #include "RelFastTransport.h"
-#include "sqlcomp/PrivMgrMD.h"
+#include "cli/SQLCLIdev.h"
 #include "comexe/ComTdbRoot.h"
 #include "common/CmpCommon.h"
+#include "common/charinfo.h"
+#include "optimizer/ObjectNames.h"
+#include "optimizer/OptUtilIncludes.h"
+#include "optimizer/RelExpr.h"
+#include "parser/StmtNode.h"
+#include "sqlcomp/PrivMgrMD.h"
 
 class ElemDDLList;
 
@@ -1471,8 +1471,8 @@ class ExeUtilMaintainObject : public ExeUtilExpr {
     friend class ExeUtilMaintainObject;
 
    public:
-    MaintainObjectOption(MaintainObjectOptionType option, int numericVal1, const char *stringVal1,
-                         int numericVal2 = 0, const char *stringVal2 = NULL)
+    MaintainObjectOption(MaintainObjectOptionType option, int numericVal1, const char *stringVal1, int numericVal2 = 0,
+                         const char *stringVal2 = NULL)
         : option_(option),
           numericVal1_(numericVal1),
           stringVal1_(stringVal1),

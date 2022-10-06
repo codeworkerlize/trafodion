@@ -10,13 +10,15 @@
  *****************************************************************************
  */
 
+#include "mxCompileUserModule.h"
+
 #include <iostream>
+
+#include "common/DgBaseType.h"
+#include "common/NAMemory.h"
 #include "common/Platform.h"
 #include "export/ComDiags.h"
-#include "common/DgBaseType.h"
 #include "sqlmsg/ErrorMessage.h"
-#include "mxCompileUserModule.h"
-#include "common/NAMemory.h"
 
 mxCompileUserModule::mxCompileUserModule() : heap_(NULL), diags_(NULL), returnCode_(SUCCEED) {
   heap_ = new NAHeap("mxCompileUserModule Heap", NAMemory::DERIVED_FROM_SYS_HEAP, (int)524288);

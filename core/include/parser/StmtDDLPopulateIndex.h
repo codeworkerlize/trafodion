@@ -18,9 +18,9 @@
  */
 
 #include "ElemDDLNode.h"
+#include "common/ComSmallDefs.h"
 #include "common/NAString.h"
 #include "parser/StmtDDLNode.h"
-#include "common/ComSmallDefs.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

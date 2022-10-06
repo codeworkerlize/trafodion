@@ -15,32 +15,31 @@
  *****************************************************************************
  */
 
+#include <errno.h>
+#include <math.h>
+#include <stdlib.h>
+
 #include "common/Platform.h"
 #include "exp_ieee.h"
-#include <stdlib.h>
-#include <errno.h>
-
-#include <math.h>
 #define MathPow(op1, op2, err) pow(op1, op2)
 // extern double MathPow(double Base, double Power, short &err);
 #define MathLog10(op, err) log10(op)
 #include <stdlib.h>
 
-#include "exp/exp_stdh.h"
-#include "exp/exp_clause_derived.h"
-
-#include "float.h"
-#include "common/str.h"
-#include "common/wstr.h"
 #include "BigNumHelper.h"
+#include "SQLTypeDefs.h"
+#include "common/ComMisc.h"
 #include "common/NAAssert.h"
 #include "common/NLSConversion.h"
 #include "common/nawstring.h"
-#include "exp/exp_datetime.h"
-#include "SQLTypeDefs.h"
+#include "common/str.h"
+#include "common/wstr.h"
 #include "exp/exp_bignum.h"
+#include "exp/exp_clause_derived.h"
+#include "exp/exp_datetime.h"
+#include "exp/exp_stdh.h"
 #include "fenv.h"
-#include "common/ComMisc.h"
+#include "float.h"
 
 // forward declarations
 
@@ -54,8 +53,7 @@ void setVCLength(char *VCLen, int VCLenSize, int value);
 
 ex_expr::exp_return_type checkPrecision(long source, int sourceLen, short sourceType, int sourcePrecision,
                                         int sourceScale, short targetType, int targetPrecision, int targetScale,
-                                        CollHeap *heap, ComDiagsArea **diagsArea, int flags,
-                                        char *sourceValue = NULL);
+                                        CollHeap *heap, ComDiagsArea **diagsArea, int flags, char *sourceValue = NULL);
 
 //////////////////////////////////////////////////////////////////
 //
@@ -66,7 +64,7 @@ ex_expr::exp_return_type checkPrecision(long source, int sourceLen, short source
 // length calculated by the Ascii function. 6/3/98
 //
 //////////////////////////////////////////////////////////////////
-void double_varchar_length(char *varCharLen,     // NULL if not a varChar
+void double_varchar_length(char *varCharLen,   // NULL if not a varChar
                            int varCharLenSize  // 0 if not a varChar
 ) {
   if (varCharLenSize == sizeof(int)) {
@@ -130,8 +128,8 @@ static const char *scaleToString(short scale) {
 //
 //////////////////////////////////////////////////////////////////
 static int safe_add_digit_to_double(double dvalue,  // Original value
-                                      int digit,    // Single digit to be added
-                                      double *result) {
+                                    int digit,      // Single digit to be added
+                                    double *result) {
   short ov;
 
   *result = MathReal64Mul(dvalue, (double)10, &ov);
@@ -405,10 +403,9 @@ ex_expr::exp_return_type convBinToBinScaleDiv(char *target, short targetType, in
 ///////////////////////////////////////////////////////////////////
 ex_expr::exp_return_type convInt64ToAscii(char *target, int targetLen,
                                           int targetPrecision,  // max. characters
-                                          int targetScale, long source, int scale, char *varCharLen,
-                                          int varCharLenSize, char filler, NABoolean leadingSign, NABoolean leftPad,
-                                          NABoolean srcIsUInt64, CollHeap *heap, ComDiagsArea **diagsArea,
-                                          NABoolean bTrimTailZero = FALSE) {
+                                          int targetScale, long source, int scale, char *varCharLen, int varCharLenSize,
+                                          char filler, NABoolean leadingSign, NABoolean leftPad, NABoolean srcIsUInt64,
+                                          CollHeap *heap, ComDiagsArea **diagsArea, NABoolean bTrimTailZero = FALSE) {
   // trim tail '0'
   // e.g.
   // select 123.400 from dual;
@@ -764,8 +761,8 @@ ex_expr::exp_return_type convUInt64ToBigNum(char *target, int targetLen, UInt64 
 // function to convert BIGNUM to LARGEDEC
 ///////////////////////////////////////////////////////////////////
 
-ex_expr::exp_return_type convBigNumToLargeDec(char *target, int targetLen, char *source, int sourceLen,
-                                              NAMemory *heap, ComDiagsArea **diagsArea, int flags) {
+ex_expr::exp_return_type convBigNumToLargeDec(char *target, int targetLen, char *source, int sourceLen, NAMemory *heap,
+                                              ComDiagsArea **diagsArea, int flags) {
   // Convert the Big Num (with sign) into a BCD representation by calling
   // a BigNumHelper method
   short retCode = BigNumHelper::ConvBigNumWithSignToBcdHelper(sourceLen, targetLen, source, target, heap);
@@ -1070,7 +1067,7 @@ ex_expr::exp_return_type convAsciiToDatetime(char *target, int targetLen, REC_DA
 
 ex_expr::exp_return_type convUnicodeToDatetime(char *target, int targetLen, REC_DATETIME_CODE code,
                                                short fractionPrecision,
-                                               char *source,     // actually is NAWchar *
+                                               char *source,   // actually is NAWchar *
                                                int sourceLen,  // source length in bytes
                                                CollHeap *heap, ComDiagsArea **diagsArea) {
   const NAWcharBuf wBuf((NAWchar *)source, sourceLen / BYTES_PER_NAWCHAR, heap);
@@ -1379,9 +1376,9 @@ ex_expr::exp_return_type convAsciiToUInt64base(UInt64 &target, int targetScale, 
   NABoolean DigitsAllowed = TRUE;
   NABoolean negative = FALSE;    // default is a positive value
   NABoolean pointFound = FALSE;  // did we find a decimal point
-  int currPos = 0;             // current position in the string
+  int currPos = 0;               // current position in the string
   short digitCnt = 0;            // digits found so far
-  int sourceScale = 0;         // default is a scale of 0
+  int sourceScale = 0;           // default is a scale of 0
 
   target = 0;
   while (currPos < sourceLen) {
@@ -1529,10 +1526,10 @@ ex_expr::exp_return_type convAsciiToUInt64base(UInt64 &target, int targetScale, 
 // The function assumes that source is at least
 // sourceLen long. Trailing '\0' is not recognized
 ///////////////////////////////////////////////////////////////////
-ex_expr::exp_return_type convAsciiToUInt64(UInt64 &target, int targetScale, char *source, int sourceLen,
-                                           CollHeap *heap, ComDiagsArea **diagsArea, int flags) {
+ex_expr::exp_return_type convAsciiToUInt64(UInt64 &target, int targetScale, char *source, int sourceLen, CollHeap *heap,
+                                           ComDiagsArea **diagsArea, int flags) {
   NABoolean negative = FALSE;  // default is a positive value
-  int currPos = 0;           // current position in the string
+  int currPos = 0;             // current position in the string
 
   negative = isNegative(source, sourceLen, currPos);
   if (negative) {
@@ -1547,8 +1544,8 @@ ex_expr::exp_return_type convAsciiToUInt64(UInt64 &target, int targetScale, char
   return ex_expr::EXPR_OK;
 }
 
-ex_expr::exp_return_type convAsciiToInt64(long &target, int targetScale, char *source, int sourceLen,
-                                          CollHeap *heap, ComDiagsArea **diagsArea, int flags) {
+ex_expr::exp_return_type convAsciiToInt64(long &target, int targetScale, char *source, int sourceLen, CollHeap *heap,
+                                          ComDiagsArea **diagsArea, int flags) {
   int currPos = 0;  // current position in the string
 
   NABoolean negative = FALSE;  // default is a positive value
@@ -1642,10 +1639,10 @@ ex_expr::exp_return_type convInt64ToDec(char *target, int targetLen, long source
 // The function assumes that source is at least
 // sourceLen long. Trailing '\0' is not recongnized
 ///////////////////////////////////////////////////////////////////
-ex_expr::exp_return_type convAsciiToDec(char *target, int targetType, int targetLen, int targetScale,
-                                        char *source, int sourceLen, char offset, CollHeap *heap,
-                                        ComDiagsArea **diagsArea, int flags) {
-  NABoolean negative = FALSE;       // default is a positive value
+ex_expr::exp_return_type convAsciiToDec(char *target, int targetType, int targetLen, int targetScale, char *source,
+                                        int sourceLen, char offset, CollHeap *heap, ComDiagsArea **diagsArea,
+                                        int flags) {
+  NABoolean negative = FALSE;     // default is a positive value
   int sourceStart = 0;            // start of source after skipping 0 and ' '
   int sourceScale = 0;            // by default the scale is 0
   int targetPos = targetLen - 1;  // current positon in the target
@@ -1809,8 +1806,7 @@ ex_expr::exp_return_type convAsciiToDec(char *target, int targetType, int target
 // function to convert a DOUBLE to BIGNUM.
 ///////////////////////////////////////////////////////////////////
 ex_expr::exp_return_type convDoubleToBigNum(char *target, int targetLen, int targetType, int targetPrecision,
-                                            int targetScale, double source, CollHeap *heap,
-                                            ComDiagsArea **diagsArea) {
+                                            int targetScale, double source, CollHeap *heap, ComDiagsArea **diagsArea) {
   SimpleType sourceAttr(REC_FLOAT64, sizeof(double), 0, 0, ExpTupleDesc::SQLMX_FORMAT, 8, 0, 0, 0,
                         Attributes::NO_DEFAULT, 0);
   char *opData[2];
@@ -2001,7 +1997,7 @@ static rec_datetime_field getIntervalEndField(int datatype) {
 ex_expr::exp_return_type convAsciiFieldToInt64(long &target, int targetScale, char *source, int &sourceLen,
                                                CollHeap *heap, ComDiagsArea **diagsArea, int flags) {
   int currPos = 0;  // current position in the string
-  target = 0;         // result
+  target = 0;       // result
   while ((currPos < sourceLen) && ((source[currPos] >= '0') && (source[currPos] <= '9'))) {
     short thisDigit = source[currPos] - '0';
     if (target > (LLONG_MAX / 10)) {  // next power of 10 causes an overflow
@@ -2034,10 +2030,10 @@ ex_expr::exp_return_type convAsciiFieldToInt64(long &target, int targetScale, ch
 ///////////////////////////////////////////////////////////////////
 // function to convert an ASCII string to an interval datatype.
 ///////////////////////////////////////////////////////////////////
-ex_expr::exp_return_type convAsciiToInterval(char *target, int targetLen, int targetDatatype,
-                                             int leadingPrecision, int fractionPrecision, char *source,
-                                             int sourceLen, NABoolean allowSignInInterval, CollHeap *heap,
-                                             ComDiagsArea **diagsArea, int flags) {
+ex_expr::exp_return_type convAsciiToInterval(char *target, int targetLen, int targetDatatype, int leadingPrecision,
+                                             int fractionPrecision, char *source, int sourceLen,
+                                             NABoolean allowSignInInterval, CollHeap *heap, ComDiagsArea **diagsArea,
+                                             int flags) {
   // skip leading and trailing blanks and adjust source and sourceLen
   // accordingly
   while ((sourceLen > 0) && (*source == ' ')) {
@@ -2229,9 +2225,8 @@ ex_expr::exp_return_type convAsciiToInterval(char *target, int targetLen, int ta
 ///////////////////////////////////////////////////////////////////
 // function to convert a INTERVAL to a string.
 ///////////////////////////////////////////////////////////////////
-ex_expr::exp_return_type convIntervalToAscii(char *source, int sourceLen, int leadingPrecision,
-                                             int fractionPrecision, short sourceType, char *inTarget,
-                                             int inTargetLen,
+ex_expr::exp_return_type convIntervalToAscii(char *source, int sourceLen, int leadingPrecision, int fractionPrecision,
+                                             short sourceType, char *inTarget, int inTargetLen,
                                              int inTargetPrecision,  // max chars allowed
                                              char *varCharLen, int varCharLenSize, NABoolean leftPad, CollHeap *heap,
                                              ComDiagsArea **diagsArea) {
@@ -2868,24 +2863,24 @@ ex_expr::exp_return_type convDecLStoAscii(char *target, int targetLen,
 
 long getMinDecValue(int targetLen, short targetType) {
   static const long decValue[] = {0,
-                                   -9,
-                                   -99,
-                                   -999,
-                                   -9999,
-                                   -99999,
-                                   -999999,
-                                   -9999999,
-                                   -99999999,
-                                   -999999999,
-                                   -9999999999LL,
-                                   -99999999999LL,
-                                   -999999999999LL,
-                                   -9999999999999LL,
-                                   -99999999999999LL,
-                                   -999999999999999LL,
-                                   -9999999999999999LL,
-                                   -99999999999999999LL,
-                                   -999999999999999999LL};
+                                  -9,
+                                  -99,
+                                  -999,
+                                  -9999,
+                                  -99999,
+                                  -999999,
+                                  -9999999,
+                                  -99999999,
+                                  -999999999,
+                                  -9999999999LL,
+                                  -99999999999LL,
+                                  -999999999999LL,
+                                  -9999999999999LL,
+                                  -99999999999999LL,
+                                  -999999999999999LL,
+                                  -9999999999999999LL,
+                                  -99999999999999999LL,
+                                  -999999999999999999LL};
 
   if (targetType == REC_DECIMAL_UNSIGNED) {  // Target is unsigned so the minimum value is zero.
     return 0;
@@ -3042,24 +3037,24 @@ int getDigitCount(UInt64 value) {
 
 long getMaxDecValue(int targetLen) {
   static const long decValue[] = {0,
-                                   9,
-                                   99,
-                                   999,
-                                   9999,
-                                   99999,
-                                   999999,
-                                   9999999,
-                                   99999999,
-                                   999999999,
-                                   9999999999LL,
-                                   99999999999LL,
-                                   999999999999LL,
-                                   9999999999999LL,
-                                   99999999999999LL,
-                                   999999999999999LL,
-                                   9999999999999999LL,
-                                   99999999999999999LL,
-                                   999999999999999999LL};
+                                  9,
+                                  99,
+                                  999,
+                                  9999,
+                                  99999,
+                                  999999,
+                                  9999999,
+                                  99999999,
+                                  999999999,
+                                  9999999999LL,
+                                  99999999999LL,
+                                  999999999999LL,
+                                  9999999999999LL,
+                                  99999999999999LL,
+                                  999999999999999LL,
+                                  9999999999999999LL,
+                                  99999999999999999LL,
+                                  999999999999999999LL};
 
   return decValue[targetLen];
 }
@@ -3562,9 +3557,8 @@ ex_expr::exp_return_type unicodeToMByteTarget(unicodeToChar_FP conv_func,  // co
 
 ex_expr::exp_return_type convCharToChar(char *source, int sourceLen, short sourceType, int sourcePrecision,
                                         int sourceScale, char *target, int targetLen, short targetType,
-                                        int targetPrecision, int targetScale, CollHeap *heap,
-                                        ComDiagsArea **diagsArea, int *dataConversionErrorFlag,
-                                        int *actualTargetLen, int blankPadResult,
+                                        int targetPrecision, int targetScale, CollHeap *heap, ComDiagsArea **diagsArea,
+                                        int *dataConversionErrorFlag, int *actualTargetLen, int blankPadResult,
                                         int ignoreTrailingBlanksInSource, int allowInvalidCodePoint,
                                         char padVal = ' ') {
   char *intermediateStr = NULL;
@@ -3931,10 +3925,9 @@ ex_expr::exp_return_type convHiveDecimalToNumeric(char *sourceData, int srcLen, 
 ////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////
 
-ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType, int sourcePrecision,
-                                  int sourceScale, char *target, int targetLen, short targetType,
-                                  int targetPrecision, int targetScale,
-                                  char *varCharLen,      // NULL if not a varChar
+ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType, int sourcePrecision, int sourceScale,
+                                  char *target, int targetLen, short targetType, int targetPrecision, int targetScale,
+                                  char *varCharLen,    // NULL if not a varChar
                                   int varCharLenSize,  // 0 if not a varChar
                                   CollHeap *heap, ComDiagsArea **diagsArea, ConvInstruction index,
                                   int *dataConversionErrorFlag, int flags) {
@@ -3946,7 +3939,7 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
   // To compute 10^scale . scale is the fractional precision for Intervals,
   // valid range 0-6 (the trailing zeroes would "assert" on invalid values)
   static const long tenToPowerOf[] = {1,       10,       100,       1000,       10000,      100000,
-                                       1000000, 10000000, 100000000, 1000000000, 10000000000};
+                                      1000000, 10000000, 100000000, 1000000000, 10000000000};
 
   // variable used for float operation. Specified in "pragma refligned..."
   float *floatSrcPtr, *floatTgtPtr;
@@ -4026,7 +4019,7 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
       if (dataConversionErrorFlag != 0) {
         *(Int8 *)target = *(Int8 *)source;
       } else {
-        if (checkPrecision((long) * (Int8 *)source, sourceLen, sourceType, sourcePrecision, sourceScale, targetType,
+        if (checkPrecision((long)*(Int8 *)source, sourceLen, sourceType, sourcePrecision, sourceScale, targetType,
                            targetPrecision, targetScale, heap, diagsArea, tempFlags) == ex_expr::EXPR_OK) {
           *(Int8 *)target = *(Int8 *)source;
         } else {
@@ -4039,7 +4032,7 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
       if (dataConversionErrorFlag != 0) {
         *(UInt8 *)target = *(UInt8 *)source;
       } else {
-        if (checkPrecision((long) * (UInt8 *)source, sourceLen, sourceType, sourcePrecision, sourceScale, targetType,
+        if (checkPrecision((long)*(UInt8 *)source, sourceLen, sourceType, sourcePrecision, sourceScale, targetType,
                            targetPrecision, targetScale, heap, diagsArea, tempFlags) == ex_expr::EXPR_OK) {
           *(UInt8 *)target = *(UInt8 *)source;
         } else {
@@ -4062,7 +4055,7 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
         if (dataConversionErrorFlag != 0) {
           *(UInt8 *)target = *(Int8 *)source;
         } else {
-          if (checkPrecision((long) * (Int8 *)source, sourceLen, sourceType, sourcePrecision, sourceScale, targetType,
+          if (checkPrecision((long)*(Int8 *)source, sourceLen, sourceType, sourcePrecision, sourceScale, targetType,
                              targetPrecision, targetScale, heap, diagsArea, tempFlags) == ex_expr::EXPR_OK) {
             *(UInt8 *)target = *(Int8 *)source;
           } else {
@@ -4087,7 +4080,7 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
         if (dataConversionErrorFlag != 0) {  // Set the target value.
           *(Int8 *)target = *(UInt8 *)source;
         } else {  // Check target precision. Then set target value.
-          if (checkPrecision((long) * (UInt8 *)source, sourceLen, sourceType, sourcePrecision, sourceScale, targetType,
+          if (checkPrecision((long)*(UInt8 *)source, sourceLen, sourceType, sourcePrecision, sourceScale, targetType,
                              targetPrecision, targetScale, heap, diagsArea, tempFlags) == ex_expr::EXPR_OK) {
             *(Int8 *)target = *(UInt8 *)source;
           } else {
@@ -4140,9 +4133,8 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
         if (dataConversionErrorFlag != 0) {  // Set the target value.
           *(Int8 *)target = (Int8) * (UInt16 *)source;
         } else {  // Check target precision. Then set target value.
-          if (checkPrecision((long) * (UInt16 *)source, sourceLen, sourceType, sourcePrecision, sourceScale,
-                             targetType, targetPrecision, targetScale, heap, diagsArea,
-                             tempFlags) == ex_expr::EXPR_OK) {
+          if (checkPrecision((long)*(UInt16 *)source, sourceLen, sourceType, sourcePrecision, sourceScale, targetType,
+                             targetPrecision, targetScale, heap, diagsArea, tempFlags) == ex_expr::EXPR_OK) {
             *(Int8 *)target = (Int8) * (UInt16 *)source;
           } else {
             return ex_expr::EXPR_ERROR;
@@ -4174,7 +4166,7 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
         if (dataConversionErrorFlag != 0) {
           *(UInt8 *)target = (UInt8) * (Int16 *)source;
         } else {
-          if (checkPrecision((long) * (Int16 *)source, sourceLen, sourceType, sourcePrecision, sourceScale, targetType,
+          if (checkPrecision((long)*(Int16 *)source, sourceLen, sourceType, sourcePrecision, sourceScale, targetType,
                              targetPrecision, targetScale, heap, diagsArea, tempFlags) == ex_expr::EXPR_OK) {
             *(UInt8 *)target = (UInt8) * (Int16 *)source;
           } else {
@@ -4209,7 +4201,7 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
         if (dataConversionErrorFlag != 0) {  // Set the target value.
           *(Int8 *)target = (Int8) * (Int16 *)source;
         } else {  // Check target precision. Then set target value.
-          if (checkPrecision((long) * (Int16 *)source, sourceLen, sourceType, sourcePrecision, sourceScale, targetType,
+          if (checkPrecision((long)*(Int16 *)source, sourceLen, sourceType, sourcePrecision, sourceScale, targetType,
                              targetPrecision, targetScale, heap, diagsArea, tempFlags) == ex_expr::EXPR_OK) {
             *(Int8 *)target = (Int8) * (Int16 *)source;
           } else {
@@ -4234,9 +4226,8 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
         if (dataConversionErrorFlag != 0) {  // Set the target value.
           *(UInt8 *)target = (UInt8) * (UInt16 *)source;
         } else {  // Check target precision. Then set target value.
-          if (checkPrecision((long) * (UInt16 *)source, sourceLen, sourceType, sourcePrecision, sourceScale,
-                             targetType, targetPrecision, targetScale, heap, diagsArea,
-                             tempFlags) == ex_expr::EXPR_OK) {
+          if (checkPrecision((long)*(UInt16 *)source, sourceLen, sourceType, sourcePrecision, sourceScale, targetType,
+                             targetPrecision, targetScale, heap, diagsArea, tempFlags) == ex_expr::EXPR_OK) {
             *(UInt8 *)target = (UInt8) * (UInt16 *)source;
           } else {
             return ex_expr::EXPR_ERROR;
@@ -4285,7 +4276,7 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
     } break;
 
     case CONV_BIN8S_ASCII: {
-      if (convInt64ToAscii(target, targetLen, targetPrecision, targetScale, (long) * (Int8 *)source, sourceScale,
+      if (convInt64ToAscii(target, targetLen, targetPrecision, targetScale, (long)*(Int8 *)source, sourceScale,
                            varCharLen, varCharLenSize,
                            ' ',  // filler character
                            FALSE, leftPad, FALSE, heap, diagsArea, bTrimTailZero) != ex_expr::EXPR_OK)
@@ -4293,7 +4284,7 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
     }; break;
 
     case CONV_BIN8U_ASCII: {
-      if (convInt64ToAscii(target, targetLen, targetPrecision, targetScale, (long) * (UInt8 *)source, sourceScale,
+      if (convInt64ToAscii(target, targetLen, targetPrecision, targetScale, (long)*(UInt8 *)source, sourceScale,
                            varCharLen, varCharLenSize,
                            ' ',  // filler character
                            FALSE, leftPad, FALSE, heap, diagsArea, bTrimTailZero) != ex_expr::EXPR_OK)
@@ -4304,7 +4295,7 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
       if (dataConversionErrorFlag != 0) {
         *(short *)target = *(short *)source;
       } else {
-        if (checkPrecision((long) * (short *)source, sourceLen, sourceType, sourcePrecision, sourceScale, targetType,
+        if (checkPrecision((long)*(short *)source, sourceLen, sourceType, sourcePrecision, sourceScale, targetType,
                            targetPrecision, targetScale, heap, diagsArea, tempFlags) == ex_expr::EXPR_OK) {
           *(short *)target = *(short *)source;
         } else {
@@ -4327,7 +4318,7 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
         if (dataConversionErrorFlag != 0) {  // Set the target value.
           *(unsigned short *)target = *(short *)source;
         } else {  // Check target precision. Then set target value.
-          if (checkPrecision((long) * (short *)source, sourceLen, sourceType, sourcePrecision, sourceScale, targetType,
+          if (checkPrecision((long)*(short *)source, sourceLen, sourceType, sourcePrecision, sourceScale, targetType,
                              targetPrecision, targetScale, heap, diagsArea, tempFlags) == ex_expr::EXPR_OK) {
             *(unsigned short *)target = *(short *)source;
           } else {
@@ -4362,7 +4353,7 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
 
     case CONV_BIN16S_DECU:
     case CONV_BIN16S_DECS: {
-      if (convExactToDec(target, targetLen, targetType, (long) * (short *)source, heap, diagsArea,
+      if (convExactToDec(target, targetLen, targetType, (long)*(short *)source, heap, diagsArea,
                          dataConversionErrorFlag, tempFlags) != ex_expr::EXPR_OK) {
         return ex_expr::EXPR_ERROR;
       }
@@ -4388,11 +4379,11 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
       // CONV_BIN16S_BIGNUM
 
     case CONV_BIN16S_BIGNUM: {
-      return convInt64ToBigNum(target, targetLen, (long) * (short *)source, heap, diagsArea, tempFlags);
+      return convInt64ToBigNum(target, targetLen, (long)*(short *)source, heap, diagsArea, tempFlags);
     }; break;
 
     case CONV_BIN16S_ASCII: {
-      if (convInt64ToAscii(target, targetLen, targetPrecision, targetScale, (long) * (short *)source, sourceScale,
+      if (convInt64ToAscii(target, targetLen, targetPrecision, targetScale, (long)*(short *)source, sourceScale,
                            varCharLen, varCharLenSize,
                            ' ',  // filler character
                            FALSE, leftPad, FALSE, heap, diagsArea, bTrimTailZero) != ex_expr::EXPR_OK)
@@ -4429,7 +4420,7 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
         if (dataConversionErrorFlag != 0) {  // Set the target value.
           *(short *)target = *(unsigned short *)source;
         } else {  // Check target precision. Then set target value.
-          if (checkPrecision((long) * (unsigned short *)source, sourceLen, sourceType, sourcePrecision, sourceScale,
+          if (checkPrecision((long)*(unsigned short *)source, sourceLen, sourceType, sourcePrecision, sourceScale,
                              targetType, targetPrecision, targetScale, heap, diagsArea,
                              tempFlags) == ex_expr::EXPR_OK) {
             *(short *)target = *(unsigned short *)source;
@@ -4444,7 +4435,7 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
       if (dataConversionErrorFlag != 0) {
         *(unsigned short *)target = *(unsigned short *)source;
       } else {
-        if (checkPrecision((long) * (unsigned short *)source, sourceLen, sourceType, sourcePrecision, sourceScale,
+        if (checkPrecision((long)*(unsigned short *)source, sourceLen, sourceType, sourcePrecision, sourceScale,
                            targetType, targetPrecision, targetScale, heap, diagsArea, tempFlags) == ex_expr::EXPR_OK) {
           *(unsigned short *)target = *(unsigned short *)source;
         } else {
@@ -4468,7 +4459,7 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
     case CONV_BIN16U_DECS:
       // covers conversion to DECS and DECU (see exp_fixup.cpp)
       {
-        if (convExactToDec(target, targetLen, targetType, (long) * (unsigned short *)source, heap, diagsArea,
+        if (convExactToDec(target, targetLen, targetType, (long)*(unsigned short *)source, heap, diagsArea,
                            dataConversionErrorFlag, tempFlags) != ex_expr::EXPR_OK) {
           return ex_expr::EXPR_ERROR;
         }
@@ -4484,11 +4475,11 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
     }; break;
 
     case CONV_BIN16U_BIGNUM: {
-      return convInt64ToBigNum(target, targetLen, (long) * (unsigned short *)source, heap, diagsArea, tempFlags);
+      return convInt64ToBigNum(target, targetLen, (long)*(unsigned short *)source, heap, diagsArea, tempFlags);
     }; break;
 
     case CONV_BIN16U_ASCII: {
-      if (convInt64ToAscii(target, targetLen, targetPrecision, targetScale, (long) * (unsigned short *)source,
+      if (convInt64ToAscii(target, targetLen, targetPrecision, targetScale, (long)*(unsigned short *)source,
                            sourceScale, varCharLen, varCharLenSize,
                            ' ',  // filler character
                            FALSE, leftPad, FALSE, heap, diagsArea, bTrimTailZero) != ex_expr::EXPR_OK)
@@ -4520,7 +4511,7 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
         if (dataConversionErrorFlag != 0) {  // Set the target value.
           *(short *)target = (short)*(int *)source;
         } else {  // Check target precision. Then set target value.
-          if (checkPrecision((long) * (int *)source, sourceLen, sourceType, sourcePrecision, sourceScale, targetType,
+          if (checkPrecision((long)*(int *)source, sourceLen, sourceType, sourcePrecision, sourceScale, targetType,
                              targetPrecision, targetScale, heap, diagsArea, tempFlags) == ex_expr::EXPR_OK) {
             *(short *)target = (short)*(int *)source;
           } else {
@@ -4576,7 +4567,7 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
         if (dataConversionErrorFlag != 0) {
           *(unsigned short *)target = (unsigned short)*(int *)source;
         } else {
-          if (checkPrecision((long) * (int *)source, sourceLen, sourceType, sourcePrecision, sourceScale, targetType,
+          if (checkPrecision((long)*(int *)source, sourceLen, sourceType, sourcePrecision, sourceScale, targetType,
                              targetPrecision, targetScale, heap, diagsArea, tempFlags) == ex_expr::EXPR_OK) {
             *(unsigned short *)target = (unsigned short)*(int *)source;
           } else {
@@ -4590,7 +4581,7 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
       if (dataConversionErrorFlag != 0) {
         *(int *)target = *(int *)source;
       } else {
-        if (checkPrecision((long) * (int *)source, sourceLen, sourceType, sourcePrecision, sourceScale, targetType,
+        if (checkPrecision((long)*(int *)source, sourceLen, sourceType, sourcePrecision, sourceScale, targetType,
                            targetPrecision, targetScale, heap, diagsArea, tempFlags) == ex_expr::EXPR_OK) {
           *(int *)target = *(int *)source;
         } else {
@@ -4613,7 +4604,7 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
         if (dataConversionErrorFlag != 0) {
           *(int *)target = *(int *)source;
         } else {
-          if (checkPrecision((long) * (int *)source, sourceLen, sourceType, sourcePrecision, sourceScale, targetType,
+          if (checkPrecision((long)*(int *)source, sourceLen, sourceType, sourcePrecision, sourceScale, targetType,
                              targetPrecision, targetScale, heap, diagsArea, tempFlags) == ex_expr::EXPR_OK) {
             *(int *)target = *(int *)source;
           } else {
@@ -4629,8 +4620,8 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
 
     case CONV_BIN32S_DECU:
     case CONV_BIN32S_DECS: {
-      if (convExactToDec(target, targetLen, targetType, (long) * (int *)source, heap, diagsArea,
-                         dataConversionErrorFlag, tempFlags) != ex_expr::EXPR_OK) {
+      if (convExactToDec(target, targetLen, targetType, (long)*(int *)source, heap, diagsArea, dataConversionErrorFlag,
+                         tempFlags) != ex_expr::EXPR_OK) {
         return ex_expr::EXPR_ERROR;
       }
     } break;
@@ -4653,11 +4644,11 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
       // CONV_BIN32S_BIGNUM
 
     case CONV_BIN32S_BIGNUM: {
-      return convInt64ToBigNum(target, targetLen, (long) * (int *)source, heap, diagsArea, tempFlags);
+      return convInt64ToBigNum(target, targetLen, (long)*(int *)source, heap, diagsArea, tempFlags);
     }; break;
 
     case CONV_BIN32S_ASCII: {
-      if (convInt64ToAscii(target, targetLen, targetPrecision, targetScale, (long) * (int *)source, sourceScale,
+      if (convInt64ToAscii(target, targetLen, targetPrecision, targetScale, (long)*(int *)source, sourceScale,
                            varCharLen, varCharLenSize,
                            ' ',  // filler character
                            FALSE, leftPad, FALSE, heap, diagsArea, bTrimTailZero) != ex_expr::EXPR_OK)
@@ -4693,9 +4684,8 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
         if (dataConversionErrorFlag != 0) {  // Set the target value.
           *(short *)target = (short)*(int *)source;
         } else {  // Check target precision. Then set target value.
-          if (checkPrecision((long) * (int *)source, sourceLen, sourceType, sourcePrecision, sourceScale,
-                             targetType, targetPrecision, targetScale, heap, diagsArea,
-                             tempFlags) == ex_expr::EXPR_OK) {
+          if (checkPrecision((long)*(int *)source, sourceLen, sourceType, sourcePrecision, sourceScale, targetType,
+                             targetPrecision, targetScale, heap, diagsArea, tempFlags) == ex_expr::EXPR_OK) {
             *(short *)target = (short)*(int *)source;
           } else {
             return ex_expr::EXPR_ERROR;
@@ -4719,9 +4709,8 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
         if (dataConversionErrorFlag != 0) {  // Set the target value.
           *(unsigned short *)target = (unsigned short)*(int *)source;
         } else {  // Check target precision. Then set target value.
-          if (checkPrecision((long) * (int *)source, sourceLen, sourceType, sourcePrecision, sourceScale,
-                             targetType, targetPrecision, targetScale, heap, diagsArea,
-                             tempFlags) == ex_expr::EXPR_OK) {
+          if (checkPrecision((long)*(int *)source, sourceLen, sourceType, sourcePrecision, sourceScale, targetType,
+                             targetPrecision, targetScale, heap, diagsArea, tempFlags) == ex_expr::EXPR_OK) {
             *(unsigned short *)target = (unsigned short)*(int *)source;
           } else {
             return ex_expr::EXPR_ERROR;
@@ -4745,9 +4734,8 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
         if (dataConversionErrorFlag != 0) {  // Set the target value.
           *(int *)target = *(int *)source;
         } else {  // Check target precision. Then set target value.
-          if (checkPrecision((long) * (int *)source, sourceLen, sourceType, sourcePrecision, sourceScale,
-                             targetType, targetPrecision, targetScale, heap, diagsArea,
-                             tempFlags) == ex_expr::EXPR_OK) {
+          if (checkPrecision((long)*(int *)source, sourceLen, sourceType, sourcePrecision, sourceScale, targetType,
+                             targetPrecision, targetScale, heap, diagsArea, tempFlags) == ex_expr::EXPR_OK) {
             *(int *)target = *(int *)source;
           } else {
             return ex_expr::EXPR_ERROR;
@@ -4760,7 +4748,7 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
       if (dataConversionErrorFlag != 0) {
         *(int *)target = *(int *)source;
       } else {
-        if (checkPrecision((long) * (int *)source, sourceLen, sourceType, sourcePrecision, sourceScale, targetType,
+        if (checkPrecision((long)*(int *)source, sourceLen, sourceType, sourcePrecision, sourceScale, targetType,
                            targetPrecision, targetScale, heap, diagsArea, tempFlags) == ex_expr::EXPR_OK) {
           *(int *)target = *(int *)source;
         } else {
@@ -4776,7 +4764,7 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
     case CONV_BIN32U_DECS:
       // covers conversion to DECS and DECU (see exp_fixup.cpp)
       {
-        if (convExactToDec(target, targetLen, targetType, (long) * (int *)source, heap, diagsArea,
+        if (convExactToDec(target, targetLen, targetType, (long)*(int *)source, heap, diagsArea,
                            dataConversionErrorFlag, tempFlags) != ex_expr::EXPR_OK) {
           return ex_expr::EXPR_ERROR;
         }
@@ -4792,11 +4780,11 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
     } break;
 
     case CONV_BIN32U_BIGNUM: {
-      return convInt64ToBigNum(target, targetLen, (long) * (int *)source, heap, diagsArea, tempFlags);
+      return convInt64ToBigNum(target, targetLen, (long)*(int *)source, heap, diagsArea, tempFlags);
     } break;
 
     case CONV_BIN32U_ASCII: {
-      if (convInt64ToAscii(target, targetLen, targetPrecision, targetScale, (long) * (int *)source, sourceScale,
+      if (convInt64ToAscii(target, targetLen, targetPrecision, targetScale, (long)*(int *)source, sourceScale,
                            varCharLen, varCharLenSize,
                            ' ',  // filler character
                            FALSE, leftPad, FALSE, heap, diagsArea, bTrimTailZero) != ex_expr::EXPR_OK)
@@ -4918,11 +4906,11 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
         }
       } else {
         if (dataConversionErrorFlag != 0) {  // Set the target value.
-          *(int *)target = (int) * (long *)source;
+          *(int *)target = (int)*(long *)source;
         } else {  // Check target precision. Then set target value.
           if (checkPrecision(*(long *)source, sourceLen, sourceType, sourcePrecision, sourceScale, targetType,
                              targetPrecision, targetScale, heap, diagsArea, tempFlags) == ex_expr::EXPR_OK) {
-            *(int *)target = (int) * (long *)source;
+            *(int *)target = (int)*(long *)source;
           } else {
             return ex_expr::EXPR_ERROR;
           }
@@ -4952,11 +4940,11 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
         }
       } else {
         if (dataConversionErrorFlag != 0) {  // Set the target value.
-          *(int *)target = (int) * (long *)source;
+          *(int *)target = (int)*(long *)source;
         } else {  // Check target precision. Then set target value.
           if (checkPrecision(*(long *)source, sourceLen, sourceType, sourcePrecision, sourceScale, targetType,
                              targetPrecision, targetScale, heap, diagsArea, tempFlags) == ex_expr::EXPR_OK) {
-            *(int *)target = (int) * (long *)source;
+            *(int *)target = (int)*(long *)source;
           } else {
             return ex_expr::EXPR_ERROR;
           }
@@ -5002,7 +4990,7 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
       if (dataConversionErrorFlag != 0) {
         *(UInt64 *)target = *(UInt64 *)source;
       } else {
-        if (checkPrecision((long) * (UInt64 *)source, sourceLen, sourceType, sourcePrecision, sourceScale, targetType,
+        if (checkPrecision((long)*(UInt64 *)source, sourceLen, sourceType, sourcePrecision, sourceScale, targetType,
                            targetPrecision, targetScale, heap, diagsArea, tempFlags) == ex_expr::EXPR_OK) {
           *(UInt64 *)target = *(UInt64 *)source;
         } else {
@@ -5026,9 +5014,8 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
         if (dataConversionErrorFlag != 0) {  // Set the target value.
           *(long *)target = *(UInt64 *)source;
         } else {  // Check target precision. Then set target value.
-          if (checkPrecision((long) * (UInt64 *)source, sourceLen, sourceType, sourcePrecision, sourceScale,
-                             targetType, targetPrecision, targetScale, heap, diagsArea,
-                             tempFlags) == ex_expr::EXPR_OK) {
+          if (checkPrecision((long)*(UInt64 *)source, sourceLen, sourceType, sourcePrecision, sourceScale, targetType,
+                             targetPrecision, targetScale, heap, diagsArea, tempFlags) == ex_expr::EXPR_OK) {
             *(long *)target = *(UInt64 *)source;
           } else {
             return ex_expr::EXPR_ERROR;
@@ -6335,7 +6322,7 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
 
     case CONV_INTERVALD_INTERVALS: {
       long scaleFactor = 24 * 60 * 60  // multiply days by 24*60*60 to get seconds
-                          * tenToPowerOf[targetScale];
+                         * tenToPowerOf[targetScale];
 
       if (convBinToBinScaleMult(target, targetType, targetLen, targetPrecision, targetScale, source, sourceType,
                                 sourceLen, sourcePrecision, scaleFactor, heap, diagsArea, dataConversionErrorFlag,
@@ -6364,7 +6351,7 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
 
     case CONV_INTERVALH_INTERVALS: {
       long scaleFactor = 60 * 60  // multiply hours by 60*60 to get seconds
-                          * tenToPowerOf[targetScale];
+                         * tenToPowerOf[targetScale];
 
       if (convBinToBinScaleMult(target, targetType, targetLen, targetPrecision, targetScale, source, sourceType,
                                 sourceLen, sourcePrecision, scaleFactor, heap, diagsArea, dataConversionErrorFlag,
@@ -6393,7 +6380,7 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
 
     case CONV_INTERVALM_INTERVALS: {
       long scaleFactor = 60  // multiply minutes by 60 to get seconds
-                          * tenToPowerOf[targetScale];
+                         * tenToPowerOf[targetScale];
 
       if (convBinToBinScaleMult(target, targetType, targetLen, targetPrecision, targetScale, source, sourceType,
                                 sourceLen, sourcePrecision, scaleFactor, heap, diagsArea, dataConversionErrorFlag,
@@ -6404,7 +6391,7 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
 
     case CONV_INTERVALS_INTERVALD: {
       long scaleFactor = 60 * 60 * 24                  // divide seconds by 60*60*24 to get days
-                          * tenToPowerOf[sourceScale];  // divide again by 10**fraction precision
+                         * tenToPowerOf[sourceScale];  // divide again by 10**fraction precision
 
       if (convBinToBinScaleDiv(target, targetType, targetLen, targetPrecision, targetScale, source, sourceType,
                                sourceLen, sourcePrecision, scaleFactor, heap, diagsArea, dataConversionErrorFlag,
@@ -6415,7 +6402,7 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
 
     case CONV_INTERVALS_INTERVALH: {
       long scaleFactor = 60 * 60                       // divide seconds by 60*60 to get hours
-                          * tenToPowerOf[sourceScale];  // divide again by 10**fraction precision
+                         * tenToPowerOf[sourceScale];  // divide again by 10**fraction precision
 
       if (convBinToBinScaleDiv(target, targetType, targetLen, targetPrecision, targetScale, source, sourceType,
                                sourceLen, sourcePrecision, scaleFactor, heap, diagsArea, dataConversionErrorFlag,
@@ -6426,7 +6413,7 @@ ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType,
 
     case CONV_INTERVALS_INTERVALM: {
       long scaleFactor = 60                            // divide seconds by 60 to get minutes
-                          * tenToPowerOf[sourceScale];  // divide again by 10**fraction precision
+                         * tenToPowerOf[sourceScale];  // divide again by 10**fraction precision
 
       if (convBinToBinScaleDiv(target, targetType, targetLen, targetPrecision, targetScale, source, sourceType,
                                sourceLen, sourcePrecision, scaleFactor, heap, diagsArea, dataConversionErrorFlag,
@@ -7943,7 +7930,7 @@ ex_expr::exp_return_type ex_conv_clause::eval(char *op_data[], CollHeap *heap, C
     UInt32 copyLength = 0;
 
     if (*(int *)srcData == -1)  // if aliggned format header is 0xFFFFFFFF
-    {                             // case of null instantiated row
+    {                           // case of null instantiated row
       assert(*(Int16 *)&srcData[lastVOAoffset_] == -1);
       copyLength = ((SimpleType *)src)->getLength();
     } else {
@@ -8211,8 +8198,8 @@ ex_expr::exp_return_type ex_conv_clause::processNulls(char *op_data[], CollHeap 
 ////////////////////////////////////////////////////////////////////////
 // up- or downscale an exact numeric.
 ////////////////////////////////////////////////////////////////////////
-ex_expr::exp_return_type scaleDoIt(char *operand, int operandLen, int operandType, int operandCurrScale,
-                                   int newScale, int typeOfOldScale, CollHeap *heap) {
+ex_expr::exp_return_type scaleDoIt(char *operand, int operandLen, int operandType, int operandCurrScale, int newScale,
+                                   int typeOfOldScale, CollHeap *heap) {
   // return if there is no difference in scale or if "newScale"
   // is really a character set, used when the old representation
   // of the value was a character type. Note that in that case,
@@ -8232,19 +8219,19 @@ ex_expr::exp_return_type scaleDoIt(char *operand, int operandLen, int operandTyp
   long limit = 0;
   switch (operandType) {
     case REC_BIN16_SIGNED: {
-      intermediate = (long) * (short *)operand;
+      intermediate = (long)*(short *)operand;
       limit = (long)((intermediate > 0) ? (SHRT_MAX / 10) : (SHRT_MIN / 10));
     } break;
     case REC_BIN16_UNSIGNED: {
-      intermediate = (long) * (unsigned short *)operand;
+      intermediate = (long)*(unsigned short *)operand;
       limit = (long)(USHRT_MAX / 10);
     } break;
     case REC_BIN32_SIGNED: {
-      intermediate = (long) * (int *)operand;
+      intermediate = (long)*(int *)operand;
       limit = (long)((intermediate > 0) ? (INT_MAX / 10) : (INT_MIN / 10));
     } break;
     case REC_BIN32_UNSIGNED: {
-      intermediate = (long) * (UInt32 *)operand;
+      intermediate = (long)*(UInt32 *)operand;
       limit = (long)(UINT_MAX / 10);
     } break;
     case REC_BIN64_SIGNED: {

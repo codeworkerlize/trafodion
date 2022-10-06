@@ -15,41 +15,41 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
-#include "sqlcomp/NewDel.h"
-#include <fstream>
 #include <string.h>
 
-#include "seabed/ms.h"
+#include <fstream>
+
+#include "common/Platform.h"
 #include "seabed/fs.h"
+#include "seabed/ms.h"
+#include "sqlcomp/NewDel.h"
 extern void my_mpi_fclose();
 #include "common/SCMVersHelp.h"
 DEFINE_DOVERS(tdm_arkcmp)
 
-#include "comexe/CmpMessage.h"
 #include "arkcmp/CmpConnection.h"
 #include "arkcmp/CmpContext.h"
-#include "common/CmpCommon.h"
-#include "arkcmp/CmpStoredProc.h"
 #include "arkcmp/CmpErrLog.h"
+#include "arkcmp/CmpStoredProc.h"
 #include "arkcmp/CompException.h"
+#include "comexe/CmpMessage.h"
+#include "common/CmpCommon.h"
 // #include "StaticCompiler.h"
-#include "sqlmxevents/logmxevent.h"
-#include "sqlcomp/QCache.h"
-#include "arkcmp/QueryCacheSt.h"
 #include "arkcmp/NATableSt.h"
+#include "arkcmp/QueryCacheSt.h"
 #include "common/ComCextdecs.h"
+#include "sqlcomp/QCache.h"
+#include "sqlmxevents/logmxevent.h"
 
 #define CLI_DLL
 #include "cli/SQLCLIdev.h"
 #undef CLI_DLL
 
-#include "eh/EHException.h"
-#include "CmpEHCallBack.h"
-
-#include "optimizer/ObjectNames.h"
-#include "cli/Globals.h"
 #include "CliSemaphore.h"
+#include "CmpEHCallBack.h"
+#include "cli/Globals.h"
+#include "eh/EHException.h"
+#include "optimizer/ObjectNames.h"
 
 ostream &operator<<(ostream &dest, const ComDiagsArea &da);
 

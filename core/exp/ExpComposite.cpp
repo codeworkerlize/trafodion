@@ -17,18 +17,18 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
 #include "ExpComposite.h"
 
+#include "common/DatetimeType.h"
+#include "common/Int64.h"
+#include "common/IntervalType.h"
+#include "common/Platform.h"
 #include "exp/exp_bignum.h"
 #include "exp/exp_clause.h"
 #include "exp/exp_clause_derived.h"
-#include "exp/exp_interval.h"
 #include "exp/exp_datetime.h"
-#include "common/DatetimeType.h"
+#include "exp/exp_interval.h"
 #include "sqlci/Formatter.h"
-#include "common/Int64.h"
-#include "common/IntervalType.h"
 
 int compExprNum = 0;
 
@@ -415,8 +415,7 @@ int ExpCompositeHiveCast::unpack(void *base, void *reallocator) {
   return ExpCompositeBase::unpack(base, reallocator);
 }
 
-void ExpCompositeHiveCast::displayContents(Space *space, const char * /*displayStr*/, int clauseNum,
-                                           char *constsArea) {
+void ExpCompositeHiveCast::displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea) {
   char buf[200];
 
   str_sprintf(buf, "  Clause #%d: ExpCompositeHiveCast, type: %s", clauseNum, (type_ == 1 ? "ARRAY" : "ROW"));
@@ -551,7 +550,7 @@ ex_expr::exp_return_type ExpCompositeHiveCast::eval(char *op_data[], CollHeap *h
   }
 
   int tgtOffset = tgtAttrs->getOffset();  // save current offset
-  tgtAttrs->setOffset(0);                   // row will be formed starting at 'tgtData'
+  tgtAttrs->setOffset(0);                 // row will be formed starting at 'tgtData'
   rc = copyHiveSrcToTgt(tgtAttrs, srcData, tgtData, heap, diagsArea, TRUE);
   tgtAttrs->setOffset(tgtOffset);  // restore saved offset
   if (rc == ex_expr::EXPR_ERROR) return rc;
@@ -704,8 +703,8 @@ void ExpCompositeConcat::displayContents(Space *space, const char * /*displayStr
 // ExpCompositeCreate
 ////////////////////////////////////////////////////////////////////
 ExpCompositeCreate::ExpCompositeCreate(OperatorTypeEnum oper_type, short type, int numElements, short numAttrs,
-                                       Attributes **attr, int compRowLen, ex_expr *compExpr,
-                                       ex_cri_desc *compCriDesc, AttributesPtr compAttrs, Space *space)
+                                       Attributes **attr, int compRowLen, ex_expr *compExpr, ex_cri_desc *compCriDesc,
+                                       AttributesPtr compAttrs, Space *space)
     : ExpCompositeBase(oper_type, type, numElements, numAttrs, attr, compRowLen, compExpr, compCriDesc, compAttrs,
                        space) {}
 
@@ -878,8 +877,7 @@ short displayValues(Attributes *attr, char *tgtPtr, char *srcPtr, int varLen, UI
   return 0;
 }
 
-void ExpCompositeDisplay::displayContents(Space *space, const char * /*displayStr*/, int clauseNum,
-                                          char *constsArea) {
+void ExpCompositeDisplay::displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea) {
   char buf[200];
 
   str_sprintf(buf, "  Clause #%d: ExpCompositeDisplay, type: %s, numElements: %d", clauseNum,
@@ -922,9 +920,8 @@ ex_expr::exp_return_type ExpCompositeDisplay::eval(char *op_data[], CollHeap *he
 // ExpCompositeExtract
 ///////////////////////////////////////////////////////////
 ExpCompositeExtract::ExpCompositeExtract(OperatorTypeEnum oper_type, short type, int numElements, int elemNum,
-                                         short numAttrs, Attributes **attr, AttributesPtr compAttrs,
-                                         int numSearchAttrs, char *searchAttrTypeList, char *searchAttrIndexList,
-                                         Space *space)
+                                         short numAttrs, Attributes **attr, AttributesPtr compAttrs, int numSearchAttrs,
+                                         char *searchAttrTypeList, char *searchAttrIndexList, Space *space)
     : ExpCompositeBase(oper_type, type, numElements, numAttrs, attr, 0, NULL, NULL, compAttrs, space),
       elemNum_(elemNum),
       numSearchAttrs_(numSearchAttrs),
@@ -946,8 +943,7 @@ int ExpCompositeExtract::unpack(void *base, void *reallocator) {
   return ExpCompositeBase::unpack(base, reallocator);
 }
 
-void ExpCompositeExtract::displayContents(Space *space, const char * /*displayStr*/, int clauseNum,
-                                          char *constsArea) {
+void ExpCompositeExtract::displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea) {
   char buf[200];
 
   str_sprintf(buf, "  Clause #%d: ExpCompositeExtract, type: %s", clauseNum, (type_ == 1 ? "ARRAY" : "ROW"));
@@ -986,10 +982,9 @@ void ExpCompositeExtract::displayContents(Space *space, const char * /*displaySt
   ex_clause::displayContents(space, NULL, clauseNum, constsArea);
 }
 
-ex_expr::exp_return_type ExpCompositeExtract::extractValue(Attributes *inAttrs, int elemNum, char *tgtPtr,
-                                                           char *srcPtr, int maxNumElems, NABoolean &isNullVal,
-                                                           int &attrLen, int &numElems, CollHeap *heap,
-                                                           ComDiagsArea **diagsArea) {
+ex_expr::exp_return_type ExpCompositeExtract::extractValue(Attributes *inAttrs, int elemNum, char *tgtPtr, char *srcPtr,
+                                                           int maxNumElems, NABoolean &isNullVal, int &attrLen,
+                                                           int &numElems, CollHeap *heap, ComDiagsArea **diagsArea) {
   CompositeAttributes *compAttrs = (CompositeAttributes *)inAttrs;
   AttributesPtrPtr app = compAttrs->getElements();
   AttributesPtr ap = app[elemNum - 1];
@@ -1028,8 +1023,8 @@ ex_expr::exp_return_type ExpCompositeExtract::extractValue(Attributes *inAttrs, 
 }
 
 ex_expr::exp_return_type ExpCompositeExtract::searchAndExtractValue(Attributes *inAttrs, char *tgtPtr, char *srcPtr,
-                                                                    NABoolean &isNullVal, int &attrLen,
-                                                                    CollHeap *heap, ComDiagsArea **diagsArea) {
+                                                                    NABoolean &isNullVal, int &attrLen, CollHeap *heap,
+                                                                    ComDiagsArea **diagsArea) {
   Attributes *currCompAttrs = inAttrs;
   Attributes *currAttr = NULL;
 

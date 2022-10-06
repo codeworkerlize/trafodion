@@ -15,12 +15,12 @@
  */
 
 #include <openssl/conf.h>
-#include <openssl/evp.h>
 #include <openssl/err.h>
+#include <openssl/evp.h>
 
-#include "common/Platform.h"
 #include "common/ComSmallDefs.h"
 #include "common/NAString.h"
+#include "common/Platform.h"
 
 class ComEncryption : public NABasicObject {
  public:

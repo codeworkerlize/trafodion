@@ -19,8 +19,8 @@
 
 // -----------------------------------------------------------------------
 
-#include "common/Ipc.h"
 #include "comexe/FragDir.h"
+#include "common/Ipc.h"
 #include "export/NAVersionedObject.h"
 
 // -----------------------------------------------------------------------

@@ -14,6 +14,7 @@
 // ***********************************************************************
 
 #include "QmsMVMemo.h"
+
 #include "qmscommon/QRLogger.h"
 
 //#define DEBUG_MVMEMO

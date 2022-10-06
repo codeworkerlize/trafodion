@@ -21,8 +21,8 @@
  *****************************************************************************
  */
 
-#include "StmtDDLAlterTable.h"
 #include "ElemDDLPartitionNameAndForValues.h"
+#include "StmtDDLAlterTable.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

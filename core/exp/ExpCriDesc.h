@@ -7,8 +7,8 @@
 class ExpTupleDesc;
 class ex_cri_desc;
 
-#include "export/NAVersionedObject.h"
 #include "exp/exp_tuple_desc.h"
+#include "export/NAVersionedObject.h"
 
 // ---------------------------------------------------------------------
 // Template instantiation to produce a 64-bit pointer emulator class

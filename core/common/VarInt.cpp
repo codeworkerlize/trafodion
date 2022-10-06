@@ -11,13 +11,15 @@
  *****************************************************************************
  */
 
-#include <string.h>
-#include <assert.h>
-#include <stdio.h>
-#include <math.h>
 #include "VarInt.h"
-#include "common/str.h"
+
+#include <assert.h>
+#include <math.h>
+#include <stdio.h>
+#include <string.h>
+
 #include "common/Int64.h"
+#include "common/str.h"
 
 // ----------------------------------------------------------------------------
 // helper methods to pack and unpack

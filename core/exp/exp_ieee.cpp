@@ -1,7 +1,8 @@
 
-#include <math.h>
-#include <fenv.h>
 #include "exp_ieee.h"
+
+#include <fenv.h>
+#include <math.h>
 
 void CLEAREXCEPT() { feclearexcept(FE_OVERFLOW | FE_INVALID | FE_DIVBYZERO | FE_UNDERFLOW); }
 

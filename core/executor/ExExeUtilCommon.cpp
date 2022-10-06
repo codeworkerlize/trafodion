@@ -15,24 +15,22 @@
  *****************************************************************************
  */
 
+#include "ComRtUtils.h"
+#include "ComSmallDefs.h"
+#include "ComSqlId.h"
+#include "ComTdb.h"
+#include "ExExeUtil.h"
+#include "ExStats.h"
+#include "cli_stdh.h"
 #include "common/ComCextdecs.h"
 #include "common/ComSizeDefs.h"
-#include "cli_stdh.h"
-#include "ex_stdh.h"
-#include "sql_id.h"
-#include "ex_transaction.h"
-#include "ComTdb.h"
-#include "ex_tcb.h"
-#include "ComSqlId.h"
-
-#include "ExExeUtil.h"
 #include "ex_exe_stmt_globals.h"
-#include "exp_expr.h"
+#include "ex_stdh.h"
+#include "ex_tcb.h"
+#include "ex_transaction.h"
 #include "exp_clause_derived.h"
-#include "ComRtUtils.h"
-#include "ExStats.h"
-#include "ComSmallDefs.h"
-
+#include "exp_expr.h"
+#include "sql_id.h"
 #include "sqlmxevents/logmxevent.h"
 
 // Generate a lock name from the input simple object name and the given suffix.
@@ -40,9 +38,9 @@
 // from the simple object name part in the generated lock name without changing
 // the suffix.
 //
-static NABoolean generateLockName(const char *objInternal1PartName,        // in UTF-8 format
-                                  const char *lockSuffix,                  // contains 7-bit ASCII chars only
-                                  char *lockInternal1PartNameOutBuf,       // in UTF-8 format
+static NABoolean generateLockName(const char *objInternal1PartName,      // in UTF-8 format
+                                  const char *lockSuffix,                // contains 7-bit ASCII chars only
+                                  char *lockInternal1PartNameOutBuf,     // in UTF-8 format
                                   int lockInInternal1PartNameOutBufLen)  // in bytes
 {
   int objInt1PartNameLen = str_len(objInternal1PartName);
@@ -50,12 +48,12 @@ static NABoolean generateLockName(const char *objInternal1PartName,        // in
   char buf[20];
   int hashValue = 0;
   int suffixLen = str_len(lockSuffix) + 8;  // 8 characters for hashvalue of truncated
-                                              // object name
+                                            // object name
   // More than 60 characters won't be truncated and hence 8 characters should be
   // good enough
   int allowedLen = lightValidateUTF8Str(objInternal1PartName, objInt1PartNameLen,
-                                          // max allowed chars in UTF-8 (same as allowed bytes in ISO)
-                                          ComMAX_1_PART_INTERNAL_ISO88591_NAME_LEN - suffixLen);
+                                        // max allowed chars in UTF-8 (same as allowed bytes in ISO)
+                                        ComMAX_1_PART_INTERNAL_ISO88591_NAME_LEN - suffixLen);
 
   if (lockInternal1PartNameOutBuf == NULL || allowedLen + suffixLen >= lockInInternal1PartNameOutBufLen) return FALSE;
   if (allowedLen < objInt1PartNameLen) {
@@ -539,7 +537,7 @@ short ExExeUtilTcb::restoreCQD(const char *defaultName, ComDiagsArea *globalDiag
 }
 
 int ExExeUtilTcb::holdAndSetCQD(const char *defaultName, const char *defaultValue, ExeCliInterface *cliInterface,
-                                  ComDiagsArea *globalDiags) {
+                                ComDiagsArea *globalDiags) {
   int cliRC;
 
   cliRC = cliInterface->holdAndSetCQD(defaultName, defaultValue, globalDiags);
@@ -1227,7 +1225,7 @@ NABoolean ExExeUtilTcb::isProcessObsolete(short cpu, pid_t pin, short segmentNum
 }
 
 int ExExeUtilTcb::extractParts(char *objectName, char **paramParts0, char **paramParts1, char **paramParts2,
-                                 NABoolean noValidate) {
+                               NABoolean noValidate) {
   char *parts[4];
   int numParts = 0;
   int rc = 0;

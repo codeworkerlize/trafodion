@@ -20,8 +20,7 @@ ExDupSqlBuffer::ExDupSqlBuffer(UInt32 nTuples, UInt32 tupleSize, UInt32 nReserve
 };
 
 ExDupSqlBuffer::ExDupSqlBuffer(UInt32 nBuffers, UInt32 bufferSize, UInt32 nReserve, UInt32 tupleSize, NAMemory *heap)
-    : ExSimpleSQLBuffer(static_cast<int>(nBuffers), static_cast<int>(bufferSize), static_cast<int>(tupleSize),
-                        heap),
+    : ExSimpleSQLBuffer(static_cast<int>(nBuffers), static_cast<int>(bufferSize), static_cast<int>(tupleSize), heap),
       dupCurrent_(NULL),
       dupHead_(NULL),
       dupTail_(NULL),

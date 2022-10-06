@@ -17,42 +17,40 @@
 
 //#define IPC_INTEGRITY_CHECKING 1  // for debugging purposes
 
-#include "common/Platform.h"
-#include "common/ComASSERT.h"
-#include "export/ComDiags.h"
-#include "sqlmxevents/logmxevent.h"
-#include "common/ExCollections.h"
 #include "common/Ipc.h"
-#include "ipcmsg.h"
-#include "common/str.h"
-#include "export/HeapLog.h"
-#include "common/ComRtUtils.h"
-#include "porting/PortProcessCalls.h"
 
-#include <time.h>
 #include <sys/time.h>
-#include "seabed/pctl.h"
-#include "seabed/ms.h"
-#include "seabed/sys.h"
-#include "seabed/int/opts.h"
-
+#include <time.h>
 #include <unistd.h>  // for getpid()
 
-#include "cli/Globals.h"
-#include "cli/Context.h"
-#include "MXTraceDef.h"
-#include "ExSMTrace.h"
-
-#include "SMConnection.h"
 #include "ExSMCommon.h"
 #include "ExSMGlobals.h"
 #include "ExSMReadyList.h"
 #include "ExSMTask.h"
+#include "ExSMTrace.h"
+#include "MXTraceDef.h"
+#include "SMConnection.h"
+#include "cli/Context.h"
+#include "cli/Globals.h"
+#include "common/ComASSERT.h"
+#include "common/ComRtUtils.h"
+#include "common/ExCollections.h"
+#include "common/Platform.h"
+#include "common/str.h"
+#include "export/ComDiags.h"
+#include "export/HeapLog.h"
+#include "ipcmsg.h"
+#include "porting/PortProcessCalls.h"
+#include "seabed/int/opts.h"
+#include "seabed/ms.h"
+#include "seabed/pctl.h"
+#include "seabed/sys.h"
+#include "sqlmxevents/logmxevent.h"
 
 NABoolean XAWAITIOX_MINUS_ONE = TRUE;
 
-#include "common/ComCextdecs.h"
 #include "Ex_esp_msg.h"
+#include "common/ComCextdecs.h"
 
 #ifndef FS_MAX_NOWAIT_DEPTH
 #define FS_MAX_NOWAIT_DEPTH 16
@@ -4813,8 +4811,7 @@ IpcEnvironment::IpcEnvironment(CollHeap *heap, UInt32 *eventConsumed, NABoolean 
   ipcMsgTraceRef_ = NULL;
 }
 
-void IpcEnvironment::closeTrace(unsigned short line, short clientFileNumber, int cpu, int pin,
-                                SB_Int64_Type seqNum) {
+void IpcEnvironment::closeTrace(unsigned short line, short clientFileNumber, int cpu, int pin, SB_Int64_Type seqNum) {
   unsigned short i = closeTraceIndex_ == closeTraceEntries - 1 ? 0 : closeTraceIndex_ + 1;
   (*closeTraceArray_)[i].count_ = (*closeTraceArray_)[closeTraceIndex_].count_ + 1;
   (*closeTraceArray_)[i].line_ = line;
@@ -5088,7 +5085,7 @@ void IpcEnvironment::registTraceInfo(ExeTraceInfo *ti) {
       int lineWidth = 66;
       void *regdTrace;
       int ret = ti->addTrace("IpcMessages", this, maxIpcMsgTraceIndex_, 6, this, getALine, &lastIpcMsgTraceIndex_,
-                               lineWidth, IpcMsgTraceDesc, &regdTrace);
+                             lineWidth, IpcMsgTraceDesc, &regdTrace);
       if (ret == 0) {
         // trace info added successfully, now add entry fields
         ti->addTraceField(regdTrace, "Connection ", 0, ExeTrace::TR_POINTER32);

@@ -20,24 +20,22 @@
 #define NA_COMPILE_INSTANTIATE
 
 #include <limits.h>
-#include <stdlib.h>
 #include <stdio.h>
-#include <iostream>
-#include "common/Int64.h"
+#include <stdlib.h>
 
-#include "spinfo.h"
-#include "common/copyright.h"
-#include "udrutil.h"
+#include <iostream>
+
 #include "LmError.h"
+#include "UdrExeIpc.h"
+#include "common/Int64.h"
 #include "common/NumericType.h"
+#include "common/copyright.h"
+#include "export/ComDiags.h"
+#include "spinfo.h"
+#include "sqlmxevents/logmxevent.h"
 #include "udrdefs.h"
 #include "udrglobals.h"
-
-#include "sqlmxevents/logmxevent.h"
-
-#include "UdrExeIpc.h"
-
-#include "export/ComDiags.h"
+#include "udrutil.h"
 
 extern UdrGlobals *UDR_GLOBALS;  // UDR globals area
 

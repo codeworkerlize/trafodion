@@ -11,12 +11,13 @@
 *
 ******************************************************************************
 */
+#include "LmJavaExceptionReporter.h"
+
+#include "common/CmpCommon.h"
 #include "common/ComMisc.h"
 #include "common/Platform.h"
-#include "lmjni.h"
-#include "LmJavaExceptionReporter.h"
 #include "exp/ExpErrorEnums.h"
-#include "common/CmpCommon.h"
+#include "lmjni.h"
 
 LmJavaExceptionReporter::LmJavaExceptionReporter(LmHandle jniEnv, LmLanguageManagerJava *langMan, LmResult &result,
                                                  ComDiagsArea *diagsArea)

@@ -15,15 +15,15 @@
  *****************************************************************************
  */
 
-#include "optimizer/Sqlcomp.h"
-#include "optimizer/AllItemExpr.h"
-#include "optimizer/AllRelExpr.h"
-#include "optimizer/RelSequence.h"
-#include "RelSample.h"
 #include "RelPackedRows.h"
+#include "RelSample.h"
 #include "generator/Generator.h"
 #include "mdamkey.h"
+#include "optimizer/AllItemExpr.h"
+#include "optimizer/AllRelExpr.h"
 #include "optimizer/GroupAttr.h"
+#include "optimizer/RelSequence.h"
+#include "optimizer/Sqlcomp.h"
 
 void outputBuffer(Space *space, char *buf, char *newbuf, NAString *shapeStr = NULL) {
   if (shapeStr) {

@@ -192,9 +192,9 @@ class ex_hashj_tcb : public ex_tcb {
   ex_expr *rangeSpecPackingExpr_;
 
   long totalRowsEvaledByMinMax_;  // total # rows evaluated by minmaxExpr_.
-  int sanityCheckCycle_;        // The number of minmax rows to accumulate before
-                                   // a sanity check starts. A value of 0 disables
-                                   // the check.
+  int sanityCheckCycle_;          // The number of minmax rows to accumulate before
+                                  // a sanity check starts. A value of 0 disables
+                                  // the check.
 
   atp_struct *checkInputAtp_;
   tupp prevInputValues_;  // this tupp points to a copy of the previous input
@@ -409,7 +409,7 @@ class ex_hashj_private_state : public ex_tcb_private_state {
                                   // delayed (Only for allOrNothing )
   NABoolean haveClusters_;        // indicates hash table has been built
   NABoolean readRightRow_;        // was a row read from the right (for this request)
-  long matchCount_;              // # of rows sent to parent
+  long matchCount_;               // # of rows sent to parent
   queue_index reliesOnIdx;        // index of request that builds hash table (re)used by this request
 
  public:

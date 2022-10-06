@@ -2,20 +2,20 @@
 
 // **********************************************************************
 
-#include "common/Platform.h"
 #include <long.h>
-#include "QmsRequest.h"
+
+#include "QRIpc.h"
 #include "QRMessage.h"
-#include "qmscommon/XMLUtil.h"
+#include "QmsInitializer.h"
+#include "QmsRequest.h"
+#include "QueryRewriteServer.h"
+#include "common/Platform.h"
+#include "nsk/nskport.h"
 #include "qmscommon/QRDescriptor.h"
 #include "qmscommon/QRLogger.h"
-#include "QmsInitializer.h"
-#include "QueryRewriteServer.h"
-#include "QRIpc.h"
-
-#include "nsk/nskport.h"
-#include "seabed/ms.h"
+#include "qmscommon/XMLUtil.h"
 #include "seabed/fs.h"
+#include "seabed/ms.h"
 extern void my_mpi_fclose();
 #include "common/SCMVersHelp.h"
 DEFINE_DOVERS(tdm_arkqms)

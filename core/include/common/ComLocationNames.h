@@ -17,13 +17,13 @@
 
 // -----------------------------------------------------------------------
 
+#include "common/ComGuardianFileNameParts.h"
 #include "common/ComOperators.h"
+#include "common/ComSizeDefs.h"
 #include "common/NABoolean.h"
 #include "common/NAString.h"
-#include "export/NABasicObject.h"
 #include "export/ComDiags.h"
-#include "common/ComGuardianFileNameParts.h"
-#include "common/ComSizeDefs.h"
+#include "export/NABasicObject.h"
 
 // -----------------------------------------------------------------------
 // contents of this file
@@ -40,7 +40,7 @@ class ComLocationName;
 // -----------------------------------------------------------------------
 
 const int ComGUARDIAN_NAME_PART_WITHOUT_PREFIX = 0,
-            COM_GUARDIAN_NAME_PART_WITHOUT_PREFIX = ComGUARDIAN_NAME_PART_WITHOUT_PREFIX;
+          COM_GUARDIAN_NAME_PART_WITHOUT_PREFIX = ComGUARDIAN_NAME_PART_WITHOUT_PREFIX;
 
 // Various sizes - eventually, those that redefine sizes from ComSizeDefs
 // should be substituted with those definitions wherever used.

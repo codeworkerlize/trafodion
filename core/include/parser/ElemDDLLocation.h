@@ -18,8 +18,8 @@
  *****************************************************************************
  */
 
-#include "common/ComLocationNames.h"
 #include "ElemDDLNode.h"
+#include "common/ComLocationNames.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

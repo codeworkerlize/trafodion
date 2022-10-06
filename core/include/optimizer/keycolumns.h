@@ -20,8 +20,8 @@
 
 // -----------------------------------------------------------------------
 
-#include "optimizer/ValueDesc.h"
 #include "export/NABasicObject.h"
+#include "optimizer/ValueDesc.h"
 
 // -----------------------------------------------------------------------
 // Class KeyColumns

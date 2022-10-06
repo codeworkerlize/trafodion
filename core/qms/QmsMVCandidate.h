@@ -15,9 +15,9 @@
 
 // _MEMSHAREDPTR;_MEMCHECK
 
-#include "qmscommon/QRSharedPtr.h"
-#include "qmscommon/QRDescriptor.h"
 #include "QmsLatticeIndex.h"
+#include "qmscommon/QRDescriptor.h"
+#include "qmscommon/QRSharedPtr.h"
 
 // Forward references
 class MVCandidate;
@@ -44,8 +44,8 @@ typedef MVCandidateCollection *MVCandidateCollectionPtr;
 #ifndef _MVCANDIDATE_H_
 #define _MVCANDIDATE_H_
 
-#include "QmsMVDetails.h"
 #include "QmsJoinGraph.h"
+#include "QmsMVDetails.h"
 #include "QmsMatchTest.h"
 
 typedef StringPtrSet IDSet;

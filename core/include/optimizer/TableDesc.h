@@ -15,14 +15,14 @@
 **************************************************************************
 */
 
-#include "common/BaseTypes.h"
-#include "optimizer/ObjectNames.h"
 #include "ColStatDesc.h"
 #include "IndexDesc.h"
-#include "optimizer/ItemConstr.h"
-#include "optimizer/ValueDesc.h"
 #include "OptRange.h"
+#include "common/BaseTypes.h"
 #include "optimizer/ItemColRef.h"
+#include "optimizer/ItemConstr.h"
+#include "optimizer/ObjectNames.h"
+#include "optimizer/ValueDesc.h"
 
 // -----------------------------------------------------------------------
 // contents of this file
@@ -113,8 +113,8 @@ class PartRangePerCol : public NABasicObject {
   //  partition p3 values less than (30, 10)
   // );
   // example for p2, col c1 0
-  const int partIdx_;           // part number is 1
-  const int partColPos_;        // c1 is the first partition column, position is 0
+  const int partIdx_;             // part number is 1
+  const int partColPos_;          // c1 is the first partition column, position is 0
   OptRangeSpec *intervalRange_;   // c1 :[10...20)            |
   OptRangeSpec *highBoundRange_;  // c1 :[20...20]            |
   ItemExpr *lowBoundaryExpr_;     // c1 :c1 = 10

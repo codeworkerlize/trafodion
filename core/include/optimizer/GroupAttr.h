@@ -18,17 +18,16 @@
 
 // -----------------------------------------------------------------------
 
+#include "EstLogProp.h"
+#include "IndexDesc.h"
 #include "common/BaseTypes.h"
 #include "common/Collections.h"
 #include "optimizer/ValueDesc.h"
-#include "EstLogProp.h"
-#include "IndexDesc.h"
 // QSTUFF
-#include "optimizer/RelScan.h"
 #include "optimizer/ItemOther.h"
+#include "optimizer/RelScan.h"
 // QSTUFF
 #include "ReqGen.h"
-
 #include "Stats.h"
 #include "common/SharedPtrCollections.h"
 
@@ -607,7 +606,7 @@ class GroupAttributes : public ReferenceCounter {
   // -----------------------------------------------------------------------
 
   ValueIdList recommendedOrderForNJProbing(GroupAttributes *child0GA,        // IN
-                                           int numForcedParts,             // IN
+                                           int numForcedParts,               // IN
                                            RequirementGenerator &rg,         // IN
                                            ValueIdList &reqdOrder1,          // IN
                                            ValueIdSet &reqdArr1,             // IN

@@ -280,8 +280,8 @@ int ExeTraceInfo::getExeTraceById(void *traceId, char *buf, int maxBufLen, int *
 // addTrace - add trace to the trace info list
 //----------------------------------------------------------------
 int ExeTraceInfo::addTrace(const char *traceName, void *traceId, int numEntries, int numFields, void *target,
-                             GetALineProcPtr getALineProc, void *indexLoc, int lineWidth, const char *desc,
-                             void **exeTrace) {
+                           GetALineProcPtr getALineProc, void *indexLoc, int lineWidth, const char *desc,
+                           void **exeTrace) {
   // to do: use globalheap?
   ExeTrace *t = (ExeTrace *)malloc(sizeof(ExeTrace) + numFields * sizeof(ExeTrace::TraceField));
   *exeTrace = 0;  // set to 0 initially

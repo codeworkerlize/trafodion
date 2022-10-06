@@ -2,21 +2,21 @@
 #ifndef BindWA_H
 #define BindWA_H
 
+#include "arkcmp/CmpContext.h"
 #include "common/BaseTypes.h"
 #include "common/Collections.h"
-#include "optimizer/ColumnNameMap.h"
-#include "arkcmp/CmpContext.h"
+#include "common/ComSchemaName.h"  // for ComSchemaName
 #include "common/NAMemory.h"
-#include "optimizer/ObjectNames.h"
 #include "common/OperTypeEnum.h"
+#include "optimizer/ColumnNameMap.h"
+#include "optimizer/ObjectNames.h"
+#include "optimizer/OptUtilIncludes.h"
+#include "optimizer/RETDesc.h"
 #include "optimizer/Rel3GL.h"
 #include "optimizer/RelMisc.h"
 #include "optimizer/RelRoutine.h"
-#include "optimizer/RETDesc.h"
 #include "optimizer/TableNameMap.h"
 #include "optimizer/ValueDesc.h"
-#include "optimizer/OptUtilIncludes.h"
-#include "common/ComSchemaName.h"  // for ComSchemaName
 
 // ----------------------------------------------------------------------
 // contents of this file
@@ -192,7 +192,6 @@ class BindContext : public NABasicObject {
   NABoolean &inComputedColumnExpr() { return inComputedColumnExpr_; }
   StmtDDLCreateTrigger *&triggerObj() { return triggerObj_; }
   NABoolean &inUpsertXform() { return inUpsertXform_; }
-
 
   const StmtLevelAccessOptions *stmtLevelAccessOptions() const { return stmtLevelAccessOptions_; }
   void setStmtLevelAccessOptions(StmtLevelAccessOptions &ao) {
@@ -429,7 +428,6 @@ class BindContext : public NABasicObject {
   // --------------------------------------------------------------------
   StmtDDLCreateTrigger *triggerObj_;
 
-
   // --------------------------------------------------------------------
   // NonNULL if Tandem-extension "FOR xxx ACCESS [IN locking MODE]" was
   // specified anywhere in this scope (query or subquery).
@@ -454,7 +452,6 @@ class BindContext : public NABasicObject {
 
   ConnectBy *currentConnectByNode_;
 };  // class BindContext
-
 
 class XTNMStack : public LIST(XTNM *) {
  public:
@@ -1147,7 +1144,6 @@ class BindWA : public NABasicObject {
   void removeCurrentScope(NABoolean keepLocalRefs = FALSE);
 
   BindScope *findNextScopeWithTriggerInfo(BindScope *currentScope = NULL);
-
 
   NABoolean isBindingMvRefresh() const { return isBindingMvRefresh_; }
   // Use a separate flag for propagating the OP and SYSKEY cols.

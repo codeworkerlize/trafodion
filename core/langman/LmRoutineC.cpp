@@ -10,6 +10,7 @@
 **********************************************************************/
 
 #include "LmRoutineC.h"
+
 #include "common/ComVersionDefs.h"
 
 SQLUDR_CHAR *LmRoutineC::host_data_ = NULL;

@@ -7,15 +7,13 @@
 // 4/10/98  A simple class devoting to the concept of Unicode
 ////////////////////////////////////////////////////////////////////
 
+#include <limits.h>
+#include <stddef.h>
 #include <string.h>
 
-#include <stddef.h>
-#include <limits.h>
-
-#include "common/Platform.h"
-
-#include "common/NAWinNT.h"
 #include "common/NABoolean.h"
+#include "common/NAWinNT.h"
+#include "common/Platform.h"
 
 // Forward declaration
 class NAWString;
@@ -99,10 +97,10 @@ class unicode_char_set {
 int UTF8CharLenInBytes(const unsigned char firstByteOfTheUtf8Char);  // returns 0 on errors
 
 int IndexOfLastByteOfUTF8CharAtOrBeforePos(const unsigned char *utf8Str, const int utf8StrLenInBytes,
-                                             const int bytePos);  // returns -1 on errors
+                                           const int bytePos);  // returns -1 on errors
 
 int IndexOfFirstByteOfUTF8CharAtOrBeforePos(const unsigned char *utf8Str, const int utf8StrLenInBytes,
-                                              const int bytePos);  // returns -1 on errors
+                                            const int bytePos);  // returns -1 on errors
 
 int maxBytesInUTF8String(char *str, int len);
 

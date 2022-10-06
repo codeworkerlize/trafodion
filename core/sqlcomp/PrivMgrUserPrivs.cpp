@@ -8,17 +8,18 @@
 //   PrivMgrCommands
 // ==========================================================================
 
-#include "sqlcomp/PrivMgrCommands.h"
-#include "sqlcomp/PrivMgrMD.h"
-#include "common/DgBaseType.h"
-#include "optimizer/NATable.h"
-#include "optimizer/NAColumn.h"
+#include <algorithm>
+#include <cstdio>
+
+#include "common/ComMisc.h"
 #include "common/ComSecurityKey.h"
 #include "common/ComUser.h"
-#include "common/ComMisc.h"
+#include "common/DgBaseType.h"
+#include "optimizer/NAColumn.h"
+#include "optimizer/NATable.h"
 #include "sqlcomp/CmpSeabaseDDL.h"
-#include <cstdio>
-#include <algorithm>
+#include "sqlcomp/PrivMgrCommands.h"
+#include "sqlcomp/PrivMgrMD.h"
 
 // ****************************************************************************
 // Class: PrivMgrObjectInfo

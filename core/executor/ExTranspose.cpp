@@ -21,6 +21,7 @@
 //
 
 #include "ExTranspose.h"
+
 #include "ExSimpleSqlBuffer.h"
 #include "executor/ExStats.h"
 

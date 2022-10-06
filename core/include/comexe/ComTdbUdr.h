@@ -17,10 +17,10 @@
 #ifndef COM_TDB_UDR_H
 #define COM_TDB_UDR_H
 
+#include "comexe/ComQueue.h"
 #include "comexe/ComTdb.h"
 #include "comexe/UdrFormalParamInfo.h"
 #include "comexe/udrtabledescinfo.h"
-#include "comexe/ComQueue.h"
 
 //
 // Classes defined in this file
@@ -41,11 +41,11 @@ class ComTdbUdr : public ComTdb {
             char *librarySqlName, long libraryRedefTime, char *libraryBlobHandle, char *librarySchName,
             int libraryVersion, char *javaOptions, char *javaOptionDelimiters,
 
-            int flags, int numInputValues, int numOutputValues, int numParams, int maxResultSets,
-            int stateAreaSize, short udrType, short languageType, short paramStyle, short sqlAccessMode,
-            short transactionAttrs, UInt16 externalSecurity, int routineOwnerId, Cardinality estimatedRowCount,
-            ex_cri_desc *criDescParent, ex_cri_desc *criDescReturned, ex_cri_desc *workCriDesc,
-            queue_index downQueueMaxSize, queue_index upQueueMaxSize,
+            int flags, int numInputValues, int numOutputValues, int numParams, int maxResultSets, int stateAreaSize,
+            short udrType, short languageType, short paramStyle, short sqlAccessMode, short transactionAttrs,
+            UInt16 externalSecurity, int routineOwnerId, Cardinality estimatedRowCount, ex_cri_desc *criDescParent,
+            ex_cri_desc *criDescReturned, ex_cri_desc *workCriDesc, queue_index downQueueMaxSize,
+            queue_index upQueueMaxSize,
 
             int numOutputBuffers, int outputBufferSize, int requestBufferSize, int replyBufferSize,
 
@@ -212,17 +212,17 @@ class ComTdbUdr : public ComTdb {
   // Definer Rights related
   int routineOwnerId_;  // 208-211
   // serialized UDRInvocationInfo and UDRPlanInfo
-  int udrSerInvocationInfoLen_;    // 212-215
+  int udrSerInvocationInfoLen_;      // 212-215
   NABasicPtr udrSerInvocationInfo_;  // 216-223
-  int udrSerPlanInfoLen_;          // 224-227
+  int udrSerPlanInfoLen_;            // 224-227
   NABasicPtr udrSerPlanInfo_;        // 228-235
 
-  int javaDebugPort_;           // 236-239
-  int javaDebugTimeout_;        // 240-243
-  long libraryRedefTime_;        // 244-251
+  int javaDebugPort_;             // 236-239
+  int javaDebugTimeout_;          // 240-243
+  long libraryRedefTime_;         // 244-251
   NABasicPtr libraryBlobHandle_;  // 252-259
   NABasicPtr librarySchName_;     // 260-267
-  int libraryVersion_;          // 268-271
+  int libraryVersion_;            // 268-271
   // Make sure class size is a multiple of 8
   char fillerComTdbUdr2_[24];  // 272-295
 };

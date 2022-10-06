@@ -20,32 +20,32 @@
  *****************************************************************************
  */
 
-#include "parser/AllStmtDDLAlterTable.h"
+#include "AllElemDDLFileAttr.h"
+#include "ElemDDLConstraint.h"
+#include "ElemDDLFileAttrClause.h"
+#include "ElemDDLLibClientFilename.h"
+#include "ElemDDLLibClientName.h"
+#include "StmtDDLAlterAuditConfig.h"
+#include "StmtDDLAlterSynonym.h"
 #include "StmtDDLAlterTableToggleConstraint.h"
 #include "common/BaseTypes.h"
 #include "common/ComASSERT.h"
 #include "common/ComOperators.h"
-#include "ElemDDLConstraint.h"
+#include "parser/AllStmtDDLAlter.h"  // MV - RG
+#include "parser/AllStmtDDLAlterTable.h"
 #include "parser/ElemDDLConstraintCheck.h"
-#include "ElemDDLFileAttrClause.h"
-#include "ElemDDLLibClientFilename.h"
-#include "ElemDDLLibClientName.h"
-#include "parser/StmtDDLAlterIndexAttribute.h"
 #include "parser/ElemDDLConstraintPK.h"
-#include "parser/AllStmtDDLAlter.h"         // MV - RG
 #include "parser/ElemDDLQualName.h"  // MV - RG
-#include "parser/StmtDDLAlterTrigger.h"
-#include "AllElemDDLFileAttr.h"
-#include "StmtDDLAlterAuditConfig.h"
 #include "parser/StmtDDLAlterCatalog.h"
-#include "parser/StmtDDLAlterSchema.h"
+#include "parser/StmtDDLAlterIndexAttribute.h"
 #include "parser/StmtDDLAlterLibrary.h"
-#include "StmtDDLAlterSynonym.h"
+#include "parser/StmtDDLAlterSchema.h"
+#include "parser/StmtDDLAlterTableAlterColumn.h"
 #include "parser/StmtDDLAlterTableDisableIndex.h"
 #include "parser/StmtDDLAlterTableEnableIndex.h"
-#include "parser/StmtDDLAlterTableAlterColumn.h"
-#include "parser/StmtDDLAlterTableTruncatePartition.h"
 #include "parser/StmtDDLAlterTableSplitPartition.h"
+#include "parser/StmtDDLAlterTableTruncatePartition.h"
+#include "parser/StmtDDLAlterTrigger.h"
 
 // -----------------------------------------------------------------------
 // definitions of non-inline methods for class ParCheckConstraintColUsage
@@ -1836,8 +1836,6 @@ const NAString StmtDDLAlterLibrary::displayLabel1() const { return NAString("Lib
 const NAString StmtDDLAlterLibrary::displayLabel2() const { return NAString("Filename: ") + getFilename(); }
 
 const NAString StmtDDLAlterLibrary::getText() const { return "StmtDDLAlterLibrary"; }
-
-
 
 //
 // Virtual destructor

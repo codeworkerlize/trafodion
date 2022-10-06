@@ -16,26 +16,21 @@
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS  // must be first
 #define SQLPARSERGLOBALS_NADEFAULTS         // must be first
 
-#include "common/NAWinNT.h"  // platform-independent stuff
-
 #include "optimizer/ObjectNames.h"
-#include "common/ComMPLoc.h"
-#include "common/ComRtUtils.h"
-#include "optimizer/SchemaDB.h"
 
+#include "common/ComMPLoc.h"
+#include "common/ComResWords.h"
+#include "common/ComRtUtils.h"
+#include "common/ComSmallDefs.h"
+#include "common/NAWinNT.h"  // platform-independent stuff
 #include "optimizer/BindWA.h"
 #include "optimizer/ItemColRef.h"
-#include "sqlcomp/parser.h"
 #include "optimizer/RelScan.h"
-#include "parser/StmtNode.h"
-
-#include "sqlcomp/CmpSeabaseDDL.h"
-
-#include "common/ComSmallDefs.h"
-
-#include "common/ComResWords.h"
-
+#include "optimizer/SchemaDB.h"
 #include "parser/SqlParserGlobals.h"  // must be last
+#include "parser/StmtNode.h"
+#include "sqlcomp/CmpSeabaseDDL.h"
+#include "sqlcomp/parser.h"
 
 // -----------------------------------------------------------------------
 // Context variable for "getXxxAsAnsiString()" methods simplifies the
@@ -340,10 +335,10 @@ NABoolean QualifiedName::applyShortAnsiDefault(NAString &catName, NAString &schN
 // so this method has to handle **only one** tiny NSK naming detail.
 //
 int QualifiedName::extractAndDefaultNameParts(const SchemaName &defCatSch, NAString &catName  // OUT
-                                                ,
-                                                NAString &schName  // OUT
-                                                ,
-                                                NAString &objName  // OUT
+                                              ,
+                                              NAString &schName  // OUT
+                                              ,
+                                              NAString &objName  // OUT
 ) const {
   catName = getCatalogName();
   schName = getSchemaName();
@@ -774,9 +769,9 @@ void CorrName::applyPrototype(BindWA *bindWA) {
 // and the name parts are *not* filled in with defaults (they're meaningless).
 //
 int CorrName::extractAndDefaultNameParts(BindWA *bindWA, const SchemaName &defCatSch,
-                                           NAString &catName,  // OUT
-                                           NAString &schName,  // OUT
-                                           NAString &objName)  // OUT
+                                         NAString &catName,  // OUT
+                                         NAString &schName,  // OUT
+                                         NAString &objName)  // OUT
 {
   // For performance, avoid redoing work if we've done it before
   if (defaultMatchCount_ < 0) {  // initially -1

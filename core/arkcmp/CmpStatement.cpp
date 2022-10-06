@@ -37,7 +37,6 @@
 //#include "parser/SqlParserGlobalsCmn.h"
 #include "EstLogProp.h"  // Pick up definition of GLOBAL_EMPTY_INPUT_LOGPROP
 #include "ProcessEnv.h"
-#include "parser/StmtDDLNode.h"
 #include "arkcmp/CmpErrLog.h"
 #include "arkcmp/CmpErrors.h"
 #include "arkcmp/CmpStatement.h"
@@ -63,6 +62,7 @@
 #include "optimizer/UdfDllInteraction.h"
 #include "optimizer/opt.h"            // to initialize the memo and task_list variables
 #include "parser/SqlParserGlobals.h"  // must be the last #include.
+#include "parser/StmtDDLNode.h"
 #include "sqlcomp/CmpDescribe.h"
 #include "sqlcomp/CmpMain.h"
 #include "sqlcomp/CmpSeabaseDDL.h"

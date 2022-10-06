@@ -17,6 +17,7 @@
 // -----------------------------------------------------------------------
 
 #include "comexe/FragDir.h"
+
 #include "comexe/ComPackDefs.h"
 #include "comexe/PartInputDataDesc.h"
 #include "common/Ipc.h"
@@ -112,8 +113,7 @@ NABoolean ExEspNodeMap::needToWork(int instance) const {
   return map_[instance].needToWork_;
 }
 
-void ExEspNodeMap::setEntry(int instance, const char *clusterName, int nodeNumber, NABoolean needToWork,
-                            Space *space) {
+void ExEspNodeMap::setEntry(int instance, const char *clusterName, int nodeNumber, NABoolean needToWork, Space *space) {
   if (map_ && entries_ > instance) {
     map_[instance].clusterName_ = space->allocateMemory(nodeNameLen);
     strcpy(map_[instance].clusterName_, clusterName);

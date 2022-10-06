@@ -29,14 +29,14 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "common/ComOptIncludes.h"
-#include "optimizer/GroupAttr.h"
-#include "PartFunc.h"
-#include "generator/Generator.h"
 #include "GenExpGenerator.h"
+#include "PartFunc.h"
+#include "common/ComOptIncludes.h"
+#include "generator/Generator.h"
+#include "optimizer/GroupAttr.h"
 //#include "executor/ex_stdh.h"
-#include "exp/ExpCriDesc.h"
 #include "comexe/PartInputDataDesc.h"
+#include "exp/ExpCriDesc.h"
 
 /////////////////////////////////////////////////////////
 //
@@ -55,8 +55,8 @@ short PartitioningFunction::codeGen(Generator *, int) {
 //
 /////////////////////////////////////////////////////////
 
-void PartitioningFunction::generatePivLayout(Generator *generator, int &partitionInputDataLength, int atp,
-                                             int atpIndex, Attributes ***pivAttrs) {
+void PartitioningFunction::generatePivLayout(Generator *generator, int &partitionInputDataLength, int atp, int atpIndex,
+                                             Attributes ***pivAttrs) {
   // assign offsets to the PIVs in a standard way
 
   ExpGenerator *expGen = generator->getExpGenerator();
@@ -210,8 +210,8 @@ short RangePartitioningFunction::codeGen(Generator *generator, int partInputData
   ExpGenerator *exp_gen = generator->getExpGenerator();
   int myOwnPartInputDataLength;
 
-  const int pivMoveAtp = 0;                      // only one atp is used for this expr
-  const int pivMoveAtpIndex = 2;                 // 0: consts, 1: temps, 2: result
+  const int pivMoveAtp = 0;                        // only one atp is used for this expr
+  const int pivMoveAtpIndex = 2;                   // 0: consts, 1: temps, 2: result
   const ExpTupleDesc::TupleDataFormat pivFormat =  // format of PIVs
       ExpTupleDesc::SQLARK_EXPLODED_FORMAT;
   ex_cri_desc *partInputCriDesc = new (generator->getSpace()) ex_cri_desc(pivMoveAtpIndex + 1, generator->getSpace());

@@ -20,9 +20,9 @@
 
 // Includes
 //
-#include "executor/ex_god.h"
-#include "common/Int64.h"
 #include "common/ComDefs.h"
+#include "common/Int64.h"
+#include "executor/ex_god.h"
 
 // External forward declarations
 //

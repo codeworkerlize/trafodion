@@ -17,8 +17,8 @@
 #ifndef COM_CONNECTBY_H
 #define COM_CONNECTBY_H
 
-#include "comexe/ComTdb.h"
 #include "comexe/ComQueue.h"
+#include "comexe/ComTdb.h"
 
 class ComTdbConnectBy : public ComTdb {
   friend class ExConnectByTcb;

@@ -18,9 +18,9 @@
  *****************************************************************************
  */
 
+#include "ComTdbConnectByTempTable.h"
 #include "common/Int64.h"
 #include "common/NABoolean.h"
-#include "ComTdbConnectByTempTable.h"
 
 // -----------------------------------------------------------------------
 // Classes defined in this file

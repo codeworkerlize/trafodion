@@ -2,11 +2,11 @@
 #ifndef EXP_LOB_INTERFACE_H
 #define EXP_LOB_INTERFACE_H
 
-#include "export/NAVersionedObject.h"
-#include "comexe/ComQueue.h"
 #include "ExpCompressionWA.h"
-#include "executor/ex_globals.h"
+#include "comexe/ComQueue.h"
 #include "executor/ExStats.h"
+#include "executor/ex_globals.h"
+#include "export/NAVersionedObject.h"
 
 class HdfsFileInfo {
  public:
@@ -63,7 +63,7 @@ class HdfsFileInfo {
   NABasicPtr partColValues_;
   Int16 compressionTypeIx_;
   Int16 compressionMethod_;
-  int hdfsBlockNb_;                   // used by StrawScan feature
+  int hdfsBlockNb_;                     // used by StrawScan feature
   NABasicPtr splitUnitBlockLocations_;  // best hdfs block node index locations stored as string blank separated.
                                         // If stripe span accross multiple block, pick the one is biggest percentage of
                                         // file used by straw scan feature.
@@ -82,7 +82,7 @@ class HdfsColInfo {
 
   int getFlags() { return flags_; }
 
-  int colNum_;   // 0 based. Number of first col in file is 0.
+  int colNum_;     // 0 based. Number of first col in file is 0.
   Int16 colType_;  // enum HiveProtoTypeKind defined in common/ComSmallDefs.h
   Int16 flags_;
   NABasicPtr colName_;

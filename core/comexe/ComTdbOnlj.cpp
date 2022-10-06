@@ -15,6 +15,7 @@
 */
 
 #include "comexe/ComTdbOnlj.h"
+
 #include "comexe/ComTdbCommon.h"
 
 /////////////////////////////////////////////////////////////////////////
@@ -31,8 +32,8 @@ ComTdbOnlj::ComTdbOnlj(ComTdb *leftTdb, ComTdb *rightTdb, ex_cri_desc *given_cri
                        int buffer_size, ex_expr *before_pred, ex_expr *after_pred, ex_expr *lj_expr,
                        ex_expr * /*ni_expr*/, ex_cri_desc *work_cri_desc,
                        const unsigned short instantiated_row_atp_index, int lj_reclen, int semi_join,
-                       int anti_semi_join, int left_join, int undo_join, int setNFError_join,
-                       int rowset_iterator, int index_join, NABoolean vsbbInsert, int rowsetRowCountArraySize,
+                       int anti_semi_join, int left_join, int undo_join, int setNFError_join, int rowset_iterator,
+                       int index_join, NABoolean vsbbInsert, int rowsetRowCountArraySize,
                        NABoolean tolerateNonFatalError, NABoolean drivingMVLogging)
     : ComTdb(ComTdb::ex_ONLJ, eye_ONLJ, estimatedRowCount, given_cri_desc, returned_cri_desc, down, up, num_buffers,
              buffer_size),

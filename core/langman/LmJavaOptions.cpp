@@ -13,12 +13,13 @@
 */
 
 #include "LmJavaOptions.h"
-#include "langman/LmCommon.h"
+
 #include "LmAssert.h"
 #include "LmDebug.h"
-#include "common/NAMemory.h"
 #include "common/ComSmallDefs.h"
+#include "common/NAMemory.h"
 #include "common/str.h"
+#include "langman/LmCommon.h"
 
 //----------------------------------------------------------------------
 // LmJavaOptions methods

@@ -17,14 +17,14 @@
 ******************************************************************************
 */
 
-#include <time.h>
 #include <sys/time.h>
+#include <time.h>
 
 #include "common/CmpCommon.h"
-#include "common/NAString.h"
-#include "export/NAStringDef.h"
-#include "common/charinfo.h"
 #include "common/ComMisc.h"
+#include "common/NAString.h"
+#include "common/charinfo.h"
+#include "export/NAStringDef.h"
 
 // -----------------------------------------------------------------------
 // forward declarations
@@ -224,7 +224,7 @@ class QualifiedName : public SchemaName {
   // Function return value is the number of names that match the default,
   // {0, 1, 2} = {no matches, catalog matches, catalog&schema match}.
   int extractAndDefaultNameParts(const SchemaName &defCatSch, NAString &catName, NAString &schName,
-                                   NAString &objName) const;
+                                 NAString &objName) const;
 
   // Mutator to fill in default catalog & schema if not already present.
   int applyDefaults(const SchemaName &defCatSch);
@@ -716,7 +716,7 @@ class CorrName : public NABasicObject {
   // (masking a qualified name), the function return is always 0
   // and the name parts are *not* filled in (they're meaningless).
   int extractAndDefaultNameParts(BindWA *bindWA, const SchemaName &defCatSch, NAString &catName, NAString &schName,
-                                   NAString &objName);
+                                 NAString &objName);
 
   // Mutator to fill in default catalog & schema if not already present.
   // Does *NOT* look at this CorrName's corr name
@@ -1148,7 +1148,7 @@ class TaskMonitor {
  private:
   int count_;
   int goodCounts_;  // counts of tasks that took more than 1 ms
-                      // to execute (not accurate).
+                    // to execute (not accurate).
   clock_t timer_;
   clock_t currTime_;
 

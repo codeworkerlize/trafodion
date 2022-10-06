@@ -11,11 +11,9 @@
 **************************************************************************
 */
 
-#include "optimizer/Sqlcomp.h"
 #include "optimizer/AllItemExpr.h"
 #include "optimizer/BindWA.h"
-
-
+#include "optimizer/Sqlcomp.h"
 
 // ***********************************************************************
 // RETDesc::RETDesc()

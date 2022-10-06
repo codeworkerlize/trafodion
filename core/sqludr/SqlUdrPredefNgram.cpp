@@ -1,6 +1,6 @@
 /*ngram_udf.cpp*/
-#include "sqludr/sqludr.h"
 #include "common/ngram.h"
+#include "sqludr/sqludr.h"
 
 using namespace tmudr;
 using namespace std;

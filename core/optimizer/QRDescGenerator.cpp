@@ -10,15 +10,16 @@
  **************************************************************************
  */
 
-#include "optimizer/Analyzer.h"
 #include "QRDescGenerator.h"
-#include "qmscommon/QRSharedPtr.h"
-#include "optimizer/RelGrby.h"
+
 #include "common/NumericType.h"
+#include "optimizer/Analyzer.h"
 #include "optimizer/ItemLog.h"
-#include "qmscommon/QRLogger.h"
-#include "qmscommon/QRExprElement.h"
+#include "optimizer/RelGrby.h"
 #include "optimizer/RelUpdate.h"
+#include "qmscommon/QRExprElement.h"
+#include "qmscommon/QRLogger.h"
+#include "qmscommon/QRSharedPtr.h"
 
 const UInt32 QRDescGenerator::GENERATED_JBBID_START = 10000;
 
@@ -226,7 +227,7 @@ NABoolean QRDescGenerator::getTableId(ValueId vid,
                                       ValueId &vegrefVid,     // OUT
                                       NAString &baseColName,  // OUT
                                       NABoolean &isExtraHub,  // OUT
-                                      int &colIndex)        // OUT
+                                      int &colIndex)          // OUT
 {
   QRTRACER("QRDescGenerator::getTableId()");
   ItemExpr *pExpr = vid.getItemExpr();
@@ -1522,8 +1523,6 @@ QRQueryDescriptorPtr QRDescGenerator::createQueryDescriptor(QueryAnalysis *qa, R
 
   return queryDesc;
 }  // createQueryDescriptor()
-
-
 
 QRVersionPtr QRDescGenerator::createVersionElement() {
   QRTRACER("QRDescGenerator::createVersionElement()");

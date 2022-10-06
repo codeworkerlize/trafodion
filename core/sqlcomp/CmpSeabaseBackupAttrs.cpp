@@ -16,8 +16,9 @@
  *****************************************************************************
  */
 
-#include "sqlcomp/CmpSeabaseDDL.h"
 #include "sqlcomp/CmpSeabaseBackupAttrs.h"
+
+#include "sqlcomp/CmpSeabaseDDL.h"
 
 #define KVKey   "KEY"
 #define KVValue "VAL"

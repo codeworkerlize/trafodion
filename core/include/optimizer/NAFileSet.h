@@ -96,9 +96,9 @@ class NAFileSet : public NABasicObject {
   //   Returns 0 when called on the clusteringindex.
   // - Other options should be self-explanatory.
   int getCountOfColumns(NABoolean excludeNonKeyColumns = FALSE,
-                          NABoolean excludeNonUserSpecifiedAlternateIndexColumns = FALSE,
-                          NABoolean excludeSystemColumns = TRUE,
-                          NABoolean excludeAlwaysComputedSystemColumns = FALSE) const;
+                        NABoolean excludeNonUserSpecifiedAlternateIndexColumns = FALSE,
+                        NABoolean excludeSystemColumns = TRUE,
+                        NABoolean excludeAlwaysComputedSystemColumns = FALSE) const;
 
   const NAColumnArray &getIndexKeyColumns() const { return indexKeyColumns_; }
 

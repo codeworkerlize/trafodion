@@ -18,8 +18,8 @@
 ******************************************************************************
 */
 
-#include "common/ComSmallDefs.h"
 #include "ElemDDLNode.h"
+#include "common/ComSmallDefs.h"
 
 class ElemDDLUdrIsolate : public ElemDDLNode {
  public:

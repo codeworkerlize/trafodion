@@ -15,12 +15,13 @@
  *****************************************************************************
  */
 
-#include "export/ComDiags.h"
 #include "parser/ElemDDLSGOptions.h"
+
 #include "ElemDDLSGOption.h"
+#include "export/ComDiags.h"
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
-#include "parser/SqlParserGlobals.h"
 #include "common/NAString.h"
+#include "parser/SqlParserGlobals.h"
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLSGOptions

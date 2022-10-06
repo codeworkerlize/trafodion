@@ -14,17 +14,17 @@
 ******************************************************************************
 */
 
-#include "executor/ex_stdh.h"
-#include "comexe/ComTdb.h"
-#include "executor/ex_tcb.h"
 #include "ex_onlj.h"
-#include "executor/ex_expr.h"
-#include "common/str.h"
-#include "executor/ExStats.h"
-#include "ttime.h"
 
+#include "comexe/ComTdb.h"
+#include "common/str.h"
 #include "ex_exe_stmt_globals.h"
+#include "executor/ExStats.h"
+#include "executor/ex_expr.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_tcb.h"
 #include "executor/sql_buffer_size.h"
+#include "ttime.h"
 
 /////////////////////////////////////////////////////////////////////////
 //

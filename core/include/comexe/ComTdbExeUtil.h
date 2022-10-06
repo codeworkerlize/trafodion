@@ -19,9 +19,9 @@
 #ifndef COMTDBEXEUTIL_H
 #define COMTDBEXEUTIL_H
 
+#include "comexe/ComQueue.h"
 #include "comexe/ComTdb.h"
 #include "comexe/ComTdbDDL.h"
-#include "comexe/ComQueue.h"
 #include "common/ComCharSetDefs.h"
 
 ////////////////////////////////////////////////////////////////////
@@ -99,10 +99,9 @@ class ComTdbExeUtil : public ComTdbGenericUtil {
   ComTdbExeUtil() : ComTdbGenericUtil() {}
 
   ComTdbExeUtil(int type, char *query, int querylen, Int16 querycharset, char *tableName, int tableNameLen,
-                ex_expr *input_expr, int input_rowlen, ex_expr *output_expr, int output_rowlen,
-                ex_expr_base *scan_expr, ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
-                ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
-                int num_buffers, int buffer_size);
+                ex_expr *input_expr, int input_rowlen, ex_expr *output_expr, int output_rowlen, ex_expr_base *scan_expr,
+                ex_cri_desc *work_cri_desc, const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
+                ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers, int buffer_size);
 
   char *getTableName() { return objectName_; }
   char *getObjectName() { return objectName_; }
@@ -186,7 +185,7 @@ class ComTdbExeUtil : public ComTdbGenericUtil {
     LOB_VERSION2 = 0x0001,
   };
 
-  int type_;       // 00-03
+  int type_;         // 00-03
   UInt32 flags_;     // 04-07
   ComTdbPtr child_;  // 08-15
 
@@ -342,12 +341,11 @@ class ComTdbExeUtilDisplayExplainComplex : public ComTdbExeUtil {
 
   ComTdbExeUtilDisplayExplainComplex() : ComTdbExeUtil() {}
 
-  ComTdbExeUtilDisplayExplainComplex(int explainType, char *qry1, char *qry2, char *qry3, char *qry4,
-                                     char *objectName, int objectNameLen, ex_expr *input_expr, int input_rowlen,
-                                     ex_expr *output_expr, int output_rowlen, ex_cri_desc *work_cri_desc,
-                                     const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
-                                     ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
-                                     int num_buffers, int buffer_size);
+  ComTdbExeUtilDisplayExplainComplex(int explainType, char *qry1, char *qry2, char *qry3, char *qry4, char *objectName,
+                                     int objectNameLen, ex_expr *input_expr, int input_rowlen, ex_expr *output_expr,
+                                     int output_rowlen, ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
+                                     ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
+                                     queue_index up, int num_buffers, int buffer_size);
 
   Long pack(void *);
   int unpack(void *, void *reallocator);
@@ -408,11 +406,11 @@ class ComTdbExeUtilMaintainObject : public ComTdbExeUtil {
   ComTdbExeUtilMaintainObject() : ComTdbExeUtil() {}
 
   ComTdbExeUtilMaintainObject(char *objectName, int objectNameLen, char *schemaName, int schemaNameLen, UInt16 ot,
-                              char *parentTableName, int parentTableNameLen, ex_expr *input_expr,
-                              int input_rowlen, ex_expr *output_expr, int output_rowlen,
-                              ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
-                              ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
-                              queue_index up, int num_buffers, int buffer_size);
+                              char *parentTableName, int parentTableNameLen, ex_expr *input_expr, int input_rowlen,
+                              ex_expr *output_expr, int output_rowlen, ex_cri_desc *work_cri_desc,
+                              const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
+                              ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
+                              int buffer_size);
 
   Long pack(void *);
   int unpack(void *, void *reallocator);
@@ -1074,7 +1072,7 @@ class ComTdbExeUtilLoadVolatileTable : public ComTdbExeUtil {
 
   // automatic update stats is done if num rows inserted exceeds threshold.
   long threshold_;  // 16-23
-  UInt32 flags_;     // 24-27
+  UInt32 flags_;    // 24-27
 
   char fillersComTdbExeUtilLoadVolatileTable_[116];  // 28-147
 };
@@ -1088,8 +1086,8 @@ class ComTdbExeUtilCleanupVolatileTables : public ComTdbExeUtil {
 
   ComTdbExeUtilCleanupVolatileTables(char *catName, int catNameLen, ex_cri_desc *work_cri_desc,
                                      const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
-                                     ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
-                                     int num_buffers, int buffer_size);
+                                     ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
+                                     int buffer_size);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -1187,10 +1185,9 @@ class ComTdbExeUtilGetErrorInfo : public ComTdbExeUtil {
  public:
   ComTdbExeUtilGetErrorInfo() : ComTdbExeUtil() {}
 
-  ComTdbExeUtilGetErrorInfo(int errType, int errNum, ex_cri_desc *work_cri_desc,
-                            const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
-                            ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
-                            int buffer_size);
+  ComTdbExeUtilGetErrorInfo(int errType, int errNum, ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
+                            ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
+                            queue_index up, int num_buffers, int buffer_size);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -1206,7 +1203,7 @@ class ComTdbExeUtilGetErrorInfo : public ComTdbExeUtil {
 
  private:
   int errorType_;
-  int errNum_;  // 00-03
+  int errNum_;    // 00-03
   UInt32 flags_;  // 04-07
 
   char fillersComTdbExeUtilGetErrorInfo_[80];  // 08-87
@@ -1219,8 +1216,8 @@ class ComTdbExeUtilCreateTableAs : public ComTdbExeUtil {
  public:
   ComTdbExeUtilCreateTableAs() : ComTdbExeUtil() {}
 
-  ComTdbExeUtilCreateTableAs(char *tableName, int tableNameLen, char *createStmtStr, char *siStmtStr,
-                             char *viStmtStr, char *usStmtStr, long threshold, ex_cri_desc *work_cri_desc,
+  ComTdbExeUtilCreateTableAs(char *tableName, int tableNameLen, char *createStmtStr, char *siStmtStr, char *viStmtStr,
+                             char *usStmtStr, long threshold, ex_cri_desc *work_cri_desc,
                              const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
                              ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
                              int buffer_size);
@@ -1428,7 +1425,7 @@ class ComTdbExeUtilGetStatistics : public ComTdbExeUtil {
 
   // hdfs to store run-time stats
   NABasicPtr host_;  // 30-37
-  int port_;       // 38-41
+  int port_;         // 38-41
   NABasicPtr path_;  // 42-49
 
   char fillersComTdbExeUtilGetStatistics_[78];  // 50-127
@@ -1650,7 +1647,7 @@ class ComTdbExeUtilPopulateInMemStats : public ComTdbExeUtil {
   inline const char *getSourceHistintsTableName() const { return sourceHistintsTableName_.getPointer(); };
 
  private:
-  long uid_;                             // 00-07
+  long uid_;                              // 00-07
   NABasicPtr inMemHistogramsTableName_;   // 08-15
   NABasicPtr inMemHistintsTableName_;     // 16-23
   NABasicPtr sourceTableCatName_;         // 24-31
@@ -2187,8 +2184,7 @@ class ComTdbExeUtilHBaseBulkLoad : public ComTdbExeUtil {
   ComTdbExeUtilHBaseBulkLoad(char *tableName, int tableNameLen, char *ldStmtStr, ex_expr_base *input_expr,
                              int input_rowlen, ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
                              ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
-                             queue_index up, int num_buffers, int buffer_size, char *errCountTab,
-                             char *logLocation);
+                             queue_index up, int num_buffers, int buffer_size, char *errCountTab, char *logLocation);
 
   Long pack(void *);
   int unpack(void *, void *reallocator);
@@ -2290,7 +2286,7 @@ class ComTdbExeUtilHBaseBulkLoad : public ComTdbExeUtil {
   NABasicPtr ldQuery_;  // 00-07
 
   UInt32 flags_;                     // 08-11
-  int maxErrorRows_;               // 12-15
+  int maxErrorRows_;                 // 12-15
   NABasicPtr errCountTable_;         // 16-23
   NABasicPtr loggingLocation_;       // 24-31
   char fillersExeUtilHbaseLoad_[8];  // 32-39
@@ -3642,11 +3638,11 @@ class ComTdbExeUtilConnectby : public ComTdbExeUtil {
 
  public:
   ComTdbExeUtilConnectby(char *query, int querylen, Int16 querycharset, char *tableName, Int16 tblNameLen,
-                         char *stmtName, ex_expr *input_expr, int input_rowlen, ex_expr *output_expr,
-                         int output_rowlen, ex_expr *scan_expr, ex_cri_desc *work_cri_desc,
-                         const unsigned short work_atp_index, int colDescSize, int outputRowSize,
-                         ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
-                         int num_buffers, int buffer_size, ExCriDescPtr workCriDesc, ex_expr *startwith_expr);
+                         char *stmtName, ex_expr *input_expr, int input_rowlen, ex_expr *output_expr, int output_rowlen,
+                         ex_expr *scan_expr, ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
+                         int colDescSize, int outputRowSize, ex_cri_desc *given_cri_desc,
+                         ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
+                         int buffer_size, ExCriDescPtr workCriDesc, ex_expr *startwith_expr);
 
   ComTdbExeUtilConnectby() : ComTdbExeUtil() {
     hasStartWith_ = TRUE;

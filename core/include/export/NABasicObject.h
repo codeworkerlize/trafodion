@@ -3,9 +3,9 @@
 #ifndef NABASICOBJECT__H
 #define NABASICOBJECT__H
 
-#include "common/Platform.h"
-#include "common/NAStdlib.h"
 #include "common/NABoolean.h"
+#include "common/NAStdlib.h"
+#include "common/Platform.h"
 
 #define NOT_CHECK_NAHEAP(h) (h)
 

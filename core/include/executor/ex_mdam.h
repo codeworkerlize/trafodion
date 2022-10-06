@@ -20,19 +20,19 @@
 
 // -----------------------------------------------------------------------
 
-#include "executor/ex_error.h"
-#include "common/NABoolean.h"
-#include "key_range.h"
-#include "key_mdam.h"
-#include "executor/MdamEnums.h"
+#include "FixedSizeHeapManager.h"
 #include "MdamEndPoint.h"
-#include "MdamPoint.h"
-#include "MdamRefList.h"
-#include "MdamRefListEntry.h"
 #include "MdamInterval.h"
 #include "MdamIntervalList.h"
 #include "MdamIntervalListIterator.h"
-#include "FixedSizeHeapManager.h"
+#include "MdamPoint.h"
+#include "MdamRefList.h"
+#include "MdamRefListEntry.h"
+#include "common/NABoolean.h"
+#include "executor/MdamEnums.h"
+#include "executor/ex_error.h"
+#include "key_mdam.h"
+#include "key_range.h"
 
 // forward references
 class MdamColumn;

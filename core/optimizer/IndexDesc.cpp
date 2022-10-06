@@ -15,16 +15,17 @@
 
 // -----------------------------------------------------------------------
 
-#include "optimizer/Sqlcomp.h"
-#include "optimizer/AllItemExpr.h"
-#include "optimizer/ValueDesc.h"
-#include "PartFunc.h"
 #include "IndexDesc.h"
-#include "optimizer/RelScan.h"
-#include "arkcmp/CmpContext.h"
-#include "optimizer/CostScalar.h"
-#include "ScanOptimizer.h"
+
 #include "AppliedStatMan.h"
+#include "PartFunc.h"
+#include "ScanOptimizer.h"
+#include "arkcmp/CmpContext.h"
+#include "optimizer/AllItemExpr.h"
+#include "optimizer/CostScalar.h"
+#include "optimizer/RelScan.h"
+#include "optimizer/Sqlcomp.h"
+#include "optimizer/ValueDesc.h"
 
 // -----------------------------------------------------------------------
 // make an IndexDesc from an existing TableDesc and an NAFileSet

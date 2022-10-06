@@ -18,10 +18,11 @@
 ******************************************************************************
 */
 
-#include "cli/sqlcli.h"
-#include "common/Platform.h"  // 64-BIT
 #include <set>
 #include <string>
+
+#include "cli/sqlcli.h"
+#include "common/Platform.h"  // 64-BIT
 
 class ComDiagsArea;
 class Statement;
@@ -78,8 +79,8 @@ enum SQLCLIDevCollectStatsType {
 // In general this is not allow. But it's currently used in one place in
 // UdrServer alone
 int SQL_EXEC_SwitchContext_Internal(/*IN*/ int context_handle,
-                                      /*OUT OPTIONAL*/ int *prev_context_handle,
-                                      /*IN*/ int allowSwitchBackToDefault);
+                                    /*OUT OPTIONAL*/ int *prev_context_handle,
+                                    /*IN*/ int allowSwitchBackToDefault);
 
 enum SQLATTRHOLDABLE_INTERNAL_TYPE {
   SQLCLIDEV_NONHOLDABLE = SQL_NONHOLDABLE,
@@ -178,12 +179,12 @@ int SQL_EXEC_GetUdrErrorFlags_Internal(/*OUT*/ int *udrErrorFlags);
 int SQL_EXEC_ResetUdrErrorFlags_Internal();
 
 int SQL_EXEC_SetUdrAttributes_Internal(/*IN*/ int sqlAccessMode,
-                                         /*IN*/ int /* for future use */);
+                                       /*IN*/ int /* for future use */);
 
 int SQL_EXEC_SetUdrRuntimeOptions_Internal(/*IN*/ const char *options,
-                                             /*IN*/ int optionsLen,
-                                             /*IN*/ const char *delimiters,
-                                             /*IN*/ int delimsLen);
+                                           /*IN*/ int optionsLen,
+                                           /*IN*/ const char *delimiters,
+                                           /*IN*/ int delimsLen);
 
 // For internal use only -- do not document!
 // This method sets flag in CliGlobal to enable break handling.
@@ -227,10 +228,10 @@ enum SQLCLIDevVersionType {
 };
 
 int SQL_EXEC_GetVersion_Internal(/*IN*/ int versionType,
-                                   /*OUT*/ int *versionValue,
-                                   /*IN OPTIONAL*/ const char *nodeName,
-                                   /*IN OPTIONAL*/ const SQLMODULE_ID *module_name,
-                                   /*IN OPTIONAL*/ const SQLSTMT_ID *statement_id);
+                                 /*OUT*/ int *versionValue,
+                                 /*IN OPTIONAL*/ const char *nodeName,
+                                 /*IN OPTIONAL*/ const SQLMODULE_ID *module_name,
+                                 /*IN OPTIONAL*/ const SQLSTMT_ID *statement_id);
 
 #ifdef __cplusplus
 /* use C linkage */
@@ -301,8 +302,8 @@ on  the tdb type.
 Tdb Type                    Struct type
 ComTdb::ex_REPLICATE        SQL_REPLICATOR_OPERATOR_STATS
 */
-int SQL_EXEC_RegisterQuery(SQLQUERY_ID *queryId, int fragId, int tdbId, int explainTdbId,
-                             short collectStatsType, int instNum, int tdbType, char *tdbName, int tdbNameLen);
+int SQL_EXEC_RegisterQuery(SQLQUERY_ID *queryId, int fragId, int tdbId, int explainTdbId, short collectStatsType,
+                           int instNum, int tdbType, char *tdbName, int tdbNameLen);
 
 /*
 Deregisters the query in RMS shared segment
@@ -410,11 +411,11 @@ int SQL_EXEC_SWITCH_BACK_COMPILER();
 int SQL_EXEC_SeqGenCliInterface(void **cliInterface, /* IN: if passed in and not null, use it.
                                                                 OUT: if returned, save it and pass it back in */
 
-                                  void *seqGenAttrs);
+                                void *seqGenAttrs);
 
 int SQL_EXEC_OrderSeqXDCCliInterface(void **cliInterface, /* IN: if passed in and not null, use it.
                                                                      OUT: if returned, save it and pass it back in */
-                                       void *seqGenAttrs, long endValue);
+                                     void *seqGenAttrs, long endValue);
 
 const int NullCliRoutineHandle = -1;
 

@@ -24,19 +24,11 @@
 #define SQLPARSERGLOBALS_FLAGS  // must precede all #include's
 #define SQLPARSERGLOBALS_NADEFAULTS
 
-#include "optimizer/ChangesTable.h"
 #include "ElemDDLSaltOptions.h"
-#include "optimizer/GroupAttr.h"
 #include "ItemSample.h"
-#include "optimizer/ItmFlowControlFunction.h"
-
-
 #include "ParNameLocList.h"
-
 #include "RelDCL.h"
 #include "RelPackedRows.h"
-#include "optimizer/RelSequence.h"
-#include "parser/SqlParserAux.h"
 #include "StmtDDLAddConstraintCheck.h"
 #include "UdrErrors.h"
 #include "arkcmp/CmpStatement.h"
@@ -59,16 +51,21 @@
 #include "optimizer/AllItemExpr.h"
 #include "optimizer/AllRelExpr.h"
 #include "optimizer/BindWA.h"
+#include "optimizer/ChangesTable.h"
 #include "optimizer/ControlDB.h"
+#include "optimizer/GroupAttr.h"
 #include "optimizer/Inlining.h"
+#include "optimizer/ItmFlowControlFunction.h"
 #include "optimizer/OptHints.h"
 #include "optimizer/OptimizerSimulator.h"
 #include "optimizer/Rel3GL.h"
+#include "optimizer/RelSequence.h"
 #include "optimizer/Sqlcomp.h"
 #include "optimizer/TriggerDB.h"
 #include "optimizer/Triggers.h"
 #include "optimizer/UdfDllInteraction.h"
 #include "parser/ElemDDLColRefArray.h"
+#include "parser/SqlParserAux.h"
 #include "parser/SqlParserGlobals.h"  // must be last #include
 #include "parser/StmtDDLCreateView.h"
 #include "sqlcat/TrafDDLdesc.h"
@@ -5420,8 +5417,6 @@ RelExpr *RelRoot::bindNode(BindWA *bindWA) {
   {
     bindWA->initNewScope();
 
-
-
     if (getInliningInfo().isTriggerRoot()) {
       CMPASSERT(getInliningInfo().getTriggerObject() != NULL);
       bindWA->getCurrentScope()->context()->triggerObj() = getInliningInfo().getTriggerObject()->getCreateTriggerNode();
@@ -6317,7 +6312,6 @@ RelExpr *RelRoot::bindNode(BindWA *bindWA) {
 
     DBG(if (getenv("TVUSG_DEBUG")) bindWA->tableViewUsageList().display();)
   }  // isTrueRoot
-
 
   // disable esp parallelism for merge statements.
   // See class RelRoot for details about this.
@@ -7539,7 +7533,6 @@ RelExpr *Scan::bindNode(BindWA *bindWA) {
   // If so - maybe we need to replace this Scan with some other RelExpr tree.
   // Ignore when inDDL() because the log may not exist yet.
   if (!bindWA->inDDL() && getTableName().getSpecialType() == ExtendedQualName::NORMAL_TABLE) {
-
   } else {
     setFirstReadBypassTM(FALSE);
   }
@@ -7684,9 +7677,6 @@ RelExpr *Scan::bindNode(BindWA *bindWA) {
 
     return boundView;
   }
-
-
-
 
   // Allocate a TableDesc and attach it to the Scan node.
   // This call also allocates a RETDesc, attached to the BindScope,

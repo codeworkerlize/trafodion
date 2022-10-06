@@ -15,22 +15,22 @@
  *****************************************************************************
  */
 
-#include "cli_stdh.h"
-#include "executor/ex_stdh.h"
-#include "comexe/ComTdb.h"
-#include "executor/ex_tcb.h"
 #include "ex_stored_proc.h"
+
+#include "arkcmp/CmpStatement.h"
+#include "arkcmp/CmpStoredProc.h"
+#include "cli/ExSqlComp.h"
+#include "cli_stdh.h"
+#include "comexe/ComTdb.h"
 #include "ex_exe_stmt_globals.h"
 #include "ex_io_control.h"
 #include "executor/ex_expr.h"
-#include "exp/exp_tuple_desc.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_tcb.h"
 #include "exp/exp_attrs.h"
 #include "exp/exp_clause_derived.h"
-#include "cli/ExSqlComp.h"
-
+#include "exp/exp_tuple_desc.h"
 #include "sqlmsg/ErrorMessage.h"
-#include "arkcmp/CmpStatement.h"
-#include "arkcmp/CmpStoredProc.h"
 
 ex_tcb *ExStoredProcTdb::build(ex_globals *glob) {
   ExStoredProcTcb *spTcb = new (glob->getSpace()) ExStoredProcTcb(*this, glob);
@@ -211,7 +211,7 @@ short ExStoredProcTcb::work() {
         if (returnedBuffer_ == NULL) return WORK_POOL_BLOCKED;
         int returnedBuflen = returnedBuffer_->get_buffer_size();
         UInt32 dummyDatalen = 0;  // not used here
-        int dummyCharSet = 0;   // not used here
+        int dummyCharSet = 0;     // not used here
         int cpStatus;
         ComDiagsArea *cpDiagsArea = ComDiagsArea::allocate(getHeap());
         // pass request and returnedBuffer_ to compileDirect
@@ -252,7 +252,7 @@ short ExStoredProcTcb::work() {
         if (returnedBuffer_ == NULL) return WORK_POOL_BLOCKED;
         int returnedBuflen = returnedBuffer_->get_buffer_size();
         UInt32 dummyDatalen = 0;  // not used here
-        int dummyCharSet = 0;   // not used here
+        int dummyCharSet = 0;     // not used here
         int cpStatus;
         ComDiagsArea *cpDiagsArea = ComDiagsArea::allocate(getHeap());
         cpStatus = CmpCommon::context()->compileDirect(
@@ -623,7 +623,7 @@ short ExSPInputOutput::outputValue(int fieldNum, char *outputRow, char *data, in
         scale = attr->getScale(), dataType = attr->getDatatype();
 
   int nullIndOffset = attr->getNullIndOffset(), varcharIndOffset = attr->getVCLenIndOffset(),
-        precision = attr->getPrecision();
+      precision = attr->getPrecision();
 
   // diagsArea must be present. And fieldNum must be within range.
   if ((diagsArea == NULL) || (fieldNum < 0) || (fieldNum >= tupleDesc_->numAttrs())) {

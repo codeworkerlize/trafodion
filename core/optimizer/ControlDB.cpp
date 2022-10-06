@@ -23,21 +23,19 @@
 
 #include "optimizer/ControlDB.h"
 
-#include "common/CmpCommon.h"
-#include "arkcmp/CmpContext.h"
-#include "common/ComSchemaName.h"
-
-#include "optimizer/AllRelExpr.h"  // various operators for CQS
 #include "RelPackedRows.h"
 #include "RelSample.h"
-#include "optimizer/RelSequence.h"
+#include "arkcmp/CmpContext.h"
+#include "cli_stdh.h"
+#include "common/CmpCommon.h"
+#include "common/ComSchemaName.h"
+#include "optimizer/AllRelExpr.h"  // various operators for CQS
+#include "optimizer/CmpMemoryMonitor.h"
 #include "optimizer/ItemColRef.h"  // ConstValue for CQS
+#include "optimizer/OptimizerSimulator.h"
+#include "optimizer/RelSequence.h"
 #include "sqlcomp/CmpMain.h"
 #include "sqlcomp/QCache.h"
-#include "optimizer/CmpMemoryMonitor.h"
-#include "optimizer/OptimizerSimulator.h"
-
-#include "cli_stdh.h"
 
 extern THREAD_P CmpMemoryMonitor *cmpMemMonitor;
 

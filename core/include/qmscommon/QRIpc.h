@@ -5,13 +5,14 @@
 #ifndef _QRIPC_H_
 #define _QRIPC_H_
 
-#include "common/Ipc.h"
-#include "qmscommon/QRLogger.h"
-#include "QRMessage.h"
-#include "qmscommon/XMLUtil.h"
-#include "common/NABoolean.h"
 #include <stdlib.h>
 #include <string.h>
+
+#include "QRMessage.h"
+#include "common/Ipc.h"
+#include "common/NABoolean.h"
+#include "qmscommon/QRLogger.h"
+#include "qmscommon/XMLUtil.h"
 
 /**
  * \file

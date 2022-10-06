@@ -19,18 +19,19 @@
 // Triggers internal spec describes the input tree to OptTriggersBackbone.
 //
 //-----------------------------------------------------------------------------
-#include <stdlib.h>
-#include <search.h>
+#include "OptTrigger.h"
 
-#include "optimizer/GroupAttr.h"
+#include <search.h>
+#include <stdlib.h>
+
+#include "ItemSample.h"
 #include "optimizer/AllItemExpr.h"
 #include "optimizer/AllRelExpr.h"
-#include "optimizer/Triggers.h"
-#include "OptTrigger.h"
 #include "optimizer/BindWA.h"
-#include "ItemSample.h"
 #include "optimizer/ChangesTable.h"
+#include "optimizer/GroupAttr.h"
 #include "optimizer/NormWA.h"
+#include "optimizer/Triggers.h"
 
 //-----------------------------------------------------------------------------------
 //            Static utility methods (part of OptTriggersBackbone class)

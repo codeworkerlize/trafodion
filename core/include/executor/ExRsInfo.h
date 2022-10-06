@@ -13,13 +13,13 @@
 #ifndef EX_RS_INFO_H
 #define EX_RS_INFO_H
 
-#include "common/Platform.h"
-#include "common/NABoolean.h"
-#include "export/NABasicObject.h"
 #include "common/Collections.h"
+#include "common/ComRtUtils.h"
 #include "common/ComSmallDefs.h"
 #include "common/Ipc.h"
-#include "common/ComRtUtils.h"
+#include "common/NABoolean.h"
+#include "common/Platform.h"
+#include "export/NABasicObject.h"
 
 // Contents of this file
 class RsInfo;
@@ -95,7 +95,7 @@ class ExRsInfo : public NABasicObject {
   NABoolean openAttempted(int index) const;
   NABoolean closeAttempted(int index) const;
   NABoolean isPrepared(int index) const;
-  NABoolean getRsInfo(int position,            // IN
+  NABoolean getRsInfo(int position,               // IN
                       Statement *&statement,      // OUT
                       const char *&proxySyntax,   // OUT
                       NABoolean &openAttempted,   // OUT

@@ -9,33 +9,33 @@
 *
 
 **********************************************************************/
-#include "common/Platform.h"
+#include "LmLangManagerJava.h"
+
 #include <seabed/fs.h>
 #include <seabed/ms.h>
-#include "lmjni.h"
-#include "common/ComSmallDefs.h"
-#include "common/ComRtUtils.h"
-#include "cli/sqlcli.h"
-#include "cli/Globals.h"
-
-#include "LmLangManagerJava.h"
-#include "LmJavaOptions.h"
-#include "langman/LmCommon.h"
-#include "LmJavaHooks.h"
-#include "LmJavaType.h"
-#include "LmRoutineJavaObj.h"
-#include "LmContManager.h"
-#include "LmJavaExceptionReporter.h"
-#include "UdrFFDC.h"
-
-#include "Measure.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "LmExtFunc.h"
+
 #include "LmAssert.h"
+#include "LmContManager.h"
 #include "LmDebug.h"
+#include "LmExtFunc.h"
+#include "LmJavaExceptionReporter.h"
+#include "LmJavaHooks.h"
+#include "LmJavaOptions.h"
+#include "LmJavaType.h"
+#include "LmRoutineJavaObj.h"
 #include "LmUtility.h"
+#include "Measure.h"
+#include "UdrFFDC.h"
+#include "cli/Globals.h"
+#include "cli/sqlcli.h"
+#include "common/ComRtUtils.h"
+#include "common/ComSmallDefs.h"
+#include "common/Platform.h"
+#include "langman/LmCommon.h"
+#include "lmjni.h"
 
 // A helper function to check if the DEFINE name is defined. DEFINE value
 // and it's length are returned if definValue & defineValueLen pointers
@@ -727,7 +727,7 @@ void LmLanguageManagerJava::initialize(LmResult &result, ComUInt32 maxLMJava, Lm
   long myProcessStartTime;
   pid_t myPin;
   int retStatus = ComRtGetProgramInfo(myProgramDir, MAX_PROGRAM_DIR_LEN, myProcessType, myCPU, myPin, myNodeNum,
-                                        myNodeName, myNodeNameLen, myProcessStartTime, myProcessName);
+                                      myNodeName, myNodeNameLen, myProcessStartTime, myProcessName);
   if (retStatus) {
     char errStr[LMJ_ERR_SIZE_256];
     sprintf(errStr, ": Error returned from ComRtGetProgramInfo. Error is:  %d.", retStatus);

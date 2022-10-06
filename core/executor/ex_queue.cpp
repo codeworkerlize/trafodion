@@ -17,12 +17,11 @@
 ******************************************************************************
 */
 
+#include "comexe/ComTdb.h"  // For cancel/error injection testing.
 #include "ex_stdh.h"
+#include "executor/ex_error.h"  // For cancel/error injection testing.
+#include "executor/ex_tcb.h"    // For cancel/error injection testing.
 #include "stdlib.h"
-
-#include "comexe/ComTdb.h"    // For cancel/error injection testing.
-#include "executor/ex_tcb.h"  // For cancel/error injection testing.
-#include "executor/ex_error.h"         // For cancel/error injection testing.
 
 ex_queue::ex_queue(const queue_type type, queue_index initialSize, ex_cri_desc *cri_desc, CollHeap *space,
                    enum queueAllocType allocType)

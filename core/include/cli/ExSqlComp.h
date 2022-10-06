@@ -20,10 +20,10 @@
 #ifndef EX_SQLCOMP_H
 #define EX_SQLCOMP_H
 
-#include "common/Ipc.h"
-#include "common/Int64.h"
-#include "executor/ex_god.h"
 #include "comexe/CmpMessage.h"
+#include "common/Int64.h"
+#include "common/Ipc.h"
+#include "executor/ex_god.h"
 class ComDiagsArea;
 class CmpMessageObj;
 class CmpMessageStream;
@@ -69,8 +69,8 @@ class ExSqlComp : public ExGod {
             short compilerVersion = COM_VERS_COMPILER_VERSION, char *nodeName_ = NULL, IpcEnvironment *env = NULL);
 
   // requests processing, return a serial number of the request
-  ReturnStatus sendRequest(Operator, const char *input_data = 0, int size = 0, NABoolean waited = TRUE,
-                           long *id = 0, int charset = SQLCHARSETCODE_UNKNOWN, NABoolean resendFlg = FALSE,
+  ReturnStatus sendRequest(Operator, const char *input_data = 0, int size = 0, NABoolean waited = TRUE, long *id = 0,
+                           int charset = SQLCHARSETCODE_UNKNOWN, NABoolean resendFlg = FALSE,
                            const char *parentQid = NULL, int parentQidLen = 0);
 
   // requests for processing Internal SP
@@ -80,14 +80,13 @@ class ExSqlComp : public ExGod {
   //   getNext(id);
   //
   // sendRequest sends the CmpMessageISPRequest to arkcmp for execution.
-  ReturnStatus sendRequest(const char *procName = 0,                              // ISP name, null terminated
-                           void *inputExpr = 0, int inputExprSize = 0,         // input expr
-                           void *outputExpr = 0, int outputExprSize = 0,       // output expr
-                           void *keyExpr = 0, int keyExprSize = 0,             // keys expr
-                           void *inputData = 0, int inputDataSize = 0,         // input data
+  ReturnStatus sendRequest(const char *procName = 0,                        // ISP name, null terminated
+                           void *inputExpr = 0, int inputExprSize = 0,      // input expr
+                           void *outputExpr = 0, int outputExprSize = 0,    // output expr
+                           void *keyExpr = 0, int keyExprSize = 0,          // keys expr
+                           void *inputData = 0, int inputDataSize = 0,      // input data
                            int outputRecSize = 0, int outputTotalSize = 0,  // output data
-                           NABoolean waited = TRUE, long *id = 0, const char *parentQid = NULL,
-                           int parentQidLen = 0);
+                           NABoolean waited = TRUE, long *id = 0, const char *parentQid = NULL, int parentQidLen = 0);
   // send a CmpMessageISPGetNext request with the outstanding request (id)
   // if id is 0 , use the current outstanding one.
   ReturnStatus getNext(int bufSize, long id = 0, NABoolean waited = TRUE, const char *parentQid = NULL,
@@ -113,8 +112,8 @@ class ExSqlComp : public ExGod {
   // in the case of MOREDATA, getNext(reqId) should be
   // called again to retrieve data.
 
-  ReturnStatus getReply(char *&reply, int &size, int maxSize = 0,
-                        long id = 0 /* the request id returned previously */, NABoolean getDataWithErrReply = FALSE);
+  ReturnStatus getReply(char *&reply, int &size, int maxSize = 0, long id = 0 /* the request id returned previously */,
+                        NABoolean getDataWithErrReply = FALSE);
 
   // get the diagnostics area, this area will be clean up in the next
   // sendRequest() call.
@@ -210,7 +209,7 @@ class ExSqlComp : public ExGod {
     CmpMessageObj *message_;
     // after the actOnReceive method, message_ is deleted, the requestId_ will be set to
     // the id of the message to be compared in getReply method.
-    long requestId_;   // after the actOnReceive, message_ is deleted, the id
+    long requestId_;    // after the actOnReceive, message_ is deleted, the id
     NABoolean waited_;  // waited_ flag for this request.
     OperationStatus ioStatus_;
     int resendCount_;

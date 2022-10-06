@@ -12,9 +12,10 @@
 
 #include <sys/types.h>
 #include <unistd.h>
+
 #include "ExSMCommon.h"
-#include "ExSMTaskList.h"
 #include "ExSMReadyList.h"
+#include "ExSMTaskList.h"
 #include "ExSMTrace.h"
 
 class ExSMGlobals;

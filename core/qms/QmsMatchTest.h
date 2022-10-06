@@ -60,8 +60,8 @@ typedef NAHashDictionary<const NAString, const NAString> IDHash;
 #ifndef _MATCHOUTPUT_H_
 #define _MATCHOUTPUT_H_
 
-#include "qmscommon/QRDescriptor.h"
 #include "QmsMVCandidate.h"
+#include "qmscommon/QRDescriptor.h"
 
 // Add a few intermediate result codes to QRElement::ExprResult
 enum ResultCode {
@@ -937,8 +937,8 @@ class MatchJoinPreds : public MatchTest {
 
   NABoolean analyzeJoinPredicate(const QRJoinPredPtr joinPred, NABoolean isPass1);
 
-  void analyzeEQMember(QRElementPtr elem, int &mvTables, int &ehTables, int &outTables,
-                       ColumnNodesList &mvColumns, NAPtrList<QRExprPtr> &mvExprs, NABoolean isPass1);
+  void analyzeEQMember(QRElementPtr elem, int &mvTables, int &ehTables, int &outTables, ColumnNodesList &mvColumns,
+                       NAPtrList<QRExprPtr> &mvExprs, NABoolean isPass1);
 
   NABoolean analyzeProvidedExpression(const QRExprPtr expr);
 

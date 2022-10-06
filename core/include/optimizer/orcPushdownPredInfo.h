@@ -17,11 +17,11 @@
 ******************************************************************************
 */
 
+#include "common/CmpCommon.h"
 #include "common/CollHeap.h"
 #include "common/Collections.h"
 #include "common/ComSmallDefs.h"
 #include "common/NAString.h"
-#include "common/CmpCommon.h"
 #include "optimizer/ValueDesc.h"
 
 // this class is used to  handle predicates that are pushdown to

@@ -3,12 +3,11 @@
 #ifndef __EX_FAST_TRANSPORT_H
 #define __EX_FAST_TRANSPORT_H
 
-#include "executor/ex_tcb.h"
 #include "common/ComSmallDefs.h"
-#include "executor/ExStats.h"
-
-#include "exp/ExpLOBinterface.h"
 #include "ex_exe_stmt_globals.h"
+#include "executor/ExStats.h"
+#include "executor/ex_tcb.h"
+#include "exp/ExpLOBinterface.h"
 
 namespace {
 typedef std::vector<Text> TextVec;

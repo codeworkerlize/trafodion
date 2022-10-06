@@ -11,38 +11,37 @@
 *
 **********************************************************************/
 
-
 #include "optimizer/OptimizerSimulator.h"
-#include "sqlcomp/NADefaults.h"
+
+#include <dirent.h>
+#include <errno.h>
+#include <string.h>
+#include <sys/stat.h>
+
+#include <cstdarg>
+#include <cstdlib>
+
 #include "arkcmp/CmpContext.h"
+#include "arkcmp/CmpStatement.h"
 #include "arkcmp/CompException.h"
-#include "optimizer/SchemaDB.h"
+#include "cli/Context.h"
+#include "cli/Globals.h"
+#include "common/ComCextdecs.h"
+#include "common/ComRtUtils.h"
+#include "common/ComUser.h"
+#include "common/NAClusterInfo.h"
+#include "executor/ExExeUtilCli.h"
+#include "executor/HBaseClient_JNI.h"
+#include "opt_error.h"
+#include "optimizer/ControlDB.h"
 #include "optimizer/NATable.h"
 #include "optimizer/ObjectNames.h"
-#include "common/NAClusterInfo.h"
-#include "optimizer/ControlDB.h"
 #include "optimizer/RelControl.h"
-#include "arkcmp/CmpStatement.h"
-#include "sqlcomp/QCache.h"
-#include <errno.h>
-#include "common/ComCextdecs.h"
-#include "opt_error.h"
-#include "common/ComRtUtils.h"
-#include <cstdlib>
-#include <sys/stat.h>
-#include <string.h>
-#include <dirent.h>
-#include <cstdarg>
-#include "executor/HBaseClient_JNI.h"
-
-#include "vproc.h"
+#include "optimizer/SchemaDB.h"
 #include "sqlcomp/CmpSeabaseDDL.h"
-#include "executor/ExExeUtilCli.h"
-#include "common/ComUser.h"
-
-#include "cli/Globals.h"
-#include "arkcmp/CmpContext.h"
-#include "cli/Context.h"
+#include "sqlcomp/NADefaults.h"
+#include "sqlcomp/QCache.h"
+#include "vproc.h"
 
 extern const WordAsBits SingleBitArray[];
 
@@ -1679,8 +1678,7 @@ void OptimizerSimulator::initHashDictionaries() {
 
     hashDict_Tables_ = new (heap_) NAHashDictionary<const QualifiedName, long>(&QualifiedName::hash, 101, TRUE, heap_);
 
-    hashDict_Synonyms_ =
-        new (heap_) NAHashDictionary<const QualifiedName, int>(&QualifiedName::hash, 101, TRUE, heap_);
+    hashDict_Synonyms_ = new (heap_) NAHashDictionary<const QualifiedName, int>(&QualifiedName::hash, 101, TRUE, heap_);
 
     hashDict_HiveTables_ =
         new (heap_) NAHashDictionary<const QualifiedName, long>(&QualifiedName::hash, 101, TRUE, heap_);

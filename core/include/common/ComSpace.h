@@ -4,6 +4,7 @@
 #define COM_SPACE_H
 
 #include <stddef.h>
+
 #include "common/CollHeap.h"
 
 class Block;

@@ -14,23 +14,23 @@
 *
 ******************************************************************************
 */
+#include "GenExpGenerator.h"
 #include "common/ComOptIncludes.h"
+#include "generator/Generator.h"
 #include "optimizer/GroupAttr.h"
 #include "optimizer/RelGrby.h"
-#include "generator/Generator.h"
-#include "GenExpGenerator.h"
 //#include "executor/ex_stdh.h"
-#include "exp/ExpCriDesc.h"
 #include "comexe/ComTdb.h"
+#include "exp/ExpCriDesc.h"
 //#include "executor/ex_tcb.h"
 #include "HashRow.h"
-#include "hash_table.h"  // for HashTableHeader
+#include "ItmBitMuxFunction.h"
 #include "comexe/ComTdbHashGrby.h"
 #include "comexe/ComTdbSortGrby.h"
-#include "sqlcomp/DefaultConstants.h"
-#include "ItmBitMuxFunction.h"
 #include "common/ComUnits.h"
 #include "executor/sql_buffer_size.h"
+#include "hash_table.h"  // for HashTableHeader
+#include "sqlcomp/DefaultConstants.h"
 
 //#include "executor/ExStats.h"
 
@@ -621,7 +621,7 @@ short HashGroupBy::codeGen(Generator *generator) {
 
   // find the number of aggregate and groupby entries
   int numAttrs = ((NOT lowerAggrValIds.isEmpty()) ? lowerAggrValIds.entries() : 0) +
-                    ((NOT groupValIds.isEmpty()) ? groupValIds.entries() : 0);
+                 ((NOT groupValIds.isEmpty()) ? groupValIds.entries() : 0);
 
   Attributes **attrs = new (generator->wHeap()) Attributes *[numAttrs];
 
@@ -855,10 +855,11 @@ short HashGroupBy::codeGen(Generator *generator) {
       // checks for every newly incoming group. Don't use BitMux when the
       // groups held in memory are expected to exceed the bitmux table size!
 
-      1000 * 1024 <                                   // bitmux table size (taken from ex_hash_grby.cpp)
-          (Cardinality)getEstRowsUsed().getValue() *  // expected #groups
-              // Approximate memory used per each group in the BitMux table
-              // (Detail in ExBitMapTable.cpp; "+3+7" is a cheap ROUND4/8 substitute)
+      1000 * 1024 <  // bitmux table size (taken from ex_hash_grby.cpp)
+          (Cardinality)getEstRowsUsed()
+                  .getValue() *  // expected #groups
+                                 // Approximate memory used per each group in the BitMux table
+                                 // (Detail in ExBitMapTable.cpp; "+3+7" is a cheap ROUND4/8 substitute)
               (extGroupRowLength + keyLength + 2 * sizeof(char *) + 3 + 7)
 
   )
@@ -1204,7 +1205,7 @@ short HashGroupBy::codeGen(Generator *generator) {
       // To get the min number of buffers per a flushed cluster
       // before is can be flushed again
       (unsigned short)getDefault(EXE_NUM_CONCURRENT_SCRATCH_IOS) + (short)getDefault(COMP_INT_66),  // for testing
-      (int)getDefault(COMP_INT_67),                                                              // numInBatch
+      (int)getDefault(COMP_INT_67),                                                                 // numInBatch
       hgbGrowthPercent);
 
   hashGrbyTdb->setRecordLength(getGroupAttr()->getRecordLength());
@@ -1597,7 +1598,7 @@ short HbasePushdownAggr::codeGen(Generator *generator) {
   // within the buffer class, but for now this will do.
   //
   int cbuffersize = SqlBufferNeededSize((upqueuelength * 2 / numBuffers),
-                                           1000);  // returnedRowlen);
+                                        1000);  // returnedRowlen);
   // But use at least the default buffer size.
   //
   buffersize = buffersize > cbuffersize ? buffersize : cbuffersize;

@@ -15,22 +15,23 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
-#include "common/cextdecs.h"
+#include "common/ComLocationNames.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+
+#include "ComRegAPI.h"
+#include "cli/SQLCLIdev.h"
 #include "common/BaseTypes.h"
 #include "common/Collections.h"
 #include "common/ComASSERT.h"
-#include "common/ComLocationNames.h"
-#include "ComRegAPI.h"
+#include "common/ComDistribution.h"
 #include "common/ComSqlText.h"
 #include "common/NAMemory.h"
-#include "cli/SQLCLIdev.h"
-#include "common/ComDistribution.h"
+#include "common/Platform.h"
+#include "common/cextdecs.h"
 
 // -----------------------------------------------------------------------
 // File-scope helper functions

@@ -148,7 +148,7 @@ class PCodeSegment : public NAVersionedObject {
 
   int filler_[PC_fillerSize];  // 08-71
 
-  int pCodeSegmentSize_;          // 72-75
+  int pCodeSegmentSize_;            // 72-75
   char fillerPCodeSegmentSize_[4];  // 76-79
 
   Int32Ptr pCodeSegment_;  // 80-87
@@ -187,8 +187,7 @@ class PCode {
   int size();
   static PCIT::Instruction getInstruction(PCI *pci);
   const PCIMap &getMapEntry(int i);
-  static int getOpCodeMapElements(int opcode, PCIT::Operation &operation, PCIT::AddressingMode am[],
-                                    int &numAModes);
+  static int getOpCodeMapElements(int opcode, PCIT::Operation &operation, PCIT::AddressingMode am[], int &numAModes);
 
   static int isInstructionRangeType(PCIT::Instruction instruction);
 

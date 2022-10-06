@@ -2,11 +2,9 @@
 #ifndef COMCEXTDECS_H
 #define COMCEXTDECS_H
 
-#include "common/Platform.h"
-
-#include "common/cextdecs.h"
-
 #include "common/ComCextMisc.h"
+#include "common/Platform.h"
+#include "common/cextdecs.h"
 
 #define NA_JulianTimestamp()          JULIANTIMESTAMP(0, 0, 0, -1)
 #define NA_ConvertTimestamp(jTMStamp) CONVERTTIMESTAMP(jTMStamp, 0, -1, 0)

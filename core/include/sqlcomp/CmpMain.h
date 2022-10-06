@@ -223,7 +223,6 @@ class CmpMain {
   void UnmarkMarkedNATableCacheEntries();
   void UpdateNATableCacheEntryStoredStats(int returnedNumQiKeys, SQL_QIKEY *qiKeyArray);
 
-
   int RestoreCqdsInHint();
 };
 

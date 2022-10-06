@@ -18,18 +18,19 @@
  *****************************************************************************
  */
 
-#include "common/Collections.h"
 #include <unordered_set>
-#include "common/NAString.h"
-#include "optimizer/ItemColRef.h"
-#include "optimizer/BindWA.h"
-#include "sqlcomp/DefaultConstants.h"
+
 #include "comexe/CmpMessage.h"
+#include "common/Collections.h"
 #include "common/ComSysUtils.h"
+#include "common/NAString.h"
 #include "generator/Generator.h"
-#include "sqlcomp/CmpMain.h"
-#include "sqludr/sqludr.h"
+#include "optimizer/BindWA.h"
+#include "optimizer/ItemColRef.h"
 #include "optimizer/UdfDllInteraction.h"
+#include "sqlcomp/CmpMain.h"
+#include "sqlcomp/DefaultConstants.h"
+#include "sqludr/sqludr.h"
 
 using tmudr::TMUDRSerializableObject;
 
@@ -96,8 +97,8 @@ typedef CQDefault *CQDefPtr;
 class CQDefaultSet : public NABasicObject {
   friend class CompilerEnv;
   CQDefPtr *CQDarray;  // array of pointers to control query default settings
-  int nEntries;      // number of elements in CQDarray
-  int arrSiz;        // allocated size of CQDarray
+  int nEntries;        // number of elements in CQDarray
+  int arrSiz;          // allocated size of CQDarray
   NAHeap *heap;        // heap used to allocate CQD settings
 
  public:
@@ -151,8 +152,8 @@ typedef CtrlTblOpt *CtrlTblPtr;
 class CtrlTblSet : public NABasicObject {
   friend class CompilerEnv;
   CtrlTblPtr *CTarray;  // array of pointers to control table settings
-  int nEntries;       // number of elements in CTarray
-  int arrSiz;         // allocated size of CTarray
+  int nEntries;         // number of elements in CTarray
+  int arrSiz;           // allocated size of CTarray
   NAHeap *heap;         // heap used to allocate control table settings
 
  public:
@@ -769,7 +770,7 @@ class HQCCacheData : public LIST(HQCCacheEntry *) {
 
   NABoolean isFull() { return (maxEntries_ == entries()); }
 
-  NABoolean feasibleToAdd();                       // feasible to add an new entry to the list
+  NABoolean feasibleToAdd();                     // feasible to add an new entry to the list
   NABoolean feasibleToReplace(int bytesNeeded);  // feasible to replace an entry
 
   CacheKey *findMatchingSQCKey(HQCParams &param);
@@ -1112,7 +1113,7 @@ class TextKey : public Key {
  private:
   // key has one component
   NAString sText_;  // sql statement text for pre-parser cache lookups
-  int charset_;   // character set of sql statement text
+  int charset_;     // character set of sql statement text
 };
 
 class Plan {
@@ -1157,8 +1158,8 @@ class Plan {
 
  private:
   char *plan_;    // compiled query plan in packed form
-  int planL_;  // byte length of plan_
-  long planId_;  // from Generator
+  int planL_;     // byte length of plan_
+  long planId_;   // from Generator
   NAHeap *heap_;  // heap used by dynamic allocs
 
   int refCount_;  // reference count
@@ -1212,7 +1213,7 @@ class CData : public NABasicObject {
 
  private:
   // usage
-  int hits_;       // number of hits for this entry
+  int hits_;         // number of hits for this entry
   long compTime_;    // msec to compile this entry
   long cumHitTime_;  // cum. time of hits for this entry
 };
@@ -1220,17 +1221,17 @@ class CData : public NABasicObject {
 class CacheData : public CData {
  public:
   // Constructor
-  CacheData(Generator *plan,                     // (IN) : access to sql query's compiled plan
-            const ParameterTypeList &f,          // (IN) : list of formal ParameterTypes
-            const SelParamTypeList &s,           // (IN) : list of formal SelParamTypes
+  CacheData(Generator *plan,                   // (IN) : access to sql query's compiled plan
+            const ParameterTypeList &f,        // (IN) : list of formal ParameterTypes
+            const SelParamTypeList &s,         // (IN) : list of formal SelParamTypes
             LIST(int) hqcListOfConstParamPos,  // (IN) : list of positions of formal params
             LIST(int) hqcListOfSelParamPos,    // (IN) : list of positions of sel params
             LIST(int) hqcListOfAllConstPos,    // (IN) : list of positions of all params
-            long planId,                        // (IN) : id from generator
-            const char *text,                    // (IN) : original sql statement text
+            long planId,                       // (IN) : id from generator
+            const char *text,                  // (IN) : original sql statement text
             int cs,                            // (IN) : character set of sql statement text
-            long queryHash,                     // (IN) : query signature
-            NAHeap *h);                          // (IN) : heap to use for formals_
+            long queryHash,                    // (IN) : query signature
+            NAHeap *h);                        // (IN) : heap to use for formals_
 
   CacheData(Plan *plan, const ParameterTypeList &f, const SelParamTypeList &s, LIST(int) hqcParamPos,
             LIST(int) hqcSelPos, LIST(int) hqcConstPos, const char *text, const char *normalized_text, int cs,
@@ -1286,8 +1287,7 @@ class CacheData : public CData {
   // parameterBuffer and then generates and evals backpatch expression(s)
   // to do the copy.
   NABoolean backpatchParams(const ConstantParameters &listOfConstantParameters,
-                            const SelParameters &listOfSelParameters,
-                            const LIST(int) & listOfConstParamPositionsInSql,
+                            const SelParameters &listOfSelParameters, const LIST(int) & listOfConstParamPositionsInSql,
                             const LIST(int) & listOfSelParamPositionsInSql, BindWA &bindWA, char *&params,
                             int &paramSize);
 
@@ -1314,13 +1314,13 @@ class CacheData : public CData {
   // data
   Plan *plan_;  // compiled query plan
 
-  ParameterTypeList formals_;           // list of ParameterTypes
-  SelParamTypeList fSels_;              // list of SelParamTypes
+  ParameterTypeList formals_;         // list of ParameterTypes
+  SelParamTypeList fSels_;            // list of SelParamTypes
   LIST(int) hqcListOfConstParamPos_;  // list of positions of formal params
   LIST(int) hqcListOfSelParamPos_;    // list of positions of sel params
   LIST(int) hqcListOfConstPos_;       // list of positions of all params
-  const char *origStmt_;                // original sql text
-  const char *normalizedStmt_;          // normalized sql text
+  const char *origStmt_;              // original sql text
+  const char *normalizedStmt_;        // normalized sql text
   int charset_;                       // character set of original sql text
   TextPtrArray textentries_;
   // back pointers to preparser instances of this postparser cache entry
@@ -1358,7 +1358,7 @@ class TextData : public CData {
   // Constructor
   TextData(NAHeap *h,       // (IN) : heap to use
            char *p,         // (IN) : actual parameters
-           int l,        // (IN) : len of actual parameters
+           int l,           // (IN) : len of actual parameters
            CacheEntry *e);  // (IN) : postparser cache entry
 
   // Destructor
@@ -1397,14 +1397,14 @@ class TextData : public CData {
   // data
   NAHeap *heap_;       // Needed by TextData::~TextData destructor
   char *actuals_;      // list of actual constant parameters
-  int actLen_;      // length of actuals_
+  int actLen_;         // length of actuals_
   CacheEntry *entry_;  // pointer to postparser cache entry
   CollIndex indexInTextEntries_;
 };
 
 class LRUList : public NABasicObject {
  private:
-  int length_;       // number of elements in list
+  int length_;          // number of elements in list
   CacheEntry *anchor_;  // anchor of doubly linked list
   NAHeap *heap_;        // used to allocate nodes
 
@@ -1540,7 +1540,7 @@ class QCache : public NABasicObject {
 
  public:
   // Constructor
-  QCache(QueryCache &qc,             // (IN) : reference to its wrapper
+  QCache(QueryCache &qc,          // (IN) : reference to its wrapper
          int maxSize,             // (IN) : maximum heap size in bytes
          int maxVictims = 40,     // (IN) : max # of victims replaceable by new entry
          int avgPlanSz = 93070);  // (IN) : average plan size in bytes
@@ -1555,7 +1555,7 @@ class QCache : public NABasicObject {
                      CacheData *plan,  // (IN) : sql statement's compiled plan
                      TimeVal &begT,    // (IN) : time at start of this compile
                      char *params,     // (IN) : parameters for preparser entry
-                     int parmSz     // (IN) : len of params for preparser entry
+                     int parmSz        // (IN) : len of params for preparser entry
   );
 
   // requires: tkey,stmt are the keys of a cachable query
@@ -1570,7 +1570,7 @@ class QCache : public NABasicObject {
   // make room for and add a new preparser entry into the cache
   void addPreParserEntry(TextKey *tkey,      // (IN) : a cachable sql statement
                          char *params,       // (IN) : actual parameters
-                         int parmSz,      // (IN) : len of actual parameters
+                         int parmSz,         // (IN) : len of actual parameters
                          CacheEntry *entry,  // (IN) : postparser cache entry
                          TimeVal &begT);     // (IN) : time at start of this compile
   // requires: tkey is the preparser key of a cachable query q
@@ -1767,11 +1767,11 @@ class QCache : public NABasicObject {
   // modifies: cache
   // effects : decache entries
   QueryCache &querycache_;  // reference to wapper object
-  int limit_;            // maximum number of victims replaceable
+  int limit_;               // maximum number of victims replaceable
   NABoundedHeap *heap_;     // heap for cache entries
-  int maxSiz_;           // maximum byte size of query cache
-  int planSz_;           // average template plan size in bytes
-  int tEntSz_;           // average text entry size in bytes
+  int maxSiz_;              // maximum byte size of query cache
+  int planSz_;              // average template plan size in bytes
+  int tEntSz_;              // average text entry size in bytes
 
   std::unordered_set<int> loadedOffset_;
   NABoolean loaded_;
@@ -1788,7 +1788,7 @@ class QCache : public NABasicObject {
 
   int nOfCompiles_;  // cummulative number of compilation requests (include queries, cqd, invalid queries, ...)
   int nOfLookups_;   // cummulative number of query cache loopups = cache hits (text and template) + cache misses
-                        // (template cache insert attempts)
+                     // (template cache insert attempts)
   int nOfRecompiles_;
   int nOfCacheableCompiles_[N_STAGES];
   int nOfCacheHits_[N_STAGES];
@@ -1797,7 +1797,7 @@ class QCache : public NABasicObject {
   int nOfDisplacedPreParserEntries_;
   int nOfRetries_;
   int totalHashTblSize_;  // the total space taken by
-                             // the text and template hash table.
+                          // the text and template hash table.
 
   // return TRUE iff cache can accommodate a new entry of given size
   NABoolean canFit(int size);
@@ -1862,7 +1862,7 @@ struct QueryCacheStats {
 
   int nTooLarge;   // cum. count of cacheable-but-too-large
   int nDisplaced;  // cum. count of displaced template cache entries
-  int optimLvl;     // current optimization level
+  int optimLvl;    // current optimization level
   int envID;       // current environment ID
 
   int avgTEntSize;        // average text entry size
@@ -1875,20 +1875,20 @@ struct QueryCacheStats {
 // QueryCacheEntries fields needed by Javier's Virtual Tables for
 // Query Plan Caching Statistics
 struct QueryCacheDetails {
-  long planId;                                // plan id from generator
+  long planId;                                 // plan id from generator
   const char *qryTxt;                          // original sql statement text
-  int entrySize;                            // size in bytes of this cache entry, excluding plan size
-  int planLength;                           // size in bytes of the plan
-  int nOfHits;                              // total hits for this cache entry
+  int entrySize;                               // size in bytes of this cache entry, excluding plan size
+  int planLength;                              // size in bytes of the plan
+  int nOfHits;                                 // total hits for this cache entry
   CmpPhase phase;                              // compiler phase of this cache entry
-  int optLvl;                                // optimization level of this entry
-  int envID;                                // environment ID of this entry
+  int optLvl;                                  // optimization level of this entry
+  int envID;                                   // environment ID of this entry
   const char *catalog;                         // catalog name for this entry
   const char *schema;                          // schema name for this entry
-  int nParams;                               // number of parameters of this entry
+  int nParams;                                 // number of parameters of this entry
   const char *paramTypes;                      // parameter types of this entry
-  int compTime;                             // compile time in msec
-  int avgHitTime;                           // avg hit time in msec
+  int compTime;                                // compile time in msec
+  int avgHitTime;                              // avg hit time in msec
   const char *reqdShape;                       // control query shape or empty string
   TransMode::IsolationLevel isoLvl;            // tx isolation level
   TransMode::IsolationLevel isoLvlForUpdates;  // tx isolation level
@@ -1920,13 +1920,13 @@ class QueryCache {
                      CacheData *plan,  // (IN) : sql statement's compiled plan
                      TimeVal &begT,    // (IN) : time at start of this compile
                      char *params,     // (IN) : parameters for preparser entry
-                     int parmSz     // (IN) : len of params for preparser entry
+                     int parmSz        // (IN) : len of params for preparser entry
   );
 
   // add a new preparser entry into the cache
   void addPreParserEntry(TextKey *tkey,      // (IN) : a cachable sql statement
                          char *actuals,      // (IN) : actual parameters
-                         int actLen,      // (IN) : len of actuals
+                         int actLen,         // (IN) : len of actuals
                          CacheEntry *entry,  // (IN) : postparser cache entry
                          TimeVal &begT);     // (IN) : time at start of this compile
 

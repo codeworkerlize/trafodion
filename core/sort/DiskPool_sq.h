@@ -3,8 +3,8 @@
 #ifndef DISKPOOL_SQ_H
 #define DISKPOOL_SQ_H
 
-#include "common/Platform.h"
 #include "DiskPool_base.h"
+#include "common/Platform.h"
 
 class SQDisk : public DiskPool {
  public:

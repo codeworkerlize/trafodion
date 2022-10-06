@@ -1,9 +1,10 @@
 #include "sqlci/SqlciParser.h"
-#include "export/ComDiags.h"
+
 #include "common/NAAssert.h"
+#include "export/ComDiags.h"
 #include "sqlci/SqlciNode.h"
-#include "sqlci/sqlcmd.h"
 #include "sqlci/SqlciParseGlobals.h"
+#include "sqlci/sqlcmd.h"
 
 extern ComDiagsArea sqlci_DA;
 

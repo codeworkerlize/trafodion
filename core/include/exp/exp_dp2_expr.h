@@ -19,8 +19,8 @@
  *****************************************************************************
  */
 
-#include "exp/exp_expr.h"
 #include "exp/ExpCriDesc.h"
+#include "exp/exp_expr.h"
 
 // classes referenced here
 class ExpDP2Expr;
@@ -35,7 +35,7 @@ class ExpDP2Expr : public NAVersionedObject {
  private:
   ExExprBasePtr expr_;          // 00-07
   ExCriDescPtr criDesc_;        // 08-15
-  int workAtpSpace_;          // 16-19
+  int workAtpSpace_;            // 16-19
   Int16 pCodeMode_;             // 20-21
   char fillersExpDP2Expr_[18];  // 22-39
 

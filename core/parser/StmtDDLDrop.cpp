@@ -104,8 +104,6 @@ const NAString StmtDDLDropComponentPrivilege::displayLabel2() const {
 
 const NAString StmtDDLDropComponentPrivilege::getText() const { return "StmtDDLDropComponentPrivilege"; }
 
-
-
 // -----------------------------------------------------------------------
 // methods for class StmtDDLDropTrigger
 // -----------------------------------------------------------------------
@@ -613,8 +611,6 @@ const NAString StmtDDLDropView::displayLabel2() const {
 }
 
 const NAString StmtDDLDropView::getText() const { return "StmtDDLDropView"; }
-
-
 
 StmtDDLDropSynonym::StmtDDLDropSynonym(const QualifiedName &synonymName)
     : StmtDDLNode(DDL_DROP_SYNONYM), synonymName_(synonymName, PARSERHEAP()) {}

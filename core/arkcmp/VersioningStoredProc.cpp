@@ -10,24 +10,22 @@
 
 **********************************************************************/
 
-#include "common/Platform.h"
-
 #include "VersioningStoredProc.h"
-#include "common/CmpCommon.h"
-#include "arkcmp/CmpErrors.h"
 
-#include "CatSQLObjectCache.h"
-#include "CatROBaseTable.h"
-#include "CatROIndex.h"
-#include "CatROView.h"
-#include "CatROMV.h"
-#include "CatRORoutine.h"
-#include "CatError.h"
-#include "ComVersionPrivate.h"
 #include "CatCatalog.h"
 #include "CatCatalogList.h"
-
+#include "CatError.h"
+#include "CatROBaseTable.h"
+#include "CatROIndex.h"
+#include "CatROMV.h"
+#include "CatRORoutine.h"
+#include "CatROView.h"
+#include "CatSQLObjectCache.h"
+#include "ComVersionPrivate.h"
+#include "arkcmp/CmpErrors.h"
+#include "common/CmpCommon.h"
 #include "common/ComRtUtils.h"
+#include "common/Platform.h"
 
 //----------------------------------------------------------------------
 //
@@ -657,8 +655,8 @@ SP_STATUS FeatureVersionInfoStoredProcedure::sp_NumOutputFields(int *numFields, 
 // Provides the format of the output columns.
 //
 SP_STATUS FeatureVersionInfoStoredProcedure::sp_OutputFormat(SP_FIELDDESC_STRUCT *format, SP_KEYDESC_STRUCT keyFields[],
-                                                             int *numKeyFields, SP_HANDLE spCompileObj,
-                                                             SP_HANDLE spObj, SP_ERROR_STRUCT *error) {
+                                                             int *numKeyFields, SP_HANDLE spCompileObj, SP_HANDLE spObj,
+                                                             SP_ERROR_STRUCT *error) {
   // Define column names and data types
   strcpy(&((format++)->COLUMN_DEF[0]), "eType           char(32)      character set iso88591 not null");
   strcpy(&((format++)->COLUMN_DEF[0]), "eValue          varchar(1030 bytes)  character set utf8 not null");
@@ -1003,7 +1001,7 @@ NABoolean getVarcharInputParameter(int fieldNo, SP_EXTRACT_FUNCPTR eFunc, SP_ROW
 }
 
 int getIntInputParameter(int fieldNo, SP_EXTRACT_FUNCPTR eFunc, SP_ROW_DATA inputData, size_t maxSize,
-                           int receivingField, SP_ERROR_STRUCT *error) {
+                         int receivingField, SP_ERROR_STRUCT *error) {
   if (eFunc(fieldNo, inputData, (int)maxSize, &receivingField, FALSE) == SP_ERROR_EXTRACT_DATA) {
     error->error = arkcmpErrorISPFieldDef;
     return -1;

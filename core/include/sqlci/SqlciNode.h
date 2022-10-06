@@ -6,14 +6,7 @@ class SqlciEnv;
 
 class SqlciNode {
  public:
-  enum sqlci_node_type {
-    SQLCI_CMD_TYPE,
-    SQL_CMD_TYPE,
-    UTIL_CMD_TYPE,
-    SHELL_CMD_TYPE,
-    REPORT_CMD_TYPE,
-    MXCS_CMD_TYPE
-  };
+  enum sqlci_node_type { SQLCI_CMD_TYPE, SQL_CMD_TYPE, UTIL_CMD_TYPE, SHELL_CMD_TYPE, REPORT_CMD_TYPE, MXCS_CMD_TYPE };
 
  private:
   char eye_catcher[4];

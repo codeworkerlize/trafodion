@@ -14,13 +14,13 @@
 *******************************************************************************
 */
 
-#include "export/NABasicObject.h"
+#include "ExecuteIdTrig.h"
 #include "common/Collections.h"
-#include "optimizer/ItemConstr.h"
 #include "common/ComSmallDefs.h"
 #include "common/NAString.h"
-#include "ExecuteIdTrig.h"
 #include "common/charinfo.h"
+#include "export/NABasicObject.h"
+#include "optimizer/ItemConstr.h"
 
 //-----------------------------------------------------------------------------
 // classes defined in this file:

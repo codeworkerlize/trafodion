@@ -17,20 +17,23 @@
  *
  *****************************************************************************
  */
-#include <math.h>
-#include <unistd.h>
-#include <zlib.h>
-#include <stdlib.h>
-#include <cstdlib>
-#include <cmath>
-#include <ctype.h>
-#include <string.h>
-#include <stdio.h>
-#include <sys/syscall.h>
-#include <regex.h>
-#include <uuid/uuid.h>
-#include <time.h>
 #include "exp_numberformat.h"
+
+#include <ctype.h>
+#include <math.h>
+#include <regex.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/syscall.h>
+#include <time.h>
+#include <unistd.h>
+#include <uuid/uuid.h>
+#include <zlib.h>
+
+#include <cmath>
+#include <cstdlib>
+
 #include "exp/exp_clause_derived.h"
 
 #define FORMAT_STATE_END       1
@@ -330,7 +333,7 @@ static int NUMDesc_prepare(NUMDesc *num, FormatNode *n, FormatNode *pFirst) {
       (ExpNumerFormat::NUM_S != n->key->id && ExpNumerFormat::NUM_MI != n->key->id &&
        ExpNumerFormat::NUM_PR != n->key->id))
     return -1;  //("C" can appear only in the first or last position of a number format or just ahead of NUM_S or NUM_MI
-                //orNUM_PR )
+                // orNUM_PR )
 
   switch (n->key->id) {
     case ExpNumerFormat::NUM_9: {
@@ -459,7 +462,7 @@ static const NumFmtKeyWord *index_seq_search(const char *str, const NumFmtKeyWor
 }
 
 static int parse_format(FormatNode *node, const char *str, const NumFmtKeyWord *kw, const int *index, NUMDesc *Num,
-                          CollHeap *heap, ComDiagsArea **diagsArea) {
+                        CollHeap *heap, ComDiagsArea **diagsArea) {
   FormatNode *n;
   int node_set = 0, suffix, last = 0;
   n = node;
@@ -960,8 +963,8 @@ static int getFomatNodeCount(const FormatNode *format) {
 }
 
 int ExpNumerFormat::convertBigNumToChar(char *dataValue, char *result, Attributes *arg0, Attributes *arg1,
-                                          Attributes *arg2, char *arg1Str, char *arg2Str, CollHeap *heap,
-                                          ComDiagsArea **diagsArea) {
+                                        Attributes *arg2, char *arg1Str, char *arg2Str, CollHeap *heap,
+                                        ComDiagsArea **diagsArea) {
   int arg2len = arg2->getLength();
   char *numfmtStr = new (heap) char[arg2len + 1];
   str_cpy_all(numfmtStr, arg2Str, arg2len);
@@ -1121,8 +1124,8 @@ int ExpNumerFormat::convertBigNumToChar(char *dataValue, char *result, Attribute
 }
 
 int ExpNumerFormat::convertFloatToChar(char *dataValue, char *result, Attributes *arg0, Attributes *arg1,
-                                         Attributes *arg2, char *arg1Str, char *arg2Str, CollHeap *heap,
-                                         ComDiagsArea **diagsArea) {
+                                       Attributes *arg2, char *arg1Str, char *arg2Str, CollHeap *heap,
+                                       ComDiagsArea **diagsArea) {
   int arg2len = arg2->getLength();
   char *numfmtStr = new (heap) char[arg2len + 1];
   str_cpy_all(numfmtStr, arg2Str, arg2len);
@@ -1251,8 +1254,8 @@ int ExpNumerFormat::convertFloatToChar(char *dataValue, char *result, Attributes
 }
 
 int ExpNumerFormat::convertInt32ToChar(char *dataValue, char *result, Attributes *arg0, Attributes *arg1,
-                                         Attributes *arg2, char *arg1Str, char *arg2Str, CollHeap *heap,
-                                         ComDiagsArea **diagsArea) {
+                                       Attributes *arg2, char *arg1Str, char *arg2Str, CollHeap *heap,
+                                       ComDiagsArea **diagsArea) {
   int arg2len = arg2->getLength();
   char *numfmtStr = new (heap) char[arg2len + 1];
   str_cpy_all(numfmtStr, arg2Str, arg2len);
@@ -1356,8 +1359,8 @@ int ExpNumerFormat::convertInt32ToChar(char *dataValue, char *result, Attributes
 }
 
 int ExpNumerFormat::convertInt64ToChar(char *dataValue, char *result, Attributes *arg0, Attributes *arg1,
-                                         Attributes *arg2, char *arg1Str, char *arg2Str, CollHeap *heap,
-                                         ComDiagsArea **diagsArea) {
+                                       Attributes *arg2, char *arg1Str, char *arg2Str, CollHeap *heap,
+                                       ComDiagsArea **diagsArea) {
   int arg2len = arg2->getLength();
   char *numfmtStr = new (heap) char[arg2len + 1];
   str_cpy_all(numfmtStr, arg2Str, arg2len);

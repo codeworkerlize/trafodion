@@ -12,10 +12,11 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
+#include <limits.h>
+
 #include <iostream>
 
-#include <limits.h>
+#include "common/Platform.h"
 
 // #define TRACE_DP2_MALLOCS        // Does not work for NSK DP2!
 #ifdef TRACE_DP2_MALLOCS
@@ -27,10 +28,10 @@ extern ostream *TraceFile;
 #include <string.h>
 
 #include "common/ComASSERT.h"
+#include "common/ComRtUtils.h"
 #include "common/ComSpace.h"
 #include "common/str.h"
 #include "export/HeapLog.h"
-#include "common/ComRtUtils.h"
 #include "parser/StmtCompilationMode.h"
 
 void *operator new(size_t size, Space *s) {

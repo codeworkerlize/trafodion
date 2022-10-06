@@ -17,8 +17,8 @@
 #ifndef COM_SORT_H
 #define COM_SORT_H
 
-#include "common/Platform.h"
 #include "comexe/ComTdb.h"
+#include "common/Platform.h"
 
 class SortOptions : public NAVersionedObject {
  public:
@@ -95,17 +95,17 @@ class SortOptions : public NAVersionedObject {
     CONSIDER_BUFFER_DEFRAG_ = 0x0020
   };
 
-  int internalSort_;                // 00-03
+  int internalSort_;                  // 00-03
   Int16 sortMaxHeapSizeMB_;           // 04-05
   UInt16 scratchFreeSpaceThreshold_;  // 06-07
-  int dontOverflow_;                // 08-11
+  int dontOverflow_;                  // 08-11
   Int16 sortType_;                    // 12-13
   UInt16 flags_;                      // 14-15
   Int16 memoryQuotaMB_;               // 16-17
   Int16 pressureThreshold_;           // 18-19
   Int16 mergeBufferUnit_;             // 20-21
   Int16 scratchIOVectorSize_;         // 22-23
-  int scratchIOBlockSize_;          // 24-27
+  int scratchIOBlockSize_;            // 24-27
   UInt16 bmoMaxMemThresholdMB_;       // 28-29
   char fillersSortOptions_[26];       // 30-55
 };
@@ -161,10 +161,10 @@ class ComTdbSort : public ComTdb {
   UInt32 minimalSortRecs_;         // 60-63
   Float32 sortMemEstInKBPerNode_;  // 64-67
   Float32 bmoCitizenshipFactor_;   // 68-71
-  int pMemoryContingencyMB_;     // 72-75
+  int pMemoryContingencyMB_;       // 72-75
   UInt16 sortGrowthPercent_;       // 76-77
   char filler_1[2];                // 78-79
-  int topNThreshold_;            // 80-83
+  int topNThreshold_;              // 80-83
   Float32 estMemoryUsage_;         // 84-87
   Float32 bmoQuotaRatio_;          // 88-91
   char fillersComTdbSort_[4];      // 92-95
@@ -174,10 +174,10 @@ class ComTdbSort : public ComTdb {
   ComTdbSort();  // dummy constructor. Used by 'unpack' routines.
 
   ComTdbSort(ex_expr *sort_key_expr, ex_expr *sort_rec_expr, int sort_key_len, int sort_rec_len,
-             int sort_partial_key_len, const unsigned short tupp_index, ComTdb *child_tdb,
-             ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, ex_cri_desc *work_cri_desc, queue_index down,
-             queue_index up, Cardinality estimatedRowCount, int num_buffers, int buffer_size, int num_recs,
-             SortOptions *sort_options, short sortGrowthPercent);
+             int sort_partial_key_len, const unsigned short tupp_index, ComTdb *child_tdb, ex_cri_desc *given_cri_desc,
+             ex_cri_desc *returned_cri_desc, ex_cri_desc *work_cri_desc, queue_index down, queue_index up,
+             Cardinality estimatedRowCount, int num_buffers, int buffer_size, int num_recs, SortOptions *sort_options,
+             short sortGrowthPercent);
 
   ~ComTdbSort();
 

@@ -3,30 +3,30 @@
 //*****************************************************************************
 #include "sqlcomp/PrivMgrRoles.h"
 
-#include "sqlcomp/PrivMgrMD.h"
+#include <algorithm>
+#include <cstdio>
+#include <string>
+#include <vector>
+
 #include "PrivMgrMDTable.h"
+#include "common/ComSmallDefs.h"
+#include "sqlcomp/CmpSeabaseDDLauth.h"
+#include "sqlcomp/PrivMgrMD.h"
 #include "sqlcomp/PrivMgrObjects.h"
 #include "sqlcomp/PrivMgrPrivileges.h"
-#include "sqlcomp/CmpSeabaseDDLauth.h"
-
-#include <string>
-#include <cstdio>
-#include <vector>
-#include <algorithm>
-#include "common/ComSmallDefs.h"
 
 // sqlcli.h included because ExExeUtilCli.h needs it (and does not include it!)
 #include "cli/sqlcli.h"
+#include "comexe/ComQueue.h"
 #include "executor/ExExeUtilCli.h"
 #include "export/ComDiags.h"
-#include "comexe/ComQueue.h"
 // CmpCommon.h contains STMTHEAP declaration
-#include "common/CmpCommon.h"
 #include "arkcmp/CmpContext.h"
-#include "sqlcomp/CmpDDLCatErrorCodes.h"
-#include "common/NAUserId.h"
-#include "common/ComUser.h"
+#include "common/CmpCommon.h"
 #include "common/ComSecurityKey.h"
+#include "common/ComUser.h"
+#include "common/NAUserId.h"
+#include "sqlcomp/CmpDDLCatErrorCodes.h"
 #include "sqlcomp/PrivMgrComponentPrivileges.h"
 
 static bool hasValue(std::vector<int32_t> container, int32_t value);

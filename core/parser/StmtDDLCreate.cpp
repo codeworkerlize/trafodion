@@ -25,41 +25,39 @@
 #ifndef NDEBUG
 #include <iostream>
 #endif
-#include "AllElemDDLPartition.h"
 #include "AllElemDDLParam.h"
+#include "AllElemDDLPartition.h"
 #include "AllElemDDLUdr.h"
-#include "parser/AllStmtDDLCreate.h"
+#include "ElemDDLConstraintUnique.h"
+#include "ElemDDLFileAttrClause.h"
+#include "ElemDDLIndexPopulateOption.h"
+#include "ElemDDLIndexScopeOption.h"
+#include "ElemDDLLibClientFilename.h"
+#include "ElemDDLLibClientName.h"
+#include "ElemDDLLocation.h"
+#include "ElemDDLParallelExec.h"
+#include "ElemDDLSchemaName.h"
+#include "ElemDDLWithCheckOption.h"
+#include "ItemConstValueArray.h"
 #include "common/BaseTypes.h"
-#include "export/ComDiags.h"
-#include "common/ComOperators.h"
-#include "common/ComMisc.h"
 #include "common/ComDistribution.h"
+#include "common/ComMisc.h"
+#include "common/ComOperators.h"
+#include "common/NumericType.h"
+#include "export/ComDiags.h"
+#include "parser/AllStmtDDLCreate.h"
 #include "parser/ElemDDLConstraintCheck.h"
 #include "parser/ElemDDLConstraintPK.h"
 #include "parser/ElemDDLConstraintRI.h"
-#include "ElemDDLConstraintUnique.h"
-#include "ElemDDLFileAttrClause.h"
 #include "parser/ElemDDLGrantee.h"
-#include "ElemDDLLibClientFilename.h"
-#include "ElemDDLLibClientName.h"
 #include "parser/ElemDDLList.h"
-#include "ElemDDLLocation.h"
-#include "ElemDDLParallelExec.h"
 #include "parser/ElemDDLPartitionList.h"
-#include "ElemDDLSchemaName.h"
 #include "parser/ElemDDLStoreOptions.h"
-#include "ElemDDLWithCheckOption.h"
-#include "ElemDDLIndexPopulateOption.h"
-#include "ElemDDLIndexScopeOption.h"
-#include "ItemConstValueArray.h"
 #include "parser/StmtDDLAddConstraintPK.h"
+#include "parser/StmtDDLCommentOn.h"
+#include "parser/StmtDDLCreateExceptionTable.h"
 #include "parser/StmtDDLCreateLibrary.h"
 #include "parser/StmtDDLCreateSynonym.h"
-#include "parser/StmtDDLCreateExceptionTable.h"
-#include "parser/StmtDDLCommentOn.h"
-
-
-#include "common/NumericType.h"
 
 #ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
@@ -798,7 +796,6 @@ const NAString StmtDDLCreateComponentPrivilege::displayLabel2() const {
 }
 
 const NAString StmtDDLCreateComponentPrivilege::getText() const { return "StmtDDLCreateComponentPrivilege"; }
-
 
 /**********************************************************/
 /****     B E G I N                                    ****/
@@ -4367,7 +4364,6 @@ void StmtDDLCreateTable::setFileAttributes(ElemDDLFileAttrClause *pFileAttrClaus
 
 }  // StmtDDLCreateTable::setFileAttributes()
 
-
 //
 // Constructs the primary partition node and then inserts its pointer
 // at the beginning of the partitionArray_.  The kind of the primary
@@ -4463,7 +4459,6 @@ void StmtDDLCreateTable::setTableOption(ElemDDLNode *pTableOption) {
       //
       setFileAttributes(pTableOption->castToElemDDLFileAttrClause());
       break;
-
 
     case ELM_TABLE_FEATURE_ELEM:
       setTableFeature(pTableOption->castToElemDDLTableFeature());
@@ -4958,8 +4953,6 @@ NATraceList StmtDDLCreateHbaseTable::getDetailInfo() const {
 }  // StmtDDLCreateHbaseTable::getDetailInfo()
 
 const NAString StmtDDLCreateHbaseTable::getText() const { return "StmtDDLCreateHbaseTable"; }
-
-
 
 // -----------------------------------------------------------------------
 // methods for class StmtDDLCreateView

@@ -17,8 +17,8 @@
 #ifndef EHCOMMONDEFS_H
 #define EHCOMMONDEFS_H
 
-#include "common/Platform.h"  // 64-BIT
 #include "EHBaseTypes.h"
+#include "common/Platform.h"  // 64-BIT
 
 // -----------------------------------------------------------------------
 // Declare a Boolean type

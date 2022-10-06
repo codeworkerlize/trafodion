@@ -45,7 +45,7 @@ class ComTdbHashGrby : public ComTdb {
   UInt32 keyLength_;                     // 120-123
   UInt32 resultRowLength_;               // 124-127
   UInt32 extGroupedRowLength_;           // 128-131
-  int isPartialGroup_;                 // 132-135
+  int isPartialGroup_;                   // 132-135
   Int16 hbRowAtpIndex_;                  // 136-137
   Int16 ofRowAtpIndex_;                  // 138-139
   Int16 hashValueAtpIndex_;              // 140-141
@@ -81,15 +81,14 @@ class ComTdbHashGrby : public ComTdb {
   ComTdbHashGrby(ComTdb *childTdb, ex_cri_desc *givenDesc, ex_cri_desc *returnedDesc, ex_expr *hashExpr,
                  ex_expr *bitMuxExpr, ex_expr *bitMuxAggrExpr, ex_expr *hbMoveInExpr, ex_expr *ofMoveInExpr,
                  ex_expr *resMoveInExpr, ex_expr *hbAggrExpr, ex_expr *ofAggrExpr, ex_expr *resAggrExpr,
-                 ex_expr *havingExpr, ex_expr *moveOutExpr, ex_expr *hbSearchExpr, ex_expr *ofSearchExpr,
-                 int keyLength, int resultRowLength, int extGroupRowLength, ex_cri_desc *workCriDesc,
-                 short hbRowAtpIndex, short ofRowAtpIndex, short hashValueAtpIndex, short bitMuxAtpIndex,
-                 short bitMuxCountOffset, short resultRowAtpIndex, short returnedAtpIndex,
-                 unsigned short memUsagePercent, short pressureThreshold, short scrThreshold, queue_index fromParent,
-                 queue_index toParent, NABoolean isPartialGroup, Cardinality estimatedRowCount, int numBuffers,
-                 int bufferSize, int partialGrbyFlushThreshold, int partialGrbyRowsPerCluster,
-                 int initialHashTableSize, unsigned short minBuffersToFlush, int numInBatch,
-                 short hgbGrowthPercent);
+                 ex_expr *havingExpr, ex_expr *moveOutExpr, ex_expr *hbSearchExpr, ex_expr *ofSearchExpr, int keyLength,
+                 int resultRowLength, int extGroupRowLength, ex_cri_desc *workCriDesc, short hbRowAtpIndex,
+                 short ofRowAtpIndex, short hashValueAtpIndex, short bitMuxAtpIndex, short bitMuxCountOffset,
+                 short resultRowAtpIndex, short returnedAtpIndex, unsigned short memUsagePercent,
+                 short pressureThreshold, short scrThreshold, queue_index fromParent, queue_index toParent,
+                 NABoolean isPartialGroup, Cardinality estimatedRowCount, int numBuffers, int bufferSize,
+                 int partialGrbyFlushThreshold, int partialGrbyRowsPerCluster, int initialHashTableSize,
+                 unsigned short minBuffersToFlush, int numInBatch, short hgbGrowthPercent);
 
   ~ComTdbHashGrby();
 

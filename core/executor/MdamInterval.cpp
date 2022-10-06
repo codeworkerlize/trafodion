@@ -21,8 +21,8 @@
 #ifdef NA_MDAM_EXECUTOR_DEBUG
 #include <iostream>
 #endif /* NA_MDAM_EXECUTOR_DEBUG */
-#include "MdamInterval.h"
 #include "MdamEndPoint.h"
+#include "MdamInterval.h"
 
 // *****************************************************************************
 // Member functions for class MdamInterval

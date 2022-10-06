@@ -15,15 +15,15 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
-
-#include "exp/exp_stdh.h"
-#include "SQLTypeDefs.h"
 #include "exp/exp_datetime.h"
-#include "exp/exp_interval.h"
-#include "exp/exp_clause_derived.h"
+
+#include "SQLTypeDefs.h"
 #include "common/NAAssert.h"
+#include "common/Platform.h"
 #include "exp/exp_bignum.h"
+#include "exp/exp_clause_derived.h"
+#include "exp/exp_interval.h"
+#include "exp/exp_stdh.h"
 #include "optimizer/ItemFunc.h"
 
 #undef DllImport
@@ -1282,8 +1282,7 @@ short ExpDatetime::subDatetimeDatetime(Attributes *datetimeOpType, Attributes *i
 // project.
 // ===================================================================
 //
-static int scaleFraction(int srcFractPrec, int srcFraction, int dstFractPrec,
-                           NABoolean *roundedDownFlag = NULL) {
+static int scaleFraction(int srcFractPrec, int srcFraction, int dstFractPrec, NABoolean *roundedDownFlag = NULL) {
   // The roundedDownFlag indicates if any data is lost when scaling
   // the fraction field of the datetime value.
   //
@@ -2056,9 +2055,8 @@ static NABoolean scanField(char *&src, char *srcEnd, rec_datetime_field field, c
   return TRUE;
 }
 
-short ExpDatetime::convAsciiDatetimeToUtcOrLocal(char *srcData, int srcLen, char *dstData, int dstLen,
-                                                 long gmtDiff, NABoolean toUTC, CollHeap *heap,
-                                                 ComDiagsArea **diagsArea) {
+short ExpDatetime::convAsciiDatetimeToUtcOrLocal(char *srcData, int srcLen, char *dstData, int dstLen, long gmtDiff,
+                                                 NABoolean toUTC, CollHeap *heap, ComDiagsArea **diagsArea) {
   short rc = 0;
 
   char dstValue[101];
@@ -2440,8 +2438,8 @@ short ExpDatetime::convAsciiToDatetime(char *srcData, int srcLen, char *dstData,
   return 0;
 }
 
-short ExpDatetime::convAsciiToDatetime(char *srcData, int srcLen, char *dstData, int dstLen, int format,
-                                       CollHeap *heap, ComDiagsArea **diagsArea, int flags) {
+short ExpDatetime::convAsciiToDatetime(char *srcData, int srcLen, char *dstData, int dstLen, int format, CollHeap *heap,
+                                       ComDiagsArea **diagsArea, int flags) {
   rec_datetime_field dstStartField;
   rec_datetime_field dstEndField;
 
@@ -2454,8 +2452,8 @@ short ExpDatetime::convAsciiToDatetime(char *srcData, int srcLen, char *dstData,
                              diagsArea, flags);
 }
 
-static NABoolean convertStrToMonth(int numSrcBytes, char *&srcData, char *result, const char *nextByte,
-                                   CollHeap *heap, ComDiagsArea **diagsArea) {
+static NABoolean convertStrToMonth(int numSrcBytes, char *&srcData, char *result, const char *nextByte, CollHeap *heap,
+                                   ComDiagsArea **diagsArea) {
   int copyLen = strlen(srcData);
   char *originalSrcData = srcData;
   const char *months[] = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
@@ -2593,8 +2591,8 @@ static NABoolean lcl_FormatWithNanosecond(int nFormat) {
 //    dstData[0] .. dstData[2]    1-byte for hour through second.
 // =====================================================================
 //
-short ExpDatetime::convAsciiToDate(char *srcData, int inSrcLen, char *dstData, int dstLen, int format,
-                                   CollHeap *heap, ComDiagsArea **diagsArea, int flags) {
+short ExpDatetime::convAsciiToDate(char *srcData, int inSrcLen, char *dstData, int dstLen, int format, CollHeap *heap,
+                                   ComDiagsArea **diagsArea, int flags) {
   NABoolean noDatetimeValidation = (flags & CONV_NO_DATETIME_VALIDATION) != 0;
   char *timeData = NULL;  // assume no time data
   char *origSrcData = srcData;
@@ -3466,8 +3464,7 @@ static void convertMonthToStr(int value, char *&result, UInt32 width, int nCaseS
   result += width;
 }
 
-static void convertDayOfWeekToStr(int value, char *&result, NABoolean bAbbreviation, UInt32 width,
-                                  int nCaseSensitive) {
+static void convertDayOfWeekToStr(int value, char *&result, NABoolean bAbbreviation, UInt32 width, int nCaseSensitive) {
   const char *dayofweek[] = {"sunday   ", "monday   ", "tuesday  ", "wednesday", "thursday ", "friday   ", "saturday "};
 
   const char *dayofweek_all[] = {"SUNDAY   ", "MONDAY   ", "TUESDAY  ", "WEDNESDAY",
@@ -3524,7 +3521,7 @@ static void convertMonthToStrLongFormat(int value, char *&result, UInt32 width, 
 }
 
 int ExpDatetime::getDatetimeFormatLen(int format, NABoolean to_date, rec_datetime_field startField,
-                                        rec_datetime_field endField) {
+                                      rec_datetime_field endField) {
   switch (format) {
     case DATETIME_FORMAT_DEFAULT:
     case DATETIME_FORMAT_USA:
@@ -3608,8 +3605,8 @@ static void convertToNanosecondAscii(const char *srcData, char *dstDataPtr, Int1
 // =====================================================================
 //
 int ExpDatetime::convDatetimeToASCII(char *srcData, char *dstData, int dstLen, int format, char *formatStr,
-                                       CollHeap *heap, ComDiagsArea **diagsArea, int caseSensitive,
-                                       int nsrcLen /*= -1*/) {
+                                     CollHeap *heap, ComDiagsArea **diagsArea, int caseSensitive,
+                                     int nsrcLen /*= -1*/) {
   // Get the start and end fields of the datetime value.
   //
   rec_datetime_field startField;
@@ -4403,7 +4400,7 @@ int ExpDatetime::convDatetimeToASCII(char *srcData, char *dstData, int dstLen, i
 // =====================================================================
 //
 int ExpDatetime::convNumericTimeToASCII(char *srcData, char *dstData, int dstLen, int format, char *formatStr,
-                                          CollHeap *heap, ComDiagsArea **diagsArea) {
+                                        CollHeap *heap, ComDiagsArea **diagsArea) {
   if ((format != DATETIME_FORMAT_NUM1) && (format != DATETIME_FORMAT_NUM2)) return -1;
 
   if ((format == DATETIME_FORMAT_NUM1) && (dstLen < 11)) return -1;
@@ -4482,9 +4479,8 @@ short ExpDatetime::getDisplaySize(int datetimeCode, short fractionPrecision) {
   return displayLength;
 }
 
-short ExpDatetime::convAsciiDatetimeToASCII(char *srcData, int srcPrecision, int srcScale, int srcLen,
-                                            char *dstData, int dstLen, int format, CollHeap *heap,
-                                            ComDiagsArea **diagsArea) {
+short ExpDatetime::convAsciiDatetimeToASCII(char *srcData, int srcPrecision, int srcScale, int srcLen, char *dstData,
+                                            int dstLen, int format, CollHeap *heap, ComDiagsArea **diagsArea) {
   short rc = 0;
 
   SimpleType tempST(REC_DATETIME, 12, srcScale, srcPrecision, ExpTupleDesc::SQLMX_FORMAT, 0, 0, 0, 0,

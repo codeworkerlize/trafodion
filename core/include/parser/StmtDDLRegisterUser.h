@@ -16,11 +16,11 @@
  *****************************************************************************
  */
 
-#include "common/ComLocationNames.h"
+#include "ElemDDLAuthSchema.h"
 #include "ElemDDLLocation.h"
+#include "common/ComLocationNames.h"
 #include "common/ComSmallDefs.h"
 #include "parser/StmtDDLNode.h"
-#include "ElemDDLAuthSchema.h"
 
 #define CREATE_USER_PASSWORD 100
 // -----------------------------------------------------------------------

@@ -1,24 +1,26 @@
 
 
-#include <pthread.h>
-#include <time.h>
-#include <signal.h>
-#include <errno.h>
-#include "seabed/pctl.h"
-#include "common/Platform.h"
 #include "ExSMGlobals.h"
-#include "ExSMTask.h"
-#include "ExSMReader.h"
+
+#include <errno.h>
+#include <pthread.h>
+#include <signal.h>
+#include <time.h>
+
 #include "ExSMEvent.h"
 #include "ExSMExitHandler.h"
-#include "export/ComDiags.h"
+#include "ExSMReader.h"
+#include "ExSMTask.h"
 #include "cli/Globals.h"
-#include "ex_exe_stmt_globals.h"
-#include "ex_ex.h"
-#include "exp/ExpErrorEnums.h"
+#include "cli/Statement.h"
 #include "common/ComRtUtils.h"
 #include "common/ComSqlId.h"
-#include "cli/Statement.h"
+#include "common/Platform.h"
+#include "ex_ex.h"
+#include "ex_exe_stmt_globals.h"
+#include "exp/ExpErrorEnums.h"
+#include "export/ComDiags.h"
+#include "seabed/pctl.h"
 
 ExSMGlobals *ExSMGlobals::smGlobals_ = NULL;
 bool ExSMGlobals::smInitialized_ = false;
@@ -53,8 +55,8 @@ void ExSMGlobals::addDiags(const char *functionName, int32_t rc, ExExeStmtGlobal
     // will be retired by AQR, for now an nsk code of 10001 and 10012
     // for error EXE_SM_FUNCTION_ERROR will be retried.
     // what codes of nsk are retried are defined in SessionDefaults.cpp file
-    *diags << DgSqlCode(-EXE_SM_FUNCTION_ERROR) << DgString0(functionName) << DgInt0((int)rc)
-           << DgInt1((int)getpid()) << DgString1(processName) << DgNskCode((int)10000 + abs(rc));
+    *diags << DgSqlCode(-EXE_SM_FUNCTION_ERROR) << DgString0(functionName) << DgInt0((int)rc) << DgInt1((int)getpid())
+           << DgString1(processName) << DgNskCode((int)10000 + abs(rc));
   }
 }
 

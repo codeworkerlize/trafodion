@@ -4,13 +4,13 @@
 
 // This code should be moved into ItemFunc.h
 
-#include "common/IntervalType.h"
+#include "RoutineDesc.h"
 #include "common/CharType.h"
+#include "common/IntervalType.h"
+#include "exp/exp_like.h"
 #include "optimizer/ItemExpr.h"
 #include "optimizer/NATable.h"
-#include "exp/exp_like.h"
 #include "qmscommon/QRExprElement.h"
-#include "RoutineDesc.h"
 
 // -----------------------------------------------------------------------
 // forward references

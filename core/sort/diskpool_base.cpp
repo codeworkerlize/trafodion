@@ -1,10 +1,10 @@
 
 
-#include "common/Platform.h"
+#include <assert.h>
+
 #include "DiskPool.h"
 #include "common/ComDistribution.h"
-
-#include <assert.h>
+#include "common/Platform.h"
 #if !defined(FORDEBUG) && !defined(NDEBUG)
 #define NDEBUG
 #endif

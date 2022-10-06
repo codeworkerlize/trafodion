@@ -15,9 +15,9 @@
 *************************************************************************
 */
 
+#include "VEGTable.h"
 #include "common/BaseTypes.h"
 #include "common/Collections.h"
-#include "VEGTable.h"
 #include "optimizer/ValueDesc.h"
 // ----------------------------------------------------------------------
 // contents of this file

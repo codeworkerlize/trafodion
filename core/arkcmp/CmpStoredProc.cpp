@@ -20,35 +20,32 @@
 #define SQLPARSERGLOBALS_NADEFAULTS
 
 #include "arkcmp/CmpStoredProc.h"
-#include "sqlcat/TrafDDLdesc.h"
-#include "sqlcomp/parser.h"
-#include "common/str.h"
 
-#include "ElemDDLColDef.h"
-#include "arkcmp/CmpErrors.h"
-#include "arkcmp/CmpContext.h"
-#include "comexe/CmpMessage.h"  // for CmpMessageISPRequest
-#include "export/ComDiags.h"
-#include "sqlcomp/CmpDescribe.h"  // for sendAllControls
+#include <memory.h>  // for memset
+#include <time.h>    // timestamp to generate a unique table name
 
-#include "common/CharType.h"
-#include "common/NumericType.h"
-#include "common/DatetimeType.h"
 #include "DTICommonType.h"  // for DatetimeIntervalCommonType
-
-#include "optimizer/ItemColRef.h"  // for ConstValue
-#include "ItemNAType.h"            // for NATypeToItem
-#include "optimizer/ItemOther.h"   // for ItemList
-
+#include "ElemDDLColDef.h"
+#include "ItemNAType.h"  // for NATypeToItem
+#include "arkcmp/CmpContext.h"
+#include "arkcmp/CmpErrors.h"
+#include "cli/StoredProcInterface.h"
+#include "comexe/CmpMessage.h"  // for CmpMessageISPRequest
+#include "common/CharType.h"
+#include "common/DatetimeType.h"
 #include "common/NAExit.h"
 #include "common/NAMemory.h"
 #include "common/NAString.h"
-#include "sqlmsg/ParserMsg.h"
-#include "cli/StoredProcInterface.h"
-
-#include <time.h>    // timestamp to generate a unique table name
-#include <memory.h>  // for memset
+#include "common/NumericType.h"
+#include "common/str.h"
+#include "export/ComDiags.h"
+#include "optimizer/ItemColRef.h"  // for ConstValue
+#include "optimizer/ItemOther.h"   // for ItemList
 #include "parser/SqlParserGlobalsCmn.h"
+#include "sqlcat/TrafDDLdesc.h"
+#include "sqlcomp/CmpDescribe.h"  // for sendAllControls
+#include "sqlcomp/parser.h"
+#include "sqlmsg/ParserMsg.h"
 
 // helper routines used in this cpp file
 
@@ -402,8 +399,7 @@ CollHeap *CmpSPExecDataItem::wHeap() { return context_->heap(); }
 // Methods of CmpISPDataItemInput
 // -----------------------------------------------------------------------
 
-CmpSPExecDataItemInput::CmpSPExecDataItemInput(int exprSize, void *expr, int dataSize, void *data,
-                                               CmpContext *context)
+CmpSPExecDataItemInput::CmpSPExecDataItemInput(int exprSize, void *expr, int dataSize, void *data, CmpContext *context)
     : CmpSPExecDataItem(exprSize, expr, dataSize, data, context) {
   CMPASSERT(ExSPPrepareInputBuffer(data_) == 0);
   CMPASSERT(ExSPPosition(data_) == 0);
@@ -572,10 +568,10 @@ NABoolean CmpISPFuncs::ValidPFuncs(const ProcFuncsStruct &pFuncs) const {
 }
 
 int CmpISPFuncs::RegFuncs(const char *procName,  // null terminated
-                            SP_COMPILE_FUNCPTR compileFunc, SP_INPUTFORMAT_FUNCPTR inFormatFunc,
-                            SP_PARSE_FUNCPTR parseFunc, SP_NUM_OUTPUTFIELDS_FUNCPTR outNumFormatFunc,
-                            SP_OUTPUTFORMAT_FUNCPTR outFormatFunc, SP_PROCESS_FUNCPTR procFunc, SP_HANDLE spHandle,
-                            const char *version) {
+                          SP_COMPILE_FUNCPTR compileFunc, SP_INPUTFORMAT_FUNCPTR inFormatFunc,
+                          SP_PARSE_FUNCPTR parseFunc, SP_NUM_OUTPUTFIELDS_FUNCPTR outNumFormatFunc,
+                          SP_OUTPUTFORMAT_FUNCPTR outFormatFunc, SP_PROCESS_FUNCPTR procFunc, SP_HANDLE spHandle,
+                          const char *version) {
   if (strcmp(version, CMPISPVERSION) != 0) {
     ABORT("arkcmp: The ISP interface version is not compatible");
     NAExit(1);

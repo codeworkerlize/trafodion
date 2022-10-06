@@ -6,26 +6,26 @@
 // Created:      5/02/2006
 **********************************************************************/
 
-#include "common/Platform.h"
-#include "executor/ex_stdh.h"
 #include "runtimestats/ssmpipc.h"
-#include "common/ComCextdecs.h"
+
 #include <semaphore.h>
-#include "nsk/nskport.h"
-#include "common/zsysc.h"
-#include "common/NAStdlib.h"
+
 #include "Ex_esp_msg.h"
+#include "cli/Globals.h"
+#include "cli/Statement.h"
 #include "comexe/ComQueue.h"
+#include "common/ComCextdecs.h"
 #include "common/ComRtUtils.h"
 #include "common/ComSqlId.h"
-#include "cli/Globals.h"
-#include "runtimestats/SqlStats.h"
-#include "executor/ex_stdh.h"
+#include "common/NAStdlib.h"
+#include "common/Platform.h"
+#include "common/zsysc.h"
 #include "executor/ExStats.h"
+#include "executor/ex_stdh.h"
 #include "export/ComDiags.h"
+#include "nsk/nskport.h"
 #include "porting/PortProcessCalls.h"
-#include "cli/Statement.h"
-#include "common/ComSqlId.h"
+#include "runtimestats/SqlStats.h"
 
 ExSsmpManager::ExSsmpManager(IpcEnvironment *env) : env_(env) {
   ssmpServerClass_ = new (env->getHeap()) IpcServerClass(env_, IPC_SQLSSMP_SERVER, IPC_USE_PROCESS);
@@ -531,7 +531,7 @@ void SsmpGlobals::removePendingSscpMessage(SscpClientMsgStream *sscpClientMsgStr
 
 bool SsmpGlobals::getQidFromPid(int pid,         // IN
                                 int minimumAge,  // IN
-                                char *queryId,     // OUT
+                                char *queryId,   // OUT
                                 int &queryIdLen  // OUT
 ) {
   bool foundQid = false;

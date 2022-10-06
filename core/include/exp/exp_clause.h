@@ -18,14 +18,13 @@
  *****************************************************************************
  */
 
-#include "exp/ExpError.h"
-#include "exp/exp_attrs.h"
-
 #include "common/Collections.h"
 #include "common/ComSpace.h"
 #include "common/Int64.h"
 #include "common/OperTypeEnum.h"
 #include "exp/ExpAtp.h"
+#include "exp/ExpError.h"
+#include "exp/exp_attrs.h"
 #include "exp/exp_expr.h"
 
 // Forware external declaractions
@@ -556,7 +555,7 @@ inline void ex_clause::setNextPackedClause(long offset) { nextClause_ = offset; 
 
 // functions to compare two strings
 int charStringCompareWithPad(char *in_s1, int length1, char *in_s2, int length2, char space,
-                               NABoolean ignoreSpace = false);
+                             NABoolean ignoreSpace = false);
 
 int wcharStringCompareWithPad(NAWchar *s1, int length1, NAWchar *s2, int length2, NAWchar space);
 #endif

@@ -21,11 +21,10 @@
 ******************************************************************************
 */
 
-#include "executor/ex_stdh.h"
-#include "comexe/ComTdb.h"
-#include "executor/ex_tcb.h"
-
 #include "ComTdbSimpleSample.h"
+#include "comexe/ComTdb.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_tcb.h"
 
 // -----------------------------------------------------------------------
 // Classes defined in this file

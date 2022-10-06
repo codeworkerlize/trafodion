@@ -30,38 +30,35 @@
 //  inlined.
 // -----------------------------------------------------------------------
 
-#include <fstream>
-
 #include <errno.h>
-#include "seabed/fs.h"
-
-#include <stdlib.h>
+#include <seabed/ms.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <sys/mman.h>  // For mmap support
+#include <sys/types.h>
+#include <unistd.h>
+
+#include <fstream>
 #include <iostream>
 
-#include "common/str.h"
 #include "common/ComSpace.h"
-
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/mman.h>  // For mmap support
-#include <seabed/ms.h>
+#include "common/str.h"
+#include "seabed/fs.h"
 
 #ifdef TRACE_DP2_MALLOCS  // Only works for NT.
 #include <fstream>
 #endif
 
-#include "sqlci/SqlciParseGlobals.h"
-#include "export/HeapLog.h"
-#include "common/Platform.h"
-#include "common/NAAssert.h"
-
-#include "common/ComRtUtils.h"
-#include "parser/StmtCompilationMode.h"
-#include "sqlcomp/NamedSemaphore.h"
-#include "common/DLock.h"
 #include "SharedSegment.h"
+#include "common/ComRtUtils.h"
+#include "common/DLock.h"
+#include "common/NAAssert.h"
+#include "common/Platform.h"
+#include "export/HeapLog.h"
+#include "parser/StmtCompilationMode.h"
+#include "sqlci/SqlciParseGlobals.h"
+#include "sqlcomp/NamedSemaphore.h"
 
 #ifdef _DEBUG
 //-------------------------------------------------------------------------//
@@ -118,8 +115,8 @@ struct DeallocTraceEntry {
 UInt32 THREAD_P deallocTraceIndex = deallocTraceEntries - 1, deallocCount = 0;
 THREAD_P DeallocTraceEntry (*deallocTraceArray)[deallocTraceEntries] = 0;
 
-#include "common/NAMemory.h"
 #include "NAMutex.h"
+#include "common/NAMemory.h"
 #ifdef _DEBUG
 #include "common/Collections.h"
 #endif  // _DEBUG
@@ -223,7 +220,7 @@ const size_t DEFAULT_MAX_INCREMENT = 4194304;
 #define RTCHECK(e)              (e)
 #define CORRUPTION_ERROR_ACTION assert(0)
 #define USAGE_ERROR_ACTION      assert(0)
-#define allocDebugProcess(P, S)                                                   \
+#define allocDebugProcess(P, S)                                                 \
   HEAPLOG_ADD_ENTRY(P->getMemory(), (int)userSize, heapID_.heapNum, getName()); \
   if (debugLevel_) doAllocDebugProcess(P, S);
 #define deallocDebugProcess(P) \

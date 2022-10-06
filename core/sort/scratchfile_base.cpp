@@ -11,21 +11,22 @@
 *
 ******************************************************************************
 */
+#include <assert.h>
+
 #include "ScratchFile.h"
 #include "ScratchSpace.h"
-#include "executor/ex_stdh.h"
-#include "executor/ExStats.h"
-#include "common/str.h"
 #include "SortError.h"
-#include <assert.h>
+#include "common/str.h"
+#include "executor/ExStats.h"
+#include "executor/ex_stdh.h"
 
 #ifndef FORDEBUG
 #undef NDEBUG
 #define NDEBUG
 #endif
 
-ScratchFile::ScratchFile(ScratchSpace *scratchSpace, long fileSize, SortError *sorterror, CollHeap *heap,
-                         int numOpens, NABoolean breakEnabled)
+ScratchFile::ScratchFile(ScratchSpace *scratchSpace, long fileSize, SortError *sorterror, CollHeap *heap, int numOpens,
+                         NABoolean breakEnabled)
     : asynchronousReadQueueHead_(NULL),
       asynchronousReadQueueTail_(NULL),
       breakEnabled_(breakEnabled),

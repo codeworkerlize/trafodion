@@ -18,9 +18,9 @@
  *****************************************************************************
  */
 
-#include "common/NAString.h"
 #include "ElemDDLPartitionSystem.h"
 #include "ItemConstValueArray.h"
+#include "common/NAString.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

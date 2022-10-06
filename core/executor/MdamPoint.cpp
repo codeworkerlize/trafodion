@@ -19,13 +19,13 @@
 
 #include "executor/ex_stdh.h"
 #ifdef NA_MDAM_EXECUTOR_DEBUG
-#include <iostream>
 #include <cctype>
 #include <cstdio>
+#include <iostream>
 #endif /* NA_MDAM_EXECUTOR_DEBUG */
-#include "common/NABoolean.h"
 #include "MdamEndPoint.h"
 #include "MdamPoint.h"
+#include "common/NABoolean.h"
 #include "common/str.h"
 
 // *****************************************************************************

@@ -16,14 +16,14 @@
 #ifndef _QRQUERIESIMPL_H_
 #define _QRQUERIESIMPL_H_
 
-#include "common/NAString.h"
+#include "QRMVDefinition.h"
+#include "QRMessage.h"
+#include "QRQueries.h"
+#include "common/CollHeap.h"
+#include "common/ComSmallDefs.h"
 #include "common/NAHeap.h"
 #include "common/NAMemory.h"
-#include "QRQueries.h"
-#include "common/ComSmallDefs.h"
-#include "QRMessage.h"
-#include "common/CollHeap.h"
-#include "QRMVDefinition.h"
+#include "common/NAString.h"
 #include "qmscommon/QRDescriptor.h"
 
 /**

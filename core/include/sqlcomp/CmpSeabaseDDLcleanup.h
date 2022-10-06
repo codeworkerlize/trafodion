@@ -21,9 +21,9 @@ class CmpSeabaseMDcleanup : public CmpSeabaseDDL {
 
   short processCleanupErrors(ExeCliInterface *cliInterface, NABoolean &errorSeen);
 
-  long getCleanupObjectUID(ExeCliInterface *cliInterface, const char *catName, const char *schName,
-                            const char *objName, const char *inObjType, char *outObjType, int &objectOwner,
-                            long *objectFlags = NULL, long *objDataUID = NULL);
+  long getCleanupObjectUID(ExeCliInterface *cliInterface, const char *catName, const char *schName, const char *objName,
+                           const char *inObjType, char *outObjType, int &objectOwner, long *objectFlags = NULL,
+                           long *objDataUID = NULL);
 
   short getCleanupObjectName(ExeCliInterface *cliInterface, long objUID, NAString &catName, NAString &schName,
                              NAString &objName, NAString &objType, int &objectOwner, long *objectFlags = NULL,

@@ -20,21 +20,20 @@
 // with a hash aggr/grby operation.
 //
 
-#include "executor/ex_stdh.h"
-#include "comexe/ComTdb.h"
-#include "executor/ex_tcb.h"
 #include "ex_hash_grby.h"
-#include "executor/ex_expr.h"
+
+#include "ExBitMapTable.h"
 #include "ExSimpleSqlBuffer.h"
 #include "ExTrieTable.h"
-#include "ExBitMapTable.h"
+#include "comexe/ComTdb.h"
+#include "ex_exe_stmt_globals.h"
 #include "executor/ExStats.h"
 #include "executor/ex_error.h"
-#include "ex_exe_stmt_globals.h"
-
-#include "sqlmxevents/logmxevent.h"
-
+#include "executor/ex_expr.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_tcb.h"
 #include "executor/sql_buffer_size.h"
+#include "sqlmxevents/logmxevent.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -176,9 +175,8 @@ ex_hash_grby_tcb::ex_hash_grby_tcb(const ex_hash_grby_tdb &hash_grby_tdb, const 
   if (bitMuxExpr_) {
     // Try to get about 1Mb of memory for the Trie table.
     int memSize = 1000 * 1024;
-    bitMuxTable_ =
-        new (space_) ExBitMapTable((int)hashGrbyTdb().keyLength_, (int)hashGrbyTdb().extGroupedRowLength_,
-                                   (int)bitMuxCountOffset_, memSize, space_);
+    bitMuxTable_ = new (space_) ExBitMapTable((int)hashGrbyTdb().keyLength_, (int)hashGrbyTdb().extGroupedRowLength_,
+                                              (int)bitMuxCountOffset_, memSize, space_);
     bitMuxBuffer_ = (char *)space_->allocateMemory((size_t)hashGrbyTdb().extGroupedRowLength_);
 
     if (bitMuxTable_ && bitMuxBuffer_ && (bitMuxTable_->getMaximumNumberGroups() > 0)) {
@@ -356,8 +354,7 @@ short ex_hash_grby_tcb::work() {
         if (hashGrbyTdb().isPartialGroup_ || !hbAggrExpr_) {
           if (!hasFreeTupp_) {
             // allocate space for the result tuple
-            if (resultPool_->get_free_tuple(workAtp_->getTupp(resultRowAtpIndex_),
-                                            (int)hashGrbyTdb().resultRowLength_))
+            if (resultPool_->get_free_tuple(workAtp_->getTupp(resultRowAtpIndex_), (int)hashGrbyTdb().resultRowLength_))
 
               // not enough space in pool. Return for now
               return WORK_POOL_BLOCKED;
@@ -1058,9 +1055,8 @@ void ex_hash_grby_tcb::workReadChild() {
           char msg[512];
           long MB = 1024 * 1024;
           int nonSpilledSizeMB = (int)(nonSpilledSize / MB), spilledSizeMB = (int)(spilledSize / MB),
-                maxSpilledSizeMB = (int)(maxSpilledSize / MB), minSpilledSizeMB = (int)(minSpilledSize / MB),
-                maxNonSpilledSizeMB = (int)(maxNonSpilledSize / MB),
-                minNonSpilledSizeMB = (int)(minNonSpilledSize / MB);
+              maxSpilledSizeMB = (int)(maxSpilledSize / MB), minSpilledSizeMB = (int)(minSpilledSize / MB),
+              maxNonSpilledSizeMB = (int)(maxNonSpilledSize / MB), minNonSpilledSizeMB = (int)(minNonSpilledSize / MB);
 
           if (bucketCount_ == numSpilled)
             sprintf(msg,

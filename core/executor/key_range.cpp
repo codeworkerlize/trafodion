@@ -17,8 +17,9 @@
 
 // -----------------------------------------------------------------------
 
-#include "executor/ex_stdh.h"
 #include "key_range.h"
+
+#include "executor/ex_stdh.h"
 
 keyRangeEx::keyRangeEx(const keyRangeGen &tdb_key, ex_globals *g, const short in_version, sql_buffer_pool *pool)
     : tdbKey_(tdb_key), globals_(g), bkExcludeFlag_(0), ekExcludeFlag_(0) {

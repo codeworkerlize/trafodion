@@ -13,6 +13,7 @@
 */
 
 #include "LmJavaSignatureHelpers.h"
+
 #include "common/str.h"
 
 //

@@ -1,16 +1,14 @@
 //------------------------------------------------------------------
 //
 
-
 //
 // sqstate module
 //
 #ifndef __SB_SQSTATE_H_
 #define __SB_SQSTATE_H_
 
-#include "ms.h"
-
 #include "int/sqstate.h"
+#include "ms.h"
 
 //
 // format of options array

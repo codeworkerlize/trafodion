@@ -4,18 +4,18 @@
 
 #include <ComCextdecs.h>
 #include <long.h>
-#include "qmscommon/QRSharedPtr.h"
-#include "qmscommon/QRLogger.h"
-#include "QmsMain.h"
-#include "qmscommon/QRDescriptor.h"
-#include "QRQueriesImpl.h"
-#include "QueryRewriteServer.h"
-#include "QmpPublish.h"
-#include "common/NAType.h"
 
+#include "QRQueriesImpl.h"
+#include "QmpPublish.h"
+#include "QmsMain.h"
+#include "QueryRewriteServer.h"
+#include "common/NAType.h"
 #include "nsk/nskport.h"
-#include "seabed/ms.h"
+#include "qmscommon/QRDescriptor.h"
+#include "qmscommon/QRLogger.h"
+#include "qmscommon/QRSharedPtr.h"
 #include "seabed/fs.h"
+#include "seabed/ms.h"
 extern void my_mpi_fclose();
 #include "common/SCMVersHelp.h"
 DEFINE_DOVERS(tdm_arkqmp)

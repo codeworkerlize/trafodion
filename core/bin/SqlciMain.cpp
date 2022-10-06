@@ -1,7 +1,7 @@
 
 
-#include "sqlci/SqlciEnv.h"
 #include "qmscommon/QRLogger.h"
+#include "sqlci/SqlciEnv.h"
 
 SqlciEnv *global_sqlci_env = nullptr;
 

@@ -15,19 +15,18 @@
 
 #define SQLPARSERGLOBALS_NADEFAULTS
 
-#include "optimizer/Sqlcomp.h"
+#include "ComSSL.h"
+#include "arkcmp/CmpErrors.h"
+#include "arkcmp/CmpStatement.h"
+#include "common/ComSqlId.h"
+#include "exp/exp_datetime.h"
 #include "optimizer/AllItemExpr.h"
 #include "optimizer/BindWA.h"
-#include "arkcmp/CmpStatement.h"
-#include "arkcmp/CmpErrors.h"
-#include "common/ComSqlId.h"
 #include "optimizer/OptimizerSimulator.h"
-#include "exp/exp_datetime.h"
-
-#include "ComSSL.h"
+#include "optimizer/Sqlcomp.h"
 // For TRIGGERS_STATUS_VECTOR_SIZE and SIZEOF_UNIQUE_EXECUTE_ID
-#include "optimizer/Triggers.h"
 #include "executor/TriggerEnable.h"
+#include "optimizer/Triggers.h"
 #ifndef NDEBUG
 static int NCHAR_DEBUG = -1;  // note that, for perf, we call getenv only once
 #endif
@@ -2792,7 +2791,7 @@ const NAType *CastConvert::synthesizeType() {
   // representation of the operand.
   const NAType &childType = child(0)->castToItemExpr()->getValueId().getType();
   int maxLength = childType.getDisplayLength(childType.getFSDatatype(), childType.getNominalSize(),
-                                               childType.getPrecision(), childType.getScale(), 0);
+                                             childType.getPrecision(), childType.getScale(), 0);
   CharType *origType = (CharType *)getType();
   if (DFS2REC::isAnyVarChar(origType->getFSDatatype()) == FALSE)
     type = new HEAP SQLChar(HEAP, maxLength, childType.supportsSQLnull(), origType->isUpshifted());
@@ -5397,7 +5396,7 @@ const NAType *Translate::synthesizeType() {
 
   if (charsetTarget != CharInfo::UnknownCharSet) {
     int resultLen = CharInfo::getMaxConvertedLenInBytes(translateSource->getCharSet(),
-                                                          translateSource->getNominalSize(), charsetTarget);
+                                                        translateSource->getNominalSize(), charsetTarget);
     NAType *desiredType =
         new HEAP SQLVarChar(HEAP, CharLenInfo(0, resultLen), TRUE, FALSE, translateSource->isCaseinsensitive(),
                             charsetTarget, CharInfo::DefaultCollation,
@@ -5787,8 +5786,7 @@ const NAType *ZZZBinderFunction::synthesizeType() {
 
     case ITM_LEFT: {
       // make a temporary transformation for synthesizing the right type
-      Substring *temp =
-          new HEAP Substring(child(0).getPtr(), new HEAP ConstValue((int)1, (NAMemory *)HEAP), child(1));
+      Substring *temp = new HEAP Substring(child(0).getPtr(), new HEAP ConstValue((int)1, (NAMemory *)HEAP), child(1));
       temp->synthTypeAndValueId();
       return temp->getValueId().getType().newCopy(HEAP);
     }

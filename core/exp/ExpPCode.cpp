@@ -13,15 +13,15 @@
 ****************************************************************************
 */
 
-#include "common/Platform.h"
+#include "ExpPCode.h"
 
-#include "exp/exp_stdh.h"
+#include "common/Platform.h"
 #include "common/str.h"
 #include "exp/exp_datetime.h"
 #include "exp/exp_expr.h"
-#include "exp_function.h"
-#include "ExpPCode.h"
+#include "exp/exp_stdh.h"
 #include "exp/exp_tuple_desc.h"
+#include "exp_function.h"
 
 // Uncomment the line below to debug new PCode instructions.
 // #define SQLMX_DEBUG_PCIT
@@ -448,40 +448,40 @@ int PCode::size() {
 
 // Local MACROs for constructing the instruction map
 //
-#define I6(inst, am1, am2, am3, am4, am5, am6, op)                                                                \
-  {                                                                                                               \
+#define I6(inst, am1, am2, am3, am4, am5, am6, op)                                                            \
+  {                                                                                                           \
     (((long)PCIT::inst << 36) | ((long)PCIT::am1 << 30) | ((long)PCIT::am2 << 24) | ((long)PCIT::am3 << 18) | \
-     ((long)PCIT::am4 << 12) | ((long)PCIT::am5 << 6) | ((long)PCIT::am6)),                                    \
-        PCIT::op, "" #op "",                                                                                      \
-        AM_LENGTH(PCIT::am1) + AM_LENGTH(PCIT::am2) + AM_LENGTH(PCIT::am3) + AM_LENGTH(PCIT::am4) +               \
-            AM_LENGTH(PCIT::am5) + AM_LENGTH(PCIT::am6) + 1,                                                      \
-        6                                                                                                         \
+     ((long)PCIT::am4 << 12) | ((long)PCIT::am5 << 6) | ((long)PCIT::am6)),                                   \
+        PCIT::op, "" #op "",                                                                                  \
+        AM_LENGTH(PCIT::am1) + AM_LENGTH(PCIT::am2) + AM_LENGTH(PCIT::am3) + AM_LENGTH(PCIT::am4) +           \
+            AM_LENGTH(PCIT::am5) + AM_LENGTH(PCIT::am6) + 1,                                                  \
+        6                                                                                                     \
   }
-#define I5(inst, am1, am2, am3, am4, am5, op)                                                                     \
-  {                                                                                                               \
+#define I5(inst, am1, am2, am3, am4, am5, op)                                                                 \
+  {                                                                                                           \
     (((long)PCIT::inst << 36) | ((long)PCIT::am1 << 30) | ((long)PCIT::am2 << 24) | ((long)PCIT::am3 << 18) | \
-     ((long)PCIT::am4 << 12) | ((long)PCIT::am5 << 6)),                                                         \
-        PCIT::op, "" #op "",                                                                                      \
-        AM_LENGTH(PCIT::am1) + AM_LENGTH(PCIT::am2) + AM_LENGTH(PCIT::am3) + AM_LENGTH(PCIT::am4) +               \
-            AM_LENGTH(PCIT::am5) + 1,                                                                             \
-        5                                                                                                         \
+     ((long)PCIT::am4 << 12) | ((long)PCIT::am5 << 6)),                                                       \
+        PCIT::op, "" #op "",                                                                                  \
+        AM_LENGTH(PCIT::am1) + AM_LENGTH(PCIT::am2) + AM_LENGTH(PCIT::am3) + AM_LENGTH(PCIT::am4) +           \
+            AM_LENGTH(PCIT::am5) + 1,                                                                         \
+        5                                                                                                     \
   }
-#define I4(inst, am1, am2, am3, am4, op)                                                                          \
-  {                                                                                                               \
+#define I4(inst, am1, am2, am3, am4, op)                                                                      \
+  {                                                                                                           \
     (((long)PCIT::inst << 36) | ((long)PCIT::am1 << 30) | ((long)PCIT::am2 << 24) | ((long)PCIT::am3 << 18) | \
-     ((long)PCIT::am4 << 12)),                                                                                   \
-        PCIT::op, "" #op "",                                                                                      \
-        AM_LENGTH(PCIT::am1) + AM_LENGTH(PCIT::am2) + AM_LENGTH(PCIT::am3) + AM_LENGTH(PCIT::am4) + 1, 4          \
+     ((long)PCIT::am4 << 12)),                                                                                \
+        PCIT::op, "" #op "",                                                                                  \
+        AM_LENGTH(PCIT::am1) + AM_LENGTH(PCIT::am2) + AM_LENGTH(PCIT::am3) + AM_LENGTH(PCIT::am4) + 1, 4      \
   }
-#define I3(inst, am1, am2, am3, op)                                                                               \
-  {                                                                                                               \
+#define I3(inst, am1, am2, am3, op)                                                                           \
+  {                                                                                                           \
     (((long)PCIT::inst << 36) | ((long)PCIT::am1 << 30) | ((long)PCIT::am2 << 24) | ((long)PCIT::am3 << 18)), \
-        PCIT::op, "" #op "", AM_LENGTH(PCIT::am1) + AM_LENGTH(PCIT::am2) + AM_LENGTH(PCIT::am3) + 1, 3            \
+        PCIT::op, "" #op "", AM_LENGTH(PCIT::am1) + AM_LENGTH(PCIT::am2) + AM_LENGTH(PCIT::am3) + 1, 3        \
   }
-#define I2(inst, am1, am2, op)                                                                              \
-  {                                                                                                         \
+#define I2(inst, am1, am2, op)                                                                           \
+  {                                                                                                      \
     (((long)PCIT::inst << 36) | ((long)PCIT::am1 << 30) | ((long)PCIT::am2 << 24)), PCIT::op, "" #op "", \
-        AM_LENGTH(PCIT::am1) + AM_LENGTH(PCIT::am2) + 1, 2                                                  \
+        AM_LENGTH(PCIT::am1) + AM_LENGTH(PCIT::am2) + 1, 2                                               \
   }
 #define I1(inst, am1, op) \
   { (((long)PCIT::inst << 36) | ((long)PCIT::am1 << 30)), PCIT::op, "" #op "", AM_LENGTH(PCIT::am1) + 1, 1 }
@@ -1139,8 +1139,7 @@ const PCIMap &PCode::getMapEntry(int i) {
   }
 }
 
-int PCode::getOpCodeMapElements(int opcode, PCIT::Operation &operation, PCIT::AddressingMode am[],
-                                  int &numAModes) {
+int PCode::getOpCodeMapElements(int opcode, PCIT::Operation &operation, PCIT::AddressingMode am[], int &numAModes) {
   if ((opcode == PCIT::END) || (opcode < 0) || (opcode >= PCIT::LAST_PCODE_INSTR)) return 1;
 
   long instruction = opcodeMap[opcode].instruction >> (36 - (opcodeMap[opcode].numAmodes * 6));
@@ -2365,8 +2364,8 @@ PCIList PCode::isNull(Attributes *attrDst, Attributes *attrSrc, CollHeap *heap) 
   int flag = ((attrSrc->isIndirectVC() && !attrSrc->isSQLMXAlignedFormat()) ? 1 : 0);
 
   AML aml(PCIT::MBIN32S, PCIT::MATTR5, PCIT::IBIN32S, PCIT::IBIN32S);
-  OL ol(attrDst->getAtp(), attrDst->getAtpIndex(), (int)attrDst->getOffset(), attrSrc->getAtp(),
-        attrSrc->getAtpIndex(), (int)attrSrc->getNullIndOffset(), attrSrc->getVoaOffset(), attrSrc->getTupleFormat(),
+  OL ol(attrDst->getAtp(), attrDst->getAtpIndex(), (int)attrDst->getOffset(), attrSrc->getAtp(), attrSrc->getAtpIndex(),
+        (int)attrSrc->getNullIndOffset(), attrSrc->getVoaOffset(), attrSrc->getTupleFormat(),
         attrSrc->getNullBitIndex(), flag, -1);
   PCI pci(PCIT::Op_NULL, aml, ol);
   pciList.append(pci);
@@ -2385,8 +2384,8 @@ PCIList PCode::isNotNull(Attributes *attrDst, Attributes *attrSrc, CollHeap *hea
   int flag = ((attrSrc->isIndirectVC() && !attrSrc->isSQLMXAlignedFormat()) ? 1 : 0);
 
   AML aml(PCIT::MBIN32S, PCIT::MATTR5, PCIT::IBIN32S, PCIT::IBIN32S);
-  OL ol(attrDst->getAtp(), attrDst->getAtpIndex(), (int)attrDst->getOffset(), attrSrc->getAtp(),
-        attrSrc->getAtpIndex(), (int)attrSrc->getNullIndOffset(), attrSrc->getVoaOffset(), attrSrc->getTupleFormat(),
+  OL ol(attrDst->getAtp(), attrDst->getAtpIndex(), (int)attrDst->getOffset(), attrSrc->getAtp(), attrSrc->getAtpIndex(),
+        (int)attrSrc->getNullIndOffset(), attrSrc->getVoaOffset(), attrSrc->getTupleFormat(),
         attrSrc->getNullBitIndex(), flag, 0);
   PCI pci(PCIT::Op_NULL, aml, ol);
   pciList.append(pci);

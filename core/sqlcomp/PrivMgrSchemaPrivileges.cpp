@@ -3,30 +3,28 @@
 //*****************************************************************************
 
 #include "sqlcomp/PrivMgrSchemaPrivileges.h"
-#include "sqlcomp/PrivMgrRoles.h"
-#include "sqlcomp/PrivMgrComponentPrivileges.h"
-#include "sqlcomp/PrivMgrObjects.h"
 
-#include <numeric>
-#include <cstdio>
 #include <algorithm>
+#include <cstdio>
 #include <iterator>
+#include <numeric>
 #include <vector>
+
+#include "arkcmp/CmpContext.h"
 #include "cli/sqlcli.h"
-#include "common/ComSmallDefs.h"
-#include "export/ComDiags.h"
-#include "common/ComSecurityKey.h"
-#include "common/NAUserId.h"
-#include "common/ComUser.h"
-#include "sqlmxevents/logmxevent_traf.h"
-#include "executor/ExExeUtilCli.h"
 #include "comexe/ComQueue.h"
 #include "common/CmpCommon.h"
-#include "arkcmp/CmpContext.h"
 #include "common/ComSecurityKey.h"
-#include "common/NAUserId.h"
+#include "common/ComSmallDefs.h"
 #include "common/ComUser.h"
+#include "common/NAUserId.h"
+#include "executor/ExExeUtilCli.h"
+#include "export/ComDiags.h"
 #include "seabed/ms.h"
+#include "sqlcomp/PrivMgrComponentPrivileges.h"
+#include "sqlcomp/PrivMgrObjects.h"
+#include "sqlcomp/PrivMgrRoles.h"
+#include "sqlmxevents/logmxevent_traf.h"
 
 // ****************************************************************************
 // File: PrivMgrSchemaPrivileges.h

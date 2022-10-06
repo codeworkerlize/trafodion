@@ -1,10 +1,11 @@
 #ifndef NAMEFILTER_H
 #define NAMEFILTER_H
 #include <ctype.h>
+
 #include <list>
 #include <map>
-#include <unordered_set>
 #include <unordered_map>
+#include <unordered_set>
 
 enum NameType { USERNAME = 1, GROUPNAME, OTHER };
 

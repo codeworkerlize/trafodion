@@ -15,28 +15,29 @@
 */
 #include "common/Platform.h"
 #ifdef _DEBUG
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
 #include <fstream>
 #include <iostream>
-#include <fcntl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #endif
 #include <errno.h>
-#include "ExCextdecs.h"
-#include "ex_ex.h"
-#include "common/Ipc.h"
-#include "cli/Globals.h"
-#include "runtimestats/SqlStats.h"
-
-#include "sscpipc.h"
-#include "runtimestats/rts_msg.h"
-#include "executor/ex_stdh.h"
-#include "executor/ExStats.h"
-#include "porting/PortProcessCalls.h"
 #include <sys/ipc.h>
 #include <sys/shm.h>
-#include "seabed/ms.h"
+
+#include "ExCextdecs.h"
+#include "cli/Globals.h"
+#include "common/Ipc.h"
+#include "ex_ex.h"
+#include "executor/ExStats.h"
+#include "executor/ex_stdh.h"
+#include "porting/PortProcessCalls.h"
+#include "runtimestats/SqlStats.h"
+#include "runtimestats/rts_msg.h"
 #include "seabed/fs.h"
+#include "seabed/ms.h"
+#include "sscpipc.h"
 extern void my_mpi_fclose();
 #include "common/SCMVersHelp.h"
 DEFINE_DOVERS(mxsscp)

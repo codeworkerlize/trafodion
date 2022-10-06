@@ -4,9 +4,11 @@
 #include <limits.h>
 #include <stddef.h>
 #include <stdint.h>
+
 #include <string>
-#include "dbsecurity/auth.h"
+
 #include "authEvents.h"
+#include "dbsecurity/auth.h"
 
 enum LDAPAuthResultEnum {
   AuthResult_Successful,  // User was authenticated on LDAP server

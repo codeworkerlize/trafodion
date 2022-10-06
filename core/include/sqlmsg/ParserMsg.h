@@ -10,7 +10,6 @@
  */
 
 #include "common/NAWinNT.h"
-
 #include "common/charinfo.h"
 
 class ComDiagsArea;

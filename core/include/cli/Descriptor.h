@@ -23,9 +23,9 @@
 //#include <stdarg.h>
 
 #include "cli/CliDefs.h"
+#include "comexe/ComTdbRoot.h"
 #include "common/ComSysUtils.h"
 #include "executor/ex_god.h"
-#include "comexe/ComTdbRoot.h"
 // -----------------------------------------------------------------------
 // Forward references
 // -----------------------------------------------------------------------
@@ -230,15 +230,15 @@ class Descriptor : public ExGod {
   short dyn_alloc_flag;
 
   int rowsetSize;          // Number of rows in rowset array.
-  void *rowsetStatusPtr;     // Optional. Specifies the status array. It
-                             // contains the row status values for each row
-                             // after a RowSet fetch.
-                             // Must be size of RowsetSize
-                             // Application is responsable for this ptr.
+  void *rowsetStatusPtr;   // Optional. Specifies the status array. It
+                           // contains the row status values for each row
+                           // after a RowSet fetch.
+                           // Must be size of RowsetSize
+                           // Application is responsable for this ptr.
   int rowsetNumProcessed;  // Number of rows processed in the rowset
   int rowsetHandle;        // A handle/cursor to current row in rowset
-                             // A value of "-1" indicates that a rowset
-                             // has not been defined.
+                           // A value of "-1" indicates that a rowset
+                           // has not been defined.
   int max_entries;         // Max entries of desc_struct
   int used_entries;        // Num active entries of desc_struct
 
@@ -247,11 +247,11 @@ class Descriptor : public ExGod {
   int compoundStmtsInfo_;  // contains information needed for compound statements
 
   int rowwiseRowsetSize;      // Number of rows in rowset array they
-                                // are being passed in stacked rowwise.
+                              // are being passed in stacked rowwise.
   int rowwiseRowsetRowLen;    // length of each row.
-  Long rowwiseRowsetPtr;        // ptr to the start of rowset buffer.
+  Long rowwiseRowsetPtr;      // ptr to the start of rowset buffer.
   int rowwiseRowsetPartnNum;  // partition number where this rwrs
-                                // buffer need to go to.
+                              // buffer need to go to.
   char filler_[16];
 
   struct desc_struct {
@@ -263,34 +263,34 @@ class Descriptor : public ExGod {
     };
 
     int rowsetVarLayoutSize; /* Three cases:
-                                * ZERO: when entry is not participating
-                                *       in a rowset or the same value is
-                                *       used in the rowset (i.e., without
-                                *       an array)
-                                * COLUMN_WISE: Same value as length. There
-                                *       is an array of values of that length
-                                * Row-WISE: value is the size of the structure
-                                *       where this item is contained. There
-                                *       are several item in the structure,
-                                *       even items outside the rowset.
-                                */
+                              * ZERO: when entry is not participating
+                              *       in a rowset or the same value is
+                              *       used in the rowset (i.e., without
+                              *       an array)
+                              * COLUMN_WISE: Same value as length. There
+                              *       is an array of values of that length
+                              * Row-WISE: value is the size of the structure
+                              *       where this item is contained. There
+                              *       are several item in the structure,
+                              *       even items outside the rowset.
+                              */
     int rowsetIndLayoutSize; /* Three cases:
-                                * ZERO: when entry is not participating
-                                *       in a rowset or the same value is
-                                *       used in the rowset (i.e., without
-                                *       an array)
-                                * COLUMN_WISE: Same value as ind_length. There
-                                *       is an array of values of that length
-                                * Row-WISE: value is the size of the structure
-                                *       where this item is contained. There
-                                *       are several item in the structure,
-                                *       even items outside the rowset.
-                                */
+                              * ZERO: when entry is not participating
+                              *       in a rowset or the same value is
+                              *       used in the rowset (i.e., without
+                              *       an array)
+                              * COLUMN_WISE: Same value as ind_length. There
+                              *       is an array of values of that length
+                              * Row-WISE: value is the size of the structure
+                              *       where this item is contained. There
+                              *       are several item in the structure,
+                              *       even items outside the rowset.
+                              */
     int datatype;
     int datetime_code;
     int length;
     short nullable;
-    int charset;          //
+    int charset;            //
     char *charset_schema;   // Internally charset and collation
     char *charset_catalog;  // is stored as a long.
     char *charset_name;     // All other charset and collation related
@@ -317,7 +317,7 @@ class Descriptor : public ExGod {
                      // variables.
     char *var_data;  // For Unbound. Rowsets are not used
     Long ind_ptr;    // Same convention as var_ptr
-    int ind_data;  // For Unbound. Rowsets are not used
+    int ind_data;    // For Unbound. Rowsets are not used
     int ind_datatype;
     int ind_length;
     int vc_ind_length;
@@ -396,8 +396,8 @@ class Descriptor : public ExGod {
   char *getIndData(int entry);
   char *getIndData(int entry, int idxrow);
   int getIndLength(int entry);
-  RETCODE getDescItemMainVarInfo(int entry, short &var_isnullable, int &var_datatype, int &var_length,
-                                 void **var_ptr, int &ind_datatype, int &ind_length, void **ind_ptr);
+  RETCODE getDescItemMainVarInfo(int entry, short &var_isnullable, int &var_datatype, int &var_length, void **var_ptr,
+                                 int &ind_datatype, int &ind_length, void **ind_ptr);
 
   RETCODE getDescItem(int entry, int what_to_get, void *numeric_value, char *string_value, int max_string_len,
                       int *returned_len, int start_from_offset, Descriptor *desc_to_get_more_info = 0,

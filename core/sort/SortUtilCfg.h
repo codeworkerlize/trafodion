@@ -28,8 +28,8 @@
 
 #include "CommonStructs.h"
 #include "Const.h"
-#include "export/NABasicObject.h"
 #include "comexe/ComResourceInfo.h"
+#include "export/NABasicObject.h"
 
 // Forward reference
 class ExSubtask;
@@ -168,24 +168,24 @@ class SortUtilConfig : public NABasicObject {
                         // a pointer to this object during sortInitialize
 
   int approxNumRecords_;  // Can be used by SortUtil for various
-                             // estimates including those related to
-                             // memory requirements
+                          // estimates including those related to
+                          // memory requirements
 
   int maxMemRecords_;  // Maximum number of records which
-                          // Executor can hold in memory at any
-                          // point.
+                       // Executor can hold in memory at any
+                       // point.
 
   int recSize_;  // Maximum record size of input.
   int keySize_;  // Length of the key prepended to each records.
-                    // This key is already encoded as a string.
+                 // This key is already encoded as a string.
 
-  int runSize_;                                // Using it currently to allow user to specify
-  int mergeOrder_;                             // Need to modify this to do automatically.
-  int minMem_;                                 // Minimum sort heap  memory
-  int maxMem_;                                 // Maximum sort heap memory
+  int runSize_;                                   // Using it currently to allow user to specify
+  int mergeOrder_;                                // Need to modify this to do automatically.
+  int minMem_;                                    // Minimum sort heap  memory
+  int maxMem_;                                    // Maximum sort heap memory
   NABoolean topNSort_;                            // TopN sorting enable/disable
-  int runSizeIncr_;                            // unused :how much to increment the run size by.
-  int maxNumBuffers_;                          // Max buffer space as set by the compiler
+  int runSizeIncr_;                               // unused :how much to increment the run size by.
+  int maxNumBuffers_;                             // Max buffer space as set by the compiler
   unsigned short scratchThreshold_;               // percent of disk usage after which a disk will be discarded for use
   const ExScratchDiskDrive *scratchDirListSpec_;  // Information about scratchvols to  include or exclude.
   int numDirsSpec_;

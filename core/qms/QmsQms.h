@@ -10,13 +10,14 @@
 #endif
 
 #include <fstream>
-#include "qmscommon/QRLogger.h"
-#include "qmscommon/QRDescriptor.h"
-#include "QmsMVMemo.h"
+
+#include "QRMVDefinition.h"
 #include "QmsJoinGraph.h"
 #include "QmsLatticeIndex.h"
-#include "QRMVDefinition.h"
+#include "QmsMVMemo.h"
 #include "common/NAString.h"
+#include "qmscommon/QRDescriptor.h"
+#include "qmscommon/QRLogger.h"
 
 class Qms;
 

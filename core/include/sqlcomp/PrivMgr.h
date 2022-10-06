@@ -8,16 +8,16 @@
 #include <set>
 #include <string>
 #include <vector>
-#include "sqlcomp/PrivMgrDefs.h"
-#include "PrivMgrMDTable.h"
+
 #include "PrivMgrComponentDefs.h"
+#include "PrivMgrMDTable.h"
 #include "PrivMgrUserPrivs.h"
 #include "common/ComSmallDefs.h"
 #include "sqlcomp/CmpSeabaseDDLauth.h"
+#include "sqlcomp/PrivMgrDefs.h"
 
 // following includes needed for diags interface
 class ComDiagsArea;
-
 
 // Forward references
 class NATable;

@@ -10,9 +10,10 @@
 ******************************************************************************
 */
 
+#include "LmLangManager.h"
+
 #include "common/CharType.h"
 #include "common/NumericType.h"
-#include "LmLangManager.h"
 
 // a stub to avoid an undefined external
 #include "common/NAType.h"

@@ -23,12 +23,11 @@ class ExSimpleSQLBuffer;
 
 // Task Definition Block
 //
-#include "comexe/ComTdbSequence.h"
-
-#include "common/NAMemory.h"
-#include "export/NABasicObject.h"
-#include "exp/ExpError.h"
 #include "cluster.h"
+#include "comexe/ComTdbSequence.h"
+#include "common/NAMemory.h"
+#include "exp/ExpError.h"
+#include "export/NABasicObject.h"
 
 // -----------------------------------------------------------------------
 // Classes defined in this file

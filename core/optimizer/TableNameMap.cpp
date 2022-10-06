@@ -13,9 +13,10 @@
 
 // -----------------------------------------------------------------------
 
+#include "optimizer/TableNameMap.h"
+
 #include "optimizer/BindWA.h"
 #include "optimizer/RETDesc.h"
-#include "optimizer/TableNameMap.h"
 
 XTNM::~XTNM() {
   // Doing clearAndDestroy here will cause some ColumnDescList* being
@@ -66,8 +67,7 @@ void XTNM::insertNames(BindWA *bindWA, CorrName &corrName, ColumnDescList *cols)
   //
   NAString catName(CmpCommon::statementHeap()), schName(CmpCommon::statementHeap()),
       tblName(CmpCommon::statementHeap());
-  int defaultMatch =
-      corrName.extractAndDefaultNameParts(bindWA, bindWA->getDefaultSchema(), catName, schName, tblName);
+  int defaultMatch = corrName.extractAndDefaultNameParts(bindWA, bindWA->getDefaultSchema(), catName, schName, tblName);
   CorrName cstCorr(tblName, CmpCommon::statementHeap(), schName, catName);
   CorrName stCorr(tblName, CmpCommon::statementHeap(), schName);
   CorrName tCorr(tblName, CmpCommon::statementHeap());
@@ -144,10 +144,10 @@ void TableViewUsageList::display() const { display(TRUE, 2); }
 // or at the top level itself
 // (if only seen in the latter case, the formatted list will be empty).
 //
-int TableViewUsageList::getViewsOnTable(CollIndex begIx, CollIndex endIx, int viewCount,
-                                          const QualifiedName &baseName, ExtendedQualName::SpecialTableType baseType,
-                                          const QualifiedName *additionalNameToFormat,
-                                          NAString &resultingViewNames) const {
+int TableViewUsageList::getViewsOnTable(CollIndex begIx, CollIndex endIx, int viewCount, const QualifiedName &baseName,
+                                        ExtendedQualName::SpecialTableType baseType,
+                                        const QualifiedName *additionalNameToFormat,
+                                        NAString &resultingViewNames) const {
   int baseNameSeen = 0;
   const QualifiedName *topViewName = NULL;
   CollHeap *h = CmpCommon::statementHeap();

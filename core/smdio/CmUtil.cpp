@@ -1,17 +1,17 @@
 
 
-#include "common/BaseTypes.h"
-
-#include <string.h>           // strstr
-#include "common/str.h"       // str_itoa
-#include "common/NAString.h"  // TrimNAStringSpace
-#include "common/nawstring.h"
-
-#include "common/ComASSERT.h"
-#include "common/OperTypeEnum.h"
 #include "CmUtil.h"
-#include "common/NLSConversion.h"
+
+#include <string.h>  // strstr
+
+#include "common/BaseTypes.h"
 #include "common/CmpCommon.h"
+#include "common/ComASSERT.h"
+#include "common/NAString.h"  // TrimNAStringSpace
+#include "common/NLSConversion.h"
+#include "common/OperTypeEnum.h"
+#include "common/nawstring.h"
+#include "common/str.h"  // str_itoa
 
 //
 // Versioning Light: Changed translation functions to generally use the

@@ -15,14 +15,15 @@
 
 // -----------------------------------------------------------------------
 
-#include "optimizer/Sqlcomp.h"
-#include "arkcmp/CmpContext.h"
-#include "optimizer/GroupAttr.h"
 #include "optimizer/PhyProp.h"
+
 #include "Cost.h"
 #include "SearchKey.h"
-#include "optimizer/ItemOther.h"
+#include "arkcmp/CmpContext.h"
 #include "cli/Globals.h"
+#include "optimizer/GroupAttr.h"
+#include "optimizer/ItemOther.h"
+#include "optimizer/Sqlcomp.h"
 
 // -----------------------------------------------------------------------
 // methods for PhysicalProperty

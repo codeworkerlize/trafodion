@@ -2,26 +2,25 @@
 #ifndef __EX_STATS_H__
 #define __EX_STATS_H__
 
-#include "common/Int64.h"
-#include "comexe/ComTdb.h"
-#include "executor/ex_stdh.h"
-#include "executor/ExScheduler.h"
-#include "comexe/ComTdbStats.h"
-#include "comexe/ComTdbUdr.h"
-#include "common/ComRtUtils.h"
-#include "cli/Globals.h"
-#include "runtimestats/SqlStats.h"
-#include "runtimestats/ssmpipc.h"
-#include "common/ComCextdecs.h"
-#include "executor/ex_tcb.h"
-#include "cli/SQLCLIdev.h"
-#include "executor/ExExeUtil.h"
-#include "exp/ExpLOBstats.h"
-#include "common/ComGuardianFileNameParts.h"
-#include "cli/Statement.h"
-
 #include <sys/times.h>
 
+#include "cli/Globals.h"
+#include "cli/SQLCLIdev.h"
+#include "cli/Statement.h"
+#include "comexe/ComTdb.h"
+#include "comexe/ComTdbStats.h"
+#include "comexe/ComTdbUdr.h"
+#include "common/ComCextdecs.h"
+#include "common/ComGuardianFileNameParts.h"
+#include "common/ComRtUtils.h"
+#include "common/Int64.h"
+#include "executor/ExExeUtil.h"
+#include "executor/ExScheduler.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_tcb.h"
+#include "exp/ExpLOBstats.h"
+#include "runtimestats/SqlStats.h"
+#include "runtimestats/ssmpipc.h"
 #include "seabed/fs.h"
 
 class ExStatisticsArea;
@@ -169,7 +168,7 @@ class ExStatsCounter {
   int entryCnt_;
   long min_;
   long max_;
-  long sum_;   // sum of all values
+  long sum_;    // sum of all values
   float sum2_;  // sum of the square of all values
 };
 
@@ -227,12 +226,12 @@ class ExClusterStats : public ExStatsBase {
  private:
   int version_;
   NABoolean isInner_;          // inner or outer Cluster
-  int bucketCnt_;           // number of buckets in this cluster
-  long actRows_;              // for this cluster
-  long totalSize_;            // total size in bytes
+  int bucketCnt_;              // number of buckets in this cluster
+  long actRows_;               // for this cluster
+  long totalSize_;             // total size in bytes
   ExStatsCounter hashChains_;  // stats about the hash table
-  long writeIOCnt_;           // write operations to scratch file
-  long readIOCnt_;            // read operations from scratch file
+  long writeIOCnt_;            // write operations to scratch file
+  long readIOCnt_;             // read operations from scratch file
   ExClusterStats *next_;
 };
 
@@ -515,9 +514,8 @@ class ExOperStats : public ExStatsBaseNew {
   // second constructor is used only when unpacking objects from a message
   ExOperStats(NAMemory *heap, StatType statType = EX_OPER_STATS);
 
-  ExOperStats(NAMemory *heap, StatType statType, ComTdb::CollectStatsType collectStatsType, ExFragId fragId,
-              int tdbId, int explainTdbId, int instNum, ComTdb::ex_node_type tdbType, char *tdbName,
-              int tdbNameLen);
+  ExOperStats(NAMemory *heap, StatType statType, ComTdb::CollectStatsType collectStatsType, ExFragId fragId, int tdbId,
+              int explainTdbId, int instNum, ComTdb::ex_node_type tdbType, char *tdbName, int tdbNameLen);
   ExOperStats();
 
   ~ExOperStats();
@@ -904,7 +902,7 @@ class ExBMOStats : public ExOperStats {
   long scratchWriteCount_;
   long scratchIOMaxTime_;
   Int16 scratchOverflowMode_;  // 0 - disk 1 - SSD
-  int topN_;                 // TOPN value
+  int topN_;                   // TOPN value
   Float32 estMemoryUsage_;
   long interimRowCount_;
   Int16 phase_;
@@ -924,8 +922,7 @@ class ExFragRootOperStats : public ExOperStats {
   ExFragRootOperStats(NAMemory *heap);
 
   ExFragRootOperStats(NAMemory *heap, ComTdb::CollectStatsType collectStatsType, ExFragId fragId, int tdbId,
-                      int explainNodeId, int instNum, ComTdb::ex_node_type tdbType, char *tdbName,
-                      int tdbNameLen);
+                      int explainNodeId, int instNum, ComTdb::ex_node_type tdbType, char *tdbName, int tdbNameLen);
 
   ~ExFragRootOperStats();
 
@@ -1077,9 +1074,9 @@ class ExFragRootOperStats : public ExOperStats {
   long pagesInUse_;
   // Helps with cancel escalation.  Local only.  Do not merge.
   int executionCount_;
-  int stmtIndex_;  // Statement index used by Measure
+  int stmtIndex_;   // Statement index used by Measure
   long timestamp_;  // timestamp indicating when the statement executed
-                     // (master executor only)
+                    // (master executor only)
   char *queryId_;
   int queryIdLen_;
   int scratchFileCount_;
@@ -1393,7 +1390,7 @@ class ExHashJoinStats : public ExBMOStats {
 
  private:
   ExTimeStats phaseTimes_[3];
-  short phase_;    // indicates which phase to charge with times
+  short phase_;   // indicates which phase to charge with times
   long memSize_;  // max. amount of memory bytes used
   long ioSize_;   // number of bytes transferred from and to disk
   int emptyChains_;
@@ -1409,8 +1406,7 @@ class ExHashJoinStats : public ExBMOStats {
 //////////////////////////////////////////////////////////////////
 class ExESPStats : public ExOperStats {
  public:
-  ExESPStats(NAMemory *heap, int sendBufferSize, int recBufferSize, int subInstNum, ex_tcb *tcb,
-             const ComTdb *tdb);
+  ExESPStats(NAMemory *heap, int sendBufferSize, int recBufferSize, int subInstNum, ex_tcb *tcb, const ComTdb *tdb);
 
   ExESPStats(NAMemory *heap);
 
@@ -1451,8 +1447,8 @@ class ExESPStats : public ExOperStats {
   ExBufferStats bufferStats_;
 
   long sendTopStatID_;  // used for send bottoms to make
-                         // the connection to the corresponding
-                         // send tops
+                        // the connection to the corresponding
+                        // send tops
 };
 
 //////////////////////////////////////////////////////////////////
@@ -2004,7 +2000,7 @@ class ExUDRStats : public ExUDRBaseStats {
 
   long UDRServerInit_;   // UDR Server initialization time
   long UDRServerStart_;  // UDR Server successfull start time
-  char *UDRName_;         // UDR name registered in CREATE
+  char *UDRName_;        // UDR name registered in CREATE
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -2176,9 +2172,9 @@ class ExStatisticsArea : public IpcMessageObj {
   void setRootStats(ExOperStats *root) { rootStats_ = root; }
   int getStatsItems(int no_of_stats_items, SQLSTATS_ITEM sqlStats_items[]);
   int getStatsDesc(short *statsCollectType,
-                     /* IN/OUT */ SQLSTATS_DESC sqlstats_desc[],
-                     /* IN */ int max_stats_desc,
-                     /* OUT */ int *no_returned_stats_desc);
+                   /* IN/OUT */ SQLSTATS_DESC sqlstats_desc[],
+                   /* IN */ int max_stats_desc,
+                   /* OUT */ int *no_returned_stats_desc);
   static const char *getStatsTypeText(short statsType);
   void setCpuStatsHistory();
   NABoolean appendCpuStats(ExStatisticsArea *other, NABoolean appendAlways = FALSE);
@@ -2353,8 +2349,8 @@ class ExStatsTcb : public ex_tcb {
   ComDiagsArea *getDiagsArea() { return diagsArea_; }
 
   int str_parse_stmt_name(char *string, int len, char *nodeName, short *cpu, pid_t *pid, long *timeStamp,
-                            int *queryNumber, short *qidOffset, short *qidLen, short *activeQueryNum,
-                            UInt16 *statsMergeType, short *detailLevel, short *subReqType, int *filterTimeInSecs);
+                          int *queryNumber, short *qidOffset, short *qidLen, short *activeQueryNum,
+                          UInt16 *statsMergeType, short *detailLevel, short *subReqType, int *filterTimeInSecs);
   enum StatsStep {
     INITIAL_,
     GET_NEXT_STATS_ENTRY_,
@@ -2656,8 +2652,7 @@ class ExMasterStats : public ExOperStats {
   // Security Invalidation Keys -- no need to pack or unpack.
   int getNumSIKeys() const { return numSIKeys_; }
   SQL_QIKEY *getSIKeys() const { return sIKeys_; }
-  void setInvalidationKeys(CliGlobals *cliGlobals, SecurityInvKeyInfo *sikInfo, int numObjUIDs,
-                           const long *objectUIDs);
+  void setInvalidationKeys(CliGlobals *cliGlobals, SecurityInvKeyInfo *sikInfo, int numObjUIDs, const long *objectUIDs);
   void setValidDDL(bool v) { validDDL_ = v; }
   bool getValidDDL() { return validDDL_; }
   void setValidHistogram(bool v) { validHistogram_ = v; }

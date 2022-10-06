@@ -13,15 +13,15 @@
 *
 ******************************************************************************
 */
-#include "optimizer/Sqlcomp.h"
+#include "GenExpGenerator.h"
+#include "generator/Generator.h"
+#include "optimizer/BindWA.h"
 #include "optimizer/GroupAttr.h"
 #include "optimizer/RelStoredProc.h"
-#include "optimizer/BindWA.h"
-#include "generator/Generator.h"
-#include "GenExpGenerator.h"
+#include "optimizer/Sqlcomp.h"
 //#include "executor/ex_stdh.h"
-#include "exp/ExpCriDesc.h"
 #include "comexe/ComTdb.h"
+#include "exp/ExpCriDesc.h"
 //#include "executor/ex_tcb.h"
 #include "comexe/ComTdbStoredProc.h"
 #include "exp/exp_clause_derived.h"

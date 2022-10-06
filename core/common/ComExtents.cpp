@@ -16,8 +16,9 @@
  */
 
 #include "ComExtents.h"
-#include "common/Int64.h"
+
 #include "common/ComASSERT.h"
+#include "common/Int64.h"
 
 ComExtents::ComExtents(long maxSize, ComUnits units) : maxSize_(maxSize), units_(units) {
   // ---------------------------------------------------------------------

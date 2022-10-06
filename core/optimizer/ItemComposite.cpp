@@ -11,28 +11,26 @@
  */
 
 #define SQLPARSERGLOBALS_NADEFAULTS
-#include "parser/SqlParserGlobals.h"
-
-#include "common/Platform.h"
-#include "optimizer/Sqlcomp.h"
-#include "optimizer/GroupAttr.h"
-#include "optimizer/AllItemExpr.h"
-#include "PartFunc.h"
-#include "common/wstr.h"
-#include "common/NLSConversion.h"
-#include "Cost.h" /* for lookups in the defaults table */
-#include "Stats.h"
-#include "exp_function.h"  // for calling ExHDPHash::hash(data, len)
-#include "ItemFuncUDF.h"
-#include "arkcmp/CmpStatement.h"
-#include "exp/exp_datetime.h"
-#include "optimizer/Analyzer.h"
-#include "ItemSample.h"
-#include "common/ComUnits.h"
-
-#include "OptRange.h"
-
 #include <string.h>  // memcmp
+
+#include "Cost.h" /* for lookups in the defaults table */
+#include "ItemFuncUDF.h"
+#include "ItemSample.h"
+#include "OptRange.h"
+#include "PartFunc.h"
+#include "Stats.h"
+#include "arkcmp/CmpStatement.h"
+#include "common/ComUnits.h"
+#include "common/NLSConversion.h"
+#include "common/Platform.h"
+#include "common/wstr.h"
+#include "exp/exp_datetime.h"
+#include "exp_function.h"  // for calling ExHDPHash::hash(data, len)
+#include "optimizer/AllItemExpr.h"
+#include "optimizer/Analyzer.h"
+#include "optimizer/GroupAttr.h"
+#include "optimizer/Sqlcomp.h"
+#include "parser/SqlParserGlobals.h"
 
 // ----------------------------------------------------------------------
 // class CompositeArrayLength
@@ -297,8 +295,8 @@ ItemExpr *CompositeCast::arrayExtendOrTruncate(BindWA *bindWA) {
   int i = 0;
   int childElems = MINOF(myCompType.getNumElements(), childCompType.getNumElements());
   int nullElems = (myCompType.getNumElements() > childCompType.getNumElements()
-                         ? (myCompType.getNumElements() - childCompType.getNumElements())
-                         : 0);
+                       ? (myCompType.getNumElements() - childCompType.getNumElements())
+                       : 0);
   ItemExpr *ie = NULL;
   for (i = 0; i < childElems; i++) {
     ie = new (bindWA->wHeap()) CompositeExtract(child(0), i + 1);

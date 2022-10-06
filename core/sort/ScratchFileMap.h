@@ -19,13 +19,13 @@
 ******************************************************************************
 */
 
-#include "common/Platform.h"
-
 #include <string.h>
+
 #include "CommonStructs.h"
 #include "ScratchFile.h"
-#include "export/NABasicObject.h"
 #include "SortError.h"
+#include "common/Platform.h"
+#include "export/NABasicObject.h"
 
 class SQScratchFile;
 //----------------------------------------------------------------------

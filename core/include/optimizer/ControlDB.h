@@ -17,9 +17,9 @@
  *****************************************************************************
  */
 
-#include "optimizer/RelControl.h"
-
 #include <iosfwd>
+
+#include "optimizer/RelControl.h"
 using namespace std;
 
 class ControlDB;

@@ -15,10 +15,10 @@
 */
 
 #include "SqlLmDllDefines.h"
-#include "common/Platform.h"
-#include "common/NABoolean.h"
-#include "export/NABasicObject.h"
 #include "common/Collections.h"
+#include "common/NABoolean.h"
+#include "common/Platform.h"
+#include "export/NABasicObject.h"
 
 // Contents of this file
 class LmJavaOptions;

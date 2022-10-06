@@ -13,8 +13,9 @@
 ****************************************************************************
 */
 
-#include "export/ComDiags.h"
 #include "common/DgBaseType.h"
+
+#include "export/ComDiags.h"
 
 // no inline constructors for SRL's sake
 

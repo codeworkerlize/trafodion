@@ -14,10 +14,9 @@
  *****************************************************************************
  */
 
+#include "comexe/ComPackDefs.h"
 #include "common/Platform.h"
 #include "common/dfs2rec.h"
-
-#include "comexe/ComPackDefs.h"
 #include "exp/exp_stdh.h"
 
 // Uncomment this line to see the offsets computed.

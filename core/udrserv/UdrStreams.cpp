@@ -12,17 +12,17 @@
 */
 
 #include "UdrStreams.h"
-#include "udrglobals.h"
-#include "udrdefs.h"
-#include "udrutil.h"
-#include "executor/sql_buffer.h"
+
 #include "UdrDebug.h"
+#include "common/zsysc.h"
+#include "executor/sql_buffer.h"
+#include "nsk/nskprocess.h"
+#include "rosetta/rosgen.h"
 #include "spinfo.h"
 #include "udrdecs.h"
-
-#include "rosetta/rosgen.h"
-#include "nsk/nskprocess.h"
-#include "common/zsysc.h"
+#include "udrdefs.h"
+#include "udrglobals.h"
+#include "udrutil.h"
 
 extern void processAnInvokeMessage(UdrGlobals *UdrGlob, UdrServerDataStream &msgStream, UdrDataBuffer &request);
 

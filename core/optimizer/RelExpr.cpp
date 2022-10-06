@@ -16,44 +16,44 @@
 #define SQLPARSERGLOBALS_FLAGS  // must precede all #include's
 #define SQLPARSERGLOBALS_NADEFAULTS
 
-#include "common/Debug.h"
-#include "optimizer/Sqlcomp.h"
-#include "optimizer/AllRelExpr.h"
-#include "optimizer/AllItemExpr.h"
-#include "optimizer/GroupAttr.h"
-#include "optimizer/opt.h"
-#include "optimizer/PhyProp.h"
-#include "optimizer/mdam.h"
-#include "optimizer/ControlDB.h"
-#include "disjuncts.h"
-#include "ScanOptimizer.h"
-#include "arkcmp/CmpContext.h"
-#include "parser/StmtDDLCreateTrigger.h"
-#include "exp/ExpError.h"
-#include "common/ComTransInfo.h"
-#include "optimizer/BindWA.h"
-#include "sqlcomp/CmpMain.h"
-#include "optimizer/ControlDB.h"
-#include "ElemDDLColDef.h"
-#include "optimizer/Analyzer.h"
-#include "optimizer/OptHints.h"
-#include "comexe/ComTdbSendTop.h"
-#include "common/DatetimeType.h"
-#include "common/SequenceGeneratorAttributes.h"
-#include "parser/SqlParserGlobals.h"
-#include "AppliedStatMan.h"
-#include "generator/Generator.h"
-#include "arkcmp/CmpStatement.h"
-
 #include <sstream>
 
-#include "cli/Globals.h"
+#include "AppliedStatMan.h"
+#include "ElemDDLColDef.h"
+#include "ScanOptimizer.h"
+#include "arkcmp/CmpContext.h"
+#include "arkcmp/CmpStatement.h"
 #include "cli/Context.h"
+#include "cli/Globals.h"
+#include "comexe/ComTdbSendTop.h"
+#include "common/ComTransInfo.h"
+#include "common/DatetimeType.h"
+#include "common/Debug.h"
+#include "common/SequenceGeneratorAttributes.h"
+#include "disjuncts.h"
+#include "exp/ExpError.h"
+#include "generator/Generator.h"
+#include "optimizer/AllItemExpr.h"
+#include "optimizer/AllRelExpr.h"
+#include "optimizer/Analyzer.h"
+#include "optimizer/BindWA.h"
+#include "optimizer/ControlDB.h"
+#include "optimizer/GroupAttr.h"
+#include "optimizer/OptHints.h"
+#include "optimizer/PhyProp.h"
+#include "optimizer/Sqlcomp.h"
+#include "optimizer/mdam.h"
+#include "optimizer/opt.h"
+#include "parser/SqlParserGlobals.h"
+#include "parser/StmtDDLCreateTrigger.h"
+#include "sqlcomp/CmpMain.h"
 
 #define TEXT_DISPLAY_LENGTH 1001
 
-#include <fstream>
 #include <unistd.h>
+
+#include <fstream>
+
 #include "optimizer/CostMethod.h"
 // ----------------------------------------------------------------------
 // forward declarations
@@ -8637,8 +8637,7 @@ PlanPriority FileScan::computeOperatorPriority(const Context *context, PlanWorkS
 }
 
 // currently only used by MV query rewrite
-PlanPriority PhysicalMapValueIds::computeOperatorPriority(const Context *context, PlanWorkSpace *pws,
-                                                          int planNumber) {
+PlanPriority PhysicalMapValueIds::computeOperatorPriority(const Context *context, PlanWorkSpace *pws, int planNumber) {
   PlanPriority result;
 
   // is this MVI wraps one of the favorite MVs
@@ -9859,7 +9858,6 @@ void RelRoot::addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) con
 
   RelExpr::addLocalExpr(xlist, llist);
 }
-
 
 NABoolean RelRoot::addOneRowAggregates(BindWA *bindWA, NABoolean forceGroupByAgg) {
   NABoolean groupByAggNodeAdded = FALSE;
@@ -12690,8 +12688,7 @@ void Pack::addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) const 
 // -----------------------------------------------------------------------
 // methods for class PhyPack
 // -----------------------------------------------------------------------
-PhyPack::PhyPack(int packingFactor /*= 0*/, RelExpr *child /*= NULL*/,
-                 CollHeap *oHeap /*= CmpCommon::statementHeap()*/)
+PhyPack::PhyPack(int packingFactor /*= 0*/, RelExpr *child /*= NULL*/, CollHeap *oHeap /*= CmpCommon::statementHeap()*/)
     : Pack(packingFactor, child, NULL, oHeap) {
   if (oHeap)
     pCostMethod_ = new (oHeap) CostMethodFixedCostPerRow(0., 0., 0.);
@@ -14064,7 +14061,7 @@ NABoolean Join::multiColumnjoinPredOKforSB(ValueIdSet &joinPreds) {
 NABoolean Join::childNodeContainMultiColumnSkew(CollIndex i,                  // IN: which child to work on
                                                 const ValueIdSet &joinPreds,  // IN: the join predicate
                                                 double mc_threshold,          // IN: multi-column threshold
-                                                int countOfPipelines,       // IN:
+                                                int countOfPipelines,         // IN:
                                                 SkewedValueList **skList      // OUT: the skew list
 ) {
   if (joinPreds.entries() <= 1) return FALSE;
@@ -14129,7 +14126,7 @@ NABoolean Join::childNodeContainMultiColumnSkew(CollIndex i,                    
                                                 const ValueIdSet &joinPreds,    // IN: the join predicate
                                                 double mc_threshold,            // IN: multi-column threshold
                                                 double sc_threshold,            // IN: single-column threshold
-                                                int countOfPipelines,         // IN:
+                                                int countOfPipelines,           // IN:
                                                 SkewedValueList **skList,       // OUT: the skew list
                                                 ValueId &vidOfEquiJoinWithSkew  // OUT: the valueId of the column
                                                                                 // whose skew list is returned

@@ -11,7 +11,6 @@
  *-------------------------------------------------------------------------
  */
 
-
 /* -*-C++-*-
 ******************************************************************************
 *
@@ -25,13 +24,14 @@
 ******************************************************************************
 */
 
+#include <assert.h>
 #include <ctype.h>
+#include <locale.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <locale.h>
-#include <assert.h>
 #include <wctype.h>
+
 #include "common/Platform.h"
 
 #define VARHDRSZ    ((int)sizeof(int))

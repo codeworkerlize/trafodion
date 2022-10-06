@@ -8,13 +8,14 @@
 ****************************************************************************
 */
 #include "LmRoutineCSqlRow.h"
-#include "LmParameter.h"
+
 #include "LmLangManagerC.h"
+#include "LmParameter.h"
 
 // SQLROW function declaration
 typedef int (*sqlrow_func)(SQLUDR_CHAR *input_row, SQLUDR_CHAR *output_row, SQLUDR_CHAR sqlstate[6],
-                             SQLUDR_CHAR msgtext[256], SQLUDR_INT32 calltype, SQLUDR_STATEAREA *statearea,
-                             SQLUDR_UDRINFO *udrinfo);
+                           SQLUDR_CHAR msgtext[256], SQLUDR_INT32 calltype, SQLUDR_STATEAREA *statearea,
+                           SQLUDR_UDRINFO *udrinfo);
 
 SQLUDR_INT32 SQLUDR_INVOKE_SQLROW(sqlrow_func func_ptr, SQLUDR_CHAR *input_row, SQLUDR_CHAR *output_row,
                                   SQLUDR_CHAR sqlstate[6], SQLUDR_CHAR msgtext[256], SQLUDR_INT32 calltype,

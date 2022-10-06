@@ -73,7 +73,7 @@ class ComTdbFirstN : public ComTdb {
   long firstNRows() { return firstNRows_; }
 
  protected:
-  long firstNRows_;              // 00-07
+  long firstNRows_;               // 00-07
   ComTdbPtr tdbChild_;            // 08-15
   ExExprPtr firstNRowsExpr_;      // 16-23
   ExCriDescPtr workCriDesc_;      // 24-31

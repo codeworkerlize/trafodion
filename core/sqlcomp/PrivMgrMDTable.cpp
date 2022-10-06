@@ -3,17 +3,18 @@
 //*****************************************************************************
 
 #include "PrivMgrMDTable.h"
-#include "sqlcomp/PrivMgrMD.h"
 
-#include <string>
 #include <cstdio>
+#include <string>
+
+#include "arkcmp/CmpContext.h"
 #include "cli/sqlcli.h"
+#include "comexe/ComQueue.h"
+#include "common/CmpCommon.h"
 #include "common/ComSmallDefs.h"
 #include "executor/ExExeUtilCli.h"
 #include "export/ComDiags.h"
-#include "comexe/ComQueue.h"
-#include "common/CmpCommon.h"
-#include "arkcmp/CmpContext.h"
+#include "sqlcomp/PrivMgrMD.h"
 
 PrivMgrRowInfo::PrivMgrRowInfo(const PrivMgrRowInfo &other) {
   grantorID_ = other.grantorID_;

@@ -71,8 +71,8 @@
 // -----------------------------------------------------------------------
 
 #include "Const.h"
-#include "export/NABasicObject.h"
 #include "SortError.h"
+#include "export/NABasicObject.h"
 
 struct RunDirectoryEntry;
 

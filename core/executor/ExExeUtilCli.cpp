@@ -1,6 +1,5 @@
 
 
-
 /* -*-C++-*-
  *****************************************************************************
  *
@@ -17,11 +16,12 @@
  */
 
 //#include "common/ComCextdecs.h"
+#include "ExExeUtilCli.h"
+
+#include "ComSqlId.h"
 #include "cli_stdh.h"
 #include "ex_stdh.h"
 #include "sql_id.h"
-#include "ComSqlId.h"
-#include "ExExeUtilCli.h"
 OutputInfo::OutputInfo(int numEntries) : numEntries_(numEntries) {
   ex_assert(numEntries <= MAX_OUTPUT_ENTRIES, "try to fetch more than max columns allowed");
 
@@ -135,7 +135,7 @@ ExeCliInterface::~ExeCliInterface() {
 }
 
 int ExeCliInterface::deallocStuff(SQLMODULE_ID *&module, SQLSTMT_ID *&stmt, SQLDESC_ID *&sql_src,
-                                    SQLDESC_ID *&input_desc, SQLDESC_ID *&output_desc) {
+                                  SQLDESC_ID *&input_desc, SQLDESC_ID *&output_desc) {
   if (sql_src) {
     SQL_EXEC_DeallocDesc(sql_src);
     NADELETEBASIC(sql_src, heap_);
@@ -187,8 +187,8 @@ int ExeCliInterface::dealloc() { return deallocStuff(module_, stmt_, sql_src_, i
 
 void ExeCliInterface::clearGlobalDiags() { SQL_EXEC_ClearDiagnostics(NULL); }
 
-int ExeCliInterface::allocStuff(SQLMODULE_ID *&module, SQLSTMT_ID *&stmt, SQLDESC_ID *&sql_src,
-                                  SQLDESC_ID *&input_desc, SQLDESC_ID *&output_desc, const char *stmtName) {
+int ExeCliInterface::allocStuff(SQLMODULE_ID *&module, SQLSTMT_ID *&stmt, SQLDESC_ID *&sql_src, SQLDESC_ID *&input_desc,
+                                SQLDESC_ID *&output_desc, const char *stmtName) {
   int retcode = 0;
   deallocStuff(module, stmt, sql_src, input_desc, output_desc);
 
@@ -238,11 +238,10 @@ int ExeCliInterface::allocStuff(SQLMODULE_ID *&module, SQLSTMT_ID *&stmt, SQLDES
 }
 
 int ExeCliInterface::prepare(const char *stmtStr, SQLMODULE_ID *module, SQLSTMT_ID *stmt, SQLDESC_ID *sql_src,
-                               SQLDESC_ID *input_desc, SQLDESC_ID *output_desc, char **outputBuf,
-                               Queue *outputVarPtrList, char **inputBuf, Queue *inputVarPtrList, char *uniqueStmtId,
-                               int *uniqueStmtIdLen, SQL_QUERY_COST_INFO *query_cost_info,
-                               SQL_QUERY_COMPILER_STATS_INFO *comp_stats_info, NABoolean monitorThis,
-                               NABoolean doNotCachePlan, int *retGenCodeSize) {
+                             SQLDESC_ID *input_desc, SQLDESC_ID *output_desc, char **outputBuf, Queue *outputVarPtrList,
+                             char **inputBuf, Queue *inputVarPtrList, char *uniqueStmtId, int *uniqueStmtIdLen,
+                             SQL_QUERY_COST_INFO *query_cost_info, SQL_QUERY_COMPILER_STATS_INFO *comp_stats_info,
+                             NABoolean monitorThis, NABoolean doNotCachePlan, int *retGenCodeSize) {
   int retcode = 0;
   int prepFlags = 0;
   SQL_QUERY_COST_INFO local_query_cost_info;
@@ -630,7 +629,7 @@ int ExeCliInterface::getNumEntries(int &numInput, int &numOutput) {
 }
 
 int ExeCliInterface::getAttributes(short entry, NABoolean forInput, int &fsDatatype, int &length, int &vcIndLen,
-                                     int *indOffset, int *varOffset) {
+                                   int *indOffset, int *varOffset) {
   int retcode = 0;
 
   if (forInput) {
@@ -704,7 +703,7 @@ int ExeCliInterface::close(NABoolean ignoreIfNotOpen) {
 }
 
 int ExeCliInterface::executeImmediatePrepare(const char *stmtStr, char *outputBuf, int *outputBufLen,
-                                               long *rowsAffected, NABoolean monitorThis, char *stmtName) {
+                                             long *rowsAffected, NABoolean monitorThis, char *stmtName) {
   int retcode = 0;
   if (outputBufLen) *outputBufLen = 0;
 
@@ -722,10 +721,10 @@ int ExeCliInterface::executeImmediatePrepare(const char *stmtStr, char *outputBu
 }
 
 int ExeCliInterface::executeImmediatePrepare2(const char *stmtStr, char *uniqueStmtId, int *uniqueStmtIdLen,
-                                                SQL_QUERY_COST_INFO *query_cost_info,
-                                                SQL_QUERY_COMPILER_STATS_INFO *comp_stats_info, char *outputBuf,
-                                                int *outputBufLen, long *rowsAffected, NABoolean monitorThis,
-                                                int *retGenCodeSize) {
+                                              SQL_QUERY_COST_INFO *query_cost_info,
+                                              SQL_QUERY_COMPILER_STATS_INFO *comp_stats_info, char *outputBuf,
+                                              int *outputBufLen, long *rowsAffected, NABoolean monitorThis,
+                                              int *retGenCodeSize) {
   int retcode = 0;
 
   if (outputBufLen) *outputBufLen = 0;
@@ -762,7 +761,7 @@ int ExeCliInterface::getGeneratedCode(char *genCodeBuf, int genCodeSize) {
 }
 
 int ExeCliInterface::executeImmediateExec(const char *stmtStr, char *outputBuf, int *outputBufLen,
-                                            NABoolean nullTerminate, long *rowsAffected, ComDiagsArea **diagsArea) {
+                                          NABoolean nullTerminate, long *rowsAffected, ComDiagsArea **diagsArea) {
   int retcode = 0;
   int diagsCount = 0;
 
@@ -834,9 +833,8 @@ ExecReturn:
 // If *globalDiags points to ComDiagsArea already, pass back
 // the diagnostics conditions back to the caller after executing
 // the stmtStr along with new errors or warnings.
-int ExeCliInterface::executeImmediate(const char *stmtStr, char *outputBuf, int *outputBufLen,
-                                        NABoolean nullTerminate, long *rowsAffected, NABoolean monitorThis,
-                                        ComDiagsArea **globalDiags) {
+int ExeCliInterface::executeImmediate(const char *stmtStr, char *outputBuf, int *outputBufLen, NABoolean nullTerminate,
+                                      long *rowsAffected, NABoolean monitorThis, ComDiagsArea **globalDiags) {
   int retcode = 0;
 
   ComDiagsArea *tempDiags = NULL;
@@ -1122,7 +1120,7 @@ short ExeCliInterface::clearExecFetchCloseOpt(char *inputBuf, int inputBufLen,
 }
 
 int ExeCliInterface::executeImmediateCEFC(const char *stmtStr, char *inputBuf, int inputBufLen, char *outputBuf,
-                                            int *outputBufLen, long *rowsAffected) {
+                                          int *outputBufLen, long *rowsAffected) {
   int retcode = 0;
 
   clearGlobalDiags();
@@ -1139,8 +1137,8 @@ ExecuteImmediateCEFCReturn:
 }
 
 int ExeCliInterface::cwrsAllocStuff(SQLMODULE_ID *&module, SQLSTMT_ID *&stmt, SQLDESC_ID *&sql_src,
-                                      SQLDESC_ID *&input_desc, SQLDESC_ID *&output_desc,
-                                      SQLDESC_ID *&rs_input_maxsize_desc, const char *stmtName) {
+                                    SQLDESC_ID *&input_desc, SQLDESC_ID *&output_desc,
+                                    SQLDESC_ID *&rs_input_maxsize_desc, const char *stmtName) {
   int retcode = 0;
 
   retcode = cwrsDeallocStuff(module, stmt, sql_src, input_desc, output_desc, rs_input_maxsize_desc);
@@ -1177,8 +1175,8 @@ int ExeCliInterface::cwrsAllocStuff(SQLMODULE_ID *&module, SQLSTMT_ID *&stmt, SQ
 }
 
 int ExeCliInterface::cwrsDeallocStuff(SQLMODULE_ID *&module, SQLSTMT_ID *&stmt, SQLDESC_ID *&sql_src,
-                                        SQLDESC_ID *&input_desc, SQLDESC_ID *&output_desc,
-                                        SQLDESC_ID *&rs_input_maxsize_desc) {
+                                      SQLDESC_ID *&input_desc, SQLDESC_ID *&output_desc,
+                                      SQLDESC_ID *&rs_input_maxsize_desc) {
   deallocStuff(module, stmt, sql_src, input_desc, output_desc);
 
   if (rs_input_maxsize_desc) {
@@ -1241,7 +1239,7 @@ int ExeCliInterface::cwrsExec(char *inputRow, int inputRowLen, long *rowsAffecte
   int retcode = 0;
 
   int rowset_status[1];  // Has no functionality currently.
-                           // However it is part of RowsetSetDesc API
+                         // However it is part of RowsetSetDesc API
 
   if ((inputRow) && (currRSrow_ < rsMaxsize_)) {
     int fsDatatype;

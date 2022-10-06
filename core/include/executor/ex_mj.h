@@ -22,8 +22,8 @@
 // forward declarations
 class Queue;
 
-#include "ExOverflow.h"
 #include "ExDupSqlBuffer.h"
+#include "ExOverflow.h"
 #include "TupleSpace.h"
 #include "exp/exp_expr.h"
 

@@ -17,11 +17,11 @@
  *****************************************************************************
  */
 
-#include "sqlcomp/DefaultConstants.h"
-#include "optimizer/RelExpr.h"
-#include "parser/StmtCompilationMode.h"
 #include "common/charinfo.h"
 #include "optimizer/OptimizerSimulator.h"
+#include "optimizer/RelExpr.h"
+#include "parser/StmtCompilationMode.h"
+#include "sqlcomp/DefaultConstants.h"
 
 class GroupOfNAString;
 
@@ -83,7 +83,7 @@ class ControlAbstractClass : public RelExpr {
   // because   SET SCHEMA '';   must *NOT* be allowed to mean CQD SCHEMA RESET
   // because Ansi says we must issue a syntax error for this.
   // It must be an int (values 0, 1, 2) for CQD * RESET RESET;
-  int reset_;        // value is ignored; instead, RESET to prior val
+  int reset_;          // value is ignored; instead, RESET to prior val
   NABoolean dynamic_;  // a SET stmt, to be evaluated at runtime
 
  private:

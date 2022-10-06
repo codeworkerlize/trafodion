@@ -19,10 +19,10 @@
 // begining of regular compilation
 #include "cluster.h"
 
-#include "executor/ExStats.h"
-#include "comexe/ComResourceInfo.h"
-#include "sqlmxevents/logmxevent.h"
 #include "SortError.h"
+#include "comexe/ComResourceInfo.h"
+#include "executor/ExStats.h"
+#include "sqlmxevents/logmxevent.h"
 
 HashBufferHeader::HashBufferHeader() : rowCount_(0), bucketCount_(0){};
 
@@ -65,8 +65,8 @@ HashBuffer::HashBuffer(Cluster *cluster)
 // Cluster object.
 // Currently, this is only used by the UniqueHashJoin (ExUniqueHashJoinTcb).
 //
-HashBuffer::HashBuffer(int bufferSize, int rowSize, NABoolean useVariableLength, CollHeap *heap,
-                       ClusterDB *clusterDb, ExeErrorCode *rc)
+HashBuffer::HashBuffer(int bufferSize, int rowSize, NABoolean useVariableLength, CollHeap *heap, ClusterDB *clusterDb,
+                       ExeErrorCode *rc)
     : cluster_(NULL),
       bufferSize_(bufferSize),
       maxRowLength_(rowSize),
@@ -521,13 +521,13 @@ void ClusterDB::yieldUnusedMemoryQuota(Cluster *theOFList, int extraBuffers) {
 // (Smallest value returned == 3)
 //
 static const int primes[70] = {3 /*2*/, 3,   5,   7,   11,  13,  17,  19,  23,  29,  31,  37,  41,  43,
-                                  47,      53,  59,  61,  67,  71,  73,  79,  83,  89,  97,  101, 103, 107,
-                                  109,     113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181,
-                                  191,     193, 197, 199, 211, 223, 227, 229, 233, 239, 241, 251, 257, 263,
-                                  269,     271, 277, 281, 283, 293, 307, 311, 313, 317, 331, 337, 347, 349};
+                               47,      53,  59,  61,  67,  71,  73,  79,  83,  89,  97,  101, 103, 107,
+                               109,     113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181,
+                               191,     193, 197, 199, 211, 223, 227, 229, 233, 239, 241, 251, 257, 263,
+                               269,     271, 277, 281, 283, 293, 307, 311, 313, 317, 331, 337, 347, 349};
 
 int ClusterDB::roundUpToPrime(int noOfClusters) {
-  int ind = noOfClusters / 5;             // approximate (floor) index
+  int ind = noOfClusters / 5;                // approximate (floor) index
   if (ind >= 70) return noOfClusters;        // handle absurd case: #clusters >= 350
   while (primes[ind] < noOfClusters) ind++;  // find next prime
   return primes[ind];
@@ -810,8 +810,9 @@ NABoolean ClusterDB::enoughMemory(int reqSize, NABoolean checkCompilerHints) {
   // 	  if( m > ( Z * (M - U))) {
   // 	    if ( doLog_ ) {
   // 	      sprintf(msg,
-  // 		      "HJ phase 2/3 encountered memory pressure [m > (Z*(M-U))]: memReq m=%f, memFree M=%f, memContingency
-  // U=%f, citizenshipFactor Z=%f", m,M,U,Z); 	      SQLMXLoggingArea::logExecRtInfo(NULL, 0,msg, explainNodeId_);
+  // 		      "HJ phase 2/3 encountered memory pressure [m > (Z*(M-U))]: memReq m=%f, memFree M=%f,
+  // memContingency U=%f, citizenshipFactor Z=%f", m,M,U,Z); 	      SQLMXLoggingArea::logExecRtInfo(NULL, 0,msg,
+  // explainNodeId_);
   // 	    }
   // 	    return FALSE;
   // 	  }
@@ -1170,8 +1171,7 @@ void ClusterDB::chooseClusterToFlush(Cluster *lastResort) {
   if (doLog_ && clusterToFlush_->seqIDIndex_ > 0) {  // DEBUG
     char msg[256];
     sprintf(msg, "chooseClusterToFlush() (%lu %lu). next buff %lu inMemBuffs %lu ", (int)clusterToFlush_ & 0x0FFF,
-            (int)this & 0x0FFF, (int)clusterToFlush_->nextBufferToFlush_ & 0x0FFF,
-            clusterToFlush_->numInMemBuffers_);
+            (int)this & 0x0FFF, (int)clusterToFlush_->nextBufferToFlush_ & 0x0FFF, clusterToFlush_->numInMemBuffers_);
     // log an EMS event and continue
     SQLMXLoggingArea::logExecRtInfo(NULL, 0, msg, explainNodeId_);
   }
@@ -1813,7 +1813,7 @@ NABoolean Cluster::squeezeOutRowsOfOtherClusters(ExeErrorCode *rc) {
       while (!toSlot) {
         // update toBuff to next buffer, if needed
         if (toRowPos >= (int)maxRowsInBuffer) {  // is this "to" buffer full?
-          lastSqueezedBuffer_ = toBuff;            // toBuff is all squeezed
+          lastSqueezedBuffer_ = toBuff;          // toBuff is all squeezed
           lastSqueezedBuffer_->castToSerial()->setRowCount(maxRowsInBuffer);
 
           // in some rare case ...

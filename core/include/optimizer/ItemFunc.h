@@ -21,14 +21,14 @@
 // When adding new BuiltinFunctions herein,
 // take heed of the problem documented at Abs::preCodeGen() ...
 // -----------------------------------------------------------------------
-#include "common/IntervalType.h"
 #include "common/CharType.h"
 #include "common/DatetimeType.h"
+#include "common/IntervalType.h"
+#include "exp/ExpLOBenums.h"
+#include "exp/exp_like.h"
 #include "optimizer/ItemExpr.h"
 #include "optimizer/NATable.h"
-#include "exp/exp_like.h"
 #include "qmscommon/QRExprElement.h"
-#include "exp/ExpLOBenums.h"
 
 // -----------------------------------------------------------------------
 // forward references
@@ -2167,7 +2167,7 @@ class Translate : public CacheableBuiltinFunction {
 };  // class Translate
 
 int find_translate_type(CharInfo::CharSet src_cs,    // Source charset
-                          CharInfo::CharSet dest_cs);  // Destination charset
+                        CharInfo::CharSet dest_cs);  // Destination charset
 
 // The CASE statement has an operand which is not one of its children,
 // which introduces a few special cases in Binder and in Codegen type-synth...
@@ -2710,7 +2710,7 @@ class CompEncode : public BuiltinFunction {
   NABoolean isDecode() const { return getOperatorType() == ITM_COMP_DECODE; }
 
   static int getEncodedLength(const CharInfo::Collation collation, const CollationInfo::CollationType ct,
-                                const int srcLength, const NABoolean nullable);
+                              const int srcLength, const NABoolean nullable);
 
   virtual QR::ExprElement getQRExprElem() const { return QR::QRFunctionWithParameters; }
 
@@ -3636,8 +3636,8 @@ class RowsetArrayScan : public BuiltinFunction {
   const NAType *pushDownType(NAType &desiredType, enum NABuiltInTypeEnum defaultQualifier);
 
  private:
-  int maxNumElem_;        // Maximum number of elements
-  int elemSize_;          // Element storage length in bytes
+  int maxNumElem_;          // Maximum number of elements
+  int elemSize_;            // Element storage length in bytes
   NABoolean elemNullInd_;   // Null Indicator ?
   const NAType *elemType_;  // The datatype of the array elements
 
@@ -3685,8 +3685,8 @@ class RowsetArrayInto : public BuiltinFunction {
   virtual const NAString getText() const { return "RowsetArrayInto"; };
 
  private:
-  int maxNumElem_;           // Maximum number of elements
-  int elemSize_;             // Element storage length in bytes
+  int maxNumElem_;             // Maximum number of elements
+  int elemSize_;               // Element storage length in bytes
   NABoolean elemNullInd_;      // Null Indicator ?
   const NAType *hostVarType_;  // The datatype of the array elements
 };
@@ -4713,8 +4713,7 @@ class ItmOlapFirstLastValue : public ItmSeqOlapFunction {
 //
 class ItmOlapPivotGroup : public ItmSeqOlapFunction {
  public:
-  ItmOlapPivotGroup(OperatorTypeEnum itemType, ItemExpr *column, ItemExpr *orderBy, ItemExpr *delim,
-                    const int maxLen);
+  ItmOlapPivotGroup(OperatorTypeEnum itemType, ItemExpr *column, ItemExpr *orderBy, ItemExpr *delim, const int maxLen);
 
   virtual ~ItmOlapPivotGroup() {}
 

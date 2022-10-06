@@ -14,22 +14,19 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
-#include "cli_stdh.h"
-#include "ex_stdh.h"
+#include "ex_timeout.h"
 
 #include "ComTdb.h"
-#include "ex_tcb.h"
-
-#include "ex_timeout.h"
-#include "ex_root.h"
-#include "ex_exe_stmt_globals.h"
-#include "exp_expr.h"
-#include "executor/ex_error.h"
-
 #include "ExSqlComp.h"
-
+#include "cli_stdh.h"
+#include "common/Platform.h"
+#include "ex_exe_stmt_globals.h"
+#include "ex_root.h"
+#include "ex_stdh.h"
+#include "ex_tcb.h"
+#include "executor/ex_error.h"
 #include "executor/timeout_data.h"
+#include "exp_expr.h"
 
 /////////////////////////////////////////////////////////////////
 // class ExTimeoutTdb, ExTimeoutTcb, ExTimeoutPrivateState

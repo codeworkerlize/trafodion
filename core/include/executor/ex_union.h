@@ -19,8 +19,8 @@
 ******************************************************************************
 */
 
-#include "executor/ex_stdh.h"
 #include "comexe/ComTdb.h"
+#include "executor/ex_stdh.h"
 #include "executor/ex_tcb.h"
 #include "exp/ex_expr.h"
 
@@ -300,7 +300,7 @@ class ex_union_private_state : public ex_tcb_private_state {
   ex_union_tcb::union_child_state childStates_[2];
 
   int whichSide_;  // 0 or 1, used by whichSide() method ONLY, init to 0, set
-                     // in routine startRightchild() to 1
+                   // in routine startRightchild() to 1
 
   int whichChild_;  // which side of conditional union to execute.
 

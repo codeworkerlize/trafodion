@@ -2,20 +2,21 @@
 // Implementation for the classes listed in SystemParameters.h
 
 #include "common/NAClusterInfo.h"
-#include "sqlcomp/NADefaults.h"
-#include "arkcmp/CompException.h"
+
 #include <cextdecs/cextdecs.h>
 #include <limits.h>
-#include <string.h>
 #include <stdio.h>
-#include "nsk/nskport.h"
+#include <string.h>
+#include <sys/stat.h>
 
+#include <cstdlib>
+
+#include "arkcmp/CompException.h"
 #include "common/ComRtUtils.h"
 #include "common/NAWNodeSet.h"
-
+#include "nsk/nskport.h"
 #include "optimizer/OptimizerSimulator.h"
-#include <cstdlib>
-#include <sys/stat.h>
+#include "sqlcomp/NADefaults.h"
 #include "utility.h"
 
 static int intHashFunc(const int &Int) { return (int)Int; }

@@ -13,13 +13,13 @@
 
 // Includes
 //
-#include "generator/Generator.h"
+#include "ExpSequenceFunction.h"
 #include "GenExpGenerator.h"
-#include "exp_function.h"
-#include "exp_math_func.h"
 #include "common/CharType.h"
 #include "common/NumericType.h"
-#include "ExpSequenceFunction.h"
+#include "exp_function.h"
+#include "exp_math_func.h"
+#include "generator/Generator.h"
 #include "optimizer/ItmFlowControlFunction.h"
 
 // ItmSeqOffset::preCodeGen
@@ -581,7 +581,7 @@ ItemExpr *ItmSeqOlapFunction::preCodeGen(Generator *generator) {
   ItemExpr *itmLoopCondition = new (wHeap) BiRelat(ITM_LESS_EQ, itmLocalCounter, new (wHeap) ConstValue(frameEnd_));
 
   if (isFrameEndUnboundedFollowing())  //(frameEnd_ == INT_MAX)// not needed in other cases -- can cause issues fo the
-                                       //preceding part
+                                       // preceding part
   {
     ItemExpr *itmOffset1 = new (wHeap) ItmSeqOffset(itmChild, invCouter, NULL, TRUE);
     ItemExpr *itmOffset1IsNotNull = new (wHeap) UnLogic(ITM_IS_NOT_NULL, itmOffset1);
@@ -808,7 +808,7 @@ ItemExpr *ItmSeqRowsSince::preCodeGen(Generator *generator) {
   //        /        LESS THAN
   //       /         /       \               
   //     OFFSET   Counter  MaxWindow
-  //     /      \                  
+  //      /      \                  
   //ROWS SINCE  Counter
   //  (cond)
   //

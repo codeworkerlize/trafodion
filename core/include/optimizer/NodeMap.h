@@ -6,11 +6,11 @@
 #ifndef __NODE_MAP_H
 #define __NODE_MAP_H
 
-#include "common/NAClusterInfo.h"
-#include "common/NABoolean.h"
 #include "common/CmpCommon.h"
-#include "optimizer/opt.h"
 #include "common/IpcMessageType.h"
+#include "common/NABoolean.h"
+#include "common/NAClusterInfo.h"
+#include "optimizer/opt.h"
 
 //-----------------------------
 // Classes defined in this file

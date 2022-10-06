@@ -22,18 +22,18 @@ ComTdbUdr::ComTdbUdr(char *sqlName, char *routineName, char *routineSignature, c
                      char *librarySqlName, long libraryRedefTime, char *libraryBlobHandle, char *librarySchName,
                      int libraryVersion, char *runtimeOptions, char *runtimeOptionDelimiters,
 
-                     int flags, int numInputValues, int numOutputValues, int numParams,
-                     int maxResultSets, int stateAreaSize, short udrType, short languageType, short paramStyle,
-                     short sqlAccessMode, short transactionAttrs, UInt16 externalSecurity, int routineOwnerId,
-                     Cardinality estimatedRowCount, ex_cri_desc *criDescParent, ex_cri_desc *criDescReturned,
-                     ex_cri_desc *workCriDesc, queue_index downQueueMaxSize, queue_index upQueueMaxSize,
+                     int flags, int numInputValues, int numOutputValues, int numParams, int maxResultSets,
+                     int stateAreaSize, short udrType, short languageType, short paramStyle, short sqlAccessMode,
+                     short transactionAttrs, UInt16 externalSecurity, int routineOwnerId, Cardinality estimatedRowCount,
+                     ex_cri_desc *criDescParent, ex_cri_desc *criDescReturned, ex_cri_desc *workCriDesc,
+                     queue_index downQueueMaxSize, queue_index upQueueMaxSize,
 
                      int numOutputBuffers, int outputBufferSize, int requestBufferSize, int replyBufferSize,
 
                      ex_expr *inputExpr, ex_expr *outputExpr, ex_expr *scanExpr, ex_expr *projExpr,
 
-                     unsigned short requestTuppIndex, unsigned short replyTuppIndex, int requestRowLen,
-                     int replyRowLen, int outputRowLen,
+                     unsigned short requestTuppIndex, unsigned short replyTuppIndex, int requestRowLen, int replyRowLen,
+                     int outputRowLen,
 
                      int numChildInputs, ex_expr **childInputExprs, ComTdb **childTdbs,
 
@@ -323,8 +323,8 @@ void ComTdbUdr::displayContents(Space *space, int flag) {
       str_sprintf(buf, "  flags %x, type %d", p->getFlags(), (int)p->getType());
       space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sz);
 
-      str_sprintf(buf, "  precision %d, scale %d, charset %d, collation %d", (int)p->getPrecision(),
-                  (int)p->getScale(), (int)p->getEncodingCharSet(), (int)p->getCollation());
+      str_sprintf(buf, "  precision %d, scale %d, charset %d, collation %d", (int)p->getPrecision(), (int)p->getScale(),
+                  (int)p->getEncodingCharSet(), (int)p->getCollation());
       space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sz);
     }
 

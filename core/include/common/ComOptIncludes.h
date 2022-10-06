@@ -21,15 +21,16 @@
 
 // -----------------------------------------------------------------------
 
-#include <string.h>
 #include <ctype.h>
-#include "optimizer/RelExpr.h"
-#include "optimizer/ItemExpr.h"
-#include "optimizer/ItemExprList.h"
+#include <string.h>
+
 #include "common/CharType.h"
 #include "common/CompositeType.h"
 #include "common/DatetimeType.h"
 #include "common/IntervalType.h"
 #include "common/MiscType.h"
 #include "common/NumericType.h"
+#include "optimizer/ItemExpr.h"
+#include "optimizer/ItemExprList.h"
+#include "optimizer/RelExpr.h"
 #endif  // COMINCLUDES_HDR

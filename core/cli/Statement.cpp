@@ -20,53 +20,47 @@
 #include "cli_stdh.h"
 #undef _XOPEN_SOURCE_EXTENDED
 
-#include "common/ComCextdecs.h"
-#include "executor/ex_stdh.h"
-#include "ex_exe_stmt_globals.h"
-#include "comexe/ComTdb.h"
-#include "executor/ex_tcb.h"
-#include "ex_root.h"
-#include "executor/ExStats.h"
-#include "cli/ExSqlComp.h"
-#include "executor/ex_transaction.h"
-#include "ex_frag_rt.h"
-#include "export/ComDiags.h"
-#include "common/NAMemory.h"
-#include "comexe/LateBindInfo.h"
-#include "executor/sql_buffer.h"
-#include "ex_control.h"
-#include "Descriptor.h"  // For call to Descriptor::getCharDataFromCharHostVar().
-#include "exp/exp_clause_derived.h"
-#include "cli/sql_id.h"
-#include "executor/ex_error.h"
-#include "common/ComRtUtils.h"
-#include "common/ComDistribution.h"
-#include "Cli.h"
-#include "common/Int64.h"
-#include "common/ComSqlId.h"
-#include "arkcmp/CmpErrors.h"
-
-#include "executor/TriggerEnable.h"                // triggers
-#include "common/ComSmallDefs.h"          // MV
-#include "common/ComMvAttributeBitmap.h"  // MV
-
-#include "sqlmxevents/logmxevent.h"
-
-#include "exp/ExpLOBinterface.h"
-
-#include "ExUdrServer.h"
-#include "common/wstr.h"
-#include "common/QueryText.h"
 #include <wchar.h>
 
-#include "common/ComAnsiNamePart.h"
-#include "ExRsInfo.h"
-
-#include "arkcmp_proc.h"
-#include "arkcmp/CmpContext.h"
-
-#include "common/DLock.h"
+#include "Cli.h"
 #include "ComMemLog.h"
+#include "Descriptor.h"  // For call to Descriptor::getCharDataFromCharHostVar().
+#include "ExRsInfo.h"
+#include "ExUdrServer.h"
+#include "arkcmp/CmpContext.h"
+#include "arkcmp/CmpErrors.h"
+#include "arkcmp_proc.h"
+#include "cli/ExSqlComp.h"
+#include "cli/sql_id.h"
+#include "comexe/ComTdb.h"
+#include "comexe/LateBindInfo.h"
+#include "common/ComAnsiNamePart.h"
+#include "common/ComCextdecs.h"
+#include "common/ComDistribution.h"
+#include "common/ComMvAttributeBitmap.h"  // MV
+#include "common/ComRtUtils.h"
+#include "common/ComSmallDefs.h"  // MV
+#include "common/ComSqlId.h"
+#include "common/DLock.h"
+#include "common/Int64.h"
+#include "common/NAMemory.h"
+#include "common/QueryText.h"
+#include "common/wstr.h"
+#include "ex_control.h"
+#include "ex_exe_stmt_globals.h"
+#include "ex_frag_rt.h"
+#include "ex_root.h"
+#include "executor/ExStats.h"
+#include "executor/TriggerEnable.h"  // triggers
+#include "executor/ex_error.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_tcb.h"
+#include "executor/ex_transaction.h"
+#include "executor/sql_buffer.h"
+#include "exp/ExpLOBinterface.h"
+#include "exp/exp_clause_derived.h"
+#include "export/ComDiags.h"
+#include "sqlmxevents/logmxevent.h"
 
 // Printf-style tracing macros for the debug build. The macros are
 // no-ops in the release build.
@@ -1228,9 +1222,7 @@ int Statement::octetLenplus1(char *s, int charset) {
              : str_len(s) + 1;
 }
 
-int Statement::sourceLenplus1() {
-  return (source_length + 1) * CharInfo::maxBytesPerChar((CharInfo::CharSet)charset_);
-}
+int Statement::sourceLenplus1() { return (source_length + 1) * CharInfo::maxBytesPerChar((CharInfo::CharSet)charset_); }
 
 RETCODE Statement::prepareReturn(const RETCODE retcode) {
   if (versionToUse_ != versionOnEntry_) {
@@ -5453,7 +5445,7 @@ NABoolean Statement::rsProxyCompare(const char *newSource) const {
 // prepare of proxy syntax is required and if so, do the internal
 // prepare
 RETCODE Statement::rsProxyPrepare(ExRsInfo &rsInfo,         // IN
-                                  int rsIndex,           // IN
+                                  int rsIndex,              // IN
                                   ComDiagsArea &diagsArea)  // INOUT
 {
   StmtDebug3("[BEGIN rsProxyPrepare] %p, rsIndex %u, stmt state %s", this, rsIndex, stmtState(getState()));
@@ -5940,7 +5932,7 @@ int Statement::getConsumerQueryLen(int index) {
   if (key == NULL) key = "";
 
   int reqdLen = str_len(tmpl) + str_len(phandle) + str_len(key) - 4  // to account for the "%s" format specifiers
-                  + 1;                                                 // to account for the null terminator
+                + 1;                                                 // to account for the null terminator
   result = reqdLen;
 
   return result;
@@ -5962,7 +5954,7 @@ void Statement::getConsumerQuery(int index, char *buf, int buflen) {
   if (key == NULL) key = "";
 
   int reqdLen = str_len(tmpl) + str_len(phandle) + str_len(key) - 4  // to account for the "%s" format specifiers
-                  + 1;                                                 // to account for the null terminator
+                + 1;                                                 // to account for the null terminator
   ex_assert(buflen >= reqdLen, "Consumer query buffer too small");
   str_sprintf(buf, tmpl, phandle, key);
 }
@@ -6053,7 +6045,7 @@ void Statement::setExeStartTime(long exeStartTime) {
 }
 
 int Statement::initStrTarget(SQLDESC_ID *sql_source, ContextCli &currContext, ComDiagsArea &diags,
-                               StrTarget &strTarget) {
+                             StrTarget &strTarget) {
   if (!sql_source) return 0;
 
   if (sql_source->name_mode == string_data) {
@@ -6115,8 +6107,7 @@ void Statement::updateStatsAreaInContext() {
   ComTdb::CollectStatsType statsType;
   ExMasterStats *masterStats;
   statsArea = getStatsArea();
-  if (stmtStats_ != NULL && statsArea &&
-      ((statsType = statsArea->getCollectStatsType()) != (int)SQLCLIDEV_NO_STATS) &&
+  if (stmtStats_ != NULL && statsArea && ((statsType = statsArea->getCollectStatsType()) != (int)SQLCLIDEV_NO_STATS) &&
       stmt_type == Statement::DYNAMIC_STMT) {
     if (statsType == (int)SQLCLIDEV_ALL_STATS) {
       if ((masterStats = statsArea->getMasterStats()) != NULL) {
@@ -6135,8 +6126,7 @@ void Statement::updateStatsAreaInContext() {
 }
 
 int Statement::setChildQueryInfo(ComDiagsArea *diagsArea, char *uniqueQueryId, int uniqueQueryIdLen,
-                                   SQL_QUERY_COST_INFO *query_cost_info,
-                                   SQL_QUERY_COMPILER_STATS_INFO *comp_stats_info) {
+                                 SQL_QUERY_COST_INFO *query_cost_info, SQL_QUERY_COMPILER_STATS_INFO *comp_stats_info) {
   NAHeap *heap = stmtHeap();
 
   if (uniqueQueryId == NULL || query_cost_info == NULL || comp_stats_info == NULL) {
@@ -6164,8 +6154,8 @@ int Statement::setChildQueryInfo(ComDiagsArea *diagsArea, char *uniqueQueryId, i
 }
 
 int Statement::getChildQueryInfo(ComDiagsArea &diagsArea, char *uniqueQueryId, int uniqueQueryIdMaxLen,
-                                   int *uniqueQueryIdLen, SQL_QUERY_COST_INFO *query_cost_info,
-                                   SQL_QUERY_COMPILER_STATS_INFO *comp_stats_info) {
+                                 int *uniqueQueryIdLen, SQL_QUERY_COST_INFO *query_cost_info,
+                                 SQL_QUERY_COMPILER_STATS_INFO *comp_stats_info) {
   if (childQueryId_ == NULL) {
     diagsArea << DgSqlCode(-EXE_RTS_QID_NOT_FOUND);
     return ERROR;

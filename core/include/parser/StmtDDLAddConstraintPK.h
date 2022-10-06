@@ -31,9 +31,9 @@
  *****************************************************************************
  */
 
-#include "StmtDDLAlterTable.h"
 #include "StmtDDLAddConstraint.h"
 #include "StmtDDLAddConstraintUnique.h"
+#include "StmtDDLAlterTable.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

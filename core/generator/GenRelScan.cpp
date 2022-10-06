@@ -17,23 +17,21 @@
 #include <algorithm>
 #include <vector>
 
-#include "optimizer/Sqlcomp.h"
-#include "optimizer/GroupAttr.h"
-#include "optimizer/ControlDB.h"
 #include "GenExpGenerator.h"
+#include "HashRow.h"           // for sizeof(HashRow)
 #include "comexe/ComTdbDDL.h"  // for describe
 #include "comexe/ComTdbHbaseAccess.h"
-#include "HashRow.h"  // for sizeof(HashRow)
+#include "executor/HBaseClient_JNI.h"
 #include "executor/sql_buffer.h"
 #include "executor/sql_buffer_size.h"
+#include "optimizer/ControlDB.h"
+#include "optimizer/GroupAttr.h"
 #include "optimizer/OptimizerSimulator.h"
 #include "optimizer/RelUpdate.h"
-
-#include "sqlcomp/CmpSeabaseDDL.h"
-#include "sqlcat/TrafDDLdesc.h"
-
+#include "optimizer/Sqlcomp.h"
 #include "parser/SqlParserGlobals.h"  // Parser Flags
-#include "executor/HBaseClient_JNI.h"
+#include "sqlcat/TrafDDLdesc.h"
+#include "sqlcomp/CmpSeabaseDDL.h"
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -899,9 +897,9 @@ short HbaseAccess::genRowIdExpr(Generator *generator, const NAColumnArray &keyCo
 
 short HbaseAccess::genRowIdExprForNonSQ(Generator *generator, const NAColumnArray &keyColumns,
                                         NAList<HbaseSearchKey *> &searchKeys, ex_cri_desc *work_cri_desc,
-                                        const int work_atp, const int rowIdAsciiTuppIndex,
-                                        const int rowIdTuppIndex, int &rowIdAsciiRowLen,
-                                        ExpTupleDesc *&rowIdAsciiTupleDesc, UInt32 &rowIdLength, ex_expr *&rowIdExpr) {
+                                        const int work_atp, const int rowIdAsciiTuppIndex, const int rowIdTuppIndex,
+                                        int &rowIdAsciiRowLen, ExpTupleDesc *&rowIdAsciiTupleDesc, UInt32 &rowIdLength,
+                                        ex_expr *&rowIdExpr) {
   Space *space = generator->getSpace();
   ExpGenerator *expGen = generator->getExpGenerator();
 
@@ -2071,7 +2069,7 @@ short HbaseAccess::codeGen(Generator *generator) {
   if (bufRowlen > FiveM) upqueuelength = 2;
 
   int cbuffersize = SqlBufferNeededSize((upqueuelength * 2 / numBuffers),
-                                           bufRowlen);  // returnedRowlen);
+                                        bufRowlen);  // returnedRowlen);
   // But use at least the default buffer size.
   //
   buffersize = buffersize > cbuffersize ? buffersize : cbuffersize;

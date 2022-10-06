@@ -13,10 +13,12 @@
 
 // -----------------------------------------------------------------------
 
+#include "common/IntervalType.h"
+
 #include <ctype.h>
 #include <limits.h>
+
 #include "common/DatetimeType.h"
-#include "common/IntervalType.h"
 #include "common/NumericType.h"
 #include "common/str.h"
 #include "exp/exp_clause_derived.h"
@@ -254,7 +256,7 @@ UInt32 IntervalType::computeLeadingPrecision(rec_datetime_field startField, UInt
 }  // IntervalType::getLeadingPrecision
 
 int IntervalType::getStorageSize(rec_datetime_field startField, UInt32 leadingPrecision, rec_datetime_field endField,
-                                   UInt32 fractionPrecision) {
+                                 UInt32 fractionPrecision) {
   int size = getBinaryStorageSize(getPrecision(startField, leadingPrecision, endField, fractionPrecision));
 
   // interval datatypes are stored as 2(smallint),4(int) or 8(largeint) bytes.

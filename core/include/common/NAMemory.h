@@ -27,17 +27,15 @@
 //                    for release and debug builds to prevent corruption
 //                    of the shared memory segment used by runtime stats.
 
-#include <stdio.h>
-#include "export/NABasicObject.h"
-
-#include "common/Platform.h"
-#include "common/NAStringDefGlobals.h"
 #include <stddef.h>
-
-#include "sqlci/SqlciParseGlobals.h"
-#include "export/HeapID.h"
+#include <stdio.h>
 
 #include "NAMutex.h"
+#include "common/NAStringDefGlobals.h"
+#include "common/Platform.h"
+#include "export/HeapID.h"
+#include "export/NABasicObject.h"
+#include "sqlci/SqlciParseGlobals.h"
 
 #ifdef _DEBUG
 // forward declaration
@@ -51,8 +49,8 @@ class NAList;
 using namespace std;
 #endif  // (defined(_DEBUG) || defined(NSK_MEMDEBUG))
 
-#include <unistd.h>
 #include <sys/types.h>
+#include <unistd.h>
 typedef uid_t SEG_ID;
 
 // contents of this file:
@@ -429,17 +427,17 @@ class NAMemory : public NABasicObject {
   NAMemory *nextEntry_;      // pointer if this memory is on a memoryList_
 
   int debugLevel_;  // 0 - no debugging
-                      // 1 - re-initialize after alloc/de-alloc
-                      // 2 - keep stack trace for each allocation
+                    // 1 - re-initialize after alloc/de-alloc
+                    // 2 - keep stack trace for each allocation
 
   // these data members used to be in class CollHeap
  protected:
-  NABoolean exhaustedMem_;       // Set to true if cannot satisfy memory request
-  unsigned short errorsMask_;    // SEGMENT_ALLOCATE_ errors that have occurred
-  HeapID heapID_;                // For tracking leaks.  (eric)
-  long crowdedTotalSize_;       // Total size at which memory pressure seen
-  long allocationDelta_;        // Change in memory size since last check of VmSize
-  FILE *procStatusFile_;         // FILE pointer for "reading" process status
+  NABoolean exhaustedMem_;     // Set to true if cannot satisfy memory request
+  unsigned short errorsMask_;  // SEGMENT_ALLOCATE_ errors that have occurred
+  HeapID heapID_;              // For tracking leaks.  (eric)
+  long crowdedTotalSize_;      // Total size at which memory pressure seen
+  long allocationDelta_;       // Change in memory size since last check of VmSize
+  FILE *procStatusFile_;       // FILE pointer for "reading" process status
   int executorVmReserveSize_;  // Size in MB of VM safety net
   int mmapErrno_;
   int munmapErrno_;

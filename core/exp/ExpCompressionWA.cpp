@@ -16,8 +16,9 @@
 ****************************************************************************
 */
 
-#include <lzo/lzoconf.h>
 #include <lzo/lzo1x.h>
+#include <lzo/lzoconf.h>
+
 #include "zlib.h"  // moving this include to a different file could cause
 // collisions in the definition for int between zconf.h and Platform.h
 #include "ExpCompressionWA.h"

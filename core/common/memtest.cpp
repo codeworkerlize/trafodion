@@ -11,23 +11,24 @@
 //  by regress/core/TESTMEM and increase the regression runtime substantially.
 //
 //-------------------------------------------------------------------------
-#include "common/NAMemory.h"
-#include <fstream>
+#include <math.h>
+#include <stdlib.h>
+#include <sys/time.h>
 #include <unistd.h>
+
+#include <fstream>
 #include <ios>
 #include <iostream>
 #include <string>
 
-#include <math.h>
-#include <stdlib.h>
-#include <sys/time.h>
+#include "common/NAMemory.h"
 
 typedef void *voidPtr;
 
 void memtest_vers2_print(){};
 
-#include "seabed/ms.h"
 #include "seabed/fs.h"
+#include "seabed/ms.h"
 extern void my_mpi_fclose();
 #include "common/SCMVersHelp.h"
 DEFINE_DOVERS(memtest)

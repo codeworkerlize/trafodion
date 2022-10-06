@@ -13,16 +13,17 @@
 ****************************************************************************
 */
 
-#include "common/Platform.h"
-
 #include <iosfwd>
+
+#include "common/Platform.h"
 using namespace std;
 #include <stdlib.h>
+
+#include <new>
 
 #include "common/ComASSERT.h"
 #include "common/NAMemory.h"
 #include "export/HeapLog.h"
-#include <new>
 
 //#include <cextdecs (DEBUG)>
 

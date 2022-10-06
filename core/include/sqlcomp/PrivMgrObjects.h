@@ -23,10 +23,11 @@
 
 #ifndef PRIVMGR_OBJECTS_H
 #define PRIVMGR_OBJECTS_H
-#include "sqlcomp/PrivMgrMD.h"
-#include "sqlcomp/PrivMgrDefs.h"
 #include <string>
 #include <vector>
+
+#include "sqlcomp/PrivMgrDefs.h"
+#include "sqlcomp/PrivMgrMD.h"
 
 class ComDiagsArea;
 class PrivMgrMDTable;

@@ -20,22 +20,23 @@
 */
 #include "ScratchFile_sq.h"
 
-#include <sys/stat.h>
+#include <assert.h>
+#include <errno.h>
+#include <fcntl.h>
 #include <limits.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/uio.h>
-#include <sys/mman.h>
 #include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <string.h>
-#include <assert.h>
-#include <errno.h>
-#include "executor/ex_stdh.h"
+
 #include "ScratchSpace.h"
 #include "executor/ExStats.h"
+#include "executor/ex_stdh.h"
 
 static long juliantimestamp_() {
   struct timeval tv;
@@ -474,8 +475,8 @@ RESULT SQScratchFile::doSelect(int index, DWORD timeout, EPendingIOType type, in
   return SCRATCH_SUCCESS;
 }
 
-RESULT SQScratchFile::writeBlock(int index, char *data, int length, long &iowaittime, int blockNum,
-                                 int *transfered, NABoolean waited) {
+RESULT SQScratchFile::writeBlock(int index, char *data, int length, long &iowaittime, int blockNum, int *transfered,
+                                 NABoolean waited) {
   ex_assert(vectorIndex_ < vectorSize_, "SQScratchFile::writeBlock, vectorIndex is out of bounds");
 
   // This assert is necessary to catch mixing of write and read operations before
@@ -521,8 +522,7 @@ RESULT SQScratchFile::writeBlock(int index, char *data, int length, long &iowait
   return executeVectorIO();
 }
 
-RESULT SQScratchFile::readBlock(int index, char *data, int length, long &iowaittime, int *transfered,
-                                int synchronous) {
+RESULT SQScratchFile::readBlock(int index, char *data, int length, long &iowaittime, int *transfered, int synchronous) {
   ex_assert(vectorIndex_ < vectorSize_, "SQScratchFile::readBlockV, vectorIndex is out of bounds");
 
   // This assert is necessary to catch mixing of write and read operations before

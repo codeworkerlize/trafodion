@@ -2,10 +2,10 @@
 #ifndef EX_SPLIT_BOTTOM_H
 #define EX_SPLIT_BOTTOM_H
 
+#include "comexe/ComTdbSplitBottom.h"
 #include "common/ExCollections.h"
 #include "executor/ex_frag_inst.h"
 #include "executor/ex_tcb.h"
-#include "comexe/ComTdbSplitBottom.h"
 
 class ex_split_bottom_tcb;
 class SplitBottomRequestMessage;
@@ -129,20 +129,20 @@ class ex_split_bottom_tcb : public ex_tcb {
   tupp_descriptor partNumTupp_;  // target of part # expr.
   struct {
     int calculatedPartNum_;  // target of part # expr.
-    char pad[4];                // alignment
-    long partHash_;            // Used for skew buster only,
-                                // this is the intermediate
-                                // result of the application
-                                // of the hash function to the
-                                // of the hash function to the
-                                // of the hash function to the
-                                // partitioning key by the
-                                // partitioning key by the
-                                // partitioning key by the
-                                // partitioning function.
+    char pad[4];             // alignment
+    long partHash_;          // Used for skew buster only,
+                             // this is the intermediate
+                             // result of the application
+                             // of the hash function to the
+                             // of the hash function to the
+                             // of the hash function to the
+                             // partitioning key by the
+                             // partitioning key by the
+                             // partitioning key by the
+                             // partitioning function.
   } partNumInfo_;
   tupp_descriptor convErrTupp_;        // tupp for Narrow flag
-  int conversionErrorFlg_;           // side-effected by Narrow
+  int conversionErrorFlg_;             // side-effected by Narrow
   tupp_descriptor partInputDataTupp_;  // part input data
   SplitBottomWorkState workState_;
   ExSubtask *ioHandler_;  // for part input message
@@ -240,13 +240,13 @@ class ex_split_bottom_tcb : public ex_tcb {
                                      // have sent us the min/max inputs already.
 
   int numOfMinMaxInputsReceived_;  // number of minmax inputs receivered so far,
-                                     // which is the number of TRUE elements in
-                                     // which is the number of TRUE elements in
-                                     // which is the number of TRUE elements in
-                                     // minMaxInputsReceived_[].
+                                   // which is the number of TRUE elements in
+                                   // which is the number of TRUE elements in
+                                   // which is the number of TRUE elements in
+                                   // minMaxInputsReceived_[].
 
   int currentMinMaxCheckIndex_;  // The current ith parent SEND_BOTTOM that
-                                   // we want to check.
+                                 // we want to check.
 
   tupp_descriptor minMaxDataTupp_;  // to accumulate the computed min/max
                                     // values computed so far.

@@ -23,22 +23,22 @@
 
 // beginning of regular compilation
 
-#include "executor/ex_stdh.h"
-#include "comexe/ComTdb.h"
-#include "executor/ex_tcb.h"
 #include "ex_hashj.h"
-#include "executor/ex_expr.h"
-#include "common/str.h"
+
+#include "CommonStructs.h"
+#include "comexe/ComTdb.h"
 #include "common/BaseTypes.h"
+#include "common/OperTypeEnum.h"
+#include "common/str.h"
+#include "ex_exe_stmt_globals.h"
 #include "executor/ExStats.h"
 #include "executor/ex_error.h"
-#include "ex_exe_stmt_globals.h"
-
+#include "executor/ex_expr.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_tcb.h"
 #include "executor/sql_buffer_size.h"
-#include "sqlmxevents/logmxevent.h"
 #include "exp_function.h"
-#include "common/OperTypeEnum.h"
-#include "CommonStructs.h"
+#include "sqlmxevents/logmxevent.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // hashj state transition diagram source
@@ -445,8 +445,7 @@ ex_hashj_tcb::ex_hashj_tcb(const ex_hashj_tdb &hashJoinTdb,
       }
 
       // Initial min/max tuple to all null values.
-      memset(workAtp_->getTupp(hashJoinTdb.minMaxValsAtpIndex_).getDataPointer(), 0,
-             (int)hashJoinTdb.minMaxRowLength_);
+      memset(workAtp_->getTupp(hashJoinTdb.minMaxValsAtpIndex_).getDataPointer(), 0, (int)hashJoinTdb.minMaxRowLength_);
 
       // initialize the min/max tupp in workAtp
       minMaxExpr()->initializeAggr(workAtp_);

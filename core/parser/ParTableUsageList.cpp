@@ -15,10 +15,10 @@
  *****************************************************************************
  */
 
+#include "ParTableUsageList.h"
+
 #include "common/BaseTypes.h"
 #include "common/ComOperators.h"
-
-#include "ParTableUsageList.h"
 
 #ifndef NDEBUG
 #include <iostream>

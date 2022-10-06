@@ -14,7 +14,7 @@
 // returns false otherwise.
 //
 static int isDelimitedIdentifierReservedForInternalUse(const char *delimitedIdentWithoutTheLeadingQuote,
-                                                         size_t identLen)
+                                                       size_t identLen)
 // delimitedIdentWithoutTheLeadingQuote may or may not be '\0' terminated.
 // Rely on indentLen to get the length of delimitedIdentWithoutTheLeadingQuote
 // Do not rely on the strlen(delimitedIdentWithoutTheLeadingQuote) call.

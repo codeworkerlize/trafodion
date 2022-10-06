@@ -23,9 +23,9 @@
 #ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
-#include "parser/SqlParserGlobals.h"
 #include "parser/ElemDDLParamDef.h"
 #include "parser/ElemDDLPassThroughParamDef.h"
+#include "parser/SqlParserGlobals.h"
 
 // -----------------------------------------------------------------------
 // Definition of class ElemDDLParamDefArray

@@ -17,34 +17,31 @@
 
 // -----------------------------------------------------------------------
 
-#include "common/BaseTypes.h"
-#include "executor/ex_stdh.h"
-#include "ex_exe_stmt_globals.h"
+#include "ExCextdecs.h"
+#include "Ex_esp_msg.h"
+#include "cli/Context.h"
 #include "comexe/ComTdb.h"
-#include "executor/ex_tcb.h"
-#include "executor/ex_expr.h"
+#include "common/BaseTypes.h"
 #include "common/str.h"
-
+#include "ex_exe_stmt_globals.h"
+#include "ex_frag_rt.h"
+#include "ex_io_control.h"
 #include "ex_send_bottom.h"
 #include "ex_split_bottom.h"
-#include "ex_io_control.h"
-#include "ex_frag_rt.h"
-#include "Ex_esp_msg.h"
-#include "export/ComDiags.h"
 #include "executor/ExStats.h"
-#include "comexe/ComTdb.h"
-#include "sqlmxevents/logmxevent.h"
-#include "ExCextdecs.h"
-#include "cli/Context.h"
-#include "seabed/int/opts.h"
+#include "executor/ex_expr.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_tcb.h"
 #include "exp/exp_clause_derived.h"
+#include "export/ComDiags.h"
+#include "seabed/int/opts.h"
+#include "sqlmxevents/logmxevent.h"
 
 static THREAD_P short sv_max_parallel_opens = 0;
 
+#include "ExSMQueue.h"
 #include "ExSMTrace.h"
 #include "SMConnection.h"
-#include "ExSMQueue.h"
-
 #include "ex_send_top.h"
 
 #define ex_assert_both_sides(assert_test, assert_msg)               \

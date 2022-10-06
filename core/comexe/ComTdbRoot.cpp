@@ -14,11 +14,12 @@
 ****************************************************************************
 */
 
-#include "comexe/LateBindInfo.h"
 #include "comexe/ComTdbRoot.h"
+
+#include "comexe/ComQueue.h"
 #include "comexe/ComTdbCommon.h"
 #include "comexe/FragDir.h"
-#include "comexe/ComQueue.h"
+#include "comexe/LateBindInfo.h"
 
 ////////////////////////////////////////////////////////////////////////
 //  TDB procedures
@@ -67,21 +68,23 @@ ComTdbRoot::ComTdbRoot()
   // setPlanVersion(ComVersion_GetCurrentPlanVersion());
 }
 
-void ComTdbRoot::init(
-    ComTdb *child_tdb, ex_cri_desc *cri_desc, InputOutputExpr *input_expr, InputOutputExpr *output_expr,
-    int input_vars_size, ex_expr *pkey_expr, int pkey_len, ex_expr *pred_expr, ex_cri_desc *work_cri_desc,
-    ExFragDir *fragDir, TransMode *transMode, char *fetchedCursorName, short fetchedCursorHvar, NABoolean delCurrOf,
-    int numUpdateCol, int *updateColList, NABoolean selectInto, short tableCount, long firstNRows,
-    NABoolean userInputVars, double cost, SqlTableOpenInfo **stoiList, LateNameInfoList *lateNameInfoList,
-    Queue *viewStoiList, TrafQuerySimilarityInfo *qsi, Space *space,
-    int uniqueExecuteIdOffset,  // ++Triggers -
-    int triggersStatusOffset, short triggersCount, long *triggersList, short tempTableCount,
-    short baseTablenamePosition, NABoolean updDelInsert, NABoolean retryableStmt, NABoolean streamScan,
-    NABoolean embeddedUpdateOrDelete, int streamTimeout, long explainPlanId, NABasicPtr qCacheInfo,
-    int cacheVarsSize, SqlTableOpenInfo **udrStoiList, short udrCount, short maxResultSets, NABasicPtr queryCostInfo,
-    UninitializedMvName *uninitializedMvList, short uninitializedMvCount, NABasicPtr compilerStatsInfo,
-    NABasicPtr rwrsInfo, int numObjectUIDs, long *objectUIDs, CompilationStatsData *compilationStatsData,
-    long sentryAuthExpirationTimeStamp, char *snapTmpLocation, Queue *listOfSnapshotscanTables, long queryHash) {
+void ComTdbRoot::init(ComTdb *child_tdb, ex_cri_desc *cri_desc, InputOutputExpr *input_expr,
+                      InputOutputExpr *output_expr, int input_vars_size, ex_expr *pkey_expr, int pkey_len,
+                      ex_expr *pred_expr, ex_cri_desc *work_cri_desc, ExFragDir *fragDir, TransMode *transMode,
+                      char *fetchedCursorName, short fetchedCursorHvar, NABoolean delCurrOf, int numUpdateCol,
+                      int *updateColList, NABoolean selectInto, short tableCount, long firstNRows,
+                      NABoolean userInputVars, double cost, SqlTableOpenInfo **stoiList,
+                      LateNameInfoList *lateNameInfoList, Queue *viewStoiList, TrafQuerySimilarityInfo *qsi,
+                      Space *space,
+                      int uniqueExecuteIdOffset,  // ++Triggers -
+                      int triggersStatusOffset, short triggersCount, long *triggersList, short tempTableCount,
+                      short baseTablenamePosition, NABoolean updDelInsert, NABoolean retryableStmt,
+                      NABoolean streamScan, NABoolean embeddedUpdateOrDelete, int streamTimeout, long explainPlanId,
+                      NABasicPtr qCacheInfo, int cacheVarsSize, SqlTableOpenInfo **udrStoiList, short udrCount,
+                      short maxResultSets, NABasicPtr queryCostInfo, UninitializedMvName *uninitializedMvList,
+                      short uninitializedMvCount, NABasicPtr compilerStatsInfo, NABasicPtr rwrsInfo, int numObjectUIDs,
+                      long *objectUIDs, CompilationStatsData *compilationStatsData, long sentryAuthExpirationTimeStamp,
+                      char *snapTmpLocation, Queue *listOfSnapshotscanTables, long queryHash) {
   rtFlags1_ = 0;
   rtFlags2_ = 0;
   rtFlags3_ = 0;

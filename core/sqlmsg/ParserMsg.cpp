@@ -22,13 +22,13 @@
 #include <strstream.h>
 #endif
 #include "common/NAWinNT.h"
-#include "export/ComDiags.h"
-#include "common/wstr.h"
-#include "common/nawstring.h"
 #include "common/NLSConversion.h"
+#include "common/csconvert.h"
+#include "common/nawstring.h"
+#include "common/wstr.h"
+#include "export/ComDiags.h"
 #include "sqlmsg/ErrorMessage.h"
 #include "sqlmsg/ParserMsg.h"  // header for StoreSyntaxError, implemented herein
-#include "common/csconvert.h"
 
 // This function takes as an argument a pointer to a ComCondition object.
 // This function accesses the global variables: input_str, input_pos in

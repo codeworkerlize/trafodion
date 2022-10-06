@@ -20,21 +20,21 @@
 
 //#include <sys/io.h>
 
+#include "../exp/exp_ovfl_ptal.h"  //to check overflow
 #include "MdamDebug.h"
+#include "OptRange.h"
 #include "ScanOptimizer.h"
 #include "SimpleScanOptimizer.h"
-#include "optimizer/NAFileSet.h"
-#include "optimizer/ItemColRef.h"
-#include "optimizer/NATable.h"
-#include "optimizer/ItemOther.h"
 #include "arkcmp/CmpContext.h"
-#include "optimizer/Sqlcomp.h"
-#include "optimizer/ControlDB.h"
-#include "optimizer/ItemLog.h"
-#include "../exp/exp_ovfl_ptal.h"  //to check overflow
 #include "arkcmp/CmpStatement.h"
+#include "optimizer/ControlDB.h"
+#include "optimizer/ItemColRef.h"
+#include "optimizer/ItemLog.h"
+#include "optimizer/ItemOther.h"
+#include "optimizer/NAFileSet.h"
+#include "optimizer/NATable.h"
+#include "optimizer/Sqlcomp.h"
 #include "optimizer/mdam.h"
-#include "OptRange.h"
 
 // -----------------------------------------------------------------------
 // These defines are set because as of today there is no
@@ -771,7 +771,7 @@ class MDAMOptimalDisjunctPrefixWA {
 #ifndef NDEBUG
 
 static int ScanOptimizerTest1(const FileScan &associatedFileScan, const CostScalar &resultSetCardinality,
-                                const Context &myContext, const ValueIdSet &externalInputs, CollHeap *heap) {
+                              const Context &myContext, const ValueIdSet &externalInputs, CollHeap *heap) {
   // Test shared basic cost objects;
 
   // Don't bother if sharing is disabled
@@ -810,7 +810,7 @@ static int ScanOptimizerTest1(const FileScan &associatedFileScan, const CostScal
 }
 
 static int ScanOptimizerTest2(const FileScan &associatedFileScan, const CostScalar &resultSetCardinality,
-                                const Context &myContext, const ValueIdSet &externalInputs, CollHeap *heap) {
+                              const Context &myContext, const ValueIdSet &externalInputs, CollHeap *heap) {
   // Test that the simple scan optimizer produces the same cost as the
   // original.
 
@@ -908,7 +908,7 @@ static int ScanOptimizerTest2(const FileScan &associatedFileScan, const CostScal
 // THREAD_P TaskMonitor* complexFSOMonPtr = NULL;
 
 static int ScanOptimizerTest3(const FileScan &associatedFileScan, const CostScalar &resultSetCardinality,
-                                const Context &myContext, const ValueIdSet &externalInputs, CollHeap *heap) {
+                              const Context &myContext, const ValueIdSet &externalInputs, CollHeap *heap) {
   // Test the performance of the simple scan optimizer compared to the
   // original.
 
@@ -951,7 +951,7 @@ static int ScanOptimizerTest3(const FileScan &associatedFileScan, const CostScal
 }
 
 static int ScanOptimizerTest4(const FileScan &associatedFileScan, const CostScalar &resultSetCardinality,
-                                const Context &myContext, const ValueIdSet &externalInputs, CollHeap *heap) {
+                              const Context &myContext, const ValueIdSet &externalInputs, CollHeap *heap) {
   // Test that the simple scan optimizer produces the same cost as the
   // original.
 
@@ -1033,7 +1033,7 @@ static int ScanOptimizerTest4(const FileScan &associatedFileScan, const CostScal
 }
 
 static int ScanOptimizerTest5(const FileScan &associatedFileScan, const CostScalar &resultSetCardinality,
-                                const Context &myContext, const ValueIdSet &externalInputs, CollHeap *heap) {
+                              const Context &myContext, const ValueIdSet &externalInputs, CollHeap *heap) {
   // Test that the simple scan optimizer produces the same cost as the
   // original for cases of Multiprobe.
 
@@ -1133,7 +1133,7 @@ static int ScanOptimizerTest5(const FileScan &associatedFileScan, const CostScal
 }
 
 static int ScanOptimizerAllTests(const FileScan &associatedFileScan, const CostScalar &resultSetCardinality,
-                                   const Context &myContext, const ValueIdSet &externalInputs, CollHeap *heap)
+                                 const Context &myContext, const ValueIdSet &externalInputs, CollHeap *heap)
 
 {
   NADefaults &defs = ActiveSchemaDB()->getDefaults();

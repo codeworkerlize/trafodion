@@ -18,8 +18,8 @@
  *****************************************************************************
  */
 // 64-bit: get int and long from Platform.h and long.h
-#include "common/Platform.h"
 #include "common/Int64.h"
+#include "common/Platform.h"
 #typedef long long;
 #typedef int int;
 #endif

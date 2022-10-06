@@ -15,9 +15,9 @@
 ******************************************************************************
 */
 
+#include "ReqGen.h"
 #include "optimizer/ObjectNames.h"
 #include "optimizer/RelExpr.h"
-#include "ReqGen.h"
 #include "optimizer/RelGrby.h"
 // -----------------------------------------------------------------------
 // contents of this file
@@ -550,7 +550,7 @@ class Join : public RelExpr {
   // ESPs is being forced for the join operator.
   // ---------------------------------------------------------------------
   virtual DefaultToken getParallelControlSettings(const ReqdPhysicalProperty *const rppForMe, /*IN*/
-                                                  int &numOfESPs,                           /*OUT*/
+                                                  int &numOfESPs,                             /*OUT*/
                                                   float &allowedDeviation,                    /*OUT*/
                                                   NABoolean &numOfESPsForced /*OUT*/) const;
 
@@ -693,7 +693,7 @@ class Join : public RelExpr {
                                             const ValueIdSet &joinPreds,    // IN: the join predicate
                                             double mc_threshold,            // IN: the mc skew threshold
                                             double sc_threshold,            // IN: the single column skew
-                                            int countOfPipelines,         // IN: countofpipelines
+                                            int countOfPipelines,           // IN: countofpipelines
                                                                             // threshold
                                             SkewedValueList **skLis,        // OUT: the skew list
                                             ValueId &vidOfEquiJoinWithSkew  // OUT
@@ -705,7 +705,7 @@ class Join : public RelExpr {
   NABoolean childNodeContainMultiColumnSkew(CollIndex i,                  // IN: which child to work on
                                             const ValueIdSet &joinPreds,  // IN: the join predicate
                                             double mc_threshold,          // IN: multi-column threshold
-                                            int countOfPipelines,       // IN:
+                                            int countOfPipelines,         // IN:
                                             SkewedValueList **skList      // OUT: the skew list
   );
 
@@ -1153,7 +1153,7 @@ class NestedJoin : public Join {
 
   virtual NABoolean okToAttemptESPParallelism(const Context *myContext, /*IN*/
                                               PlanWorkSpace *pws,       /*IN*/
-                                              int &numOfESPs,         /*OUT*/
+                                              int &numOfESPs,           /*OUT*/
                                               float &allowedDeviation,  /*OUT*/
                                               NABoolean &numOfESPsForced /*OUT*/);
 
@@ -1424,7 +1424,7 @@ class HashJoin : public Join {
 
   virtual NABoolean okToAttemptESPParallelism(const Context *myContext, /*IN*/
                                               PlanWorkSpace *pws,       /*IN*/
-                                              int &numOfESPs,         /*OUT*/
+                                              int &numOfESPs,           /*OUT*/
                                               float &allowedDeviation,  /*OUT*/
                                               NABoolean &numOfESPsForced /*OUT*/);
 

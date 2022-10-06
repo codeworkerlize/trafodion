@@ -4,8 +4,8 @@
 
 // Includes
 //
-#include "optimizer/ItemFunc.h"
 #include "optimizer/ItemColRef.h"
+#include "optimizer/ItemFunc.h"
 
 // Forward External Declarations
 //

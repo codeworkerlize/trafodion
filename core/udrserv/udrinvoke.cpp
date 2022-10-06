@@ -20,19 +20,18 @@
 *****************************************************************************
 */
 
-#include "udrextrn.h"
-#include "UdrStreams.h"
-#include "udrdefs.h"
-#include "udrutil.h"
 #include "UdrExeIpc.h"
+#include "UdrStreams.h"
 #include "executor/sql_buffer.h"
-
 #include "udrdecs.h"
+#include "udrdefs.h"
+#include "udrextrn.h"
+#include "udrutil.h"
 
 NABoolean allocateReplyRow(UdrGlobals *UdrGlob,
                            SqlBuffer &replyBuffer,        // [IN]  A reply buffer
                            queue_index parentIndex,       // [IN]  Identifies the request queue entry
-                           int replyRowLen,             // [IN]  Length of reply row
+                           int replyRowLen,               // [IN]  Length of reply row
                            char *&newReplyRow,            // [OUT] The allocated reply row
                            ControlInfo *&newControlInfo,  // [OUT] The allocated ControlInfo entry
                            ex_queue::up_status upStatus   // [IN]  Q_OK_MMORE, Q_NO_DATA, Q_SQLERROR

@@ -3,8 +3,9 @@
 #define __TMTRANSID_H_
 
 #include <stdio.h>
-#include "seabed/int/types.h"
+
 #include "dtm/tm_util.h"
+#include "seabed/int/types.h"
 
 typedef struct _tm_h_as_0 {
   short Application;  // namely SQL, 16 possibilities

@@ -1,8 +1,10 @@
 
 
+#include "ExSMEvent.h"
+
 #include <string.h>
 #include <sys/time.h>
-#include "ExSMEvent.h"
+
 #include "ExSMCommon.h"
 
 // Max number of events in the in-memory trace

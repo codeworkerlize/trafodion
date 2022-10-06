@@ -18,9 +18,10 @@
 ******************************************************************************
 */
 
+#include "parser/ElemDDLPassThroughParamDef.h"
+
 #include "common/ComASSERT.h"
 #include "export/ComDiags.h"
-#include "parser/ElemDDLPassThroughParamDef.h"
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLPassThroughParamDef

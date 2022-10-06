@@ -23,8 +23,8 @@
     LmExpr.cpp for details.
 */
 
-#include "common/NABoolean.h"
 #include "common/ComSmallDefs.h"
+#include "common/NABoolean.h"
 
 //
 // Forward class references

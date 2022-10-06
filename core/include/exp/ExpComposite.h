@@ -15,9 +15,9 @@
  *****************************************************************************
  */
 
+#include "common/dfs2rec.h"
 #include "exp/exp_clause.h"
 #include "exp/exp_clause_derived.h"
-#include "common/dfs2rec.h"
 #include "exp_function.h"
 
 ////////////////////////////////////////////////////////////////////////
@@ -146,8 +146,7 @@ class ExpCompositeBase : public ex_function_clause {
 
   virtual ex_expr::exp_return_type pCodeGenerate(Space *space, UInt32 flags);
 
-  virtual void displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea,
-                               int flag);
+  virtual void displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea, int flag);
 
   int numElements() { return numElements_; }
 
@@ -185,8 +184,7 @@ class ExpCompositeArrayLength : public ExpCompositeBase {
 
   virtual ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea ** = 0);
 
-  virtual void displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea,
-                               int flag);
+  virtual void displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea, int flag);
 
   virtual short getClassSize() { return (short)sizeof(*this); }
 
@@ -264,8 +262,7 @@ class ExpCompositeConcat : public ExpCompositeBase {
   virtual Long pack(void *);
   virtual int unpack(void *base, void *reallocator);
 
-  virtual void displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea,
-                               int flag);
+  virtual void displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea, int flag);
 
   virtual short getClassSize() { return (short)sizeof(*this); }
 
@@ -280,8 +277,7 @@ class ExpCompositeConcat : public ExpCompositeBase {
 class ExpCompositeCreate : public ExpCompositeBase {
  public:
   ExpCompositeCreate(OperatorTypeEnum oper_type, short type, int numElements, short numAttrs, Attributes **attr,
-                     int tupleLen, ex_expr *compExpr, ex_cri_desc *compCriDesc, AttributesPtr compAttrs,
-                     Space *space);
+                     int tupleLen, ex_expr *compExpr, ex_cri_desc *compCriDesc, AttributesPtr compAttrs, Space *space);
   ExpCompositeCreate(){};
 
   virtual Long pack(void *);
@@ -293,8 +289,7 @@ class ExpCompositeCreate : public ExpCompositeBase {
   // This clause handles all NULL processing in the eval() method.
   virtual int isNullRelevant() const { return 0; };
 
-  virtual void displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea,
-                               int flag);
+  virtual void displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea, int flag);
 
   virtual short getClassSize() { return (short)sizeof(*this); }
 
@@ -343,8 +338,8 @@ class ExpCompositeExtract : public ExpCompositeBase {
   virtual short getClassSize() { return (short)sizeof(*this); }
 
   static ex_expr::exp_return_type extractValue(Attributes *compAttrs, int elemNum, char *tgtPtr, char *srcPtr,
-                                               int maxNumElems, NABoolean &isNullVal, int &attrLen,
-                                               int &numElems, CollHeap *heap, ComDiagsArea **diagsArea);
+                                               int maxNumElems, NABoolean &isNullVal, int &attrLen, int &numElems,
+                                               CollHeap *heap, ComDiagsArea **diagsArea);
 
  private:
   ex_expr::exp_return_type searchAndExtractValue(Attributes *inAttrs, char *tgtPtr, char *srcPtr, NABoolean &isNullVal,

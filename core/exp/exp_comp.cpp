@@ -16,13 +16,12 @@
  */
 
 #include "common/Platform.h"
-
-#include "exp/exp_stdh.h"
-#include "exp/exp_clause_derived.h"
-#include "exp/exp_datetime.h"
 #include "common/unicode_char_set.h"
 #include "common/wstr.h"
 #include "executor/ex_globals.h"
+#include "exp/exp_clause_derived.h"
+#include "exp/exp_datetime.h"
+#include "exp/exp_stdh.h"
 
 ex_expr::exp_return_type ex_comp_clause::processNulls(char *op_data[], CollHeap *heap, ComDiagsArea **diagsArea) {
   if (isSpecialNulls()) {
@@ -159,7 +158,7 @@ ex_expr::exp_return_type ex_comp_clause::eval(char *op_data[], CollHeap *heap, C
       *(int *)op_data[0] = (*(short *)op_data[1] == *(unsigned short *)op_data[2]);
       break;
     case EQ_BIN16S_BIN32U:
-      *(int *)op_data[0] = ((int) * (short *)op_data[1] == *(int *)op_data[2]);
+      *(int *)op_data[0] = ((int)*(short *)op_data[1] == *(int *)op_data[2]);
       break;
 
     case EQ_BIN16U_BIN16S:
@@ -190,15 +189,15 @@ ex_expr::exp_return_type ex_comp_clause::eval(char *op_data[], CollHeap *heap, C
       break;
 
     case EQ_BIN32S_BIN32U:
-      *(int *)op_data[0] = ((int) * (int *)op_data[1] == *(int *)op_data[2]);
+      *(int *)op_data[0] = ((int)*(int *)op_data[1] == *(int *)op_data[2]);
       break;
 
     case EQ_BIN32U_BIN16S:
-      *(int *)op_data[0] = (*(int *)op_data[1] == (int) * (short *)op_data[2]);
+      *(int *)op_data[0] = (*(int *)op_data[1] == (int)*(short *)op_data[2]);
       break;
 
     case EQ_BIN32U_BIN32S:
-      *(int *)op_data[0] = (*(int *)op_data[1] == (int) * (int *)op_data[2]);
+      *(int *)op_data[0] = (*(int *)op_data[1] == (int)*(int *)op_data[2]);
       break;
 
     case EQ_BIN32U_BIN16U:
@@ -273,7 +272,7 @@ ex_expr::exp_return_type ex_comp_clause::eval(char *op_data[], CollHeap *heap, C
       break;
 
     case NE_BIN16S_BIN32U:
-      *(int *)op_data[0] = ((int) * (short *)op_data[1] != *(int *)op_data[2]);
+      *(int *)op_data[0] = ((int)*(short *)op_data[1] != *(int *)op_data[2]);
       break;
 
     case NE_BIN16U_BIN16S:
@@ -304,15 +303,15 @@ ex_expr::exp_return_type ex_comp_clause::eval(char *op_data[], CollHeap *heap, C
       break;
 
     case NE_BIN32S_BIN32U:
-      *(int *)op_data[0] = ((int) * (int *)op_data[1] != *(int *)op_data[2]);
+      *(int *)op_data[0] = ((int)*(int *)op_data[1] != *(int *)op_data[2]);
       break;
 
     case NE_BIN32U_BIN16S:
-      *(int *)op_data[0] = (*(int *)op_data[1] != (int) * (short *)op_data[2]);
+      *(int *)op_data[0] = (*(int *)op_data[1] != (int)*(short *)op_data[2]);
       break;
 
     case NE_BIN32U_BIN32S:
-      *(int *)op_data[0] = (*(int *)op_data[1] != (int) * (int *)op_data[2]);
+      *(int *)op_data[0] = (*(int *)op_data[1] != (int)*(int *)op_data[2]);
       break;
 
     case NE_BIN32U_BIN16U:
@@ -390,7 +389,7 @@ ex_expr::exp_return_type ex_comp_clause::eval(char *op_data[], CollHeap *heap, C
       break;
 
     case LT_BIN16S_BIN32U:
-      *(int *)op_data[0] = ((long) * (short *)op_data[1] < (long) * (int *)op_data[2]);
+      *(int *)op_data[0] = ((long)*(short *)op_data[1] < (long)*(int *)op_data[2]);
       break;
 
     case LT_BIN16U_BIN16S:
@@ -420,15 +419,15 @@ ex_expr::exp_return_type ex_comp_clause::eval(char *op_data[], CollHeap *heap, C
       break;
 
     case LT_BIN32S_BIN32U:
-      *(int *)op_data[0] = ((long) * (int *)op_data[1] < (long) * (int *)op_data[2]);
+      *(int *)op_data[0] = ((long)*(int *)op_data[1] < (long)*(int *)op_data[2]);
       break;
 
     case LT_BIN32U_BIN16S:
-      *(int *)op_data[0] = ((long) * (int *)op_data[1] < *(short *)op_data[2]);
+      *(int *)op_data[0] = ((long)*(int *)op_data[1] < *(short *)op_data[2]);
       break;
 
     case LT_BIN32U_BIN32S:
-      *(int *)op_data[0] = ((long) * (int *)op_data[1] < (long) * (int *)op_data[2]);
+      *(int *)op_data[0] = ((long)*(int *)op_data[1] < (long)*(int *)op_data[2]);
       break;
 
     case LT_BIN32U_BIN16U:
@@ -538,7 +537,7 @@ ex_expr::exp_return_type ex_comp_clause::eval(char *op_data[], CollHeap *heap, C
       break;
 
     case LE_BIN16S_BIN32U:
-      *(int *)op_data[0] = (*(short *)op_data[1] <= (long) * (int *)op_data[2]);
+      *(int *)op_data[0] = (*(short *)op_data[1] <= (long)*(int *)op_data[2]);
       break;
 
     case LE_BIN16U_BIN16S:
@@ -570,15 +569,15 @@ ex_expr::exp_return_type ex_comp_clause::eval(char *op_data[], CollHeap *heap, C
       break;
 
     case LE_BIN32S_BIN32U:
-      *(int *)op_data[0] = ((long) * (int *)op_data[1] <= (long) * (int *)op_data[2]);
+      *(int *)op_data[0] = ((long)*(int *)op_data[1] <= (long)*(int *)op_data[2]);
       break;
 
     case LE_BIN32U_BIN16S:
-      *(int *)op_data[0] = ((long) * (int *)op_data[1] <= *(short *)op_data[2]);
+      *(int *)op_data[0] = ((long)*(int *)op_data[1] <= *(short *)op_data[2]);
       break;
 
     case LE_BIN32U_BIN32S:
-      *(int *)op_data[0] = ((long) * (int *)op_data[1] <= (long) * (int *)op_data[2]);
+      *(int *)op_data[0] = ((long)*(int *)op_data[1] <= (long)*(int *)op_data[2]);
       break;
 
     case LE_BIN32U_BIN16U:
@@ -689,7 +688,7 @@ ex_expr::exp_return_type ex_comp_clause::eval(char *op_data[], CollHeap *heap, C
       break;
 
     case GT_BIN16S_BIN32U:
-      *(int *)op_data[0] = (*(short *)op_data[1] > (long) * (int *)op_data[2]);
+      *(int *)op_data[0] = (*(short *)op_data[1] > (long)*(int *)op_data[2]);
       break;
 
     case GT_BIN16U_BIN16S:
@@ -721,15 +720,15 @@ ex_expr::exp_return_type ex_comp_clause::eval(char *op_data[], CollHeap *heap, C
       break;
 
     case GT_BIN32S_BIN32U:
-      *(int *)op_data[0] = ((long) * (int *)op_data[1] > (long) * (int *)op_data[2]);
+      *(int *)op_data[0] = ((long)*(int *)op_data[1] > (long)*(int *)op_data[2]);
       break;
 
     case GT_BIN32U_BIN16S:
-      *(int *)op_data[0] = ((long) * (int *)op_data[1] > *(short *)op_data[2]);
+      *(int *)op_data[0] = ((long)*(int *)op_data[1] > *(short *)op_data[2]);
       break;
 
     case GT_BIN32U_BIN32S:
-      *(int *)op_data[0] = ((long) * (int *)op_data[1] > (long) * (int *)op_data[2]);
+      *(int *)op_data[0] = ((long)*(int *)op_data[1] > (long)*(int *)op_data[2]);
       break;
 
     case GT_BIN32U_BIN16U:
@@ -839,7 +838,7 @@ ex_expr::exp_return_type ex_comp_clause::eval(char *op_data[], CollHeap *heap, C
       break;
 
     case GE_BIN16S_BIN32U:
-      *(int *)op_data[0] = (*(short *)op_data[1] >= (long) * (int *)op_data[2]);
+      *(int *)op_data[0] = (*(short *)op_data[1] >= (long)*(int *)op_data[2]);
       break;
 
     case GE_BIN16U_BIN16S:
@@ -870,15 +869,15 @@ ex_expr::exp_return_type ex_comp_clause::eval(char *op_data[], CollHeap *heap, C
       break;
 
     case GE_BIN32S_BIN32U:
-      *(int *)op_data[0] = ((long) * (int *)op_data[1] >= (long) * (int *)op_data[2]);
+      *(int *)op_data[0] = ((long)*(int *)op_data[1] >= (long)*(int *)op_data[2]);
       break;
 
     case GE_BIN32U_BIN16S:
-      *(int *)op_data[0] = ((long) * (int *)op_data[1] >= *(short *)op_data[2]);
+      *(int *)op_data[0] = ((long)*(int *)op_data[1] >= *(short *)op_data[2]);
       break;
 
     case GE_BIN32U_BIN32S:
-      *(int *)op_data[0] = ((long) * (int *)op_data[1] >= (long) * (int *)op_data[2]);
+      *(int *)op_data[0] = ((long)*(int *)op_data[1] >= (long)*(int *)op_data[2]);
       break;
 
     case GE_BIN32U_BIN16U:
@@ -998,7 +997,7 @@ ex_expr::exp_return_type ex_comp_clause::eval(char *op_data[], CollHeap *heap, C
       int length2 = getOperand(2)->getLength(op_data[-MAX_OPERANDS + 2]);
 
       int compare_code = wcharStringCompareWithPad((NAWchar *)op_data[1], length1 >> 1, (NAWchar *)op_data[2],
-                                                     length2 >> 1, unicode_char_set::space_char());
+                                                   length2 >> 1, unicode_char_set::space_char());
 
       retcode = processResult(compare_code, (int *)op_data[0], heap, diagsArea);
 

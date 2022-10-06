@@ -15,20 +15,19 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "exp/exp_stdh.h"
-#include "exp/exp_clause_derived.h"
-#include "exp_math_func.h"
-#include "exp_function.h"
-#include "ExpComposite.h"
 #include "ExpBitMuxFunction.h"
+#include "ExpComposite.h"
 #include "ExpSequenceFunction.h"
+#include "common/Platform.h"
 #include "common/wstr.h"
+#include "exp/exp_clause_derived.h"
 #include "exp/exp_datetime.h"
+#include "exp/exp_stdh.h"
+#include "exp_function.h"
+#include "exp_math_func.h"
 #include "ttime.h"
 
 extern int compExprNum;
@@ -2211,8 +2210,7 @@ void ex_arith_clause::displayContents(Space *space, const char * /*displayStr*/,
                              ex_arith_clause::getInstructionStr(getInstrArrayIndex()));
 }
 
-void ex_arith_sum_clause::displayContents(Space *space, const char * /*displayStr*/, int clauseNum,
-                                          char *constsArea) {
+void ex_arith_sum_clause::displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea) {
   setInstruction();
   ex_clause::displayContents(space, "ex_arith_sum_clause", clauseNum, constsArea);
 }
@@ -2318,8 +2316,7 @@ void ex_unlogic_clause::displayContents(Space *space, const char * /*displayStr*
   ex_clause::displayContents(space, "ex_unlogic_clause", clauseNum, constsArea);
 }
 
-void ex_like_clause_char::displayContents(Space *space, const char * /*displayStr*/, int clauseNum,
-                                          char *constsArea) {
+void ex_like_clause_char::displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea) {
   ex_clause::displayContents(space, "ex_like_clause_char", clauseNum, constsArea);
 }
 
@@ -2380,8 +2377,7 @@ void ExFunctionHbaseVersion::displayContents(Space *space, const char * /*displa
   ex_clause::displayContents(space, (const char *)NULL, clauseNum, constsArea);
 }
 
-void ExFunctionHbaseRowid::displayContents(Space *space, const char * /*displayStr*/, int clauseNum,
-                                           char *constsArea) {
+void ExFunctionHbaseRowid::displayContents(Space *space, const char * /*displayStr*/, int clauseNum, char *constsArea) {
   char buf[100];
   str_sprintf(buf, "  Clause #%d: ExFunctionHbaseRowid", clauseNum);
   space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
@@ -2402,8 +2398,7 @@ void ex_function_dateformat::displayContents(Space *space, const char * /*displa
 }
 
 // Function to compare two strings.
-int charStringCompareWithPad(char *in_s1, int length1, char *in_s2, int length2, char padChar,
-                               NABoolean ignoreSpace) {
+int charStringCompareWithPad(char *in_s1, int length1, char *in_s2, int length2, char padChar, NABoolean ignoreSpace) {
   static char *isTrailingBlankSensitive = NULL;
   bool strictCmp = false;
   unsigned char *s1 = (unsigned char *)in_s1;
@@ -2552,9 +2547,9 @@ Int16 convertDateTimeTimestampToAscii(char *target, int targetLen, char *source,
 
   // Convert the datetime value to ASCII in the DEFAULT format.
   int realTargetLen = srcDatetimeOpType.convDatetimeToASCII(source,     // source
-                                                              target,     // target
-                                                              targetLen,  // target len
-                                                              format, NULL, heap, NULL);
+                                                            target,     // target
+                                                            targetLen,  // target len
+                                                            format, NULL, heap, NULL);
 
   if (realTargetLen >= 0) {
     assert(realTargetLen < targetLen);
@@ -2667,8 +2662,8 @@ void ExFunctionRangeOfValues::displayOpData(fstream &out, const char *msg, char 
 
       case REC_DATETIME_CODE::REC_DTCODE_TIMESTAMP: {
         int realTargetLen = convertDateTimeTimestampToAscii(target, sizeof(target), source, sourceAttr->getLength(),
-                                                              REC_DTCODE_TIMESTAMP, sourceAttr->getScale(),
-                                                              ExpDatetime::DATETIME_FORMAT_DEFAULT, heap);
+                                                            REC_DTCODE_TIMESTAMP, sourceAttr->getScale(),
+                                                            ExpDatetime::DATETIME_FORMAT_DEFAULT, heap);
 
         for (int i = 0; i < realTargetLen; i++) {
           out << target[i];
@@ -2774,8 +2769,8 @@ NABoolean ExFunctionRangeOfValues::insertData(char *op_data[], CollHeap *heap) {
 
       case REC_DATETIME_CODE::REC_DTCODE_TIMESTAMP: {
         int realTargetLen = convertDateTimeTimestampToAscii(target, sizeof(target), source, sourceAttr->getLength(),
-                                                              REC_DTCODE_TIMESTAMP, sourceAttr->getScale(),
-                                                              ExpDatetime::DATETIME_FORMAT_DEFAULT, heap);
+                                                            REC_DTCODE_TIMESTAMP, sourceAttr->getScale(),
+                                                            ExpDatetime::DATETIME_FORMAT_DEFAULT, heap);
 
         if (realTargetLen < 0) return FALSE;
 
@@ -2909,8 +2904,8 @@ NABoolean ExFunctionRangeOfValues::lookupData(char *op_data[], CollHeap *heap) {
 
       case REC_DATETIME_CODE::REC_DTCODE_TIMESTAMP: {
         int realTargetLen = convertDateTimeTimestampToAscii(target, sizeof(target), source, sourceAttr->getLength(),
-                                                              REC_DTCODE_TIMESTAMP, sourceAttr->getScale(),
-                                                              ExpDatetime::DATETIME_FORMAT_DEFAULT, heap);
+                                                            REC_DTCODE_TIMESTAMP, sourceAttr->getScale(),
+                                                            ExpDatetime::DATETIME_FORMAT_DEFAULT, heap);
 
         if (realTargetLen < 0) return FALSE;
 

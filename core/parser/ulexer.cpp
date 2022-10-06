@@ -15,8 +15,6 @@
 ******************************************************************************
 */
 
-#include "common/Platform.h"
-
 #include <assert.h>
 #include <ctype.h>
 #include <limits.h>
@@ -24,6 +22,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "common/Platform.h"
 
 // Use a reserved UCS-2 character (but not the last one) as EOF substitute
 #define WEOF (NAWchar)(0xFFEF)
@@ -70,29 +70,28 @@ class IUDStatistics;
 class IntegerList;
 
 #include "common/CharType.h"
-#include "common/charinfo.h"
-#include "common/conversionHex.h"
 #include "common/ComSmallDefs.h"
 #include "common/ComTransInfo.h"
 #include "common/ComUnits.h"
-#include "parser/HvTypes.h"
+#include "common/charinfo.h"
+#include "common/conversionHex.h"
+#include "optimizer/ItemLog.h"
+#include "optimizer/RelScan.h"
+#include "optimizer/RelUpdate.h"
+#include "parser/ElemDDLColRefArray.h"
 #include "parser/ElemDDLConstraintRI.h"
+#include "parser/ElemDDLFileAttrMisc.h"
+#include "parser/ElemDDLFileAttrRangeLog.h"
+#include "parser/ElemDDLHbaseOptions.h"
 #include "parser/ElemDDLParamName.h"
 #include "parser/ElemDDLPartition.h"
 #include "parser/ElemDDLPassThroughParamDef.h"
 #include "parser/ElemDDLQualName.h"  // OZ
-#include "parser/ElemDDLColRefArray.h"
-#include "optimizer/RelScan.h"
-#include "optimizer/RelUpdate.h"
-#include "optimizer/ItemLog.h"
-#include "parser/StmtDMLSetTransaction.h"
-#include "parser/ElemDDLFileAttrRangeLog.h"
+#include "parser/HvTypes.h"
 #include "parser/SqlParserAux.h"
-#include "parser/ElemDDLHbaseOptions.h"
-#include "parser/StmtDDLCommentOn.h"
 #include "parser/StmtDDLAlterSharedCache.h"
-#include "parser/ElemDDLFileAttrMisc.h"
-
+#include "parser/StmtDDLCommentOn.h"
+#include "parser/StmtDMLSetTransaction.h"
 
 #ifndef INCLUDE_UNION
 #define INCLUDE_UNION
@@ -104,11 +103,11 @@ extern int tokval;  // defined by yacc, for lex only
 extern THREAD_P NABoolean HexStringLiteralNotAllowed;
 extern THREAD_P NABoolean turnUnknownCharSetToISO88591;
 
-#include "ParKeyWords.h"
-#include "parser/ulexer.h"
-#include "common/wstr.h"
-#include "common/str.h"
 #include "CliSemaphore.h"
+#include "ParKeyWords.h"
+#include "common/str.h"
+#include "common/wstr.h"
+#include "parser/ulexer.h"
 
 #ifdef DEBUG
 // NGG For the time being  #define dbgprintf(x)	printf(x,yytext_)
@@ -512,7 +511,7 @@ int yyULexer::aQuotedBlock(YYSTYPE *lvalp) {
 }
 
 int yyULexer::aStringLiteralWithCharSet(CharInfo::CharSet cs, const NAWchar *str, int len, NAWchar quote,
-                                          YYSTYPE *lvalp) {
+                                        YYSTYPE *lvalp) {
   addTokenToGlobalQueue();
   dbgprintf(DBGMSG("String literal %s\n"));
   if (len != 0 && ParScannedInputCharset != CharInfo::ISO88591 &&
@@ -551,7 +550,7 @@ int yyULexer::aStringLiteralWithCharSet(CharInfo::CharSet cs, const NAWchar *str
 }
 
 int yyULexer::aHexStringLiteralWithCharSet(CharInfo::CharSet cs, const NAWchar *str, int len, NAWchar quote,
-                                             YYSTYPE *lvalp) {
+                                           YYSTYPE *lvalp) {
   addTokenToGlobalQueue();
   dbgprintf(DBGMSG("String literal %s\n"));
 
@@ -693,7 +692,7 @@ int yyULexer::aHexStringLiteralWithCharSet(CharInfo::CharSet cs, const NAWchar *
 // prefixed with a character set name
 //
 inline int yyULexer::constructStringLiteralWithCharSet(NABoolean isHex, CharInfo::CharSet cs, YYSTYPE *lvalp,
-                                                         NAWchar quote) {
+                                                       NAWchar quote) {
   NAWchar cc;
 
   undoBeforeAction();
@@ -734,9 +733,7 @@ inline int yyULexer::anSQLMXReservedWord(YYSTYPE *lvalp) {
   return setStringval(IDENTIFIER, DBGMSG("Identifier %s\n"), lvalp);
 }
 
-inline int yyULexer::anIdentifier(YYSTYPE *lvalp) {
-  return setStringval(IDENTIFIER, DBGMSG("Identifier %s\n"), lvalp);
-}
+inline int yyULexer::anIdentifier(YYSTYPE *lvalp) { return setStringval(IDENTIFIER, DBGMSG("Identifier %s\n"), lvalp); }
 
 inline int yyULexer::anSQLMXKeyword(int tokCod, YYSTYPE *lvalp) {
   return setTokval(tokCod, DBGMSG("Trafodion keyword %s\n"), lvalp);
@@ -783,8 +780,8 @@ inline int yyULexer::invalidHostVarNonTranslatableChars(YYSTYPE *lvalp) {
 }
 
 // This is here just because it's such a common idiom
-int yyULexer::eitherCompoundOrSimpleKeyword(NABoolean isCompound, int tokcodCompound, int tokcodSimple,
-                                              NAWchar *end1, NAWchar holdChar1, YYSTYPE *lvalp) {
+int yyULexer::eitherCompoundOrSimpleKeyword(NABoolean isCompound, int tokcodCompound, int tokcodSimple, NAWchar *end1,
+                                            NAWchar holdChar1, YYSTYPE *lvalp) {
   if (isCompound) {
     // un-null-terminate 1st kwd of the compound
     *end1 = holdChar1;
@@ -853,7 +850,7 @@ int yyULexer::yylex(YYSTYPE *lvalp) {
     // Note: these start symbols are defined in sqlparser.y, they don't need to
     // be defined anywhere else, since bison will assign then a number in sqlparser.h
     static const int SqlParser_starting_token[] = {0, TOK_INTERNAL_EXPR, TOK_INTERNAL_COLUMN_DEFINITION,
-                                                     TOK_INTERNAL_SPLIT_DEFINITION, TOK_INTERNAL_COMPOSITE_DEFINITION};
+                                                   TOK_INTERNAL_SPLIT_DEFINITION, TOK_INTERNAL_COMPOSITE_DEFINITION};
     int temp = SqlParser_starting_token[SqlParser_CurrentParser->internalExpr_];
     SqlParser_CurrentParser->internalExpr_ = NORMAL_TOKEN;  // reset it
     return temp;                                            // parse from anything-goes start state

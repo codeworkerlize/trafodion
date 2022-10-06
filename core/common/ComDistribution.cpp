@@ -14,8 +14,8 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
 #include "common/ComCextdecs.h"
+#include "common/Platform.h"
 
 /*****************************************************************************
 
@@ -61,16 +61,14 @@ availability error.
 
 ******************************************************************************/
 
+#include "common/ComASSERT.h"
+#include "common/ComDistribution.h"
 #include "common/NABoolean.h"
 #include "common/NAStdlib.h"
 #include "common/NAString.h"
-
-#include "common/ComDistribution.h"
-#include "common/ComASSERT.h"
-
-#include "exp/ExpError.h"
-#include "common/csconvert.h"
 #include "common/NLSConversion.h"
+#include "common/csconvert.h"
+#include "exp/ExpError.h"
 
 // -----------------------------------------------------------------------
 // ANSI SQL Name Conversion helpers
@@ -82,10 +80,10 @@ availability error.
 // -----------------------------------------------------------------------
 
 int ComAnsiNameToUTF8(const NAWchar *inAnsiNameInUCS2  // in  - valid ANSI SQL name in UCS2
-                        ,
-                        char *outBuf4AnsiNameInMBCS  // out - out buffer
-                        ,
-                        const int outBufSizeInBytes  // in  - out buffer max len in bytes
+                      ,
+                      char *outBuf4AnsiNameInMBCS  // out - out buffer
+                      ,
+                      const int outBufSizeInBytes  // in  - out buffer max len in bytes
 ) {
   if (outBuf4AnsiNameInMBCS == NULL || outBufSizeInBytes <= 0)
     return -2;  // CNV_ERR_BUFFER_OVERRUN - No output buffer or not big enough
@@ -98,7 +96,7 @@ int ComAnsiNameToUTF8(const NAWchar *inAnsiNameInUCS2  // in  - valid ANSI SQL n
 
   const int inAnsiNameInBytes = NAWstrlen(inAnsiNameInUCS2) * BYTES_PER_NAWCHAR;
   int ansiNameCharSet = (int)ComGetNameInterfaceCharSet();
-  int convAnsiNameCS = (int) /*cnv_charset*/ convertCharsetEnum(ansiNameCharSet);
+  int convAnsiNameCS = (int)/*cnv_charset*/ convertCharsetEnum(ansiNameCharSet);
   char *pFirstByteOfTheUntranslatedChar = NULL;
   UInt32 iOutStrLenInBytesIncludingNull = 0;
   UInt32 iNumTranslatedChars = 0;
@@ -135,12 +133,12 @@ int ComAnsiNameToUTF8(const NAWchar *inAnsiNameInUCS2  // in  - valid ANSI SQL n
 
 // returned error code described in w:/common/csconvert.h
 int ComAnsiNameToUCS2(const char *inAnsiNameInMBCS  // in  - valid name in default ANSI name char set
-                        ,
-                        NAWchar *outBuf4AnsiNameInUCS2  // out - out buffer
-                        ,
-                        const int outBufSizeInNAWchars  // in  - out buffer max len in NAWchars
-                        ,
-                        const NABoolean padWithSpaces  // in  - default is FALSE
+                      ,
+                      NAWchar *outBuf4AnsiNameInUCS2  // out - out buffer
+                      ,
+                      const int outBufSizeInNAWchars  // in  - out buffer max len in NAWchars
+                      ,
+                      const NABoolean padWithSpaces  // in  - default is FALSE
 ) {
   if (outBuf4AnsiNameInUCS2 == NULL || outBufSizeInNAWchars <= 0)
     return -2;  // CNV_ERR_BUFFER_OVERRUN - No output buffer or not big enough
@@ -154,7 +152,7 @@ int ComAnsiNameToUCS2(const char *inAnsiNameInMBCS  // in  - valid name in defau
   int inAnsiNameLenInBytes = (int)strlen(inAnsiNameInMBCS);
   int outBufSizeInBytes = outBufSizeInNAWchars * BYTES_PER_NAWCHAR;
   int ansiNameCharSet = (int)ComGetNameInterfaceCharSet();
-  int convAnsiNameCS = (int) /*cnv_charset*/ convertCharsetEnum(ansiNameCharSet);
+  int convAnsiNameCS = (int)/*cnv_charset*/ convertCharsetEnum(ansiNameCharSet);
   char *pFirstByteOfTheUntranslatedChar = NULL;
   UInt32 iTranslatedStrLenInBytes = 0;
   UInt32 iNumberOfTranslatedChars = 0;
@@ -205,9 +203,9 @@ int ComAnsiNameToUCS2(const char *inAnsiNameInMBCS  // in  - valid name in defau
 //
 //  Build an ANSI schema name from its individual parts
 //
-void ComBuildSchemaName(const char *catalogName,         // in, catalog name (internal format)
-                        const char *schemaName,          // in, schema name (internal format)
-                        char *ansiSchemaName,            // out, ANSI schema name (external format)
+void ComBuildSchemaName(const char *catalogName,       // in, catalog name (internal format)
+                        const char *schemaName,        // in, schema name (internal format)
+                        char *ansiSchemaName,          // out, ANSI schema name (external format)
                         const int ansiSchNameBufSize)  // in, ANSI schema name output buffer size in bytes
 {
   size_t actualLength;
@@ -231,10 +229,10 @@ void ComBuildSchemaName(const char *catalogName,         // in, catalog name (in
 //
 //  Build an ANSI name from its individual parts
 //
-void ComBuildANSIName(const char *catalogName,         // in, catalog name (internal format)
-                      const char *schemaName,          // in, schema name (internal format)
-                      const char *objectName,          // in, object name (internal format)
-                      char *ansiName,                  // out, ANSI name (external format)
+void ComBuildANSIName(const char *catalogName,       // in, catalog name (internal format)
+                      const char *schemaName,        // in, schema name (internal format)
+                      const char *objectName,        // in, object name (internal format)
+                      char *ansiName,                // out, ANSI name (external format)
                       const int ansiNameOutBufSize)  // in, ANSI name output buffer size in bytes
 {
   ComBuildSchemaName(catalogName, schemaName, ansiName, ansiNameOutBufSize);
@@ -264,7 +262,7 @@ void enumToLiteral(const literalAndEnumStruct *conversionTable, const int noOfEl
 
 // General literal to enum translation
 int literalToEnum(const literalAndEnumStruct *conversionTable, const int noOfElements, const char *literal,
-                    NABoolean &found) {
+                  NABoolean &found) {
   for (int i = 0; i < noOfElements; i++) {
     const literalAndEnumStruct &elem = conversionTable[i];
     if (!strcmp(elem.literal_, literal)) {

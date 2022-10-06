@@ -17,9 +17,9 @@
 #ifndef EX_EXPLAINTUPLEM_H
 #define EX_EXPLAINTUPLEM_H
 
-#include "exp/ExpSqlTupp.h"
-#include "common/Int64.h"
 #include "comexe/ExplainTuple.h"
+#include "common/Int64.h"
+#include "exp/ExpSqlTupp.h"
 
 class Cost;
 

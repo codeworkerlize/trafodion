@@ -14,36 +14,36 @@
 *
 ******************************************************************************
 */
-#include "common/ComDefs.h"  // to get common defines (ROUND8)
-#include "limits.h"
-#include "common/ComOptIncludes.h"
-#include "optimizer/RelJoin.h"
-#include "optimizer/GroupAttr.h"
-#include "optimizer/Analyzer.h"
-#include "generator/Generator.h"
 #include "GenExpGenerator.h"
+#include "common/ComDefs.h"  // to get common defines (ROUND8)
+#include "common/ComOptIncludes.h"
+#include "generator/Generator.h"
+#include "limits.h"
+#include "optimizer/Analyzer.h"
+#include "optimizer/GroupAttr.h"
+#include "optimizer/RelJoin.h"
 //#include "executor/ex_stdh.h"
-#include "exp/ExpCriDesc.h"
 #include "comexe/ComTdb.h"
+#include "exp/ExpCriDesc.h"
 //#include "executor/ex_tcb.h"
-#include "comexe/ComTdbOnlj.h"
 #include "comexe/ComTdbHashj.h"
 #include "comexe/ComTdbMj.h"
+#include "comexe/ComTdbOnlj.h"
 #include "comexe/ComTdbTupleFlow.h"
 #include "comexe/HashBufferHeader.h"
 #if 0
 // unused feature, done as part of SQ SQL code cleanup effort
 #include "ComTdbSimpleSample.h"
 #endif  // if 0
-#include "sqlcomp/DefaultConstants.h"
 #include "HashRow.h"
-#include "hash_table.h"      // for HashTableHeader
-#include "exp/ExpSqlTupp.h"  // for sizeof(tupp_descriptor)
-#include "executor/sql_buffer.h"
-#include "executor/sql_buffer_size.h"
 #include "arkcmp/CmpStatement.h"
 #include "common/ComUnits.h"
+#include "executor/sql_buffer.h"
+#include "executor/sql_buffer_size.h"
+#include "exp/ExpSqlTupp.h"  // for sizeof(tupp_descriptor)
+#include "hash_table.h"      // for HashTableHeader
 #include "optimizer/RelUpdate.h"
+#include "sqlcomp/DefaultConstants.h"
 /////////////////////////////////////////////////////////////////////
 //
 // Contents:

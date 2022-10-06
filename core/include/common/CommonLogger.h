@@ -2,17 +2,18 @@
 #ifndef _COMMONLOGGER_H_
 #define _COMMONLOGGER_H_
 
-#include <stdarg.h>
-#include <stdio.h>
-#include <string>
-#include <cstdlib>
-#include <log4cplus/logger.h>
 #include <log4cplus/configurator.h>
 #include <log4cplus/helpers/loglog.h>
 #include <log4cplus/helpers/stringhelper.h>
+#include <log4cplus/logger.h>
 #include <log4cplus/loggingmacros.h>
-#include <iomanip>  //std::setprecision
 #include <log4cplus/loglevel.h>
+#include <stdarg.h>
+#include <stdio.h>
+
+#include <cstdlib>
+#include <iomanip>  //std::setprecision
+#include <string>
 
 extern bool gv_commonLoggerInitialized;
 

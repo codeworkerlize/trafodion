@@ -18,18 +18,18 @@
 // -----------------------------------------------------------------------
 
 #include "GenMapTable.h"
-#include "comexe/FragmentDir.h"
-#include "common/ComSpace.h"
-#include "exp/exp_clause.h"
-#include "common/str.h"
-#include "common/Int64.h"
-#include "common/ComTransInfo.h"
-#include "export/NABasicObject.h"
-#include "comexe/SqlTableOpenInfo.h"
 #include "comexe/ComTdb.h"
-#include "optimizer/OptUtilIncludes.h"
-#include "comexe/ComTdbStats.h"
 #include "comexe/ComTdbHbaseAccess.h"
+#include "comexe/ComTdbStats.h"
+#include "comexe/FragmentDir.h"
+#include "comexe/SqlTableOpenInfo.h"
+#include "common/ComSpace.h"
+#include "common/ComTransInfo.h"
+#include "common/Int64.h"
+#include "common/str.h"
+#include "exp/exp_clause.h"
+#include "export/NABasicObject.h"
+#include "optimizer/OptUtilIncludes.h"
 
 class ExprNode;
 class ExpGenerator;
@@ -302,7 +302,7 @@ class Generator : public NABasicObject {
 
   int flags2_;
 
-  long planId_;         // timestamp used by explain
+  long planId_;        // timestamp used by explain
   int explainNodeId_;  // current number for EXPLAIN node
 
   // Pointer to a DP2 table update (as oppossed to index update) operator.
@@ -329,11 +329,11 @@ class Generator : public NABasicObject {
 
   CmpContext *currentCmpContext_;  // the current CmpContext
 
-  int explainIsDisabled_;   // if greater than zero, calls to
-                              // addExplainInfo are disabled
+  int explainIsDisabled_;  // if greater than zero, calls to
+                           // addExplainInfo are disabled
   int affinityValueUsed_;  // The Affinity value used for ESP remapping.
-                              // This is the value after interpreting
-                              // special values (-1, -3, -4)
+                           // This is the value after interpreting
+                           // special values (-1, -3, -4)
 
   // Set to TRUE, if runtime stats are to be gathered for this
   // statement. statsType_ contains info about what kind of stats are

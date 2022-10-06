@@ -16,35 +16,32 @@
 #define SQLPARSERGLOBALS_NADEFAULTS
 
 #include "optimizer/ValueDesc.h"
-#include "optimizer/Sqlcomp.h"
-#include "optimizer/BindWA.h"
-#include "optimizer/NormWA.h"
-#include "optimizer/GroupAttr.h"
-#include "optimizer/AllItemExpr.h"
-#include "optimizer/RelJoin.h"
-#include "arkcmp/CmpStatement.h"
-#include "generator/Generator.h"
-#include "GenExpGenerator.h"
-#include "exp/ExpCriDesc.h"
-#include "exp/ExpAtp.h"
-#include "exp_dp2_expr.h"
-#include "exp/exp_clause_derived.h"
-#include "cli/SQLCLIdev.h"
-#include "optimizer/GroupAttr.h"
-#include "optimizer/BindWA.h"
-#include "optimizer/ItemOther.h"
-#include "common/ComDefs.h"
-#include "optimizer/OptimizerSimulator.h"
-#include "optimizer/Analyzer.h"
-#include "optimizer/NATable.h"
-#include "optimizer/EncodedKeyValue.h"
-#include "GenExpGenerator.h"
-#include "sqlcat/TrafDDLdesc.h"
-#include "ItemSample.h"
-
-#include "parser/SqlParserGlobals.h"  // must be last #include except for STLs
 
 #include <map>
+
+#include "GenExpGenerator.h"
+#include "ItemSample.h"
+#include "arkcmp/CmpStatement.h"
+#include "cli/SQLCLIdev.h"
+#include "common/ComDefs.h"
+#include "exp/ExpAtp.h"
+#include "exp/ExpCriDesc.h"
+#include "exp/exp_clause_derived.h"
+#include "exp_dp2_expr.h"
+#include "generator/Generator.h"
+#include "optimizer/AllItemExpr.h"
+#include "optimizer/Analyzer.h"
+#include "optimizer/BindWA.h"
+#include "optimizer/EncodedKeyValue.h"
+#include "optimizer/GroupAttr.h"
+#include "optimizer/ItemOther.h"
+#include "optimizer/NATable.h"
+#include "optimizer/NormWA.h"
+#include "optimizer/OptimizerSimulator.h"
+#include "optimizer/RelJoin.h"
+#include "optimizer/Sqlcomp.h"
+#include "parser/SqlParserGlobals.h"  // must be last #include except for STLs
+#include "sqlcat/TrafDDLdesc.h"
 
 #define TEXT_DISPLAY_LENGTH 1001
 
@@ -841,7 +838,7 @@ NABoolean ValueIdList::allMembersCoveredInSet(const ValueIdSet &vidSet, NABoolea
 // ---------------------------------------------------------------------
 void ValueIdList::removeUncoveredSuffix(const ValueIdSet &vidSet) {
   int index = prefixCoveredInSet(vidSet);  // last covered id in this list
-  int i = (int)entries() - 1;            // index of last key column
+  int i = (int)entries() - 1;              // index of last key column
 
   // Remove all entries following the index
   while (i >= index) removeAt(i--);
@@ -4155,9 +4152,9 @@ ex_expr::exp_return_type ValueIdList::evalAtCompileTime(
     short addConvNodes,                // (IN) : 1 to add conv nodes, 0 otherwise
     ExpTupleDesc::TupleDataFormat tf,  // (IN) : tuple format of resulting expr(s)
     char *resultBuffer,                // (INOUT): tuple buffer of resulting expr(s)
-    int resultBufferLength,         // (IN): length of the result buffer
-    int *length,                     // (OUT) : length of 1st result expr
-    int *offset,                     // (OUT) : offset of 1st result expr
+    int resultBufferLength,            // (IN): length of the result buffer
+    int *length,                       // (OUT) : length of 1st result expr
+    int *offset,                       // (OUT) : offset of 1st result expr
     ComDiagsArea *diagsArea, NAHeap *wheap) const {
   if (!wheap) wheap = CmpCommon::context()->statementHeap();
 
@@ -4270,8 +4267,8 @@ short ValueIdList::evaluateTree(const ItemExpr *root, char *encodedKeyBuffer, in
 // Parent is the parent of ch and childNumber is the number of ch. The function
 // computes the value represented by the subtree rooted at ch and puts
 // the new value in the position of ch.	Used by constant folding.
-int ValueIdList::evaluateConstantTree(const ValueId &parent, const ValueId &ch, int childNumber,
-                                        ItemExpr **outItemExpr, ComDiagsArea *diagsArea) {
+int ValueIdList::evaluateConstantTree(const ValueId &parent, const ValueId &ch, int childNumber, ItemExpr **outItemExpr,
+                                      ComDiagsArea *diagsArea) {
   // eval requires CASE to be IF_THEN_ELSE's parent
   if ((ch.getItemExpr()->getOperatorType() == ITM_IF_THEN_ELSE) &&
       (parent.getItemExpr()->getOperatorType() != ITM_CASE))
@@ -4379,8 +4376,7 @@ int ValueIdList::evaluateConstantTree(const ValueId &parent, const ValueId &ch, 
 // 5.- Indicates which of the children of the node pointed by parameter 1
 //     will not occupy its place after the simplification is done
 ////////////////////////////////////////////////////////////////////////////
-NABoolean ValueIdList::canSimplify(ItemExpr *itemExpr, const ValueId &parent, int i, int childNumber,
-                                   int &moved) {
+NABoolean ValueIdList::canSimplify(ItemExpr *itemExpr, const ValueId &parent, int i, int childNumber, int &moved) {
   char value[4];
   int length;
   ItemExpr *item;
@@ -4615,7 +4611,7 @@ NABoolean ValueIdList::canSimplify(ItemExpr *itemExpr, const ValueId &parent, in
 //    it contains a ConstValue(SystemLiteral) node representing the result of
 //    the const expression.
 int ValueIdList::evaluateExpr(const ValueId &parent, const ValueId &ch, int childNumber, NABoolean simplifyExpr,
-                                NABoolean evalAllConsts, ItemExpr **outAllConstsItemExpr, ComDiagsArea *diagsArea) {
+                              NABoolean evalAllConsts, ItemExpr **outAllConstsItemExpr, ComDiagsArea *diagsArea) {
   ItemExpr *itemExpr;
 
   itemExpr = ch.getItemExpr();
@@ -4640,8 +4636,7 @@ int ValueIdList::evaluateExpr(const ValueId &parent, const ValueId &ch, int chil
     ItemExpr *outExpr = NULL;
 
     for (int i = 0; i < nc; i++) {
-      int rc =
-          evaluateExpr(ch, itemExpr->child(i)->getValueId(), i, simplifyExpr, evalAllConsts, &outExpr, diagsArea);
+      int rc = evaluateExpr(ch, itemExpr->child(i)->getValueId(), i, simplifyExpr, evalAllConsts, &outExpr, diagsArea);
       if ((rc < 0) || (diagsArea && diagsArea->getNumber() > 0))
         return -1;
       else if ((outExpr) && (evalAllConsts)) {
@@ -5585,8 +5580,7 @@ void ValueIdList::convertToTextKey(const ValueIdList &keyList, NAString &result)
           result.append((char *)&nullVal, sizeof(short));
         }
       } else if ((val == "<min>") || (val == "<max>")) {
-        int bufLen =
-            (type.isVaryingLen() ? (type.getNominalSize() + type.getVarLenHdrSize()) : type.getNominalSize());
+        int bufLen = (type.isVaryingLen() ? (type.getNominalSize() + type.getVarLenHdrSize()) : type.getNominalSize());
         char *buf = new (CmpCommon::statementHeap()) char[bufLen + 10];
 
         NAString *mmVal = NULL;
@@ -5683,7 +5677,7 @@ void ValueIdList::convertToTextKey(const ValueIdList &keyList, NAString &result)
                    (NOT((NumericType *)constType)->isBigNum()) && (constType->getScale() > 0)) {
           // See how many positions the result will take in the display
           int t = constType->getDisplayLength(constType->getFSDatatype(), constType->getNominalSize(),
-                                                constType->getPrecision(), constType->getScale(), 0);
+                                              constType->getPrecision(), constType->getScale(), 0);
 
           char strval[t + 1];
           memset(strval, ' ', t);

@@ -16,10 +16,10 @@
 #ifndef __CMP_ARGSH
 #define __CMP_ARGSH
 
+#include <stdlib.h>
+
 #include "common/Ipc.h"
 #include "common/NAString.h"
-
-#include <stdlib.h>
 
 struct ControlSetting {
   NAString attrName;

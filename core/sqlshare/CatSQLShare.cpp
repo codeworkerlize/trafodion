@@ -19,19 +19,20 @@
 #define int_16        short
 
 #include "CatSQLShare.h"
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
+
 #include <ctype.h>
 #include <limits.h>
-#include "porting/PortProcessCalls.h"
 #include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
 
 #include "common/cextdecs.h"
-#include "seabed/ms.h"
+#include "porting/PortProcessCalls.h"
 #include "seabed/fs.h"
 #include "seabed/fserr.h"
+#include "seabed/ms.h"
 
 // Generate a unique value. This is really the meat and bone of UIDs,
 // packaged in a context where it can be used by all SQL components, including utilities.
@@ -344,8 +345,8 @@ void CATSQLSHARE_LIB_FUNC CatDeriveRandomName(const char *inputName, char *gener
 }
 
 int CATSQLSHARE_LIB_FUNC SqlShareLnxGetMyProcessIdString(char *processIdStrOutBuf,         // out
-                                                           size_t processIdStrOutBufMaxLen,  // in
-                                                           size_t *pProcessIdStrLen)         // out
+                                                         size_t processIdStrOutBufMaxLen,  // in
+                                                         size_t *pProcessIdStrLen)         // out
 //
 // Generates the process id string for my running process.
 // The format of this process id string is:

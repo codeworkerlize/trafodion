@@ -18,12 +18,12 @@
  *****************************************************************************
  */
 
+#include "ExSimpleSqlBuffer.h"
 #include "SortUtil.h"
 #include "SortUtilCfg.h"
+#include "comexe/ComTdbSort.h"
 #include "common/Int64.h"
 #include "common/NABoolean.h"
-#include "comexe/ComTdbSort.h"
-#include "ExSimpleSqlBuffer.h"
 #include "executor/ExStats.h"
 
 // -----------------------------------------------------------------------

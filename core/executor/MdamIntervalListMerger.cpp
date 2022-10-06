@@ -17,9 +17,10 @@
 
 // -----------------------------------------------------------------------------
 
-#include "executor/ex_stdh.h"
-#include "MdamEndPoint.h"
 #include "MdamIntervalListMerger.h"
+
+#include "MdamEndPoint.h"
+#include "executor/ex_stdh.h"
 
 // *****************************************************************************
 // Member functions for class MdamIntervalListMerger

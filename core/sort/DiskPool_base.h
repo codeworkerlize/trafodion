@@ -21,18 +21,19 @@
 #ifndef DISKPOOL_BASE_H
 #define DISKPOOL_BASE_H
 
-#include "common/Platform.h"
-
-#include <iostream>
-#include <string.h>
 #include <ctype.h>
 #include <limits.h>
-#include "Const.h"
+#include <string.h>
+
+#include <iostream>
+
 #include "CommonStructs.h"
 #include "CommonUtil.h"
-#include "export/NABasicObject.h"
+#include "Const.h"
 #include "SortError.h"
 #include "SortUtilCfg.h"
+#include "common/Platform.h"
+#include "export/NABasicObject.h"
 
 //--------------------------------------------------------------------------
 //  This is for including the right list header when compileing.

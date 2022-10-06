@@ -9,12 +9,14 @@
 // ==========================================================================
 
 #include "common/ComSecurityKey.h"
+
 #include <bitset>
 #include <string>
 #include <vector>
-#include "exp_function.h"
+
 #include "common/ComDistribution.h"
 #include "common/ComUser.h"
+#include "exp_function.h"
 #include "sqlcomp/PrivMgrDefs.h"
 
 // ****************************************************************************
@@ -196,8 +198,7 @@ NABoolean qiCheckForInvalidObject(const int numInvalidationKeys, const SQL_QIKEY
 // return TRUE.  TRUE indicates that the object should be reloaded to pick up
 // the invalidation change.
 // ****************************************************************************
-NABoolean qiCheckForSchemaUID(const int numInvalidationKeys, const SQL_QIKEY *invalidationKeys,
-                              const long schemaUID) {
+NABoolean qiCheckForSchemaUID(const int numInvalidationKeys, const SQL_QIKEY *invalidationKeys, const long schemaUID) {
   NABoolean found = FALSE;
   uint32_t schemaHash = ComSecurityKey::generateHash(schemaUID);
   ComQIActionType invalidationKeyType = COM_QI_INVALID_ACTIONTYPE;

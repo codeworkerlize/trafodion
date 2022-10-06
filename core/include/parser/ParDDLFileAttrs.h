@@ -20,8 +20,8 @@
  *****************************************************************************
  */
 
-#include "export/NABasicObject.h"
 #include "common/ComSmallDefs.h"
+#include "export/NABasicObject.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

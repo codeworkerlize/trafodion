@@ -1,12 +1,12 @@
 
-#include "common/Platform.h"
-
 #include "comexe/CmpMessage.h"
-#include "comexe/NAExecTrans.h"
-#include "time.h"
-#include "common/charinfo.h"
+
 #include "comexe/FragmentDir.h"
+#include "comexe/NAExecTrans.h"
 #include "common/ComSysUtils.h"
+#include "common/Platform.h"
+#include "common/charinfo.h"
+#include "time.h"
 
 IpcMessageObjSize CmpMessageObj::packIntoBuffer(IpcMessageBufferPtr &buffer, char *strPtr) {
   CmpMsgBufLenType length;
@@ -286,8 +286,8 @@ CmpDDLwithStatusInfo::CmpDDLwithStatusInfo() : CmpCompileInfo() {
   blackBox_ = NULL;
 };
 
-CmpDDLwithStatusInfo::CmpDDLwithStatusInfo(char *sourceStr, int sourceStrLen, int sourceStrCharSet,
-                                           char *schemaName, int schemaNameLen)
+CmpDDLwithStatusInfo::CmpDDLwithStatusInfo(char *sourceStr, int sourceStrLen, int sourceStrCharSet, char *schemaName,
+                                           int schemaNameLen)
     : CmpCompileInfo(sourceStr, sourceStrLen, sourceStrCharSet, schemaName, schemaNameLen, 0, 0) {
   statusFlags_ = 0;
   step_ = 0;
@@ -652,8 +652,8 @@ CmpMessageEnvs::~CmpMessageEnvs() { destroyMe(); }
 
 CmpMessageISPRequest::CmpMessageISPRequest(char *procName, void *inputExpr, int inputExprSize, void *outputExpr,
                                            int outputExprSize, void *keyExpr, int keyExprSize, void *inputData,
-                                           int inputDataSize, int outputRowSize, int outputTotalSize,
-                                           CollHeap *h, const char *parentQid, int parentQidLen)
+                                           int inputDataSize, int outputRowSize, int outputTotalSize, CollHeap *h,
+                                           const char *parentQid, int parentQidLen)
     : CmpMessageRequest(INTERNALSP_REQUEST, NULL, 0, h, SQLCHARSETCODE_UNKNOWN, parentQid, parentQidLen) {
   procName_ = procName;
   inputExpr_ = inputExpr;
@@ -740,8 +740,8 @@ void CmpMessageISPRequest::unpackMyself(IpcMessageObjType objType, IpcMessageObj
 // Methods for CmpMessageISPGetNext
 // -----------------------------------------------------------------------
 
-CmpMessageISPGetNext::CmpMessageISPGetNext(int bufSize, ID ispRequest, int serialNo, CollHeap *h,
-                                           const char *parentQid, int parentQidLen)
+CmpMessageISPGetNext::CmpMessageISPGetNext(int bufSize, ID ispRequest, int serialNo, CollHeap *h, const char *parentQid,
+                                           int parentQidLen)
     : CmpMessageRequest(INTERNALSP_GETNEXT, NULL, 0, h, SQLCHARSETCODE_UNKNOWN, parentQid, parentQidLen) {
   bufSize_ = bufSize;
   ispRequest_ = ispRequest;

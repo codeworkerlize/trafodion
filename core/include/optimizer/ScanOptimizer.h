@@ -24,16 +24,16 @@
  */
 // -----------------------------------------------------------------------
 
+#include "ColStatDesc.h"
+#include "Cost.h"
+#include "Stats.h"
+#include "disjuncts.h"
+#include "export/NABasicObject.h"
+#include "optimizer/CostScalar.h"
 #include "optimizer/GroupAttr.h"
 #include "optimizer/RelExpr.h"
 #include "optimizer/RelScan.h"
-#include "disjuncts.h"
-#include "Cost.h"
-#include "optimizer/CostScalar.h"
 #include "optimizer/opt.h"
-#include "export/NABasicObject.h"
-#include "ColStatDesc.h"
-#include "Stats.h"
 
 // -----------------------------------------------------------------------
 // forward declarations

@@ -88,7 +88,6 @@ typedef long long int TInt64;
 #define PFLV64 "%0*ld"
 #define PFP64  "%.*ld"
 
-
 typedef int Lng32;
 
 /* int to replace "unsigned long" or "unsigned long int" */

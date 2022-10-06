@@ -15,8 +15,8 @@
 
 // -----------------------------------------------------------------------
 
-#include "common/NAType.h"
 #include "common/NABitVector.h"
+#include "common/NAType.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

@@ -2,11 +2,13 @@
 
 // **********************************************************************
 #include "CmpProcess.h"
+
+#include <cstdlib>
+
 #include "common/ComRtUtils.h"
 #include "nsk/nskport.h"
-#include "seabed/ms.h"
 #include "seabed/fs.h"
-#include <cstdlib>
+#include "seabed/ms.h"
 
 // -----------------------------------------------------------------------
 // Methods for class CmpProcess

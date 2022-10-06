@@ -1,14 +1,16 @@
 #ifndef DBCONN_H
 #define DBCONN_H
-#include <list>
-#include <vector>
-#include <map>
-#include <string>
 #include <sql.h>
 #include <sqlext.h>
+
+#include <list>
+#include <map>
+#include <string>
 #include <unordered_map>
-#include "namefilter.h"
+#include <vector>
+
 #include "ldapconfignode.h"
+#include "namefilter.h"
 
 enum QueryType { USER = 1, GROUP = 2, MEMBER = 4, ALL = 7 };
 

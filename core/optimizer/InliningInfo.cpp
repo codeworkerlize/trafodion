@@ -12,18 +12,18 @@
 *
 ******************************************************************************
 */
-#include "optimizer/Inlining.h"
-#include "optimizer/Triggers.h"
-#include "optimizer/TableDesc.h"
-#include "optimizer/RelUpdate.h"
-#include "optimizer/ItemColRef.h"
-#include "optimizer/RETDesc.h"
-#include "optimizer/ColumnDesc.h"
-#include "optimizer/BindWA.h"
-#include "optimizer/NormWA.h"
-#include "optimizer/ItemOther.h"
 #include "ItemSample.h"
+#include "optimizer/BindWA.h"
+#include "optimizer/ColumnDesc.h"
+#include "optimizer/Inlining.h"
+#include "optimizer/ItemColRef.h"
+#include "optimizer/ItemOther.h"
+#include "optimizer/NormWA.h"
+#include "optimizer/RETDesc.h"
+#include "optimizer/RelUpdate.h"
 #include "optimizer/SchemaDB.h"
+#include "optimizer/TableDesc.h"
+#include "optimizer/Triggers.h"
 
 // These "global" column names are used for inlining.
 const char InliningInfo::execIdVirtualColName_[] = "@EXECID";

@@ -16,9 +16,9 @@
 */
 
 // -----------------------------------------------------------------------
-#include "optimizer/ValueDesc.h"
 #include "export/NABasicObject.h"
 #include "mdamkey.h"
+#include "optimizer/ValueDesc.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

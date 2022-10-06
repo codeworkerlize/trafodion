@@ -8,8 +8,9 @@
 ****************************************************************************
 */
 #include "LmRoutineCppObj.h"
-#include "LmParameter.h"
+
 #include "LmLangManagerC.h"
+#include "LmParameter.h"
 #include "common/ComUser.h"
 
 // Utility method to set up a "wall" before and after a buffer.

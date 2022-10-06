@@ -19,18 +19,19 @@
 #ifndef _NA_DEFAULTS_H
 #define _NA_DEFAULTS_H
 
-#include "common/Platform.h"
 #include <ctype.h>
+
 #include <iostream>
 #include <sstream>
 
 #include "common/BaseTypes.h"
-#include "common/charinfo.h"
 #include "common/Collections.h"
 #include "common/ComTransInfo.h"
-#include "sqlcomp/DefaultConstants.h"
-#include "export/NAStringDef.h"
+#include "common/Platform.h"
+#include "common/charinfo.h"
 #include "common/str.h"
+#include "export/NAStringDef.h"
+#include "sqlcomp/DefaultConstants.h"
 
 // Forward references
 class SqlParser_NADefaults;

@@ -18,13 +18,13 @@
 
 // -----------------------------------------------------------------------
 
-#include "sqlcomp/NADefaults.h"
+#include "arkcmp/CmpStatement.h"
 #include "common/BaseTypes.h"
 #include "common/NAType.h"
-#include "optimizer/ValueDesc.h"
 #include "optimizer/CostScalar.h"
+#include "optimizer/ValueDesc.h"
 #include "optimizer/opt.h"
-#include "arkcmp/CmpStatement.h"
+#include "sqlcomp/NADefaults.h"
 
 // -----------------------------------------------------------------------
 // Forward references.

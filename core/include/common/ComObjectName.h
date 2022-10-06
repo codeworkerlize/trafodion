@@ -31,14 +31,14 @@
 #include <iosfwd>
 using namespace std;
 
+#include "ComRoutineActionNamePart.h"
+#include "common/ComAnsiNamePart.h"
+#include "common/ComMisc.h"
+#include "common/ComOperators.h"
+#include "common/ComSchemaName.h"
+#include "common/ComSmallDefs.h"
 #include "common/NABoolean.h"
 #include "common/NAString.h"
-#include "common/ComOperators.h"
-#include "common/ComSmallDefs.h"
-#include "common/ComAnsiNamePart.h"
-#include "ComRoutineActionNamePart.h"
-#include "common/ComSchemaName.h"
-#include "common/ComMisc.h"
 
 // -----------------------------------------------------------------------
 // forward declarations

@@ -1,16 +1,19 @@
 
 
-#include <assert.h>
-#include <sys/shm.h>
-#include <errno.h>
-#include <iostream>
-#include "seabed/ms.h"
-#include "seabed/fserr.h"
 #include "SharedSegment.h"
-#include "export/NABasicObject.h"
-#include "common/NAMemory.h"
-#include "sqlcomp/SharedCache.h"
+
+#include <assert.h>
+#include <errno.h>
 #include <stdlib.h>
+#include <sys/shm.h>
+
+#include <iostream>
+
+#include "common/NAMemory.h"
+#include "export/NABasicObject.h"
+#include "seabed/fserr.h"
+#include "seabed/ms.h"
+#include "sqlcomp/SharedCache.h"
 
 // only to get the definition of getRmsSharedMemoryAddr()
 // and computeSegmentSizeForRMS();

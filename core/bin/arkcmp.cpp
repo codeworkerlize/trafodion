@@ -1,52 +1,50 @@
 
-#include "common/Platform.h"
-#include "sqlcomp/NewDel.h"
-#include <fstream>
+#include <errno.h>
+#include <pthread.h>
 #include <string.h>
 
-#include <pthread.h>
-#include <errno.h>
+#include <fstream>
+
+#include "common/Platform.h"
+#include "sqlcomp/NewDel.h"
 
 static pthread_t gv_main_thread_id;
 
-#include "seabed/ms.h"
 #include "seabed/fs.h"
+#include "seabed/ms.h"
 extern void my_mpi_fclose();
 #include "common/SCMVersHelp.h"
 DEFINE_DOVERS(tdm_arkcmp)
 
-#include "comexe/CmpMessage.h"
 #include "arkcmp/CmpConnection.h"
 #include "arkcmp/CmpContext.h"
-#include "common/CmpCommon.h"
-#include "arkcmp/CmpStoredProc.h"
 #include "arkcmp/CmpErrLog.h"
+#include "arkcmp/CmpStoredProc.h"
 #include "arkcmp/CompException.h"
-#include "cmpargs.h"
-#include "sqlmxevents/logmxevent.h"
-#include "sqlcomp/QCache.h"
-#include "arkcmp/QueryCacheSt.h"
 #include "arkcmp/NATableSt.h"
+#include "arkcmp/QueryCacheSt.h"
+#include "cmpargs.h"
+#include "comexe/CmpMessage.h"
+#include "common/CmpCommon.h"
 #include "common/ComCextdecs.h"
+#include "sqlcomp/QCache.h"
+#include "sqlmxevents/logmxevent.h"
 #define CLI_DLL
 #include "cli/SQLCLIdev.h"
 #undef CLI_DLL
 
-#include "eh/EHException.h"
 #include "CmpEHCallBack.h"
+#include "NamedSemaphore.h"
+#include "SharedCache.h"
+#include "SqlStats.h"
 #include "cli/Globals.h"
-
-#include "optimizer/ObjectNames.h"
 #include "common/BloomFilter.h"
-
-#include "sqlcomp/CmpISPInterface.h"
-
+#include "eh/EHException.h"
+#include "optimizer/ObjectNames.h"
 #include "qmscommon/QRLogger.h"
 #include "qmscommon/Range.h"
-#include "SqlStats.h"
-#include "SharedCache.h"
+#include "sqlcomp/CmpISPInterface.h"
 #include "testCollections.h"
-#include "NamedSemaphore.h"
 
 THREAD_P jmp_buf ExportJmpBuf;
 

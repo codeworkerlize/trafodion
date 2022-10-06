@@ -18,10 +18,10 @@
 
 // -----------------------------------------------------------------------
 
-#include "common/Ipc.h"
-#include "comexe/FragDir.h"
-#include "Ex_esp_msg.h"
 #include "ExSMCommon.h"
+#include "Ex_esp_msg.h"
+#include "comexe/FragDir.h"
+#include "common/Ipc.h"
 
 ////////////////////////////////////////////////////////////////////////////
 // classes defined in this file
@@ -368,8 +368,8 @@ class ExSendTopCancelMessageStream : public IpcClientMsgStream {
 class ExSendTopMsgStream : public IpcClientMsgStream {
  public:
   // constructor
-  ExSendTopMsgStream(ExExeStmtGlobals *glob, int sendBufferLimit, int inUseBufferLimit,
-                     IpcMessageObjSize bufferSize, ex_send_top_tcb *sendTopTcb, ExEspInstanceThread *threadInfo);
+  ExSendTopMsgStream(ExExeStmtGlobals *glob, int sendBufferLimit, int inUseBufferLimit, IpcMessageObjSize bufferSize,
+                     ex_send_top_tcb *sendTopTcb, ExEspInstanceThread *threadInfo);
 
   // method called upon send complete
   virtual void actOnSend(IpcConnection *connection);

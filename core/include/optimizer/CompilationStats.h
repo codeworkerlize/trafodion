@@ -5,10 +5,10 @@
 #define COMPILATIONSTATS_H
 
 #include "CmpProcess.h"
-#include "sqlcomp/QCache.h"
-#include "optimizer/SchemaDB.h"
 #include "optimizer/NATable.h"
+#include "optimizer/SchemaDB.h"
 #include "optimizer/opt.h"
+#include "sqlcomp/QCache.h"
 /************************************************************************
 class CompilationStats
 

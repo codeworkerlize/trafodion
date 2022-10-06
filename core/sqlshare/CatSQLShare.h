@@ -62,7 +62,7 @@ enum CatIsRunningResult { notRunning, isRunning, errorOcurred };
 //  Input value is null-terminated ASCII string form of process pHandle + proc Name.
 
 int CATSQLSHARE_LIB_FUNC SqlShareLnxGetMyProcessIdString(char *processIdStrOutBuf,         // out
-                                                           size_t processIdStrOutBufMaxLen,  // in
-                                                           size_t *processIdStrLen);         // out
+                                                         size_t processIdStrOutBufMaxLen,  // in
+                                                         size_t *processIdStrLen);         // out
 
 #endif  // _CATSQLSHARE_H_

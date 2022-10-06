@@ -17,9 +17,10 @@
 ******************************************************************************
 */
 
-#include "common/Platform.h"
 #include <stdarg.h>
 #include <stdio.h>
+
+#include "common/Platform.h"
 
 class ComSafePrinter {
  public:

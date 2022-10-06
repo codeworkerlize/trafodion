@@ -10,14 +10,15 @@
 
 **********************************************************************/
 
-#include "lmjni.h"
-#include "common/ComRtUtils.h"
 #include "LmRoutineJava.h"
-#include "LmJavaExceptionReporter.h"
+
 #include "LmAssert.h"
+#include "LmJavaExceptionReporter.h"
 #include "LmUtility.h"
 #include "common/ComObjectName.h"
+#include "common/ComRtUtils.h"
 #include "common/ComSqlId.h"
+#include "lmjni.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -287,7 +288,7 @@ LmResult LmRoutineJava::generateDefAuthToken(char *defAuthToken, ComDiagsArea *d
   long myProcessStartTime;
   pid_t myPid;
   int retStatus = ComRtGetProgramInfo(myProgramDir, MAX_PROGRAM_DIR_LEN, myProcessType, myNode, myPid, myNodeNum,
-                                        myNodeName, myNodeNameLen, myProcessStartTime, myProcessName);
+                                      myNodeName, myNodeNameLen, myProcessStartTime, myProcessName);
   if (retStatus) {
     char errStr[LMJ_ERR_SIZE_256];
     sprintf(errStr, ": Error returned from ComRtGetProgramInfo. Error is:  %d.", retStatus);

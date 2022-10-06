@@ -2,23 +2,18 @@
 
 // **********************************************************************
 
-#include "common/Platform.h"
-
-#include "executor/ex_stdh.h"
+#include "ExHbaseAccess.h"
+#include "SQLTypeDefs.h"
 #include "cli/Context.h"
 #include "comexe/ComTdb.h"
-#include "executor/ex_tcb.h"
-#include "ExHbaseAccess.h"
+#include "common/Platform.h"
 #include "ex_exe_stmt_globals.h"
-#include "exp_function.h"
-
-#include "exp/ExpLOBinterface.h"
-
-#include "SQLTypeDefs.h"
-
-#include "exp/ExpHbaseInterface.h"
-
 #include "executor/ExDDLValidator.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_tcb.h"
+#include "exp/ExpHbaseInterface.h"
+#include "exp/ExpLOBinterface.h"
+#include "exp_function.h"
 
 static char *costThreshold = getenv("RECORD_TIME_COST_JNI");
 static char *costJniAll = getenv("RECORD_TIME_COST_JNI_ALL");
@@ -567,8 +562,6 @@ ExWorkProcRetcode ExHbaseScanSQTaskTcb::work(short &rc) {
                  ? tcb_->hbaseAccessTdb().getComHbaseAccessOptions()->hbaseAuths()
                  : NULL),
             (tcb_->hbaseAccessTdb().useEncryption() ? (char *)&tcb_->encryptionInfo_ : NULL));
-
-
 
         if (recordCostTh_ >= 0) {
           long time2 = (JULIANTIMESTAMP() - time1) / 1000;

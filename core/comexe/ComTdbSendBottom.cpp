@@ -17,6 +17,7 @@
 // -----------------------------------------------------------------------
 
 #include "comexe/ComTdbSendBottom.h"
+
 #include "comexe/ComTdbCommon.h"
 
 // -----------------------------------------------------------------------
@@ -27,8 +28,7 @@ ComTdbSendBottom::ComTdbSendBottom(ex_expr *moveOutputValues, queue_index downSi
                                    ex_cri_desc *criDescDown, ex_cri_desc *criDescUp, ex_cri_desc *workCriDesc,
                                    int moveExprTuppIndex, int downRecordLength, int upRecordLength,
                                    int requestBufferSize, int numRequestBuffers, int replyBufferSize,
-                                   int numReplyBuffers, Cardinality estNumRowsRequested,
-                                   Cardinality estNumRowsReplied)
+                                   int numReplyBuffers, Cardinality estNumRowsRequested, Cardinality estNumRowsReplied)
     : ComTdb(ex_SEND_BOTTOM, eye_SEND_BOTTOM, estNumRowsReplied, criDescDown, criDescUp, downSize, upSize) {
   moveOutputValues_ = moveOutputValues;
   workCriDesc_ = workCriDesc;

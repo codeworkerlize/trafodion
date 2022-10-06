@@ -13,24 +13,25 @@
  *
  ****************************************************************************/
 
-#include "common/NLSConversion.h"
-#include "sqlmxevents/logmxevent.h"
-#include "common/str.h"
-#include <stdlib.h>
+#include <execinfo.h>
+#include <limits.h>
 #include <pthread.h>
 #include <rosetta/tal.h>
-#include "rosetta/rosgen.h"
-#include <limits.h>
 #include <stdarg.h>
-#include <execinfo.h>
+#include <stdlib.h>
+
+#include "common/NLSConversion.h"
+#include "common/str.h"
+#include "rosetta/rosgen.h"
+#include "sqlmxevents/logmxevent.h"
 #ifdef _MSC_VER
 #undef _MSC_VER
 #endif
 #include "common/sql.error_event.pb.h"
 #include "common/sql.info_event.pb.h"
 //#include "wrapper/amqpwrapper.h"
-#include "sqlmxevents/sq_sql_eventids.h"
 #include "common/evl_sqlog_eventnum.h"
+#include "sqlmxevents/sq_sql_eventids.h"
 
 // #include "sqevlog/evl_sqlog_writer.h"
 #include "seabed/fs.h"
@@ -382,8 +383,8 @@ void SQLMXLoggingArea::logSQLMXAbortEvent(const char *file, int line, const char
 }
 
 // log an ASSERTION FAILURE event
-void SQLMXLoggingArea::logSQLMXAssertionFailureEvent(const char *file, int line, const char *msg,
-                                                     const char *condition, const int *tid) {
+void SQLMXLoggingArea::logSQLMXAssertionFailureEvent(const char *file, int line, const char *msg, const char *condition,
+                                                     const int *tid) {
   bool lockedMutex = lockMutex();
   SqlSealogEvent sevent;
   // Open a  new connection
@@ -520,8 +521,7 @@ void SQLMXLoggingArea::logMVRefreshErrorEvent(const char *msg) {
   if (lockedMutex) unlockMutex();
 }
 
-void SQLMXLoggingArea::logCliReclaimSpaceEvent(int freeSize, int totalSize, int totalContexts,
-                                               int totalStatements) {
+void SQLMXLoggingArea::logCliReclaimSpaceEvent(int freeSize, int totalSize, int totalContexts, int totalStatements) {
   bool lockedMutex = lockMutex();
   SqlSealogEvent sevent;
   // Open a  new connection

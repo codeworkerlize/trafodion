@@ -25,13 +25,13 @@
 //
 // -----------------------------------------------------------------------
 
-#include "ElemDDLNode.h"
-#include "parser/ElemDDLColRefArray.h"
 #include "ElemDDLLocation.h"
+#include "ElemDDLNode.h"
 #include "ElemDDLPartitionArray.h"
-#include "common/NAString.h"
-#include "parser/StmtDDLNode.h"
 #include "ParNameLocList.h"
+#include "common/NAString.h"
+#include "parser/ElemDDLColRefArray.h"
+#include "parser/StmtDDLNode.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

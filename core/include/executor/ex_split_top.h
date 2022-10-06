@@ -152,11 +152,11 @@ class ex_split_top_tcb : public ex_tcb {
     PART_NUMS_CALCULATED,  // now we know where to send requests,
                            // some requests may have been sent and
                            // we may be returning unmerged data
-    ALL_SENT_DOWN,  // all down requests sent
-    MERGING,        // merging data from children
-    END_OF_DATA,    // all children done, parent needs end-of-data
-    CANCELLING,     // cancelling while children may be active
-    CANCELLED,      // cancelled, no child is active
+    ALL_SENT_DOWN,         // all down requests sent
+    MERGING,               // merging data from children
+    END_OF_DATA,           // all children done, parent needs end-of-data
+    CANCELLING,            // cancelling while children may be active
+    CANCELLED,             // cancelled, no child is active
 
     // BertBert VVV
     // NOTE: PART_NUMS_CALCULATED is used to process
@@ -216,7 +216,7 @@ class ex_split_top_tcb : public ex_tcb {
 
   atp_struct *workAtp_;
   tupp_descriptor partNumTupp_;  // target of part # expression
-  int calculatedPartNum_;      // target buffer for part. function expr
+  int calculatedPartNum_;        // target buffer for part. function expr
   SqlBuffer *inputDataTupps_;    // partition input data sent to children
   SqlBuffer *paPartNumTupps_;    // part # data sent to PA children
   SqlBuffer *mergeKeyTupps_;     // encoded keys for children for merge
@@ -229,9 +229,9 @@ class ex_split_top_tcb : public ex_tcb {
   SplitTopReadyChild *readyChildren_;       // list of data-ready children TCBs
 
   SplitTopChildState *childStates_;  // states of child PAs
-  int maxNumChildren_;             // upper limit for # of child TCBs
-  int firstPartNum_;               // upper limit for # of child TCBs
-  int numChildren_;                // # of child TCBs used so far
+  int maxNumChildren_;               // upper limit for # of child TCBs
+  int firstPartNum_;                 // upper limit for # of child TCBs
+  int numChildren_;                  // # of child TCBs used so far
   SplitTopPartNums *childParts_;     // partNum to PA mapping
   LIST(CollIndex) mergeSequence_;    // ordered list of child #s
   NABitVector unmergedChildren_;     // who is missing from mergeSequence_

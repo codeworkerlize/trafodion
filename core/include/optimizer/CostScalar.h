@@ -14,9 +14,10 @@
  **************************************************************************
  */
 
+#include <float.h>
+
 #include "common/BaseTypes.h"
 #include "common/CmpCommon.h"
-#include <float.h>
 
 // -----------------------------------------------------------------------
 // since these are doubles, we need to define non-zero equality within an

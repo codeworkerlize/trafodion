@@ -17,8 +17,8 @@
 #ifndef COM_DP2_OPER_H
 #define COM_DP2_OPER_H
 
-#include "common/Platform.h"
 #include "comexe/ComTdb.h"
+#include "common/Platform.h"
 
 ///////////////////////////////////////////////////////
 // class ComTdbDp2Oper

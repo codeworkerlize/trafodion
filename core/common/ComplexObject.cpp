@@ -12,14 +12,15 @@
  *****************************************************************************
  */
 
-#include "common/NAMemory.h"
-#include "common/NAAssert.h"
-#include "export/IpcMessageObj.h"
-#include "common/str.h"
-#include "export/NAVersionedObject.h"
 #include "ComplexObject.h"
 
 #include <iostream>
+
+#include "common/NAAssert.h"
+#include "common/NAMemory.h"
+#include "common/str.h"
+#include "export/IpcMessageObj.h"
+#include "export/NAVersionedObject.h"
 // begin abstract class definitions
 
 // MessageOperator methods

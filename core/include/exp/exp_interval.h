@@ -18,9 +18,9 @@
  *****************************************************************************
  */
 
+#include "common/dfs2rec.h"
 #include "exp/ExpError.h"
 #include "exp/exp_attrs.h"
-#include "common/dfs2rec.h"
 
 class ExpInterval : public SimpleType {
  public:
@@ -29,7 +29,7 @@ class ExpInterval : public SimpleType {
   static short getIntervalEndField(int fsDatatype, rec_datetime_field &endField);
 
   static int getStorageSize(rec_datetime_field startField, UInt32 leadingPrecision, rec_datetime_field endField,
-                              UInt32 fractionPrecision = 0);
+                            UInt32 fractionPrecision = 0);
 
   static int getDisplaySize(int fsDatatype, short leadingPrecision, short fractionPrecision);
 };

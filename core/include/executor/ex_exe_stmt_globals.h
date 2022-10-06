@@ -20,18 +20,18 @@
 
 // -----------------------------------------------------------------------
 
-#include <sys/types.h>
 #include <sys/syscall.h>
-#include "common/Platform.h"
+#include <sys/types.h>
 
 #include "cli/Globals.h"
-#include "executor/ex_globals.h"
 #include "comexe/FragDir.h"
-#include "executor/ex_frag_inst.h"
-#include "common/Int64.h"
 #include "common/ExCollections.h"
-#include "executor/timeout_data.h"
+#include "common/Int64.h"
+#include "common/Platform.h"
 #include "ex_esp_frag_dir.h"
+#include "executor/ex_frag_inst.h"
+#include "executor/ex_globals.h"
+#include "executor/timeout_data.h"
 #include "seabed/sys.h"
 
 // forward
@@ -482,8 +482,8 @@ class ExMasterStmtGlobals : public ExExeStmtGlobals {
 
   ExRsInfo *getResultSetInfo(NABoolean createIfNecessary = FALSE);
   void deleteResultSetInfo();
-  void acquireRSInfoFromParent(int &rsIndex,          // OUT
-                               long &udrHandle,         // OUT
+  void acquireRSInfoFromParent(int &rsIndex,             // OUT
+                               long &udrHandle,          // OUT
                                ExUdrServer *&udrServer,  // OUT
                                IpcProcessId &pid,        // OUT
                                ExRsInfo *&rsInfo);       // OUT

@@ -3,10 +3,10 @@
 // **********************************************************************
 
 #include <HdfsLogger.h>
-#include <log4cxx/rollingfileappender.h>
+#include <log4cxx/configurator.h>
 #include <log4cxx/patternlayout.h>
 #include <log4cxx/propertyconfigurator.h>
-#include <log4cxx/configurator.h>
+#include <log4cxx/rollingfileappender.h>
 
 const char CAT_JNI_TOP[] = "JniTop";
 const char CAT_SEQ_FILE_READER[] = "SeqFileReader";

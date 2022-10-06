@@ -16,24 +16,25 @@
  */
 
 #include "sqlcomp/QCache.h"
-#include "optimizer/CacheWA.h"
-#include "common/CmpCommon.h"
-#include "sqlcomp/CmpMain.h"
-#include "common/IntervalType.h"
-#include "comexe/ComTdbRoot.h"
-#include "optimizer/ItemFunc.h"
-#include "optimizer/ValueDesc.h"
-#include "optimizer/SchemaDB.h"
-#include "optimizer/ControlDB.h"
-#include "arkcmp/CmpErrLog.h"
-#include "optimizer/CompilerTracking.h"
-#include "exp/exp_clause_derived.h"
-#include "common/NumericType.h"
-#include "common/ComDistribution.h"
+
 #include "arkcmp/CmpContext.h"
+#include "arkcmp/CmpErrLog.h"
 #include "arkcmp/CmpStatement.h"
-#include "cli/Globals.h"
 #include "cli/Context.h"
+#include "cli/Globals.h"
+#include "comexe/ComTdbRoot.h"
+#include "common/CmpCommon.h"
+#include "common/ComDistribution.h"
+#include "common/IntervalType.h"
+#include "common/NumericType.h"
+#include "exp/exp_clause_derived.h"
+#include "optimizer/CacheWA.h"
+#include "optimizer/CompilerTracking.h"
+#include "optimizer/ControlDB.h"
+#include "optimizer/ItemFunc.h"
+#include "optimizer/SchemaDB.h"
+#include "optimizer/ValueDesc.h"
+#include "sqlcomp/CmpMain.h"
 
 #define MAGIC_NUMBER 20210602
 
@@ -804,7 +805,7 @@ NABoolean ParameterTypeList::amSafeToHash() const {
 int ParameterTypeList::getSize() const {
   CollIndex x, limit = entries();
   int result = limit * sizeof(NAType *);  // amount of space allocated
-                                             // for the array of type NAType*.
+                                          // for the array of type NAType*.
   for (x = 0; x < limit; x++) {
     result += (*this)[x].type_->getSize();
   }
@@ -1298,7 +1299,7 @@ NABoolean CacheKey::operator==(const CacheKey &other) const {
 // return this CacheKey's total size in bytes
 int CacheKey::getSize() const {
   int x = sizeof(*this) - sizeof(Key) + Key::getSize() + stmt_.getAllocatedSize() + actuals_.getSize() +
-             sels_.getSize() + reqdShape_.getAllocatedSize();
+          sels_.getSize() + reqdShape_.getAllocatedSize();
 
   return x;
 }
@@ -1517,8 +1518,8 @@ const int initialTextPtrArrayLen = 10;
 // constructor used by CmpMain::sqlcomp on a cache miss to create a new
 // cache entry of a compiled plan for possible addition into the cache.
 CacheData::CacheData(Generator *plan, const ParameterTypeList &f, const SelParamTypeList &s, LIST(int) hqcParamPos,
-                     LIST(int) hqcSelPos, LIST(int) hqcConstPos, long planId, const char *text, int cs,
-                     long queryHash, NAHeap *h)
+                     LIST(int) hqcSelPos, LIST(int) hqcConstPos, long planId, const char *text, int cs, long queryHash,
+                     NAHeap *h)
     : CData(h),
       formals_(f, h),
       fSels_(s, h),
@@ -1781,10 +1782,9 @@ TextData::~TextData() {
 // is not included!!!
 int CacheData::getSize() const {
   int hqcTypesSize = (hqcListOfConstParamPos_.entries() * sizeof(int)) +
-                        (hqcListOfSelParamPos_.entries() * sizeof(int)) +
-                        (hqcListOfConstPos_.entries() * sizeof(int));
-  int x = sizeof(*this) + formals_.getSize() + fSels_.getSize() + hqcTypesSize +
-             (origStmt_ ? strlen(origStmt_) : 0) + (normalizedStmt_ ? strlen(normalizedStmt_) : 0);
+                     (hqcListOfSelParamPos_.entries() * sizeof(int)) + (hqcListOfConstPos_.entries() * sizeof(int));
+  int x = sizeof(*this) + formals_.getSize() + fSels_.getSize() + hqcTypesSize + (origStmt_ ? strlen(origStmt_) : 0) +
+          (normalizedStmt_ ? strlen(normalizedStmt_) : 0);
 
   return x;
 }
@@ -2570,8 +2570,7 @@ NABoolean QCache::canFit(int size) {
 }
 
 // try to add this new postparser (and preparser) entry into the cache
-CacheKey *QCache::addEntry(TextKey *tkey, CacheKey *stmt, CacheData *plan, TimeVal &begTime, char *params,
-                           int parmSz) {
+CacheKey *QCache::addEntry(TextKey *tkey, CacheKey *stmt, CacheData *plan, TimeVal &begTime, char *params, int parmSz) {
   CacheKey *ckeyInQCache = NULL;
 
   // stmt and plan and tkey are well formed
@@ -3785,7 +3784,7 @@ CacheKey *QueryCache::addEntry(TextKey *tkey,    // (IN) : preparser key
                                CacheData *plan,  // (IN) : sql statement's compiled plan
                                TimeVal &begT,    // (IN) : time at start of this compile
                                char *params,     // (IN) : parameters for preparser entry
-                               int parmSz)    // (IN) : len of params for preparser entry
+                               int parmSz)       // (IN) : len of params for preparser entry
 {
   return (cache_) ? cache_->addEntry(tkey, stmt, plan, begT, params, parmSz) : NULL;
 }
@@ -3793,7 +3792,7 @@ CacheKey *QueryCache::addEntry(TextKey *tkey,    // (IN) : preparser key
 // add a new preparser entry into the cache
 void QueryCache::addPreParserEntry(TextKey *tkey,      // (IN) : a cachable sql statement
                                    char *actuals,      // (IN) : actual parameters
-                                   int actLen,      // (IN) : len of actuals
+                                   int actLen,         // (IN) : len of actuals
                                    CacheEntry *entry,  // (IN) : postparser cache entry
                                    TimeVal &begT)      // (IN) : time at start of this compile
 {

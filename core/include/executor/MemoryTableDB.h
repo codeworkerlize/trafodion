@@ -19,12 +19,13 @@
 //
 
 #include <string>
-#include "common/NAMemory.h"
-#include "export/NABasicObject.h"
-#include "common/Collections.h"
-#include "exp/ExpHbaseDefs.h"
-#include "export/NAStringDef.h"
+
 #include "cli/sqlcli.h"
+#include "common/Collections.h"
+#include "common/NAMemory.h"
+#include "exp/ExpHbaseDefs.h"
+#include "export/NABasicObject.h"
+#include "export/NAStringDef.h"
 #include "qmscommon/QRLogger.h"
 
 typedef std::string Text;

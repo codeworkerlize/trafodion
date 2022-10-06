@@ -25,10 +25,11 @@
 #define PRIVMGR_DEFS_H
 
 #include <bitset>
-#include <map>
 #include <iterator>
-#include "common/NAUserId.h"
+#include <map>
+
 #include "common/ComSmallDefs.h"
+#include "common/NAUserId.h"
 
 // *****************************************************************************
 // *

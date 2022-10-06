@@ -17,6 +17,7 @@
 */
 
 #include "common/NATestpoint.h"
+
 #include "export/NAStringDef.h"
 
 // Get the external declaration of NAAbort()

@@ -17,9 +17,8 @@
  */
 
 #include "common/Platform.h"
-
-#include "exp_function.h"
 #include "common/unicode_char_set.h"
+#include "exp_function.h"
 
 ex_function_upper_unicode::ex_function_upper_unicode(OperatorTypeEnum oper_type, Attributes **attr, Space *space)
     : ex_function_clause(oper_type, 2, attr, space) {}

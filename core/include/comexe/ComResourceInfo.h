@@ -19,8 +19,8 @@
 #define SCRATCH_FILES_H
 
 #include "common/Int64.h"
-#include "export/NAVersionedObject.h"
 #include "common/IpcMessageType.h"
+#include "export/NAVersionedObject.h"
 
 // -----------------------------------------------------------------------
 // Contents of this file

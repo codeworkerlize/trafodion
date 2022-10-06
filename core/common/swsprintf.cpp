@@ -60,13 +60,11 @@
  * This code is large and complicated...
  */
 
-#include <sys/types.h>
-
+#include <limits.h>
+#include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
-#include <limits.h>
-
-#include <stdarg.h>
+#include <sys/types.h>
 
 #include "common/Platform.h"
 #include "wc_scanf_sprintf.h"
@@ -96,8 +94,8 @@ int na_wsprintf(NAWchar *str, NAWchar const *fmt, ...) {
 }
 
 #ifdef FLOATING_POINT
-#include <math.h>
 #include <float.h>
+#include <math.h>
 
 //#define	BUF		(MAXEXP+MAXFRACT+1)	/* + decimal point */
 #define BUF     DBL_DIG + 1 /* MSDEV 4.0 */
@@ -138,23 +136,23 @@ static int exponent __P((char *, int, int));
 #define FPT      0x100 /* Floating point number */
 int vfprintf(SPRINTF_BUF *fp, const NAWchar *fmt0, va_list ap) {
   register NAWchar *fmt; /* format string */
-  register int ch;     /* character from fmt */
-  register int n, m;   /* handy integers (short term usage) */
+  register int ch;       /* character from fmt */
+  register int n, m;     /* handy integers (short term usage) */
   register NAWchar *cp;  /* handy char pointer (short term usage) */
   // register struct __siov *iovp;/* for PRINT macro */
   register int flags; /* flags as above */
   int ret;            /* return value accumulator */
   int width;          /* width from format (%8d), or 0 */
   int prec;           /* precision from format (%.3d), or -1 */
-  NAWchar sign;         /* sign prefix (' ', '+', '-', or \0) */
+  NAWchar sign;       /* sign prefix (' ', '+', '-', or \0) */
   NAWchar wc;
 #ifdef FLOATING_POINT
   NAWchar *decimal_point = /*localeconv()->decimal_point*/ WIDE_(".");
   NAWchar softsign;  /* temporary negative sign for floats */
   double _double;    /* double precision arguments %[eEfgG] */
-  int expt;        /* integer value of exponent */
-  int expsize;     /* character count for expstr */
-  int ndig;        /* actual number of digits returned by cvt */
+  int expt;          /* integer value of exponent */
+  int expsize;       /* character count for expstr */
+  int ndig;          /* actual number of digits returned by cvt */
   NAWchar expstr[7]; /* buffer for exponent string */
 #endif
 
@@ -165,9 +163,9 @@ int vfprintf(SPRINTF_BUF *fp, const NAWchar *fmt0, va_list ap) {
 
   u_quad_t _uquad;             /* integer arguments %[diouxX] */
   enum { OCT, DEC, HEX } base; /* base for [diouxX] conversion */
-  int dprec;                 /* a copy of prec if [diouxX], 0 otherwise */
-  int realsz;                /* field size expanded by dprec */
-  int size;                  /* size of converted field or string */
+  int dprec;                   /* a copy of prec if [diouxX], 0 otherwise */
+  int realsz;                  /* field size expanded by dprec */
+  int size;                    /* size of converted field or string */
   NAWchar *xdigs = NULL;       /* digits for [xX] conversion */
 #define NIOV 8
   // struct __suio uio;	/* output information: summary */
@@ -215,10 +213,10 @@ int vfprintf(SPRINTF_BUF *fp, const NAWchar *fmt0, va_list ap) {
    * To extend shorts properly, we need both signed and unsigned
    * argument extraction methods.
    */
-#define SARG()                                           \
-  (flags & QUADINT ? va_arg(ap, quad_t)                  \
-                   : flags & LONGINT ? va_arg(ap, int) \
-                                     : flags & SHORTINT ? (int)(short)va_arg(ap, int) : (int)va_arg(ap, int))
+#define SARG()              \
+  (flags & QUADINT          \
+       ? va_arg(ap, quad_t) \
+       : flags & LONGINT ? va_arg(ap, int) : flags & SHORTINT ? (int)(short)va_arg(ap, int) : (int)va_arg(ap, int))
 #define UARG()                                \
   (flags & QUADINT                            \
        ? va_arg(ap, u_quad_t)                 \

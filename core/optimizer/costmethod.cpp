@@ -16,28 +16,29 @@
 **************************************************************************
 */
 
-#include "optimizer/GroupAttr.h"
-#include "optimizer/AllRelExpr.h"
-#include "RelPackedRows.h"
-#include "optimizer/RelSequence.h"
-#include "RelSample.h"
-#include "optimizer/AllItemExpr.h"
-#include "ItemSample.h"
-#include "optimizer/opt.h"
-#include "EstLogProp.h"
-#include "sqlcomp/DefaultConstants.h"
-#include "optimizer/ItemOther.h"
-#include "ScanOptimizer.h"
-#include "optimizer/NAFileSet.h"
-#include "optimizer/SchemaDB.h"
-#include "opt_error.h"
-
 #include "optimizer/CostMethod.h"
-#include "Cost.h"
-#include "NodeMap.h"
+
 #include <math.h>
-#include "optimizer/OptimizerSimulator.h"
+
+#include "Cost.h"
+#include "EstLogProp.h"
+#include "ItemSample.h"
+#include "NodeMap.h"
+#include "RelPackedRows.h"
+#include "RelSample.h"
+#include "ScanOptimizer.h"
 #include "arkcmp/CmpStatement.h"
+#include "opt_error.h"
+#include "optimizer/AllItemExpr.h"
+#include "optimizer/AllRelExpr.h"
+#include "optimizer/GroupAttr.h"
+#include "optimizer/ItemOther.h"
+#include "optimizer/NAFileSet.h"
+#include "optimizer/OptimizerSimulator.h"
+#include "optimizer/RelSequence.h"
+#include "optimizer/SchemaDB.h"
+#include "optimizer/opt.h"
+#include "sqlcomp/DefaultConstants.h"
 
 // THREAD_P CostMethod* CostMethod::head_ = NULL;
 
@@ -770,8 +771,8 @@ void CostMethod::getChildCostsForBinaryOp(RelExpr *op, const Context *myContext,
   rightChildCost = new STMTHEAP Cost(*childContext->getSolution()->getRollUpCost());
 }
 
-void CostMethod::getChildCostForUnaryOp(RelExpr *op, const Context *myContext, const PlanWorkSpace *pws,
-                                        int planNumber, CostPtr &childCost) {
+void CostMethod::getChildCostForUnaryOp(RelExpr *op, const Context *myContext, const PlanWorkSpace *pws, int planNumber,
+                                        CostPtr &childCost) {
   //----------------------------------------------------------------------
   // Defensive programming.
   //----------------------------------------------------------------------
@@ -11172,8 +11173,7 @@ void CostMethodCompoundStmt::cacheParameters(RelExpr *op, const Context *myConte
 // Context *myContext
 //  IN - The optimization context within which to cost this node.
 //-------------------------------------------------------------------------
-Cost *CostMethodCompoundStmt::computeOperatorCostInternal(RelExpr *op, const Context *myContext,
-                                                          int &countOfStreams) {
+Cost *CostMethodCompoundStmt::computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams) {
   // Just to make sure things are working as expected
   //
   CMPASSERT(op->getOperatorType() == REL_COMPOUND_STMT);
@@ -11545,8 +11545,7 @@ Cost *CostMethodHbaseInsert::computeOperatorCostInternal(RelExpr *op, const Cont
   // Synthesize and return cost object.
   // ---------------------------------------------------------------------
 
-  Cost *costPtr =
-      new STMTHEAP Cost(&cvFR, &cvLR, NULL, int(activeCpus_.getValue()), int(streamsPerCpu_.getValue()));
+  Cost *costPtr = new STMTHEAP Cost(&cvFR, &cvLR, NULL, int(activeCpus_.getValue()), int(streamsPerCpu_.getValue()));
 
 #ifndef NDEBUG
   if (CmpCommon::getDefault(OPTIMIZER_PRINT_COST) == DF_ON) {

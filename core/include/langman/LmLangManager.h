@@ -14,14 +14,13 @@
 ******************************************************************************
 */
 
-#include "common/ComSmallDefs.h"
 #include "LmError.h"
+#include "common/ComSmallDefs.h"
 #include "common/NAType.h"
+#include "common/Platform.h"
 #include "export/ComDiags.h"
 #include "langman/LmCommon.h"
 #include "sqludr/sqludr.h"
-
-#include "common/Platform.h"
 
 //////////////////////////////////////////////////////////////////////
 //

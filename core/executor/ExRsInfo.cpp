@@ -51,14 +51,15 @@
 */
 
 #include "ExRsInfo.h"
-#include "common/NAMemory.h"
-#include "common/ComSmallDefs.h"
-#include "ex_ex.h"
+
+#include "ExUdrClientIpc.h"
+#include "ExUdrServer.h"
 #include "UdrExeIpc.h"
 #include "cli/Statement.h"
-#include "ExUdrServer.h"
+#include "common/ComSmallDefs.h"
+#include "common/NAMemory.h"
+#include "ex_ex.h"
 #include "ex_exe_stmt_globals.h"
-#include "ExUdrClientIpc.h"
 
 #ifdef _DEBUG
 #include <stdarg.h>
@@ -482,7 +483,7 @@ NABoolean ExRsInfo::isPrepared(int index) const {
   positions ranging from 1 to getNumEntries() allows users of this
   class to iterate through every result set in the collection.
 */
-NABoolean ExRsInfo::getRsInfo(int position,            // IN
+NABoolean ExRsInfo::getRsInfo(int position,               // IN
                               Statement *&statement,      // OUT
                               const char *&proxySyntax,   // OUT
                               NABoolean &openAttempted,   // OUT

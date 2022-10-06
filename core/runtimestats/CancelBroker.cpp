@@ -7,17 +7,18 @@
 // Created:      Oct 5, 2009
 **********************************************************************/
 
-#include "executor/ex_stdh.h"
-#include "runtimestats/SqlStats.h"
-#include "executor/ExStats.h"
 #include "CancelBroker.h"
+
 #include "cli/Statement.h"
-#include "sqlmxevents/logmxevent.h"
 #include "common/ComSqlId.h"
-#include "porting/PortProcessCalls.h"
+#include "executor/ExStats.h"
+#include "executor/ex_stdh.h"
 #include "nsk/nskport.h"
-#include "seabed/ms.h"
+#include "porting/PortProcessCalls.h"
+#include "runtimestats/SqlStats.h"
 #include "seabed/fs.h"
+#include "seabed/ms.h"
+#include "sqlmxevents/logmxevent.h"
 
 ///////////////////////////////////////////////////////////////////////
 // Methods for class ActiveQueryStream
@@ -37,9 +38,8 @@ void ActiveQueryStream::actOnSend(IpcConnection *connection) {
 // Methods for ActiveQueryEntry
 ///////////////////////////////////////////////////////////////////////
 
-ActiveQueryEntry::ActiveQueryEntry(char *qid, int qidLen, long startTime, GuaProcessHandle master,
-                                   short masterFileNum, int executionCount, IpcEnvironment *ipcEnv,
-                                   SsmpGlobals *ssmpG)
+ActiveQueryEntry::ActiveQueryEntry(char *qid, int qidLen, long startTime, GuaProcessHandle master, short masterFileNum,
+                                   int executionCount, IpcEnvironment *ipcEnv, SsmpGlobals *ssmpG)
     : queryStartTime_(startTime),
       master_(master),
       masterFileNum_(masterFileNum),
@@ -129,8 +129,7 @@ ActiveQueryEntry *ActiveQueryMgr::getActiveQuery(char *qid, int qidLen) {
 }
 
 void ActiveQueryMgr::addActiveQuery(char *qid, int qidLen, long startTime, GuaProcessHandle masterPhandle,
-                                    int executionCount, SsmpNewIncomingConnectionStream *cStream,
-                                    IpcConnection *conn) {
+                                    int executionCount, SsmpNewIncomingConnectionStream *cStream, IpcConnection *conn) {
   GuaConnectionToClient *gctc = conn->castToGuaConnectionToClient();
   ex_assert(gctc,
             "Need a GuaConnectionToClient so that "

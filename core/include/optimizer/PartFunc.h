@@ -16,12 +16,12 @@
 */
 
 // -----------------------------------------------------------------------
-#include "common/Int64.h"
+#include "NodeMap.h"
 #include "common/Collections.h"
+#include "common/Int64.h"
 #include "optimizer/ItemExpr.h"
 #include "optimizer/ItemExprList.h"
 #include "optimizer/RelExpr.h"
-#include "NodeMap.h"
 
 // ----------------------------------------------------------------------
 // contents of this file
@@ -53,8 +53,7 @@ class NAColumnArray;
 class SearchKey;
 class SkewedValueList;
 typedef LIST(long) Int64List;
-typedef NABoolean (*compFuncPtrT)(const char *low, const char *key, const char *high, int keyLen,
-                                  NABoolean checkLast);
+typedef NABoolean (*compFuncPtrT)(const char *low, const char *key, const char *high, int keyLen, NABoolean checkLast);
 
 // ----------------------------------------------------------------------
 // literals for special numbers of partitions (don't care, exactly one)
@@ -1161,8 +1160,8 @@ class TableHashPartitioningFunction : public PartitioningFunction {
   // --------------------------------------------------------------------
   // Constructor functions
   // --------------------------------------------------------------------
-  TableHashPartitioningFunction(const PartitioningFunctionTypeEnum ftype, int numberOfHashPartitions,
-                                NodeMap *nodeMap, NAMemory *heap = CmpCommon::statementHeap())
+  TableHashPartitioningFunction(const PartitioningFunctionTypeEnum ftype, int numberOfHashPartitions, NodeMap *nodeMap,
+                                NAMemory *heap = CmpCommon::statementHeap())
       : PartitioningFunction(ftype, nodeMap, heap),
         numberOfOrigHashPartitions_(numberOfHashPartitions),
         numberOfPartitions_(numberOfHashPartitions),
@@ -1689,7 +1688,7 @@ class RangePartitionBoundaries : public NABasicObject {
   // to be close to a suggested new value and return the chosen new value.
   // ---------------------------------------------------------------------
   int scaleNumberOfPartitions(int suggestedNewNumberOfPartitions, const NodeMap *nodeMap,
-                                PartitionGroupingDistEnum partGroupDist = DEFAULT_PARTITION_GROUPING);
+                              PartitionGroupingDistEnum partGroupDist = DEFAULT_PARTITION_GROUPING);
 
   // ---------------------------------------------------------------------
   // Check whether one set of boundaries is a grouping of another
@@ -2017,8 +2016,8 @@ class LogPhysPartitioningFunction : public PartitioningFunction {
   // Constructor functions
   // --------------------------------------------------------------------
   LogPhysPartitioningFunction(PartitioningFunction *logPartFunc, PartitioningFunction *physPartFunc,
-                              logPartType logPartType, int numOfClients, NABoolean usePapa,
-                              NABoolean synchronousAccess, NAMemory *heap = CmpCommon::statementHeap());
+                              logPartType logPartType, int numOfClients, NABoolean usePapa, NABoolean synchronousAccess,
+                              NAMemory *heap = CmpCommon::statementHeap());
 
   LogPhysPartitioningFunction(const LogPhysPartitioningFunction &other, NAMemory *heap = CmpCommon::statementHeap())
       : PartitioningFunction(other, heap),

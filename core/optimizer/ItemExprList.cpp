@@ -12,12 +12,12 @@
 ******************************************************************************
 */
 
-#include "optimizer/Sqlcomp.h"
-#include "optimizer/ItemOther.h"
-#include "optimizer/ItemLog.h"
-#include "optimizer/ItemSubq.h"
-#include "optimizer/ItemFunc.h"
 #include "ItemFuncUDF.h"
+#include "optimizer/ItemFunc.h"
+#include "optimizer/ItemLog.h"
+#include "optimizer/ItemOther.h"
+#include "optimizer/ItemSubq.h"
+#include "optimizer/Sqlcomp.h"
 
 // -----------------------------------------------------------------------
 // methods for class ItemExprList

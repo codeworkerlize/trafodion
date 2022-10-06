@@ -6,25 +6,27 @@
 // Created:      5/02/2006
 **********************************************************************/
 
-#include "common/Platform.h"
-#include "executor/ex_stdh.h"
 #include "sscpipc.h"
-#include "sqlmxevents/logmxevent.h"
-#include "ExCextdecs.h"
+
+#include <semaphore.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
-#include <semaphore.h>
-#include "nsk/nskport.h"
-#include "seabed/ms.h"
-#include "seabed/fs.h"
+
+#include "ExCextdecs.h"
+#include "comexe/ComTdb.h"
+#include "common/ComDistribution.h"
+#include "common/ComSqlId.h"
 #include "common/NAStdlib.h"
+#include "common/Platform.h"
 #include "common/zsysc.h"
 #include "executor/ExStats.h"
-#include "runtimestats/rts_msg.h"
+#include "executor/ex_stdh.h"
+#include "nsk/nskport.h"
 #include "porting/PortProcessCalls.h"
-#include "comexe/ComTdb.h"
-#include "common/ComSqlId.h"
-#include "common/ComDistribution.h"
+#include "runtimestats/rts_msg.h"
+#include "seabed/fs.h"
+#include "seabed/ms.h"
+#include "sqlmxevents/logmxevent.h"
 
 SscpGlobals::SscpGlobals(NAHeap *sscpheap, StatsGlobals *statsGlobals)
     : heap_(sscpheap), statsGlobals_(statsGlobals), doLogCancelKillServers_(false) {

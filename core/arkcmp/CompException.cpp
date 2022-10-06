@@ -1,10 +1,10 @@
 
 
-#include "string.h"
 #include "arkcmp/CompException.h"
-#include "NAInternalError.h"
 
 #include "CmpEHCallBack.h"
+#include "NAInternalError.h"
+#include "string.h"
 
 BaseException::BaseException(const char *fileName, UInt32 lineNum) : lineNum_(lineNum) {
   if (fileName) {
@@ -198,8 +198,7 @@ void PassOneSkippedPassTwoNoPlanFatalException::throwException() {
 }
 
 // OptAssertException Implementation
-OptAssertException::OptAssertException(AssertException &e, int taskCount)
-    : AssertException(e), taskCount_(taskCount) {}
+OptAssertException::OptAssertException(AssertException &e, int taskCount) : AssertException(e), taskCount_(taskCount) {}
 
 void OptAssertException::throwException() {
   doFFDCDebugger((char *)getCondition());

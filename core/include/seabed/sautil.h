@@ -1,7 +1,6 @@
 //------------------------------------------------------------------
 //
 
-
 //
 // standalone-utilities module
 //
@@ -10,11 +9,12 @@
 #ifndef __SB_SAUTIL_H_
 #define __SB_SAUTIL_H_
 
-#include <map>
 #include <pthread.h>
 #include <semaphore.h>
 #include <stdio.h>
 #include <string.h>
+
+#include <map>
 
 #include "int/exp.h"
 #include "int/opts.h"

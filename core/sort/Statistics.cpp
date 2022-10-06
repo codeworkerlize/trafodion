@@ -1,11 +1,11 @@
 
-#include "common/Platform.h"
+#include "Statistics.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "common/Platform.h"
 #include "common/str.h"
-#include "Statistics.h"
 
 //----------------------------------------------------------------------
 // SortStatistics Constructor.

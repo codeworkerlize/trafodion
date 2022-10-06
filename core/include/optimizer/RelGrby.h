@@ -18,10 +18,10 @@
 
 // -----------------------------------------------------------------------
 
-#include "optimizer/ObjectNames.h"
-#include "optimizer/RelExpr.h"
 #include "HbaseSearchSpec.h"
 #include "SearchKey.h"
+#include "optimizer/ObjectNames.h"
+#include "optimizer/RelExpr.h"
 // -----------------------------------------------------------------------
 // contents of this file
 // -----------------------------------------------------------------------
@@ -473,7 +473,7 @@ class GroupByAgg : public RelExpr {
 
   NABoolean okToAttemptESPParallelism(const Context *myContext, /*IN*/
                                       PlanWorkSpace *pws,       /*IN*/
-                                      int &numOfESPs,         /*IN,OUT*/
+                                      int &numOfESPs,           /*IN,OUT*/
                                       float &allowedDeviation,  /*OUT*/
                                       NABoolean &numOfESPsForced /*OUT*/);
 

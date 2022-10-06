@@ -37,10 +37,10 @@ class HashBufferHeader {
 
   int rowCount_;     // # rows in buffer (pointer to next free row)
   int bucketCount_;  // the buffer contains row from bucketCount_
-                        // buckets. This is used in phase 3 on the
-                        // hash join. If the cluster is a inner during
-                        // this phase and there was a cluster split,
-                        // not all rows in the buffer are chained
+                     // buckets. This is used in phase 3 on the
+                     // hash join. If the cluster is a inner during
+                     // this phase and there was a cluster split,
+                     // not all rows in the buffer are chained
 };
 
 /////////////////////////////////////////////////////////////////////////////

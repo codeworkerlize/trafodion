@@ -77,11 +77,11 @@
 // Added <description of the change>.
 // -----------------------------------------------------------------------
 
-#include "SortAlgo.h"
-#include "TreeNode.h"
 #include "Const.h"
-#include "export/NABasicObject.h"
+#include "SortAlgo.h"
 #include "SortError.h"
+#include "TreeNode.h"
+#include "export/NABasicObject.h"
 
 class SortUtil;
 class ExBMOStats;
@@ -96,9 +96,9 @@ void siftDown(RecKeyBuffer keysToSort[], int root, int bottom);
 class Qsort : public SortAlgo {  // SortAlgo inherits from NABasicObject
 
  public:
-  Qsort(int recmax, int sortmaxmem, int recsize, NABoolean doNotallocRec, int keysize,
-        SortScratchSpace *scratch, NABoolean iterQuickSort, CollHeap *heap, SortError *sorterror, int explainNodeId,
-        ExBMOStats *bmoStats, SortUtil *sortutil);
+  Qsort(int recmax, int sortmaxmem, int recsize, NABoolean doNotallocRec, int keysize, SortScratchSpace *scratch,
+        NABoolean iterQuickSort, CollHeap *heap, SortError *sorterror, int explainNodeId, ExBMOStats *bmoStats,
+        SortUtil *sortutil);
   ~Qsort(void);
 
   int sortSend(void *rec, int len, void *tupp);

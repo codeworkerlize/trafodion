@@ -18,10 +18,11 @@
 #ifndef EX_GOD_H
 #define EX_GOD_H
 
-#include "common/Platform.h"
 #include <limits.h>
 #include <stdlib.h>
+
 #include "common/NAHeap.h"
+#include "common/Platform.h"
 
 class ExGod : public NABasicObject {
  protected:

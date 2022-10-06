@@ -20,9 +20,9 @@
  *****************************************************************************
  */
 
-#include "common/NATraceList.h"  // gets definition of NATraceList
-#include "common/ExprNode.h"
 #include "common/ComASSERT.h"
+#include "common/ExprNode.h"
+#include "common/NATraceList.h"  // gets definition of NATraceList
 
 // -----------------------------------------------------------------------
 // contents of this file
@@ -453,7 +453,6 @@ class ElemDDLNode : public ExprNode {
   virtual ElemDDLFileAttrRangeLog *castToElemDDLFileAttrRangeLog();
   virtual ElemDDLFileAttrLockOnRefresh *castToElemDDLFileAttrLockOnRefresh();
   virtual ElemDDLFileAttrInsertLog *castToElemDDLFileAttrInsertLog();
-
 
   virtual ElemDDLFileAttrPOSNumPartns *castToElemDDLFileAttrPOSNumPartns();
   virtual ElemDDLFileAttrPOSTableSize *castToElemDDLFileAttrPOSTableSize();

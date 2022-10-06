@@ -18,13 +18,13 @@
 class ex_cri_desc;
 class ExSubtask;
 
-#include "export/NABasicObject.h"
-#include "ExOverflow.h"
 #include "Allocator.h"
 #include "BufferList.h"
 #include "BufferReference.h"
-#include "SwapSpace.h"
 #include "CommonStructs.h"
+#include "ExOverflow.h"
+#include "SwapSpace.h"
+#include "export/NABasicObject.h"
 
 namespace ExOverflow {
 class TupleSpace : public NABasicObject {

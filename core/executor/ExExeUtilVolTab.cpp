@@ -15,24 +15,23 @@
  *****************************************************************************
  */
 
+#include "CmpContext.h"
+#include "ComRtUtils.h"
+#include "ComSqlId.h"
+#include "ComTdb.h"
+#include "ExExeUtil.h"
+#include "ExStats.h"
+#include "cli_stdh.h"
 #include "common/ComCextdecs.h"
 #include "common/ComSizeDefs.h"
-#include "cli_stdh.h"
-#include "ex_stdh.h"
-#include "sql_id.h"
-#include "ex_transaction.h"
-#include "ComTdb.h"
-#include "ex_tcb.h"
-#include "ComSqlId.h"
-
-#include "ExExeUtil.h"
 #include "ex_exe_stmt_globals.h"
-#include "exp_expr.h"
+#include "ex_stdh.h"
+#include "ex_tcb.h"
+#include "ex_transaction.h"
 #include "exp_clause_derived.h"
-#include "ComRtUtils.h"
-#include "ExStats.h"
+#include "exp_expr.h"
 #include "seabed/ms.h"
-#include "CmpContext.h"
+#include "sql_id.h"
 
 ///////////////////////////////////////////////////////////////////
 ex_tcb *ExExeUtilLoadVolatileTableTdb::build(ex_globals *glob) {
@@ -88,7 +87,7 @@ short ExExeUtilLoadVolatileTableTcb::work() {
         // 0x20000 is the bit to allow this.
         // Bit defined in parser/SqlParserGlobalsCmn.h.
         //	    masterGlob->getStatement()->getContext()->setSqlParserFlags(0x20000); //
-        //NO_IMPLICIT_VOLATILE_TABLE_UPD_STATS
+        // NO_IMPLICIT_VOLATILE_TABLE_UPD_STATS
 
         // issue the insert command
         long rowsAffected;
@@ -139,7 +138,7 @@ short ExExeUtilLoadVolatileTableTcb::work() {
       case DONE_: {
         // reset special insert processing bit
         //	    masterGlob->getStatement()->getContext()->resetSqlParserFlags(0x20000); //
-        //NO_IMPLICIT_VOLATILE_TABLE_UPD_STATS
+        // NO_IMPLICIT_VOLATILE_TABLE_UPD_STATS
 
         // Return EOF.
         ex_queue_entry *up_entry = qparent_.up->getTailEntry();
@@ -283,7 +282,7 @@ short ExExeUtilVolatileTablesTcb::isCreatorProcessObsolete(const char *name, NAB
 // Redefine virtual method allocatePstates, to be used by dynamic queue
 // resizing, as well as the initial queue construction.
 ////////////////////////////////////////////////////////////////////////
-ex_tcb_private_state *ExExeUtilVolatileTablesTcb::allocatePstates(int &numElems,  // inout, desired/actual elements
+ex_tcb_private_state *ExExeUtilVolatileTablesTcb::allocatePstates(int &numElems,      // inout, desired/actual elements
                                                                   int &pstateLength)  // out, length of one element
 {
   PstateAllocator<ExExeUtilVolatileTablesPrivateState> pa;

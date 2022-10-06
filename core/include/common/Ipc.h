@@ -18,15 +18,14 @@
 // -----------------------------------------------------------------------
 #include <stdlib.h>
 
+#include "common/ComVersionDefs.h"
+#include "common/Int64.h"
+#include "common/IpcSockets.h"
 #include "common/Platform.h"
 #include "porting/PortProcessCalls.h"
-#include "common/Int64.h"
-#include "common/ComVersionDefs.h"
-#include "common/IpcSockets.h"
 //#include "ex_sql_table.h"
 #include "common/Collections.h"
 #include "common/NABitVector.h"
-
 #include "common/feerrors.h"
 // 64-bit
 // We must use literal "int" here, which violates our rule not use int
@@ -44,12 +43,12 @@
 #define LDONE                          02000
 #define LRABBIT                        010
 #define PERSISTENT_OPEN_RECONNECT_CODE 0x4ACE
-#include "common/ComExeTrace.h"
 #include <time.h>
 
-#include "seabed/fs.h"
-
 #include <atomic>
+
+#include "common/ComExeTrace.h"
+#include "seabed/fs.h"
 
 // -----------------------------------------------------------------------
 // Contents of this file
@@ -903,15 +902,15 @@ class IpcWaitableSetOfConnections : public IpcSetOfConnections {
   //   object is part of a connection
   NABoolean eventDriven_;  // Drive polling by waiting on LDONE
   NABoolean esp_;
-  long callCount_;               // Number of times wait method was called
-  long pollCount_;               // Number of times connections were polled
-  long waitCount_;               // Number of times WAIT was called
-  long ldoneCount_;              // Number of LDONE completions
-  long lreqCount_;               // Number of LREQ completions
-  long lsigCount_;               // Number of LSIG completions
-  long smCompletionCount_;       // Number of seamonster (LRABBIT) completions
-  long timeoutCount_;            // Number of timeout completions
-  long activityPollCount_;       // Number of times connections were polled due to activity
+  long callCount_;                // Number of times wait method was called
+  long pollCount_;                // Number of times connections were polled
+  long waitCount_;                // Number of times WAIT was called
+  long ldoneCount_;               // Number of LDONE completions
+  long lreqCount_;                // Number of LREQ completions
+  long lsigCount_;                // Number of LSIG completions
+  long smCompletionCount_;        // Number of seamonster (LRABBIT) completions
+  long timeoutCount_;             // Number of timeout completions
+  long activityPollCount_;        // Number of times connections were polled due to activity
   short lastWaitStatus_;          // Last status returned by WAIT
   NABoolean ipcAwaitioxEnabled_;  // IPC AWAITIOX(-1) is enabled where applicable
   IpcAwaitiox ipcAwaitiox_;
@@ -1450,7 +1449,7 @@ class IpcControlConnection {
  private:
   IpcNetworkDomain domain_;   // which domain is the control
                               // connection in
-  int numRequestors_;       // how many processes are requestors
+  int numRequestors_;         // how many processes are requestors
   IpcEyeCatcher eyeCatcher_;  // eye catcher
 };
 
@@ -1749,8 +1748,8 @@ struct InternalMessageBufferHeader {
                                        // (un)lock of memory chunk
 
   InternalMessageBufferHeader(CollHeap *heap, IpcMessageObjSize maxLen, IpcMessageObjSize msgLen,
-                              IpcMessageStreamBase *msg, short replyTag, IpcMessageObjSize maxReplyLength,
-                              long transid, short flags) {
+                              IpcMessageStreamBase *msg, short replyTag, IpcMessageObjSize maxReplyLength, long transid,
+                              short flags) {
     maxLength_ = maxLen;
     msgLength_ = msgLen;
     flags_ = flags;
@@ -2001,7 +2000,7 @@ struct InternalMsgHdrInfoStruct : public IpcMessageObj {
   short flags_;                    // enum IpcMessageObjFlags
   short format_;                   // compressed, ...
   short sockReplyTag_;             // spare for Guardian, reply tag for sock.
-  int eyeCatcher_;               // bit pattern to detect junk messages
+  int eyeCatcher_;                 // bit pattern to detect junk messages
   UInt32 seqNum_;                  // sequence number to preserve send order
   // stream id is actually the pointer to the stream
   Long msgStreamId_;  // stream id for coalescing multi-buf msg
@@ -2337,7 +2336,7 @@ class IpcMessageStream : public IpcMessageStreamBase {
   IpcWaitableSetOfConnections activeIOs_;  // active communication partners
   IpcMessageObj *tail_;                    // last object in linked object list
   IpcMessageObj *current_;                 // current object in linked obj list
-  int errorInfo_;                        // fix this later to contain error info
+  int errorInfo_;                          // fix this later to contain error info
   std::atomic<UInt32> numOfSendCallbacks_;
   MessageStateEnum state_;  // state of the message (buffer)
 
@@ -2375,8 +2374,8 @@ class IpcBufferedMsgStream : public IpcMessageStreamBase {
 
  public:
   // constructor
-  IpcBufferedMsgStream(IpcEnvironment *env, IpcMessageType msgType, IpcMessageObjVersion version,
-                       int inUseBufferLimit, IpcMessageObjSize bufferSize, IpcThreadInfo *threadInfo = NULL);
+  IpcBufferedMsgStream(IpcEnvironment *env, IpcMessageType msgType, IpcMessageObjVersion version, int inUseBufferLimit,
+                       IpcMessageObjSize bufferSize, IpcThreadInfo *threadInfo = NULL);
   // destructor
   virtual ~IpcBufferedMsgStream();
 
@@ -2529,9 +2528,9 @@ class IpcBufferedMsgStream : public IpcMessageStreamBase {
   IpcMessageObjType msgType_;                // message object type
   IpcMessageObjVersion msgVersion_;          // message object version
   IpcMessageObjSize bufferSize_;             // minimum length of message buffers
-  int inUseBufferLimit_;                   // inuse receive buffer limit
-  int garbageCollectLimit_;                // inuse buf limit for garbage collect
-  int errorInfo_;                          // error info from connection
+  int inUseBufferLimit_;                     // inuse receive buffer limit
+  int garbageCollectLimit_;                  // inuse buf limit for garbage collect
+  int errorInfo_;                            // error info from connection
   NABoolean receiveMsgComplete_;             // complete receive msg ready to unpack
                                              // is in receiveBufList_, also stored
                                              // in receiveMsgObj_
@@ -2627,8 +2626,8 @@ class IpcClientMsgStream : public IpcBufferedMsgStream {
     return (localReplyTag_);
   }
 
-  int sendBufferLimit_;           // outstanding request buffer limit
-  int responsesPending_;          // responses pending count
+  int sendBufferLimit_;             // outstanding request buffer limit
+  int responsesPending_;            // responses pending count
   IpcSetOfConnections recipients_;  // remote connections to receive broadcast
   SET(IpcServerMsgStream *)
   localRecipients_;      // local msg streams to receive broadcast
@@ -2685,7 +2684,7 @@ class IpcServerMsgStream : public IpcBufferedMsgStream {
 
  private:
   IpcConnection *client_;  // remote client connection
-  int sendBufferLimit_;  // output queue response buffer limit
+  int sendBufferLimit_;    // output queue response buffer limit
 
   // The SeaMonster continue protocol allows a batch of replies per
   // request. The batch size is sendBufferLimit_.
@@ -2915,10 +2914,10 @@ class IpcServerClass : public NABasicObject {
   // allocate and free a server
   IpcServer *allocateServerProcess(ComDiagsArea **diags = NULL, CollHeap *diagsHeap = NULL, const char *nodeName = NULL,
                                    IpcCpuNum cpuNum = IPC_CPU_DONT_CARE, IpcPriority priority = IPC_PRIORITY_DONT_CARE,
-                                   int espLevel = 1, NABoolean usesTransactions = TRUE,
-                                   NABoolean waitedCreation = TRUE, int maxNowaitRequests = 2,
-                                   const char *progFileName = NULL, const char *processName = NULL,
-                                   NABoolean parallelOpens = FALSE, IpcGuardianServer **creatingProcess = NULL,
+                                   int espLevel = 1, NABoolean usesTransactions = TRUE, NABoolean waitedCreation = TRUE,
+                                   int maxNowaitRequests = 2, const char *progFileName = NULL,
+                                   const char *processName = NULL, NABoolean parallelOpens = FALSE,
+                                   IpcGuardianServer **creatingProcess = NULL,
                                    NAWNodeSetWrapper *availableNodes = NULL);
   void freeServerProcess(IpcServer *s);
   inline short getServerVersion() { return serverVersion_; }
@@ -3311,7 +3310,7 @@ class IpcEnvironment : public NABasicObject {
   struct IpcMsgTrace {
     IpcConnection *conn_;  // channel used to send or receive
     void *bufAddr_;        // buffer containing the data
-    int length_;         // total sent/received size
+    int length_;           // total sent/received size
     char sendOrReceive_;   // contains enum IpcMsgOper value
     char isLast_;          // indicates if it is the last chunk
     UInt32 seqNum_;        // sequence number of multi-chunk message
@@ -3354,8 +3353,8 @@ class IpcEnvironment : public NABasicObject {
   PersistentOpenEntry (*persistentOpenArray_)[1];
   NABoolean masterFastCompletion_;
   NABoolean persistentProcess_;
-  CliGlobals *cliGlobals_;   // CliGlobals
-  int espFreeMemTimeout_;  // secs after which idle ESP frees up memory.
+  CliGlobals *cliGlobals_;  // CliGlobals
+  int espFreeMemTimeout_;   // secs after which idle ESP frees up memory.
   IpcMessageObjSize guaMaxMsgIOSize_;
   unsigned short maxCCNowaitDepthLow_;
   unsigned short maxCCNowaitDepthHigh_;
@@ -3371,8 +3370,8 @@ class IpcEnvironment : public NABasicObject {
   short bawaitioxTraceIndex_;
   // Executor trace related, see ComExeTrace.h for more info
   IpcMsgTrace *ipcMsgTraceArea_;  // Array of IpcMsgTrace entries
-  int lastIpcMsgTraceIndex_;    // points to the last used entry
-  int maxIpcMsgTraceIndex_;     // max index value
+  int lastIpcMsgTraceIndex_;      // points to the last used entry
+  int maxIpcMsgTraceIndex_;       // max index value
   void *ipcMsgTraceRef_;          // pointer to this trace in the repository
   bool corruptDownloadMsg_;
   bool logReleaseEsp_;

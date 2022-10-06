@@ -1,6 +1,7 @@
 
 
 #include "common/nawstring.h"
+
 #include "common/NLSConversion.h"
 #include "common/charinfo.h"
 

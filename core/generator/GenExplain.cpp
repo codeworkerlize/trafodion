@@ -13,34 +13,33 @@
 ******************************************************************************
 */
 
-#include "optimizer/AllRelExpr.h"
 #include "Cost.h"
-#include "generator/Generator.h"
-#include "optimizer/GroupAttr.h"
-#include "optimizer/PhyProp.h"
-#include "common/ComSmallDefs.h"
+#include "arkcmp/CmpStatement.h"
 #include "comexe/ComTdb.h"
-#include "comexe/ComTdbSplitBottom.h"
-#include "comexe/ComTdbSendBottom.h"
+#include "comexe/ComTdbCancel.h"
+#include "comexe/ComTdbExeUtil.h"
 #include "comexe/ComTdbExplain.h"
-#include "comexe/ComTdbSort.h"
+#include "comexe/ComTdbHashGrby.h"
+#include "comexe/ComTdbHashj.h"
+#include "comexe/ComTdbMj.h"
 #include "comexe/ComTdbRoot.h"
-#include "common/ComTransInfo.h"
-#include "optimizer/ControlDB.h"
+#include "comexe/ComTdbSendBottom.h"
+#include "comexe/ComTdbSendTop.h"
+#include "comexe/ComTdbSequence.h"
+#include "comexe/ComTdbSort.h"
+#include "comexe/ComTdbSplitBottom.h"
 #include "comexe/ExplainTuple.h"
 #include "comexe/ExplainTupleMaster.h"
-#include "arkcmp/CmpStatement.h"
-#include "comexe/ComTdbSendTop.h"
-#include "comexe/ComTdbExeUtil.h"
-#include "comexe/ComTdbHashj.h"
-#include "comexe/ComTdbHashGrby.h"
-#include "comexe/ComTdbMj.h"
-#include "comexe/ComTdbSequence.h"
-#include "comexe/ComTdbCancel.h"
-
-#include "parser/StmtDDLCreateTable.h"
-#include "parser/StmtDDLCreateIndex.h"
 #include "common/ComDistribution.h"
+#include "common/ComSmallDefs.h"
+#include "common/ComTransInfo.h"
+#include "generator/Generator.h"
+#include "optimizer/AllRelExpr.h"
+#include "optimizer/ControlDB.h"
+#include "optimizer/GroupAttr.h"
+#include "optimizer/PhyProp.h"
+#include "parser/StmtDDLCreateIndex.h"
+#include "parser/StmtDDLCreateTable.h"
 #include "sqlcat/TrafDDLdesc.h"
 
 void RelExpr::addExplainPredicates(ExplainTupleMaster *explainTuple, Generator *generator)
@@ -1477,8 +1476,8 @@ ExplainTuple *RelRoot::addSpecificExplainInfo(ExplainTupleMaster *explainTuple, 
       char sikOperationLit[8];
       ComQIActionTypeEnumToLiteral(sikValue[i].getSecurityKeyType(), sikOperationLit);
       sikOperationLit[2] = '\0';
-      str_sprintf(buf, "{%ld,%ld,%s}", (long)sikValue[i].getSubjectHashValue(),
-                  (long)sikValue[i].getObjectHashValue(), sikOperationLit);
+      str_sprintf(buf, "{%ld,%ld,%s}", (long)sikValue[i].getSubjectHashValue(), (long)sikValue[i].getObjectHashValue(),
+                  sikOperationLit);
       statement += buf;
     }
     statement += " ";

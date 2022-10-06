@@ -19,16 +19,16 @@
 */
 
 //#include "exp/exp_clause_derived.h"
-#include "optimizer/ObjectNames.h"
-#include "optimizer/RelExpr.h"
-#include "cli/SQLCLIdev.h"
-#include "optimizer/OptUtilIncludes.h"
 #include "BinderUtils.h"
-#include "parser/StmtNode.h"
-#include "comexe/LateBindInfo.h"
-#include "common/SequenceGeneratorAttributes.h"
-#include "common/ComSecurityKey.h"
 #include "arkcmp/CmpStatement.h"
+#include "cli/SQLCLIdev.h"
+#include "comexe/LateBindInfo.h"
+#include "common/ComSecurityKey.h"
+#include "common/SequenceGeneratorAttributes.h"
+#include "optimizer/ObjectNames.h"
+#include "optimizer/OptUtilIncludes.h"
+#include "optimizer/RelExpr.h"
+#include "parser/StmtNode.h"
 class TrafDesc;
 
 // -----------------------------------------------------------------------
@@ -94,7 +94,7 @@ class CostMethodTuple;
 struct TreeStore : public NABasicObject {
  public:
   RelExpr *rep;  // rel expr ptr
-  int cindex;  // compressed index
+  int cindex;    // compressed index
   // constructor
   TreeStore(RelExpr *r, int c) {
     rep = r;
@@ -324,7 +324,6 @@ class RelRoot : public RelExpr {
   void findKeyAndInsertInOutputList(ComSecurityKeySet KeysForTab, const uint32_t userHashValue, const PrivType which,
                                     BindWA *bindWA);
 
-
   // -- MVs
   void setRootOfInternalRefresh() { isRootOfInternalRefresh_ = TRUE; }
   NABoolean isRootOfInternalRefresh() const { return isRootOfInternalRefresh_; }
@@ -495,7 +494,7 @@ class RelRoot : public RelExpr {
 
   NABoolean trueRoot_;  // set in the true root of the query tree
                         // reset in the roots of all subquery trees
-  int outputVarCnt_;  // -1 if not true root, else no. of output :hv's
+  int outputVarCnt_;    // -1 if not true root, else no. of output :hv's
   NABoolean subRoot_;   // true iff this is a subroot (ie, the root of a
   // sql statement that's inside a compound statement)
   ItemExpr *compExprTree_;
@@ -623,8 +622,6 @@ class RelRoot : public RelExpr {
 
   // true iff result descriptor has Provided range or residual predicate(s)
   NABoolean isQueryNonCacheable_;  // default is FALSE
-
-
 
   int flags_;
 

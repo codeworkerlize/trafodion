@@ -9,10 +9,12 @@
 // ==========================================================================
 
 #include "sqlcomp/PrivMgrDesc.h"
-#include "sqlcomp/PrivMgrPrivileges.h"
+
 #include <bitset>
 #include <string>
 #include <vector>
+
+#include "sqlcomp/PrivMgrPrivileges.h"
 
 // *****************************************************************************
 //    PrivMgrCoreDesc methods

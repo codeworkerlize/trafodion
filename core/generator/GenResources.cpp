@@ -15,13 +15,15 @@
  *****************************************************************************
  */
 
-#include "sqlcomp/DefaultValidator.h"
-#include "generator/Generator.h"
-#include "comexe/ComResourceInfo.h"
 #include "GenResources.h"
-#include "optimizer/SchemaDB.h"
+
 #include <sys/stat.h>
+
+#include "comexe/ComResourceInfo.h"
+#include "generator/Generator.h"
 #include "optimizer/OptimizerSimulator.h"
+#include "optimizer/SchemaDB.h"
+#include "sqlcomp/DefaultValidator.h"
 
 // static helper function to generate one list of disks
 // (returns an array of ExScratchDiskDrive objects)

@@ -3,10 +3,11 @@
 #define EX_TCB_H
 
 #include <sys/time.h>
+
 #include "common/Platform.h"
+#include "executor/ex_globals.h"
 #include "executor/ex_tcb_private.h"
 #include "executor/sql_buffer.h"
-#include "executor/ex_globals.h"
 
 //
 //      TCB     Task control block
@@ -116,8 +117,6 @@ class ex_tcb : public ExGod {
   // ****  information for GUI  *** -------------
 
   int objectId;
-
-
 
   ComTdb::ex_node_type getNodeType() const { return nodeType_; }
 

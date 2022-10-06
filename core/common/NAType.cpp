@@ -14,13 +14,14 @@
 */
 
 #include "common/NAType.h"
-#include "common/DatetimeType.h"
-#include "common/ComASSERT.h"
-#include "common/NumericType.h"
+
 #include "common/CharType.h"
-#include "common/MiscType.h"
-#include "common/CompositeType.h"
 #include "common/CmpCommon.h" /* want to put NAType obj's on statement heap ... */
+#include "common/ComASSERT.h"
+#include "common/CompositeType.h"
+#include "common/DatetimeType.h"
+#include "common/MiscType.h"
+#include "common/NumericType.h"
 #include "common/str.h"
 
 // extern declaration
@@ -476,8 +477,6 @@ int NAType::getDisplayLengthStatic(int datatype, int length, int precision, int 
       d_len = interval.getDisplayLength();
     } break;
 
-
-
     case REC_BOOLEAN:
       d_len = SQL_BOOLEAN_DISPLAY_SIZE;
       break;
@@ -508,7 +507,7 @@ int NAType::getDisplayLength(int datatype, int length, int precision, int scale,
 // based on the datatype information input to this method.
 // Returns -1 in case of error, 0 if all is ok.
 /*static*/
-short NAType::convertTypeToText(char *text,         // OUTPUT
+short NAType::convertTypeToText(char *text,       // OUTPUT
                                 int fs_datatype,  // all other vars: INPUT
                                 int length, int precision, int scale, rec_datetime_field datetimestart,
                                 rec_datetime_field datetimeend, short datetimefractprec, short intervalleadingprec,
@@ -928,7 +927,7 @@ NAType *NAType::getNATypeForHive(const char *hiveType, NABoolean isORC, NABoolea
     nat->setHiveType(HIVE_BOOLEAN_TYPE);
   } else if (!strcmp(hiveType, "string")) {
     int lenInBytes = (compositeElement ? CmpCommon::getDefaultLong(HIVE_MAX_COMPOSITE_STRING_LENGTH_IN_BYTES)
-                                         : CmpCommon::getDefaultLong(HIVE_MAX_STRING_LENGTH_IN_BYTES));
+                                       : CmpCommon::getDefaultLong(HIVE_MAX_STRING_LENGTH_IN_BYTES));
 
     NAString hiveCharset = CmpCommon::getDefaultString(HIVE_DEFAULT_CHARSET);
     hiveCharset.toUpper();

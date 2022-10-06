@@ -18,10 +18,10 @@
  *****************************************************************************
  */
 
-#include "common/ComSmallDefs.h"
 #include "ElemDDLNode.h"
-#include "parser/ElemDDLColRefArray.h"
 #include "ParNameLocList.h"
+#include "common/ComSmallDefs.h"
+#include "parser/ElemDDLColRefArray.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

@@ -20,13 +20,12 @@
 #undef UDRUNLOAD_INSTANTIATE
 #define UDRUNLOAD_INSTANTIATE
 
-#include "udrextrn.h"
-#include "UdrStreams.h"
-#include "udrdefs.h"
-#include "udrutil.h"
 #include "UdrExeIpc.h"
-
+#include "UdrStreams.h"
 #include "udrdecs.h"
+#include "udrdefs.h"
+#include "udrextrn.h"
+#include "udrutil.h"
 
 void processAnUnLoadMessage(UdrGlobals *UdrGlob, UdrServerReplyStream &msgStream, UdrUnloadMsg &request) {
   int error;

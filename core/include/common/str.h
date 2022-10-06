@@ -3,15 +3,13 @@
 #define STR_H
 
 #include <string.h>
-#include "common/Platform.h"
 
-#include "common/NAWinNT.h"
-
-#include "common/NAStdlib.h"
-#include "common/unicode_char_set.h"
 #include "common/Int64.h"
-
 #include "common/NAAssert.h"
+#include "common/NAStdlib.h"
+#include "common/NAWinNT.h"
+#include "common/Platform.h"
+#include "common/unicode_char_set.h"
 
 // -----------------------------------------------------------------------
 // toupper() and tolower() equivalence
@@ -38,7 +36,7 @@ int isHexDigit8859_1(NAWchar c);  // 0, 1, .., A, B, C, D, E, F (case insensitiv
 int isDigit8859_1(NAWchar c);
 
 int isCaseInsensitive8859_1(NAWchar c);  // ISO 8859-1 char for which there is no
-                                           // upcase equivalent.  hex values 0xDF & 0xFF
+                                         // upcase equivalent.  hex values 0xDF & 0xFF
 int isChineseCharacter(NAWchar c);
 
 // -----------------------------------------------------------------------
@@ -240,7 +238,7 @@ int str_varchar_alloc_and_copy(char *tgt, const char *src, int length);
 // Removes trailing <blank_char>s by putting an <end_char> as terminator.
 // -----------------------------------------------------------------------
 int str_cpy_and_null(char *tgt, const char *src, int length, char end_char = '\0', char blank_char = ' ',
-                       NABoolean nullTerminate = FALSE);
+                     NABoolean nullTerminate = FALSE);
 
 // ---------------------------------------------------------------
 // copies src to tgt for length bytes and upshifts, if upshift <> 0,
@@ -366,10 +364,10 @@ size_t str_computeHexAsciiLen(size_t srcByteLen);
 // NULL character - i.e. '\0' - is appended to the output string.
 // -----------------------------------------------------------------------
 int str_convertToHexAscii(const char *src,                 // in
-                            const size_t srcLength,          // in
-                            char *result,                    // out
-                            const size_t maxResultSize,      // in - including NULL terminator if addNullAtEnd
-                            NABoolean addNullAtEnd = TRUE);  // in
+                          const size_t srcLength,          // in
+                          char *result,                    // out
+                          const size_t maxResultSize,      // in - including NULL terminator if addNullAtEnd
+                          NABoolean addNullAtEnd = TRUE);  // in
 
 // Print the data pointed at by a tupp. The data type
 // is inferred from the characters. The arguments

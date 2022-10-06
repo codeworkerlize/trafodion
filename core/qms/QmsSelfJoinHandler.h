@@ -32,12 +32,12 @@
 // Created:      09/12/2011
 // ***********************************************************************
 
-#include "export/NABasicObject.h"
-#include "common/NAString.h"
 #include "common/Collections.h"
 #include "common/Int64.h"
-#include "qmscommon/QRSharedPtr.h"
+#include "common/NAString.h"
+#include "export/NABasicObject.h"
 #include "qmscommon/QRDescriptor.h"
+#include "qmscommon/QRSharedPtr.h"
 
 class Array2D;
 class PermutationMatrix;

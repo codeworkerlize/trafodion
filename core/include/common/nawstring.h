@@ -17,8 +17,8 @@
 ******************************************************************************
 */
 
-#include "common/Platform.h"
 #include "common/NAWinNT.h"
+#include "common/Platform.h"
 #include "export/NAStringDef.h"
 
 // -----------------------------------------------------------------------

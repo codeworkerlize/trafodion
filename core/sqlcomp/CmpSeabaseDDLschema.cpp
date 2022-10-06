@@ -1,29 +1,30 @@
 
 
-#include "sqlcomp/CmpSeabaseDDLincludes.h"
+#include <vector>
+
+#include "cli/Context.h"
+#include "cli/Globals.h"
+#include "common/ComUser.h"
+#include "common/NumericType.h"
+#include "optimizer/keycolumns.h"
+#include "parser/ElemDDLColDefault.h"
+#include "parser/ElemDDLColName.h"
+#include "parser/ElemDDLColRef.h"
+#include "parser/StmtDDLAlterSchema.h"
+#include "parser/StmtDDLAlterSchemaHDFSCache.h"
 #include "parser/StmtDDLCreateSchema.h"
 #include "parser/StmtDDLDropSchema.h"
-#include "parser/StmtDDLAlterSchema.h"
 #include "parser/StmtDDLGive.h"
 #include "parser/StmtDDLSchGrant.h"
 #include "parser/StmtDDLSchRevoke.h"
-#include "parser/ElemDDLColDefault.h"
-#include "common/NumericType.h"
-#include "common/ComUser.h"
-#include "optimizer/keycolumns.h"
-#include "parser/ElemDDLColRef.h"
-#include "parser/ElemDDLColName.h"
-#include "parser/StmtDDLAlterSchemaHDFSCache.h"
 #include "sqlcomp/CmpDDLCatErrorCodes.h"
-#include "cli/Globals.h"
 #include "sqlcomp/CmpMain.h"
-#include "cli/Context.h"
-#include "sqlcomp/PrivMgrCommands.h"
-#include "sqlcomp/PrivMgrObjects.h"
-#include "sqlcomp/PrivMgrComponentPrivileges.h"
+#include "sqlcomp/CmpSeabaseDDLincludes.h"
 #include "sqlcomp/CmpSeabaseTenant.h"
+#include "sqlcomp/PrivMgrCommands.h"
+#include "sqlcomp/PrivMgrComponentPrivileges.h"
+#include "sqlcomp/PrivMgrObjects.h"
 #include "sqlcomp/SharedCache.h"
-#include <vector>
 
 static bool transferObjectPrivs(const char *systemCatalogName, const char *catalogName, const char *schemaName,
                                 const int32_t newOwnerID, const char *newOwnerName);
@@ -573,7 +574,7 @@ void CmpSeabaseDDL::dropSeabaseSchema(StmtDDLDropSchema *dropSchemaNode)
   errorObjs[0] = 0;
 
   long schemaUID = getObjectTypeandOwner(&cliInterface, catName.data(), schName.data(), SEABASE_SCHEMA_OBJECTNAME,
-                                          objectType, schemaOwnerID);
+                                         objectType, schemaOwnerID);
 
   // if schemaUID == -1, then either the schema does not exist or an unexpected error occurred
   if (schemaUID == -1) {
@@ -1161,7 +1162,7 @@ void CmpSeabaseDDL::alterSeabaseSchema(StmtDDLAlterSchema *alterSchemaNode)
   errorObjs[0] = 0;
 
   long schemaUID = getObjectTypeandOwner(&cliInterface, catName.data(), schName.data(), SEABASE_SCHEMA_OBJECTNAME,
-                                          objectType, schemaOwnerID);
+                                         objectType, schemaOwnerID);
 
   // if schemaUID == -1, then either the schema does not exist or an unexpected error occurred
   if (schemaUID == -1) {
@@ -1399,9 +1400,9 @@ label_error:
 // *                                                                           *
 // *****************************************************************************
 int CmpSeabaseDDL::alterSchemaTableDesc(ExeCliInterface *cliInterface,
-                                          const StmtDDLAlterTableStoredDesc::AlterStoredDescType sdo,
-                                          const long schUID, const ComObjectType objType, const NAString catName,
-                                          const NAString schName, const NABoolean ddlXns) {
+                                        const StmtDDLAlterTableStoredDesc::AlterStoredDescType sdo, const long schUID,
+                                        const ComObjectType objType, const NAString catName, const NAString schName,
+                                        const NABoolean ddlXns) {
   int cliRC = 0;
   char objTypeLit[3] = {0};
   strncpy(objTypeLit, PrivMgr::ObjectEnumToLit(objType), 2);
@@ -1485,8 +1486,8 @@ int CmpSeabaseDDL::alterSchemaTableDesc(ExeCliInterface *cliInterface,
 // *                                                                           *
 // *****************************************************************************
 int CmpSeabaseDDL::alterSchemaTableDesc(ExeCliInterface *cliInterface,
-                                          const StmtDDLAlterTableStoredDesc::AlterStoredDescType sdo,
-                                          const NAString objName, const NABoolean ddlXns) {
+                                        const StmtDDLAlterTableStoredDesc::AlterStoredDescType sdo,
+                                        const NAString objName, const NABoolean ddlXns) {
   ComObjectName objNameParts(objName, COM_TABLE_NAME);
   const NAString schName = objNameParts.getSchemaNamePartAsAnsiString(TRUE);
   const NAString catName = objNameParts.getCatalogNamePartAsAnsiString(TRUE);
@@ -1564,7 +1565,7 @@ void CmpSeabaseDDL::giveSeabaseSchema(StmtDDLGiveSchema *giveSchemaNode, NAStrin
   ComObjectType objectType;
 
   long schemaUID = getObjectTypeandOwner(&cliInterface, catalogName.data(), schemaName.data(),
-                                          SEABASE_SCHEMA_OBJECTNAME, objectType, schemaOwnerID);
+                                         SEABASE_SCHEMA_OBJECTNAME, objectType, schemaOwnerID);
 
   if (schemaUID == -1) {
     // A Trafodion schema does not exist if the schema object row is not
@@ -1725,7 +1726,7 @@ void CmpSeabaseDDL::alterSeabaseSchemaHDFSCache(StmtDDLAlterSchemaHDFSCache *alt
   ComObjectType objectType;
 
   long schemaUID = getObjectTypeandOwner(&cliInterface, catName.data(), schName.data(), SEABASE_SCHEMA_OBJECTNAME,
-                                          objectType, schemaOwnerID);
+                                         objectType, schemaOwnerID);
 
   // if schemaUID == -1, then either the schema does not exist or an unexpected error occurred
   if (schemaUID == -1) {
@@ -2193,10 +2194,10 @@ void CmpSeabaseDDL::grantRevokeSchema(StmtDDLNode *stmtDDLNode, NABoolean isGran
   ExeCliInterface cliInterface(STMTHEAP, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
   char outObjType[10];
   long objectUID = getObjectUID(&cliInterface, catalogName.data(), schemaName.data(), objectName.data(), NULL, NULL,
-                                 "object_type = '" COM_PRIVATE_SCHEMA_OBJECT_LIT
-                                 "' or "
-                                 "object_type = '" COM_SHARED_SCHEMA_OBJECT_LIT "' ",
-                                 outObjType);
+                                "object_type = '" COM_PRIVATE_SCHEMA_OBJECT_LIT
+                                "' or "
+                                "object_type = '" COM_SHARED_SCHEMA_OBJECT_LIT "' ",
+                                outObjType);
   if (objectUID < 0) {
     // Remove object does not exist error since it reports the internal schema
     // name and report schema does not exist error instead

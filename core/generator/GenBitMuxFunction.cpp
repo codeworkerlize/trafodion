@@ -2,11 +2,11 @@
 
 // Includes
 //
-#include "optimizer/ItemExpr.h"
+#include "ExpBitMuxFunction.h"
+#include "GenExpGenerator.h"
 #include "ItmBitMuxFunction.h"
 #include "generator/Generator.h"
-#include "GenExpGenerator.h"
-#include "ExpBitMuxFunction.h"
+#include "optimizer/ItemExpr.h"
 
 ItemExpr *ItmBitMuxFunction::preCodeGen(Generator *generator) {
   if (nodeIsPreCodeGenned()) return this;

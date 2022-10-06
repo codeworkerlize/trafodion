@@ -17,17 +17,18 @@
  */
 
 #define SQLPARSERGLOBALS_NADEFAULTS  // must be first
+#include "common/ComObjectName.h"
+
 #include <string.h>
+
 #include "common/BaseTypes.h"
 #include "common/ComASSERT.h"
-#include "common/ComRtUtils.h"
-#include "common/ComMPLoc.h"
-#include "common/ComObjectName.h"
-#include "common/ComSqlText.h"
-#include "common/NAString.h"
 #include "common/ComAnsiNamePart.h"
 #include "common/ComDistribution.h"
-
+#include "common/ComMPLoc.h"
+#include "common/ComRtUtils.h"
+#include "common/ComSqlText.h"
+#include "common/NAString.h"
 #include "parser/SqlParserGlobals.h"  // must be last
 
 // -----------------------------------------------------------------------
@@ -86,7 +87,7 @@ ComBoolean ComRoutineActionName::extractUudfUidAndIntActNameFromFunnyIntActNameI
   ComString uidStr(uidStrBuf);
   RemoveLeadingZeros(uidStr);
   if (NOT NAStringHasOnlyDecimalDigitAsciiChars(uidStr)) return FALSE;  // wrong parameter value
-  long i64 = atoInt64(uidStr.data());                                  // in - const char * src
+  long i64 = atoInt64(uidStr.data());                                   // in - const char * src
   if (i64 <= 0) return FALSE;                                           // wrong parameter value
   pr_uudfUid = i64;
   pr_computedIntActName = &p[20];

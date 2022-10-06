@@ -21,8 +21,9 @@
 
 // Includes
 //
-#include "ex_ex.h"
 #include "ExBitMapTable.h"
+
+#include "ex_ex.h"
 
 // ExBitMapTable::ExBitMapTable
 //

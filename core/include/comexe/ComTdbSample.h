@@ -18,8 +18,8 @@
 #ifndef ComTdbSample_h
 #define ComTdbSample_h
 
-#include "comexe/ComTdb.h"
 #include "comexe/ComPackDefs.h"
+#include "comexe/ComTdb.h"
 
 // Task Definition Block
 //
@@ -82,10 +82,10 @@ class ComTdbSample : public ComTdb {
   }
 
  protected:
-  ExExprPtr initExpr_;        // 00-07
-  ExExprPtr balanceExpr_;     // 08-15
-  ExExprPtr postPred_;        // 16-23
-  ComTdbPtr tdbChild_;        // 24-31
+  ExExprPtr initExpr_;      // 00-07
+  ExExprPtr balanceExpr_;   // 08-15
+  ExExprPtr postPred_;      // 16-23
+  ComTdbPtr tdbChild_;      // 24-31
   int returnFactorOffset_;  // 32-35
   // ---------------------------------------------------------------------
   // Filler for potential future extensions without changing class size.

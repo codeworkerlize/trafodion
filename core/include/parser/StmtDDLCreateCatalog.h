@@ -18,8 +18,8 @@
  *****************************************************************************
  */
 
-#include "common/ComLocationNames.h"
 #include "ElemDDLLocation.h"
+#include "common/ComLocationNames.h"
 #include "parser/StmtDDLNode.h"
 
 // -----------------------------------------------------------------------

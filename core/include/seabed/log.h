@@ -1,7 +1,6 @@
 //------------------------------------------------------------------
 //
 
-
 //
 // Logging module
 //
@@ -10,7 +9,6 @@
 
 #include "int/diag.h"
 #include "int/exp.h"
-
 #include "sqevlog/evl_sqlog_writer.h"
 
 //

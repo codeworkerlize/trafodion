@@ -1,7 +1,8 @@
 
 // diskpool.C -*-C++-*-
-#include "common/Platform.h"
 #include "DiskPool_sq.h"
+
+#include "common/Platform.h"
 
 //--------------------------------------------------------------------------
 // UNIXDisk()

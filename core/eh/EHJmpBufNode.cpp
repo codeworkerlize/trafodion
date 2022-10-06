@@ -15,11 +15,12 @@
  *****************************************************************************
  */
 
-#include "EHCommonDefs.h"
+#include "EHJmpBufNode.h"
 
 #include <string.h>
+
 #include "EHBaseTypes.h"
-#include "EHJmpBufNode.h"
+#include "EHCommonDefs.h"
 
 // -----------------------------------------------------------------------
 // methods for class EHExceptionJmpBufNode

@@ -28,8 +28,8 @@
  *****************************************************************************
  */
 
-#include "optimizer/ObjectNames.h"
 #include "StmtDDLAlterTable.h"
+#include "optimizer/ObjectNames.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

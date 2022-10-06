@@ -3,10 +3,10 @@
 #ifndef _OPTRANGE_H_
 #define _OPTRANGE_H_
 
-#include "qmscommon/Range.h"
-#include "qmscommon/QRDescriptor.h"
 #include "common/nawstring.h"
+#include "qmscommon/QRDescriptor.h"
 #include "qmscommon/QRLogger.h"
+#include "qmscommon/Range.h"
 
 /**
  * \file

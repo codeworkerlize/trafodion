@@ -43,14 +43,13 @@ class ComTdbHashj : public ComTdb {
               short hashValueAtpIndex, short instRowForLeftJoinAtpIndex, short returnedLeftRowAtpIndex,
               short returnedRightRowAtpIndex, short returnedInstRowForLeftJoinAtpIndex, unsigned short memUsagePercent,
               short pressureThreshold, short scrThreshold, queue_index down, queue_index up, int isSemiJoin,
-              int isLeftJoin, int isAntiSemiJoin, int isUniqueHashJoin, int isNoOverflow, int isReuse,
-              int numBuffers, int bufferSize, int hashBufferSize, Cardinality estimatedRowount,
-              Cardinality innerExpectedRows, Cardinality outerExpectedRows, int isRightJoin, ex_expr *rightJoinExpr,
-              ex_expr *nullInstForRightJoinExpr, short instRowForRightJoinAtpIndex,
-              short returnedInstRowForRightJoinAtpIndex, int instRowForRightJoinLength,
-              unsigned short minBuffersToFlush, int numInBatch, ex_expr *checkInnerNullExpr,
-              ex_expr *checkOuterNullExpr, short hjGrowthPercent, short minMaxValsAtpIndex, int minMaxRowLength,
-              ex_expr *minMaxExpr, ex_cri_desc *leftDownCriDesc, ex_expr *rangeSpecPackingExpr,
+              int isLeftJoin, int isAntiSemiJoin, int isUniqueHashJoin, int isNoOverflow, int isReuse, int numBuffers,
+              int bufferSize, int hashBufferSize, Cardinality estimatedRowount, Cardinality innerExpectedRows,
+              Cardinality outerExpectedRows, int isRightJoin, ex_expr *rightJoinExpr, ex_expr *nullInstForRightJoinExpr,
+              short instRowForRightJoinAtpIndex, short returnedInstRowForRightJoinAtpIndex,
+              int instRowForRightJoinLength, unsigned short minBuffersToFlush, int numInBatch,
+              ex_expr *checkInnerNullExpr, ex_expr *checkOuterNullExpr, short hjGrowthPercent, short minMaxValsAtpIndex,
+              int minMaxRowLength, ex_expr *minMaxExpr, ex_cri_desc *leftDownCriDesc, ex_expr *rangeSpecPackingExpr,
               int rangeSpecSanityCheckCycle);
 
   // ---------------------------------------------------------------------
@@ -364,7 +363,7 @@ class ComTdbHashj : public ComTdb {
   ExExprPtr checkInputPred_;  // 224-231
   // move/save current input
   ExExprPtr moveInputExpr_;     // 232-239
-  int inputValuesLen_;        // 240-243
+  int inputValuesLen_;          // 240-243
   UInt16 scratchThresholdPct_;  // 244-245
 
   // max memory this operator should allocate. In Mbytes.
@@ -390,7 +389,7 @@ class ComTdbHashj : public ComTdb {
   ExExprPtr afterJoinPred5_;             // 312-319
   Float32 hjMemEstInKBPerNode_;          // 320-323
   Float32 bmoCitizenshipFactor_;         // 324-327
-  int pMemoryContingencyMB_;           // 328-331
+  int pMemoryContingencyMB_;             // 328-331
   Int16 scratchIOVectorSize_;            // 332-333
   UInt16 bmoMinMemBeforePressureCheck_;  // 334-335
   UInt16 bmoMaxMemThresholdMB_;          // 336-337

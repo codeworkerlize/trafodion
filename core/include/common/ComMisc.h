@@ -17,9 +17,9 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
 #include "common/ComSmallDefs.h"
 #include "common/NAString.h"
+#include "common/Platform.h"
 
 // schema names of pattern  "_%_" are reserved for internal system schemas.
 NABoolean ComIsTrafodionReservedSchemaName(const NAString &schName);
@@ -100,7 +100,7 @@ NAString ComGetReservedNamespace(NAString schName);
 // Converts a library name like myfile.jar or myfile.so to this format
 // $TRAF_VAR/$UDR_CACHE_LIBDIR/<user>|myfile_<redeftime>.jar|so
 int ComGenerateUdrCachedLibName(NAString libname, long redeftime, NAString schemaName, NAString user,
-                                  NAString &cachedLibName, NAString &cachedPathName);
+                                NAString &cachedLibName, NAString &cachedPathName);
 
 NABoolean getEnvEnableRowLevelLock();
 extern const NABoolean gEnableRowLevelLock;

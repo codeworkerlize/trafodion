@@ -13,28 +13,28 @@
  *
  *****************************************************************************
  */
-#include "common/Platform.h"
-
-#include "executor/ex_stdh.h"
-#include "comexe/ComTdb.h"
-#include "executor/ex_tcb.h"
 #include "ex_exe_stmt_globals.h"
-#include "ex_frag_rt.h"
-#include "Ex_esp_msg.h"
-#include "ex_esp_frag_dir.h"
-#include "comexe/LateBindInfo.h"
-#include "cli_stdh.h"
-#include "ExUdrServer.h"
-#include "UdrExeIpc.h"
+
 #include "ExRsInfo.h"
-#include "ex_send_top.h"
-#include "runtimestats/SqlStats.h"
-#include "cli/Globals.h"
-#include "ExSMTrace.h"
 #include "ExSMCommon.h"
-#include "ExSMGlobals.h"
 #include "ExSMEvent.h"
+#include "ExSMGlobals.h"
+#include "ExSMTrace.h"
+#include "ExUdrServer.h"
+#include "Ex_esp_msg.h"
+#include "UdrExeIpc.h"
+#include "cli/Globals.h"
+#include "cli_stdh.h"
+#include "comexe/ComTdb.h"
+#include "comexe/LateBindInfo.h"
+#include "common/Platform.h"
+#include "ex_esp_frag_dir.h"
+#include "ex_frag_rt.h"
+#include "ex_send_top.h"
 #include "executor/HBaseClient_JNI.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_tcb.h"
+#include "runtimestats/SqlStats.h"
 
 class ComTdbRoot;
 
@@ -142,9 +142,9 @@ void ESPTraceList::logESPTraceToFile(char *fn, char *signature, ESPTraceList &tr
   short fnum;
   sgTraceFileName = (fn ? fn : "SYSTEM.SYSTEM.SGLOG");
   int ferr = FILE_OPEN_(sgTraceFileName, strlen(sgTraceFileName), &fnum,
-                          (UInt16)2,  // Write Access
-                          (UInt16)1,  // Exclusive
-                          0           // OMIT // waited
+                        (UInt16)2,  // Write Access
+                        (UInt16)1,  // Exclusive
+                        0           // OMIT // waited
   );
 
   char msg[200];
@@ -588,8 +588,7 @@ int ExMasterStmtGlobals::getMyInstanceNumber() const {
   return 0;
 }
 
-void ExMasterStmtGlobals::getMyNodeLocalInstanceNumber(int &myNodeLocalInstanceNumber,
-                                                       int &numOfLocalInstances) const {
+void ExMasterStmtGlobals::getMyNodeLocalInstanceNumber(int &myNodeLocalInstanceNumber, int &numOfLocalInstances) const {
   // I'm number one (zero in geek-speak) and there is only one master
   myNodeLocalInstanceNumber = 0;
   numOfLocalInstances = 1;
@@ -747,8 +746,8 @@ void ExMasterStmtGlobals::deleteResultSetInfo() {
   }
 }
 
-void ExMasterStmtGlobals::acquireRSInfoFromParent(int &rsIndex,          // OUT
-                                                  long &udrHandle,         // OUT
+void ExMasterStmtGlobals::acquireRSInfoFromParent(int &rsIndex,             // OUT
+                                                  long &udrHandle,          // OUT
                                                   ExUdrServer *&udrServer,  // OUT
                                                   IpcProcessId &pid,        // OUT
                                                   ExRsInfo *&rsInfo)        // OUT
@@ -900,8 +899,7 @@ const char *ExMasterStmtGlobals::getSMTraceFilePrefix() const {
 
 ExEspStmtGlobals::ExEspStmtGlobals(short num_temps, CliGlobals *cliGlobals, short create_gui_sched, Space *space,
                                    CollHeap *heap, ExEspFragInstanceDir *espFragInstanceDir, int handle,
-                                   int injectErrorAtExprFreq, NABoolean multiThreadedEsp, char *queryId,
-                                   int queryIdLen)
+                                   int injectErrorAtExprFreq, NABoolean multiThreadedEsp, char *queryId, int queryIdLen)
     : ExExeStmtGlobals(num_temps, cliGlobals, create_gui_sched, space, heap),
       sendTopTcbs_(heap),
       activatedSendTopTcbs_(&sendTopTcbs_, heap),
@@ -1016,8 +1014,7 @@ int ExEspStmtGlobals::getMyInstanceNumber() const {
       cachedMyInstanceNum_;
 }
 
-void ExEspStmtGlobals::getMyNodeLocalInstanceNumber(int &myNodeLocalInstanceNumber,
-                                                    int &numOfLocalInstances) const {
+void ExEspStmtGlobals::getMyNodeLocalInstanceNumber(int &myNodeLocalInstanceNumber, int &numOfLocalInstances) const {
   ExFragId myFragId = getMyFragId();
   int numInstances = getNumOfInstances(myFragId);
 
@@ -1194,8 +1191,8 @@ void ExEspStmtGlobals::decrementSendTopMsgesOut() {
 StmtStats *ExEspStmtGlobals::setStmtStats() {
   StatsGlobals *statsGlobals = espFragInstanceDir_->getStatsGlobals();
   if (statsGlobals != NULL && queryId_ != NULL)
-    stmtStats_ = statsGlobals->addQuery(espFragInstanceDir_->getPid(), queryId_, queryIdLen_, (void *)this,
-                                        (int)getMyFragId());
+    stmtStats_ =
+        statsGlobals->addQuery(espFragInstanceDir_->getPid(), queryId_, queryIdLen_, (void *)this, (int)getMyFragId());
   return stmtStats_;
 }
 

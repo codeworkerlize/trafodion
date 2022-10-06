@@ -17,24 +17,25 @@
 
 // -----------------------------------------------------------------------
 
-#include "common/ComOptIncludes.h"
-#include "optimizer/GroupAttr.h"
-#include "RelEnforcer.h"
-#include "optimizer/RelMisc.h"
-#include "optimizer/RelUpdate.h"
-#include "optimizer/RelRoutine.h"
-#include "generator/Generator.h"
 #include "GenExpGenerator.h"
+#include "RelEnforcer.h"
+#include "common/ComOptIncludes.h"
+#include "generator/Generator.h"
+#include "optimizer/GroupAttr.h"
+#include "optimizer/RelMisc.h"
+#include "optimizer/RelRoutine.h"
+#include "optimizer/RelUpdate.h"
 //#include "executor/ex_stdh.h"
-#include "exp/ExpCriDesc.h"
 #include "comexe/ComTdb.h"
+#include "exp/ExpCriDesc.h"
 //#include "executor/ex_tcb.h"
-#include "comexe/ComTdbSplitTop.h"
+#include <ComCextdecs.h>
+
+#include "comexe/ComTdbSendBottom.h"
 #include "comexe/ComTdbSendTop.h"
 #include "comexe/ComTdbSplitBottom.h"
-#include "comexe/ComTdbSendBottom.h"
+#include "comexe/ComTdbSplitTop.h"
 #include "sqlcomp/DefaultConstants.h"
-#include <ComCextdecs.h>
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -412,8 +413,8 @@ short Exchange::codeGenForESP(Generator *generator) {
 
   // we MUST be able to fit at least one row into a buffer
 
-  downSqlBufferLength = MAXOF((int)ComTdbSendTop::minSendBufferSize(downRecordLength),
-                              (int)(downMessageBufferLength_.getValue() * 1024));
+  downSqlBufferLength =
+      MAXOF((int)ComTdbSendTop::minSendBufferSize(downRecordLength), (int)(downMessageBufferLength_.getValue() * 1024));
 
   CollIndex childFragmentId = 0;
 
@@ -817,7 +818,7 @@ short Exchange::codeGenForESP(Generator *generator) {
           topPartExprAsList.insert(hashExprResult->getValueId());
 
           expectedPartInfoLength += sizeof(long)  // hash value
-                                    + 4;           // alignment
+                                    + 4;          // alignment
 
           // 2. Prepare the array of hash values which
           //    indicate possible skewed partitioning keys.
@@ -1208,8 +1209,8 @@ short Exchange::codeGenForESP(Generator *generator) {
   // ---------------------------------------------------------------------
 
   splitTop = new (space) ComTdbSplitTop(
-      sendTop, calcInputPartNoExpr, inputPartNoAtpIndex, mergeKeyExpr, mergeTuppAtpIndex, (int)mergeKeyLength, NULL,
-      -1, -1, given_cri_desc, returned_cri_desc, given_cri_desc, splitTopWorkCriDesc, FALSE, (queue_index)2,
+      sendTop, calcInputPartNoExpr, inputPartNoAtpIndex, mergeKeyExpr, mergeTuppAtpIndex, (int)mergeKeyLength, NULL, -1,
+      -1, given_cri_desc, returned_cri_desc, given_cri_desc, splitTopWorkCriDesc, FALSE, (queue_index)2,
       (queue_index)getDefault(GEN_SPLT_SIZE_UP),
       (Cardinality)getGroupAttr()->getOutputLogPropList()[0]->getResultCardinality().value(), numBottomPartitions,
       CmpCommon::getDefaultNumeric(STREAM_TIMEOUT), getDefault(GEN_SID_NUM_BUFFERS), getDefault(GEN_SID_BUFFER_SIZE));
@@ -1304,12 +1305,12 @@ CostScalar Exchange::getEstimatedRunTimeMemoryUsage(Generator *generator, NABool
   int downRowLength = getGroupAttr()->getCharacteristicInputs().getRowLength();
 
   // make sure the up buffer can fit at least one row
-  int upSqlBufferLength = MAXOF((int)ComTdbSendTop::minReceiveBufferSize(upRowLength),
-                                   (int)(upMessageBufferLength_.getValue() * 1024));
+  int upSqlBufferLength =
+      MAXOF((int)ComTdbSendTop::minReceiveBufferSize(upRowLength), (int)(upMessageBufferLength_.getValue() * 1024));
 
   // make sure the down buffer can fit at least one row
-  int downSqlBufferLength = MAXOF((int)ComTdbSendTop::minSendBufferSize(downRowLength),
-                                     (int)(downMessageBufferLength_.getValue() * 1024));
+  int downSqlBufferLength =
+      MAXOF((int)ComTdbSendTop::minSendBufferSize(downRowLength), (int)(downMessageBufferLength_.getValue() * 1024));
 
   int sqlBufferLengthUsed = MAXOF(upSqlBufferLength, downSqlBufferLength);
 

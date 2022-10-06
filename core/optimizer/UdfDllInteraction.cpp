@@ -15,18 +15,19 @@
 */
 
 #include "optimizer/UdfDllInteraction.h"
-#include "common/NumericType.h"
+
+#include "LmError.h"
 #include "common/CharType.h"
+#include "common/ComUser.h"
 #include "common/DatetimeType.h"
 #include "common/MiscType.h"
+#include "common/NumericType.h"
+#include "exp/exp_attrs.h"
+#include "optimizer/GroupAttr.h"
 #include "optimizer/ItemLog.h"
 #include "optimizer/ItemOther.h"
 #include "optimizer/NARoutine.h"
 #include "optimizer/SchemaDB.h"
-#include "optimizer/GroupAttr.h"
-#include "exp/exp_attrs.h"
-#include "LmError.h"
-#include "common/ComUser.h"
 #include "sys/stat.h"
 
 short ExExeUtilLobExtractLibrary(ExeCliInterface *cliInterface, char *libHandle, char *cachedLibName,
@@ -147,12 +148,12 @@ NABoolean TMUDFDllInteraction::describeParamsAndMaxOutputs(TableMappingUDF *tmud
   }
 
   int cliRC = cliInterface_.getRoutine(serializedUDRInvocationInfo, iiLen,
-                                         NULL,  // no plan info at this stage
-                                         0, routine->getLanguage(), routine->getParamStyle(), routine->getMethodName(),
-                                         // for C/C++ the container that gets loaded is the library file
-                                         // name, for Java it's the class name
-                                         container, externalPath, routine->getLibrarySqlName().getExternalName(),
-                                         &routineHandle, CmpCommon::diags());
+                                       NULL,  // no plan info at this stage
+                                       0, routine->getLanguage(), routine->getParamStyle(), routine->getMethodName(),
+                                       // for C/C++ the container that gets loaded is the library file
+                                       // name, for Java it's the class name
+                                       container, externalPath, routine->getLibrarySqlName().getExternalName(),
+                                       &routineHandle, CmpCommon::diags());
   if (cliRC < 0) {
     bindWA->setErrStatus();
     return FALSE;

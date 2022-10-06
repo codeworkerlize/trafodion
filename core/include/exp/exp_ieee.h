@@ -1,7 +1,6 @@
 #ifndef EXP_IEEE_H
 #define EXP_IEEE_H
 
-
 // Encapsulate IEEE floating point overflow checks
 
 #ifdef __cplusplus

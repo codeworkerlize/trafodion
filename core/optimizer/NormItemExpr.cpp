@@ -15,20 +15,19 @@
 ******************************************************************************
 */
 
+#include "ItemFuncUDF.h"
+#include "ItemSample.h"
 #include "common/Debug.h"
-#include "optimizer/Sqlcomp.h"
-#include "optimizer/GroupAttr.h"
-#include "optimizer/NormWA.h"
 #include "optimizer/AllItemExpr.h"
-#include "optimizer/mdam.h"
-#include "optimizer/ValueDesc.h"
+#include "optimizer/GroupAttr.h"
+#include "optimizer/ItmFlowControlFunction.h"
+#include "optimizer/NormWA.h"
 #include "optimizer/RelGrby.h"
 #include "optimizer/RelJoin.h"
 #include "optimizer/RelUpdate.h"
-
-#include "ItemSample.h"
-#include "optimizer/ItmFlowControlFunction.h"
-#include "ItemFuncUDF.h"
+#include "optimizer/Sqlcomp.h"
+#include "optimizer/ValueDesc.h"
+#include "optimizer/mdam.h"
 
 #ifndef TRANSFORM_DEBUG_DECL  // artifact of NSK's OptAll.cpp ...
 #define TRANSFORM_DEBUG_DECL

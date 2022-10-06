@@ -48,7 +48,7 @@ long ComGetNodeNameAsInt64(const int nodeNumber);
 //    \<node>.$<vol>.<svol>.<file>
 
 int ComInterpretGuardianFileName(const char *fileName, ComNodeName &nodeNamePart, ComVolumeName &volumeNamePart,
-                                   ComSubvolumeName &subvolNamePart, ComFileName &fileNamePart);
+                                 ComSubvolumeName &subvolNamePart, ComFileName &fileNamePart);
 
 //-------------------------------------------------------------------
 //

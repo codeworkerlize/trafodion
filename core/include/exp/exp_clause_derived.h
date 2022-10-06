@@ -22,12 +22,13 @@
 #ifndef EXP_CLAUSE_DERIVED_H
 #define EXP_CLAUSE_DERIVED_H
 
-#include <sys/types.h>
+#include <byteswap.h>
 #include <regex.h>
+#include <sys/types.h>
+
+#include "common/ClusteredBitmap.h"
 #include "exp/exp_clause.h"
 #include "exp/exp_like.h"
-#include "common/ClusteredBitmap.h"
-#include <byteswap.h>
 #include "export/NAStringDef.h"
 
 #define instrAndText(a) a, #a
@@ -1064,8 +1065,8 @@ class ex_comp_clause : public ex_clause {
  private:
   enum { COLLATION_ENCODE_COMP = 0x0001 };
 
-  int filler0;  // 00-03
-  Int16 flags_;   // 04-05
+  int filler0;   // 00-03
+  Int16 flags_;  // 04-05
 
   // see optimizer/ItemLog.h, class BiRelat
   Int16 rollupColumnNum_;  // 06-07
@@ -1692,8 +1693,8 @@ enum ConvDoItFlags {
 // REC_BYTE_V_ANSI to one of these three types: Does the conversion
 // involve charset conversions, check for partial characters, or check
 // for max. number of characters?
-inline int requiresNoConvOrVal(int sourceLen, int sourcePrecision, int sourceScale, int targetLen,
-                               int targetPrecision, int targetScale, ConvInstruction index) {
+inline int requiresNoConvOrVal(int sourceLen, int sourcePrecision, int sourceScale, int targetLen, int targetPrecision,
+                               int targetScale, ConvInstruction index) {
   return (
       // ISO chars are ok - treat UNKNOWN as ISO88591 if the other operand is ISO88591 or unknown
       ((sourceScale == SQLCHARSETCODE_ISO88591 || sourceScale == SQLCHARSETCODE_UNKNOWN) &&
@@ -1715,27 +1716,26 @@ inline int requiresNoConvOrVal(int sourceLen, int sourcePrecision, int sourceSca
             index != CONV_ASCII_F_V))));
 }
 
-ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType, int sourcePrecision,
-                                  int sourceScale, char *target, int targetLen, short targetType,
-                                  int targetPrecision, int scale,
-                                  char *varCharLen,      // NULL if not a varChar
+ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType, int sourcePrecision, int sourceScale,
+                                  char *target, int targetLen, short targetType, int targetPrecision, int scale,
+                                  char *varCharLen,    // NULL if not a varChar
                                   int varCharLenSize,  // 0 if not a varChar
                                   CollHeap *heap = 0, ComDiagsArea **diagsArea = 0,
                                   ConvInstruction index = CONV_UNKNOWN, int *dataConversionErrorFlag = 0,
                                   int flags = 0);
 
-ex_expr::exp_return_type scaleDoIt(char *operand,           // ptr to operand
+ex_expr::exp_return_type scaleDoIt(char *operand,         // ptr to operand
                                    int operandLen,        // len of operand
                                    int operandType,       // FS2 type of operand (current representation)
                                    int operandCurrScale,  // scale of operand,
-                                                            // could be charset if converted from char
+                                                          // could be charset if converted from char
                                    int newScale,          // scale the operand should have
                                    int typeOfOldScale,    // type of previous representation of operand,
-                                                            // to determine what scale really means
+                                                          // to determine what scale really means
                                    CollHeap *heap);
 
-ex_expr::exp_return_type convAsciiToInt64(long &target, int targetScale, char *source, int sourceLen,
-                                          CollHeap *heap, ComDiagsArea **diagsArea, int flags);
+ex_expr::exp_return_type convAsciiToInt64(long &target, int targetScale, char *source, int sourceLen, CollHeap *heap,
+                                          ComDiagsArea **diagsArea, int flags);
 
 ex_expr::exp_return_type convAsciiToFloat64(char *target, char *source, int sourceLen, CollHeap *heap,
                                             ComDiagsArea **diagsArea, int flags);
@@ -1839,7 +1839,7 @@ class ex_function_clause : public ex_clause {
     CI_OPERATION = 0x00000002
   };
 
-  int flags_;                                      // 00-03
+  int flags_;                                        // 00-03
   Int16 /*OperatorTypeEnum*/ origFunctionOperType_;  // 04-05
 
   // ---------------------------------------------------------------------

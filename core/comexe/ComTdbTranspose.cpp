@@ -15,6 +15,7 @@
 */
 
 #include "comexe/ComTdbTranspose.h"
+
 #include "comexe/ComTdbCommon.h"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -98,11 +99,10 @@ ComTdbTranspose::ComTdbTranspose(const ComTdbTranspose *transTdb)
 // unsigned long bufferSize
 //  IN: Recommended size for pool buffers.
 //
-ComTdbTranspose::ComTdbTranspose(ComTdb *childTdb, ex_expr **transColExprs, int numTransExprs,
-                                 ex_expr *afterTransPred, int transRowLen, const unsigned short transTuppIndex,
-                                 ex_cri_desc *criDescDown, ex_cri_desc *criDescUp, queue_index fromParent,
-                                 queue_index toParent, Cardinality estimatedRowCount, int numBuffers,
-                                 int bufferSize, Space *space)
+ComTdbTranspose::ComTdbTranspose(ComTdb *childTdb, ex_expr **transColExprs, int numTransExprs, ex_expr *afterTransPred,
+                                 int transRowLen, const unsigned short transTuppIndex, ex_cri_desc *criDescDown,
+                                 ex_cri_desc *criDescUp, queue_index fromParent, queue_index toParent,
+                                 Cardinality estimatedRowCount, int numBuffers, int bufferSize, Space *space)
     : ComTdb(ComTdb::ex_TRANSPOSE, eye_TRANSPOSE, estimatedRowCount, criDescDown, criDescUp, fromParent, toParent,
              numBuffers, bufferSize),
       childTdb_(childTdb),

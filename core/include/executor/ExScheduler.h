@@ -20,11 +20,10 @@
  *****************************************************************************
  */
 
-#include "executor/ex_god.h"
+#include "common/ComExeTrace.h"
 #include "common/ComSqlcmpdbg.h"
 #include "common/Platform.h"
-
-#include "common/ComExeTrace.h"
+#include "executor/ex_god.h"
 
 // -----------------------------------------------------------------------
 

@@ -13,12 +13,13 @@
 **************************************************************************
 */
 
-#include "common/Platform.h"
 #include "common/NumericType.h"
+
 #include "common/Int64.h"
-#include "float.h"
+#include "common/Platform.h"
 #include "common/str.h"
 #include "exp/exp_clause_derived.h"
+#include "float.h"
 
 #define NAME_BUF_LEN 100
 

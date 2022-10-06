@@ -14,14 +14,15 @@
  *****************************************************************************
  */
 
-#include "sqlcomp/CmpSeabaseDDLincludes.h"
-#include "sqlcomp/CmpDDLCatErrorCodes.h"
 #include "sqlcomp/CmpSeabaseDDLupgrade.h"
+
+#include "seabed/ms.h"
+#include "sqlcomp/CmpDDLCatErrorCodes.h"
+#include "sqlcomp/CmpSeabaseDDLincludes.h"
 #include "sqlcomp/CmpSeabaseDDLrepos.h"
 #include "sqlcomp/CmpSeabaseDDLroutine.h"
 #include "sqlcomp/PrivMgrMD.h"
 #include "sqlcomp/PrivMgrMDDefs.h"
-#include "seabed/ms.h"
 
 NABoolean CmpSeabaseMDupgrade::isOldMDtable(const NAString &objName) {
   if (objName.contains(OLD_MD_EXTENSION))
@@ -1248,8 +1249,7 @@ short CmpSeabaseMDupgrade::executeSeabaseMDupgrade(CmpDDLwithStatusInfo *mdui, N
               else
                 strcpy(objType, COM_BASE_TABLE_OBJECT_LIT);
 
-              long objUID =
-                  getObjectUID(&cliInterface, TRAFODION_SYSCAT_LIT, SEABASE_MD_SCHEMA, mdti.oldName, objType);
+              long objUID = getObjectUID(&cliInterface, TRAFODION_SYSCAT_LIT, SEABASE_MD_SCHEMA, mdti.oldName, objType);
               if (objUID < 0) {
                 CmpCommon::diags()->clear();
 
@@ -1298,7 +1298,7 @@ short CmpSeabaseMDupgrade::executeSeabaseMDupgrade(CmpDDLwithStatusInfo *mdui, N
               schName += "\"";
 
               long objUID = getObjectUID(&cliInterface, TRAFODION_SYSCAT_LIT, SEABASE_MD_SCHEMA, oldViewName.data(),
-                                          COM_VIEW_OBJECT_LIT);
+                                         COM_VIEW_OBJECT_LIT);
               if (objUID < 0) {
                 // could not find the view or an error.
                 // Ignore and continue.

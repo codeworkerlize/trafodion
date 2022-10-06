@@ -25,22 +25,22 @@
 // Standard Include files.
 //-----------------------------------------------------------------------
 
-#include <iostream>
+#include <errno.h>
 #include <string.h>
 
-#include <errno.h>
+#include <iostream>
 
 //-----------------------------------------------------------------------
 // Product Include files.
 //-----------------------------------------------------------------------
-#include "executor/ex_stdh.h"
-#include "common/ComDistribution.h"
-#include "ScratchSpace.h"
 #include "ScratchFileMap.h"
-#include "executor/ex_god.h"
+#include "ScratchSpace.h"
+#include "common/ComDistribution.h"
 #include "ex_exe_stmt_globals.h"
-#include "exp/ExpError.h"
 #include "executor/ExStats.h"
+#include "executor/ex_god.h"
+#include "executor/ex_stdh.h"
+#include "exp/ExpError.h"
 //-----------------------------------------------------------------------
 // Forward Function Declarations.
 //-----------------------------------------------------------------------

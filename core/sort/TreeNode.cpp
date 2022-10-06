@@ -19,9 +19,10 @@
 ******************************************************************************
 */
 
-#include <iostream>
-#include <fstream>
 #include "TreeNode.h"
+
+#include <fstream>
+#include <iostream>
 
 //---------------------------------------------------------------------------
 // Class Constructor.
@@ -170,8 +171,7 @@ NABoolean TreeNode::setRecord(void *rec, int reclen,
   return(status);
 }
 */
-NABoolean TreeNode::setRecordTupp(void *rec, int reclen, int keylen, void *tupp,
-                                  Int16 numberOfBytesForRecordSize) {
+NABoolean TreeNode::setRecordTupp(void *rec, int reclen, int keylen, void *tupp, Int16 numberOfBytesForRecordSize) {
   NABoolean status;
   status = record_->setRecordTupp(rec, reclen, tupp);
   key_ = record_->extractKey(keylen, numberOfBytesForRecordSize);

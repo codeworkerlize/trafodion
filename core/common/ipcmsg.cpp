@@ -20,38 +20,39 @@
 #define set_extern_data
 
 #include "common/Platform.h"
-
-#include "rosgen.h"
-#include "fs_rosetta_dml.h"
 #include "dpxnsdp2"
+#include "fs_rosetta_dml.h"
+#include "rosgen.h"
 #include "yfsiopen"
 //#include "dfsiopn.h"
 enum { FS_SMS_VERSION_MAY94 = 1 };
-#include "wdialect"
-#include "ppctlc(WAIT, SETSTOP)"
+#include "common/Int64.h"
 #include "dmsghi.h"
-#include "psignalc.h(PK_SIG_SYSTEMCALL_ABORTINQUIRE_, PK_SUSPEND_DISALLOW_SET_)"
-#include "pmallocc(ADDRESS_WIRE_, ADDRESS_UNWIRE_)"
-#include "hpfs2f(fs2_transid_to_buffer)"
 #include "ffilcpp(FS_SQL_SETUPREQUESTINFO, FS_SQL_PUTMSGIDINACB, \
                   FS_SQL_RESETAFTERREPLY)"
-#include "common/Int64.h"
+#include "hpfs2f(fs2_transid_to_buffer)"
+#include "pmallocc(ADDRESS_WIRE_, ADDRESS_UNWIRE_)"
+#include "ppctlc(WAIT, SETSTOP)"
+#include "psignalc.h(PK_SIG_SYSTEMCALL_ABORTINQUIRE_, PK_SUSPEND_DISALLOW_SET_)"
+#include "wdialect"
 
 #define _resident
 #define _priv
+#include <fcntl.h>
+
 #include "common/ExCollections.h"
 #include "common/Ipc.h"
+#include "common/NAExit.h"
 #include "common/str.h"
 #include "export/ComDiags.h"
-#include "common/NAExit.h"
 #include "ipcmsg.h"
-#include <fcntl.h>
 #include "sqlmxevents/logmxevent.h"
 
 extern "C" {
 //#include <cextdecs.h>
-#include "cextdecs.h(PROCESSHANDLE_TO_FILENAME_,PROCESSHANDLE_DECOMPOSE_,FILE_OPEN_,SETMODE,FILE_GETINFO_,FILE_CLOSE_, AWAITIOX,PROCESS_DELAY_)"
 #include <tal.h>
+
+#include "cextdecs.h(PROCESSHANDLE_TO_FILENAME_,PROCESSHANDLE_DECOMPOSE_,FILE_OPEN_,SETMODE,FILE_GETINFO_,FILE_CLOSE_, AWAITIOX,PROCESS_DELAY_)"
 // should be #include <zsysc.h>
 #include "common/zsysc.h"
 }

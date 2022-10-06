@@ -14,9 +14,11 @@
  *****************************************************************************
  */
 
-#include <ctype.h>
-#include <new>
 #include "common/ComSqlText.h"
+
+#include <ctype.h>
+
+#include <new>
 
 // -----------------------------------------------------------------------
 // file scope definition of ComSqlText

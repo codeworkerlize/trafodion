@@ -18,54 +18,50 @@
 #define SQLPARSERGLOBALS_FLAGS  // must precede all #include's
 #define SQLPARSERGLOBALS_NADEFAULTS
 
-#include "common/Platform.h"
-#include "common/NAWinNT.h"
-#include "common/nawstring.h"
-#include "optimizer/AllItemExpr.h"
-#include "optimizer/BindWA.h"
-#include "common/ComOperators.h"
-#include "optimizer/GroupAttr.h"  // QSTUFF
-#include "sqlcomp/parser.h"
+#include <stack>
+
+#include "ItemFuncUDF.h"
+#include "ItemSample.h"
 #include "ParNameLocList.h"
+#include "StmtDDLAddConstraintCheck.h"
+#include "UdrErrors.h"
+#include "arkcmp/CmpStatement.h"
+#include "common/CmpCommon.h"
+#include "common/ComOperators.h"
+#include "common/ComSqlId.h"
+#include "common/NAWinNT.h"
+#include "common/Platform.h"
+#include "common/nawstring.h"
+#include "executor/ex_error.h"
+#include "exp/exp_bignum.h"
+#include "exp/exp_datetime.h"
+#include "exp/exp_like.h"
+#include "nchar_mp.h"
+#include "optimizer/AllItemExpr.h"
+#include "optimizer/Analyzer.h"
+#include "optimizer/BindWA.h"
+#include "optimizer/ControlDB.h"
+#include "optimizer/GroupAttr.h"  // QSTUFF
+#include "optimizer/ItemColRef.h"
+#include "optimizer/OptimizerSimulator.h"
 #include "optimizer/Rel3GL.h"
 #include "optimizer/RelMisc.h"
 #include "optimizer/RelScan.h"
+#include "optimizer/RelSequence.h"
 #include "optimizer/RelUpdate.h"
 #include "optimizer/Sqlcomp.h"
-#include "StmtDDLAddConstraintCheck.h"
+#include "optimizer/TriggerDB.h"
+#include "parser/SqlParserGlobals.h"
 #include "parser/StmtDDLCreateTrigger.h"
 #include "parser/StmtDDLCreateView.h"
-#include "executor/ex_error.h"
-#include "exp/exp_like.h"
-#include "optimizer/ItemColRef.h"
-#include "optimizer/TriggerDB.h"
-#include "UdrErrors.h"
-#include "nchar_mp.h"
-#include "arkcmp/CmpStatement.h"
-#include "common/CmpCommon.h"
-#include "optimizer/Analyzer.h"
-#include "optimizer/ControlDB.h"
-#include "optimizer/OptimizerSimulator.h"
-#include "optimizer/RelSequence.h"
-#include "ItemSample.h"
-#include "parser/SqlParserGlobals.h"
-#include "optimizer/RelSequence.h"
-#include "common/ComSqlId.h"
-
-#include "ItemFuncUDF.h"
+#include "sqlcat/TrafDDLdesc.h"
 #include "sqlcomp/CmpSeabaseDDL.h"
 #include "sqlcomp/QCache.h"
-
-#include "sqlcat/TrafDDLdesc.h"
-#include "exp/exp_datetime.h"
-#include "exp/exp_bignum.h"
-
-#include <stack>
+#include "sqlcomp/parser.h"
 
 // defined in SynthType.cpp
 extern void emitDyadicTypeSQLnameMsg(int sqlCode, const NAType &op1, const NAType &op2, const char *str1 = NULL,
-                                     const char *str2 = NULL, ComDiagsArea *diagsArea = NULL,
-                                     const int int1 = -999999);
+                                     const char *str2 = NULL, ComDiagsArea *diagsArea = NULL, const int int1 = -999999);
 
 // defined in parser/SqlParserAux.h
 extern ItemExpr *literalOfDate(NAString *strptr, NABoolean noDealloc = FALSE);
@@ -712,7 +708,7 @@ ItemExpr *ItemExpr::performRelaxation(CharInfo::CharSet cs, BindWA *bindWA) {
 }
 
 int find_translate_type(CharInfo::CharSet src_cs,   // Source charset
-                          CharInfo::CharSet dest_cs)  // Destination charset
+                        CharInfo::CharSet dest_cs)  // Destination charset
 {
   int tran_type = Translate::UNKNOWN_TRANSLATION;
 
@@ -2249,8 +2245,6 @@ ItemExpr *BiRelat::bindNode(BindWA *bindWA) {
   const NAType &type1 = child(0)->castToItemExpr()->getValueId().getType();
   const NAType &type2 = child(1)->castToItemExpr()->getValueId().getType();
 
-
-
   auto child0isCol = (child(0)->getOperatorType() == ITM_BASECOLUMN || child(0)->getOperatorType() == ITM_INDEXCOLUMN);
   auto child1isCol = (child(1)->getOperatorType() == ITM_BASECOLUMN || child(1)->getOperatorType() == ITM_INDEXCOLUMN);
 
@@ -2587,11 +2581,11 @@ static ItemExpr *ItemExpr_handleIncompatibleComparison(BindWA *bindWA, ItemExpr 
     int srcOpIndex = -1;  // index of src child
     int tgtOpIndex = -1;  // index of tgt child
     int conversion = 0;   // 0 = no conversion
-                           // 1 = cast char to numeric
-                           // 2 = cast char to date
-                           // 3 = cast date to numeric
-                           // 4 = cast numeric to interval
-                           // 5 = cast numeric to date
+                          // 1 = cast char to numeric
+                          // 2 = cast char to date
+                          // 3 = cast date to numeric
+                          // 4 = cast numeric to interval
+                          // 5 = cast numeric to date
 
     // check if:
     // 1. Comparing numeric to a character type
@@ -4242,7 +4236,7 @@ ItemExpr *Format::bindNode(BindWA *bindWA) {
 
     if (formatNumericAsX) {
       int dLen = nType0->getDisplayLength(nType0->getFSDatatype(), nType0->getNominalSize(), nType0->getPrecision(),
-                                            nType0->getScale(), 0);
+                                          nType0->getScale(), 0);
 
       if ((int)(formatStr_.length()) < dLen) {
         sprintf(buf, "SUBSTRING(CAST(@A1 as CHAR(%d)), %d, " PFSZ ")", dLen, 1, formatStr_.length());
@@ -4764,7 +4758,7 @@ ItemExpr *Trim::bindNode(BindWA *bindWA) {
     if (type1.getTypeQualifier() == NA_NUMERIC_TYPE) {
       const NumericType &numeric = (NumericType &)type1;
       int dLen = numeric.getDisplayLength(numeric.getFSDatatype(), numeric.getNominalSize(), numeric.getPrecision(),
-                                            numeric.getScale(), 0);
+                                          numeric.getScale(), 0);
 
       ItemExpr *newChild = new (bindWA->wHeap())
           Cast(child(1), new (bindWA->wHeap()) SQLChar(bindWA->wHeap(), dLen, type1.supportsSQLnull()));
@@ -5092,7 +5086,7 @@ int ItemExpr::convertToValueIdList(ValueIdList &vl, BindWA *bindWA, OperatorType
 // 0 or more nodes of type 'backboneType' on its top will work)
 // -----------------------------------------------------------------------
 int ItemExpr::convertToValueIdSet(ValueIdSet &vs, BindWA *bindWA, OperatorTypeEnum backboneType, NABoolean tfmSubq,
-                                    NABoolean flattenLists) {
+                                  NABoolean flattenLists) {
   //
   // convertToValueIdSet() used to be called recursively not just
   // for all the items in an expression but for all the items in the node
@@ -5395,8 +5389,8 @@ ItemExpr *Aggregate::bindNode(BindWA *bindWA) {
         subq = (Subquery *)child(chld)->castToItemExpr();
         udf = (UDFunction *)child(chld)->castToItemExpr();
         int myDegree = (child(chld)->getOperatorType() == ITM_ROW_SUBQUERY)
-                             ? subq->getSubquery()->getDegree()
-                             : udf->getRoutineDesc()->getOutputColumnList().entries();
+                           ? subq->getSubquery()->getDegree()
+                           : udf->getRoutineDesc()->getOutputColumnList().entries();
         childDegree += myDegree;
         // If the subquery or MVF was the only given input, and it has a
         // degree of 2, assign child1 of the aggregate to be the
@@ -6545,7 +6539,6 @@ ItemExpr *Assign::bindNode(BindWA *bindWA) {
       setChild(1, newChild->bindNode(bindWA));
       if (bindWA->errStatus()) return boundExpr;
     } else if (target->getFSDatatype() == REC_FLOAT32) {
-
       ItemExpr *realExpr = NULL;
       realExpr = new (bindWA->wHeap()) Cast(child(1), new (bindWA->wHeap()) SQLDoublePrecision(bindWA->wHeap(), TRUE));
       realExpr->bindNode(bindWA);
@@ -7360,7 +7353,7 @@ ItemExpr *Case::bindNode(BindWA *bindWA) {
       } else if (thenClause->getValueId().getType().getTypeQualifier() == NA_NUMERIC_TYPE) {
         NumericType &numeric = (NumericType &)thenClause->getValueId().getType();
         int numericDLen = numeric.getDisplayLength(numeric.getFSDatatype(), numeric.getNominalSize(),
-                                                     numeric.getPrecision(), numeric.getScale(), 0);
+                                                   numeric.getPrecision(), numeric.getScale(), 0);
 
         if (numericDLen > dLen) dLen = numericDLen;
         numericFound = TRUE;
@@ -8948,8 +8941,8 @@ ItemExpr *CharLength::bindNode(BindWA *bindWA) {
   NAColumn *col = child(0)->getValueId().getNAColumn(TRUE);
 
   if (type1.getTypeQualifier() == NA_NUMERIC_TYPE) {
-    ItemExpr *newChild = new (bindWA->wHeap())
-        Trim((int)Trim::TRAILING, new (bindWA->wHeap()) SystemLiteral(" ", WIDE_(" ")), child(0));
+    ItemExpr *newChild =
+        new (bindWA->wHeap()) Trim((int)Trim::TRAILING, new (bindWA->wHeap()) SystemLiteral(" ", WIDE_(" ")), child(0));
 
     setChild(0, newChild);
   }
@@ -9321,7 +9314,7 @@ ItemExpr *Substring::bindNode(BindWA *bindWA) {
         char buf[1000];
 
         int dlen = nType.getDisplayLength(nType.getFSDatatype(), nType.getNominalSize(), nType.getPrecision(),
-                                            nType.getScale(), 0);
+                                          nType.getScale(), 0);
         ItemExpr *parseTree;
         // right justify the string representation of numeric operand
         // and then do substring.
@@ -9535,7 +9528,7 @@ ItemExpr *UDFunction::bindNode(BindWA *bindWA) {
   try {
     if (CmpCommon::getDefault(COMP_BOOL_191) == DF_OFF)  // temporary switch for
     {                                                    // real and old metadata.
-      int catSchNameChosen = 1;                        // Will be set to 1, 2 or 3 based on
+      int catSchNameChosen = 1;                          // Will be set to 1, 2 or 3 based on
                                                          // which cat.sch or package action is found in.
 
       // Set functionName1 to current cat.sch - unless cat.sch specified.
@@ -10532,8 +10525,8 @@ ItemExpr *ZZZBinderFunction::bindNode(BindWA *bindWA) {
         Subquery *subq = (Subquery *)child(idx)->castToItemExpr();
         UDFunction *udf = (UDFunction *)child(idx)->castToItemExpr();
         int myDegree = (chldExpr->getOperatorType() == ITM_ROW_SUBQUERY)
-                             ? subq->getSubquery()->getDegree()
-                             : udf->getRoutineDesc()->getOutputColumnList().entries();
+                           ? subq->getSubquery()->getDegree()
+                           : udf->getRoutineDesc()->getOutputColumnList().entries();
 
         childDegree += myDegree;
 
@@ -12892,11 +12885,9 @@ ItemExpr *ItmSequenceFunction::bindNode(BindWA *bindWA) {
 
     if (!olap->isFrameStartUnboundedPreceding() &&  // olap->getframeStart() != -INT_MAX &&
         !olap->isFrameEndUnboundedFollowing() &&    // olap->getframeEnd()   != INT_MAX &&
-        olap->getframeEnd() - olap->getframeStart() >
-            (int)CmpCommon::getDefaultNumeric(OLAP_MAX_FIXED_WINDOW_FRAME)) {
+        olap->getframeEnd() - olap->getframeStart() > (int)CmpCommon::getDefaultNumeric(OLAP_MAX_FIXED_WINDOW_FRAME)) {
       // Maximum Window frame size exceeded.
-      *CmpCommon::diags() << DgSqlCode(-4347)
-                          << DgInt0((int)CmpCommon::getDefaultNumeric(OLAP_MAX_FIXED_WINDOW_FRAME));
+      *CmpCommon::diags() << DgSqlCode(-4347) << DgInt0((int)CmpCommon::getDefaultNumeric(OLAP_MAX_FIXED_WINDOW_FRAME));
       bindWA->setErrStatus();
     }
 

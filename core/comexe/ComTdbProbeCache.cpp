@@ -3,6 +3,7 @@
 // **********************************************************************
 
 #include "comexe/ComTdbProbeCache.h"
+
 #include "comexe/ComTdbCommon.h"
 
 // Dummy constructor for "unpack" routines.
@@ -15,8 +16,7 @@ ComTdbProbeCache::ComTdbProbeCache(ex_expr *hash_probe_expr, ex_expr *encode_pro
                                    const unsigned short tupp_index, const unsigned short hashValIdx,
                                    const unsigned short encodedProbeDataIdx, const unsigned short innerRowDataIdx,
                                    ComTdb *child_tdb, ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc,
-                                   queue_index down, queue_index up, Cardinality estimatedRowCount,
-                                   int numInnerTuples)
+                                   queue_index down, queue_index up, Cardinality estimatedRowCount, int numInnerTuples)
     : ComTdb(ComTdb::ex_PROBE_CACHE, eye_PROBE_CACHE, estimatedRowCount, given_cri_desc, returned_cri_desc, down, up,
              0,   // num_buffers - we use numInnerTuples_ instead.
              0),  // buffer_size - we use numInnerTuples_ instead.

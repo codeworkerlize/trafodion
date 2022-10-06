@@ -16,8 +16,8 @@
 ****************************************************************************
 */
 
-#include <sys/types.h>
 #include <pthread.h>
+#include <sys/types.h>
 
 #include "arkcmp/CompException.h"
 #include "parser/StmtCompilationMode.h"
@@ -90,15 +90,15 @@ int NAAssertMutexLock() {
 extern short getRTSSemaphore();  // Functions implemented in SqlStats.cpp
 extern void releaseRTSSemaphore();
 
-#include "common/BaseTypes.h"  // for declaration of NAAbort()
-#include "common/NAAssert.h"   // for declaration of NAAssert()
-#include "sqlci/SqlciParseGlobals.h"           // for ARKCMP_EXCEPTION_EPILOGUE()
-
 #include <setjmp.h>
 
 #include <iostream>
-#include "export/ExceptionCallBack.h"
+
 #include "NAInternalError.h"
+#include "common/BaseTypes.h"  // for declaration of NAAbort()
+#include "common/NAAssert.h"   // for declaration of NAAssert()
+#include "export/ExceptionCallBack.h"
+#include "sqlci/SqlciParseGlobals.h"  // for ARKCMP_EXCEPTION_EPILOGUE()
 
 ExceptionCallBack *NAInternalError::pExceptionCallBack_ = NULL;
 

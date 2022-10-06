@@ -23,9 +23,8 @@ class NAMemory;
 class ex_clause;
 
 #include "common/OperTypeEnum.h"
-#include "export/NAVersionedObject.h"
-
 #include "exp/ExpErrorEnums.h"
+#include "export/NAVersionedObject.h"
 
 // -----------------------------------------------------------------------
 // List of all errors generated in the SQL executor code
@@ -64,16 +63,16 @@ ComDiagsArea *ExRaiseSqlWarning(NAMemory *heap, ComDiagsArea **diagsArea, ExeErr
 ComDiagsArea *ExRaiseFunctionSqlError(NAMemory *heap, ComDiagsArea **diagsArea, ExeErrorCode err,
                                       NABoolean derivedFunction = FALSE,
                                       OperatorTypeEnum origOperType = ITM_FIRST_ITEM_OP, ComCondition **cond = NULL);
-ComDiagsArea *ExRaiseDetailSqlError(CollHeap *heap, ComDiagsArea **diagsArea, ExeErrorCode err, int pciInst,
-                                    char *op1, char *op2 = NULL, char *op3 = NULL);
+ComDiagsArea *ExRaiseDetailSqlError(CollHeap *heap, ComDiagsArea **diagsArea, ExeErrorCode err, int pciInst, char *op1,
+                                    char *op2 = NULL, char *op3 = NULL);
 
 ComDiagsArea *ExRaiseDetailSqlError(CollHeap *heap, ComDiagsArea **diagsArea, ExeErrorCode err, ex_clause *clause,
                                     char *op_data[]);
 
 ComDiagsArea *ExRaiseDetailSqlError(CollHeap *heap, ComDiagsArea **diagsArea, ExeErrorCode err, char *src,
                                     int srcLength, Int16 srcType, int srcScale, Int16 tgtType, UInt32 flags,
-                                    int tgtLength = -1, int tgtScale = -1, int tgtPrecision = 0,
-                                    int srcPrecision = -1, char *sourceValue = NULL);
+                                    int tgtLength = -1, int tgtScale = -1, int tgtPrecision = 0, int srcPrecision = -1,
+                                    char *sourceValue = NULL);
 char *stringToHex(char *out, int outLen, char *in, int inLen);
 
 #endif /* EXP_ERROR_H */

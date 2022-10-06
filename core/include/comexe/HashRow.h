@@ -17,8 +17,8 @@
 #ifndef COMHASHROW_H
 #define COMHASHROW_H
 
-#include "export/NABasicObject.h"
 #include "common/BaseTypes.h"
+#include "export/NABasicObject.h"
 
 /////////////////////////////////////////////////////
 // The HashRow here describes only the row header.

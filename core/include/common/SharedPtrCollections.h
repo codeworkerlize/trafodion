@@ -16,8 +16,8 @@
 #ifndef _SHAREDPTR_COLLECTIONS_H
 #define _SHAREDPTR_COLLECTIONS_H
 
-#include "common/SharedPtr.h"
 #include "common/Collections.h"
+#include "common/SharedPtr.h"
 
 // Define shared pointer list and array types in a simliar way
 // to the current LIST and ARRAY.

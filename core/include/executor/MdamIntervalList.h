@@ -22,8 +22,8 @@
 #include "common/NABoolean.h"
 
 #if defined(NA_MDAM_EXECUTOR_DEBUG_ILTF)
-#include "common/Int64.h"
 #include "ExCextdecs.h"
+#include "common/Int64.h"
 #endif /* NA_MDAM_EXECUTOR_DEBUG_ILTF */
 
 // *****************************************************************************
@@ -111,8 +111,8 @@ class MdamIntervalList {
   // instead.  The this list and the otherList are inputs to the
   // intersect operation.  The result replaces the this list.  The
   // original interval list entries for the this list are deleted.
-  MdamIntervalList &unionSeparateDisjuncts(const MdamIntervalList &otherList, const int disjunctNum,
-                                           const int keyLen, FixedSizeHeapManager &mdamIntervalHeap,
+  MdamIntervalList &unionSeparateDisjuncts(const MdamIntervalList &otherList, const int disjunctNum, const int keyLen,
+                                           FixedSizeHeapManager &mdamIntervalHeap,
                                            FixedSizeHeapManager &mdamRefListEntryHeap);
 
  private:

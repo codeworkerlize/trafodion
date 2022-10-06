@@ -14,32 +14,33 @@
 */
 #define SQLPARSERGLOBALS_FLAGS  // must precede all #include's
 
+#include "optimizer/NARoutine.h"
+
+#include "CmUtil.h"
+#include "NARoutineDB.h"
+#include "UdrErrors.h"
+#include "arkcmp/NATableSt.h"
+#include "cli/Context.h"
+#include "cli/Globals.h"
 #include "common/BaseTypes.h"
-#include "sqlcat/TrafDDLdesc.h"
-#include "optimizer/BindWA.h"
+#include "common/CharType.h"
+#include "common/CmpCommon.h"
+#include "common/ComSmallDefs.h"
+#include "common/ComUser.h"
+#include "common/DatetimeType.h"
 #include "common/NAType.h"
 #include "common/NumericType.h"
-#include "common/CharType.h"
-#include "common/DatetimeType.h"
-#include "common/ComSmallDefs.h"
-#include "common/CmpCommon.h"
-#include "UdrErrors.h"
-#include "NARoutineDB.h"
-#include "optimizer/NARoutine.h"
-#include "optimizer/SchemaDB.h"
 #include "common/str.h"
 #include "langman/LmJavaSignature.h"
-#include "CmUtil.h"
-#include "arkcmp/NATableSt.h"
+#include "optimizer/BindWA.h"
+#include "optimizer/SchemaDB.h"
+#include "sqlcat/TrafDDLdesc.h"
 #include "sqlcomp/CmpMain.h"
-#include "cli/Globals.h"
-#include "cli/Context.h"
-#include "common/ComUser.h"
 #include "sqlcomp/CmpSeabaseDDL.h"
 
 #define SQLPARSERGLOBALS_NADEFAULTS
-#include "parser/SqlParserGlobalsCmn.h"
 #include "parser/SqlParserGlobals.h"  // should be last #include
+#include "parser/SqlParserGlobalsCmn.h"
 
 // -----------------------------------------------------------------------
 // Copy a string.  A null terminated buffer is returned.
@@ -1147,8 +1148,8 @@ SP_STATUS NARoutineCacheStatStoredProcedure::sp_NumOutputFields(int *numFields, 
 }
 
 SP_STATUS NARoutineCacheStatStoredProcedure::sp_OutputFormat(SP_FIELDDESC_STRUCT *format, SP_KEYDESC_STRUCT keyFields[],
-                                                             int *numKeyFields, SP_HANDLE spCompileObj,
-                                                             SP_HANDLE spObj, SP_ERROR_STRUCT *error) {
+                                                             int *numKeyFields, SP_HANDLE spCompileObj, SP_HANDLE spObj,
+                                                             SP_ERROR_STRUCT *error) {
   strcpy(&((format++)->COLUMN_DEF[0]), "Num_lookups      INT UNSIGNED");
   strcpy(&((format++)->COLUMN_DEF[0]), "Num_cache_hits   INT UNSIGNED");
   strcpy(&((format++)->COLUMN_DEF[0]), "Num_entries      INT UNSIGNED");

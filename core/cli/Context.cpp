@@ -16,64 +16,57 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
-#include "cli_stdh.h"
-#include "common/NAStdlib.h"
-#include "stdio.h"
-#include "comexe/ComQueue.h"
-#include "cli/ExSqlComp.h"
-#include "executor/ex_transaction.h"
-#include "common/ComRtUtils.h"
-#include "executor/ExStats.h"
-#include "cli/sql_id.h"
-#include "ex_control.h"
-#include "ExControlArea.h"
-#include "ex_root.h"
-#include "executor/ExExeUtil.h"
-#include "ex_frag_rt.h"
-#include "executor/ExExeUtil.h"
-#include "common/ComExeTrace.h"
-#include "exp/exp_clause_derived.h"
-#include "common/ComUser.h"
-#include "sqlcomp/CmpSeabaseDDLauth.h"
-#include "sqlcomp/CmpSeabaseTenant.h"
-#include "parser/StmtCompilationMode.h"
-#include "ExCextdecs.h"
-#include "export/ComMemoryDiags.h"  // ComMemoryDiags::DumpMemoryInfo()
-
-#include "common/NAWNodeSet.h"
-
-#include <fstream>
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <algorithm>
-
-#include "ComplexObject.h"
-#include "CliMsgObj.h"
-#include "UdrExeIpc.h"
-#include "common/ComTransInfo.h"
-#include "ExUdrServer.h"
-#include "common/ComSqlId.h"
-#include "common/NAUserId.h"
-
-#include "common/stringBuf.h"
-#include "common/NLSConversion.h"
-
-#include <sys/types.h>
 #include <arpa/inet.h>
 #include <pwd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
 
-#include "common/CmpCommon.h"
-#include "arkcmp_proc.h"
+#include <algorithm>
+#include <fstream>
 
-#include "ExRsInfo.h"
 #include "../../dbsecurity/auth/inc/dbUserAuth.h"
-#include "common/ComDistribution.h"
+#include "CliMsgObj.h"
+#include "ComplexObject.h"
+#include "ExCextdecs.h"
+#include "ExControlArea.h"
+#include "ExRsInfo.h"
+#include "ExUdrServer.h"
 #include "LmRoutine.h"
-
+#include "UdrExeIpc.h"
+#include "arkcmp_proc.h"
+#include "cli/ExSqlComp.h"
+#include "cli/sql_id.h"
+#include "cli_stdh.h"
+#include "comexe/ComQueue.h"
+#include "common/CmpCommon.h"
+#include "common/ComDistribution.h"
+#include "common/ComExeTrace.h"
+#include "common/ComRtUtils.h"
+#include "common/ComSqlId.h"
+#include "common/ComTransInfo.h"
+#include "common/ComUser.h"
+#include "common/NAStdlib.h"
+#include "common/NAUserId.h"
+#include "common/NAWNodeSet.h"
+#include "common/NLSConversion.h"
+#include "common/Platform.h"
+#include "common/stringBuf.h"
+#include "ex_control.h"
+#include "ex_frag_rt.h"
+#include "ex_root.h"
+#include "executor/ExExeUtil.h"
+#include "executor/ExStats.h"
+#include "executor/ex_transaction.h"
+#include "exp/exp_clause_derived.h"
+#include "export/ComMemoryDiags.h"  // ComMemoryDiags::DumpMemoryInfo()
 #include "optimizer/TriggerDB.h"
+#include "parser/StmtCompilationMode.h"
 #include "seabed/sys.h"
+#include "sqlcomp/CmpSeabaseDDLauth.h"
+#include "sqlcomp/CmpSeabaseTenant.h"
+#include "stdio.h"
 
 // Printf-style tracing macros for the debug build. The macros are
 // no-ops in the release build.
@@ -94,9 +87,8 @@
 #define StmtListDebug5(s, f, a, b, c, d, e)
 #endif
 
-#include "dtm/tm.h"
-
 #include "CmpContext.h"
+#include "dtm/tm.h"
 
 static void doInitForFristContext() {
   // do somethine when first of cmpContext is Initialization
@@ -516,8 +508,8 @@ short ContextCli::moduleAdded(const SQLMODULE_ID *module_id) {
 }
 
 // common for NT and NSK
-static int allocAndReadPos(ModuleOSFile &file, char *&buf, int pos, int len, NAMemory *heap,
-                             ComDiagsArea &diagsArea, const char *mname) {
+static int allocAndReadPos(ModuleOSFile &file, char *&buf, int pos, int len, NAMemory *heap, ComDiagsArea &diagsArea,
+                           const char *mname) {
   // allocate memory and read the requested section into it
   buf = (char *)(heap->allocateMemory((size_t)len));
   short countRead;
@@ -1289,7 +1281,7 @@ void ContextCli::closeAllCursorsFor(SQLSTMT_ID *statement_id) {
 // *****************************************************************************
 
 int ContextCli::setAuthID(const USERS_INFO &usersInfo, const char *authToken, int authTokenLen, const char *slaName,
-                            const char *profileName, int resetAttributes) {
+                          const char *profileName, int resetAttributes) {
   validAuthID_ = FALSE;  // Is TRUE only if a valid user found,set within completeSetAuthId()
 
   // Note authID being NULL is only to support sqlci processes and embedded apps
@@ -1412,9 +1404,8 @@ int ContextCli::setAuthID(const USERS_INFO &usersInfo, const char *authToken, in
 //                                                                             *
 // *****************************************************************************
 int ContextCli::completeSetAuthID(const USERS_INFO &usersInfo, const char *authToken, int authTokenLen,
-                                    const char *slaName, const char *profileName, bool eraseCQDs,
-                                    bool releaseUDRServers, bool dropVolatileSchema, bool resetCQDs,
-                                    int resetAttributes) {
+                                  const char *slaName, const char *profileName, bool eraseCQDs, bool releaseUDRServers,
+                                  bool dropVolatileSchema, bool resetCQDs, int resetAttributes) {
   bool mtEnabled = msg_license_multitenancy_enabled();
   bool updateCredentials = false;
   if ((usersInfo.effectiveUserID != databaseUserID_) || (usersInfo.sessionUserID != sessionUserID_) ||
@@ -1972,8 +1963,7 @@ void ContextCli::releaseUdrServers() {
 // (currently the only supported options are JVM startup
 // options). Once UDR options have been set, those options take
 // precedence over options that were compiled into a plan.
-int ContextCli::setUdrRuntimeOptions(const char *options, int optionsLen, const char *delimiters,
-                                       int delimsLen) {
+int ContextCli::setUdrRuntimeOptions(const char *options, int optionsLen, const char *delimiters, int delimsLen) {
   // A NULL or empty option string tells us to clear the current UDR
   // options
   if (options == NULL || optionsLen == 0) {
@@ -2417,9 +2407,9 @@ void ContextCli::createMxcmpSession() {
     char *dummyReply = NULL;
     int dummyLen;
     ComDiagsArea *diagsArea = NULL;
-    cmpStatus = CmpCommon::context()->compileDirect(pMessage, (int)sizeof(userMessage), &exHeap_,
-                                                    SQLCHARSETCODE_UTF8, EXSQLCOMP::DATABASE_USER, dummyReply, dummyLen,
-                                                    getSqlParserFlags(), NULL, 0, diagsArea);
+    cmpStatus = CmpCommon::context()->compileDirect(pMessage, (int)sizeof(userMessage), &exHeap_, SQLCHARSETCODE_UTF8,
+                                                    EXSQLCOMP::DATABASE_USER, dummyReply, dummyLen, getSqlParserFlags(),
+                                                    NULL, 0, diagsArea);
     if (cmpStatus != 0) {
       char emsText[120];
       str_sprintf(emsText, "Set DATABASE_USER in embedded arkcmp failed, return code %d", cmpStatus);
@@ -2610,9 +2600,9 @@ void ContextCli::endMxcmpSession(NABoolean cleanupEsps, NABoolean clearCmpCache)
     char *dummyReply = NULL;
     int dummyLen;
     ComDiagsArea *diagsArea = NULL;
-    cmpStatus = CmpCommon::context()->compileDirect((char *)&flags, (int)sizeof(int), &exHeap_,
-                                                    SQLCHARSETCODE_UTF8, EXSQLCOMP::END_SESSION, dummyReply, dummyLen,
-                                                    getSqlParserFlags(), NULL, 0, diagsArea);
+    cmpStatus = CmpCommon::context()->compileDirect((char *)&flags, (int)sizeof(int), &exHeap_, SQLCHARSETCODE_UTF8,
+                                                    EXSQLCOMP::END_SESSION, dummyReply, dummyLen, getSqlParserFlags(),
+                                                    NULL, 0, diagsArea);
     if (cmpStatus != 0) {
       char emsText[120];
       str_sprintf(emsText, "Set END_SESSION in embedded arkcmp failed, return code %d", cmpStatus);
@@ -3176,8 +3166,8 @@ int ContextCli::checkLobLock(char *inLobLockId, NABoolean *found) {
 }
 
 int ContextCli::performObjectLockRequest(const char *objectName, ComObjectType objectType,
-                                           ObjectLockRequest::OpType opType, int nid, int pid, int maxRetries,
-                                           int delay) {
+                                         ObjectLockRequest::OpType opType, int nid, int pid, int maxRetries,
+                                         int delay) {
   int retries = 0;
   int retcode = 0;
   bool conflictLock = false;
@@ -3224,8 +3214,8 @@ int ContextCli::performObjectLockRequest(const char *objectName, ComObjectType o
 }
 
 int ContextCli::performObjectLockRequest(const char *objectName, ComObjectType objectType,
-                                           ObjectLockRequest::OpType opType, int nid, int pid, bool &conflictLock,
-                                           int &conflictNid, int &conflictPid, ComDiagsArea *tempDiagsArea) {
+                                         ObjectLockRequest::OpType opType, int nid, int pid, bool &conflictLock,
+                                         int &conflictNid, int &conflictPid, ComDiagsArea *tempDiagsArea) {
   int retcode = 0;
 
   conflictLock = false;
@@ -3560,7 +3550,7 @@ int ContextCli::releaseAllDDLObjectLocks() {
     return 0;
   }
   int retcode = unlockObjectDDL("ALL",  // A dummy name, should not be used
-                                  COM_BASE_TABLE_OBJECT, nid, pid, true /* all */);
+                                COM_BASE_TABLE_OBJECT, nid, pid, true /* all */);
   ps->setHoldingDDLLocks(false);
   return retcode;
 }
@@ -4094,8 +4084,8 @@ int ContextCli::resetCS(const char *csName) {
   return ExExeUtilTcb::resetCS(csName, &cliInterface, &this->diags());
 }
 
-int parse_statsReq(short statsReqType, char *statsReqStr, int statsReqStrLen, char *nodeName, short &cpu,
-                     pid_t &pid, long &timeStamp, int &queryNumber) {
+int parse_statsReq(short statsReqType, char *statsReqStr, int statsReqStrLen, char *nodeName, short &cpu, pid_t &pid,
+                   long &timeStamp, int &queryNumber) {
   char tempStr[ComSqlId::MAX_QUERY_ID_LEN + 1];
   char *ptr;
   long tempNum;
@@ -4595,7 +4585,7 @@ RETCODE ContextCli::setDatabaseUserByName(const char *userName) {
 //     0 - successful (user and/or tenant may not exist)
 // -----------------------------------------------------------------------------
 int ContextCli::getUserAttrs(const char *username, const char *tenantname, USERS_INFO *usersInfo,
-                               struct SQLSEC_AuthDetails *authDetails) {
+                             struct SQLSEC_AuthDetails *authDetails) {
   ex_assert((username), "Invalid username was specified");
   ex_assert((tenantname), "Invalid tenant name was specified");
   ex_assert((usersInfo), "Invalid connection attributes was specified");
@@ -4675,7 +4665,7 @@ int ContextCli::getUserAttrs(const char *username, const char *tenantname, USERS
 //     0 - successful
 // -----------------------------------------------------------------------------
 int ContextCli::addUserInfo(const char *username, USERS_INFO *usersInfo, struct SQLSEC_AuthDetails *authDetails,
-                              CmpSeabaseDDLauth &authInfo) {
+                            CmpSeabaseDDLauth &authInfo) {
   ComAuthenticationType authType = CmpCommon::getAuthenticationType();
   /*
   //this core was delete on R2.8
@@ -4741,7 +4731,7 @@ int ContextCli::addUserInfo(const char *username, USERS_INFO *usersInfo, struct 
 //     0 - successful
 // -----------------------------------------------------------------------------
 int ContextCli::addTenantInfo(const char *tenantname, USERS_INFO *usersInfo, struct SQLSEC_AuthDetails *authDetails,
-                                CmpSeabaseDDLauth &authInfo) {
+                              CmpSeabaseDDLauth &authInfo) {
   CmpSeabaseDDLauth::AuthStatus authStatus = CmpSeabaseDDLauth::STATUS_GOOD;
   int flagBits = getSqlParserFlags();
   Int16 retcode = 0;
@@ -4901,7 +4891,7 @@ int ContextCli::addTenantInfo(const char *tenantname, USERS_INFO *usersInfo, str
 //     n = authID for new user
 // -----------------------------------------------------------------------------
 int ContextCli::registerUser(const char *username, const char *config, USERS_INFO *usersInfo,
-                               struct SQLSEC_AuthDetails *authDetails) {
+                             struct SQLSEC_AuthDetails *authDetails) {
   ex_assert((username), "Invalid username was specified");
   ex_assert((usersInfo), "Invalid connection info was specified");
   ex_assert((authDetails), "Invalid user attributes was specified");
@@ -5377,7 +5367,7 @@ RETCODE ContextCli::getAuthIDFromName(const char *authName, int &authID)
 // *****************************************************************************
 
 RETCODE ContextCli::getAuthNameFromID(int authID,        // IN
-                                      char *authName,      // OUT
+                                      char *authName,    // OUT
                                       int maxBufLen,     // IN
                                       int &requiredLen)  // OUT optional
 
@@ -5871,7 +5861,7 @@ int ContextCli::loadTrafMetadataIntoSharedCache() {
   ComDiagsArea *diagsArea = &diagsArea_;
   ExeCliInterface cliInterface(exHeap(), 0, this);
   int retcode = cliInterface.executeImmediate((char *)"load trafodion metadata into shared cache;", NULL, NULL, TRUE,
-                                                NULL, 0, &diagsArea);
+                                              NULL, 0, &diagsArea);
   if (retcode == 0 || retcode == 100) {
     QRLogger::log(CAT_SQL_EXE, LL_INFO, "%s", "Load trafodion metadata into shared cache completed successfully");
   } else if (retcode > 0) {
@@ -5889,8 +5879,8 @@ int ContextCli::loadTrafMetadataIntoSharedCache() {
 int ContextCli::loadTrafDataIntoSharedCache() {
   ComDiagsArea *diagsArea = &diagsArea_;
   ExeCliInterface cliInterface(exHeap(), 0, this);
-  int retcode = cliInterface.executeImmediate((char *)"load trafodion data into shared cache;", NULL, NULL, TRUE,
-                                                NULL, 0, &diagsArea);
+  int retcode = cliInterface.executeImmediate((char *)"load trafodion data into shared cache;", NULL, NULL, TRUE, NULL,
+                                              0, &diagsArea);
   if (retcode == 0 || retcode == 100) {
     QRLogger::log(CAT_SQL_EXE, LL_INFO, "%s", "Load trafodion data into shared cache completed successfully");
   } else if (retcode > 0) {
@@ -5913,12 +5903,12 @@ void ContextCli::collectSpecialRTStats() {
   ExeCliInterface *cliInterface = new (exHeap()) ExeCliInterface(exHeap(), SQLCHARSETCODE_UTF8, this, NULL);
 
   int retcode = cliInterface->executeImmediate((char *)getRTStatsQuery,
-                                                 NULL,   // outputBuf
-                                                 NULL,   // outputBufLen
-                                                 TRUE,   // null terminated
-                                                 NULL,   // long* rowsAffected
-                                                 FALSE,  // monitorThis
-                                                 NULL);  // ComDiagsArea * globalDiags
+                                               NULL,   // outputBuf
+                                               NULL,   // outputBufLen
+                                               TRUE,   // null terminated
+                                               NULL,   // long* rowsAffected
+                                               FALSE,  // monitorThis
+                                               NULL);  // ComDiagsArea * globalDiags
 
   delete cliInterface;
 }
@@ -5987,8 +5977,8 @@ int ContextCli::prepareCallTrigger() {
 }
 
 int ContextCli::executeCallTrigger(char *tblName, int isBefore, int opType, char *oldSKVBuffer, char *oldBufSize,
-                                     char *oldRowIDs, char *oldRowIDsLen, int newRowIDLen, char *newRowIDs,
-                                     int newRowIDsLen, char *newRows, int newRowsLen, char *curExecSql) {
+                                   char *oldRowIDs, char *oldRowIDsLen, int newRowIDLen, char *newRowIDs,
+                                   int newRowIDsLen, char *newRows, int newRowsLen, char *curExecSql) {
   setSkipCheckValidPrivs(true);
   setTriggerParam(1, tblName);
   setTriggerParam(2, isBefore);

@@ -12,9 +12,9 @@
  *****************************************************************************
  */
 
-#include "optimizer/ObjectNames.h"
-#include "common/ComSmallDefs.h"
 #include "ElemDDLNode.h"
+#include "common/ComSmallDefs.h"
+#include "optimizer/ObjectNames.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

@@ -14,9 +14,10 @@
 // ***********************************************************************
 
 #include "QmsMVDetails.h"
+
 #include "QmsMVCandidate.h"
-#include "qmscommon/QRDescriptor.h"
 #include "QmsMatchTest.h"
+#include "qmscommon/QRDescriptor.h"
 
 //========================================================================
 //  Class RefFinderVisitor

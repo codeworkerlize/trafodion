@@ -15,9 +15,10 @@
  *****************************************************************************
  */
 
+#include "ElemDDLRefTrigActions.h"
+
 #include "common/ComASSERT.h"
 #include "common/ComOperators.h"
-#include "ElemDDLRefTrigActions.h"
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLRefTrigAct

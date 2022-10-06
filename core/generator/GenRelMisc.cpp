@@ -16,78 +16,72 @@
 ******************************************************************************
 */
 #define SQLPARSERGLOBALS_FLAGS
-#include "common/ComOptIncludes.h"
-#include "optimizer/GroupAttr.h"
-#include "optimizer/ItemColRef.h"
-#include "RelEnforcer.h"
-#include "optimizer/RelJoin.h"
-#include "optimizer/RelExeUtil.h"
-#include "optimizer/RelMisc.h"
-#include "optimizer/RelSet.h"
-#include "optimizer/RelUpdate.h"
-#include "optimizer/RelScan.h"
-#include "RelDCL.h"
-#include "PartFunc.h"
+#include "ComTdbConnectByTempTable.h"
 #include "Cost.h"
 #include "GenExpGenerator.h"
 #include "GenResources.h"
-#include "comexe/ComTdbRoot.h"
-#include "comexe/ComTdbTuple.h"
-#include "comexe/ComTdbUnion.h"
-#include "comexe/ComTdbTupleFlow.h"
-#include "comexe/ComTdbTranspose.h"
-#include "comexe/ComTdbSort.h"
-#include "comexe/ComTdbPackRows.h"
+#include "PartFunc.h"
+#include "RelDCL.h"
+#include "RelEnforcer.h"
+#include "comexe/ComQueue.h"
+#include "comexe/ComTdbCancel.h"
+#include "comexe/ComTdbConnectBy.h"
 #include "comexe/ComTdbDDL.h"
 #include "comexe/ComTdbExeUtil.h"
-#include "comexe/ComTdbFirstN.h"
-#include "comexe/ComTdbConnectBy.h"
-#include "ComTdbConnectByTempTable.h"
-#include "comexe/ComTdbStats.h"
-#include "comexe/ComTdbQI.h"
-#include "comexe/ComTdbCancel.h"
-#include "comexe/ExplainTuple.h"
-#include "comexe/ComTdbHbaseAccess.h"
 #include "comexe/ComTdbExplain.h"
-#include "optimizer/SchemaDB.h"
-#include "optimizer/ControlDB.h"
-#include "optimizer/NATable.h"
-#include "optimizer/BindWA.h"
-#include "common/ComTransInfo.h"
-#include "sqlcomp/DefaultConstants.h"
+#include "comexe/ComTdbFirstN.h"
+#include "comexe/ComTdbHbaseAccess.h"
+#include "comexe/ComTdbPackRows.h"
+#include "comexe/ComTdbQI.h"
+#include "comexe/ComTdbRoot.h"
+#include "comexe/ComTdbSort.h"
+#include "comexe/ComTdbStats.h"
+#include "comexe/ComTdbTranspose.h"
+#include "comexe/ComTdbTuple.h"
+#include "comexe/ComTdbTupleFlow.h"
+#include "comexe/ComTdbUnion.h"
+#include "comexe/ExplainTuple.h"
 #include "comexe/FragDir.h"
 #include "comexe/PartInputDataDesc.h"
-#include "exp/ExpSqlTupp.h"
-#include "executor/sql_buffer.h"
-#include "comexe/ComQueue.h"
+#include "common/ComOptIncludes.h"
 #include "common/ComSqlId.h"
-
-#include "common/SequenceGeneratorAttributes.h"
-#include "optimizer/CompilationStats.h"
-#include "optimizer/RelRoutine.h"
+#include "common/ComTransInfo.h"
 #include "common/ComUnits.h"
-
-#include "parser/StmtDDLCleanupObjects.h"
+#include "common/SequenceGeneratorAttributes.h"
+#include "executor/sql_buffer.h"
+#include "exp/ExpSqlTupp.h"
+#include "optimizer/BindWA.h"
+#include "optimizer/CompilationStats.h"
+#include "optimizer/ControlDB.h"
+#include "optimizer/GroupAttr.h"
+#include "optimizer/ItemColRef.h"
+#include "optimizer/NATable.h"
+#include "optimizer/RelExeUtil.h"
+#include "optimizer/RelJoin.h"
+#include "optimizer/RelMisc.h"
+#include "optimizer/RelRoutine.h"
+#include "optimizer/RelScan.h"
+#include "optimizer/RelSet.h"
+#include "optimizer/RelUpdate.h"
+#include "optimizer/SchemaDB.h"
 #include "parser/StmtDDLAlterSharedCache.h"
+#include "parser/StmtDDLCleanupObjects.h"
+#include "sqlcomp/DefaultConstants.h"
 
 #ifndef HFS2DM
 #define HFS2DM
 #endif  // HFS2DM
 
-#include "common/ComDefs.h"  // to get common defines (ROUND8)
 #include "arkcmp/CmpStatement.h"
+#include "common/ComCextdecs.h"
+#include "common/ComDefs.h"  // to get common defines (ROUND8)
+#include "common/ComDistribution.h"
+#include "common/ComLocationNames.h"
 #include "common/ComSmallDefs.h"
 #include "executor/sql_buffer_size.h"
-
-#include "common/ComLocationNames.h"
-#include "common/ComDistribution.h"
 #include "optimizer/OptimizerSimulator.h"
-
-#include "common/ComCextdecs.h"
-
-#include "sqlcat/TrafDDLdesc.h"
-
 #include "parser/SqlParserGlobals.h"  // Parser Flags
+#include "sqlcat/TrafDDLdesc.h"
 
 // this comes from GenExplain.cpp (sorry, should have a header file)
 TrafDesc *createVirtExplainTableDesc();
@@ -1902,7 +1896,7 @@ short RelRoot::codeGen(Generator *generator) {
   // Apache Sentry security, then set a timestamp in the root tdb
   // which, when passed, causes a privilege recheck via AQR.
   long sentryAuthExpirationTimeStamp = 0;  // 0 means no check
-  if (generator->hiveAccess())              // if there is a Hive table in this query
+  if (generator->hiveAccess())             // if there is a Hive table in this query
   {
     if (NATable::usingSentry()) {
       sentryAuthExpirationTimeStamp = NA_JulianTimestamp();
@@ -3527,7 +3521,7 @@ short ExplainFunc::codeGen(Generator *generator) {
   // allocate buffer space to contain atleast 2 rows.
   int bufferSize = (explTupleLength + 100 /*padding*/) * 2 /*rows*/;
   bufferSize = MAXOF(bufferSize, 30000);  // min buf size 30000
-  int numBuffers = 3;                   // allocate 3 buffers
+  int numBuffers = 3;                     // allocate 3 buffers
 
   ComTdbExplain *explainTdb = new (space) ComTdbExplain(givenDesc,                     // given_cri_desc
                                                         returnedDesc,                  // returned cri desc
@@ -4317,7 +4311,7 @@ static void initProxyKeyDescStruct(TrafKeysDesc *tgt, ComUInt32 &src) {
 }
 
 static int createDescStructsForProxy(const ProxyFunc &proxy, char *tableName, TrafDesc *&colDescs,
-                                       TrafDesc *&keyDescs) {
+                                     TrafDesc *&keyDescs) {
   colDescs = NULL;
   keyDescs = NULL;
   int reclen = 0;

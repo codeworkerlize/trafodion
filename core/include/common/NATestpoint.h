@@ -19,10 +19,10 @@
 #define NATESTPOINT_H
 
 #include "common/Collections.h"
-#include "common/Platform.h"
+#include "common/ComASSERT.h"
 #include "common/NABoolean.h"
 #include "common/NAString.h"
-#include "common/ComASSERT.h"
+#include "common/Platform.h"
 
 #define DETAILS_NOT_DEFINED         -1
 #define RQST_LEN                    10

@@ -21,15 +21,17 @@
 // @@@ END COPYRIGHT @@@
 // **********************************************************************
 
+#include "executor/HBaseClient_JNI.h"
+
+#include <signal.h>
+
 #include "cli/Context.h"
 #include "cli/Globals.h"
-#include <signal.h>
-#include "executor/HBaseClient_JNI.h"
-#include "qmscommon/QRLogger.h"
-#include "pthread.h"
-#include "common/ComEncryption.h"
 #include "comexe/LateBindInfo.h"
+#include "common/ComEncryption.h"
 #include "executor/ExStats.h"
+#include "pthread.h"
+#include "qmscommon/QRLogger.h"
 
 //
 // ===========================================================================
@@ -2938,11 +2940,10 @@ void HBaseClient_JNI::logIt(const char *str) { QRLogger::log(CAT_SQL_HBASE, LL_D
 
 HBC_RetCode HBaseClient_JNI::startGet(NAHeap *heap, const char *tableName, bool useTRex, NABoolean replSync,
                                       int lockMode, NABoolean skipReadConflict, ExHbaseAccessStats *hbs, long transID,
-                                      long savepointID, long pSavepointId, int isolationLevel,
-                                      const HbaseStr &rowID, const LIST(HbaseStr) & cols, long timestamp,
-                                      int numReplications, HTableClient_JNI *htc, const char *hbaseAuths,
-                                      const char *encryptionInfo, NABoolean waitOnSelectForUpdate,
-                                      NABoolean firstReadBypassTm) {
+                                      long savepointID, long pSavepointId, int isolationLevel, const HbaseStr &rowID,
+                                      const LIST(HbaseStr) & cols, long timestamp, int numReplications,
+                                      HTableClient_JNI *htc, const char *hbaseAuths, const char *encryptionInfo,
+                                      NABoolean waitOnSelectForUpdate, NABoolean firstReadBypassTm) {
   if (javaObj_ == NULL || (!isInitialized())) {
     GetCliGlobals()->setJniErrorStr(getErrorText(HBC_ERROR_GET_HTC_EXCEPTION));
     NADELETE(htc, HTableClient_JNI, heap);
@@ -4090,10 +4091,9 @@ HBC_RetCode HBaseClient_JNI::checkAndUpdateRow(NAHeap *heap, const char *tableNa
 //
 //////////////////////////////////////////////////////////////////////////////
 HBC_RetCode HBaseClient_JNI::deleteRow(NAHeap *heap, const char *tableName, ExHbaseAccessStats *hbs, long transID,
-                                       long savepointID, long pSavepointId, HbaseStr rowID,
-                                       const LIST(HbaseStr) * cols, long timestamp, const char *hbaseAuths,
-                                       int flags, const char *encryptionInfo, const char *triggers,
-                                       const char *curExecSql, HTableClient_JNI **outHtc,
+                                       long savepointID, long pSavepointId, HbaseStr rowID, const LIST(HbaseStr) * cols,
+                                       long timestamp, const char *hbaseAuths, int flags, const char *encryptionInfo,
+                                       const char *triggers, const char *curExecSql, HTableClient_JNI **outHtc,
                                        ExDDLValidator *ddlValidator) {
   QRLogger::log(CAT_SQL_HBASE, LL_DEBUG, "HBaseClient_JNI::deleteRow(%ld, %s) called.", transID, rowID.val);
 
@@ -4251,10 +4251,9 @@ HBC_RetCode HBaseClient_JNI::deleteRow(NAHeap *heap, const char *tableName, ExHb
 //////////////////////////////////////////////////////////////////////////////
 HBC_RetCode HBaseClient_JNI::deleteRows(NAHeap *heap, const char *tableName, ExHbaseAccessStats *hbs, long transID,
                                         long savepointID, long pSavepointId, short rowIDLen, HbaseStr rowIDs,
-                                        const LIST(HbaseStr) * cols, long timestamp, const char *hbaseAuths,
-                                        int flags, const char *encryptionInfo, const char *triggers,
-                                        const char *curExecSql, HTableClient_JNI **outHtc,
-                                        ExDDLValidator *ddlValidator) {
+                                        const LIST(HbaseStr) * cols, long timestamp, const char *hbaseAuths, int flags,
+                                        const char *encryptionInfo, const char *triggers, const char *curExecSql,
+                                        HTableClient_JNI **outHtc, ExDDLValidator *ddlValidator) {
   QRLogger::log(CAT_SQL_HBASE, LL_DEBUG, "HBaseClient_JNI::deleteRows(%ld, %s) called.", transID, rowIDs.val);
 
   HTableClient_JNI *htc = NULL;

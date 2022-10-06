@@ -3,10 +3,11 @@
 // **********************************************************************
 
 #include "QmmQmm.h"
+
 #include "QueryRewriteServer.h"
-#include "common/Ipc.h"
 #include "common/ComCextdecs.h"
 #include "common/ComRtUtils.h"
+#include "common/Ipc.h"
 #include "porting/PortProcessCalls.h"
 
 #ifdef NA_NSK
@@ -563,7 +564,7 @@ IpcTimeout Qmm::getWaitTimeout() {
   // Timestamp is microsecond resolution, IpcTimeout is in 10ms units (100 =
   // 1 second).
   long microsecondsTillNext = earliestTimestamp - NA_JulianTimestamp() + 1000000;  // 1-sec fudge factor
-  if (microsecondsTillNext < 0)                                                     // already past time somehow?
+  if (microsecondsTillNext < 0)                                                    // already past time somehow?
     microsecondsTillNext = 0;
   QRLogger::log(CAT_QR_IPC, LL_DEBUG, "Wait timeout set to %d seconds", microsecondsTillNext / 1000000);
   return (IpcTimeout)(microsecondsTillNext / 1000);

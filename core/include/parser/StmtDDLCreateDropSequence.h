@@ -17,10 +17,10 @@
  *****************************************************************************
  */
 
-#include "common/ComSmallDefs.h"
 #include "ElemDDLNode.h"
-#include "parser/ElemDDLSGOptions.h"
 #include "ItemConstValueArray.h"
+#include "common/ComSmallDefs.h"
+#include "parser/ElemDDLSGOptions.h"
 #include "parser/StmtDDLNode.h"
 
 // -----------------------------------------------------------------------

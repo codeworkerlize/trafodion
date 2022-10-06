@@ -1,21 +1,23 @@
 
 
-#include <unistd.h>
+#include "ExSMReader.h"
+
 #include <time.h>
+#include <unistd.h>
+
+#include "ExSMCommon.h"
+#include "ExSMEvent.h"
+#include "ExSMGlobals.h"
+#include "ExSMQueue.h"
+#include "ExSMReadyList.h"
+#include "ExSMShortMessage.h"
+#include "ExSMTask.h"
+#include "ExSMTaskList.h"
+#include "ExSMTrace.h"
+#include "common/NAAssert.h"
 #include "common/Platform.h"
 #include "seabed/pctl.h"
 #include "seabed/pevents.h"
-#include "ExSMReader.h"
-#include "ExSMCommon.h"
-#include "ExSMTrace.h"
-#include "ExSMGlobals.h"
-#include "ExSMTask.h"
-#include "ExSMTaskList.h"
-#include "ExSMReadyList.h"
-#include "ExSMQueue.h"
-#include "ExSMEvent.h"
-#include "ExSMShortMessage.h"
-#include "common/NAAssert.h"
 
 void *ExSM_ReaderFunction(void *arg) {
   int32_t rc = NAAssertMutexCreate();

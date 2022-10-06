@@ -1,12 +1,12 @@
 
-#include "optimizer/GroupAttr.h"
-#include "optimizer/AllRelExpr.h"
-#include "RelPackedRows.h"
-#include "generator/Generator.h"
 #include "GenExpGenerator.h"
-#include "exp/ExpCriDesc.h"
+#include "RelPackedRows.h"
 #include "comexe/ComTdbUnPackRows.h"
 #include "ex_queue.h"
+#include "exp/ExpCriDesc.h"
+#include "generator/Generator.h"
+#include "optimizer/AllRelExpr.h"
+#include "optimizer/GroupAttr.h"
 
 // PhysUnPackRows::preCodeGen() -------------------------------------------
 // Perform local query rewrites such as for the creation and

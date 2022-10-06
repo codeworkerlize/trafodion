@@ -20,8 +20,9 @@
 #ifndef _CMP_ERR_LOG_H
 #define _CMP_ERR_LOG_H
 
-#include "common/Platform.h"
 #include <sys/types.h>
+
+#include "common/Platform.h"
 
 // Forward declarations
 class NAMemory;

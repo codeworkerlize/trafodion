@@ -293,9 +293,10 @@ void ExEspFragInstanceDir::fixupEntry(int handle, int numOfParentInstances, ComD
         // the diags area
         entryState = setFiState(handle, BUILT, __LINE__);
       else
-        // Statement is now definitely fixed up, it stays ready
-        // for work if it was ready before the fixup.
-        if (entryState == BUILT) entryState = setFiState(handle, FIXED_UP, __LINE__);
+          // Statement is now definitely fixed up, it stays ready
+          // for work if it was ready before the fixup.
+          if (entryState == BUILT)
+        entryState = setFiState(handle, FIXED_UP, __LINE__);
       break;  // leave the switch here, rest is error handling
 
     case ACTIVE:

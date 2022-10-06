@@ -18,9 +18,9 @@
  *****************************************************************************
  */
 
+#include "ElemDDLNode.h"
 #include "common/ComASSERT.h"
 #include "common/ComOperators.h"
-#include "ElemDDLNode.h"
 #include "common/NABoolean.h"
 
 // -----------------------------------------------------------------------

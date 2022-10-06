@@ -16,9 +16,9 @@
  */
 
 // -----------------------------------------------------------------------
-#include "common/Platform.h"
-
 #include "common/NAIpc.h"
+
+#include "common/Platform.h"
 
 // -----------------------------------------------------------------------
 // A method that implements a global variable for the IPC environment

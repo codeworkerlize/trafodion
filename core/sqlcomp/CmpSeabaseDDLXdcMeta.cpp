@@ -14,8 +14,9 @@
  *****************************************************************************
  */
 
-#include "sqlcomp/CmpSeabaseDDLincludes.h"
 #include "sqlcomp/CmpSeabaseDDLXdcMeta.h"
+
+#include "sqlcomp/CmpSeabaseDDLincludes.h"
 #include "sqlmxevents/logmxevent_traf.h"
 
 short CmpSeabaseDDL::createXDCMeta(ExeCliInterface *cliInterface) {

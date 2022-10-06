@@ -15,16 +15,16 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
-
-#include "exp/exp_stdh.h"
 #include "exp/exp_attrs.h"
-#include "exp/exp_clause_derived.h"
-#include "exp/exp_bignum.h"
+
 #include "ExpComposite.h"
-#include "common/str.h"
 #include "common/NLSConversion.h"
+#include "common/Platform.h"
+#include "common/str.h"
 #include "ex_ex.h"
+#include "exp/exp_bignum.h"
+#include "exp/exp_clause_derived.h"
+#include "exp/exp_stdh.h"
 
 int Attributes::getStorageLength() { return -1; };
 int Attributes::getDefaultValueStorageLength() { return -1; };
@@ -325,8 +325,6 @@ void Attributes::displayContents(Space *space, int operandNum, char *constsArea,
               getDatatype(), getLength(), getNullFlag());
   space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
 
-
-
   str_sprintf(buf, "      Precision = %d, Scale = %d, Collation = %d, flags_ = %x", getPrecision(), getScale(),
               getCollation(), flags_);
 
@@ -436,8 +434,6 @@ void Attributes::displayContents(ostream &out, Attributes *spAttr) {
   str_sprintf(buf, "      Datatype = %s(%d), Length = %d, Null Flag = %d", getDatatypeAsString(getDatatype()),
               getDatatype(), getLength(), getNullFlag());
   out << buf << endl;
-
-
 
   str_sprintf(buf, "      Precision = %d, Scale = %d, Collation = %d, flags_ = %x", getPrecision(), getScale(),
               getCollation(), flags_);
@@ -683,8 +679,7 @@ int Attributes::convertCharToOffset(const char *buf, int numOfChar, int maxBufLe
   return offset;
 }
 
-int Attributes::getCharLengthInBuf(const char *buf, const char *endOfBuf, char *charLengthInBuf,
-                                     CharInfo::CharSet cs) {
+int Attributes::getCharLengthInBuf(const char *buf, const char *endOfBuf, char *charLengthInBuf, CharInfo::CharSet cs) {
   int numberOfCharacterInBuf;
 
   if (cs == CharInfo::ISO88591 || cs == CharInfo::BINARY || cs == CharInfo::UCS2) {

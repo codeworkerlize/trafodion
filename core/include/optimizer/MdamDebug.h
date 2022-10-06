@@ -19,6 +19,7 @@
 #ifdef MDAM_TRACE
 #include <stdarg.h>
 #include <stdio.h>
+
 #include "common/NABoolean.h"
 
 class ScanOptimizer;

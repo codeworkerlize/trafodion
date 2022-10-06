@@ -19,10 +19,11 @@
 
 #include <limits.h>
 #include <math.h>
+
+#include "BigNumHelper.h"
 #include "common/BaseTypes.h"
 #include "common/NAType.h"
 #include "export/ComDiags.h"
-#include "BigNumHelper.h"
 // -----------------------------------------------------------------------
 // contents of this file
 // -----------------------------------------------------------------------
@@ -216,9 +217,8 @@ class NumericType : public NAType {
   // ---------------------------------------------------------------------
   // Constructor functions
   // ---------------------------------------------------------------------
-  NumericType(NAMemory *heap, const NAString &adtName, int dataStorageSize, int precision, int scale,
-              int alignment, NABoolean allowNegValues = TRUE, NABoolean allowSQLnull = TRUE,
-              NABoolean varLenFlag = FALSE);
+  NumericType(NAMemory *heap, const NAString &adtName, int dataStorageSize, int precision, int scale, int alignment,
+              NABoolean allowNegValues = TRUE, NABoolean allowSQLnull = TRUE, NABoolean varLenFlag = FALSE);
   NumericType(const NumericType &numeric, CollHeap *heap = 0);
 
  private:

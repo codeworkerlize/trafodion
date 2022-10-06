@@ -4,10 +4,10 @@
 #define FCCONV_H 1
 
 #ifndef _KERNEL
+#include <ctype.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stddef.h>
-#include <ctype.h>
 //#include "iconv_local.h"		   // BRL
 #endif
 
@@ -19,8 +19,9 @@ typedef unsigned int uint_t;      // JAC
 typedef unsigned short ushort_t;  // JAC
 
 //#include <sys/errno.h> //BRL
-#include "errno.h"  //JAC
 #include <sys/types.h>
+
+#include "errno.h"  //JAC
 
 // #ifdef _KERNEL                                   //BRL
 /*

@@ -27,13 +27,13 @@
 
 #include "optimizer/BindWA.h"
 
+#include "arkcmp/CmpContext.h"
 #include "optimizer/ItemFunc.h"
+#include "optimizer/ItemOther.h"
 #include "optimizer/ItemSubq.h"
 #include "optimizer/RelJoin.h"
-#include "optimizer/RelUpdate.h"
-#include "arkcmp/CmpContext.h"
-#include "optimizer/ItemOther.h"
 #include "optimizer/RelMisc.h"
+#include "optimizer/RelUpdate.h"
 #include "optimizer/Sqlcomp.h"
 #include "parser/StmtDDLCreateView.h"
 

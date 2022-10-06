@@ -4,38 +4,38 @@
 
 // Needed for parser flag manipulation
 #define SQLPARSERGLOBALS_FLAGS
-#include "parser/SqlParserGlobalsCmn.h"
-
 #include "sqlcomp/PrivMgr.h"
+
+#include "parser/SqlParserGlobalsCmn.h"
 #include "sqlcomp/PrivMgrCommands.h"
 #include "sqlcomp/PrivMgrMDDefs.h"
 
 // c++ includes
-#include <string>
 #include <algorithm>
+#include <string>
 
 // PrivMgr includes
-#include "PrivMgrComponents.h"
 #include "PrivMgrComponentOperations.h"
+#include "PrivMgrComponents.h"
 #include "sqlcomp/PrivMgrComponentPrivileges.h"
 #include "sqlcomp/PrivMgrPrivileges.h"
-#include "sqlcomp/PrivMgrSchemaPrivileges.h"
 #include "sqlcomp/PrivMgrRoles.h"
+#include "sqlcomp/PrivMgrSchemaPrivileges.h"
 
 // Trafodion includes
-#include "common/ComDistribution.h"
+#include "arkcmp/CmpContext.h"
 #include "cli/sqlcli.h"
-#include "executor/ExExeUtilCli.h"
-#include "export/ComDiags.h"
 #include "comexe/ComQueue.h"
 #include "common/CmpCommon.h"
-#include "arkcmp/CmpContext.h"
-#include "sqlcomp/CmpDDLCatErrorCodes.h"
-#include "sqlmxevents/logmxevent_traf.h"
+#include "common/ComDistribution.h"
+#include "common/ComSmallDefs.h"
 #include "common/ComUser.h"
 #include "common/NAUserId.h"
 #include "common/str.h"
-#include "common/ComSmallDefs.h"
+#include "executor/ExExeUtilCli.h"
+#include "export/ComDiags.h"
+#include "sqlcomp/CmpDDLCatErrorCodes.h"
+#include "sqlmxevents/logmxevent_traf.h"
 
 // ==========================================================================
 // Contains non inline methods in the following classes

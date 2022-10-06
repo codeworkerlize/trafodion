@@ -26,9 +26,9 @@
  */
 
 #include "common/Collections.h"
-#include "optimizer/ColumnDesc.h"
 #include "common/NAString.h"
 #include "common/nawstring.h"  // for wide token strings (tcr)
+#include "optimizer/ColumnDesc.h"
 #include "optimizer/ObjectNames.h"
 #ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS

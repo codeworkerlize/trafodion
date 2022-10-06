@@ -19,8 +19,8 @@
  *****************************************************************************
  */
 
-#include "parser/ElemDDLColRefArray.h"
 #include "ElemDDLNode.h"
+#include "parser/ElemDDLColRefArray.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

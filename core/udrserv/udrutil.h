@@ -14,10 +14,10 @@
 *****************************************************************************
 */
 
-#include "cli/sqlcli.h"
-#include "udrdefs.h"
-#include "common/ComSmallDefs.h"
 #include "LmParameter.h"
+#include "cli/sqlcli.h"
+#include "common/ComSmallDefs.h"
+#include "udrdefs.h"
 
 //
 // Forward declarations

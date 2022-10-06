@@ -15,10 +15,11 @@
 ******************************************************************************
 */
 
-#include "common/Platform.h"
-#include "lmjni.h"
 #include <stdarg.h>
 #include <stdio.h>
+
+#include "common/Platform.h"
+#include "lmjni.h"
 
 #define LMJ_HOOK_TEXT_BUF_SIZE 2048
 

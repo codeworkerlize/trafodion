@@ -18,40 +18,37 @@
 
 #define AEVENT 1
 
-#include "common/Platform.h"
+#include <errno.h>
 #include <fcntl.h>
+#include <sys/time.h>
 
+#include "MXTraceDef.h"
+#include "common/ComDefs.h"
+#include "common/ComRtUtils.h"
 #include "common/ExCollections.h"
 #include "common/Int64.h"
 #include "common/Ipc.h"
+#include "common/NAExit.h"
+#include "common/Platform.h"
 #include "common/str.h"
 #include "export/ComDiags.h"
-#include "common/NAExit.h"
-#include "common/ComRtUtils.h"
-#include "common/ComDefs.h"
 #include "porting/PortProcessCalls.h"
-#include "sqlmxevents/logmxevent.h"
-
-#include "MXTraceDef.h"
 #include "seabed/fs.h"
-#include "seabed/ms.h"
 #include "seabed/int/opts.h"
-#include <sys/time.h>
-#include <errno.h>
+#include "seabed/ms.h"
+#include "sqlmxevents/logmxevent.h"
 extern "C" {
 int_16 TMF_SETTXHANDLE_(short *);
 }
-#include "rosetta/rosgen.h"
 #include "nsk/nskprocess.h"
+#include "rosetta/rosgen.h"
 extern "C" {
 #include "common/cextdecs.h"
 #include "common/zsysc.h"
 }
-#include "common/feerrors.h"
-
-#include "common/trafconfig.h"  // to get TC_PROCESSOR_NAME_MAX
-
 #include "common/NAWNodeSet.h"
+#include "common/feerrors.h"
+#include "common/trafconfig.h"  // to get TC_PROCESSOR_NAME_MAX
 
 // Uncomment the next line to debug IPC problems (log of client's I/O)
 // #define LOG_IPC
@@ -1681,8 +1678,7 @@ NABoolean GuaConnectionToServer::partiallyRecvProcessed() { return FALSE; }
 GuaConnectionToServerTimeout::GuaConnectionToServerTimeout(IpcEnvironment *env, const IpcProcessId &procId,
                                                            NABoolean usesTransactions, unsigned short nowaitDepth,
                                                            const char *eye, NABoolean parallelOpen,
-                                                           int *openCompletionScheduled,
-                                                           NABoolean dataConnectionToEsp)
+                                                           int *openCompletionScheduled, NABoolean dataConnectionToEsp)
     : GuaConnectionToServer(env, procId, usesTransactions, nowaitDepth, eye, parallelOpen, openCompletionScheduled,
                             dataConnectionToEsp) {
   partiallyReceiveTime_ = {0, 0};
@@ -3494,10 +3490,10 @@ void IpcGuardianServer::launchNSKLiteProcess(NAWNodeSetWrapper *availableNodes, 
                                                        largv,
                                                        // 0,              /* open */
                                                        //&server_oid,    /* oid */
-                                                       processType,                              /* process type */
-                                                       0,                                        /* priority */
-                                                       0,                                        /* debug */
-                                                       0,                                        /* backup */
+                                                       processType,                             /* process type */
+                                                       0,                                       /* priority */
+                                                       0,                                       /* debug */
+                                                       0,                                       /* backup */
                                                        (long)&nowaitedEspStartup_, &server_nid, /* nid */
                                                        &server_pid, NULL, NULL, unhooked_);
         ESP_TRACE2("MT: Back MMSPNW, svr: %p\n", &nowaitedEspStartup_);

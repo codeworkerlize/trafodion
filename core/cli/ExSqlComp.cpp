@@ -16,36 +16,31 @@
  *****************************************************************************
  */
 
+#include "cli/ExSqlComp.h"
+
 #include <ctype.h>
+
+#include "ExControlArea.h"
+#include "PortProcessCalls.cpp"
+#include "arkcmp/CmpErrors.h"
+#include "cli/sql_id.h"
+#include "cli_stdh.h"
+#include "comexe/CmpMessage.h"
+#include "comexe/ComTdb.h"
+#include "common/ComRtUtils.h"
+#include "common/ComTransInfo.h"
+#include "common/Ipc.h"
 #include "common/Platform.h"
 #include "common/cextdecs.h"
-
-#include "executor/ex_stdh.h"  // TEMP, for ISP testing
-
-#include "common/Platform.h"
-
-#include "cli/ExSqlComp.h"
-#include "cli_stdh.h"
-#include "arkcmp/CmpErrors.h"
-#include "comexe/CmpMessage.h"
-#include "export/ComDiags.h"
-#include "sqlcomp/ShowSchema.h"  // GetControlDefaults class
-#include "parser/StmtCompilationMode.h"
-
-#include "comexe/ComTdb.h"
-#include "ExControlArea.h"
-#include "common/ComTransInfo.h"
-#include "executor/ex_tcb.h"
 #include "ex_stored_proc.h"
+#include "executor/ex_stdh.h"  // TEMP, for ISP testing
+#include "executor/ex_tcb.h"
 #include "executor/ex_transaction.h"
-#include "cli/sql_id.h"
-#include "common/ComRtUtils.h"
-
-#include "common/Ipc.h"
-#include "PortProcessCalls.cpp"
-
+#include "export/ComDiags.h"
+#include "parser/StmtCompilationMode.h"
 #include "seabed/fs.h"
 #include "seabed/ms.h"
+#include "sqlcomp/ShowSchema.h"  // GetControlDefaults class
 
 // -----------------------------------------------------------------------
 // Diagnostics error listings for ExSqlComp
@@ -402,7 +397,7 @@ static ExSqlComp::ReturnStatus saveControls(ExControlArea *ca, const char *cqd) 
 
   ExSqlComp::ReturnStatus ret = ExSqlComp::SUCCESS;
   char sqlText[2200];
-  int lenP = str_len(ca->getText(DEFAULT_));        // len of prefix:
+  int lenP = str_len(ca->getText(DEFAULT_));          // len of prefix:
   str_cpy_all(sqlText, ca->getText(DEFAULT_), lenP);  // "CQD"
   sqlText[lenP++] = ' ';                              // "CQD "
 
@@ -1072,10 +1067,10 @@ ExSqlComp::ReturnStatus ExSqlComp::sendRequest(Operator op, const char *const_in
 
 // stored proc request.
 ExSqlComp::ReturnStatus ExSqlComp::sendRequest(const char *procName, void *inputExpr,
-                                               int inputExprSize,                          // input Expr
-                                               void *outputExpr, int outputExprSize,       // output Expr
-                                               void *keyExpr, int keyExprSize,             // key expr
-                                               void *inputData, int inputDataSize,         // input data
+                                               int inputExprSize,                       // input Expr
+                                               void *outputExpr, int outputExprSize,    // output Expr
+                                               void *keyExpr, int keyExprSize,          // key expr
+                                               void *inputData, int inputDataSize,      // input data
                                                int outputRecSize, int outputTotalSize,  // output data
                                                NABoolean waited, long *id, const char *parentQid, int parentQidLen) {
   ReturnStatus ret = ERROR;

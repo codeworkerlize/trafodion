@@ -15,14 +15,16 @@
  *
  *****************************************************************************
  */
-#include <jni.h>
 #include "JavaSplitter.h"
-#include "common/Platform.h"
-#include <iostream>
+
+#include <jni.h>
 #include <string.h>
 
-#include "export/ComDiags.h"
+#include <iostream>
+
 #include "LmError.h"
+#include "common/Platform.h"
+#include "export/ComDiags.h"
 
 static JavaNormal normalJava;
 static JavaVirtual *splitter = &normalJava;

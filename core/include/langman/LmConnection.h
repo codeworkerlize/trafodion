@@ -3,11 +3,12 @@
 #ifndef LMCONNECTION_H
 #define LMCONNECTION_H
 
-#include "common/ComSmallDefs.h"
+#include <jni.h>
+
+#include "LmJavaExceptionReporter.h"
 #include "LmLangManagerJava.h"
 #include "common/Collections.h"
-#include "LmJavaExceptionReporter.h"
-#include <jni.h>
+#include "common/ComSmallDefs.h"
 
 class LmRoutineJava;
 

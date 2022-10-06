@@ -15,8 +15,8 @@
  *****************************************************************************
  */
 
-#include "export/NAVersionedObject.h"
 #include "common/ComSmallDefs.h"
+#include "export/NAVersionedObject.h"
 
 // needed for the TDB member
 typedef NAVersionedObjectPtrTempl<long> TriggersListPtr;

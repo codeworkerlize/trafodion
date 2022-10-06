@@ -43,8 +43,7 @@ int testHashDictionaryItorNoCopyFull(NAHashDictionary<int, int> &table) {
 
 int testHashDictionaryItorNoCopyFullSubset(NAHashDictionary<int, int> &table) {
   int *key = new int(1);
-  NAHashDictionaryIteratorNoCopy<int, int> itorSubset(table, iteratorEntryType::EVERYTHING, key, NULL, NULL,
-                                                          hashFunc);
+  NAHashDictionaryIteratorNoCopy<int, int> itorSubset(table, iteratorEntryType::EVERYTHING, key, NULL, NULL, hashFunc);
 
   return getAll(itorSubset);
 }

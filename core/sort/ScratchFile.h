@@ -24,6 +24,5 @@
 #define SCRATCHFILE_H
 
 #include "ScratchFile_base.h"
-
 #include "ScratchFile_sq.h"
 #endif

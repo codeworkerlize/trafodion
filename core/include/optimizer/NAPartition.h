@@ -17,8 +17,9 @@
 
 #include <bitset>
 #include <string>
-#include "common/ComSmallDefs.h"
+
 #include "common/BaseTypes.h"
+#include "common/ComSmallDefs.h"
 #include "optimizer/ObjectNames.h"
 
 // -----------------------------------------------------------------------

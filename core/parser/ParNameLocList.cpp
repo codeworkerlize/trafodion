@@ -26,10 +26,10 @@
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
 #define SQLPARSERGLOBALS_NADEFAULTS
-#include "parser/ElemDDLConstraintCheck.h"
 #include "arkcmp/CmpContext.h"
 #include "common/ComOperators.h"
 #include "common/ComSmallDefs.h"
+#include "parser/ElemDDLConstraintCheck.h"
 #include "parser/SqlParserGlobals.h"
 #include "parser/StmtDDLCreateTable.h"
 #include "parser/StmtDDLCreateTrigger.h"
@@ -496,8 +496,6 @@ void ParSetEndOfFileOptionsListPos(ParNameLocList *pNameLocList) {
   ComASSERT(ParEndOfFileOptionsListPos > ParBeginingOfFileOptionsListPos);
   ComASSERT(ParBeginingOfFileOptionsListPos > 0);
 }
-
-
 
 // ---------------------------------------------------------------------------
 // definition of global (file scope) function  ParSetTextStartPosForCreateMV()

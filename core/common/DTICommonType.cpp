@@ -14,8 +14,9 @@
 // -----------------------------------------------------------------------
 
 #include "DTICommonType.h"
-#include "common/IntervalType.h"
+
 #include "common/DatetimeType.h"
+#include "common/IntervalType.h"
 
 // ***********************************************************************
 //

@@ -14,14 +14,16 @@
 ****************************************************************************
 */
 
-#include <iostream>
-#include <iomanip>
-#include <sstream>
+#include "export/HeapLog.h"
+
 #include <assert.h>
 #include <limits.h>
 #include <string.h>
 
-#include "export/HeapLog.h"
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+
 #include "HeapLogImpl.h"
 
 using namespace std;
@@ -322,8 +324,8 @@ void HeapLogRoot::pack(char *buf, int flags) {
 // return FETCH_EOF if eof else 0.
 // ---------------------------------------------------------------------
 int HeapLogRoot::fetchLine(char *buf, int flags, char *packdata /*=NULL*/
-                             ,
-                             int datalen /*=0*/
+                           ,
+                           int datalen /*=0*/
 ) {
   if ((flags & (LeakDescribe::FLAG_SQLCI | LeakDescribe::FLAG_ARKCMP)) == 0) {  // neither sqlci nor arkcmp.  Done.
     control(LOG_RESET_DISABLE);

@@ -584,7 +584,7 @@ class ExpTupleDesc : public NAVersionedObject {
   // For tgt in disk format, compute offset based on loop variable.
   // Update the VOA entry.
   static int getTgtVarOffset(char *dataPtr, int offset, int voaEntryOffset, UInt32 vcIndLen, UInt32 nullIndLen,
-                               int &varOffset, UInt32 len) {
+                             int &varOffset, UInt32 len) {
     char *tgt = dataPtr;
     int tgtOffset = offset;
 

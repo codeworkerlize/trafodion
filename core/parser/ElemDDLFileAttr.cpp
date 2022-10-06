@@ -18,8 +18,8 @@
 #include "AllElemDDLFileAttr.h"
 #include "common/BaseTypes.h"
 #include "common/ComASSERT.h"
-#include "export/ComDiags.h"
 #include "common/ComOperators.h"
+#include "export/ComDiags.h"
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #include "parser/SqlParserGlobals.h"
 
@@ -351,8 +351,6 @@ NAString ElemDDLFileAttrClause::getSyntax() const {
 
 }  // getSyntax
 
-
-
 //----------------------------------------------------------------------------
 // methods for class ElemDDLFileAttrClearOnPurge
 //----------------------------------------------------------------------------
@@ -568,7 +566,6 @@ NAString ElemDDLFileAttrInsertLog::getSyntax() const {
   return syntax;
 }
 
-
 //
 // constructors
 //
@@ -699,8 +696,7 @@ ElemDDLFileAttrExtents::ElemDDLFileAttrExtents() : ElemDDLFileAttr(ELM_FILE_ATTR
   ParSetDefaultExtents(priExt_, secExt_);
 }
 
-ElemDDLFileAttrExtents::ElemDDLFileAttrExtents(int priExt, int secExt)
-    : ElemDDLFileAttr(ELM_FILE_ATTR_EXTENT_ELEM) {
+ElemDDLFileAttrExtents::ElemDDLFileAttrExtents(int priExt, int secExt) : ElemDDLFileAttr(ELM_FILE_ATTR_EXTENT_ELEM) {
   initializeExtents(priExt, secExt);
 }
 

@@ -14,9 +14,10 @@
 */
 
 #include "LmJavaHooks.h"
+
+#include "ComSafePrinter.h"
 #include "LmDebug.h"
 #include "LmExtFunc.h"
-#include "ComSafePrinter.h"
 #include "common/BaseTypes.h"
 #include "common/str.h"
 

@@ -1,10 +1,10 @@
 #ifndef _AUTH_H
 #define _AUTH_H
 
-
 #include <stdint.h>
-#include <string>
+
 #include <set>
+#include <string>
 
 #define USERTOKEN_ID_1 '\3'  // User token identifier, must be a sequence
 #define USERTOKEN_ID_2 '\4'  // not allowed in password

@@ -17,6 +17,7 @@
 // -----------------------------------------------------------------------
 
 #include "comexe/ComTdbTransaction.h"
+
 #include "comexe/ComTdbCommon.h"
 
 /////////////////////////////////////////////////////////////////
@@ -24,8 +25,8 @@
 /////////////////////////////////////////////////////////////////
 ComTdbTransaction::ComTdbTransaction(TransStmtType trans_type, TransMode *trans_mode, ex_expr *diag_area_size_expr,
                                      ex_cri_desc *work_cri_desc, ex_cri_desc *given_cri_desc,
-                                     ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
-                                     int num_buffers, int buffer_size)
+                                     ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
+                                     int buffer_size)
     : ComTdb(ComTdb::ex_TRANSACTION, eye_TRANSACTION, (Cardinality)0.0, given_cri_desc, returned_cri_desc, down, up,
              num_buffers, buffer_size),
       transType_(trans_type),

@@ -12,14 +12,14 @@
  *****************************************************************************
  */
 
-#include "executor/ex_stdh.h"
 #include "ExUdrServer.h"
-#include "ExUdrClientIpc.h"
-#include "exp/ExpError.h"
-#include "ExCextdecs.h"
-#include "common/ComRtUtils.h"
-#include "porting/PortProcessCalls.h"
 
+#include "ExCextdecs.h"
+#include "ExUdrClientIpc.h"
+#include "common/ComRtUtils.h"
+#include "executor/ex_stdh.h"
+#include "exp/ExpError.h"
+#include "porting/PortProcessCalls.h"
 #include "seabed/fs.h"
 #include "seabed/ms.h"
 
@@ -826,10 +826,9 @@ ExUdrServerManager::~ExUdrServerManager() {
 // Successful completion of this method does not guarantee that the
 // server process is actually started.
 //
-ExUdrServer *ExUdrServerManager::acquireUdrServer(const int &userId, const char *options,
-                                                  const char *optionDelimiters, const char *userName,
-                                                  const char *userPassword, IpcThreadInfo *threadInfo,
-                                                  NABoolean dedicated) {
+ExUdrServer *ExUdrServerManager::acquireUdrServer(const int &userId, const char *options, const char *optionDelimiters,
+                                                  const char *userName, const char *userPassword,
+                                                  IpcThreadInfo *threadInfo, NABoolean dedicated) {
 #ifdef UDR_DEBUG
   if ((getenv("UDR_"
               "DEBUG") != NULL) ||

@@ -1,9 +1,10 @@
 
 
 #include "orcPushdownPredInfo.h"
-#include "optimizer/ItemExpr.h"
-#include "optimizer/ItemColRef.h"
+
 #include "exp/exp_clause_derived.h"
+#include "optimizer/ItemColRef.h"
+#include "optimizer/ItemExpr.h"
 
 void ExtPushdownPredInfo::display() {
   NAString text = getText();

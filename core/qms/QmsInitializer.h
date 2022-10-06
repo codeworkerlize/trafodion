@@ -6,11 +6,12 @@
 #define _QMSINITIALIZE_H_
 
 #include <fstream>
-#include "qmscommon/QRLogger.h"
-#include "qmscommon/QRDescriptor.h"
-#include "common/NAString.h"
+
 #include "QRQueriesImpl.h"
 #include "QmsQms.h"
+#include "common/NAString.h"
+#include "qmscommon/QRDescriptor.h"
+#include "qmscommon/QRLogger.h"
 
 class QmsInitializer {
  public:

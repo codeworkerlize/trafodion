@@ -18,14 +18,14 @@
  *****************************************************************************
  */
 
-#include "common/NAString.h"
-#include "ElemDDLNode.h"
-#include "ElemDDLFileAttrMaxSize.h"
 #include "ElemDDLFileAttrExtents.h"
 #include "ElemDDLFileAttrMaxExtents.h"
+#include "ElemDDLFileAttrMaxSize.h"
 #include "ElemDDLLocation.h"
-#include "parser/ElemDDLPartition.h"
+#include "ElemDDLNode.h"
 #include "ItemConstValueArray.h"
+#include "common/NAString.h"
+#include "parser/ElemDDLPartition.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

@@ -16,14 +16,14 @@
 ******************************************************************************
 */
 
-#include "common/ComTransInfo.h"
-#include "optimizer/OptUtilIncludes.h"
-#include "optimizer/ObjectNames.h"
-#include "optimizer/RelExpr.h"
 #include "SearchKey.h"
+#include "common/ComTransInfo.h"
+#include "optimizer/CostMethod.h"
+#include "optimizer/ObjectNames.h"
+#include "optimizer/OptUtilIncludes.h"
+#include "optimizer/RelExpr.h"
 #include "optimizer/RelJoin.h"
 #include "optimizer/RelScan.h"
-#include "optimizer/CostMethod.h"
 // -----------------------------------------------------------------------
 // contents of this file
 // -----------------------------------------------------------------------
@@ -378,7 +378,7 @@ class GenericUpdate : public RelExpr {
 
   virtual NABoolean okToAttemptESPParallelism(const Context *myContext, /*IN*/
                                               PlanWorkSpace *pws,       /*IN*/
-                                              int &numOfESPs,         /*OUT*/
+                                              int &numOfESPs,           /*OUT*/
                                               float &allowedDeviation,  /*OUT*/
                                               NABoolean &numOfESPsForced /*OUT*/);
 
@@ -599,15 +599,12 @@ class GenericUpdate : public RelExpr {
   // Add to the RETDesc the virtual columns needed for MV logging.
   void prepareForMvLogging(BindWA *bindWA, CollHeap *heap);
 
-
-
   RelExpr *inlineOnlyRIandIMandMVLogging(BindWA *bindWA, RelExpr *topNode, NABoolean needIM,
                                          RefConstraintList *riConstraints, NABoolean isMVLoggingRequired,
                                          UpdateColumns *columns, CollHeap *heap);
 
   // Finish the inlining procedure.
   void InliningFinale(BindWA *bindWA, RelExpr *topNode, RETDesc *origRETDesc);
-
 
   // If we are reading from the same table we are updating, check to
   // see if we can support this potential halloween problem
@@ -876,12 +873,12 @@ class GenericUpdate : public RelExpr {
 class Insert : public GenericUpdate {
  public:
   enum InsertType {
-    SIMPLE_INSERT,       // One row inserted at a time, data is not buffered.
-    VSBB_INSERT_SYSTEM,  // "Smart range lock" - DP2 decides when to turn on
-                         // VSBB inserts, and what range to lock.
-    VSBB_INSERT_USER,    // "Dumb range lock" - The entire range from the first
-                         // row inserted until the next physical row in the
-                       // partition is locked.
+    SIMPLE_INSERT,               // One row inserted at a time, data is not buffered.
+    VSBB_INSERT_SYSTEM,          // "Smart range lock" - DP2 decides when to turn on
+                                 // VSBB inserts, and what range to lock.
+    VSBB_INSERT_USER,            // "Dumb range lock" - The entire range from the first
+                                 // row inserted until the next physical row in the
+                                 // partition is locked.
     VSBB_LOAD,                   // SideTree Insert - Buffered inserts into an empty
                                  // non-audited key sequenced table. Used with
                                  // Load or Create Index queries.
@@ -1065,7 +1062,6 @@ class Insert : public GenericUpdate {
   virtual RelExpr *createEffectiveGU(BindWA *bindWA, CollHeap *heap, TriggersTempTable &tempTableObj,
                                      GenericUpdate **effectiveGUNode, UpdateColumns *colsToSet = NULL);
 
-  
   //////////////////////////////////////////////////////
   virtual NABoolean pilotAnalysis(QueryAnalysis *qa);
   //////////////////////////////////////////////////////
@@ -1230,7 +1226,6 @@ class Update : public GenericUpdate {
   virtual RelExpr *createEffectiveGU(BindWA *bindWA, CollHeap *heap, TriggersTempTable &tempTableObj,
                                      GenericUpdate **effectiveGUNode, UpdateColumns *colsToSet = NULL);
 
-
   RelExpr *transformUpdateNoDtmXn(BindWA *bindWA, NABoolean updatePKey);
 
   virtual NABoolean isCacheableExpr(CacheWA &cwa);
@@ -1248,8 +1243,6 @@ class Update : public GenericUpdate {
 
  private:
   typedef enum { IRELEVANT = 0, DIRECT, INDIRECT } MvUpdateType;
-
-
 
   // checks if any of the columns being updated either
   // (a) are part of the clustering key of the base table or

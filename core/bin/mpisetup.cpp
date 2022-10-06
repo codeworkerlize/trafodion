@@ -2,11 +2,12 @@
 
 #include <assert.h>
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
+
 #include "common/Platform.h"
-#include "seabed/ms.h"
 #include "seabed/fs.h"
+#include "seabed/ms.h"
 
 #define FALSE 0
 

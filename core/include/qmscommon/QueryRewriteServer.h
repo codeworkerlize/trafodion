@@ -12,9 +12,9 @@
  **************************************************************************
  */
 
-#include "qmscommon/XMLUtil.h"
-#include "QRMessage.h"
 #include "QRIpc.h"
+#include "QRMessage.h"
+#include "qmscommon/XMLUtil.h"
 #include "sqlcomp/DefaultConstants.h"
 
 class QmpPublish;
@@ -46,8 +46,7 @@ class MvQueryRewriteServer : public NABasicObject {
    *        allocateServerProcess.
    * @return Pointer to the server process.
    */
-  static IpcServer *createServerProcess(IpcServerClass *serverClass, int segmentNumber, short cpu,
-                                        NABoolean usesTran);
+  static IpcServer *createServerProcess(IpcServerClass *serverClass, int segmentNumber, short cpu, NABoolean usesTran);
   /**
    * Returns a pointer to a QMS server.
    * @param publishDest Whether publishing public, private, or both.
@@ -119,7 +118,7 @@ class MvQueryRewriteServer : public NABasicObject {
   static QRRequestResult sendInitializeMessage(IpcServer *server, CollHeap *heap);
 
  protected:
-  static void formatTimestamp(char *buffer,     // Output
+  static void formatTimestamp(char *buffer,    // Output
                               long GMT_Time);  // Input
 
  private:

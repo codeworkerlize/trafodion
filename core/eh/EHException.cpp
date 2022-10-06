@@ -15,21 +15,19 @@
  *****************************************************************************
  */
 
-#include "EHCommonDefs.h"
-
-#include "sqlci/SqlciParseGlobals.h"
-
 #include <setjmp.h>
 #include <string.h>
+
+#include "EHCommonDefs.h"
+#include "sqlci/SqlciParseGlobals.h"
 #ifndef EH_USE_GLOB_NEW
 #include <stdlib.h>
 #endif
 
+#include "EHCallBack.h"
 #include "EHExceptionTypeEnum.h"
 #include "EHExceptionTypeNode.h"
 #include "eh/EHException.h"
-
-#include "EHCallBack.h"
 
 // -----------------------------------------------------------------------
 // methods for class EHExceptionHandler

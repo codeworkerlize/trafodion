@@ -13,27 +13,26 @@
 *****************************************************************************
 */
 
-#include "common/Platform.h"
 #include "spinfo.h"
-#include "UdrStreams.h"
-#include "udrutil.h"
-#include "common/str.h"
-#include <time.h>
-#include "UdrResultSet.h"
-#include "LmRoutine.h"
-#include "LmParameter.h"
-#include "LmRoutineCSqlRowTM.h"
-#include "executor/sql_buffer.h"
-#include "UdrResultSet.h"
-#include "ex_queue.h"
-#include "common/ComRtUtils.h"
-#include "optimizer/UdfDllInteraction.h"
 
+#include <time.h>
+
+#include "LmParameter.h"
+#include "LmRoutine.h"
+#include "LmRoutineCSqlRowTM.h"
+#include "UdrResultSet.h"
+#include "UdrStreams.h"
 #include "cli/sqlcli.h"
+#include "common/ComRtUtils.h"
+#include "common/Platform.h"
+#include "common/str.h"
+#include "dtm/tm.h"
+#include "ex_queue.h"
+#include "executor/sql_buffer.h"
+#include "optimizer/UdfDllInteraction.h"
 #include "sqludr/sqludr.h"
 #include "udrdecs.h"
-
-#include "dtm/tm.h"
+#include "udrutil.h"
 
 extern void ServerDebug(const char *, ...);
 extern void doMessageBox(UdrGlobals *UdrGlob, int trLevel, NABoolean moduleType, const char *moduleName);
@@ -992,7 +991,6 @@ void SPInfo::prepareToReply(UdrServerDataStream &msgStream) {
   NABoolean doTrace = (udrGlobals_->verbose_ && udrGlobals_->traceLevel_ >= TRACE_IPMS) ? TRUE : FALSE;
 
   if (doTrace) ServerDebug("[UdrServ (%s)] Preparing to reply", moduleName);
-
 
   if (txStream_->getState() == IpcMessageStream::RECEIVED) {
     // We are under an Enter Tx message, no need to quiesce.

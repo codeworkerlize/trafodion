@@ -16,26 +16,26 @@
 
 // -----------------------------------------------------------------------
 
-#include "common/BaseTypes.h"
-#include "executor/ex_stdh.h"
-#include "ex_exe_stmt_globals.h"
-#include "comexe/ComTdb.h"
-#include "executor/ex_tcb.h"
-#include "executor/ex_expr.h"
-#include "common/str.h"
 #include "ex_send_bottom.h"
-#include "ex_send_top.h"
-#include "ex_esp_frag_dir.h"
-#include "executor/sql_buffer.h"
-#include "ex_io_control.h"
-#include "export/ComDiags.h"
-#include "executor/ExStats.h"
-#include "executor/sql_buffer_size.h"
-#include "ExSMTrace.h"
 
-#include "cli_stdh.h"
-#include "SMConnection.h"
 #include "ExSMCommon.h"
+#include "ExSMTrace.h"
+#include "SMConnection.h"
+#include "cli_stdh.h"
+#include "comexe/ComTdb.h"
+#include "common/BaseTypes.h"
+#include "common/str.h"
+#include "ex_esp_frag_dir.h"
+#include "ex_exe_stmt_globals.h"
+#include "ex_io_control.h"
+#include "ex_send_top.h"
+#include "executor/ExStats.h"
+#include "executor/ex_expr.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_tcb.h"
+#include "executor/sql_buffer.h"
+#include "executor/sql_buffer_size.h"
+#include "export/ComDiags.h"
 
 #define ex_assert_both_sides(assert_test, assert_msg)                 \
   if (!(assert_test)) {                                               \
@@ -610,21 +610,21 @@ short ex_send_bottom_tcb::checkReply() {
       // to add a specific ControlInfo for this row. Ignore stats
       // completely, since they are not tied to a particular row.
       int moveRetcode = sqlBuf->moveInSendOrReplyData(FALSE,  // we are replying with an up state
-                                                        FALSE,  // do not force ControlInfo.
-                                                        isRowToBeSent, &(sentry->upState), controlInfoLen,
-                                                        &msgControlInfo, sendBottomTdb().getUpRecordLength(), NULL,
-                                                        NULL,  // don't let this method pack a diags area
-                                                        NULL, moveOutputValues(), sentry->getAtp(), workAtp_,
-                                                        workAtp_,  // work atp is destination of move
-                                                        (unsigned short)sendBottomTdb().moveExprTuppIndex_,  // dest. ix
-                                                        FALSE, NULL,  // Stats are sent separately
-                                                        NULL,
-                                                        TRUE,                 // diags areas are external.
-                                                        isDiagsAreaToBeSent,  //);// Already have a DA.
-                                                        defragTd_
+                                                      FALSE,  // do not force ControlInfo.
+                                                      isRowToBeSent, &(sentry->upState), controlInfoLen,
+                                                      &msgControlInfo, sendBottomTdb().getUpRecordLength(), NULL,
+                                                      NULL,  // don't let this method pack a diags area
+                                                      NULL, moveOutputValues(), sentry->getAtp(), workAtp_,
+                                                      workAtp_,  // work atp is destination of move
+                                                      (unsigned short)sendBottomTdb().moveExprTuppIndex_,  // dest. ix
+                                                      FALSE, NULL,  // Stats are sent separately
+                                                      NULL,
+                                                      TRUE,                 // diags areas are external.
+                                                      isDiagsAreaToBeSent,  //);// Already have a DA.
+                                                      defragTd_
 #if (defined(_DEBUG))
-                                                        ,
-                                                        this
+                                                      ,
+                                                      this
 #endif
       );
 

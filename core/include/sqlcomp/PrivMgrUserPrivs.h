@@ -24,9 +24,10 @@
 #ifndef PRIVMGR_USERP_H
 #define PRIVMGR_USERP_H
 
+#include <bitset>
 #include <string>
 #include <vector>
-#include <bitset>
+
 #include "sqlcomp/PrivMgrDefs.h"
 #include "sqlcomp/PrivMgrDesc.h"
 

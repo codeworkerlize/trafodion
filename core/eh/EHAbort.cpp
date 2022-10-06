@@ -17,11 +17,10 @@
  *****************************************************************************
  */
 
-#include "EHCommonDefs.h"
-
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
+#include "EHCommonDefs.h"
 #include "sqlmxevents/logmxevent.h"
 // -----------------------------------------------------------------------
 // global function to abort the process

@@ -11,53 +11,48 @@
  *
  *****************************************************************************
  */
+#include "generator/Generator.h"
+
 #include <stddef.h>
 #include <stdlib.h>
 #include <sys/time.h>
-#include "common/dfs2rec.h"
 
-#include "sqlcat/TrafDDLdesc.h"
-
-#include "common/ComOptIncludes.h"
-#include "optimizer/GroupAttr.h"
-#include "generator/Generator.h"
+#include "CmUtil.h"
+#include "CmpSqlSession.h"
 #include "GenExpGenerator.h"
-#include "common/ComSysUtils.h"
-#include "comexe/ExplainTuple.h"
-#include "optimizer/BindWA.h"
-#include "optimizer/SchemaDB.h"
-#include "common/ComTransInfo.h"
 #include "arkcmp/CmpContext.h"
 #include "arkcmp/CmpStatement.h"
-#include "CmpSqlSession.h"
-#include "optimizer/ControlDB.h"
-#include "optimizer/RelMisc.h"
-#include "optimizer/RelExeUtil.h"
-#include "common/ComCextdecs.h"
-
-#include "sqlmxevents/logmxevent.h"
-
 #include "comexe/ComTdb.h"
+#include "comexe/ComTrace.h"
+#include "comexe/ExplainTuple.h"
 #include "comexe/LateBindInfo.h"
-
+#include "common/ComCextdecs.h"
+#include "common/ComDistribution.h"
+#include "common/ComOptIncludes.h"
+#include "common/ComSqlId.h"
+#include "common/ComSysUtils.h"
+#include "common/ComTransInfo.h"
+#include "common/dfs2rec.h"
 #include "exp/exp_tuple_desc.h"
 #include "exp_function.h"
-#include "common/ComSqlId.h"
-
-#include "comexe/ComTrace.h"
-#include "common/ComDistribution.h"
-#include "CmUtil.h"
+#include "optimizer/BindWA.h"
+#include "optimizer/ControlDB.h"
+#include "optimizer/GroupAttr.h"
+#include "optimizer/RelExeUtil.h"
+#include "optimizer/RelMisc.h"
+#include "optimizer/SchemaDB.h"
+#include "sqlcat/TrafDDLdesc.h"
+#include "sqlmxevents/logmxevent.h"
 
 // #include "PCodeExprCache.h"
-#include "sqlcat/TrafDDLdesc.h"
-#include "executor/HBaseClient_JNI.h"
+#include "cli/Context.h"
 #include "comexe/ComASNodes.h"
 #include "common/NAWNodeSet.h"
-#include "cli/Context.h"
+#include "executor/HBaseClient_JNI.h"
+#include "sqlcat/TrafDDLdesc.h"
 
 #define SQLPARSERGLOBALS_FLAGS
 #include "parser/SqlParserGlobals.h"  // Parser Flags
-
 #include "sqlcomp/CmpSeabaseDDLmd.h"
 
 // -----------------------------------------------------------------------
@@ -1224,7 +1219,7 @@ TrafDesc *Generator::createColDescs(const char *tableName, ComTdbVirtTableColumn
 
     UInt32 colOffset = ExpTupleDesc::sqlarkExplodedOffsets(offset, info->length, (Int16)info->datatype, info->nullable);
 
-    int i = colNum;                 // Don't want colNum altered by the call
+    int i = colNum;               // Don't want colNum altered by the call
     int tmpOffset = (int)offset;  // Ignore returned offset
     SQLCHARSET_CODE info_charset = info->charset;
     if (info_charset == SQLCHARSETCODE_UNKNOWN &&
@@ -1540,8 +1535,8 @@ TrafDesc *Generator::createRefConstrDescStructs(int numConstrs, ComTdbVirtTableR
 }
 
 static int createDescStructs(char *tableName, int numCols, ComTdbVirtTableColumnInfo *columnInfo, int numKeys,
-                               ComTdbVirtTableKeyInfo *keyInfo, TrafDesc *&colDescs, TrafDesc *&keyDescs,
-                               NAMemory *space) {
+                             ComTdbVirtTableKeyInfo *keyInfo, TrafDesc *&colDescs, TrafDesc *&keyDescs,
+                             NAMemory *space) {
   colDescs = NULL;
   keyDescs = NULL;
   UInt32 reclen = 0;

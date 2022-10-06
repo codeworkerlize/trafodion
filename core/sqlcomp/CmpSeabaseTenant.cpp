@@ -23,20 +23,21 @@
 #define SQLPARSERGLOBALS_FLAGS  // must precede all #include's
 #define SQLPARSERGLOBALS_NADEFAULTS
 
-#include "common/ComUser.h"
 #include "sqlcomp/CmpSeabaseTenant.h"
-#include "sqlcomp/CmpSeabaseDDL.h"
+
+#include <string>
+
 #include "common/ComSmallDefs.h"
-#include "sqlcomp/PrivMgrMD.h"
-#include "parser/StmtDDLTenant.h"
-#include "sqlcomp/CmpSeabaseDDL.h"
-#include "parser/StmtDDLResourceGroup.h"
+#include "common/ComUser.h"
 #include "exp/ExpHbaseInterface.h"
+#include "parser/StmtDDLResourceGroup.h"
+#include "parser/StmtDDLTenant.h"
+#include "seabed/ms.h"
 #include "sqlcomp/CmpDDLCatErrorCodes.h"
+#include "sqlcomp/CmpSeabaseDDL.h"
 #include "sqlcomp/PrivMgrCommands.h"
 #include "sqlcomp/PrivMgrComponentPrivileges.h"
-#include "seabed/ms.h"
-#include <string>
+#include "sqlcomp/PrivMgrMD.h"
 // #include "NAClusterInfo.cpp"
 #include "cli/Globals.h"
 #include "executor/TenantHelper_JNI.h"
@@ -377,13 +378,13 @@ short CmpSeabaseDDL::getTenantSchemaList(ExeCliInterface *cliInterface, TenantSc
   // Get the list of tenants and their schemas
   char selectStmt[500];
   int stmtSize = snprintf(selectStmt, sizeof(selectStmt),
-                            "select t.tenant_id, u.usage_uid, case "
-                            "when default_schema_uid = u.usage_uid then 1 "
-                            "else 0 end from %s.\"%s\".%s t, %s.\"%s\".%s u "
-                            "where t.tenant_id = u.tenant_id and u.usage_type = 'S' "
-                            "order by 1, 2, 3",
-                            getSystemCatalog(), SEABASE_TENANT_SCHEMA, SEABASE_TENANTS, getSystemCatalog(),
-                            SEABASE_TENANT_SCHEMA, SEABASE_TENANT_USAGE);
+                          "select t.tenant_id, u.usage_uid, case "
+                          "when default_schema_uid = u.usage_uid then 1 "
+                          "else 0 end from %s.\"%s\".%s t, %s.\"%s\".%s u "
+                          "where t.tenant_id = u.tenant_id and u.usage_type = 'S' "
+                          "order by 1, 2, 3",
+                          getSystemCatalog(), SEABASE_TENANT_SCHEMA, SEABASE_TENANTS, getSystemCatalog(),
+                          SEABASE_TENANT_SCHEMA, SEABASE_TENANT_USAGE);
 
   if (stmtSize >= 500) {
     SEABASEDDL_INTERNAL_ERROR("CmpSeabaseDDL::getTenantSchemaList failed, internal buffer size too small");
@@ -455,9 +456,9 @@ short CmpSeabaseDDL::isTenantSchema(ExeCliInterface *cliInterface, const long &s
   // read tenant_usage to to see if the current schemaUID exists
   char selectStmt[500];
   int stmtSize = snprintf(selectStmt, sizeof(selectStmt),
-                            "select count(*) from %s.\"%s\".%s u "
-                            "where usage_uid = %ld and usage_type = 'S' ",
-                            getSystemCatalog(), SEABASE_TENANT_SCHEMA, SEABASE_TENANT_USAGE, schemaUID);
+                          "select count(*) from %s.\"%s\".%s u "
+                          "where usage_uid = %ld and usage_type = 'S' ",
+                          getSystemCatalog(), SEABASE_TENANT_SCHEMA, SEABASE_TENANT_USAGE, schemaUID);
 
   if (stmtSize >= 500) {
     SEABASEDDL_INTERNAL_ERROR("CmpSeabaseDDL::isTenantSchema failed, internal buffer size too small");
@@ -1368,9 +1369,9 @@ int TenantUsageList::selectUsages(const int tenantID, NAHeap *heap) {
   // Find usages for tenant identified by tenantID
   char selectStmt[500];
   int stmtSize = snprintf(selectStmt, sizeof(selectStmt),
-                            "select usage_uid, usage_type, flags "
-                            "from %s where tenant_id = %d",
-                            mdLocation.data(), tenantID);
+                          "select usage_uid, usage_type, flags "
+                          "from %s where tenant_id = %d",
+                          mdLocation.data(), tenantID);
   if (stmtSize >= 500) {
     SEABASEDDL_INTERNAL_ERROR("TenantInfo::selectUsages failed, internal buffer size too small");
     return -1;
@@ -1701,9 +1702,8 @@ void TenantInfo::balanceTenantNodeAlloc(const NAString &tenantDefaultSchema, con
 //
 // Throws an exception if any error occur
 //-----------------------------------------------------------------------------
-void TenantInfo::allocTenantNode(const NABoolean AStenant, const int affinity, const int clusterSize,
-                                 const int units, TenantNodeInfoList *nodeList, NAWNodeSet *&tenantNodeSet,
-                                 bool skipInvalidWeights) {
+void TenantInfo::allocTenantNode(const NABoolean AStenant, const int affinity, const int clusterSize, const int units,
+                                 TenantNodeInfoList *nodeList, NAWNodeSet *&tenantNodeSet, bool skipInvalidWeights) {
   if (getTenantID() == SYSTEM_TENANT_ID)
     tenantNodeSet = new (STMTHEAP) NAASNodes(-1, -1, -1);
   else {
@@ -1950,10 +1950,10 @@ int TenantInfo::selectRow(const std::string &whereClause) {
   int selectStmtSize = whereClause.length() + 500;
   char selectStmt[selectStmtSize];
   int stmtSize = snprintf(selectStmt, sizeof(selectStmt),
-                            "select tenant_id, admin_role_id, default_schema_uid, "
-                            " affinity, cluster_size, tenant_size, flags "
-                            "from %s %s",
-                            mdLocation.data(), whereClause.c_str());
+                          "select tenant_id, admin_role_id, default_schema_uid, "
+                          " affinity, cluster_size, tenant_size, flags "
+                          "from %s %s",
+                          mdLocation.data(), whereClause.c_str());
 
   if (stmtSize >= selectStmtSize) {
     SEABASEDDL_INTERNAL_ERROR("TenantInfo::getTenantInfo failed, internal buffer size too small");
@@ -2072,13 +2072,13 @@ int TenantInfo::updateRow(const int tenantSize) {
 
   char updateStmt[500];
   int stmtSize = snprintf(updateStmt, sizeof(updateStmt),
-                            "update %s set admin_role_id =  %d, "
-                            "default_schema_uid = %ld, affinity = %d, "
-                            "cluster_size = %d, tenant_size = %d, "
-                            "flags = %ld "
-                            "where tenant_id = %d",
-                            mdLocation.data(), adminRoleID_, defaultSchemaUID_, affinity, clusterSize,
-                            ((tenantSize == -1) ? getTenantSize() : tenantSize), flags_, tenantID_);
+                          "update %s set admin_role_id =  %d, "
+                          "default_schema_uid = %ld, affinity = %d, "
+                          "cluster_size = %d, tenant_size = %d, "
+                          "flags = %ld "
+                          "where tenant_id = %d",
+                          mdLocation.data(), adminRoleID_, defaultSchemaUID_, affinity, clusterSize,
+                          ((tenantSize == -1) ? getTenantSize() : tenantSize), flags_, tenantID_);
   if (stmtSize >= 500) {
     SEABASEDDL_INTERNAL_ERROR("TenantInfo::updateRow failed, internal buffer size too small");
     return -1;
@@ -2581,7 +2581,7 @@ short TenantResource::createStandardResources() {
   char deleteStmt[500];
   NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
   int stmtSize = snprintf(deleteStmt, sizeof(deleteStmt), "delete from %s.\"%s\".%s where resource_name = '%s'",
-                            sysCat.data(), SEABASE_TENANT_SCHEMA, SEABASE_RESOURCES, RGROUP_DEFAULT);
+                          sysCat.data(), SEABASE_TENANT_SCHEMA, SEABASE_RESOURCES, RGROUP_DEFAULT);
   assert(stmtSize < 500);
 
   ExeCliInterface *cliInterface = getCli();
@@ -2794,11 +2794,11 @@ short TenantResource::getTenantsForNodes(const NAList<NAString> &nodeList, NAStr
   char selectStmt[bufSize];
   NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
   int stmtSize = snprintf(selectStmt, sizeof(selectStmt),
-                            "select auth_db_name from %s.\"%s\".%s "
-                            "where auth_id in (select distinct usage_uid from %s.\"%s\".%s "
-                            "where resource_name in %s) ",
-                            sysCat.data(), SEABASE_MD_SCHEMA, SEABASE_AUTHS, sysCat.data(), SEABASE_TENANT_SCHEMA,
-                            SEABASE_RESOURCE_USAGE, resourceNameList.data());
+                          "select auth_db_name from %s.\"%s\".%s "
+                          "where auth_id in (select distinct usage_uid from %s.\"%s\".%s "
+                          "where resource_name in %s) ",
+                          sysCat.data(), SEABASE_MD_SCHEMA, SEABASE_AUTHS, sysCat.data(), SEABASE_TENANT_SCHEMA,
+                          SEABASE_RESOURCE_USAGE, resourceNameList.data());
   assert(stmtSize < bufSize);
 
   int diagsMark = CmpCommon::diags()->mark();
@@ -2851,11 +2851,11 @@ short TenantResource::getTenantsForResource(NAString &tenantNames) {
   char selectStmt[bufSize];
   NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
   int stmtSize = snprintf(selectStmt, sizeof(selectStmt),
-                            "select auth_db_name from %s.\"%s\".%s where auth_id in "
-                            "(select distinct tenant_id from %s.\"%s\".%s "
-                            "where usage_type = 'RG' and usage_uid = %ld) ",
-                            sysCat.data(), SEABASE_MD_SCHEMA, SEABASE_AUTHS, sysCat.data(), SEABASE_TENANT_SCHEMA,
-                            SEABASE_TENANT_USAGE, getResourceUID());
+                          "select auth_db_name from %s.\"%s\".%s where auth_id in "
+                          "(select distinct tenant_id from %s.\"%s\".%s "
+                          "where usage_type = 'RG' and usage_uid = %ld) ",
+                          sysCat.data(), SEABASE_MD_SCHEMA, SEABASE_AUTHS, sysCat.data(), SEABASE_TENANT_SCHEMA,
+                          SEABASE_TENANT_USAGE, getResourceUID());
   assert(stmtSize < bufSize);
 
   int diagsMark = CmpCommon::diags()->mark();
@@ -2987,12 +2987,12 @@ short TenantResource::removeObsoleteNodes(const TenantResourceUsageList *usageLi
 
   NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
   int stmtSize = snprintf(deleteStmt, sizeof(deleteStmt),
-                            "delete from %s.\"%s\".%s where resource_uid in "
-                            "(select uid from (values %s) u(uid) where "
-                            "u.uid not in (select usage_uid from %s.\"%s\".%s "
-                            "where  resource_uid <> %ld)); ",
-                            sysCat.data(), SEABASE_TENANT_SCHEMA, SEABASE_RESOURCES, valuesClause.data(), sysCat.data(),
-                            SEABASE_TENANT_SCHEMA, SEABASE_RESOURCE_USAGE, getResourceUID());
+                          "delete from %s.\"%s\".%s where resource_uid in "
+                          "(select uid from (values %s) u(uid) where "
+                          "u.uid not in (select usage_uid from %s.\"%s\".%s "
+                          "where  resource_uid <> %ld)); ",
+                          sysCat.data(), SEABASE_TENANT_SCHEMA, SEABASE_RESOURCES, valuesClause.data(), sysCat.data(),
+                          SEABASE_TENANT_SCHEMA, SEABASE_RESOURCE_USAGE, getResourceUID());
   assert(stmtSize < bufSize);
 
   ExeCliInterface *cliInterface = getCli();
@@ -3019,7 +3019,7 @@ short TenantResource::deleteRow() {
   char deleteStmt[500];
   NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
   int stmtSize = snprintf(deleteStmt, sizeof(deleteStmt), "delete from %s.\"%s\".%s where resource_uid = %ld",
-                            sysCat.data(), SEABASE_TENANT_SCHEMA, SEABASE_RESOURCES, getResourceUID());
+                          sysCat.data(), SEABASE_TENANT_SCHEMA, SEABASE_RESOURCES, getResourceUID());
   assert(stmtSize < 500);
 
   ExeCliInterface *cliInterface = getCli();
@@ -3118,10 +3118,10 @@ short TenantResource::selectRow(const NAString &whereClause) {
   char selectStmt[500];
   NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
   int stmtSize = snprintf(selectStmt, sizeof(selectStmt),
-                            "select resource_uid, resource_name, resource_creator, resource_is_valid,"
-                            "resource_create_time, resource_redef_time, "
-                            "resource_details1, resource_details2, resource_type, flags  from %s.\"%s\".%s %s",
-                            sysCat.data(), SEABASE_TENANT_SCHEMA, SEABASE_RESOURCES, whereClause.data());
+                          "select resource_uid, resource_name, resource_creator, resource_is_valid,"
+                          "resource_create_time, resource_redef_time, "
+                          "resource_details1, resource_details2, resource_type, flags  from %s.\"%s\".%s %s",
+                          sysCat.data(), SEABASE_TENANT_SCHEMA, SEABASE_RESOURCES, whereClause.data());
 
   if (stmtSize >= 500) {
     SEABASEDDL_INTERNAL_ERROR("TenantResource::selectRow failed, internal buffer size too small");
@@ -3191,7 +3191,7 @@ short TenantResource::updateRows(const char *setClause, const char *whereClause)
   char updateStmt[1000];
   NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
   int stmtSize = snprintf(updateStmt, sizeof(updateStmt), "update %s.\"%s\".%s %s %s", sysCat.data(),
-                            SEABASE_TENANT_SCHEMA, SEABASE_RESOURCES, setClause, whereClause);
+                          SEABASE_TENANT_SCHEMA, SEABASE_RESOURCES, setClause, whereClause);
   assert(stmtSize < 500);
 
   ExeCliInterface *cliInterface = getCli();
@@ -3219,8 +3219,8 @@ short TenantResource::updateRedefTime() {
   NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
   long time = NA_JulianTimestamp();
   int stmtSize = snprintf(updateStmt, sizeof(updateStmt),
-                            "update %s.\"%s\".%s SET resource_redef_time = %ld where resource_uid = %ld", sysCat.data(),
-                            SEABASE_TENANT_SCHEMA, SEABASE_RESOURCES, time, UID_);
+                          "update %s.\"%s\".%s SET resource_redef_time = %ld where resource_uid = %ld", sysCat.data(),
+                          SEABASE_TENANT_SCHEMA, SEABASE_RESOURCES, time, UID_);
   assert(stmtSize < 128);
 
   ExeCliInterface *cliInterface = getCli();
@@ -3303,7 +3303,7 @@ long TenantResourceUsageList::deleteUsages(const NAString &whereClause) {
   int deleteStmtLen = whereClause.length() + 200;
   char deleteStmt[deleteStmtLen];
   int stmtSize = snprintf(deleteStmt, deleteStmtLen, " delete from %s.\"%s\".%s %s ", sysCat.data(),
-                            SEABASE_TENANT_SCHEMA, SEABASE_RESOURCE_USAGE, whereClause.data());
+                          SEABASE_TENANT_SCHEMA, SEABASE_RESOURCE_USAGE, whereClause.data());
   assert(stmtSize < deleteStmtLen);
 
   ExeCliInterface *cliInterface = getCli();
@@ -3480,9 +3480,9 @@ int TenantResourceUsage::deleteRow(ExeCliInterface *cliInterface) {
   NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
   char deleteStmt[500];
   int stmtSize = snprintf(deleteStmt, sizeof(deleteStmt),
-                            "delete from %s.\"%s\".%s where resource_uid = %ld "
-                            "and usage_uid = %ld",
-                            sysCat.data(), SEABASE_TENANT_SCHEMA, SEABASE_RESOURCE_USAGE, resourceUID_, usageUID_);
+                          "delete from %s.\"%s\".%s where resource_uid = %ld "
+                          "and usage_uid = %ld",
+                          sysCat.data(), SEABASE_TENANT_SCHEMA, SEABASE_RESOURCE_USAGE, resourceUID_, usageUID_);
   if (stmtSize >= 500) {
     SEABASEDDL_INTERNAL_ERROR("TenantResourceUsage::deleteRow failed, internal buffer size too small");
     return -1;
@@ -3522,10 +3522,10 @@ int TenantResourceUsage::updateRow(ExeCliInterface *cliInterface) {
   NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
   char updateStmt[500];
   int stmtSize = snprintf(updateStmt, sizeof(updateStmt),
-                            "update %s.\"%s\".%s set usage_value =  %ld, flags "
-                            "= %ld where resource_uid = %ld and usage_uid = %ld",
-                            sysCat.data(), SEABASE_TENANT_SCHEMA, SEABASE_RESOURCE_USAGE, usageValue_, flags_,
-                            resourceUID_, usageUID_);
+                          "update %s.\"%s\".%s set usage_value =  %ld, flags "
+                          "= %ld where resource_uid = %ld and usage_uid = %ld",
+                          sysCat.data(), SEABASE_TENANT_SCHEMA, SEABASE_RESOURCE_USAGE, usageValue_, flags_,
+                          resourceUID_, usageUID_);
   if (stmtSize >= 500) {
     SEABASEDDL_INTERNAL_ERROR("TenantResourceUsage::updateRow failed, internal buffer size too small");
     return -1;

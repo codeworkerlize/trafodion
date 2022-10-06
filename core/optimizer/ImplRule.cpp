@@ -13,26 +13,26 @@
 ******************************************************************************
 */
 
-#include "optimizer/Sqlcomp.h"
-#include "optimizer/GroupAttr.h"
-#include "optimizer/opt.h"
-#include "optimizer/PhyProp.h"
 #include "ImplRule.h"
-#include "optimizer/AllRelExpr.h"
+
+#include "Cost.h"
 #include "RelPackedRows.h"
-#include "optimizer/RelSequence.h"
 #include "RelSample.h"
+#include "ScanOptimizer.h"
+#include "arkcmp/CmpContext.h"
 #include "optimizer/AllItemExpr.h"
+#include "optimizer/AllRelExpr.h"
+#include "optimizer/CostMethod.h"
+#include "optimizer/GroupAttr.h"
+#include "optimizer/OptimizerSimulator.h"
+#include "optimizer/PhyProp.h"
+#include "optimizer/RelScan.h"
+#include "optimizer/RelSequence.h"
+#include "optimizer/Sqlcomp.h"
 #include "optimizer/ValueDesc.h"
 #include "optimizer/mdam.h"
-#include "arkcmp/CmpContext.h"
-#include "Cost.h"
-#include "optimizer/CostMethod.h"
-#include "ScanOptimizer.h"
-
+#include "optimizer/opt.h"
 #include "sqlcomp/NADefaults.h"
-#include "optimizer/OptimizerSimulator.h"
-#include "optimizer/RelScan.h"
 
 // -----------------------------------------------------------------------
 // Global variables
@@ -2971,7 +2971,7 @@ NABoolean PhysCompoundStmtRule::topMatch(RelExpr *relExpr, Context *context) {
 
     if (rppForMe->executeInDP2() == TRUE) {
       int limit = (CmpCommon::getDefault(GEN_DBLIMITS_LARGER_BUFSIZE) == DF_OFF) ? ROWSIZE_TO_EXECUTE_IN_DP2
-                                                                                   : ROWSIZE_TO_EXECUTE_IN_DP2_DBL;
+                                                                                 : ROWSIZE_TO_EXECUTE_IN_DP2_DBL;
 
       if (relExpr->getGroupAttr()->getCharacteristicInputs().getRowLength() +
               relExpr->getGroupAttr()->getCharacteristicOutputs().getRowLength() >

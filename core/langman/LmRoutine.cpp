@@ -10,9 +10,10 @@
 **********************************************************************/
 
 #include "LmRoutine.h"
+
 #include "LmLangManager.h"
-#include "langman/LmCommon.h"
 #include "common/ComObjectName.h"
+#include "langman/LmCommon.h"
 
 LmRoutine::LmRoutine(LmHandle container, LmHandle routine, const char *sqlName, const char *externalName,
                      const char *librarySqlName, ComUInt32 numParam, ComUInt32 maxResultSets,

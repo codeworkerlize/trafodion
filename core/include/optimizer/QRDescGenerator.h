@@ -12,12 +12,12 @@
  **************************************************************************
  */
 
-#include "optimizer/Analyzer.h"
 #include "OptRange.h"
-#include "qmscommon/XMLUtil.h"
+#include "QRMessage.h"
+#include "optimizer/Analyzer.h"
 #include "qmscommon/QRDescriptor.h"
 #include "qmscommon/QRLogger.h"
-#include "QRMessage.h"
+#include "qmscommon/XMLUtil.h"
 
 /**
  * \file
@@ -307,7 +307,6 @@ class QRDescGenerator : public NABasicObject {
    * @return The query's descriptor, or NULL if the query has no JBBs.
    */
   QRQueryDescriptorPtr createQueryDescriptor(QueryAnalysis *qa, RelExpr *expr);
-
 
   /**
    * Tells whether this is an MV descriptor or a query descriptor.

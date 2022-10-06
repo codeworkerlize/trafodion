@@ -20,13 +20,11 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
-
 #include "common/Collections.h"  // for LIST in CollationDB
-#include "common/NABoolean.h"
-#include "common/Platform.h"
-#include "common/NAWinNT.h"
 #include "common/ComCharSetDefs.h"
+#include "common/NABoolean.h"
+#include "common/NAWinNT.h"
+#include "common/Platform.h"
 #include "common/sql_charset_strings.h"
 
 // Forward references
@@ -78,11 +76,11 @@ class CharInfo {
   enum CharSet  // keep in sync with w:/cli/sqlcli.h enum SQLCHARSET_CODE !
   {             // and with the charset map table in CharInfo.cpp  !
     CHARSET_MIN = -2,
-    KSC5601_MP = -2,  // an MX Unicode encoding could be named KSX5601.
-    KANJI_MP = -1,    // logically equiv to SJIS, physically diff encoding.
-                    // the defines below are defined in common/ComCharSetDefs.h, so
-                    // that they can be used by other components (ODBC, utilities?)
-                    // without sourcing in this file
+    KSC5601_MP = -2,                          // an MX Unicode encoding could be named KSX5601.
+    KANJI_MP = -1,                            // logically equiv to SJIS, physically diff encoding.
+                                              // the defines below are defined in common/ComCharSetDefs.h, so
+                                              // that they can be used by other components (ODBC, utilities?)
+                                              // without sourcing in this file
     UnknownCharSet = SQLCHARSETCODE_UNKNOWN,  //  0
     ISO88591 = SQLCHARSETCODE_ISO88591,       //  1
     ISO88592 = 2,
@@ -103,8 +101,8 @@ class CharInfo {
     GB2312 = SQLCHARSETCODE_GB2312,       // 17
     GBK = SQLCHARSETCODE_GBK,             // 18
     BINARY = 19,                          // 19
-                  //
-                  // synonyms
+                                          //
+                                          // synonyms
     SQL_TEXT = UNICODE,
     UCS2 = UNICODE,
     DefaultCharSet = ISO88591,

@@ -21,17 +21,18 @@
 ******************************************************************************
 */
 
-#include "common/str.h"
-#include "CommonStructs.h"
-#include "ScratchSpace.h"
 #include <fstream>
+
+#include "CommonStructs.h"
 #include "Const.h"
+#include "ScratchSpace.h"
+#include "common/str.h"
 #include "export/NABasicObject.h"
 
 class SortAlgo : public NABasicObject {
  public:
-  SortAlgo(int runsize, int recsize, NABoolean doNotallocRec, int keysize, SortScratchSpace *scratch,
-           int explainNodeId, ExBMOStats *bmoStats);
+  SortAlgo(int runsize, int recsize, NABoolean doNotallocRec, int keysize, SortScratchSpace *scratch, int explainNodeId,
+           ExBMOStats *bmoStats);
   ~SortAlgo(){};
 
   //------------------------------------------------------------

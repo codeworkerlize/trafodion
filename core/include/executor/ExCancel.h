@@ -109,8 +109,7 @@ class ExCancelTcb : public ex_tcb {
 
   inline ExCancelTdb &cancelTdb() const { return (ExCancelTdb &)tdb; }
 
-  void reportError(ComDiagsArea *da, bool addCondition = false, int SQLCode = 0, char *nodeName = NULL,
-                   short cpu = -1);
+  void reportError(ComDiagsArea *da, bool addCondition = false, int SQLCode = 0, char *nodeName = NULL, short cpu = -1);
 
   /////////////////////////////////////////////////////
   // Private data.

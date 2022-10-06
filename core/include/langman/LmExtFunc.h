@@ -16,8 +16,8 @@
  *
  *****************************************************************************
  */
-#include "common/Platform.h"
 #include "common/NABoolean.h"
+#include "common/Platform.h"
 
 extern void lmMakeTFDSCall(const char *msg, const char *file, UInt32 line);
 extern void lmPrintSignalHandlers();

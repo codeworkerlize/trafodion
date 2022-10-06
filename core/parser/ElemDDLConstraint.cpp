@@ -17,16 +17,16 @@
 
 #include "AllElemDDLConstraint.h"
 #include "AllElemDDLConstraintAttr.h"
-#include "common/BaseTypes.h"
-#include "common/ComASSERT.h"
-#include "export/ComDiags.h"
-#include "common/ComOperators.h"
-#include "parser/ElemDDLColName.h"
 #include "ElemDDLRefTrigActions.h"
 #include "ElemDDLReferences.h"
+#include "common/BaseTypes.h"
+#include "common/ComASSERT.h"
+#include "common/ComOperators.h"
+#include "export/ComDiags.h"
 #include "optimizer/ItemExpr.h"
-#include "sqlcomp/NADefaults.h"
 #include "optimizer/SchemaDB.h"
+#include "parser/ElemDDLColName.h"
+#include "sqlcomp/NADefaults.h"
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLConstraint

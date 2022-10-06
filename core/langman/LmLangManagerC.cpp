@@ -10,16 +10,17 @@
 
 **********************************************************************/
 
-#include "langman/LmCommon.h"
 #include "LmLangManagerC.h"
+
 #include "LmContManager.h"
+#include "LmDebug.h"
+#include "LmExtFunc.h"
 #include "LmRoutineC.h"
 #include "LmRoutineCSql.h"
 #include "LmRoutineCSqlRow.h"
 #include "LmRoutineCSqlRowTM.h"
 #include "LmRoutineCppObj.h"
-#include "LmExtFunc.h"
-#include "LmDebug.h"
+#include "langman/LmCommon.h"
 #include "sqludr/sqludr.h"
 
 LmLanguageManagerC::LmLanguageManagerC(LmResult &result, NABoolean commandLineMode, ComDiagsArea *diagsArea)

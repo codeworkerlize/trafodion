@@ -14,8 +14,8 @@
 #define UDR_TABLE_DESC_INFO_H
 
 #include "comexe/UdrFormalParamInfo.h"
-#include "export/NAVersionedObject.h"
 #include "common/ComSmallDefs.h"
+#include "export/NAVersionedObject.h"
 
 //
 // Contents of this file

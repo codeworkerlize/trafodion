@@ -19,9 +19,9 @@
 #ifndef __NASTRING_DEF_H__
 #define __NASTRING_DEF_H__
 
-#include "common/Platform.h"
-
 #include <iosfwd>
+
+#include "common/Platform.h"
 using namespace std;
 
 // -----------------------------------------------------------------------
@@ -37,14 +37,12 @@ using namespace std;
 // --> goal : someday (soon?) we will no longer include the following file:
 #include <string.h>
 
-#include "export/NABasicObject.h"
-#include "common/NAStringDefGlobals.h" /* NAReference, NAStringRef */
-#include "common/NAAssert.h"
-
 #include "FBString.h"
-
-#include "common/ComGuardianFileNameParts.h"
 #include "common/Collections.h"
+#include "common/ComGuardianFileNameParts.h"
+#include "common/NAAssert.h"
+#include "common/NAStringDefGlobals.h" /* NAReference, NAStringRef */
+#include "export/NABasicObject.h"
 
 // -----------------------------------------------------------------------
 // definitions we use to stay as compatible with the RWCString class, and
@@ -351,7 +349,7 @@ class NAString : public NABasicObject {
   NAString &prepend(const NAString &s);
 
   NAString &prepend(const NAString &s, size_t N);
-  NAString &prepend(char c, size_t rep = 1);         // Prepend c rep times
+  NAString &prepend(char c, size_t rep = 1);       // Prepend c rep times
   int readFile(ifstream &);                        // Read to EOF or null character.
   int readLine(ifstream &);                        // Read to EOF or newline.
   int readToDelim(ifstream &, char delim = '\n');  // Read to EOF or delimitor.

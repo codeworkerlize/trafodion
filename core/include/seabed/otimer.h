@@ -1,7 +1,6 @@
 //------------------------------------------------------------------
 //
 
-
 //
 // Object-Timer module
 //
@@ -10,7 +9,6 @@
 
 #include "int/diag.h"
 #include "int/exp.h"
-
 #include "thread.h"
 
 namespace SB_Timer {

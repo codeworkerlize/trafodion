@@ -1,7 +1,6 @@
 //------------------------------------------------------------------
 //
 
-
 //
 // Process-Control module
 //
@@ -11,7 +10,6 @@
 #include "int/diag.h"
 #include "int/exp.h"
 #include "int/types.h"
-
 #include "pctlcom.h"
 
 #ifndef USE_EVENT_REG

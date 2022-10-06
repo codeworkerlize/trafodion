@@ -16,11 +16,12 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
-#include "cli/SQLCLIdev.h"
 #include "exp/ExpSeqGen.h"
-#include "export/ComDiags.h"
+
+#include "cli/SQLCLIdev.h"
+#include "common/Platform.h"
 #include "executor/ex_error.h"
+#include "export/ComDiags.h"
 #include "seabed/ms.h"
 
 //**************************************************************************

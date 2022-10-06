@@ -14,6 +14,7 @@
 */
 
 #include <limits.h>
+
 #include "common/Platform.h"
 
 #ifndef LLONG_MAX

@@ -17,9 +17,9 @@
 #ifndef COM_SPLIT_TOP_H
 #define COM_SPLIT_TOP_H
 
+#include "comexe/ComExtractInfo.h"
 #include "comexe/ComTdb.h"
 #include "comexe/PartInputDataDesc.h"
-#include "comexe/ComExtractInfo.h"
 
 ////////////////////////////////////////////////////////////////////////////
 // Contents of this file
@@ -167,19 +167,19 @@ class ComTdbSplitTop : public ComTdb {
   // a particular input queue entry; in most cases this is NULL, meaning
   // that an input queue entry is sent to all input partitions
   ExExprPtr childInputPartFunction_;  // 08-15
-  int inputPartAtpIndex_;           // 16-19
+  int inputPartAtpIndex_;             // 16-19
 
   // the merge key expression helps in merging sorted input partition to a
   // sorted result stream of tuples, it encodes a binary key of length
   // mergeKeyLength_ for this child
-  int mergeKeyAtpIndex_;  // 20-23
+  int mergeKeyAtpIndex_;    // 20-23
   ExExprPtr mergeKeyExpr_;  // 24-31
-  int mergeKeyLength_;    // 32-35
+  int mergeKeyLength_;      // 32-35
 
   // If the split top node is responsible to pass partition input data
   // down to its child queues, a pointer to the partition input data
   // descriptor that describes the part. input values (fixed assignment)
-  int partInputDataAtpIndex_;               // 36-39
+  int partInputDataAtpIndex_;                 // 36-39
   ExPartInputDataDescPtr partInputDataDesc_;  // 40-47
 
   // child tdb (gets replicated bottomNumESPs_ times)
@@ -201,7 +201,7 @@ class ComTdbSplitTop : public ComTdb {
   ComExtractProducerInfoPtr extractProducerInfo_;  // 80-87
 
   // number of buffers in the shared pool, valid if SETUP_SHARED_POOL is set
-  int numSharedBuffs_;            // 88-91
+  int numSharedBuffs_;              // 88-91
   char fillersComTdbSplitTop_[28];  // 91-119
 };
 

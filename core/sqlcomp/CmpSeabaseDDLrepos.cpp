@@ -14,8 +14,9 @@
  *****************************************************************************
  */
 
-#include "sqlcomp/CmpSeabaseDDLincludes.h"
 #include "sqlcomp/CmpSeabaseDDLrepos.h"
+
+#include "sqlcomp/CmpSeabaseDDLincludes.h"
 #include "sqlmxevents/logmxevent_traf.h"
 
 short CmpSeabaseDDL::createRepos(ExeCliInterface *cliInterface) {
@@ -290,7 +291,7 @@ short CmpSeabaseDDL::dropAndLogReposViews(ExeCliInterface *cliInterface, NABoole
     if ((!rti.oldName) || (NOT rti.upgradeNeeded)) continue;
 
     long tableUID = getObjectUID(cliInterface, getSystemCatalog(), SEABASE_REPOS_SCHEMA, rti.oldName,
-                                  COM_BASE_TABLE_OBJECT_LIT, NULL, NULL, NULL, FALSE, FALSE /* ignore error */);
+                                 COM_BASE_TABLE_OBJECT_LIT, NULL, NULL, NULL, FALSE, FALSE /* ignore error */);
 
     if (tableUID != -1)  // if we got it
     {

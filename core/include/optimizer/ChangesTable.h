@@ -177,6 +177,4 @@ class TriggersTempTable : public ChangesTable {
   ItemExpr *boundExecId_;
 };
 
-
-
 #endif

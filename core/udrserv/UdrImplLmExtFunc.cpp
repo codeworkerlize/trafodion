@@ -14,9 +14,9 @@
  *
  *****************************************************************************
  */
-#include "common/Platform.h"
 #include "LmExtFunc.h"
 #include "UdrFFDC.h"
+#include "common/Platform.h"
 
 void lmMakeTFDSCall(const char *msg, const char *file, UInt32 line) { makeTFDSCall(msg, file, line); }
 

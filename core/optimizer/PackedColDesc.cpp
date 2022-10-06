@@ -26,6 +26,7 @@
 // that was done at create time.
 //
 #include "PackedColDesc.h"
+
 #include "common/NumericType.h"
 
 // The layout of a packed table is illustrated in the following diagram:
@@ -251,7 +252,7 @@ int PackedAPDesc::determinePackingFactor(int maxPackedRecLen) const {
   // The (SQL_INT_SIZE * numUserColumns) is for the NUM_ROWS fields.
   //
   int packingFactor = ((maxPackedRecLen - keySizeInBytes - (SQL_INT_SIZE * numUserColumns)) * BitsPerByte) /
-                        (numNullFlags + dataSizeInBits);
+                      (numNullFlags + dataSizeInBits);
 
   return packingFactor;
 }

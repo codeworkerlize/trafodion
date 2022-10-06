@@ -1,6 +1,7 @@
 
 
 #include "comexe/ComQueue.h"
+
 #include "comexe/ComPackDefs.h"
 
 extern NABoolean checkIfRTSSemaphoreLocked();

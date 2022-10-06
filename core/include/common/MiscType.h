@@ -18,6 +18,7 @@
 // -----------------------------------------------------------------------
 
 #include <limits.h>
+
 #include "common/BaseTypes.h"
 #include "common/NAType.h"
 
@@ -207,15 +208,15 @@ class SQLRowset : public NAType {
   NABoolean &useTotalSize() { return useTotalSize_; }
 
  private:
-  NAType *elementType_;         // The type of each array element
+  NAType *elementType_;       // The type of each array element
   const int maxNumElements_;  // Maximum number of elements as specified
-                                // in the host variable declaration
+                              // in the host variable declaration
   int numElements_;           // Number of elements in use always starting
-                                // from zero.
-  NABoolean useTotalSize_;      // Used at generation time to determine
-                                // if the whole rowset size is to be
-                                // generated or part of it
-};                              // class SQLRowset
+                              // from zero.
+  NABoolean useTotalSize_;    // Used at generation time to determine
+                              // if the whole rowset size is to be
+                              // generated or part of it
+};                            // class SQLRowset
 
 // ***********************************************************************
 //

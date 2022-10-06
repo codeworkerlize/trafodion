@@ -15,11 +15,12 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
 #include "common/NAAssert.h"
-#include "cli/SQLCLIdev.h"
 
 #include <iostream>
+
+#include "cli/SQLCLIdev.h"
+#include "common/Platform.h"
 
 // To debug an inline function:
 // - Put a "NAInlineBreakpoint;" statement in the inline function;

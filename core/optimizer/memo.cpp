@@ -19,13 +19,13 @@
 //<pb>
 // -----------------------------------------------------------------------
 
-#include "optimizer/Sqlcomp.h"
+#include "Cost.h"
+#include "arkcmp/CmpStatement.h"
 #include "optimizer/GroupAttr.h"
 #include "optimizer/PhyProp.h"
-#include "Cost.h"
-#include "optimizer/opt.h"
 #include "optimizer/RelScan.h"
-#include "arkcmp/CmpStatement.h"
+#include "optimizer/Sqlcomp.h"
+#include "optimizer/opt.h"
 
 //<pb>
 // -----------------------------------------------------------------------
@@ -888,8 +888,8 @@ int CascadesMemo::garbageCollection() {
   LIST(RelExpr *) changed(STMTHEAP);  // list of outdated RelExprs
   RelExpr *e;                         // a single rel expr
   RelExpr *pred;                      // predecessor in the hash chain
-  int nc;                           // number of children
-  int i;                            // index for a child
+  int nc;                             // number of children
+  int i;                              // index for a child
   CascadesGroupId childGroupId;       // group # of child
   NABoolean found;                    // found an entry to clean up
 

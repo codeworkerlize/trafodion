@@ -2,19 +2,18 @@
 
 // **********************************************************************
 
-#include "common/Platform.h"
-
-#include "cli_stdh.h"
-#include "executor/ex_stdh.h"
-#include "comexe/ComTdb.h"
-#include "executor/ex_tcb.h"
 #include "ExHbaseAccess.h"
-#include "ex_exe_stmt_globals.h"
 #include "SQLTypeDefs.h"
-#include "exp/ExpHbaseInterface.h"
-#include "executor/ExExeUtilCli.h"
-#include "export/ComDiags.h"
 #include "cli/ExSqlComp.h"
+#include "cli_stdh.h"
+#include "comexe/ComTdb.h"
+#include "common/Platform.h"
+#include "ex_exe_stmt_globals.h"
+#include "executor/ExExeUtilCli.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_tcb.h"
+#include "exp/ExpHbaseInterface.h"
+#include "export/ComDiags.h"
 
 ExHbaseAccessDDLTcb::ExHbaseAccessDDLTcb(const ExHbaseAccessTdb &hbaseAccessTdb, ex_globals *glob)
     : ExHbaseAccessTcb(hbaseAccessTdb, glob), step_(NOT_STARTED) {}

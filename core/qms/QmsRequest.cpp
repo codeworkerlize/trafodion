@@ -2,22 +2,22 @@
 
 // **********************************************************************
 
-#include "common/Platform.h"  // Must precede zsysc.h or weird errors occur
-
 #include "QmsRequest.h"
-#include "QmsQms.h"
-#include "QmsInitializer.h"
+
 #include "QRIpc.h"
+#include "QmsInitializer.h"
+#include "QmsQms.h"
+#include "common/Platform.h"  // Must precede zsysc.h or weird errors occur
 
 using namespace QR;
 #define XML_BUFF_SIZE 32768
 
-#include "seabed/fs.h"
-#include "seabed/ms.h"
-#include "seabed/int/opts.h"
 #include <sys/time.h>
 
 #include "nsk/nskprocess.h"
+#include "seabed/fs.h"
+#include "seabed/int/opts.h"
+#include "seabed/ms.h"
 extern "C" {
 #include "common/cextdecs.h"
 #include "common/zsysc.h"

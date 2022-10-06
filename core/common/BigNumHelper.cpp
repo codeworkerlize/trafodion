@@ -12,12 +12,13 @@
  *
  *****************************************************************************
  */
-#include "common/Platform.h"
 #include <math.h>
+
+#include "common/Platform.h"
 #define MathCeil(op, err) ceil(op)
 
-#include "common/str.h"
 #include "BigNumHelper.h"
+#include "common/str.h"
 
 static const unsigned short powersOfTen[] = {10,      // 10^1
                                              100,     // 10^2
@@ -711,8 +712,7 @@ short BigNumHelper::ConvBigNumToAsciiHelper(int sourceLength, int targetLength, 
 // (without sign, and with the more significant decimal digits in the lower
 // addresses) into its equivalent Big Num representation.
 
-short BigNumHelper::ConvAsciiToBigNumHelper(int sourceLength, int targetLength, char *sourceData,
-                                            char *targetData) {
+short BigNumHelper::ConvAsciiToBigNumHelper(int sourceLength, int targetLength, char *sourceData, char *targetData) {
   // Temporarily convert source from ASCII to BCD.
   int i = 0;
   for (i = 0; i < sourceLength; i++) sourceData[i] -= '0';

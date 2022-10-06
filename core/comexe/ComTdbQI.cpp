@@ -15,6 +15,7 @@
 */
 
 #include "comexe/ComTdbQI.h"
+
 #include "comexe/ComTdbCommon.h"
 #include "comexe/ComTdbRoot.h"
 #include "common/ComCextdecs.h"
@@ -23,9 +24,9 @@ ComTdbQryInvalid::ComTdbQryInvalid() : ComTdb(ComTdb::ex_QUERY_INVALIDATION, eye
 
 ComTdbQryInvalid::ComTdbQryInvalid(int tupleLen, int returnedTupleLen, int inputTupleLen,
                                    ex_cri_desc *criDescParentDown, ex_cri_desc *criDescParentUp,
-                                   queue_index queueSizeDown, queue_index queueSizeUp, int numBuffers,
-                                   int bufferSize, ex_expr *scanExpr, ex_expr *inputExpr, ex_expr *projExpr,
-                                   ex_cri_desc *workCriDesc, UInt16 qi_row_atp_index, UInt16 input_row_atp_index)
+                                   queue_index queueSizeDown, queue_index queueSizeUp, int numBuffers, int bufferSize,
+                                   ex_expr *scanExpr, ex_expr *inputExpr, ex_expr *projExpr, ex_cri_desc *workCriDesc,
+                                   UInt16 qi_row_atp_index, UInt16 input_row_atp_index)
     : ComTdb(ComTdb::ex_QUERY_INVALIDATION, eye_QUERY_INVALIDATION, (Cardinality)0.0, criDescParentDown,
              criDescParentUp, queueSizeDown, queueSizeUp, numBuffers, bufferSize),
       scanExpr_(scanExpr),

@@ -1,9 +1,11 @@
 
 //
 //
-#include <sys/time.h>
 #include "common/DLock.h"
+
+#include <sys/time.h>
 #include <unistd.h>
+
 #include "common/ComRtUtils.h"
 
 void genArkcmpInfo(NAString &nidpid);

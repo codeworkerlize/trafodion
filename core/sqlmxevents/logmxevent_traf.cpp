@@ -13,15 +13,16 @@
  *
  ****************************************************************************/
 
-#include "common/NLSConversion.h"
-#include "sqlmxevents/logmxevent.h"
-#include "common/str.h"
-#include <stdlib.h>
-#include <pthread.h>
-#include <limits.h>
-#include <stdarg.h>
-#include <execinfo.h>
 #include <cxxabi.h>
+#include <execinfo.h>
+#include <limits.h>
+#include <pthread.h>
+#include <stdarg.h>
+#include <stdlib.h>
+
+#include "common/NLSConversion.h"
+#include "common/str.h"
+#include "sqlmxevents/logmxevent.h"
 
 #ifdef _MSC_VER
 #undef _MSC_VER
@@ -107,8 +108,7 @@ SQLMXLoggingArea::~SQLMXLoggingArea(){
  intercepts requests to return the diag to log
  * any errors or warnings in the diag.
  */
-void SQLMXLoggingArea::logSQLMXEventForError(int sqlcode, const char *msgTxt, const char *sqlId,
-                                             NABoolean isWarning) {
+void SQLMXLoggingArea::logSQLMXEventForError(int sqlcode, const char *msgTxt, const char *sqlId, NABoolean isWarning) {
   if (!lockMutex()) {
     printf("%s\n", msgTxt);
     return;
@@ -429,8 +429,7 @@ void SQLMXLoggingArea::logMVRefreshErrorEvent(const char *msg) {
   unlockMutex();
 }
 
-void SQLMXLoggingArea::logCliReclaimSpaceEvent(int freeSize, int totalSize, int totalContexts,
-                                               int totalStatements) {
+void SQLMXLoggingArea::logCliReclaimSpaceEvent(int freeSize, int totalSize, int totalContexts, int totalStatements) {
   int LEN = 8192;
   char msg[8192];
   memset(msg, 0, LEN);

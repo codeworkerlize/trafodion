@@ -1,16 +1,14 @@
 //------------------------------------------------------------------
 //
 
-
 #ifndef __SB_INT_THREADSTATS_H_
 #define __SB_INT_THREADSTATS_H_
 
 #include <limits.h>
 #include <stdio.h>  // printf
 #include <string.h>
-#include <unistd.h>
-
 #include <sys/time.h>  // gettimeofday
+#include <unistd.h>
 
 #include "seabed/debug.h"
 

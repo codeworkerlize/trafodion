@@ -15,17 +15,18 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
-
-#include "BigNumHelper.h"
 #include "exp/exp_bignum.h"
-#include "common/Int64.h"
-#include "common/str.h"
-#include "SQLTypeDefs.h"
-#include "exp/exp_clause_derived.h"
+
+#include <stdlib.h>
 
 #include <iostream>
-#include <stdlib.h>
+
+#include "BigNumHelper.h"
+#include "SQLTypeDefs.h"
+#include "common/Int64.h"
+#include "common/Platform.h"
+#include "common/str.h"
+#include "exp/exp_clause_derived.h"
 
 BigNum::BigNum(int length, int precision, short scale, short unSigned)
     : length_(length), precision_(precision), scale_(scale), unSigned_(unSigned), tempSpacePtr_(0) {

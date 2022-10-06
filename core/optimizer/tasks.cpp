@@ -16,15 +16,15 @@
 
 // -----------------------------------------------------------------------
 
-#include "optimizer/Sqlcomp.h"
-#include "optimizer/GroupAttr.h"
-#include "optimizer/RelExpr.h"
-#include "optimizer/PhyProp.h"
 #include "Cost.h"
-#include "optimizer/opt.h"
+#include "TransRule.h"
 #include "arkcmp/CmpContext.h"
 #include "arkcmp/CmpStatement.h"
-#include "TransRule.h"
+#include "optimizer/GroupAttr.h"
+#include "optimizer/PhyProp.h"
+#include "optimizer/RelExpr.h"
+#include "optimizer/Sqlcomp.h"
+#include "optimizer/opt.h"
 
 // xxx tmp include, will be taken out
 #include "optimizer/Analyzer.h"
@@ -337,8 +337,7 @@ void OptimizeGroupTask::perform(int taskId) {
 //<pb>
 /* ------------------------------------------------------------ */
 
-OptimizeExprTask::OptimizeExprTask(RelExpr *expr, Guidance *guidance, Context *context, int parentTaskId,
-                                   short stride)
+OptimizeExprTask::OptimizeExprTask(RelExpr *expr, Guidance *guidance, Context *context, int parentTaskId, short stride)
     : CascadesTask(guidance, context, parentTaskId, stride), expr_(expr) {
   context_->incrOutstanding();
 }  // OptimizeExprTask::OptimizeExprTask

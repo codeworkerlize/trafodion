@@ -4,15 +4,17 @@
 #ifndef COMPILERTRACKING_H
 #define COMPILERTRACKING_H
 
-#include "common/NAString.h"
+#include <time.h>
+
+#include <fstream>
+
+#include "CmpProcess.h"
 #include "common/CmpCommon.h"
+#include "common/NAString.h"
+#include "optimizer/NATable.h"
 #include "optimizer/SchemaDB.h"
 #include "optimizer/opt.h"
-#include "optimizer/NATable.h"
-#include <time.h>
-#include <fstream>
 #include "sqlcomp/QCache.h"
-#include "CmpProcess.h"
 
 //
 // the private user table where the data can be loggeed

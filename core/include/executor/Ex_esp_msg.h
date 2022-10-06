@@ -17,9 +17,8 @@
 
 // -----------------------------------------------------------------------
 
-#include "common/Platform.h"
-
 #include "common/Int64.h"
+#include "common/Platform.h"
 #include "executor/ex_frag_inst.h"
 #include "executor/sql_buffer.h"
 // -----------------------------------------------------------------------
@@ -932,7 +931,7 @@ class TupMsgBuffer : public ExEspMsgObj {
  private:
   SqlBuffer *theBuffer_;
   int filler64BitPtr_;
-  int allocSize_;  // may be larger than sql_buffer's size
+  int allocSize_;    // may be larger than sql_buffer's size
   char endianness_;  // big-endian, little endian
   char spare1_;
   Int16 spare2_;

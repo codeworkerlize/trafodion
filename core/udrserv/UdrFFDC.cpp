@@ -13,22 +13,21 @@
  *
  *****************************************************************************
  */
-#include "common/Platform.h"
+#include "UdrFFDC.h"
 
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+
 #include <iostream>
-#include <signal.h>
 
-#include "vproc.h"
-
+#include "UdrDebug.h"
+#include "common/Platform.h"
+#include "common/copyright.h"
+#include "sqlmxevents/logmxevent.h"
 #include "udrglobals.h"
 #include "udrutil.h"
-#include "UdrDebug.h"
-#include "UdrFFDC.h"
-#include "sqlmxevents/logmxevent.h"
-
-#include "common/copyright.h"
+#include "vproc.h"
 
 extern void my_mpi_fclose();
 

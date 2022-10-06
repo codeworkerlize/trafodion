@@ -1,17 +1,18 @@
 
 
-#include <stdlib.h>
+#include "sqlci/SqlciStmts.h"
+
 #include <ctype.h>
+#include <stdlib.h>
 
 #include "common/ComASSERT.h"
+#include "common/str.h"
 #include "export/ComDiags.h"
-#include "sqlci/SqlciStmts.h"
-#include "sqlci/SqlciNode.h"
+#include "sqlci/InputStmt.h"
 #include "sqlci/SqlciCmd.h"
 #include "sqlci/SqlciError.h"
+#include "sqlci/SqlciNode.h"
 #include "sqlci/SqlciParser.h"
-#include "sqlci/InputStmt.h"
-#include "common/str.h"
 
 extern ComDiagsArea sqlci_DA;
 
@@ -187,4 +188,3 @@ void StmtEntry::set(int stmt_num_, InputStmt *input_stmt_) {
   delete input_stmt;  // delete regardless of stmt's "inHistoryList" setting
   input_stmt = input_stmt_;
 }
-

@@ -1,6 +1,6 @@
 
-#include <string.h>
 #include <limits.h>
+#include <string.h>
 #ifdef NA_MXCS
 #undef NA_LITTLE_ENDIAN
 #else
@@ -336,7 +336,7 @@ static short convInt64ToDecMxcs(char *target, int targetLen, long source) {
 }
 
 static short safe_add_digit_to_double(double dvalue,  // Original value
-                                      int digit,    // Single digit to be added
+                                      int digit,      // Single digit to be added
                                       double *result) {
   *result = dvalue * 10 + digit;
   return 0;
@@ -513,7 +513,7 @@ static short convAsciiToFloat64Mxcs(char *target, char *source, int sourceLen) {
 ///////////////////////////////////////////////////////////////////
 static short convAsciiToDecMxcs(char *target, int targetLen, int targetScale, char *source, int sourceLen,
                                 char offset) {
-  short negative = 0;               // default is a positive value
+  short negative = 0;             // default is a positive value
   int sourceStart = 0;            // start of source after skipping 0 and ' '
   int sourceScale = 0;            // by default the scale is 0
   int targetPos = targetLen - 1;  // current positon in the target
@@ -794,8 +794,8 @@ static short convLargeDecToAsciiMxcs(char *target, int targetLen, char *source, 
 // First convert from ASCII to LARGEDEC, then convert from LARGEDEC
 // to BIGNUM
 ///////////////////////////////////////////////////////////////////
-static short convAsciiToBigNumMxcs(char *target, int targetLen, int targetType, int targetPrecision,
-                                   int targetScale, char *source, int sourceLen) {
+static short convAsciiToBigNumMxcs(char *target, int targetLen, int targetType, int targetPrecision, int targetScale,
+                                   char *source, int sourceLen) {
   short retCode = 0;
   // Convert from ASCII to an intermediate LARGEDEC, using the function convAsciiToDec().
   // To understand this function call, it will be helpful to review the
@@ -932,24 +932,24 @@ static short getIntervalEndField(int datatype) {
 
 static int getDigitCount(long value) {
   static const long decValue[] = {0,
-                                   9,
-                                   99,
-                                   999,
-                                   9999,
-                                   99999,
-                                   999999,
-                                   9999999,
-                                   99999999,
-                                   999999999,
-                                   9999999999LL,
-                                   99999999999LL,
-                                   999999999999LL,
-                                   9999999999999LL,
-                                   99999999999999LL,
-                                   999999999999999LL,
-                                   9999999999999999LL,
-                                   99999999999999999LL,
-                                   999999999999999999LL};
+                                  9,
+                                  99,
+                                  999,
+                                  9999,
+                                  99999,
+                                  999999,
+                                  9999999,
+                                  99999999,
+                                  999999999,
+                                  9999999999LL,
+                                  99999999999LL,
+                                  999999999999LL,
+                                  9999999999999LL,
+                                  99999999999999LL,
+                                  999999999999999LL,
+                                  9999999999999999LL,
+                                  99999999999999999LL,
+                                  999999999999999999LL};
 
   for (int i = 4; i <= 16; i += 4)
     if (value <= decValue[i]) {
@@ -976,7 +976,7 @@ static int getDigitCount(long value) {
 ///////////////////////////////////////////////////////////////////
 static short convAsciiFieldToInt64Mxcs(long &target, int targetScale, char *source, int &sourceLen, int flags) {
   int currPos = 0;  // current position in the string
-  target = 0;         // result
+  target = 0;       // result
   while ((currPos < sourceLen) && ((source[currPos] >= '0') && (source[currPos] <= '9'))) {
     short thisDigit = source[currPos] - '0';
     if (target > (LLONG_MAX / 10)) {  // next power of 10 causes an overflow
@@ -1195,8 +1195,8 @@ static short convAsciiToIntervalMxcs(char *target, int targetLen, int targetData
 // e.g., caller wants to convert 7 -> 07        as in month -> ascii
 //                           or  8 -> '    8'   as in sqlci display
 ///////////////////////////////////////////////////////////////////
-static short convInt64ToAsciiMxcs(char *target, int targetLen, long source, int scale, char filler,
-                                  short leadingSign, short leftPad) {
+static short convInt64ToAsciiMxcs(char *target, int targetLen, long source, int scale, char filler, short leadingSign,
+                                  short leftPad) {
   int digitCnt = 0;
   short negative = (source < 0);
   short fixRightMost = 0;  // true if need to fix the rightmost digit.
@@ -1502,9 +1502,8 @@ static short convIntervalToAsciiMxcs(char *source, int sourceLen, int leadingPre
 //   Doing that will cause incompatibility and lost code.
 //
 ///////////////////////////////////////////////////////////////////////////////
-short convDoItMxcs(char *source, int sourceLen, short sourceType, int sourcePrecision, int sourceScale,
-                   char *target, int targetLen, short targetType, int targetPrecision, int targetScale,
-                   int flags) {
+short convDoItMxcs(char *source, int sourceLen, short sourceType, int sourcePrecision, int sourceScale, char *target,
+                   int targetLen, short targetType, int targetPrecision, int targetScale, int flags) {
   short retCode = -1;
   if (sourceType == 0) {
     if ((targetType == REC_NUM_BIG_UNSIGNED) || (targetType == REC_NUM_BIG_SIGNED)) {

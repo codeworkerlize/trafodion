@@ -17,8 +17,8 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
 #include "common/NAWinNT.h"  // to get NAWchar
+#include "common/Platform.h"
 
 class ComDiagsArea;
 

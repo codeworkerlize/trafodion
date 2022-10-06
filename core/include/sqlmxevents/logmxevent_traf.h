@@ -41,11 +41,12 @@
 #ifndef LOGMXEVENT_TRAF_H
 #define LOGMXEVENT_TRAF_H
 
-#include <stdio.h>
 #include <pthread.h>
+#include <stdio.h>
+
 #include "common/Platform.h"
-#include "sqlmxevents/sq_sql_eventids.h"
 #include "common/nawstring.h"
+#include "sqlmxevents/sq_sql_eventids.h"
 
 #define EVENTSAPI
 #define SQLEVENT_BUF_SIZE        4024
@@ -62,8 +63,8 @@
 #define _MSC_VER 1
 #endif
 
-#include "qmscommon/QRLogger.h"
 #include "export/ComDiags.h"
+#include "qmscommon/QRLogger.h"
 
 class SQLMXLoggingArea {
  public:

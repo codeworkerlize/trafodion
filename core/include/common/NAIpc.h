@@ -18,11 +18,10 @@
  */
 
 // -----------------------------------------------------------------------
-#include "common/Platform.h"
-
-#include "common/IpcMessageType.h"
 #include "common/Ipc.h"
+#include "common/IpcMessageType.h"
 #include "common/NAString.h"
+#include "common/Platform.h"
 
 // -----------------------------------------------------------------------
 // Contents of this file

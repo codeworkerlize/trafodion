@@ -18,24 +18,23 @@
 
 // ---------------------------------------------------------------------------
 
-#include "optimizer/Sqlcomp.h"
-#include "optimizer/GroupAttr.h"
-#include "optimizer/AllRelExpr.h"
-#include "optimizer/AllItemExpr.h"
-#include "optimizer/opt.h"
-#include "optimizer/PhyProp.h"
 #include "Cost.h"
+#include "EstLogProp.h"
+#include "PartKeyDist.h"
+#include "ScanOptimizer.h"
+#include "arkcmp/CmpStatement.h"
+#include "cli/Globals.h"
+#include "optimizer/AllItemExpr.h"
+#include "optimizer/AllRelExpr.h"
 #include "optimizer/ControlDB.h"
 #include "optimizer/CostMethod.h"
-#include "EstLogProp.h"
-#include "ScanOptimizer.h"
-#include "sqlcomp/DefaultConstants.h"
-#include "PartKeyDist.h"
+#include "optimizer/GroupAttr.h"
 #include "optimizer/OptimizerSimulator.h"
-
-#include "cli/Globals.h"
-#include "arkcmp/CmpStatement.h"
+#include "optimizer/PhyProp.h"
+#include "optimizer/Sqlcomp.h"
 #include "optimizer/UdfDllInteraction.h"
+#include "optimizer/opt.h"
+#include "sqlcomp/DefaultConstants.h"
 #include "utility.h"
 
 extern NAUnsigned SortEnforcerRuleNumber;
@@ -736,7 +735,7 @@ PhysicalProperty *RelExpr::synthPhysicalProperty(const Context *myContext, const
 //<pb>
 
 DefaultToken RelExpr::getParallelControlSettings(const ReqdPhysicalProperty *const rppForMe, /*IN*/
-                                                 int &numOfESPs,                           /*OUT*/
+                                                 int &numOfESPs,                             /*OUT*/
                                                  float &allowedDeviation,                    /*OUT*/
                                                  NABoolean &numOfESPsForced /*OUT*/) const {
   // This default implementation does not handle forcing the number
@@ -758,7 +757,7 @@ DefaultToken RelExpr::getParallelControlSettings(const ReqdPhysicalProperty *con
 
 NABoolean RelExpr::okToAttemptESPParallelism(const Context *myContext, /*IN*/
                                              PlanWorkSpace *pws,       /*IN*/
-                                             int &numOfESPs,         /*OUT*/
+                                             int &numOfESPs,           /*OUT*/
                                              float &allowedDeviation,  /*OUT*/
                                              NABoolean &numOfESPsForced /*OUT*/) {
   const ReqdPhysicalProperty *rppForMe = myContext->getReqdPhysicalProperty();
@@ -1999,8 +1998,7 @@ void Exchange::storePhysPropertiesInNode(const ValueIdList &partialSortKey) {
 //  Pointer to this operator's synthesized physical properties.
 //
 //==============================================================================
-PhysicalProperty *Exchange::synthPhysicalProperty(const Context *myContext, const int planNumber,
-                                                  PlanWorkSpace *pws) {
+PhysicalProperty *Exchange::synthPhysicalProperty(const Context *myContext, const int planNumber, PlanWorkSpace *pws) {
   const PhysicalProperty *sppOfChild = myContext->getPhysicalPropertyOfSolutionForChild(0);
 
   if (sppOfChild->executeInDP2()) {
@@ -2524,7 +2522,7 @@ JoinForceWildCard::forcedPlanEnum Join::getParallelJoinPlanToEnforce(const ReqdP
 }  // Join::getParallelJoinPlanToEnforce()
 
 DefaultToken Join::getParallelControlSettings(const ReqdPhysicalProperty *const rppForMe, /*IN*/
-                                              int &numOfESPs,                           /*OUT*/
+                                              int &numOfESPs,                             /*OUT*/
                                               float &allowedDeviation,                    /*OUT*/
                                               NABoolean &numOfESPsForced /*OUT*/) const {
   DefaultToken result;
@@ -3612,7 +3610,7 @@ Context *NestedJoin::createContextForAChild(Context *myContext, PlanWorkSpace *p
             (NOT(isLeftJoin() OR isSemiJoin() OR isAntiSemiJoin())) AND(
                 (CostScalar(maxrows) <= maxOCBRowsLimit)  // heuristic0
                 OR(                                       // heuristic1
-                     // OCB for top join of star join into fact table
+                                                          // OCB for top join of star join into fact table
                     ((getSource() == Join::STAR_FACT) OR
                      // OCB for small outer child and big inner child
                      ((CmpCommon::getDefault(COMP_BOOL_135) == DF_ON) AND
@@ -5281,7 +5279,7 @@ NABoolean NestedJoin::JoinPredicateCoversChild1PartKey(const ValueIdSet &child1P
 
 NABoolean NestedJoin::okToAttemptESPParallelism(const Context *myContext, /*IN*/
                                                 PlanWorkSpace *,          /*IN, ignored*/
-                                                int &numOfESPs,         /*OUT*/
+                                                int &numOfESPs,           /*OUT*/
                                                 float &allowedDeviation,  /*OUT*/
                                                 NABoolean &numOfESPsForced /*OUT*/) {
   const ReqdPhysicalProperty *rppForMe = myContext->getReqdPhysicalProperty();
@@ -6785,8 +6783,7 @@ NABoolean MergeJoin::currentPlanIsAcceptable(int planNo, const ReqdPhysicalPrope
 //  Pointer to this operator's synthesized physical properties.
 //
 //==============================================================================
-PhysicalProperty *MergeJoin::synthPhysicalProperty(const Context *myContext, const int planNumber,
-                                                   PlanWorkSpace *pws) {
+PhysicalProperty *MergeJoin::synthPhysicalProperty(const Context *myContext, const int planNumber, PlanWorkSpace *pws) {
   const PhysicalProperty *const sppOfLeftChild = myContext->getPhysicalPropertyOfSolutionForChild(0);
 
   const PhysicalProperty *const sppOfRightChild = myContext->getPhysicalPropertyOfSolutionForChild(1);
@@ -7834,7 +7831,7 @@ NABoolean HashJoin::currentPlanIsAcceptable(int planNo, const ReqdPhysicalProper
 
 NABoolean HashJoin::okToAttemptESPParallelism(const Context *myContext, /*IN*/
                                               PlanWorkSpace *pws,       /*IN*/
-                                              int &numOfESPs,         /*OUT*/
+                                              int &numOfESPs,           /*OUT*/
                                               float &allowedDeviation,  /*OUT*/
                                               NABoolean &numOfESPsForced /*OUT*/) {
   const ReqdPhysicalProperty *rppForMe = myContext->getReqdPhysicalProperty();
@@ -8061,8 +8058,7 @@ CostLimit *HashJoin::computeCostLimit(const Context *myContext, PlanWorkSpace *p
 //  Pointer to this operator's synthesized physical properties.
 //
 //==============================================================================
-PhysicalProperty *HashJoin::synthPhysicalProperty(const Context *myContext, const int planNumber,
-                                                  PlanWorkSpace *pws) {
+PhysicalProperty *HashJoin::synthPhysicalProperty(const Context *myContext, const int planNumber, PlanWorkSpace *pws) {
   if (isNoOverflow()) {
     CMPASSERT((getOperatorType() == REL_ORDERED_HASH_JOIN) OR(getOperatorType() == REL_ORDERED_HASH_SEMIJOIN) OR(
         getOperatorType() == REL_ORDERED_HASH_ANTI_SEMIJOIN) OR(getOperatorType() == REL_LEFT_ORDERED_HASH_JOIN)
@@ -9743,7 +9739,7 @@ void GroupByAgg::addArrangementAndOrderRequirements(RequirementGenerator &rg) {
 
 NABoolean GroupByAgg::okToAttemptESPParallelism(const Context *myContext, /*IN*/
                                                 PlanWorkSpace *pws,       /*IN*/
-                                                int &numOfESPs,         /*IN,OUT*/
+                                                int &numOfESPs,           /*IN,OUT*/
                                                 float &allowedDeviation,  /*OUT*/
                                                 NABoolean &numOfESPsForced /*OUT*/) {
   if (!parallelAggrPushdown() && isFeasibleToTransformForAggrPushdown() == GroupByAgg::TVL_TRUE) return FALSE;
@@ -12407,8 +12403,7 @@ CostMethod *FileScan::costMethod() const {
 //  Pointer to this operator's synthesized physical properties.
 //
 //==============================================================================
-PhysicalProperty *FileScan::synthPhysicalProperty(const Context *myContext, const int planNumber,
-                                                  PlanWorkSpace *pws) {
+PhysicalProperty *FileScan::synthPhysicalProperty(const Context *myContext, const int planNumber, PlanWorkSpace *pws) {
   PhysicalProperty *sppForMe;
   // synthesized order
   ValueIdList sortOrderVEG;
@@ -12543,7 +12538,7 @@ void FileScan::addPartKeyPredsToSelectionPreds(const ValueIdSet &partKeyPreds, c
 
 NABoolean FileScan::okToAttemptESPParallelism(const Context *myContext, /*IN*/
                                               PlanWorkSpace *pws,       /*IN*/
-                                              int &numOfESPs,         /*IN,OUT*/
+                                              int &numOfESPs,           /*IN,OUT*/
                                               float &allowedDeviation,  /*OUT*/
                                               NABoolean &numOfESPsForced /*OUT*/) {
   const ReqdPhysicalProperty *rppForMe = myContext->getReqdPhysicalProperty();
@@ -12645,8 +12640,7 @@ CostMethod *DP2Scan::costMethod() const {
 //  Pointer to this operator's synthesized physical properties.
 //
 //==============================================================================
-PhysicalProperty *Describe::synthPhysicalProperty(const Context *myContext, const int planNumber,
-                                                  PlanWorkSpace *pws) {
+PhysicalProperty *Describe::synthPhysicalProperty(const Context *myContext, const int planNumber, PlanWorkSpace *pws) {
   //----------------------------------------------------------
   // Create a node map with a single, active, wild-card entry.
   //----------------------------------------------------------
@@ -13419,7 +13413,7 @@ PhysicalProperty *DeleteCursor::synthPhysicalProperty(const Context *myContext, 
 
 NABoolean GenericUpdate::okToAttemptESPParallelism(const Context *myContext, /*IN*/
                                                    PlanWorkSpace *pws,       /*IN*/
-                                                   int &numOfESPs,         /*IN,OUT*/
+                                                   int &numOfESPs,           /*IN,OUT*/
                                                    float &allowedDeviation,  /*OUT*/
                                                    NABoolean &numOfESPsForced /*OUT*/) {
   const ReqdPhysicalProperty *rppForMe = myContext->getReqdPhysicalProperty();
@@ -14372,7 +14366,7 @@ PhysicalProperty *CallSP::synthPhysicalProperty(const Context *context, const in
 }  // CallSP::synthPhysicalProperty()
 
 DefaultToken TableMappingUDF::getParallelControlSettings(const ReqdPhysicalProperty *const rppForMe, /*IN*/
-                                                         int &numOfESPs,                           /*OUT*/
+                                                         int &numOfESPs,                             /*OUT*/
                                                          float &allowedDeviation,                    /*OUT*/
                                                          NABoolean &numOfESPsForced /*OUT*/) const {
   return RelExpr::getParallelControlSettings(rppForMe, numOfESPs, allowedDeviation, numOfESPsForced);
@@ -14380,7 +14374,7 @@ DefaultToken TableMappingUDF::getParallelControlSettings(const ReqdPhysicalPrope
 
 NABoolean TableMappingUDF::okToAttemptESPParallelism(const Context *myContext, /*IN*/
                                                      PlanWorkSpace *pws,       /*IN*/
-                                                     int &numOfESPs,         /*OUT*/
+                                                     int &numOfESPs,           /*OUT*/
                                                      float &allowedDeviation,  /*OUT*/
                                                      NABoolean &numOfESPsForced /*OUT*/) {
   const ReqdPhysicalProperty *rppForMe = myContext->getReqdPhysicalProperty();

@@ -2,9 +2,9 @@
 #ifndef COMTDBEXPLAIN_H
 #define COMTDBEXPLAIN_H
 
-#include "common/Platform.h"
-#include "common/ComSizeDefs.h"
 #include "comexe/ComTdb.h"
+#include "common/ComSizeDefs.h"
+#include "common/Platform.h"
 #include "exp/ExpCriDesc.h"
 #include "exp/exp_attrs.h"
 

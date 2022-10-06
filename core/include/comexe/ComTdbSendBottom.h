@@ -4,7 +4,6 @@
 #define COM_SEND_BOTTOM_H
 
 #include "comexe/ComTdb.h"
-
 #include "executor/ex_send_bottom.h"
 
 ////////////////////////////////////////////////////////////////////////////
@@ -133,7 +132,7 @@ class ComTdbSendBottom : public ComTdb {
   Float32 p_estNumRowsReplied_;  // 52-55
 
  protected:
-  int smTag_;                       // 56-59
+  int smTag_;                         // 56-59
   char fillersComTdbSendBottom_[36];  // 60-95
 };
 

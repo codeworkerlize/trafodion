@@ -10,15 +10,15 @@
 // Change if we ever need to use 5 digit version numbers
 #define DIGITS_IN_VERSION_NUMBER 4
 // convert a version number to a 4 character string
-#define VersionToString(v, s)                  \
-  {                                            \
+#define VersionToString(v, s)                \
+  {                                          \
     int i = v, j = DIGITS_IN_VERSION_NUMBER; \
-    char *p = s;                               \
-    p[DIGITS_IN_VERSION_NUMBER] = 0;           \
-    while (j) {                                \
-      p[--j] = (char)((i % 10) + '0');         \
-      i /= 10;                                 \
-    }                                          \
+    char *p = s;                             \
+    p[DIGITS_IN_VERSION_NUMBER] = 0;         \
+    while (j) {                              \
+      p[--j] = (char)((i % 10) + '0');       \
+      i /= 10;                               \
+    }                                        \
   }
 
 //

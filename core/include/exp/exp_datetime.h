@@ -2,13 +2,11 @@
 #ifndef EXP_DATETIME_H
 #define EXP_DATETIME_H
 
-
-
+#include "common/Int64.h"
 #include "common/Platform.h"
+#include "common/sqtypes.h"
 #include "exp/ExpError.h"
 #include "exp/exp_attrs.h"
-#include "common/Int64.h"
-#include "common/sqtypes.h"
 
 UInt32 Date2Julian(int y, int m, int d);
 
@@ -122,9 +120,9 @@ class ExpDatetime : public SimpleType {
   };
 
   struct DatetimeFormatInfo {
-    int format;     // defined by enum DatetimeFormats
+    int format;       // defined by enum DatetimeFormats
     const char *str;  // string representation of datetime format
-    int minLen;     // minimum length to hold this format
+    int minLen;       // minimum length to hold this format
     int maxLen;
   };
 
@@ -192,7 +190,7 @@ class ExpDatetime : public SimpleType {
   static short getDisplaySize(int datetimeCode, short fractionPrecision);
 
   static int getDatetimeFormatLen(int format, NABoolean to_date, rec_datetime_field startField,
-                                    rec_datetime_field endField);
+                                  rec_datetime_field endField);
 
   Attributes *newCopy();
 
@@ -226,10 +224,10 @@ class ExpDatetime : public SimpleType {
                         ComDiagsArea **diagsArea, int flags);
 
   int convDatetimeToASCII(char *srcData, char *dstData, int dstLen, int format, char *formatStr, CollHeap *heap,
-                            ComDiagsArea **diagsArea, int caseSensitive = 0, int nsrcLen = -1);
+                          ComDiagsArea **diagsArea, int caseSensitive = 0, int nsrcLen = -1);
 
   static int convNumericTimeToASCII(char *srcData, char *dstData, int dstLen, int format, char *formatStr,
-                                      CollHeap *heap, ComDiagsArea **diagsArea);
+                                    CollHeap *heap, ComDiagsArea **diagsArea);
 
   static short convAsciiDatetimeToASCII(char *srcData, int srcPrecision, int srcScale, int srcLen, char *dstData,
                                         int dstLen, int format, CollHeap *heap, ComDiagsArea **diagsArea);

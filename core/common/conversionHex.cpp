@@ -14,12 +14,13 @@
 */
 
 #include "common/conversionHex.h"
-#include "common/NAString.h"
-#include "common/nawstring.h"
-#include "common/ComASSERT.h"
+
 #include "SQLTypeDefs.h"
-#include "common/str.h"
+#include "common/ComASSERT.h"
+#include "common/NAString.h"
 #include "common/csconvert.h"
+#include "common/nawstring.h"
+#include "common/str.h"
 
 // a helper function converting a hexdecimal digit to its value
 static unsigned short getHexDigitValue(NAWchar wc) {

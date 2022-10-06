@@ -30,7 +30,7 @@ class UdrCfgParser {
 
   /* getPrivateProfileString: read value of string attribute */
   static int getPrivateProfileString(const char *section, const char *entry, const char *defaultString, char *buffer,
-                                       int bufLen, NAString &errorText);
+                                     int bufLen, NAString &errorText);
 
  private:
   static FILE *cfgFile;

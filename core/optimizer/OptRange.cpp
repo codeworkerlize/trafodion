@@ -1,16 +1,19 @@
 
 
-#include <limits>
-#include <float.h>
-#include "common/nawstring.h"
-#include "QRDescGenerator.h"
-#include "common/NumericType.h"
-#include "common/DatetimeType.h"
-#include "qmscommon/QRLogger.h"
 #include "OptRange.h"
-#include "optimizer/ItemLog.h"
+
+#include <float.h>
+
+#include <limits>
+
+#include "QRDescGenerator.h"
 #include "common/ComCextdecs.h"
+#include "common/DatetimeType.h"
+#include "common/NumericType.h"
+#include "common/nawstring.h"
+#include "optimizer/ItemLog.h"
 #include "parser/SqlParserAux.h"
+#include "qmscommon/QRLogger.h"
 
 double getDoubleValue(ConstValue *val, logLevel level);
 
@@ -37,7 +40,7 @@ double getDoubleValue(ConstValue *val, logLevel level);
  * @return The rangespec internal representation of the input constant value.
  */
 static long getInt64Value(ConstValue *val, const NAType *rangeColType, NABoolean &truncated, NABoolean &valWasNegative,
-                           logLevel level);
+                          logLevel level);
 
 OptRangeSpec::OptRangeSpec(QRDescGenerator *descGenerator, CollHeap *heap, logLevel ll)
     : RangeSpec(heap, ll),
@@ -1602,7 +1605,7 @@ void OptNormRangeSpec::unionRange(OptNormRangeSpec *other) {
 // Convert a date, time, or timestamp value to an integral form for use with
 // range specifications.
 static long getInt64ValueFromDateTime(ConstValue *val, const DatetimeType *rangeColType, const DatetimeType *constType,
-                                       NABoolean &truncated, logLevel level) {
+                                      NABoolean &truncated, logLevel level) {
   char dateRep[11];
   long i64val;
   char *valPtr = (char *)val->getConstValue() + val->getType()->getSQLnullHdrSize();
@@ -1666,7 +1669,7 @@ static long getInt64ValueFromDateTime(ConstValue *val, const DatetimeType *range
 // everything is comparable. In the example above, the value used would be
 // 5100000 instead of the original internal integral value of 510.
 static long getInt64ValueFromInterval(ConstValue *constVal, const IntervalType *colIntvlType, NABoolean &truncated,
-                                       NABoolean &valWasNegative, logLevel level) {
+                                      NABoolean &valWasNegative, logLevel level) {
   const IntervalType *constIntvlType = static_cast<const IntervalType *>(constVal->getType());
   long i64val;
   char *val = (char *)constVal->getConstValue();
@@ -1781,7 +1784,7 @@ static long getInt64ValueFromInterval(ConstValue *constVal, const IntervalType *
 }
 
 long getInt64Value(ConstValue *val, const NAType *rangeColType, NABoolean &truncated, NABoolean &valWasNegative,
-                    logLevel level) {
+                   logLevel level) {
   truncated = FALSE;
   valWasNegative = FALSE;
 

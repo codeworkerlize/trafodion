@@ -17,15 +17,15 @@
 #define SQLPARSERGLOBALS_FLAGS  // must precede all #include's
 #define SQLPARSERGLOBALS_NADEFAULTS
 
+#include "common/ComUser.h"
+
 #include <algorithm>
 
-#include "common/ComUser.h"
-#include "sqlcomp/CmpSeabaseDDL.h"
-#include "sqlcomp/CmpDDLCatErrorCodes.h"
-
+#include "cli/Context.h"
 #include "cli/SQLCLIdev.h"
 #include "executor/ExExeUtilCli.h"
-#include "cli/Context.h"
+#include "sqlcomp/CmpDDLCatErrorCodes.h"
+#include "sqlcomp/CmpSeabaseDDL.h"
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Class ComUser methods
@@ -173,8 +173,7 @@ char ComUser::getAuthType(int authID) {
 //                    returned in actualLen.
 //  -1             -- Unexpected error
 // -----------------------------------------------------------------------
-Int16 ComUser::getUserNameFromUserID(int userID, char *userName, int maxLen, int &actualLen,
-                                     ComDiagsArea *diags) {
+Int16 ComUser::getUserNameFromUserID(int userID, char *userName, int maxLen, int &actualLen, ComDiagsArea *diags) {
   // If not initalized yet, call InitGlobals, asserts if not successful
   if (GetCliGlobals() == NULL) SQL_EXEC_InitGlobals();
 

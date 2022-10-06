@@ -18,12 +18,11 @@
 // ***************************************************************************
 //
 
+#include "HashRow.h"
+#include "common/BaseTypes.h"
 #include "executor/ex_stdh.h"
 #include "exp/ex_expr.h"
-#include "common/BaseTypes.h"
 #include "export/NABasicObject.h"
-
-#include "HashRow.h"
 
 // Reasonable constraints on hash table size
 #define ONE_MEG          (1024 * 1024)
@@ -173,7 +172,7 @@ class HashTable : public NABasicObject {
   HashTableHeader *header_;
   int headerCount_;
 
-  int resizeThreshold_;  // resize if rowCount_ exceeds this
+  int resizeThreshold_;     // resize if rowCount_ exceeds this
   NABoolean originalSize_;  // FALSE if this HT was resized
 
   int rowCount_;

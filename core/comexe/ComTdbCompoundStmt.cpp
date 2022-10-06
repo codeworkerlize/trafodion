@@ -13,8 +13,9 @@
 ******************************************************************************
 */
 
-#include "comexe/ComTdb.h"
 #include "comexe/ComTdbCompoundStmt.h"
+
+#include "comexe/ComTdb.h"
 #include "comexe/ComTdbCommon.h"
 
 //////////////////////////////////////////////////////////////////////////////

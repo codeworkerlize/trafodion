@@ -97,8 +97,8 @@ ExControlArea::~ExControlArea() {
 }
 
 void ExControlArea::addControl(ControlQueryType type, int reset, const char *sqlText, int lenX, const char *value1,
-                               int len1, const char *value2, int len2, const char *value3, int len3,
-                               Int16 actionType, ExControlEntry::ResendType resendType, NABoolean isNonResettable) {
+                               int len1, const char *value2, int len2, const char *value3, int len3, Int16 actionType,
+                               ExControlEntry::ResendType resendType, NABoolean isNonResettable) {
   NABoolean addToList = TRUE;
   Queue *q = controlList_;
   ExControlEntry *e;

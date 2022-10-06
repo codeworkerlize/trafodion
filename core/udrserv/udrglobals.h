@@ -18,11 +18,12 @@
 */
 
 #include <time.h>
-#include "common/ComSmallDefs.h"
-#include "common/ComSqlId.h"
+
 #include "UdrExeIpc.h"
 #include "UdrStreams.h"
 #include "cli/sqlcli.h"
+#include "common/ComSmallDefs.h"
+#include "common/ComSqlId.h"
 #include "common/charinfo.h"
 
 #define MAXSERVERNAME 12
@@ -144,7 +145,7 @@ class UdrGlobals {
   long nextUniqueIdentifier_;  // To generate process-wide unique numbers
 
   int objectCount_;  // Used during message processing to identify
-                       // number of objects in a message
+                     // number of objects in a message
 
 #ifdef UDR_MULTIPLE_CONTEXTS
   SQLCTX_HANDLE prevCliContextHandle_;
@@ -165,7 +166,7 @@ class UdrGlobals {
   NABoolean showUnload_;  // True - activate logging for unload message
 
   int traceLevel_;  // Trace Facility - level of trace.
-                      // See udrdefs.h for values
+                    // See udrdefs.h for values
 
   // Logging for Result Set related messages
   NABoolean showRSLoad_;      // True - activate logging for RS load msg

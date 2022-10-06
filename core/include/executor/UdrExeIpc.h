@@ -15,21 +15,21 @@
  *****************************************************************************
  */
 
-#include "common/Ipc.h"
-#include "common/ComSmallDefs.h"
-#include "common/ComSizeDefs.h"
-#include "common/Int64.h"
-#include "common/ExCollections.h"
 #include <stdio.h>
+
+#include "common/ComSizeDefs.h"
+#include "common/ComSmallDefs.h"
+#include "common/ExCollections.h"
+#include "common/Int64.h"
+#include "common/Ipc.h"
 
 #ifdef UDRSERV_BUILD
 #include "udrdefs.h"
 #endif  // UDRSERV_BUILD
 
+#include "cli/sqlcli.h"  // need SQLSTMT_ID * for ResultSetInfo::stmtID_
 #include "seabed/fs.h"
 #include "seabed/ms.h"
-
-#include "cli/sqlcli.h"  // need SQLSTMT_ID * for ResultSetInfo::stmtID_
 
 //
 // Define UDR_DEBUG only if we are doing a debug build with the C
@@ -782,7 +782,7 @@ class UdrLoadMsg : public UdrControlMsg {
   ComUInt32 inputRowSize_;             // Size of input row
   ComUInt32 outputRowSize_;            // Size of output row
   ComUInt32 udrFlags_;                 // ComUdrFlags in ComSmallDefs.h
-  int routineOwnerId_;               // Owner of routine for Definer Rights
+  int routineOwnerId_;                 // Owner of routine for Definer Rights
   char *parentQid_;                    // Query id of the CALL statement
   char *tenantName_;                   // Tenant name (optional) of the caller
   UdrParameterInfo *inParamInfo_;      // Info for IN/INOUT params
@@ -800,7 +800,7 @@ class UdrLoadMsg : public UdrControlMsg {
   const char *udrSerPlanInfo_;
   int udrJavaDebugPort_;     // port for Java debugger
   int udrJavaDebugTimeout_;  // timeout to wait for Java debugger
-  char *clientInfo_;           // Query id of the CALL statement
+  char *clientInfo_;         // Query id of the CALL statement
 
  private:
   //

@@ -3,9 +3,10 @@
 // **********************************************************************
 
 #include <stdio.h>
-#include "qmscommon/XMLUtil.h"
+
 #include "qmscommon/QRDescriptor.h"
 #include "qmscommon/QRLogger.h"
+#include "qmscommon/XMLUtil.h"
 
 /**
  * \file

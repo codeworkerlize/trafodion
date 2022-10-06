@@ -33,9 +33,9 @@
 ****************************************************************************
 */
 
-#include "common/Platform.h"
-
 #include "export/NAVersionedObject.h"
+
+#include "common/Platform.h"
 
 // =====================================================================
 // Function bodies of class NAVersionedObject

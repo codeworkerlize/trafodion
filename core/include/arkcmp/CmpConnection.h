@@ -3,11 +3,11 @@
 #ifndef CMPCONNECTION__H
 #define CMPCONNECTION__H
 
-#include "common/CmpCommon.h"
 #include "arkcmp/CmpContext.h"
-#include "sqlmsg/ErrorMessage.h"
-#include "common/NAIpc.h"
+#include "common/CmpCommon.h"
 #include "common/Int64.h"
+#include "common/NAIpc.h"
+#include "sqlmsg/ErrorMessage.h"
 
 class CmpStatementISP;
 
@@ -77,9 +77,9 @@ class CmpIpcEnvironment : public IpcEnvironment {
 // -----------------------------------------------------------------------
 // ARKCMP control connection, handles system messages
 // -----------------------------------------------------------------------
-#include "rosetta/rosgen.h"
-#include "nsk/nskprocess.h"
 #include "common/zsysc.h"
+#include "nsk/nskprocess.h"
+#include "rosetta/rosgen.h"
 
 class CmpGuaControlConnection : public GuaReceiveControlConnection {
  public:

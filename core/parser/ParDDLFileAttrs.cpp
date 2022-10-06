@@ -15,22 +15,22 @@
  *****************************************************************************
  */
 
-#include "common/ComUnits.h"
+#include "ParDDLFileAttrs.h"
 
 #include "AllElemDDLFileAttr.h"
-#include "common/BaseTypes.h"
-#include "common/ComASSERT.h"
-#include "export/ComDiags.h"
-#include "common/ComOperators.h"
 #include "ElemDDLNode.h"
-#include "ParDDLFileAttrs.h"
 #include "ParDDLFileAttrsAlterIndex.h"
 #include "ParDDLFileAttrsAlterTable.h"
 #include "ParDDLFileAttrsCreateIndex.h"
 #include "ParDDLFileAttrsCreateTable.h"
+#include "common/BaseTypes.h"
+#include "common/ComASSERT.h"
+#include "common/ComOperators.h"
+#include "common/ComUnits.h"
+#include "export/ComDiags.h"
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
-#include "parser/SqlParserGlobals.h"
 #include "common/NAString.h"
+#include "parser/SqlParserGlobals.h"
 #include "seabed/ms.h"
 
 // -----------------------------------------------------------------------
@@ -2142,8 +2142,6 @@ void ParDDLFileAttrsCreateTable::setFileAttr(ElemDDLFileAttr *pFileAttr) {
       isMvCommitEachSpec_ = TRUE;
       break;
 
-
-
     case ELM_FILE_ATTR_OWNER_ELEM:
       if (isOwnerSpec_) *SqlParser_Diags << DgSqlCode(-3082);
       ComASSERT(pFileAttr->castToElemDDLFileAttrOwner() NEQ NULL);
@@ -2251,7 +2249,6 @@ NATraceList ParDDLFileAttrsCreateTable::getDetailInfo() const {
 
   detailText += "	insertlog?		";
   detailText += YesNo(isInsertLog());
-
 
   detailTextList.append(detailText);
 

@@ -34,8 +34,8 @@ class ComTdbCompoundStmt : public ComTdb {
   ComTdbCompoundStmt();
 
   ComTdbCompoundStmt(ComTdb *left, ComTdb *right, ex_cri_desc *given, ex_cri_desc *returned, queue_index down,
-                     queue_index up, int numBuffers, int bufferSize, NABoolean rowsFromLeft,
-                     NABoolean rowsFromRight, NABoolean AfterUpdate);
+                     queue_index up, int numBuffers, int bufferSize, NABoolean rowsFromLeft, NABoolean rowsFromRight,
+                     NABoolean AfterUpdate);
 
   // exclude from code coverage analsysis since this method is not used
   int orderedQueueProtocol() const { return -1; }

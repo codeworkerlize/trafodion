@@ -4,10 +4,12 @@
 //
 // @@@ END COPYRIGHT @@@
 #include "common/NAWNodeSet.h"
-#include "cli/Globals.h"
-#include "cli/Context.h"
-#include "common/NAClusterInfo.h"
+
 #include <cstdlib>
+
+#include "cli/Context.h"
+#include "cli/Globals.h"
+#include "common/NAClusterInfo.h"
 
 // delimiter used in serialized strings, avoid commas, since the
 // serialized string will be sent as part of a comma-separated list to

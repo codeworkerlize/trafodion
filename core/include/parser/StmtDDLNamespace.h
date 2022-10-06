@@ -18,8 +18,8 @@
  */
 
 #include "common/ComUnits.h"
-#include "parser/StmtDDLNode.h"
 #include "parser/ElemDDLHbaseOptions.h"
+#include "parser/StmtDDLNode.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

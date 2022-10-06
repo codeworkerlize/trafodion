@@ -14,9 +14,9 @@
 #ifndef LMRESULTSET_H
 #define LMRESULTSET_H
 
+#include "cli/sqlcli.h"
 #include "common/ComSmallDefs.h"
 #include "langman/LmCommon.h"
-#include "cli/sqlcli.h"
 
 class LmParameter;
 //////////////////////////////////////////////////////////////////////

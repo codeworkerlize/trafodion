@@ -76,9 +76,9 @@
 *************************************************************************
 */
 
-#include "optimizer/ItemColRef.h"
-#include "exp/exp_attrs.h"
 #include "common/NAString.h"
+#include "exp/exp_attrs.h"
+#include "optimizer/ItemColRef.h"
 #include "optimizer/RelMisc.h"
 #include "sqlcomp/QCache.h"
 
@@ -301,7 +301,7 @@ class CacheWA : public NABasicObject {
 
   TableDescPtr *tabDescPtr_;  // array of TableDesc pointers
   ValueIdSet **usedKyPtr_;    // array of ValueIdSet pointers
-  int tabArraySize_;        // size of the tabDescPtr_ and usedKyPtr_ arrays
+  int tabArraySize_;          // size of the tabDescPtr_ and usedKyPtr_ arrays
 
   int requiredPrefixKeys_;
 
@@ -321,7 +321,7 @@ class CacheWA : public NABasicObject {
   TransMode::MultiCommit multiCmt_;    // tx multi-commit
   Int16 flags_;                        // tx flags
   TransMode::RollbackMode rbackMode_;  // tx rollback mode
-  int autoabortInterval_;            // tx autoabortInterval
+  int autoabortInterval_;              // tx autoabortInterval
 
   SelParameters sels_;  // list of actual selection parameters
   LIST(int) sqlStmtConstParamPos_;

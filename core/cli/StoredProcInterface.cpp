@@ -14,12 +14,11 @@
 ****************************************************************************
 */
 
-#include "common/Platform.h"
-
 #include "cli/StoredProcInterface.h"
-#include "executor/sql_buffer.h"
 
 #include "comexe/ComTdbStoredProc.h"
+#include "common/Platform.h"
+#include "executor/sql_buffer.h"
 
 ///////////////////////////////////////////////////////////////
 // Prepares the input buffer so input rows could be retrieved
@@ -68,7 +67,7 @@ short ExSPPosition(void *inputBuffer) {
 short ExSPGetInputRow(void *inputBuffer,   // IN:  input sql buffer
                       void *&controlInfo,  // OUT: control info
                       char *&rowPtr,       // OUT: pointer to the row
-                      int &rowLen)      // OUT: length of returned row
+                      int &rowLen)         // OUT: length of returned row
 {
   SqlBuffer *ib = (SqlBuffer *)inputBuffer;
   if (!ib) return -1;
@@ -127,7 +126,7 @@ short ExSPInitReplyBuffer(void *replyBuffer, int replyBufLen) {
 short ExSPPutReplyRow(void *replyBuffer,        // IN: the reply buffer
                       void *controlInfo,        // IN: control info
                       char *replyRow,           // IN: pointer to reply row
-                      int rowLen,            // IN: length of reply row
+                      int rowLen,               // IN: length of reply row
                       ComDiagsArea *diagsDesc)  // IN: pointer to diags
 {
   if ((replyBuffer == NULL) || (controlInfo == NULL)) return -1;

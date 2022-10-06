@@ -13,9 +13,10 @@
 // Created:      08/28/08
 // ***********************************************************************
 
-#include "QmsMVDetails.h"
-#include "QmsMVCandidate.h"
 #include "QmsMatchTest.h"
+
+#include "QmsMVCandidate.h"
+#include "QmsMVDetails.h"
 #include "qmscommon/Range.h"
 
 //========================================================================
@@ -3192,9 +3193,9 @@ NABoolean MatchJoinPreds::matchPass1() {
 // ***************************************************************************
 NABoolean MatchJoinPreds::analyzeJoinPredicate(const QRJoinPredPtr joinPred, NABoolean isPass1) {
   // For this join pred, are the equality set members from the MV hub?
-  int mvTables = 0;                   // how many are from the MV hub?
-  int ehTables = 0;                   // how many are from the MV extra-hub?
-  int outTables = 0;                  // how many are from Outside tables?
+  int mvTables = 0;                     // how many are from the MV hub?
+  int ehTables = 0;                     // how many are from the MV extra-hub?
+  int outTables = 0;                    // how many are from Outside tables?
   ColumnNodesList mvColumns(heap_);     // Columns from the MV hub.
   NAPtrList<QRExprPtr> mvExprs(heap_);  // Expressions from the MV hub.
 

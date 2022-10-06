@@ -11,13 +11,13 @@
 ******************************************************************************
 */
 
-#include "optimizer/GroupAttr.h"
-#include "generator/Generator.h"
 #include "GenExpGenerator.h"
 #include "comexe/ComTdbCompoundStmt.h"
+#include "exp/ExpCriDesc.h"
+#include "generator/Generator.h"
+#include "optimizer/GroupAttr.h"
 #include "optimizer/Rel3GL.h"
 #include "sqlcomp/DefaultConstants.h"
-#include "exp/ExpCriDesc.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //

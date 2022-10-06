@@ -18,51 +18,49 @@
 ******************************************************************************
 */
 #define SQLPARSERGLOBALS_FLAGS
-#include "common/ComOptIncludes.h"
-#include "optimizer/GroupAttr.h"
-#include "optimizer/ItemColRef.h"
-#include "RelEnforcer.h"
-#include "optimizer/RelJoin.h"
-#include "optimizer/RelExeUtil.h"
-#include "optimizer/RelMisc.h"
-#include "optimizer/RelSet.h"
-#include "optimizer/RelUpdate.h"
-#include "optimizer/RelScan.h"
-#include "RelDCL.h"
-#include "PartFunc.h"
 #include "Cost.h"
 #include "GenExpGenerator.h"
 #include "GenResources.h"
-#include "comexe/ComTdbRoot.h"
-#include "comexe/ComTdbTuple.h"
-#include "comexe/ComTdbUnion.h"
-#include "comexe/ComTdbTupleFlow.h"
-#include "comexe/ComTdbTranspose.h"
-#include "comexe/ComTdbSort.h"
-#include "comexe/ComTdbPackRows.h"
+#include "PartFunc.h"
+#include "RelDCL.h"
+#include "RelEnforcer.h"
+#include "comexe/ComQueue.h"
 #include "comexe/ComTdbDDL.h"
 #include "comexe/ComTdbExeUtil.h"
-#include "comexe/ComTdbFirstN.h"
-#include "comexe/ComTdbStats.h"
-#include "comexe/ComTdbHbaseAccess.h"
-#include "comexe/ExplainTuple.h"
 #include "comexe/ComTdbExplain.h"
-#include "optimizer/SchemaDB.h"
-#include "optimizer/ControlDB.h"
-#include "optimizer/NATable.h"
-#include "optimizer/BindWA.h"
-#include "common/ComTransInfo.h"
-#include "sqlcomp/DefaultConstants.h"
+#include "comexe/ComTdbFirstN.h"
+#include "comexe/ComTdbHbaseAccess.h"
+#include "comexe/ComTdbPackRows.h"
+#include "comexe/ComTdbRoot.h"
+#include "comexe/ComTdbSort.h"
+#include "comexe/ComTdbStats.h"
+#include "comexe/ComTdbTranspose.h"
+#include "comexe/ComTdbTuple.h"
+#include "comexe/ComTdbTupleFlow.h"
+#include "comexe/ComTdbUnion.h"
+#include "comexe/ExplainTuple.h"
 #include "comexe/FragDir.h"
 #include "comexe/PartInputDataDesc.h"
-#include "exp/ExpSqlTupp.h"
-#include "executor/sql_buffer.h"
-#include "comexe/ComQueue.h"
+#include "common/ComOptIncludes.h"
 #include "common/ComSqlId.h"
-
+#include "common/ComTransInfo.h"
+#include "executor/sql_buffer.h"
+#include "exp/ExpSqlTupp.h"
+#include "optimizer/BindWA.h"
+#include "optimizer/ControlDB.h"
+#include "optimizer/GroupAttr.h"
+#include "optimizer/ItemColRef.h"
+#include "optimizer/NATable.h"
+#include "optimizer/RelExeUtil.h"
+#include "optimizer/RelJoin.h"
+#include "optimizer/RelMisc.h"
+#include "optimizer/RelScan.h"
+#include "optimizer/RelSet.h"
+#include "optimizer/RelUpdate.h"
+#include "optimizer/SchemaDB.h"
 #include "parser/StmtDDLCreateTable.h"
-
 #include "sqlcomp/CmpDDLCatErrorCodes.h"
+#include "sqlcomp/DefaultConstants.h"
 
 // need for authorization checks
 #include "common/ComUser.h"
@@ -75,15 +73,13 @@
 #define HFS2DM
 #endif  // HFS2DM
 
-#include "common/ComDefs.h"  // to get common defines (ROUND8)
 #include "arkcmp/CmpStatement.h"
+#include "common/ComCextdecs.h"
+#include "common/ComDefs.h"  // to get common defines (ROUND8)
 #include "common/ComSmallDefs.h"
 #include "executor/sql_buffer_size.h"
-#include "sqlcat/TrafDDLdesc.h"
-
-#include "common/ComCextdecs.h"
-
 #include "parser/SqlParserGlobals.h"  // Parser Flags
+#include "sqlcat/TrafDDLdesc.h"
 
 //#include "executor/HBaseClient_JNI.h"
 //
@@ -421,8 +417,8 @@ short ExeUtilDisplayExplainComplex::codeGen(Generator *generator) {
 
   ComTdbExeUtilDisplayExplainComplex *exe_util_tdb = new (space) ComTdbExeUtilDisplayExplainComplex(
       (int)type_, qry1, qry2, qry3, qry4, objectName, strlen(objectName), 0, 0,  // no input expr
-      0, 0,                                                                        // no output expr
-      0, 0,                                                                        // no work cri desc
+      0, 0,                                                                      // no output expr
+      0, 0,                                                                      // no work cri desc
       givenDesc, returnedDesc, (queue_index)8, (queue_index)1024,
       2,       // num buffers
       32000);  // bufferSIze

@@ -1,12 +1,12 @@
 
-#include "optimizer/GroupAttr.h"
-#include "optimizer/AllRelExpr.h"
-#include "RelSample.h"
-#include "generator/Generator.h"
 #include "GenExpGenerator.h"
-#include "exp/ExpCriDesc.h"
+#include "RelSample.h"
 #include "comexe/ComTdbSample.h"
 #include "comexe/ExplainTupleMaster.h"
+#include "exp/ExpCriDesc.h"
+#include "generator/Generator.h"
+#include "optimizer/AllRelExpr.h"
+#include "optimizer/GroupAttr.h"
 
 // PhysSample::preCodeGen() -------------------------------------------
 // Perform local query rewrites such as for the creation and

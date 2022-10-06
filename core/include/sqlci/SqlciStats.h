@@ -21,9 +21,10 @@
  *****************************************************************************
  */
 
+#include <sys/time.h>
+
 #include "common/Platform.h"
 #include "sqlci/SqlciCmd.h"  // Statistics class enum
-#include <sys/time.h>
 
 class SqlciEnv;
 

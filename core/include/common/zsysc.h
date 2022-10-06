@@ -1,8 +1,7 @@
 
 /* GUARDIAN 90  T9050D40 (01NOV95) */
-#include "common/Platform.h"
-
 #include "common/Int64.h"
+#include "common/Platform.h"
 // #pragma section zsys_ddl_extaddr
 typedef long zsys_ddl_extaddr_def;
 typedef long zsys_ddl_char_extaddr_def;

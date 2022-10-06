@@ -17,12 +17,11 @@
 #ifndef NAASSERT_H
 #define NAASSERT_H
 
-#include "common/Platform.h"
-#include "common/NAMemory.h"
-
+#include <pthread.h>
 #include <setjmp.h>
 
-#include <pthread.h>
+#include "common/NAMemory.h"
+#include "common/Platform.h"
 // The main executor thread can terminate the process gracefully,
 // and any executor thread can cause the process to abort,
 // but synchronization is needed to assure multiple threads do not pursue

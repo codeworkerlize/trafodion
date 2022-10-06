@@ -1,9 +1,10 @@
 
-#include "common/Platform.h"
-#include <string.h>
-#include <stdio.h>
-
 #include "SortError.h"
+
+#include <stdio.h>
+#include <string.h>
+
+#include "common/Platform.h"
 #include "common/str.h"
 
 //----------------------------------------------------------------------

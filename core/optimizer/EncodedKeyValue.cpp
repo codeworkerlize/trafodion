@@ -15,20 +15,20 @@
 */
 
 #include "optimizer/EncodedKeyValue.h"
-#include "generator/Generator.h"
+
 #include "GenExpGenerator.h"
-#include "exp/ExpCriDesc.h"
-#include "exp/ExpAtp.h"
-#include "exp_dp2_expr.h"
-#include "exp/exp_clause_derived.h"
 #include "arkcmp/CmpStatement.h"
+#include "exp/ExpAtp.h"
+#include "exp/ExpCriDesc.h"
+#include "exp/exp_clause_derived.h"
+#include "exp_dp2_expr.h"
+#include "generator/Generator.h"
 #include "optimizer/NATable.h"
 #include "sqlcat/TrafDDLdesc.h"
 
 // defined in SynthType.cpp
 extern void emitDyadicTypeSQLnameMsg(int sqlCode, const NAType &op1, const NAType &op2, const char *str1 = NULL,
-                                     const char *str2 = NULL, ComDiagsArea *diagsArea = NULL,
-                                     const int int1 = -999999);
+                                     const char *str2 = NULL, ComDiagsArea *diagsArea = NULL, const int int1 = -999999);
 
 NAString *getMinMaxValue(TrafDesc *column, TrafDesc *key, NABoolean highKey, CollHeap *h) {
   NAString *minMaxValue = NULL;

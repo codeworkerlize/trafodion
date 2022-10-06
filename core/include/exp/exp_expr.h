@@ -20,10 +20,10 @@
 
 // -----------------------------------------------------------------------
 
-#include "export/NAVersionedObject.h"  // for NAVersionedObject
-#include "exp/ExpAtp.h"
 #include "ExpPCode.h"
 #include "common/dfs2rec.h"
+#include "exp/ExpAtp.h"
+#include "export/NAVersionedObject.h"  // for NAVersionedObject
 
 // -----------------------------------------------------------------------
 // Classes defined in this file
@@ -97,7 +97,7 @@ class NExDbgInfo {
   char *NExLogPath_;          // Ptr to Native Expr. Log Pathname
   char *NExStmtSrc_;          // Ptr to orig. SQL statement source
   NABoolean NExStmtPrinted_;  // Whether SQL statement has been printed
-  int NExDbgLvl_;           // Native Expr. Debug Level
+  int NExDbgLvl_;             // Native Expr. Debug Level
 
  public:
   NExDbgInfo() : NExLogPath_(NULL), NExStmtSrc_(NULL), NExStmtPrinted_(FALSE), NExDbgLvl_(0) {}
@@ -318,8 +318,7 @@ class ex_expr : public NAVersionedObject {
   ////////////////////////////////////////////////////////////////////
   exp_return_type evalPCodeAligned(PCodeBinary *pCode, atp_struct *, atp_struct *, int *rowlen);
 
-  exp_return_type evalPCode(PCodeBinary *pCode, atp_struct *, atp_struct *, atp_struct *, int datalen,
-                            int *rowlen);
+  exp_return_type evalPCode(PCodeBinary *pCode, atp_struct *, atp_struct *, atp_struct *, int datalen, int *rowlen);
 
   // Inlined implementation of various expressions.  The number after "evalFast"
   // in the routine name specifies the opcode of the dominant pcode instruction
@@ -654,7 +653,7 @@ class ex_expr : public NAVersionedObject {
   int length_;  // 80-83
 
   // Persistent Area
-  int persistentLength_;                               // 84-87
+  int persistentLength_;                                 // 84-87
   NABasicPtr /* char* */ persistentArea_;                // 88-95
   NABasicPtr /* char* */ persistentInitializationArea_;  // 96-103
 

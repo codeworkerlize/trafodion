@@ -1,9 +1,11 @@
 
-#include <iostream>
-#include <fstream>
+#include "Record.h"
+
 #include <string.h>
 
-#include "Record.h"
+#include <fstream>
+#include <iostream>
+
 #include "ex_ex.h"
 
 extern void ReleaseTupp(void *tupp);

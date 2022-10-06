@@ -14,24 +14,24 @@
 */
 
 // -----------------------------------------------------------------------
-#include "common/NAAssert.h"
-#include "common/ExprNode.h"
-#include "common/OperTypeEnum.h"
-#include "common/Collections.h"
-#include "common/NAType.h"
-#include "optimizer/AllItemExpr.h"
 #include "SearchKey.h"
-#include "PartFunc.h"
-#include "optimizer/NAColumn.h"
-#include "optimizer/NATable.h"
-#include "common/NumericType.h"
 
 #include "OptRange.h"
-#include "optimizer/GroupAttr.h"
-#include "sqlcomp/parser.h"
-#include "optimizer/Analyzer.h"
+#include "PartFunc.h"
 #include "ScanOptimizer.h"
 #include "SimpleScanOptimizer.h"
+#include "common/Collections.h"
+#include "common/ExprNode.h"
+#include "common/NAAssert.h"
+#include "common/NAType.h"
+#include "common/NumericType.h"
+#include "common/OperTypeEnum.h"
+#include "optimizer/AllItemExpr.h"
+#include "optimizer/Analyzer.h"
+#include "optimizer/GroupAttr.h"
+#include "optimizer/NAColumn.h"
+#include "optimizer/NATable.h"
+#include "sqlcomp/parser.h"
 
 // ***********************************************************************
 // $$$ SearchKey

@@ -23,19 +23,19 @@
 
 #include "CommonStructs.h"
 #include "Const.h"
-#include "SortAlgo.h"
-#include "TreeNode.h"
 #include "ScratchSpace.h"
-#include "export/NABasicObject.h"
+#include "SortAlgo.h"
 #include "SortError.h"
+#include "TreeNode.h"
+#include "export/NABasicObject.h"
 
 class SortUtil;
 class Tree : public SortAlgo {  // SortAlgo inherits from NABasciObject
 
  public:
-  Tree(int numruns, int runsize, int recsize, NABoolean doNotallocRec, int keysize,
-       SortScratchSpace *scratch, CollHeap *heap, SortError *sorterror, int explainNodeId, ExBMOStats *bmoStats,
-       SortUtil *sortUtil, int runnum = 0, NABoolean merge = FALSE_L, NABoolean waited = FALSE_L);
+  Tree(int numruns, int runsize, int recsize, NABoolean doNotallocRec, int keysize, SortScratchSpace *scratch,
+       CollHeap *heap, SortError *sorterror, int explainNodeId, ExBMOStats *bmoStats, SortUtil *sortUtil,
+       int runnum = 0, NABoolean merge = FALSE_L, NABoolean waited = FALSE_L);
 
   ~Tree(void);
 

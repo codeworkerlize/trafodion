@@ -3,9 +3,10 @@
 //******************************************************************************
 #ifndef INCLUDE_AUTHEVENT_H
 #define INCLUDE_AUTHEVENT_H 1
-#include "CommonLogger.h"
 #include <string>
 #include <vector>
+
+#include "CommonLogger.h"
 
 // From a web search, the log message max length is a bit over 8000 bytes.
 // For DBSecurity don't believe any messages will be more than 1M

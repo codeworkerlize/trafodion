@@ -11,22 +11,21 @@
 
 #define SQLPARSERGLOBALS_NADEFAULTS
 #define SQLPARSERGLOBALS_FLAGS
-#include "common/Platform.h"
+#include "sqlcomp/DefaultValidator.h"
 
 #include <ctype.h>
 #include <stdio.h>
-#include "common/charinfo.h"
+
 #include "common/CmpCommon.h"
+#include "common/ComLocationNames.h"  // for ComIsGuardianVolumeNamePartValid()
 #include "common/ComMPLoc.h"
-#include "sqlcomp/DefaultValidator.h"
+#include "common/ComSchemaName.h"  // for ComSchemaName
+#include "common/ComSqlText.h"
+#include "common/Platform.h"
+#include "common/charinfo.h"
+#include "optimizer/BindWA.h"  // for extractOverrideSchemas()
 #include "optimizer/ObjectNames.h"
 #include "optimizer/SchemaDB.h"
-#include "common/ComLocationNames.h"  // for ComIsGuardianVolumeNamePartValid()
-#include "common/ComSqlText.h"
-
-#include "common/ComSchemaName.h"  // for ComSchemaName
-#include "optimizer/BindWA.h"      // for extractOverrideSchemas()
-
 #include "parser/SqlParserGlobals.h"  // must be last
 
 #define ERRWARN(msg) ToErrorOrWarning(msg, errOrWarn)
@@ -79,22 +78,20 @@ int DefaultValidator::validate(const char *, const NADefaults *, int, int, float
   return TRUE;  // anything is valid; no error
 }
 
-int ValidateKeyword::validate(const char *value, const NADefaults *nad, int attrEnum, int errOrWarn,
-                                float *) const {
+int ValidateKeyword::validate(const char *value, const NADefaults *nad, int attrEnum, int errOrWarn, float *) const {
   NAString tmp(value);
   DefaultToken tok = nad->token(attrEnum, tmp, TRUE, errOrWarn);
   return (tok != DF_noSuchToken);
 }
 
 int ValidateTraceStr::validate(const char *value, const NADefaults *nad, int attrEnum, int errOrWarn,
-                                 float *alreadyHaveFloat) const {
+                               float *alreadyHaveFloat) const {
   //  const char *curr = value;
 
   return TRUE;
 }
 
-int ValidateAnsiList::validate(const char *value, const NADefaults *nad, int attrEnum, int errOrWarn,
-                                 float *) const {
+int ValidateAnsiList::validate(const char *value, const NADefaults *nad, int attrEnum, int errOrWarn, float *) const {
   // Validate using a copy of "*value"
   char tempStr[1000];                       // max length of ATTR_VALUE
   if (strlen(value) >= 1000) return FALSE;  // just in case
@@ -140,7 +137,7 @@ int ValidateAnsiList::validate(const char *value, const NADefaults *nad, int att
 }
 
 int ValidateRoleNameList::validate(const char *value, const NADefaults *nad, int attrEnum, int errOrWarn,
-                                     float *) const {
+                                   float *) const {
   // Validate a list of role names.  Based on ValidateAnsiList
   // List format:  comma separated list of role names which use either . or _
   //  example:  "role.user1", "ROLE.user2", "role_user3"
@@ -178,7 +175,7 @@ int ValidateRoleNameList::validate(const char *value, const NADefaults *nad, int
 }
 
 int ValidatePOSTableSizes::validate(const char *value, const NADefaults *nad, int attrEnum, int errOrWarn,
-                                      float *) const {
+                                    float *) const {
   char tempStr[1000];  // max length of ATTR_VALUE
 
   if (strlen(value) == 0) return TRUE;  // empty string ATTR_VALUE is OK
@@ -238,7 +235,7 @@ int ValidatePOSTableSizes::validate(const char *value, const NADefaults *nad, in
 }
 
 int ValidateNumericRange::validate(const char *value, const NADefaults *nad, int attrEnum, int errOrWarn,
-                                     float *alreadyHaveFloat) const {
+                                   float *alreadyHaveFloat) const {
   int isValid = FALSE, rangeOK = FALSE, multipleOK = FALSE;
   float flt;
 
@@ -323,7 +320,7 @@ int ValidateNumericRange::validate(const char *value, const NADefaults *nad, int
 //-----------------------------------------------------------------------------
 
 int ValidateCollationList::validate(const char *value, const NADefaults *nad, int attrEnum, int errOrWarn,
-                                      float *) const {
+                                    float *) const {
   if (errOrWarn) {
     CMPASSERT(nad && attrEnum);
     errOrWarn = +1;  // warnings only (else silent)
@@ -486,7 +483,7 @@ UInt32 ValidateCollationList::insertIntoCDB(SchemaDB *sdb, CollationDB *cdb, con
 // validate OVERRIDE_SCHEMA FROM_SCHEMA:TO_SCHEMA setting
 // format validation for xxx:yyy
 int ValidateOverrideSchema::validate(const char *value, const NADefaults *nad, int attrEnum, int errOrWarn,
-                                       float *flt) const {
+                                     float *flt) const {
   NABoolean ok = TRUE;
   int len = strlen(value);
 
@@ -520,7 +517,7 @@ int ValidateOverrideSchema::validate(const char *value, const NADefaults *nad, i
 // validate PUBLIC_SCHEMA_NAME setting
 // setting may be schema or catalog.schema
 int ValidatePublicSchema::validate(const char *value, const NADefaults *nad, int attrEnum, int errOrWarn,
-                                     float *flt) const {
+                                   float *flt) const {
   NABoolean ok = TRUE;
   int len = strlen(value);
 
@@ -540,7 +537,7 @@ int ValidatePublicSchema::validate(const char *value, const NADefaults *nad, int
 // validate REPLICATE_IO_VERSION setting
 // setting may be schema or catalog.schema
 int ValidateReplIoVersion::validate(const char *value, const NADefaults *nad, int attrEnum, int errOrWarn,
-                                      float *alreadyHaveFloat) const {
+                                    float *alreadyHaveFloat) const {
   int isValid = FALSE;
   float flt;
   int min;
@@ -571,7 +568,7 @@ int ValidateReplIoVersion::validate(const char *value, const NADefaults *nad, in
 
 // validate parameter for MV_AGE
 int ValidateMVAge::validate(const char *value, const NADefaults *nad, int attrEnum, int errOrWarn,
-                              float *alreadyHaveFloat) const {
+                            float *alreadyHaveFloat) const {
   int isOK = FALSE;
   float number = 0;
   char textChars[20];

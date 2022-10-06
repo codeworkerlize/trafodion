@@ -32,8 +32,7 @@ class ComTdbGenericUtil : public ComTdb {
   ComTdbGenericUtil(char *query, int querylen, Int16 querycharset, char *objectName, int objectNameLen,
                     ex_expr *input_expr, int input_rowlen, ex_expr *output_expr, int output_rowlen,
                     ex_cri_desc *work_cri_desc, const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
-                    ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
-                    int buffer_size);
+                    ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers, int buffer_size);
 
   ~ComTdbGenericUtil();
 
@@ -143,9 +142,9 @@ class ComTdbDDL : public ComTdbGenericUtil {
   ComTdbDDL() : ComTdbGenericUtil() {}
 
   ComTdbDDL(char *ddl_query, int ddl_querylen, Int16 ddl_querycharset, char *schemaName, int schemaNameLen,
-            ex_expr *input_expr, int input_rowlen, ex_expr *output_expr, int output_rowlen,
-            ex_cri_desc *work_cri_desc, const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
-            ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers, int buffer_size);
+            ex_expr *input_expr, int input_rowlen, ex_expr *output_expr, int output_rowlen, ex_cri_desc *work_cri_desc,
+            const unsigned short work_atp_index, ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc,
+            queue_index down, queue_index up, int num_buffers, int buffer_size);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -208,11 +207,11 @@ class ComTdbDDLwithStatus : public ComTdbDDL {
  public:
   ComTdbDDLwithStatus() : ComTdbDDL() {}
 
-  ComTdbDDLwithStatus(char *ddl_query, int ddl_querylen, Int16 ddl_querycharset, char *schemaName,
-                      int schemaNameLen, ex_expr *input_expr, int input_rowlen, ex_expr *output_expr,
-                      int output_rowlen, ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
-                      ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
-                      int num_buffers, int buffer_size);
+  ComTdbDDLwithStatus(char *ddl_query, int ddl_querylen, Int16 ddl_querycharset, char *schemaName, int schemaNameLen,
+                      ex_expr *input_expr, int input_rowlen, ex_expr *output_expr, int output_rowlen,
+                      ex_cri_desc *work_cri_desc, const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
+                      ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
+                      int buffer_size);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -270,10 +269,10 @@ class ComTdbProcessVolatileTable : public ComTdbDDL {
   ComTdbProcessVolatileTable(char *ddl_query, int ddl_querylen, Int16 ddl_querycharset, char *volTabName,
                              int volTabNameLen, NABoolean isCreate, NABoolean isTable, NABoolean isIndex,
                              NABoolean isSchema, char *schemaName, int schemaNameLen, ex_expr *input_expr,
-                             int input_rowlen, ex_expr *output_expr, int output_rowlen,
-                             ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
-                             ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
-                             queue_index up, int num_buffers, int buffer_size);
+                             int input_rowlen, ex_expr *output_expr, int output_rowlen, ex_cri_desc *work_cri_desc,
+                             const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
+                             ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
+                             int buffer_size);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -316,13 +315,13 @@ class ComTdbProcessInMemoryTable : public ComTdbDDL {
  public:
   ComTdbProcessInMemoryTable() : ComTdbDDL() {}
 
-  ComTdbProcessInMemoryTable(char *ddl_query, int ddl_querylen, Int16 ddl_querycharset, char *objName,
-                             int objNameLen, NABoolean isCreate, NABoolean isVolatile, NABoolean isTable,
-                             NABoolean isIndex, NABoolean isMV, char *schemaName, int schemaNameLen,
-                             ex_expr *input_expr, int input_rowlen, ex_expr *output_expr, int output_rowlen,
-                             ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
-                             ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
-                             queue_index up, int num_buffers, int buffer_size);
+  ComTdbProcessInMemoryTable(char *ddl_query, int ddl_querylen, Int16 ddl_querycharset, char *objName, int objNameLen,
+                             NABoolean isCreate, NABoolean isVolatile, NABoolean isTable, NABoolean isIndex,
+                             NABoolean isMV, char *schemaName, int schemaNameLen, ex_expr *input_expr, int input_rowlen,
+                             ex_expr *output_expr, int output_rowlen, ex_cri_desc *work_cri_desc,
+                             const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
+                             ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
+                             int buffer_size);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -372,8 +371,7 @@ class ComTdbDescribe : public ComTdbDDL {
   ComTdbDescribe(char *query, int querylen, Int16 querycharset, ex_expr *input_expr, int input_rowlen,
                  ex_expr *output_expr, int output_rowlen, ex_cri_desc *work_cri_desc,
                  const unsigned short work_atp_index, DescribeType type, int flags, ex_cri_desc *given_cri_desc,
-                 ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
-                 int buffer_size);
+                 ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers, int buffer_size);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.

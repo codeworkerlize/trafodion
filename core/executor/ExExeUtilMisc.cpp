@@ -15,27 +15,26 @@
  *****************************************************************************
  */
 
-#include "ComCextdecs.h"
-#include "cli_stdh.h"
-#include "ex_stdh.h"
-#include "sql_id.h"
-#include "ex_transaction.h"
-#include "ComTdb.h"
-#include "ex_tcb.h"
-#include "ComSqlId.h"
-
-#include "ExExeUtil.h"
-#include "ex_exe_stmt_globals.h"
-#include "exp_expr.h"
-#include "exp_clause_derived.h"
-#include "ComRtUtils.h"
-#include "ExStats.h"
-#include "ComSmallDefs.h"
 #include <unistd.h>
 
+#include "ComCextdecs.h"
+#include "ComRtUtils.h"
+#include "ComSmallDefs.h"
+#include "ComSqlId.h"
+#include "ComTdb.h"
+#include "ExExeUtil.h"
+#include "ExStats.h"
+#include "ExpComposite.h"
+#include "cli_stdh.h"
+#include "ex_exe_stmt_globals.h"
+#include "ex_stdh.h"
+#include "ex_tcb.h"
+#include "ex_transaction.h"
 #include "exp/ExpHbaseInterface.h"
 #include "exp/ExpLOBinterface.h"
-#include "ExpComposite.h"
+#include "exp_clause_derived.h"
+#include "exp_expr.h"
+#include "sql_id.h"
 
 //////////////////////////////////////////////////////////
 // classes defined in this file:
@@ -801,8 +800,8 @@ short ExExeUtilPopulateInMemStatsTcb::work() {
         glueQueryFragments(qry_array_size, queryString, gluedQuery, gluedQuerySize);
 
         int extraSpace = ComMAX_3_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES /* fullyQualTableName */
-                           + 20                                          /* UID */
-                           + 200 /* overhead */;
+                         + 20                                          /* UID */
+                         + 200 /* overhead */;
 
         char *query = new (getHeap()) char[gluedQuerySize + extraSpace];
         str_sprintf(query, gluedQuery, (char *)pimsTdb().inMemHistogramsTableName_, pimsTdb().uid_);
@@ -840,15 +839,15 @@ short ExExeUtilPopulateInMemStatsTcb::work() {
         glueQueryFragments(qry_array_size, queryString, gluedQuery, gluedQuerySize);
 
         int extraSpace = ComMAX_3_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES   /* fullyQualInMemHistTableName */
-                           + 20                                            /* UID */
-                           + ComMAX_3_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES /* fullyQualSourceHistTableName */
-                           + 2 * 10                                        /*segment name*/
-                           + ComMAX_1_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES /*cat name*/
-                           + 10                                            /*version*/
-                           + ComMAX_1_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES /*cat name*/
-                           + ComMAX_1_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES /*sch name*/
-                           + ComMAX_1_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES /*obj name*/
-                           + 200 /* overhead */;
+                         + 20                                            /* UID */
+                         + ComMAX_3_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES /* fullyQualSourceHistTableName */
+                         + 2 * 10                                        /*segment name*/
+                         + ComMAX_1_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES /*cat name*/
+                         + 10                                            /*version*/
+                         + ComMAX_1_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES /*cat name*/
+                         + ComMAX_1_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES /*sch name*/
+                         + ComMAX_1_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES /*obj name*/
+                         + 200 /* overhead */;
 
         char *query = new (getHeap()) char[gluedQuerySize + extraSpace];
 
@@ -884,15 +883,15 @@ short ExExeUtilPopulateInMemStatsTcb::work() {
         glueQueryFragments(qry_array_size, queryString, gluedQuery, gluedQuerySize);
 
         int extraSpace = ComMAX_3_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES   /* fullyQualInMemHistTableName */
-                           + 20                                            /* UID */
-                           + ComMAX_3_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES /* fullyQualSourceHistTableName */
-                           + 2 * 10                                        /*segment name*/
-                           + ComMAX_1_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES /*cat name*/
-                           + 10                                            /*version*/
-                           + ComMAX_1_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES /*cat name*/
-                           + ComMAX_1_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES /*sch name*/
-                           + ComMAX_1_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES /*obj name*/
-                           + 200 /* overhead */;
+                         + 20                                            /* UID */
+                         + ComMAX_3_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES /* fullyQualSourceHistTableName */
+                         + 2 * 10                                        /*segment name*/
+                         + ComMAX_1_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES /*cat name*/
+                         + 10                                            /*version*/
+                         + ComMAX_1_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES /*cat name*/
+                         + ComMAX_1_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES /*sch name*/
+                         + ComMAX_1_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES /*obj name*/
+                         + 200 /* overhead */;
 
         char *query = new (getHeap()) char[gluedQuerySize + extraSpace];
 
@@ -993,9 +992,8 @@ short ExExeUtilPopulateInMemStatsTcb::work() {
 // Redefine virtual method allocatePstates, to be used by dynamic queue
 // resizing, as well as the initial queue construction.
 ////////////////////////////////////////////////////////////////////////
-ex_tcb_private_state *ExExeUtilPopulateInMemStatsTcb::allocatePstates(
-    int &numElems,      // inout, desired/actual elements
-    int &pstateLength)  // out, length of one element
+ex_tcb_private_state *ExExeUtilPopulateInMemStatsTcb::allocatePstates(int &numElems,  // inout, desired/actual elements
+                                                                      int &pstateLength)  // out, length of one element
 {
   PstateAllocator<ExExeUtilPopulateInMemStatsPrivateState> pa;
 
@@ -1056,7 +1054,7 @@ ExExeUtilCompositeUnnestTcb::ExExeUtilCompositeUnnestTcb(const ComTdbExeUtilComp
   step_ = INITIAL_;
 }
 
-ex_tcb_private_state *ExExeUtilCompositeUnnestTcb::allocatePstates(int &numElems,  // inout, desired/actual elements
+ex_tcb_private_state *ExExeUtilCompositeUnnestTcb::allocatePstates(int &numElems,      // inout, desired/actual elements
                                                                    int &pstateLength)  // out, length of one element
 {
   PstateAllocator<ExExeUtilConnectbyTdbState> pa;

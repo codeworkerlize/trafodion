@@ -11,13 +11,14 @@
  *
  *****************************************************************************
  */
+#include "CliMsgObj.h"
+
 #include <iostream>
 
+#include "ComplexObject.h"
+#include "cli/sqlcli.h"
 #include "common/ComTransInfo.h"
 #include "export/IpcMessageObj.h"
-#include "ComplexObject.h"
-#include "CliMsgObj.h"
-#include "cli/sqlcli.h"
 // allocate memory from the heap and duplicate the string
 static char *dupCharStar(NAMemory *heap, char *source) {
   char *target = NULL;

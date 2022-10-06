@@ -1,12 +1,15 @@
 
 
 #include "common/BloomFilter.h"
-#include "exp_function.h"
-#include "common/NAMemory.h"
-#include "common/ComASSERT.h"
-#include "optimizer/ObjectNames.h"
+
 #include <math.h>
+
 #include <fstream>
+
+#include "common/ComASSERT.h"
+#include "common/NAMemory.h"
+#include "exp_function.h"
+#include "optimizer/ObjectNames.h"
 
 static float ln(float x) { return (float)(log(x) / log(2.0)); }
 
@@ -43,7 +46,7 @@ void computeParams(UInt32 maxHashFuncs,  // max hash funcs
 }
 
 int computeHashTableSizeInBytes(UInt32 m,  // Input: # of bits for the hash table
-                                   float p    // Input: probability of false positive
+                                float p    // Input: probability of false positive
 ) {
   // n: the number bytes of the hash table
   // n = -(m Ln(2)^2) / Ln(p)
@@ -901,11 +904,11 @@ CountingBloomFilterWithKnownSkews::CountingBloomFilterWithKnownSkews(
   actualOverflowF2s_ = numSkewedElements;
 
   int sz = (int)CountingBloomFilterWithKnownSkews::estimateMemoryInBytes(maxHashFuncs,
-                                                                             n,  // # of distinct elements
-                                                                             p,  // probability of false positives
-                                                                             // non-overflow freq of n elements
-                                                                             nonOverflowFreq, numSkewedElements,
-                                                                             numFreqFreqBuckets);
+                                                                         n,  // # of distinct elements
+                                                                         p,  // probability of false positives
+                                                                         // non-overflow freq of n elements
+                                                                         nonOverflowFreq, numSkewedElements,
+                                                                         numFreqFreqBuckets);
 
   setTotalMemSize(sz);
 }

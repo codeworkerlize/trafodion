@@ -7,14 +7,15 @@
 #define MAX_COLNAME_LEN    32767
 
 #include <list>
-#include "common/Platform.h"
+
 #include "common/Collections.h"
-#include "export/NABasicObject.h"
+#include "common/NAMemory.h"
+#include "common/Platform.h"
 #include "executor/ExStats.h"
 #include "executor/JavaObjectInterface.h"
-#include "exp/ExpHbaseDefs.h"
-#include "common/NAMemory.h"
 #include "executor/org_trafodion_sql_HTableClient.h"
+#include "exp/ExpHbaseDefs.h"
+#include "export/NABasicObject.h"
 #include "optimizer/Triggers.h"
 
 typedef std::string Text;
@@ -577,15 +578,15 @@ class HBaseClient_JNI : public JavaObjectInterface {
                           long &count);
   HBC_RetCode createCounterTable(const char *tabName, const char *famName);
   HBC_RetCode insertRow(NAHeap *heap, const char *tableName, ExHbaseAccessStats *hbs, long transID, long savepointID,
-                        long pSavepointId, HbaseStr rowID, HbaseStr row, long timestamp, bool checkAndPut,
-                        UInt32 flags, const char *encryptionInfo, const char *triggers, const char *curExecSql,
-                        short colIndexToCheck, HTableClient_JNI **outHtc, ExDDLValidator *ddlValidator);
+                        long pSavepointId, HbaseStr rowID, HbaseStr row, long timestamp, bool checkAndPut, UInt32 flags,
+                        const char *encryptionInfo, const char *triggers, const char *curExecSql, short colIndexToCheck,
+                        HTableClient_JNI **outHtc, ExDDLValidator *ddlValidator);
   HBC_RetCode insertRows(NAHeap *heap, const char *tableName, ExHbaseAccessStats *hbs, long transID, long savepointID,
-                         long pSavepointId, short rowIDLen, HbaseStr rowIDs, HbaseStr rows, long timestamp,
-                         int flags, const char *encryptionInfo, const char *triggers, const char *curExecSql,
+                         long pSavepointId, short rowIDLen, HbaseStr rowIDs, HbaseStr rows, long timestamp, int flags,
+                         const char *encryptionInfo, const char *triggers, const char *curExecSql,
                          HTableClient_JNI **outHtc, ExDDLValidator *ddlValidator);
-  HBC_RetCode updateVisibility(NAHeap *heap, const char *tableName, ExHbaseAccessStats *hbs, bool useTRex,
-                               long transID, HbaseStr rowID, HbaseStr row, HTableClient_JNI **outHtc);
+  HBC_RetCode updateVisibility(NAHeap *heap, const char *tableName, ExHbaseAccessStats *hbs, bool useTRex, long transID,
+                               HbaseStr rowID, HbaseStr row, HTableClient_JNI **outHtc);
   HBC_RetCode checkAndUpdateRow(NAHeap *heap, const char *tableName, ExHbaseAccessStats *hbs, long transID,
                                 long savepointID, long pSavepointId, HbaseStr rowID, HbaseStr row,
                                 HbaseStr columnToCheck, HbaseStr columnValToCheck, long timestamp, int flags,

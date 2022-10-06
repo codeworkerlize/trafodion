@@ -16,15 +16,15 @@
 ******************************************************************************
 */
 
-#include "executor/ex_stdh.h"
-#include "comexe/ComTdb.h"
-#include "executor/ex_tcb.h"
 #include "ExSequence.h"
-#include "executor/ex_expr.h"
-#include "ExpSequenceFunction.h"
-#include "ExSimpleSqlBuffer.h"
-#include "executor/ExStats.h"
 
+#include "ExSimpleSqlBuffer.h"
+#include "ExpSequenceFunction.h"
+#include "comexe/ComTdb.h"
+#include "executor/ExStats.h"
+#include "executor/ex_expr.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_tcb.h"
 #include "sqlmxevents/logmxevent.h"
 
 char *GetHistoryRowOLAP(void *data, int n, NABoolean leading, int winSize, int &retcode) {

@@ -180,14 +180,14 @@ class ExEspFragInstanceDir {
     ExFragDir::ExFragEntryType fragType_;  // ESP or DP2 fragment
     ExFragKey parentKey_;                  // parent fragment id
     IpcConnection *controlConn_;           // control connection used
-    int topNodeOffset_;                  // offset of top tcb in frag
+    int topNodeOffset_;                    // offset of top tcb in frag
     ExMsgFragment *msgFragment_;           // downloaded fragment buffer
     ex_split_bottom_tdb *localRootTdb_;    // root of this fragment
     ex_split_bottom_tcb *localRootTcb_;    // root of this fragment
     ExEspStmtGlobals *globals_;            // global statement vars
-    int numSendBottomRequests_;          // # client work requests
-    int numSendBottomCancels_;           // # client cancel requests
-    int numLateCancelRequests_;          // # late cancels below
+    int numSendBottomRequests_;            // # client work requests
+    int numSendBottomCancels_;             // # client cancel requests
+    int numLateCancelRequests_;            // # late cancels below
     NABoolean displayInGui_;               // enable executor GUI
     unsigned short mxvOfOriginator_;       // plan version of the plan fragment
     unsigned short planVersion_;           // plan version of the plan fragment

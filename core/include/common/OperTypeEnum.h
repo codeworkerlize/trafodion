@@ -1,6 +1,5 @@
 /* -*-C++-*- */
 
-
 #ifndef OPERTYPEENUM_H
 #define OPERTYPEENUM_H
 /* -*-C++-*-

@@ -24,8 +24,8 @@
 //
 // Task Definition Block
 //
-#include "comexe/ComTdbOnlj.h"
 #include "Timer.h"
+#include "comexe/ComTdbOnlj.h"
 
 // -----------------------------------------------------------------------
 // Classes defined in this file
@@ -208,19 +208,19 @@ inline const ex_tcb *ExOnljTcb::getChild(int pos) const {
 class ExOnljPrivateState : public ex_tcb_private_state {
   friend class ExOnljTcb;
 
-  long matchCount_;             // number of rows returned for this parent row
-  long rowCount_;               // number of rows affected by this request. see comments in ex_partn_access.h
-  long leftMatches_;            // number of left rows being worked on by right
-  long leftOnlyRows_;           // # of left up rows not sent to right
+  long matchCount_;              // number of rows returned for this parent row
+  long rowCount_;                // number of rows affected by this request. see comments in ex_partn_access.h
+  long leftMatches_;             // number of left rows being worked on by right
+  long leftOnlyRows_;            // # of left up rows not sent to right
   queue_index leftIndex_;        // index into left down queue
   queue_index startRightIndex_;  // index into right down q. (start of rows)
   queue_index endRightIndex_;    // index into right down queue (end of rows)
   short outerMatched_;           // if true no need to null instatiate
   short rightRecSkipped_;  // True if the right node has skipped a record. Used only in the case of pub sub using skip
                            // conflict access.
-  long srcRequestCount_;  // number of q. entries sent to right child from left child (used to set rownumber for rowset
+  long srcRequestCount_;   // number of q. entries sent to right child from left child (used to set rownumber for rowset
                            // error handling)
-  long tgtRequestCount_;  // number of Q_NO_DATA seen on right side up queue (used to set rownumber for rowset error
+  long tgtRequestCount_;   // number of Q_NO_DATA seen on right side up queue (used to set rownumber for rowset error
                            // handling)
   NABoolean nonFatalErrorSeen_;        // to remember that a nonfatal error has been seen
   NABoolean rowAlreadyRaisedNFError_;  // to remember that this particular row has already raised a NF error (used to

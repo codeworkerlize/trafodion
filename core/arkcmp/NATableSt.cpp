@@ -13,13 +13,14 @@
  *****************************************************************************
  */
 
-#include "optimizer/NATable.h"
 #include "arkcmp/NATableSt.h"
-#include "optimizer/SchemaDB.h"
+
 #include "arkcmp/CmpErrors.h"
-#include "sqlcomp/CmpMain.h"
-#include "cli/Globals.h"
 #include "cli/Context.h"
+#include "cli/Globals.h"
+#include "optimizer/NATable.h"
+#include "optimizer/SchemaDB.h"
+#include "sqlcomp/CmpMain.h"
 
 //-----------------------------------------------------------------------
 // NATableCacheStoredProcedure is a class that contains functions used by
@@ -130,8 +131,8 @@ SP_STATUS NATableCacheEntriesStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUCT
 }
 
 SP_STATUS
-NATableCacheEntriesStoredProcedure::sp_NumOutputFields(int *numFields, SP_COMPILE_HANDLE spCompileObj,
-                                                       SP_HANDLE spObj, SP_ERROR_STRUCT *error) {
+NATableCacheEntriesStoredProcedure::sp_NumOutputFields(int *numFields, SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj,
+                                                       SP_ERROR_STRUCT *error) {
   *numFields = 5;
   return SP_SUCCESS;
 }

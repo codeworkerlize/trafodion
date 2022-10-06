@@ -31,23 +31,23 @@ void IpcSockLogTimestamp(int fdesc);  // see bottom of file
 #ifndef DISABLE_SOCKET_IPC
 // for sockaddr struct and flags passed to socket system calls
 
-#include <sys/types.h>
-#include <sys/socket.h>
 #include <netdb.h>
+#include <sys/socket.h>
+#include <sys/types.h>
 const int SOCKET_ERROR = -1;
 typedef size_t length_t;
 
 #include <errno.h>
 #include <sys/time.h>
 
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 #endif /* DISABLE_SOCKET_IPC */
 
 #include "common/Collections.h"
 #include "common/Ipc.h"
-#include "export/ComDiags.h"
 #include "common/str.h"
+#include "export/ComDiags.h"
 
 // comment this out once NAHeap.h is in common
 // #include "common/NAHeap.h"
@@ -1137,8 +1137,7 @@ SockControlConnection::SockControlConnection(IpcEnvironment *env, const char *ey
   cout << "Listening to port " << setw(11) << listnerPortNum_ << "\n" << flush;
 }
 
-SockControlConnection::SockControlConnection(IpcEnvironment *env, int inheritedSocket, int passedPort,
-                                             const char *eye)
+SockControlConnection::SockControlConnection(IpcEnvironment *env, int inheritedSocket, int passedPort, const char *eye)
     : IpcControlConnection(IPC_DOM_INTERNET), listnerSocket_(env) {
   assert(0);
 }

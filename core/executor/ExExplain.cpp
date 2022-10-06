@@ -19,20 +19,21 @@
 // This file contains all the executor methods associated
 // with a explain operator
 //
-#include "executor/ex_stdh.h"
-#include "comexe/ComTdb.h"
-#include "executor/ex_tcb.h"
-#include "ex_root.h"
-#include "ex_queue.h"
 #include "ExExplain.h"
-#include "comexe/ExplainTuple.h"
-#include "executor/ex_expr.h"
-#include "exp/exp_like.h"
-#include "comexe/ComQueue.h"
+
 #include "cli/sql_id.h"
+#include "comexe/ComQueue.h"
+#include "comexe/ComTdb.h"
+#include "comexe/ExplainTuple.h"
+#include "common/ComCextdecs.h"
+#include "ex_queue.h"
+#include "ex_root.h"
+#include "executor/ex_expr.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_tcb.h"
+#include "exp/exp_like.h"
 #include "runtimestats/SqlStats.h"
 #include "runtimestats/ssmpipc.h"
-#include "common/ComCextdecs.h"
 
 // Default Constructor.  This is used by the ex_tdb::fixupVTblPtr()
 // routine which fixes up the virtual function table pointer after
@@ -942,7 +943,7 @@ ExplainDesc *ExExplainTcb::getNextExplainTree() {
       // It should be that if the module name parameter is NULL then
       // the module name matches if this is the current module.
       int modNameMatches = ((isNullModName() && !moduleName) ||
-                              (!isNullModName() && moduleName && (str_cmp(modName_, moduleName, length) == 0)));
+                            (!isNullModName() && moduleName && (str_cmp(modName_, moduleName, length) == 0)));
 
       if (modNameMatches && (pattern.matches(ident, (ident ? str_len(ident) : 0), CharInfo::UTF8) == TRUE) &&
           stmt->getRootTdb()) {
@@ -1340,8 +1341,8 @@ RtsExplainFrag *ExExplainTcb::sendToSsmp() {
   return explainFrag;
 }
 
-short ExExplainTcb::getExplainData(ex_root_tdb *rootTdb, char *explain_ptr, int explain_buf_len,
-                                   int *ret_explain_len, ComDiagsArea *diagsArea, CollHeap *heap) {
+short ExExplainTcb::getExplainData(ex_root_tdb *rootTdb, char *explain_ptr, int explain_buf_len, int *ret_explain_len,
+                                   ComDiagsArea *diagsArea, CollHeap *heap) {
   int cliRC = 0;
 
   *ret_explain_len = 0;

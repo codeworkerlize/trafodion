@@ -13,8 +13,9 @@
 *****************************************************************************
 */
 
-#include "vproc.h"
 #include <stdio.h>
+
+#include "vproc.h"
 
 extern "C" {
 void VPROC(PRODNUMMXSQLC, DATE1MXSQLC, MXSQLC_CC_LABEL)() {}

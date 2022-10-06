@@ -13,13 +13,14 @@
  *****************************************************************************
  */
 
-#include "executor/ex_stdh.h"
 #include "ExUdrClientIpc.h"
+
+#include "ExRsInfo.h"
 #include "ExUdr.h"
 #include "ExUdrServer.h"
-#include "exp/ExpError.h"
 #include "ex_exe_stmt_globals.h"
-#include "ExRsInfo.h"
+#include "executor/ex_stdh.h"
+#include "exp/ExpError.h"
 
 #ifdef UDR_DEBUG
 #include "sqlmsg/ErrorMessage.h"

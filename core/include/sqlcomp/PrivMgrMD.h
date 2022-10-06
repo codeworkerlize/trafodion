@@ -26,14 +26,15 @@
 
 #include <string>
 #include <vector>
-#include "sqlcomp/PrivMgrDefs.h"
-#include "sqlcomp/PrivMgr.h"
-#include "sqlcomp/PrivMgrDesc.h"
+
 #include "PrivMgrMDTable.h"
+#include "comexe/CmpMessage.h"
 #include "common/ComSmallDefs.h"
 #include "common/ComViewColUsage.h"
 #include "sqlcomp/CmpSeabaseDDLauth.h"
-#include "comexe/CmpMessage.h"
+#include "sqlcomp/PrivMgr.h"
+#include "sqlcomp/PrivMgrDefs.h"
+#include "sqlcomp/PrivMgrDesc.h"
 
 // following includes needed for cli interface
 class Queue;

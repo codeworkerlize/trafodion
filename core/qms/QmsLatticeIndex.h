@@ -5,11 +5,11 @@
 #ifndef _QRLATTICEINDEX_H_
 #define _QRLATTICEINDEX_H_
 
-#include "common/NAString.h"
-#include "qmscommon/QRSharedPtr.h"
-#include "qmscommon/QRLogger.h"
 #include "common/Collections.h"
+#include "common/NAString.h"
 #include "common/SharedPtrCollections.h"
+#include "qmscommon/QRLogger.h"
+#include "qmscommon/QRSharedPtr.h"
 
 /**
  * \file

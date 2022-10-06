@@ -10,18 +10,18 @@
 ******************************************************************************
 */
 
-#include "optimizer/AllRelExpr.h"
-#include "optimizer/ItemFunc.h"
-#include "optimizer/ItemOther.h"  // for Convert
 #include "optimizer/Triggers.h"
-#include "optimizer/TriggerDB.h"
-#include "sqlcomp/parser.h"
-#include "parser/StmtNode.h"
+
 #include "export/ComDiags.h"
-#include "parser/StmtDDLCreateTrigger.h"
+#include "optimizer/AllRelExpr.h"
 #include "optimizer/BindWA.h"
 #include "optimizer/ChangesTable.h"
-
+#include "optimizer/ItemFunc.h"
+#include "optimizer/ItemOther.h"  // for Convert
+#include "optimizer/TriggerDB.h"
+#include "parser/StmtDDLCreateTrigger.h"
+#include "parser/StmtNode.h"
+#include "sqlcomp/parser.h"
 
 const static short MAX_RECURSION_DEPTH = 16;  // limit for recursive triggers
 

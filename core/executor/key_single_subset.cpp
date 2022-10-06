@@ -17,10 +17,11 @@
 
 // -----------------------------------------------------------------------
 
+#include "key_single_subset.h"
+
 #include "executor/ex_stdh.h"
 #include "exp/exp_expr.h"
 #include "key_range.h"
-#include "key_single_subset.h"
 // #include "exp/exp_clause_derived.h"
 
 keySingleSubsetEx::keySingleSubsetEx(const keyRangeGen &tdb_key, const short /* in_version */, sql_buffer_pool *pool,

@@ -15,8 +15,8 @@
 */
 
 #include "LmError.h"
-#include "langman/LmCommon.h"
 #include "common/ComSmallDefs.h"
+#include "langman/LmCommon.h"
 
 //////////////////////////////////////////////////////////////////////
 //

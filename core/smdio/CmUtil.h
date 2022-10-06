@@ -1,9 +1,9 @@
 
 #ifndef CMUTIL_H
 #define CMUTIL_H
+#include "common/ComDistribution.h"
 #include "common/ComSmallDefs.h"
 #include "common/ComVersionDefs.h"
-#include "common/ComDistribution.h"
 #include "common/OperTypeEnum.h"
 #include "common/nawstring.h"
 //#include "CatError.h"

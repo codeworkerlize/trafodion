@@ -12,8 +12,8 @@
 
 **********************************************************************/
 
-#include "LmRoutineJava.h"
 #include "LmLangManagerJava.h"
+#include "LmRoutineJava.h"
 #include "sqludr/sqludr.h"
 
 //////////////////////////////////////////////////////////////////////

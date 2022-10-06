@@ -7,8 +7,9 @@
 
 #include <bitset>
 #include <string>
-#include "sqlcomp/PrivMgrDefs.h"
+
 #include "common/ComSmallDefs.h"
+#include "sqlcomp/PrivMgrDefs.h"
 
 class ComDiags;
 

@@ -2,14 +2,14 @@
 
 // **********************************************************************
 
-#include "common/Platform.h"
-
-#include "executor/ex_stdh.h"
-#include "comexe/ComTdb.h"
-#include "executor/ex_tcb.h"
 #include "ExProbeCache.h"
+
+#include "comexe/ComTdb.h"
+#include "common/Platform.h"
 #include "ex_exe_stmt_globals.h"
 #include "executor/ex_expr.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_tcb.h"
 
 ex_tcb *ExProbeCacheTdb::build(ex_globals *glob) {
   ExExeStmtGlobals *exe_glob = glob->castToExExeStmtGlobals();

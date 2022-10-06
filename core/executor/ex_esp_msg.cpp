@@ -17,13 +17,14 @@
 
 // -----------------------------------------------------------------------
 
+#include "Ex_esp_msg.h"
+
+#include "comexe/LateBindInfo.h"
+#include "common/ComRtUtils.h"
+#include "common/NAUserId.h"
 #include "common/Platform.h"
 #include "executor/ex_stdh.h"
-#include "Ex_esp_msg.h"
-#include "comexe/LateBindInfo.h"
 #include "executor/timeout_data.h"
-#include "common/NAUserId.h"
-#include "common/ComRtUtils.h"
 
 const char *getESPStreamTypeString(ESPMessageTypeEnum t) {
   switch (t) {
@@ -651,10 +652,10 @@ ExMsgFragment::ExMsgFragment(NAMemory *heap) : ExEspMsgObj(ESP_FRAGMENT, CurrFra
 ExMsgFragment::ExMsgFragment(const ExFragKey &key, ExFragDir::ExFragEntryType fragType, ExFragId parentId,
                              int topNodeOffset, IpcMessageObjSize fragmentLength, char *fragment, int numTemps,
                              unsigned short mxvOfOriginator, unsigned short planVersion, NABoolean needsTransaction,
-                             int injectErrorAtExprFreq, NAMemory *heap, NABoolean takeOwnership,
-                             NABoolean displayInGui, const char *queryId, int queryIdLen, int userID,
-                             const char *userName, int userNameLen, const char *tenantName, int tenantNameLen,
-                             const char *needToWorkVec, int needToWorkVecLen, IpcMessageObjSize compressedLength)
+                             int injectErrorAtExprFreq, NAMemory *heap, NABoolean takeOwnership, NABoolean displayInGui,
+                             const char *queryId, int queryIdLen, int userID, const char *userName, int userNameLen,
+                             const char *tenantName, int tenantNameLen, const char *needToWorkVec, int needToWorkVecLen,
+                             IpcMessageObjSize compressedLength)
     : ExEspMsgObj(ESP_FRAGMENT, CurrFragmentVersion, heap) {
   key_ = key;
   fragment_ = fragment;
@@ -1028,10 +1029,10 @@ IpcMessageObjSize ExSMDownloadInfo::packedLength() {
   UInt32 len = (smTraceFilePrefix_ ? (str_len(smTraceFilePrefix_) + 1) : 0);
 
   return baseClassPackedLength() + sizeof(long)  // smQueryID_
-         + sizeof(int)                          // smTraceLevel_
-         + sizeof(int)                          // flags_
-         + sizeof(UInt32)                         // length of smTraceFilePrefix_
-         + len;                                   // smTraceFilePrefix_
+         + sizeof(int)                           // smTraceLevel_
+         + sizeof(int)                           // flags_
+         + sizeof(UInt32)                        // length of smTraceFilePrefix_
+         + len;                                  // smTraceFilePrefix_
 }
 
 IpcMessageObjSize ExSMDownloadInfo::packObjIntoMessage(IpcMessageBufferPtr buffer) {

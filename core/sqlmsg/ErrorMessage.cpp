@@ -1,16 +1,16 @@
 
 
-#include "common/NAWinNT.h"
+#include "sqlmsg/ErrorMessage.h"
 
+#include <ctype.h>
 #include <stdio.h>
 #include <string.h>
-#include <ctype.h>
-#include "sqlmsg/ErrorMessage.h"
-#include "sqlmsg/GetErrorMessage.h"
 
 #include "common/ComASSERT.h"
-#include "sqlci/SqlciError.h"
+#include "common/NAWinNT.h"
 #include "common/NLSConversion.h"
+#include "sqlci/SqlciError.h"
+#include "sqlmsg/GetErrorMessage.h"
 
 const size_t DEST_BUF_SIZE = 2 * ErrorMessage::MSG_BUF_SIZE;
 

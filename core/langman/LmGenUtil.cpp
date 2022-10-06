@@ -11,8 +11,9 @@
 *
 ******************************************************************************
 */
-#include "LmLangManager.h"
 #include "LmGenUtil.h"
+
+#include "LmLangManager.h"
 #include "common/str.h"
 
 /* setLMObjectMapping() : Processes Java signature and sets the object mapping

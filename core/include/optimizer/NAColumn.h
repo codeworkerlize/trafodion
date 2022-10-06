@@ -15,10 +15,10 @@
 ******************************************************************************
 */
 
-#include "common/ComSmallDefs.h"
 #include "common/BaseTypes.h"
-#include "optimizer/ObjectNames.h"
+#include "common/ComSmallDefs.h"
 #include "exp/ExpLOBenums.h"
+#include "optimizer/ObjectNames.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

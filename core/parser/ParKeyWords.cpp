@@ -9,10 +9,12 @@
 *******************************************************************************
 */
 
-#include "common/ComASSERT.h"
 #include "ParKeyWords.h"
-#include "common/str.h"
+
 #include <fstream>
+
+#include "common/ComASSERT.h"
+#include "common/str.h"
 
 // ANSI SQL 99 reserved words added as COMPAQ_ reserved words if they were
 // not already present in the table below.  Unreserved words were not

@@ -19,9 +19,11 @@
 // The current NT-to-NSK c89 we are using does not support this flag.
 // Therefore, this module is compiled on NSK and the produced object file
 // I3EAdaptor.o is checked into w:/langman
-#include <jni.h>
-#include "IntType.h"
 #include "I3EAdaptor.h"
+
+#include <jni.h>
+
+#include "IntType.h"
 
 int I3EAdaptor::CallStaticFloatMethodA(JNIEnv *env, jclass clazz, jmethodID methodID, jvalue *args) {
   jfloat result = env->CallStaticFloatMethodA(clazz, methodID, args);
@@ -68,8 +70,7 @@ int I3EAdaptor::CallNonvirtualFloatMethodA(JNIEnv *env, jobject obj, jclass claz
   return *((int *)&result);
 }
 
-long I3EAdaptor::CallNonvirtualDoubleMethodA(JNIEnv *env, jobject obj, jclass clazz, jmethodID methodID,
-                                              jvalue *args) {
+long I3EAdaptor::CallNonvirtualDoubleMethodA(JNIEnv *env, jobject obj, jclass clazz, jmethodID methodID, jvalue *args) {
   jdouble result = env->CallNonvirtualDoubleMethodA(obj, clazz, methodID, args);
   return *((long *)&result);
 }
@@ -79,8 +80,7 @@ int I3EAdaptor::CallNonvirtualFloatMethodV(JNIEnv *env, jobject obj, jclass claz
   return *((int *)&result);
 }
 
-long I3EAdaptor::CallNonvirtualDoubleMethodV(JNIEnv *env, jobject obj, jclass clazz, jmethodID methodID,
-                                              va_list args) {
+long I3EAdaptor::CallNonvirtualDoubleMethodV(JNIEnv *env, jobject obj, jclass clazz, jmethodID methodID, va_list args) {
   jdouble result = env->CallNonvirtualDoubleMethodV(obj, clazz, methodID, args);
   return *((long *)&result);
 }

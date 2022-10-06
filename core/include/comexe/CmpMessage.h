@@ -3,13 +3,13 @@
 #ifndef CMPMESSAGE_H
 #define CMPMESSAGE_H
 
-#include "common/Platform.h"
-#include "common/Ipc.h"
-#include "common/str.h"
-#include "common/Int64.h"
-#include "export/NABasicObject.h"
 #include "cli/SQLCLIdev.h"
 #include "common/ComDefs.h"
+#include "common/Int64.h"
+#include "common/Ipc.h"
+#include "common/Platform.h"
+#include "common/str.h"
+#include "export/NABasicObject.h"
 
 #define EXECMPIPCVERSION 100
 
@@ -333,16 +333,16 @@ class CmpCompileInfo {
     RECOMP_USE_NATABLE_CACHE = 0x8000
   };
 
-  char *sqltext_;             // 00-07
-  int sqlTextLen_;          // 08-11
-  int unused_;              // 12-15
-  char *schemaName_;          // 16-23
-  int schemaNameLen_;       // 24-27
-  int unused2_;             // 28-31
+  char *sqltext_;          // 00-07
+  int sqlTextLen_;         // 08-11
+  int unused_;             // 12-15
+  char *schemaName_;       // 16-23
+  int schemaNameLen_;      // 24-27
+  int unused2_;            // 28-31
   int inputArrayMaxsize_;  // 32-35
   int flags_;              // 36-39
 
-  int sqlTextCharSet_;          // 40-43
+  int sqlTextCharSet_;            // 40-43
   char fillerBytes_[FILLERSIZE];  // 44-103
 };
 
@@ -616,8 +616,8 @@ class CmpMessageEndSession : public CmpMessageRequest {
 
 class CmpMessageSQLText : public CmpMessageRequest {
  public:
-  CmpMessageSQLText(char *sqltext = NULL, CmpMsgBufLenType size = 0, CollHeap *h = 0,
-                    int charset = SQLCHARSETCODE_UTF8, MessageTypeEnum op = SQLTEXT_COMPILE)
+  CmpMessageSQLText(char *sqltext = NULL, CmpMsgBufLenType size = 0, CollHeap *h = 0, int charset = SQLCHARSETCODE_UTF8,
+                    MessageTypeEnum op = SQLTEXT_COMPILE)
       : CmpMessageRequest(op, sqltext, size, h, charset){};
 
   virtual ~CmpMessageSQLText(){};
@@ -633,8 +633,7 @@ class CmpMessageSQLText : public CmpMessageRequest {
 
 class CmpMessageCompileStmt : public CmpMessageRequest {
  public:
-  CmpMessageCompileStmt(char *sqltext = NULL, CmpMsgBufLenType size = 0, CollHeap *h = 0,
-                        int cs = SQLCHARSETCODE_UTF8)
+  CmpMessageCompileStmt(char *sqltext = NULL, CmpMsgBufLenType size = 0, CollHeap *h = 0, int cs = SQLCHARSETCODE_UTF8)
       : CmpMessageRequest(SQLTEXT_STATIC_COMPILE, sqltext, size, h, cs){};
 
   CmpMessageCompileStmt(char *sqltext, CmpMsgBufLenType size, MessageTypeEnum op, CollHeap *h = 0,
@@ -694,8 +693,7 @@ class CmpDDLwithStatusInfo : public CmpCompileInfo {
  public:
   CmpDDLwithStatusInfo();
 
-  CmpDDLwithStatusInfo(char *sourceStr, int sourceStrLen, int sourceStrCharSet, char *schemaName,
-                       int schemaNameLen);
+  CmpDDLwithStatusInfo(char *sourceStr, int sourceStrLen, int sourceStrCharSet, char *schemaName, int schemaNameLen);
 
   short getClassSize() { return (short)sizeof(CmpDDLwithStatusInfo); }
   int getLength();
@@ -1042,19 +1040,19 @@ class CmpMessageISPRequest : public CmpMessageRequest {
   // construct this object. executor will provide methods to access
   // the values.
   int inputExprSize_;   // size of the inputExpr
-  void *inputExpr_;        // expression for input data
+  void *inputExpr_;     // expression for input data
   int outputExprSize_;  // size of the outputExpr
-  void *outputExpr_;       // expression for output data
+  void *outputExpr_;    // expression for output data
   int keyExprSize_;     // size of the key data
-  void *keyExpr_;          // expression for key expression
+  void *keyExpr_;       // expression for key expression
 
   // The data is packed by executor before construct this object.
   // executor will provide methods to access the values.
 
   int inputDataSize_;  // size of input data
-  void *inputData_;       // input data
+  void *inputData_;    // input data
   int keyDataSize_;    // size of the key data
-  void *keyData_;         // key data
+  void *keyData_;      // key data
 
   int outputRowSize_;    // the size of each row of output data
   int outputTotalSize_;  // buffer size for output data, once the

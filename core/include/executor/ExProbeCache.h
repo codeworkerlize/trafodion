@@ -7,9 +7,9 @@
 //
 // Task Definition Block
 //
+#include "ExSimpleSqlBuffer.h"
 #include "comexe/ComTdbProbeCache.h"
 #include "comexe/QueueIndex.h"
-#include "ExSimpleSqlBuffer.h"
 #include "executor/ExStats.h"
 
 // -----------------------------------------------------------------------

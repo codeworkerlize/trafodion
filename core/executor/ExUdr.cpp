@@ -26,24 +26,26 @@
 //   method would decide to initiate the restart.
 //
 
-#include "executor/ex_stdh.h"
 #include "ExUdr.h"
-#include "ExUdrServer.h"
-#include "ExUdrClientIpc.h"
-#include "UdrExeIpc.h"
-#include "ex_exe_stmt_globals.h"
-#include "exp/exp_attrs.h"
-#include "executor/ex_error.h"
-#include "executor/ExStats.h"
+
+#include <sys/stat.h>
+
+#include "Descriptor.h"
 #include "ExCextdecs.h"
+#include "ExRsInfo.h"
+#include "ExUdrClientIpc.h"
+#include "ExUdrServer.h"
+#include "UdrExeIpc.h"
+#include "cli/Context.h"
+#include "cli/Statement.h"
 #include "comexe/UdrFormalParamInfo.h"
 #include "comexe/udrtabledescinfo.h"
-#include "cli/Statement.h"
-#include "ExRsInfo.h"
-#include "Descriptor.h"
-#include "cli/Context.h"
+#include "ex_exe_stmt_globals.h"
 #include "executor/ExExeUtil.h"
-#include <sys/stat.h>
+#include "executor/ExStats.h"
+#include "executor/ex_error.h"
+#include "executor/ex_stdh.h"
+#include "exp/exp_attrs.h"
 
 #define TF_STRING(x) ((x) ? ("TRUE") : ("FALSE"))
 #define YN_STRING(x) ((x) ? ("YES") : ("NO"))
@@ -336,8 +338,8 @@ ExUdrTcb::ExUdrTcb(const ExUdrTdb &udrTdb, const ex_tcb **childTcbs, ex_globals 
     UdrDebug2("  Input pool: %u buffers of size %u", (int)udrTdb.getNumInputBuffers(),
               (int)udrTdb.getInputSqlBufferSize());
 
-    inputPool_ = new (globSpace) sql_buffer_pool(
-        (int)udrTdb.getNumInputBuffers(), (int)udrTdb.getInputSqlBufferSize(), globSpace, SqlBufferBase::NORMAL_);
+    inputPool_ = new (globSpace) sql_buffer_pool((int)udrTdb.getNumInputBuffers(), (int)udrTdb.getInputSqlBufferSize(),
+                                                 globSpace, SqlBufferBase::NORMAL_);
   }
   if (numChildren()) {
     childInputBuffers_ = (UdrDataBuffer **)new (globSpace) UdrDataBuffer *[numChildren()];
@@ -1543,8 +1545,7 @@ void ExUdrTcb::allocateDataStream() {
     if ((val = getenv("UDR_BUFFER_PAD"))) {
       pad = atol(val);
     }
-    UdrDebug3("    Stream buffer size: %d data + %d pad = %d total", (int)maxBufSize, (int)pad,
-              (int)maxBufSize + pad);
+    UdrDebug3("    Stream buffer size: %d data + %d pad = %d total", (int)maxBufSize, (int)pad, (int)maxBufSize + pad);
 #endif  // UDR_DEBUG
 
     NABoolean isTransactional = dataRequestsAreTransactional();

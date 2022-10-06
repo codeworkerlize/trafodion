@@ -82,9 +82,9 @@
 
 #else  // !_LIBSTDCXX_FBSTRING
 
-#include <string>
-#include <cstring>
 #include <cassert>
+#include <cstring>
+#include <string>
 
 #include "common/NAMemory.h"
 

@@ -19,8 +19,8 @@
 */
 
 #include "ElemDDLNode.h"
-#include "parser/ElemDDLParamName.h"
 #include "common/ComSmallDefs.h"
+#include "parser/ElemDDLParamName.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

@@ -15,16 +15,16 @@
 ******************************************************************************
 */
 
-#include "common/charinfo.h"  // for CollationAndCoercibility
+#include "IndexDesc.h"
+#include "comexe/ComKeyMDAM.h"
 #include "common/ComASSERT.h"
 #include "common/ExprNode.h"
+#include "common/charinfo.h"  // for CollationAndCoercibility
 #include "optimizer/ItemExprList.h"
 #include "optimizer/ObjectNames.h"
 #include "optimizer/ValueDesc.h"
-#include "qmscommon/QRExprElement.h"
-#include "IndexDesc.h"
-#include "comexe/ComKeyMDAM.h"
 #include "orcPushdownPredInfo.h"
+#include "qmscommon/QRExprElement.h"
 
 // -----------------------------------------------------------------------
 // contents of this file
@@ -237,13 +237,13 @@ class ItemExpr : public ExprNode {
   // a "backbone". Then add the value ids of all the remaining nodes to
   // a ValueIdSet.
   int convertToValueIdSet(ValueIdSet &vs, BindWA *bindWA = NULL, OperatorTypeEnum backboneType = ITM_AND,
-                            NABoolean transformSubqueries = TRUE, NABoolean flattenLists = FALSE);
+                          NABoolean transformSubqueries = TRUE, NABoolean flattenLists = FALSE);
 
   // Take an item expression and remove all nodes from its top that form
   // a "backbone". Then add the value ids of all the remaining nodes to
   // a ValueIdList.
   int convertToValueIdList(ValueIdList &vl, BindWA *bindWA = NULL, OperatorTypeEnum backboneType = ITM_ITEM_LIST,
-                             RelExpr *parent = NULL);
+                           RelExpr *parent = NULL);
 
   // rewrite this expression by replacing all value ids in it with
   // the equivalent mapped value ids; return a new value id for the result

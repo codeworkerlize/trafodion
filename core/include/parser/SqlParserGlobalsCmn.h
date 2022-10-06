@@ -2,8 +2,8 @@
 #pragma once
 
 #if defined(SQLPARSERGLOBALS_FLAGS) || defined(SQLPARSERGLOBALSCMN__INITIALIZE)
-#include "common/BaseTypes.h"
 #include "SqlParserGlobalsEnum.h"  // to get SqlParser_Flags_Enum
+#include "common/BaseTypes.h"
 
 #undef GLOB_
 #undef INIT_
@@ -65,10 +65,10 @@ class PushAndSetSqlParserFlags {
 #endif
 
 #if defined(SQLPARSERGLOBALS_NADEFAULTS) || defined(SQLPARSERGLOBALSCMN__INITIALIZE)
-#include "common/charinfo.h"
 #include "common/ComMPLoc.h"
-#include "sqlcomp/NADefaults.h"
+#include "common/charinfo.h"
 #include "optimizer/ObjectNames.h"
+#include "sqlcomp/NADefaults.h"
 
 class SqlParser_NADefaults {
  public:
@@ -122,4 +122,3 @@ inline void SetSqlParser_DEFAULT_CHARSET(CharInfo::CharSet cs) {
 
 #undef GLOB_
 #undef INIT_
-

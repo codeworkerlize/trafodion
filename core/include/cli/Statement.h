@@ -23,15 +23,15 @@
 #include <sys/types.h>
 //#include <sys/time.h>
 //#include <fstream>
-#include "cli/SQLCLIdev.h"
-#include "export/ComDiags.h"
 #include "Descriptor.h"
-#include "comexe/ComQueue.h"
-#include "common/NAMemory.h"
-#include "common/ComSmallDefs.h"
 #include "cli/Module.h"
+#include "cli/SQLCLIdev.h"
+#include "comexe/ComQueue.h"
 #include "comexe/SqlTableOpenInfo.h"  // triggers
+#include "common/ComSmallDefs.h"
 #include "common/DLock.h"
+#include "common/NAMemory.h"
+#include "export/ComDiags.h"
 
 class ex_root_tdb;
 class ex_root_tcb;
@@ -459,7 +459,7 @@ class Statement : public ExGod {
   // prepare of proxy syntax is required and if so, do the internal
   // prepare
   RETCODE rsProxyPrepare(ExRsInfo &rsInfo,          // IN
-                         int rsIndex,            // IN
+                         int rsIndex,               // IN
                          ComDiagsArea &diagsArea);  // INOUT
 
   // For stored procedure result set proxy statements, return TRUE if
@@ -826,10 +826,9 @@ class Statement : public ExGod {
   NABoolean updateChildQid();
   void updateStatsAreaInContext();
   int setChildQueryInfo(ComDiagsArea *diagsArea, char *uniqueQueryId, int uniqueQueryIdLen,
-                          SQL_QUERY_COST_INFO *query_cost_info, SQL_QUERY_COMPILER_STATS_INFO *comp_stats_info);
-  int getChildQueryInfo(ComDiagsArea &diagsArea, char *uniqueQueryId, int uniqueQueryIdMaxLen,
-                          int *uniqueQueryIdLen, SQL_QUERY_COST_INFO *query_cost_info,
-                          SQL_QUERY_COMPILER_STATS_INFO *comp_stats_info);
+                        SQL_QUERY_COST_INFO *query_cost_info, SQL_QUERY_COMPILER_STATS_INFO *comp_stats_info);
+  int getChildQueryInfo(ComDiagsArea &diagsArea, char *uniqueQueryId, int uniqueQueryIdMaxLen, int *uniqueQueryIdLen,
+                        SQL_QUERY_COST_INFO *query_cost_info, SQL_QUERY_COMPILER_STATS_INFO *comp_stats_info);
   // return TRUE if query is prefixed by display,
   // e.g. display select ...
   NABoolean isDISPLAY();

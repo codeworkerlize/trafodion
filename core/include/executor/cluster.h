@@ -17,12 +17,11 @@
  *****************************************************************************
  */
 
-#include "hash_table.h"
 #include "CommonStructs.h"
-#include "common/ClusteredBitmap.h"
-
 #include "ScratchSpace.h"
+#include "common/ClusteredBitmap.h"
 #include "ex_exe_stmt_globals.h"
+#include "hash_table.h"
 #define END_OF_BUF_LIST ((int)-1)
 
 // To be used as the limits on input size estimates by HJ, HGB
@@ -36,8 +35,8 @@ class IOTimer;
 class ExBMOStats;
 
 #include "comexe/HashBufferHeader.h"
-#include "exp/ExpError.h"
 #include "common/NAMemory.h"
+#include "exp/ExpError.h"
 
 // forward declarations
 class ExScratchFileOptions;
@@ -91,18 +90,18 @@ class HashBuffer : public NABasicObject {
 
  private:
   Cluster *cluster_;            // the cluster to which the buffer belongs
-  int bufferSize_;           // the size of the buffer
-  int maxRowLength_;         // allocated size of a row
+  int bufferSize_;              // the size of the buffer
+  int maxRowLength_;            // allocated size of a row
   NABoolean isVariableLength_;  // Are the rows in this buffer variable length?
   NABoolean considerBufferDefrag_;
-  char *rows_;                // points to row[0]
+  char *rows_;             // points to row[0]
   int maxNumFullRowsSer_;  // the number of full rows that will fit in buffer
   int freeSpace_;          // amount of space left in buffer
-  char *currRow_;             // used for scanning the buffer
-  char *nextAvailRow_;        // pointer to next row to allocate
-  HashBuffer *next_;          // pointer to next buffer in memory
-  HashBuffer *prev_;          // pointer to previous buffer in memory
-  CollHeap *heap_;            // used when there is no cluster_
+  char *currRow_;          // used for scanning the buffer
+  char *nextAvailRow_;     // pointer to next row to allocate
+  HashBuffer *next_;       // pointer to next buffer in memory
+  HashBuffer *prev_;       // pointer to previous buffer in memory
+  CollHeap *heap_;         // used when there is no cluster_
   union {
     char *data_;                // pointer to the buffer itself
     HashBufferHeader *header_;  // another interpretation of the first bytes
@@ -418,7 +417,7 @@ class Bucket {
  private:
   Cluster *innerCluster_;  // corresponding inner Cluster
   Cluster *outerCluster_;  // corresponding outer Cluster
-  int rowCount_;        // # of inner Cluster rows in this bucket
+  int rowCount_;           // # of inner Cluster rows in this bucket
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -544,12 +543,12 @@ class ClusterDB : public NABasicObject {
                                 // ignored and we always try to allocate
                                 // new buffers in main memory. If the
                                 // allocation is not sucessfull, we die
-  int bufferSize_;           // global size of hash buffers
+  int bufferSize_;              // global size of hash buffers
   NAHeap *bufferHeap_;          // keep the I/O buffers for all the
                                 // clusters in a separate heap. This
                                 // should help to reduce fragmentation.
   atp_struct *workAtp_;         // global work Atp
-  int explainNodeId_;         // add to any EMS RT messages.
+  int explainNodeId_;           // add to any EMS RT messages.
 
   // the following three data members are only used for hash join and hash
   // table materialize. They are required for sorted insert of a row into
@@ -558,7 +557,7 @@ class ClusterDB : public NABasicObject {
   short hashTableRowAtpIndex2_;
   ex_expr *searchExpr_;  // to insert a row in the hash table
 
-  Bucket *buckets_;         // global Buckets array
+  Bucket *buckets_;      // global Buckets array
   int bucketCount_;      // total number of buckets
   int availableMemory_;  // for the HJ (in bytes)
   int memoryUsed_;       // main memory used for buffers and HT
@@ -566,12 +565,12 @@ class ClusterDB : public NABasicObject {
   // much main memory the operator uses right now. Cluster.totalClusterSize_
   // tells us the size of a cluster!
   ExOperStats *hashOperStats_;  // stats for this hash operator
-  int totalIOCnt_;           // total IO ( # buffers read or writen )
+  int totalIOCnt_;              // total IO ( # buffers read or writen )
   short pressureThreshold_;
   NABoolean sawPressure_;            // set when we see pressure the
                                      // first time
   ExExeStmtGlobals *stmtGlobals_;    // for dynamic memory allocation
-  int maxClusterSize_;            // in bytes
+  int maxClusterSize_;               // in bytes
   Cluster *clusterToFlush_;          // cluster which is to be flushed
   Cluster *clusterToProbe_;          // cluster which is to be probed
   Cluster *clusterToRead_;           // cluster which is to be read
@@ -613,7 +612,7 @@ class ClusterDB : public NABasicObject {
   // These fields are used to ensure that #buckets and #hash-table-entries
   // have no common prime factors (to make even use of the hash table entries)
   NABoolean evenFactor_;  // # buckets is even (i.e., Hash-Join)
-  int primeFactor_;    // # buckets (divided by buckets-per-cluster)
+  int primeFactor_;       // # buckets (divided by buckets-per-cluster)
 
   // used by HGB only - initial HT size to be resized up as needed
   int initialHashTableSize_;
@@ -663,7 +662,7 @@ class ClusterBitMap : public NABasicObject {
   NABoolean testBit(int bitIndex);
 
  private:
-  int size_;   // size of bitmap (# of bits)
+  int size_;      // size of bitmap (# of bits)
   char *bitMap_;  // the bitmap itself
 };
 
@@ -845,7 +844,7 @@ class Cluster : public NABasicObject {
 
   ClusterState state_;
   ClusterDB *clusterDb_;
-  Bucket *buckets_;     // the buckets of this Cluster
+  Bucket *buckets_;  // the buckets of this Cluster
   int bucketCount_;  // # of buckets of the Cluster
   int rowLength_;
   NABoolean useVariableLength_;
@@ -866,14 +865,14 @@ class Cluster : public NABasicObject {
   HashTable *hashTable_;
   int rowCount_;    // # of rows stored in this cluster
   int readCount_;   // for inner: number of rows read in
-                       // this loop of a hash loop
-                       // (== rowCount_ if no hash loop)
-                       // for outer: total number of rows
-                       // read
+                    // this loop of a hash loop
+                    // (== rowCount_ if no hash loop)
+                    // for outer: total number of rows
+                    // read
   int writeIOCnt_;  // counters for overflow I/Os
   int readIOCnt_;
   HashBuffer *bufferPool_;    // first buffer of a potential list
-  int numInMemBuffers_;    // number of in-memory buffers for this cluster
+  int numInMemBuffers_;       // number of in-memory buffers for this cluster
   HashBuffer *scanPosition_;  // for scanning all buffers
 
   // for concurrent writing of multiple buffers, need to know which is next

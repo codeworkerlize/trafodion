@@ -15,11 +15,11 @@
 */
 
 #include "common/BaseTypes.h"
-#include "common/Int64.h"
 #include "common/CollHeap.h"
 #include "common/ComCharSetDefs.h"
-#include "export/NAStringDef.h"
+#include "common/Int64.h"
 #include "common/NAWinNT.h"
+#include "export/NAStringDef.h"
 
 // -----------------------------------------------------------------------
 // a string datatype
@@ -101,7 +101,7 @@ void ToAnsiIdentifier3(const char *inputData, size_t inputLen, char *outputData,
 #define NASTRING_REGULAR_IDENT_WITH_DOLLAR_PREFIX 0x0002
 #define NASTRING_DELIM_IDENT_WITH_DOLLAR_PREFIX   0x0004
 int ToInternalIdentifier(NAString &ansiIdent, int upCase = TRUE, NABoolean acceptCircumflex = FALSE,
-                           UInt16 pv_flags = NASTRING_ALLOW_NSK_GUARDIAN_NAME_FORMAT);
+                         UInt16 pv_flags = NASTRING_ALLOW_NSK_GUARDIAN_NAME_FORMAT);
 
 // -----------------------------------------------------------------------
 // SQL text related functions

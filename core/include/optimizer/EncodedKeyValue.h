@@ -16,8 +16,8 @@
 *************************************************************************
 */
 
-#include "common/Platform.h"
 #include "common/NAString.h"
+#include "common/Platform.h"
 #include "generator/Generator.h"
 
 NAString *getMinMaxValue(TrafDesc *column, TrafDesc *key, NABoolean highKey, CollHeap *h);

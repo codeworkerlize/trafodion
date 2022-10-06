@@ -18,11 +18,11 @@
  *****************************************************************************
  */
 
+#include "common/SequenceGeneratorAttributes.h"
+#include "common/dfs2rec.h"
 #include "exp/exp_clause.h"
 #include "exp/exp_clause_derived.h"
-#include "common/dfs2rec.h"
 #include "exp_dp2_expr.h"
-#include "common/SequenceGeneratorAttributes.h"
 
 class ex_function_clause;
 
@@ -396,20 +396,20 @@ class ex_function_position : public ex_function_clause {
   // sourceStr.
   ////////////////////////////////////////////////////////
   static int findPosition(char *sourceStr, int sourceLen, char *searchStr, int searchLen, short bytesPerChar = 1,
-                            Int16 nPasses = 1, CharInfo::Collation collation = CharInfo::DefaultCollation,
+                          Int16 nPasses = 1, CharInfo::Collation collation = CharInfo::DefaultCollation,
 
-                            // returns number of characters, if passed in
-                            int *numChars = NULL,
+                          // returns number of characters, if passed in
+                          int *numChars = NULL,
 
-                            CharInfo::CharSet cs = CharInfo::ISO88591);
+                          CharInfo::CharSet cs = CharInfo::ISO88591);
 
-  static int findPositionInReverse(char *sourceStr, int sourceLen, char *searchStr, int searchLen,
-                                     int occurrence, CharInfo::CharSet cs = CharInfo::ISO88591);
+  static int findPositionInReverse(char *sourceStr, int sourceLen, char *searchStr, int searchLen, int occurrence,
+                                   CharInfo::CharSet cs = CharInfo::ISO88591);
 
   static int errorChecks(int startPos, int occurrence,
-                           NABoolean isInstr,  // INSTR function
-                           const char *userTextStr, CharInfo::Collation collation, CharInfo::CharSet cs, CollHeap *heap,
-                           ComDiagsArea **diagsArea);
+                         NABoolean isInstr,  // INSTR function
+                         const char *userTextStr, CharInfo::Collation collation, CharInfo::CharSet cs, CollHeap *heap,
+                         ComDiagsArea **diagsArea);
 
   ex_expr::exp_return_type pCodeGenerate(Space *space, UInt32 f);
 
@@ -651,7 +651,7 @@ class ex_function_trim : public ex_function_clause {
   // ---------------------------------------------------------------------
 
  private:
-  int mode_;                   // 00-03
+  int mode_;                     // 00-03
   Int16 collation_;              // 04-05
   Int16 srcStrEncodedLength_;    // 06-07
   Int16 trimCharEncodedLength_;  // 08-09
@@ -950,7 +950,7 @@ class ExFunctionBase64EncDec : public ex_function_clause {
   short decodeValue(char *op_data[], CollHeap *heap, ComDiagsArea **diagsArea);
 
   NABoolean isEncode_;  // TRUE, encode. FALSE, decode
-  int maxBuflen_;     // max buffer size for value to be decoded.
+  int maxBuflen_;       // max buffer size for value to be decoded.
 
   // this field is allocated at runtime
   char *decodedBuf_;
@@ -1236,8 +1236,8 @@ class ex_function_encode : public ex_function_clause {
                                  Int16 nPasses, CharInfo::Collation collation = CharInfo::DefaultCollation,
                                  NABoolean rmTSpaces = TRUE);
 
-  static void encodeCollationSearchKey(const UInt8 *src, int srcLength, UInt8 *encodedKey,
-                                       const int encodedKeyLength, int &effEncodedKeyLength, Int16 nPasses,
+  static void encodeCollationSearchKey(const UInt8 *src, int srcLength, UInt8 *encodedKey, const int encodedKeyLength,
+                                       int &effEncodedKeyLength, Int16 nPasses,
                                        CharInfo::Collation collation = CharInfo::DefaultCollation,
                                        NABoolean rmTSpaces = TRUE);
 
@@ -1341,7 +1341,7 @@ class ex_function_encode : public ex_function_clause {
 // ---------------------------------------------------------------------
 // NOTE: No need to use ... maybe in the future?
 static int Collated_cmp(char *string1, char *string2, int length, CharInfo::Collation Collation, char *sortBuffer1,
-                          char *sortBuffer2) {
+                        char *sortBuffer2) {
   Int16 nPasses = CollationInfo::getCollationNPasses(Collation);
   int encodeKeyBufLen = length * nPasses + 2 + nPasses;
 
@@ -2417,8 +2417,8 @@ class ExpRaiseErrorFunction : public ex_function_clause {
 
   NABasicPtr /*const char* */ constraintName_;  // 00-07
   NABasicPtr /*const char* */ tableName_;       // 08-15
-  int theSQLCODE_;                            // 16-19
-  int flags_;                                 // 20-23
+  int theSQLCODE_;                              // 16-19
+  int flags_;                                   // 20-23
   // TRUE, raise error. FALSE, raise warning.
 
   // one byte for null terminator.
@@ -2634,8 +2634,8 @@ class ExFunctionRandomSelection : public ExFunctionRandomNum {
   void initDiff();
 
   Float32 selProbability_;  // 00-03
-  int difference_;        // 04-07
-  int normProbability_;   // 08-11
+  int difference_;          // 04-07
+  int normProbability_;     // 08-11
 
   // ---------------------------------------------------------------------
   // Fillers for potential future extensions without changing class size.
@@ -2926,7 +2926,7 @@ class ExRowsetArrayRowid : public ex_function_clause {
   // ---------------------------------------------------------------------
 
  private:
-  int maxNumElem_;       // Maximum number of elements          // 00-03
+  int maxNumElem_;         // Maximum number of elements          // 00-03
   char fillersRowset_[4];  // 04-07
 };
 

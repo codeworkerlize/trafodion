@@ -12,9 +12,9 @@
 
 #include "export/NABasicObject.h"
 #define SQLPARSERGLOBALS_FLAGS
-#include "parser/SqlParserGlobals.h"  // Parser Flags
-#include "common/NAWinNT.h"           // for NAWchar, WIDE_(), etc.
 #include "common/NABoolean.h"
+#include "common/NAWinNT.h"           // for NAWchar, WIDE_(), etc.
+#include "parser/SqlParserGlobals.h"  // Parser Flags
 
 #ifndef SQLPARSER_H
 #include <sqlparser.h>  // Angled brackets are intentional here

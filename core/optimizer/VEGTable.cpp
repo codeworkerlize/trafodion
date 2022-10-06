@@ -15,15 +15,16 @@
 ******************************************************************************
 */
 
-#include "optimizer/Sqlcomp.h"
+#include "VEGTable.h"
+
+#include "GenExpGenerator.h"
 #include "optimizer/GroupAttr.h"
-#include "optimizer/RelJoin.h"
-#include "optimizer/ItemLog.h"
-#include "optimizer/ItemOther.h"
 #include "optimizer/ItemColRef.h"
 #include "optimizer/ItemFunc.h"
-#include "VEGTable.h"
-#include "GenExpGenerator.h"
+#include "optimizer/ItemLog.h"
+#include "optimizer/ItemOther.h"
+#include "optimizer/RelJoin.h"
+#include "optimizer/Sqlcomp.h"
 
 // -----------------------------------------------------------------------
 // static processMultipleConstValuesInVEG()
@@ -733,8 +734,8 @@ void VEGRegion::gatherInstantiateNullMembers(ValueIdSet &vidset) {
 // VEGRegion::replaceInstantiateNullMembers()
 // -----------------------------------------------------------------------
 void VEGRegion::replaceInstantiateNullMembers() {
-  int ne = members_.entries();            // number of entries in the VEGRegion
-  int index;                              // loop index
+  int ne = members_.entries();              // number of entries in the VEGRegion
+  int index;                                // loop index
   InstantiateNull *instNullPtr;             // -> an InstantiateNull
   VEGMember *memberPtr;                     // -> a VEGMember
   LIST(VEGMember *) deleteStack(STMTHEAP);  // VEGMember that are to be deleted

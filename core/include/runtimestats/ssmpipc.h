@@ -8,13 +8,13 @@
 #ifndef _SSMPIPC_H_
 #define _SSMPIPC_H_
 
-#include "common/Platform.h"
-#include "common/Ipc.h"
-#include "common/Collections.h"
-#include "runtimestats/rts_msg.h"
-#include "comexe/ComQueue.h"
-#include "SqlStats.h"
 #include "CancelBroker.h"
+#include "SqlStats.h"
+#include "comexe/ComQueue.h"
+#include "common/Collections.h"
+#include "common/Ipc.h"
+#include "common/Platform.h"
+#include "runtimestats/rts_msg.h"
 
 class StatsGlobals;
 class StmtStats;
@@ -99,7 +99,7 @@ class SsmpGlobals {
   void cleanupDeletedSscpServers();
   bool getQidFromPid(int pid,         // IN
                      int minimumAge,  // IN
-                     char *queryId,     // OUT
+                     char *queryId,   // OUT
                      int &queryIdLen  // OUT
   );
   bool activateFromQid(char *queryId, int qidLen,

@@ -3,12 +3,13 @@
 //******************************************************************************
 
 //******************************************************************************
-#include <string>
-#include <set>
 #include <list>
-#include "dbsecurity/auth.h"
-#include "authEvents.h"
+#include <set>
+#include <string>
+
 #include "../../../sqf/inc/cextdecs/cextdecs.h"
+#include "authEvents.h"
+#include "dbsecurity/auth.h"
 
 using namespace std;
 

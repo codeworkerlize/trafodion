@@ -1,11 +1,10 @@
 
 #ifndef __COMAES_H__
 #define __COMAES_H__
-#include <openssl/evp.h>
 #include <openssl/err.h>
-
-#include <string.h>
+#include <openssl/evp.h>
 #include <stdint.h>
+#include <string.h>
 
 #include "common/Platform.h"
 /**

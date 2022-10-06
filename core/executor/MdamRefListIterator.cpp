@@ -17,9 +17,10 @@
 
 // -----------------------------------------------------------------------------
 
-#include "executor/ex_stdh.h"
-#include "common/NABoolean.h"
 #include "MdamRefListIterator.h"
+
+#include "common/NABoolean.h"
+#include "executor/ex_stdh.h"
 
 // *****************************************************************************
 // Member functions for class MdamRefListIterator

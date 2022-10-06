@@ -1,7 +1,7 @@
 
 
-#include "common/Platform.h"
+#include <memory.h>
+#include <stdlib.h>
 #include <string.h>
 
-#include <stdlib.h>
-#include <memory.h>
+#include "common/Platform.h"

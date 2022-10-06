@@ -23,8 +23,8 @@
 #include "CommonStructs.h"
 #include "Const.h"
 #include "ScratchSpace.h"
-#include "export/NABasicObject.h"
 #include "SortError.h"
+#include "export/NABasicObject.h"
 
 class Record;
 

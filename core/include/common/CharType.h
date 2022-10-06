@@ -14,17 +14,18 @@
 */
 
 #include <limits.h>
+
 #include "common/BaseTypes.h"
 // Some ANSI compilers require this function to be declared even though
 // the template NAKeyLookup is not instantiated (that class template is a
 // subclass of NAHashDictionary ... in /common/Collections.h )
 int hashKey();  // a dummy -- hopefully the linker won't look for it ...
-#include "common/NAType.h"
-#include "common/str.h"
-#include "common/nawstring.h"
-#include "common/charinfo.h"
-#include "exp/ExpLOBenums.h"
 #include "common/ComSmallDefs.h"
+#include "common/NAType.h"
+#include "common/charinfo.h"
+#include "common/nawstring.h"
+#include "common/str.h"
+#include "exp/ExpLOBenums.h"
 // -----------------------------------------------------------------------
 // contents of this file
 // -----------------------------------------------------------------------

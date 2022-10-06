@@ -10,15 +10,15 @@
 ******************************************************************************
 */
 
-#include "optimizer/AllRelExpr.h"
-#include "optimizer/SchemaDB.h"
-#include "optimizer/Triggers.h"
 #include "optimizer/TriggerDB.h"
-#include "optimizer/BindWA.h"
-#include "cli/Context.h"
-#include "cli/Globals.h"
 
 #include "../sqlcomp/CmpSeabaseDDL.h"
+#include "cli/Context.h"
+#include "cli/Globals.h"
+#include "optimizer/AllRelExpr.h"
+#include "optimizer/BindWA.h"
+#include "optimizer/SchemaDB.h"
+#include "optimizer/Triggers.h"
 //-----------------------------------------------------------------------------
 //
 // -- class TableOp Methods

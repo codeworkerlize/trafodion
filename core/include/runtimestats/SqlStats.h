@@ -83,9 +83,9 @@ class StatsGlobals;
 class ExOperStats;
 class ExProcessStats;
 
-#include "runtimestats/rts_msg.h"
-#include "comexe/ComTdb.h"
 #include "cli/SQLCLIdev.h"
+#include "comexe/ComTdb.h"
+#include "runtimestats/rts_msg.h"
 
 #define PID_MAX_DEFAULT         65536
 #define PID_MAX_DEFAULT_MAX     131072
@@ -106,8 +106,8 @@ void testObjectEpochCache(int argc, char **argv);
 
 class StmtStats {
  public:
-  StmtStats(NAHeap *heap, pid_t pid, char *queryId, int queryIdLen, void *backRef, int fragId,
-            char *sourceStr = NULL, int sourceStrLen = 0, int sqlSrcStrLen = 0, NABoolean isMaster = FALSE);
+  StmtStats(NAHeap *heap, pid_t pid, char *queryId, int queryIdLen, void *backRef, int fragId, char *sourceStr = NULL,
+            int sourceStrLen = 0, int sqlSrcStrLen = 0, NABoolean isMaster = FALSE);
   ~StmtStats();
   void deleteMe();
   void setStatsArea(ExStatisticsArea *stats);
@@ -540,9 +540,9 @@ class StatsGlobals {
   ExRMSStats *getRMSStats() { return rmsStats_; }
   ExRMSStats *getRMSStats(NAHeap *heap);
   void doFullGC();
-  int registerQuery(ComDiagsArea &diags, pid_t pid, SQLQUERY_ID *queryId, int fragId, int tdbId,
-                      int explainTdbId, short statsCollectionType, int instNum, ComTdb::ex_node_type tdbType,
-                      char *tdbName, int tdbNameLen);
+  int registerQuery(ComDiagsArea &diags, pid_t pid, SQLQUERY_ID *queryId, int fragId, int tdbId, int explainTdbId,
+                    short statsCollectionType, int instNum, ComTdb::ex_node_type tdbType, char *tdbName,
+                    int tdbNameLen);
   int deregisterQuery(ComDiagsArea &diags, pid_t pid, SQLQUERY_ID *queryId, int fragId);
   int updateStats(ComDiagsArea &diags, SQLQUERY_ID *query_id, void *operatorStats, int operatorstatsLen);
 
@@ -607,7 +607,7 @@ class StatsGlobals {
   long getNewestRevokeTimestamp() const { return newestRevokeTimestamp_; }
   void cleanupOldSikeys(long gcInterval);
   int getSecInvalidKeys(CliGlobals *cliGlobals, long lastCallTimestamp, SQL_QIKEY[], int maxNumSiKeys,
-                          int *returnedNumSiKeys);
+                        int *returnedNumSiKeys);
   int checkLobLock(CliGlobals *cliGlobals, char *&lobLockId);
 
   void mergeNewSikeys(int numSikeys, SQL_QIKEY sikeys[]);
@@ -648,8 +648,8 @@ class StatsGlobals {
  private:
   void *statsSharedSegAddr_;
   int version_;  // A field used to prevent downrev compiler or other
-                   // incompatible programs to store objects in the
-                   // shared memory
+                 // incompatible programs to store objects in the
+                 // shared memory
   Long sscpProcSemId_;
   SB_Phandle_Type sscpProcHandle_;
   Long ssmpProcSemId_;

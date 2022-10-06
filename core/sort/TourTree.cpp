@@ -19,14 +19,17 @@
 ******************************************************************************
 */
 
-#include <iostream>
-#include <fstream>
-#include <string.h>
-#include "executor/ex_stdh.h"
 #include "TourTree.h"
+
+#include <string.h>
+
+#include <fstream>
+#include <iostream>
+
 #include "SortUtil.h"
 #include "ex_ex.h"
 #include "executor/ExStats.h"
+#include "executor/ex_stdh.h"
 
 //------------------------------------------------------------------------
 // This file contains the all member function definitions of Tree class.
@@ -46,9 +49,9 @@
 //
 //----------------------------------------------------------------------
 
-Tree::Tree(int numruns, int runsize, int recsize, NABoolean doNotAllocRec, int keysize,
-           SortScratchSpace *scratch, CollHeap *heap, SortError *sorterror, int explainNodeId, ExBMOStats *bmoStats,
-           SortUtil *sortUtil, int runnum, NABoolean merge, NABoolean waited)
+Tree::Tree(int numruns, int runsize, int recsize, NABoolean doNotAllocRec, int keysize, SortScratchSpace *scratch,
+           CollHeap *heap, SortError *sorterror, int explainNodeId, ExBMOStats *bmoStats, SortUtil *sortUtil,
+           int runnum, NABoolean merge, NABoolean waited)
     : SortAlgo(runsize, recsize, doNotAllocRec, keysize, scratch, explainNodeId, bmoStats),
       maxRuns_(0),
       currentRun_(0),

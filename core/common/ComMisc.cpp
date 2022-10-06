@@ -16,18 +16,18 @@
  */
 
 #define SQLPARSERGLOBALS_FLAGS
-#include "parser/SqlParserGlobals.h"  // Parser Flags
-
-#include "common/Platform.h"
-
-#include "common/ComOperators.h"
-#include "common/ComASSERT.h"
 #include "common/ComMisc.h"
-#include "common/ComDistribution.h"  // enumToLiteral, literalToEnum, literalAndEnumStruct
-#include "sqlcomp/CmpSeabaseDDL.h"
+
 #include <sys/stat.h>
-#include "common/sq_license.h"
+
 #include "../../sqf/monitor/linux/licensecommon.h"
+#include "common/ComASSERT.h"
+#include "common/ComDistribution.h"  // enumToLiteral, literalToEnum, literalAndEnumStruct
+#include "common/ComOperators.h"
+#include "common/Platform.h"
+#include "common/sq_license.h"
+#include "parser/SqlParserGlobals.h"  // Parser Flags
+#include "sqlcomp/CmpSeabaseDDL.h"
 
 // define the enum-to-literal function
 #define ComDefXLateE2L(E2L, eType, array)               \
@@ -352,7 +352,7 @@ NAString ComGetReservedNamespace(NAString schName) {
 }
 
 int ComGenerateUdrCachedLibName(NAString libname, long redeftime, NAString schemaName, NAString userid,
-                                  NAString &cachedLibName, NAString &cachedLibPath) {
+                                NAString &cachedLibName, NAString &cachedLibPath) {
   NAString libPrefix, libSuffix;
   struct stat statbuf;
   NAString redefTimeString = Int64ToNAString(redeftime);

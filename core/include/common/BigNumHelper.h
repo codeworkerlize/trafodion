@@ -57,8 +57,7 @@ class BigNumHelper {
                          char *quotientData, char *tempData);
 
   // The following method rounds a Big Num (without signs).
-  static short RoundHelper(int sourceLength, int targetLength, char *sourceData, long roundingValue,
-                           char *targetData);
+  static short RoundHelper(int sourceLength, int targetLength, char *sourceData, long roundingValue, char *targetData);
 
   // The following method converts a given Big Num (without sign) into
   // its equivalent BCD string representation (with the more significant decimal
@@ -81,8 +80,7 @@ class BigNumHelper {
   // The following method converts a given BCD string representation
   // (with sign, and with the more significant decimal digits in the lower
   // addresses) into its equivalent Big Num representation.
-  static short ConvBcdToBigNumWithSignHelper(int sourceLength, int targetLength, char *sourceData,
-                                             char *targetData);
+  static short ConvBcdToBigNumWithSignHelper(int sourceLength, int targetLength, char *sourceData, char *targetData);
 
   // The following method converts a given Big Num (without sign) into
   // its equivalent ASCII string representation (with the more significant
@@ -98,14 +96,13 @@ class BigNumHelper {
   // The following method converts a given Big Num (with sign) into
   // its equivalent ASCII string representation (with the more significant
   // decimal digits in the lower addresses).
-  static short ConvBigNumWithSignToAsciiHelper(int sourceLength, int targetLength, char *sourceData,
-                                               char *targetData, NAMemory *heap);
+  static short ConvBigNumWithSignToAsciiHelper(int sourceLength, int targetLength, char *sourceData, char *targetData,
+                                               NAMemory *heap);
 
   // The following method converts a given ASCII string representation
   // (with sign, and with the more significant decimal digits in the lower
   // addresses) into its equivalent Big Num representation.
-  static short ConvAsciiToBigNumWithSignHelper(int sourceLength, int targetLength, char *sourceData,
-                                               char *targetData);
+  static short ConvAsciiToBigNumWithSignHelper(int sourceLength, int targetLength, char *sourceData, char *targetData);
 
   // Given a desired precision of a Big Num, the following method calculates
   // the required storage length (including the sign). We assume that the
@@ -114,8 +111,7 @@ class BigNumHelper {
 
   // The following method converts an integer, 10^exponent, to a Big Num
   // representation (without sign). The given exponent should be >= 0.
-  static short ConvPowersOfTenToBigNumHelper(int exponent, int targetLength, int *finalTargetLength,
-                                             char *targetData);
+  static short ConvPowersOfTenToBigNumHelper(int exponent, int targetLength, int *finalTargetLength, char *targetData);
 
   // The following converts an long to a Big Num (with sign).
   static short ConvInt64ToBigNumWithSignHelper(int targetLength, long sourceData, char *targetData,

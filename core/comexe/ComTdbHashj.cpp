@@ -1,5 +1,6 @@
 
 #include "comexe/ComTdbHashj.h"
+
 #include "comexe/ComTdbCommon.h"
 #include "comexe/HashBufferHeader.h"
 #include "exp/ExpSqlTupp.h"  // for sizeof(tupp_descriptor)
@@ -21,16 +22,15 @@ ComTdbHashj::ComTdbHashj(
     // nullInstForLeftJoinExpr(i.e)instantiates the right row.
     ex_expr *nullInstForLeftJoinExpr, ex_expr *beforeJoinPred1, ex_expr *beforeJoinPred2, ex_expr *afterJoinPred1,
     ex_expr *afterJoinPred2, ex_expr *afterJoinPred3, ex_expr *afterJoinPred4, ex_expr *afterJoinPred5,
-    ex_expr *checkInputPred, ex_expr *moveInputExpr, int inputValuesLen, short prevInputTuppIndex,
-    int rightRowLength, int extRightRowLength, int leftRowLength, int extLeftRowLength,
-    int instRowForLeftJoinLength, ex_cri_desc *workCriDesc, short leftRowAtpIndex, short extLeftRowAtpIndex,
-    short rightRowAtpIndex, short extRightRowAtpIndex1, short extRightRowAtpIndex2, short hashValueAtpIndex,
-    short instRowForLeftJoinAtpIndex, short returnedLeftRowAtpIndex, short returnedRightRowAtpIndex,
-    short returnedInstRowForLeftJoinAtpIndex, unsigned short memUsagePercent, short pressureThreshold,
-    short scratchThresholdPct, queue_index down, queue_index up, int isSemiJoin, int isLeftJoin,
-    int isAntiSemiJoin, int isUniqueHashJoin, int isNoOverflow, int isReuse, int numBuffers,
-    int bufferSize, int hashBufferSize, Cardinality estimatedRowCount, Cardinality innerExpectedRows,
-    Cardinality outerExpectedRows, int isRightJoin, ex_expr *rightJoinExpr,
+    ex_expr *checkInputPred, ex_expr *moveInputExpr, int inputValuesLen, short prevInputTuppIndex, int rightRowLength,
+    int extRightRowLength, int leftRowLength, int extLeftRowLength, int instRowForLeftJoinLength,
+    ex_cri_desc *workCriDesc, short leftRowAtpIndex, short extLeftRowAtpIndex, short rightRowAtpIndex,
+    short extRightRowAtpIndex1, short extRightRowAtpIndex2, short hashValueAtpIndex, short instRowForLeftJoinAtpIndex,
+    short returnedLeftRowAtpIndex, short returnedRightRowAtpIndex, short returnedInstRowForLeftJoinAtpIndex,
+    unsigned short memUsagePercent, short pressureThreshold, short scratchThresholdPct, queue_index down,
+    queue_index up, int isSemiJoin, int isLeftJoin, int isAntiSemiJoin, int isUniqueHashJoin, int isNoOverflow,
+    int isReuse, int numBuffers, int bufferSize, int hashBufferSize, Cardinality estimatedRowCount,
+    Cardinality innerExpectedRows, Cardinality outerExpectedRows, int isRightJoin, ex_expr *rightJoinExpr,
     // nullInstForRightJoinExpr(i.e)instantiates the
     // left row.
     ex_expr *nullInstForRightJoinExpr, short instRowForRightJoinAtpIndex, short returnedInstRowForRightJoinAtpIndex,

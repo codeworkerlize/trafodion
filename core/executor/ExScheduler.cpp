@@ -15,25 +15,26 @@
  *****************************************************************************
  */
 
-#include <dlfcn.h>
-#include "common/Platform.h"
-#include "executor/ex_stdh.h"
-#include "comexe/ComTdb.h"
-#include "executor/ex_tcb.h"
-#include "exp/exp_expr.h"
 #include "executor/ExScheduler.h"
+
+#include <dlfcn.h>
+
+#include "comexe/ComTdb.h"
+#include "common/Platform.h"
 #include "executor/ExStats.h"
 #include "executor/ex_error.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_tcb.h"
+#include "exp/exp_expr.h"
 
 // wait method need more include files
-#include "ex_exe_stmt_globals.h"
-#include "common/Ipc.h"
-#include "ex_frag_rt.h"
-#include "ex_root.h"
-
 #include "ExCextdecs.h"
 #include "common/ComRtUtils.h"
 #include "common/ComSqlcmpdbg.h"
+#include "common/Ipc.h"
+#include "ex_exe_stmt_globals.h"
+#include "ex_frag_rt.h"
+#include "ex_root.h"
 
 const char *TraceDesc = "SubTask state trace in Scheduler";
 static pid_t pid = getpid();
@@ -137,8 +138,8 @@ ExWorkProcRetcode ExScheduler::work(long prevWaitTime) {
       int lineWidth = 58;  // temp
       void *regdTrace;
       int ret = ti->addTrace("Scheduler", this, NumLastCalled, 3, this, getALine,
-                               //                               &subtaskTrace_[0],
-                               &lastCalledIdx_, lineWidth, TraceDesc, &regdTrace);
+                             //                               &subtaskTrace_[0],
+                             &lastCalledIdx_, lineWidth, TraceDesc, &regdTrace);
       if (ret == 0) {
         // trace info added successfully, now add entry fields
         ti->addTraceField(regdTrace, "TCB.NM(subtask ptr)", 0, ExeTrace::TR_POINTER32);
@@ -183,7 +184,6 @@ ExWorkProcRetcode ExScheduler::work(long prevWaitTime) {
       // -------------------------------------------------------------
       // scheduled subtask, reset it and execute the work proc
       // -------------------------------------------------------------
-
 
       // reset the trigger BEFORE calling the work procedure, so that
       // events don't get lost if they happen during execution of the
@@ -346,8 +346,6 @@ ExWorkProcRetcode ExScheduler::work(long prevWaitTime) {
     // subtasks)
 
     subtask = subtask->getNext();
-
-
 
     // -----------------------------------------------------------------
     // Each time we reach the end of the list, check whether any of the

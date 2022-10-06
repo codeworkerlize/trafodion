@@ -16,22 +16,23 @@
 
 // -----------------------------------------------------------------------
 
-#include "executor/ex_stdh.h"
-#include "ex_exe_stmt_globals.h"
-#include "ComTdb.h"
-#include "executor/ex_tcb.h"
 #include "ex_split_bottom.h"
+
+#include "ComTdb.h"
+#include "Context.h"
+#include "ExSMGlobals.h"
+#include "ExStats.h"
+#include "NAExecTrans.h"
+#include "ex_esp_frag_dir.h"
+#include "ex_exe_stmt_globals.h"
+#include "ex_expr.h"
 #include "ex_send_bottom.h"
 #include "ex_send_top.h"
-#include "ex_esp_frag_dir.h"
-#include "ex_expr.h"
-#include "ExStats.h"
-#include "str.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_tcb.h"
 #include "exp_clause_derived.h"
-#include "ExSMGlobals.h"
+#include "str.h"
 #include "ttime.h"
-#include "Context.h"
-#include "NAExecTrans.h"
 
 // -----------------------------------------------------------------------
 // Methods for class ex_split_bottom_tdb

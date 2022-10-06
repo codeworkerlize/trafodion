@@ -16,14 +16,13 @@
 #define SQLPARSERGLOBALS_FLAGS  // must precede all #include's
 
 #include "common/Platform.h"
+#include "executor/ex_error.h"
 #include "optimizer/NATable.h"
 #include "optimizer/Sqlcomp.h"
-#include "executor/ex_error.h"
-#include "sqlcat/TrafDDLdesc.h"
-#include "sqlcomp/parser.h"
-#include "sqlcomp/CmpSeabaseDDLmd.h"
-
 #include "parser/SqlParserGlobals.h"
+#include "sqlcat/TrafDDLdesc.h"
+#include "sqlcomp/CmpSeabaseDDLmd.h"
+#include "sqlcomp/parser.h"
 
 // -----------------------------------------------------------------------
 // Can't be inline because then circular #include-dependencies

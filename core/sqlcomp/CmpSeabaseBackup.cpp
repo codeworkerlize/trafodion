@@ -19,19 +19,19 @@
  *
  *****************************************************************************
  */
-#include "sqlcomp/CmpSeabaseDDLincludes.h"
-#include "optimizer/RelExeUtil.h"
-#include "cli/Globals.h"
 #include "cli/Context.h"
-#include "runtimestats/SqlStats.h"
+#include "cli/Globals.h"
+#include "comexe/LateBindInfo.h"
 #include "common/feerrors.h"
 #include "dtm/tm.h"
-#include "sqlcomp/PrivMgrComponentPrivileges.h"
-#include "sqlcomp/PrivMgrCommands.h"
-#include "sqlcomp/CmpSeabaseDDLrepos.h"
-#include "sqlcomp/CmpSeabaseBackupAttrs.h"
-#include "comexe/LateBindInfo.h"
 #include "exp/exp_datetime.h"
+#include "optimizer/RelExeUtil.h"
+#include "runtimestats/SqlStats.h"
+#include "sqlcomp/CmpSeabaseBackupAttrs.h"
+#include "sqlcomp/CmpSeabaseDDLincludes.h"
+#include "sqlcomp/CmpSeabaseDDLrepos.h"
+#include "sqlcomp/PrivMgrCommands.h"
+#include "sqlcomp/PrivMgrComponentPrivileges.h"
 
 static THREAD_P int stepSeq = 0;
 static THREAD_P int operCnt = 0;
@@ -271,7 +271,7 @@ short CmpSeabaseDDL::genLobChunksTableName(ExeCliInterface *cliInterface, const 
                                            const char *objName, const char *chunksSchName,
                                            NAString &fullyQualChunksName, NAString *chunksObjName) {
   long objUID = getObjectUID(cliInterface, (catName ? catName : TRAFODION_SYSCAT_LIT), schName, objName,
-                              COM_BASE_TABLE_OBJECT_LIT, NULL, NULL, NULL, FALSE, TRUE);
+                             COM_BASE_TABLE_OBJECT_LIT, NULL, NULL, NULL, FALSE, TRUE);
   if (objUID < 0) return -1;  // does not exist
 
   char buf[1000];
@@ -959,7 +959,7 @@ short CmpSeabaseDDL::checkIfBackupMDisLocked(RelBackupRestore *brExpr, ExeCliInt
 
   // check if backup schema exists in MD
   long objUID = getObjectUID(cliInterface, TRAFODION_SYSCAT_LIT, backupSch.data(), SEABASE_SCHEMA_OBJECTNAME,
-                              COM_PRIVATE_SCHEMA_OBJECT_LIT, NULL, NULL, NULL, FALSE, FALSE);
+                             COM_PRIVATE_SCHEMA_OBJECT_LIT, NULL, NULL, NULL, FALSE, FALSE);
   if (objUID < 0) return 0;  // does not exist
 
   str_sprintf(query, "select trim(text) from %s.\"%s\".%s where text_uid = %ld and text_type = 10",
@@ -997,7 +997,7 @@ short CmpSeabaseDDL::lockBackupMD(RelBackupRestore *brExpr, ExeCliInterface *cli
   genBackupSchemaName(brExpr->backupTag(), backupSch);
 
   long objUID = getObjectUID(cliInterface, TRAFODION_SYSCAT_LIT, backupSch.data(), SEABASE_SCHEMA_OBJECTNAME,
-                              COM_PRIVATE_SCHEMA_OBJECT_LIT, NULL, NULL, NULL, FALSE, FALSE);
+                             COM_PRIVATE_SCHEMA_OBJECT_LIT, NULL, NULL, NULL, FALSE, FALSE);
   if (objUID < 0) return 0;  // nothing to lock, object doesnt exist
 
   NABoolean xnWasStartedHere = FALSE;
@@ -1029,7 +1029,7 @@ short CmpSeabaseDDL::unlockBackupMD(RelBackupRestore *brExpr, ExeCliInterface *c
   genBackupSchemaName(brExpr->backupTag(), backupSch);
 
   long objUID = getObjectUID(cliInterface, TRAFODION_SYSCAT_LIT, backupSch.data(), SEABASE_SCHEMA_OBJECTNAME,
-                              COM_PRIVATE_SCHEMA_OBJECT_LIT, NULL, NULL, NULL, FALSE, FALSE);
+                             COM_PRIVATE_SCHEMA_OBJECT_LIT, NULL, NULL, NULL, FALSE, FALSE);
   if (objUID < 0) return 0;  // nothing to unlock, object doesnt exist
 
   NABoolean xnWasStartedHere = FALSE;
@@ -1241,8 +1241,8 @@ short CmpSeabaseDDL::genLobLocation(long objUID, const char *schName, ExeCliInte
 
   char oldLobMDName[100];
   str_sprintf(oldLobMDName, "LOBMD__%020ld", objUID);
-  int retcode = existsInSeabaseMDTable(cliInterface, TRAFODION_SYSCAT_LIT, schName, oldLobMDName,
-                                         COM_BASE_TABLE_OBJECT, TRUE, TRUE);
+  int retcode = existsInSeabaseMDTable(cliInterface, TRAFODION_SYSCAT_LIT, schName, oldLobMDName, COM_BASE_TABLE_OBJECT,
+                                       TRUE, TRUE);
   if (retcode == 1)  // exists. old lob name
   {
     if (forDisplay)  // get all lob files
@@ -2555,7 +2555,7 @@ short CmpSeabaseDDL::copyBRSrcToTgt(RelBackupRestore *brExpr, ExeCliInterface *c
         ComObjectType objectType;
         int schemaOwnerID = 0;
         long schemaUID = getObjectTypeandOwner(cliInterface, TRAFODION_SYSCAT_LIT, schemaName.data(),
-                                                SEABASE_SCHEMA_OBJECTNAME, objectType, schemaOwnerID);
+                                               SEABASE_SCHEMA_OBJECTNAME, objectType, schemaOwnerID);
 
         if (schemaUID == -1) {
           // schema does not exist
@@ -2693,9 +2693,9 @@ short CmpSeabaseDDL::expandAndValidate(ExeCliInterface *cliInterface, ElemDDLQua
                           dn->getQualifiedName().getUnqualifiedSchemaNameAsAnsiString(),
                           dn->getQualifiedName().getUnqualifiedObjectNameAsAnsiString());
 
-    long objUID = getObjectUID(
-        cliInterface, objName.getCatalogNamePartAsAnsiString(), objName.getSchemaNamePartAsAnsiString(TRUE),
-        objName.getObjectNamePartAsAnsiString(TRUE), objectType, NULL, NULL, NULL, FALSE, FALSE);
+    long objUID = getObjectUID(cliInterface, objName.getCatalogNamePartAsAnsiString(),
+                               objName.getSchemaNamePartAsAnsiString(TRUE), objName.getObjectNamePartAsAnsiString(TRUE),
+                               objectType, NULL, NULL, NULL, FALSE, FALSE);
 
     if (objUID <= 0) {
       NAString type(objectType);
@@ -3160,8 +3160,7 @@ static void extractTokens(std::string &s, std::vector<string> &tokens) {
 // inputStr contains backup info returned by java layer.
 // Format: <tag> <BackupTime> <BackupStatus> <BackupOper>
 // return TRUE if inputStr contains brExprTag. FALSE, otherwise.
-static NABoolean containsTag(const char *inputStr, int inputStrLen, char *brExprTag, NAString &oper,
-                             NAString &status) {
+static NABoolean containsTag(const char *inputStr, int inputStrLen, char *brExprTag, NAString &oper, NAString &status) {
   if ((!inputStr) || (inputStrLen == 0) || (!brExprTag)) return FALSE;
 
   char inputStrBuf[inputStrLen + 1];
@@ -3970,7 +3969,7 @@ short CmpSeabaseDDL::updateBackupOperationMetrics(RelBackupRestore *brExpr, ExeC
 
   // if backup repos doesn't exist, return
   long objUID = getObjectUID(cliInterface, TRAFODION_SYSTEM_CATALOG, SEABASE_REPOS_SCHEMA,
-                              TRAF_BACKUP_OPERATION_METRICS, COM_BASE_TABLE_OBJECT_LIT, NULL, NULL, NULL, FALSE, FALSE);
+                             TRAF_BACKUP_OPERATION_METRICS, COM_BASE_TABLE_OBJECT_LIT, NULL, NULL, NULL, FALSE, FALSE);
   if (objUID < 0) return 0;  // does not exist
 
   NAString backupTag(brExpr->backupTag());
@@ -5858,7 +5857,7 @@ short CmpSeabaseDDL::dropBackupTags(RelBackupRestore *brExpr, ExeCliInterface *c
 
     // check if backup schema exists in MD
     long objUID = getObjectUID(cliInterface, TRAFODION_SYSCAT_LIT, backupSch.data(), SEABASE_SCHEMA_OBJECTNAME,
-                                COM_PRIVATE_SCHEMA_OBJECT_LIT, NULL, NULL, NULL, FALSE, FALSE);
+                               COM_PRIVATE_SCHEMA_OBJECT_LIT, NULL, NULL, NULL, FALSE, FALSE);
     if (objUID < 0) return 0;  // does not exist, nothing to drop
   }
 
@@ -6291,7 +6290,7 @@ short CmpSeabaseDDL::dropBackupMD(RelBackupRestore *brExpr, ExeCliInterface *cli
     ComObjectType objectType;
     int schemaOwnerID = 0;
     long schemaUID = getObjectTypeandOwner(cliInterface, TRAFODION_SYSCAT_LIT, backupSch.data(),
-                                            SEABASE_SCHEMA_OBJECTNAME, objectType, schemaOwnerID);
+                                           SEABASE_SCHEMA_OBJECTNAME, objectType, schemaOwnerID);
     if (schemaUID == -1)  // doesn't exist
     {
       *CmpCommon::diags() << DgSqlCode(-CAT_SCHEMA_DOES_NOT_EXIST_ERROR) << DgString0(getSystemCatalog())
@@ -7397,8 +7396,7 @@ short CmpSeabaseDDL::checkCompatibility(BackupAttrList *attrList, NAString &erro
   return 0;
 }
 
-int CmpSeabaseDDL::getOwnerList(ExpHbaseInterface *ehi, NAArray<HbaseStr> *backupList,
-                                  std::vector<string> &ownerList) {
+int CmpSeabaseDDL::getOwnerList(ExpHbaseInterface *ehi, NAArray<HbaseStr> *backupList, std::vector<string> &ownerList) {
   NAString errorMsg;
   int maxOwnerLen = strlen("Not Available");
   if (backupList && backupList->entries() > 0) {
@@ -7808,7 +7806,7 @@ short CmpSeabaseDDL::cleanupLinkedBackupMD(ExeCliInterface *cliInterface, NAArra
     ComObjectType objectType;
     int schemaOwnerID = 0;
     long schemaUID = getObjectTypeandOwner(cliInterface, TRAFODION_SYSCAT_LIT, backupSch.data(),
-                                            SEABASE_SCHEMA_OBJECTNAME, objectType, schemaOwnerID);
+                                           SEABASE_SCHEMA_OBJECTNAME, objectType, schemaOwnerID);
     // doesn't exist
     if (schemaUID == -1) {
       continue;

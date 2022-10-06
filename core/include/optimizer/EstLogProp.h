@@ -27,11 +27,11 @@ typedef IntrusiveSharedPtr<EstLogProp> EstLogPropSharedPtr;
 // -----------------------------------------------------------------------
 //  Include Files
 // -----------------------------------------------------------------------
-#include "common/BaseTypes.h"
 #include "ColStatDesc.h"
+#include "arkcmp/CompException.h"
+#include "common/BaseTypes.h"
 #include "common/OperTypeEnum.h"
 #include "optimizer/RelJoin.h"
-#include "arkcmp/CompException.h"
 
 // Forward class declaration
 class CANodeIdSet;

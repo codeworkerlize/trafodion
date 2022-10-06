@@ -21,8 +21,8 @@
 ********************************************************************************
 */
 
-#include "common/ComSmallDefs.h"
 #include "ElemDDLNode.h"
+#include "common/ComSmallDefs.h"
 
 class ElemDDLLibClientFilename : public ElemDDLNode {
  public:

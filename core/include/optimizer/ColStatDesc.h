@@ -21,9 +21,9 @@
 // -----------------------------------------------------------------------
 
 #include "Stats.h" /* includes CostScalar.h, Collections.h, ValueDesc.h ... */
-#include "optimizer/NATable.h"
 #include "common/SharedPtr.h"
 #include "common/SharedPtrCollections.h"
+#include "optimizer/NATable.h"
 
 // -----------------------------------------------------------------------
 //  Contents of this file
@@ -513,8 +513,8 @@ class ColStatDesc : public NABasicObject {
   ColStatsSharedPtr colStats_;  // reference to ColStats structure
   NABoolean modified_;          // FALSE => the Colstats structure has not yet
   //                            // been modified
-  CostScalar inputCard_;  // any input cardinality which could be reflected
-                          // in this colStat
+  CostScalar inputCard_;    // any input cardinality which could be reflected
+                            // in this colStat
   ValueIdSet exprColRefs_;  // for expressions histograms, contains the ValueIds
                             // of columns referenced by this instance of the
                             // expression; for regular histograms, this is empty
@@ -709,8 +709,8 @@ class ColStatDescList : public SHPTR_LIST(ColStatDescSharedPtr) {
   CostScalar getCardOfBusiestStream(const PartitioningFunction *partFunc, int numOfParts, GroupAttributes *grpAttr,
                                     int countOfCPUs = 1);
 
-  CostScalar getCardOfBusiestStreamForUnderNJ(CANodeIdSet *outerNodeSet, const PartitioningFunction *pf,
-                                              int numOfParts, GroupAttributes *gr, int countOfCpus = 1);
+  CostScalar getCardOfBusiestStreamForUnderNJ(CANodeIdSet *outerNodeSet, const PartitioningFunction *pf, int numOfParts,
+                                              GroupAttributes *gr, int countOfCpus = 1);
 
   void addRecentlyJoinedCols(CollIndex startIdx, CollIndex stopIdx);
 

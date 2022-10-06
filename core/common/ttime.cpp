@@ -1,12 +1,13 @@
 
 //
+#include "ttime.h"
+
+#include <math.h>
 #include <stdio.h>
 #include <sys/time.h>
 #include <time.h>
-#include <math.h>
 
 #include "common/ComCextdecs.h"
-#include "ttime.h"
 
 const char *reportTimestamp() {
   char buffer[26];

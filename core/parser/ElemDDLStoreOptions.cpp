@@ -16,9 +16,10 @@
  *****************************************************************************
  */
 
+#include "parser/ElemDDLStoreOptions.h"
+
 #include "common/ComASSERT.h"
 #include "common/ComOperators.h"
-#include "parser/ElemDDLStoreOptions.h"
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLStoreOpt

@@ -13,15 +13,15 @@
 ****************************************************************************
 */
 
-#include "common/Platform.h"
-
 #include "exp/ExpError.h"
-#include "str.h"
-#include "export/ComDiags.h"
+
 #include "common/ComMisc.h"
+#include "common/Platform.h"
+#include "exp/ExpHbaseDefs.h"
 #include "exp/exp_clause_derived.h"
 #include "exp/exp_datetime.h"
-#include "exp/ExpHbaseDefs.h"
+#include "export/ComDiags.h"
+#include "str.h"
 
 // Single allocation of buf is split up to be used for opstrings,
 // formatting.
@@ -46,9 +46,9 @@ extern short convertTypeToText_basic(char *text, int fs_datatype, int length, in
                                      short caseinsensitive, CharInfo::CharSet charSet, const char *collation_name,
                                      const char *displaydatatype, short displayCaseSpecific, NABoolean isVarchar2);
 
-ComDiagsArea *ExAddCondition(CollHeap *heap, ComDiagsArea **diagsArea, int err, ComCondition **newCond,
-                             int *intParam1, int *intParam2, int *intParam3, const char *stringParam1,
-                             const char *stringParam2, const char *stringParam3) {
+ComDiagsArea *ExAddCondition(CollHeap *heap, ComDiagsArea **diagsArea, int err, ComCondition **newCond, int *intParam1,
+                             int *intParam2, int *intParam3, const char *stringParam1, const char *stringParam2,
+                             const char *stringParam3) {
   //
   // This version of ExRaiseSqlError is used by the expressions code.  In
   // addition to having slightly different parameters, it differs from the
@@ -250,8 +250,8 @@ void ExConvertErrorToString(CollHeap *heap, ComDiagsArea **diagsArea, char *src,
 }
 
 // Detailed error support for pcode expression evaluation.
-ComDiagsArea *ExRaiseDetailSqlError(CollHeap *heap, ComDiagsArea **diagsArea, ExeErrorCode err, int pciInst,
-                                    char *op1, char *op2, char *op3) {
+ComDiagsArea *ExRaiseDetailSqlError(CollHeap *heap, ComDiagsArea **diagsArea, ExeErrorCode err, int pciInst, char *op1,
+                                    char *op2, char *op3) {
   if (diagsArea == NULL) return NULL;
 
   if (*diagsArea == NULL) {

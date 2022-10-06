@@ -15,13 +15,14 @@
 ******************************************************************************
 */
 
-#include "executor/ex_stdh.h"
-#include "comexe/ComTdb.h"
-#include "executor/ex_tcb.h"
 #include "ExSample.h"
-#include "executor/ex_expr.h"
+
 #include "ExSimpleSqlBuffer.h"
+#include "comexe/ComTdb.h"
 #include "executor/ExStats.h"
+#include "executor/ex_expr.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_tcb.h"
 
 // build - construct the TCB subtree for this TDB.
 //

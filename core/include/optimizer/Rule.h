@@ -377,7 +377,7 @@ class RuleSet : public NABasicObject {
 
   int currentPass_;    // current pass of optimization
   int totalPasses_;    // total number of optimization passes
-                         // for this statement
+                       // for this statement
   int ruleApplCount_;  // statistics on rule applications
 
   RuleSubset transRules_;             // all transformation rules

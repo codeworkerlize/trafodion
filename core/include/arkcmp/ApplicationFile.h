@@ -12,13 +12,13 @@
  * Language:     C++
  *****************************************************************************
  */
-#include <stdio.h>
-#include <string>
-#include <fcntl.h>     // for _O_CREAT, O_CREAT
-#include <sys/stat.h>  // for _S_IWRITE, S_IWUSR
-
+#include <fcntl.h>    // for _O_CREAT, O_CREAT
 #include <io.h>       // for _access(), _open(), _close(), _write()
 #include <process.h>  // for _getpid()
+#include <stdio.h>
+#include <sys/stat.h>  // for _S_IWRITE, S_IWUSR
+
+#include <string>
 #define ACCESS     _access
 #define CLOSE      _close
 #define READABLE   4
@@ -77,8 +77,8 @@ class ApplicationFile {
   bool mxcmpModule(char *mdf);
 
   std::string fileName_;  // application file name
-  int nCompiles_;       // number of mxcmp invocations
-  int nFailures_;       // number of unsuccessful mxcmp invocations
+  int nCompiles_;         // number of mxcmp invocations
+  int nFailures_;         // number of unsuccessful mxcmp invocations
 
   Cmdline_Args *args_;  // for determining if all named modules were found
   FILE *appFile_;       // handle to application file or

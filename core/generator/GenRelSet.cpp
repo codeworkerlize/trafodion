@@ -14,19 +14,19 @@
 *
 ******************************************************************************
 */
+#include "GenExpGenerator.h"
 #include "common/ComOptIncludes.h"
+#include "generator/Generator.h"
 #include "optimizer/GroupAttr.h"
 #include "optimizer/RelSet.h"
-#include "generator/Generator.h"
-#include "GenExpGenerator.h"
 //#include "executor/ex_stdh.h"
-#include "exp/ExpCriDesc.h"
 #include "comexe/ComTdb.h"
+#include "exp/ExpCriDesc.h"
 //#include "executor/ex_tcb.h"
 #include "comexe/ComTdbUnion.h"
-#include "sqlcomp/DefaultConstants.h"
 #include "executor/sql_buffer.h"
 #include "executor/sql_buffer_size.h"
+#include "sqlcomp/DefaultConstants.h"
 
 /////////////////////////////////////////////////////////////////////
 //

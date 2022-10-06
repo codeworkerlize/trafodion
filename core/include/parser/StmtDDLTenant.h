@@ -13,10 +13,10 @@
  *****************************************************************************
  */
 
-#include "common/ComSmallDefs.h"
-#include "parser/StmtDDLNode.h"
 #include "ElemDDLTenantGroup.h"
 #include "ElemDDLTenantResourceGroup.h"
+#include "common/ComSmallDefs.h"
+#include "parser/StmtDDLNode.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

@@ -12,16 +12,17 @@
  *****************************************************************************
  */
 
+#include "UdrExeIpc.h"
+
 #include <iostream>
 
-#include "common/ComTransInfo.h"
-#include "export/IpcMessageObj.h"
-#include "ComplexObject.h"
 #include "CliMsgObj.h"
-#include "UdrExeIpc.h"
-#include "executor/sql_buffer.h"
+#include "ComplexObject.h"
 #include "ExCextdecs.h"
 #include "common/ComRtUtils.h"
+#include "common/ComTransInfo.h"
+#include "executor/sql_buffer.h"
+#include "export/IpcMessageObj.h"
 
 //----------------------------------------------------------------------
 // UDR debugging code. See comments in UdrExeIpc.h.

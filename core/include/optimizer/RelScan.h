@@ -17,22 +17,23 @@
 
 // -----------------------------------------------------------------------
 
-#include "common/ComSmallDefs.h"
-#include "optimizer/ObjectNames.h"
-#include "optimizer/RelExpr.h"
-#include "SearchKey.h"
-#include "optimizer/mdam.h"
-#include "mdamkey.h"
-#include "disjuncts.h"
-#include "optimizer/OptUtilIncludes.h"
-#include "arkcmp/CmpContext.h"
-#include "optimizer/SchemaDB.h"
-#include "HbaseSearchSpec.h"
-#include "optimizer/OptHints.h"
-#include "orcPushdownPredInfo.h"
-#include "exp/ExpHbaseDefs.h"
-#include "optimizer/ItemOther.h"
 #include <vector>
+
+#include "HbaseSearchSpec.h"
+#include "SearchKey.h"
+#include "arkcmp/CmpContext.h"
+#include "common/ComSmallDefs.h"
+#include "disjuncts.h"
+#include "exp/ExpHbaseDefs.h"
+#include "mdamkey.h"
+#include "optimizer/ItemOther.h"
+#include "optimizer/ObjectNames.h"
+#include "optimizer/OptHints.h"
+#include "optimizer/OptUtilIncludes.h"
+#include "optimizer/RelExpr.h"
+#include "optimizer/SchemaDB.h"
+#include "optimizer/mdam.h"
+#include "orcPushdownPredInfo.h"
 // -----------------------------------------------------------------------
 // contents of this file
 // -----------------------------------------------------------------------
@@ -918,7 +919,7 @@ class FileScan : public Scan {
 
   virtual NABoolean okToAttemptESPParallelism(const Context *myContext, /*IN*/
                                               PlanWorkSpace *pws,       /*IN*/
-                                              int &numOfESPs,         /*OUT*/
+                                              int &numOfESPs,           /*OUT*/
                                               float &allowedDeviation,  /*OUT*/
                                               NABoolean &numOfESPsForced /*OUT*/);
 

@@ -21,15 +21,15 @@
  *****************************************************************************
  */
 
+#include "ElemDDLColViewDefArray.h"
+#include "ElemDDLLocation.h"
+#include "ParNameLocList.h"
+#include "ParTableUsageList.h"
 #include "common/ComASSERT.h"
 #include "common/ComOperators.h"
 #include "common/ComSmallDefs.h"
-#include "ElemDDLColViewDefArray.h"
-#include "ElemDDLLocation.h"
 #include "common/NABoolean.h"
 #include "optimizer/ObjectNames.h"
-#include "ParNameLocList.h"
-#include "ParTableUsageList.h"
 #include "optimizer/RelExpr.h"
 #include "parser/StmtDDLNode.h"
 

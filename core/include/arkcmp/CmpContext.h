@@ -27,21 +27,19 @@
 
 #include <fstream>
 
-#include "export/ComDiags.h"
-#include "common/CmpCommon.h"
 #include "CmpSqlSession.h"
-#include "common/NABoolean.h"
-#include "export/NAStringDef.h"
 #include "ProcessEnv.h"
 #include "cli/sqlcli.h"
-#include "common/ComSysUtils.h"  // for TimeVal
-
-#include "common/Collections.h"  // for NAList
-#include "common/NAAssert.h"     // required after including a RogueWave file!
-
 #include "comexe/CmpMessage.h"
-#include "optimizer/TableDesc.h"
+#include "common/CmpCommon.h"
+#include "common/Collections.h"  // for NAList
+#include "common/ComSysUtils.h"  // for TimeVal
+#include "common/NAAssert.h"     // required after including a RogueWave file!
+#include "common/NABoolean.h"
 #include "common/SharedPtr.h"
+#include "export/ComDiags.h"
+#include "export/NAStringDef.h"
+#include "optimizer/TableDesc.h"
 
 class SchemaDB;
 class ControlDB;
@@ -620,8 +618,8 @@ class CmpContext {
   void resetContext();
 
   int compileDirect(char *data, UInt32 dataLen, CollHeap *outHeap, int charset, CmpMessageObj::MessageTypeEnum op,
-                      char *&gen_code, UInt32 &gen_code_len, UInt32 parserFlags, const char *parentQid,
-                      int parentQidLen, ComDiagsArea *&diagsArea, NABoolean needToDoWork = TRUE);
+                    char *&gen_code, UInt32 &gen_code_len, UInt32 parserFlags, const char *parentQid, int parentQidLen,
+                    ComDiagsArea *&diagsArea, NABoolean needToDoWork = TRUE);
 
   // set/reset an env in compiler envs
   void setArkcmpEnvDirect(const char *name, const char *value, NABoolean unset);

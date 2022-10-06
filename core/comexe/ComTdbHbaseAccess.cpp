@@ -1,8 +1,9 @@
 
 #include "comexe/ComTdbHbaseAccess.h"
+
 #include "comexe/ComTdbCommon.h"
-#include "common/ComEncryption.h"
 #include "comexe/LateBindInfo.h"
+#include "common/ComEncryption.h"
 #include "optimizer/TriggerDB.h"
 
 // Dummy constructor for "unpack" routines.

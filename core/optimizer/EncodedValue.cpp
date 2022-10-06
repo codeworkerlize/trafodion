@@ -14,22 +14,22 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
-#include "optimizer/Sqlcomp.h" /* must be first included file */
 #include "EncodedValue.h"
-#include "optimizer/ItemColRef.h"
-#include "sqlcomp/parser.h"
-#include "common/str.h"
-#include <wchar.h>
-#include "common/NLSConversion.h"
-#include "common/wstr.h"
+
 #include <exp_function.h>
+#include <wchar.h>
 
 #include <ostream>
 
 #include "arkcmp/CompException.h"
-
+#include "common/NLSConversion.h"
+#include "common/Platform.h"
+#include "common/str.h"
+#include "common/wstr.h"
 #include "exp_function.h"
+#include "optimizer/ItemColRef.h"
+#include "optimizer/Sqlcomp.h" /* must be first included file */
+#include "sqlcomp/parser.h"
 
 const EncodedValue NULL_ENCODEDVALUE(WIDE_("(NULL)"));
 const EncodedValue UNINIT_ENCODEDVALUE(_ENCODEDVALUE_UNINIT_VALUE_);
@@ -399,7 +399,7 @@ UInt32 EncodedValue::computeRunTimeHashValue(const NAColumnArray &colArray, cons
 
 void EncodedValue::outputToBufferToComputeRTHash(const NAType *naType,
                                                  char *data,    // output buffer to hold the data to be hashed
-                                                 int &len,    // length of the data
+                                                 int &len,      // length of the data
                                                  UInt32 &flags  // flags to be used during hash
 ) const {
   double x = getDblValue();

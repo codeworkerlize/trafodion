@@ -26,13 +26,12 @@ class CorrName;
 class BindWA;
 class ColReference;
 
-#include "common/NABoolean.h"
-#include "common/OperTypeEnum.h"
-
-#include "common/Collections.h"
 #include "common/CmpCommon.h"
-#include "optimizer/ItemExprList.h"
+#include "common/Collections.h"
+#include "common/NABoolean.h"
 #include "common/NAString.h"
+#include "common/OperTypeEnum.h"
+#include "optimizer/ItemExprList.h"
 
 // specialFlags parameter for buildClusteringIndexVector()
 enum ciSpecialFlags {

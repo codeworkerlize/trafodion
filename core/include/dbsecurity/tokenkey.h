@@ -1,8 +1,9 @@
 #ifndef _TOKENKEY_H
 #define _TOKENKEY_H
 
-#include "dbsecurity/auth.h"
 #include <stddef.h>
+
+#include "dbsecurity/auth.h"
 
 class TokenKeyContents;
 

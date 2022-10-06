@@ -51,6 +51,6 @@ class ScratchFileConnection : public IpcConnection {
   ex_tcb *callingTcb_;
   short ioOutstanding_;
   NABoolean isWriteIO_;  // Indicates if read or write IO
-  int fileIndex_;      // Corresponds to a perticular open on the scratch file among multiple opens.
+  int fileIndex_;        // Corresponds to a perticular open on the scratch file among multiple opens.
 };
 #endif

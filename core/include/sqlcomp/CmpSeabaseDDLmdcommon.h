@@ -34,8 +34,8 @@
 // plans. By moving it to a separate file, we avoid compiler issues.
 // -----------------------------------------------------------------------------
 
-#include "common/Platform.h"
 #include "common/NABoolean.h"
+#include "common/Platform.h"
 
 // structure describes a const char * str used to define metadata tables
 struct QString {

@@ -20,8 +20,8 @@
  */
 
 #include "common/unicode_char_set.h"
-#include "common/BaseTypes.h"
 
+#include "common/BaseTypes.h"
 #include "common/nawstring.h"
 
 // 4/10/98  Unicode char/string manipulations
@@ -180,7 +180,7 @@ NAWchar unicode_char_set::to_lower(const NAWchar x) {
 //
 
 int IndexOfLastByteOfUTF8CharAtOrBeforePos(const unsigned char *utf8Str, const int utf8StrLenInBytes,
-                                             const int bytePos) {
+                                           const int bytePos) {
   if (utf8Str == NULL || utf8StrLenInBytes <= 0 || bytePos < 0 || bytePos >= utf8StrLenInBytes) return -1;  // error
   if (IS_7_BIT_ASCII_IN_UTF8_CHAR(utf8Str[bytePos])) return bytePos;
   int indexOf1stByteOfUtf8Char = IndexOfFirstByteOfUTF8CharAtOrBeforePos(utf8Str, utf8StrLenInBytes, bytePos);
@@ -214,7 +214,7 @@ int UTF8CharLenInBytes(const unsigned char firstByteOfTheUtf8Char) {
 }
 
 int IndexOfFirstByteOfUTF8CharAtOrBeforePos(const unsigned char *utf8Str, const int utf8StrLenInBytes,
-                                              const int bytePos) {
+                                            const int bytePos) {
   if (utf8Str == NULL || utf8StrLenInBytes <= 0 || bytePos < 0 || bytePos >= utf8StrLenInBytes) return -1;  // error
   if (IS_7_BIT_ASCII_IN_UTF8_CHAR(utf8Str[bytePos])) return bytePos;
   int i = bytePos;

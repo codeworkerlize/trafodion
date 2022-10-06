@@ -247,8 +247,6 @@ class CatPrivSettings;
 class CatCkColUsageList;
 class CatPartitioningKeyList;
 
-
-
 // #define min(a, b) (((a) < (b)) ? (a) : (b))
 
 #define TIME_ZONE_ID_UNKNOWN  0

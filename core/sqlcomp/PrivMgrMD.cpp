@@ -9,35 +9,35 @@
 
 // Needed for parser flag manipulation
 #define SQLPARSERGLOBALS_FLAGS
-#include "parser/SqlParserGlobalsCmn.h"
-#include "cli/SQLCLIdev.h"
-
 #include "sqlcomp/PrivMgrMD.h"
-#include "sqlcomp/PrivMgrMDDefs.h"
-#include "sqlcomp/PrivMgrPrivileges.h"
-#include "sqlcomp/PrivMgrRoles.h"
-#include "PrivMgrComponents.h"
-#include "PrivMgrComponentOperations.h"
-#include "sqlcomp/PrivMgrComponentPrivileges.h"
-#include "sqlcomp/PrivMgrObjects.h"
-#include "sqlcomp/CmpSeabaseDDLauth.h"
-#include "sqlcomp/CmpSeabaseDDL.h"
-#include "common/ComUser.h"
 
+#include <algorithm>
 #include <set>
 #include <string>
-#include <algorithm>
-#include "common/ComSmallDefs.h"
+
+#include "PrivMgrComponentOperations.h"
+#include "PrivMgrComponents.h"
+#include "cli/SQLCLIdev.h"
 #include "common/ComDistribution.h"
+#include "common/ComSmallDefs.h"
+#include "common/ComUser.h"
+#include "parser/SqlParserGlobalsCmn.h"
+#include "sqlcomp/CmpSeabaseDDL.h"
+#include "sqlcomp/CmpSeabaseDDLauth.h"
+#include "sqlcomp/PrivMgrComponentPrivileges.h"
+#include "sqlcomp/PrivMgrMDDefs.h"
+#include "sqlcomp/PrivMgrObjects.h"
+#include "sqlcomp/PrivMgrPrivileges.h"
+#include "sqlcomp/PrivMgrRoles.h"
 // sqlcli.h included because ExExeUtilCli.h needs it (and does not include it!)
+#include "arkcmp/CmpContext.h"
 #include "cli/sqlcli.h"
-#include "executor/ExExeUtilCli.h"
-#include "export/ComDiags.h"
 #include "comexe/ComQueue.h"
 #include "common/CmpCommon.h"
-#include "arkcmp/CmpContext.h"
-#include "sqlcomp/CmpDDLCatErrorCodes.h"
 #include "common/ComUser.h"
+#include "executor/ExExeUtilCli.h"
+#include "export/ComDiags.h"
+#include "sqlcomp/CmpDDLCatErrorCodes.h"
 
 // *****************************************************************************
 //    PrivMgrMDAdmin static methods
@@ -1505,7 +1505,7 @@ short PrivMgrMDAdmin::alterRenamePMTbl(ExeCliInterface *cliInterface, NABoolean 
 short PrivMgrMDAdmin::checkForOldPMTbl(ExeCliInterface *cliInterface) {
   int cliRC = 0;
   int bufSize = (strlen(TRAFODION_SYSCAT_LIT) * 2) + strlen(SEABASE_MD_SCHEMA) + strlen(SEABASE_OBJECTS) +
-                  strlen(SEABASE_PRIVMGR_SCHEMA) + (3 * 60);
+                strlen(SEABASE_PRIVMGR_SCHEMA) + (3 * 60);
   char queryBuf[bufSize];
 
   str_sprintf(queryBuf,
@@ -1684,7 +1684,7 @@ short PrivMgrMDAdmin::dropAndLogPMViews(ExeCliInterface *cliInterface, NABoolean
     if ((!pmti.oldName) || (NOT pmti.upgradeNeeded)) continue;
 
     long tableUID = cmpDDL.getObjectUID(cliInterface, TRAFODION_SYSCAT_LIT, SEABASE_PRIVMGR_SCHEMA, pmti.oldName,
-                                         COM_BASE_TABLE_OBJECT_LIT, NULL, NULL, NULL, FALSE, FALSE /* ignore error */);
+                                        COM_BASE_TABLE_OBJECT_LIT, NULL, NULL, NULL, FALSE, FALSE /* ignore error */);
 
     if (tableUID > 0)  // if we got it
     {
@@ -1844,7 +1844,7 @@ short PrivMgrMDAdmin::grantPMTbl(ExeCliInterface *cliInterface, NABoolean inReco
 
     // get object UID, object should exist
     long objectUID = cmpDDL.getObjectUID(cliInterface, TRAFODION_SYSCAT_LIT, SEABASE_PRIVMGR_SCHEMA, pmti.newName,
-                                          COM_BASE_TABLE_OBJECT_LIT, NULL, NULL, NULL, FALSE, FALSE /* ignore error */);
+                                         COM_BASE_TABLE_OBJECT_LIT, NULL, NULL, NULL, FALSE, FALSE /* ignore error */);
     if (objectUID <= 0) {
       PRIVMGR_INTERNAL_ERROR("PrivMgrMDAdmin::grantPMTbl unable to retrieve object details");
       cliRC = -1;
@@ -1932,7 +1932,7 @@ short PrivMgrMDAdmin::revokePMTbl(ExeCliInterface *cliInterface, NABoolean oldPM
 
     // get the objectUID for the table
     long objectUID = cmpDDL.getObjectUID(cliInterface, TRAFODION_SYSCAT_LIT, SEABASE_PRIVMGR_SCHEMA, pmti.newName,
-                                          COM_BASE_TABLE_OBJECT_LIT, NULL, NULL, NULL, FALSE, FALSE /* ignore error */);
+                                         COM_BASE_TABLE_OBJECT_LIT, NULL, NULL, NULL, FALSE, FALSE /* ignore error */);
     if (objectUID <= 0) {
       if (inRecovery) continue;
 

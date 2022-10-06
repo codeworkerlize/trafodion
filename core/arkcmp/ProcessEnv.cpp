@@ -17,16 +17,18 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
-#include "common/Collections.h"
 #include "ProcessEnv.h"
-#include "common/CmpCommon.h"
 
-#include <unistd.h>
-#include <string.h>
 #include <stdlib.h>
-#include <iostream>
+#include <string.h>
+#include <unistd.h>
+
 #include <fstream>
+#include <iostream>
+
+#include "common/CmpCommon.h"
+#include "common/Collections.h"
+#include "common/Platform.h"
 
 extern char **environ;
 #define ENVIRON environ

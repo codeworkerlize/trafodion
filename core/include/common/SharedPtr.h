@@ -72,8 +72,8 @@
 //    }
 // ***********************************************************************
 
-#include "common/NAMemory.h"
 #include "common/NAAssert.h"
+#include "common/NAMemory.h"
 
 // Classes and structs defined in this file.
 struct nullDeleter;
@@ -127,7 +127,7 @@ struct SharedRefCountBase {
   virtual void destroyObjects() = 0;
 
   int useCount_;  // Reference count of this object
-  T *objectP_;      // Pointer to object
+  T *objectP_;    // Pointer to object
 };
 
 // ***********************************************************************

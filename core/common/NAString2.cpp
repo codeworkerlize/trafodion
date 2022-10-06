@@ -13,19 +13,17 @@
 #include "common/Platform.h"
 
 //#include "common/BaseTypes.h"
-#include "common/ComAnsiNamePart.h"
 #include "common/ComASSERT.h"
+#include "common/ComAnsiNamePart.h"
 #include "common/ComRtUtils.h"
 //#include "common/ComSmallDefs.h"
+#include "cli/sqlcli.h"
+#include "common/ComSizeDefs.h"
+#include "common/NAString.h"
+#include "common/NAWinNT.h"
+#include "common/nawstring.h"
 #include "common/str.h"
 #include "export/NABasicObject.h"
-#include "common/ComSizeDefs.h"
-#include "common/NAWinNT.h"
-
-#include "common/NAString.h"
-#include "common/nawstring.h"
-
-#include "cli/sqlcli.h"
 
 // move this method to NAString.h later.
 NABoolean setMPLoc();

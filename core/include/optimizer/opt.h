@@ -19,10 +19,10 @@
 */
 
 // -----------------------------------------------------------------------
-#include "optimizer/RelExpr.h"
-#include "common/CmpCommon.h"
 #include "arkcmp/CmpContext.h"
+#include "common/CmpCommon.h"
 #include "common/NAWNodeSet.h"
+#include "optimizer/RelExpr.h"
 
 //<pb>
 // -----------------------------------------------------------------------
@@ -1228,8 +1228,8 @@ class Context : public NABasicObject {
   // administrative information, used by the optimizer search engine
   // ---------------------------------------------------------------------
   CascadesGroupId groupId_;   // where is this context used
-  int doneInPass_;          // OptimizeGroupTask done in this pass
-  int outstanding_;         // # plans outstanding in
+  int doneInPass_;            // OptimizeGroupTask done in this pass
+  int outstanding_;           // # plans outstanding in
                               // OptimizeGroupTask task
   Context *currentAncestor_;  // current parent context
   Context *duplicateOf_;      // duplicate resulting from
@@ -1610,8 +1610,8 @@ class NestedJoinPlanWorkSpace : public PlanWorkSpace {
   NABoolean getOCRJoinIsConsidered() const { return OCRJoinIsConsidered_; }
   NABoolean getFastLoadIntoTrafodion() const { return fastLoadIntoTrafodion_; }
 
-  void setParallelismItems(NABoolean useParallelism, int childNumPartsRequirement,
-                           float childNumPartsAllowedDeviation, NABoolean numOfESPsForced) {
+  void setParallelismItems(NABoolean useParallelism, int childNumPartsRequirement, float childNumPartsAllowedDeviation,
+                           NABoolean numOfESPsForced) {
     useParallelism_ = useParallelism;
     childNumPartsRequirement_ = childNumPartsRequirement;
     childNumPartsAllowedDeviation_ = childNumPartsAllowedDeviation;
@@ -1728,7 +1728,7 @@ class CascadesGroup : public NABasicObject {
   RelExpr *physExprs_;          // linked list of physical expressions
   CascadesPlanList plans_;      // linked list of plans
   ContextList goals_;           // optimization goals tried so far
-  int exploredInPass_;        // to avoid exploring twice
+  int exploredInPass_;          // to avoid exploring twice
   RuleSubset exploredRules_;    // Rules that the groups has been explored
                                 // with or scheduled to be explored with.
   // This is temporary and later should be moved to GroupAttr ot GroupAnalysys,
@@ -1779,7 +1779,7 @@ class CascadesMemo : public NABasicObject {
   ARRAY(CascadesGroup *) group_;  // groups of equivalent expressions
 
   ARRAY(RelExpr *) hash_;  // for dupl. expr. detection
-  int hashSize_;         // size of hash table
+  int hashSize_;           // size of hash table
 
 };  // CascadesMemo
 //<pb>
@@ -1843,7 +1843,7 @@ class CascadesTask : public NABasicObject {
  protected:
   Guidance *guidance_;  // search guidance
   Context *context_;    // shared context
-  int parentTaskId_;  // parent task, in execution order
+  int parentTaskId_;    // parent task, in execution order
   short stride_;
   // stride_ is (sub)task number assigned by parent in its parent::perform
   // call when parent was popped and it pushed this (sub)task onto the

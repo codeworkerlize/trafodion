@@ -65,10 +65,10 @@
 */
 #endif  // documentation
 
-#include "sqlcat/TrafDDLdesc.h"
 #include "optimizer/BindWA.h"
 #include "optimizer/ItemConstr.h"
 #include "optimizer/NATable.h"
+#include "sqlcat/TrafDDLdesc.h"
 
 /*static*/ void Constraint::makeColSignature(const ValueIdSet &assigns, ColSignature &outsig) {
   //## navigate assigns to find target cols,
@@ -180,8 +180,7 @@ UniqueConstraint::~UniqueConstraint() {
   refConstraintsReferencingMe_.clear();
 }
 
-int UniqueConstraint::getRefConstraints(BindWA *bindWA, const ColSignature &updateCols,
-                                          RefConstraintList &resultList) {
+int UniqueConstraint::getRefConstraints(BindWA *bindWA, const ColSignature &updateCols, RefConstraintList &resultList) {
   if (!constraintOverlapsUpdateCols(bindWA, updateCols)) return 0;
 
   CollIndex constraintCnt = refConstraintsReferencingMe_.entries();
@@ -286,7 +285,7 @@ int RefConstraint::getRefConstraints(BindWA *bindWA, const ColSignature &updateC
 }  // RefConstraint::getRefConstraints
 
 int AbstractRIConstraintList::getRefConstraints(BindWA *bindWA, const ValueIdSet &assigns,
-                                                  RefConstraintList &resultList) const {
+                                                RefConstraintList &resultList) const {
   Constraint::ColSignature updateCols(HEAP);
   if (entries() && bindWA->getCurrentScope()->context()->inUpdate()) Constraint::makeColSignature(assigns, updateCols);
 

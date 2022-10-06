@@ -12,20 +12,20 @@
  *****************************************************************************
  */
 
-#include "sqludr/sqludr.h"
 #include "common/Platform.h"
+#include "sqludr/sqludr.h"
 
 void SpInfoGetNextRow(char *rowData,               // OUT
-                      int tableIndex,            // IN
+                      int tableIndex,              // IN
                       SQLUDR_Q_STATE *queue_state  // OUT
 );
 
 int SpInfoEmitRow(char *rowData,               // IN
-                    int tableIndex,            // IN
-                    SQLUDR_Q_STATE *queue_state  // IN/OUT
+                  int tableIndex,              // IN
+                  SQLUDR_Q_STATE *queue_state  // IN/OUT
 );
 
 void SpInfoEmitRowCpp(char *rowData,               // IN
-                      int tableIndex,            // IN
+                      int tableIndex,              // IN
                       SQLUDR_Q_STATE *queue_state  // IN/OUT
 );

@@ -18,6 +18,7 @@
 // unused feature, done as part of SQ SQL code cleanup effort
 
 #include "ExSimpleSample.h"
+
 #include "ExSimpleSqlBuffer.h"
 
 //////////////////////////////////////////////////////////////////////////////

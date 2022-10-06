@@ -15,10 +15,9 @@
 // -----------------------------------------------------------------------
 // functions for the NACollection<T> template
 // -----------------------------------------------------------------------
-#include "common/Platform.h"
-
 #include "common/Collections.h"
 
+#include "common/Platform.h"
 #include "common/fixupVTable.h"
 
 template <class T>
@@ -1502,8 +1501,7 @@ NABoolean NAHashBucket<K, V>::sanityCheck() {
 template <class K, class V>
 NAHashDictionary<K, V>::NAHashDictionary(
     // see long detailed comment in Collections.h about the hash function param.
-    int (*hashFunction)(const K &), int hashSize, NABoolean enforceUniqueness, NAMemory *heap,
-    NABoolean failureIsFatal)
+    int (*hashFunction)(const K &), int hashSize, NABoolean enforceUniqueness, NAMemory *heap, NABoolean failureIsFatal)
     : failureIsFatal_(failureIsFatal),
       heap_(heap),
       hash_(hashFunction),
@@ -1517,8 +1515,8 @@ NAHashDictionary<K, V>::NAHashDictionary(
 template <class K, class V>
 NAHashDictionary<K, V>::NAHashDictionary(
     // see long detailed comment in Collections.h about the hash function param.
-    int (*hashFunction)(const K &), int hashSize, NABoolean enforceUniqueness, NAMemory *heap,
-    NABoolean failureIsFatal, NABoolean useMutex)
+    int (*hashFunction)(const K &), int hashSize, NABoolean enforceUniqueness, NAMemory *heap, NABoolean failureIsFatal,
+    NABoolean useMutex)
     : failureIsFatal_(failureIsFatal),
       heap_(heap),
       hash_(hashFunction),

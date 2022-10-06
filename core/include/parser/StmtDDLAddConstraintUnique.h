@@ -28,8 +28,8 @@
  *****************************************************************************
  */
 
-#include "StmtDDLAlterTable.h"
 #include "StmtDDLAddConstraint.h"
+#include "StmtDDLAlterTable.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

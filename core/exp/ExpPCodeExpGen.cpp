@@ -16,14 +16,13 @@
 ****************************************************************************
 */
 
-#include "common/Platform.h"
-
-#include "exp/exp_stdh.h"
-#include "common/str.h"
-#include "exp/exp_expr.h"
-#include "exp/exp_clause_derived.h"
 #include "ExpPCode.h"
 #include "ExpPCodeOptimizations.h"
+#include "common/Platform.h"
+#include "common/str.h"
+#include "exp/exp_clause_derived.h"
+#include "exp/exp_expr.h"
+#include "exp/exp_stdh.h"
 
 #define GenAssert(p, msg)              \
   if (!(p)) {                          \

@@ -17,25 +17,26 @@
 // Contents: implementation for RelInternalSP
 
 #include "optimizer/RelStoredProc.h"  // definition of RelStoredProc::RelExpr
-#include "arkcmp/CmpStoredProc.h"     // interface to the SP routines.
-#include "optimizer/BindWA.h"         // for binder related stuffs.
+
 #include "arkcmp/CmpStatement.h"
+#include "arkcmp/CmpStoredProc.h"  // interface to the SP routines.
+#include "optimizer/BindWA.h"      // for binder related stuffs.
 
 // the following includes are for OptLogRelExpr and OptPhysRelExpr related
 // methods, once those methods are moved to the appropriate files, the
 // following include need to be removed
 
-#include "optimizer/Sqlcomp.h"
-#include "optimizer/GroupAttr.h"
-#include "optimizer/AllRelExpr.h"
-#include "optimizer/AllItemExpr.h"
-#include "optimizer/opt.h"
-#include "optimizer/PhyProp.h"
-#include "Cost.h"
-#include "EstLogProp.h"
 #include <math.h>
 
+#include "Cost.h"
+#include "EstLogProp.h"
 #include "common/ComDistribution.h"
+#include "optimizer/AllItemExpr.h"
+#include "optimizer/AllRelExpr.h"
+#include "optimizer/GroupAttr.h"
+#include "optimizer/PhyProp.h"
+#include "optimizer/Sqlcomp.h"
+#include "optimizer/opt.h"
 
 RelInternalSP::RelInternalSP(const NAString &procName, ItemExpr *params, OperatorTypeEnum otype, CollHeap *oHeap,
                              UInt16 arkcmpInfo)
@@ -224,7 +225,7 @@ RelExpr *RelInternalSP::bindNode(BindWA *bindWA) {
       else if (preLoc.compareTo(locationParam, NAString::ignoreCase) != 0) {
         bindWA->setErrStatus();
         //"The location $0~string0 for $1~string1 does not match with another location $2~string2 specified. All
-        //location specifications must be identical.",
+        // location specifications must be identical.",
         *(bindWA->currentCmpContext()->diags()) << DgSqlCode(-1197) << DgString0(locationParam.data())
                                                 << DgString1(procName_.data()) << DgString2(preLoc.data());
         return NULL;

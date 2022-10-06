@@ -15,36 +15,35 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
+#include "ex_root.h"
+
 #include <stdio.h>
 
-#include "cli_stdh.h"
-#include "ex_stdh.h"
-#include "ex_exe_stmt_globals.h"
+#include "ComDiags.h"
+#include "ComRtUtils.h"
 #include "ComTdb.h"
-#include "ex_tcb.h"
-#include "ex_root.h"
+#include "ExCancel.h"
+#include "ExCextdecs.h"
+#include "ExHbaseAccess.h"
+#include "ExSMCommon.h"
+#include "ExSMGlobals.h"
+#include "ExSMTrace.h"
+#include "ExStats.h"
+#include "ExecuteIdTrig.h"
+#include "LateBindInfo.h"
+#include "PortProcessCalls.h"
+#include "cli_stdh.h"
+#include "common/ComSqlId.h"
+#include "common/Platform.h"
+#include "ex_exe_stmt_globals.h"
 #include "ex_expr.h"
 #include "ex_frag_rt.h"
-#include "ComDiags.h"
-#include "ExStats.h"
-#include "sqlci/SqlciParseGlobals.h"
-#include "LateBindInfo.h"
-#include "ExecuteIdTrig.h"
+#include "ex_stdh.h"
+#include "ex_tcb.h"
 #include "executor/TriggerEnable.h"
-#include "ComRtUtils.h"
-#include "PortProcessCalls.h"
-
 #include "executor/ex_transaction.h"
-#include "common/ComSqlId.h"
-#include "ExCextdecs.h"
-
-#include "ExSMTrace.h"
-#include "ExSMGlobals.h"
-#include "ExSMCommon.h"
 #include "exp/ExpHbaseInterface.h"
-#include "ExCancel.h"
-#include "ExHbaseAccess.h"
+#include "sqlci/SqlciParseGlobals.h"
 
 ////////////////////////////////////////////////////////////////////////
 //  TDB procedures
@@ -320,8 +319,6 @@ ex_root_tcb::ex_root_tcb(const ex_root_tdb &root_tdb, const ex_tcb &child_tcb, E
 
   getGlobals()->getScheduler()->setRootTcb(this);
 
-
-
   rwrsBuffer_ = NULL;
   if (root_tdb.getRWRSInfo()) {
     rwrsBuffer_ = new (glob->getDefaultHeap()) char[root_tdb.getRWRSInfo()->rwrsMaxSize() *
@@ -476,7 +473,7 @@ int ex_root_tcb::fixup() { return ex_tcb::fixup(); }
 // execute.
 ///////////////////////////
 int ex_root_tcb::execute(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descriptor *input_desc,
-                           ComDiagsArea *&diagsArea, NABoolean reExecute) {
+                         ComDiagsArea *&diagsArea, NABoolean reExecute) {
   int jmpRc = 0;
   NABoolean syncQuery = FALSE;
 
@@ -872,8 +869,7 @@ void ex_root_tcb::snapshotScanCleanup(ComDiagsArea *&diagsArea) {
 // RETURNS: 0, success. 100, EOF. -1, error. 1, warning
 ////////////////////////////////////////////////////////
 int ex_root_tcb::fetch(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descriptor *output_desc,
-                         ComDiagsArea *&diagsArea, int timeLimit, NABoolean newOperation,
-                         NABoolean &closeCursorOnError) {
+                       ComDiagsArea *&diagsArea, int timeLimit, NABoolean newOperation, NABoolean &closeCursorOnError) {
   // see details of this param in ex_root.h::fetch() declaration.
   closeCursorOnError = TRUE;
   //
@@ -1176,7 +1172,6 @@ int ex_root_tcb::fetch(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descripto
             // statsArea that is pointed to by stmt globals.
             ExStatisticsArea *stats = getGlobals()->getOrigStatsArea();
             if (stats) stats->setStatsEnabled(getGlobals()->statsEnabled());
-
 
             // Make the rowset handle available
             if (output_desc != NULL) output_desc->setDescItem(0, SQLDESC_ROWSET_HANDLE, 0, 0);
@@ -1495,8 +1490,8 @@ int ex_root_tcb::fetch(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descripto
 // RETURNS: 0, success. 100, EOF. -1, error. 1, warning
 ////////////////////////////////////////////////////////
 int ex_root_tcb::fetchMultiple(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descriptor *output_desc,
-                                 ComDiagsArea *&diagsArea, int timeLimit, NABoolean newOperation,
-                                 NABoolean &closeCursorOnError, NABoolean &eodSeen) {
+                               ComDiagsArea *&diagsArea, int timeLimit, NABoolean newOperation,
+                               NABoolean &closeCursorOnError, NABoolean &eodSeen) {
   int retcode = 0;
   NABoolean keepFetching = TRUE;
 
@@ -1564,7 +1559,7 @@ int ex_root_tcb::fetchMultiple(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, D
 // for OLT queries that do OLT optimization.
 //////////////////////////////////////////////////////
 int ex_root_tcb::oltExecute(ExExeStmtGlobals *glob, Descriptor *input_desc, Descriptor *output_desc,
-                              ComDiagsArea *&diagsArea) {
+                            ComDiagsArea *&diagsArea) {
   ExMasterStmtGlobals *master_glob = getGlobals()->castToExExeStmtGlobals()->castToExMasterStmtGlobals();
 
   ex_queue_entry *entry = qchild.down->getTailEntry();
@@ -2160,7 +2155,7 @@ void ex_root_tcb::completeOutstandingCancelMsgs() {
 NABoolean ex_root_tcb::externalEventCompleted(void) { return getGlobals()->getScheduler()->externalEventCompleted(); }
 
 int ex_root_tcb::checkTransBeforeExecute(ExTransaction *myTrans, ExMasterStmtGlobals *masterGlob,
-                                           ExMasterStats *masterStats, ComDiagsArea *&diagsArea) {
+                                         ExMasterStats *masterStats, ComDiagsArea *&diagsArea) {
   if (myTrans && myTrans->xnInProgress()) {
     // If the statement uses DP2 locks to track already-inserted
     // rows to protect against the Halloween problem, check that

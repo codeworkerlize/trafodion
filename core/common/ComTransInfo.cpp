@@ -12,9 +12,11 @@
  *****************************************************************************
  */
 
-#include "common/ComMisc.h"
 #include "common/ComTransInfo.h"
+
 #include <iostream>
+
+#include "common/ComMisc.h"
 
 // returns -1, if a transaction is needed for these lock flags.
 short DP2LockFlags::transactionNeeded() {

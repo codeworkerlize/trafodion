@@ -15,9 +15,9 @@
 ******************************************************************************
 */
 #include "optimizer/RelExpr.h"
-#include "optimizer/Rule.h"
 #include "optimizer/RelMisc.h"
 #include "optimizer/RelSet.h"
+#include "optimizer/Rule.h"
 //////////////////////////////////////////////////////////////////////////
 //
 // Contents.

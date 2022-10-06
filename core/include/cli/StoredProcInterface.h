@@ -18,7 +18,6 @@
 
 #include "common/BaseTypes.h"
 
-
 class ComDiagsArea;
 
 /////////////////////////////////////////////////////////////
@@ -32,14 +31,14 @@ short ExSPPosition(void *inputBuffer);
 short ExSPGetInputRow(void *inputBuffer,   // IN:  input sql buffer
                       void *&controlInfo,  // OUT: control info
                       char *&rowPtr,       // OUT: pointer to the row
-                      int &rowLen);     // OUT: length of returned row
+                      int &rowLen);        // OUT: length of returned row
 
 short ExSPInitReplyBuffer(void *replyBuffer, int replyBufLen);
 
 short ExSPPutReplyRow(void *replyBuffer,         // IN: the reply buffer
                       void *controlInfo,         // IN: control info
                       char *replyRow,            // IN: pointer to reply row
-                      int rowLen,             // IN: length of reply row
+                      int rowLen,                // IN: length of reply row
                       ComDiagsArea *diagsDesc);  // IN: pointer to diags
 
 short ExSPPrepareReplyBuffer(void *replyBuffer);

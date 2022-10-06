@@ -16,10 +16,8 @@
  *****************************************************************************
  */
 
+#include "common/NABoolean.h"
 #include "common/Platform.h"
-#include "common/NABoolean.h"
-
-#include "common/NABoolean.h"
 #include "export/NAVersionedObject.h"
 
 enum TransStmtType {

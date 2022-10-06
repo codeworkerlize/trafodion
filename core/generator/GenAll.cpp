@@ -2,6 +2,7 @@
 #include "GenBitMuxFunction.cpp"
 #include "GenExpGenerator.cpp"
 //#include "GenExplain.cpp"
+#include "GenFastTransport.cpp"
 #include "GenFlowControlFunction.cpp"
 #include "GenItemExpr.cpp"
 #include "GenItemFunc.cpp"
@@ -30,8 +31,7 @@
 #include "GenSequenceFunction.cpp"
 #include "GenShape.cpp"
 #include "GenStoredProc.cpp"
-#include "Generator.cpp"
 #include "GenUdr.cpp"
-#include "GenFastTransport.cpp"
+#include "Generator.cpp"
 #include "LmExpr.cpp"
 #include "LmGenUtil.cpp"  // From langman directory

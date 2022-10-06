@@ -17,14 +17,13 @@
  */
 
 #include "ElemDDLConstraint.h"
-
-#include "ElemDDLConstraintName.h"
 #include "ElemDDLConstraintArray.h"
-#include "parser/ElemDDLConstraintCheck.h"
+#include "ElemDDLConstraintName.h"
 #include "ElemDDLConstraintNotNull.h"
+#include "ElemDDLConstraintUnique.h"
+#include "parser/ElemDDLConstraintCheck.h"
 #include "parser/ElemDDLConstraintPK.h"
 #include "parser/ElemDDLConstraintRI.h"
-#include "ElemDDLConstraintUnique.h"
 
 //
 // End of File

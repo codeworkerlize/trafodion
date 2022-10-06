@@ -1,22 +1,23 @@
 
 
 #include "comexe/ComTdbConnectBy.h"
-#include "comexe/ComTdbCommon.h"
+
 #include "comexe/ComQueue.h"
+#include "comexe/ComTdbCommon.h"
 #include "common/str.h"
 
 ComTdbConnectBy::ComTdbConnectBy() : ComTdb(ComTdb::ex_CONNECT_BY, eye_CONNECT_BY) {}
 
 ComTdbConnectBy::ComTdbConnectBy(ex_cri_desc *workCriDesc, ex_cri_desc *givenCriDesc, ex_cri_desc *returnedCriDesc,
-                                 queue_index down, queue_index up, int numBuffers, int bufferSize,
-                                 ComTdb *s_child_tdb, ComTdb *c_child_tdb, UInt32 outputRowLen,
-                                 UInt32 pseudoOutputRowLen, ex_expr *leftMoveExpr, ex_expr *rightMoveExpr,
-                                 short returnRowAtpIndex, short fixedPseudoColRowAtpIndex, ex_expr *priorPredExpr,
-                                 short priorPredAtpIndex, UInt32 priorPredHostVarLen, ex_expr *priorValMoveExpr1,
-                                 ex_expr *priorValMoveExpr2, short priorValsValsDownAtpIndex,
-                                 ex_cri_desc *rightDownCriDesc, ex_expr *condExpr, short pathExprAtpIndex,
-                                 ex_expr *leftPathExpr, ex_expr *rightPathExpr, short pathPseudoColRowAtpIndex,
-                                 UInt32 pathOutputRowLen, UInt32 pathItemLength, ex_expr *priorCondExpr)
+                                 queue_index down, queue_index up, int numBuffers, int bufferSize, ComTdb *s_child_tdb,
+                                 ComTdb *c_child_tdb, UInt32 outputRowLen, UInt32 pseudoOutputRowLen,
+                                 ex_expr *leftMoveExpr, ex_expr *rightMoveExpr, short returnRowAtpIndex,
+                                 short fixedPseudoColRowAtpIndex, ex_expr *priorPredExpr, short priorPredAtpIndex,
+                                 UInt32 priorPredHostVarLen, ex_expr *priorValMoveExpr1, ex_expr *priorValMoveExpr2,
+                                 short priorValsValsDownAtpIndex, ex_cri_desc *rightDownCriDesc, ex_expr *condExpr,
+                                 short pathExprAtpIndex, ex_expr *leftPathExpr, ex_expr *rightPathExpr,
+                                 short pathPseudoColRowAtpIndex, UInt32 pathOutputRowLen, UInt32 pathItemLength,
+                                 ex_expr *priorCondExpr)
     : ComTdb(ComTdb::ex_CONNECT_BY, eye_CONNECT_BY, 0, givenCriDesc, returnedCriDesc, down, up, numBuffers, bufferSize),
       workCriDesc_(workCriDesc),
       tdbSChild_(s_child_tdb),

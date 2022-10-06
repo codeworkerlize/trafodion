@@ -1,7 +1,6 @@
 //------------------------------------------------------------------
 //
 
-
 //
 // Timer module
 //
@@ -10,10 +9,9 @@
 
 #include <unistd.h>  // pid_t
 
+#include "cc.h"
 #include "int/diag.h"
 #include "int/exp.h"
-
-#include "cc.h"
 
 typedef void (*Timer_Cb_Type)(int tleid, int toval, short parm1, long parm2);
 SB_Export int timer_cancel(short tag) SB_DIAG_UNUSED;

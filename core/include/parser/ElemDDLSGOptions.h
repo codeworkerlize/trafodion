@@ -16,8 +16,8 @@
  *****************************************************************************
  */
 
-#include "common/BaseTypes.h"
 #include "ElemDDLNode.h"
+#include "common/BaseTypes.h"
 #include "common/SequenceGeneratorAttributes.h"
 
 // -----------------------------------------------------------------------

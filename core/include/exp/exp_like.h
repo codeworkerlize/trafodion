@@ -17,13 +17,12 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
-#include "exp/ExpError.h"
-
 #include "common/BaseTypes.h"
 #include "common/NAHeap.h"
-#include "common/csconvert.h"
 #include "common/NLSConversion.h"
+#include "common/Platform.h"
+#include "common/csconvert.h"
+#include "exp/ExpError.h"
 
 class LikePatternString : public NABasicObject {
  public:

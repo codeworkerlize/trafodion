@@ -1,22 +1,24 @@
 
 
-#include <stdio.h>
-#include <stdarg.h>
-#include <limits.h>
-#include <time.h>
-#include <sys/time.h>
-#include <sys/syscall.h>
-#include <unistd.h>
-#include <pthread.h>
-#include "common/Platform.h"
 #include "ExSMCommon.h"
-#include "ExSMGlobals.h"
+
+#include <limits.h>
+#include <pthread.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <sys/syscall.h>
+#include <sys/time.h>
+#include <time.h>
+#include <unistd.h>
+
 #include "ExSMEvent.h"
+#include "ExSMGlobals.h"
 #include "ExSMTask.h"
 #include "ExSMTrace.h"
-#include "common/Ipc.h"
 #include "Ex_esp_msg.h"
 #include "comexe/ComQueue.h"
+#include "common/Ipc.h"
+#include "common/Platform.h"
 #include "seabed/sys.h"
 
 //-------------------------------------------------------------------------

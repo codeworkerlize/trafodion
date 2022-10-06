@@ -28,10 +28,10 @@
  *****************************************************************************
  */
 
+#include "StmtDDLAddConstraint.h"
+#include "StmtDDLAlterTable.h"
 #include "common/ComSmallDefs.h"
 #include "parser/ElemDDLConstraintRI.h"
-#include "StmtDDLAlterTable.h"
-#include "StmtDDLAddConstraint.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

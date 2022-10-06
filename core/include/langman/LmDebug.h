@@ -17,8 +17,8 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
 #include "common/NABoolean.h"
+#include "common/Platform.h"
 
 #ifdef LM_DEBUG
 #include "common/NABoolean.h"

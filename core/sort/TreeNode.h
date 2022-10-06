@@ -22,10 +22,11 @@
 */
 
 #include <iostream>
+
 #include "CommonStructs.h"
 #include "Record.h"
-#include "export/NABasicObject.h"
 #include "SortError.h"
+#include "export/NABasicObject.h"
 
 class TreeNode : public NABasicObject {
  public:

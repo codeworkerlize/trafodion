@@ -21,44 +21,38 @@
 #define FAILURE \
   { ex_assert(FALSE, "Invalid SqlBuffer"); }
 
-#include <stdio.h>
-
-#include "common/NAStdlib.h"
-
-#include "common/str.h"
-#include "cli_stdh.h"
-#include "cli/sql_id.h"
-#include "cli/Statement.h"
-
+#include <errno.h>
 #include <float.h>
+#include <stdio.h>
+#include <unistd.h>
 
 #include "ExCextdecs.h"
-#include "executor/ex_stdh.h"
+#include "cli/Statement.h"
+#include "cli/sql_id.h"
+#include "cli_stdh.h"
+#include "comexe/ComQueue.h"
 #include "comexe/ComTdb.h"
-#include "comexe/ComTdbUdr.h"
-#include "comexe/ComTdbSplitTop.h"
 #include "comexe/ComTdbExeUtil.h"
 #include "comexe/ComTdbHbaseAccess.h"
-#include "ex_exe_stmt_globals.h"
-#include "exp/exp_clause_derived.h"
-#include "common/Int64.h"
-#include "comexe/ComQueue.h"
-#include "executor/ExStats.h"
-#include "common/str.h"
-#include "runtimestats/ssmpipc.h"
-#include "runtimestats/rts_msg.h"
-#include "common/ComSqlId.h"
-#include "common/ComRtUtils.h"
-#include "cli/Statement.h"
+#include "comexe/ComTdbQI.h"
 #include "comexe/ComTdbRoot.h"
+#include "comexe/ComTdbSplitTop.h"
+#include "comexe/ComTdbUdr.h"
 #include "common/ComDistribution.h"
+#include "common/ComRtUtils.h"
+#include "common/ComSqlId.h"
+#include "common/Int64.h"
+#include "common/NAStdlib.h"
+#include "common/str.h"
+#include "ex_exe_stmt_globals.h"
+#include "ex_hash_grby.h"
 #include "ex_hashj.h"
 #include "ex_sort.h"
-#include "ex_hash_grby.h"
-#include "comexe/ComTdbQI.h"
-
-#include <unistd.h>
-#include <errno.h>
+#include "executor/ExStats.h"
+#include "executor/ex_stdh.h"
+#include "exp/exp_clause_derived.h"
+#include "runtimestats/rts_msg.h"
+#include "runtimestats/ssmpipc.h"
 #include "seabed/fs.h"
 #include "seabed/ms.h"
 
@@ -2065,8 +2059,7 @@ void ExOperStats::addMessage(const char *msg, int len) {
 //////////////////////////////////////////////////////////////////
 // class ExProbeCacheStats
 //////////////////////////////////////////////////////////////////
-ExProbeCacheStats::ExProbeCacheStats(NAMemory *heap, ex_tcb *tcb, ComTdb *tdb, int bufferSize,
-                                     int numCacheEntries)
+ExProbeCacheStats::ExProbeCacheStats(NAMemory *heap, ex_tcb *tcb, ComTdb *tdb, int bufferSize, int numCacheEntries)
     : ExOperStats(heap, PROBE_CACHE_STATS, tcb, tdb), bufferSize_(bufferSize), numCacheEntries_(numCacheEntries) {
   init(FALSE);
   longestChain_ = 0;
@@ -4565,8 +4558,7 @@ NABoolean ExStatisticsArea::merge(ExStatisticsArea *otherStatsArea, UInt16 stats
               insert(newStat);
               break;
             default:
-              if ((int)tempStatsMergeType == SQLCLI_OPERATOR_STATS ||
-                  (int)tempStatsMergeType == SQLCLI_PERTABLE_STATS)
+              if ((int)tempStatsMergeType == SQLCLI_OPERATOR_STATS || (int)tempStatsMergeType == SQLCLI_PERTABLE_STATS)
                 // ignore merging the rest of the stats
                 break;
               switch (statType) {
@@ -5101,8 +5093,7 @@ void ExStatisticsArea::unpackSmallObjFromEid(IpcConstMessageBufferPtr buffer, in
     ex_assert(0, "Statistics Area can't be a small object");
 }
 
-void ExStatisticsArea::unpackObjFromEid(IpcConstMessageBufferPtr buffer, ExOperStats *parentStatsEntry,
-                                        int parentTdb) {
+void ExStatisticsArea::unpackObjFromEid(IpcConstMessageBufferPtr buffer, ExOperStats *parentStatsEntry, int parentTdb) {
   // get the version
   char version;
   unpackBuffer(buffer, version);
@@ -5316,9 +5307,9 @@ int ExStatisticsArea::getStatsItems(int no_of_stats_items, SQLSTATS_ITEM sqlStat
 }
 
 int ExStatisticsArea::getStatsDesc(short *statsCollectType,
-                                     /* IN/OUT */ SQLSTATS_DESC sqlstats_desc[],
-                                     /* IN */ int max_stats_desc,
-                                     /* OUT */ int *no_returned_stats_desc) {
+                                   /* IN/OUT */ SQLSTATS_DESC sqlstats_desc[],
+                                   /* IN */ int max_stats_desc,
+                                   /* OUT */ int *no_returned_stats_desc) {
   ExOperStats *stat;
   int no_of_stats_desc = 0;
   int currTdbId = 0;
@@ -6833,8 +6824,8 @@ ExMasterStats::ExMasterStats() : ExOperStats() {
   init(FALSE);
 }
 
-ExMasterStats::ExMasterStats(NAHeap *heap, char *sourceStr, int storedSqlTextLen, int originalSqlTextLen,
-                             char *queryId, int queryIdLen)
+ExMasterStats::ExMasterStats(NAHeap *heap, char *sourceStr, int storedSqlTextLen, int originalSqlTextLen, char *queryId,
+                             int queryIdLen)
     : ExOperStats(heap, MASTER_STATS) {
   if (queryId != NULL) {
     queryId_ = new (heap_) char[queryIdLen + 1];
@@ -7626,8 +7617,8 @@ void ExMasterStats::setInvalidationKeys(CliGlobals *cliGlobals, SecurityInvKeyIn
   }
 }
 int ExStatsTcb::str_parse_stmt_name(char *string, int len, char *nodeName, short *cpu, pid_t *pid, long *timeStamp,
-                                      int *queryNumber, short *idOffset, short *idLen, short *activeQueryNum,
-                                      UInt16 *statsMergeType, short *detailLevel, short *subReqType, int *filter) {
+                                    int *queryNumber, short *idOffset, short *idLen, short *activeQueryNum,
+                                    UInt16 *statsMergeType, short *detailLevel, short *subReqType, int *filter) {
   char temp[500];
   char *ptr;
   char *internal;

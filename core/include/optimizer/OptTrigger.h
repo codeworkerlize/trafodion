@@ -15,8 +15,8 @@
 **************************************************************************
 */
 
-#include "optimizer/AllRelExpr.h"
 #include "AccessSets.h"
+#include "optimizer/AllRelExpr.h"
 #include "optimizer/Triggers.h"
 
 // -----------------------------------------------------------------------
@@ -309,7 +309,7 @@ class OptTriggersBackbone : public NABasicObject {
   RelExpr *pParent_;          // parent of current node
 
   TriggerBindInfo *triggerBindInfo_;  // information collected during binding
-  int tempTableUsage_;              // specify which values are actually needed
+  int tempTableUsage_;                // specify which values are actually needed
 };                                    // class OptTriggersBackbone
 
 //***********************************************************************

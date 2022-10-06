@@ -14,11 +14,13 @@
  *
  *****************************************************************************
  */
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
+
 #include <iostream>
-#include "common/Platform.h"
+
 #include "LmExtFunc.h"
+#include "common/Platform.h"
 
 // Exclude this function from coverage as it is called only when there is an assertion in LM
 // which results in UDR server abend, so no coverage info can be generated.

@@ -13,17 +13,18 @@
 */
 
 #include "LmUtility.h"
-#include "common/ComCextdecs.h"
-#include "common/NAString.h"
-#include "common/Int64.h"
-#include "common/str.h"
-#include <stdlib.h>
-#include "LmDebug.h"
-#include "cli/sqlcli.h"
-#include "LmAssert.h"
 
+#include <stdlib.h>
 #include <sys/types.h>
 #include <unistd.h>
+
+#include "LmAssert.h"
+#include "LmDebug.h"
+#include "cli/sqlcli.h"
+#include "common/ComCextdecs.h"
+#include "common/Int64.h"
+#include "common/NAString.h"
+#include "common/str.h"
 #define GETPID getpid
 
 #include "dtm/tm.h"

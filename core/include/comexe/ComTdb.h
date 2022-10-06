@@ -3,16 +3,16 @@
 #ifndef COMTDB_H
 #define COMTDB_H
 
-#include "common/Int64.h"              // for long
-#include "export/NAVersionedObject.h"  // for NAVersionedObject
-#include "common/BaseTypes.h"          // for Cardinality
-#include "exp/ExpCriDesc.h"
-#include "exp/exp_expr.h"  // subclasses of TDB contain expressions
 #include "cli/sqlcli.h"
+#include "common/BaseTypes.h"  // for Cardinality
 #include "common/ComSmallDefs.h"
-#include "sqlcomp/PrivMgrDesc.h"  // Privilege descriptors
-#include "sqlcat/TrafDDLdesc.h"
+#include "common/Int64.h"  // for long
+#include "exp/ExpCriDesc.h"
 #include "exp/ExpLOBenums.h"
+#include "exp/exp_expr.h"              // subclasses of TDB contain expressions
+#include "export/NAVersionedObject.h"  // for NAVersionedObject
+#include "sqlcat/TrafDDLdesc.h"
+#include "sqlcomp/PrivMgrDesc.h"  // Privilege descriptors
 
 // -----------------------------------------------------------------------
 // Classes defined in this file
@@ -570,7 +570,7 @@ class ComTdb : public NAVersionedObject {
   // ---------------------------------------------------------------------
   // Identification information
   // ---------------------------------------------------------------------
-  int objectId_;             // 00-03
+  int objectId_;               // 00-03
   ex_eye_catcher eyeCatcher_;  // 04-07
 
   // ---------------------------------------------------------------------
@@ -582,7 +582,7 @@ class ComTdb : public NAVersionedObject {
   // ---------------------------------------------------------------------
   // Number and size of buffers to be allocated
   // ---------------------------------------------------------------------
-  int numBuffers_;   // 16-19
+  int numBuffers_;     // 16-19
   UInt32 bufferSize_;  // 20-23
 
   // ---------------------------------------------------------------------
@@ -728,10 +728,9 @@ class ComTdbVirtTableTableInfo : public ComTdbVirtTableBase {
 
 class ComTdbVirtTableColumnInfo : public ComTdbVirtTableBase {
  public:
-  ComTdbVirtTableColumnInfo(const char *cName, int cNum, ComColumnClass cc, int dt, int l, int n,
-                            SQLCHARSET_CODE cs, int p, int s, int dtS, int dtE, int u, const char *ch,
-                            int flags, ComColumnDefaultClass dc, const char *defVal, const char *hcf,
-                            const char *hcq, const char *pd, int io)
+  ComTdbVirtTableColumnInfo(const char *cName, int cNum, ComColumnClass cc, int dt, int l, int n, SQLCHARSET_CODE cs,
+                            int p, int s, int dtS, int dtE, int u, const char *ch, int flags, ComColumnDefaultClass dc,
+                            const char *defVal, const char *hcf, const char *hcq, const char *pd, int io)
       : ComTdbVirtTableBase(),
         colName(cName),
         colNumber(cNum),
@@ -828,7 +827,7 @@ class ComTdbVirtTableKeyInfo : public ComTdbVirtTableBase {
 
   enum { ASCENDING_ORDERING = 0, DESCENDING_ORDERING = 1 };
   int ordering;  // 0 means ascending, 1 means descending
-                   // (see, for example, CmpSeabaseDDL::buildKeyInfoArray)
+                 // (see, for example, CmpSeabaseDDL::buildKeyInfoArray)
 
   int nonKeyCol;  // if 1, this is a base table pkey col for unique indexes
 
@@ -921,9 +920,9 @@ class ComTdbVirtTableViewInfo : ComTdbVirtTableBase {
 class ComTdbVirtTableRoutineInfo : public ComTdbVirtTableBase {
  public:
   ComTdbVirtTableRoutineInfo(const char *rn, const char *ut, const char *lt, Int16 d, const char *sa, Int16 con,
-                             Int16 i, const char *ps, const char *ta, int mr, int sas, const char *en,
-                             const char *p, const char *uv, const char *es, const char *em, const char *lf, int lv,
-                             const char *s, const char *ls, long luid)
+                             Int16 i, const char *ps, const char *ta, int mr, int sas, const char *en, const char *p,
+                             const char *uv, const char *es, const char *em, const char *lf, int lv, const char *s,
+                             const char *ls, long luid)
       : ComTdbVirtTableBase(),
         routine_name(rn),
         deterministic(d),

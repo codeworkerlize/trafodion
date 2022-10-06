@@ -25,15 +25,15 @@
 */
 
 #include <sstream>
-#include "common/Platform.h"  // must be the first #include
 
-#include "optimizer/AllRelExpr.h"
-#include "common/DatetimeType.h"
-#include "parser/HvTypes.h"
-#include "common/IntervalType.h"
+#include "ParScannedTokenQueue.h"
 #include "comexe/LateBindInfo.h"
 #include "common/ComVersionDefs.h"
-#include "ParScannedTokenQueue.h"
+#include "common/DatetimeType.h"
+#include "common/IntervalType.h"
+#include "common/Platform.h"  // must be the first #include
+#include "optimizer/AllRelExpr.h"
+#include "parser/HvTypes.h"
 #include "parser/StmtDDLCreateTable.h"
 
 #define MAX_START_WITH 20

@@ -13,16 +13,17 @@
 **************************************************************************
 */
 
+#include "RoutineDesc.h"
+
+#include "Cost.h"
+#include "ParNameLocList.h"
+#include "common/ComOperators.h"
+#include "executor/ex_error.h"
 #include "optimizer/AllItemExpr.h"
 #include "optimizer/AllRelExpr.h"
 #include "optimizer/BindWA.h"
-#include "common/ComOperators.h"
-#include "RoutineDesc.h"
 #include "optimizer/ItemColRef.h"
-#include "ParNameLocList.h"
 #include "optimizer/Sqlcomp.h"
-#include "executor/ex_error.h"
-#include "Cost.h"
 
 // -----------------------------------------------------------------------
 // Constructors (but note that much more useful stuff goes on in

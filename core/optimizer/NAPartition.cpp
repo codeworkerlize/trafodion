@@ -15,15 +15,16 @@
 
 #define SQLPARSERGLOBALS_FLAGS  // must precede all #include's
 
+#include "NAPartition.h"
+
 #include "common/Platform.h"
+#include "executor/ex_error.h"
 #include "optimizer/NATable.h"
 #include "optimizer/Sqlcomp.h"
-#include "executor/ex_error.h"
-#include "sqlcat/TrafDDLdesc.h"
-#include "sqlcomp/parser.h"
-#include "sqlcomp/CmpSeabaseDDLmd.h"
 #include "parser/SqlParserGlobals.h"
-#include "NAPartition.h"
+#include "sqlcat/TrafDDLdesc.h"
+#include "sqlcomp/CmpSeabaseDDLmd.h"
+#include "sqlcomp/parser.h"
 
 void NAPartition::display() { print(); }
 

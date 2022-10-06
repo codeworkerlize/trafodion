@@ -17,28 +17,26 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "arkcmp/CmpContext.h"
+#include "arkcmp/CmpStatement.h"
 #include "common/ComAnsiNamePart.h"
 #include "common/ComMPLoc.h"
-#include "arkcmp/CmpContext.h"
-#include "sqlcomp/DefaultValidator.h"
+#include "common/NAClusterInfo.h"
 #include "optimizer/Sqlcomp.h"
 #include "parser/StmtCompilationMode.h"
-#include "common/NAClusterInfo.h"
-#include "arkcmp/CmpStatement.h"
+#include "sqlcomp/DefaultValidator.h"
 // triggers -- eliezer
-#include "optimizer/TriggerDB.h"
-#include "sqlmxevents/logmxevent.h"
 #include <ComCextdecs.h>
+
 #include "cli/SQLCLIdev.h"
 #include "common/ComUnits.h"
-#include "sqlcomp/CmpSeabaseDDL.h"
 #include "exp/ExpHbaseInterface.h"
-
-#include "parser/SqlParserGlobals.h"  // must be last #include
-
 #include "optimizer/OptimizerSimulator.h"
-
+#include "optimizer/TriggerDB.h"
+#include "parser/SqlParserGlobals.h"  // must be last #include
 #include "seabed/ms.h"
+#include "sqlcomp/CmpSeabaseDDL.h"
+#include "sqlmxevents/logmxevent.h"
 
 // -----------------------------------------------------------------------
 // global functions

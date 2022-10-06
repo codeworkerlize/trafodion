@@ -28,13 +28,11 @@
 #endif
 #include "common/BaseTypes.h"
 #include "common/Collections.h"
+#include "common/DgBaseType.h"
+#include "common/NAWinNT.h"
+#include "common/charinfo.h"
 #include "export/IpcMessageObj.h"
 #include "export/NAVersionedObject.h"
-#include "common/charinfo.h"
-#include "common/NAWinNT.h"
-
-#include "common/DgBaseType.h"
-
 
 class ComCondition;
 class ComDiagsArea;

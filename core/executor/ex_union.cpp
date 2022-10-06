@@ -20,6 +20,7 @@
 //
 
 #include "ex_union.h"
+
 #include "executor/ExStats.h"
 #include "executor/ex_error.h"
 
@@ -666,7 +667,7 @@ ex_o_union_tcb::ex_o_union_tcb(const ex_union_tdb &union_tdb,  //
                                const ex_tcb *right_tcb,        // right queue pair
                                ex_globals *glob,
                                NABoolean blocked_union,  // Triggers -, blocked union
-                               int hasNoOutputs        // Triggers -
+                               int hasNoOutputs          // Triggers -
                                )
     : ex_union_tcb(union_tdb, left_tcb, right_tcb, glob),
       rprocessedInputs_(processedInputs_),

@@ -223,9 +223,9 @@ typedef struct {
   const ENCODING **encPtr;
 } INIT_ENCODING;
 
-int XmlParseXmlDecl(int isGeneralTextEntity, const ENCODING *enc, const char *ptr, const char *end,
-                      const char **badPtr, const char **versionPtr, const char **versionEndPtr,
-                      const char **encodingNamePtr, const ENCODING **namedEncodingPtr, int *standalonePtr);
+int XmlParseXmlDecl(int isGeneralTextEntity, const ENCODING *enc, const char *ptr, const char *end, const char **badPtr,
+                    const char **versionPtr, const char **versionEndPtr, const char **encodingNamePtr,
+                    const ENCODING **namedEncodingPtr, int *standalonePtr);
 
 int XmlInitEncoding(INIT_ENCODING *, const ENCODING **, const char *name);
 const ENCODING *XmlGetUtf8InternalEncoding(void);
@@ -239,8 +239,8 @@ typedef int(XMLCALL *CONVERTER)(void *userData, const char *p);
 ENCODING *XmlInitUnknownEncoding(void *mem, int *table, CONVERTER convert, void *userData);
 
 int XmlParseXmlDeclNS(int isGeneralTextEntity, const ENCODING *enc, const char *ptr, const char *end,
-                        const char **badPtr, const char **versionPtr, const char **versionEndPtr,
-                        const char **encodingNamePtr, const ENCODING **namedEncodingPtr, int *standalonePtr);
+                      const char **badPtr, const char **versionPtr, const char **versionEndPtr,
+                      const char **encodingNamePtr, const ENCODING **namedEncodingPtr, int *standalonePtr);
 
 int XmlInitEncodingNS(INIT_ENCODING *, const ENCODING **, const char *name);
 const ENCODING *XmlGetUtf8InternalEncodingNS(void);

@@ -3,47 +3,42 @@
 #define SQLPARSERGLOBALS_FLAGS  // must precede all #include's
 #define SQLPARSERGLOBALS_NADEFAULTS
 
-#include "common/Platform.h"
 #include <math.h>
-#include "common/OperTypeEnum.h"
-
-#include "optimizer/Sqlcomp.h"
-#include "optimizer/GroupAttr.h"
-#include "optimizer/AllRelExpr.h"
-#include "RelPackedRows.h"
-#include "generator/Generator.h"
-#include "GenExpGenerator.h"
-#include "common/dfs2rec.h"
-#include "vegrewritepairs.h"
-#include "exp/exp_clause_derived.h"
-#include "optimizer/keycolumns.h"
-#include "optimizer/ValueDesc.h"
-#include "optimizer/BindWA.h"
-#include "optimizer/TriggerDB.h"
-#include "Cost.h"
-#include "optimizer/CostMethod.h"
-#include "optimizer/ItmFlowControlFunction.h"
-#include "optimizer/UdfDllInteraction.h"
-#include "parser/StmtDDLNode.h"
-
-#include "optimizer/NATable.h"
-#include "common/NumericType.h"
-
-#include "arkcmp/CmpStatement.h"
-#include "optimizer/OptimizerSimulator.h"
-#include "optimizer/ItemFunc.h"
-#include "optimizer/ControlDB.h"
-#include "sqlcomp/CmpSeabaseDDL.h"
-#include "comexe/NAExecTrans.h"
-#include "exp_function.h"
-
-#include "vegrewritepairs.h"
-
-#include "parser/SqlParserGlobals.h"  // must be last #include
-#include "common/ComRtUtils.h"
+#include <unistd.h>
 
 #include <fstream>
-#include <unistd.h>
+
+#include "Cost.h"
+#include "GenExpGenerator.h"
+#include "RelPackedRows.h"
+#include "arkcmp/CmpStatement.h"
+#include "comexe/NAExecTrans.h"
+#include "common/ComRtUtils.h"
+#include "common/NumericType.h"
+#include "common/OperTypeEnum.h"
+#include "common/Platform.h"
+#include "common/dfs2rec.h"
+#include "exp/exp_clause_derived.h"
+#include "exp_function.h"
+#include "generator/Generator.h"
+#include "optimizer/AllRelExpr.h"
+#include "optimizer/BindWA.h"
+#include "optimizer/ControlDB.h"
+#include "optimizer/CostMethod.h"
+#include "optimizer/GroupAttr.h"
+#include "optimizer/ItemFunc.h"
+#include "optimizer/ItmFlowControlFunction.h"
+#include "optimizer/NATable.h"
+#include "optimizer/OptimizerSimulator.h"
+#include "optimizer/Sqlcomp.h"
+#include "optimizer/TriggerDB.h"
+#include "optimizer/UdfDllInteraction.h"
+#include "optimizer/ValueDesc.h"
+#include "optimizer/keycolumns.h"
+#include "parser/SqlParserGlobals.h"  // must be last #include
+#include "parser/StmtDDLNode.h"
+#include "sqlcomp/CmpSeabaseDDL.h"
+#include "vegrewritepairs.h"
 
 extern ItemExpr *buildComparisonPred(ItemExpr *, ItemExpr *, ItemExpr *, OperatorTypeEnum,
                                      NABoolean specialNulls = FALSE  //++MV - Irena
@@ -8747,7 +8742,7 @@ ItemExpr *PivotGroup::preCodeGen(Generator *generator) {
     // PivotGroup's result CharSet, then do a child CAST.
     if (childType.getTypeQualifier() != NA_CHARACTER_TYPE || childType.getCharSet() != pivotType.getCharSet()) {
       int displayLen = childType.getDisplayLength(childType.getFSDatatype(), childType.getNominalSize(),
-                                                    childType.getPrecision(), childType.getScale(), 0);
+                                                  childType.getPrecision(), childType.getScale(), 0);
 
       CharLenInfo charLenInfo(displayLen, displayLen * CharInfo::minBytesPerChar(pivotType.getCharSet()));
 

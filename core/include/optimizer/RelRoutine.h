@@ -12,12 +12,12 @@
 *************************************************************************
 */
 
-#include "optimizer/ObjectNames.h"
-#include "optimizer/RelExpr.h"
-#include "optimizer/OptUtilIncludes.h"
 #include "BinderUtils.h"
-#include "parser/StmtNode.h"
 #include "RoutineDesc.h"
+#include "optimizer/ObjectNames.h"
+#include "optimizer/OptUtilIncludes.h"
+#include "optimizer/RelExpr.h"
+#include "parser/StmtNode.h"
 // -----------------------------------------------------------------------
 // Classes defined in this file
 // -----------------------------------------------------------------------
@@ -718,7 +718,7 @@ class TableMappingUDF : public TableValuedFunction {
   // ESPs is being forced.
   // ---------------------------------------------------------------------
   virtual DefaultToken getParallelControlSettings(const ReqdPhysicalProperty *const rppForMe, /*IN*/
-                                                  int &numOfESPs,                           /*OUT*/
+                                                  int &numOfESPs,                             /*OUT*/
                                                   float &allowedDeviation,                    /*OUT*/
                                                   NABoolean &numOfESPsForced /*OUT*/) const;
 
@@ -728,7 +728,7 @@ class TableMappingUDF : public TableValuedFunction {
   // ---------------------------------------------------------------------
   virtual NABoolean okToAttemptESPParallelism(const Context *myContext, /*IN*/
                                               PlanWorkSpace *pws,       /*IN*/
-                                              int &numOfESPs,         /*OUT*/
+                                              int &numOfESPs,           /*OUT*/
                                               float &allowedDeviation,  /*OUT*/
                                               NABoolean &numOfESPsForced /*OUT*/);
 

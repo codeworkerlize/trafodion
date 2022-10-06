@@ -2,8 +2,8 @@
 #ifndef ComTdbExSequence_h
 #define ComTdbExSequence_h
 
-#include "comexe/ComTdb.h"
 #include "comexe/ComPackDefs.h"
+#include "comexe/ComTdb.h"
 
 // Task Definition Block
 //
@@ -17,7 +17,7 @@ class ComTdbSequence : public ComTdb {
   ComTdbSequence(ex_expr *sequenceExpr, ex_expr *returnExpr, ex_expr *postPred, ex_expr *cancelExpr, int minFollowing,
                  int reclen, const unsigned short tupp_index, ComTdb *child_tdb, ex_cri_desc *given_cri_desc,
                  ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
-                 int buffer_size,      // for SQL buffer (with results)
+                 int buffer_size,       // for SQL buffer (with results)
                  int OLAP_buffer_size,  // for OLAP buffer
                  // olap_number_of_buffers is for testing purposes, can be removed later
                  int max_number_of_OLAP_buffers,  // number of olap buffers
@@ -135,18 +135,18 @@ class ComTdbSequence : public ComTdb {
   ExExprPtr postPred_;                   //  08-15
   ExExprPtr cancelExpr_;                 //  16-23
   ComTdbPtr tdbChild_;                   //  24-31
-  int recLen_;                         //  32-35
-  int maxHistoryRows_;                 //  36-39  //may need to rename to minFixedHistoryRows_???
+  int recLen_;                           //  32-35
+  int maxHistoryRows_;                   //  36-39  //may need to rename to minFixedHistoryRows_???
   const UInt16 tuppIndex_;               //  40-41
   char filler_[2];                       //  42-43
-  int minFollowing_;                   //  44-47
+  int minFollowing_;                     //  44-47
   ExExprPtr returnExpr_;                 //  48-55
   ExExprPtr checkPartitionChangeExpr_;   //  56-63
-  int OLAPBufferSize_;                 //  64-67
-  int maxNumberOfOLAPBuffers_;         //  68-71
-  int maxRowsInOLAPBuffer_;            //  72-75
-  int minNumberOfOLAPBuffers_;         //  76-79
-  int numberOfWinOLAPBuffers_;         //  80-83
+  int OLAPBufferSize_;                   //  64-67
+  int maxNumberOfOLAPBuffers_;           //  68-71
+  int maxRowsInOLAPBuffer_;              //  72-75
+  int minNumberOfOLAPBuffers_;           //  76-79
+  int numberOfWinOLAPBuffers_;           //  80-83
   UInt16 OLAPFlags_;                     //  84-85
   UInt16 memoryQuotaMB_;                 //  86-87
   UInt16 scratchThresholdPct_;           //  88-89

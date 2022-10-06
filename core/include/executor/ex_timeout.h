@@ -17,12 +17,11 @@
 #ifndef EX_TIMEOUT_H
 #define EX_TIMEOUT_H
 // -----------------------------------------------------------------------
-#include "executor/ex_stdh.h"
 #include "comexe/ComTdb.h"
-#include "executor/ex_tcb.h"
-#include "executor/ex_error.h"
-
 #include "common/Int64.h"
+#include "executor/ex_error.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_tcb.h"
 
 ///////////////////////////////////////////////////////
 // class ExTimeoutTdb

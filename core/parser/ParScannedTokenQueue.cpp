@@ -15,9 +15,10 @@
  *****************************************************************************
  */
 
+#include "ParScannedTokenQueue.h"
+
 #include "common/ComOperators.h"
 #include "common/ComSmallDefs.h"
-#include "ParScannedTokenQueue.h"
 
 // -----------------------------------------------------------------------
 // definitions of non-inline methods of class ParScannedTokenQueue

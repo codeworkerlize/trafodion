@@ -2,9 +2,9 @@
 #ifndef SQLTABLEOPENINFO_H
 #define SQLTABLEOPENINFO_H
 
+#include "comexe/ComPackDefs.h"
 #include "common/Int64.h"
 #include "common/NABoolean.h"
-#include "comexe/ComPackDefs.h"
 #include "export/NAVersionedObject.h"
 #include "sqlcomp/PrivMgrDefs.h"
 
@@ -437,7 +437,7 @@ class SqlTableOpenInfo : public NAVersionedObject {
   Int16 numPartsInPartNameArray_;     // 74-75
   char fillersSqlTableOpenInfo2_[4];  // 76-79
   // utility open id, if this open is part of a utility operation.
-  long utilityOpenId_;              // 80-87
+  long utilityOpenId_;               // 80-87
   NABasicPtr partNameArray_;         // 88-95
   UInt32 expectedEpoch_;             // expected ObjectEpochCache epoch for DDL validation    96-99
   UInt32 expectedFlags_;             // expected ObjectEpochCache flags for DDL validation   100-103

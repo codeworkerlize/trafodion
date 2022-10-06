@@ -15,8 +15,8 @@
  *****************************************************************************
  */
 
-#include "common/ComSmallDefs.h"
 #include "UdrExeIpc.h"
+#include "common/ComSmallDefs.h"
 #include "common/ExCollections.h"
 #include "common/NAUserId.h"
 

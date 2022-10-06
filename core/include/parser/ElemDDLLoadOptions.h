@@ -17,8 +17,8 @@
  *****************************************************************************
  */
 
-#include "common/BaseTypes.h"
 #include "ElemDDLNode.h"
+#include "common/BaseTypes.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

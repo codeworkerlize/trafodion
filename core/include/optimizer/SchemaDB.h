@@ -13,20 +13,19 @@
 *************************************************************************
 */
 
-#include "common/NAAssert.h"  // required after including a RogueWave file!
-
+#include "NARoutineDB.h"
+#include "arkcmp/CmpContext.h"
 #include "common/BaseTypes.h"
+#include "common/ComTransInfo.h"
+#include "common/NAAssert.h"  // required after including a RogueWave file!
 #include "common/charinfo.h"
 #include "optimizer/ColumnDesc.h"
-#include "common/ComTransInfo.h"
-#include "arkcmp/CmpContext.h"
 #include "optimizer/DomainDesc.h"
-#include "sqlcomp/NADefaults.h"
-#include "NARoutineDB.h"
-#include "optimizer/NATable.h"
 #include "optimizer/NARoutine.h"
+#include "optimizer/NATable.h"
 #include "optimizer/TableDesc.h"
 #include "optimizer/ValueDesc.h"
+#include "sqlcomp/NADefaults.h"
 
 // triggers -- eliezer
 class TriggerDB;

@@ -2,8 +2,9 @@
 /* -*-C++-*- */
 
 #include "optimizer/OptHints.h"
-#include "common/DatetimeType.h"
+
 #include "arkcmp/CmpContext.h"
+#include "common/DatetimeType.h"
 #include "optimizer/ControlDB.h"
 
 Hint::Hint(const NAString &indexName, NAMemory *h)
@@ -76,8 +77,7 @@ short OptHbaseAccessOptions::setHbaseTS(const char *minTSstr, const char *maxTSs
   NAString highestStr("9999-12-31:00:00:00");
   DatetimeValue highestDT(highestStr, REC_DATE_YEAR, REC_DATE_SECOND, fracPrec,
                           (CmpCommon::getDefault(USE_OLD_DT_CONSTRUCTOR) == DF_ON));
-  long highestJTS =
-      DatetimeType::julianTimestampValue((char *)highestDT.getValue(), highestDT.getValueLen(), fracPrec);
+  long highestJTS = DatetimeType::julianTimestampValue((char *)highestDT.getValue(), highestDT.getValueLen(), fracPrec);
 
   minJTS = computeHbaseTS(minTSstr);
   if (minJTS < 0) {

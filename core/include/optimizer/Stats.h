@@ -22,13 +22,14 @@
 //  Include Files
 // -----------------------------------------------------------------------
 #include <math.h>
+
+#include "EncodedValue.h"
 #include "common/BaseTypes.h"
-#include "optimizer/CostScalar.h"
 #include "common/Collections.h"
 #include "common/NAType.h"
-#include "optimizer/ValueDesc.h"
-#include "EncodedValue.h"
 #include "common/SharedPtrCollections.h"
+#include "optimizer/CostScalar.h"
+#include "optimizer/ValueDesc.h"
 
 // -----------------------------------------------------------------------
 // macro to get the square of a number
@@ -1926,7 +1927,7 @@ class ColStats : public NABasicObject {
   //                           // rowcount estimation accuracy).
 
   int avgVarcharSize_;  // average number of chars in columns[0], if
-                          // it is of VARCHAR type.
+                        // it is of VARCHAR type.
 
   NABoolean afterFetchIntReductionAttempted_;  // was an attempted made after histogram fetch
                                                // to reduce the number of intervals for this colStats

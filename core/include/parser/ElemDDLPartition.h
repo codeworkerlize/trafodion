@@ -21,9 +21,9 @@
  */
 
 #include "ElemDDLNode.h"
-#include "parser/ElemDDLPartitionClause.h"
 #include "ElemDDLPartitionArray.h"
 #include "ItemConstValueArray.h"
+#include "parser/ElemDDLPartitionClause.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

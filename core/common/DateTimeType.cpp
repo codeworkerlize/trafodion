@@ -13,16 +13,16 @@
 
 // -----------------------------------------------------------------------
 
+#include "common/DatetimeType.h"
+
+#include <cextdecs/cextdecs.h>
 #include <ctype.h>
 #include <math.h>
 
-#include "common/DatetimeType.h"
 #include "common/NumericType.h"
 #include "common/str.h"
 #include "exp/exp_clause_derived.h"
 #include "exp/exp_datetime.h"
-
-#include <cextdecs/cextdecs.h>
 
 NAString LiteralDate("DATE");
 NAString LiteralTime("TIME");
@@ -183,8 +183,7 @@ int DatetimeType::getExtendedEndField(rec_datetime_field endField, UInt32 fracti
 // TIMESTAMP(0) [YMDHMS] is size 7,
 // TIMESTAMP(n) [YMDHMSF] is size 11.
 //
-int DatetimeType::getStorageSize(rec_datetime_field startField, rec_datetime_field endField,
-                                   UInt32 fractionPrecision) {
+int DatetimeType::getStorageSize(rec_datetime_field startField, rec_datetime_field endField, UInt32 fractionPrecision) {
   int storageSize = 0;
   int end = getExtendedEndField(endField, fractionPrecision);
   for (int field = startField; field <= end; field++) {
@@ -406,8 +405,7 @@ int DatetimeType::getDisplayLength() const {
   return displayLength;
 }  // DatetimeType::getDisplayLength
 
-int DatetimeType::getDisplayLength(int datatype, int length, int precision, int scale,
-                                     int heading_len) const {
+int DatetimeType::getDisplayLength(int datatype, int length, int precision, int scale, int heading_len) const {
   int d_len = (int)getDisplayLength();
 
   if (d_len >= heading_len)
@@ -584,8 +582,8 @@ const NAType *DatetimeType::synthesizeTernary(enum NATypeSynthRuleEnum synthRule
 //
 // ***********************************************************************
 
-void DatetimeType::getRepresentableValue(const char *inValueString, void *bufPtr, int *bufLen,
-                                         NAString **stringLiteral, NAMemory *h) const {
+void DatetimeType::getRepresentableValue(const char *inValueString, void *bufPtr, int *bufLen, NAString **stringLiteral,
+                                         NAMemory *h) const {
   int startIndex = getStartField() - REC_DATE_YEAR;
   int endIndex = getEndField() - REC_DATE_YEAR;
   int startOff, endOff, i = 0;
@@ -865,7 +863,7 @@ NAString *SQLDate::convertToString(double v, NAMemory *h) const {
 
   UInt32 dtvFields[DatetimeValue::N_DATETIME_FIELDS];
   DatetimeValue::decodeTimestamp(long(secs * 1000000),  // in microseconds
-                                 0,                      // fracSec
+                                 0,                     // fracSec
                                  dtvFields);
 
   char data[20];
@@ -942,7 +940,7 @@ NAString *SQLTime::convertToString(double v, NAMemory *h) const {
 
   UInt32 dtvFields[DatetimeValue::N_DATETIME_FIELDS];
   DatetimeValue::decodeTimestamp(long(secs * 1000000),  // in microseconds
-                                 0,                      // fracSec
+                                 0,                     // fracSec
                                  dtvFields);
 
   char data[30];
@@ -1022,7 +1020,7 @@ NAString *SQLTimestamp::convertToString(double v, NAMemory *h) const {
 
   UInt32 dtvFields[DatetimeValue::N_DATETIME_FIELDS];
   DatetimeValue::decodeTimestamp(long(secs * 1000000),  // in microseconds
-                                 0,                      // fracSec
+                                 0,                     // fracSec
                                  dtvFields);
 
   char date[30];
@@ -1463,8 +1461,7 @@ NABoolean DatetimeValue::scanTime(const char *&strValue, DatetimeFormat format, 
   return TRUE;
 }  // DatetimeValue::scanTime
 
-NABoolean DatetimeValue::scanField(const char *&strValue, DatetimeField field, int values[],
-                                   NABoolean validate) const {
+NABoolean DatetimeValue::scanField(const char *&strValue, DatetimeField field, int values[], NABoolean validate) const {
   //
   // Compute the value of the datetime field.
   //

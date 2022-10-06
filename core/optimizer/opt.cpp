@@ -16,34 +16,35 @@
 ******************************************************************************
 */
 
+#include "optimizer/opt.h"
+
 #include <limits.h>
 #include <time.h>
-#include "optimizer/ControlDB.h"
-#include "optimizer/Sqlcomp.h"
+
+#include "Cost.h"
 #include "arkcmp/CmpContext.h"
 #include "arkcmp/CmpErrors.h"
-#include "sqlcomp/CmpMain.h"  // gui display
+#include "arkcmp/CompException.h"
 #include "optimizer/CmpMemoryMonitor.h"
-#include "Cost.h"
+#include "optimizer/CompilationStats.h"
+#include "optimizer/ControlDB.h"
+#include "optimizer/CostMethod.h"
 #include "optimizer/GroupAttr.h"
-#include "optimizer/opt.h"
 #include "optimizer/PhyProp.h"
 #include "optimizer/RelExpr.h"
 #include "optimizer/RelJoin.h"
 #include "optimizer/RelMisc.h"
-#include "optimizer/CostMethod.h"
+#include "optimizer/Sqlcomp.h"
+#include "sqlcomp/CmpMain.h"  // gui display
 #include "sqlmxevents/logmxevent.h"
-#include "arkcmp/CompException.h"
-#include "optimizer/CompilationStats.h"
 
 //////////////////////////////
 #include "optimizer/Analyzer.h"
 //////////////////////////////
 
-
 #include "arkcmp/CmpStatement.h"
-#include "utility.h"
 #include "common/NAWNodeSet.h"
+#include "utility.h"
 
 //<pb>
 // -----------------------------------------------------------------------
@@ -259,8 +260,6 @@ RelExpr *RelExpr::optimize(NABoolean exceptionMode, Guidance *guidance, ReqdPhys
   CURRSTMT_OPTGLOBALS->memo = new (CmpCommon::statementHeap()) CascadesMemo();
   CURRSTMT_OPTGLOBALS->task_list = new (CmpCommon::statementHeap()) CascadesTaskList();
 
-
-
   // ---------------------------------------------------------------------
   // Synthesize the logical properties for the input query.
   // ---------------------------------------------------------------------
@@ -410,8 +409,6 @@ RelExpr *RelExpr::optimize(NABoolean exceptionMode, Guidance *guidance, ReqdPhys
         CascadesTask *next_task = CURRSTMT_OPTGLOBALS->task_list->getFirst();  // get a sneak preview
         //                                                // for GUI display
 
-
-
 #ifdef _DEBUG
         // Show task.
         if ((CmpCommon::getDefault(NSK_DBG) == DF_ON) && (CmpCommon::getDefault(NSK_DBG_PRINT_TASK) == DF_ON)) {
@@ -490,8 +487,6 @@ RelExpr *RelExpr::optimize(NABoolean exceptionMode, Guidance *guidance, ReqdPhys
         *CmpCommon::diags() << DgString4(string);
 #endif
       }
-
-
 
       if (context->getSolution() && (CmpCommon::getDefault(NSK_DBG) == DF_ON)) {
         int passNumber = GlobalRuleSet->getCurrentPassNumber();
@@ -1081,9 +1076,9 @@ NABoolean Context::findBestSolution() {
   // or, if pruning is enabled, candidate plans to steal.
   // ---------------------------------------------------------------------
   int maxc = (int)((*CURRSTMT_OPTGLOBALS->memo)[groupId_]->getCountOfContexts());  //# of contxts in grp
-  Context *otherContext;                                                               // another contxt in grp
-  CascadesPlan *plan;                                                                  // a potential solution
-  COMPARE_RESULT comp;                                                                 // this ?? otherContext
+  Context *otherContext;                                                           // another contxt in grp
+  CascadesPlan *plan;                                                              // a potential solution
+  COMPARE_RESULT comp;                                                             // this ?? otherContext
   int i, j;
 
   for (i = 0; i < maxc; i++) {
@@ -1760,8 +1755,7 @@ const RelExpr *Context::getPhysicalExprOfSolutionForGrandChild(int childIndex, i
     return NULL;
 }  // Context::getPhysicalPropertyOfSolutionForGrandChild()
 
-const PhysicalProperty *Context::getPhysicalPropertyOfSolutionForGrandChild(int childIndex,
-                                                                            int grandChildIndex) const {
+const PhysicalProperty *Context::getPhysicalPropertyOfSolutionForGrandChild(int childIndex, int grandChildIndex) const {
   if (getPlan() AND getPlan()
           ->getContextForChild(childIndex) AND getPlan()
           ->getContextForChild(childIndex)
@@ -6067,13 +6061,9 @@ void QueryOptimizerDriver::DEBUG_SHOW_TASK(CascadesTask *task) {
   }
 }
 
-void QueryOptimizerDriver::DEBUG_GUI_DO_MEMO_STEP(CascadesTask *task) {
+void QueryOptimizerDriver::DEBUG_GUI_DO_MEMO_STEP(CascadesTask *task) {}
 
-}
-
-void QueryOptimizerDriver::DEBUG_GUI_SET_POINTERS() {
-
-}
+void QueryOptimizerDriver::DEBUG_GUI_SET_POINTERS() {}
 
 void QueryOptimizerDriver::DEBUG_GUI_DISPLAY_TRIGGERS_AFTER_NORMALIZATION(RelExpr *relExpr) {
 #ifdef _DEBUG
@@ -6083,9 +6073,7 @@ void QueryOptimizerDriver::DEBUG_GUI_DISPLAY_TRIGGERS_AFTER_NORMALIZATION(RelExp
 
 void QueryOptimizerDriver::DEBUG_GUI_HIDE_QUERY_TREE() {}
 
-void QueryOptimizerDriver::DEBUG_GUI_DISPLAY_AFTER_OPTIMIZATION(Context *context) {
-
-}
+void QueryOptimizerDriver::DEBUG_GUI_DISPLAY_AFTER_OPTIMIZATION(Context *context) {}
 
 void QueryOptimizerDriver::DEBUG_PRINT_COUNTERS() {
 #ifdef _DEBUG

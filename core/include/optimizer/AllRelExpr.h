@@ -17,22 +17,22 @@
 
 // -----------------------------------------------------------------------
 
-#include "optimizer/RelExpr.h"
-#include "optimizer/Rel3GL.h"
-#include "optimizer/RelControl.h"
+#include "MultiJoin.h"
 #include "RelDCL.h"
 #include "RelEnforcer.h"
+#include "RelFastTransport.h"
+#include "RelProbeCache.h"
+#include "optimizer/Rel3GL.h"
+#include "optimizer/RelControl.h"
+#include "optimizer/RelExeUtil.h"
+#include "optimizer/RelExpr.h"
 #include "optimizer/RelGrby.h"
 #include "optimizer/RelJoin.h"
-#include "optimizer/RelExeUtil.h"
-#include "RelFastTransport.h"
 #include "optimizer/RelMisc.h"
 #include "optimizer/RelRoutine.h"
-#include "RelProbeCache.h"
-#include "optimizer/RelStoredProc.h"
 #include "optimizer/RelScan.h"
 #include "optimizer/RelSet.h"
+#include "optimizer/RelStoredProc.h"
 #include "optimizer/RelUpdate.h"
-#include "MultiJoin.h"
 
 // eof

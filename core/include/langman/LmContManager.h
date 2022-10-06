@@ -17,8 +17,8 @@
 #include "comexe/ComQueue.h"
 #endif
 
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 
 #include "LmLangManager.h"
 

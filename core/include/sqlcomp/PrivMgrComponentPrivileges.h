@@ -23,11 +23,11 @@
 
 #ifndef PRIVMGR_COMPONENTPRIVILEGES_H
 #define PRIVMGR_COMPONENTPRIVILEGES_H
-#include "sqlcomp/PrivMgrMD.h"
-#include "sqlcomp/PrivMgrDefs.h"
-
 #include <string>
 #include <vector>
+
+#include "sqlcomp/PrivMgrDefs.h"
+#include "sqlcomp/PrivMgrMD.h"
 
 class PrivMgrMDTable;
 class PrivMgrMDRow;

@@ -55,27 +55,19 @@
 //
 //
 // -----------------------------------------------------------------------
-#include <stdlib.h>
 #include <ctype.h>
+#include <stdlib.h>
 
-#include "sqlci/sqlcmd.h"
 #include "sqlci/SqlciCmd.h"
+#include "sqlci/sqlcmd.h"
 
 Reset::~Reset() {}
 
 short Reset::reset_control(SqlciEnv *sqlci_env) { return 0; }
 
-short Reset::reset_param(SqlciEnv *sqlci_env) {
+short Reset::reset_param(SqlciEnv *sqlci_env) { return 0; }
 
-
-  return 0;
-}
-
-short Reset::reset_pattern(SqlciEnv *sqlci_env) {
-
-
-  return 0;
-}
+short Reset::reset_pattern(SqlciEnv *sqlci_env) { return 0; }
 
 short Reset::reset_prepared(SqlciEnv *sqlci_env) { return 0; }
 

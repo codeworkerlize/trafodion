@@ -22,6 +22,7 @@ $
 #define AEVENT 1
 
 #include "ScratchFileConnection.h"
+
 #include "ex_ex.h"
 
 ScratchFileConnection::ScratchFileConnection(int index, ScratchFile *sf, ExSubtask *eventHandler, IpcEnvironment *env,

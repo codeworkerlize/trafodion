@@ -2,8 +2,9 @@
 
 // **********************************************************************
 #include "optimizer/CompilerTracking.h"
-#include "qmscommon/QRLogger.h"
+
 #include "executor/ExExeUtilCli.h"
+#include "qmscommon/QRLogger.h"
 #ifdef _MSC_VER
 #undef _MSC_VER
 #endif
@@ -211,9 +212,7 @@ The current metadata cache hit counter is calculated by
    for interval marking)
 
 ************************************************************************/
-inline int CompilerTrackingInfo::metaDataCacheHits() {
-  return ActiveSchemaDB()->getNATableDB()->hits() - mdCacheHits_;
-}
+inline int CompilerTrackingInfo::metaDataCacheHits() { return ActiveSchemaDB()->getNATableDB()->hits() - mdCacheHits_; }
 /************************************************************************
 method CompilerTrackingInfo::metaDataCacheLookups
 

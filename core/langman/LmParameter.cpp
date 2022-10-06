@@ -11,12 +11,13 @@
 */
 
 #include "LmParameter.h"
+
 #include "common/wstr.h"
 
 #ifdef LANGMAN
 #include "LmAssert.h"
-#include "exp/exp_expr.h"
 #include "exp/exp_clause_derived.h"
+#include "exp/exp_expr.h"
 #endif
 
 //////////////////////////////////////////////////////////////////////
@@ -137,8 +138,8 @@ LmResult LmParameter::setOutChar(void *dataPtr, const char *src, ComUInt32 lengt
           break;
 
         case CharInfo::UNICODE:
-          wc_str_pad((NAWchar *)((char *)dataPtr + outDataOffset_ + lengthInBytes),
-                     (int)(outSize_ - lengthInBytes) / 2, unicode_char_set::space_char());
+          wc_str_pad((NAWchar *)((char *)dataPtr + outDataOffset_ + lengthInBytes), (int)(outSize_ - lengthInBytes) / 2,
+                     unicode_char_set::space_char());
           break;
 
         default:

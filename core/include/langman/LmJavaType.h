@@ -67,9 +67,9 @@ class LmJavaType {
   struct TypeElement {
     Type javaIdx;              // Java type index. This is LM type.
     const char *javaTypeName;  // Java encoded type.
-    int javaTypeNameLen;     // Length of encoded Java type.
+    int javaTypeNameLen;       // Length of encoded Java type.
     const char *javaText;      // Java type in normal text.
-    int javaTextLen;         // Length of javaText.
+    int javaTextLen;           // Length of javaText.
   };
 
  public:
@@ -94,7 +94,7 @@ class LmJavaType {
  private:
   Type type_;             // Type
   LmParameter *lmParam_;  // Corresponding parameter
-  int index_;           // index into JavaTypeTable
+  int index_;             // index into JavaTypeTable
 
   static TypeElement javaTypeTable[];
 };

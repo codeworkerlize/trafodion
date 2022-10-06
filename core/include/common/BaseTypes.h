@@ -1,11 +1,11 @@
 #pragma once
 
-#include "common/Platform.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 
 #include <iostream>
+
+#include "common/Platform.h"
 using namespace std;
 
 #include "common/NAAssert.h"
@@ -145,9 +145,9 @@ typedef NAUnsigned SimpleHashValue;
 
 #define BUMP_INDENT(X)                                                     \
   char newindent[MAX_INDENT_SIZE + 1];                                     \
-  int indentlen = strlen(X) + MIN_INDENT_SIZE;                           \
+  int indentlen = strlen(X) + MIN_INDENT_SIZE;                             \
   indentlen = (indentlen < MAX_INDENT_SIZE ? indentlen : MAX_INDENT_SIZE); \
-  for (int fli = 0; fli < indentlen; fli++) newindent[fli] = ' ';        \
+  for (int fli = 0; fli < indentlen; fli++) newindent[fli] = ' ';          \
   newindent[indentlen] = '\0';
 
 #define NEW_INDENT newindent

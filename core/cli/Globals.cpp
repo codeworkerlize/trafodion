@@ -17,38 +17,34 @@
 
 // -----------------------------------------------------------------------
 
-#include "common/Platform.h"
-
+#include <pthread.h>
+#include <semaphore.h>
 #include <stdlib.h>
 #include <sys/syscall.h>
-#include "cli_stdh.h"
-#include "common/Ipc.h"
-#include "executor/ex_stdh.h"
-#include "ex_frag_rt.h"
 
-#include "executor/ExStats.h"
-#include "ExUdrServer.h"
-#include "cli/ExSqlComp.h"
+#include "CliSemaphore.h"
+#include "ExCextdecs.h"
 #include "ExControlArea.h"
-#include "cli/Context.h"
-#include "executor/ex_transaction.h"
-#include "cli/Statement.h"
-#include "ex_root.h"
-#include "common/ComRtUtils.h"
-#include <semaphore.h>
-#include <pthread.h>
-#include "executor/HBaseClient_JNI.h"
-
-#include "executor/DistributedLock_JNI.h"
-#include "executor/TenantHelper_JNI.h"
+#include "ExUdrServer.h"
 #include "LmLangManagerC.h"
 #include "LmLangManagerJava.h"
-#include "CliSemaphore.h"
-
+#include "cli/Context.h"
+#include "cli/ExSqlComp.h"
+#include "cli/Statement.h"
+#include "cli_stdh.h"
 #include "common/ComEncryption.h"
+#include "common/ComRtUtils.h"
+#include "common/Ipc.h"
 #include "common/NAClusterInfo.h"
-
-#include "ExCextdecs.h"
+#include "common/Platform.h"
+#include "ex_frag_rt.h"
+#include "ex_root.h"
+#include "executor/DistributedLock_JNI.h"
+#include "executor/ExStats.h"
+#include "executor/HBaseClient_JNI.h"
+#include "executor/TenantHelper_JNI.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_transaction.h"
 CliGlobals *cli_globals = NULL;
 __thread ContextTidMap *tsCurrentContextMap = NULL;
 

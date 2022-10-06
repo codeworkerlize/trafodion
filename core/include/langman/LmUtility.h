@@ -15,10 +15,9 @@
 #ifndef _LMUTILITY_H_
 #define _LMUTILITY_H_
 
-#include "lmjni.h"
-
-#include "common/Collections.h"
 #include "LmLangManagerJava.h"
+#include "common/Collections.h"
+#include "lmjni.h"
 
 //
 // To generate signatures for the LmUtility native methods:

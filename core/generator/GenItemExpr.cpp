@@ -14,13 +14,13 @@
 ******************************************************************************
 */
 
-#include "optimizer/AllItemExpr.h"
 #include "GenExpGenerator.h"
+#include "common/NumericType.h"
 #include "common/dfs2rec.h"
 #include "exp/exp_clause.h"
 #include "exp/exp_clause_derived.h"
-#include "common/NumericType.h"
 #include "exp_function.h"
+#include "optimizer/AllItemExpr.h"
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -158,8 +158,8 @@ short Aggregate::codeGen(Generator *generator) {
 
       // Apply the max entries threshold only for the INSERT operation.
       int maxEntries = (getOperatorType() == ITM_RANGE_VALUES_INSERT)
-                             ? ActiveSchemaDB()->getDefaults().getAsLong(RANGE_OPTIMIZED_SCAN_MAX_NUM_KEYS)
-                             : -1;
+                           ? ActiveSchemaDB()->getDefaults().getAsLong(RANGE_OPTIMIZED_SCAN_MAX_NUM_KEYS)
+                           : -1;
 
       clause =
           new (generator->getSpace()) ExFunctionRangeOfValues(getOperatorType(), attr, generator->getSpace(), maxLength,

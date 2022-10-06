@@ -10,12 +10,11 @@
 
 // Includes
 //
+#include "common/ComRtUtils.h"
 #include "common/CommonLogger.h"
-
-#include "export/ComDiags.h"
 #include "exp/ExpCriDesc.h"
 #include "exp/ExpSqlTupp.h"
-#include "common/ComRtUtils.h"
+#include "export/ComDiags.h"
 
 // forward declarations
 class ex_queue_entry;
@@ -109,7 +108,7 @@ class atp_struct {
   //  inline              ~atp_struct();	// destructor
 
  private:
-  int tagged_;             // TRUE or FALSE;
+  int tagged_;               // TRUE or FALSE;
   ex_cri_desc *criDesc_;     // descriptor (num tupps, etc.)
   ComDiagsArea *diagsArea_;  // diagnostics area
   // the following data member is just a filler. Statistics areas are not passed

@@ -14,14 +14,15 @@
  *****************************************************************************
  */
 #include "sqlcomp/SharedCache.h"
-#include "common/str.h"
-#include "comexe/ComQueue.h"
-#include "executor/ExExeUtilCli.h"
-#include "cli/Globals.h"
+
+#include "SharedSegment.h"
 #include "arkcmp/CmpContext.h"
+#include "cli/Globals.h"
+#include "comexe/ComQueue.h"
+#include "common/str.h"
+#include "executor/ExExeUtilCli.h"
 #include "sqlcomp/CmpSeabaseDDL.h"
 #include "sqlcomp/NamedSemaphore.h"
-#include "SharedSegment.h"
 
 int NAStringHashFunc(const NAString &x) { return x.hash(); }
 
@@ -689,11 +690,11 @@ char *SharedDescriptorCache::collectSummaryDataForSchema(const QualifiedName &sc
   }
 
   int len = snprintf(buf, bufLen,
-                       "entries: total=%d, enabled=%d; sum_of_length(bytes): total=%ld, enabled=%ld; "
-                       "heap_sizes(bytes): total=%ld, alloc=%ld, free=%ld; heap_starting_address=%p; sanity=%d",
-                       table_->entries(), table_->entriesEnabled(), totalSizeForAll, totalSizeForEnabled,
-                       heap->getTotalSize(), heap->getAllocSize(), heap->getTotalSize() - heap->getAllocSize(),
-                       static_cast<void *>((char *)(heap)), table_->sanityCheck());
+                     "entries: total=%d, enabled=%d; sum_of_length(bytes): total=%ld, enabled=%ld; "
+                     "heap_sizes(bytes): total=%ld, alloc=%ld, free=%ld; heap_starting_address=%p; sanity=%d",
+                     table_->entries(), table_->entriesEnabled(), totalSizeForAll, totalSizeForEnabled,
+                     heap->getTotalSize(), heap->getAllocSize(), heap->getTotalSize() - heap->getAllocSize(),
+                     static_cast<void *>((char *)(heap)), table_->sanityCheck());
 
   if (len <= 0) return NULL;
 
@@ -746,11 +747,11 @@ char *SharedDescriptorCache::collectSummaryDataForAll() {
   }
 
   int len = snprintf(buf, bufLen,
-                       "entries: total=%d, enabled=%d; sum_of_length(bytes): total=%ld, enabled=%ld; "
-                       "heap_sizes(bytes): total=%ld, alloc=%ld, free=%ld; heap_starting_address=%p; sanity=%d",
-                       table_->entries(), table_->entriesEnabled(), totalSizeForAll, totalSizeForEnabled,
-                       heap->getTotalSize(), heap->getAllocSize(), heap->getTotalSize() - heap->getAllocSize(),
-                       static_cast<void *>((char *)(heap)), table_->sanityCheck());
+                     "entries: total=%d, enabled=%d; sum_of_length(bytes): total=%ld, enabled=%ld; "
+                     "heap_sizes(bytes): total=%ld, alloc=%ld, free=%ld; heap_starting_address=%p; sanity=%d",
+                     table_->entries(), table_->entriesEnabled(), totalSizeForAll, totalSizeForEnabled,
+                     heap->getTotalSize(), heap->getAllocSize(), heap->getTotalSize() - heap->getAllocSize(),
+                     static_cast<void *>((char *)(heap)), table_->sanityCheck());
 
   if (len <= 0) return NULL;
 
@@ -1508,12 +1509,12 @@ char *SharedTableDataCache::collectSummaryDataForSchema(const QualifiedName &sch
   }
 
   int len = snprintf(buf, bufLen,
-                       "Summary: Total=%d, Enabled=%d; Sum_of_length(bytes): Total=%ld, Shared Memory Heap(%p): "
-                       "Total=%ld, Used=%ld, Free=%ld; Shmaddr=%p; Shmid=%d",
-                       memoryTableDB_->entries(), memoryTableDB_->entriesEnabled(), totalSizeForAll,
-                       static_cast<void *>((char *)(heap)), heap->getTotalSize(), heap->getAllocSize(),
-                       heap->getTotalSize() - heap->getAllocSize(), defaultSharedSegment(TRUE).getAddr(),
-                       defaultSharedSegment(TRUE).getShmid());
+                     "Summary: Total=%d, Enabled=%d; Sum_of_length(bytes): Total=%ld, Shared Memory Heap(%p): "
+                     "Total=%ld, Used=%ld, Free=%ld; Shmaddr=%p; Shmid=%d",
+                     memoryTableDB_->entries(), memoryTableDB_->entriesEnabled(), totalSizeForAll,
+                     static_cast<void *>((char *)(heap)), heap->getTotalSize(), heap->getAllocSize(),
+                     heap->getTotalSize() - heap->getAllocSize(), defaultSharedSegment(TRUE).getAddr(),
+                     defaultSharedSegment(TRUE).getShmid());
 
   if (len <= 0) return NULL;
   return buf;

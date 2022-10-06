@@ -22,8 +22,8 @@
 #ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
-#include "parser/SqlParserGlobals.h"
 #include "StmtDDLAddConstraintUnique.h"
+#include "parser/SqlParserGlobals.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

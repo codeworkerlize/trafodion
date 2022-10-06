@@ -25,9 +25,9 @@
 //
 // -----------------------------------------------------------------------
 
+#include "common/BaseTypes.h"
 #include "common/ComSmallDefs.h"
 #include "parser/StmtDDLNode.h"
-#include "common/BaseTypes.h"
 
 //----------------------------------------------------------------------------
 // forward references

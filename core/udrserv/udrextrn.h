@@ -16,11 +16,11 @@
 
 #include "LmError.h"
 #include "LmLangManagerJava.h"
-#include "spinfo.h"
 #include "UdrExeIpc.h"
-#include "export/ComDiags.h"
-#include "cli/sqlcli.h"
 #include "cli/SQLCLIdev.h"
+#include "cli/sqlcli.h"
+#include "export/ComDiags.h"
+#include "spinfo.h"
 #include "udrglobals.h"
 
 class UdrServerReplyStream;

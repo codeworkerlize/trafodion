@@ -14,10 +14,10 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
-
 #include "common/ComSysUtils.h"
+
 #include "common/NAAssert.h"
+#include "common/Platform.h"
 
 //----------------------------------------------------------------
 // This section of the code should be removed when the real

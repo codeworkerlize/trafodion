@@ -2,11 +2,12 @@
 #ifndef NALOG_H
 #define NALOG_H
 
-#include <iostream>
 #include <stdio.h>
 
-#include "common/NAString.h"
+#include <iostream>
+
 #include "NAStdioFile.h"
+#include "common/NAString.h"
 
 // ----------------------------------------------------------------------------
 // class:  CNALogfile

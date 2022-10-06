@@ -15,6 +15,7 @@
  */
 
 #include <string>
+
 #include "common/Platform.h"  // 64-bit
 
 class ExtQualModuleNames;

@@ -41,22 +41,22 @@
  *****************************************************************************
  */
 
-#include "exp/ExpError.h"
-#include "exp/exp_attrs.h"
+#include <stdio.h>
+#include <sys/resource.h>
+#include <sys/time.h>
 
 #include "common/Collections.h"
 #include "common/ComSpace.h"
 #include "common/Int64.h"
+#include "common/NABitVector.h"
 #include "common/OperTypeEnum.h"
 #include "exp/ExpAtp.h"
-#include "exp/exp_expr.h"
-#include "exp_function.h"
+#include "exp/ExpError.h"
+#include "exp/exp_attrs.h"
 #include "exp/exp_clause.h"
 #include "exp/exp_clause_derived.h"
-#include "common/NABitVector.h"
-#include <stdio.h>
-#include <sys/time.h>
-#include <sys/resource.h>
+#include "exp/exp_expr.h"
+#include "exp_function.h"
 
 #define NA_LINUX_LLVMJIT
 #undef NA_LINUX_LIBJIT
@@ -69,8 +69,8 @@
 //       translations using LLVM.
 
 #ifdef NA_LINUX_LIBJIT
-#include "jit/jit.h"
 #include "jit/jit-dump.h"
+#include "jit/jit.h"
 #endif
 
 #ifdef NA_LINUX_LLVMJIT
@@ -109,38 +109,36 @@ inline uint16_t _byteswap_ushort(uint16_t value) {
 #include "ExecutionEngine/ExecutionEngine.h"
 
 #ifdef NEW_VERSION_LLVM
-#include "IR/LLVMContext.h"
-#include "IR/Module.h" /* Must put llvm/ here to avoid including .../cli/Module.h */
-#include "llvm/ExecutionEngine/MCJIT.h"
-#include "llvm/IR/LegacyPassManager.h"
-#include "IR/Verifier.h"
 #include "Analysis/Passes.h"
-#include "IR/DataLayout.h"
-#include "Transforms/Scalar.h"
-
-#include "IR/IRBuilder.h"
 #include "Config/llvm-config.h"
-#include "Support/TargetSelect.h"
+#include "IR/DataLayout.h"
+#include "IR/IRBuilder.h"
 #include "IR/InstrTypes.h"  // for ICMP_SLT, ICMP_EQ, etc
 #include "IR/Instructions.h"
+#include "IR/LLVMContext.h"
+#include "IR/Module.h" /* Must put llvm/ here to avoid including .../cli/Module.h */
 #include "IR/Type.h"
-#else
-#include "ExecutionEngine/JIT.h"
-#include "LLVMContext.h"
-#include "llvm/Module.h" /* Must put llvm/ here to avoid including .../cli/Module.h */
-#include "PassManager.h"
-#include "Analysis/Verifier.h"
-#include "Analysis/Passes.h"
-#include "DataLayout.h"
-#include "Transforms/Scalar.h"
-
-#include "IRBuilder.h"
-#include "Config/config.h"
+#include "IR/Verifier.h"
 #include "Support/TargetSelect.h"
+#include "Transforms/Scalar.h"
+#include "llvm/ExecutionEngine/MCJIT.h"
+#include "llvm/IR/LegacyPassManager.h"
+#else
+#include "Analysis/Passes.h"
+#include "Analysis/Verifier.h"
+#include "CodeGen/MachineCodeInfo.h"
+#include "Config/config.h"
+#include "DataLayout.h"
+#include "ExecutionEngine/JIT.h"
+#include "IRBuilder.h"
 #include "InstrTypes.h"  // for ICMP_SLT, ICMP_EQ, etc
 #include "Instructions.h"
-#include "CodeGen/MachineCodeInfo.h"
+#include "LLVMContext.h"
+#include "PassManager.h"
+#include "Support/TargetSelect.h"
+#include "Transforms/Scalar.h"
 #include "Type.h"
+#include "llvm/Module.h" /* Must put llvm/ here to avoid including .../cli/Module.h */
 #endif
 
 typedef llvm::IRBuilder<> IRBldr_t;
@@ -343,7 +341,7 @@ int collIndexHashFunc2(const CollIndex &o);
     PCodeInst *firstPCInst;                                                \
     PCodeInst *lastPCInst;                                                 \
     CollIndex indx;                                                        \
-    for (indx = allBlocks_->entries() - 1; (int)indx >= 0; indx--) {     \
+    for (indx = allBlocks_->entries() - 1; (int)indx >= 0; indx--) {       \
       PCBlk = allBlocks_->at(indx);                                        \
       firstPCInst = PCBlk->getFirstInst();                                 \
       lastPCInst = PCBlk->getLastInst();                                   \
@@ -431,9 +429,9 @@ class PCodePredicateGroup {
  private:
   CollHeap *heap_;        // Heap used for all memory allocation
   BLOCKLIST predicates_;  // List of predicate blocks comprising this group
-  long cost_;            // Cost associated with this group
-  long takenCount_;      // Early-exit counts for this group
-  long seenCount_;       // Total seen counts for this group
+  long cost_;             // Cost associated with this group
+  long takenCount_;       // Early-exit counts for this group
+  long seenCount_;        // Total seen counts for this group
   OPLIST reads_;          // Read operands not defined in group
   OPLIST writes_;         // Write operands defined in group and used by
                           // another group.
@@ -546,9 +544,9 @@ class PCodeConstants {
   // General constant tracking routines
   /////////////////////////////////////////////////
 
-  void *data_;   // Pointer to data
-  int len_;    // Length of data
-  int align_;  // Alignment of data
+  void *data_;  // Pointer to data
+  int len_;     // Length of data
+  int align_;   // Alignment of data
 
   friend int constHashFunc(const PCodeConstants &c);
 
@@ -595,7 +593,7 @@ class PCodeConstants {
 
   // Copy the constant information known for bvIndexFrom into bvIndexTo.
   static int copyConstantVectors(CollIndex bvIndexFrom, CollIndex bvIndexTo, NABitVector &zeroes, NABitVector &ones,
-                                   NABitVector &neg1);
+                                 NABitVector &neg1);
 
   // Merge the constant vectors together and fold results back into newZeroes,
   // newOnes, and newNeg1.
@@ -1031,7 +1029,7 @@ class PCodeInst {
   Space *space_;    // Passed in from cfg (create pcode insts with)
   OPLIST readOps;   // List of read operands
   OPLIST writeOps;  // List of write operands
-  int cost_;      // Cost of instruction
+  int cost_;        // Cost of instruction
 
  public:
   PCodeBinary *code;   // Pointer to pcode inst data
@@ -1039,7 +1037,7 @@ class PCodeInst {
   PCodeInst *next;     // Pointer to next PCodeInst
   PCodeBlock *block;   // Pointer to block containing this instruction
   ex_clause *clause_;  // Clause pointer associated with this instruction
-  int opdataLen_;    // If inst is opdata, this is operand length
+  int opdataLen_;      // If inst is opdata, this is operand length
 
   NABitVector liveVector_;  // Live vector
 
@@ -1163,16 +1161,16 @@ class PCodeInst {
 //
 class PCodeBlock {
  private:
-  CollHeap *heap_;           // Heap used for memory allocation
-  PCodeInst *first_;         // First instruction in block
-  PCodeInst *last_;          // Last instruction in block
-  NABoolean visitedFlag_;    // Flag used to indicate if block has been visited
+  CollHeap *heap_;         // Heap used for memory allocation
+  PCodeInst *first_;       // First instruction in block
+  PCodeInst *last_;        // Last instruction in block
+  NABoolean visitedFlag_;  // Flag used to indicate if block has been visited
   int blockNum_;           // Block number for identification
   int blockTopOffset_;     // Physical offset of block upon entry
   int blockBottomOffset_;  // Physical offset of block upon exit
-  BLOCKLIST succsList_;      // List of successor blocks
-  BLOCKLIST predsList_;      // List of predecessor blocks
-  PCodeCfg *cfg_;            // Pointer to containing cfg
+  BLOCKLIST succsList_;    // List of successor blocks
+  BLOCKLIST predsList_;    // List of predecessor blocks
+  PCodeCfg *cfg_;          // Pointer to containing cfg
   int cost_;               // Cost of block
 
   NABitVector liveVector;  // Live vector
@@ -1472,7 +1470,7 @@ class PCodeCfg {
   NExTEMPSLIST *NExTempsList_;
 
   NExDbgInfo *NExDbgInfoPtr_;  // Native Expr Dbg Info Pointer
-  int NExprDbgLvl_;          // Native Expr Debug Level
+  int NExprDbgLvl_;            // Native Expr Debug Level
 
 #endif /* NA_LINUX_LLVMJIT */
 
@@ -1819,8 +1817,7 @@ class PCodeCfg {
   jit_value_t genStringSetup(jit_function_t f, jit_value_t *tStr, PCodeOperand *src, NABoolean padExists,
                              NABoolean lenNeeded);
 
-  jit_value_t genHash(jit_function_t f, jit_value_t tStr, jit_value_t tStrLen, jit_value_t loopIndex,
-                      int constantLen);
+  jit_value_t genHash(jit_function_t f, jit_value_t tStr, jit_value_t tStrLen, jit_value_t loopIndex, int constantLen);
 #endif /* NA_LINUX_LIBJIT */
 
   void setupClauseOperand(PCodeCfg *cfg, OPLIST &opList, PCodeOperand **opData, int index, ex_clause *clause);
@@ -1893,9 +1890,9 @@ class PCodeCfg {
 class NExTempListEntry {
  private:
   PCodeOperand *PCOp_;           // Ptr to PCodeOperand entry for Temp variable
-  int num_;                    // Number to allocate
+  int num_;                      // Number to allocate
   PCIT::AddressingMode oprTyp_;  // Operand Type to use in allocJitValue()
-  int offset_;                 // Offset (that goes with stackIndex == 2)
+  int offset_;                   // Offset (that goes with stackIndex == 2)
 
  public:
   PCodeOperand *getPCOp() { return PCOp_; }

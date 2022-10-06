@@ -18,9 +18,9 @@
  *****************************************************************************
  */
 
-#include "common/ComSmallDefs.h"
 #include "ElemDDLColNameArray.h"
 #include "ElemDDLConstraint.h"
+#include "common/ComSmallDefs.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

@@ -13,11 +13,10 @@
 ****************************************************************************
 */
 
-#include "common/Platform.h"
+#include <iostream>
 
 #include "common/NAAssert.h"
-
-#include <iostream>
+#include "common/Platform.h"
 
 // -----------------------------------------------------------------------
 //
@@ -26,13 +25,13 @@
 //
 // -----------------------------------------------------------------------
 
-#include "export/NAStringDef.h"
-#include "common/NAMemory.h"
-#include "common/str.h"
 #include <stdarg.h>
 
-#include "common/str.h"
 #include <fstream>
+
+#include "common/NAMemory.h"
+#include "common/str.h"
+#include "export/NAStringDef.h"
 using namespace std;
 
 // we're using the multithread-safe versions here

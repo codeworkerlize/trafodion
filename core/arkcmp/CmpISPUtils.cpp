@@ -16,8 +16,9 @@
  *****************************************************************************
  */
 
-#include "arkcmp/CmpStoredProc.h"
 #include <memory.h>
+
+#include "arkcmp/CmpStoredProc.h"
 
 // contents of this file includes the procedures to extract/format the
 // fields of data, these functions will be passed into the user developed

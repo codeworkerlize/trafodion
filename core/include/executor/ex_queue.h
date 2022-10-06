@@ -18,10 +18,10 @@
 ******************************************************************************
 */
 
-#include "exp/ExpAtp.h"
+#include "ex_ex.h"
 #include "executor/ExScheduler.h"
 #include "executor/ex_god.h"
-#include "ex_ex.h"
+#include "exp/ExpAtp.h"
 
 #ifdef _DEBUG
 #define ExQueueAssert(a, b) ex_assert(a, b)
@@ -139,7 +139,7 @@ class ex_queue : public ExGod {
                     // was used.
                     // BertBert ^^
     Q_STATS         // added for runtime stats by Srinivas for handling empty SQL buffers
-             // but with stats
+                    // but with stats
   };
 
   enum queueAllocType  // to allocate or not to allocate, that is the question
@@ -270,8 +270,8 @@ class ex_queue : public ExGod {
   // queue the size of the queue and the number of entries in it.
   queue_index getSize() const;           // allocated size
   queue_index inline getLength() const;  // occupied entries between 0 and size-1
-  int inline isFull() const;           // returns true if queue is full
-  int inline isEmpty() const;          // returns true if queue is full
+  int inline isFull() const;             // returns true if queue is full
+  int inline isEmpty() const;            // returns true if queue is full
 
   inline void setInsertSubtask(ExSubtask *insertSubtask) { insertSubtask_ = insertSubtask; }
   inline void setUnblockSubtask(ExSubtask *unblockSubtask) { unblockSubtask_ = unblockSubtask; }

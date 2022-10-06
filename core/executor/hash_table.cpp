@@ -13,6 +13,7 @@
 // *********************************************************************
 
 #include "hash_table.h"
+
 #include "sqlmxevents/logmxevent.h"
 
 void HashRow::print(int rowlength) {
@@ -41,8 +42,7 @@ void HashTableHeader::init() {
   row_ = NULL;
 }
 
-HashTable::HashTable(int headerCount, NABoolean evenFactor, int primeFactor, NABoolean noHVDups,
-                     NABoolean doResize)
+HashTable::HashTable(int headerCount, NABoolean evenFactor, int primeFactor, NABoolean noHVDups, NABoolean doResize)
     : headerCount_(headerCount > MAX_HEADER_COUNT ? MAX_HEADER_COUNT
                                                   : headerCount < MIN_HEADER_COUNT ? MIN_HEADER_COUNT : headerCount),
       rowCount_(0),

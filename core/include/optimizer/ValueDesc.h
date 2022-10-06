@@ -2,17 +2,17 @@
 #ifndef VALUEDESC_H
 #define VALUEDESC_H
 
-#include "optimizer/ObjectNames.h"
-#include "common/Collections.h"
-#include "optimizer/CascadesBasic.h"
-#include "optimizer/DomainDesc.h"
-#include "common/OperTypeEnum.h"
-#include "common/CmpCommon.h"
-#include "common/Int64.h"
-#include "exp/exp_expr.h"
-#include "common/ExprNode.h"
-#include "optimizer/CostScalar.h"
 #include "common/ClusteredBitmap.h"
+#include "common/CmpCommon.h"
+#include "common/Collections.h"
+#include "common/ExprNode.h"
+#include "common/Int64.h"
+#include "common/OperTypeEnum.h"
+#include "exp/exp_expr.h"
+#include "optimizer/CascadesBasic.h"
+#include "optimizer/CostScalar.h"
+#include "optimizer/DomainDesc.h"
+#include "optimizer/ObjectNames.h"
 //#include "orcPushdownPredInfo.h"
 
 // -----------------------------------------------------------------------
@@ -619,9 +619,9 @@ class ValueIdList : public LIST(ValueId) {
       short addConvNodes,                //(IN) : 1 to add conv nodes, 0 otherwise
       ExpTupleDesc::TupleDataFormat tf,  //(IN): tuple format of resulting expr(s)
       char *resultBuffer,                //(INOUT): tuple buffer of resulting expr(s)
-      int resultBufferLength,         //(IN): length of the result buffer
-      int *length = NULL,              //(OUT) : length of 1st result expr
-      int *offset = NULL               //(OUT) : offset of 1st result expr
+      int resultBufferLength,            //(IN): length of the result buffer
+      int *length = NULL,                //(OUT) : length of 1st result expr
+      int *offset = NULL                 //(OUT) : offset of 1st result expr
       ,
       ComDiagsArea *diagsArea = NULL, NAHeap *workingHeap = NULL) const;
 
@@ -648,11 +648,11 @@ class ValueIdList : public LIST(ValueId) {
                             int *offset, ComDiagsArea *diagsArea = NULL);
 
   static int evaluateConstantTree(const ValueId &parent, const ValueId &ch, int childNumber, ItemExpr **outItemExpr,
-                                    ComDiagsArea *diagsArea = NULL);
+                                  ComDiagsArea *diagsArea = NULL);
 
   static int evaluateExpr(const ValueId &parent, const ValueId &ch, int childNumber, NABoolean simplifyExpr = TRUE,
-                            NABoolean evalAllConsts = FALSE, ItemExpr **outAllConstsItemExpr = NULL,
-                            ComDiagsArea *diagsArea = NULL);
+                          NABoolean evalAllConsts = FALSE, ItemExpr **outAllConstsItemExpr = NULL,
+                          ComDiagsArea *diagsArea = NULL);
 
   NABoolean hasVarChars() const;
 

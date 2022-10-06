@@ -11,18 +11,19 @@
 *
 ******************************************************************************
 */
-#include "optimizer/AllItemExpr.h"
-#include "ItemSample.h"
-#include "optimizer/AllRelExpr.h"
 #include "optimizer/RelSequence.h"
-#include "optimizer/SchemaDB.h"
-#include "optimizer/GroupAttr.h"
-#include "optimizer/BindWA.h"
-#include "optimizer/NormWA.h"
+
 #include "Cost.h"
-#include "optimizer/CostMethod.h"
-#include "optimizer/opt.h"
+#include "ItemSample.h"
 #include "cli/Globals.h"
+#include "optimizer/AllItemExpr.h"
+#include "optimizer/AllRelExpr.h"
+#include "optimizer/BindWA.h"
+#include "optimizer/CostMethod.h"
+#include "optimizer/GroupAttr.h"
+#include "optimizer/NormWA.h"
+#include "optimizer/SchemaDB.h"
+#include "optimizer/opt.h"
 
 // -----------------------------------------------------------------------
 // This file contains most of the methods for the class RelSequence

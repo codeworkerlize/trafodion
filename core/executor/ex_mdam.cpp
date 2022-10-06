@@ -17,10 +17,11 @@
 
 // -----------------------------------------------------------------------
 
-#include "executor/ex_stdh.h"
-#include "key_range.h"
-#include "key_mdam.h"
 #include "ex_mdam.h"
+
+#include "executor/ex_stdh.h"
+#include "key_mdam.h"
+#include "key_range.h"
 // #include "exp/exp_clause_derived.h"
 
 MdamPredIterator::MdamPredIterator(MdamColumn *first, int maxDisjunctNumber)

@@ -2,11 +2,10 @@
 #ifndef NAHEAP__H
 #define NAHEAP__H
 
-#include "common/ComSpace.h"
-
 #include <iosfwd>
-using namespace std;
 
+#include "common/ComSpace.h"
+using namespace std;
 
 class NASpace : public CollHeap {
  public:

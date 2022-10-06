@@ -14,58 +14,58 @@
  *****************************************************************************
  */
 
-#include "sqlcomp/CmpSeabaseDDLincludes.h"
-#include "sqlcomp/CmpSeabaseDDLcleanup.h"
-#include "optimizer/RelExeUtil.h"
-#include "optimizer/ControlDB.h"
-#include "common/NumericType.h"
-#include "common/CompositeType.h"
-#include "sqlcomp/CmpDDLCatErrorCodes.h"
-#include "optimizer/ValueDesc.h"
-#include "cli/Globals.h"
 #include "cli/Context.h"
 #include "cli/ExSqlComp.h"
-#include "sqlcomp/CmpSeabaseDDLauth.h"
+#include "cli/Globals.h"
+#include "common/ComMisc.h"
+#include "common/ComUser.h"
+#include "common/CompositeType.h"
 #include "common/NAUserId.h"
-#include "parser/StmtDDLCreateView.h"
-#include "parser/StmtDDLDropView.h"
-#include "parser/StmtDDLAlterTableDisableIndex.h"
-#include "parser/StmtDDLAlterTableEnableIndex.h"
-#include "parser/StmtDDLCreateComponentPrivilege.h"
-#include "parser/StmtDDLDropComponentPrivilege.h"
-#include "parser/StmtDDLGive.h"
-#include "parser/StmtDDLGrantComponentPrivilege.h"
-#include "parser/StmtDDLRevokeComponentPrivilege.h"
-#include "parser/StmtDDLRegisterComponent.h"
-#include "parser/StmtDDLCreateRole.h"
-#include "parser/StmtDDLResourceGroup.h"
-#include "parser/StmtDDLRoleGrant.h"
-#include "parser/StmtDDLUserGroup.h"
+#include "common/NumericType.h"
+#include "exp/exp_clause_derived.h"
+#include "optimizer/ControlDB.h"
+#include "optimizer/RelExeUtil.h"
+#include "optimizer/ValueDesc.h"
+#include "parser/ElemDDLPartitionByOptions.h"
 #include "parser/ElemDDLPartitionClause.h"
 #include "parser/ElemDDLPartitionList.h"
 #include "parser/ElemDDLPartitionRange.h"
-#include "parser/ElemDDLPartitionByOptions.h"
-#include "sqlcomp/PrivMgrCommands.h"
-#include "sqlcomp/PrivMgr.h"
-#include "sqlcomp/PrivMgrMD.h"
-#include "sqlcomp/PrivMgrMDDefs.h"
-#include "sqlcomp/PrivMgrSchemaPrivileges.h"
-#include "sqlcomp/PrivMgrComponentPrivileges.h"
-#include "sqlcomp/PrivMgrPrivileges.h"
-#include "sqlcomp/PrivMgrRoles.h"
-#include "common/ComUser.h"
-#include "common/ComMisc.h"
+#include "parser/StmtDDLAlterLibrary.h"
+#include "parser/StmtDDLAlterTableDisableIndex.h"
+#include "parser/StmtDDLAlterTableEnableIndex.h"
+#include "parser/StmtDDLAlterTableHDFSCache.h"
+#include "parser/StmtDDLCreateComponentPrivilege.h"
+#include "parser/StmtDDLCreateRole.h"
+#include "parser/StmtDDLCreateView.h"
+#include "parser/StmtDDLDropComponentPrivilege.h"
+#include "parser/StmtDDLDropView.h"
+#include "parser/StmtDDLGive.h"
+#include "parser/StmtDDLGrantComponentPrivilege.h"
+#include "parser/StmtDDLRegisterComponent.h"
+#include "parser/StmtDDLResourceGroup.h"
+#include "parser/StmtDDLRevokeComponentPrivilege.h"
+#include "parser/StmtDDLRoleGrant.h"
+#include "parser/StmtDDLUserGroup.h"
+#include "qmscommon/QRLogger.h"
+#include "sqlcat/TrafDDLdesc.h"
+#include "sqlcomp/CmpDDLCatErrorCodes.h"
+#include "sqlcomp/CmpSeabaseDDLXdcMeta.h"
+#include "sqlcomp/CmpSeabaseDDLauth.h"
+#include "sqlcomp/CmpSeabaseDDLcleanup.h"
+#include "sqlcomp/CmpSeabaseDDLincludes.h"
 #include "sqlcomp/CmpSeabaseDDLmd.h"
 #include "sqlcomp/CmpSeabaseDDLroutine.h"
 #include "sqlcomp/CmpSeabaseTenant.h"
-#include "parser/StmtDDLAlterTableHDFSCache.h"
-#include "parser/StmtDDLAlterLibrary.h"
-#include "sqlmxevents/logmxevent_traf.h"
-#include "exp/exp_clause_derived.h"
-#include "sqlcat/TrafDDLdesc.h"
+#include "sqlcomp/PrivMgr.h"
+#include "sqlcomp/PrivMgrCommands.h"
+#include "sqlcomp/PrivMgrComponentPrivileges.h"
+#include "sqlcomp/PrivMgrMD.h"
+#include "sqlcomp/PrivMgrMDDefs.h"
+#include "sqlcomp/PrivMgrPrivileges.h"
+#include "sqlcomp/PrivMgrRoles.h"
+#include "sqlcomp/PrivMgrSchemaPrivileges.h"
 #include "sqlcomp/SharedCache.h"
-#include "sqlcomp/CmpSeabaseDDLXdcMeta.h"
-#include "qmscommon/QRLogger.h"
+#include "sqlmxevents/logmxevent_traf.h"
 
 class QualifiedSchema {
  public:
@@ -110,8 +110,8 @@ void CmpSeabaseDDL::getPartitionIndexName(char *buf, int bufLen, const NAString 
   }
 }
 
-#include "optimizer/EncodedKeyValue.h"
 #include "common/SCMVersHelp.h"
+#include "optimizer/EncodedKeyValue.h"
 
 THREAD_P NABoolean CmpSeabaseDDL::bootstrapMode_(FALSE);
 
@@ -209,10 +209,10 @@ short CmpSeabaseDDL::switchBackCompiler() {
 // the MDDescsInfo entry, just return the MDDescsInfo entry
 // ----------------------------------------------------------------------------
 NABoolean CmpSeabaseDDL::getMDtableInfo(const ComObjectName &name, ComTdbVirtTableTableInfo *&tableInfo,
-                                        int &colInfoSize, const ComTdbVirtTableColumnInfo *&colInfo,
-                                        int &keyInfoSize, const ComTdbVirtTableKeyInfo *&keyInfo,
-                                        int &indexInfoSize, const ComTdbVirtTableIndexInfo *&indexInfo,
-                                        const ComObjectType objType, NAString &nameSpace) {
+                                        int &colInfoSize, const ComTdbVirtTableColumnInfo *&colInfo, int &keyInfoSize,
+                                        const ComTdbVirtTableKeyInfo *&keyInfo, int &indexInfoSize,
+                                        const ComTdbVirtTableIndexInfo *&indexInfo, const ComObjectType objType,
+                                        NAString &nameSpace) {
   tableInfo = NULL;
   indexInfoSize = 0;
   indexInfo = NULL;
@@ -411,9 +411,9 @@ NABoolean CmpSeabaseDDL::getMDtableInfo(const ComObjectName &name, ComTdbVirtTab
   return FALSE;
 }
 
-short CmpSeabaseDDL::convertColAndKeyInfoArrays(int btNumCols,                            // IN
+short CmpSeabaseDDL::convertColAndKeyInfoArrays(int btNumCols,                              // IN
                                                 ComTdbVirtTableColumnInfo *btColInfoArray,  // IN
-                                                int btNumKeys,                            // IN
+                                                int btNumKeys,                              // IN
                                                 ComTdbVirtTableKeyInfo *btKeyInfoArray,     // IN
                                                 NAColumnArray *naColArray, NAColumnArray *naKeyArr) {
   for (int i = 0; i < btNumCols; i++) {
@@ -481,14 +481,14 @@ short CmpSeabaseDDL::processDDLandCreateDescs(Parser &parser, const QString *ddl
 
                                               NABoolean isIndexTable,
 
-                                              int btNumCols,                            // IN
+                                              int btNumCols,                              // IN
                                               ComTdbVirtTableColumnInfo *btColInfoArray,  // IN
-                                              int btNumKeys,                            // IN
+                                              int btNumKeys,                              // IN
                                               ComTdbVirtTableKeyInfo *btKeyInfoArray,     // IN
 
-                                              int &numCols,                            // OUT
+                                              int &numCols,                              // OUT
                                               ComTdbVirtTableColumnInfo *&colInfoArray,  // OUT
-                                              int &numKeys,                            // OUT
+                                              int &numKeys,                              // OUT
                                               ComTdbVirtTableKeyInfo *&keyInfoArray,     // OUT
 
                                               ComTdbVirtTableTableInfo *&tableInfo,  // OUT
@@ -3390,9 +3390,9 @@ short CmpSeabaseDDL::checkDefaultValue(const NAString &colExtName, const NAType 
 }
 
 short CmpSeabaseDDL::getTypeInfo(const NAType *naType, NABoolean alignedFormat, int serializedOption, int &datatype,
-                                 int &length, int &precision, int &scale, int &dtStart, int &dtEnd,
-                                 int &upshifted, int &nullable, NAString &charset,
-                                 CharInfo::Collation &collationSequence, int &hbaseColFlags) {
+                                 int &length, int &precision, int &scale, int &dtStart, int &dtEnd, int &upshifted,
+                                 int &nullable, NAString &charset, CharInfo::Collation &collationSequence,
+                                 int &hbaseColFlags) {
   short rc = 0;
 
   datatype = 0;
@@ -3547,12 +3547,11 @@ short CmpSeabaseDDL::getNAColumnFromColDef(ElemDDLColDef *colNode, NAColumn *&na
 }
 
 short CmpSeabaseDDL::getColInfo(ElemDDLColDef *colNode, NABoolean isMetadataHistOrReposColumn, NAString &colFamily,
-                                NAString &colName, NABoolean alignedFormat, int &datatype, int &length,
-                                int &precision, int &scale, int &dtStart, int &dtEnd, int &upshifted,
-                                int &nullable, NAString &charset, ComColumnClass &colClass,
-                                ComColumnDefaultClass &defaultClass, NAString &defVal, NAString &heading,
-                                ComLobsStorageType &lobStorage, NAString &compDefnStr, int &hbaseColFlags,
-                                long &colFlags) {
+                                NAString &colName, NABoolean alignedFormat, int &datatype, int &length, int &precision,
+                                int &scale, int &dtStart, int &dtEnd, int &upshifted, int &nullable, NAString &charset,
+                                ComColumnClass &colClass, ComColumnDefaultClass &defaultClass, NAString &defVal,
+                                NAString &heading, ComLobsStorageType &lobStorage, NAString &compDefnStr,
+                                int &hbaseColFlags, long &colFlags) {
   short rc = 0;
 
   hbaseColFlags = 0;
@@ -3965,8 +3964,8 @@ short CmpSeabaseDDL::existsInSeabaseMDTable(ExeCliInterface *cliInterface, const
 }
 
 long CmpSeabaseDDL::getObjectTypeandOwner(ExeCliInterface *cliInterface, const char *catName, const char *schName,
-                                           const char *objName, ComObjectType &objectType, int &objectOwner,
-                                           long *objectFlags) {
+                                          const char *objName, ComObjectType &objectType, int &objectOwner,
+                                          long *objectFlags) {
   int retcode = 0;
   int cliRC = 0;
 
@@ -4116,9 +4115,9 @@ short CmpSeabaseDDL::getObjectName(ExeCliInterface *inCliInterface, long objUID,
 }
 
 long CmpSeabaseDDL::getObjectUID(ExeCliInterface *cliInterface, const char *catName, const char *schName,
-                                  const char *objName, const char *inObjType, long *objDataUID,
-                                  const char *inObjTypeStr, char *outObjType, NABoolean lookInObjectsIdx,
-                                  NABoolean reportErrorNow, long *objectFlags) {
+                                 const char *objName, const char *inObjType, long *objDataUID, const char *inObjTypeStr,
+                                 char *outObjType, NABoolean lookInObjectsIdx, NABoolean reportErrorNow,
+                                 long *objectFlags) {
   int retcode = 0;
   int cliRC = 0;
 
@@ -4366,15 +4365,15 @@ short CmpSeabaseDDL::getSchemaName(const char *schUID, NAString &schName) {
 
 int hashOnObjectInfoKey(const SystemObjectInfoKey &key) {
   int code = key.catName.hash() ^ key.schName.hash() ^ key.objName.hash() ^ (UInt32)(key.objectType) ^
-                (UInt32)(key.checkForValidDef);
+             (UInt32)(key.checkForValidDef);
 
   return code;
 }
 
 long CmpSeabaseDDL::fetchObjectInfo(ExeCliInterface *cliInterface, const char *catName, const char *schName,
-                                     const char *objName, const ComObjectType objectType, int &objectOwner,
-                                     int &schemaOwner, long &objectFlags, long &objDataUID, bool reportErrorNow,
-                                     NABoolean checkForValidDef, long *createTime, long *redefTime) {
+                                    const char *objName, const ComObjectType objectType, int &objectOwner,
+                                    int &schemaOwner, long &objectFlags, long &objDataUID, bool reportErrorNow,
+                                    NABoolean checkForValidDef, long *createTime, long *redefTime) {
   int retcode = 0;
   int cliRC = 0;
 
@@ -4457,9 +4456,9 @@ long CmpSeabaseDDL::fetchObjectInfo(ExeCliInterface *cliInterface, const char *c
 //#define DEBUG_GET_SYSTEM_OBJECT_INFO 1
 
 long CmpSeabaseDDL::getSystemObjectInfo(ExeCliInterface *cliInterface, const char *catName, const char *schName,
-                                         const char *objName, const ComObjectType objectType, int &objectOwner,
-                                         int &schemaOwner, long &objectFlags, long &objDataUID, bool reportErrorNow,
-                                         NABoolean checkForValidDef, long *createTime) {
+                                        const char *objName, const ComObjectType objectType, int &objectOwner,
+                                        int &schemaOwner, long &objectFlags, long &objDataUID, bool reportErrorNow,
+                                        NABoolean checkForValidDef, long *createTime) {
   if (systemObjectInfoCacheEnabled_) {
     if (systemObjectInfoCache_) {
       SystemObjectInfoKey key(catName, schName, objName, objectType, checkForValidDef);
@@ -4497,7 +4496,7 @@ long CmpSeabaseDDL::getSystemObjectInfo(ExeCliInterface *cliInterface, const cha
   }
 
   long objUID = fetchObjectInfo(cliInterface, catName, schName, objName, objectType, objectOwner, schemaOwner,
-                                 objectFlags, objDataUID, reportErrorNow, checkForValidDef, createTime, NULL);
+                                objectFlags, objDataUID, reportErrorNow, checkForValidDef, createTime, NULL);
 
   if (objUID != -1 && createTime && systemObjectInfoCacheEnabled_) {
     // create a key object
@@ -4515,9 +4514,9 @@ long CmpSeabaseDDL::getSystemObjectInfo(ExeCliInterface *cliInterface, const cha
 }
 
 long CmpSeabaseDDL::getObjectInfo(ExeCliInterface *cliInterface, const char *catName, const char *schName,
-                                   const char *objName, const ComObjectType objectType, int &objectOwner,
-                                   int &schemaOwner, long &objectFlags, long &objDataUID, bool reportErrorNow,
-                                   NABoolean checkForValidDef, long *createTime, long *redefTime) {
+                                  const char *objName, const ComObjectType objectType, int &objectOwner,
+                                  int &schemaOwner, long &objectFlags, long &objDataUID, bool reportErrorNow,
+                                  NABoolean checkForValidDef, long *createTime, long *redefTime) {
   if (NAString(catName) == getSystemCatalog() &&
       (NAString(schName) == SEABASE_MD_SCHEMA || NAString(schName) == SEABASE_PRIVMGR_SCHEMA) && !redefTime) {
     // Look up a small cache if info about system table/indices is sought.
@@ -4526,7 +4525,7 @@ long CmpSeabaseDDL::getObjectInfo(ExeCliInterface *cliInterface, const char *cat
     // the process hosting all compiler instances. The small cache is
     // defined as a static object (per thread) in the process.
     long oid = getSystemObjectInfo(cliInterface, catName, schName, objName, objectType, objectOwner, schemaOwner,
-                                    objectFlags, objDataUID, reportErrorNow, checkForValidDef, createTime);
+                                   objectFlags, objDataUID, reportErrorNow, checkForValidDef, createTime);
 
     // If no error and oid is valid, return the oid.
     if (oid != -1) {
@@ -4719,8 +4718,8 @@ short CmpSeabaseDDL::getObjectValidDef(ExeCliInterface *cliInterface, const char
 }
 
 long CmpSeabaseDDL::getConstraintOnIndex(ExeCliInterface *cliInterface, long btUID, long indexUID,
-                                          const char *constrType, NAString &catName, NAString &schName,
-                                          NAString &objName) {
+                                         const char *constrType, NAString &catName, NAString &schName,
+                                         NAString &objName) {
   int retcode = 0;
   int cliRC = 0;
 
@@ -5209,7 +5208,7 @@ short CmpSeabaseDDL::updateHbaseOptionsInMetadata(ExeCliInterface *cliInterface,
   // get the text from the metadata
 
   ComTextType textType = COM_HBASE_OPTIONS_TEXT;  // to get text containing HBASE_OPTIONS=>
-  int textSubID = 0;                            // meaning, the text pertains to the object as a whole
+  int textSubID = 0;                              // meaning, the text pertains to the object as a whole
   NAString metadataText(STMTHEAP);
   result = getTextFromMD(cliInterface, objectUID, textType, textSubID, metadataText /* out */);
   if (result != 0) return result;
@@ -5316,9 +5315,8 @@ void CmpSeabaseDDL::handleDDLCreateAuthorizationError(int32_t SQLErrorCode, cons
 
 short CmpSeabaseDDL::updateSeabaseMDObjectsTable(ExeCliInterface *cliInterface, const char *catName,
                                                  const char *schName, const char *objName,
-                                                 const ComObjectType &objectType, const char *validDef,
-                                                 int objOwnerID, int schemaOwnerID, long objectFlags,
-                                                 long &inUID) {
+                                                 const ComObjectType &objectType, const char *validDef, int objOwnerID,
+                                                 int schemaOwnerID, long objectFlags, long &inUID) {
   int retcode = 0;
   int cliRC = 0;
 
@@ -5454,7 +5452,7 @@ short CmpSeabaseDDL::updateSeabaseMDSecondaryIndexes(ExeCliInterface *cliInterfa
     QualifiedName qn(indexInfo->indexName, 1);
 
     long indexUID = getObjectUID(cliInterface, qn.getCatalogName().data(), qn.getSchemaName().data(),
-                                  qn.getObjectName().data(), COM_INDEX_OBJECT_LIT);
+                                 qn.getObjectName().data(), COM_INDEX_OBJECT_LIT);
 
     str_sprintf(buf, "upsert into %s.\"%s\".%s values (%ld, %d, %d, %d, %d, %d, %ld, 0) ", getSystemCatalog(),
                 SEABASE_MD_SCHEMA, SEABASE_INDEXES, baseTableUID, indexInfo->keytag, indexInfo->isUnique,
@@ -5870,8 +5868,8 @@ short CmpSeabaseDDL::updateSeabaseMDTable(ExeCliInterface *cliInterface, const c
     const NAString schemaNamePart = baseTableName.getSchemaNamePartAsAnsiString(TRUE);
     const NAString objectNamePart = baseTableName.getObjectNamePartAsAnsiString(TRUE);
 
-    long baseTableUID = getObjectUID(cliInterface, catalogNamePart.data(), schemaNamePart.data(),
-                                      objectNamePart.data(), COM_BASE_TABLE_OBJECT_LIT);
+    long baseTableUID = getObjectUID(cliInterface, catalogNamePart.data(), schemaNamePart.data(), objectNamePart.data(),
+                                     COM_BASE_TABLE_OBJECT_LIT);
 
     str_sprintf(buf, "insert into %s.\"%s\".%s values (%ld, %d, %d, %d, %d, %d, %ld, %ld) ", getSystemCatalog(),
                 SEABASE_MD_SCHEMA, SEABASE_INDEXES, baseTableUID, indexInfo->keytag, indexInfo->isUnique,
@@ -5976,7 +5974,7 @@ short CmpSeabaseDDL::updateSeabaseMDSPJ(ExeCliInterface *cliInterface, const lon
   }
 
   long spjObjUID = getObjectUID(cliInterface, catalogNamePart, schemaNamePart, quotedSpjObjName,
-                                 COM_USER_DEFINED_ROUTINE_OBJECT_LIT);
+                                COM_USER_DEFINED_ROUTINE_OBJECT_LIT);
   if (spjObjUID == -1) return -1;
 
   str_sprintf(buf,
@@ -6008,8 +6006,8 @@ short CmpSeabaseDDL::updateSeabaseMDSPJ(ExeCliInterface *cliInterface, const lon
 }
 
 short CmpSeabaseDDL::addSeabaseMDPartition(ExeCliInterface *cliInterface, ElemDDLPartitionV2 *pPartition,
-                                           const char *catName, const char *schName, const char *entityName,
-                                           long btUid, int index, long partUid, const char *partName) {
+                                           const char *catName, const char *schName, const char *entityName, long btUid,
+                                           int index, long partUid, const char *partName) {
   char buf[4000];
   char partitionTableName[256];
   long defTime = NA_JulianTimestamp();
@@ -6987,7 +6985,7 @@ void CmpSeabaseDDL::cleanupObjectAfterError(ExeCliInterface &cliInterface, const
 
   long objDataUID;
   long indexUID = getObjectUID(&cliInterface, catName.data(), schName.data(), objName.data(), NULL, &objDataUID, NULL,
-                                NULL, FALSE, FALSE);
+                               NULL, FALSE, FALSE);
 
   // if namespace is present, then previous cleanup command may not have
   // removed the underlying object if that obj is not present in metadata.
@@ -7007,8 +7005,8 @@ void CmpSeabaseDDL::cleanupObjectAfterError(ExeCliInterface &cliInterface, const
 }
 
 int CmpSeabaseDDL::purgedataObjectAfterError(ExeCliInterface &cliInterface, const NAString &catName,
-                                               const NAString &schName, const NAString &objName,
-                                               const ComObjectType objectType, NABoolean dontForceCleanup) {
+                                             const NAString &schName, const NAString &objName,
+                                             const ComObjectType objectType, NABoolean dontForceCleanup) {
   int cliRC = 0;
   // if ddlXns are being used, no need of additional cleanup.
   // transactional rollback will take care of cleanup.
@@ -7135,7 +7133,7 @@ short CmpSeabaseDDL::processColFamily(NAString &inColFamily, NAString &trafColFa
 short CmpSeabaseDDL::buildColInfoArray(ComObjectType objType, NABoolean isMetadataHistOrReposObject,
                                        ElemDDLColDefArray *colArray, ComTdbVirtTableColumnInfo *colInfoArray,
                                        NABoolean implicitPK, NABoolean alignedFormat,
-                                       int *identityColPos,                 // IN_OUT
+                                       int *identityColPos,                   // IN_OUT
                                        std::vector<NAString> *userColFamVec,  // IN_OUT
                                        std::vector<NAString> *trafColFamVec,  // IN_OUT
                                        const char *inColFam,                  // IN
@@ -7368,7 +7366,7 @@ short CmpSeabaseDDL::buildKeyInfoArray(ElemDDLColDefArray *colArray, NAColumnArr
 
     NAString nas((*keyArray)[index]->getColumnName());
     keyInfoArray[index].tableColNum = (int)(colArray ? colArray->getColumnIndex((*keyArray)[index]->getColumnName())
-                                                       : nacolArray->getColumnPosition(nas));
+                                                     : nacolArray->getColumnPosition(nas));
 
     if (keyInfoArray[index].tableColNum == -1) {
       // this col doesn't exist. Return error.
@@ -7482,14 +7480,12 @@ short CmpSeabaseDDL::updateTextTable(ExeCliInterface *cliInterface, long objUID,
 }
 
 short CmpSeabaseDDL::updateTextTableWithBinaryData(ExeCliInterface *cliInterface, long objUID, ComTextType textType,
-                                                   int subID, char *inputData, int inputDataLen,
-                                                   NABoolean withDelete) {
+                                                   int subID, char *inputData, int inputDataLen, NABoolean withDelete) {
   NAString dummy;
   return updateTextTable(cliInterface, objUID, textType, subID, dummy, inputData, inputDataLen, withDelete);
 }
 
-short CmpSeabaseDDL::deleteFromTextTable(ExeCliInterface *cliInterface, long objUID, ComTextType textType,
-                                         int subID) {
+short CmpSeabaseDDL::deleteFromTextTable(ExeCliInterface *cliInterface, long objUID, ComTextType textType, int subID) {
   int cliRC = 0;
 
   char buf[1000];
@@ -7969,8 +7965,8 @@ short CmpSeabaseDDL::validatePartitionRange(ElemDDLPartitionV2Array *partitionV2
 
 short CmpSeabaseDDL::createEncodedKeysBuffer(char **&encodedKeysBuffer, int &numSplits, TrafDesc *colDescs,
                                              TrafDesc *keyDescs, int numSaltPartitions, int numSaltSplits,
-                                             NAString *splitByClause, Int16 numTrafReplicas, int numKeys,
-                                             int keyLength, NABoolean isIndex) {
+                                             NAString *splitByClause, Int16 numTrafReplicas, int numKeys, int keyLength,
+                                             NABoolean isIndex) {
   encodedKeysBuffer = NULL;
   numSplits = 0;
 
@@ -8297,8 +8293,8 @@ short CmpSeabaseDDL::dropSeabaseStats(ExeCliInterface *cliInterface, const char 
   // Hivestats schema is created when upd stats is done on a hive table.
   // If it doesn't exist, return.
   if ((strcmp(catName, HIVE_STATS_CATALOG) == 0) && (strcmp(schName, HIVE_STATS_SCHEMA_NO_QUOTES) == 0)) {
-    long objUID = getObjectUID(cliInterface, catName, schName, SEABASE_SCHEMA_OBJECTNAME,
-                                COM_PRIVATE_SCHEMA_OBJECT_LIT, NULL, NULL, NULL, FALSE, FALSE);
+    long objUID = getObjectUID(cliInterface, catName, schName, SEABASE_SCHEMA_OBJECTNAME, COM_PRIVATE_SCHEMA_OBJECT_LIT,
+                               NULL, NULL, NULL, FALSE, FALSE);
 
     if (objUID <= 0)  // doesn't exist
       return 0;
@@ -9294,7 +9290,7 @@ void CmpSeabaseDDL::alterSeabaseSequence(StmtDDLCreateSequence *alterSequenceNod
   long objectFlags = 0;
   long objDataUID = 0;
   long seqUID = getObjectInfo(&cliInterface, catalogNamePart.data(), schemaNamePart.data(), seqNamePart.data(),
-                               COM_SEQUENCE_GENERATOR_OBJECT, objectOwnerID, schemaOwnerID, objectFlags, objDataUID);
+                              COM_SEQUENCE_GENERATOR_OBJECT, objectOwnerID, schemaOwnerID, objectFlags, objDataUID);
 
   // Check for error getting metadata information
   if (seqUID == -1 || objectOwnerID == 0) {
@@ -9509,7 +9505,7 @@ void CmpSeabaseDDL::dropSeabaseSequence(StmtDDLDropSequence *dropSequenceNode, N
     long objectFlags = 0;
     long objDataUID = 0;
     long seqUID = getObjectInfo(&cliInterface, catalogNamePart.data(), schemaNamePart.data(), objectNamePart.data(),
-                                 COM_SEQUENCE_GENERATOR_OBJECT, objectOwnerID, schemaOwnerID, objectFlags, objDataUID);
+                                COM_SEQUENCE_GENERATOR_OBJECT, objectOwnerID, schemaOwnerID, objectFlags, objDataUID);
 
     // Check for error getting metadata information
     if (seqUID == -1 || objectOwnerID == 0) {
@@ -10008,8 +10004,8 @@ NABoolean CmpSeabaseDDL::insertPrivMgrInfo(const long objUID, const NAString &ob
 
   // If schemaOwnerID not found in metadata, ComDiags is populated with
   // error 8732: Authorization ID <schemaOwnerID> is not a registered user or role
-  Int16 status = ComUser::getAuthNameFromAuthID((int)schemaOwnerID, (char *)&username, MAX_USERNAME_LEN + 1,
-                                                lActualLen, FALSE, CmpCommon::diags());
+  Int16 status = ComUser::getAuthNameFromAuthID((int)schemaOwnerID, (char *)&username, MAX_USERNAME_LEN + 1, lActualLen,
+                                                FALSE, CmpCommon::diags());
   if (status != 0) return FALSE;
 
   std::string schemaOwnerGrantee(username);
@@ -10024,8 +10020,8 @@ NABoolean CmpSeabaseDDL::insertPrivMgrInfo(const long objUID, const NAString &ob
 
     // If objOwnerID not found in metadata, ComDiags is populated with
     // error 8732: Authorization ID <objOwnerID> is not a registered user or role
-    Int16 status = ComUser::getAuthNameFromAuthID((int)objOwnerID, (char *)&username, MAX_USERNAME_LEN + 1,
-                                                  lActualLen, FALSE, CmpCommon::diags());
+    Int16 status = ComUser::getAuthNameFromAuthID((int)objOwnerID, (char *)&username, MAX_USERNAME_LEN + 1, lActualLen,
+                                                  FALSE, CmpCommon::diags());
     if (status != 0) return FALSE;
 
     ownerGrantee = username;
@@ -11879,8 +11875,7 @@ bool CmpSeabaseDDL::dropOneTableorView(ExeCliInterface &cliInterface, const char
 int32_t CmpSeabaseDDL::verifyDDLCreateOperationAuthorized(ExeCliInterface *cliInterface, SQLOperation operation,
                                                           const NAString &catalogName, const NAString &schemaName,
                                                           ComSchemaClass &schemaClass, int &objectOwner,
-                                                          int &schemaOwner, long *schemaUID,
-                                                          long *schemaObjectFlags)
+                                                          int &schemaOwner, long *schemaUID, long *schemaObjectFlags)
 
 {
   int32_t currentUser = ComUser::getCurrentUser();
@@ -11924,7 +11919,7 @@ int32_t CmpSeabaseDDL::verifyDDLCreateOperationAuthorized(ExeCliInterface *cliIn
   ComObjectType objectType;
 
   long tempSchUID = getObjectTypeandOwner(cliInterface, catalogName.data(), schemaName.data(),
-                                           SEABASE_SCHEMA_OBJECTNAME, objectType, schemaOwner, schemaObjectFlags);
+                                          SEABASE_SCHEMA_OBJECTNAME, objectType, schemaOwner, schemaObjectFlags);
 
   if (tempSchUID == -1) {
     objectOwner = schemaOwner = NA_UserIdDefault;
@@ -12883,9 +12878,8 @@ static void revokeSeabaseComponentPrivilege(const std::string &systemCatalog,
 }
 //****************** End of revokeSeabaseComponentPrivilege ********************
 
-short CmpSeabaseDDL::setupHbaseOptions(ElemDDLHbaseOptions *hbaseOptionsClause, int numSplits,
-                                       const NAString &objName, NAList<HbaseCreateOption *> &hbaseCreateOptions,
-                                       NAString &hco) {
+short CmpSeabaseDDL::setupHbaseOptions(ElemDDLHbaseOptions *hbaseOptionsClause, int numSplits, const NAString &objName,
+                                       NAList<HbaseCreateOption *> &hbaseCreateOptions, NAString &hco) {
   NAText hbaseOptionsStr;
   NABoolean maxFileSizeOptionSpecified = FALSE;
   NABoolean splitPolicyOptionSpecified = FALSE;
@@ -13450,7 +13444,7 @@ long CmpSeabaseDDL::getIndexFlags(ExeCliInterface *cliInterface, long objUid, lo
 }
 
 int CmpSeabaseDDL::isBRInProgress(ExeCliInterface *cliInterface, const char *catalogName, const char *schemaName,
-                                    const char *objectName, long &objUid)
+                                  const char *objectName, long &objUid)
 
 {
   long objFlags = 0;
@@ -13472,10 +13466,10 @@ int CmpSeabaseDDL::isBRInProgress(ExeCliInterface *cliInterface, const char *cat
 }
 
 int CmpSeabaseDDL::updateCachesAndStoredDesc(ExeCliInterface *cliInterface, const NAString &catName,
-                                               const NAString &schName, const NAString &objName, ComObjectType objType,
-                                               UInt32 operations, RemoveNATableParam *rmNATableParam,
-                                               UpdateObjRefTimeParam *updOjbRedefParam,
-                                               SharedCacheDDLInfo::DDLOperation ddlOp) {
+                                             const NAString &schName, const NAString &objName, ComObjectType objType,
+                                             UInt32 operations, RemoveNATableParam *rmNATableParam,
+                                             UpdateObjRefTimeParam *updOjbRedefParam,
+                                             SharedCacheDDLInfo::DDLOperation ddlOp) {
   int rc = 0;
 
   if (isCacheAndStoredDescOpSet(operations, UPDATE_SHARED_CACHE)) {
@@ -13510,10 +13504,10 @@ int CmpSeabaseDDL::updateCachesAndStoredDesc(ExeCliInterface *cliInterface, cons
 }
 
 int CmpSeabaseDDL::updateCachesAndStoredDescByNATable(ExeCliInterface *cliInterface, const NAString &catName,
-                                                        const NAString &schName, const NAString &objName,
-                                                        ComObjectType objType, UInt32 operations, NATable *natable,
-                                                        RemoveNATableParam *rmNATableParam,
-                                                        SharedCacheDDLInfo::DDLOperation ddlOp) {
+                                                      const NAString &schName, const NAString &objName,
+                                                      ComObjectType objType, UInt32 operations, NATable *natable,
+                                                      RemoveNATableParam *rmNATableParam,
+                                                      SharedCacheDDLInfo::DDLOperation ddlOp) {
   if (natable->incrBackupEnabled()) setCacheAndStoredDescOp(operations, UPDATE_XDC_DDL_TABLE);
   if (natable->isStoredDesc()) setCacheAndStoredDescOp(operations, UPDATE_SHARED_CACHE);
 
@@ -13525,9 +13519,9 @@ int CmpSeabaseDDL::updateCachesAndStoredDescByNATable(ExeCliInterface *cliInterf
 }
 
 int CmpSeabaseDDL::checkPartition(ElemDDLPartitionNameAndForValuesArray *partArray, TableDesc *tableDesc,
-                                    BindWA &bindWA, NAString &objectName, NAString &invalidPartName,
-                                    std::vector<NAString> *partEntityNameVec,
-                                    std::map<NAString, NAString> *partEntityNameMap) {
+                                  BindWA &bindWA, NAString &objectName, NAString &invalidPartName,
+                                  std::vector<NAString> *partEntityNameVec,
+                                  std::map<NAString, NAString> *partEntityNameMap) {
   if (!partArray || !tableDesc) return -1;
 
   NAString partEntityName;

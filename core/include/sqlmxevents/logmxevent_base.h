@@ -67,8 +67,7 @@ class tokenClass {
 
   tokenClass(TOKENTYPE tt, void *pointerToInput) : type_(tt), tokenCode_(0), pointerToInput_(pointerToInput){};
 
-  tokenClass(TOKENTYPE tt, int tc, void *pointerToInput)
-      : type_(tt), tokenCode_(tc), pointerToInput_(pointerToInput){};
+  tokenClass(TOKENTYPE tt, int tc, void *pointerToInput) : type_(tt), tokenCode_(tc), pointerToInput_(pointerToInput){};
 
   tokenClass &operator=(const tokenClass &t) {
     this->type_ = t.type_;

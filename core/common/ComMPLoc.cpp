@@ -15,13 +15,15 @@
 
 #define SQLPARSERGLOBALS_NADEFAULTS  // first
 
-#include <ctype.h>
-#include "common/Platform.h"
-#include "common/ComASSERT.h"
 #include "common/ComMPLoc.h"
+
+#include <ctype.h>
+
+#include "common/ComASSERT.h"
 #include "common/ComOperators.h"
 #include "common/ComRtUtils.h"
 #include "common/NAString.h"
+#include "common/Platform.h"
 #include "parser/SqlParserGlobals.h"  // last
 
 #define PREALLOCATE_STRING_MEMBERS                                                          \
@@ -327,8 +329,8 @@ ComString ComMPLoc::getMPName(size_t *lenArray /* array[5] */) const {
     }
     lenArray[0] = a;  // [0] = the count of size_t's being returned
   }                   // (length + up to 3 offsets)
-     // (aka the number of nameparts)
-  return n;  // Return the external-format string as well.
+                      // (aka the number of nameparts)
+  return n;           // Return the external-format string as well.
 }
 
 ComBoolean ComMPLoc::isValid(Format fmt) {

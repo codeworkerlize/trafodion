@@ -10,6 +10,7 @@
 #define BUFFERREFERENCE_H
 
 #include <NABasicObject.h>
+
 #include "ExOverflow.h"
 
 namespace ExOverflow {

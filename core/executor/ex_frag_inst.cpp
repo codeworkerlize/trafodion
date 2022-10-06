@@ -17,10 +17,11 @@
 
 // -----------------------------------------------------------------------
 
+#include "executor/ex_frag_inst.h"
+
+#include "Ex_esp_msg.h"
 #include "common/ExCollections.h"
 #include "common/Ipc.h"
-#include "executor/ex_frag_inst.h"
-#include "Ex_esp_msg.h"
 
 ExFragKey::ExFragKey()
     : IpcMessageObj(ESP_FRAGMENT_KEY, CurrFragmentKeyVersion),

@@ -14,15 +14,16 @@
 ******************************************************************************
 */
 
-#include "common/Platform.h"
 #include <ctype.h>
 #include <string.h>  // memcpy
+
 #include "common/CharType.h"
-#include "optimizer/ItemExpr.h"
 #include "common/Int64.h"
+#include "common/Platform.h"
 #include "common/nawstring.h"
-#include "optimizer/NAColumn.h"
 #include "optimizer/CostScalar.h"
+#include "optimizer/ItemExpr.h"
+#include "optimizer/NAColumn.h"
 #include "qmscommon/QRExprElement.h"
 
 // -----------------------------------------------------------------------
@@ -607,7 +608,7 @@ class ConstValue : public ItemExpr {
 
   // contains the packed representation for the constant value.
   // it is used by the expression generator
-  void *value_;        // untyped storage for the bit pattern
+  void *value_;      // untyped storage for the bit pattern
   int storageSize_;  // size of the buffer anchored in value_
 
   // contains the text used for specifying the constant value.
@@ -992,7 +993,7 @@ class HostVar : public ItemExpr {
                                  // should not impact histogram statistics
 
   int rowsetInfo_;  // Contains rowset information. Can be populated
-                       // by constants in rowset enum
+                    // by constants in rowset enum
 
   ExtendedQualName::SpecialTableType specialSyntaxType_;
 
@@ -1406,8 +1407,8 @@ class RoutineParam : public Parameter {
     memset(argumentType_, 0, sizeof(argumentType_));
   }
 
-  RoutineParam(const NAString &paramName, const NAType *type, int pos, ComColumnDirection direction,
-               RoutineDesc *rdesc, CollHeap *h = 0)
+  RoutineParam(const NAString &paramName, const NAType *type, int pos, ComColumnDirection direction, RoutineDesc *rdesc,
+               CollHeap *h = 0)
       : Parameter(ITM_ROUTINE_PARAM),
         paramName_(paramName, h),
         paramMode_(direction),

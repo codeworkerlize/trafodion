@@ -10,12 +10,14 @@
 ******************************************************************************
 */
 
-#include "LmAssert.h"
 #include "LmContManager.h"
+
+#include <sys/stat.h>
+#include <sys/types.h>
+
+#include "LmAssert.h"
 #include "LmDebug.h"
 #include "errno.h"
-#include <sys/types.h>
-#include <sys/stat.h>
 
 // Helper function to determine if a given filename is a directory
 NABoolean isDirectory(const char *filename) {
@@ -171,8 +173,7 @@ LmContainerManagerCache::LmContainerManagerCache(LmLanguageManager *lm, ComUInt3
 
 LmContainerManagerCache::~LmContainerManagerCache() {
   LM_DEBUG0("LmContainerManagerCache destructor");
-  LM_DEBUG5("  s=%d, h=%d, m=%d, c=%d, p=%d", (int)curSize_, (int)hits_, (int)misses_, (int)cleans_,
-            (int)purges_);
+  LM_DEBUG5("  s=%d, h=%d, m=%d, c=%d, p=%d", (int)curSize_, (int)hits_, (int)misses_, (int)cleans_, (int)purges_);
 
   // De-allocate all MCs.
   LmMetaContainerCache *mc;

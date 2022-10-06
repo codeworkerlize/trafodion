@@ -14,11 +14,11 @@
  *****************************************************************************
  */
 
+#include "common/ComExeTrace.h"
 #include "common/Ipc.h"
 #include "common/NABitVector.h"
-#include "executor/ex_frag_inst.h"
 #include "executor/ExScheduler.h"
-#include "common/ComExeTrace.h"
+#include "executor/ex_frag_inst.h"
 
 // -----------------------------------------------------------------------
 // Contents of this file
@@ -181,8 +181,7 @@ class ExRtFragTable : public NABasicObject {
   // SeaMonster: Print routing information
   void dumpSMRouteTable();
 
-  void reportESPLimitViolation(int totalESPLimit, int numOfNodes, int numESPsNeeded,
-                               NABoolean singleStmtExceededLimit);
+  void reportESPLimitViolation(int totalESPLimit, int numOfNodes, int numESPsNeeded, NABoolean singleStmtExceededLimit);
 
   // for debugging
   void print();
@@ -489,9 +488,7 @@ class ExEspManager {
 
   int getNumOfEsps() { return numOfESPs_; }
   int printTrace(int lineno, char *buf);
-  static int getALine(void *mine, int lineno, char *buf) {
-    return ((ExEspManager *)mine)->printTrace(lineno, buf);
-  };
+  static int getALine(void *mine, int lineno, char *buf) { return ((ExEspManager *)mine)->printTrace(lineno, buf); };
 
   // estimate the ESP count, to avoid allocating a large number of
   // ESPs just to find out that we exceeded the limit
@@ -569,8 +566,8 @@ class ExEspDbEntry : public NABasicObject {
  private:
   // private methods
 
-  ExEspDbEntry(CollHeap *heap, IpcServer *server, const char *clusterName, IpcCpuNum cpuNum, int espLevel,
-               int userId, int tenantId, bool multiThreaded);
+  ExEspDbEntry(CollHeap *heap, IpcServer *server, const char *clusterName, IpcCpuNum cpuNum, int espLevel, int userId,
+               int tenantId, bool multiThreaded);
   ~ExEspDbEntry();
 
   void deleteMe();
@@ -582,7 +579,7 @@ class ExEspDbEntry : public NABasicObject {
   long idleTimestamp_;
   bool inUse_;
   short totalMemoryQuota_;
-  int usageCount_;      // how many fragment instances use this process - multi-fragment
+  int usageCount_;        // how many fragment instances use this process - multi-fragment
   Statement *statement_;  // Allow multiple fragments for just this statement
   bool soloFragment_;
   int tenantId_;

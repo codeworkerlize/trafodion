@@ -21,12 +21,12 @@
 //       defined as "unsigned long" by a system header file.
 
 #include "CommonStructs.h"
-#include "Const.h"
 #include "CommonUtil.h"
-#include "export/NABasicObject.h"
-#include "common/Int64.h"
-#include "SortError.h"
+#include "Const.h"
 #include "ScratchFileConnection.h"
+#include "SortError.h"
+#include "common/Int64.h"
+#include "export/NABasicObject.h"
 #include "stfs/stfslib.h"
 
 class IpcEnvironment;
@@ -169,7 +169,7 @@ class ScratchFile : public NABasicObject {
   int secondaryExtentSize_;
   int maxExtents_;
   long resultFileSize_;
-  int numOpens_;             // Indicates number of opens on file.
+  int numOpens_;               // Indicates number of opens on file.
   NABoolean asynchReadQueue_;  // indicates if the user needs asynchIObuffer use
 
  private:

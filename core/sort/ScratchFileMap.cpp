@@ -17,13 +17,15 @@
 ******************************************************************************
 */
 
-#include "common/Platform.h"
+#include "ScratchFileMap.h"
+
+#include <string.h>
 
 #include <iostream>
-#include <string.h>
-#include "ex_ex.h"
-#include "ScratchFileMap.h"
+
 #include "ScratchFile.h"
+#include "common/Platform.h"
+#include "ex_ex.h"
 
 //----------------------------------------------------------------------
 // The Class constructor. If the number of scratch files is not specified
@@ -132,9 +134,8 @@ void ScratchFileMap::closeScrFilesUpto(SBN uptoBlockNum) {
 //  NULL if unsuccessful.
 //-----------------------------------------------------------------------
 
-ScratchFile *ScratchFileMap::createNewScrFile(ScratchSpace *scratchSpace, int scratchMgmtOption,
-                                              int scratchMaxOpens, NABoolean preAllocateExtents,
-                                              NABoolean asynchReadQueue) {
+ScratchFile *ScratchFileMap::createNewScrFile(ScratchSpace *scratchSpace, int scratchMgmtOption, int scratchMaxOpens,
+                                              NABoolean preAllocateExtents, NABoolean asynchReadQueue) {
   FileMap *tempFileMap;
 
   if ((numScratchFiles_ + 1) >= maxScratchFiles_) {

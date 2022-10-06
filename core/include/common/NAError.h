@@ -322,11 +322,11 @@ class NAErrorStack {
   // ---------------------------------------------------------------------
   // The error stack
   // ---------------------------------------------------------------------
-  int maxEntries_;    // if prescribed by a SET TRANSACTION
-  int numEntries_;    // number of entries allocated so far
+  int maxEntries_;      // if prescribed by a SET TRANSACTION
+  int numEntries_;      // number of entries allocated so far
   NAError *errEntry_;   // an array of NAError
   NAError *nextEntry_;  // maintained after an iterator is initialized
-  int iterEntries_;   // for terminating iterations over unused entries
+  int iterEntries_;     // for terminating iterations over unused entries
 
 };  // class NAErrorStack
 

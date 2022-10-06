@@ -22,11 +22,10 @@
 #ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
-#include "parser/SqlParserGlobals.h"
-
-#include "common/ComSmallDefs.h"
 #include "ElemDDLNode.h"
 #include "common/Collections.h"
+#include "common/ComSmallDefs.h"
+#include "parser/SqlParserGlobals.h"
 
 class ElemDDLUdfOptimizationHint : public ElemDDLNode {
  public:

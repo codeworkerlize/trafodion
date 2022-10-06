@@ -19,8 +19,8 @@
  */
 
 #include "ElemDDLSchemaName.h"
-#include "parser/StmtDDLNode.h"
 #include "parser/StmtDDLAlterTableStoredDesc.h"
+#include "parser/StmtDDLNode.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

@@ -56,9 +56,9 @@
 // static char rcsid[] = "$NetBSD: vfscanf.c,v 1.15 1996/03/29 23:29:28 jtc Exp $";
 //#endif /* LIBC_SCCS and not lint */
 
-#include <stdlib.h>
 #include <ctype.h>
 #include <stdarg.h>
+#include <stdlib.h>
 
 #define FLOATING_POINT 1
 
@@ -213,15 +213,15 @@ static NAWchar *__sccl(NAWchar *tab, NAWchar *fmt) {
  */
 int __svfscanf(SCANBUF *fp, NAWchar const *fmt0, va_list ap) {
   register NAWchar *fmt = (NAWchar *)fmt0;
-  register int c;      /* character from format, or conversion */
+  register int c;        /* character from format, or conversion */
   register UInt32 width; /* field width, or 0 */
   register NAWchar *p;   /* points into all kinds of strings */
   register UInt32 n;     /* handy integer */
-  register int flags;  /* flags as defined above */
+  register int flags;    /* flags as defined above */
   register NAWchar *p0;  /* saves original value of p when necessary */
-  int nassigned;       /* number of fields assigned */
-  int nread;           /* number of characters consumed from fp */
-  int base;            /* base argument to strtoq/strtouq */
+  int nassigned;         /* number of fields assigned */
+  int nread;             /* number of characters consumed from fp */
+  int base;              /* base argument to strtoq/strtouq */
   ccfnT ccfn;            /* conversion function (strtoq/strtouq) */
 
   NAWchar ccltab[256]; /* character class table for %[...] */
@@ -662,8 +662,9 @@ int __svfscanf(SCANBUF *fp, NAWchar const *fmt0, va_list ap) {
           u_quad_t res = NULL;
 
           *p = 0;
-          if (ccfn) res = (*ccfn)(buf);  // only 10 based
-                                         // res = (*ccfn)(buf);
+          if (ccfn)
+            res = (*ccfn)(buf);  // only 10 based
+                                 // res = (*ccfn)(buf);
           if (flags & POINTER)
             *va_arg(ap, void **) = (void *)(long)res;
           else if (flags & QUAD)

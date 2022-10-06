@@ -3,12 +3,12 @@
 #ifndef _CMP_SEABASE_TENANT_H_
 #define _CMP_SEABASE_TENANT_H_
 
-#include "sqlcomp/CmpSeabaseDDL.h"
-#include "sqlcomp/CmpSeabaseDDLmd.h"
 #include "common/ComSmallDefs.h"
+#include "common/NAWNodeSet.h"
 #include "dbsecurity/dbUserAuth.h"
 #include "optimizer/SchemaDB.h"
-#include "common/NAWNodeSet.h"
+#include "sqlcomp/CmpSeabaseDDL.h"
+#include "sqlcomp/CmpSeabaseDDLmd.h"
 
 // =============================================================================
 // *

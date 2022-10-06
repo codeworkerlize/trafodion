@@ -17,20 +17,22 @@
 
 // -----------------------------------------------------------------------
 
-#include <string.h>
 #include "Stats.h"
-#include "optimizer/Sqlcomp.h"
-#include "optimizer/ItemColRef.h"
-#include "optimizer/opt.h"
-#include "optimizer/Analyzer.h"
+
+#include <string.h>
+
+#include <queue>
+
 #include "Cost.h"
 #include "arkcmp/CompException.h"
-#include "common/NLSConversion.h"  // For conversion to unicode strings
 #include "common/ComCextdecs.h"    // For Timestamp related calls
-#include <queue>
-#include "sqlcomp/QCache.h"
-
+#include "common/NLSConversion.h"  // For conversion to unicode strings
 #include "exp_function.h"
+#include "optimizer/Analyzer.h"
+#include "optimizer/ItemColRef.h"
+#include "optimizer/Sqlcomp.h"
+#include "optimizer/opt.h"
+#include "sqlcomp/QCache.h"
 
 // Specify the format for printing a long
 #define FMT_INT64 PF64
@@ -38,8 +40,8 @@
 // -----------------------------------------------------------------------
 //  methods on HistInt class
 // -----------------------------------------------------------------------
-HistInt::HistInt(int intNum, const NAWchar *intBoundary, const NAColumnArray &columns, CostScalar card,
-                 CostScalar uec, NABoolean boundInc, CostScalar card2mfv)
+HistInt::HistInt(int intNum, const NAWchar *intBoundary, const NAColumnArray &columns, CostScalar card, CostScalar uec,
+                 NABoolean boundInc, CostScalar card2mfv)
     : rows_(card), uec_(uec), boundInc_(boundInc), hash_(0), rows2mfv_(card2mfv), MCBoundary_(STMTHEAP) {
   if (intBoundary) {
     EncodedValue ev(intBoundary, columns, NULL /* do not care the cv values */);
@@ -1469,8 +1471,8 @@ CollIndex Histogram::insertSingleValuedInterval(const EncodedValue &value, NABoo
     if (iter.isSingleValued()) {
       return iterIdx;  // an SVI with the desired value already exists
     } else             // otherwise, we need to split this Interval into
-            // // two pieces; one for the S.V.I. for 'value', and
-            // // one for the rest of ITER
+                       // // two pieces; one for the S.V.I. for 'value', and
+                       // // one for the rest of ITER
     {
       // the new one just needs to be a copy of the
       // current lower boundary
@@ -4188,7 +4190,7 @@ void ColStats::scaleHistogram(CostScalar scale, CostScalar uecScale, NABoolean s
   // successfully merged all intervals whose uec/rowcount were
   // between 0 & 1 (non-inclusive)
   for (iter = hist->getFirstInterval(); iter.isValid() && !iter.isNull();  // do not merge NULL intervals!
-       /* no automatic increment */
+                                                                           /* no automatic increment */
   ) {
     if (iter.canBeMerged()) {
       if (iter.isFirst())  // combine with 2nd interval
@@ -7014,8 +7016,8 @@ void Histogram::compressHistogramForQueryPreds(ItemExpr *lowerBound, ItemExpr *u
   // bound to the the lowest value in the histogram.
 
   int state = 0;  // 0 = looking for lower bound
-                    // 1 = looking for upper bound
-                    // 2 = found both lower and upper bounds
+                  // 1 = looking for upper bound
+                  // 2 = found both lower and upper bounds
 
   if (compressToSingleInterval) state = 2;
 

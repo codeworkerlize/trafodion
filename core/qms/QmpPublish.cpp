@@ -3,7 +3,9 @@
 // **********************************************************************
 
 #include "QmpPublish.h"
+
 #include <long.h>
+
 #include "QRQueries.h"
 #include "QueryRewriteServer.h"
 #include "sqlcomp/DefaultConstants.h"

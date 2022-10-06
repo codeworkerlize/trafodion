@@ -21,12 +21,13 @@
 #ifndef LOGMXEVENT_SQ_H
 #define LOGMXEVENT_SQ_H
 
-#include <stdio.h>
 #include <pthread.h>
-#include "common/Platform.h"
-#include "sqevlog/evl_sqlog_writer.h"
+#include <stdio.h>
+
 #include "SqlEventsDllDefines.h"
+#include "common/Platform.h"
 #include "common/nawstring.h"
+#include "sqevlog/evl_sqlog_writer.h"
 // sealog headers
 #define EVENTSAPI
 #define SQLEVENT_BUF_SIZE 4024
@@ -99,19 +100,18 @@ class SQLMXLoggingArea {
   SQLEVENTS_LIB_FUNC static void logSortDiskInfo(char *diskname, short percentfreespace, short diskerror);
 
   SQLEVENTS_LIB_FUNC static int logSQLMXEventForError(
-      int eventId, const char *ExperienceLevel, const char *SeverityLevel, const char *EventTarget,
-      const char *msgtxt, const char *sqlId = NULL, const int Int0 = 0, const int Int1 = 0, const int Int2 = 0,
-      const int Int3 = 0, const int Int4 = 0, const char *String0 = NULL, const char *String1 = NULL,
-      const char *String2 = NULL, const char *String3 = NULL, const char *String4 = NULL, const char *serverName = NULL,
+      int eventId, const char *ExperienceLevel, const char *SeverityLevel, const char *EventTarget, const char *msgtxt,
+      const char *sqlId = NULL, const int Int0 = 0, const int Int1 = 0, const int Int2 = 0, const int Int3 = 0,
+      const int Int4 = 0, const char *String0 = NULL, const char *String1 = NULL, const char *String2 = NULL,
+      const char *String3 = NULL, const char *String4 = NULL, const char *serverName = NULL,
       const char *connectionName = NULL, const char *constraintCatalog = NULL, const char *constraintSchema = NULL,
       const char *constraintName = NULL, const char *triggerCatalog = NULL, const char *triggerSchema = NULL,
       const char *triggerName = NULL, const char *catalogName = NULL, const char *schemaName = NULL,
-      const char *tableName = NULL, const char *columnName = NULL, const long currTransid = 0,
-      const int rowNumber = 0, const int platformCode = 0, NABoolean isWarning = FALSE);
+      const char *tableName = NULL, const char *columnName = NULL, const long currTransid = 0, const int rowNumber = 0,
+      const int platformCode = 0, NABoolean isWarning = FALSE);
 
   // generate an EMS event for executor runtime informational message
-  SQLEVENTS_LIB_FUNC static void logExecRtInfo(const char *fileName, int lineNo, const char *msg,
-                                               int explainSeqNum);
+  SQLEVENTS_LIB_FUNC static void logExecRtInfo(const char *fileName, int lineNo, const char *msg, int explainSeqNum);
   SQLEVENTS_LIB_FUNC static void logSQLMXDebugEvent(const char *msg, short errorcode, bool lock = true);
 
   SQLEVENTS_LIB_FUNC static void logPOSInfoEvent(const char *msg);
@@ -137,10 +137,9 @@ class SQLMXLoggingArea {
   SQLEVENTS_LIB_FUNC static void logUtilOperationStatusEvent(int eventId, const char *utilName, const char *objType,
                                                              const char *objAnsiName, const char *utilStatus);
 
-  SQLEVENTS_LIB_FUNC static void logUtilErrorsEvent(const char *utilName, const int numOfErrors,
-                                                    const int errorCode, const char *msg1, const char *msg2 = NULL,
-                                                    const char *msg3 = NULL, const char *msg4 = NULL,
-                                                    const char *msg5 = NULL);
+  SQLEVENTS_LIB_FUNC static void logUtilErrorsEvent(const char *utilName, const int numOfErrors, const int errorCode,
+                                                    const char *msg1, const char *msg2 = NULL, const char *msg3 = NULL,
+                                                    const char *msg4 = NULL, const char *msg5 = NULL);
 
   SQLEVENTS_LIB_FUNC static void logPMEvent(int eventId);
   SQLEVENTS_LIB_FUNC static bool lockMutex();

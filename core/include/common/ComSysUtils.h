@@ -16,11 +16,11 @@
  *****************************************************************************
  */
 
+#include <sys/time.h>
+
 #include "SQLTypeDefs.h"
 #include "common/Int64.h"
 #include "common/Platform.h"
-
-#include <sys/time.h>
 
 #ifdef NA_LITTLE_ENDIAN
 #define EXTRACT_SIGN_INT64(sign, ptr) sign = *((int *)ptr + 1) & 0x80000000;
@@ -54,13 +54,13 @@ inline unsigned short reversebytes(unsigned short s) { return (s >> 8 | s << 8);
 
 inline unsigned short reversebytesUS(unsigned short s) { return (s >> 8 | s << 8); }
 
-inline unsigned int reversebytes(unsigned int x) { return ((x << 24) | (x << 8 & 0x00ff0000) | (x >> 8 & 0x0000ff00) | (x >> 24)); }
+inline unsigned int reversebytes(unsigned int x) {
+  return ((x << 24) | (x << 8 & 0x00ff0000) | (x >> 8 & 0x0000ff00) | (x >> 24));
+}
 
 inline int reversebytes(int x) {
   return ((x << 24) | (x << 8 & 0x00ff0000) | (x >> 8 & 0x0000ff00) | (x >> 24 & 0x000000ff));
 }
-
-
 
 inline long reversebytes(long xx) {
   union {

@@ -1,6 +1,8 @@
 
-#include <stdio.h>
 #include "exp/ExpLOBstats.h"
+
+#include <stdio.h>
+
 #include "common/str.h"
 
 void ExLobStats::init() {

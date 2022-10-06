@@ -16,8 +16,8 @@
  *
  *****************************************************************************
  */
-#include "common/Platform.h"
 #include "EHCallBack.h"
+#include "common/Platform.h"
 
 class CmpEHCallBack : public EHCallBack {
  public:

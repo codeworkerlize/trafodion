@@ -16,9 +16,10 @@
  *****************************************************************************
  */
 
+#include "ElemDDLPrivActions.h"
+
 #include "common/ComASSERT.h"
 #include "common/ComOperators.h"
-#include "ElemDDLPrivActions.h"
 #include "common/NAString.h"
 
 // -----------------------------------------------------------------------

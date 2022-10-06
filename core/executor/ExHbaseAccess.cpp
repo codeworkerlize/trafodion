@@ -2,27 +2,22 @@
 
 // **********************************************************************
 
-#include "common/Platform.h"
-
-#include "executor/ex_stdh.h"
-#include "comexe/ComTdb.h"
-#include "executor/ex_tcb.h"
 #include "ExHbaseAccess.h"
-#include "ex_exe_stmt_globals.h"
-
-#include "exp/ExpLOBinterface.h"
-
-#include "SQLTypeDefs.h"
-
-#include "exp/ExpHbaseInterface.h"
-#include "qmscommon/QRLogger.h"
-
-#include "cli_stdh.h"
-#include "exp_function.h"
 
 #include <random>
 
 #include "ComMemLog.h"
+#include "SQLTypeDefs.h"
+#include "cli_stdh.h"
+#include "comexe/ComTdb.h"
+#include "common/Platform.h"
+#include "ex_exe_stmt_globals.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_tcb.h"
+#include "exp/ExpHbaseInterface.h"
+#include "exp/ExpLOBinterface.h"
+#include "exp_function.h"
+#include "qmscommon/QRLogger.h"
 
 // forward declare
 long generateUniqueValueFast();
@@ -1581,8 +1576,7 @@ int ExHbaseAccessTcb::createSQRowFromHbaseFormatMulti() {
 // it is missing. TRUE is returned in that case.
 // If a non-added field is reached, then no cols are missing.
 // FALSE is returned in that case.
-NABoolean ExHbaseAccessTcb::missingValuesInAlignedFormatRow(ExpTupleDesc *tdesc, char *alignedRow,
-                                                            int alignedRowLen) {
+NABoolean ExHbaseAccessTcb::missingValuesInAlignedFormatRow(ExpTupleDesc *tdesc, char *alignedRow, int alignedRowLen) {
   if (NOT tdesc->addedFieldPresent()) return FALSE;
 
   UInt32 ff = ExpTupleDesc::getFirstFixedOffset(alignedRow, ExpTupleDesc::SQLMX_ALIGNED_FORMAT);
@@ -1697,8 +1691,6 @@ int ExHbaseAccessTcb::createSQRowFromAlignedFormat(long *latestRowTimestamp) {
 
     workAtp_->getTupp(hbaseAccessTdb().hbaseRowidTuppIndex_).setDataPointer(rowID_.val);
   }
-
-
 
   if (convertExpr()) {
     convertRowLen_ = hbaseAccessTdb().convertRowLen();
@@ -2400,8 +2392,8 @@ short ExHbaseAccessTcb::createDirectRowBuffer(Text &colFamily, Text &colName, Te
   return 0;
 }
 
-int ExHbaseAccessTcb::copyColToDirectBuffer(BYTE *rowCurPtr, char *colName, short colNameLen,
-                                              NABoolean prependNullVal, char nullVal, char *colVal, int colValLen) {
+int ExHbaseAccessTcb::copyColToDirectBuffer(BYTE *rowCurPtr, char *colName, short colNameLen, NABoolean prependNullVal,
+                                            char nullVal, char *colVal, int colValLen) {
   int bytesCopied;
   assert(directRowBufferLen_ >= (row_.len + colNameLen + colValLen + 4));
   BYTE *temp = rowCurPtr;
@@ -2630,7 +2622,7 @@ short ExHbaseAccessTcb::createDirectRowwiseBuffer(char *inputRow) {
 
   curPtr = inputRow;
   curPtr += (3 * sizeof(short) + sizeof(int));  // skip numEntries, maxColNameLen,
-                                                  // colValVCIndLen, maxColValLen
+                                                // colValVCIndLen, maxColValLen
   for (int ij = 0; ij < numEntries; ij++) {
     colNameLen = *(short *)curPtr;
     curPtr += sizeof(short);

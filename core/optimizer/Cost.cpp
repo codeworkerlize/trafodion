@@ -16,18 +16,18 @@
 
 // -----------------------------------------------------------------------
 
-#include "optimizer/Sqlcomp.h"
-#include "optimizer/GroupAttr.h"
 #include "Cost.h"
-#include "sqlcomp/DefaultConstants.h"
-#include "cli/SQLCLIdev.h"
-#include "arkcmp/CmpContext.h"
-#include "optimizer/CostScalar.h"
-#include "arkcmp/CmpContext.h"
-#include "cli/SQLCLIdev.h"
-#include "optimizer/opt.h"
-#include "arkcmp/CompException.h"
+
 #include <math.h>
+
+#include "arkcmp/CmpContext.h"
+#include "arkcmp/CompException.h"
+#include "cli/SQLCLIdev.h"
+#include "optimizer/CostScalar.h"
+#include "optimizer/GroupAttr.h"
+#include "optimizer/Sqlcomp.h"
+#include "optimizer/opt.h"
+#include "sqlcomp/DefaultConstants.h"
 
 //<pb>
 
@@ -2597,7 +2597,7 @@ ElapsedTimeCostLimit::compareWithCost(const Cost &other, const ReqdPhysicalPrope
     // of cost based pruning. This is because demotions levels are monotonically
     // decreasing with upper limit of zero.
     int demotionLimit = priorityLimit_.getDemotionLevel() - ancestorCost_->getPlanPriority().getDemotionLevel() -
-                          otherKinCost_->getPlanPriority().getDemotionLevel();
+                        otherKinCost_->getPlanPriority().getDemotionLevel();
 
     if (demotionLimit > other.getPlanPriority().getDemotionLevel()) return LESS;
     if (demotionLimit < other.getPlanPriority().getDemotionLevel()) return MORE;
@@ -2676,7 +2676,7 @@ ElapsedTimeCostLimit::compareWithPlanCost(CascadesPlan *plan, const ReqdPhysical
     // of cost based pruning. This is because demotions levels are monotonically
     // decreasing with upper limit of zero.
     int demotionLimit = priorityLimit_.getDemotionLevel() - ancestorCost_->getPlanPriority().getDemotionLevel() -
-                          otherKinCost_->getPlanPriority().getDemotionLevel();
+                        otherKinCost_->getPlanPriority().getDemotionLevel();
 
     if (demotionLimit > plan->getRollUpCost()->getPlanPriority().getDemotionLevel()) return LESS;
     if (demotionLimit < plan->getRollUpCost()->getPlanPriority().getDemotionLevel()) return MORE;
@@ -3099,7 +3099,7 @@ ScmElapsedTimeCostLimit::compareWithCost(const Cost &other, const ReqdPhysicalPr
     // of cost based pruning. This is because demotions levels are monotonically
     // decreasing with upper limit of zero.
     int demotionLimit = priorityLimit_.getDemotionLevel() - ancestorCost_->getPlanPriority().getDemotionLevel() -
-                          otherKinCost_->getPlanPriority().getDemotionLevel();
+                        otherKinCost_->getPlanPriority().getDemotionLevel();
 
     if (demotionLimit > other.getPlanPriority().getDemotionLevel()) return LESS;
     if (demotionLimit < other.getPlanPriority().getDemotionLevel()) return MORE;

@@ -5,11 +5,11 @@
 #ifndef _MVCANDIDATES_H_
 #define _MVCANDIDATES_H_
 
+#include "optimizer/RelGrby.h"
+#include "optimizer/RelScan.h"
+#include "optimizer/ValueDesc.h"
 #include "qmscommon/QRDescriptor.h"
 #include "qmscommon/QRSharedPtr.h"
-#include "optimizer/RelScan.h"
-#include "optimizer/RelGrby.h"
-#include "optimizer/ValueDesc.h"
 #include "sqlcomp/CmpMain.h"
 
 // Classes defined in this file.

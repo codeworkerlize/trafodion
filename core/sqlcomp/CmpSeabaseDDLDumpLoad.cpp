@@ -1,12 +1,13 @@
 
-#include "sqlcomp/CmpSeabaseDDLincludes.h"
-#include "optimizer/RelExeUtil.h"
-#include "cli/Globals.h"
-#include "cli/Context.h"
-#include "common/feerrors.h"
-
 #include <sys/stat.h>
+
 #include <fstream>
+
+#include "cli/Context.h"
+#include "cli/Globals.h"
+#include "common/feerrors.h"
+#include "optimizer/RelExeUtil.h"
+#include "sqlcomp/CmpSeabaseDDLincludes.h"
 
 const RelDumpLoad::DumploadTypeInfo RelDumpLoad::dumploadType[] = {
     {RelDumpLoad::DL_OBJ_SCHEMA, "SHOWDDL SCHEMA   "},     {RelDumpLoad::DL_OBJ_TABLE, "SHOWDDL TABLE    "},

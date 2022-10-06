@@ -20,8 +20,8 @@
 // -----------------------------------------------------------------------
 
 #include "ex_ex.h"
-#include "exp/ExpSqlTupp.h"
 #include "executor/ex_error.h"
+#include "exp/ExpSqlTupp.h"
 
 // forward references
 class ex_globals;

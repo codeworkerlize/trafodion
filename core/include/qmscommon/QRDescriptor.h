@@ -2,21 +2,22 @@
 #ifndef _QRDESCRIPTOR_H_
 #define _QRDESCRIPTOR_H_
 
-#include <stdlib.h>
 #include <math.h>
-#include "common/Platform.h"
-#include "qmscommon/XMLUtil.h"
-#include "qmscommon/QRSharedPtr.h"
-#include "export/NABasicObject.h"
-#include "common/NAString.h"
+#include <stdlib.h>
+
 #include "common/Collections.h"
-#include "common/OperTypeEnum.h"
 #include "common/ComSmallDefs.h"
-#include "common/str.h"
-#include "common/charinfo.h"
+#include "common/NAString.h"
+#include "common/OperTypeEnum.h"
+#include "common/Platform.h"
 #include "common/SharedPtrCollections.h"
-#include "sqlmxevents/logmxevent.h"
+#include "common/charinfo.h"
+#include "common/str.h"
+#include "export/NABasicObject.h"
 #include "qmscommon/QRExprElement.h"
+#include "qmscommon/QRSharedPtr.h"
+#include "qmscommon/XMLUtil.h"
+#include "sqlmxevents/logmxevent.h"
 
 class ItemExpr;
 class Scan;

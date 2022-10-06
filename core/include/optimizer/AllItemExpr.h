@@ -17,14 +17,14 @@
 
 // -----------------------------------------------------------------------
 
-#include "optimizer/ItemExpr.h"
 #include "ItemArith.h"
-#include "optimizer/ItemColRef.h"
 #include "ItemComposite.h"
-#include "optimizer/ItemConstr.h"
-#include "optimizer/ItemFunc.h"
 #include "ItemFuncUDF.h"
-#include "optimizer/ItemLog.h"
 #include "ItemNAType.h"
+#include "optimizer/ItemColRef.h"
+#include "optimizer/ItemConstr.h"
+#include "optimizer/ItemExpr.h"
+#include "optimizer/ItemFunc.h"
+#include "optimizer/ItemLog.h"
 #include "optimizer/ItemOther.h"
 #include "optimizer/ItemSubq.h"

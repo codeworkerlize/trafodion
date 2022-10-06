@@ -19,10 +19,10 @@
 #ifndef SQL_ID_H
 #define SQL_ID_H
 
-#include "common/Platform.h"
-#include "common/NAWinNT.h"
 #include "cli/SQLCLIdev.h"
 #include "common/BaseTypes.h"
+#include "common/NAWinNT.h"
+#include "common/Platform.h"
 #include "common/str.h"
 
 #define getModNameLen(sqlmodule_id_ptr) (sqlmodule_id_ptr)->module_name_len

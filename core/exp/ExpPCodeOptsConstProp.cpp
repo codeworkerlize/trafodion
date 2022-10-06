@@ -1,9 +1,9 @@
 
 
-#include "exp_ovfl_ptal.h"
-#include "exp_ieee.h"
 #include "BigNumHelper.h"
 #include "ExpPCodeOptimizations.h"
+#include "exp_ieee.h"
+#include "exp_ovfl_ptal.h"
 
 //
 // Perform constant propogation across all blocks.
@@ -1646,42 +1646,42 @@ long PCodeCfg::getIntConstValue(PCodeOperand *op) {
 
   switch (op->getType()) {
     case PCIT::MBIN8:
-      value = (long) * ((UInt8 *)(constPtr->getData()));
+      value = (long)*((UInt8 *)(constPtr->getData()));
       break;
     case PCIT::MBIN8S:
-      value = (long) * ((Int8 *)(constPtr->getData()));
+      value = (long)*((Int8 *)(constPtr->getData()));
       break;
     case PCIT::MBIN8U:
-      value = (long) * ((UInt8 *)(constPtr->getData()));
+      value = (long)*((UInt8 *)(constPtr->getData()));
       break;
     case PCIT::MBIN16S:
-      value = (long) * ((Int16 *)(constPtr->getData()));
+      value = (long)*((Int16 *)(constPtr->getData()));
       break;
     case PCIT::MBIN16U:
-      value = (long) * ((UInt16 *)(constPtr->getData()));
+      value = (long)*((UInt16 *)(constPtr->getData()));
       break;
     case PCIT::MBIN32S:
-      value = (long) * ((int *)(constPtr->getData()));
+      value = (long)*((int *)(constPtr->getData()));
       break;
     case PCIT::MBIN32U:
-      value = (long) * ((UInt32 *)(constPtr->getData()));
+      value = (long)*((UInt32 *)(constPtr->getData()));
       break;
     case PCIT::MBIN64S:
-      value = (long) * ((long *)(constPtr->getData()));
+      value = (long)*((long *)(constPtr->getData()));
       break;
     case PCIT::MPTR32:
       switch (constPtr->getLen()) {
         case 1:
-          value = (long) * ((UInt8 *)(constPtr->getData()));
+          value = (long)*((UInt8 *)(constPtr->getData()));
           break;
         case 2:
-          value = (long) * ((Int16 *)(constPtr->getData()));
+          value = (long)*((Int16 *)(constPtr->getData()));
           break;
         case 4:
-          value = (long) * ((int *)(constPtr->getData()));
+          value = (long)*((int *)(constPtr->getData()));
           break;
         case 8:
-          value = (long) * ((long *)(constPtr->getData()));
+          value = (long)*((long *)(constPtr->getData()));
           break;
         default:
           assert(FALSE);
@@ -2523,11 +2523,11 @@ PCodeInst *PCodeCfg::constantFold(PCodeInst *inst, NABoolean rDefsAvailable) {
       char *str2 = getStringConstValue(op2, &len2);
 
       int compTable[6][3] = {/* ITM_EQUAL */ {0, 1, 0},
-                               /* ITM_NOT_EQUAL */ {1, 0, 1},
-                               /* ITM_LESS */ {1, 0, 0},
-                               /* ITM_LESS_EQ */ {1, 1, 0},
-                               /* ITM_GREATER */ {0, 0, 1},
-                               /* ITM_GREATER_EQ */ {0, 1, 1}};
+                             /* ITM_NOT_EQUAL */ {1, 0, 1},
+                             /* ITM_LESS */ {1, 0, 0},
+                             /* ITM_LESS_EQ */ {1, 1, 0},
+                             /* ITM_GREATER */ {0, 0, 1},
+                             /* ITM_GREATER_EQ */ {0, 1, 1}};
 
       // Set table pointer to appropriate position based on operation
       int *table = &(compTable[inst->code[13] - ITM_EQUAL][1]);

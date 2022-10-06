@@ -23,14 +23,15 @@
 // them, because there appear to be circular dependencies somewhere.
 class ComDiagsArea;
 
-#include "common/Platform.h"
-#include "export/ComDiags.h"
-#include "common/ComTransInfo.h"
-#include "common/ComObjectName.h"
-#include "sqlcomp/DefaultConstants.h"
-#include "eh/EHException.h"
-#include "common/NAAssert.h"
 #include <vector>
+
+#include "common/ComObjectName.h"
+#include "common/ComTransInfo.h"
+#include "common/NAAssert.h"
+#include "common/Platform.h"
+#include "eh/EHException.h"
+#include "export/ComDiags.h"
+#include "sqlcomp/DefaultConstants.h"
 
 // use char* as key of std::map
 struct Char_Compare {

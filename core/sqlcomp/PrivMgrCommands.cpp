@@ -9,34 +9,34 @@
 // ==========================================================================
 
 #include "sqlcomp/PrivMgrCommands.h"
-#include "sqlcomp/PrivMgrMD.h"
-#include "sqlcomp/PrivMgrMDDefs.h"
-#include "common/DgBaseType.h"
-#include "optimizer/NATable.h"
-#include "optimizer/NAColumn.h"
 
-#include "sqlcomp/PrivMgrPrivileges.h"
-#include "sqlcomp/PrivMgrSchemaPrivileges.h"
-
-#include "PrivMgrComponents.h"
-#include "PrivMgrComponentOperations.h"
-#include "sqlcomp/PrivMgrComponentPrivileges.h"
-#include "sqlcomp/PrivMgrRoles.h"
-#include "sqlcomp/PrivMgrObjects.h"
-#include "common/ComSecurityKey.h"
-#include "common/ComUser.h"
-#include "sqlcomp/CmpSeabaseDDL.h"  // needed in order to access ExpHbaseInterface
-#include "exp/ExpHbaseInterface.h"
-#include "sqlcomp/CmpDDLCatErrorCodes.h"  // needed for DgSqlCode error msg enum
-#include "cli/Globals.h"                  // needed to get access to CLI globals
-#include "cli/Context.h"                  // needed to get access to Java exception info
-#include "executor/HBaseClient_JNI.h"     // needed for HBase client error msg enum
-
-#include <cstdio>
-#include <algorithm>
-#include <sstream>
 #include <grp.h>
 #include <pwd.h>
+
+#include <algorithm>
+#include <cstdio>
+#include <sstream>
+
+#include "PrivMgrComponentOperations.h"
+#include "PrivMgrComponents.h"
+#include "cli/Context.h"  // needed to get access to Java exception info
+#include "cli/Globals.h"  // needed to get access to CLI globals
+#include "common/ComSecurityKey.h"
+#include "common/ComUser.h"
+#include "common/DgBaseType.h"
+#include "executor/HBaseClient_JNI.h"  // needed for HBase client error msg enum
+#include "exp/ExpHbaseInterface.h"
+#include "optimizer/NAColumn.h"
+#include "optimizer/NATable.h"
+#include "sqlcomp/CmpDDLCatErrorCodes.h"  // needed for DgSqlCode error msg enum
+#include "sqlcomp/CmpSeabaseDDL.h"        // needed in order to access ExpHbaseInterface
+#include "sqlcomp/PrivMgrComponentPrivileges.h"
+#include "sqlcomp/PrivMgrMD.h"
+#include "sqlcomp/PrivMgrMDDefs.h"
+#include "sqlcomp/PrivMgrObjects.h"
+#include "sqlcomp/PrivMgrPrivileges.h"
+#include "sqlcomp/PrivMgrRoles.h"
+#include "sqlcomp/PrivMgrSchemaPrivileges.h"
 
 // ****************************************************************************
 // Class: PrivMgrCommands
@@ -1346,7 +1346,7 @@ int PrivMgrCommands::recreateRoleRelationship(ExeCliInterface *cliInterface) {
   int count = 0;
   for (; count < cntQueue->numEntries(); count++) {
     OutputInfo *pCliRow = (OutputInfo *)cntQueue->getNext();
-    sb << '(' << *((int *)pCliRow->get(0))              // ROLE_ID
+    sb << '(' << *((int *)pCliRow->get(0))                // ROLE_ID
        << ',' << '\'' << (char *)pCliRow->get(1) << '\''  // ROLE_NAME
        << ',' << SUPER_USER_LIT                           // GRANTEE_ID
        << ',' << '\'' << DB__ROOT << '\''                 // GRANTEE_NAME

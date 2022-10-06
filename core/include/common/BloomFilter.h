@@ -13,15 +13,15 @@
 #ifndef INCLUDE_BLOOM_FILTER_H
 #define INCLUDE_BLOOM_FILTER_H
 
-#include "common/Platform.h"
-#include "common/NABoolean.h"
-#include "common/Collections.h"
-#include "common/NAMemory.h"
-#include "VarInt.h"
-#include "common/ComSysUtils.h"
-
 #include <string>
 #include <vector>
+
+#include "VarInt.h"
+#include "common/Collections.h"
+#include "common/ComSysUtils.h"
+#include "common/NABoolean.h"
+#include "common/NAMemory.h"
+#include "common/Platform.h"
 
 #define MAX_NUM_HASH_FUNCS         5
 #define FALSE_POSITIVE_PROBABILITY 0.1
@@ -29,7 +29,7 @@
 const UInt32 char_size = 0x08;  // 8 bits in 1 char(unsigned)
 
 int computeHashTableSizeInBytes(UInt32 m,  // Input: # of bits for the hash table
-                                   float p    // Input: probability of false positive
+                                float p    // Input: probability of false positive
 );
 
 class BloomFilter : public NABasicObject {

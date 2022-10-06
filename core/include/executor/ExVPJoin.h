@@ -17,11 +17,11 @@
  */
 
 #include "comexe/ComTdb.h"
-#include "executor/ex_tcb.h"
 #include "ex_queue.h"
+#include "executor/ex_globals.h"
+#include "executor/ex_tcb.h"
 #include "exp/ExpCriDesc.h"
 #include "exp/ex_expr.h"
-#include "executor/ex_globals.h"
 
 //
 // OVERVIEW
@@ -176,10 +176,10 @@ class ExVPJoinPrivateState : public ex_tcb_private_state {
   inline void init();
 
   long matchCount_;  // number of rows returned for
-                      // associated request
+                     // associated request
 
   int started_;  // has associated request been "started"
-                   // (i.e., passed down to children)
+                 // (i.e., passed down to children)
 };
 
 void ExVPJoinPrivateState::init() {

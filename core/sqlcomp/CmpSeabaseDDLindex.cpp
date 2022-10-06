@@ -17,35 +17,27 @@
 #define SQLPARSERGLOBALS_FLAGS  // must precede all #include's
 #define SQLPARSERGLOBALS_NADEFAULTS
 
-#include "common/ComObjectName.h"
-
-#include "parser/StmtDDLCreateIndex.h"
-#include "parser/StmtDDLPopulateIndex.h"
-#include "parser/StmtDDLDropIndex.h"
-#include "parser/StmtDDLAlterTableEnableIndex.h"
-#include "parser/StmtDDLAlterTableDisableIndex.h"
-#include "parser/StmtDDLAlterIndexHBaseOptions.h"
-
-#include "sqlcomp/CmpDDLCatErrorCodes.h"
-#include "parser/ElemDDLHbaseOptions.h"
-
-#include "optimizer/SchemaDB.h"
-#include "sqlcomp/CmpSeabaseDDL.h"
-#include "sqlcomp/CmpDescribe.h"
-
-#include "exp/ExpHbaseInterface.h"
-
-#include "executor/ExExeUtilCli.h"
-#include "generator/Generator.h"
 #include "cli/Context.h"
-
 #include "common/ComCextdecs.h"
+#include "common/ComObjectName.h"
 #include "common/ComUser.h"
-
 #include "common/NumericType.h"
-
-#include "sqlcomp/PrivMgrCommands.h"
 #include "common/ngram.h"
+#include "executor/ExExeUtilCli.h"
+#include "exp/ExpHbaseInterface.h"
+#include "generator/Generator.h"
+#include "optimizer/SchemaDB.h"
+#include "parser/ElemDDLHbaseOptions.h"
+#include "parser/StmtDDLAlterIndexHBaseOptions.h"
+#include "parser/StmtDDLAlterTableDisableIndex.h"
+#include "parser/StmtDDLAlterTableEnableIndex.h"
+#include "parser/StmtDDLCreateIndex.h"
+#include "parser/StmtDDLDropIndex.h"
+#include "parser/StmtDDLPopulateIndex.h"
+#include "sqlcomp/CmpDDLCatErrorCodes.h"
+#include "sqlcomp/CmpDescribe.h"
+#include "sqlcomp/CmpSeabaseDDL.h"
+#include "sqlcomp/PrivMgrCommands.h"
 
 short CmpSeabaseDDL::updateColAndKeyInfo(const NAColumn *keyCol, CollIndex i, NABoolean alignedFormat,
                                          NAString &defaultColFam, short nonKeyColType, short ordering,
@@ -206,7 +198,6 @@ short CmpSeabaseDDL::createIndexColAndKeyInfoArrays(
 
     const NAType *naType = tableCol->getType();
 
-
     NAString newColName(nodeKeyCol->getColumnName());
     NAString colNameSuffix("@");
     newColName += colNameSuffix;
@@ -325,9 +316,9 @@ short CmpSeabaseDDL::createIndexColAndKeyInfoArrays(
 }
 
 int CmpSeabaseDDL::createSeabasePartitionIndex(ExeCliInterface *cliInterface, StmtDDLCreateIndex *createIndexNode,
-                                                 ElemDDLColRefArray &indexColRefArray, const char *partitionTableName,
-                                                 const NAString &currCatName, const NAString &currSchName,
-                                                 const NAString &baseIndexName) {
+                                               ElemDDLColRefArray &indexColRefArray, const char *partitionTableName,
+                                               const NAString &currCatName, const NAString &currSchName,
+                                               const NAString &baseIndexName) {
   int ret;
 
   NAString partIdxName;
@@ -1708,7 +1699,7 @@ void CmpSeabaseDDL::populateSeabaseIndex(StmtDDLPopulateIndex *populateIndexNode
         }
         long objDataUID;
         long indexUID = getObjectUID(&cliInterface, catalogNamePart.data(), schemaNamePart.data(),
-                                      objectNamePart.data(), COM_INDEX_OBJECT_LIT, &objDataUID);
+                                     objectNamePart.data(), COM_INDEX_OBJECT_LIT, &objDataUID);
 
         if (populateIndexNode->purgedataSpecified()) {
           // Update object Epoch since a purgedata is called
@@ -1889,8 +1880,8 @@ purgedata_return:
 }
 
 int CmpSeabaseDDL::dropSeabasePartitionIndex(ExeCliInterface *cliInterface, NAString &currCatName,
-                                               NAString &currSchName, const NAString &baseIndexName,
-                                               const char *partitionTableName) {
+                                             NAString &currSchName, const NAString &baseIndexName,
+                                             const char *partitionTableName) {
   int ret;
   char buf[500];
 
@@ -2102,7 +2093,7 @@ void CmpSeabaseDDL::dropSeabaseIndex(StmtDDLDropIndex *dropIndexNode, NAString &
   }
 
   long indexUID = getObjectUID(&cliInterface, catalogNamePart.data(), schemaNamePart.data(), objectNamePart.data(),
-                                COM_INDEX_OBJECT_LIT);
+                               COM_INDEX_OBJECT_LIT);
   if (indexUID < 0) {
     processReturn();
     deallocEHI(ehi);
@@ -2124,7 +2115,7 @@ void CmpSeabaseDDL::dropSeabaseIndex(StmtDDLDropIndex *dropIndexNode, NAString &
     NAString constrSchName;
     NAString constrObjName;
     long constrUID = getConstraintOnIndex(&cliInterface, btUID, indexUID, COM_UNIQUE_CONSTRAINT_LIT, constrCatName,
-                                           constrSchName, constrObjName);
+                                          constrSchName, constrObjName);
     if (constrUID > 0) {
       // constraint exists
       if (dropIndexNode->getDropBehavior() != COM_CASCADE_DROP_BEHAVIOR) {
@@ -2922,7 +2913,7 @@ void CmpSeabaseDDL::alterSeabaseIndexHBaseOptions(StmtDDLAlterIndexHBaseOptions 
 
   long objDataUID;
   long objUID = getObjectUID(&cliInterface, catalogNamePart.data(), schemaNamePart.data(), objectNamePart.data(),
-                              COM_INDEX_OBJECT_LIT, &objDataUID);
+                             COM_INDEX_OBJECT_LIT, &objDataUID);
   if (objUID < 0) {
     deallocEHI(ehi);
     processReturn();
@@ -3016,7 +3007,7 @@ void CmpSeabaseDDL::alterSeabaseIndexHBaseOptions(StmtDDLAlterIndexHBaseOptions 
 //      description of the parent table
 // -----------------------------------------------------------------------------
 int CmpSeabaseDDL::alterSeabaseIndexAttributes(ExeCliInterface *cliInterface, ParDDLFileAttrsAlterTable &fileAttrs,
-                                                 NATable *naTable, int alterReadonlyOP) {
+                                               NATable *naTable, int alterReadonlyOP) {
   char queryBuf[1000];
   int cliRC = 0;
   if (naTable->hasSecondaryIndexes()) {

@@ -15,11 +15,11 @@
  *****************************************************************************
  */
 
-#include "comexe/ComTdbUdr.h"
-#include "executor/ex_tcb.h"
 #include "UdrExeIpc.h"
+#include "comexe/ComTdbUdr.h"
 #include "common/ComSmallDefs.h"
 #include "executor/ExStats.h"
+#include "executor/ex_tcb.h"
 
 // -----------------------------------------------------------------------
 // Forward class declarations

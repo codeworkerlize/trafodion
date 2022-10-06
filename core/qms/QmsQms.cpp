@@ -3,11 +3,12 @@
 // **********************************************************************
 
 #include "QmsQms.h"
+
+#include "QmsMVMemo.h"
+#include "common/ComRtUtils.h"
+#include "common/NAType.h"
 #include "qmscommon/QRDescriptor.h"
 #include "qmscommon/QRLogger.h"
-#include "QmsMVMemo.h"
-#include "common/NAType.h"
-#include "common/ComRtUtils.h"
 
 /**
  * \file

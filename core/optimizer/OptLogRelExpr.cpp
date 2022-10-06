@@ -16,20 +16,20 @@
 
 // -----------------------------------------------------------------------
 
-#include "optimizer/Sqlcomp.h"
-#include "optimizer/GroupAttr.h"
-#include "optimizer/AllRelExpr.h"
-#include "optimizer/AllItemExpr.h"
-#include "Cost.h"
-#include "optimizer/opt.h"
-#include "optimizer/PhyProp.h"
-#include "OptTrigger.h"
-#include "optimizer/Analyzer.h"
-#include "AppliedStatMan.h"
-#include "optimizer/NormWA.h"
-#include "arkcmp/CmpStatement.h"
-
 #include <math.h>
+
+#include "AppliedStatMan.h"
+#include "Cost.h"
+#include "OptTrigger.h"
+#include "arkcmp/CmpStatement.h"
+#include "optimizer/AllItemExpr.h"
+#include "optimizer/AllRelExpr.h"
+#include "optimizer/Analyzer.h"
+#include "optimizer/GroupAttr.h"
+#include "optimizer/NormWA.h"
+#include "optimizer/PhyProp.h"
+#include "optimizer/Sqlcomp.h"
+#include "optimizer/opt.h"
 
 // -----------------------------------------------------------------------
 // member functions for class RelExpr

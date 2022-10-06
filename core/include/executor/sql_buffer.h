@@ -25,8 +25,8 @@
 //    evaluation, and statistics
 //
 
-#include "exp/ExpSqlTupp.h"
 #include "ex_io_control.h"
+#include "exp/ExpSqlTupp.h"
 #ifndef UDRSERV_BUILD
 #include "executor/ex_god.h"
 #endif  // UDRSERV_BUILD
@@ -589,9 +589,9 @@ class SqlBuffer : public SqlBufferBase {
   };
 
  protected:
-  int freeSpace_;     // free space in the buffer
+  int freeSpace_;    // free space in the buffer
   int maxTuppDesc_;  // max tupp desc allocated. Some of
-                        // them may have a reference count of 0.
+                     // them may have a reference count of 0.
   // used to read all tuple descriptors from the buffer.
   // See position() and getNext().
   int tuppDescIndex_;
@@ -791,7 +791,7 @@ class SqlBufferNormal : public SqlBuffer {
 
  private:
   int dataOffset_;  // offset from where data space is to be
-                       // to be allocated.
+                    // to be allocated.
   int tupleDescOffset_;
   // this is also the end of the buffer as
   // tupp descs are allocated in reverse order.
@@ -929,8 +929,8 @@ class SqlBufferDense : public SqlBuffer {
 
     if (lastTupleDesc())
       return (int)((char *)(lastTupleDesc()->tupleDesc()->getTupleAddress() +
-                              ROUND8(lastTupleDesc()->tupleDesc()->getAllocatedSize())) -
-                     (char *)this);
+                            ROUND8(lastTupleDesc()->tupleDesc()->getAllocatedSize())) -
+                   (char *)this);
     else
       return (int)((char *)firstTupleDesc() - (char *)this);
   }

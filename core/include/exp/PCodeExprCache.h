@@ -3,15 +3,15 @@
 #ifndef PCODEEXPRCACHE_H
 #define PCODEEXPRCACHE_H
 
+#include "ExpPCodeInstruction.h"
+#include "ExpPCodeOptimizations.h"
 #include "common/BaseTypes.h"
-#include "export/NABasicObject.h"
 #include "common/CmpCommon.h"
 #include "common/Collections.h"
 #include "common/NAString.h"
-#include "optimizer/ItemColRef.h"
+#include "export/NABasicObject.h"
 #include "optimizer/BindWA.h"
-#include "ExpPCodeOptimizations.h"
-#include "ExpPCodeInstruction.h"
+#include "optimizer/ItemColRef.h"
 
 typedef NAHeap NABoundedHeap;
 class NAHeap;

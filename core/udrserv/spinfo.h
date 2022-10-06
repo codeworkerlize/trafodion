@@ -17,18 +17,16 @@
 #ifndef SPINFO_H
 #define SPINFO_H
 
-#include "cli/sqlcli.h"
-#include "common/NABoolean.h"
-#include "udrextrn.h"
-#include "udrdefs.h"
-#include "common/ComSmallDefs.h"
 #include "UdrExeIpc.h"
+#include "cli/sqlcli.h"
 #include "comexe/QueueIndex.h"
-#include "sqludr/sqludr.h"
-
-#include "common/Platform.h"
-
 #include "common/Collections.h"  // needed for NAList
+#include "common/ComSmallDefs.h"
+#include "common/NABoolean.h"
+#include "common/Platform.h"
+#include "sqludr/sqludr.h"
+#include "udrdefs.h"
+#include "udrextrn.h"
 
 //
 // Forward declarations
@@ -252,8 +250,7 @@ class SPInfo : public NABasicObject {
   UdrDataBuffer *getCurrentRequest() const { return currentRequest_; }
 
  private:
-  RequestRowProcessingStatus processOneRequestRow(SqlBuffer *reqSqlBuf, SqlBuffer *replySqlBuf,
-                                                  int &numRowsProcessed);
+  RequestRowProcessingStatus processOneRequestRow(SqlBuffer *reqSqlBuf, SqlBuffer *replySqlBuf, int &numRowsProcessed);
 
   NABoolean moveRSInfoIntoStream();
   void moveDiagsIntoStream(ComDiagsArea *diags, ControlInfo *replyControlInfo);

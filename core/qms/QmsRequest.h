@@ -6,10 +6,11 @@
 #define _QMSREQUEST_H_
 
 #include <fstream>
-#include "qmscommon/QRSharedPtr.h"
+
 #include "QRIpc.h"
 #include "QRMessage.h"
 #include "common/ComRtUtils.h"
+#include "qmscommon/QRSharedPtr.h"
 
 class IpcMessageStream;
 class QRMessageObj;

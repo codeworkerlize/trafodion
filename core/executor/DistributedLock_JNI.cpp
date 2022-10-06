@@ -1,8 +1,8 @@
-#include "qmscommon/QRLogger.h"
-#include "cli/Globals.h"
-#include "cli/Context.h"
-
 #include "executor/DistributedLock_JNI.h"
+
+#include "cli/Context.h"
+#include "cli/Globals.h"
+#include "qmscommon/QRLogger.h"
 
 JavaMethodInit *DistributedLock_JNI::JavaMethods_ = NULL;
 jclass DistributedLock_JNI::javaClass_ = 0;

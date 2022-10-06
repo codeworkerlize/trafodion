@@ -2,14 +2,13 @@
 #ifndef NASTDIOFILE_H
 #define NASTDIOFILE_H
 
-#include "common/Platform.h"
-#include "stdio.h"
-#include "fcntl.h"
-#include "errno.h"
-#include "common/NABoolean.h"
 #include "common/ComASSERT.h"
-
+#include "common/NABoolean.h"
 #include "common/NAWinNT.h"
+#include "common/Platform.h"
+#include "errno.h"
+#include "fcntl.h"
+#include "stdio.h"
 
 // Forward Declaration
 class CNAProcess;

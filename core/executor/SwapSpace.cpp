@@ -16,12 +16,13 @@
 // Initialized objects have a non-null store_ pointer.
 //
 
-#include "common/BaseTypes.h"
+#include "SwapSpace.h"
+
 #include "Const.h"
-#include "ex_ex.h"
 #include "ScratchSpace.h"
 #include "SortError.h"
-#include "SwapSpace.h"
+#include "common/BaseTypes.h"
+#include "ex_ex.h"
 
 namespace ExOverflow {
 SwapSpace::SwapSpace(Allocator &memory, const ExExeStmtGlobals *stmtGlobals, UInt16 scratchThresholdPct)

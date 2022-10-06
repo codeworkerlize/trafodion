@@ -1,17 +1,18 @@
 
 
 #include <ctype.h>
+
+#include "cli/sqlcli.h"
 #include "common/BaseTypes.h"
 #include "common/ComASSERT.h"
 #include "common/ComMPLoc.h"
 #include "common/ComOperators.h"
-#include "common/ComSmallDefs.h"
-#include "common/str.h"
 #include "common/ComRtUtils.h"
-#include "cli/sqlcli.h"
+#include "common/ComSmallDefs.h"
 #include "common/charinfo.h"
 #include "common/csconvert.h"
 #include "common/nawstring.h"
+#include "common/str.h"
 
 #define SQLPARSERGLOBALSCMN__INITIALIZE
 #define SQLPARSERGLOBALS_FLAGS
@@ -34,8 +35,8 @@
 // search implementation of IsSqlReservedWord shrinks this down to 0.01%
 // of total arkcmp elapsed time.
 
-#include "common/NAString.h"
 #include "common/ComDistribution.h"
+#include "common/NAString.h"
 
 // Space, dquote, percent, etc, as found in Ansi 5.1,
 // plus Tdm-extension of backslash.
@@ -427,9 +428,9 @@ static int illegalCharInIdentifier(NAString &ansiIdent, size_t i, size_t countOf
 // character set (e.g., UTF-8).
 // ---------------------------------------------------------------------
 int ToInternalIdentifier(NAString &ansiIdent, int upCase,
-                           NABoolean acceptCircumflex  // VO: Fix genesis solution 10-040204-2957
-                           ,
-                           UInt16 pv_flags  // call-by-value parameter (pv_)flags
+                         NABoolean acceptCircumflex  // VO: Fix genesis solution 10-040204-2957
+                         ,
+                         UInt16 pv_flags  // call-by-value parameter (pv_)flags
 ) {
   size_t i;  // unsigned: beware "i--" when (i==0)!
 
@@ -510,19 +511,18 @@ int ToInternalIdentifier(NAString &ansiIdent, int upCase,
       // UTF-8 encoding values.
       UInt32 outLen = 0;
       UInt32 translatedCharCount = 0;
-      int retCode =
-          UTF8ToLocale(cnv_version1, (const char *)ansiIdent.data(), (const int)ansiIdent.length(),
-                       (const char *)latin1Buf, (const int)SMAX + 1, (cnv_charset)cnv_ISO88591,
-                       (char *&)pFirstUntranslatedChar, (UInt32 *)&outLen  // unsigned int *output_data_len_p
-                       ,
-                       (const int)TRUE  // const int addNullAtEnd_flag
-                       ,
-                       (const int)FALSE  // const int allow_invalids
-                       ,
-                       (UInt32 *)&translatedCharCount  // unsigned int * translated_char_cnt_p
-                       ,
-                       (const char *)NULL  // const char *substitution_char_p
-          );
+      int retCode = UTF8ToLocale(cnv_version1, (const char *)ansiIdent.data(), (const int)ansiIdent.length(),
+                                 (const char *)latin1Buf, (const int)SMAX + 1, (cnv_charset)cnv_ISO88591,
+                                 (char *&)pFirstUntranslatedChar, (UInt32 *)&outLen  // unsigned int *output_data_len_p
+                                 ,
+                                 (const int)TRUE  // const int addNullAtEnd_flag
+                                 ,
+                                 (const int)FALSE  // const int allow_invalids
+                                 ,
+                                 (UInt32 *)&translatedCharCount  // unsigned int * translated_char_cnt_p
+                                 ,
+                                 (const char *)NULL  // const char *substitution_char_p
+      );
       if (retCode == 0)  // success - i.e., ansiIdent contains characters that can be support by ISO 8859-1
       {
         isLatin1 = TRUE;
@@ -1248,28 +1248,28 @@ int PrettifySqlText(NAString &sqlText, const char *nationalCharSetName) {
         UInt32 iOutLenInBytesIncludingNull = 0;
         UInt32 iTranslatedCharCount = 0;
         int cnvErrStatus = LocaleToUTF16(cnv_version1  // in  - const enum cnv_version version
-                                           ,
-                                           s  // in  - const char *in_bufr
-                                           ,
-                                           strlen(s)  // in  - const int in_len
-                                           ,
-                                           (const char *)tmpBuf  // out - const char *out_bufr
-                                           ,
-                                           10 * BYTES_PER_NAWCHAR  // in  - const int out_bufr_size_in_bytes
-                                           ,
-                                           cnv_UTF8  // in  - enum cnv_charset charset of source
-                                           ,
-                                           p1stUnstranslatedChar  // out - char * & first_untranslated_char
-                                           ,
-                                           &iOutLenInBytesIncludingNull  // out - unsigned int *output_data_len_p
-                                           ,
-                                           0  // in  - const int cnv_flags
-                                           ,
-                                           (int)TRUE  // in  - const int addNullAtEnd_flag
-                                           ,
-                                           &iTranslatedCharCount  // out - unsigned int * translated_char_cnt_p
-                                           ,
-                                           1  // in  - unsigned int max_chars_to_convert
+                                         ,
+                                         s  // in  - const char *in_bufr
+                                         ,
+                                         strlen(s)  // in  - const int in_len
+                                         ,
+                                         (const char *)tmpBuf  // out - const char *out_bufr
+                                         ,
+                                         10 * BYTES_PER_NAWCHAR  // in  - const int out_bufr_size_in_bytes
+                                         ,
+                                         cnv_UTF8  // in  - enum cnv_charset charset of source
+                                         ,
+                                         p1stUnstranslatedChar  // out - char * & first_untranslated_char
+                                         ,
+                                         &iOutLenInBytesIncludingNull  // out - unsigned int *output_data_len_p
+                                         ,
+                                         0  // in  - const int cnv_flags
+                                         ,
+                                         (int)TRUE  // in  - const int addNullAtEnd_flag
+                                         ,
+                                         &iTranslatedCharCount  // out - unsigned int * translated_char_cnt_p
+                                         ,
+                                         1  // in  - unsigned int max_chars_to_convert
         );
         // NOTE: No errors should be possible -- string has been converted before.
         // ComASSERT(cnvErrStatus == 0 && iTranslatedCharCount == 1);
@@ -1709,24 +1709,24 @@ NAString Latin1StrToUTF8(const NAString &latin1Str, NAMemory *heap) {
 
   char *p1stUnstranslatedChar = NULL;
   UInt32 utf8StrLenInBytes = 0;
-  UInt32 charCount = 0;                                          // number of characters translated/converted
+  UInt32 charCount = 0;                                        // number of characters translated/converted
   int errorCode = LocaleToUTF8(cnv_version1, latin1Str.data()  // in  - const char *   srcStr
-                                 ,
-                                 (int)latin1Str.length()  // in  - const int      srcStrLen
-                                 ,
-                                 (const char *)target  // out - const char *   bufferForTargetStr
-                                 ,
-                                 (int)targetBufferLen  // in  - const in       targetBufferSizeInBytes
-                                 ,
-                                 cnv_ISO88591  // in  - cnv_charset    srcCharset
-                                 ,
-                                 p1stUnstranslatedChar  // out - char* &        first_untranslated_char
-                                 ,
-                                 &utf8StrLenInBytes  // out - unsigned int * output_data_len_p
-                                 ,
-                                 (const int)TRUE  // in  - const int      addNullAtEnd_flag
-                                 ,
-                                 &charCount  // out - unsigned int * translated_char_cnt_p
+                               ,
+                               (int)latin1Str.length()  // in  - const int      srcStrLen
+                               ,
+                               (const char *)target  // out - const char *   bufferForTargetStr
+                               ,
+                               (int)targetBufferLen  // in  - const in       targetBufferSizeInBytes
+                               ,
+                               cnv_ISO88591  // in  - cnv_charset    srcCharset
+                               ,
+                               p1stUnstranslatedChar  // out - char* &        first_untranslated_char
+                               ,
+                               &utf8StrLenInBytes  // out - unsigned int * output_data_len_p
+                               ,
+                               (const int)TRUE  // in  - const int      addNullAtEnd_flag
+                               ,
+                               &charCount  // out - unsigned int * translated_char_cnt_p
   );
   // Exclude the NULL terminator added to the end (addNullAtEnd_flag was set to TRUE in the above call)
   // from the count.

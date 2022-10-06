@@ -19,9 +19,9 @@
 #ifndef CMPSTOREDPROC__H
 #define CMPSTOREDPROC__H
 
-#include "export/NABasicObject.h"
-#include "common/NAString.h"
 #include "arkcmp/CmpISPStd.h"
+#include "common/NAString.h"
+#include "export/NABasicObject.h"
 
 // for the table descriptions
 #include "common/CmpCommon.h"
@@ -101,10 +101,10 @@ class CmpSPOutputFormat : public NABasicObject {
 
   // Set the definition from SP_FIELDDESC_STRUCT[].
   // return TRUE if success, FALSE if failed.
-  NABoolean SetFormat(int nCols,                  // number of columns
+  NABoolean SetFormat(int nCols,                    // number of columns
                       const char *tableName,        // table name
                       SP_FIELDDESC_STRUCT *fields,  // description
-                      int nKeys,                  // number of keys
+                      int nKeys,                    // number of keys
                       SP_KEYDESC_STRUCT *keys       // index to the key columns
   );
 
@@ -289,7 +289,7 @@ class CmpSPExecDataItemReply : public CmpSPExecDataItem {
 
   CmpSPExecDataItemInput *inputData_;  // pointer to the input data that passed in to generate
                                        // this reply data.
-  int rowLength_;                   // the length of each row, either calculated from expression,
+  int rowLength_;                      // the length of each row, either calculated from expression,
                                        // or passed in from executor.
   // in the processing routines, open(), fetch() and close() the following output buffer
   // and diags_ are passed in to the built-in SP for output and being moved into the data_
@@ -508,9 +508,9 @@ class CmpISPFuncs {
   // indexed by name. This will be the callback function for built-in
   // stored procedures to register the function pointers.
   static int RegFuncs(const char *procName, SP_COMPILE_FUNCPTR compileFunc, SP_INPUTFORMAT_FUNCPTR inFormatFunc,
-                        SP_PARSE_FUNCPTR parseFunc, SP_NUM_OUTPUTFIELDS_FUNCPTR outNumFormatFunc,
-                        SP_OUTPUTFORMAT_FUNCPTR outFormatFunc, SP_PROCESS_FUNCPTR procFunc, SP_HANDLE spHandle,
-                        const char *version);
+                      SP_PARSE_FUNCPTR parseFunc, SP_NUM_OUTPUTFIELDS_FUNCPTR outNumFormatFunc,
+                      SP_OUTPUTFORMAT_FUNCPTR outFormatFunc, SP_PROCESS_FUNCPTR procFunc, SP_HANDLE spHandle,
+                      const char *version);
 
  private:
   CmpISPFuncs(const CmpISPFuncs &);

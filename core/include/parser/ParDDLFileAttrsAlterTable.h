@@ -32,11 +32,11 @@
  *****************************************************************************
  */
 
+#include "ElemDDLFileAttrMaxExtents.h"
 #include "ElemDDLFileAttrMaxSize.h"
 #include "ParDDLFileAttrs.h"
-#include "parser/ElemDDLFileAttrRangeLog.h"
-#include "ElemDDLFileAttrMaxExtents.h"
 #include "common/ComASSERT.h"
+#include "parser/ElemDDLFileAttrRangeLog.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

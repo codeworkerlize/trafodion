@@ -13,13 +13,12 @@
 *
 **************************************************************************
 */
-#include "common/NABoolean.h"
-#include "common/ComSmallDefs.h"
-#include "optimizer/ObjectNames.h"
-
-#include "optimizer/BindWA.h"
-#include "Stats.h"
 #include "CostVector.h"
+#include "Stats.h"
+#include "common/ComSmallDefs.h"
+#include "common/NABoolean.h"
+#include "optimizer/BindWA.h"
+#include "optimizer/ObjectNames.h"
 #include "sqlcomp/PrivMgrCommands.h"
 
 class NARoutine;
@@ -202,7 +201,7 @@ class NARoutine : public NABasicObject {
   // The heap for the dynamic allocation of the NARoutine members.
   // -----------------------------------------------------------------------
   NAMemory *heap_;
-  int heapSize_;     // Size of this heap, set in constructor
+  int heapSize_;        // Size of this heap, set in constructor
                         // (Each NARoutine should be on own heap if cached)
   QualifiedName name_;  // SP name
   ExtendedQualName *extRoutineName_;
@@ -296,8 +295,8 @@ class NARoutineCacheStatStoredProcedure {
   // sp_InputFormat is called with action=OPEN before any compile-time
   // functions are called.  It is then again called after all compile-time
   // functions have been called, this time with action=CLOSE.
-  static SP_STATUS sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, int numFields,
-                                  SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj, SP_ERROR_STRUCT *error);
+  static SP_STATUS sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, int numFields, SP_COMPILE_HANDLE spCompileObj,
+                                  SP_HANDLE spObj, SP_ERROR_STRUCT *error);
 
   // sp_NumOutputFields function is called at compile-time of the stored
   // procedure to inquire about the number of output fields in a row.
@@ -308,8 +307,7 @@ class NARoutineCacheStatStoredProcedure {
   // determine  the format (type info) of each field that will become part of the
   // row being  output from the stored procedure.
   static SP_STATUS sp_OutputFormat(SP_FIELDDESC_STRUCT *outputFieldFormat, SP_KEYDESC_STRUCT keyFields[],
-                                   int *numKeyFields, SP_HANDLE spCompileObj, SP_HANDLE spObj,
-                                   SP_ERROR_STRUCT *error);
+                                   int *numKeyFields, SP_HANDLE spCompileObj, SP_HANDLE spObj, SP_ERROR_STRUCT *error);
 
   // sp_Process is called at run-time of the stored procedure.
   static SP_STATUS sp_ProcessRoutine(SP_PROCESS_ACTION action, SP_ROW_DATA inputData, SP_EXTRACT_FUNCPTR eFunc,
@@ -346,8 +344,8 @@ class NARoutineCacheDeleteStoredProcedure {
   // sp_InputFormat is called with action=OPEN before any compile-time
   // functions are called.  It is then again called after all compile-time
   // functions have been called, this time with action=CLOSE.
-  static SP_STATUS sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, int numFields,
-                                  SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj, SP_ERROR_STRUCT *error);
+  static SP_STATUS sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, int numFields, SP_COMPILE_HANDLE spCompileObj,
+                                  SP_HANDLE spObj, SP_ERROR_STRUCT *error);
 
   // sp_NumOutputFields function is called at compile-time of the stored
   // procedure to inquire about the number of output fields in a row.
@@ -361,8 +359,7 @@ class NARoutineCacheDeleteStoredProcedure {
   // determine  the format (type info) of each field that will become part of the
   // row being  output from the stored procedure.
   static SP_STATUS sp_OutputFormat(SP_FIELDDESC_STRUCT *outputFieldFormat, SP_KEYDESC_STRUCT keyFields[],
-                                   int *numKeyFields, SP_HANDLE spCompileObj, SP_HANDLE spObj,
-                                   SP_ERROR_STRUCT *error) {
+                                   int *numKeyFields, SP_HANDLE spCompileObj, SP_HANDLE spObj, SP_ERROR_STRUCT *error) {
     return SP_SUCCESS;
   }
 

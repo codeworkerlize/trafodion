@@ -18,9 +18,9 @@
  *****************************************************************************
  */
 
-#include "common/ComUnits.h"
 #include "ElemDDLNode.h"
 #include "common/ComASSERT.h"
+#include "common/ComUnits.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

@@ -3,8 +3,8 @@
 #define NAROUTINEDB_H
 
 #include "common/Collections.h"
-#include "optimizer/ObjectNames.h"
 #include "common/NAMemory.h"
+#include "optimizer/ObjectNames.h"
 
 class NARoutineDBKey;
 class NARoutine;

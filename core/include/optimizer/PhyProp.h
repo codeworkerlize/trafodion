@@ -16,14 +16,12 @@
 */
 
 // -----------------------------------------------------------------------
-#include "optimizer/SchemaDB.h"
+#include "LookupTable.h"
 #include "PartFunc.h"
-#include "RelEnforcer.h"
 #include "PartReq.h"
 #include "RelEnforcer.h"
+#include "optimizer/SchemaDB.h"
 #include "optimizer/opt.h"
-
-#include "LookupTable.h"
 
 // -----------------------------------------------------------------------
 //  The following classes are defined in this file.
@@ -508,8 +506,8 @@ class ReqdPhysicalProperty : public NABasicObject {
                        SortOrderTypeEnum sortOrderTypeReq = NO_SOT, PartitioningRequirement *dp2SortOrderPartReq = NULL,
                        const NABoolean logicalOrderOrArrangement = FALSE, PartitioningRequirement *partReq = NULL,
                        LogicalPartitioningRequirement *logicalPartReq = NULL,
-                       const PlanExecutionEnum location = DEFAULT_LOCATION,
-                       const int availableCPUs = DEFAULT_SINGLETON, const int pipelinesPerCPU = DEFAULT_SINGLETON,
+                       const PlanExecutionEnum location = DEFAULT_LOCATION, const int availableCPUs = DEFAULT_SINGLETON,
+                       const int pipelinesPerCPU = DEFAULT_SINGLETON,
                        const CostWeight *const costWeight = CURRSTMT_OPTDEFAULTS->getDefaultCostWeight(),
                        const PerformanceGoal *const perfGoal = CURRSTMT_OPTDEFAULTS->getDefaultPerformanceGoal(),
                        RelExpr *mustMatch = NULL, PushDownRequirement *pdp = NULL)

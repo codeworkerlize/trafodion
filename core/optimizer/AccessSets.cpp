@@ -13,11 +13,12 @@
 ******************************************************************************
 */
 
-#include "optimizer/Sqlcomp.h"
+#include "AccessSets.h"
+
 #include "optimizer/AllItemExpr.h"
 #include "optimizer/AllRelExpr.h"
 #include "optimizer/GroupAttr.h"
-#include "AccessSets.h"
+#include "optimizer/Sqlcomp.h"
 
 static const int INITIAL_SIZE_OF_READ_SET = 10;
 static const int INITIAL_SIZE_OF_WRITE_SET = 5;

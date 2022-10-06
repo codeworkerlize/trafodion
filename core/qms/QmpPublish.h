@@ -6,10 +6,11 @@
 #define _QMPPUBLISH_H_
 
 #include <fstream>
+
 #include "QRMessage.h"
+#include "QRQueriesImpl.h"
 #include "common/CollHeap.h"
 #include "qmscommon/QRDescriptor.h"
-#include "QRQueriesImpl.h"
 
 enum PublishTarget { PUBLISH_TO_QMM, PUBLISH_TO_QMS, PUBLISH_TO_FILE };
 

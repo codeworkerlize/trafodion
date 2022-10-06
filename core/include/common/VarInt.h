@@ -13,10 +13,11 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
+#include <iostream>
+
 #include "common/NABoolean.h"
 #include "common/NAMemory.h"
-#include <iostream>
+#include "common/Platform.h"
 
 int pack(char *&buffer, UInt16 x);
 int pack(char *&buffer, int x);

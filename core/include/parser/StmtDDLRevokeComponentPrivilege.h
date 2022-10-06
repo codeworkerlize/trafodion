@@ -22,9 +22,8 @@
 #ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
-#include "parser/SqlParserGlobals.h"
-
 #include "common/ComSmallDefs.h"
+#include "parser/SqlParserGlobals.h"
 #include "parser/StmtDDLNode.h"
 
 class StmtDDLRevokeComponentPrivilege : public StmtDDLNode {

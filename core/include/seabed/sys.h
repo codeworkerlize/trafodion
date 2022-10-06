@@ -1,13 +1,12 @@
 //------------------------------------------------------------------
 //
 
-
 #ifndef __SB_SYS_H_
 #define __SB_SYS_H_
 
+#include <linux/unistd.h>  // gettid
 #include <pthread.h>
 #include <unistd.h>
-#include <linux/unistd.h>  // gettid
 
 extern __thread pid_t gCurThreadId;
 static inline void init_tid() {

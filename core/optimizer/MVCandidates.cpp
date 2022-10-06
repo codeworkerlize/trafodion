@@ -3,17 +3,15 @@
 // **********************************************************************
 
 #include "MVCandidates.h"
+
 #include "QRDescGenerator.h"
 #include "optimizer/Analyzer.h"
-#include "optimizer/NormWA.h"
-#include "sqlcomp/parser.h"
-#include "optimizer/RelJoin.h"
 #include "optimizer/ItemLog.h"
-#include "optimizer/RelUpdate.h"
 #include "optimizer/ItemOther.h"
-
-
-
+#include "optimizer/NormWA.h"
+#include "optimizer/RelJoin.h"
+#include "optimizer/RelUpdate.h"
+#include "sqlcomp/parser.h"
 
 // Prefix for correlation names used for backjoin tables.
 const char *const MVCandidates::BACKJOIN_CORRNAME_PREFIX = "BACKJOIN@";

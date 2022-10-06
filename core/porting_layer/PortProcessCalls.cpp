@@ -16,10 +16,11 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
+#include "porting/PortProcessCalls.h"
+
 #include <string.h>
 
-#include "porting/PortProcessCalls.h"
+#include "common/Platform.h"
 #include "seabed/fs.h"
 
 // ------------------------------------------------------------------------

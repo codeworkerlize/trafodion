@@ -21,13 +21,13 @@
 #include "exp/exp_attrs.h"
 
 class BigNum : public ComplexType {
-  int length_;     // 00-03
-  int precision_;  // 04-07
-  Int16 scale_;      // 08-09
-  Int16 unSigned_;   // 10-11
+  int length_;      // 00-03
+  int precision_;   // 04-07
+  Int16 scale_;     // 08-09
+  Int16 unSigned_;  // 10-11
 
   // Temporary space used by this class
-  int tempSpaceLength_;   // 12-15
+  int tempSpaceLength_;     // 12-15
   UInt32 tempSpaceOffset_;  // 16-19
 
   // ---------------------------------------------------------------------

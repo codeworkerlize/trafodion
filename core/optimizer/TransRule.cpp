@@ -14,21 +14,22 @@
 ******************************************************************************
 */
 
-#include "optimizer/Sqlcomp.h"
-#include "GroupAttr.h"
-#include "AppliedStatMan.h"
-#include "optimizer/opt.h"
-#include "optimizer/PhyProp.h"
 #include "TransRule.h"
-#include "optimizer/AllRelExpr.h"
-#include "RelSample.h"
-#include "optimizer/AllItemExpr.h"
+
+#include "AppliedStatMan.h"
 #include "EstLogProp.h"
-#include "arkcmp/CmpContext.h"
-#include "optimizer/NormWA.h"
-#include "optimizer/Analyzer.h"
+#include "GroupAttr.h"
 #include "MultiJoin.h"
+#include "RelSample.h"
+#include "arkcmp/CmpContext.h"
 #include "common/ngram.h"
+#include "optimizer/AllItemExpr.h"
+#include "optimizer/AllRelExpr.h"
+#include "optimizer/Analyzer.h"
+#include "optimizer/NormWA.h"
+#include "optimizer/PhyProp.h"
+#include "optimizer/Sqlcomp.h"
+#include "optimizer/opt.h"
 #include "sqlcomp/parser.h"
 
 // -----------------------------------------------------------------------
@@ -948,8 +949,7 @@ RelExpr *IndexJoinWithGroupbyRule::nextSubstitute(RelExpr *before, Context * /*c
   return nextSubstituteForPass(before, memory, RuleSet::getFirstPassNumber());
 }
 
-RelExpr *IndexJoinWithGroupbyRule::nextSubstituteForPass(RelExpr *before, RuleSubstituteMemory *&memory,
-                                                         int /*pass*/) {
+RelExpr *IndexJoinWithGroupbyRule::nextSubstituteForPass(RelExpr *before, RuleSubstituteMemory *&memory, int /*pass*/) {
   RelExpr *result;
 
   if (memory == NULL) {
@@ -1139,7 +1139,7 @@ ItemExpr *IndexJoinWithGroupbyRule::createCondPred(ItemExpr *selectionPred) {
 }
 
 ItemExpr *IndexJoinWithGroupbyRule::createOrPredicate(ItemExpr *selectionPred,  // in
-                                                      int &predCount,         // out
+                                                      int &predCount,           // out
                                                       NABoolean &isDynStmt)     // out
 {
   if (!selectionPred) return NULL;
@@ -2282,8 +2282,7 @@ RelExpr *OrOptimizationRule::nextSubstitute(RelExpr *before, Context * /*context
   return result;
 }
 
-CostScalar OrOptimizationRule::rateIndexForColumn(int colNumInIndex, Scan *s, IndexDesc *ixDesc,
-                                                  NABoolean indexOnly) {
+CostScalar OrOptimizationRule::rateIndexForColumn(int colNumInIndex, Scan *s, IndexDesc *ixDesc, NABoolean indexOnly) {
   // yes, try to estimate how useful the index would be:
   // - Add one penalty point for each "MDAM skip" we would
   //   do, approximated by the combined UEC of the columns
@@ -4496,8 +4495,7 @@ RelExpr *AggrDistinctEliminationRule::nextSubstitute(RelExpr *before, Context * 
 
   // add the lower and upper valueIds to the appropriate sets
   int valusIdIdx = 0;
-  for (; valusIdIdx < (int)lowerValueIds.entries(); valusIdIdx++)
-    lowerGB->aggregateExpr() += lowerValueIds[valusIdIdx];
+  for (; valusIdIdx < (int)lowerValueIds.entries(); valusIdIdx++) lowerGB->aggregateExpr() += lowerValueIds[valusIdIdx];
   for (valusIdIdx = 0; valusIdIdx < (int)upperValueIds.entries(); valusIdIdx++)
     upperGB->aggregateExpr() += upperValueIds[valusIdIdx];
 
@@ -4740,8 +4738,7 @@ RelExpr *GroupBySplitRule::nextSubstitute(RelExpr *before, Context * /*context*/
 
   // add the lower and upper valueIds to the appropriate sets
   int valusIdIdx = 0;
-  for (; valusIdIdx < (int)lowerValueIds.entries(); valusIdIdx++)
-    lowerGB->aggregateExpr() += lowerValueIds[valusIdIdx];
+  for (; valusIdIdx < (int)lowerValueIds.entries(); valusIdIdx++) lowerGB->aggregateExpr() += lowerValueIds[valusIdIdx];
   for (valusIdIdx = 0; valusIdIdx < (int)upperValueIds.entries(); valusIdIdx++)
     upperGB->aggregateExpr() += upperValueIds[valusIdIdx];
 

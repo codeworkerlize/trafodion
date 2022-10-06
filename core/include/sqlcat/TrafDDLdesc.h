@@ -19,10 +19,10 @@
 // (declared at the end of this file). That function zeroes everything out.
 // ****************************************************************************
 
-#include "common/Platform.h"
-#include "export/NAVersionedObject.h"
-#include "common/charinfo.h"
 #include "common/ComSmallDefs.h"
+#include "common/Platform.h"
+#include "common/charinfo.h"
+#include "export/NAVersionedObject.h"
 
 #define GENHEAP(h) (h ? (NAMemory *)h : CmpCommon::statementHeap())
 

@@ -4,12 +4,12 @@
 #define COM_ROOT_H
 
 #include "comexe/ComTdb.h"
-#include "comexe/SqlTableOpenInfo.h"  // for SqlTableOpenInfo
-#include "exp/exp_expr.h"             // for InputOutputExpr
+#include "comexe/ComTdbStats.h"
 #include "comexe/FragDir.h"
 #include "comexe/LateBindInfo.h"
+#include "comexe/SqlTableOpenInfo.h"  // for SqlTableOpenInfo
 #include "common/ComTransInfo.h"
-#include "comexe/ComTdbStats.h"
+#include "exp/exp_expr.h"  // for InputOutputExpr
 
 class Descriptor;
 class TransMode;
@@ -194,7 +194,7 @@ class SecurityInvKeyInfo : public NAVersionedObject {
   int unpack(void *base, void *reallocator);
 
  private:
-  int numSiks_;                // 00 - 03
+  int numSiks_;                  // 00 - 03
   char sikFiller_[4];            // 04 - 07
   ComSecurityKeyPtr sikValues_;  // 08 - 15
 };
@@ -320,7 +320,7 @@ class ComTdbRoot : public ComTdb {
   InputOutputExprPtr inputExpr_;   // 16-23
   InputOutputExprPtr outputExpr_;  // 24-31
   ExFragDirPtr fragDir_;           // 32-39
-  int inputVarsSize_;            // 40-43
+  int inputVarsSize_;              // 40-43
   UInt32 rtFlags1_;                // 44-47
 
   // the transaction related information that was used at
@@ -344,7 +344,7 @@ class ComTdbRoot : public ComTdb {
   // Number of update columns contained in the updateColList_ (array)
   // which is used to contain the updateable columns for cursor declarations
   // and UPDATE CURRENT OF statements.
-  int numUpdateCol_;      // 68-71
+  int numUpdateCol_;        // 68-71
   Int32Ptr updateColList_;  // 72-79
 
   ExCriDescPtr workCriDesc_;  // 80-87
@@ -421,13 +421,13 @@ class ComTdbRoot : public ComTdb {
   // offset of the triggers status vector
 
   // the next 3 fields are reserved for triggers project in release 2
-  Int16 triggersCount_;         // 162-163
+  Int16 triggersCount_;       // 162-163
   int triggersStatusOffset_;  // 164-167
-  Int64Ptr triggersList_;       // 168-175
+  Int64Ptr triggersList_;     // 168-175
 
   // the next 2 fields are reserved for query caching project
   NABasicPtr qCacheInfo_;  // 176-183
-  int cacheVarsSize_;    // 184-187
+  int cacheVarsSize_;      // 184-187
 
   UInt32 rtFlags2_;  // 188-191
 
@@ -484,12 +484,12 @@ class ComTdbRoot : public ComTdb {
   Int16 subqueryType_;          //  300-301
   Int16 hdfsWriteLockTimeout_;  // 302-303
 
-  SecurityInvKeyInfoPtr sikPtr_;     // 304-311
-  Int64Ptr objectUidList_;           // 312-319
+  SecurityInvKeyInfoPtr sikPtr_;   // 304-311
+  Int64Ptr objectUidList_;         // 312-319
   int numObjectUids_;              // 320-323
-  long queryHash_;                  // 324-327
+  long queryHash_;                 // 324-327
   int clientMaxStatementPooling_;  // 328-331
-  char fillersComTdbRoot2_[20];      // 332-351
+  char fillersComTdbRoot2_[20];    // 332-351
 
   // if non zero, gives the expiration time stamp for
   // Apache Sentry authorizations (after which, this query

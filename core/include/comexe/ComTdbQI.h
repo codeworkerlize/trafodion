@@ -174,8 +174,8 @@ class ComTdbQryInvalid : public ComTdb {
   // Constructor used by the generator.
   ComTdbQryInvalid(int tupleLen, int returnedTuplelen, int inputTuplelen, ex_cri_desc *criDescParentDown,
                    ex_cri_desc *criDescParentUp, queue_index queueSizeDown, queue_index queueSizeUp, int numBuffers,
-                   int bufferSize, ex_expr *scanExpr, ex_expr *inputExpr, ex_expr *projExpr,
-                   ex_cri_desc *workCriDesc, UInt16 qi_row_atp_index, UInt16 input_row_atp_index);
+                   int bufferSize, ex_expr *scanExpr, ex_expr *inputExpr, ex_expr *projExpr, ex_cri_desc *workCriDesc,
+                   UInt16 qi_row_atp_index, UInt16 input_row_atp_index);
 
   int orderedQueueProtocol() const { return -1; };
 
@@ -232,9 +232,7 @@ class ComTdbQryInvalid : public ComTdb {
     return (ComTdbVirtTableColumnInfo *)queryInvalidateVirtTableColumnInfo;
   }
 
-  static int getVirtTableNumKeys() {
-    return sizeof(queryInvalidateVirtTableKeyInfo) / sizeof(ComTdbVirtTableKeyInfo);
-  }
+  static int getVirtTableNumKeys() { return sizeof(queryInvalidateVirtTableKeyInfo) / sizeof(ComTdbVirtTableKeyInfo); }
 
   static ComTdbVirtTableKeyInfo *getVirtTableKeyInfo() {
     return (ComTdbVirtTableKeyInfo *)queryInvalidateVirtTableKeyInfo;

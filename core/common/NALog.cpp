@@ -1,11 +1,11 @@
 //**********************************************************************
 
+#include "NALog.h"
 
+#include "CatSQLShare.h"
+#include "NAStdioFile.h"
 #include "errno.h"
 #include "string.h"
-#include "NALog.h"
-#include "NAStdioFile.h"
-#include "CatSQLShare.h"
 
 #define FILE_COULD_NOT_BE_ACCESSED 20356  // Error 20356 - File cannot be accessed.
 #define TIME_KWORD                 "Time: "

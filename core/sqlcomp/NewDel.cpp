@@ -61,11 +61,14 @@
 // PushGlobalMemory, PopGlobalMemory and CurrentGlobalMemory routines.
 // -----------------------------------------------------------------------
 
+#include "sqlcomp/NewDel.h"
+
 #include <stdlib.h>
+
 #include <iostream>
+
 #include "common/NAHeap.h"
 #include "export/HeapLog.h"
-#include "sqlcomp/NewDel.h"
 
 #if (defined(_DEBUG) || defined(NSK_MEMDEBUG))
 //

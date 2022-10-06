@@ -15,11 +15,11 @@
 #ifndef EXP_HBASE_INTERFACE_H
 #define EXP_HBASE_INTERFACE_H
 
+#include <poll.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <unistd.h>
 #include <sys/time.h>
-#include <poll.h>
+#include <unistd.h>
 
 #include <iostream>
 
@@ -29,16 +29,14 @@
 // #include <transport/TTransportUtils.h>
 #endif
 
-#include "common/Platform.h"
-#include "common/Collections.h"
-#include "export/NABasicObject.h"
-
-#include "exp/ExpHbaseDefs.h"
-
-#include "executor/HBaseClient_JNI.h"
 #include "comexe/ComTdbHbaseAccess.h"
-#include "sqlcomp/CmpSeabaseDDLincludes.h"
+#include "common/Collections.h"
+#include "common/Platform.h"
 #include "executor/ExDDLValidator.h"
+#include "executor/HBaseClient_JNI.h"
+#include "exp/ExpHbaseDefs.h"
+#include "export/NABasicObject.h"
+#include "sqlcomp/CmpSeabaseDDLincludes.h"
 
 #define INLINE_COLNAME_LEN 256
 
@@ -67,14 +65,13 @@ class ExpHbaseInterface : public NABasicObject {
   virtual int create(HbaseStr &tblName, HBASE_NAMELIST &colFamNameList, NABoolean isMVCC) = 0;
 
   virtual int create(HbaseStr &tblName, NAText *hbaseCreateOptionsArray, int numSplits, int keyLength,
-                       const char **splitValues, NABoolean useHbaseXn, NABoolean isMVCC,
-                       NABoolean incrBackupEnabled) = 0;
+                     const char **splitValues, NABoolean useHbaseXn, NABoolean isMVCC, NABoolean incrBackupEnabled) = 0;
 
   virtual int create(HbaseStr &tblName, const NAList<HbaseStr> &cols) = 0;
 
-  virtual int create(HbaseStr &tblName, int tableType, const NAList<HbaseStr> &cols,
-                       NAText *monarchCreateOptionsArray, int numSplits, int keyLength, const char **splitValues,
-                       NABoolean useHbaseXn, NABoolean isMVCC) = 0;
+  virtual int create(HbaseStr &tblName, int tableType, const NAList<HbaseStr> &cols, NAText *monarchCreateOptionsArray,
+                     int numSplits, int keyLength, const char **splitValues, NABoolean useHbaseXn,
+                     NABoolean isMVCC) = 0;
 
   virtual int alter(HbaseStr &tblName, NAText *hbaseCreateOptionsArray, NABoolean useHbaseXn) = 0;
 
@@ -102,20 +99,20 @@ class ExpHbaseInterface : public NABasicObject {
   virtual int copy(HbaseStr &srcTblName, HbaseStr &tgtTblName, NABoolean force = FALSE);
 
   virtual int backupObjects(const std::vector<Text> &tables, const std::vector<Text> &incrBackupEnabled,
-                              const std::vector<Text> &lobLocList, const char *backuptag,
-                              const char *extendedAttributes, const char *backupType, const int backupThreads,
+                            const std::vector<Text> &lobLocList, const char *backuptag, const char *extendedAttributes,
+                            const char *backupType, const int backupThreads,
 
-                              // 0, update for each table.
-                              // -1, dont update
-                              // N, update every N secs
-                              const int progressUpdateDelay);
+                            // 0, update for each table.
+                            // -1, dont update
+                            // N, update every N secs
+                            const int progressUpdateDelay);
 
   // creates snapshot fpr specified tables that will be used as the base image
   // for further incremental backups
   virtual int createSnapshotForIncrBackup(const std::vector<Text> &tables);
 
   virtual int setHiatus(const NAString &hiatusObjectName, NABoolean lockOperation, NABoolean createSnapIfNotExist,
-                          NABoolean ignoreSnapIfNotExist, const int parallelThreads);
+                        NABoolean ignoreSnapIfNotExist, const int parallelThreads);
   virtual int clearHiatus(const NAString &hiatusObjectName);
 
   virtual NAArray<HbaseStr> *restoreObjects(const char *backuptag, const std::vector<Text> *schemas,
@@ -133,15 +130,15 @@ class ExpHbaseInterface : public NABasicObject {
   virtual int finalizeRestore(const char *backuptag, const char *backupType);
 
   virtual int deleteBackup(const char *backuptag, NABoolean timestamp = FALSE, NABoolean cascade = FALSE,
-                             NABoolean force = FALSE, NABoolean skipLock = FALSE);
+                           NABoolean force = FALSE, NABoolean skipLock = FALSE);
 
-  virtual int exportOrImportBackup(const char *backuptag, NABoolean isExport, NABoolean override,
-                                     const char *location, int parallelThreads,
+  virtual int exportOrImportBackup(const char *backuptag, NABoolean isExport, NABoolean override, const char *location,
+                                   int parallelThreads,
 
-                                     // 0, update for each table.
-                                     // -1, dont update
-                                     // N, update every N secs
-                                     const int progressUpdateDelay);
+                                   // 0, update for each table.
+                                   // -1, dont update
+                                   // N, update every N secs
+                                   const int progressUpdateDelay);
 
   virtual int listAllBackups(NAArray<HbaseStr> **backupList, NABoolean shortFormat, NABoolean reverseOrder);
 
@@ -167,57 +164,54 @@ class ExpHbaseInterface : public NABasicObject {
   virtual int getTable(HbaseStr &tblName) = 0;
 
   virtual int scanOpen(HbaseStr &tblName, const Text &startRow, const Text &stopRow, const LIST(HbaseStr) & columns,
-                         const int64_t timestamp, const NABoolean useHbaseXn, const NABoolean useMemoryScan,
-                         const int lockMode, int isolationLevel, const NABoolean skipReadConflict,
-                         const NABoolean skipTransaction, const NABoolean replSync, const NABoolean cacheBlocks,
-                         const NABoolean smallScanner, const int numCacheRows, const NABoolean preFetch,
-                         const LIST(NAString) * inColNamesToFilter, const LIST(NAString) * inCompareOpList,
-                         const LIST(NAString) * inColValuesToCompare, int numReplications,
-                         Float32 dopParallelScanner = 0.0f, Float32 samplePercent = -1.0f,
-                         NABoolean useSnapshotScan = FALSE, int snapTimeout = 0, char *snapName = NULL,
-                         char *tmpLoc = NULL, int espNum = 0, HbaseAccessOptions *hao = NULL,
-                         const char *hbaseAuths = NULL, const char *encryptionInfo = NULL) = 0;
+                       const int64_t timestamp, const NABoolean useHbaseXn, const NABoolean useMemoryScan,
+                       const int lockMode, int isolationLevel, const NABoolean skipReadConflict,
+                       const NABoolean skipTransaction, const NABoolean replSync, const NABoolean cacheBlocks,
+                       const NABoolean smallScanner, const int numCacheRows, const NABoolean preFetch,
+                       const LIST(NAString) * inColNamesToFilter, const LIST(NAString) * inCompareOpList,
+                       const LIST(NAString) * inColValuesToCompare, int numReplications,
+                       Float32 dopParallelScanner = 0.0f, Float32 samplePercent = -1.0f,
+                       NABoolean useSnapshotScan = FALSE, int snapTimeout = 0, char *snapName = NULL,
+                       char *tmpLoc = NULL, int espNum = 0, HbaseAccessOptions *hao = NULL,
+                       const char *hbaseAuths = NULL, const char *encryptionInfo = NULL) = 0;
 
   virtual int scanClose() = 0;
 
-  int fetchAllRows(HbaseStr &tblName, int numCols, HbaseStr &col1NameStr, HbaseStr &col2NameStr,
-                     HbaseStr &col3NameStr,
-                     LIST(NAString) & col1ValueList,   // output
-                     LIST(NAString) & col2ValueList,   // output
-                     LIST(NAString) & col3ValueList);  // output
+  int fetchAllRows(HbaseStr &tblName, int numCols, HbaseStr &col1NameStr, HbaseStr &col2NameStr, HbaseStr &col3NameStr,
+                   LIST(NAString) & col1ValueList,   // output
+                   LIST(NAString) & col2ValueList,   // output
+                   LIST(NAString) & col3ValueList);  // output
 
   // return 1 if table is empty, 0 if not empty. -ve num in case of error
   virtual int isEmpty(HbaseStr &tblName) = 0;
 
   virtual int getRowOpen(HbaseStr &tblName, const HbaseStr &row, const LIST(HbaseStr) & columns,
-                           const int64_t timestamp, int numReplications, const int lockMode, int isolationLevel,
-                           const NABoolean useMemoryScan, const NABoolean skipReadConflict = FALSE,
-                           HbaseAccessOptions *hao = NULL, const char *hbaseAuths = NULL,
-                           const char *encryptionInfo = NULL) = 0;
+                         const int64_t timestamp, int numReplications, const int lockMode, int isolationLevel,
+                         const NABoolean useMemoryScan, const NABoolean skipReadConflict = FALSE,
+                         HbaseAccessOptions *hao = NULL, const char *hbaseAuths = NULL,
+                         const char *encryptionInfo = NULL) = 0;
 
   virtual int getRowsOpen(HbaseStr &tblName, const LIST(HbaseStr) * rows, const LIST(HbaseStr) & columns,
-                            const int64_t timestamp, int numReplications, const int lockMode, int isolationLevel,
-                            const NABoolean useMemoryScan, const NABoolean skipReadConflict,
-                            const NABoolean skipTransactionForBatchGet, HbaseAccessOptions *hao = NULL,
-                            const char *hbaseAuths = NULL, const char *encryptionInfo = NULL) = 0;
+                          const int64_t timestamp, int numReplications, const int lockMode, int isolationLevel,
+                          const NABoolean useMemoryScan, const NABoolean skipReadConflict,
+                          const NABoolean skipTransactionForBatchGet, HbaseAccessOptions *hao = NULL,
+                          const char *hbaseAuths = NULL, const char *encryptionInfo = NULL) = 0;
 
   virtual int getRowsOpen(HbaseStr tblName, short rowIDLen, HbaseStr rowIDs, const LIST(HbaseStr) & columns,
-                            int numReplications, const int lockMode, int isolationLevel,
-                            const NABoolean useMemoryScan, const NABoolean skipReadConflict,
-                            const NABoolean skipTransactionForBatchGet, const char *encryptionInfo = NULL) = 0;
+                          int numReplications, const int lockMode, int isolationLevel, const NABoolean useMemoryScan,
+                          const NABoolean skipReadConflict, const NABoolean skipTransactionForBatchGet,
+                          const char *encryptionInfo = NULL) = 0;
 
   virtual int nextRow() = 0;
 
-  virtual int nextCell(HbaseStr &rowId, HbaseStr &colFamName, HbaseStr &colName, HbaseStr &colVal,
-                         long &timestamp) = 0;
+  virtual int nextCell(HbaseStr &rowId, HbaseStr &colFamName, HbaseStr &colName, HbaseStr &colVal, long &timestamp) = 0;
 
   virtual int completeAsyncOperation(int timeout, NABoolean *resultArray, Int16 resultArrayLen) = 0;
 
   virtual int getColVal(int colNo, BYTE *colVal, int &colValLen, NABoolean nullable, BYTE &nullVal, BYTE *tag,
-                          int &tagLen, const char *encryptionInfo = NULL) = 0;
+                        int &tagLen, const char *encryptionInfo = NULL) = 0;
 
-  virtual int getColVal(NAHeap *heap, int colNo, BYTE **colVal, int &colValLen,
-                          const char *encryptionInfo = NULL) = 0;
+  virtual int getColVal(NAHeap *heap, int colNo, BYTE **colVal, int &colValLen, const char *encryptionInfo = NULL) = 0;
 
   virtual int getColName(int colNo, char **outColName, short &colNameLen, long &timestamp) = 0;
 
@@ -226,44 +220,44 @@ class ExpHbaseInterface : public NABasicObject {
   virtual int getRowID(HbaseStr &rowID, const char *encryptionInfo = NULL) = 0;
 
   virtual int deleteRow(HbaseStr tblName, HbaseStr row, const LIST(HbaseStr) * columns, NABoolean useHbaseXn,
-                          const NABoolean replSync, const NABoolean incrementalBackup, NABoolean useRegionXn,
-                          const int64_t timestamp, NABoolean asyncOperation, const char *hbaseAuths,
-                          const char *encryptionInfo = NULL, const char *triggers = NULL,
-                          const char *curExecSql = NULL) = 0;
+                        const NABoolean replSync, const NABoolean incrementalBackup, NABoolean useRegionXn,
+                        const int64_t timestamp, NABoolean asyncOperation, const char *hbaseAuths,
+                        const char *encryptionInfo = NULL, const char *triggers = NULL,
+                        const char *curExecSql = NULL) = 0;
 
   virtual int deleteRows(HbaseStr tblName, short rowIDLen, HbaseStr rowIDs, const LIST(HbaseStr) * columns,
-                           NABoolean useHbaseXn, const NABoolean replSync, const NABoolean incrementalBackup,
-                           const int64_t timestamp, NABoolean asyncOperation, const char *hbaseAuths,
-                           const char *encryptionInfo = NULL, const char *triggers = NULL,
-                           const char *curExecSql = NULL) = 0;
+                         NABoolean useHbaseXn, const NABoolean replSync, const NABoolean incrementalBackup,
+                         const int64_t timestamp, NABoolean asyncOperation, const char *hbaseAuths,
+                         const char *encryptionInfo = NULL, const char *triggers = NULL,
+                         const char *curExecSql = NULL) = 0;
 
   virtual int checkAndDeleteRow(HbaseStr &tblName, HbaseStr &row, const LIST(HbaseStr) * columns,
-                                  HbaseStr &columnToCheck, HbaseStr &colValToCheck, NABoolean useHbaseXn,
-                                  const NABoolean replSync, const NABoolean incrementalBackup, NABoolean useRegionXn,
-                                  const int64_t timestamp, const char *hbaseAuths, const char *encryptionInfo = NULL,
-                                  const char *triggers = NULL, const char *curExecSql = NULL) = 0;
+                                HbaseStr &columnToCheck, HbaseStr &colValToCheck, NABoolean useHbaseXn,
+                                const NABoolean replSync, const NABoolean incrementalBackup, NABoolean useRegionXn,
+                                const int64_t timestamp, const char *hbaseAuths, const char *encryptionInfo = NULL,
+                                const char *triggers = NULL, const char *curExecSql = NULL) = 0;
 
   virtual int deleteColumns(HbaseStr &tblName, HbaseStr &column) = 0;
 
   virtual int execTriggers(const char *tableName, ComOperation type, NABoolean isBefore,
-                             BeforeAndAfterTriggers *triggers, HbaseStr rowID, HbaseStr row,
-                             unsigned char *base64rowVal = NULL, int base64ValLen = 0,
-                             unsigned char *base64rowIDVal = NULL, int base64RowLen = 0, short rowIDLen = 0,
-                             const char *curExecSql = NULL, NABoolean isStatement = true) = 0;
+                           BeforeAndAfterTriggers *triggers, HbaseStr rowID, HbaseStr row,
+                           unsigned char *base64rowVal = NULL, int base64ValLen = 0,
+                           unsigned char *base64rowIDVal = NULL, int base64RowLen = 0, short rowIDLen = 0,
+                           const char *curExecSql = NULL, NABoolean isStatement = true) = 0;
 
-  virtual int insertRow(HbaseStr tblName, HbaseStr rowID, HbaseStr row, NABoolean useHbaseXn,
-                          const NABoolean replSync, const NABoolean incrementalBackup, NABoolean useRegionXn,
-                          const int64_t timestamp, NABoolean asyncOperation, const char *encryptionInfo = NULL,
-                          const char *triggers = NULL, const char *curExecSql = NULL) = 0;
+  virtual int insertRow(HbaseStr tblName, HbaseStr rowID, HbaseStr row, NABoolean useHbaseXn, const NABoolean replSync,
+                        const NABoolean incrementalBackup, NABoolean useRegionXn, const int64_t timestamp,
+                        NABoolean asyncOperation, const char *encryptionInfo = NULL, const char *triggers = NULL,
+                        const char *curExecSql = NULL) = 0;
 
   virtual int insertRows(HbaseStr tblName, short rowIDLen, HbaseStr rowIDs, HbaseStr rows, NABoolean useHbaseXn,
-                           const NABoolean replSync, const NABoolean incrementalBackup, const int64_t timestamp,
-                           NABoolean asyncOperation, const char *encryptionInfo = NULL, const char *triggers = NULL,
-                           const char *curExecSql = NULL, NABoolean noConflictCheck = FALSE) = 0;
+                         const NABoolean replSync, const NABoolean incrementalBackup, const int64_t timestamp,
+                         NABoolean asyncOperation, const char *encryptionInfo = NULL, const char *triggers = NULL,
+                         const char *curExecSql = NULL, NABoolean noConflictCheck = FALSE) = 0;
 
   virtual int lockRequired(NAString tblName, short lockMode, NABoolean useHbaseXn, const NABoolean replSync,
-                             const NABoolean incrementalBackup, NABoolean asyncOperation, NABoolean noConflictCheck,
-                             NABoolean registerRegion) = 0;
+                           const NABoolean incrementalBackup, NABoolean asyncOperation, NABoolean noConflictCheck,
+                           NABoolean registerRegion) = 0;
 
   virtual int updateVisibility(HbaseStr tblName, HbaseStr rowID, HbaseStr row, NABoolean useHbaseXn) = 0;
 
@@ -275,53 +269,51 @@ class ExpHbaseInterface : public NABasicObject {
   virtual int initBRC(ExHbaseAccessStats *hbs = NULL) = 0;
 
   virtual int initHFileParams(HbaseStr &tblName, Text &hFileLoc, Text &hfileName, long maxHFileSize,
-                                Text &hFileSampleLoc, Text &hfileSampleName, float fSampleRate) = 0;
+                              Text &hFileSampleLoc, Text &hfileSampleName, float fSampleRate) = 0;
 
   virtual int addToHFile(short rowIDLen, HbaseStr &rowIDs, HbaseStr &rows, const char *encryptionInfo) = 0;
 
   virtual int closeHFile(HbaseStr &tblName) = 0;
 
   virtual int doBulkLoad(HbaseStr &tblName, Text &location, Text &tableName, NABoolean quasiSecure,
-                           NABoolean snapshot) = 0;
+                         NABoolean snapshot) = 0;
 
   virtual int bulkLoadCleanup(HbaseStr &tblName, Text &location) = 0;
 
   virtual int sentryGetPrivileges(set<string> &groupNames, const char *tableOrViewName, bool isView,
-                                    map<int, char *> &columnNumberToNameMap,
-                                    PrivMgrUserPrivs &userPrivs /* out */) = 0;
+                                  map<int, char *> &columnNumberToNameMap, PrivMgrUserPrivs &userPrivs /* out */) = 0;
   virtual int sentryGetPrivileges(const char *userName, const char *tableOrViewName, bool isView,
-                                    map<int, char *> &columnNumberToNameMap,
-                                    PrivMgrUserPrivs &userPrivs /* out */) = 0;
-  virtual int incrCounter(const char *tabName, const char *rowId, const char *famName, const char *qualName,
-                            long incr, long &count) = 0;
+                                  map<int, char *> &columnNumberToNameMap, PrivMgrUserPrivs &userPrivs /* out */) = 0;
+  virtual int incrCounter(const char *tabName, const char *rowId, const char *famName, const char *qualName, long incr,
+                          long &count) = 0;
 
   virtual int createCounterTable(const char *tabName, const char *famName) = 0;
   virtual int checkAndInsertRow(HbaseStr &tblName, HbaseStr &rowID, HbaseStr &row, NABoolean useHbaseXn,
-                                  const NABoolean replSync, const NABoolean incrementalBackup, NABoolean useRegionXn,
-                                  const int64_t timestamp, NABoolean asyncOperation, const char *encryptionInfo = NULL,
-                                  const char *triggers = NULL, const char *curExecSql = NULL,
-                                  Int16 colIndexToCheck = 0) = 0;
+                                const NABoolean replSync, const NABoolean incrementalBackup, NABoolean useRegionXn,
+                                const int64_t timestamp, NABoolean asyncOperation, const char *encryptionInfo = NULL,
+                                const char *triggers = NULL, const char *curExecSql = NULL,
+                                Int16 colIndexToCheck = 0) = 0;
 
   virtual int checkAndUpdateRow(HbaseStr &tblName, HbaseStr &rowID, HbaseStr &row, HbaseStr &columnToCheck,
-                                  HbaseStr &colValToCheck, NABoolean useHbaseXn, const NABoolean replSync,
-                                  const NABoolean incrementalBackup, NABoolean useRegionXn, const int64_t timestamp,
-                                  NABoolean asyncOperation, const char *encryptionInfo = NULL,
-                                  const char *triggers = NULL, const char *curExecSql = NULL) = 0;
+                                HbaseStr &colValToCheck, NABoolean useHbaseXn, const NABoolean replSync,
+                                const NABoolean incrementalBackup, NABoolean useRegionXn, const int64_t timestamp,
+                                NABoolean asyncOperation, const char *encryptionInfo = NULL,
+                                const char *triggers = NULL, const char *curExecSql = NULL) = 0;
 
   virtual int getClose() = 0;
 
   virtual int coProcAggr(HbaseStr &tblName,
-                           int aggrType,  // 0:count, 1:min, 2:max, 3:sum, 4:avg
-                           const Text &startRow, const Text &stopRow, const Text &colFamily, const Text &colName,
-                           const NABoolean cacheBlocks, const int numCacheRows, const NABoolean replSync,
-                           Text &aggrVal);  // returned value
+                         int aggrType,  // 0:count, 1:min, 2:max, 3:sum, 4:avg
+                         const Text &startRow, const Text &stopRow, const Text &colFamily, const Text &colName,
+                         const NABoolean cacheBlocks, const int numCacheRows, const NABoolean replSync,
+                         Text &aggrVal);  // returned value
 
   virtual int coProcAggr(HbaseStr &tblName,
-                           int aggrType,  // 0:count, 1:min, 2:max, 3:sum, 4:avg
-                           const Text &startRow, const Text &stopRow, const Text &colFamily, const Text &colName,
-                           const NABoolean cacheBlocks, const int numCacheRows, const NABoolean replSync,
-                           Text &aggrVal,  // returned value
-                           int isolationLevel, int lockMode);
+                         int aggrType,  // 0:count, 1:min, 2:max, 3:sum, 4:avg
+                         const Text &startRow, const Text &stopRow, const Text &colFamily, const Text &colName,
+                         const NABoolean cacheBlocks, const int numCacheRows, const NABoolean replSync,
+                         Text &aggrVal,  // returned value
+                         int isolationLevel, int lockMode);
 
   virtual int grant(const Text &user, const Text &tblName, const std::vector<Text> &actionCodes) = 0;
 
@@ -331,7 +323,7 @@ class ExpHbaseInterface : public NABasicObject {
   virtual NAArray<HbaseStr> *getRegionEndKeys(const char *) = 0;
 
   virtual int estimateRowCount(HbaseStr &tblName, int partialRowSize, int numCols, int retryLimitMilliSeconds,
-                                 NABoolean useCoprocessor, long &estRC, int &breadCrumb) = 0;
+                               NABoolean useCoprocessor, long &estRC, int &breadCrumb) = 0;
   virtual int cleanSnpTmpLocation(const char *path) = 0;
   virtual int setArchivePermissions(const char *tbl) = 0;
 
@@ -361,8 +353,7 @@ class ExpHbaseInterface : public NABasicObject {
   virtual int verifySnapshot(const NAString &tableName, const NAString &snapshotName, NABoolean &exist) = 0;
   // call dtm to commit or rollback a savepoint.
   // isCommit = TRUE, commit. isCommit = FALSE, rollback.
-  virtual int savepointCommitOrRollback(long transId, long savepointId, long tgtSavepointId,
-                                          NABoolean isCommit) = 0;
+  virtual int savepointCommitOrRollback(long transId, long savepointId, long tgtSavepointId, NABoolean isCommit) = 0;
 
   // process namespace related commands.
   //   create: oper=1. Create namespace 'nameSpace'
@@ -371,7 +362,7 @@ class ExpHbaseInterface : public NABasicObject {
   //   getNamespaceTables: oper=4. Return: retNames contains names of all
   //                                     objects in namespace 'nameSpace'
   virtual int namespaceOperation(short oper, const char *nameSpace, int numKeyValEntries, NAText *keyArray,
-                                   NAText *valArray, NAArray<HbaseStr> **retNames) = 0;
+                                 NAText *valArray, NAArray<HbaseStr> **retNames) = 0;
 
   void setWaitOnSelectForUpdate(NABoolean v) {
     (v ? flags_ |= SELECT_FOR_UPDATE_WAIT : flags_ &= ~SELECT_FOR_UPDATE_WAIT);
@@ -400,7 +391,7 @@ class ExpHbaseInterface : public NABasicObject {
   virtual int getTableDefForBinlog(NAString &tabName, NAArray<HbaseStr> **retNames) = 0;
 
   virtual int putData(long eventID, const char *query, int eventType, const char *schemaName, unsigned char *params,
-                        long len) = 0;
+                      long len) = 0;
 
   virtual NABoolean isReadFromMemoryTable() = 0;
   virtual NABoolean isMemoryTableDisabled() = 0;
@@ -446,13 +437,12 @@ class ExpHbaseInterface_JNI : public ExpHbaseInterface {
   virtual int create(HbaseStr &tblName, HBASE_NAMELIST &colFamNameList, NABoolean isMVCC);
 
   virtual int create(HbaseStr &tblName, NAText *hbaseCreateOptionsArray, int numSplits, int keyLength,
-                       const char **splitValues, NABoolean useHbaseXn, NABoolean isMVCC, NABoolean incrBackupEnabled);
+                     const char **splitValues, NABoolean useHbaseXn, NABoolean isMVCC, NABoolean incrBackupEnabled);
 
   virtual int create(HbaseStr &tblName, const NAList<HbaseStr> &cols);
 
-  virtual int create(HbaseStr &tblName, int tableType, const NAList<HbaseStr> &cols,
-                       NAText *monarchCreateOptionsArray, int numSplits, int keyLength, const char **splitValues,
-                       NABoolean useHbaseXn, NABoolean isMVCC);
+  virtual int create(HbaseStr &tblName, int tableType, const NAList<HbaseStr> &cols, NAText *monarchCreateOptionsArray,
+                     int numSplits, int keyLength, const char **splitValues, NABoolean useHbaseXn, NABoolean isMVCC);
 
   virtual int alter(HbaseStr &tblName, NAText *hbaseCreateOptionsArray, NABoolean useHbaseXn);
 
@@ -470,25 +460,25 @@ class ExpHbaseInterface_JNI : public ExpHbaseInterface {
   //   getNamespaceTables: oper=4. Return: retNames contains names of all
   //                                     objects in namespace 'nameSpace'
   virtual int namespaceOperation(short oper, const char *nameSpace, int numKeyValEntries, NAText *keyArray,
-                                   NAText *valArray, NAArray<HbaseStr> **retNames);
+                                 NAText *valArray, NAArray<HbaseStr> **retNames);
 
   // make a copy of srcTblName as tgtTblName
   // if force is true, remove target before copying.
   virtual int copy(HbaseStr &srcTblName, HbaseStr &tgtTblName, NABoolean force = FALSE);
 
   virtual int backupObjects(const std::vector<Text> &tables, const std::vector<Text> &incrBackupEnabled,
-                              const std::vector<Text> &lobLocList, const char *backuptag,
-                              const char *extendedAttributes, const char *backupType, const int backupThreads,
+                            const std::vector<Text> &lobLocList, const char *backuptag, const char *extendedAttributes,
+                            const char *backupType, const int backupThreads,
 
-                              // 0, update for each table.
-                              // -1, dont update
-                              // N, update every N secs
-                              const int progressUpdateDelay);
+                            // 0, update for each table.
+                            // -1, dont update
+                            // N, update every N secs
+                            const int progressUpdateDelay);
 
   virtual int createSnapshotForIncrBackup(const std::vector<Text> &tables);
 
   virtual int setHiatus(const NAString &hiatusObjectName, NABoolean lockOperation, NABoolean createSnapIfNotExist,
-                          NABoolean ignoreSnapIfNotExist, const int parallelThreads);
+                        NABoolean ignoreSnapIfNotExist, const int parallelThreads);
   virtual int clearHiatus(const NAString &hiatusObjectName);
 
   virtual NAArray<HbaseStr> *restoreObjects(const char *backuptag, const std::vector<Text> *schemas,
@@ -506,15 +496,15 @@ class ExpHbaseInterface_JNI : public ExpHbaseInterface {
   virtual int finalizeRestore(const char *backuptag, const char *backupType);
 
   virtual int deleteBackup(const char *backuptag, NABoolean timestamp = FALSE, NABoolean cascade = FALSE,
-                             NABoolean force = FALSE, NABoolean skipLock = FALSE);
+                           NABoolean force = FALSE, NABoolean skipLock = FALSE);
 
-  virtual int exportOrImportBackup(const char *backuptag, NABoolean isExport, NABoolean override,
-                                     const char *location, int parallelThreads,
+  virtual int exportOrImportBackup(const char *backuptag, NABoolean isExport, NABoolean override, const char *location,
+                                   int parallelThreads,
 
-                                     // 0, update for each table.
-                                     // -1, dont update
-                                     // N, update every N secs
-                                     const int progressUpdateDelay);
+                                   // 0, update for each table.
+                                   // -1, dont update
+                                   // N, update every N secs
+                                   const int progressUpdateDelay);
 
   virtual int listAllBackups(NAArray<HbaseStr> **backupList, NABoolean shortFormat, NABoolean reverseOrder);
 
@@ -538,16 +528,16 @@ class ExpHbaseInterface_JNI : public ExpHbaseInterface {
   virtual int getTable(HbaseStr &tblName);
 
   virtual int scanOpen(HbaseStr &tblName, const Text &startRow, const Text &stopRow, const LIST(HbaseStr) & columns,
-                         const int64_t timestamp, const NABoolean useHbaseXn, const NABoolean useMemoryScan,
-                         const int lockMode, int isolationLevel, const NABoolean skipReadConflict,
-                         const NABoolean skipTransaction, const NABoolean replSync, const NABoolean cacheBlocks,
-                         const NABoolean smallScanner, const int numCacheRows, const NABoolean preFetch,
-                         const LIST(NAString) * inColNamesToFilter, const LIST(NAString) * inCompareOpList,
-                         const LIST(NAString) * inColValuesToCompare, int numReplications,
-                         Float32 DOPparallelScanner = 0.0f, Float32 samplePercent = -1.0f,
-                         NABoolean useSnapshotScan = FALSE, int snapTimeout = 0, char *snapName = NULL,
-                         char *tmpLoc = NULL, int espNum = 0, HbaseAccessOptions *hao = NULL,
-                         const char *hbaseAuthos = NULL, const char *encryptionInfo = NULL);
+                       const int64_t timestamp, const NABoolean useHbaseXn, const NABoolean useMemoryScan,
+                       const int lockMode, int isolationLevel, const NABoolean skipReadConflict,
+                       const NABoolean skipTransaction, const NABoolean replSync, const NABoolean cacheBlocks,
+                       const NABoolean smallScanner, const int numCacheRows, const NABoolean preFetch,
+                       const LIST(NAString) * inColNamesToFilter, const LIST(NAString) * inCompareOpList,
+                       const LIST(NAString) * inColValuesToCompare, int numReplications,
+                       Float32 DOPparallelScanner = 0.0f, Float32 samplePercent = -1.0f,
+                       NABoolean useSnapshotScan = FALSE, int snapTimeout = 0, char *snapName = NULL,
+                       char *tmpLoc = NULL, int espNum = 0, HbaseAccessOptions *hao = NULL,
+                       const char *hbaseAuthos = NULL, const char *encryptionInfo = NULL);
 
   virtual int scanClose();
 
@@ -555,21 +545,21 @@ class ExpHbaseInterface_JNI : public ExpHbaseInterface {
   virtual int isEmpty(HbaseStr &tblName);
 
   virtual int getRowOpen(HbaseStr &tblName, const HbaseStr &row, const LIST(HbaseStr) & columns,
-                           const int64_t timestamp, int numReplications, const int lockMode, int isolationLevel,
-                           const NABoolean useMemoryScan, const NABoolean skipReadConflict = FALSE,
-                           HbaseAccessOptions *hao = NULL, const char *hbaseAuths = NULL,
-                           const char *encryptionInfo = NULL);
+                         const int64_t timestamp, int numReplications, const int lockMode, int isolationLevel,
+                         const NABoolean useMemoryScan, const NABoolean skipReadConflict = FALSE,
+                         HbaseAccessOptions *hao = NULL, const char *hbaseAuths = NULL,
+                         const char *encryptionInfo = NULL);
 
   virtual int getRowsOpen(HbaseStr &tblName, const LIST(HbaseStr) * rows, const LIST(HbaseStr) & columns,
-                            const int64_t timestamp, int numReplications, const int lockMode, int isolationLevel,
-                            const NABoolean useMemoryScan, const NABoolean skipReadConflict,
-                            const NABoolean skipTransactionForBatchGet, HbaseAccessOptions *hao = NULL,
-                            const char *hbaseAuths = NULL, const char *encryptionInfo = NULL);
+                          const int64_t timestamp, int numReplications, const int lockMode, int isolationLevel,
+                          const NABoolean useMemoryScan, const NABoolean skipReadConflict,
+                          const NABoolean skipTransactionForBatchGet, HbaseAccessOptions *hao = NULL,
+                          const char *hbaseAuths = NULL, const char *encryptionInfo = NULL);
 
   virtual int getRowsOpen(HbaseStr tblName, short rowIDLen, HbaseStr rowIDs, const LIST(HbaseStr) & columns,
-                            int numReplications, const int lockMode, int isolationLevel,
-                            const NABoolean useMemoryScan, const NABoolean skipReadConflict,
-                            const NABoolean skipTransactionForBatchGet, const char *encryptionInfo = NULL);
+                          int numReplications, const int lockMode, int isolationLevel, const NABoolean useMemoryScan,
+                          const NABoolean skipReadConflict, const NABoolean skipTransactionForBatchGet,
+                          const char *encryptionInfo = NULL);
 
   virtual int nextRow();
 
@@ -578,7 +568,7 @@ class ExpHbaseInterface_JNI : public ExpHbaseInterface {
   virtual int completeAsyncOperation(int timeout, NABoolean *resultArray, Int16 resultArrayLen);
 
   virtual int getColVal(int colNo, BYTE *colVal, int &colValLen, NABoolean nullable, BYTE &nullVal, BYTE *tag,
-                          int &tagLen, const char *encryptionInfo = NULL);
+                        int &tagLen, const char *encryptionInfo = NULL);
 
   virtual int getColVal(NAHeap *heap, int colNo, BYTE **colVal, int &colValLen, const char *encryptionInfo = NULL);
 
@@ -589,44 +579,42 @@ class ExpHbaseInterface_JNI : public ExpHbaseInterface {
   virtual int getRowID(HbaseStr &rowID, const char *encryptionInfo = NULL);
 
   virtual int deleteRow(HbaseStr tblName, HbaseStr row, const LIST(HbaseStr) * columns, NABoolean useHbaseXn,
-                          const NABoolean replSync, const NABoolean incrementalBackup, NABoolean useRegionXn,
-                          const int64_t timestamp, NABoolean asyncOperation, const char *hbaseAuths,
-                          const char *encryptionInfo = NULL, const char *triggers = NULL,
-                          const char *curExecSql = NULL);
+                        const NABoolean replSync, const NABoolean incrementalBackup, NABoolean useRegionXn,
+                        const int64_t timestamp, NABoolean asyncOperation, const char *hbaseAuths,
+                        const char *encryptionInfo = NULL, const char *triggers = NULL, const char *curExecSql = NULL);
 
   virtual int deleteRows(HbaseStr tblName, short rowIDLen, HbaseStr rowIDs, const LIST(HbaseStr) * columns,
-                           NABoolean useHbaseXn, const NABoolean replSync, const NABoolean incrementalBackup,
-                           const int64_t timestamp, NABoolean asyncOperation, const char *hbaseAuths,
-                           const char *encryptionInfo = NULL, const char *triggers = NULL,
-                           const char *curExecSql = NULL);
+                         NABoolean useHbaseXn, const NABoolean replSync, const NABoolean incrementalBackup,
+                         const int64_t timestamp, NABoolean asyncOperation, const char *hbaseAuths,
+                         const char *encryptionInfo = NULL, const char *triggers = NULL, const char *curExecSql = NULL);
 
   virtual int checkAndDeleteRow(HbaseStr &tblName, HbaseStr &row, const LIST(HbaseStr) * columns,
-                                  HbaseStr &columnToCheck, HbaseStr &colValToCheck, NABoolean useHbaseXn,
-                                  const NABoolean replSync, const NABoolean incrementalBackup, NABoolean useRegionXn,
-                                  const int64_t timestamp, const char *hbaseAuths, const char *encryptionInfo = NULL,
-                                  const char *triggers = NULL, const char *curExecSql = NULL);
+                                HbaseStr &columnToCheck, HbaseStr &colValToCheck, NABoolean useHbaseXn,
+                                const NABoolean replSync, const NABoolean incrementalBackup, NABoolean useRegionXn,
+                                const int64_t timestamp, const char *hbaseAuths, const char *encryptionInfo = NULL,
+                                const char *triggers = NULL, const char *curExecSql = NULL);
 
   virtual int deleteColumns(HbaseStr &tblName, HbaseStr &column);
 
   virtual int execTriggers(const char *tableName, ComOperation type, NABoolean isBefore,
-                             BeforeAndAfterTriggers *triggers, HbaseStr rowID, HbaseStr row,
-                             unsigned char *base64rowVal = NULL, int base64ValLen = 0,
-                             unsigned char *base64rowIDVal = NULL, int base64RowLen = 0, short rowIDLen = 0,
-                             const char *curExecSql = NULL, NABoolean isStatement = true);
+                           BeforeAndAfterTriggers *triggers, HbaseStr rowID, HbaseStr row,
+                           unsigned char *base64rowVal = NULL, int base64ValLen = 0,
+                           unsigned char *base64rowIDVal = NULL, int base64RowLen = 0, short rowIDLen = 0,
+                           const char *curExecSql = NULL, NABoolean isStatement = true);
 
-  virtual int insertRow(HbaseStr tblName, HbaseStr rowID, HbaseStr row, NABoolean useHbaseXn,
-                          const NABoolean replSync, const NABoolean incrementalBackup, NABoolean useRegionXn,
-                          const int64_t timestamp, NABoolean asyncOperation, const char *encryptionInfo = NULL,
-                          const char *triggers = NULL, const char *curExecSql = NULL);
+  virtual int insertRow(HbaseStr tblName, HbaseStr rowID, HbaseStr row, NABoolean useHbaseXn, const NABoolean replSync,
+                        const NABoolean incrementalBackup, NABoolean useRegionXn, const int64_t timestamp,
+                        NABoolean asyncOperation, const char *encryptionInfo = NULL, const char *triggers = NULL,
+                        const char *curExecSql = NULL);
 
   virtual int insertRows(HbaseStr tblName, short rowIDLen, HbaseStr rowIDs, HbaseStr rows, NABoolean useHbaseXn,
-                           const NABoolean replSync, const NABoolean incrementalBackup, const int64_t timestamp,
-                           NABoolean asyncOperation, const char *encryptionInfo = NULL, const char *triggers = NULL,
-                           const char *curExecSql = NULL, NABoolean noConflictCheck = FALSE);
+                         const NABoolean replSync, const NABoolean incrementalBackup, const int64_t timestamp,
+                         NABoolean asyncOperation, const char *encryptionInfo = NULL, const char *triggers = NULL,
+                         const char *curExecSql = NULL, NABoolean noConflictCheck = FALSE);
 
   virtual int lockRequired(NAString tblName, short lockMode, NABoolean useHbaseXn, const NABoolean replSync,
-                             const NABoolean incrementalBackup, NABoolean asyncOperation, NABoolean noConflictCheck,
-                             NABoolean registerRegion);
+                           const NABoolean incrementalBackup, NABoolean asyncOperation, NABoolean noConflictCheck,
+                           NABoolean registerRegion);
 
   virtual int updateVisibility(HbaseStr tblName, HbaseStr rowID, HbaseStr row, NABoolean useHbaseXn);
 
@@ -638,47 +626,45 @@ class ExpHbaseInterface_JNI : public ExpHbaseInterface {
   virtual int initBRC(ExHbaseAccessStats *hbs = NULL);
 
   virtual int initHFileParams(HbaseStr &tblName, Text &hFileLoc, Text &hfileName, long maxHFileSize,
-                                Text &hFileSampleLoc, Text &hfileSampleName, float fSampleRate);
+                              Text &hFileSampleLoc, Text &hfileSampleName, float fSampleRate);
   virtual int addToHFile(short rowIDLen, HbaseStr &rowIDs, HbaseStr &rows, const char *encryptionInfo);
 
   virtual int closeHFile(HbaseStr &tblName);
 
-  virtual int doBulkLoad(HbaseStr &tblName, Text &location, Text &tableName, NABoolean quasiSecure,
-                           NABoolean snapshot);
+  virtual int doBulkLoad(HbaseStr &tblName, Text &location, Text &tableName, NABoolean quasiSecure, NABoolean snapshot);
 
   virtual int bulkLoadCleanup(HbaseStr &tblName, Text &location);
   virtual int sentryGetPrivileges(set<string> &groupNames, const char *tableOrViewName, bool isView,
-                                    map<int, char *> &columnNumberToNameMap, PrivMgrUserPrivs &userPrivs /* out */);
+                                  map<int, char *> &columnNumberToNameMap, PrivMgrUserPrivs &userPrivs /* out */);
   virtual int sentryGetPrivileges(const char *userName, const char *tableOrViewName, bool isView,
-                                    map<int, char *> &columnNumberToNameMap, PrivMgrUserPrivs &userPrivs /* out */);
-  virtual int incrCounter(const char *tabName, const char *rowId, const char *famName, const char *qualName,
-                            long incr, long &count);
+                                  map<int, char *> &columnNumberToNameMap, PrivMgrUserPrivs &userPrivs /* out */);
+  virtual int incrCounter(const char *tabName, const char *rowId, const char *famName, const char *qualName, long incr,
+                          long &count);
   virtual int createCounterTable(const char *tabName, const char *famName);
 
   virtual int checkAndInsertRow(HbaseStr &tblName, HbaseStr &rowID, HbaseStr &row, NABoolean useHbaseXn,
-                                  const NABoolean replSync, const NABoolean incrementalBackup, NABoolean useRegionXn,
-                                  const int64_t timestamp, NABoolean asyncOperation, const char *encryptionInfo = NULL,
-                                  const char *triggers = NULL, const char *curExecSql = NULL,
-                                  Int16 colIndexToCheck = 0);
+                                const NABoolean replSync, const NABoolean incrementalBackup, NABoolean useRegionXn,
+                                const int64_t timestamp, NABoolean asyncOperation, const char *encryptionInfo = NULL,
+                                const char *triggers = NULL, const char *curExecSql = NULL, Int16 colIndexToCheck = 0);
 
   virtual int checkAndUpdateRow(HbaseStr &tblName, HbaseStr &rowID, HbaseStr &row, HbaseStr &columnToCheck,
-                                  HbaseStr &colValToCheck, NABoolean useHbaseXn, const NABoolean replSync,
-                                  const NABoolean incrementalBackup, NABoolean useRegionXn, const int64_t timestamp,
-                                  NABoolean asyncOperation, const char *encryptionInfo = NULL,
-                                  const char *triggers = NULL, const char *curExecSql = NULL);
+                                HbaseStr &colValToCheck, NABoolean useHbaseXn, const NABoolean replSync,
+                                const NABoolean incrementalBackup, NABoolean useRegionXn, const int64_t timestamp,
+                                NABoolean asyncOperation, const char *encryptionInfo = NULL,
+                                const char *triggers = NULL, const char *curExecSql = NULL);
 
   virtual int coProcAggr(HbaseStr &tblName,
-                           int aggrType,  // 0:count, 1:min, 2:max, 3:sum, 4:avg
-                           const Text &startRow, const Text &stopRow, const Text &colFamily, const Text &colName,
-                           const NABoolean cacheBlocks, const int numCacheRows, const NABoolean replSync,
-                           Text &aggrVal);  // returned value
+                         int aggrType,  // 0:count, 1:min, 2:max, 3:sum, 4:avg
+                         const Text &startRow, const Text &stopRow, const Text &colFamily, const Text &colName,
+                         const NABoolean cacheBlocks, const int numCacheRows, const NABoolean replSync,
+                         Text &aggrVal);  // returned value
 
   virtual int coProcAggr(HbaseStr &tblName,
-                           int aggrType,  // 0:count, 1:min, 2:max, 3:sum, 4:avg
-                           const Text &startRow, const Text &stopRow, const Text &colFamily, const Text &colName,
-                           const NABoolean cacheBlocks, const int numCacheRows, const NABoolean replSync,
-                           Text &aggrVal,  // returned value
-                           int isolationLevel, int lockMode);
+                         int aggrType,  // 0:count, 1:min, 2:max, 3:sum, 4:avg
+                         const Text &startRow, const Text &stopRow, const Text &colFamily, const Text &colName,
+                         const NABoolean cacheBlocks, const int numCacheRows, const NABoolean replSync,
+                         Text &aggrVal,  // returned value
+                         int isolationLevel, int lockMode);
 
   virtual int getClose();
 
@@ -690,7 +676,7 @@ class ExpHbaseInterface_JNI : public ExpHbaseInterface {
   virtual NAArray<HbaseStr> *getRegionEndKeys(const char *);
 
   virtual int estimateRowCount(HbaseStr &tblName, int partialRowSize, int numCols, int retryLimitMilliSeconds,
-                                 NABoolean useCoprocessor, long &estRC, int &breadCrumb);
+                               NABoolean useCoprocessor, long &estRC, int &breadCrumb);
 
   virtual int cleanSnpTmpLocation(const char *path);
   virtual int setArchivePermissions(const char *tabName);
@@ -727,7 +713,7 @@ class ExpHbaseInterface_JNI : public ExpHbaseInterface {
   virtual int getTableDefForBinlog(NAString &tabName, NAArray<HbaseStr> **retNames);
 
   virtual int putData(long eventID, const char *query, int eventType, const char *schemaName, unsigned char *params,
-                        long len);
+                      long len);
 
   // member function for memory table access
   NABoolean isReadFromMemoryTable() { return readFromMemoryTable_; }

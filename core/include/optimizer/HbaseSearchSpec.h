@@ -2,10 +2,10 @@
 #ifndef THBASE_H
 #define THBASE_H 1
 
-#include "common/Collections.h"
-#include "optimizer/ValueDesc.h"
-#include "export/NABasicObject.h"
 #include "common/CmpCommon.h"
+#include "common/Collections.h"
+#include "export/NABasicObject.h"
+#include "optimizer/ValueDesc.h"
 
 struct HbaseSearchSpec : public NABasicObject {
   HbaseSearchSpec(NAHeap *h = NULL) : colNames_(h ? h : STMTHEAP), rowTS_(0){};

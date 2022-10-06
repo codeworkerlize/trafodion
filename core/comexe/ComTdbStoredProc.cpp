@@ -15,6 +15,7 @@
 */
 
 #include "comexe/ComTdbStoredProc.h"
+
 #include "comexe/ComTdbCommon.h"
 
 // ---------------------------------------------------------------------
@@ -24,8 +25,8 @@ ComTdbStoredProc::ComTdbStoredProc(char *spName, ex_expr *inputExpr, int inputRo
                                    int outputRowlen, ex_cri_desc *workCriDesc, const unsigned short workAtpIndex,
                                    ex_cri_desc *criDescDown, ex_cri_desc *criDescUp, ExSPInputOutput *extractInputExpr,
                                    ExSPInputOutput *moveOutputExpr, queue_index fromParent, queue_index toParent,
-                                   Cardinality estimatedRowCount, int numBuffers, int bufferSize,
-                                   ex_expr *predExpr, UInt16 arkcmpInfo)
+                                   Cardinality estimatedRowCount, int numBuffers, int bufferSize, ex_expr *predExpr,
+                                   UInt16 arkcmpInfo)
     : ComTdb(ComTdb::ex_STORED_PROC, eye_STORED_PROC, estimatedRowCount, criDescDown, criDescUp, fromParent, toParent,
              numBuffers, bufferSize),
       spName_(spName),

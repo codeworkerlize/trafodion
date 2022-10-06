@@ -16,16 +16,14 @@
 
 // -----------------------------------------------------------------------
 
+#include "common/ComSysUtils.h"
 #include "common/Platform.h"
-
-#include "exp/exp_stdh.h"
+#include "exp/exp_bignum.h"
 #include "exp/exp_clause_derived.h"
 #include "exp/exp_datetime.h"
-#include "common/ComSysUtils.h"
-#include "exp/exp_bignum.h"
-
-#include "exp_ovfl_ptal.h"
+#include "exp/exp_stdh.h"
 #include "exp_ieee.h"
+#include "exp_ovfl_ptal.h"
 
 long EXP_FIXED_ARITH_OV_OPER(short operation, long op1, long op2, short *ov) {
   if (NOT((operation == ITM_PLUS) || (operation == ITM_MINUS) || (operation == ITM_TIMES) || (operation == ITM_DIVIDE)))
@@ -40,10 +38,10 @@ long EXP_FIXED_ARITH_OV_OPER(short operation, long op1, long op2, short *ov) {
   char op1BNdata[100];
   char op2BNdata[100];
 
-  SimpleType op1ST(REC_BIN64_SIGNED, sizeof(long), 0, 0, ExpTupleDesc::SQLMX_FORMAT, 8, 0, 0, 0,
-                   Attributes::NO_DEFAULT, 0);
-  SimpleType op2ST(REC_BIN64_SIGNED, sizeof(long), 0, 0, ExpTupleDesc::SQLMX_FORMAT, 8, 0, 0, 0,
-                   Attributes::NO_DEFAULT, 0);
+  SimpleType op1ST(REC_BIN64_SIGNED, sizeof(long), 0, 0, ExpTupleDesc::SQLMX_FORMAT, 8, 0, 0, 0, Attributes::NO_DEFAULT,
+                   0);
+  SimpleType op2ST(REC_BIN64_SIGNED, sizeof(long), 0, 0, ExpTupleDesc::SQLMX_FORMAT, 8, 0, 0, 0, Attributes::NO_DEFAULT,
+                   0);
 
   char *op1_data[2];
   char *op2_data[2];
@@ -565,13 +563,13 @@ ex_expr::exp_return_type ex_arith_clause::eval(char *op_data[], CollHeap *heap, 
       *(int *)op_data[0] = *(int *)op_data[1] * *(int *)op_data[2];
       break;
     case MUL_BIN16S_BIN32S_BIN64S:
-      *(long *)op_data[0] = (long) * (short *)op_data[1] * (long) * (int *)op_data[2];
+      *(long *)op_data[0] = (long)*(short *)op_data[1] * (long)*(int *)op_data[2];
       break;
     case MUL_BIN32S_BIN16S_BIN64S:
-      *(long *)op_data[0] = (long) * (int *)op_data[1] * (long) * (short *)op_data[2];
+      *(long *)op_data[0] = (long)*(int *)op_data[1] * (long)*(short *)op_data[2];
       break;
     case MUL_BIN32S_BIN32S_BIN64S:
-      *(long *)op_data[0] = (long) * (int *)op_data[1] * (long) * (int *)op_data[2];
+      *(long *)op_data[0] = (long)*(int *)op_data[1] * (long)*(int *)op_data[2];
       break;
     case MUL_BIN64S_BIN64S_BIN64S: {
       short ov;

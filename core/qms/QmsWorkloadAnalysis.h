@@ -18,11 +18,11 @@
 #ifndef _WORKLOADANALYSIS_H_
 #define _WORKLOADANALYSIS_H_
 
-#include "export/NABasicObject.h"
-#include "common/NAString.h"
 #include "common/Collections.h"
-#include "qmscommon/QRSharedPtr.h"
+#include "common/NAString.h"
+#include "export/NABasicObject.h"
 #include "qmscommon/QRDescriptor.h"
+#include "qmscommon/QRSharedPtr.h"
 
 class WorkloadAnalysis;
 class ProposedMV;
@@ -40,8 +40,8 @@ typedef SharedPtrValueHash<const NAString, QRElement> ElementHash;
 typedef SharedPtrValueHashIterator<const NAString, QRElement> ElementHashIterator;
 typedef NAHashDictionary<const NAString, const NAString> QueryNameHash;
 
-#include "QmsMVDetails.h"
 #include "QmsMVCandidate.h"
+#include "QmsMVDetails.h"
 
 /**
  * The ProposedMV class is initialized with a list of MVDetails objects

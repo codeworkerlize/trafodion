@@ -15,8 +15,8 @@
 *************************************************************************
 */
 
-#include "optimizer/ObjectNames.h"
 #include "comexe/SqlTableOpenInfo.h"
+#include "optimizer/ObjectNames.h"
 
 class OptSqlTableOpenInfo : public NABasicObject {
  public:

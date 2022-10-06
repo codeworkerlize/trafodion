@@ -22,28 +22,27 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
-#include "cli/CliDefs.h"
-#include "export/ComDiags.h"
 #include "CliSemaphore.h"
-#include "cli/sqlcli.h"
-#include "cli/Statement.h"
-#include "executor/ex_god.h"
-#include "executor/timeout_data.h"
-#include "cli/Module.h"
-#include "cli/Globals.h"
-#include "common/NAUserId.h"
-#include "cli/SessionDefaults.h"
-#include "executor/ex_transaction.h"
-#include "common/ComCGroup.h"
-#include "common/CmpCommon.h"
+#include "cli/CliDefs.h"
 #include "cli/ExSqlComp.h"
-#include "executor/ExStats.h"
-#include "exp/ExpSeqGen.h"
-#include "runtimestats/ssmpipc.h"
-#include "exp/hdfs.h"
-
+#include "cli/Globals.h"
+#include "cli/Module.h"
+#include "cli/SessionDefaults.h"
+#include "cli/Statement.h"
+#include "cli/sqlcli.h"
+#include "common/CmpCommon.h"
+#include "common/ComCGroup.h"
+#include "common/NAUserId.h"
+#include "common/Platform.h"
 #include "executor/DistributedLock_JNI.h"
+#include "executor/ExStats.h"
+#include "executor/ex_god.h"
+#include "executor/ex_transaction.h"
+#include "executor/timeout_data.h"
+#include "exp/ExpSeqGen.h"
+#include "exp/hdfs.h"
+#include "export/ComDiags.h"
+#include "runtimestats/ssmpipc.h"
 
 class CliGlobals;
 class HashQueue;
@@ -108,14 +107,14 @@ class ContextCli : public ExGod {
   RETCODE setDatabaseUserByID(int userID);
   RETCODE setDatabaseUserByName(const char *userName);
 
-  void setDatabaseUser(const int &uid,    // IN
+  void setDatabaseUser(const int &uid,      // IN
                        const char *uname);  // IN
 
   int getUserAttrs(const char *username, const char *tenant_name, USERS_INFO *users_info,
-                     struct SQLSEC_AuthDetails *auth_details);
+                   struct SQLSEC_AuthDetails *auth_details);
 
   int registerUser(const char *username, const char *config, USERS_INFO *users_info,
-                     struct SQLSEC_AuthDetails *auth_details);
+                   struct SQLSEC_AuthDetails *auth_details);
 
   int getAuthErrPwdCnt(int userid, Int16 &errcnt);
 
@@ -137,8 +136,8 @@ class ContextCli : public ExGod {
   void setTenantDefaultSchema(const char *tenantDefSchName);
   // Set Tenant related info in the context
   // deprecated method, will go away eventually
-  void setTenantInfoInContext(int tenantId, const char *tenantName, int affinity, int tenantSize,
-                              int clusterSize, const char *tenantDefaultSchema);
+  void setTenantInfoInContext(int tenantId, const char *tenantName, int affinity, int tenantSize, int clusterSize,
+                              const char *tenantDefaultSchema);
 
   // new method, to be phased in
   void setTenantInfoInContext(int tenantId, const char *tenantName, const char *serializedAvailableNodes,
@@ -150,10 +149,10 @@ class ContextCli : public ExGod {
   // Functions to map between Trafodion authentication IDs and names.
   RETCODE getAuthIDFromName(const char *authName, int &authID);
 
-  RETCODE getAuthNameFromID(int authID,          // IN
+  RETCODE getAuthNameFromID(int authID,            // IN
                             char *authNameBuffer,  // OUT
-                            int maxBufLen,       // IN
-                            int &requiredLen);   // OUT optional
+                            int maxBufLen,         // IN
+                            int &requiredLen);     // OUT optional
 
   // Function to be used only in ESPs to establish user identity. This
   // call will update data members and will NOT verify the input
@@ -263,9 +262,9 @@ class ContextCli : public ExGod {
   }
   inline int setTriggerParam(short entry, char *ptr) { return cliInterfaceTrigger_->setInputValue(entry, ptr); }
   inline int setTriggerParam(short entry, int val) { return cliInterfaceTrigger_->setInputValue(entry, val); }
-  int executeCallTrigger(char *tblName, int isBefore, int opType, char *oldSKVBuffer, char *oldBufSize,
-                           char *oldRowIDs, char *oldRowIDsLen, int newRowIDLen, char *newRowIDs, int newRowIDsLen,
-                           char *newRows, int newRowsLen, char *curExecSql);
+  int executeCallTrigger(char *tblName, int isBefore, int opType, char *oldSKVBuffer, char *oldBufSize, char *oldRowIDs,
+                         char *oldRowIDsLen, int newRowIDLen, char *newRowIDs, int newRowIDsLen, char *newRows,
+                         int newRowsLen, char *curExecSql);
 
  private:
   // The heap where executor 'stuff' will be allocated from.
@@ -585,7 +584,7 @@ class ContextCli : public ExGod {
   NABoolean udrXactViolation_;
   NABoolean udrXactAborted_;
   long udrXactId_;  // transid that UDR Server is interested to know
-                     // if aborted
+                    // if aborted
   NAString jniErrorStr_;
   DistributedLock_JNI *DLockClientJNI_;
   TenantHelper_JNI *tenantHelperJNI_;
@@ -654,10 +653,10 @@ class ContextCli : public ExGod {
   RETCODE storeName(const char *src, char *dest, int maxLength, int &actualLength);
 
   int addUserInfo(const char *username, USERS_INFO *usersInfo, struct SQLSEC_AuthDetails *authDetails,
-                    CmpSeabaseDDLauth &authInfo);
+                  CmpSeabaseDDLauth &authInfo);
 
   int addTenantInfo(const char *tenant_name, USERS_INFO *users_info, struct SQLSEC_AuthDetails *authDetails,
-                      CmpSeabaseDDLauth &authInfo);
+                    CmpSeabaseDDLauth &authInfo);
 
  public:
   ContextCli(CliGlobals *cliGlobals, NABoolean isDefaultContext = FALSE);
@@ -870,11 +869,11 @@ class ContextCli : public ExGod {
   NABoolean &execDDLOptions() { return execDDLOptions_; }
 
   int setAuthID(const USERS_INFO &usersInfo, const char *authToken, int authTokenLen, const char *slaName,
-                  const char *profileName, int resetAttributes);
+                const char *profileName, int resetAttributes);
 
   int completeSetAuthID(const USERS_INFO &usersInfo, const char *authToken, int authTokenLen, const char *slaName,
-                          const char *profileName, bool eraseCQDs, bool releaseUDRServers, bool dropVolatileSchema,
-                          bool resetCQDs, int resetAttributes);
+                        const char *profileName, bool eraseCQDs, bool releaseUDRServers, bool dropVolatileSchema,
+                        bool resetCQDs, int resetAttributes);
 
   char *getAuthID() {
     if (authIDType_ == SQLAUTHID_TYPE_ASCII_USERROLE || authIDType_ == SQLAUTHID_TYPE_ASCII_USERNAME)
@@ -989,11 +988,11 @@ class ContextCli : public ExGod {
   ExStatisticsArea *getObjectLockStats(const char *objectName, int objectNameLen, short cpu, short &retryAttempts);
 
   int performObjectLockRequest(const char *objectName, ComObjectType objectType, ObjectLockRequest::OpType opType,
-                                 int nid, int pid, int maxRetries, int delay);
+                               int nid, int pid, int maxRetries, int delay);
 
   int performObjectLockRequest(const char *objectName, ComObjectType objectType, ObjectLockRequest::OpType opType,
-                                 int nid, int pid, bool &conflictLock, int &conflictNid, int &conflictPid,
-                                 ComDiagsArea *tempDiagsArea);
+                               int nid, int pid, bool &conflictLock, int &conflictNid, int &conflictPid,
+                               ComDiagsArea *tempDiagsArea);
 
   int lockObjectDDL(const char *objectName, ComObjectType objectType);
 
@@ -1108,5 +1107,5 @@ struct hdfsConnectStruct {
 
 #endif
 
-int parse_statsReq(short statsReqType, char *statsReqPtr, int statsReqStrLen, char *nodeName, short &cpu,
-                     pid_t &pid, long &timeStamp, int &queryNumber);
+int parse_statsReq(short statsReqType, char *statsReqPtr, int statsReqStrLen, char *nodeName, short &cpu, pid_t &pid,
+                   long &timeStamp, int &queryNumber);

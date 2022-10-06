@@ -14,15 +14,14 @@
 // Created:      08/24/2010
 // ***********************************************************************
 
-#include "qmscommon/QRDescriptor.h"
-#include "qmscommon/QRLogger.h"
-#include "optimizer/ItemExpr.h"
-#include "optimizer/ItemFunc.h"
-#include "optimizer/ItemColRef.h"
-#include "optimizer/ItemFunc.h"
-#include "optimizer/ItemLog.h"
 #include "ItemArith.h"
 #include "common/NumericType.h"
+#include "optimizer/ItemColRef.h"
+#include "optimizer/ItemExpr.h"
+#include "optimizer/ItemFunc.h"
+#include "optimizer/ItemLog.h"
+#include "qmscommon/QRDescriptor.h"
+#include "qmscommon/QRLogger.h"
 
 // ***************************************************************
 // Use the ref attribute to find the ValueID the element was

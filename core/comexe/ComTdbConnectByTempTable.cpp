@@ -1,7 +1,8 @@
 
 #include "comexe/ComTdbConnectByTempTable.h"
-#include "comexe/ComTdbCommon.h"
+
 #include "comexe/ComQueue.h"
+#include "comexe/ComTdbCommon.h"
 #include "common/str.h"
 
 ComTdbConnectByTempTable::ComTdbConnectByTempTable()

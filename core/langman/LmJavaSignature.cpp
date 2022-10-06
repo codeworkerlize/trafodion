@@ -12,10 +12,11 @@
 ******************************************************************************
 */
 
-#include "LmParameter.h"
-#include "LmJavaType.h"
 #include "langman/LmJavaSignature.h"
+
 #include "LmJavaSignatureHelpers.h"
+#include "LmJavaType.h"
+#include "LmParameter.h"
 
 //
 // Constructor

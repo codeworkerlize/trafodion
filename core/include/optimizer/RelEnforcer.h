@@ -17,8 +17,8 @@
 
 // -----------------------------------------------------------------------
 
-#include "optimizer/RelExpr.h"
 #include "PartFunc.h"
+#include "optimizer/RelExpr.h"
 // -----------------------------------------------------------------------
 // contents of this file
 // -----------------------------------------------------------------------
@@ -173,11 +173,10 @@ class Sort : public RelExpr {
 
   CostMethodSort *pCostMethod_;
 
-  short generateTdb(Generator *generator, ComTdb *child_tdb, ex_expr *sortKeyExpr, ex_expr *sortRecExpr,
-                    int sortKeyLen, int sortRecLen, int sortPrefixKeyLen, ex_cri_desc *given_desc,
-                    ex_cri_desc *returned_desc, ex_cri_desc *work_cri_desc, int saveNumEsps,
-                    ExplainTuple *childExplainTuple, NABoolean resizeCifRecord, NABoolean considerBufferDefrag,
-                    NABoolean operatorCIF = FALSE);
+  short generateTdb(Generator *generator, ComTdb *child_tdb, ex_expr *sortKeyExpr, ex_expr *sortRecExpr, int sortKeyLen,
+                    int sortRecLen, int sortPrefixKeyLen, ex_cri_desc *given_desc, ex_cri_desc *returned_desc,
+                    ex_cri_desc *work_cri_desc, int saveNumEsps, ExplainTuple *childExplainTuple,
+                    NABoolean resizeCifRecord, NABoolean considerBufferDefrag, NABoolean operatorCIF = FALSE);
 
   // determine internal format
   /*
@@ -275,8 +274,8 @@ class pcgEspFragment {
   int newDoP_;  // new proposed dop for the fragment
 
   int commonDoP_;  // a common dop fro the 1st child esp with
-                     // non-broadcast parf func, for other
-                     // non-broadcast child esps to match
+                   // non-broadcast parf func, for other
+                   // non-broadcast child esps to match
 
   NABoolean valid_;  // whether this fragment is a candidate for
                      // over parallelization correction.

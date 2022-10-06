@@ -15,12 +15,12 @@
 
 // _MEMSHAREDPTR;_MEMCHECK
 
-#include "export/NABasicObject.h"
-#include "common/NAString.h"
 #include "common/Collections.h"
 #include "common/Int64.h"
-#include "qmscommon/QRSharedPtr.h"
+#include "common/NAString.h"
+#include "export/NABasicObject.h"
 #include "qmscommon/QRDescriptor.h"
+#include "qmscommon/QRSharedPtr.h"
 
 class JoinGraphTable;
 class JoinGraphHalfPredicate;
@@ -63,8 +63,8 @@ typedef SharedPtrValueHashIterator<const NAString, QRJoinSubGraph> SubGraphHashI
 
 enum OperationType { OP_INSERT = 0, OP_SEARCH, OP_INSERT_TOP };
 
-#include "QmsMVDetails.h"
 #include "QmsMVCandidate.h"
+#include "QmsMVDetails.h"
 #include "QmsSelfJoinHandler.h"
 
 /**

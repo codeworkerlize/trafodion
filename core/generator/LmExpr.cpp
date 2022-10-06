@@ -30,15 +30,16 @@
 */
 
 #include "LmExpr.h"
+
+#include "ItemNAType.h"
+#include "arkcmp/CmpContext.h"
+#include "common/CharType.h"
+#include "common/DatetimeType.h"
+#include "common/NAType.h"
+#include "common/NumericType.h"
 #include "optimizer/ItemExpr.h"
 #include "optimizer/ItemFunc.h"
-#include "common/NAType.h"
-#include "ItemNAType.h"
-#include "common/CharType.h"
-#include "common/NumericType.h"
 #include "sqlcomp/parser.h"
-#include "arkcmp/CmpContext.h"
-#include "common/DatetimeType.h"
 
 // Fix for bug 3137.
 // The following global is defined in SqlParserGlobals.h file and is set

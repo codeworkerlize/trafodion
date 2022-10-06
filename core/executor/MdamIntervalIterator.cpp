@@ -17,17 +17,17 @@
 
 // -----------------------------------------------------------------------------
 
-#include "executor/ex_stdh.h"
-#include "MdamEndPoint.h"
 #include "MdamIntervalIterator.h"
+
+#include "MdamEndPoint.h"
+#include "executor/ex_stdh.h"
 
 // *****************************************************************************
 // Member functions for class MdamIntervalIterator
 // *****************************************************************************
 
 // Constructor.
-MdamIntervalIterator::MdamIntervalIterator(const MdamIntervalList *intervalListPtr,
-                                           const int logicalIntervalListNumber)
+MdamIntervalIterator::MdamIntervalIterator(const MdamIntervalList *intervalListPtr, const int logicalIntervalListNumber)
     : logicalIntervalListNumber_(logicalIntervalListNumber),
       intervalPtr_(0),
       endPointType_(MdamEnums::MDAM_BEGIN),

@@ -22,8 +22,8 @@
 ******************************************************************************
 */
 
-#include "common/Platform.h"
 #include "common/BaseTypes.h"
+#include "common/Platform.h"
 #include "exp/ExpError.h"
 #include "export/NAStringDef.h"
 
@@ -36,8 +36,6 @@ class ShowSchema {
   static int DiagSqlCode() { return ABS(EXE_INFO_DEFAULT_CAT_SCH); }
 
   static NABoolean getDefaultCatAndSch(NAString &cat, NAString &sch);
-
-
 };
 
 class GetControlDefaults {  // Genesis 10-981211-5986

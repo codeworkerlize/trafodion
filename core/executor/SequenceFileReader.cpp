@@ -3,8 +3,9 @@
 // **********************************************************************
 
 #include "SequenceFileReader.h"
-#include "qmscommon/QRLogger.h"
+
 #include "cli/Globals.h"
+#include "qmscommon/QRLogger.h"
 
 // ===========================================================================
 // ===== Class SequenceFileReader

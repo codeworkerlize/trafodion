@@ -16,9 +16,10 @@
 // -----------------------------------------------------------------------
 
 #include "common/CompositeType.h"
-#include "common/str.h"
-#include "common/ComDefs.h"
+
 #include "common/CmpCommon.h"
+#include "common/ComDefs.h"
+#include "common/str.h"
 
 // ***********************************************************************
 //
@@ -343,8 +344,7 @@ SQLRow::SQLRow(NAMemory *heap, NAArray<NAString> *fieldNames, NAArray<NAType *> 
 
   if (getCompFormat() == COM_SQLMX_ALIGNED_FORMAT) nominalSize += 4 * sizeof(int);  // header size
   for (int i = 0; i < fieldTypes().entries(); i++) {
-    nominalSize +=
-        ROUND4(fieldTypes()[i]->getTotalAlignedSize() + (fieldTypes()[i]->isVaryingLen() ? sizeof(int) : 0));
+    nominalSize += ROUND4(fieldTypes()[i]->getTotalAlignedSize() + (fieldTypes()[i]->isVaryingLen() ? sizeof(int) : 0));
 
     childMaxLevels = MAXOF(childMaxLevels, fieldTypes()[i]->getNumLevels());
 

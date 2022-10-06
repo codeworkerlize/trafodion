@@ -11,6 +11,7 @@
  */
 
 #include "SimpleScanOptimizer.h"
+
 #include "optimizer/AllRelExpr.h"
 
 #ifdef DEBUG

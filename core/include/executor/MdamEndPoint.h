@@ -19,9 +19,9 @@
 
 // -----------------------------------------------------------------------------
 
-#include "executor/MdamEnums.h"
-#include "common/NABoolean.h"
 #include "MdamInterval.h"
+#include "common/NABoolean.h"
+#include "executor/MdamEnums.h"
 
 // *****************************************************************************
 // MdamEndPoint is wrapper for MdamPoint.  It includes data needed to process

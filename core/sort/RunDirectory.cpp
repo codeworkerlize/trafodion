@@ -21,8 +21,9 @@
 extern "C" {}
 #define _cc_status short
 
-#include <iostream>
 #include <string.h>
+
+#include <iostream>
 
 #include "RunDirectory.h"
 

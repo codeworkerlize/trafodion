@@ -20,27 +20,23 @@
 #include "common/ComObjectName.h"
 #include "common/ComUser.h"
 #include "common/ComViewColUsage.h"
-
-#include "parser/StmtDDLCreateView.h"
-#include "parser/StmtDDLDropView.h"
+#include "executor/ExExeUtilCli.h"
+#include "exp/ExpHbaseInterface.h"
+#include "generator/Generator.h"
+#include "optimizer/SchemaDB.h"
 #include "parser/ElemDDLColDefArray.h"
 #include "parser/ElemDDLColRefArray.h"
-
-#include "optimizer/SchemaDB.h"
+#include "parser/StmtDDLCreateView.h"
+#include "parser/StmtDDLDropView.h"
 #include "sqlcomp/CmpSeabaseDDLincludes.h"
 
-#include "exp/ExpHbaseInterface.h"
-
-#include "executor/ExExeUtilCli.h"
-#include "generator/Generator.h"
-
 // for privilege checking
-#include "sqlcomp/PrivMgrCommands.h"
-#include "sqlcomp/PrivMgrDefs.h"
-#include "sqlcomp/PrivMgrPrivileges.h"
 #include <bitset>
 
 #include "common/ComCextdecs.h"
+#include "sqlcomp/PrivMgrCommands.h"
+#include "sqlcomp/PrivMgrDefs.h"
+#include "sqlcomp/PrivMgrPrivileges.h"
 
 static bool checkAccessPrivileges(const ParTableUsageList &vtul, const ParViewColTableColsUsageList &vctcul,
                                   NABoolean viewCreator, int userID, PrivMgrBitmap &privilegesBitmap,
@@ -75,28 +71,28 @@ short CmpSeabaseDDL::buildViewText(StmtDDLCreateView *createViewParseNode, NAStr
     char *p1stUnstranslatedChar = NULL;
     UInt32 iTransCharCountInChars = 0;
     int cnvErrStatus = LocaleToUTF16(cnv_version1  // in  - const enum cnv_version version
-                                       ,
-                                       str_to_test  // in  - const char *in_bufr
-                                       ,
-                                       max_bytes2cnv  // in  - const int in_len
-                                       ,
-                                       tmp_out_bufr  // out - const char *out_bufr
-                                       ,
-                                       max_bytes2cnv * 4 + 1  // in  - const int out_len
-                                       ,
-                                       eCnvCS  // in  - enum cnv_charset charset
-                                       ,
-                                       p1stUnstranslatedChar  // out - char * & first_untranslated_char
-                                       ,
-                                       NULL  // out - unsigned int *output_data_len_p
-                                       ,
-                                       0  // in  - const int cnv_flags
-                                       ,
-                                       (int)TRUE  // in  - const int addNullAtEnd_flag
-                                       ,
-                                       &iTransCharCountInChars  // out - unsigned int * translated_char_cnt_p
-                                       ,
-                                       nameLoc.getNameLength()  // in  - unsigned int max_NAWchars_to_convert
+                                     ,
+                                     str_to_test  // in  - const char *in_bufr
+                                     ,
+                                     max_bytes2cnv  // in  - const int in_len
+                                     ,
+                                     tmp_out_bufr  // out - const char *out_bufr
+                                     ,
+                                     max_bytes2cnv * 4 + 1  // in  - const int out_len
+                                     ,
+                                     eCnvCS  // in  - enum cnv_charset charset
+                                     ,
+                                     p1stUnstranslatedChar  // out - char * & first_untranslated_char
+                                     ,
+                                     NULL  // out - unsigned int *output_data_len_p
+                                     ,
+                                     0  // in  - const int cnv_flags
+                                     ,
+                                     (int)TRUE  // in  - const int addNullAtEnd_flag
+                                     ,
+                                     &iTransCharCountInChars  // out - unsigned int * translated_char_cnt_p
+                                     ,
+                                     nameLoc.getNameLength()  // in  - unsigned int max_NAWchars_to_convert
     );
     // NOTE: No errors should be possible -- string has been converted before.
 
@@ -1035,7 +1031,7 @@ void CmpSeabaseDDL::dropSeabaseView(StmtDDLDropView *dropViewNode, NAString &cur
   long objectFlags = 0;
   long objDataUID = 0;
   long objUID = getObjectInfo(&cliInterface, catalogNamePart.data(), schemaNamePart.data(), objectNamePart.data(),
-                               COM_VIEW_OBJECT, objectOwnerID, schemaOwnerID, objectFlags, objDataUID);
+                              COM_VIEW_OBJECT, objectOwnerID, schemaOwnerID, objectFlags, objDataUID);
 
   if (objUID < 0 || objectOwnerID == 0) {
     if (CmpCommon::diags()->getNumber(DgSqlCode::ERROR_) == 0)

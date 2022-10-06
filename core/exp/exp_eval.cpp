@@ -15,33 +15,31 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
+#include <fenv.h>  // floating point environment stuff
+#include <sys/mman.h>
 
-#include "exp/exp_stdh.h"
-#include "exp/ExpAtp.h"
-#include "exp/exp_clause_derived.h"
-#include "ExpPCode.h"
-#include "exp_function.h"
-#include "common/ComSysUtils.h"
-#include "exp/exp_bignum.h"
 #include "BigNumHelper.h"
+#include "ExpPCode.h"
 #include "ExpPCodeOptimizations.h"
+#include "comexe/ComTdb.h"
+#include "common/ComSysUtils.h"
+#include "common/Platform.h"
 #include "common/unicode_char_set.h"
 #include "common/wstr.h"
-
-#include <sys/mman.h>
-#include <fenv.h>  // floating point environment stuff
-
-#include "exp_ovfl_ptal.h"
-
-#include "exp_ieee.h"
 #include "executor/ex_stdh.h"
-#include "comexe/ComTdb.h"
 #include "executor/ex_tcb.h"
+#include "exp/ExpAtp.h"
+#include "exp/exp_bignum.h"
+#include "exp/exp_clause_derived.h"
+#include "exp/exp_stdh.h"
+#include "exp_function.h"
+#include "exp_ieee.h"
+#include "exp_ovfl_ptal.h"
 #include "qmscommon/QRLogger.h"
 double MathConvReal64ToReal64(double op1, Int16 *ov);
 #include <float.h>  /* nolist */
 #include <limits.h> /* nolist */
+
 #include "seabed/sys.h"
 
 #ifdef _aarch64_
@@ -203,7 +201,7 @@ ex_expr::exp_return_type getDefaultValueForAddedColumn(UInt32 field_num,  // fie
 // fields are stored without blank padding).
 /////////////////////////////////////////////////////////
 void computeDataPtr(char *start_data_ptr,  // start of data row
-                    int field_num,       // field number whose address is to be
+                    int field_num,         // field number whose address is to be
                                            // computed. Zero based.
                     ExpTupleDesc *td,      // describes this row
                     char **opdata, char **nulldata, char **varlendata) {
@@ -1119,29 +1117,29 @@ static const int compTable[6][3] = {
 #define DBGASSERT(p)
 #endif
 
-#define SETUP_EVAL_STK(p, atp1, atp2, e)                                        \
-  Long stack[6];                                                                \
-  atp_struct *atps[] = {atp1, atp2};                                            \
-                                                                                \
-  PCODE_DEF(p); /* Define pCode ptr */                                          \
-                                                                                \
-  int startOffset = ((int)pCode[0] << 1) + 2; /* past 1st opcode */         \
-                                                                                \
-  stack[1] = (Long)(e->getConstantsArea()); /* Set up constants array */        \
-                                                                                \
+#define SETUP_EVAL_STK(p, atp1, atp2, e)                                      \
+  Long stack[6];                                                              \
+  atp_struct *atps[] = {atp1, atp2};                                          \
+                                                                              \
+  PCODE_DEF(p); /* Define pCode ptr */                                        \
+                                                                              \
+  int startOffset = ((int)pCode[0] << 1) + 2; /* past 1st opcode */           \
+                                                                              \
+  stack[1] = (Long)(e->getConstantsArea()); /* Set up constants array */      \
+                                                                              \
   stack[4] = (Long)atps[pCode[1]]->getTupp((int)pCode[2]).getDataPointer();   \
-  if (!stack[4]) {                                                              \
-    DBGASSERT(0); /* don't expect null tuples */                                \
-    stack[4] = (Long)nullData;                                                  \
-  }                                                                             \
-  if (startOffset != 4) {                                                       \
+  if (!stack[4]) {                                                            \
+    DBGASSERT(0); /* don't expect null tuples */                              \
+    stack[4] = (Long)nullData;                                                \
+  }                                                                           \
+  if (startOffset != 4) {                                                     \
     stack[5] = (Long)atps[pCode[3]]->getTupp((int)pCode[4]).getDataPointer(); \
-    if (!stack[5]) {                                                            \
-      DBGASSERT(0); /* don't expect null tuples */                              \
-      stack[5] = (Long)nullData;                                                \
-    }                                                                           \
-  }                                                                             \
-                                                                                \
+    if (!stack[5]) {                                                          \
+      DBGASSERT(0); /* don't expect null tuples */                            \
+      stack[5] = (Long)nullData;                                              \
+    }                                                                         \
+  }                                                                           \
+                                                                              \
   pCode += (startOffset);
 
 // Define a pointer name directly into the pcode
@@ -3480,7 +3478,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           UInt32 copyLength = 0;
 
           if (*(int *)srcData == -1)  // if aliggned format header is 0xFFFFFFFF
-          {                             // case of null instantiated row
+          {                           // case of null instantiated row
             DBGASSERT(*(Int16 *)&srcData[voaOffset] == -1);
             copyLength = (UInt32)rowLength;
           } else {
@@ -4455,7 +4453,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           DEF_ASSIGN(UInt32, voaOffset1, 4);
           src1Data += ExpTupleDesc::getVarOffset(src1Data,  // atp_
                                                  offset1, voaOffset1,
-                                                 src1VCIndLen,          // vcIndLen
+                                                 src1VCIndLen,        // vcIndLen
                                                  (int)comboPtr1[0]);  // nullIndLen
 
           len1 = ExpTupleDesc::getVarLength(src1Data, src1VCIndLen);
@@ -4471,7 +4469,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           DEF_ASSIGN(UInt32, voaOffset2, 9);
           src2Data += ExpTupleDesc::getVarOffset(src2Data,  // atp_
                                                  offset2, voaOffset2,
-                                                 src2VCIndLen,          // vcIndLen
+                                                 src2VCIndLen,        // vcIndLen
                                                  (int)comboPtr2[0]);  // nullIndLen
 
           len2 = ExpTupleDesc::getVarLength(src2Data, src2VCIndLen);

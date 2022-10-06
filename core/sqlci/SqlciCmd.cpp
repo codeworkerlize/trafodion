@@ -540,8 +540,6 @@ short Shape::process(SqlciEnv *sqlci_env) {
 
   fclose(fStream);
 
-
-
   // reopen the original logfile
   if (logname) sqlci_env->get_logfile()->Open(logname, Logfile::APPEND_);
 

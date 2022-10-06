@@ -20,20 +20,19 @@
 // *
 // *****************************************************************************
 
-#include "common/ComSmallDefs.h"
-#include "sqlcomp/PrivMgrDefs.h"
-#include "PrivMgrComponentDefs.h"
-#include "common/NAUserId.h"
-#include "optimizer/ObjectNames.h"
-#include "parser/ElemDDLList.h"
+#include <set>
+#include <vector>
 
+#include "PrivMgrComponentDefs.h"
 #include "cli/sqlcli.h"
 #include "comexe/ComQueue.h"
+#include "common/ComSmallDefs.h"
+#include "common/NAUserId.h"
 #include "executor/ExExeUtilCli.h"
 #include "export/ComDiags.h"
-
-#include <vector>
-#include <set>
+#include "optimizer/ObjectNames.h"
+#include "parser/ElemDDLList.h"
+#include "sqlcomp/PrivMgrDefs.h"
 
 class StmtDDLRegisterUser;
 class StmtDDLAlterUser;
@@ -355,7 +354,7 @@ class CmpSeabaseDDLuser : public CmpSeabaseDDLauth {
   void alterUser(StmtDDLAlterUser *pNode);
   void registerUser(StmtDDLRegisterUser *pNode);
   int registerUserInternal(const NAString &extUserName, const NAString &dbUserName, const char *config,
-                             bool autoCreated, int authCreator, const NAString &authPassword);
+                           bool autoCreated, int authCreator, const NAString &authPassword);
 
   void unregisterUser(StmtDDLRegisterUser *pNode);
   void registerStandardUser(const std::string userName, const int32_t userID);
@@ -415,7 +414,7 @@ class CmpSeabaseDDLrole : public CmpSeabaseDDLauth {
   CmpSeabaseDDLrole(const NAString &systemCatalog, const NAString &MDSchema);
 
   int createAdminRole(const NAString &roleName, const NAString &tenantName, const int roleOwner,
-                        const char *roleOwnerName);
+                      const char *roleOwnerName);
 
   void createRole(StmtDDLCreateRole *pNode);
 

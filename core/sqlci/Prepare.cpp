@@ -1,12 +1,13 @@
 #include "sqlci/Prepare.h"
-#include "common/str.h"
+
 #include "common/BaseTypes.h"
 #include "common/dfs2rec.h"
+#include "common/str.h"
 
 //////////////////////////////////////////////////////////////////////
-PrepEntry::PrepEntry(int datatype, int length, int scale, int precision, int nullFlag, int vcIndLen,
-                     char *heading, int headingLen, char *outputName, int outputNameLen, int displayLen,
-                     int displayBufLen, int charsetEnum, char *tableName, int tableLen)
+PrepEntry::PrepEntry(int datatype, int length, int scale, int precision, int nullFlag, int vcIndLen, char *heading,
+                     int headingLen, char *outputName, int outputNameLen, int displayLen, int displayBufLen,
+                     int charsetEnum, char *tableName, int tableLen)
     : datatype_(datatype),
       length_(length),
       scale_(scale),

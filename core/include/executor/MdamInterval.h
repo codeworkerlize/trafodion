@@ -17,11 +17,11 @@
 
 // -----------------------------------------------------------------------------
 
-#include "executor/MdamEnums.h"
-#include "common/NABoolean.h"
+#include "FixedSizeHeapManager.h"
 #include "MdamPoint.h"
 #include "MdamRefList.h"
-#include "FixedSizeHeapManager.h"
+#include "common/NABoolean.h"
+#include "executor/MdamEnums.h"
 
 // Forward references...
 class MdamEndPoint;

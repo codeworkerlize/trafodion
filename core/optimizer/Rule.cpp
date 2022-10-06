@@ -16,13 +16,13 @@
 
 // -----------------------------------------------------------------------
 
-#include "optimizer/Sqlcomp.h"
-#include "TransRule.h"
-#include "ImplRule.h"
-#include "optimizer/opt.h"
 #include "EstLogProp.h"
-#include "sqlcomp/DefaultConstants.h"
+#include "ImplRule.h"
+#include "TransRule.h"
 #include "arkcmp/CmpContext.h"
+#include "optimizer/Sqlcomp.h"
+#include "optimizer/opt.h"
+#include "sqlcomp/DefaultConstants.h"
 
 // -----------------------------------------------------------------------
 // Reinitialize the rule set *in place*:  to be used only if an exception is

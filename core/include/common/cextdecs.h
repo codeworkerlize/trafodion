@@ -172,8 +172,8 @@ _declspec(dllimport) int CANCEL(short filenum)  // IN
                                                 // FILE NUMBER
     ;
 
-_declspec(dllimport) int CANCELREQ(short filenum,  // IN
-                                                   // FILE NUMBER
+_declspec(dllimport) int CANCELREQ(short filenum,      // IN
+                                                       // FILE NUMBER
                                    int tag = OMITINT)  // IN OPTIONAL
                                                        // TAG OF REQUEST TO CANCEL
     ;
@@ -198,12 +198,12 @@ _declspec(dllimport) short COMPUTETRANSID(_int64 *transid,               // OUT
                                           short crashcount = OMITSHORT)  // IN OPTIONAL
     ;
 
-_declspec(dllimport) int CONTROL(short filenum,  // IN
-                                                 // FILE NUMBER
-                                 short ctrlnum,  // IN
-                                                 // CONTROL NUMBER
-                                 short parm,  // IN
-                                              // PARAMETER
+_declspec(dllimport) int CONTROL(short filenum,      // IN
+                                                     // FILE NUMBER
+                                 short ctrlnum,      // IN
+                                                     // CONTROL NUMBER
+                                 short parm,         // IN
+                                                     // PARAMETER
                                  int tag = OMITINT)  // IN OPTIONAL
                                                      // NO-WAIT REQUEST TAG
     ;
@@ -332,8 +332,8 @@ _declspec(dllimport) short FILENAME_FINDNEXT_(short search_id,  // IN
                                               short length_a = OMITSHORT,  // IN OPTIONAL
                                               short *name_len = NULL,      // OUT OPTIONAL
                                               short *entity_info = NULL,   // OUT OPTIONAL
-                                                                          //[0:4]
-                                              int tag = OMITINT)  // IN OPTIONAL
+                                                                           //[0:4]
+                                              int tag = OMITINT)           // IN OPTIONAL
     ;
 
 _declspec(dllimport) short FILENAME_FINDSTART_(short *search_id,  // OUT
@@ -523,9 +523,9 @@ _declspec(dllimport) short FILE_GETINFOBYNAME_
 #else
     (char *name,                                                            // IN
 #endif
-     short length_a,          // IN
-     short *typeinfo = NULL,  // OUT OPTIONAL
-                              //[0:4]
+     short length_a,              // IN
+     short *typeinfo = NULL,      // OUT OPTIONAL
+                                  //[0:4]
      short *phys_rec_len = NULL,  // OUT OPTIONAL
      short options = OMITSHORT,   // IN OPTIONAL
      int timeout = OMITINT,       // IN OPTIONAL
@@ -566,8 +566,8 @@ _declspec(dllimport) short FILE_GETINFO_(short filenum,            // IN
                                          short length_a = OMITSHORT,  // IN OPTIONAL
                                          short *filename_len = NULL,  // OUT OPTIONAL
                                          short *typeinfo = NULL,      // OUT OPTIONAL
-                                                                  //[0:4]
-                                         short *flags = NULL)  // OUT OPTIONAL
+                                                                      //[0:4]
+                                         short *flags = NULL)         // OUT OPTIONAL
     ;
 
 _declspec(dllimport) short FILE_GETLOCKINFO_
@@ -576,12 +576,12 @@ _declspec(dllimport) short FILE_GETLOCKINFO_
 #else
     (char *name,                                                            // IN
 #endif
-     short length_a,         // IN
-     short *phandle = NULL,  // IN OPTIONAL
-                             //[0:9]
-     short *transid = NULL,  // IN OPTIONAL
-     short *control = NULL,  // IN/OUT
-                             //[0:9]
+     short length_a,                     // IN
+     short *phandle = NULL,              // IN OPTIONAL
+                                         //[0:9]
+     short *transid = NULL,              // IN OPTIONAL
+     short *control = NULL,              // IN/OUT
+                                         //[0:9]
      short *lockdesc = NULL,             // OUT
      short desclen = OMITSHORT,          // IN
      short *participants = NULL,         // OUT
@@ -601,15 +601,15 @@ _declspec(dllimport) short FILE_GETOPENINFO_
 #else
     (char *searchname,                                                      // IN
 #endif
-     short length_a,            // IN
-     _int64 *prevtag,           // IN/OUT
-     short *pri_opener = NULL,  // OUT OPTIONAL
-                                //[0:9]
+     short length_a,             // IN
+     _int64 *prevtag,            // IN/OUT
+     short *pri_opener = NULL,   // OUT OPTIONAL
+                                 //[0:9]
      short *back_opener = NULL,  // OUT OPTIONAL
                                  //[0:9]
-     short *accessmode = NULL,  // OUT OPTIONAL
-     short *exclusion = NULL,   // OUT OPTIONAL
-     short *syncdepth = NULL,   // OUT OPTIONAL
+     short *accessmode = NULL,   // OUT OPTIONAL
+     short *exclusion = NULL,    // OUT OPTIONAL
+     short *syncdepth = NULL,    // OUT OPTIONAL
 #ifdef TDM_ROSETTA_COMPATIBILITY_
      unsigned char *filename = NULL,  // OUT OPTIONAL
 #else
@@ -641,7 +641,7 @@ _declspec(dllimport) short FILE_OPEN_
      short seq_block_buf_id = OMITSHORT,   // IN OPTIONAL
      short seq_block_buf_len = OMITSHORT,  // IN OPTIONAL
      short *primary_phandle = NULL)        // IN OPTIONAL
-                                     //[0:9]
+                                           //[0:9]
     ;
 
 _declspec(dllimport) short FILE_PURGE_
@@ -662,10 +662,10 @@ _declspec(dllimport) short FILE_RENAME_(short filenum,  // IN
                                         short length_a)  // IN
     ;
 
-_declspec(dllimport) int GETSYNCINFO(short filenum,  // IN
-                                                     // FILE NUMBER
-                                     short *syncinfo,  // OUT
-                                                       // ARRAY FOR SYNCHRONIZATION INFORMATION
+_declspec(dllimport) int GETSYNCINFO(short filenum,           // IN
+                                                              // FILE NUMBER
+                                     short *syncinfo,         // OUT
+                                                              // ARRAY FOR SYNCHRONIZATION INFORMATION
                                      short *infosize = NULL)  // OUT OPTIONAL
                                                               // SIZE OF SYNCINFO ARRAY
     ;
@@ -723,14 +723,14 @@ _declspec(dllimport) int KEYPOSITIONX(short filenum,  // IN
                                       fat_16 postype = OMITFAT_16)  // IN OPTIONAL
     ;
 
-_declspec(dllimport) int LOCKFILE(short filenum,  // IN
-                                                  // FILE NUMBER
+_declspec(dllimport) int LOCKFILE(short filenum,      // IN
+                                                      // FILE NUMBER
                                   int tag = OMITINT)  // IN OPTIONAL
                                                       // NO-WAIT REQUEST TAG
     ;
 
-_declspec(dllimport) int LOCKREC(short filenum,  // IN
-                                                 // FILE NUMBER
+_declspec(dllimport) int LOCKREC(short filenum,      // IN
+                                                     // FILE NUMBER
                                  int tag = OMITINT)  // IN OPTIONAL
                                                      // NO-WAIT REQUEST TAG
     ;
@@ -775,8 +775,8 @@ _declspec(dllimport) baddr NUMIN(char *str,                                 // I
                                                       // STRING WHERE NUMBER STARTS
                                  short *number,  // OUT
                                                  // NUMERIC VALUE RETURNED HERE
-                                 short base,  // IN
-                                              // DEFAULT CONVERSION BASE, A % FORCES 8
+                                 short base,     // IN
+                                                 // DEFAULT CONVERSION BASE, A % FORCES 8
                                  short *result)  // OUT
                                                  // 1: STR DOES NOT LOOK LIKE A NUMBER
                                                  // 0: LEGAL NUMBER
@@ -791,11 +791,11 @@ _declspec(dllimport) void NUMOUT(char *str,                                 // O
                                                       // BYTE STRING FOR ASCII NUMBER
                                  short number,  // IN
                                                 // LOGICAL 16 BIT NUMERIC VALUE
-                                 short base,  // IN
-                                              // CONVERSION BASE, 2-10 ALLOWED
-                                 short width)  // IN
-                                               // CONVERTED NUMBER WILL OCCUPY STR TO
-                                               // STR [ WIDTH - 1 ]
+                                 short base,    // IN
+                                                // CONVERSION BASE, 2-10 ALLOWED
+                                 short width)   // IN
+                                                // CONVERTED NUMBER WILL OCCUPY STR TO
+                                                // STR [ WIDTH - 1 ]
     ;
 
 _declspec(dllimport) short OLDFILENAME_TO_FILENAME_(short *oldname,  // IN
@@ -810,9 +810,9 @@ _declspec(dllimport) short OLDFILENAME_TO_FILENAME_(short *oldname,  // IN
 
 _declspec(dllimport) int TDM_POSITION_(short filenum,  // IN
                                                        // FILE NUMBER
-                                       int address)  // IN
-                                                     // NEW VALUE OF LOGICAL DATA PTR
-                                                     //(-1D TO SET TO EOF)
+                                       int address)    // IN
+                                                       // NEW VALUE OF LOGICAL DATA PTR
+                                                       //(-1D TO SET TO EOF)
     ;
 
 _declspec(dllimport) short PROCESSHANDLE_COMPARE_(short *phandle1,  // IN
@@ -821,8 +821,8 @@ _declspec(dllimport) short PROCESSHANDLE_COMPARE_(short *phandle1,  // IN
                                                                     //[0:9]
     ;
 
-_declspec(dllimport) short PROCESSHANDLE_DECOMPOSE_(short *process_handle,  // IN
-                                                                            //[0:9]
+_declspec(dllimport) short PROCESSHANDLE_DECOMPOSE_(short *process_handle,   // IN
+                                                                             //[0:9]
                                                     short *cpu = NULL,       // OUT OPTIONAL
                                                     short *pin = NULL,       // OUT OPTIONAL
                                                     int *nodenumber = NULL,  // OUT OPTIONAL
@@ -910,7 +910,7 @@ _declspec(dllimport) short PROCESSSTRING_SCAN_
      short *length_used = NULL,     // OUT OPTIONAL
      short *process_handle = NULL,  // OUT OPTIONAL
                                     //[0:9]
-     short *string_kind = NULL,  // OUT OPTIONAL
+     short *string_kind = NULL,     // OUT OPTIONAL
 #ifdef TDM_ROSETTA_COMPATIBILITY_
      unsigned char *name = NULL,  // OUT OPTIONAL
 #else
@@ -947,11 +947,11 @@ _declspec(dllimport) short PROCESS_CREATE_
 #else
      char *ext_swap_file = NULL,                                            // IN OPTIONAL
 #endif
-     short length_d = OMITSHORT,   // IN OPTIONAL
-     short priority = OMITSHORT,   // IN OPTIONAL
-     short processor = OMITSHORT,  // IN OPTIONAL
-     short *phandle = NULL,        // OUT OPTIONAL
-                             //[0:9]
+     short length_d = OMITSHORT,     // IN OPTIONAL
+     short priority = OMITSHORT,     // IN OPTIONAL
+     short processor = OMITSHORT,    // IN OPTIONAL
+     short *phandle = NULL,          // OUT OPTIONAL
+                                     //[0:9]
      short *error_detail = NULL,     // OUT OPTIONAL
      short name_option = OMITSHORT,  // IN OPTIONAL
 #ifdef TDM_ROSETTA_COMPATIBILITY_
@@ -1006,7 +1006,7 @@ _declspec(dllimport) short PROCESS_GETINFO_(short *phandle = NULL,  // IN/OUT OP
                                             short *process_desc_len = NULL,         // OUT OPTIONAL
                                             short *priority = NULL,                 // OUT OPTIONAL
                                             short *moms_phandle = NULL,             // OUT OPTIONAL
-                                                                         //[0:9]
+                                                                                    //[0:9]
 #ifdef TDM_ROSETTA_COMPATIBILITY_
                                             unsigned char *hometerm = NULL,  // OUT OPTIONAL
 #else
@@ -1018,8 +1018,8 @@ _declspec(dllimport) short PROCESS_GETINFO_(short *phandle = NULL,  // IN/OUT OP
                                             short *creator_access_id = NULL,    // OUT OPTIONAL
                                             short *process_access_id = NULL,    // OUT OPTIONAL
                                             short *gmoms_phandle = NULL,        // OUT OPTIONAL
-                                                                          //[0:9]
-                                            short *jobid = NULL,  // OUT OPTIONAL
+                                                                                //[0:9]
+                                            short *jobid = NULL,                // OUT OPTIONAL
 #ifdef TDM_ROSETTA_COMPATIBILITY_
                                             unsigned char *program_file = NULL,  // OUT OPTIONAL
 #else
@@ -1039,14 +1039,14 @@ _declspec(dllimport) short PROCESS_GETINFO_(short *phandle = NULL,  // IN/OUT OP
                                             int *oss_pid = NULL)                 // OUT OPTIONAL
     ;
 
-_declspec(dllimport) short PROCESS_STOP_(short *phandle = NULL,  // IN OPTIONAL
-                                                                 //[0:9]
+_declspec(dllimport) short PROCESS_STOP_(short *phandle = NULL,               // IN OPTIONAL
+                                                                              //[0:9]
                                          short specifier = OMITSHORT,         // IN OPTIONAL
                                          short options = OMITSHORT,           // IN OPTIONAL
                                          short compl_code = OMITSHORT,        // IN OPTIONAL
                                          short termination_info = OMITSHORT,  // IN OPTIONAL
                                          short *spi_ssid = NULL,              // IN OPTIONAL
-                                                                  //[0:5]
+                                                                              //[0:5]
 #ifdef TDM_ROSETTA_COMPATIBILITY_
                                          unsigned char *ascii_text = NULL,  // IN OPTIONAL
 #else
@@ -1111,8 +1111,8 @@ _declspec(dllimport) int REPLYX
      short errret = OMITSHORT)                  // IN OPTIONAL
     ;
 
-_declspec(dllimport) int REPOSITION(short filenum,  // IN
-                                                    // FILE NUMBER
+_declspec(dllimport) int REPOSITION(short filenum,    // IN
+                                                      // FILE NUMBER
                                     short *position)  // IN
                                                       // ARRAY FOR POSITION INFORMATION
     ;
@@ -1121,10 +1121,10 @@ _declspec(dllimport) short RESUMETRANSACTION(int tag)  // IN
                                                        // TAG RETURNED FROM BEGINTRANSACTION
     ;
 
-_declspec(dllimport) int SAVEPOSITION(short filenum,  // IN
-                                                      // FILE NUMBER
-                                      short *position,  // OUT
-                                                        // ARRAY FOR POSITION INFORMATION
+_declspec(dllimport) int SAVEPOSITION(short filenum,           // IN
+                                                               // FILE NUMBER
+                                      short *position,         // OUT
+                                                               // ARRAY FOR POSITION INFORMATION
                                       short *infosize = NULL)  // OUT OPTIONAL
                                                                // SIZE OF SYNCINFO ARRAY
     ;
@@ -1208,30 +1208,30 @@ _declspec(dllimport) short SERVERCLASS_SEND_INFO_(short *serverclasserror,  // O
                                                   short *filesystemerror)   // OUT
     ;
 
-_declspec(dllimport) int SETMODE(short filenum,  // IN
-                                                 // FILE NUMBER
-                                 short modenum,  // IN
-                                                 // NUMBER OF CHARACTERISTIC TO BE CHANGED
+_declspec(dllimport) int SETMODE(short filenum,              // IN
+                                                             // FILE NUMBER
+                                 short modenum,              // IN
+                                                             // NUMBER OF CHARACTERISTIC TO BE CHANGED
                                  fat_16 parm1 = OMITFAT_16,  // IN OPTIONAL
                                                              // FIRST PARAMETER
                                  fat_16 parm2 = OMITFAT_16,  // IN OPTIONAL
                                                              // SECOND PARAMETER
-                                 short *oldval = NULL)  // OUT OPTIONAL
-                                                        // ARRAY FOR RETURNING OLD VALUE
+                                 short *oldval = NULL)       // OUT OPTIONAL
+                                                             // ARRAY FOR RETURNING OLD VALUE
     ;
 
-_declspec(dllimport) int SETMODENOWAIT(short filenum,  // IN
-                                                       // FILE NUMBER
-                                       short modenum,  // IN
-                                                       // NUMBER OF CHARACTERISTIC TO BE CHANGED
+_declspec(dllimport) int SETMODENOWAIT(short filenum,              // IN
+                                                                   // FILE NUMBER
+                                       short modenum,              // IN
+                                                                   // NUMBER OF CHARACTERISTIC TO BE CHANGED
                                        fat_16 parm1 = OMITFAT_16,  // IN OPTIONAL
                                                                    // FIRST PARAMETER
                                        fat_16 parm2 = OMITFAT_16,  // IN OPTIONAL
                                                                    // SECOND PARAMETER
-                                       short *oldval = NULL,  // OUT OPTIONAL
-                                                              // ARRAY FOR RETURNING OLD VALUE
-                                       int tag = OMITINT)  // IN OPTIONAL
-                                                           // SPECIFIED TAG FOR NOWAIT REQUESTS
+                                       short *oldval = NULL,       // OUT OPTIONAL
+                                                                   // ARRAY FOR RETURNING OLD VALUE
+                                       int tag = OMITINT)          // IN OPTIONAL
+                                                                   // SPECIFIED TAG FOR NOWAIT REQUESTS
     ;
 
 _declspec(dllimport) int SETPARAM(short filenum,                  // IN
@@ -1256,8 +1256,8 @@ _declspec(dllimport) void SHIFTSTRING(char *bytestring,                     // I
                                                                   // String to be shifted
                                       short bytecount,  // IN
                                                         // Number of BYTES in String
-                                      short casebit)  // IN
-                                                      //.<15> = 0 -> UPSHIFT,
+                                      short casebit)    // IN
+                                                        //.<15> = 0 -> UPSHIFT,
     ;
 
 _declspec(dllimport) int SIGNALTIMEOUT(int toval,                // IN
@@ -1291,12 +1291,12 @@ _declspec(dllimport) short TEXTTOTRANSID
      _int64 *transid)    // OUT
     ;
 
-_declspec(dllimport) void TMF_VERSION_(int sysnum,  // IN
-                                                    // System Number of the system to interrogate
+_declspec(dllimport) void TMF_VERSION_(int sysnum,      // IN
+                                                        // System Number of the system to interrogate
                                        short *version,  // OUT
                                                         // Version number of the TMP process
-                                       short *error)  // OUT
-                                                      // File System Error Code
+                                       short *error)    // OUT
+                                                        // File System Error Code
     ;
 
 _declspec(dllimport) short TOSVERSION();
@@ -1312,14 +1312,14 @@ _declspec(dllimport) short TRANSIDTOTEXT(_int64 transid,  // IN
                                          short *bytesused)   // OUT
     ;
 
-_declspec(dllimport) int UNLOCKFILE(short filenum,  // IN
-                                                    // FILE NUMBER
+_declspec(dllimport) int UNLOCKFILE(short filenum,      // IN
+                                                        // FILE NUMBER
                                     int tag = OMITINT)  // IN OPTIONAL
                                                         // NO-WAIT REQUEST TAG
     ;
 
-_declspec(dllimport) int UNLOCKREC(short filenum,  // IN
-                                                   // FILE NUMBER
+_declspec(dllimport) int UNLOCKREC(short filenum,      // IN
+                                                       // FILE NUMBER
                                    int tag = OMITINT)  // IN OPTIONAL
                                                        // NO-WAIT REQUEST TAG
     ;
@@ -1410,8 +1410,8 @@ _declspec(dllimport) int CANCEL(short filenum)  // IN
 
 _declspec(dllimport) int CANCELREQ(short filenum,  // IN
                                                    // FILE NUMBER
-                                   int tag)  // IN OPTIONAL
-                                             // TAG OF REQUEST TO CANCEL
+                                   int tag)        // IN OPTIONAL
+                                                   // TAG OF REQUEST TO CANCEL
     ;
 
 _declspec(dllimport) int CANCELTIMEOUT(short tleaddr)  // IN
@@ -1438,10 +1438,10 @@ _declspec(dllimport) int CONTROL(short filenum,  // IN
                                                  // FILE NUMBER
                                  short ctrlnum,  // IN
                                                  // CONTROL NUMBER
-                                 short parm,  // IN
-                                              // PARAMETER
-                                 int tag)  // IN OPTIONAL
-                                           // NO-WAIT REQUEST TAG
+                                 short parm,     // IN
+                                                 // PARAMETER
+                                 int tag)        // IN OPTIONAL
+                                                 // NO-WAIT REQUEST TAG
     ;
 
 _declspec(dllimport) short CONTROLMESSAGESYSTEM(short actioncode,  // IN
@@ -1568,8 +1568,8 @@ _declspec(dllimport) short FILENAME_FINDNEXT_(short search_id,      // IN
                                               short length_a,       // IN OPTIONAL
                                               short *name_len,      // OUT OPTIONAL
                                               short *entity_info,   // OUT OPTIONAL
-                                                                   //[0:4]
-                                              int tag)  // IN OPTIONAL
+                                                                    //[0:4]
+                                              int tag)              // IN OPTIONAL
     ;
 
 _declspec(dllimport) short FILENAME_FINDSTART_(short *search_id,          // OUT
@@ -1761,7 +1761,7 @@ _declspec(dllimport) short FILE_GETINFOBYNAME_
 #endif
      short length_a,       // IN
      short *typeinfo,      // OUT OPTIONAL
-                       //[0:4]
+                           //[0:4]
      short *phys_rec_len,  // OUT OPTIONAL
      short options,        // IN OPTIONAL
      int timeout,          // IN OPTIONAL
@@ -1802,22 +1802,22 @@ _declspec(dllimport) short FILE_GETINFO_(short filenum,            // IN
                                          short length_a,           // IN OPTIONAL
                                          short *filename_len,      // OUT OPTIONAL
                                          short *typeinfo,          // OUT OPTIONAL
-                                                           //[0:4]
-                                         short *flags)  // OUT OPTIONAL
+                                                                   //[0:4]
+                                         short *flags)             // OUT OPTIONAL
     ;
 
 _declspec(dllimport) short FILE_GETLOCKINFO_
 #ifdef TDM_ROSETTA_COMPATIBILITY_
-    (unsigned char *name,  // IN
+    (unsigned char *name,        // IN
 #else
     (char *name,                                                           // IN
 #endif
-     short length_a,       // IN
-     short *phandle,       // IN OPTIONAL
-                      //[0:9]
-     short *transid,  // IN OPTIONAL
-     short *control,  // IN/OUT
-                      //[0:9]
+     short length_a,             // IN
+     short *phandle,             // IN OPTIONAL
+                                 //[0:9]
+     short *transid,             // IN OPTIONAL
+     short *control,             // IN/OUT
+                                 //[0:9]
      short *lockdesc,            // OUT
      short desclen,              // IN
      short *participants,        // OUT
@@ -1840,21 +1840,21 @@ _declspec(dllimport) short FILE_GETOPENINFO_
      short length_a,             // IN
      _int64 *prevtag,            // IN/OUT
      short *pri_opener,          // OUT OPTIONAL
-                         //[0:9]
-     short *back_opener,  // OUT OPTIONAL
-                          //[0:9]
-     short *accessmode,        // OUT OPTIONAL
-     short *exclusion,         // OUT OPTIONAL
-     short *syncdepth,         // OUT OPTIONAL
+                                 //[0:9]
+     short *back_opener,         // OUT OPTIONAL
+                                 //[0:9]
+     short *accessmode,          // OUT OPTIONAL
+     short *exclusion,           // OUT OPTIONAL
+     short *syncdepth,           // OUT OPTIONAL
 #ifdef TDM_ROSETTA_COMPATIBILITY_
-     unsigned char *filename,  // OUT OPTIONAL
+     unsigned char *filename,    // OUT OPTIONAL
 #else
      char *filename,                                                       // OUT OPTIONAL
 #endif
-     short length_b,           // IN OPTIONAL
-     short *flen,              // OUT OPTIONAL
-     short *accessid,          // OUT OPTIONAL
-     short *validmask)         // OUT OPTIONAL
+     short length_b,             // IN OPTIONAL
+     short *flen,                // OUT OPTIONAL
+     short *accessid,            // OUT OPTIONAL
+     short *validmask)           // OUT OPTIONAL
     ;
 
 _declspec(dllimport) short FILE_GETRECEIVEINFO_(short *receiveinfo,  // OUT
@@ -1877,7 +1877,7 @@ _declspec(dllimport) short FILE_OPEN_
      short seq_block_buf_id,   // IN OPTIONAL
      short seq_block_buf_len,  // IN OPTIONAL
      short *primary_phandle)   // IN OPTIONAL
-                              //[0:9]
+                               //[0:9]
     ;
 
 _declspec(dllimport) short FILE_PURGE_
@@ -1898,8 +1898,8 @@ _declspec(dllimport) short FILE_RENAME_(short filenum,        // IN
                                         short length_a)       // IN
     ;
 
-_declspec(dllimport) int GETSYNCINFO(short filenum,  // IN
-                                                     // FILE NUMBER
+_declspec(dllimport) int GETSYNCINFO(short filenum,    // IN
+                                                       // FILE NUMBER
                                      short *syncinfo,  // OUT
                                                        // ARRAY FOR SYNCHRONIZATION INFORMATION
                                      short *infosize)  // OUT OPTIONAL
@@ -1954,14 +1954,14 @@ _declspec(dllimport) int KEYPOSITIONX(short filenum,       // IN
 
 _declspec(dllimport) int LOCKFILE(short filenum,  // IN
                                                   // FILE NUMBER
-                                  int tag)  // IN OPTIONAL
-                                            // NO-WAIT REQUEST TAG
+                                  int tag)        // IN OPTIONAL
+                                                  // NO-WAIT REQUEST TAG
     ;
 
 _declspec(dllimport) int LOCKREC(short filenum,  // IN
                                                  // FILE NUMBER
-                                 int tag)  // IN OPTIONAL
-                                           // NO-WAIT REQUEST TAG
+                                 int tag)        // IN OPTIONAL
+                                                 // NO-WAIT REQUEST TAG
     ;
 
 _declspec(dllimport) short MESSAGESTATUS(short msgnum)  // IN OPTIONAL
@@ -2002,14 +2002,14 @@ _declspec(dllimport) baddr NUMIN(unsigned char *str,  // IN
 _declspec(dllimport) baddr NUMIN(char *str,                                // IN
 #endif
                                                       // STRING WHERE NUMBER STARTS
-                                 short *number,  // OUT
-                                                 // NUMERIC VALUE RETURNED HERE
-                                 short base,  // IN
-                                              // DEFAULT CONVERSION BASE, A % FORCES 8
-                                 short *result)  // OUT
-                                                 // 1: STR DOES NOT LOOK LIKE A NUMBER
-                                                 // 0: LEGAL NUMBER
-                                                 //-1: ILLEGAL NUMBER
+                                 short *number,       // OUT
+                                                      // NUMERIC VALUE RETURNED HERE
+                                 short base,          // IN
+                                                      // DEFAULT CONVERSION BASE, A % FORCES 8
+                                 short *result)       // OUT
+                                                      // 1: STR DOES NOT LOOK LIKE A NUMBER
+                                                      // 0: LEGAL NUMBER
+                                                      //-1: ILLEGAL NUMBER
     ;
 
 #ifdef TDM_ROSETTA_COMPATIBILITY_
@@ -2018,13 +2018,13 @@ _declspec(dllimport) void NUMOUT(unsigned char *str,  // OUT
 _declspec(dllimport) void NUMOUT(char *str,                                // OUT
 #endif
                                                       // BYTE STRING FOR ASCII NUMBER
-                                 short number,  // IN
-                                                // LOGICAL 16 BIT NUMERIC VALUE
-                                 short base,  // IN
-                                              // CONVERSION BASE, 2-10 ALLOWED
-                                 short width)  // IN
-                                               // CONVERTED NUMBER WILL OCCUPY STR TO
-                                               // STR [ WIDTH - 1 ]
+                                 short number,        // IN
+                                                      // LOGICAL 16 BIT NUMERIC VALUE
+                                 short base,          // IN
+                                                      // CONVERSION BASE, 2-10 ALLOWED
+                                 short width)         // IN
+                                                      // CONVERTED NUMBER WILL OCCUPY STR TO
+                                                      // STR [ WIDTH - 1 ]
     ;
 
 _declspec(dllimport) short OLDFILENAME_TO_FILENAME_(short *oldname,       // IN
@@ -2039,9 +2039,9 @@ _declspec(dllimport) short OLDFILENAME_TO_FILENAME_(short *oldname,       // IN
 
 _declspec(dllimport) int TDM_POSITION_(short filenum,  // IN
                                                        // FILE NUMBER
-                                       int address)  // IN
-                                                     // NEW VALUE OF LOGICAL DATA PTR
-                                                     //(-1D TO SET TO EOF)
+                                       int address)    // IN
+                                                       // NEW VALUE OF LOGICAL DATA PTR
+                                                       //(-1D TO SET TO EOF)
     ;
 
 _declspec(dllimport) short PROCESSHANDLE_COMPARE_(short *phandle1,  // IN
@@ -2050,8 +2050,8 @@ _declspec(dllimport) short PROCESSHANDLE_COMPARE_(short *phandle1,  // IN
                                                                     //[0:9]
     ;
 
-_declspec(dllimport) short PROCESSHANDLE_DECOMPOSE_(short *process_handle,  // IN
-                                                                            //[0:9]
+_declspec(dllimport) short PROCESSHANDLE_DECOMPOSE_(short *process_handle,    // IN
+                                                                              //[0:9]
                                                     short *cpu,               // OUT OPTIONAL
                                                     short *pin,               // OUT OPTIONAL
                                                     int *nodenumber,          // OUT OPTIONAL
@@ -2082,17 +2082,17 @@ _declspec(dllimport) short PROCESSHANDLE_NULLIT_(short *prochand)  // OUT
 _declspec(dllimport) short PROCESSHANDLE_TO_FILENAME_(short *process_handle,  // IN
                                                                               //[0:9]
 #ifdef TDM_ROSETTA_COMPATIBILITY_
-                                                      unsigned char *name,  // OUT
+                                                      unsigned char *name,    // OUT
 #else
                                                       char *name,          // OUT
 #endif
-                                                      short length_a,       // IN
-                                                      short *name_len,      // OUT
-                                                      short options)        // IN OPTIONAL
+                                                      short length_a,         // IN
+                                                      short *name_len,        // OUT
+                                                      short options)          // IN OPTIONAL
     ;
 
-_declspec(dllimport) short PROCESSHANDLE_TO_STRING_(short *phandle,  // IN
-                                                                     //[0:9]
+_declspec(dllimport) short PROCESSHANDLE_TO_STRING_(short *phandle,          // IN
+                                                                             //[0:9]
 #ifdef TDM_ROSETTA_COMPATIBILITY_
                                                     unsigned char *pstring,  // OUT
 #else
@@ -2138,18 +2138,18 @@ _declspec(dllimport) short PROCESSSTRING_SCAN_
      short length_a,                 // IN
      short *length_used,             // OUT OPTIONAL
      short *process_handle,          // OUT OPTIONAL
-                             //[0:9]
-     short *string_kind,   // OUT OPTIONAL
+                                     //[0:9]
+     short *string_kind,             // OUT OPTIONAL
 #ifdef TDM_ROSETTA_COMPATIBILITY_
-     unsigned char *name,  // OUT OPTIONAL
+     unsigned char *name,            // OUT OPTIONAL
 #else
      char *name,                                                           // OUT OPTIONAL
 #endif
-     short length_b,       // IN OPTIONAL
-     short *name_len,      // OUT OPTIONAL
-     short *cpu,           // OUT OPTIONAL
-     short *pin,           // OUT OPTIONAL
-     short options)        // IN OPTIONAL
+     short length_b,                 // IN OPTIONAL
+     short *name_len,                // OUT OPTIONAL
+     short *cpu,                     // OUT OPTIONAL
+     short *pin,                     // OUT OPTIONAL
+     short options)                  // IN OPTIONAL
     ;
 
 _declspec(dllimport) short PROCESS_CREATE_
@@ -2180,7 +2180,7 @@ _declspec(dllimport) short PROCESS_CREATE_
      short priority,                // IN OPTIONAL
      short processor,               // IN OPTIONAL
      short *phandle,                // OUT OPTIONAL
-                      //[0:9]
+                                    //[0:9]
      short *error_detail,           // OUT OPTIONAL
      short name_option,             // IN OPTIONAL
 #ifdef TDM_ROSETTA_COMPATIBILITY_
@@ -2219,13 +2219,13 @@ _declspec(dllimport) short PROCESS_CREATE_
 #else
      char *reserved1,                                                      // IN OPTIONAL
 #endif
-                                // RESERVED FOR INTERNAL USE
-     short reserved2)  // IN OPTIONAL
-                       // RESERVED FOR INTERNAL USE
+                                    // RESERVED FOR INTERNAL USE
+     short reserved2)               // IN OPTIONAL
+                                    // RESERVED FOR INTERNAL USE
     ;
 
-_declspec(dllimport) short PROCESS_GETINFO_(short *phandle,  // IN/OUT OPTIONAL
-                                                             //[0:9]
+_declspec(dllimport) short PROCESS_GETINFO_(short *phandle,               // IN/OUT OPTIONAL
+                                                                          //[0:9]
 #ifdef TDM_ROSETTA_COMPATIBILITY_
                                             unsigned char *process_desc,  // OUT OPTIONAL
 #else
@@ -2235,19 +2235,19 @@ _declspec(dllimport) short PROCESS_GETINFO_(short *phandle,  // IN/OUT OPTIONAL
                                             short *process_desc_len,      // OUT OPTIONAL
                                             short *priority,              // OUT OPTIONAL
                                             short *moms_phandle,          // OUT OPTIONAL
-                                                                  //[0:9]
+                                                                          //[0:9]
 #ifdef TDM_ROSETTA_COMPATIBILITY_
-                                            unsigned char *hometerm,   // OUT OPTIONAL
+                                            unsigned char *hometerm,      // OUT OPTIONAL
 #else
                                             char *hometerm,                // OUT OPTIONAL
 #endif
-                                            short hometerm_maxlen,     // IN OPTIONAL
-                                            short *hometerm_len,       // OUT OPTIONAL
-                                            _int64 *process_time,      // OUT OPTIONAL
-                                            short *creator_access_id,  // OUT OPTIONAL
-                                            short *process_access_id,  // OUT OPTIONAL
-                                            short *gmoms_phandle,      // OUT OPTIONAL
-                                                                   //[0:9]
+                                            short hometerm_maxlen,        // IN OPTIONAL
+                                            short *hometerm_len,          // OUT OPTIONAL
+                                            _int64 *process_time,         // OUT OPTIONAL
+                                            short *creator_access_id,     // OUT OPTIONAL
+                                            short *process_access_id,     // OUT OPTIONAL
+                                            short *gmoms_phandle,         // OUT OPTIONAL
+                                                                          //[0:9]
                                             short *jobid,                 // OUT OPTIONAL
 #ifdef TDM_ROSETTA_COMPATIBILITY_
                                             unsigned char *program_file,  // OUT OPTIONAL
@@ -2268,14 +2268,14 @@ _declspec(dllimport) short PROCESS_GETINFO_(short *phandle,  // IN/OUT OPTIONAL
                                             int *oss_pid)                 // OUT OPTIONAL
     ;
 
-_declspec(dllimport) short PROCESS_STOP_(short *phandle,  // IN OPTIONAL
-                                                          //[0:9]
-                                         short specifier,         // IN OPTIONAL
-                                         short options,           // IN OPTIONAL
-                                         short compl_code,        // IN OPTIONAL
-                                         short termination_info,  // IN OPTIONAL
-                                         short *spi_ssid,         // IN OPTIONAL
-                                                           //[0:5]
+_declspec(dllimport) short PROCESS_STOP_(short *phandle,             // IN OPTIONAL
+                                                                     //[0:9]
+                                         short specifier,            // IN OPTIONAL
+                                         short options,              // IN OPTIONAL
+                                         short compl_code,           // IN OPTIONAL
+                                         short termination_info,     // IN OPTIONAL
+                                         short *spi_ssid,            // IN OPTIONAL
+                                                                     //[0:5]
 #ifdef TDM_ROSETTA_COMPATIBILITY_
                                          unsigned char *ascii_text,  // IN OPTIONAL
 #else
@@ -2340,8 +2340,8 @@ _declspec(dllimport) int REPLYX
      short errret)                  // IN OPTIONAL
     ;
 
-_declspec(dllimport) int REPOSITION(short filenum,  // IN
-                                                    // FILE NUMBER
+_declspec(dllimport) int REPOSITION(short filenum,    // IN
+                                                      // FILE NUMBER
                                     short *position)  // IN
                                                       // ARRAY FOR POSITION INFORMATION
     ;
@@ -2350,8 +2350,8 @@ _declspec(dllimport) short RESUMETRANSACTION(int tag)  // IN
                                                        // TAG RETURNED FROM BEGINTRANSACTION
     ;
 
-_declspec(dllimport) int SAVEPOSITION(short filenum,  // IN
-                                                      // FILE NUMBER
+_declspec(dllimport) int SAVEPOSITION(short filenum,    // IN
+                                                        // FILE NUMBER
                                       short *position,  // OUT
                                                         // ARRAY FOR POSITION INFORMATION
                                       short *infosize)  // OUT OPTIONAL
@@ -2441,10 +2441,10 @@ _declspec(dllimport) int SETMODE(short filenum,  // IN
                                                  // FILE NUMBER
                                  short modenum,  // IN
                                                  // NUMBER OF CHARACTERISTIC TO BE CHANGED
-                                 fat_16 parm1,  // IN OPTIONAL
-                                                // FIRST PARAMETER
-                                 fat_16 parm2,  // IN OPTIONAL
-                                                // SECOND PARAMETER
+                                 fat_16 parm1,   // IN OPTIONAL
+                                                 // FIRST PARAMETER
+                                 fat_16 parm2,   // IN OPTIONAL
+                                                 // SECOND PARAMETER
                                  short *oldval)  // OUT OPTIONAL
                                                  // ARRAY FOR RETURNING OLD VALUE
     ;
@@ -2453,14 +2453,14 @@ _declspec(dllimport) int SETMODENOWAIT(short filenum,  // IN
                                                        // FILE NUMBER
                                        short modenum,  // IN
                                                        // NUMBER OF CHARACTERISTIC TO BE CHANGED
-                                       fat_16 parm1,  // IN OPTIONAL
-                                                      // FIRST PARAMETER
-                                       fat_16 parm2,  // IN OPTIONAL
-                                                      // SECOND PARAMETER
+                                       fat_16 parm1,   // IN OPTIONAL
+                                                       // FIRST PARAMETER
+                                       fat_16 parm2,   // IN OPTIONAL
+                                                       // SECOND PARAMETER
                                        short *oldval,  // OUT OPTIONAL
                                                        // ARRAY FOR RETURNING OLD VALUE
-                                       int tag)  // IN OPTIONAL
-                                                 // SPECIFIED TAG FOR NOWAIT REQUESTS
+                                       int tag)        // IN OPTIONAL
+                                                       // SPECIFIED TAG FOR NOWAIT REQUESTS
     ;
 
 _declspec(dllimport) int SETPARAM(short filenum,        // IN
@@ -2483,10 +2483,10 @@ _declspec(dllimport) void SHIFTSTRING(unsigned char *bytestring,  // IN/OUT
 _declspec(dllimport) void SHIFTSTRING(char *bytestring,                    // IN/OUT
 #endif
                                                                   // String to be shifted
-                                      short bytecount,  // IN
-                                                        // Number of BYTES in String
-                                      short casebit)  // IN
-                                                      //.<15> = 0 -> UPSHIFT,
+                                      short bytecount,            // IN
+                                                                  // Number of BYTES in String
+                                      short casebit)              // IN
+                                                                  //.<15> = 0 -> UPSHIFT,
     ;
 
 _declspec(dllimport) int SIGNALTIMEOUT(int toval,       // IN
@@ -2495,8 +2495,8 @@ _declspec(dllimport) int SIGNALTIMEOUT(int toval,       // IN
                                        short *tleaddr)  // OUT OPTIONAL
     ;
 
-_declspec(dllimport) short STATUSTRANSACTION(short *status,  // OUT
-                                                             // status of transaction (if FEOK returned)
+_declspec(dllimport) short STATUSTRANSACTION(short *status,   // OUT
+                                                              // status of transaction (if FEOK returned)
                                              _int64 transid)  // IN OPTIONAL
                                                               // status requested for this transid (optional)
     ;
@@ -2526,12 +2526,12 @@ _declspec(dllimport) short TEXTTOTRANSID
      _int64 *transid)      // OUT
     ;
 
-_declspec(dllimport) void TMF_VERSION_(int sysnum,  // IN
-                                                    // System Number of the system to interrogate
+_declspec(dllimport) void TMF_VERSION_(int sysnum,      // IN
+                                                        // System Number of the system to interrogate
                                        short *version,  // OUT
                                                         // Version number of the TMP process
-                                       short *error)  // OUT
-                                                      // File System Error Code
+                                       short *error)    // OUT
+                                                        // File System Error Code
     ;
 
 _declspec(dllimport) short TOSVERSION();
@@ -2549,14 +2549,14 @@ _declspec(dllimport) short TRANSIDTOTEXT(_int64 transid,  // IN
 
 _declspec(dllimport) int UNLOCKFILE(short filenum,  // IN
                                                     // FILE NUMBER
-                                    int tag)  // IN OPTIONAL
-                                              // NO-WAIT REQUEST TAG
+                                    int tag)        // IN OPTIONAL
+                                                    // NO-WAIT REQUEST TAG
     ;
 
 _declspec(dllimport) int UNLOCKREC(short filenum,  // IN
                                                    // FILE NUMBER
-                                   int tag)  // IN OPTIONAL
-                                             // NO-WAIT REQUEST TAG
+                                   int tag)        // IN OPTIONAL
+                                                   // NO-WAIT REQUEST TAG
     ;
 
 _declspec(dllimport) int WRITEREADX(short filenum,              // IN

@@ -13,14 +13,15 @@
 ****************************************************************************
 */
 
-#include "common/Platform.h"
+#include "exp/ExpCriDesc.h"
+
+#include <iostream>
 
 #include "comexe/ComPackDefs.h"
-#include "exp/ExpCriDesc.h"
 #include "common/ComSpace.h"
+#include "common/Platform.h"
 #include "exp/exp_tuple_desc.h"
 #include "export/NAStringDef.h"
-#include <iostream>
 
 ex_cri_desc::ex_cri_desc(const unsigned short numTuples, void *space_) : numTuples_(numTuples), NAVersionedObject(-1) {
   tupleDesc_ = (ExpTupleDescPtr *)(((Space *)space_)->allocateAlignedSpace(numTuples_ * sizeof(ExpTupleDescPtr)));

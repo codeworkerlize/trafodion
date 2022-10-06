@@ -18,20 +18,20 @@
 * 6. sort the final heap using heap sort.
 *******************************************************************************/
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
 #ifndef DEBUG
 #undef NDEBUG
 #define NDEBUG
 #endif
-#include "executor/ex_stdh.h"
-#include "SortTopN.h"
 #include "ScratchSpace.h"
-#include "sqlmxevents/logmxevent.h"
+#include "SortTopN.h"
 #include "SortUtil.h"
 #include "ex_ex.h"
 #include "executor/ExStats.h"
+#include "executor/ex_stdh.h"
+#include "sqlmxevents/logmxevent.h"
 
 //------------------------------------------------------------------------
 // Class Constructor.

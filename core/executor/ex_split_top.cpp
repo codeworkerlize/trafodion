@@ -15,23 +15,24 @@
  *****************************************************************************
  */
 
-#include "common/ExCollections.h"
-#include "common/BaseTypes.h"
-#include "export/ComDiags.h"
-#include "executor/ex_stdh.h"
-#include "ex_exe_stmt_globals.h"
-#include "comexe/ComTdb.h"
-#include "executor/ex_tcb.h"
 #include "ex_split_top.h"
-#include "ex_send_top.h"
-#include "key_range.h"
-#include "ex_frag_rt.h"
-#include "comexe/PartInputDataDesc.h"
-#include "executor/ex_expr.h"
-#include "common/str.h"
-#include "executor/ExStats.h"
-#include "executor/sql_buffer_size.h"
+
 #include "ComMemLog.h"
+#include "comexe/ComTdb.h"
+#include "comexe/PartInputDataDesc.h"
+#include "common/BaseTypes.h"
+#include "common/ExCollections.h"
+#include "common/str.h"
+#include "ex_exe_stmt_globals.h"
+#include "ex_frag_rt.h"
+#include "ex_send_top.h"
+#include "executor/ExStats.h"
+#include "executor/ex_expr.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_tcb.h"
+#include "executor/sql_buffer_size.h"
+#include "export/ComDiags.h"
+#include "key_range.h"
 
 // BertBert VV
 #include "ExCextdecs.h"
@@ -222,8 +223,7 @@ ex_split_top_tcb::ex_split_top_tcb(const ex_split_top_tdb &splitTopTdb, ExExeStm
   // allocate buffers for encoded keys of the children, if a merge is done
   mergeKeyTupps_ = NULL;
   if (mergeKeyExpr()) {
-    int neededBufferSize =
-        (int)SqlBufferNeededSize(maxNumChildren_, splitTopTdb.mergeKeyLength_, SqlBuffer::NORMAL_);
+    int neededBufferSize = (int)SqlBufferNeededSize(maxNumChildren_, splitTopTdb.mergeKeyLength_, SqlBuffer::NORMAL_);
     mergeKeyTupps_ = (SqlBuffer *)new (space) char[neededBufferSize];
     mergeKeyTupps_->driveInit(neededBufferSize, FALSE, SqlBuffer::NORMAL_);
 
@@ -1193,8 +1193,7 @@ ExWorkProcRetcode ex_split_top_tcb::workUp() {
               // if not already done, cancel (note that an
               // error from one child cancels all other children)
               if (NOT(pstate->getState() == CANCELLING)) {
-                if (request == ex_queue::GET_N AND(int) pstate->matchCountForGetN_ ==
-                    pentry->downState.requestValue) {
+                if (request == ex_queue::GET_N AND(int) pstate->matchCountForGetN_ == pentry->downState.requestValue) {
                   if (statsEntry) {
                     statsEntry->incActualRowsReturned();
                   }

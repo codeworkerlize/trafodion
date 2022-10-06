@@ -24,18 +24,18 @@
 #ifndef PRIVMGR_PRIVILEGES_H
 #define PRIVMGR_PRIVILEGES_H
 
-#include "sqlcomp/PrivMgrDefs.h"
-#include "sqlcomp/PrivMgrMD.h"
+#include <bitset>
+#include <set>
+#include <string>
+#include <vector>
+
 #include "PrivMgrMDTable.h"
-#include "sqlcomp/PrivMgrDesc.h"
 #include "common/ComSmallDefs.h"
 #include "common/ComViewColUsage.h"
 #include "sqlcomp/CmpDDLCatErrorCodes.h"
-
-#include <string>
-#include <bitset>
-#include <vector>
-#include <set>
+#include "sqlcomp/PrivMgrDefs.h"
+#include "sqlcomp/PrivMgrDesc.h"
+#include "sqlcomp/PrivMgrMD.h"
 
 class ComSecurityKey;
 class NATable;

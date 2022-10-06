@@ -18,8 +18,9 @@
 #define HEAPLOG__H
 
 #include <stddef.h>
-#include "export/HeapID.h"
+
 #include "common/NABoolean.h"
+#include "export/HeapID.h"
 
 // -----------------------------------------------------------------------
 // Expand to empty if this is a release build or heaplog is not importable.
@@ -40,8 +41,8 @@
 #define HEAPLOG_CONTROL(option) \
   { HeapLogRoot::control(option); }
 // Track allocations.
-#define HEAPLOG_ADD_ENTRY(objAddr, objSize, heapNum, heapName)                                   \
-  {                                                                                              \
+#define HEAPLOG_ADD_ENTRY(objAddr, objSize, heapNum, heapName)                                 \
+  {                                                                                            \
     if (HeapLogRoot::track) HeapLogRoot::addEntry(objAddr, objSize, (int &)heapNum, heapName); \
   }
 // Track deallocations.

@@ -17,8 +17,8 @@
 #ifndef COM_TUPLE_H
 #define COM_TUPLE_H
 
-#include "comexe/ComTdb.h"
 #include "comexe/ComQueue.h"
+#include "comexe/ComTdb.h"
 
 class ComTdbTuple : public ComTdb {
   friend class ExTupleTcb;

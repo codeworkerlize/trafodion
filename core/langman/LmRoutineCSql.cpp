@@ -10,10 +10,11 @@
 **********************************************************************/
 
 #include "LmRoutineCSql.h"
+
 #include "LmParameter.h"
-#include "sqludr/sqludr.h"
 #include "common/ComDefs.h"
 #include "common/wstr.h"
+#include "sqludr/sqludr.h"
 
 // Routine body signatures
 typedef int (*UDRFN1)(char *, short *, SQLUDR_TRAIL_ARGS);
@@ -21,120 +22,119 @@ typedef int (*UDRFN2)(char *, char *, short *, short *, SQLUDR_TRAIL_ARGS);
 typedef int (*UDRFN3)(char *, char *, char *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
 typedef int (*UDRFN4)(char *, char *, char *, char *, short *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
 typedef int (*UDRFN5)(char *, char *, char *, char *, char *, short *, short *, short *, short *, short *,
-                        SQLUDR_TRAIL_ARGS);
+                      SQLUDR_TRAIL_ARGS);
 typedef int (*UDRFN6)(char *, char *, char *, char *, char *, char *, short *, short *, short *, short *, short *,
-                        short *, SQLUDR_TRAIL_ARGS);
+                      short *, SQLUDR_TRAIL_ARGS);
 typedef int (*UDRFN7)(char *, char *, char *, char *, char *, char *, char *, short *, short *, short *, short *,
-                        short *, short *, short *, SQLUDR_TRAIL_ARGS);
+                      short *, short *, short *, SQLUDR_TRAIL_ARGS);
 typedef int (*UDRFN8)(char *, char *, char *, char *, char *, char *, char *, char *, short *, short *, short *,
-                        short *, short *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
-typedef int (*UDRFN9)(char *, char *, char *, char *, char *, char *, char *, char *, char *, short *, short *,
-                        short *, short *, short *, short *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
-typedef int (*UDRFN10)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, short *,
-                         short *, short *, short *, short *, short *, short *, short *, short *, short *,
-                         SQLUDR_TRAIL_ARGS);
-typedef int (*UDRFN11)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
-                         short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
-                         short *, SQLUDR_TRAIL_ARGS);
+                      short *, short *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
+typedef int (*UDRFN9)(char *, char *, char *, char *, char *, char *, char *, char *, char *, short *, short *, short *,
+                      short *, short *, short *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
+typedef int (*UDRFN10)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, short *, short *,
+                       short *, short *, short *, short *, short *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
+typedef int (*UDRFN11)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, short *,
+                       short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
+                       SQLUDR_TRAIL_ARGS);
 typedef int (*UDRFN12)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
-                         short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
-                         short *, short *, SQLUDR_TRAIL_ARGS);
+                       short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
+                       short *, short *, SQLUDR_TRAIL_ARGS);
 typedef int (*UDRFN13)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
-                         char *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
-                         short *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
+                       char *, short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
+                       short *, short *, short *, SQLUDR_TRAIL_ARGS);
 typedef int (*UDRFN14)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
-                         char *, char *, short *, short *, short *, short *, short *, short *, short *, short *,
-                         short *, short *, short *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
+                       char *, char *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
+                       short *, short *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
 typedef int (*UDRFN15)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
-                         char *, char *, char *, short *, short *, short *, short *, short *, short *, short *, short *,
-                         short *, short *, short *, short *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
+                       char *, char *, char *, short *, short *, short *, short *, short *, short *, short *, short *,
+                       short *, short *, short *, short *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
 typedef int (*UDRFN16)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
-                         char *, char *, char *, char *, short *, short *, short *, short *, short *, short *, short *,
-                         short *, short *, short *, short *, short *, short *, short *, short *, short *,
-                         SQLUDR_TRAIL_ARGS);
+                       char *, char *, char *, char *, short *, short *, short *, short *, short *, short *, short *,
+                       short *, short *, short *, short *, short *, short *, short *, short *, short *,
+                       SQLUDR_TRAIL_ARGS);
 typedef int (*UDRFN17)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
-                         char *, char *, char *, char *, char *, short *, short *, short *, short *, short *, short *,
-                         short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
-                         short *, SQLUDR_TRAIL_ARGS);
+                       char *, char *, char *, char *, char *, short *, short *, short *, short *, short *, short *,
+                       short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
+                       short *, SQLUDR_TRAIL_ARGS);
 typedef int (*UDRFN18)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
-                         char *, char *, char *, char *, char *, char *, short *, short *, short *, short *, short *,
-                         short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
-                         short *, short *, short *, SQLUDR_TRAIL_ARGS);
+                       char *, char *, char *, char *, char *, char *, short *, short *, short *, short *, short *,
+                       short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
+                       short *, short *, short *, SQLUDR_TRAIL_ARGS);
 typedef int (*UDRFN19)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
-                         char *, char *, char *, char *, char *, char *, char *, short *, short *, short *, short *,
-                         short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
-                         short *, short *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
+                       char *, char *, char *, char *, char *, char *, char *, short *, short *, short *, short *,
+                       short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
+                       short *, short *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
 typedef int (*UDRFN20)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
-                         char *, char *, char *, char *, char *, char *, char *, char *, short *, short *, short *,
-                         short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
-                         short *, short *, short *, short *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
+                       char *, char *, char *, char *, char *, char *, char *, char *, short *, short *, short *,
+                       short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
+                       short *, short *, short *, short *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
 typedef int (*UDRFN21)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
-                         char *, char *, char *, char *, char *, char *, char *, char *, char *, short *, short *,
-                         short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
-                         short *, short *, short *, short *, short *, short *, short *, short *, short *,
-                         SQLUDR_TRAIL_ARGS);
+                       char *, char *, char *, char *, char *, char *, char *, char *, char *, short *, short *,
+                       short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
+                       short *, short *, short *, short *, short *, short *, short *, short *, short *,
+                       SQLUDR_TRAIL_ARGS);
 typedef int (*UDRFN22)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
-                         char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, short *,
-                         short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
-                         short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
-                         short *, SQLUDR_TRAIL_ARGS);
+                       char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, short *, short *,
+                       short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
+                       short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
+                       SQLUDR_TRAIL_ARGS);
 typedef int (*UDRFN23)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
-                         char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
-                         short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
-                         short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
-                         short *, short *, short *, SQLUDR_TRAIL_ARGS);
+                       char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, short *,
+                       short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
+                       short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
+                       short *, short *, SQLUDR_TRAIL_ARGS);
 typedef int (*UDRFN24)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
-                         char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
-                         short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
-                         short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
-                         short *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
+                       char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
+                       short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
+                       short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
+                       short *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
 typedef int (*UDRFN25)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
-                         char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
-                         char *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
-                         short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
-                         short *, short *, short *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
+                       char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
+                       char *, short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
+                       short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
+                       short *, short *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
 typedef int (*UDRFN26)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
-                         char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
-                         char *, char *, short *, short *, short *, short *, short *, short *, short *, short *,
-                         short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
-                         short *, short *, short *, short *, short *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
+                       char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
+                       char *, char *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
+                       short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
+                       short *, short *, short *, short *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
 typedef int (*UDRFN27)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
-                         char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
-                         char *, char *, char *, short *, short *, short *, short *, short *, short *, short *, short *,
-                         short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
-                         short *, short *, short *, short *, short *, short *, short *, short *, short *,
-                         SQLUDR_TRAIL_ARGS);
+                       char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
+                       char *, char *, char *, short *, short *, short *, short *, short *, short *, short *, short *,
+                       short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
+                       short *, short *, short *, short *, short *, short *, short *, short *, short *,
+                       SQLUDR_TRAIL_ARGS);
 typedef int (*UDRFN28)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
-                         char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
-                         char *, char *, char *, char *, short *, short *, short *, short *, short *, short *, short *,
-                         short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
-                         short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
-                         short *, SQLUDR_TRAIL_ARGS);
+                       char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
+                       char *, char *, char *, char *, short *, short *, short *, short *, short *, short *, short *,
+                       short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
+                       short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
+                       short *, SQLUDR_TRAIL_ARGS);
 typedef int (*UDRFN29)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
-                         char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
-                         char *, char *, char *, char *, char *, short *, short *, short *, short *, short *, short *,
-                         short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
-                         short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
-                         short *, short *, short *, SQLUDR_TRAIL_ARGS);
+                       char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
+                       char *, char *, char *, char *, char *, short *, short *, short *, short *, short *, short *,
+                       short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
+                       short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
+                       short *, short *, short *, SQLUDR_TRAIL_ARGS);
 typedef int (*UDRFN30)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
-                         char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
-                         char *, char *, char *, char *, char *, char *, short *, short *, short *, short *, short *,
-                         short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
-                         short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
-                         short *, short *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
+                       char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
+                       char *, char *, char *, char *, char *, char *, short *, short *, short *, short *, short *,
+                       short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
+                       short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
+                       short *, short *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
 typedef int (*UDRFN31)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
-                         char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
-                         char *, char *, char *, char *, char *, char *, char *, short *, short *, short *, short *,
-                         short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
-                         short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
-                         short *, short *, short *, short *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
+                       char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
+                       char *, char *, char *, char *, char *, char *, char *, short *, short *, short *, short *,
+                       short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
+                       short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
+                       short *, short *, short *, short *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
 typedef int (*UDRFN32)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
-                         char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
-                         char *, char *, char *, char *, char *, char *, char *, char *, short *, short *, short *,
-                         short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
-                         short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
-                         short *, short *, short *, short *, short *, short *, short *, short *, short *,
-                         SQLUDR_TRAIL_ARGS);
+                       char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
+                       char *, char *, char *, char *, char *, char *, char *, char *, short *, short *, short *,
+                       short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
+                       short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
+                       short *, short *, short *, short *, short *, short *, short *, short *, short *,
+                       SQLUDR_TRAIL_ARGS);
 
 // SQLUDR_INVOKE is a global function that acts as the gateway into
 // the routine body. It only contains a switch construct and calls

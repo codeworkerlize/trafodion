@@ -36,17 +36,18 @@
 
 #endif /* NA_LINUX_LLVMJIT */
 
-#include "ExpPCodeOptimizations.h"
 #include <signal.h>
+
+#include "ExpPCodeOptimizations.h"
 
 #if 1                                 /* NA_LINUX_LLVMJIT */
 #include "llvm/Support/raw_ostream.h" /* FOR NEW MODULE DUMPING IDEA */
 #ifdef NEW_VERSION_LLVM
 #include "HelpingMemoryManager.h"
-#include "llvm/Support/MemoryBuffer.h"
-#include "llvm/Support/FileSystem.h"
 #include "llvm/IR/InstIterator.h" /* FOR NEW MODULE DUMPING IDEA */
 #include "llvm/Support/DynamicLibrary.h"
+#include "llvm/Support/FileSystem.h"
+#include "llvm/Support/MemoryBuffer.h"
 #else
 #include "llvm/Support/InstIterator.h" /* FOR NEW MODULE DUMPING IDEA */
 #endif
@@ -239,12 +240,11 @@ void PCodeCfg::NExLog(const char *data) {
 
 #endif /* NExprDbgLvl >= VV_I0 */
 
-#include "exp/exp_datetime.h"
-
-#include "udis86.h"
-
-#include <sstream>
 #include <iostream>
+#include <sstream>
+
+#include "exp/exp_datetime.h"
+#include "udis86.h"
 using namespace llvm;
 
 // Can we have null tuple pointers (no, if we're on R2.5)
@@ -2222,8 +2222,7 @@ NABoolean PCodeCfg::isSupportedClauseOperandType(exp_Attributes *attr) {
   return FALSE;
 }
 
-void PCodeCfg::setupClauseOperand(PCodeCfg *cfg, OPLIST &opList, PCodeOperand **opData, int index,
-                                  ex_clause *clause) {
+void PCodeCfg::setupClauseOperand(PCodeCfg *cfg, OPLIST &opList, PCodeOperand **opData, int index, ex_clause *clause) {
 #if NExprDbgLvl > VV_NO
   char NExBuf[500];
 #endif
@@ -7357,8 +7356,8 @@ void PCodeCfg::layoutNativeCode() {
 #endif
 
             int index = (opc == PCIT::OPDATA_MPTR32_IBIN32S_IBIN32S)
-                              ? PCInst->code[4]
-                              : ((opc == PCIT::OPDATA_MATTR5_IBIN32S) ? PCInst->code[6] : PCInst->code[3]);
+                            ? PCInst->code[4]
+                            : ((opc == PCIT::OPDATA_MATTR5_IBIN32S) ? PCInst->code[6] : PCInst->code[3]);
 
             DPT1("VV9B003: ", VV_XD, "OPDATA_* - index = %d\n", index);
 
@@ -8515,9 +8514,8 @@ void PCodeCfg::layoutNativeCode() {
       // the first time LLVM was called, save the LLVM handlers!
       //
       for (int ii = 0; ii < NumSaveSigs; ii++) {
-        int ret =
-            sigaction(SaveSigs[ii], &(SavedSigInfo[ii].SigAct),
-                      (LLVMhandlersSaved == FALSE) ? &(SavedLLVMhandlers[ii].SigAct) : (struct sigaction *)NULL);
+        int ret = sigaction(SaveSigs[ii], &(SavedSigInfo[ii].SigAct),
+                            (LLVMhandlersSaved == FALSE) ? &(SavedLLVMhandlers[ii].SigAct) : (struct sigaction *)NULL);
         assert(ret == 0);
       }
       LLVMhandlersSaved = TRUE;
@@ -8577,7 +8575,7 @@ void PCodeCfg::layoutNativeCode() {
     (void)getrusage(RUSAGE_THREAD, &endTime);
 
     long totalTime = (endTime.ru_utime.tv_sec - begTime.ru_utime.tv_sec) * 1000000 +
-                      (endTime.ru_utime.tv_usec - begTime.ru_utime.tv_usec);
+                     (endTime.ru_utime.tv_usec - begTime.ru_utime.tv_usec);
 
     DPT2("VVzzz99: ", VV_I0,
          "NORMAL EXIT from layoutNativeCode(): "
@@ -8609,7 +8607,7 @@ void PCodeCfg::layoutNativeCode() {
   //
   for (int ii = 0; ii < NumSaveSigs; ii++) {
     int ret = sigaction(SaveSigs[ii], &(SavedSigInfo[ii].SigAct),
-                          (LLVMhandlersSaved == FALSE) ? &(SavedLLVMhandlers[ii].SigAct) : (struct sigaction *)NULL);
+                        (LLVMhandlersSaved == FALSE) ? &(SavedLLVMhandlers[ii].SigAct) : (struct sigaction *)NULL);
     assert(ret == 0);
   }
   LLVMhandlersSaved = TRUE;
@@ -10550,7 +10548,7 @@ void PCodeCfg::layoutNativeCode(Space *showplanSpace = NULL) {
 
           OPLIST origList;  // List of operands in order.
 
-          int min = 0;                     // first position to start off is 0.
+          int min = 0;                       // first position to start off is 0.
           CollIndex length = inst->code[1];  // Total length of instruction.
 
           // Walk through instruction (skipping header stuff) and identify the
@@ -10790,8 +10788,8 @@ void PCodeCfg::layoutNativeCode(Space *showplanSpace = NULL) {
           OPLIST opList = (inst->getWOps().entries() ? inst->getWOps() : inst->getROps());
 
           int index = (opc == PCIT::OPDATA_MPTR32_IBIN32S_IBIN32S)
-                            ? inst->code[4]
-                            : ((opc == PCIT::OPDATA_MATTR5_IBIN32S) ? inst->code[6] : inst->code[3]);
+                          ? inst->code[4]
+                          : ((opc == PCIT::OPDATA_MATTR5_IBIN32S) ? inst->code[6] : inst->code[3]);
 
           // Add the "correct" operand for this opdata instruction, replacing
           // the old one in the operand list used during pcode opts.

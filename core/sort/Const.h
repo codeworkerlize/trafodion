@@ -2,8 +2,8 @@
 #ifndef CONST_H
 #define CONST_H
 
-#include "common/Platform.h"
 #include "common/BaseTypes.h"
+#include "common/Platform.h"
 
 const int ONE_MB = 1048576;  // 1024 * 1024
 

@@ -24,17 +24,17 @@
 #ifndef PRIVMGR_SCHEMAPRIVILEGES_H
 #define PRIVMGR_SCHEMAPRIVILEGES_H
 
-#include "sqlcomp/PrivMgrDefs.h"
-#include "sqlcomp/PrivMgrMD.h"
+#include <bitset>
+#include <string>
+#include <vector>
+
 #include "PrivMgrMDTable.h"
-#include "sqlcomp/PrivMgrDesc.h"
+#include "common/ComSecurityKey.h"
 #include "common/ComSmallDefs.h"
 #include "sqlcomp/CmpDDLCatErrorCodes.h"
-#include "common/ComSecurityKey.h"
-
-#include <string>
-#include <bitset>
-#include <vector>
+#include "sqlcomp/PrivMgrDefs.h"
+#include "sqlcomp/PrivMgrDesc.h"
+#include "sqlcomp/PrivMgrMD.h"
 
 // *****************************************************************************
 // *

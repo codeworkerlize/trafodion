@@ -117,12 +117,11 @@ class CompilationStatsData : public NAVersionedObject {
         compileInfo_(NULL),
         compileInfoLen_(0){};
 
-  CompilationStatsData(long compileStartTime, long compileEndTime, char *compilerId, int cmpCpuTotal,
-                       int cmpCpuBinder, int cmpCpuNormalizer, int cmpCpuAnalyzer, int cmpCpuOptimizer,
-                       int cmpCpuGenerator, int metadataCacheHits, int metadataCacheLookups,
-                       int queryCacheState, int histogramCacheHits, int histogramCacheLookups,
-                       int stmtHeapSize, int cxtHeapSize, int optTasks, int optContexts, short isRecompile,
-                       char *compileInfo, int compileInfoLen)
+  CompilationStatsData(long compileStartTime, long compileEndTime, char *compilerId, int cmpCpuTotal, int cmpCpuBinder,
+                       int cmpCpuNormalizer, int cmpCpuAnalyzer, int cmpCpuOptimizer, int cmpCpuGenerator,
+                       int metadataCacheHits, int metadataCacheLookups, int queryCacheState, int histogramCacheHits,
+                       int histogramCacheLookups, int stmtHeapSize, int cxtHeapSize, int optTasks, int optContexts,
+                       short isRecompile, char *compileInfo, int compileInfoLen)
       : NAVersionedObject(-1),
         compileStartTime_(compileStartTime),
         compileEndTime_(compileEndTime),
@@ -189,9 +188,9 @@ class CompilationStatsData : public NAVersionedObject {
   void translateToExternalFormat(SQL_COMPILATION_STATS_DATA *cmpData, long cmpStartTime, long cmpEndTime);
 
  private:
-  long compileStartTime_;       //  0 -  7
-  long compileEndTime_;         //  8 - 15
-  NABasicPtr compilerId_;        // 16 - 23
+  long compileStartTime_;      //  0 -  7
+  long compileEndTime_;        //  8 - 15
+  NABasicPtr compilerId_;      // 16 - 23
   int cmpCpuTotal_;            // 24 - 27
   int cmpCpuBinder_;           // 28 - 31
   int cmpCpuNormalizer_;       // 32 - 35
@@ -207,12 +206,12 @@ class CompilationStatsData : public NAVersionedObject {
   int cxtHeapSize_;            // 72 - 75
   int optTasks_;               // 76 - 79
   int optContexts_;            // 80 - 83
-  Int16 isRecompile_;            // 84 - 85
+  Int16 isRecompile_;          // 84 - 85
 
   Int16 fillBoundary_;  // 86 - 87
 
   NABasicPtr compileInfo_;  // 88 - 95
-  int compileInfoLen_;    // 96 - 99
+  int compileInfoLen_;      // 96 - 99
   char filler_[42];         // 100 - 141
 };
 

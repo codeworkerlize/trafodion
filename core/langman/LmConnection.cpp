@@ -11,10 +11,11 @@
 *
 ******************************************************************************
 */
+#include "LmConnection.h"
+
+#include "LmDebug.h"
 #include "common/Platform.h"
 #include "lmjni.h"
-#include "LmConnection.h"
-#include "LmDebug.h"
 
 // Constructor: Initializes data members
 LmConnection::LmConnection(LmLanguageManagerJava *lm, jobject connRef, LmConnectionType connType,

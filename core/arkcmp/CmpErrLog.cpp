@@ -32,26 +32,26 @@
 //
 // ***************************************************************************
 
-#include "common/Platform.h"
-#include <stdio.h>
-#include <time.h>
-#include <string.h>
-#include <errno.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
+#include "arkcmp/CmpErrLog.h"
 
 #include <ctype.h>
+#include <errno.h>
 #include <execinfo.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <string.h>
 #include <sys/file.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <time.h>
+#include <unistd.h>
 
-#include "arkcmp/CmpErrLog.h"
-#include "common/CmpCommon.h"
 #include "arkcmp/CmpContext.h"
 #include "arkcmp/CmpStatement.h"
-#include "optimizer/SchemaDB.h"
+#include "common/CmpCommon.h"
+#include "common/Platform.h"
 #include "optimizer/Analyzer.h"
+#include "optimizer/SchemaDB.h"
 #include "vproc.h"
 
 #define MAX_LOGFILE_SIZE     (1 * 1024 * 1024)  // One megabyte

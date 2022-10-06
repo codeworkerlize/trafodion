@@ -309,10 +309,11 @@ RelExpr *ChangesTable::transformScan() const {
   // name stays.
   const NAString &baseCorrName = scanNode_->getTableName().getCorrNameAsString();
 
-  const NAString &transitionName = baseCorrName != "" ? baseCorrName
-                                   : isEmptyDefaultTransitionName()
-                                       ? *(new (heap_) NAString("", heap_))
-                                       : scanNode_->getTableName().getQualifiedNameObj().getObjectName();
+  const NAString &transitionName = baseCorrName != ""
+                                       ? baseCorrName
+                                       : isEmptyDefaultTransitionName()
+                                             ? *(new (heap_) NAString("", heap_))
+                                             : scanNode_->getTableName().getQualifiedNameObj().getObjectName();
 
   tableCorr_->setCorrName(transitionName);
   scanNode_->getTableName() = *tableCorr_;

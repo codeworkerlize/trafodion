@@ -9,11 +9,11 @@
 #ifndef __NA_CLUSTER_INFO_H
 #define __NA_CLUSTER_INFO_H
 
-#include "common/Platform.h"
 #include "common/Collections.h"
-#include "export/NAStringDef.h"
-#include "common/NAString.h"
 #include "common/ComRtUtils.h"
+#include "common/NAString.h"
+#include "common/Platform.h"
+#include "export/NAStringDef.h"
 
 //-----------------------------
 // Classes defined in this file

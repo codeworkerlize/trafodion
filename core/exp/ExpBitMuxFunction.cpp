@@ -19,10 +19,10 @@
 
 // Includes
 //
-#include "exp/exp_clause.h"
-#include "exp/exp_attrs.h"
-#include "ExpPCode.h"
 #include "ExpBitMuxFunction.h"  // <--- See here for comments.
+#include "ExpPCode.h"
+#include "exp/exp_attrs.h"
+#include "exp/exp_clause.h"
 
 // ExpBitMuxFunction::ExpBitMuxFunction
 //

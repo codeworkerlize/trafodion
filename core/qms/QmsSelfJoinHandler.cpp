@@ -33,6 +33,7 @@
 // ***********************************************************************
 
 #include "QmsSelfJoinHandler.h"
+
 #include "qmscommon/QRLogger.h"
 
 //========================================================================
@@ -127,9 +128,7 @@ ShiftMatrix::~ShiftMatrix() {
 //*****************************************************************************
 // Get an element of the array.
 //*****************************************************************************
-int ShiftMatrix::getElement(UInt32 combination, UInt32 element) {
-  return theMatrix_->getElement(combination, element);
-}
+int ShiftMatrix::getElement(UInt32 combination, UInt32 element) { return theMatrix_->getElement(combination, element); }
 
 //*****************************************************************************
 // Calculate the factorial of the input parameter.

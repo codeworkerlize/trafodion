@@ -27,8 +27,8 @@
 // -----------------------------------------------------------------------
 class HeapLogEntry {
  public:
-  int indx;  // object index
-  int size;  // object size
+  int indx;    // object index
+  int size;    // object size
   void *addr;  // object address
 };
 
@@ -94,9 +94,9 @@ class HeapLog {
 
   HeapLogSegment header_[MAX_NUM_HEAPS];
 
-  int currHeapNum_;   // Most recently assigned heap number.
-  int objIndex_;      // allocation sequence number for objects.
-  int disableLevel_;  // to disable logging.
+  int currHeapNum_;     // Most recently assigned heap number.
+  int objIndex_;        // allocation sequence number for objects.
+  int disableLevel_;    // to disable logging.
   NABoolean overflow_;  // true if ever exceeds MAX_NUM_HEAPS.
 
   // Used by fetchLine

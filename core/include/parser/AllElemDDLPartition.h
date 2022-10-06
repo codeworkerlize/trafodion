@@ -16,15 +16,14 @@
  *****************************************************************************
  */
 
-#include "parser/ElemDDLPartition.h"
-
 #include "ElemDDLPartitionArray.h"
-#include "parser/ElemDDLPartitionClause.h"
-#include "parser/ElemDDLPartitionRange.h"
+#include "ElemDDLPartitionNameAndForValues.h"
 #include "ElemDDLPartitionSingle.h"
 #include "ElemDDLPartitionSystem.h"
+#include "parser/ElemDDLPartition.h"
 #include "parser/ElemDDLPartitionByOptions.h"
-#include "ElemDDLPartitionNameAndForValues.h"
+#include "parser/ElemDDLPartitionClause.h"
+#include "parser/ElemDDLPartitionRange.h"
 
 //
 // End of File

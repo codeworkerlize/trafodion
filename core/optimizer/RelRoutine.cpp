@@ -19,37 +19,37 @@
 #define SQLPARSERGLOBALS_FLAGS  // must precede all #include's
 #define SQLPARSERGLOBALS_NADEFAULTS
 
-#include "common/Debug.h"
-#include "optimizer/Sqlcomp.h"
-#include "optimizer/AllRelExpr.h"
-#include "optimizer/GroupAttr.h"
-#include "optimizer/opt.h"
-#include "optimizer/PhyProp.h"
-#include "optimizer/mdam.h"
-#include "optimizer/ControlDB.h"
-#include "disjuncts.h"
+#include "optimizer/RelRoutine.h"
+
+#include "ElemDDLColDef.h"
+#include "ItemNAType.h"
 #include "ScanOptimizer.h"
 #include "arkcmp/CmpContext.h"
-#include "parser/StmtDDLCreateTrigger.h"
-#include "exp/ExpError.h"
-#include "common/ComTransInfo.h"
-#include "optimizer/BindWA.h"
-#include "sqlcomp/CmpMain.h"
-#include "optimizer/ControlDB.h"
-#include "ElemDDLColDef.h"
-#include "optimizer/Analyzer.h"
-#include "optimizer/OptHints.h"
 #include "comexe/ComTdbSendTop.h"
-#include "common/DatetimeType.h"
-#include "ItemNAType.h"
-#include "common/SequenceGeneratorAttributes.h"
-#include "parser/SqlParserGlobals.h"
-#include "optimizer/RelRoutine.h"
-#include "parser/ElemDDLColDefArray.h"
-#include "sqlcomp/CmpSeabaseDDL.h"
-#include "optimizer/UdfDllInteraction.h"
+#include "common/ComTransInfo.h"
 #include "common/ComUser.h"
+#include "common/DatetimeType.h"
+#include "common/Debug.h"
+#include "common/SequenceGeneratorAttributes.h"
+#include "disjuncts.h"
+#include "exp/ExpError.h"
+#include "optimizer/AllRelExpr.h"
+#include "optimizer/Analyzer.h"
+#include "optimizer/BindWA.h"
+#include "optimizer/ControlDB.h"
+#include "optimizer/GroupAttr.h"
+#include "optimizer/OptHints.h"
+#include "optimizer/PhyProp.h"
+#include "optimizer/Sqlcomp.h"
+#include "optimizer/UdfDllInteraction.h"
+#include "optimizer/mdam.h"
+#include "optimizer/opt.h"
+#include "parser/ElemDDLColDefArray.h"
+#include "parser/SqlParserGlobals.h"
+#include "parser/StmtDDLCreateTrigger.h"
 #include "sqlcat/TrafDDLdesc.h"
+#include "sqlcomp/CmpMain.h"
+#include "sqlcomp/CmpSeabaseDDL.h"
 
 // -----------------------------------------------------------------------
 // methods for class RelRoutine
@@ -685,8 +685,7 @@ NABoolean TableMappingUDF::isPhysical() const { return FALSE; }
 void TableMappingUDF::checkAndCoerceScalarInputParamTypes(BindWA *bindWA) {
   if (getProcInputParamsVids().entries() != getScalarInputParamCount()) {
     *CmpCommon::diags() << DgSqlCode(-4452) << DgString0(getUserTableName().getCorrNameAsString())
-                        << DgInt0((int)getScalarInputParamCount())
-                        << DgInt1((int)getProcInputParamsVids().entries());
+                        << DgInt0((int)getScalarInputParamCount()) << DgInt1((int)getProcInputParamsVids().entries());
 
     bindWA->setErrStatus();
     return;

@@ -13,9 +13,9 @@
  *****************************************************************************
  */
 
+#include "ElemDDLNode.h"
 #include "common/ComSmallDefs.h"
 #include "parser/StmtDDLNode.h"
-#include "ElemDDLNode.h"
 
 // -----------------------------------------------------------------------
 // contents of this file
@@ -44,8 +44,7 @@ class StmtDDLResourceGroup : public StmtDDLNode {
         alterType_(NOT_ALTER) {}
 
   // alter resource group
-  StmtDDLResourceGroup(const int alterType, const NAString &rGroupName, const ConstStringList *nodeList,
-                       CollHeap *heap)
+  StmtDDLResourceGroup(const int alterType, const NAString &rGroupName, const ConstStringList *nodeList, CollHeap *heap)
       : StmtDDLNode(DDL_ALTER_RESOURCE_GROUP),
         rGroupName_(rGroupName),
         nodeList_(nodeList),

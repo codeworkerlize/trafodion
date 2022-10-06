@@ -13,15 +13,14 @@
 #define SQLPARSERGLOBALS_FLAGS  // must precede all #include's
 #define SQLPARSERGLOBALS_NADEFAULTS
 
+#include "QRDescGenerator.h"
 #include "optimizer/AllRelExpr.h"
 #include "optimizer/CacheWA.h"
-#include "sqlcomp/CmpMain.h"
 #include "optimizer/GroupAttr.h"
 #include "optimizer/OptHints.h"
-#include "QRDescGenerator.h"
-
-#include "parser/SqlParserGlobals.h"  // must be last #include
 #include "optimizer/RelSequence.h"
+#include "parser/SqlParserGlobals.h"  // must be last #include
+#include "sqlcomp/CmpMain.h"
 // append an ascii-version of GenericUpdate into cachewa.qryText_
 void GenericUpdate::generateCacheKey(CacheWA &cwa) const
 // NB: This comment applies to all generateCacheKey methods.

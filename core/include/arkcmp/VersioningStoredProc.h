@@ -12,13 +12,13 @@
 #ifndef VERSIONINGSP_H
 #define VERSIONINGSP_H
 
+#include "ComPointerList.h"
+#include "ComVersionNodeInfo.h"
 #include "arkcmp/CmpISPStd.h"
 #include "common/ComDistribution.h"
-#include "ComVersionNodeInfo.h"
+#include "common/ComGuardianFileNameParts.h"
 #include "common/ComObjectName.h"
 #include "common/ComSchemaName.h"
-#include "common/ComGuardianFileNameParts.h"
-#include "ComPointerList.h"
 
 // Don't use for memory allocation - variable length struct
 struct varchar {
@@ -51,8 +51,8 @@ class VersionInfoStoredProcedure {
   // sp_InputFormat is called with action=OPEN before any compile-time
   // functions are called.  It is then again called after all compile-time
   // functions have been called, this time with action=CLOSE.
-  static SP_STATUS sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, int numFields,
-                                  SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj, SP_ERROR_STRUCT *error);
+  static SP_STATUS sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, int numFields, SP_COMPILE_HANDLE spCompileObj,
+                                  SP_HANDLE spObj, SP_ERROR_STRUCT *error);
 
   // sp_NumOutputFields function is called at compile-time of the stored
   // procedure to inquire about the number of output fields in a row.
@@ -63,8 +63,7 @@ class VersionInfoStoredProcedure {
   // determine  the format (type info) of each field that will become part of the
   // row being  output from the stored procedure.
   static SP_STATUS sp_OutputFormat(SP_FIELDDESC_STRUCT *outputFieldFormat, SP_KEYDESC_STRUCT keyFields[],
-                                   int *numKeyFields, SP_HANDLE spCompileObj, SP_HANDLE spObj,
-                                   SP_ERROR_STRUCT *error);
+                                   int *numKeyFields, SP_HANDLE spCompileObj, SP_HANDLE spObj, SP_ERROR_STRUCT *error);
 
   // sp_Process is called at run-time of the stored procedure.
   static SP_STATUS sp_Process(SP_PROCESS_ACTION action, SP_ROW_DATA inputData, SP_EXTRACT_FUNCPTR eFunc,
@@ -98,8 +97,8 @@ class RelatednessStoredProcedure {
   // sp_InputFormat is called with action=OPEN before any compile-time
   // functions are called.  It is then again called after all compile-time
   // functions have been called, this time with action=CLOSE.
-  static SP_STATUS sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, int numFields,
-                                  SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj, SP_ERROR_STRUCT *error);
+  static SP_STATUS sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, int numFields, SP_COMPILE_HANDLE spCompileObj,
+                                  SP_HANDLE spObj, SP_ERROR_STRUCT *error);
 
   // sp_NumOutputFields function is called at compile-time of the stored
   // procedure to inquire about the number of output fields in a row.
@@ -110,8 +109,7 @@ class RelatednessStoredProcedure {
   // determine  the format (type info) of each field that will become part of the
   // row being  output from the stored procedure.
   static SP_STATUS sp_OutputFormat(SP_FIELDDESC_STRUCT *outputFieldFormat, SP_KEYDESC_STRUCT keyFields[],
-                                   int *numKeyFields, SP_HANDLE spCompileObj, SP_HANDLE spObj,
-                                   SP_ERROR_STRUCT *error);
+                                   int *numKeyFields, SP_HANDLE spCompileObj, SP_HANDLE spObj, SP_ERROR_STRUCT *error);
 
   // sp_Process is called at run-time of the stored procedure.
   static SP_STATUS sp_Process(SP_PROCESS_ACTION action, SP_ROW_DATA inputData, SP_EXTRACT_FUNCPTR eFunc,
@@ -146,8 +144,8 @@ class FeatureVersionInfoStoredProcedure {
   // sp_InputFormat is called with action=OPEN before any compile-time
   // functions are called.  It is then again called after all compile-time
   // functions have been called, this time with action=CLOSE.
-  static SP_STATUS sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, int numFields,
-                                  SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj, SP_ERROR_STRUCT *error);
+  static SP_STATUS sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, int numFields, SP_COMPILE_HANDLE spCompileObj,
+                                  SP_HANDLE spObj, SP_ERROR_STRUCT *error);
 
   // sp_NumOutputFields function is called at compile-time of the stored
   // procedure to inquire about the number of output fields in a row.
@@ -158,8 +156,7 @@ class FeatureVersionInfoStoredProcedure {
   // determine  the format (type info) of each field that will become part of the
   // row being  output from the stored procedure.
   static SP_STATUS sp_OutputFormat(SP_FIELDDESC_STRUCT *outputFieldFormat, SP_KEYDESC_STRUCT keyFields[],
-                                   int *numKeyFields, SP_HANDLE spCompileObj, SP_HANDLE spObj,
-                                   SP_ERROR_STRUCT *error);
+                                   int *numKeyFields, SP_HANDLE spCompileObj, SP_HANDLE spObj, SP_ERROR_STRUCT *error);
 
   // sp_Process is called at run-time of the stored procedure.
   static SP_STATUS sp_Process(SP_PROCESS_ACTION action, SP_ROW_DATA inputData, SP_EXTRACT_FUNCPTR eFunc,
@@ -294,7 +291,7 @@ NABoolean getVarcharInputParameter(int fieldNo, SP_EXTRACT_FUNCPTR eFunc, SP_ROW
                                    char *receivingField, SP_ERROR_STRUCT *error);
 
 int getIntInputParameter(int fieldNo, SP_EXTRACT_FUNCPTR eFunc, SP_ROW_DATA inputData, size_t maxSize,
-                           int receivingField, SP_ERROR_STRUCT *error);
+                         int receivingField, SP_ERROR_STRUCT *error);
 
 NABoolean validateInputValue(const ComObjectName &object, VersioningSPContextBase *context, SP_ERROR_STRUCT *error);
 

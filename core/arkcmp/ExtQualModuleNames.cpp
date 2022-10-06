@@ -10,13 +10,16 @@
  *****************************************************************************
  */
 
-#include <ctype.h>
-#include <iostream>
-#include "export/ComDiags.h"
-#include "common/DgBaseType.h"
 #include "ExtQualModuleNames.h"
-#include "mxCompileUserModule.h"
+
+#include <ctype.h>
+
+#include <iostream>
+
+#include "common/DgBaseType.h"
 #include "common/NAString.h"
+#include "export/ComDiags.h"
+#include "mxCompileUserModule.h"
 
 // constructor
 ExtQualModuleNames::ExtQualModuleNames(char *argv[], int startIndex, int argc, const char *cat, const char *sch,

@@ -16,9 +16,9 @@
 // -----------------------------------------------------------------------
 
 #include <limits.h>
-#include "common/BaseTypes.h"
-
 #include <stdint.h>
+
+#include "common/BaseTypes.h"
 
 /**
 *** _m64_popcnt is an instruction-level intrinsic routine supported in the
@@ -512,7 +512,6 @@ class NACollection : public NABasicObject
   NABoolean failureIsFatal_;  // TRUE: memory allocation failure is fatal.
 };                            // NACollection
 
-
 const int BuiltinSubsetWords = 8;  // size of the built-in array
 
 typedef uint64_t DblWordAsBits;
@@ -530,14 +529,14 @@ const WordAsBits SingleBitArray[BitsPerWord] = {
     0x00008000, 0x00004000, 0x00002000, 0x00001000, 0x00000800, 0x00000400, 0x00000200, 0x00000100,
     0x00000080, 0x00000040, 0x00000020, 0x00000010, 0x00000008, 0x00000004, 0x00000002, 0x00000001};
 
-const int bitsSet[] = {
-    0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 1, 2, 2, 3, 2,
-    3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3,
-    3, 4, 3, 4, 4, 5, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5,
-    6, 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 2, 3, 3, 4,
-    3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 3, 4, 4, 5, 4, 5, 5, 6, 4,
-    5, 5, 6, 5, 6, 6, 7, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6,
-    6, 7, 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8};
+const int bitsSet[] = {0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+                       1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+                       1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+                       2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+                       1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+                       2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+                       2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+                       3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8};
 
 // ***********************************************************************
 //
@@ -1285,7 +1284,7 @@ class NASubCollection : public NABasicObject {
  private:
   CollIndex maxLength_;  // Allocated size in dwords.
   CollIndex wordSize_;   // Dwords in use.
-  int entries_;        // Number of bits set (or -1 if don't know).
+  int entries_;          // Number of bits set (or -1 if don't know).
   NABoolean builtin_;    // TRUE if using builtin array.
 
   // sbits_ is defined as an array of double words instead of an array of
@@ -1415,7 +1414,7 @@ CollIndex NASubCollection<T>::prevUsedSlow(CollIndex start) const {
   int startWord;
   int shiftAmount;
 
-  startWordBucket = (int)(start >> 5);               // word bucket to start search in
+  startWordBucket = (int)(start >> 5);                 // word bucket to start search in
   shiftAmount = 32 - (start & 0x1f) - 1;               // used to calculate prev bit position
   startWord = pBits_[startWordBucket] >> shiftAmount;  // portion of bit vector
                                                        // with start bit as the
@@ -1499,8 +1498,9 @@ inline NABoolean NASubCollection<T>::nextUsedFast(CollIndex &start) const {
   else {  // truncate bits before starting bit in word 0.
     w = ((*pBits_) << start);
     if (!w) {
-      if (lastStaleBit_ < 32) return FALSE;  // lastStaleBit_ is in word 0.
-                                             // check next word.
+      if (lastStaleBit_ < 32)
+        return FALSE;  // lastStaleBit_ is in word 0.
+                       // check next word.
       w = pBits_[1];
       start = 32;
     }
@@ -2699,8 +2699,7 @@ class NAHashDictionaryIteratorNoCopy : public NABasicObject {
   // basic ctor
   NAHashDictionaryIteratorNoCopy<K, V>(const NAHashDictionary<K, V> &dict,
                                        enum iteratorEntryType type = iteratorEntryType::EVERYTHING, const K *key = NULL,
-                                       const V *value = NULL, CollHeap *heap = NULL,
-                                       int (*hashFunc)(const K &) = NULL);
+                                       const V *value = NULL, CollHeap *heap = NULL, int (*hashFunc)(const K &) = NULL);
 
   // copy ctor
   NAHashDictionaryIteratorNoCopy<K, V>(const NAHashDictionaryIteratorNoCopy<K, V> &other, CollHeap *heap);

@@ -3,8 +3,9 @@
 #define UTIL_H_
 
 #include <ctype.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
+
 #include "common/Platform.h"
 
 typedef int answer;

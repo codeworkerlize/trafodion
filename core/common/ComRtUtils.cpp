@@ -13,34 +13,33 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
-#include "porting/PortProcessCalls.h"
+#include "common/ComRtUtils.h"
 
 #include "ExCextdecs.h"
-#include "common/str.h"
-#include "common/ComRtUtils.h"
-#include "common/charinfo.h"
-
 #include "common/ComCextdecs.h"
+#include "common/Platform.h"
+#include "common/charinfo.h"
+#include "common/str.h"
+#include "porting/PortProcessCalls.h"
 
 #ifdef _DEBUG
-#include <execinfo.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <iostream>
-#include <fstream>
-#include <fcntl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <cxxabi.h>
+#include <execinfo.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
+#include <fstream>
+#include <iostream>
 #endif
 
-#include <stdio.h>
 #include <dlfcn.h>
-
-#include <pwd.h>
 #include <grp.h>
+#include <pwd.h>
+#include <stdio.h>
 
 #include "nsk/nskcommonhi.h"
 #define psecure_h_including_section
@@ -48,21 +47,16 @@
 #include "security/psecure.h"
 #define dsecure_h_including_section
 #define dsecure_h_psb_selectors
-#include "security/dsecure.h"
-
-#include "common/feerrors.h"
-
 #include "common/ComDistribution.h"
-
+#include "common/feerrors.h"
+#include "security/dsecure.h"
 #include "sqlmxevents/logmxevent.h"
 #undef SQL_TEXT
 
-#include "seabed/ms.h"
-#include "seabed/fs.h"
-
-#include "qmscommon/Range.h"
-
 #include "common/ComSysUtils.h"
+#include "qmscommon/Range.h"
+#include "seabed/fs.h"
+#include "seabed/ms.h"
 
 struct ModName {
  public:
@@ -169,7 +163,7 @@ static int ComRtMoveResult(char *tgt, const char *src, int tgtBufferLength, int 
 // (from registry on NT, $SYSTEM.SYSTEM on NSK)
 // -----------------------------------------------------------------------
 int ComRtGetInstallDir(char *buffer, int inputBufferLength,
-                         int *resultLength)  // OUT optional
+                       int *resultLength)  // OUT optional
 {
   if (resultLength) *resultLength = 0;
 
@@ -197,10 +191,10 @@ static NABoolean canUseModuleDirEnvVar() {
 #define USERMODULESDIR   "/usr/tandem/sqlmx/USERMODULES/"
 
 int ComRtGetModuleFileName(const char *moduleName,
-                             const char *moduleDir,  // use this as the module dir, if not NULL.
-                             char *buffer, int inputBufferLength, char *sysModuleDir, char *userModuleDir,
-                             int *resultLength,
-                             short &isASystemModule)  // OUT optional
+                           const char *moduleDir,  // use this as the module dir, if not NULL.
+                           char *buffer, int inputBufferLength, char *sysModuleDir, char *userModuleDir,
+                           int *resultLength,
+                           short &isASystemModule)  // OUT optional
 {
   if (resultLength) *resultLength = 0;
 
@@ -250,8 +244,8 @@ int ComRtGetModuleFileName(const char *moduleName,
 // Get the cluster (EXPAND node) name (returns "NSK" on NT)
 // -----------------------------------------------------------------------
 int ComRtGetOSClusterName(char *buffer, int inputBufferLength,
-                            int *resultLength,  // OUT optional
-                            short *nodeNumber) {
+                          int *resultLength,  // OUT optional
+                          short *nodeNumber) {
   if (resultLength) *resultLength = 0;
 
   int result = 1;  // positive "ldev"
@@ -270,12 +264,12 @@ int ComRtGetOSClusterName(char *buffer, int inputBufferLength,
 // its size in sysCatLength.
 // Error code or 0 is returned for error case and success case respectively.
 // -----------------------------------------------------------------------
-int ComRtGetMPSysCatName(char *sysCatBuffer,       // in/out
-                           int inputBufferLength,  // in
-                           char *inputSysName,       // in, must set to NULL if no name is passed.
-                           int *sysCatLength,      // out
-                           short *detailError,       // out
-                           CollHeap *heap)           // in
+int ComRtGetMPSysCatName(char *sysCatBuffer,     // in/out
+                         int inputBufferLength,  // in
+                         char *inputSysName,     // in, must set to NULL if no name is passed.
+                         int *sysCatLength,      // out
+                         short *detailError,     // out
+                         CollHeap *heap)         // in
 
 {
   // the following enum is replicated from ComMPSysCat.h for detail error
@@ -559,15 +553,14 @@ NABoolean ComRtGetValueFromFile(const char *envvar, char *valueBuffer, const UIn
 // // Return status:      0, if all ok. <errnum>, in case of an error.
 //
 // -----------------------------------------------------------------------
-int ComRtGetProgramInfo(char *pathName,                           /* out */
-                          int pathNameMaxLen, short &processType, /* out */
-                          int &cpu,                               /* cpu */
-                          pid_t &pin,                               /* pin */
-                          int &nodeNumber,
-                          char *nodeName,  // GuaNodeNameMaxLen+1
-                          short &nodeNameLen, long &processCreateTime, char *processNameString,
-                          char *parentProcessNameString, SB_Verif_Type *verifier, int *ancestorNid,
-                          pid_t *ancestorPid) {
+int ComRtGetProgramInfo(char *pathName,                         /* out */
+                        int pathNameMaxLen, short &processType, /* out */
+                        int &cpu,                               /* cpu */
+                        pid_t &pin,                             /* pin */
+                        int &nodeNumber,
+                        char *nodeName,  // GuaNodeNameMaxLen+1
+                        short &nodeNameLen, long &processCreateTime, char *processNameString,
+                        char *parentProcessNameString, SB_Verif_Type *verifier, int *ancestorNid, pid_t *ancestorPid) {
   int retcode = 0;
 
   processType = 2;
@@ -635,8 +628,8 @@ int ComRtGetProcessPagesInUse(long &pagesInUse /* out */) {
 //      Otherwise, use current process
 // OUT: processCreateTime: time when this process was created.
 int ComRtGetProcessCreateTime(short *cpu, /* cpu */
-                                pid_t *pin, /* pin */
-                                short *nodeNumber, long &processCreateTime, short &errorDetail) {
+                              pid_t *pin, /* pin */
+                              short *nodeNumber, long &processCreateTime, short &errorDetail) {
   int retcode = 0;
 
   MS_Mon_Process_Info_Type processInfo;

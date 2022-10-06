@@ -2,13 +2,14 @@
 
 #define SQLPARSERGLOBALS_NADEFAULTS  // first
 
+#include "common/ComSchemaName.h"
+
 #include <string.h>
+
 #include "common/ComASSERT.h"
 #include "common/ComMPLoc.h"
-#include "common/ComSchemaName.h"
 #include "common/ComSqlText.h"
 #include "common/NAString.h"
-
 #include "parser/SqlParserGlobals.h"  // last
 
 //

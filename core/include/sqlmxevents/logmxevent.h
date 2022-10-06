@@ -25,7 +25,6 @@
 /* refactoring to be more portable to different platforms */
 
 #include "logmxevent_base.h"
-
 #include "sqlmxevents/logmxevent_traf.h"
 
 #endif

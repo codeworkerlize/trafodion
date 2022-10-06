@@ -4,12 +4,12 @@
 #ifndef COM_HBASE_ACCESS_H
 #define COM_HBASE_ACCESS_H
 
-#include "comexe/ComTdb.h"
-#include "comexe/ComQueue.h"
 #include "comexe/ComKeyRange.h"  // keyInfo_ dereferenced in some inline methods.
+#include "comexe/ComQueue.h"
+#include "comexe/ComTdb.h"
 #include "exp/ExpHbaseDefs.h"
-#include "optimizer/Triggers.h"
 #include "optimizer/RelScan.h"
+#include "optimizer/Triggers.h"
 
 static const ComTdbVirtTableColumnInfo hbaseTableColumnInfo[] = {{"ROW_ID",
                                                                   0,
@@ -561,9 +561,7 @@ class ComTdbHbaseAccess : public ComTdb {
     return (ComTdbVirtTableColumnInfo *)hbaseTableRowwiseColumnInfo;
   }
 
-  static int getVirtTableRowwiseNumKeys() {
-    return sizeof(hbaseTableRowwiseKeyInfo) / sizeof(ComTdbVirtTableKeyInfo);
-  }
+  static int getVirtTableRowwiseNumKeys() { return sizeof(hbaseTableRowwiseKeyInfo) / sizeof(ComTdbVirtTableKeyInfo); }
 
   static ComTdbVirtTableKeyInfo *getVirtTableRowwiseKeyInfo() {
     return (ComTdbVirtTableKeyInfo *)hbaseTableRowwiseKeyInfo;
@@ -1220,10 +1218,10 @@ class ComTdbHbaseCoProcAccess : public ComTdbHbaseAccess {
                           Queue *listOfAggrColNames,
 
                           ex_cri_desc *workCriDesc, ex_cri_desc *criDescParentDown, ex_cri_desc *criDescParentUp,
-                          queue_index queueSizeDown, queue_index queueSizeUp, Cardinality expectedRows,
-                          int numBuffers, int bufferSize, char *server, char *zkPort,
-                          HbasePerfAttributes *hbasePerfAttributes, Queue *tdbListOfRangeRows, ex_expr *rowIdExpr,
-                          int rowIdTuppIndex, int rowIdAsciiTuppIndex, int rowIdLength, int rowIdAsciiRowLen);
+                          queue_index queueSizeDown, queue_index queueSizeUp, Cardinality expectedRows, int numBuffers,
+                          int bufferSize, char *server, char *zkPort, HbasePerfAttributes *hbasePerfAttributes,
+                          Queue *tdbListOfRangeRows, ex_expr *rowIdExpr, int rowIdTuppIndex, int rowIdAsciiTuppIndex,
+                          int rowIdLength, int rowIdAsciiRowLen);
 
   CoProcType getCoProcType() { return (CoProcType)coProcType_; }
 

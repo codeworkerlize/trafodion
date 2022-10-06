@@ -15,15 +15,15 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
-
-#include "common/ComASSERT.h"
-#include "common/csconvert.h"
-#include "common/ComDistribution.h"
 #include "common/ComAnsiNamePart.h"
+
+#include "CatSQLShare.h"
+#include "common/ComASSERT.h"
+#include "common/ComDistribution.h"
 #include "common/ComSqlText.h"
 #include "common/NAString.h"
-#include "CatSQLShare.h"
+#include "common/Platform.h"
+#include "common/csconvert.h"
 #include "common/nawstring.h"
 
 extern cnv_charset convertCharsetEnum(int /* SQLCHARSET_CODE */ charSet);
@@ -42,8 +42,8 @@ extern cnv_charset convertCharsetEnum(int /* SQLCHARSET_CODE */ charSet);
 
 // returned error code described in w:/common/csconvert.h
 int ComAnsiNameToUTF8(const NAWString &inAnsiNameInUCS2  // in  - valid ANSI SQL name in UCS2
-                        ,
-                        NAString &outAnsiNameInMBCS  // out - out buffer
+                      ,
+                      NAString &outAnsiNameInMBCS  // out - out buffer
 ) {
   if (inAnsiNameInUCS2.length() <= 0) {
     outAnsiNameInMBCS.remove(0);  // set to an empty string
@@ -67,8 +67,8 @@ int ComAnsiNameToUTF8(const NAWString &inAnsiNameInUCS2  // in  - valid ANSI SQL
 
 // returned error code described in w:/common/csconvert.h
 int ComAnsiNameToUCS2(const NAString &inAnsiNameInMBCS  // in  - valid name in default ANSI name char set
-                        ,
-                        NAWString &outAnsiNameInUCS2  // out - out buffer
+                      ,
+                      NAWString &outAnsiNameInUCS2  // out - out buffer
 ) {
   if (inAnsiNameInMBCS.isNull()) {
     outAnsiNameInUCS2.remove(0);  // set to an empty string
@@ -379,28 +379,28 @@ ComBoolean ComDeriveRandomInternalName(int nameCharSet, const ComString &inputNa
 
   for (; maxCharsToConvert > 0; maxCharsToConvert--) {
     int cnvErrStatus = LocaleToUTF16(cnv_version1  // in  - const enum cnv_version version
-                                       ,
-                                       str_to_test  // in  - const char *in_bufr
-                                       ,
-                                       max_bytes2cnv  // in  - const int in_len
-                                       ,
-                                       tmp_out_bufr  // out - const char *out_bufr
-                                       ,
-                                       max_bytes2cnv * 4  // in  - const int out_len
-                                       ,
-                                       eCnvCS  // in  - enum cnv_charset charset
-                                       ,
-                                       p1stUnstranslatedChar  // out - char * & first_untranslated_char
-                                       ,
-                                       NULL  // out - unsigned int *output_data_len_p
-                                       ,
-                                       0  // in  - const int cnv_flags
-                                       ,
-                                       (int)FALSE  // in  - const int addNullAtEnd_flag
-                                       ,
-                                       NULL  // out - unsigned int * translated_char_cnt_p
-                                       ,
-                                       maxCharsToConvert  // in  - unsigned int max_chars_to_convert
+                                     ,
+                                     str_to_test  // in  - const char *in_bufr
+                                     ,
+                                     max_bytes2cnv  // in  - const int in_len
+                                     ,
+                                     tmp_out_bufr  // out - const char *out_bufr
+                                     ,
+                                     max_bytes2cnv * 4  // in  - const int out_len
+                                     ,
+                                     eCnvCS  // in  - enum cnv_charset charset
+                                     ,
+                                     p1stUnstranslatedChar  // out - char * & first_untranslated_char
+                                     ,
+                                     NULL  // out - unsigned int *output_data_len_p
+                                     ,
+                                     0  // in  - const int cnv_flags
+                                     ,
+                                     (int)FALSE  // in  - const int addNullAtEnd_flag
+                                     ,
+                                     NULL  // out - unsigned int * translated_char_cnt_p
+                                     ,
+                                     maxCharsToConvert  // in  - unsigned int max_chars_to_convert
     );
     // do not need to check cnvErrStatus for errors
     // we check nameLenInBytes and maxCharsToConvert instead

@@ -11,14 +11,16 @@
  *
 
 **********************************************************************/
-#include "common/Platform.h"
-#include "LmExtFunc.h"
 #include "LmDebug.h"
 
+#include "LmExtFunc.h"
+#include "common/Platform.h"
+
 #ifdef LM_DEBUG
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdarg.h>
+
 #include "common/NABoolean.h"
 FILE *lmDebugFile = stdout;
 

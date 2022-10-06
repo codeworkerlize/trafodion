@@ -1,7 +1,6 @@
 //------------------------------------------------------------------
 //
 
-
 //
 // Message-system module
 //
@@ -9,16 +8,14 @@
 #define __SB_MS_H_
 
 #include <stddef.h>  // size_t
+#include <time.h>    // timespec
 
-#include <time.h>  // timespec
-
+#include "excep.h"
 #include "int/conv.h"
 #include "int/diag.h"
 #include "int/exp.h"
 #include "int/opts.h"
 #include "int/types.h"
-
-#include "excep.h"
 #include "mslimits.h"
 
 // SRE flags

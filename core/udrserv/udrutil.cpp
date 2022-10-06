@@ -9,20 +9,21 @@
 *
 *****************************************************************************
 */
-#include "common/Platform.h"
-
-#include "executor/sql_buffer.h"
-#include "common/Int64.h"
 #include "udrutil.h"
-#include "udrdefs.h"
-#include "udrglobals.h"
+
+#include <ctype.h>
+#include <stdarg.h>
+
 #include "LmLangManager.h"
 #include "LmParameter.h"
-#include "spinfo.h"
-#include "export/ComDiags.h"
-#include <stdarg.h>
-#include <ctype.h>
 #include "common/ComRtUtils.h"
+#include "common/Int64.h"
+#include "common/Platform.h"
+#include "executor/sql_buffer.h"
+#include "export/ComDiags.h"
+#include "spinfo.h"
+#include "udrdefs.h"
+#include "udrglobals.h"
 
 extern char *getDatatypeAsString(int datatype, NABoolean extFormat = FALSE);
 
@@ -246,12 +247,10 @@ void dumpLmParameter(LmParameter &p, int i, const char *prefix) {
               (int)p.collation(), (int)p.objMapping(), TF_STRING(p.resultSet()));
   ServerDebug("%s     IN  offset %d, len %d, null offset %d, null len %d", prefix, (int)p.inDataOffset(),
               (int)p.inSize(), (int)p.inNullIndOffset(), (int)p.inNullIndSize());
-  ServerDebug("%s         vclen offset %d, vclen len %d", prefix, (int)p.inVCLenIndOffset(),
-              (int)p.inVCLenIndSize());
+  ServerDebug("%s         vclen offset %d, vclen len %d", prefix, (int)p.inVCLenIndOffset(), (int)p.inVCLenIndSize());
   ServerDebug("%s     OUT offset %d, len %d, null offset %d, null len %d", prefix, (int)p.outDataOffset(),
               (int)p.outSize(), (int)p.outNullIndOffset(), (int)p.outNullIndSize());
-  ServerDebug("%s         vclen offset %d, vclen len %d", prefix, (int)p.outVCLenIndOffset(),
-              (int)p.outVCLenIndSize());
+  ServerDebug("%s         vclen offset %d, vclen len %d", prefix, (int)p.outVCLenIndOffset(), (int)p.outVCLenIndSize());
 
 }  // dumpLmParameter
 
@@ -278,8 +277,8 @@ void dumpBuffer(unsigned char *buffer, size_t len) {
   const int ASCII_BUF_LEN = CHARS_PER_LINE + 1;
 
   const int HEX_BUF_LEN = (2 * CHARS_PER_LINE)    // 2 hex characters per byte of input
-                            + (CHARS_PER_LINE / 2)  // one space between each <hex pair>
-                            + 1;                    // null terminator
+                          + (CHARS_PER_LINE / 2)  // one space between each <hex pair>
+                          + 1;                    // null terminator
 
   //
   // The 100-byte pads in the following two buffers are only used as

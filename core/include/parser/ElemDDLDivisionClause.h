@@ -18,9 +18,9 @@
  *****************************************************************************
  */
 
-#include "common/ComSmallDefs.h"
 #include "ElemDDLNode.h"
 #include "ParNameLocList.h"
+#include "common/ComSmallDefs.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

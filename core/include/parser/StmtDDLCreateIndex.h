@@ -17,16 +17,16 @@
  *****************************************************************************
  */
 
-#include "ElemDDLNode.h"
-#include "parser/ElemDDLColRefArray.h"
 #include "ElemDDLDivisionClause.h"
-#include "ElemDDLSaltOptions.h"
 #include "ElemDDLLocation.h"
+#include "ElemDDLNode.h"
 #include "ElemDDLPartitionArray.h"
-#include "common/NAString.h"
+#include "ElemDDLSaltOptions.h"
 #include "ParDDLFileAttrsCreateIndex.h"
-#include "parser/StmtDDLNode.h"
 #include "common/ComSmallDefs.h"
+#include "common/NAString.h"
+#include "parser/ElemDDLColRefArray.h"
+#include "parser/StmtDDLNode.h"
 
 // -----------------------------------------------------------------------
 // contents of this file
@@ -418,8 +418,8 @@ class StmtDDLCreateIndex : public StmtDDLNode {
   NABoolean isParallelExec_;  // TRUE (ON); FALSE (OFF)
   NABoolean isPopulated_;     // True if populate option is specified, false if no populate is specified.
   NABoolean isNoPopulated_;   // True if no populate option is specified, false otherwise.
-  int populateCount_;       // to prevent user to enter the populate clause multiple times.
-  int noPopulateCount_;     // to prevent user to enter the no populate clause multiple times.
+  int populateCount_;         // to prevent user to enter the populate clause multiple times.
+  int noPopulateCount_;       // to prevent user to enter the no populate clause multiple times.
   NAString configFileName_;
 
   NABoolean isPartLocalIndex_;

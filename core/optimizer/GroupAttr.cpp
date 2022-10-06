@@ -15,18 +15,19 @@
 
 // -----------------------------------------------------------------------
 
-#include "optimizer/Sqlcomp.h"
 #include "optimizer/GroupAttr.h"
+
+#include "AppliedStatMan.h"
+#include "Cost.h"
 #include "EstLogProp.h"
+#include "ScanOptimizer.h"
+#include "arkcmp/CmpStatement.h"
+#include "optimizer/Analyzer.h"
 #include "optimizer/ItemConstr.h"
 #include "optimizer/ItemOther.h"
-#include "optimizer/opt.h"
-#include "Cost.h"
-#include "AppliedStatMan.h"
-#include "optimizer/Analyzer.h"
-#include "ScanOptimizer.h"
 #include "optimizer/RelGrby.h"  /// temproray, delete after ASM testing
-#include "arkcmp/CmpStatement.h"
+#include "optimizer/Sqlcomp.h"
+#include "optimizer/opt.h"
 
 // return hash value of a ValueId; this is called (and required) by
 // NAHashDictionary<K,V>::getHashCode() to compute a key's hash address.
@@ -707,7 +708,7 @@ HashValue GroupAttributes::hash() const {
 // Returns: A list that is a prefix of the chosen index sort key.
 // -----------------------------------------------------------------------
 ValueIdList GroupAttributes::recommendedOrderForNJProbing(GroupAttributes *child0GA,        // IN
-                                                          int numForcedParts,             // IN
+                                                          int numForcedParts,               // IN
                                                           RequirementGenerator &rg,         // IN
                                                           ValueIdList &reqdOrder1,          // IN
                                                           ValueIdSet &reqdArr1,             // IN

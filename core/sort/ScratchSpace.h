@@ -25,12 +25,12 @@
 
 #include "CommonStructs.h"
 #include "Const.h"
-#include "ScratchFileMap.h"
-#include "RunDirectory.h"
 #include "DiskPool.h"
-#include "export/NABasicObject.h"
-#include "common/Int64.h"
+#include "RunDirectory.h"
+#include "ScratchFileMap.h"
 #include "SortError.h"
+#include "common/Int64.h"
+#include "export/NABasicObject.h"
 
 class ExSubtask;
 class IpcEnvironment;
@@ -76,9 +76,9 @@ class SortMergeNode {
   int numRecsRead_;
   char *nextReadPosition_;
   ScrBlockHeader blockHead_;
-  SBN beginBlockNum_;       // beginning block number of run associated with this node
-  SBN endBlockNum_;         // end block number of the run associated with this node
-  SBN nextIOBlockNum_;      // next block to be read for this run.
+  SBN beginBlockNum_;     // beginning block number of run associated with this node
+  SBN endBlockNum_;       // end block number of the run associated with this node
+  SBN nextIOBlockNum_;    // next block to be read for this run.
   int numReadQBlocks_;    // realtime num of blocks attached to readQHead
   int numOutStandingIO_;  // realtime num of blocks beginning from readQHead that have outstanding IO.
   SortScratchSpace *scratch_;
@@ -99,8 +99,7 @@ class ScratchSpace : public NABasicObject {
   virtual RESULT writeFile(char *block, int blockNum, int blockLen);
 
   RESULT writeThru(char *buf, int bufLen, DWORD &blockNum);
-  RESULT readThru(char *buf, int blockNum, int buflen, ScratchFile *readScratchFile = NULL,
-                  int readBlockOffset = -1);
+  RESULT readThru(char *buf, int blockNum, int buflen, ScratchFile *readScratchFile = NULL, int readBlockOffset = -1);
 
   DiskPool *getDiskPool();
   NABoolean generateDiskTable(SortError *sortError);
@@ -184,7 +183,7 @@ class ScratchSpace : public NABasicObject {
                                        // wiriting to it when new writes require to go
                                        // to a new scratch file. CreatenewScratchFileAndWrite
                                        // handles this situation.
-  ScratchFile *currentIOScrFile_;  // Current I/O performed on the scr file
+  ScratchFile *currentIOScrFile_;      // Current I/O performed on the scr file
   ScratchFile *currentReadScrFile_;
   IpcEnvironment *ipcEnv_;
   DiskPool *diskPool_;
@@ -211,8 +210,8 @@ class ScratchSpace : public NABasicObject {
 
 class SortScratchSpace : public ScratchSpace {
  public:
-  SortScratchSpace(CollHeap *heap, SortError *error, int explainNodeId, int scratchIOBlockSize,
-                   int scratchIOVectorSize, NABoolean logInfoEvent = FALSE, int scratchMgmtOption = 0);
+  SortScratchSpace(CollHeap *heap, SortError *error, int explainNodeId, int scratchIOBlockSize, int scratchIOVectorSize,
+                   NABoolean logInfoEvent = FALSE, int scratchMgmtOption = 0);
   ~SortScratchSpace(void);
 
   RESULT writeRunData(char *data, int reclen, int run, NABoolean waited);
@@ -251,8 +250,8 @@ class SortScratchSpace : public ScratchSpace {
                              // should be written to.
 
   int currentRun_;  // The run being written to the scratch
-                       // scratch blocks. May need adjustments
-                       // when implementing read.
+                    // scratch blocks. May need adjustments
+                    // when implementing read.
 
   // pool of sort merge buffer blocks for use by several sort merge nodes.
   // pool is established before merge begins.
@@ -303,7 +302,7 @@ class ClusterPassBack : public NABasicObject {
   friend class HashScratchSpace;
   CBlock *cBlock_;               // next block to read
   ScratchFile *scratchFile_;     // scratch file corresponding to the next block
-  int blockOffset_;            // offset inside the scratch file the next block begins
+  int blockOffset_;              // offset inside the scratch file the next block begins
   NABoolean endOfClusterBatch_;  // indicates if the next block is end of series writes.
  public:
   ClusterPassBack() { initCPB(); }

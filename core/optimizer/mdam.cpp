@@ -16,17 +16,17 @@
 // -----------------------------------------------------------------------
 
 #include "optimizer/mdam.h"
-#include "disjunct.h"
-#include "disjuncts.h"
-#include "optimizer/ItemExpr.h"
-#include "mdamkey.h"
-#include "optimizer/ItemOther.h"
-#include "optimizer/ItemColRef.h"
-#include "optimizer/NATable.h"
-#include "optimizer/ValueDesc.h"
-#include "optimizer/SchemaDB.h"
 
 #include "OptRange.h"
+#include "disjunct.h"
+#include "disjuncts.h"
+#include "mdamkey.h"
+#include "optimizer/ItemColRef.h"
+#include "optimizer/ItemExpr.h"
+#include "optimizer/ItemOther.h"
+#include "optimizer/NATable.h"
+#include "optimizer/SchemaDB.h"
+#include "optimizer/ValueDesc.h"
 
 #undef FSOWARNING
 

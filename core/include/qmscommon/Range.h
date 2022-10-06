@@ -3,13 +3,13 @@
 #ifndef _RANGE_H_
 #define _RANGE_H_
 
-#include "qmscommon/QRDescriptor.h"
-#include "common/nawstring.h"
+#include "common/ComRtUtils.h"
+#include "common/MiscType.h"
 #include "common/NAType.h"
 #include "common/NumericType.h"
-#include "common/MiscType.h"
+#include "common/nawstring.h"
+#include "qmscommon/QRDescriptor.h"
 #include "qmscommon/QRLogger.h"
-#include "common/ComRtUtils.h"
 
 class ItemExpr;
 typedef CollIndex QRValueId;

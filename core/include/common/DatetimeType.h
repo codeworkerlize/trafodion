@@ -15,10 +15,10 @@
 
 // -----------------------------------------------------------------------
 
-#include "common/NAType.h"
 #include "DTICommonType.h"
-#include "common/IntervalType.h"
 #include "cli/SQLCLIdev.h"
+#include "common/IntervalType.h"
+#include "common/NAType.h"
 
 // -----------------------------------------------------------------------
 // contents of this file
@@ -172,10 +172,8 @@ class DatetimeType : public DatetimeIntervalCommonType {
   // Methods that return the binary form of the minimum and the maximum
   // representable values.
   // ---------------------------------------------------------------------
-  virtual void minRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral = NULL,
-                                     NAMemory *h = 0) const;
-  virtual void maxRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral = NULL,
-                                     NAMemory *h = 0) const;
+  virtual void minRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral = NULL, NAMemory *h = 0) const;
+  virtual void maxRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral = NULL, NAMemory *h = 0) const;
 
   virtual NABoolean createSQLLiteral(const char *buf,        // in
                                      NAString *&sqlLiteral,  // out

@@ -15,6 +15,7 @@
 #include <assert.h>
 #include <float.h>
 #include <limits.h>
+
 #include "common/BaseTypes.h"
 #include "common/charinfo.h"
 #include "sqlcomp/NADefaults.h"
@@ -48,7 +49,7 @@ class DefaultValidator {
   void applyUpper(NAString &value) const;
 
   virtual int validate(const char *value,  // returns FALSE if invalid
-                         const NADefaults *nad, int attrEnum, int errOrWarn = -1, float *flt = NULL) const;
+                       const NADefaults *nad, int attrEnum, int errOrWarn = -1, float *flt = NULL) const;
 
  protected:
   const DefaultValidatorType type_;
@@ -60,7 +61,7 @@ class ValidateKeyword : public DefaultValidator {
   ValidateKeyword() : DefaultValidator(VALID_KWD, CASE_INSENSITIVE) {}
 
   virtual int validate(const char *value,  // returns FALSE if invalid
-                         const NADefaults *nad, int attrEnum, int errOrWarn = -1, float *flt = NULL) const;
+                       const NADefaults *nad, int attrEnum, int errOrWarn = -1, float *flt = NULL) const;
 };
 
 class ValidateCollationList : public DefaultValidator {
@@ -75,7 +76,7 @@ class ValidateCollationList : public DefaultValidator {
         lastCoInserted_(CharInfo::UNKNOWN_COLLATION) {}
 
   virtual int validate(const char *value,  // returns FALSE if invalid
-                         const NADefaults *nad, int attrEnum, int errOrWarn = -1, float *flt = NULL) const;
+                       const NADefaults *nad, int attrEnum, int errOrWarn = -1, float *flt = NULL) const;
 
   UInt32 insertIntoCDB(SchemaDB *sdb,     // Returns count of collations
                        CollationDB *cdb,  // that it parsed & inserted
@@ -97,7 +98,7 @@ class ValidateTraceStr : public DefaultValidator {
  public:
   // returns FALSE if invalid
   virtual int validate(const char *value, const NADefaults *nad, int attrEnum, int errOrWarn = -1,
-                         float *flt = NULL) const;
+                       float *flt = NULL) const;
 };
 
 class ValidateAnsiList : public DefaultValidator {
@@ -106,7 +107,7 @@ class ValidateAnsiList : public DefaultValidator {
 
   virtual NABoolean caseSensitive() const { return FALSE; }
   virtual int validate(const char *value,  // returns FALSE if invalid
-                         const NADefaults *nad, int attrEnum, int errOrWarn = -1, float *flt = NULL) const;
+                       const NADefaults *nad, int attrEnum, int errOrWarn = -1, float *flt = NULL) const;
 };
 
 class ValidateRoleNameList : public DefaultValidator  // based on ValidateAnsiList
@@ -116,7 +117,7 @@ class ValidateRoleNameList : public DefaultValidator  // based on ValidateAnsiLi
 
   virtual NABoolean caseSensitive() const { return FALSE; }
   virtual int validate(const char *value,  // returns FALSE if invalid
-                         const NADefaults *nad, int attrEnum, int errOrWarn = -1, float *flt = NULL) const;
+                       const NADefaults *nad, int attrEnum, int errOrWarn = -1, float *flt = NULL) const;
 };
 
 class ValidatePOSTableSizes : public DefaultValidator {
@@ -124,7 +125,7 @@ class ValidatePOSTableSizes : public DefaultValidator {
   ValidatePOSTableSizes() : DefaultValidator(VALID_ANY, CASE_INSENSITIVE) {}
 
   virtual int validate(const char *value,  // returns FALSE if invalid
-                         const NADefaults *nad, int attrEnum, int errOrWarn = -1, float *flt = NULL) const;
+                       const NADefaults *nad, int attrEnum, int errOrWarn = -1, float *flt = NULL) const;
 };
 
 class ValidateNumericRange : public DefaultValidator {
@@ -133,7 +134,7 @@ class ValidateNumericRange : public DefaultValidator {
       : DefaultValidator(vt, CASE_INSENSITIVE), min_(mn), max_(mx), multiple_(0) {}
 
   virtual int validate(const char *value,  // returns FALSE if invalid
-                         const NADefaults *nad, int attrEnum, int errOrWarn = -1, float *flt = NULL) const;
+                       const NADefaults *nad, int attrEnum, int errOrWarn = -1, float *flt = NULL) const;
 
   // All numerics are expressed as floats.  Thus there is loss of precision at
   // the high end, which results in things like long(float(LONG_MAX)) printing
@@ -388,7 +389,7 @@ class ValidateOverrideSchema : public DefaultValidator {
   ValidateOverrideSchema() : DefaultValidator() {}
 
   virtual int validate(const char *value, const NADefaults *nad, int attrEnum, int errOrWarn = -1,
-                         float *flt = NULL) const;
+                       float *flt = NULL) const;
 };
 
 class ValidatePublicSchema : public DefaultValidator {
@@ -396,7 +397,7 @@ class ValidatePublicSchema : public DefaultValidator {
   ValidatePublicSchema() : DefaultValidator() {}
 
   virtual int validate(const char *value, const NADefaults *nad, int attrEnum, int errOrWarn = -1,
-                         float *flt = NULL) const;
+                       float *flt = NULL) const;
 };
 
 class ValidateReplIoVersion : public DefaultValidator {
@@ -420,7 +421,7 @@ class ValidateMVAge : public DefaultValidator {
 
   virtual NABoolean caseSensitive() const { return FALSE; }
   virtual int validate(const char *value,  // returns FALSE if invalid
-                         const NADefaults *nad, int attrEnum, int errOrWarn = -1, float *flt = NULL) const;
+                       const NADefaults *nad, int attrEnum, int errOrWarn = -1, float *flt = NULL) const;
 };
 
 #endif /* _NADEFAULTVALIDATOR_H */

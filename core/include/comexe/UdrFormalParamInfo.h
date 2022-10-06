@@ -13,8 +13,8 @@
 #ifndef UDR_FORMAL_PARAM_INFO_H
 #define UDR_FORMAL_PARAM_INFO_H
 
-#include "export/NAVersionedObject.h"
 #include "common/ComSmallDefs.h"
+#include "export/NAVersionedObject.h"
 
 //
 // Contents of this file

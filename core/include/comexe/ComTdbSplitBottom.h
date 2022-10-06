@@ -3,10 +3,10 @@
 #ifndef COM_SPLIT_BOTTOM_H
 #define COM_SPLIT_BOTTOM_H
 
-#include "comexe/ComTdb.h"
-#include "comexe/FragDir.h"
 #include "comexe/ComExtractInfo.h"
+#include "comexe/ComTdb.h"
 #include "comexe/ComTdbSendBottom.h"
+#include "comexe/FragDir.h"
 
 ////////////////////////////////////////////////////////////////////////////
 // contents of this file
@@ -54,7 +54,7 @@ class SplitBottomSkewInfo : public NAVersionedObject {
   int unpack(void *base, void *reallocator);
 
  private:
-  int numSkewHashValues_;               // 00-03
+  int numSkewHashValues_;                 // 00-03
   char fillersSplitBottomSkewInfo_[4];    // 04-07
   Int64Ptr skewHashValues_;               // 08-15
   char fillersSplitBottomSkewInfo2_[48];  // 16-63
@@ -238,7 +238,7 @@ class ComTdbSplitBottom : public ComTdb {
   // existent then the value is sent to all output partitions that generated
   // the corresponding input queue entry)
   ExExprPtr partFunction_;  // 16-23
-  int partNoATPIndex_;    // 24-27
+  int partNoATPIndex_;      // 24-27
 
   // does the partitioning function possibly fail with a data conversion
   // error?
@@ -281,7 +281,7 @@ class ComTdbSplitBottom : public ComTdb {
 
   UInt16 finalRoundRobin_;   // 100-101
   Int16 cpuLimitCheckFreq_;  // 102-103
-  long cpuLimit_;           // 104-111
+  long cpuLimit_;            // 104-111
 
   // Added for support of the MIN/MAX optimization
   // for type-1 HJ.

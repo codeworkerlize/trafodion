@@ -19,28 +19,27 @@
 // for testing
 // #define IPC_INTEGRITY_CHECKING 1
 
-#include "common/Platform.h"
-
-#include "executor/ex_stdh.h"
-#include "ex_exe_stmt_globals.h"
 #include "ex_frag_rt.h"
-#include "Ex_esp_msg.h"
-#include "comexe/PartInputDataDesc.h"
-#include "ComTdb.h"
-#include "ex_tcb.h"
-#include "ex_root.h"
-#include "executor/ex_transaction.h"
-#include "executor/ExStats.h"
-#include "common/ComDistribution.h"
-#include "executor/sql_buffer_size.h"
-#include "common/NAWNodeSet.h"
-#include "common/NAClusterInfo.h"
-#include "ExCextdecs.h"
 
-#include "seabed/ms.h"
-#include "porting/PortProcessCalls.h"  // trace need phandle for ESP info
+#include "ComTdb.h"
+#include "ExCextdecs.h"
 #include "ExSMGlobals.h"
+#include "Ex_esp_msg.h"
 #include "SMConnection.h"
+#include "comexe/PartInputDataDesc.h"
+#include "common/ComDistribution.h"
+#include "common/NAClusterInfo.h"
+#include "common/NAWNodeSet.h"
+#include "common/Platform.h"
+#include "ex_exe_stmt_globals.h"
+#include "ex_root.h"
+#include "ex_tcb.h"
+#include "executor/ExStats.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_transaction.h"
+#include "executor/sql_buffer_size.h"
+#include "porting/PortProcessCalls.h"  // trace need phandle for ESP info
+#include "seabed/ms.h"
 
 class AssignEspArrays {
  public:
@@ -1546,9 +1545,8 @@ void ExRtFragTable::addLoadRequestToMessage(ExMasterEspMessage *msg, ExFragId fr
 }
 
 void ExRtFragTable::addFixupRequestToMessage(ExMasterEspMessage *msg, ExFragId fragId, IpcPriority fixupPriority,
-                                             IpcPriority executePriority, int maxPollingInterval,
-                                             int persistentOpens, NABoolean espCloseErrorLogging,
-                                             int espFreeMemTimeout) {
+                                             IpcPriority executePriority, int maxPollingInterval, int persistentOpens,
+                                             NABoolean espCloseErrorLogging, int espFreeMemTimeout) {
   CollHeap *ipcHeap = glob_->getIpcEnvironment()->getHeap();
   ExEspFixupFragmentReqHeader *req = new (ipcHeap) ExEspFixupFragmentReqHeader(ipcHeap);
   ExRtFragTableEntry *fragEntry = fragmentEntries_[fragId];
@@ -2538,9 +2536,9 @@ const char *EspEntryTraceDesc =
 ExEspDbEntry *ExEspManager::getEspFromCache(LIST(ExEspDbEntry *) & alreadyAssignedEsps,  // multi fragment esp
                                             CollHeap *statementHeap, Statement *statement, const char *clusterName,
                                             IpcCpuNum cpuNum, short memoryQuota, int user_id, int tenantId,
-                                            NABoolean verifyESP, int espLevel, int idleTimeout,
-                                            int assignTimeWindow, int nowaitDepth, NABoolean &espServerError,
-                                            NABoolean soloFragment, Int16 esp_multi_fragment, Int16 esp_num_fragments,
+                                            NABoolean verifyESP, int espLevel, int idleTimeout, int assignTimeWindow,
+                                            int nowaitDepth, NABoolean &espServerError, NABoolean soloFragment,
+                                            Int16 esp_multi_fragment, Int16 esp_num_fragments,
                                             bool esp_multi_threaded) {
   ExEspDbEntry *result = NULL;
   LIST(ExEspDbEntry *) badEsps(statementHeap);
@@ -2585,7 +2583,7 @@ ExEspDbEntry *ExEspManager::getEspFromCache(LIST(ExEspDbEntry *) & alreadyAssign
           int lineWidth = 75;  // print width per trace entry
           void *regdTrace;
           int ret = ti->addTrace("EspManager", this, lastEspTraceIndex_, 2, this, getALine, &lastEspTraceIndex_,
-                                   lineWidth, EspEntryTraceDesc, &regdTrace);
+                                 lineWidth, EspEntryTraceDesc, &regdTrace);
           if (ret == 0) {
             // trace info added successfully, now add entry fields
             ti->addTraceField(regdTrace, "ESP Proc Name (nid,pid use count)     ", 0, ExeTrace::TR_POINTER32);

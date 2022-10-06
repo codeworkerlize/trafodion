@@ -1,9 +1,9 @@
 
 #ifndef LIST_H_
 #define LIST_H_
-#include "export/NABasicObject.h"
-#include "common/Platform.h"
 #include "SortError.h"
+#include "common/Platform.h"
+#include "export/NABasicObject.h"
 
 template <class T>
 class ListNode : public NABasicObject {

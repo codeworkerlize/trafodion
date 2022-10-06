@@ -5,11 +5,11 @@
 #ifndef COMSECURITYKEY_H
 #define COMSECURITYKEY_H
 
-#include "sqlcomp/PrivMgrDefs.h"
-#include "common/ComSmallDefs.h"
-#include "common/Collections.h"
 #include "cli/sqlcli.h"
+#include "common/Collections.h"
+#include "common/ComSmallDefs.h"
 #include "sqlcomp/PrivMgrCommands.h"
+#include "sqlcomp/PrivMgrDefs.h"
 #include "sqlcomp/PrivMgrDesc.h"
 
 class PrivMgrUserPrivs;
@@ -25,8 +25,7 @@ bool buildSecurityKeys(const NAList<int> &roleGrantees, const int32_t roleID, co
 NABoolean qiCheckForInvalidObject(const int numInvalidationKeys, const SQL_QIKEY *invalidationKeys,
                                   const long objectUID, const ComSecurityKeySet &objectKeys);
 
-NABoolean qiCheckForSchemaUID(const int numInvalidationKeys, const SQL_QIKEY *invalidationKeys,
-                              const long schemaUID);
+NABoolean qiCheckForSchemaUID(const int numInvalidationKeys, const SQL_QIKEY *invalidationKeys, const long schemaUID);
 
 void qiInvalidationType(const int numInvalidationKeys, const SQL_QIKEY *invalidationKeys, const int userID,
                         bool &resetRoleList, bool &updateCaches, bool &resetSchemaCaches);

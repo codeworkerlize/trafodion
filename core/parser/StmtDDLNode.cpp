@@ -16,17 +16,18 @@
  *****************************************************************************
  */
 
+#include "parser/StmtDDLNode.h"
+
+#include "ElemDDLPrivileges.h"
+#include "StmtDDLGrantArray.h"
+#include "StmtDDLSchGrantArray.h"
 #include "common/BaseTypes.h"
 #include "common/ComOperators.h"
-#include "ElemDDLPrivileges.h"
 #include "parser/ElemDDLGrantee.h"
-#include "parser/StmtDDLNode.h"
 #include "parser/StmtDDLGrant.h"
 #include "parser/StmtDDLGrantComponentPrivilege.h"
-#include "StmtDDLGrantArray.h"
-#include "parser/StmtDDLSchGrant.h"
-#include "StmtDDLSchGrantArray.h"
 #include "parser/StmtDDLRevoke.h"
+#include "parser/StmtDDLSchGrant.h"
 #include "parser/StmtDDLSchRevoke.h"
 
 // -----------------------------------------------------------------------

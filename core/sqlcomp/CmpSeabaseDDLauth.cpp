@@ -1,38 +1,38 @@
 
 #define SQLPARSERGLOBALS_FLAGS
-#include "parser/SqlParserGlobalsCmn.h"
+#include "sqlcomp/CmpSeabaseDDLauth.h"
+
+#include <pwd.h>
+#include <sys/types.h>
 
 #include <algorithm>
 
-#include "sqlcomp/CmpSeabaseDDLauth.h"
-#include "sqlcomp/CmpSeabaseDDL.h"
-#include "sqlcomp/CmpSeabaseTenant.h"
-#include "parser/StmtDDLRegisterUser.h"
-#include "parser/StmtDDLTenant.h"
+#include "arkcmp/CompException.h"
+#include "cli/Context.h"
+#include "common/ComRtUtils.h"
+#include "common/ComUser.h"
+#include "common/sq_license.h"
+#include "dbsecurity/dbUserAuth.h"
+#include "executor/TenantHelper_JNI.h"
+#include "exp/ExpHbaseInterface.h"
+#include "export/NAStringDef.h"
+#include "parser/ElemDDLGrantee.h"
+#include "parser/ElemDDLGroup.h"
+#include "parser/SqlParserGlobalsCmn.h"
 #include "parser/StmtDDLAlterUser.h"
 #include "parser/StmtDDLCreateRole.h"
+#include "parser/StmtDDLRegisterUser.h"
+#include "parser/StmtDDLTenant.h"
 #include "parser/StmtDDLUserGroup.h"
-#include "parser/ElemDDLGrantee.h"
-#include "arkcmp/CompException.h"
-#include "parser/ElemDDLGroup.h"
-#include "cli/Context.h"
-#include "dbsecurity/dbUserAuth.h"
-#include "common/ComUser.h"
 #include "sqlcomp/CmpDDLCatErrorCodes.h"
-#include "export/NAStringDef.h"
-#include "exp/ExpHbaseInterface.h"
-#include "sqlcomp/PrivMgrCommands.h"
-#include "sqlcomp/PrivMgrRoles.h"
-#include "sqlcomp/PrivMgrComponentPrivileges.h"
-#include "sqlcomp/PrivMgrSchemaPrivileges.h"
-#include "sqlcomp/PrivMgrObjects.h"
-#include "common/ComRtUtils.h"
-#include "executor/TenantHelper_JNI.h"
+#include "sqlcomp/CmpSeabaseDDL.h"
+#include "sqlcomp/CmpSeabaseTenant.h"
 #include "sqlcomp/CompilerSwitchDDL.h"
-#include "common/sq_license.h"
-
-#include <sys/types.h>
-#include <pwd.h>
+#include "sqlcomp/PrivMgrCommands.h"
+#include "sqlcomp/PrivMgrComponentPrivileges.h"
+#include "sqlcomp/PrivMgrObjects.h"
+#include "sqlcomp/PrivMgrRoles.h"
+#include "sqlcomp/PrivMgrSchemaPrivileges.h"
 
 #define RESERVED_AUTH_NAME_PREFIX "DB__"
 #define DEFAULT_AUTH_CONFIG       0
@@ -1945,7 +1945,7 @@ CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::selectExactRow(const NAString &
   setAuthInTenant(intValue & SEABASE_IS_TENANT_AUTH);
   setAutoCreated(intValue & SEABASE_IS_AUTO_CREATED);
 
-  long mask = 60;             // (3C hex) config number stored in bits 3 - 6
+  long mask = 60;              // (3C hex) config number stored in bits 3 - 6
   intValue = intValue & mask;  // turn off all other bits
   intValue = intValue >> 2;    // shift over bits 1 & 2
   setAuthConfig((Int16)intValue);
@@ -2346,7 +2346,7 @@ void CmpSeabaseDDLuser::registerUser(StmtDDLRegisterUser *pNode) {
   int authCreator = hasAdminRole ? adminRole : ComUser::getCurrentUser();
 
   int retcode = registerUserInternal(pNode->getExternalUserName(), pNode->getDbUserName(), pNode->getConfig().data(),
-                                       false, authCreator, *userPwd);
+                                     false, authCreator, *userPwd);
   if (retcode) {
     NAString userName =
         (COM_LDAP_AUTH == CmpCommon::getAuthenticationType()) ? pNode->getExternalUserName() : pNode->getDbUserName();
@@ -2372,9 +2372,8 @@ void CmpSeabaseDDLuser::registerUser(StmtDDLRegisterUser *pNode) {
 // This method does not verify access.  It assumes that privileges have been
 // checked prior to calling.
 // ----------------------------------------------------------------------------
-int CmpSeabaseDDLuser::registerUserInternal(const NAString &extUserName, const NAString &dbUserName,
-                                              const char *config, bool autoCreated, int authCreator,
-                                              const NAString &authPassword) {
+int CmpSeabaseDDLuser::registerUserInternal(const NAString &extUserName, const NAString &dbUserName, const char *config,
+                                            bool autoCreated, int authCreator, const NAString &authPassword) {
   // If this is an auth register user request, don't allow, return an error
   if (autoCreated && !(COM_LDAP_AUTH == currentAuthType_ && CmpCommon::getDefault(TRAF_AUTO_REGISTER_USER) == DF_ON)) {
     *CmpCommon::diags() << DgSqlCode(-CAT_AUTO_REGISTER_USER) << DgString0(dbUserName.data());
@@ -3034,8 +3033,8 @@ void CmpSeabaseDDLuser::alterUser(StmtDDLAlterUser *pNode) {
             itor++;
           }
           int (*func)(int, int) = (StmtDDLAlterUser::SET_USER_JOIN_GROUP == pNode->getAlterUserCmdSubType())
-                                            ? &CmpSeabaseDDLauth::addGroupMember
-                                            : &CmpSeabaseDDLauth::removeGroupMember;
+                                      ? &CmpSeabaseDDLauth::addGroupMember
+                                      : &CmpSeabaseDDLauth::removeGroupMember;
           bool isAllowedGrantRoleToGroup = false;
           IS_ALLOWED_GRANT_ROLE_TO_GROUP(isAllowedGrantRoleToGroup);
           std::vector<int32_t> groupIDs;
@@ -3543,7 +3542,7 @@ void CmpSeabaseDDLrole::createRole(StmtDDLCreateRole *pNode) {
 // creates an admin role for a tenant.
 // ----------------------------------------------------------------------------
 int CmpSeabaseDDLrole::createAdminRole(const NAString &roleName, const NAString &tenantName, const int roleOwner,
-                                         const char *roleOwnerName) {
+                                       const char *roleOwnerName) {
   bool enabled = msg_license_multitenancy_enabled();
   if (!enabled) {
     *CmpCommon::diags() << DgSqlCode(-4222) << DgString0("multi-tenant");
@@ -5050,9 +5049,9 @@ short CmpSeabaseDDLtenant::getTenantResource(const NAString &resourceName, const
 //
 // throws UserException if unsuccessful (ComDiags area is setup)
 // -----------------------------------------------------------------------------
-void CmpSeabaseDDLtenant::createSchemas(ExeCliInterface *cliInterface, const StmtDDLTenant *pNode,
-                                        const int &tenantID, const TenantUsageList *origUsageList,
-                                        NAString schemaOwner, long &defSchUID, TenantUsageList *&usageList) {
+void CmpSeabaseDDLtenant::createSchemas(ExeCliInterface *cliInterface, const StmtDDLTenant *pNode, const int &tenantID,
+                                        const TenantUsageList *origUsageList, NAString schemaOwner, long &defSchUID,
+                                        TenantUsageList *&usageList) {
   defSchUID = NA_UserIdDefault;
 
   bool hasSchemaUsages = (origUsageList && origUsageList->hasSchemaUsages());
@@ -5260,12 +5259,12 @@ long CmpSeabaseDDLauth::getSchemaUID(ExeCliInterface *cliInterface, const Schema
   int selectStmtSize = 600;
   char selectStmt[selectStmtSize];
   int stmtSize = snprintf(selectStmt, sizeof(selectStmt),
-                            "select object_uid from %s.\"%s\".%s  "
-                            "where catalog_name = '%s' and schema_name = '%s' "
-                            "and object_name = '%s'",
-                            CmpSeabaseDDL::getSystemCatalogStatic().data(), SEABASE_MD_SCHEMA, SEABASE_OBJECTS,
-                            schemaName->getCatalogNameAsAnsiString().data(), schemaName->getSchemaName().data(),
-                            SEABASE_SCHEMA_OBJECTNAME);
+                          "select object_uid from %s.\"%s\".%s  "
+                          "where catalog_name = '%s' and schema_name = '%s' "
+                          "and object_name = '%s'",
+                          CmpSeabaseDDL::getSystemCatalogStatic().data(), SEABASE_MD_SCHEMA, SEABASE_OBJECTS,
+                          schemaName->getCatalogNameAsAnsiString().data(), schemaName->getSchemaName().data(),
+                          SEABASE_SCHEMA_OBJECTNAME);
 
   if (stmtSize >= selectStmtSize) {
     SEABASEDDL_INTERNAL_ERROR("CmpSeabaseDDLauth::getSchemaUID failed, internal buffer size too small");
@@ -5453,7 +5452,7 @@ void CmpSeabaseDDLtenant::alterTenant(ExeCliInterface *cliInterface, StmtDDLTena
       if (pNode->getRoleName()) {
         CmpSeabaseDDLrole adminRole;
         int adminRoleID = adminRole.createAdminRole(*pNode->getRoleName(), pNode->getTenantName(),
-                                                      ComUser::getCurrentUser(), ComUser::getCurrentUsername());
+                                                    ComUser::getCurrentUser(), ComUser::getCurrentUsername());
         assert(adminRoleID > 0);
         tenantInfo.setAdminRoleID(adminRoleID);
       }
@@ -6554,7 +6553,7 @@ bool CmpSeabaseDDLtenant::describe(const NAString &tenantName, NAString &tenantT
 }
 
 int CmpSeabaseDDLtenant::predefinedNodeAllocations(const int unitsToAllocate,
-                                                     TenantResourceUsageList *&resourceUsageList) {
+                                                   TenantResourceUsageList *&resourceUsageList) {
   // we have the list of nodes, the available units, use round robin
   // to allocate them
   int unitsAllocated = 0;
@@ -6714,8 +6713,8 @@ void CmpSeabaseDDLgroup::alterGroup(StmtDDLUserGroup *pNode) {
         }
 
         int (*func)(int, int) = (StmtDDLUserGroup::ADD_USER_GROUP_MEMBER == pNode->getUserGroupType())
-                                          ? &CmpSeabaseDDLauth::addGroupMember
-                                          : &CmpSeabaseDDLauth::removeGroupMember;
+                                    ? &CmpSeabaseDDLauth::addGroupMember
+                                    : &CmpSeabaseDDLauth::removeGroupMember;
         std::vector<int32_t> memberIDs;
         bool isAllowedGrantRoleToGroup = false;
         IS_ALLOWED_GRANT_ROLE_TO_GROUP(isAllowedGrantRoleToGroup);

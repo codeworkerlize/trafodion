@@ -16,12 +16,13 @@
  *****************************************************************************
  */
 
-#include "export/ComDiags.h"
-#include "common/ComSmallDefs.h"
-#include "parser/StmtDDLNode.h"
 #include "parser/StmtDMLSetTransaction.h"
+
 #include "cli/SQLCLIdev.h"
+#include "common/ComSmallDefs.h"
+#include "export/ComDiags.h"
 #include "optimizer/ItemOther.h"
+#include "parser/StmtDDLNode.h"
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #include "parser/SqlParserGlobals.h"
 

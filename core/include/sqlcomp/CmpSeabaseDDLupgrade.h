@@ -3,8 +3,8 @@
 #ifndef _CMP_SEABASE_MD_UPGD_H_
 #define _CMP_SEABASE_MD_UPGD_H_
 
-#include "sqlcomp/CmpSeabaseDDLmd.h"
 #include "CmpSeabaseDDLmdcommon.h"
+#include "sqlcomp/CmpSeabaseDDLmd.h"
 
 /*******************************************************************************************
 Steps needed to upgrade metadata are listed below.

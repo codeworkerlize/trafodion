@@ -16,10 +16,10 @@
 ******************************************************************************
 */
 
-#include "optimizer/RelSet.h"  // for Union (needed by ValueIdUnion flags)
-#include "optimizer/NAColumn.h"
-#include "qmscommon/QRExprElement.h"
 #include "optimizer/ItemLog.h"
+#include "optimizer/NAColumn.h"
+#include "optimizer/RelSet.h"  // for Union (needed by ValueIdUnion flags)
+#include "qmscommon/QRExprElement.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

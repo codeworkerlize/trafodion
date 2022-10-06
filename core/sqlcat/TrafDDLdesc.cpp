@@ -1,8 +1,9 @@
 
 
 #include "sqlcat/TrafDDLdesc.h"
-#include "common/CmpCommon.h"
+
 #include "SQLTypeDefs.h"
+#include "common/CmpCommon.h"
 
 // -----------------------------------------------------------------------
 // Allocate a column_desc and do simple initialization of several fields,

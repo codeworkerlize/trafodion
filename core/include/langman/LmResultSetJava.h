@@ -14,13 +14,12 @@
 #ifndef LMRESULTSETJAVA_H
 #define LMRESULTSETJAVA_H
 
+#include "LmConnection.h"
+#include "LmLangManagerJava.h"
+#include "LmResultSet.h"
+#include "LmRoutineJava.h"
 #include "common/ComSmallDefs.h"
 #include "langman/LmCommon.h"
-#include "LmResultSet.h"
-#include "LmLangManagerJava.h"
-#include "LmRoutineJava.h"
-
-#include "LmConnection.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -122,24 +121,24 @@ class LmResultSetJava : public LmResultSet {
   char *proxySyntax_;  // Proxy syntax (used when T4 conn is used)
 
   int firstBufferedRow_;  // The row position of the first row that JDBC/MX
-                            // has fetched from SQL/MX and that is still
-                            // buffered in the JDBC/MX driver. The row
-                            // numbers are 1-based.
+                          // has fetched from SQL/MX and that is still
+                          // buffered in the JDBC/MX driver. The row
+                          // numbers are 1-based.
 
   int lastBufferedRow_;  // The row position of the last row that JDBC/MX
-                           // has fetched from SQL/MX and that is still
-                           // buffered in the JDBC/MX driver.
+                         // has fetched from SQL/MX and that is still
+                         // buffered in the JDBC/MX driver.
 
   int currentRowPosition_;  // The current row position of this
-                              // java.sql.ResultSet instance.
+                            // java.sql.ResultSet instance.
 
   LmResultSetType cursorType_;  // Indicates whether this is a scrollable
                                 // or forward-only cursor etc.
 
   long rsCounter_;  // An unique value given to each result set
-                     // object in JDBC/MX to indicate the order
-                     // in which the result set's underlying SQL
-                     // statement was executed.
+                    // object in JDBC/MX to indicate the order
+                    // in which the result set's underlying SQL
+                    // statement was executed.
 
   NABoolean CLIStmtClosed_;  // Indicates whether the CLI statement is
                              // closed or not

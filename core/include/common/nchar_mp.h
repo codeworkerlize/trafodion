@@ -21,13 +21,12 @@
 #ifndef _NCHAR_MP_H
 #define _NCHAR_MP_H
 
-#include <string.h>
 #include <limits.h>
+#include <string.h>
 
-#include "common/Platform.h"
-
-#include "common/NAWinNT.h"
 #include "common/NABoolean.h"
+#include "common/NAWinNT.h"
+#include "common/Platform.h"
 
 ////////////////////////////////////////////////////////////////////
 // A simple class devoting to the concept of MP KANJI charset

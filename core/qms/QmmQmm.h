@@ -5,17 +5,16 @@
 #ifndef _QMS_H_
 #define _QMS_H_
 
-#include "QRIpc.h"
-#include "QmsRequest.h"
-#include "qmscommon/QRLogger.h"
-#include "common/Collections.h"
-
-#include "seabed/fs.h"
-#include "seabed/ms.h"
-#include "seabed/int/opts.h"
 #include <sys/time.h>
 
+#include "QRIpc.h"
+#include "QmsRequest.h"
+#include "common/Collections.h"
 #include "nsk/nskprocess.h"
+#include "qmscommon/QRLogger.h"
+#include "seabed/fs.h"
+#include "seabed/int/opts.h"
+#include "seabed/ms.h"
 extern "C" {
 #include "common/cextdecs.h"
 #include "common/zsysc.h"

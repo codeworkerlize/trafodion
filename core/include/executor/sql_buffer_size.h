@@ -54,7 +54,7 @@ static inline int SqlBufferHeaderSize(SqlBufferHeader::BufferType bufType) {
 }
 
 static inline int SqlBufferGetTuppSize(int recordLength = 0,
-                                          SqlBufferHeader::BufferType bufType = SqlBufferHeader::NORMAL_) {
+                                       SqlBufferHeader::BufferType bufType = SqlBufferHeader::NORMAL_) {
   int sizeofTuppDescriptor =
       ((bufType == SqlBufferHeader::DENSE_) ? ROUND8(sizeof(TupleDescInfo)) : sizeof(tupp_descriptor));
 
@@ -62,7 +62,7 @@ static inline int SqlBufferGetTuppSize(int recordLength = 0,
 }
 
 static inline int SqlBufferNeededSize(int numTuples = 0, int recordLength = 0,
-                                         SqlBufferHeader::BufferType bufType = SqlBufferHeader::NORMAL_) {
+                                      SqlBufferHeader::BufferType bufType = SqlBufferHeader::NORMAL_) {
   // Return the header size plus the size of any tuple descriptors
   // beyond the first (which is included in the header) plus the
   // size for the aligned data.

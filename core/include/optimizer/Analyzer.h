@@ -16,8 +16,8 @@
 
 #include "GroupAttr.h"
 #include "MVCandidates.h"
-#include "optimizer/RelRoutine.h"
 #include "arkcmp/CmpStatement.h"
+#include "optimizer/RelRoutine.h"
 
 // Classes Defined in this file
 
@@ -518,9 +518,9 @@ class QueryAnalysis : public NABasicObject {
   CANodeIdSetMap jbbSubsetMap_;
   // JBBCExprGroupMap             jbbcExprMap_;
   AppliedStatMan *appStatMan_;
-  NABoolean analysisON_;       // is Analysis ON
-  NABoolean multiJoinsUsed_;   // did MJRewrtie occure
-  int multiJoinThreshold_;  // do MJRewrite only if threshold is reached
+  NABoolean analysisON_;      // is Analysis ON
+  NABoolean multiJoinsUsed_;  // did MJRewrtie occure
+  int multiJoinThreshold_;    // do MJRewrite only if threshold is reached
 
   // Begin Global directive flags
   NABoolean optimizeForFirstNRows_;

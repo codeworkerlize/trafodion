@@ -1,7 +1,8 @@
 
-#include "common/Platform.h"
 #include "ExSMQueue.h"
+
 #include "common/NAMemory.h"
+#include "common/Platform.h"
 
 ExSMQueue::ExSMQueue(uint32_t initialSize, NAMemory *heap)
     : head_(0), tail_(0), size_(initialSize), mask_(0), queue_(NULL), heap_(heap) {

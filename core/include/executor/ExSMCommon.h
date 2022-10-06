@@ -2,11 +2,12 @@
 #ifndef EXSM_COMMON_H
 #define EXSM_COMMON_H
 
-#include <stdint.h>
 #include <inttypes.h>
+#include <stdint.h>
 #include <stdio.h>
-#include "common/Platform.h"
+
 #include "common/NAAssert.h"
+#include "common/Platform.h"
 #include "seabed/sm.h"
 
 // Forward declarations

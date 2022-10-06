@@ -2,15 +2,14 @@
 
 // **********************************************************************
 
-#include "QueryRewriteServer.h"
 #include "QmmQmm.h"
-#include "qmscommon/QRSharedPtr.h"
-#include "qmscommon/QRLogger.h"
+#include "QueryRewriteServer.h"
 #include "common/NAType.h"
-
 #include "nsk/nskport.h"
-#include "seabed/ms.h"
+#include "qmscommon/QRLogger.h"
+#include "qmscommon/QRSharedPtr.h"
 #include "seabed/fs.h"
+#include "seabed/ms.h"
 extern void my_mpi_fclose();
 #include "common/SCMVersHelp.h"
 DEFINE_DOVERS(tdm_arkqmm)

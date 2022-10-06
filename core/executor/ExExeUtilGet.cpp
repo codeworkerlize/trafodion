@@ -15,44 +15,38 @@
  *****************************************************************************
  */
 
-#include "common/ComCextdecs.h"
-#include "cli_stdh.h"
-#include "ex_stdh.h"
-#include "sql_id.h"
-#include "ex_transaction.h"
-#include "ComTdb.h"
-#include "ex_tcb.h"
-#include "ComSqlId.h"
-#include "ComMisc.h"
-#include "ComUser.h"
-#include "dbUserAuth.h"
-
-#include "ExExeUtil.h"
-#include "ex_exe_stmt_globals.h"
-#include "exp_expr.h"
-#include "exp_clause_derived.h"
-#include "ExpLOBinterface.h"
-#include "ComRtUtils.h"
 #include "CmpCommon.h"
 #include "CmpContext.h"
-
-#include "sqlci/sqlcmd.h"
-#include "sqlci/SqlciEnv.h"
-
-#include "sqlmsg/GetErrorMessage.h"
-#include "sqlmsg/ErrorMessage.h"
+#include "ComMisc.h"
+#include "ComRtUtils.h"
+#include "ComSqlId.h"
+#include "ComTdb.h"
+#include "ComUser.h"
+#include "ExExeUtil.h"
+#include "ExHbaseAccess.h"
+#include "ExpLOBinterface.h"
 #include "HBaseClient_JNI.h"
-
+#include "cli_stdh.h"
+#include "common/ComCextdecs.h"
+#include "common/NAType.h"
+#include "dbUserAuth.h"
+#include "ex_exe_stmt_globals.h"
+#include "ex_stdh.h"
+#include "ex_tcb.h"
+#include "ex_transaction.h"
+#include "executor/sql_buffer_size.h"
+#include "exp/ExpHbaseInterface.h"
+#include "exp_clause_derived.h"
+#include "exp_expr.h"
+#include "sql_id.h"
+#include "sqlci/SqlciEnv.h"
+#include "sqlci/sqlcmd.h"
 #include "sqlcomp/CmpDDLCatErrorCodes.h"
-#include "sqlcomp/PrivMgrDefs.h"
 #include "sqlcomp/PrivMgrCommands.h"
 #include "sqlcomp/PrivMgrComponentPrivileges.h"
-
-#include "exp/ExpHbaseInterface.h"
-#include "executor/sql_buffer_size.h"
-
-#include "common/NAType.h"
-#include "ExHbaseAccess.h"
+#include "sqlcomp/PrivMgrDefs.h"
+#include "sqlmsg/ErrorMessage.h"
+#include "sqlmsg/GetErrorMessage.h"
 
 //******************************************************************************
 //                                                                             *
@@ -810,8 +804,7 @@ static const QueryString getHBaseMapTablesInCatalogQuery[] = {
     {"  order by 1 "},
     {"  ; "}};
 
-int ExExeUtilGetMetadataInfoTcb::getUsingView(Queue *infoList, NABoolean isShorthandView, char *&viewName,
-                                                int &len) {
+int ExExeUtilGetMetadataInfoTcb::getUsingView(Queue *infoList, NABoolean isShorthandView, char *&viewName, int &len) {
   int cliRC = 0;
 
   while (1) {
@@ -889,7 +882,7 @@ int ExExeUtilGetMetadataInfoTcb::getUsingView(Queue *infoList, NABoolean isShort
 }
 
 int ExExeUtilGetMetadataInfoTcb::getUsedObjects(Queue *infoList, NABoolean isShorthandView, char *&inViewName,
-                                                  int &inLen) {
+                                                int &inLen) {
   int cliRC = 0;
 
   while (1) {
@@ -1506,7 +1499,7 @@ short ExExeUtilGetMetadataInfoTcb::displayHeading() {
 //       parserflag 131072.
 // ----------------------------------------------------------------------------
 int ExExeUtilGetMetadataInfoTcb::getAuthID(const char *authName, const char *catName, const char *schName,
-                                             const char *objName) {
+                                           const char *objName) {
   if (strcmp(authName, PUBLIC_AUTH_NAME) == 0) return PUBLIC_USER;
 
   short rc = 0;
@@ -1537,7 +1530,7 @@ int ExExeUtilGetMetadataInfoTcb::getAuthID(const char *authName, const char *cat
 // It is returned in a format that can be used in an SQL IN clause.
 // ----------------------------------------------------------------------------
 int ExExeUtilGetMetadataInfoTcb::getCurrentUserRoles(ContextCli *currContext, NAString &authList,
-                                                       NAString &granteeList) {
+                                                     NAString &granteeList) {
   if (!CmpCommon::context()->isAuthorizationEnabled()) return 0;
 
   // always include the current user in the list of auth IDs
@@ -1824,7 +1817,7 @@ char *ExExeUtilGetMetadataInfoTcb::getRoleList(bool &containsRootRole, const int
 //    for schema objects is include ('PS', 'SS') - public or shared schema
 // ----------------------------------------------------------------------------
 long ExExeUtilGetMetadataInfoTcb::getObjectUID(const char *catName, const char *schName, const char *objName,
-                                                const char *targetName, const char *type) {
+                                               const char *targetName, const char *type) {
   short rc = 0;
   int cliRC = 0;
 
@@ -1977,7 +1970,7 @@ NABoolean ExExeUtilGetMetadataInfoTcb::checkUserPrivs(ContextCli *currContext,
 //    -1 - unexpected error occurred
 // ----------------------------------------------------------------------------
 int ExExeUtilGetMetadataInfoTcb::colPrivsFrag(const char *authName, const char *cat, const NAString &privWhereClause,
-                                                NAString &colPrivsStmt) {
+                                              NAString &colPrivsStmt) {
   // if no authorization, skip
   if (!CmpCommon::context()->isAuthorizationEnabled()) return 0;
 
@@ -3632,7 +3625,7 @@ short ExExeUtilGetMetadataInfoTcb::work() {
             const char *currUser = currContext->getDatabaseUserName();
             NABoolean rqstForCurrUser = (strcmp(getMItdb().getParam1(), currUser) == 0);
             int authID = (rqstForCurrUser) ? *currContext->getDatabaseUserID()
-                                             : getAuthID(getMItdb().getParam1(), cat, sch, auths);
+                                           : getAuthID(getMItdb().getParam1(), cat, sch, auths);
 
             if (CmpSeabaseDDLauth::isUserID(authID)) {
               if (getMItdb().queryType_ == ComTdbExeUtilGetMetadataInfo::ROLES_FOR_GROUP_) {
@@ -4330,9 +4323,8 @@ short ExExeUtilGetMetadataInfoTcb::work() {
               // Only return libraries where the current user has been
               // granted privilege on library or routine in the library
               // See LIBRARIES_FOR_USER for more details on query
-              int stmtSize =
-                  ((sizeof(authID) * 5) + (strlen(cat) * 5) + (strlen(pmsch) * 4) + (strlen(objPrivs) * 2) +
-                   (strlen(schPrivs) * 2) + strlen(sch) + strlen(library_usage) + 1000);
+              int stmtSize = ((sizeof(authID) * 5) + (strlen(cat) * 5) + (strlen(pmsch) * 4) + (strlen(objPrivs) * 2) +
+                              (strlen(schPrivs) * 2) + strlen(sch) + strlen(library_usage) + 1000);
               char buf[stmtSize];
               snprintf(buf, sizeof(buf),
                        "and T.object_uid in "
@@ -5904,7 +5896,7 @@ short ExExeUtilGetNamespaceObjectsTcb::work() {
 // Redefine virtual method allocatePstates, to be used by dynamic queue
 // resizing, as well as the initial queue construction.
 ////////////////////////////////////////////////////////////////////////
-ex_tcb_private_state *ExExeUtilGetMetadataInfoTcb::allocatePstates(int &numElems,  // inout, desired/actual elements
+ex_tcb_private_state *ExExeUtilGetMetadataInfoTcb::allocatePstates(int &numElems,      // inout, desired/actual elements
                                                                    int &pstateLength)  // out, length of one element
 {
   PstateAllocator<ExExeUtilGetMetadataInfoPrivateState> pa;

@@ -17,11 +17,11 @@
 // a DLL interface in order to be used by LmRoutine clients. We
 // will suppress such warnings.
 
-#include "langman/LmCommon.h"
-#include "common/ComSmallDefs.h"
 #include "LmAssert.h"
-#include "LmResultSet.h"
 #include "LmContManager.h"
+#include "LmResultSet.h"
+#include "common/ComSmallDefs.h"
+#include "langman/LmCommon.h"
 
 // Some data members such as the NAList come from outside this
 // DLL. The Windows compiler generates a warning about them requiring

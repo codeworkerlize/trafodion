@@ -16,5 +16,6 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
 #include <assert.h>
+
+#include "common/Platform.h"

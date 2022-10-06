@@ -14,10 +14,11 @@
  *****************************************************************************
  */
 
-#include "common/NAStdlib.h"  // Redefines strcpy(), strncpy(), strcmp() for SRLs
 #include "executor/timeout_data.h"
-#include "ex_ex.h"  // for ex_assert()
+
 #include "comexe/ComTdbRoot.h"
+#include "common/NAStdlib.h"  // Redefines strcpy(), strncpy(), strcmp() for SRLs
+#include "ex_ex.h"            // for ex_assert()
 
 //**********************************************************************
 // methods for TimeoutHashTable
@@ -237,7 +238,7 @@ IpcMessageObjSize TimeoutHashTable::packedLength() {
 void TimeoutHashTable::packIntoBuffer(IpcMessageBufferPtr &buffer) {
   if (0 == entries_) return;
   int count = *(int *)buffer = entries_;  // #entries is first in buffer
-  buffer = (char *)buffer + sizeof(int);     // move pointer to next location
+  buffer = (char *)buffer + sizeof(int);  // move pointer to next location
 
   for (int ul = 0; count > 0 && ul < hashTableSize_; ul++) {
     if (!hashArray_[ul].used) continue;  // skip unused array entry
@@ -247,7 +248,7 @@ void TimeoutHashTable::packIntoBuffer(IpcMessageBufferPtr &buffer) {
     strncpy(buffer, tblName, nameLen);
     buffer = (char *)buffer + nameLen;  // advance pointer
     // add an alignment (note: When already aligned, add four null bytes)
-    int alignedNameLen = 0;          // align on a 4 byte boundaries
+    int alignedNameLen = 0;             // align on a 4 byte boundaries
     alignedNameLen += 4 - nameLen % 4;  // Align to one of: 1,2,3,4 chars
     strncpy(buffer, "\0\0\0\0", alignedNameLen);
     buffer = (char *)buffer + alignedNameLen;  // advance pointer
@@ -446,7 +447,7 @@ void TimeoutData::packIntoBuffer(IpcMessageBufferPtr &buffer) {
     if (forAll_) flags |= 0x04;
     if (timeoutsHT_.entries() > 0) flags |= 0x08;  // is timeout HT empty ?
   }
-  *(int *)buffer = flags;                // store the flags
+  *(int *)buffer = flags;                 // store the flags
   buffer = (char *)buffer + sizeof(int);  // incr buffer
   if (streamTimeoutSet_) {
     *(int *)buffer = streamTimeoutValue_;   // store the stream t/o value

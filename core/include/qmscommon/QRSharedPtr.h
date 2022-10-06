@@ -2,10 +2,10 @@
 #ifndef _QRSHAREDPTR_H_
 #define _QRSHAREDPTR_H_
 
-#include "common/SharedPtr.h"
-#include "common/NAString.h"
-#include "qmscommon/QRLogger.h"
 #include "common/Collections.h"
+#include "common/NAString.h"
+#include "common/SharedPtr.h"
+#include "qmscommon/QRLogger.h"
 
 /** \file
  * Contains classes and defines used to implement the memory management schemes

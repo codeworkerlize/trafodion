@@ -20,10 +20,11 @@
 
 // -----------------------------------------------------------------------
 #include <iostream>
-#include "common/NABoolean.h"
-#include "common/NAString.h"
+
 #include "common/ComAnsiNamePart.h"
 #include "common/ComVersionDefs.h"
+#include "common/NABoolean.h"
+#include "common/NAString.h"
 
 // -----------------------------------------------------------------------
 // definition of class ComSchemaName

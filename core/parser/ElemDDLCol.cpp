@@ -439,16 +439,16 @@ void ElemDDLColDef::setDefaultAttribute(ElemDDLNode *pColDefaultNode) {
                    CmpCommon::getDefault(ALLOW_INCOMPATIBLE_OPERATIONS) == DF_ON) {
             cvTyp = cvDef->pushDownType(*columnDataType_, NA_CHARACTER_TYPE);
           } else
-            // if interval data type, the default value must have the same
-            // interval qualifier as the column.
-            if (NOT isAnErrorAlreadyIssued && (!pColumnDataType->isCompatible(*cvTyp) ||
-                                               (pColumnDataType->getTypeQualifier() == NA_INTERVAL_TYPE &&
-                                                pColumnDataType->getFSDatatype() != cvTyp->getFSDatatype()))) {
-              *SqlParser_Diags << DgSqlCode(-1186) << DgColumnName(ToAnsiIdentifier(getColumnName()))
-                               << DgString0(pColumnDataType->getTypeSQLname(TRUE /*terse*/))
-                               << DgString1(cvTyp->getTypeSQLname(TRUE /*terse*/));
-              isAnErrorAlreadyIssued = TRUE;
-            }
+              // if interval data type, the default value must have the same
+              // interval qualifier as the column.
+              if (NOT isAnErrorAlreadyIssued && (!pColumnDataType->isCompatible(*cvTyp) ||
+                                                 (pColumnDataType->getTypeQualifier() == NA_INTERVAL_TYPE &&
+                                                  pColumnDataType->getFSDatatype() != cvTyp->getFSDatatype()))) {
+            *SqlParser_Diags << DgSqlCode(-1186) << DgColumnName(ToAnsiIdentifier(getColumnName()))
+                             << DgString0(pColumnDataType->getTypeSQLname(TRUE /*terse*/))
+                             << DgString1(cvTyp->getTypeSQLname(TRUE /*terse*/));
+            isAnErrorAlreadyIssued = TRUE;
+          }
         }
       } break;
       case ElemDDLColDefault::COL_FUNCTION_DEFAULT: {

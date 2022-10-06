@@ -18,8 +18,8 @@
 #ifndef _MVDETAILS_H_
 #define _MVDETAILS_H_
 
-#include "qmscommon/QRSharedPtr.h"
 #include "qmscommon/QRDescriptor.h"
+#include "qmscommon/QRSharedPtr.h"
 
 // Forward declarations
 class MapIDsVisitor;

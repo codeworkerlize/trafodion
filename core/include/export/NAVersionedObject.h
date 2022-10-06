@@ -2,11 +2,11 @@
 #ifndef NAVERSIONEDOBJECT_H
 #define NAVERSIONEDOBJECT_H
 
-#include "common/Platform.h"
 #include "common/ComSpace.h"
-#include "common/NAAssert.h"
-#include "common/str.h"
 #include "common/Int64.h"
+#include "common/NAAssert.h"
+#include "common/Platform.h"
+#include "common/str.h"
 
 // ---------------------------------------------------------------------
 // No of VersionID's supported by NAVersionedObject::versionIDArray_

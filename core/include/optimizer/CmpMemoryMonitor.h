@@ -14,8 +14,9 @@
 #ifndef __CMPMEMORYMONITOR_H
 #define __CMPMEMORYMONITOR_H
 
-#include "common/Collections.h"
 #include <fstream>
+
+#include "common/Collections.h"
 
 class MemoryUsage : public NABasicObject {
  public:

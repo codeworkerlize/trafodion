@@ -37,15 +37,14 @@ class ExpHbaseInterface;
 class ExpExtStorageInterface;
 
 // class FILE_STREAM;
-#include "common/ComAnsiNamePart.h"
+#include "SequenceFileReader.h"
 #include "comexe/ComTdbExeUtil.h"
 #include "comexe/ComTdbRoot.h"
+#include "common/ComAnsiNamePart.h"
 #include "common/ComRtUtils.h"
 #include "executor/ExExeUtilCli.h"
-#include "exp/ExpLOBstats.h"
 #include "exp/ExpHbaseDefs.h"
-
-#include "SequenceFileReader.h"
+#include "exp/ExpLOBstats.h"
 
 #define TO_FMT3u(u)                MINOF(((u) + 500) / 1000, 999)
 #define MAX_ACCUMULATED_STATS_DESC 2
@@ -155,8 +154,7 @@ class ExExeUtilTcb : public ex_tcb {
   virtual int numChildren() const;
   virtual const ex_tcb *getChild(int pos) const;
 
-  void glueQueryFragments(int queryArraySize, const QueryString *queryArray, char *&gluedQuery,
-                          int &gluedQuerySize);
+  void glueQueryFragments(int queryArraySize, const QueryString *queryArray, char *&gluedQuery, int &gluedQuerySize);
 
   // extract parts from 'objectName' and fixes up delimited names.
   int extractParts(char *objectName, char **parts0, char **parts1, char **parts2, NABoolean noValidate = FALSE);
@@ -203,12 +201,11 @@ class ExExeUtilTcb : public ex_tcb {
   void restoreMaintainControlTableTimeout(char *catalog);
 
   static int holdAndSetCQD(const char *defaultName, const char *defaultValue, ExeCliInterface *cliInterface,
-                             ComDiagsArea *globalDiags = NULL);
+                           ComDiagsArea *globalDiags = NULL);
 
   static int restoreCQD(const char *defaultName, ExeCliInterface *cliInterface, ComDiagsArea *globalDiags = NULL);
 
-  static int setCS(const char *csName, char *csValue, ExeCliInterface *cliInterface,
-                     ComDiagsArea *globalDiags = NULL);
+  static int setCS(const char *csName, char *csValue, ExeCliInterface *cliInterface, ComDiagsArea *globalDiags = NULL);
   static int resetCS(const char *csName, ExeCliInterface *cliInterface, ComDiagsArea *globalDiags = NULL);
 
   short disableCQS();
@@ -446,11 +443,11 @@ class ExExeUtilDisplayExplainTcb : public ExExeUtilTcb {
   Option optFlag_;  // option flag
   char **lines_;
   //  char  lines_[MLINE][MLEN];    // array of MLINE lines MLEN char wide
-  int cntLines_;          // count of lines in lines_ array
-  int nextLine_;          // number of next line to output from array
+  int cntLines_;            // count of lines in lines_ array
+  int nextLine_;            // number of next line to output from array
   char *parsePtr_;          // location in input string being parsed
-  int header_;            // flag saying current node is root if 1
-  int lastFrag_;          // previous row fragment number
+  int header_;              // flag saying current node is root if 1
+  int lastFrag_;            // previous row fragment number
   char lastOp_[MOPER + 1];  // previous row operator name
 
   char *optFOutput;
@@ -459,11 +456,11 @@ class ExExeUtilDisplayExplainTcb : public ExExeUtilTcb {
   // Next 13 are the local column data, storage for one node's info
   char moduleName_[MNAME + 1];     // module name column, sometimes null, MNAME=60
   char statementName_[MNAME + 1];  // stmt name column, sometimes null, MNAME=60
-  long planId_;                   // large number, unique per plan
-  int seqNum_;                   // number of this node
+  long planId_;                    // large number, unique per plan
+  int seqNum_;                     // number of this node
   char operName_[MOPER + 1];       // operator name, MOPER=30
-  int leftChild_;                // number of left child
-  int rightChild_;               // number of right child
+  int leftChild_;                  // number of left child
+  int rightChild_;                 // number of right child
   char tName_[MNAME + 1];          // table name, often null, MNAME=60
   float cardinality_;              // number of rows returned by this node
   float operatorCost_;             // cost of this node alone, in seconds
@@ -2176,10 +2173,10 @@ class ExExeUtilGetMetadataInfoTcb : public ExExeUtilTcb {
 
   int getUsingView(Queue *infoList,
 
-                     // TRUE: shorthand view, FALSE: Materialized View
-                     NABoolean isShorthandView,
+                   // TRUE: shorthand view, FALSE: Materialized View
+                   NABoolean isShorthandView,
 
-                     char *&viewName, int &len);
+                   char *&viewName, int &len);
 
   int getUsedObjects(Queue *infoList, NABoolean isShorthandView, char *&viewName, int &len);
   void setReturnRowCount(int n) { returnRowCount_ = n; }
@@ -2197,8 +2194,7 @@ class ExExeUtilGetMetadataInfoTcb : public ExExeUtilTcb {
 
   int getCurrentUserRoles(ContextCli *currContext, NAString &authList, NAString &granteeList);
 
-  int colPrivsFrag(const char *authName, const char *catName, const NAString &privWhereClause,
-                     NAString &colPrivsStmt);
+  int colPrivsFrag(const char *authName, const char *catName, const NAString &privWhereClause, NAString &colPrivsStmt);
 
   NAString getGrantedPrivCmd(const NAString &roleList, const char *cat, const bool &getObjectsInSchema,
                              const NAString &qualifier = NAString(""),
@@ -2210,7 +2206,7 @@ class ExExeUtilGetMetadataInfoTcb : public ExExeUtilTcb {
                     const char *objName);
 
   long getObjectUID(const char *catName, const char *schName, const char *objName, const char *targetName,
-                     const char *type);
+                    const char *type);
 
   int colPrivsFrag(const char *authName, const NAString &privsWhereClause, NAString &colPrivsStmt);
 };

@@ -1,9 +1,10 @@
 
 
+#include <stddef.h>
+
 #include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <stddef.h>
 
 NAHeap *ipcHeap;
 const size_t numTotalBins = NAHeap::NSMALLBINS + NAHeap::NTREEBINS;
@@ -54,7 +55,7 @@ class ExMemStats {
   virtual void DisplayLongMemStats(ostream &os, char *ind, size_t minSize) = 0;
   void DisplayShortMemStats(ostream &os);
 
-  int level_;           // Number of levels of derived memory
+  int level_;             // Number of levels of derived memory
   size_t blockCnt_;       // Number of blocks in this memory
   size_t blockSum_;       // Sum of the sizes of all blocks
   size_t allocCnt_;       // Number of in use allocations

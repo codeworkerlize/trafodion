@@ -1,7 +1,8 @@
 
+#include "NAStdioFile.h"
+
 #include <wchar.h>  //for wcsncpy
 
-#include "NAStdioFile.h"
 #include "string.h"
 #include "time.h"
 

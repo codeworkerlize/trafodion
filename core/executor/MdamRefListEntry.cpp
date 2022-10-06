@@ -17,8 +17,9 @@
 
 // -----------------------------------------------------------------------------
 
-#include "executor/ex_stdh.h"
 #include "MdamRefListEntry.h"
+
+#include "executor/ex_stdh.h"
 
 // *****************************************************************************
 // Member functions for class MdamRefListEntry

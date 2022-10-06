@@ -15,11 +15,11 @@
  *****************************************************************************
  */
 
-#include "executor/ex_stdh.h"
-#include "comexe/ComTdb.h"
-#include "executor/ex_tcb.h"
-
 #include "ExConnectByTempTable.h"
+
+#include "comexe/ComTdb.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_tcb.h"
 
 //
 // Build a connectByTempTable tcb
@@ -340,8 +340,7 @@ ex_tcb_private_state *ExConnectByTempTablePrivateState::allocate_new(const ex_tc
   return new (((ex_tcb *)tcb)->getSpace()) ExConnectByTempTablePrivateState((ExConnectByTempTableTcb *)tcb);
 };
 
-ExConnectByHashTable::ExConnectByHashTable(Space *space, int numEntries, int probeLength,
-                                           ExConnectByTempTableTcb *tcb)
+ExConnectByHashTable::ExConnectByHashTable(Space *space, int numEntries, int probeLength, ExConnectByTempTableTcb *tcb)
     : space_(space),
       numBuckets_(numEntries),
       probeLen_(probeLength),

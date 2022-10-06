@@ -1,15 +1,16 @@
 
 
 #include "SMConnection.h"
-#include "ExSMGlobals.h"
-#include "ExSMTask.h"
-#include "ExSMReadyList.h"
-#include "ExSMQueue.h"
+
 #include "ExSMEvent.h"
+#include "ExSMGlobals.h"
+#include "ExSMQueue.h"
+#include "ExSMReadyList.h"
 #include "ExSMShortMessage.h"
+#include "ExSMTask.h"
+#include "common/NAAssert.h"
 #include "ex_exe_stmt_globals.h"
 #include "exp/ExpErrorEnums.h"
-#include "common/NAAssert.h"
 #include "porting/PortProcessCalls.h"
 
 // -----------------------------------------------------------------------

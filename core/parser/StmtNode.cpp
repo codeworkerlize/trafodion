@@ -13,10 +13,11 @@
 ******************************************************************************
 */
 
-#include "common/charinfo.h"
-#include "common/ComOptIncludes.h"
-#include "optimizer/SchemaDB.h"
 #include "parser/StmtNode.h"
+
+#include "common/ComOptIncludes.h"
+#include "common/charinfo.h"
+#include "optimizer/SchemaDB.h"
 
 void action::setActionLabel(MBD_ACTION newAction, const NAString &newLabel) {
   theAction = newAction;

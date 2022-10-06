@@ -1,16 +1,16 @@
 // memorymonitor
 
 #include "comexe/ComTdbExeUtil.h"
+
 #include "comexe/ComTdbCommon.h"
 #include "common/ComSmallDefs.h"
 #include "exp/ExpLOBinterface.h"
 
-ComTdbExeUtil::ComTdbExeUtil(int type, char *query, int querylen, Int16 querycharset, char *tableName,
-                             int tableNameLen, ex_expr *input_expr, int input_rowlen, ex_expr *output_expr,
-                             int output_rowlen, ex_expr_base *scan_expr, ex_cri_desc *work_cri_desc,
-                             const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
-                             ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
-                             int buffer_size)
+ComTdbExeUtil::ComTdbExeUtil(int type, char *query, int querylen, Int16 querycharset, char *tableName, int tableNameLen,
+                             ex_expr *input_expr, int input_rowlen, ex_expr *output_expr, int output_rowlen,
+                             ex_expr_base *scan_expr, ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
+                             ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
+                             queue_index up, int num_buffers, int buffer_size)
     : ComTdbGenericUtil(query, querylen, querycharset, tableName, tableNameLen, input_expr, input_rowlen, output_expr,
                         output_rowlen, work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc, down, up,
                         num_buffers, buffer_size),
@@ -538,10 +538,12 @@ void ComTdbExeUtilLoadVolatileTable::displayContents(Space *space, int flag) {
 // Methods for class ComTdbExeUtilCleanupVolatileTables
 //
 ///////////////////////////////////////////////////////////////////////////
-ComTdbExeUtilCleanupVolatileTables::ComTdbExeUtilCleanupVolatileTables(
-    char *catName, int catNameLen, ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
-    ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
-    int buffer_size)
+ComTdbExeUtilCleanupVolatileTables::ComTdbExeUtilCleanupVolatileTables(char *catName, int catNameLen,
+                                                                       ex_cri_desc *work_cri_desc,
+                                                                       const unsigned short work_atp_index,
+                                                                       ex_cri_desc *given_cri_desc,
+                                                                       ex_cri_desc *returned_cri_desc, queue_index down,
+                                                                       queue_index up, int num_buffers, int buffer_size)
     : ComTdbExeUtil(ComTdbExeUtil::CLEANUP_VOLATILE_SCHEMA_, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, catName,
                     catNameLen, NULL, 0, NULL, 0, NULL, work_cri_desc, work_atp_index, given_cri_desc,
                     returned_cri_desc, down, up, num_buffers, buffer_size),
@@ -661,8 +663,8 @@ void ComTdbExeUtilGetErrorInfo::displayContents(Space *space, int flag) {
 // Methods for class ComTdbExeUtilCreateTableAs
 //
 ///////////////////////////////////////////////////////////////////////////
-ComTdbExeUtilCreateTableAs::ComTdbExeUtilCreateTableAs(char *tableName, int tableNameLen, char *ctQuery,
-                                                       char *siQuery, char *viQuery, char *usQuery, long threshold,
+ComTdbExeUtilCreateTableAs::ComTdbExeUtilCreateTableAs(char *tableName, int tableNameLen, char *ctQuery, char *siQuery,
+                                                       char *viQuery, char *usQuery, long threshold,
                                                        ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
                                                        ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc,
                                                        queue_index down, queue_index up, int num_buffers,
@@ -1423,11 +1425,10 @@ void ComTdbExeUtilHBaseBulkLoad::displayContents(Space *space, int flag) {
 }
 
 ComTdbExeUtilRegionStats::ComTdbExeUtilRegionStats(char *tableName, char *catName, char *schName, char *objName,
-                                                   ex_expr_base *input_expr, int input_rowlen,
-                                                   ex_expr_base *scan_expr, ex_cri_desc *work_cri_desc,
-                                                   const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
-                                                   ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
-                                                   int num_buffers, int buffer_size)
+                                                   ex_expr_base *input_expr, int input_rowlen, ex_expr_base *scan_expr,
+                                                   ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
+                                                   ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc,
+                                                   queue_index down, queue_index up, int num_buffers, int buffer_size)
     : ComTdbExeUtil(ComTdbExeUtil::REGION_STATS_, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, tableName, strlen(tableName),
                     input_expr, input_rowlen, NULL, 0, scan_expr, work_cri_desc, work_atp_index, given_cri_desc,
                     returned_cri_desc, down, up, num_buffers, buffer_size),
@@ -1458,12 +1459,14 @@ int ComTdbExeUtilRegionStats::unpack(void *base, void *reallocator) {
 #define TREE_MAX_DEEP 200
 // by default, the max number of rows to return for hierachy query
 #define MAX_ROW_NUM 100000
-ComTdbExeUtilConnectby::ComTdbExeUtilConnectby(
-    char *query, int querylen, Int16 querycharset, char *tableName, Int16 tblNameLen, char *stmtName,
-    ex_expr *input_expr, int input_rowlen, ex_expr *output_expr, int output_rowlen, ex_expr *scan_expr,
-    ex_cri_desc *work_cri_desc, const unsigned short work_atp_index, int colDescSize, int outputRowSize,
-    ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
-    int buffer_size, ExCriDescPtr workCriDesc, ex_expr *startwith_expr)
+ComTdbExeUtilConnectby::ComTdbExeUtilConnectby(char *query, int querylen, Int16 querycharset, char *tableName,
+                                               Int16 tblNameLen, char *stmtName, ex_expr *input_expr, int input_rowlen,
+                                               ex_expr *output_expr, int output_rowlen, ex_expr *scan_expr,
+                                               ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
+                                               int colDescSize, int outputRowSize, ex_cri_desc *given_cri_desc,
+                                               ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
+                                               int num_buffers, int buffer_size, ExCriDescPtr workCriDesc,
+                                               ex_expr *startwith_expr)
     : ComTdbExeUtil(ComTdbExeUtil::CONNECT_BY_, query, querylen, querycharset, tableName, tblNameLen, input_expr,
                     input_rowlen, output_expr, output_rowlen, scan_expr, work_cri_desc, work_atp_index, given_cri_desc,
                     returned_cri_desc, down, up, num_buffers, buffer_size),
@@ -1557,9 +1560,8 @@ const char *ComTdbExeUtilCompositeUnnest::getExpressionName(int pos) const {
 ComTdbExeUtilUpdataDelete::ComTdbExeUtilUpdataDelete(char *tableName, int tableNameLen, char *ldStmtStr,
                                                      ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
                                                      ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc,
-                                                     queue_index down, queue_index up, int num_buffers,
-                                                     int buffer_size, ComStorageType storageType, char *server,
-                                                     char *zkPort)
+                                                     queue_index down, queue_index up, int num_buffers, int buffer_size,
+                                                     ComStorageType storageType, char *server, char *zkPort)
     : ComTdbExeUtil(ComTdbExeUtil::SNAPSHOT_UPDATE_DELETE_, NULL, 0, (Int16)SQLCHARSETCODE_UNKNOWN, tableName,
                     tableNameLen, NULL, 0, NULL, 0, NULL, work_cri_desc, work_atp_index, given_cri_desc,
                     returned_cri_desc, down, up, num_buffers, buffer_size),

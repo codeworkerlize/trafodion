@@ -14,45 +14,42 @@
 
 #define SQLPARSERGLOBALS_FLAGS
 #define SQLPARSERGLOBALS_NADEFAULTS
-#include "parser/SqlParserGlobalsCmn.h"
-#include "parser/SqlParserGlobals.h"  // Parser Flags
+#include "GenExpGenerator.h"
 
 #include <ctype.h>
 #include <math.h>
+
+#include "ExpComposite.h"
 #include "arkcmp/CmpContext.h"
 #include "arkcmp/CmpStatement.h"
-#include "sqlcomp/CmpMain.h"
-#include "sqlcomp/CmpSeabaseDDL.h"
-
-#include "GenExpGenerator.h"
-#include "common/str.h"
-#include "optimizer/Sqlcomp.h"
-#include "exp/exp_clause_derived.h"
-#include "exp/exp_attrs.h"
-#include "exp_function.h"
-#include "exp/exp_datetime.h"
-#include "exp/exp_bignum.h"
-#include "common/DatetimeType.h"
-#include "common/NumericType.h"
-#include "common/IntervalType.h"
-#include "common/CharType.h"
-#include "common/charinfo.h"
 #include "cli/SQLCLIdev.h"
-#include "optimizer/BindWA.h"
-#include "ExpComposite.h"
-#include "exp/ExpCriDesc.h"
+#include "cli/sqlcli.h"
+#include "comexe/ComQueue.h"
+#include "common/CharType.h"
+#include "common/ComSmallDefs.h"
+#include "common/DatetimeType.h"
+#include "common/IntervalType.h"
+#include "common/NumericType.h"
+#include "common/charinfo.h"
+#include "common/str.h"
 #include "exp/ExpAtp.h"
+#include "exp/ExpCriDesc.h"
 #include "exp/exp_attrs.h"
+#include "exp/exp_bignum.h"
+#include "exp/exp_clause_derived.h"
+#include "exp/exp_datetime.h"
 #include "exp/exp_tuple_desc.h"
 #include "exp_dp2_expr.h"
-#include "comexe/ComQueue.h"
-
+#include "exp_function.h"
+#include "optimizer/BindWA.h"
 #include "optimizer/ControlDB.h"
-
-#include "common/ComSmallDefs.h"
-#include "cli/sqlcli.h"
-#include "optimizer/OptimizerSimulator.h"
 #include "optimizer/ItmFlowControlFunction.h"
+#include "optimizer/OptimizerSimulator.h"
+#include "optimizer/Sqlcomp.h"
+#include "parser/SqlParserGlobals.h"  // Parser Flags
+#include "parser/SqlParserGlobalsCmn.h"
+#include "sqlcomp/CmpMain.h"
+#include "sqlcomp/CmpSeabaseDDL.h"
 // #include "ExpPCodeOptimizations.h"
 #include "optimizer/ItemFunc.h"
 
@@ -972,11 +969,11 @@ ItemExpr *ExpGenerator::matchScalesNoCast(const ValueId &source, const NAType &t
   // is the same as the target scale, return the source tree unchanged.
   //
   int sourceScale = (source.getType().getTypeQualifier() == NA_NUMERIC_TYPE)
-                          ? ((NumericType &)source.getType()).getScale()
-                          : ((IntervalType &)source.getType()).getFractionPrecision();
+                        ? ((NumericType &)source.getType()).getScale()
+                        : ((IntervalType &)source.getType()).getFractionPrecision();
   int targetScale = (targetType.getTypeQualifier() == NA_NUMERIC_TYPE)
-                          ? ((NumericType &)targetType).getScale()
-                          : ((IntervalType &)targetType).getFractionPrecision();
+                        ? ((NumericType &)targetType).getScale()
+                        : ((IntervalType &)targetType).getFractionPrecision();
   if (sourceScale == targetScale) return retTree;
 
   if ((sourceTypeQual == NA_INTERVAL_TYPE) && (targetTypeQual == NA_INTERVAL_TYPE)) {
@@ -2116,13 +2113,13 @@ short ExpGenerator::generateBulkMove(const ValueIdList &inValIdList, ValueIdList
 //////////////////////////////////////////////////////////////////////
 // See GenExpGenerator.h for comments.
 ///////////////////////////////////////////////////////////////////////
-short ExpGenerator::generateContiguousMoveExpr(const ValueIdList &valIdList, short addConvNodes, int atp,
-                                               int atpIndex, ExpTupleDesc::TupleDataFormat tdataF,
-                                               int &tupleLength, ex_expr **moveExpr, ExpTupleDesc **tupleDesc,
+short ExpGenerator::generateContiguousMoveExpr(const ValueIdList &valIdList, short addConvNodes, int atp, int atpIndex,
+                                               ExpTupleDesc::TupleDataFormat tdataF, int &tupleLength,
+                                               ex_expr **moveExpr, ExpTupleDesc **tupleDesc,
                                                ExpTupleDesc::TupleDescFormat tdescF, MapTable **newMapTable,
-                                               ValueIdList *tgtValues, int startOffset,
-                                               int *bulkMoveSrcStartOffset, NABoolean disableConstFolding,
-                                               NAColumnArray *colArray, NABoolean doBulkMoves, Attributes **offsets) {
+                                               ValueIdList *tgtValues, int startOffset, int *bulkMoveSrcStartOffset,
+                                               NABoolean disableConstFolding, NAColumnArray *colArray,
+                                               NABoolean doBulkMoves, Attributes **offsets) {
   // ---------------------------------------------------------------------
   // Generate an expression to take scattered values (given in valIdList)
   // and copy them to a contiguous buffer tuple (atp,atpIndex). The values
@@ -2202,8 +2199,8 @@ short ExpGenerator::generateContiguousMoveExpr(const ValueIdList &valIdList, sho
   if (isHeaderNeeded(tdataF)) hdrInfo = new (wHeap()) ExpHdrInfo();
 
   // compute offsets and create tuple descriptor.
-  processAttributes((int)valIdList.entries(), attrs, tdataF, tupleLength, atp, atpIndex, tupleDesc, tdescF,
-                    startOffset, hdrInfo, offsets);
+  processAttributes((int)valIdList.entries(), attrs, tdataF, tupleLength, atp, atpIndex, tupleDesc, tdescF, startOffset,
+                    hdrInfo, offsets);
 
   // deallocate the attributes array. Don't deallocate the attributes
   // pointed to by the array entries since we didn't allocate them.
@@ -2387,16 +2384,16 @@ short ExpGenerator::genGuardedContigMoveExpr(const ValueIdSet guard, const Value
 // Every other parameter is similar to generateContiguousMoveExpr.
 ///////////////////////////////////////////////////////////////////////
 short ExpGenerator::generateExplodeExpr(const ValueIdList &val_id_list,        // IN
-                                        int atp,                             // IN
-                                        int atpIndex,                        // IN
+                                        int atp,                               // IN
+                                        int atpIndex,                          // IN
                                         ExpTupleDesc::TupleDataFormat tf,      // IN
-                                        int &tupleLength,                   // OUT
+                                        int &tupleLength,                      // OUT
                                         ex_expr **explodeExpr,                 // OUT
                                         ExpTupleDesc **tupleDesc,              // OUT(O)
                                         ExpTupleDesc::TupleDescFormat tdescF,  // IN
                                         MapTable **newMapTable,                // OUT(O)
                                         ValueIdList *tgtValues,                // OUT(O)
-                                        int start_offset)                   // IN(O)
+                                        int start_offset)                      // IN(O)
 {
   ValueIdList explodeVidList;
   for (CollIndex i = 0; i < val_id_list.entries(); i++) {
@@ -2727,8 +2724,7 @@ short ExpGenerator::generateExtractKeyColsExpr(const ValueIdList &colVidList,  /
   return 0;
 }
 
-short ExpGenerator::generateKeyColValueExpr(const ValueId vid, int atp, int atp_index, int &len,
-                                            ex_expr **colValExpr) {
+short ExpGenerator::generateKeyColValueExpr(const ValueId vid, int atp, int atp_index, int &len, ex_expr **colValExpr) {
   ItemExpr *eq_node = (vid.getValueDesc())->getItemExpr();
 
   ItemExpr *keycol = ((*eq_node)[0])->castToItemExpr();
@@ -2932,9 +2928,8 @@ ItemExpr *ExpGenerator::generateKeyCast(const ValueId vid, ItemExpr *dataConvers
 }
 
 short ExpGenerator::generateKeyExpr(const NAColumnArray &indexKeyColumns, const ValueIdList &val_id_list, int atp,
-                                    int atp_index, ItemExpr *dataConversionErrorFlag,
-                                    ExpTupleDesc::TupleDataFormat tf, int &keyLen, ex_expr **key_expr,
-                                    NABoolean allChosenPredsAreEqualPreds) {
+                                    int atp_index, ItemExpr *dataConversionErrorFlag, ExpTupleDesc::TupleDataFormat tf,
+                                    int &keyLen, ex_expr **key_expr, NABoolean allChosenPredsAreEqualPreds) {
   // generate key expression.
   // Key value id list has entries of the form:
   //    col1 = value1, col2 = value2, ... colN = valueN
@@ -3770,9 +3765,9 @@ short ExpGenerator::processAttributes(int numAttrs, Attributes **attrs, ExpTuple
 
 short ExpGenerator::processValIdList(ValueIdList valIdList, ExpTupleDesc::TupleDataFormat tdataF, int &tupleLength,
                                      int atp, int atpIndex, ExpTupleDesc **tupleDesc,
-                                     ExpTupleDesc::TupleDescFormat tdescF, int startOffset,
-                                     Attributes ***returnedAttrs, NAColumnArray *colArray, NABoolean isIndex,
-                                     NABoolean placeGuOutputFunctionsAtEnd, ExpHdrInfo *hdrInfo) {
+                                     ExpTupleDesc::TupleDescFormat tdescF, int startOffset, Attributes ***returnedAttrs,
+                                     NAColumnArray *colArray, NABoolean isIndex, NABoolean placeGuOutputFunctionsAtEnd,
+                                     ExpHdrInfo *hdrInfo) {
   MapTable *myMapTable = generator->appendAtEnd();
   Attributes **attrs = new (wHeap()) Attributes *[valIdList.entries()];
 
@@ -3814,8 +3809,8 @@ short ExpGenerator::processValIdList(ValueIdList valIdList, ExpTupleDesc::TupleD
   if (isHeaderNeeded(tdataF)) retHdrInfo = hdrInfo;
 
   // compute offsets and create tuple descriptor.
-  processAttributes((int)valIdList.entries(), attrs, tdataF, tupleLength, atp, atpIndex, tupleDesc, tdescF,
-                    startOffset, retHdrInfo);
+  processAttributes((int)valIdList.entries(), attrs, tdataF, tupleLength, atp, atpIndex, tupleDesc, tdescF, startOffset,
+                    retHdrInfo);
 
   if (returnedAttrs) {
     // caller wants array of Attributes pointers returned

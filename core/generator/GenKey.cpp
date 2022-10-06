@@ -12,17 +12,17 @@
 ******************************************************************************
 */
 
-#include "optimizer/Sqlcomp.h"
+#include "GenExpGenerator.h"
 #include "SearchKey.h"
 #include "generator/Generator.h"
-#include "GenExpGenerator.h"
+#include "optimizer/Sqlcomp.h"
 //#include "executor/ex_stdh.h"
 #include "comexe/ComTdb.h"
 //#include "executor/ex_tcb.h"
-#include "comexe/ComKeySingleSubset.h"
 #include "comexe/ComKeyMDAM.h"  // generator Mdam classes
-#include "mdamkey.h"            // optimizer Mdam classes
+#include "comexe/ComKeySingleSubset.h"
 #include "exp/ExpCriDesc.h"
+#include "mdamkey.h"  // optimizer Mdam classes
 
 // the next include file is here solely to make the horrible kludge work
 #include "optimizer/NAFileSet.h"
@@ -52,10 +52,10 @@ short ExpGenerator::buildKeyInfo(keyRangeGen **keyInfo,  // out -- generated obj
   const int data_conv_error_atp_index = 4;
   const int key_column_atp_index = 5;   // used only for Mdam
   const int key_column2_atp_index = 6;  // used only for Mdam MDAM_BETWEEN pred;
-                                          //   code in BiLogic::mdamPredGenSubrange
-                                          //   and MdamColumn::buildDisjunct
-                                          //   requires this to be 1 more than
-                                          //   key_column_atp_index
+                                        //   code in BiLogic::mdamPredGenSubrange
+                                        //   and MdamColumn::buildDisjunct
+                                        //   requires this to be 1 more than
+                                        //   key_column_atp_index
   int keyLen;
 
   // add an entry to the map table for work Atp

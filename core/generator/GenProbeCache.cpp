@@ -2,17 +2,16 @@
 
 // **********************************************************************
 //
-#include "common/ComOptIncludes.h"
-#include "generator/Generator.h"
 #include "GenExpGenerator.h"
-#include "optimizer/GroupAttr.h"
-#include "exp/ExpCriDesc.h"
-#include "sqlcomp/DefaultConstants.h"
-#include "comexe/ComTdbProbeCache.h"
 #include "RelProbeCache.h"
-#include "sqlcomp/DefaultConstants.h"
-#include "exp/ExpSqlTupp.h"  // for sizeof(tupp_descriptor)
+#include "comexe/ComTdbProbeCache.h"
 #include "common/ComDefs.h"  // to get common defines (ROUND8)
+#include "common/ComOptIncludes.h"
+#include "exp/ExpCriDesc.h"
+#include "exp/ExpSqlTupp.h"  // for sizeof(tupp_descriptor)
+#include "generator/Generator.h"
+#include "optimizer/GroupAttr.h"
+#include "sqlcomp/DefaultConstants.h"
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -365,7 +364,7 @@ short ProbeCache::codeGen(Generator *generator) {
 CostScalar ProbeCache::getEstimatedRunTimeMemoryUsage(Generator *generator, NABoolean perNode, int *numStreams) {
   const int probeSize = getGroupAttr()->getCharacteristicInputs().getRowLength();
   const int numCacheEntries = ActiveSchemaDB()->getDefaults().getAsLong(GEN_PROBE_CACHE_NUM_ENTRIES);
-  const int perProbeOverhead = 32;                                          // bytes
+  const int perProbeOverhead = 32;                                            // bytes
   const double cacheSize = (probeSize + perProbeOverhead) * numCacheEntries;  // in bytes
 
   const int resultSize = getGroupAttr()->getCharacteristicOutputs().getRowLength();

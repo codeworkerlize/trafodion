@@ -1,7 +1,6 @@
 //------------------------------------------------------------------
 //
 
-
 //
 // 64-bit key map.
 //
@@ -11,7 +10,6 @@
 #include <map>
 
 #include "int/opts.h"
-
 #include "thread.h"
 
 class SB_Export SB_Ts_Map64 {

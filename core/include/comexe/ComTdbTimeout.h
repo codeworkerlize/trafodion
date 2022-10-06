@@ -30,8 +30,7 @@ class ComTdbTimeout : public ComTdb {
   ComTdbTimeout() : ComTdb(ComTdb::ex_SET_TIMEOUT, eye_SET_TIMEOUT){};
 
   ComTdbTimeout(ex_expr *timeout_value_expr, ex_cri_desc *work_cri_desc, ex_cri_desc *given_cri_desc,
-                ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
-                int buffer_size);
+                ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers, int buffer_size);
 
   // methods to set/check the RESET / STREAM flags
   void setStream(NABoolean isStream) {

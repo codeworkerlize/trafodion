@@ -15,6 +15,7 @@
 #define COM_SQL_ID_H
 
 #include <stddef.h>
+
 #include "common/CollHeap.h"
 #include "common/Int64.h"
 
@@ -156,95 +157,95 @@ class ComSqlId {
 
   ComSqlId(CollHeap *heap);
 
-  static int getSqlQueryIdAttr(int attr,          // which attr (SqlQueryIDAttr)
-                                 char *queryId,       // query ID
-                                 int queryIdLen,    // query ID len.
-                                 long &value,        // If returned attr is of string type, this value is the
-                                                      // max length of the buffer pointed to by stringValue.
-                                                      // If returned attr is numeric, this field contains
-                                                      // the returned value.
-                                 char *stringValue);  // null terminated returned value for string attrs.
+  static int getSqlQueryIdAttr(int attr,            // which attr (SqlQueryIDAttr)
+                               char *queryId,       // query ID
+                               int queryIdLen,      // query ID len.
+                               long &value,         // If returned attr is of string type, this value is the
+                                                    // max length of the buffer pointed to by stringValue.
+                                                    // If returned attr is numeric, this field contains
+                                                    // the returned value.
+                               char *stringValue);  // null terminated returned value for string attrs.
 
-  static int getSqlSessionIdAttr(int attr,           // which attr (SqlQueryIDAttr)
-                                   const char *queryId,  // query ID
-                                   int queryIdLen,     // query ID len.
-                                   long &value,         // If returned attr is of string type, this value is the
-                                                         // max length of the buffer pointed to by stringValue.
-                                                         // If returned attr is numeric, this field contains
-                                                         // the returned value.
-                                   char *stringValue);   // null terminated returned value for string attrs.
+  static int getSqlSessionIdAttr(int attr,             // which attr (SqlQueryIDAttr)
+                                 const char *queryId,  // query ID
+                                 int queryIdLen,       // query ID len.
+                                 long &value,          // If returned attr is of string type, this value is the
+                                                       // max length of the buffer pointed to by stringValue.
+                                                       // If returned attr is numeric, this field contains
+                                                       // the returned value.
+                                 char *stringValue);   // null terminated returned value for string attrs.
 
   static short packNumIntoStr(long num, char *outStr, int outStrLen, NABoolean backwardCompatability = TRUE);
 
   static long unpackNumFromStr(const char *str, int numChars, NABoolean backwardCompatability = TRUE);
 
   static int createSqlSessionId(char *sessionId,             // INOUT
-                                  int maxSessionIdLen,       // IN
-                                  int &actualSessionIdLen,   // OUT
-                                  int nodeNumber,            // IN
-                                  int cpu,                   // IN
-                                  int pin,                   // IN
-                                  long startTime,             // IN
-                                  long sessionUniqueNum,      // IN
-                                  int userNameLen,           // IN
-                                  const char *userName,        // IN
-                                  int tenantIdLen,           // IN
-                                  const char *tenantId,        // IN
-                                  int userSessionNameLen,    // IN
-                                  const char *userSessionName  // IN
+                                int maxSessionIdLen,         // IN
+                                int &actualSessionIdLen,     // OUT
+                                int nodeNumber,              // IN
+                                int cpu,                     // IN
+                                int pin,                     // IN
+                                long startTime,              // IN
+                                long sessionUniqueNum,       // IN
+                                int userNameLen,             // IN
+                                const char *userName,        // IN
+                                int tenantIdLen,             // IN
+                                const char *tenantId,        // IN
+                                int userSessionNameLen,      // IN
+                                const char *userSessionName  // IN
   );
 
-  static int createSqlQueryId(char *queryId,            // INOUT
-                                int maxQueryIdLen,      // IN
-                                int &actualQueryIdLen,  // OUT
-                                int sessionIdLen,       // IN
-                                char *sessionId,          // IN
-                                long queryUniqueNum,     // IN
-                                int queryNameLen,       // IN
-                                char *queryName           // IN
+  static int createSqlQueryId(char *queryId,          // INOUT
+                              int maxQueryIdLen,      // IN
+                              int &actualQueryIdLen,  // OUT
+                              int sessionIdLen,       // IN
+                              char *sessionId,        // IN
+                              long queryUniqueNum,    // IN
+                              int queryNameLen,       // IN
+                              char *queryName         // IN
   );
 
-  static int extractSqlSessionIdAttrs(const char *sessionId,      // IN
-                                        int sessionIdLen,         // IN
-                                        long &segmentNumber,       // OUT
-                                        long &cpu,                 // OUT
-                                        long &pin,                 // OUT
-                                        long &processStartTS,      // OUT
-                                        long &sessionUniqueNum,    // OUT
-                                        int &userNameLen,         // OUT
-                                        char *userName,             // OUT
-                                        int &tenantIdLen,         // OUT
-                                        char *tenantId,             // OUT
-                                        int &userSessionNameLen,  // OUT
-                                        char *userSessionName,      // OUT
-                                        int *version = NULL);
+  static int extractSqlSessionIdAttrs(const char *sessionId,    // IN
+                                      int sessionIdLen,         // IN
+                                      long &segmentNumber,      // OUT
+                                      long &cpu,                // OUT
+                                      long &pin,                // OUT
+                                      long &processStartTS,     // OUT
+                                      long &sessionUniqueNum,   // OUT
+                                      int &userNameLen,         // OUT
+                                      char *userName,           // OUT
+                                      int &tenantIdLen,         // OUT
+                                      char *tenantId,           // OUT
+                                      int &userSessionNameLen,  // OUT
+                                      char *userSessionName,    // OUT
+                                      int *version = NULL);
 
   // returns a compact form of query id which is shipped to dp2.
 
   static int getDp2QueryIdString(char *queryId, int queryIdLen, char *dp2QueryId, int &dp2QueryIdLen);
 
-  static int decomposeDp2QueryIdString(char *queryId,     // input: buffer containing dp2 query id
-                                         int queryIdLen,  // input: length of query id
-                                         int *queryNum,   // output: unique query number
-                                         int *segment,    // output: segment number of master exe
-                                         int *cpu,        // output: cpu number
-                                         int *pin,        // output: pin
-                                         long *timestamp   // output: master exe process
-                                         //         start time
+  static int decomposeDp2QueryIdString(char *queryId,   // input: buffer containing dp2 query id
+                                       int queryIdLen,  // input: length of query id
+                                       int *queryNum,   // output: unique query number
+                                       int *segment,    // output: segment number of master exe
+                                       int *cpu,        // output: cpu number
+                                       int *pin,        // output: pin
+                                       long *timestamp  // output: master exe process
+                                                        //         start time
   );
 
   static UInt64 computeQueryHash(char *input_str);
   static UInt64 computeQueryHash(char *input_str, int len);
 
  private:
-  static int getSqlIdAttr(int attr,           // which attr (SqlQueryIDAttr)
-                            const char *queryId,  // query ID
-                            int queryIdLen,     // query ID len.
-                            long &value,         // If returned attr is of string type, this value is the
-                                                  // max length of the buffer pointed to by stringValue.
-                                                  // If returned attr is numeric, this field contains
-                                                  // the returned value.
-                            char *stringValue);   // null terminated returned value for string attrs.
+  static int getSqlIdAttr(int attr,             // which attr (SqlQueryIDAttr)
+                          const char *queryId,  // query ID
+                          int queryIdLen,       // query ID len.
+                          long &value,          // If returned attr is of string type, this value is the
+                                                // max length of the buffer pointed to by stringValue.
+                                                // If returned attr is numeric, this field contains
+                                                // the returned value.
+                          char *stringValue);   // null terminated returned value for string attrs.
 
   CollHeap *heap_;
 };

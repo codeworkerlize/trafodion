@@ -15,8 +15,9 @@
  *****************************************************************************
  */
 
-#include <NAAssert.h>
 #include "common/ComMvAttributeBitmap.h"
+
+#include <NAAssert.h>
 
 void ComMvAttributeBitmap::initBitmap(ComSInt32 initialiVal) { bitmap_ = initialiVal; }
 

@@ -14,8 +14,8 @@
  *****************************************************************************
  */
 
-#include "sqlcomp/CmpSeabaseDDLincludes.h"
 #include "sqlcomp/CmpSeabaseDDLXdcMeta.h"
+#include "sqlcomp/CmpSeabaseDDLincludes.h"
 
 enum InitTrafSteps {
   IT_NO_CHANGE = -1,
@@ -139,7 +139,7 @@ short CmpSeabaseDDL::initTrafMD(CmpDDLwithStatusInfo *dws) {
           case 1: {
             // check if traf is already initialized
             int errNum = validateVersions(&ActiveSchemaDB()->getDefaults(), ehi, NULL, NULL, NULL, NULL, NULL, NULL,
-                                            NULL, NULL, NULL, &hbaseErrNum, &hbaseErrStr);
+                                          NULL, NULL, NULL, &hbaseErrNum, &hbaseErrStr);
             deallocEHI(ehi);
 
             // namespace upgrade should not be done when moving from

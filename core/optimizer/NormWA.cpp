@@ -15,9 +15,10 @@
 
 // -----------------------------------------------------------------------
 
-#include "optimizer/Sqlcomp.h"
 #include "optimizer/NormWA.h"
+
 #include "arkcmp/CmpContext.h"
+#include "optimizer/Sqlcomp.h"
 
 #ifdef INCLUDE_SELECTED_HEADERS
 #endif  // INCLUDE_SELECTED_HEADERS

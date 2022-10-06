@@ -2,9 +2,9 @@
 #ifndef _QRLOGGER_H_
 #define _QRLOGGER_H_
 
+#include "common/CommonLogger.h"
 #include "common/NABoolean.h"
 #include "common/NAString.h"
-#include "common/CommonLogger.h"
 
 class QRLogger;
 extern QRLogger *gv_QRLoggerInstance_;

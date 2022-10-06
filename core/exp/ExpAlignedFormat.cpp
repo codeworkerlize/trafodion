@@ -1,8 +1,9 @@
 
 
+#include "ExpAlignedFormat.h"
+
 #include "common/Platform.h"
 #include "common/str.h"
-#include "ExpAlignedFormat.h"
 
 int ExpAlignedFormat::setupHeaderAndVOAs(UInt32 numFields, UInt32 numNullableFields, UInt32 numVarcharFields) {
   UInt32 hdrSize = getHdrSize();

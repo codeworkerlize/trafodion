@@ -1,7 +1,8 @@
 
-#include "common/Platform.h"
 #include "ExSMShortMessage.h"
+
 #include "ExSMGlobals.h"
+#include "common/Platform.h"
 
 ExSMShortMessage::ExSMShortMessage() {
   memset(&target_, 0, sizeof(target_));

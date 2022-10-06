@@ -15,13 +15,14 @@
  *****************************************************************************
  */
 
-#include "executor/ex_stdh.h"
-#include "executor/ExScheduler.h"
-#include "comexe/ComTdb.h"
-#include "executor/ex_tcb.h"
-#include "executor/ExStats.h"
 #include "executor/ex_globals.h"
+
 #include "cli/Globals.h"
+#include "comexe/ComTdb.h"
+#include "executor/ExScheduler.h"
+#include "executor/ExStats.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_tcb.h"
 #include "runtimestats/SqlStats.h"
 
 ex_globals::ex_globals(short num_temps, short create_gui_sched, Space *space, CollHeap *heap)

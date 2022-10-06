@@ -129,8 +129,8 @@ class TableViewUsageList : public LIST(TableViewUsage *) {
   void display() const;  // useful in MSDEV
 
   int getViewsOnTable(CollIndex begIx, CollIndex endIx, int viewCount, const QualifiedName &baseName,
-                        ExtendedQualName::SpecialTableType baseType, const QualifiedName *additionalNameToFormat,
-                        NAString &formattedListOfViewsThatUseTheBaseTable) const;
+                      ExtendedQualName::SpecialTableType baseType, const QualifiedName *additionalNameToFormat,
+                      NAString &formattedListOfViewsThatUseTheBaseTable) const;
 
 };  // class TableViewUsageList
 

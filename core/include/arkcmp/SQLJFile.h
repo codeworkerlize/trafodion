@@ -55,7 +55,7 @@ class SQLJFile : public ApplicationFile {
   // print MDFWriter errors to cout
   void printMDFWriterErrors(char *errFileName);
 
-  int nExtracted_;        // number of modules extracted
+  int nExtracted_;          // number of modules extracted
   std::string modNamList_;  // file with list of module names to extract
   char mdf_[MAXMDF];        // extracted module definition filename
 };

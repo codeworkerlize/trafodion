@@ -17,12 +17,12 @@
 
 // -----------------------------------------------------------------------
 
-#include "common/Platform.h"
-#include "common/ComASSERT.h"
-#include "export/ComDiags.h"
-#include "common/NAType.h"
 #include "DTICommonType.h"
+#include "common/ComASSERT.h"
 #include "common/Int64.h"
+#include "common/NAType.h"
+#include "common/Platform.h"
+#include "export/ComDiags.h"
 #ifdef _DEBUG
 #include <iostream>
 #endif
@@ -56,7 +56,7 @@ class IntervalType : public DatetimeIntervalCommonType {
                                         UInt32 fractionPrecision = 0);
 
   static int getStorageSize(rec_datetime_field startField, UInt32 leadingPrecision, rec_datetime_field endField,
-                              UInt32 fractionPrecision = 0);
+                            UInt32 fractionPrecision = 0);
 
   static size_t getStringSize(rec_datetime_field startField, UInt32 leadingPrecision, rec_datetime_field endField,
                               UInt32 fractionPrecision = 0);
@@ -189,8 +189,7 @@ class IntervalType : public DatetimeIntervalCommonType {
   // representable values.
   // And the zero value, properly formatted in string form, for column defaults.
   // ---------------------------------------------------------------------
-  virtual void minRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral = NULL,
-                                     CollHeap *h = 0) const;
+  virtual void minRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
   virtual void maxRepresentableValue(void *, int *, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
   virtual void getZeroValue(void *, int *, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
 

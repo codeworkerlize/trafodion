@@ -17,8 +17,8 @@
  *****************************************************************************
  */
 
-#include "executor/ex_god.h"
 #include "cli/Statement.h"
+#include "executor/ex_god.h"
 class CliGlobals;
 class AQRInfo;
 class AQRStatementAttributes;
@@ -480,8 +480,8 @@ class SessionDefaults : public NABasicObject {
 
   void position();
 
-  short getNextSessionDefault(char *&attributeString, char *&attributeValue, int &isCQD, int &inDefTab,
-                              int &isSSD, int &isExternalized);
+  short getNextSessionDefault(char *&attributeString, char *&attributeValue, int &isCQD, int &inDefTab, int &isSSD,
+                              int &isExternalized);
 
   void saveSessionDefaults();
   void restoreSessionDefaults();
@@ -679,21 +679,21 @@ class SessionDefaults : public NABasicObject {
 
   int cancelEscalationInterval_;         // canceler's session
   int cancelEscalationMxosrvrInterval_;  // canceler's session
-  NABoolean cancelEscalationSaveabend_;    // canceler's session
-  NABoolean cancelQueryAllowed_;           // target query's session
-  NABoolean cancelUniqueQuery_;            // target query's session
-  NABoolean cancelLogging_;                // canceler's session
-  NABoolean suspendLogging_;               // suspended's session
+  NABoolean cancelEscalationSaveabend_;  // canceler's session
+  NABoolean cancelQueryAllowed_;         // target query's session
+  NABoolean cancelUniqueQuery_;          // target query's session
+  NABoolean cancelLogging_;              // canceler's session
+  NABoolean suspendLogging_;             // suspended's session
   NABoolean callEmbeddedArkcmp_;  // call the procedural interface and don't send a message to the arkcmp process.
   AQRInfo *aqrInfo_;
-  int statisticsViewType_;      // Statistics view type which could be different from the collection statistics type
-                                  /*
-                                    Memory manager will start to reclaim space when the below conditions are met
-                                          a)  Total memory size in executor segments is above the set value (800 MB)
-                                          b)  When free to total size memory ratio is less than the set value (25%)
-                                  */
+  int statisticsViewType_;       // Statistics view type which could be different from the collection statistics type
+                                 /*
+                                   Memory manager will start to reclaim space when the below conditions are met
+                                         a)  Total memory size in executor segments is above the set value (800 MB)
+                                         b)  When free to total size memory ratio is less than the set value (25%)
+                                 */
   long reclaimTotalMemorySize_;  // Total Memory size after which memory manager might trigger reclaim memory space
-  int reclaimFreeMemoryRatio_;  // Free to Total memory ratio
+  int reclaimFreeMemoryRatio_;   // Free to Total memory ratio
 
   NABoolean redriveCTAS_;
 
@@ -770,11 +770,11 @@ class AQRInfo : public NABasicObject {
   void saveAQRErrors();
   NABoolean restoreAQRErrors();
 
-  short getAQREntry(int sqlcode, int nskcode, int &retries, int &delay, int &type, int &numCQDs,
-                    char *&cqdStr, int &cmpInfo, int &intAQR);
+  short getAQREntry(int sqlcode, int nskcode, int &retries, int &delay, int &type, int &numCQDs, char *&cqdStr,
+                    int &cmpInfo, int &intAQR);
 
-  short setAQREntry(int task, int sqlcode, int nskcode, int retries, int delay, int type, int numCQDs,
-                    char *cqdStr, int cmpInfo, int intAQR);
+  short setAQREntry(int task, int sqlcode, int nskcode, int retries, int delay, int type, int numCQDs, char *cqdStr,
+                    int cmpInfo, int intAQR);
 
   short setAQREntriesFromInputStr(char *inStr, int inStrLen);
 

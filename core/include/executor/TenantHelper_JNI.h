@@ -5,14 +5,14 @@
 #define TENANT_HELPER_H
 
 #include <list>
-#include "common/Platform.h"
-#include "common/Collections.h"
-#include "export/NABasicObject.h"
 
-#include "executor/JavaObjectInterface.h"
-#include "exp/ExpHbaseDefs.h"
+#include "common/Collections.h"
 #include "common/NAMemory.h"
 #include "common/NAWNodeSet.h"
+#include "common/Platform.h"
+#include "executor/JavaObjectInterface.h"
+#include "exp/ExpHbaseDefs.h"
+#include "export/NABasicObject.h"
 
 // forward declare
 

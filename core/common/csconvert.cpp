@@ -8,27 +8,26 @@
 //       for them can be used in not only the SQL/MX compiler build,
 //       but also used by the ODBC build and maybe others.
 
-#include <limits.h>
+#include "common/csconvert.h"
+
 #include <iconv.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "multi-byte.h"
 #include "fcconv.h"
-#include "common/csconvert.h"
-
 #include "from_GB18030.c"
 #include "from_GB2312.c"
 #include "from_GBK.c"
+#include "multi-byte.h"
 
 #define USE_OUR_MB_WC_DATA_TABLES
 #include "UCS_jp_data.c"
-#include "UCS_zs_data.c"
-#include "UCS_zb_data.c"
 #include "UCS_ko_data.c"
-#include "mb_iconv.c"
+#include "UCS_zb_data.c"
+#include "UCS_zs_data.c"
 #include "iconv_gen.c"
-
+#include "mb_iconv.c"
 #include "mb_lconv.c"
 #undef USE_OUR_MB_WC_DATA_TABLES
 

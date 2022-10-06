@@ -1,7 +1,8 @@
 
+#include "sqlci/SqlciError.h"
+
 #include <stdarg.h>
 
-#include "sqlci/SqlciError.h"
 #include "export/ComDiags.h"
 
 extern ComDiagsArea sqlci_DA;

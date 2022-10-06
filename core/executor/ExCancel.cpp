@@ -5,18 +5,18 @@
 //
 // Created:      Oct 15, 2009
 // **********************************************************************
-#include "common/Platform.h"
+#include "ExCancel.h"
 
-#include "executor/ex_stdh.h"
+#include "cli/Context.h"
+#include "cli/Globals.h"
 #include "comexe/ComTdb.h"
+#include "common/ComCextdecs.h"
+#include "common/Platform.h"
+#include "ex_exe_stmt_globals.h"
+#include "executor/ex_stdh.h"
 #include "executor/ex_tcb.h"
 #include "exp/ExpError.h"
-#include "ExCancel.h"
 #include "runtimestats/SqlStats.h"
-#include "cli/Globals.h"
-#include "cli/Context.h"
-#include "ex_exe_stmt_globals.h"
-#include "common/ComCextdecs.h"
 #include "seabed/ms.h"  // msg_mon_get_process_info
 
 /////////////////////////////////////////////////////////////////////////
@@ -225,8 +225,7 @@ ExWorkProcRetcode ExCancelTcb::work() {
         if (cancelTdb().actionIsCancel()) {
           long cancelStartTime = JULIANTIMESTAMP();
 
-          int firstEscalationInterval =
-              cliGlobals->currContext()->getSessionDefaults()->getCancelEscalationInterval();
+          int firstEscalationInterval = cliGlobals->currContext()->getSessionDefaults()->getCancelEscalationInterval();
 
           int secondEscalationInterval =
               cliGlobals->currContext()->getSessionDefaults()->getCancelEscalationMxosrvrInterval();

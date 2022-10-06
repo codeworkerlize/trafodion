@@ -3,34 +3,33 @@
 //*****************************************************************************
 #include "sqlcomp/PrivMgrComponentPrivileges.h"
 
-#include "sqlcomp/PrivMgrDefs.h"
-#include "PrivMgrComponentDefs.h"
-#include "sqlcomp/PrivMgrMD.h"
-#include "PrivMgrMDTable.h"
-#include "PrivMgrComponents.h"
-#include "PrivMgrComponentOperations.h"
-#include "sqlcomp/PrivMgrRoles.h"
-#include "sqlcomp/PrivMgrObjects.h"
-
-#include <string>
-#include <cstdio>
 #include <algorithm>
+#include <cstdio>
+#include <string>
 #include <vector>
+
+#include "PrivMgrComponentDefs.h"
+#include "PrivMgrComponentOperations.h"
+#include "PrivMgrComponents.h"
+#include "PrivMgrMDTable.h"
 #include "common/ComSmallDefs.h"
 #include "sqlcomp/CmpSeabaseDDL.h"
+#include "sqlcomp/PrivMgrDefs.h"
+#include "sqlcomp/PrivMgrMD.h"
+#include "sqlcomp/PrivMgrObjects.h"
+#include "sqlcomp/PrivMgrRoles.h"
 
 // sqlcli.h included because ExExeUtilCli.h needs it (and does not include it!)
 #include "cli/sqlcli.h"
+#include "comexe/ComQueue.h"
 #include "executor/ExExeUtilCli.h"
-#include "comexe/ComQueue.h"
 #include "export/ComDiags.h"
-#include "comexe/ComQueue.h"
 // CmpCommon.h contains STMTHEAP declaration
-#include "common/CmpCommon.h"
-#include "sqlcomp/CmpDDLCatErrorCodes.h"
-#include "common/ComUser.h"
 #include "cli/SQLCLIdev.h"
+#include "common/CmpCommon.h"
 #include "common/ComSecurityKey.h"
+#include "common/ComUser.h"
+#include "sqlcomp/CmpDDLCatErrorCodes.h"
 
 static bool isSQLDMLPriv(const int64_t componentUID, const std::string operationCode);
 
@@ -1194,9 +1193,9 @@ bool PrivMgrComponentPrivileges::hasSQLPriv(const int32_t authID, const SQLOpera
 
   char buf[MAX_DBUSERNAME_LEN + 10 + 100];
   int stmtSize = snprintf(buf, sizeof(buf),
-                            "') AND (GRANTEE_ID = -1 OR "
-                            "(GRANTEE_ID = %d AND GRANTEE_NAME = '%s')",
-                            authID, authName);
+                          "') AND (GRANTEE_ID = -1 OR "
+                          "(GRANTEE_ID = %d AND GRANTEE_NAME = '%s')",
+                          authID, authName);
   whereClause += buf;
 
   // *****************************************************************************

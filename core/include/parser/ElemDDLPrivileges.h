@@ -18,8 +18,8 @@
  *****************************************************************************
  */
 
-#include "common/ComASSERT.h"
 #include "ElemDDLNode.h"
+#include "common/ComASSERT.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

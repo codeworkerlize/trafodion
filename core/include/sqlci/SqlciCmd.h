@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "sqlci/SqlciEnv.h"
 #include "sqlci/SqlciNode.h"
 
@@ -288,4 +287,3 @@ class Wait : public SqlciCmd {
   ~Wait(){};
   short process(SqlciEnv *sqlci_env);
 };
-

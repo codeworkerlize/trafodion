@@ -13,15 +13,15 @@
 ****************************************************************************
 */
 
-#include "common/Platform.h"
-
-#include "common/NAStdlib.h"
-#include "common/Ipc.h"
-
 #include "export/IpcMessageObj.h"
-#include "common/str.h"
-#include "common/ComDefs.h"  // to get ROUND8
+
 #include <byteswap.h>
+
+#include "common/ComDefs.h"  // to get ROUND8
+#include "common/Ipc.h"
+#include "common/NAStdlib.h"
+#include "common/Platform.h"
+#include "common/str.h"
 // -----------------------------------------------------------------------
 // Methods for class IpcMessageObj
 // -----------------------------------------------------------------------

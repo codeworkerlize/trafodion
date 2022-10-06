@@ -13,13 +13,14 @@
  *****************************************************************************
  */
 
+#include "ComRegAPI.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "ComRegAPI.h"
-#include "common/ComRtUtils.h"
-#include "common/CmpCommon.h"
 
+#include "common/CmpCommon.h"
+#include "common/ComRtUtils.h"
 #include "nsk/nskcommon.h"
 #include "nsk/nskcommonhi.h"
 
@@ -38,7 +39,7 @@ void logErrorMessageInEventLog(int msgId, const char *msg) {
 // Validate SMD Location format.
 // -----------------------------------------------------------------------
 static int ComRegAPI_validate_SMDLocation(char *SMDLocation,    // in
-                                            char *sysVolNameBuf)  // out - bufsize >= 9
+                                          char *sysVolNameBuf)  // out - bufsize >= 9
 {
   char *vol = SMDLocation;
   int volSize = 0;

@@ -16,11 +16,10 @@
 #ifndef TIMEOUT_DATA_H
 #define TIMEOUT_DATA_H
 
-#include "export/NABasicObject.h"
-#include "common/NAMemory.h"
-
 #include "common/IpcMessageType.h"  // for IpcMessageObjSize,  *IpcMessageBufferPtr,
-                                    //  and *IpcConstMessageBufferPtr
+#include "common/NAMemory.h"
+#include "export/NABasicObject.h"
+//  and *IpcConstMessageBufferPtr
 
 class ComTdbRoot;
 
@@ -110,10 +109,10 @@ class TimeoutHashTable : public NABasicObject {
   void unpackObj(IpcConstMessageBufferPtr &buffer);
 
  private:
-  int entries_;                // number of entries in this HashQueue
-  int hashTableSize_;          // current size of the hash table
-  int hashTableOriginalSize_;  // original size of the hash table
-  int tempIndex_;              // temporary, set by getTimeout(), used by remove()
+  int entries_;                   // number of entries in this HashQueue
+  int hashTableSize_;             // current size of the hash table
+  int hashTableOriginalSize_;     // original size of the hash table
+  int tempIndex_;                 // temporary, set by getTimeout(), used by remove()
   TimeoutTableEntry *hashArray_;  // the hash table itself
   CollHeap *heap_;                // the heap a HashQueue allocates from
 
@@ -176,7 +175,7 @@ class TimeoutData : public NABasicObject {
   NABoolean noLockTimeoutsSet_;  // flag to speed up checking a common case
   // If noLockTimeoutsSet_ == TRUE, the following 3 fields are not used !!
   NABoolean forAll_;             // Was the timeout set for all tables (i.e. *)
-  int forAllTimeout_;          // Lock timeout value for all tables (if set)
+  int forAllTimeout_;            // Lock timeout value for all tables (if set)
   TimeoutHashTable timeoutsHT_;  // List of specified per table lock-timeouts
 
   // for stream timeout

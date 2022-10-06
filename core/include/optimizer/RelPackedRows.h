@@ -16,9 +16,9 @@
 ******************************************************************************
 */
 
-#include "optimizer/RelExpr.h"
 #include "PackedColDesc.h"
 #include "common/NAString.h"
+#include "optimizer/RelExpr.h"
 
 class BindWA;
 class CostMethodUnPackRows;

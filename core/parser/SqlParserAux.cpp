@@ -27,41 +27,43 @@
 #define SQLPARSERGLOBALS_NADEFAULTS
 #define SQLPARSERGLOBALS_NAMES_AND_TOKENS
 #define SQLPARSERGLOBALS_FLAGS
-#include "parser/SqlParserGlobals.h"
 #include "parser/SqlParserAux.h"
 
 #include <errno.h>
-#include "optimizer/AllItemExpr.h"
+
 #include "common/CompositeType.h"
 #include "common/MiscType.h"
 #include "common/NumericType.h"
-#include "sqlmsg/ParserMsg.h"
-#include "sqlci/SqlciError.h"
-#include "common/wstr.h"
 #include "common/nawstring.h"
+#include "common/wstr.h"
+#include "optimizer/AllItemExpr.h"
+#include "parser/SqlParserGlobals.h"
+#include "sqlci/SqlciError.h"
+#include "sqlmsg/ParserMsg.h"
 
 // Forward references and includes for Y.tab.h (SqlParser.h)
 class ExprNodePtrList;
 class ForUpdateSpec;
 class IntervalQualifier;
 class PairOfUnsigned;
+#include <sqlparser.h>  // Angled-brackets are intentional here
+
 #include "common/CharType.h"
 #include "common/ComSmallDefs.h"
 #include "common/ComTransInfo.h"
 #include "common/ComUnits.h"
-#include "parser/HvTypes.h"
-#include "parser/ElemDDLConstraintRI.h"
-#include "parser/ElemDDLPartition.h"
-#include "parser/ElemDDLParamName.h"
+#include "exp/exp_clause_derived.h"
+#include "optimizer/RelExeUtil.h"
+#include "optimizer/RelScan.h"
+#include "optimizer/RelSequence.h"
+#include "optimizer/RelUpdate.h"
 #include "parser/AllElemDDL.h"
 #include "parser/AllStmtDDL.h"
-#include "optimizer/RelScan.h"
-#include "optimizer/RelUpdate.h"
-#include "optimizer/RelSequence.h"
-#include "optimizer/RelExeUtil.h"
+#include "parser/ElemDDLConstraintRI.h"
+#include "parser/ElemDDLParamName.h"
+#include "parser/ElemDDLPartition.h"
+#include "parser/HvTypes.h"
 #include "parser/StmtDMLSetTransaction.h"
-#include "exp/exp_clause_derived.h"
-#include <sqlparser.h>  // Angled-brackets are intentional here
 
 const UInt32 SHORT_MAX = 32767;
 
@@ -1741,8 +1743,8 @@ NABoolean PicStream::skipCount(UInt32 *result, const char pattern, NABoolean isC
       char ch = sbumpc();
 
       if (isCharType == TRUE && (ch == 'C' || ch == 'c')) {
-        char len_unit_array[11];                 // len("CHARACTERS") = 10
-        len_unit_array[0] = ch;                  // store 'c'
+        char len_unit_array[11];               // len("CHARACTERS") = 10
+        len_unit_array[0] = ch;                // store 'c'
         int n = sgetn(len_unit_array + 1, 9);  // get the rest of "haracters"
         len_unit_array[10] = 0;
         assert(n == 9 && strcasecmp(len_unit_array, "CHARACTERS") == 0);

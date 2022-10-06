@@ -22,10 +22,10 @@
 // #define  MODULE_DEBUG
 
 #include "common/NLSConversion.h"
-#include "common/str.h"
-#include "common/csconvert.h"
 #include "common/charinfo.h"
+#include "common/csconvert.h"
 #include "common/nawstring.h"
+#include "common/str.h"
 #ifdef MODULE_DEBUG
 #include "NLSConversion.cpp"
 #endif
@@ -95,8 +95,8 @@ charBuf *unicodeToISO88591(const NAWcharBuf &input, CollHeap *heap, charBuf *&is
 // Conversions between cset and Unicode.   (wrapper for new calls)
 //
 extern cnv_charset convertCharsetEnum(int inset);
-NAWcharBuf *csetToUnicode(const charBuf &input, CollHeap *heap, NAWcharBuf *&unicodeString, int cset,
-                          int &errorcode, NABoolean addNullAtEnd, int *charCount, int *errorByteOff) {
+NAWcharBuf *csetToUnicode(const charBuf &input, CollHeap *heap, NAWcharBuf *&unicodeString, int cset, int &errorcode,
+                          NABoolean addNullAtEnd, int *charCount, int *errorByteOff) {
   char *err_ptr = NULL;
   UInt32 byteCount = 0, lv_charCount = 0, computedMaxBufSizeInNAWchars = 0;
   NABoolean outputBufferAllocatedByThisRoutine = (unicodeString == NULL) ? TRUE : FALSE;

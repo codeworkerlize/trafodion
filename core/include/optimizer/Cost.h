@@ -19,17 +19,15 @@
 
 // -----------------------------------------------------------------------
 
-#include "sqlcomp/NADefaults.h"
+#include "CostVector.h"
 #include "common/BaseTypes.h"
 #include "common/NAType.h"
-#include "optimizer/ValueDesc.h"
-#include "optimizer/PhyProp.h"
-#include "optimizer/PhyProp.h"
 #include "optimizer/CostScalar.h"
-#include "CostVector.h"
-
-#include "sqlcomp/DefaultConstants.h"
+#include "optimizer/PhyProp.h"
+#include "optimizer/ValueDesc.h"
 #include "optimizer/opt.h"
+#include "sqlcomp/DefaultConstants.h"
+#include "sqlcomp/NADefaults.h"
 
 // -----------------------------------------------------------------------
 // Forward references.
@@ -390,8 +388,7 @@ class Cost : public NABasicObject {
   // ---------------------------------------------------------------------
   // Method for returning NCM cost atrributes.
   // ---------------------------------------------------------------------
-  void getScmCostAttr(double &tcProc, double &tcProd, double &tcSent, double &ioRand, double &ioSeq,
-                      int &probes) const;
+  void getScmCostAttr(double &tcProc, double &tcProd, double &tcSent, double &ioRand, double &ioSeq, int &probes) const;
 
   // ---------------------------------------------------------------------
   // Method for returning NCM debug information.
@@ -618,11 +615,11 @@ class HashJoinCost : public Cost {
   //  Constructors.
   //---------------
   HashJoinCost(const SimpleCostVector *currentProcessFirstRowCost, const SimpleCostVector *currentProcessLastRowCost,
-               const SimpleCostVector *currentProcessBlockingCost, const int countOfCPUs,
-               const int planFragmentsPerCPU, const CostScalar &stage2WorkFractionForFR_,
-               const CostScalar &stage3WorkFractionForFR_, const SimpleCostVector *stage2Cost,
-               const SimpleCostVector *stage3Cost, const SimpleCostVector *stage1BkCost,
-               const SimpleCostVector *stage2BkCost, const SimpleCostVector *stage3BkCost);
+               const SimpleCostVector *currentProcessBlockingCost, const int countOfCPUs, const int planFragmentsPerCPU,
+               const CostScalar &stage2WorkFractionForFR_, const CostScalar &stage3WorkFractionForFR_,
+               const SimpleCostVector *stage2Cost, const SimpleCostVector *stage3Cost,
+               const SimpleCostVector *stage1BkCost, const SimpleCostVector *stage2BkCost,
+               const SimpleCostVector *stage3BkCost);
 
   //-----------------------------------------------
   //  Constructor for an empty HashJoinCost object.

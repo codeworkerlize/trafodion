@@ -17,11 +17,11 @@
  *****************************************************************************
  */
 
-#include "common/NABoolean.h"
-#include "common/ComSizeDefs.h"
 #include "common/ComCharSetDefs.h"
-#include "export/ComDiags.h"
+#include "common/ComSizeDefs.h"
 #include "common/ComSmallDefs.h"
+#include "common/NABoolean.h"
+#include "export/ComDiags.h"
 
 #ifndef __DERROR__
 #include "common/feerrors.h"
@@ -47,21 +47,21 @@
 
 // returned error code described in w:/common/csconvert.h
 int ComAnsiNameToUTF8(const NAWchar *inAnsiNameInUCS2  // in  - valid ANSI SQL name in UCS2/UTF16
-                        ,
-                        char *outBuf4AnsiNameInUTF8  // out - out buffer
-                        ,
-                        const int outBufSizeInBytes  // in  - out buffer max len in bytes
+                      ,
+                      char *outBuf4AnsiNameInUTF8  // out - out buffer
+                      ,
+                      const int outBufSizeInBytes  // in  - out buffer max len in bytes
 );
 
 // returned error code described in w:/common/csconvert.h
 int ComAnsiNameToUCS2(const char *inAnsiNameInUTF8  // in  - valid name in default ANSI name char set
-                        ,
-                        NAWchar *outAnsiNameInNAWchars  // out - out buffer
-                        ,
-                        const int outBufSizeInNAWchars  // in  - out buffer max len in NAWchars
-                        ,
-                        const NABoolean padWithSpaces = FALSE  // in  - fill remainder with spaces if TRUE;
-);                                                             //       otherwise, just add a NULL terminator.
+                      ,
+                      NAWchar *outAnsiNameInNAWchars  // out - out buffer
+                      ,
+                      const int outBufSizeInNAWchars  // in  - out buffer max len in NAWchars
+                      ,
+                      const NABoolean padWithSpaces = FALSE  // in  - fill remainder with spaces if TRUE;
+);                                                           //       otherwise, just add a NULL terminator.
 
 // -----------------------------------------------------------------------
 // Meatadata Distribution
@@ -107,9 +107,9 @@ enum AvailabilityErrorCode {
 //
 //  Build an ANSI schema name from its individual parts
 //
-void ComBuildSchemaName(const char *catalogName,          // in, catalog name (internal format)
-                        const char *schemaName,           // in, schema name (internal format)
-                        char *ansiSchemaName,             // out, ANSI name (external format)
+void ComBuildSchemaName(const char *catalogName,        // in, catalog name (internal format)
+                        const char *schemaName,         // in, schema name (internal format)
+                        char *ansiSchemaName,           // out, ANSI name (external format)
                         const int ansiNameOutBufSize);  // in, ANSI name output buffer size in bytes
 
 //----------------------------------------------------------------------
@@ -120,7 +120,7 @@ void ComBuildANSIName(const char *catalogName,                             // in
                       const char *schemaName,                              // in, schema name (internal format)
                       const char *objectName,                              // in, object name (internal format)
                       char *ansiName,                                      // out, ANSI name (external format)
-                      const int ansiNameOutBufSize                       // in, ANSI name output buffer size in bytes
+                      const int ansiNameOutBufSize                         // in, ANSI name output buffer size in bytes
                       = ComMAX_3_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES + 1  //  for the worst case
 );
 
@@ -141,7 +141,7 @@ void enumToLiteral(const literalAndEnumStruct *conversionTable, const int noOfEl
 
 // General literal to enum translation
 int literalToEnum(const literalAndEnumStruct *conversionTable, const int noOfElements, const char *literal,
-                    NABoolean &found);
+                  NABoolean &found);
 
 //----------------------------------------------------------------------
 //
@@ -272,8 +272,7 @@ FeatureVersionInfoSPInputType ComFeatureVersionInfoSPLiteralToInputType(const ch
 //
 //  Translate an anchor file access error to something more sensible.
 //
-int ComTranslateAnchorFileAccessError(const int sqlCode, const int fsError, const char *nodeName,
-                                        ComDiagsArea *da);
+int ComTranslateAnchorFileAccessError(const int sqlCode, const int fsError, const char *nodeName, ComDiagsArea *da);
 
 //----------------------------------------------------------------------
 //  Class VisibilityErrorTranslator:
@@ -366,21 +365,21 @@ class MetaDataErrorTranslator : public ComDiagsTranslator {
 // set an item that the compiler knows the size of to spaces
 #define SetToSpaces(x) memset(x, ' ', sizeof(*x));
 // strip trailing blanks from a string, for which the compiler knows the length
-#define StripTrailingBlanks(x)         \
-  {                                    \
+#define StripTrailingBlanks(x)       \
+  {                                  \
     int more = 1, i = sizeof(x) - 2; \
-    while (more) {                     \
-      if (x[i] == ' ')                 \
-        x[i] = 0;                      \
-      else                             \
-        more = 0;                      \
-      i--;                             \
-    }                                  \
+    while (more) {                   \
+      if (x[i] == ' ')               \
+        x[i] = 0;                    \
+      else                           \
+        more = 0;                    \
+      i--;                           \
+    }                                \
   }
 // strip trailing blanks from a string, for which the compiler does not know the length
 #define StripTrailingBlanksExplicit(x, l) \
   {                                       \
-    int more = 1, i = l - 2;            \
+    int more = 1, i = l - 2;              \
     while (more) {                        \
       if (x[i] == ' ')                    \
         x[i] = 0;                         \
@@ -417,8 +416,7 @@ class MetaDataErrorTranslator : public ComDiagsTranslator {
 // -----------------------------------------------------------------------
 void ComStripTrailingBlanks(NAWchar *x, const int bufSizeInNAWchars);
 // copy and space fill a string into a buffer (an array of NAWchar elements)
-void StringToArrayOfNAWcharsSpacesPaddedNullTerminated(const NAWchar *inStrNullTerminated,
-                                                       const int inStrLenInNAWchars, NAWchar *outBuf,
-                                                       const int outBufSizeInNAWchars);
+void StringToArrayOfNAWcharsSpacesPaddedNullTerminated(const NAWchar *inStrNullTerminated, const int inStrLenInNAWchars,
+                                                       NAWchar *outBuf, const int outBufSizeInNAWchars);
 
 #endif  // COMDISTRIBUTION_H

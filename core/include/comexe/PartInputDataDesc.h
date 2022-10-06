@@ -19,9 +19,9 @@
 #ifndef PART_INPUT_DATA_DESC_H
 #define PART_INPUT_DATA_DESC_H
 
-#include "export/NAVersionedObject.h"
-#include "exp/ExpCriDesc.h"
 #include "executor/ex_expr.h"
+#include "exp/ExpCriDesc.h"
+#include "export/NAVersionedObject.h"
 
 // -----------------------------------------------------------------------
 class ex_cri_desc;
@@ -145,7 +145,7 @@ class ExRoundRobinPartInputData : public ExPartInputDataDesc {
   int unpack(void *, void *reallocator);
 
  private:
-  int numOrigRRPartitions_;                  // 00-03
+  int numOrigRRPartitions_;                    // 00-03
   char fillersExRoundRobinPartInputData_[20];  // 04-23
 };
 
@@ -214,7 +214,7 @@ class ExRangePartInputData : public ExPartInputDataDesc {
   // byte array and atp/atpindex info to evaluate these expressions.
   // The pointer to the array could also be NULL, in which case the
   // byte array partRanges_ has to be filled at compile time.
-  ExExprPtrPtr partRangeExpressions_;    // 16-23
+  ExExprPtrPtr partRangeExpressions_;  // 16-23
   int useExpressions_;                 // 24-27
   int partRangeExprAtp_;               // 28-31
   int partRangeExprAtpIndex_;          // 32-35
@@ -257,7 +257,7 @@ class ExHashDistPartInputData : public ExPartInputDataDesc {
   int unpack(void *, void *reallocator);
 
  private:
-  int numOrigHashPartitions_;              // 00-03
+  int numOrigHashPartitions_;                // 00-03
   char fillersExHashDistPartInputData_[20];  // 04-23
 };
 

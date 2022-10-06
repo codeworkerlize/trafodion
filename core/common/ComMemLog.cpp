@@ -2,18 +2,17 @@
 
 // **********************************************************************
 
+#include "ComMemLog.h"
+
+#include <errno.h>
+#include <fcntl.h>
+#include <stdarg.h>
 #include <stdio.h>
+#include <string.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
-#include <fcntl.h>
-#include <sys/mman.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <string.h>
-#include <stdarg.h>
-#include <errno.h>
-
-#include "ComMemLog.h"
 
 ComMemLog::ComMemLog() : startPtr(0), maxLength(0), currLength(0), loopbackNm(-1), isRead(true) {
   fileName[0] = 0;

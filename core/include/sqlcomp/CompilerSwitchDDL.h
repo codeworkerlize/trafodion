@@ -3,9 +3,9 @@
 #ifndef _COMPILER_SWITCH_DDL_H_
 #define _COMPILER_SWITCH_DDL_H_
 
-#include "common/Platform.h"
-#include "cli/Context.h"
 #include "arkcmp/CmpContext.h"
+#include "cli/Context.h"
+#include "common/Platform.h"
 
 // *****************************************************************************
 // *

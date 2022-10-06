@@ -1,18 +1,20 @@
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
 #include "common/CommonLogger.h"
+
 #include <errno.h>
-#include <string.h>
-#include <string>
-#include <stdexcept>
-#include <log4cplus/logger.h>
 #include <log4cplus/configurator.h>
 #include <log4cplus/helpers/loglog.h>
 #include <log4cplus/helpers/stringhelper.h>
+#include <log4cplus/logger.h>
 #include <log4cplus/loggingmacros.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include <iomanip>  //std::setprecision
+#include <stdexcept>
+#include <string>
 #define SLASH_S "/"
 #define SLASH_C '/'
 

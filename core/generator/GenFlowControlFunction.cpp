@@ -8,11 +8,11 @@
 
 // Includes
 //
-#include "optimizer/ItemExpr.h"
-#include "optimizer/ItmFlowControlFunction.h"
-#include "generator/Generator.h"
 #include "GenExpGenerator.h"
 #include "exp/exp_clause_derived.h"
+#include "generator/Generator.h"
+#include "optimizer/ItemExpr.h"
+#include "optimizer/ItmFlowControlFunction.h"
 
 // ItmDoWhileFunction::preCodeGen
 //

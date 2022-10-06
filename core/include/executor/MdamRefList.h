@@ -107,8 +107,7 @@ class MdamRefList {
 // *****************************************************************************
 
 // Constructor.  Creates a list with one entry.
-inline MdamRefList::MdamRefList(const int disjunctNum, FixedSizeHeapManager &mdamRefListEntryHeap)
-    : lastEntryPtr_(0) {
+inline MdamRefList::MdamRefList(const int disjunctNum, FixedSizeHeapManager &mdamRefListEntryHeap) : lastEntryPtr_(0) {
   insert(disjunctNum, mdamRefListEntryHeap);
 }
 

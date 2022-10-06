@@ -16,9 +16,9 @@
 */
 
 // -----------------------------------------------------------------------
+#include "Cost.h"
 #include "common/BaseTypes.h"
 #include "optimizer/GroupAttr.h"
-#include "Cost.h"
 
 //<pb>
 // ----------------------------------------------------------------------
@@ -157,8 +157,8 @@ class CostMethod {
   virtual void getChildCostForUnaryOp(RelExpr *op, const Context *myContext, const PlanWorkSpace *pws, int planNumber,
                                       CostPtr &childCost);
 
-  virtual void getChildCostsForBinaryOp(RelExpr *op, const Context *myContext, const PlanWorkSpace *pws,
-                                        int planNumber, CostPtr &leftChildCost, CostPtr &rightChildCost);
+  virtual void getChildCostsForBinaryOp(RelExpr *op, const Context *myContext, const PlanWorkSpace *pws, int planNumber,
+                                        CostPtr &leftChildCost, CostPtr &rightChildCost);
 
   // ---------------------------------------------------------------------
   // print

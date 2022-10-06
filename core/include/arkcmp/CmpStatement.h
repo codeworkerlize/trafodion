@@ -3,11 +3,11 @@
 #ifndef CmpStatement_H
 #define CmpStatement_H
 
-#include "comexe/CmpMessage.h"
 #include "arkcmp/CmpContext.h"
-#include "export/ComDiags.h"
 #include "arkcmp/CmpErrors.h"
+#include "comexe/CmpMessage.h"
 #include "common/OperTypeEnum.h"
+#include "export/ComDiags.h"
 
 // forward declaration
 class CmpStoredProc;
@@ -284,7 +284,6 @@ class CmpStatement : public NABasicObject {
 
   // for error reporting for UDFs, keep a list of requirements the UDF refused
   LIST(const NAString *) * detailsOnRefusedRequirements_;
-
 
   int numOfCompilationRetries_;
 

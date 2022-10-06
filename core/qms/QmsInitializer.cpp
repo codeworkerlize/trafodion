@@ -2,12 +2,14 @@
 
 // **********************************************************************
 
+#include "QmsInitializer.h"
+
 #include <long.h>
+
 #include "QmsQms.h"
-#include "qmscommon/XMLUtil.h"
 #include "qmscommon/QRDescriptor.h"
 #include "qmscommon/QRLogger.h"
-#include "QmsInitializer.h"
+#include "qmscommon/XMLUtil.h"
 
 /**
  * \file

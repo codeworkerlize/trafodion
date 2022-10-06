@@ -15,13 +15,12 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
-
-#include "exp/exp_stdh.h"
-#include "exp/exp_clause_derived.h"
-#include "exp_function.h"
-#include "exp/exp_interval.h"
 #include "SQLTypeDefs.h"
+#include "common/Platform.h"
+#include "exp/exp_clause_derived.h"
+#include "exp/exp_interval.h"
+#include "exp/exp_stdh.h"
+#include "exp_function.h"
 
 __declspec(dllimport) NABoolean ExExprComputeSpace(ex_tcb *tcb);
 
@@ -600,7 +599,6 @@ const ex_comp_clause::CompInstrStruct ex_comp_clause::compInstrInfo[] = {
     {ITM_EQUAL, REC_NCHAR_F_UNICODE, REC_NCHAR_V_UNICODE, instrAndText(UNICODE_COMP)},
     {ITM_EQUAL, REC_NCHAR_V_UNICODE, REC_NCHAR_F_UNICODE, instrAndText(UNICODE_COMP)},
     {ITM_EQUAL, REC_NCHAR_V_UNICODE, REC_NCHAR_V_UNICODE, instrAndText(UNICODE_COMP)},
-
 
     {ITM_EQUAL, REC_BOOLEAN, REC_BOOLEAN, instrAndText(EQ_BOOL_BOOL)},
 
@@ -1525,7 +1523,6 @@ const ex_conv_clause::ConvInstrStruct ex_conv_clause::convInstrInfo[] = {
     {REC_NCHAR_V_ANSI_UNICODE, REC_BYTE_F_ASCII, instrAndText(CONV_ANSI_V_UNICODE_TO_ASCII_F)},
     {REC_NCHAR_V_ANSI_UNICODE, REC_NCHAR_F_UNICODE, instrAndText(CONV_ANSI_V_UNICODE_TO_UNICODE_F)},
     {REC_NCHAR_V_ANSI_UNICODE, REC_NCHAR_V_UNICODE, instrAndText(CONV_ANSI_V_UNICODE_TO_UNICODE_V)},
-
 
     {REC_CLOB, REC_CLOB, instrAndText(CONV_BLOB_BLOB)},
     {REC_CLOB, REC_BYTE_F_ASCII, instrAndText(CONV_BLOB_ASCII_F)},

@@ -18,10 +18,10 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
-#include "common/ComOperators.h"
 #include "common/ComASSERT.h"
+#include "common/ComOperators.h"
 #include "common/NLSConversion.h"
+#include "common/Platform.h"
 #include "common/charinfo.h"
 #include "common/csconvert.h"
 cnv_charset convertCharsetEnum(int inset) {
@@ -106,8 +106,8 @@ charBuf *unicodeToUtf8(const NAWcharBuf &unicodeString, CollHeap *heap, charBuf 
   return output;
 }
 
-int UnicodeStringToLocale(int charset, const NAWchar *wstr, int wstrLen, char *buf, int bufLen,
-                            NABoolean addNullAtEnd, NABoolean allowInvalidCodePoint) {
+int UnicodeStringToLocale(int charset, const NAWchar *wstr, int wstrLen, char *buf, int bufLen, NABoolean addNullAtEnd,
+                          NABoolean allowInvalidCodePoint) {
   charBuf cbuf((unsigned char *)buf, bufLen);
   charBuf *cbufPtr = &cbuf;
   charBuf *res = 0;
@@ -145,7 +145,7 @@ int UnicodeStringToLocale(int charset, const NAWchar *wstr, int wstrLen, char *b
 }
 
 int LocaleStringToUnicode(int charset, const char *str, int strLen, NAWchar *wstrBuf, int wstrBufLen,
-                            NABoolean addNullAtEnd) {
+                          NABoolean addNullAtEnd) {
   // Changed the algorithm to call the new LocaleToUTF16() but keep
   // the old call to old ISO88591ToUnicode() when the character set is
   // ISO88591.  We want to keep the old "pass through" behavior so
@@ -172,16 +172,16 @@ int LocaleStringToUnicode(int charset, const char *str, int strLen, NAWchar *wst
   UInt32 outputDataLenInBytes = 0;
   UInt32 translatedtCharCount = 0;
   int convStatus = LocaleToUTF16(cnv_version1,           // const enum cnv_version version
-                                   str,                    // const char *in_bufr
-                                   strLen,                 // const int in_len in # of bytes
-                                   (const char *)wstrBuf,  // const char *out_bufr
-                                   (const int)outBufSizeInBytes,
-                                   convCS,                  // enum cnv_charset charset -- output charset
-                                   pFirstUntranslatedChar,  // char * & first_untranslated_char
-                                   &outputDataLenInBytes,   // unsigned int *output_data_len_p
-                                   0,                       // const int cnv_flags (default is 0)
-                                   (const int)addNullAtEnd,
-                                   &translatedtCharCount);  // unsigned int *translated_char_cnt_p
+                                 str,                    // const char *in_bufr
+                                 strLen,                 // const int in_len in # of bytes
+                                 (const char *)wstrBuf,  // const char *out_bufr
+                                 (const int)outBufSizeInBytes,
+                                 convCS,                  // enum cnv_charset charset -- output charset
+                                 pFirstUntranslatedChar,  // char * & first_untranslated_char
+                                 &outputDataLenInBytes,   // unsigned int *output_data_len_p
+                                 0,                       // const int cnv_flags (default is 0)
+                                 (const int)addNullAtEnd,
+                                 &translatedtCharCount);  // unsigned int *translated_char_cnt_p
 
   UInt32 outLenInW = outputDataLenInBytes / sizeof(NAWchar);
   if (convStatus == 0)  // success
@@ -564,7 +564,7 @@ int LocaleStringToUnicode(int charset, const char *str, int strLen, NAWchar *wst
 // error code values are defined in w:/common/csconvert.h.
 // -----------------------------------------------------------------------
 int ComputeStrLenInNAWchars(const char *pStr, const int strLenInBytes, const CharInfo::CharSet strCS,
-                              NAMemory *workspaceHeap)  // in - default is NULL (the C++ runtime heap)
+                            NAMemory *workspaceHeap)  // in - default is NULL (the C++ runtime heap)
 {
   if (pStr == NULL || strLenInBytes == 0) return 0;
 

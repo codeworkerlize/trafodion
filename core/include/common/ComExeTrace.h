@@ -14,9 +14,9 @@
 #ifndef COMEXETRACE_H
 #define COMEXETRACE_H
 
+#include "common/Collections.h"
 #include "common/Platform.h"
 #include "export/NABasicObject.h"
-#include "common/Collections.h"
 
 // max of the trace name length and its field name length
 #define MAX_TRACE_NAME_LEN 40
@@ -161,9 +161,9 @@ class ExeTrace {
   GetALineProcPtr getALineProc_;   // pointer to function sending one trace
                                    // entry to given buffer
   void *indexLoc_;                 // pointer to the trace index area
-  int numEntries_;               // size of the trace
-  int numFields_;                // size of the trace
-  int lineWidth_;                // number of bytes to sprint one trace entry
+  int numEntries_;                 // size of the trace
+  int numFields_;                  // size of the trace
+  int lineWidth_;                  // number of bytes to sprint one trace entry
   char *describes_;
   TraceField fields_[1];
 };
@@ -179,7 +179,7 @@ class ExeTraceInfo : public NABasicObject {
   // used by general public
   // create and add the trace info
   int addTrace(const char *traceName, void *traceId, int numEntries, int numFields, void *target,
-                 GetALineProcPtr getALineProc, void *indexLoc, int lineWidth, const char *desc, void **exeTrace);
+               GetALineProcPtr getALineProc, void *indexLoc, int lineWidth, const char *desc, void **exeTrace);
   // add trace field info
   void addTraceField(void *exeTrace, const char *fieldName, UInt32 fieldIdx, ExeTrace::FieldType fType);
   // unregister the given trace

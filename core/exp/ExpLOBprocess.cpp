@@ -20,53 +20,46 @@ this process .Hence we are retainign this file as part of the mxlobsrvr infrastr
 need to be executed in the mxlobsrvr process, the sqstart/sqstop need to modified to call lobstop and lostart**/
 
 /****************************************************************************/
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <malloc.h>
-#include <string>
-#include <errno.h>
-#include <sys/file.h>
-
-#include <iostream>
-
+#include <arpa/inet.h>
 #include <errno.h>
 #include <fcntl.h>  // for nonblocking
+#include <guardian/kphandlz.h>
+#include <malloc.h>
 #include <netdb.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <pthread.h>
+#include <seabed/fs.h>
+#include <seabed/fserr.h>
+#include <seabed/ms.h>
+#include <seabed/pctl.h>
+#include <seabed/pevents.h>
 #include <signal.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
-#include <unistd.h>
-#include <zlib.h>  // ZLIB compression library
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <arpa/inet.h>
 #include <sys/epoll.h>
+#include <sys/file.h>
 #include <sys/socket.h>  // basic socket definitions
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/types.h>  // basic system data types
 #include <sys/uio.h>
 #include <sys/wait.h>
+#include <time.h>
+#include <unistd.h>
+#include <zlib.h>  // ZLIB compression library
 
-#include <guardian/kphandlz.h>
-
-#include <seabed/ms.h>
-#include <seabed/fs.h>
-#include <seabed/pctl.h>
-#include <seabed/pevents.h>
-#include <seabed/fserr.h>
+#include <iostream>
+#include <string>
 
 #include "common/ComRtUtils.h"
 //#include "ExeReplInterface.h"
 #include "cli/Globals.h"
 #include "common/NAExit.h"
-#include "ex_ex.h"  // ex_assert
 #include "common/SCMVersHelp.h"
+#include "ex_ex.h"  // ex_assert
 
 #define SQ_USE_LOB_PROCESS 1
 #include "qmscommon/QRLogger.h"

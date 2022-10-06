@@ -18,9 +18,9 @@
 
 #include "AllElemDDLUdr.h"
 #include "common/ComASSERT.h"
-#include "export/ComDiags.h"
-#include "common/ComOperators.h"
 #include "common/ComMisc.h"
+#include "common/ComOperators.h"
+#include "export/ComDiags.h"
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLUdrDeterministic

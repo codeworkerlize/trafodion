@@ -15,15 +15,16 @@
 // -----------------------------------------------------------------------
 #define SQLPARSERGLOBALS_FLAGS  // must precede all #include's
 #include "ColStatDesc.h"
-#include "optimizer/Sqlcomp.h"
-#include "optimizer/ItemColRef.h"
-#include "optimizer/ItemOther.h"
-#include "optimizer/ItemFunc.h"
-#include "Cost.h" /* for lookups in defaults table */
-#include "optimizer/Analyzer.h"
+
 #include "../exp/exp_ovfl_ptal.h"  //check for overflow & underflow
+#include "Cost.h"                  /* for lookups in defaults table */
 #include "arkcmp/CompException.h"
+#include "optimizer/Analyzer.h"
+#include "optimizer/ItemColRef.h"
+#include "optimizer/ItemFunc.h"
 #include "optimizer/ItemLog.h"  // for like predicates
+#include "optimizer/ItemOther.h"
+#include "optimizer/Sqlcomp.h"
 #include "parser/SqlParserGlobals.h"
 #include "sqlcomp/CmpDescribe.h"
 
@@ -5034,7 +5035,7 @@ void ColStatDescList::applyDefaultPred(ItemExpr *pred, CostScalar &globalPredica
             ItemExpr *cExpr = NULL;
             if (!values.referencesAConstExpr(&cExpr)) {  // veg is an "X=Y" predicate
                                                          // maxSelectivity("X=Y") == 1.0
-            } else  // veg is an "X=?" predicate
+            } else                                       // veg is an "X=?" predicate
             {
               // maxFreq = maxFrequency(X) for VEGPred "X=?"
               // NB: "maxFreq = histograms.getMaxFreq(v);" may look
@@ -8439,7 +8440,7 @@ ValueIdSet MultiColumnUecList::findMatchingColumns(const ValueIdSet &t1Cols,    
 // smaller ipFactor, smaller mcUec or larger valueId value of the
 // first column wins.
 int tieBreaker(CostScalar ipFactor1, CostScalar mcUec1, TableDesc *tabDesc1, CostScalar ipFactor2, CostScalar mcUec2,
-                 TableDesc *tabDesc2) {
+               TableDesc *tabDesc2) {
   if (ipFactor1 < ipFactor2) return 1;
 
   if (ipFactor1 > ipFactor2) return -1;

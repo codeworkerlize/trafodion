@@ -21,15 +21,15 @@
 ******************************************************************************
 */
 
-#include "common/ComSpace.h"
 #include "CommonStructs.h"
-#include "SortUtilCfg.h"
-#include "SortAlgo.h"
-#include "TourTree.h"
 #include "Const.h"
-#include "ScratchSpace.h"
 #include "ScratchFileMap.h"
+#include "ScratchSpace.h"
+#include "SortAlgo.h"
+#include "SortUtilCfg.h"
 #include "Statistics.h"
+#include "TourTree.h"
+#include "common/ComSpace.h"
 #include "export/NABasicObject.h"
 
 class ExBMOStats;

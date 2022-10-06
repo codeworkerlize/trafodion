@@ -1,11 +1,12 @@
 
 
 #include "arkcmp/QueryCacheSt.h"
-#include "sqlcomp/QCache.h"
-#include "sqlcomp/CmpMain.h"
-#include "cli/Globals.h"
-#include "cli/Context.h"
+
 #include "arkcmp/CmpStoredProc.h"
+#include "cli/Context.h"
+#include "cli/Globals.h"
+#include "sqlcomp/CmpMain.h"
+#include "sqlcomp/QCache.h"
 
 SP_STATUS QueryCacheStatStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, int numFields,
                                                         SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj,
@@ -172,9 +173,9 @@ QueryCacheEntriesStoredProcedure::sp_NumOutputFields(int *numFields, SP_COMPILE_
 
 // Specifies the columns of the QueryCacheEntries table and their types
 SP_STATUS QueryCacheEntriesStoredProcedure::sp_OutputFormat(SP_FIELDDESC_STRUCT *format,
-                                                            SP_KEYDESC_STRUCT * /*keyFields */,
-                                                            int * /*numKeyFields */, SP_COMPILE_HANDLE cmpHandle,
-                                                            SP_HANDLE /* spHandle */, SP_ERROR_STRUCT * /* error */) {
+                                                            SP_KEYDESC_STRUCT * /*keyFields */, int * /*numKeyFields */,
+                                                            SP_COMPILE_HANDLE cmpHandle, SP_HANDLE /* spHandle */,
+                                                            SP_ERROR_STRUCT * /* error */) {
   strcpy(&((format++)->COLUMN_DEF[0]), "Row_id        		INT UNSIGNED");
   strcpy(&((format++)->COLUMN_DEF[0]), "Plan_id     		LARGEINT");
   strcpy(&((format++)->COLUMN_DEF[0]), "Text  			VARCHAR(4096 BYTES) character set utf8");
@@ -454,8 +455,8 @@ SP_STATUS HybridQueryCacheStatStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUC
 }
 
 SP_STATUS
-HybridQueryCacheStatStoredProcedure::sp_NumOutputFields(int *numFields, SP_COMPILE_HANDLE spCompileObj,
-                                                        SP_HANDLE spObj, SP_ERROR_STRUCT *error) {
+HybridQueryCacheStatStoredProcedure::sp_NumOutputFields(int *numFields, SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj,
+                                                        SP_ERROR_STRUCT *error) {
   *numFields = 5;
   return SP_SUCCESS;
 }
@@ -548,8 +549,8 @@ HybridQueryCacheEntriesStoredProcedure::sp_NumOutputFields(int *numFields, SP_CO
 
 SP_STATUS HybridQueryCacheEntriesStoredProcedure::sp_OutputFormat(SP_FIELDDESC_STRUCT *format,
                                                                   SP_KEYDESC_STRUCT * /*keyFields */,
-                                                                  int * /*numKeyFields */,
-                                                                  SP_COMPILE_HANDLE cmpHandle, SP_HANDLE /* spHandle */,
+                                                                  int * /*numKeyFields */, SP_COMPILE_HANDLE cmpHandle,
+                                                                  SP_HANDLE /* spHandle */,
                                                                   SP_ERROR_STRUCT * /* error */) {
   strcpy(&((format++)->COLUMN_DEF[0]), "plan_id     		LARGEINT");
   strcpy(&((format++)->COLUMN_DEF[0]), "hkey  			VARCHAR(4096 BYTES) character set utf8");

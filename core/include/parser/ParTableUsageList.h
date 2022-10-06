@@ -18,13 +18,13 @@
  *****************************************************************************
  */
 
+#include "ParNameLocList.h"
 #include "common/Collections.h"
 #include "common/ComASSERT.h"
 #include "common/ComOperators.h"
 #include "common/ComSmallDefs.h"
 #include "common/NABoolean.h"
 #include "optimizer/ObjectNames.h"
-#include "ParNameLocList.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

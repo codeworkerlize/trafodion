@@ -4,7 +4,9 @@
 #include <limits.h>
 #include <stddef.h>
 #include <stdint.h>
+
 #include <string>
+
 #include "auth.h"
 #include "authEvents.h"
 

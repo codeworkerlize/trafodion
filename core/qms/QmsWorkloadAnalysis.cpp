@@ -10,8 +10,10 @@
 // Created:      05/17/2011
 // ***********************************************************************
 
-#include <fstream>
 #include "QmsWorkloadAnalysis.h"
+
+#include <fstream>
+
 #include "qmscommon/QRLogger.h"
 
 //========================================================================

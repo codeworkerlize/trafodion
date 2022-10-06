@@ -18,6 +18,7 @@
 // -----------------------------------------------------------------------
 
 #include <limits.h>
+
 #include "common/BaseTypes.h"
 #include "common/NAType.h"
 #include "export/ComDiags.h"
@@ -98,8 +99,7 @@ class SQLArray : public CompositeType {
   // ---------------------------------------------------------------------
   // Constructor functions
   // ---------------------------------------------------------------------
-  SQLArray(NAMemory *heap, const NAType *elementType, const int arraySize,
-           int compFormat = COM_UNINITIALIZED_FORMAT);
+  SQLArray(NAMemory *heap, const NAType *elementType, const int arraySize, int compFormat = COM_UNINITIALIZED_FORMAT);
 
   virtual short getMyTypeAsText(NAString *outputStr,  // output
                                 NABoolean addNullability = TRUE, NABoolean addCollation = TRUE) const;

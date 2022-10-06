@@ -12,13 +12,14 @@
 *
 **********************************************************************/
 
-#include <sys/types.h>
 #include <stdlib.h>
-#include "common/ComSmallDefs.h"
-#include "langman/LmCommon.h"
-#include "LmError.h"
-#include "exp/exp_tuple_desc.h"
+#include <sys/types.h>
+
 #include "ExpAlignedFormat.h"
+#include "LmError.h"
+#include "common/ComSmallDefs.h"
+#include "exp/exp_tuple_desc.h"
+#include "langman/LmCommon.h"
 
 //////////////////////////////////////////////////////////////////////
 //

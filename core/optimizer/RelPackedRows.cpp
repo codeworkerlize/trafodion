@@ -11,17 +11,18 @@
 *
 ******************************************************************************
 */
+#include "RelPackedRows.h"
+
+#include "Cost.h"
+#include "cli/Globals.h"
 #include "optimizer/AllItemExpr.h"
 #include "optimizer/AllRelExpr.h"
-#include "RelPackedRows.h"
-#include "optimizer/SchemaDB.h"
-#include "optimizer/GroupAttr.h"
 #include "optimizer/BindWA.h"
-#include "optimizer/NormWA.h"
-#include "Cost.h"
 #include "optimizer/CostMethod.h"
+#include "optimizer/GroupAttr.h"
+#include "optimizer/NormWA.h"
+#include "optimizer/SchemaDB.h"
 #include "optimizer/opt.h"
-#include "cli/Globals.h"
 
 // -----------------------------------------------------------------------
 // This file contains all the methods for the class UnPackRows.

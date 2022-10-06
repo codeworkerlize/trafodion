@@ -9,15 +9,15 @@
 #ifndef _RTS_MSG_H_
 #define _RTS_MSG_H_
 
-#include "common/Ipc.h"
-#include "common/ComSmallDefs.h"
-#include "common/ComCextdecs.h"
-#include "common/Int64.h"
-#include "exp/ExpLOBenums.h"
 #include <stdio.h>
 
 #include "cli/sqlcli.h"
+#include "common/ComCextdecs.h"
 #include "common/ComRtUtils.h"
+#include "common/ComSmallDefs.h"
+#include "common/Int64.h"
+#include "common/Ipc.h"
+#include "exp/ExpLOBenums.h"
 //
 // Forward class references
 //
@@ -1106,7 +1106,7 @@ class ObjectEpochChangeRequest : public RtsMessageObj {
   int operation_;  // takes value from enum Operation
   int objectNameLength_;
   char *objectName_;
-  long redefTime_;       // redefinition timestamp of object (0 if not available)
+  long redefTime_;        // redefinition timestamp of object (0 if not available)
   UInt64 key_;            // key for Object Epoch Entry
   UInt32 expectedEpoch_;  // expected epoch for START, COMPLETE operations
   UInt32 expectedFlags_;  // expected flags for START, COMPLETE operations
@@ -1154,7 +1154,7 @@ class ObjectEpochChangeReply : public RtsMessageObj {
   UInt32 maxExpectedFlagsFound() { return maxExpectedFlagsFound_; };
 
  private:
-  int result_;                  // values taken from enum Result, int for pack/unpack
+  int result_;                    // values taken from enum Result, int for pack/unpack
   UInt32 maxExpectedEpochFound_;  // set if UNEXPECTED_VALUES_FOUND is returned
   UInt32 maxExpectedFlagsFound_;  // or of unexpected flags if UNEXPECTED_VALUES_FOUND is returned
 };
@@ -1270,8 +1270,8 @@ class ObjectLockRequest : public RtsMessageObj {
   }
 
   ObjectLockRequest(NAMemory *heap) : RtsMessageObj(OBJECT_LOCK_REQ, CurrObjectLockRequestVersionNumber, heap) {}
-  ObjectLockRequest(NAMemory *heap, const char *objectName, int objectNameLen, ComObjectType objectType,
-                    OpType opType, int lockNid, int lockPid, UInt32 maxRetries, UInt32 delay);
+  ObjectLockRequest(NAMemory *heap, const char *objectName, int objectNameLen, ComObjectType objectType, OpType opType,
+                    int lockNid, int lockPid, UInt32 maxRetries, UInt32 delay);
 
   virtual ~ObjectLockRequest() {
     if (objectName_ != NULL) {
@@ -1377,8 +1377,7 @@ class ObjectLockStatsRequest : public RtsMessageObj {
   ObjectLockStatsRequest(NAMemory *heap)
       : RtsMessageObj(OBJECT_LOCK_STATS_REQ, CurrObjectLockStatsRequestVersionNumber, heap) {}
 
-  ObjectLockStatsRequest(NAMemory *heap, const char *objectName, int objectNameLen, ComObjectType objectType,
-                         short cpu)
+  ObjectLockStatsRequest(NAMemory *heap, const char *objectName, int objectNameLen, ComObjectType objectType, short cpu)
       : RtsMessageObj(OBJECT_LOCK_STATS_REQ, CurrObjectLockStatsRequestVersionNumber, heap),
         objectName_(NULL),
         objectNameLen_(objectNameLen),

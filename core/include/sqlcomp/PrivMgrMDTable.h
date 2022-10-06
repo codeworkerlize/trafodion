@@ -26,6 +26,7 @@
 
 #include <string>
 #include <vector>
+
 #include "sqlcomp/PrivMgrDefs.h"
 class ExeCliInterface;
 

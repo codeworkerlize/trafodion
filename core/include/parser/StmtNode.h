@@ -16,12 +16,12 @@
 #ifndef STMTNODE_H
 #define STMTNODE_H
 
+#include "cli/SQLCLIdev.h"
+#include "mbdact.h"
 #include "optimizer/ItemColRef.h"
 #include "optimizer/RelControl.h"
-#include "cli/SQLCLIdev.h"
 #include "optimizer/TableDesc.h"
 #include "optimizer/ValueDesc.h"
-#include "mbdact.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

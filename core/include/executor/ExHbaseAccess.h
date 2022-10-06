@@ -7,17 +7,17 @@
 //
 // Task Definition Block
 //
+#include "comexe/ComKeyMDAM.h"
+#include "comexe/ComKeySingleSubset.h"
 #include "comexe/ComTdbHbaseAccess.h"
-#include "executor/ExStats.h"
+#include "ex_mdam.h"
 #include "ex_queue.h"
+#include "executor/ExDDLValidator.h"
+#include "executor/ExStats.h"
 #include "exp/ExpHbaseDefs.h"
 #include "exp/ExpHbaseInterface.h"
-#include "comexe/ComKeySingleSubset.h"
-#include "comexe/ComKeyMDAM.h"
 #include "key_range.h"
 #include "key_single_subset.h"
-#include "ex_mdam.h"
-#include "executor/ExDDLValidator.h"
 
 // -----------------------------------------------------------------------
 // Classes defined in this file
@@ -132,8 +132,7 @@ class ExHbaseAccessTcb : public ex_tcb {
 
   int numRowsInDirectBuffer() { return directBufferRowNum_; }
 
-  static void incrErrorCount(ExpHbaseInterface *ehi, long &totalExceptionCount, const char *tabName,
-                             const char *rowId);
+  static void incrErrorCount(ExpHbaseInterface *ehi, long &totalExceptionCount, const char *tabName, const char *rowId);
 
   static void getErrorCount(ExpHbaseInterface *ehi, long &totalExceptionCount, const char *tabName, const char *rowId);
 
@@ -143,8 +142,7 @@ class ExHbaseAccessTcb : public ex_tcb {
                                char *currCmdLoggingLocation);
   static void buildLoggingFileName(NAHeap *heap, const char *currCmdLoggingLocation, const char *tableName,
                                    const char *loggingFileNamePrefix, int instId, char *&loggingFileName);
-  static short setupError(NAHeap *heap, ex_queue_pair &qparent, int retcode, const char *str,
-                          const char *str2 = NULL);
+  static short setupError(NAHeap *heap, ex_queue_pair &qparent, int retcode, const char *str, const char *str2 = NULL);
 
   static void extractColNameFields(char *inValPtr, short &colNameLen, char *&colName);
 
@@ -214,8 +212,8 @@ class ExHbaseAccessTcb : public ex_tcb {
       return NULL;
   }
 
-  short allocateUpEntryTupps(int tupp1index, int tupp1length, int tupp2index, int tupp2length,
-                             NABoolean isVarchar, short *rc);
+  short allocateUpEntryTupps(int tupp1index, int tupp1length, int tupp2index, int tupp2length, NABoolean isVarchar,
+                             short *rc);
 
   short moveRowToUpQueue(const char *row, int len, short *rc, NABoolean isVarchar);
   short moveRowToUpQueue(short *rc);
@@ -279,7 +277,7 @@ class ExHbaseAccessTcb : public ex_tcb {
   short patchDirectRowIDBuffers();
   void allocateDirectRowIDBufferForJNI(short maxRows = 1);
   int copyColToDirectBuffer(BYTE *rowCurPtr, char *colName, short colNameLen, NABoolean prependNullVal, char nullVal,
-                              char *colVal, int colValLen);
+                            char *colVal, int colValLen);
   short copyRowIDToDirectBuffer(HbaseStr &rowID);
 
   void fixObjName4PartTbl(char *objName, char *objNameUID, NABoolean replaceNameByUID);

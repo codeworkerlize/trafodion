@@ -17,18 +17,19 @@
 
 // -----------------------------------------------------------------------
 
-#include "ex_stdh.h"
-#include "ComTdb.h"
-#include "ex_tcb.h"
-#include "ex_expr.h"
-#include "str.h"
-#include "ex_exe_stmt_globals.h"
 #include "executor/ex_error.h"
-#include "ex_queue.h"
-#include "export/ComDiags.h"
 
-ComDiagsArea *ExRaiseSqlError(CollHeap *heap, ex_queue_entry *req, ExeErrorCode err, int *intParam1,
-                              char *stringParam1, ComCondition **newCond) {
+#include "ComTdb.h"
+#include "ex_exe_stmt_globals.h"
+#include "ex_expr.h"
+#include "ex_queue.h"
+#include "ex_stdh.h"
+#include "ex_tcb.h"
+#include "export/ComDiags.h"
+#include "str.h"
+
+ComDiagsArea *ExRaiseSqlError(CollHeap *heap, ex_queue_entry *req, ExeErrorCode err, int *intParam1, char *stringParam1,
+                              ComCondition **newCond) {
   ComDiagsArea *da = req->getDiagsArea();
   if (da == NULL)
     da = ComDiagsArea::allocate(heap);

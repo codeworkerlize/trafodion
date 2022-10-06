@@ -1,11 +1,13 @@
 
-#include "common/Platform.h"
-#include <stdio.h>
-#include <signal.h>
 #include "CmpEHCallBack.h"
-#include "common/CmpCommon.h"
-#include "sqlci/SqlciParseGlobals.h"
+
+#include <signal.h>
+#include <stdio.h>
+
 #include "arkcmp/CmpStatement.h"
+#include "common/CmpCommon.h"
+#include "common/Platform.h"
+#include "sqlci/SqlciParseGlobals.h"
 
 //-------------------------------------------------------------------------
 // The following objects are used by Tandem Failure Data System (TFDS)

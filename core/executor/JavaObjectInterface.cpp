@@ -3,12 +3,13 @@
 // **********************************************************************
 
 #include "executor/JavaObjectInterface.h"
-#include "qmscommon/QRLogger.h"
-#include "cli/Globals.h"
-#include "cli/Context.h"
-#include "common/ComUser.h"
+
 #include "LmJavaOptions.h"
+#include "cli/Context.h"
+#include "cli/Globals.h"
+#include "common/ComUser.h"
 #include "ex_ex.h"
+#include "qmscommon/QRLogger.h"
 
 #define DEFAULT_JVM_MAX_HEAP_SIZE          256
 #define ESP_DEFAULT_JVM_MAX_HEAP_SIZE      512

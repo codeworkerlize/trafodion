@@ -8,9 +8,9 @@
 
 #ifndef _CANCELBROKER_H_
 #define _CANCELBROKER_H_
-#include "common/Ipc.h"
 #include "comexe/ComQueue.h"
 #include "common/Int64.h"
+#include "common/Ipc.h"
 #include "runtimestats/ssmpipc.h"
 
 // -----------------------------------------------------------------------

@@ -13,12 +13,12 @@
 ****************************************************************************
 */
 
-#include "common/Platform.h"
-
 #include "exp/ExpAtp.h"
+
 #include "comexe/ComPackDefs.h"
-#include "exp/exp_attrs.h"
+#include "common/Platform.h"
 #include "common/str.h"
+#include "exp/exp_attrs.h"
 #include "qmscommon/QRLogger.h"
 
 // constructor (Allocate and initialize) for an Atp
@@ -106,8 +106,7 @@ void deallocateAtp(atp_struct *atp, CollHeap *space) {
   if (space) space->deallocateMemory((char *)atp);
 }
 
-atp_struct *allocateAtpArray(ex_cri_desc *criDesc, int cnt, int *atpSize, CollHeap *space,
-                             NABoolean failureIsFatal) {
+atp_struct *allocateAtpArray(ex_cri_desc *criDesc, int cnt, int *atpSize, CollHeap *space, NABoolean failureIsFatal) {
   const int numTuples = criDesc->noTuples();
 
   // Alocate space for the atp_struct (which has room for one tupp in

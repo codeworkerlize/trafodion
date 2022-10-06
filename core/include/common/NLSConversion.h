@@ -25,11 +25,11 @@
 #if !defined(MODULE_DEBUG)
 
 #include "common/BaseTypes.h"
-#include "common/NAWinNT.h"
 #include "common/NAHeap.h"
-#include "common/stringBuf.h"
-#include "common/csconvert.h"
+#include "common/NAWinNT.h"
 #include "common/charinfo.h"
+#include "common/csconvert.h"
+#include "common/stringBuf.h"
 
 class NAString;
 class NAWString;
@@ -44,9 +44,9 @@ NAWcharBuf *csetToUnicode(const charBuf &csetString, CollHeap *heap, NAWcharBuf 
                           int &errorcode, NABoolean addNullAtEnd = TRUE, int *charCount = NULL,
                           int *errorByteOff = NULL);
 
-charBuf *unicodeTocset(const NAWcharBuf &unicodeString, CollHeap *heap, charBuf *&csetString, int cset,
-                       int &errorcode, NABoolean addNullAtEnd = TRUE, NABoolean allowInvalidCodePoint = TRUE,
-                       int *charCount = NULL, int *errorByteOff = NULL);
+charBuf *unicodeTocset(const NAWcharBuf &unicodeString, CollHeap *heap, charBuf *&csetString, int cset, int &errorcode,
+                       NABoolean addNullAtEnd = TRUE, NABoolean allowInvalidCodePoint = TRUE, int *charCount = NULL,
+                       int *errorByteOff = NULL);
 
 NAWcharBuf *sjisToUnicode(const charBuf &sjisString, CollHeap *heap, NAWcharBuf *&unicodeString,
                           NABoolean addNullAtEnd = TRUE);
@@ -69,20 +69,19 @@ cnv_charset convertCharsetEnum(int /*i.e. enum CharInfo::CharSet*/ inset);
 
 const char *getCharsetAsString(int /*i.e. enum CharInfo::CharSet*/ charset);
 
-int UnicodeStringToLocale(int /*i.e. enum CharInfo::CharSet*/ charset, const NAWchar *wstr, int wstrLen,
-                            char *buf, int bufLen, NABoolean addNullAtEnd = TRUE,
-                            NABoolean allowInvalidCodePoint = TRUE);
+int UnicodeStringToLocale(int /*i.e. enum CharInfo::CharSet*/ charset, const NAWchar *wstr, int wstrLen, char *buf,
+                          int bufLen, NABoolean addNullAtEnd = TRUE, NABoolean allowInvalidCodePoint = TRUE);
 
-int LocaleStringToUnicode(int /*i.e. enum CharInfo::CharSet*/ charset, const char *str, int strLen,
-                            NAWchar *wstrBuf, int wstrBufLen, NABoolean addNullAtEnd = TRUE);
+int LocaleStringToUnicode(int /*i.e. enum CharInfo::CharSet*/ charset, const char *str, int strLen, NAWchar *wstrBuf,
+                          int wstrBufLen, NABoolean addNullAtEnd = TRUE);
 
 int localeConvertToUTF8(char *source, int sourceLen, char *target, int targetLen,
-                          int charset,  // enum cnv_charset type
-                          CollHeap *heap = 0, int *charCount = NULL, int *errorByteOff = NULL);
+                        int charset,  // enum cnv_charset type
+                        CollHeap *heap = 0, int *charCount = NULL, int *errorByteOff = NULL);
 
 int UTF8ConvertToLocale(char *source, int sourceLen, char *target, int targetLen,
-                          int charset,  // enum cnv_charset type
-                          CollHeap *heap = 0, int *charCount = NULL, int *errorByteOff = NULL);
+                        int charset,  // enum cnv_charset type
+                        CollHeap *heap = 0, int *charCount = NULL, int *errorByteOff = NULL);
 
 // -----------------------------------------------------------------------
 // ComputeWidthInBytesOfMbsForDisplay:
@@ -111,18 +110,18 @@ int UTF8ConvertToLocale(char *source, int sourceLen, char *target, int targetLen
 // the names.
 // -----------------------------------------------------------------------
 int ComputeWidthInBytesOfMbsForDisplay(const char *pp_cpMbs  // in
-                                         ,
-                                         const int pv_iMbsLenInBytes  // in
-                                         ,
-                                         const int pv_iMaxDisplayLenInBytes  // in
-                                         ,
-                                         const CharInfo::CharSet pv_eCharSet  // in
-                                         ,
-                                         int &pr_iNumOfTranslatedChars  // out - number of chars translated
-                                         ,
-                                         int &pr_iNumOfNAWchars  // out - width in NAWchar(acters)
-                                         ,
-                                         NAMemory *heap = NULL  // in  - default is process heap
+                                       ,
+                                       const int pv_iMbsLenInBytes  // in
+                                       ,
+                                       const int pv_iMaxDisplayLenInBytes  // in
+                                       ,
+                                       const CharInfo::CharSet pv_eCharSet  // in
+                                       ,
+                                       int &pr_iNumOfTranslatedChars  // out - number of chars translated
+                                       ,
+                                       int &pr_iNumOfNAWchars  // out - width in NAWchar(acters)
+                                       ,
+                                       NAMemory *heap = NULL  // in  - default is process heap
 );
 
 // -----------------------------------------------------------------------
@@ -136,7 +135,7 @@ int ComputeWidthInBytesOfMbsForDisplay(const char *pp_cpMbs  // in
 // error code values are defined in w:/common/csconvert.h.
 // -----------------------------------------------------------------------
 int ComputeStrLenInNAWchars(const char *pStr, const int strLenInBytes, const CharInfo::CharSet cs,
-                              NAMemory *workspaceHeap);
+                            NAMemory *workspaceHeap);
 
 // -----------------------------------------------------------------------
 // ComputeStrLenInUCS4chars:
@@ -150,8 +149,7 @@ int ComputeStrLenInUCS4chars(const char *pStr, const int strLenInBytes, const Ch
 
 // convert a Unicode string back to char
 class NAMemory;
-NAString *unicodeToChar(const NAWchar *s, int len, int charset, NAMemory *h = NULL,
-                        NABoolean allowInvalidChar = FALSE);
+NAString *unicodeToChar(const NAWchar *s, int len, int charset, NAMemory *h = NULL, NABoolean allowInvalidChar = FALSE);
 
 // convert a char string to Unicode
 NAWString *charToUnicode(int charset, const char *s, int len, NAMemory *h = NULL);

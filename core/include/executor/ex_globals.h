@@ -17,10 +17,10 @@
 ******************************************************************************
 */
 
-#include "common/Platform.h"
+#include "comexe/FragDir.h"
 #include "common/ExCollections.h"
 #include "common/Int64.h"
-#include "comexe/FragDir.h"
+#include "common/Platform.h"
 #include "executor/ex_god.h"
 
 // forward references

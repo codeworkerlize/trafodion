@@ -20,6 +20,7 @@
 // -----------------------------------------------------------------------
 
 #include <float.h>
+
 #include "optimizer/ItemExpr.h"
 #include "optimizer/NAColumn.h"
 

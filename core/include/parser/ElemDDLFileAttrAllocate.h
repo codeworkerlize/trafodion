@@ -18,8 +18,8 @@
  *****************************************************************************
  */
 
-#include "common/ComSmallDefs.h"
 #include "ElemDDLFileAttr.h"
+#include "common/ComSmallDefs.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

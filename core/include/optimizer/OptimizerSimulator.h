@@ -11,19 +11,20 @@
 *
 **********************************************************************/
 
-
 #ifndef __OPTIMIZERSIMULATOR_H
 #define __OPTIMIZERSIMULATOR_H
 
-#include <string.h>
-#include <stdlib.h>
 #include <ctype.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include <fstream>
-#include "common/CmpCommon.h"
+
 #include "common/BaseTypes.h"
+#include "common/CmpCommon.h"
 #include "common/CollHeap.h"
-#include "qmscommon/XMLUtil.h"
 #include "common/NAClusterInfo.h"
+#include "qmscommon/XMLUtil.h"
 
 // forward declaration to allow usage of NATable *
 class NATable;

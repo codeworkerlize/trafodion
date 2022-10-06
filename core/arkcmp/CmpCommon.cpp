@@ -17,31 +17,28 @@
  *****************************************************************************
  */
 
+#include "common/CmpCommon.h"
+
 #include <stdio.h>
+
 #include <iostream>
 #include <string>
 
-#include "common/Platform.h"
-
-#include "common/CmpCommon.h"
+#include "NAInternalError.h"
 #include "arkcmp/CmpContext.h"
 #include "arkcmp/CmpErrors.h"
 #include "arkcmp/CmpStatement.h"
-#include "sqlmsg/ErrorMessage.h"
-
-#include "sqlmxevents/logmxevent.h"
-
-#include "sqlcomp/NADefaults.h"
-#include "sqlcomp/NewDel.h"
-#include "optimizer/SchemaDB.h"
-#include "optimizer/ControlDB.h"
 #include "arkcmp/CompException.h"
-
-#include "NAInternalError.h"
-
 #include "cli/Context.h"
 #include "cli/Globals.h"
+#include "common/Platform.h"
 #include "dbsecurity/dbUserAuth.h"
+#include "optimizer/ControlDB.h"
+#include "optimizer/SchemaDB.h"
+#include "sqlcomp/NADefaults.h"
+#include "sqlcomp/NewDel.h"
+#include "sqlmsg/ErrorMessage.h"
+#include "sqlmxevents/logmxevent.h"
 
 THREAD_P CmpContext *cmpCurrentContext = 0;
 THREAD_P jmp_buf CmpInternalErrorJmpBuf;
@@ -186,7 +183,7 @@ ComAuthenticationType CmpCommon::loadAuthenticationType() {
 #define CONVERT_CHAR_TO_NUMBER(intval, str)                                     \
   {                                                                             \
     intval = 0;                                                                 \
-    char num[sizeof(int)] = {0};                                              \
+    char num[sizeof(int)] = {0};                                                \
     num[0] = str[i];                                                            \
     num[1] = str[i + 1];                                                        \
     if (isxdigit(num[0]) && isxdigit(num[1])) sscanf(num, "%x", &intval);       \

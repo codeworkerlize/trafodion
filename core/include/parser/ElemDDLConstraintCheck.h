@@ -18,8 +18,8 @@
  */
 
 #include "ElemDDLConstraint.h"
-#include "optimizer/ItemExprList.h"
 #include "ParNameLocList.h"
+#include "optimizer/ItemExprList.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

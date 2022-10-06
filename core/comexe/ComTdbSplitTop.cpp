@@ -15,6 +15,7 @@
 */
 
 #include "comexe/ComTdbSplitTop.h"
+
 #include "comexe/ComTdbCommon.h"
 #include "comexe/PartInputDataDesc.h"
 
@@ -24,11 +25,11 @@
 
 ComTdbSplitTop::ComTdbSplitTop(ComTdb *child, ex_expr *childInputPartFunction, int inputPartAtpIndex,
                                ex_expr *mergeKeyExpr, int mergeKeyAtpIndex, int mergeKeyLength,
-                               ExPartInputDataDesc *partInputDataDesc, int partInputDataAtpIndex,
-                               int paPartNoAtpIndex, ex_cri_desc *criDescDown, ex_cri_desc *criDescUp,
-                               ex_cri_desc *downCriDesc, ex_cri_desc *workCriDesc, NABoolean bufferedInserts,
-                               queue_index fromParent, queue_index toParent, Cardinality estimatedRowCount,
-                               int bottomNumParts, int streamTimeout, int sidNumBuffers, int sidBufferSize)
+                               ExPartInputDataDesc *partInputDataDesc, int partInputDataAtpIndex, int paPartNoAtpIndex,
+                               ex_cri_desc *criDescDown, ex_cri_desc *criDescUp, ex_cri_desc *downCriDesc,
+                               ex_cri_desc *workCriDesc, NABoolean bufferedInserts, queue_index fromParent,
+                               queue_index toParent, Cardinality estimatedRowCount, int bottomNumParts,
+                               int streamTimeout, int sidNumBuffers, int sidBufferSize)
     : ComTdb(ex_SPLIT_TOP, eye_SPLIT_TOP, estimatedRowCount, criDescDown, criDescUp, fromParent, toParent,
              sidNumBuffers, sidBufferSize)
 

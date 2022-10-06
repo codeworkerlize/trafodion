@@ -19,11 +19,11 @@
 #ifndef FRAG_DIR_H
 #define FRAG_DIR_H
 
+#include "comexe/ComASNodes.h"
+#include "comexe/ComResourceInfo.h"
+#include "comexe/PartInputDataDesc.h"
 #include "common/Int64.h"
 #include "export/NAVersionedObject.h"
-#include "comexe/PartInputDataDesc.h"
-#include "comexe/ComResourceInfo.h"
-#include "comexe/ComASNodes.h"
 
 // -----------------------------------------------------------------------
 // Contents of this file
@@ -82,7 +82,7 @@ class ExEspNodeMapEntry : public NAVersionedObject {
 
  private:
   NABasicPtr clusterName_;        // EXPAND node name        // 00-07
-  int nodeNumber_;              // NSK CPU number          // 08-11
+  int nodeNumber_;                // NSK CPU number          // 08-11
   NABoolean needToWork_;          // When TRUE, the esp needs to work // 12-15
   char fillersExEspNodeMap_[16];  // 16-31
 };
@@ -123,7 +123,7 @@ class ExEspNodeMap {
   // An array of node map entries.
   // The number of entries is equal to numESPs.
   ExEspNodeMapEntryPtr map_;      // 00-07
-  int entries_;                 // 08-11
+  int entries_;                   // 08-11
   char fillersExEspNodeMap_[20];  // 12-31
 };
 
@@ -305,7 +305,7 @@ class ExFragDir : public NAVersionedObject {
  private:
   // ptr to an array of <numEntries_> entries
   ExFragDirEntryPtrArray fragments_;  // 00-07
-  int numEntries_;                  // 08-11
+  int numEntries_;                    // 08-11
 
   // get up to a multiple of 8 bytes
   int nFiller_;  // 12-15
@@ -317,7 +317,7 @@ class ExFragDir : public NAVersionedObject {
   UInt16 multiFragmentVm_;                      // 32-33
   UInt8 flags_;                                 // 34
   UInt8 numMultiFragments_;                     // 35
-  int maxESPsPerNode_;                        // 36-39
+  int maxESPsPerNode_;                          // 36-39
 
   // In multi-tenant configurations, info on where the
   // tenant is located, to make sure we start ESPs only

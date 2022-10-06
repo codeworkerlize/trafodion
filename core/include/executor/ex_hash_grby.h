@@ -18,8 +18,8 @@
 ******************************************************************************
 */
 
-#include "hash_table.h"
 #include "cluster.h"
+#include "hash_table.h"
 
 // External forward declarations
 //

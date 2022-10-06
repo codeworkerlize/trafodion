@@ -16,17 +16,19 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
-#include "common/NAWinNT.h"  // for wchar (tcr)
 #include <iosfwd>
+
+#include "common/NAWinNT.h"  // for wchar (tcr)
+#include "common/Platform.h"
 using namespace std;
 #include <string.h>
+
+#include "common/ComAnsiNamePart.h"
 #include "common/ComOperators.h"
-#include "common/ComSmallDefs.h"
 #include "common/ComSizeDefs.h"
+#include "common/ComSmallDefs.h"
 #include "common/NABoolean.h"
 #include "common/NAString.h"
-#include "common/ComAnsiNamePart.h"
 
 // -----------------------------------------------------------------------
 // forward declarations

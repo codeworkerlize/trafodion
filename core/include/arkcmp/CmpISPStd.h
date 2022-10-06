@@ -19,8 +19,8 @@
 #ifndef CMPISPSTD__H
 #define CMPISPSTD__H
 
-#include "common/Platform.h"
 #include "common/ComSizeDefs.h"
+#include "common/Platform.h"
 // // include the internal stored procedure implementation provided by SQL/Util group
 // #if defined (_SPUTIL_SP_DLL_)  // used in sqluti interface routine.
 // #define ARKLIBAPI _declspec(dllexport)
@@ -136,13 +136,13 @@ typedef void *SP_KEY_VALUE;
    fieldData returned will be in sql varchar format. Otherwise, it will be in
    the sql internal format. */
 
-typedef SP_HELPER_STATUS (*SP_EXTRACT_FUNCPTR)(int fieldNo,       /* input, index to the field to be extracted */
+typedef SP_HELPER_STATUS (*SP_EXTRACT_FUNCPTR)(int fieldNo,         /* input, index to the field to be extracted */
                                                SP_ROW_DATA rowData, /* input, data passed into SP_PROCESS_FUNCPTR */
-                                               int fieldLen,      /* input, the length of the field */
+                                               int fieldLen,        /* input, the length of the field */
                                                void *fieldData,     /* input/output, the contents of the data */
-                                               int casting        /* input, if 1, fieldData is in varchar format,
-                                                                      the helper routine will convert it into internal format.
-                                                                      if 0, fieldData is in sql internal format. */
+                                               int casting          /* input, if 1, fieldData is in varchar format,
+                                                                        the helper routine will convert it into internal format.
+                                                                        if 0, fieldData is in sql internal format. */
 );
 
 /* The helper function to format output row :
@@ -153,25 +153,25 @@ typedef SP_HELPER_STATUS (*SP_EXTRACT_FUNCPTR)(int fieldNo,       /* input, inde
    then convert it into sql internal format. If not set, fieldData is expected
    to be in sql internal format.  */
 
-typedef SP_HELPER_STATUS (*SP_FORMAT_FUNCPTR)(int fieldNo,       /* input, index to the field to put the data in */
+typedef SP_HELPER_STATUS (*SP_FORMAT_FUNCPTR)(int fieldNo,         /* input, index to the field to put the data in */
                                               SP_ROW_DATA rowData, /* input, data passed into SP_PROCESS_FUNCPTR */
-                                              int fieldLen,      /* input, length of the data */
+                                              int fieldLen,        /* input, length of the data */
                                               void *fieldData,     /* input, contents of the data */
-                                              int casting        /* input, if 1, fieldData is in varchar format,
-                                                                     the helper routine will convert it into internal format.
-                                                                     if 0, fieldData is in sql internal format. */
+                                              int casting          /* input, if 1, fieldData is in varchar format,
+                                                                       the helper routine will convert it into internal format.
+                                                                       if 0, fieldData is in sql internal format. */
 );
 
 /* The helper function to retrieve the key values for ouput virtual tables.
    The keyLength and keyValue are returned as in SP_EXTRACT_FUNCPTR */
 
-typedef SP_HELPER_STATUS (*SP_KEYVALUE_FUNCPTR)(int keyIndex,   /* input, key index starts from 0 */
+typedef SP_HELPER_STATUS (*SP_KEYVALUE_FUNCPTR)(int keyIndex,     /* input, key index starts from 0 */
                                                 SP_KEY_VALUE key, /* input, key passed in SP_PROCESS_FUNCPTR */
-                                                int keyLength,  /* input, the length of the key field */
+                                                int keyLength,    /* input, the length of the key field */
                                                 void *keyValue,   /* input/output the contents of the key field */
-                                                int casting     /* input, if 1, fieldData is in varchar format,
-                                                                    the helper routine will convert it into internal format.
-                                                                    if 0, fieldData is in sql internal format. */
+                                                int casting       /* input, if 1, fieldData is in varchar format,
+                                                                      the helper routine will convert it into internal format.
+                                                                      if 0, fieldData is in sql internal format. */
 );
 
 /* The structure for error handling */
@@ -211,7 +211,7 @@ typedef SP_STATUS (*SP_COMPILE_FUNCPTR)(SP_COMPILE_ACTION action,     /* input *
 /* Function to retrieve the input data format */
 
 typedef SP_STATUS (*SP_INPUTFORMAT_FUNCPTR)(SP_FIELDDESC_STRUCT *inputFiledFormat, /* input/output */
-                                            int numFields,                       /* input */
+                                            int numFields,                         /* input */
                                             SP_COMPILE_HANDLE compHandle,          /* input */
                                             SP_HANDLE spHandle,                    /* input */
                                             SP_ERROR_STRUCT *error                 /* output */
@@ -231,7 +231,7 @@ typedef SP_STATUS (*SP_PARSE_FUNCPTR)(char *param,                 /* first inpu
 
 /* Function to retrieve the number of output fields */
 
-typedef SP_STATUS (*SP_NUM_OUTPUTFIELDS_FUNCPTR)(int *numFields,            /* output */
+typedef SP_STATUS (*SP_NUM_OUTPUTFIELDS_FUNCPTR)(int *numFields,              /* output */
                                                  SP_COMPILE_HANDLE cmpHandle, /* input */
                                                  SP_HANDLE spHandle,          /* input */
                                                  SP_ERROR_STRUCT *error       /* output */
@@ -241,7 +241,7 @@ typedef SP_STATUS (*SP_NUM_OUTPUTFIELDS_FUNCPTR)(int *numFields,            /* o
 
 typedef SP_STATUS (*SP_OUTPUTFORMAT_FUNCPTR)(SP_FIELDDESC_STRUCT *outputFieldFormat, /* input/output */
                                              SP_KEYDESC_STRUCT *keyFields,           /* output */
-                                             int *numKeyFields,                    /* output */
+                                             int *numKeyFields,                      /* output */
                                              SP_COMPILE_HANDLE cmpHandle,            /* input */
                                              SP_HANDLE spHandle,                     /* input */
                                              SP_ERROR_STRUCT *error                  /* output */
@@ -279,11 +279,11 @@ typedef SP_STATUS (*SP_PROCESS_FUNCPTR)(SP_PROCESS_ACTION action,               
    register the built-in stored procedure implementation. */
 /* return 1 as SUCCESS, 0 as FAIL */
 typedef int (*SP_REGISTER_FUNCPTR)(const char *procName, /* null terminated */
-                                     SP_COMPILE_FUNCPTR compileFunc, SP_INPUTFORMAT_FUNCPTR inFormatFunc,
-                                     SP_PARSE_FUNCPTR parseFunc, SP_NUM_OUTPUTFIELDS_FUNCPTR outNumFormatFunc,
-                                     SP_OUTPUTFORMAT_FUNCPTR outFormatFunc, SP_PROCESS_FUNCPTR procFunc,
-                                     SP_HANDLE spHandle,
-                                     const char *version  // Default is CMPISPVERSION
+                                   SP_COMPILE_FUNCPTR compileFunc, SP_INPUTFORMAT_FUNCPTR inFormatFunc,
+                                   SP_PARSE_FUNCPTR parseFunc, SP_NUM_OUTPUTFIELDS_FUNCPTR outNumFormatFunc,
+                                   SP_OUTPUTFORMAT_FUNCPTR outFormatFunc, SP_PROCESS_FUNCPTR procFunc,
+                                   SP_HANDLE spHandle,
+                                   const char *version  // Default is CMPISPVERSION
 );
 
 /* The only entry points from arkcmp(the server) to ISP implementation */

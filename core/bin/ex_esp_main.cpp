@@ -14,57 +14,54 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
-
-#include "executor/ex_stdh.h"
-
-#include "ex_exe_stmt_globals.h"
-#include "ex_esp_frag_dir.h"
-#include "comexe/ComTdb.h"
-#include "executor/ex_tcb.h"
-#include "ex_split_bottom.h"
-#include "ex_send_bottom.h"
-#include "common/NAExit.h"
 #include "cli/ExSqlComp.h"
 #include "cli/Globals.h"
-#include "common/Int64.h"
-#include "runtimestats/SqlStats.h"
-#include "common/ComUser.h"
-#include "exp/ExpError.h"
+#include "comexe/ComTdb.h"
 #include "common/ComSqlId.h"
-#include "porting/PortProcessCalls.h"
+#include "common/ComUser.h"
+#include "common/Int64.h"
+#include "common/NAExit.h"
+#include "common/Platform.h"
 #include "common/cextdecs.h"
+#include "ex_esp_frag_dir.h"
+#include "ex_exe_stmt_globals.h"
+#include "ex_send_bottom.h"
+#include "ex_split_bottom.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_tcb.h"
+#include "exp/ExpError.h"
+#include "porting/PortProcessCalls.h"
+#include "runtimestats/SqlStats.h"
 #include "security/dsecure.h"
 #define psecure_h_including_section
 #define psecure_h_security_psb_get_
-#include "security/psecure.h"
-
-#include <pthread.h>
 #include <errno.h>
+#include <pthread.h>
+
+#include "security/psecure.h"
 static pthread_t gv_main_thread_id;
 
-#include "seabed/ms.h"
 #include "seabed/fs.h"
+#include "seabed/ms.h"
 extern void my_mpi_fclose();
 #include "common/SCMVersHelp.h"
 DEFINE_DOVERS(tdm_arkesp)
 
-#include "common/NAStdlib.h"
-
-#include "rosetta/rosgen.h"
-
 #include "cli/Context.h"
+#include "common/NAStdlib.h"
 #include "parser/StmtCompilationMode.h"
+#include "rosetta/rosgen.h"
 
 // -----------------------------------------------------------------------
 // ESP control connection, handle system messages
 // -----------------------------------------------------------------------
 
-#include "rosetta/rosgen.h"
-#include "nsk/nskprocess.h"
-#include "common/zsysc.h"
-#include "qmscommon/QRLogger.h"
 #include <sys/syscall.h>
+
+#include "common/zsysc.h"
+#include "nsk/nskprocess.h"
+#include "qmscommon/QRLogger.h"
+#include "rosetta/rosgen.h"
 
 class EspGuaControlConnection : public GuaReceiveControlConnection {
  public:

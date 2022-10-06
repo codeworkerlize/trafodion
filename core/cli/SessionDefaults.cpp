@@ -15,19 +15,20 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
+#include "cli/SessionDefaults.h"
+
+#include "cli/SQLCLIdev.h"
+#include "cli/sql_id.h"
 #include "cli_stdh.h"
+#include "comexe/ComTdbExeUtil.h"
+#include "common/ComRtUtils.h"
+#include "common/NLSConversion.h"
+#include "common/Platform.h"
+#include "common/charinfo.h"
+#include "executor/ExExeUtil.h"
 #include "executor/ex_stdh.h"
 #include "executor/ex_tcb.h"
-#include "executor/ExExeUtil.h"
-#include "cli/SessionDefaults.h"
 #include "exp/exp_clause_derived.h"
-#include "cli/sql_id.h"
-#include "cli/SQLCLIdev.h"
-#include "common/charinfo.h"
-#include "common/ComRtUtils.h"
-#include "comexe/ComTdbExeUtil.h"
-#include "common/NLSConversion.h"
 
 #define SDEntry(sesDef, sesDefStr, datatype, isCQD, defTab, isSSD, ext) \
   { sesDef, "" #sesDefStr "", datatype, isCQD, defTab, isSSD, ext }
@@ -313,9 +314,8 @@ void SessionDefaults::setSessionDefaultAttributeValue(SessionDefaultMap sda, cha
 
   if (attrValue) {
     if (sda.attributeType == SessionDefaults::SDT_BINARY_SIGNED) {
-      ex_expr::exp_return_type rc =
-          convDoIt(attrValue, attrValueLen, REC_BYTE_F_ASCII, 0, 0, (char *)&defaultValueAsLong, sizeof(int),
-                   REC_BIN32_SIGNED, 0, 0, NULL, 0);
+      ex_expr::exp_return_type rc = convDoIt(attrValue, attrValueLen, REC_BYTE_F_ASCII, 0, 0,
+                                             (char *)&defaultValueAsLong, sizeof(int), REC_BIN32_SIGNED, 0, 0, NULL, 0);
       if (rc != ex_expr::EXPR_OK) {
         return;  // error
       }
@@ -841,8 +841,8 @@ AQRInfo::AQRInfo(CollHeap *heap) : heap_(heap), currErr_(0), aqrStmtInfo_(NULL),
 
 AQRInfo::~AQRInfo() {}
 
-short AQRInfo::setAQREntry(int task, int sqlcode, int nskcode, int retries, int delay, int type,
-                           int numCQDs, char *cqdStr, int cmpInfo, int intAQR) {
+short AQRInfo::setAQREntry(int task, int sqlcode, int nskcode, int retries, int delay, int type, int numCQDs,
+                           char *cqdStr, int cmpInfo, int intAQR) {
   if ((sqlcode < 0) || (nskcode < 0) || (retries < 0) || (delay < 0) || (type < 0) || (numCQDs < 0) || (cmpInfo < 0) ||
       (cmpInfo > 1))
     return -1;
@@ -1089,8 +1089,8 @@ short AQRInfo::setAQREntriesFromInputStr(char *inStr, int inStrLen) {
   return 0;
 }
 
-short AQRInfo::getAQREntry(int sqlcode, int nskcode, int &retries, int &delay, int &type, int &numCQDs,
-                           char *&cqdStr, int &cmpInfo, int &intAQR) {
+short AQRInfo::getAQREntry(int sqlcode, int nskcode, int &retries, int &delay, int &type, int &numCQDs, char *&cqdStr,
+                           int &cmpInfo, int &intAQR) {
   NABoolean sqlcodeZeroFound = FALSE;
   UInt32 sqlcodeZeroEntryNum = 0;
   NABoolean nskcodeZeroFound = FALSE;
@@ -1140,8 +1140,7 @@ short AQRInfo::getAQREntry(int sqlcode, int nskcode, int &retries, int &delay, i
 
 void AQRInfo::position() { currErr_ = 0; }
 
-short AQRInfo::getNextAQREntry(int &sqlcode, int &nskcode, int &retries, int &delay, int &type,
-                               int &intAQR) {
+short AQRInfo::getNextAQREntry(int &sqlcode, int &nskcode, int &retries, int &delay, int &type, int &intAQR) {
   if (currErr_ == aqrErrorList_->entries()) return -1;
 
   sqlcode = (*aqrErrorList_)[currErr_].sqlcode;

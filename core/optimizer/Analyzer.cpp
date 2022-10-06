@@ -18,24 +18,24 @@
 
 #include "optimizer/Analyzer.h"
 
-#include "MultiJoin.h"
 #include "AppliedStatMan.h"
-#include "optimizer/opt.h"
-#include "optimizer/RelExpr.h"
+#include "MultiJoin.h"
 #include "TransRule.h"
+#include "optimizer/RelExpr.h"
+#include "optimizer/opt.h"
 
 // tmp includes for join and other relexpr methods
-#include "optimizer/RelJoin.h"
-#include "optimizer/RelScan.h"
-#include "optimizer/RelGrby.h"
-#include "optimizer/RelUpdate.h"
-#include "optimizer/RelRoutine.h"
-#include "optimizer/RelExeUtil.h"
-#include "QRDescGenerator.h"
-#include "cli/Globals.h"
-
 #include <cmath>
 #include <complex>
+
+#include "QRDescGenerator.h"
+#include "cli/Globals.h"
+#include "optimizer/RelExeUtil.h"
+#include "optimizer/RelGrby.h"
+#include "optimizer/RelJoin.h"
+#include "optimizer/RelRoutine.h"
+#include "optimizer/RelScan.h"
+#include "optimizer/RelUpdate.h"
 
 void forceCQS1(RelExpr *, RelExpr *);
 
@@ -1264,7 +1264,6 @@ void QueryAnalysis::showQueryStats(const char *qText, CollHeap *c, char *buf) {
     statsToDisplay_->getColStats().showQueryStats(c, buf, selectListCols_);
   }
 }
-
 
 //----------------------------------------------------------------------------
 void QueryAnalysis::analyzeJBBCDependencies(RelExpr *expr) {
@@ -3554,7 +3553,7 @@ int AccessPathAnalysis::numIndexPrefixCovered(const ValueIdSet &vidSet, NABoolea
   // Get the list of index columns and check if a prefix is
   // covered in the provided set.
   int numCoveredCols = useKeyCols ? accessPathKeyCols_.prefixCoveredInSet(equalityCols)
-                                    : accessPathColList_.prefixCoveredInSet(equalityCols);
+                                  : accessPathColList_.prefixCoveredInSet(equalityCols);
 
   if (numCoveredCols && ((!exactMatch) || numCoveredCols == vidSet.entries()))
     return numCoveredCols;
@@ -5227,11 +5226,11 @@ CANodeId JBBSubsetAnalysis::findFactTable(CANodeIdSet childSet, CostScalar &fact
 
       // compare to currentTable's name
       int comparison_result = currentTable.getNodeAnalysis()
-                                    ->getTableAnalysis()
-                                    ->getTableDesc()
-                                    ->getCorrNameObj()
-                                    .getCorrNameAsString()
-                                    .compareTo(factTableName, NAString::ignoreCase);
+                                  ->getTableAnalysis()
+                                  ->getTableDesc()
+                                  ->getCorrNameObj()
+                                  .getCorrNameAsString()
+                                  .compareTo(factTableName, NAString::ignoreCase);
       if (comparison_result == 0) {
         factTable = currentTable;
 
@@ -6478,8 +6477,8 @@ NABoolean JBBSubsetAnalysis::isAStarPattern(CANodeId factTable, CostScalar factT
       CURRCONTEXT_OPTDEBUG->stream() << "Probes into fact table: " << istring(int(dataFlowFromEdge.value())) << endl;
       CURRCONTEXT_OPTDEBUG->stream() << "Fact Table Rows to scan: " << istring(int(factTableRowsToScan.value()))
                                      << endl;
-      CURRCONTEXT_OPTDEBUG->stream() << "Rows coming out of fact table: "
-                                     << istring(int(dataFlowFromFactTable.value())) << endl;
+      CURRCONTEXT_OPTDEBUG->stream() << "Rows coming out of fact table: " << istring(int(dataFlowFromFactTable.value()))
+                                     << endl;
       CURRCONTEXT_OPTDEBUG->stream() << "Our cost estimate of fact table nested join: "
                                      << istring(int(factTableCost.value())) << endl;
     }

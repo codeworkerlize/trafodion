@@ -13,14 +13,15 @@
 ******************************************************************************
 */
 
-#include "executor/ex_stdh.h"
-#include "comexe/ComTdb.h"
-#include "executor/ex_tcb.h"
-#include "executor/ex_expr.h"
-#include "executor/ex_error.h"
-#include "common/str.h"
 #include "ExCompoundStmt.h"
+
+#include "comexe/ComTdb.h"
+#include "common/str.h"
 #include "executor/ExStats.h"
+#include "executor/ex_error.h"
+#include "executor/ex_expr.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_tcb.h"
 
 //////////////////////////////////////////////////////////////////////////////
 // CatpoundStmt TDB methods.

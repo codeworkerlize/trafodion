@@ -17,27 +17,27 @@
 ******************************************************************************
 */
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
 #ifndef DEBUG
 #undef NDEBUG
 #define NDEBUG
 #endif
-#include "executor/ex_stdh.h"
 #include "Qsort.h"
 #include "ScratchSpace.h"
-#include "sqlmxevents/logmxevent.h"
 #include "SortUtil.h"
 #include "ex_ex.h"
 #include "executor/ExStats.h"
+#include "executor/ex_stdh.h"
+#include "sqlmxevents/logmxevent.h"
 
 //------------------------------------------------------------------------
 // Class Constructor.
 //------------------------------------------------------------------------
-Qsort::Qsort(int runsize, int sortmaxmem, int recsize, NABoolean doNotallocRec, int keysize,
-             SortScratchSpace *scratch, NABoolean iterSort, CollHeap *heap, SortError *sorterror, int explainNodeId,
-             ExBMOStats *bmoStats, SortUtil *sortutil)
+Qsort::Qsort(int runsize, int sortmaxmem, int recsize, NABoolean doNotallocRec, int keysize, SortScratchSpace *scratch,
+             NABoolean iterSort, CollHeap *heap, SortError *sorterror, int explainNodeId, ExBMOStats *bmoStats,
+             SortUtil *sortutil)
     : SortAlgo(runsize, recsize, doNotallocRec, keysize, scratch, explainNodeId, bmoStats),
       currentRun_(1),
       loopIndex_(0),

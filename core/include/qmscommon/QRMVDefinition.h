@@ -5,8 +5,8 @@
 #ifndef _QRMVDEFINITION_H_
 #define _QRMVDEFINITION_H_
 
-#include "common/NAString.h"
 #include "common/NABoolean.h"
+#include "common/NAString.h"
 
 class QRMVDefinition {
  public:

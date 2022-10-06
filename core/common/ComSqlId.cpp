@@ -12,11 +12,14 @@
  */
 
 #include "common/ComSqlId.h"
-#include "exp/ExpError.h"
-#include "common/str.h"
-#include <fstream>
-#include <unistd.h>
+
 #include <math.h>
+#include <unistd.h>
+
+#include <fstream>
+
+#include "common/str.h"
+#include "exp/ExpError.h"
 
 ComSqlId::ComSqlId(CollHeap *heap) : heap_(heap) {}
 
@@ -111,19 +114,19 @@ long ComSqlId::unpackNumFromStr(const char *inStr, int inStrLen, NABoolean backw
 }
 
 int ComSqlId::createSqlSessionId(char *sessionId,             // INOUT
-                                   int maxSessionIdLen,       // IN
-                                   int &actualSessionIdLen,   // OUT
-                                   int nodeNumber,            // IN
-                                   int cpu,                   // IN
-                                   int pin,                   // IN
-                                   long processStartTS,        // IN
-                                   long sessionUniqueNum,      // IN
-                                   int userNameLen,           // IN
-                                   const char *userName,        // IN
-                                   int tenantIdLen,           // IN
-                                   const char *tenantId,        // IN
-                                   int userSessionNameLen,    // IN
-                                   const char *userSessionName  // IN
+                                 int maxSessionIdLen,         // IN
+                                 int &actualSessionIdLen,     // OUT
+                                 int nodeNumber,              // IN
+                                 int cpu,                     // IN
+                                 int pin,                     // IN
+                                 long processStartTS,         // IN
+                                 long sessionUniqueNum,       // IN
+                                 int userNameLen,             // IN
+                                 const char *userName,        // IN
+                                 int tenantIdLen,             // IN
+                                 const char *tenantId,        // IN
+                                 int userSessionNameLen,      // IN
+                                 const char *userSessionName  // IN
 ) {
   // if input buffer space is less then the needed space,
   // return error.
@@ -135,14 +138,14 @@ int ComSqlId::createSqlSessionId(char *sessionId,             // INOUT
   // The format of current session id is:
   //  MXID<version><segment><cpu><pin><processStartTS><sessNum><unLen><userName><snLen><sessionName>
   str_sprintf(sessionId, "%s%02d%3s%06d%018ld%010d%02d%s%02d%s%02d%s", COM_SESSION_ID_PREFIX, SQ_SQL_ID_VERSION, nidStr,
-              pin,                      // 6 digits
-              processStartTS,           // 18 digits
+              pin,                    // 6 digits
+              processStartTS,         // 18 digits
               (int)sessionUniqueNum,  // 10 digits
-              userNameLen,              // 2 digits
-              userName,                 //
-              tenantIdLen,              // 2 digits
-              tenantId,                 //
-              userSessionNameLen,       // 2 digits
+              userNameLen,            // 2 digits
+              userName,               //
+              tenantIdLen,            // 2 digits
+              tenantId,               //
+              userSessionNameLen,     // 2 digits
               userSessionName);
 
   actualSessionIdLen = (int)strlen(sessionId);
@@ -150,14 +153,14 @@ int ComSqlId::createSqlSessionId(char *sessionId,             // INOUT
   return 0;
 }
 
-int ComSqlId::createSqlQueryId(char *queryId,            // INOUT
-                                 int maxQueryIdLen,      // IN
-                                 int &actualQueryIdLen,  // OUT
-                                 int sessionIdLen,       // IN
-                                 char *sessionId,          // IN
-                                 long queryUniqueNum,     // IN
-                                 int queryNameLen,       // IN
-                                 char *queryName           // IN
+int ComSqlId::createSqlQueryId(char *queryId,          // INOUT
+                               int maxQueryIdLen,      // IN
+                               int &actualQueryIdLen,  // OUT
+                               int sessionIdLen,       // IN
+                               char *sessionId,        // IN
+                               long queryUniqueNum,    // IN
+                               int queryNameLen,       // IN
+                               char *queryName         // IN
 ) {
   // if input buffer space is less then the needed space,
   // return error.
@@ -184,15 +187,15 @@ int ComSqlId::createSqlQueryId(char *queryId,            // INOUT
   return 0;
 }
 
-int ComSqlId::getSqlIdAttr(int attr,           // which attr (SqlQueryIDAttr)
-                             const char *queryId,  // query ID
-                             int queryIdLen,     // query ID len
-                             long &value,         // If returned attr is numeric,
-                                                   //    this field contains the returned value.
-                                                   // If attr is of string type, this value is:
-                                                   //   on input,the max length of the buffer pointed to by stringValue
-                                                   //   on output, the actual length of the string attribute
-                             char *stringValue)    // null terminated string returned here
+int ComSqlId::getSqlIdAttr(int attr,             // which attr (SqlQueryIDAttr)
+                           const char *queryId,  // query ID
+                           int queryIdLen,       // query ID len
+                           long &value,          // If returned attr is numeric,
+                                                 //    this field contains the returned value.
+                                                 // If attr is of string type, this value is:
+                                                 //   on input,the max length of the buffer pointed to by stringValue
+                                                 //   on output, the actual length of the string attribute
+                           char *stringValue)    // null terminated string returned here
 {
   int retcode = 0;
 
@@ -430,14 +433,14 @@ int ComSqlId::getSqlIdAttr(int attr,           // which attr (SqlQueryIDAttr)
   return retcode;
 }
 
-int ComSqlId::getSqlQueryIdAttr(int attr,         // which attr (SqlQueryIDAttr)
-                                  char *queryId,      // query ID
-                                  int queryIdLen,   // query ID len
-                                  long &value,       // If returned attr is of string type, this value is the
-                                                      // max length of the buffer pointed to by stringValue.
-                                                      // If returned attr is numeric, this field contains
-                                                      // the returned value.
-                                  char *stringValue)  // null terminated returned value for string attrs.
+int ComSqlId::getSqlQueryIdAttr(int attr,           // which attr (SqlQueryIDAttr)
+                                char *queryId,      // query ID
+                                int queryIdLen,     // query ID len
+                                long &value,        // If returned attr is of string type, this value is the
+                                                    // max length of the buffer pointed to by stringValue.
+                                                    // If returned attr is numeric, this field contains
+                                                    // the returned value.
+                                char *stringValue)  // null terminated returned value for string attrs.
 {
   int retcode = 0;
 
@@ -449,14 +452,14 @@ int ComSqlId::getSqlQueryIdAttr(int attr,         // which attr (SqlQueryIDAttr)
   return retcode;
 }
 
-int ComSqlId::getSqlSessionIdAttr(int attr,           // which attr (SqlQueryIDAttr)
-                                    const char *queryId,  // query ID
-                                    int queryIdLen,     // query ID len
-                                    long &value,         // If returned attr is of string type, this value is the
-                                                          // max length of the buffer pointed to by stringValue.
-                                                          // If returned attr is numeric, this field contains
-                                                          // the returned value.
-                                    char *stringValue)    // null terminated returned value for string attrs.
+int ComSqlId::getSqlSessionIdAttr(int attr,             // which attr (SqlQueryIDAttr)
+                                  const char *queryId,  // query ID
+                                  int queryIdLen,       // query ID len
+                                  long &value,          // If returned attr is of string type, this value is the
+                                                        // max length of the buffer pointed to by stringValue.
+                                                        // If returned attr is numeric, this field contains
+                                                        // the returned value.
+                                  char *stringValue)    // null terminated returned value for string attrs.
 {
   int retcode = 0;
 
@@ -468,20 +471,20 @@ int ComSqlId::getSqlSessionIdAttr(int attr,           // which attr (SqlQueryIDA
   return retcode;
 }
 
-int ComSqlId::extractSqlSessionIdAttrs(const char *sessionId,      // IN
-                                         int maxSessionIdLen,      // IN
-                                         long &segmentNumber,       // OUT
-                                         long &cpu,                 // OUT
-                                         long &pin,                 // OUT
-                                         long &processStartTS,      // OUT
-                                         long &sessionUniqueNum,    // OUT
-                                         int &userNameLen,         // OUT
-                                         char *userName,             // OUT
-                                         int &tenantIdLen,         // OUT
-                                         char *tenantId,             // OUT
-                                         int &userSessionNameLen,  // OUT
-                                         char *userSessionName,      // OUT
-                                         int *version) {
+int ComSqlId::extractSqlSessionIdAttrs(const char *sessionId,    // IN
+                                       int maxSessionIdLen,      // IN
+                                       long &segmentNumber,      // OUT
+                                       long &cpu,                // OUT
+                                       long &pin,                // OUT
+                                       long &processStartTS,     // OUT
+                                       long &sessionUniqueNum,   // OUT
+                                       int &userNameLen,         // OUT
+                                       char *userName,           // OUT
+                                       int &tenantIdLen,         // OUT
+                                       char *tenantId,           // OUT
+                                       int &userSessionNameLen,  // OUT
+                                       char *userSessionName,    // OUT
+                                       int *version) {
   int retcode = 0;
   long lc_version;
 
@@ -540,10 +543,10 @@ int ComSqlId::extractSqlSessionIdAttrs(const char *sessionId,      // IN
   <processStartTS> :      8 bytes (long)
   <queryNum>       :      4 bytes (int)
 */
-int ComSqlId::getDp2QueryIdString(char *queryId,        // IN
-                                    int queryIdLen,     // IN
-                                    char *dp2QueryId,     // INOUT
-                                    int &dp2QueryIdLen  // OUT
+int ComSqlId::getDp2QueryIdString(char *queryId,      // IN
+                                  int queryIdLen,     // IN
+                                  char *dp2QueryId,   // INOUT
+                                  int &dp2QueryIdLen  // OUT
 ) {
   if ((!queryId) || (queryIdLen < MAX_DP2_QUERY_ID_LEN)) return -1;
 
@@ -578,14 +581,14 @@ int ComSqlId::getDp2QueryIdString(char *queryId,        // IN
   return 0;
 }
 
-int ComSqlId::decomposeDp2QueryIdString(char *queryId,     // input: buffer containing dp2 query id
-                                          int queryIdLen,  // input: length of query id
-                                          int *queryNum,   // output: unique query number
-                                          int *segment,    // output: segment number of master exe
-                                          int *cpu,        // output: cpu number
-                                          int *pin,        // output: pin
-                                          long *timestamp   // output: master exe process
-                                                             //         start time
+int ComSqlId::decomposeDp2QueryIdString(char *queryId,   // input: buffer containing dp2 query id
+                                        int queryIdLen,  // input: length of query id
+                                        int *queryNum,   // output: unique query number
+                                        int *segment,    // output: segment number of master exe
+                                        int *cpu,        // output: cpu number
+                                        int *pin,        // output: pin
+                                        long *timestamp  // output: master exe process
+                                                         //         start time
 ) {
   if ((!queryId) || (queryIdLen < MAX_DP2_QUERY_ID_LEN)) return -1;
 

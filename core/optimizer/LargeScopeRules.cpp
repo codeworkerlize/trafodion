@@ -15,11 +15,11 @@
 ******************************************************************************
 */
 
+#include "AppliedStatMan.h"
 #include "GroupAttr.h"
+#include "MultiJoin.h"
 #include "TransRule.h"
 #include "optimizer/Analyzer.h"
-#include "MultiJoin.h"
-#include "AppliedStatMan.h"
 #include "optimizer/opt.h"
 
 extern NAUnsigned MJEnumRuleNumber;
@@ -1910,8 +1910,8 @@ NABoolean MJStarJoinIRule::isAStarPattern(MultiJoin *mjoin, CANodeId factTable,
       CURRCONTEXT_OPTDEBUG->stream() << "Probes into fact table: " << istring(int(dataFlowFromEdge.value())) << endl;
       CURRCONTEXT_OPTDEBUG->stream() << "Fact Table Rows to scan: " << istring(int(factTableRowsToScan.value()))
                                      << endl;
-      CURRCONTEXT_OPTDEBUG->stream() << "Rows coming out of fact table: "
-                                     << istring(int(dataFlowFromFactTable.value())) << endl;
+      CURRCONTEXT_OPTDEBUG->stream() << "Rows coming out of fact table: " << istring(int(dataFlowFromFactTable.value()))
+                                     << endl;
       CURRCONTEXT_OPTDEBUG->stream() << "Our cost estimate of fact table nested join: "
                                      << istring(int(factTableCost.value())) << endl;
     }

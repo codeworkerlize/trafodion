@@ -17,9 +17,9 @@
 #ifndef COMKEYRANGE_H
 #define COMKEYRANGE_H
 
-#include "export/NAVersionedObject.h"
-#include "exp/ExpCriDesc.h"
 #include "executor/ex_expr.h"
+#include "exp/ExpCriDesc.h"
+#include "export/NAVersionedObject.h"
 
 // forward references
 class ex_cri_desc;

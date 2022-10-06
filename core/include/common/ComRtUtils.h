@@ -2,18 +2,18 @@
 #ifndef COMRTUTILS_H
 #define COMRTUTILS_H
 
+#include <fstream>
+#include <set>
+#include <string>
+#include <vector>
+
+#include "common/ComCextMisc.h"
+#include "common/ComSmallDefs.h"
+#include "common/Int64.h"
 #include "common/NABoolean.h"
+#include "common/NAMemory.h"
 #include "common/NAString.h"
 #include "common/Platform.h"
-#include "common/NAMemory.h"
-#include "common/Int64.h"
-#include "common/ComSmallDefs.h"
-#include "common/ComCextMisc.h"
-
-#include <fstream>
-#include <string>
-#include <set>
-#include <vector>
 
 using namespace std;
 #include "seabed/ms.h"
@@ -87,9 +87,9 @@ int ComRtGetInstallDir(char *buffer, int inputBufferLength, int *resultLength);
 // is stored
 // -----------------------------------------------------------------------
 int ComRtGetModuleFileName(const char *moduleName, const char *moduleDir, char *buffer, int inputBufferLength,
-                             char *sysModuleDir,   // location of SYSTEMMODULES
-                             char *userModuleDir,  // location of USERMODULES
-                             int *resultLength, short &isSystemModule);
+                           char *sysModuleDir,   // location of SYSTEMMODULES
+                           char *userModuleDir,  // location of USERMODULES
+                           int *resultLength, short &isSystemModule);
 
 // -----------------------------------------------------------------------
 // Get the cluster (EXPAND node) name (returns "NSK" on NT)
@@ -99,12 +99,12 @@ int ComRtGetOSClusterName(char *buffer, int inputBufferLength, int *resultLength
 // -----------------------------------------------------------------------
 // Get the MP system catalog name.
 // -----------------------------------------------------------------------
-int ComRtGetMPSysCatName(char *sysCatBuffer,      /* out */
-                           int inputBufferLength, /* in  */
-                           char *inputSysName,      /* in must set to NULL if no name is passed */
-                           int *sysCatLength,     /* out */
-                           short *detailError,      /* out */
-                           NAMemory *heap = 0);     /* in  */
+int ComRtGetMPSysCatName(char *sysCatBuffer,    /* out */
+                         int inputBufferLength, /* in  */
+                         char *inputSysName,    /* in must set to NULL if no name is passed */
+                         int *sysCatLength,     /* out */
+                         short *detailError,    /* out */
+                         NAMemory *heap = 0);   /* in  */
 
 // -----------------------------------------------------------------------
 // Determine if the name is an NSK name, \sys.$vol.subvol.file, look for
@@ -147,16 +147,16 @@ inline long ComRtGetJulianFromUTC(timespec ts) {
 // // Return status:      0, if all ok. <errnum>, in case of an error.
 //
 // -----------------------------------------------------------------------
-int ComRtGetProgramInfo(char *pathName,       /* out */
-                          int pathNameMaxLen, /* in */
-                          short &processType,   /* out */
-                          int &cpu,           /* cpu */
-                          pid_t &pin,           /* pin */
-                          int &nodeNumber,
-                          char *nodeName,  // GuaNodeNameMaxLen+1
-                          short &nodeNameLen, long &processCreateTime, char *processNameString,
-                          char *parentProcessNameString = NULL, SB_Verif_Type *verifier = NULL,
-                          int *ancestorNid = NULL, pid_t *ancestorPid = NULL);
+int ComRtGetProgramInfo(char *pathName,     /* out */
+                        int pathNameMaxLen, /* in */
+                        short &processType, /* out */
+                        int &cpu,           /* cpu */
+                        pid_t &pin,         /* pin */
+                        int &nodeNumber,
+                        char *nodeName,  // GuaNodeNameMaxLen+1
+                        short &nodeNameLen, long &processCreateTime, char *processNameString,
+                        char *parentProcessNameString = NULL, SB_Verif_Type *verifier = NULL, int *ancestorNid = NULL,
+                        pid_t *ancestorPid = NULL);
 
 // OUT: processPriority: current priority of process
 int ComRtGetProcessPriority(int &processPriority /* out */);
@@ -170,8 +170,8 @@ int ComRtGetProcessPagesInUse(long &pagesInUse /* out */);
 //      Otherwise, use current process
 // OUT: processCreateTime: time when this process was created.
 int ComRtGetProcessCreateTime(short *cpu, /* cpu */
-                                pid_t *pin, /* pin */
-                                short *nodeNumber, long &processCreateTime, short &errorDetail);
+                              pid_t *pin, /* pin */
+                              short *nodeNumber, long &processCreateTime, short &errorDetail);
 
 int ComRtGetIsoMappingEnum();
 char *ComRtGetIsoMappingName();
@@ -199,19 +199,19 @@ NABoolean ComRtGetValueFromFile(const char *envvar, char *valueBuffer, const UIn
 // Get the MX system catalog name.
 // -----------------------------------------------------------------------
 int ComRtGetMXSysVolName(char *sysCatBuffer,              /* out */
-                           int inputBufferLength,         /* in  */
-                           int *sysCatLength,             /* out */
-                           const char *nodeName,            /* in */
-                           NABoolean fakeReadError,         /* in */
-                           NABoolean fakeCorruptAnchorError /* in */
+                         int inputBufferLength,           /* in  */
+                         int *sysCatLength,               /* out */
+                         const char *nodeName,            /* in */
+                         NABoolean fakeReadError,         /* in */
+                         NABoolean fakeCorruptAnchorError /* in */
 );
 
 // -----------------------------------------------------------------------
 // Extract System MetaData Location ( VolumeName ).
 // -----------------------------------------------------------------------
 int extract_SMDLocation(char *buffer,       /* in */
-                          int bufferLength, /* in */
-                          char *SMDLocation); /* out */
+                        int bufferLength,   /* in */
+                        char *SMDLocation); /* out */
 
 // -----------------------------------------------------------------------
 // Validate MetaData Location ( VolumeName ) format.

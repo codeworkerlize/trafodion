@@ -20,36 +20,35 @@
 #include "common/Platform.h"
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS  // first #include
 
-#include "common/CmpCommon.h"
+#include "ImplRule.h"   // for CreateImplementationRules()
+#include "TransRule.h"  // for CreateTransformationRules()
 #include "arkcmp/CmpContext.h"
 #include "arkcmp/CmpStatement.h"
-#include "optimizer/ControlDB.h"
-#include "optimizer/CmpMemoryMonitor.h"
-#include "common/NAHeap.h"
-#include "sqlcomp/NewDel.h"
-#include "optimizer/OptimizerSimulator.h"
-#include "optimizer/SchemaDB.h"
 #include "common/CmpCommon.h"
-#include "optimizer/Rule.h"
-#include "ImplRule.h"           // for CreateImplementationRules()
-#include "TransRule.h"          // for CreateTransformationRules()
-#include "optimizer/PhyProp.h"  // for InitCostVariables()
 #include "common/NAClusterInfo.h"
+#include "common/NAHeap.h"
+#include "optimizer/CmpMemoryMonitor.h"
+#include "optimizer/ControlDB.h"
+#include "optimizer/OptimizerSimulator.h"
+#include "optimizer/PhyProp.h"  // for InitCostVariables()
+#include "optimizer/Rule.h"
+#include "optimizer/SchemaDB.h"
 #include "optimizer/UdfDllInteraction.h"
+#include "sqlcomp/NewDel.h"
 #ifdef NA_CMPDLL
-#define SQLPARSERGLOBALS_FLAGS        // needed to set SqlParser_Flags
-#endif                                // NA_CMPDLL
-#include "parser/SqlParserGlobals.h"  // last #include
+#define SQLPARSERGLOBALS_FLAGS  // needed to set SqlParser_Flags
+#endif                          // NA_CMPDLL
 #include "arkcmp/CmpErrLog.h"
-#include "qmscommon/QRLogger.h"
-#include "sqlmxevents/logmxevent.h"
-#include "sqlcomp/CmpSeabaseDDL.h"
 #include "cli/Globals.h"
+#include "parser/SqlParserGlobals.h"  // last #include
+#include "qmscommon/QRLogger.h"
+#include "sqlcomp/CmpSeabaseDDL.h"
+#include "sqlmxevents/logmxevent.h"
 #include "sqludr/sqludr.h"
 
 // #include "PCodeExprCache.h"
-#include "executor/HBaseClient_JNI.h"
 #include "cli/Context.h"
+#include "executor/HBaseClient_JNI.h"
 
 #ifdef NA_CMPDLL
 #include "arkcmp/CompException.h"
@@ -67,8 +66,8 @@ extern "C" {
 #define ENVIRON environ
 #define PUTENV  putenv
 
-#include "optimizer/NATable.h"
 #include "optimizer/CompilerTracking.h"
+#include "optimizer/NATable.h"
 
 ostream &operator<<(ostream &dest, const ComDiagsArea &da);
 
@@ -767,9 +766,9 @@ CmpStatementISP *CmpContext::getISPStatement(long id) {
 //     2 - ERROR: any compiler internal errors
 //     3 - MORE_DATA: only for REPLY_ISP_
 int CmpContext::compileDirect(char *data, UInt32 data_len, CollHeap *outHeap, int charset,
-                                CmpMessageObj::MessageTypeEnum op, char *&gen_code, UInt32 &gen_code_len,
-                                UInt32 parserFlags, const char *parentQid, int parentQidLen, ComDiagsArea *&diagsArea,
-                                NABoolean needToDoWork) {
+                              CmpMessageObj::MessageTypeEnum op, char *&gen_code, UInt32 &gen_code_len,
+                              UInt32 parserFlags, const char *parentQid, int parentQidLen, ComDiagsArea *&diagsArea,
+                              NABoolean needToDoWork) {
   CmpStatement::ReturnStatus rs = CmpStatement::CmpStatement_SUCCESS;
   CmpStatement *cmpStatement = NULL;
   NABoolean copyFrags = FALSE, copyData = FALSE;

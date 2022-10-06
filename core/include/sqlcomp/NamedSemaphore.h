@@ -16,12 +16,13 @@
  *****************************************************************************
  */
 
+#include <errno.h>
 #include <fcntl.h>
 #include <semaphore.h>
-#include <errno.h>
-#include <time.h>
-#include <sys/types.h>
 #include <sys/sem.h>
+#include <sys/types.h>
+#include <time.h>
+
 #include "common/Platform.h"
 
 class NamedSem;

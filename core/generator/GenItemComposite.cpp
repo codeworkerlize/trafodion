@@ -15,17 +15,17 @@
 ******************************************************************************
 */
 
-#include "generator/Generator.h"
-#include "GenExpGenerator.h"
-#include "exp_function.h"
 #include "ExpComposite.h"
-#include "exp/exp_datetime.h"
-#include "exp_math_func.h"
-#include "common/CharType.h"
-#include "common/NumericType.h"
-#include "common/CompositeType.h"
-#include "optimizer/RelMisc.h"
+#include "GenExpGenerator.h"
 #include "ItemFuncUDF.h"
+#include "common/CharType.h"
+#include "common/CompositeType.h"
+#include "common/NumericType.h"
+#include "exp/exp_datetime.h"
+#include "exp_function.h"
+#include "exp_math_func.h"
+#include "generator/Generator.h"
+#include "optimizer/RelMisc.h"
 
 // create nested list of expression attributes corresponding to type.
 // This list will be used during runtime to operate on the specified

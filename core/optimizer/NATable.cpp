@@ -20,56 +20,53 @@
 #undef __ROSETTA
 
 #include "optimizer/NATable.h"
-#include "optimizer/Sqlcomp.h"
+
 #include "Const.h"
-#include "common/dfs2rec.h"
-#include "sqlcomp/parser.h"
-#include "optimizer/BindWA.h"
+#include "EncodedValue.h"
+#include "PartFunc.h"
+#include "arkcmp/CmpStatement.h"
+#include "arkcmp/CompException.h"
+#include "cli/Globals.h"
 #include "common/ComAnsiNamePart.h"
+#include "common/ComCextdecs.h"
+#include "common/ComDistribution.h"
+#include "common/ComEncryption.h"
+#include "common/ComMPLoc.h"
+#include "common/ComMisc.h"
+#include "common/ComObjectName.h"
+#include "common/ComSmallDefs.h"
+#include "common/ComSysUtils.h"
+#include "common/ComUser.h"
+#include "common/NAClusterInfo.h"
+#include "common/SequenceGeneratorAttributes.h"
+#include "common/dfs2rec.h"
+#include "executor/ExExeUtilCli.h"
+#include "exp/ExpHbaseInterface.h"
+#include "exp/exp_clause_derived.h"
+#include "optimizer/BindWA.h"
+#include "optimizer/ControlDB.h"
 #include "optimizer/ItemColRef.h"
 #include "optimizer/ItemFunc.h"
 #include "optimizer/ItemOther.h"
-#include "PartFunc.h"
-#include "EncodedValue.h"
-#include "optimizer/SchemaDB.h"
-#include "common/NAClusterInfo.h"
-
-#include "common/ComMPLoc.h"
 #include "optimizer/NATable.h"
-#include "optimizer/opt.h"
-#include "arkcmp/CmpStatement.h"
-#include "optimizer/ControlDB.h"
-#include "common/ComCextdecs.h"
-#include "common/ComSysUtils.h"
-#include "common/ComObjectName.h"
-#include "common/ComMisc.h"
-#include "common/SequenceGeneratorAttributes.h"
-#include "security/uid.h"
-
-#include "common/ComCextdecs.h"
-#include "exp/ExpHbaseInterface.h"
-#include "sqlcomp/CmpSeabaseDDL.h"
 #include "optimizer/RelScan.h"
-#include "exp/exp_clause_derived.h"
-#include "sqlcomp/PrivMgrCommands.h"
-#include "common/ComDistribution.h"
-#include "executor/ExExeUtilCli.h"
-#include "sqlcomp/CmpDescribe.h"
-#include "cli/Globals.h"
-#include "common/ComUser.h"
-#include "common/ComSmallDefs.h"
-#include "sqlcomp/CmpMain.h"
-#include "arkcmp/CompException.h"
+#include "optimizer/SchemaDB.h"
+#include "optimizer/Sqlcomp.h"
+#include "optimizer/opt.h"
+#include "security/uid.h"
 #include "sqlcat/TrafDDLdesc.h"
+#include "sqlcomp/CmpDescribe.h"
+#include "sqlcomp/CmpMain.h"
 #include "sqlcomp/CmpSeabaseDDL.h"
-#include "common/ComEncryption.h"
-#include "sqlcomp/SharedCache.h"
 #include "sqlcomp/NamedSemaphore.h"
+#include "sqlcomp/PrivMgrCommands.h"
+#include "sqlcomp/SharedCache.h"
+#include "sqlcomp/parser.h"
 
 #define MAX_NODE_NAME 9
 
-#include "parser/SqlParserGlobals.h"
 #include "executor/HBaseClient_JNI.h"
+#include "parser/SqlParserGlobals.h"
 
 //#define __ROSETTA
 //#include "rosetta_ddl_include.h"
@@ -77,14 +74,12 @@
 #include "parser/SqlParserGlobals.h"
 extern TrafDesc *generateSpecialDesc(const CorrName &corrName);
 
-#include "optimizer/CmpMemoryMonitor.h"
-
-#include "optimizer/OptimizerSimulator.h"
-
+#include "cli/Context.h"
 #include "cli/SQLCLIdev.h"
 #include "cli/sql_id.h"
 #include "common/ComRtUtils.h"
-#include "cli/Context.h"
+#include "optimizer/CmpMemoryMonitor.h"
+#include "optimizer/OptimizerSimulator.h"
 #include "optimizer/TriggerDB.h"
 
 SQLMODULE_ID __SQL_mod_natable = {
@@ -476,10 +471,10 @@ void HistogramCache::createColStatsList(NATable &table, HistogramsCacheEntry *ca
 // are desired are passed in through interestingExpressions.
 //------------------------------------------------------------------------
 int HistogramCache::getStatsListFromCache(StatsList &list,                                                // In \ Out
-                                            NAColumnArray &colArray,                                        // In
-                                            NAHashDictionary<NAString, NABoolean> &interestingExpressions,  // In
-                                            HistogramsCacheEntry *cachedHistograms,                         // In
-                                            ColumnSet &singleColsFound)                                     // In \ Out
+                                          NAColumnArray &colArray,                                        // In
+                                          NAHashDictionary<NAString, NABoolean> &interestingExpressions,  // In
+                                          HistogramsCacheEntry *cachedHistograms,                         // In
+                                          ColumnSet &singleColsFound)                                     // In \ Out
 {
   // cachedHistograms points to the memory-efficient contextheap
   // representation of table's histograms.
@@ -734,9 +729,8 @@ void HistogramCache::freeInvalidEntries(int numKeys, SQL_QIKEY *qiKeyArray) {
 
 // constructor for memory efficient representation of colStats.
 // colStats has both single-column & multi-column histograms.
-HistogramsCacheEntry::HistogramsCacheEntry(const StatsList &colStats, const QualifiedName &qualifiedName,
-                                           long tableUID, const long &statsTime, const long &redefTime,
-                                           NAMemory *heap)
+HistogramsCacheEntry::HistogramsCacheEntry(const StatsList &colStats, const QualifiedName &qualifiedName, long tableUID,
+                                           const long &statsTime, const long &redefTime, NAMemory *heap)
     : full_(NULL),
       multiColumn_(NULL),
       expressions_(NULL),
@@ -1103,7 +1097,7 @@ ItemExpr *NATable::getRangePartitionBoundaryValues(const char *keyValueBuffer, c
                                                    NAMemory *heap, CharInfo::CharSet strCharSet) {
   char *keyValue;          // the string for the key value
   ItemExpr *partKeyValue;  // -> dynamically allocated expression
-  int length;            // index to the next key value and its length
+  int length;              // index to the next key value and its length
   int startIndex = 0;
   int stopIndex = keyValueBufferSize - 1;
 
@@ -2667,7 +2661,7 @@ static NABoolean createNAFileSets(TrafDesc *table_desc /*IN*/, const NATable *ta
   // ---------------------------------------------------------------------
   while (indexes_desc) {
     int numberOfFiles = 1;  // always at least 1
-    NAColumn *indexColumn;    // an index/VP key column
+    NAColumn *indexColumn;  // an index/VP key column
     NAColumn *newIndexColumn;
     NAFileSet *newIndex;  // a new file set
     // hardcoding statement heap here, previosly the following calls
@@ -3245,7 +3239,7 @@ int hashColPosList(const CollIndexSet &colSet) { return colSet.hash(); }
 //
 // ----------------------------------------------------------------------------
 static long lookupObjectUidByName(const QualifiedName &qualName, ComObjectType objectType, NABoolean reportError,
-                                   long *objectFlags = NULL, long *createTime = NULL, long *objDataUID = NULL) {
+                                  long *objectFlags = NULL, long *createTime = NULL, long *objDataUID = NULL) {
   ExeCliInterface cliInterface(STMTHEAP);
   long objectUID = 0;
 
@@ -5050,9 +5044,9 @@ NABoolean NATable::getCorrespondingIndex(NAList<NAString> &inputCols, NABoolean 
       const NAColumnArray &nacArr = naf->getIndexKeyColumns();
 
       int numKeyCols = naf->getCountOfColumns(TRUE,           // exclude non-key cols
-                                                !isPrimaryKey,  // exclude cols other than user-specified index cols
-                                                FALSE,          // don't exclude all system cols like SYSKEY
-                                                excludeAlwaysComputedSystemCols);
+                                              !isPrimaryKey,  // exclude cols other than user-specified index cols
+                                              FALSE,          // don't exclude all system cols like SYSKEY
+                                              excludeAlwaysComputedSystemCols);
 
       // compare # of columns first and disqualify the index
       // if it doesn't have the right number of columns
@@ -6787,7 +6781,7 @@ void NATable::displayPartitonV2(FILE *ofd, const char *indent, const char *title
 }
 
 // get details of this NATable cache entry
-void NATableDB::getEntryDetails(int ii,                      // (IN) : NATable cache iterator entry
+void NATableDB::getEntryDetails(int ii,                        // (IN) : NATable cache iterator entry
                                 NATableEntryDetails &details)  // (OUT): cache entry's details
 {
   int NumEnt = cachedTableList_.entries();
@@ -6874,8 +6868,7 @@ NABoolean NATableDB::isSQUmdTable(CorrName &corrName) { return FALSE; }
 // currentFlags - set to current epoch if found is TRUE, set to zero if found is FALSE
 //
 int accessObjectEpochCache(CorrName &corrName, NABoolean createIfNotExists, NABoolean writeReference,
-                             NABoolean &found /* out */, UInt32 &currentEpoch /* out */,
-                             UInt32 &currentFlags /* out */) {
+                           NABoolean &found /* out */, UInt32 &currentEpoch /* out */, UInt32 &currentFlags /* out */) {
   int retcode = 0;  // assume success
   currentEpoch = 0;
   currentFlags = 0;

@@ -1,9 +1,10 @@
 
 
-#include "common/BaseTypes.h"
 #include "ExpPCodeOptimizations.h"
-#include "common/CmpCommon.h"
+
 #include "PCodeExprCache.h"
+#include "common/BaseTypes.h"
+#include "common/CmpCommon.h"
 
 #if defined(_DEBUG)
 #define DUMP_PHASE(str, flag1, flag2) \
@@ -358,7 +359,7 @@ int PCodeConstants::getConstantValue(CollIndex bvIndex, NABitVector &zeroes, NAB
 // if one is found.
 //
 int PCodeConstants::copyConstantVectors(CollIndex bvIndexFrom, CollIndex bvIndexTo, NABitVector &zeroes,
-                                          NABitVector &ones, NABitVector &neg1) {
+                                        NABitVector &ones, NABitVector &neg1) {
   NABoolean isZero, isOne, isNeg1;
 
   if ((isZero = zeroes.testBit(bvIndexFrom))) zeroes += bvIndexTo;
@@ -3345,8 +3346,7 @@ NABoolean PCodeCfg::layoutCode() {
   } else {
     // The size of the existing pcode bytestream space must be big enough to
     // hold the new pcode bytestream.
-    if ((int)(totalLength * sizeof(PCodeBinary)) > (int)expr_->getPCodeSegment()->getPCodeSegmentSize())
-      return FALSE;
+    if ((int)(totalLength * sizeof(PCodeBinary)) > (int)expr_->getPCodeSegment()->getPCodeSegmentSize()) return FALSE;
 
     newPcode = new (heap_) PCodeBinary[totalLength];
   }

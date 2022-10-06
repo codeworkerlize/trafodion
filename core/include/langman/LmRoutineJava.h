@@ -12,15 +12,15 @@
 
 **********************************************************************/
 
-#include "common/ComSmallDefs.h"
-#include "common/NABoolean.h"
-#include "LmRoutine.h"
+#include "LmConnection.h"
+#include "LmContManager.h"
+#include "LmJavaType.h"
 #include "LmLangManagerJava.h"
 #include "LmParameter.h"
-#include "LmJavaType.h"
-#include "LmContManager.h"
 #include "LmResultSetJava.h"
-#include "LmConnection.h"
+#include "LmRoutine.h"
+#include "common/ComSmallDefs.h"
+#include "common/NABoolean.h"
 
 //////////////////////////////////////////////////////////////////////
 //

@@ -15,8 +15,9 @@
 ****************************************************************************
 */
 
-#include "comexe/ComTdbCommon.h"
 #include "comexe/ComTdbControl.h"
+
+#include "comexe/ComTdbCommon.h"
 
 /////////////////////////////////////////////////////
 // class ExControlTdb

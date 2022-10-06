@@ -23,6 +23,7 @@
 #endif
 
 #include <stdlib.h>
+
 #include "expat_external.h"
 
 #ifdef __cplusplus
@@ -386,7 +387,7 @@ typedef int(XMLCALL *XML_NotStandaloneHandler)(void *userData);
    not userData.
 */
 typedef int(XMLCALL *XML_ExternalEntityRefHandler)(XML_Parser parser, const XML_Char *context, const XML_Char *base,
-                                                     const XML_Char *systemId, const XML_Char *publicId);
+                                                   const XML_Char *systemId, const XML_Char *publicId);
 
 /* This is called in two situations:
    1) An entity reference is encountered for which no declaration

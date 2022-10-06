@@ -19,9 +19,9 @@
 *
 ******************************************************************************
 */
+#include "ScratchFile_base.h"
 #include "common/Platform.h"
 #include "stfs/stfslib.h"
-#include "ScratchFile_base.h"
 
 typedef enum { PEND_NONE, PEND_READ, PEND_WRITE } EPendingIOType;
 
@@ -77,8 +77,7 @@ class SQScratchFile : public ScratchFile {
   // For write operation, this essentially moves the file pointer automatically
   // to the end offset. Ofcourse we need seekoffset for read operations.
   //-----------------------------------------------
-  virtual RESULT seekOffset(int index, int offset, long &iowaittime, int *transfered = NULL,
-                            DWORD seekDirection = 0);
+  virtual RESULT seekOffset(int index, int offset, long &iowaittime, int *transfered = NULL, DWORD seekDirection = 0);
 
   //-----------------------------------------------
   // This function writes length bytes from the
@@ -147,15 +146,15 @@ class SQScratchFile : public ScratchFile {
 
   // For vector IO
   struct iovec *vector_;  // vector elements
-  int vectorSize_;      // max number of vector elements
-  int vectorIndex_;     // number of vector elements setup
+  int vectorSize_;        // max number of vector elements
+  int vectorIndex_;       // number of vector elements setup
   ssize_t bytesRequested_;
   ssize_t bytesCompleted_;
-  void *remainingAddr_;        // adjusting pointers for redrive IO
+  void *remainingAddr_;      // adjusting pointers for redrive IO
   int remainingVectorSize_;  // adjusting pointers for redrive IO
-  long vectorSeekOffset_;     // beginning seek offset for vector IO
-  long writemmapCursor_;      // Only used in mmap as append cursor.
-  long readmmapCursor_;       // Only used in mmap as read cursor.
+  long vectorSeekOffset_;    // beginning seek offset for vector IO
+  long writemmapCursor_;     // Only used in mmap as append cursor.
+  long readmmapCursor_;      // Only used in mmap as read cursor.
 
   // This is the block num of the block that corresponds to
   // first element in the vector. This is especially used
@@ -174,13 +173,13 @@ class SQScratchFile : public ScratchFile {
   // Notes:       Note that type_ just indicates if vector type. It does not
   //              indicate if an actual IO is in flight. To check if IO is in
   //              flight, check the fileHandle_[index].IOPending flag.
-  EPendingIOType type_;   // indicates type of IO vector being builtup.
-  int vectorWriteMax_;  // For diagnostics only
-  int vectorReadMax_;   // For diagnostics only
+  EPendingIOType type_;  // indicates type of IO vector being builtup.
+  int vectorWriteMax_;   // For diagnostics only
+  int vectorReadMax_;    // For diagnostics only
   int lastError_;
   NABoolean doDiskCheck_;
 #ifdef _DEBUG
-  char *envIOPending_;     // for simulating IO pending state.
+  char *envIOPending_;   // for simulating IO pending state.
   int envIOBlockCount_;  // for simulating IO pending state.
 #endif
 };

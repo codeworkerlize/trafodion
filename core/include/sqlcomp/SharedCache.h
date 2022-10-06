@@ -22,13 +22,14 @@
 #define SHARED_CACHE_H
 
 #include <sys/time.h>
-#include "runtimestats/SqlStats.h"
-#include "common/NABoolean.h"
-#include "optimizer/ObjectNames.h"
-#include "common/DLock.h"
+
 #include "SharedSegment.h"
-#include "sqlcomp/NamedSemaphore.h"
+#include "common/DLock.h"
+#include "common/NABoolean.h"
 #include "executor/MemoryTableDB.h"
+#include "optimizer/ObjectNames.h"
+#include "runtimestats/SqlStats.h"
+#include "sqlcomp/NamedSemaphore.h"
 
 #define SHARED_CACHE_SEM_NAME_PREFIX "/shared_cache."
 

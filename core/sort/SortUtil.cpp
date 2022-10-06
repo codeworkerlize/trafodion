@@ -16,21 +16,21 @@
 *
 ******************************************************************************
 */
-#include "ex_ex.h"
-#include "common/Platform.h"
-#include "executor/ex_stdh.h"
-#include "comexe/ComTdb.h"
-#include "executor/ex_tcb.h"
-#include "ex_sort.h"
 #include "SortUtil.h"
+
 #include "Qsort.h"
 #include "SortTopN.h"
+#include "comexe/ComTdb.h"
 #include "common/ComCextdecs.h"
-#include "sqlmxevents/logmxevent.h"
-#include "executor/ExStats.h"
+#include "common/Platform.h"
+#include "ex_ex.h"
 #include "ex_exe_stmt_globals.h"
-
+#include "ex_sort.h"
+#include "executor/ExStats.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_tcb.h"
 #include "executor/sql_buffer_size.h"
+#include "sqlmxevents/logmxevent.h"
 
 //------------------------------------------------------------------------
 // This file contains the all member function definitions of SortUtil class.
@@ -373,8 +373,7 @@ int SortUtil::sortReceivePrepare(void) {
   // to 2 to avoid looping.
   if (config_->mergeOrder_ < 2) config_->mergeOrder_ = 2;
 
-  int mergeOrderUsed =
-      (stats_.numRuns_ > (int)config_->mergeOrder_) ? (int)config_->mergeOrder_ : stats_.numRuns_;
+  int mergeOrderUsed = (stats_.numRuns_ > (int)config_->mergeOrder_) ? (int)config_->mergeOrder_ : stats_.numRuns_;
   RESULT result = scratch_->setupSortMergeBufferPool(mergeOrderUsed * SORT_MERGENODE_NUM_BUFFERS *
                                                      config_->sortMergeBlocksPerBuffer_);
 

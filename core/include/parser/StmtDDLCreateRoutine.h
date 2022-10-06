@@ -18,14 +18,14 @@
  *****************************************************************************
  */
 
-#include "ElemDDLNode.h"
-#include "parser/ElemDDLColRefArray.h"
 #include "ElemDDLLocation.h"
-#include "parser/ElemDDLParamDefArray.h"
-#include "common/NAString.h"
+#include "ElemDDLNode.h"
 #include "ParDDLFileAttrsCreateIndex.h"
-#include "parser/StmtDDLNode.h"
 #include "common/ComSmallDefs.h"
+#include "common/NAString.h"
+#include "parser/ElemDDLColRefArray.h"
+#include "parser/ElemDDLParamDefArray.h"
+#include "parser/StmtDDLNode.h"
 
 // -----------------------------------------------------------------------
 // Create Package statement

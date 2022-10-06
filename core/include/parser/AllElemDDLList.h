@@ -15,15 +15,14 @@
  *****************************************************************************
  */
 
-#include "parser/ElemDDLList.h"
-
 #include "ElemDDLColNameList.h"
 #include "ElemDDLColRefList.h"
 #include "ElemDDLConstraintNameList.h"
-#include "ElemDDLKeyValueList.h"
 #include "ElemDDLFileAttrList.h"
-#include "ElemDDLPartnAttrList.h"
+#include "ElemDDLKeyValueList.h"
 #include "ElemDDLOptionList.h"
+#include "ElemDDLPartnAttrList.h"
+#include "parser/ElemDDLList.h"
 #include "parser/ElemDDLPartitionList.h"
 
 //

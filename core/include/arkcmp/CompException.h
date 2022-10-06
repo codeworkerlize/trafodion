@@ -15,8 +15,8 @@
  *
  *****************************************************************************/
 #include "common/NABoolean.h"
-#include "export/NABasicObject.h"
 #include "export/ExceptionCallBack.h"
+#include "export/NABasicObject.h"
 #include "export/NAStringDef.h"
 #include "sqlmxevents/logmxevent.h"
 

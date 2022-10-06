@@ -18,14 +18,14 @@
  *****************************************************************************
  */
 
+#include "common/NAAssert.h"
+#include "common/OperTypeEnum.h"
+#include "common/charinfo.h"
 #include "common/dfs2rec.h"
 #include "common/str.h"
-#include "common/OperTypeEnum.h"
-#include "common/NAAssert.h"
-#include "export/NAVersionedObject.h"
 #include "exp/ExpError.h"
 #include "exp/exp_tuple_desc.h"
-#include "common/charinfo.h"
+#include "export/NAVersionedObject.h"
 
 #define ALIGN(offset, alignment) ((offset > 0) ? (((offset - 1) / alignment) + 1) * alignment : offset)
 
@@ -518,8 +518,8 @@ class Attributes : public NAVersionedObject {
   NABasicPtr defaultValue_;  // 00-07
   UInt32 defaultFieldNum_;   // 08-11
 
-  UInt32 flags_;          // 12-15
-  UInt32 flags2_;         // 16-19
+  UInt32 flags_;        // 12-15
+  UInt32 flags2_;       // 16-19
   int offset_;          // 20-23
   int nullIndOffset_;   // 24-27
   int vcLenIndOffset_;  // 28-31
@@ -606,9 +606,8 @@ class SimpleType : public Attributes {
     memset(fillers_, 0, sizeof(fillers_));
   }
 
-  SimpleType(Int16 datatype, int length, Int16 scale, int precision, ExpTupleDesc::TupleDataFormat tdf,
-             int alignment, Int16 nullFlag, Int16 nullIndicatorLen, Int16 vcIndicatorLen, DefaultClass defClass,
-             Int16 upshift) {
+  SimpleType(Int16 datatype, int length, Int16 scale, int precision, ExpTupleDesc::TupleDataFormat tdf, int alignment,
+             Int16 nullFlag, Int16 nullIndicatorLen, Int16 vcIndicatorLen, DefaultClass defClass, Int16 upshift) {
     setClassID(SimpleTypeID);
     setLength(length);
     setScale(scale);
@@ -734,7 +733,7 @@ class SimpleType : public Attributes {
   // This should not happen, because of the max size in bytes of
   // a char or varchar column is 16M.
   //----------------------------------------------------------------------
-  int precision_;   // 04-07
+  int precision_;     // 04-07
   Int16 scale_;       // 08-09
   Int16 isoMapping_;  // 10-11
   Int16 collation_;   // 12-13
@@ -874,7 +873,7 @@ class ShowplanAttributes : public Attributes {
   // ---------------------------------------------------------------------
 
  private:
-  int valueId_;  // 00-03
+  int valueId_;    // 00-03
   char text_[56];  // 04-59
   // ---------------------------------------------------------------------
   // Fillers for potential future extensions without changing class size.

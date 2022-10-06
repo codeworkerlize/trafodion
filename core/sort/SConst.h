@@ -67,9 +67,8 @@
 // Added <description of the change>.
 // -----------------------------------------------------------------------
 
-#include "common/Platform.h"
-
 #include "common/BaseTypes.h"
+#include "common/Platform.h"
 const int SORT_SUCCESS = 0;
 const int SORT_FAILURE = 1;
 

@@ -2,9 +2,9 @@
 #ifndef EXP_LOB_ENUMS_H
 #define EXP_LOB_ENUMS_H
 
-#include "common/ComSmallDefs.h"
-#include "common/ComAnsiNamePart.h"
 #include "cli/sqlcli.h"
+#include "common/ComAnsiNamePart.h"
+#include "common/ComSmallDefs.h"
 #define LOB_V2_INT_HANDLE_LEN 48
 #define LOB_NAME_LEN \
   50  // LOBP_<objectUid>_<LOBnum>

@@ -13,12 +13,12 @@
 *****************************************************************************
 */
 
+#include "UdrExeIpc.h"
+#include "UdrResultSet.h"
+#include "UdrStreams.h"
 #include "udrextrn.h"
 #include "udrglobals.h"
-#include "UdrExeIpc.h"
-#include "UdrStreams.h"
 #include "udrutil.h"
-#include "UdrResultSet.h"
 
 void processAnRSLoadMessage(UdrGlobals *udrGlob, UdrServerReplyStream &msgStream, UdrRSLoadMsg &request) {
   const char *moduleName = "processAnRSLoadMessage";

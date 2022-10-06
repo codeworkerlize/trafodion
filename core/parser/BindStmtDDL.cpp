@@ -534,8 +534,6 @@ ExprNode *StmtDDLAlterCatalog::bindNode(BindWA *pBindWA) {
   return this;
 }
 
-
-
 // -----------------------------------------------------------------------
 // definition of method bindNode() for class StmtDDLAlterRoutine
 // -----------------------------------------------------------------------

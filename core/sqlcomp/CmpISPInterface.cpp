@@ -14,11 +14,12 @@
  */
 
 #include "sqlcomp/CmpISPInterface.h"
+
 #include "arkcmp/CmpISPStd.h"
 #include "arkcmp/CmpStoredProc.h"
-#include "optimizer/NATable.h"
 #include "arkcmp/NATableSt.h"
 #include "optimizer/NARoutine.h"
+#include "optimizer/NATable.h"
 
 CmpISPInterface::CmpISPInterface() { initCalled_ = FALSE; }
 

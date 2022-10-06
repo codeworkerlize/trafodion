@@ -11,9 +11,9 @@
 #ifndef BUFFERLIST_H
 #define BUFFERLIST_H
 
+#include <ComQueue.h>
 #include <NABasicObject.h>
 #include <NAType.h>
-#include <ComQueue.h>
 
 #include "ExOverflow.h"
 

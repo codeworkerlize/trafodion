@@ -17,6 +17,7 @@
 // -----------------------------------------------------------------------
 
 #include "optimizer/ColumnDesc.h"
+
 #include "common/ComASSERT.h"
 #include "common/ComOperators.h"
 

@@ -10,14 +10,14 @@
 *
 ******************************************************************************
 */
-#include "common/Platform.h"
-#include "lmjni.h"
 #include "LmResultSetJava.h"
 
-#include "LmJavaExceptionReporter.h"
 #include "LmDebug.h"
 #include "LmExtFunc.h"
+#include "LmJavaExceptionReporter.h"
 #include "LmJavaType.h"
+#include "common/Platform.h"
+#include "lmjni.h"
 // #include "exp/ExpError.h"
 
 // Constructor
@@ -458,8 +458,8 @@ LmResult LmResultSetJava::getValueAsJlong(jobject javaRS, ComUInt32 columnIndex,
 // more than 1, then fetchRowsFromJDBC() function in UdrResultSet.cpp file
 // is also required to change.
 int LmResultSetJava::fetchSpecialRows(void *dataPtr, LmParameter *colDesc, ComUInt32 numCols,
-                                        ComDiagsArea &da,   // will have errors
-                                        ComDiagsArea *rda)  // will have warnings
+                                      ComDiagsArea &da,   // will have errors
+                                      ComDiagsArea *rda)  // will have warnings
 {
   if (!moreSpecialRows()) return 0;
 

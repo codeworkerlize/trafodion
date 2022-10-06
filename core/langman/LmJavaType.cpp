@@ -12,8 +12,9 @@
 ******************************************************************************
 */
 
-#include "LmParameter.h"
 #include "LmJavaType.h"
+
+#include "LmParameter.h"
 
 #define JAVATYPETABLE_SIZE        17
 #define LM_JAVATYPE_INVALID_INDEX -1

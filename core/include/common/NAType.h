@@ -15,13 +15,13 @@
 **************************************************************************
 */
 
+#include "SQLTypeDefs.h"
 #include "common/BaseTypes.h"
 #include "common/Collections.h"
-#include "export/NAStringDef.h"
-#include "SQLTypeDefs.h"
-#include "common/dfs2rec.h"
-#include "common/charinfo.h"
 #include "common/ComSmallDefs.h"
+#include "common/charinfo.h"
+#include "common/dfs2rec.h"
+#include "export/NAStringDef.h"
 
 // forward ref for methods implemented in ../optimizer/SynthType.cpp
 class ItemExpr;
@@ -117,8 +117,7 @@ class NAType : public NABasicObject {
   // field are handled automatically)
   // ---------------------------------------------------------------------
   NAType(NAMemory *h, const NAString &adtName, NABuiltInTypeEnum ev, int dataStorageSize, NABoolean nullable = FALSE,
-         int SQLnullHdrSize = 0, NABoolean variableLength = FALSE, int lengthHeaderSize = 0,
-         int dataAlignment = 1);
+         int SQLnullHdrSize = 0, NABoolean variableLength = FALSE, int lengthHeaderSize = 0, int dataAlignment = 1);
 
   // ---------------------------------------------------------------------
   // Methods for comparing if two ADT definitions are equal.
@@ -515,7 +514,7 @@ class NAType : public NABasicObject {
   // A helper function.
   // This method returns a text representation of the datatype
   // based on the datatype information input to this method/
-  static short convertTypeToText(char *text,         /* OUTPUT */
+  static short convertTypeToText(char *text,       /* OUTPUT */
                                  int fs_datatype,  // all other vars: INPUT
                                  int length, int precision, int scale, rec_datetime_field datetimestart,
                                  rec_datetime_field datetimeend, short datetimefractprec, short intervalleadingprec,

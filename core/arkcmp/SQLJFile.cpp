@@ -1,15 +1,16 @@
 
-#include <iostream>
+#include "SQLJFile.h"
+
 #include <sys/types.h>
 
+#include <iostream>
+
 #include "Cmdline_Args.h"
-#include "export/ComDiags.h"
-#include "common/DgBaseType.h"
-#include "sqlmsg/ErrorMessage.h"
-#include "SQLJFile.h"
-#include "common/DgBaseType.h"
 #include "ExtQualModuleNames.h"
+#include "common/DgBaseType.h"
+#include "export/ComDiags.h"
 #include "mxCompileUserModule.h"
+#include "sqlmsg/ErrorMessage.h"
 
 // constructor
 SQLJFile::SQLJFile(std::string &filename) : ApplicationFile(filename), nExtracted_(0), modNamList_("") { mdf_[0] = 0; }

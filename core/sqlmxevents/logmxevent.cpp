@@ -13,5 +13,4 @@
  *
  ****************************************************************************/
 #include "common/Platform.h"
-
 #include "logmxevent_traf.cpp"

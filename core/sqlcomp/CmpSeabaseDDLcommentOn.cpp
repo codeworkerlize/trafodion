@@ -17,32 +17,21 @@
 #define SQLPARSERGLOBALS_FLAGS  // must precede all #include's
 #define SQLPARSERGLOBALS_NADEFAULTS
 
-#include "common/ComObjectName.h"
-
-#include "sqlcomp/CmpDDLCatErrorCodes.h"
-#include "parser/ElemDDLHbaseOptions.h"
-
-#include "optimizer/SchemaDB.h"
-#include "sqlcomp/CmpSeabaseDDL.h"
-#include "sqlcomp/CmpDescribe.h"
-
-#include "exp/ExpHbaseInterface.h"
-
-#include "executor/ExExeUtilCli.h"
-#include "generator/Generator.h"
-
 #include "common/ComCextdecs.h"
+#include "common/ComObjectName.h"
 #include "common/ComUser.h"
-
 #include "common/NumericType.h"
-
-#include "sqlcomp/PrivMgrCommands.h"
-
+#include "executor/ExExeUtilCli.h"
+#include "exp/ExpHbaseInterface.h"
+#include "generator/Generator.h"
+#include "optimizer/SchemaDB.h"
+#include "parser/ElemDDLHbaseOptions.h"
 #include "parser/StmtDDLCommentOn.h"
-
-#include "sqlcomp/PrivMgrComponentPrivileges.h"
+#include "sqlcomp/CmpDDLCatErrorCodes.h"
+#include "sqlcomp/CmpDescribe.h"
+#include "sqlcomp/CmpSeabaseDDL.h"
 #include "sqlcomp/PrivMgrCommands.h"
-#include "common/ComUser.h"
+#include "sqlcomp/PrivMgrComponentPrivileges.h"
 
 static char *doEscapeComment(char *src, CollHeap *heap) {
   char *ret = NULL;

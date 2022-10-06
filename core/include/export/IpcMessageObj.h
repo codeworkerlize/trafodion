@@ -17,13 +17,12 @@
 #ifndef IPCMESSAGEOBJ_H
 #define IPCMESSAGEOBJ_H
 
+#include <byteswap.h>
+
+#include "common/CollHeap.h"
+#include "common/IpcMessageType.h"
 #include "common/Platform.h"
 #include "common/str.h"
-
-#include "common/IpcMessageType.h"
-#include "common/CollHeap.h"
-
-#include <byteswap.h>
 // -----------------------------------------------------------------------
 // Contents of this file
 // -----------------------------------------------------------------------

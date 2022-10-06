@@ -11,11 +11,11 @@
 ******************************************************************************
 */
 
-#include "SortAlgo.h"
-#include "Record.h"
 #include "Const.h"
-#include "export/NABasicObject.h"
+#include "Record.h"
+#include "SortAlgo.h"
 #include "SortError.h"
+#include "export/NABasicObject.h"
 
 class SortUtil;
 class ExBMOStats;
@@ -23,9 +23,9 @@ class ExBMOStats;
 class SortTopN : public SortAlgo {  // SortAlgo inherits from NABasicObject
 
  public:
-  SortTopN(int recmax, int sortmaxmem, int recsize, NABoolean doNotallocRec, int keysize,
-           SortScratchSpace *scratch, NABoolean iterQuickSort, CollHeap *heap, SortError *sorterror,
-           int explainNodeId, ExBMOStats *bmoStats, SortUtil *sortutil);
+  SortTopN(int recmax, int sortmaxmem, int recsize, NABoolean doNotallocRec, int keysize, SortScratchSpace *scratch,
+           NABoolean iterQuickSort, CollHeap *heap, SortError *sorterror, int explainNodeId, ExBMOStats *bmoStats,
+           SortUtil *sortutil);
   ~SortTopN(void);
 
   int sortSend(void *rec, int len, void *tupp);

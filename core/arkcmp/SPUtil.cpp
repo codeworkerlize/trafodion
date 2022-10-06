@@ -1,13 +1,14 @@
 
 
 #define _SPUTIL_SP_DLL_
-#include "arkcmp/CmpISPStd.h"
-
+#include <memory.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <memory.h>
+
 #include <iostream>
+
+#include "arkcmp/CmpISPStd.h"
 
 SP_STATUS SP_FILEINFO_Compile(SP_COMPILE_ACTION /* action */, SP_COMPILE_HANDLE * /* compHandle */,
                               SP_HANDLE /* spHandle */, SP_ERROR_STRUCT * /* error */) {
@@ -30,8 +31,7 @@ SP_STATUS SP_FILEINFO_InputFormat(SP_FIELDDESC_STRUCT *format, int numFields, SP
   return SP_SUCCESS;
 }
 
-SP_STATUS SP_FILEINFO_NumOutputs(int *num, SP_COMPILE_HANDLE, SP_HANDLE /* spHandle */,
-                                 SP_ERROR_STRUCT * /* error */) {
+SP_STATUS SP_FILEINFO_NumOutputs(int *num, SP_COMPILE_HANDLE, SP_HANDLE /* spHandle */, SP_ERROR_STRUCT * /* error */) {
   *num = 3;
   return SP_SUCCESS;
 }
@@ -186,8 +186,7 @@ SP_STATUS SP_CASTING_InputFormat(SP_FIELDDESC_STRUCT *format, int numFields, SP_
   return SP_SUCCESS;
 }
 
-SP_STATUS SP_CASTING_NumOutputs(int *num, SP_COMPILE_HANDLE, SP_HANDLE /* spHandle */,
-                                SP_ERROR_STRUCT * /* error */) {
+SP_STATUS SP_CASTING_NumOutputs(int *num, SP_COMPILE_HANDLE, SP_HANDLE /* spHandle */, SP_ERROR_STRUCT * /* error */) {
   *num = 4;
   return SP_SUCCESS;
 }
@@ -336,8 +335,7 @@ SP_STATUS SP_NOINPUT_InputFormat(SP_FIELDDESC_STRUCT *format, int numFields, SP_
   return SP_SUCCESS;
 }
 
-SP_STATUS SP_NOINPUT_NumOutputs(int *num, SP_COMPILE_HANDLE, SP_HANDLE /* spHandle */,
-                                SP_ERROR_STRUCT * /* error */) {
+SP_STATUS SP_NOINPUT_NumOutputs(int *num, SP_COMPILE_HANDLE, SP_HANDLE /* spHandle */, SP_ERROR_STRUCT * /* error */) {
   *num = 0;
   return SP_SUCCESS;
 }
@@ -503,8 +501,8 @@ SP_STATUS SP_DELAY_Compile(SP_COMPILE_ACTION action, SP_COMPILE_HANDLE *cmpHandl
   return SP_SUCCESS;
 }
 
-SP_STATUS SP_DELAY_InputFormat(SP_FIELDDESC_STRUCT *format, int numFields, SP_COMPILE_HANDLE,
-                               SP_HANDLE /* spHandle */, SP_ERROR_STRUCT *error) {
+SP_STATUS SP_DELAY_InputFormat(SP_FIELDDESC_STRUCT *format, int numFields, SP_COMPILE_HANDLE, SP_HANDLE /* spHandle */,
+                               SP_ERROR_STRUCT *error) {
   if (numFields != 2) {
     error->error = -19020;
     strcpy(error->optionalString[0], "DELAY");
@@ -610,8 +608,8 @@ SP_STATUS SP_ERROR_Compile(SP_COMPILE_ACTION action, SP_COMPILE_HANDLE *cmpHandl
   }
 }
 
-SP_STATUS SP_ERROR_InputFormat(SP_FIELDDESC_STRUCT *format, int numFields, SP_COMPILE_HANDLE,
-                               SP_HANDLE /* spHandle */, SP_ERROR_STRUCT *error) {
+SP_STATUS SP_ERROR_InputFormat(SP_FIELDDESC_STRUCT *format, int numFields, SP_COMPILE_HANDLE, SP_HANDLE /* spHandle */,
+                               SP_ERROR_STRUCT *error) {
   if (numFields != 1) {
     error->error = -19020;
     strcpy(error->optionalString[0], "ERROR");
@@ -691,8 +689,8 @@ SP_STATUS SP_COL16_Compile(SP_COMPILE_ACTION action, SP_COMPILE_HANDLE *cmpHandl
   return SP_SUCCESS;
 }
 
-SP_STATUS SP_COL16_InputFormat(SP_FIELDDESC_STRUCT *format, int numFields, SP_COMPILE_HANDLE,
-                               SP_HANDLE /* spHandle */, SP_ERROR_STRUCT *error) {
+SP_STATUS SP_COL16_InputFormat(SP_FIELDDESC_STRUCT *format, int numFields, SP_COMPILE_HANDLE, SP_HANDLE /* spHandle */,
+                               SP_ERROR_STRUCT *error) {
   if (numFields != 2) {
     error->error = -19020;
     strcpy(error->optionalString[0], "COL16");
@@ -800,8 +798,8 @@ SP_STATUS SP_ROW998_Compile(SP_COMPILE_ACTION action, SP_COMPILE_HANDLE *cmpHand
   return SP_SUCCESS;
 }
 
-SP_STATUS SP_ROW998_InputFormat(SP_FIELDDESC_STRUCT *format, int numFields, SP_COMPILE_HANDLE,
-                                SP_HANDLE /* spHandle */, SP_ERROR_STRUCT *error) {
+SP_STATUS SP_ROW998_InputFormat(SP_FIELDDESC_STRUCT *format, int numFields, SP_COMPILE_HANDLE, SP_HANDLE /* spHandle */,
+                                SP_ERROR_STRUCT *error) {
   if (numFields != 1) {
     error->error = -19020;
     strcpy(error->optionalString[0], "ROW998");

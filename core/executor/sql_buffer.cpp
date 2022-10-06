@@ -26,13 +26,13 @@
 #ifdef UDRSERV_BUILD
 #include "executor/sql_buffer.h"
 #else
-#include "common/Platform.h"
-#include "executor/ex_stdh.h"
-#include "common/str.h"
 #include "comexe/ComQueue.h"
-#include "exp/exp_expr.h"
 #include "comexe/ComTdb.h"
+#include "common/Platform.h"
+#include "common/str.h"
 #include "executor/ExStats.h"
+#include "executor/ex_stdh.h"
+#include "exp/exp_expr.h"
 #endif  // UDRSERV_BUILD
 #include "executor/sql_buffer_size.h"
 
@@ -144,10 +144,10 @@ SqlBufferBase::moveStatus SqlBufferBase::moveInSendOrReplyData(
     NABoolean doMoveData,  // TRUE = move data.
     void *currQState,      // up_state(reply) or
     // down_state(send)
-    int controlInfoLen, ControlInfo **controlInfo, int projRowLen, tupp_descriptor **outTdesc,
-    ComDiagsArea *diagsArea, tupp_descriptor **diagsDesc, ex_expr_base *expr, atp_struct *atp1, atp_struct *workAtp,
-    atp_struct *destAtp, unsigned short tuppIndex, NABoolean doMoveStats, ExStatisticsArea *statsArea,
-    tupp_descriptor **statsDesc, NABoolean useExternalDA, NABoolean callerHasExternalDA, tupp_descriptor *defragTd
+    int controlInfoLen, ControlInfo **controlInfo, int projRowLen, tupp_descriptor **outTdesc, ComDiagsArea *diagsArea,
+    tupp_descriptor **diagsDesc, ex_expr_base *expr, atp_struct *atp1, atp_struct *workAtp, atp_struct *destAtp,
+    unsigned short tuppIndex, NABoolean doMoveStats, ExStatisticsArea *statsArea, tupp_descriptor **statsDesc,
+    NABoolean useExternalDA, NABoolean callerHasExternalDA, tupp_descriptor *defragTd
 #if (defined(_DEBUG))
     ,
     ex_tcb *tcb
@@ -1814,8 +1814,7 @@ SqlBufferBase *sql_buffer_pool::addBuffer(int totalBufferSize, bool failureIsFat
   return addBuffer(dynBufferList_, totalBufferSize, bufType_, failureIsFatal);
 }
 
-SqlBufferBase *sql_buffer_pool::addBuffer(int totalBufferSize, SqlBufferBase::BufferType bufType,
-                                          bool failureIsFatal) {
+SqlBufferBase *sql_buffer_pool::addBuffer(int totalBufferSize, SqlBufferBase::BufferType bufType, bool failureIsFatal) {
   return addBuffer(dynBufferList_, totalBufferSize, bufType, failureIsFatal);
 }
 

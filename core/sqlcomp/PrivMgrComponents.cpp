@@ -4,14 +4,14 @@
 
 #include "PrivMgrComponents.h"
 
-#include "sqlcomp/PrivMgrMD.h"
-#include "PrivMgrMDTable.h"
-#include "PrivMgrComponentOperations.h"
-#include "sqlcomp/PrivMgrComponentPrivileges.h"
-
-#include <string>
 #include <cstdio>
+#include <string>
+
+#include "PrivMgrComponentOperations.h"
+#include "PrivMgrMDTable.h"
 #include "common/ComSmallDefs.h"
+#include "sqlcomp/PrivMgrComponentPrivileges.h"
+#include "sqlcomp/PrivMgrMD.h"
 // sqlcli.h included because ExExeUtilCli.h needs it (and does not include it!)
 #include "cli/sqlcli.h"
 #include "executor/ExExeUtilCli.h"
@@ -19,8 +19,8 @@
 //#include "comexe/ComQueue.h"
 // CmpCommon.h contains STMTHEAP declaration
 #include "common/CmpCommon.h"
-#include "sqlcomp/CmpDDLCatErrorCodes.h"
 #include "common/ComUser.h"
+#include "sqlcomp/CmpDDLCatErrorCodes.h"
 
 namespace Components {
 // *****************************************************************************

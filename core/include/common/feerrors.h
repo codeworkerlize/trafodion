@@ -541,11 +541,11 @@ enum {
   FEREQUESTUNSUPPORTED =
       fe_base +
       3504,  // Indicates that the addressee (server) supports the dialect but not the request type of the request.
-  FESERVERVERSIONTOOLOW = fe_base +
-                          3505,  // Indicates that the server determined that the version recorded in
-                                 // MINIMUM_INTERPRETATION_VERSION was higher than its own native version. The FE error
-                                 // number range of 4000-4999 are reserved for OSS errors and include the "C" Language
-                                 // errors. These error should never be overloaded with non-OSS meaning.
+  FESERVERVERSIONTOOLOW =
+      fe_base + 3505,  // Indicates that the server determined that the version recorded in
+                       // MINIMUM_INTERPRETATION_VERSION was higher than its own native version. The FE error
+                       // number range of 4000-4999 are reserved for OSS errors and include the "C" Language
+                       // errors. These error should never be overloaded with non-OSS meaning.
 
   FE_EPERM = fe_base + 4001,            // Not owner permission denied
   FE_ENOENT = fe_base + 4002,           // No such file or directory

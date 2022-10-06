@@ -15,30 +15,30 @@
 #define SQLPARSERGLOBALS_FLAGS  // must precede all #include's
 #define SQLPARSERGLOBALS_NADEFAULTS
 
-#include "common/Platform.h"
+#include <algorithm>
 
-#include "optimizer/Sqlcomp.h"
-#include "optimizer/GroupAttr.h"
-#include "optimizer/RelMisc.h"
-#include "optimizer/RelUpdate.h"
-#include "optimizer/RelJoin.h"
-#include "optimizer/ControlDB.h"
-#include "GenExpGenerator.h"
 #include "ComTdbDp2Oper.h"
-#include "comexe/ComTdbUnion.h"
-#include "comexe/ComTdbOnlj.h"
-#include "comexe/ComTdbHbaseAccess.h"
-#include "PartFunc.h"
+#include "GenExpGenerator.h"
 #include "HashRow.h"
+#include "PartFunc.h"
 #include "arkcmp/CmpStatement.h"
-#include "optimizer/OptimizerSimulator.h"
-#include "sqlcomp/CmpSeabaseDDL.h"
+#include "comexe/ComTdbHbaseAccess.h"
+#include "comexe/ComTdbOnlj.h"
+#include "comexe/ComTdbRoot.h"
+#include "comexe/ComTdbUnion.h"
 #include "comexe/NAExecTrans.h"
 #include "common/ComEncryption.h"
-#include <algorithm>
-#include "parser/SqlParserGlobals.h"  // must be last #include
+#include "common/Platform.h"
+#include "optimizer/ControlDB.h"
+#include "optimizer/GroupAttr.h"
+#include "optimizer/OptimizerSimulator.h"
 #include "optimizer/RelExeUtil.h"
-#include "comexe/ComTdbRoot.h"
+#include "optimizer/RelJoin.h"
+#include "optimizer/RelMisc.h"
+#include "optimizer/RelUpdate.h"
+#include "optimizer/Sqlcomp.h"
+#include "parser/SqlParserGlobals.h"  // must be last #include
+#include "sqlcomp/CmpSeabaseDDL.h"
 /////////////////////////////////////////////////////////////////////
 //
 // Contents:
@@ -111,15 +111,15 @@ short DeleteCursor::codeGen(Generator *generator) {
 }
 
 static short genUpdExpr(Generator *generator,
-                        TableDesc *tableDesc,            // IN
-                        const IndexDesc *indexDesc,      // IN
-                        ValueIdArray &recExprArray,      // IN
-                        const int updatedRowAtpIndex,  // IN
-                        ex_expr **updateExpr,            // OUT
-                        int &updateRowLen,            // OUT
-                        ExpTupleDesc **ufRowTupleDesc,   // OUT fetched/updated RowTupleDesc,
-                                                         // depending on updOpt (TRUE ->fetched)
-                        NABoolean updOpt)                // IN
+                        TableDesc *tableDesc,           // IN
+                        const IndexDesc *indexDesc,     // IN
+                        ValueIdArray &recExprArray,     // IN
+                        const int updatedRowAtpIndex,   // IN
+                        ex_expr **updateExpr,           // OUT
+                        int &updateRowLen,              // OUT
+                        ExpTupleDesc **ufRowTupleDesc,  // OUT fetched/updated RowTupleDesc,
+                                                        // depending on updOpt (TRUE ->fetched)
+                        NABoolean updOpt)               // IN
 {
   ExpGenerator *expGen = generator->getExpGenerator();
 
@@ -298,17 +298,17 @@ static short genUpdConstraintExpr(Generator *generator, ItemExpr *constrTree, co
 }
 
 static short genHbaseUpdOrInsertExpr(Generator *generator, NABoolean isInsert,
-                                     ValueIdArray &updRecExprArray,          // IN
+                                     ValueIdArray &updRecExprArray,        // IN
                                      const int updateTuppIndex,            // IN
-                                     ex_expr **updateExpr,                   // OUT
-                                     int &updateRowLen,                   // OUT
-                                     ExpTupleDesc **updateTupleDesc,         // OUT updated RowTupleDesc,
-                                     Queue *&listOfUpdatedColNames,          // OUT
-                                     ex_expr **mergeInsertRowIdExpr,         // out
-                                     int &mergeInsertRowIdLen,            // OUT
+                                     ex_expr **updateExpr,                 // OUT
+                                     int &updateRowLen,                    // OUT
+                                     ExpTupleDesc **updateTupleDesc,       // OUT updated RowTupleDesc,
+                                     Queue *&listOfUpdatedColNames,        // OUT
+                                     ex_expr **mergeInsertRowIdExpr,       // out
+                                     int &mergeInsertRowIdLen,             // OUT
                                      const int mergeInsertRowIdTuppIndex,  // IN
-                                     const IndexDesc *indexDesc,             // IN
-                                     const TableDesc *tableDesc)             // IN
+                                     const IndexDesc *indexDesc,           // IN
+                                     const TableDesc *tableDesc)           // IN
 {
   ExpGenerator *expGen = generator->getExpGenerator();
   Space *space = generator->getSpace();

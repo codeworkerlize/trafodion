@@ -14,32 +14,29 @@
  */
 
 #define SQLPARSERGLOBALS_NADEFAULTS
-#include "parser/SqlParserGlobals.h"
-
-#include "common/Platform.h"
-#include "optimizer/Sqlcomp.h"
-#include "optimizer/GroupAttr.h"
-#include "optimizer/AllItemExpr.h"
-#include "PartFunc.h"
-#include "common/wstr.h"
-#include "common/NLSConversion.h"
-#include "Cost.h" /* for lookups in the defaults table */
-#include "Stats.h"
-#include "exp_function.h"  // for calling ExHDPHash::hash(data, len)
-#include "ItemFuncUDF.h"
-#include "arkcmp/CmpStatement.h"
-#include "exp/exp_datetime.h"
-#include "optimizer/Analyzer.h"
-#include "ItemSample.h"
-#include "common/ComUnits.h"
-
-#include "OptRange.h"
-
 #include <limits.h>
-
 #include <string.h>  // memcmp
 
 #include <map>  // STL map template class
+
+#include "Cost.h" /* for lookups in the defaults table */
+#include "ItemFuncUDF.h"
+#include "ItemSample.h"
+#include "OptRange.h"
+#include "PartFunc.h"
+#include "Stats.h"
+#include "arkcmp/CmpStatement.h"
+#include "common/ComUnits.h"
+#include "common/NLSConversion.h"
+#include "common/Platform.h"
+#include "common/wstr.h"
+#include "exp/exp_datetime.h"
+#include "exp_function.h"  // for calling ExHDPHash::hash(data, len)
+#include "optimizer/AllItemExpr.h"
+#include "optimizer/Analyzer.h"
+#include "optimizer/GroupAttr.h"
+#include "optimizer/Sqlcomp.h"
+#include "parser/SqlParserGlobals.h"
 
 // A constant to be used for allocating a buffer for getText()
 #define TEXT_DISPLAY_LENGTH 1001
@@ -582,9 +579,9 @@ ItemExpr *ItemExpr::constFold() {
   ValueId dummyId;
   ItemExpr *outExpr = NULL;
   int error = dummy.evaluateExpr(dummyId, expr->getValueId(), -1,
-                                   FALSE,  // don't simplify expr
-                                   TRUE,   // eval all consts
-                                   &outExpr);
+                                 FALSE,  // don't simplify expr
+                                 TRUE,   // eval all consts
+                                 &outExpr);
 
   if (error == TRUE && outExpr)
     return outExpr;
@@ -6211,9 +6208,10 @@ ItemExpr *Aggregate::transformOlapFunction(BindWA *bindWA) {
     return NULL;
   }
 
-  if (!olapOrderBy_ && (getOperatorType() == ITM_RUNNING_RANK ||
-                        getOperatorType() == ITM_RUNNING_DRANK)) {  // The use of RANK or DENSE_RANK window functions
-                                                                    // without a window ORDER BY clause is not supported.
+  if (!olapOrderBy_ &&
+      (getOperatorType() == ITM_RUNNING_RANK ||
+       getOperatorType() == ITM_RUNNING_DRANK)) {  // The use of RANK or DENSE_RANK window functions
+                                                   // without a window ORDER BY clause is not supported.
     *CmpCommon::diags() << DgSqlCode(-4344);
     bindWA->setErrStatus();
     return NULL;
@@ -9050,10 +9048,10 @@ void ConstValue::initCharConstValue(const NAString &strval, enum CharInfo::CharS
     int num_of_chars = (int)strval.length() / cachedBPC;
     if (CharInfo::isVariableWidthMultiByteCharSet(charSet)) {
       int actualCharsCount = ComputeStrLenInUCS4chars(strval.data()  // const char * pStr
-                                                        ,
-                                                        (int)strval.length()  // const int  strLenInBytes
-                                                        ,
-                                                        charSet  // const CharInfo::CharSet cs
+                                                      ,
+                                                      (int)strval.length()  // const int  strLenInBytes
+                                                      ,
+                                                      charSet  // const CharInfo::CharSet cs
       );
       CMPASSERT(actualCharsCount >= 0);  // no errors
       type_ = new (outHeap) SQLChar(outHeap,
@@ -11382,7 +11380,7 @@ ItemExpr *CompEncode::copyTopNode(ItemExpr *derivedNode, CollHeap *outHeap) {
 }
 
 int CompEncode::getEncodedLength(const CharInfo::Collation collation, const CollationInfo::CollationType ct,
-                                   const int srcLength, const NABoolean nullable) {
+                                 const int srcLength, const NABoolean nullable) {
   CMPASSERT(CollationInfo::isSystemCollation(collation));
 
   int nPasses = CollationInfo::getCollationNPasses(collation);

@@ -24,17 +24,19 @@
 #ifndef PRIVMGR_COMMANDS_H
 #define PRIVMGR_COMMANDS_H
 
-#include <string>
-#include <vector>
+#include <sys/time.h>
+
 #include <bitset>
 #include <iterator>
-#include <sys/time.h>
-#include "sqlcomp/PrivMgrMD.h"
-#include "sqlcomp/PrivMgrDefs.h"
-#include "sqlcat/TrafDDLdesc.h"
-#include "common/ComSecurityKey.h"
-#include "cli/SQLCLIdev.h"
+#include <string>
+#include <vector>
+
 #include "PrivMgrUserPrivs.h"
+#include "cli/SQLCLIdev.h"
+#include "common/ComSecurityKey.h"
+#include "sqlcat/TrafDDLdesc.h"
+#include "sqlcomp/PrivMgrDefs.h"
+#include "sqlcomp/PrivMgrMD.h"
 
 class ComDiagsArea;
 class ComSecurityKey;

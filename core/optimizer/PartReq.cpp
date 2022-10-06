@@ -14,17 +14,18 @@
 */
 
 #include "PartReq.h"
-#include "optimizer/ItemColRef.h"
-#include "optimizer/ItemLog.h"
-#include "optimizer/ItemFunc.h"
+
 #include "ReqGen.h"
+#include "common/MiscType.h"
+#include "common/NumericType.h"
+#include "common/str.h"
 #include "optimizer/GroupAttr.h"
+#include "optimizer/ItemColRef.h"
+#include "optimizer/ItemFunc.h"
+#include "optimizer/ItemLog.h"
+#include "optimizer/NAFileSet.h"
 #include "optimizer/RelScan.h"
 #include "optimizer/opt.h"
-#include "common/str.h"
-#include "common/NumericType.h"
-#include "common/MiscType.h"
-#include "optimizer/NAFileSet.h"
 #include "utility.h"
 
 // ***********************************************************************
@@ -701,8 +702,7 @@ int RequireApproximatelyNPartitions::getCountOfPartitionsLowBound() const {
     // could be a little smaller but this low bond could be
     // out of range, for example, previous formula would give 8
     // partitions which does not satisfy 9..N fuzzy requirement
-    int numOfPartsLowBound =
-        MINOF(numberOfPartitions, (int)ceil(numberOfPartitions * (1.001 - getAllowedDeviation())));
+    int numOfPartsLowBound = MINOF(numberOfPartitions, (int)ceil(numberOfPartitions * (1.001 - getAllowedDeviation())));
     // make numOfPartitions as available level of parallelism
     // 16*N, 8*N, 4*N,..., N,1 where N is the number of segments
     if (CURRSTMT_OPTDEFAULTS->isAdaptiveSegForHadoop()) {

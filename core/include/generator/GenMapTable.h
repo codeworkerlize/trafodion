@@ -19,9 +19,9 @@
  *****************************************************************************
  */
 
+#include "exp/exp_attrs.h"
 #include "optimizer/AllItemExpr.h"
 #include "optimizer/ItemExprList.h"
-#include "exp/exp_attrs.h"
 
 /////////////////////////////////////////////////////////////////
 // class MapInfo
@@ -180,10 +180,10 @@ class MapTable : public NABasicObject {
 // Bitmap for value ids in the map table.
 // ---------------------------------------------------------------------
 #define initMTBAsize 8            // initial map table bitmap array size
-  int vidBitMapArraySize_;      // size of value id bitmap array
+  int vidBitMapArraySize_;        // size of value id bitmap array
   MTBitmapUnit *vidBitMapArray_;  // array of value id bitmaps
   short *vidsInBitMapArray_;      // array of number of value ids in bitmap
-  int totalVids_;               // total number of value ids in map table
+  int totalVids_;                 // total number of value ids in map table
                                   // it is the sum of vidsInBitMapArray_
 
 // ---------------------------------------------------------------------
@@ -191,7 +191,7 @@ class MapTable : public NABasicObject {
 // ---------------------------------------------------------------------
 #define initMTMIPAsize          8  // initial map table map info array size
 #define mapInfoPtrArrayStepSize 8  // increase the map info array size by 8
-  int mapInfoPtrArraySize_;      // size of map info array ptr
+  int mapInfoPtrArraySize_;        // size of map info array ptr
   MapInfo **mapInfoPtrArray_;      // array of map infos ptrs
 
   // ---------------------------------------------------------------------

@@ -13,14 +13,14 @@
 #ifndef UDRRESULTSET_H
 #define UDRRESULTSET_H
 
-#include "udrdefs.h"
-#include "common/NAType.h"
+#include "LmParameter.h"
 #include "LmResultSet.h"
 #include "UdrExeIpc.h"
-#include "common/ComSmallDefs.h"
 #include "comexe/QueueIndex.h"
+#include "common/ComSmallDefs.h"
+#include "common/NAType.h"
+#include "udrdefs.h"
 #include "udrglobals.h"
-#include "LmParameter.h"
 // forward references
 class SPInfo;
 class UdrGlobals;
@@ -205,7 +205,7 @@ class UdrResultSet : public NABasicObject {
 
   // Fetch methods
   int fetchRows(UdrGlobals *udrGlob, SqlBuffer *request, SqlBuffer *reply, ComDiagsArea &d,
-                  NAList<ComDiagsArea *> *rowDiagsList);
+                NAList<ComDiagsArea *> *rowDiagsList);
   void fetchRowsFromCLI(UdrGlobals *udrGlob, SqlBuffer *reply, ComUInt32 &numBufferedRows, ComDiagsArea &d,
                         NAList<ComDiagsArea *> *rowDiagsList);
 

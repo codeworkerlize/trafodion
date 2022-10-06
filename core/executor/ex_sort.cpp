@@ -15,17 +15,18 @@
  *****************************************************************************
  */
 
-#include "executor/ex_stdh.h"
-#include "comexe/ComTdb.h"
-#include "executor/ex_tcb.h"
+#include "ex_sort.h"
+
+#include "ExpError.h"
 #include "SortUtil.h"
 #include "SortUtilCfg.h"
-#include "ex_sort.h"
-#include "executor/ex_expr.h"
-#include "executor/ExStats.h"
-#include "ex_exe_stmt_globals.h"
-#include "ExpError.h"
+#include "comexe/ComTdb.h"
 #include "common/NAMemory.h"
+#include "ex_exe_stmt_globals.h"
+#include "executor/ExStats.h"
+#include "executor/ex_expr.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_tcb.h"
 #include "executor/sql_buffer_size.h"
 
 #define ONE_MEG 1048576  // 1024 * 1024

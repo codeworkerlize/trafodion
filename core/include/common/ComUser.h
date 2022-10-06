@@ -18,10 +18,11 @@
 #ifndef _COM_USER_H_
 #define _COM_USER_H_
 
-#include "common/NAUserId.h"
-#include "common/ComSmallDefs.h"
-#include "cli/sqlcli.h"
 #include <vector>
+
+#include "cli/sqlcli.h"
+#include "common/ComSmallDefs.h"
+#include "common/NAUserId.h"
 
 class ComDiagsArea;
 

@@ -15,14 +15,14 @@
 
 // -----------------------------------------------------------------------
 
-#include "optimizer/Sqlcomp.h"
-#include "PartFunc.h"
-#include "common/ComSysUtils.h"
 #include "optimizer/NAFileSet.h"
-#include "optimizer/opt.h"
 
 #include "CliSemaphore.h"
+#include "PartFunc.h"
+#include "common/ComSysUtils.h"
 #include "exp/ExpHbaseDefs.h"
+#include "optimizer/Sqlcomp.h"
+#include "optimizer/opt.h"
 
 NAFileSet::NAFileSet(const QualifiedName &fileSetName, const QualifiedName &extFileSetObj,
                      const NAString &extFileSetName, enum FileOrganizationEnum org, NABoolean isSystemTable,
@@ -37,8 +37,8 @@ NAFileSet::NAFileSet(const QualifiedName &fileSetName, const QualifiedName &extF
                      NABoolean isPartLocalBaseIndex, NABoolean isPartLocalIndex, NABoolean isPartGlobalIndex,
                      NABoolean isDecoupledRangePartitioned, int fileCode, NABoolean isVolatile,
                      NABoolean inMemObjectDefn, long indexUID, TrafDesc *keysDesc, int numSaltPartns,
-                     int numInitialSaltRegions, Int16 numTrafReplicas,
-                     NAList<HbaseCreateOption *> *hbaseCreateOptions, CollHeap *h)
+                     int numInitialSaltRegions, Int16 numTrafReplicas, NAList<HbaseCreateOption *> *hbaseCreateOptions,
+                     CollHeap *h)
     : fileSetName_(fileSetName, h),
       extFileSetObj_(extFileSetObj, h),
       extFileSetName_(extFileSetName, h),
@@ -338,9 +338,8 @@ void NAFileSet::setupForStatement() {
   resetAfterStatement_ = FALSE;
 }
 
-int NAFileSet::getCountOfColumns(NABoolean excludeNonKeyColumns,
-                                   NABoolean excludeNonUserSpecifiedAlternateIndexColumns,
-                                   NABoolean excludeSystemColumns, NABoolean excludeAlwaysComputedSystemColumns) const {
+int NAFileSet::getCountOfColumns(NABoolean excludeNonKeyColumns, NABoolean excludeNonUserSpecifiedAlternateIndexColumns,
+                                 NABoolean excludeSystemColumns, NABoolean excludeAlwaysComputedSystemColumns) const {
   int numCols = 0;
   const NAColumnArray *colArray = &allColumns_;
 

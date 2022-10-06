@@ -17,15 +17,15 @@
 #ifndef LATEBINDINFO_H
 #define LATEBINDINFO_H
 
-#include "common/NAStdlib.h"  // memset()
-#include "common/NABoolean.h"
+#include "comexe/ComQueue.h"
+#include "common/Collections.h"
+#include "common/ComAnsiNamePart.h"
 #include "common/ComSizeDefs.h"
 #include "common/ComSmallDefs.h"
-#include "export/NAVersionedObject.h"
+#include "common/NABoolean.h"
+#include "common/NAStdlib.h"  // memset()
 #include "exp/exp_tuple_desc.h"
-#include "comexe/ComQueue.h"
-#include "common/ComAnsiNamePart.h"
-#include "common/Collections.h"
+#include "export/NAVersionedObject.h"
 
 class Queue;
 class NAMemory;
@@ -162,7 +162,7 @@ class LateNameInfo : public NAVersionedObject {
   static NABoolean extractParts(const char *inName,  // IN: inName separated by "."s
                                 char *outBuffer,     // IN/OUT: space where parts will be moved.
                                                      // Must be allocated by caller
-                                int &numParts,     // OUT: number of parts extracted
+                                int &numParts,       // OUT: number of parts extracted
                                 char *parts[],       // IN/OUT: array entries initialized to parts on return
                                 NABoolean dQuote);   // IN: if TRUE, parts are double quoted.
 
@@ -250,7 +250,7 @@ class LateNameInfo : public NAVersionedObject {
   char lastUsedAnsiName_[MAX_ANSI_IDENTIFIER_LEN + 1];  // 582-840
 
   char filler1_[3];                // 841-843
-  int cachedParamOffset_;        // 844-847
+  int cachedParamOffset_;          // 844-847
   char fillersLateNameInfo_[102];  // 848-949
 };
 

@@ -1,12 +1,12 @@
 
 #include "comexe/PartInputDataDesc.h"
-#include "common/str.h"
-#include "exp/exp_expr.h"
-#include "exp/ExpSqlTupp.h"
-#include "exp/ExpAtp.h"
-#include "comexe/ComPackDefs.h"
 
+#include "comexe/ComPackDefs.h"
 #include "common/BaseTypes.h"
+#include "common/str.h"
+#include "exp/ExpAtp.h"
+#include "exp/ExpSqlTupp.h"
+#include "exp/exp_expr.h"
 
 // -----------------------------------------------------------------------
 // Methods for class ExPartInputDataDesc
@@ -42,8 +42,7 @@ ExRoundRobinPartInputData::ExRoundRobinPartInputData(ex_cri_desc *partInputCriDe
     : ExPartInputDataDesc(ROUNDROBIN_PARTITIONED, partInputCriDesc, 2 * sizeof(int), numPartitions),
       numOrigRRPartitions_(numOrigRRPartitions) {}
 
-void ExRoundRobinPartInputData::copyPartInputValue(int fromPartNum, int toPartNum, char *buffer,
-                                                   int bufferLength) {
+void ExRoundRobinPartInputData::copyPartInputValue(int fromPartNum, int toPartNum, char *buffer, int bufferLength) {
   int scaleFactor = numOrigRRPartitions_ / getNumPartitions();
   int transPoint = numOrigRRPartitions_ % getNumPartitions();
 
@@ -70,9 +69,9 @@ void ExRoundRobinPartInputData::copyPartInputValue(int fromPartNum, int toPartNu
 // Methods for class ExRangePartInputData
 // -----------------------------------------------------------------------
 
-ExRangePartInputData::ExRangePartInputData(ex_cri_desc *partInputCriDesc, int partInputDataLength,
-                                           int partKeyLength, int exclusionIndicatorOffset, int numPartitions,
-                                           Space *space, int useExpressions)
+ExRangePartInputData::ExRangePartInputData(ex_cri_desc *partInputCriDesc, int partInputDataLength, int partKeyLength,
+                                           int exclusionIndicatorOffset, int numPartitions, Space *space,
+                                           int useExpressions)
     : ExPartInputDataDesc(RANGE_PARTITIONED, partInputCriDesc, partInputDataLength, numPartitions) {
   exclusionIndicatorOffset_ = exclusionIndicatorOffset;
   exclusionIndicatorLength_ = sizeof(int);  // fixed for now

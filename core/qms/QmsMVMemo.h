@@ -16,11 +16,11 @@
 #ifndef _MVMEMO_H_
 #define _MVMEMO_H_
 
-#include "export/NABasicObject.h"
-#include "common/NAString.h"
 #include "common/Collections.h"
-#include "qmscommon/QRSharedPtr.h"
+#include "common/NAString.h"
+#include "export/NABasicObject.h"
 #include "qmscommon/QRDescriptor.h"
+#include "qmscommon/QRSharedPtr.h"
 
 class MVMemo;
 class MVMemoExpression;
@@ -50,9 +50,9 @@ typedef SharedPtrValueHashIterator<const NAString, MVMemoLogicalExpression> MVMe
 typedef SharedPtrValueHash<const NAString, MVMemoPhysicalExpression> GroupExpressionHash;
 typedef SharedPtrValueHashIterator<const NAString, MVMemoPhysicalExpression> GroupExpressionHashIterator;
 
+#include "QmsGroupLattice.h"
 #include "QmsJoinGraph.h"
 #include "QmsMVCandidate.h"
-#include "QmsGroupLattice.h"
 #include "QmsWorkloadAnalysis.h"
 
 /**
@@ -391,7 +391,7 @@ class MVMemo : public NAIntrusiveSharedPtrObject {
   CollHeap *heap_;                          // Heap pointer from which to allocate internal objects.
   MVMemoExpressionHash expressionHash_;     // Hash table of logical and physical expressions.
   NAPtrArray<MVMemoGroupPtr> groupsArray_;  // Array of groups in MVMemo.
-  int nextGroup_;                         // Index of the next group to be inserted.
+  int nextGroup_;                           // Index of the next group to be inserted.
 };                                          // class MVMemo
 
 /**

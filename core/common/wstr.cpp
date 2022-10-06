@@ -14,8 +14,10 @@
  *****************************************************************************
  */
 
-#include <limits>
 #include <errno.h>
+
+#include <limits>
+
 #include "common/NAAssert.h"
 #include "common/NAWinNT.h"  // where the headers are declared. Should be moved
                              // to wstr.h later

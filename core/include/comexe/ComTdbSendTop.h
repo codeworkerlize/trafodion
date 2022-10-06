@@ -17,9 +17,9 @@
 #ifndef COM_SEND_TOP_H
 #define COM_SEND_TOP_H
 
+#include "comexe/ComExtractInfo.h"
 #include "comexe/ComTdb.h"
 #include "comexe/FragDir.h"
-#include "comexe/ComExtractInfo.h"
 
 class ExExeStmtGlobals;
 
@@ -35,9 +35,8 @@ class ComTdbSendTop : public ComTdb {
   ComTdbSendTop(ExFragId childFragId, ex_expr *moveInputValues, ex_cri_desc *givenCriDesc, ex_cri_desc *returnedCriDesc,
                 ex_cri_desc *downRecordCriDesc, ex_cri_desc *upRecordCriDesc, ex_cri_desc *workCriDesc,
                 int moveExprTuppIndex, queue_index fromParent, queue_index toParent, int downRecordLength,
-                int upRecordLength, int sendBufferSize, int numSendBuffers, int recvBufferSize,
-                int numRecvBuffers, Cardinality estNumRowsSent, Cardinality estNumRowsRecvd,
-                NABoolean logDiagnostics);
+                int upRecordLength, int sendBufferSize, int numSendBuffers, int recvBufferSize, int numRecvBuffers,
+                Cardinality estNumRowsSent, Cardinality estNumRowsRecvd, NABoolean logDiagnostics);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -185,7 +184,7 @@ class ComTdbSendTop : public ComTdb {
   Float32 p_estNumRowsRecvd_;  // 96-99
 
  protected:
-  int smTag_;                                    // 100-103
+  int smTag_;                                      // 100-103
   ComExtractConsumerInfoPtr extractConsumerInfo_;  // 104-111
 
   char fillersComTdbSendTop_[24];  // 112-131

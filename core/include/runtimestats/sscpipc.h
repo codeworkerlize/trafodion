@@ -7,8 +7,8 @@
 **********************************************************************/
 #ifndef _SSCPIPC_H_
 #define _SSCPIPC_H_
-#include "common/Ipc.h"
 #include "SqlStats.h"
+#include "common/Ipc.h"
 
 class StatsGlobals;
 class ExStatisticsArea;

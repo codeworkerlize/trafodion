@@ -19,8 +19,9 @@
  */
 
 #include <string.h>
-#include "common/Platform.h"
+
 #include "common/NAWinNT.h"
+#include "common/Platform.h"
 #include "common/unicode_char_set.h"
 
 // -----------------------------------------------------------------------

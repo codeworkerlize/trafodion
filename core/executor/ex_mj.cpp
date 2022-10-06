@@ -16,17 +16,18 @@
 // *
 // ***************************************************************************
 
-#include "executor/ex_stdh.h"
-#include "comexe/ComTdb.h"
-#include "executor/ex_tcb.h"
-#include "comexe/ComQueue.h"
 #include "ex_mj.h"
-#include "ex_exe_stmt_globals.h"
-#include "executor/ex_expr.h"
-#include "executor/ExStats.h"
-#include "sqlmxevents/logmxevent.h"
-#include "executor/sql_buffer_size.h"
+
 #include "CommonStructs.h"
+#include "comexe/ComQueue.h"
+#include "comexe/ComTdb.h"
+#include "ex_exe_stmt_globals.h"
+#include "executor/ExStats.h"
+#include "executor/ex_expr.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_tcb.h"
+#include "executor/sql_buffer_size.h"
+#include "sqlmxevents/logmxevent.h"
 
 // TODO: The merge join operator only works on one request at at time,
 // TODO: so it doesn really need to use a private state object.

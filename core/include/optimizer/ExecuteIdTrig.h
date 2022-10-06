@@ -9,8 +9,8 @@
 // temporary table.
 
 typedef struct {
-  int cpuNum;          // cpu number in the cluster
-  int pid;             // process id
+  int cpuNum;            // cpu number in the cluster
+  int pid;               // process id
   void *rootTcbAddress;  // root tcb address
 } ExecuteId;
 

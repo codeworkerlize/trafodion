@@ -4,8 +4,8 @@
 #define COM_STORED_PROC_H
 
 #include "comexe/ComTdb.h"
-#include "exp/exp_tuple_desc.h"
 #include "exp/exp_clause_derived.h"
+#include "exp/exp_tuple_desc.h"
 #include "optimizer/RelStoredProc.h"
 class ExpTupleDesc;
 class ComDiagsArea;

@@ -15,51 +15,50 @@
 *****************************************************************************
 */
 
-#include "common/Platform.h"
+#include <errno.h>
+#include <pthread.h>
+
 #include <fstream>
 #include <iostream>
 
-#include <pthread.h>
-#include <errno.h>
+#include "common/Platform.h"
 
 static pthread_t gv_main_thread_id;
 
-#include "common/NAMemory.h"
-#include "common/ComTransInfo.h"
-#include "udrserv.h"
-#include "UdrStreams.h"
-#include "export/ComDiags.h"
-#include "udrdecs.h"
-#include "sqlmsg/ErrorMessage.h"
-#include "UdrFFDC.h"
-#include "UdrDebug.h"
-#include "UdrAbortCallBack.h"
 #include "LmJavaOptions.h"
-#include "UdrCfgParser.h"
-#include "common/ComRtUtils.h"
-#include "LmLangManagerJava.h"
 #include "LmLangManagerC.h"
+#include "LmLangManagerJava.h"
 #include "LmRoutine.h"
+#include "UdrAbortCallBack.h"
+#include "UdrCfgParser.h"
+#include "UdrDebug.h"
+#include "UdrFFDC.h"
+#include "UdrStreams.h"
 #include "common/ComDefs.h"
-#include "sqludr/sqludr.h"
+#include "common/ComRtUtils.h"
+#include "common/ComTransInfo.h"
+#include "common/NAMemory.h"
 #include "common/NAUserId.h"
-
 #include "common/SCMVersHelp.h"
+#include "export/ComDiags.h"
+#include "sqlmsg/ErrorMessage.h"
+#include "sqludr/sqludr.h"
+#include "udrdecs.h"
+#include "udrserv.h"
 DEFINE_DOVERS(tdm_udrserv)
-#include "dtm/tm.h"
-
 #include <fcntl.h>
-#include <sys/types.h>
 #include <sys/stat.h>
-
+#include <sys/types.h>
 #include <unistd.h>
+
+#include "dtm/tm.h"
 #define GETPID getpid
 
-#include "Measure.h"
-
-#include <stdlib.h>
-#include <stdio.h>
 #include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "Measure.h"
 
 #ifdef UDR_OSS_DEBUG
 #include <signal.h>
@@ -111,8 +110,8 @@ static const char *MXUDR_PREFIX = "[MXUDR]";
 static const char *MXUDR_PREFIX_PLUS_SPACE = "[MXUDR] ";
 static FILE *MXUDR_OUTFILE = stdout;  // TODO: fix when stderr available
 static int invokeUdrMethod(const char *method, const char *container, const char *path, NABoolean isJava,
-                             NABoolean isUdf, NABoolean txRequired, NABoolean useVarchar, int argc, char *argv[],
-                             int nResultSets, int nTimesToInvoke, UdrGlobals &glob);
+                           NABoolean isUdf, NABoolean txRequired, NABoolean useVarchar, int argc, char *argv[],
+                           int nResultSets, int nTimesToInvoke, UdrGlobals &glob);
 
 // Dead Code
 // These methods are not used, and the interface has not been tested for a long time.
@@ -1047,7 +1046,7 @@ NABoolean processCmdLine(UdrGlobals *UdrGlob, int argc, char **argv) {
       if (!isJava) isUdf = TRUE;
 
       int result = invokeUdrMethod(method, container, path, isJava, isUdf, txRequired, useVarchar, methodArgc,
-                                     methodArgv, nResultSets, nTimesToInvoke, *UdrGlob);
+                                   methodArgv, nResultSets, nTimesToInvoke, *UdrGlob);
 
       exit(result);
 
@@ -1381,8 +1380,8 @@ static void DumpDiags(ostream &stream, ComDiagsArea *d, const char *prefix) {
 //   (3) for 'main' method the arguments are considered to be IN params
 //
 static int invokeUdrMethod(const char *method, const char *container, const char *path, NABoolean isJava,
-                             NABoolean isUdf, NABoolean txRequired, NABoolean useVarchar, int argc, char *argv[],
-                             int nResultSets, int nTimesToInvoke, UdrGlobals &glob) {
+                           NABoolean isUdf, NABoolean txRequired, NABoolean useVarchar, int argc, char *argv[],
+                           int nResultSets, int nTimesToInvoke, UdrGlobals &glob) {
   LmResult result = LM_OK;
   FILE *f = MXUDR_OUTFILE;
   const char *prefix = MXUDR_PREFIX;
@@ -1941,8 +1940,8 @@ static int processSingleCommandFromFile(FILE *in, UdrGlobals &glob) {
   fprintf(out, "%s  Command: %s\n", prefix, originalCommand);
   fprintf(out, "%s %s\n", prefix, longLine);
 
-  int result = invokeUdrMethod(method, container, path, isJava, isUdf, txRequired, useVarchar, argc, argv,
-                                 nResultSets, nTimesToInvoke, glob);
+  int result = invokeUdrMethod(method, container, path, isJava, isUdf, txRequired, useVarchar, argc, argv, nResultSets,
+                               nTimesToInvoke, glob);
 
   return result;
 

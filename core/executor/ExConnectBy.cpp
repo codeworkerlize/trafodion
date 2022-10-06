@@ -15,13 +15,12 @@
  *****************************************************************************
  */
 
-#include "executor/ex_stdh.h"
-#include "comexe/ComTdb.h"
-#include "executor/ex_tcb.h"
-
-#include "exp_clause_derived.h"
-
 #include "ExConnectBy.h"
+
+#include "comexe/ComTdb.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_tcb.h"
+#include "exp_clause_derived.h"
 
 //
 // Build a ConnectBy tcb

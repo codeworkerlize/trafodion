@@ -14,10 +14,10 @@
 
 // -----------------------------------------------------------------------
 
-#include "optimizer/Sqlcomp.h"
-#include "optimizer/GroupAttr.h"
-#include "optimizer/AllItemExpr.h"
 #include "Cost.h" /* for lookups in the defaults table */
+#include "optimizer/AllItemExpr.h"
+#include "optimizer/GroupAttr.h"
+#include "optimizer/Sqlcomp.h"
 
 // -----------------------------------------------------------------------
 //  Methods for ItemExpr
@@ -1626,7 +1626,7 @@ NABoolean VEGPredicate::applyDefaultPred(ColStatDescList &histograms, OperatorTy
         ItemExpr *cExpr = NULL;
         if (!values.referencesAConstExpr(&cExpr)) {  // veg is an "X=Y" predicate
                                                      // maxSelectivity("X=Y") == 1.0
-        } else  // veg is an "X=?" predicate
+        } else                                       // veg is an "X=?" predicate
         {
           // maxFreq = maxFrequency(X) for VEGPred "X=?"
           // NB: "maxFreq = histograms.getMaxFreq(v);" may look

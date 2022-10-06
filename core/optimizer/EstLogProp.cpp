@@ -16,17 +16,18 @@
 
 // -----------------------------------------------------------------------
 
-#include "optimizer/Sqlcomp.h"
 #include "EstLogProp.h"
-#include "optimizer/GroupAttr.h"
+
 #include "VEGTable.h"
+#include "optimizer/GroupAttr.h"
 #include "optimizer/ItemOther.h"
 #include "optimizer/RelUpdate.h"
+#include "optimizer/Sqlcomp.h"
 #include "optimizer/opt.h"
 
 /////////////////////
-#include "optimizer/Analyzer.h"
 #include "AppliedStatMan.h"
+#include "optimizer/Analyzer.h"
 /////////////////////
 
 THREAD_P ObjectCounter (*EstLogProp::counter_)(0);

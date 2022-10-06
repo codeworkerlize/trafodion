@@ -3,22 +3,23 @@
 #define SQLPARSERGLOBALS_NADEFAULTS  // should precede all other #include's
 #define SQLPARSERGLOBALS_FLAGS
 #define SQLPARSERGLOBALS_NADEFAULTS_SET
-#include "parser/SqlParserGlobals.h"
-#include "parser/SqlParserGlobalsCmn.h"
+#include "arkcmp/CmpConnection.h"
 
 #include <iostream>
-#include "common/Ipc.h"
-#include "common/CmpCommon.h"
-#include "arkcmp/CmpConnection.h"
-#include "comexe/CmpMessage.h"
-#include "arkcmp/CmpStatement.h"
+
 #include "arkcmp/CmpErrLog.h"
-#include "sqlcomp/NewDel.h"
-#include "optimizer/opt.h"
-#include "common/NAExit.h"
-#include "sqlcomp/QCache.h"
+#include "arkcmp/CmpStatement.h"
 #include "arkcmp/CompException.h"
+#include "comexe/CmpMessage.h"
+#include "common/CmpCommon.h"
+#include "common/Ipc.h"
+#include "common/NAExit.h"
 #include "optimizer/CostMethod.h"
+#include "optimizer/opt.h"
+#include "parser/SqlParserGlobals.h"
+#include "parser/SqlParserGlobalsCmn.h"
+#include "sqlcomp/NewDel.h"
+#include "sqlcomp/QCache.h"
 
 extern THREAD_P jmp_buf ExportJmpBuf;
 extern THREAD_P jmp_buf CmpInternalErrorJmpBuf;

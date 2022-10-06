@@ -15,26 +15,26 @@
  *****************************************************************************
  */
 
-#include "cli_stdh.h"
-#include "ex_stdh.h"
+#include "ex_control.h"
 
+#include "CmpContext.h"
+#include "ComQueue.h"
+#include "ComRtUtils.h"
+#include "ComSqlId.h"
 #include "ComTdb.h"
-#include "ex_tcb.h"
+#include "ComUser.h"
+#include "ExControlArea.h"
+#include "ExExeUtil.h"
+#include "ExSqlComp.h"
+#include "ExpHbaseInterface.h"
+#include "cli_stdh.h"
+#include "ex_ddl.h"
 #include "ex_exe_stmt_globals.h"
 #include "ex_frag_rt.h"
-#include "ex_control.h"
+#include "ex_stdh.h"
+#include "ex_tcb.h"
 #include "executor/ex_error.h"
-#include "ComQueue.h"
-#include "ComSqlId.h"
-#include "ExSqlComp.h"
-#include "ExControlArea.h"
 #include "exp_clause_derived.h"
-#include "ExpHbaseInterface.h"
-#include "ExExeUtil.h"
-#include "ex_ddl.h"
-#include "ComRtUtils.h"
-#include "ComUser.h"
-#include "CmpContext.h"
 
 ex_tcb *ExControlTdb::build(ex_globals *glob) {
   ExControlTcb *control_tcb = NULL;

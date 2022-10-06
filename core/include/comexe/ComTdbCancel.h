@@ -20,11 +20,11 @@ class ComTdbCancel : public ComTdb {
   NABasicPtr qid_;                 // 00-07
   Int16 action_;                   // 08-09
   Int16 forced_;                   // 10-11
-  int cancelPidBlockThreshold_;  // 12-15
+  int cancelPidBlockThreshold_;    // 12-15
   NABasicPtr comment_;             // 16-23
   NABasicPtr cancelPname_;         // 24-31
-  int cancelNid_;                // 32-35
-  int cancelPid_;                // 36-39
+  int cancelNid_;                  // 32-35
+  int cancelPid_;                  // 36-39
   char fillersComTdbCancel2_[24];  // 40-63
 
  public:

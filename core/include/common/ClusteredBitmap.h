@@ -57,8 +57,8 @@
 // significant bits (bits 8-0).
 //*********************************************************************
 
-#include "qmscommon/Range.h"
 #include "common/BloomFilter.h"
+#include "qmscommon/Range.h"
 
 class ClusteredBitmap : public NABasicObject {
   friend class ClusteredBitmapIterator;

@@ -284,13 +284,13 @@ class HashQueue : public NABasicObject {
     SEQUENTIAL_ADD = 0x0001
   };
 
-  int entries_;                // number of entries in this HashQueue
-  int hashTableSize_;          // size of the hash table
+  int entries_;                   // number of entries in this HashQueue
+  int hashTableSize_;             // size of the hash table
   HashQueueEntry **hashTable_;    // the hash table itself
   HashQueueEntry *lastReturned_;  // the last entry returned by getNext()
   HashQueueEntry *current_;       // points to the current entry
-  int currentChain_;           // the chain were current_ is located
-  int hashValue_;              // hash value of the last position
+  int currentChain_;              // the chain were current_ is located
+  int hashValue_;                 // hash value of the last position
   NABoolean globalScan_;          // if true, getNext ignores hashValue
   CollHeap *heap_;                // the heap a HashQueue allocates from
   NABoolean shadowCopy_;          // TRUE if constructed by shadow copy

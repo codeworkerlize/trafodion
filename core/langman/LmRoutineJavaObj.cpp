@@ -1,6 +1,7 @@
 
 
 #include "LmRoutineJavaObj.h"
+
 #include "org_trafodion_sql_udr_UDR.h"
 
 LmResult LmRoutineJavaObj::setRuntimeInfo(const char *qid, int totalNumInstances, int myInstanceNum, ComDiagsArea *da) {

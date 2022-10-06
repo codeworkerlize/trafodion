@@ -17,11 +17,11 @@
 #ifndef EXPLAINTUPLE_H
 #define EXPLAINTUPLE_H
 
-#include "common/Int64.h"
-#include "common/Collections.h"
-#include "export/NAVersionedObject.h"
-#include "common/charinfo.h"
 #include "common/CharType.h"
+#include "common/Collections.h"
+#include "common/Int64.h"
+#include "common/charinfo.h"
+#include "export/NAVersionedObject.h"
 
 const int MAX_REL_ARITYS = 2;
 
@@ -35,9 +35,9 @@ class ExplainDesc;
 
 struct ExplainTupleColDesc {
   // type should correspond to DataType in desc.h
-  int datatype;                    // 00-03
-  int length;                      // 04-07
-  int offset;                      // 08-11
+  int datatype;                      // 00-03
+  int length;                        // 04-07
+  int offset;                        // 08-11
   Int16 nullflag;                    // 12-13
   Int16 fillersExplainTupleColDesc;  // 14-15
 };
@@ -268,7 +268,7 @@ class ExplainTuple : public NAVersionedObject {
   // A cursor for the description field of the explain Tuple.
   // The description field is filled in in peices.  The cursor
   // is used to keep track of the current position.
-  UInt32 descCursor_;           // 08-11
+  UInt32 descCursor_;         // 08-11
   int fillersExplainTuple2_;  // 12-15
 
   // A pointer to the data.

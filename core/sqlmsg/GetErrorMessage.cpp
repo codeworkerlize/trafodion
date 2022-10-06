@@ -14,28 +14,30 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
+#include "sqlmsg/GetErrorMessage.h"
+
 #include <ctype.h>
+#include <signal.h>
 #include <stdio.h>
-#include <iostream>
 #include <stdlib.h>
 #include <string.h>
-#include <signal.h>
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 
-#include "sqlmsg/GetErrorMessage.h"
-#include "sqlmsg/ErrorMessage.h"
+#include <iostream>
+
 #include "common/NAWinNT.h"
+#include "common/Platform.h"
+#include "sqlmsg/ErrorMessage.h"
 
 //#include "sqlmxmsg_msg.h"
 
-#include "common/NLSConversion.h"
-#include "ExSMCommon.h"
-
 #include <fcntl.h>
-#include <signal.h>
 #include <nl_types.h>
+#include <signal.h>
+
+#include "ExSMCommon.h"
+#include "common/NLSConversion.h"
 
 // ----------------------------------------------------
 // Definitions common to both _WINDOWS and non-WINDOWS.

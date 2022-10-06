@@ -2,9 +2,10 @@
 
 // **********************************************************************
 
-#include "QmsMVMemo.h"
 #include "QmsGroupLattice.h"
+
 #include "QmsMVCandidate.h"
+#include "QmsMVMemo.h"
 
 //
 // QRGroupLattice

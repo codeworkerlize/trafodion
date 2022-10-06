@@ -11,10 +11,10 @@
 * Created:      2000-07-21
 *******************************************************************************
 */
-#include "common/Platform.h"
-#include "export/NABasicObject.h"
 #include "common/NABoolean.h"
 #include "common/NAWinNT.h"
+#include "common/Platform.h"
+#include "export/NABasicObject.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

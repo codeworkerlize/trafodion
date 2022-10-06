@@ -16,10 +16,11 @@
 
 // -----------------------------------------------------------------------
 
-#include "exp/exp_expr.h"
-#include "comexe/ComPackDefs.h"
-#include "comexe/ComKeyRange.h"
 #include "comexe/ComKeySingleSubset.h"
+
+#include "comexe/ComKeyRange.h"
+#include "comexe/ComPackDefs.h"
+#include "exp/exp_expr.h"
 
 keySingleSubsetGen::keySingleSubsetGen(int keyLen, ex_cri_desc *workCriDesc, unsigned short keyValuesAtpIndex,
                                        unsigned short excludeFlagAtpIndex, unsigned short dataConvErrorFlagIndex,

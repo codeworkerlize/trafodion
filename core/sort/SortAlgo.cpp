@@ -1,8 +1,8 @@
 
 
-#include <iostream>
-
 #include "SortAlgo.h"
+
+#include <iostream>
 
 //-----------------------------------------------------------------------
 //  Constructor.

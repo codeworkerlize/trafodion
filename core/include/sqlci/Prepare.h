@@ -49,8 +49,8 @@ class PrepEntry {
 
  public:
   PrepEntry(int datatype, int length, int scale, int precision, int nullFlag, int vcIndLen, char *heading_,
-            int headingLen, char *outputName, int outputNameLen_, int displayLen_, int displayBufLen_,
-            int charsetEnum_, char *tableName, int tableLen);
+            int headingLen, char *outputName, int outputNameLen_, int displayLen_, int displayBufLen_, int charsetEnum_,
+            char *tableName, int tableLen);
   ~PrepEntry();
 
   int datatype() { return datatype_; }

@@ -14,14 +14,16 @@
  *
  *****************************************************************************
  */
-#include "common/Platform.h"
-#include "UdrFFDC.h"
 #include "UdrDebug.h"
 
+#include "UdrFFDC.h"
+#include "common/Platform.h"
+
 #ifdef UDR_DEBUG
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdarg.h>
+
 #include "common/NABoolean.h"
 FILE *udrDebugFile = stdout;
 

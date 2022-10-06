@@ -15,29 +15,29 @@
 **************************************************************************
 */
 
-#include "optimizer/GroupAttr.h"
-#include "optimizer/AllRelExpr.h"
-#include "RelPackedRows.h"
-#include "optimizer/RelSequence.h"
-#include "RelSample.h"
-#include "optimizer/AllItemExpr.h"
-#include "ItemSample.h"
-#include "optimizer/opt.h"
+#include <math.h>
+
+#include "AppliedStatMan.h"
+#include "Cost.h"
 #include "EstLogProp.h"
-#include "sqlcomp/DefaultConstants.h"
-#include "optimizer/ItemOther.h"
+#include "ItemSample.h"
+#include "NodeMap.h"
+#include "RelPackedRows.h"
+#include "RelSample.h"
 #include "ScanOptimizer.h"
 #include "SimpleScanOptimizer.h"
-#include "optimizer/NAFileSet.h"
-#include "optimizer/SchemaDB.h"
-#include "optimizer/CostMethod.h"
-#include "Cost.h"
-#include "NodeMap.h"
-
 #include "arkcmp/CmpStatement.h"
+#include "optimizer/AllItemExpr.h"
+#include "optimizer/AllRelExpr.h"
+#include "optimizer/CostMethod.h"
+#include "optimizer/GroupAttr.h"
+#include "optimizer/ItemOther.h"
+#include "optimizer/NAFileSet.h"
+#include "optimizer/RelSequence.h"
+#include "optimizer/SchemaDB.h"
+#include "optimizer/opt.h"
+#include "sqlcomp/DefaultConstants.h"
 #include "sqludr/sqludr.h"
-#include "AppliedStatMan.h"
-#include <math.h>
 
 #ifndef NDEBUG
 static THREAD_P FILE *pfp = NULL;
@@ -506,8 +506,8 @@ Cost *CostMethodDP2Scan::scmComputeOperatorCostInternal(RelExpr *op, const PlanW
 //
 Cost *SimpleFileScanOptimizer::scmComputeCostVectors() {
   // NAString
-  // tname((getIndexDesc()->getPrimaryTableDesc()->getNATable()->getTableName()).getQualifiedNameAsAnsiString()); cout <<
-  // "SimpleFileScanOptimizer::scmComputeCostVectors() called, for " << tname.data() << endl;
+  // tname((getIndexDesc()->getPrimaryTableDesc()->getNATable()->getTableName()).getQualifiedNameAsAnsiString()); cout
+  // << "SimpleFileScanOptimizer::scmComputeCostVectors() called, for " << tname.data() << endl;
 
   // if the table is Hbase, then call scmComputeCostVectorsForHbase()
   if (getIndexDesc()->getPrimaryTableDesc()->getNATable()->isHbaseTable()) return scmComputeCostVectorsForHbase();
@@ -2529,8 +2529,7 @@ CostScalar CostMethodHashJoin::scmComputeOverflowCost(CostScalar numBuildTuples,
 // -----------------------------------------------------------------------
 // CostMethodMergeJoin::scmComputeOperatorCostInternal().
 // -----------------------------------------------------------------------
-Cost *CostMethodMergeJoin::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
-                                                          int &countOfStreams) {
+Cost *CostMethodMergeJoin::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams) {
   const Context *myContext = pws->getContext();
 
   mj_ = (MergeJoin *)op;
@@ -2613,8 +2612,7 @@ Cost *CostMethodMergeJoin::scmComputeOperatorCostInternal(RelExpr *op, const Pla
 // -----------------------------------------------------------------------
 // CostMethodNestedJoin::scmComputeOperatorCostInternal().
 // -----------------------------------------------------------------------
-Cost *CostMethodNestedJoin::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
-                                                           int &countOfStreams) {
+Cost *CostMethodNestedJoin::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams) {
   const Context *myContext = pws->getContext();
 
   // ---------------------------------------------------------------------
@@ -2765,8 +2763,7 @@ Cost *CostMethodNestedJoinFlow::scmComputeOperatorCostInternal(RelExpr *op, cons
 // long& countOfStreams
 //  OUT - Estimated degree of parallelism for returned preliminary cost.
 //
-Cost *CostMethodTranspose::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
-                                                          int &countOfStreams) {
+Cost *CostMethodTranspose::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams) {
   const Context *myContext = pws->getContext();
 
   // Just to make sure things are working as expected
@@ -2982,8 +2979,7 @@ Cost *CostMethodCompoundStmt::scmComputeOperatorCostInternal(RelExpr *op, const 
   return csCost;
 }  // CostMethodCompoundStmt::scmComputeOperatorInternal()
 
-Cost *CostMethodStoredProc::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
-                                                           int &countOfStreams) {
+Cost *CostMethodStoredProc::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams) {
   const Context *myContext = pws->getContext();
 
   // ---------------------------------------------------------------------
@@ -3041,8 +3037,7 @@ Cost *CostMethodTuple::scmComputeOperatorCostInternal(RelExpr *op, const PlanWor
   return tupCost;
 }  // CostMethodTuple::scmComputeOperatorInternal()
 
-Cost *CostMethodUnPackRows::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
-                                                           int &countOfStreams) {
+Cost *CostMethodUnPackRows::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams) {
   // Just to make sure things are working as expected
   //
   DCMPASSERT(op->getOperatorType() == REL_UNPACKROWS);
@@ -3075,8 +3070,7 @@ Cost *CostMethodUnPackRows::scmComputeOperatorCostInternal(RelExpr *op, const Pl
 // -----------------------------------------------------------------------
 // CostMethodMergeUnion::computeOperatorCostInternal().
 // -----------------------------------------------------------------------
-Cost *CostMethodMergeUnion::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
-                                                           int &countOfStreams) {
+Cost *CostMethodMergeUnion::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams) {
   const Context *myContext = pws->getContext();
 
   // ---------------------------------------------------------------------

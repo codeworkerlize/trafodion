@@ -21,6 +21,7 @@
 //
 
 #include "ExPackedRows.h"
+
 #include "ExSimpleSqlBuffer.h"
 #include "executor/ex_error.h"
 #include "exp/ExpError.h"

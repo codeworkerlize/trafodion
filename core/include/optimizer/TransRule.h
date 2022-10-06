@@ -17,8 +17,8 @@
 ******************************************************************************
 */
 
-#include "optimizer/Rule.h"
 #include "optimizer/Analyzer.h"
+#include "optimizer/Rule.h"
 
 //------------------------------------------------------------------------
 // forward declaration
@@ -423,7 +423,7 @@ class IndexJoinWithGroupbyRule : public Rule {
   NABoolean isPredMatch(ItemExpr *selectionPred, ItemExpr *&child);
   ItemExpr *createCondPred(ItemExpr *selectionPred);
   ItemExpr *createOrPredicate(ItemExpr *selectionPred,  // in
-                              int &predCount,         // out
+                              int &predCount,           // out
                               NABoolean &isDynStmt);    // out
   RelExpr *nextSubstituteForPass(RelExpr *before, RuleSubstituteMemory *&memory, int pass);
   RelExpr *makeSubstituteScan(Scan *s, RelExpr *partialResult);

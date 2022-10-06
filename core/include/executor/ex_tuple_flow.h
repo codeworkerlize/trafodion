@@ -132,9 +132,9 @@ class ExTupleFlowPrivateState : public ex_tcb_private_state {
   // except then we'd also need to
   // convert ComDiagsArea::setAllRowNumber
   // to take an long...
-  long srcRequestCount_;        // number of q. entries sent to right child from left child
+  long srcRequestCount_;         // number of q. entries sent to right child from left child
   NABoolean nonFatalErrorSeen_;  // to remember that a nonfatal error has been seen
-  long startRightIndex_;        // index to remember the earliest parent request for which we have
+  long startRightIndex_;         // index to remember the earliest parent request for which we have
                                  // not seen a reply yet. Used in the CANCELLED_ state.
 
   ExTupleFlowTcb::TupleFlowStep step_;

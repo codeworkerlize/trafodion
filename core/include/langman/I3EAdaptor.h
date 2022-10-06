@@ -17,6 +17,7 @@
  *****************************************************************************
  */
 #include <jni.h>
+
 #include "IntType.h"
 class I3EAdaptor {
  public:

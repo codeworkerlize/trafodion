@@ -17,14 +17,16 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
-#include "common/NAWinNT.h"  // for wchar (tcr)
 #include <iosfwd>
+
+#include "common/NAWinNT.h"  // for wchar (tcr)
+#include "common/Platform.h"
 using namespace std;
 #include <string.h>
+
 #include "common/ComOperators.h"
-#include "common/ComSmallDefs.h"
 #include "common/ComSizeDefs.h"
+#include "common/ComSmallDefs.h"
 #include "common/NABoolean.h"
 #include "common/NAString.h"
 
@@ -63,14 +65,14 @@ class ComRoutineActionNamePart;
 // -----------------------------------------------------------------------
 // returned error code described in w:/common/csconvert.h
 int ComAnsiNameToUTF8(const NAWString &inAnsiNameInUCS2  // in  - valid ANSI SQL name in UCS2/UTF16
-                        ,
-                        NAString &outBuf4AnsiNameInUTF8  // out - out buffer in UTF8
+                      ,
+                      NAString &outBuf4AnsiNameInUTF8  // out - out buffer in UTF8
 );
 
 // returned error code described in w:/common/csconvert.h
 int ComAnsiNameToUCS2(const NAString &inAnsiNameInUTF8  // in  - input C string in UTF8
-                        ,
-                        NAWString &outAnsiNameInUCS2  // out - out buffer containing UCS2/UTF16 chars
+                      ,
+                      NAWString &outAnsiNameInUCS2  // out - out buffer containing UCS2/UTF16 chars
 );
 
 // -----------------------------------------------------------------------

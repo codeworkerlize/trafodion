@@ -14,17 +14,17 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
-
-#include "common/ComSmallDefs.h"
 #include "CmpSqlSession.h"
-#include "optimizer/ObjectNames.h"
-#include "common/ComSchemaName.h"
-#include "common/NAUserId.h"
+
 #include "cli/SQLCLIdev.h"
-#include "common/ComSqlId.h"
-#include "common/ComRtUtils.h"
 #include "common/ComCextdecs.h"
+#include "common/ComRtUtils.h"
+#include "common/ComSchemaName.h"
+#include "common/ComSmallDefs.h"
+#include "common/ComSqlId.h"
+#include "common/NAUserId.h"
+#include "common/Platform.h"
+#include "optimizer/ObjectNames.h"
 
 #define SQLPARSERGLOBALS_FLAGS
 #include "parser/SqlParserGlobals.h"  // last #include
@@ -148,9 +148,8 @@ int CmpSqlSession::getUserInfoFromCLI() {
 // 3. Call a helper method that will retrieve the current user and tenant
 //    information from CLI and store copies of those values in data
 //    members.
-int CmpSqlSession::setDatabaseUserAndTenant(int userID, const char *userName, int tenantID,
-                                              const char *tenantName, const char *tenantNodes,
-                                              const char *tenantDefaultSchema) {
+int CmpSqlSession::setDatabaseUserAndTenant(int userID, const char *userName, int tenantID, const char *tenantName,
+                                            const char *tenantNodes, const char *tenantDefaultSchema) {
   NABoolean doDebug = FALSE;
 #ifdef _DEBUG
   doDebug = (getenv("DBUSER_DEBUG") ? TRUE : FALSE);

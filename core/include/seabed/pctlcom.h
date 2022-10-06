@@ -1,7 +1,6 @@
 //------------------------------------------------------------------
 //
 
-
 //
 // Process-Control module
 //
@@ -11,9 +10,8 @@
 #include <stdio.h>  // NULL
 
 #include "cc.h"  // needed by da.h
-
-#include "int/diag.h"
 #include "int/da.h"
+#include "int/diag.h"
 #include "int/exp.h"
 #include "int/types.h"
 

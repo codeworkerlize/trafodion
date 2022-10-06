@@ -17,51 +17,49 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
-
 #include <math.h>
-#include <unistd.h>
-#include <zlib.h>
 #include <openssl/md5.h>
 #include <openssl/sha.h>
+#include <unistd.h>
+#include <zlib.h>
+
 #include "ComSSL.h"
+#include "common/Platform.h"
 #define MathSqrt(op, err) sqrt(op)
 
 #include <ctype.h>
-#include <string.h>
-#include <stdio.h>
-#include <sys/syscall.h>
 #include <regex.h>
-#include <uuid/uuid.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/syscall.h>
 #include <time.h>
+#include <uuid/uuid.h>
 
+#include "SQLTypeDefs.h"
+#include "common/ComAnsiNamePart.h"
+#include "common/ComCextdecs.h"
+#include "common/ComDefs.h"
+#include "common/ComEncryption.h"
+#include "common/ComRtUtils.h"
+#include "common/ComSqlId.h"
+#include "common/ComSysUtils.h"
+#include "common/ComUser.h"
+#include "common/NAUserId.h"
 #include "common/NLSConversion.h"
 #include "common/nawstring.h"
-#include "exp/exp_stdh.h"
-#include "exp/exp_like.h"
+#include "common/ngram.h"
+#include "common/wstr.h"
+#include "executor/ex_globals.h"
+#include "exp/ExpSeqGen.h"
+#include "exp/exp_bignum.h"
 #include "exp/exp_clause_derived.h"
-#include "exp_function.h"
-
-#include "common/ComDefs.h"
-#include "SQLTypeDefs.h"
 #include "exp/exp_datetime.h"
 #include "exp/exp_interval.h"
-#include "exp/exp_bignum.h"
-#include "common/ComSysUtils.h"
-#include "common/wstr.h"
+#include "exp/exp_like.h"
+#include "exp/exp_stdh.h"
+#include "exp_function.h"
 #include "export/ComDiags.h"
-#include "common/ComAnsiNamePart.h"
-#include "common/ComSqlId.h"
-#include "common/ComCextdecs.h"
-#include "executor/ex_globals.h"
-
-#include "common/NAUserId.h"
-#include "common/ComUser.h"
-#include "exp/ExpSeqGen.h"
 #include "qmscommon/QRLogger.h"
-#include "common/ComEncryption.h"
-#include "common/ngram.h"
-#include "common/ComRtUtils.h"
 #include "seabed/sys.h"
 #undef DllImport
 #define DllImport __declspec(dllimport)
@@ -108,12 +106,10 @@ Section missing,
 #define dsecure_h_INCLUDED
 #include "security/dsecure.h"
 #endif
-#include "security/uid.h"
-
-#include "security/uid.h"
 #include "common/feerrors.h"
-#include "float.h"
 #include "exp_numberformat.h"
+#include "float.h"
+#include "security/uid.h"
 
     extern char *
     exClauseGetText(OperatorTypeEnum ote);
@@ -461,8 +457,8 @@ ex_expr::exp_return_type ex_function_substring::processNulls(char *op_data[], Co
   return ex_expr::EXPR_OK;
 };
 
-ex_function_translate::ex_function_translate(OperatorTypeEnum oper_type, Attributes **attr, Space *space,
-                                             int conv_type, Int16 flags)
+ex_function_translate::ex_function_translate(OperatorTypeEnum oper_type, Attributes **attr, Space *space, int conv_type,
+                                             Int16 flags)
     : ex_function_clause(oper_type, 2, attr, space) {
   conv_type_ = conv_type;
   flags_ = flags;
@@ -701,8 +697,8 @@ ExFunctionHbaseColumnLookup::ExFunctionHbaseColumnLookup(OperatorTypeEnum oper_t
   strcpy(colName_, colName);
 };
 
-ExFunctionHbaseColumnsDisplay::ExFunctionHbaseColumnsDisplay(OperatorTypeEnum oper_type, Attributes **attr,
-                                                             int numCols, char *colNames, Space *space)
+ExFunctionHbaseColumnsDisplay::ExFunctionHbaseColumnsDisplay(OperatorTypeEnum oper_type, Attributes **attr, int numCols,
+                                                             char *colNames, Space *space)
     : ex_function_clause(oper_type, 2, attr, space), numCols_(numCols), colNames_(colNames){};
 
 ExFunctionHbaseColumnCreate::ExFunctionHbaseColumnCreate(OperatorTypeEnum oper_type, Attributes **attr,
@@ -2238,8 +2234,8 @@ ex_expr::exp_return_type ExFunctionConvertHex::eval(char *op_data[], CollHeap *h
 }
 
 int ex_function_position::errorChecks(int startPos, int occurrence, NABoolean isInstr, const char *userTextStr,
-                                        CharInfo::Collation collation, CharInfo::CharSet cs, CollHeap *heap,
-                                        ComDiagsArea **diagsArea) {
+                                      CharInfo::Collation collation, CharInfo::CharSet cs, CollHeap *heap,
+                                      ComDiagsArea **diagsArea) {
   // startPos is 1-based.
   // If POSITION/LOCATE, startPos must be > 0.
   // If INSTR, startPos can be any value.
@@ -2321,9 +2317,9 @@ int ex_function_position::findPosition(char *pat, int patLen, char *src, int src
 }
 
 int ex_function_position::findPosition(char *sourceStr, int sourceLen, char *searchStr, int searchLen,
-                                         short bytesPerChar, Int16 nPasses, CharInfo::Collation collation,
-                                         int *numChars,  // returns number of characters, if passed in
-                                         CharInfo::CharSet cs) {
+                                       short bytesPerChar, Int16 nPasses, CharInfo::Collation collation,
+                                       int *numChars,  // returns number of characters, if passed in
+                                       CharInfo::CharSet cs) {
   // If searchLen is <= 0 or searchLen > sourceLen or
   // if searchStr is not present in sourceStr,
   // return a position of 0;
@@ -2372,7 +2368,7 @@ int ex_function_position::findPosition(char *sourceStr, int sourceLen, char *sea
 }
 
 int ex_function_position::findPositionInReverse(char *searchStr, int searchLen, char *sourceStr, int sourceLen,
-                                                  int occurrence, CharInfo::CharSet cs) {
+                                                int occurrence, CharInfo::CharSet cs) {
   // If searchLen is <= 0 or searchLen > sourceLen or
   // if searchStr is not present in sourceStr,
   // return a position of 0;
@@ -2389,7 +2385,7 @@ int ex_function_position::findPositionInReverse(char *searchStr, int searchLen, 
     if (str_cmp(searchStr, &sourceStr[position], (int)searchLen) != 0) {
       // not found.
       int number_bytes = (cs == CharInfo::UCS2 ? unicode_char_set::bytesPerChar()
-                                                 : Attributes::getFirstCharLength(&sourceStr[position], searchLen, cs));
+                                               : Attributes::getFirstCharLength(&sourceStr[position], searchLen, cs));
 
       if (number_bytes <= 0) return (int)-1;
 
@@ -3685,8 +3681,8 @@ ex_expr::exp_return_type ex_function_curr_transid::eval(char *op_data[], CollHea
 // -----------------------------------------------------------------------
 short exp_function_get_user(OperatorTypeEnum userType,  // IN - CURRENT_USER or SESSION_USER
                             char *inputUserNameBuffer,  // IN - buffer for returning the user name
-                            int inputBufferLength,    // IN - length(max) of the above buffer in bytes
-                            int *actualLength)        // OUT optional - actual length of the user name
+                            int inputBufferLength,      // IN - length(max) of the above buffer in bytes
+                            int *actualLength)          // OUT optional - actual length of the user name
 {
   if (actualLength) *actualLength = 0;
 
@@ -3753,8 +3749,8 @@ ex_expr::exp_return_type ex_function_ansi_user::eval(char *op_data[], CollHeap *
 // -----------------------------------------------------------------------
 short exp_function_get_tenant(OperatorTypeEnum userType,    // IN - CURRENT_TENANT
                               char *inputTenantNameBuffer,  // IN/OUT - buffer for returning the tenant name
-                              int inputBufferLength,      // IN - length(max) of the above buffer in bytes
-                              int &actualLength)          // OUT - actual length of the user name
+                              int inputBufferLength,        // IN - length(max) of the above buffer in bytes
+                              int &actualLength)            // OUT - actual length of the user name
 {
   actualLength = 0;
 
@@ -4593,8 +4589,8 @@ void ex_function_encode::encodeCollationKey(const UInt8 *src, int srcLength, UIn
 }  // ex_function_encode::encodeCollationKey
 
 void ex_function_encode::encodeCollationSearchKey(const UInt8 *src, int srcLength, UInt8 *encodeKey,
-                                                  const int encodedKeyLength, int &effEncodedKeyLength,
-                                                  Int16 nPasses, CharInfo::Collation collation, NABoolean rmTSpaces) {
+                                                  const int encodedKeyLength, int &effEncodedKeyLength, Int16 nPasses,
+                                                  CharInfo::Collation collation, NABoolean rmTSpaces) {
   assert(CollationInfo::isSystemCollation(collation));
 
   UInt8 *ptr;
@@ -7729,8 +7725,8 @@ short ex_function_encode::decodeKeyValue(Attributes *attr, NABoolean isDesc, cha
       // Blankpad the target (if needed).
       //
       if (vc_len < length)
-        wc_str_pad((NAWchar *)&target[attr->getVCIndicatorLength() + vc_len],
-                   (int)(length - vc_len) / sizeof(NAWchar), unicode_char_set::space_char());
+        wc_str_pad((NAWchar *)&target[attr->getVCIndicatorLength() + vc_len], (int)(length - vc_len) / sizeof(NAWchar),
+                   unicode_char_set::space_char());
 
 #if defined(NA_LITTLE_ENDIAN)
       wc_swap_bytes((NAWchar *)&target[attr->getVCIndicatorLength()], length / sizeof(NAWchar));

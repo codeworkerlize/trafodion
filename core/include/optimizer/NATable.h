@@ -3,28 +3,29 @@
 #define NATABLE_H
 
 #include <vector>
+
+#include "NAPartition.h"
+#include "Stats.h"
+#include "arkcmp/CmpISPStd.h"
+#include "cli/sqlcli.h"
 #include "common/BaseTypes.h"
 #include "common/Collections.h"
-#include "common/Int64.h"
-#include "optimizer/ItemConstr.h"
-#include "optimizer/ObjectNames.h"
-#include "common/ComSmallDefs.h"  // added for ComDiskFileFormat enum
-#include "optimizer/NAColumn.h"
-#include "optimizer/NAFileSet.h"
-#include "Stats.h"
-#include "common/NAMemory.h"
+#include "common/ComEncryption.h"
 #include "common/ComMvAttributeBitmap.h"
+#include "common/ComSecurityKey.h"
+#include "common/ComSizeDefs.h"
+#include "common/ComSmallDefs.h"  // added for ComDiskFileFormat enum
+#include "common/ComViewColUsage.h"
+#include "common/Int64.h"
+#include "common/NAMemory.h"
 #include "common/SequenceGeneratorAttributes.h"
 #include "common/charinfo.h"
 #include "common/nawstring.h"
-#include "arkcmp/CmpISPStd.h"
-#include "common/ComSizeDefs.h"
-#include "cli/sqlcli.h"
-#include "common/ComSecurityKey.h"
 #include "exp/ExpHbaseDefs.h"
-#include "common/ComViewColUsage.h"
-#include "common/ComEncryption.h"
-#include "NAPartition.h"
+#include "optimizer/ItemConstr.h"
+#include "optimizer/NAColumn.h"
+#include "optimizer/NAFileSet.h"
+#include "optimizer/ObjectNames.h"
 
 // forward declaration(s)
 //  -----------------------------------------------------------------------
@@ -260,10 +261,10 @@ class HistogramCache : public NABasicObject {
   // found in the cache. The columns whose statistics are required
   // are passed in through localArray.
   int getStatsListFromCache(StatsList &list,                                                // Out
-                              NAColumnArray &localArray,                                      // In
-                              NAHashDictionary<NAString, NABoolean> &interestingExpressions,  // In
-                              HistogramsCacheEntry *cachedHistograms,                         // In
-                              ColumnSet &singleColsFound);                                    // In \ Out
+                            NAColumnArray &localArray,                                      // In
+                            NAHashDictionary<NAString, NABoolean> &interestingExpressions,  // In
+                            HistogramsCacheEntry *cachedHistograms,                         // In
+                            ColumnSet &singleColsFound);                                    // In \ Out
 
   // This method is used to put a StatsList object, that has been
   void putStatsListIntoCache(StatsList &colStatsList, const NAColumnArray &colArray, const QualifiedName &qualifiedName,
@@ -298,8 +299,8 @@ class HistogramCache : public NABasicObject {
   NAHashDictionary<QualifiedName, HistogramsCacheEntry> *histogramsCache_;
 
   long lastTouchTime_;  // last time cache was touched
-  int hits_;          // cache hit counter
-  int lookups_;       // entries lookup counter
+  int hits_;            // cache hit counter
+  int lookups_;         // entries lookup counter
   int size_;
   FILE *tfd_;  // trace file handle
   FILE *mfd_;  // monitor file handle
@@ -534,8 +535,8 @@ class NATable : public NABasicObject {
   NABoolean fetchObjectUIDForNativeTable(const CorrName &corrName, NABoolean isView);
 
   long lookupObjectUid();  // Used to look up uid on demand for metadata tables.
-                            // On return, the "Object Not Found" error (-1389)
-                            // is filtered out from CmpCommon::diags().
+                           // On return, the "Object Not Found" error (-1389)
+                           // is filtered out from CmpCommon::diags().
 
   bool isEnabledForDDLQI() const;
 
@@ -1582,7 +1583,7 @@ class NATableDB : public NAKeyLookup<ExtendedQualName, NATable> {
   void resetIntervalWaterMark() { intervalWaterMark_ = currentCacheSize_; }
 
   // get details of this query cache entry
-  void getEntryDetails(int i,                        // (IN) : NATable cache iterator entry
+  void getEntryDetails(int i,                          // (IN) : NATable cache iterator entry
                        NATableEntryDetails &details);  // (OUT): cache entry's details
 
   NABoolean empty() { return end() == 0; }

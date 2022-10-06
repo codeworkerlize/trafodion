@@ -47,19 +47,19 @@ class ComTdbOnlj : public ComTdb {
   ExExprPtr postJoinPred_;          // 32-39
   ExExprPtr ljExpr_;                // 40-47
   ExExprPtr niExpr_;                // 48-55
-  int ljRecLen_;                  // 56-59
+  int ljRecLen_;                    // 56-59
   UInt16 instantiatedRowAtpIndex_;  // 60-61
   UInt16 flags_;                    // 62-63
-  int rowsetRowCountArraySize_;   // 64-67
+  int rowsetRowCountArraySize_;     // 64-67
   char fillersComTdbOnlj_[36];      // 68-103
 
   inline int isSemiJoin() const;        // True if we are doing a semi-join
   inline int isAntiJoin() const;        // True if we are doing a anti-join
   inline int isLeftJoin() const;        // True if we are doing a left-join
   inline int isUndoJoin() const;        // True if we are using this to drive an undo
-                                          // tree
+                                        // tree
   inline int isSetNFErrorJoin() const;  // True if we are using this to set the NF row indexes
-                                          // tree
+                                        // tree
   inline int isRowsetIterator() const;  // True if we are using this onlj to flow entries in a rowset
   inline int isIndexJoin() const;       // True if this onlj is an index join
   inline NABoolean vsbbInsertOn() const;
@@ -76,9 +76,8 @@ class ComTdbOnlj : public ComTdb {
              queue_index down, queue_index up, Cardinality estimatedRowCount, int num_buffers, int buffer_size,
              ex_expr *before_pred, ex_expr *after_pred, ex_expr *lj_expr, ex_expr *ni_expr, ex_cri_desc *work_cri_desc,
              const unsigned short instantiated_row_atp_index, int reclen, int semi_join, int anti_semi_join,
-             int left_join, int undo_join, int setNFError, int rowset_iterator, int index_join,
-             NABoolean vsbbInsert, int rowsetRowCountArraySize, NABoolean tolerateNonFatalError,
-             NABoolean drivingMVLogging);
+             int left_join, int undo_join, int setNFError, int rowset_iterator, int index_join, NABoolean vsbbInsert,
+             int rowsetRowCountArraySize, NABoolean tolerateNonFatalError, NABoolean drivingMVLogging);
 
   virtual ~ComTdbOnlj();
 

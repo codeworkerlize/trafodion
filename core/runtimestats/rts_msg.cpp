@@ -8,13 +8,14 @@
 ******************************************************************************
 */
 
-#include "common/Platform.h"
+#include "runtimestats/rts_msg.h"
+
 #include <iostream>
 
-#include "cli/sqlcli.h"
-#include "export/IpcMessageObj.h"
-#include "runtimestats/rts_msg.h"
 #include "ExCextdecs.h"
+#include "cli/sqlcli.h"
+#include "common/Platform.h"
+#include "export/IpcMessageObj.h"
 /*
 // Helper function to determine number of bytes that a string
 // will occupy in a packed IpcMessageObj.

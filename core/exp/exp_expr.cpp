@@ -15,15 +15,15 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
+#include "exp/exp_expr.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "exp/exp_stdh.h"
-#include "exp/exp_expr.h"
 #include "ExpPCode.h"
 #include "ExpPCodeOptimizations.h"
+#include "common/Platform.h"
+#include "exp/exp_stdh.h"
 
 void setVCLength(char *VCLen, int VCLenSize, int value);
 

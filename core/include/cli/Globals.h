@@ -23,15 +23,15 @@
 // -----------------------------------------------------------------------
 #include <setjmp.h>
 
-#include "common/NAMemory.h"
 #include "cli/sqlcli.h"
-#include "common/Ipc.h"
 #include "comexe/ComQueue.h"
-#include "sqlmxevents/logmxevent.h"
 #include "common/ComExeTrace.h"
 #include "common/ComRtUtils.h"
 #include "common/ComSmallDefs.h"
+#include "common/Ipc.h"
+#include "common/NAMemory.h"
 #include "executor/JavaObjectInterface.h"
+#include "sqlmxevents/logmxevent.h"
 
 class ContextCli;
 class Statement;

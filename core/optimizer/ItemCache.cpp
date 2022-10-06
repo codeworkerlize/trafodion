@@ -10,12 +10,12 @@
 *
 ******************************************************************************
 */
+#include "ItemFuncUDF.h"
+#include "common/NumericType.h"
 #include "optimizer/AllItemExpr.h"
 #include "optimizer/CacheWA.h"
-#include "sqlcomp/CmpMain.h"
-#include "common/NumericType.h"
 #include "optimizer/SchemaDB.h"
-#include "ItemFuncUDF.h"
+#include "sqlcomp/CmpMain.h"
 
 void computeAndAddSelParamIfPossible(CacheWA &cwa, BindWA &bindWA, ExprValueId &child, BaseColumn *base,
                                      ConstValue *val) {
@@ -539,7 +539,7 @@ NABoolean ConstValue::canBeSafelyCoercedTo(const NAType &target) {
 // return our size in bytes
 int ConstValue::getSize() const {
   return (int)(sizeof(*this) + getStorageSize() + (text_ ? text_->length() : 0) +
-                 (locale_strval ? locale_strval->length() : 0) + (locale_wstrval ? locale_wstrval->length() : 0));
+               (locale_strval ? locale_strval->length() : 0) + (locale_wstrval ? locale_wstrval->length() : 0));
 }
 
 // return true iff I am a string literal with unknown character set

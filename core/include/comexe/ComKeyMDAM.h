@@ -18,8 +18,8 @@
 #define COMKEYMDAM_H
 
 #include "comexe/ComKeyRange.h"
-#include "exp/exp_expr.h"
 #include "executor/MdamEnums.h"
+#include "exp/exp_expr.h"
 
 class atp_struct;
 class ex_tcb;
@@ -86,8 +86,8 @@ class MdamPred : public NAVersionedObject {
   MdamPred()  // for use by unpack only
       : NAVersionedObject(-1) {}
 
-  MdamPred(int disjunctNumber, MdamPredType pred_type, ex_expr *value, ex_expr *value2 = NULL,
-           Int16 val1Inclusive = 1, Int16 val2Inclusive = 1, Int16 reverse = 0)
+  MdamPred(int disjunctNumber, MdamPredType pred_type, ex_expr *value, ex_expr *value2 = NULL, Int16 val1Inclusive = 1,
+           Int16 val2Inclusive = 1, Int16 reverse = 0)
       : disjunctNumber_(disjunctNumber),
         predType_(pred_type),
         value_(value),
@@ -326,9 +326,9 @@ class keyMdamGen : public keyRangeGen {
     last_ = 0;
   };
 
-  keyMdamGen(int keyLen, ex_cri_desc *workCriDesc, unsigned short keyValuesAtpIndex,
-             unsigned short excludeFlagAtpIndex, unsigned short dataConvErrorFlagAtpIndex, unsigned short valueAtpIndex,
-             MdamColumnGen *first, MdamColumnGen *last, NABoolean complementKeysBeforeReturning, CollHeap *heap);
+  keyMdamGen(int keyLen, ex_cri_desc *workCriDesc, unsigned short keyValuesAtpIndex, unsigned short excludeFlagAtpIndex,
+             unsigned short dataConvErrorFlagAtpIndex, unsigned short valueAtpIndex, MdamColumnGen *first,
+             MdamColumnGen *last, NABoolean complementKeysBeforeReturning, CollHeap *heap);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.

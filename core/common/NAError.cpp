@@ -12,8 +12,9 @@
 **************************************************************************
 */
 
-#include "sqlci/SqlciParseGlobals.h"
 #include <iostream>
+
+#include "sqlci/SqlciParseGlobals.h"
 
 // -----------------------------------------------------------------------
 // NAErrorParamArray

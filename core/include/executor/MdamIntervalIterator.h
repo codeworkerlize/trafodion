@@ -19,10 +19,10 @@
 
 // -----------------------------------------------------------------------------
 
-#include "executor/MdamEnums.h"
-#include "MdamIntervalList.h"
 #include "MdamEndPoint.h"
+#include "MdamIntervalList.h"
 #include "MdamIntervalListIterator.h"
+#include "executor/MdamEnums.h"
 
 // *****************************************************************************
 // MdamIntervalIterator : MDAM Interval Iterator

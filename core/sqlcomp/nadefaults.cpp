@@ -17,11 +17,13 @@
 #define SQLPARSERGLOBALS_FLAGS  // must precede all #include's
 #define SQLPARSERGLOBALS_NADEFAULTS
 
-#include "common/Platform.h"
 #include "sqlcomp/NADefaults.h"
+
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
+
+#include "common/Platform.h"
 
 #ifdef NA_HAS_SEARCH_H
 #include <search.h>  // use the bsearch binary search routine of the C RTL
@@ -34,39 +36,35 @@
 #if !defined(NDEBUG)
 #endif
 
-#include "cli/CliDefs.h"
 #include "CliSemaphore.h"
 #include "arkcmp/CmpContext.h"
 #include "arkcmp/CmpErrors.h"
+#include "arkcmp/CompException.h"
+#include "cli/CliDefs.h"
+#include "cli/Globals.h"
+#include "cli/SQLCLIdev.h"
+#include "cli/sql_id.h"
+#include "common/ClusteredBitmap.h"
 #include "common/ComObjectName.h"
 #include "common/ComRtUtils.h"
 #include "common/ComSchemaName.h"
 #include "common/ComUser.h"
+#include "common/NAClusterInfo.h"
+#include "common/NATestpoint.h"
+#include "common/NAWNodeSet.h"
+#include "common/sq_license.h"
 #include "executor/ex_error.h"
+#include "optimizer/OptimizerSimulator.h"
+#include "optimizer/Sqlcomp.h"
+#include "parser/SqlParserGlobals.h"  // MUST be last #include!
+#include "parser/StmtCompilationMode.h"
+#include "seabed/fs.h"
+#include "seabed/ms.h"
+#include "sqlcomp/CmpSeabaseDDL.h"
 #include "sqlcomp/DefaultConstants.h"
 #include "sqlcomp/DefaultValidator.h"
-#include "common/NAClusterInfo.h"
-#include "sqlcomp/parser.h"
-#include "cli/sql_id.h"
-#include "cli/SQLCLIdev.h"
-#include "optimizer/Sqlcomp.h"
-#include "parser/StmtCompilationMode.h"
-#include "optimizer/OptimizerSimulator.h"
-#include "sqlcomp/CmpSeabaseDDL.h"
-#include "cli/Globals.h"
 #include "sqlcomp/QCache.h"
-
-#include "seabed/ms.h"
-#include "seabed/fs.h"
-#include "arkcmp/CompException.h"
-#include "common/ClusteredBitmap.h"
-
-#include "parser/SqlParserGlobals.h"  // MUST be last #include!
-
-#include "common/NAWNodeSet.h"
-
-#include "common/NATestpoint.h"
-#include "common/sq_license.h"
+#include "sqlcomp/parser.h"
 
 #define NADHEAP          CTXTHEAP
 #define ERRWARN(msg)     ToErrorOrWarning(msg, errOrWarn)
@@ -3152,9 +3150,7 @@ inline static const char *getAttrName(int attrEnum) { return defaultDefaults[def
 
 inline static const char *getDefaultDefaultValue(int attrEnum) { return defaultDefaults[defDefIx_[attrEnum]].value; }
 
-inline static const DefaultValidator *validator(int attrEnum) {
-  return defaultDefaults[defDefIx_[attrEnum]].validator;
-}
+inline static const DefaultValidator *validator(int attrEnum) { return defaultDefaults[defDefIx_[attrEnum]].validator; }
 
 inline static UInt32 getFlags(int attrEnum) { return defaultDefaults[defDefIx_[attrEnum]].flags; }
 
@@ -3951,7 +3947,7 @@ void NADefaults::readFromDefaultsTable(Provenance overwriteIfNotYet, int errOrWa
     int hbaseErr = 0;
     NAString hbaseErrStr;
     int errNum = cmpSBD.validateVersions(this, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &hbaseErr,
-                                           &hbaseErrStr);
+                                         &hbaseErrStr);
     if (errNum == 0)  // seabase is initialized properly
     {
       currentState_ = READ_FROM_SQL_TABLE;

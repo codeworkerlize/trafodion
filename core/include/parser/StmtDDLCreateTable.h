@@ -17,27 +17,27 @@
  *****************************************************************************
  */
 
-#include "common/ComSmallDefs.h"
-#include "ElemDDLNode.h"
-#include "parser/ElemDDLColDefArray.h"
-#include "parser/ElemDDLColRefArray.h"
 #include "ElemDDLDivisionClause.h"
-#include "ElemDDLSaltOptions.h"
-#include "ElemDDLReplicateClause.h"
 #include "ElemDDLLikeCreateTable.h"
 #include "ElemDDLLocation.h"
+#include "ElemDDLNode.h"
 #include "ElemDDLPartitionArray.h"
-#include "parser/ElemDDLSGOptions.h"
+#include "ElemDDLReplicateClause.h"
+#include "ElemDDLSaltOptions.h"
 #include "ElemDDLTableFeature.h"
-#include "parser/ElemDDLFileAttrMisc.h"
 #include "ItemConstValueArray.h"
 #include "ParDDLFileAttrsCreateTable.h"
 #include "ParDDLLikeOptsCreateTable.h"
-#include "parser/StmtDDLNode.h"
 #include "StmtDDLAddConstraintArray.h"
 #include "StmtDDLAddConstraintCheckArray.h"
+#include "common/ComSmallDefs.h"
+#include "parser/ElemDDLColDefArray.h"
+#include "parser/ElemDDLColRefArray.h"
+#include "parser/ElemDDLFileAttrMisc.h"
+#include "parser/ElemDDLSGOptions.h"
 #include "parser/StmtDDLAddConstraintRIArray.h"
 #include "parser/StmtDDLAddConstraintUniqueArray.h"
+#include "parser/StmtDDLNode.h"
 
 // -----------------------------------------------------------------------
 // contents of this file
@@ -54,7 +54,6 @@ class StmtDDLCreateHbaseTable;
 // Create Table statement
 // -----------------------------------------------------------------------
 class StmtDDLCreateTable : public StmtDDLNode {
-
   friend void StmtDDLCreateTable_visitTableDefElement(ElemDDLNode *pThisNode, CollIndex index, ElemDDLNode *pElement);
 
   // Visit an element in a left linear tree list.  Each element
@@ -520,8 +519,6 @@ class StmtDDLCreateTable : public StmtDDLNode {
   // clause does not appear.
 
   void setFileAttributes(ElemDDLFileAttrClause *pFileAttrClause);
-
-
 
   // the same as file attributes but apply only to MVs
 

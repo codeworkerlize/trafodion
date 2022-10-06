@@ -16,9 +16,8 @@
 #ifndef COMREGAPI_H_
 #define COMREGAPI_H_
 
-#include "common/Platform.h"
-
 #include "common/ComSmallDefs.h"
+#include "common/Platform.h"
 
 // log the error message in the event log.
 void logErrorMessageInEventLog(int msgId, const char *msg);

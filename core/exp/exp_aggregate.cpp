@@ -17,12 +17,12 @@
 
 // -----------------------------------------------------------------------
 
-#include "common/Platform.h"
-
 #include <stddef.h>
-#include "exp/exp_stdh.h"
-#include "exp/exp_clause_derived.h"
+
+#include "common/Platform.h"
 #include "common/str.h"
+#include "exp/exp_clause_derived.h"
+#include "exp/exp_stdh.h"
 
 ///////////////////////////////////////////////////
 // class AggrExpr

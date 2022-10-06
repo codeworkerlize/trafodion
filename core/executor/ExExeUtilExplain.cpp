@@ -15,23 +15,21 @@
  *****************************************************************************
  */
 
-#include "common/ComCextdecs.h"
-#include "cli_stdh.h"
-#include "ex_stdh.h"
-#include "sql_id.h"
-#include "ex_transaction.h"
-#include "ComTdb.h"
-#include "ex_tcb.h"
-#include "ComSqlId.h"
-
-#include "ExExeUtil.h"
-#include "ex_exe_stmt_globals.h"
-#include "exp_expr.h"
-#include "exp_clause_derived.h"
 #include "ComRtUtils.h"
+#include "ComSqlId.h"
+#include "ComTdb.h"
+#include "ExExeUtil.h"
 #include "ExStats.h"
-
 #include "SqlParserGlobalsEnum.h"
+#include "cli_stdh.h"
+#include "common/ComCextdecs.h"
+#include "ex_exe_stmt_globals.h"
+#include "ex_stdh.h"
+#include "ex_tcb.h"
+#include "ex_transaction.h"
+#include "exp_clause_derived.h"
+#include "exp_expr.h"
+#include "sql_id.h"
 
 //////////////////////////////////////////////////////////
 // classes defined in this file:
@@ -103,7 +101,7 @@ ExExeUtilDisplayExplainTcb::~ExExeUtilDisplayExplainTcb() {
 // Redefine virtual method allocatePstates, to be used by dynamic queue
 // resizing, as well as the initial queue construction.
 ////////////////////////////////////////////////////////////////////////
-ex_tcb_private_state *ExExeUtilDisplayExplainTcb::allocatePstates(int &numElems,  // inout, desired/actual elements
+ex_tcb_private_state *ExExeUtilDisplayExplainTcb::allocatePstates(int &numElems,      // inout, desired/actual elements
                                                                   int &pstateLength)  // out, length of one element
 {
   PstateAllocator<ExExeUtilDisplayExplainPrivateState> pa;
@@ -1475,9 +1473,9 @@ void ExExeUtilDisplayExplainTcb::FormatForF() {
 
   // place the cardinality
   float absval = cardinality_;  // absolute value of input
-  int valInt = 0;             // integer part of float value
-  int valDec = 0;             // decimal part of float value
-  int valExp = 0;             // expontial part of float value
+  int valInt = 0;               // integer part of float value
+  int valDec = 0;               // decimal part of float value
+  int valExp = 0;               // expontial part of float value
   float nbrDec = 100.0F;        // 2 decimal digits
   // float valRnd  = 0.005F;     // value to add for rounding if we did it
   // we do no rounding since this is the way things were done in older options 'f'
@@ -1884,8 +1882,7 @@ const FilterKeyValueStruct filterKeyValue[] = {
 
 };
 
-NABoolean ExExeUtilDisplayExplainTcb::filterKey(const char *key, int keySize, char *value, char *retVal,
-                                                int &decLoc) {
+NABoolean ExExeUtilDisplayExplainTcb::filterKey(const char *key, int keySize, char *value, char *retVal, int &decLoc) {
   if ((!key) || (keySize == 0)) return FALSE;
 
   int maxSize = sizeof(filterKeyValue) / sizeof(FilterKeyValueStruct);
@@ -1932,10 +1929,10 @@ NABoolean ExExeUtilDisplayExplainTcb::filterKey(const char *key, int keySize, ch
   return FALSE;
 }
 
-void ExExeUtilDisplayExplainTcb::FormatLine(const char *key, const char *inval, int keySize, int valSize,
-                                            int indent, int decLoc) {
-  char *line;    // ptr to line to insert
-  char *temp;    // working ptr
+void ExExeUtilDisplayExplainTcb::FormatLine(const char *key, const char *inval, int keySize, int valSize, int indent,
+                                            int decLoc) {
+  char *line;  // ptr to line to insert
+  char *temp;  // working ptr
   int cnt;     // value space available
   int dashes;  // count of dots to set
   int keycut;  // size of keyword col permitted (cut if not zero)
@@ -1944,7 +1941,7 @@ void ExExeUtilDisplayExplainTcb::FormatLine(const char *key, const char *inval, 
   char valBuf[1000];
   char *val = (char *)inval;
   // See if we can do anything
-  if (cntLines_ >= MLINE) {                       // if output is full
+  if (cntLines_ >= MLINE) {                     // if output is full
     cnt = (int)str_len(lines_[cntLines_ - 1]);  // size line
     if (cnt > 60) {
       cnt = 60;
@@ -2096,15 +2093,14 @@ The input value string must not be in a constant because this routine cuts
 it as needed (and restores the cut after).  So val = "this is a test" does
 not work.
 *****/
-void ExExeUtilDisplayExplainTcb::FormatLongLine(const char *key, char *val, int keySize, int valSize,
-                                                int indent) {
-  char *inptr = val;        // current ptr to value string remaining
+void ExExeUtilDisplayExplainTcb::FormatLongLine(const char *key, char *val, int keySize, int valSize, int indent) {
+  char *inptr = val;      // current ptr to value string remaining
   int locSize = valSize;  // size of value string remaining
-  char *tmp;                // working ptr
+  char *tmp;              // working ptr
   int cnt;                // value space available for this pass
   int scancnt;            // count of characters backscanned
   int cutSize;            // size of string after cut
-  char c;                   // temp for cut character
+  char c;                 // temp for cut character
   int sp;                 // space not found on this pass if 0
   int comma;              // comma not found on this pass if 0
   int first = 1;          // first line of fold being done if 1
@@ -2157,13 +2153,12 @@ void ExExeUtilDisplayExplainTcb::FormatLongLine(const char *key, char *val, int 
       tmp = inptr + cnt - sp + 1;  // find sp char
     } else {                       // else just cut at end
       int lenInBytes = cnt;
-      int indexOfLastByteOfUtf8Char =
-          IndexOfLastByteOfUTF8CharAtOrBeforePos((const unsigned char *)inptr  // utf8Str
-                                                 ,
-                                                 (const int)lenInBytes  // utf8StrLenInBytes
-                                                 ,
-                                                 (const int)(lenInBytes - 1)  // bytePos
-          );
+      int indexOfLastByteOfUtf8Char = IndexOfLastByteOfUTF8CharAtOrBeforePos((const unsigned char *)inptr  // utf8Str
+                                                                             ,
+                                                                             (const int)lenInBytes  // utf8StrLenInBytes
+                                                                             ,
+                                                                             (const int)(lenInBytes - 1)  // bytePos
+      );
       if (indexOfLastByteOfUtf8Char >= 0) lenInBytes = indexOfLastByteOfUtf8Char + 1;
       tmp = inptr + lenInBytes;
     }
@@ -2265,26 +2260,26 @@ void ExExeUtilDisplayExplainTcb::FormatSQL(const char *key, char *val, int keySi
 
   // The working variables can go on the stack
   char *inptr = val;              // current ptr to value string remaining
-  int locSize = valSize;        // size of value string remaining
+  int locSize = valSize;          // size of value string remaining
   char *the_end = val + valSize;  // pointer to real end of string + 1
   char last_char = *the_end;      // last char in string + 1, usually a blank
-  int cnt;                      // value space available for this pass
+  int cnt;                        // value space available for this pass
   char *DMLptr = NULL;            // DML array to be used for this command
-  int DMLtype = 0;              // DML array, 0 = DMLUsel, 1 = DMLLsel, etc. order above
-  int DMLpos = 0;               // DML entry being tested
-  int DMLecnt;                  // Entry count in chosen DML array
-  int paren[2];                 // next parens found, start/end position
-  int toksize;                  // size of next token in the array
-  int cut;                      // position of cut (relative to inptr)
-  int parUsed = 0;              // flag saying we skipped over parens now
-  int valSeen = 0;              // flag, =1 insert being processed, =2 values now
-  int good;                     // end paren for last good data looked at
-  int good2;                    // end paren for last cut looked at
+  int DMLtype = 0;                // DML array, 0 = DMLUsel, 1 = DMLLsel, etc. order above
+  int DMLpos = 0;                 // DML entry being tested
+  int DMLecnt;                    // Entry count in chosen DML array
+  int paren[2];                   // next parens found, start/end position
+  int toksize;                    // size of next token in the array
+  int cut;                        // position of cut (relative to inptr)
+  int parUsed = 0;                // flag saying we skipped over parens now
+  int valSeen = 0;                // flag, =1 insert being processed, =2 values now
+  int good;                       // end paren for last good data looked at
+  int good2;                      // end paren for last cut looked at
   char *locinptr;                 // temp in ptr for use in substrings
   char *tn = NULL;                // working ptr, temp next for compression
-  int moving = 0;               // =1 compression has begun
-  int cnt_blank;                // count of space characters seen together
-  int quoting = 0;              // =1 we are in a quoted string, no compression
+  int moving = 0;                 // =1 compression has begun
+  int cnt_blank;                  // count of space characters seen together
+  int quoting = 0;                // =1 we are in a quoted string, no compression
   char *tmp;                      // working ptr (ptr to cut spot)
   char c;                         // temp for cut character
   char d = 0;                     // temp for quote char
@@ -2438,10 +2433,10 @@ void ExExeUtilDisplayExplainTcb::FormatSQL(const char *key, char *val, int keySi
       good = 0;          // nothing found yet
       while (1) {        // while more find max line
         // Scan for next close parens
-        while (c = *locinptr++) {              // while end not seen
-          if (c == ')') {                      // if close paren
+        while (c = *locinptr++) {            // while end not seen
+          if (c == ')') {                    // if close paren
             good = (int)(locinptr - inptr);  // note possible cut
-            locinptr--;                        // back up in case of end
+            locinptr--;                      // back up in case of end
             break;
           }
         }
@@ -2580,8 +2575,8 @@ their char positions from inStr.  It will return -1 if no match found.
 *****/
 int ExExeUtilDisplayExplainTcb::FindParens(char *inStr, int par[]) const {
   char *tmp1 = inStr;  // working ptr
-  int par2dp = 0;    // nesting found if not 0
-  int cnt = 0;       // char counter
+  int par2dp = 0;      // nesting found if not 0
+  int cnt = 0;         // char counter
   char c;
 
   // Begin first scan for open paren
@@ -2654,7 +2649,7 @@ This routine will check for an empty line in the lines_ array and do nothing
 if there is no space.  That should never happen.
 *****/
 void ExExeUtilDisplayExplainTcb::FormatFirstLine(void) {
-  char *line;    // ptr to line to insert
+  char *line;  // ptr to line to insert
   int cnt;     // process name size
   int dashes;  // count of equals to set
 
@@ -2668,7 +2663,7 @@ void ExExeUtilDisplayExplainTcb::FormatFirstLine(void) {
 
   // Format the first two fields of the line
   cnt = (int)str_len(operName_);  // see what we got, max is MOPER=30
-  str_cpy_c(line, operName_);       // start the line with operator name
+  str_cpy_c(line, operName_);     // start the line with operator name
   line += cnt;
   *line++ = ' ';          // one space
   dashes = 43 - 1 - cnt;  // see how much filler
@@ -2690,11 +2685,11 @@ void ExExeUtilDisplayExplainTcb::FormatFirstLine(void) {
     str_sprintf(line, "CHILDREN %d, %d", leftChild_, rightChild_);
   }
   // verify numbers were not too long
-  cnt = MWIDE - 61;                  // set max size in char
+  cnt = MWIDE - 61;                // set max size in char
   if ((int)str_len(line) > cnt) {  // if it exceed 79 char
-    line += cnt;                     // point to last char
-    *line-- = '\0';                  // do cut
-    *line = '*';                     // show cut
+    line += cnt;                   // point to last char
+    *line-- = '\0';                // do cut
+    *line = '*';                   // show cut
   }
 
   // Clean up and exit
@@ -2740,8 +2735,8 @@ if there is no space.
 void ExExeUtilDisplayExplainTcb::DoSeparator(void) {
   char *line;             // ptr to line to insert
   const char *proc_name;  // ptr to process name string, ""=none
-  int cnt;              // process name size
-  int dashes;           // count of dashes to set
+  int cnt;                // process name size
+  int dashes;             // count of dashes to set
 
   // See if we can do anything
   if (cntLines_ >= MLINE) {  // if output is full
@@ -2771,8 +2766,8 @@ void ExExeUtilDisplayExplainTcb::DoSeparator(void) {
     */
   // Output line now if needed
   cnt = (int)str_len(proc_name);  // get size
-  if (cnt) {                        // if something to output
-    dashes = MWIDE - cnt;           // see how many dashes needed
+  if (cnt) {                      // if something to output
+    dashes = MWIDE - cnt;         // see how many dashes needed
     while (dashes--) {
       *line++ = '-';
     }                            // set dashes
@@ -2814,8 +2809,7 @@ the field scan that failed.  In this case there could be a value pointer returne
 or not, but only the done paramater can be used.  There are several ways
 it could fail, but they should not happen unless the input data is corrupted.
 *****/
-int ExExeUtilDisplayExplainTcb::ParseField(char *&keyptr, char *&fieldptr, int &keySize, int &fullSize,
-                                             int &done) {
+int ExExeUtilDisplayExplainTcb::ParseField(char *&keyptr, char *&fieldptr, int &keySize, int &fullSize, int &done) {
   // Initialize working variables
   char *wrkptr;  // working ptr
 
@@ -2827,20 +2821,20 @@ int ExExeUtilDisplayExplainTcb::ParseField(char *&keyptr, char *&fieldptr, int &
     done = 1;  // say no more
     return (-1);
   }
-  *wrkptr = '\0';                      // cut off colon
+  *wrkptr = '\0';                    // cut off colon
   keySize = (int)(wrkptr - keyptr);  // get size
-  wrkptr++;                            // move to blank
+  wrkptr++;                          // move to blank
   while ((*wrkptr) == ' ') {
     wrkptr++;
   }  // scan through blanks
 
   // isolate the value
-  fieldptr = wrkptr;                      // must be value for keyword
-  wrkptr = str_str(fieldptr, ": ");       // see if we can find next keyword
-  if (wrkptr == NULL) {                   // if not found, must be last in string
+  fieldptr = wrkptr;                    // must be value for keyword
+  wrkptr = str_str(fieldptr, ": ");     // see if we can find next keyword
+  if (wrkptr == NULL) {                 // if not found, must be last in string
     fullSize = (int)str_len(fieldptr);  // just use all of it
-    wrkptr = fieldptr + fullSize - 1;     // locates last char
-    while (*(wrkptr--) == ' ') {          // backscan over blanks
+    wrkptr = fieldptr + fullSize - 1;   // locates last char
+    while (*(wrkptr--) == ' ') {        // backscan over blanks
       fullSize--;
     }
     wrkptr += 2;
@@ -2864,7 +2858,7 @@ int ExExeUtilDisplayExplainTcb::ParseField(char *&keyptr, char *&fieldptr, int &
     fieldptr = wrkptr;        // due to no value, empty string value, or error
 
   fullSize = (int)(wrkptr - fieldptr);  // get length of value string
-  return (0);                             // return success
+  return (0);                           // return success
 }
 
 /*************************************************************
@@ -2894,9 +2888,9 @@ state machine.
 int ExExeUtilDisplayExplainTcb::IsNumberFmt(char *fieldptr) const {
   char *wrkptr = fieldptr;  // working ptr
   char c;                   // temp for current char
-  int n_cnt = 0;          // Number of digits seen
-  int d_cnt = 1;          // Number of '.' permitted in string
-  int e_cnt = 1;          // Number of 'E' permitted in string
+  int n_cnt = 0;            // Number of digits seen
+  int d_cnt = 1;            // Number of '.' permitted in string
+  int e_cnt = 1;            // Number of 'E' permitted in string
 
   // Scan for simple numeric of type 22, 22.22, -3.0E-003, ignore single digits
   if (*(wrkptr + 1) == '\0') {
@@ -2987,12 +2981,12 @@ int ExExeUtilDisplayExplainTcb::GetField(char *col, const char *key, char *&fiel
   }  // scan through blanks
 
   // isolate the value
-  fieldptr = wrkptr;                      // must be value for keyword
-  wrkptr = str_str(fieldptr, ": ");       // see if we can find next keyword
-  if (wrkptr == NULL) {                   // if not found, must be last in string
+  fieldptr = wrkptr;                    // must be value for keyword
+  wrkptr = str_str(fieldptr, ": ");     // see if we can find next keyword
+  if (wrkptr == NULL) {                 // if not found, must be last in string
     fullSize = (int)str_len(fieldptr);  // just use all of it
-    wrkptr = fieldptr + fullSize - 1;     // locates last char
-    while (*(wrkptr--) == ' ') {          // backscan over blanks
+    wrkptr = fieldptr + fullSize - 1;   // locates last char
+    while (*(wrkptr--) == ' ') {        // backscan over blanks
       fullSize--;
     }
     wrkptr += 2;  // point to where we should cut
@@ -3007,7 +3001,7 @@ int ExExeUtilDisplayExplainTcb::GetField(char *col, const char *key, char *&fiel
     wrkptr++;  // point to where null should be
   }
   fullSize = (int)(wrkptr - fieldptr);  // get length of value string
-  return (0);                             // return success
+  return (0);                           // return success
 }
 
 /*************************************************************
@@ -3041,20 +3035,20 @@ This routine must be careful to use only string functions that exist in the exec
 *****/
 void ExExeUtilDisplayExplainTcb::FormatNumber(char *outStr, int &intSize, int &fullSize, char *strVal) const {
   char c;                 // temp
-  int cnt = 0;          // count of characters in input
-  int neg = 0;          // input is negative if 1
-  int cntzero;          // count of trailing zeros
-  int maxIntDig;        // max int digits we can add commas into
-  int decSize;          // final dot and digit size when a float
-  int maxSize;          // place to cut long floats
-  int intexp;           // exponent string converted to int
-  int expdig = 0;       // loc of E if found
-  int dotdig = 0;       // loc of decimal point if found
+  int cnt = 0;            // count of characters in input
+  int neg = 0;            // input is negative if 1
+  int cntzero;            // count of trailing zeros
+  int maxIntDig;          // max int digits we can add commas into
+  int decSize;            // final dot and digit size when a float
+  int maxSize;            // place to cut long floats
+  int intexp;             // exponent string converted to int
+  int expdig = 0;         // loc of E if found
+  int dotdig = 0;         // loc of decimal point if found
   char *ptrin1 = strVal;  // input pointer, chg only if neg
   char *ptrout = outStr;  // output pointer, chg only if neg
   char *ptrwrk = strVal;  // working variables
   char *tmpPtr;           // working variable
-  int negFlg = 0;       // exponent is not negative
+  int negFlg = 0;         // exponent is not negative
 
   // Scan the input for decimal point and E and total length.
   if (*ptrin1 == '-') {     // if input negative
@@ -3146,7 +3140,7 @@ void ExExeUtilDisplayExplainTcb::FormatNumber(char *outStr, int &intSize, int &f
     int digmove = expdig - 1;  // digits we have to move
     int i = 0;                 // digits moved
     int decdig = 2;            // decimal digits max for normal mode
-    if (optFlag_ == E_) {        // if 4 decimals needed
+    if (optFlag_ == E_) {      // if 4 decimals needed
       decdig = 4;
     }
     if (intexp > 0) {  // if value > 10 (exp > 0)
@@ -3309,13 +3303,13 @@ The format %04d tells it to zero pad with exactly 4 digits.
 *****/
 void ExExeUtilTcb::FormatFloat(char *outStr, int &intSize, int &fullSize, double floatVal, NABoolean normalMode,
                                NABoolean expertMode) const {
-  int neg = 0;             // input is negative if 1
+  int neg = 0;               // input is negative if 1
   double absval = floatVal;  // absolute value of input
-  int cntzero;             // count of trailing zeros
+  int cntzero;               // count of trailing zeros
   char *ptr;                 // working variable for neg use
-  int valInt = 0;          // integer part of float value
-  int valDec = 0;          // decimal part of float value
-  int valExp = 0;          // expontial part of float value
+  int valInt = 0;            // integer part of float value
+  int valDec = 0;            // decimal part of float value
+  int valExp = 0;            // expontial part of float value
   float nbrDec;              // 10*(number_of_decimal_digits)
   float valRnd;              // value to add for rounding
   const char *fmtPtr;        // points to correct format string
@@ -3341,7 +3335,7 @@ void ExExeUtilTcb::FormatFloat(char *outStr, int &intSize, int &fullSize, double
     }
     nbrDec = 1000000.0F;  // take 6 digits
     valRnd = 0.0000005F;
-    absval += valRnd;        // first round up if needed
+    absval += valRnd;      // first round up if needed
     valInt = (int)absval;  // get the integer part
     absval -= valInt;
     valDec = (int)(absval * nbrDec);  // get the decimal part as long
@@ -3373,7 +3367,7 @@ void ExExeUtilTcb::FormatFloat(char *outStr, int &intSize, int &fullSize, double
     fmtPtr = "%d.%02d";  // request 2 decimal digits, zero padded
     cntzero = 2;         // set count of digits
   }
-  absval += valRnd;        // first round up if needed
+  absval += valRnd;      // first round up if needed
   valInt = (int)absval;  // get the integer part
   absval -= valInt;
   valDec = (int)(absval * nbrDec);  // get the decimal part as long
@@ -3437,8 +3431,8 @@ and output will be 1,234,567.89.  This routine will not work properly on negativ
 numbers, so don't call it.
 *****/
 void ExExeUtilTcb::AddCommas(char *outStr, int &intSize) const {
-  int loc;      // character position to cut before, 0 base
-  int iter;     // iterations needed
+  int loc;        // character position to cut before, 0 base
+  int iter;       // iterations needed
   char temp[40];  // save cut data here
 
   // Begin processing

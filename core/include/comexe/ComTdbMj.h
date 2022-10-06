@@ -55,8 +55,8 @@ class ComTdbMj : public ComTdb {
   ExExprPtr ljExpr_;               // 72-79
   ExExprPtr niExpr_;               // 80-87
   ExExprPtr rightCopyDupExpr_;     // 88-95
-  int rightDupRecLen_;           // 96-99
-  int ljRecLen_;                 // 100-103
+  int rightDupRecLen_;             // 96-99
+  int ljRecLen_;                   // 100-103
   Int16 instantiatedRowAtpIndex_;  // 104-105
   UInt16 flags_;                   // 106-107
   UInt32 encodedKeyLen_;           // 108-111

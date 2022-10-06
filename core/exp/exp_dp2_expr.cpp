@@ -15,12 +15,12 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"
+#include "exp_dp2_expr.h"
 
+#include "common/Platform.h"
 #include "exp/ExpAtp.h"
 #include "exp/ExpSqlTupp.h"
 #include "exp/exp_stdh.h"
-#include "exp_dp2_expr.h"
 
 // -----------------------------------------------------------------------
 // This static method computes the space to be reserved at compile-time

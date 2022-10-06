@@ -16,8 +16,8 @@
 */
 
 #include "optimizer/ObjectNames.h"
-#include "optimizer/RelExpr.h"
 #include "optimizer/Rel3GL.h"
+#include "optimizer/RelExpr.h"
 // -----------------------------------------------------------------------
 // contents of this file
 // -----------------------------------------------------------------------
@@ -541,7 +541,7 @@ class MergeUnion : public Union {
   //
   // -----------------------------------------------------------------------
   NABoolean finalizeUnionSortKey(const ValueIdList &knownSortKey,  // IN
-                                 int knownSide,                  // IN
+                                 int knownSide,                    // IN
                                  const ValueIdSet &arrCols,        // IN
                                  ValueIdList &unionSortKey);       // IN&OUT
 

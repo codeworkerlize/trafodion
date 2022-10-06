@@ -66,8 +66,8 @@ class ComViewColUsage {
   void unpackUsage(const char *viewColUsageStr) {
     int theRefdObjectType;
     int retcode = sscanf(viewColUsageStr, "viewUID: %Ld viewCol: %d refUID: %Ld refCol: %d refType: %d%*s",
-                           (long long int *)&viewUID_, &viewColNumber_, (long long int *)&refdUID_, &refdColNumber_,
-                           &theRefdObjectType);
+                         (long long int *)&viewUID_, &viewColNumber_, (long long int *)&refdUID_, &refdColNumber_,
+                         &theRefdObjectType);
     assert(retcode == 5);
     refdObjectType_ = (ComObjectType)theRefdObjectType;
   }
