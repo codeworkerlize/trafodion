@@ -25,7 +25,7 @@
 #endif
 #include "parser/SqlParserGlobals.h"
 #include "parser/ElemDDLParamDef.h"
-#include "ElemDDLPassThroughParamDef.h"
+#include "parser/ElemDDLPassThroughParamDef.h"
 
 // -----------------------------------------------------------------------
 // Definition of class ElemDDLParamDefArray

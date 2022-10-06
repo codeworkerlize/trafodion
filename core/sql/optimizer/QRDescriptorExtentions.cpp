@@ -20,7 +20,7 @@
 #include "optimizer/ItemFunc.h"
 #include "optimizer/ItemColRef.h"
 #include "optimizer/ItemFunc.h"
-#include "ItemLog.h"
+#include "optimizer/ItemLog.h"
 #include "ItemArith.h"
 #include "common/NumericType.h"
 

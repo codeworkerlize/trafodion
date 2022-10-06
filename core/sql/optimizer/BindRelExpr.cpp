@@ -36,7 +36,7 @@
 #include "RelDCL.h"
 #include "RelPackedRows.h"
 #include "optimizer/RelSequence.h"
-#include "SqlParserAux.h"
+#include "parser/SqlParserAux.h"
 #include "StmtDDLAddConstraintCheck.h"
 #include "UdrErrors.h"
 #include "arkcmp/CmpStatement.h"

@@ -23,7 +23,7 @@
 #include "optimizer/CostMethod.h"
 #include "optimizer/opt.h"
 #include "cli/Globals.h"
-#include "SqlParserAux.h"
+#include "parser/SqlParserAux.h"
 
 // -----------------------------------------------------------------------
 // This file contains all the methods for the class RelSample.

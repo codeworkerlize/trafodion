@@ -142,8 +142,7 @@ CPPSRC += vers_libexecutor.cpp \
 	ExSMExitHandler.cpp \
 	ExSMShortMessage.cpp \
 	ExSMReadyList.cpp \
-        MemoryTableDB.cpp \
-        MemoryTableClient.cpp
+        MemoryTableDB.cpp 
 
 SYS_LIBS := -lrt -lpthread
 SRCPATH := bin executor runtimestats porting_layer qmscommon

@@ -24,7 +24,7 @@
 #include "optimizer/CostMethod.h"
 #include "optimizer/ItmFlowControlFunction.h"
 #include "optimizer/UdfDllInteraction.h"
-#include "StmtDDLNode.h"
+#include "parser/StmtDDLNode.h"
 
 #include "optimizer/NATable.h"
 #include "common/NumericType.h"

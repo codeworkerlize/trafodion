@@ -20,7 +20,7 @@
 
 #include "common/ComASSERT.h"
 #include "export/ComDiags.h"
-#include "ElemDDLPassThroughParamDef.h"
+#include "parser/ElemDDLPassThroughParamDef.h"
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLPassThroughParamDef

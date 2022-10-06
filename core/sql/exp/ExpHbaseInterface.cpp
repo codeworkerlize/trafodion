@@ -12,19 +12,19 @@
 ****************************************************************************
 */
 
-#include "executor/ex_stdh.h"
 #include "exp/ExpHbaseInterface.h"
+
+#include "arkcmp/CmpContext.h"
+#include "cli/Context.h"
+#include "cli/Globals.h"
+#include "cli/SessionDefaults.h"
+#include "common/CmpCommon.h"
 #include "common/str.h"
-#include "export/NAStringDef.h"
 #include "ex_ex.h"
 #include "executor/ExStats.h"
-#include "cli/Globals.h"
+#include "executor/ex_stdh.h"
+#include "export/NAStringDef.h"
 #include "runtimestats/SqlStats.h"
-#include "common/CmpCommon.h"
-#include "arkcmp/CmpContext.h"
-#include "cli/SessionDefaults.h"
-#include "cli/Context.h"
-#include "executor/MemoryTableClient.h"
 
 // ===========================================================================
 // ===== Class ExpHbaseInterface
@@ -164,10 +164,10 @@ int ExpHbaseInterface_JNI::deleteColumns(HbaseStr &tblName, HbaseStr &column) {
 }
 
 int ExpHbaseInterface::fetchAllRows(HbaseStr &tblName, int numInCols, HbaseStr &col1NameStr, HbaseStr &col2NameStr,
-                                      HbaseStr &col3NameStr,
-                                      LIST(NAString) & col1ValueList,  // output
-                                      LIST(NAString) & col2ValueList,  // output
-                                      LIST(NAString) & col3ValueList)  // output
+                                    HbaseStr &col3NameStr,
+                                    LIST(NAString) & col1ValueList,  // output
+                                    LIST(NAString) & col2ValueList,  // output
+                                    LIST(NAString) & col3ValueList)  // output
 {
   int retcode;
 
@@ -238,9 +238,9 @@ int ExpHbaseInterface::fetchAllRows(HbaseStr &tblName, int numInCols, HbaseStr &
 int ExpHbaseInterface::copy(HbaseStr &srcTblName, HbaseStr &tgtTblName, NABoolean force) { return -HBASE_COPY_ERROR; }
 
 int ExpHbaseInterface::backupObjects(const std::vector<Text> &tables, const std::vector<Text> &incrBackupEnabled,
-                                       const std::vector<Text> &lobLocList, const char *backuptag,
-                                       const char *extendedAttributes, const char *backupType, const int backupThreads,
-                                       const int progressUpdateDelay) {
+                                     const std::vector<Text> &lobLocList, const char *backuptag,
+                                     const char *extendedAttributes, const char *backupType, const int backupThreads,
+                                     const int progressUpdateDelay) {
   return HBASE_CREATE_SNAPSHOT_ERROR;
 }
 
@@ -249,8 +249,8 @@ int ExpHbaseInterface::createSnapshotForIncrBackup(const std::vector<Text> &tabl
 }
 
 int ExpHbaseInterface::setHiatus(const NAString &hiatusObjectName, NABoolean lockOperation,
-                                   NABoolean createSnapIfNotExist, NABoolean ignoreSnapIfNotExist,
-                                   const int parallelThreads) {
+                                 NABoolean createSnapIfNotExist, NABoolean ignoreSnapIfNotExist,
+                                 const int parallelThreads) {
   return HBASE_CREATE_SNAPSHOT_ERROR;
 }
 
@@ -273,13 +273,12 @@ int ExpHbaseInterface::finalizeRestore(const char *backuptag, const char *backup
 }
 
 int ExpHbaseInterface::deleteBackup(const char *backuptag, NABoolean timestamp, NABoolean cascade, NABoolean force,
-                                      NABoolean skipLock) {
+                                    NABoolean skipLock) {
   return HBASE_DELETE_BACKUP_ERROR;
 }
 
 int ExpHbaseInterface::exportOrImportBackup(const char *backuptag, NABoolean isExport, NABoolean override,
-                                              const char *location, int parallelThreads,
-                                              const int progressUpdateDelay) {
+                                            const char *location, int parallelThreads, const int progressUpdateDelay) {
   return HBASE_EXPORT_IMPORT_BACKUP_ERROR;
 }
 
@@ -290,22 +289,20 @@ int ExpHbaseInterface::listAllBackups(NAArray<HbaseStr> **backupList, NABoolean 
 NAArray<HbaseStr> *ExpHbaseInterface::getLinkedBackupTags(const char *backuptag) { return NULL; }
 
 int ExpHbaseInterface::coProcAggr(HbaseStr &tblName,
-                                    int aggrType,  // 0:count, 1:min, 2:max, 3:sum, 4:avg
-                                    const Text &startRow, const Text &stopRow, const Text &colFamily,
-                                    const Text &colName, const NABoolean cacheBlocks, const int numCacheRows,
-                                    const NABoolean replSync,
-                                    Text &aggrVal)  // returned value
+                                  int aggrType,  // 0:count, 1:min, 2:max, 3:sum, 4:avg
+                                  const Text &startRow, const Text &stopRow, const Text &colFamily, const Text &colName,
+                                  const NABoolean cacheBlocks, const int numCacheRows, const NABoolean replSync,
+                                  Text &aggrVal)  // returned value
 {
   return -HBASE_OPEN_ERROR;
 }
 
 int ExpHbaseInterface::coProcAggr(HbaseStr &tblName,
-                                    int aggrType,  // 0:count, 1:min, 2:max, 3:sum, 4:avg
-                                    const Text &startRow, const Text &stopRow, const Text &colFamily,
-                                    const Text &colName, const NABoolean cacheBlocks, const int numCacheRows,
-                                    const NABoolean replSync,
-                                    Text &aggrVal,  // returned value
-                                    int isolationLevel, int lockMode) {
+                                  int aggrType,  // 0:count, 1:min, 2:max, 3:sum, 4:avg
+                                  const Text &startRow, const Text &stopRow, const Text &colFamily, const Text &colName,
+                                  const NABoolean cacheBlocks, const int numCacheRows, const NABoolean replSync,
+                                  Text &aggrVal,  // returned value
+                                  int isolationLevel, int lockMode) {
   return -HBASE_OPEN_ERROR;
 }
 
@@ -334,10 +331,7 @@ ExpHbaseInterface_JNI::ExpHbaseInterface_JNI(CollHeap *heap, const char *connect
       asyncHtc_(NULL),
       retCode_(HBC_OK),
       storageType_(storageType),
-      mtc_(NULL),
-      asyncMtc_(NULL),
       ddlValidator_(NULL),
-      mhtc_(NULL),
       readFromMemoryTable_(false),
       memoryTableIsDisabled_(false),
       memDBinitFailed_(false) {
@@ -357,8 +351,6 @@ ExpHbaseInterface_JNI::~ExpHbaseInterface_JNI() {
   if (brc_ != NULL) brc_ = NULL;
 
   client_ = NULL;
-
-  if (mhtc_ != NULL) mhtc_ = NULL;  // memory leakage ?
 }
 
 //----------------------------------------------------------------------------
@@ -404,11 +396,7 @@ int ExpHbaseInterface_JNI::cleanup() {
           client_->releaseHTableClient(htc_);
           htc_ = NULL;
         }
-        if (mhtc_) {
-          mhtc_->cleanupResultInfo();
-          NADELETE(mhtc_, MemoryTableClient, mhtc_->getNAMemory());
-          mhtc_ = NULL;
-        }
+
         if (asyncHtc_) {
           client_->releaseHTableClient(asyncHtc_);
           asyncHtc_ = NULL;
@@ -455,8 +443,8 @@ int ExpHbaseInterface_JNI::create(HbaseStr &tblName, const NAList<HbaseStr> &col
 
 //----------------------------------------------------------------------------
 int ExpHbaseInterface_JNI::create(HbaseStr &tblName, NAText *hbaseCreateOptionsArray, int numSplits, int keyLength,
-                                    const char **splitValues, NABoolean useHbaseXn, NABoolean isMVCC,
-                                    NABoolean incrBackupEnabled) {
+                                  const char **splitValues, NABoolean useHbaseXn, NABoolean isMVCC,
+                                  NABoolean incrBackupEnabled) {
   if (client_ == NULL) {
     if (init(hbs_) != HBASE_ACCESS_SUCCESS) return -HBASE_ACCESS_ERROR;
   }
@@ -477,8 +465,8 @@ int ExpHbaseInterface_JNI::create(HbaseStr &tblName, NAText *hbaseCreateOptionsA
 
 //----------------------------------------------------------------------------
 int ExpHbaseInterface_JNI::create(HbaseStr &tblName, int tableType, const NAList<HbaseStr> &cols,
-                                    NAText *monarchCreateOptionsArray, int numSplits, int keyLength,
-                                    const char **splitValues, NABoolean useHbaseXn, NABoolean isMVCC) {
+                                  NAText *monarchCreateOptionsArray, int numSplits, int keyLength,
+                                  const char **splitValues, NABoolean useHbaseXn, NABoolean isMVCC) {
   return -HBASE_CREATE_ERROR;
 }
 
@@ -621,8 +609,8 @@ NAArray<HbaseStr> *ExpHbaseInterface_JNI::listAll(const char *pattern) {
 }
 
 //----------------------------------------------------------------------------
-int ExpHbaseInterface_JNI::namespaceOperation(short oper, const char *nameSpace, int numKeyValEntries,
-                                                NAText *keyArray, NAText *valArray, NAArray<HbaseStr> **retNames) {
+int ExpHbaseInterface_JNI::namespaceOperation(short oper, const char *nameSpace, int numKeyValEntries, NAText *keyArray,
+                                              NAText *valArray, NAArray<HbaseStr> **retNames) {
   if (client_ == NULL) {
     if ((retCode_ = init(hbs_)) != HBASE_ACCESS_SUCCESS) return retCode_;
   }
@@ -656,9 +644,9 @@ int ExpHbaseInterface_JNI::copy(HbaseStr &srcTblName, HbaseStr &tgtTblName, NABo
 
 //-------------------------------------------------------------------------------
 int ExpHbaseInterface_JNI::backupObjects(const std::vector<Text> &tables, const std::vector<Text> &incrBackupEnabled,
-                                           const std::vector<Text> &lobLocList, const char *backuptag,
-                                           const char *extendedAttributes, const char *backupType,
-                                           const int backupThreads, const int progressUpdateDelay) {
+                                         const std::vector<Text> &lobLocList, const char *backuptag,
+                                         const char *extendedAttributes, const char *backupType,
+                                         const int backupThreads, const int progressUpdateDelay) {
   if (brc_ == NULL || client_ == NULL) {
     return -HBASE_ACCESS_ERROR;
   }
@@ -687,8 +675,8 @@ int ExpHbaseInterface_JNI::createSnapshotForIncrBackup(const std::vector<Text> &
 }
 
 int ExpHbaseInterface_JNI::setHiatus(const NAString &hiatusObjectName, NABoolean lockOperation,
-                                       NABoolean createSnapIfNotExist, NABoolean ignoreSnapIfNotExist,
-                                       const int parallelThreads) {
+                                     NABoolean createSnapIfNotExist, NABoolean ignoreSnapIfNotExist,
+                                     const int parallelThreads) {
   if (brc_ == NULL || client_ == NULL) {
     return -HBASE_ACCESS_ERROR;
   }
@@ -756,8 +744,8 @@ int ExpHbaseInterface_JNI::finalizeRestore(const char *backuptag, const char *ba
     return -HBASE_RESTORE_SNAPSHOT_ERROR;
 }
 
-int ExpHbaseInterface_JNI::deleteBackup(const char *backuptag, NABoolean timestamp, NABoolean cascade,
-                                          NABoolean force, NABoolean skipLock) {
+int ExpHbaseInterface_JNI::deleteBackup(const char *backuptag, NABoolean timestamp, NABoolean cascade, NABoolean force,
+                                        NABoolean skipLock) {
   if (brc_ == NULL || client_ == NULL) {
     return -HBASE_ACCESS_ERROR;
   }
@@ -771,8 +759,8 @@ int ExpHbaseInterface_JNI::deleteBackup(const char *backuptag, NABoolean timesta
 }
 
 int ExpHbaseInterface_JNI::exportOrImportBackup(const char *backuptag, NABoolean isExport, NABoolean override,
-                                                  const char *location, int parallelThreads,
-                                                  const int progressUpdateDelay) {
+                                                const char *location, int parallelThreads,
+                                                const int progressUpdateDelay) {
   if (brc_ == NULL || client_ == NULL) {
     return -HBASE_ACCESS_ERROR;
   }
@@ -786,7 +774,7 @@ int ExpHbaseInterface_JNI::exportOrImportBackup(const char *backuptag, NABoolean
 }
 
 int ExpHbaseInterface_JNI::listAllBackups(NAArray<HbaseStr> **backupList, NABoolean shortFormat,
-                                            NABoolean reverseOrder) {
+                                          NABoolean reverseOrder) {
   if (brc_ == NULL || client_ == NULL) {
     return -HBASE_ACCESS_ERROR;
   }
@@ -900,15 +888,17 @@ int ExpHbaseInterface_JNI::exists(HbaseStr &tblName) {
 int ExpHbaseInterface_JNI::getTable(HbaseStr &tblName) { return -HBASE_ACCESS_ERROR; }
 
 //----------------------------------------------------------------------------
-int ExpHbaseInterface_JNI::scanOpen(
-    HbaseStr &tblName, const Text &startRow, const Text &stopRow, const LIST(HbaseStr) & columns,
-    const int64_t timestamp, const NABoolean useHbaseXn, const NABoolean useMemoryScan, const int lockMode,
-    int isolationLevel, const NABoolean skipReadConflict, const NABoolean skipTransaction, const NABoolean replSync,
-    const NABoolean cacheBlocks, const NABoolean smallScanner, const int numCacheRows, const NABoolean preFetch,
-    const LIST(NAString) * inColNamesToFilter, const LIST(NAString) * inCompareOpList,
-    const LIST(NAString) * inColValuesToCompare, int numReplications, Float32 dopParallelScanner, Float32 samplePercent,
-    NABoolean useSnapshotScan, int snapTimeout, char *snapName, char *tmpLoc, int espNum, HbaseAccessOptions *hao,
-    const char *hbaseAuths, const char *encryptionInfo) {
+int ExpHbaseInterface_JNI::scanOpen(HbaseStr &tblName, const Text &startRow, const Text &stopRow,
+                                    const LIST(HbaseStr) & columns, const int64_t timestamp, const NABoolean useHbaseXn,
+                                    const NABoolean useMemoryScan, const int lockMode, int isolationLevel,
+                                    const NABoolean skipReadConflict, const NABoolean skipTransaction,
+                                    const NABoolean replSync, const NABoolean cacheBlocks, const NABoolean smallScanner,
+                                    const int numCacheRows, const NABoolean preFetch,
+                                    const LIST(NAString) * inColNamesToFilter, const LIST(NAString) * inCompareOpList,
+                                    const LIST(NAString) * inColValuesToCompare, int numReplications,
+                                    Float32 dopParallelScanner, Float32 samplePercent, NABoolean useSnapshotScan,
+                                    int snapTimeout, char *snapName, char *tmpLoc, int espNum, HbaseAccessOptions *hao,
+                                    const char *hbaseAuths, const char *encryptionInfo) {
   long transID;
 
   if (useHbaseXn)
@@ -920,26 +910,6 @@ int ExpHbaseInterface_JNI::scanOpen(
 
       break;
     default:
-
-      if (useMemoryScan) {
-        if (!mhtc_) mhtc_ = new ((NAHeap *)heap_) MemoryTableClient((NAHeap *)heap_, tblName.val);
-
-        if (mhtc_) {
-          if (mhtc_->getHTableCache()) {
-            readFromMemoryTable_ = true;
-            mhtc_->setFetchMode(MemoryTableClient::SCAN_FETCH);
-            retCode_ = mhtc_->scanOpen(tblName.val, startRow, stopRow, numCacheRows);
-
-            if (retCode_ == HBC_OK)
-              return HBASE_ACCESS_SUCCESS;
-            else
-              return -HBASE_OPEN_ERROR;
-          } else if (mhtc_->tableIsDisabled())
-            memoryTableIsDisabled_ = true;
-          else if (mhtc_->memDBinitFailed())
-            memDBinitFailed_ = true;
-        }
-      }
 
       htc_ = client_->getHTableClient((NAHeap *)heap_, tblName.val, useTRex_, replSync, FALSE, hbs_);
       if (htc_ == NULL) {
@@ -998,10 +968,10 @@ int ExpHbaseInterface_JNI::scanClose() {
 
 //----------------------------------------------------------------------------
 int ExpHbaseInterface_JNI::getRowOpen(HbaseStr &tblName, const HbaseStr &row, const LIST(HbaseStr) & columns,
-                                        const int64_t timestamp, int numReplications, const int lockMode,
-                                        int isolationLevel, const NABoolean useMemoryScan,
-                                        const NABoolean skipReadConflict, HbaseAccessOptions *hao,
-                                        const char *hbaseAuths, const char *encryptionInfo) {
+                                      const int64_t timestamp, int numReplications, const int lockMode,
+                                      int isolationLevel, const NABoolean useMemoryScan,
+                                      const NABoolean skipReadConflict, HbaseAccessOptions *hao, const char *hbaseAuths,
+                                      const char *encryptionInfo) {
   long transID = getTransactionIDFromContext();
   long savepointID;
   long pSavepointId;
@@ -1019,21 +989,6 @@ int ExpHbaseInterface_JNI::getRowOpen(HbaseStr &tblName, const HbaseStr &row, co
       if (ddlValidator_ && !ddlValidator_->isDDLValidForReads()) {
         htc_ = NULL;
         return HBASE_INVALID_DDL;
-      }
-
-      if (useMemoryScan) {
-        if (!mhtc_) mhtc_ = new ((NAHeap *)heap_) MemoryTableClient((NAHeap *)heap_, tblName.val);
-        if (mhtc_) {
-          if (mhtc_->getHTableCache()) {
-            readFromMemoryTable_ = true;
-            mhtc_->setFetchMode(MemoryTableClient::GET_ROW);
-            retCode_ = mhtc_->startGet((char *)tblName.val, row);
-            return retCode_;
-          } else if (mhtc_->tableIsDisabled())
-            memoryTableIsDisabled_ = true;
-          else if (mhtc_->memDBinitFailed())
-            memDBinitFailed_ = true;
-        }
       }
 
       htc_ = new ((NAHeap *)heap_) HTableClient_JNI((NAHeap *)heap_, (jobject)-1);
@@ -1059,10 +1014,10 @@ int ExpHbaseInterface_JNI::getRowOpen(HbaseStr &tblName, const HbaseStr &row, co
 
 //----------------------------------------------------------------------------
 int ExpHbaseInterface_JNI::getRowsOpen(HbaseStr &tblName, const LIST(HbaseStr) * rows, const LIST(HbaseStr) & columns,
-                                         const int64_t timestamp, int numReplications, const int lockMode,
-                                         int isolationLevel, const NABoolean useMemoryScan,
-                                         const NABoolean skipReadConflict, const NABoolean skipTransactionForBatchGet,
-                                         HbaseAccessOptions *hao, const char *hbaseAuths, const char *encryptionInfo) {
+                                       const int64_t timestamp, int numReplications, const int lockMode,
+                                       int isolationLevel, const NABoolean useMemoryScan,
+                                       const NABoolean skipReadConflict, const NABoolean skipTransactionForBatchGet,
+                                       HbaseAccessOptions *hao, const char *hbaseAuths, const char *encryptionInfo) {
   long transID = getTransactionIDFromContext();
   long savepointID;
   long pSavepointId;
@@ -1079,21 +1034,6 @@ int ExpHbaseInterface_JNI::getRowsOpen(HbaseStr &tblName, const LIST(HbaseStr) *
       if (ddlValidator_ && !ddlValidator_->isDDLValidForReads()) {
         htc_ = NULL;
         return HBASE_INVALID_DDL;
-      }
-
-      if (useMemoryScan) {
-        if (!mhtc_) mhtc_ = new ((NAHeap *)heap_) MemoryTableClient((NAHeap *)heap_, tblName.val);
-        if (mhtc_) {
-          if (mhtc_->getHTableCache()) {
-            readFromMemoryTable_ = true;
-            mhtc_->setFetchMode(MemoryTableClient::BATCH_GET);
-            mhtc_->startGets(tblName.val, rows);
-            return HBASE_ACCESS_SUCCESS;
-          } else if (mhtc_->tableIsDisabled())
-            memoryTableIsDisabled_ = true;
-          else if (mhtc_->memDBinitFailed())
-            memDBinitFailed_ = true;
-        }
       }
 
       htc_ = new ((NAHeap *)heap_) HTableClient_JNI((NAHeap *)heap_, (jobject)-1);
@@ -1118,10 +1058,10 @@ int ExpHbaseInterface_JNI::getRowsOpen(HbaseStr &tblName, const LIST(HbaseStr) *
 }
 
 int ExpHbaseInterface_JNI::deleteRow(HbaseStr tblName, HbaseStr row, const LIST(HbaseStr) * columns,
-                                       NABoolean useHbaseXn, const NABoolean replSync,
-                                       const NABoolean incrementalBackup, NABoolean useRegionXn,
-                                       const int64_t timestamp, NABoolean asyncOperation, const char *hbaseAuths,
-                                       const char *encryptionInfo, const char *triggers, const char *curExecSql) {
+                                     NABoolean useHbaseXn, const NABoolean replSync, const NABoolean incrementalBackup,
+                                     NABoolean useRegionXn, const int64_t timestamp, NABoolean asyncOperation,
+                                     const char *hbaseAuths, const char *encryptionInfo, const char *triggers,
+                                     const char *curExecSql) {
   long transID;
   long savepointID = -1;
   long pSavepointId = -1;
@@ -1183,11 +1123,10 @@ int ExpHbaseInterface_JNI::deleteRow(HbaseStr tblName, HbaseStr row, const LIST(
 }
 //
 //----------------------------------------------------------------------------
-int ExpHbaseInterface_JNI::deleteRows(HbaseStr tblName, short rowIDLen, HbaseStr rowIDs,
-                                        const LIST(HbaseStr) * columns, NABoolean useHbaseXn, const NABoolean replSync,
-                                        const NABoolean incrementalBackup, const int64_t timestamp,
-                                        NABoolean asyncOperation, const char *hbaseAuths, const char *encryptionInfo,
-                                        const char *triggers, const char *curExecSql) {
+int ExpHbaseInterface_JNI::deleteRows(HbaseStr tblName, short rowIDLen, HbaseStr rowIDs, const LIST(HbaseStr) * columns,
+                                      NABoolean useHbaseXn, const NABoolean replSync, const NABoolean incrementalBackup,
+                                      const int64_t timestamp, NABoolean asyncOperation, const char *hbaseAuths,
+                                      const char *encryptionInfo, const char *triggers, const char *curExecSql) {
   long transID;
   long savepointID = -1;
   long pSavepointId = -1;
@@ -1247,12 +1186,10 @@ int ExpHbaseInterface_JNI::deleteRows(HbaseStr tblName, short rowIDLen, HbaseStr
 
 //----------------------------------------------------------------------------
 int ExpHbaseInterface_JNI::checkAndDeleteRow(HbaseStr &tblName, HbaseStr &rowID, const LIST(HbaseStr) * columns,
-                                               HbaseStr &columnToCheck, HbaseStr &columnValToCheck,
-                                               NABoolean useHbaseXn, const NABoolean replSync,
-                                               const NABoolean incrementalBackup, NABoolean useRegionXn,
-                                               const int64_t timestamp, const char *hbaseAuths,
-                                               const char *encryptionInfo, const char *triggers,
-                                               const char *curExecSql) {
+                                             HbaseStr &columnToCheck, HbaseStr &columnValToCheck, NABoolean useHbaseXn,
+                                             const NABoolean replSync, const NABoolean incrementalBackup,
+                                             NABoolean useRegionXn, const int64_t timestamp, const char *hbaseAuths,
+                                             const char *encryptionInfo, const char *triggers, const char *curExecSql) {
   bool asyncOperation = false;
   long transID;
   long savepointID = -1;
@@ -1298,10 +1235,10 @@ int ExpHbaseInterface_JNI::checkAndDeleteRow(HbaseStr &tblName, HbaseStr &rowID,
 }
 
 int ExpHbaseInterface_JNI::execTriggers(const char *tableName, ComOperation type, NABoolean isBefore,
-                                          BeforeAndAfterTriggers *triggers, HbaseStr rowID, HbaseStr row,
-                                          unsigned char *base64rowVal, int base64ValLen, unsigned char *base64rowIDVal,
-                                          int base64RowLen, short rowIDLen, const char *curExecSql,
-                                          NABoolean isStatement) {
+                                        BeforeAndAfterTriggers *triggers, HbaseStr rowID, HbaseStr row,
+                                        unsigned char *base64rowVal, int base64ValLen, unsigned char *base64rowIDVal,
+                                        int base64RowLen, short rowIDLen, const char *curExecSql,
+                                        NABoolean isStatement) {
   retCode_ = client_->execTriggers((NAHeap *)heap_, tableName, type, isBefore, triggers, rowID, row, base64rowVal,
                                    base64ValLen, base64rowIDVal, base64RowLen, rowIDLen, curExecSql, isStatement);
   if (retCode_ == HBC_ERROR_TRIGGER_EXECUTE_EXCEPTION) {
@@ -1316,9 +1253,9 @@ int ExpHbaseInterface_JNI::execTriggers(const char *tableName, ComOperation type
 //
 //----------------------------------------------------------------------------
 int ExpHbaseInterface_JNI::insertRow(HbaseStr tblName, HbaseStr rowID, HbaseStr row, NABoolean useHbaseXn,
-                                       const NABoolean replSync, const NABoolean incrementalBackup,
-                                       NABoolean useRegionXn, const int64_t timestamp, NABoolean asyncOperation,
-                                       const char *encryptionInfo, const char *triggers, const char *curExecSql) {
+                                     const NABoolean replSync, const NABoolean incrementalBackup, NABoolean useRegionXn,
+                                     const int64_t timestamp, NABoolean asyncOperation, const char *encryptionInfo,
+                                     const char *triggers, const char *curExecSql) {
   long transID;
   long savepointID = -1;
   long pSavepointId = -1;
@@ -1385,10 +1322,9 @@ int ExpHbaseInterface_JNI::insertRow(HbaseStr tblName, HbaseStr rowID, HbaseStr 
 
 //----------------------------------------------------------------------------
 int ExpHbaseInterface_JNI::insertRows(HbaseStr tblName, short rowIDLen, HbaseStr rowIDs, HbaseStr rows,
-                                        NABoolean useHbaseXn, const NABoolean replSync,
-                                        const NABoolean incrementalBackup, const int64_t timestamp,
-                                        NABoolean asyncOperation, const char *encryptionInfo, const char *triggers,
-                                        const char *curExecSql, NABoolean noConflictCheck) {
+                                      NABoolean useHbaseXn, const NABoolean replSync, const NABoolean incrementalBackup,
+                                      const int64_t timestamp, NABoolean asyncOperation, const char *encryptionInfo,
+                                      const char *triggers, const char *curExecSql, NABoolean noConflictCheck) {
   long transID;
   long savepointID = -1;
   long pSavepointId = -1;
@@ -1436,11 +1372,11 @@ int ExpHbaseInterface_JNI::insertRows(HbaseStr tblName, short rowIDLen, HbaseStr
 
 //----------------------------------------------------------------------------
 int ExpHbaseInterface_JNI::lockRequired(NAString tblName, short lockMode, NABoolean useHbaseXn,
-                                          const NABoolean replSync, const NABoolean incrementalBackup,
-                                          //    const int64_t timestamp,
-                                          NABoolean asyncOperation,
-                                          //    const char * encryptionInfo,
-                                          NABoolean noConflictCheck, NABoolean registerRegion) {
+                                        const NABoolean replSync, const NABoolean incrementalBackup,
+                                        //    const int64_t timestamp,
+                                        NABoolean asyncOperation,
+                                        //    const char * encryptionInfo,
+                                        NABoolean noConflictCheck, NABoolean registerRegion) {
   long transID;
   long savepointID = -1;
   long pSavepointId = -1;
@@ -1484,8 +1420,7 @@ int ExpHbaseInterface_JNI::lockRequired(NAString tblName, short lockMode, NABool
 
 //
 //----------------------------------------------------------------------------
-int ExpHbaseInterface_JNI::updateVisibility(HbaseStr tblName, HbaseStr rowID, HbaseStr tagsRow,
-                                              NABoolean useHbaseXn) {
+int ExpHbaseInterface_JNI::updateVisibility(HbaseStr tblName, HbaseStr rowID, HbaseStr tagsRow, NABoolean useHbaseXn) {
   HTableClient_JNI *htc;
   long transID;
   NABoolean checkAndPut = FALSE;
@@ -1511,10 +1446,10 @@ int ExpHbaseInterface_JNI::updateVisibility(HbaseStr tblName, HbaseStr rowID, Hb
 
 //----------------------------------------------------------------------------
 int ExpHbaseInterface_JNI::getRowsOpen(HbaseStr tblName, short rowIDLen, HbaseStr rowIDs,
-                                         const LIST(HbaseStr) & columns, int numReplications, const int lockMode,
-                                         int isolationLevel, const NABoolean useMemoryScan,
-                                         const NABoolean skipReadConflict, const NABoolean skipTransactionForBatchGet,
-                                         const char *encryptionInfo) {
+                                       const LIST(HbaseStr) & columns, int numReplications, const int lockMode,
+                                       int isolationLevel, const NABoolean useMemoryScan,
+                                       const NABoolean skipReadConflict, const NABoolean skipTransactionForBatchGet,
+                                       const char *encryptionInfo) {
   long transID;
   transID = getTransactionIDFromContext();
   long savepointID;
@@ -1528,21 +1463,6 @@ int ExpHbaseInterface_JNI::getRowsOpen(HbaseStr tblName, short rowIDLen, HbaseSt
 
       break;
     default:
-
-      if (useMemoryScan) {
-        if (!mhtc_) mhtc_ = new ((NAHeap *)heap_) MemoryTableClient((NAHeap *)heap_, tblName.val);
-        if (mhtc_) {
-          if (mhtc_->getHTableCache()) {
-            readFromMemoryTable_ = true;
-            mhtc_->setFetchMode(MemoryTableClient::BATCH_GET);
-            retCode_ = mhtc_->startGets((char *)tblName.val, rowIDs, rowIDLen);
-            return retCode_;
-          } else if (mhtc_->tableIsDisabled())
-            memoryTableIsDisabled_ = true;
-          else if (mhtc_->memDBinitFailed())
-            memDBinitFailed_ = true;
-        }
-      }
 
       htc_ = new ((NAHeap *)heap_) HTableClient_JNI((NAHeap *)heap_, (jobject)-1);
       htc_->setUseTrigger(getUseTrigger());
@@ -1643,7 +1563,7 @@ int ExpHbaseInterface_JNI::initBRC(ExHbaseAccessStats *hbs) {
 }
 
 int ExpHbaseInterface_JNI::initHFileParams(HbaseStr &tblName, Text &hFileLoc, Text &hfileName, long maxHFileSize,
-                                             Text &hFileSampleLoc, Text &hfileSampleName, float fSampleRate) {
+                                           Text &hFileSampleLoc, Text &hfileSampleName, float fSampleRate) {
   if (hblc_ == NULL) {
     return -HBASE_ACCESS_ERROR;
   }
@@ -1683,7 +1603,7 @@ int ExpHbaseInterface_JNI::closeHFile(HbaseStr &tblName) {
 }
 
 int ExpHbaseInterface_JNI::doBulkLoad(HbaseStr &tblName, Text &location, Text &tableName, NABoolean quasiSecure,
-                                        NABoolean snapshot) {
+                                      NABoolean snapshot) {
   if (hblc_ == NULL || client_ == NULL) {
     return -HBASE_ACCESS_ERROR;
   }
@@ -1711,7 +1631,7 @@ int ExpHbaseInterface_JNI::bulkLoadCleanup(HbaseStr &tblName, Text &location) {
 
 ///////////////////
 int ExpHbaseInterface_JNI::incrCounter(const char *tabName, const char *rowId, const char *famName,
-                                         const char *qualName, long incr, long &count) {
+                                       const char *qualName, long incr, long &count) {
   if (client_ == NULL) {
     retCode_ = init();
     if (retCode_ != HBC_OK) return -HBASE_ACCESS_ERROR;
@@ -1739,8 +1659,8 @@ int ExpHbaseInterface_JNI::createCounterTable(const char *tabName, const char *f
 }
 
 int ExpHbaseInterface_JNI::sentryGetPrivileges(set<string> &groupNames, const char *tableOrViewName, bool isView,
-                                                 map<int, char *> &columnNumberToNameMap,
-                                                 PrivMgrUserPrivs &userPrivs /* out */) {
+                                               map<int, char *> &columnNumberToNameMap,
+                                               PrivMgrUserPrivs &userPrivs /* out */) {
   // The bitMaps returned by getSentryPrivileges are returned in a
   // vector with the following structure:
   //
@@ -1768,8 +1688,8 @@ int ExpHbaseInterface_JNI::sentryGetPrivileges(set<string> &groupNames, const ch
 
 //
 int ExpHbaseInterface_JNI::sentryGetPrivileges(const char *userName, const char *tableOrViewName, bool isView,
-                                                 map<int, char *> &columnNumberToNameMap,
-                                                 PrivMgrUserPrivs &userPrivs /* out */) {
+                                               map<int, char *> &columnNumberToNameMap,
+                                               PrivMgrUserPrivs &userPrivs /* out */) {
   // at the moment, we don't support Hive views
   if (isView) return -HVC_ERROR_SENTRY_GET_PARAM;
 
@@ -1832,10 +1752,10 @@ int ExpHbaseInterface_JNI::isEmpty(HbaseStr &tblName) {
 
 //----------------------------------------------------------------------------
 int ExpHbaseInterface_JNI::checkAndInsertRow(HbaseStr &tblName, HbaseStr &rowID, HbaseStr &row, NABoolean useHbaseXn,
-                                               const NABoolean replSync, const NABoolean incrementalBackup,
-                                               NABoolean useRegionXn, const int64_t timestamp, NABoolean asyncOperation,
-                                               const char *encryptionInfo, const char *triggers, const char *curExecSql,
-                                               Int16 colIndexToCheck) {
+                                             const NABoolean replSync, const NABoolean incrementalBackup,
+                                             NABoolean useRegionXn, const int64_t timestamp, NABoolean asyncOperation,
+                                             const char *encryptionInfo, const char *triggers, const char *curExecSql,
+                                             Int16 colIndexToCheck) {
   long transID;
   long savepointID = -1;
   long pSavepointId = -1;
@@ -1896,12 +1816,11 @@ int ExpHbaseInterface_JNI::checkAndInsertRow(HbaseStr &tblName, HbaseStr &rowID,
   return HBASE_ACCESS_SUCCESS;
 }
 
-int ExpHbaseInterface_JNI::checkAndUpdateRow(HbaseStr &tblName, HbaseStr &rowID, HbaseStr &row,
-                                               HbaseStr &columnToCheck, HbaseStr &colValToCheck, NABoolean useHbaseXn,
-                                               const NABoolean replSync, const NABoolean incrementalBackup,
-                                               NABoolean useRegionXn, const int64_t timestamp, NABoolean asyncOperation,
-                                               const char *encryptionInfo, const char *triggers,
-                                               const char *curExecSql) {
+int ExpHbaseInterface_JNI::checkAndUpdateRow(HbaseStr &tblName, HbaseStr &rowID, HbaseStr &row, HbaseStr &columnToCheck,
+                                             HbaseStr &colValToCheck, NABoolean useHbaseXn, const NABoolean replSync,
+                                             const NABoolean incrementalBackup, NABoolean useRegionXn,
+                                             const int64_t timestamp, NABoolean asyncOperation,
+                                             const char *encryptionInfo, const char *triggers, const char *curExecSql) {
   long transID;
   long savepointID = -1;
   long pSavepointId = -1;
@@ -1945,23 +1864,23 @@ int ExpHbaseInterface_JNI::checkAndUpdateRow(HbaseStr &tblName, HbaseStr &rowID,
 }
 
 int ExpHbaseInterface_JNI::coProcAggr(HbaseStr &tblName,
-                                        int aggrType,  // 0:count, 1:min, 2:max, 3:sum, 4:avg
-                                        const Text &startRow, const Text &stopRow, const Text &colFamily,
-                                        const Text &colName, const NABoolean cacheBlocks, const int numCacheRows,
-                                        const NABoolean replSync,
-                                        Text &aggrVal)  // returned value
+                                      int aggrType,  // 0:count, 1:min, 2:max, 3:sum, 4:avg
+                                      const Text &startRow, const Text &stopRow, const Text &colFamily,
+                                      const Text &colName, const NABoolean cacheBlocks, const int numCacheRows,
+                                      const NABoolean replSync,
+                                      Text &aggrVal)  // returned value
 {
   return coProcAggr(tblName, aggrType, startRow, stopRow, colFamily, colName, cacheBlocks, numCacheRows, replSync,
                     aggrVal, TransMode::IL_NOT_SPECIFIED_, HBaseLockMode::LOCK_NO);
 }
 
 int ExpHbaseInterface_JNI::coProcAggr(HbaseStr &tblName,
-                                        int aggrType,  // 0:count, 1:min, 2:max, 3:sum, 4:avg
-                                        const Text &startRow, const Text &stopRow, const Text &colFamily,
-                                        const Text &colName, const NABoolean cacheBlocks, const int numCacheRows,
-                                        const NABoolean replSync,
-                                        Text &aggrVal,  // returned value
-                                        int isolationLevel, int lockMode) {
+                                      int aggrType,  // 0:count, 1:min, 2:max, 3:sum, 4:avg
+                                      const Text &startRow, const Text &stopRow, const Text &colFamily,
+                                      const Text &colName, const NABoolean cacheBlocks, const int numCacheRows,
+                                      const NABoolean replSync,
+                                      Text &aggrVal,  // returned value
+                                      int isolationLevel, int lockMode) {
   switch (storageType_) {
     case COM_STORAGE_MONARCH:
 
@@ -2005,11 +1924,6 @@ int ExpHbaseInterface_JNI::getClose() {
       if (htc_) {
         client_->releaseHTableClient(htc_);
         htc_ = NULL;
-      }
-      if (mhtc_) {
-        mhtc_->cleanupResultInfo();
-        NADELETE(mhtc_, MemoryTableClient, mhtc_->getNAMemory());
-        mhtc_ = NULL;
       }
   }
   return HBASE_ACCESS_SUCCESS;
@@ -2064,24 +1978,14 @@ NAArray<HbaseStr> *ExpHbaseInterface_JNI::getRegionEndKeys(const char *tblName) 
 }
 
 int ExpHbaseInterface_JNI::getColVal(int colNo, BYTE *colVal, int &colValLen, NABoolean nullable, BYTE &nullVal,
-                                       BYTE *tag, int &tagLen, const char *encryptionInfo) {
+                                     BYTE *tag, int &tagLen, const char *encryptionInfo) {
   switch (storageType_) {
     case COM_STORAGE_MONARCH:
-      MTC_RetCode mtcRetCode;
-      if (mtc_ != NULL) {
-        mtcRetCode = mtc_->getColVal(colNo, colVal, colValLen, nullable, nullVal, tag, tagLen);
-      } else {
-        retCode_ = MC_ERROR_GET_MTC_EXCEPTION;
-        return HBASE_OPEN_ERROR;
-      }
-      if (mtcRetCode != MTC_OK) return HBASE_ACCESS_ERROR;
+
       break;
     default:
       HTC_RetCode retCode = HTC_OK;
-      if (readFromMemoryTable_ && mhtc_ != NULL) {
-        retCode = mhtc_->getColVal(colVal, colValLen);
-        if (retCode == HTC_DONE_DATA) return HBASE_ACCESS_NO_ROW;
-      } else if (htc_ != NULL)
+      if (htc_ != NULL)
         retCode = htc_->getColVal(colNo, colVal, colValLen, nullable, nullVal, tag, tagLen, encryptionInfo);
       else {
         retCode_ = HBC_ERROR_GET_HTC_EXCEPTION;
@@ -2093,17 +1997,10 @@ int ExpHbaseInterface_JNI::getColVal(int colNo, BYTE *colVal, int &colValLen, NA
 }
 
 int ExpHbaseInterface_JNI::getColVal(NAHeap *heap, int colNo, BYTE **colVal, int &colValLen,
-                                       const char *encryptionInfo) {
+                                     const char *encryptionInfo) {
   switch (storageType_) {
     case COM_STORAGE_MONARCH:
-      MTC_RetCode mtcRetCode;
-      if (mtc_ != NULL)
-        mtcRetCode = mtc_->getColVal(heap, colNo, colVal, colValLen);
-      else {
-        retCode_ = MC_ERROR_GET_MTC_EXCEPTION;
-        return HBASE_OPEN_ERROR;
-      }
-      if (mtcRetCode != MTC_OK) return HBASE_ACCESS_ERROR;
+
       break;
     default:
       HTC_RetCode retCode = HTC_OK;
@@ -2121,20 +2018,11 @@ int ExpHbaseInterface_JNI::getColVal(NAHeap *heap, int colNo, BYTE **colVal, int
 int ExpHbaseInterface_JNI::getRowID(HbaseStr &rowID, const char *encryptionInfo) {
   switch (storageType_) {
     case COM_STORAGE_MONARCH:
-      MTC_RetCode mtcRetCode;
-      if (mtc_ != NULL)
-        mtcRetCode = mtc_->getRowID(rowID);
-      else {
-        retCode_ = MC_ERROR_GET_MTC_EXCEPTION;
-        return HBASE_OPEN_ERROR;
-      }
-      if (mtcRetCode != MTC_OK) return HBASE_ACCESS_ERROR;
+
       break;
     default:
       HTC_RetCode retCode = HTC_OK;
-      if (readFromMemoryTable_ && mhtc_ != NULL) {
-        retCode = mhtc_->getRowID(rowID);
-      } else if (htc_ != NULL)
+      if (htc_ != NULL)
         retCode = htc_->getRowID(rowID);
       else {
         retCode_ = HBC_ERROR_GET_HTC_EXCEPTION;
@@ -2148,17 +2036,7 @@ int ExpHbaseInterface_JNI::getRowID(HbaseStr &rowID, const char *encryptionInfo)
 int ExpHbaseInterface_JNI::getNumCellsPerRow(int &numCells) {
   switch (storageType_) {
     case COM_STORAGE_MONARCH:
-      MTC_RetCode mtcRetCode;
-      if (mtc_ != NULL)
-        mtcRetCode = mtc_->getNumCellsPerRow(numCells);
-      else {
-        retCode_ = MC_ERROR_GET_MTC_EXCEPTION;
-        return HBASE_OPEN_ERROR;
-      }
-      if (mtcRetCode == MTC_OK)
-        return HBASE_ACCESS_SUCCESS;
-      else if (mtcRetCode == MTC_DONE_DATA)
-        return HBASE_ACCESS_NO_ROW;
+
       break;
     default:
       HTC_RetCode retCode = HTC_OK;
@@ -2179,14 +2057,7 @@ int ExpHbaseInterface_JNI::getNumCellsPerRow(int &numCells) {
 int ExpHbaseInterface_JNI::getColName(int colNo, char **outColName, short &colNameLen, long &timestamp) {
   switch (storageType_) {
     case COM_STORAGE_MONARCH:
-      MTC_RetCode mtcRetCode;
-      if (mtc_ != NULL)
-        mtcRetCode = mtc_->getColName(colNo, outColName, colNameLen, timestamp);
-      else {
-        retCode_ = MC_ERROR_GET_MTC_EXCEPTION;
-        return HBASE_OPEN_ERROR;
-      }
-      if (mtcRetCode != MTC_OK) return HBASE_ACCESS_ERROR;
+
       break;
     default:
       HTC_RetCode retCode = HTC_OK;
@@ -2204,25 +2075,11 @@ int ExpHbaseInterface_JNI::getColName(int colNo, char **outColName, short &colNa
 int ExpHbaseInterface_JNI::nextRow() {
   switch (storageType_) {
     case COM_STORAGE_MONARCH:
-      MTC_RetCode mtcRetCode;
-      if (mtc_ != NULL)
-        mtcRetCode = mtc_->nextRow();
-      else {
-        retCode_ = MC_ERROR_GET_MTC_EXCEPTION;
-        return HBASE_OPEN_ERROR;
-      }
-      if (mtcRetCode == MTC_OK)
-        return HBASE_ACCESS_SUCCESS;
-      else if (mtcRetCode == MTC_DONE)
-        return HBASE_ACCESS_EOD;
-      else if (mtcRetCode == MTC_DONE_RESULT)
-        return HBASE_ACCESS_EOR;
+
       break;
     default:
       HTC_RetCode retCode;
-      if (readFromMemoryTable_ && mhtc_ != NULL)
-        retCode = mhtc_->nextRow();
-      else if (htc_ != NULL)
+      if (htc_ != NULL)
         retCode = htc_->nextRow(ddlValidator_);
       else {
         retCode_ = HBC_ERROR_GET_HTC_EXCEPTION;
@@ -2246,20 +2103,10 @@ int ExpHbaseInterface_JNI::nextRow() {
 }
 
 int ExpHbaseInterface_JNI::nextCell(HbaseStr &rowId, HbaseStr &colFamName, HbaseStr &colName, HbaseStr &colVal,
-                                      long &timestamp) {
+                                    long &timestamp) {
   switch (storageType_) {
     case COM_STORAGE_MONARCH:
-      MTC_RetCode mtcRetCode;
-      if (mtc_ != NULL)
-        mtcRetCode = mtc_->nextCell(rowId, colFamName, colName, colVal, timestamp);
-      else {
-        retCode_ = MC_ERROR_GET_MTC_EXCEPTION;
-        return HBASE_OPEN_ERROR;
-      }
-      if (mtcRetCode == MTC_OK)
-        return HBASE_ACCESS_SUCCESS;
-      else if (retCode_ == MTC_DONE)
-        return HBASE_ACCESS_EOD;
+
       break;
     default:
       HTC_RetCode retCode;
@@ -2305,8 +2152,8 @@ int ExpHbaseInterface_JNI::completeAsyncOperation(int timeout, NABoolean *result
 // fully qualified table name and the number of columns in the table.
 // The row count estimate is returned in estRC.
 int ExpHbaseInterface_JNI::estimateRowCount(HbaseStr &tblName, int partialRowSize, int numCols,
-                                              int retryLimitMilliSeconds, NABoolean useCoprocessor, long &estRC,
-                                              int &breadCrumb) {
+                                            int retryLimitMilliSeconds, NABoolean useCoprocessor, long &estRC,
+                                            int &breadCrumb) {
   breadCrumb = 11;
   switch (storageType_) {
     case COM_STORAGE_MONARCH:
@@ -2327,8 +2174,7 @@ int ExpHbaseInterface_JNI::estimateRowCount(HbaseStr &tblName, int partialRowSiz
 }
 
 // get nodeNames of regions. this information will be used to co-locate ESPs
-int ExpHbaseInterface_JNI::getRegionsNodeName(const HbaseStr &tblName, int partns,
-                                                ARRAY(const char *) & nodeNames) {
+int ExpHbaseInterface_JNI::getRegionsNodeName(const HbaseStr &tblName, int partns, ARRAY(const char *) & nodeNames) {
   switch (storageType_) {
     case COM_STORAGE_MONARCH:
 
@@ -2475,7 +2321,7 @@ int ExpHbaseInterface_JNI::deleteSnapshot(const NAString &snapshotName) {
 }
 
 int ExpHbaseInterface_JNI::savepointCommitOrRollback(long transId, long savepointId, long tgtSavepointId,
-                                                       NABoolean isCommit) {
+                                                     NABoolean isCommit) {
   if (client_ == NULL) {
     if (init(hbs_) != HBASE_ACCESS_SUCCESS) return -HBASE_ACCESS_ERROR;
   }
@@ -2579,7 +2425,7 @@ int ExpHbaseInterface_JNI::getLockErrorNum(int retCode) {
 }
 
 int ExpHbaseInterface_JNI::putData(long eventID, const char *query, int eventType, const char *schemaName,
-                                     unsigned char *params, long len) {
+                                   unsigned char *params, long len) {
   if (client_ == NULL) {
     retCode_ = init();
     if (retCode_ != HBC_OK) return -HBASE_ACCESS_ERROR;
@@ -2591,13 +2437,3 @@ int ExpHbaseInterface_JNI::putData(long eventID, const char *query, int eventTyp
   else
     return -HBC_ERROR_PUT_SQL_TO_HBASE_ERROR;
 }
-
-/******************************************************************
- * member function for memory table
- * ***************************************************************/
-
-void ExpHbaseInterface_JNI::memoryTableCreate() { mhtc_->create(); }
-
-bool ExpHbaseInterface_JNI::memoryTableInsert(HbaseStr &key, HbaseStr &value) { return mhtc_->insert(key, value); }
-
-void ExpHbaseInterface_JNI::memoryTableRemove(const char *tabName) { mhtc_->remove(tabName); }

@@ -36,24 +36,12 @@
 #include "ElemDDLFileAttrICompress.h"
 #include "ElemDDLFileAttrPOS.h"
 #include "ElemDDLFileAttrMaxSize.h"
-#include "ElemDDLFileAttrRangeLog.h"
+#include "parser/ElemDDLFileAttrRangeLog.h"
 #include "ElemDDLFileAttrLockOnRefresh.h"
 #include "ElemDDLFileAttrInsertLog.h"
-#include "ElemDDLFileAttrMvsAllowed.h"
 #include "ElemDDLFileAttrExtents.h"
 #include "ElemDDLFileAttrMaxExtents.h"
 #include "ElemDDLFileAttrNoLabelUpdate.h"
 #include "ElemDDLFileAttrOwner.h"
-#include "ElemDDLFileAttrMisc.h"
+#include "parser/ElemDDLFileAttrMisc.h"
 
-//++ MV ONLY file attributes
-#include "ElemDDLFileAttrMVCommitEach.h"
-#include "ElemDDLMVFileAttrClause.h"
-#include "ElemDDLFileAttrMVCommitEach.h"
-#include "ElemDDLFileAttrMvAudit.h"
-
-//-- MV
-
-//
-// End of File
-//

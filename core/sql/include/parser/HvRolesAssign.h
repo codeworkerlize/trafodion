@@ -2,7 +2,7 @@
 #ifndef HVROLESASSIGN_H
 #define HVROLESASSIGN_H
 
-#include "HvRoles.h"
+#include "parser/HvRoles.h"
 
 // These two static functions were moved from HvRoles.h to this file as
 // they are called only by sqlparser.y while HvRoles.h is included by many

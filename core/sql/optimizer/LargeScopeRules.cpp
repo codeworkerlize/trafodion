@@ -15,7 +15,7 @@
 ******************************************************************************
 */
 
-#include "optimizer/GroupAttr.h"
+#include "GroupAttr.h"
 #include "TransRule.h"
 #include "optimizer/Analyzer.h"
 #include "MultiJoin.h"

@@ -39,7 +39,6 @@
 #include "comexe/ComTdbHbaseAccess.h"
 #include "sqlcomp/CmpSeabaseDDLincludes.h"
 #include "executor/ExDDLValidator.h"
-#include "executor/MemoryTableClient.h"
 
 #define INLINE_COLNAME_LEN 256
 
@@ -403,9 +402,6 @@ class ExpHbaseInterface : public NABasicObject {
   virtual int putData(long eventID, const char *query, int eventType, const char *schemaName, unsigned char *params,
                         long len) = 0;
 
-  virtual void memoryTableCreate() = 0;
-  virtual bool memoryTableInsert(HbaseStr &key, HbaseStr &val) = 0;
-  virtual void memoryTableRemove(const char *tabName) = 0;
   virtual NABoolean isReadFromMemoryTable() = 0;
   virtual NABoolean isMemoryTableDisabled() = 0;
   virtual NABoolean ismemDBinitFailed() = 0;
@@ -734,9 +730,6 @@ class ExpHbaseInterface_JNI : public ExpHbaseInterface {
                         long len);
 
   // member function for memory table access
-  void memoryTableCreate();
-  bool memoryTableInsert(HbaseStr &key, HbaseStr &val);
-  void memoryTableRemove(const char *tabName);
   NABoolean isReadFromMemoryTable() { return readFromMemoryTable_; }
   NABoolean isMemoryTableDisabled() { return memoryTableIsDisabled_; }
   NABoolean ismemDBinitFailed() { return memDBinitFailed_; }
@@ -751,11 +744,8 @@ class ExpHbaseInterface_JNI : public ExpHbaseInterface {
   HTableClient_JNI *asyncHtc_;
   int retCode_;
   ComStorageType storageType_;
-  MTableClient_JNI *mtc_;
-  MTableClient_JNI *asyncMtc_;
   NABoolean bigtable_;
   ExDDLValidator *ddlValidator_;
-  MemoryTableClient *mhtc_;
   NABoolean readFromMemoryTable_;
   NABoolean memoryTableIsDisabled_;
   NABoolean memDBinitFailed_;

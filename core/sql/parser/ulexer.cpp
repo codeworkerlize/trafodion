@@ -27,7 +27,7 @@
 
 // Use a reserved UCS-2 character (but not the last one) as EOF substitute
 #define WEOF (NAWchar)(0xFFEF)
-#include "arkcmp_parser_defs.h"
+#include "common/arkcmp_parser_defs.h"
 #undef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 
@@ -75,31 +75,25 @@ class IntegerList;
 #include "common/ComSmallDefs.h"
 #include "common/ComTransInfo.h"
 #include "common/ComUnits.h"
-#include "HvTypes.h"
-#include "ElemDDLConstraintRI.h"
-#include "ElemDDLParamName.h"
-#include "ElemDDLPartition.h"
-#include "ElemDDLPassThroughParamDef.h"
+#include "parser/HvTypes.h"
+#include "parser/ElemDDLConstraintRI.h"
+#include "parser/ElemDDLParamName.h"
+#include "parser/ElemDDLPartition.h"
+#include "parser/ElemDDLPassThroughParamDef.h"
 #include "parser/ElemDDLQualName.h"  // OZ
 #include "parser/ElemDDLColRefArray.h"
 #include "optimizer/RelScan.h"
 #include "optimizer/RelUpdate.h"
-#include "ItemLog.h"
-#include "StmtDMLSetTransaction.h"
-#include "StmtDDLAlterMVRGroup.h"                  // Mv refresh groups  ( OZ ) - new enum
-#include "ElemDDLCreateMVOneAttributeTableList.h"  // MV OZ
-#include "ElemDDLFileAttrRangeLog.h"
-#include "ElemDDLFileAttrMvsAllowed.h"
-#include "ElemDDLFileAttrMvAudit.h"
-#include "SqlParserAux.h"
+#include "optimizer/ItemLog.h"
+#include "parser/StmtDMLSetTransaction.h"
+#include "parser/ElemDDLFileAttrRangeLog.h"
+#include "parser/SqlParserAux.h"
 #include "parser/ElemDDLHbaseOptions.h"
 #include "parser/StmtDDLCommentOn.h"
 #include "parser/StmtDDLAlterSharedCache.h"
-#include "ElemDDLFileAttrMisc.h"
+#include "parser/ElemDDLFileAttrMisc.h"
 
-// Need the definition of the Parsers Union.  If this is not defined,
-// sqlparser.h will only define the Tokens.
-//
+
 #ifndef INCLUDE_UNION
 #define INCLUDE_UNION
 #endif

@@ -568,14 +568,7 @@ ExWorkProcRetcode ExHbaseScanSQTaskTcb::work(short &rc) {
                  : NULL),
             (tcb_->hbaseAccessTdb().useEncryption() ? (char *)&tcb_->encryptionInfo_ : NULL));
 
-        if (tcb_->hbaseAccessTdb().getScanMemoryTable() && tcb_->ehi_->isReadFromMemoryTable() == false &&
-            tcb_->ehi_->isMemoryTableDisabled() == false && tcb_->ehi_->ismemDBinitFailed() == false &&
-            tcb_->beginRowId_.size() == 0 && tcb_->endRowId_.size() == 0) {
-          if (tcb_->hbaseAccessTdb().getLoadDataIntoMemoryTable()) {
-            tcb_->setLoadDataIntoMemoryTable(true);
-            tcb_->ehi_->memoryTableCreate();
-          }
-        }
+
 
         if (recordCostTh_ >= 0) {
           long time2 = (JULIANTIMESTAMP() - time1) / 1000;

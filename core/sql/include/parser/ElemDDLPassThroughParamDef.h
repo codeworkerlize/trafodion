@@ -19,7 +19,7 @@
 */
 
 #include "ElemDDLNode.h"
-#include "ElemDDLParamName.h"
+#include "parser/ElemDDLParamName.h"
 #include "common/ComSmallDefs.h"
 
 // -----------------------------------------------------------------------

@@ -193,23 +193,6 @@ NABoolean compileTimeMonitorOn() {
   return CURRSTMT_OPTDEFAULTS->compileTimeMonitor() || getenv("COMPILE_TIME_MONITOR");
 }
 
-// These macros are never used in this module file. Comment out.
-#if 0
-#ifndef NDEBUG
-#define ENTER_TASK_MONITOR(x)              \
-  {                                        \
-    if (compileTimeMonitorOn()) x.enter(); \
-  }
-#define EXIT_TASK_MONITOR(x)              \
-  {                                       \
-    if (compileTimeMonitorOn()) x.exit(); \
-  }
-#else
-#define ENTER_TASK_MONITOR(x)
-#define EXIT_TASK_MONITOR(x)
-#endif
-#endif
-
 #define ENTERMAIN_TASK_MONITOR(x)          \
   {                                        \
     if (compileTimeMonitorOn()) x.enter(); \

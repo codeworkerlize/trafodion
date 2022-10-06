@@ -18,7 +18,7 @@
 #include "PartReq.h"
 #include "optimizer/PhyProp.h"
 #include "optimizer/ItemColRef.h"
-#include "ItemLog.h"
+#include "optimizer/ItemLog.h"
 #include "optimizer/ItemFunc.h"
 #include "optimizer/ItemOther.h"
 #include "ItemArith.h"

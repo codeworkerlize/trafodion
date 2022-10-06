@@ -37,7 +37,7 @@
 //#include "parser/SqlParserGlobalsCmn.h"
 #include "EstLogProp.h"  // Pick up definition of GLOBAL_EMPTY_INPUT_LOGPROP
 #include "ProcessEnv.h"
-#include "StmtDDLNode.h"
+#include "parser/StmtDDLNode.h"
 #include "arkcmp/CmpErrLog.h"
 #include "arkcmp/CmpErrors.h"
 #include "arkcmp/CmpStatement.h"

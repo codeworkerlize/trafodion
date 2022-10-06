@@ -25,7 +25,6 @@
 #include "common/Platform.h"
 #include "cli/CliDefs.h"
 #include "export/ComDiags.h"
-#include "common/DllExportDefines.h"
 #include "CliSemaphore.h"
 #include "cli/sqlcli.h"
 #include "cli/Statement.h"

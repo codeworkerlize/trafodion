@@ -1698,36 +1698,7 @@ int ExHbaseAccessTcb::createSQRowFromAlignedFormat(long *latestRowTimestamp) {
     workAtp_->getTupp(hbaseAccessTdb().hbaseRowidTuppIndex_).setDataPointer(rowID_.val);
   }
 
-  if (loadDataIntoMemoryTable_) {
-    NABoolean resetRowID = false;
-    if (rowID_.len == 0) {
-      retcode = ehi_->getRowID(rowID_);
-      if (retcode != HBASE_ACCESS_SUCCESS) {
-        setupError(retcode, "", "getRowID()");
-        return retcode;
-      }
-      resetRowID = true;
-    }
-    HbaseStr val;
-    val.val = asciiRow_;
-    val.len = asciiRowLen;
-    if (!ehi_->memoryTableInsert(rowID_, val)) {
-      ehi_->memoryTableRemove(table_.val);
-      char errBuf[500];
-      snprintf(
-          errBuf, sizeof(errBuf),
-          "%s will not be cached beacause Shared Cache has reached more than 90 percent, The table may be too large or "
-          "not have enough cache space, Check the free space or Remove the READ_ONLY attributes from table",
-          hbaseAccessTdb().getTableName());
-      setupError(HBASE_SHARED_CACHE_SPACE_EXHUAST, "memoryTableInsert()", errBuf);
-      return HBASE_SHARED_CACHE_SPACE_EXHUAST;
-    }
 
-    if (resetRowID) {
-      rowID_.val = NULL;
-      rowID_.len = 0;
-    }
-  }
 
   if (convertExpr()) {
     convertRowLen_ = hbaseAccessTdb().convertRowLen();

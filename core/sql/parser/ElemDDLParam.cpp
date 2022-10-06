@@ -19,7 +19,7 @@
 #include "common/ComASSERT.h"
 #include "export/ComDiags.h"
 #include "parser/ElemDDLParamDef.h"
-#include "ElemDDLParamName.h"
+#include "parser/ElemDDLParamName.h"
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLParamDef

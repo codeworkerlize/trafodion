@@ -24,7 +24,7 @@
 #include "parser/SqlParserGlobals.h"
 
 #include "ElemDDLNode.h"
-#include "ElemDDLParamName.h"
+#include "parser/ElemDDLParamName.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

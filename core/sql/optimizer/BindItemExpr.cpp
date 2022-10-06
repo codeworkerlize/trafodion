@@ -35,7 +35,6 @@
 #include "StmtDDLAddConstraintCheck.h"
 #include "parser/StmtDDLCreateTrigger.h"
 #include "parser/StmtDDLCreateView.h"
-#include "StmtDDLCreateMV.h"
 #include "executor/ex_error.h"
 #include "exp/exp_like.h"
 #include "optimizer/ItemColRef.h"
@@ -9918,13 +9917,7 @@ ItemExpr *UDFunction::bindNode(BindWA *bindWA) {
         udfList = &view->getUDFList();
         break;
       }
-      case DDL_CREATE_MV: {
-        // Set the UDF list for materialized view processing
-        StmtDDLCreateMV *mv = (StmtDDLCreateMV *)bindWA->getUsageParseNodePtr();
-        CMPASSERT(mv);
-        udfList = &mv->getUDFList();
-        break;
-      }
+
       default:
         break;
     }

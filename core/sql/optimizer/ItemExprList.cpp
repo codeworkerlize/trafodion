@@ -14,7 +14,7 @@
 
 #include "optimizer/Sqlcomp.h"
 #include "optimizer/ItemOther.h"
-#include "ItemLog.h"
+#include "optimizer/ItemLog.h"
 #include "optimizer/ItemSubq.h"
 #include "optimizer/ItemFunc.h"
 #include "ItemFuncUDF.h"

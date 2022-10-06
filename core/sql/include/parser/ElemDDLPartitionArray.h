@@ -19,7 +19,7 @@
  */
 
 #include "common/Collections.h"
-#include "ElemDDLPartition.h"
+#include "parser/ElemDDLPartition.h"
 #ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif

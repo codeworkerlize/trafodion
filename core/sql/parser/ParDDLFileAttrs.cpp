@@ -2142,18 +2142,7 @@ void ParDDLFileAttrsCreateTable::setFileAttr(ElemDDLFileAttr *pFileAttr) {
       isMvCommitEachSpec_ = TRUE;
       break;
 
-    case ELM_FILE_ATTR_MVAUDIT_ELEM:
 
-      // MvAudit is only for MVs. Mvs cannot have audit it the ATTRIBUTE
-      // clause
-      if (isMvAuditSpec_ || isAuditSpec_) {
-        // Duplicate AUDIT phrases.
-        *SqlParser_Diags << DgSqlCode(-3082);
-      }
-      ComASSERT(pFileAttr->castToElemDDLFileAttrMvAudit() NEQ NULL);
-      mvAuditType_ = pFileAttr->castToElemDDLFileAttrMvAudit()->getMvAuditType();
-      isMvAuditSpec_ = TRUE;
-      break;
 
     case ELM_FILE_ATTR_OWNER_ELEM:
       if (isOwnerSpec_) *SqlParser_Diags << DgSqlCode(-3082);
@@ -2263,9 +2252,6 @@ NATraceList ParDDLFileAttrsCreateTable::getDetailInfo() const {
   detailText += "	insertlog?		";
   detailText += YesNo(isInsertLog());
 
-  detailText += "	MVS?	";
-  detailText += ElemDDLFileAttrMvsAllowed::getMvsAllowedTypeAsNAString(getMvsAllowedType());
-  detailText += "	MVS  ALLOWED	";
 
   detailTextList.append(detailText);
 

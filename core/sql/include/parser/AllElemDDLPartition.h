@@ -16,7 +16,7 @@
  *****************************************************************************
  */
 
-#include "ElemDDLPartition.h"
+#include "parser/ElemDDLPartition.h"
 
 #include "ElemDDLPartitionArray.h"
 #include "parser/ElemDDLPartitionClause.h"

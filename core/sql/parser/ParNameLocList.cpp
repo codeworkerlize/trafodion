@@ -26,16 +26,14 @@
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
 #define SQLPARSERGLOBALS_NADEFAULTS
-#include "parser/SqlParserGlobals.h"
-
+#include "parser/ElemDDLConstraintCheck.h"
+#include "arkcmp/CmpContext.h"
 #include "common/ComOperators.h"
 #include "common/ComSmallDefs.h"
-#include "arkcmp/CmpContext.h"
-#include "ElemDDLConstraintCheck.h"
-#include "parser/StmtDDLCreateView.h"
-#include "parser/StmtDDLCreateTrigger.h"
-#include "StmtDDLCreateMV.h"
+#include "parser/SqlParserGlobals.h"
 #include "parser/StmtDDLCreateTable.h"
+#include "parser/StmtDDLCreateTrigger.h"
+#include "parser/StmtDDLCreateView.h"
 
 // -----------------------------------------------------------------------
 // definition of global (file scope) function ParInsertNameLoc()
@@ -499,29 +497,7 @@ void ParSetEndOfFileOptionsListPos(ParNameLocList *pNameLocList) {
   ComASSERT(ParBeginingOfFileOptionsListPos > 0);
 }
 
-// ---------------------------------------------------------------------
-// Store the end-of-text position in the StmtDDLCreateMV node.
-// Also copy into the the StmtDDLCreateMV node the other tree globaly
-// kept positions: End of columns list, begining+end of file options.
-NABoolean ParSetTextEndPos(StmtDDLCreateMV *pCreateMVParseNode) {
-  ParNameLocList &nameLocList = pCreateMVParseNode->getNameLocList();
-  const char *pInputStr = nameLocList.getInputStringPtr();
-  ComASSERT(pInputStr NEQ NULL);
 
-  const ParScannedTokenQueue::scannedTokenInfo *tokInfo = ParScannedTokens->getScannedTokenInfoPtr(0);
-  NAString tokStr(&pInputStr[tokInfo->tokenStrPos], tokInfo->tokenStrLen);
-  tokStr.toUpper();
-  NABoolean isEndOfInputStr = tokStr.isNull();
-
-  pCreateMVParseNode->setEndPosition(tokInfo->tokenStrPos + tokInfo->tokenStrLen - 1);
-
-  // Now the node exists; copy the rest of the globals into this node
-  pCreateMVParseNode->setEndOptionalColumnListPosition(ParEndOfOptionalColumnListPos);
-  pCreateMVParseNode->setFileOptionsPositions(ParBeginingOfFileOptionsListPos, ParEndOfFileOptionsListPos);
-  pCreateMVParseNode->setStartOfMVQueryPosition(ParBeginingOfMVQueryPos);
-  pCreateMVParseNode->setEndSelectColumnListPosition(ParEndOfSelectColumnListPos);
-  return FALSE;  // no error
-}
 
 // ---------------------------------------------------------------------------
 // definition of global (file scope) function  ParSetTextStartPosForCreateMV()

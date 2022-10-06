@@ -29,7 +29,7 @@
 
 #include "optimizer/AllRelExpr.h"
 #include "common/DatetimeType.h"
-#include "HvTypes.h"
+#include "parser/HvTypes.h"
 #include "common/IntervalType.h"
 #include "comexe/LateBindInfo.h"
 #include "common/ComVersionDefs.h"

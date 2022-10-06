@@ -15,7 +15,7 @@
 #include "qmscommon/QRSharedPtr.h"
 #include "optimizer/RelGrby.h"
 #include "common/NumericType.h"
-#include "ItemLog.h"
+#include "optimizer/ItemLog.h"
 #include "qmscommon/QRLogger.h"
 #include "qmscommon/QRExprElement.h"
 #include "optimizer/RelUpdate.h"

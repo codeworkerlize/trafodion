@@ -16,28 +16,23 @@
 ******************************************************************************
 */
 
-#include "common/Platform.h"
-#include "common/wstr.h"
-
-#include "cli_stdh.h"
-
-#include "exp/ExpError.h"
-#include "exp/exp_clause_derived.h"
-#include "common/NLSConversion.h"
+#include <time.h>
 
 #include "Cli.h"
-
-#include "common/ComRtUtils.h"
-
 #include "CliSemaphore.h"
-#include "common/feerrors.h"
-
-#include <time.h>
+#include "cli_stdh.h"
+#include "common/ComRtUtils.h"
+#include "common/NLSConversion.h"
+#include "common/Platform.h"
 #include "common/cextdecs.h"
+#include "common/feerrors.h"
+#include "common/wstr.h"
+#include "exp/ExpError.h"
+#include "exp/exp_clause_derived.h"
 #include "sqlmxevents/logmxevent.h"
 //#include "common/NAString.h"
-#include "guardian/kphandlz.h"
 #include "guardian/ddctctlz.h"
+#include "guardian/kphandlz.h"
 #ifndef pdctctlz_h_dct_get_by_name_
 #define pdctctlz_h_dct_get_by_name_  // so that we only get dct_get_by_name
 #endif
@@ -50,20 +45,21 @@
 #include "guardian/pdctctlz.h"
 //#include "ComRegAPI.h"
 
-#include "common/dfs2rec.h"
+#include <unistd.h>
+
+#include "cli/Context.h"
 #include "cli/Statement.h"
+#include "common/ComExeTrace.h"
 #include "common/ComSqlId.h"
-#include "seabed/ms.h"
+#include "common/dfs2rec.h"
+#include "exp/ExpLOBenums.h"
+#include "qmscommon/QRLogger.h"
+#include "runtimestats/SqlStats.h"
 #include "seabed/fs.h"
 #include "seabed/fserr.h"
-#include "seabed/thread.h"
+#include "seabed/ms.h"
 #include "seabed/sqstatehi.h"
-#include "runtimestats/SqlStats.h"
-#include "common/ComExeTrace.h"
-#include "cli/Context.h"
-#include <unistd.h>
-#include "qmscommon/QRLogger.h"
-#include "exp/ExpLOBenums.h"
+#include "seabed/thread.h"
 
 extern char **environ;
 
@@ -781,7 +777,7 @@ int cliWillThrow()
 #endif
 
 int SQL_EXEC_AllocDesc(/*INOUT*/ SQLDESC_ID *desc_id,
-                         /*IN OPTIONAL*/ SQLDESC_ID *input_descriptor) {
+                       /*IN OPTIONAL*/ SQLDESC_ID *input_descriptor) {
   int retcode;
   CLISemaphore *tmpSemaphore = NULL;
   ContextCli *threadContext;
@@ -818,7 +814,7 @@ int SQL_EXEC_ALLOCDESC(
 };
 
 int SQL_EXEC_AllocDescBasic(/*INOUT*/ SQLDESC_ID *desc_id,
-                              /*IN OPTIONAL*/ int max_entries) {
+                            /*IN OPTIONAL*/ int max_entries) {
   int retcode;
   CLISemaphore *tmpSemaphore = NULL;
   ContextCli *threadContext;
@@ -845,7 +841,7 @@ int SQL_EXEC_AllocDescBasic(/*INOUT*/ SQLDESC_ID *desc_id,
 }
 
 int SQL_EXEC_AllocStmt(/*INOUT*/ SQLSTMT_ID *new_statement_id,
-                         /*IN OPTIONAL*/ SQLSTMT_ID *cloned_statement) {
+                       /*IN OPTIONAL*/ SQLSTMT_ID *cloned_statement) {
   int retcode;
   CLISemaphore *tmpSemaphore = NULL;
   ContextCli *threadContext;
@@ -884,8 +880,8 @@ int SQL_EXEC_ALLOCSTMT(
 };
 
 int SQL_EXEC_AllocStmtForRS(/*IN*/ SQLSTMT_ID *callStmtId,
-                              /*IN*/ int resultSetIndex,
-                              /*INOUT*/ SQLSTMT_ID *resultSetStmtId) {
+                            /*IN*/ int resultSetIndex,
+                            /*INOUT*/ SQLSTMT_ID *resultSetStmtId) {
   int retcode;
   CLISemaphore *tmpSemaphore = NULL;
   ContextCli *threadContext;
@@ -921,7 +917,7 @@ int SQL_EXEC_ALLOCSTMTFORRS(
 
 // nowait CLI
 int SQL_EXEC_AssocFileNumber(/*IN*/ SQLSTMT_ID *statement_id,
-                               /*IN*/ short file_number) {
+                             /*IN*/ short file_number) {
   int retcode;
   CLISemaphore *tmpSemaphore = NULL;
   ContextCli *threadContext;
@@ -949,7 +945,7 @@ int SQL_EXEC_AssocFileNumber(/*IN*/ SQLSTMT_ID *statement_id,
 }
 
 int SQL_EXEC_ASSOCFILENUMBER(/*IN*/ SQLSTMT_ID *statement_id,
-                               /*IN*/ short file_number) {
+                             /*IN*/ short file_number) {
   return SQL_EXEC_AssocFileNumber(statement_id, file_number);
 };
 
@@ -1023,8 +1019,8 @@ int SQL_EXEC_CLOSESTMT(
 };
 
 int SQL_EXEC_CreateContext(/*OUT*/ SQLCTX_HANDLE *context_handle,
-                             /*IN*/ char *sqlAuthId,
-                             /*IN*/ int forFutureUse) {
+                           /*IN*/ char *sqlAuthId,
+                           /*IN*/ int forFutureUse) {
   int retcode;
 
   CLI_NONPRIV_PROLOGUE(retcode);
@@ -1045,8 +1041,8 @@ int SQL_EXEC_CreateContext(/*OUT*/ SQLCTX_HANDLE *context_handle,
 }
 
 int SQL_EXEC_CREATECONTEXT(/*OUT*/ SQLCTX_HANDLE *context_handle,
-                             /*IN*/ char *sqlAuthId,
-                             /*IN*/ int forFutureUse)
+                           /*IN*/ char *sqlAuthId,
+                           /*IN*/ int forFutureUse)
 
 {
   return SQL_EXEC_CreateContext(context_handle, sqlAuthId, forFutureUse);
@@ -1178,7 +1174,7 @@ int SQL_EXEC_GetUdrErrorFlags_Internal(/*OUT*/ int *udrErrorFlags) {
   return retcode;
 }
 int SQL_EXEC_SetUdrAttributes_Internal(/*IN*/ int sqlAccessMode,
-                                         /*IN*/ int forFutureUse) {
+                                       /*IN*/ int forFutureUse) {
   int retcode;
   CLISemaphore *tmpSemaphore = NULL;
   ContextCli *threadContext;
@@ -1239,9 +1235,9 @@ int SQL_EXEC_ResetUdrErrorFlags_Internal() {
 }
 
 int SQL_EXEC_SetUdrRuntimeOptions_Internal(/*IN*/ const char *options,
-                                             /*IN*/ int optionsLen,
-                                             /*IN*/ const char *delimiters,
-                                             /*IN*/ int delimsLen) {
+                                           /*IN*/ int optionsLen,
+                                           /*IN*/ const char *delimiters,
+                                           /*IN*/ int delimsLen) {
   int retcode;
   CLISemaphore *tmpSemaphore = NULL;
   ContextCli *threadContext;
@@ -1338,8 +1334,8 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
   };
 
   int SQL_EXEC_DefineDesc(/*IN*/ SQLSTMT_ID * statement_id,
-                            /* (SQLWHAT_DESC) *IN*/ int what_descriptor,
-                            /*IN*/ SQLDESC_ID * sql_descriptor) {
+                          /* (SQLWHAT_DESC) *IN*/ int what_descriptor,
+                          /*IN*/ SQLDESC_ID *sql_descriptor) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -1368,12 +1364,12 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
   int SQL_EXEC_DEFINEDESC(
       /*IN*/ SQLSTMT_ID * statement_id,
       /*IN* (SQLWHAT_DESC) */ int what_descriptor,
-      /*IN*/ SQLDESC_ID * sql_descriptor) {
+      /*IN*/ SQLDESC_ID *sql_descriptor) {
     return SQL_EXEC_DefineDesc(statement_id, what_descriptor, sql_descriptor);
   };
   int SQL_EXEC_DescribeStmt(/*IN*/ SQLSTMT_ID * statement_id,
-                              /*IN OPTIONAL*/ SQLDESC_ID * input_descriptor,
-                              /*IN OPTIONAL*/ SQLDESC_ID * output_descriptor) {
+                            /*IN OPTIONAL*/ SQLDESC_ID * input_descriptor,
+                            /*IN OPTIONAL*/ SQLDESC_ID * output_descriptor) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -1470,9 +1466,9 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
   };
 
   int SQL_EXEC_Exec(/*IN*/ SQLSTMT_ID * statement_id,
-                      /*IN OPTIONAL*/ SQLDESC_ID * input_descriptor,
-                      /*IN*/ int num_ptr_pairs,
-                      /*IN*/ int num_ap, ...) {
+                    /*IN OPTIONAL*/ SQLDESC_ID * input_descriptor,
+                    /*IN*/ int num_ptr_pairs,
+                    /*IN*/ int num_ap, ...) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -1542,9 +1538,9 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
     return retcode;
   };
   int SQL_EXEC_ExecClose(/*IN*/ SQLSTMT_ID * statement_id,
-                           /*IN OPTIONAL*/ SQLDESC_ID * input_descriptor,
-                           /*IN*/ int num_ptr_pairs,
-                           /*IN*/ int num_ap, ...) {
+                         /*IN OPTIONAL*/ SQLDESC_ID * input_descriptor,
+                         /*IN*/ int num_ptr_pairs,
+                         /*IN*/ int num_ap, ...) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -1614,10 +1610,10 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
   };
 
   int SQL_EXEC_ExecDirect(/*IN*/ SQLSTMT_ID * statement_id,
-                            /*IN*/ SQLDESC_ID * sql_source,
-                            /*IN OPTIONAL*/ SQLDESC_ID * input_descriptor,
-                            /*IN*/ int num_ptr_pairs,
-                            /*IN*/ int num_ap, ...) {
+                          /*IN*/ SQLDESC_ID * sql_source,
+                          /*IN OPTIONAL*/ SQLDESC_ID * input_descriptor,
+                          /*IN*/ int num_ptr_pairs,
+                          /*IN*/ int num_ap, ...) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -1652,11 +1648,11 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
   }
 
   int SQL_EXEC_ExecDirect2(/*IN*/ SQLSTMT_ID * statement_id,
-                             /*IN*/ SQLDESC_ID * sql_source,
-                             /*IN */ int prep_flags,
-                             /*IN OPTIONAL*/ SQLDESC_ID * input_descriptor,
-                             /*IN*/ int num_ptr_pairs,
-                             /*IN*/ int num_ap, ...) {
+                           /*IN*/ SQLDESC_ID * sql_source,
+                           /*IN */ int prep_flags,
+                           /*IN OPTIONAL*/ SQLDESC_ID *input_descriptor,
+                           /*IN*/ int num_ptr_pairs,
+                           /*IN*/ int num_ap, ...) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -1725,10 +1721,10 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
     return retcode;
   };
   int SQL_EXEC_ExecDirectDealloc(/*IN*/ SQLSTMT_ID * statement_id,
-                                   /*IN*/ SQLDESC_ID * sql_source,
-                                   /*IN OPTIONAL*/ SQLDESC_ID * input_descriptor,
-                                   /*IN*/ int num_ptr_pairs,
-                                   /*IN*/ int num_ap, ...) {
+                                 /*IN*/ SQLDESC_ID * sql_source,
+                                 /*IN OPTIONAL*/ SQLDESC_ID * input_descriptor,
+                                 /*IN*/ int num_ptr_pairs,
+                                 /*IN*/ int num_ap, ...) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -1762,10 +1758,10 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
     return retcode;
   }
   int SQL_EXEC_EXECDIRECTDEALLOC(/*IN*/ SQLSTMT_ID * statement_id,
-                                   /*IN*/ SQLDESC_ID * sql_source,
-                                   /*IN OPTIONAL*/ SQLDESC_ID * input_descriptor,
-                                   /*IN*/ int num_ptr_pairs,
-                                   /*IN*/ SQLCLI_PTR_PAIRS ptr_pairs[]) {
+                                 /*IN*/ SQLDESC_ID * sql_source,
+                                 /*IN OPTIONAL*/ SQLDESC_ID * input_descriptor,
+                                 /*IN*/ int num_ptr_pairs,
+                                 /*IN*/ SQLCLI_PTR_PAIRS ptr_pairs[]) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -1796,9 +1792,9 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
   }
 
   int SQL_EXEC_ExecFetch(/*IN*/ SQLSTMT_ID * statement_id,
-                           /*IN OPTIONAL*/ SQLDESC_ID * input_descriptor,
-                           /*IN*/ int num_ptr_pairs,
-                           /*IN*/ int num_ap, ...) {
+                         /*IN OPTIONAL*/ SQLDESC_ID * input_descriptor,
+                         /*IN*/ int num_ptr_pairs,
+                         /*IN*/ int num_ap, ...) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -1836,9 +1832,9 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
     return retcode;
   }
   int SQL_EXEC_EXECFETCH(/*IN*/ SQLSTMT_ID * statement_id,
-                           /*IN OPTIONAL*/ SQLDESC_ID * input_descriptor,
-                           /*IN*/ int num_ptr_pairs,
-                           /*IN*/ SQLCLI_PTR_PAIRS ptr_pairs[]) {
+                         /*IN OPTIONAL*/ SQLDESC_ID * input_descriptor,
+                         /*IN*/ int num_ptr_pairs,
+                         /*IN*/ SQLCLI_PTR_PAIRS ptr_pairs[]) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -1868,12 +1864,12 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
     return retcode;
   }
   int SQL_EXEC_ClearExecFetchClose(/*IN*/ SQLSTMT_ID * statement_id,
-                                     /*IN OPTIONAL*/ SQLDESC_ID * input_descriptor,
-                                     /*IN OPTIONAL*/ SQLDESC_ID * output_descriptor,
-                                     /*IN*/ int num_input_ptr_pairs,
-                                     /*IN*/ int num_output_ptr_pairs,
-                                     /*IN*/ int num_total_ptr_pairs,
-                                     /*IN*/ int num_ap, ...) {
+                                   /*IN OPTIONAL*/ SQLDESC_ID * input_descriptor,
+                                   /*IN OPTIONAL*/ SQLDESC_ID * output_descriptor,
+                                   /*IN*/ int num_input_ptr_pairs,
+                                   /*IN*/ int num_output_ptr_pairs,
+                                   /*IN*/ int num_total_ptr_pairs,
+                                   /*IN*/ int num_ap, ...) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -1913,13 +1909,13 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
     return retcode;
   }
   int SQL_EXEC_CLEAREXECFETCHCLOSE(/*IN*/ SQLSTMT_ID * statement_id,
-                                     /*IN OPTIONAL*/ SQLDESC_ID * input_descriptor,
-                                     /*IN OPTIONAL*/ SQLDESC_ID * output_descriptor,
-                                     /*IN*/ int num_input_ptr_pairs,
-                                     /*IN*/ int num_output_ptr_pairs,
-                                     /*IN*/ int num_total_ptr_pairs,
-                                     /*IN*/ SQLCLI_PTR_PAIRS input_ptr_pairs[],
-                                     /*IN*/ SQLCLI_PTR_PAIRS output_ptr_pairs[]) {
+                                   /*IN OPTIONAL*/ SQLDESC_ID * input_descriptor,
+                                   /*IN OPTIONAL*/ SQLDESC_ID * output_descriptor,
+                                   /*IN*/ int num_input_ptr_pairs,
+                                   /*IN*/ int num_output_ptr_pairs,
+                                   /*IN*/ int num_total_ptr_pairs,
+                                   /*IN*/ SQLCLI_PTR_PAIRS input_ptr_pairs[],
+                                   /*IN*/ SQLCLI_PTR_PAIRS output_ptr_pairs[]) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -1951,9 +1947,9 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
   }
 
   int SQL_EXEC_Fetch(/*IN*/ SQLSTMT_ID * statement_id,
-                       /*IN OPTIONAL*/ SQLDESC_ID * output_descriptor,
-                       /*IN*/ int num_ptr_pairs,
-                       /*IN*/ int num_ap, ...) {
+                     /*IN OPTIONAL*/ SQLDESC_ID * output_descriptor,
+                     /*IN*/ int num_ptr_pairs,
+                     /*IN*/ int num_ap, ...) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -1990,9 +1986,9 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
     return retcode;
   }
   int SQL_EXEC_FETCH(/*IN*/ SQLSTMT_ID * statement_id,
-                       /*IN OPTIONAL*/ SQLDESC_ID * output_descriptor,
-                       /*IN*/ int num_ptr_pairs,
-                       /*IN*/ SQLCLI_PTR_PAIRS ptr_pairs[]) {
+                     /*IN OPTIONAL*/ SQLDESC_ID * output_descriptor,
+                     /*IN*/ int num_ptr_pairs,
+                     /*IN*/ SQLCLI_PTR_PAIRS ptr_pairs[]) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -2025,9 +2021,9 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
   }
 
   int SQL_EXEC_FetchClose(/*IN*/ SQLSTMT_ID * statement_id,
-                            /*IN OPTIONAL*/ SQLDESC_ID * output_descriptor,
-                            /*IN*/ int num_ptr_pairs,
-                            /*IN*/ int num_ap, ...) {
+                          /*IN OPTIONAL*/ SQLDESC_ID * output_descriptor,
+                          /*IN*/ int num_ptr_pairs,
+                          /*IN*/ int num_ap, ...) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -2060,9 +2056,9 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
     return retcode;
   }
   int SQL_EXEC_FETCHCLOSE(/*IN*/ SQLSTMT_ID * statement_id,
-                            /*IN OPTIONAL*/ SQLDESC_ID * output_descriptor,
-                            /*IN*/ int num_ptr_pairs,
-                            /*IN*/ SQLCLI_PTR_PAIRS ptr_pairs[]) {
+                          /*IN OPTIONAL*/ SQLDESC_ID * output_descriptor,
+                          /*IN*/ int num_ptr_pairs,
+                          /*IN*/ SQLCLI_PTR_PAIRS ptr_pairs[]) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -2093,12 +2089,12 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
   }
 
   int SQL_EXEC_FetchMultiple(/*IN*/ SQLSTMT_ID * statement_id,
-                               /*IN  OPTIONAL*/ SQLDESC_ID * output_descriptor,
-                               /*IN*/ int rowset_size,
-                               /*IN*/ int * rowset_status_ptr,
-                               /*OUT*/ int * rowset_nfetched,
-                               /*IN*/ int num_quadruple_fields,
-                               /*IN*/ int num_ap, ...) {
+                             /*IN  OPTIONAL*/ SQLDESC_ID * output_descriptor,
+                             /*IN*/ int rowset_size,
+                             /*IN*/ int *rowset_status_ptr,
+                             /*OUT*/ int *rowset_nfetched,
+                             /*IN*/ int num_quadruple_fields,
+                             /*IN*/ int num_ap, ...) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -2132,12 +2128,12 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
     return retcode;
   }
   int SQL_EXEC_FETCHMULTIPLE(/*IN*/ SQLSTMT_ID * statement_id,
-                               /*IN  OPTIONAL*/ SQLDESC_ID * output_descriptor,
-                               /*IN*/ int rowset_size,
-                               /*IN*/ int * rowset_status_ptr,
-                               /*OUT*/ int * rowset_nfetched,
-                               /*IN*/ int num_quadruple_fields,
-                               /*IN*/ SQLCLI_QUAD_FIELDS quad_fields[]) {
+                             /*IN  OPTIONAL*/ SQLDESC_ID * output_descriptor,
+                             /*IN*/ int rowset_size,
+                             /*IN*/ int *rowset_status_ptr,
+                             /*OUT*/ int *rowset_nfetched,
+                             /*IN*/ int num_quadruple_fields,
+                             /*IN*/ SQLCLI_QUAD_FIELDS quad_fields[]) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -2222,7 +2218,7 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
   }
 
   int SQL_EXEC_GetDescEntryCount(/*IN*/ SQLDESC_ID * sql_descriptor,
-                                   /*IN*/ SQLDESC_ID * output_descriptor) {
+                                 /*IN*/ SQLDESC_ID * output_descriptor) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -2257,7 +2253,7 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
   };
 
   int SQL_EXEC_GetDescEntryCountBasic(/*IN*/ SQLDESC_ID * sql_descriptor,
-                                        /*OUT*/ int * num_entries) {
+                                      /*OUT*/ int *num_entries) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -2284,13 +2280,13 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
   }
 
   int SQL_EXEC_GetDescItem(/*IN*/ SQLDESC_ID * sql_descriptor,
-                             /*IN*/ int entry,
-                             /* (SQLDESC_ITEM_ID) *IN*/ int what_to_get,
-                             /*OUT OPTIONAL*/ void *numeric_value,
-                             /*OUT OPTIONAL*/ char *string_value,
-                             /*IN OPTIONAL*/ int max_string_len,
-                             /*OUT OPTIONAL*/ int *len_of_item,
-                             /*IN OPTIONAL*/ int start_from_offset) {
+                           /*IN*/ int entry,
+                           /* (SQLDESC_ITEM_ID) *IN*/ int what_to_get,
+                           /*OUT OPTIONAL*/ void *numeric_value,
+                           /*OUT OPTIONAL*/ char *string_value,
+                           /*IN OPTIONAL*/ int max_string_len,
+                           /*OUT OPTIONAL*/ int *len_of_item,
+                           /*IN OPTIONAL*/ int start_from_offset) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -2332,9 +2328,9 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
                                 len_of_item, start_from_offset);
   };
   int SQL_EXEC_GetDescItems(/*IN*/ SQLDESC_ID * sql_descriptor,
-                              /*IN*/ SQLDESC_ITEM desc_items[],
-                              /*IN*/ SQLDESC_ID * value_num_descriptor,
-                              /*IN*/ SQLDESC_ID * output_descriptor) {
+                            /*IN*/ SQLDESC_ITEM desc_items[],
+                            /*IN*/ SQLDESC_ID * value_num_descriptor,
+                            /*IN*/ SQLDESC_ID * output_descriptor) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -2371,8 +2367,8 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
     return SQL_EXEC_GetDescItems(sql_descriptor, desc_items, value_num_descriptor, output_descriptor);
   };
   int SQL_EXEC_GetDescItems2(/*IN*/ SQLDESC_ID * sql_descriptor,
-                               /*IN*/ int no_of_desc_items,
-                               /*IN*/ SQLDESC_ITEM desc_items[]) {
+                             /*IN*/ int no_of_desc_items,
+                             /*IN*/ SQLDESC_ITEM desc_items[]) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -2404,8 +2400,8 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
       /*IN*/ SQLDESC_ITEM desc_items[]) {
     return SQL_EXEC_GetDescItems2(sql_descriptor, no_of_desc_items, desc_items);
   };
-  int SQL_EXEC_GetDiagnosticsStmtInfo(/*IN*/ int * stmt_info_items,
-                                        /*IN*/ SQLDESC_ID * output_descriptor) {
+  int SQL_EXEC_GetDiagnosticsStmtInfo(/*IN*/ int *stmt_info_items,
+                                      /*IN*/ SQLDESC_ID *output_descriptor) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -2467,8 +2463,8 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
     return retcode;
   }
   int SQL_EXEC_GETDIAGNOSTICSSTMTINFO(
-      /*IN*/ int * stmt_info_items,
-      /*IN*/ SQLDESC_ID * output_descriptor) {
+      /*IN*/ int *stmt_info_items,
+      /*IN*/ SQLDESC_ID *output_descriptor) {
     return SQL_EXEC_GetDiagnosticsStmtInfo(stmt_info_items, output_descriptor);
   };
 
@@ -2504,10 +2500,10 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
   // SQL_EXEC_GetDiagnosticsCondInfo)
   //
 
-  static int GetAutoSizedCondInfo(
-      int * retcode, SQLDIAG_COND_INFO_ITEM * cond_info_items, SQLDESC_ID * cond_num_descriptor,
-      SQLDESC_ID * output_descriptor, ComDiagsArea * diagsArea, int try_count,
-      DiagsConditionItem * *condition_item_array, SQLMXLoggingArea::ExperienceLevel * emsEventEL) {
+  static int GetAutoSizedCondInfo(int *retcode, SQLDIAG_COND_INFO_ITEM *cond_info_items,
+                                  SQLDESC_ID *cond_num_descriptor, SQLDESC_ID *output_descriptor,
+                                  ComDiagsArea *diagsArea, int try_count, DiagsConditionItem **condition_item_array,
+                                  SQLMXLoggingArea::ExperienceLevel *emsEventEL) {
     NABoolean resize = TRUE;
     const int try_size = 512;
     int condition_item_count_needed, condition_item_count = try_count;
@@ -2664,9 +2660,9 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
                         (void **)&pFirstUntranslatedChar,         // OUT void * * First_Untranslated_Char_Addr
                         &msgInLocaleLen,                          // OUT int * Output_Data_Octet_Length
                         0,                                        // IN int conv_flags
-                        (int)FALSE,                             // IN int add_null_at_end_Flag
-                        (int)TRUE,                              // IN int allow_invalids
-                        (int *)NULL,                            // OUT int * num_translated_char
+                        (int)FALSE,                               // IN int add_null_at_end_Flag
+                        (int)TRUE,                                // IN int allow_invalids
+                        (int *)NULL,                              // OUT int * num_translated_char
                         NULL                                      // IN void * substitution_char_addr
                     );                                            //            use ? as the substitute char
                     switch (cnvErrStatus) {
@@ -2788,7 +2784,7 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
   int SQL_EXEC_GetDiagnosticsCondInfo2(
       /*IN* (SQLDIAG_COND_INFO_ITEM_ID) */ int what_to_get,
       /*IN*/ int conditionNum,
-      /*OUT OPTIONAL*/ int * numeric_value,
+      /*OUT OPTIONAL*/ int *numeric_value,
       /*OUT OPTIONAL*/ char *string_value,
       /*IN OPTIONAL */ int max_string_len,
       /*OUT OPTIONAL*/ int *len_of_item) {
@@ -2873,7 +2869,7 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
   int SQL_EXEC_GETDIAGNOSTICSCONDINFO2(
       /*IN* (SQLDIAG_COND_INFO_ITEM_ID) */ int what_to_get,
       /*IN*/ int conditionNum,
-      /*OUT OPTIONAL*/ int * numeric_value,
+      /*OUT OPTIONAL*/ int *numeric_value,
       /*OUT OPTIONAL*/ char *string_value,
       /*IN OPTIONAL */ int max_string_len,
       /*OUT OPTIONAL*/ int *len_of_item) {
@@ -3053,9 +3049,9 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
                     (void **)&pFirstUntranslatedChar,       // OUT void * * First_Untranslated_Char_Addr
                     &msgInLocaleLen,                        // OUT int Output_Data_Octet_Length
                     0,                                      // IN int conv_flags
-                    (int)FALSE,                           // IN int add_null_at_end_Flag
-                    (int)TRUE,                            // IN int allow_invalids
-                    (int *)NULL,                          // OUT int * num_translated_char
+                    (int)FALSE,                             // IN int add_null_at_end_Flag
+                    (int)TRUE,                              // IN int allow_invalids
+                    (int *)NULL,                            // OUT int * num_translated_char
                     NULL                                    // IN void * substitution_char_addr
                 );                                          //            use ? as the substitute char
                 switch (cnvErrStatus) {
@@ -3151,7 +3147,7 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
   }
 
   int SQL_EXEC_GetCSQLSTATE(/*OUT*/ char *theSQLSTATE /* assumed char[6] */,
-                              /*IN*/ int theSQLCODE) {
+                            /*IN*/ int theSQLCODE) {
     int retcode = 0;
 
     CLI_NONPRIV_PROLOGUE(retcode);
@@ -3167,7 +3163,7 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
   };
 
   int SQL_EXEC_GetCobolSQLSTATE(/*OUT*/ char *theSQLSTATE /*assumed char[5]*/,
-                                  /*IN*/ int theSQLCODE) {
+                                /*IN*/ int theSQLCODE) {
     int retcode = 0;
 
     char localSQLSTATE[6];
@@ -3223,7 +3219,7 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
 
   int SQL_EXEC_GetSessionAttr(
       /*IN (SESSIONATTR_TYPE )*/ int attrName,
-      /*OUT OPTIONAL*/ int * numeric_value,
+      /*OUT OPTIONAL*/ int *numeric_value,
       /*OUT OPTIONAL*/ char *string_value,
       /*IN OPTIONAL*/ int max_string_len,
       /*OUT OPTIONAL*/ int *len_of_item) {
@@ -3346,7 +3342,7 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
   }
 
   int SQL_EXEC_GetDatabaseUserID_Internal(/*IN*/ char *string_value,
-                                            /*OUT*/ int *numeric_value) {
+                                          /*OUT*/ int *numeric_value) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -3375,7 +3371,7 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
   }
 
   int SQL_EXEC_GetAuthState(
-      /*OUT*/ int & authenticationType,
+      /*OUT*/ int &authenticationType,
       /*OUT*/ bool &authorizationEnabled,
       /*OUT*/ bool &authorizationReady,
       /*OUT*/ bool &auditingEnabled)
@@ -3472,7 +3468,7 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
 
   int SQL_EXEC_GetAuthErrPwdCnt(
       /*IN*/ int userid,
-      /*OUT*/ Int16 & errcnt) {
+      /*OUT*/ Int16 &errcnt) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -3562,7 +3558,7 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
     return retcode;
   }
 
-  int SQL_EXEC_GetRoleList(int & numEntries, int * &roleIDs, int * &granteeIDs)
+  int SQL_EXEC_GetRoleList(int &numEntries, int *&roleIDs, int *&granteeIDs)
 
   {
     int retcode;
@@ -3652,11 +3648,11 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
   }
 
   int SQL_EXEC_GetStmtAttr(/*IN*/ SQLSTMT_ID * statement_id,
-                             /*IN (SQLATTR_TYPE )*/ int attrName,
-                             /*OUT OPTIONAL*/ int * numeric_value,
-                             /*OUT OPTIONAL*/ char *string_value,
-                             /*IN OPTIONAL*/ int max_string_len,
-                             /*OUT OPTIONAL*/ int *len_of_item) {
+                           /*IN (SQLATTR_TYPE )*/ int attrName,
+                           /*OUT OPTIONAL*/ int *numeric_value,
+                           /*OUT OPTIONAL*/ char *string_value,
+                           /*IN OPTIONAL*/ int max_string_len,
+                           /*OUT OPTIONAL*/ int *len_of_item) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -3684,17 +3680,17 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
     return retcode;
   }
   int SQL_EXEC_GETSTMTATTR(/*IN*/ SQLSTMT_ID * statement_id,
-                             /*IN* (SQLATTR_TYPE) */ int attrName,
-                             /*OUT OPTIONAL*/ int * numeric_value,
-                             /*OUT OPTIONAL*/ char *string_value,
-                             /*IN OPTIONAL*/ int max_string_len,
-                             /*OUT OPTIONAL*/ int *len_of_item) {
+                           /*IN* (SQLATTR_TYPE) */ int attrName,
+                           /*OUT OPTIONAL*/ int *numeric_value,
+                           /*OUT OPTIONAL*/ char *string_value,
+                           /*IN OPTIONAL*/ int max_string_len,
+                           /*OUT OPTIONAL*/ int *len_of_item) {
     return SQL_EXEC_GetStmtAttr(statement_id, attrName, numeric_value, string_value, max_string_len, len_of_item);
   }
   int SQL_EXEC_GetStmtAttrs(/*IN*/ SQLSTMT_ID * statement_id,
-                              /*IN*/ int number_of_attrs,
-                              /*INOUT*/ SQLSTMT_ATTR attrs[],
-                              /*OUT OPTIONAL*/ int * num_returned) {
+                            /*IN*/ int number_of_attrs,
+                            /*INOUT*/ SQLSTMT_ATTR attrs[],
+                            /*OUT OPTIONAL*/ int *num_returned) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -3721,16 +3717,16 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
     return retcode;
   }
   int SQL_EXEC_GETSTMTATTRS(/*IN*/ SQLSTMT_ID * statement_id,
-                              /*IN*/ int number_of_attrs,
-                              /*INOUT*/ SQLSTMT_ATTR attrs[],
-                              /*OUT OPTIONAL*/ int * num_returned) {
+                            /*IN*/ int number_of_attrs,
+                            /*INOUT*/ SQLSTMT_ATTR attrs[],
+                            /*OUT OPTIONAL*/ int *num_returned) {
     return SQL_EXEC_GetStmtAttrs(statement_id, number_of_attrs, attrs, num_returned);
   }
 #ifdef __cplusplus
   extern "C" {
 #endif
   int SQL_EXEC_GetStatistics(/*IN OPTIONAL*/ SQLSTMT_ID *statement_id,
-                               /*INOUT*/ SQL_QUERY_STATISTICS *query_statistics) {
+                             /*INOUT*/ SQL_QUERY_STATISTICS *query_statistics) {
     return -CLI_INTERNAL_ERROR;
   }
   int SQL_EXEC_GETSTATISTICS(
@@ -3803,7 +3799,7 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
   };
 
   int SQL_EXEC_Prepare(/*IN*/ SQLSTMT_ID * statement_id,
-                         /*IN*/ SQLDESC_ID * sql_source) {
+                       /*IN*/ SQLDESC_ID * sql_source) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -3833,15 +3829,15 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
   }
 
   int SQL_EXEC_Prepare2(/*IN*/ SQLSTMT_ID * statement_id,
-                          /*IN*/ SQLDESC_ID * sql_source,
-                          /*INOUT*/ char *gencode_ptr,
-                          /*IN*/ int gencode_len,
-                          /*INOUT*/ int *ret_gencode_len,
-                          /*INOUT*/ SQL_QUERY_COST_INFO *query_cost_info,
-                          /*INOUT*/ SQL_QUERY_COMPILER_STATS_INFO *comp_stats_info,
-                          /*INOUT*/ char *uniqueStmtId,
-                          /*INOUT*/ int *uniqueStmtIdLen,
-                          /*IN*/ int flags) {
+                        /*IN*/ SQLDESC_ID * sql_source,
+                        /*INOUT*/ char *gencode_ptr,
+                        /*IN*/ int gencode_len,
+                        /*INOUT*/ int *ret_gencode_len,
+                        /*INOUT*/ SQL_QUERY_COST_INFO *query_cost_info,
+                        /*INOUT*/ SQL_QUERY_COMPILER_STATS_INFO *comp_stats_info,
+                        /*INOUT*/ char *uniqueStmtId,
+                        /*INOUT*/ int *uniqueStmtIdLen,
+                        /*IN*/ int flags) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -3918,7 +3914,7 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
   }
 
   int SQL_EXEC_StoreExplainData(
-      /*IN*/ long * exec_start_utc_ts,
+      /*IN*/ long *exec_start_utc_ts,
       /*IN*/ char *query_id,
       /*INOUT*/ char *explain_ptr,
       /*IN*/ int explain_len) {
@@ -3952,8 +3948,8 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
   }
 
   int SQL_EXEC_ResDescName(/*INOUT*/ SQLDESC_ID * statement_id,
-                             /*IN OPTIONAL*/ SQLSTMT_ID * from_statement,
-                             /* (SQLWHAT_DESC) *IN OPTIONAL*/ int what_desc) {
+                           /*IN OPTIONAL*/ SQLSTMT_ID * from_statement,
+                           /* (SQLWHAT_DESC) *IN OPTIONAL*/ int what_desc) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -4023,7 +4019,7 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
     return SQL_EXEC_ResStmtName(statement_id);
   };
   int SQL_EXEC_SetCursorName(/*IN*/ SQLSTMT_ID * statement_id,
-                               /*IN*/ SQLSTMT_ID * cursor_name) {
+                             /*IN*/ SQLSTMT_ID * cursor_name) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -4057,9 +4053,9 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
     return SQL_EXEC_SetCursorName(statement_id, cursor_name);
   };
   int SQL_EXEC_SetStmtAttr(/*IN*/ SQLSTMT_ID * statement_id,
-                             /*IN* (SQLATTR_TYPE) */ int attrName,
-                             /*IN OPTIONAL*/ int numeric_value,
-                             /*IN OPTIONAL*/ char *string_value) {
+                           /*IN* (SQLATTR_TYPE) */ int attrName,
+                           /*IN OPTIONAL*/ int numeric_value,
+                           /*IN OPTIONAL*/ char *string_value) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -4088,14 +4084,14 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
     return retcode;
   }
   int SQL_EXEC_SETSTMTATTR(/*IN*/ SQLSTMT_ID * statement_id,
-                             /*IN* (SQLATTR_TYPE) */ int attrName,
-                             /*IN OPTIONAL*/ int numeric_value,
-                             /*IN OPTIONAL*/ char *string_value) {
+                           /*IN* (SQLATTR_TYPE) */ int attrName,
+                           /*IN OPTIONAL*/ int numeric_value,
+                           /*IN OPTIONAL*/ char *string_value) {
     return SQL_EXEC_SetStmtAttr(statement_id, attrName, numeric_value, string_value);
   }
 
   int SQL_EXEC_SetDescEntryCount(/*IN*/ SQLDESC_ID * sql_descriptor,
-                                   /*IN*/ SQLDESC_ID * input_descriptor) {
+                                 /*IN*/ SQLDESC_ID * input_descriptor) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -4130,7 +4126,7 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
   };
 
   int SQL_EXEC_SetDescEntryCountBasic(/*IN*/ SQLDESC_ID * sql_descriptor,
-                                        /*IN*/ int num_entries) {
+                                      /*IN*/ int num_entries) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -4159,10 +4155,10 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
     return retcode;
   }
   int SQL_EXEC_SetDescItem(/*IN*/ SQLDESC_ID * sql_descriptor,
-                             /*IN*/ int entry,
-                             /* (SQLDESC_ITEM_ID) *IN*/ int what_to_set,
-                             /*IN OPTIONAL*/ Long numeric_value,
-                             /*IN OPTIONAL*/ char *string_value) {
+                           /*IN*/ int entry,
+                           /* (SQLDESC_ITEM_ID) *IN*/ int what_to_set,
+                           /*IN OPTIONAL*/ Long numeric_value,
+                           /*IN OPTIONAL*/ char *string_value) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -4198,9 +4194,9 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
     return SQL_EXEC_SetDescItem(sql_descriptor, entry, what_to_set, numeric_value, string_value);
   };
   int SQL_EXEC_SetDescItems(/*IN*/ SQLDESC_ID * sql_descriptor,
-                              /*IN*/ SQLDESC_ITEM desc_items[],
-                              /*IN*/ SQLDESC_ID * value_num_descriptor,
-                              /*IN*/ SQLDESC_ID * input_descriptor) {
+                            /*IN*/ SQLDESC_ITEM desc_items[],
+                            /*IN*/ SQLDESC_ID * value_num_descriptor,
+                            /*IN*/ SQLDESC_ID * input_descriptor) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -4274,9 +4270,9 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
     return SQL_EXEC_SetDescItems2(sql_descriptor, no_of_desc_items, desc_items);
   };
   int SQL_EXEC_SetDescPointers(/*IN*/ SQLDESC_ID * sql_descriptor,
-                                 /*IN*/ int starting_entry,
-                                 /*IN*/ int num_ptr_pairs,
-                                 /*IN*/ int num_ap, ...) {
+                               /*IN*/ int starting_entry,
+                               /*IN*/ int num_ptr_pairs,
+                               /*IN*/ int num_ap, ...) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -4309,9 +4305,9 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
     return retcode;
   }
   int SQL_EXEC_SETDESCPOINTERS(/*IN*/ SQLDESC_ID * sql_descriptor,
-                                 /*IN*/ int starting_entry,
-                                 /*IN*/ int num_ptr_pairs,
-                                 /*IN*/ SQLCLI_PTR_PAIRS ptr_pairs[]) {
+                               /*IN*/ int starting_entry,
+                               /*IN*/ int num_ptr_pairs,
+                               /*IN*/ SQLCLI_PTR_PAIRS ptr_pairs[]) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -4340,8 +4336,8 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
     RecordError(NULL, retcode);
     return retcode;
   }
-  int SQL_EXEC_SetRowsetDescPointers(SQLDESC_ID * sql_descriptor, int rowset_size, int * rowset_status_ptr,
-                                       int starting_entry, int num_quadruple_fields, int num_ap, ...) {
+  int SQL_EXEC_SetRowsetDescPointers(SQLDESC_ID * sql_descriptor, int rowset_size, int *rowset_status_ptr,
+                                     int starting_entry, int num_quadruple_fields, int num_ap, ...) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -4375,9 +4371,8 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
     return retcode;
   }
 
-  int SQL_EXEC_SETROWSETDESCPOINTERS(SQLDESC_ID * sql_descriptor, int rowset_size, int * rowset_status_ptr,
-                                       int starting_entry, int num_quadruple_fields,
-                                       SQLCLI_QUAD_FIELDS quad_fields[]) {
+  int SQL_EXEC_SETROWSETDESCPOINTERS(SQLDESC_ID * sql_descriptor, int rowset_size, int *rowset_status_ptr,
+                                     int starting_entry, int num_quadruple_fields, SQLCLI_QUAD_FIELDS quad_fields[]) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -4408,7 +4403,7 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
   }
 
   int SQL_EXEC_SwitchContext(/*IN*/ SQLCTX_HANDLE ctxt_handle,
-                               /*OUT OPTIONAL*/ SQLCTX_HANDLE * prev_ctxt_handle) {
+                             /*OUT OPTIONAL*/ SQLCTX_HANDLE * prev_ctxt_handle) {
     return SQL_EXEC_SwitchContext_Internal(ctxt_handle, prev_ctxt_handle, FALSE);
   }
   int SQL_EXEC_SWITCHCONTEXT(
@@ -4417,7 +4412,7 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
     return SQL_EXEC_SwitchContext(context_handle, prev_context_handle);
   };
   int SQL_EXEC_Xact(/*IN* (SQLTRANS_COMMAND) */ int command,
-                      /*OUT OPTIONAL*/ SQLDESC_ID * transid_descriptor) {
+                    /*OUT OPTIONAL*/ SQLDESC_ID *transid_descriptor) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -4446,7 +4441,7 @@ int SQL_EXEC_DeallocDesc(/*IN*/ SQLDESC_ID *desc_id) {
   }
   int SQL_EXEC_XACT(
       /*IN* (SQLTRANS_COMMAND) */ int command,
-      /*OUT OPTIONAL*/ SQLDESC_ID * transid_descriptor) {
+      /*OUT OPTIONAL*/ SQLDESC_ID *transid_descriptor) {
     return SQL_EXEC_Xact(command, transid_descriptor);
   };
 
@@ -4473,7 +4468,7 @@ int SQL_EXEC_SetAuthID(
 #endif
 
   int SQL_EXEC_SetAuthID2(const USERS_INFO &usersInfo, const char *authToken, int authTokenLen, const char *slaName,
-                            const char *profileName, int resetAttributes)
+                          const char *profileName, int resetAttributes)
 
   {
     int retcode = 0;
@@ -4508,7 +4503,7 @@ int SQL_EXEC_SetAuthID(
   /* temporary functions -- for use by sqlcat simulator only */
 
   int SQL_EXEC_AllocDesc(/*INOUT*/ SQLDESC_ID * desc_id,
-                           /*IN OPTIONAL*/ int max_entries) {
+                         /*IN OPTIONAL*/ int max_entries) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -4537,7 +4532,7 @@ int SQL_EXEC_SetAuthID(
   }
 
   int SQL_EXEC_GetDescEntryCount(/*IN*/ SQLDESC_ID * sql_descriptor,
-                                   /*OUT*/ int * num_entries) {
+                                 /*OUT*/ int *num_entries) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -4566,7 +4561,7 @@ int SQL_EXEC_SetAuthID(
   }
 
   int SQL_EXEC_SetDescEntryCount(/*IN*/ SQLDESC_ID * sql_descriptor,
-                                   /*IN*/ int num_entries) {
+                                 /*IN*/ int num_entries) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -4695,8 +4690,8 @@ int SQL_EXEC_SetAuthID(
   }
 
   int SQL_EXEC_SwitchContext_Internal(/*IN*/ SQLCTX_HANDLE context_handle,
-                                        /*OUT OPTIONAL*/ SQLCTX_HANDLE * prev_context_handle,
-                                        /*IN*/ int allowSwitchBackToDefault) {
+                                      /*OUT OPTIONAL*/ SQLCTX_HANDLE * prev_context_handle,
+                                      /*IN*/ int allowSwitchBackToDefault) {
     int retcode;
 
     CLI_NONPRIV_PROLOGUE(retcode);
@@ -4744,7 +4739,7 @@ int SQL_EXEC_SetAuthID(
     return retcode;
   }
 
-  int SQL_EXEC_GetParserFlagsForExSqlComp_Internal(int & flagbits) {
+  int SQL_EXEC_GetParserFlagsForExSqlComp_Internal(int &flagbits) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -4817,8 +4812,8 @@ int SQL_EXEC_SetAuthID(
   // #include "CliDll.cpp"
 
   int SQL_EXEC_GetCollectStatsType_Internal(
-      /*OUT*/ int * collectStatsType,
-      /*IN*/ SQLSTMT_ID * statement_id) {
+      /*OUT*/ int *collectStatsType,
+      /*IN*/ SQLSTMT_ID *statement_id) {
     int retcode = 0;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -5320,8 +5315,8 @@ int SQL_EXEC_SetAuthID(
     return retcode;
   }
 
-  int SQL_EXEC_RegisterQuery(SQLQUERY_ID *queryId, int fragId, int tdbId, int explainTdbId,
-                               short collectStatsType, int instNum, int tdbType, char *tdbName, int tdbNameLen) {
+  int SQL_EXEC_RegisterQuery(SQLQUERY_ID *queryId, int fragId, int tdbId, int explainTdbId, short collectStatsType,
+                             int instNum, int tdbType, char *tdbName, int tdbNameLen) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;
@@ -5590,13 +5585,9 @@ int SQL_EXEC_SetAuthID(
     return retcode;
   }
 
-  int SQL_EXEC_SEcliInterface(SECliQueryType qType,
-
-                                void **cliInterface,
-
-                                const char *inStrParam1, const char *inStrParam2, int inIntParam1, int inIntParam2,
-
-                                char **outStrParam1, char **outStrParam2, int *outIntParam1) {
+  int SQL_EXEC_SEcliInterface(SECliQueryType qType, void **cliInterface, const char *inStrParam1,
+                              const char *inStrParam2, int inIntParam1, int inIntParam2, char **outStrParam1,
+                              char **outStrParam2, int *outIntParam1) {
     int retcode;
     CLISemaphore *tmpSemaphore = NULL;
     ContextCli *threadContext;

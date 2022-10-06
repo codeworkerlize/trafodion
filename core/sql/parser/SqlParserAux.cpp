@@ -28,7 +28,7 @@
 #define SQLPARSERGLOBALS_NAMES_AND_TOKENS
 #define SQLPARSERGLOBALS_FLAGS
 #include "parser/SqlParserGlobals.h"
-#include "SqlParserAux.h"
+#include "parser/SqlParserAux.h"
 
 #include <errno.h>
 #include "optimizer/AllItemExpr.h"
@@ -49,17 +49,17 @@ class PairOfUnsigned;
 #include "common/ComSmallDefs.h"
 #include "common/ComTransInfo.h"
 #include "common/ComUnits.h"
-#include "HvTypes.h"
-#include "ElemDDLConstraintRI.h"
-#include "ElemDDLPartition.h"
-#include "ElemDDLParamName.h"
-#include "AllElemDDL.h"
-#include "AllStmtDDL.h"
+#include "parser/HvTypes.h"
+#include "parser/ElemDDLConstraintRI.h"
+#include "parser/ElemDDLPartition.h"
+#include "parser/ElemDDLParamName.h"
+#include "parser/AllElemDDL.h"
+#include "parser/AllStmtDDL.h"
 #include "optimizer/RelScan.h"
 #include "optimizer/RelUpdate.h"
 #include "optimizer/RelSequence.h"
 #include "optimizer/RelExeUtil.h"
-#include "StmtDMLSetTransaction.h"
+#include "parser/StmtDMLSetTransaction.h"
 #include "exp/exp_clause_derived.h"
 #include <sqlparser.h>  // Angled-brackets are intentional here
 

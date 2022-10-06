@@ -1,9 +1,7 @@
 
-#ifndef SQLPARSERGLOBALS_H
-#define SQLPARSERGLOBALS_H
+#pragma once
 
 #include "common/NAWinNT.h"
-
 #include "parser/SqlParserGlobalsCmn.h"
 
 #undef GLOB_
@@ -35,8 +33,8 @@ class ItemExpr;
 class ItemExprList;
 #include "common/BaseTypes.h"
 #include "common/charinfo.h"
-#include "sqlcomp/DefaultConstants.h"
 #include "common/nawstring.h"
+#include "sqlcomp/DefaultConstants.h"
 
 // This was added to solve Genesis 10-980423-3834.
 // It extends tokval by returning not just the token value/code/enum,
@@ -191,7 +189,7 @@ GLOB_ int WeAreInCreateTable INIT_(FALSE);
 #endif
 
 #ifdef SQLPARSERGLOBALS_HOSTVARS  // HvRoles.h SqlParser.y scXlat.cpp
-#include "HvRoles.h"
+#include "parser/HvRoles.h"
 GLOB_ HostVarRole_vec *TheHostVarRoles INIT_(NULL);
 
 #endif
@@ -201,5 +199,3 @@ GLOB_ HostVarRole_vec *TheHostVarRoles INIT_(NULL);
 
 #include "common/NAString.h"
 #include "common/nawstring.h"
-
-#endif /* SQLPARSERGLOBALS_H */

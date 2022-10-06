@@ -19,7 +19,7 @@
 
 #include "ElemDDLNode.h"
 #include "common/NAString.h"
-#include "StmtDDLNode.h"
+#include "parser/StmtDDLNode.h"
 #include "common/ComSmallDefs.h"
 
 // -----------------------------------------------------------------------

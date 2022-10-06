@@ -32,7 +32,7 @@
  */
 
 #include "common/ComASSERT.h"
-#include "ElemDDLConstraintCheck.h"
+#include "parser/ElemDDLConstraintCheck.h"
 #include "common/NAString.h"
 #include "ParNameLocList.h"
 #include "ParTableUsageList.h"

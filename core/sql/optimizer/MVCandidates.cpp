@@ -8,7 +8,7 @@
 #include "optimizer/NormWA.h"
 #include "sqlcomp/parser.h"
 #include "optimizer/RelJoin.h"
-#include "ItemLog.h"
+#include "optimizer/ItemLog.h"
 #include "optimizer/RelUpdate.h"
 #include "optimizer/ItemOther.h"
 

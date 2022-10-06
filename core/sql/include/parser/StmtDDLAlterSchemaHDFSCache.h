@@ -18,7 +18,7 @@
  *****************************************************************************
  */
 
-#include "StmtDDLNode.h"
+#include "parser/StmtDDLNode.h"
 
 class StmtDDLAlterSchemaHDFSCache : public StmtDDLNode {
  public:

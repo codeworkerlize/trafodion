@@ -25,7 +25,7 @@
 #include "parser/SqlParserGlobals.h"
 
 #include "common/ComSmallDefs.h"
-#include "StmtDDLNode.h"
+#include "parser/StmtDDLNode.h"
 
 class StmtDDLRevokeComponentPrivilege : public StmtDDLNode {
  public:

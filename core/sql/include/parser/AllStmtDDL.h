@@ -16,20 +16,20 @@
  *****************************************************************************
  */
 
-#include "StmtDDLNode.h"
-#include "AllStmtDDLAlterTable.h"
-#include "AllStmtDDLCreate.h"
-#include "AllStmtDDLDrop.h"
-#include "AllStmtDDLAlter.h"  // MV - RG
-#include "AllStmtDDLGive.h"
-#include "StmtDDLAlterCatalog.h"
+#include "parser/StmtDDLNode.h"
+#include "parser/AllStmtDDLAlterTable.h"
+#include "parser/AllStmtDDLCreate.h"
+#include "parser/AllStmtDDLDrop.h"
+#include "parser/AllStmtDDLAlter.h"  // MV - RG
+#include "parser/AllStmtDDLGive.h"
+#include "parser/StmtDDLAlterCatalog.h"
 #include "parser/StmtDDLAlterSchema.h"
-#include "StmtDDLAlterTrigger.h"
-#include "StmtDDLAlterIndexAttribute.h"
+#include "parser/StmtDDLAlterTrigger.h"
+#include "parser/StmtDDLAlterIndexAttribute.h"
 #include "parser/StmtDDLAlterIndexHBaseOptions.h"
-#include "StmtDDLAlterView.h"
+#include "parser/StmtDDLAlterView.h"
 #include "parser/StmtDDLAlterUser.h"
-#include "StmtDDLAlterDatabase.h"
+#include "parser/StmtDDLAlterDatabase.h"
 #include "parser/StmtDDLGrant.h"
 #include "parser/StmtDDLGrantComponentPrivilege.h"
 #include "parser/StmtDDLSchGrant.h"

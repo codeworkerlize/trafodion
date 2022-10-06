@@ -8,9 +8,9 @@
 #include "common/DatetimeType.h"
 #include "qmscommon/QRLogger.h"
 #include "OptRange.h"
-#include "ItemLog.h"
+#include "optimizer/ItemLog.h"
 #include "common/ComCextdecs.h"
-#include "SqlParserAux.h"
+#include "parser/SqlParserAux.h"
 
 double getDoubleValue(ConstValue *val, logLevel level);
 

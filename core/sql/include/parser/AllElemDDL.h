@@ -40,7 +40,7 @@
 #include "ElemDDLTableFeature.h"
 #include "parser/ElemDDLHbaseOptions.h"
 #include "ElemDDLParallelExec.h"
-#include "ElemDDLPassThroughParamDef.h"
+#include "parser/ElemDDLPassThroughParamDef.h"
 #include "ElemDDLReferences.h"
 #include "ElemDDLSGOption.h"
 #include "parser/ElemDDLSGOptions.h"
@@ -62,8 +62,7 @@
 #include "ElemDDLIndexPopulateOption.h"
 #include "ElemDDLIndexScopeOption.h"
 #include "parser/ElemDDLQualName.h"                // OZ
-#include "ElemDDLCreateMVOneAttributeTableList.h"  // MV OZ
-#include "ElemDDLFileAttrMisc.h"
+#include "parser/ElemDDLFileAttrMisc.h"
 #include "parser/ElemDDLGroup.h"
 
 //

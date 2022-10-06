@@ -19,8 +19,8 @@
 
 #include "parser/ElemDDLParamDef.h"
 #include "parser/ElemDDLParamDefArray.h"
-#include "ElemDDLParamName.h"
-#include "ElemDDLPassThroughParamDef.h"
+#include "parser/ElemDDLParamName.h"
+#include "parser/ElemDDLPassThroughParamDef.h"
 
 //
 // End of File

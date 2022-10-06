@@ -17,7 +17,7 @@
 **********************************************************************/
 
 #include "ElemDDLGranteeArray.h"
-#include "StmtDDLNode.h"
+#include "parser/StmtDDLNode.h"
 #include "ElemDDLSchemaName.h"
 
 // -----------------------------------------------------------------------

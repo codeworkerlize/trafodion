@@ -24,7 +24,7 @@
 #include "parser/ElemDDLParamDefArray.h"
 #include "common/NAString.h"
 #include "ParDDLFileAttrsCreateIndex.h"
-#include "StmtDDLNode.h"
+#include "parser/StmtDDLNode.h"
 #include "common/ComSmallDefs.h"
 
 // -----------------------------------------------------------------------

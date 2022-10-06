@@ -1,54 +1,7 @@
-/* -*-C++-*- */
 
 %{
 
-/* -*-C++-*-
-******************************************************************************
-*
-* File:         SqlParser.y
-* Description:  SQL Parser
-*
-* Created:      4/28/94
-* Language:     C++
-*
-*
-*	Is there a parser, much bemus'd in beer,
-*	A maudlin poetess, a rhyming peer,
-*	A clerk, foredoom'd his father's soul to cross,
-*	Who pens a stanza, when he should engross?
-*		-- with my apologies to Alexander Pope
-*
-******************************************************************************
-*/
-
-// As of 07/26/01, yacc (bison) reports for this file:
-// w:\parser\sqlparser.y contains 56 shift/reduce conflicts and 9 reduce/reduce conflicts.
-// As of 02/23/07, yacc (bison) reports for this file:
-// w:\parser\sqlparser.y contains 71 shift/reduce conflicts and 12 reduce/reduce conflicts.
-
-// shift/reduce case study: DROP GHOST TABLE
-// Before the invention of ghost tables, the second production for drop_table_statement was:
-//   drop_table_statement : TOK_DROP TOK_TABLE ddl_qualified_name optional_cleanup
-//                            optional_drop_invalidate_dependent_behavior optional_validate optional_logfile
-// I wanted to insert an optional TOK_GHOST like this:
-//   drop_table_statement : TOK_DROP optional_ghost TOK_TABLE ddl_qualified_name optional_cleanup
-//                            optional_drop_invalidate_dependent_behavior optional_validate optional_logfile
-//   optional_ghost : empty | TOK_GHOST
-// Unfortunately that introduced a shift/reduce conflict. After reading TOK_DROP, if the next 
-// token is TOK_TABLE, bison wanted to reduce 
-//   optional_ghost -> empty
-// but it also wanted to shift TOK_TABLE because DROP TABLE was not enough to distinguish the 
-// first two productions for drop_table_statement. So in order to avoid introducing a 
-// shift/reduce conflict, the productions have been written like this:
-//   drop_table_statement : drop_table_start_tokens ddl_qualified_name optional_cleanup
-//                            optional_drop_invalidate_dependent_behavior optional_validate optional_logfile
-//   drop_table_start_tokens : TOK_DROP TOK_TABLE | TOK_DROP TOK_GHOST TOK_TABLE
-// This solves the problem because bison does not have to reduce after reading TOK_DROP. Rather,
-// after reading TOK_DROP TOK_TABLE, it can lookahead at the next token to decide what to do.
-
-
 #include "common/Platform.h"				// must be the first #include
-//debug yacc
 #define YY_LOG_FILE "yylog"
 #define YYFPRINTF(stderr, format, args...) {FILE* fp=fopen(YY_LOG_FILE, "a+");fprintf(fp, format, ##args);fclose(fp);}
 
@@ -111,10 +64,10 @@ using namespace std;
 #include "common/MiscType.h"
 #include "arkcmp/CmpContext.h"
 
-#include "AllElemDDL.h"
+#include "parser/AllElemDDL.h"
 #include "optimizer/AllItemExpr.h"
 #include "optimizer/AllRelExpr.h"
-#include "AllStmtDDL.h"
+#include "parser/AllStmtDDL.h"
 #include "common/ComAnsiNamePart.h"
 #include "export/ComDiags.h"
 #include "common/ComMPLoc.h"
@@ -124,7 +77,7 @@ using namespace std;
 #include "arkcmp/CmpStatement.h"
 #include "optimizer/GroupAttr.h"
 #include "export/HeapLog.h"
-#include "HvTypes.h"
+#include "parser/HvTypes.h"
 #include "optimizer/ItemExprList.h"
 #include "ItemSample.h"
 #include "comexe/LateBindInfo.h"
@@ -139,17 +92,15 @@ using namespace std;
 #include "optimizer/RelSequence.h"
 #include "sqlci/SqlciError.h"
 #include "cli/sqlcli.h"
-#include "SqlParserAux.h"
+#include "parser/SqlParserAux.h"
 #include "parser/StmtCompilationMode.h"
-#include "StmtDMLSetTransaction.h"
+#include "parser/StmtDMLSetTransaction.h"
 
-// -- triggers
 #include "optimizer/Triggers.h"
 #include "ItemNAType.h"
 
-// MV
 
-#include "ItemLog.h"
+#include "optimizer/ItemLog.h"
 
 #include "parser/StmtNode.h"
 #include "common/wstr.h"
@@ -171,16 +122,6 @@ using namespace std;
 
 //#pragma warning (disable : 4065)//don't complain about empty switch statements.
 
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// The SQL parser auxiliary methods that used to be here had to be moved
-// to SqlParserAux.{h,cpp} to work around a c89 (v2.1) internal limit that 
-// shows up as 
-//    ugen: internal: Assertion failure
-//    in source file 'W:\parser\SqlParser.cpp', at source line 22210
-//    detected in back end file 'eval.c', at line 4653
-// when cross-compiling SQLMX for NSK. So, please add any new SQL parser
-// auxiliary methods into SqlParserAux.{h,cpp} instead of here.
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 static const UInt32 DEFAULT_STRING_SIZE = 1;
 
@@ -229,13 +170,6 @@ static void prepareReferencingNames( TableRefList & nameList,
 }
 
 
-//++ Triggers
-//
-// This routine determines the legal values of the SQLSTATE quoted string that
-// appears in a SIGNAL statement:
-// * The string must contain 5 alphanumeric charecters (ANSI)
-// * The first character must be 'S'. (This is a Tandem Extension, and not ANSI)
-//
 static NABoolean isInvalidSignalSqlstateValue(NAString *SqlState)
 {
         int wasError = FALSE;
@@ -1865,7 +1799,6 @@ static void setPartionInfo(RelExpr *re)
   //++ MV
   ComMVRefreshType              refreshType;    
   ComMVStatus			mvStatus;
-  enum StmtDDLAlterMvRGroup::alterMvGroupType MVRGAlterActionType; 
   enum StmtDDLAlterTable::PartitionEntityType partitionEntityType; 
   ComRangeLogType		rangelogType;
   ComMvsAllowed			mvsAllowedType;
@@ -1957,56 +1890,17 @@ static void setPartionInfo(RelExpr *re)
 %type <itemList>      	     trigger_set_clause_list
 %type <tokval>               optional_each
 %type <item>      	     trigger_set_clause
-%type <refreshType>		  refresh_type
-%type <pElemDDL>  		  create_mv_attribute_table_lists
-%type <pElemDDL>  		  create_mv_one_attribute_table_list
-%type <pElemDDL>  		  ignore_changes_on_table_list
-%type <mvInitType>	          mv_initialization_clause
-%type <boolean>			  optional_query_rewrite
-%type <pElemDDL>  		  optional_create_mv_file_options
-// table attributes
 %type <pElemDDL>  		  file_attribute_rangelog_clause	
 %type <rangelogType>  		  range_log_type 
 %type <pElemDDL>  		  file_attribute_lockonrefresh_clause 
 %type <pElemDDL>  		  file_attribute_insertlog_clause	
-%type <pElemDDL>  		  file_attribute_mvs_allowed_clause	
-%type <mvsAllowedType>		  mvs_allowed_type 
-// mv attributes
-%type <pElemDDL>  		  mv_file_attribute_clause
-%type <tokval>			  mv_file_attribute_keyword
-%type <pElemDDL>  		  mv_file_attribute_list
-%type <pElemDDL>  		  mv_file_attribute
-%type <mvAuditType>		  mv_audit_type
-// for general use
 %type <pElemDDL>  		  qual_name_list 
 %type <pElemDDL>  		  qual_name
 // MVGROUPS
-%type <pStmtDDL>  		  create_mvrgroup_statement  
-%type <pStmtDDL>  		  drop_mvrgroup_statement  
-%type <MVRGAlterActionType>	  mv_group_alter_action_type
 %type <partitionEntityType>	  partition_entity_type
-%type <pQualName>		  mv_group_name_to_alter
-%type <pElemDDL>		  mv_name_list
-%type <pElemDDL>		  mv_name_node
 // INTERANL REFRESH OZ_REFRESH
-%type <relx>			  internal_refresh_command
-%type <relx>			  internal_refresh_options
-%type <pQualName>		  internal_refresh_mv_name
-%type <uint>			  num_inserted 
-%type <uint>			  num_deleted 
-%type <uint>			  num_updated 
-%type <pIntegerList>		  optional_update_collumns
-%type <pIntegerList>		  columns_num_list
-%type <pOptionalNRowsClause>	  optional_nrows_clause
-%type <uint>			  phase_num
-%type <item>			  optional_catchup
-%type <pPipelineClause>		  optional_pipeline_clause
-%type <pPipelineClause>		  pipeline_clause
-%type <pPipelineDefPtrList>	  pipeline_def_list
-%type <pPipelineDef>		  pipeline_def
 %type <pQualifiedNamePtrList>	  pipeline_mv_name_list
 %type <pQualName>	          pipeline_mv_name_node
-
 
 // IUD
 %type <uint>                      no_check_log_rep_read
@@ -2238,7 +2132,6 @@ static void setPartionInfo(RelExpr *re)
 %type <tokval>                 numeric_type_token
 %type <na_type>   		pic_type
 %type <na_type>   		string_type
-%type <na_type>                 blob_type
 %type <na_type>                 boolean_type
 %type <na_type>   		float_type
 %type <na_type>   		proc_arg_float_type
@@ -2266,8 +2159,6 @@ static void setPartionInfo(RelExpr *re)
 %type <uint>      		left_unsigned_right
 %type <pCharLenSpec>		toggled_optional_left_charlen_right
 %type <uint>      		optional_left_charlen_right
-%type <int64>                 blob_optional_left_len_right
-%type <int64>                 clob_optional_left_len_right
 %type <pCharLenSpec>		new_optional_left_charlen_right
 %type <tokval>      		nchar     
 %type <tokval>      		nchar_varying
@@ -2609,7 +2500,6 @@ static void setPartionInfo(RelExpr *re)
 %type <longint>                 udf_cost
 %type <pStmtDDL>  		table_definition
 %type <pStmtDDL>  		view_definition
-%type <boolean>                 create_mv_keywords
 %type <createViewBehaviorEnum>  create_view_keywords
 %type <pStmtDDL>  		trigger_definition
 %type <pStmtDDL>  		before_trigger_definition
@@ -2637,7 +2527,6 @@ static void setPartionInfo(RelExpr *re)
 %type <commentOnEnum>           comment_on_object_types
 
 %type <stringval>               optional_component_detail_clause
-%type <int64>                   optional_lob_unit
 %type <stringval>               component_privilege_name
 %type <stringval>               component_str_lit
 %type <stringval>               priv_abbrev_str_lit
@@ -2782,7 +2671,6 @@ static void setPartionInfo(RelExpr *re)
 %type <pStmtDDL>  		drop_table_statement
 %type <uint>   	        	drop_table_start_tokens
 %type <pStmtDDL>  		drop_trigger_statement
-%type <pStmtDDL>  		drop_mv_statement
 %type <pStmtDDL>  		drop_view_statement
 %type <pStmtDDL>  		revoke_statement
 %type <boolean>   		optional_grant_option_for
@@ -2893,7 +2781,6 @@ static void setPartionInfo(RelExpr *re)
 %type <pElemDDL>  		file_attribute_audit_compress_clause
 %type <pElemDDL>  		file_attribute_block_size_clause
 %type <tokval>    		optional_block_size_unit
-%type <tokval>    		optional_lob_bytes
 %type <pElemDDL>  		file_attribute_buffered_clause
 %type <pElemDDL>  		file_attribute_clear_on_purge_clause
 /*%type <pElemDDL>  		file_attribute_dcompress_clause*/
@@ -3233,8 +3120,6 @@ static void setPartionInfo(RelExpr *re)
 %type <extractType>            extract_type
 %type <boolean>                optional_if_not_exists_clause
 %type <boolean>                optional_if_exists_clause
-%type <boolean>                optional_if_not_registered_clause
-%type <boolean>                optional_if_registered_clause
 
 %type <uint>                   merge_stmt_start_tokens
 %type <relx>                   merge_stmt_using_clause
@@ -12571,7 +12456,6 @@ predefined_type : date_time_type
 		| numeric_type
 		| pic_type
 		| string_type
-                | blob_type
                 | boolean_type
 
 
@@ -13580,69 +13464,8 @@ tok_char_or_character_or_byte : TOK_CHAR | TOK_CHARACTER
                                   CheckModeSpecial1();
                                 }
 
-/* type na_type */
-blob_type : TOK_BLOB blob_optional_left_len_right 
-            {
-              if (CmpCommon::getDefault(COMP_BOOL_990)  == DF_OFF)
-                if( ModuleCheck(LM_LOB, "BLOB") )
-                  YYERROR;
-	      if (CmpCommon::getDefault(TRAF_BLOB_AS_VARCHAR) == DF_ON)
-		{
-		  $$ = new (PARSERHEAP()) SQLVarChar(PARSERHEAP(), $2);
-                  ((SQLVarChar*)$$)->setClientDataType("BLOB");
-		}
-	      else
-		{
-    		  $$ = new (PARSERHEAP()) SQLBlob (PARSERHEAP(),  $2,
-                                                   Lob_Invalid_Storage,TRUE,
-                                                   0);
-		}
-            }
-
- 
-
-blob_optional_left_len_right: '(' NUMERIC_LITERAL_EXACT_NO_SCALE optional_lob_unit optional_lob_bytes')'
-        {
-	 
-	  long longIntVal = atoInt64($2->data());
-	  if (longIntVal < 0)
-	  {
-	    // Error: Expected an unsigned integer
-	    *SqlParser_Diags << DgSqlCode(-3017) 
-			     << DgString0(*$2);
-	  }
-	  
-	  longIntVal = longIntVal * $3;
-
-	  $$ = (long)longIntVal;
-	  delete $2;
-	 
-	}
 
 
-
-/* type int64 */
-optional_lob_unit :   TOK_K {$$ = 1024;}
-                     | TOK_M {$$ = 1024*1024;}
-                     | TOK_G {$$ = 1024*1024*1024;}
-                     | empty {$$ = 1;}
-
-optional_lob_bytes : TOK_BYTES | empty
-
-clob_optional_left_len_right: '(' NUMERIC_LITERAL_EXACT_NO_SCALE optional_lob_unit optional_lob_bytes')' 
-        {
-	  long longIntVal = atoInt64($2->data());
-	  if (longIntVal < 0)
-	  {
-	    // Error: Expected an unsigned integer
-	    *SqlParser_Diags << DgSqlCode(-3017)
-			     << DgString0(*$2);
-	  }
-	  longIntVal = longIntVal * $3;
-
-	  $$ = (long)longIntVal;
-	  delete $2;
-	}
 
 
 
@@ -15372,36 +15195,6 @@ balance_expr : TOK_BALANCE balance_when_then_list TOK_END
                   $$ = $2;
                 }
 
-/* NB: !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- *  Beware of adding clauses with a closing END like balance_expr above.
- *  They can mislead arkcmp/StaticCompiler.cpp's isEndOfStmt() and 
- *  sqlci/InputStmt.cpp's findBlockStmt() into finding the wrong END
- *  of a compound statement. For example:
- *     exec sql begin 
- *       insert into t values(7);
- *       select a into :h from m 
- *         sample first balance when a < 10 then 5 rows
- *                              when a >=10 then 7 rows
- *                      end sort by a;
- *     end;
- *  used to get a false syntax error due to a prematurely ENDed 
- *  compound statement. This is a consequence of SQLMX having 
- *  multiple parsers recognizing partially overlapping languages. To be
- *  more precise, both tdm_arkcmp and sqlci do only a partial scan of 
- *  their input looking for the beginning and ending of SQL statements 
- *  (among the input languages they recognize), ignore everything in
- *  between while buffering the statement, then passing it here 
- *  (sqlparser.y) for parsing. Therefore, the ending of SQLMX statements
- *  should be unambiguously distinguishable from the ending of compound
- *  statements. In case expressions "case .... end", we got away with it
- *  rather easily because "case" is an ANSI reserved word. But, for
- *  balance_expr, we had to solve the problem by considering "balance when" 
- *  as starting a new nesting level. But, "balance when" must be ignored 
- *  in "case balance when ... end" because "balance" here is an identifier
- *  and not a keyword. So, if you add any new clause with an "END" in it,
- *  please fix StaticCompiler.cpp and InputStmt.cpp also if your new 
- *  clause can appear inside a compound statement.
- */
 
 /* type item */
 balance_when_then_list : balance_when_then balance_when_then_list
@@ -16468,11 +16261,7 @@ sql_schema_definition_statement :
                                   // Tandem extension
                                 }
 
-	      | create_mvrgroup_statement
-		  {
-						// MV - RG
-						// Tandem extension
-		  }
+
 	      | trigger_definition
 				{
                                 }
@@ -16611,9 +16400,6 @@ sql_schema_manipulation_statement :
 				{
 				}
 
-              | drop_mv_statement
-				{
-				}
 
               | drop_index_statement
                                 {
@@ -16887,10 +16673,7 @@ interactive_query_expression:
 		  		{
 				  $$ = finalize($1, FALSE);
 		  		}
-	      | internal_refresh_command
-		  {
-			$$ = finalize($1); 
-		  }
+
 
               | anonymous_block_statement
                   {
@@ -30108,35 +29891,8 @@ optional_if_exists_clause :
                $$ = TRUE;
              }
 
-/* type boolean */
-optional_if_not_registered_clause : 
-                empty
-                  {
-                    $$ = FALSE;
-                  }
-               | TOK_IF TOK_NOT TOK_REGISTERED
-                  {
-                    $$ = TRUE;
-                  }
-               | TOK_IF TOK_NOT TOK_EXISTS
-                  {
-                    $$ = TRUE;
-                  }
 
-/* type boolean */
-optional_if_registered_clause :
-          empty
-            {
-               $$ = FALSE;
-             }
-          | TOK_IF TOK_REGISTERED
-             {
-               $$ = TRUE;
-             }
-          | TOK_IF TOK_EXISTS
-             {
-               $$ = TRUE;
-             }
+
 
 
 create_table_as_attr_list_start: empty
@@ -31395,7 +31151,6 @@ create_table_attribute : file_attribute_clause
                       | division_by_clause
                       | replicate_by_clause
                       | store_by_clause
-		      | mv_file_attribute_clause // for MVs only
                       | file_attribute_pos_clause
                       | table_feature
                       | hbase_table_options 
@@ -31453,7 +31208,6 @@ file_attribute :        file_attribute_allocate_clause
 					  | file_attribute_rangelog_clause
 					  | file_attribute_lockonrefresh_clause
 					  | file_attribute_insertlog_clause
-					  | file_attribute_mvs_allowed_clause
 					  | file_attribute_uid_clause
                       | file_attribute_row_format_clause
                       | file_attribute_no_label_update_clause
@@ -31782,36 +31536,8 @@ file_attribute_insertlog_clause: TOK_INSERTLOG
 								 }
 
 
-// type <pElemDDL>  		
-file_attribute_mvs_allowed_clause: 	mvs_allowed_type TOK_MVS TOK_ALLOWED
-									{
-										$$ = new (PARSERHEAP())
-											ElemDDLFileAttrMvsAllowed($1);
-
-									}
 
 
-// type <mvsAllowedType>  
-mvs_allowed_type: TOK_NO
-				  {
-					  $$ = COM_NO_MVS_ALLOWED;
-				  }
-				  | TOK_ON TOK_STATEMENT
-				  {
-					$$ = COM_ON_STATEMENT_MVS_ALLOWED;
-				  }
-				  | TOK_ON TOK_REQUEST
-				  {
-					$$ = COM_ON_REQUEST_MVS_ALLOWED;
-				  }
-				  | TOK_RECOMPUTE
-				  {
-					$$ = COM_RECOMPUTE_MVS_ALLOWED;
-				  }
-				  | TOK_ALL
-				  {
-					$$ = COM_ALL_MVS_ALLOWED;
-				  }
 
 
 /* type pElemDDL */
@@ -34572,60 +34298,9 @@ procedure_name: identifier
 /****           E N D                     ****/
 /*********************************************/
 
-//----------------------------------------------------------------------------
-//++ MV
-//----------------------------------------------------------------------------
 
-mv_token: TOK_MV 
-         {
-         }
-        | TOK_MATERIALIZED TOK_VIEW 
-         {
-         }
 
-/* type refreshType */
-refresh_type: TOK_RECOMPUTE
-                  {
-                     $$ = COM_RECOMPUTE;
-                  }
-            | TOK_REFRESH TOK_ON TOK_STATEMENT
-                  {
-                     $$ = COM_ON_STATEMENT;
-                  }
-            | TOK_REFRESH TOK_ON TOK_REQUEST
-                  {
-                     $$ = COM_ON_REQUEST;
-                  }
-            | TOK_REFRESH TOK_BY TOK_USER
-                  {
-                     $$ = COM_BY_USER;
-                  }
 
-// type pElemDDL
-create_mv_attribute_table_lists : empty
-	    {
-	      $$ = NULL;
-	    }
-	    | create_mv_one_attribute_table_list
-
-	    | create_mv_attribute_table_lists create_mv_one_attribute_table_list
-	      {
-		$$ = new (PARSERHEAP())ElemDDLList($1, // list
-						   $2 // one
-						   );
-	      }
- 
-
-// type pElemDDL
-create_mv_one_attribute_table_list : ignore_changes_on_table_list
-
-// type pElemDDL
-ignore_changes_on_table_list: TOK_IGNORE TOK_CHANGES TOK_ON qual_name_list
-			  {
-			    $$ = new(PARSERHEAP())
-				ElemDDLCreateMVOneAttributeTableList
-						  (COM_IGNORE_CHANGES, $4 );
-			  }
 
 // type pElemDDL 
 qual_name_list : qual_name
@@ -34636,8 +34311,6 @@ qual_name_list : qual_name
 						      );
 	       }
 
-				 
-
 
 // type pElemDDL 
 qual_name : ddl_qualified_name
@@ -34646,154 +34319,6 @@ qual_name : ddl_qualified_name
 		delete $1;
 	   }
 
-
-
-/* type mvStatus */
-mv_initialization_clause:  TOK_INITIALIZE TOK_ON TOK_CREATE
-			   {
-			     $$ = MVINIT_ON_CREATE;
-			   }
-			 | TOK_INITIALIZED TOK_ON TOK_CREATE
-			   {
-			     $$ = MVINIT_ON_CREATE;
-			   }
-			 | TOK_INITIALIZE TOK_ON TOK_REFRESH
-			   {
-			     $$ = MVINIT_ON_REFRESH;
-			   }
-			 | TOK_INITIALIZED TOK_ON TOK_REFRESH
-			   {
-			     $$ = MVINIT_ON_REFRESH;
-			   }
-			 | TOK_NO TOK_INITIALIZATION
-			   {
-			     $$ = MVINIT_NO_INIT;
-			   }
-			 | TOK_INITIALIZE TOK_BY TOK_USER
-			   {
-			     $$ = MVINIT_BY_USER;
-			   }
-
-/* type boolean */
-optional_query_rewrite: empty
-                   {
-		     // Keep (in a global variable) the begining
-		     // of the "optional file options" clause
-		     ParSetBeginingOfFileOptionsListPos(ParNameLocListPtr);
-
-                     $$ = (CmpCommon::getDefault(MVQR_REWRITE_ENABLED_OPTION) == DF_ON);
-                   }
-                 | enable_status TOK_QUERY TOK_REWRITE
-                   {
-		     // Keep (in a global variable) the begining
-		     // of the "optional file options" clause
-		     ParSetBeginingOfFileOptionsListPos(ParNameLocListPtr);
-
-		     $$ = $1;   /* Enable/Disable query rewrite */
-                   }
-
-/* type pElemDDL */
-// taken from CREATE TABLE (like optional_create_table_attribute_list)
-optional_create_mv_file_options : 
-                   empty
-                     {
-		       $$ = NULL; 
-		     }
-                 | create_table_attribute_list
-                     {
-		       // Mark the text end of the table options list
-		       ParSetEndOfFileOptionsListPos(ParNameLocListPtr);
-		       
-		       $$ = $1;
-		     }
-
-
-// type pElemDDL 
-mv_file_attribute_clause : mv_file_attribute_keyword mv_file_attribute_list
-			 {
-			  $$ = new (PARSERHEAP())ElemDDLMVFileAttrClause($2);
-			 }
-
-
-// type tokval 
-mv_file_attribute_keyword : TOK_MVATTRIBUTE
-			  | TOK_MVATTRIBUTES
-
-
-// type pElemDDL 
-mv_file_attribute_list: mv_file_attribute
-		      | mv_file_attribute_list ',' mv_file_attribute
-		      {
-			$$ = new (PARSERHEAP())ElemDDLFileAttrList($1, $3);
-		      }
-
-// type pElemDDL 
-mv_file_attribute : mv_audit_type
-		  {
-		    $$ = new (PARSERHEAP())ElemDDLFileAttrMvAudit($1);
-		  }
-		  | TOK_COMMIT TOK_REFRESH TOK_EACH unsigned_integer
-		  {
-		    $$ = new (PARSERHEAP())ElemDDLFileAttrMVCommitEach($4);
-		  }
-
-
-mv_audit_type: TOK_AUDIT 	
-	    {
-		    $$ = COM_MV_AUDIT;
-	    }
-	    | TOK_NO TOK_AUDIT
-	    {
-		    $$ = COM_MV_NO_AUDIT;
-	    }
-	    | TOK_NO TOK_AUDITONREFRESH
-	    {
-		    $$ = COM_MV_NO_AUDIT_ON_REFRESH;
-	    }
-
-
-as_token: TOK_AS
-	{
-	   // Mark the text begining of the MV query
-	   ParSetBeginOfMVQueryPos(ParNameLocListPtr);
-	}
-
-
-
-
-/* type boolean */
-create_mv_keywords: TOK_CREATE optional_ghost mv_token
-              {
-                // This is the first production being reduced in the 
-		// processing of create mv statement.
-		//
-		// Keep track of the start position of the create mv
-		// statement in the input string.
-
-		ParNameSavedLocListPtr = ParNameLocListPtr;
-		ParNameLocListPtr = new (PARSERHEAP())
-		  ParNameLocList(SQLTEXT(), (CharInfo::CharSet)SQLTEXTCHARSET(), SQLTEXTW(), PARSERHEAP());
-		ParSetTextStartPosForCreateMV(ParNameLocListPtr);
-
-		WeAreInACreateMVStatement = TRUE;
-
-                $$ = $2; /*optional_ghost*/
-	      }
-
-
-
-
-// OZ create mv group stmt
-
-// type pStmtDDL 
-create_mvrgroup_statement : TOK_CREATE TOK_MVGROUP ddl_qualified_name
-{
-  *SqlParser_Diags << DgSqlCode(-3131);
-  YYERROR;
-
-  $$ = new (PARSERHEAP())StmtDDLCreateMvRGroup(*$3);
-  delete $3;
-}
 
 /* type pStmtDDL */
 index_definition : TOK_CREATE partition_index_scope optional_unique_optional_ghost_optional_ngram TOK_INDEX
@@ -35799,48 +35324,6 @@ alter_index_action : file_attribute_clause
 
 //----------------------------------------------------------------------------
 // MV - RG
-
-
-
-/* type pQualName */
-mv_group_name_to_alter : ddl_qualified_name
-
-/* type MVRGAlterActionType */
-mv_group_alter_action_type : TOK_ADD
-							 {
-								
-							 $$ = StmtDDLAlterMvRGroup::ADD_ACTION;
-
-							 }
-						 | TOK_REMOVE
-							 {
-
-							 $$ = StmtDDLAlterMvRGroup::REMOVE_ACTION;
-
-							 }
-						| TOK_OPENBLOWNAWAY
-							{
-							$$ = StmtDDLAlterMvRGroup::testOpenBlownAway_action; // OZY_TEST
-							}
-						| TOK_REDEFTIME
-							{
-							$$ = StmtDDLAlterMvRGroup::testRedefTimeStamp_action; // OZY_TEST
-
-							}
-
-/* type pElemDDL */
-mv_name_list : mv_name_node
-			| mv_name_list ',' mv_name_node
-				   {
-
-				   $$ = 
-					new (PARSERHEAP()) ElemDDLList(	$1, // ElemDDLList
-													$3	// ElemDDLMVNameNode
-																				);
-				   }
-
-
-
 
 
 
@@ -37709,40 +37192,7 @@ drop_trigger_statement : TOK_DROP TOK_TRIGGER ddl_qualified_name
                    }
                  }
 
-/* type pStmtDDL */
-drop_mv_statement : TOK_DROP optional_ghost mv_token ddl_qualified_name optional_cleanup
-                    optional_drop_behavior optional_validate optional_logfile
-                {
-                  *SqlParser_Diags << DgSqlCode(-3131);
-                  YYERROR;
 
-                  /* If VALIDATE, or LOG option specified, */
-                  /* ALLOW_SPECIALTABLETYPE must also be specified  */
-                  if (($7 || $8) &&
-                     !Get_SqlParser_Flags(ALLOW_SPECIALTABLETYPE))
-                  {
-                     yyerror(""); YYERROR; /*internal syntax only!*/
-                  }
-                  else
-                  {
-                    NAString *pLogFile = NULL;
-                    if ($8)
-                      pLogFile =new (PARSERHEAP()) NAString
-                        ( $8->data(), PARSERHEAP());
-
-                    $$ = new (PARSERHEAP())
-		    StmtDDLDropMV(
-                                  *$4  /*ddl_qualified_name*/,
-                                   $6   /*optional_drop_behavior*/,
-                                   $5 /*for CLEANUP mode set to TRUE*/,
-                                   $7 /*for VALIDATE mode set to FALSE*/,
-                                   pLogFile  /*log_file_name*/);
-                    if ($2) /*optional_ghost*/
-                      $$->setIsGhostObject(TRUE);
-                    delete $4 /*ddl_qualified_name*/;
-                    delete $8 /*log_file_name*/;
-                  }
-                }
 
 /* type pStmtDDL */
 drop_index_statement : TOK_DROP optional_ghost TOK_INDEX optional_if_exists_clause ddl_qualified_name optional_cleanup
@@ -40215,35 +39665,7 @@ nonreserved_word :      TOK_ABORT
                       | TOK_CLUSTERSTATS
                       | TOK_REGIONSTATS
 
-// This was added for JIRA Trafodion 2367. There are oddities in
-// how PREPARE is parsed vs. how EXPLAIN is parsed, along with
-// pecularities in the specific syntax of EXPLAIN that prevent
-// us from recognizing the same identifiers for both. In sqlci,
-// for example, sqlci's own parser picks off the PREPARE <identifier>
-// part, and this parser only sees the query text afterwards. So,
-// sqlci has its own rules for what <identifier>s are allowed.
-// EXPLAIN on the other hand is fully parsed here in this parser.
-// Trafci seems to have different processing yet. EXPLAIN itself
-// has some confounding syntax: One can say "EXPLAIN <query text>"
-// as well as "EXPLAIN <statement identifier>", so the identifier
-// can conflict with any token that can start a statement. This
-// anomaly is unique to EXPLAIN. That means that we can't simply
-// plug in nonreserved_word as an alternative production for
-// explain_identifier; we'll get a boatload of additional
-// shift/reduce and reduce/reduce conflicts. It is possible in
-// principle to create a subset of nonreserved_word for EXPLAIN,
-// but in light of the fact that the PREPARE rules are in different
-// parsers (and differ between sqlci and trafci), this seems a
-// fool's errand.
-// 
-// So, up until this JIRA, only regular identifiers (that is,
-// non-keywords) and delimited identifiers were allowed for EXPLAIN.
-// Unfortunately, C is a keyword, since it is a language name on
-// CREATE FUNCTION. So, EXPLAIN C; gives a syntax error. Since
-// humans are sometimes prone to using one-letter identifiers,
-// this can be highly irritating. So, to remove this irritation,
-// we've supplied a separate nonreserved_word production just for
-// EXPLAIN that contains all the one-letter tokens.
+
 
 nonreserved_word_for_explain: TOK_C
                       | TOK_D
@@ -40572,31 +39994,6 @@ MP_nonreserved_func_word : TOK_CAST
                          | TOK_UPPER
                          | TOK_UPSHIFT
 
-// The following tokens are reserved in SQL/MX, but 'non-reserved' in
-// SQL/MP.  However, since they would increase the shift/reduce and/or
-// reduce/reduce conflicts in added to the nonreserved_word list they
-// cannot be used as identifiers in SQL/MP (or SQL/MX).  Using these
-// as identifiers will result in a Syntax ERROR.
-//
-//
-//                       | TOK_COLLATE
-//                       | TOK_DATE
-//                       | TOK_DAY
-//                       | TOK_DEFAULT
-//                       | TOK_HOUR
-//                       | TOK_INTERVAL
-//                       | TOK_MINUTE
-//                       | TOK_MONTH
-//                       | TOK_RIGHT
-//                       | TOK_SECOND
-//                       | TOK_THEN
-//                       | TOK_TIME
-//                       | TOK_TIMESTAMP
-//                       | TOK_UNION
-//                       | TOK_YEAR
+
  
 
-//
-// Adding to this list? See checklist above for additional things to be done.
-
-/* end of file */

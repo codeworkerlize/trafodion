@@ -63,7 +63,6 @@ class ElemDDLConstraintPK;
 class ElemDDLConstraintPKColumn;
 class ElemDDLConstraintRI;
 class ElemDDLConstraintUnique;
-class ElemDDLCreateMVOneAttributeTableList;  // MV OZ
 class ElemDDLDivisionClause;
 class ElemDDLFileAttr;
 class ElemDDLFileAttrAllocate;
@@ -98,10 +97,6 @@ class ElemDDLFileAttrStoredDesc;
 class ElemDDLFileAttrRangeLog;
 class ElemDDLFileAttrLockOnRefresh;
 class ElemDDLFileAttrInsertLog;
-class ElemDDLFileAttrMvsAllowed;
-class ElemDDLMVFileAttrClause;
-class ElemDDLFileAttrMVCommitEach;
-class ElemDDLFileAttrMvAudit;
 
 //-- MV
 
@@ -302,7 +297,6 @@ class StmtDDLAlterTableDropPartition;
 class StmtDDLAlterTableSetConstraint;
 class StmtDDLAlterTableToggleConstraint;
 class StmtDDLAlterTableHBaseOptions;
-class StmtDDLAlterMvRGroup;
 class StmtDDLAlterRoutine;
 class StmtDDLAlterTrigger;
 class StmtDDLAlterUser;
@@ -319,9 +313,7 @@ class StmtDDLCreateSchema;
 class StmtDDLCreateSequence;
 class StmtDDLCreateTable;
 class StmtDDLCreateHbaseTable;
-class StmtDDLCreateMvRGroup;
 class StmtDDLCreateTrigger;
-class StmtDDLCreateMV;
 class StmtDDLCreateView;
 class StmtDDLDropCatalog;
 class StmtDDLDropComponentPrivilege;
@@ -335,7 +327,6 @@ class StmtDDLDropSQL;
 class StmtDDLDropTable;
 class StmtDDLDropHbaseTable;
 class StmtDDLDropTrigger;
-class StmtDDLDropMV;
 class StmtDDLDropView;
 class StmtDDLGiveAll;
 class StmtDDLGiveCatalog;
@@ -424,7 +415,6 @@ class ElemDDLNode : public ExprNode {
   virtual ElemDDLConstraintPKColumn *castToElemDDLConstraintPKColumn();
   virtual ElemDDLConstraintRI *castToElemDDLConstraintRI();
   virtual ElemDDLConstraintUnique *castToElemDDLConstraintUnique();
-  virtual ElemDDLCreateMVOneAttributeTableList *castToElemDDLCreateMVOneAttributeTableList();  // MV OZ
   virtual ElemDDLDivisionClause *castToElemDDLDivisionClause();
   virtual ElemDDLFileAttr *castToElemDDLFileAttr();
   virtual ElemDDLFileAttrAllocate *castToElemDDLFileAttrAllocate();
@@ -463,12 +453,7 @@ class ElemDDLNode : public ExprNode {
   virtual ElemDDLFileAttrRangeLog *castToElemDDLFileAttrRangeLog();
   virtual ElemDDLFileAttrLockOnRefresh *castToElemDDLFileAttrLockOnRefresh();
   virtual ElemDDLFileAttrInsertLog *castToElemDDLFileAttrInsertLog();
-  virtual ElemDDLFileAttrMvsAllowed *castToElemDDLFileAttrMvsAllowed();
-  virtual ElemDDLMVFileAttrClause *castToElemDDLMVFileAttrClause();
-  virtual ElemDDLFileAttrMVCommitEach *castToElemDDLFileAttrMVCommitEach();
-  virtual ElemDDLFileAttrMvAudit *castToElemDDLFileAttrMvAudit();
 
-  //-- MV
 
   virtual ElemDDLFileAttrPOSNumPartns *castToElemDDLFileAttrPOSNumPartns();
   virtual ElemDDLFileAttrPOSTableSize *castToElemDDLFileAttrPOSTableSize();
@@ -669,7 +654,6 @@ class ElemDDLNode : public ExprNode {
   virtual StmtDDLAlterTableToggleConstraint *castToStmtDDLAlterTableToggleConstraint();
   virtual StmtDDLAlterTableAlterColumnSetSGOption *castToStmtDDLAlterTableAlterColumnSetSGOption();
   virtual StmtDDLAlterTableDropPartition *castToStmtDDLAlterTableDropPartition();
-  virtual StmtDDLAlterMvRGroup *castToStmtDDLAlterMvRGroup();
   virtual StmtDDLAlterRoutine *castToStmtDDLAlterRoutine();
   virtual StmtDDLAlterTrigger *castToStmtDDLAlterTrigger();
   virtual StmtDDLAlterUser *castToStmtDDLAlterUser();
@@ -693,9 +677,7 @@ class ElemDDLNode : public ExprNode {
   virtual StmtDDLCreateSequence *castToStmtDDLCreateSequence();
   virtual StmtDDLCreateTable *castToStmtDDLCreateTable();
   virtual StmtDDLCreateHbaseTable *castToStmtDDLCreateHbaseTable();
-  virtual StmtDDLCreateMvRGroup *castToStmtDDLCreateMvRGroup();
   virtual StmtDDLCreateTrigger *castToStmtDDLCreateTrigger();
-  virtual StmtDDLCreateMV *castToStmtDDLCreateMV();
   virtual StmtDDLCreateView *castToStmtDDLCreateView();
   virtual StmtDDLDropCatalog *castToStmtDDLDropCatalog();
   virtual StmtDDLDropComponentPrivilege *castToStmtDDLDropComponentPrivilege();
@@ -710,7 +692,6 @@ class ElemDDLNode : public ExprNode {
   virtual StmtDDLDropTable *castToStmtDDLDropTable();
   virtual StmtDDLDropHbaseTable *castToStmtDDLDropHbaseTable();
   virtual StmtDDLDropTrigger *castToStmtDDLDropTrigger();
-  virtual StmtDDLDropMV *castToStmtDDLDropMV();
   virtual StmtDDLDropView *castToStmtDDLDropView();
   virtual StmtDDLGiveAll *castToStmtDDLGiveAll();
   virtual StmtDDLGiveCatalog *castToStmtDDLGiveCatalog();

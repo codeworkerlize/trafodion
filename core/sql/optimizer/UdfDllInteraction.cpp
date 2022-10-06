@@ -19,7 +19,7 @@
 #include "common/CharType.h"
 #include "common/DatetimeType.h"
 #include "common/MiscType.h"
-#include "ItemLog.h"
+#include "optimizer/ItemLog.h"
 #include "optimizer/ItemOther.h"
 #include "optimizer/NARoutine.h"
 #include "optimizer/SchemaDB.h"

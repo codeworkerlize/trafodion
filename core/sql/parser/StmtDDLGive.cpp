@@ -26,7 +26,7 @@
 #include "AllElemDDLPartition.h"
 #include "AllElemDDLParam.h"
 #include "AllElemDDLUdr.h"
-#include "AllStmtDDLGive.h"
+#include "parser/AllStmtDDLGive.h"
 #include "common/BaseTypes.h"
 #include "export/ComDiags.h"
 #include "common/ComOperators.h"

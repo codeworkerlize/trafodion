@@ -1,23 +1,10 @@
+#pragma once
 
-#ifndef PARSER_H
-#define PARSER_H
-
-#include "optimizer/ItemExpr.h"
-#include "optimizer/ItemExprList.h"
-#include "common/NLSConversion.h"
+#include "common/QueryText.h"
 #include "parser/ulexer.h"
-#include "cli/SQLCLIdev.h"
-#include "common/Collections.h"
-#include "common/stringBuf.h"
-#include "common/charinfo.h"
 #include "sqlcomp/QCache.h"
 
-// forward refs
 class CmpContext;
-class ElemDDLColDef;
-class ElemDDLPartitionClause;
-class StmtNode;
-class QueryText;
 
 class Parser {
  public:
@@ -29,7 +16,7 @@ class Parser {
 
   // locale-to-unicode conversion in parseDML requires buffer len (tcr)
   int parseDML(const char *str, int len, CharInfo::CharSet charset, ExprNode **node, int token = 0,
-                 ItemExprList *enl = NULL);
+               ItemExprList *enl = NULL);
   // widens str to UNICODE for parsing, uses localized str for error handling
 
   // locale-to-unicode conversion in parseDML (for odbc/mx unicode support)
@@ -41,46 +28,13 @@ class Parser {
 
   ExprNode *parseDML(const char *str, int len, CharInfo::CharSet charset);
 
-  /////////////////////////////////////////////////////////////////////
-  //
-  // The following procedures take as input a string containing
-  // a SQL expression and return the parse tree for it.
-  //
-  // Parameters(ItemExpr's) could also be passed to this procedure to be
-  // replaced at the desired place in the string.
-  // An arithmetic value is specified by @A<n>, and a boolean value
-  // is specified as @B<n> in the string, where <n> is the parameter
-  // number.  It is 1-based.
-  //
-  // For example,
-  //    createExprTree("@A1 + 1", 1, item_expr)
-  // would return a tree:
-  //
-  //       |-------------------|
-  //       |  BiArith node(+)  |
-  //       |-------------------|
-  //           /        \
-//          /          \
-// |------------|    |-----------|
-  // | item_expr  |    |ConstValue |
-  // |            |    | (value=1) |
-  // |------------|    |-----------|
-  //  the parameter     node generated
-  //   tree             by parser
-  //
-  //
-  // To pass in more than 6 parameters, insert them in a comma list
-  // and pass it.
-  //
-  /////////////////////////////////////////////////////////////////////
-
   ExprNode *getExprTree(const char *str, UInt32 strlength = 0, CharInfo::CharSet strCharSet = CharInfo::UTF8,
                         int num_params = 0, ItemExpr *p1 = NULL, ItemExpr *p2 = NULL, ItemExpr *p3 = NULL,
                         ItemExpr *p4 = NULL, ItemExpr *p5 = NULL, ItemExpr *p6 = NULL,
                         ItemExprList *paramItemList = NULL,
                         int internal_expr = FALSE);  // pass this as TRUE if
-                                                       // you know it is going
-                                                       // to be an ItemExpr
+                                                     // you know it is going
+                                                     // to be an ItemExpr
 
   ItemExpr *getItemExprTree(const char *str, UInt32 strlength = 0, CharInfo::CharSet strCharSet = CharInfo::UTF8,
                             int num_params = 0, ItemExpr *p1 = NULL, ItemExpr *p2 = NULL, ItemExpr *p3 = NULL,
@@ -95,8 +49,8 @@ class Parser {
                            ItemExpr *p2 = NULL, ItemExpr *p3 = NULL, ItemExpr *p4 = NULL, ItemExpr *p5 = NULL,
                            ItemExpr *p6 = NULL, ItemExprList *paramItemList = NULL,
                            int internal_expr = FALSE);  // pass this as TRUE if
-                                                          // you know it is going
-                                                          // to be an ItemExpr
+                                                        // you know it is going
+                                                        // to be an ItemExpr
 
   ItemExpr *get_w_ItemExprTree(const NAWchar *str, UInt32 strlength = 0, int num_params = 0, ItemExpr *p1 = NULL,
                                ItemExpr *p2 = NULL, ItemExpr *p3 = NULL, ItemExpr *p4 = NULL, ItemExpr *p5 = NULL,
@@ -305,5 +259,3 @@ charBuf *parserUTF16ToCharSet(const NAWcharBuf &pr_UTF16StrBuf, CollHeap *pp_Hea
                               int pv_iCharSet, int &pr_iErrorcode, NABoolean pv_bAddNullAtEnd = TRUE,
                               NABoolean pv_bAllowInvalidCodePoint = TRUE, int *pp_iCharCount = NULL,
                               int *pp_iErrorByteOff = NULL);
-
-#endif  // PARSER_H

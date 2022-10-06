@@ -1,7 +1,5 @@
 
-
-#ifndef SQLPARSERGLOBALSCMN_H
-#define SQLPARSERGLOBALSCMN_H
+#pragma once
 
 #if defined(SQLPARSERGLOBALS_FLAGS) || defined(SQLPARSERGLOBALSCMN__INITIALIZE)
 #include "common/BaseTypes.h"
@@ -125,4 +123,3 @@ inline void SetSqlParser_DEFAULT_CHARSET(CharInfo::CharSet cs) {
 #undef GLOB_
 #undef INIT_
 
-#endif  // SQLPARSERGLOBALSCMN_H

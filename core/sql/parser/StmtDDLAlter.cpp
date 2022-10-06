@@ -20,24 +20,24 @@
  *****************************************************************************
  */
 
-#include "AllStmtDDLAlterTable.h"
+#include "parser/AllStmtDDLAlterTable.h"
 #include "StmtDDLAlterTableToggleConstraint.h"
 #include "common/BaseTypes.h"
 #include "common/ComASSERT.h"
 #include "common/ComOperators.h"
 #include "ElemDDLConstraint.h"
-#include "ElemDDLConstraintCheck.h"
+#include "parser/ElemDDLConstraintCheck.h"
 #include "ElemDDLFileAttrClause.h"
 #include "ElemDDLLibClientFilename.h"
 #include "ElemDDLLibClientName.h"
-#include "StmtDDLAlterIndexAttribute.h"
+#include "parser/StmtDDLAlterIndexAttribute.h"
 #include "parser/ElemDDLConstraintPK.h"
-#include "AllStmtDDLAlter.h"         // MV - RG
+#include "parser/AllStmtDDLAlter.h"         // MV - RG
 #include "parser/ElemDDLQualName.h"  // MV - RG
-#include "StmtDDLAlterTrigger.h"
+#include "parser/StmtDDLAlterTrigger.h"
 #include "AllElemDDLFileAttr.h"
 #include "StmtDDLAlterAuditConfig.h"
-#include "StmtDDLAlterCatalog.h"
+#include "parser/StmtDDLAlterCatalog.h"
 #include "parser/StmtDDLAlterSchema.h"
 #include "parser/StmtDDLAlterLibrary.h"
 #include "StmtDDLAlterSynonym.h"
@@ -1838,41 +1838,6 @@ const NAString StmtDDLAlterLibrary::displayLabel2() const { return NAString("Fil
 const NAString StmtDDLAlterLibrary::getText() const { return "StmtDDLAlterLibrary"; }
 
 
-//----------------------------------------------------------------------------
-// MV - RG
-
-StmtDDLAlterMvRGroup::StmtDDLAlterMvRGroup(const QualifiedName &mvRGroupName, alterMvGroupType action,
-                                           ElemDDLNode *pMVList)
-    : StmtDDLNode(DDL_ALTER_MV_REFRESH_GROUP),
-      mvRGroupQualName_(mvRGroupName, PARSERHEAP()),
-      pMVList_(pMVList),
-      action_(action),
-      listIndex_(0) {}
-
-StmtDDLAlterMvRGroup::~StmtDDLAlterMvRGroup() {
-  // should i release anything? probably
-}
-StmtDDLAlterMvRGroup *StmtDDLAlterMvRGroup::castToStmtDDLAlterMvRGroup() { return this; }
-
-QualifiedName &StmtDDLAlterMvRGroup::getFirstMvInList() {
-  listIndex_ = 0;
-  return getNextMvInList();
-}
-ComBoolean StmtDDLAlterMvRGroup::listHasMoreMVs() const { return (listIndex_ < pMVList_->entries()) ? TRUE : FALSE; }
-
-QualifiedName &StmtDDLAlterMvRGroup::getNextMvInList() {
-  ComASSERT(TRUE == listHasMoreMVs());
-
-  return ((*pMVList_)[listIndex_++]->castToElemDDLQualName())->getQualifiedName();
-}
-
-StmtDDLAlterMvRGroup::alterMvGroupType StmtDDLAlterMvRGroup::getAction() const { return action_; }
-
-const NAString StmtDDLAlterMvRGroup::displayLabel1() const { return NAString("MV name: ") + getMvRGroupName(); }
-const NAString StmtDDLAlterMvRGroup::getText() const { return "StmtDDLAlterMvRGroup"; }
-
-//-- MVS
-//----------------------------------------------------------------------------
 
 //
 // Virtual destructor

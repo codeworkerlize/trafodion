@@ -24,7 +24,7 @@
 #include "optimizer/ItemConstr.h"
 #include "optimizer/ItemFunc.h"
 #include "ItemFuncUDF.h"
-#include "ItemLog.h"
+#include "optimizer/ItemLog.h"
 #include "ItemNAType.h"
 #include "optimizer/ItemOther.h"
 #include "optimizer/ItemSubq.h"

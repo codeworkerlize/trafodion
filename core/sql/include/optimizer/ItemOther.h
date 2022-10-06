@@ -19,7 +19,7 @@
 #include "optimizer/RelSet.h"  // for Union (needed by ValueIdUnion flags)
 #include "optimizer/NAColumn.h"
 #include "qmscommon/QRExprElement.h"
-#include "ItemLog.h"
+#include "optimizer/ItemLog.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

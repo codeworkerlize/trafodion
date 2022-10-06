@@ -1,80 +1,10 @@
-/**********************************************************************/
-// Copyright (c) 1993 The Regents of the University of California.
-// All rights reserved.
-//
-// This code is derived from software contributed to Berkeley by
-// Kent Williams and Tom Epperly.
-//
-// Redistribution and use in source and binary forms with or without
-// modification are permitted provided that: (1) source distributions retain
-// this entire copyright notice and comment, and (2) distributions including
-// binaries display the following acknowledgement:  ``This product includes
-// software developed by the University of California, Berkeley and its
-// contributors'' in the documentation or other materials provided with the
-// distribution and in all advertising materials mentioning features or use
-// of this software.  Neither the name of the University nor the names of
-// its contributors may be used to endorse or promote products derived from
-// this software without specific prior written permission.
-//
-//
-// Later modifications to enable Unicode parsing were granted to ASF.
-//
-// # Licensed to the Apache Software Foundation (ASF) under one
-// # or more contributor license agreements.  See the NOTICE file
-// # distributed with this work for additional information
-// # regarding copyright ownership.  The ASF licenses this file
-// # to you under the Apache License, Version 2.0 (the
-// # "License"); you may not use this file except in compliance
-// # with the License.  You may obtain a copy of the License at
-// #
-// #   http://www.apache.org/licenses/LICENSE-2.0
-// #
-// # Unless required by applicable law or agreed to in writing,
-// # software distributed under the License is distributed on an
-// # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// # KIND, either express or implied.  See the License for the
-// # specific language governing permissions and limitations
-// # under the License.
-//
 
-// ULexer.h -- define interfaces for Unicode lexical analyzer class (tcr)
-
-// Flex (version 2.5.4a and earlier) does not support Unicode. Our attempts
-// at extending flex to generate a Unicode scanner were unsuccessful. So, we
-// hand-code a Unicode scanner for SQL/MX but retain the flex C++ scanner
-// class interface (defined in flexlexer.h)
-
-// This file defines ULexer, an abstract class which specifies the
-// external interface provided to Unicode C++ lexer objects, and yyULexer,
-// which defines a particular lexer class.
-//
-// If you want to create multiple lexer classes, you use the -P flag (if flex
-// could generate a Unicode scanner), or hand-code lexers, say, xxULexer,
-// zzULexer, ...
-// You then include <ULexer.h> in your other sources once per lexer class:
-//
-//	#undef yyULexer
-//	#define yyULexer xxULexer
-//	#include <ULexer.h>
-//
-//	#undef yyULexer
-//	#define yyULexer zzULexer
-//	#include <ULexer.h>
-//	...
-
-// This interface is drastically simplified from the flex original
-// because the arkcmp lexer always scans a single in-memory buffer.
-// So, we jettisoned all excess buffer-handling baggage.
 
 #ifndef __U_LEXER_H
-// Never included before - need to define base class.
 #define __U_LEXER_H
 
-#include <ctype.h>  // for toupper()
+#include <ctype.h>
 #include <stdio.h>
-#include "common/NAWinNT.h"  // for NAWchar, WIDE_(), etc.
-#include "common/NABoolean.h"
-#include "common/arkcmp_parser_defs.h"
 
 // Forward references.
 class ParKeyWord;
@@ -256,7 +186,7 @@ class yyULexer : public ULexer {
   int exactWithScale(YYSTYPE *lvalp);
   int exactNoScale(YYSTYPE *lvalp);
   int eitherCompoundOrSimpleKeyword(NABoolean isCompound, int tokcodCompound, int tokcodSimple, NAWchar *end1,
-                                      NAWchar holdChar1, YYSTYPE *lvalp);
+                                    NAWchar holdChar1, YYSTYPE *lvalp);
   int notCompoundKeyword(const ParKeyWord *key, NAWchar &holdChar, YYSTYPE *lvalp);
 
   int aCompoundStmtBlock(int tokCode, YYSTYPE *lvalp);
@@ -267,7 +197,7 @@ class yyULexer : public ULexer {
   // qualified hexadecimal format string literals
   int aHexStringLiteralWithCharSet(CharInfo::CharSet, const NAWchar *s, int len, NAWchar quote, YYSTYPE *lvalp);
   int constructStringLiteralWithCharSet(NABoolean hexFormat, CharInfo::CharSet cs, YYSTYPE *lvalp,
-                                          NAWchar quote = L'\'');
+                                        NAWchar quote = L'\'');
 
   // helper functions to set yylval token value used by above functions
   int setStringval(int tokCod, const char *dbgstr, YYSTYPE *lvalp);

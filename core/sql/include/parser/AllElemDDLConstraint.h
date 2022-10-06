@@ -20,10 +20,10 @@
 
 #include "ElemDDLConstraintName.h"
 #include "ElemDDLConstraintArray.h"
-#include "ElemDDLConstraintCheck.h"
+#include "parser/ElemDDLConstraintCheck.h"
 #include "ElemDDLConstraintNotNull.h"
 #include "parser/ElemDDLConstraintPK.h"
-#include "ElemDDLConstraintRI.h"
+#include "parser/ElemDDLConstraintRI.h"
 #include "ElemDDLConstraintUnique.h"
 
 //

@@ -24,7 +24,7 @@
 #include "ElemDDLFileAttrExtents.h"
 #include "ElemDDLFileAttrMaxExtents.h"
 #include "ElemDDLLocation.h"
-#include "ElemDDLPartition.h"
+#include "parser/ElemDDLPartition.h"
 #include "ItemConstValueArray.h"
 
 // -----------------------------------------------------------------------

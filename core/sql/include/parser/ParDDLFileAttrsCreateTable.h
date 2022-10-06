@@ -32,10 +32,7 @@
  */
 
 #include "ParDDLFileAttrsCreateIndex.h"
-#include "ElemDDLFileAttrRangeLog.h"
-#include "ElemDDLFileAttrMvsAllowed.h"
-#include "ElemDDLFileAttrMvAudit.h"
-#include "ElemDDLFileAttrMVCommitEach.h"
+#include "parser/ElemDDLFileAttrRangeLog.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

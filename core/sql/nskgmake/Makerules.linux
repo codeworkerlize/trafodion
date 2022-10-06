@@ -150,7 +150,7 @@ ifdef BUILD_ORC_READER
 DLLS += orc
 endif
 
-# DLLS += comexe common executor sort sqlmsg \
+#DLLS += comexe common executor sort sqlmsg \
 #	tdm_sqlcli  tdm_sqlexp tdm_sqlexport \
 #	tdm_sqlmxevents tdm_sqlshare tdm_sqlerrormsg \
 #	eh lmcomp \
@@ -158,7 +158,7 @@ endif
 #	arkcmp_dll smdio udr_predef 
 
 
-DLLS += sqlcilib sqlcomp   sqlcat parser optimizer generator \
+DLLS += parser sqlcilib sqlcomp   sqlcat parser optimizer generator \
 	tdm_sqllangman arkcmplib qmscommon 
 
 

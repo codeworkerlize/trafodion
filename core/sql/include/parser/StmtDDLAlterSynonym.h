@@ -16,7 +16,7 @@
 ******************************************************************************
 */
 #include "common/ComSmallDefs.h"
-#include "StmtDDLNode.h"
+#include "parser/StmtDDLNode.h"
 
 class StmtDDLAlterSynonym : public StmtDDLNode
 

@@ -16,36 +16,36 @@
  */
 
 #define SQLPARSERGLOBALS_FLAGS  // must precede all #include's
-#include "AllStmtDDL.h"
 #include "optimizer/BindWA.h"
+#include "parser/AllStmtDDL.h"
 // QSTUFF
 #include "optimizer/NormWA.h"
 // QSTUFF
 // #include "CatError.h"
 // #define  CAT_ALTER_CANNOT_ADD_NOT_DROPPABLE_CONSTRAINT       1053
 // The above are commented out because we use sqlcode 3067 instead.
+#include "ElemDDLLike.h"
+#include "ElemDDLPartitionSystem.h"
+#include "ElemDDLReferences.h"
+#include "ElemDDLUdrLibrary.h"
+#include "common/CmpCommon.h"
 #include "common/ComASSERT.h"
 #include "common/ComObjectName.h"
 #include "common/ComOperators.h"
-#include "common/CmpCommon.h"
-#include "sqlcomp/CmpMain.h"
-#include "ElemDDLPartitionSystem.h"
-#include "ElemDDLUdrLibrary.h"
-#include "ElemDDLLike.h"
-#include "ElemDDLConstraintCheck.h"
-#include "ElemDDLConstraintRI.h"
-#include "ElemDDLReferences.h"
-#include "parser/ElemDDLPartitionList.h"
+#include "optimizer/Analyzer.h"
 #include "optimizer/NATable.h"
+#include "optimizer/NormWA.h"
+#include "optimizer/RelJoin.h"
 #include "optimizer/RelMisc.h"
 #include "optimizer/TableDesc.h"
-#include "optimizer/RelJoin.h"
-#include "parser/SqlParserGlobals.h"  // must be last #include
 #include "optimizer/Triggers.h"
-#include "optimizer/NormWA.h"
-#include "optimizer/Analyzer.h"
-#include "qmscommon/QRDescriptor.h"
+#include "parser/ElemDDLConstraintCheck.h"
+#include "parser/ElemDDLConstraintRI.h"
+#include "parser/ElemDDLPartitionList.h"
+#include "parser/SqlParserGlobals.h"  // must be last #include
 #include "parser/StmtDDLAlterTableTruncatePartition.h"
+#include "qmscommon/QRDescriptor.h"
+#include "sqlcomp/CmpMain.h"
 
 // -----------------------------------------------------------------------
 // Forward declarations
@@ -411,19 +411,6 @@ ExprNode *StmtDDLCreateCatalog::bindNode(BindWA * /* bindWAPtr */) {
   return this;
 }
 
-//----------------------------------------------------------------------------
-// OZ
-ExprNode *StmtDDLCreateMvRGroup::bindNode(BindWA *pBindWA) {
-  ComASSERT(pBindWA NEQ NULL);
-  mvRGroupQualName_.applyDefaults(pBindWA->getDefaultSchema());
-  if (pBindWA->violateAccessDefaultSchemaOnly(mvRGroupQualName_)) return this;
-
-  markAsBound();
-  return this;
-}
-
-
-
 /***********************************************************/
 // -----------------------------------------------------------------------
 // definition of method bindNode() for class StmtDDLCreateTrigger
@@ -547,36 +534,7 @@ ExprNode *StmtDDLAlterCatalog::bindNode(BindWA *pBindWA) {
   return this;
 }
 
-//----------------------------------------------------------------------------
-// MV - RG
-ExprNode *StmtDDLAlterMvRGroup::bindNode(BindWA *pBindWA) {
-  ComASSERT(pBindWA NEQ NULL);
-  // bind mv group
-  mvRGroupQualName_.applyDefaults(pBindWA->getDefaultSchema());
-  // do the following instead of the above if need to support public schema for alter mvgroup
-  // mvRGroupQualName_.applyDefaultsValidate(pBindWA->getDefaultSchema(), COM_MVRG_NAME);
 
-  if (pBindWA->violateAccessDefaultSchemaOnly(mvRGroupQualName_)) return this;
-
-  // bind list of MV's
-
-  QualifiedName *pQualName = &getFirstMvInList();
-  pQualName->applyDefaults(pBindWA->getDefaultSchema());
-  // do the following instead of the above if need to support public schema for alter mvgroup
-  // pQualName->applyDefaultsValidate(pBindWA->getDefaultSchema());
-  if (pBindWA->violateAccessDefaultSchemaOnly(*pQualName)) return this;
-
-  while (listHasMoreMVs()) {
-    pQualName = &getNextMvInList();
-    pQualName->applyDefaults(pBindWA->getDefaultSchema());
-    // do the following instead of the above if need to support public schema for alter mvgroup
-    // pQualName->applyDefaultsValidate(pBindWA->getDefaultSchema());
-    if (pBindWA->violateAccessDefaultSchemaOnly(*pQualName)) return this;
-  }
-
-  markAsBound();
-  return this;
-}
 
 // -----------------------------------------------------------------------
 // definition of method bindNode() for class StmtDDLAlterRoutine
@@ -734,10 +692,6 @@ void addSystemColumnsToRootSelectList(RelRoot *queryRoot, MVInfoForDDL *mvInfo, 
   // Add the system added column expressions to the root select list.
   queryRoot->addCompExprTree(systemAddedColsExpr);
 }
-
-
-
-
 
 // -----------------------------------------------------------------------
 // definition of method bindNode() for class StmtDDLAlterView

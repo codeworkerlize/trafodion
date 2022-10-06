@@ -23,7 +23,7 @@
 #include "optimizer/Analyzer.h"
 #include "../exp/exp_ovfl_ptal.h"  //check for overflow & underflow
 #include "arkcmp/CompException.h"
-#include "ItemLog.h"  // for like predicates
+#include "optimizer/ItemLog.h"  // for like predicates
 #include "parser/SqlParserGlobals.h"
 #include "sqlcomp/CmpDescribe.h"
 

@@ -19,7 +19,7 @@
  */
 
 #include "ElemDDLSchemaName.h"
-#include "StmtDDLNode.h"
+#include "parser/StmtDDLNode.h"
 #include "parser/StmtDDLAlterTableStoredDesc.h"
 
 // -----------------------------------------------------------------------

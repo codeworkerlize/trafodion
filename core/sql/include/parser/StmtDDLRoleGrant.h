@@ -14,7 +14,7 @@
  * Language:     C++
  *
 **********************************************************************/
-#include "StmtDDLNode.h"
+#include "parser/StmtDDLNode.h"
 #include "ElemDDLGranteeArray.h"
 
 // -----------------------------------------------------------------------

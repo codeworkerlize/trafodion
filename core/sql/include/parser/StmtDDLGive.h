@@ -14,7 +14,7 @@
  *****************************************************************************
  */
 
-#include "StmtDDLNode.h"
+#include "parser/StmtDDLNode.h"
 #include "common/ComSmallDefs.h"
 // -----------------------------------------------------------------------
 // contents of this file

@@ -18,7 +18,7 @@
 #include "AllElemDDLList.h"
 #include "common/ComASSERT.h"
 #include "common/ComOperators.h"
-#include "ElemDDLPartition.h"
+#include "parser/ElemDDLPartition.h"
 
 //----------------------------------------------------------------------------
 // methods for class ElemDDLList

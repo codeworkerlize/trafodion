@@ -20,7 +20,7 @@
 #include "common/ComOperators.h"
 #include "ElemDDLPrivileges.h"
 #include "parser/ElemDDLGrantee.h"
-#include "StmtDDLNode.h"
+#include "parser/StmtDDLNode.h"
 #include "parser/StmtDDLGrant.h"
 #include "parser/StmtDDLGrantComponentPrivilege.h"
 #include "StmtDDLGrantArray.h"

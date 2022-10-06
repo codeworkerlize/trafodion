@@ -17,7 +17,7 @@
  *****************************************************************************
  */
 
-#include "StmtDDLNode.h"
+#include "parser/StmtDDLNode.h"
 
 class LoadSharedCacheTargetSpec {
  public:

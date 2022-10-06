@@ -30,7 +30,7 @@
 #include "arkcmp/CmpContext.h"
 #include "optimizer/Sqlcomp.h"
 #include "optimizer/ControlDB.h"
-#include "ItemLog.h"
+#include "optimizer/ItemLog.h"
 #include "../exp/exp_ovfl_ptal.h"  //to check overflow
 #include "arkcmp/CmpStatement.h"
 #include "optimizer/mdam.h"

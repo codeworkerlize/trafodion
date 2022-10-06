@@ -28,15 +28,15 @@
 #include "AllElemDDLPartition.h"
 #include "AllElemDDLParam.h"
 #include "AllElemDDLUdr.h"
-#include "AllStmtDDLCreate.h"
+#include "parser/AllStmtDDLCreate.h"
 #include "common/BaseTypes.h"
 #include "export/ComDiags.h"
 #include "common/ComOperators.h"
 #include "common/ComMisc.h"
 #include "common/ComDistribution.h"
-#include "ElemDDLConstraintCheck.h"
+#include "parser/ElemDDLConstraintCheck.h"
 #include "parser/ElemDDLConstraintPK.h"
-#include "ElemDDLConstraintRI.h"
+#include "parser/ElemDDLConstraintRI.h"
 #include "ElemDDLConstraintUnique.h"
 #include "ElemDDLFileAttrClause.h"
 #include "parser/ElemDDLGrantee.h"
@@ -54,9 +54,8 @@
 #include "ItemConstValueArray.h"
 #include "parser/StmtDDLAddConstraintPK.h"
 #include "parser/StmtDDLCreateLibrary.h"
-#include "StmtDDLCreateSynonym.h"
-#include "ElemDDLMVFileAttrClause.h"
-#include "StmtDDLCreateExceptionTable.h"
+#include "parser/StmtDDLCreateSynonym.h"
+#include "parser/StmtDDLCreateExceptionTable.h"
 #include "parser/StmtDDLCommentOn.h"
 
 
@@ -800,30 +799,6 @@ const NAString StmtDDLCreateComponentPrivilege::displayLabel2() const {
 
 const NAString StmtDDLCreateComponentPrivilege::getText() const { return "StmtDDLCreateComponentPrivilege"; }
 
-//----------------------------------------------------------------------------
-// MV - RG (refresh groups)
-// ---------------------------------------------------------------------------
-// methods for class StmtDDLCreateMvRGroup  - refresh groups
-// ---------------------------------------------------------------------------
-
-// initialize constructor
-StmtDDLCreateMvRGroup::StmtDDLCreateMvRGroup(const QualifiedName &mvRGroupName, CollHeap *heap)
-    : StmtDDLNode(DDL_CREATE_MV_REFRESH_GROUP),
-      mvRGroupQualName_(mvRGroupName, heap)  //,
-//			mvRGroupName_(mvRGroupQualName_.getQualifiedNameAsAnsiString())
-{
-  // XXXXXXXXXMVSXXXXXXXXXXXXXXX
-}
-
-// virtual destructor
-StmtDDLCreateMvRGroup::~StmtDDLCreateMvRGroup() {}
-
-// cast
-StmtDDLCreateMvRGroup *StmtDDLCreateMvRGroup::castToStmtDDLCreateMvRGroup() { return this; }
-
-const NAString StmtDDLCreateMvRGroup::displayLabel1() const { return NAString("MV name: ") + getMvRGroupName(); }
-
-const NAString StmtDDLCreateMvRGroup::getText() const { return "StmtDDLCreateMvRGroup"; }
 
 /**********************************************************/
 /****     B E G I N                                    ****/
@@ -4392,23 +4367,6 @@ void StmtDDLCreateTable::setFileAttributes(ElemDDLFileAttrClause *pFileAttrClaus
 
 }  // StmtDDLCreateTable::setFileAttributes()
 
-void StmtDDLCreateTable::setMVFileAttributes(ElemDDLMVFileAttrClause *pMVFileAttrClause) {
-  ComASSERT(pMVFileAttrClause NEQ NULL);
-
-  if (isMVFileAttributeClauseSpec_) {
-    // Duplicate file ATTRIBUTE(S) clauses.
-    *SqlParser_Diags << DgSqlCode(-3099);
-  }
-  isMVFileAttributeClauseSpec_ = TRUE;
-
-  ElemDDLNode *pMVFileAttrs = pMVFileAttrClause->getFileAttrDefBody();
-  ComASSERT(pMVFileAttrs NEQ NULL);
-
-  for (CollIndex i = 0; i < pMVFileAttrs->entries(); i++) {
-    getFileAttributes().setFileAttr((*pMVFileAttrs)[i]->castToElemDDLFileAttr());
-  }
-
-}  // StmtDDLCreateTable::setFileAttributes()
 
 //
 // Constructs the primary partition node and then inserts its pointer
@@ -4506,10 +4464,6 @@ void StmtDDLCreateTable::setTableOption(ElemDDLNode *pTableOption) {
       setFileAttributes(pTableOption->castToElemDDLFileAttrClause());
       break;
 
-    // this is a special MV extension to file attributes
-    case ELM_MV_FILE_ATTR_CLAUSE_ELEM:
-      setMVFileAttributes(pTableOption->castToElemDDLMVFileAttrClause());
-      break;
 
     case ELM_TABLE_FEATURE_ELEM:
       setTableFeature(pTableOption->castToElemDDLTableFeature());

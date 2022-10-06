@@ -18,8 +18,8 @@
 
 #include "export/ComDiags.h"
 #include "common/ComSmallDefs.h"
-#include "StmtDDLNode.h"
-#include "StmtDMLSetTransaction.h"
+#include "parser/StmtDDLNode.h"
+#include "parser/StmtDMLSetTransaction.h"
 #include "cli/SQLCLIdev.h"
 #include "optimizer/ItemOther.h"
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS

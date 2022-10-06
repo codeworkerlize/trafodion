@@ -29,11 +29,11 @@
 #include "ElemDDLPartitionArray.h"
 #include "parser/ElemDDLSGOptions.h"
 #include "ElemDDLTableFeature.h"
-#include "ElemDDLFileAttrMisc.h"
+#include "parser/ElemDDLFileAttrMisc.h"
 #include "ItemConstValueArray.h"
 #include "ParDDLFileAttrsCreateTable.h"
 #include "ParDDLLikeOptsCreateTable.h"
-#include "StmtDDLNode.h"
+#include "parser/StmtDDLNode.h"
 #include "StmtDDLAddConstraintArray.h"
 #include "StmtDDLAddConstraintCheckArray.h"
 #include "parser/StmtDDLAddConstraintRIArray.h"
@@ -54,32 +54,7 @@ class StmtDDLCreateHbaseTable;
 // Create Table statement
 // -----------------------------------------------------------------------
 class StmtDDLCreateTable : public StmtDDLNode {
-  //
-  // The following public global functions help to improve
-  // performance.  They are passed to the method traverseList
-  // of the class ElemDDLList.  For information, please read
-  // the descriptions of the method ElemDDLList::traverseList.
-  //
 
-  // Visit an element in a left linear tree list.  Each element
-  // represents either a column definition or a table constraint
-  // definition.
-  //
-  // pNode contains a pointer pointing to a Create Table parse
-  //   node (this node).
-  // index contains the index of the element in the list.  Each
-  //   element is a leaf node in the left linear tree representing
-  //   the list.
-  // pElement contains a pointer pointing to the element in the
-  //   list.
-  //
-  // All parameters are input parameters passed by the method
-  // traverseList of class ElemDDLList (or a class derived from
-  // class ElemDDLList).
-  //
-  // StmtDDLCreateTable_visitTableDefElement is a global function
-  // defined in StmtDDLCreate.C
-  //
   friend void StmtDDLCreateTable_visitTableDefElement(ElemDDLNode *pThisNode, CollIndex index, ElemDDLNode *pElement);
 
   // Visit an element in a left linear tree list.  Each element
@@ -546,15 +521,7 @@ class StmtDDLCreateTable : public StmtDDLNode {
 
   void setFileAttributes(ElemDDLFileAttrClause *pFileAttrClause);
 
-  // Copies the information in the specified file
-  // attribute clause (pointed to by pFileAttrClause)
-  // to data member fileAttributes_ in this object.
-  //
-  // This method can only be invoked during the
-  // construction of this object when the (file)
-  // attributes clause appears.
 
-  void setMVFileAttributes(ElemDDLMVFileAttrClause *pMVFileAttrClause);
 
   // the same as file attributes but apply only to MVs
 

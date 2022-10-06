@@ -48,7 +48,6 @@ class ElemDDLConstraintCheck;
 class ElemDDLDivisionClause;
 class StmtDDLCreateView;
 class StmtDDLCreateTrigger;
-class StmtDDLCreateMV;
 class StmtDDLCreateTable;
 
 // -----------------------------------------------------------------------
@@ -72,7 +71,6 @@ NABoolean ParSetTextEndPos(StmtDDLCreateTrigger *pCreateTriggerParseNode);
 NABoolean ParSetTextEndPos(ElemDDLDivisionClause *pDivisionClauseParseNode);
 
 void ParSetTextStartPosForCreateMV(ParNameLocList *pNameLocList);
-NABoolean ParSetTextEndPos(StmtDDLCreateMV *pCreateMVParseNode);
 
 void ParSetEndOfOptionalColumnListPos(ParNameLocList *pNameLocList);
 // Keep position of end-of optional column names list

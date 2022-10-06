@@ -5,7 +5,6 @@
 
 #include "BindStmtDDL.cpp"
 #include "ElemDDLCol.cpp"
-#include "ElemDDLCreateMVOneAttributeTableList.cpp"
 #include "ElemDDLConstraint.cpp"
 #include "ElemDDLConstraintAttr.cpp"
 #include "ElemDDLFileAttr.cpp"

@@ -30,7 +30,7 @@
 #include "ElemDDLLocation.h"
 #include "ElemDDLPartitionArray.h"
 #include "common/NAString.h"
-#include "StmtDDLNode.h"
+#include "parser/StmtDDLNode.h"
 #include "ParNameLocList.h"
 
 // -----------------------------------------------------------------------

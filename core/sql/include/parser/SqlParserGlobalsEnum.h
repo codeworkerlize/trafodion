@@ -1,7 +1,5 @@
 
-
-#ifndef SQLPARSERGLOBALSENUM_H
-#define SQLPARSERGLOBALSENUM_H
+#pragma once
 
 enum SqlParser_Flags_Enum {
 
@@ -80,5 +78,3 @@ enum SqlParser_Flags_Enum {
   DELAYED_RESET = 0x10000000  // used by cmpmain.cpp
 
 };
-
-#endif  // SQLPARSERGLOBALSENUM_H

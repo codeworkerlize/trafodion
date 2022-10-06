@@ -19,7 +19,7 @@
 #include "common/ComLocationNames.h"
 #include "ElemDDLLocation.h"
 #include "common/ComSmallDefs.h"
-#include "StmtDDLNode.h"
+#include "parser/StmtDDLNode.h"
 #include "ElemDDLAuthSchema.h"
 
 #define CREATE_USER_PASSWORD 100

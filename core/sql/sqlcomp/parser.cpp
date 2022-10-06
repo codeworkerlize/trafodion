@@ -1,39 +1,25 @@
-
-
-#include <ctype.h>
-#include <wchar.h>
-
-#include "common/NAWinNT.h"
-#include "common/arkcmp_parser_defs.h"
-#define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
-#define SQLPARSERGLOBALS_FLAGS
-#define SQLPARSERGLOBALS_LEX_AND_PARSE
-#define SQLPARSERGLOBALS_NADEFAULTS
-#define SQLPARSERGLOBALS_NAMES_AND_TOKENS
-#include "HvRoles.h"
-#include "arkcmp/CmpContext.h"
-#include "arkcmp/CmpErrLog.h"
-#include "arkcmp/CmpStatement.h"
-#include "arkcmp/CompException.h"  // for CmpInternalException
-#include "common/ComCextdecs.h"
-#include "common/NAExit.h"
-#include "common/NAMemory.h"
-#include "common/NLSConversion.h"
-#include "common/QueryText.h"
-#include "common/csconvert.h"
-#include "common/str.h"
-#include "optimizer/RelExeUtil.h"
-#include "optimizer/RelMisc.h"        // for RelRoot
-#include "optimizer/RelStoredProc.h"  // for RelInternalSP
-#include "optimizer/SchemaDB.h"
-#include "parser/SqlParserGlobals.h"
-#include "parser/StmtNode.h"  // for StmtQuery and for ItemColRef.h classes
-#include "parser/ulexer.h"
-#include "sqlci/SqlciError.h"
-#include "sqlcomp/CmpSeabaseDDL.h"
 #include "sqlcomp/parser.h"
-#include "sqlmsg/ParserMsg.h"
-#include "sqlmxevents/logmxevent.h"
+
+#include "arkcmp/CmpErrLog.h"
+#include "arkcmp/CompException.h"
+#include "common/Collections.h"
+#include "common/NAExit.h"
+#include "common/sqtypes.h"
+#include "export/NAStringDef.h"
+#include "optimizer/RelExeUtil.h"
+#include "parser/ParScannedTokenQueue.h"
+#include "sqlci/SqlciError.h"
+
+#define SQLPARSERGLOBALS_FLAGS
+#define SQLPARSERGLOBALS__INITIALIZE
+#define SQLPARSERGLOBALS_LEX_AND_PARSE
+#define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
+#define SQLPARSERGLOBALS_NAMES_AND_TOKENS
+#define SQLPARSERGLOBALS_HOSTVARS
+#define SQLPARSERGLOBALS_NADEFAULTS
+#include "parser/SqlParserGlobals.h"
+#include "parser/SqlParserGlobalsCmn.h"
+#include "parser/SqlParserGlobalsEnum.h"
 
 ostream &operator<<(ostream &dest, const ComDiagsArea &da);
 
@@ -277,9 +263,11 @@ NABoolean Parser::fixupParserInputBufAndAppendSemicolon() {
   return FALSE;
 }
 
+int nastringhashfunc(const NAString &x) { return x.hash(); }
+
 NAHashDictionary<NAString, NAString> *Parser::getOrNewCqdHashDictionaryInHint() {
   if (pCqdsHashDictionaryInHint_ == NULL)
-    pCqdsHashDictionaryInHint_ = new (wHeap_) NAHashDictionary<NAString, NAString>(&NAString::hash, 20, TRUE, wHeap_);
+    pCqdsHashDictionaryInHint_ = new (wHeap_) NAHashDictionary<NAString, NAString>(nastringhashfunc, 20, TRUE, wHeap_);
   PARSERASSERT(pCqdsHashDictionaryInHint_ != NULL);
   return pCqdsHashDictionaryInHint_;  // Will be deleted in destructor of Hint
 }
@@ -1261,7 +1249,6 @@ NABoolean Parser::parseUtilISPCommand(const char *command, size_t cmdLen, CharIn
   return utilISPFound;
 }
 
-
 NABoolean Parser::processSpecialDDL(const char *inputStr, size_t inputStrLen, ExprNode *childNode,
                                     CharInfo::CharSet inputStrCS, ExprNode **node) {
   if (cmpContext() && cmpContext()->internalCompile()) return FALSE;
@@ -1401,30 +1388,6 @@ void HQCParseKey::addTokenToNormalizedString(int &tokCod) {
   nOfTokens_++;
   isStringNormalized_ = FALSE;
 }
-
-/* JWP
-//KSKSKS
-NAWchar *Parser::wInputStr()
-{
-  int i;
-  static NAWchar *temp2 = (NAWchar *)  111111111;  // 0x069F68C7
-  static NAWchar *temp3 = (NAWchar *) 1412509744;  // 0x54313030
-
-  if (wInputBuf_ != NULL)
-    {
-    if (wInputBuf_->data() == NULL)
-       i = 20;
-    else if (   wInputBuf_->data() <= (NAWchar *) temp2
-             || wInputBuf_->data() >= (NAWchar *) temp3
-            )
-               i = 21;
-    return wInputBuf_->data();
-    }
-  else
-   return NULL;
-}
-//KSKSKS
-*/
 
 int yylex(YYSTYPE *lvalp) { return SqlParser_CurrentParser ? SqlParser_CurrentParser->yylex(lvalp) : 0; }
 

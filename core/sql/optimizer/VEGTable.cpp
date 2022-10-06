@@ -18,7 +18,7 @@
 #include "optimizer/Sqlcomp.h"
 #include "optimizer/GroupAttr.h"
 #include "optimizer/RelJoin.h"
-#include "ItemLog.h"
+#include "optimizer/ItemLog.h"
 #include "optimizer/ItemOther.h"
 #include "optimizer/ItemColRef.h"
 #include "optimizer/ItemFunc.h"

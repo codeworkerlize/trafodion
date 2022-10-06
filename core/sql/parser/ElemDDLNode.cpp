@@ -22,52 +22,51 @@
  */
 
 #define SQLPARSERGLOBALS_FLAGS  // must precede all #include's
-#include "common/BaseTypes.h"
-#include "common/ComASSERT.h"
-#include "export/ComDiags.h"
-#include "common/ComOperators.h"
-#include "common/ComLocationNames.h"
 #include "ElemDDLAlterTableMove.h"
 #include "ElemDDLAuthSchema.h"
+#include "ElemDDLColNameList.h"
+#include "ElemDDLDivisionClause.h"
+#include "ElemDDLGranteeArray.h"
+#include "ElemDDLIndexPopulateOption.h"
+#include "ElemDDLIndexScopeOption.h"
+#include "ElemDDLKeyValue.h"
 #include "ElemDDLLibClientFilename.h"
 #include "ElemDDLLibClientName.h"
 #include "ElemDDLLibPathName.h"
-#include "ElemDDLColNameList.h"
-#include "parser/ElemDDLGrantee.h"
-#include "ElemDDLGranteeArray.h"
-#include "ElemDDLKeyValue.h"
+#include "ElemDDLLobAttrs.h"
 #include "ElemDDLLocation.h"
+#include "ElemDDLLoggable.h"
 #include "ElemDDLParallelExec.h"
-#include "ElemDDLReferences.h"
-#include "ElemDDLSchemaName.h"
-#include "ElemDDLTenantOption.h"
-#include "ElemDDLTenantSchema.h"
-#include "ElemDDLTenantGroup.h"
-#include "ElemDDLTenantResourceGroup.h"
 #include "ElemDDLPrivActions.h"
 #include "ElemDDLPrivileges.h"
+#include "ElemDDLReferences.h"
+#include "ElemDDLReplicateClause.h"
+#include "ElemDDLSaltOptions.h"
+#include "ElemDDLSchemaName.h"
+#include "ElemDDLTableFeature.h"
+#include "ElemDDLTenantGroup.h"
+#include "ElemDDLTenantOption.h"
+#include "ElemDDLTenantResourceGroup.h"
+#include "ElemDDLTenantSchema.h"
 #include "ElemDDLWithCheckOption.h"
 #include "ElemDDLWithGrantOption.h"
-#include "ElemDDLIndexPopulateOption.h"
-#include "ElemDDLIndexScopeOption.h"
-#include "parser/ElemDDLQualName.h"
-#include "ElemDDLLoggable.h"
-#include "ElemDDLLobAttrs.h"
-#include "ElemDDLDivisionClause.h"
-#include "ElemDDLSaltOptions.h"
-#include "ElemDDLReplicateClause.h"
-#include "ElemDDLTableFeature.h"
-#include "parser/ElemDDLHbaseOptions.h"
-#include "ElemDDLFileAttrMisc.h"
-#include "parser/ElemDDLGroup.h"
-#include "optimizer/ItemExpr.h"
+#include "common/BaseTypes.h"
+#include "common/ComASSERT.h"
+#include "common/ComLocationNames.h"
+#include "common/ComOperators.h"
+#include "export/ComDiags.h"
 #include "optimizer/ItemColRef.h"
+#include "optimizer/ItemExpr.h"
+#include "parser/ElemDDLFileAttrMisc.h"
+#include "parser/ElemDDLGrantee.h"
+#include "parser/ElemDDLGroup.h"
+#include "parser/ElemDDLHbaseOptions.h"
+#include "parser/ElemDDLQualName.h"
 #ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
-#include "parser/SqlParserGlobals.h"
-
 #include "optimizer/OptimizerSimulator.h"
+#include "parser/SqlParserGlobals.h"
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLNode
@@ -145,11 +144,6 @@ ElemDDLConstraintRI *ElemDDLNode::castToElemDDLConstraintRI() { return NULL; }
 
 ElemDDLConstraintUnique *ElemDDLNode::castToElemDDLConstraintUnique() { return NULL; }
 
-ElemDDLCreateMVOneAttributeTableList *ElemDDLNode::castToElemDDLCreateMVOneAttributeTableList()  // MV OZ
-{
-  return NULL;
-}
-
 ElemDDLDivisionClause *ElemDDLNode::castToElemDDLDivisionClause() { return NULL; }
 
 ElemDDLFileAttr *ElemDDLNode::castToElemDDLFileAttr() { return NULL; }
@@ -206,16 +200,6 @@ ElemDDLFileAttrRangeLog *ElemDDLNode::castToElemDDLFileAttrRangeLog() { return N
 ElemDDLFileAttrLockOnRefresh *ElemDDLNode::castToElemDDLFileAttrLockOnRefresh() { return NULL; }
 
 ElemDDLFileAttrInsertLog *ElemDDLNode::castToElemDDLFileAttrInsertLog() { return NULL; }
-
-ElemDDLFileAttrMvsAllowed *ElemDDLNode::castToElemDDLFileAttrMvsAllowed() { return NULL; }
-
-ElemDDLMVFileAttrClause *ElemDDLNode::castToElemDDLMVFileAttrClause() { return NULL; }
-
-ElemDDLFileAttrMVCommitEach *ElemDDLNode::castToElemDDLFileAttrMVCommitEach() { return NULL; }
-
-ElemDDLFileAttrMvAudit *ElemDDLNode::castToElemDDLFileAttrMvAudit() { return NULL; }
-
-//-- MV
 
 ElemDDLGrantee *ElemDDLNode::castToElemDDLGrantee() { return NULL; }
 
@@ -591,13 +575,7 @@ StmtDDLAlterTableToggleConstraint *ElemDDLNode::castToStmtDDLAlterTableToggleCon
 
 StmtDDLAlterTableHBaseOptions *ElemDDLNode::castToStmtDDLAlterTableHBaseOptions() { return NULL; }
 
-StmtDDLAlterMvRGroup *ElemDDLNode::castToStmtDDLAlterMvRGroup()  // OZ
-{
-  return NULL;
-}
-
 StmtDDLAlterTrigger *ElemDDLNode::castToStmtDDLAlterTrigger() { return NULL; }
-
 
 StmtDDLAlterUser *ElemDDLNode::castToStmtDDLAlterUser() { return NULL; }
 
@@ -639,12 +617,7 @@ StmtDDLCreateTable *ElemDDLNode::castToStmtDDLCreateTable() { return NULL; }
 
 StmtDDLCreateHbaseTable *ElemDDLNode::castToStmtDDLCreateHbaseTable() { return NULL; }
 
-StmtDDLCreateMvRGroup *ElemDDLNode::castToStmtDDLCreateMvRGroup() {
-  return NULL;  // OZ
-}
-
 StmtDDLCreateTrigger *ElemDDLNode::castToStmtDDLCreateTrigger() { return NULL; }
-
 
 StmtDDLCreateView *ElemDDLNode::castToStmtDDLCreateView() { return NULL; }
 
@@ -674,10 +647,7 @@ StmtDDLDropTable *ElemDDLNode::castToStmtDDLDropTable() { return NULL; }
 
 StmtDDLDropHbaseTable *ElemDDLNode::castToStmtDDLDropHbaseTable() { return NULL; }
 
-
 StmtDDLDropTrigger *ElemDDLNode::castToStmtDDLDropTrigger() { return NULL; }
-
-StmtDDLDropMV *ElemDDLNode::castToStmtDDLDropMV() { return NULL; }
 
 StmtDDLDropView *ElemDDLNode::castToStmtDDLDropView() { return NULL; }
 
@@ -1742,8 +1712,7 @@ NAString ElemDDLDivisionClause::getSyntax() const {
 // methods for class ElemDDLSaltOptionsClause
 // -----------------------------------------------------------------------
 
-ElemDDLSaltOptionsClause::ElemDDLSaltOptionsClause(ElemDDLNode *pSaltExprTree, int numPartitions,
-                                                   int numInitialRegions)
+ElemDDLSaltOptionsClause::ElemDDLSaltOptionsClause(ElemDDLNode *pSaltExprTree, int numPartitions, int numInitialRegions)
     : ElemDDLNode(ELM_SALT_OPTIONS_ELEM),
       numPartitions_(numPartitions),
       numInitialRegions_(numInitialRegions),

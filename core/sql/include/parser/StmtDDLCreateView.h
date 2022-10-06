@@ -31,7 +31,7 @@
 #include "ParNameLocList.h"
 #include "ParTableUsageList.h"
 #include "optimizer/RelExpr.h"
-#include "StmtDDLNode.h"
+#include "parser/StmtDDLNode.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

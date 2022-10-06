@@ -20,7 +20,7 @@
 */
 
 #include "common/ComSmallDefs.h"
-#include "StmtDDLNode.h"
+#include "parser/StmtDDLNode.h"
 
 class StmtDDLDropComponentPrivilege : public StmtDDLNode
 

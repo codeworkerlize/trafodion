@@ -5,7 +5,6 @@
 #include "StmtDDLAlterAuditConfig.h"
 #include "parser/StmtDDLAlterLibrary.h"
 #include "StmtDDLAlterSynonym.h"
-#include "StmtDDLAlterMVRGroup.h"
 #include "StmtDDLAlterRoutine.h"
 #include "parser/StmtDDLAlterUser.h"
 

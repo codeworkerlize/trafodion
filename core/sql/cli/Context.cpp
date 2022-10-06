@@ -40,7 +40,7 @@
 #include "parser/StmtCompilationMode.h"
 #include "ExCextdecs.h"
 #include "export/ComMemoryDiags.h"  // ComMemoryDiags::DumpMemoryInfo()
-#include "common/DllExportDefines.h"
+
 #include "common/NAWNodeSet.h"
 
 #include <fstream>

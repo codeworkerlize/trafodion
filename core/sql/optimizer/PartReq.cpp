@@ -15,7 +15,7 @@
 
 #include "PartReq.h"
 #include "optimizer/ItemColRef.h"
-#include "ItemLog.h"
+#include "optimizer/ItemLog.h"
 #include "optimizer/ItemFunc.h"
 #include "ReqGen.h"
 #include "optimizer/GroupAttr.h"

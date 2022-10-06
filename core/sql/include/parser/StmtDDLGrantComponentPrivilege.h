@@ -20,7 +20,7 @@
 */
 
 #include "common/ComSmallDefs.h"
-#include "StmtDDLNode.h"
+#include "parser/StmtDDLNode.h"
 
 #ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS

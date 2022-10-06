@@ -34,9 +34,7 @@
 
 #include "ElemDDLFileAttrMaxSize.h"
 #include "ParDDLFileAttrs.h"
-#include "ElemDDLFileAttrRangeLog.h"
-#include "ElemDDLFileAttrMvsAllowed.h"
-#include "ElemDDLFileAttrMvAudit.h"
+#include "parser/ElemDDLFileAttrRangeLog.h"
 #include "ElemDDLFileAttrMaxExtents.h"
 #include "common/ComASSERT.h"
 

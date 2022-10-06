@@ -26,7 +26,7 @@
 // -----------------------------------------------------------------------
 
 #include "common/ComSmallDefs.h"
-#include "StmtDDLNode.h"
+#include "parser/StmtDDLNode.h"
 #include "common/BaseTypes.h"
 
 //----------------------------------------------------------------------------

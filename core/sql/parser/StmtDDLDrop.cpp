@@ -16,7 +16,7 @@
  *****************************************************************************
  */
 
-#include "AllStmtDDLDrop.h"
+#include "parser/AllStmtDDLDrop.h"
 
 #ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
@@ -614,64 +614,7 @@ const NAString StmtDDLDropView::displayLabel2() const {
 
 const NAString StmtDDLDropView::getText() const { return "StmtDDLDropView"; }
 
-// -----------------------------------------------------------------------
-// methods for class StmtDDLDropMV
-// -----------------------------------------------------------------------
 
-//
-// constructor
-//
-StmtDDLDropMV::StmtDDLDropMV(const QualifiedName &MVQualName, ComDropBehavior dropBehavior, NABoolean cleanupSpec,
-                             NABoolean validateSpec, NAString *pLogFile)
-    : StmtDDLNode(DDL_DROP_MV),
-      MVQualName_(MVQualName, PARSERHEAP()),
-      dropBehavior_(dropBehavior),
-      isCleanupSpec_(cleanupSpec),
-      isValidateSpec_(validateSpec),
-      pLogFile_(pLogFile) {}
-
-//
-// virtual destructor
-//
-StmtDDLDropMV::~StmtDDLDropMV() {
-  if (pLogFile_) delete pLogFile_;
-}
-
-//
-// cast
-//
-StmtDDLDropMV *StmtDDLDropMV::castToStmtDDLDropMV() { return this; }
-
-//
-// methods for tracing
-//
-
-const NAString StmtDDLDropMV::displayLabel1() const { return NAString("Materialized View name: ") + getMVName(); }
-
-const NAString StmtDDLDropMV::displayLabel2() const {
-  NAString label2("Drop behavior: ");
-  switch (getDropBehavior()) {
-    case COM_CASCADE_DROP_BEHAVIOR:
-      return label2 + "Cascade";
-
-    case COM_RESTRICT_DROP_BEHAVIOR:
-      return label2 + "Restrict";
-
-    default:
-      NAAbort("StmtDDLDrop.C", __LINE__, "internal logic error");
-      return NAString();
-  }
-}
-
-const NAString StmtDDLDropMV::getText() const { return "StmtDDLDropMV"; }
-
-//-----------------------------------------------------------------------
-// methods for class StmtDDLDropSynonym
-//-----------------------------------------------------------------------
-
-//
-// constructor
-//
 
 StmtDDLDropSynonym::StmtDDLDropSynonym(const QualifiedName &synonymName)
     : StmtDDLNode(DDL_DROP_SYNONYM), synonymName_(synonymName, PARSERHEAP()) {}

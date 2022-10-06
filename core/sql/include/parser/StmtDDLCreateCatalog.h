@@ -20,7 +20,7 @@
 
 #include "common/ComLocationNames.h"
 #include "ElemDDLLocation.h"
-#include "StmtDDLNode.h"
+#include "parser/StmtDDLNode.h"
 
 // -----------------------------------------------------------------------
 // contents of this file
