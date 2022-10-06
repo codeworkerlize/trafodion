@@ -1,6 +1,0 @@
-#!/bin/bash
-
-hbcheck -s | grep "^RegionServer" | awk '{print $3;}' > ${TRAF_LOG}/hbase_rs_zk_list
-
-
-

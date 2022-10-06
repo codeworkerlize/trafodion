@@ -1,6 +1,0 @@
-BEGIN {mem_rss=0; vmem=0; proc_count=0;}
-{mem_rss=mem_rss + $5; vmem=vmem + $6; proc_count++;}
-END {printf ("#procs=%d: RSS=%d MiB: VIRT=%d MiB\n", 
-              proc_count, 
-              mem_rss/1024,
-              vmem/1024); }

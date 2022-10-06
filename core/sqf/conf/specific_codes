@@ -1,9 +1,0 @@
-# This file contains the list of 'specific codes' (in an SNMP Trap) that should
-# cause the deletion of the HBase RegionServer's ZK Node.
-# E.g.:
-#35
-#
-# Please specify one 'specific code' per line (without '#' as the first character in the line):
-# The following are specific codes for H3C IPMI
-35
-20

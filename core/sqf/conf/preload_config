@@ -1,5 +1,0 @@
-#The SQL preloaded by default is under SEABASE
-#For example: select * from T1, T2, T3, T4, T5
-#This statement is equivalent to prepare s from select * from T1, T2, T3, T4, T5
-#If you want to preload other SCHEMA, you can do so
-#select * from trafodion.db1.table1
