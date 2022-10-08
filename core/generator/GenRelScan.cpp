@@ -18,7 +18,7 @@
 #include <vector>
 
 #include "GenExpGenerator.h"
-#include "HashRow.h"           // for sizeof(HashRow)
+#include "comexe/HashRow.h"           // for sizeof(HashRow)
 #include "comexe/ComTdbDDL.h"  // for describe
 #include "comexe/ComTdbHbaseAccess.h"
 #include "executor/HBaseClient_JNI.h"

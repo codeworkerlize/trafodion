@@ -12,7 +12,7 @@
 
 **********************************************************************/
 
-#include "LmLangManager.h"
+#include "langman/LmLangManager.h"
 #include "LmParameter.h"
 
 #define JDBC_SPJRS_VERSION 1

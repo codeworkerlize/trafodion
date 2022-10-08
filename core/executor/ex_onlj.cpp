@@ -14,7 +14,7 @@
 ******************************************************************************
 */
 
-#include "ex_onlj.h"
+#include "executor/ex_onlj.h"
 
 #include "comexe/ComTdb.h"
 #include "common/str.h"

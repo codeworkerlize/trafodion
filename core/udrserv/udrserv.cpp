@@ -26,9 +26,9 @@
 static pthread_t gv_main_thread_id;
 
 #include "LmJavaOptions.h"
-#include "LmLangManagerC.h"
-#include "LmLangManagerJava.h"
-#include "LmRoutine.h"
+#include "langman/LmLangManagerC.h"
+#include "langman/LmLangManagerJava.h"
+#include "langman/LmRoutine.h"
 #include "UdrAbortCallBack.h"
 #include "UdrCfgParser.h"
 #include "UdrDebug.h"

@@ -15,7 +15,7 @@
 #ifndef _LMUTILITY_H_
 #define _LMUTILITY_H_
 
-#include "LmLangManagerJava.h"
+#include "langman/LmLangManagerJava.h"
 #include "common/Collections.h"
 #include "lmjni.h"
 

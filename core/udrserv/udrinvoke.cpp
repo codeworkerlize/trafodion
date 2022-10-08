@@ -20,7 +20,7 @@
 *****************************************************************************
 */
 
-#include "UdrExeIpc.h"
+#include "executor/UdrExeIpc.h"
 #include "UdrStreams.h"
 #include "executor/sql_buffer.h"
 #include "udrdecs.h"

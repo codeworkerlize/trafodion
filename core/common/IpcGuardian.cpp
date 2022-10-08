@@ -40,8 +40,8 @@
 extern "C" {
 int_16 TMF_SETTXHANDLE_(short *);
 }
-#include "nsk/nskprocess.h"
-#include "rosetta/rosgen.h"
+
+
 extern "C" {
 #include "common/cextdecs.h"
 #include "common/zsysc.h"

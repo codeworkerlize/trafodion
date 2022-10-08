@@ -9,7 +9,7 @@
 */
 #include "LmRoutineCppObj.h"
 
-#include "LmLangManagerC.h"
+#include "langman/LmLangManagerC.h"
 #include "LmParameter.h"
 #include "common/ComUser.h"
 

@@ -2,7 +2,7 @@
 #ifndef EXSM_SHORT_MESSAGE_H
 #define EXSM_SHORT_MESSAGE_H
 
-#include "ExSMCommon.h"
+#include "executor/ExSMCommon.h"
 
 class ExSMShortMessage;
 

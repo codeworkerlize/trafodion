@@ -26,7 +26,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include "ExCextdecs.h"
+#include "executor/ExCextdecs.h"
 #include "cli/Statement.h"
 #include "cli/sql_id.h"
 #include "cli/cli_stdh.h"
@@ -45,8 +45,8 @@
 #include "common/NAStdlib.h"
 #include "common/str.h"
 #include "executor/ex_exe_stmt_globals.h"
-#include "ex_hash_grby.h"
-#include "ex_hashj.h"
+#include "executor/ex_hash_grby.h"
+#include "executor/ex_hashj.h"
 #include "ex_sort.h"
 #include "executor/ExStats.h"
 #include "executor/ex_stdh.h"

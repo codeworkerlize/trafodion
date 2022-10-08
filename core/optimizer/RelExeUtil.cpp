@@ -71,7 +71,7 @@
 #include "parser/StmtDDLRevoke.h"
 #include "parser/StmtDDLSchGrant.h"
 #include "parser/StmtDDLSchRevoke.h"
-//#include <cextdecs/cextdecs.h>
+//#include "common/cextdecs.h"
 #include "arkcmp/CmpStatement.h"
 #include "comexe/SqlTableOpenInfo.h"
 #include "common/ComUser.h"

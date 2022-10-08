@@ -18,10 +18,10 @@
 // ***************************************************************************
 //
 
-#include "HashRow.h"
+#include "comexe/HashRow.h"
 #include "common/BaseTypes.h"
 #include "executor/ex_stdh.h"
-#include "exp/ex_expr.h"
+#include "executor/ex_expr.h"
 #include "export/NABasicObject.h"
 
 // Reasonable constraints on hash table size

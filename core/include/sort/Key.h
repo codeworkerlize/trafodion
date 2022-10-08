@@ -73,7 +73,7 @@
 // Initial revision
 //
 // -----------------------------------------------------------------------
-#include "CommonStructs.h"
+#include "sort/CommonStructs.h"
 #include "common/str.h"
 #include "export/NABasicObject.h"
 

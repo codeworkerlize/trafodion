@@ -22,7 +22,7 @@
 #include <string.h>
 #include <time.h>
 
-#include "ComRegAPI.h"
+#include "common/ComRegAPI.h"
 #include "cli/SQLCLIdev.h"
 #include "common/BaseTypes.h"
 #include "common/Collections.h"

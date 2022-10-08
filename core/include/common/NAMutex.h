@@ -52,7 +52,7 @@ class NAConditionVariable : public NAMutex {
 // The C++ runtime will ensure that we will unlock the mutex, even in
 // case of exceptions or early return statements. Example:
 //
-// #include "NAMutex.h"
+// #include "common/NAMutex.h"
 //
 // NAMutex mutex;
 //

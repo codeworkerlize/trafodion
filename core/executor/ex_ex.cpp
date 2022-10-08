@@ -18,20 +18,20 @@
 
 #include <sys/time.h>
 
-#include "ComTdb.h"
-#include "ExCextdecs.h"
+#include "comexe/ComTdb.h"
+#include "executor/ExCextdecs.h"
 #include "ExStats.h"
 #include "cli/Context.h"
 #include "common/Platform.h"
 #include "executor/ex_exe_stmt_globals.h"
-#include "ex_stdh.h"
-#include "ex_tcb.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_tcb.h"
 #include "executor/ex_globals.h"
 #include "exp/exp_clause_derived.h"
-#include "exp_expr.h"
+#include "exp/exp_expr.h"
 #include "sqlci/SqlciParseGlobals.h"
 #include "sqlmxevents/logmxevent.h"
-#include "str.h"
+#include "common/str.h"
 
 extern int gettimeofday(struct timeval *, struct timezone *);
 

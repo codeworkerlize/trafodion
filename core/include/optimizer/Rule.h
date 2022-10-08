@@ -20,8 +20,10 @@
 // -----------------------------------------------------------------------
 
 #include "common/BaseTypes.h"
+#include "common/CmpCommon.h"
 #include "common/Collections.h"
 #include "common/SharedPtr.h"
+#include "optimizer/CascadesBasic.h"
 
 // -----------------------------------------------------------------------
 // classes defined in this file

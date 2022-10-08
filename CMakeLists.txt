@@ -47,12 +47,15 @@ file(GLOB_RECURSE
     ${PROJECT_SOURCE_DIR}/core/*.cpp
         )
 
-        list(REMOVE_ITEM NOISEPAGE_SRCS ${PROJECT_SOURCE_DIR}/core/executor/*.cpp)
-        list(REMOVE_ITEM NOISEPAGE_SRCS ${PROJECT_SOURCE_DIR}/core/exp/*.cpp)
+#         list(REMOVE_ITEM NOISEPAGE_SRCS ${PROJECT_SOURCE_DIR}/core/executor/*.cpp)
+#         list(REMOVE_ITEM NOISEPAGE_SRCS ${PROJECT_SOURCE_DIR}/core/exp/*.cpp)
+#         list(REMOVE_ITEM NOISEPAGE_SRCS ${PROJECT_SOURCE_DIR}/core/sort/*.cpp)
 
 # SET(sqlcomp_SRCS "")
 # list(APPEND sqlcomp_SRCS
 #     ${PROJECT_SOURCE_DIR}/core/sqlcomp/parser.cpp
+#     ${PROJECT_SOURCE_DIR}/core/common/NAMemory.cpp
+#     core/arkcmp/CmpContext.cpp
 # )
 
 

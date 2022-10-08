@@ -22,20 +22,20 @@
 #include <stdio.h>
 // End of TEMP
 
-#include "CmpContext.h"
-#include "ComTdb.h"
-#include "ExCextdecs.h"
-#include "ExSqlComp.h"
-#include "ExpHbaseInterface.h"
+#include "arkcmp/CmpContext.h"
+#include "comexe/ComTdb.h"
+#include "executor/ExCextdecs.h"
+#include "cli/ExSqlComp.h"
+#include "exp/ExpHbaseInterface.h"
 #include "cli/cli_stdh.h"
 #include "common/Platform.h"
 #include "dtm/tm.h"
 #include "executor/ex_exe_stmt_globals.h"
-#include "ex_stdh.h"
-#include "ex_tcb.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_tcb.h"
 #include "ex_transaction.h"
 #include "executor/ex_error.h"
-#include "exp_expr.h"
+#include "exp/exp_expr.h"
 #include "qmscommon/QRLogger.h"
 
 extern pthread_t lob_ddl_thread_id;

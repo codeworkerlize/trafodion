@@ -15,7 +15,7 @@
 
 #include "common/ComRtUtils.h"
 
-#include "ExCextdecs.h"
+#include "executor/ExCextdecs.h"
 #include "common/ComCextdecs.h"
 #include "common/Platform.h"
 #include "common/charinfo.h"
@@ -44,12 +44,12 @@
 #include "nsk/nskcommonhi.h"
 #define psecure_h_including_section
 #define psecure_h_security_psb_get_
-#include "security/psecure.h"
+
 #define dsecure_h_including_section
 #define dsecure_h_psb_selectors
 #include "common/ComDistribution.h"
 #include "common/feerrors.h"
-#include "security/dsecure.h"
+
 #include "sqlmxevents/logmxevent.h"
 #undef SQL_TEXT
 

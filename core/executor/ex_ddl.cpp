@@ -15,19 +15,19 @@
  *****************************************************************************
  */
 
-#include "ex_ddl.h"
+#include "executor/ex_ddl.h"
 
-#include "CmpContext.h"
-#include "ComSmallDefs.h"
-#include "ComTdb.h"
-#include "ExSqlComp.h"
-#include "HeapLog.h"
+#include "arkcmp/CmpContext.h"
+#include "common/ComSmallDefs.h"
+#include "comexe/ComTdb.h"
+#include "cli/ExSqlComp.h"
+#include "export/HeapLog.h"
 #include "cli/cli_stdh.h"
 #include "executor/ex_exe_stmt_globals.h"
-#include "ex_stdh.h"
-#include "ex_tcb.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_tcb.h"
 #include "executor/ExExeUtil.h"
-#include "exp_expr.h"
+#include "exp/exp_expr.h"
 
 ex_tcb *ExDDLTdb::build(ex_globals *glob) {
   ExDDLTcb *ddl_tcb = NULL;

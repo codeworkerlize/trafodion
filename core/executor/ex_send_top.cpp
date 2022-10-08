@@ -17,8 +17,8 @@
 
 // -----------------------------------------------------------------------
 
-#include "ExCextdecs.h"
-#include "Ex_esp_msg.h"
+#include "executor/ExCextdecs.h"
+#include "executor/Ex_esp_msg.h"
 #include "cli/Context.h"
 #include "comexe/ComTdb.h"
 #include "common/BaseTypes.h"
@@ -26,8 +26,8 @@
 #include "executor/ex_exe_stmt_globals.h"
 #include "executor/ex_frag_rt.h"
 #include "ex_io_control.h"
-#include "ex_send_bottom.h"
-#include "ex_split_bottom.h"
+#include "executor/ex_send_bottom.h"
+#include "executor/ex_split_bottom.h"
 #include "executor/ExStats.h"
 #include "executor/ex_expr.h"
 #include "executor/ex_stdh.h"
@@ -40,9 +40,9 @@
 static THREAD_P short sv_max_parallel_opens = 0;
 
 #include "ExSMQueue.h"
-#include "ExSMTrace.h"
-#include "SMConnection.h"
-#include "ex_send_top.h"
+#include "executor/ExSMTrace.h"
+#include "common/SMConnection.h"
+#include "executor/ex_send_top.h"
 
 #define ex_assert_both_sides(assert_test, assert_msg)               \
   if (!(assert_test)) {                                             \

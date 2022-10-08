@@ -70,8 +70,8 @@
 // Added <description of the change>.
 // -----------------------------------------------------------------------
 
-#include "Const.h"
-#include "SortError.h"
+#include "sort/Const.h"
+#include "sort/SortError.h"
 #include "export/NABasicObject.h"
 
 struct RunDirectoryEntry;

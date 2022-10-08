@@ -14,8 +14,9 @@
  *
  *****************************************************************************
  */
-#include "LmExtFunc.h"
+#include "langman/LmExtFunc.h"
 #include "common/Platform.h"
+#include <stdlib.h>
 
 void lmMakeTFDSCall(const char *msg, const char *file, UInt32 line) {
   // makeTFDSCall(msg, file, line);

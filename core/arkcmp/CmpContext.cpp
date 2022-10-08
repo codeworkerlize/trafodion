@@ -20,8 +20,6 @@
 #include "common/Platform.h"
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS  // first #include
 
-#include "optimizer/ImplRule.h"   // for CreateImplementationRules()
-#include "optimizer/TransRule.h"  // for CreateTransformationRules()
 #include "arkcmp/CmpContext.h"
 #include "arkcmp/CmpStatement.h"
 #include "common/CmpCommon.h"
@@ -29,10 +27,12 @@
 #include "common/NAHeap.h"
 #include "optimizer/CmpMemoryMonitor.h"
 #include "optimizer/ControlDB.h"
+#include "optimizer/ImplRule.h"  // for CreateImplementationRules()
 #include "optimizer/OptimizerSimulator.h"
 #include "optimizer/PhyProp.h"  // for InitCostVariables()
 #include "optimizer/Rule.h"
 #include "optimizer/SchemaDB.h"
+#include "optimizer/TransRule.h"  // for CreateTransformationRules()
 #include "optimizer/UdfDllInteraction.h"
 #include "sqlcomp/NewDel.h"
 #ifdef NA_CMPDLL
@@ -47,15 +47,11 @@
 #include "sqludr/sqludr.h"
 
 // #include "PCodeExprCache.h"
-#include "cli/Context.h"
-#include "executor/HBaseClient_JNI.h"
-
-#ifdef NA_CMPDLL
 #include "arkcmp/CompException.h"
-#include "optimizer/CostMethod.h"
-#endif  // NA_CMPDLL
-
+#include "cli/Context.h"
 #include "common/NATestpoint.h"
+#include "executor/HBaseClient_JNI.h"
+#include "optimizer/CostMethod.h"
 
 //++MV
 extern "C" {
@@ -71,7 +67,7 @@ extern "C" {
 
 ostream &operator<<(ostream &dest, const ComDiagsArea &da);
 
-UInt32 hashCursor(const NAString &s) { return s.hash(); }
+int hashCursor(const NAString &s) { return s.hash(); }
 
 // Global pointer to the Optimzer Memory Monitor
 extern THREAD_P CmpMemoryMonitor *cmpMemMonitor;
@@ -688,7 +684,7 @@ void CmpContext::cleanup(NABoolean exception) {
     planInfos_.clear();
   }
   if (routineHandles_.entries() > 0) {
-    ExeCliInterface cliInterface(statementHeap(), NULL, NULL, CmpCommon::context()->sqlSession()->getParentQid());
+    ExeCliInterface cliInterface(statementHeap(), 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
 
     for (CollIndex r = 0; r < routineHandles_.entries(); r++)
       cliInterface.putRoutine(routineHandles_[r], CmpCommon::diags());

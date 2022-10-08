@@ -3,7 +3,7 @@
 
 #include "common/NAClusterInfo.h"
 
-#include <cextdecs/cextdecs.h>
+#include "common/cextdecs.h"
 #include <limits.h>
 #include <stdio.h>
 #include <string.h>
@@ -14,7 +14,7 @@
 #include "arkcmp/CompException.h"
 #include "common/ComRtUtils.h"
 #include "common/NAWNodeSet.h"
-#include "nsk/nskport.h"
+
 #include "optimizer/OptimizerSimulator.h"
 #include "sqlcomp/NADefaults.h"
 #include "utility.h"

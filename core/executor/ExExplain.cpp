@@ -19,14 +19,14 @@
 // This file contains all the executor methods associated
 // with a explain operator
 //
-#include "ExExplain.h"
+#include "executor/ExExplain.h"
 
 #include "cli/sql_id.h"
 #include "comexe/ComQueue.h"
 #include "comexe/ComTdb.h"
 #include "comexe/ExplainTuple.h"
 #include "common/ComCextdecs.h"
-#include "ex_queue.h"
+#include "executor/ex_queue.h"
 #include "executor/ex_root.h"
 #include "executor/ex_expr.h"
 #include "executor/ex_stdh.h"

@@ -14,7 +14,7 @@
 
 #include "executor/ExUdrServer.h"
 
-#include "ExCextdecs.h"
+#include "executor/ExCextdecs.h"
 #include "ExUdrClientIpc.h"
 #include "common/ComRtUtils.h"
 #include "executor/ex_stdh.h"

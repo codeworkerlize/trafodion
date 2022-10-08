@@ -17,7 +17,7 @@
  *
  *****************************************************************************
  */
-#include <Platform.h>
+#include "common/Platform.h"
 #include <jni.h>
 
 class ComDiagsArea;

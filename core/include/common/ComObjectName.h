@@ -31,7 +31,7 @@
 #include <iosfwd>
 using namespace std;
 
-#include "ComRoutineActionNamePart.h"
+#include "common/ComRoutineActionNamePart.h"
 #include "common/ComAnsiNamePart.h"
 #include "common/ComMisc.h"
 #include "common/ComOperators.h"

@@ -779,10 +779,10 @@ class NodeAnalysis : public NABasicObject {
     table_ = NULL;
     groupBy_ = NULL;
     routine_ = NULL;
-    stats_ = NULL;
+    stats_ = {};
     recordSize_ = 0;
     isExtraHub_ = expr->isExtraHub();
-    jbbInputLP_ = NULL;
+    jbbInputLP_ = {};
   }
 
   NodeAnalysis() {
@@ -1092,10 +1092,10 @@ class TableAnalysis : public NABasicObject {
       : caNodeAnalysis_(nodeAnalysis),
         tableDesc_(tableDesc),
         apaForBaseTable_(NULL),
-        statsOfBaseTable_(NULL),
+        statsOfBaseTable_{},
         recordSizeOfBaseTable_(0),
-        statsAfterLocalPredsOnCKPrefix_(NULL),
-        statsAfterLocalPreds_(NULL),
+        statsAfterLocalPredsOnCKPrefix_{},
+        statsAfterLocalPreds_{},
         heap_(outHeap),
         accessPaths_(outHeap),
         indexOnlyAccessPaths_(outHeap),

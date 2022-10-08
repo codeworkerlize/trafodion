@@ -31,11 +31,11 @@
 #include <sys/stat.h>
 
 #include "cli/Descriptor.h"
-#include "ExCextdecs.h"
+#include "executor/ExCextdecs.h"
 #include "executor/ExRsInfo.h"
 #include "ExUdrClientIpc.h"
 #include "executor/ExUdrServer.h"
-#include "UdrExeIpc.h"
+#include "executor/UdrExeIpc.h"
 #include "cli/Context.h"
 #include "cli/Statement.h"
 #include "comexe/UdrFormalParamInfo.h"

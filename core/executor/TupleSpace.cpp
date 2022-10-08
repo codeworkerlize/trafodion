@@ -46,14 +46,14 @@
 // Any buffer, including the current SwapSpace buffer, can be
 // referenced by read_.
 //
-#include "TupleSpace.h"
+#include "executor/TupleSpace.h"
 
-#include <BaseTypes.h>
-#include <ExpAtp.h>
-#include <exp_expr.h>
+#include "common/BaseTypes.h"
+#include "exp/ExpAtp.h"
+#include "exp/exp_expr.h"
 #include <limits.h>
 
-#include "ex_ex.h"
+#include "executor/ex_ex.h"
 
 namespace ExOverflow {
 TupleSpace::TupleSpace(ByteCount tupleLen, BufferCount nBuffers, ByteCount bufferSize, UInt32 memoryQuotaMB,

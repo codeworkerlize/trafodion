@@ -23,7 +23,7 @@
 #include "LmRoutineC.h"
 #include "LmRoutineCppObj.h"
 #include "LmRoutineJavaObj.h"
-#include "UdrExeIpc.h"
+#include "executor/UdrExeIpc.h"
 #include "UdrStreams.h"
 #include "common/ComSmallDefs.h"
 #include "export/ComDiags.h"

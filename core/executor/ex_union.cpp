@@ -19,7 +19,7 @@
 // with a union operator
 //
 
-#include "ex_union.h"
+#include "executor/ex_union.h"
 
 #include "executor/ExStats.h"
 #include "executor/ex_error.h"

@@ -11,11 +11,11 @@
  *
  *****************************************************************************
  */
-#include "CliMsgObj.h"
+#include "executor/CliMsgObj.h"
 
 #include <iostream>
 
-#include "ComplexObject.h"
+#include "common/ComplexObject.h"
 #include "cli/sqlcli.h"
 #include "common/ComTransInfo.h"
 #include "export/IpcMessageObj.h"

@@ -15,8 +15,8 @@
 */
 
 #include "LmError.h"
-#include "LmLangManagerJava.h"
-#include "UdrExeIpc.h"
+#include "langman/LmLangManagerJava.h"
+#include "executor/UdrExeIpc.h"
 #include "cli/SQLCLIdev.h"
 #include "cli/sqlcli.h"
 #include "export/ComDiags.h"

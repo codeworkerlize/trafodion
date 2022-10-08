@@ -12,7 +12,7 @@
  *****************************************************************************
  */
 
-#include "ComplexObject.h"
+#include "common/ComplexObject.h"
 
 #include <iostream>
 

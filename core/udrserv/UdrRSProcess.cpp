@@ -13,7 +13,7 @@
 *****************************************************************************
 */
 
-#include "UdrExeIpc.h"
+#include "executor/UdrExeIpc.h"
 #include "UdrResultSet.h"
 #include "UdrStreams.h"
 #include "udrextrn.h"

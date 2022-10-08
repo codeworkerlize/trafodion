@@ -13,7 +13,7 @@
 */
 #include "LmGenUtil.h"
 
-#include "LmLangManager.h"
+#include "langman/LmLangManager.h"
 #include "common/str.h"
 
 /* setLMObjectMapping() : Processes Java signature and sets the object mapping

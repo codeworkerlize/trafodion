@@ -2,7 +2,7 @@
 
 #include <assert.h>
 
-#include "DiskPool.h"
+#include "sort/DiskPool.h"
 #include "common/ComDistribution.h"
 #include "common/Platform.h"
 #if !defined(FORDEBUG) && !defined(NDEBUG)

@@ -14,7 +14,7 @@
 #include <ctype.h>
 #include <stdarg.h>
 
-#include "LmLangManager.h"
+#include "langman/LmLangManager.h"
 #include "LmParameter.h"
 #include "common/ComRtUtils.h"
 #include "common/Int64.h"

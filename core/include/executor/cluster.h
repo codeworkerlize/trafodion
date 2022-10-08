@@ -17,11 +17,11 @@
  *****************************************************************************
  */
 
-#include "CommonStructs.h"
-#include "ScratchSpace.h"
+#include "sort/CommonStructs.h"
+#include "sort/ScratchSpace.h"
 #include "common/ClusteredBitmap.h"
 #include "executor/ex_exe_stmt_globals.h"
-#include "hash_table.h"
+#include "executor/hash_table.h"
 #define END_OF_BUF_LIST ((int)-1)
 
 // To be used as the limits on input size estimates by HJ, HGB

@@ -26,19 +26,9 @@
 #include <algorithm>
 #include <fstream>
 
-#include "../../dbsecurity/auth/inc/dbUserAuth.h"
-#include "CliMsgObj.h"
-#include "ComplexObject.h"
-#include "ExCextdecs.h"
-#include "executor/ExControlArea.h"
-#include "executor/ExRsInfo.h"
-#include "executor/ExUdrServer.h"
-#include "LmRoutine.h"
-#include "UdrExeIpc.h"
-#include "common/arkcmp_proc.h"
 #include "cli/ExSqlComp.h"
-#include "cli/sql_id.h"
 #include "cli/cli_stdh.h"
+#include "cli/sql_id.h"
 #include "comexe/ComQueue.h"
 #include "common/CmpCommon.h"
 #include "common/ComDistribution.h"
@@ -47,20 +37,30 @@
 #include "common/ComSqlId.h"
 #include "common/ComTransInfo.h"
 #include "common/ComUser.h"
+#include "common/ComplexObject.h"
 #include "common/NAStdlib.h"
 #include "common/NAUserId.h"
 #include "common/NAWNodeSet.h"
 #include "common/NLSConversion.h"
 #include "common/Platform.h"
+#include "common/arkcmp_proc.h"
+#include "common/dbUserAuth.h"
 #include "common/stringBuf.h"
+#include "executor/CliMsgObj.h"
+#include "executor/ExCextdecs.h"
+#include "executor/ExControlArea.h"
+#include "executor/ExExeUtil.h"
+#include "executor/ExRsInfo.h"
+#include "executor/ExStats.h"
+#include "executor/ExUdrServer.h"
+#include "executor/UdrExeIpc.h"
 #include "executor/ex_control.h"
 #include "executor/ex_frag_rt.h"
 #include "executor/ex_root.h"
-#include "executor/ExExeUtil.h"
-#include "executor/ExStats.h"
 #include "executor/ex_transaction.h"
 #include "exp/exp_clause_derived.h"
 #include "export/ComMemoryDiags.h"  // ComMemoryDiags::DumpMemoryInfo()
+#include "langman/LmRoutine.h"
 #include "optimizer/TriggerDB.h"
 #include "parser/StmtCompilationMode.h"
 #include "seabed/sys.h"
@@ -87,7 +87,7 @@
 #define StmtListDebug5(s, f, a, b, c, d, e)
 #endif
 
-#include "CmpContext.h"
+#include "arkcmp/CmpContext.h"
 #include "dtm/tm.h"
 
 static void doInitForFristContext() {
@@ -1687,27 +1687,27 @@ NABoolean ContextCli::reclaimStatements() {
       freeRatio = (double)(freeSize)*100 / (double)totalSize;
     }
   } else
-      // We have observed that we are reclaiming more aggressively than
-      // needed due to the conditions below. Hence, it is now controlled
-      // via a variable now
-      if (getenv("SQL_RECLAIM_AGGRESSIVELY") != NULL) {
-    // Reclaim space from one other statement under certain conditions.
-    int cutoff = MINOF(closeStmtListSize_ * 8, 800);
-    // Reclaim if
-    //  heap is crowded or
-    //  less than 25% of the heap is free and
-    //  nextReclaimStatement_ is closed earlier than cutoff
-    //  or the recent fixup of a closed statement occurred earlier than
-    //  the past 50 sequences.
-    //  This is to prevent excessive fixup due to statement reclaim.
-    if (crowded || freeSize <= (totalSize / (100 / stmtReclaimMinPctFree_))) {
-      if (((currSequence_ - nextReclaimStatement_->closeSequence()) >= cutoff) ||
-          ((currSequence_ - prevFixupSequence_) >= 50)) {
-        retcode = reclaimStatementSpace();
-        if (retcode) someStmtReclaimed = TRUE;
+    // We have observed that we are reclaiming more aggressively than
+    // needed due to the conditions below. Hence, it is now controlled
+    // via a variable now
+    if (getenv("SQL_RECLAIM_AGGRESSIVELY") != NULL) {
+      // Reclaim space from one other statement under certain conditions.
+      int cutoff = MINOF(closeStmtListSize_ * 8, 800);
+      // Reclaim if
+      //  heap is crowded or
+      //  less than 25% of the heap is free and
+      //  nextReclaimStatement_ is closed earlier than cutoff
+      //  or the recent fixup of a closed statement occurred earlier than
+      //  the past 50 sequences.
+      //  This is to prevent excessive fixup due to statement reclaim.
+      if (crowded || freeSize <= (totalSize / (100 / stmtReclaimMinPctFree_))) {
+        if (((currSequence_ - nextReclaimStatement_->closeSequence()) >= cutoff) ||
+            ((currSequence_ - prevFixupSequence_) >= 50)) {
+          retcode = reclaimStatementSpace();
+          if (retcode) someStmtReclaimed = TRUE;
+        }
       }
     }
-  }
   if (someStmtReclaimed) {
     logReclaimEvent((int)freeSize, (int)totalSize);
   }

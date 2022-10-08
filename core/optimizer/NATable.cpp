@@ -21,8 +21,8 @@
 
 #include "optimizer/NATable.h"
 
-#include "Const.h"
-#include "EncodedValue.h"
+#include "sort/Const.h"
+#include "optimizer/EncodedValue.h"
 #include "PartFunc.h"
 #include "arkcmp/CmpStatement.h"
 #include "arkcmp/CompException.h"

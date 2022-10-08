@@ -6,7 +6,7 @@
 #include <cstdlib>
 
 #include "common/ComRtUtils.h"
-#include "nsk/nskport.h"
+
 #include "seabed/fs.h"
 #include "seabed/ms.h"
 

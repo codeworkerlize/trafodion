@@ -23,7 +23,7 @@
 
 #include <sys/time.h>
 
-#include "SharedSegment.h"
+#include "sqlcomp/SharedSegment.h"
 #include "common/DLock.h"
 #include "common/NABoolean.h"
 #include "executor/MemoryTableDB.h"

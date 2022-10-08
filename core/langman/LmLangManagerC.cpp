@@ -10,11 +10,11 @@
 
 **********************************************************************/
 
-#include "LmLangManagerC.h"
+#include "langman/LmLangManagerC.h"
 
 #include "LmContManager.h"
 #include "LmDebug.h"
-#include "LmExtFunc.h"
+#include "langman/LmExtFunc.h"
 #include "LmRoutineC.h"
 #include "LmRoutineCSql.h"
 #include "LmRoutineCSqlRow.h"

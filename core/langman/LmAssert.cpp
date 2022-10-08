@@ -19,7 +19,7 @@
 
 #include <iostream>
 
-#include "LmExtFunc.h"
+#include "langman/LmExtFunc.h"
 #include "common/Platform.h"
 
 // Exclude this function from coverage as it is called only when there is an assertion in LM

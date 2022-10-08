@@ -23,7 +23,7 @@
 //
 #include "ExBitMapTable.h"
 
-#include "ex_ex.h"
+#include "executor/ex_ex.h"
 
 // ExBitMapTable::ExBitMapTable
 //

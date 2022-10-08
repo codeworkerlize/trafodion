@@ -19,14 +19,14 @@
 
 #include "executor/ex_error.h"
 
-#include "ComTdb.h"
+#include "comexe/ComTdb.h"
 #include "executor/ex_exe_stmt_globals.h"
-#include "ex_expr.h"
-#include "ex_queue.h"
-#include "ex_stdh.h"
-#include "ex_tcb.h"
+#include "executor/ex_expr.h"
+#include "executor/ex_queue.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_tcb.h"
 #include "export/ComDiags.h"
-#include "str.h"
+#include "common/str.h"
 
 ComDiagsArea *ExRaiseSqlError(CollHeap *heap, ex_queue_entry *req, ExeErrorCode err, int *intParam1, char *stringParam1,
                               ComCondition **newCond) {

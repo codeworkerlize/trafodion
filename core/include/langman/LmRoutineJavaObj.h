@@ -12,7 +12,7 @@
 
 **********************************************************************/
 
-#include "LmLangManagerJava.h"
+#include "langman/LmLangManagerJava.h"
 #include "LmRoutineJava.h"
 #include "sqludr/sqludr.h"
 

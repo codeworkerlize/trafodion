@@ -16,8 +16,8 @@
 #include "UdrDebug.h"
 #include "common/zsysc.h"
 #include "executor/sql_buffer.h"
-#include "nsk/nskprocess.h"
-#include "rosetta/rosgen.h"
+
+
 #include "spinfo.h"
 #include "udrdecs.h"
 #include "udrdefs.h"

@@ -2,6 +2,7 @@
 #ifndef RELEXPR_H
 #define RELEXPR_H
 
+// clang-format off
 #include "arkcmp/CmpContext.h"
 #include "arkcmp/CmpStatement.h"
 #include "comexe/ExplainTupleMaster.h"
@@ -10,13 +11,15 @@
 #include "optimizer/Inlining.h"
 #include "optimizer/ObjectNames.h"
 #include "optimizer/OptHints.h"
-#include "optimizer/OptUtilIncludes.h"
 #include "optimizer/RETDesc.h"
 #include "optimizer/Rule.h"
 #include "optimizer/ValueDesc.h"
 #include "optimizer/mdam.h"
 #include "sqlcomp/DefaultConstants.h"
 #include "sqlcomp/NADefaults.h"
+#include "optimizer/OptUtilIncludes.h"
+
+// clang-format on
 
 // -----------------------------------------------------------------------
 // contents of this file

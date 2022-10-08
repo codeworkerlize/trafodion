@@ -23,7 +23,7 @@
 #include "comexe/ComTdb.h"
 #include "common/ComCextdecs.h"
 #include "common/Platform.h"
-#include "ex_ex.h"
+#include "executor/ex_ex.h"
 #include "executor/ex_exe_stmt_globals.h"
 #include "ex_sort.h"
 #include "executor/ExStats.h"

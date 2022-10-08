@@ -22,7 +22,7 @@
 #include "common/NABoolean.h"
 
 #if defined(NA_MDAM_EXECUTOR_DEBUG_ILTF)
-#include "ExCextdecs.h"
+#include "executor/ExCextdecs.h"
 #include "common/Int64.h"
 #endif /* NA_MDAM_EXECUTOR_DEBUG_ILTF */
 

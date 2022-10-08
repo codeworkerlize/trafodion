@@ -11,10 +11,10 @@
 #ifndef ALLOCATOR_H
 #define ALLOCATOR_H
 
-#include <NABasicObject.h>
+#include "export/NABasicObject.h"
 
 #include "BufferList.h"
-#include "ExOverflow.h"
+#include "executor/ExOverflow.h"
 
 class ExExeStmtGlobals;
 

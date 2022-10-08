@@ -23,7 +23,7 @@ class ExSimpleSQLBuffer;
 
 // Task Definition Block
 //
-#include "cluster.h"
+#include "executor/cluster.h"
 #include "comexe/ComTdbSequence.h"
 #include "common/NAMemory.h"
 #include "exp/ExpError.h"

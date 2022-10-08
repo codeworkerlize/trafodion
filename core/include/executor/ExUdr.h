@@ -15,7 +15,7 @@
  *****************************************************************************
  */
 
-#include "UdrExeIpc.h"
+#include "executor/UdrExeIpc.h"
 #include "comexe/ComTdbUdr.h"
 #include "common/ComSmallDefs.h"
 #include "executor/ExStats.h"

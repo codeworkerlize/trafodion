@@ -1,16 +1,16 @@
 
 
-#include "ex_esp_frag_dir.h"
+#include "executor/ex_esp_frag_dir.h"
 
 #include <errno.h>
 #include <semaphore.h>
 #include <stdlib.h>
 
-#include "ExSMCommon.h"
-#include "ExSMEvent.h"
-#include "ExSMGlobals.h"
-#include "ExSMShortMessage.h"
-#include "ExSMTrace.h"
+#include "executor/ExSMCommon.h"
+#include "executor/ExSMEvent.h"
+#include "executor/ExSMGlobals.h"
+#include "executor/ExSMShortMessage.h"
+#include "executor/ExSMTrace.h"
 #include "cli/Context.h"
 #include "cli/Globals.h"
 #include "comexe/ComTdb.h"
@@ -22,8 +22,8 @@
 #include "common/NAMemory.h"
 #include "common/Platform.h"
 #include "executor/ex_exe_stmt_globals.h"
-#include "ex_send_bottom.h"
-#include "ex_split_bottom.h"
+#include "executor/ex_send_bottom.h"
+#include "executor/ex_split_bottom.h"
 #include "executor/ExStats.h"
 #include "executor/ex_stdh.h"
 #include "executor/ex_tcb.h"

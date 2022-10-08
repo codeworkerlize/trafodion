@@ -23,7 +23,7 @@ DEFINE_DOVERS(tdm_arkcmp)
 #include "arkcmp/CompException.h"
 #include "arkcmp/NATableSt.h"
 #include "arkcmp/QueryCacheSt.h"
-#include "cmpargs.h"
+#include "arkcmp/cmpargs.h"
 #include "comexe/CmpMessage.h"
 #include "common/CmpCommon.h"
 #include "common/ComCextdecs.h"
@@ -34,17 +34,18 @@ DEFINE_DOVERS(tdm_arkcmp)
 #undef CLI_DLL
 
 #include "arkcmp/CmpEHCallBack.h"
-#include "NamedSemaphore.h"
-#include "SharedCache.h"
-#include "SqlStats.h"
 #include "cli/Globals.h"
 #include "common/BloomFilter.h"
+#include "common/sqtypes.h"
+#include "common/testCollections.h"
 #include "eh/EHException.h"
 #include "optimizer/ObjectNames.h"
 #include "qmscommon/QRLogger.h"
 #include "qmscommon/Range.h"
+#include "runtimestats/SqlStats.h"
 #include "sqlcomp/CmpISPInterface.h"
-#include "testCollections.h"
+#include "sqlcomp/NamedSemaphore.h"
+#include "sqlcomp/SharedCache.h"
 
 THREAD_P jmp_buf ExportJmpBuf;
 

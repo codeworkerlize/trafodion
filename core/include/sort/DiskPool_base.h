@@ -27,10 +27,10 @@
 
 #include <iostream>
 
-#include "CommonStructs.h"
+#include "sort/CommonStructs.h"
 #include "CommonUtil.h"
-#include "Const.h"
-#include "SortError.h"
+#include "sort/Const.h"
+#include "sort/SortError.h"
 #include "SortUtilCfg.h"
 #include "common/Platform.h"
 #include "export/NABasicObject.h"

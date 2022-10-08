@@ -2,7 +2,7 @@
 #ifndef EXSM_QUEUE_H
 #define EXSM_QUEUE_H
 
-#include "ExSMCommon.h"
+#include "executor/ExSMCommon.h"
 
 class NAMemory;
 

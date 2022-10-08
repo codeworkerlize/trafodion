@@ -25,7 +25,7 @@ extern "C" {}
 
 #include <iostream>
 
-#include "RunDirectory.h"
+#include "sort/RunDirectory.h"
 
 //----------------------------------------------------------------------
 // The class constructor.

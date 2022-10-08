@@ -16,7 +16,7 @@
  *
  *****************************************************************************
  */
-#include <Platform.h>
+#include "common/Platform.h"
 
 #ifdef UDR_DEBUG
 void udrDebug(const char *formatString, ...);

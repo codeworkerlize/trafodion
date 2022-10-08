@@ -18,14 +18,14 @@
 #include "common/Platform.h"
 
 // this file needed for getuid/getpid for UNIX implementation of ComUID
-#include <cextdecs/cextdecs.h>
+#include "common/cextdecs.h"
 #include <stdio.h>
 #include <sys/time.h>
 #include <sys/unistd.h>
 #include <time.h>
 
 #include "CatSQLShare.h"
-#include "ComRegAPI.h"
+#include "common/ComRegAPI.h"
 #include "common/BaseTypes.h"
 #include "common/ComASSERT.h"
 #include "common/ComLocationNames.h"

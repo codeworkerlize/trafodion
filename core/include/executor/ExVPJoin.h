@@ -17,11 +17,11 @@
  */
 
 #include "comexe/ComTdb.h"
-#include "ex_queue.h"
+#include "executor/ex_queue.h"
 #include "executor/ex_globals.h"
 #include "executor/ex_tcb.h"
 #include "exp/ExpCriDesc.h"
-#include "exp/ex_expr.h"
+#include "executor/ex_expr.h"
 
 //
 // OVERVIEW

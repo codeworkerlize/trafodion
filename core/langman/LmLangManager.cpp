@@ -10,7 +10,7 @@
 ******************************************************************************
 */
 
-#include "LmLangManager.h"
+#include "langman/LmLangManager.h"
 
 #include "common/CharType.h"
 #include "common/NumericType.h"

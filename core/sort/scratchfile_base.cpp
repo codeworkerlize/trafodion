@@ -13,9 +13,9 @@
 */
 #include <assert.h>
 
-#include "ScratchFile.h"
-#include "ScratchSpace.h"
-#include "SortError.h"
+#include "sort/ScratchFile.h"
+#include "sort/ScratchSpace.h"
+#include "sort/SortError.h"
 #include "common/str.h"
 #include "executor/ExStats.h"
 #include "executor/ex_stdh.h"

@@ -27,7 +27,7 @@
 #include <iostream>
 
 #include "SortUtil.h"
-#include "ex_ex.h"
+#include "executor/ex_ex.h"
 #include "executor/ExStats.h"
 #include "executor/ex_stdh.h"
 

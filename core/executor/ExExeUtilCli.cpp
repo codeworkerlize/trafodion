@@ -18,9 +18,9 @@
 //#include "common/ComCextdecs.h"
 #include "ExExeUtilCli.h"
 
-#include "ComSqlId.h"
+#include "common/ComSqlId.h"
 #include "cli/cli_stdh.h"
-#include "ex_stdh.h"
+#include "executor/ex_stdh.h"
 #include "sql_id.h"
 OutputInfo::OutputInfo(int numEntries) : numEntries_(numEntries) {
   ex_assert(numEntries <= MAX_OUTPUT_ENTRIES, "try to fetch more than max columns allowed");

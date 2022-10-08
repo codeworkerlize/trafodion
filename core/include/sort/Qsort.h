@@ -77,9 +77,9 @@
 // Added <description of the change>.
 // -----------------------------------------------------------------------
 
-#include "Const.h"
+#include "sort/Const.h"
 #include "SortAlgo.h"
-#include "SortError.h"
+#include "sort/SortError.h"
 #include "TreeNode.h"
 #include "export/NABasicObject.h"
 

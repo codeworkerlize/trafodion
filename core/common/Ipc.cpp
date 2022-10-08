@@ -23,13 +23,13 @@
 #include <time.h>
 #include <unistd.h>  // for getpid()
 
-#include "ExSMCommon.h"
-#include "ExSMGlobals.h"
+#include "executor/ExSMCommon.h"
+#include "executor/ExSMGlobals.h"
 #include "ExSMReadyList.h"
 #include "ExSMTask.h"
-#include "ExSMTrace.h"
+#include "executor/ExSMTrace.h"
 #include "MXTraceDef.h"
-#include "SMConnection.h"
+#include "common/SMConnection.h"
 #include "cli/Context.h"
 #include "cli/Globals.h"
 #include "common/ComASSERT.h"
@@ -49,7 +49,7 @@
 
 NABoolean XAWAITIOX_MINUS_ONE = TRUE;
 
-#include "Ex_esp_msg.h"
+#include "executor/Ex_esp_msg.h"
 #include "common/ComCextdecs.h"
 
 #ifndef FS_MAX_NOWAIT_DEPTH

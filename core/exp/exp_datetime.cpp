@@ -28,7 +28,7 @@
 
 #undef DllImport
 #define DllImport __declspec(dllimport)
-#include "rosetta/rosgen.h"
+
 
 #define ptimez_h_juliantimestamp
 #define ptimez_h_including_section

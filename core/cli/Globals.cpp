@@ -23,11 +23,11 @@
 #include <sys/syscall.h>
 
 #include "cli/CliSemaphore.h"
-#include "ExCextdecs.h"
+#include "executor/ExCextdecs.h"
 #include "executor/ExControlArea.h"
 #include "executor/ExUdrServer.h"
-#include "LmLangManagerC.h"
-#include "LmLangManagerJava.h"
+#include "langman/LmLangManagerC.h"
+#include "langman/LmLangManagerJava.h"
 #include "cli/Context.h"
 #include "cli/ExSqlComp.h"
 #include "cli/Statement.h"

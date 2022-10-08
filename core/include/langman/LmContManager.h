@@ -20,7 +20,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include "LmLangManager.h"
+#include "langman/LmLangManager.h"
 
 //////////////////////////////////////////////////////////////////////
 //

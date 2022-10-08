@@ -41,11 +41,7 @@ class ComExtractProducerInfo : public NAVersionedObject {
   char filler_[56];         // 08-63
 };
 
-// -----------------------------------------------------------------------
-// Template instantiation to produce a 64-bit pointer emulator class
-// for ComExtractProducerInfo
-// -----------------------------------------------------------------------
-typedef NAVersionedObjectPtrTempl<ComExtractProducerInfo> ComExtractProducerInfoPtr;
+
 
 // -----------------------------------------------------------------------
 // A class for information related to parallel extract consumer

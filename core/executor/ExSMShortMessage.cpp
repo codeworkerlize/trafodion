@@ -1,7 +1,7 @@
 
-#include "ExSMShortMessage.h"
+#include "executor/ExSMShortMessage.h"
 
-#include "ExSMGlobals.h"
+#include "executor/ExSMGlobals.h"
 #include "common/Platform.h"
 
 ExSMShortMessage::ExSMShortMessage() {

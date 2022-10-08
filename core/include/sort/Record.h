@@ -20,10 +20,10 @@
 ******************************************************************************
 */
 
-#include "CommonStructs.h"
-#include "Const.h"
-#include "ScratchSpace.h"
-#include "SortError.h"
+#include "sort/CommonStructs.h"
+#include "sort/Const.h"
+#include "sort/ScratchSpace.h"
+#include "sort/SortError.h"
 #include "export/NABasicObject.h"
 
 class Record;

@@ -1,12 +1,12 @@
 
 
-#include "SMConnection.h"
+#include "common/SMConnection.h"
 
-#include "ExSMEvent.h"
-#include "ExSMGlobals.h"
+#include "executor/ExSMEvent.h"
+#include "executor/ExSMGlobals.h"
 #include "ExSMQueue.h"
 #include "ExSMReadyList.h"
-#include "ExSMShortMessage.h"
+#include "executor/ExSMShortMessage.h"
 #include "ExSMTask.h"
 #include "common/NAAssert.h"
 #include "executor/ex_exe_stmt_globals.h"

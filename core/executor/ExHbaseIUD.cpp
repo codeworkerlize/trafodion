@@ -4,7 +4,7 @@
 
 #include <algorithm>
 
-#include "ExHbaseAccess.h"
+#include "executor/ExHbaseAccess.h"
 #include "cli/Context.h"
 #include "comexe/ComTdb.h"
 #include "common/NLSConversion.h"

@@ -14,7 +14,7 @@
  *
  *****************************************************************************
  */
-#include "LmExtFunc.h"
+#include "langman/LmExtFunc.h"
 #include "UdrFFDC.h"
 #include "common/Platform.h"
 

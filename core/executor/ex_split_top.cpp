@@ -15,7 +15,7 @@
  *****************************************************************************
  */
 
-#include "ex_split_top.h"
+#include "executor/ex_split_top.h"
 
 #include "common/ComMemLog.h"
 #include "comexe/ComTdb.h"
@@ -25,7 +25,7 @@
 #include "common/str.h"
 #include "executor/ex_exe_stmt_globals.h"
 #include "executor/ex_frag_rt.h"
-#include "ex_send_top.h"
+#include "executor/ex_send_top.h"
 #include "executor/ExStats.h"
 #include "executor/ex_expr.h"
 #include "executor/ex_stdh.h"
@@ -35,7 +35,7 @@
 #include "key_range.h"
 
 // BertBert VV
-#include "ExCextdecs.h"
+#include "executor/ExCextdecs.h"
 // BertBert ^^
 // #define TRACE_PAPA_DEQUEUE 1
 #ifdef TRACE_PAPA_DEQUEUE

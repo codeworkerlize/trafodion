@@ -6,7 +6,7 @@
 #include <jni.h>
 
 #include "LmJavaExceptionReporter.h"
-#include "LmLangManagerJava.h"
+#include "langman/LmLangManagerJava.h"
 #include "common/Collections.h"
 #include "common/ComSmallDefs.h"
 

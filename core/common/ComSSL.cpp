@@ -1,6 +1,6 @@
 
 
-#include "ComSSL.h"
+#include "common/ComSSL.h"
 void aes_create_key(const unsigned char *input, int input_len, unsigned char *key, int aes_mode) {
   const int key_len = EVP_CIPHER_key_length(aes_algorithm_type[aes_mode]);
 

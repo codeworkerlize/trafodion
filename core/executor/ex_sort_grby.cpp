@@ -20,7 +20,7 @@
 // with a sort aggr/grby operation.
 //
 
-#include "ex_sort_grby.h"
+#include "executor/ex_sort_grby.h"
 
 #include "ExSimpleSqlBuffer.h"
 #include "comexe/ComTdb.h"

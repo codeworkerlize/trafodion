@@ -31,8 +31,8 @@
 #include "exp/exp_clause_derived.h"
 #include "sqlmxevents/logmxevent.h"
 //#include "common/NAString.h"
-#include "guardian/ddctctlz.h"
-#include "guardian/kphandlz.h"
+
+
 #ifndef pdctctlz_h_dct_get_by_name_
 #define pdctctlz_h_dct_get_by_name_  // so that we only get dct_get_by_name
 #endif
@@ -42,8 +42,8 @@
 #ifndef pdctctlz_h_
 #define pdctctlz_h_
 #endif
-#include "guardian/pdctctlz.h"
-//#include "ComRegAPI.h"
+
+//#include "common/ComRegAPI.h"
 
 #include <unistd.h>
 

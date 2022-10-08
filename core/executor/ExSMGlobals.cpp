@@ -1,13 +1,13 @@
 
 
-#include "ExSMGlobals.h"
+#include "executor/ExSMGlobals.h"
 
 #include <errno.h>
 #include <pthread.h>
 #include <signal.h>
 #include <time.h>
 
-#include "ExSMEvent.h"
+#include "executor/ExSMEvent.h"
 #include "ExSMExitHandler.h"
 #include "ExSMReader.h"
 #include "ExSMTask.h"
@@ -16,7 +16,7 @@
 #include "common/ComRtUtils.h"
 #include "common/ComSqlId.h"
 #include "common/Platform.h"
-#include "ex_ex.h"
+#include "executor/ex_ex.h"
 #include "executor/ex_exe_stmt_globals.h"
 #include "exp/ExpErrorEnums.h"
 #include "export/ComDiags.h"

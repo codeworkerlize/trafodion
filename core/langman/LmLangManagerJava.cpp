@@ -9,7 +9,7 @@
 *
 
 **********************************************************************/
-#include "LmLangManagerJava.h"
+#include "langman/LmLangManagerJava.h"
 
 #include <seabed/fs.h>
 #include <seabed/ms.h>
@@ -20,7 +20,7 @@
 #include "LmAssert.h"
 #include "LmContManager.h"
 #include "LmDebug.h"
-#include "LmExtFunc.h"
+#include "langman/LmExtFunc.h"
 #include "LmJavaExceptionReporter.h"
 #include "LmJavaHooks.h"
 #include "LmJavaOptions.h"

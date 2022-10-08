@@ -36,7 +36,7 @@
 #include <nl_types.h>
 #include <signal.h>
 
-#include "ExSMCommon.h"
+#include "executor/ExSMCommon.h"
 #include "common/NLSConversion.h"
 
 // ----------------------------------------------------

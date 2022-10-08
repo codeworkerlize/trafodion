@@ -6,7 +6,7 @@
 #include <fstream>
 #include <iostream>
 
-#include "ex_ex.h"
+#include "executor/ex_ex.h"
 
 extern void ReleaseTupp(void *tupp);
 

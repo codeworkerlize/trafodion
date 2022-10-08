@@ -12,13 +12,13 @@
  *****************************************************************************
  */
 
-#include "UdrExeIpc.h"
+#include "executor/UdrExeIpc.h"
 
 #include <iostream>
 
-#include "CliMsgObj.h"
-#include "ComplexObject.h"
-#include "ExCextdecs.h"
+#include "executor/CliMsgObj.h"
+#include "common/ComplexObject.h"
+#include "executor/ExCextdecs.h"
 #include "common/ComRtUtils.h"
 #include "common/ComTransInfo.h"
 #include "executor/sql_buffer.h"

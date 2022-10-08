@@ -3,6 +3,7 @@
 #ifndef COM_SPLIT_BOTTOM_H
 #define COM_SPLIT_BOTTOM_H
 
+#include "comexe/ComExtractInfo.h"
 #include "comexe/ComTdb.h"
 #include "export/NAVersionedObject.h"
 
@@ -58,6 +59,8 @@ class SplitBottomSkewInfo : public NAVersionedObject {
 typedef NAVersionedObjectPtrTempl<SplitBottomSkewInfo> SplitBottomSkewInfoPtr;
 
 typedef NAVersionedObjectPtrTempl<ComTdbSendBottom> ComTdbSendBottomPtr;
+
+typedef NAVersionedObjectPtrTempl<ComExtractProducerInfo> ComExtractProducerInfoPtr;
 
 ////////////////////////////////////////////////////////////////////////////
 // Task Definition Block for split bottom node

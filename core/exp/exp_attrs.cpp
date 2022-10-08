@@ -21,7 +21,7 @@
 #include "common/NLSConversion.h"
 #include "common/Platform.h"
 #include "common/str.h"
-#include "ex_ex.h"
+#include "executor/ex_ex.h"
 #include "exp/exp_bignum.h"
 #include "exp/exp_clause_derived.h"
 #include "exp/exp_stdh.h"

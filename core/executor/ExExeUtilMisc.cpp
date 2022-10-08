@@ -17,23 +17,23 @@
 
 #include <unistd.h>
 
-#include "ComCextdecs.h"
+#include "common/ComCextdecs.h"
 #include "common/ComRtUtils.h"
-#include "ComSmallDefs.h"
-#include "ComSqlId.h"
-#include "ComTdb.h"
-#include "ExExeUtil.h"
+#include "common/ComSmallDefs.h"
+#include "common/ComSqlId.h"
+#include "comexe/ComTdb.h"
+#include "executor/ExExeUtil.h"
 #include "ExStats.h"
 #include "ExpComposite.h"
 #include "cli/cli_stdh.h"
 #include "executor/ex_exe_stmt_globals.h"
-#include "ex_stdh.h"
-#include "ex_tcb.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_tcb.h"
 #include "ex_transaction.h"
 #include "exp/ExpHbaseInterface.h"
 #include "exp/ExpLOBinterface.h"
-#include "exp_clause_derived.h"
-#include "exp_expr.h"
+#include "exp/exp_clause_derived.h"
+#include "exp/exp_expr.h"
 #include "sql_id.h"
 
 //////////////////////////////////////////////////////////

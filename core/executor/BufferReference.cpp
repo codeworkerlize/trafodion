@@ -8,7 +8,7 @@
 
 #include "BufferReference.h"
 
-#include "ex_ex.h"
+#include "executor/ex_ex.h"
 
 namespace ExOverflow {
 BufferReference::BufferReference(ByteCount bufferSize) : buffer_(NULL), maxOffset_(bufferSize), offset_(0) {}

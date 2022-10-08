@@ -16,9 +16,9 @@
 // *
 // ***************************************************************************
 
-#include "ex_mj.h"
+#include "executor/ex_mj.h"
 
-#include "CommonStructs.h"
+#include "sort/CommonStructs.h"
 #include "comexe/ComQueue.h"
 #include "comexe/ComTdb.h"
 #include "executor/ex_exe_stmt_globals.h"

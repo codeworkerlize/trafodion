@@ -23,13 +23,13 @@
 #include "comexe/ComTdb.h"
 #include "exp/ExpCriDesc.h"
 //#include "executor/ex_tcb.h"
-#include "HashRow.h"
+#include "comexe/HashRow.h"
 #include "ItmBitMuxFunction.h"
 #include "comexe/ComTdbHashGrby.h"
 #include "comexe/ComTdbSortGrby.h"
 #include "common/ComUnits.h"
 #include "executor/sql_buffer_size.h"
-#include "hash_table.h"  // for HashTableHeader
+#include "executor/hash_table.h"  // for HashTableHeader
 #include "sqlcomp/DefaultConstants.h"
 
 //#include "executor/ExStats.h"

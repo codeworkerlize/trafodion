@@ -11,9 +11,9 @@
 
 **********************************************************************/
 
-#include "LmLangManagerC.h"
+#include "langman/LmLangManagerC.h"
 #include "LmParameter.h"
-#include "LmRoutine.h"
+#include "langman/LmRoutine.h"
 #include "sqludr/sqludr.h"
 
 //////////////////////////////////////////////////////////////////////

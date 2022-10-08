@@ -30,7 +30,7 @@
 #include <stddef.h>
 #include <stdio.h>
 
-#include "NAMutex.h"
+#include "common/NAMutex.h"
 #include "common/NAStringDefGlobals.h"
 #include "common/Platform.h"
 #include "export/HeapID.h"

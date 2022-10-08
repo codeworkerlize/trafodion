@@ -11,14 +11,14 @@
 #ifndef SWAPSPACE_H
 #define SWAPSPACE_H
 
-#include <NABasicObject.h>
-#include <SortError.h>
 #include <limits.h>
 
 #include "Allocator.h"
-#include "CommonStructs.h"
-#include "Const.h"
-#include "ExOverflow.h"
+#include "sort/CommonStructs.h"
+#include "sort/Const.h"
+#include "executor/ExOverflow.h"
+#include "export/NABasicObject.h"
+#include "sort/SortError.h"
 
 class ScratchSpace;
 class ExSubtask;

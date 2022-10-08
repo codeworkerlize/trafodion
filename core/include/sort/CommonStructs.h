@@ -22,7 +22,7 @@
 ******************************************************************************
 */
 
-#include <Platform.h>
+#include "common/Platform.h"
 
 // fix later UNIBR4
 #ifdef max

@@ -21,7 +21,7 @@
 #include "exp/exp_clause_derived.h"
 #include "exp/exp_datetime.h"
 #include "export/ComDiags.h"
-#include "str.h"
+#include "common/str.h"
 
 // Single allocation of buf is split up to be used for opstrings,
 // formatting.

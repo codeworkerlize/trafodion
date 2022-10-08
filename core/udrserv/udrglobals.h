@@ -19,7 +19,7 @@
 
 #include <time.h>
 
-#include "UdrExeIpc.h"
+#include "executor/UdrExeIpc.h"
 #include "UdrStreams.h"
 #include "cli/sqlcli.h"
 #include "common/ComSmallDefs.h"

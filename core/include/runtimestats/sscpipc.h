@@ -7,7 +7,7 @@
 **********************************************************************/
 #ifndef _SSCPIPC_H_
 #define _SSCPIPC_H_
-#include "SqlStats.h"
+#include "runtimestats/SqlStats.h"
 #include "common/Ipc.h"
 
 class StatsGlobals;

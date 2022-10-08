@@ -17,7 +17,7 @@
 #ifndef SPINFO_H
 #define SPINFO_H
 
-#include "UdrExeIpc.h"
+#include "executor/UdrExeIpc.h"
 #include "cli/sqlcli.h"
 #include "comexe/QueueIndex.h"
 #include "common/Collections.h"  // needed for NAList

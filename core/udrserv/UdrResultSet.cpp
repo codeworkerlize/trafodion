@@ -12,7 +12,7 @@
  */
 #include "UdrResultSet.h"
 
-#include "LmRoutine.h"
+#include "langman/LmRoutine.h"
 #include "UdrDebug.h"
 #include "UdrFFDC.h"
 #include "cli/SQLCLIdev.h"

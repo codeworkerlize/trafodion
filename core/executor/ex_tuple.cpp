@@ -15,14 +15,14 @@
  *****************************************************************************
  */
 
-#include "ex_tuple.h"
+#include "executor/ex_tuple.h"
 
-#include "ComQueue.h"
-#include "ComTdb.h"
+#include "comexe/ComQueue.h"
+#include "comexe/ComTdb.h"
 #include "ExStats.h"
-#include "ex_expr.h"
-#include "ex_stdh.h"
-#include "ex_tcb.h"
+#include "executor/ex_expr.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_tcb.h"
 
 ///////////////////////////////////////
 // class ExTupleLeafTdb

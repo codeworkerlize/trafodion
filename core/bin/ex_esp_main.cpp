@@ -23,22 +23,22 @@
 #include "common/NAExit.h"
 #include "common/Platform.h"
 #include "common/cextdecs.h"
-#include "ex_esp_frag_dir.h"
+#include "executor/ex_esp_frag_dir.h"
 #include "executor/ex_exe_stmt_globals.h"
-#include "ex_send_bottom.h"
-#include "ex_split_bottom.h"
+#include "executor/ex_send_bottom.h"
+#include "executor/ex_split_bottom.h"
 #include "executor/ex_stdh.h"
 #include "executor/ex_tcb.h"
 #include "exp/ExpError.h"
 #include "porting/PortProcessCalls.h"
 #include "runtimestats/SqlStats.h"
-#include "security/dsecure.h"
+
 #define psecure_h_including_section
 #define psecure_h_security_psb_get_
 #include <errno.h>
 #include <pthread.h>
 
-#include "security/psecure.h"
+
 static pthread_t gv_main_thread_id;
 
 #include "seabed/fs.h"
@@ -50,7 +50,7 @@ DEFINE_DOVERS(tdm_arkesp)
 #include "cli/Context.h"
 #include "common/NAStdlib.h"
 #include "parser/StmtCompilationMode.h"
-#include "rosetta/rosgen.h"
+
 
 // -----------------------------------------------------------------------
 // ESP control connection, handle system messages
@@ -59,9 +59,9 @@ DEFINE_DOVERS(tdm_arkesp)
 #include <sys/syscall.h>
 
 #include "common/zsysc.h"
-#include "nsk/nskprocess.h"
+
 #include "qmscommon/QRLogger.h"
-#include "rosetta/rosgen.h"
+
 
 class EspGuaControlConnection : public GuaReceiveControlConnection {
  public:

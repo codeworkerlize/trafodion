@@ -16,17 +16,17 @@
 
 #include "ex_timeout.h"
 
-#include "ComTdb.h"
-#include "ExSqlComp.h"
+#include "comexe/ComTdb.h"
+#include "cli/ExSqlComp.h"
 #include "cli/cli_stdh.h"
 #include "common/Platform.h"
 #include "executor/ex_exe_stmt_globals.h"
 #include "executor/ex_root.h"
-#include "ex_stdh.h"
-#include "ex_tcb.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_tcb.h"
 #include "executor/ex_error.h"
 #include "executor/timeout_data.h"
-#include "exp_expr.h"
+#include "exp/exp_expr.h"
 
 /////////////////////////////////////////////////////////////////
 // class ExTimeoutTdb, ExTimeoutTcb, ExTimeoutPrivateState

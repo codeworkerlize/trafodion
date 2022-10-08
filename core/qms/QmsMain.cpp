@@ -10,7 +10,7 @@
 #include "QmsRequest.h"
 #include "QueryRewriteServer.h"
 #include "common/Platform.h"
-#include "nsk/nskport.h"
+
 #include "qmscommon/QRDescriptor.h"
 #include "qmscommon/QRLogger.h"
 #include "qmscommon/XMLUtil.h"

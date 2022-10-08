@@ -18,7 +18,7 @@
 ******************************************************************************
 */
 
-#include "ex_ex.h"
+#include "executor/ex_ex.h"
 #include "executor/ExScheduler.h"
 #include "executor/ex_god.h"
 #include "exp/ExpAtp.h"

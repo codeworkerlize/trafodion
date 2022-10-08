@@ -18,8 +18,8 @@
 #include "udrglobals.h"
 
 #include "LmJavaOptions.h"
-#include "LmLangManagerC.h"
-#include "LmLangManagerJava.h"
+#include "langman/LmLangManagerC.h"
+#include "langman/LmLangManagerJava.h"
 #include "Measure.h"
 #include "UdrDebug.h"
 #include "UdrFFDC.h"

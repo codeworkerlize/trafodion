@@ -10,7 +10,7 @@
 #include "QmsMain.h"
 #include "QueryRewriteServer.h"
 #include "common/NAType.h"
-#include "nsk/nskport.h"
+
 #include "qmscommon/QRDescriptor.h"
 #include "qmscommon/QRLogger.h"
 #include "qmscommon/QRSharedPtr.h"

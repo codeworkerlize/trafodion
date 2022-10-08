@@ -13,7 +13,7 @@
 #include "common/ComSqlId.h"
 #include "executor/ExStats.h"
 #include "executor/ex_stdh.h"
-#include "nsk/nskport.h"
+
 #include "porting/PortProcessCalls.h"
 #include "runtimestats/SqlStats.h"
 #include "seabed/fs.h"

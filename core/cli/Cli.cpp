@@ -19,13 +19,13 @@
 #include <stdarg.h>
 #include <time.h>
 
-#include "ComRegAPI.h"
-#include "ExExplain.h"
+#include "common/ComRegAPI.h"
+#include "executor/ExExplain.h"
 #include "executor/ExRsInfo.h"
-#include "LmLangManager.h"
-#include "LmLangManagerC.h"
-#include "LmLangManagerJava.h"
-#include "LmRoutine.h"
+#include "langman/LmLangManager.h"
+#include "langman/LmLangManagerC.h"
+#include "langman/LmLangManagerJava.h"
+#include "langman/LmRoutine.h"
 #include "arkcmp/CmpContext.h"
 #include "cli/ExSqlComp.h"
 #include "cli/sql_id.h"

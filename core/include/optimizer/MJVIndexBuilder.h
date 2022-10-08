@@ -16,7 +16,7 @@
 #ifndef MJV_INDEX_BUILDER_H
 #define MJV_INDEX_BUILDER_H
 
-#include <Collections.h>
+#include "common/Collections.h"
 #include <memory.h>
 
 #include "common/CmpCommon.h"

@@ -346,7 +346,7 @@ class GroupAttributes : public ReferenceCounter {
 
   // Add a reference to the provided ILP, and allocate a corresponding OLP.
   NABoolean addInputOutputLogProp(const EstLogPropSharedPtr &inputLogProp, const EstLogPropSharedPtr &outputLogProp,
-                                  const EstLogPropSharedPtr &intermedOutputLogProp = NULL);
+                                  const EstLogPropSharedPtr &intermedOutputLogProp = {});
 
   void setLogExprForSynthesis(RelExpr *expr) { logExprForSynthesis_ = expr; }
   RelExpr *getLogExprForSynthesis() const { return logExprForSynthesis_; }

@@ -13,7 +13,7 @@
 #include "LmResultSetJava.h"
 
 #include "LmDebug.h"
-#include "LmExtFunc.h"
+#include "langman/LmExtFunc.h"
 #include "LmJavaExceptionReporter.h"
 #include "LmJavaType.h"
 #include "common/Platform.h"

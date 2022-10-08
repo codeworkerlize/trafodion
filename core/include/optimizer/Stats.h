@@ -23,7 +23,7 @@
 // -----------------------------------------------------------------------
 #include <math.h>
 
-#include "EncodedValue.h"
+#include "optimizer/EncodedValue.h"
 #include "common/BaseTypes.h"
 #include "common/Collections.h"
 #include "common/NAType.h"

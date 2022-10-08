@@ -17,9 +17,9 @@
 */
 
 // begining of regular compilation
-#include "cluster.h"
+#include "executor/cluster.h"
 
-#include "SortError.h"
+#include "sort/SortError.h"
 #include "comexe/ComResourceInfo.h"
 #include "executor/ExStats.h"
 #include "sqlmxevents/logmxevent.h"

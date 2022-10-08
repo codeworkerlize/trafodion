@@ -15,8 +15,11 @@
 *************************************************************************
 */
 
-#include "comexe/SqlTableOpenInfo.h"
-#include "optimizer/ObjectNames.h"
+#include "export/NABasicObject.h"
+
+class SqlTableOpenInfo;
+class NARoutine;
+
 
 class OptSqlTableOpenInfo : public NABasicObject {
  public:

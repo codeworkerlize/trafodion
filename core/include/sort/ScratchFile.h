@@ -23,6 +23,6 @@
 #ifndef SCRATCHFILE_H
 #define SCRATCHFILE_H
 
-#include "ScratchFile_base.h"
-#include "ScratchFile_sq.h"
+#include "sort/ScratchFile_base.h"
+#include "sort/ScratchFile_sq.h"
 #endif

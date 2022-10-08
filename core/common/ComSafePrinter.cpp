@@ -16,7 +16,7 @@
 ******************************************************************************
 */
 
-#include "ComSafePrinter.h"
+#include "common/ComSafePrinter.h"
 
 #include <limits.h>
 

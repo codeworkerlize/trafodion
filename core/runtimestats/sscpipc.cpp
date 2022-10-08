@@ -6,13 +6,13 @@
 // Created:      5/02/2006
 **********************************************************************/
 
-#include "sscpipc.h"
+#include "runtimestats/sscpipc.h"
 
 #include <semaphore.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
 
-#include "ExCextdecs.h"
+#include "executor/ExCextdecs.h"
 #include "comexe/ComTdb.h"
 #include "common/ComDistribution.h"
 #include "common/ComSqlId.h"
@@ -21,7 +21,7 @@
 #include "common/zsysc.h"
 #include "executor/ExStats.h"
 #include "executor/ex_stdh.h"
-#include "nsk/nskport.h"
+
 #include "porting/PortProcessCalls.h"
 #include "runtimestats/rts_msg.h"
 #include "seabed/fs.h"

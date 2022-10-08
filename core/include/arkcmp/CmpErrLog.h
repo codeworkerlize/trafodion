@@ -22,6 +22,8 @@
 
 #include <sys/types.h>
 
+#include <cstdio>
+
 #include "common/Platform.h"
 
 // Forward declarations

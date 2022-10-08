@@ -6,6 +6,7 @@
 
 #include "arkcmp/CmpStatement.h"
 #include "common/CmpCommon.h"
+#include "common/NAError.h"
 #include "common/Platform.h"
 #include "sqlci/SqlciParseGlobals.h"
 

@@ -11,7 +11,7 @@
 #include "comexe/ComKeySingleSubset.h"
 #include "comexe/ComTdbHbaseAccess.h"
 #include "ex_mdam.h"
-#include "ex_queue.h"
+#include "executor/ex_queue.h"
 #include "executor/ExDDLValidator.h"
 #include "executor/ExStats.h"
 #include "exp/ExpHbaseDefs.h"

@@ -20,7 +20,7 @@
 // with a hash aggr/grby operation.
 //
 
-#include "ex_hash_grby.h"
+#include "executor/ex_hash_grby.h"
 
 #include "ExBitMapTable.h"
 #include "ExSimpleSqlBuffer.h"

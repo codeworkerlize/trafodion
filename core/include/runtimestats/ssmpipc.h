@@ -9,7 +9,7 @@
 #define _SSMPIPC_H_
 
 #include "CancelBroker.h"
-#include "SqlStats.h"
+#include "runtimestats/SqlStats.h"
 #include "comexe/ComQueue.h"
 #include "common/Collections.h"
 #include "common/Ipc.h"

@@ -12,7 +12,7 @@
 
 // *********************************************************************
 
-#include "hash_table.h"
+#include "executor/hash_table.h"
 
 #include "sqlmxevents/logmxevent.h"
 

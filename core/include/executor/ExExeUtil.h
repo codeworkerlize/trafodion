@@ -20,6 +20,8 @@
 *****************************************************************************
 */
 
+#include "executor/ex_tcb.h"
+
 // forward
 class ex_expr;
 class Queue;

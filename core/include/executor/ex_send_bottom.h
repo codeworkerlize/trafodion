@@ -19,11 +19,11 @@
 
 // -----------------------------------------------------------------------
 
-#include "ExSMCommon.h"
-#include "Ex_esp_msg.h"
+#include "executor/ExSMCommon.h"
+#include "executor/Ex_esp_msg.h"
 #include "comexe/FragDir.h"
 #include "common/Ipc.h"
-#include "ex_split_bottom.h"
+#include "executor/ex_split_bottom.h"
 
 ////////////////////////////////////////////////////////////////////////////
 // forward declarations

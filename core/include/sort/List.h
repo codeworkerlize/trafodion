@@ -1,8 +1,38 @@
 
-#include "List.h"
+#ifndef LIST_H_
+#define LIST_H_
+#include "common/Platform.h"
+#include "export/NABasicObject.h"
+#include "sort/SortError.h"
 
-#include "Const.h"
-#include "ex_ex.h"
+template <class T>
+class ListNode : public NABasicObject {
+ public:
+  ListNode(T thing);
+  void deleteNode();
+  ListNode *next;
+  T item;
+};
+
+template <class T>
+class List : public NABasicObject {
+ public:
+  List();
+  ~List();
+
+  void append(T item, CollHeap *heap);
+  void prepend(T item, CollHeap *heap);
+  void deleteList();
+  T first();
+
+ private:
+  ListNode<T> *head;
+  ListNode<T> *tail;
+  int numItems;
+};
+
+#include "executor/ex_ex.h"
+#include "sort/Const.h"
 
 #if !defined(FORDEBUG) && !defined(NDEBUG)
 #define NDEBUG 1
@@ -84,3 +114,5 @@ T List<T>::first() {
   delete temp;
   return temp2;
 }
+
+#endif

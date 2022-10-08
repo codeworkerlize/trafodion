@@ -2,10 +2,10 @@
 
 #include "ExSMExitHandler.h"
 
-#include "ExSMCommon.h"
-#include "ExSMEvent.h"
-#include "ExSMGlobals.h"
-#include "ExSMShortMessage.h"
+#include "executor/ExSMCommon.h"
+#include "executor/ExSMEvent.h"
+#include "executor/ExSMGlobals.h"
+#include "executor/ExSMShortMessage.h"
 #include "seabed/sm.h"
 
 static uint32_t ExSM_ExitHandlerCount = 0;

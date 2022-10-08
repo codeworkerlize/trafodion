@@ -17,15 +17,15 @@
 ******************************************************************************
 */
 
-#include "ScratchFileMap.h"
+#include "sort/ScratchFileMap.h"
 
 #include <string.h>
 
 #include <iostream>
 
-#include "ScratchFile.h"
+#include "sort/ScratchFile.h"
 #include "common/Platform.h"
-#include "ex_ex.h"
+#include "executor/ex_ex.h"
 
 //----------------------------------------------------------------------
 // The Class constructor. If the number of scratch files is not specified

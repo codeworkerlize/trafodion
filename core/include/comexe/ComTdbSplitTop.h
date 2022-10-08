@@ -34,6 +34,9 @@ class ComTdbSplitTop;
 class ExPartInputDataDesc;
 // class ComTdbPartnAccess;
 
+typedef NAVersionedObjectPtrTempl<ComExtractProducerInfo> ComExtractProducerInfoPtr;
+
+
 ////////////////////////////////////////////////////////////////////////////
 // Task Definition Block for split top node
 ////////////////////////////////////////////////////////////////////////////

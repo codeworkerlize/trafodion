@@ -15,7 +15,7 @@
  */
 #include "sqlcomp/SharedCache.h"
 
-#include "SharedSegment.h"
+#include "sqlcomp/SharedSegment.h"
 #include "arkcmp/CmpContext.h"
 #include "cli/Globals.h"
 #include "comexe/ComQueue.h"

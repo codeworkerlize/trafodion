@@ -12,7 +12,7 @@
 
 #include <iostream>
 
-#include "ExCextdecs.h"
+#include "executor/ExCextdecs.h"
 #include "cli/sqlcli.h"
 #include "common/Platform.h"
 #include "export/IpcMessageObj.h"

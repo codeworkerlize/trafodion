@@ -17,7 +17,7 @@
  ******************************************************************************
  */
 
-#include "ScratchFile.h"
+#include "sort/ScratchFile.h"
 #include "common/Ipc.h"
 class ex_queue;
 #include "executor/ExScheduler.h"

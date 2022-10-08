@@ -3,7 +3,7 @@
 #include "ExSMReadyList.h"
 
 #include "ExSMTask.h"
-#include "ExSMTrace.h"
+#include "executor/ExSMTrace.h"
 
 // NOTE: The SM ready list is accessed by both threads (main and
 // reader) but does not have its own lock. By convention,

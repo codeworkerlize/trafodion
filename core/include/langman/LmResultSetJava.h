@@ -15,7 +15,7 @@
 #define LMRESULTSETJAVA_H
 
 #include "LmConnection.h"
-#include "LmLangManagerJava.h"
+#include "langman/LmLangManagerJava.h"
 #include "LmResultSet.h"
 #include "LmRoutineJava.h"
 #include "common/ComSmallDefs.h"

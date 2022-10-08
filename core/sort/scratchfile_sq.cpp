@@ -18,7 +18,7 @@
 *
 ******************************************************************************
 */
-#include "ScratchFile_sq.h"
+#include "sort/ScratchFile_sq.h"
 
 #include <assert.h>
 #include <errno.h>
@@ -34,7 +34,7 @@
 #include <sys/uio.h>
 #include <unistd.h>
 
-#include "ScratchSpace.h"
+#include "sort/ScratchSpace.h"
 #include "executor/ExStats.h"
 #include "executor/ex_stdh.h"
 

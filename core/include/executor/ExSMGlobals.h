@@ -13,10 +13,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "ExSMCommon.h"
+#include "executor/ExSMCommon.h"
 #include "ExSMReadyList.h"
 #include "ExSMTaskList.h"
-#include "ExSMTrace.h"
+#include "executor/ExSMTrace.h"
 
 class ExSMGlobals;
 class ComDiagsArea;

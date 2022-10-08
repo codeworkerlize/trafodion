@@ -13,7 +13,7 @@
 **********************************************************************/
 #include "LmDebug.h"
 
-#include "LmExtFunc.h"
+#include "langman/LmExtFunc.h"
 #include "common/Platform.h"
 
 #ifdef LM_DEBUG

@@ -1,7 +1,6 @@
 
 
-#include "common/BaseTypes.h"
-
+#include "common/NAExit.h"
 #include "common/Platform.h"
 #include "sqlci/SqlciParseGlobals.h"
 #ifdef SQLPARSERGLOBALS_FLAGS
@@ -17,10 +16,10 @@
 #include "seabed/ms.h"
 extern void my_mpi_fclose();
 
-#include "common/SQLTypeDefs.h"
 #include "arkcmp/CompException.h"
 #include "cli/sqlcli.h"
 #include "common/ComSmallDefs.h"
+#include "common/SQLTypeDefs.h"
 #include "common/charinfo.h"
 #include "common/dfs2rec.h"
 #include "common/str.h"

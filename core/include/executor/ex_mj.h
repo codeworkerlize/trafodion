@@ -23,8 +23,8 @@
 class Queue;
 
 #include "ExDupSqlBuffer.h"
-#include "ExOverflow.h"
-#include "TupleSpace.h"
+#include "executor/ExOverflow.h"
+#include "executor/TupleSpace.h"
 #include "exp/exp_expr.h"
 
 /////////////////////////////////////////////

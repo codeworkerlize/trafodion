@@ -54,11 +54,11 @@
 
 #include "ExUdrClientIpc.h"
 #include "executor/ExUdrServer.h"
-#include "UdrExeIpc.h"
+#include "executor/UdrExeIpc.h"
 #include "cli/Statement.h"
 #include "common/ComSmallDefs.h"
 #include "common/NAMemory.h"
-#include "ex_ex.h"
+#include "executor/ex_ex.h"
 #include "executor/ex_exe_stmt_globals.h"
 
 #ifdef _DEBUG

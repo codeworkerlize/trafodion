@@ -18,7 +18,7 @@
 #include <time.h>
 
 #include "LmParameter.h"
-#include "LmRoutine.h"
+#include "langman/LmRoutine.h"
 #include "LmRoutineCSqlRowTM.h"
 #include "UdrResultSet.h"
 #include "UdrStreams.h"
@@ -27,7 +27,7 @@
 #include "common/Platform.h"
 #include "common/str.h"
 #include "dtm/tm.h"
-#include "ex_queue.h"
+#include "executor/ex_queue.h"
 #include "executor/sql_buffer.h"
 #include "optimizer/UdfDllInteraction.h"
 #include "sqludr/sqludr.h"

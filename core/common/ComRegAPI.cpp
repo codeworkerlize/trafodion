@@ -13,7 +13,7 @@
  *****************************************************************************
  */
 
-#include "ComRegAPI.h"
+#include "common/ComRegAPI.h"
 
 #include <stdio.h>
 #include <stdlib.h>

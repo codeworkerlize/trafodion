@@ -21,9 +21,9 @@
 
 #include <string.h>
 
-#include "CommonStructs.h"
-#include "ScratchFile.h"
-#include "SortError.h"
+#include "sort/CommonStructs.h"
+#include "sort/ScratchFile.h"
+#include "sort/SortError.h"
 #include "common/Platform.h"
 #include "export/NABasicObject.h"
 

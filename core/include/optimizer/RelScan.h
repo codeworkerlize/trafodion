@@ -137,7 +137,7 @@ calculate cost of index join.
 class IndexProperty : public NABasicObject {
  public:
   IndexProperty(IndexDesc *index, MdamFlags mdamFlag = MDAM_ON, IndexJoinSelectivityEnum selectivity = INDEX_ONLY_INDEX,
-                EstLogPropSharedPtr inELP = NULL)
+                EstLogPropSharedPtr inELP = {})
       : index_(index), mdamFlag_(mdamFlag), selectivityEnum_(selectivity), inputEstLogProp_(inELP) {}
 
   // mutator functions

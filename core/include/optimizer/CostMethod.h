@@ -924,9 +924,9 @@ class CostMethodJoin : public CostMethod {
   CostMethodJoin(const char *className = "CostMethodJoin")
       : CostMethod(className),
         isColStatsMeaningful_(FALSE),
-        child0EquiJoinColStats_(NULL),
-        child1EquiJoinColStats_(NULL),
-        mergedEquiJoinColStats_(NULL),
+        child0EquiJoinColStats_{},
+        child1EquiJoinColStats_{},
+        mergedEquiJoinColStats_{},
         maxDegreeOfParallelism_(csZero),
         hasEquiJoinPred_(FALSE) {}
 

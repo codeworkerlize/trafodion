@@ -14,7 +14,7 @@ using namespace QR;
 
 #include <sys/time.h>
 
-#include "nsk/nskprocess.h"
+
 #include "seabed/fs.h"
 #include "seabed/int/opts.h"
 #include "seabed/ms.h"

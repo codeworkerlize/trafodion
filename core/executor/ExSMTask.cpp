@@ -2,7 +2,7 @@
 
 #include "ExSMTask.h"
 
-#include "ExSMGlobals.h"
+#include "executor/ExSMGlobals.h"
 #include "ExSMQueue.h"
 #include "ExSMReadyList.h"
 #include "ExSMTaskList.h"

@@ -10,7 +10,7 @@
 #include "QRIpc.h"
 #include "QmsRequest.h"
 #include "common/Collections.h"
-#include "nsk/nskprocess.h"
+
 #include "qmscommon/QRLogger.h"
 #include "seabed/fs.h"
 #include "seabed/int/opts.h"

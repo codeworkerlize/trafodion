@@ -43,14 +43,15 @@
 #include <iostream>
 
 #include "common/ComSpace.h"
+#include "common/NAExit.h"
 #include "common/str.h"
 #include "seabed/fs.h"
+#include "seabed/ms.h"
 
 #ifdef TRACE_DP2_MALLOCS  // Only works for NT.
 #include <fstream>
 #endif
 
-#include "SharedSegment.h"
 #include "common/ComRtUtils.h"
 #include "common/DLock.h"
 #include "common/NAAssert.h"
@@ -59,6 +60,7 @@
 #include "parser/StmtCompilationMode.h"
 #include "sqlci/SqlciParseGlobals.h"
 #include "sqlcomp/NamedSemaphore.h"
+#include "sqlcomp/SharedSegment.h"
 
 #ifdef _DEBUG
 //-------------------------------------------------------------------------//
@@ -115,8 +117,8 @@ struct DeallocTraceEntry {
 UInt32 THREAD_P deallocTraceIndex = deallocTraceEntries - 1, deallocCount = 0;
 THREAD_P DeallocTraceEntry (*deallocTraceArray)[deallocTraceEntries] = 0;
 
-#include "NAMutex.h"
 #include "common/NAMemory.h"
+#include "common/NAMutex.h"
 #ifdef _DEBUG
 #include "common/Collections.h"
 #endif  // _DEBUG
@@ -623,7 +625,7 @@ NAMemory::NAMemory(const char *name)
       sharedMemory_(FALSE),
       useSemaphore_(FALSE),
       heapStartAddr_(NULL),
-      heapStartOffset_(NULL),
+      heapStartOffset_(0),
       namedSemaphore_(NULL),
       namedSem_(NULL),
       lockController_(NULL),
@@ -678,7 +680,7 @@ NAMemory::NAMemory(const char *name, NAHeap *parent, size_t blockSize, size_t up
       sharedMemory_(FALSE),
       useSemaphore_(FALSE),
       heapStartAddr_(NULL),
-      heapStartOffset_(NULL),
+      heapStartOffset_(0),
       namedSemaphore_(NULL),
       namedSem_(NULL),
       lockController_(NULL),
@@ -740,7 +742,7 @@ NAMemory::NAMemory(const char *name, NAMemoryType type, size_t blockSize, size_t
       sharedMemory_(FALSE),
       useSemaphore_(FALSE),
       heapStartAddr_(NULL),
-      heapStartOffset_(NULL),
+      heapStartOffset_(0),
       namedSemaphore_(NULL),
       namedSem_(NULL),
       lockController_(NULL),
@@ -1896,44 +1898,6 @@ NABlock *NAHeap::allocateBlock(size_t size, NABoolean failureIsFatal) {
         }
 
         p = (NABlock *)parent_->allocateHeapMemory(blockSize, FALSE);
-
-        if (p == NULL)
-        // Unit tested this code with the test case in QC 1387
-        // - 3/22/2012.
-        {
-          // Exhausted shared segment. Prevent cascade of core-files by
-          // making one core-file of myself while holding semaphore.
-          // Then bring down this node.
-          genLinuxCorefile("Shared Segment might be full");
-          int nid = 0;
-          int pid = 0;
-          if (XZFIL_ERR_OK == msg_mon_get_my_info(&nid, &pid, NULL, 0, NULL, NULL, NULL, NULL)) {
-            // The SSMP is responsible for preventing leaks. So get a
-            // corefile of it.
-            char ssmpName[MS_MON_MAX_PROCESS_NAME];
-            memset(ssmpName, 0, MS_MON_MAX_PROCESS_NAME);
-            if (XZFIL_ERR_OK == XPROCESSHANDLE_DECOMPOSE_(getMySsmpPhandle(), NULL  // cpu
-                                                          ,
-                                                          NULL  // pin
-                                                          ,
-                                                          NULL  // nodenumber
-                                                          ,
-                                                          NULL  // nodename
-                                                          ,
-                                                          0  // nodename_maxlen
-                                                          ,
-                                                          NULL  // nodename_length
-                                                          ,
-                                                          ssmpName, sizeof(ssmpName))) {
-              char coreFile[1024];
-              msg_mon_dump_process_name(NULL, ssmpName, coreFile);
-            }
-            int ndRetcode = msg_mon_node_down2(nid, "RMS shared segment is exhausted.");
-            sleep(30);
-            NAExit(0);  // already made a core.
-          } else
-            assert(p != NULL);
-        }
 
         if (!namedSemaphoreLocked && retcode == 1) releaseRTSSemaphore();
 

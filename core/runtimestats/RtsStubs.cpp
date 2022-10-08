@@ -12,7 +12,7 @@
  *****************************************************************************
  */
 #include "common/BaseTypes.h"
-#include "ex_ex.h"
+#include "executor/ex_ex.h"
 
 // Turn off code coverage collection for these stubs.
 extern "C" {

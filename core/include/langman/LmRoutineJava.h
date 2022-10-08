@@ -15,10 +15,10 @@
 #include "LmConnection.h"
 #include "LmContManager.h"
 #include "LmJavaType.h"
-#include "LmLangManagerJava.h"
+#include "langman/LmLangManagerJava.h"
 #include "LmParameter.h"
 #include "LmResultSetJava.h"
-#include "LmRoutine.h"
+#include "langman/LmRoutine.h"
 #include "common/ComSmallDefs.h"
 #include "common/NABoolean.h"
 

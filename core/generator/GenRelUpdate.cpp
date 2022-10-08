@@ -19,7 +19,7 @@
 
 #include "ComTdbDp2Oper.h"
 #include "GenExpGenerator.h"
-#include "HashRow.h"
+#include "comexe/HashRow.h"
 #include "PartFunc.h"
 #include "arkcmp/CmpStatement.h"
 #include "comexe/ComTdbHbaseAccess.h"

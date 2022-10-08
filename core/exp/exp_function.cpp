@@ -23,7 +23,7 @@
 #include <unistd.h>
 #include <zlib.h>
 
-#include "ComSSL.h"
+#include "common/ComSSL.h"
 #include "common/Platform.h"
 #define MathSqrt(op, err) sqrt(op)
 
@@ -63,7 +63,7 @@
 #include "seabed/sys.h"
 #undef DllImport
 #define DllImport __declspec(dllimport)
-#include "rosetta/rosgen.h"
+
 
 #define ptimez_h_juliantimestamp
 #define ptimez_h_including_section
@@ -101,10 +101,10 @@ Section missing,
 #define psecure_h_security_app_priv_
 #define psecure_h_security_psb_get_
 #define psecure_h_security_ntuser_set_
-#include "security/psecure.h"
+
 #ifndef dsecure_h_INCLUDED
 #define dsecure_h_INCLUDED
-#include "security/dsecure.h"
+
 #endif
 #include "common/feerrors.h"
 #include "exp_numberformat.h"

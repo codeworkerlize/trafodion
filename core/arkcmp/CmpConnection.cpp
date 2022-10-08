@@ -14,6 +14,7 @@
 #include "common/CmpCommon.h"
 #include "common/Ipc.h"
 #include "common/NAExit.h"
+#include "common/sqtypes.h"
 #include "optimizer/CostMethod.h"
 #include "optimizer/opt.h"
 #include "parser/SqlParserGlobals.h"

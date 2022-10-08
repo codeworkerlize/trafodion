@@ -26,8 +26,8 @@
 ******************************************************************************
 */
 
-#include "CommonStructs.h"
-#include "Const.h"
+#include "sort/CommonStructs.h"
+#include "sort/Const.h"
 #include "comexe/ComResourceInfo.h"
 #include "export/NABasicObject.h"
 

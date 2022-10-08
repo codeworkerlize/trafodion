@@ -26,10 +26,10 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 
-#include "ExCextdecs.h"
+#include "executor/ExCextdecs.h"
 #include "cli/Globals.h"
 #include "common/Ipc.h"
-#include "ex_ex.h"
+#include "executor/ex_ex.h"
 #include "executor/ExStats.h"
 #include "executor/ex_stdh.h"
 #include "porting/PortProcessCalls.h"
@@ -37,7 +37,7 @@
 #include "runtimestats/rts_msg.h"
 #include "seabed/fs.h"
 #include "seabed/ms.h"
-#include "sscpipc.h"
+#include "runtimestats/sscpipc.h"
 extern void my_mpi_fclose();
 #include "common/SCMVersHelp.h"
 DEFINE_DOVERS(mxsscp)

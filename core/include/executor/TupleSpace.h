@@ -21,9 +21,9 @@ class ExSubtask;
 #include "Allocator.h"
 #include "BufferList.h"
 #include "BufferReference.h"
-#include "CommonStructs.h"
-#include "ExOverflow.h"
-#include "SwapSpace.h"
+#include "sort/CommonStructs.h"
+#include "executor/ExOverflow.h"
+#include "executor/SwapSpace.h"
 #include "export/NABasicObject.h"
 
 namespace ExOverflow {

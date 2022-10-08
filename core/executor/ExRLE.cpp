@@ -19,7 +19,7 @@
  *****************************************************************************
  */
 
-#include "ExRLE.h"
+#include "executor/ExRLE.h"
 
 int ExEncode(unsigned char *dbuf, int dlen, unsigned char *ebuf, int *elen, int flags) {
   int c = EOFCHAR, p = EOFCHAR;

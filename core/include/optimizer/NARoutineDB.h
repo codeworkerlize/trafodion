@@ -2,6 +2,7 @@
 #ifndef NAROUTINEDB_H
 #define NAROUTINEDB_H
 
+#include "cli/sqlcli.h"
 #include "common/Collections.h"
 #include "common/NAMemory.h"
 #include "optimizer/ObjectNames.h"

@@ -20,7 +20,7 @@
 
 // -----------------------------------------------------------------------
 
-#include "ex_queue.h"
+#include "executor/ex_queue.h"
 
 class ControlInfo {
  public:

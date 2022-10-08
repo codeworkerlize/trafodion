@@ -20,14 +20,14 @@
 //       of not using "long" explicitly) because  DWORD may already be
 //       defined as "unsigned long" by a system header file.
 
-#include "CommonStructs.h"
+#include "sort/CommonStructs.h"
 #include "CommonUtil.h"
-#include "Const.h"
+#include "sort/Const.h"
 #include "ScratchFileConnection.h"
-#include "SortError.h"
+#include "sort/SortError.h"
 #include "common/Int64.h"
 #include "export/NABasicObject.h"
-#include "stfs/stfslib.h"
+
 
 class IpcEnvironment;
 class ScratchFileConnection;

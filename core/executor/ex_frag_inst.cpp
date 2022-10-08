@@ -19,7 +19,7 @@
 
 #include "executor/ex_frag_inst.h"
 
-#include "Ex_esp_msg.h"
+#include "executor/Ex_esp_msg.h"
 #include "common/ExCollections.h"
 #include "common/Ipc.h"
 

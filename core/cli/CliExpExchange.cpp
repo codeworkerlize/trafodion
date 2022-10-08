@@ -21,7 +21,7 @@
 #include <assert.h>
 #endif
 
-#include "ExRLE.h"
+#include "executor/ExRLE.h"
 #include "cli/cli_stdh.h"
 #include "executor/ex_stdh.h"
 #include "exp/exp_clause_derived.h"

@@ -17,7 +17,7 @@
  *****************************************************************************
  */
 
-#include "cluster.h"
+#include "executor/cluster.h"
 #include "executor/ExStats.h"
 /////////////////////////////////////////////////////////////////////////////
 // Task Definition Block
@@ -26,7 +26,7 @@
 #include "comexe/ComTdbHashj.h"
 
 #ifdef NEED_INSTRUMENT_HASHJ
-#include "Timer.h"
+#include "common/Timer.h"
 #include "ttime.h"
 #endif
 

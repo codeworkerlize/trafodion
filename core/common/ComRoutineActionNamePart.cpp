@@ -16,7 +16,7 @@
  *****************************************************************************
  */
 
-#include "ComRoutineActionNamePart.h"
+#include "common/ComRoutineActionNamePart.h"
 
 #include "common/ComASSERT.h"
 #include "common/nawstring.h"

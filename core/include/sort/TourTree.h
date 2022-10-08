@@ -21,11 +21,11 @@
 ******************************************************************************
 */
 
-#include "CommonStructs.h"
-#include "Const.h"
-#include "ScratchSpace.h"
+#include "sort/CommonStructs.h"
+#include "sort/Const.h"
+#include "sort/ScratchSpace.h"
 #include "SortAlgo.h"
-#include "SortError.h"
+#include "sort/SortError.h"
 #include "TreeNode.h"
 #include "export/NABasicObject.h"
 

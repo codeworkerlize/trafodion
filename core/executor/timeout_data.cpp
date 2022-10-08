@@ -18,7 +18,7 @@
 
 #include "comexe/ComTdbRoot.h"
 #include "common/NAStdlib.h"  // Redefines strcpy(), strncpy(), strcmp() for SRLs
-#include "ex_ex.h"            // for ex_assert()
+#include "executor/ex_ex.h"            // for ex_assert()
 
 //**********************************************************************
 // methods for TimeoutHashTable

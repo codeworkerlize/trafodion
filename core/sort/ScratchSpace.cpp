@@ -33,8 +33,8 @@
 //-----------------------------------------------------------------------
 // Product Include files.
 //-----------------------------------------------------------------------
-#include "ScratchFileMap.h"
-#include "ScratchSpace.h"
+#include "sort/ScratchFileMap.h"
+#include "sort/ScratchSpace.h"
 #include "common/ComDistribution.h"
 #include "executor/ex_exe_stmt_globals.h"
 #include "executor/ExStats.h"

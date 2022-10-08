@@ -20,7 +20,7 @@
 #include "comexe/ComTdb.h"
 #include "executor/ex_stdh.h"
 #include "executor/ex_tcb.h"
-#include "exp/ex_expr.h"
+#include "executor/ex_expr.h"
 
 // External forward declarations
 //

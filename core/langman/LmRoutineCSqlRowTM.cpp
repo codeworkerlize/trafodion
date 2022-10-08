@@ -9,7 +9,7 @@
 */
 #include "LmRoutineCSqlRowTM.h"
 
-#include "LmLangManagerC.h"
+#include "langman/LmLangManagerC.h"
 #include "LmParameter.h"
 
 // SQLROWTM function declaration

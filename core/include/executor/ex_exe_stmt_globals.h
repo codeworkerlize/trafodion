@@ -28,7 +28,7 @@
 #include "common/ExCollections.h"
 #include "common/Int64.h"
 #include "common/Platform.h"
-#include "ex_esp_frag_dir.h"
+#include "executor/ex_esp_frag_dir.h"
 #include "executor/ex_frag_inst.h"
 #include "executor/ex_globals.h"
 #include "executor/timeout_data.h"

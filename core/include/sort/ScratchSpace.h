@@ -23,12 +23,12 @@
 *
 ******************************************************************************/
 
-#include "CommonStructs.h"
-#include "Const.h"
-#include "DiskPool.h"
-#include "RunDirectory.h"
-#include "ScratchFileMap.h"
-#include "SortError.h"
+#include "sort/CommonStructs.h"
+#include "sort/Const.h"
+#include "sort/DiskPool.h"
+#include "sort/RunDirectory.h"
+#include "sort/ScratchFileMap.h"
+#include "sort/SortError.h"
 #include "common/Int64.h"
 #include "export/NABasicObject.h"
 

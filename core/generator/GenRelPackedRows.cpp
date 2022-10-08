@@ -2,7 +2,7 @@
 #include "GenExpGenerator.h"
 #include "RelPackedRows.h"
 #include "comexe/ComTdbUnPackRows.h"
-#include "ex_queue.h"
+#include "executor/ex_queue.h"
 #include "exp/ExpCriDesc.h"
 #include "generator/Generator.h"
 #include "optimizer/AllRelExpr.h"

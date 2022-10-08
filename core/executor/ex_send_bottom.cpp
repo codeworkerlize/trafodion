@@ -16,19 +16,19 @@
 
 // -----------------------------------------------------------------------
 
-#include "ex_send_bottom.h"
+#include "executor/ex_send_bottom.h"
 
-#include "ExSMCommon.h"
-#include "ExSMTrace.h"
-#include "SMConnection.h"
+#include "executor/ExSMCommon.h"
+#include "executor/ExSMTrace.h"
+#include "common/SMConnection.h"
 #include "cli/cli_stdh.h"
 #include "comexe/ComTdb.h"
 #include "common/BaseTypes.h"
 #include "common/str.h"
-#include "ex_esp_frag_dir.h"
+#include "executor/ex_esp_frag_dir.h"
 #include "executor/ex_exe_stmt_globals.h"
 #include "ex_io_control.h"
-#include "ex_send_top.h"
+#include "executor/ex_send_top.h"
 #include "executor/ExStats.h"
 #include "executor/ex_expr.h"
 #include "executor/ex_stdh.h"

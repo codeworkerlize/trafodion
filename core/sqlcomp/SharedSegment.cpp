@@ -1,6 +1,6 @@
 
 
-#include "SharedSegment.h"
+#include "sqlcomp/SharedSegment.h"
 
 #include <assert.h>
 #include <errno.h>

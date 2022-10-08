@@ -28,7 +28,7 @@
 #include "exp/exp_expr.h"
 
 // wait method need more include files
-#include "ExCextdecs.h"
+#include "executor/ExCextdecs.h"
 #include "common/ComRtUtils.h"
 #include "common/ComSqlcmpdbg.h"
 #include "common/Ipc.h"

@@ -17,7 +17,7 @@
 
 // -----------------------------------------------------------------------
 
-#include "Ex_esp_msg.h"
+#include "executor/Ex_esp_msg.h"
 
 #include "comexe/LateBindInfo.h"
 #include "common/ComRtUtils.h"

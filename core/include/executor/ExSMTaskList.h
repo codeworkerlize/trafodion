@@ -4,7 +4,7 @@
 
 #include <pthread.h>
 
-#include "ExSMCommon.h"
+#include "executor/ExSMCommon.h"
 
 class ExSMTask;
 class ExSMTaskList;

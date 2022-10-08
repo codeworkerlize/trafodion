@@ -20,11 +20,11 @@
 
 #include "ex_key_object.h"
 
-#include "ComTdb.h"
-#include "ex_expr.h"
-#include "ex_stdh.h"
-#include "ex_tcb.h"
-#include "str.h"
+#include "comexe/ComTdb.h"
+#include "executor/ex_expr.h"
+#include "executor/ex_stdh.h"
+#include "executor/ex_tcb.h"
+#include "common/str.h"
 
 
 KeyObject::KeyObject(ex_expr * lkey_expr, ex_expr * hkey_expr,

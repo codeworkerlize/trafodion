@@ -21,10 +21,11 @@
 #endif
 #include <errno.h>
 
-#include "ExCextdecs.h"
 #include "cli/Globals.h"
 #include "common/Ipc.h"
-#include "ex_ex.h"
+#include "common/NAExit.h"
+#include "executor/ExCextdecs.h"
+#include "executor/ex_ex.h"
 #include "porting/PortProcessCalls.h"
 #include "runtimestats/SqlStats.h"
 #include "runtimestats/rts_msg.h"

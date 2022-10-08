@@ -59,7 +59,7 @@ need to be executed in the mxlobsrvr process, the sqstart/sqstop need to modifie
 #include "cli/Globals.h"
 #include "common/NAExit.h"
 #include "common/SCMVersHelp.h"
-#include "ex_ex.h"  // ex_assert
+#include "executor/ex_ex.h"  // ex_assert
 
 #define SQ_USE_LOB_PROCESS 1
 #include "qmscommon/QRLogger.h"

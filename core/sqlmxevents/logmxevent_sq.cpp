@@ -22,7 +22,7 @@
 
 #include "common/NLSConversion.h"
 #include "common/str.h"
-#include "rosetta/rosgen.h"
+
 #include "sqlmxevents/logmxevent.h"
 #ifdef _MSC_VER
 #undef _MSC_VER

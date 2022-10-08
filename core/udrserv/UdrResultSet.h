@@ -15,7 +15,7 @@
 
 #include "LmParameter.h"
 #include "LmResultSet.h"
-#include "UdrExeIpc.h"
+#include "executor/UdrExeIpc.h"
 #include "comexe/QueueIndex.h"
 #include "common/ComSmallDefs.h"
 #include "common/NAType.h"

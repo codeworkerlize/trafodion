@@ -23,9 +23,9 @@
 
 // beginning of regular compilation
 
-#include "ex_hashj.h"
+#include "executor/ex_hashj.h"
 
-#include "CommonStructs.h"
+#include "sort/CommonStructs.h"
 #include "comexe/ComTdb.h"
 #include "common/BaseTypes.h"
 #include "common/OperTypeEnum.h"

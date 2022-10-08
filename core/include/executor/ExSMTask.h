@@ -2,7 +2,7 @@
 #ifndef EXSM_TASK_H
 #define EXSM_TASK_H
 
-#include "ExSMCommon.h"
+#include "executor/ExSMCommon.h"
 
 class ExSMTask;
 class ExSMTaskList;

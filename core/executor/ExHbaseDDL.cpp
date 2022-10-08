@@ -2,7 +2,7 @@
 
 // **********************************************************************
 
-#include "ExHbaseAccess.h"
+#include "executor/ExHbaseAccess.h"
 #include "common/SQLTypeDefs.h"
 #include "cli/ExSqlComp.h"
 #include "cli/cli_stdh.h"

@@ -10,7 +10,7 @@
 
 #include <semaphore.h>
 
-#include "Ex_esp_msg.h"
+#include "executor/Ex_esp_msg.h"
 #include "cli/Globals.h"
 #include "cli/Statement.h"
 #include "comexe/ComQueue.h"
@@ -23,7 +23,7 @@
 #include "executor/ExStats.h"
 #include "executor/ex_stdh.h"
 #include "export/ComDiags.h"
-#include "nsk/nskport.h"
+
 #include "porting/PortProcessCalls.h"
 #include "runtimestats/SqlStats.h"
 

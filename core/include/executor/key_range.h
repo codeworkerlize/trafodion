@@ -19,7 +19,7 @@
 
 // -----------------------------------------------------------------------
 
-#include "ex_ex.h"
+#include "executor/ex_ex.h"
 #include "executor/ex_error.h"
 #include "exp/ExpSqlTupp.h"
 

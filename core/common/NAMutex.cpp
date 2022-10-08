@@ -1,6 +1,6 @@
 // ***********************************************************************
 
-#include "NAMutex.h"
+#include "common/NAMutex.h"
 
 #include "common/NAAssert.h"
 

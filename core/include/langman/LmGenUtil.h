@@ -13,7 +13,7 @@
 *
 ******************************************************************************
 */
-#include "LmLangManager.h"
+#include "langman/LmLangManager.h"
 
 LmResult setLMObjectMapping(const char *routineSig, ComBoolean objMapArray[], ComUInt32 total);
 

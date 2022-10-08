@@ -11,10 +11,10 @@
 ******************************************************************************
 */
 
-#include "Const.h"
+#include "sort/Const.h"
 #include "Record.h"
 #include "SortAlgo.h"
-#include "SortError.h"
+#include "sort/SortError.h"
 #include "export/NABasicObject.h"
 
 class SortUtil;

@@ -1,6 +1,6 @@
 
 
-#include "ExSMTrace.h"
+#include "executor/ExSMTrace.h"
 
 #include <limits.h>
 #include <stdarg.h>
@@ -10,8 +10,8 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "ExSMCommon.h"
-#include "ExSMGlobals.h"
+#include "executor/ExSMCommon.h"
+#include "executor/ExSMGlobals.h"
 
 __thread bool EXSM_TRACE_ENABLED = false;
 

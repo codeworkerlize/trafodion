@@ -31,7 +31,7 @@
 #include <unistd.h>  // on OSS, bsearch comes from unistd.h
 #endif
 
-#include "nsk/nskport.h"
+
 
 #if !defined(NDEBUG)
 #endif

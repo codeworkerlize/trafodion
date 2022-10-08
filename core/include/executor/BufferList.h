@@ -11,11 +11,10 @@
 #ifndef BUFFERLIST_H
 #define BUFFERLIST_H
 
-#include <ComQueue.h>
-#include <NABasicObject.h>
-#include <NAType.h>
-
-#include "ExOverflow.h"
+#include "comexe/ComQueue.h"
+#include "common/NAType.h"
+#include "executor/ExOverflow.h"
+#include "export/NABasicObject.h"
 
 namespace ExOverflow {
 

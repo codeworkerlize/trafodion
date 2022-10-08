@@ -14,7 +14,7 @@
 #undef ydialect_
 //
 
-#include "rosetta/rosgen.h" /* rosetta utilities */
+ /* rosetta utilities */
 
 // #pragma page "Messages -- Dialect Description Format"
 //

@@ -1,6 +1,6 @@
 
 
-#include "ExSMCommon.h"
+#include "executor/ExSMCommon.h"
 
 #include <limits.h>
 #include <pthread.h>
@@ -11,11 +11,11 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "ExSMEvent.h"
-#include "ExSMGlobals.h"
+#include "executor/ExSMEvent.h"
+#include "executor/ExSMGlobals.h"
 #include "ExSMTask.h"
-#include "ExSMTrace.h"
-#include "Ex_esp_msg.h"
+#include "executor/ExSMTrace.h"
+#include "executor/Ex_esp_msg.h"
 #include "comexe/ComQueue.h"
 #include "common/Ipc.h"
 #include "common/Platform.h"

@@ -23,9 +23,9 @@
 
 #include <fstream>
 
-#include "CommonStructs.h"
-#include "Const.h"
-#include "ScratchSpace.h"
+#include "sort/CommonStructs.h"
+#include "sort/Const.h"
+#include "sort/ScratchSpace.h"
 #include "common/str.h"
 #include "export/NABasicObject.h"
 

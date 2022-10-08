@@ -15,7 +15,7 @@
 
 #define SQLPARSERGLOBALS_NADEFAULTS
 
-#include "ComSSL.h"
+#include "common/ComSSL.h"
 #include "arkcmp/CmpErrors.h"
 #include "arkcmp/CmpStatement.h"
 #include "common/ComSqlId.h"

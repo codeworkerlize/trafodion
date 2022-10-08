@@ -19,9 +19,9 @@
 *
 ******************************************************************************
 */
-#include "ScratchFile_base.h"
+#include "sort/ScratchFile_base.h"
 #include "common/Platform.h"
-#include "stfs/stfslib.h"
+
 
 typedef enum { PEND_NONE, PEND_READ, PEND_WRITE } EPendingIOType;
 

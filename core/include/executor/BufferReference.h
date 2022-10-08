@@ -9,9 +9,9 @@
 #ifndef BUFFERREFERENCE_H
 #define BUFFERREFERENCE_H
 
-#include <NABasicObject.h>
+#include "export/NABasicObject.h"
 
-#include "ExOverflow.h"
+#include "executor/ExOverflow.h"
 
 namespace ExOverflow {
 class BufferReference : public NABasicObject {

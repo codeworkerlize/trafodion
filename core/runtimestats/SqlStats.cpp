@@ -20,14 +20,14 @@
 #include <sys/types.h>
 #include <time.h>
 
-#include "ExCextdecs.h"
-#include "SharedSegment.h"
+#include "executor/ExCextdecs.h"
+#include "sqlcomp/SharedSegment.h"
 #include "cli/sql_id.h"
 #include "cli/cli_stdh.h"
 #include "common/ComDistribution.h"
 #include "common/ComSqlId.h"
 #include "common/Ipc.h"
-#include "ex_stdh.h"
+#include "executor/ex_stdh.h"
 #include "executor/ExStats.h"
 #include "porting/PortProcessCalls.h"
 #include "seabed/fserr.h"

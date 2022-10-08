@@ -35,13 +35,13 @@
 // unused feature, done as part of SQ SQL code cleanup effort
 #include "ComTdbSimpleSample.h"
 #endif  // if 0
-#include "HashRow.h"
+#include "comexe/HashRow.h"
 #include "arkcmp/CmpStatement.h"
 #include "common/ComUnits.h"
 #include "executor/sql_buffer.h"
 #include "executor/sql_buffer_size.h"
 #include "exp/ExpSqlTupp.h"  // for sizeof(tupp_descriptor)
-#include "hash_table.h"      // for HashTableHeader
+#include "executor/hash_table.h"      // for HashTableHeader
 #include "optimizer/RelUpdate.h"
 #include "sqlcomp/DefaultConstants.h"
 /////////////////////////////////////////////////////////////////////

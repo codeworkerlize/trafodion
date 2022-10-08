@@ -2,7 +2,7 @@
 #include "ExSMTaskList.h"
 
 #include "ExSMTask.h"
-#include "ExSMTrace.h"
+#include "executor/ExSMTrace.h"
 #include "common/Platform.h"
 
 const int EXSM_DEFAULT_NUM_BUCKETS = 513;

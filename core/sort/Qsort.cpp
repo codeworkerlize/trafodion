@@ -25,9 +25,9 @@
 #define NDEBUG
 #endif
 #include "Qsort.h"
-#include "ScratchSpace.h"
+#include "sort/ScratchSpace.h"
 #include "SortUtil.h"
-#include "ex_ex.h"
+#include "executor/ex_ex.h"
 #include "executor/ExStats.h"
 #include "executor/ex_stdh.h"
 #include "sqlmxevents/logmxevent.h"

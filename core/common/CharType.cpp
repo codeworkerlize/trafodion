@@ -15,7 +15,7 @@
 
 #include <stdarg.h>
 
-#include "EncodedValue.h"
+#include "optimizer/EncodedValue.h"
 #include "common/CmpCommon.h"
 #include "common/ComASSERT.h"
 #include "common/NLSConversion.h"

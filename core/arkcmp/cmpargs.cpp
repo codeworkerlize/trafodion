@@ -1,5 +1,5 @@
 
-#include "cmpargs.h"
+#include "arkcmp/cmpargs.h"
 
 #include <ctype.h>
 #include <stdlib.h>
@@ -12,6 +12,7 @@
 #include "arkcmp/CmpErrors.h"
 #include "common/NAExit.h"
 #include "common/Platform.h"
+#include "common/sqtypes.h"
 #include "optimizer/SchemaDB.h"
 #include "sqlmsg/ErrorMessage.h"
 

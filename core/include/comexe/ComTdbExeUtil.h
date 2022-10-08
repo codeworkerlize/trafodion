@@ -3649,7 +3649,7 @@ class ComTdbExeUtilConnectby : public ComTdbExeUtil {
     noCycle_ = FALSE;
     nodup_ = FALSE;
     hasDynParamsInStartWith_ = FALSE;
-    startwith_expr_ = NULL;
+    startwith_expr_ = 0l;
   }
 
   Long pack(void *);

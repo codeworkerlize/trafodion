@@ -15,7 +15,7 @@
  *****************************************************************************
  */
 
-#include "UdrExeIpc.h"
+#include "executor/UdrExeIpc.h"
 
 // Forward class references
 class ExUdrTcb;

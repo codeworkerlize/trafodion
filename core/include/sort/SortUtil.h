@@ -21,10 +21,10 @@
 ******************************************************************************
 */
 
-#include "CommonStructs.h"
-#include "Const.h"
-#include "ScratchFileMap.h"
-#include "ScratchSpace.h"
+#include "sort/CommonStructs.h"
+#include "sort/Const.h"
+#include "sort/ScratchFileMap.h"
+#include "sort/ScratchSpace.h"
 #include "SortAlgo.h"
 #include "SortUtilCfg.h"
 #include "Statistics.h"

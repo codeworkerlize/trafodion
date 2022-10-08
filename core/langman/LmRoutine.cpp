@@ -9,9 +9,9 @@
 
 **********************************************************************/
 
-#include "LmRoutine.h"
+#include "langman/LmRoutine.h"
 
-#include "LmLangManager.h"
+#include "langman/LmLangManager.h"
 #include "common/ComObjectName.h"
 #include "langman/LmCommon.h"
 

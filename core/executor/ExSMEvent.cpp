@@ -1,11 +1,11 @@
 
 
-#include "ExSMEvent.h"
+#include "executor/ExSMEvent.h"
 
 #include <string.h>
 #include <sys/time.h>
 
-#include "ExSMCommon.h"
+#include "executor/ExSMCommon.h"
 
 // Max number of events in the in-memory trace
 const int EXSM_EVENT_SIZE = 1024;

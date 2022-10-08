@@ -8,7 +8,7 @@
 #include "cli/Context.h"
 #include "cli/Globals.h"
 #include "common/ComUser.h"
-#include "ex_ex.h"
+#include "executor/ex_ex.h"
 #include "qmscommon/QRLogger.h"
 
 #define DEFAULT_JVM_MAX_HEAP_SIZE          256

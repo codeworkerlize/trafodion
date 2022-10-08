@@ -16,7 +16,7 @@
 
 #include "LmRoutineCppObj.h"
 #include "common/Platform.h"  // 64-BIT
-#include "ex_queue.h"
+#include "executor/ex_queue.h"
 #include "executor/sql_buffer.h"
 #include "exp/exp_expr.h"
 #include "spinfo.h"
