@@ -20,7 +20,7 @@
 #include "ItemArith.h"
 #include "ItemComposite.h"
 #include "ItemFuncUDF.h"
-#include "ItemNAType.h"
+#include "optimizer/ItemNAType.h"
 #include "optimizer/ItemColRef.h"
 #include "optimizer/ItemConstr.h"
 #include "optimizer/ItemExpr.h"

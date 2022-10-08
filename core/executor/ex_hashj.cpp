@@ -30,14 +30,14 @@
 #include "common/BaseTypes.h"
 #include "common/OperTypeEnum.h"
 #include "common/str.h"
-#include "ex_exe_stmt_globals.h"
+#include "executor/ex_exe_stmt_globals.h"
 #include "executor/ExStats.h"
 #include "executor/ex_error.h"
 #include "executor/ex_expr.h"
 #include "executor/ex_stdh.h"
 #include "executor/ex_tcb.h"
 #include "executor/sql_buffer_size.h"
-#include "exp_function.h"
+#include "exp/exp_function.h"
 #include "sqlmxevents/logmxevent.h"
 
 ///////////////////////////////////////////////////////////////////////////////

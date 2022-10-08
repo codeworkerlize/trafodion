@@ -27,8 +27,8 @@
 
 #include <fstream>
 
-#include "CmpSqlSession.h"
-#include "ProcessEnv.h"
+#include "arkcmp/CmpSqlSession.h"
+#include "arkcmp/ProcessEnv.h"
 #include "cli/sqlcli.h"
 #include "comexe/CmpMessage.h"
 #include "common/CmpCommon.h"

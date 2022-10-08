@@ -6,17 +6,17 @@
 
 #include <random>
 
-#include "ComMemLog.h"
-#include "SQLTypeDefs.h"
-#include "cli_stdh.h"
+#include "common/ComMemLog.h"
+#include "common/SQLTypeDefs.h"
+#include "cli/cli_stdh.h"
 #include "comexe/ComTdb.h"
 #include "common/Platform.h"
-#include "ex_exe_stmt_globals.h"
+#include "executor/ex_exe_stmt_globals.h"
 #include "executor/ex_stdh.h"
 #include "executor/ex_tcb.h"
 #include "exp/ExpHbaseInterface.h"
 #include "exp/ExpLOBinterface.h"
-#include "exp_function.h"
+#include "exp/exp_function.h"
 #include "qmscommon/QRLogger.h"
 
 // forward declare

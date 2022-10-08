@@ -29,7 +29,7 @@
 #include <math.h>
 
 #include "Cost.h"
-#include "EstLogProp.h"
+#include "optimizer/EstLogProp.h"
 #include "common/ComDistribution.h"
 #include "optimizer/AllItemExpr.h"
 #include "optimizer/AllRelExpr.h"

@@ -24,9 +24,9 @@
 #include <memory.h>  // for memset
 #include <time.h>    // timestamp to generate a unique table name
 
-#include "DTICommonType.h"  // for DatetimeIntervalCommonType
-#include "ElemDDLColDef.h"
-#include "ItemNAType.h"  // for NATypeToItem
+#include "common/DTICommonType.h"  // for DatetimeIntervalCommonType
+#include "parser/ElemDDLColDef.h"
+#include "optimizer/ItemNAType.h"  // for NATypeToItem
 #include "arkcmp/CmpContext.h"
 #include "arkcmp/CmpErrors.h"
 #include "cli/StoredProcInterface.h"

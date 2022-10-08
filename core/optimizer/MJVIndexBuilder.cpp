@@ -15,7 +15,7 @@
 
 #include "MJVIndexBuilder.h"
 
-#include "ColIndList.h"
+#include "common/ColIndList.h"
 
 #define OPEN_SET   "{"
 #define CLOSE_SET  "}"

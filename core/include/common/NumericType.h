@@ -20,7 +20,7 @@
 #include <limits.h>
 #include <math.h>
 
-#include "BigNumHelper.h"
+#include "common/BigNumHelper.h"
 #include "common/BaseTypes.h"
 #include "common/NAType.h"
 #include "export/ComDiags.h"

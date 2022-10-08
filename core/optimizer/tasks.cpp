@@ -17,7 +17,7 @@
 // -----------------------------------------------------------------------
 
 #include "Cost.h"
-#include "TransRule.h"
+#include "optimizer/TransRule.h"
 #include "arkcmp/CmpContext.h"
 #include "arkcmp/CmpStatement.h"
 #include "optimizer/GroupAttr.h"

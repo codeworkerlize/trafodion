@@ -17,7 +17,7 @@
 
 #include "optimizer/NAFileSet.h"
 
-#include "CliSemaphore.h"
+#include "cli/CliSemaphore.h"
 #include "PartFunc.h"
 #include "common/ComSysUtils.h"
 #include "exp/ExpHbaseDefs.h"

@@ -23,7 +23,7 @@
 #include <sys/types.h>
 //#include <sys/time.h>
 //#include <fstream>
-#include "Descriptor.h"
+#include "cli/Descriptor.h"
 #include "cli/Module.h"
 #include "cli/SQLCLIdev.h"
 #include "comexe/ComQueue.h"

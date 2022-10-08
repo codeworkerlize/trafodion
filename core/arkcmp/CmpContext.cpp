@@ -20,8 +20,8 @@
 #include "common/Platform.h"
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS  // first #include
 
-#include "ImplRule.h"   // for CreateImplementationRules()
-#include "TransRule.h"  // for CreateTransformationRules()
+#include "optimizer/ImplRule.h"   // for CreateImplementationRules()
+#include "optimizer/TransRule.h"  // for CreateTransformationRules()
 #include "arkcmp/CmpContext.h"
 #include "arkcmp/CmpStatement.h"
 #include "common/CmpCommon.h"

@@ -20,7 +20,7 @@
 #include "executor/ex_error.h"
 
 #include "ComTdb.h"
-#include "ex_exe_stmt_globals.h"
+#include "executor/ex_exe_stmt_globals.h"
 #include "ex_expr.h"
 #include "ex_queue.h"
 #include "ex_stdh.h"

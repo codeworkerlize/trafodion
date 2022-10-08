@@ -36,7 +36,7 @@
 // the following two lines.
 //#include "generator/Generator.h"
 
-#include "exp_function.h"
+#include "exp/exp_function.h"
 
 // ***********************************************************************
 // A function having an external linkage to allow display() to

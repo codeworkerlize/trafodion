@@ -19,7 +19,7 @@
 // for testing
 // #define IPC_INTEGRITY_CHECKING 1
 
-#include "ex_frag_rt.h"
+#include "executor/ex_frag_rt.h"
 
 #include "ComTdb.h"
 #include "ExCextdecs.h"
@@ -31,8 +31,8 @@
 #include "common/NAClusterInfo.h"
 #include "common/NAWNodeSet.h"
 #include "common/Platform.h"
-#include "ex_exe_stmt_globals.h"
-#include "ex_root.h"
+#include "executor/ex_exe_stmt_globals.h"
+#include "executor/ex_root.h"
 #include "ex_tcb.h"
 #include "executor/ExStats.h"
 #include "executor/ex_stdh.h"

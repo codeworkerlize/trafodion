@@ -94,7 +94,7 @@ extern void releaseRTSSemaphore();
 
 #include <iostream>
 
-#include "NAInternalError.h"
+#include "export/NAInternalError.h"
 #include "common/BaseTypes.h"  // for declaration of NAAbort()
 #include "common/NAAssert.h"   // for declaration of NAAssert()
 #include "export/ExceptionCallBack.h"

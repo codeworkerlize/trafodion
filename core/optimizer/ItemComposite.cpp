@@ -25,7 +25,7 @@
 #include "common/Platform.h"
 #include "common/wstr.h"
 #include "exp/exp_datetime.h"
-#include "exp_function.h"  // for calling ExHDPHash::hash(data, len)
+#include "exp/exp_function.h"  // for calling ExHDPHash::hash(data, len)
 #include "optimizer/AllItemExpr.h"
 #include "optimizer/Analyzer.h"
 #include "optimizer/GroupAttr.h"

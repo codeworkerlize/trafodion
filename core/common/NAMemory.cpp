@@ -270,7 +270,7 @@ void free16(void *retAddr) {
 
 #endif  // NA_YOS_SIMULATION
 
-#include "muse.cpp"
+#include "cli/muse.h"
 
 NABlock::NABlock() : segmentId_(0), size_(0), next_(0), sflags_(0) {}
 

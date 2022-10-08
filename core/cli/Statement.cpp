@@ -17,19 +17,19 @@
 */
 
 #define _XOPEN_SOURCE_EXTENDED 1
-#include "cli_stdh.h"
+#include "cli/cli_stdh.h"
 #undef _XOPEN_SOURCE_EXTENDED
 
 #include <wchar.h>
 
-#include "Cli.h"
-#include "ComMemLog.h"
-#include "Descriptor.h"  // For call to Descriptor::getCharDataFromCharHostVar().
-#include "ExRsInfo.h"
-#include "ExUdrServer.h"
+#include "cli/Cli.h"
+#include "common/ComMemLog.h"
+#include "cli/Descriptor.h"  // For call to Descriptor::getCharDataFromCharHostVar().
+#include "executor/ExRsInfo.h"
+#include "executor/ExUdrServer.h"
 #include "arkcmp/CmpContext.h"
 #include "arkcmp/CmpErrors.h"
-#include "arkcmp_proc.h"
+#include "common/arkcmp_proc.h"
 #include "cli/ExSqlComp.h"
 #include "cli/sql_id.h"
 #include "comexe/ComTdb.h"
@@ -46,10 +46,10 @@
 #include "common/NAMemory.h"
 #include "common/QueryText.h"
 #include "common/wstr.h"
-#include "ex_control.h"
-#include "ex_exe_stmt_globals.h"
-#include "ex_frag_rt.h"
-#include "ex_root.h"
+#include "executor/ex_control.h"
+#include "executor/ex_exe_stmt_globals.h"
+#include "executor/ex_frag_rt.h"
+#include "executor/ex_root.h"
 #include "executor/ExStats.h"
 #include "executor/TriggerEnable.h"  // triggers
 #include "executor/ex_error.h"

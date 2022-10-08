@@ -3,6 +3,8 @@
 #ifndef EXP_ALIGNED_FORMAT_H
 #define EXP_ALIGNED_FORMAT_H
 
+#include "common/str.h"
+
 //
 // Class used at codegen time to record header information to later
 // generate an ExHeaderClause from.

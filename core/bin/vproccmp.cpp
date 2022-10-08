@@ -13,7 +13,7 @@
 *****************************************************************************
 */
 
-#include "vproc.h"
+#include "bin/vproc.h"
 
 extern "C" {
 void VPROC(PRODNUMCMP, DATE1CMP, CMP_CC_LABEL)() {}

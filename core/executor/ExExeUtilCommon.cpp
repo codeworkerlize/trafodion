@@ -15,16 +15,16 @@
  *****************************************************************************
  */
 
-#include "ComRtUtils.h"
+#include "common/ComRtUtils.h"
 #include "ComSmallDefs.h"
 #include "ComSqlId.h"
 #include "ComTdb.h"
 #include "ExExeUtil.h"
 #include "ExStats.h"
-#include "cli_stdh.h"
+#include "cli/cli_stdh.h"
 #include "common/ComCextdecs.h"
 #include "common/ComSizeDefs.h"
-#include "ex_exe_stmt_globals.h"
+#include "executor/ex_exe_stmt_globals.h"
 #include "ex_stdh.h"
 #include "ex_tcb.h"
 #include "ex_transaction.h"

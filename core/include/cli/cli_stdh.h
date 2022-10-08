@@ -1,5 +1,5 @@
 
-#include "Descriptor.h"
+#include "cli/Descriptor.h"
 #include "cli/CliDefs.h"
 #include "cli/Context.h"
 #include "cli/Globals.h"

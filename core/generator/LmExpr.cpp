@@ -31,7 +31,7 @@
 
 #include "LmExpr.h"
 
-#include "ItemNAType.h"
+#include "optimizer/ItemNAType.h"
 #include "arkcmp/CmpContext.h"
 #include "common/CharType.h"
 #include "common/DatetimeType.h"

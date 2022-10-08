@@ -56,7 +56,7 @@
 #include "exp/exp_clause.h"
 #include "exp/exp_clause_derived.h"
 #include "exp/exp_expr.h"
-#include "exp_function.h"
+#include "exp/exp_function.h"
 
 #define NA_LINUX_LLVMJIT
 #undef NA_LINUX_LIBJIT

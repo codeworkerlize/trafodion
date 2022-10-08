@@ -15,12 +15,12 @@
  *****************************************************************************
  */
 
-#include "ex_root.h"
+#include "executor/ex_root.h"
 
 #include <stdio.h>
 
 #include "ComDiags.h"
-#include "ComRtUtils.h"
+#include "common/ComRtUtils.h"
 #include "ComTdb.h"
 #include "ExCancel.h"
 #include "ExCextdecs.h"
@@ -31,13 +31,13 @@
 #include "ExStats.h"
 #include "ExecuteIdTrig.h"
 #include "LateBindInfo.h"
-#include "PortProcessCalls.h"
-#include "cli_stdh.h"
+#include "porting_layer/PortProcessCalls.h"
+#include "cli/cli_stdh.h"
 #include "common/ComSqlId.h"
 #include "common/Platform.h"
-#include "ex_exe_stmt_globals.h"
+#include "executor/ex_exe_stmt_globals.h"
 #include "ex_expr.h"
-#include "ex_frag_rt.h"
+#include "executor/ex_frag_rt.h"
 #include "ex_stdh.h"
 #include "ex_tcb.h"
 #include "executor/TriggerEnable.h"

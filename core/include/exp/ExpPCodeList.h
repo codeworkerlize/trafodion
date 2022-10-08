@@ -18,7 +18,8 @@
 #ifndef ExpPCodeList_h
 #define ExpPCodeList_h
 
-#include "ExpPCodeInstruction.h"
+#include "exp/ExpPCodeInstruction.h"
+#include "export/NABasicObject.h"
 
 // Forward External Declaractions
 //

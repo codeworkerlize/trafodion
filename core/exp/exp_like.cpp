@@ -26,7 +26,7 @@
 #include "common/Platform.h"
 #include "common/unicode_char_set.h"
 #include "exp/exp_clause_derived.h"
-#include "exp_function.h"
+#include "exp/exp_function.h"
 #include "nchar_mp.h"
 
 ///////////////////////////////////////////////////

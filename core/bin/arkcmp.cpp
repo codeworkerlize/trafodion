@@ -33,7 +33,7 @@ DEFINE_DOVERS(tdm_arkcmp)
 #include "cli/SQLCLIdev.h"
 #undef CLI_DLL
 
-#include "CmpEHCallBack.h"
+#include "arkcmp/CmpEHCallBack.h"
 #include "NamedSemaphore.h"
 #include "SharedCache.h"
 #include "SqlStats.h"

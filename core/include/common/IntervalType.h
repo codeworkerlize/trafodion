@@ -17,7 +17,7 @@
 
 // -----------------------------------------------------------------------
 
-#include "DTICommonType.h"
+#include "common/DTICommonType.h"
 #include "common/ComASSERT.h"
 #include "common/Int64.h"
 #include "common/NAType.h"

@@ -41,7 +41,7 @@
 #include "sqlcomp/CmpSeabaseDDL.h"
 #include "sqlcomp/NADefaults.h"
 #include "sqlcomp/QCache.h"
-#include "vproc.h"
+#include "bin/vproc.h"
 
 extern const WordAsBits SingleBitArray[];
 

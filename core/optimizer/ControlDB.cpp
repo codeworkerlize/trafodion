@@ -26,7 +26,7 @@
 #include "RelPackedRows.h"
 #include "RelSample.h"
 #include "arkcmp/CmpContext.h"
-#include "cli_stdh.h"
+#include "cli/cli_stdh.h"
 #include "common/CmpCommon.h"
 #include "common/ComSchemaName.h"
 #include "optimizer/AllRelExpr.h"  // various operators for CQS

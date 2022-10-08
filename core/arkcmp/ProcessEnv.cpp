@@ -17,7 +17,7 @@
  *****************************************************************************
  */
 
-#include "ProcessEnv.h"
+#include "arkcmp/ProcessEnv.h"
 
 #include <stdlib.h>
 #include <string.h>

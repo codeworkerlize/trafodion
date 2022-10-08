@@ -20,7 +20,7 @@
 
 #include "AppliedStatMan.h"
 #include "MultiJoin.h"
-#include "TransRule.h"
+#include "optimizer/TransRule.h"
 #include "optimizer/RelExpr.h"
 #include "optimizer/opt.h"
 

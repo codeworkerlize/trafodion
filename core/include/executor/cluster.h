@@ -20,7 +20,7 @@
 #include "CommonStructs.h"
 #include "ScratchSpace.h"
 #include "common/ClusteredBitmap.h"
-#include "ex_exe_stmt_globals.h"
+#include "executor/ex_exe_stmt_globals.h"
 #include "hash_table.h"
 #define END_OF_BUF_LIST ((int)-1)
 

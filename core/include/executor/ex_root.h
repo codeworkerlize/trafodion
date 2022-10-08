@@ -19,10 +19,10 @@
  */
 
 // -----------------------------------------------------------------------
-#include "cli_stdh.h"
+#include "cli/cli_stdh.h"
 #include "comexe/SqlTableOpenInfo.h"
 #include "common/Ipc.h"
-#include "ex_exe_stmt_globals.h"
+#include "executor/ex_exe_stmt_globals.h"
 #include "exp/exp_expr.h"
 #include "runtimestats/rts_msg.h"
 

@@ -12,7 +12,7 @@
 #include "comexe/ComTdb.h"
 #include "common/ComCextdecs.h"
 #include "common/Platform.h"
-#include "ex_exe_stmt_globals.h"
+#include "executor/ex_exe_stmt_globals.h"
 #include "executor/ex_stdh.h"
 #include "executor/ex_tcb.h"
 #include "exp/ExpError.h"

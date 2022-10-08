@@ -15,7 +15,7 @@
 
 #include "common/conversionHex.h"
 
-#include "SQLTypeDefs.h"
+#include "common/SQLTypeDefs.h"
 #include "common/ComASSERT.h"
 #include "common/NAString.h"
 #include "common/csconvert.h"

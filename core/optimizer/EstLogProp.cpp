@@ -16,7 +16,7 @@
 
 // -----------------------------------------------------------------------
 
-#include "EstLogProp.h"
+#include "optimizer/EstLogProp.h"
 
 #include "VEGTable.h"
 #include "optimizer/GroupAttr.h"

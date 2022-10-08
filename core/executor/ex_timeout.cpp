@@ -18,10 +18,10 @@
 
 #include "ComTdb.h"
 #include "ExSqlComp.h"
-#include "cli_stdh.h"
+#include "cli/cli_stdh.h"
 #include "common/Platform.h"
-#include "ex_exe_stmt_globals.h"
-#include "ex_root.h"
+#include "executor/ex_exe_stmt_globals.h"
+#include "executor/ex_root.h"
 #include "ex_stdh.h"
 #include "ex_tcb.h"
 #include "executor/ex_error.h"

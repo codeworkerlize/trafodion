@@ -15,7 +15,7 @@
 **************************************************************************
 */
 
-#include "SQLTypeDefs.h"
+#include "common/SQLTypeDefs.h"
 #include "common/BaseTypes.h"
 #include "common/Collections.h"
 #include "common/ComSmallDefs.h"

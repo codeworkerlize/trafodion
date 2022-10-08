@@ -10,13 +10,13 @@
 
 #include <queue>
 
-#include "CliSemaphore.h"
+#include "cli/CliSemaphore.h"
 #include "PartFunc.h"
 #include "arkcmp/CompException.h"
 #include "comexe/FragDir.h"
 #include "common/cextdecs.h"
 #include "common/trafconfig.h"
-#include "exp_function.h"
+#include "exp/exp_function.h"
 #include "generator/Generator.h"
 #include "optimizer/Analyzer.h"
 #include "optimizer/OptimizerSimulator.h"

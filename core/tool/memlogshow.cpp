@@ -8,7 +8,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "ComMemLog.h"
+#include "common/ComMemLog.h"
 
 void help() {
   printf("Usage: memlogshow pid\n");

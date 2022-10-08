@@ -17,8 +17,9 @@
  *****************************************************************************
  */
 
-#include "ExpAlignedFormat.h"
 #include "common/ComSmallDefs.h"
+#include "exp/ExpAlignedFormat.h"
+#include "export/NAVersionedObject.h"
 
 // Forward external references
 class Attributes;

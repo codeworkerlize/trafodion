@@ -103,7 +103,7 @@ extern int tokval;  // defined by yacc, for lex only
 extern THREAD_P NABoolean HexStringLiteralNotAllowed;
 extern THREAD_P NABoolean turnUnknownCharSetToISO88591;
 
-#include "CliSemaphore.h"
+#include "cli/CliSemaphore.h"
 #include "ParKeyWords.h"
 #include "common/str.h"
 #include "common/wstr.h"

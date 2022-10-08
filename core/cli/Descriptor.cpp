@@ -24,9 +24,9 @@
 // try to remove the following line later on
 #include <stdio.h>
 
-#include "Descriptor.h"
+#include "cli/Descriptor.h"
+#include "cli/cli_stdh.h"
 #include "cli/sql_id.h"
-#include "cli_stdh.h"
 #include "common/ComRtUtils.h"
 #include "common/ComSizeDefs.h"
 #include "common/charinfo.h"
@@ -325,27 +325,27 @@ char *Descriptor::getIndData(int entry, int idxrow) {
 }
 
 int Descriptor::getVarDataLength(int entry) {
-  register int entryZB = entry - 1;
+  int entryZB = entry - 1;
   return desc[entryZB].length;
 }
 
 int Descriptor::getVarIndicatorLength(int entry) {
-  register int entryZB = entry - 1;
+  int entryZB = entry - 1;
   return desc[entryZB].vc_ind_length;
 }
 
 int Descriptor::getIndLength(int entry) {
-  register int entryZB = entry - 1;
+  int entryZB = entry - 1;
   return desc[entryZB].ind_length;
 }
 
 int Descriptor::getVarDataType(int entry) {
-  register int entryZB = entry - 1;
+  int entryZB = entry - 1;
   return desc[entryZB].datatype;
 }
 
 const char *Descriptor::getVarDataCharSet(int entry) {
-  register int entryZB = entry - 1;
+  int entryZB = entry - 1;
   return CharInfo::getCharSetName((CharInfo::CharSet)desc[entryZB].charset);
 }
 
@@ -2737,7 +2737,7 @@ void stripBlanks(char *buf, int &len) {
   if (p) len -= (p - buf);
 
   // skip the trailing blanks.
-  register char *endbuf = p + len - 1;
+  char *endbuf = p + len - 1;
   while ((endbuf >= p) && (*endbuf == ' ')) {
     *endbuf = '\0';
     --endbuf;

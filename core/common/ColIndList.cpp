@@ -14,7 +14,7 @@
 ******************************************************************************
 */
 
-#include "ColIndList.h"
+#include "common/ColIndList.h"
 
 //*
 //*-------	isPrefixOf

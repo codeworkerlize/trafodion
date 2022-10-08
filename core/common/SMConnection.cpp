@@ -9,7 +9,7 @@
 #include "ExSMShortMessage.h"
 #include "ExSMTask.h"
 #include "common/NAAssert.h"
-#include "ex_exe_stmt_globals.h"
+#include "executor/ex_exe_stmt_globals.h"
 #include "exp/ExpErrorEnums.h"
 #include "porting/PortProcessCalls.h"
 

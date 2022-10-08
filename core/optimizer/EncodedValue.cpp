@@ -26,7 +26,7 @@
 #include "common/Platform.h"
 #include "common/str.h"
 #include "common/wstr.h"
-#include "exp_function.h"
+#include "exp/exp_function.h"
 #include "optimizer/ItemColRef.h"
 #include "optimizer/Sqlcomp.h" /* must be first included file */
 #include "sqlcomp/parser.h"

@@ -21,7 +21,7 @@
 #include "exp/exp_expr.h"
 #include "exp/exp_stdh.h"
 #include "exp/exp_tuple_desc.h"
-#include "exp_function.h"
+#include "exp/exp_function.h"
 
 // Uncomment the line below to debug new PCode instructions.
 // #define SQLMX_DEBUG_PCIT

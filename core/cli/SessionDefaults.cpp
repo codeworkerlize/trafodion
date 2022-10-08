@@ -19,7 +19,7 @@
 
 #include "cli/SQLCLIdev.h"
 #include "cli/sql_id.h"
-#include "cli_stdh.h"
+#include "cli/cli_stdh.h"
 #include "comexe/ComTdbExeUtil.h"
 #include "common/ComRtUtils.h"
 #include "common/NLSConversion.h"

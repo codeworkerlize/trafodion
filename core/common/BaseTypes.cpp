@@ -17,7 +17,7 @@
 #include "seabed/ms.h"
 extern void my_mpi_fclose();
 
-#include "SQLTypeDefs.h"
+#include "common/SQLTypeDefs.h"
 #include "arkcmp/CompException.h"
 #include "cli/sqlcli.h"
 #include "common/ComSmallDefs.h"

@@ -40,7 +40,7 @@
 #include "exp/exp_datetime.h"
 #include "exp/exp_tuple_desc.h"
 #include "exp_dp2_expr.h"
-#include "exp_function.h"
+#include "exp/exp_function.h"
 #include "optimizer/BindWA.h"
 #include "optimizer/ControlDB.h"
 #include "optimizer/ItmFlowControlFunction.h"

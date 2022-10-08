@@ -8,7 +8,7 @@
 
 #include "common/ComASSERT.h"
 #include "common/NAMemory.h"
-#include "exp_function.h"
+#include "exp/exp_function.h"
 #include "optimizer/ObjectNames.h"
 
 static float ln(float x) { return (float)(log(x) / log(2.0)); }

@@ -27,7 +27,7 @@
 #include "comexe/ExplainTuple.h"
 #include "common/ComCextdecs.h"
 #include "ex_queue.h"
-#include "ex_root.h"
+#include "executor/ex_root.h"
 #include "executor/ex_expr.h"
 #include "executor/ex_stdh.h"
 #include "executor/ex_tcb.h"

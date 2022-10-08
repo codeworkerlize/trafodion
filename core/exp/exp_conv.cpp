@@ -26,8 +26,8 @@
 #define MathLog10(op, err) log10(op)
 #include <stdlib.h>
 
-#include "BigNumHelper.h"
-#include "SQLTypeDefs.h"
+#include "common/BigNumHelper.h"
+#include "common/SQLTypeDefs.h"
 #include "common/ComMisc.h"
 #include "common/NAAssert.h"
 #include "common/NLSConversion.h"

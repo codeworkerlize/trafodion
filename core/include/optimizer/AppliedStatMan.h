@@ -22,7 +22,7 @@
 //  Include Files
 // -----------------------------------------------------------------------
 
-#include "EstLogProp.h"
+#include "optimizer/EstLogProp.h"
 #include "optimizer/Analyzer.h"
 #include "optimizer/RelJoin.h"
 

@@ -20,7 +20,7 @@
 
 // PCodeInstruction and PCI list classes
 //
-#include "ExpPCodeInstruction.h"
+#include "exp/ExpPCodeInstruction.h"
 #include "ExpPCodeList.h"
 #include "exp/exp_tuple_desc.h"
 

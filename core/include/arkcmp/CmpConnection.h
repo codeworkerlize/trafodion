@@ -78,8 +78,6 @@ class CmpIpcEnvironment : public IpcEnvironment {
 // ARKCMP control connection, handles system messages
 // -----------------------------------------------------------------------
 #include "common/zsysc.h"
-#include "nsk/nskprocess.h"
-#include "rosetta/rosgen.h"
 
 class CmpGuaControlConnection : public GuaReceiveControlConnection {
  public:

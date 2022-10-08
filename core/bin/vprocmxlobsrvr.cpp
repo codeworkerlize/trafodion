@@ -15,7 +15,7 @@
 
 #include <stdio.h>
 
-#include "vproc.h"
+#include "bin/vproc.h"
 
 /*extern "C" { void
 VPROC (PRODNUMMXCI,DATE1MXCI,MXCI_CC_LABEL)

@@ -18,7 +18,7 @@
  */
 
 #include "common/Platform.h"
-#include "exp_function.h"
+#include "exp/exp_function.h"
 
 ex_function_substring_doublebyte::ex_function_substring_doublebyte(OperatorTypeEnum oper_type, short num_operands,
                                                                    Attributes **attr, Space *space)

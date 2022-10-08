@@ -10,18 +10,8 @@
 
 **********************************************************************/
 
-#include "VersioningStoredProc.h"
+#include "arkcmp/VersioningStoredProc.h"
 
-#include "CatCatalog.h"
-#include "CatCatalogList.h"
-#include "CatError.h"
-#include "CatROBaseTable.h"
-#include "CatROIndex.h"
-#include "CatROMV.h"
-#include "CatRORoutine.h"
-#include "CatROView.h"
-#include "CatSQLObjectCache.h"
-#include "ComVersionPrivate.h"
 #include "arkcmp/CmpErrors.h"
 #include "common/CmpCommon.h"
 #include "common/ComRtUtils.h"

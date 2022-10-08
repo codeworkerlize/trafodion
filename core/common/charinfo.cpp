@@ -20,8 +20,8 @@
 
 #include "common/charinfo.h"
 
-#include "CliSemaphore.h"
-#include "SQLTypeDefs.h"
+#include "cli/CliSemaphore.h"
+#include "common/SQLTypeDefs.h"
 #include "arkcmp/CmpConnection.h"
 #include "arkcmp/CmpContext.h"
 #include "cli/SQLCLIdev.h"  // for LOCALE stuff: SQLCHARSETCODE_*

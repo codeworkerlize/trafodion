@@ -36,7 +36,7 @@
 #if !defined(NDEBUG)
 #endif
 
-#include "CliSemaphore.h"
+#include "cli/CliSemaphore.h"
 #include "arkcmp/CmpContext.h"
 #include "arkcmp/CmpErrors.h"
 #include "arkcmp/CompException.h"

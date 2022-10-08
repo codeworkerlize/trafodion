@@ -10,7 +10,7 @@
  *****************************************************************************
  */
 
-#include "ExtQualModuleNames.h"
+#include "arkcmp/ExtQualModuleNames.h"
 
 #include <ctype.h>
 
@@ -19,7 +19,7 @@
 #include "common/DgBaseType.h"
 #include "common/NAString.h"
 #include "export/ComDiags.h"
-#include "mxCompileUserModule.h"
+#include "arkcmp/mxCompileUserModule.h"
 
 // constructor
 ExtQualModuleNames::ExtQualModuleNames(char *argv[], int startIndex, int argc, const char *cat, const char *sch,

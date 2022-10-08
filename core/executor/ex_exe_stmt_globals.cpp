@@ -13,23 +13,23 @@
  *
  *****************************************************************************
  */
-#include "ex_exe_stmt_globals.h"
+#include "executor/ex_exe_stmt_globals.h"
 
-#include "ExRsInfo.h"
+#include "executor/ExRsInfo.h"
 #include "ExSMCommon.h"
 #include "ExSMEvent.h"
 #include "ExSMGlobals.h"
 #include "ExSMTrace.h"
-#include "ExUdrServer.h"
+#include "executor/ExUdrServer.h"
 #include "Ex_esp_msg.h"
 #include "UdrExeIpc.h"
 #include "cli/Globals.h"
-#include "cli_stdh.h"
+#include "cli/cli_stdh.h"
 #include "comexe/ComTdb.h"
 #include "comexe/LateBindInfo.h"
 #include "common/Platform.h"
 #include "ex_esp_frag_dir.h"
-#include "ex_frag_rt.h"
+#include "executor/ex_frag_rt.h"
 #include "ex_send_top.h"
 #include "executor/HBaseClient_JNI.h"
 #include "executor/ex_stdh.h"

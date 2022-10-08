@@ -22,7 +22,7 @@
 //
 #include "ExpPCode.h"
 #include "ExpSequenceFunction.h"  // <--- See here for comments.
-#include "SQLTypeDefs.h"
+#include "common/SQLTypeDefs.h"
 #include "exp/exp_attrs.h"
 #include "exp/exp_clause.h"
 

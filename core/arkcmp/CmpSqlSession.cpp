@@ -14,7 +14,7 @@
  *****************************************************************************
  */
 
-#include "CmpSqlSession.h"
+#include "arkcmp/CmpSqlSession.h"
 
 #include "cli/SQLCLIdev.h"
 #include "common/ComCextdecs.h"

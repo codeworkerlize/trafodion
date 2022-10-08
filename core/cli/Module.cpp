@@ -17,7 +17,7 @@
 
 // -----------------------------------------------------------------------
 
-#include "cli_stdh.h"
+#include "cli/cli_stdh.h"
 
 Module::Module(const char *module_name, int len, char *pathName, int pathNameLen, NAHeap *heap)
     : module_name_len_(len), path_name_len_(pathNameLen), heap_(heap), statementCount_(0), vproc_(NULL) {

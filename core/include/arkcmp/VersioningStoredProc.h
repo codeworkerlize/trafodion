@@ -12,7 +12,7 @@
 #ifndef VERSIONINGSP_H
 #define VERSIONINGSP_H
 
-#include "ComPointerList.h"
+#include "common/ComPointerList.h"
 #include "ComVersionNodeInfo.h"
 #include "arkcmp/CmpISPStd.h"
 #include "common/ComDistribution.h"

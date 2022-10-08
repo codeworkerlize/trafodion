@@ -32,9 +32,9 @@
 #include "common/ComRtUtils.h"
 #include "common/ComSqlcmpdbg.h"
 #include "common/Ipc.h"
-#include "ex_exe_stmt_globals.h"
-#include "ex_frag_rt.h"
-#include "ex_root.h"
+#include "executor/ex_exe_stmt_globals.h"
+#include "executor/ex_frag_rt.h"
+#include "executor/ex_root.h"
 
 const char *TraceDesc = "SubTask state trace in Scheduler";
 static pid_t pid = getpid();

@@ -16,7 +16,7 @@
  *****************************************************************************
  */
 
-#include "ElemDDLColDef.h"
+#include "parser/ElemDDLColDef.h"
 #include "ElemDDLColHeading.h"
 #include "ElemDDLColNameArray.h"
 #include "ElemDDLColViewDef.h"

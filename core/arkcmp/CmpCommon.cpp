@@ -24,7 +24,7 @@
 #include <iostream>
 #include <string>
 
-#include "NAInternalError.h"
+#include "export/NAInternalError.h"
 #include "arkcmp/CmpContext.h"
 #include "arkcmp/CmpErrors.h"
 #include "arkcmp/CmpStatement.h"

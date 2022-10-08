@@ -45,8 +45,8 @@ DEFINE_DOVERS(tdm_arkcmp)
 #include "cli/SQLCLIdev.h"
 #undef CLI_DLL
 
-#include "CliSemaphore.h"
-#include "CmpEHCallBack.h"
+#include "cli/CliSemaphore.h"
+#include "arkcmp/CmpEHCallBack.h"
 #include "cli/Globals.h"
 #include "eh/EHException.h"
 #include "optimizer/ObjectNames.h"

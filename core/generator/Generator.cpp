@@ -18,7 +18,7 @@
 #include <sys/time.h>
 
 #include "CmUtil.h"
-#include "CmpSqlSession.h"
+#include "arkcmp/CmpSqlSession.h"
 #include "GenExpGenerator.h"
 #include "arkcmp/CmpContext.h"
 #include "arkcmp/CmpStatement.h"
@@ -34,7 +34,7 @@
 #include "common/ComTransInfo.h"
 #include "common/dfs2rec.h"
 #include "exp/exp_tuple_desc.h"
-#include "exp_function.h"
+#include "exp/exp_function.h"
 #include "optimizer/BindWA.h"
 #include "optimizer/ControlDB.h"
 #include "optimizer/GroupAttr.h"

@@ -13,7 +13,7 @@
 ******************************************************************************
 */
 
-#include "ImplRule.h"
+#include "optimizer/ImplRule.h"
 
 #include "Cost.h"
 #include "RelPackedRows.h"

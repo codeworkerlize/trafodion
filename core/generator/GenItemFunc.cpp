@@ -41,7 +41,7 @@
 #include "common/CharType.h"
 #include "common/NumericType.h"
 #include "exp/exp_datetime.h"
-#include "exp_function.h"
+#include "exp/exp_function.h"
 #include "exp_math_func.h"
 #include "generator/Generator.h"
 #include "optimizer/RelMisc.h"

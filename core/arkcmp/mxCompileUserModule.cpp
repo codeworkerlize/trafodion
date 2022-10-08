@@ -10,7 +10,7 @@
  *****************************************************************************
  */
 
-#include "mxCompileUserModule.h"
+#include "arkcmp/mxCompileUserModule.h"
 
 #include <iostream>
 

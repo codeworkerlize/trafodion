@@ -17,6 +17,8 @@
 ******************************************************************************
 */
 
+#include "common/OperTypeEnum.h"
+#include "optimizer/ItemExpr.h"
 #include "qmscommon/QRExprElement.h"
 
 // -----------------------------------------------------------------------

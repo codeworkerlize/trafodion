@@ -10,7 +10,7 @@
  *****************************************************************************
  */
 
-#include "vproc.h"
+#include "bin/vproc.h"
 
 extern "C" {
 void VPROC(PRODNUMSSCP, DATE1SSCP, SSCP_CC_LABEL)() {}

@@ -30,17 +30,17 @@
 
 #include <sys/stat.h>
 
-#include "Descriptor.h"
+#include "cli/Descriptor.h"
 #include "ExCextdecs.h"
-#include "ExRsInfo.h"
+#include "executor/ExRsInfo.h"
 #include "ExUdrClientIpc.h"
-#include "ExUdrServer.h"
+#include "executor/ExUdrServer.h"
 #include "UdrExeIpc.h"
 #include "cli/Context.h"
 #include "cli/Statement.h"
 #include "comexe/UdrFormalParamInfo.h"
 #include "comexe/udrtabledescinfo.h"
-#include "ex_exe_stmt_globals.h"
+#include "executor/ex_exe_stmt_globals.h"
 #include "executor/ExExeUtil.h"
 #include "executor/ExStats.h"
 #include "executor/ex_error.h"

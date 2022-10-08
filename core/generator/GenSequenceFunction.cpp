@@ -17,7 +17,7 @@
 #include "GenExpGenerator.h"
 #include "common/CharType.h"
 #include "common/NumericType.h"
-#include "exp_function.h"
+#include "exp/exp_function.h"
 #include "exp_math_func.h"
 #include "generator/Generator.h"
 #include "optimizer/ItmFlowControlFunction.h"

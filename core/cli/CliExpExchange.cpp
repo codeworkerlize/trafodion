@@ -22,7 +22,7 @@
 #endif
 
 #include "ExRLE.h"
-#include "cli_stdh.h"
+#include "cli/cli_stdh.h"
 #include "executor/ex_stdh.h"
 #include "exp/exp_clause_derived.h"
 #include "exp/exp_datetime.h"

@@ -16,9 +16,9 @@
 
 // -----------------------------------------------------------------------
 
-#include "EstLogProp.h"
-#include "ImplRule.h"
-#include "TransRule.h"
+#include "optimizer/EstLogProp.h"
+#include "optimizer/ImplRule.h"
+#include "optimizer/TransRule.h"
 #include "arkcmp/CmpContext.h"
 #include "optimizer/Sqlcomp.h"
 #include "optimizer/opt.h"

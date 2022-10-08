@@ -19,7 +19,7 @@
 #include <sstream>
 
 #include "AppliedStatMan.h"
-#include "ElemDDLColDef.h"
+#include "parser/ElemDDLColDef.h"
 #include "ScanOptimizer.h"
 #include "arkcmp/CmpContext.h"
 #include "arkcmp/CmpStatement.h"

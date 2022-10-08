@@ -2,7 +2,7 @@
 
 // **********************************************************************
 
-#include "ComMemLog.h"
+#include "common/ComMemLog.h"
 
 #include <errno.h>
 #include <fcntl.h>

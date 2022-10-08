@@ -4,7 +4,7 @@
 #define __EX_FAST_TRANSPORT_H
 
 #include "common/ComSmallDefs.h"
-#include "ex_exe_stmt_globals.h"
+#include "executor/ex_exe_stmt_globals.h"
 #include "executor/ExStats.h"
 #include "executor/ex_tcb.h"
 #include "exp/ExpLOBinterface.h"

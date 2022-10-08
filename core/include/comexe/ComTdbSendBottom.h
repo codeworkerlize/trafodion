@@ -4,16 +4,11 @@
 #define COM_SEND_BOTTOM_H
 
 #include "comexe/ComTdb.h"
-#include "executor/ex_send_bottom.h"
 
-////////////////////////////////////////////////////////////////////////////
-// forward declarations
-////////////////////////////////////////////////////////////////////////////
-// class ExSendBottomMessageStream;
+class ex_send_bottom_tcb;
 class ExExeStmtGlobals;
 class ExEspFragInstanceDir;
 class ExFragKey;
-
 ////////////////////////////////////////////////////////////////////////////
 // Task Definition Block for send top node
 ////////////////////////////////////////////////////////////////////////////
@@ -140,6 +135,5 @@ class ComTdbSendBottom : public ComTdb {
 // Template instantiation to produce a 64-bit pointer emulator class
 // for ComTdbSendBottom
 // ---------------------------------------------------------------------
-typedef NAVersionedObjectPtrTempl<ComTdbSendBottom> ComTdbSendBottomPtr;
 
 #endif /* EX_SEND_BOTTOM_H */

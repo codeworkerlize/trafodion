@@ -15,10 +15,10 @@
 
 #include "ExUdrClientIpc.h"
 
-#include "ExRsInfo.h"
+#include "executor/ExRsInfo.h"
 #include "ExUdr.h"
-#include "ExUdrServer.h"
-#include "ex_exe_stmt_globals.h"
+#include "executor/ExUdrServer.h"
+#include "executor/ex_exe_stmt_globals.h"
 #include "executor/ex_stdh.h"
 #include "exp/ExpError.h"
 

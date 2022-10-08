@@ -19,7 +19,7 @@
 #include "ExExeUtilCli.h"
 
 #include "ComSqlId.h"
-#include "cli_stdh.h"
+#include "cli/cli_stdh.h"
 #include "ex_stdh.h"
 #include "sql_id.h"
 OutputInfo::OutputInfo(int numEntries) : numEntries_(numEntries) {

@@ -22,7 +22,7 @@
 #include "SortUtilCfg.h"
 #include "comexe/ComTdb.h"
 #include "common/NAMemory.h"
-#include "ex_exe_stmt_globals.h"
+#include "executor/ex_exe_stmt_globals.h"
 #include "executor/ExStats.h"
 #include "executor/ex_expr.h"
 #include "executor/ex_stdh.h"

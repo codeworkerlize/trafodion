@@ -35,8 +35,8 @@
 #define SQLPARSERGLOBALS_FLAGS
 #define SQLPARSERGLOBALS_NADEFAULTS_SET
 //#include "parser/SqlParserGlobalsCmn.h"
-#include "EstLogProp.h"  // Pick up definition of GLOBAL_EMPTY_INPUT_LOGPROP
-#include "ProcessEnv.h"
+#include "optimizer/EstLogProp.h"  // Pick up definition of GLOBAL_EMPTY_INPUT_LOGPROP
+#include "arkcmp/ProcessEnv.h"
 #include "arkcmp/CmpErrLog.h"
 #include "arkcmp/CmpErrors.h"
 #include "arkcmp/CmpStatement.h"

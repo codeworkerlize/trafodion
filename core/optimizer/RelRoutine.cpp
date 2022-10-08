@@ -21,8 +21,8 @@
 
 #include "optimizer/RelRoutine.h"
 
-#include "ElemDDLColDef.h"
-#include "ItemNAType.h"
+#include "parser/ElemDDLColDef.h"
+#include "optimizer/ItemNAType.h"
 #include "ScanOptimizer.h"
 #include "arkcmp/CmpContext.h"
 #include "comexe/ComTdbSendTop.h"

@@ -27,7 +27,7 @@
 #include "arkcmp/CompException.h"
 #include "common/ComCextdecs.h"    // For Timestamp related calls
 #include "common/NLSConversion.h"  // For conversion to unicode strings
-#include "exp_function.h"
+#include "exp/exp_function.h"
 #include "optimizer/Analyzer.h"
 #include "optimizer/ItemColRef.h"
 #include "optimizer/Sqlcomp.h"

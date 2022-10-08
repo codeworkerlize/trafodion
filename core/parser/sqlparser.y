@@ -60,7 +60,7 @@ using namespace std;
 #include "common/DatetimeType.h"
 #include "common/IntervalType.h"
 #include "common/NumericType.h"
-#include "ItemNAType.h"
+#include "optimizer/ItemNAType.h"
 #include "common/MiscType.h"
 #include "arkcmp/CmpContext.h"
 
@@ -97,7 +97,7 @@ using namespace std;
 #include "parser/StmtDMLSetTransaction.h"
 
 #include "optimizer/Triggers.h"
-#include "ItemNAType.h"
+#include "optimizer/ItemNAType.h"
 
 
 #include "optimizer/ItemLog.h"

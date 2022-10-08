@@ -12,6 +12,9 @@
  */
 #include "common/NAWinNT.h"
 #include "common/wstr.h"
+#include "cli/sqlcli.h"
+#include "common/str.h"
+#include "common/charinfo.h"
 
 class QueryText {
  public:

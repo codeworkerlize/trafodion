@@ -18,9 +18,9 @@
 
 #include <time.h>
 
-#include "Cli.h"
-#include "CliSemaphore.h"
-#include "cli_stdh.h"
+#include "cli/Cli.h"
+#include "cli/CliSemaphore.h"
+#include "cli/cli_stdh.h"
 #include "common/ComRtUtils.h"
 #include "common/NLSConversion.h"
 #include "common/Platform.h"

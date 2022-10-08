@@ -24,7 +24,7 @@
 #include "common/Platform.h"
 #include "common/cextdecs.h"
 #include "ex_esp_frag_dir.h"
-#include "ex_exe_stmt_globals.h"
+#include "executor/ex_exe_stmt_globals.h"
 #include "ex_send_bottom.h"
 #include "ex_split_bottom.h"
 #include "executor/ex_stdh.h"

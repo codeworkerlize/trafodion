@@ -16,7 +16,7 @@
 
 #include "common/ComDistribution.h"
 #include "common/ComUser.h"
-#include "exp_function.h"
+#include "exp/exp_function.h"
 #include "sqlcomp/PrivMgrDefs.h"
 
 // ****************************************************************************

@@ -3,12 +3,12 @@
 // **********************************************************************
 
 #include "ExHbaseAccess.h"
-#include "SQLTypeDefs.h"
+#include "common/SQLTypeDefs.h"
 #include "cli/ExSqlComp.h"
-#include "cli_stdh.h"
+#include "cli/cli_stdh.h"
 #include "comexe/ComTdb.h"
 #include "common/Platform.h"
-#include "ex_exe_stmt_globals.h"
+#include "executor/ex_exe_stmt_globals.h"
 #include "executor/ExExeUtilCli.h"
 #include "executor/ex_stdh.h"
 #include "executor/ex_tcb.h"

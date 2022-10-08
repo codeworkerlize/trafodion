@@ -22,7 +22,7 @@
 #ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
-#include "ElemDDLColDef.h"
+#include "parser/ElemDDLColDef.h"
 #include "parser/SqlParserGlobals.h"
 
 // -----------------------------------------------------------------------

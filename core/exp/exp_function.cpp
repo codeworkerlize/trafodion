@@ -35,7 +35,7 @@
 #include <time.h>
 #include <uuid/uuid.h>
 
-#include "SQLTypeDefs.h"
+#include "common/SQLTypeDefs.h"
 #include "common/ComAnsiNamePart.h"
 #include "common/ComCextdecs.h"
 #include "common/ComDefs.h"
@@ -57,7 +57,7 @@
 #include "exp/exp_interval.h"
 #include "exp/exp_like.h"
 #include "exp/exp_stdh.h"
-#include "exp_function.h"
+#include "exp/exp_function.h"
 #include "export/ComDiags.h"
 #include "qmscommon/QRLogger.h"
 #include "seabed/sys.h"

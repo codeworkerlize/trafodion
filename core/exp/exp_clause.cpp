@@ -26,7 +26,7 @@
 #include "exp/exp_clause_derived.h"
 #include "exp/exp_datetime.h"
 #include "exp/exp_stdh.h"
-#include "exp_function.h"
+#include "exp/exp_function.h"
 #include "exp_math_func.h"
 #include "ttime.h"
 

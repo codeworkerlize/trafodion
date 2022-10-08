@@ -15,14 +15,14 @@
  *****************************************************************************
  */
 
-#include "ex_stored_proc.h"
+#include "executor/ex_stored_proc.h"
 
 #include "arkcmp/CmpStatement.h"
 #include "arkcmp/CmpStoredProc.h"
 #include "cli/ExSqlComp.h"
-#include "cli_stdh.h"
+#include "cli/cli_stdh.h"
 #include "comexe/ComTdb.h"
-#include "ex_exe_stmt_globals.h"
+#include "executor/ex_exe_stmt_globals.h"
 #include "ex_io_control.h"
 #include "executor/ex_expr.h"
 #include "executor/ex_stdh.h"

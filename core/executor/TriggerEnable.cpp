@@ -18,7 +18,7 @@
 
 #include "comexe/ComTdb.h"
 #include "common/NAMemory.h"
-#include "ex_root.h"
+#include "executor/ex_root.h"
 #include "executor/ex_stdh.h"
 #include "executor/ex_tcb.h"
 

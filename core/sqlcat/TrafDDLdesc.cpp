@@ -2,7 +2,7 @@
 
 #include "sqlcat/TrafDDLdesc.h"
 
-#include "SQLTypeDefs.h"
+#include "common/SQLTypeDefs.h"
 #include "common/CmpCommon.h"
 
 // -----------------------------------------------------------------------

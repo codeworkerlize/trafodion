@@ -5,6 +5,7 @@
 
 #include <ctype.h>
 #include <stdio.h>
+#include "common/charinfo.h"
 
 // Forward references.
 class ParKeyWord;

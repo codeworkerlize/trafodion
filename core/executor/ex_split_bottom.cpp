@@ -24,7 +24,7 @@
 #include "ExStats.h"
 #include "NAExecTrans.h"
 #include "ex_esp_frag_dir.h"
-#include "ex_exe_stmt_globals.h"
+#include "executor/ex_exe_stmt_globals.h"
 #include "ex_expr.h"
 #include "ex_send_bottom.h"
 #include "ex_send_top.h"

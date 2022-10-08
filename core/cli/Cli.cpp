@@ -14,14 +14,14 @@
  *****************************************************************************
  */
 
-#include "Cli.h"
+#include "cli/Cli.h"
 
 #include <stdarg.h>
 #include <time.h>
 
 #include "ComRegAPI.h"
 #include "ExExplain.h"
-#include "ExRsInfo.h"
+#include "executor/ExRsInfo.h"
 #include "LmLangManager.h"
 #include "LmLangManagerC.h"
 #include "LmLangManagerJava.h"
@@ -29,7 +29,7 @@
 #include "arkcmp/CmpContext.h"
 #include "cli/ExSqlComp.h"
 #include "cli/sql_id.h"
-#include "cli_stdh.h"
+#include "cli/cli_stdh.h"
 #include "comexe/CmpMessage.h"
 #include "comexe/ComTdb.h"
 #include "comexe/ComTdbSplitTop.h"
@@ -43,9 +43,9 @@
 #include "common/csconvert.h"
 #include "common/feerrors.h"
 #include "dtm/tm.h"
-#include "ex_exe_stmt_globals.h"
-#include "ex_frag_rt.h"
-#include "ex_root.h"
+#include "executor/ex_exe_stmt_globals.h"
+#include "executor/ex_frag_rt.h"
+#include "executor/ex_root.h"
 #include "executor/ExExeUtil.h"
 #include "executor/ExStats.h"
 #include "executor/ex_transaction.h"
@@ -53,7 +53,7 @@
 #include "exp/exp_clause_derived.h"
 #include "exp/exp_expr.h"
 #include "exp/exp_stdh.h"
-#include "exp_function.h"
+#include "exp/exp_function.h"
 #include "seabed/ms.h"
 #include "sqlcomp/CmpDDLCatErrorCodes.h"
 #include "sqlmxevents/logmxevent.h"

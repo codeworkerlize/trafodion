@@ -19,7 +19,7 @@
 #include "common/Platform.h"
 #include "common/dfs2rec.h"
 #include "exp/exp_clause_derived.h"
-#include "exp_function.h"
+#include "exp/exp_function.h"
 #include "generator/Generator.h"
 #include "optimizer/AllRelExpr.h"
 #include "optimizer/BindWA.h"

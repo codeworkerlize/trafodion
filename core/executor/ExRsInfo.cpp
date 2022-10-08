@@ -50,16 +50,16 @@
 
 */
 
-#include "ExRsInfo.h"
+#include "executor/ExRsInfo.h"
 
 #include "ExUdrClientIpc.h"
-#include "ExUdrServer.h"
+#include "executor/ExUdrServer.h"
 #include "UdrExeIpc.h"
 #include "cli/Statement.h"
 #include "common/ComSmallDefs.h"
 #include "common/NAMemory.h"
 #include "ex_ex.h"
-#include "ex_exe_stmt_globals.h"
+#include "executor/ex_exe_stmt_globals.h"
 
 #ifdef _DEBUG
 #include <stdarg.h>

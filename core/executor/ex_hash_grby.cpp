@@ -26,7 +26,7 @@
 #include "ExSimpleSqlBuffer.h"
 #include "ExTrieTable.h"
 #include "comexe/ComTdb.h"
-#include "ex_exe_stmt_globals.h"
+#include "executor/ex_exe_stmt_globals.h"
 #include "executor/ExStats.h"
 #include "executor/ex_error.h"
 #include "executor/ex_expr.h"

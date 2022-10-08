@@ -21,7 +21,7 @@
 #include <math.h>
 
 #include "Cost.h"
-#include "EstLogProp.h"
+#include "optimizer/EstLogProp.h"
 #include "ItemSample.h"
 #include "NodeMap.h"
 #include "RelPackedRows.h"

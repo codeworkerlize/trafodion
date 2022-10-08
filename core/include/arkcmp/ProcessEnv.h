@@ -19,6 +19,9 @@
 #ifndef PROCESSENV_H
 #define PROCESSENV_H
 
+#include "common/Collections.h"
+#include "export/NABasicObject.h"
+
 // ProcessEnv contains the methods for setting the runtime environment
 // for certain process, including current working directory(chdir) and
 // environment variables. Eventually whatever sqlci handles for environment

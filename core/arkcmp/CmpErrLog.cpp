@@ -52,7 +52,7 @@
 #include "common/Platform.h"
 #include "optimizer/Analyzer.h"
 #include "optimizer/SchemaDB.h"
-#include "vproc.h"
+#include "bin/vproc.h"
 
 #define MAX_LOGFILE_SIZE     (1 * 1024 * 1024)  // One megabyte
 #define MAX_LOGFILE_NAME_LEN 125

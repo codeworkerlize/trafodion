@@ -18,7 +18,7 @@
 #include <fenv.h>  // floating point environment stuff
 #include <sys/mman.h>
 
-#include "BigNumHelper.h"
+#include "common/BigNumHelper.h"
 #include "ExpPCode.h"
 #include "ExpPCodeOptimizations.h"
 #include "comexe/ComTdb.h"
@@ -32,7 +32,7 @@
 #include "exp/exp_bignum.h"
 #include "exp/exp_clause_derived.h"
 #include "exp/exp_stdh.h"
-#include "exp_function.h"
+#include "exp/exp_function.h"
 #include "exp_ieee.h"
 #include "exp_ovfl_ptal.h"
 #include "qmscommon/QRLogger.h"

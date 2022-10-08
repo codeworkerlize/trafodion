@@ -25,7 +25,7 @@
 #include "ex_onlj.h"
 #include "ex_part_input.h"
 #include "ex_partn_access.h"
-#include "ex_root.h"
+#include "executor/ex_root.h"
 #include "ex_send_bottom.h"
 #include "ex_send_top.h"
 #include "ex_sort_grby.h"

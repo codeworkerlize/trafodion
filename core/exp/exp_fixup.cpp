@@ -15,12 +15,12 @@
  *****************************************************************************
  */
 
-#include "SQLTypeDefs.h"
+#include "common/SQLTypeDefs.h"
 #include "common/Platform.h"
 #include "exp/exp_clause_derived.h"
 #include "exp/exp_interval.h"
 #include "exp/exp_stdh.h"
-#include "exp_function.h"
+#include "exp/exp_function.h"
 
 __declspec(dllimport) NABoolean ExExprComputeSpace(ex_tcb *tcb);
 

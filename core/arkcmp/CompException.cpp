@@ -2,9 +2,9 @@
 
 #include "arkcmp/CompException.h"
 
-#include "CmpEHCallBack.h"
-#include "NAInternalError.h"
-#include "string.h"
+#include "arkcmp/CmpEHCallBack.h"
+#include "common/sqtypes.h"
+#include "export/NAInternalError.h"
 
 BaseException::BaseException(const char *fileName, UInt32 lineNum) : lineNum_(lineNum) {
   if (fileName) {

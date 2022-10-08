@@ -28,7 +28,7 @@
 #include "common/OperTypeEnum.h"
 #include "common/Platform.h"
 #include "executor/JavaObjectInterface.h"
-#include "exp_function.h"
+#include "exp/exp_function.h"
 #include "spinfo.h"
 #include "udrdecs.h"
 #include "udrdefs.h"

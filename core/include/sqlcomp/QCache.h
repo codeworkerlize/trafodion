@@ -20,6 +20,7 @@
 
 #include <unordered_set>
 
+#include "arkcmp/QueryCacheSt.h"
 #include "comexe/CmpMessage.h"
 #include "common/Collections.h"
 #include "common/ComSysUtils.h"

@@ -19,7 +19,7 @@
 
 #include "AppliedStatMan.h"
 #include "Cost.h"
-#include "EstLogProp.h"
+#include "optimizer/EstLogProp.h"
 #include "ScanOptimizer.h"
 #include "arkcmp/CmpStatement.h"
 #include "optimizer/Analyzer.h"

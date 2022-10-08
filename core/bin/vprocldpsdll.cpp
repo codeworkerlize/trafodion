@@ -10,7 +10,7 @@
  *****************************************************************************
  */
 
-#include "vproc.h"
+#include "bin/vproc.h"
 
 extern "C" {
 void VPROC(PRODNUMLDPSDLL, DATE1LDPSDLL, LDPSDLL_CC_LABEL)() {}

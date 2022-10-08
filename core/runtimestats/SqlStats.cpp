@@ -23,7 +23,7 @@
 #include "ExCextdecs.h"
 #include "SharedSegment.h"
 #include "cli/sql_id.h"
-#include "cli_stdh.h"
+#include "cli/cli_stdh.h"
 #include "common/ComDistribution.h"
 #include "common/ComSqlId.h"
 #include "common/Ipc.h"

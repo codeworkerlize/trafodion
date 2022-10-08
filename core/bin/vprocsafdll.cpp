@@ -13,7 +13,7 @@
 *****************************************************************************
 */
 
-#include "vproc.h"
+#include "bin/vproc.h"
 
 extern "C" {
 void VPROC(PRODNUMSAFDLL, DATE1SAFDLL, SAFDLL_CC_LABEL)() {}

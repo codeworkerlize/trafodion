@@ -17,11 +17,11 @@
 
 // -----------------------------------------------------------------------
 
-// #include "cli_stdh.h"
-// #include "Cli.h"
+// #include "cli/cli_stdh.h"
+// #include "cli/Cli.h"
 
 #include "cli/sqlcli.h"
-#include "cli_stdh.h"
+#include "cli/cli_stdh.h"
 #include "stdio.h"
 #include "stdlib.h"
 #include "time.h"

@@ -17,7 +17,7 @@
 
 #include "exp/exp_datetime.h"
 
-#include "SQLTypeDefs.h"
+#include "common/SQLTypeDefs.h"
 #include "common/NAAssert.h"
 #include "common/Platform.h"
 #include "exp/exp_bignum.h"

@@ -3,7 +3,7 @@
 #ifndef PCODEEXPRCACHE_H
 #define PCODEEXPRCACHE_H
 
-#include "ExpPCodeInstruction.h"
+#include "exp/ExpPCodeInstruction.h"
 #include "ExpPCodeOptimizations.h"
 #include "common/BaseTypes.h"
 #include "common/CmpCommon.h"

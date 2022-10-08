@@ -22,7 +22,7 @@
  *****************************************************************************
  */
 
-#include "CliSemaphore.h"
+#include "cli/CliSemaphore.h"
 #include "cli/CliDefs.h"
 #include "cli/ExSqlComp.h"
 #include "cli/Globals.h"

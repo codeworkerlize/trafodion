@@ -18,7 +18,7 @@
 
 #include "ExSimpleSqlBuffer.h"
 #include "common/ComDefs.h"
-#include "ex_exe_stmt_globals.h"
+#include "executor/ex_exe_stmt_globals.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //

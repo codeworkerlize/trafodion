@@ -21,8 +21,8 @@
 
 #include <iostream>
 
-#include "BigNumHelper.h"
-#include "SQLTypeDefs.h"
+#include "common/BigNumHelper.h"
+#include "common/SQLTypeDefs.h"
 #include "common/Int64.h"
 #include "common/Platform.h"
 #include "common/str.h"

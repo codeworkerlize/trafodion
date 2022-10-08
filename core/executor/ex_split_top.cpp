@@ -17,14 +17,14 @@
 
 #include "ex_split_top.h"
 
-#include "ComMemLog.h"
+#include "common/ComMemLog.h"
 #include "comexe/ComTdb.h"
 #include "comexe/PartInputDataDesc.h"
 #include "common/BaseTypes.h"
 #include "common/ExCollections.h"
 #include "common/str.h"
-#include "ex_exe_stmt_globals.h"
-#include "ex_frag_rt.h"
+#include "executor/ex_exe_stmt_globals.h"
+#include "executor/ex_frag_rt.h"
 #include "ex_send_top.h"
 #include "executor/ExStats.h"
 #include "executor/ex_expr.h"

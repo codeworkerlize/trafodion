@@ -18,7 +18,7 @@
 
 #include <sys/time.h>
 
-#include "SQLTypeDefs.h"
+#include "common/SQLTypeDefs.h"
 #include "common/Int64.h"
 #include "common/Platform.h"
 

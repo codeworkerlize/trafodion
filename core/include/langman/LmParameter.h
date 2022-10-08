@@ -15,7 +15,7 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
-#include "ExpAlignedFormat.h"
+#include "exp/ExpAlignedFormat.h"
 #include "LmError.h"
 #include "common/ComSmallDefs.h"
 #include "exp/exp_tuple_desc.h"

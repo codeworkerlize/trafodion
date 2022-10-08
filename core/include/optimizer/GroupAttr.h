@@ -18,7 +18,7 @@
 
 // -----------------------------------------------------------------------
 
-#include "EstLogProp.h"
+#include "optimizer/EstLogProp.h"
 #include "IndexDesc.h"
 #include "common/BaseTypes.h"
 #include "common/Collections.h"

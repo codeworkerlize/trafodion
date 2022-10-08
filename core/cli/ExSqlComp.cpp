@@ -20,11 +20,10 @@
 
 #include <ctype.h>
 
-#include "ExControlArea.h"
-#include "PortProcessCalls.cpp"
+#include "executor/ExControlArea.h"
 #include "arkcmp/CmpErrors.h"
 #include "cli/sql_id.h"
-#include "cli_stdh.h"
+#include "cli/cli_stdh.h"
 #include "comexe/CmpMessage.h"
 #include "comexe/ComTdb.h"
 #include "common/ComRtUtils.h"
@@ -32,7 +31,7 @@
 #include "common/Ipc.h"
 #include "common/Platform.h"
 #include "common/cextdecs.h"
-#include "ex_stored_proc.h"
+#include "executor/ex_stored_proc.h"
 #include "executor/ex_stdh.h"  // TEMP, for ISP testing
 #include "executor/ex_tcb.h"
 #include "executor/ex_transaction.h"

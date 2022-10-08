@@ -18,7 +18,7 @@
 #include "AppliedStatMan.h"
 #include "GroupAttr.h"
 #include "MultiJoin.h"
-#include "TransRule.h"
+#include "optimizer/TransRule.h"
 #include "optimizer/Analyzer.h"
 #include "optimizer/opt.h"
 

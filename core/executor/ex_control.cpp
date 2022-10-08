@@ -15,22 +15,22 @@
  *****************************************************************************
  */
 
-#include "ex_control.h"
+#include "executor/ex_control.h"
 
 #include "CmpContext.h"
 #include "ComQueue.h"
-#include "ComRtUtils.h"
+#include "common/ComRtUtils.h"
 #include "ComSqlId.h"
 #include "ComTdb.h"
 #include "ComUser.h"
-#include "ExControlArea.h"
+#include "executor/ExControlArea.h"
 #include "ExExeUtil.h"
 #include "ExSqlComp.h"
 #include "ExpHbaseInterface.h"
-#include "cli_stdh.h"
+#include "cli/cli_stdh.h"
 #include "ex_ddl.h"
-#include "ex_exe_stmt_globals.h"
-#include "ex_frag_rt.h"
+#include "executor/ex_exe_stmt_globals.h"
+#include "executor/ex_frag_rt.h"
 #include "ex_stdh.h"
 #include "ex_tcb.h"
 #include "executor/ex_error.h"

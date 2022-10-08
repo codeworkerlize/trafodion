@@ -14,10 +14,10 @@
 ******************************************************************************
 */
 
-#include "TransRule.h"
+#include "optimizer/TransRule.h"
 
 #include "AppliedStatMan.h"
-#include "EstLogProp.h"
+#include "optimizer/EstLogProp.h"
 #include "GroupAttr.h"
 #include "MultiJoin.h"
 #include "RelSample.h"

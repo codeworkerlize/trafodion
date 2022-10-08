@@ -27,7 +27,7 @@
 #include "sqlmxevents/logmxevent.h"
 #include "udrglobals.h"
 #include "udrutil.h"
-#include "vproc.h"
+#include "bin/vproc.h"
 
 extern void my_mpi_fclose();
 

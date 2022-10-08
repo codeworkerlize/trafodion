@@ -15,7 +15,7 @@
 
 // -----------------------------------------------------------------------
 
-#include "DTICommonType.h"
+#include "common/DTICommonType.h"
 #include "cli/SQLCLIdev.h"
 #include "common/IntervalType.h"
 #include "common/NAType.h"

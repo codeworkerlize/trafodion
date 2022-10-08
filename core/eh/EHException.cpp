@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #endif
 
-#include "EHCallBack.h"
+#include "eh/EHCallBack.h"
 #include "EHExceptionTypeEnum.h"
 #include "EHExceptionTypeNode.h"
 #include "eh/EHException.h"

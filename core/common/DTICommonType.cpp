@@ -13,7 +13,7 @@
 
 // -----------------------------------------------------------------------
 
-#include "DTICommonType.h"
+#include "common/DTICommonType.h"
 
 #include "common/DatetimeType.h"
 #include "common/IntervalType.h"

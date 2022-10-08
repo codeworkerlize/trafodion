@@ -23,7 +23,7 @@ class ex_expr;
 
 #include "comexe/ComTdbDDL.h"
 #include "common/ComVersionDefs.h"
-#include "ex_exe_stmt_globals.h"
+#include "executor/ex_exe_stmt_globals.h"
 
 // -----------------------------------------------------------------------
 // Classes defined in this file

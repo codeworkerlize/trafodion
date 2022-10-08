@@ -23,7 +23,7 @@
 #include "ExStats.h"
 #include "cli/Context.h"
 #include "common/Platform.h"
-#include "ex_exe_stmt_globals.h"
+#include "executor/ex_exe_stmt_globals.h"
 #include "ex_stdh.h"
 #include "ex_tcb.h"
 #include "executor/ex_globals.h"
