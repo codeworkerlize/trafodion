@@ -10,7 +10,7 @@
  **************************************************************************
  */
 
-#include "QRDescGenerator.h"
+#include "optimizer/QRDescGenerator.h"
 
 #include "common/NumericType.h"
 #include "optimizer/Analyzer.h"
@@ -1071,8 +1071,6 @@ void QRDescGenerator::processJBBCList(CANodeIdSet *jbbcNodeIds, QRJBBPtr jbbElem
     }
   }
 
-  // Finished with join order array.
-  NADELETEARRAY(joinOrders, joinOrderArrSize, int, STMTHEAP);
 
   // Sort the array by table name.
   if (numTables > 0) {

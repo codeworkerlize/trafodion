@@ -33,11 +33,12 @@
 
 #include "optimizer/CostScalar.h"
 
-#include "exp/exp_ovfl_ptal.h"
+#include <float.h>
+#include <math.h>
+
 #include "common/CmpCommon.h"
 #include "common/NABoolean.h"
-#include "float.h"
-#include "math.h"
+#include "exp/exp_ovfl_ptal.h"
 // The union type IEEE_double is used to access raw exponent bits
 // of a real IEEE value. Since the layout is different we need 2
 // definitions of this union type, one - for Windows and one -
@@ -82,7 +83,7 @@ CostScalar CostScalar::operator*(const CostScalar &other) const {
     IEEE_double *X = (IEEE_double *)&dpv_;
     IEEE_double *Y = (IEEE_double *)&(other.dpv_);
 
-    register int prodExp = X->field.exp + Y->field.exp;
+    int prodExp = X->field.exp + Y->field.exp;
     if (prodExp < minBiasedExpForMult) {
       udflwCount_++;
       return csZero;
@@ -111,7 +112,7 @@ CostScalar CostScalar::operator/(const CostScalar &other) const {
         return csMin;
     }
 
-    register int divExp = X->field.exp;
+    int divExp = X->field.exp;
     divExp -= Y->field.exp;
     if (divExp < CS_MIN_BIN_EXP) {
       udflwCount_++;

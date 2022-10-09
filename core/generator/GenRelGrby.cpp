@@ -14,7 +14,7 @@
 *
 ******************************************************************************
 */
-#include "GenExpGenerator.h"
+#include "generator/GenExpGenerator.h"
 #include "common/ComOptIncludes.h"
 #include "generator/Generator.h"
 #include "optimizer/GroupAttr.h"
@@ -24,7 +24,7 @@
 #include "exp/ExpCriDesc.h"
 //#include "executor/ex_tcb.h"
 #include "comexe/HashRow.h"
-#include "ItmBitMuxFunction.h"
+#include "optimizer/ItmBitMuxFunction.h"
 #include "comexe/ComTdbHashGrby.h"
 #include "comexe/ComTdbSortGrby.h"
 #include "common/ComUnits.h"

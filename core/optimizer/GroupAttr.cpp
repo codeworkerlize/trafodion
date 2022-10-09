@@ -20,7 +20,7 @@
 #include "optimizer/AppliedStatMan.h"
 #include "optimizer/Cost.h"
 #include "optimizer/EstLogProp.h"
-#include "ScanOptimizer.h"
+#include "optimizer/ScanOptimizer.h"
 #include "arkcmp/CmpStatement.h"
 #include "optimizer/Analyzer.h"
 #include "optimizer/ItemConstr.h"

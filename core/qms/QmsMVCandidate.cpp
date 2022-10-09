@@ -15,7 +15,7 @@
 
 #include "QmsMVCandidate.h"
 
-#include "QRMessage.h"
+#include "qmscommon/QRMessage.h"
 #include "common/ComCextdecs.h"  // For NA_JulianTimestamp()
 #include "qmscommon/QRDescriptor.h"
 

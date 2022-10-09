@@ -26,9 +26,8 @@
 #include "parser/StmtCompilationMode.h"
 #include "sqlcomp/DefaultValidator.h"
 // triggers -- eliezer
-#include <ComCextdecs.h>
-
 #include "cli/SQLCLIdev.h"
+#include "common/ComCextdecs.h"
 #include "common/ComUnits.h"
 #include "exp/ExpHbaseInterface.h"
 #include "optimizer/OptimizerSimulator.h"

@@ -16,7 +16,7 @@
  */
 
 #define SQLPARSERGLOBALS_FLAGS
-#include "GenExpGenerator.h"
+#include "generator/GenExpGenerator.h"
 #include "optimizer/RelDCL.h"
 #include "comexe/ComQueue.h"
 #include "comexe/ComTdb.h"

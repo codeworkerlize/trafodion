@@ -1,5 +1,5 @@
 
-#include "GenExpGenerator.h"
+#include "generator/GenExpGenerator.h"
 #include "optimizer/RelPackedRows.h"
 #include "comexe/ComTdbSample.h"
 #include "comexe/ExplainTupleMaster.h"

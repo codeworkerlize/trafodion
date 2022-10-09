@@ -17,7 +17,7 @@
 
 // -----------------------------------------------------------------------
 
-#include "PartFunc.h"
+#include "optimizer/PartFunc.h"
 #include "optimizer/RelExpr.h"
 // -----------------------------------------------------------------------
 // contents of this file

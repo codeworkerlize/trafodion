@@ -11,7 +11,7 @@
 ******************************************************************************
 */
 
-#include "MultiJoin.h"
+#include "optimizer/MultiJoin.h"
 
 #include "optimizer/AppliedStatMan.h"
 #include "optimizer/RelJoin.h"
@@ -849,7 +849,7 @@ void MultiJoin::synthEstLogProp(const EstLogPropSharedPtr &inputEstLogProp) {
 
   EstLogPropSharedPtr myEstLogProp = preferredJoin->getGroupAttr()->outputLogProp(inputEstLogProp);
 
-  getGroupAttr()->addInputOutputLogProp(inputEstLogProp, myEstLogProp, NULL);
+  getGroupAttr()->addInputOutputLogProp(inputEstLogProp, myEstLogProp, {});
 }  // MultiJoin::synthEstLogProp
 
 void MultiJoin::addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) const {

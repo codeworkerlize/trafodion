@@ -19,9 +19,9 @@
 
 #include "optimizer/Cost.h"
 #include "optimizer/ItemSample.h"
-#include "MultiJoin.h"
-#include "OptRange.h"
-#include "QRDescGenerator.h"
+#include "optimizer/MultiJoin.h"
+#include "optimizer/OptRange.h"
+#include "optimizer/QRDescGenerator.h"
 #include "arkcmp/CompException.h"
 #include "common/Debug.h"
 #include "executor/HBaseClient_JNI.h"

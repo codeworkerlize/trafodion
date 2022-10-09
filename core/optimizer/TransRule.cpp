@@ -16,21 +16,23 @@
 
 #include "optimizer/TransRule.h"
 
-#include "optimizer/AppliedStatMan.h"
-#include "optimizer/EstLogProp.h"
-#include "GroupAttr.h"
-#include "MultiJoin.h"
-#include "optimizer/RelPackedRows.h"
 #include "arkcmp/CmpContext.h"
 #include "common/ngram.h"
 #include "optimizer/AllItemExpr.h"
 #include "optimizer/AllRelExpr.h"
 #include "optimizer/Analyzer.h"
+#include "optimizer/AppliedStatMan.h"
+#include "optimizer/EstLogProp.h"
+#include "optimizer/GroupAttr.h"
+#include "optimizer/MultiJoin.h"
 #include "optimizer/NormWA.h"
 #include "optimizer/PhyProp.h"
+#include "optimizer/RelPackedRows.h"
 #include "optimizer/Sqlcomp.h"
+#include "optimizer/TransRule.h"
 #include "optimizer/opt.h"
 #include "sqlcomp/parser.h"
+#include "optimizer/RelSample.h"
 
 // -----------------------------------------------------------------------
 // Global variables
@@ -2769,162 +2771,162 @@ NABoolean JoinToTSJRule::topMatch(RelExpr *expr, Context *context) {
     }
 
   } else
-      // if no cqs and NJ is not the only explored option and keylessNJ off
-      // then avoid keyless nested join
-      if (!cqs_skips_keylessNJ_heuristic AND !NJisOnlyOption AND keylessNJ_off AND hasAnalysis) {
-    // if there is at least 1 index
-    const SET(IndexDesc *) &availIndexes = joinExpr->child(1).getGroupAttr()->getAvailableBtreeIndexes();
-    if (availIndexes.entries() > 0) {
-      // get all predicates
-      ValueIdSet allJoinPreds;
-      allJoinPreds += joinExpr->getSelectionPred();
-      allJoinPreds += joinExpr->getJoinPred();
+    // if no cqs and NJ is not the only explored option and keylessNJ off
+    // then avoid keyless nested join
+    if (!cqs_skips_keylessNJ_heuristic AND !NJisOnlyOption AND keylessNJ_off AND hasAnalysis) {
+      // if there is at least 1 index
+      const SET(IndexDesc *) &availIndexes = joinExpr->child(1).getGroupAttr()->getAvailableBtreeIndexes();
+      if (availIndexes.entries() > 0) {
+        // get all predicates
+        ValueIdSet allJoinPreds;
+        allJoinPreds += joinExpr->getSelectionPred();
+        allJoinPreds += joinExpr->getJoinPred();
 
-      // get all predicates' base columns
-      ValueIdSet allReferencedBaseCols;
-      allJoinPreds.findAllReferencedBaseCols(allReferencedBaseCols);
+        // get all predicates' base columns
+        ValueIdSet allReferencedBaseCols;
+        allJoinPreds.findAllReferencedBaseCols(allReferencedBaseCols);
 
-      NABoolean handleDivColumnsInMTD = (CmpCommon::getDefault(MTD_GENERATE_CC_PREDS) == DF_ON);
+        NABoolean handleDivColumnsInMTD = (CmpCommon::getDefault(MTD_GENERATE_CC_PREDS) == DF_ON);
 
-      if (mtd_mdam_uec_threshold < 0) handleDivColumnsInMTD = FALSE;
+        if (mtd_mdam_uec_threshold < 0) handleDivColumnsInMTD = FALSE;
 
-      NABoolean collectLeadingDivColumns = handleDivColumnsInMTD;
+        NABoolean collectLeadingDivColumns = handleDivColumnsInMTD;
 
-      NABoolean nj_check_leading_key_skew = (CmpCommon::getDefault(NESTED_JOINS_CHECK_LEADING_KEY_SKEW) == DF_ON);
+        NABoolean nj_check_leading_key_skew = (CmpCommon::getDefault(NESTED_JOINS_CHECK_LEADING_KEY_SKEW) == DF_ON);
 
-      int nj_leading_key_skew_threshold =
-          (int)(ActiveSchemaDB()->getDefaults()).getAsLong(NESTED_JOINS_LEADING_KEY_SKEW_THRESHOLD);
+        int nj_leading_key_skew_threshold =
+            (int)(ActiveSchemaDB()->getDefaults()).getAsLong(NESTED_JOINS_LEADING_KEY_SKEW_THRESHOLD);
 
-      // try to find a predicate that matches
-      // 1st nonconstant key prefix column
-      NABoolean foundPrefixKey = FALSE;
-      CollIndex x, i = 0;
-      for (i = 0; i < availIndexes.entries() && !foundPrefixKey; i++) {
-        IndexDesc *currentIndexDesc = availIndexes[i];
-        const ValueIdList *currentIndexSortKey = (&(currentIndexDesc->getOrderOfKeyValues()));
+        // try to find a predicate that matches
+        // 1st nonconstant key prefix column
+        NABoolean foundPrefixKey = FALSE;
+        CollIndex x, i = 0;
+        for (i = 0; i < availIndexes.entries() && !foundPrefixKey; i++) {
+          IndexDesc *currentIndexDesc = availIndexes[i];
+          const ValueIdList *currentIndexSortKey = (&(currentIndexDesc->getOrderOfKeyValues()));
 
-        NABoolean missedSuffixKey = FALSE;
-        ValueIdSet divColumnsWithoutKeyPreds;
-        ValueIdSet leadingKeys;
+          NABoolean missedSuffixKey = FALSE;
+          ValueIdSet divColumnsWithoutKeyPreds;
+          ValueIdSet leadingKeys;
 
-        // get this index's 1st nonconstant key prefix column
-        for (x = 0; x < (*currentIndexSortKey).entries() && (!foundPrefixKey || fullInnerKey); x++) {
-          ValueId firstkey = (*currentIndexSortKey)[x];
+          // get this index's 1st nonconstant key prefix column
+          for (x = 0; x < (*currentIndexSortKey).entries() && (!foundPrefixKey || fullInnerKey); x++) {
+            ValueId firstkey = (*currentIndexSortKey)[x];
 
-          // firstkey with a constant predicate does not count in
-          // making this NJ better than a HJ. keep going.
-          ItemExpr *cv;
-          NABoolean isaConstant = FALSE;
-          ValueId firstkeyCol;
-          ColAnalysis *colA = firstkey.baseColAnalysis(&isaConstant, firstkeyCol);
-          leadingKeys.insert(firstkeyCol);
+            // firstkey with a constant predicate does not count in
+            // making this NJ better than a HJ. keep going.
+            ItemExpr *cv;
+            NABoolean isaConstant = FALSE;
+            ValueId firstkeyCol;
+            ColAnalysis *colA = firstkey.baseColAnalysis(&isaConstant, firstkeyCol);
+            leadingKeys.insert(firstkeyCol);
 
-          if (colA) {
-            if (colA->getConstValue(cv, FALSE /*useRefAConstExpr*/)) isaConstant = TRUE;
-          } else {
-            ValueIdSet predsWithConst;
-            ValueIdSet localPreds = currentIndexDesc->getPrimaryTableDesc()->getLocalPreds();
-            localPreds.getConstantExprs(predsWithConst);
-
-            firstkeyCol = firstkey.getBaseColumn(&isaConstant);
-
-            ValueId exprId;
-            if (predsWithConst.referencesTheGivenValue(firstkeyCol, exprId)) isaConstant = TRUE;
-          }
-
-          // skip salted columns and constant predicates
-          if (isaConstant || firstkeyCol.isSaltColumn()) continue;  // try next prefix column
-
-          // If firstkeyCol is one of the leading DIVISION columns
-          // without any predicate attached on it, collect it in
-          // a ValueIdSet. Later on, we will check the UEC for the
-          // set. If the UEC is less than a threshold, we will allow
-          // such "keyless" NJ.
-          NABoolean isLeadingDivColumn = firstkeyCol.isDivisioningColumn();
-
-          // any predicate on first nonconstant prefix key column?
-          if (allReferencedBaseCols.containsTheGivenValue(firstkeyCol)) {
-            if (collectLeadingDivColumns)
-              // We will stop collect any additional leading DIV
-              // key columns from this point on.
-              collectLeadingDivColumns = FALSE;
-
-            // nonconstant prefix key matches predicate
-            foundPrefixKey = TRUE;  // allow this NJ to compete
-          } else                    // no predicate match for prefix key column
-          {
-            // If we alrady know there exists a constant predicate,
-            // continue to process next key column. We wait until
-            // this moment because if there is also an equi-join
-            // predicate on the same key column, like T.A = S.B = 10,
-            // we can set foundPrefixKey to TRUE in the THEN branch and
-            // quit check. If we would process the isConstant==TRUE
-            // case first, we would miss the equi-join predicate and
-            // thus try the NJ.
-            if (isaConstant) continue;
-
-            if (collectLeadingDivColumns && isLeadingDivColumn)
-              divColumnsWithoutKeyPreds.insert(firstkeyCol);
-            else {
-              missedSuffixKey = TRUE;
-              leadingKeys.remove(firstkeyCol);
-              break;  // try next index
-            }
-          }
-        }
-        if (handleDivColumnsInMTD && foundPrefixKey || (missedSuffixKey && nj_check_leading_key_skew)) {
-          // If the SC/MC UEC of all leading div columns absent of
-          // key predicates is greater than a threshold specified via
-          // CQD MTD_MDAM_NJ_UEC_THRESHOLD, disable "keyless" NJ.
-
-          // First figure out the SC/MC UEC on the leading DIV columns
-          // lacking any key predicates, or RC/uec when the trailing
-          // key columns lacking any key predicates.
-
-          EstLogPropSharedPtr inputLPForChild;
-          inputLPForChild = joinExpr->child(0).outputLogProp((*GLOBAL_EMPTY_INPUT_LOGPROP));
-
-          EstLogPropSharedPtr outputLogPropPtr = joinExpr->child(1).getGroupAttr()->outputLogProp(inputLPForChild);
-
-          const ColStatDescList &stats = outputLogPropPtr->getColStats();
-          const MultiColumnUecList *uecList = stats.getUecList();
-
-          if (uecList) {
-            CostScalar uec;
-            if (missedSuffixKey && nj_check_leading_key_skew) {
-              // max rows from the inner
-              CostScalar child1card = joinExpr->child(1).getGroupAttr()->getResultCardinalityForEmptyInput();
-
-              uec = uecList->lookup(leadingKeys);
-
-              if (uec.isGreaterThanZero() && child1card / uec <= CostScalar(nj_leading_key_skew_threshold))
-                missedSuffixKey = FALSE;
-
+            if (colA) {
+              if (colA->getConstValue(cv, FALSE /*useRefAConstExpr*/)) isaConstant = TRUE;
             } else {
-              uec = uecList->lookup(divColumnsWithoutKeyPreds);
-              if (uec.isGreaterThanZero() && uec > CostScalar(mtd_mdam_uec_threshold)) foundPrefixKey = FALSE;
+              ValueIdSet predsWithConst;
+              ValueIdSet localPreds = currentIndexDesc->getPrimaryTableDesc()->getLocalPreds();
+              localPreds.getConstantExprs(predsWithConst);
+
+              firstkeyCol = firstkey.getBaseColumn(&isaConstant);
+
+              ValueId exprId;
+              if (predsWithConst.referencesTheGivenValue(firstkeyCol, exprId)) isaConstant = TRUE;
+            }
+
+            // skip salted columns and constant predicates
+            if (isaConstant || firstkeyCol.isSaltColumn()) continue;  // try next prefix column
+
+            // If firstkeyCol is one of the leading DIVISION columns
+            // without any predicate attached on it, collect it in
+            // a ValueIdSet. Later on, we will check the UEC for the
+            // set. If the UEC is less than a threshold, we will allow
+            // such "keyless" NJ.
+            NABoolean isLeadingDivColumn = firstkeyCol.isDivisioningColumn();
+
+            // any predicate on first nonconstant prefix key column?
+            if (allReferencedBaseCols.containsTheGivenValue(firstkeyCol)) {
+              if (collectLeadingDivColumns)
+                // We will stop collect any additional leading DIV
+                // key columns from this point on.
+                collectLeadingDivColumns = FALSE;
+
+              // nonconstant prefix key matches predicate
+              foundPrefixKey = TRUE;  // allow this NJ to compete
+            } else                    // no predicate match for prefix key column
+            {
+              // If we alrady know there exists a constant predicate,
+              // continue to process next key column. We wait until
+              // this moment because if there is also an equi-join
+              // predicate on the same key column, like T.A = S.B = 10,
+              // we can set foundPrefixKey to TRUE in the THEN branch and
+              // quit check. If we would process the isConstant==TRUE
+              // case first, we would miss the equi-join predicate and
+              // thus try the NJ.
+              if (isaConstant) continue;
+
+              if (collectLeadingDivColumns && isLeadingDivColumn)
+                divColumnsWithoutKeyPreds.insert(firstkeyCol);
+              else {
+                missedSuffixKey = TRUE;
+                leadingKeys.remove(firstkeyCol);
+                break;  // try next index
+              }
             }
           }
-        }
-        // skip partial keyless NJ if all key cols are not covered
-        if (foundPrefixKey && missedSuffixKey) foundPrefixKey = FALSE;
-      }
-      // all indexes have been tried
+          if (handleDivColumnsInMTD && foundPrefixKey || (missedSuffixKey && nj_check_leading_key_skew)) {
+            // If the SC/MC UEC of all leading div columns absent of
+            // key predicates is greater than a threshold specified via
+            // CQD MTD_MDAM_NJ_UEC_THRESHOLD, disable "keyless" NJ.
 
-      if (!foundPrefixKey) return FALSE;  // it's a keyless NJ. avoid it.
-    } else                                // no index
-    {
-      if (CmpCommon::getDefault(NESTED_JOINS_KEYLESS_INNERJOINS) == DF_OFF)
-        return FALSE;  // it's a keyless NJ. avoid it.
-      else {
-        // When the CQD is ON, we rely on the code above for the contained NJs
-        // in the inner, the max cardinality and risk premium on NJs to protect
-        // against bad contained NJs.
-        // The code below makes sure we are dealing with joins in the inner.
-        if (joinExpr->child(1).getGroupAttr()->getNumBaseTables() == 1) return FALSE;
+            // First figure out the SC/MC UEC on the leading DIV columns
+            // lacking any key predicates, or RC/uec when the trailing
+            // key columns lacking any key predicates.
+
+            EstLogPropSharedPtr inputLPForChild;
+            inputLPForChild = joinExpr->child(0).outputLogProp((*GLOBAL_EMPTY_INPUT_LOGPROP));
+
+            EstLogPropSharedPtr outputLogPropPtr = joinExpr->child(1).getGroupAttr()->outputLogProp(inputLPForChild);
+
+            const ColStatDescList &stats = outputLogPropPtr->getColStats();
+            const MultiColumnUecList *uecList = stats.getUecList();
+
+            if (uecList) {
+              CostScalar uec;
+              if (missedSuffixKey && nj_check_leading_key_skew) {
+                // max rows from the inner
+                CostScalar child1card = joinExpr->child(1).getGroupAttr()->getResultCardinalityForEmptyInput();
+
+                uec = uecList->lookup(leadingKeys);
+
+                if (uec.isGreaterThanZero() && child1card / uec <= CostScalar(nj_leading_key_skew_threshold))
+                  missedSuffixKey = FALSE;
+
+              } else {
+                uec = uecList->lookup(divColumnsWithoutKeyPreds);
+                if (uec.isGreaterThanZero() && uec > CostScalar(mtd_mdam_uec_threshold)) foundPrefixKey = FALSE;
+              }
+            }
+          }
+          // skip partial keyless NJ if all key cols are not covered
+          if (foundPrefixKey && missedSuffixKey) foundPrefixKey = FALSE;
+        }
+        // all indexes have been tried
+
+        if (!foundPrefixKey) return FALSE;  // it's a keyless NJ. avoid it.
+      } else                                // no index
+      {
+        if (CmpCommon::getDefault(NESTED_JOINS_KEYLESS_INNERJOINS) == DF_OFF)
+          return FALSE;  // it's a keyless NJ. avoid it.
+        else {
+          // When the CQD is ON, we rely on the code above for the contained NJs
+          // in the inner, the max cardinality and risk premium on NJs to protect
+          // against bad contained NJs.
+          // The code below makes sure we are dealing with joins in the inner.
+          if (joinExpr->child(1).getGroupAttr()->getNumBaseTables() == 1) return FALSE;
+        }
       }
     }
-  }
 
   //------------
 

@@ -19,8 +19,8 @@
 
 // -----------------------------------------------------------------------
 
-#include "IndexDesc.h"
-#include "disjuncts.h"
+#include "optimizer/IndexDesc.h"
+#include "optimizer/disjuncts.h"
 #include "export/NABasicObject.h"
 #include "optimizer/keycolumns.h"
 #include "optimizer/mdam.h"

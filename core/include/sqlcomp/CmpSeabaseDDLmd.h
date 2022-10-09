@@ -23,7 +23,8 @@
 #ifndef _CMP_SEABASE_MD_H_
 #define _CMP_SEABASE_MD_H_
 
-#include "CmpSeabaseDDLmdcommon.h"
+#include "comexe/ComTdb.h"
+#include "sqlcomp/CmpSeabaseDDLmdcommon.h"
 
 /* defined in common/ComSmallDefs.h
 #define COL_MAX_CATALOG_LEN 256

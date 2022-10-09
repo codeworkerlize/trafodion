@@ -17,7 +17,7 @@
 
 #include "GenMapTable.h"
 
-#include "GenExpGenerator.h"
+#include "generator/GenExpGenerator.h"
 #include "common/ComOptIncludes.h"
 #include "common/dfs2rec.h"
 #include "generator/Generator.h"

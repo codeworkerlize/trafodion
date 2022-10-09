@@ -13,7 +13,7 @@
  */
 
 #include "QRIpc.h"
-#include "QRMessage.h"
+#include "qmscommon/QRMessage.h"
 #include "qmscommon/XMLUtil.h"
 #include "sqlcomp/DefaultConstants.h"
 

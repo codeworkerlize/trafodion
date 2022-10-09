@@ -17,7 +17,7 @@
 #define _QRQUERIESIMPL_H_
 
 #include "QRMVDefinition.h"
-#include "QRMessage.h"
+#include "qmscommon/QRMessage.h"
 #include "QRQueries.h"
 #include "common/CollHeap.h"
 #include "common/ComSmallDefs.h"

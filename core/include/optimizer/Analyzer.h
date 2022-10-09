@@ -14,8 +14,8 @@
  **************************************************************************
  */
 
-#include "GroupAttr.h"
-#include "MVCandidates.h"
+#include "optimizer/GroupAttr.h"
+#include "optimizer/MVCandidates.h"
 #include "arkcmp/CmpStatement.h"
 #include "optimizer/RelRoutine.h"
 

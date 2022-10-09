@@ -15,11 +15,11 @@
 
 // -----------------------------------------------------------------------
 
-#include "IndexDesc.h"
+#include "optimizer/IndexDesc.h"
 
 #include "optimizer/AppliedStatMan.h"
-#include "PartFunc.h"
-#include "ScanOptimizer.h"
+#include "optimizer/PartFunc.h"
+#include "optimizer/ScanOptimizer.h"
 #include "arkcmp/CmpContext.h"
 #include "optimizer/AllItemExpr.h"
 #include "optimizer/CostScalar.h"

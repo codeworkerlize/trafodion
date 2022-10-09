@@ -18,9 +18,9 @@
 #include <algorithm>
 
 #include "ComTdbDp2Oper.h"
-#include "GenExpGenerator.h"
+#include "generator/GenExpGenerator.h"
 #include "comexe/HashRow.h"
-#include "PartFunc.h"
+#include "optimizer/PartFunc.h"
 #include "arkcmp/CmpStatement.h"
 #include "comexe/ComTdbHbaseAccess.h"
 #include "comexe/ComTdbOnlj.h"

@@ -12,8 +12,8 @@
 ******************************************************************************
 */
 
-#include "GenExpGenerator.h"
-#include "SearchKey.h"
+#include "generator/GenExpGenerator.h"
+#include "optimizer/SearchKey.h"
 #include "generator/Generator.h"
 #include "optimizer/Sqlcomp.h"
 //#include "executor/ex_stdh.h"
@@ -22,7 +22,7 @@
 #include "comexe/ComKeyMDAM.h"  // generator Mdam classes
 #include "comexe/ComKeySingleSubset.h"
 #include "exp/ExpCriDesc.h"
-#include "mdamkey.h"  // optimizer Mdam classes
+#include "optimizer/mdamkey.h"  // optimizer Mdam classes
 
 // the next include file is here solely to make the horrible kludge work
 #include "optimizer/NAFileSet.h"

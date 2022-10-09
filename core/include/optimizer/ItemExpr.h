@@ -15,7 +15,7 @@
 ******************************************************************************
 */
 
-#include "IndexDesc.h"
+#include "optimizer/IndexDesc.h"
 #include "comexe/ComKeyMDAM.h"
 #include "common/ComASSERT.h"
 #include "common/ExprNode.h"
@@ -23,7 +23,7 @@
 #include "optimizer/ItemExprList.h"
 #include "optimizer/ObjectNames.h"
 #include "optimizer/ValueDesc.h"
-#include "orcPushdownPredInfo.h"
+#include "optimizer/orcPushdownPredInfo.h"
 #include "qmscommon/QRExprElement.h"
 
 // -----------------------------------------------------------------------

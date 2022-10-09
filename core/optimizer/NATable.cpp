@@ -21,9 +21,6 @@
 
 #include "optimizer/NATable.h"
 
-#include "sort/Const.h"
-#include "optimizer/EncodedValue.h"
-#include "PartFunc.h"
 #include "arkcmp/CmpStatement.h"
 #include "arkcmp/CompException.h"
 #include "cli/Globals.h"
@@ -45,15 +42,17 @@
 #include "exp/exp_clause_derived.h"
 #include "optimizer/BindWA.h"
 #include "optimizer/ControlDB.h"
+#include "optimizer/EncodedValue.h"
 #include "optimizer/ItemColRef.h"
 #include "optimizer/ItemFunc.h"
 #include "optimizer/ItemOther.h"
 #include "optimizer/NATable.h"
+#include "optimizer/PartFunc.h"
 #include "optimizer/RelScan.h"
 #include "optimizer/SchemaDB.h"
 #include "optimizer/Sqlcomp.h"
 #include "optimizer/opt.h"
-#include "security/uid.h"
+#include "sort/Const.h"
 #include "sqlcat/TrafDDLdesc.h"
 #include "sqlcomp/CmpDescribe.h"
 #include "sqlcomp/CmpMain.h"
@@ -868,7 +867,7 @@ const QualifiedName *HistogramsCacheEntry::getName() const { return name_; }
 
 const ColStatsSharedPtr HistogramsCacheEntry::getStatsAt(CollIndex x) const {
   if (!full_ OR x > full_->entries())
-    return NULL;
+    return {};
   else
     return full_->at(x);
 }
@@ -882,7 +881,7 @@ const MultiColumnHistogram *HistogramsCacheEntry::getMultiColumnAt(CollIndex x) 
 
 // return pointer to full single-column histogram identified by col
 ColStatsSharedPtr const HistogramsCacheEntry::getHistForCol(NAColumn &col) const {
-  if (!full_) return NULL;
+  if (!full_) return {};
 
   // search for colPos in full_
   for (UInt32 i = 0; i < full_->entries(); i++) {
@@ -892,7 +891,7 @@ ColStatsSharedPtr const HistogramsCacheEntry::getHistForCol(NAColumn &col) const
       return (*full_)[i];
     }
   }
-  return NULL;
+  return {};
 }
 
 // insert all multicolumns referencing col into list
@@ -932,7 +931,7 @@ void HistogramsCacheEntry::getMCStatsForColFromCacheIntoList(
         CostScalar uec(mcHist->uec());
         CostScalar rows(mcHist->rows());
 
-        mcStat = new (STMTHEAP) ColStats(id, uec, rows, rows, FALSE, FALSE, NULL, FALSE, 1.0, 1.0, 0, STMTHEAP, FALSE);
+        mcStat = new (STMTHEAP) ColStats(id, uec, rows, rows, FALSE, FALSE, {}, FALSE, 1.0, 1.0, 0, STMTHEAP, FALSE);
 
         // populate its NAColumnArray with mcCols
         (*mcStat).populateColumnArray(mcHist->cols(), col.getNATable());
@@ -981,7 +980,7 @@ void HistogramsCacheEntry::getDesiredExpressionsStatsIntoList(
 // destructor
 HistogramsCacheEntry::~HistogramsCacheEntry() {
   if (full_) {
-    ColStatsSharedPtr colStat = NULL;
+    ColStatsSharedPtr colStat = {};
     while (full_->getFirst(colStat)) {
       colStat->deepDeleteFromHistogramCache();
 
@@ -998,7 +997,7 @@ HistogramsCacheEntry::~HistogramsCacheEntry() {
     delete full_;
   }
   if (expressions_) {
-    ColStatsSharedPtr colStat = NULL;
+    ColStatsSharedPtr colStat = {};
     while (expressions_->getFirst(colStat)) {
       colStat->deepDeleteFromHistogramCache();
 
@@ -3491,7 +3490,6 @@ NATable::NATable(BindWA *bindWA, const CorrName &corrName, NAMemory *heap, TrafD
       isAnMV_(FALSE),
       isAnMVMetaData_(FALSE),
       mvsUsingMe_(heap),
-      mvInfo_(NULL),
       accessedInCurrentStatement_(TRUE),
       setupForStatement_(FALSE),
       resetAfterStatement_(FALSE),
@@ -4196,7 +4194,7 @@ char *allocateAndCopyString(char *str, NAMemory *h) {
     int len = strlen(str);
     result = new (h) char[len + 1];
     memcpy(result, str, len);
-    result[len] = NULL;
+    result[len] = 0;
   }
   return result;
 }
@@ -4296,7 +4294,6 @@ NATable::NATable(const NATable &other, NAMemory *h, NATableHeapType heapType)
 
       mvsUsingMe_(other.mvsUsingMe_),
 
-      mvInfo_((other.mvInfo_) ? new (h) MVInfoForDML(*other.mvInfo_, h) : NULL),
 
       mvAttributeBitmap_(other.mvAttributeBitmap_),
 
@@ -4435,17 +4432,6 @@ NABoolean NATable::operator==(const NATable &other) const {
       !(uniqueConstraints_ == other.uniqueConstraints_) || !(refConstraints_ == other.refConstraints_))
     return FALSE;
 
-#if 0
-   // Data members about MVs are not checked until MVs are supported.
-   if (
-        isAnMV_ != other.isAnMV_ ||
-        isAnMVMetaData_ != other.isAnMVMetaData_ ||
-        !(mvsUsingMe_ == other.mvsUsingMe_)  ||
-        ! COMPARE_PTRS(mvInfo_, other.mvInfo_) ||  //MVInfoForDML
-        !(mvAttributeBitmap_ == other.mvAttributeBitmap_) // ComMvAttributeBitmap
-      )
-      return FALSE;
-#endif
 
   if (hitCount_ != other.hitCount_ || replacementCounter_ != other.replacementCounter_ ||
       sizeInCache_ != other.sizeInCache_ || recentlyUsed_ != other.recentlyUsed_ || osv_ != other.osv_ ||
@@ -4941,9 +4927,7 @@ NABoolean NATable::rowsArePacked() const {
   return (getVerticalPartitionList().entries() && getVerticalPartitionList()[0]->isPacked());
 }
 
-// MV
-// Read materialized view information from the catalog manager.
-MVInfoForDML *NATable::getMVInfo(BindWA *bindWA) { return mvInfo_; }
+
 
 // MV
 // An MV is usable unly when it is initialized and not unavailable.
@@ -5632,7 +5616,6 @@ NATable::~NATable() {
     }
   }
   mvsUsingMe_.clear();
-  // mvInfo_ is not used at all
   // tableIDList_ is list of ints - No need to delete the entries
   // colStats_ and colsWithMissingStats_ comes from STMTHEAP
   // secKeySet_ is the set that holds ComSecurityKeySet object itself
@@ -5681,12 +5664,6 @@ void NATable::resetAfterStatement()  // ## to be implemented?
 
   statsFetched_ = FALSE;
 
-  // set this to NULL, the object pointed to by mvInfo_ is on the
-  // statement heap, for the next statement this will be set again
-  // this is set in 'MVInfoForDML *NATable::getMVInfo' which is called
-  // in the binder after the construction of the NATable. Therefore
-  // This will be set for every statement
-  mvInfo_ = NULL;
 
   // delete/clearAndDestroy colStats_
   // set colStats_ pointer to NULL the object itself is deleted when
@@ -6007,11 +5984,11 @@ NATable *NATableDB::get(const ExtendedQualName *key, BindWA *bindWA, NABoolean f
         if (rangeSplitSaltedTable && cachedNATable->hasSaltedColumn() && pf->castToHash2PartitioningFunction()) {
           removeEntry = TRUE;
         } else
-            // if force to hash2 partition a salted table, and the cached table is
-            // not a hash2, do not return the cached object.
-            if (CmpCommon::getDefault(HBASE_HASH2_PARTITIONING) != DF_OFF && cachedNATable->hasSaltedColumn() &&
-                pf->castToHash2PartitioningFunction() == NULL)
-          removeEntry = TRUE;
+          // if force to hash2 partition a salted table, and the cached table is
+          // not a hash2, do not return the cached object.
+          if (CmpCommon::getDefault(HBASE_HASH2_PARTITIONING) != DF_OFF && cachedNATable->hasSaltedColumn() &&
+              pf->castToHash2PartitioningFunction() == NULL)
+            removeEntry = TRUE;
       }
     }
   }
@@ -6136,21 +6113,21 @@ void NATable::markColumnsForHistograms() {
     if (column->isReferencedForHistogram() || (isAKeyColumn && isHbaseTable()))
       column->setNeedFullHistogram();
     else
-        // if column is:
-        // * a key
-        // OR
-        // * isReferenced but not for histogram and addSingleIntHist is true
-        if (isAKeyColumn || ((runningShowQueryStatsCmd || addSingleIntHist) && column->isReferenced() &&
-                             !column->isReferencedForHistogram())) {
-      // if column is not a syskey
-      if (addSingleIntHist && (column->getColName() != "SYSKEY")) addSingleIntHist = FALSE;
+      // if column is:
+      // * a key
+      // OR
+      // * isReferenced but not for histogram and addSingleIntHist is true
+      if (isAKeyColumn || ((runningShowQueryStatsCmd || addSingleIntHist) && column->isReferenced() &&
+                           !column->isReferencedForHistogram())) {
+        // if column is not a syskey
+        if (addSingleIntHist && (column->getColName() != "SYSKEY")) addSingleIntHist = FALSE;
 
-      column->setNeedCompressedHistogram();
-    } else if (column->getType()->getVarLenHdrSize() &&
-               (CmpCommon::getDefault(COMPRESSED_INTERNAL_FORMAT) != DF_OFF ||
-                CmpCommon::getDefault(COMPRESSED_INTERNAL_FORMAT_BMO) != DF_OFF)) {
-      column->setNeedCompressedHistogram();
-    }
+        column->setNeedCompressedHistogram();
+      } else if (column->getType()->getVarLenHdrSize() &&
+                 (CmpCommon::getDefault(COMPRESSED_INTERNAL_FORMAT) != DF_OFF ||
+                  CmpCommon::getDefault(COMPRESSED_INTERNAL_FORMAT_BMO) != DF_OFF)) {
+        column->setNeedCompressedHistogram();
+      }
   }
 }
 

@@ -20,8 +20,8 @@
 
 #include "optimizer/Cost.h"
 #include "optimizer/EstLogProp.h"
-#include "PartKeyDist.h"
-#include "ScanOptimizer.h"
+#include "optimizer/PartKeyDist.h"
+#include "optimizer/ScanOptimizer.h"
 #include "arkcmp/CmpStatement.h"
 #include "cli/Globals.h"
 #include "optimizer/AllItemExpr.h"
@@ -35,7 +35,7 @@
 #include "optimizer/UdfDllInteraction.h"
 #include "optimizer/opt.h"
 #include "sqlcomp/DefaultConstants.h"
-#include "utility.h"
+#include "common/utility.h"
 
 extern NAUnsigned SortEnforcerRuleNumber;
 
@@ -12063,7 +12063,7 @@ RangePartitioningFunction *FileScan::createRangePartFuncForHbaseTableUsingStats(
       // Find a new set of boundaries values which will evenly divide
       // the whole table into partns partitions.
 
-      HistogramSharedPtr hist = NULL;
+      HistogramSharedPtr hist = {};
 
       if (colStats->getStatColumns().entries() > 1)
         hist = colStats->transformOnIntervalsForMC(partns);

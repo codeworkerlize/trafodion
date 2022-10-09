@@ -4,6 +4,7 @@
 #define _OPTRANGE_H_
 
 #include "common/nawstring.h"
+#include "optimizer/ItemExpr.h"
 #include "qmscommon/QRDescriptor.h"
 #include "qmscommon/QRLogger.h"
 #include "qmscommon/Range.h"

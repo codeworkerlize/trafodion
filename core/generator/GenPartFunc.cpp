@@ -29,8 +29,8 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "GenExpGenerator.h"
-#include "PartFunc.h"
+#include "generator/GenExpGenerator.h"
+#include "optimizer/PartFunc.h"
 #include "common/ComOptIncludes.h"
 #include "generator/Generator.h"
 #include "optimizer/GroupAttr.h"

@@ -2,9 +2,9 @@
 
 // **********************************************************************
 
-#include "MVCandidates.h"
+#include "optimizer/MVCandidates.h"
 
-#include "QRDescGenerator.h"
+#include "optimizer/QRDescGenerator.h"
 #include "optimizer/Analyzer.h"
 #include "optimizer/ItemLog.h"
 #include "optimizer/ItemOther.h"
@@ -1202,12 +1202,6 @@ void MVCandidates::analyzeCandidate(QRCandidatePtr candidate, JBBSubset &jbbSubs
     return;
   }
 
-  MVInfoForDML *mvInfo = naTable->getMVInfo(bindWA_);
-  if (mvInfo == NULL || !mvInfo->isInitialized()) {
-    QRLogger::log(CAT_SQL_COMP_MVCAND, LL_DEBUG, "Skipping candidate MV %s since it is not initialized",
-                  candidate->getMVName()->getMVName().data());
-    return;
-  }
 
   GroupByAgg *gbNode = NULL;
   Scan *scan = new (heap) Scan(mvCorrName, NULL, REL_SCAN, heap);

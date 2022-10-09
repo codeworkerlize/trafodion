@@ -27,7 +27,7 @@
 #include "common/unicode_char_set.h"
 #include "exp/exp_clause_derived.h"
 #include "exp/exp_function.h"
-#include "nchar_mp.h"
+#include "common/nchar_mp.h"
 
 ///////////////////////////////////////////////////
 // class LikePattern

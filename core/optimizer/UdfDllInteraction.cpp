@@ -16,13 +16,13 @@
 
 #include "optimizer/UdfDllInteraction.h"
 
-#include "LmError.h"
 #include "common/CharType.h"
 #include "common/ComUser.h"
 #include "common/DatetimeType.h"
 #include "common/MiscType.h"
 #include "common/NumericType.h"
 #include "exp/exp_attrs.h"
+#include "langman/LmError.h"
 #include "optimizer/GroupAttr.h"
 #include "optimizer/ItemLog.h"
 #include "optimizer/ItemOther.h"
@@ -987,14 +987,14 @@ NABoolean TMUDFInternalSetup::setTypeInfoFromNAType(tmudr::TypeInfo &tgt, const 
             result = FALSE;
         }
       else  // inexact numeric
-          if (length == 4) {
-        sqlType = tmudr::TypeInfo::REAL;
-      } else {
-        // note that there is no SQL FLOAT in UDFs, SQL FLOAT
-        // gets mapped to REAL or DOUBLE PRECISION
-        // CMPASSERT(length == 8);
-        sqlType = tmudr::TypeInfo::DOUBLE_PRECISION;
-      }
+        if (length == 4) {
+          sqlType = tmudr::TypeInfo::REAL;
+        } else {
+          // note that there is no SQL FLOAT in UDFs, SQL FLOAT
+          // gets mapped to REAL or DOUBLE PRECISION
+          // CMPASSERT(length == 8);
+          sqlType = tmudr::TypeInfo::DOUBLE_PRECISION;
+        }
     } break;
 
     case NA_CHARACTER_TYPE: {
@@ -1816,5 +1816,3 @@ void TMUDFInternalSetup::deleteUDRPlanInfo(tmudr::UDRPlanInfo *toDelete) {
   delete toDelete;
 }
 
-// also source in the methods defined in sqludr.cpp
-#include "sqludr.cpp"

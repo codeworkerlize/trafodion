@@ -6584,7 +6584,7 @@ ColStatsSharedPtr StatsList::getSingleColumnColStats(const int position) {
   }
   // No ColStats reference to single column statistics
   // were found, so return NULL
-  return NULL;
+  return {};
 };
 //--------------------------------------------------------------------------
 // StatsList::insertCompressedCopy()

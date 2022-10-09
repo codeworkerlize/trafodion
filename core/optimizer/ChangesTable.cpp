@@ -16,7 +16,7 @@
 
 #include "optimizer/ChangesTable.h"
 
-#include "ComMvDefs.h"
+#include "common/ComMvDefs.h"
 #include "common/NumericType.h"
 #include "optimizer/AllItemExpr.h"
 #include "optimizer/AllRelExpr.h"

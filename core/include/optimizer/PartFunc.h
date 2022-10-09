@@ -16,7 +16,7 @@
 */
 
 // -----------------------------------------------------------------------
-#include "NodeMap.h"
+#include "optimizer/NodeMap.h"
 #include "common/Collections.h"
 #include "common/Int64.h"
 #include "optimizer/ItemExpr.h"

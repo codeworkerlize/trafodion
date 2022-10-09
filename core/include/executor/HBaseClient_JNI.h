@@ -11,6 +11,7 @@
 #include "common/Collections.h"
 #include "common/NAMemory.h"
 #include "common/Platform.h"
+#include "common/sqtypes.h"
 #include "executor/ExStats.h"
 #include "executor/JavaObjectInterface.h"
 #include "executor/org_trafodion_sql_HTableClient.h"

@@ -19,7 +19,7 @@
 // Triggers internal spec describes the input tree to OptTriggersBackbone.
 //
 //-----------------------------------------------------------------------------
-#include "OptTrigger.h"
+#include "optimizer/OptTrigger.h"
 
 #include <search.h>
 #include <stdlib.h>

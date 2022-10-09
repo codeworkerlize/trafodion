@@ -14,7 +14,7 @@
 ******************************************************************************
 */
 
-#include "LmError.h"
+#include "langman/LmError.h"
 #include "LmRoutineJava.h"
 #include "langman/LmCommon.h"
 #include "langman/LmJavaSignature.h"

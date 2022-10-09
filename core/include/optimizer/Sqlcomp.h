@@ -23,7 +23,7 @@
 
 #include "common/CmpCommon.h"
 #include "common/ComOptIncludes.h"
-#include "opt_error.h"
+#include "optimizer/opt_error.h"
 #include "optimizer/SchemaDB.h"
 
 #endif  // SQLCOMP_HDR

@@ -15,19 +15,19 @@
 
 #include "optimizer/ImplRule.h"
 
-#include "optimizer/Cost.h"
-#include "optimizer/RelPackedRows.h"
-#include "optimizer/RelPackedRows.h"
-#include "ScanOptimizer.h"
 #include "arkcmp/CmpContext.h"
 #include "optimizer/AllItemExpr.h"
 #include "optimizer/AllRelExpr.h"
+#include "optimizer/Cost.h"
 #include "optimizer/CostMethod.h"
 #include "optimizer/GroupAttr.h"
 #include "optimizer/OptimizerSimulator.h"
 #include "optimizer/PhyProp.h"
+#include "optimizer/RelPackedRows.h"
+#include "optimizer/RelSample.h"
 #include "optimizer/RelScan.h"
 #include "optimizer/RelSequence.h"
+#include "optimizer/ScanOptimizer.h"
 #include "optimizer/Sqlcomp.h"
 #include "optimizer/ValueDesc.h"
 #include "optimizer/mdam.h"
@@ -2733,10 +2733,10 @@ RelExpr *HashJoinRule::nextSubstitute(RelExpr *before, Context *context, RuleSub
         // order cannot be promised for orderedCrossProducts
         return setResult(result, bef, FALSE, FALSE);
     else  // Not a BMO => Great case for ordered hash join
-        if (orderedCrossProduct)
-      return setResult(result, bef, FALSE, TRUE);
-    else
-      return setResult(result, bef, TRUE, FALSE);
+      if (orderedCrossProduct)
+        return setResult(result, bef, FALSE, TRUE);
+      else
+        return setResult(result, bef, TRUE, FALSE);
   }
 
   // The following block of code is old and contains bugs.

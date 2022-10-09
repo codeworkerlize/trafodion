@@ -16,10 +16,10 @@
 */
 
 // -----------------------------------------------------------------------
-#include "LookupTable.h"
-#include "PartFunc.h"
-#include "PartReq.h"
-#include "RelEnforcer.h"
+#include "optimizer/LookupTable.h"
+#include "optimizer/PartFunc.h"
+#include "optimizer/PartReq.h"
+#include "optimizer/RelEnforcer.h"
 #include "optimizer/SchemaDB.h"
 #include "optimizer/opt.h"
 

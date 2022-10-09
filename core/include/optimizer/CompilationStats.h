@@ -4,7 +4,7 @@
 #ifndef COMPILATIONSTATS_H
 #define COMPILATIONSTATS_H
 
-#include "CmpProcess.h"
+#include "optimizer/CmpProcess.h"
 #include "optimizer/NATable.h"
 #include "optimizer/SchemaDB.h"
 #include "optimizer/opt.h"

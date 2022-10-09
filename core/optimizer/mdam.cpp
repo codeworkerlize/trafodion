@@ -17,10 +17,10 @@
 
 #include "optimizer/mdam.h"
 
-#include "OptRange.h"
-#include "disjunct.h"
-#include "disjuncts.h"
-#include "mdamkey.h"
+#include "optimizer/OptRange.h"
+#include "optimizer/disjunct.h"
+#include "optimizer/disjuncts.h"
+#include "optimizer/mdamkey.h"
 #include "optimizer/ItemColRef.h"
 #include "optimizer/ItemExpr.h"
 #include "optimizer/ItemOther.h"

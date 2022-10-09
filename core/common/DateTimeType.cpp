@@ -1524,7 +1524,7 @@ NABoolean DatetimeValue::validateDate(const int values[]) const {
 
 // Note how this mirrors the structure of DatetimeType::getStorageSize()
 void DatetimeValue::setValue(rec_datetime_field startField, rec_datetime_field endField, UInt32 fractionPrecision,
-                             const int values[]) {
+                             const UInt32 values[]) {
   valueLen_ = (unsigned short)DatetimeType::getStorageSize(startField, endField, fractionPrecision);
   unsigned char *value = value_ = new unsigned char[valueLen_];
   int end = DatetimeType::getExtendedEndField(endField, fractionPrecision);

@@ -10,7 +10,7 @@
  *****************************************************************************
  */
 
-#include "SimpleScanOptimizer.h"
+#include "optimizer/SimpleScanOptimizer.h"
 
 #include "optimizer/AllRelExpr.h"
 

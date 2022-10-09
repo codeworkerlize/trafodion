@@ -85,7 +85,6 @@ CPPSRC := \
 	LargeScopeRules.cpp \
 	MJVIndexBuilder.cpp \
 	MultiJoin.cpp \
-	MvRefreshBuilder.cpp \
 	mdam.cpp \
 	memo.cpp \
         NAPartition.cpp \

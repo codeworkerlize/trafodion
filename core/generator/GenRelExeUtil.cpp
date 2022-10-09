@@ -19,11 +19,11 @@
 */
 #define SQLPARSERGLOBALS_FLAGS
 #include "optimizer/Cost.h"
-#include "GenExpGenerator.h"
+#include "generator/GenExpGenerator.h"
 #include "GenResources.h"
-#include "PartFunc.h"
+#include "optimizer/PartFunc.h"
 #include "optimizer/RelDCL.h"
-#include "RelEnforcer.h"
+#include "optimizer/RelEnforcer.h"
 #include "comexe/ComQueue.h"
 #include "comexe/ComTdbDDL.h"
 #include "comexe/ComTdbExeUtil.h"

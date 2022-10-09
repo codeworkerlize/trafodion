@@ -75,7 +75,8 @@
     "typeinfo": "cpp",
     "valarray": "cpp",
     "variant": "cpp",
-    "sm.h": "c"
+    "sm.h": "c",
+    "queue": "cpp"
   },
   "cmake.sourceDirectory": "${workspaceFolder}/."
 }

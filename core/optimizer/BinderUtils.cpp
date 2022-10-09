@@ -13,9 +13,9 @@
 ******************************************************************************
 */
 
-#include "BinderUtils.h"
+#include "optimizer/BinderUtils.h"
 
-#include "ComMvDefs.h"
+#include "common/ComMvDefs.h"
 #include "optimizer/AllItemExpr.h"
 #include "optimizer/BindWA.h"
 #include "optimizer/ItemColRef.h"
@@ -120,7 +120,7 @@ const ItemExpr *BinderUtils::peelOffAllRenames(const ItemExpr *pColExpr) {
   }
 
   return pResult;
-}  // MavBuilder::peelOfAllRenames
+}  
 
 //----------------------------------------------------------------------------
 // make the names into column Items.

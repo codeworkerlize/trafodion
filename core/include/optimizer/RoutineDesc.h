@@ -13,7 +13,7 @@
 */
 
 #include "optimizer/ColStatDesc.h"
-#include "CostVector.h"
+#include "optimizer/CostVector.h"
 #include "common/BaseTypes.h"
 #include "common/ComSmallDefs.h"
 #include "optimizer/ItemConstr.h"

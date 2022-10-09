@@ -1,8 +1,10 @@
 
 #ifndef EX_EXE_UTIL_CLI_H
 #define EX_EXE_UTIL_CLI_H
+#include "cli/sqlcli.h"
 #include "comexe/ComQueue.h"
 #include "common/ComTransInfo.h"
+#include "export/ComDiags.h"
 
 class ContextCli;
 

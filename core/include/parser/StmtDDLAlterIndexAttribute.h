@@ -22,7 +22,7 @@
  */
 
 #include "parser/ParDDLFileAttrsAlterIndex.h"
-#include "StmtDDLAlterIndex.h"
+#include "parser/StmtDDLAlterIndex.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

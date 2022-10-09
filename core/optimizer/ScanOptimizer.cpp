@@ -20,19 +20,19 @@
 
 //#include <sys/io.h>
 
-#include "exp/exp_ovfl_ptal.h"  //to check overflow
-#include "MdamDebug.h"
-#include "OptRange.h"
-#include "ScanOptimizer.h"
-#include "SimpleScanOptimizer.h"
 #include "arkcmp/CmpContext.h"
 #include "arkcmp/CmpStatement.h"
+#include "exp/exp_ovfl_ptal.h"  //to check overflow
 #include "optimizer/ControlDB.h"
 #include "optimizer/ItemColRef.h"
 #include "optimizer/ItemLog.h"
 #include "optimizer/ItemOther.h"
+#include "optimizer/MdamDebug.h"
 #include "optimizer/NAFileSet.h"
 #include "optimizer/NATable.h"
+#include "optimizer/OptRange.h"
+#include "optimizer/ScanOptimizer.h"
+#include "optimizer/SimpleScanOptimizer.h"
 #include "optimizer/Sqlcomp.h"
 #include "optimizer/mdam.h"
 

@@ -9,7 +9,7 @@
 #include <fstream>
 
 #include "optimizer/Cost.h"
-#include "GenExpGenerator.h"
+#include "generator/GenExpGenerator.h"
 #include "optimizer/RelPackedRows.h"
 #include "arkcmp/CmpStatement.h"
 #include "comexe/NAExecTrans.h"

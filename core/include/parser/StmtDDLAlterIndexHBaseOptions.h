@@ -34,7 +34,7 @@
 // duplicate classes in the way we had to here.
 //
 
-#include "StmtDDLAlterIndex.h"
+#include "parser/StmtDDLAlterIndex.h"
 
 class ElemDDLHbaseOptions;  // forward reference
 

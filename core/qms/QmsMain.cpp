@@ -5,7 +5,7 @@
 #include <long.h>
 
 #include "QRIpc.h"
-#include "QRMessage.h"
+#include "qmscommon/QRMessage.h"
 #include "QmsInitializer.h"
 #include "QmsRequest.h"
 #include "QueryRewriteServer.h"

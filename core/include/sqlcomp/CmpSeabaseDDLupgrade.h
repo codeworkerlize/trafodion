@@ -3,7 +3,7 @@
 #ifndef _CMP_SEABASE_MD_UPGD_H_
 #define _CMP_SEABASE_MD_UPGD_H_
 
-#include "CmpSeabaseDDLmdcommon.h"
+#include "sqlcomp/CmpSeabaseDDLmdcommon.h"
 #include "sqlcomp/CmpSeabaseDDLmd.h"
 
 /*******************************************************************************************

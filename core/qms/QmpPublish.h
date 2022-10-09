@@ -7,7 +7,7 @@
 
 #include <fstream>
 
-#include "QRMessage.h"
+#include "qmscommon/QRMessage.h"
 #include "QRQueriesImpl.h"
 #include "common/CollHeap.h"
 #include "qmscommon/QRDescriptor.h"

@@ -109,7 +109,7 @@ Section missing,
 #include "common/feerrors.h"
 #include "exp_numberformat.h"
 #include "float.h"
-#include "security/uid.h"
+
 
     extern char *
     exClauseGetText(OperatorTypeEnum ote);

@@ -19,13 +19,13 @@
 
 #include <vector>
 
-#include "HbaseSearchSpec.h"
-#include "SearchKey.h"
+#include "optimizer/HbaseSearchSpec.h"
+#include "optimizer/SearchKey.h"
 #include "arkcmp/CmpContext.h"
 #include "common/ComSmallDefs.h"
-#include "disjuncts.h"
+#include "optimizer/disjuncts.h"
 #include "exp/ExpHbaseDefs.h"
-#include "mdamkey.h"
+#include "optimizer/mdamkey.h"
 #include "optimizer/ItemOther.h"
 #include "optimizer/ObjectNames.h"
 #include "optimizer/OptHints.h"
@@ -33,7 +33,7 @@
 #include "optimizer/RelExpr.h"
 #include "optimizer/SchemaDB.h"
 #include "optimizer/mdam.h"
-#include "orcPushdownPredInfo.h"
+#include "optimizer/orcPushdownPredInfo.h"
 // -----------------------------------------------------------------------
 // contents of this file
 // -----------------------------------------------------------------------
@@ -55,9 +55,7 @@ class LogicalProperty;
 class NormWA;
 class SimpleCostVector;
 class TableDesc;
-class MVInfoForDML;
 class DeltaDefinition;
-class MvRefreshBuilder;
 ////////////////////
 class QueryAnalysis;
 class CANodeId;
@@ -339,7 +337,6 @@ class Scan : public RelExpr {
 
   // MV --
   NABoolean virtual isIncrementalMV() { return TRUE; }
-  RelExpr *bindExpandedMaterializedView(BindWA *bindWA, NATable *naTable);
   void projectCurrentEpoch(BindWA *bindWA);
 
   // Each operator supports a (virtual) method for transforming its

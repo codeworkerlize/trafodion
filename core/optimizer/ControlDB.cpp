@@ -23,8 +23,6 @@
 
 #include "optimizer/ControlDB.h"
 
-#include "optimizer/RelPackedRows.h"
-#include "optimizer/RelPackedRows.h"
 #include "arkcmp/CmpContext.h"
 #include "cli/cli_stdh.h"
 #include "common/CmpCommon.h"
@@ -33,6 +31,8 @@
 #include "optimizer/CmpMemoryMonitor.h"
 #include "optimizer/ItemColRef.h"  // ConstValue for CQS
 #include "optimizer/OptimizerSimulator.h"
+#include "optimizer/RelPackedRows.h"
+#include "optimizer/RelSample.h"
 #include "optimizer/RelSequence.h"
 #include "sqlcomp/CmpMain.h"
 #include "sqlcomp/QCache.h"

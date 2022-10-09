@@ -14,12 +14,12 @@
 */
 
 // -----------------------------------------------------------------------
-#include "SearchKey.h"
+#include "optimizer/SearchKey.h"
 
-#include "OptRange.h"
-#include "PartFunc.h"
-#include "ScanOptimizer.h"
-#include "SimpleScanOptimizer.h"
+#include "optimizer/OptRange.h"
+#include "optimizer/PartFunc.h"
+#include "optimizer/ScanOptimizer.h"
+#include "optimizer/SimpleScanOptimizer.h"
 #include "common/Collections.h"
 #include "common/ExprNode.h"
 #include "common/NAAssert.h"

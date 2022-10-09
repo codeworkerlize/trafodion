@@ -14,7 +14,7 @@
 
 #include "optimizer/Cost.h" /* for lookups in the defaults table */
 #include "parser/ParNameLocList.h"
-#include "QRDescGenerator.h"
+#include "optimizer/QRDescGenerator.h"
 #include "common/ComCextdecs.h"
 #include "common/ComOperators.h"
 #include "executor/ExExeUtilCli.h"

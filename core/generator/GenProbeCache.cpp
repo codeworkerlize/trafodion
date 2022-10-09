@@ -2,8 +2,8 @@
 
 // **********************************************************************
 //
-#include "GenExpGenerator.h"
-#include "RelProbeCache.h"
+#include "generator/GenExpGenerator.h"
+#include "optimizer/RelProbeCache.h"
 #include "comexe/ComTdbProbeCache.h"
 #include "common/ComDefs.h"  // to get common defines (ROUND8)
 #include "common/ComOptIncludes.h"

@@ -15,9 +15,9 @@
 ******************************************************************************
 */
 
-#include "VEGTable.h"
+#include "optimizer/VEGTable.h"
 
-#include "GenExpGenerator.h"
+#include "generator/GenExpGenerator.h"
 #include "optimizer/GroupAttr.h"
 #include "optimizer/ItemColRef.h"
 #include "optimizer/ItemFunc.h"

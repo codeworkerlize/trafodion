@@ -14,12 +14,13 @@
 // Created:      08/24/2010
 // ***********************************************************************
 
-#include "optimizer/ItemArith.h"
 #include "common/NumericType.h"
+#include "optimizer/ItemArith.h"
 #include "optimizer/ItemColRef.h"
 #include "optimizer/ItemExpr.h"
 #include "optimizer/ItemFunc.h"
 #include "optimizer/ItemLog.h"
+#include "optimizer/MVCandidates.h"
 #include "qmscommon/QRDescriptor.h"
 #include "qmscommon/QRLogger.h"
 

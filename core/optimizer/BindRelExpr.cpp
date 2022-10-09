@@ -24,13 +24,6 @@
 #define SQLPARSERGLOBALS_FLAGS  // must precede all #include's
 #define SQLPARSERGLOBALS_NADEFAULTS
 
-#include "parser/ElemDDLSaltOptions.h"
-#include "optimizer/ItemSample.h"
-#include "parser/ParNameLocList.h"
-#include "optimizer/RelDCL.h"
-#include "optimizer/RelPackedRows.h"
-#include "StmtDDLAddConstraintCheck.h"
-#include "UdrErrors.h"
 #include "arkcmp/CmpStatement.h"
 #include "arkcmp/CompException.h"
 #include "cli/Globals.h"
@@ -46,6 +39,7 @@
 #include "common/Platform.h"
 #include "common/SequenceGeneratorAttributes.h"
 #include "common/charinfo.h"
+#include "common/sqtypes.h"
 #include "common/wstr.h"
 #include "executor/ex_error.h"
 #include "optimizer/AllItemExpr.h"
@@ -55,18 +49,25 @@
 #include "optimizer/ControlDB.h"
 #include "optimizer/GroupAttr.h"
 #include "optimizer/Inlining.h"
+#include "optimizer/ItemSample.h"
 #include "optimizer/ItmFlowControlFunction.h"
 #include "optimizer/OptHints.h"
 #include "optimizer/OptimizerSimulator.h"
 #include "optimizer/Rel3GL.h"
+#include "optimizer/RelDCL.h"
+#include "optimizer/RelPackedRows.h"
 #include "optimizer/RelSequence.h"
 #include "optimizer/Sqlcomp.h"
 #include "optimizer/TriggerDB.h"
 #include "optimizer/Triggers.h"
 #include "optimizer/UdfDllInteraction.h"
+#include "optimizer/UdrErrors.h"
 #include "parser/ElemDDLColRefArray.h"
+#include "parser/ElemDDLSaltOptions.h"
+#include "parser/ParNameLocList.h"
 #include "parser/SqlParserAux.h"
 #include "parser/SqlParserGlobals.h"  // must be last #include
+#include "parser/StmtDDLAddConstraintCheck.h"
 #include "parser/StmtDDLCreateView.h"
 #include "sqlcat/TrafDDLdesc.h"
 #include "sqlcomp/CmpSeabaseDDL.h"
@@ -8097,37 +8098,6 @@ RelExpr *Scan::bindNode(BindWA *bindWA) {
 }  // Scan::bindNode()
 
 //----------------------------------------------------------------------------
-RelExpr *Scan::bindExpandedMaterializedView(BindWA *bindWA, NATable *naTable) {
-  CollHeap *heap = bindWA->wHeap();
-  MVInfoForDML *mvInfo = naTable->getMVInfo(bindWA);
-  QualifiedName mvName(mvInfo->getNameOfMV(), 3, heap, bindWA);
-  CorrName mvCorrName(mvName, heap, getTableName().getCorrNameAsString());
-
-  RelExpr *viewTree = mvInfo->buildMVSelectTree();
-  viewTree = new (heap) RenameTable(TRUE, viewTree, mvCorrName);
-  viewTree->addSelPredTree(removeSelPredTree());
-  RelExpr *boundExpr = viewTree->bindNode(bindWA);
-  if (bindWA->errStatus()) return this;
-
-  if (naTable->getClusteringIndex()->hasSyskey()) {
-    // In case the MV on top of this MV is an MJV, it needs the SYSKEY
-    // column of this MV. Since the SYSKEY column is not projected from
-    // the select list of this MV, just fake it. It's value will never be
-    // used anyway - just it's existance.
-    ConstValue *dummySyskey = new (heap) ConstValue(0);
-    dummySyskey->changeType(new (heap) SQLLargeInt(heap));
-    ItemExpr *dummySyskeyCol = dummySyskey->bindNode(bindWA);
-    if (bindWA->errStatus()) return this;
-
-    ColRefName syskeyName("SYSKEY", mvCorrName);
-    boundExpr->getRETDesc()->addColumn(bindWA, syskeyName, dummySyskeyCol->getValueId(), SYSTEM_COLUMN);
-  }
-
-  bindWA->getCurrentScope()->setRETDesc(boundExpr->getRETDesc());
-  return boundExpr;
-}
-
-//----------------------------------------------------------------------------
 // This Scan needs to project the CurrentEpoch column.
 // Create and bind the CurrentEpoch function
 void Scan::projectCurrentEpoch(BindWA *bindWA) {
@@ -12734,26 +12704,6 @@ RelExpr *GenericUpdate::bindNode(BindWA *bindWA) {
       *CmpCommon::diags() << DgSqlCode(-11051);
       bindWA->setErrStatus();
       return this;
-    }
-
-    // This table is a materialized view. Are we allowed to change it?
-    if ((getTableName().getSpecialType() != ExtendedQualName::MV_TABLE) &&
-        (getTableName().getSpecialType() != ExtendedQualName::GHOST_MV_TABLE)) {
-      // The special syntax flag was not used -
-      // Only on request MV allows direct DELETE operations by the user.
-      MVInfoForDML *mvInfo = ((NATable *)naTable)->getMVInfo(bindWA);
-      if (mvInfo->getRefreshType() == COM_ON_REQUEST && getOperatorType() == REL_UNARY_DELETE) {
-        // Set NOLOG flag.
-        setNoLogOperation();
-      } else {
-        // Direct update is only allowed for User Maintainable MVs.
-        if (mvInfo->getRefreshType() != COM_BY_USER) {
-          // A Materialized View cannot be directly updated.
-          *CmpCommon::diags() << DgSqlCode(-12074);
-          bindWA->setErrStatus();
-          return this;
-        }
-      }
     }
 
     // If this is not an INTERNAL REFRESH command, make sure the MV is

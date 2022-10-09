@@ -631,7 +631,7 @@ void RETDesc::propagateOpAndSyskeyColumns(BindWA *bindWA, NABoolean isFromRoot) 
     if (colMap == NULL) continue;
 
     const ColRefName &colName = colMap->getColumnDesc()->getColRefNameObj();
-    if (colName.getColName() != "SYSKEY" && colName.getColName() != MavBuilder::getVirtualOpColumnName()) continue;
+    if (colName.getColName() != "SYSKEY") continue;
 
     propagateColumn(bindWA, colName, isFromRoot, USER_COLUMN);
   }

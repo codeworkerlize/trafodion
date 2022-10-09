@@ -20,7 +20,7 @@
 
 #include "optimizer/AppliedStatMan.h"
 #include "parser/ElemDDLColDef.h"
-#include "ScanOptimizer.h"
+#include "optimizer/ScanOptimizer.h"
 #include "arkcmp/CmpContext.h"
 #include "arkcmp/CmpStatement.h"
 #include "cli/Context.h"
@@ -30,7 +30,7 @@
 #include "common/DatetimeType.h"
 #include "common/Debug.h"
 #include "common/SequenceGeneratorAttributes.h"
-#include "disjuncts.h"
+#include "optimizer/disjuncts.h"
 #include "exp/ExpError.h"
 #include "generator/Generator.h"
 #include "optimizer/AllItemExpr.h"

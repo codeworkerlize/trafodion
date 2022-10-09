@@ -22,7 +22,7 @@
 #include "common/dfs2rec.h"
 #include "exp/exp_clause.h"
 #include "exp/exp_clause_derived.h"
-#include "exp_dp2_expr.h"
+#include "exp/exp_dp2_expr.h"
 
 class ex_function_clause;
 
@@ -1651,7 +1651,7 @@ class ExHiveHashComb : public ex_function_clause {
 
 // 256 pregenerated randome 32-bit values.
 // Do not edit.
-static const int randomHashValues[256] = {
+static const unsigned int randomHashValues[256] = {
     0x905ebe29, 0x95ff0b84, 0xe5357ed6, 0x2cffae90, 0x8350b3f1, 0x1748a7eb, 0x2a0695db, 0x1e7ca00c, 0x60f80c24,
     0x9a41fe1c, 0xa985a647, 0x0ed7e512, 0xcd34ef43, 0xe06325a6, 0xecbf735a, 0x76540d38, 0x35cba55d, 0xff539efc,
     0x64545d45, 0xd7112c0d, 0x17e09e1c, 0x02359d32, 0x45976350, 0xd630a578, 0x34cd0c12, 0x754546f6, 0x1bf4f249,

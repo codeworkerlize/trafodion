@@ -73,7 +73,6 @@ QRResultDescriptorPtr Qms::match(QRQueryDescriptorPtr qryDescPtr, NAMemory *requ
     for (CollIndex i = 0; i < jbbs.entries(); i++) {
       QRJBBPtr jbb = jbbs[i];
 
-      // Collection of MVCandidates for this JBB.
       MVCandidatesForJBBPtr jbbCandidates =
           new (requestHeap) MVCandidatesForJBB(jbb, mvCandidates, ADD_MEMCHECK_ARGS(requestHeap));
 

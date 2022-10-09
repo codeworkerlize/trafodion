@@ -49,7 +49,7 @@ int SQL_EXEC_AssignParserFlagsForExSqlComp_Internal(
     /*IN*/ int flagbits);
 
 int SQL_EXEC_GetParserFlagsForExSqlComp_Internal(
-    /*IN*/ int &flagbits);
+    /*IN*/unsigned int &flagbits);
 
 int SQL_EXEC_GetTotalTcbSpace(char *tdb, char *otherInfo);
 

@@ -17,8 +17,8 @@
 
 // -----------------------------------------------------------------------
 
-#include "GenExpGenerator.h"
-#include "RelEnforcer.h"
+#include "generator/GenExpGenerator.h"
+#include "optimizer/RelEnforcer.h"
 #include "common/ComOptIncludes.h"
 #include "generator/Generator.h"
 #include "optimizer/GroupAttr.h"
@@ -29,7 +29,7 @@
 #include "comexe/ComTdb.h"
 #include "exp/ExpCriDesc.h"
 //#include "executor/ex_tcb.h"
-#include <ComCextdecs.h>
+#include "common/ComCextdecs.h"
 
 #include "comexe/ComTdbSendBottom.h"
 #include "comexe/ComTdbSendTop.h"

@@ -12,8 +12,8 @@
  **************************************************************************
  */
 
-#include "OptRange.h"
-#include "QRMessage.h"
+#include "optimizer/OptRange.h"
+#include "qmscommon/QRMessage.h"
 #include "optimizer/Analyzer.h"
 #include "qmscommon/QRDescriptor.h"
 #include "qmscommon/QRLogger.h"

@@ -13,7 +13,7 @@
 *
 **************************************************************************
 */
-#include "CostVector.h"
+#include "optimizer/CostVector.h"
 #include "optimizer/Stats.h"
 #include "common/ComSmallDefs.h"
 #include "common/NABoolean.h"

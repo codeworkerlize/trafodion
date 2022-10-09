@@ -10,8 +10,8 @@
 ******************************************************************************
 */
 
-#include "GenExpGenerator.h"
-#include "LmError.h"
+#include "generator/GenExpGenerator.h"
+#include "langman/LmError.h"
 #include "LmExpr.h"
 #include "LmGenUtil.h"
 #include "comexe/ComQueue.h"

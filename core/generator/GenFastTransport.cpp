@@ -12,15 +12,15 @@
 
 #include "optimizer/RelMisc.h"
 //#include "LmGenUtil.h"
-#include "GenExpGenerator.h"
-#include "LmError.h"
+#include "generator/GenExpGenerator.h"
+#include "langman/LmError.h"
 #include "comexe/ComQueue.h"
 #include "comexe/ExplainTuple.h"
 #include "comexe/ExplainTupleMaster.h"
 #include "executor/sql_buffer.h"
 #include "generator/Generator.h"
 //#include "optimizer/UdfDllInteraction.h"
-#include "RelFastTransport.h"
+#include "optimizer/RelFastTransport.h"
 
 // Helper function to allocate a string in the plan
 static char *AllocStringInSpace(ComSpace &space, const char *s) {

@@ -19,7 +19,7 @@
 
 // -----------------------------------------------------------------------
 
-#include "CostVector.h"
+#include "optimizer/CostVector.h"
 #include "common/BaseTypes.h"
 #include "common/NAType.h"
 #include "optimizer/CostScalar.h"

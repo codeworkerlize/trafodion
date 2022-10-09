@@ -19,7 +19,7 @@
 
 #include <map>
 
-#include "GenExpGenerator.h"
+#include "generator/GenExpGenerator.h"
 #include "optimizer/ItemSample.h"
 #include "arkcmp/CmpStatement.h"
 #include "cli/SQLCLIdev.h"
@@ -27,7 +27,7 @@
 #include "exp/ExpAtp.h"
 #include "exp/ExpCriDesc.h"
 #include "exp/exp_clause_derived.h"
-#include "exp_dp2_expr.h"
+#include "exp/exp_dp2_expr.h"
 #include "generator/Generator.h"
 #include "optimizer/AllItemExpr.h"
 #include "optimizer/Analyzer.h"

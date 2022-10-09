@@ -18,7 +18,7 @@
 
 #include "optimizer/EstLogProp.h"
 
-#include "VEGTable.h"
+#include "optimizer/VEGTable.h"
 #include "optimizer/GroupAttr.h"
 #include "optimizer/ItemOther.h"
 #include "optimizer/RelUpdate.h"

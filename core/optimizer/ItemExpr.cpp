@@ -22,8 +22,8 @@
 #include "optimizer/Cost.h" /* for lookups in the defaults table */
 #include "optimizer/ItemFuncUDF.h"
 #include "optimizer/ItemSample.h"
-#include "OptRange.h"
-#include "PartFunc.h"
+#include "optimizer/OptRange.h"
+#include "optimizer/PartFunc.h"
 #include "optimizer/Stats.h"
 #include "arkcmp/CmpStatement.h"
 #include "common/ComUnits.h"

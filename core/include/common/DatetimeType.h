@@ -440,7 +440,7 @@ class DatetimeValue {
   // Set the value.
   // ---------------------------------------------------------------------
   void setValue(rec_datetime_field startField, rec_datetime_field endField, UInt32 fractionPrecision,
-                const int values[]);
+                const UInt32 values[]);
 
   // ---------------------------------------------------------------------
   // Accessor functions
@@ -468,7 +468,7 @@ class DatetimeValue {
   // ---------------------------------------------------------------------
   // Scan the date and return individual fields. Dont validate the date.
   // ---------------------------------------------------------------------
-  NABoolean scanAndReturnFields(const char *&strValue, DatetimeFormat &format, int values[]) const;
+  NABoolean scanAndReturnFields(const char *&strValue, DatetimeFormat &format, unsigned int values[]) const;
 
  private:
   // ---------------------------------------------------------------------

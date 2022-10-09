@@ -14,7 +14,7 @@
 #include "langman/LmCommon.h"
 
 #include "LmDebug.h"
-#include "LmError.h"
+#include "langman/LmError.h"
 #include "cli/sqlcli.h"
 #include "common/ComDefs.h"
 #include "common/ComSmallDefs.h"

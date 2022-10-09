@@ -1,6 +1,6 @@
 
 #ifndef CLI_SEMAPHORE_H
-#define CLI_SEMAPHORE_H 1
+#define CLI_SEMAPHORE_H
 
 /* -*-C++-*-
 ******************************************************************************
@@ -16,17 +16,13 @@
 ******************************************************************************
 */
 
-#ifndef NA_NO_GLOBAL_EXE_VARS
-#ifndef CLI_GLOBALS_DEF_
+#include "cli/Globals.h"
+#include "common/sqtypes.h"
 
 class CLISemaphore;
 
 extern CliGlobals *cli_globals;
 extern CLISemaphore *getCliSemaphore();
-#endif
-#endif
-#include "cli/Globals.h"
-#include "common/sqtypes.h"
 
 // define the semaphore functions and mechanism
 class CLISemaphore {

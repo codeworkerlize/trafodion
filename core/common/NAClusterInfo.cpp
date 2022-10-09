@@ -17,7 +17,7 @@
 
 #include "optimizer/OptimizerSimulator.h"
 #include "sqlcomp/NADefaults.h"
-#include "utility.h"
+#include "common/utility.h"
 
 static int intHashFunc(const int &Int) { return (int)Int; }
 

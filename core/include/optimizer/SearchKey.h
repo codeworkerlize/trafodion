@@ -17,7 +17,7 @@
 
 // -----------------------------------------------------------------------
 #include "export/NABasicObject.h"
-#include "mdamkey.h"
+#include "optimizer/mdamkey.h"
 #include "optimizer/ValueDesc.h"
 
 // -----------------------------------------------------------------------

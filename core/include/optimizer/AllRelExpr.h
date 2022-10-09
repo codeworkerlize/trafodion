@@ -17,11 +17,11 @@
 
 // -----------------------------------------------------------------------
 
-#include "MultiJoin.h"
+#include "optimizer/MultiJoin.h"
 #include "optimizer/RelDCL.h"
-#include "RelEnforcer.h"
-#include "RelFastTransport.h"
-#include "RelProbeCache.h"
+#include "optimizer/RelEnforcer.h"
+#include "optimizer/RelFastTransport.h"
+#include "optimizer/RelProbeCache.h"
 #include "optimizer/Rel3GL.h"
 #include "optimizer/RelControl.h"
 #include "optimizer/RelExeUtil.h"

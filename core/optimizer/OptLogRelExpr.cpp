@@ -20,7 +20,7 @@
 
 #include "optimizer/AppliedStatMan.h"
 #include "optimizer/Cost.h"
-#include "OptTrigger.h"
+#include "optimizer/OptTrigger.h"
 #include "arkcmp/CmpStatement.h"
 #include "optimizer/AllItemExpr.h"
 #include "optimizer/AllRelExpr.h"

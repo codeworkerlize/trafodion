@@ -19,7 +19,7 @@
 */
 
 //#include "exp/exp_clause_derived.h"
-#include "BinderUtils.h"
+#include "optimizer/BinderUtils.h"
 #include "arkcmp/CmpStatement.h"
 #include "cli/SQLCLIdev.h"
 #include "comexe/LateBindInfo.h"
@@ -78,7 +78,6 @@ class DeltaDefinitionPtrList;
 class NRowsClause;
 class PipelineClause;
 class MVInfo;
-class MvRefreshBuilder;
 class RangePartitioningFunction;
 class ElemDDLNode;
 class ElemProxyColDef;

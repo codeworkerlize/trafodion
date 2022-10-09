@@ -15,7 +15,7 @@
 ******************************************************************************
 */
 
-#include "ReqGen.h"
+#include "optimizer/ReqGen.h"
 #include "optimizer/ObjectNames.h"
 #include "optimizer/RelExpr.h"
 #include "optimizer/RelGrby.h"

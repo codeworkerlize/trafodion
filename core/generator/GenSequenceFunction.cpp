@@ -14,7 +14,7 @@
 // Includes
 //
 #include "ExpSequenceFunction.h"
-#include "GenExpGenerator.h"
+#include "generator/GenExpGenerator.h"
 #include "common/CharType.h"
 #include "common/NumericType.h"
 #include "exp/exp_function.h"

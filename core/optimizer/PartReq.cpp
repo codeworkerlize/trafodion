@@ -13,9 +13,9 @@
 **************************************************************************
 */
 
-#include "PartReq.h"
+#include "optimizer/PartReq.h"
 
-#include "ReqGen.h"
+#include "optimizer/ReqGen.h"
 #include "common/MiscType.h"
 #include "common/NumericType.h"
 #include "common/str.h"
@@ -26,7 +26,7 @@
 #include "optimizer/NAFileSet.h"
 #include "optimizer/RelScan.h"
 #include "optimizer/opt.h"
-#include "utility.h"
+#include "common/utility.h"
 
 // ***********************************************************************
 // PartitioningRequirement

@@ -3,8 +3,10 @@
 // **********************************************************************
 #include "optimizer/CompilerTracking.h"
 
+#include "common/sqtypes.h"
 #include "executor/ExExeUtilCli.h"
 #include "qmscommon/QRLogger.h"
+
 #ifdef _MSC_VER
 #undef _MSC_VER
 #endif

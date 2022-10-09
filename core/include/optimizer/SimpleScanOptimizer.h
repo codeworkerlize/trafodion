@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "ScanOptimizer.h"
+#include "optimizer/ScanOptimizer.h"
 
 // -----------------------------------------------------------------------
 // The class SimpleFileScanOptimizer performs several actions:

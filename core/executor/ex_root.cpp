@@ -29,7 +29,7 @@
 #include "executor/ExSMGlobals.h"
 #include "executor/ExSMTrace.h"
 #include "ExStats.h"
-#include "ExecuteIdTrig.h"
+#include "optimizer/ExecuteIdTrig.h"
 #include "LateBindInfo.h"
 #include "porting_layer/PortProcessCalls.h"
 #include "cli/cli_stdh.h"

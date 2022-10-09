@@ -25,7 +25,7 @@
 
 #include <iostream>
 
-#include "LmError.h"
+#include "langman/LmError.h"
 #include "executor/UdrExeIpc.h"
 #include "common/Int64.h"
 #include "common/NumericType.h"

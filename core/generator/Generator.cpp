@@ -17,9 +17,9 @@
 #include <stdlib.h>
 #include <sys/time.h>
 
-#include "CmUtil.h"
+#include "smdio/CmUtil.h"
 #include "arkcmp/CmpSqlSession.h"
-#include "GenExpGenerator.h"
+#include "generator/GenExpGenerator.h"
 #include "arkcmp/CmpContext.h"
 #include "arkcmp/CmpStatement.h"
 #include "comexe/ComTdb.h"

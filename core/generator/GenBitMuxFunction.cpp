@@ -3,8 +3,8 @@
 // Includes
 //
 #include "ExpBitMuxFunction.h"
-#include "GenExpGenerator.h"
-#include "ItmBitMuxFunction.h"
+#include "generator/GenExpGenerator.h"
+#include "optimizer/ItmBitMuxFunction.h"
 #include "generator/Generator.h"
 #include "optimizer/ItemExpr.h"
 

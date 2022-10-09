@@ -19,7 +19,7 @@
 // -----------------------------------------------------------------------
 
 #include "optimizer/EstLogProp.h"
-#include "IndexDesc.h"
+#include "optimizer/IndexDesc.h"
 #include "common/BaseTypes.h"
 #include "common/Collections.h"
 #include "optimizer/ValueDesc.h"
@@ -27,7 +27,7 @@
 #include "optimizer/ItemOther.h"
 #include "optimizer/RelScan.h"
 // QSTUFF
-#include "ReqGen.h"
+#include "optimizer/ReqGen.h"
 #include "optimizer/Stats.h"
 #include "common/SharedPtrCollections.h"
 

@@ -8,7 +8,7 @@
 
 // Includes
 //
-#include "GenExpGenerator.h"
+#include "generator/GenExpGenerator.h"
 #include "exp/exp_clause_derived.h"
 #include "generator/Generator.h"
 #include "optimizer/ItemExpr.h"

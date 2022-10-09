@@ -38,6 +38,9 @@
 // ready yet, this support was never tested. It looks OK though...
 //////////////////////////////////////////////////////////////////////////////
 
+#include "export/NABasicObject.h"
+#include "optimizer/NATable.h"
+
 class TableAccess : public NABasicObject {
  public:
   // Default ctor - to EMPTY.

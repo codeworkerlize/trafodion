@@ -12,8 +12,8 @@
 *************************************************************************
 */
 
-#include "BinderUtils.h"
-#include "RoutineDesc.h"
+#include "optimizer/BinderUtils.h"
+#include "optimizer/RoutineDesc.h"
 #include "optimizer/ObjectNames.h"
 #include "optimizer/OptUtilIncludes.h"
 #include "optimizer/RelExpr.h"

@@ -14,7 +14,7 @@
 *
 ******************************************************************************
 */
-#include "GenExpGenerator.h"
+#include "generator/GenExpGenerator.h"
 #include "common/ComOptIncludes.h"
 #include "generator/Generator.h"
 #include "optimizer/GroupAttr.h"

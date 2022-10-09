@@ -535,7 +535,6 @@ static RelExpr *inlineTriggerGroup(RelExpr *topNode, const TriggerList *triggers
     triggerTree->getInliningInfo().setTriggerObject(current);
 
     // The check whether the trigger is enabled is applicable only for regular
-    // triggers. ON STATEMENT MVs (MVImmediate triggers) are always enabled.
     if (!(current->isMVImmediate())) {
       Union *triggerRoot = (Union *)triggerTree->getChild(0);      // Get past the RelRoot
       if (isRow) triggerRoot = (Union *)triggerRoot->getChild(0);  // Get past the RenameReference
@@ -3107,7 +3106,6 @@ RelExpr *GenericUpdate::handleInlining(BindWA *bindWA, RelExpr *boundExpr) {
   }
 
   // Now, that we know for sure there are triggers to be fired, tempTableObj
-  // must be initialized. In case there are no regular triggers (not MVImmediate)
   // defined on the table, the tempTableObj is not initialized yet (see initializing
   // of tempTableObj above).
 

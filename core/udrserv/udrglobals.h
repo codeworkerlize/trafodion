@@ -40,7 +40,7 @@
 //
 // Forward declarations
 //
-#include "LmError.h"
+#include "langman/LmError.h"
 #include "common/ComCGroup.h"
 class LmLanguageManager;
 class LmLanguageManagerJava;

@@ -25,7 +25,7 @@
 // must determine the packing information at run time in the same way
 // that was done at create time.
 //
-#include "PackedColDesc.h"
+#include "optimizer/PackedColDesc.h"
 
 #include "common/NumericType.h"
 

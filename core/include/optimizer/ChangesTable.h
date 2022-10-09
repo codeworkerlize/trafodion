@@ -38,7 +38,6 @@ class GenericUpdate;
 class SQLInt;
 class NRowsClause;
 class DeltaDefinition;
-class MVInfoForDML;
 
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------

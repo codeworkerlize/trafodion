@@ -12,7 +12,7 @@
 
 #include "optimizer/TriggerDB.h"
 
-#include "../sqlcomp/CmpSeabaseDDL.h"
+#include "sqlcomp/CmpSeabaseDDL.h"
 #include "cli/Context.h"
 #include "cli/Globals.h"
 #include "optimizer/AllRelExpr.h"
@@ -313,7 +313,7 @@ BeforeAndAfterTriggers *TriggerDB::getAllTriggers(QualifiedName &subjectTable, l
   if (beforeStatementTrigger != NULL || beforeRowTrigger != NULL || afterStatementTrigger != NULL ||
       afterRowTrigger != NULL) {
     triggers = new (Trigger::Heap()) BeforeAndAfterTriggers(NULL, beforeStatementTrigger, beforeRowTrigger,
-                                                            afterStatementTrigger, afterRowTrigger, countTrigger, NULL);
+                                                            afterStatementTrigger, afterRowTrigger, countTrigger, {});
     putTriggers(tableQualifiedName, COM_INSERT, triggers);
   }
 

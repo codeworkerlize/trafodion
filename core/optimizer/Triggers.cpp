@@ -324,14 +324,6 @@ void Trigger::print(ostream &os, const char *indent, const char *title) const {
 
 //------------------------------------------------------------------------------
 //
-// -- MVImmediate::getParsedTrigger
-//
-// Returns the refresh tree for this MVImmediate object, i.e. ON STATEMENT MV.
-
-RelExpr *MVImmediate::getParsedTrigger(BindWA *bindWA) { return triggerBuilder_->buildRefreshTree(); }
-
-//------------------------------------------------------------------------------
-//
 // -- TriggerList::calcColumnMatchingTriggers
 //
 // Used by BeforeAndAfterTriggers::calcColumnMatchingTriggers

@@ -18,7 +18,7 @@
 // -----------------------------------------------------------------------
 
 #include "optimizer/ItemArith.h"
-#include "ItemComposite.h"
+#include "optimizer/ItemComposite.h"
 #include "optimizer/ItemFuncUDF.h"
 #include "optimizer/ItemNAType.h"
 #include "optimizer/ItemColRef.h"

@@ -18,7 +18,7 @@
 
 #include "StmtDDLAddConstraint.h"
 #include "StmtDDLAddConstraintArray.h"
-#include "StmtDDLAddConstraintCheck.h"
+#include "parser/StmtDDLAddConstraintCheck.h"
 #include "StmtDDLAddConstraintCheckArray.h"
 #include "StmtDDLAddConstraintRI.h"
 #include "StmtDDLAddConstraintUnique.h"

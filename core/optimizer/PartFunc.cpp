@@ -16,8 +16,8 @@
 // -----------------------------------------------------------------------
 
 #include "optimizer/ItemArith.h"
-#include "PartReq.h"
-#include "SearchKey.h"
+#include "optimizer/PartReq.h"
+#include "optimizer/SearchKey.h"
 #include "common/MiscType.h"
 #include "common/NumericType.h"
 #include "common/str.h"

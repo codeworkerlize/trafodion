@@ -18,10 +18,11 @@
 
 // -----------------------------------------------------------------------
 
-#include "HbaseSearchSpec.h"
-#include "SearchKey.h"
+#include "optimizer/HbaseSearchSpec.h"
 #include "optimizer/ObjectNames.h"
 #include "optimizer/RelExpr.h"
+#include "optimizer/RelMisc.h"
+#include "optimizer/SearchKey.h"
 // -----------------------------------------------------------------------
 // contents of this file
 // -----------------------------------------------------------------------

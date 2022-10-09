@@ -3,7 +3,7 @@
 // Implementation for classes NodeMapEntry and Nodemap.
 //==============================================================================
 
-#include "NodeMap.h"
+#include "optimizer/NodeMap.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -11,7 +11,7 @@
 #include <queue>
 
 #include "cli/CliSemaphore.h"
-#include "PartFunc.h"
+#include "optimizer/PartFunc.h"
 #include "arkcmp/CompException.h"
 #include "comexe/FragDir.h"
 #include "common/cextdecs.h"

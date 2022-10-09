@@ -27,7 +27,7 @@
 #include "optimizer/ColStatDesc.h"
 #include "optimizer/Cost.h"
 #include "optimizer/Stats.h"
-#include "disjuncts.h"
+#include "optimizer/disjuncts.h"
 #include "export/NABasicObject.h"
 #include "optimizer/CostScalar.h"
 #include "optimizer/GroupAttr.h"
@@ -733,12 +733,12 @@ class FileScanBasicCost : public NABasicObject {
  public:
   FileScanBasicCost(const Context *currentContext)
       : basicCostContext_(currentContext),
-        basicFRCostSingleSubset_(NULL),
-        basicLRCostSingleSubset_(NULL),
-        basicFRCostMdamCommon_(NULL),
-        basicLRCostMdamCommon_(NULL),
-        basicFRCostMdamDisjuncts_(NULL),
-        basicLRCostMdamDisjuncts_(NULL),
+        basicFRCostSingleSubset_{},
+        basicLRCostSingleSubset_{},
+        basicFRCostMdamCommon_{},
+        basicLRCostMdamCommon_{},
+        basicFRCostMdamDisjuncts_{},
+        basicLRCostMdamDisjuncts_{},
         mdamCommonKeyPtr_(NULL),
         mdamDisjunctsKeyPtr_(NULL),
         mdamCommonLost_(FALSE),
@@ -815,12 +815,12 @@ class FileScanBasicCost : public NABasicObject {
  private:
   FileScanBasicCost()
       : basicCostContext_(NULL),
-        basicFRCostSingleSubset_(NULL),
-        basicLRCostSingleSubset_(NULL),
-        basicFRCostMdamCommon_(NULL),
-        basicLRCostMdamCommon_(NULL),
-        basicFRCostMdamDisjuncts_(NULL),
-        basicLRCostMdamDisjuncts_(NULL),
+        basicFRCostSingleSubset_{},
+        basicLRCostSingleSubset_{},
+        basicFRCostMdamCommon_{},
+        basicLRCostMdamCommon_{},
+        basicFRCostMdamDisjuncts_{},
+        basicLRCostMdamDisjuncts_{},
         mdamCommonKeyPtr_(NULL),
         mdamDisjunctsKeyPtr_(NULL),
         singleSubsetNumKBytes(csZero),

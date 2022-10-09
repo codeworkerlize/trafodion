@@ -14,7 +14,7 @@
 *******************************************************************************
 */
 
-#include "ExecuteIdTrig.h"
+#include "optimizer/ExecuteIdTrig.h"
 #include "common/Collections.h"
 #include "common/ComSmallDefs.h"
 #include "common/NAString.h"
@@ -26,7 +26,6 @@
 // classes defined in this file:
 
 class Trigger;
-class MVImmediate;
 class UpdateColumns;
 class TriggerList;
 class BeforeAndAfterTriggers;
@@ -35,7 +34,6 @@ class BeforeAndAfterTriggers;
 // Forward references
 class SqlTableOpenInfo;
 class StmtDDLCreateTrigger;
-class MvRefreshBuilder;
 
 //-----------------------------------------------------------------------------
 //
@@ -226,46 +224,6 @@ class Trigger : public NABasicObject {
   long tableId_;
 };
 
-//-----------------------------------------------------------------------------
-//
-// -- class MVImmediate
-//
-// MVImmediate implements the refreshing of ON STATEMENT MVs using the Triggers
-// backbone. Each such MV is considered as a special type of trigger. This
-// trigger is an after-trigger with special timestamp to ensure its firing before
-// any other trigger defined on the same subject table. The sqlText parameter is
-// not in use. This trigger differs from a regular trigger only in the behaviour
-// of the virtual method getParsedTrigger. Unlike regular triggers, this one is
-// not originated from a "create trigger" statement. The appropriate refresh
-// tree is determined by the builder (MvRefreshBuilder object) given to it by
-// parameter.
-//
-// Important note on timestamps:
-// ------------------------------
-// Since indirect-update operations consists two such triggers, we must ensure
-// these triggers have unique timestamps (so the sorting according timestamps
-// will be deterministic). The "row trigger" part will have timestamp of zero,
-// while the "statement trigger" part will have timestamp of one. Since
-// timestamp of one is enough to be sure it will fire before any regular
-// trigger, we use it for any statement trigger of type MVImmediate.
-
-class MVImmediate : public Trigger {
- public:
-  MVImmediate(BindWA *bindWA, MvRefreshBuilder *triggerBuilder, const QualifiedName &mvName,
-              const QualifiedName &subjectTable, ComOperation operation, ComGranularity granularity,
-              UpdateColumns *updateCols)  // should set to NULL if not used
-      : Trigger(mvName, subjectTable, operation, COM_AFTER, granularity, (granularity == COM_STATEMENT ? 1L : 0L),
-                new NAString(""), CharInfo::UnknownCharSet, updateCols),
-        bindWA_(bindWA),
-        triggerBuilder_(triggerBuilder){};
-
-  virtual RelExpr *getParsedTrigger(BindWA *bindWA);
-  virtual NABoolean isMVImmediate() const { return true; }  // this is a special trigger (ON STATEMENT MV)
-
- private:
-  BindWA *bindWA_;                    // for use by the builders
-  MvRefreshBuilder *triggerBuilder_;  // the builder to build the refresh tree
-};
 
 //-----------------------------------------------------------------------------
 //

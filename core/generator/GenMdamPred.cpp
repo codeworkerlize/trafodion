@@ -14,7 +14,7 @@
 ******************************************************************************
 */
 
-#include "GenExpGenerator.h"
+#include "generator/GenExpGenerator.h"
 #include "comexe/ComKeyMDAM.h"
 #include "optimizer/AllItemExpr.h"
 // -----------------------------------------------------------------------

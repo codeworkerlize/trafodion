@@ -13,7 +13,7 @@
 *************************************************************************
 */
 
-#include "NARoutineDB.h"
+#include "optimizer/NARoutineDB.h"
 #include "arkcmp/CmpContext.h"
 #include "common/BaseTypes.h"
 #include "common/ComTransInfo.h"

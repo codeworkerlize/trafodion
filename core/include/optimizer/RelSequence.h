@@ -16,6 +16,7 @@
 ******************************************************************************
 */
 
+#include "optimizer/CostMethod.h"
 #include "optimizer/RelExpr.h"
 
 // forward references

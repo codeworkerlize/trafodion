@@ -8,7 +8,7 @@
 #include <fstream>
 
 #include "QRIpc.h"
-#include "QRMessage.h"
+#include "qmscommon/QRMessage.h"
 #include "common/ComRtUtils.h"
 #include "qmscommon/QRSharedPtr.h"
 

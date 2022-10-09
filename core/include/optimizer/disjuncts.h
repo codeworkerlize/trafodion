@@ -20,7 +20,7 @@
 
 // -----------------------------------------------------------------------
 
-#include "disjunct.h"
+#include "optimizer/disjunct.h"
 #include "export/NABasicObject.h"
 #include "optimizer/mdam.h"
 

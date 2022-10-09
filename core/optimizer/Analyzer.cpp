@@ -19,17 +19,18 @@
 #include "optimizer/Analyzer.h"
 
 #include "optimizer/AppliedStatMan.h"
-#include "MultiJoin.h"
-#include "optimizer/TransRule.h"
+#include "optimizer/MultiJoin.h"
 #include "optimizer/RelExpr.h"
+#include "optimizer/TransRule.h"
 #include "optimizer/opt.h"
 
 // tmp includes for join and other relexpr methods
 #include <cmath>
 #include <complex>
 
-#include "QRDescGenerator.h"
 #include "cli/Globals.h"
+#include "common/sqtypes.h"
+#include "optimizer/QRDescGenerator.h"
 #include "optimizer/RelExeUtil.h"
 #include "optimizer/RelGrby.h"
 #include "optimizer/RelJoin.h"
@@ -522,7 +523,7 @@ QueryAnalysis::QueryAnalysis(CollHeap *outHeap, NABoolean analysis)
       hasMandatoryXPComputed_(FALSE),
       queryComplexityVector_(NULL),
       highestNumOfPartns_(-1),
-      statsToDisplay_(NULL) {
+      statsToDisplay_{} {
   // create the table connectivity graph
   tCGraph_ = new (heap_) TableConnectivityGraph(heap_);
 
@@ -2629,9 +2630,7 @@ void GroupAnalysis::reconcile(GroupAnalysis *other) {
 // Methods for class NodeAnalysis
 // -----------------------------------------------------------------------
 
-EstLogPropSharedPtr NodeAnalysis::getStats()
-
-{
+EstLogPropSharedPtr NodeAnalysis::getStats() {
   if (stats_ == NULL) {
     AppliedStatMan *appStatMan = QueryAnalysis::ASM();
     stats_ = appStatMan->getStatsForCANodeId(id_);

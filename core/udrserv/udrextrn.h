@@ -14,7 +14,7 @@
 *****************************************************************************
 */
 
-#include "LmError.h"
+#include "langman/LmError.h"
 #include "langman/LmLangManagerJava.h"
 #include "executor/UdrExeIpc.h"
 #include "cli/SQLCLIdev.h"

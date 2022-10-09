@@ -2,7 +2,7 @@
 
 // **********************************************************************
 
-#include <ComCextdecs.h>
+#include "common/ComCextdecs.h"
 #include <long.h>
 
 #include "QRQueriesImpl.h"

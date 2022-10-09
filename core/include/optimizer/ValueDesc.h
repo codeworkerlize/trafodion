@@ -13,7 +13,7 @@
 #include "optimizer/CostScalar.h"
 #include "optimizer/DomainDesc.h"
 #include "optimizer/ObjectNames.h"
-//#include "orcPushdownPredInfo.h"
+//#include "optimizer/orcPushdownPredInfo.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

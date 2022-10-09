@@ -14,7 +14,7 @@
 #define SQLPARSERGLOBALS_FLAGS  // must precede all #include's
 #define SQLPARSERGLOBALS_NADEFAULTS
 
-#include "ScanOptimizer.h"
+#include "optimizer/ScanOptimizer.h"
 #include "arkcmp/CmpContext.h"
 #include "comexe/ComTdbSendTop.h"
 #include "common/ComRtUtils.h"
@@ -41,7 +41,7 @@
 
 #include "parser/ElemDDLConstraintUnique.h"
 #include "parser/ParDDLFileAttrsAlterTable.h"
-#include "StmtDDLAlterIndex.h"  // why don't we need StmtDDLAlterTable as well???
+#include "parser/StmtDDLAlterIndex.h"  // why don't we need StmtDDLAlterTable as well???
 #include "common/ComCextdecs.h"
 #include "parser/ElemDDLConstraintPK.h"
 #include "parser/StmtDDLAlterLibrary.h"
@@ -4008,10 +4008,6 @@ RelExpr *DDLExpr::bindNode(BindWA *bindWA) {
       isCleanup_ = TRUE;
 
       returnStatus_ = getExprNode()->castToStmtDDLNode()->castToStmtDDLCleanupObjects()->getStatus();
-    } else if (getExprNode()->castToStmtDDLNode()->castToStmtDDLRegOrUnregObject()) {
-      isRegister = TRUE;
-
-      qualObjName_ = getExprNode()->castToStmtDDLNode()->castToStmtDDLRegOrUnregObject()->getObjNameAsQualifiedName();
     } else if (getExprNode()->castToStmtDDLNode()->castToStmtDDLNamespace()) {
       isHbase_ = TRUE;
       isNamespace = TRUE;

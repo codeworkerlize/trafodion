@@ -23,7 +23,7 @@
 
 #include "parser/ElemDDLColDef.h"
 #include "optimizer/ItemNAType.h"
-#include "ScanOptimizer.h"
+#include "optimizer/ScanOptimizer.h"
 #include "arkcmp/CmpContext.h"
 #include "comexe/ComTdbSendTop.h"
 #include "common/ComTransInfo.h"
@@ -31,7 +31,7 @@
 #include "common/DatetimeType.h"
 #include "common/Debug.h"
 #include "common/SequenceGeneratorAttributes.h"
-#include "disjuncts.h"
+#include "optimizer/disjuncts.h"
 #include "exp/ExpError.h"
 #include "optimizer/AllRelExpr.h"
 #include "optimizer/Analyzer.h"

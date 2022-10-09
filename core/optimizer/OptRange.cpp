@@ -1,12 +1,12 @@
 
 
-#include "OptRange.h"
+#include "optimizer/OptRange.h"
 
 #include <float.h>
 
 #include <limits>
 
-#include "QRDescGenerator.h"
+#include "optimizer/QRDescGenerator.h"
 #include "common/ComCextdecs.h"
 #include "common/DatetimeType.h"
 #include "common/NumericType.h"
@@ -1071,7 +1071,7 @@ ConstValue *OptRangeSpec::reconstituteInt64Value(NAType *type, long val) const {
 
     case NA_DATETIME_TYPE: {
       DatetimeType *dtType = static_cast<DatetimeType *>(type);
-      int tsFieldValues[DatetimeValue::N_DATETIME_FIELDS];
+      UInt32 tsFieldValues[DatetimeValue::N_DATETIME_FIELDS];
       DatetimeValue dtv("", 0);
       switch (dtType->getSubtype()) {
         case DatetimeType::SUBTYPE_SQLDate:

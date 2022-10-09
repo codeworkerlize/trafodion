@@ -16,7 +16,7 @@
 ******************************************************************************
 */
 
-#include "SearchKey.h"
+#include "optimizer/SearchKey.h"
 #include "common/ComTransInfo.h"
 #include "optimizer/CostMethod.h"
 #include "optimizer/ObjectNames.h"
@@ -61,7 +61,6 @@ class TriggerList;
 class UpdateColumns;
 class TriggersTempTable;
 class BeforeAndAfterTriggers;
-class MVInfoForDML;
 
 // -----------------------------------------------------------------------
 // generic update operation (insert, update, or delete)

@@ -13,7 +13,7 @@
 #define SQLPARSERGLOBALS_FLAGS  // must precede all #include's
 #define SQLPARSERGLOBALS_NADEFAULTS
 
-#include "QRDescGenerator.h"
+#include "optimizer/QRDescGenerator.h"
 #include "optimizer/AllRelExpr.h"
 #include "optimizer/CacheWA.h"
 #include "optimizer/GroupAttr.h"

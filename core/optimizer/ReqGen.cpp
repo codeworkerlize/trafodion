@@ -15,7 +15,7 @@
  *****************************************************************************
  */
 
-#include "ReqGen.h"
+#include "optimizer/ReqGen.h"
 
 #include "cli/Globals.h"
 #include "common/Platform.h"

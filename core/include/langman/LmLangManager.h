@@ -14,7 +14,7 @@
 ******************************************************************************
 */
 
-#include "LmError.h"
+#include "langman/LmError.h"
 #include "common/ComSmallDefs.h"
 #include "common/NAType.h"
 #include "common/Platform.h"

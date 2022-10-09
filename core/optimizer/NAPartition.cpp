@@ -15,7 +15,7 @@
 
 #define SQLPARSERGLOBALS_FLAGS  // must precede all #include's
 
-#include "NAPartition.h"
+#include "optimizer/NAPartition.h"
 
 #include "common/Platform.h"
 #include "executor/ex_error.h"

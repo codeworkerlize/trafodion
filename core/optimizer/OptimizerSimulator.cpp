@@ -24,6 +24,7 @@
 #include "arkcmp/CmpContext.h"
 #include "arkcmp/CmpStatement.h"
 #include "arkcmp/CompException.h"
+#include "bin/vproc.h"
 #include "cli/Context.h"
 #include "cli/Globals.h"
 #include "common/ComCextdecs.h"
@@ -32,16 +33,15 @@
 #include "common/NAClusterInfo.h"
 #include "executor/ExExeUtilCli.h"
 #include "executor/HBaseClient_JNI.h"
-#include "opt_error.h"
 #include "optimizer/ControlDB.h"
 #include "optimizer/NATable.h"
 #include "optimizer/ObjectNames.h"
 #include "optimizer/RelControl.h"
 #include "optimizer/SchemaDB.h"
+#include "optimizer/opt_error.h"
 #include "sqlcomp/CmpSeabaseDDL.h"
 #include "sqlcomp/NADefaults.h"
 #include "sqlcomp/QCache.h"
-#include "bin/vproc.h"
 
 extern const WordAsBits SingleBitArray[];
 
@@ -109,6 +109,7 @@ const char *OptimizerSimulator::logFileNames_[NUM_OF_LOGS] = {"ESTIMATED_ROWS.tx
                                                               "TENANT.txt"};
 
 static int intHashFunc(const int &Int) { return (int)Int; }
+static int nastringhash(const NAString &str) { return str.hash(); }
 
 static NABoolean isFileExists(const char *filename, NABoolean &isDir) {
   struct stat sb;
@@ -902,7 +903,7 @@ void OsimNAClusterInfoLinux::simulateNAClusterInfo() {
       char nodeName[256];
       nodeIdToNodeNameMap_ = new (heap_) NAHashDictionary<int, NAString>(&intHashFunc, 101, TRUE, heap_);
 
-      nodeNameToNodeIdMap_ = new (heap_) NAHashDictionary<NAString, int>(&NAString::hash, 101, TRUE, heap_);
+      nodeNameToNodeIdMap_ = new (heap_) NAHashDictionary<NAString, int>(&nastringhash, 101, TRUE, heap_);
       naclfile >> id_name_entries;
       naclfile.ignore(OSIM_LINEMAX, '\n');
       for (i = 0; i < id_name_entries; i++) {
@@ -1337,7 +1338,7 @@ void OptimizerSimulator::loadHistograms(const char *histogramPath, NABoolean isH
     raiseOsimException("Error parsing %s", histogramPath);
   }
   NAHashDictionary<NAString, QualifiedName> *modifiedPathDict =
-      new (STMTHEAP) NAHashDictionary<NAString, QualifiedName>(&NAString::hash, 101, TRUE, STMTHEAP);
+      new (STMTHEAP) NAHashDictionary<NAString, QualifiedName>(&nastringhash, 101, TRUE, STMTHEAP);
 
   for (CollIndex i = 0; i < allHistograms->getHistograms().entries(); i++) {
     OsimHistogramEntry *en = (allHistograms->getHistograms())[i];
@@ -1672,7 +1673,7 @@ void OptimizerSimulator::setOsimLogdir(const char *localdir) {
 void OptimizerSimulator::initHashDictionaries() {
   // Initialize hash dictionary variables for all the system calls.
   if (!hashDictionariesInitialized_) {
-    hashDict_getEstimatedRows_ = new (heap_) NAHashDictionary<NAString, double>(&NAString::hash, 101, TRUE, heap_);
+    hashDict_getEstimatedRows_ = new (heap_) NAHashDictionary<NAString, double>(&nastringhash, 101, TRUE, heap_);
 
     hashDict_Views_ = new (heap_) NAHashDictionary<const QualifiedName, long>(&QualifiedName::hash, 101, TRUE, heap_);
 

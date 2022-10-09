@@ -16,7 +16,7 @@
 #include <sys/types.h>
 
 #include "exp/ExpAlignedFormat.h"
-#include "LmError.h"
+#include "langman/LmError.h"
 #include "common/ComSmallDefs.h"
 #include "exp/exp_tuple_desc.h"
 #include "langman/LmCommon.h"

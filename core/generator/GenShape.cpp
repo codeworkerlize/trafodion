@@ -18,7 +18,7 @@
 #include "optimizer/RelPackedRows.h"
 #include "optimizer/RelPackedRows.h"
 #include "generator/Generator.h"
-#include "mdamkey.h"
+#include "optimizer/mdamkey.h"
 #include "optimizer/AllItemExpr.h"
 #include "optimizer/AllRelExpr.h"
 #include "optimizer/GroupAttr.h"

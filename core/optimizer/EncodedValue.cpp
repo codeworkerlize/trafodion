@@ -16,7 +16,7 @@
 
 #include "optimizer/EncodedValue.h"
 
-#include <exp_function.h>
+#include "exp/exp_function.h"
 #include <wchar.h>
 
 #include <ostream>

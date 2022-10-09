@@ -11,7 +11,7 @@
 *
 **************************************************************************** */
 
-#include "PartKeyDist.h"
+#include "optimizer/PartKeyDist.h"
 
 #include "sqlcomp/parser.h" /* for the parser of EncodedValues */
 

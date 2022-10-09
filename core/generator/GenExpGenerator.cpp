@@ -14,7 +14,7 @@
 
 #define SQLPARSERGLOBALS_FLAGS
 #define SQLPARSERGLOBALS_NADEFAULTS
-#include "GenExpGenerator.h"
+#include "generator/GenExpGenerator.h"
 
 #include <ctype.h>
 #include <math.h>
@@ -39,7 +39,7 @@
 #include "exp/exp_clause_derived.h"
 #include "exp/exp_datetime.h"
 #include "exp/exp_tuple_desc.h"
-#include "exp_dp2_expr.h"
+#include "exp/exp_dp2_expr.h"
 #include "exp/exp_function.h"
 #include "optimizer/BindWA.h"
 #include "optimizer/ControlDB.h"

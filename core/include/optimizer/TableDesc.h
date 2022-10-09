@@ -16,8 +16,8 @@
 */
 
 #include "optimizer/ColStatDesc.h"
-#include "IndexDesc.h"
-#include "OptRange.h"
+#include "optimizer/IndexDesc.h"
+#include "optimizer/OptRange.h"
 #include "common/BaseTypes.h"
 #include "optimizer/ItemColRef.h"
 #include "optimizer/ItemConstr.h"

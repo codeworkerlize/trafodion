@@ -13,7 +13,7 @@
 ******************************************************************************
 */
 
-#include "MJVIndexBuilder.h"
+#include "optimizer/MJVIndexBuilder.h"
 
 #include "common/ColIndList.h"
 

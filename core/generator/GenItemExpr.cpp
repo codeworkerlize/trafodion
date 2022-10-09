@@ -14,7 +14,7 @@
 ******************************************************************************
 */
 
-#include "GenExpGenerator.h"
+#include "generator/GenExpGenerator.h"
 #include "common/NumericType.h"
 #include "common/dfs2rec.h"
 #include "exp/exp_clause.h"

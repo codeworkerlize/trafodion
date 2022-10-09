@@ -11,7 +11,7 @@
 ******************************************************************************
 */
 
-#include "GenExpGenerator.h"
+#include "generator/GenExpGenerator.h"
 #include "comexe/ComTdbCompoundStmt.h"
 #include "exp/ExpCriDesc.h"
 #include "generator/Generator.h"

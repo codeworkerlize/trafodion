@@ -4,7 +4,7 @@
 
 #include <vector>
 
-#include "NAPartition.h"
+#include "optimizer/NAPartition.h"
 #include "optimizer/Stats.h"
 #include "arkcmp/CmpISPStd.h"
 #include "cli/sqlcli.h"
@@ -40,7 +40,6 @@ class HistogramsCacheEntry;
 // forward references
 // -----------------------------------------------------------------------
 class BindWA;
-class MVInfoForDML;
 class NATableDB;
 struct TrafDesc;
 class HbaseCreateOption;
@@ -846,7 +845,6 @@ class NATable : public NABasicObject {
   const UsingMvInfoList &getMvsUsingMe() const { return mvsUsingMe_; }
   NABoolean isAnMV() const { return mvAttributeBitmap_.getIsAnMv(); }
   NABoolean isAnMVMetaData() const { return isAnMVMetaData_; }
-  MVInfoForDML *getMVInfo(BindWA *bindWA);
   const ComMvAttributeBitmap &getMvAttributeBitmap() const { return mvAttributeBitmap_; }
   NABoolean verifyMvIsInitializedAndAvailable(BindWA *bindWA) const;
 
@@ -1352,7 +1350,6 @@ class NATable : public NABasicObject {
   NABoolean isAnMV_;            // Is this table a metarialized view?
   NABoolean isAnMVMetaData_;    // Is this table an MV metadata table?
   UsingMvInfoList mvsUsingMe_;  // List of MVs using this table.
-  MVInfoForDML *mvInfo_;
   ComMvAttributeBitmap mvAttributeBitmap_;
 
   // Caching stats

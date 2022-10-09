@@ -15,7 +15,7 @@
  *****************************************************************************
  */
 
-#include "exp_dp2_expr.h"
+#include "exp/exp_dp2_expr.h"
 
 #include "common/Platform.h"
 #include "exp/ExpAtp.h"

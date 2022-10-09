@@ -1,6 +1,6 @@
 
 
-#include "HbaseSearchSpec.h"
+#include "optimizer/HbaseSearchSpec.h"
 
 #include "optimizer/ItemColRef.h"
 

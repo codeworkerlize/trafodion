@@ -24,7 +24,7 @@
 #ifndef PRIVMGR_MD_DEFS_H
 #define PRIVMGR_MD_DEFS_H
 
-#include "CmpSeabaseDDLmdcommon.h"
+#include "sqlcomp/CmpSeabaseDDLmdcommon.h"
 
 // *****************************************************************************
 // *

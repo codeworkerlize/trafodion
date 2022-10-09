@@ -16,9 +16,6 @@
 
 #include "optimizer/NARoutine.h"
 
-#include "CmUtil.h"
-#include "NARoutineDB.h"
-#include "UdrErrors.h"
 #include "arkcmp/NATableSt.h"
 #include "cli/Context.h"
 #include "cli/Globals.h"
@@ -33,7 +30,10 @@
 #include "common/str.h"
 #include "langman/LmJavaSignature.h"
 #include "optimizer/BindWA.h"
+#include "optimizer/NARoutineDB.h"
 #include "optimizer/SchemaDB.h"
+#include "optimizer/UdrErrors.h"
+#include "smdio/CmUtil.h"
 #include "sqlcat/TrafDDLdesc.h"
 #include "sqlcomp/CmpMain.h"
 #include "sqlcomp/CmpSeabaseDDL.h"
@@ -590,8 +590,7 @@ NARoutine::~NARoutine() {
       NADELETEBASIC(passThruData_[i], heap_);  // Can't use NADELETEARRAY on C types.
     NADELETEBASIC(passThruData_, heap_);       // Can't use NADELETEARRAY on C types.
   }
-  if (passThruDataSize_ NEQ NULL)  // Use NADELETEARRAY for any 'new(heap)<class>[<size>]'
-    NADELETEARRAY(passThruDataSize_, (UInt32)passThruDataNumEntries_, long, heap_);
+
 
   if (privInfo_) NADELETE(privInfo_, PrivMgrUserPrivs, heap_);
 
@@ -792,7 +791,7 @@ void NARoutineDB::invalidateSPSQLRoutines(LIST(NARoutine *) & routines) {
   if (routines.entries() == 0) {
     return;
   }
-  ExeCliInterface cliInterface(STMTHEAP, NULL, NULL, CmpCommon::context()->sqlSession()->getParentQid());
+  ExeCliInterface cliInterface(STMTHEAP, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
   NAString sql("call ");
   sql.append(TRAFODION_SYSTEM_CATALOG);
   sql.append(".\"");
@@ -814,7 +813,7 @@ void NARoutineDB::invalidateSPSQLRoutines(LIST(NARoutine *) & routines) {
   }
   sql.append(";')");
   if (found) {
-    int savedParserFlags = 0;
+    unsigned int savedParserFlags = 0;
     SQL_EXEC_GetParserFlagsForExSqlComp_Internal(savedParserFlags);
     SQL_EXEC_SetParserFlagsForExSqlComp_Internal(INTERNAL_QUERY_FROM_EXEUTIL);
     PushAndSetSqlParserFlags parserFlags(INTERNAL_QUERY_FROM_EXEUTIL);

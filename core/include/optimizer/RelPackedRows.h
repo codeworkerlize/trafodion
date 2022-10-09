@@ -16,7 +16,7 @@
 ******************************************************************************
 */
 
-#include "PackedColDesc.h"
+#include "optimizer/PackedColDesc.h"
 #include "common/NAString.h"
 #include "optimizer/RelExpr.h"
 

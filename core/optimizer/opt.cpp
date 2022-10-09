@@ -21,13 +21,13 @@
 #include <limits.h>
 #include <time.h>
 
-#include "optimizer/Cost.h"
 #include "arkcmp/CmpContext.h"
 #include "arkcmp/CmpErrors.h"
 #include "arkcmp/CompException.h"
 #include "optimizer/CmpMemoryMonitor.h"
 #include "optimizer/CompilationStats.h"
 #include "optimizer/ControlDB.h"
+#include "optimizer/Cost.h"
 #include "optimizer/CostMethod.h"
 #include "optimizer/GroupAttr.h"
 #include "optimizer/PhyProp.h"
@@ -44,7 +44,8 @@
 
 #include "arkcmp/CmpStatement.h"
 #include "common/NAWNodeSet.h"
-#include "utility.h"
+#include "common/sqtypes.h"
+#include "common/utility.h"
 
 //<pb>
 // -----------------------------------------------------------------------

@@ -8,7 +8,7 @@
 
 #include <fstream>
 
-#include "CmpProcess.h"
+#include "optimizer/CmpProcess.h"
 #include "common/CmpCommon.h"
 #include "common/NAString.h"
 #include "optimizer/NATable.h"

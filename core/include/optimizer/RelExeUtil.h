@@ -15,8 +15,8 @@
 ******************************************************************************
 */
 
-#include "BinderUtils.h"
-#include "RelFastTransport.h"
+#include "optimizer/BinderUtils.h"
+#include "optimizer/RelFastTransport.h"
 #include "cli/SQLCLIdev.h"
 #include "comexe/ComTdbRoot.h"
 #include "common/CmpCommon.h"

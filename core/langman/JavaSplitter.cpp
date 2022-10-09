@@ -22,7 +22,7 @@
 
 #include <iostream>
 
-#include "LmError.h"
+#include "langman/LmError.h"
 #include "common/Platform.h"
 #include "export/ComDiags.h"
 

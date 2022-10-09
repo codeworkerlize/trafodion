@@ -14,7 +14,7 @@
 *
 ******************************************************************************
 */
-#include "GenExpGenerator.h"
+#include "generator/GenExpGenerator.h"
 #include "common/ComDefs.h"  // to get common defines (ROUND8)
 #include "common/ComOptIncludes.h"
 #include "generator/Generator.h"
