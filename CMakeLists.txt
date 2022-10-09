@@ -46,7 +46,7 @@ file(GLOB_RECURSE
     # ${PROJECT_SOURCE_DIR}/core/sqlci/SqlCmd.cpp 
     ${PROJECT_SOURCE_DIR}/core/parser/*.cpp
     ${PROJECT_SOURCE_DIR}/core/optimizer/*.cpp
-        )
+)
 
 #         list(REMOVE_ITEM NOISEPAGE_SRCS ${PROJECT_SOURCE_DIR}/core/executor/*.cpp)
 #         list(REMOVE_ITEM NOISEPAGE_SRCS ${PROJECT_SOURCE_DIR}/core/exp/*.cpp)
