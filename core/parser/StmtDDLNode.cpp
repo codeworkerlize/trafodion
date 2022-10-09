@@ -18,18 +18,19 @@
 
 #include "parser/StmtDDLNode.h"
 
-#include "parser/ElemDDLPrivileges.h"
-#include "parser/StmtDDLGrantArray.h"
-#include "parser/StmtDDLSchGrantArray.h"
 #include "common/BaseTypes.h"
 #include "common/ComOperators.h"
 #include "parser/ElemDDLGrantee.h"
+#include "parser/ElemDDLPrivileges.h"
 #include "parser/StmtDDLGrant.h"
+#include "parser/StmtDDLGrantArray.h"
 #include "parser/StmtDDLGrantComponentPrivilege.h"
+#include "parser/StmtDDLRegisterComponent.h"
 #include "parser/StmtDDLRevoke.h"
+#include "parser/StmtDDLRevokeComponentPrivilege.h"
 #include "parser/StmtDDLSchGrant.h"
+#include "parser/StmtDDLSchGrantArray.h"
 #include "parser/StmtDDLSchRevoke.h"
-
 // -----------------------------------------------------------------------
 // member functions for class StmtDDLNode
 // -----------------------------------------------------------------------

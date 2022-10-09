@@ -14,7 +14,7 @@
 *
 **************************************************************************** */
 
-#include "ColStatDesc.h" /* histogram classes */
+#include "optimizer/ColStatDesc.h" /* histogram classes */
 #include "PartFunc.h"    /* partitioning function */
 
 // -----------------------------------------------------------------------

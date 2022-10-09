@@ -25,34 +25,37 @@
 #ifndef NDEBUG
 #include <iostream>
 #endif
-#include "parser/AllElemDDLParam.h"
-#include "parser/AllElemDDLPartition.h"
-#include "parser/AllElemDDLUdr.h"
-#include "parser/ElemDDLConstraintUnique.h"
-#include "parser/ElemDDLFileAttrClause.h"
-#include "parser/ElemDDLIndexPopulateOption.h"
-#include "parser/ElemDDLIndexScopeOption.h"
-#include "parser/ElemDDLLibClientFilename.h"
-#include "parser/ElemDDLLibClientName.h"
-#include "parser/ElemDDLLocation.h"
-#include "parser/ElemDDLParallelExec.h"
-#include "parser/ElemDDLSchemaName.h"
-#include "parser/ElemDDLWithCheckOption.h"
-#include "parser/ItemConstValueArray.h"
 #include "common/BaseTypes.h"
 #include "common/ComDistribution.h"
 #include "common/ComMisc.h"
 #include "common/ComOperators.h"
 #include "common/NumericType.h"
 #include "export/ComDiags.h"
+#include "parser/AllElemDDLParam.h"
+#include "parser/AllElemDDLPartition.h"
+#include "parser/AllElemDDLUdr.h"
 #include "parser/AllStmtDDLCreate.h"
+#include "parser/ElemDDLConstraintAttrDroppable.h"
 #include "parser/ElemDDLConstraintCheck.h"
 #include "parser/ElemDDLConstraintPK.h"
 #include "parser/ElemDDLConstraintRI.h"
+#include "parser/ElemDDLConstraintUnique.h"
+#include "parser/ElemDDLFileAttrClause.h"
+#include "parser/ElemDDLFileAttrPOS.h"
 #include "parser/ElemDDLGrantee.h"
+#include "parser/ElemDDLIndexPopulateOption.h"
+#include "parser/ElemDDLIndexScopeOption.h"
+#include "parser/ElemDDLLibClientFilename.h"
+#include "parser/ElemDDLLibClientName.h"
 #include "parser/ElemDDLList.h"
+#include "parser/ElemDDLLocation.h"
+#include "parser/ElemDDLOptionList.h"
+#include "parser/ElemDDLParallelExec.h"
 #include "parser/ElemDDLPartitionList.h"
+#include "parser/ElemDDLSchemaName.h"
 #include "parser/ElemDDLStoreOptions.h"
+#include "parser/ElemDDLWithCheckOption.h"
+#include "parser/ItemConstValueArray.h"
 #include "parser/StmtDDLAddConstraintPK.h"
 #include "parser/StmtDDLCommentOn.h"
 #include "parser/StmtDDLCreateExceptionTable.h"
@@ -3935,13 +3938,13 @@ void StmtDDLCreateTable::synthesize() {
     }
 
     else
-        // "store by primary key" specified, but no primary key exists
-        // Error 3188 unless MODE_SPECIAL_1.
-        if (!getIsLikeOptionSpecified())
-      if (CmpCommon::getDefault(MODE_SPECIAL_1) == DF_OFF) {
-        *SqlParser_Diags << DgSqlCode(-3188);
-        return;
-      }
+      // "store by primary key" specified, but no primary key exists
+      // Error 3188 unless MODE_SPECIAL_1.
+      if (!getIsLikeOptionSpecified())
+        if (CmpCommon::getDefault(MODE_SPECIAL_1) == DF_OFF) {
+          *SqlParser_Diags << DgSqlCode(-3188);
+          return;
+        }
   }
 
   // check and RI constraints are not allowed on volatile tables

@@ -62,7 +62,6 @@ class Scan;
 class SubTreeAccessSet;
 class SearchKey;
 class ScanKey;
-class MVInfoForDDL;
 class PlanPriority;
 class Hint;
 class TableMappingUDF;
@@ -677,7 +676,6 @@ class RelExpr : public ExprNode {
 
   // MV --
   virtual NABoolean isIncrementalMV() { return FALSE; }
-  virtual void collectMVInformation(MVInfoForDDL *mvInfo, NABoolean isNormalized);
 
   // determine whether an IUD operation has been seen
   virtual NABoolean seenIUD() { return seenIUD_; }

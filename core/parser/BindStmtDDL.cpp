@@ -24,10 +24,6 @@
 // #include "CatError.h"
 // #define  CAT_ALTER_CANNOT_ADD_NOT_DROPPABLE_CONSTRAINT       1053
 // The above are commented out because we use sqlcode 3067 instead.
-#include "parser/ElemDDLLike.h"
-#include "parser/ElemDDLPartitionSystem.h"
-#include "parser/ElemDDLReferences.h"
-#include "parser/ElemDDLUdrLibrary.h"
 #include "common/CmpCommon.h"
 #include "common/ComASSERT.h"
 #include "common/ComObjectName.h"
@@ -41,7 +37,11 @@
 #include "optimizer/Triggers.h"
 #include "parser/ElemDDLConstraintCheck.h"
 #include "parser/ElemDDLConstraintRI.h"
+#include "parser/ElemDDLLike.h"
 #include "parser/ElemDDLPartitionList.h"
+#include "parser/ElemDDLPartitionSystem.h"
+#include "parser/ElemDDLReferences.h"
+#include "parser/ElemDDLUdrLibrary.h"
 #include "parser/SqlParserGlobals.h"  // must be last #include
 #include "parser/StmtDDLAlterTableTruncatePartition.h"
 #include "qmscommon/QRDescriptor.h"
@@ -663,32 +663,6 @@ NABoolean StmtDDLCreateTrigger::isNewTransitionName(const NAString &tableName) {
 
 NABoolean StmtDDLCreateTrigger::isTransitionName(const NAString &tableName) {
   return (isOldTransitionName(tableName) || isNewTransitionName(tableName));
-}
-
-// -----------------------------------------------------------------------
-// Before beginning the expanded pass, add the system added columns
-// to the select list of the root. This will make sure the system added
-// columns are analyzed correctly.
-// -----------------------------------------------------------------------
-void addSystemColumnsToRootSelectList(RelRoot *queryRoot, MVInfoForDDL *mvInfo, BindWA *bindWA) {
-  // Currently not supporting MJVs because of a bug (SYSKEY is ambiguous).
-  if (mvInfo->getMVType() == COM_MJV) return;
-
-  // Get the expressions for the system added columns.
-  const NAString &systemAddedColsText = mvInfo->getSysColExprs();
-  if (systemAddedColsText == "") return;
-
-  // Verify that the first char is a ',' and skip it.
-  const char *colsTextPtr = systemAddedColsText.data();
-  CMPASSERT(colsTextPtr[0] == ',');
-  colsTextPtr++;
-
-  // Parse the expression text
-  Parser parser(bindWA->currentCmpContext());
-  ItemExpr *systemAddedColsExpr = parser.getItemExprTree(colsTextPtr);
-
-  // Add the system added column expressions to the root select list.
-  queryRoot->addCompExprTree(systemAddedColsExpr);
 }
 
 // -----------------------------------------------------------------------

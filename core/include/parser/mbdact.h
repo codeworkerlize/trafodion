@@ -24,6 +24,9 @@
 #ifndef MBDACT_H
 #define MBDACT_H
 
+#include "common/NABoolean.h"
+#include "export/NAStringDef.h"
+
 enum MBD_CONDITION { onError, on_Warning, onWarning, onEnd, MAX_MBD_CONDITION };
 
 enum MBD_ACTION { NULL_ACTION, CALL_ACTION, GOTO_ACTION, MAX_ACTION };

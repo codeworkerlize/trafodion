@@ -255,7 +255,6 @@ class Join : public RelExpr {
   // MV --
   // We currently want to block LOJ queries, although they are incremental
   NABoolean virtual isIncrementalMV() { return !isLeftJoin(); }  // was return TURE;
-  void virtual collectMVInformation(MVInfoForDDL *mvInfo, NABoolean isNormalized);
 
   // null instantiated part of the output list
   ValueIdList &nullInstantiatedOutput() { return nullInstantiatedOutput_; }

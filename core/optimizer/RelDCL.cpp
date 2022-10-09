@@ -17,7 +17,7 @@
 
 // -----------------------------------------------------------------------
 
-#include "RelDCL.h"
+#include "optimizer/RelDCL.h"
 
 #include "optimizer/BindWA.h"
 #include "optimizer/PhyProp.h"

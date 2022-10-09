@@ -45,6 +45,7 @@ file(GLOB_RECURSE
     # ${PROJECT_SOURCE_DIR}/core/sqlci/SqlciStmts.cpp 
     # ${PROJECT_SOURCE_DIR}/core/sqlci/SqlCmd.cpp 
     ${PROJECT_SOURCE_DIR}/core/parser/*.cpp
+    ${PROJECT_SOURCE_DIR}/core/optimizer/*.cpp
         )
 
 #         list(REMOVE_ITEM NOISEPAGE_SRCS ${PROJECT_SOURCE_DIR}/core/executor/*.cpp)
@@ -69,6 +70,13 @@ target_include_directories(sqlcomp
         /usr/lib/jvm/java-11-openjdk-amd64/include/linux
         )
 
+target_compile_features(sqlcomp PUBLIC    
+        cxx_std_17                                
+        )
+
+target_compile_definitions(sqlcomp PUBLIC
+        "-D_DEBUG -DNDEBUG"
+)
 
 add_executable(sqlci ${PROJECT_SOURCE_DIR}/core/main/main.cpp)
 target_link_libraries(sqlci PUBLIC sqlcomp)

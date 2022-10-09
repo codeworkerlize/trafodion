@@ -15,7 +15,7 @@
 
 #include "RoutineDesc.h"
 
-#include "Cost.h"
+#include "optimizer/Cost.h"
 #include "parser/ParNameLocList.h"
 #include "common/ComOperators.h"
 #include "executor/ex_error.h"

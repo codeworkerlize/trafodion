@@ -21,7 +21,7 @@
 #include <limits.h>
 #include <time.h>
 
-#include "Cost.h"
+#include "optimizer/Cost.h"
 #include "arkcmp/CmpContext.h"
 #include "arkcmp/CmpErrors.h"
 #include "arkcmp/CompException.h"

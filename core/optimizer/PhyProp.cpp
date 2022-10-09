@@ -17,7 +17,7 @@
 
 #include "optimizer/PhyProp.h"
 
-#include "Cost.h"
+#include "optimizer/Cost.h"
 #include "SearchKey.h"
 #include "arkcmp/CmpContext.h"
 #include "cli/Globals.h"

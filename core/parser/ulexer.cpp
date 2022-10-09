@@ -53,7 +53,6 @@ class ForUpdateSpec;
 class IntervalQualifier;
 class OldNewNames;
 class PairOfUnsigned;
-class PipelineDefPtrList;  // Forward references for MV classes.
 class PipelineDef;         // MV --
 class QualNamePtrList;
 class NRowsClause;
@@ -62,11 +61,6 @@ class PipelineClause;
 class DeltaDefinitionPtrList;
 class DeltaDefinition;
 class IncrementalRefreshOption;
-class RecomputeRefreshOption;
-class DeltaDefLogs;
-class DeltaDefRangeLog;
-class DeltaDefIUDLog;
-class IUDStatistics;
 class IntegerList;
 
 #include "common/CharType.h"

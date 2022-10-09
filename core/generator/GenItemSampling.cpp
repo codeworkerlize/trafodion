@@ -1,6 +1,6 @@
 
 #include "GenExpGenerator.h"
-#include "ItemSample.h"
+#include "optimizer/ItemSample.h"
 #include "common/CharType.h"
 #include "common/NumericType.h"
 #include "exp/exp_function.h"

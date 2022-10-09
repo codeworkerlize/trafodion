@@ -19,6 +19,9 @@
 
 #include "optimizer/ObjectNames.h"
 
+#define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
+#include "parser/SqlParserGlobals.h"
+
 // -----------------------------------------------------------------------
 // contents of this file
 // -----------------------------------------------------------------------

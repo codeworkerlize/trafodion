@@ -28,7 +28,7 @@
 #include "optimizer/RelScan.h"
 // QSTUFF
 #include "ReqGen.h"
-#include "Stats.h"
+#include "optimizer/Stats.h"
 #include "common/SharedPtrCollections.h"
 
 // ----------------------------------------------------------------------

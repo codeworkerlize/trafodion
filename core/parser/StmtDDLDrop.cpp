@@ -17,6 +17,9 @@
  */
 
 #include "parser/AllStmtDDLDrop.h"
+#include "parser/ElemDDLSchemaName.h"
+#include "parser/StmtDDLCreateDropSequence.h"
+#include "parser/StmtDDLDropSchema.h"
 
 #ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS

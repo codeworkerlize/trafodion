@@ -23,8 +23,8 @@
 
 #include "optimizer/ControlDB.h"
 
-#include "RelPackedRows.h"
-#include "RelSample.h"
+#include "optimizer/RelPackedRows.h"
+#include "optimizer/RelPackedRows.h"
 #include "arkcmp/CmpContext.h"
 #include "cli/cli_stdh.h"
 #include "common/CmpCommon.h"

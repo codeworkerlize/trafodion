@@ -13,7 +13,7 @@
 ******************************************************************************
 */
 
-#include "Cost.h"
+#include "optimizer/Cost.h"
 #include "arkcmp/CmpStatement.h"
 #include "comexe/ComTdb.h"
 #include "comexe/ComTdbCancel.h"

@@ -15,9 +15,9 @@
 
 #include "optimizer/ImplRule.h"
 
-#include "Cost.h"
-#include "RelPackedRows.h"
-#include "RelSample.h"
+#include "optimizer/Cost.h"
+#include "optimizer/RelPackedRows.h"
+#include "optimizer/RelPackedRows.h"
 #include "ScanOptimizer.h"
 #include "arkcmp/CmpContext.h"
 #include "optimizer/AllItemExpr.h"

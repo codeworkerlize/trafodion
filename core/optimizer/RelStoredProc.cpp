@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-#include "Cost.h"
+#include "optimizer/Cost.h"
 #include "optimizer/EstLogProp.h"
 #include "common/ComDistribution.h"
 #include "optimizer/AllItemExpr.h"

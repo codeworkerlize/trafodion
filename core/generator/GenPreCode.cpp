@@ -8,9 +8,9 @@
 
 #include <fstream>
 
-#include "Cost.h"
+#include "optimizer/Cost.h"
 #include "GenExpGenerator.h"
-#include "RelPackedRows.h"
+#include "optimizer/RelPackedRows.h"
 #include "arkcmp/CmpStatement.h"
 #include "comexe/NAExecTrans.h"
 #include "common/ComRtUtils.h"

@@ -15,7 +15,7 @@
 
 // -----------------------------------------------------------------------
 
-#include "ItemArith.h"
+#include "optimizer/ItemArith.h"
 #include "PartReq.h"
 #include "SearchKey.h"
 #include "common/MiscType.h"

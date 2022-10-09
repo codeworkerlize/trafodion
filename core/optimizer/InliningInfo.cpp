@@ -12,7 +12,7 @@
 *
 ******************************************************************************
 */
-#include "ItemSample.h"
+#include "optimizer/ItemSample.h"
 #include "optimizer/BindWA.h"
 #include "optimizer/ColumnDesc.h"
 #include "optimizer/Inlining.h"

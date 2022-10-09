@@ -20,6 +20,9 @@
 #include "common/Platform.h"
 #include "export/NAVersionedObject.h"
 
+#include <iostream>
+using namespace std;
+
 enum TransStmtType {
   BEGIN_,
   COMMIT_,

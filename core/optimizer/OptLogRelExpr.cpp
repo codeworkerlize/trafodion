@@ -18,8 +18,8 @@
 
 #include <math.h>
 
-#include "AppliedStatMan.h"
-#include "Cost.h"
+#include "optimizer/AppliedStatMan.h"
+#include "optimizer/Cost.h"
 #include "OptTrigger.h"
 #include "arkcmp/CmpStatement.h"
 #include "optimizer/AllItemExpr.h"

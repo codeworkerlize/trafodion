@@ -339,7 +339,6 @@ class Scan : public RelExpr {
 
   // MV --
   NABoolean virtual isIncrementalMV() { return TRUE; }
-  void virtual collectMVInformation(MVInfoForDDL *mvInfo, NABoolean isNormalized);
   RelExpr *bindExpandedMaterializedView(BindWA *bindWA, NATable *naTable);
   void projectCurrentEpoch(BindWA *bindWA);
 

@@ -12,7 +12,7 @@
 **************************************************************************
 */
 
-#include "Cost.h" /* for lookups in the defaults table */
+#include "optimizer/Cost.h" /* for lookups in the defaults table */
 #include "parser/ParNameLocList.h"
 #include "QRDescGenerator.h"
 #include "common/ComCextdecs.h"

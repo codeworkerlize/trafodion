@@ -14,10 +14,10 @@
 
 // -----------------------------------------------------------------------
 #define SQLPARSERGLOBALS_FLAGS  // must precede all #include's
-#include "ColStatDesc.h"
+#include "optimizer/ColStatDesc.h"
 
-#include "../exp/exp_ovfl_ptal.h"  //check for overflow & underflow
-#include "Cost.h"                  /* for lookups in defaults table */
+#include "exp/exp_ovfl_ptal.h"  //check for overflow & underflow
+#include "optimizer/Cost.h"                  /* for lookups in defaults table */
 #include "arkcmp/CompException.h"
 #include "optimizer/Analyzer.h"
 #include "optimizer/ItemColRef.h"
@@ -922,231 +922,186 @@ void ColStatDesc::mergeColStatDesc(ColStatDescSharedPtr &mergedStatDesc, MergeTy
     else if (mergeState().contains(mergedStatDesc->getMergeState()) && forceMerge == FALSE) {
       return;  // nothing left to merge
     } else     // join on unique columns
-        if (forceMerge == FALSE && ((mergeMethod == INNER_JOIN_MERGE) || (mergeMethod == SEMI_JOIN_MERGE))) {
-      // Before starting with the checks, if the statistics exist
-      // for the columns being joined. Skip the following logic, if
-      // 1. no statistics exists for either of the columns
-      // 2. join is being performed on the histograms with virtual column
+      if (forceMerge == FALSE && ((mergeMethod == INNER_JOIN_MERGE) || (mergeMethod == SEMI_JOIN_MERGE))) {
+        // Before starting with the checks, if the statistics exist
+        // for the columns being joined. Skip the following logic, if
+        // 1. no statistics exists for either of the columns
+        // 2. join is being performed on the histograms with virtual column
 
-      if ((CmpCommon::getDefault(COMP_BOOL_48) == DF_ON) ||
-          (!rootColStats->isOrigFakeHist() && !mergedColStats->isOrigFakeHist() &&
-           !rootColStats->isVirtualColForHist() && !mergedColStats->isVirtualColForHist())) {
-        NABoolean scaleFreq = TRUE;
-        if (mergeMethod == SEMI_JOIN_MERGE) scaleFreq = FALSE;
+        if ((CmpCommon::getDefault(COMP_BOOL_48) == DF_ON) ||
+            (!rootColStats->isOrigFakeHist() && !mergedColStats->isOrigFakeHist() &&
+             !rootColStats->isVirtualColForHist() && !mergedColStats->isVirtualColForHist())) {
+          NABoolean scaleFreq = TRUE;
+          if (mergeMethod == SEMI_JOIN_MERGE) scaleFreq = FALSE;
 
-        // merge freq values of the two sides, if the number of values in the freq value list for both
-        // histograms is less than the threshold value and in case of tuple list, a frequent value list
-        // has been created
-        //
-        NABoolean mergeFreqValues = FALSE;
+          // merge freq values of the two sides, if the number of values in the freq value list for both
+          // histograms is less than the threshold value and in case of tuple list, a frequent value list
+          // has been created
+          //
+          NABoolean mergeFreqValues = FALSE;
 
-        CostScalar uecCushion((ActiveSchemaDB()->getDefaults()).getAsDouble(COMP_FLOAT_4));
-        // check if it is a primary_key - foreign_key join.If yes, and
-        // No merge is required
+          CostScalar uecCushion((ActiveSchemaDB()->getDefaults()).getAsDouble(COMP_FLOAT_4));
+          // check if it is a primary_key - foreign_key join.If yes, and
+          // No merge is required
 
-        ValueIdSet colSetLeft = mergeState();
-        NABoolean leftJoinUnique = FALSE;
+          ValueIdSet colSetLeft = mergeState();
+          NABoolean leftJoinUnique = FALSE;
 
-        ValueIdSet colSetRight = (ValueIdSet)(mergedStatDesc->getMergeState());
-        NABoolean rightJoinUnique = FALSE;
-        NABoolean joinWithTupleList = FALSE;
+          ValueIdSet colSetRight = (ValueIdSet)(mergedStatDesc->getMergeState());
+          NABoolean rightJoinUnique = FALSE;
+          NABoolean joinWithTupleList = FALSE;
 
-        // For semi_joins, only right side being unique matters
-        if ((colSetLeft.entries() == 1) && (mergeMethod != SEMI_JOIN_MERGE)) {
-          ValueId colIdLeft;
-          colSetLeft.getFirst(colIdLeft);
+          // For semi_joins, only right side being unique matters
+          if ((colSetLeft.entries() == 1) && (mergeMethod != SEMI_JOIN_MERGE)) {
+            ValueId colIdLeft;
+            colSetLeft.getFirst(colIdLeft);
 
-          // Check to see if it is a join with a tuple list
-          // In this case the column type should be ITM_NATYPE
+            // Check to see if it is a join with a tuple list
+            // In this case the column type should be ITM_NATYPE
 
-          if ((CmpCommon::getDefault(COMP_BOOL_48) == DF_ON) &&
-              (colIdLeft.getItemExpr()->getOperatorType() == ITM_NATYPE)) {
-            joinWithTupleList = TRUE;
-            // in case of a tuple list, do not do a regular merge of frequent values if
-            // there was no frequent value list created. That will be true if the
-            // number of elemenst in the IN list for which the tuple list was created
-            // had elements less than or equal to CQD HIST_TUPLE_FREQVAL_LIST_THRESHOLD
-            // Please refer method addColStatDescForVirtualCol for use of this CQD
-            if (rootColStats->getFrequentValues().entries() > 0) mergeFreqValues = TRUE;
-          }
+            if ((CmpCommon::getDefault(COMP_BOOL_48) == DF_ON) &&
+                (colIdLeft.getItemExpr()->getOperatorType() == ITM_NATYPE)) {
+              joinWithTupleList = TRUE;
+              // in case of a tuple list, do not do a regular merge of frequent values if
+              // there was no frequent value list created. That will be true if the
+              // number of elemenst in the IN list for which the tuple list was created
+              // had elements less than or equal to CQD HIST_TUPLE_FREQVAL_LIST_THRESHOLD
+              // Please refer method addColStatDescForVirtualCol for use of this CQD
+              if (rootColStats->getFrequentValues().entries() > 0) mergeFreqValues = TRUE;
+            }
 
-          // join with a tuple list will always be unique as the
-          // UEC = rowcount
-          if (joinWithTupleList || rootColStats->isAlmostUnique())
-            leftJoinUnique = TRUE;
-          else {
-            BaseColumn *colExprLeft = colIdLeft.castToBaseColumn();
+            // join with a tuple list will always be unique as the
+            // UEC = rowcount
+            if (joinWithTupleList || rootColStats->isAlmostUnique())
+              leftJoinUnique = TRUE;
+            else {
+              BaseColumn *colExprLeft = colIdLeft.castToBaseColumn();
 
-            if (colExprLeft != NULL) {
-              TableDesc *tableDescForLeftCol = colExprLeft->getTableDesc();
-              leftJoinUnique = colSetLeft.doColumnsConstituteUniqueIndex(tableDescForLeftCol);
+              if (colExprLeft != NULL) {
+                TableDesc *tableDescForLeftCol = colExprLeft->getTableDesc();
+                leftJoinUnique = colSetLeft.doColumnsConstituteUniqueIndex(tableDescForLeftCol);
+              }
             }
           }
-        }
 
-        if (colSetRight.entries() == 1) {
-          ValueId colIdRight;
-          colSetRight.getFirst(colIdRight);
-          // Check to see if it is a join with a tuple list
-          // In this case the column type should be ITM_NATYPE
+          if (colSetRight.entries() == 1) {
+            ValueId colIdRight;
+            colSetRight.getFirst(colIdRight);
+            // Check to see if it is a join with a tuple list
+            // In this case the column type should be ITM_NATYPE
 
-          if ((CmpCommon::getDefault(COMP_BOOL_48) == DF_ON) &&
-              (colIdRight.getItemExpr()->getOperatorType() == ITM_NATYPE)) {
-            joinWithTupleList = TRUE;
-            // in case of a tuple list, do not do a regular merge of frequent values if
-            // there was no frequent value list created. That will be true if the
-            // number of elemenst in the IN list for which the tuple list was created
-            // had elements less than or equal to CQD HIST_TUPLE_FREQVAL_LIST_THRESHOLD
-            // Please refer method addColStatDescForVirtualCol for use of this CQD
-            if (mergedColStats->getFrequentValues().entries() > 0) mergeFreqValues = TRUE;
-          }
+            if ((CmpCommon::getDefault(COMP_BOOL_48) == DF_ON) &&
+                (colIdRight.getItemExpr()->getOperatorType() == ITM_NATYPE)) {
+              joinWithTupleList = TRUE;
+              // in case of a tuple list, do not do a regular merge of frequent values if
+              // there was no frequent value list created. That will be true if the
+              // number of elemenst in the IN list for which the tuple list was created
+              // had elements less than or equal to CQD HIST_TUPLE_FREQVAL_LIST_THRESHOLD
+              // Please refer method addColStatDescForVirtualCol for use of this CQD
+              if (mergedColStats->getFrequentValues().entries() > 0) mergeFreqValues = TRUE;
+            }
 
-          // join with a tuple list will always be unique as the
-          // UEC = rowcount
-          if (joinWithTupleList || mergedColStats->isAlmostUnique())
-            rightJoinUnique = TRUE;
-          else {
-            BaseColumn *colExprRight = colIdRight.castToBaseColumn();
+            // join with a tuple list will always be unique as the
+            // UEC = rowcount
+            if (joinWithTupleList || mergedColStats->isAlmostUnique())
+              rightJoinUnique = TRUE;
+            else {
+              BaseColumn *colExprRight = colIdRight.castToBaseColumn();
 
-            if (colExprRight != NULL) {
-              TableDesc *tableDescForRightCol = colExprRight->getTableDesc();
-              rightJoinUnique = colSetRight.doColumnsConstituteUniqueIndex(tableDescForRightCol);
+              if (colExprRight != NULL) {
+                TableDesc *tableDescForRightCol = colExprRight->getTableDesc();
+                rightJoinUnique = colSetRight.doColumnsConstituteUniqueIndex(tableDescForRightCol);
+              }
             }
           }
-        }
 
-        CostScalar leftUec;
-        CostScalar rightUec;
+          CostScalar leftUec;
+          CostScalar rightUec;
 
-        // Fix for Sol:10-070222-2759. The join cardinalities were highly
-        // underestimated. This is because of the assumption the optimizer makes
-        // regarding the relationship between the joining columns. The joining
-        // columns can be either orthogonal or contained within each other.
-        // Containment determines if the joining column of the one table
-        // should take into account the reduction on the column from the other side
-        // The way the reduction should be computed is controlled by a CQD
-        // By default we assume that the columns are orthogonal. That is reduction
-        // on one side of a table, should not impact the other side.
-        // CQD used for this is HIST_ASSUME_INDEPENDENT_REDUCTION,
-        // and is ON by default
+          // Fix for Sol:10-070222-2759. The join cardinalities were highly
+          // underestimated. This is because of the assumption the optimizer makes
+          // regarding the relationship between the joining columns. The joining
+          // columns can be either orthogonal or contained within each other.
+          // Containment determines if the joining column of the one table
+          // should take into account the reduction on the column from the other side
+          // The way the reduction should be computed is controlled by a CQD
+          // By default we assume that the columns are orthogonal. That is reduction
+          // on one side of a table, should not impact the other side.
+          // CQD used for this is HIST_ASSUME_INDEPENDENT_REDUCTION,
+          // and is ON by default
 
-        if (CURRSTMT_OPTDEFAULTS->histAssumeIndependentReduction()) {
-          leftUec = rootColStats->getBaseUec();
-          rightUec = mergedColStats->getBaseUec();
-          UInt32 upliftCardCond = CURRSTMT_OPTDEFAULTS->histOptimisticCardOpt();
-          if ((CmpCommon::getDefault(COMP_BOOL_45) == DF_ON) && ((upliftCardCond == 1) || (upliftCardCond == 2))) {
-            ValueIdSet joinedCols = this->getColumn();
-            joinedCols.insert(mergedStatDesc->getColumn());
+          if (CURRSTMT_OPTDEFAULTS->histAssumeIndependentReduction()) {
+            leftUec = rootColStats->getBaseUec();
+            rightUec = mergedColStats->getBaseUec();
+            UInt32 upliftCardCond = CURRSTMT_OPTDEFAULTS->histOptimisticCardOpt();
+            if ((CmpCommon::getDefault(COMP_BOOL_45) == DF_ON) && ((upliftCardCond == 1) || (upliftCardCond == 2))) {
+              ValueIdSet joinedCols = this->getColumn();
+              joinedCols.insert(mergedStatDesc->getColumn());
 
-            // first get the joining column with minimum UEC
-            // CostScalar minOriginalUec = joinedCols.getMinOrigUecOfJoiningCols();
-            CostScalar minOriginalUec = MINOF(leftUec, rightUec);
+              // first get the joining column with minimum UEC
+              // CostScalar minOriginalUec = joinedCols.getMinOrigUecOfJoiningCols();
+              CostScalar minOriginalUec = MINOF(leftUec, rightUec);
 
-            // next get the UEC of the left and the right joining columns
-            CostScalar leftTotalUec = rootColStats->getTotalUec();
-            CostScalar rightTotalUec = mergedColStats->getTotalUec();
+              // next get the UEC of the left and the right joining columns
+              CostScalar leftTotalUec = rootColStats->getTotalUec();
+              CostScalar rightTotalUec = mergedColStats->getTotalUec();
 
-            // max of left and right UEC to compute join cardinality
-            // uses single interval concept and the containment assumption
-            // leftUec = MAXOF(minOriginalUec, leftTotalUec);
-            // rightUec = MAXOF(minOriginalUec, rightTotalUec);
-            leftUec = MAXOF(leftTotalUec, minOriginalUec);
-            rightUec = MAXOF(rightTotalUec, minOriginalUec);
-          }  // upliftCardCond = 1 OR 2
-        }    // histAssumeIndependentReduction
-        else {
-          leftUec = rootColStats->getTotalUec();
-          rightUec = mergedColStats->getTotalUec();
-        }
-
-        if (leftJoinUnique &&
-            (joinWithTupleList || ((rootColStats->getBaseUec() * uecCushion) > mergedColStats->getBaseUec()))) {
-          // result is the otherColStats
-          CostScalar reduction = csOne;
-          if (joinWithTupleList)
-            reduction = 1 / MAXOF(rightUec, leftUec).getValue();
-          else
-            reduction = 1 / leftUec.value();
-
-          CostScalar minUec = MINOF(rootColStats->getTotalUec(), mergedColStats->getTotalUec());
-
-          // make a copy of original rootColStats so we can merge frequent values properly later
-          // This will be required if we mergeFreqValues flag is TRUE that is we need to do detailed
-          // merge of frequent values
-          ColStatsSharedPtr rootColStatsCopy;
-          if (mergeFreqValues) rootColStatsCopy = ColStats::deepCopy(*(rootColStats), HISTHEAP);
-
-          // Over write the rootColStats with the right histogram, which is the resultant
-          // histogram now
-          rootColStats->overwrite(*mergedColStats);
-
-          // Overwrite function does not copy frequent value list. I tried t make a copy
-          // but that resulted in cardinality changes for outer joins, till we
-          // figure out how to handle frequent values for outer joins, we will copy frequent
-          // values separately, so that the behaviour of left joins does not change.
-          // Also did not want to change the behavior of short cut join for join on columns,
-          // hence do that only for tuple lists.
-          if (joinWithTupleList && (rootColStats->getFrequentValues().entries() == 0) &&
-              (mergedColStats->getFrequentValues().entries() > 0)) {
-            FrequentValueList *resultantFreqValList =
-                new (STMTHEAP) FrequentValueList(mergedColStats->getFrequentValues(), STMTHEAP);
-            rootColStats->setFrequentValue(*resultantFreqValList);
-          }
-
-          CostScalar uecReduction = minUec / rootColStats->getTotalUec();
-
-          // do a detailed merge of joins, if the tuple list has frequent values attached to it
-          // else simply scale the frequency and the probability of the frequent value list
-          // by the row and uec reduction computed
-          if (mergeFreqValues)
-            // rootColStats is now the rigthColStats, hence merge frequentvalues of right and
-            // original left root colstats
-            NABoolean dummy = rootColStats->mergeFrequentValues(rootColStatsCopy, scaleFreq);
+              // max of left and right UEC to compute join cardinality
+              // uses single interval concept and the containment assumption
+              // leftUec = MAXOF(minOriginalUec, leftTotalUec);
+              // rightUec = MAXOF(minOriginalUec, rightTotalUec);
+              leftUec = MAXOF(leftTotalUec, minOriginalUec);
+              rightUec = MAXOF(rightTotalUec, minOriginalUec);
+            }  // upliftCardCond = 1 OR 2
+          }    // histAssumeIndependentReduction
           else {
-            FrequentValueList &rootFrequentValueList = rootColStats->getModifableFrequentValues();
-            rootFrequentValueList.scaleFreqAndProbOfFrequentValues(reduction, uecReduction);
+            leftUec = rootColStats->getTotalUec();
+            rightUec = mergedColStats->getTotalUec();
           }
 
-          // later scale the histogram keeping the frequent values unchanged, as they have already been
-          // scaled
-          rootColStats->scaleHistogram(reduction, uecReduction, FALSE);
-
-          // update the applied predicates
-          appliedPreds().insert(mergedStatDesc->getAppliedPreds());
-          mergeState().insert(mergedStatDesc->getMergeState());
-          rootColStats->setRecentJoin(TRUE);
-          rootColStats->setModified(TRUE);
-          skipJoin = TRUE;
-        } else {
-          if (rightJoinUnique &&
-              (joinWithTupleList || ((mergedColStats->getBaseUec() * uecCushion) > rootColStats->getBaseUec()))) {
-            // final result is this colStats, hence not much to do
-            // except scale this colstats to take care of cross product
-            // that had taken place earlier
-            // For semi-joins, the left and the rigth histograms are not scaled
-            // at the time of merge, hence, no scaling is required here too
-
+          if (leftJoinUnique &&
+              (joinWithTupleList || ((rootColStats->getBaseUec() * uecCushion) > mergedColStats->getBaseUec()))) {
+            // result is the otherColStats
             CostScalar reduction = csOne;
-
-            // if it is join with tuple list, reduction is equal to the
-            // larger of the two bases UECs
             if (joinWithTupleList)
               reduction = 1 / MAXOF(rightUec, leftUec).getValue();
-            else {
-              if (mergeMethod != SEMI_JOIN_MERGE)
-                reduction = 1 / rightUec.value();
-              else
-                reduction = mergedColStats->getTotalUec() / mergedColStats->getBaseUec().value();
-            }
+            else
+              reduction = 1 / leftUec.value();
 
             CostScalar minUec = MINOF(rootColStats->getTotalUec(), mergedColStats->getTotalUec());
+
+            // make a copy of original rootColStats so we can merge frequent values properly later
+            // This will be required if we mergeFreqValues flag is TRUE that is we need to do detailed
+            // merge of frequent values
+            ColStatsSharedPtr rootColStatsCopy;
+            if (mergeFreqValues) rootColStatsCopy = ColStats::deepCopy(*(rootColStats), HISTHEAP);
+
+            // Over write the rootColStats with the right histogram, which is the resultant
+            // histogram now
+            rootColStats->overwrite(*mergedColStats);
+
+            // Overwrite function does not copy frequent value list. I tried t make a copy
+            // but that resulted in cardinality changes for outer joins, till we
+            // figure out how to handle frequent values for outer joins, we will copy frequent
+            // values separately, so that the behaviour of left joins does not change.
+            // Also did not want to change the behavior of short cut join for join on columns,
+            // hence do that only for tuple lists.
+            if (joinWithTupleList && (rootColStats->getFrequentValues().entries() == 0) &&
+                (mergedColStats->getFrequentValues().entries() > 0)) {
+              FrequentValueList *resultantFreqValList =
+                  new (STMTHEAP) FrequentValueList(mergedColStats->getFrequentValues(), STMTHEAP);
+              rootColStats->setFrequentValue(*resultantFreqValList);
+            }
+
             CostScalar uecReduction = minUec / rootColStats->getTotalUec();
 
-            // merge the frequent values of the two sides if the heuristic used above is TRUE else
-            // just scale the probability of the frequent values, keeping frequency unchanged
-            // This is similar to applying direct reduction to histogram intervals
+            // do a detailed merge of joins, if the tuple list has frequent values attached to it
+            // else simply scale the frequency and the probability of the frequent value list
+            // by the row and uec reduction computed
             if (mergeFreqValues)
-              NABoolean dummy = rootColStats->mergeFrequentValues(mergedColStats, scaleFreq);
+              // rootColStats is now the rigthColStats, hence merge frequentvalues of right and
+              // original left root colstats
+              NABoolean dummy = rootColStats->mergeFrequentValues(rootColStatsCopy, scaleFreq);
             else {
               FrequentValueList &rootFrequentValueList = rootColStats->getModifableFrequentValues();
               rootFrequentValueList.scaleFreqAndProbOfFrequentValues(reduction, uecReduction);
@@ -1156,15 +1111,60 @@ void ColStatDesc::mergeColStatDesc(ColStatDescSharedPtr &mergedStatDesc, MergeTy
             // scaled
             rootColStats->scaleHistogram(reduction, uecReduction, FALSE);
 
+            // update the applied predicates
             appliedPreds().insert(mergedStatDesc->getAppliedPreds());
             mergeState().insert(mergedStatDesc->getMergeState());
             rootColStats->setRecentJoin(TRUE);
             rootColStats->setModified(TRUE);
             skipJoin = TRUE;
-          }  // rightJoinUnique
-        }    // end else leftJoinUnique
-      }      // histogram is !fake and !histForVirtualCol
-    }        // forceMerge = FALSE && mergeMethod == INNER_JOIN or SEMI_JOIN
+          } else {
+            if (rightJoinUnique &&
+                (joinWithTupleList || ((mergedColStats->getBaseUec() * uecCushion) > rootColStats->getBaseUec()))) {
+              // final result is this colStats, hence not much to do
+              // except scale this colstats to take care of cross product
+              // that had taken place earlier
+              // For semi-joins, the left and the rigth histograms are not scaled
+              // at the time of merge, hence, no scaling is required here too
+
+              CostScalar reduction = csOne;
+
+              // if it is join with tuple list, reduction is equal to the
+              // larger of the two bases UECs
+              if (joinWithTupleList)
+                reduction = 1 / MAXOF(rightUec, leftUec).getValue();
+              else {
+                if (mergeMethod != SEMI_JOIN_MERGE)
+                  reduction = 1 / rightUec.value();
+                else
+                  reduction = mergedColStats->getTotalUec() / mergedColStats->getBaseUec().value();
+              }
+
+              CostScalar minUec = MINOF(rootColStats->getTotalUec(), mergedColStats->getTotalUec());
+              CostScalar uecReduction = minUec / rootColStats->getTotalUec();
+
+              // merge the frequent values of the two sides if the heuristic used above is TRUE else
+              // just scale the probability of the frequent values, keeping frequency unchanged
+              // This is similar to applying direct reduction to histogram intervals
+              if (mergeFreqValues)
+                NABoolean dummy = rootColStats->mergeFrequentValues(mergedColStats, scaleFreq);
+              else {
+                FrequentValueList &rootFrequentValueList = rootColStats->getModifableFrequentValues();
+                rootFrequentValueList.scaleFreqAndProbOfFrequentValues(reduction, uecReduction);
+              }
+
+              // later scale the histogram keeping the frequent values unchanged, as they have already been
+              // scaled
+              rootColStats->scaleHistogram(reduction, uecReduction, FALSE);
+
+              appliedPreds().insert(mergedStatDesc->getAppliedPreds());
+              mergeState().insert(mergedStatDesc->getMergeState());
+              rootColStats->setRecentJoin(TRUE);
+              rootColStats->setModified(TRUE);
+              skipJoin = TRUE;
+            }  // rightJoinUnique
+          }    // end else leftJoinUnique
+        }      // histogram is !fake and !histForVirtualCol
+      }        // forceMerge = FALSE && mergeMethod == INNER_JOIN or SEMI_JOIN
 
     if (forceMerge == TRUE || skipJoin == FALSE) {
       // ----------------------------------------------------------------

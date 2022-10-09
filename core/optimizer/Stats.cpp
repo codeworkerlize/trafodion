@@ -17,13 +17,13 @@
 
 // -----------------------------------------------------------------------
 
-#include "Stats.h"
+#include "optimizer/Stats.h"
 
 #include <string.h>
 
 #include <queue>
 
-#include "Cost.h"
+#include "optimizer/Cost.h"
 #include "arkcmp/CompException.h"
 #include "common/ComCextdecs.h"    // For Timestamp related calls
 #include "common/NLSConversion.h"  // For conversion to unicode strings

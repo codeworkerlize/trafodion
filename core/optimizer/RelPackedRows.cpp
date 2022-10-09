@@ -11,9 +11,9 @@
 *
 ******************************************************************************
 */
-#include "RelPackedRows.h"
+#include "optimizer/RelPackedRows.h"
 
-#include "Cost.h"
+#include "optimizer/Cost.h"
 #include "cli/Globals.h"
 #include "optimizer/AllItemExpr.h"
 #include "optimizer/AllRelExpr.h"

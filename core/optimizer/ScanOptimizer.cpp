@@ -20,7 +20,7 @@
 
 //#include <sys/io.h>
 
-#include "../exp/exp_ovfl_ptal.h"  //to check overflow
+#include "exp/exp_ovfl_ptal.h"  //to check overflow
 #include "MdamDebug.h"
 #include "OptRange.h"
 #include "ScanOptimizer.h"

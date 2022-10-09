@@ -13,7 +13,7 @@
 ******************************************************************************
 */
 
-#include "AccessSets.h"
+#include "optimizer/AccessSets.h"
 
 #include "optimizer/AllItemExpr.h"
 #include "optimizer/AllRelExpr.h"

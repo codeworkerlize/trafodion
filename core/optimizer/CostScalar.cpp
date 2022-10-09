@@ -33,7 +33,7 @@
 
 #include "optimizer/CostScalar.h"
 
-#include "../exp/exp_ovfl_ptal.h"
+#include "exp/exp_ovfl_ptal.h"
 #include "common/CmpCommon.h"
 #include "common/NABoolean.h"
 #include "float.h"

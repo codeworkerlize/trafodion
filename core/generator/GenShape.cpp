@@ -15,8 +15,8 @@
  *****************************************************************************
  */
 
-#include "RelPackedRows.h"
-#include "RelSample.h"
+#include "optimizer/RelPackedRows.h"
+#include "optimizer/RelPackedRows.h"
 #include "generator/Generator.h"
 #include "mdamkey.h"
 #include "optimizer/AllItemExpr.h"

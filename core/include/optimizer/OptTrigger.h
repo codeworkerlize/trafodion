@@ -15,7 +15,7 @@
 **************************************************************************
 */
 
-#include "AccessSets.h"
+#include "optimizer/AccessSets.h"
 #include "optimizer/AllRelExpr.h"
 #include "optimizer/Triggers.h"
 

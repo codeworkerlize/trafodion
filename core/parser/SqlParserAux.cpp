@@ -1722,7 +1722,7 @@ NABoolean PicStream::skipCount(UInt32 *result, const char pattern, NABoolean isC
   assert(toupper(sgetc()) == pattern);
   UInt32 total = 0;
   do {
-    stossc();
+    mystossc();
     if (sgetc() == '(') {
       // Next we advance over the characters in a pattern
       // of `( <unsigned-int> )' where there may be white space after
@@ -1730,7 +1730,7 @@ NABoolean PicStream::skipCount(UInt32 *result, const char pattern, NABoolean isC
       // an assertion fail (and ostensibly a SqlLexer.l error) if this
       // pattern is not encountered.  The unsigned int is parsed
       // and its value added to total.
-      stossc();
+      mystossc();
       skipWhite();
       assert(isdigit(sgetc()));
       UInt32 val = 0;
@@ -1804,7 +1804,7 @@ NABoolean parsePicClause(NAString *picClauseBuffer, NABoolean *isStringPtr, UInt
 
     if (toupper(s.sgetc()) == 'S') {
       *hasSignPtr = TRUE;
-      s.stossc();
+      s.mystossc();
     } else
       *hasSignPtr = FALSE;
 
@@ -1812,7 +1812,7 @@ NABoolean parsePicClause(NAString *picClauseBuffer, NABoolean *isStringPtr, UInt
       if (s.skipCount(&frontPart, '9') == FALSE) return FALSE;
 
     if (toupper(s.sgetc()) == 'V') {
-      s.stossc();
+      s.mystossc();
       if (s.sgetc() == '9')
         if (s.skipCount(&backPart, '9') == FALSE) return FALSE;
     }

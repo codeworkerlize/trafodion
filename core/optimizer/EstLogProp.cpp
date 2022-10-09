@@ -26,7 +26,7 @@
 #include "optimizer/opt.h"
 
 /////////////////////
-#include "AppliedStatMan.h"
+#include "optimizer/AppliedStatMan.h"
 #include "optimizer/Analyzer.h"
 /////////////////////
 

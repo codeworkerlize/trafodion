@@ -16,11 +16,11 @@
 
 #include "optimizer/TransRule.h"
 
-#include "AppliedStatMan.h"
+#include "optimizer/AppliedStatMan.h"
 #include "optimizer/EstLogProp.h"
 #include "GroupAttr.h"
 #include "MultiJoin.h"
-#include "RelSample.h"
+#include "optimizer/RelPackedRows.h"
 #include "arkcmp/CmpContext.h"
 #include "common/ngram.h"
 #include "optimizer/AllItemExpr.h"

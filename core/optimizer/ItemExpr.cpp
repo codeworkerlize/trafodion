@@ -19,12 +19,12 @@
 
 #include <map>  // STL map template class
 
-#include "Cost.h" /* for lookups in the defaults table */
-#include "ItemFuncUDF.h"
-#include "ItemSample.h"
+#include "optimizer/Cost.h" /* for lookups in the defaults table */
+#include "optimizer/ItemFuncUDF.h"
+#include "optimizer/ItemSample.h"
 #include "OptRange.h"
 #include "PartFunc.h"
-#include "Stats.h"
+#include "optimizer/Stats.h"
 #include "arkcmp/CmpStatement.h"
 #include "common/ComUnits.h"
 #include "common/NLSConversion.h"

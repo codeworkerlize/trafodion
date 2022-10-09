@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "NAPartition.h"
-#include "Stats.h"
+#include "optimizer/Stats.h"
 #include "arkcmp/CmpISPStd.h"
 #include "cli/sqlcli.h"
 #include "common/BaseTypes.h"

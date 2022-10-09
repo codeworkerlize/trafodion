@@ -24,7 +24,7 @@
 #include <search.h>
 #include <stdlib.h>
 
-#include "ItemSample.h"
+#include "optimizer/ItemSample.h"
 #include "optimizer/AllItemExpr.h"
 #include "optimizer/AllRelExpr.h"
 #include "optimizer/BindWA.h"

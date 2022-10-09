@@ -18,7 +18,7 @@
 
 #include "optimizer/Analyzer.h"
 
-#include "AppliedStatMan.h"
+#include "optimizer/AppliedStatMan.h"
 #include "MultiJoin.h"
 #include "optimizer/TransRule.h"
 #include "optimizer/RelExpr.h"

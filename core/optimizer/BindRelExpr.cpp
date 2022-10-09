@@ -25,10 +25,10 @@
 #define SQLPARSERGLOBALS_NADEFAULTS
 
 #include "parser/ElemDDLSaltOptions.h"
-#include "ItemSample.h"
+#include "optimizer/ItemSample.h"
 #include "parser/ParNameLocList.h"
-#include "RelDCL.h"
-#include "RelPackedRows.h"
+#include "optimizer/RelDCL.h"
+#include "optimizer/RelPackedRows.h"
 #include "StmtDDLAddConstraintCheck.h"
 #include "UdrErrors.h"
 #include "arkcmp/CmpStatement.h"

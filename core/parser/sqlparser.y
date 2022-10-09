@@ -79,16 +79,16 @@ using namespace std;
 #include "export/HeapLog.h"
 #include "parser/HvTypes.h"
 #include "optimizer/ItemExprList.h"
-#include "ItemSample.h"
+#include "optimizer/ItemSample.h"
 #include "comexe/LateBindInfo.h"
 #include "common/NAExit.h"
 #include "common/OperTypeEnum.h"
 #include "optimizer/OptHints.h"
 #include "sqlcomp/parser.h"
 #include "sqlmsg/ParserMsg.h"
-#include "RelDCL.h"
-#include "RelPackedRows.h"
-#include "RelSample.h"
+#include "optimizer/RelDCL.h"
+#include "optimizer/RelPackedRows.h"
+#include "optimizer/RelPackedRows.h"
 #include "optimizer/RelSequence.h"
 #include "sqlci/SqlciError.h"
 #include "cli/sqlcli.h"
@@ -105,7 +105,7 @@ using namespace std;
 #include "parser/StmtNode.h"
 #include "common/wstr.h"
 #include "common/NABoolean.h"
-#include "HvRolesAssign.h"
+#include "parser/HvRolesAssign.h"
 #include "common/NAClusterInfo.h"
 
 #include "exp/exp_expr.h"
@@ -114,7 +114,7 @@ using namespace std;
 #include "optimizer/Analyzer.h"
 
 #include "optimizer/OptimizerSimulator.h"
-#include "ItemFuncUDF.h"
+#include "optimizer/ItemFuncUDF.h"
 #include "exp/ExpLOBenums.h"
 #include "seabed/ms.h"
 #include "cli/Globals.h"
@@ -1803,12 +1803,10 @@ static void setPartionInfo(RelExpr *re)
   ComRangeLogType		rangelogType;
   ComMvsAllowed			mvsAllowedType;
   ComMvAuditType		mvAuditType;
-  MvInitializationType          mvInitType;
   enum StmtDDLCommentOn::COMMENT_ON_TYPES  commentOnEnum;
 	
   // internal refresh OZ_REFRESH 
 
-  PipelineDefPtrList		*pPipelineDefPtrList;
   PipelineDef			*pPipelineDef;
   QualNamePtrList		*pQualifiedNamePtrList;
   NRowsClause			*pOptionalNRowsClause;
@@ -1816,12 +1814,7 @@ static void setPartionInfo(RelExpr *re)
   DeltaDefinitionPtrList	*pDeltaDefinitionPtrList;
   DeltaDefinition		*pDeltaDefinition;
   IncrementalRefreshOption	*pIncrementalRefreshOption;
-  RecomputeRefreshOption	*pRecomputeRefreshOption;
 
-  DeltaDefLogs			*pDeltaDefLogs;  
-  DeltaDefRangeLog		*pDeltaDefRangeLog; 
-  DeltaDefIUDLog		*pDeltaDefIUDLog;
-  IUDStatistics			*pIUDStatistics;
   IntegerList			*pIntegerList;
   ConstStringList               *pConstStringList;
   LoadSharedCacheTargetSpec     *pLoadSharedCacheTargetSpec;
@@ -3108,11 +3101,8 @@ static void setPartionInfo(RelExpr *re)
 %type <item>                   locking_stmt
 %type <parTriggerScopeType>         optional_row_table
 
-%type <stringval>              optional_hive_options
 
 %type <tableTokens>            create_table_start_tokens
-%type <tableLoadAttrEnum>      ctas_load_and_in_memory_options
-%type <pElemDDL>               ctas_insert_columns
 %type <pElemDDL>	       table_feature
 %type <boolean>                is_not_droppable
 %type <boolean>   	       online_or_offline
@@ -29451,14 +29441,7 @@ udf_version_tag_clause : TOK_VERSION TOK_TAG std_char_string_literal
     delete $3; // std_char_string_literal
   }
 
-optional_hive_options : empty 
-                      {
-                        $$ = NULL;
-                      }
-                      | TOK_HIVE TOK_OPTIONS QUOTED_STRING
-                      {
-                        $$ = $3;
-                      }
+
 
 /* type pStmtDDL */
 table_definition : create_table_start_tokens 
@@ -29615,96 +29598,6 @@ table_definition : create_table_start_tokens
 		     $$ = pNode;
 		     delete $2; /*special_table_name*/
 		   }
-
-                 | create_table_start_tokens
-                   ddl_qualified_name
- 		   table_definition_body
- 		   optional_create_table_attribute_list 
- 		   create_table_as_attr_list_end
-		   ctas_load_and_in_memory_options
-		   ctas_insert_columns
-                   optional_hive_options
-		   create_table_as_token 
-		   optional_locking_stmt_list 
-                   query_expression   //optinal_with_claused included
-                   optional_limit_spec
-		   {
-		     QualifiedName * qn;
-
-		     if ($1->getType() == TableTokens::TYPE_GHOST_TABLE) // ghost table
-		       {
-			 // Syntax error: CREATE GHOST TABLE ... AS ...
-			 yyerror("");
-			 YYERROR;
-		       }
-
-                     $1->setOptions($6);
-                     if ($1->isVolatile())
-                       qn = processVolatileDDLName($2, FALSE, FALSE);
-		     else
-		       qn = $2;
-		     if (! qn)
-			 YYABORT;
-
-		     RelRoot *top = finalize($12);
-                   //limit clause
-                   if ($12)
-                   {
-                     if (top->getFirstNRows() >= 0)
-                       {
-                         // cannot specify LIMIT and FIRST N clauses together.
-                         YYERROR;
-                       }
-                     else
-                       {
-                         NABoolean negate;
-                         if ($12->castToConstValue(negate))
-                           {
-                             ConstValue * limit = (ConstValue*)$12;
-                             int scale = 0;
-                             top->setFirstNRows(limit->getExactNumericValue(scale));
-                             top->setFirstNRowsParam(NULL);
-                           }
-                         else
-                           {
-                             top->setFirstNRowsParam($12);
-                             top->setFirstNRows(-1);
-                           }
-                       }
-                   }
-
-		     StmtDDLCreateTable *pNode =
-		       new (PARSERHEAP())
-		       StmtDDLCreateTable(
-			    *qn, //ddl_qualified_name
-			    $3,  // table_definition_body
-			    $4,  // optional_create_table_attribute_list
-			    $7,  // insert column list 
-			    top,
-			    PARSERHEAP());
-                     $1->setTableTokens(pNode);
-		     pNode->synthesize();
-		     
-		     if (ParSetTextEndPos(pNode)) 
-		       {					
-			 yyerror("");				
-			 YYERROR;				
-		       }
-
-		     if (ParNameCTLocListPtr)
-		       {
-			 delete ParNameCTLocListPtr;
-			 ParNameCTLocListPtr = NULL;
-		       }
-
-                     if ($8)
-                       pNode->setHiveOptions(*$8);
-
-		     $$ = pNode;
-                     delete $1; //TableTokens
-		     delete $2; //ddl_qualified_name
-		   }
-
 
               | TOK_CREATE TOK_HBASE TOK_TABLE identifier '(' col_fam_quoted_string_list ')'
                {
@@ -29902,62 +29795,6 @@ create_table_as_attr_list_start: empty
 		       ParSetBeginOfCreateTableAsAttrList(ParNameCTLocListPtr);
 		   }
 
-create_table_as_attr_list_end: empty
-	           {
-		     // Mark the text begining of attr list
-		     if (ParNameCTLocListPtr)
-		       ParSetEndOfCreateTableAsAttrList(ParNameCTLocListPtr);
-		   }
-
-ctas_load_and_in_memory_options : TOK_LOAD TOK_IF TOK_EXISTS 
-                   {
-		     $$ = TableTokens::OPT_LOAD; 
-		   }
-                 | TOK_NO_LOAD
-                   {
-		     if (CmpCommon::getDefault(IN_MEMORY_OBJECT_DEFN) == DF_ON)
-		       $$ = TableTokens::OPT_IN_MEM; 
-		     else
-		       $$ = TableTokens::OPT_NO_LOAD; 
-		   }
-                 | TOK_NO_LOAD TOK_IN TOK_MEMORY 
-                   {
-		     $$ = TableTokens::OPT_IN_MEM; 
-		   }
-                 | TOK_LOAD TOK_IF TOK_EXISTS TOK_WITH TOK_TRUNCATE
-                   {
-		     $$ = TableTokens::OPT_LOAD_WITH_DELETE; 
-		   }
-                 | TOK_LOAD TOK_IF TOK_EXISTS TOK_WITH TOK_DELETE TOK_DATA
-                   {
-		     $$ = TableTokens::OPT_LOAD_WITH_DELETE; 
-		   }
-                 | empty 
-                   {		  
-		     if (CmpCommon::getDefault(IN_MEMORY_OBJECT_DEFN) == DF_ON)
-		       $$ = TableTokens::OPT_IN_MEM; 
-		     else
-		       $$ = TableTokens::OPT_NONE;
-		   }
-
-/* type pElemDDL */
-ctas_insert_columns : TOK_INSERT TOK_COLUMNS '(' view_column_def_list ')'
-                   {
-		     if (CmpCommon::getDefault(COMP_BOOL_207) == DF_OFF)
-		       {
-			 YYERROR;
-		       }
-
-		     $$ = $4;
-		   }
-                 | empty {$$ = 0;}
-
-create_table_as_token: TOK_AS
-	{
-	  // Mark the text begining of AS query
-	  if (ParNameCTLocListPtr)
-	    ParSetBeginOfCreateTableAsQueryPos(ParNameCTLocListPtr);
-	}
 
 /* type pElemDDL */
 table_definition_body : table_element_list

@@ -167,7 +167,6 @@ class GroupByAgg : public RelExpr {
 
   // MV --
   NABoolean virtual isIncrementalMV() { return TRUE; }
-  void virtual collectMVInformation(MVInfoForDDL *mvInfo, NABoolean isNormalized);
 
   // Each operator supports a (virtual) method for transforming its
   // scalar expressions to a canonical form

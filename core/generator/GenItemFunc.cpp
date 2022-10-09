@@ -37,7 +37,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "GenExpGenerator.h"
-#include "ItemFuncUDF.h"
+#include "optimizer/ItemFuncUDF.h"
 #include "common/CharType.h"
 #include "common/NumericType.h"
 #include "exp/exp_datetime.h"

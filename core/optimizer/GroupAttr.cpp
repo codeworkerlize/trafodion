@@ -17,8 +17,8 @@
 
 #include "optimizer/GroupAttr.h"
 
-#include "AppliedStatMan.h"
-#include "Cost.h"
+#include "optimizer/AppliedStatMan.h"
+#include "optimizer/Cost.h"
 #include "optimizer/EstLogProp.h"
 #include "ScanOptimizer.h"
 #include "arkcmp/CmpStatement.h"

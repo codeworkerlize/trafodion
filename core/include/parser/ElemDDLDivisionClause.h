@@ -18,9 +18,10 @@
  *****************************************************************************
  */
 
+#include "common/ComSmallDefs.h"
+#include "parser/ElemDDLColDefArray.h"
 #include "parser/ElemDDLNode.h"
 #include "parser/ParNameLocList.h"
-#include "common/ComSmallDefs.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

@@ -14,7 +14,7 @@
 **************************************************************************
 */
 #include "CostVector.h"
-#include "Stats.h"
+#include "optimizer/Stats.h"
 #include "common/ComSmallDefs.h"
 #include "common/NABoolean.h"
 #include "optimizer/BindWA.h"

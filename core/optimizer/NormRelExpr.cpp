@@ -17,8 +17,8 @@
 
 #include <math.h>
 
-#include "Cost.h"
-#include "ItemSample.h"
+#include "optimizer/Cost.h"
+#include "optimizer/ItemSample.h"
 #include "MultiJoin.h"
 #include "OptRange.h"
 #include "QRDescGenerator.h"

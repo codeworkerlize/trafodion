@@ -15,7 +15,7 @@
 **************************************************************************
 */
 
-#include "ColStatDesc.h"
+#include "optimizer/ColStatDesc.h"
 #include "IndexDesc.h"
 #include "OptRange.h"
 #include "common/BaseTypes.h"

@@ -18,7 +18,7 @@
 
 #include <sstream>
 
-#include "AppliedStatMan.h"
+#include "optimizer/AppliedStatMan.h"
 #include "parser/ElemDDLColDef.h"
 #include "ScanOptimizer.h"
 #include "arkcmp/CmpContext.h"

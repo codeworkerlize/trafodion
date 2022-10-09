@@ -1,6 +1,6 @@
 
 #include "GenExpGenerator.h"
-#include "RelSample.h"
+#include "optimizer/RelPackedRows.h"
 #include "comexe/ComTdbSample.h"
 #include "comexe/ExplainTupleMaster.h"
 #include "exp/ExpCriDesc.h"

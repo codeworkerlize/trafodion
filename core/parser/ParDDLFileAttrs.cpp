@@ -17,9 +17,6 @@
 
 #include "parser/ParDDLFileAttrs.h"
 
-#include "parser/ParDDLFileAttrsAlterTable.h"
-#include "parser/ParDDLFileAttrsCreateIndex.h"
-#include "parser/ParDDLFileAttrsCreateTable.h"
 #include "common/BaseTypes.h"
 #include "common/ComASSERT.h"
 #include "common/ComOperators.h"
@@ -28,6 +25,9 @@
 #include "parser/AllElemDDLFileAttr.h"
 #include "parser/ElemDDLNode.h"
 #include "parser/ParDDLFileAttrsAlterIndex.h"
+#include "parser/ParDDLFileAttrsAlterTable.h"
+#include "parser/ParDDLFileAttrsCreateIndex.h"
+#include "parser/ParDDLFileAttrsCreateTable.h"
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #include "common/NAString.h"
 #include "parser/SqlParserGlobals.h"
@@ -1016,8 +1016,6 @@ void ParDDLFileAttrsAlterTable::setFileAttr(ElemDDLFileAttr *pFileAttr) {
       isInsertLog_ = pFileAttr->castToElemDDLFileAttrInsertLog()->isInsertLog();
       isInsertLogSpec_ = TRUE;
       break;
-
-
 
     case ELM_FILE_ATTR_XN_REPL_ELEM:
       if (NOT msg_license_advanced_enabled()) {
@@ -2112,17 +2110,6 @@ void ParDDLFileAttrsCreateTable::setFileAttr(ElemDDLFileAttr *pFileAttr) {
       ComASSERT(pFileAttr->castToElemDDLFileAttrInsertLog() NEQ NULL);
       isInsertLog_ = pFileAttr->castToElemDDLFileAttrInsertLog()->isInsertLog();
       isInsertLogSpec_ = TRUE;
-      break;
-
-
-    case ELM_FILE_ATTR_MV_COMMIT_EACH_ELEM:
-      if (isMvCommitEachSpec_) {
-        // Duplicate COMMIT EACH phrases.
-        *SqlParser_Diags << DgSqlCode(-12059);
-      }
-      ComASSERT(pFileAttr->castToElemDDLFileAttrMVCommitEach() NEQ NULL);
-      commitEachNRows_ = pFileAttr->castToElemDDLFileAttrMVCommitEach()->getNRows();
-      isMvCommitEachSpec_ = TRUE;
       break;
 
     case ELM_FILE_ATTR_OWNER_ELEM:

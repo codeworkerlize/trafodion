@@ -2,7 +2,8 @@
 #ifndef ITEMSAMPLE_H
 #define ITEMSAMPLE_H
 
-#include "RelSample.h"
+#include "optimizer/RelPackedRows.h"
+#include "optimizer/RelSample.h"
 
 // For Balance Expression.
 //

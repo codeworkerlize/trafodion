@@ -1,6 +1,6 @@
 
 #include "GenExpGenerator.h"
-#include "RelPackedRows.h"
+#include "optimizer/RelPackedRows.h"
 #include "comexe/ComTdbUnPackRows.h"
 #include "executor/ex_queue.h"
 #include "exp/ExpCriDesc.h"

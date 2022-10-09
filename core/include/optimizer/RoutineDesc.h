@@ -12,7 +12,7 @@
 *************************************************************************
 */
 
-#include "ColStatDesc.h"
+#include "optimizer/ColStatDesc.h"
 #include "CostVector.h"
 #include "common/BaseTypes.h"
 #include "common/ComSmallDefs.h"

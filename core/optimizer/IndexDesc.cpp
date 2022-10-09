@@ -17,7 +17,7 @@
 
 #include "IndexDesc.h"
 
-#include "AppliedStatMan.h"
+#include "optimizer/AppliedStatMan.h"
 #include "PartFunc.h"
 #include "ScanOptimizer.h"
 #include "arkcmp/CmpContext.h"

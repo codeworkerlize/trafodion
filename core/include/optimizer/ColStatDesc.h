@@ -20,7 +20,7 @@
 
 // -----------------------------------------------------------------------
 
-#include "Stats.h" /* includes CostScalar.h, Collections.h, ValueDesc.h ... */
+#include "optimizer/Stats.h" /* includes CostScalar.h, Collections.h, ValueDesc.h ... */
 #include "common/SharedPtr.h"
 #include "common/SharedPtrCollections.h"
 #include "optimizer/NATable.h"

@@ -24,7 +24,8 @@
 ******************************************************************************
 */
 
-#include <sstream>
+#include <streambuf>
+using namespace std;
 
 #include "parser/ParScannedTokenQueue.h"
 #include "comexe/LateBindInfo.h"
@@ -565,7 +566,7 @@ class PicStream : public stringbuf {
 inline PicStream::PicStream(char *buffer) : stringbuf(buffer) {}
 
 inline void PicStream::skipWhite() {
-  while (sgetc() != EOF && !isgraph(sgetc())) stossc();
+  while (sgetc() != EOF && !isgraph(sgetc())) mystossc();
 }
 
 // parsePicClause() accepts a char* and either

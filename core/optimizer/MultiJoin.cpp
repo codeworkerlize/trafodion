@@ -13,7 +13,7 @@
 
 #include "MultiJoin.h"
 
-#include "AppliedStatMan.h"
+#include "optimizer/AppliedStatMan.h"
 #include "optimizer/RelJoin.h"
 
 //

@@ -19,7 +19,7 @@
 //<pb>
 // -----------------------------------------------------------------------
 
-#include "Cost.h"
+#include "optimizer/Cost.h"
 #include "arkcmp/CmpStatement.h"
 #include "optimizer/GroupAttr.h"
 #include "optimizer/PhyProp.h"

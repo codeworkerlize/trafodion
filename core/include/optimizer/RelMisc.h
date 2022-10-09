@@ -1137,7 +1137,6 @@ class RenameTable : public Rename {
 
   // MV --
   NABoolean virtual isIncrementalMV() { return TRUE; }
-  void virtual collectMVInformation(MVInfoForDDL *mvInfo, NABoolean isNormalized);
 
   // add all the expressions that are local to this
   // node to an existing list of expressions (used by GUI tool)

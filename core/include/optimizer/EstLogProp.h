@@ -27,7 +27,7 @@ typedef IntrusiveSharedPtr<EstLogProp> EstLogPropSharedPtr;
 // -----------------------------------------------------------------------
 //  Include Files
 // -----------------------------------------------------------------------
-#include "ColStatDesc.h"
+#include "optimizer/ColStatDesc.h"
 #include "arkcmp/CompException.h"
 #include "common/BaseTypes.h"
 #include "common/OperTypeEnum.h"

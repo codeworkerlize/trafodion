@@ -17,7 +17,7 @@
 
 #include "ExpComposite.h"
 #include "GenExpGenerator.h"
-#include "ItemFuncUDF.h"
+#include "optimizer/ItemFuncUDF.h"
 #include "common/CharType.h"
 #include "common/CompositeType.h"
 #include "common/NumericType.h"

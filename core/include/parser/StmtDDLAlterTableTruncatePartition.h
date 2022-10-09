@@ -20,8 +20,9 @@
  *
  *****************************************************************************
  */
-#include "parser/StmtDDLAlterTable.h"
+#include "common/sqtypes.h"
 #include "optimizer/ItemExpr.h"
+#include "parser/StmtDDLAlterTable.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

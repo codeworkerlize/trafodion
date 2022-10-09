@@ -16,7 +16,7 @@
 
 // -----------------------------------------------------------------------
 
-#include "Cost.h"
+#include "optimizer/Cost.h"
 
 #include <math.h>
 

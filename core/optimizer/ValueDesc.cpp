@@ -20,7 +20,7 @@
 #include <map>
 
 #include "GenExpGenerator.h"
-#include "ItemSample.h"
+#include "optimizer/ItemSample.h"
 #include "arkcmp/CmpStatement.h"
 #include "cli/SQLCLIdev.h"
 #include "common/ComDefs.h"

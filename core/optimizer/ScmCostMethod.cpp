@@ -17,13 +17,13 @@
 
 #include <math.h>
 
-#include "AppliedStatMan.h"
-#include "Cost.h"
+#include "optimizer/AppliedStatMan.h"
+#include "optimizer/Cost.h"
 #include "optimizer/EstLogProp.h"
-#include "ItemSample.h"
+#include "optimizer/ItemSample.h"
 #include "NodeMap.h"
-#include "RelPackedRows.h"
-#include "RelSample.h"
+#include "optimizer/RelPackedRows.h"
+#include "optimizer/RelPackedRows.h"
 #include "ScanOptimizer.h"
 #include "SimpleScanOptimizer.h"
 #include "arkcmp/CmpStatement.h"

@@ -16,7 +16,7 @@
 
 // -----------------------------------------------------------------------
 
-#include "Cost.h"
+#include "optimizer/Cost.h"
 #include "optimizer/TransRule.h"
 #include "arkcmp/CmpContext.h"
 #include "arkcmp/CmpStatement.h"

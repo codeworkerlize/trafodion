@@ -24,9 +24,9 @@
  */
 // -----------------------------------------------------------------------
 
-#include "ColStatDesc.h"
-#include "Cost.h"
-#include "Stats.h"
+#include "optimizer/ColStatDesc.h"
+#include "optimizer/Cost.h"
+#include "optimizer/Stats.h"
 #include "disjuncts.h"
 #include "export/NABasicObject.h"
 #include "optimizer/CostScalar.h"

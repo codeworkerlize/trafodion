@@ -18,7 +18,7 @@
 // -----------------------------------------------------------------------
 
 #include "MultiJoin.h"
-#include "RelDCL.h"
+#include "optimizer/RelDCL.h"
 #include "RelEnforcer.h"
 #include "RelFastTransport.h"
 #include "RelProbeCache.h"

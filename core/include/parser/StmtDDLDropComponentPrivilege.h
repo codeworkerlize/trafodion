@@ -21,6 +21,8 @@
 
 #include "common/ComSmallDefs.h"
 #include "parser/StmtDDLNode.h"
+#define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
+#include "parser/SqlParserGlobals.h"
 
 class StmtDDLDropComponentPrivilege : public StmtDDLNode
 

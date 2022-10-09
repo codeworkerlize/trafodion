@@ -14,7 +14,7 @@
 // Created:      08/24/2010
 // ***********************************************************************
 
-#include "ItemArith.h"
+#include "optimizer/ItemArith.h"
 #include "common/NumericType.h"
 #include "optimizer/ItemColRef.h"
 #include "optimizer/ItemExpr.h"

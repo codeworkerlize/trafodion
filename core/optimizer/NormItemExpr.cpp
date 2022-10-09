@@ -15,8 +15,8 @@
 ******************************************************************************
 */
 
-#include "ItemFuncUDF.h"
-#include "ItemSample.h"
+#include "optimizer/ItemFuncUDF.h"
+#include "optimizer/ItemSample.h"
 #include "common/Debug.h"
 #include "optimizer/AllItemExpr.h"
 #include "optimizer/GroupAttr.h"
