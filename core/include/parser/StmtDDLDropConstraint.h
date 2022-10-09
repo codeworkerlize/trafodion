@@ -17,7 +17,7 @@
  *****************************************************************************
  */
 
-#include "StmtDDLAlterTable.h"
+#include "parser/StmtDDLAlterTable.h"
 #include "common/ComSmallDefs.h"
 
 // -----------------------------------------------------------------------

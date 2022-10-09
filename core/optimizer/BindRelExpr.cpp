@@ -26,7 +26,7 @@
 
 #include "parser/ElemDDLSaltOptions.h"
 #include "ItemSample.h"
-#include "ParNameLocList.h"
+#include "parser/ParNameLocList.h"
 #include "RelDCL.h"
 #include "RelPackedRows.h"
 #include "StmtDDLAddConstraintCheck.h"

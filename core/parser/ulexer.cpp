@@ -96,7 +96,7 @@ class IntegerList;
 #ifndef INCLUDE_UNION
 #define INCLUDE_UNION
 #endif
-#include "sqlparser.h"  // Angled brackets are intentional here
+#include "parser/sqlparser.h"  // Angled brackets are intentional here
 #define SQLPARSER_H
 
 extern int tokval;  // defined by yacc, for lex only
@@ -104,9 +104,9 @@ extern THREAD_P NABoolean HexStringLiteralNotAllowed;
 extern THREAD_P NABoolean turnUnknownCharSetToISO88591;
 
 #include "cli/CliSemaphore.h"
-#include "parser/ParKeyWords.h"
 #include "common/str.h"
 #include "common/wstr.h"
+#include "parser/ParKeyWords.h"
 #include "parser/ulexer.h"
 
 #ifdef DEBUG

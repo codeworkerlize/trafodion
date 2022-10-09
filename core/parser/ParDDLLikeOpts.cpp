@@ -17,12 +17,13 @@
 
 #include "parser/ParDDLLikeOpts.h"
 
-#include "parser/ElemDDLLikeOptions.h"
-#include "parser/ParDDLLikeOptsCreateTable.h"
 #include "common/BaseTypes.h"
 #include "common/ComASSERT.h"
 #include "common/ComOperators.h"
 #include "common/OperTypeEnum.h"
+#include "parser/ElemDDLLikeOptions.h"
+#include "parser/ElemDDLSaltOptions.h"
+#include "parser/ParDDLLikeOptsCreateTable.h"
 
 #ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS

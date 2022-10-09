@@ -19,7 +19,7 @@
  */
 
 #include "parser/ElemDDLNode.h"
-#include "ParNameLocList.h"
+#include "parser/ParNameLocList.h"
 #include "common/ComSmallDefs.h"
 #include "parser/ElemDDLColRefArray.h"
 

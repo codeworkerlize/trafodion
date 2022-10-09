@@ -13,7 +13,7 @@
 */
 
 #include "Cost.h" /* for lookups in the defaults table */
-#include "ParNameLocList.h"
+#include "parser/ParNameLocList.h"
 #include "QRDescGenerator.h"
 #include "common/ComCextdecs.h"
 #include "common/ComOperators.h"

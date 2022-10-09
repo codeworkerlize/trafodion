@@ -1017,15 +1017,7 @@ void ParDDLFileAttrsAlterTable::setFileAttr(ElemDDLFileAttr *pFileAttr) {
       isInsertLogSpec_ = TRUE;
       break;
 
-    case ELM_FILE_ATTR_MVS_ALLOWED_ELEM:
-      if (isMvsAllowedSpec_) {
-        // Duplicate RANGELOG phrases.
-        *SqlParser_Diags << DgSqlCode(-12058);
-      }
-      ComASSERT(pFileAttr->castToElemDDLFileAttrMvsAllowed() NEQ NULL);
-      mvsAllowedType_ = pFileAttr->castToElemDDLFileAttrMvsAllowed()->getMvsAllowedType();
-      isMvsAllowedSpec_ = TRUE;
-      break;
+
 
     case ELM_FILE_ATTR_XN_REPL_ELEM:
       if (NOT msg_license_advanced_enabled()) {
@@ -2122,15 +2114,6 @@ void ParDDLFileAttrsCreateTable::setFileAttr(ElemDDLFileAttr *pFileAttr) {
       isInsertLogSpec_ = TRUE;
       break;
 
-    case ELM_FILE_ATTR_MVS_ALLOWED_ELEM:
-      if (isMvsAllowedSpec_) {
-        // Duplicate RANGELOG phrases.
-        *SqlParser_Diags << DgSqlCode(-12058);
-      }
-      ComASSERT(pFileAttr->castToElemDDLFileAttrMvsAllowed() NEQ NULL);
-      mvsAllowedType_ = pFileAttr->castToElemDDLFileAttrMvsAllowed()->getMvsAllowedType();
-      isMvsAllowedSpec_ = TRUE;
-      break;
 
     case ELM_FILE_ATTR_MV_COMMIT_EACH_ELEM:
       if (isMvCommitEachSpec_) {

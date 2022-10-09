@@ -19,6 +19,7 @@
 ******************************************************************************
 */
 
+#include "common/ComSmallDefs.h"
 #include "parser/ElemDDLNode.h"
 
 class ElemDDLUdfExecutionMode : public ElemDDLNode {

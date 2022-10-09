@@ -19,8 +19,8 @@
 #include "parser/StmtDDLNode.h"
 
 #include "parser/ElemDDLPrivileges.h"
-#include "StmtDDLGrantArray.h"
-#include "StmtDDLSchGrantArray.h"
+#include "parser/StmtDDLGrantArray.h"
+#include "parser/StmtDDLSchGrantArray.h"
 #include "common/BaseTypes.h"
 #include "common/ComOperators.h"
 #include "parser/ElemDDLGrantee.h"

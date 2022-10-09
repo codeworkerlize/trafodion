@@ -28,7 +28,7 @@
 
 #include "StmtDDLAddConstraintArray.h"
 #include "StmtDDLAddConstraintCheckArray.h"
-#include "StmtDDLAlterTable.h"
+#include "parser/StmtDDLAlterTable.h"
 #include "parser/ElemDDLColDefArray.h"
 #include "parser/StmtDDLAddConstraintRIArray.h"
 #include "parser/StmtDDLAddConstraintUniqueArray.h"

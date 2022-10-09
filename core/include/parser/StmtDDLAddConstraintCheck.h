@@ -31,10 +31,10 @@
  *****************************************************************************
  */
 
-#include "ParNameLocList.h"
+#include "parser/ParNameLocList.h"
 #include "parser/ParTableUsageList.h"
 #include "StmtDDLAddConstraint.h"
-#include "StmtDDLAlterTable.h"
+#include "parser/StmtDDLAlterTable.h"
 #include "common/ComASSERT.h"
 #include "common/NAString.h"
 #include "parser/ElemDDLConstraintCheck.h"

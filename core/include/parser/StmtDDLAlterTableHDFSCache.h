@@ -19,7 +19,7 @@
  *****************************************************************************
  */
 
-#include "StmtDDLAlterTable.h"
+#include "parser/StmtDDLAlterTable.h"
 
 class StmtDDLAlterTableHDFSCache : public StmtDDLAlterTable {
  public:

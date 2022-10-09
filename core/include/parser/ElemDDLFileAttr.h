@@ -18,9 +18,10 @@
  *****************************************************************************
  */
 
-#include "parser/ElemDDLNode.h"
 #include "common/ComASSERT.h"
+#include "common/ComSmallDefs.h"
 #include "common/ComUnits.h"
+#include "parser/ElemDDLNode.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

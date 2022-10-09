@@ -23,7 +23,7 @@
 
 #include "parser/ElemDDLColViewDefArray.h"
 #include "parser/ElemDDLLocation.h"
-#include "ParNameLocList.h"
+#include "parser/ParNameLocList.h"
 #include "parser/ParTableUsageList.h"
 #include "common/ComASSERT.h"
 #include "common/ComOperators.h"

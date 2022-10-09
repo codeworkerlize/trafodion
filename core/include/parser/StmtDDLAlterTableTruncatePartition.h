@@ -20,7 +20,7 @@
  *
  *****************************************************************************
  */
-#include "StmtDDLAlterTable.h"
+#include "parser/StmtDDLAlterTable.h"
 #include "optimizer/ItemExpr.h"
 
 // -----------------------------------------------------------------------

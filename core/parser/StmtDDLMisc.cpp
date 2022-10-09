@@ -18,6 +18,9 @@
 #include "common/ComOperators.h"
 #include "parser/StmtDDLCleanupObjects.h"
 
+#define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
+#include "parser/SqlParserGlobals.h"
+
 StmtDDLCleanupObjects::StmtDDLCleanupObjects(ObjectType type, const NAString &param1, const NAString *param2,
                                              CollHeap *heap)
     : StmtDDLNode(DDL_CLEANUP_OBJECTS),

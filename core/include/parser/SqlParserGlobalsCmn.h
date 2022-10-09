@@ -2,7 +2,7 @@
 #pragma once
 
 #if defined(SQLPARSERGLOBALS_FLAGS) || defined(SQLPARSERGLOBALSCMN__INITIALIZE)
-#include "SqlParserGlobalsEnum.h"  // to get SqlParser_Flags_Enum
+#include "parser/SqlParserGlobalsEnum.h"  // to get SqlParser_Flags_Enum
 #include "common/BaseTypes.h"
 
 #undef GLOB_

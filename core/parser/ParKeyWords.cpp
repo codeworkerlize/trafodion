@@ -65,8 +65,11 @@
 
 // The keyword table:
 //
+
+// clang-format off
 ParKeyWord ParKeyWords::keyWords_[] = {
-    ParKeyWord("ABORT", TOK_ABORT, NONRESTOKEN_), ParKeyWord("ABS", TOK_ABS, NONRESTOKEN_),
+    ParKeyWord("ABORT", TOK_ABORT, NONRESTOKEN_), 
+    ParKeyWord("ABS", TOK_ABS, NONRESTOKEN_),
     ParKeyWord("ABSENT", TOK_ABSENT, NONRESTOKEN_), ParKeyWord("ABSOLUTE", IDENTIFIER, ANS_ | NONRESWORD_),
     // ABSOLUTE is a NONRESWORD_ for now (97/11/14) because
     // MicroStrategy is heavily using ABSOLUTE. Since we are not using
@@ -832,6 +835,8 @@ ParKeyWord ParKeyWords::keyWords_[] = {
     ParKeyWord("YEAR", TOK_YEAR, ANS_ | RESWORD_), ParKeyWord("ZEROIFNULL", TOK_ZEROIFNULL, NONRESTOKEN_),
     ParKeyWord("ZONE", IDENTIFIER, ANS_ | RESWORD_), ParKeyWord("MEMBERS", TOK_MEMBERS, ANS_ | NONRESWORD_ | SECOND_),
     ParKeyWord("PWDPOLICY", TOK_PWDPOLICY, ANS_ | NONRESWORD_)};
+
+// clang-format on
 
 // The maximum length of all the keywords.  This is used to be able to
 // allocate a buffer large enough to hold any keyword.  This value is

@@ -30,6 +30,9 @@
 // way round.
 // -----------------------------------------------------------------------
 
+#include "common/BaseTypes.h"
+#include "common/Collections.h"
+
 class NABitVector : public NASubArray<CollIndex> {
  public:
   NABitVector(CollHeap *heap = NULL) : NASubArray<CollIndex>(NULL, heap) {}

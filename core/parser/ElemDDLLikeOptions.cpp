@@ -23,6 +23,8 @@
 
 #include "parser/ElemDDLLikeOptions.h"
 
+#include "parser/ElemDDLSaltOptions.h"
+
 // -----------------------------------------------------------------------
 // methods for class ElemDDLLikeOpt
 // -----------------------------------------------------------------------

@@ -15,6 +15,10 @@
 #include "parser/ElemDDLLobAttrs.h"
 #include "parser/ElemDDLLoggable.h"
 
+#define SQLPARSERGLOBALS_NADEFAULTS
+#define SQLPARSERGLOBALS_FLAGS
+#include "parser/SqlParserGlobalsCmn.h"
+
 extern NABoolean getCharSetInferenceSetting(NAString &defval);
 
 // -----------------------------------------------------------------------

@@ -21,7 +21,8 @@
  *****************************************************************************
  */
 
-#include "StmtDDLAlterTable.h"
+#include "parser/ElemDDLColDefArray.h"
+#include "parser/StmtDDLAlterTable.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

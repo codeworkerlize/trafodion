@@ -33,7 +33,7 @@
 
 #include "StmtDDLAddConstraint.h"
 #include "StmtDDLAddConstraintUnique.h"
-#include "StmtDDLAlterTable.h"
+#include "parser/StmtDDLAlterTable.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

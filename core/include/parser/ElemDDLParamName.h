@@ -18,6 +18,8 @@
  *****************************************************************************
  */
 
+#define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
+
 #include "parser/ElemDDLNode.h"
 #include "parser/SqlParserGlobals.h"
 
@@ -62,5 +64,7 @@ class ElemDDLParamName : public ElemDDLNode {
 // -----------------------------------------------------------------------
 
 inline const NAString &ElemDDLParamName::getParamName() const { return paramName_; }
+
+#undef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 
 #endif  // ELEMDDLPARAMNAME_H

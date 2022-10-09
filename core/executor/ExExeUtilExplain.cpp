@@ -20,7 +20,7 @@
 #include "comexe/ComTdb.h"
 #include "executor/ExExeUtil.h"
 #include "ExStats.h"
-#include "SqlParserGlobalsEnum.h"
+#include "parser/SqlParserGlobalsEnum.h"
 #include "cli/cli_stdh.h"
 #include "common/ComCextdecs.h"
 #include "executor/ex_exe_stmt_globals.h"

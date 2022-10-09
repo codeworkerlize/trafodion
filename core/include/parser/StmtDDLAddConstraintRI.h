@@ -29,7 +29,7 @@
  */
 
 #include "StmtDDLAddConstraint.h"
-#include "StmtDDLAlterTable.h"
+#include "parser/StmtDDLAlterTable.h"
 #include "common/ComSmallDefs.h"
 #include "parser/ElemDDLConstraintRI.h"
 

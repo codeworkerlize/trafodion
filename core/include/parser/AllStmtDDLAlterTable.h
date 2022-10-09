@@ -22,7 +22,7 @@
 #include "StmtDDLAddConstraintCheckArray.h"
 #include "StmtDDLAddConstraintRI.h"
 #include "StmtDDLAddConstraintUnique.h"
-#include "StmtDDLAlterTable.h"
+#include "parser/StmtDDLAlterTable.h"
 #include "StmtDDLAlterTableAlterColumnLoggable.h"  //++ MV
 #include "parser/StmtDDLAddConstraintPK.h"
 #include "parser/StmtDDLAddConstraintRIArray.h"

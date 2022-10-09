@@ -138,7 +138,7 @@ enum SQLParserStartToken {
 //				   -- ParScannedTokenOffset tracks wide character offsets
 // ParScannedTokens is a circular queue with info on recently scanned tokens.
 //
-#include "ParNameLocList.h"
+#include "parser/ParNameLocList.h"
 #include "parser/ParScannedTokenQueue.h"
 GLOB_ ParNameLocList *ParNameLocListPtr INIT_(NULL);
 GLOB_ ParNameLocList *ParNameSavedLocListPtr INIT_(NULL);

@@ -21,12 +21,13 @@
 #ifndef NDEBUG
 #include <iostream>
 #endif
-#include "parser/AllElemDDLParam.h"
-#include "parser/AllElemDDLPartition.h"
-#include "parser/AllElemDDLUdr.h"
 #include "common/BaseTypes.h"
 #include "common/ComOperators.h"
 #include "export/ComDiags.h"
+#include "parser/AllElemDDLParam.h"
+#include "parser/AllElemDDLPartition.h"
+#include "parser/AllElemDDLUdr.h"
+#include "parser/ElemDDLGrantee.h"
 #include "parser/StmtDDLCreateRole.h"
 
 #ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS

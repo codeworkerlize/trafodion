@@ -22,7 +22,7 @@
 
 #include "ItemFuncUDF.h"
 #include "ItemSample.h"
-#include "ParNameLocList.h"
+#include "parser/ParNameLocList.h"
 #include "StmtDDLAddConstraintCheck.h"
 #include "UdrErrors.h"
 #include "arkcmp/CmpStatement.h"

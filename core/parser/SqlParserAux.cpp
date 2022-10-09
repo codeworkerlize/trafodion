@@ -46,7 +46,7 @@ class ExprNodePtrList;
 class ForUpdateSpec;
 class IntervalQualifier;
 class PairOfUnsigned;
-#include <sqlparser.h>  // Angled-brackets are intentional here
+#include "parser/sqlparser.h"  // Angled-brackets are intentional here
 
 #include "common/CharType.h"
 #include "common/ComSmallDefs.h"

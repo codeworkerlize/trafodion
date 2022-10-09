@@ -21,7 +21,7 @@
  *****************************************************************************
  */
 
-#include "StmtDDLAlterTable.h"
+#include "parser/StmtDDLAlterTable.h"
 
 class ElemDDLHbaseOptions;  // forward reference
 

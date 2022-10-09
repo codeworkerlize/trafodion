@@ -18,7 +18,7 @@
  *****************************************************************************
  */
 
-#include "StmtDDLAlterTable.h"
+#include "parser/StmtDDLAlterTable.h"
 #include "parser/ElemDDLSGOptions.h"
 
 // -----------------------------------------------------------------------

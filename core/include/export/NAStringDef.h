@@ -37,7 +37,7 @@ using namespace std;
 // --> goal : someday (soon?) we will no longer include the following file:
 #include <string.h>
 
-#include "FBString.h"
+#include "export/FBString.h"
 #include "common/Collections.h"
 #include "common/ComGuardianFileNameParts.h"
 #include "common/NAAssert.h"

@@ -18,7 +18,7 @@
  *****************************************************************************
  */
 
-#include "ParNameLocList.h"
+#include "parser/ParNameLocList.h"
 #include "common/Collections.h"
 #include "common/ComASSERT.h"
 #include "common/ComOperators.h"
