@@ -15,7 +15,7 @@
  *****************************************************************************
  */
 
-#include "ParTableUsageList.h"
+#include "parser/ParTableUsageList.h"
 
 #include "common/BaseTypes.h"
 #include "common/ComOperators.h"

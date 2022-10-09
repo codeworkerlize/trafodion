@@ -17,7 +17,7 @@
  *****************************************************************************
  */
 
-#include "ElemDDLNode.h"
+#include "parser/ElemDDLNode.h"
 //#include "common/ComSmallDefs.h"
 #include "common/NAString.h"
 #include "optimizer/ObjectNames.h"

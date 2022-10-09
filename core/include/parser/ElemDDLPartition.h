@@ -20,9 +20,9 @@
  *****************************************************************************
  */
 
-#include "ElemDDLNode.h"
-#include "ElemDDLPartitionArray.h"
-#include "ItemConstValueArray.h"
+#include "parser/ElemDDLNode.h"
+#include "parser/ElemDDLPartitionArray.h"
+#include "parser/ItemConstValueArray.h"
 #include "parser/ElemDDLPartitionClause.h"
 
 // -----------------------------------------------------------------------

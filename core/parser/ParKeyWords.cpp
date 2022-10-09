@@ -9,7 +9,7 @@
 *******************************************************************************
 */
 
-#include "ParKeyWords.h"
+#include "parser/ParKeyWords.h"
 
 #include <fstream>
 

@@ -17,7 +17,7 @@
  *****************************************************************************
  */
 
-#include "ElemDDLNode.h"
+#include "parser/ElemDDLNode.h"
 #include "exp/ExpLOBenums.h"
 
 class ElemDDLLobAttrs : public ElemDDLNode {

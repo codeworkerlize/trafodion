@@ -17,7 +17,7 @@
 
 #include "parser/ElemDDLSGOptions.h"
 
-#include "ElemDDLSGOption.h"
+#include "parser/ElemDDLSGOption.h"
 #include "export/ComDiags.h"
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #include "common/NAString.h"

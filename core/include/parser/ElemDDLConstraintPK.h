@@ -18,7 +18,7 @@
  *****************************************************************************
  */
 
-#include "ElemDDLConstraintUnique.h"
+#include "parser/ElemDDLConstraintUnique.h"
 #include "common/ComSmallDefs.h"
 
 // -----------------------------------------------------------------------

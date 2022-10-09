@@ -21,7 +21,7 @@
 #ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
-#include "ElemDDLColViewDef.h"
+#include "parser/ElemDDLColViewDef.h"
 #include "common/Collections.h"
 #include "parser/SqlParserGlobals.h"
 

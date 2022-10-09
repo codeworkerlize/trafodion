@@ -26,7 +26,7 @@
 
 #include <sstream>
 
-#include "ParScannedTokenQueue.h"
+#include "parser/ParScannedTokenQueue.h"
 #include "comexe/LateBindInfo.h"
 #include "common/ComVersionDefs.h"
 #include "common/DatetimeType.h"

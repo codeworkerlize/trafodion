@@ -22,8 +22,8 @@
 #ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
-#include "ElemDDLColNameArray.h"
-#include "ElemDDLNode.h"
+#include "parser/ElemDDLColNameArray.h"
+#include "parser/ElemDDLNode.h"
 #include "common/Collections.h"
 #include "parser/SqlParserGlobals.h"
 #include "sqlcomp/PrivMgrDefs.h"

@@ -19,7 +19,7 @@
  *****************************************************************************
  */
 
-#include "ElemDDLRefActions.h"
+#include "parser/ElemDDLRefActions.h"
 #include "common/ComSmallDefs.h"
 
 // -----------------------------------------------------------------------

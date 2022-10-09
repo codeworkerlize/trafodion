@@ -15,7 +15,7 @@
  *****************************************************************************
  */
 
-#include "ParScannedTokenQueue.h"
+#include "parser/ParScannedTokenQueue.h"
 
 #include "common/ComOperators.h"
 #include "common/ComSmallDefs.h"

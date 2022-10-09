@@ -16,7 +16,7 @@
  *****************************************************************************
  */
 
-#include "ElemDDLPrivActions.h"
+#include "parser/ElemDDLPrivActions.h"
 
 #include "common/ComASSERT.h"
 #include "common/ComOperators.h"

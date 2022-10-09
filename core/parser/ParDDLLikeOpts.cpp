@@ -15,10 +15,10 @@
  *****************************************************************************
  */
 
-#include "ParDDLLikeOpts.h"
+#include "parser/ParDDLLikeOpts.h"
 
-#include "ElemDDLLikeOptions.h"
-#include "ParDDLLikeOptsCreateTable.h"
+#include "parser/ElemDDLLikeOptions.h"
+#include "parser/ParDDLLikeOptsCreateTable.h"
 #include "common/BaseTypes.h"
 #include "common/ComASSERT.h"
 #include "common/ComOperators.h"

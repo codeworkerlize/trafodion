@@ -13,8 +13,8 @@
  *****************************************************************************
  */
 
-#include "ElemDDLTenantGroup.h"
-#include "ElemDDLTenantResourceGroup.h"
+#include "parser/ElemDDLTenantGroup.h"
+#include "parser/ElemDDLTenantResourceGroup.h"
 #include "common/ComSmallDefs.h"
 #include "parser/StmtDDLNode.h"
 

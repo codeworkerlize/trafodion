@@ -15,7 +15,7 @@
  *****************************************************************************
  */
 
-#include "ElemDDLSGOption.h"
+#include "parser/ElemDDLSGOption.h"
 
 #include "export/ComDiags.h"
 #include "parser/ElemDDLSGOptions.h"

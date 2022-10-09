@@ -18,7 +18,7 @@
  *****************************************************************************
  */
 
-#include "ElemDDLConstraint.h"
+#include "parser/ElemDDLConstraint.h"
 #include "common/Collections.h"
 #ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS

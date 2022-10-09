@@ -16,8 +16,8 @@
  *****************************************************************************
  */
 
-#include "ElemDDLAuthSchema.h"
-#include "ElemDDLLocation.h"
+#include "parser/ElemDDLAuthSchema.h"
+#include "parser/ElemDDLLocation.h"
 #include "common/ComLocationNames.h"
 #include "common/ComSmallDefs.h"
 #include "parser/StmtDDLNode.h"

@@ -18,7 +18,7 @@
  *****************************************************************************
  */
 
-#include "ElemDDLConstraintAttr.h"
+#include "parser/ElemDDLConstraintAttr.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

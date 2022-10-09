@@ -24,10 +24,10 @@
 // #include "CatError.h"
 // #define  CAT_ALTER_CANNOT_ADD_NOT_DROPPABLE_CONSTRAINT       1053
 // The above are commented out because we use sqlcode 3067 instead.
-#include "ElemDDLLike.h"
-#include "ElemDDLPartitionSystem.h"
-#include "ElemDDLReferences.h"
-#include "ElemDDLUdrLibrary.h"
+#include "parser/ElemDDLLike.h"
+#include "parser/ElemDDLPartitionSystem.h"
+#include "parser/ElemDDLReferences.h"
+#include "parser/ElemDDLUdrLibrary.h"
 #include "common/CmpCommon.h"
 #include "common/ComASSERT.h"
 #include "common/ComObjectName.h"

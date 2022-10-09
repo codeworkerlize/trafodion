@@ -15,7 +15,7 @@
  *****************************************************************************
  */
 
-#include "AllElemDDLFileAttr.h"
+#include "parser/AllElemDDLFileAttr.h"
 #include "common/BaseTypes.h"
 #include "common/ComASSERT.h"
 #include "common/ComOperators.h"

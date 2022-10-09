@@ -16,10 +16,10 @@
  *****************************************************************************
  */
 
-#include "ElemDDLPartitionArray.h"
-#include "ElemDDLPartitionNameAndForValues.h"
-#include "ElemDDLPartitionSingle.h"
-#include "ElemDDLPartitionSystem.h"
+#include "parser/ElemDDLPartitionArray.h"
+#include "parser/ElemDDLPartitionNameAndForValues.h"
+#include "parser/ElemDDLPartitionSingle.h"
+#include "parser/ElemDDLPartitionSystem.h"
 #include "parser/ElemDDLPartition.h"
 #include "parser/ElemDDLPartitionByOptions.h"
 #include "parser/ElemDDLPartitionClause.h"

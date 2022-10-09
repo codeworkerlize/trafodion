@@ -1,10 +1,5 @@
 
 
-#include "AllElemDDLCol.h"
-#include "ElemDDLConstraintAttrDroppable.h"
-#include "ElemDDLConstraintUnique.h"
-#include "ElemDDLLobAttrs.h"
-#include "ElemDDLLoggable.h"
 #include "common/ComASSERT.h"
 #include "common/ComOperators.h"
 #include "common/DatetimeType.h"
@@ -12,8 +7,13 @@
 #include "common/csconvert.h"
 #include "export/ComDiags.h"
 #include "optimizer/ItemColRef.h"
+#include "parser/AllElemDDLCol.h"
+#include "parser/ElemDDLConstraintAttrDroppable.h"
 #include "parser/ElemDDLConstraintPK.h"
 #include "parser/ElemDDLConstraintRI.h"
+#include "parser/ElemDDLConstraintUnique.h"
+#include "parser/ElemDDLLobAttrs.h"
+#include "parser/ElemDDLLoggable.h"
 
 extern NABoolean getCharSetInferenceSetting(NAString &defval);
 
@@ -439,16 +439,16 @@ void ElemDDLColDef::setDefaultAttribute(ElemDDLNode *pColDefaultNode) {
                    CmpCommon::getDefault(ALLOW_INCOMPATIBLE_OPERATIONS) == DF_ON) {
             cvTyp = cvDef->pushDownType(*columnDataType_, NA_CHARACTER_TYPE);
           } else
-              // if interval data type, the default value must have the same
-              // interval qualifier as the column.
-              if (NOT isAnErrorAlreadyIssued && (!pColumnDataType->isCompatible(*cvTyp) ||
-                                                 (pColumnDataType->getTypeQualifier() == NA_INTERVAL_TYPE &&
-                                                  pColumnDataType->getFSDatatype() != cvTyp->getFSDatatype()))) {
-            *SqlParser_Diags << DgSqlCode(-1186) << DgColumnName(ToAnsiIdentifier(getColumnName()))
-                             << DgString0(pColumnDataType->getTypeSQLname(TRUE /*terse*/))
-                             << DgString1(cvTyp->getTypeSQLname(TRUE /*terse*/));
-            isAnErrorAlreadyIssued = TRUE;
-          }
+            // if interval data type, the default value must have the same
+            // interval qualifier as the column.
+            if (NOT isAnErrorAlreadyIssued && (!pColumnDataType->isCompatible(*cvTyp) ||
+                                               (pColumnDataType->getTypeQualifier() == NA_INTERVAL_TYPE &&
+                                                pColumnDataType->getFSDatatype() != cvTyp->getFSDatatype()))) {
+              *SqlParser_Diags << DgSqlCode(-1186) << DgColumnName(ToAnsiIdentifier(getColumnName()))
+                               << DgString0(pColumnDataType->getTypeSQLname(TRUE /*terse*/))
+                               << DgString1(cvTyp->getTypeSQLname(TRUE /*terse*/));
+              isAnErrorAlreadyIssued = TRUE;
+            }
         }
       } break;
       case ElemDDLColDefault::COL_FUNCTION_DEFAULT: {

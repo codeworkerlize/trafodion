@@ -17,7 +17,7 @@
  *****************************************************************************
  */
 
-#include "ElemDDLNode.h"
+#include "parser/ElemDDLNode.h"
 
 class ElemDDLTableFeature : public ElemDDLNode {
  public:

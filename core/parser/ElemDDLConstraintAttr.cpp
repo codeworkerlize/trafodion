@@ -14,7 +14,7 @@
  *****************************************************************************
  */
 
-#include "AllElemDDLConstraintAttr.h"
+#include "parser/AllElemDDLConstraintAttr.h"
 #include "common/BaseTypes.h"
 
 // -----------------------------------------------------------------------

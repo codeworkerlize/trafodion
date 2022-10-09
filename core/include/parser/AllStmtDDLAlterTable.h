@@ -38,7 +38,7 @@
 #include "StmtDDLAlterTableMove.h"
 #include "StmtDDLAlterTableNamespace.h"
 #include "StmtDDLAlterTableSetConstraint.h"
-#include "StmtDDLAlterTableToggleConstraint.h"
+#include "parser/StmtDDLAlterTableToggleConstraint.h"
 #include "parser/StmtDDLAlterTableAddPartition.h"
 #include "parser/StmtDDLAlterTableAlterColumn.h"
 #include "parser/StmtDDLAlterTableAlterColumnSetSGOption.h"

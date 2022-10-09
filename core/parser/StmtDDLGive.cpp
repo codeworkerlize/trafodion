@@ -23,9 +23,9 @@
 #ifndef NDEBUG
 #include <iostream>
 #endif
-#include "AllElemDDLParam.h"
-#include "AllElemDDLPartition.h"
-#include "AllElemDDLUdr.h"
+#include "parser/AllElemDDLParam.h"
+#include "parser/AllElemDDLPartition.h"
+#include "parser/AllElemDDLUdr.h"
 #include "common/BaseTypes.h"
 #include "common/ComOperators.h"
 #include "export/ComDiags.h"

@@ -21,7 +21,7 @@
  *****************************************************************************
  */
 
-#include "ParDDLFileAttrsAlterIndex.h"
+#include "parser/ParDDLFileAttrsAlterIndex.h"
 #include "StmtDDLAlterIndex.h"
 
 // -----------------------------------------------------------------------

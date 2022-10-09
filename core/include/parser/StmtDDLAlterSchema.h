@@ -18,7 +18,7 @@
  *****************************************************************************
  */
 
-#include "ElemDDLSchemaName.h"
+#include "parser/ElemDDLSchemaName.h"
 #include "parser/StmtDDLAlterTableStoredDesc.h"
 #include "parser/StmtDDLNode.h"
 

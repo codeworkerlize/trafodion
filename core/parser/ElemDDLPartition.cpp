@@ -17,17 +17,17 @@
  *****************************************************************************
  */
 
-#include "AllElemDDLPartition.h"
-#include "ElemDDLKeyValue.h"
-#include "ElemDDLLocation.h"
-#include "ItemConstValueArray.h"
 #include "common/BaseTypes.h"
 #include "common/ComASSERT.h"
 #include "common/ComLocationNames.h"
 #include "common/ComOperators.h"
 #include "common/ComUnits.h"
 #include "export/ComDiags.h"
+#include "parser/AllElemDDLPartition.h"
+#include "parser/ElemDDLKeyValue.h"
+#include "parser/ElemDDLLocation.h"
 #include "parser/ElemDDLPartitionList.h"
+#include "parser/ItemConstValueArray.h"
 #ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif

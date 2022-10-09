@@ -18,8 +18,8 @@
  *****************************************************************************
  */
 
-#include "ElemDDLPartitionSystem.h"
-#include "ItemConstValueArray.h"
+#include "parser/ElemDDLPartitionSystem.h"
+#include "parser/ItemConstValueArray.h"
 #include "common/NAString.h"
 
 // -----------------------------------------------------------------------

@@ -20,7 +20,7 @@
 ******************************************************************************
 */
 
-#include "ElemDDLNode.h"
+#include "parser/ElemDDLNode.h"
 #include "common/ComSmallDefs.h"
 
 class ElemDDLUdrLibrary : public ElemDDLNode {

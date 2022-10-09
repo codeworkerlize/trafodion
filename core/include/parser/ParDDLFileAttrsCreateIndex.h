@@ -31,8 +31,8 @@
  *****************************************************************************
  */
 
-#include "ElemDDLFileAttrMaxSize.h"
-#include "ParDDLFileAttrs.h"
+#include "parser/ElemDDLFileAttrMaxSize.h"
+#include "parser/ParDDLFileAttrs.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

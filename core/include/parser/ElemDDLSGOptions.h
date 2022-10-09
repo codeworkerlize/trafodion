@@ -16,7 +16,7 @@
  *****************************************************************************
  */
 
-#include "ElemDDLNode.h"
+#include "parser/ElemDDLNode.h"
 #include "common/BaseTypes.h"
 #include "common/SequenceGeneratorAttributes.h"
 

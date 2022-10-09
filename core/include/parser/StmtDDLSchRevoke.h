@@ -15,8 +15,8 @@
  *****************************************************************************
  */
 
-#include "ElemDDLGranteeArray.h"
-#include "ElemDDLPrivActions.h"
+#include "parser/ElemDDLGranteeArray.h"
+#include "parser/ElemDDLPrivActions.h"
 #include "common/ComSmallDefs.h"
 #include "parser/StmtDDLNode.h"
 

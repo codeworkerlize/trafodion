@@ -17,7 +17,7 @@
  *****************************************************************************
  */
 
-#include "ElemDDLNode.h"
+#include "parser/ElemDDLNode.h"
 #include "cli/sqlcli.h"
 #include "optimizer/ObjectNames.h"
 

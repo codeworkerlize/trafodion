@@ -20,7 +20,7 @@
  *****************************************************************************
  */
 
-#include "ElemDDLPartitionSystem.h"
+#include "parser/ElemDDLPartitionSystem.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

@@ -15,19 +15,19 @@
  *****************************************************************************
  */
 
-#include "ParDDLFileAttrs.h"
+#include "parser/ParDDLFileAttrs.h"
 
-#include "AllElemDDLFileAttr.h"
-#include "ElemDDLNode.h"
-#include "ParDDLFileAttrsAlterIndex.h"
-#include "ParDDLFileAttrsAlterTable.h"
-#include "ParDDLFileAttrsCreateIndex.h"
-#include "ParDDLFileAttrsCreateTable.h"
+#include "parser/ParDDLFileAttrsAlterTable.h"
+#include "parser/ParDDLFileAttrsCreateIndex.h"
+#include "parser/ParDDLFileAttrsCreateTable.h"
 #include "common/BaseTypes.h"
 #include "common/ComASSERT.h"
 #include "common/ComOperators.h"
 #include "common/ComUnits.h"
 #include "export/ComDiags.h"
+#include "parser/AllElemDDLFileAttr.h"
+#include "parser/ElemDDLNode.h"
+#include "parser/ParDDLFileAttrsAlterIndex.h"
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #include "common/NAString.h"
 #include "parser/SqlParserGlobals.h"

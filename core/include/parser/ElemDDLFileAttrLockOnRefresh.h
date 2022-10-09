@@ -18,7 +18,7 @@
 ******************************************************************************
 */
 
-#include "ElemDDLFileAttr.h"
+#include "parser/ElemDDLFileAttr.h"
 
 class ElemDDLFileAttrLockOnRefresh : public ElemDDLFileAttr {
  public:

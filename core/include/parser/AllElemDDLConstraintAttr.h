@@ -16,11 +16,11 @@
  *****************************************************************************
  */
 
-#include "ElemDDLConstraintAttr.h"
+#include "parser/ElemDDLConstraintAttr.h"
 
 // #include "ElemDDLConstraintAttrDeferrable.h"
-#include "ElemDDLConstraintAttrDroppable.h"
-#include "ElemDDLConstraintAttrEnforced.h"
+#include "parser/ElemDDLConstraintAttrDroppable.h"
+#include "parser/ElemDDLConstraintAttrEnforced.h"
 
 //
 // End of File

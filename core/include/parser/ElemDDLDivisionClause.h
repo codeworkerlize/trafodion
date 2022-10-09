@@ -18,7 +18,7 @@
  *****************************************************************************
  */
 
-#include "ElemDDLNode.h"
+#include "parser/ElemDDLNode.h"
 #include "ParNameLocList.h"
 #include "common/ComSmallDefs.h"
 

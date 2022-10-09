@@ -21,7 +21,7 @@
  *****************************************************************************
  */
 
-#include "ElemDDLLikeOptions.h"
+#include "parser/ElemDDLLikeOptions.h"
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLLikeOpt

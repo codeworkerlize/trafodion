@@ -31,7 +31,7 @@
  *****************************************************************************
  */
 
-#include "ParDDLFileAttrsCreateIndex.h"
+#include "parser/ParDDLFileAttrsCreateIndex.h"
 #include "parser/ElemDDLFileAttrRangeLog.h"
 
 // -----------------------------------------------------------------------

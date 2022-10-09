@@ -15,7 +15,7 @@
  *****************************************************************************
  */
 
-#include "ElemDDLLocation.h"
+#include "parser/ElemDDLLocation.h"
 #include "common/ComLocationNames.h"
 #include "parser/StmtDDLNode.h"
 

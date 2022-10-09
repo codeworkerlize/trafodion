@@ -24,7 +24,7 @@
 #define SQLPARSERGLOBALS_FLAGS  // must precede all #include's
 #define SQLPARSERGLOBALS_NADEFAULTS
 
-#include "ElemDDLSaltOptions.h"
+#include "parser/ElemDDLSaltOptions.h"
 #include "ItemSample.h"
 #include "ParNameLocList.h"
 #include "RelDCL.h"

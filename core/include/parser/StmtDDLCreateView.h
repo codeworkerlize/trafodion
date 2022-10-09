@@ -21,10 +21,10 @@
  *****************************************************************************
  */
 
-#include "ElemDDLColViewDefArray.h"
-#include "ElemDDLLocation.h"
+#include "parser/ElemDDLColViewDefArray.h"
+#include "parser/ElemDDLLocation.h"
 #include "ParNameLocList.h"
-#include "ParTableUsageList.h"
+#include "parser/ParTableUsageList.h"
 #include "common/ComASSERT.h"
 #include "common/ComOperators.h"
 #include "common/ComSmallDefs.h"

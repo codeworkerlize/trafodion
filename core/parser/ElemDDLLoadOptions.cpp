@@ -15,7 +15,7 @@
  *****************************************************************************
  */
 
-#include "ElemDDLLoadOptions.h"
+#include "parser/ElemDDLLoadOptions.h"
 
 #include "export/ComDiags.h"
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS

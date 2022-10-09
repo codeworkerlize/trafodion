@@ -32,9 +32,9 @@
  *****************************************************************************
  */
 
-#include "ElemDDLFileAttrMaxExtents.h"
-#include "ElemDDLFileAttrMaxSize.h"
-#include "ParDDLFileAttrs.h"
+#include "parser/ElemDDLFileAttrMaxExtents.h"
+#include "parser/ElemDDLFileAttrMaxSize.h"
+#include "parser/ParDDLFileAttrs.h"
 #include "common/ComASSERT.h"
 #include "parser/ElemDDLFileAttrRangeLog.h"
 

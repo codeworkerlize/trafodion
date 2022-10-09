@@ -17,8 +17,8 @@
  *****************************************************************************
  */
 
-#include "ElemDDLLike.h"
-#include "ParDDLLikeOptsCreateTable.h"
+#include "parser/ElemDDLLike.h"
+#include "parser/ParDDLLikeOptsCreateTable.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

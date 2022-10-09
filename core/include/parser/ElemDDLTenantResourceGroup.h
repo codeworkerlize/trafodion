@@ -15,7 +15,7 @@
 #ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
-#include "ElemDDLNode.h"
+#include "parser/ElemDDLNode.h"
 #include "common/ComSmallDefs.h"
 #include "optimizer/ObjectNames.h"
 #include "parser/SqlParserGlobals.h"

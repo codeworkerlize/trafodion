@@ -18,8 +18,8 @@
  *****************************************************************************
  */
 
-#include "ElemDDLColNameArray.h"
-#include "ElemDDLConstraint.h"
+#include "parser/ElemDDLColNameArray.h"
+#include "parser/ElemDDLConstraint.h"
 #include "common/ComSmallDefs.h"
 
 // -----------------------------------------------------------------------

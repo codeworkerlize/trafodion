@@ -17,7 +17,7 @@
  *****************************************************************************
  */
 
-#include "ItemConstValueArray.h"
+#include "parser/ItemConstValueArray.h"
 
 // -----------------------------------------------------------------------
 // methods for class ItemConstValueArray

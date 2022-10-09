@@ -1,9 +1,9 @@
 #ifndef ALLSTMTDDLALTER_H
 #define ALLSTMTDDLALTER_H
 
-#include "StmtDDLAlterAuditConfig.h"
+#include "parser/StmtDDLAlterAuditConfig.h"
 #include "StmtDDLAlterRoutine.h"
-#include "StmtDDLAlterSynonym.h"
+#include "parser/StmtDDLAlterSynonym.h"
 #include "parser/StmtDDLAlterLibrary.h"
 #include "parser/StmtDDLAlterUser.h"
 

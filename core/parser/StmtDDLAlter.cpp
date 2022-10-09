@@ -20,14 +20,14 @@
  *****************************************************************************
  */
 
-#include "AllElemDDLFileAttr.h"
-#include "ElemDDLConstraint.h"
-#include "ElemDDLFileAttrClause.h"
-#include "ElemDDLLibClientFilename.h"
-#include "ElemDDLLibClientName.h"
-#include "StmtDDLAlterAuditConfig.h"
-#include "StmtDDLAlterSynonym.h"
-#include "StmtDDLAlterTableToggleConstraint.h"
+#include "parser/AllElemDDLFileAttr.h"
+#include "parser/ElemDDLConstraint.h"
+#include "parser/ElemDDLFileAttrClause.h"
+#include "parser/ElemDDLLibClientFilename.h"
+#include "parser/ElemDDLLibClientName.h"
+#include "parser/StmtDDLAlterAuditConfig.h"
+#include "parser/StmtDDLAlterSynonym.h"
+#include "parser/StmtDDLAlterTableToggleConstraint.h"
 #include "common/BaseTypes.h"
 #include "common/ComASSERT.h"
 #include "common/ComOperators.h"

@@ -17,7 +17,7 @@
  *****************************************************************************
  */
 
-#include "ElemDDLNode.h"
+#include "parser/ElemDDLNode.h"
 #include "optimizer/ItemExpr.h"
 #include "parser/ElemDDLSGOptions.h"
 

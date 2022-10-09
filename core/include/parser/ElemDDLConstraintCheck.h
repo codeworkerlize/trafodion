@@ -17,7 +17,7 @@
  *****************************************************************************
  */
 
-#include "ElemDDLConstraint.h"
+#include "parser/ElemDDLConstraint.h"
 #include "ParNameLocList.h"
 #include "optimizer/ItemExprList.h"
 

@@ -21,7 +21,7 @@
  *****************************************************************************
  */
 
-#include "ElemDDLPartitionNameAndForValues.h"
+#include "parser/ElemDDLPartitionNameAndForValues.h"
 #include "StmtDDLAlterTable.h"
 
 // -----------------------------------------------------------------------

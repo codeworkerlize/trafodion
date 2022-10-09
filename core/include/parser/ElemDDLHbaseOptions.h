@@ -17,7 +17,7 @@
  *****************************************************************************
  */
 
-#include "ElemDDLNode.h"
+#include "parser/ElemDDLNode.h"
 #include "exp/ExpHbaseDefs.h"
 
 class ElemDDLHbaseOptions : public ElemDDLNode {

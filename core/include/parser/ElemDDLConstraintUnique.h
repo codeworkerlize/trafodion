@@ -20,7 +20,7 @@
 #ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
-#include "ElemDDLConstraint.h"
+#include "parser/ElemDDLConstraint.h"
 #include "parser/ElemDDLColRefArray.h"
 #include "parser/SqlParserGlobals.h"
 

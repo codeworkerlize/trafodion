@@ -139,7 +139,7 @@ enum SQLParserStartToken {
 // ParScannedTokens is a circular queue with info on recently scanned tokens.
 //
 #include "ParNameLocList.h"
-#include "ParScannedTokenQueue.h"
+#include "parser/ParScannedTokenQueue.h"
 GLOB_ ParNameLocList *ParNameLocListPtr INIT_(NULL);
 GLOB_ ParNameLocList *ParNameSavedLocListPtr INIT_(NULL);
 GLOB_ ParNameLocList *ParNameCTLocListPtr INIT_(NULL);

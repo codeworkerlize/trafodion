@@ -15,7 +15,7 @@
  *****************************************************************************
  */
 
-#include "ElemDDLRefActions.h"
+#include "parser/ElemDDLRefActions.h"
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLRefAct

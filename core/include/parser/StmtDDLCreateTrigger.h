@@ -25,9 +25,9 @@
 //
 // -----------------------------------------------------------------------
 
-#include "ElemDDLLocation.h"
-#include "ElemDDLNode.h"
-#include "ElemDDLPartitionArray.h"
+#include "parser/ElemDDLLocation.h"
+#include "parser/ElemDDLNode.h"
+#include "parser/ElemDDLPartitionArray.h"
 #include "ParNameLocList.h"
 #include "common/NAString.h"
 #include "parser/ElemDDLColRefArray.h"

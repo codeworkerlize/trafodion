@@ -21,7 +21,7 @@
  *****************************************************************************
  */
 
-#include "ParDDLFileAttrsAlterTable.h"
+#include "parser/ParDDLFileAttrsAlterTable.h"
 #include "StmtDDLAlterTable.h"
 
 // -----------------------------------------------------------------------

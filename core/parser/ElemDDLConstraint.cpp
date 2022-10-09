@@ -15,17 +15,17 @@
  *****************************************************************************
  */
 
-#include "AllElemDDLConstraint.h"
-#include "AllElemDDLConstraintAttr.h"
-#include "ElemDDLRefTrigActions.h"
-#include "ElemDDLReferences.h"
 #include "common/BaseTypes.h"
 #include "common/ComASSERT.h"
 #include "common/ComOperators.h"
 #include "export/ComDiags.h"
 #include "optimizer/ItemExpr.h"
 #include "optimizer/SchemaDB.h"
+#include "parser/AllElemDDLConstraint.h"
+#include "parser/AllElemDDLConstraintAttr.h"
 #include "parser/ElemDDLColName.h"
+#include "parser/ElemDDLRefTrigActions.h"
+#include "parser/ElemDDLReferences.h"
 #include "sqlcomp/NADefaults.h"
 
 // -----------------------------------------------------------------------

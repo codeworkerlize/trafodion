@@ -32,7 +32,7 @@
  */
 
 #include "ParNameLocList.h"
-#include "ParTableUsageList.h"
+#include "parser/ParTableUsageList.h"
 #include "StmtDDLAddConstraint.h"
 #include "StmtDDLAlterTable.h"
 #include "common/ComASSERT.h"

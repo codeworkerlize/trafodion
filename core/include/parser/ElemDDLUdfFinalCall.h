@@ -19,7 +19,7 @@
 ******************************************************************************
 */
 
-#include "ElemDDLNode.h"
+#include "parser/ElemDDLNode.h"
 
 class ElemDDLUdfFinalCall : public ElemDDLNode {
  public:

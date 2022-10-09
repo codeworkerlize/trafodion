@@ -2,6 +2,9 @@
 LINUX_NON_FLAVOR_TARGETS := linuxhelp linuxdoc help all
 ARCH=$(shell arch)
 
+export TRAF_HOME=/home/esoye/trafodion
+export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64/
+
 # If flavor is not equal to release or debug and the goal is not in
 # the LINUX_NON_FLAVOR_TARGETS, then give an error.
 ifdef MAKECMDGOALS
@@ -14,7 +17,7 @@ ifdef MAKECMDGOALS
       endif
 
       # Pick up the top-level project definitions
-      include $(TRAF_HOME)/sql/macros.gmk
+      # include $(TRAF_HOME)/sql/macros.gmk
     endif
   endif
 endif

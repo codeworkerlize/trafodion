@@ -12,7 +12,7 @@
 
 #include "parser/StmtDDLTenant.h"
 
-#include "ElemDDLTenantSchema.h"
+#include "parser/ElemDDLTenantSchema.h"
 #include "parser/StmtDDLRegisterUser.h"
 
 // -----------------------------------------------------------------------

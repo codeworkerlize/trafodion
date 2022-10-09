@@ -104,7 +104,7 @@ extern THREAD_P NABoolean HexStringLiteralNotAllowed;
 extern THREAD_P NABoolean turnUnknownCharSetToISO88591;
 
 #include "cli/CliSemaphore.h"
-#include "ParKeyWords.h"
+#include "parser/ParKeyWords.h"
 #include "common/str.h"
 #include "common/wstr.h"
 #include "parser/ulexer.h"

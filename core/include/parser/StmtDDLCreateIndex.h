@@ -17,12 +17,12 @@
  *****************************************************************************
  */
 
-#include "ElemDDLDivisionClause.h"
-#include "ElemDDLLocation.h"
-#include "ElemDDLNode.h"
-#include "ElemDDLPartitionArray.h"
-#include "ElemDDLSaltOptions.h"
-#include "ParDDLFileAttrsCreateIndex.h"
+#include "parser/ElemDDLDivisionClause.h"
+#include "parser/ElemDDLLocation.h"
+#include "parser/ElemDDLNode.h"
+#include "parser/ElemDDLPartitionArray.h"
+#include "parser/ElemDDLSaltOptions.h"
+#include "parser/ParDDLFileAttrsCreateIndex.h"
 #include "common/ComSmallDefs.h"
 #include "common/NAString.h"
 #include "parser/ElemDDLColRefArray.h"

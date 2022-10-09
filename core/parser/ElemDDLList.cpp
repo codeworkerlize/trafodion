@@ -15,7 +15,7 @@
  *****************************************************************************
  */
 
-#include "AllElemDDLList.h"
+#include "parser/AllElemDDLList.h"
 #include "common/ComASSERT.h"
 #include "common/ComOperators.h"
 #include "parser/ElemDDLPartition.h"

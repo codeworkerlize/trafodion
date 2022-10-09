@@ -18,7 +18,8 @@
  *****************************************************************************
  */
 
-#include "ElemDDLNode.h"
+#include "parser/ElemDDLNode.h"
+#include "parser/SqlParserGlobals.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

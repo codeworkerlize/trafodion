@@ -18,9 +18,9 @@
  *****************************************************************************
  */
 
-#include "ElemDDLLocation.h"
-#include "ElemDDLNode.h"
-#include "ParDDLFileAttrsCreateIndex.h"
+#include "parser/ElemDDLLocation.h"
+#include "parser/ElemDDLNode.h"
+#include "parser/ParDDLFileAttrsCreateIndex.h"
 #include "common/ComSmallDefs.h"
 #include "common/NAString.h"
 #include "parser/ElemDDLColRefArray.h"

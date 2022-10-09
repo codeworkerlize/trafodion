@@ -18,12 +18,12 @@
  *****************************************************************************
  */
 
-#include "ElemDDLFileAttrExtents.h"
-#include "ElemDDLFileAttrMaxExtents.h"
-#include "ElemDDLFileAttrMaxSize.h"
-#include "ElemDDLLocation.h"
-#include "ElemDDLNode.h"
-#include "ItemConstValueArray.h"
+#include "parser/ElemDDLFileAttrExtents.h"
+#include "parser/ElemDDLFileAttrMaxExtents.h"
+#include "parser/ElemDDLFileAttrMaxSize.h"
+#include "parser/ElemDDLLocation.h"
+#include "parser/ElemDDLNode.h"
+#include "parser/ItemConstValueArray.h"
 #include "common/NAString.h"
 #include "parser/ElemDDLPartition.h"
 

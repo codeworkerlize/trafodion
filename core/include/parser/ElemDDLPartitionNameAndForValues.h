@@ -19,8 +19,8 @@
  *****************************************************************************
  */
 
-#include "ElemDDLNode.h"
-#include "ItemConstValueArray.h"
+#include "parser/ElemDDLNode.h"
+#include "parser/ItemConstValueArray.h"
 
 // -----------------------------------------------------------------------
 // contents of this file

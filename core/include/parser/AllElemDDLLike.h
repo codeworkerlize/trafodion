@@ -19,7 +19,7 @@
  *****************************************************************************
  */
 
-#include "ElemDDLLike.h"
+#include "parser/ElemDDLLike.h"
 
 // #include "ElemDDLLikeCreateCollation.h"
 #include "ElemDDLLikeCreateTable.h"

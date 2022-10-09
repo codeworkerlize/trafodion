@@ -39,8 +39,8 @@
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
 
-#include "ElemDDLConstraintUnique.h"
-#include "ParDDLFileAttrsAlterTable.h"
+#include "parser/ElemDDLConstraintUnique.h"
+#include "parser/ParDDLFileAttrsAlterTable.h"
 #include "StmtDDLAlterIndex.h"  // why don't we need StmtDDLAlterTable as well???
 #include "common/ComCextdecs.h"
 #include "parser/ElemDDLConstraintPK.h"
